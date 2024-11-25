@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * w83627hf.c - Part of lm_sensors, Linux kernel modules for hardware
  *		monitoring
@@ -6,6 +10,7 @@
  *			      and Mark Studebaker <mdsxyz123@yahoo.com>
  * Ported to 2.6 by Bernhard C. Schrenk <clemy@clemy.org>
  * Copyright (c) 2007 - 1012  Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -402,7 +409,10 @@ struct w83627hf_data {
 #endif
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int w83627hf_probe(struct platform_device *pdev);
 static int w83627hf_remove(struct platform_device *pdev);
 
@@ -488,28 +498,44 @@ static struct platform_driver w83627hf_driver = {
 };
 
 static ssize_t
+<<<<<<< HEAD
 show_in_input(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+in_input_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
 	return sprintf(buf, "%ld\n", (long)IN_FROM_REG(data->in[nr]));
 }
 static ssize_t
+<<<<<<< HEAD
 show_in_min(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+in_min_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
 	return sprintf(buf, "%ld\n", (long)IN_FROM_REG(data->in_min[nr]));
 }
 static ssize_t
+<<<<<<< HEAD
 show_in_max(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+in_max_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
 	return sprintf(buf, "%ld\n", (long)IN_FROM_REG(data->in_max[nr]));
 }
 static ssize_t
+<<<<<<< HEAD
 store_in_min(struct device *dev, struct device_attribute *devattr,
+=======
+in_min_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	     const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -528,7 +554,11 @@ store_in_min(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 static ssize_t
+<<<<<<< HEAD
 store_in_max(struct device *dev, struct device_attribute *devattr,
+=======
+in_max_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	     const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -546,6 +576,7 @@ store_in_max(struct device *dev, struct device_attribute *devattr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 #define sysfs_vin_decl(offset) \
 static SENSOR_DEVICE_ATTR(in##offset##_input, S_IRUGO,		\
 			  show_in_input, NULL, offset);		\
@@ -562,6 +593,33 @@ sysfs_vin_decl(5);
 sysfs_vin_decl(6);
 sysfs_vin_decl(7);
 sysfs_vin_decl(8);
+=======
+
+static SENSOR_DEVICE_ATTR_RO(in1_input, in_input, 1);
+static SENSOR_DEVICE_ATTR_RW(in1_min, in_min, 1);
+static SENSOR_DEVICE_ATTR_RW(in1_max, in_max, 1);
+static SENSOR_DEVICE_ATTR_RO(in2_input, in_input, 2);
+static SENSOR_DEVICE_ATTR_RW(in2_min, in_min, 2);
+static SENSOR_DEVICE_ATTR_RW(in2_max, in_max, 2);
+static SENSOR_DEVICE_ATTR_RO(in3_input, in_input, 3);
+static SENSOR_DEVICE_ATTR_RW(in3_min, in_min, 3);
+static SENSOR_DEVICE_ATTR_RW(in3_max, in_max, 3);
+static SENSOR_DEVICE_ATTR_RO(in4_input, in_input, 4);
+static SENSOR_DEVICE_ATTR_RW(in4_min, in_min, 4);
+static SENSOR_DEVICE_ATTR_RW(in4_max, in_max, 4);
+static SENSOR_DEVICE_ATTR_RO(in5_input, in_input, 5);
+static SENSOR_DEVICE_ATTR_RW(in5_min, in_min, 5);
+static SENSOR_DEVICE_ATTR_RW(in5_max, in_max, 5);
+static SENSOR_DEVICE_ATTR_RO(in6_input, in_input, 6);
+static SENSOR_DEVICE_ATTR_RW(in6_min, in_min, 6);
+static SENSOR_DEVICE_ATTR_RW(in6_max, in_max, 6);
+static SENSOR_DEVICE_ATTR_RO(in7_input, in_input, 7);
+static SENSOR_DEVICE_ATTR_RW(in7_min, in_min, 7);
+static SENSOR_DEVICE_ATTR_RW(in7_max, in_max, 7);
+static SENSOR_DEVICE_ATTR_RO(in8_input, in_input, 8);
+static SENSOR_DEVICE_ATTR_RW(in8_min, in_min, 8);
+static SENSOR_DEVICE_ATTR_RW(in8_max, in_max, 8);
+>>>>>>> upstream/android-13
 
 /* use a different set of functions for in0 */
 static ssize_t show_in_0(struct w83627hf_data *data, char *buf, u8 reg)
@@ -667,7 +725,12 @@ static DEVICE_ATTR_RW(in0_min);
 static DEVICE_ATTR_RW(in0_max);
 
 static ssize_t
+<<<<<<< HEAD
 show_fan_input(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+fan_input_show(struct device *dev, struct device_attribute *devattr,
+	       char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -675,7 +738,11 @@ show_fan_input(struct device *dev, struct device_attribute *devattr, char *buf)
 				(long)DIV_FROM_REG(data->fan_div[nr])));
 }
 static ssize_t
+<<<<<<< HEAD
 show_fan_min(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+fan_min_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -683,7 +750,11 @@ show_fan_min(struct device *dev, struct device_attribute *devattr, char *buf)
 				(long)DIV_FROM_REG(data->fan_div[nr])));
 }
 static ssize_t
+<<<<<<< HEAD
 store_fan_min(struct device *dev, struct device_attribute *devattr,
+=======
+fan_min_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	      const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -703,6 +774,7 @@ store_fan_min(struct device *dev, struct device_attribute *devattr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 #define sysfs_fan_decl(offset)	\
 static SENSOR_DEVICE_ATTR(fan##offset##_input, S_IRUGO,			\
 			  show_fan_input, NULL, offset - 1);		\
@@ -715,6 +787,18 @@ sysfs_fan_decl(3);
 
 static ssize_t
 show_temp(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan_input, 0);
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan_input, 1);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan_input, 2);
+static SENSOR_DEVICE_ATTR_RW(fan3_min, fan_min, 2);
+
+static ssize_t
+temp_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -725,8 +809,12 @@ show_temp(struct device *dev, struct device_attribute *devattr, char *buf)
 }
 
 static ssize_t
+<<<<<<< HEAD
 show_temp_max(struct device *dev, struct device_attribute *devattr,
 	      char *buf)
+=======
+temp_max_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -737,7 +825,11 @@ show_temp_max(struct device *dev, struct device_attribute *devattr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 show_temp_max_hyst(struct device *dev, struct device_attribute *devattr,
+=======
+temp_max_hyst_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 		   char *buf)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -749,7 +841,11 @@ show_temp_max_hyst(struct device *dev, struct device_attribute *devattr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 store_temp_max(struct device *dev, struct device_attribute *devattr,
+=======
+temp_max_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	       const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -771,7 +867,11 @@ store_temp_max(struct device *dev, struct device_attribute *devattr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 store_temp_max_hyst(struct device *dev, struct device_attribute *devattr,
+=======
+temp_max_hyst_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 		    const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -792,6 +892,7 @@ store_temp_max_hyst(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define sysfs_temp_decl(offset) \
 static SENSOR_DEVICE_ATTR(temp##offset##_input, S_IRUGO,		\
 			  show_temp, NULL, offset - 1);			\
@@ -803,6 +904,17 @@ static SENSOR_DEVICE_ATTR(temp##offset##_max_hyst, S_IRUGO|S_IWUSR,	\
 sysfs_temp_decl(1);
 sysfs_temp_decl(2);
 sysfs_temp_decl(3);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp_max, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_max_hyst, temp_max_hyst, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp_max, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_max_hyst, temp_max_hyst, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_max, temp_max, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_max_hyst, temp_max_hyst, 2);
+>>>>>>> upstream/android-13
 
 static ssize_t
 cpu0_vid_show(struct device *dev, struct device_attribute *attr, char *buf)
@@ -847,12 +959,17 @@ alarms_show(struct device *dev, struct device_attribute *attr, char *buf)
 static DEVICE_ATTR_RO(alarms);
 
 static ssize_t
+<<<<<<< HEAD
 show_alarm(struct device *dev, struct device_attribute *attr, char *buf)
+=======
+alarm_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct w83627hf_data *data = w83627hf_update_device(dev);
 	int bitnr = to_sensor_dev_attr(attr)->index;
 	return sprintf(buf, "%u\n", (data->alarms >> bitnr) & 1);
 }
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(in1_alarm, S_IRUGO, show_alarm, NULL, 1);
 static SENSOR_DEVICE_ATTR(in2_alarm, S_IRUGO, show_alarm, NULL, 2);
@@ -868,6 +985,23 @@ static SENSOR_DEVICE_ATTR(fan3_alarm, S_IRUGO, show_alarm, NULL, 11);
 static SENSOR_DEVICE_ATTR(temp1_alarm, S_IRUGO, show_alarm, NULL, 4);
 static SENSOR_DEVICE_ATTR(temp2_alarm, S_IRUGO, show_alarm, NULL, 5);
 static SENSOR_DEVICE_ATTR(temp3_alarm, S_IRUGO, show_alarm, NULL, 13);
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(in1_alarm, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(in2_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(in3_alarm, alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(in4_alarm, alarm, 8);
+static SENSOR_DEVICE_ATTR_RO(in5_alarm, alarm, 9);
+static SENSOR_DEVICE_ATTR_RO(in6_alarm, alarm, 10);
+static SENSOR_DEVICE_ATTR_RO(in7_alarm, alarm, 16);
+static SENSOR_DEVICE_ATTR_RO(in8_alarm, alarm, 17);
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, alarm, 7);
+static SENSOR_DEVICE_ATTR_RO(fan3_alarm, alarm, 11);
+static SENSOR_DEVICE_ATTR_RO(temp1_alarm, alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(temp2_alarm, alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(temp3_alarm, alarm, 13);
+>>>>>>> upstream/android-13
 
 static ssize_t
 beep_mask_show(struct device *dev, struct device_attribute *attr, char *buf)
@@ -908,7 +1042,11 @@ beep_mask_store(struct device *dev, struct device_attribute *attr,
 static DEVICE_ATTR_RW(beep_mask);
 
 static ssize_t
+<<<<<<< HEAD
 show_beep(struct device *dev, struct device_attribute *attr, char *buf)
+=======
+beep_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct w83627hf_data *data = w83627hf_update_device(dev);
 	int bitnr = to_sensor_dev_attr(attr)->index;
@@ -916,8 +1054,13 @@ show_beep(struct device *dev, struct device_attribute *attr, char *buf)
 }
 
 static ssize_t
+<<<<<<< HEAD
 store_beep(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+beep_store(struct device *dev, struct device_attribute *attr, const char *buf,
+	   size_t count)
+>>>>>>> upstream/android-13
 {
 	struct w83627hf_data *data = dev_get_drvdata(dev);
 	int bitnr = to_sensor_dev_attr(attr)->index;
@@ -965,6 +1108,7 @@ store_beep(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_beep, S_IRUGO | S_IWUSR,
 			show_beep, store_beep, 0);
 static SENSOR_DEVICE_ATTR(in1_beep, S_IRUGO | S_IWUSR,
@@ -1000,6 +1144,27 @@ static SENSOR_DEVICE_ATTR(beep_enable, S_IRUGO | S_IWUSR,
 
 static ssize_t
 show_fan_div(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RW(in0_beep, beep, 0);
+static SENSOR_DEVICE_ATTR_RW(in1_beep, beep, 1);
+static SENSOR_DEVICE_ATTR_RW(in2_beep, beep, 2);
+static SENSOR_DEVICE_ATTR_RW(in3_beep, beep, 3);
+static SENSOR_DEVICE_ATTR_RW(in4_beep, beep, 8);
+static SENSOR_DEVICE_ATTR_RW(in5_beep, beep, 9);
+static SENSOR_DEVICE_ATTR_RW(in6_beep, beep, 10);
+static SENSOR_DEVICE_ATTR_RW(in7_beep, beep, 16);
+static SENSOR_DEVICE_ATTR_RW(in8_beep, beep, 17);
+static SENSOR_DEVICE_ATTR_RW(fan1_beep, beep, 6);
+static SENSOR_DEVICE_ATTR_RW(fan2_beep, beep, 7);
+static SENSOR_DEVICE_ATTR_RW(fan3_beep, beep, 11);
+static SENSOR_DEVICE_ATTR_RW(temp1_beep, beep, 4);
+static SENSOR_DEVICE_ATTR_RW(temp2_beep, beep, 5);
+static SENSOR_DEVICE_ATTR_RW(temp3_beep, beep, 13);
+static SENSOR_DEVICE_ATTR_RW(beep_enable, beep, 15);
+
+static ssize_t
+fan_div_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -1013,7 +1178,11 @@ show_fan_div(struct device *dev, struct device_attribute *devattr, char *buf)
  * because the divisor changed.
  */
 static ssize_t
+<<<<<<< HEAD
 store_fan_div(struct device *dev, struct device_attribute *devattr,
+=======
+fan_div_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	      const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -1053,6 +1222,7 @@ store_fan_div(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_div, S_IRUGO|S_IWUSR,
 			  show_fan_div, store_fan_div, 0);
 static SENSOR_DEVICE_ATTR(fan2_div, S_IRUGO|S_IWUSR,
@@ -1062,6 +1232,14 @@ static SENSOR_DEVICE_ATTR(fan3_div, S_IRUGO|S_IWUSR,
 
 static ssize_t
 show_pwm(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RW(fan1_div, fan_div, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_div, fan_div, 1);
+static SENSOR_DEVICE_ATTR_RW(fan3_div, fan_div, 2);
+
+static ssize_t
+pwm_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -1069,7 +1247,11 @@ show_pwm(struct device *dev, struct device_attribute *devattr, char *buf)
 }
 
 static ssize_t
+<<<<<<< HEAD
 store_pwm(struct device *dev, struct device_attribute *devattr,
+=======
+pwm_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	  const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -1102,12 +1284,22 @@ store_pwm(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(pwm1, S_IRUGO|S_IWUSR, show_pwm, store_pwm, 0);
 static SENSOR_DEVICE_ATTR(pwm2, S_IRUGO|S_IWUSR, show_pwm, store_pwm, 1);
 static SENSOR_DEVICE_ATTR(pwm3, S_IRUGO|S_IWUSR, show_pwm, store_pwm, 2);
 
 static ssize_t
 show_pwm_enable(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2, pwm, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3, pwm, 2);
+
+static ssize_t
+pwm_enable_show(struct device *dev, struct device_attribute *devattr,
+		char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -1115,8 +1307,13 @@ show_pwm_enable(struct device *dev, struct device_attribute *devattr, char *buf)
 }
 
 static ssize_t
+<<<<<<< HEAD
 store_pwm_enable(struct device *dev, struct device_attribute *devattr,
 	  const char *buf, size_t count)
+=======
+pwm_enable_store(struct device *dev, struct device_attribute *devattr,
+		 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = dev_get_drvdata(dev);
@@ -1140,6 +1337,7 @@ store_pwm_enable(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(pwm1_enable, S_IRUGO|S_IWUSR, show_pwm_enable,
 						  store_pwm_enable, 0);
 static SENSOR_DEVICE_ATTR(pwm2_enable, S_IRUGO|S_IWUSR, show_pwm_enable,
@@ -1149,6 +1347,14 @@ static SENSOR_DEVICE_ATTR(pwm3_enable, S_IRUGO|S_IWUSR, show_pwm_enable,
 
 static ssize_t
 show_pwm_freq(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RW(pwm1_enable, pwm_enable, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2_enable, pwm_enable, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3_enable, pwm_enable, 2);
+
+static ssize_t
+pwm_freq_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
 	struct w83627hf_data *data = w83627hf_update_device(dev);
@@ -1161,7 +1367,11 @@ show_pwm_freq(struct device *dev, struct device_attribute *devattr, char *buf)
 }
 
 static ssize_t
+<<<<<<< HEAD
 store_pwm_freq(struct device *dev, struct device_attribute *devattr,
+=======
+pwm_freq_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	       const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -1192,6 +1402,7 @@ store_pwm_freq(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(pwm1_freq, S_IRUGO|S_IWUSR,
 			  show_pwm_freq, store_pwm_freq, 0);
 static SENSOR_DEVICE_ATTR(pwm2_freq, S_IRUGO|S_IWUSR,
@@ -1201,6 +1412,14 @@ static SENSOR_DEVICE_ATTR(pwm3_freq, S_IRUGO|S_IWUSR,
 
 static ssize_t
 show_temp_type(struct device *dev, struct device_attribute *devattr,
+=======
+static SENSOR_DEVICE_ATTR_RW(pwm1_freq, pwm_freq, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2_freq, pwm_freq, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3_freq, pwm_freq, 2);
+
+static ssize_t
+temp_type_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 	       char *buf)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -1209,7 +1428,11 @@ show_temp_type(struct device *dev, struct device_attribute *devattr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 store_temp_type(struct device *dev, struct device_attribute *devattr,
+=======
+temp_type_store(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 		const char *buf, size_t count)
 {
 	int nr = to_sensor_dev_attr(devattr)->index;
@@ -1246,7 +1469,11 @@ store_temp_type(struct device *dev, struct device_attribute *devattr,
 	case W83781D_DEFAULT_BETA:
 		dev_warn(dev, "Sensor type %d is deprecated, please use 4 "
 			 "instead\n", W83781D_DEFAULT_BETA);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 4:		/* thermistor */
 		tmp = w83627hf_read_value(data, W83781D_REG_SCFG1);
 		w83627hf_write_value(data, W83781D_REG_SCFG1,
@@ -1264,6 +1491,7 @@ store_temp_type(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define sysfs_temp_type(offset) \
 static SENSOR_DEVICE_ATTR(temp##offset##_type, S_IRUGO | S_IWUSR, \
 			  show_temp_type, store_temp_type, offset - 1);
@@ -1271,6 +1499,11 @@ static SENSOR_DEVICE_ATTR(temp##offset##_type, S_IRUGO | S_IWUSR, \
 sysfs_temp_type(1);
 sysfs_temp_type(2);
 sysfs_temp_type(3);
+=======
+static SENSOR_DEVICE_ATTR_RW(temp1_type, temp_type, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_type, temp_type, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_type, temp_type, 2);
+>>>>>>> upstream/android-13
 
 static ssize_t
 name_show(struct device *dev, struct device_attribute *devattr, char *buf)
@@ -1605,7 +1838,10 @@ static int w83627hf_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* Registers 0x50-0x5f are banked */
 static inline void w83627hf_set_bank(struct w83627hf_data *data, u16 reg)
 {

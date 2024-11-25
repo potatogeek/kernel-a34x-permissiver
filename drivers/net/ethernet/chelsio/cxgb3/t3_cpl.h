@@ -1448,7 +1448,11 @@ struct cpl_rdma_terminate {
 #endif
 	__be32 msn;
 	__be32 mo;
+<<<<<<< HEAD
 	__u8 data[0];
+=======
+	__u8 data[];
+>>>>>>> upstream/android-13
 };
 
 /* cpl_rdma_terminate.tid_len fields */

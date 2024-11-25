@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * BCM47XX NAND flash driver
  *
  * Copyright (C) 2012 Rafał Miłecki <zajec5@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "bcm47xxnflash.h"
@@ -170,10 +177,16 @@ static void bcm47xxnflash_ops_bcm4706_write(struct mtd_info *mtd,
  * NAND chip ops
  **************************************************/
 
+<<<<<<< HEAD
 static void bcm47xxnflash_ops_bcm4706_cmd_ctrl(struct mtd_info *mtd, int cmd,
 					       unsigned int ctrl)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static void bcm47xxnflash_ops_bcm4706_cmd_ctrl(struct nand_chip *nand_chip,
+					       int cmd, unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	struct bcm47xxnflash *b47n = nand_get_controller_data(nand_chip);
 	u32 code = 0;
 
@@ -191,15 +204,25 @@ static void bcm47xxnflash_ops_bcm4706_cmd_ctrl(struct mtd_info *mtd, int cmd,
 }
 
 /* Default nand_select_chip calls cmd_ctrl, which is not used in BCM4706 */
+<<<<<<< HEAD
 static void bcm47xxnflash_ops_bcm4706_select_chip(struct mtd_info *mtd,
 						  int chip)
+=======
+static void bcm47xxnflash_ops_bcm4706_select_chip(struct nand_chip *chip,
+						  int cs)
+>>>>>>> upstream/android-13
 {
 	return;
 }
 
+<<<<<<< HEAD
 static int bcm47xxnflash_ops_bcm4706_dev_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static int bcm47xxnflash_ops_bcm4706_dev_ready(struct nand_chip *nand_chip)
+{
+>>>>>>> upstream/android-13
 	struct bcm47xxnflash *b47n = nand_get_controller_data(nand_chip);
 
 	return !!(bcma_cc_read32(b47n->cc, BCMA_CC_NFLASH_CTL) & NCTL_READY);
@@ -212,11 +235,19 @@ static int bcm47xxnflash_ops_bcm4706_dev_ready(struct mtd_info *mtd)
  * registers of ChipCommon core. Hacking cmd_ctrl to understand and convert
  * standard commands would be much more complicated.
  */
+<<<<<<< HEAD
 static void bcm47xxnflash_ops_bcm4706_cmdfunc(struct mtd_info *mtd,
 					      unsigned command, int column,
 					      int page_addr)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static void bcm47xxnflash_ops_bcm4706_cmdfunc(struct nand_chip *nand_chip,
+					      unsigned command, int column,
+					      int page_addr)
+{
+	struct mtd_info *mtd = nand_to_mtd(nand_chip);
+>>>>>>> upstream/android-13
 	struct bcm47xxnflash *b47n = nand_get_controller_data(nand_chip);
 	struct bcma_drv_cc *cc = b47n->cc;
 	u32 ctlcode;
@@ -229,10 +260,17 @@ static void bcm47xxnflash_ops_bcm4706_cmdfunc(struct mtd_info *mtd,
 
 	switch (command) {
 	case NAND_CMD_RESET:
+<<<<<<< HEAD
 		nand_chip->cmd_ctrl(mtd, command, NAND_CTRL_CLE);
 
 		ndelay(100);
 		nand_wait_ready(mtd);
+=======
+		nand_chip->legacy.cmd_ctrl(nand_chip, command, NAND_CTRL_CLE);
+
+		ndelay(100);
+		nand_wait_ready(nand_chip);
+>>>>>>> upstream/android-13
 		break;
 	case NAND_CMD_READID:
 		ctlcode = NCTL_CSA | 0x01000000 | NCTL_CMD1W | NCTL_CMD0;
@@ -310,9 +348,15 @@ static void bcm47xxnflash_ops_bcm4706_cmdfunc(struct mtd_info *mtd,
 	b47n->curr_command = command;
 }
 
+<<<<<<< HEAD
 static u8 bcm47xxnflash_ops_bcm4706_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static u8 bcm47xxnflash_ops_bcm4706_read_byte(struct nand_chip *nand_chip)
+{
+	struct mtd_info *mtd = nand_to_mtd(nand_chip);
+>>>>>>> upstream/android-13
 	struct bcm47xxnflash *b47n = nand_get_controller_data(nand_chip);
 	struct bcma_drv_cc *cc = b47n->cc;
 	u32 tmp = 0;
@@ -338,31 +382,53 @@ static u8 bcm47xxnflash_ops_bcm4706_read_byte(struct mtd_info *mtd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void bcm47xxnflash_ops_bcm4706_read_buf(struct mtd_info *mtd,
 					       uint8_t *buf, int len)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static void bcm47xxnflash_ops_bcm4706_read_buf(struct nand_chip *nand_chip,
+					       uint8_t *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct bcm47xxnflash *b47n = nand_get_controller_data(nand_chip);
 
 	switch (b47n->curr_command) {
 	case NAND_CMD_READ0:
 	case NAND_CMD_READOOB:
+<<<<<<< HEAD
 		bcm47xxnflash_ops_bcm4706_read(mtd, buf, len);
+=======
+		bcm47xxnflash_ops_bcm4706_read(nand_to_mtd(nand_chip), buf,
+					       len);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	pr_err("Invalid command for buf read: 0x%X\n", b47n->curr_command);
 }
 
+<<<<<<< HEAD
 static void bcm47xxnflash_ops_bcm4706_write_buf(struct mtd_info *mtd,
 						const uint8_t *buf, int len)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
+=======
+static void bcm47xxnflash_ops_bcm4706_write_buf(struct nand_chip *nand_chip,
+						const uint8_t *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct bcm47xxnflash *b47n = nand_get_controller_data(nand_chip);
 
 	switch (b47n->curr_command) {
 	case NAND_CMD_SEQIN:
+<<<<<<< HEAD
 		bcm47xxnflash_ops_bcm4706_write(mtd, buf, len);
+=======
+		bcm47xxnflash_ops_bcm4706_write(nand_to_mtd(nand_chip), buf,
+						len);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -385,6 +451,7 @@ int bcm47xxnflash_ops_bcm4706_init(struct bcm47xxnflash *b47n)
 	u8 tbits, col_bits, col_size, row_bits, row_bsize;
 	u32 val;
 
+<<<<<<< HEAD
 	b47n->nand_chip.select_chip = bcm47xxnflash_ops_bcm4706_select_chip;
 	nand_chip->cmd_ctrl = bcm47xxnflash_ops_bcm4706_cmd_ctrl;
 	nand_chip->dev_ready = bcm47xxnflash_ops_bcm4706_dev_ready;
@@ -398,6 +465,22 @@ int bcm47xxnflash_ops_bcm4706_init(struct bcm47xxnflash *b47n)
 	nand_chip->chip_delay = 50;
 	b47n->nand_chip.bbt_options = NAND_BBT_USE_FLASH;
 	b47n->nand_chip.ecc.mode = NAND_ECC_NONE; /* TODO: implement ECC */
+=======
+	nand_chip->legacy.select_chip = bcm47xxnflash_ops_bcm4706_select_chip;
+	nand_chip->legacy.cmd_ctrl = bcm47xxnflash_ops_bcm4706_cmd_ctrl;
+	nand_chip->legacy.dev_ready = bcm47xxnflash_ops_bcm4706_dev_ready;
+	b47n->nand_chip.legacy.cmdfunc = bcm47xxnflash_ops_bcm4706_cmdfunc;
+	b47n->nand_chip.legacy.read_byte = bcm47xxnflash_ops_bcm4706_read_byte;
+	b47n->nand_chip.legacy.read_buf = bcm47xxnflash_ops_bcm4706_read_buf;
+	b47n->nand_chip.legacy.write_buf = bcm47xxnflash_ops_bcm4706_write_buf;
+	b47n->nand_chip.legacy.set_features = nand_get_set_features_notsupp;
+	b47n->nand_chip.legacy.get_features = nand_get_set_features_notsupp;
+
+	nand_chip->legacy.chip_delay = 50;
+	b47n->nand_chip.bbt_options = NAND_BBT_USE_FLASH;
+	/* TODO: implement ECC */
+	b47n->nand_chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_NONE;
+>>>>>>> upstream/android-13
 
 	/* Enable NAND flash access */
 	bcma_cc_set32(b47n->cc, BCMA_CC_4706_FLASHSCFG,
@@ -430,7 +513,11 @@ int bcm47xxnflash_ops_bcm4706_init(struct bcm47xxnflash *b47n)
 	}
 
 	/* Configure FLASH */
+<<<<<<< HEAD
 	chipsize = b47n->nand_chip.chipsize >> 20;
+=======
+	chipsize = nanddev_target_size(&b47n->nand_chip.base) >> 20;
+>>>>>>> upstream/android-13
 	tbits = ffs(chipsize); /* find first bit set */
 	if (!tbits || tbits != fls(chipsize)) {
 		pr_err("Invalid flash size: 0x%lX\n", chipsize);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2009-2010 Intel Corporation
  *
@@ -13,6 +14,12 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2009-2010 Intel Corporation
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *	Jesse Barnes <jbarnes@virtuousgeek.org>
  */
@@ -840,7 +847,11 @@ static u16 calc_avg_temp(struct ips_driver *ips, u16 *array)
 
 static u16 read_mgtv(struct ips_driver *ips)
 {
+<<<<<<< HEAD
 	u16 ret;
+=======
+	u16 __maybe_unused ret;
+>>>>>>> upstream/android-13
 	u64 slope, offset;
 	u64 val;
 
@@ -1221,6 +1232,7 @@ static void ips_debugfs_cleanup(struct ips_driver *ips) { return; }
 
 /* Expose current state and limits in debugfs if possible */
 
+<<<<<<< HEAD
 struct ips_debugfs_node {
 	struct ips_driver *ips;
 	char *name;
@@ -1228,6 +1240,9 @@ struct ips_debugfs_node {
 };
 
 static int show_cpu_temp(struct seq_file *m, void *data)
+=======
+static int cpu_temp_show(struct seq_file *m, void *data)
+>>>>>>> upstream/android-13
 {
 	struct ips_driver *ips = m->private;
 
@@ -1236,8 +1251,14 @@ static int show_cpu_temp(struct seq_file *m, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int show_cpu_power(struct seq_file *m, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(cpu_temp);
+
+static int cpu_power_show(struct seq_file *m, void *data)
+>>>>>>> upstream/android-13
 {
 	struct ips_driver *ips = m->private;
 
@@ -1245,8 +1266,14 @@ static int show_cpu_power(struct seq_file *m, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int show_cpu_clamp(struct seq_file *m, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(cpu_power);
+
+static int cpu_clamp_show(struct seq_file *m, void *data)
+>>>>>>> upstream/android-13
 {
 	u64 turbo_override;
 	int tdp, tdc;
@@ -1266,8 +1293,14 @@ static int show_cpu_clamp(struct seq_file *m, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int show_mch_temp(struct seq_file *m, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(cpu_clamp);
+
+static int mch_temp_show(struct seq_file *m, void *data)
+>>>>>>> upstream/android-13
 {
 	struct ips_driver *ips = m->private;
 
@@ -1276,8 +1309,14 @@ static int show_mch_temp(struct seq_file *m, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int show_mch_power(struct seq_file *m, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(mch_temp);
+
+static int mch_power_show(struct seq_file *m, void *data)
+>>>>>>> upstream/android-13
 {
 	struct ips_driver *ips = m->private;
 
@@ -1285,6 +1324,7 @@ static int show_mch_power(struct seq_file *m, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static struct ips_debugfs_node ips_debug_files[] = {
 	{ NULL, "cpu_temp", show_cpu_temp },
@@ -1314,10 +1354,18 @@ static void ips_debugfs_cleanup(struct ips_driver *ips)
 	if (ips->debug_root)
 		debugfs_remove_recursive(ips->debug_root);
 	return;
+=======
+DEFINE_SHOW_ATTRIBUTE(mch_power);
+
+static void ips_debugfs_cleanup(struct ips_driver *ips)
+{
+	debugfs_remove_recursive(ips->debug_root);
+>>>>>>> upstream/android-13
 }
 
 static void ips_debugfs_init(struct ips_driver *ips)
 {
+<<<<<<< HEAD
 	int i;
 
 	ips->debug_root = debugfs_create_dir("ips", NULL);
@@ -1347,6 +1395,15 @@ static void ips_debugfs_init(struct ips_driver *ips)
 err_cleanup:
 	ips_debugfs_cleanup(ips);
 	return;
+=======
+	ips->debug_root = debugfs_create_dir("ips", NULL);
+
+	debugfs_create_file("cpu_temp", 0444, ips->debug_root, ips, &cpu_temp_fops);
+	debugfs_create_file("cpu_power", 0444, ips->debug_root, ips, &cpu_power_fops);
+	debugfs_create_file("cpu_clamp", 0444, ips->debug_root, ips, &cpu_clamp_fops);
+	debugfs_create_file("mch_temp", 0444, ips->debug_root, ips, &mch_temp_fops);
+	debugfs_create_file("mch_power", 0444, ips->debug_root, ips, &mch_power_fops);
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_DEBUG_FS */
 
@@ -1657,9 +1714,12 @@ static void ips_remove(struct pci_dev *dev)
 	struct ips_driver *ips = pci_get_drvdata(dev);
 	u64 turbo_override;
 
+<<<<<<< HEAD
 	if (!ips)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	ips_debugfs_cleanup(ips);
 
 	/* Release i915 driver */
@@ -1697,6 +1757,10 @@ static struct pci_driver ips_pci_driver = {
 
 module_pci_driver(ips_pci_driver);
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Jesse Barnes <jbarnes@virtuousgeek.org>");
 MODULE_DESCRIPTION("Intelligent Power Sharing Driver");

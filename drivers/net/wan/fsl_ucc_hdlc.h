@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Freescale QUICC Engine HDLC Device Driver
  *
  * Copyright 2014 Freescale Semiconductor Inc.
@@ -6,6 +7,12 @@
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Freescale QUICC Engine HDLC Device Driver
+ *
+ * Copyright 2014 Freescale Semiconductor Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _UCC_HDLC_H_
@@ -102,10 +109,18 @@ struct ucc_hdlc_private {
 
 	unsigned short tx_ring_size;
 	unsigned short rx_ring_size;
+<<<<<<< HEAD
 	u32 ucc_pram_offset;
 
 	unsigned short encoding;
 	unsigned short parity;
+=======
+	s32 ucc_pram_offset;
+
+	unsigned short encoding;
+	unsigned short parity;
+	unsigned short hmask;
+>>>>>>> upstream/android-13
 	u32 clocking;
 	spinlock_t lock;	/* lock for Tx BD and Tx buffer */
 #ifdef CONFIG_PM

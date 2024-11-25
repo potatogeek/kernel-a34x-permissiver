@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * include/lib/libgcc.h
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see the file COPYING, or write
  * to the Free Software Foundation, Inc.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * include/lib/libgcc.h
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LIB_LIBGCC_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* By Ross Biro 1/23/92 */
 /*
  * Pentium III FXSR, SSE support
@@ -27,7 +31,10 @@
 #include <linux/nospec.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/fpu/internal.h>
 #include <asm/fpu/signal.h>
@@ -40,7 +47,12 @@
 #include <asm/hw_breakpoint.h>
 #include <asm/traps.h>
 #include <asm/syscall.h>
+<<<<<<< HEAD
 #include <asm/mmu_context.h>
+=======
+#include <asm/fsgsbase.h>
+#include <asm/io_bitmap.h>
+>>>>>>> upstream/android-13
 
 #include "tls.h"
 
@@ -154,6 +166,7 @@ static inline bool invalid_selector(u16 value)
 
 #define FLAG_MASK		FLAG_MASK_32
 
+<<<<<<< HEAD
 /*
  * X86_32 CPUs don't save ss and esp if the CPU is already in kernel mode
  * when it traps.  The previous stack will be directly underneath the saved
@@ -183,6 +196,8 @@ unsigned long kernel_stack_pointer(struct pt_regs *regs)
 }
 EXPORT_SYMBOL_GPL(kernel_stack_pointer);
 
+=======
+>>>>>>> upstream/android-13
 static unsigned long *pt_regs_access(struct pt_regs *regs, unsigned long regno)
 {
 	BUILD_BUG_ON(offsetof(struct pt_regs, bx) != 0);
@@ -209,6 +224,12 @@ static u16 get_segment_reg(struct task_struct *task, unsigned long offset)
 static int set_segment_reg(struct task_struct *task,
 			   unsigned long offset, u16 value)
 {
+<<<<<<< HEAD
+=======
+	if (WARN_ON_ONCE(task == current))
+		return -EIO;
+
+>>>>>>> upstream/android-13
 	/*
 	 * The value argument was already truncated to 16 bits.
 	 */
@@ -229,16 +250,24 @@ static int set_segment_reg(struct task_struct *task,
 	case offsetof(struct user_regs_struct, ss):
 		if (unlikely(value == 0))
 			return -EIO;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		*pt_regs_access(task_pt_regs(task), offset) = value;
 		break;
 
 	case offsetof(struct user_regs_struct, gs):
+<<<<<<< HEAD
 		if (task == current)
 			set_user_gs(task_pt_regs(task), value);
 		else
 			task_user_gs(task) = value;
+=======
+		task_user_gs(task) = value;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -298,12 +327,19 @@ static u16 get_segment_reg(struct task_struct *task, unsigned long offset)
 static int set_segment_reg(struct task_struct *task,
 			   unsigned long offset, u16 value)
 {
+<<<<<<< HEAD
+=======
+	if (WARN_ON_ONCE(task == current))
+		return -EIO;
+
+>>>>>>> upstream/android-13
 	/*
 	 * The value argument was already truncated to 16 bits.
 	 */
 	if (invalid_selector(value))
 		return -EIO;
 
+<<<<<<< HEAD
 	switch (offset) {
 	case offsetof(struct user_regs_struct,fs):
 		task->thread.fsindex = value;
@@ -324,6 +360,26 @@ static int set_segment_reg(struct task_struct *task,
 		task->thread.es = value;
 		if (task == current)
 			loadsegment(es, task->thread.es);
+=======
+	/*
+	 * Writes to FS and GS will change the stored selector.  Whether
+	 * this changes the segment base as well depends on whether
+	 * FSGSBASE is enabled.
+	 */
+
+	switch (offset) {
+	case offsetof(struct user_regs_struct,fs):
+		task->thread.fsindex = value;
+		break;
+	case offsetof(struct user_regs_struct,gs):
+		task->thread.gsindex = value;
+		break;
+	case offsetof(struct user_regs_struct,ds):
+		task->thread.ds = value;
+		break;
+	case offsetof(struct user_regs_struct,es):
+		task->thread.es = value;
+>>>>>>> upstream/android-13
 		break;
 
 		/*
@@ -344,6 +400,7 @@ static int set_segment_reg(struct task_struct *task,
 	return 0;
 }
 
+<<<<<<< HEAD
 static unsigned long task_seg_base(struct task_struct *task,
 				   unsigned short selector)
 {
@@ -387,6 +444,8 @@ static unsigned long task_seg_base(struct task_struct *task,
 	return base;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_X86_32 */
 
 static unsigned long get_flags(struct task_struct *task)
@@ -440,6 +499,7 @@ static int putreg(struct task_struct *child,
 	case offsetof(struct user_regs_struct,fs_base):
 		if (value >= TASK_SIZE_MAX)
 			return -EIO;
+<<<<<<< HEAD
 		/*
 		 * When changing the segment base, use do_arch_prctl_64
 		 * to set either thread.fs or thread.fsindex and the
@@ -456,6 +516,14 @@ static int putreg(struct task_struct *child,
 			return -EIO;
 		if (child->thread.gsbase != value)
 			return do_arch_prctl_64(child, ARCH_SET_GS, value);
+=======
+		x86_fsbase_write_task(child, value);
+		return 0;
+	case offsetof(struct user_regs_struct,gs_base):
+		if (value >= TASK_SIZE_MAX)
+			return -EIO;
+		x86_gsbase_write_task(child, value);
+>>>>>>> upstream/android-13
 		return 0;
 #endif
 	}
@@ -479,6 +547,7 @@ static unsigned long getreg(struct task_struct *task, unsigned long offset)
 		return get_flags(task);
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 	case offsetof(struct user_regs_struct, fs_base): {
 		if (task->thread.fsindex == 0)
 			return task->thread.fsbase;
@@ -491,6 +560,12 @@ static unsigned long getreg(struct task_struct *task, unsigned long offset)
 		else
 			return task_seg_base(task, task->thread.gsindex);
 	}
+=======
+	case offsetof(struct user_regs_struct, fs_base):
+		return x86_fsbase_read_task(task);
+	case offsetof(struct user_regs_struct, gs_base):
+		return x86_gsbase_read_task(task);
+>>>>>>> upstream/android-13
 #endif
 	}
 
@@ -499,6 +574,7 @@ static unsigned long getreg(struct task_struct *task, unsigned long offset)
 
 static int genregs_get(struct task_struct *target,
 		       const struct user_regset *regset,
+<<<<<<< HEAD
 		       unsigned int pos, unsigned int count,
 		       void *kbuf, void __user *ubuf)
 {
@@ -519,6 +595,14 @@ static int genregs_get(struct task_struct *target,
 		}
 	}
 
+=======
+		       struct membuf to)
+{
+	int reg;
+
+	for (reg = 0; to.left; reg++)
+		membuf_store(&to, getreg(target, reg * sizeof(unsigned long)));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -566,7 +650,11 @@ static void ptrace_triggered(struct perf_event *bp,
 			break;
 	}
 
+<<<<<<< HEAD
 	thread->debugreg6 |= (DR_TRAP0 << i);
+=======
+	thread->virtual_dr6 |= (DR_TRAP0 << i);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -702,7 +790,11 @@ static unsigned long ptrace_get_debugreg(struct task_struct *tsk, int n)
 		if (bp)
 			val = bp->hw.info.address;
 	} else if (n == 6) {
+<<<<<<< HEAD
 		val = thread->debugreg6;
+=======
+		val = thread->virtual_dr6 ^ DR6_RESERVED; /* Flip back to arch polarity */
+>>>>>>> upstream/android-13
 	} else if (n == 7) {
 		val = thread->ptrace_dr7;
 	}
@@ -758,7 +850,11 @@ static int ptrace_set_debugreg(struct task_struct *tsk, int n,
 	if (n < HBP_NUM) {
 		rc = ptrace_set_breakpoint_addr(tsk, n, val);
 	} else if (n == 6) {
+<<<<<<< HEAD
 		thread->debugreg6 = val;
+=======
+		thread->virtual_dr6 = val ^ DR6_RESERVED; /* Flip to positive polarity */
+>>>>>>> upstream/android-13
 		rc = 0;
 	} else if (n == 7) {
 		rc = ptrace_write_dr7(tsk, val);
@@ -775,11 +871,18 @@ static int ptrace_set_debugreg(struct task_struct *tsk, int n,
 static int ioperm_active(struct task_struct *target,
 			 const struct user_regset *regset)
 {
+<<<<<<< HEAD
 	return target->thread.io_bitmap_max / regset->size;
+=======
+	struct io_bitmap *iobm = target->thread.io_bitmap;
+
+	return iobm ? DIV_ROUND_UP(iobm->max, regset->size) : 0;
+>>>>>>> upstream/android-13
 }
 
 static int ioperm_get(struct task_struct *target,
 		      const struct user_regset *regset,
+<<<<<<< HEAD
 		      unsigned int pos, unsigned int count,
 		      void *kbuf, void __user *ubuf)
 {
@@ -789,6 +892,16 @@ static int ioperm_get(struct task_struct *target,
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   target->thread.io_bitmap_ptr,
 				   0, IO_BITMAP_BYTES);
+=======
+		      struct membuf to)
+{
+	struct io_bitmap *iobm = target->thread.io_bitmap;
+
+	if (!iobm)
+		return -ENXIO;
+
+	return membuf_write(&to, iobm->bitmap, IO_BITMAP_BYTES);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -799,14 +912,23 @@ static int ioperm_get(struct task_struct *target,
 void ptrace_disable(struct task_struct *child)
 {
 	user_disable_single_step(child);
+<<<<<<< HEAD
 #ifdef TIF_SYSCALL_EMU
 	clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 #if defined CONFIG_X86_32 || defined CONFIG_IA32_EMULATION
 static const struct user_regset_view user_x86_32_view; /* Initialized below. */
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_64
+static const struct user_regset_view user_x86_64_view; /* Initialized below. */
+#endif
+>>>>>>> upstream/android-13
 
 long arch_ptrace(struct task_struct *child, long request,
 		 unsigned long addr, unsigned long data)
@@ -814,6 +936,17 @@ long arch_ptrace(struct task_struct *child, long request,
 	int ret;
 	unsigned long __user *datap = (unsigned long __user *)data;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_64
+	/* This is native 64-bit ptrace() */
+	const struct user_regset_view *regset_view = &user_x86_64_view;
+#else
+	/* This is native 32-bit ptrace() */
+	const struct user_regset_view *regset_view = &user_x86_32_view;
+#endif
+
+>>>>>>> upstream/android-13
 	switch (request) {
 	/* read the word at location addr in the USER area. */
 	case PTRACE_PEEKUSR: {
@@ -852,28 +985,44 @@ long arch_ptrace(struct task_struct *child, long request,
 
 	case PTRACE_GETREGS:	/* Get all gp regs from the child. */
 		return copy_regset_to_user(child,
+<<<<<<< HEAD
 					   task_user_regset_view(current),
+=======
+					   regset_view,
+>>>>>>> upstream/android-13
 					   REGSET_GENERAL,
 					   0, sizeof(struct user_regs_struct),
 					   datap);
 
 	case PTRACE_SETREGS:	/* Set all gp regs in the child. */
 		return copy_regset_from_user(child,
+<<<<<<< HEAD
 					     task_user_regset_view(current),
+=======
+					     regset_view,
+>>>>>>> upstream/android-13
 					     REGSET_GENERAL,
 					     0, sizeof(struct user_regs_struct),
 					     datap);
 
 	case PTRACE_GETFPREGS:	/* Get the child FPU state. */
 		return copy_regset_to_user(child,
+<<<<<<< HEAD
 					   task_user_regset_view(current),
+=======
+					   regset_view,
+>>>>>>> upstream/android-13
 					   REGSET_FP,
 					   0, sizeof(struct user_i387_struct),
 					   datap);
 
 	case PTRACE_SETFPREGS:	/* Set the child FPU state. */
 		return copy_regset_from_user(child,
+<<<<<<< HEAD
 					     task_user_regset_view(current),
+=======
+					     regset_view,
+>>>>>>> upstream/android-13
 					     REGSET_FP,
 					     0, sizeof(struct user_i387_struct),
 					     datap);
@@ -946,14 +1095,47 @@ long arch_ptrace(struct task_struct *child, long request,
 static int putreg32(struct task_struct *child, unsigned regno, u32 value)
 {
 	struct pt_regs *regs = task_pt_regs(child);
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	switch (regno) {
 
 	SEG32(cs);
 	SEG32(ds);
 	SEG32(es);
+<<<<<<< HEAD
 	SEG32(fs);
 	SEG32(gs);
+=======
+
+	/*
+	 * A 32-bit ptracer on a 64-bit kernel expects that writing
+	 * FS or GS will also update the base.  This is needed for
+	 * operations like PTRACE_SETREGS to fully restore a saved
+	 * CPU state.
+	 */
+
+	case offsetof(struct user32, regs.fs):
+		ret = set_segment_reg(child,
+				      offsetof(struct user_regs_struct, fs),
+				      value);
+		if (ret == 0)
+			child->thread.fsbase =
+				x86_fsgsbase_read_task(child, value);
+		return ret;
+
+	case offsetof(struct user32, regs.gs):
+		ret = set_segment_reg(child,
+				      offsetof(struct user_regs_struct, gs),
+				      value);
+		if (ret == 0)
+			child->thread.gsbase =
+				x86_fsgsbase_read_task(child, value);
+		return ret;
+
+>>>>>>> upstream/android-13
 	SEG32(ss);
 
 	R32(ebx, bx);
@@ -978,7 +1160,11 @@ static int putreg32(struct task_struct *child, unsigned regno, u32 value)
 		 * syscall with TS_COMPAT still set.
 		 */
 		regs->orig_ax = value;
+<<<<<<< HEAD
 		if (syscall_get_nr(child, regs) >= 0)
+=======
+		if (syscall_get_nr(child, regs) != -1)
+>>>>>>> upstream/android-13
 			child->thread_info.status |= TS_I386_REGS_POKED;
 		break;
 
@@ -1069,6 +1255,7 @@ static int getreg32(struct task_struct *child, unsigned regno, u32 *val)
 
 static int genregs32_get(struct task_struct *target,
 			 const struct user_regset *regset,
+<<<<<<< HEAD
 			 unsigned int pos, unsigned int count,
 			 void *kbuf, void __user *ubuf)
 {
@@ -1091,6 +1278,17 @@ static int genregs32_get(struct task_struct *target,
 		}
 	}
 
+=======
+			 struct membuf to)
+{
+	int reg;
+
+	for (reg = 0; to.left; reg++) {
+		u32 val;
+		getreg32(target, reg * 4, &val);
+		membuf_store(&to, val);
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1243,28 +1441,44 @@ static long x32_arch_ptrace(struct task_struct *child,
 
 	case PTRACE_GETREGS:	/* Get all gp regs from the child. */
 		return copy_regset_to_user(child,
+<<<<<<< HEAD
 					   task_user_regset_view(current),
+=======
+					   &user_x86_64_view,
+>>>>>>> upstream/android-13
 					   REGSET_GENERAL,
 					   0, sizeof(struct user_regs_struct),
 					   datap);
 
 	case PTRACE_SETREGS:	/* Set all gp regs in the child. */
 		return copy_regset_from_user(child,
+<<<<<<< HEAD
 					     task_user_regset_view(current),
+=======
+					     &user_x86_64_view,
+>>>>>>> upstream/android-13
 					     REGSET_GENERAL,
 					     0, sizeof(struct user_regs_struct),
 					     datap);
 
 	case PTRACE_GETFPREGS:	/* Get the child FPU state. */
 		return copy_regset_to_user(child,
+<<<<<<< HEAD
 					   task_user_regset_view(current),
+=======
+					   &user_x86_64_view,
+>>>>>>> upstream/android-13
 					   REGSET_FP,
 					   0, sizeof(struct user_i387_struct),
 					   datap);
 
 	case PTRACE_SETFPREGS:	/* Set the child FPU state. */
 		return copy_regset_from_user(child,
+<<<<<<< HEAD
 					     task_user_regset_view(current),
+=======
+					     &user_x86_64_view,
+>>>>>>> upstream/android-13
 					     REGSET_FP,
 					     0, sizeof(struct user_i387_struct),
 					     datap);
@@ -1300,6 +1514,7 @@ static struct user_regset x86_64_regsets[] __ro_after_init = {
 		.core_note_type = NT_PRSTATUS,
 		.n = sizeof(struct user_regs_struct) / sizeof(long),
 		.size = sizeof(long), .align = sizeof(long),
+<<<<<<< HEAD
 		.get = genregs_get, .set = genregs_set
 	},
 	[REGSET_FP] = {
@@ -1307,18 +1522,35 @@ static struct user_regset x86_64_regsets[] __ro_after_init = {
 		.n = sizeof(struct user_i387_struct) / sizeof(long),
 		.size = sizeof(long), .align = sizeof(long),
 		.active = regset_xregset_fpregs_active, .get = xfpregs_get, .set = xfpregs_set
+=======
+		.regset_get = genregs_get, .set = genregs_set
+	},
+	[REGSET_FP] = {
+		.core_note_type = NT_PRFPREG,
+		.n = sizeof(struct fxregs_state) / sizeof(long),
+		.size = sizeof(long), .align = sizeof(long),
+		.active = regset_xregset_fpregs_active, .regset_get = xfpregs_get, .set = xfpregs_set
+>>>>>>> upstream/android-13
 	},
 	[REGSET_XSTATE] = {
 		.core_note_type = NT_X86_XSTATE,
 		.size = sizeof(u64), .align = sizeof(u64),
+<<<<<<< HEAD
 		.active = xstateregs_active, .get = xstateregs_get,
+=======
+		.active = xstateregs_active, .regset_get = xstateregs_get,
+>>>>>>> upstream/android-13
 		.set = xstateregs_set
 	},
 	[REGSET_IOPERM64] = {
 		.core_note_type = NT_386_IOPERM,
 		.n = IO_BITMAP_LONGS,
 		.size = sizeof(long), .align = sizeof(long),
+<<<<<<< HEAD
 		.active = ioperm_active, .get = ioperm_get
+=======
+		.active = ioperm_active, .regset_get = ioperm_get
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -1341,12 +1573,17 @@ static struct user_regset x86_32_regsets[] __ro_after_init = {
 		.core_note_type = NT_PRSTATUS,
 		.n = sizeof(struct user_regs_struct32) / sizeof(u32),
 		.size = sizeof(u32), .align = sizeof(u32),
+<<<<<<< HEAD
 		.get = genregs32_get, .set = genregs32_set
+=======
+		.regset_get = genregs32_get, .set = genregs32_set
+>>>>>>> upstream/android-13
 	},
 	[REGSET_FP] = {
 		.core_note_type = NT_PRFPREG,
 		.n = sizeof(struct user_i387_ia32_struct) / sizeof(u32),
 		.size = sizeof(u32), .align = sizeof(u32),
+<<<<<<< HEAD
 		.active = regset_fpregs_active, .get = fpregs_get, .set = fpregs_set
 	},
 	[REGSET_XFP] = {
@@ -1354,11 +1591,24 @@ static struct user_regset x86_32_regsets[] __ro_after_init = {
 		.n = sizeof(struct user32_fxsr_struct) / sizeof(u32),
 		.size = sizeof(u32), .align = sizeof(u32),
 		.active = regset_xregset_fpregs_active, .get = xfpregs_get, .set = xfpregs_set
+=======
+		.active = regset_fpregs_active, .regset_get = fpregs_get, .set = fpregs_set
+	},
+	[REGSET_XFP] = {
+		.core_note_type = NT_PRXFPREG,
+		.n = sizeof(struct fxregs_state) / sizeof(u32),
+		.size = sizeof(u32), .align = sizeof(u32),
+		.active = regset_xregset_fpregs_active, .regset_get = xfpregs_get, .set = xfpregs_set
+>>>>>>> upstream/android-13
 	},
 	[REGSET_XSTATE] = {
 		.core_note_type = NT_X86_XSTATE,
 		.size = sizeof(u64), .align = sizeof(u64),
+<<<<<<< HEAD
 		.active = xstateregs_active, .get = xstateregs_get,
+=======
+		.active = xstateregs_active, .regset_get = xstateregs_get,
+>>>>>>> upstream/android-13
 		.set = xstateregs_set
 	},
 	[REGSET_TLS] = {
@@ -1367,13 +1617,21 @@ static struct user_regset x86_32_regsets[] __ro_after_init = {
 		.size = sizeof(struct user_desc),
 		.align = sizeof(struct user_desc),
 		.active = regset_tls_active,
+<<<<<<< HEAD
 		.get = regset_tls_get, .set = regset_tls_set
+=======
+		.regset_get = regset_tls_get, .set = regset_tls_set
+>>>>>>> upstream/android-13
 	},
 	[REGSET_IOPERM32] = {
 		.core_note_type = NT_386_IOPERM,
 		.n = IO_BITMAP_BYTES / sizeof(u32),
 		.size = sizeof(u32), .align = sizeof(u32),
+<<<<<<< HEAD
 		.active = ioperm_active, .get = ioperm_get
+=======
+		.active = ioperm_active, .regset_get = ioperm_get
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -1400,6 +1658,28 @@ void __init update_regset_xstate_info(unsigned int size, u64 xstate_mask)
 	xstate_fx_sw_bytes[USER_XSTATE_XCR0_WORD] = xstate_mask;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * This is used by the core dump code to decide which regset to dump.  The
+ * core dump code writes out the resulting .e_machine and the corresponding
+ * regsets.  This is suboptimal if the task is messing around with its CS.L
+ * field, but at worst the core dump will end up missing some information.
+ *
+ * Unfortunately, it is also used by the broken PTRACE_GETREGSET and
+ * PTRACE_SETREGSET APIs.  These APIs look at the .regsets field but have
+ * no way to make sure that the e_machine they use matches the caller's
+ * expectations.  The result is that the data format returned by
+ * PTRACE_GETREGSET depends on the returned CS field (and even the offset
+ * of the returned CS field depends on its value!) and the data format
+ * accepted by PTRACE_SETREGSET is determined by the old CS value.  The
+ * upshot is that it is basically impossible to use these APIs correctly.
+ *
+ * The best way to fix it in the long run would probably be to add new
+ * improved ptrace() APIs to read and write registers reliably, possibly by
+ * allowing userspace to select the ELF e_machine variant that they expect.
+ */
+>>>>>>> upstream/android-13
 const struct user_regset_view *task_user_regset_view(struct task_struct *task)
 {
 #ifdef CONFIG_IA32_EMULATION
@@ -1413,6 +1693,7 @@ const struct user_regset_view *task_user_regset_view(struct task_struct *task)
 #endif
 }
 
+<<<<<<< HEAD
 static void fill_sigtrap_info(struct task_struct *tsk,
 				struct pt_regs *regs,
 				int error_code, int si_code,
@@ -1442,4 +1723,21 @@ void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs,
 	fill_sigtrap_info(tsk, regs, error_code, si_code, &info);
 	/* Send us the fake SIGTRAP */
 	force_sig_info(SIGTRAP, &info, tsk);
+=======
+void send_sigtrap(struct pt_regs *regs, int error_code, int si_code)
+{
+	struct task_struct *tsk = current;
+
+	tsk->thread.trap_nr = X86_TRAP_DB;
+	tsk->thread.error_code = error_code;
+
+	/* Send us the fake SIGTRAP */
+	force_sig_fault(SIGTRAP, si_code,
+			user_mode(regs) ? (void __user *)regs->ip : NULL);
+}
+
+void user_single_step_report(struct pt_regs *regs)
+{
+	send_sigtrap(regs, 0, TRAP_BRKPT);
+>>>>>>> upstream/android-13
 }

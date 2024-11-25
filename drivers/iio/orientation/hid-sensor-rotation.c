@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HID Sensors Driver
  * Copyright (c) 2014, Intel Corporation.
@@ -10,31 +11,60 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HID Sensors Driver
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
 #include <linux/platform_device.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/slab.h>
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/hid-sensor-hub.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 #include <linux/iio/buffer.h>
+<<<<<<< HEAD
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
+=======
+>>>>>>> upstream/android-13
 #include "../common/hid-sensors/hid-sensor-trigger.h"
 
 struct dev_rot_state {
 	struct hid_sensor_hub_callbacks callbacks;
 	struct hid_sensor_common common_attributes;
 	struct hid_sensor_hub_attribute_info quaternion;
+<<<<<<< HEAD
 	u32 sampled_vals[4];
+=======
+	struct {
+		s32 sampled_vals[4] __aligned(16);
+		u64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 	int scale_pre_decml;
 	int scale_post_decml;
 	int scale_precision;
 	int value_offset;
+<<<<<<< HEAD
+=======
+	s64 timestamp;
+};
+
+static const u32 rotation_sensitivity_addresses[] = {
+	HID_USAGE_SENSOR_DATA_ORIENTATION,
+	HID_USAGE_SENSOR_ORIENT_QUATERNION,
+>>>>>>> upstream/android-13
 };
 
 /* Channel definitions */
@@ -47,8 +77,15 @@ static const struct iio_chan_spec dev_rot_channels[] = {
 		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ) |
 					BIT(IIO_CHAN_INFO_OFFSET) |
 					BIT(IIO_CHAN_INFO_SCALE) |
+<<<<<<< HEAD
 					BIT(IIO_CHAN_INFO_HYSTERESIS)
 	}
+=======
+					BIT(IIO_CHAN_INFO_HYSTERESIS),
+		.scan_index = 0
+	},
+	IIO_CHAN_SOFT_TIMESTAMP(1)
+>>>>>>> upstream/android-13
 };
 
 /* Adjust channel real bits based on report descriptor */
@@ -80,7 +117,11 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
 	case IIO_CHAN_INFO_RAW:
 		if (size >= 4) {
 			for (i = 0; i < 4; ++i)
+<<<<<<< HEAD
 				vals[i] = rot_state->sampled_vals[i];
+=======
+				vals[i] = rot_state->scan.sampled_vals[i];
+>>>>>>> upstream/android-13
 			ret_type = IIO_VAL_INT_MULTIPLE;
 			*val_len =  4;
 		} else
@@ -142,6 +183,7 @@ static const struct iio_info dev_rot_info = {
 	.write_raw = &dev_rot_write_raw,
 };
 
+<<<<<<< HEAD
 /* Function to push data to buffer */
 static void hid_sensor_push_data(struct iio_dev *indio_dev, u8 *data, int len)
 {
@@ -151,6 +193,8 @@ static void hid_sensor_push_data(struct iio_dev *indio_dev, u8 *data, int len)
 
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Callback handler to send event after all samples are received and captured */
 static int dev_rot_proc_event(struct hid_sensor_hub_device *hsdev,
 				unsigned usage_id,
@@ -160,10 +204,22 @@ static int dev_rot_proc_event(struct hid_sensor_hub_device *hsdev,
 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
 
 	dev_dbg(&indio_dev->dev, "dev_rot_proc_event\n");
+<<<<<<< HEAD
 	if (atomic_read(&rot_state->common_attributes.data_ready))
 		hid_sensor_push_data(indio_dev,
 				(u8 *)rot_state->sampled_vals,
 				sizeof(rot_state->sampled_vals));
+=======
+	if (atomic_read(&rot_state->common_attributes.data_ready)) {
+		if (!rot_state->timestamp)
+			rot_state->timestamp = iio_get_time_ns(indio_dev);
+
+		iio_push_to_buffers_with_timestamp(indio_dev, &rot_state->scan,
+						   rot_state->timestamp);
+
+		rot_state->timestamp = 0;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -178,10 +234,28 @@ static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
 
 	if (usage_id == HID_USAGE_SENSOR_ORIENT_QUATERNION) {
+<<<<<<< HEAD
 		memcpy(rot_state->sampled_vals, raw_data,
 					sizeof(rot_state->sampled_vals));
 		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
 					sizeof(rot_state->sampled_vals));
+=======
+		if (raw_len / 4 == sizeof(s16)) {
+			rot_state->scan.sampled_vals[0] = ((s16 *)raw_data)[0];
+			rot_state->scan.sampled_vals[1] = ((s16 *)raw_data)[1];
+			rot_state->scan.sampled_vals[2] = ((s16 *)raw_data)[2];
+			rot_state->scan.sampled_vals[3] = ((s16 *)raw_data)[3];
+		} else {
+			memcpy(&rot_state->scan.sampled_vals, raw_data,
+			       sizeof(rot_state->scan.sampled_vals));
+		}
+
+		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
+			sizeof(rot_state->scan.sampled_vals));
+	} else if (usage_id == HID_USAGE_SENSOR_TIME_TIMESTAMP) {
+		rot_state->timestamp = hid_sensor_convert_timestamp(&rot_state->common_attributes,
+								    *(s64 *)raw_data);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -218,6 +292,7 @@ static int dev_rot_parse_report(struct platform_device *pdev,
 				&st->quaternion,
 				&st->scale_pre_decml, &st->scale_post_decml);
 
+<<<<<<< HEAD
 	/* Set Sensitivity field ids, when there is no individual modifier */
 	if (st->common_attributes.sensitivity.index < 0) {
 		sensor_hub_input_get_attribute_info(hsdev,
@@ -230,6 +305,8 @@ static int dev_rot_parse_report(struct platform_device *pdev,
 			st->common_attributes.sensitivity.report_id);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -267,8 +344,16 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
 				&rot_state->common_attributes);
+=======
+	ret = hid_sensor_parse_common_attributes(hsdev,
+						 hsdev->usage,
+						 &rot_state->common_attributes,
+						 rotation_sensitivity_addresses,
+						 ARRAY_SIZE(rotation_sensitivity_addresses));
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "failed to setup common attributes\n");
 		return ret;
@@ -291,11 +376,15 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
 	}
 
 	indio_dev->num_channels = ARRAY_SIZE(dev_rot_channels);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &dev_rot_info;
 	indio_dev->name = name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_setup(indio_dev, &iio_pollfunc_store_time,
 		NULL, NULL);
 	if (ret) {
@@ -303,11 +392,19 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
 		return ret;
 	}
 	atomic_set(&rot_state->common_attributes.data_ready, 0);
+=======
+	atomic_set(&rot_state->common_attributes.data_ready, 0);
+
+>>>>>>> upstream/android-13
 	ret = hid_sensor_setup_trigger(indio_dev, name,
 					&rot_state->common_attributes);
 	if (ret) {
 		dev_err(&pdev->dev, "trigger setup failed\n");
+<<<<<<< HEAD
 		goto error_unreg_buffer_funcs;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	ret = iio_device_register(indio_dev);
@@ -331,9 +428,13 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
 error_iio_unreg:
 	iio_device_unregister(indio_dev);
 error_remove_trigger:
+<<<<<<< HEAD
 	hid_sensor_remove_trigger(&rot_state->common_attributes);
 error_unreg_buffer_funcs:
 	iio_triggered_buffer_cleanup(indio_dev);
+=======
+	hid_sensor_remove_trigger(indio_dev, &rot_state->common_attributes);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -346,8 +447,12 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
 
 	sensor_hub_remove_callback(hsdev, hsdev->usage);
 	iio_device_unregister(indio_dev);
+<<<<<<< HEAD
 	hid_sensor_remove_trigger(&rot_state->common_attributes);
 	iio_triggered_buffer_cleanup(indio_dev);
+=======
+	hid_sensor_remove_trigger(indio_dev, &rot_state->common_attributes);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -383,3 +488,7 @@ module_platform_driver(hid_dev_rot_platform_driver);
 MODULE_DESCRIPTION("HID Sensor Device Rotation");
 MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(IIO_HID);
+>>>>>>> upstream/android-13

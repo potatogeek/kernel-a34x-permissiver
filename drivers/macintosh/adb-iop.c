@@ -7,10 +7,13 @@
  * 1999-07-01 (jmt) - First implementation for new driver architecture.
  *
  * 1999-07-31 (jmt) - First working version.
+<<<<<<< HEAD
  *
  * TODO:
  *
  * o Implement SRQ handling.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -18,6 +21,7 @@
 #include <linux/mm.h>
 #include <linux/delay.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/proc_fs.h>
 
 #include <asm/macintosh.h> 
@@ -41,6 +45,26 @@ static enum adb_iop_state {
     idle,
     sending,
     awaiting_reply
+=======
+
+#include <asm/macintosh.h>
+#include <asm/macints.h>
+#include <asm/mac_iop.h>
+#include <asm/adb_iop.h>
+#include <asm/unaligned.h>
+
+#include <linux/adb.h>
+
+static struct adb_request *current_req;
+static struct adb_request *last_req;
+static unsigned int autopoll_devs;
+static u8 autopoll_addr;
+
+static enum adb_iop_state {
+	idle,
+	sending,
+	awaiting_reply
+>>>>>>> upstream/android-13
 } adb_iop_state;
 
 static void adb_iop_start(void);
@@ -52,6 +76,14 @@ static int adb_iop_autopoll(int);
 static void adb_iop_poll(void);
 static int adb_iop_reset_bus(void);
 
+<<<<<<< HEAD
+=======
+/* ADB command byte structure */
+#define ADDR_MASK       0xF0
+#define OP_MASK         0x0C
+#define TALK            0x0C
+
+>>>>>>> upstream/android-13
 struct adb_driver adb_iop_driver = {
 	.name         = "ISM IOP",
 	.probe        = adb_iop_probe,
@@ -62,12 +94,28 @@ struct adb_driver adb_iop_driver = {
 	.reset_bus    = adb_iop_reset_bus
 };
 
+<<<<<<< HEAD
 static void adb_iop_end_req(struct adb_request *req, int state)
 {
 	req->complete = 1;
 	current_req = req->next;
 	if (req->done) (*req->done)(req);
 	adb_iop_state = state;
+=======
+static void adb_iop_done(void)
+{
+	struct adb_request *req = current_req;
+
+	adb_iop_state = idle;
+
+	req->complete = 1;
+	current_req = req->next;
+	if (req->done)
+		(*req->done)(req);
+
+	if (adb_iop_state == idle)
+		adb_iop_start();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -78,15 +126,22 @@ static void adb_iop_end_req(struct adb_request *req, int state)
 
 static void adb_iop_complete(struct iop_msg *msg)
 {
+<<<<<<< HEAD
 	struct adb_request *req;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	local_irq_save(flags);
 
+<<<<<<< HEAD
 	req = current_req;
 	if ((adb_iop_state == sending) && req && req->reply_expected) {
 		adb_iop_state = awaiting_reply;
 	}
+=======
+	adb_iop_state = awaiting_reply;
+>>>>>>> upstream/android-13
 
 	local_irq_restore(flags);
 }
@@ -94,12 +149,19 @@ static void adb_iop_complete(struct iop_msg *msg)
 /*
  * Listen for ADB messages from the IOP.
  *
+<<<<<<< HEAD
  * This will be called when unsolicited messages (usually replies to TALK
  * commands or autopoll packets) are received.
+=======
+ * This will be called when unsolicited IOP messages are received.
+ * These IOP messages can carry ADB autopoll responses and also occur
+ * after explicit ADB commands.
+>>>>>>> upstream/android-13
  */
 
 static void adb_iop_listen(struct iop_msg *msg)
 {
+<<<<<<< HEAD
 	struct adb_iopmsg *amsg = (struct adb_iopmsg *) msg->message;
 	struct adb_request *req;
 	unsigned long flags;
@@ -147,6 +209,52 @@ static void adb_iop_listen(struct iop_msg *msg)
 		memcpy(msg->reply, msg->message, IOP_MSG_LEN);
 	}
 	iop_complete_message(msg);
+=======
+	struct adb_iopmsg *amsg = (struct adb_iopmsg *)msg->message;
+	u8 addr = (amsg->cmd & ADDR_MASK) >> 4;
+	u8 op = amsg->cmd & OP_MASK;
+	unsigned long flags;
+	bool req_done = false;
+
+	local_irq_save(flags);
+
+	/* Responses to Talk commands may be unsolicited as they are
+	 * produced when the IOP polls devices. They are mostly timeouts.
+	 */
+	if (op == TALK && ((1 << addr) & autopoll_devs))
+		autopoll_addr = addr;
+
+	switch (amsg->flags & (ADB_IOP_EXPLICIT |
+			       ADB_IOP_AUTOPOLL |
+			       ADB_IOP_TIMEOUT)) {
+	case ADB_IOP_EXPLICIT:
+	case ADB_IOP_EXPLICIT | ADB_IOP_TIMEOUT:
+		if (adb_iop_state == awaiting_reply) {
+			struct adb_request *req = current_req;
+
+			if (req->reply_expected) {
+				req->reply_len = amsg->count + 1;
+				memcpy(req->reply, &amsg->cmd, req->reply_len);
+			}
+
+			req_done = true;
+		}
+		break;
+	case ADB_IOP_AUTOPOLL:
+		if (((1 << addr) & autopoll_devs) &&
+		    amsg->cmd == ADB_READREG(addr, 0))
+			adb_input(&amsg->cmd, amsg->count + 1, 1);
+		break;
+	}
+	msg->reply[0] = autopoll_addr ? ADB_IOP_AUTOPOLL : 0;
+	msg->reply[1] = 0;
+	msg->reply[2] = autopoll_addr ? ADB_READREG(autopoll_addr, 0) : 0;
+	iop_complete_message(msg);
+
+	if (req_done)
+		adb_iop_done();
+
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 }
 
@@ -159,6 +267,7 @@ static void adb_iop_listen(struct iop_msg *msg)
 
 static void adb_iop_start(void)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	struct adb_request *req;
 	struct adb_iopmsg amsg;
@@ -187,10 +296,30 @@ static void adb_iop_start(void)
 
 	/* amsg.data immediately follows amsg.cmd, effectively making */
 	/* amsg.cmd a pointer to the beginning of a full ADB packet.  */
+=======
+	struct adb_request *req;
+	struct adb_iopmsg amsg;
+
+	/* get the packet to send */
+	req = current_req;
+	if (!req)
+		return;
+
+	/* The IOP takes MacII-style packets, so strip the initial
+	 * ADB_PACKET byte.
+	 */
+	amsg.flags = ADB_IOP_EXPLICIT;
+	amsg.count = req->nbytes - 2;
+
+	/* amsg.data immediately follows amsg.cmd, effectively making
+	 * &amsg.cmd a pointer to the beginning of a full ADB packet.
+	 */
+>>>>>>> upstream/android-13
 	memcpy(&amsg.cmd, req->data + 1, req->nbytes - 1);
 
 	req->sent = 1;
 	adb_iop_state = sending;
+<<<<<<< HEAD
 	local_irq_restore(flags);
 
 	/* Now send it. The IOP manager will call adb_iop_complete */
@@ -209,19 +338,52 @@ int adb_iop_probe(void)
 int adb_iop_init(void)
 {
 	printk("adb: IOP ISM driver v0.4 for Unified ADB.\n");
+=======
+
+	/* Now send it. The IOP manager will call adb_iop_complete
+	 * when the message has been sent.
+	 */
+	iop_send_message(ADB_IOP, ADB_CHAN, req, sizeof(amsg), (__u8 *)&amsg,
+			 adb_iop_complete);
+}
+
+static int adb_iop_probe(void)
+{
+	if (!iop_ism_present)
+		return -ENODEV;
+	return 0;
+}
+
+static int adb_iop_init(void)
+{
+	pr_info("adb: IOP ISM driver v0.4 for Unified ADB\n");
+>>>>>>> upstream/android-13
 	iop_listen(ADB_IOP, ADB_CHAN, adb_iop_listen, "ADB");
 	return 0;
 }
 
+<<<<<<< HEAD
 int adb_iop_send_request(struct adb_request *req, int sync)
+=======
+static int adb_iop_send_request(struct adb_request *req, int sync)
+>>>>>>> upstream/android-13
 {
 	int err;
 
 	err = adb_iop_write(req);
+<<<<<<< HEAD
 	if (err) return err;
 
 	if (sync) {
 		while (!req->complete) adb_iop_poll();
+=======
+	if (err)
+		return err;
+
+	if (sync) {
+		while (!req->complete)
+			adb_iop_poll();
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -235,14 +397,23 @@ static int adb_iop_write(struct adb_request *req)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	local_irq_save(flags);
 
+=======
+>>>>>>> upstream/android-13
 	req->next = NULL;
 	req->sent = 0;
 	req->complete = 0;
 	req->reply_len = 0;
 
+<<<<<<< HEAD
 	if (current_req != 0) {
+=======
+	local_irq_save(flags);
+
+	if (current_req) {
+>>>>>>> upstream/android-13
 		last_req->next = req;
 		last_req = req;
 	} else {
@@ -250,6 +421,7 @@ static int adb_iop_write(struct adb_request *req)
 		last_req = req;
 	}
 
+<<<<<<< HEAD
 	local_irq_restore(flags);
 	if (adb_iop_state == idle) adb_iop_start();
 	return 0;
@@ -280,6 +452,62 @@ int adb_iop_reset_bus(void)
 		adb_iop_poll();
 		schedule();
 	}
+=======
+	if (adb_iop_state == idle)
+		adb_iop_start();
+
+	local_irq_restore(flags);
+
+	return 0;
+}
+
+static void adb_iop_set_ap_complete(struct iop_msg *msg)
+{
+	struct adb_iopmsg *amsg = (struct adb_iopmsg *)msg->message;
+
+	autopoll_devs = get_unaligned_be16(amsg->data);
+	if (autopoll_devs & (1 << autopoll_addr))
+		return;
+	autopoll_addr = autopoll_devs ? (ffs(autopoll_devs) - 1) : 0;
+}
+
+static int adb_iop_autopoll(int devs)
+{
+	struct adb_iopmsg amsg;
+	unsigned long flags;
+	unsigned int mask = (unsigned int)devs & 0xFFFE;
+
+	local_irq_save(flags);
+
+	amsg.flags = ADB_IOP_SET_AUTOPOLL | (mask ? ADB_IOP_AUTOPOLL : 0);
+	amsg.count = 2;
+	amsg.cmd = 0;
+	put_unaligned_be16(mask, amsg.data);
+
+	iop_send_message(ADB_IOP, ADB_CHAN, NULL, sizeof(amsg), (__u8 *)&amsg,
+			 adb_iop_set_ap_complete);
+
+	local_irq_restore(flags);
+
+	return 0;
+}
+
+static void adb_iop_poll(void)
+{
+	iop_ism_irq_poll(ADB_IOP);
+}
+
+static int adb_iop_reset_bus(void)
+{
+	struct adb_request req;
+
+	/* Command = 0, Address = ignored */
+	adb_request(&req, NULL, ADBREQ_NOSEND, 1, ADB_BUSRESET);
+	adb_iop_send_request(&req, 1);
+
+	/* Don't want any more requests during the Global Reset low time. */
+	mdelay(3);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

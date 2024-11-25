@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Support for the sensor part which is integrated (I think) into the
  * st6422 stv06xx alike bridge, as its integrated there are no i2c writes
@@ -9,6 +13,7 @@
  * Copyright (c) 2001 Jean-Fredric Clere, Nikolas Zimmermann, Georg Acher
  *		      Mark Cave-Ayland, Carlo E Prelz, Dick Streefland
  * Copyright (c) 2002, 2003 Tuukka Toivonen
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef STV06XX_ST6422_H_

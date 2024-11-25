@@ -8,7 +8,11 @@
 
 DECLARE_PER_CPU(unsigned long, cpu_dr7);
 
+<<<<<<< HEAD
 #ifndef CONFIG_PARAVIRT
+=======
+#ifndef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 /*
  * These special macros can be used to get or set a debugging register
  */
@@ -18,7 +22,11 @@ DECLARE_PER_CPU(unsigned long, cpu_dr7);
 	native_set_debugreg(register, value)
 #endif
 
+<<<<<<< HEAD
 static inline unsigned long native_get_debugreg(int regno)
+=======
+static __always_inline unsigned long native_get_debugreg(int regno)
+>>>>>>> upstream/android-13
 {
 	unsigned long val = 0;	/* Damn you, gcc! */
 
@@ -47,7 +55,11 @@ static inline unsigned long native_get_debugreg(int regno)
 	return val;
 }
 
+<<<<<<< HEAD
 static inline void native_set_debugreg(int regno, unsigned long value)
+=======
+static __always_inline void native_set_debugreg(int regno, unsigned long value)
+>>>>>>> upstream/android-13
 {
 	switch (regno) {
 	case 0:
@@ -85,11 +97,16 @@ static inline void hw_breakpoint_disable(void)
 	set_debugreg(0UL, 3);
 }
 
+<<<<<<< HEAD
 static inline int hw_breakpoint_active(void)
+=======
+static __always_inline bool hw_breakpoint_active(void)
+>>>>>>> upstream/android-13
 {
 	return __this_cpu_read(cpu_dr7) & DR_GLOBAL_ENABLE_MASK;
 }
 
+<<<<<<< HEAD
 extern void aout_dump_debugregs(struct user *dump);
 
 extern void hw_breakpoint_restore(void);
@@ -114,6 +131,42 @@ static inline void debug_stack_reset(void) { }
 static inline void debug_stack_usage_inc(void) { }
 static inline void debug_stack_usage_dec(void) { }
 #endif /* X86_64 */
+=======
+extern void hw_breakpoint_restore(void);
+
+static __always_inline unsigned long local_db_save(void)
+{
+	unsigned long dr7;
+
+	if (static_cpu_has(X86_FEATURE_HYPERVISOR) && !hw_breakpoint_active())
+		return 0;
+
+	get_debugreg(dr7, 7);
+	dr7 &= ~0x400; /* architecturally set bit */
+	if (dr7)
+		set_debugreg(0, 7);
+	/*
+	 * Ensure the compiler doesn't lower the above statements into
+	 * the critical section; disabling breakpoints late would not
+	 * be good.
+	 */
+	barrier();
+
+	return dr7;
+}
+
+static __always_inline void local_db_restore(unsigned long dr7)
+{
+	/*
+	 * Ensure the compiler doesn't raise this statement into
+	 * the critical section; enabling breakpoints early would
+	 * not be good.
+	 */
+	barrier();
+	if (dr7)
+		set_debugreg(dr7, 7);
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_SUP_AMD
 extern void set_dr_addr_mask(unsigned long mask, int dr);

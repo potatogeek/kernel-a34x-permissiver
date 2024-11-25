@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 /* Copyright Red Hat Inc 2010.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -21,7 +25,11 @@
  *
  * Author : Dave Airlie <airlied@redhat.com>
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
 

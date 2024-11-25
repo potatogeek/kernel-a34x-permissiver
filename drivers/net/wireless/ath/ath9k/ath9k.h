@@ -112,8 +112,11 @@ int ath_descdma_setup(struct ath_softc *sc, struct ath_descdma *dd,
 #define ATH_TXFIFO_DEPTH           8
 #define ATH_TX_ERROR               0x01
 
+<<<<<<< HEAD
 #define ATH_AIRTIME_QUANTUM        300 /* usec */
 
+=======
+>>>>>>> upstream/android-13
 /* Stop tx traffic 1ms before the GO goes away */
 #define ATH_P2P_PS_STOP_TIME       1000
 
@@ -247,10 +250,15 @@ struct ath_atx_tid {
 	s8 bar_index;
 	bool active;
 	bool clear_ps_filter;
+<<<<<<< HEAD
 	bool has_queued;
 };
 
 void __ath_tx_queue_tid(struct ath_softc *sc, struct ath_atx_tid *tid);
+=======
+};
+
+>>>>>>> upstream/android-13
 void ath_tx_queue_tid(struct ath_softc *sc, struct ath_atx_tid *tid);
 
 struct ath_node {
@@ -264,12 +272,18 @@ struct ath_node {
 
 	bool sleeping;
 	bool no_ps_filter;
+<<<<<<< HEAD
 	s64 airtime_deficit[IEEE80211_NUM_ACS];
 	u32 airtime_rx_start;
 
 #ifdef CONFIG_ATH9K_STATION_STATISTICS
 	struct ath_rx_rate_stats rx_rate_stats;
 	struct ath_airtime_stats airtime_stats;
+=======
+
+#ifdef CONFIG_ATH9K_STATION_STATISTICS
+	struct ath_rx_rate_stats rx_rate_stats;
+>>>>>>> upstream/android-13
 #endif
 	u8 key_idx[4];
 
@@ -669,7 +683,10 @@ struct ath9k_vif_iter_data {
 	int naps;      /* number of AP vifs */
 	int nmeshes;   /* number of mesh vifs */
 	int nstations; /* number of station vifs */
+<<<<<<< HEAD
 	int nwds;      /* number of WDS vifs */
+=======
+>>>>>>> upstream/android-13
 	int nadhocs;   /* number of adhoc vifs */
 	int nocbs;     /* number of OCB vifs */
 	int nbcnvifs;  /* number of beaconing vifs */
@@ -721,7 +738,11 @@ struct ath_beacon {
 	bool tx_last;
 };
 
+<<<<<<< HEAD
 void ath9k_beacon_tasklet(unsigned long data);
+=======
+void ath9k_beacon_tasklet(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 void ath9k_beacon_config(struct ath_softc *sc, struct ieee80211_vif *main_vif,
 			 bool beacons);
 void ath9k_beacon_assign_slot(struct ath_softc *sc, struct ieee80211_vif *vif);
@@ -987,11 +1008,14 @@ void ath_ant_comb_scan(struct ath_softc *sc, struct ath_rx_status *rs);
 
 #define ATH9K_NUM_CHANCTX  2 /* supports 2 operating channels */
 
+<<<<<<< HEAD
 #define AIRTIME_USE_TX		BIT(0)
 #define AIRTIME_USE_RX		BIT(1)
 #define AIRTIME_USE_NEW_QUEUES	BIT(2)
 #define AIRTIME_ACTIVE(flags) (!!(flags & (AIRTIME_USE_TX|AIRTIME_USE_RX)))
 
+=======
+>>>>>>> upstream/android-13
 struct ath_softc {
 	struct ieee80211_hw *hw;
 	struct device *dev;
@@ -1035,8 +1059,11 @@ struct ath_softc {
 	short nbcnvifs;
 	unsigned long ps_usecount;
 
+<<<<<<< HEAD
 	u16 airtime_flags; /* AIRTIME_* */
 
+=======
+>>>>>>> upstream/android-13
 	struct ath_rx rx;
 	struct ath_tx tx;
 	struct ath_beacon beacon;
@@ -1132,7 +1159,11 @@ static inline void ath_read_cachesize(struct ath_common *common, int *csz)
 	common->bus_ops->read_cachesize(common, csz);
 }
 
+<<<<<<< HEAD
 void ath9k_tasklet(unsigned long data);
+=======
+void ath9k_tasklet(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 int ath_cabq_update(struct ath_softc *);
 u8 ath9k_parse_mpdudensity(u8 mpdudensity);
 irqreturn_t ath_isr(int irq, void *dev);

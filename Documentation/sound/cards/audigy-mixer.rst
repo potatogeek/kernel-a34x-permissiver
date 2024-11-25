@@ -331,8 +331,13 @@ WO 9901953 (A1)
         Execution and Audio Data Sequencing (Jan. 14, 1999)
 
 
+<<<<<<< HEAD
 US Patents (http://www.uspto.gov/)
 ----------------------------------
+=======
+US Patents (https://www.uspto.gov/)
+-----------------------------------
+>>>>>>> upstream/android-13
 
 US 5925841
 	Digital Sampling Instrument employing cache memory (Jul. 20, 1999)

@@ -12,8 +12,13 @@
 #include <linux/gpio.h>
 #include <linux/io.h>
 #include <plat/mpp.h>
+<<<<<<< HEAD
 #include <mach/dove.h>
 #include <plat/orion-gpio.h>
+=======
+#include <plat/orion-gpio.h>
+#include "dove.h"
+>>>>>>> upstream/android-13
 #include "mpp.h"
 
 struct dove_mpp_grp {

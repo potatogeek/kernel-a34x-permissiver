@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2014, Samsung Electronics Co. Ltd. All Rights Reserved.
  *
@@ -11,13 +12,22 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Copyright (C) 2014, Samsung Electronics Co. Ltd. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SSP_SENSORHUB_H__
 #define __SSP_SENSORHUB_H__
 
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/common/ssp_sensors.h>
 #include <linux/iio/iio.h>
 #include <linux/spi/spi.h>
@@ -178,9 +188,15 @@ struct ssp_sensorhub_info {
  * @fw_dl_state:	firmware download state
  * @comm_lock:		lock protecting the handshake
  * @pending_lock:	lock protecting pending list and completion
+<<<<<<< HEAD
  * @mcu_reset_gpio:	mcu reset line
  * @ap_mcu_gpio:	ap to mcu gpio line
  * @mcu_ap_gpio:	mcu to ap gpio line
+=======
+ * @mcu_reset_gpiod:	mcu reset line
+ * @ap_mcu_gpiod:	ap to mcu gpio line
+ * @mcu_ap_gpiod:	mcu to ap gpio line
+>>>>>>> upstream/android-13
  * @pending_list:	pending list for messages queued to be sent/read
  * @sensor_devs:	registered IIO devices table
  * @enable_refcount:	enable reference count for wdt (watchdog timer)
@@ -222,9 +238,15 @@ struct ssp_data {
 	struct mutex comm_lock;
 	struct mutex pending_lock;
 
+<<<<<<< HEAD
 	int mcu_reset_gpio;
 	int ap_mcu_gpio;
 	int mcu_ap_gpio;
+=======
+	struct gpio_desc *mcu_reset_gpiod;
+	struct gpio_desc *ap_mcu_gpiod;
+	struct gpio_desc *mcu_ap_gpiod;
+>>>>>>> upstream/android-13
 
 	struct list_head pending_list;
 

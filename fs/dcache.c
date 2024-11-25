@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fs/dcache.c
  *
@@ -27,15 +31,22 @@
 #include <linux/export.h>
 #include <linux/security.h>
 #include <linux/seqlock.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/bit_spinlock.h>
 #include <linux/rculist_bl.h>
 #include <linux/list_lru.h>
 #include "internal.h"
 #include "mount.h"
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 #include <linux/kdp.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Usage:
@@ -86,6 +97,11 @@ const struct qstr empty_name = QSTR_INIT("", 0);
 EXPORT_SYMBOL(empty_name);
 const struct qstr slash_name = QSTR_INIT("/", 1);
 EXPORT_SYMBOL(slash_name);
+<<<<<<< HEAD
+=======
+const struct qstr dotdot_name = QSTR_INIT("..", 2);
+EXPORT_SYMBOL(dotdot_name);
+>>>>>>> upstream/android-13
 
 /*
  * This is the single most critical data structure when it comes
@@ -123,6 +139,10 @@ struct dentry_stat_t dentry_stat = {
 
 static DEFINE_PER_CPU(long, nr_dentry);
 static DEFINE_PER_CPU(long, nr_dentry_unused);
+<<<<<<< HEAD
+=======
+static DEFINE_PER_CPU(long, nr_dentry_negative);
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_SYSCTL) && defined(CONFIG_PROC_FS)
 
@@ -156,11 +176,29 @@ static long get_nr_dentry_unused(void)
 	return sum < 0 ? 0 : sum;
 }
 
+<<<<<<< HEAD
 int proc_nr_dentry(struct ctl_table *table, int write, void __user *buffer,
+=======
+static long get_nr_dentry_negative(void)
+{
+	int i;
+	long sum = 0;
+
+	for_each_possible_cpu(i)
+		sum += per_cpu(nr_dentry_negative, i);
+	return sum < 0 ? 0 : sum;
+}
+
+int proc_nr_dentry(struct ctl_table *table, int write, void *buffer,
+>>>>>>> upstream/android-13
 		   size_t *lenp, loff_t *ppos)
 {
 	dentry_stat.nr_dentry = get_nr_dentry();
 	dentry_stat.nr_unused = get_nr_dentry_unused();
+<<<<<<< HEAD
+=======
+	dentry_stat.nr_negative = get_nr_dentry_negative();
+>>>>>>> upstream/android-13
 	return proc_doulongvec_minmax(table, write, buffer, lenp, ppos);
 }
 #endif
@@ -276,6 +314,7 @@ static inline int dname_external(const struct dentry *dentry)
 void take_dentry_name_snapshot(struct name_snapshot *name, struct dentry *dentry)
 {
 	spin_lock(&dentry->d_lock);
+<<<<<<< HEAD
 	if (unlikely(dname_external(dentry))) {
 		struct external_name *p = external_name(dentry);
 		atomic_inc(&p->u.count);
@@ -287,14 +326,31 @@ void take_dentry_name_snapshot(struct name_snapshot *name, struct dentry *dentry
 		spin_unlock(&dentry->d_lock);
 		name->name = name->inline_name;
 	}
+=======
+	name->name = dentry->d_name;
+	if (unlikely(dname_external(dentry))) {
+		atomic_inc(&external_name(dentry)->u.count);
+	} else {
+		memcpy(name->inline_name, dentry->d_iname,
+		       dentry->d_name.len + 1);
+		name->name.name = name->inline_name;
+	}
+	spin_unlock(&dentry->d_lock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(take_dentry_name_snapshot);
 
 void release_dentry_name_snapshot(struct name_snapshot *name)
 {
+<<<<<<< HEAD
 	if (unlikely(name->name != name->inline_name)) {
 		struct external_name *p;
 		p = container_of(name->name, struct external_name, name[0]);
+=======
+	if (unlikely(name->name.name != name->inline_name)) {
+		struct external_name *p;
+		p = container_of(name->name.name, struct external_name, name[0]);
+>>>>>>> upstream/android-13
 		if (unlikely(atomic_dec_and_test(&p->u.count)))
 			kfree_rcu(p, u.head);
 	}
@@ -311,7 +367,11 @@ static inline void __d_set_inode_and_type(struct dentry *dentry,
 	flags = READ_ONCE(dentry->d_flags);
 	flags &= ~(DCACHE_ENTRY_TYPE | DCACHE_FALLTHRU);
 	flags |= type_flags;
+<<<<<<< HEAD
 	WRITE_ONCE(dentry->d_flags, flags);
+=======
+	smp_store_release(&dentry->d_flags, flags);
+>>>>>>> upstream/android-13
 }
 
 static inline void __d_clear_type_and_inode(struct dentry *dentry)
@@ -321,6 +381,11 @@ static inline void __d_clear_type_and_inode(struct dentry *dentry)
 	flags &= ~(DCACHE_ENTRY_TYPE | DCACHE_FALLTHRU);
 	WRITE_ONCE(dentry->d_flags, flags);
 	dentry->d_inode = NULL;
+<<<<<<< HEAD
+=======
+	if (dentry->d_flags & DCACHE_LRU_LIST)
+		this_cpu_inc(nr_dentry_negative);
+>>>>>>> upstream/android-13
 }
 
 static void dentry_free(struct dentry *dentry)
@@ -375,6 +440,14 @@ static void dentry_unlink_inode(struct dentry * dentry)
  * The per-cpu "nr_dentry_unused" counters are updated with
  * the DCACHE_LRU_LIST bit.
  *
+<<<<<<< HEAD
+=======
+ * The per-cpu "nr_dentry_negative" counters are only updated
+ * when deleted from or added to the per-superblock LRU list, not
+ * from/to the shrink list. That is to avoid an unneeded dec/inc
+ * pair when moving from LRU to shrink list in select_collect().
+ *
+>>>>>>> upstream/android-13
  * These helper functions make sure we always follow the
  * rules. d_lock must be held by the caller.
  */
@@ -384,6 +457,11 @@ static void d_lru_add(struct dentry *dentry)
 	D_FLAG_VERIFY(dentry, 0);
 	dentry->d_flags |= DCACHE_LRU_LIST;
 	this_cpu_inc(nr_dentry_unused);
+<<<<<<< HEAD
+=======
+	if (d_is_negative(dentry))
+		this_cpu_inc(nr_dentry_negative);
+>>>>>>> upstream/android-13
 	WARN_ON_ONCE(!list_lru_add(&dentry->d_sb->s_dentry_lru, &dentry->d_lru));
 }
 
@@ -392,6 +470,11 @@ static void d_lru_del(struct dentry *dentry)
 	D_FLAG_VERIFY(dentry, DCACHE_LRU_LIST);
 	dentry->d_flags &= ~DCACHE_LRU_LIST;
 	this_cpu_dec(nr_dentry_unused);
+<<<<<<< HEAD
+=======
+	if (d_is_negative(dentry))
+		this_cpu_dec(nr_dentry_negative);
+>>>>>>> upstream/android-13
 	WARN_ON_ONCE(!list_lru_del(&dentry->d_sb->s_dentry_lru, &dentry->d_lru));
 }
 
@@ -422,6 +505,11 @@ static void d_lru_isolate(struct list_lru_one *lru, struct dentry *dentry)
 	D_FLAG_VERIFY(dentry, DCACHE_LRU_LIST);
 	dentry->d_flags &= ~DCACHE_LRU_LIST;
 	this_cpu_dec(nr_dentry_unused);
+<<<<<<< HEAD
+=======
+	if (d_is_negative(dentry))
+		this_cpu_dec(nr_dentry_negative);
+>>>>>>> upstream/android-13
 	list_lru_isolate(lru, &dentry->d_lru);
 }
 
@@ -430,6 +518,7 @@ static void d_lru_shrink_move(struct list_lru_one *lru, struct dentry *dentry,
 {
 	D_FLAG_VERIFY(dentry, DCACHE_LRU_LIST);
 	dentry->d_flags |= DCACHE_SHRINK_LIST;
+<<<<<<< HEAD
 	list_lru_isolate_move(lru, &dentry->d_lru, list);
 }
 
@@ -450,6 +539,13 @@ static void d_lru_shrink_move(struct list_lru_one *lru, struct dentry *dentry,
  * ___d_drop doesn't mark dentry as "unhashed"
  *   (dentry->d_hash.pprev will be LIST_POISON2, not NULL).
  */
+=======
+	if (d_is_negative(dentry))
+		this_cpu_dec(nr_dentry_negative);
+	list_lru_isolate_move(lru, &dentry->d_lru, list);
+}
+
+>>>>>>> upstream/android-13
 static void ___d_drop(struct dentry *dentry)
 {
 	struct hlist_bl_head *b;
@@ -478,6 +574,27 @@ void __d_drop(struct dentry *dentry)
 }
 EXPORT_SYMBOL(__d_drop);
 
+<<<<<<< HEAD
+=======
+/**
+ * d_drop - drop a dentry
+ * @dentry: dentry to drop
+ *
+ * d_drop() unhashes the entry from the parent dentry hashes, so that it won't
+ * be found through a VFS lookup any more. Note that this is different from
+ * deleting the dentry - d_delete will try to mark the dentry negative if
+ * possible, giving a successful _negative_ lookup, while d_drop will
+ * just make the cache lookup fail.
+ *
+ * d_drop() is used mainly for stuff that wants to invalidate a dentry for some
+ * reason (NFS timeouts or autofs deletes).
+ *
+ * __d_drop requires dentry->d_lock
+ *
+ * ___d_drop doesn't mark dentry as "unhashed"
+ * (dentry->d_hash.pprev will be LIST_POISON2, not NULL).
+ */
+>>>>>>> upstream/android-13
 void d_drop(struct dentry *dentry)
 {
 	spin_lock(&dentry->d_lock);
@@ -624,6 +741,13 @@ static inline bool retain_dentry(struct dentry *dentry)
 		if (dentry->d_op->d_delete(dentry))
 			return false;
 	}
+<<<<<<< HEAD
+=======
+
+	if (unlikely(dentry->d_flags & DCACHE_DONTCACHE))
+		return false;
+
+>>>>>>> upstream/android-13
 	/* retain; LRU fodder */
 	dentry->d_lockref.count--;
 	if (unlikely(!(dentry->d_flags & DCACHE_LRU_LIST)))
@@ -633,6 +757,24 @@ static inline bool retain_dentry(struct dentry *dentry)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+void d_mark_dontcache(struct inode *inode)
+{
+	struct dentry *de;
+
+	spin_lock(&inode->i_lock);
+	hlist_for_each_entry(de, &inode->i_dentry, d_u.d_alias) {
+		spin_lock(&de->d_lock);
+		de->d_flags |= DCACHE_DONTCACHE;
+		spin_unlock(&de->d_lock);
+	}
+	inode->i_state |= I_DONTCACHE;
+	spin_unlock(&inode->i_lock);
+}
+EXPORT_SYMBOL(d_mark_dontcache);
+
+>>>>>>> upstream/android-13
 /*
  * Finish off a dentry we've decided to kill.
  * dentry->d_lock must be held, returns with it unlocked.
@@ -751,10 +893,24 @@ static inline bool fast_dput(struct dentry *dentry)
 	 * a reference to the dentry and change that, but
 	 * our work is done - we can leave the dentry
 	 * around with a zero refcount.
+<<<<<<< HEAD
 	 */
 	smp_rmb();
 	d_flags = READ_ONCE(dentry->d_flags);
 	d_flags &= DCACHE_REFERENCED | DCACHE_LRU_LIST | DCACHE_DISCONNECTED;
+=======
+	 *
+	 * Nevertheless, there are two cases that we should kill
+	 * the dentry anyway.
+	 * 1. free disconnected dentries as soon as their refcount
+	 *    reached zero.
+	 * 2. free dentries if they should not be cached.
+	 */
+	smp_rmb();
+	d_flags = READ_ONCE(dentry->d_flags);
+	d_flags &= DCACHE_REFERENCED | DCACHE_LRU_LIST |
+			DCACHE_DISCONNECTED | DCACHE_DONTCACHE;
+>>>>>>> upstream/android-13
 
 	/* Nothing to do? Dropping the reference was all we needed? */
 	if (d_flags == (DCACHE_REFERENCED | DCACHE_LRU_LIST) && !d_unhashed(dentry))
@@ -838,6 +994,35 @@ void dput(struct dentry *dentry)
 }
 EXPORT_SYMBOL(dput);
 
+<<<<<<< HEAD
+=======
+static void __dput_to_list(struct dentry *dentry, struct list_head *list)
+__must_hold(&dentry->d_lock)
+{
+	if (dentry->d_flags & DCACHE_SHRINK_LIST) {
+		/* let the owner of the list it's on deal with it */
+		--dentry->d_lockref.count;
+	} else {
+		if (dentry->d_flags & DCACHE_LRU_LIST)
+			d_lru_del(dentry);
+		if (!--dentry->d_lockref.count)
+			d_shrink_add(dentry, list);
+	}
+}
+
+void dput_to_list(struct dentry *dentry, struct list_head *list)
+{
+	rcu_read_lock();
+	if (likely(fast_dput(dentry))) {
+		rcu_read_unlock();
+		return;
+	}
+	rcu_read_unlock();
+	if (!retain_dentry(dentry))
+		__dput_to_list(dentry, list);
+	spin_unlock(&dentry->d_lock);
+}
+>>>>>>> upstream/android-13
 
 /* This must be called with d_lock held */
 static inline void __dget_dlock(struct dentry *dentry)
@@ -921,6 +1106,7 @@ struct dentry *d_find_any_alias(struct inode *inode)
 }
 EXPORT_SYMBOL(d_find_any_alias);
 
+<<<<<<< HEAD
 /**
  * d_find_alias - grab a hashed alias of inode
  * @inode: inode in question
@@ -935,6 +1121,8 @@ EXPORT_SYMBOL(d_find_any_alias);
  * If the inode has an IS_ROOT, DCACHE_DISCONNECTED alias, then prefer
  * any other hashed alias over that one.
  */
+=======
+>>>>>>> upstream/android-13
 static struct dentry *__d_find_alias(struct inode *inode)
 {
 	struct dentry *alias;
@@ -954,6 +1142,23 @@ static struct dentry *__d_find_alias(struct inode *inode)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * d_find_alias - grab a hashed alias of inode
+ * @inode: inode in question
+ *
+ * If inode has a hashed alias, or is a directory and has any alias,
+ * acquire the reference to alias and return it. Otherwise return NULL.
+ * Notice that if inode is a directory there can be only one alias and
+ * it can be unhashed only if it has no children, or if it is the root
+ * of a filesystem, or if the directory was renamed and d_revalidate
+ * was the first vfs operation to notice.
+ *
+ * If the inode has an IS_ROOT, DCACHE_DISCONNECTED alias, then prefer
+ * any other hashed alias over that one.
+ */
+>>>>>>> upstream/android-13
 struct dentry *d_find_alias(struct inode *inode)
 {
 	struct dentry *de = NULL;
@@ -968,6 +1173,34 @@ struct dentry *d_find_alias(struct inode *inode)
 EXPORT_SYMBOL(d_find_alias);
 
 /*
+<<<<<<< HEAD
+=======
+ *  Caller MUST be holding rcu_read_lock() and be guaranteed
+ *  that inode won't get freed until rcu_read_unlock().
+ */
+struct dentry *d_find_alias_rcu(struct inode *inode)
+{
+	struct hlist_head *l = &inode->i_dentry;
+	struct dentry *de = NULL;
+
+	spin_lock(&inode->i_lock);
+	// ->i_dentry and ->i_rcu are colocated, but the latter won't be
+	// used without having I_FREEING set, which means no aliases left
+	if (likely(!(inode->i_state & I_FREEING) && !hlist_empty(l))) {
+		if (S_ISDIR(inode->i_mode)) {
+			de = hlist_entry(l->first, struct dentry, d_u.d_alias);
+		} else {
+			hlist_for_each_entry(de, l, d_u.d_alias)
+				if (!d_unhashed(de))
+					break;
+		}
+	}
+	spin_unlock(&inode->i_lock);
+	return de;
+}
+
+/*
+>>>>>>> upstream/android-13
  *	Try to kill dentries associated with this inode.
  * WARNING: you must own a reference to inode.
  */
@@ -1046,7 +1279,11 @@ out:
 	return false;
 }
 
+<<<<<<< HEAD
 static void shrink_dentry_list(struct list_head *list)
+=======
+void shrink_dentry_list(struct list_head *list)
+>>>>>>> upstream/android-13
 {
 	while (!list_empty(list)) {
 		struct dentry *dentry, *parent;
@@ -1068,6 +1305,7 @@ static void shrink_dentry_list(struct list_head *list)
 		rcu_read_unlock();
 		d_shrink_del(dentry);
 		parent = dentry->d_parent;
+<<<<<<< HEAD
 		__dentry_kill(dentry);
 		if (parent == dentry)
 			continue;
@@ -1080,6 +1318,11 @@ static void shrink_dentry_list(struct list_head *list)
 		dentry = parent;
 		while (dentry && !lockref_put_or_lock(&dentry->d_lockref))
 			dentry = dentry_kill(dentry);
+=======
+		if (parent != dentry)
+			__dput_to_list(parent, list);
+		__dentry_kill(dentry);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1281,7 +1524,11 @@ resume:
 
 		if (!list_empty(&dentry->d_subdirs)) {
 			spin_unlock(&this_parent->d_lock);
+<<<<<<< HEAD
 			spin_release(&dentry->d_lock.dep_map, 1, _RET_IP_);
+=======
+			spin_release(&dentry->d_lock.dep_map, _RET_IP_);
+>>>>>>> upstream/android-13
 			this_parent = dentry;
 			spin_acquire(&this_parent->d_lock.dep_map, 0, 1, _RET_IP_);
 			goto repeat;
@@ -1424,8 +1671,16 @@ out:
 
 struct select_data {
 	struct dentry *start;
+<<<<<<< HEAD
 	struct list_head dispose;
 	int found;
+=======
+	union {
+		long found;
+		struct dentry *victim;
+	};
+	struct list_head dispose;
+>>>>>>> upstream/android-13
 };
 
 static enum d_walk_ret select_collect(void *_data, struct dentry *dentry)
@@ -1437,7 +1692,11 @@ static enum d_walk_ret select_collect(void *_data, struct dentry *dentry)
 		goto out;
 
 	if (dentry->d_flags & DCACHE_SHRINK_LIST) {
+<<<<<<< HEAD
 		goto out;
+=======
+		data->found++;
+>>>>>>> upstream/android-13
 	} else {
 		if (dentry->d_flags & DCACHE_LRU_LIST)
 			d_lru_del(dentry);
@@ -1457,6 +1716,40 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static enum d_walk_ret select_collect2(void *_data, struct dentry *dentry)
+{
+	struct select_data *data = _data;
+	enum d_walk_ret ret = D_WALK_CONTINUE;
+
+	if (data->start == dentry)
+		goto out;
+
+	if (dentry->d_flags & DCACHE_SHRINK_LIST) {
+		if (!dentry->d_lockref.count) {
+			rcu_read_lock();
+			data->victim = dentry;
+			return D_WALK_QUIT;
+		}
+	} else {
+		if (dentry->d_flags & DCACHE_LRU_LIST)
+			d_lru_del(dentry);
+		if (!dentry->d_lockref.count)
+			d_shrink_add(dentry, &data->dispose);
+	}
+	/*
+	 * We can return to the caller if we have found some (this
+	 * ensures forward progress). We'll be coming back to find
+	 * the rest.
+	 */
+	if (!list_empty(&data->dispose))
+		ret = need_resched() ? D_WALK_QUIT : D_WALK_NORETRY;
+out:
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /**
  * shrink_dcache_parent - prune dcache
  * @parent: parent of entries to prune
@@ -1466,6 +1759,7 @@ out:
 void shrink_dcache_parent(struct dentry *parent)
 {
 	for (;;) {
+<<<<<<< HEAD
 		struct select_data data;
 		bool need_sched = true;
 
@@ -1473,6 +1767,11 @@ void shrink_dcache_parent(struct dentry *parent)
 		data.start = parent;
 		data.found = 0;
 
+=======
+		struct select_data data = {.start = parent};
+
+		INIT_LIST_HEAD(&data.dispose);
+>>>>>>> upstream/android-13
 		d_walk(parent, &data, select_collect);
 
 		if (!list_empty(&data.dispose)) {
@@ -1480,6 +1779,7 @@ void shrink_dcache_parent(struct dentry *parent)
 			continue;
 		}
 
+<<<<<<< HEAD
 		if (cond_resched())
 			need_sched = false;
 
@@ -1492,6 +1792,29 @@ void shrink_dcache_parent(struct dentry *parent)
 			if (!schedule_timeout_uninterruptible(1))
 				set_current_state(prev_state);
 		}
+=======
+		cond_resched();
+		if (!data.found)
+			break;
+		data.victim = NULL;
+		d_walk(parent, &data, select_collect2);
+		if (data.victim) {
+			struct dentry *parent;
+			spin_lock(&data.victim->d_lock);
+			if (!shrink_lock_dentry(data.victim)) {
+				spin_unlock(&data.victim->d_lock);
+				rcu_read_unlock();
+			} else {
+				rcu_read_unlock();
+				parent = data.victim->d_parent;
+				if (parent != data.victim)
+					__dput_to_list(parent, &data.dispose);
+				__dentry_kill(data.victim);
+			}
+		}
+		if (!list_empty(&data.dispose))
+			shrink_dentry_list(&data.dispose);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(shrink_dcache_parent);
@@ -1602,7 +1925,11 @@ EXPORT_SYMBOL(d_invalidate);
  * copied and the copy passed in may be reused after this call.
  */
  
+<<<<<<< HEAD
 struct dentry *__d_alloc(struct super_block *sb, const struct qstr *name)
+=======
+static struct dentry *__d_alloc(struct super_block *sb, const struct qstr *name)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry;
 	char *dname;
@@ -1648,7 +1975,11 @@ struct dentry *__d_alloc(struct super_block *sb, const struct qstr *name)
 	dentry->d_lockref.count = 1;
 	dentry->d_flags = 0;
 	spin_lock_init(&dentry->d_lock);
+<<<<<<< HEAD
 	seqcount_init(&dentry->d_seq);
+=======
+	seqcount_spinlock_init(&dentry->d_seq, &dentry->d_lock);
+>>>>>>> upstream/android-13
 	dentry->d_inode = NULL;
 	dentry->d_parent = dentry;
 	dentry->d_sb = sb;
@@ -1731,6 +2062,12 @@ struct dentry *d_alloc_cursor(struct dentry * parent)
  * never be anyone's children or parents.  Unlike all other
  * dentries, these will not have RCU delay between dropping the
  * last reference and freeing them.
+<<<<<<< HEAD
+=======
+ *
+ * The only user is alloc_file_pseudo() and that's what should
+ * be considered a public interface.  Don't use directly.
+>>>>>>> upstream/android-13
  */
 struct dentry *d_alloc_pseudo(struct super_block *sb, const struct qstr *name)
 {
@@ -1739,7 +2076,10 @@ struct dentry *d_alloc_pseudo(struct super_block *sb, const struct qstr *name)
 		dentry->d_flags |= DCACHE_NORCU;
 	return dentry;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(d_alloc_pseudo);
+=======
+>>>>>>> upstream/android-13
 
 struct dentry *d_alloc_name(struct dentry *parent, const char *name)
 {
@@ -1838,6 +2178,14 @@ static void __d_instantiate(struct dentry *dentry, struct inode *inode)
 	WARN_ON(d_in_lookup(dentry));
 
 	spin_lock(&dentry->d_lock);
+<<<<<<< HEAD
+=======
+	/*
+	 * Decrement negative dentry count if it was in the LRU list.
+	 */
+	if (dentry->d_flags & DCACHE_LRU_LIST)
+		this_cpu_dec(nr_dentry_negative);
+>>>>>>> upstream/android-13
 	hlist_add_head(&dentry->d_u.d_alias, &inode->i_dentry);
 	raw_write_seqcount_begin(&dentry->d_seq);
 	__d_set_inode_and_type(dentry, inode, add_flags);
@@ -2005,7 +2353,11 @@ struct dentry *d_obtain_alias(struct inode *inode)
 {
 	return __d_obtain_alias(inode, true);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(d_obtain_alias);
+=======
+EXPORT_SYMBOL_NS(d_obtain_alias, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * d_obtain_root - find or allocate a dentry for a given inode
@@ -2038,8 +2390,13 @@ EXPORT_SYMBOL(d_obtain_root);
  * same inode, only the actual correct case is stored in the dcache for
  * case-insensitive filesystems.
  *
+<<<<<<< HEAD
  * For a case-insensitive lookup match and if the the case-exact dentry
  * already exists in in the dcache, use it and return it.
+=======
+ * For a case-insensitive lookup match and if the case-exact dentry
+ * already exists in the dcache, use it and return it.
+>>>>>>> upstream/android-13
  *
  * If no entry exists with the exact case name, allocate new dentry with
  * the exact case, and return the spliced entry.
@@ -2079,7 +2436,11 @@ struct dentry *d_add_ci(struct dentry *dentry, struct inode *inode,
 	}
 	return found;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(d_add_ci);
+=======
+EXPORT_SYMBOL_NS(d_add_ci, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 
 static inline bool d_same_name(const struct dentry *dentry,
@@ -2354,7 +2715,10 @@ EXPORT_SYMBOL(d_hash_and_lookup);
 void d_delete(struct dentry * dentry)
 {
 	struct inode *inode = dentry->d_inode;
+<<<<<<< HEAD
 	int isdir = d_is_dir(dentry);
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&inode->i_lock);
 	spin_lock(&dentry->d_lock);
@@ -2369,7 +2733,10 @@ void d_delete(struct dentry * dentry)
 		spin_unlock(&dentry->d_lock);
 		spin_unlock(&inode->i_lock);
 	}
+<<<<<<< HEAD
 	fsnotify_nameremove(dentry, isdir);
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(d_delete);
 
@@ -2812,7 +3179,11 @@ void d_move(struct dentry *dentry, struct dentry *target)
 	__d_move(dentry, target, false);
 	write_sequnlock(&rename_lock);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(d_move);
+=======
+EXPORT_SYMBOL_NS(d_move, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * d_exchange - exchange two dentries
@@ -2962,7 +3333,11 @@ out:
 	__d_add(dentry, inode);
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(d_splice_alias);
+=======
+EXPORT_SYMBOL_NS(d_splice_alias, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * Test whether new_dentry is a subdirectory of old_dentry.
@@ -3115,10 +3490,15 @@ void __init vfs_caches_init_early(void)
 	for (i = 0; i < ARRAY_SIZE(in_lookup_hashtable); i++)
 		INIT_HLIST_BL_HEAD(&in_lookup_hashtable[i]);
 
+<<<<<<< HEAD
 	set_memsize_kernel_type(MEMSIZE_KERNEL_VFSHASH);
 	dcache_init_early();
 	inode_init_early();
 	set_memsize_kernel_type(MEMSIZE_KERNEL_OTHERS);
+=======
+	dcache_init_early();
+	inode_init_early();
+>>>>>>> upstream/android-13
 }
 
 void __init vfs_caches_init(void)
@@ -3133,7 +3513,10 @@ void __init vfs_caches_init(void)
 	mnt_init();
 	bdev_cache_init();
 	chrdev_init();
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	ns_protect = 1;
 #endif
+=======
+>>>>>>> upstream/android-13
 }

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Ioctl handler
  *	Linux ethernet bridge
  *
  *	Authors:
  *	Lennert Buytenhek		<buytenh@gnu.org>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -75,7 +82,12 @@ static int get_fdb_entries(struct net_bridge *br, void __user *userbuf,
 
 	num = br_fdb_fillbuf(br, buf, maxnum, offset);
 	if (num > 0) {
+<<<<<<< HEAD
 		if (copy_to_user(userbuf, buf, num*sizeof(struct __fdb_entry)))
+=======
+		if (copy_to_user(userbuf, buf,
+				 array_size(num, sizeof(struct __fdb_entry))))
+>>>>>>> upstream/android-13
 			num = -EFAULT;
 	}
 	kfree(buf);
@@ -107,18 +119,49 @@ static int add_del_if(struct net_bridge *br, int ifindex, int isadd)
 
 /*
  * Legacy ioctl's through SIOCDEVPRIVATE
+<<<<<<< HEAD
  * This interface is deprecated because it was too difficult to
  * to do the translation for 32/64bit ioctl compatibility.
  */
 static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+=======
+ * This interface is deprecated because it was too difficult
+ * to do the translation for 32/64bit ioctl compatibility.
+ */
+int br_dev_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct net_bridge *br = netdev_priv(dev);
 	struct net_bridge_port *p = NULL;
 	unsigned long args[4];
+<<<<<<< HEAD
 	int ret = -EOPNOTSUPP;
 
 	if (copy_from_user(args, rq->ifr_data, sizeof(args)))
 		return -EFAULT;
+=======
+	void __user *argp;
+	int ret = -EOPNOTSUPP;
+
+	if (in_compat_syscall()) {
+		unsigned int cargs[4];
+
+		if (copy_from_user(cargs, data, sizeof(cargs)))
+			return -EFAULT;
+
+		args[0] = cargs[0];
+		args[1] = cargs[1];
+		args[2] = cargs[2];
+		args[3] = cargs[3];
+
+		argp = compat_ptr(args[1]);
+	} else {
+		if (copy_from_user(args, data, sizeof(args)))
+			return -EFAULT;
+
+		argp = (void __user *)args[1];
+	}
+>>>>>>> upstream/android-13
 
 	switch (args[0]) {
 	case BRCTL_ADD_IF:
@@ -175,7 +218,11 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 			return -ENOMEM;
 
 		get_port_ifindices(br, indices, num);
+<<<<<<< HEAD
 		if (copy_to_user((void __user *)args[1], indices, num*sizeof(int)))
+=======
+		if (copy_to_user(argp, indices, array_size(num, sizeof(int))))
+>>>>>>> upstream/android-13
 			num =  -EFAULT;
 		kfree(indices);
 		return num;
@@ -236,7 +283,11 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 
 		rcu_read_unlock();
 
+<<<<<<< HEAD
 		if (copy_to_user((void __user *)args[1], &p, sizeof(p)))
+=======
+		if (copy_to_user(argp, &p, sizeof(p)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 
 		return 0;
@@ -246,8 +297,12 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 		if (!ns_capable(dev_net(dev)->user_ns, CAP_NET_ADMIN))
 			return -EPERM;
 
+<<<<<<< HEAD
 		br_stp_set_enabled(br, args[1]);
 		ret = 0;
+=======
+		ret = br_stp_set_enabled(br, args[1], NULL);
+>>>>>>> upstream/android-13
 		break;
 
 	case BRCTL_SET_BRIDGE_PRIORITY:
@@ -287,8 +342,12 @@ static int old_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	}
 
 	case BRCTL_GET_FDB_ENTRIES:
+<<<<<<< HEAD
 		return get_fdb_entries(br, (void __user *)args[1],
 				       args[2], args[3]);
+=======
+		return get_fdb_entries(br, argp, args[2], args[3]);
+>>>>>>> upstream/android-13
 	}
 
 	if (!ret) {
@@ -325,7 +384,12 @@ static int old_deviceless(struct net *net, void __user *uarg)
 
 		args[2] = get_bridge_ifindices(net, indices, args[2]);
 
+<<<<<<< HEAD
 		ret = copy_to_user((void __user *)args[1], indices, args[2]*sizeof(int))
+=======
+		ret = copy_to_user((void __user *)args[1], indices,
+				   array_size(args[2], sizeof(int)))
+>>>>>>> upstream/android-13
 			? -EFAULT : args[2];
 
 		kfree(indices);
@@ -355,6 +419,7 @@ static int old_deviceless(struct net *net, void __user *uarg)
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
 int br_ioctl_deviceless_stub(struct net *net, unsigned int cmd, void __user *uarg)
 {
 	switch (cmd) {
@@ -362,11 +427,26 @@ int br_ioctl_deviceless_stub(struct net *net, unsigned int cmd, void __user *uar
 	case SIOCSIFBR:
 		return old_deviceless(net, uarg);
 
+=======
+int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
+		  struct ifreq *ifr, void __user *uarg)
+{
+	int ret = -EOPNOTSUPP;
+
+	rtnl_lock();
+
+	switch (cmd) {
+	case SIOCGIFBR:
+	case SIOCSIFBR:
+		ret = old_deviceless(net, uarg);
+		break;
+>>>>>>> upstream/android-13
 	case SIOCBRADDBR:
 	case SIOCBRDELBR:
 	{
 		char buf[IFNAMSIZ];
 
+<<<<<<< HEAD
 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
 			return -EPERM;
 
@@ -399,4 +479,32 @@ int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 
 	br_debug(br, "Bridge does not support ioctl 0x%x\n", cmd);
 	return -EOPNOTSUPP;
+=======
+		if (!ns_capable(net->user_ns, CAP_NET_ADMIN)) {
+			ret = -EPERM;
+			break;
+		}
+
+		if (copy_from_user(buf, uarg, IFNAMSIZ)) {
+			ret = -EFAULT;
+			break;
+		}
+
+		buf[IFNAMSIZ-1] = 0;
+		if (cmd == SIOCBRADDBR)
+			ret = br_add_bridge(net, buf);
+		else
+			ret = br_del_bridge(net, buf);
+	}
+		break;
+	case SIOCBRADDIF:
+	case SIOCBRDELIF:
+		ret = add_del_if(br, ifr->ifr_ifindex, cmd == SIOCBRADDIF);
+		break;
+	}
+
+	rtnl_unlock();
+
+	return ret;
+>>>>>>> upstream/android-13
 }

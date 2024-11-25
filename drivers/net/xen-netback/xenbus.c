@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Xenbus code for netif backend
  *
  * Copyright (C) 2005 Rusty Russell <rusty@rustcorp.com.au>
  * Copyright (C) 2005 XenSource Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +21,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include "common.h"
 #include <linux/vmalloc.h>
 #include <linux/rtnetlink.h>
 
+<<<<<<< HEAD
 struct backend_info {
 	struct xenbus_device *dev;
 	struct xenvif *vif;
@@ -38,6 +46,8 @@ struct backend_info {
 	const char *hotplug_script;
 };
 
+=======
+>>>>>>> upstream/android-13
 static int connect_data_rings(struct backend_info *be,
 			      struct xenvif_queue *queue);
 static void connect(struct backend_info *be);
@@ -186,7 +196,11 @@ static const struct file_operations xenvif_dbg_io_ring_ops_fops = {
 	.write = xenvif_write_io_ring,
 };
 
+<<<<<<< HEAD
 static int xenvif_read_ctrl(struct seq_file *m, void *v)
+=======
+static int xenvif_ctrl_show(struct seq_file *m, void *v)
+>>>>>>> upstream/android-13
 {
 	struct xenvif *vif = m->private;
 
@@ -194,6 +208,7 @@ static int xenvif_read_ctrl(struct seq_file *m, void *v)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int xenvif_ctrl_open(struct inode *inode, struct file *filp)
 {
@@ -247,19 +262,46 @@ static void xenvif_debugfs_addif(struct xenvif *vif)
 		netdev_warn(vif->dev,
 			    "Creation of vif debugfs dir returned %ld!\n",
 			    PTR_ERR(vif->xenvif_dbg_root));
+=======
+DEFINE_SHOW_ATTRIBUTE(xenvif_ctrl);
+
+static void xenvif_debugfs_addif(struct xenvif *vif)
+{
+	int i;
+
+	vif->xenvif_dbg_root = debugfs_create_dir(vif->dev->name,
+						  xen_netback_dbg_root);
+	for (i = 0; i < vif->num_queues; ++i) {
+		char filename[sizeof("io_ring_q") + 4];
+
+		snprintf(filename, sizeof(filename), "io_ring_q%d", i);
+		debugfs_create_file(filename, 0600, vif->xenvif_dbg_root,
+				    &vif->queues[i],
+				    &xenvif_dbg_io_ring_ops_fops);
+	}
+
+	if (vif->ctrl_irq)
+		debugfs_create_file("ctrl", 0400, vif->xenvif_dbg_root, vif,
+				    &xenvif_ctrl_fops);
+>>>>>>> upstream/android-13
 }
 
 static void xenvif_debugfs_delif(struct xenvif *vif)
 {
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(xen_netback_dbg_root))
 		return;
 
 	if (!IS_ERR_OR_NULL(vif->xenvif_dbg_root))
 		debugfs_remove_recursive(vif->xenvif_dbg_root);
+=======
+	debugfs_remove_recursive(vif->xenvif_dbg_root);
+>>>>>>> upstream/android-13
 	vif->xenvif_dbg_root = NULL;
 }
 #endif /* CONFIG_DEBUG_FS */
 
+<<<<<<< HEAD
 static int netback_remove(struct xenbus_device *dev)
 {
 	struct backend_info *be = dev_get_drvdata(&dev->dev);
@@ -439,6 +481,8 @@ fail:
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Handle the creation of the hotplug script environment.  We add the script
  * and vif variables to the environment, for the benefit of the vif-* hotplug
@@ -485,6 +529,10 @@ static int backend_create_xenvif(struct backend_info *be)
 		return err;
 	}
 	be->vif = vif;
+<<<<<<< HEAD
+=======
+	vif->be = be;
+>>>>>>> upstream/android-13
 
 	kobject_uevent(&dev->dev.kobj, KOBJ_ONLINE);
 	return 0;
@@ -499,6 +547,10 @@ static void backend_disconnect(struct backend_info *be)
 		unsigned int queue_index;
 
 		xen_unregister_watchers(vif);
+<<<<<<< HEAD
+=======
+		xenbus_rm(XBT_NIL, be->dev->nodename, "hotplug-status");
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 		xenvif_debugfs_delif(vif);
 #endif /* CONFIG_DEBUG_FS */
@@ -636,7 +688,29 @@ static void set_backend_state(struct backend_info *be,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+static void read_xenbus_frontend_xdp(struct backend_info *be,
+				      struct xenbus_device *dev)
+{
+	struct xenvif *vif = be->vif;
+	u16 headroom;
+	int err;
+
+	err = xenbus_scanf(XBT_NIL, dev->otherend,
+			   "xdp-headroom", "%hu", &headroom);
+	if (err != 1) {
+		vif->xdp_headroom = 0;
+		return;
+	}
+	if (headroom > XEN_NETIF_MAX_XDP_HEADROOM)
+		headroom = XEN_NETIF_MAX_XDP_HEADROOM;
+	vif->xdp_headroom = headroom;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Callback received when the frontend's state changes.
  */
 static void frontend_changed(struct xenbus_device *dev,
@@ -660,6 +734,14 @@ static void frontend_changed(struct xenbus_device *dev,
 		set_backend_state(be, XenbusStateConnected);
 		break;
 
+<<<<<<< HEAD
+=======
+	case XenbusStateReconfiguring:
+		read_xenbus_frontend_xdp(be, dev);
+		xenbus_switch_state(dev, XenbusStateReconfigured);
+		break;
+
+>>>>>>> upstream/android-13
 	case XenbusStateClosing:
 		set_backend_state(be, XenbusStateClosing);
 		break;
@@ -668,7 +750,11 @@ static void frontend_changed(struct xenbus_device *dev,
 		set_backend_state(be, XenbusStateClosed);
 		if (xenbus_dev_is_online(dev))
 			break;
+<<<<<<< HEAD
 		/* fall through if not online */
+=======
+		fallthrough;	/* if not online */
+>>>>>>> upstream/android-13
 	case XenbusStateUnknown:
 		set_backend_state(be, XenbusStateClosed);
 		device_unregister(&dev->dev);
@@ -1043,6 +1129,7 @@ static void connect(struct backend_info *be)
 	xenvif_carrier_on(be->vif);
 
 	unregister_hotplug_status_watch(be);
+<<<<<<< HEAD
 	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
 		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
 					   NULL, hotplug_status_changed,
@@ -1052,6 +1139,13 @@ static void connect(struct backend_info *be)
 			goto err;
 		be->have_hotplug_status_watch = 1;
 	}
+=======
+	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
+				   hotplug_status_changed,
+				   "%s/%s", dev->nodename, "hotplug-status");
+	if (!err)
+		be->have_hotplug_status_watch = 1;
+>>>>>>> upstream/android-13
 
 	netif_tx_wake_all_queues(be->vif->dev);
 
@@ -1197,9 +1291,194 @@ static int read_xenbus_vif_flags(struct backend_info *be)
 	vif->ipv6_csum = !!xenbus_read_unsigned(dev->otherend,
 						"feature-ipv6-csum-offload", 0);
 
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+	read_xenbus_frontend_xdp(be, dev);
+
+	return 0;
+}
+
+static int netback_remove(struct xenbus_device *dev)
+{
+	struct backend_info *be = dev_get_drvdata(&dev->dev);
+
+	unregister_hotplug_status_watch(be);
+	if (be->vif) {
+		kobject_uevent(&dev->dev.kobj, KOBJ_OFFLINE);
+		backend_disconnect(be);
+		xenvif_free(be->vif);
+		be->vif = NULL;
+	}
+	kfree(be->hotplug_script);
+	kfree(be);
+	dev_set_drvdata(&dev->dev, NULL);
+	return 0;
+}
+
+/*
+ * Entry point to this code when a new device is created.  Allocate the basic
+ * structures and switch to InitWait.
+ */
+static int netback_probe(struct xenbus_device *dev,
+			 const struct xenbus_device_id *id)
+{
+	const char *message;
+	struct xenbus_transaction xbt;
+	int err;
+	int sg;
+	const char *script;
+	struct backend_info *be = kzalloc(sizeof(*be), GFP_KERNEL);
+
+	if (!be) {
+		xenbus_dev_fatal(dev, -ENOMEM,
+				 "allocating backend structure");
+		return -ENOMEM;
+	}
+
+	be->dev = dev;
+	dev_set_drvdata(&dev->dev, be);
+
+	sg = 1;
+
+	do {
+		err = xenbus_transaction_start(&xbt);
+		if (err) {
+			xenbus_dev_fatal(dev, err, "starting transaction");
+			goto fail;
+		}
+
+		err = xenbus_printf(xbt, dev->nodename, "feature-sg", "%d", sg);
+		if (err) {
+			message = "writing feature-sg";
+			goto abort_transaction;
+		}
+
+		err = xenbus_printf(xbt, dev->nodename, "feature-gso-tcpv4",
+				    "%d", sg);
+		if (err) {
+			message = "writing feature-gso-tcpv4";
+			goto abort_transaction;
+		}
+
+		err = xenbus_printf(xbt, dev->nodename, "feature-gso-tcpv6",
+				    "%d", sg);
+		if (err) {
+			message = "writing feature-gso-tcpv6";
+			goto abort_transaction;
+		}
+
+		/* We support partial checksum setup for IPv6 packets */
+		err = xenbus_printf(xbt, dev->nodename,
+				    "feature-ipv6-csum-offload",
+				    "%d", 1);
+		if (err) {
+			message = "writing feature-ipv6-csum-offload";
+			goto abort_transaction;
+		}
+
+		/* We support rx-copy path. */
+		err = xenbus_printf(xbt, dev->nodename,
+				    "feature-rx-copy", "%d", 1);
+		if (err) {
+			message = "writing feature-rx-copy";
+			goto abort_transaction;
+		}
+
+		/* we can adjust a headroom for netfront XDP processing */
+		err = xenbus_printf(xbt, dev->nodename,
+				    "feature-xdp-headroom", "%d",
+				    provides_xdp_headroom);
+		if (err) {
+			message = "writing feature-xdp-headroom";
+			goto abort_transaction;
+		}
+
+		/* We don't support rx-flip path (except old guests who
+		 * don't grok this feature flag).
+		 */
+		err = xenbus_printf(xbt, dev->nodename,
+				    "feature-rx-flip", "%d", 0);
+		if (err) {
+			message = "writing feature-rx-flip";
+			goto abort_transaction;
+		}
+
+		/* We support dynamic multicast-control. */
+		err = xenbus_printf(xbt, dev->nodename,
+				    "feature-multicast-control", "%d", 1);
+		if (err) {
+			message = "writing feature-multicast-control";
+			goto abort_transaction;
+		}
+
+		err = xenbus_printf(xbt, dev->nodename,
+				    "feature-dynamic-multicast-control",
+				    "%d", 1);
+		if (err) {
+			message = "writing feature-dynamic-multicast-control";
+			goto abort_transaction;
+		}
+
+		err = xenbus_transaction_end(xbt, 0);
+	} while (err == -EAGAIN);
+
+	if (err) {
+		xenbus_dev_fatal(dev, err, "completing transaction");
+		goto fail;
+	}
+
+	/* Split event channels support, this is optional so it is not
+	 * put inside the above loop.
+	 */
+	err = xenbus_printf(XBT_NIL, dev->nodename,
+			    "feature-split-event-channels",
+			    "%u", separate_tx_rx_irq);
+	if (err)
+		pr_debug("Error writing feature-split-event-channels\n");
+
+	/* Multi-queue support: This is an optional feature. */
+	err = xenbus_printf(XBT_NIL, dev->nodename,
+			    "multi-queue-max-queues", "%u", xenvif_max_queues);
+	if (err)
+		pr_debug("Error writing multi-queue-max-queues\n");
+
+	err = xenbus_printf(XBT_NIL, dev->nodename,
+			    "feature-ctrl-ring",
+			    "%u", true);
+	if (err)
+		pr_debug("Error writing feature-ctrl-ring\n");
+
+	backend_switch_state(be, XenbusStateInitWait);
+
+	script = xenbus_read(XBT_NIL, dev->nodename, "script", NULL);
+	if (IS_ERR(script)) {
+		err = PTR_ERR(script);
+		xenbus_dev_fatal(dev, err, "reading script");
+		goto fail;
+	}
+
+	be->hotplug_script = script;
+
+	/* This kicks hotplug scripts, so do it immediately. */
+	err = backend_create_xenvif(be);
+	if (err)
+		goto fail;
+
+	return 0;
+
+abort_transaction:
+	xenbus_transaction_end(xbt, 1);
+	xenbus_dev_fatal(dev, err, "%s", message);
+fail:
+	pr_debug("failed\n");
+	netback_remove(dev);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static const struct xenbus_device_id netback_ids[] = {
 	{ "vif" },
 	{ "" }
@@ -1211,6 +1490,10 @@ static struct xenbus_driver netback_driver = {
 	.remove = netback_remove,
 	.uevent = netback_uevent,
 	.otherend_changed = frontend_changed,
+<<<<<<< HEAD
+=======
+	.allow_rebind = true,
+>>>>>>> upstream/android-13
 };
 
 int xenvif_xenbus_init(void)

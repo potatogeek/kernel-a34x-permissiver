@@ -19,6 +19,10 @@
 #include <linux/kernel.h>
 #include <linux/regmap.h>
 #include <linux/log2.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/compress_driver.h>
@@ -307,6 +311,15 @@
 	.put = snd_soc_bytes_put, .private_value =	      \
 		((unsigned long)&(struct soc_bytes)           \
 		{.base = xbase, .num_regs = xregs }) }
+<<<<<<< HEAD
+=======
+#define SND_SOC_BYTES_E(xname, xbase, xregs, xhandler_get, xhandler_put) \
+{	.iface = SNDRV_CTL_ELEM_IFACE_MIXER, .name = xname, \
+	.info = snd_soc_bytes_info, .get = xhandler_get, \
+	.put = xhandler_put, .private_value = \
+		((unsigned long)&(struct soc_bytes) \
+		{.base = xbase, .num_regs = xregs }) }
+>>>>>>> upstream/android-13
 
 #define SND_SOC_BYTES_MASK(xname, xbase, xregs, xmask)	      \
 {	.iface = SNDRV_CTL_ELEM_IFACE_MIXER, .name = xname,   \
@@ -370,6 +383,7 @@
 #define SOC_ENUM_SINGLE_VIRT_DECL(name, xtexts) \
 	const struct soc_enum name = SOC_ENUM_SINGLE_VIRT(ARRAY_SIZE(xtexts), xtexts)
 
+<<<<<<< HEAD
 /*
  * Component probe and remove ordering levels for components with runtime
  * dependencies.
@@ -402,6 +416,8 @@ enum snd_soc_bias_level {
 	SND_SOC_BIAS_ON = 3,
 };
 
+=======
+>>>>>>> upstream/android-13
 struct device_node;
 struct snd_jack;
 struct snd_soc_card;
@@ -430,11 +446,14 @@ enum snd_soc_pcm_subclass {
 	SND_SOC_PCM_CLASS_BE	= 1,
 };
 
+<<<<<<< HEAD
 enum snd_soc_card_subclass {
 	SND_SOC_CARD_CLASS_INIT		= 0,
 	SND_SOC_CARD_CLASS_RUNTIME	= 1,
 };
 
+=======
+>>>>>>> upstream/android-13
 int snd_soc_register_card(struct snd_soc_card *card);
 int snd_soc_unregister_card(struct snd_soc_card *card);
 int devm_snd_soc_register_card(struct device *dev, struct snd_soc_card *card);
@@ -453,11 +472,20 @@ static inline int snd_soc_resume(struct device *dev)
 }
 #endif
 int snd_soc_poweroff(struct device *dev);
+<<<<<<< HEAD
 int snd_soc_add_component(struct device *dev,
 		struct snd_soc_component *component,
 		const struct snd_soc_component_driver *component_driver,
 		struct snd_soc_dai_driver *dai_drv,
 		int num_dai);
+=======
+int snd_soc_component_initialize(struct snd_soc_component *component,
+				 const struct snd_soc_component_driver *driver,
+				 struct device *dev);
+int snd_soc_add_component(struct snd_soc_component *component,
+			  struct snd_soc_dai_driver *dai_drv,
+			  int num_dai);
+>>>>>>> upstream/android-13
 int snd_soc_register_component(struct device *dev,
 			 const struct snd_soc_component_driver *component_driver,
 			 struct snd_soc_dai_driver *dai_drv, int num_dai);
@@ -465,6 +493,13 @@ int devm_snd_soc_register_component(struct device *dev,
 			 const struct snd_soc_component_driver *component_driver,
 			 struct snd_soc_dai_driver *dai_drv, int num_dai);
 void snd_soc_unregister_component(struct device *dev);
+<<<<<<< HEAD
+=======
+void snd_soc_unregister_component_by_driver(struct device *dev,
+			 const struct snd_soc_component_driver *component_driver);
+struct snd_soc_component *snd_soc_lookup_component_nolocked(struct device *dev,
+							    const char *driver_name);
+>>>>>>> upstream/android-13
 struct snd_soc_component *snd_soc_lookup_component(struct device *dev,
 						   const char *driver_name);
 
@@ -480,6 +515,7 @@ static inline int snd_soc_new_compress(struct snd_soc_pcm_runtime *rtd, int num)
 
 void snd_soc_disconnect_sync(struct device *dev);
 
+<<<<<<< HEAD
 struct snd_pcm_substream *snd_soc_get_dai_substream(struct snd_soc_card *card,
 		const char *dai_link, int stream);
 struct snd_soc_pcm_runtime *snd_soc_get_pcm_runtime(struct snd_soc_card *card,
@@ -488,6 +524,28 @@ struct snd_soc_pcm_runtime *snd_soc_get_pcm_runtime(struct snd_soc_card *card,
 bool snd_soc_runtime_ignore_pmdown_time(struct snd_soc_pcm_runtime *rtd);
 void snd_soc_runtime_activate(struct snd_soc_pcm_runtime *rtd, int stream);
 void snd_soc_runtime_deactivate(struct snd_soc_pcm_runtime *rtd, int stream);
+=======
+struct snd_soc_pcm_runtime *snd_soc_get_pcm_runtime(struct snd_soc_card *card,
+				struct snd_soc_dai_link *dai_link);
+
+bool snd_soc_runtime_ignore_pmdown_time(struct snd_soc_pcm_runtime *rtd);
+
+void snd_soc_runtime_action(struct snd_soc_pcm_runtime *rtd,
+			    int stream, int action);
+static inline void snd_soc_runtime_activate(struct snd_soc_pcm_runtime *rtd,
+				     int stream)
+{
+	snd_soc_runtime_action(rtd, stream, 1);
+}
+static inline void snd_soc_runtime_deactivate(struct snd_soc_pcm_runtime *rtd,
+				       int stream)
+{
+	snd_soc_runtime_action(rtd, stream, -1);
+}
+
+int snd_soc_runtime_calc_hw(struct snd_soc_pcm_runtime *rtd,
+			    struct snd_pcm_hardware *hw, int stream);
+>>>>>>> upstream/android-13
 
 int snd_soc_runtime_set_dai_fmt(struct snd_soc_pcm_runtime *rtd,
 	unsigned int dai_fmt);
@@ -512,6 +570,7 @@ int snd_soc_params_to_bclk(struct snd_pcm_hw_params *parms);
 int snd_soc_set_runtime_hwparams(struct snd_pcm_substream *substream,
 	const struct snd_pcm_hardware *hw);
 
+<<<<<<< HEAD
 int soc_dai_hw_params(struct snd_pcm_substream *substream,
 		      struct snd_pcm_hw_params *params,
 		      struct snd_soc_dai *dai);
@@ -562,6 +621,8 @@ static inline void snd_soc_jack_free_gpios(struct snd_soc_jack *jack, int count,
 
 void snd_soc_card_change_online_state(struct snd_soc_card *soc_card,
 				      int online);
+=======
+>>>>>>> upstream/android-13
 struct snd_ac97 *snd_soc_alloc_ac97_component(struct snd_soc_component *component);
 struct snd_ac97 *snd_soc_new_ac97_component(struct snd_soc_component *component,
 	unsigned int id, unsigned int id_mask);
@@ -592,8 +653,11 @@ static inline int snd_soc_set_ac97_ops(struct snd_ac97_bus_ops *ops)
 struct snd_kcontrol *snd_soc_cnew(const struct snd_kcontrol_new *_template,
 				  void *data, const char *long_name,
 				  const char *prefix);
+<<<<<<< HEAD
 struct snd_kcontrol *snd_soc_card_get_kcontrol(struct snd_soc_card *soc_card,
 					       const char *name);
+=======
+>>>>>>> upstream/android-13
 int snd_soc_add_component_controls(struct snd_soc_component *component,
 	const struct snd_kcontrol_new *controls, unsigned int num_controls);
 int snd_soc_add_card_controls(struct snd_soc_card *soc_card,
@@ -652,6 +716,7 @@ int snd_soc_put_strobe(struct snd_kcontrol *kcontrol,
 int snd_soc_info_multi_ext(struct snd_kcontrol *kcontrol,
 	struct snd_ctl_elem_info *uinfo);
 
+<<<<<<< HEAD
 /**
  * struct snd_soc_jack_pin - Describes a pin to update based on jack detection
  *
@@ -733,6 +798,8 @@ struct snd_soc_jack {
 	struct list_head jack_zones;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* SoC PCM stream information */
 struct snd_soc_pcm_stream {
 	const char *stream_name;
@@ -743,7 +810,11 @@ struct snd_soc_pcm_stream {
 	unsigned int channels_min;	/* min channels */
 	unsigned int channels_max;	/* max channels */
 	unsigned int sig_bits;		/* number of bits of content */
+<<<<<<< HEAD
 	const char *aif_name;		/* DAPM AIF widget name */
+=======
+	ANDROID_VENDOR_DATA(1);
+>>>>>>> upstream/android-13
 };
 
 /* SoC audio ops */
@@ -763,6 +834,7 @@ struct snd_soc_compr_ops {
 	int (*trigger)(struct snd_compr_stream *);
 };
 
+<<<<<<< HEAD
 /* component interface */
 struct snd_soc_component_driver {
 	const char *name;
@@ -897,6 +969,11 @@ snd_soc_rtdcom_lookup(struct snd_soc_pcm_runtime *rtd,
 	list_for_each_entry(rtdcom, &(rtd)->component_list, list)
 #define for_each_rtdcom_safe(rtd, rtdcom1, rtdcom2) \
 	list_for_each_entry_safe(rtdcom1, rtdcom2, &(rtd)->component_list, list)
+=======
+struct snd_soc_component*
+snd_soc_rtdcom_lookup(struct snd_soc_pcm_runtime *rtd,
+		       const char *driver_name);
+>>>>>>> upstream/android-13
 
 struct snd_soc_dai_link_component {
 	const char *name;
@@ -904,6 +981,7 @@ struct snd_soc_dai_link_component {
 	const char *dai_name;
 };
 
+<<<<<<< HEAD
 enum snd_soc_async_ops {
 	ASYNC_DPCM_SND_SOC_OPEN = 1 << 0,
 	ASYNC_DPCM_SND_SOC_CLOSE = 1 << 1,
@@ -912,10 +990,16 @@ enum snd_soc_async_ops {
 	ASYNC_DPCM_SND_SOC_FREE = 1 << 4,
 };
 
+=======
+>>>>>>> upstream/android-13
 struct snd_soc_dai_link {
 	/* config - must be set by machine driver */
 	const char *name;			/* Codec name */
 	const char *stream_name;		/* Stream name */
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * You MAY specify the link's CPU-side device, either by device name,
 	 * or by DT/OF node, but not both. If this information is omitted,
@@ -923,33 +1007,54 @@ struct snd_soc_dai_link {
 	 * must be globally unique. These fields are currently typically used
 	 * only for codec to codec links, or systems using device tree.
 	 */
+<<<<<<< HEAD
 	const char *cpu_name;
 	struct device_node *cpu_of_node;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * You MAY specify the DAI name of the CPU DAI. If this information is
 	 * omitted, the CPU-side DAI is matched using .cpu_name/.cpu_of_node
 	 * only, which only works well when that device exposes a single DAI.
 	 */
+<<<<<<< HEAD
 	const char *cpu_dai_name;
+=======
+	struct snd_soc_dai_link_component *cpus;
+	unsigned int num_cpus;
+
+>>>>>>> upstream/android-13
 	/*
 	 * You MUST specify the link's codec, either by device name, or by
 	 * DT/OF node, but not both.
 	 */
+<<<<<<< HEAD
 	const char *codec_name;
 	struct device_node *codec_of_node;
 	/* You MUST specify the DAI name within the codec */
 	const char *codec_dai_name;
 
+=======
+	/* You MUST specify the DAI name within the codec */
+>>>>>>> upstream/android-13
 	struct snd_soc_dai_link_component *codecs;
 	unsigned int num_codecs;
 
 	/*
 	 * You MAY specify the link's platform/PCM/DMA driver, either by
 	 * device name, or by DT/OF node, but not both. Some forms of link
+<<<<<<< HEAD
 	 * do not need a platform.
 	 */
 	const char *platform_name;
 	struct device_node *platform_of_node;
+=======
+	 * do not need a platform. In such case, platforms are not mandatory.
+	 */
+	struct snd_soc_dai_link_component *platforms;
+	unsigned int num_platforms;
+
+>>>>>>> upstream/android-13
 	int id;	/* optional ID for machine driver link identification */
 
 	const struct snd_soc_pcm_stream *params;
@@ -962,6 +1067,12 @@ struct snd_soc_dai_link {
 	/* codec/machine specific init - e.g. add machine controls */
 	int (*init)(struct snd_soc_pcm_runtime *rtd);
 
+<<<<<<< HEAD
+=======
+	/* codec/machine specific exit - dual of init() */
+	void (*exit)(struct snd_soc_pcm_runtime *rtd);
+
+>>>>>>> upstream/android-13
 	/* optional hw_params re-writing for BE and FE sync */
 	int (*be_hw_params_fixup)(struct snd_soc_pcm_runtime *rtd,
 			struct snd_pcm_hw_params *params);
@@ -971,7 +1082,11 @@ struct snd_soc_dai_link {
 	const struct snd_soc_compr_ops *compr_ops;
 
 	/* Mark this pcm with non atomic ops */
+<<<<<<< HEAD
 	bool nonatomic;
+=======
+	unsigned int nonatomic:1;
+>>>>>>> upstream/android-13
 
 	/* For unidirectional dai links */
 	unsigned int playback_only:1;
@@ -981,9 +1096,15 @@ struct snd_soc_dai_link {
 	unsigned int ignore_suspend:1;
 
 	/* Symmetry requirements */
+<<<<<<< HEAD
 	unsigned int symmetric_rates:1;
 	unsigned int symmetric_channels:1;
 	unsigned int symmetric_samplebits:1;
+=======
+	unsigned int symmetric_rate:1;
+	unsigned int symmetric_channels:1;
+	unsigned int symmetric_sample_bits:1;
+>>>>>>> upstream/android-13
 
 	/* Do not create a PCM for this DAI link (Backend link) */
 	unsigned int no_pcm:1;
@@ -991,6 +1112,7 @@ struct snd_soc_dai_link {
 	/* This DAI link can route to other DAI links at runtime (Frontend)*/
 	unsigned int dynamic:1;
 
+<<<<<<< HEAD
 	/* This DAI link can be reconfigured at runtime (Backend) */
 	unsigned int dynamic_be:1;
 
@@ -1000,6 +1122,8 @@ struct snd_soc_dai_link {
 	 */
 	unsigned int no_host_mode:2;
 
+=======
+>>>>>>> upstream/android-13
 	/* DPCM capture and Playback support */
 	unsigned int dpcm_capture:1;
 	unsigned int dpcm_playback:1;
@@ -1017,6 +1141,7 @@ struct snd_soc_dai_link {
 	/* Do not create a PCM for this DAI link (Backend link) */
 	unsigned int ignore:1;
 
+<<<<<<< HEAD
 	struct list_head list; /* DAI link list of the soc card */
 	struct snd_soc_dobj dobj; /* For topology */
 
@@ -1024,13 +1149,155 @@ struct snd_soc_dai_link {
 	enum snd_soc_async_ops async_ops;
 };
 
+=======
+	/* This flag will reorder stop sequence. By enabling this flag
+	 * DMA controller stop sequence will be invoked first followed by
+	 * CPU DAI driver stop sequence
+	 */
+	unsigned int stop_dma_first:1;
+
+#ifdef CONFIG_SND_SOC_TOPOLOGY
+	struct snd_soc_dobj dobj; /* For topology */
+#endif
+	ANDROID_VENDOR_DATA(1);
+	ANDROID_KABI_RESERVE(1);
+};
+
+static inline struct snd_soc_dai_link_component*
+asoc_link_to_cpu(struct snd_soc_dai_link *link, int n) {
+	return &(link)->cpus[n];
+}
+
+static inline struct snd_soc_dai_link_component*
+asoc_link_to_codec(struct snd_soc_dai_link *link, int n) {
+	return &(link)->codecs[n];
+}
+
+static inline struct snd_soc_dai_link_component*
+asoc_link_to_platform(struct snd_soc_dai_link *link, int n) {
+	return &(link)->platforms[n];
+}
+
+#define for_each_link_codecs(link, i, codec)				\
+	for ((i) = 0;							\
+	     ((i) < link->num_codecs) &&				\
+		     ((codec) = asoc_link_to_codec(link, i));		\
+	     (i)++)
+
+#define for_each_link_platforms(link, i, platform)			\
+	for ((i) = 0;							\
+	     ((i) < link->num_platforms) &&				\
+		     ((platform) = asoc_link_to_platform(link, i));	\
+	     (i)++)
+
+#define for_each_link_cpus(link, i, cpu)				\
+	for ((i) = 0;							\
+	     ((i) < link->num_cpus) &&					\
+		     ((cpu) = asoc_link_to_cpu(link, i));		\
+	     (i)++)
+
+/*
+ * Sample 1 : Single CPU/Codec/Platform
+ *
+ * SND_SOC_DAILINK_DEFS(test,
+ *	DAILINK_COMP_ARRAY(COMP_CPU("cpu_dai")),
+ *	DAILINK_COMP_ARRAY(COMP_CODEC("codec", "codec_dai")),
+ *	DAILINK_COMP_ARRAY(COMP_PLATFORM("platform")));
+ *
+ * struct snd_soc_dai_link link = {
+ *	...
+ *	SND_SOC_DAILINK_REG(test),
+ * };
+ *
+ * Sample 2 : Multi CPU/Codec, no Platform
+ *
+ * SND_SOC_DAILINK_DEFS(test,
+ *	DAILINK_COMP_ARRAY(COMP_CPU("cpu_dai1"),
+ *			   COMP_CPU("cpu_dai2")),
+ *	DAILINK_COMP_ARRAY(COMP_CODEC("codec1", "codec_dai1"),
+ *			   COMP_CODEC("codec2", "codec_dai2")));
+ *
+ * struct snd_soc_dai_link link = {
+ *	...
+ *	SND_SOC_DAILINK_REG(test),
+ * };
+ *
+ * Sample 3 : Define each CPU/Codec/Platform manually
+ *
+ * SND_SOC_DAILINK_DEF(test_cpu,
+ *		DAILINK_COMP_ARRAY(COMP_CPU("cpu_dai1"),
+ *				   COMP_CPU("cpu_dai2")));
+ * SND_SOC_DAILINK_DEF(test_codec,
+ *		DAILINK_COMP_ARRAY(COMP_CODEC("codec1", "codec_dai1"),
+ *				   COMP_CODEC("codec2", "codec_dai2")));
+ * SND_SOC_DAILINK_DEF(test_platform,
+ *		DAILINK_COMP_ARRAY(COMP_PLATFORM("platform")));
+ *
+ * struct snd_soc_dai_link link = {
+ *	...
+ *	SND_SOC_DAILINK_REG(test_cpu,
+ *			    test_codec,
+ *			    test_platform),
+ * };
+ *
+ * Sample 4 : Sample3 without platform
+ *
+ * struct snd_soc_dai_link link = {
+ *	...
+ *	SND_SOC_DAILINK_REG(test_cpu,
+ *			    test_codec);
+ * };
+ */
+
+#define SND_SOC_DAILINK_REG1(name)	 SND_SOC_DAILINK_REG3(name##_cpus, name##_codecs, name##_platforms)
+#define SND_SOC_DAILINK_REG2(cpu, codec) SND_SOC_DAILINK_REG3(cpu, codec, null_dailink_component)
+#define SND_SOC_DAILINK_REG3(cpu, codec, platform)	\
+	.cpus		= cpu,				\
+	.num_cpus	= ARRAY_SIZE(cpu),		\
+	.codecs		= codec,			\
+	.num_codecs	= ARRAY_SIZE(codec),		\
+	.platforms	= platform,			\
+	.num_platforms	= ARRAY_SIZE(platform)
+
+#define SND_SOC_DAILINK_REGx(_1, _2, _3, func, ...) func
+#define SND_SOC_DAILINK_REG(...) \
+	SND_SOC_DAILINK_REGx(__VA_ARGS__,		\
+			SND_SOC_DAILINK_REG3,	\
+			SND_SOC_DAILINK_REG2,	\
+			SND_SOC_DAILINK_REG1)(__VA_ARGS__)
+
+#define SND_SOC_DAILINK_DEF(name, def...)		\
+	static struct snd_soc_dai_link_component name[]	= { def }
+
+#define SND_SOC_DAILINK_DEFS(name, cpu, codec, platform...)	\
+	SND_SOC_DAILINK_DEF(name##_cpus, cpu);			\
+	SND_SOC_DAILINK_DEF(name##_codecs, codec);		\
+	SND_SOC_DAILINK_DEF(name##_platforms, platform)
+
+#define DAILINK_COMP_ARRAY(param...)	param
+#define COMP_EMPTY()			{ }
+#define COMP_CPU(_dai)			{ .dai_name = _dai, }
+#define COMP_CODEC(_name, _dai)		{ .name = _name, .dai_name = _dai, }
+#define COMP_PLATFORM(_name)		{ .name = _name }
+#define COMP_AUX(_name)			{ .name = _name }
+#define COMP_CODEC_CONF(_name)		{ .name = _name }
+#define COMP_DUMMY()			{ .name = "snd-soc-dummy", .dai_name = "snd-soc-dummy-dai", }
+
+extern struct snd_soc_dai_link_component null_dailink_component[0];
+
+
+>>>>>>> upstream/android-13
 struct snd_soc_codec_conf {
 	/*
 	 * specify device either by device name, or by
 	 * DT/OF node, but not both.
 	 */
+<<<<<<< HEAD
 	const char *dev_name;
 	struct device_node *of_node;
+=======
+	struct snd_soc_dai_link_component dlc;
+>>>>>>> upstream/android-13
 
 	/*
 	 * optional map of kcontrol, widget and path name prefixes that are
@@ -1040,14 +1307,21 @@ struct snd_soc_codec_conf {
 };
 
 struct snd_soc_aux_dev {
+<<<<<<< HEAD
 	const char *name;		/* Codec name */
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * specify multi-codec either by device name, or by
 	 * DT/OF node, but not both.
 	 */
+<<<<<<< HEAD
 	const char *codec_name;
 	struct device_node *codec_of_node;
+=======
+	struct snd_soc_dai_link_component dlc;
+>>>>>>> upstream/android-13
 
 	/* codec/machine specific init - e.g. add machine controls */
 	int (*init)(struct snd_soc_component *component);
@@ -1058,7 +1332,14 @@ struct snd_soc_card {
 	const char *name;
 	const char *long_name;
 	const char *driver_name;
+<<<<<<< HEAD
 	char dmi_longname[80];
+=======
+	const char *components;
+#ifdef CONFIG_DMI
+	char dmi_longname[80];
+#endif /* CONFIG_DMI */
+>>>>>>> upstream/android-13
 	char topology_shortname[32];
 
 	struct device *dev;
@@ -1067,10 +1348,19 @@ struct snd_soc_card {
 
 	struct mutex mutex;
 	struct mutex dapm_mutex;
+<<<<<<< HEAD
 	struct mutex dapm_power_mutex;
 
 	bool instantiated;
 	bool topology_shortname_created;
+=======
+
+	/* Mutex for PCM operations */
+	struct mutex pcm_mutex;
+	enum snd_soc_pcm_subclass pcm_subclass;
+
+	spinlock_t dpcm_lock;
+>>>>>>> upstream/android-13
 
 	int (*probe)(struct snd_soc_card *card);
 	int (*late_probe)(struct snd_soc_card *card);
@@ -1101,8 +1391,11 @@ struct snd_soc_card {
 	/* CPU <--> Codec DAI links  */
 	struct snd_soc_dai_link *dai_link;  /* predefined links only */
 	int num_links;  /* predefined links only */
+<<<<<<< HEAD
 	struct list_head dai_link_list; /* all links */
 	int num_dai_links;
+=======
+>>>>>>> upstream/android-13
 
 	struct list_head rtd_list;
 	int num_rtd;
@@ -1134,12 +1427,19 @@ struct snd_soc_card {
 	int num_of_dapm_widgets;
 	const struct snd_soc_dapm_route *of_dapm_routes;
 	int num_of_dapm_routes;
+<<<<<<< HEAD
 	bool fully_routed;
 
 	struct work_struct deferred_resume_work;
 
 	/* lists of probed devices belonging to this card */
 	struct list_head component_dev_list;
+=======
+
+	/* lists of probed devices belonging to this card */
+	struct list_head component_dev_list;
+	struct list_head list;
+>>>>>>> upstream/android-13
 
 	struct list_head widgets;
 	struct list_head paths;
@@ -1156,18 +1456,73 @@ struct snd_soc_card {
 
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *debugfs_card_root;
+<<<<<<< HEAD
 	struct dentry *debugfs_pop_time;
 #endif
 	u32 pop_time;
 
 	void *drvdata;
 };
+=======
+#endif
+#ifdef CONFIG_PM_SLEEP
+	struct work_struct deferred_resume_work;
+#endif
+	u32 pop_time;
+
+	/* bit field */
+	unsigned int instantiated:1;
+	unsigned int topology_shortname_created:1;
+	unsigned int fully_routed:1;
+	unsigned int disable_route_checks:1;
+	unsigned int probed:1;
+	unsigned int component_chaining:1;
+
+	void *drvdata;
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+	ANDROID_KABI_RESERVE(3);
+	ANDROID_KABI_RESERVE(4);
+};
+#define for_each_card_prelinks(card, i, link)				\
+	for ((i) = 0;							\
+	     ((i) < (card)->num_links) && ((link) = &(card)->dai_link[i]); \
+	     (i)++)
+#define for_each_card_pre_auxs(card, i, aux)				\
+	for ((i) = 0;							\
+	     ((i) < (card)->num_aux_devs) && ((aux) = &(card)->aux_dev[i]); \
+	     (i)++)
+
+#define for_each_card_rtds(card, rtd)			\
+	list_for_each_entry(rtd, &(card)->rtd_list, list)
+#define for_each_card_rtds_safe(card, rtd, _rtd)	\
+	list_for_each_entry_safe(rtd, _rtd, &(card)->rtd_list, list)
+
+#define for_each_card_auxs(card, component)			\
+	list_for_each_entry(component, &card->aux_comp_list, card_aux_list)
+#define for_each_card_auxs_safe(card, component, _comp)	\
+	list_for_each_entry_safe(component, _comp,	\
+				 &card->aux_comp_list, card_aux_list)
+
+#define for_each_card_components(card, component)			\
+	list_for_each_entry(component, &(card)->component_dev_list, card_list)
+
+#define for_each_card_dapms(card, dapm)					\
+	list_for_each_entry(dapm, &card->dapm_list, list)
+
+#define for_each_card_widgets(card, w)\
+	list_for_each_entry(w, &card->widgets, list)
+#define for_each_card_widgets_safe(card, w, _w)	\
+	list_for_each_entry_safe(w, _w, &card->widgets, list)
+>>>>>>> upstream/android-13
 
 /* SoC machine DAI configuration, glues a codec and cpu DAI together */
 struct snd_soc_pcm_runtime {
 	struct device *dev;
 	struct snd_soc_card *card;
 	struct snd_soc_dai_link *dai_link;
+<<<<<<< HEAD
 	struct mutex pcm_mutex;
 	enum snd_soc_pcm_subclass pcm_subclass;
 	struct snd_pcm_ops ops;
@@ -1190,18 +1545,94 @@ struct snd_soc_pcm_runtime {
 	unsigned int num_codecs;
 
 	struct delayed_work delayed_work;
+=======
+	struct snd_pcm_ops ops;
+
+	unsigned int params_select; /* currently selected param for dai link */
+
+	/* Dynamic PCM BE runtime data */
+	struct snd_soc_dpcm_runtime dpcm[2];
+
+	long pmdown_time;
+
+	/* runtime devices */
+	struct snd_pcm *pcm;
+	struct snd_compr *compr;
+
+	/*
+	 * dais = cpu_dai + codec_dai
+	 * see
+	 *	soc_new_pcm_runtime()
+	 *	asoc_rtd_to_cpu()
+	 *	asoc_rtd_to_codec()
+	 */
+	struct snd_soc_dai **dais;
+	unsigned int num_codecs;
+	unsigned int num_cpus;
+
+	struct snd_soc_dapm_widget *playback_widget;
+	struct snd_soc_dapm_widget *capture_widget;
+
+	struct delayed_work delayed_work;
+	void (*close_delayed_work_func)(struct snd_soc_pcm_runtime *rtd);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *debugfs_dpcm_root;
 #endif
 
 	unsigned int num; /* 0-based and monotonic increasing */
 	struct list_head list; /* rtd list of the soc card */
+<<<<<<< HEAD
 	struct list_head component_list; /* list of connected components */
 
 	/* bit field */
 	unsigned int dev_registered:1;
 	unsigned int pop_wait:1;
 };
+=======
+
+	/* function mark */
+	struct snd_pcm_substream *mark_startup;
+	struct snd_pcm_substream *mark_hw_params;
+	struct snd_pcm_substream *mark_trigger;
+	struct snd_compr_stream  *mark_compr_startup;
+
+	/* bit field */
+	unsigned int pop_wait:1;
+	unsigned int fe_compr:1; /* for Dynamic PCM */
+
+	int num_components;
+
+	ANDROID_KABI_RESERVE(1);
+
+	struct snd_soc_component *components[]; /* CPU/Codec/Platform */
+};
+/* see soc_new_pcm_runtime()  */
+#define asoc_rtd_to_cpu(rtd, n)   (rtd)->dais[n]
+#define asoc_rtd_to_codec(rtd, n) (rtd)->dais[n + (rtd)->num_cpus]
+#define asoc_substream_to_rtd(substream) \
+	(struct snd_soc_pcm_runtime *)snd_pcm_substream_chip(substream)
+
+#define for_each_rtd_components(rtd, i, component)			\
+	for ((i) = 0, component = NULL;					\
+	     ((i) < rtd->num_components) && ((component) = rtd->components[i]);\
+	     (i)++)
+#define for_each_rtd_cpu_dais(rtd, i, dai)				\
+	for ((i) = 0;							\
+	     ((i) < rtd->num_cpus) && ((dai) = asoc_rtd_to_cpu(rtd, i)); \
+	     (i)++)
+#define for_each_rtd_codec_dais(rtd, i, dai)				\
+	for ((i) = 0;							\
+	     ((i) < rtd->num_codecs) && ((dai) = asoc_rtd_to_codec(rtd, i)); \
+	     (i)++)
+#define for_each_rtd_dais(rtd, i, dai)					\
+	for ((i) = 0;							\
+	     ((i) < (rtd)->num_cpus + (rtd)->num_codecs) &&		\
+		     ((dai) = (rtd)->dais[i]);				\
+	     (i)++)
+
+void snd_soc_close_delayed_work(struct snd_soc_pcm_runtime *rtd);
+>>>>>>> upstream/android-13
 
 /* mixer control */
 struct soc_mixer_control {
@@ -1211,7 +1642,15 @@ struct soc_mixer_control {
 	unsigned int sign_bit;
 	unsigned int invert:1;
 	unsigned int autodisable:1;
+<<<<<<< HEAD
 	struct snd_soc_dobj dobj;
+=======
+#ifdef CONFIG_SND_SOC_TOPOLOGY
+	struct snd_soc_dobj dobj;
+#endif
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct soc_bytes {
@@ -1222,8 +1661,14 @@ struct soc_bytes {
 
 struct soc_bytes_ext {
 	int max;
+<<<<<<< HEAD
 	struct snd_soc_dobj dobj;
 
+=======
+#ifdef CONFIG_SND_SOC_TOPOLOGY
+	struct snd_soc_dobj dobj;
+#endif
+>>>>>>> upstream/android-13
 	/* used for TLV byte control */
 	int (*get)(struct snd_kcontrol *kcontrol, unsigned int __user *bytes,
 			unsigned int size);
@@ -1252,6 +1697,7 @@ struct soc_enum {
 	const char * const *texts;
 	const unsigned int *values;
 	unsigned int autodisable:1;
+<<<<<<< HEAD
 	struct snd_soc_dobj dobj;
 };
 
@@ -1417,17 +1863,33 @@ static inline void snd_soc_initialize_card_lists(struct snd_soc_card *card)
 	INIT_LIST_HEAD(&card->aux_comp_list);
 	INIT_LIST_HEAD(&card->component_dev_list);
 }
+=======
+#ifdef CONFIG_SND_SOC_TOPOLOGY
+	struct snd_soc_dobj dobj;
+#endif
+
+	ANDROID_KABI_RESERVE(1);
+};
+>>>>>>> upstream/android-13
 
 static inline bool snd_soc_volsw_is_stereo(struct soc_mixer_control *mc)
 {
 	if (mc->reg == mc->rreg && mc->shift == mc->rshift)
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 	/*
 	 * mc->reg == mc->rreg && mc->shift != mc->rshift, or
 	 * mc->reg != mc->rreg means that the control is
 	 * stereo (bits in one register or in two registers)
 	 */
+<<<<<<< HEAD
 	return 1;
+=======
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int snd_soc_enum_val_to_item(struct soc_enum *e,
@@ -1454,12 +1916,15 @@ static inline unsigned int snd_soc_enum_item_to_val(struct soc_enum *e,
 	return e->values[item];
 }
 
+<<<<<<< HEAD
 static inline bool snd_soc_component_is_active(
 	struct snd_soc_component *component)
 {
 	return component->active != 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * snd_soc_kcontrol_component() - Returns the component that registered the
  *  control
@@ -1491,6 +1956,7 @@ int snd_soc_of_parse_tdm_slot(struct device_node *np,
 			      unsigned int *rx_mask,
 			      unsigned int *slots,
 			      unsigned int *slot_width);
+<<<<<<< HEAD
 void snd_soc_of_parse_audio_prefix(struct snd_soc_card *card,
 				   struct snd_soc_codec_conf *codec_conf,
 				   struct device_node *of_node,
@@ -1503,6 +1969,44 @@ unsigned int snd_soc_of_parse_daifmt(struct device_node *np,
 				     struct device_node **framemaster);
 int snd_soc_get_dai_id(struct device_node *ep);
 int snd_soc_get_dai_name(struct of_phandle_args *args,
+=======
+void snd_soc_of_parse_node_prefix(struct device_node *np,
+				   struct snd_soc_codec_conf *codec_conf,
+				   struct device_node *of_node,
+				   const char *propname);
+static inline
+void snd_soc_of_parse_audio_prefix(struct snd_soc_card *card,
+				   struct snd_soc_codec_conf *codec_conf,
+				   struct device_node *of_node,
+				   const char *propname)
+{
+	snd_soc_of_parse_node_prefix(card->dev->of_node,
+				     codec_conf, of_node, propname);
+}
+
+int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
+				   const char *propname);
+int snd_soc_of_parse_aux_devs(struct snd_soc_card *card, const char *propname);
+
+unsigned int snd_soc_daifmt_clock_provider_fliped(unsigned int dai_fmt);
+unsigned int snd_soc_daifmt_clock_provider_from_bitmap(unsigned int bit_frame);
+
+unsigned int snd_soc_daifmt_parse_format(struct device_node *np, const char *prefix);
+unsigned int snd_soc_daifmt_parse_clock_provider_raw(struct device_node *np,
+						     const char *prefix,
+						     struct device_node **bitclkmaster,
+						     struct device_node **framemaster);
+#define snd_soc_daifmt_parse_clock_provider_as_bitmap(np, prefix)	\
+	snd_soc_daifmt_parse_clock_provider_raw(np, prefix, NULL, NULL)
+#define snd_soc_daifmt_parse_clock_provider_as_phandle			\
+	snd_soc_daifmt_parse_clock_provider_raw
+#define snd_soc_daifmt_parse_clock_provider_as_flag(np, prefix)		\
+	snd_soc_daifmt_clock_provider_from_bitmap(			\
+		snd_soc_daifmt_parse_clock_provider_as_bitmap(np, prefix))
+
+int snd_soc_get_dai_id(struct device_node *ep);
+int snd_soc_get_dai_name(const struct of_phandle_args *args,
+>>>>>>> upstream/android-13
 			 const char **dai_name);
 int snd_soc_of_get_dai_name(struct device_node *of_node,
 			    const char **dai_name);
@@ -1511,6 +2015,7 @@ int snd_soc_of_get_dai_link_codecs(struct device *dev,
 				   struct snd_soc_dai_link *dai_link);
 void snd_soc_of_put_dai_link_codecs(struct snd_soc_dai_link *dai_link);
 
+<<<<<<< HEAD
 int snd_soc_add_dai_link(struct snd_soc_card *card,
 				struct snd_soc_dai_link *dai_link);
 void snd_soc_remove_dai_link(struct snd_soc_card *card,
@@ -1524,10 +2029,31 @@ int snd_soc_register_dai(struct snd_soc_component *component,
 
 struct snd_soc_dai *snd_soc_find_dai(
 	const struct snd_soc_dai_link_component *dlc);
+=======
+int snd_soc_add_pcm_runtime(struct snd_soc_card *card,
+			    struct snd_soc_dai_link *dai_link);
+void snd_soc_remove_pcm_runtime(struct snd_soc_card *card,
+				struct snd_soc_pcm_runtime *rtd);
+
+struct snd_soc_dai *snd_soc_register_dai(struct snd_soc_component *component,
+					 struct snd_soc_dai_driver *dai_drv,
+					 bool legacy_dai_naming);
+struct snd_soc_dai *devm_snd_soc_register_dai(struct device *dev,
+					      struct snd_soc_component *component,
+					      struct snd_soc_dai_driver *dai_drv,
+					      bool legacy_dai_naming);
+void snd_soc_unregister_dai(struct snd_soc_dai *dai);
+
+struct snd_soc_dai *snd_soc_find_dai(
+	const struct snd_soc_dai_link_component *dlc);
+struct snd_soc_dai *snd_soc_find_dai_with_mutex(
+	const struct snd_soc_dai_link_component *dlc);
+>>>>>>> upstream/android-13
 
 #include <sound/soc-dai.h>
 
 static inline
+<<<<<<< HEAD
 struct snd_soc_dai *snd_soc_card_get_codec_dai(struct snd_soc_card *card,
 					       const char *dai_name)
 {
@@ -1539,6 +2065,36 @@ struct snd_soc_dai *snd_soc_card_get_codec_dai(struct snd_soc_card *card,
 	}
 
 	return NULL;
+=======
+int snd_soc_fixup_dai_links_platform_name(struct snd_soc_card *card,
+					  const char *platform_name)
+{
+	struct snd_soc_dai_link *dai_link;
+	const char *name;
+	int i;
+
+	if (!platform_name) /* nothing to do */
+		return 0;
+
+	/* set platform name for each dailink */
+	for_each_card_prelinks(card, i, dai_link) {
+		/* only single platform is supported for now */
+		if (dai_link->num_platforms != 1)
+			return -EINVAL;
+
+		if (!dai_link->platforms)
+			return -EINVAL;
+
+		name = devm_kstrdup(card->dev, platform_name, GFP_KERNEL);
+		if (!name)
+			return -ENOMEM;
+
+		/* only single platform is supported for now */
+		dai_link->platforms->name = name;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_DEBUG_FS
@@ -1558,6 +2114,7 @@ static inline void snd_soc_dapm_mutex_unlock(struct snd_soc_dapm_context *dapm)
 	mutex_unlock(&dapm->card->dapm_mutex);
 }
 
+<<<<<<< HEAD
 int snd_soc_component_enable_pin(struct snd_soc_component *component,
 				 const char *pin);
 int snd_soc_component_enable_pin_unlocked(struct snd_soc_component *component,
@@ -1577,5 +2134,10 @@ int snd_soc_component_force_enable_pin(struct snd_soc_component *component,
 int snd_soc_component_force_enable_pin_unlocked(
 					struct snd_soc_component *component,
 					const char *pin);
+=======
+#include <sound/soc-component.h>
+#include <sound/soc-card.h>
+#include <sound/soc-jack.h>
+>>>>>>> upstream/android-13
 
 #endif

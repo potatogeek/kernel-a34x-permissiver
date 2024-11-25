@@ -70,13 +70,23 @@ static void default_key_dtr(struct dm_target *ti)
 	int err;
 
 	if (dkc->dev) {
+<<<<<<< HEAD
 		err = blk_crypto_evict_key(dkc->dev->bdev->bd_queue, &dkc->key);
+=======
+		err = blk_crypto_evict_key(bdev_get_queue(dkc->dev->bdev),
+					   &dkc->key);
+>>>>>>> upstream/android-13
 		if (err && err != -ENOKEY)
 			DMWARN("Failed to evict crypto key: %d", err);
 		dm_put_device(ti, dkc->dev);
 	}
+<<<<<<< HEAD
 	kzfree(dkc->cipher_string);
 	kzfree(dkc);
+=======
+	kfree_sensitive(dkc->cipher_string);
+	kfree_sensitive(dkc);
+>>>>>>> upstream/android-13
 }
 
 static int default_key_ctr_optional(struct dm_target *ti,
@@ -245,9 +255,14 @@ static int default_key_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 		goto bad;
 	}
 
+<<<<<<< HEAD
 	err = blk_crypto_start_using_mode(cipher->mode_num, dun_bytes,
 					  dkc->sector_size, dkc->is_hw_wrapped,
 					  dkc->dev->bdev->bd_queue);
+=======
+	err = blk_crypto_start_using_key(&dkc->key,
+					 bdev_get_queue(dkc->dev->bdev));
+>>>>>>> upstream/android-13
 	if (err) {
 		ti->error = "Error starting to use blk-crypto";
 		goto bad;
@@ -255,8 +270,11 @@ static int default_key_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 
 	ti->num_flush_bios = 1;
 
+<<<<<<< HEAD
 	ti->may_passthrough_inline_crypto = true;
 
+=======
+>>>>>>> upstream/android-13
 	err = 0;
 	goto out;
 
@@ -329,6 +347,10 @@ static void default_key_status(struct dm_target *ti, status_type_t type,
 
 	switch (type) {
 	case STATUSTYPE_INFO:
+<<<<<<< HEAD
+=======
+	case STATUSTYPE_IMA:
+>>>>>>> upstream/android-13
 		result[0] = '\0';
 		break;
 
@@ -388,7 +410,11 @@ static void default_key_io_hints(struct dm_target *ti,
 	const unsigned int sector_size = dkc->sector_size;
 
 	limits->logical_block_size =
+<<<<<<< HEAD
 		max_t(unsigned short, limits->logical_block_size, sector_size);
+=======
+		max_t(unsigned int, limits->logical_block_size, sector_size);
+>>>>>>> upstream/android-13
 	limits->physical_block_size =
 		max_t(unsigned int, limits->physical_block_size, sector_size);
 	limits->io_min = max_t(unsigned int, limits->io_min, sector_size);
@@ -397,6 +423,10 @@ static void default_key_io_hints(struct dm_target *ti,
 static struct target_type default_key_target = {
 	.name			= "default-key",
 	.version		= {2, 1, 0},
+<<<<<<< HEAD
+=======
+	.features		= DM_TARGET_PASSES_CRYPTO,
+>>>>>>> upstream/android-13
 	.module			= THIS_MODULE,
 	.ctr			= default_key_ctr,
 	.dtr			= default_key_dtr,

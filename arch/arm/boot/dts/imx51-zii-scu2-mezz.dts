@@ -343,6 +343,17 @@
 	vcc-supply = <&vusb2_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&vpu {
+	status = "disabled";
+};
+
+&wdog1 {
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &iomuxc {
 	pinctrl_ecspi1: ecspi1grp {
 		fsl,pins = <

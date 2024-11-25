@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -24,7 +31,16 @@
 #include <linux/jiffies.h>
 #include <linux/log2.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/netdevice.h>
+#include <net/devlink.h>
+
+#include "hinic_devlink.h"
+#include "hinic_sriov.h"
+#include "hinic_dev.h"
+>>>>>>> upstream/android-13
 #include "hinic_hw_if.h"
 #include "hinic_hw_eqs.h"
 #include "hinic_hw_mgmt.h"
@@ -51,6 +67,7 @@ enum io_status {
 	IO_RUNNING = 1,
 };
 
+<<<<<<< HEAD
 enum hw_ioctxt_set_cmdq_depth {
 	HW_IOCTXT_SET_CMDQ_DEPTH_DEFAULT,
 };
@@ -71,21 +88,34 @@ struct hinic_dev_cap {
 
 /**
  * get_capability - convert device capabilities to NIC capabilities
+=======
+/**
+ * parse_capability - convert device capabilities to NIC capabilities
+>>>>>>> upstream/android-13
  * @hwdev: the HW device to set and convert device capabilities for
  * @dev_cap: device capabilities from FW
  *
  * Return 0 - Success, negative - Failure
  **/
+<<<<<<< HEAD
 static int get_capability(struct hinic_hwdev *hwdev,
 			  struct hinic_dev_cap *dev_cap)
+=======
+static int parse_capability(struct hinic_hwdev *hwdev,
+			    struct hinic_dev_cap *dev_cap)
+>>>>>>> upstream/android-13
 {
 	struct hinic_cap *nic_cap = &hwdev->nic_cap;
 	int num_aeqs, num_ceqs, num_irqs;
 
+<<<<<<< HEAD
 	if (!HINIC_IS_PF(hwdev->hwif) && !HINIC_IS_PPF(hwdev->hwif))
 		return -EINVAL;
 
 	if (dev_cap->intr_type != INTR_MSIX_TYPE)
+=======
+	if (!HINIC_IS_VF(hwdev->hwif) && dev_cap->intr_type != INTR_MSIX_TYPE)
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	num_aeqs = HINIC_HWIF_NUM_AEQS(hwdev->hwif);
@@ -98,31 +128,57 @@ static int get_capability(struct hinic_hwdev *hwdev,
 	if (nic_cap->num_qps > HINIC_Q_CTXT_MAX)
 		nic_cap->num_qps = HINIC_Q_CTXT_MAX;
 
+<<<<<<< HEAD
 	/* num_qps must be power of 2 */
 	nic_cap->num_qps = BIT(fls(nic_cap->num_qps) - 1);
 
 	nic_cap->max_qps = dev_cap->max_sqs + 1;
 	if (nic_cap->max_qps != (dev_cap->max_rqs + 1))
 		return -EFAULT;
+=======
+	if (!HINIC_IS_VF(hwdev->hwif))
+		nic_cap->max_qps = dev_cap->max_sqs + 1;
+	else
+		nic_cap->max_qps = dev_cap->max_sqs;
+>>>>>>> upstream/android-13
 
 	if (nic_cap->num_qps > nic_cap->max_qps)
 		nic_cap->num_qps = nic_cap->max_qps;
 
+<<<<<<< HEAD
+=======
+	if (!HINIC_IS_VF(hwdev->hwif)) {
+		nic_cap->max_vf = dev_cap->max_vf;
+		nic_cap->max_vf_qps = dev_cap->max_vf_sqs + 1;
+	}
+
+	hwdev->port_id = dev_cap->port_id;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * get_cap_from_fw - get device capabilities from FW
+=======
+ * get_capability - get device capabilities from FW
+>>>>>>> upstream/android-13
  * @pfhwdev: the PF HW device to get capabilities for
  *
  * Return 0 - Success, negative - Failure
  **/
+<<<<<<< HEAD
 static int get_cap_from_fw(struct hinic_pfhwdev *pfhwdev)
+=======
+static int get_capability(struct hinic_pfhwdev *pfhwdev)
+>>>>>>> upstream/android-13
 {
 	struct hinic_hwdev *hwdev = &pfhwdev->hwdev;
 	struct hinic_hwif *hwif = hwdev->hwif;
 	struct pci_dev *pdev = hwif->pdev;
 	struct hinic_dev_cap dev_cap;
+<<<<<<< HEAD
 	u16 in_len, out_len;
 	int err;
 
@@ -132,12 +188,26 @@ static int get_cap_from_fw(struct hinic_pfhwdev *pfhwdev)
 	err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_CFGM,
 				HINIC_CFG_NIC_CAP, &dev_cap, in_len, &dev_cap,
 				&out_len, HINIC_MGMT_MSG_SYNC);
+=======
+	u16 out_len;
+	int err;
+
+	out_len = sizeof(dev_cap);
+
+	err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_CFGM,
+				HINIC_CFG_NIC_CAP, &dev_cap, sizeof(dev_cap),
+				&dev_cap, &out_len, HINIC_MGMT_MSG_SYNC);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&pdev->dev, "Failed to get capability from FW\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	return get_capability(hwdev, &dev_cap);
+=======
+	return parse_capability(hwdev, &dev_cap);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -156,6 +226,7 @@ static int get_dev_cap(struct hinic_hwdev *hwdev)
 	switch (HINIC_FUNC_TYPE(hwif)) {
 	case HINIC_PPF:
 	case HINIC_PF:
+<<<<<<< HEAD
 		pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
 
 		err = get_cap_from_fw(pfhwdev);
@@ -165,6 +236,16 @@ static int get_dev_cap(struct hinic_hwdev *hwdev)
 		}
 		break;
 
+=======
+	case HINIC_VF:
+		pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
+		err = get_capability(pfhwdev);
+		if (err) {
+			dev_err(&pdev->dev, "Failed to get capability\n");
+			return err;
+		}
+		break;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(&pdev->dev, "Unsupported PCI Function type\n");
 		return -EINVAL;
@@ -237,6 +318,7 @@ static void disable_msix(struct hinic_hwdev *hwdev)
 int hinic_port_msg_cmd(struct hinic_hwdev *hwdev, enum hinic_port_cmd cmd,
 		       void *buf_in, u16 in_size, void *buf_out, u16 *out_size)
 {
+<<<<<<< HEAD
 	struct hinic_hwif *hwif = hwdev->hwif;
 	struct pci_dev *pdev = hwif->pdev;
 	struct hinic_pfhwdev *pfhwdev;
@@ -246,6 +328,10 @@ int hinic_port_msg_cmd(struct hinic_hwdev *hwdev, enum hinic_port_cmd cmd,
 		return -EINVAL;
 	}
 
+=======
+	struct hinic_pfhwdev *pfhwdev;
+
+>>>>>>> upstream/android-13
 	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
 
 	return hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_L2NIC, cmd,
@@ -253,6 +339,22 @@ int hinic_port_msg_cmd(struct hinic_hwdev *hwdev, enum hinic_port_cmd cmd,
 				 HINIC_MGMT_MSG_SYNC);
 }
 
+<<<<<<< HEAD
+=======
+int hinic_hilink_msg_cmd(struct hinic_hwdev *hwdev, enum hinic_hilink_cmd cmd,
+			 void *buf_in, u16 in_size, void *buf_out,
+			 u16 *out_size)
+{
+	struct hinic_pfhwdev *pfhwdev;
+
+	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
+
+	return hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_HILINK, cmd,
+				 buf_in, in_size, buf_out, out_size,
+				 HINIC_MGMT_MSG_SYNC);
+}
+
+>>>>>>> upstream/android-13
 /**
  * init_fw_ctxt- Init Firmware tables before network mgmt and io operations
  * @hwdev: the NIC HW device
@@ -264,6 +366,7 @@ static int init_fw_ctxt(struct hinic_hwdev *hwdev)
 	struct hinic_hwif *hwif = hwdev->hwif;
 	struct pci_dev *pdev = hwif->pdev;
 	struct hinic_cmd_fw_ctxt fw_ctxt;
+<<<<<<< HEAD
 	u16 out_size;
 	int err;
 
@@ -272,16 +375,28 @@ static int init_fw_ctxt(struct hinic_hwdev *hwdev)
 		return -EINVAL;
 	}
 
+=======
+	u16 out_size = sizeof(fw_ctxt);
+	int err;
+
+>>>>>>> upstream/android-13
 	fw_ctxt.func_idx = HINIC_HWIF_FUNC_IDX(hwif);
 	fw_ctxt.rx_buf_sz = HINIC_RX_BUF_SZ;
 
 	err = hinic_port_msg_cmd(hwdev, HINIC_PORT_CMD_FWCTXT_INIT,
 				 &fw_ctxt, sizeof(fw_ctxt),
 				 &fw_ctxt, &out_size);
+<<<<<<< HEAD
 	if (err || (out_size != sizeof(fw_ctxt)) || fw_ctxt.status) {
 		dev_err(&pdev->dev, "Failed to init FW ctxt, ret = %d\n",
 			fw_ctxt.status);
 		return -EFAULT;
+=======
+	if (err || out_size != sizeof(fw_ctxt) || fw_ctxt.status) {
+		dev_err(&pdev->dev, "Failed to init FW ctxt, err: %d, status: 0x%x, out size: 0x%x\n",
+			err, fw_ctxt.status, out_size);
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -295,6 +410,7 @@ static int init_fw_ctxt(struct hinic_hwdev *hwdev)
  *
  * Return 0 - Success, negative - Failure
  **/
+<<<<<<< HEAD
 static int set_hw_ioctxt(struct hinic_hwdev *hwdev, unsigned int rq_depth,
 			 unsigned int sq_depth)
 {
@@ -308,12 +424,26 @@ static int set_hw_ioctxt(struct hinic_hwdev *hwdev, unsigned int rq_depth,
 		return -EINVAL;
 	}
 
+=======
+static int set_hw_ioctxt(struct hinic_hwdev *hwdev, unsigned int sq_depth,
+			 unsigned int rq_depth)
+{
+	struct hinic_hwif *hwif = hwdev->hwif;
+	struct hinic_cmd_hw_ioctxt hw_ioctxt;
+	struct hinic_pfhwdev *pfhwdev;
+
+>>>>>>> upstream/android-13
 	hw_ioctxt.func_idx = HINIC_HWIF_FUNC_IDX(hwif);
 	hw_ioctxt.ppf_idx = HINIC_HWIF_PPF_IDX(hwif);
 
 	hw_ioctxt.set_cmdq_depth = HW_IOCTXT_SET_CMDQ_DEPTH_DEFAULT;
 	hw_ioctxt.cmdq_depth = 0;
 
+<<<<<<< HEAD
+=======
+	hw_ioctxt.lro_en = 1;
+
+>>>>>>> upstream/android-13
 	hw_ioctxt.rq_depth  = ilog2(rq_depth);
 
 	hw_ioctxt.rx_buf_sz_idx = HINIC_RX_BUF_SZ_IDX;
@@ -371,7 +501,11 @@ static int wait_for_db_state(struct hinic_hwdev *hwdev)
 }
 
 /**
+<<<<<<< HEAD
  * clear_io_resource - set the IO resources as not active in the NIC
+=======
+ * clear_io_resources - set the IO resources as not active in the NIC
+>>>>>>> upstream/android-13
  * @hwdev: the NIC HW device
  *
  * Return 0 - Success, negative - Failure
@@ -384,11 +518,14 @@ static int clear_io_resources(struct hinic_hwdev *hwdev)
 	struct hinic_pfhwdev *pfhwdev;
 	int err;
 
+<<<<<<< HEAD
 	if (!HINIC_IS_PF(hwif) && !HINIC_IS_PPF(hwif)) {
 		dev_err(&pdev->dev, "Unsupported PCI Function type\n");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* sleep 100ms to wait for firmware stopping I/O */
 	msleep(100);
 
@@ -420,6 +557,7 @@ static int set_resources_state(struct hinic_hwdev *hwdev,
 {
 	struct hinic_cmd_set_res_state res_state;
 	struct hinic_hwif *hwif = hwdev->hwif;
+<<<<<<< HEAD
 	struct pci_dev *pdev = hwif->pdev;
 	struct hinic_pfhwdev *pfhwdev;
 
@@ -428,6 +566,10 @@ static int set_resources_state(struct hinic_hwdev *hwdev,
 		return -EINVAL;
 	}
 
+=======
+	struct hinic_pfhwdev *pfhwdev;
+
+>>>>>>> upstream/android-13
 	res_state.func_idx = HINIC_HWIF_FUNC_IDX(hwif);
 	res_state.state = state;
 
@@ -451,8 +593,13 @@ static int get_base_qpn(struct hinic_hwdev *hwdev, u16 *base_qpn)
 {
 	struct hinic_cmd_base_qpn cmd_base_qpn;
 	struct hinic_hwif *hwif = hwdev->hwif;
+<<<<<<< HEAD
 	struct pci_dev *pdev = hwif->pdev;
 	u16 out_size;
+=======
+	u16 out_size = sizeof(cmd_base_qpn);
+	struct pci_dev *pdev = hwif->pdev;
+>>>>>>> upstream/android-13
 	int err;
 
 	cmd_base_qpn.func_idx = HINIC_HWIF_FUNC_IDX(hwif);
@@ -460,10 +607,17 @@ static int get_base_qpn(struct hinic_hwdev *hwdev, u16 *base_qpn)
 	err = hinic_port_msg_cmd(hwdev, HINIC_PORT_CMD_GET_GLOBAL_QPN,
 				 &cmd_base_qpn, sizeof(cmd_base_qpn),
 				 &cmd_base_qpn, &out_size);
+<<<<<<< HEAD
 	if (err || (out_size != sizeof(cmd_base_qpn)) || cmd_base_qpn.status) {
 		dev_err(&pdev->dev, "Failed to get base qpn, status = %d\n",
 			cmd_base_qpn.status);
 		return -EFAULT;
+=======
+	if (err || out_size != sizeof(cmd_base_qpn) || cmd_base_qpn.status) {
+		dev_err(&pdev->dev, "Failed to get base qpn, err: %d, status: 0x%x, out size: 0x%x\n",
+			err, cmd_base_qpn.status, out_size);
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	*base_qpn = cmd_base_qpn.qpn;
@@ -473,10 +627,19 @@ static int get_base_qpn(struct hinic_hwdev *hwdev, u16 *base_qpn)
 /**
  * hinic_hwdev_ifup - Preparing the HW for passing IO
  * @hwdev: the NIC HW device
+<<<<<<< HEAD
  *
  * Return 0 - Success, negative - Failure
  **/
 int hinic_hwdev_ifup(struct hinic_hwdev *hwdev)
+=======
+ * @sq_depth: the send queue depth
+ * @rq_depth: the receive queue depth
+ *
+ * Return 0 - Success, negative - Failure
+ **/
+int hinic_hwdev_ifup(struct hinic_hwdev *hwdev, u16 sq_depth, u16 rq_depth)
+>>>>>>> upstream/android-13
 {
 	struct hinic_func_to_io *func_to_io = &hwdev->func_to_io;
 	struct hinic_cap *nic_cap = &hwdev->nic_cap;
@@ -498,6 +661,13 @@ int hinic_hwdev_ifup(struct hinic_hwdev *hwdev)
 	num_ceqs = HINIC_HWIF_NUM_CEQS(hwif);
 
 	ceq_msix_entries = &hwdev->msix_entries[num_aeqs];
+<<<<<<< HEAD
+=======
+	func_to_io->hwdev = hwdev;
+	func_to_io->sq_depth = sq_depth;
+	func_to_io->rq_depth = rq_depth;
+	func_to_io->global_qpn = base_qpn;
+>>>>>>> upstream/android-13
 
 	err = hinic_io_init(func_to_io, hwif, nic_cap->max_qps, num_ceqs,
 			    ceq_msix_entries);
@@ -523,7 +693,11 @@ int hinic_hwdev_ifup(struct hinic_hwdev *hwdev)
 		hinic_db_state_set(hwif, HINIC_DB_ENABLE);
 	}
 
+<<<<<<< HEAD
 	err = set_hw_ioctxt(hwdev, HINIC_SQ_DEPTH, HINIC_RQ_DEPTH);
+=======
+	err = set_hw_ioctxt(hwdev, sq_depth, rq_depth);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&pdev->dev, "Failed to set HW IO ctxt\n");
 		goto err_hw_ioctxt;
@@ -568,17 +742,23 @@ void hinic_hwdev_cb_register(struct hinic_hwdev *hwdev,
 					     u16 in_size, void *buf_out,
 					     u16 *out_size))
 {
+<<<<<<< HEAD
 	struct hinic_hwif *hwif = hwdev->hwif;
 	struct pci_dev *pdev = hwif->pdev;
+=======
+>>>>>>> upstream/android-13
 	struct hinic_pfhwdev *pfhwdev;
 	struct hinic_nic_cb *nic_cb;
 	u8 cmd_cb;
 
+<<<<<<< HEAD
 	if (!HINIC_IS_PF(hwif) && !HINIC_IS_PPF(hwif)) {
 		dev_err(&pdev->dev, "unsupported PCI Function type\n");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
 
 	cmd_cb = cmd - HINIC_MGMT_MSG_CMD_BASE;
@@ -598,15 +778,23 @@ void hinic_hwdev_cb_unregister(struct hinic_hwdev *hwdev,
 			       enum hinic_mgmt_msg_cmd cmd)
 {
 	struct hinic_hwif *hwif = hwdev->hwif;
+<<<<<<< HEAD
 	struct pci_dev *pdev = hwif->pdev;
+=======
+>>>>>>> upstream/android-13
 	struct hinic_pfhwdev *pfhwdev;
 	struct hinic_nic_cb *nic_cb;
 	u8 cmd_cb;
 
+<<<<<<< HEAD
 	if (!HINIC_IS_PF(hwif) && !HINIC_IS_PPF(hwif)) {
 		dev_err(&pdev->dev, "unsupported PCI Function type\n");
 		return;
 	}
+=======
+	if (!HINIC_IS_PF(hwif) && !HINIC_IS_PPF(hwif))
+		return;
+>>>>>>> upstream/android-13
 
 	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
 
@@ -624,6 +812,10 @@ void hinic_hwdev_cb_unregister(struct hinic_hwdev *hwdev,
 /**
  * nic_mgmt_msg_handler - nic mgmt event handler
  * @handle: private data for the handler
+<<<<<<< HEAD
+=======
+ * @cmd: message command
+>>>>>>> upstream/android-13
  * @buf_in: input buffer
  * @in_size: input size
  * @buf_out: output buffer
@@ -644,8 +836,13 @@ static void nic_mgmt_msg_handler(void *handle, u8 cmd, void *buf_in,
 	hwif = hwdev->hwif;
 	pdev = hwif->pdev;
 
+<<<<<<< HEAD
 	if ((cmd < HINIC_MGMT_MSG_CMD_BASE) ||
 	    (cmd >= HINIC_MGMT_MSG_CMD_MAX)) {
+=======
+	if (cmd < HINIC_MGMT_MSG_CMD_BASE ||
+	    cmd >= HINIC_MGMT_MSG_CMD_MAX) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "unknown L2NIC event, cmd = %d\n", cmd);
 		return;
 	}
@@ -658,7 +855,11 @@ static void nic_mgmt_msg_handler(void *handle, u8 cmd, void *buf_in,
 			   HINIC_CB_ENABLED,
 			   HINIC_CB_ENABLED | HINIC_CB_RUNNING);
 
+<<<<<<< HEAD
 	if ((cb_state == HINIC_CB_ENABLED) && (nic_cb->handler))
+=======
+	if (cb_state == HINIC_CB_ENABLED && nic_cb->handler)
+>>>>>>> upstream/android-13
 		nic_cb->handler(nic_cb->handle, buf_in,
 				in_size, buf_out, out_size);
 	else
@@ -667,6 +868,116 @@ static void nic_mgmt_msg_handler(void *handle, u8 cmd, void *buf_in,
 	nic_cb->cb_state &= ~HINIC_CB_RUNNING;
 }
 
+<<<<<<< HEAD
+=======
+static void hinic_comm_recv_mgmt_self_cmd_reg(struct hinic_pfhwdev *pfhwdev,
+					      u8 cmd,
+					      comm_mgmt_self_msg_proc proc)
+{
+	u8 cmd_idx;
+
+	cmd_idx = pfhwdev->proc.cmd_num;
+	if (cmd_idx >= HINIC_COMM_SELF_CMD_MAX) {
+		dev_err(&pfhwdev->hwdev.hwif->pdev->dev,
+			"Register recv mgmt process failed, cmd: 0x%x\n", cmd);
+		return;
+	}
+
+	pfhwdev->proc.info[cmd_idx].cmd = cmd;
+	pfhwdev->proc.info[cmd_idx].proc = proc;
+	pfhwdev->proc.cmd_num++;
+}
+
+static void hinic_comm_recv_mgmt_self_cmd_unreg(struct hinic_pfhwdev *pfhwdev,
+						u8 cmd)
+{
+	u8 cmd_idx;
+
+	cmd_idx = pfhwdev->proc.cmd_num;
+	if (cmd_idx >= HINIC_COMM_SELF_CMD_MAX) {
+		dev_err(&pfhwdev->hwdev.hwif->pdev->dev, "Unregister recv mgmt process failed, cmd: 0x%x\n",
+			cmd);
+		return;
+	}
+
+	for (cmd_idx = 0; cmd_idx < HINIC_COMM_SELF_CMD_MAX; cmd_idx++) {
+		if (cmd == pfhwdev->proc.info[cmd_idx].cmd) {
+			pfhwdev->proc.info[cmd_idx].cmd = 0;
+			pfhwdev->proc.info[cmd_idx].proc = NULL;
+			pfhwdev->proc.cmd_num--;
+		}
+	}
+}
+
+static void comm_mgmt_msg_handler(void *handle, u8 cmd, void *buf_in,
+				  u16 in_size, void *buf_out, u16 *out_size)
+{
+	struct hinic_pfhwdev *pfhwdev = handle;
+	u8 cmd_idx;
+
+	for (cmd_idx = 0; cmd_idx < pfhwdev->proc.cmd_num; cmd_idx++) {
+		if (cmd == pfhwdev->proc.info[cmd_idx].cmd) {
+			if (!pfhwdev->proc.info[cmd_idx].proc) {
+				dev_warn(&pfhwdev->hwdev.hwif->pdev->dev,
+					 "PF recv mgmt comm msg handle null, cmd: 0x%x\n",
+					 cmd);
+			} else {
+				pfhwdev->proc.info[cmd_idx].proc
+					(&pfhwdev->hwdev, buf_in, in_size,
+					 buf_out, out_size);
+			}
+
+			return;
+		}
+	}
+
+	dev_warn(&pfhwdev->hwdev.hwif->pdev->dev, "Received unknown mgmt cpu event: 0x%x\n",
+		 cmd);
+
+	*out_size = 0;
+}
+
+/* pf fault report event */
+static void pf_fault_event_handler(void *dev, void *buf_in, u16 in_size,
+				   void *buf_out, u16 *out_size)
+{
+	struct hinic_cmd_fault_event *fault_event = buf_in;
+	struct hinic_hwdev *hwdev = dev;
+
+	if (in_size != sizeof(*fault_event)) {
+		dev_err(&hwdev->hwif->pdev->dev, "Invalid fault event report, length: %d, should be %zu\n",
+			in_size, sizeof(*fault_event));
+		return;
+	}
+
+	if (!hwdev->devlink_dev || IS_ERR_OR_NULL(hwdev->devlink_dev->hw_fault_reporter))
+		return;
+
+	devlink_health_report(hwdev->devlink_dev->hw_fault_reporter,
+			      "HW fatal error reported", &fault_event->event);
+}
+
+static void mgmt_watchdog_timeout_event_handler(void *dev,
+						void *buf_in, u16 in_size,
+						void *buf_out, u16 *out_size)
+{
+	struct hinic_mgmt_watchdog_info *watchdog_info = buf_in;
+	struct hinic_hwdev *hwdev = dev;
+
+	if (in_size != sizeof(*watchdog_info)) {
+		dev_err(&hwdev->hwif->pdev->dev, "Invalid mgmt watchdog report, length: %d, should be %zu\n",
+			in_size, sizeof(*watchdog_info));
+		return;
+	}
+
+	if (!hwdev->devlink_dev || IS_ERR_OR_NULL(hwdev->devlink_dev->fw_fault_reporter))
+		return;
+
+	devlink_health_report(hwdev->devlink_dev->fw_fault_reporter,
+			      "FW fatal error reported", watchdog_info);
+}
+
+>>>>>>> upstream/android-13
 /**
  * init_pfhwdev - Initialize the extended components of PF
  * @pfhwdev: the HW device for PF
@@ -686,10 +997,47 @@ static int init_pfhwdev(struct hinic_pfhwdev *pfhwdev)
 		return err;
 	}
 
+<<<<<<< HEAD
 	hinic_register_mgmt_msg_cb(&pfhwdev->pf_to_mgmt, HINIC_MOD_L2NIC,
 				   pfhwdev, nic_mgmt_msg_handler);
 
 	hinic_set_pf_action(hwif, HINIC_PF_MGMT_ACTIVE);
+=======
+	err = hinic_devlink_register(hwdev->devlink_dev);
+	if (err) {
+		dev_err(&hwif->pdev->dev, "Failed to register devlink\n");
+		hinic_pf_to_mgmt_free(&pfhwdev->pf_to_mgmt);
+		return err;
+	}
+
+	err = hinic_func_to_func_init(hwdev);
+	if (err) {
+		dev_err(&hwif->pdev->dev, "Failed to init mailbox\n");
+		hinic_devlink_unregister(hwdev->devlink_dev);
+		hinic_pf_to_mgmt_free(&pfhwdev->pf_to_mgmt);
+		return err;
+	}
+
+	if (!HINIC_IS_VF(hwif)) {
+		hinic_register_mgmt_msg_cb(&pfhwdev->pf_to_mgmt,
+					   HINIC_MOD_L2NIC, pfhwdev,
+					   nic_mgmt_msg_handler);
+		hinic_register_mgmt_msg_cb(&pfhwdev->pf_to_mgmt, HINIC_MOD_COMM,
+					   pfhwdev, comm_mgmt_msg_handler);
+		hinic_comm_recv_mgmt_self_cmd_reg(pfhwdev,
+						  HINIC_COMM_CMD_FAULT_REPORT,
+						  pf_fault_event_handler);
+		hinic_comm_recv_mgmt_self_cmd_reg
+			(pfhwdev, HINIC_COMM_CMD_WATCHDOG_INFO,
+			 mgmt_watchdog_timeout_event_handler);
+	} else {
+		hinic_register_vf_mbox_cb(hwdev, HINIC_MOD_L2NIC,
+					  nic_mgmt_msg_handler);
+	}
+
+	hinic_set_pf_action(hwif, HINIC_PF_MGMT_ACTIVE);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -703,20 +1051,138 @@ static void free_pfhwdev(struct hinic_pfhwdev *pfhwdev)
 
 	hinic_set_pf_action(hwdev->hwif, HINIC_PF_MGMT_INIT);
 
+<<<<<<< HEAD
 	hinic_unregister_mgmt_msg_cb(&pfhwdev->pf_to_mgmt, HINIC_MOD_L2NIC);
+=======
+	if (!HINIC_IS_VF(hwdev->hwif)) {
+		hinic_comm_recv_mgmt_self_cmd_unreg(pfhwdev,
+						    HINIC_COMM_CMD_WATCHDOG_INFO);
+		hinic_comm_recv_mgmt_self_cmd_unreg(pfhwdev,
+						    HINIC_COMM_CMD_FAULT_REPORT);
+		hinic_unregister_mgmt_msg_cb(&pfhwdev->pf_to_mgmt,
+					     HINIC_MOD_COMM);
+		hinic_unregister_mgmt_msg_cb(&pfhwdev->pf_to_mgmt,
+					     HINIC_MOD_L2NIC);
+	} else {
+		hinic_unregister_vf_mbox_cb(hwdev, HINIC_MOD_L2NIC);
+	}
+
+	hinic_func_to_func_free(hwdev);
+
+	hinic_devlink_unregister(hwdev->devlink_dev);
+>>>>>>> upstream/android-13
 
 	hinic_pf_to_mgmt_free(&pfhwdev->pf_to_mgmt);
+}
+
+<<<<<<< HEAD
+/**
+ * hinic_init_hwdev - Initialize the NIC HW
+ * @pdev: the NIC pci device
+=======
+static int hinic_l2nic_reset(struct hinic_hwdev *hwdev)
+{
+	struct hinic_cmd_l2nic_reset l2nic_reset = {0};
+	u16 out_size = sizeof(l2nic_reset);
+	struct hinic_pfhwdev *pfhwdev;
+	int err;
+
+	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
+
+	l2nic_reset.func_id = HINIC_HWIF_FUNC_IDX(hwdev->hwif);
+	/* 0 represents standard l2nic reset flow */
+	l2nic_reset.reset_flag = 0;
+
+	err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_COMM,
+				HINIC_COMM_CMD_L2NIC_RESET, &l2nic_reset,
+				sizeof(l2nic_reset), &l2nic_reset,
+				&out_size, HINIC_MGMT_MSG_SYNC);
+	if (err || !out_size || l2nic_reset.status) {
+		dev_err(&hwdev->hwif->pdev->dev, "Failed to reset L2NIC resources, err: %d, status: 0x%x, out_size: 0x%x\n",
+			err, l2nic_reset.status, out_size);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+int hinic_get_interrupt_cfg(struct hinic_hwdev *hwdev,
+			    struct hinic_msix_config *interrupt_info)
+{
+	u16 out_size = sizeof(*interrupt_info);
+	struct hinic_pfhwdev *pfhwdev;
+	int err;
+
+	if (!hwdev || !interrupt_info)
+		return -EINVAL;
+
+	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
+
+	interrupt_info->func_id = HINIC_HWIF_FUNC_IDX(hwdev->hwif);
+
+	err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_COMM,
+				HINIC_COMM_CMD_MSI_CTRL_REG_RD_BY_UP,
+				interrupt_info, sizeof(*interrupt_info),
+				interrupt_info, &out_size, HINIC_MGMT_MSG_SYNC);
+	if (err || !out_size || interrupt_info->status) {
+		dev_err(&hwdev->hwif->pdev->dev, "Failed to get interrupt config, err: %d, status: 0x%x, out size: 0x%x\n",
+			err, interrupt_info->status, out_size);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+int hinic_set_interrupt_cfg(struct hinic_hwdev *hwdev,
+			    struct hinic_msix_config *interrupt_info)
+{
+	u16 out_size = sizeof(*interrupt_info);
+	struct hinic_msix_config temp_info;
+	struct hinic_pfhwdev *pfhwdev;
+	int err;
+
+	if (!hwdev)
+		return -EINVAL;
+
+	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
+
+	interrupt_info->func_id = HINIC_HWIF_FUNC_IDX(hwdev->hwif);
+
+	err = hinic_get_interrupt_cfg(hwdev, &temp_info);
+	if (err)
+		return -EINVAL;
+
+	interrupt_info->lli_credit_cnt = temp_info.lli_timer_cnt;
+	interrupt_info->lli_timer_cnt = temp_info.lli_timer_cnt;
+
+	err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_COMM,
+				HINIC_COMM_CMD_MSI_CTRL_REG_WR_BY_UP,
+				interrupt_info, sizeof(*interrupt_info),
+				interrupt_info, &out_size, HINIC_MGMT_MSG_SYNC);
+	if (err || !out_size || interrupt_info->status) {
+		dev_err(&hwdev->hwif->pdev->dev, "Failed to get interrupt config, err: %d, status: 0x%x, out size: 0x%x\n",
+			err, interrupt_info->status, out_size);
+		return -EIO;
+	}
+
+	return 0;
 }
 
 /**
  * hinic_init_hwdev - Initialize the NIC HW
  * @pdev: the NIC pci device
+ * @devlink: the poniter of hinic devlink
+>>>>>>> upstream/android-13
  *
  * Return initialized NIC HW device
  *
  * Initialize the NIC HW device and return a pointer to it
  **/
+<<<<<<< HEAD
 struct hinic_hwdev *hinic_init_hwdev(struct pci_dev *pdev)
+=======
+struct hinic_hwdev *hinic_init_hwdev(struct pci_dev *pdev, struct devlink *devlink)
+>>>>>>> upstream/android-13
 {
 	struct hinic_pfhwdev *pfhwdev;
 	struct hinic_hwdev *hwdev;
@@ -733,12 +1199,15 @@ struct hinic_hwdev *hinic_init_hwdev(struct pci_dev *pdev)
 		return ERR_PTR(err);
 	}
 
+<<<<<<< HEAD
 	if (!HINIC_IS_PF(hwif) && !HINIC_IS_PPF(hwif)) {
 		dev_err(&pdev->dev, "Unsupported PCI Function type\n");
 		err = -EFAULT;
 		goto err_func_type;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	pfhwdev = devm_kzalloc(&pdev->dev, sizeof(*pfhwdev), GFP_KERNEL);
 	if (!pfhwdev) {
 		err = -ENOMEM;
@@ -747,6 +1216,11 @@ struct hinic_hwdev *hinic_init_hwdev(struct pci_dev *pdev)
 
 	hwdev = &pfhwdev->hwdev;
 	hwdev->hwif = hwif;
+<<<<<<< HEAD
+=======
+	hwdev->devlink_dev = devlink_priv(devlink);
+	hwdev->devlink_dev->hwdev = hwdev;
+>>>>>>> upstream/android-13
 
 	err = init_msix(hwdev);
 	if (err) {
@@ -776,12 +1250,30 @@ struct hinic_hwdev *hinic_init_hwdev(struct pci_dev *pdev)
 		goto err_init_pfhwdev;
 	}
 
+<<<<<<< HEAD
+=======
+	err = hinic_l2nic_reset(hwdev);
+	if (err)
+		goto err_l2nic_reset;
+
+>>>>>>> upstream/android-13
 	err = get_dev_cap(hwdev);
 	if (err) {
 		dev_err(&pdev->dev, "Failed to get device capabilities\n");
 		goto err_dev_cap;
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_init(&hwdev->func_to_io.nic_cfg.cfg_mutex);
+
+	err = hinic_vf_func_init(hwdev);
+	if (err) {
+		dev_err(&pdev->dev, "Failed to init nic mbox\n");
+		goto err_vf_func_init;
+	}
+
+>>>>>>> upstream/android-13
 	err = init_fw_ctxt(hwdev);
 	if (err) {
 		dev_err(&pdev->dev, "Failed to init function table\n");
@@ -798,6 +1290,12 @@ struct hinic_hwdev *hinic_init_hwdev(struct pci_dev *pdev)
 
 err_resources_state:
 err_init_fw_ctxt:
+<<<<<<< HEAD
+=======
+	hinic_vf_func_free(hwdev);
+err_vf_func_init:
+err_l2nic_reset:
+>>>>>>> upstream/android-13
 err_dev_cap:
 	free_pfhwdev(pfhwdev);
 
@@ -809,8 +1307,14 @@ err_aeqs_init:
 
 err_init_msix:
 err_pfhwdev_alloc:
+<<<<<<< HEAD
 err_func_type:
 	hinic_free_hwif(hwif);
+=======
+	hinic_free_hwif(hwif);
+	if (err > 0)
+		err = -EIO;
+>>>>>>> upstream/android-13
 	return ERR_PTR(err);
 }
 
@@ -826,6 +1330,11 @@ void hinic_free_hwdev(struct hinic_hwdev *hwdev)
 
 	set_resources_state(hwdev, HINIC_RES_CLEAN);
 
+<<<<<<< HEAD
+=======
+	hinic_vf_func_free(hwdev);
+
+>>>>>>> upstream/android-13
 	free_pfhwdev(pfhwdev);
 
 	hinic_aeqs_free(&hwdev->aeqs);
@@ -835,6 +1344,16 @@ void hinic_free_hwdev(struct hinic_hwdev *hwdev)
 	hinic_free_hwif(hwdev->hwif);
 }
 
+<<<<<<< HEAD
+=======
+int hinic_hwdev_max_num_qps(struct hinic_hwdev *hwdev)
+{
+	struct hinic_cap *nic_cap = &hwdev->nic_cap;
+
+	return nic_cap->max_qps;
+}
+
+>>>>>>> upstream/android-13
 /**
  * hinic_hwdev_num_qps - return the number QPs available for use
  * @hwdev: the NIC HW device
@@ -867,7 +1386,11 @@ struct hinic_sq *hinic_hwdev_get_sq(struct hinic_hwdev *hwdev, int i)
 }
 
 /**
+<<<<<<< HEAD
  * hinic_hwdev_get_sq - get RQ
+=======
+ * hinic_hwdev_get_rq - get RQ
+>>>>>>> upstream/android-13
  * @hwdev: the NIC HW device
  * @i: the position of the RQ
  *
@@ -902,7 +1425,11 @@ int hinic_hwdev_msix_cnt_set(struct hinic_hwdev *hwdev, u16 msix_index)
  * @msix_index: msix_index
  * @pending_limit: the maximum pending interrupt events (unit 8)
  * @coalesc_timer: coalesc period for interrupt (unit 8 us)
+<<<<<<< HEAD
  * @lli_timer: replenishing period for low latency credit (unit 8 us)
+=======
+ * @lli_timer_cfg: replenishing period for low latency credit (unit 8 us)
+>>>>>>> upstream/android-13
  * @lli_credit_limit: maximum credits for low latency msix messages (unit 8)
  * @resend_timer: maximum wait for resending msix (unit coalesc period)
  *
@@ -933,6 +1460,7 @@ int hinic_hwdev_hw_ci_addr_set(struct hinic_hwdev *hwdev, struct hinic_sq *sq,
 {
 	struct hinic_qp *qp = container_of(sq, struct hinic_qp, sq);
 	struct hinic_hwif *hwif = hwdev->hwif;
+<<<<<<< HEAD
 	struct pci_dev *pdev = hwif->pdev;
 	struct hinic_pfhwdev *pfhwdev;
 	struct hinic_cmd_hw_ci hw_ci;
@@ -942,6 +1470,11 @@ int hinic_hwdev_hw_ci_addr_set(struct hinic_hwdev *hwdev, struct hinic_sq *sq,
 		return -EINVAL;
 	}
 
+=======
+	struct hinic_pfhwdev *pfhwdev;
+	struct hinic_cmd_hw_ci hw_ci;
+
+>>>>>>> upstream/android-13
 	hw_ci.dma_attr_off  = 0;
 	hw_ci.pending_limit = pending_limit;
 	hw_ci.coalesc_timer = coalesc_timer;
@@ -962,3 +1495,45 @@ int hinic_hwdev_hw_ci_addr_set(struct hinic_hwdev *hwdev, struct hinic_sq *sq,
 				 &hw_ci, sizeof(hw_ci), NULL,
 				 NULL, HINIC_MGMT_MSG_SYNC);
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * hinic_hwdev_set_msix_state- set msix state
+ * @hwdev: the NIC HW device
+ * @msix_index: IRQ corresponding index number
+ * @flag: msix state
+ *
+ **/
+void hinic_hwdev_set_msix_state(struct hinic_hwdev *hwdev, u16 msix_index,
+				enum hinic_msix_state flag)
+{
+	hinic_set_msix_state(hwdev->hwif, msix_index, flag);
+}
+
+int hinic_get_board_info(struct hinic_hwdev *hwdev,
+			 struct hinic_comm_board_info *board_info)
+{
+	u16 out_size = sizeof(*board_info);
+	struct hinic_pfhwdev *pfhwdev;
+	int err;
+
+	if (!hwdev || !board_info)
+		return -EINVAL;
+
+	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
+
+	err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_COMM,
+				HINIC_COMM_CMD_GET_BOARD_INFO,
+				board_info, sizeof(*board_info),
+				board_info, &out_size, HINIC_MGMT_MSG_SYNC);
+	if (err || board_info->status || !out_size) {
+		dev_err(&hwdev->hwif->pdev->dev,
+			"Failed to get board info, err: %d, status: 0x%x, out size: 0x%x\n",
+			err, board_info->status, out_size);
+		return -EIO;
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13

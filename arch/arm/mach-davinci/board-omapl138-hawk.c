@@ -3,7 +3,11 @@
  *
  * Initial code: Syed Mohammed Khasim
  *
+<<<<<<< HEAD
  * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com
+=======
+ * Copyright (C) 2009 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * This file is licensed under the terms of the GNU General Public License
  * version 2. This program is licensed "as is" without any warranty of
@@ -21,13 +25,20 @@
 #include <linux/platform_data/mtd-davinci.h>
 #include <linux/platform_data/mtd-davinci-aemif.h>
 #include <linux/platform_data/ti-aemif.h>
+<<<<<<< HEAD
+=======
+#include <linux/regulator/fixed.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/machine.h>
 
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 
 #include <mach/common.h>
+<<<<<<< HEAD
 #include "cp_intc.h"
+=======
+>>>>>>> upstream/android-13
 #include <mach/da8xx.h>
 #include <mach/mux.h>
 
@@ -134,9 +145,15 @@ static const short hawk_mmcsd0_pins[] = {
 static struct gpiod_lookup_table mmc_gpios_table = {
 	.dev_id = "da830-mmc.0",
 	.table = {
+<<<<<<< HEAD
 		GPIO_LOOKUP("davinci_gpio.0", DA850_HAWK_MMCSD_CD_PIN, "cd",
 			    GPIO_ACTIVE_LOW),
 		GPIO_LOOKUP("davinci_gpio.0", DA850_HAWK_MMCSD_WP_PIN, "wp",
+=======
+		GPIO_LOOKUP("davinci_gpio", DA850_HAWK_MMCSD_CD_PIN, "cd",
+			    GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("davinci_gpio", DA850_HAWK_MMCSD_WP_PIN, "wp",
+>>>>>>> upstream/android-13
 			    GPIO_ACTIVE_LOW),
 	},
 };
@@ -206,7 +223,11 @@ static struct davinci_nand_pdata omapl138_hawk_nandflash_data = {
 	.core_chipsel	= 1,
 	.parts		= omapl138_hawk_nandflash_partition,
 	.nr_parts	= ARRAY_SIZE(omapl138_hawk_nandflash_partition),
+<<<<<<< HEAD
 	.ecc_mode	= NAND_ECC_HW,
+=======
+	.engine_type	= NAND_ECC_ENGINE_TYPE_ON_HOST,
+>>>>>>> upstream/android-13
 	.ecc_bits	= 4,
 	.bbt_options	= NAND_BBT_USE_FLASH,
 	.options	= NAND_BUSWIDTH_16,
@@ -294,14 +315,18 @@ static int omapl138_hawk_register_aemif(void)
 	return platform_device_register(&omapl138_hawk_aemif_device);
 }
 
+<<<<<<< HEAD
 static irqreturn_t omapl138_hawk_usb_ocic_irq(int irq, void *dev_id);
 static da8xx_ocic_handler_t hawk_usb_ocic_handler;
 
+=======
+>>>>>>> upstream/android-13
 static const short da850_hawk_usb11_pins[] = {
 	DA850_GPIO2_4, DA850_GPIO6_13,
 	-1
 };
 
+<<<<<<< HEAD
 static int hawk_usb_set_power(unsigned port, int on)
 {
 	gpio_set_value(DA850_USB1_VBUS_PIN, on);
@@ -344,16 +369,69 @@ static struct da8xx_ohci_root_hub omapl138_hawk_usb11_pdata = {
 	.get_power      = hawk_usb_get_power,
 	.get_oci        = hawk_usb_get_oci,
 	.ocic_notify    = hawk_usb_ocic_notify,
+=======
+static struct regulator_consumer_supply hawk_usb_supplies[] = {
+	REGULATOR_SUPPLY("vbus", NULL),
+};
+
+static struct regulator_init_data hawk_usb_vbus_data = {
+	.consumer_supplies	= hawk_usb_supplies,
+	.num_consumer_supplies	= ARRAY_SIZE(hawk_usb_supplies),
+	.constraints    = {
+		.valid_ops_mask = REGULATOR_CHANGE_STATUS,
+	},
+};
+
+static struct fixed_voltage_config hawk_usb_vbus = {
+	.supply_name		= "vbus",
+	.microvolts		= 3300000,
+	.init_data		= &hawk_usb_vbus_data,
+};
+
+static struct platform_device hawk_usb_vbus_device = {
+	.name		= "reg-fixed-voltage",
+	.id		= 0,
+	.dev		= {
+		.platform_data = &hawk_usb_vbus,
+	},
+};
+
+static struct gpiod_lookup_table hawk_usb_oc_gpio_lookup = {
+	.dev_id		= "ohci-da8xx",
+	.table = {
+		GPIO_LOOKUP("davinci_gpio", DA850_USB1_OC_PIN, "oc", 0),
+		{ }
+	},
+};
+
+static struct gpiod_lookup_table hawk_usb_vbus_gpio_lookup = {
+	.dev_id		= "reg-fixed-voltage.0",
+	.table = {
+		GPIO_LOOKUP("davinci_gpio", DA850_USB1_VBUS_PIN, NULL, 0),
+		{ }
+	},
+};
+
+static struct gpiod_lookup_table *hawk_usb_gpio_lookups[] = {
+	&hawk_usb_oc_gpio_lookup,
+	&hawk_usb_vbus_gpio_lookup,
+};
+
+static struct da8xx_ohci_root_hub omapl138_hawk_usb11_pdata = {
+>>>>>>> upstream/android-13
 	/* TPS2087 switch @ 5V */
 	.potpgt         = (3 + 1) / 2,  /* 3 ms max */
 };
 
+<<<<<<< HEAD
 static irqreturn_t omapl138_hawk_usb_ocic_irq(int irq, void *dev_id)
 {
 	hawk_usb_ocic_handler(&omapl138_hawk_usb11_pdata, 1);
 	return IRQ_HANDLED;
 }
 
+=======
+>>>>>>> upstream/android-13
 static __init void omapl138_hawk_usb_init(void)
 {
 	int ret;
@@ -369,11 +447,18 @@ static __init void omapl138_hawk_usb_init(void)
 		pr_warn("%s: USB PHY CLK registration failed: %d\n",
 			__func__, ret);
 
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_tables(hawk_usb_gpio_lookups,
+				ARRAY_SIZE(hawk_usb_gpio_lookups));
+
+>>>>>>> upstream/android-13
 	ret = da8xx_register_usb_phy();
 	if (ret)
 		pr_warn("%s: USB PHY registration failed: %d\n",
 			__func__, ret);
 
+<<<<<<< HEAD
 	ret = gpio_request_one(DA850_USB1_VBUS_PIN,
 			GPIOF_DIR_OUT, "USB1 VBUS");
 	if (ret < 0) {
@@ -402,6 +487,19 @@ usb11_setup_fail:
 	gpio_free(DA850_USB1_OC_PIN);
 usb11_setup_oc_fail:
 	gpio_free(DA850_USB1_VBUS_PIN);
+=======
+	ret = platform_device_register(&hawk_usb_vbus_device);
+	if (ret) {
+		pr_warn("%s: Unable to register the vbus supply\n", __func__);
+		return;
+	}
+
+	ret = da8xx_register_usb11(&omapl138_hawk_usb11_pdata);
+	if (ret)
+		pr_warn("%s: USB 1.1 registration failed: %d\n", __func__, ret);
+
+	return;
+>>>>>>> upstream/android-13
 }
 
 static __init void omapl138_hawk_init(void)
@@ -462,7 +560,11 @@ static void __init omapl138_hawk_map_io(void)
 MACHINE_START(OMAPL138_HAWKBOARD, "AM18x/OMAP-L138 Hawkboard")
 	.atag_offset	= 0x100,
 	.map_io		= omapl138_hawk_map_io,
+<<<<<<< HEAD
 	.init_irq	= cp_intc_init,
+=======
+	.init_irq	= da850_init_irq,
+>>>>>>> upstream/android-13
 	.init_time	= da850_init_time,
 	.init_machine	= omapl138_hawk_init,
 	.init_late	= davinci_init_late,

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
  *   Copyright 2007 rPath, Inc. - All Rights Reserved
  *   Copyright 2009 Intel Corporation; author H. Peter Anvin
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available under
  *   the terms of the GNU General Public License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -62,7 +69,11 @@ static int vesa_probe(void)
 		if (mode & ~0x1ff)
 			continue;
 
+<<<<<<< HEAD
 		memset(&vminfo, 0, sizeof vminfo); /* Just in case... */
+=======
+		memset(&vminfo, 0, sizeof(vminfo)); /* Just in case... */
+>>>>>>> upstream/android-13
 
 		ireg.ax = 0x4f01;
 		ireg.cx = mode;
@@ -109,7 +120,11 @@ static int vesa_set_mode(struct mode_info *mode)
 	int is_graphic;
 	u16 vesa_mode = mode->mode - VIDEO_FIRST_VESA;
 
+<<<<<<< HEAD
 	memset(&vminfo, 0, sizeof vminfo); /* Just in case... */
+=======
+	memset(&vminfo, 0, sizeof(vminfo)); /* Just in case... */
+>>>>>>> upstream/android-13
 
 	initregs(&ireg);
 	ireg.ax = 0x4f01;
@@ -241,7 +256,11 @@ void vesa_store_edid(void)
 	struct biosregs ireg, oreg;
 
 	/* Apparently used as a nonsense token... */
+<<<<<<< HEAD
 	memset(&boot_params.edid_info, 0x13, sizeof boot_params.edid_info);
+=======
+	memset(&boot_params.edid_info, 0x13, sizeof(boot_params.edid_info));
+>>>>>>> upstream/android-13
 
 	if (vginfo.version < 0x0200)
 		return;		/* EDID requires VBE 2.0+ */

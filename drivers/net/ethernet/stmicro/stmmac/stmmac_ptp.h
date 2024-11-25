@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
   PTP Header file
 
   Copyright (C) 2013  Vayavya Labs Pvt Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -14,6 +19,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Rayagond Kokatanur <rayagond@vayavyalabs.com>
 ******************************************************************************/
@@ -33,6 +40,12 @@
 #define	PTP_STSUR	0x10	/* System Time – Seconds Update Reg */
 #define	PTP_STNSUR	0x14	/* System Time – Nanoseconds Update Reg */
 #define	PTP_TAR		0x18	/* Timestamp Addend Reg */
+<<<<<<< HEAD
+=======
+#define	PTP_ACR		0x40	/* Auxiliary Control Reg */
+#define	PTP_ATNR	0x48	/* Auxiliary Timestamp - Nanoseconds Reg */
+#define	PTP_ATSR	0x4c	/* Auxiliary Timestamp - Seconds Reg */
+>>>>>>> upstream/android-13
 
 #define	PTP_STNSUR_ADDSUB_SHIFT	31
 #define	PTP_DIGITAL_ROLLOVER_MODE	0x3B9ACA00	/* 10e9-1 ns */
@@ -74,4 +87,28 @@
 #define	PTP_SSIR_SSINC_MASK		0xff
 #define	GMAC4_PTP_SSIR_SSINC_SHIFT	16
 
+<<<<<<< HEAD
+=======
+/* Auxiliary Control defines */
+#define	PTP_ACR_ATSFC		BIT(0)	/* Auxiliary Snapshot FIFO Clear */
+#define	PTP_ACR_ATSEN0		BIT(4)	/* Auxiliary Snapshot 0 Enable */
+#define	PTP_ACR_ATSEN1		BIT(5)	/* Auxiliary Snapshot 1 Enable */
+#define	PTP_ACR_ATSEN2		BIT(6)	/* Auxiliary Snapshot 2 Enable */
+#define	PTP_ACR_ATSEN3		BIT(7)	/* Auxiliary Snapshot 3 Enable */
+#define	PTP_ACR_ATSEN_SHIFT	5	/* Auxiliary Snapshot shift */
+#define	PTP_ACR_MASK		GENMASK(7, 4)	/* Aux Snapshot Mask */
+#define	PMC_ART_VALUE0		0x01	/* PMC_ART[15:0] timer value */
+#define	PMC_ART_VALUE1		0x02	/* PMC_ART[31:16] timer value */
+#define	PMC_ART_VALUE2		0x03	/* PMC_ART[47:32] timer value */
+#define	PMC_ART_VALUE3		0x04	/* PMC_ART[63:48] timer value */
+#define	GMAC4_ART_TIME_SHIFT	16	/* ART TIME 16-bits shift */
+
+enum aux_snapshot {
+	AUX_SNAPSHOT0 = 0x10,
+	AUX_SNAPSHOT1 = 0x20,
+	AUX_SNAPSHOT2 = 0x40,
+	AUX_SNAPSHOT3 = 0x80,
+};
+
+>>>>>>> upstream/android-13
 #endif	/* __STMMAC_PTP_H__ */

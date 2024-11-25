@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/proc-arm1026.S: MMU functions for ARM1026EJ-S
  *
@@ -5,22 +9,32 @@
  *  Copyright (C) 2000 Deep Blue Solutions Ltd.
  *  hacked for non-paged-MM by Hyok S. Choi, 2003.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * These are the low level assembler for performing cache and TLB
  * functions on the ARM1026EJ-S.
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/assembler.h>
 #include <asm/asm-offsets.h>
 #include <asm/hwcap.h>
 #include <asm/pgtable-hwdef.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 
 #include "proc-macros.S"
@@ -143,7 +157,11 @@ ENTRY(arm1026_flush_kern_cache_all)
 	mov	ip, #0
 __flush_whole_cache:
 #ifndef CONFIG_CPU_DCACHE_DISABLE
+<<<<<<< HEAD
 1:	mrc	p15, 0, r15, c7, c14, 3		@ test, clean, invalidate
+=======
+1:	mrc	p15, 0, APSR_nzcv, c7, c14, 3		@ test, clean, invalidate
+>>>>>>> upstream/android-13
 	bne	1b
 #endif
 	tst	r2, #VM_EXEC
@@ -368,7 +386,11 @@ ENTRY(cpu_arm1026_switch_mm)
 #ifdef CONFIG_MMU
 	mov	r1, #0
 #ifndef CONFIG_CPU_DCACHE_DISABLE
+<<<<<<< HEAD
 1:	mrc	p15, 0, r15, c7, c14, 3		@ test, clean, invalidate
+=======
+1:	mrc	p15, 0, APSR_nzcv, c7, c14, 3		@ test, clean, invalidate
+>>>>>>> upstream/android-13
 	bne	1b
 #endif
 #ifndef CONFIG_CPU_ICACHE_DISABLE
@@ -442,7 +464,11 @@ arm1026_crval:
 	string	cpu_arm1026_name, "ARM1026EJ-S"
 	.align
 
+<<<<<<< HEAD
 	.section ".proc.info.init", #alloc
+=======
+	.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 
 	.type	__arm1026_proc_info,#object
 __arm1026_proc_info:

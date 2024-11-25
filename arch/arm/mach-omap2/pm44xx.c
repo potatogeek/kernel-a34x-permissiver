@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP4+ Power Management Routines
  *
  * Copyright (C) 2010-2013 Texas Instruments, Inc.
  * Rajendra Nayak <rnayak@ti.com>
  * Santosh Shilimkar <santosh.shilimkar@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pm.h>
@@ -131,6 +138,7 @@ static int __init pwrdms_setup(struct powerdomain *pwrdm, void *unused)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Bootloader or kexec boot may have LOGICRETSTATE cleared
 	 * for some domains. This is the case when kexec booting from
@@ -143,6 +151,11 @@ static int __init pwrdms_setup(struct powerdomain *pwrdm, void *unused)
 	    !strncmp(pwrdm->name, "l4per", 5) ||
 	    !strncmp(pwrdm->name, "wkup", 4))
 		pwrdm_set_logic_retst(pwrdm, PWRDM_POWER_RET);
+=======
+	if (!strncmp(pwrdm->name, "core", 4) ||
+	    !strncmp(pwrdm->name, "l4per", 5))
+		pwrdm_set_logic_retst(pwrdm, PWRDM_POWER_OFF);
+>>>>>>> upstream/android-13
 
 	pwrst = kmalloc(sizeof(struct power_state), GFP_ATOMIC);
 	if (!pwrst)

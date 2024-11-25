@@ -36,12 +36,22 @@ struct vmacache {
 	struct vm_area_struct *vmas[VMACACHE_SIZE];
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * When updating this, please also update struct resident_page_types[] in
+ * kernel/fork.c
+ */
+>>>>>>> upstream/android-13
 enum {
 	MM_FILEPAGES,	/* Resident file mapping pages */
 	MM_ANONPAGES,	/* Resident anonymous pages */
 	MM_SWAPENTS,	/* Anonymous swap entries */
 	MM_SHMEMPAGES,	/* Resident shared memory pages */
+<<<<<<< HEAD
 	MM_UNRECLAIMABLE,	/* Unreclaimable pages, e.g. shared with HW */
+=======
+>>>>>>> upstream/android-13
 	NR_MM_COUNTERS
 };
 

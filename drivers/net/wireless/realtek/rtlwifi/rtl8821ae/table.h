@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2010  Realtek Corporation.
@@ -24,6 +25,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2010  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL8821AE_TABLE__H_
 #define __RTL8821AE_TABLE__H_
@@ -52,7 +57,13 @@ extern u32 RTL8821AE_AGC_TAB_ARRAY[];
 extern u32 RTL8812AE_AGC_TAB_1TARRAYLEN;
 extern u32 RTL8812AE_AGC_TAB_ARRAY[];
 extern u32 RTL8812AE_TXPWR_LMT_ARRAY_LEN;
+<<<<<<< HEAD
 extern u8 *RTL8812AE_TXPWR_LMT[];
 extern u32 RTL8821AE_TXPWR_LMT_ARRAY_LEN;
 extern u8 *RTL8821AE_TXPWR_LMT[];
+=======
+extern const char *RTL8812AE_TXPWR_LMT[];
+extern u32 RTL8821AE_TXPWR_LMT_ARRAY_LEN;
+extern const char *RTL8821AE_TXPWR_LMT[];
+>>>>>>> upstream/android-13
 #endif

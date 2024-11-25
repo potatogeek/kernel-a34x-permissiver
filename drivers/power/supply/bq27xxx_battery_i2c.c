@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * BQ27xxx battery monitor I2C driver
  *
@@ -12,6 +13,14 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * BQ27xxx battery monitor I2C driver
+ *
+ * Copyright (C) 2015 Texas Instruments Incorporated - https://www.ti.com/
+ *	Andrew F. Davis <afd@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -195,7 +204,12 @@ static int bq27xxx_battery_i2c_probe(struct i2c_client *client,
 			dev_err(&client->dev,
 				"Unable to register IRQ %d error %d\n",
 				client->irq, ret);
+<<<<<<< HEAD
 			return ret;
+=======
+			bq27xxx_battery_teardown(di);
+			goto err_failed;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -247,11 +261,22 @@ static const struct i2c_device_id bq27xxx_i2c_id_table[] = {
 	{ "bq27546", BQ27546 },
 	{ "bq27742", BQ27742 },
 	{ "bq27545", BQ27545 },
+<<<<<<< HEAD
+=======
+	{ "bq27411", BQ27411 },
+>>>>>>> upstream/android-13
 	{ "bq27421", BQ27421 },
 	{ "bq27425", BQ27425 },
 	{ "bq27426", BQ27426 },
 	{ "bq27441", BQ27441 },
 	{ "bq27621", BQ27621 },
+<<<<<<< HEAD
+=======
+	{ "bq27z561", BQ27Z561 },
+	{ "bq28z610", BQ28Z610 },
+	{ "bq34z100", BQ34Z100 },
+	{ "bq78z100", BQ78Z100 },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(i2c, bq27xxx_i2c_id_table);
@@ -279,11 +304,22 @@ static const struct of_device_id bq27xxx_battery_i2c_of_match_table[] = {
 	{ .compatible = "ti,bq27546" },
 	{ .compatible = "ti,bq27742" },
 	{ .compatible = "ti,bq27545" },
+<<<<<<< HEAD
+=======
+	{ .compatible = "ti,bq27411" },
+>>>>>>> upstream/android-13
 	{ .compatible = "ti,bq27421" },
 	{ .compatible = "ti,bq27425" },
 	{ .compatible = "ti,bq27426" },
 	{ .compatible = "ti,bq27441" },
 	{ .compatible = "ti,bq27621" },
+<<<<<<< HEAD
+=======
+	{ .compatible = "ti,bq27z561" },
+	{ .compatible = "ti,bq28z610" },
+	{ .compatible = "ti,bq34z100" },
+	{ .compatible = "ti,bq78z100" },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, bq27xxx_battery_i2c_of_match_table);

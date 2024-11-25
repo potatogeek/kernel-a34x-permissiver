@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TerraTec Cinergy T2/qanu USB2 DVB-T adapter.
  *
@@ -10,6 +14,7 @@
  *		    Holger Waechtler <holger@qanu.de>
  *
  *  Protocol Spec published on http://qanu.de/specs/terratec_cinergyT2.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cinergyT2.h"
@@ -39,10 +46,15 @@ struct cinergyt2_state {
 	unsigned char data[64];
 };
 
+<<<<<<< HEAD
 /* We are missing a release hook with usb_device data */
 static struct dvb_usb_device *cinergyt2_usb_device;
 
 static struct dvb_usb_device_properties cinergyt2_properties;
+=======
+/* Forward declaration */
+static const struct dvb_usb_device_properties cinergyt2_properties;
+>>>>>>> upstream/android-13
 
 static int cinergyt2_streaming_ctrl(struct dvb_usb_adapter *adap, int enable)
 {
@@ -88,13 +100,21 @@ static int cinergyt2_frontend_attach(struct dvb_usb_adapter *adap)
 
 	ret = dvb_usb_generic_rw(d, st->data, 1, st->data, 3, 0);
 	if (ret < 0) {
+<<<<<<< HEAD
+=======
+		if (adap->fe_adap[0].fe)
+			adap->fe_adap[0].fe->ops.release(adap->fe_adap[0].fe);
+>>>>>>> upstream/android-13
 		deb_rc("cinergyt2_power_ctrl() Failed to retrieve sleep state info\n");
 	}
 	mutex_unlock(&d->data_mutex);
 
+<<<<<<< HEAD
 	/* Copy this pointer as we are gonna need it in the release phase */
 	cinergyt2_usb_device = adap->dev;
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -213,7 +233,11 @@ static struct usb_device_id cinergyt2_usb_table[] = {
 
 MODULE_DEVICE_TABLE(usb, cinergyt2_usb_table);
 
+<<<<<<< HEAD
 static struct dvb_usb_device_properties cinergyt2_properties = {
+=======
+static const struct dvb_usb_device_properties cinergyt2_properties = {
+>>>>>>> upstream/android-13
 	.size_of_priv = sizeof(struct cinergyt2_state),
 	.num_adapters = 1,
 	.adapter = {

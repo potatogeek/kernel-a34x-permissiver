@@ -73,6 +73,10 @@
 #include <linux/prefetch.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/usb.h>
 #include <linux/usb/of.h>
@@ -452,6 +456,112 @@ void musb_write_fifo(struct musb_hw_ep *hw_ep, u16 len, const u8 *src)
 	return hw_ep->musb->io.write_fifo(hw_ep, len, src);
 }
 
+<<<<<<< HEAD
+=======
+static u8 musb_read_devctl(struct musb *musb)
+{
+	return musb_readb(musb->mregs, MUSB_DEVCTL);
+}
+
+/**
+ * musb_set_host - set and initialize host mode
+ * @musb: musb controller driver data
+ *
+ * At least some musb revisions need to enable devctl session bit in
+ * peripheral mode to switch to host mode. Initializes things to host
+ * mode and sets A_IDLE. SoC glue needs to advance state further
+ * based on phy provided VBUS state.
+ *
+ * Note that the SoC glue code may need to wait for musb to settle
+ * on enable before calling this to avoid babble.
+ */
+int musb_set_host(struct musb *musb)
+{
+	int error = 0;
+	u8 devctl;
+
+	if (!musb)
+		return -EINVAL;
+
+	devctl = musb_read_devctl(musb);
+	if (!(devctl & MUSB_DEVCTL_BDEVICE)) {
+		trace_musb_state(musb, devctl, "Already in host mode");
+		goto init_data;
+	}
+
+	devctl |= MUSB_DEVCTL_SESSION;
+	musb_writeb(musb->mregs, MUSB_DEVCTL, devctl);
+
+	error = readx_poll_timeout(musb_read_devctl, musb, devctl,
+				   !(devctl & MUSB_DEVCTL_BDEVICE), 5000,
+				   1000000);
+	if (error) {
+		dev_err(musb->controller, "%s: could not set host: %02x\n",
+			__func__, devctl);
+
+		return error;
+	}
+
+	devctl = musb_read_devctl(musb);
+	trace_musb_state(musb, devctl, "Host mode set");
+
+init_data:
+	musb->is_active = 1;
+	musb->xceiv->otg->state = OTG_STATE_A_IDLE;
+	MUSB_HST_MODE(musb);
+
+	return error;
+}
+EXPORT_SYMBOL_GPL(musb_set_host);
+
+/**
+ * musb_set_peripheral - set and initialize peripheral mode
+ * @musb: musb controller driver data
+ *
+ * Clears devctl session bit and initializes things for peripheral
+ * mode and sets B_IDLE. SoC glue needs to advance state further
+ * based on phy provided VBUS state.
+ */
+int musb_set_peripheral(struct musb *musb)
+{
+	int error = 0;
+	u8 devctl;
+
+	if (!musb)
+		return -EINVAL;
+
+	devctl = musb_read_devctl(musb);
+	if (devctl & MUSB_DEVCTL_BDEVICE) {
+		trace_musb_state(musb, devctl, "Already in peripheral mode");
+		goto init_data;
+	}
+
+	devctl &= ~MUSB_DEVCTL_SESSION;
+	musb_writeb(musb->mregs, MUSB_DEVCTL, devctl);
+
+	error = readx_poll_timeout(musb_read_devctl, musb, devctl,
+				   devctl & MUSB_DEVCTL_BDEVICE, 5000,
+				   1000000);
+	if (error) {
+		dev_err(musb->controller, "%s: could not set peripheral: %02x\n",
+			__func__, devctl);
+
+		return error;
+	}
+
+	devctl = musb_read_devctl(musb);
+	trace_musb_state(musb, devctl, "Peripheral mode set");
+
+init_data:
+	musb->is_active = 0;
+	musb->xceiv->otg->state = OTG_STATE_B_IDLE;
+	MUSB_DEV_MODE(musb);
+
+	return error;
+}
+EXPORT_SYMBOL_GPL(musb_set_peripheral);
+
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 /* for high speed test mode; see USB 2.0 spec 7.1.20 */
@@ -749,7 +859,11 @@ static void musb_handle_intr_suspend(struct musb *musb, u8 devctl)
 	case OTG_STATE_B_IDLE:
 		if (!musb->is_active)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OTG_STATE_B_PERIPHERAL:
 		musb_g_suspend(musb);
 		musb->is_active = musb->g.b_hnp_enable;
@@ -869,9 +983,14 @@ static void musb_handle_intr_disconnect(struct musb *musb, u8 devctl)
 	case OTG_STATE_A_PERIPHERAL:
 		musb_hnp_stop(musb);
 		musb_root_disconnect(musb);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
 	case OTG_STATE_B_WAIT_ACON:
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+	case OTG_STATE_B_WAIT_ACON:
+>>>>>>> upstream/android-13
 	case OTG_STATE_B_PERIPHERAL:
 	case OTG_STATE_B_IDLE:
 		musb_g_disconnect(musb);
@@ -906,7 +1025,11 @@ static void musb_handle_intr_reset(struct musb *musb)
 		switch (musb->xceiv->otg->state) {
 		case OTG_STATE_A_SUSPEND:
 			musb_g_reset(musb);
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case OTG_STATE_A_WAIT_BCON:	/* OPT TD.4.7-900ms */
 			/* never use invalid T(a_wait_bcon) */
 			musb_dbg(musb, "HNP: in %s, %d msec timeout",
@@ -927,7 +1050,11 @@ static void musb_handle_intr_reset(struct musb *musb)
 			break;
 		case OTG_STATE_B_IDLE:
 			musb->xceiv->otg->state = OTG_STATE_B_PERIPHERAL;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case OTG_STATE_B_PERIPHERAL:
 			musb_g_reset(musb);
 			break;
@@ -947,7 +1074,10 @@ static void musb_handle_intr_reset(struct musb *musb)
  * @param musb instance pointer
  * @param int_usb register contents
  * @param devctl
+<<<<<<< HEAD
  * @param power
+=======
+>>>>>>> upstream/android-13
  */
 
 static irqreturn_t musb_stage0_irq(struct musb *musb, u8 int_usb,
@@ -1369,7 +1499,11 @@ static int ep_config_from_table(struct musb *musb)
 	switch (fifo_mode) {
 	default:
 		fifo_mode = 0;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		cfg = mode_0_cfg;
 		n = ARRAY_SIZE(mode_0_cfg);
@@ -1534,10 +1668,18 @@ static int musb_core_init(u16 musb_type, struct musb *musb)
 	} else {
 		musb->is_multipoint = 0;
 		type = "";
+<<<<<<< HEAD
 #ifndef	CONFIG_USB_OTG_BLACKLIST_HUB
 		pr_err("%s: kernel must blacklist external hubs\n",
 		       musb_driver_name);
 #endif
+=======
+		if (IS_ENABLED(CONFIG_USB) &&
+		    !IS_ENABLED(CONFIG_USB_OTG_DISABLE_EXTERNAL_HUB)) {
+			pr_err("%s: kernel must disable external hubs, please fix the configuration\n",
+			       musb_driver_name);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* log release info */
@@ -1692,7 +1834,11 @@ irqreturn_t musb_interrupt(struct musb *musb)
 EXPORT_SYMBOL_GPL(musb_interrupt);
 
 #ifndef CONFIG_MUSB_PIO_ONLY
+<<<<<<< HEAD
 static bool use_dma = 1;
+=======
+static bool use_dma = true;
+>>>>>>> upstream/android-13
 
 /* "modprobe ... use_dma=0" etc */
 module_param(use_dma, bool, 0644);
@@ -1757,7 +1903,11 @@ mode_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct musb *musb = dev_to_musb(dev);
 	unsigned long flags;
+<<<<<<< HEAD
 	int ret = -EINVAL;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&musb->lock, flags);
 	ret = sprintf(buf, "%s\n", usb_otg_state_string(musb->xceiv->otg->state));
@@ -1865,16 +2015,24 @@ static ssize_t srp_store(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_WO(srp);
 
+<<<<<<< HEAD
 static struct attribute *musb_attributes[] = {
+=======
+static struct attribute *musb_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_mode.attr,
 	&dev_attr_vbus.attr,
 	&dev_attr_srp.attr,
 	NULL
 };
+<<<<<<< HEAD
 
 static const struct attribute_group musb_attr_group = {
 	.attrs = musb_attributes,
 };
+=======
+ATTRIBUTE_GROUPS(musb);
+>>>>>>> upstream/android-13
 
 #define MUSB_QUIRK_B_INVALID_VBUS_91	(MUSB_DEVCTL_BDEVICE | \
 					 (2 << MUSB_DEVCTL_VBUS_SHIFT) | \
@@ -1885,6 +2043,24 @@ static const struct attribute_group musb_attr_group = {
 #define MUSB_QUIRK_A_DISCONNECT_19	((3 << MUSB_DEVCTL_VBUS_SHIFT) | \
 					 MUSB_DEVCTL_SESSION)
 
+<<<<<<< HEAD
+=======
+static bool musb_state_needs_recheck(struct musb *musb, u8 devctl,
+				     const char *desc)
+{
+	if (musb->quirk_retries && !musb->flush_irq_work) {
+		trace_musb_state(musb, devctl, desc);
+		schedule_delayed_work(&musb->irq_work,
+				      msecs_to_jiffies(1000));
+		musb->quirk_retries--;
+
+		return true;
+	}
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Check the musb devctl session bit to determine if we want to
  * allow PM runtime for the device. In general, we want to keep things
@@ -1905,6 +2081,7 @@ static void musb_pm_runtime_check_session(struct musb *musb)
 		MUSB_DEVCTL_HR;
 	switch (devctl & ~s) {
 	case MUSB_QUIRK_B_DISCONNECT_99:
+<<<<<<< HEAD
 		if (musb->quirk_retries && !musb->flush_irq_work) {
 			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
 			schedule_delayed_work(&musb->irq_work,
@@ -1935,6 +2112,23 @@ static void musb_pm_runtime_check_session(struct musb *musb)
 		if (!musb->session)
 			break;
 		musb_dbg(musb, "Allow PM on possible host mode disconnect");
+=======
+		musb_state_needs_recheck(musb, devctl,
+			"Poll devctl in case of suspend after disconnect");
+		break;
+	case MUSB_QUIRK_B_INVALID_VBUS_91:
+		if (musb_state_needs_recheck(musb, devctl,
+				"Poll devctl on invalid vbus, assume no session"))
+			return;
+		fallthrough;
+	case MUSB_QUIRK_A_DISCONNECT_19:
+		if (musb_state_needs_recheck(musb, devctl,
+				"Poll devctl on possible host mode disconnect"))
+			return;
+		if (!musb->session)
+			break;
+		trace_musb_state(musb, devctl, "Allow PM on possible host mode disconnect");
+>>>>>>> upstream/android-13
 		pm_runtime_mark_last_busy(musb->controller);
 		pm_runtime_put_autosuspend(musb->controller);
 		musb->session = false;
@@ -1950,14 +2144,32 @@ static void musb_pm_runtime_check_session(struct musb *musb)
 
 	/* Block PM or allow PM? */
 	if (s) {
+<<<<<<< HEAD
 		musb_dbg(musb, "Block PM on active session: %02x", devctl);
+=======
+		trace_musb_state(musb, devctl, "Block PM on active session");
+>>>>>>> upstream/android-13
 		error = pm_runtime_get_sync(musb->controller);
 		if (error < 0)
 			dev_err(musb->controller, "Could not enable: %i\n",
 				error);
 		musb->quirk_retries = 3;
+<<<<<<< HEAD
 	} else {
 		musb_dbg(musb, "Allow PM with no session: %02x", devctl);
+=======
+
+		/*
+		 * We can get a spurious MUSB_INTR_SESSREQ interrupt on start-up
+		 * in B-peripheral mode with nothing connected and the session
+		 * bit clears silently. Check status again in 3 seconds.
+		 */
+		if (devctl & MUSB_DEVCTL_BDEVICE)
+			schedule_delayed_work(&musb->irq_work,
+					      msecs_to_jiffies(3000));
+	} else {
+		trace_musb_state(musb, devctl, "Allow PM with no session");
+>>>>>>> upstream/android-13
 		pm_runtime_mark_last_busy(musb->controller);
 		pm_runtime_put_autosuspend(musb->controller);
 	}
@@ -1971,7 +2183,11 @@ static void musb_irq_work(struct work_struct *data)
 	struct musb *musb = container_of(data, struct musb, irq_work.work);
 	int error;
 
+<<<<<<< HEAD
 	error = pm_runtime_get_sync(musb->controller);
+=======
+	error = pm_runtime_resume_and_get(musb->controller);
+>>>>>>> upstream/android-13
 	if (error < 0) {
 		dev_err(musb->controller, "Could not enable: %i\n", error);
 
@@ -2086,10 +2302,13 @@ static void musb_free(struct musb *musb)
 	 * cleanup after everything's been de-activated.
 	 */
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSFS
 	sysfs_remove_group(&musb->controller->kobj, &musb_attr_group);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (musb->nIrq >= 0) {
 		if (musb->irq_wake)
 			disable_irq_wake(musb->nIrq);
@@ -2463,22 +2682,28 @@ musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl)
 
 	musb_init_debugfs(musb);
 
+<<<<<<< HEAD
 	status = sysfs_create_group(&musb->controller->kobj, &musb_attr_group);
 	if (status)
 		goto fail5;
 
+=======
+>>>>>>> upstream/android-13
 	musb->is_initialized = 1;
 	pm_runtime_mark_last_busy(musb->controller);
 	pm_runtime_put_autosuspend(musb->controller);
 
 	return 0;
 
+<<<<<<< HEAD
 fail5:
 	musb_exit_debugfs(musb);
 
 	musb_gadget_cleanup(musb);
 	musb_host_cleanup(musb);
 
+=======
+>>>>>>> upstream/android-13
 fail3:
 	cancel_delayed_work_sync(&musb->irq_work);
 	cancel_delayed_work_sync(&musb->finish_resume_work);
@@ -2521,14 +2746,21 @@ static int musb_probe(struct platform_device *pdev)
 {
 	struct device	*dev = &pdev->dev;
 	int		irq = platform_get_irq_byname(pdev, "mc");
+<<<<<<< HEAD
 	struct resource	*iomem;
+=======
+>>>>>>> upstream/android-13
 	void __iomem	*base;
 
 	if (irq <= 0)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(dev, iomem);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -2875,9 +3107,16 @@ static const struct dev_pm_ops musb_dev_pm_ops = {
 
 static struct platform_driver musb_driver = {
 	.driver = {
+<<<<<<< HEAD
 		.name		= (char *)musb_driver_name,
 		.bus		= &platform_bus_type,
 		.pm		= MUSB_DEV_PM_OPS,
+=======
+		.name		= musb_driver_name,
+		.bus		= &platform_bus_type,
+		.pm		= MUSB_DEV_PM_OPS,
+		.dev_groups	= musb_groups,
+>>>>>>> upstream/android-13
 	},
 	.probe		= musb_probe,
 	.remove		= musb_remove,

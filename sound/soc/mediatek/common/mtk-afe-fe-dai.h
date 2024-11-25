@@ -12,6 +12,7 @@
 struct snd_soc_dai_ops;
 struct mtk_base_afe;
 struct mtk_base_afe_memif;
+<<<<<<< HEAD
 struct mtk_base_irq_data;
 struct regmap;
 
@@ -19,6 +20,8 @@ int mtk_regmap_update_bits(struct regmap *map, int reg,
 			   unsigned int mask,
 			   unsigned int val);
 int mtk_regmap_write(struct regmap *map, int reg, unsigned int val);
+=======
+>>>>>>> upstream/android-13
 
 int mtk_afe_fe_startup(struct snd_pcm_substream *substream,
 		       struct snd_soc_dai *dai);
@@ -38,8 +41,13 @@ extern const struct snd_soc_dai_ops mtk_afe_fe_ops;
 
 int mtk_dynamic_irq_acquire(struct mtk_base_afe *afe);
 int mtk_dynamic_irq_release(struct mtk_base_afe *afe, int irq_id);
+<<<<<<< HEAD
 int mtk_afe_dai_suspend(struct snd_soc_dai *dai);
 int mtk_afe_dai_resume(struct snd_soc_dai *dai);
+=======
+int mtk_afe_suspend(struct snd_soc_component *component);
+int mtk_afe_resume(struct snd_soc_component *component);
+>>>>>>> upstream/android-13
 
 int mtk_memif_set_enable(struct mtk_base_afe *afe, int id);
 int mtk_memif_set_disable(struct mtk_base_afe *afe, int id);
@@ -57,6 +65,7 @@ int mtk_memif_set_format(struct mtk_base_afe *afe,
 			 int id, snd_pcm_format_t format);
 int mtk_memif_set_pbuf_size(struct mtk_base_afe *afe,
 			    int id, int pbuf_size);
+<<<<<<< HEAD
 
 #if defined(CONFIG_MTK_AUDIODSP_SUPPORT)
 /* using 3 way samephore to ensure ap/dsp sync */
@@ -66,4 +75,6 @@ int mtk_dsp_irq_set_enable(struct mtk_base_afe *afe, const struct mtk_base_irq_d
 int mtk_dsp_irq_set_disable(struct mtk_base_afe *afe, const struct mtk_base_irq_data *irq_data);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif

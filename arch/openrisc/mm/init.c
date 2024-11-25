@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenRISC idle.c
  *
@@ -8,11 +12,14 @@
  * Modifications for the OpenRISC architecture:
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/signal.h>
@@ -26,21 +33,33 @@
 #include <linux/mm.h>
 #include <linux/swap.h>
 #include <linux/smp.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/blkdev.h>	/* for initrd_* */
 #include <linux/pagemap.h>
+<<<<<<< HEAD
 #include <linux/memblock.h>
 
 #include <asm/segment.h>
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+
+#include <asm/pgalloc.h>
+>>>>>>> upstream/android-13
 #include <asm/dma.h>
 #include <asm/io.h>
 #include <asm/tlb.h>
 #include <asm/mmu_context.h>
+<<<<<<< HEAD
 #include <asm/kmap_types.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/fixmap.h>
 #include <asm/tlbflush.h>
 #include <asm/sections.h>
@@ -51,17 +70,27 @@ DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
 
 static void __init zone_sizes_init(void)
 {
+<<<<<<< HEAD
 	unsigned long zones_size[MAX_NR_ZONES];
 
 	/* Clear the zone sizes */
 	memset(zones_size, 0, sizeof(zones_size));
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
+>>>>>>> upstream/android-13
 
 	/*
 	 * We use only ZONE_NORMAL
 	 */
+<<<<<<< HEAD
 	zones_size[ZONE_NORMAL] = max_low_pfn;
 
 	free_area_init(zones_size);
+=======
+	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
+
+	free_area_init(max_zone_pfn);
+>>>>>>> upstream/android-13
 }
 
 extern const char _s_kernel_ro[], _e_kernel_ro[];
@@ -74,6 +103,7 @@ extern const char _s_kernel_ro[], _e_kernel_ro[];
  */
 static void __init map_ram(void)
 {
+<<<<<<< HEAD
 	unsigned long v, p, e;
 	pgprot_t prot;
 	pgd_t *pge;
@@ -90,13 +120,38 @@ static void __init map_ram(void)
 	for_each_memblock(memory, region) {
 		p = (u32) region->base & PAGE_MASK;
 		e = p + (u32) region->size;
+=======
+	phys_addr_t start, end;
+	unsigned long v, p, e;
+	pgprot_t prot;
+	pgd_t *pge;
+	p4d_t *p4e;
+	pud_t *pue;
+	pmd_t *pme;
+	pte_t *pte;
+	u64 i;
+	/* These mark extents of read-only kernel pages...
+	 * ...from vmlinux.lds.S
+	 */
+
+	v = PAGE_OFFSET;
+
+	for_each_mem_range(i, &start, &end) {
+		p = (u32) start & PAGE_MASK;
+		e = (u32) end;
+>>>>>>> upstream/android-13
 
 		v = (u32) __va(p);
 		pge = pgd_offset_k(v);
 
 		while (p < e) {
 			int j;
+<<<<<<< HEAD
 			pue = pud_offset(pge, v);
+=======
+			p4e = p4d_offset(pge, v);
+			pue = pud_offset(p4e, v);
+>>>>>>> upstream/android-13
 			pme = pmd_offset(pue, v);
 
 			if ((u32) pue != (u32) pge || (u32) pme != (u32) pge) {
@@ -106,7 +161,14 @@ static void __init map_ram(void)
 			}
 
 			/* Alloc one page for holding PTE's... */
+<<<<<<< HEAD
 			pte = (pte_t *) __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
+=======
+			pte = memblock_alloc_raw(PAGE_SIZE, PAGE_SIZE);
+			if (!pte)
+				panic("%s: Failed to allocate page for PTEs\n",
+				      __func__);
+>>>>>>> upstream/android-13
 			set_pmd(pme, __pmd(_KERNPG_TABLE + __pa(pte)));
 
 			/* Fill the newly allocated page with PTE'S */
@@ -125,7 +187,11 @@ static void __init map_ram(void)
 		}
 
 		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
+<<<<<<< HEAD
 		       region->base, region->base + region->size);
+=======
+		       start, end);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -133,7 +199,10 @@ void __init paging_init(void)
 {
 	extern void tlb_init(void);
 
+<<<<<<< HEAD
 	unsigned long end;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	printk(KERN_INFO "Setting up paging and PTEs.\n");
@@ -149,8 +218,11 @@ void __init paging_init(void)
 	 */
 	current_pgd[smp_processor_id()] = init_mm.pgd;
 
+<<<<<<< HEAD
 	end = (unsigned long)__va(max_low_pfn * PAGE_SIZE);
 
+=======
+>>>>>>> upstream/android-13
 	map_ram();
 
 	zone_sizes_init();
@@ -213,14 +285,19 @@ void __init mem_init(void)
 	memset((void *)empty_zero_page, 0, PAGE_SIZE);
 
 	/* this will put all low memory onto the freelists */
+<<<<<<< HEAD
 	free_all_bootmem();
 
 	mem_init_print_info(NULL);
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 	printk("mem_init_done ...........................................\n");
 	mem_init_done = 1;
 	return;
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_BLK_DEV_INITRD
 void free_initrd_mem(unsigned long start, unsigned long end)
@@ -233,3 +310,5 @@ void free_initmem(void)
 {
 	free_initmem_default(-1);
 }
+=======
+>>>>>>> upstream/android-13

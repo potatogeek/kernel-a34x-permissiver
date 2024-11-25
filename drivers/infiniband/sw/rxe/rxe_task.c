@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -55,12 +62,20 @@ int __rxe_do_task(struct rxe_task *task)
  * a second caller finds the task already running
  * but looks just after the last call to func
  */
+<<<<<<< HEAD
 void rxe_do_task(unsigned long data)
+=======
+void rxe_do_task(struct tasklet_struct *t)
+>>>>>>> upstream/android-13
 {
 	int cont;
 	int ret;
 	unsigned long flags;
+<<<<<<< HEAD
 	struct rxe_task *task = (struct rxe_task *)data;
+=======
+	struct rxe_task *task = from_tasklet(task, t, tasklet);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&task->state_lock, flags);
 	switch (task->state) {
@@ -71,7 +86,11 @@ void rxe_do_task(unsigned long data)
 
 	case TASK_STATE_BUSY:
 		task->state = TASK_STATE_ARMED;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TASK_STATE_ARMED:
 		spin_unlock_irqrestore(&task->state_lock, flags);
 		return;
@@ -123,7 +142,11 @@ int rxe_init_task(void *obj, struct rxe_task *task,
 	snprintf(task->name, sizeof(task->name), "%s", name);
 	task->destroyed	= false;
 
+<<<<<<< HEAD
 	tasklet_init(&task->tasklet, rxe_do_task, (unsigned long)task);
+=======
+	tasklet_setup(&task->tasklet, rxe_do_task);
+>>>>>>> upstream/android-13
 
 	task->state = TASK_STATE_START;
 	spin_lock_init(&task->state_lock);
@@ -159,7 +182,11 @@ void rxe_run_task(struct rxe_task *task, int sched)
 	if (sched)
 		tasklet_schedule(&task->tasklet);
 	else
+<<<<<<< HEAD
 		rxe_do_task((unsigned long)task);
+=======
+		rxe_do_task(&task->tasklet);
+>>>>>>> upstream/android-13
 }
 
 void rxe_disable_task(struct rxe_task *task)

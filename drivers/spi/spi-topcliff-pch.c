@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI bus driver for the Topcliff PCH used by Intel SoCs
  *
  * Copyright (C) 2011 LAPIS Semiconductor Co., Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -130,6 +137,10 @@ struct pch_spi_dma_ctrl {
 /**
  * struct pch_spi_data - Holds the SPI channel specific details
  * @io_remap_addr:		The remapped PCI base address
+<<<<<<< HEAD
+=======
+ * @io_base_addr:		Base address
+>>>>>>> upstream/android-13
  * @master:			Pointer to the SPI master structure
  * @work:			Reference to work queue handler
  * @wait:			Wait queue for waking up upon receiving an
@@ -146,8 +157,13 @@ struct pch_spi_dma_ctrl {
  *				transfer
  * @rx_index:			Receive data count; for bookkeeping during
  *				transfer
+<<<<<<< HEAD
  * @tx_buff:			Buffer for data to be transmitted
  * @rx_index:			Buffer for Received data
+=======
+ * @pkt_tx_buff:		Buffer for data to be transmitted
+ * @pkt_rx_buff:		Buffer for received data
+>>>>>>> upstream/android-13
  * @n_curnt_chip:		The chip number that this SPI driver currently
  *				operates on
  * @current_chip:		Reference to the current chip that this SPI
@@ -159,7 +175,14 @@ struct pch_spi_dma_ctrl {
  * @board_dat:			Reference to the SPI device data structure
  * @plat_dev:			platform_device structure
  * @ch:				SPI channel number
+<<<<<<< HEAD
  * @irq_reg_sts:		Status of IRQ registration
+=======
+ * @dma:			Local DMA information
+ * @use_dma:			True if DMA is to be used
+ * @irq_reg_sts:		Status of IRQ registration
+ * @save_total_len:		Save length while data is being transferred
+>>>>>>> upstream/android-13
  */
 struct pch_spi_data {
 	void __iomem *io_remap_addr;
@@ -584,8 +607,15 @@ static void pch_spi_set_tx(struct pch_spi_data *data, int *bpw)
 	data->pkt_tx_buff = kzalloc(size, GFP_KERNEL);
 	if (data->pkt_tx_buff != NULL) {
 		data->pkt_rx_buff = kzalloc(size, GFP_KERNEL);
+<<<<<<< HEAD
 		if (!data->pkt_rx_buff)
 			kfree(data->pkt_tx_buff);
+=======
+		if (!data->pkt_rx_buff) {
+			kfree(data->pkt_tx_buff);
+			data->pkt_tx_buff = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (!data->pkt_rx_buff) {
@@ -871,7 +901,11 @@ static void pch_spi_request_dma(struct pch_spi_data *data, int bpw)
 	/* Set Tx DMA */
 	param = &dma->param_tx;
 	param->dma_dev = &dma_dev->dev;
+<<<<<<< HEAD
 	param->chan_id = data->ch * 2; /* Tx = 0, 2 */;
+=======
+	param->chan_id = data->ch * 2; /* Tx = 0, 2 */
+>>>>>>> upstream/android-13
 	param->tx_reg = data->io_base_addr + PCH_SPDWR;
 	param->width = width;
 	chan = dma_request_channel(mask, pch_spi_filter, param);
@@ -886,7 +920,11 @@ static void pch_spi_request_dma(struct pch_spi_data *data, int bpw)
 	/* Set Rx DMA */
 	param = &dma->param_rx;
 	param->dma_dev = &dma_dev->dev;
+<<<<<<< HEAD
 	param->chan_id = data->ch * 2 + 1; /* Rx = Tx + 1 */;
+=======
+	param->chan_id = data->ch * 2 + 1; /* Rx = Tx + 1 */
+>>>>>>> upstream/android-13
 	param->rx_reg = data->io_base_addr + PCH_SPDRR;
 	param->width = width;
 	chan = dma_request_channel(mask, pch_spi_filter, param);
@@ -1006,7 +1044,11 @@ static void pch_spi_handle_dma(struct pch_spi_data *data, int *bpw)
 	spin_unlock_irqrestore(&data->lock, flags);
 
 	/* RX */
+<<<<<<< HEAD
 	dma->sg_rx_p = kcalloc(num, sizeof(*dma->sg_rx_p), GFP_ATOMIC);
+=======
+	dma->sg_rx_p = kmalloc_array(num, sizeof(*dma->sg_rx_p), GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!dma->sg_rx_p)
 		return;
 
@@ -1069,7 +1111,11 @@ static void pch_spi_handle_dma(struct pch_spi_data *data, int *bpw)
 		head = 0;
 	}
 
+<<<<<<< HEAD
 	dma->sg_tx_p = kcalloc(num, sizeof(*dma->sg_tx_p), GFP_ATOMIC);
+=======
+	dma->sg_tx_p = kmalloc_array(num, sizeof(*dma->sg_tx_p), GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!dma->sg_tx_p)
 		return;
 
@@ -1205,7 +1251,12 @@ static void pch_spi_process_messages(struct work_struct *pwork)
 		if (data->use_dma) {
 			int i;
 			char *save_rx_buf = data->cur_trans->rx_buf;
+<<<<<<< HEAD
 			for (i = 0; i < cnt; i ++) {
+=======
+
+			for (i = 0; i < cnt; i++) {
+>>>>>>> upstream/android-13
 				pch_spi_handle_dma(data, &bpw);
 				if (!pch_spi_start_transfer(data)) {
 					data->transfer_complete = true;
@@ -1237,12 +1288,16 @@ static void pch_spi_process_messages(struct work_struct *pwork)
 			"%s:data->current_msg->actual_length=%d\n",
 			__func__, data->current_msg->actual_length);
 
+<<<<<<< HEAD
 		/* check for delay */
 		if (data->cur_trans->delay_usecs) {
 			dev_dbg(&data->master->dev, "%s:delay in usec=%d\n",
 				__func__, data->cur_trans->delay_usecs);
 			udelay(data->cur_trans->delay_usecs);
 		}
+=======
+		spi_transfer_delay_exec(data->cur_trans);
+>>>>>>> upstream/android-13
 
 		spin_lock(&data->lock);
 
@@ -1644,6 +1699,7 @@ static void pch_spi_remove(struct pci_dev *pdev)
 	kfree(pd_dev_save);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int pch_spi_suspend(struct pci_dev *pdev, pm_message_t state)
 {
@@ -1694,14 +1750,44 @@ static int pch_spi_resume(struct pci_dev *pdev)
 #define pch_spi_resume NULL
 
 #endif
+=======
+static int __maybe_unused pch_spi_suspend(struct device *dev)
+{
+	struct pch_pd_dev_save *pd_dev_save = dev_get_drvdata(dev);
+
+	dev_dbg(dev, "%s ENTRY\n", __func__);
+
+	pd_dev_save->board_dat->suspend_sts = true;
+
+	return 0;
+}
+
+static int __maybe_unused pch_spi_resume(struct device *dev)
+{
+	struct pch_pd_dev_save *pd_dev_save = dev_get_drvdata(dev);
+
+	dev_dbg(dev, "%s ENTRY\n", __func__);
+
+	/* set suspend status to false */
+	pd_dev_save->board_dat->suspend_sts = false;
+
+	return 0;
+}
+
+static SIMPLE_DEV_PM_OPS(pch_spi_pm_ops, pch_spi_suspend, pch_spi_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver pch_spi_pcidev_driver = {
 	.name = "pch_spi",
 	.id_table = pch_spi_pcidev_id,
 	.probe = pch_spi_probe,
 	.remove = pch_spi_remove,
+<<<<<<< HEAD
 	.suspend = pch_spi_suspend,
 	.resume = pch_spi_resume,
+=======
+	.driver.pm = &pch_spi_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init pch_spi_init(void)

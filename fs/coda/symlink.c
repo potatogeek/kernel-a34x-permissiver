@@ -17,8 +17,12 @@
 #include <linux/pagemap.h>
 
 #include <linux/coda.h>
+<<<<<<< HEAD
 #include <linux/coda_psdev.h>
 
+=======
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 
 static int coda_symlink_filler(struct file *file, struct page *page)

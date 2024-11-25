@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,6 +61,14 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018-2019 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_config_h__
 #define __iwl_fw_api_config_h__
 
@@ -118,15 +127,44 @@ enum iwl_calib_cfg {
 };
 
 /**
+<<<<<<< HEAD
  * struct iwl_phy_cfg_cmd - Phy configuration command
  * @phy_cfg: PHY configuration value, uses &enum iwl_fw_phy_cfg
  * @calib_control: calibration control data
  */
 struct iwl_phy_cfg_cmd {
+=======
+ * struct iwl_phy_specific_cfg - specific PHY filter configuration
+ *
+ * Sent as part of the phy configuration command (v3) to configure specific FW
+ * defined PHY filters that can be applied to each antenna.
+ *
+ * @filter_cfg_chain_a: filter config id for LMAC1 chain A
+ * @filter_cfg_chain_b: filter config id for LMAC1 chain B
+ * @filter_cfg_chain_c: filter config id for LMAC2 chain A
+ * @filter_cfg_chain_d: filter config id for LMAC2 chain B
+ * values: 0 - no filter; 0xffffffff - reserved; otherwise - filter id
+ */
+struct iwl_phy_specific_cfg {
+	__le32 filter_cfg_chain_a;
+	__le32 filter_cfg_chain_b;
+	__le32 filter_cfg_chain_c;
+	__le32 filter_cfg_chain_d;
+} __packed; /* PHY_SPECIFIC_CONFIGURATION_API_VER_1*/
+
+/**
+ * struct iwl_phy_cfg_cmd - Phy configuration command
+ *
+ * @phy_cfg: PHY configuration value, uses &enum iwl_fw_phy_cfg
+ * @calib_control: calibration control data
+ */
+struct iwl_phy_cfg_cmd_v1 {
+>>>>>>> upstream/android-13
 	__le32	phy_cfg;
 	struct iwl_calib_ctrl calib_control;
 } __packed;
 
+<<<<<<< HEAD
 #define PHY_CFG_RADIO_TYPE	(BIT(0) | BIT(1))
 #define PHY_CFG_RADIO_STEP	(BIT(2) | BIT(3))
 #define PHY_CFG_RADIO_DASH	(BIT(4) | BIT(5))
@@ -137,6 +175,20 @@ struct iwl_phy_cfg_cmd {
 #define PHY_CFG_RX_CHAIN_A	BIT(12)
 #define PHY_CFG_RX_CHAIN_B	BIT(13)
 #define PHY_CFG_RX_CHAIN_C	BIT(14)
+=======
+/**
+ * struct iwl_phy_cfg_cmd_v3 - Phy configuration command (v3)
+ *
+ * @phy_cfg: PHY configuration value, uses &enum iwl_fw_phy_cfg
+ * @calib_control: calibration control data
+ * @phy_specific_cfg: configure predefined PHY filters
+ */
+struct iwl_phy_cfg_cmd_v3 {
+	__le32	phy_cfg;
+	struct iwl_calib_ctrl calib_control;
+	struct iwl_phy_specific_cfg phy_specific_cfg;
+} __packed; /* PHY_CONFIGURATION_CMD_API_S_VER_3 */
+>>>>>>> upstream/android-13
 
 /*
  * enum iwl_dc2dc_config_id - flag ids

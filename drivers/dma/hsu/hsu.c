@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Core driver for the High Speed UART DMA
  *
@@ -5,10 +9,13 @@
  * Author: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
  *
  * Partially based on the bits found in drivers/tty/serial/mfd.c.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -204,6 +211,10 @@ EXPORT_SYMBOL_GPL(hsu_dma_get_status);
  */
 int hsu_dma_do_irq(struct hsu_dma_chip *chip, unsigned short nr, u32 status)
 {
+<<<<<<< HEAD
+=======
+	struct dma_chan_percpu *stat;
+>>>>>>> upstream/android-13
 	struct hsu_dma_chan *hsuc;
 	struct hsu_dma_desc *desc;
 	unsigned long flags;
@@ -213,6 +224,10 @@ int hsu_dma_do_irq(struct hsu_dma_chip *chip, unsigned short nr, u32 status)
 		return 0;
 
 	hsuc = &chip->hsu->chan[nr];
+<<<<<<< HEAD
+=======
+	stat = this_cpu_ptr(hsuc->vchan.chan.local);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&hsuc->vchan.lock, flags);
 	desc = hsuc->desc;
@@ -224,6 +239,10 @@ int hsu_dma_do_irq(struct hsu_dma_chip *chip, unsigned short nr, u32 status)
 		} else {
 			vchan_cookie_complete(&desc->vdesc);
 			desc->status = DMA_COMPLETE;
+<<<<<<< HEAD
+=======
+			stat->bytes_transferred += desc->length;
+>>>>>>> upstream/android-13
 			hsu_dma_start_transfer(hsuc);
 		}
 	}
@@ -348,10 +367,13 @@ static int hsu_dma_slave_config(struct dma_chan *chan,
 {
 	struct hsu_dma_chan *hsuc = to_hsu_dma_chan(chan);
 
+<<<<<<< HEAD
 	/* Check if chan will be configured for slave transfers */
 	if (!is_slave_direction(config->direction))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	memcpy(&hsuc->config, config, sizeof(hsuc->config));
 
 	return 0;

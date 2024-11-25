@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DA9150 Core MFD Driver
  *
  * Copyright (c) 2014 Dialog Semiconductor
  *
  * Author: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -354,18 +361,30 @@ static const struct regmap_irq_chip da9150_regmap_irq_chip = {
 	.num_irqs = ARRAY_SIZE(da9150_irqs),
 };
 
+<<<<<<< HEAD
 static struct resource da9150_gpadc_resources[] = {
 	DEFINE_RES_IRQ_NAMED(DA9150_IRQ_GPADC, "GPADC"),
 };
 
 static struct resource da9150_charger_resources[] = {
+=======
+static const struct resource da9150_gpadc_resources[] = {
+	DEFINE_RES_IRQ_NAMED(DA9150_IRQ_GPADC, "GPADC"),
+};
+
+static const struct resource da9150_charger_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ_NAMED(DA9150_IRQ_CHG, "CHG_STATUS"),
 	DEFINE_RES_IRQ_NAMED(DA9150_IRQ_TJUNC, "CHG_TJUNC"),
 	DEFINE_RES_IRQ_NAMED(DA9150_IRQ_VFAULT, "CHG_VFAULT"),
 	DEFINE_RES_IRQ_NAMED(DA9150_IRQ_VBUS, "CHG_VBUS"),
 };
 
+<<<<<<< HEAD
 static struct resource da9150_fg_resources[] = {
+=======
+static const struct resource da9150_fg_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ_NAMED(DA9150_IRQ_FG, "FG"),
 };
 
@@ -424,10 +443,17 @@ static int da9150_probe(struct i2c_client *client,
 	qif_addr = da9150_reg_read(da9150, DA9150_CORE2WIRE_CTRL_A);
 	qif_addr = (qif_addr & DA9150_CORE_BASE_ADDR_MASK) >> 1;
 	qif_addr |= DA9150_QIF_I2C_ADDR_LSB;
+<<<<<<< HEAD
 	da9150->core_qif = i2c_new_dummy(client->adapter, qif_addr);
 	if (!da9150->core_qif) {
 		dev_err(da9150->dev, "Failed to attach QIF client\n");
 		return -ENODEV;
+=======
+	da9150->core_qif = i2c_new_dummy_device(client->adapter, qif_addr);
+	if (IS_ERR(da9150->core_qif)) {
+		dev_err(da9150->dev, "Failed to attach QIF client\n");
+		return PTR_ERR(da9150->core_qif);
+>>>>>>> upstream/android-13
 	}
 
 	i2c_set_clientdata(da9150->core_qif, da9150);
@@ -515,7 +541,11 @@ MODULE_DEVICE_TABLE(of, da9150_of_match);
 static struct i2c_driver da9150_driver = {
 	.driver	= {
 		.name	= "da9150",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(da9150_of_match),
+=======
+		.of_match_table = da9150_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe		= da9150_probe,
 	.remove		= da9150_remove,

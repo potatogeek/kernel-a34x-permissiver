@@ -2,6 +2,7 @@
 #ifndef _LINUX_RATELIMIT_H
 #define _LINUX_RATELIMIT_H
 
+<<<<<<< HEAD
 #include <linux/param.h>
 #include <linux/sched.h>
 #include <linux/spinlock.h>
@@ -37,6 +38,12 @@ struct ratelimit_state {
 	struct ratelimit_state name =					\
 		RATELIMIT_STATE_INIT(name, interval_init, burst_init)	\
 
+=======
+#include <linux/ratelimit_types.h>
+#include <linux/sched.h>
+#include <linux/spinlock.h>
+
+>>>>>>> upstream/android-13
 static inline void ratelimit_state_init(struct ratelimit_state *rs,
 					int interval, int burst)
 {
@@ -73,9 +80,12 @@ ratelimit_set_flags(struct ratelimit_state *rs, unsigned long flags)
 
 extern struct ratelimit_state printk_ratelimit_state;
 
+<<<<<<< HEAD
 extern int ___ratelimit(struct ratelimit_state *rs, const char *func);
 #define __ratelimit(state) ___ratelimit(state, __func__)
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PRINTK
 
 #define WARN_ON_RATELIMIT(condition, state)	({		\

@@ -74,7 +74,11 @@ int cxgb_fcoe_enable(struct net_device *netdev)
 	if (is_t4(adap->params.chip))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!(adap->flags & FULL_INIT_DONE))
+=======
+	if (!(adap->flags & CXGB4_FULL_INIT_DONE))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	dev_info(adap->pdev_dev, "Enabling FCoE offload features\n");

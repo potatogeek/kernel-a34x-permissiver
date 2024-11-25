@@ -60,6 +60,7 @@ struct stadel_event {
  int mac_id;
 };
 
+<<<<<<< HEAD
 struct addba_event
 {
 	unsigned int tid;
@@ -67,6 +68,9 @@ struct addba_event
 
 struct wmm_event
 {
+=======
+struct wmm_event {
+>>>>>>> upstream/android-13
 	unsigned char wmm;
 };
 
@@ -82,7 +86,11 @@ struct fwevent {
 
 #define C2HEVENT_SZ			32
 
+<<<<<<< HEAD
 struct event_node{
+=======
+struct event_node {
+>>>>>>> upstream/android-13
 	unsigned char *node;
 	unsigned char evt_code;
 	unsigned short evt_sz;
@@ -90,6 +98,7 @@ struct event_node{
 	int	caller_ff_sz;
 };
 
+<<<<<<< HEAD
 struct c2hevent_queue {
 	volatile int	head;
 	volatile int	tail;
@@ -97,6 +106,8 @@ struct c2hevent_queue {
 	unsigned char seq;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define NETWORK_QUEUE_SZ	4
 
 struct network_queue {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/omap2/omapfb-main.c
  *
@@ -6,6 +10,7 @@
  *
  * Some code and ideas taken from drivers/video/omap/ driver
  * by Imre Deak.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -893,7 +900,11 @@ int omapfb_setup_overlay(struct fb_info *fbi, struct omap_overlay *ovl,
 				/ (var->bits_per_pixel >> 2);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		screen_width = fix->line_length / (var->bits_per_pixel >> 3);
 		break;
@@ -1165,16 +1176,22 @@ static int _setcolreg(struct fb_info *fbi, u_int regno, u_int red, u_int green,
 		   r = fbdev->ctrl->setcolreg(regno, red, green, blue,
 		   transp, update_hw_pal);
 		   */
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+>>>>>>> upstream/android-13
 		r = -EINVAL;
 		break;
 	case OMAPFB_COLOR_RGB565:
 	case OMAPFB_COLOR_RGB444:
 	case OMAPFB_COLOR_RGB24P:
 	case OMAPFB_COLOR_RGB24U:
+<<<<<<< HEAD
 		if (r != 0)
 			break;
 
+=======
+>>>>>>> upstream/android-13
 		if (regno < 16) {
 			u32 pal;
 			pal = ((red >> (16 - var->red.length)) <<
@@ -1291,7 +1308,11 @@ ssize_t omapfb_write(struct fb_info *info, const char __user *buf,
 }
 #endif
 
+<<<<<<< HEAD
 static struct fb_ops omapfb_ops = {
+=======
+static const struct fb_ops omapfb_ops = {
+>>>>>>> upstream/android-13
 	.owner          = THIS_MODULE,
 	.fb_open        = omapfb_open,
 	.fb_release     = omapfb_release,
@@ -1892,12 +1913,17 @@ static int omapfb_create_framebuffers(struct omapfb2_device *fbdev)
 
 		fbi = framebuffer_alloc(sizeof(struct omapfb_info),
 				fbdev->dev);
+<<<<<<< HEAD
 
 		if (fbi == NULL) {
 			dev_err(fbdev->dev,
 				"unable to allocate memory for plane info\n");
 			return -ENOMEM;
 		}
+=======
+		if (!fbi)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 
 		clear_fb_info(fbi);
 

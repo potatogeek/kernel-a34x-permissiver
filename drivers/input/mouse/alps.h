@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ALPS touchpad PS/2 mouse driver
  *
  * Copyright (c) 2003 Peter Osterlund <petero2@telia.com>
  * Copyright (c) 2005 Vojtech Pavlik <vojtech@suse.cz>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ALPS_H
@@ -326,6 +333,7 @@ struct alps_data {
 
 #define ALPS_QUIRK_TRACKSTICK_BUTTONS	1 /* trakcstick buttons in trackstick packet */
 
+<<<<<<< HEAD
 #ifdef CONFIG_MOUSE_PS2_ALPS
 int alps_detect(struct psmouse *psmouse, bool set_properties);
 int alps_init(struct psmouse *psmouse);
@@ -339,5 +347,9 @@ inline int alps_init(struct psmouse *psmouse)
 	return -ENOSYS;
 }
 #endif /* CONFIG_MOUSE_PS2_ALPS */
+=======
+int alps_detect(struct psmouse *psmouse, bool set_properties);
+int alps_init(struct psmouse *psmouse);
+>>>>>>> upstream/android-13
 
 #endif

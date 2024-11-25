@@ -11,6 +11,7 @@ struct mod_arch_specific {
 };
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_LITTLE_ENDIAN
 # ifdef CONFIG_CPU_SH2
 #  define MODULE_PROC_FAMILY "SH2LE "
@@ -39,4 +40,6 @@ struct mod_arch_specific {
 
 #define MODULE_ARCH_VERMAGIC MODULE_PROC_FAMILY
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_SH_MODULE_H */

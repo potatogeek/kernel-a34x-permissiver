@@ -6,12 +6,21 @@
  * Copyright (c) 2004-2009 Greg Kroah-Hartman <gregkh@suse.de>
  * Copyright (c) 2008-2009 Novell Inc.
  *
+<<<<<<< HEAD
  * See Documentation/driver-model/ for more information.
+=======
+ * See Documentation/driver-api/driver-model/ for more information.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DEVICE_H_
 #define _DEVICE_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/dev_printk.h>
+#include <linux/energy_model.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/kobject.h>
 #include <linux/klist.h>
@@ -22,10 +31,19 @@
 #include <linux/mutex.h>
 #include <linux/pm.h>
 #include <linux/atomic.h>
+<<<<<<< HEAD
 #include <linux/ratelimit.h>
 #include <linux/uidgid.h>
 #include <linux/gfp.h>
 #include <linux/overflow.h>
+=======
+#include <linux/uidgid.h>
+#include <linux/gfp.h>
+#include <linux/overflow.h>
+#include <linux/device/bus.h>
+#include <linux/device/class.h>
+#include <linux/device/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/android_kabi.h>
 #include <asm/device.h>
 
@@ -36,11 +54,15 @@ struct driver_private;
 struct module;
 struct class;
 struct subsys_private;
+<<<<<<< HEAD
 struct bus_type;
+=======
+>>>>>>> upstream/android-13
 struct device_node;
 struct fwnode_handle;
 struct iommu_ops;
 struct iommu_group;
+<<<<<<< HEAD
 struct iommu_fwspec;
 struct dev_pin_info;
 
@@ -368,11 +390,19 @@ struct device *driver_find_device(struct device_driver *drv,
 
 void driver_deferred_probe_add(struct device *dev);
 int driver_deferred_probe_check_state(struct device *dev);
+=======
+struct dev_pin_info;
+struct dev_iommu;
+>>>>>>> upstream/android-13
 
 /**
  * struct subsys_interface - interfaces to device functions
  * @name:       name of the device function
+<<<<<<< HEAD
  * @subsys:     subsytem of the devices to attach to
+=======
+ * @subsys:     subsystem of the devices to attach to
+>>>>>>> upstream/android-13
  * @node:       the list of functions registered at the subsystem
  * @add_dev:    device hookup to device function handler
  * @remove_dev: device hookup to device function handler
@@ -398,6 +428,7 @@ int subsys_system_register(struct bus_type *subsys,
 int subsys_virtual_register(struct bus_type *subsys,
 			    const struct attribute_group **groups);
 
+<<<<<<< HEAD
 /**
  * struct class - device classes
  * @name:	Name of the class.
@@ -573,6 +604,8 @@ extern void class_destroy(struct class *cls);
 	__class_create(owner, name, &__key);	\
 })
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The type of device, "struct device" is embedded in. A class
  * or bus can contain devices of different types
@@ -627,8 +660,17 @@ ssize_t device_store_bool(struct device *dev, struct device_attribute *attr,
 		__ATTR_PREALLOC(_name, _mode, _show, _store)
 #define DEVICE_ATTR_RW(_name) \
 	struct device_attribute dev_attr_##_name = __ATTR_RW(_name)
+<<<<<<< HEAD
 #define DEVICE_ATTR_RO(_name) \
 	struct device_attribute dev_attr_##_name = __ATTR_RO(_name)
+=======
+#define DEVICE_ATTR_ADMIN_RW(_name) \
+	struct device_attribute dev_attr_##_name = __ATTR_RW_MODE(_name, 0600)
+#define DEVICE_ATTR_RO(_name) \
+	struct device_attribute dev_attr_##_name = __ATTR_RO(_name)
+#define DEVICE_ATTR_ADMIN_RO(_name) \
+	struct device_attribute dev_attr_##_name = __ATTR_RO_MODE(_name, 0400)
+>>>>>>> upstream/android-13
 #define DEVICE_ATTR_WO(_name) \
 	struct device_attribute dev_attr_##_name = __ATTR_WO(_name)
 #define DEVICE_ULONG_ATTR(_name, _mode, _var) \
@@ -644,6 +686,7 @@ ssize_t device_store_bool(struct device *dev, struct device_attribute *attr,
 	struct device_attribute dev_attr_##_name =		\
 		__ATTR_IGNORE_LOCKDEP(_name, _mode, _show, _store)
 
+<<<<<<< HEAD
 extern int device_create_file(struct device *device,
 			      const struct device_attribute *entry);
 extern void device_remove_file(struct device *dev,
@@ -654,18 +697,36 @@ extern int __must_check device_create_bin_file(struct device *dev,
 					const struct bin_attribute *attr);
 extern void device_remove_bin_file(struct device *dev,
 				   const struct bin_attribute *attr);
+=======
+int device_create_file(struct device *device,
+		       const struct device_attribute *entry);
+void device_remove_file(struct device *dev,
+			const struct device_attribute *attr);
+bool device_remove_file_self(struct device *dev,
+			     const struct device_attribute *attr);
+int __must_check device_create_bin_file(struct device *dev,
+					const struct bin_attribute *attr);
+void device_remove_bin_file(struct device *dev,
+			    const struct bin_attribute *attr);
+>>>>>>> upstream/android-13
 
 /* device resource management */
 typedef void (*dr_release_t)(struct device *dev, void *res);
 typedef int (*dr_match_t)(struct device *dev, void *res, void *match_data);
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_DEVRES
 extern void *__devres_alloc_node(dr_release_t release, size_t size, gfp_t gfp,
 				 int nid, const char *name) __malloc;
+=======
+void *__devres_alloc_node(dr_release_t release, size_t size, gfp_t gfp,
+			  int nid, const char *name) __malloc;
+>>>>>>> upstream/android-13
 #define devres_alloc(release, size, gfp) \
 	__devres_alloc_node(release, size, gfp, NUMA_NO_NODE, #release)
 #define devres_alloc_node(release, size, gfp, nid) \
 	__devres_alloc_node(release, size, gfp, nid, #release)
+<<<<<<< HEAD
 #else
 extern void *devres_alloc_node(dr_release_t release, size_t size, gfp_t gfp,
 			       int nid) __malloc;
@@ -706,6 +767,40 @@ char *devm_kvasprintf(struct device *dev, gfp_t gfp, const char *fmt,
 		      va_list ap) __malloc;
 extern __printf(3, 4)
 char *devm_kasprintf(struct device *dev, gfp_t gfp, const char *fmt, ...) __malloc;
+=======
+
+void devres_for_each_res(struct device *dev, dr_release_t release,
+			 dr_match_t match, void *match_data,
+			 void (*fn)(struct device *, void *, void *),
+			 void *data);
+void devres_free(void *res);
+void devres_add(struct device *dev, void *res);
+void *devres_find(struct device *dev, dr_release_t release,
+		  dr_match_t match, void *match_data);
+void *devres_get(struct device *dev, void *new_res,
+		 dr_match_t match, void *match_data);
+void *devres_remove(struct device *dev, dr_release_t release,
+		    dr_match_t match, void *match_data);
+int devres_destroy(struct device *dev, dr_release_t release,
+		   dr_match_t match, void *match_data);
+int devres_release(struct device *dev, dr_release_t release,
+		   dr_match_t match, void *match_data);
+
+/* devres group */
+void * __must_check devres_open_group(struct device *dev, void *id, gfp_t gfp);
+void devres_close_group(struct device *dev, void *id);
+void devres_remove_group(struct device *dev, void *id);
+int devres_release_group(struct device *dev, void *id);
+
+/* managed devm_k.alloc/kfree for device drivers */
+void *devm_kmalloc(struct device *dev, size_t size, gfp_t gfp) __malloc;
+void *devm_krealloc(struct device *dev, void *ptr, size_t size,
+		    gfp_t gfp) __must_check;
+__printf(3, 0) char *devm_kvasprintf(struct device *dev, gfp_t gfp,
+				     const char *fmt, va_list ap) __malloc;
+__printf(3, 4) char *devm_kasprintf(struct device *dev, gfp_t gfp,
+				    const char *fmt, ...) __malloc;
+>>>>>>> upstream/android-13
 static inline void *devm_kzalloc(struct device *dev, size_t size, gfp_t gfp)
 {
 	return devm_kmalloc(dev, size, gfp | __GFP_ZERO);
@@ -725,6 +820,7 @@ static inline void *devm_kcalloc(struct device *dev,
 {
 	return devm_kmalloc_array(dev, n, size, flags | __GFP_ZERO);
 }
+<<<<<<< HEAD
 extern void devm_kfree(struct device *dev, void *p);
 extern char *devm_kstrdup(struct device *dev, const char *s, gfp_t gfp) __malloc;
 extern void *devm_kmemdup(struct device *dev, const void *src, size_t len,
@@ -736,6 +832,21 @@ extern void devm_free_pages(struct device *dev, unsigned long addr);
 
 void __iomem *devm_ioremap_resource(struct device *dev,
 				    const struct resource *res);
+=======
+void devm_kfree(struct device *dev, const void *p);
+char *devm_kstrdup(struct device *dev, const char *s, gfp_t gfp) __malloc;
+const char *devm_kstrdup_const(struct device *dev, const char *s, gfp_t gfp);
+void *devm_kmemdup(struct device *dev, const void *src, size_t len, gfp_t gfp);
+
+unsigned long devm_get_free_pages(struct device *dev,
+				  gfp_t gfp_mask, unsigned int order);
+void devm_free_pages(struct device *dev, unsigned long addr);
+
+void __iomem *devm_ioremap_resource(struct device *dev,
+				    const struct resource *res);
+void __iomem *devm_ioremap_resource_wc(struct device *dev,
+				       const struct resource *res);
+>>>>>>> upstream/android-13
 
 void __iomem *devm_of_iomap(struct device *dev,
 			    struct device_node *node, int index,
@@ -744,6 +855,10 @@ void __iomem *devm_of_iomap(struct device *dev,
 /* allows to add/remove a custom action to devres stack */
 int devm_add_action(struct device *dev, void (*action)(void *), void *data);
 void devm_remove_action(struct device *dev, void (*action)(void *), void *data);
+<<<<<<< HEAD
+=======
+void devm_release_action(struct device *dev, void (*action)(void *), void *data);
+>>>>>>> upstream/android-13
 
 static inline int devm_add_action_or_reset(struct device *dev,
 					   void (*action)(void *), void *data)
@@ -782,10 +897,15 @@ struct device_dma_parameters {
 	 * sg limitations.
 	 */
 	unsigned int max_segment_size;
+<<<<<<< HEAD
+=======
+	unsigned int min_align_mask;
+>>>>>>> upstream/android-13
 	unsigned long segment_boundary_mask;
 };
 
 /**
+<<<<<<< HEAD
  * struct device_connection - Device Connection Descriptor
  * @fwnode: The device node of the connected device
  * @endpoint: The names of the two devices connected together
@@ -838,6 +958,8 @@ static inline void device_connections_remove(struct device_connection *cons)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * enum device_link_state - Device link states.
  * @DL_STATE_NONE: The presence of the drivers is not being tracked.
  * @DL_STATE_DORMANT: None of the supplier/consumer drivers is present.
@@ -866,6 +988,10 @@ enum device_link_state {
  * AUTOPROBE_CONSUMER: Probe consumer driver automatically after supplier binds.
  * MANAGED: The core tracks presence of supplier/consumer drivers (internal).
  * SYNC_STATE_ONLY: Link only affects sync_state() behavior.
+<<<<<<< HEAD
+=======
+ * INFERRED: Inferred from data (eg: firmware) and not from driver actions.
+>>>>>>> upstream/android-13
  */
 #define DL_FLAG_STATELESS		BIT(0)
 #define DL_FLAG_AUTOREMOVE_CONSUMER	BIT(1)
@@ -875,6 +1001,7 @@ enum device_link_state {
 #define DL_FLAG_AUTOPROBE_CONSUMER	BIT(5)
 #define DL_FLAG_MANAGED			BIT(6)
 #define DL_FLAG_SYNC_STATE_ONLY		BIT(7)
+<<<<<<< HEAD
 
 /**
  * struct device_link - Device link representation.
@@ -907,6 +1034,9 @@ struct device_link {
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
 };
+=======
+#define DL_FLAG_INFERRED		BIT(8)
+>>>>>>> upstream/android-13
 
 /**
  * enum dl_dev_state - Device driver presence tracking information.
@@ -923,6 +1053,7 @@ enum dl_dev_state {
 };
 
 /**
+<<<<<<< HEAD
  * struct dev_links_info - Device data related to device links.
  * @suppliers: List of links to supplier devices.
  * @consumers: List of links to consumer devices.
@@ -930,11 +1061,34 @@ enum dl_dev_state {
  * @defer_sync: Hook to global list of devices that have deferred sync_state.
  * @need_for_probe: If needs_suppliers is on a list, this indicates if the
  *		    suppliers are needed for probe or not.
+=======
+ * enum device_removable - Whether the device is removable. The criteria for a
+ * device to be classified as removable is determined by its subsystem or bus.
+ * @DEVICE_REMOVABLE_NOT_SUPPORTED: This attribute is not supported for this
+ *				    device (default).
+ * @DEVICE_REMOVABLE_UNKNOWN:  Device location is Unknown.
+ * @DEVICE_FIXED: Device is not removable by the user.
+ * @DEVICE_REMOVABLE: Device is removable by the user.
+ */
+enum device_removable {
+	DEVICE_REMOVABLE_NOT_SUPPORTED = 0, /* must be 0 */
+	DEVICE_REMOVABLE_UNKNOWN,
+	DEVICE_FIXED,
+	DEVICE_REMOVABLE,
+};
+
+/**
+ * struct dev_links_info - Device data related to device links.
+ * @suppliers: List of links to supplier devices.
+ * @consumers: List of links to consumer devices.
+ * @defer_sync: Hook to global list of devices that have deferred sync_state.
+>>>>>>> upstream/android-13
  * @status: Driver status information.
  */
 struct dev_links_info {
 	struct list_head suppliers;
 	struct list_head consumers;
+<<<<<<< HEAD
 	struct list_head needs_suppliers;
 	struct list_head defer_sync;
 	bool need_for_probe;
@@ -944,6 +1098,10 @@ struct dev_links_info {
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
+=======
+	struct list_head defer_sync;
+	enum dl_dev_state status;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -960,6 +1118,11 @@ struct dev_links_info {
  * 		This identifies the device type and carries type-specific
  * 		information.
  * @mutex:	Mutex to synchronize calls to its driver.
+<<<<<<< HEAD
+=======
+ * @lockdep_mutex: An optional debug lock that a subsystem can use as a
+ * 		peer lock to gain localized lockdep coverage of the device_lock.
+>>>>>>> upstream/android-13
  * @bus:	Type of bus device is on.
  * @driver:	Which driver has allocated this
  * @platform_data: Platform data specific to the device.
@@ -977,8 +1140,15 @@ struct dev_links_info {
  * @pm_domain:	Provide callbacks that are executed during system suspend,
  * 		hibernation, system resume and during runtime PM transitions
  * 		along with subsystem-level and driver-level callbacks.
+<<<<<<< HEAD
  * @pins:	For device pin management.
  *		See Documentation/driver-api/pinctl.rst for details.
+=======
+ * @em_pd:	device's energy model performance domain
+ * @pins:	For device pin management.
+ *		See Documentation/driver-api/pin-control.rst for details.
+ * @msi_lock:	Lock to protect MSI mask cache and mask register
+>>>>>>> upstream/android-13
  * @msi_list:	Hosts MSI descriptors
  * @msi_domain: The generic MSI domain this device is using.
  * @numa_node:	NUMA node this device is close to.
@@ -987,14 +1157,24 @@ struct dev_links_info {
  * @coherent_dma_mask: Like dma_mask, but for alloc_coherent mapping as not all
  * 		hardware supports 64-bit addresses for consistent allocations
  * 		such descriptors.
+<<<<<<< HEAD
  * @bus_dma_mask: Mask of an upstream bridge or bus which imposes a smaller DMA
  *		limit than the device itself supports.
  * @dma_pfn_offset: offset of DMA memory range relatively of RAM
+=======
+ * @bus_dma_limit: Limit of an upstream bridge or bus which imposes a smaller
+ *		DMA limit than the device itself supports.
+ * @dma_range_map: map for DMA memory ranges relative to that of RAM
+>>>>>>> upstream/android-13
  * @dma_parms:	A low level driver may set these to teach IOMMU code about
  * 		segment limitations.
  * @dma_pools:	Dma pools (if dma'ble device).
  * @dma_mem:	Internal for coherent mem override.
  * @cma_area:	Contiguous memory area for dma allocations
+<<<<<<< HEAD
+=======
+ * @dma_io_tlb_mem: Pointer to the swiotlb pool used.  Not for driver use.
+>>>>>>> upstream/android-13
  * @archdata:	For arch-specific additions.
  * @of_node:	Associated device tree node.
  * @fwnode:	Associated device node supplied by platform firmware.
@@ -1009,7 +1189,14 @@ struct dev_links_info {
  * 		gone away. This should be set by the allocator of the
  * 		device (i.e. the bus driver that discovered the device).
  * @iommu_group: IOMMU group the device belongs to.
+<<<<<<< HEAD
  * @iommu_fwspec: IOMMU-specific properties supplied by firmware.
+=======
+ * @iommu:	Per device generic IOMMU runtime data
+ * @removable:  Whether the device can be removed from the system. This
+ *              should be set by the subsystem / bus driver that discovered
+ *              the device.
+>>>>>>> upstream/android-13
  *
  * @offline_disabled: If set, the device is permanently online.
  * @offline:	Set after successful invocation of bus type's .offline().
@@ -1018,6 +1205,19 @@ struct dev_links_info {
  * @state_synced: The hardware state of this device has been synced to match
  *		  the software state of this device by calling the driver/bus
  *		  sync_state() callback.
+<<<<<<< HEAD
+=======
+ * @can_match:	The device has matched with a driver at least once or it is in
+ *		a bus (like AMBA) which can't check for matching drivers until
+ *		other devices probe successfully.
+ * @dma_coherent: this particular device is dma coherent, even if the
+ *		architecture supports non-coherent devices.
+ * @dma_ops_bypass: If set to %true then the dma_ops are bypassed for the
+ *		streaming DMA operations (->map_* / ->unmap_* / ->sync_*),
+ *		and optionall (if the coherent mask is large enough) also
+ *		for dma allocations.  This flag is managed by the dma ops
+ *		instance from ->dma_supported.
+>>>>>>> upstream/android-13
  *
  * At the lowest level, every device in a Linux system is represented by an
  * instance of struct device. The device structure contains the information
@@ -1028,10 +1228,15 @@ struct dev_links_info {
  * a higher-level representation of the device.
  */
 struct device {
+<<<<<<< HEAD
+=======
+	struct kobject kobj;
+>>>>>>> upstream/android-13
 	struct device		*parent;
 
 	struct device_private	*p;
 
+<<<<<<< HEAD
 	struct kobject kobj;
 	const char		*init_name; /* initial name of the device */
 	const struct device_type *type;
@@ -1040,17 +1245,40 @@ struct device {
 					 * its driver.
 					 */
 
+=======
+	const char		*init_name; /* initial name of the device */
+	const struct device_type *type;
+
+>>>>>>> upstream/android-13
 	struct bus_type	*bus;		/* type of bus device is on */
 	struct device_driver *driver;	/* which driver has allocated this
 					   device */
 	void		*platform_data;	/* Platform specific data, device
 					   core doesn't touch it */
 	void		*driver_data;	/* Driver data, set and get with
+<<<<<<< HEAD
 					   dev_set/get_drvdata */
+=======
+					   dev_set_drvdata/dev_get_drvdata */
+#ifdef CONFIG_PROVE_LOCKING
+	struct mutex		lockdep_mutex;
+#endif
+	struct mutex		mutex;	/* mutex to synchronize calls to
+					 * its driver.
+					 */
+
+>>>>>>> upstream/android-13
 	struct dev_links_info	links;
 	struct dev_pm_info	power;
 	struct dev_pm_domain	*pm_domain;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ENERGY_MODEL
+	struct em_perf_domain	*em_pd;
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_GENERIC_MSI_IRQ_DOMAIN
 	struct irq_domain	*msi_domain;
 #endif
@@ -1058,6 +1286,7 @@ struct device {
 	struct dev_pin_info	*pins;
 #endif
 #ifdef CONFIG_GENERIC_MSI_IRQ
+<<<<<<< HEAD
 	struct list_head	msi_list;
 #endif
 
@@ -1065,51 +1294,104 @@ struct device {
 	int		numa_node;	/* NUMA node this device is close to */
 #endif
 	const struct dma_map_ops *dma_ops;
+=======
+	raw_spinlock_t		msi_lock;
+	struct list_head	msi_list;
+#endif
+#ifdef CONFIG_DMA_OPS
+	const struct dma_map_ops *dma_ops;
+#endif
+>>>>>>> upstream/android-13
 	u64		*dma_mask;	/* dma mask (if dma'able device) */
 	u64		coherent_dma_mask;/* Like dma_mask, but for
 					     alloc_coherent mappings as
 					     not all hardware supports
 					     64 bit addresses for consistent
 					     allocations such descriptors. */
+<<<<<<< HEAD
 	u64		bus_dma_mask;	/* upstream dma_mask constraint */
 	unsigned long	dma_pfn_offset;
+=======
+	u64		bus_dma_limit;	/* upstream dma constraint */
+	const struct bus_dma_region *dma_range_map;
+>>>>>>> upstream/android-13
 
 	struct device_dma_parameters *dma_parms;
 
 	struct list_head	dma_pools;	/* dma pools (if dma'ble) */
 
+<<<<<<< HEAD
 	struct dma_coherent_mem	*dma_mem; /* internal for coherent mem
 					     override */
+=======
+#ifdef CONFIG_DMA_DECLARE_COHERENT
+	struct dma_coherent_mem	*dma_mem; /* internal for coherent mem
+					     override */
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DMA_CMA
 	struct cma *cma_area;		/* contiguous memory area for dma
 					   allocations */
 #endif
+<<<<<<< HEAD
 	struct removed_region *removed_mem;
+=======
+#ifdef CONFIG_SWIOTLB
+	struct io_tlb_mem *dma_io_tlb_mem;
+#endif
+>>>>>>> upstream/android-13
 	/* arch specific additions */
 	struct dev_archdata	archdata;
 
 	struct device_node	*of_node; /* associated device tree node */
 	struct fwnode_handle	*fwnode; /* firmware device node */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NUMA
+	int		numa_node;	/* NUMA node this device is close to */
+#endif
+>>>>>>> upstream/android-13
 	dev_t			devt;	/* dev_t, creates the sysfs "dev" */
 	u32			id;	/* device instance */
 
 	spinlock_t		devres_lock;
 	struct list_head	devres_head;
 
+<<<<<<< HEAD
 	struct klist_node	knode_class;
+=======
+>>>>>>> upstream/android-13
 	struct class		*class;
 	const struct attribute_group **groups;	/* optional groups */
 
 	void	(*release)(struct device *dev);
 	struct iommu_group	*iommu_group;
+<<<<<<< HEAD
 	struct iommu_fwspec	*iommu_fwspec;
+=======
+	struct dev_iommu	*iommu;
+
+	enum device_removable	removable;
+>>>>>>> upstream/android-13
 
 	bool			offline_disabled:1;
 	bool			offline:1;
 	bool			of_node_reused:1;
 	bool			state_synced:1;
+<<<<<<< HEAD
 
+=======
+	bool			can_match:1;
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	bool			dma_coherent:1;
+#endif
+#ifdef CONFIG_DMA_OPS_BYPASS
+	bool			dma_ops_bypass : 1;
+#endif
+>>>>>>> upstream/android-13
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
@@ -1120,11 +1402,57 @@ struct device {
 	ANDROID_KABI_RESERVE(8);
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * struct device_link - Device link representation.
+ * @supplier: The device on the supplier end of the link.
+ * @s_node: Hook to the supplier device's list of links to consumers.
+ * @consumer: The device on the consumer end of the link.
+ * @c_node: Hook to the consumer device's list of links to suppliers.
+ * @link_dev: device used to expose link details in sysfs
+ * @status: The state of the link (with respect to the presence of drivers).
+ * @flags: Link flags.
+ * @rpm_active: Whether or not the consumer device is runtime-PM-active.
+ * @kref: Count repeated addition of the same link.
+ * @rm_work: Work structure used for removing the link.
+ * @supplier_preactivated: Supplier has been made active before consumer probe.
+ */
+struct device_link {
+	struct device *supplier;
+	struct list_head s_node;
+	struct device *consumer;
+	struct list_head c_node;
+	struct device link_dev;
+	enum device_link_state status;
+	u32 flags;
+	refcount_t rpm_active;
+	struct kref kref;
+	struct work_struct rm_work;
+	bool supplier_preactivated; /* Owned by consumer probe. */
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+};
+
+>>>>>>> upstream/android-13
 static inline struct device *kobj_to_dev(struct kobject *kobj)
 {
 	return container_of(kobj, struct device, kobj);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * device_iommu_mapped - Returns true when the device DMA is translated
+ *			 by an IOMMU
+ * @dev: Device to perform the check on
+ */
+static inline bool device_iommu_mapped(struct device *dev)
+{
+	return (dev->iommu_group != NULL);
+}
+
+>>>>>>> upstream/android-13
 /* Get the wakeup routines, which depend on struct device */
 #include <linux/pm_wakeup.h>
 
@@ -1137,8 +1465,24 @@ static inline const char *dev_name(const struct device *dev)
 	return kobject_name(&dev->kobj);
 }
 
+<<<<<<< HEAD
 extern __printf(2, 3)
 int dev_set_name(struct device *dev, const char *name, ...);
+=======
+/**
+ * dev_bus_name - Return a device's bus/class name, if at all possible
+ * @dev: struct device to get the bus/class name of
+ *
+ * Will return the name of the bus/class the device is attached to.  If it is
+ * not attached to a bus/class, an empty string will be returned.
+ */
+static inline const char *dev_bus_name(const struct device *dev)
+{
+	return dev->bus ? dev->bus->name : (dev->class ? dev->class->name : "");
+}
+
+__printf(2, 3) int dev_set_name(struct device *dev, const char *name, ...);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NUMA
 static inline int dev_to_node(struct device *dev)
@@ -1152,7 +1496,11 @@ static inline void set_dev_node(struct device *dev, int node)
 #else
 static inline int dev_to_node(struct device *dev)
 {
+<<<<<<< HEAD
 	return -1;
+=======
+	return NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 }
 static inline void set_dev_node(struct device *dev, int node)
 {
@@ -1276,7 +1624,11 @@ static inline void device_lock_assert(struct device *dev)
 
 static inline struct device_node *dev_of_node(struct device *dev)
 {
+<<<<<<< HEAD
 	if (!IS_ENABLED(CONFIG_OF))
+=======
+	if (!IS_ENABLED(CONFIG_OF) || !dev)
+>>>>>>> upstream/android-13
 		return NULL;
 	return dev->of_node;
 }
@@ -1292,11 +1644,30 @@ static inline bool dev_has_sync_state(struct device *dev)
 	return false;
 }
 
+<<<<<<< HEAD
 void driver_init(void);
+=======
+static inline void dev_set_removable(struct device *dev,
+				     enum device_removable removable)
+{
+	dev->removable = removable;
+}
+
+static inline bool dev_is_removable(struct device *dev)
+{
+	return dev->removable == DEVICE_REMOVABLE;
+}
+
+static inline bool dev_removable_is_valid(struct device *dev)
+{
+	return dev->removable != DEVICE_REMOVABLE_NOT_SUPPORTED;
+}
+>>>>>>> upstream/android-13
 
 /*
  * High level routines for use by the bus drivers
  */
+<<<<<<< HEAD
 extern int __must_check device_register(struct device *dev);
 extern void device_unregister(struct device *dev);
 extern void device_initialize(struct device *dev);
@@ -1314,12 +1685,35 @@ extern int device_move(struct device *dev, struct device *new_parent,
 extern const char *device_get_devnode(struct device *dev,
 				      umode_t *mode, kuid_t *uid, kgid_t *gid,
 				      const char **tmp);
+=======
+int __must_check device_register(struct device *dev);
+void device_unregister(struct device *dev);
+void device_initialize(struct device *dev);
+int __must_check device_add(struct device *dev);
+void device_del(struct device *dev);
+int device_for_each_child(struct device *dev, void *data,
+			  int (*fn)(struct device *dev, void *data));
+int device_for_each_child_reverse(struct device *dev, void *data,
+				  int (*fn)(struct device *dev, void *data));
+struct device *device_find_child(struct device *dev, void *data,
+				 int (*match)(struct device *dev, void *data));
+struct device *device_find_child_by_name(struct device *parent,
+					 const char *name);
+int device_rename(struct device *dev, const char *new_name);
+int device_move(struct device *dev, struct device *new_parent,
+		enum dpm_order dpm_order);
+int device_change_owner(struct device *dev, kuid_t kuid, kgid_t kgid);
+const char *device_get_devnode(struct device *dev, umode_t *mode, kuid_t *uid,
+			       kgid_t *gid, const char **tmp);
+int device_is_dependent(struct device *dev, void *target);
+>>>>>>> upstream/android-13
 
 static inline bool device_supports_offline(struct device *dev)
 {
 	return dev->bus && dev->bus->offline && dev->bus->online;
 }
 
+<<<<<<< HEAD
 extern void lock_device_hotplug(void);
 extern void unlock_device_hotplug(void);
 extern int lock_device_hotplug_sysfs(void);
@@ -1328,6 +1722,17 @@ extern int device_online(struct device *dev);
 extern void set_primary_fwnode(struct device *dev, struct fwnode_handle *fwnode);
 extern void set_secondary_fwnode(struct device *dev, struct fwnode_handle *fwnode);
 void device_set_of_node_from_dev(struct device *dev, const struct device *dev2);
+=======
+void lock_device_hotplug(void);
+void unlock_device_hotplug(void);
+int lock_device_hotplug_sysfs(void);
+int device_offline(struct device *dev);
+int device_online(struct device *dev);
+void set_primary_fwnode(struct device *dev, struct fwnode_handle *fwnode);
+void set_secondary_fwnode(struct device *dev, struct fwnode_handle *fwnode);
+void device_set_of_node_from_dev(struct device *dev, const struct device *dev2);
+void device_set_node(struct device *dev, struct fwnode_handle *fwnode);
+>>>>>>> upstream/android-13
 
 static inline int dev_num_vf(struct device *dev)
 {
@@ -1339,14 +1744,22 @@ static inline int dev_num_vf(struct device *dev)
 /*
  * Root device objects for grouping under /sys/devices
  */
+<<<<<<< HEAD
 extern struct device *__root_device_register(const char *name,
 					     struct module *owner);
+=======
+struct device *__root_device_register(const char *name, struct module *owner);
+>>>>>>> upstream/android-13
 
 /* This is a macro to avoid include problems with THIS_MODULE */
 #define root_device_register(name) \
 	__root_device_register(name, THIS_MODULE)
 
+<<<<<<< HEAD
 extern void root_device_unregister(struct device *root);
+=======
+void root_device_unregister(struct device *root);
+>>>>>>> upstream/android-13
 
 static inline void *dev_get_platdata(const struct device *dev)
 {
@@ -1357,6 +1770,7 @@ static inline void *dev_get_platdata(const struct device *dev)
  * Manual binding of a device to driver. See drivers/base/bus.c
  * for information on use.
  */
+<<<<<<< HEAD
 extern int __must_check device_bind_driver(struct device *dev);
 extern void device_release_driver(struct device *dev);
 extern int  __must_check device_attach(struct device *dev);
@@ -1365,10 +1779,23 @@ extern void device_initial_probe(struct device *dev);
 extern int __must_check device_reprobe(struct device *dev);
 
 extern bool device_is_bound(struct device *dev);
+=======
+int __must_check device_driver_attach(struct device_driver *drv,
+				      struct device *dev);
+int __must_check device_bind_driver(struct device *dev);
+void device_release_driver(struct device *dev);
+int  __must_check device_attach(struct device *dev);
+int __must_check driver_attach(struct device_driver *drv);
+void device_initial_probe(struct device *dev);
+int __must_check device_reprobe(struct device *dev);
+
+bool device_is_bound(struct device *dev);
+>>>>>>> upstream/android-13
 
 /*
  * Easy functions for dynamically creating devices on the fly
  */
+<<<<<<< HEAD
 extern __printf(5, 0)
 struct device *device_create_vargs(struct class *cls, struct device *parent,
 				   dev_t devt, void *drvdata,
@@ -1388,6 +1815,21 @@ extern int __must_check device_add_groups(struct device *dev,
 					const struct attribute_group **groups);
 extern void device_remove_groups(struct device *dev,
 				 const struct attribute_group **groups);
+=======
+__printf(5, 6) struct device *
+device_create(struct class *cls, struct device *parent, dev_t devt,
+	      void *drvdata, const char *fmt, ...);
+__printf(6, 7) struct device *
+device_create_with_groups(struct class *cls, struct device *parent, dev_t devt,
+			  void *drvdata, const struct attribute_group **groups,
+			  const char *fmt, ...);
+void device_destroy(struct class *cls, dev_t devt);
+
+int __must_check device_add_groups(struct device *dev,
+				   const struct attribute_group **groups);
+void device_remove_groups(struct device *dev,
+			  const struct attribute_group **groups);
+>>>>>>> upstream/android-13
 
 static inline int __must_check device_add_group(struct device *dev,
 					const struct attribute_group *grp)
@@ -1405,6 +1847,7 @@ static inline void device_remove_group(struct device *dev,
 	return device_remove_groups(dev, groups);
 }
 
+<<<<<<< HEAD
 extern int __must_check devm_device_add_groups(struct device *dev,
 					const struct attribute_group **groups);
 extern void devm_device_remove_groups(struct device *dev,
@@ -1413,6 +1856,16 @@ extern int __must_check devm_device_add_group(struct device *dev,
 					const struct attribute_group *grp);
 extern void devm_device_remove_group(struct device *dev,
 				     const struct attribute_group *grp);
+=======
+int __must_check devm_device_add_groups(struct device *dev,
+					const struct attribute_group **groups);
+void devm_device_remove_groups(struct device *dev,
+			       const struct attribute_group **groups);
+int __must_check devm_device_add_group(struct device *dev,
+				       const struct attribute_group *grp);
+void devm_device_remove_group(struct device *dev,
+			      const struct attribute_group *grp);
+>>>>>>> upstream/android-13
 
 /*
  * Platform "fixup" functions - allow the platform to have their say
@@ -1429,6 +1882,7 @@ extern int (*platform_notify_remove)(struct device *dev);
  * get_device - atomically increment the reference count for the device.
  *
  */
+<<<<<<< HEAD
 extern struct device *get_device(struct device *dev);
 extern void put_device(struct device *dev);
 extern bool kill_device(struct device *dev);
@@ -1448,6 +1902,23 @@ extern void device_shutdown(void);
 
 /* debugging and troubleshooting/diagnostic helpers. */
 extern const char *dev_driver_string(const struct device *dev);
+=======
+struct device *get_device(struct device *dev);
+void put_device(struct device *dev);
+bool kill_device(struct device *dev);
+
+#ifdef CONFIG_DEVTMPFS
+int devtmpfs_mount(void);
+#else
+static inline int devtmpfs_mount(void) { return 0; }
+#endif
+
+/* drivers/base/power/shutdown.c */
+void device_shutdown(void);
+
+/* debugging and troubleshooting/diagnostic helpers. */
+const char *dev_driver_string(const struct device *dev);
+>>>>>>> upstream/android-13
 
 /* Device links interface. */
 struct device_link *device_link_add(struct device *consumer,
@@ -1457,6 +1928,7 @@ void device_link_remove(void *consumer, struct device *supplier);
 void device_links_supplier_sync_state_pause(void);
 void device_links_supplier_sync_state_resume(void);
 
+<<<<<<< HEAD
 #ifndef dev_fmt
 #define dev_fmt(fmt) fmt
 #endif
@@ -1671,6 +2143,10 @@ do {									\
 #define dev_WARN_ONCE(dev, condition, format, arg...) \
 	WARN_ONCE(condition, "%s %s: " format, \
 			dev_driver_string(dev), dev_name(dev), ## arg)
+=======
+extern __printf(3, 4)
+int dev_err_probe(const struct device *dev, int err, const char *fmt, ...);
+>>>>>>> upstream/android-13
 
 /* Create alias, so I can be autoloaded. */
 #define MODULE_ALIAS_CHARDEV(major,minor) \
@@ -1684,6 +2160,7 @@ extern long sysfs_deprecated;
 #define sysfs_deprecated 0
 #endif
 
+<<<<<<< HEAD
 /**
  * module_driver() - Helper macro for drivers that don't do anything
  * special in module init/exit. This eliminates a lot of boilerplate.
@@ -1732,4 +2209,6 @@ static int __init __driver##_init(void) \
 } \
 device_initcall(__driver##_init);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _DEVICE_H_ */

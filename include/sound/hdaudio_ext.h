@@ -6,12 +6,19 @@
 
 int snd_hdac_ext_bus_init(struct hdac_bus *bus, struct device *dev,
 		      const struct hdac_bus_ops *ops,
+<<<<<<< HEAD
 		      const struct hdac_io_ops *io_ops,
+=======
+>>>>>>> upstream/android-13
 		      const struct hdac_ext_bus_ops *ext_ops);
 
 void snd_hdac_ext_bus_exit(struct hdac_bus *bus);
 int snd_hdac_ext_bus_device_init(struct hdac_bus *bus, int addr,
+<<<<<<< HEAD
 						struct hdac_device *hdev);
+=======
+				struct hdac_device *hdev, int type);
+>>>>>>> upstream/android-13
 void snd_hdac_ext_bus_device_exit(struct hdac_device *hdev);
 void snd_hdac_ext_bus_device_remove(struct hdac_bus *bus);
 
@@ -52,7 +59,11 @@ enum hdac_ext_stream_type {
  * @decoupled: stream host and link is decoupled
  * @link_locked: link is locked
  * @link_prepared: link is prepared
+<<<<<<< HEAD
  * link_substream: link substream
+=======
+ * @link_substream: link substream
+>>>>>>> upstream/android-13
  */
 struct hdac_ext_stream {
 	struct hdac_stream hstream;
@@ -89,6 +100,11 @@ struct hdac_ext_stream *snd_hdac_ext_stream_assign(struct hdac_bus *bus,
 					   struct snd_pcm_substream *substream,
 					   int type);
 void snd_hdac_ext_stream_release(struct hdac_ext_stream *azx_dev, int type);
+<<<<<<< HEAD
+=======
+void snd_hdac_ext_stream_decouple_locked(struct hdac_bus *bus,
+				  struct hdac_ext_stream *azx_dev, bool decouple);
+>>>>>>> upstream/android-13
 void snd_hdac_ext_stream_decouple(struct hdac_bus *bus,
 				struct hdac_ext_stream *azx_dev, bool decouple);
 void snd_hdac_ext_stop_streams(struct hdac_bus *bus);
@@ -132,6 +148,11 @@ void snd_hdac_ext_link_clear_stream_id(struct hdac_ext_link *link,
 int snd_hdac_ext_bus_link_get(struct hdac_bus *bus, struct hdac_ext_link *link);
 int snd_hdac_ext_bus_link_put(struct hdac_bus *bus, struct hdac_ext_link *link);
 
+<<<<<<< HEAD
+=======
+void snd_hdac_ext_bus_link_power(struct hdac_device *codec, bool enable);
+
+>>>>>>> upstream/android-13
 /* update register macro */
 #define snd_hdac_updatel(addr, reg, mask, val)		\
 	writel(((readl(addr + reg) & ~(mask)) | (val)), \

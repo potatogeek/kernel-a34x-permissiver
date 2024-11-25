@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2017 Broadcom
  *
@@ -9,11 +10,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014-2017 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/interrupt.h>
 #include <linux/sysfs.h>
@@ -38,8 +48,27 @@
 #define  ARB_ERR_CAP_STATUS_WRITE	(1 << 1)
 #define  ARB_ERR_CAP_STATUS_VALID	(1 << 0)
 
+<<<<<<< HEAD
 enum {
 	ARB_TIMER,
+=======
+#define  ARB_BP_CAP_CLEAR		(1 << 0)
+#define  ARB_BP_CAP_STATUS_PROT_SHIFT	14
+#define  ARB_BP_CAP_STATUS_TYPE		(1 << 13)
+#define  ARB_BP_CAP_STATUS_RSP_SHIFT	10
+#define  ARB_BP_CAP_STATUS_MASK		GENMASK(1, 0)
+#define  ARB_BP_CAP_STATUS_BS_SHIFT	2
+#define  ARB_BP_CAP_STATUS_WRITE	(1 << 1)
+#define  ARB_BP_CAP_STATUS_VALID	(1 << 0)
+
+enum {
+	ARB_TIMER,
+	ARB_BP_CAP_CLR,
+	ARB_BP_CAP_HI_ADDR,
+	ARB_BP_CAP_ADDR,
+	ARB_BP_CAP_STATUS,
+	ARB_BP_CAP_MASTER,
+>>>>>>> upstream/android-13
 	ARB_ERR_CAP_CLR,
 	ARB_ERR_CAP_HI_ADDR,
 	ARB_ERR_CAP_ADDR,
@@ -49,6 +78,14 @@ enum {
 
 static const int gisb_offsets_bcm7038[] = {
 	[ARB_TIMER]		= 0x00c,
+<<<<<<< HEAD
+=======
+	[ARB_BP_CAP_CLR]	= 0x014,
+	[ARB_BP_CAP_HI_ADDR]	= -1,
+	[ARB_BP_CAP_ADDR]	= 0x0b8,
+	[ARB_BP_CAP_STATUS]	= 0x0c0,
+	[ARB_BP_CAP_MASTER]	= -1,
+>>>>>>> upstream/android-13
 	[ARB_ERR_CAP_CLR]	= 0x0c4,
 	[ARB_ERR_CAP_HI_ADDR]	= -1,
 	[ARB_ERR_CAP_ADDR]	= 0x0c8,
@@ -58,6 +95,14 @@ static const int gisb_offsets_bcm7038[] = {
 
 static const int gisb_offsets_bcm7278[] = {
 	[ARB_TIMER]		= 0x008,
+<<<<<<< HEAD
+=======
+	[ARB_BP_CAP_CLR]	= 0x01c,
+	[ARB_BP_CAP_HI_ADDR]	= -1,
+	[ARB_BP_CAP_ADDR]	= 0x220,
+	[ARB_BP_CAP_STATUS]	= 0x230,
+	[ARB_BP_CAP_MASTER]	= 0x234,
+>>>>>>> upstream/android-13
 	[ARB_ERR_CAP_CLR]	= 0x7f8,
 	[ARB_ERR_CAP_HI_ADDR]	= -1,
 	[ARB_ERR_CAP_ADDR]	= 0x7e0,
@@ -67,6 +112,14 @@ static const int gisb_offsets_bcm7278[] = {
 
 static const int gisb_offsets_bcm7400[] = {
 	[ARB_TIMER]		= 0x00c,
+<<<<<<< HEAD
+=======
+	[ARB_BP_CAP_CLR]	= 0x014,
+	[ARB_BP_CAP_HI_ADDR]	= -1,
+	[ARB_BP_CAP_ADDR]	= 0x0b8,
+	[ARB_BP_CAP_STATUS]	= 0x0c0,
+	[ARB_BP_CAP_MASTER]	= 0x0c4,
+>>>>>>> upstream/android-13
 	[ARB_ERR_CAP_CLR]	= 0x0c8,
 	[ARB_ERR_CAP_HI_ADDR]	= -1,
 	[ARB_ERR_CAP_ADDR]	= 0x0cc,
@@ -76,6 +129,14 @@ static const int gisb_offsets_bcm7400[] = {
 
 static const int gisb_offsets_bcm7435[] = {
 	[ARB_TIMER]		= 0x00c,
+<<<<<<< HEAD
+=======
+	[ARB_BP_CAP_CLR]	= 0x014,
+	[ARB_BP_CAP_HI_ADDR]	= -1,
+	[ARB_BP_CAP_ADDR]	= 0x158,
+	[ARB_BP_CAP_STATUS]	= 0x160,
+	[ARB_BP_CAP_MASTER]	= 0x164,
+>>>>>>> upstream/android-13
 	[ARB_ERR_CAP_CLR]	= 0x168,
 	[ARB_ERR_CAP_HI_ADDR]	= -1,
 	[ARB_ERR_CAP_ADDR]	= 0x16c,
@@ -85,6 +146,14 @@ static const int gisb_offsets_bcm7435[] = {
 
 static const int gisb_offsets_bcm7445[] = {
 	[ARB_TIMER]		= 0x008,
+<<<<<<< HEAD
+=======
+	[ARB_BP_CAP_CLR]	= 0x010,
+	[ARB_BP_CAP_HI_ADDR]	= -1,
+	[ARB_BP_CAP_ADDR]	= 0x1d8,
+	[ARB_BP_CAP_STATUS]	= 0x1e0,
+	[ARB_BP_CAP_MASTER]	= 0x1e4,
+>>>>>>> upstream/android-13
 	[ARB_ERR_CAP_CLR]	= 0x7e4,
 	[ARB_ERR_CAP_HI_ADDR]	= 0x7e8,
 	[ARB_ERR_CAP_ADDR]	= 0x7ec,
@@ -133,6 +202,19 @@ static u64 gisb_read_address(struct brcmstb_gisb_arb_device *gdev)
 	return value;
 }
 
+<<<<<<< HEAD
+=======
+static u64 gisb_read_bp_address(struct brcmstb_gisb_arb_device *gdev)
+{
+	u64 value;
+
+	value = gisb_read(gdev, ARB_BP_CAP_ADDR);
+	value |= (u64)gisb_read(gdev, ARB_BP_CAP_HI_ADDR) << 32;
+
+	return value;
+}
+
+>>>>>>> upstream/android-13
 static void gisb_write(struct brcmstb_gisb_arb_device *gdev, u32 val, int reg)
 {
 	int offset = gdev->gisb_offsets[reg];
@@ -150,8 +232,12 @@ static ssize_t gisb_arb_get_timeout(struct device *dev,
 				    struct device_attribute *attr,
 				    char *buf)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct brcmstb_gisb_arb_device *gdev = platform_get_drvdata(pdev);
+=======
+	struct brcmstb_gisb_arb_device *gdev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	u32 timeout;
 
 	mutex_lock(&gdev->lock);
@@ -165,8 +251,12 @@ static ssize_t gisb_arb_set_timeout(struct device *dev,
 				    struct device_attribute *attr,
 				    const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct brcmstb_gisb_arb_device *gdev = platform_get_drvdata(pdev);
+=======
+	struct brcmstb_gisb_arb_device *gdev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	int val, ret;
 
 	ret = kstrtoint(buf, 10, &val);
@@ -220,8 +310,13 @@ static int brcmstb_gisb_arb_decode_addr(struct brcmstb_gisb_arb_device *gdev,
 		m_name = m_fmt;
 	}
 
+<<<<<<< HEAD
 	pr_crit("%s: %s at 0x%llx [%c %s], core: %s\n",
 		__func__, reason, arb_addr,
+=======
+	pr_crit("GISB: %s at 0x%llx [%c %s], core: %s\n",
+		reason, arb_addr,
+>>>>>>> upstream/android-13
 		cap_status & ARB_ERR_CAP_STATUS_WRITE ? 'W' : 'R',
 		cap_status & ARB_ERR_CAP_STATUS_TIMEOUT ? "timeout" : "",
 		m_name);
@@ -269,6 +364,44 @@ static irqreturn_t brcmstb_gisb_tea_handler(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static irqreturn_t brcmstb_gisb_bp_handler(int irq, void *dev_id)
+{
+	struct brcmstb_gisb_arb_device *gdev = dev_id;
+	const char *m_name;
+	u32 bp_status;
+	u64 arb_addr;
+	u32 master;
+	char m_fmt[11];
+
+	bp_status = gisb_read(gdev, ARB_BP_CAP_STATUS);
+
+	/* Invalid captured address, bail out */
+	if (!(bp_status & ARB_BP_CAP_STATUS_VALID))
+		return IRQ_HANDLED;
+
+	/* Read the address and master */
+	arb_addr = gisb_read_bp_address(gdev);
+	master = gisb_read(gdev, ARB_BP_CAP_MASTER);
+
+	m_name = brcmstb_gisb_master_to_str(gdev, master);
+	if (!m_name) {
+		snprintf(m_fmt, sizeof(m_fmt), "0x%08x", master);
+		m_name = m_fmt;
+	}
+
+	pr_crit("GISB: breakpoint at 0x%llx [%c], core: %s\n",
+		arb_addr, bp_status & ARB_BP_CAP_STATUS_WRITE ? 'W' : 'R',
+		m_name);
+
+	/* clear the GISB error */
+	gisb_write(gdev, ARB_ERR_CAP_CLEAR, ARB_ERR_CAP_CLR);
+
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Dump out gisb errors on die or panic.
  */
@@ -327,13 +460,21 @@ static int __init brcmstb_gisb_arb_probe(struct platform_device *pdev)
 	struct brcmstb_gisb_arb_device *gdev;
 	const struct of_device_id *of_id;
 	struct resource *r;
+<<<<<<< HEAD
 	int err, timeout_irq, tea_irq;
+=======
+	int err, timeout_irq, tea_irq, bp_irq;
+>>>>>>> upstream/android-13
 	unsigned int num_masters, j = 0;
 	int i, first, last;
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	timeout_irq = platform_get_irq(pdev, 0);
 	tea_irq = platform_get_irq(pdev, 1);
+<<<<<<< HEAD
+=======
+	bp_irq = platform_get_irq(pdev, 2);
+>>>>>>> upstream/android-13
 
 	gdev = devm_kzalloc(&pdev->dev, sizeof(*gdev), GFP_KERNEL);
 	if (!gdev)
@@ -366,6 +507,18 @@ static int __init brcmstb_gisb_arb_probe(struct platform_device *pdev)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
+=======
+	/* Interrupt is optional */
+	if (bp_irq > 0) {
+		err = devm_request_irq(&pdev->dev, bp_irq,
+				       brcmstb_gisb_bp_handler, 0, pdev->name,
+				       gdev);
+		if (err < 0)
+			return err;
+	}
+
+>>>>>>> upstream/android-13
 	/* If we do not have a valid mask, assume all masters are enabled */
 	if (of_property_read_u32(dn, "brcm,gisb-arb-master-mask",
 				&gdev->valid_mask))
@@ -409,8 +562,13 @@ static int __init brcmstb_gisb_arb_probe(struct platform_device *pdev)
 					       &gisb_panic_notifier);
 	}
 
+<<<<<<< HEAD
 	dev_info(&pdev->dev, "registered mem: %p, irqs: %d, %d\n",
 			gdev->base, timeout_irq, tea_irq);
+=======
+	dev_info(&pdev->dev, "registered irqs: %d, %d\n",
+		 timeout_irq, tea_irq);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -418,8 +576,12 @@ static int __init brcmstb_gisb_arb_probe(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int brcmstb_gisb_arb_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct brcmstb_gisb_arb_device *gdev = platform_get_drvdata(pdev);
+=======
+	struct brcmstb_gisb_arb_device *gdev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	gdev->saved_timeout = gisb_read(gdev, ARB_TIMER);
 
@@ -431,8 +593,12 @@ static int brcmstb_gisb_arb_suspend(struct device *dev)
  */
 static int brcmstb_gisb_arb_resume_noirq(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct brcmstb_gisb_arb_device *gdev = platform_get_drvdata(pdev);
+=======
+	struct brcmstb_gisb_arb_device *gdev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	gisb_write(gdev, gdev->saved_timeout, ARB_TIMER);
 

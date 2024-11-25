@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * thermal_exynos.h - Samsung EXYNOS TMU device tree definitions
  *
@@ -14,6 +15,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * thermal_exynos.h - Samsung Exynos TMU device tree definitions
+ *
+ *  Copyright (C) 2014 Samsung Electronics
+ *  Lukasz Majewski <l.majewski@samsung.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _EXYNOS_THERMAL_TMU_DT_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * x86_64/AVX2 assembler optimized version of Serpent
  *
@@ -6,12 +10,15 @@
  * Based on AVX assembler implementation of Serpent by:
  *  Copyright © 2012 Johannes Goetzfried
  *      <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -25,6 +32,7 @@
 .Lbswap128_mask:
 	.byte 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 
+<<<<<<< HEAD
 .section	.rodata.cst16.xts_gf128mul_and_shl1_mask_0, "aM", @progbits, 16
 .align 16
 .Lxts_gf128mul_and_shl1_mask_0:
@@ -35,6 +43,8 @@
 .Lxts_gf128mul_and_shl1_mask_1:
 	.byte 0x0e, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0
 
+=======
+>>>>>>> upstream/android-13
 .text
 
 #define CTX %rdi
@@ -566,7 +576,11 @@
 	transpose_4x4(x0, x1, x2, x3, t0, t1, t2)
 
 .align 8
+<<<<<<< HEAD
 __serpent_enc_blk16:
+=======
+SYM_FUNC_START_LOCAL(__serpent_enc_blk16)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2: plaintext
@@ -616,11 +630,19 @@ __serpent_enc_blk16:
 	write_blocks(RA1, RB1, RC1, RD1, RK0, RK1, RK2);
 	write_blocks(RA2, RB2, RC2, RD2, RK0, RK1, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__serpent_enc_blk16)
 
 .align 8
 __serpent_dec_blk16:
+=======
+	RET;
+SYM_FUNC_END(__serpent_enc_blk16)
+
+.align 8
+SYM_FUNC_START_LOCAL(__serpent_dec_blk16)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2: ciphertext
@@ -670,10 +692,17 @@ __serpent_dec_blk16:
 	write_blocks(RC1, RD1, RB1, RE1, RK0, RK1, RK2);
 	write_blocks(RC2, RD2, RB2, RE2, RK0, RK1, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__serpent_dec_blk16)
 
 ENTRY(serpent_ecb_enc_16way)
+=======
+	RET;
+SYM_FUNC_END(__serpent_dec_blk16)
+
+SYM_FUNC_START(serpent_ecb_enc_16way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -692,10 +721,17 @@ ENTRY(serpent_ecb_enc_16way)
 	vzeroupper;
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_ecb_enc_16way)
 
 ENTRY(serpent_ecb_dec_16way)
+=======
+	RET;
+SYM_FUNC_END(serpent_ecb_enc_16way)
+
+SYM_FUNC_START(serpent_ecb_dec_16way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -714,10 +750,17 @@ ENTRY(serpent_ecb_dec_16way)
 	vzeroupper;
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_ecb_dec_16way)
 
 ENTRY(serpent_cbc_dec_16way)
+=======
+	RET;
+SYM_FUNC_END(serpent_ecb_dec_16way)
+
+SYM_FUNC_START(serpent_cbc_dec_16way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -737,6 +780,7 @@ ENTRY(serpent_cbc_dec_16way)
 	vzeroupper;
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_cbc_dec_16way)
 
@@ -816,3 +860,7 @@ ENTRY(serpent_xts_dec_16way)
 	FRAME_END
 	ret;
 ENDPROC(serpent_xts_dec_16way)
+=======
+	RET;
+SYM_FUNC_END(serpent_cbc_dec_16way)
+>>>>>>> upstream/android-13

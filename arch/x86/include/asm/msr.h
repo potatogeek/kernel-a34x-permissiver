@@ -60,22 +60,35 @@ struct saved_msrs {
 #define EAX_EDX_RET(val, low, high)	"=A" (val)
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_TRACEPOINTS
+=======
+>>>>>>> upstream/android-13
 /*
  * Be very careful with includes. This header is prone to include loops.
  */
 #include <asm/atomic.h>
 #include <linux/tracepoint-defs.h>
 
+<<<<<<< HEAD
 extern struct tracepoint __tracepoint_read_msr;
 extern struct tracepoint __tracepoint_write_msr;
 extern struct tracepoint __tracepoint_rdpmc;
 #define msr_tracepoint_active(t) static_key_false(&(t).key)
+=======
+#ifdef CONFIG_TRACEPOINTS
+DECLARE_TRACEPOINT(read_msr);
+DECLARE_TRACEPOINT(write_msr);
+DECLARE_TRACEPOINT(rdpmc);
+>>>>>>> upstream/android-13
 extern void do_trace_write_msr(unsigned int msr, u64 val, int failed);
 extern void do_trace_read_msr(unsigned int msr, u64 val, int failed);
 extern void do_trace_rdpmc(unsigned int msr, u64 val, int failed);
 #else
+<<<<<<< HEAD
 #define msr_tracepoint_active(t) false
+=======
+>>>>>>> upstream/android-13
 static inline void do_trace_write_msr(unsigned int msr, u64 val, int failed) {}
 static inline void do_trace_read_msr(unsigned int msr, u64 val, int failed) {}
 static inline void do_trace_rdpmc(unsigned int msr, u64 val, int failed) {}
@@ -128,7 +141,11 @@ static inline unsigned long long native_read_msr(unsigned int msr)
 
 	val = __rdmsr(msr);
 
+<<<<<<< HEAD
 	if (msr_tracepoint_active(__tracepoint_read_msr))
+=======
+	if (tracepoint_enabled(read_msr))
+>>>>>>> upstream/android-13
 		do_trace_read_msr(msr, val, 0);
 
 	return val;
@@ -150,7 +167,11 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
 		     _ASM_EXTABLE(2b, 3b)
 		     : [err] "=r" (*err), EAX_EDX_RET(val, low, high)
 		     : "c" (msr), [fault] "i" (-EIO));
+<<<<<<< HEAD
 	if (msr_tracepoint_active(__tracepoint_read_msr))
+=======
+	if (tracepoint_enabled(read_msr))
+>>>>>>> upstream/android-13
 		do_trace_read_msr(msr, EAX_EDX_VAL(val, low, high), *err);
 	return EAX_EDX_VAL(val, low, high);
 }
@@ -161,7 +182,11 @@ native_write_msr(unsigned int msr, u32 low, u32 high)
 {
 	__wrmsr(msr, low, high);
 
+<<<<<<< HEAD
 	if (msr_tracepoint_active(__tracepoint_write_msr))
+=======
+	if (tracepoint_enabled(write_msr))
+>>>>>>> upstream/android-13
 		do_trace_write_msr(msr, ((u64)high << 32 | low), 0);
 }
 
@@ -181,7 +206,11 @@ native_write_msr_safe(unsigned int msr, u32 low, u32 high)
 		     : "c" (msr), "0" (low), "d" (high),
 		       [fault] "i" (-EIO)
 		     : "memory");
+<<<<<<< HEAD
 	if (msr_tracepoint_active(__tracepoint_write_msr))
+=======
+	if (tracepoint_enabled(write_msr))
+>>>>>>> upstream/android-13
 		do_trace_write_msr(msr, ((u64)high << 32 | low), err);
 	return err;
 }
@@ -217,6 +246,11 @@ static __always_inline unsigned long long rdtsc(void)
  */
 static __always_inline unsigned long long rdtsc_ordered(void)
 {
+<<<<<<< HEAD
+=======
+	DECLARE_ARGS(val, low, high);
+
+>>>>>>> upstream/android-13
 	/*
 	 * The RDTSC instruction is not ordered relative to memory
 	 * access.  The Intel SDM and the AMD APM are both vague on this
@@ -227,9 +261,24 @@ static __always_inline unsigned long long rdtsc_ordered(void)
 	 * ordering guarantees as reading from a global memory location
 	 * that some other imaginary CPU is updating continuously with a
 	 * time stamp.
+<<<<<<< HEAD
 	 */
 	barrier_nospec();
 	return rdtsc();
+=======
+	 *
+	 * Thus, use the preferred barrier on the respective CPU, aiming for
+	 * RDTSCP as the default.
+	 */
+	asm volatile(ALTERNATIVE_2("rdtsc",
+				   "lfence; rdtsc", X86_FEATURE_LFENCE_RDTSC,
+				   "rdtscp", X86_FEATURE_RDTSCP)
+			: EAX_EDX_RET(val, low, high)
+			/* RDTSCP clobbers ECX with MSR_TSC_AUX. */
+			:: "ecx");
+
+	return EAX_EDX_VAL(val, low, high);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned long long native_read_pmc(int counter)
@@ -237,12 +286,20 @@ static inline unsigned long long native_read_pmc(int counter)
 	DECLARE_ARGS(val, low, high);
 
 	asm volatile("rdpmc" : EAX_EDX_RET(val, low, high) : "c" (counter));
+<<<<<<< HEAD
 	if (msr_tracepoint_active(__tracepoint_rdpmc))
+=======
+	if (tracepoint_enabled(rdpmc))
+>>>>>>> upstream/android-13
 		do_trace_rdpmc(counter, EAX_EDX_VAL(val, low, high), 0);
 	return EAX_EDX_VAL(val, low, high);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
+=======
+#ifdef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 #include <asm/paravirt.h>
 #else
 #include <linux/errno.h>
@@ -305,7 +362,11 @@ do {							\
 
 #define rdpmcl(counter, val) ((val) = native_read_pmc(counter))
 
+<<<<<<< HEAD
 #endif	/* !CONFIG_PARAVIRT */
+=======
+#endif	/* !CONFIG_PARAVIRT_XXL */
+>>>>>>> upstream/android-13
 
 /*
  * 64-bit version of wrmsr_safe():
@@ -315,10 +376,13 @@ static inline int wrmsrl_safe(u32 msr, u64 val)
 	return wrmsr_safe(msr, (u32)val,  (u32)(val >> 32));
 }
 
+<<<<<<< HEAD
 #define write_tsc(low, high) wrmsr(MSR_IA32_TSC, (low), (high))
 
 #define write_rdtscp_aux(val) wrmsr(MSR_TSC_AUX, (val), 0)
 
+=======
+>>>>>>> upstream/android-13
 struct msr *msrs_alloc(void);
 void msrs_free(struct msr *msrs);
 int msr_set_bit(u32 msr, u8 bit);

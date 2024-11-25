@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH3 Setup code for SH7706, SH7707, SH7708, SH7709
  *
@@ -7,10 +11,13 @@
  * Based on setup-sh7709.c
  *
  *  Copyright (C) 2006  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/io.h>
@@ -21,6 +28,10 @@
 #include <linux/sh_timer.h>
 #include <linux/sh_intc.h>
 #include <cpu/serial.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 enum {
 	UNUSED = 0,
@@ -233,7 +244,11 @@ static struct platform_device *sh770x_early_devices[] __initdata = {
 
 void __init plat_early_device_setup(void)
 {
+<<<<<<< HEAD
 	early_platform_add_devices(sh770x_early_devices,
+=======
+	sh_early_platform_add_devices(sh770x_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(sh770x_early_devices));
 }
 

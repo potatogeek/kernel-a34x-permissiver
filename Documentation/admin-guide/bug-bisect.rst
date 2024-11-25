@@ -15,7 +15,11 @@ give up. Report as much as you have found to the relevant maintainer. See
 MAINTAINERS for who that is for the subsystem you have worked on.
 
 Before you submit a bug report read
+<<<<<<< HEAD
 :ref:`Documentation/admin-guide/reporting-bugs.rst <reportingbugs>`.
+=======
+'Documentation/admin-guide/reporting-issues.rst'.
+>>>>>>> upstream/android-13
 
 Devices not appearing
 =====================

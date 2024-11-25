@@ -2,7 +2,13 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
+<<<<<<< HEAD
 #include <time.h>
+=======
+#include <sys/mman.h>
+#include <time.h>
+
+>>>>>>> upstream/android-13
 #include "utils.h"
 
 #define SIZE 256
@@ -13,6 +19,12 @@
 #define LARGE_MAX_OFFSET 32
 #define LARGE_SIZE_START 4096
 
+<<<<<<< HEAD
+=======
+/* This is big enough to fit LARGE_SIZE and works on 4K & 64K kernels */
+#define MAP_SIZE (64 * 1024)
+
+>>>>>>> upstream/android-13
 #define MAX_OFFSET_DIFF_S1_S2 48
 
 int vmx_count;
@@ -68,6 +80,7 @@ static void test_one(char *s1, char *s2, unsigned long max_offset,
 
 static int testcase(bool islarge)
 {
+<<<<<<< HEAD
 	char *s1;
 	char *s2;
 	unsigned long i;
@@ -87,6 +100,27 @@ static int testcase(bool islarge)
 		perror("memalign");
 		exit(1);
 	}
+=======
+	unsigned long i, comp_size, alloc_size;
+	char *p, *s1, *s2;
+	int iterations;
+
+	comp_size = (islarge ? LARGE_SIZE : SIZE);
+	alloc_size = comp_size + MAX_OFFSET_DIFF_S1_S2;
+	iterations = islarge ? LARGE_ITERATIONS : ITERATIONS;
+
+	p = mmap(NULL, 4 * MAP_SIZE, PROT_READ | PROT_WRITE,
+		 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	FAIL_IF(p == MAP_FAILED);
+
+	/* Put s1/s2 at the end of a page */
+	s1 = p + MAP_SIZE - alloc_size;
+	s2 = p + 3 * MAP_SIZE - alloc_size;
+
+	/* And unmap the subsequent page to force a fault if we overread */
+	munmap(p + MAP_SIZE, MAP_SIZE);
+	munmap(p + 3 * MAP_SIZE, MAP_SIZE);
+>>>>>>> upstream/android-13
 
 	srandom(time(0));
 
@@ -147,6 +181,14 @@ static int testcase(bool islarge)
 
 static int testcases(void)
 {
+<<<<<<< HEAD
+=======
+#ifdef __powerpc64__
+	// vcmpequd used in memcmp_64.S is v2.07
+	SKIP_IF(!have_hwcap2(PPC_FEATURE2_ARCH_2_07));
+#endif
+
+>>>>>>> upstream/android-13
 	testcase(0);
 	testcase(1);
 	return 0;

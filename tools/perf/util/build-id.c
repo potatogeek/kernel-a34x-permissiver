@@ -7,14 +7,27 @@
  * Copyright (C) 2009, 2010 Red Hat Inc.
  * Copyright (C) 2009, 2010 Arnaldo Carvalho de Melo <acme@redhat.com>
  */
+<<<<<<< HEAD
 #include "util.h"
+=======
+#include "util.h" // lsdir(), mkdir_p(), rm_rf()
+>>>>>>> upstream/android-13
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+<<<<<<< HEAD
 #include "build-id.h"
 #include "event.h"
+=======
+#include "util/copyfile.h"
+#include "dso.h"
+#include "build-id.h"
+#include "event.h"
+#include "namespaces.h"
+#include "map.h"
+>>>>>>> upstream/android-13
 #include "symbol.h"
 #include "thread.h"
 #include <linux/kernel.h>
@@ -27,14 +40,29 @@
 #include "probe-file.h"
 #include "strlist.h"
 
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#ifdef HAVE_DEBUGINFOD_SUPPORT
+#include <elfutils/debuginfod.h>
+#endif
+
+#include <linux/ctype.h>
+#include <linux/zalloc.h>
+#include <linux/string.h>
+#include <asm/bug.h>
+>>>>>>> upstream/android-13
 
 static bool no_buildid_cache;
 
 int build_id__mark_dso_hit(struct perf_tool *tool __maybe_unused,
 			   union perf_event *event,
 			   struct perf_sample *sample,
+<<<<<<< HEAD
 			   struct perf_evsel *evsel __maybe_unused,
+=======
+			   struct evsel *evsel __maybe_unused,
+>>>>>>> upstream/android-13
 			   struct machine *machine)
 {
 	struct addr_location al;
@@ -86,6 +114,7 @@ struct perf_tool build_id__mark_dso_hit_ops = {
 	.ordered_events	 = true,
 };
 
+<<<<<<< HEAD
 int build_id__sprintf(const u8 *build_id, int len, char *bf)
 {
 	char *bid = bf;
@@ -93,6 +122,17 @@ int build_id__sprintf(const u8 *build_id, int len, char *bf)
 	int i;
 
 	for (i = 0; i < len; ++i) {
+=======
+int build_id__sprintf(const struct build_id *build_id, char *bf)
+{
+	char *bid = bf;
+	const u8 *raw = build_id->data;
+	size_t i;
+
+	bf[0] = 0x0;
+
+	for (i = 0; i < build_id->size; ++i) {
+>>>>>>> upstream/android-13
 		sprintf(bid, "%02x", *raw);
 		++raw;
 		bid += 2;
@@ -104,7 +144,11 @@ int build_id__sprintf(const u8 *build_id, int len, char *bf)
 int sysfs__sprintf_build_id(const char *root_dir, char *sbuild_id)
 {
 	char notes[PATH_MAX];
+<<<<<<< HEAD
 	u8 build_id[BUILD_ID_SIZE];
+=======
+	struct build_id bid;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!root_dir)
@@ -112,15 +156,24 @@ int sysfs__sprintf_build_id(const char *root_dir, char *sbuild_id)
 
 	scnprintf(notes, sizeof(notes), "%s/sys/kernel/notes", root_dir);
 
+<<<<<<< HEAD
 	ret = sysfs__read_build_id(notes, build_id, sizeof(build_id));
 	if (ret < 0)
 		return ret;
 
 	return build_id__sprintf(build_id, sizeof(build_id), sbuild_id);
+=======
+	ret = sysfs__read_build_id(notes, &bid);
+	if (ret < 0)
+		return ret;
+
+	return build_id__sprintf(&bid, sbuild_id);
+>>>>>>> upstream/android-13
 }
 
 int filename__sprintf_build_id(const char *pathname, char *sbuild_id)
 {
+<<<<<<< HEAD
 	u8 build_id[BUILD_ID_SIZE];
 	int ret;
 
@@ -131,6 +184,16 @@ int filename__sprintf_build_id(const char *pathname, char *sbuild_id)
 		return -EINVAL;
 
 	return build_id__sprintf(build_id, sizeof(build_id), sbuild_id);
+=======
+	struct build_id bid;
+	int ret;
+
+	ret = filename__read_build_id(pathname, &bid);
+	if (ret < 0)
+		return ret;
+
+	return build_id__sprintf(&bid, sbuild_id);
+>>>>>>> upstream/android-13
 }
 
 /* asnprintf consolidates asprintf and snprintf */
@@ -250,10 +313,16 @@ static const char *build_id_cache__basename(bool is_kallsyms, bool is_vdso,
 	    "debug" : "elf"));
 }
 
+<<<<<<< HEAD
 char *dso__build_id_filename(const struct dso *dso, char *bf, size_t size,
 			     bool is_debug)
 {
 	bool is_kallsyms = dso__is_kallsyms((struct dso *)dso);
+=======
+char *__dso__build_id_filename(const struct dso *dso, char *bf, size_t size,
+			       bool is_debug, bool is_kallsyms)
+{
+>>>>>>> upstream/android-13
 	bool is_vdso = dso__is_vdso((struct dso *)dso);
 	char sbuild_id[SBUILD_ID_SIZE];
 	char *linkname;
@@ -263,7 +332,11 @@ char *dso__build_id_filename(const struct dso *dso, char *bf, size_t size,
 	if (!dso->has_build_id)
 		return NULL;
 
+<<<<<<< HEAD
 	build_id__sprintf(dso->build_id, sizeof(dso->build_id), sbuild_id);
+=======
+	build_id__sprintf(&dso->bid, sbuild_id);
+>>>>>>> upstream/android-13
 	linkname = build_id_cache__linkname(sbuild_id, NULL, 0);
 	if (!linkname)
 		return NULL;
@@ -282,24 +355,49 @@ char *dso__build_id_filename(const struct dso *dso, char *bf, size_t size,
 	return bf;
 }
 
+<<<<<<< HEAD
+=======
+char *dso__build_id_filename(const struct dso *dso, char *bf, size_t size,
+			     bool is_debug)
+{
+	bool is_kallsyms = dso__is_kallsyms((struct dso *)dso);
+
+	return __dso__build_id_filename(dso, bf, size, is_debug, is_kallsyms);
+}
+
+>>>>>>> upstream/android-13
 #define dsos__for_each_with_build_id(pos, head)	\
 	list_for_each_entry(pos, head, node)	\
 		if (!pos->has_build_id)		\
 			continue;		\
 		else
 
+<<<<<<< HEAD
 static int write_buildid(const char *name, size_t name_len, u8 *build_id,
 			 pid_t pid, u16 misc, struct feat_fd *fd)
 {
 	int err;
 	struct build_id_event b;
+=======
+static int write_buildid(const char *name, size_t name_len, struct build_id *bid,
+			 pid_t pid, u16 misc, struct feat_fd *fd)
+{
+	int err;
+	struct perf_record_header_build_id b;
+>>>>>>> upstream/android-13
 	size_t len;
 
 	len = name_len + 1;
 	len = PERF_ALIGN(len, NAME_ALIGN);
 
 	memset(&b, 0, sizeof(b));
+<<<<<<< HEAD
 	memcpy(&b.build_id, build_id, BUILD_ID_SIZE);
+=======
+	memcpy(&b.data, bid->data, bid->size);
+	b.size = (u8) bid->size;
+	misc |= PERF_RECORD_MISC_BUILD_ID_SIZE;
+>>>>>>> upstream/android-13
 	b.pid = pid;
 	b.header.misc = misc;
 	b.header.size = sizeof(b) + len;
@@ -346,7 +444,11 @@ static int machine__write_buildid_table(struct machine *machine,
 		in_kernel = pos->kernel ||
 				is_kernel_module(name,
 					PERF_RECORD_MISC_CPUMODE_UNKNOWN);
+<<<<<<< HEAD
 		err = write_buildid(name, name_len, pos->build_id, machine->pid,
+=======
+		err = write_buildid(name, name_len, &pos->bid, machine->pid,
+>>>>>>> upstream/android-13
 				    in_kernel ? kmisc : umisc, fd);
 		if (err)
 			break;
@@ -364,7 +466,12 @@ int perf_session__write_buildid_table(struct perf_session *session,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	for (nd = rb_first(&session->machines.guests); nd; nd = rb_next(nd)) {
+=======
+	for (nd = rb_first_cached(&session->machines.guests); nd;
+	     nd = rb_next(nd)) {
+>>>>>>> upstream/android-13
 		struct machine *pos = rb_entry(nd, struct machine, rb_node);
 		err = machine__write_buildid_table(pos, fd);
 		if (err)
@@ -397,7 +504,12 @@ int dsos__hit_all(struct perf_session *session)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	for (nd = rb_first(&session->machines.guests); nd; nd = rb_next(nd)) {
+=======
+	for (nd = rb_first_cached(&session->machines.guests); nd;
+	     nd = rb_next(nd)) {
+>>>>>>> upstream/android-13
 		struct machine *pos = rb_entry(nd, struct machine, rb_node);
 
 		err = machine__hit_all_dsos(pos);
@@ -426,7 +538,12 @@ static bool lsdir_bid_tail_filter(const char *name __maybe_unused,
 	int i = 0;
 	while (isxdigit(d->d_name[i]) && i < SBUILD_ID_SIZE - 3)
 		i++;
+<<<<<<< HEAD
 	return (i == SBUILD_ID_SIZE - 3) && (d->d_name[i] == '\0');
+=======
+	return (i >= SBUILD_ID_MIN_SIZE - 3) && (i <= SBUILD_ID_SIZE - 3) &&
+		(d->d_name[i] == '\0');
+>>>>>>> upstream/android-13
 }
 
 struct strlist *build_id_cache__list_all(bool validonly)
@@ -468,7 +585,11 @@ struct strlist *build_id_cache__list_all(bool validonly)
 		}
 		strlist__for_each_entry(nd2, linklist) {
 			if (snprintf(sbuild_id, SBUILD_ID_SIZE, "%s%s",
+<<<<<<< HEAD
 				     nd->s, nd2->s) != SBUILD_ID_SIZE - 1)
+=======
+				     nd->s, nd2->s) > SBUILD_ID_SIZE - 1)
+>>>>>>> upstream/android-13
 				goto err_out;
 			if (validonly && !build_id_cache__valid_id(sbuild_id))
 				continue;
@@ -629,11 +750,30 @@ static char *build_id_cache__find_debug(const char *sbuild_id,
 	if (realname && access(realname, R_OK))
 		zfree(&realname);
 	nsinfo__mountns_exit(&nsc);
+<<<<<<< HEAD
+=======
+
+#ifdef HAVE_DEBUGINFOD_SUPPORT
+        if (realname == NULL) {
+                debuginfod_client* c = debuginfod_begin();
+                if (c != NULL) {
+                        int fd = debuginfod_find_debuginfo(c,
+                                                           (const unsigned char*)sbuild_id, 0,
+                                                           &realname);
+                        if (fd >= 0)
+                                close(fd); /* retaining reference by realname */
+                        debuginfod_end(c);
+                }
+        }
+#endif
+
+>>>>>>> upstream/android-13
 out:
 	free(debugfile);
 	return realname;
 }
 
+<<<<<<< HEAD
 int build_id_cache__add_s(const char *sbuild_id, const char *name,
 			  struct nsinfo *nsi, bool is_kallsyms, bool is_vdso)
 {
@@ -652,6 +792,17 @@ int build_id_cache__add_s(const char *sbuild_id, const char *name,
 			goto out_free;
 	}
 
+=======
+int
+build_id_cache__add(const char *sbuild_id, const char *name, const char *realname,
+		    struct nsinfo *nsi, bool is_kallsyms, bool is_vdso)
+{
+	const size_t size = PATH_MAX;
+	char *filename = NULL, *dir_name = NULL, *linkname = zalloc(size), *tmp;
+	char *debugfile = NULL;
+	int err = -1;
+
+>>>>>>> upstream/android-13
 	dir_name = build_id_cache__cachedir(sbuild_id, name, nsi, is_kallsyms,
 					    is_vdso);
 	if (!dir_name)
@@ -725,8 +876,30 @@ int build_id_cache__add_s(const char *sbuild_id, const char *name,
 	tmp = dir_name + strlen(buildid_dir) - 5;
 	memcpy(tmp, "../..", 5);
 
+<<<<<<< HEAD
 	if (symlink(tmp, linkname) == 0)
 		err = 0;
+=======
+	if (symlink(tmp, linkname) == 0) {
+		err = 0;
+	} else if (errno == EEXIST) {
+		char path[PATH_MAX];
+		ssize_t len;
+
+		len = readlink(linkname, path, sizeof(path) - 1);
+		if (len <= 0) {
+			pr_err("Cant read link: %s\n", linkname);
+			goto out_free;
+		}
+		path[len] = '\0';
+
+		if (strcmp(tmp, path)) {
+			pr_debug("build <%s> already linked to %s\n",
+				 sbuild_id, linkname);
+		}
+		err = 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* Update SDT cache : error is just warned */
 	if (realname &&
@@ -734,8 +907,11 @@ int build_id_cache__add_s(const char *sbuild_id, const char *name,
 		pr_debug4("Failed to update/scan SDT cache for %s\n", realname);
 
 out_free:
+<<<<<<< HEAD
 	if (!is_kallsyms)
 		free(realname);
+=======
+>>>>>>> upstream/android-13
 	free(filename);
 	free(debugfile);
 	free(dir_name);
@@ -743,13 +919,44 @@ out_free:
 	return err;
 }
 
+<<<<<<< HEAD
 static int build_id_cache__add_b(const u8 *build_id, size_t build_id_size,
+=======
+int build_id_cache__add_s(const char *sbuild_id, const char *name,
+			  struct nsinfo *nsi, bool is_kallsyms, bool is_vdso)
+{
+	char *realname = NULL;
+	int err = -1;
+
+	if (!is_kallsyms) {
+		if (!is_vdso)
+			realname = nsinfo__realpath(name, nsi);
+		else
+			realname = realpath(name, NULL);
+		if (!realname)
+			goto out_free;
+	}
+
+	err = build_id_cache__add(sbuild_id, name, realname, nsi, is_kallsyms, is_vdso);
+
+out_free:
+	if (!is_kallsyms)
+		free(realname);
+	return err;
+}
+
+static int build_id_cache__add_b(const struct build_id *bid,
+>>>>>>> upstream/android-13
 				 const char *name, struct nsinfo *nsi,
 				 bool is_kallsyms, bool is_vdso)
 {
 	char sbuild_id[SBUILD_ID_SIZE];
 
+<<<<<<< HEAD
 	build_id__sprintf(build_id, build_id_size, sbuild_id);
+=======
+	build_id__sprintf(bid, sbuild_id);
+>>>>>>> upstream/android-13
 
 	return build_id_cache__add_s(sbuild_id, name, nsi, is_kallsyms,
 				     is_vdso);
@@ -805,16 +1012,28 @@ out_free:
 	return err;
 }
 
+<<<<<<< HEAD
 static int dso__cache_build_id(struct dso *dso, struct machine *machine)
+=======
+static int dso__cache_build_id(struct dso *dso, struct machine *machine,
+			       void *priv __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	bool is_kallsyms = dso__is_kallsyms(dso);
 	bool is_vdso = dso__is_vdso(dso);
 	const char *name = dso->long_name;
 
+<<<<<<< HEAD
+=======
+	if (!dso->has_build_id)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (dso__is_kcore(dso)) {
 		is_kallsyms = true;
 		name = machine->mmap_name;
 	}
+<<<<<<< HEAD
 	return build_id_cache__add_b(dso->build_id, sizeof(dso->build_id), name,
 				     dso->nsinfo, is_kallsyms, is_vdso);
 }
@@ -842,12 +1061,37 @@ int perf_session__cache_build_ids(struct perf_session *session)
 	struct rb_node *nd;
 	int ret;
 
+=======
+	return build_id_cache__add_b(&dso->bid, name, dso->nsinfo,
+				     is_kallsyms, is_vdso);
+}
+
+static int
+machines__for_each_dso(struct machines *machines, machine__dso_t fn, void *priv)
+{
+	int ret = machine__for_each_dso(&machines->host, fn, priv);
+	struct rb_node *nd;
+
+	for (nd = rb_first_cached(&machines->guests); nd;
+	     nd = rb_next(nd)) {
+		struct machine *pos = rb_entry(nd, struct machine, rb_node);
+
+		ret |= machine__for_each_dso(pos, fn, priv);
+	}
+	return ret ? -1 : 0;
+}
+
+int __perf_session__cache_build_ids(struct perf_session *session,
+				    machine__dso_t fn, void *priv)
+{
+>>>>>>> upstream/android-13
 	if (no_buildid_cache)
 		return 0;
 
 	if (mkdir(buildid_dir, 0755) != 0 && errno != EEXIST)
 		return -1;
 
+<<<<<<< HEAD
 	ret = machine__cache_build_ids(&session->machines.host);
 
 	for (nd = rb_first(&session->machines.guests); nd; nd = rb_next(nd)) {
@@ -855,6 +1099,14 @@ int perf_session__cache_build_ids(struct perf_session *session)
 		ret |= machine__cache_build_ids(pos);
 	}
 	return ret ? -1 : 0;
+=======
+	return machines__for_each_dso(&session->machines, fn, priv) ?  -1 : 0;
+}
+
+int perf_session__cache_build_ids(struct perf_session *session)
+{
+	return __perf_session__cache_build_ids(session, dso__cache_build_id, NULL);
+>>>>>>> upstream/android-13
 }
 
 static bool machine__read_build_ids(struct machine *machine, bool with_hits)
@@ -867,10 +1119,30 @@ bool perf_session__read_build_ids(struct perf_session *session, bool with_hits)
 	struct rb_node *nd;
 	bool ret = machine__read_build_ids(&session->machines.host, with_hits);
 
+<<<<<<< HEAD
 	for (nd = rb_first(&session->machines.guests); nd; nd = rb_next(nd)) {
+=======
+	for (nd = rb_first_cached(&session->machines.guests); nd;
+	     nd = rb_next(nd)) {
+>>>>>>> upstream/android-13
 		struct machine *pos = rb_entry(nd, struct machine, rb_node);
 		ret |= machine__read_build_ids(pos, with_hits);
 	}
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+
+void build_id__init(struct build_id *bid, const u8 *data, size_t size)
+{
+	WARN_ON(size > BUILD_ID_SIZE);
+	memcpy(bid->data, data, size);
+	bid->size = size;
+}
+
+bool build_id__is_defined(const struct build_id *bid)
+{
+	return bid && bid->size ? !!memchr_inv(bid->data, 0, bid->size) : false;
+}
+>>>>>>> upstream/android-13

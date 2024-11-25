@@ -16,7 +16,12 @@
 		stdout-path = &serial0;
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x0 0x08000000>;
 	};
 
@@ -30,10 +35,17 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &nand {
 	status = "okay";
 
 	nandcs@0 {
+=======
+&nand_controller {
+	status = "okay";
+
+	nand@0 {
+>>>>>>> upstream/android-13
 		compatible = "brcm,nandcs";
 		reg = <0>;
 		nand-ecc-strength = <4>;
@@ -41,3 +53,14 @@
 		brcm,nand-oob-sectors-size = <16>;
 	};
 };
+<<<<<<< HEAD
+=======
+
+&ahci {
+	status = "okay";
+};
+
+&sata_phy {
+	status = "okay";
+};
+>>>>>>> upstream/android-13

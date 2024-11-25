@@ -27,6 +27,7 @@
 #ifndef _TTM_TT_H_
 #define _TTM_TT_H_
 
+<<<<<<< HEAD
 #include <linux/types.h>
 
 struct ttm_tt;
@@ -82,10 +83,30 @@ struct ttm_backend_func {
 	 */
 	void (*destroy) (struct ttm_tt *ttm);
 };
+=======
+#include <linux/pagemap.h>
+#include <linux/types.h>
+#include <drm/ttm/ttm_caching.h>
+#include <drm/ttm/ttm_kmap_iter.h>
+
+struct ttm_device;
+struct ttm_tt;
+struct ttm_resource;
+struct ttm_buffer_object;
+struct ttm_operation_ctx;
+
+#define TTM_PAGE_FLAG_SWAPPED         (1 << 4)
+#define TTM_PAGE_FLAG_ZERO_ALLOC      (1 << 6)
+#define TTM_PAGE_FLAG_SG              (1 << 8)
+#define TTM_PAGE_FLAG_NO_RETRY	      (1 << 9)
+
+#define TTM_PAGE_FLAG_PRIV_POPULATED  (1 << 31)
+>>>>>>> upstream/android-13
 
 /**
  * struct ttm_tt
  *
+<<<<<<< HEAD
  * @bdev: Pointer to a struct ttm_bo_device.
  * @func: Pointer to a struct ttm_backend_func that describes
  * the backend methods.
@@ -97,12 +118,23 @@ struct ttm_backend_func {
  * @swap_storage: Pointer to shmem struct file for swap storage.
  * @caching_state: The current caching state of the pages.
  * @state: The current binding state of the pages.
+=======
+ * @pages: Array of pages backing the data.
+ * @page_flags: see TTM_PAGE_FLAG_*
+ * @num_pages: Number of pages in the page array.
+ * @sg: for SG objects via dma-buf
+ * @dma_address: The DMA (bus) addresses of the pages
+ * @swap_storage: Pointer to shmem struct file for swap storage.
+ * @pages_list: used by some page allocation backend
+ * @caching: The current caching state of the pages.
+>>>>>>> upstream/android-13
  *
  * This is a structure holding the pages, caching- and aperture binding
  * status for a buffer object that isn't backed by fixed (VRAM / AGP)
  * memory.
  */
 struct ttm_tt {
+<<<<<<< HEAD
 	struct ttm_bo_device *bdev;
 	struct ttm_backend_func *func;
 	struct page **pages;
@@ -135,6 +167,34 @@ struct ttm_dma_tt {
 	struct list_head pages_list;
 };
 
+=======
+	struct page **pages;
+	uint32_t page_flags;
+	uint32_t num_pages;
+	struct sg_table *sg;
+	dma_addr_t *dma_address;
+	struct file *swap_storage;
+	enum ttm_caching caching;
+};
+
+/**
+ * struct ttm_kmap_iter_tt - Specialization of a mappig iterator for a tt.
+ * @base: Embedded struct ttm_kmap_iter providing the usage interface
+ * @tt: Cached struct ttm_tt.
+ * @prot: Cached page protection for mapping.
+ */
+struct ttm_kmap_iter_tt {
+	struct ttm_kmap_iter base;
+	struct ttm_tt *tt;
+	pgprot_t prot;
+};
+
+static inline bool ttm_tt_is_populated(struct ttm_tt *tt)
+{
+	return tt->page_flags & TTM_PAGE_FLAG_PRIV_POPULATED;
+}
+
+>>>>>>> upstream/android-13
 /**
  * ttm_tt_create
  *
@@ -152,6 +212,10 @@ int ttm_tt_create(struct ttm_buffer_object *bo, bool zero_alloc);
  * @ttm: The struct ttm_tt.
  * @bo: The buffer object we create the ttm for.
  * @page_flags: Page flags as identified by TTM_PAGE_FLAG_XX flags.
+<<<<<<< HEAD
+=======
+ * @caching: the desired caching state of the pages
+>>>>>>> upstream/android-13
  *
  * Create a struct ttm_tt to back data with system memory pages.
  * No pages are actually allocated.
@@ -159,11 +223,17 @@ int ttm_tt_create(struct ttm_buffer_object *bo, bool zero_alloc);
  * NULL: Out of memory.
  */
 int ttm_tt_init(struct ttm_tt *ttm, struct ttm_buffer_object *bo,
+<<<<<<< HEAD
 		uint32_t page_flags);
 int ttm_dma_tt_init(struct ttm_dma_tt *ttm_dma, struct ttm_buffer_object *bo,
 		    uint32_t page_flags);
 int ttm_sg_tt_init(struct ttm_dma_tt *ttm_dma, struct ttm_buffer_object *bo,
 		   uint32_t page_flags);
+=======
+		uint32_t page_flags, enum ttm_caching caching);
+int ttm_sg_tt_init(struct ttm_tt *ttm_dma, struct ttm_buffer_object *bo,
+		   uint32_t page_flags, enum ttm_caching caching);
+>>>>>>> upstream/android-13
 
 /**
  * ttm_tt_fini
@@ -173,6 +243,7 @@ int ttm_sg_tt_init(struct ttm_dma_tt *ttm_dma, struct ttm_buffer_object *bo,
  * Free memory of ttm_tt structure
  */
 void ttm_tt_fini(struct ttm_tt *ttm);
+<<<<<<< HEAD
 void ttm_dma_tt_fini(struct ttm_dma_tt *ttm_dma);
 
 /**
@@ -185,6 +256,8 @@ void ttm_dma_tt_fini(struct ttm_dma_tt *ttm_dma);
  */
 int ttm_tt_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem,
 		struct ttm_operation_ctx *ctx);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * ttm_ttm_destroy:
@@ -193,6 +266,7 @@ int ttm_tt_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem,
  *
  * Unbind, unpopulate and destroy common struct ttm_tt.
  */
+<<<<<<< HEAD
 void ttm_tt_destroy(struct ttm_tt *ttm);
 
 /**
@@ -203,6 +277,16 @@ void ttm_tt_destroy(struct ttm_tt *ttm);
  * Unbind a struct ttm_tt.
  */
 void ttm_tt_unbind(struct ttm_tt *ttm);
+=======
+void ttm_tt_destroy(struct ttm_device *bdev, struct ttm_tt *ttm);
+
+/**
+ * ttm_tt_destroy_common:
+ *
+ * Called from driver to destroy common path.
+ */
+void ttm_tt_destroy_common(struct ttm_device *bdev, struct ttm_tt *ttm);
+>>>>>>> upstream/android-13
 
 /**
  * ttm_tt_swapin:
@@ -212,6 +296,7 @@ void ttm_tt_unbind(struct ttm_tt *ttm);
  * Swap in a previously swap out ttm_tt.
  */
 int ttm_tt_swapin(struct ttm_tt *ttm);
+<<<<<<< HEAD
 
 /**
  * ttm_tt_set_placement_caching:
@@ -228,6 +313,10 @@ int ttm_tt_swapin(struct ttm_tt *ttm);
  */
 int ttm_tt_set_placement_caching(struct ttm_tt *ttm, uint32_t placement);
 int ttm_tt_swapout(struct ttm_tt *ttm, struct file *persistent_swap_storage);
+=======
+int ttm_tt_swapout(struct ttm_device *bdev, struct ttm_tt *ttm,
+		   gfp_t gfp_flags);
+>>>>>>> upstream/android-13
 
 /**
  * ttm_tt_populate - allocate pages for a ttm
@@ -236,7 +325,11 @@ int ttm_tt_swapout(struct ttm_tt *ttm, struct file *persistent_swap_storage);
  *
  * Calls the driver method to allocate pages for a ttm
  */
+<<<<<<< HEAD
 int ttm_tt_populate(struct ttm_tt *ttm, struct ttm_operation_ctx *ctx);
+=======
+int ttm_tt_populate(struct ttm_device *bdev, struct ttm_tt *ttm, struct ttm_operation_ctx *ctx);
+>>>>>>> upstream/android-13
 
 /**
  * ttm_tt_unpopulate - free pages from a ttm
@@ -245,7 +338,29 @@ int ttm_tt_populate(struct ttm_tt *ttm, struct ttm_operation_ctx *ctx);
  *
  * Calls the driver method to free all pages from a ttm
  */
+<<<<<<< HEAD
 void ttm_tt_unpopulate(struct ttm_tt *ttm);
+=======
+void ttm_tt_unpopulate(struct ttm_device *bdev, struct ttm_tt *ttm);
+
+/**
+ * ttm_tt_mark_for_clear - Mark pages for clearing on populate.
+ *
+ * @ttm: Pointer to the ttm_tt structure
+ *
+ * Marks pages for clearing so that the next time the page vector is
+ * populated, the pages will be cleared.
+ */
+static inline void ttm_tt_mark_for_clear(struct ttm_tt *ttm)
+{
+	ttm->page_flags |= TTM_PAGE_FLAG_ZERO_ALLOC;
+}
+
+void ttm_tt_mgr_init(unsigned long num_pages, unsigned long num_dma32_pages);
+
+struct ttm_kmap_iter *ttm_kmap_iter_tt_init(struct ttm_kmap_iter_tt *iter_tt,
+					    struct ttm_tt *tt);
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_AGP)
 #include <linux/agp_backend.h>
@@ -265,8 +380,15 @@ void ttm_tt_unpopulate(struct ttm_tt *ttm);
 struct ttm_tt *ttm_agp_tt_create(struct ttm_buffer_object *bo,
 				 struct agp_bridge_data *bridge,
 				 uint32_t page_flags);
+<<<<<<< HEAD
 int ttm_agp_tt_populate(struct ttm_tt *ttm, struct ttm_operation_ctx *ctx);
 void ttm_agp_tt_unpopulate(struct ttm_tt *ttm);
+=======
+int ttm_agp_bind(struct ttm_tt *ttm, struct ttm_resource *bo_mem);
+void ttm_agp_unbind(struct ttm_tt *ttm);
+void ttm_agp_destroy(struct ttm_tt *ttm);
+bool ttm_agp_is_bound(struct ttm_tt *ttm);
+>>>>>>> upstream/android-13
 #endif
 
 #endif

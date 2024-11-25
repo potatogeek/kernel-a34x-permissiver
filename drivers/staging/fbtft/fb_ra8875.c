@@ -9,7 +9,11 @@
 #include <linux/init.h>
 #include <linux/delay.h>
 
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include "fbtft.h"
 
 #define DRVNAME "fb_ra8875"
@@ -24,7 +28,11 @@ static int write_spi(struct fbtft_par *par, void *buf, size_t len)
 	struct spi_message m;
 
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
+<<<<<<< HEAD
 			  "%s(len=%d): ", __func__, len);
+=======
+			  "%s(len=%zu): ", __func__, len);
+>>>>>>> upstream/android-13
 
 	if (!par->spi) {
 		dev_err(par->info->device,
@@ -39,7 +47,11 @@ static int write_spi(struct fbtft_par *par, void *buf, size_t len)
 
 static int init_display(struct fbtft_par *par)
 {
+<<<<<<< HEAD
 	gpio_set_value(par->gpio.dc, 1);
+=======
+	gpiod_set_value(par->gpio.dc, 1);
+>>>>>>> upstream/android-13
 
 	fbtft_par_dbg(DEBUG_INIT_DISPLAY, par,
 		      "%s()\n", __func__);

@@ -14,6 +14,7 @@
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/console.h>
+<<<<<<< HEAD
 #include <linux/list.h>
 #include <linux/of_graph.h>
 #include <linux/of_reserved_mem.h>
@@ -25,14 +26,125 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+#include <linux/dma-mapping.h>
+#include <linux/list.h>
+#include <linux/of_graph.h>
+#include <linux/of_reserved_mem.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_debugfs.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fb_helper.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
 #include <drm/drm_modeset_helper.h>
 #include <drm/drm_of.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "hdlcd_drv.h"
 #include "hdlcd_regs.h"
 
+<<<<<<< HEAD
+=======
+static irqreturn_t hdlcd_irq(int irq, void *arg)
+{
+	struct drm_device *drm = arg;
+	struct hdlcd_drm_private *hdlcd = drm->dev_private;
+	unsigned long irq_status;
+
+	irq_status = hdlcd_read(hdlcd, HDLCD_REG_INT_STATUS);
+
+#ifdef CONFIG_DEBUG_FS
+	if (irq_status & HDLCD_INTERRUPT_UNDERRUN)
+		atomic_inc(&hdlcd->buffer_underrun_count);
+
+	if (irq_status & HDLCD_INTERRUPT_DMA_END)
+		atomic_inc(&hdlcd->dma_end_count);
+
+	if (irq_status & HDLCD_INTERRUPT_BUS_ERROR)
+		atomic_inc(&hdlcd->bus_error_count);
+
+	if (irq_status & HDLCD_INTERRUPT_VSYNC)
+		atomic_inc(&hdlcd->vsync_count);
+
+#endif
+	if (irq_status & HDLCD_INTERRUPT_VSYNC)
+		drm_crtc_handle_vblank(&hdlcd->crtc);
+
+	/* acknowledge interrupt(s) */
+	hdlcd_write(hdlcd, HDLCD_REG_INT_CLEAR, irq_status);
+
+	return IRQ_HANDLED;
+}
+
+static void hdlcd_irq_preinstall(struct drm_device *drm)
+{
+	struct hdlcd_drm_private *hdlcd = drm->dev_private;
+	/* Ensure interrupts are disabled */
+	hdlcd_write(hdlcd, HDLCD_REG_INT_MASK, 0);
+	hdlcd_write(hdlcd, HDLCD_REG_INT_CLEAR, ~0);
+}
+
+static void hdlcd_irq_postinstall(struct drm_device *drm)
+{
+#ifdef CONFIG_DEBUG_FS
+	struct hdlcd_drm_private *hdlcd = drm->dev_private;
+	unsigned long irq_mask = hdlcd_read(hdlcd, HDLCD_REG_INT_MASK);
+
+	/* enable debug interrupts */
+	irq_mask |= HDLCD_DEBUG_INT_MASK;
+
+	hdlcd_write(hdlcd, HDLCD_REG_INT_MASK, irq_mask);
+#endif
+}
+
+static int hdlcd_irq_install(struct drm_device *drm, int irq)
+{
+	int ret;
+
+	if (irq == IRQ_NOTCONNECTED)
+		return -ENOTCONN;
+
+	hdlcd_irq_preinstall(drm);
+
+	ret = request_irq(irq, hdlcd_irq, 0, drm->driver->name, drm);
+	if (ret)
+		return ret;
+
+	hdlcd_irq_postinstall(drm);
+
+	return 0;
+}
+
+static void hdlcd_irq_uninstall(struct drm_device *drm)
+{
+	struct hdlcd_drm_private *hdlcd = drm->dev_private;
+	/* disable all the interrupts that we might have enabled */
+	unsigned long irq_mask = hdlcd_read(hdlcd, HDLCD_REG_INT_MASK);
+
+#ifdef CONFIG_DEBUG_FS
+	/* disable debug interrupts */
+	irq_mask &= ~HDLCD_DEBUG_INT_MASK;
+#endif
+
+	/* disable vsync interrupts */
+	irq_mask &= ~HDLCD_INTERRUPT_VSYNC;
+	hdlcd_write(hdlcd, HDLCD_REG_INT_MASK, irq_mask);
+
+	free_irq(hdlcd->irq, drm);
+}
+
+>>>>>>> upstream/android-13
 static int hdlcd_load(struct drm_device *drm, unsigned long flags)
 {
 	struct hdlcd_drm_private *hdlcd = drm->dev_private;
@@ -85,7 +197,16 @@ static int hdlcd_load(struct drm_device *drm, unsigned long flags)
 		goto setup_fail;
 	}
 
+<<<<<<< HEAD
 	ret = drm_irq_install(drm, platform_get_irq(pdev, 0));
+=======
+	ret = platform_get_irq(pdev, 0);
+	if (ret < 0)
+		goto irq_fail;
+	hdlcd->irq = ret;
+
+	ret = hdlcd_irq_install(drm, hdlcd->irq);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		DRM_ERROR("failed to install IRQ handler\n");
 		goto irq_fail;
@@ -103,7 +224,10 @@ setup_fail:
 
 static const struct drm_mode_config_funcs hdlcd_mode_config_funcs = {
 	.fb_create = drm_gem_fb_create,
+<<<<<<< HEAD
 	.output_poll_changed = drm_fb_helper_output_poll_changed,
+=======
+>>>>>>> upstream/android-13
 	.atomic_check = drm_atomic_helper_check,
 	.atomic_commit = drm_atomic_helper_commit,
 };
@@ -118,6 +242,7 @@ static void hdlcd_setup_mode_config(struct drm_device *drm)
 	drm->mode_config.funcs = &hdlcd_mode_config_funcs;
 }
 
+<<<<<<< HEAD
 static irqreturn_t hdlcd_irq(int irq, void *arg)
 {
 	struct drm_device *drm = arg;
@@ -188,6 +313,8 @@ static void hdlcd_irq_uninstall(struct drm_device *drm)
 	hdlcd_write(hdlcd, HDLCD_REG_INT_MASK, irq_mask);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 static int hdlcd_show_underrun_count(struct seq_file *m, void *arg)
 {
@@ -220,15 +347,24 @@ static struct drm_info_list hdlcd_debugfs_list[] = {
 	{ "clocks", hdlcd_show_pxlclock, 0 },
 };
 
+<<<<<<< HEAD
 static int hdlcd_debugfs_init(struct drm_minor *minor)
 {
 	return drm_debugfs_create_files(hdlcd_debugfs_list,
 		ARRAY_SIZE(hdlcd_debugfs_list),	minor->debugfs_root, minor);
+=======
+static void hdlcd_debugfs_init(struct drm_minor *minor)
+{
+	drm_debugfs_create_files(hdlcd_debugfs_list,
+				 ARRAY_SIZE(hdlcd_debugfs_list),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 #endif
 
 DEFINE_DRM_GEM_CMA_FOPS(fops);
 
+<<<<<<< HEAD
 static struct drm_driver hdlcd_driver = {
 	.driver_features = DRIVER_HAVE_IRQ | DRIVER_GEM |
 			   DRIVER_MODESET | DRIVER_PRIME |
@@ -251,6 +387,11 @@ static struct drm_driver hdlcd_driver = {
 	.gem_prime_vmap = drm_gem_cma_prime_vmap,
 	.gem_prime_vunmap = drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap = drm_gem_cma_prime_mmap,
+=======
+static const struct drm_driver hdlcd_driver = {
+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+	DRM_GEM_CMA_DRIVER_OPS,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 	.debugfs_init = hdlcd_debugfs_init,
 #endif
@@ -308,19 +449,30 @@ static int hdlcd_drm_bind(struct device *dev)
 	drm_mode_config_reset(drm);
 	drm_kms_helper_poll_init(drm);
 
+<<<<<<< HEAD
 	ret = drm_fb_cma_fbdev_init(drm, 32, 0);
 	if (ret)
 		goto err_fbdev;
 
+=======
+>>>>>>> upstream/android-13
 	ret = drm_dev_register(drm, 0);
 	if (ret)
 		goto err_register;
 
+<<<<<<< HEAD
 	return 0;
 
 err_register:
 	drm_fb_cma_fbdev_fini(drm);
 err_fbdev:
+=======
+	drm_fbdev_generic_setup(drm, 32);
+
+	return 0;
+
+err_register:
+>>>>>>> upstream/android-13
 	drm_kms_helper_poll_fini(drm);
 err_vblank:
 	pm_runtime_disable(drm->dev);
@@ -330,7 +482,11 @@ err_pm_active:
 err_unload:
 	of_node_put(hdlcd->crtc.port);
 	hdlcd->crtc.port = NULL;
+<<<<<<< HEAD
 	drm_irq_uninstall(drm);
+=======
+	hdlcd_irq_uninstall(drm);
+>>>>>>> upstream/android-13
 	of_reserved_mem_device_release(drm->dev);
 err_free:
 	drm_mode_config_cleanup(drm);
@@ -346,15 +502,23 @@ static void hdlcd_drm_unbind(struct device *dev)
 	struct hdlcd_drm_private *hdlcd = drm->dev_private;
 
 	drm_dev_unregister(drm);
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(drm);
+=======
+>>>>>>> upstream/android-13
 	drm_kms_helper_poll_fini(drm);
 	component_unbind_all(dev, drm);
 	of_node_put(hdlcd->crtc.port);
 	hdlcd->crtc.port = NULL;
 	pm_runtime_get_sync(dev);
+<<<<<<< HEAD
 	drm_crtc_vblank_off(&hdlcd->crtc);
 	drm_irq_uninstall(drm);
 	drm_atomic_helper_shutdown(drm);
+=======
+	drm_atomic_helper_shutdown(drm);
+	hdlcd_irq_uninstall(drm);
+>>>>>>> upstream/android-13
 	pm_runtime_put(dev);
 	if (pm_runtime_enabled(dev))
 		pm_runtime_disable(dev);

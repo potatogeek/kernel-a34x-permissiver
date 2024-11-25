@@ -7,7 +7,11 @@
 #include <linux/types.h>
 #include <linux/spinlock.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/mod_devicetable.h>
 #include <linux/dma-mapping.h>
 #include <linux/platform_device.h>

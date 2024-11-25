@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Marvell EBU SoC common clock handling
  *
@@ -7,9 +11,12 @@
  * Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
  * Andrew Lunn <andrew@lunn.ch>
  *
+<<<<<<< HEAD
  * This file is licensed under the terms of the GNU General Public
  * License version 2.  This program is licensed "as is" without any
  * warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -242,7 +249,11 @@ void __init mvebu_clk_gating_setup(struct device_node *np,
 	int n;
 
 	if (ctrl) {
+<<<<<<< HEAD
 		pr_err("mvebu-clk-gating: cannot instantiate more than one gatable clock device\n");
+=======
+		pr_err("mvebu-clk-gating: cannot instantiate more than one gateable clock device\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 

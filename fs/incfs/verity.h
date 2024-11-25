@@ -15,6 +15,11 @@ int incfs_ioctl_enable_verity(struct file *filp, const void __user *uarg);
 int incfs_ioctl_measure_verity(struct file *filp, void __user *_uarg);
 
 int incfs_fsverity_file_open(struct inode *inode, struct file *filp);
+<<<<<<< HEAD
+=======
+int incfs_ioctl_read_verity_metadata(struct file *filp,
+				     const void __user *uarg);
+>>>>>>> upstream/android-13
 
 #else /* !CONFIG_FS_VERITY */
 
@@ -36,6 +41,15 @@ static inline int incfs_fsverity_file_open(struct inode *inode,
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+static inline int incfs_ioctl_read_verity_metadata(struct file *filp,
+						const void __user *uarg)
+{
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_FS_VERITY */
 
 #endif

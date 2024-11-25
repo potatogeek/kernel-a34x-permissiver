@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008-2009 Texas Instruments Inc
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2008-2009 Texas Instruments Inc
+ *
+>>>>>>> upstream/android-13
  * Image Sensor Interface (ISIF) driver
  *
  * This driver is for configuring the ISIF IP available on DM365 or any other
@@ -38,7 +45,11 @@
 #include "ccdc_hw_device.h"
 
 /* Defaults for module configuration parameters */
+<<<<<<< HEAD
 static struct isif_config_params_raw isif_config_defaults = {
+=======
+static const struct isif_config_params_raw isif_config_defaults = {
+>>>>>>> upstream/android-13
 	.linearize = {
 		.en = 0,
 		.corr_shft = ISIF_NO_SHIFT,
@@ -328,7 +339,11 @@ static void isif_config_bclamp(struct isif_black_clamp *bc)
 	if (bc->en) {
 		val = bc->bc_mode_color << ISIF_BC_MODE_COLOR_SHIFT;
 
+<<<<<<< HEAD
 		/* Enable BC and horizontal clamp caculation paramaters */
+=======
+		/* Enable BC and horizontal clamp calculation parameters */
+>>>>>>> upstream/android-13
 		val = val | 1 | (bc->horz.mode << ISIF_HORZ_BC_MODE_SHIFT);
 
 		regw(val, CLAMPCFG);
@@ -358,7 +373,11 @@ static void isif_config_bclamp(struct isif_black_clamp *bc)
 			regw(bc->horz.win_start_v_calc, CLHWIN2);
 		}
 
+<<<<<<< HEAD
 		/* vertical clamp caculation paramaters */
+=======
+		/* vertical clamp calculation parameters */
+>>>>>>> upstream/android-13
 
 		/* Reset clamp value sel for previous line */
 		val |=
@@ -1054,7 +1073,11 @@ static int isif_probe(struct platform_device *pdev)
 			status = -EBUSY;
 			goto fail_nobase_res;
 		}
+<<<<<<< HEAD
 		addr = ioremap_nocache(res->start, resource_size(res));
+=======
+		addr = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 		if (!addr) {
 			status = -ENOMEM;
 			goto fail_base_iomap;
@@ -1084,10 +1107,21 @@ fail_base_iomap:
 	release_mem_region(res->start, resource_size(res));
 	i--;
 fail_nobase_res:
+<<<<<<< HEAD
 	if (isif_cfg.base_addr)
 		iounmap(isif_cfg.base_addr);
 	if (isif_cfg.linear_tbl0_addr)
 		iounmap(isif_cfg.linear_tbl0_addr);
+=======
+	if (isif_cfg.base_addr) {
+		iounmap(isif_cfg.base_addr);
+		isif_cfg.base_addr = NULL;
+	}
+	if (isif_cfg.linear_tbl0_addr) {
+		iounmap(isif_cfg.linear_tbl0_addr);
+		isif_cfg.linear_tbl0_addr = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	while (i >= 0) {
 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
@@ -1105,8 +1139,16 @@ static int isif_remove(struct platform_device *pdev)
 	int i = 0;
 
 	iounmap(isif_cfg.base_addr);
+<<<<<<< HEAD
 	iounmap(isif_cfg.linear_tbl0_addr);
 	iounmap(isif_cfg.linear_tbl1_addr);
+=======
+	isif_cfg.base_addr = NULL;
+	iounmap(isif_cfg.linear_tbl0_addr);
+	isif_cfg.linear_tbl0_addr = NULL;
+	iounmap(isif_cfg.linear_tbl1_addr);
+	isif_cfg.linear_tbl1_addr = NULL;
+>>>>>>> upstream/android-13
 	while (i < 3) {
 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
 		if (res)

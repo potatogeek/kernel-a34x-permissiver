@@ -28,10 +28,19 @@
 		serial0 = &scif0;
 		i2c9 = &gpioi2c2;
 		i2c10 = &i2chdmi;
+<<<<<<< HEAD
 	};
 
 	chosen {
 		bootargs = "ignore_loglevel rw root=/dev/nfs ip=dhcp";
+=======
+		mmc0 = &sdhi0;
+		mmc1 = &sdhi2;
+	};
+
+	chosen {
+		bootargs = "ignore_loglevel rw root=/dev/nfs ip=on";
+>>>>>>> upstream/android-13
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -63,8 +72,12 @@
 
 		gpios = <&gpio2 12 GPIO_ACTIVE_HIGH>;
 		gpios-states = <1>;
+<<<<<<< HEAD
 		states = <3300000 1
 			  1800000 0>;
+=======
+		states = <3300000 1>, <1800000 0>;
+>>>>>>> upstream/android-13
 	};
 
 	vcc_sdhi2: regulator-vcc-sdhi2 {
@@ -85,8 +98,12 @@
 
 		gpios = <&gpio2 26 GPIO_ACTIVE_HIGH>;
 		gpios-states = <1>;
+<<<<<<< HEAD
 		states = <3300000 1
 			  1800000 0>;
+=======
+		states = <3300000 1>, <1800000 0>;
+>>>>>>> upstream/android-13
 	};
 
 	hdmi-out {
@@ -164,7 +181,10 @@
 		composite-in@20 {
 			compatible = "adi,adv7180";
 			reg = <0x20>;
+<<<<<<< HEAD
 			remote = <&vin0>;
+=======
+>>>>>>> upstream/android-13
 
 			port {
 				adv7180: endpoint {
@@ -183,8 +203,11 @@
 			adi,input-depth = <8>;
 			adi,input-colorspace = "rgb";
 			adi,input-clock = "1x";
+<<<<<<< HEAD
 			adi,input-style = <1>;
 			adi,input-justification = "evenly";
+=======
+>>>>>>> upstream/android-13
 
 			ports {
 				#address-cells = <1>;
@@ -228,6 +251,14 @@
 		function = "intc";
 	};
 
+<<<<<<< HEAD
+=======
+	pmic_irq_pins: pmicirq {
+		groups = "intc_irq2";
+		function = "intc";
+	};
+
+>>>>>>> upstream/android-13
 	sdhi0_pins: sd0 {
 		groups = "sdhi0_data4", "sdhi0_ctrl";
 		function = "sdhi0";
@@ -292,7 +323,11 @@
 };
 
 &ether {
+<<<<<<< HEAD
 	pinctrl-0 = <&ether_pins &phy1_pins>;
+=======
+	pinctrl-0 = <&ether_pins>, <&phy1_pins>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 
 	phy-handle = <&phy1>;
@@ -304,6 +339,10 @@
 		interrupt-parent = <&irqc0>;
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
 		micrel,led-mode = <1>;
+<<<<<<< HEAD
+=======
+		reset-gpios = <&gpio5 22 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -373,6 +412,11 @@
 };
 
 &i2c6 {
+<<<<<<< HEAD
+=======
+	pinctrl-names = "default";
+	pinctrl-0 = <&pmic_irq_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 	clock-frequency = <100000>;
 
@@ -491,7 +535,11 @@
 };
 
 &rcar_sound {
+<<<<<<< HEAD
 	pinctrl-0 = <&ssi_pins &audio_clk_pins>;
+=======
+	pinctrl-0 = <&ssi_pins>, <&audio_clk_pins>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	status = "okay";
 

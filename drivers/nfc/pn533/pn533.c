@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for NXP PN533 NFC Chip - core functions
  *
  * Copyright (C) 2011 Instituto Nokia de Tecnologia
  * Copyright (C) 2012-2013 Tieto Poland
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -197,6 +204,35 @@ struct pn533_cmd_jump_dep_response {
 	u8 gt[];
 } __packed;
 
+<<<<<<< HEAD
+=======
+struct pn532_autopoll_resp {
+	u8 type;
+	u8 ln;
+	u8 tg;
+	u8 tgdata[];
+};
+
+/* PN532_CMD_IN_AUTOPOLL */
+#define PN532_AUTOPOLL_POLLNR_INFINITE	0xff
+#define PN532_AUTOPOLL_PERIOD		0x03 /* in units of 150 ms */
+
+#define PN532_AUTOPOLL_TYPE_GENERIC_106		0x00
+#define PN532_AUTOPOLL_TYPE_GENERIC_212		0x01
+#define PN532_AUTOPOLL_TYPE_GENERIC_424		0x02
+#define PN532_AUTOPOLL_TYPE_JEWEL		0x04
+#define PN532_AUTOPOLL_TYPE_MIFARE		0x10
+#define PN532_AUTOPOLL_TYPE_FELICA212		0x11
+#define PN532_AUTOPOLL_TYPE_FELICA424		0x12
+#define PN532_AUTOPOLL_TYPE_ISOA		0x20
+#define PN532_AUTOPOLL_TYPE_ISOB		0x23
+#define PN532_AUTOPOLL_TYPE_DEP_PASSIVE_106	0x40
+#define PN532_AUTOPOLL_TYPE_DEP_PASSIVE_212	0x41
+#define PN532_AUTOPOLL_TYPE_DEP_PASSIVE_424	0x42
+#define PN532_AUTOPOLL_TYPE_DEP_ACTIVE_106	0x80
+#define PN532_AUTOPOLL_TYPE_DEP_ACTIVE_212	0x81
+#define PN532_AUTOPOLL_TYPE_DEP_ACTIVE_424	0x82
+>>>>>>> upstream/android-13
 
 /* PN533_TG_INIT_AS_TARGET */
 #define PN533_INIT_TARGET_PASSIVE 0x1
@@ -475,12 +511,17 @@ static int pn533_send_data_async(struct pn533 *dev, u8 cmd_code,
 				 pn533_send_async_complete_t complete_cb,
 				 void *complete_cb_context)
 {
+<<<<<<< HEAD
 	int rc;
 
 	rc = __pn533_send_async(dev, cmd_code, req, complete_cb,
 				complete_cb_context);
 
 	return rc;
+=======
+	return __pn533_send_async(dev, cmd_code, req, complete_cb,
+				complete_cb_context);
+>>>>>>> upstream/android-13
 }
 
 static int pn533_send_cmd_async(struct pn533 *dev, u8 cmd_code,
@@ -488,18 +529,27 @@ static int pn533_send_cmd_async(struct pn533 *dev, u8 cmd_code,
 				pn533_send_async_complete_t complete_cb,
 				void *complete_cb_context)
 {
+<<<<<<< HEAD
 	int rc;
 
 	rc = __pn533_send_async(dev, cmd_code, req, complete_cb,
 				complete_cb_context);
 
 	return rc;
+=======
+	return __pn533_send_async(dev, cmd_code, req, complete_cb,
+				complete_cb_context);
+>>>>>>> upstream/android-13
 }
 
 /*
  * pn533_send_cmd_direct_async
  *
+<<<<<<< HEAD
  * The function sends a piority cmd directly to the chip omitting the cmd
+=======
+ * The function sends a priority cmd directly to the chip omitting the cmd
+>>>>>>> upstream/android-13
  * queue. It's intended to be used by chaining mechanism of received responses
  * where the host has to request every single chunk of data before scheduling
  * next cmd from the queue.
@@ -601,7 +651,11 @@ static int pn533_send_sync_complete(struct pn533 *dev, void *_arg,
  *     as it's been already freed at the beginning of RX path by
  *     async_complete_cb.
  *
+<<<<<<< HEAD
  *  3. valid pointer in case of succesfult RX path
+=======
+ *  3. valid pointer in case of successful RX path
+>>>>>>> upstream/android-13
  *
  *  A caller has to check a return value with IS_ERR macro. If the test pass,
  *  the returned pointer is valid.
@@ -1069,8 +1123,11 @@ static int pn533_tm_get_data_complete(struct pn533 *dev, void *arg,
 	u8 status, ret, mi;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ERR(resp)) {
 		skb_queue_purge(&dev->resp_q);
 		return PTR_ERR(resp);
@@ -1118,8 +1175,11 @@ static void pn533_wq_tm_mi_recv(struct work_struct *work)
 	struct sk_buff *skb;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	skb = pn533_alloc_skb(dev, 0);
 	if (!skb)
 		return;
@@ -1142,8 +1202,11 @@ static void pn533_wq_tm_mi_send(struct work_struct *work)
 	struct sk_buff *skb;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	/* Grab the first skb in the queue */
 	skb = skb_dequeue(&dev->fragment_skb);
 	if (skb == NULL) {	/* No more data */
@@ -1180,8 +1243,11 @@ static void pn533_wq_tg_get_data(struct work_struct *work)
 	struct sk_buff *skb;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	skb = pn533_alloc_skb(dev, 0);
 	if (!skb)
 		return;
@@ -1200,8 +1266,11 @@ static int pn533_init_target_complete(struct pn533 *dev, struct sk_buff *resp)
 	size_t gb_len;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (resp->len < ATR_REQ_GB_OFFSET + 1)
 		return -EINVAL;
 
@@ -1254,8 +1323,11 @@ static int pn533_rf_complete(struct pn533 *dev, void *arg,
 {
 	int rc = 0;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ERR(resp)) {
 		rc = PTR_ERR(resp);
 
@@ -1277,8 +1349,11 @@ static void pn533_wq_rf(struct work_struct *work)
 	struct sk_buff *skb;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	skb = pn533_alloc_skb(dev, 2);
 	if (!skb)
 		return;
@@ -1354,8 +1429,11 @@ static int pn533_poll_dep(struct nfc_dev *nfc_dev)
 	u8 *next, nfcid3[NFC_NFCID3_MAXSIZE];
 	u8 passive_data[PASSIVE_DATA_LEN] = {0x00, 0xff, 0xff, 0x00, 0x3};
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (!dev->gb) {
 		dev->gb = nfc_get_local_general_bytes(nfc_dev, &dev->gb_len);
 
@@ -1404,14 +1482,115 @@ static int pn533_poll_dep(struct nfc_dev *nfc_dev)
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+static int pn533_autopoll_complete(struct pn533 *dev, void *arg,
+			       struct sk_buff *resp)
+{
+	struct pn532_autopoll_resp *apr;
+	struct nfc_target nfc_tgt;
+	u8 nbtg;
+	int rc;
+
+	if (IS_ERR(resp)) {
+		rc = PTR_ERR(resp);
+
+		nfc_err(dev->dev, "%s  autopoll complete error %d\n",
+			__func__, rc);
+
+		if (rc == -ENOENT) {
+			if (dev->poll_mod_count != 0)
+				return rc;
+			goto stop_poll;
+		} else if (rc < 0) {
+			nfc_err(dev->dev,
+				"Error %d when running autopoll\n", rc);
+			goto stop_poll;
+		}
+	}
+
+	nbtg = resp->data[0];
+	if ((nbtg > 2) || (nbtg <= 0))
+		return -EAGAIN;
+
+	apr = (struct pn532_autopoll_resp *)&resp->data[1];
+	while (nbtg--) {
+		memset(&nfc_tgt, 0, sizeof(struct nfc_target));
+		switch (apr->type) {
+		case PN532_AUTOPOLL_TYPE_ISOA:
+			dev_dbg(dev->dev, "ISOA\n");
+			rc = pn533_target_found_type_a(&nfc_tgt, apr->tgdata,
+						       apr->ln - 1);
+			break;
+		case PN532_AUTOPOLL_TYPE_FELICA212:
+		case PN532_AUTOPOLL_TYPE_FELICA424:
+			dev_dbg(dev->dev, "FELICA\n");
+			rc = pn533_target_found_felica(&nfc_tgt, apr->tgdata,
+						       apr->ln - 1);
+			break;
+		case PN532_AUTOPOLL_TYPE_JEWEL:
+			dev_dbg(dev->dev, "JEWEL\n");
+			rc = pn533_target_found_jewel(&nfc_tgt, apr->tgdata,
+						      apr->ln - 1);
+			break;
+		case PN532_AUTOPOLL_TYPE_ISOB:
+			dev_dbg(dev->dev, "ISOB\n");
+			rc = pn533_target_found_type_b(&nfc_tgt, apr->tgdata,
+						       apr->ln - 1);
+			break;
+		case PN532_AUTOPOLL_TYPE_MIFARE:
+			dev_dbg(dev->dev, "Mifare\n");
+			rc = pn533_target_found_type_a(&nfc_tgt, apr->tgdata,
+						       apr->ln - 1);
+			break;
+		default:
+			nfc_err(dev->dev,
+				    "Unknown current poll modulation\n");
+			rc = -EPROTO;
+		}
+
+		if (rc)
+			goto done;
+
+		if (!(nfc_tgt.supported_protocols & dev->poll_protocols)) {
+			nfc_err(dev->dev,
+				    "The Tg found doesn't have the desired protocol\n");
+			rc = -EAGAIN;
+			goto done;
+		}
+
+		dev->tgt_available_prots = nfc_tgt.supported_protocols;
+		apr = (struct pn532_autopoll_resp *)
+			(apr->tgdata + (apr->ln - 1));
+	}
+
+	pn533_poll_reset_mod_list(dev);
+	nfc_targets_found(dev->nfc_dev, &nfc_tgt, 1);
+
+done:
+	dev_kfree_skb(resp);
+	return rc;
+
+stop_poll:
+	nfc_err(dev->dev, "autopoll operation has been stopped\n");
+
+	pn533_poll_reset_mod_list(dev);
+	dev->poll_protocols = 0;
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static int pn533_poll_complete(struct pn533 *dev, void *arg,
 			       struct sk_buff *resp)
 {
 	struct pn533_poll_modulations *cur_mod;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ERR(resp)) {
 		rc = PTR_ERR(resp);
 
@@ -1547,6 +1726,10 @@ static int pn533_start_poll(struct nfc_dev *nfc_dev,
 {
 	struct pn533 *dev = nfc_get_drvdata(nfc_dev);
 	struct pn533_poll_modulations *cur_mod;
+<<<<<<< HEAD
+=======
+	struct sk_buff *skb;
+>>>>>>> upstream/android-13
 	u8 rand_mod;
 	int rc;
 
@@ -1572,9 +1755,79 @@ static int pn533_start_poll(struct nfc_dev *nfc_dev,
 			tm_protocols = 0;
 	}
 
+<<<<<<< HEAD
 	pn533_poll_create_mod_list(dev, im_protocols, tm_protocols);
 	dev->poll_protocols = im_protocols;
 	dev->listen_protocols = tm_protocols;
+=======
+	dev->poll_protocols = im_protocols;
+	dev->listen_protocols = tm_protocols;
+	if (dev->device_type == PN533_DEVICE_PN532_AUTOPOLL) {
+		skb = pn533_alloc_skb(dev, 4 + 6);
+		if (!skb)
+			return -ENOMEM;
+
+		*((u8 *)skb_put(skb, sizeof(u8))) =
+			PN532_AUTOPOLL_POLLNR_INFINITE;
+		*((u8 *)skb_put(skb, sizeof(u8))) = PN532_AUTOPOLL_PERIOD;
+
+		if ((im_protocols & NFC_PROTO_MIFARE_MASK) &&
+				(im_protocols & NFC_PROTO_ISO14443_MASK) &&
+				(im_protocols & NFC_PROTO_NFC_DEP_MASK))
+			*((u8 *)skb_put(skb, sizeof(u8))) =
+				PN532_AUTOPOLL_TYPE_GENERIC_106;
+		else {
+			if (im_protocols & NFC_PROTO_MIFARE_MASK)
+				*((u8 *)skb_put(skb, sizeof(u8))) =
+					PN532_AUTOPOLL_TYPE_MIFARE;
+
+			if (im_protocols & NFC_PROTO_ISO14443_MASK)
+				*((u8 *)skb_put(skb, sizeof(u8))) =
+					PN532_AUTOPOLL_TYPE_ISOA;
+
+			if (im_protocols & NFC_PROTO_NFC_DEP_MASK) {
+				*((u8 *)skb_put(skb, sizeof(u8))) =
+					PN532_AUTOPOLL_TYPE_DEP_PASSIVE_106;
+				*((u8 *)skb_put(skb, sizeof(u8))) =
+					PN532_AUTOPOLL_TYPE_DEP_PASSIVE_212;
+				*((u8 *)skb_put(skb, sizeof(u8))) =
+					PN532_AUTOPOLL_TYPE_DEP_PASSIVE_424;
+			}
+		}
+
+		if (im_protocols & NFC_PROTO_FELICA_MASK ||
+				im_protocols & NFC_PROTO_NFC_DEP_MASK) {
+			*((u8 *)skb_put(skb, sizeof(u8))) =
+				PN532_AUTOPOLL_TYPE_FELICA212;
+			*((u8 *)skb_put(skb, sizeof(u8))) =
+				PN532_AUTOPOLL_TYPE_FELICA424;
+		}
+
+		if (im_protocols & NFC_PROTO_JEWEL_MASK)
+			*((u8 *)skb_put(skb, sizeof(u8))) =
+				PN532_AUTOPOLL_TYPE_JEWEL;
+
+		if (im_protocols & NFC_PROTO_ISO14443_B_MASK)
+			*((u8 *)skb_put(skb, sizeof(u8))) =
+				PN532_AUTOPOLL_TYPE_ISOB;
+
+		if (tm_protocols)
+			*((u8 *)skb_put(skb, sizeof(u8))) =
+				PN532_AUTOPOLL_TYPE_DEP_ACTIVE_106;
+
+		rc = pn533_send_cmd_async(dev, PN533_CMD_IN_AUTOPOLL, skb,
+				pn533_autopoll_complete, NULL);
+
+		if (rc < 0)
+			dev_kfree_skb(skb);
+		else
+			dev->poll_mod_count++;
+
+		return rc;
+	}
+
+	pn533_poll_create_mod_list(dev, im_protocols, tm_protocols);
+>>>>>>> upstream/android-13
 
 	/* Do not always start polling from the same modulation */
 	get_random_bytes(&rand_mod, sizeof(rand_mod));
@@ -1617,8 +1870,11 @@ static int pn533_activate_target_nfcdep(struct pn533 *dev)
 	struct sk_buff *skb;
 	struct sk_buff *resp;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	skb = pn533_alloc_skb(dev, sizeof(u8) * 2); /*TG + Next*/
 	if (!skb)
 		return -ENOMEM;
@@ -1700,8 +1956,11 @@ static int pn533_deactivate_target_complete(struct pn533 *dev, void *arg,
 {
 	int rc = 0;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ERR(resp)) {
 		rc = PTR_ERR(resp);
 
@@ -1726,8 +1985,11 @@ static void pn533_deactivate_target(struct nfc_dev *nfc_dev,
 	struct sk_buff *skb;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (!dev->tgt_active_prot) {
 		nfc_err(dev->dev, "There is no active target\n");
 		return;
@@ -1822,8 +2084,11 @@ static int pn533_dep_link_up(struct nfc_dev *nfc_dev, struct nfc_target *target,
 	u8 *next, *arg, nfcid3[NFC_NFCID3_MAXSIZE];
 	u8 passive_data[PASSIVE_DATA_LEN] = {0x00, 0xff, 0xff, 0x00, 0x3};
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (dev->poll_mod_count) {
 		nfc_err(dev->dev,
 			"Cannot bring the DEP link up while polling\n");
@@ -1901,8 +2166,11 @@ static int pn533_dep_link_down(struct nfc_dev *nfc_dev)
 {
 	struct pn533 *dev = nfc_get_drvdata(nfc_dev);
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	pn533_poll_reset_mod_list(dev);
 
 	if (dev->tgt_mode || dev->tgt_active_prot)
@@ -1926,8 +2194,11 @@ static struct sk_buff *pn533_build_response(struct pn533 *dev)
 	struct sk_buff *skb, *tmp, *t;
 	unsigned int skb_len = 0, tmp_len = 0;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (skb_queue_empty(&dev->resp_q))
 		return NULL;
 
@@ -1967,8 +2238,11 @@ static int pn533_data_exchange_complete(struct pn533 *dev, void *_arg,
 	int rc = 0;
 	u8 status, ret, mi;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ERR(resp)) {
 		rc = PTR_ERR(resp);
 		goto _error;
@@ -2084,7 +2358,11 @@ static int pn533_fill_fragment_skbs(struct pn533 *dev, struct sk_buff *skb)
 		frag = pn533_alloc_skb(dev, frag_size);
 		if (!frag) {
 			skb_queue_purge(&dev->fragment_skb);
+<<<<<<< HEAD
 			break;
+=======
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 		}
 
 		if (!dev->tgt_mode) {
@@ -2122,8 +2400,11 @@ static int pn533_transceive(struct nfc_dev *nfc_dev,
 	struct pn533_data_exchange_arg *arg = NULL;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (!dev->tgt_active_prot) {
 		nfc_err(dev->dev,
 			"Can't exchange data if there is no active target\n");
@@ -2150,11 +2431,19 @@ static int pn533_transceive(struct nfc_dev *nfc_dev,
 
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* jumbo frame ? */
 		if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
 			rc = pn533_fill_fragment_skbs(dev, skb);
+<<<<<<< HEAD
 			if (rc <= 0)
+=======
+			if (rc < 0)
+>>>>>>> upstream/android-13
 				goto error;
 
 			skb = skb_dequeue(&dev->fragment_skb);
@@ -2189,8 +2478,11 @@ static int pn533_tm_send_complete(struct pn533 *dev, void *arg,
 {
 	u8 status;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ERR(resp))
 		return PTR_ERR(resp);
 
@@ -2221,12 +2513,19 @@ static int pn533_tm_send(struct nfc_dev *nfc_dev, struct sk_buff *skb)
 	struct pn533 *dev = nfc_get_drvdata(nfc_dev);
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
 	/* let's split in multiple chunks if size's too big */
 	if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
 		rc = pn533_fill_fragment_skbs(dev, skb);
 		if (rc <= 0)
+=======
+	/* let's split in multiple chunks if size's too big */
+	if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
+		rc = pn533_fill_fragment_skbs(dev, skb);
+		if (rc < 0)
+>>>>>>> upstream/android-13
 			goto error;
 
 		/* get the first skb */
@@ -2259,8 +2558,11 @@ static void pn533_wq_mi_recv(struct work_struct *work)
 	struct sk_buff *skb;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	skb = pn533_alloc_skb(dev, PN533_CMD_DATAEXCH_HEAD_LEN);
 	if (!skb)
 		goto error;
@@ -2276,6 +2578,10 @@ static void pn533_wq_mi_recv(struct work_struct *work)
 
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		skb_put_u8(skb, 1); /*TG*/
 
@@ -2308,8 +2614,11 @@ static void pn533_wq_mi_send(struct work_struct *work)
 	struct sk_buff *skb;
 	int rc;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	/* Grab the first skb in the queue */
 	skb = skb_dequeue(&dev->fragment_skb);
 
@@ -2365,8 +2674,11 @@ static int pn533_set_configuration(struct pn533 *dev, u8 cfgitem, u8 *cfgdata,
 	struct sk_buff *resp;
 	int skb_len;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	skb_len = sizeof(cfgitem) + cfgdata_len; /* cfgitem + cfgdata */
 
 	skb = pn533_alloc_skb(dev, skb_len);
@@ -2412,8 +2724,11 @@ static int pn533_pasori_fw_reset(struct pn533 *dev)
 	struct sk_buff *skb;
 	struct sk_buff *resp;
 
+<<<<<<< HEAD
 	dev_dbg(dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	skb = pn533_alloc_skb(dev, sizeof(u8));
 	if (!skb)
 		return -ENOMEM;
@@ -2444,7 +2759,11 @@ static int pn533_rf_field(struct nfc_dev *nfc_dev, u8 rf)
 		return rc;
 	}
 
+<<<<<<< HEAD
 	return rc;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int pn532_sam_configuration(struct nfc_dev *nfc_dev)
@@ -2470,9 +2789,23 @@ static int pn532_sam_configuration(struct nfc_dev *nfc_dev)
 static int pn533_dev_up(struct nfc_dev *nfc_dev)
 {
 	struct pn533 *dev = nfc_get_drvdata(nfc_dev);
+<<<<<<< HEAD
 
 	if (dev->device_type == PN533_DEVICE_PN532) {
 		int rc = pn532_sam_configuration(nfc_dev);
+=======
+	int rc;
+
+	if (dev->phy_ops->dev_up) {
+		rc = dev->phy_ops->dev_up(dev);
+		if (rc)
+			return rc;
+	}
+
+	if ((dev->device_type == PN533_DEVICE_PN532) ||
+		(dev->device_type == PN533_DEVICE_PN532_AUTOPOLL)) {
+		rc = pn532_sam_configuration(nfc_dev);
+>>>>>>> upstream/android-13
 
 		if (rc)
 			return rc;
@@ -2483,10 +2816,24 @@ static int pn533_dev_up(struct nfc_dev *nfc_dev)
 
 static int pn533_dev_down(struct nfc_dev *nfc_dev)
 {
+<<<<<<< HEAD
 	return pn533_rf_field(nfc_dev, 0);
 }
 
 static struct nfc_ops pn533_nfc_ops = {
+=======
+	struct pn533 *dev = nfc_get_drvdata(nfc_dev);
+	int ret;
+
+	ret = pn533_rf_field(nfc_dev, 0);
+	if (dev->phy_ops->dev_down && !ret)
+		ret = dev->phy_ops->dev_down(dev);
+
+	return ret;
+}
+
+static const struct nfc_ops pn533_nfc_ops = {
+>>>>>>> upstream/android-13
 	.dev_up = pn533_dev_up,
 	.dev_down = pn533_dev_down,
 	.dep_link_up = pn533_dep_link_up,
@@ -2511,6 +2858,10 @@ static int pn533_setup(struct pn533 *dev)
 	case PN533_DEVICE_PASORI:
 	case PN533_DEVICE_ACR122U:
 	case PN533_DEVICE_PN532:
+<<<<<<< HEAD
+=======
+	case PN533_DEVICE_PN532_AUTOPOLL:
+>>>>>>> upstream/android-13
 		max_retries.mx_rty_atr = 0x2;
 		max_retries.mx_rty_psl = 0x1;
 		max_retries.mx_rty_passive_act =
@@ -2547,6 +2898,10 @@ static int pn533_setup(struct pn533 *dev)
 	switch (dev->device_type) {
 	case PN533_DEVICE_STD:
 	case PN533_DEVICE_PN532:
+<<<<<<< HEAD
+=======
+	case PN533_DEVICE_PN532_AUTOPOLL:
+>>>>>>> upstream/android-13
 		break;
 
 	case PN533_DEVICE_PASORI:
@@ -2593,17 +2948,27 @@ int pn533_finalize_setup(struct pn533 *dev)
 }
 EXPORT_SYMBOL_GPL(pn533_finalize_setup);
 
+<<<<<<< HEAD
 struct pn533 *pn533_register_device(u32 device_type,
 				u32 protocols,
+=======
+struct pn533 *pn53x_common_init(u32 device_type,
+>>>>>>> upstream/android-13
 				enum pn533_protocol_type protocol_type,
 				void *phy,
 				struct pn533_phy_ops *phy_ops,
 				struct pn533_frame_ops *fops,
+<<<<<<< HEAD
 				struct device *dev,
 				struct device *parent)
 {
 	struct pn533 *priv;
 	int rc = -ENOMEM;
+=======
+				struct device *dev)
+{
+	struct pn533 *priv;
+>>>>>>> upstream/android-13
 
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -2641,6 +3006,7 @@ struct pn533 *pn533_register_device(u32 device_type,
 	skb_queue_head_init(&priv->fragment_skb);
 
 	INIT_LIST_HEAD(&priv->cmd_queue);
+<<<<<<< HEAD
 
 	priv->nfc_dev = nfc_allocate_device(&pn533_nfc_ops, protocols,
 					   priv->ops->tx_header_len +
@@ -2678,6 +3044,20 @@ void pn533_unregister_device(struct pn533 *priv)
 	nfc_unregister_device(priv->nfc_dev);
 	nfc_free_device(priv->nfc_dev);
 
+=======
+	return priv;
+
+error:
+	kfree(priv);
+	return ERR_PTR(-ENOMEM);
+}
+EXPORT_SYMBOL_GPL(pn53x_common_init);
+
+void pn53x_common_clean(struct pn533 *priv)
+{
+	struct pn533_cmd *cmd, *n;
+
+>>>>>>> upstream/android-13
 	flush_delayed_work(&priv->poll_work);
 	destroy_workqueue(priv->wq);
 
@@ -2692,8 +3072,52 @@ void pn533_unregister_device(struct pn533 *priv)
 
 	kfree(priv);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pn533_unregister_device);
 
+=======
+EXPORT_SYMBOL_GPL(pn53x_common_clean);
+
+int pn532_i2c_nfc_alloc(struct pn533 *priv, u32 protocols,
+			struct device *parent)
+{
+	priv->nfc_dev = nfc_allocate_device(&pn533_nfc_ops, protocols,
+					   priv->ops->tx_header_len +
+					   PN533_CMD_DATAEXCH_HEAD_LEN,
+					   priv->ops->tx_tail_len);
+	if (!priv->nfc_dev)
+		return -ENOMEM;
+
+	nfc_set_parent_dev(priv->nfc_dev, parent);
+	nfc_set_drvdata(priv->nfc_dev, priv);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(pn532_i2c_nfc_alloc);
+
+int pn53x_register_nfc(struct pn533 *priv, u32 protocols,
+			struct device *parent)
+{
+	int rc;
+
+	rc = pn532_i2c_nfc_alloc(priv, protocols, parent);
+	if (rc)
+		return rc;
+
+	rc = nfc_register_device(priv->nfc_dev);
+	if (rc)
+		nfc_free_device(priv->nfc_dev);
+
+	return rc;
+}
+EXPORT_SYMBOL_GPL(pn53x_register_nfc);
+
+void pn53x_unregister_nfc(struct pn533 *priv)
+{
+	nfc_unregister_device(priv->nfc_dev);
+	nfc_free_device(priv->nfc_dev);
+}
+EXPORT_SYMBOL_GPL(pn53x_unregister_nfc);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Lauro Ramos Venancio <lauro.venancio@openbossa.org>");
 MODULE_AUTHOR("Aloisio Almeida Jr <aloisio.almeida@openbossa.org>");

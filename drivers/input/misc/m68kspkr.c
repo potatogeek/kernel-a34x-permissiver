@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  m68k beeper driver for Linux
  *
  *  Copyright (c) 2002 Richard Zidlicky
  *  Copyright (c) 2002 Vojtech Pavlik
  *  Copyright (c) 1992 Orest Zborowski
+<<<<<<< HEAD
  *
  */
 
@@ -12,6 +17,10 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation
  */
+=======
+ */
+
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/module.h>

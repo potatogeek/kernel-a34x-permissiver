@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2009 Intel Corporation
  *
@@ -25,6 +26,25 @@
 #include "psb_intel_reg.h"
 #include "gma_display.h"
 #include "power.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2009 Intel Corporation
+ */
+
+#include <linux/delay.h>
+#include <linux/i2c.h>
+#include <linux/pm_runtime.h>
+
+#include <drm/drm_fourcc.h>
+
+#include "framebuffer.h"
+#include "gma_display.h"
+#include "power.h"
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+#include "psb_intel_reg.h"
+>>>>>>> upstream/android-13
 
 #define MRST_LIMIT_LVDS_100L	0
 #define MRST_LIMIT_LVDS_83	1
@@ -184,7 +204,11 @@ static bool mrst_sdvo_find_best_pll(const struct gma_limit_t *limit,
 	return min_error == 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Returns a set of divisors for the desired target clock with the given refclk,
  * or FALSE.  Divisor values are the actual divisors for
  */
@@ -215,7 +239,11 @@ static bool mrst_lvds_find_best_pll(const struct gma_limit_t *limit,
 	return err != target;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Sets the power management mode of the pipe and plane.
  *
  * This code should probably grow support for turning the cursor off and back
@@ -347,7 +375,11 @@ static void oaktrail_crtc_dpms(struct drm_crtc *crtc, int mode)
 	gma_power_end(dev);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Return the pipe currently connected to the panel fitter,
  * or -1 if the panel fitter is not present or not in use
  */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * MFD core driver for Intel Cherrytrail Whiskey Cove PMIC
  *
@@ -5,10 +9,13 @@
  *
  * Based on various non upstream patches to support the CHT Whiskey Cove PMIC:
  * Copyright (C) 2013-2015 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -44,11 +51,19 @@ enum {
 	CHT_WC_CRIT_IRQ = 7,
 };
 
+<<<<<<< HEAD
 static struct resource cht_wc_pwrsrc_resources[] = {
 	DEFINE_RES_IRQ(CHT_WC_PWRSRC_IRQ),
 };
 
 static struct resource cht_wc_ext_charger_resources[] = {
+=======
+static const struct resource cht_wc_pwrsrc_resources[] = {
+	DEFINE_RES_IRQ(CHT_WC_PWRSRC_IRQ),
+};
+
+static const struct resource cht_wc_ext_charger_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ(CHT_WC_EXT_CHGR_IRQ),
 };
 
@@ -63,6 +78,10 @@ static struct mfd_cell cht_wc_dev[] = {
 		.resources = cht_wc_ext_charger_resources,
 	},
 	{	.name = "cht_wcove_region", },
+<<<<<<< HEAD
+=======
+	{	.name = "cht_wcove_leds", },
+>>>>>>> upstream/android-13
 };
 
 /*

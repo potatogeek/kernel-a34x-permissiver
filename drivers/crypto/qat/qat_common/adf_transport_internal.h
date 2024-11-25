@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_TRANSPORT_INTRN_H
 #define ADF_TRANSPORT_INTRN_H
 
@@ -59,6 +64,7 @@ struct adf_etr_ring_debug_entry {
 struct adf_etr_ring_data {
 	void *base_addr;
 	atomic_t *inflights;
+<<<<<<< HEAD
 	spinlock_t lock;	/* protects ring data struct */
 	adf_callback_fn callback;
 	struct adf_etr_bank_data *bank;
@@ -85,6 +91,33 @@ struct adf_etr_bank_data {
 	struct dentry *bank_debug_cfg;
 	uint32_t bank_number;
 } __packed;
+=======
+	adf_callback_fn callback;
+	struct adf_etr_bank_data *bank;
+	dma_addr_t dma_addr;
+	struct adf_etr_ring_debug_entry *ring_debug;
+	spinlock_t lock;	/* protects ring data struct */
+	u16 head;
+	u16 tail;
+	u8 ring_number;
+	u8 ring_size;
+	u8 msg_size;
+};
+
+struct adf_etr_bank_data {
+	struct adf_etr_ring_data *rings;
+	struct tasklet_struct resp_handler;
+	void __iomem *csr_addr;
+	u32 irq_coalesc_timer;
+	u32 bank_number;
+	u16 ring_mask;
+	u16 irq_mask;
+	spinlock_t lock;	/* protects bank data struct */
+	struct adf_accel_dev *accel_dev;
+	struct dentry *bank_debug_dir;
+	struct dentry *bank_debug_cfg;
+};
+>>>>>>> upstream/android-13
 
 struct adf_etr_data {
 	struct adf_etr_bank_data *banks;

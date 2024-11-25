@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2014 Linaro Ltd
  *
  * Author: Ulf Hansson <ulf.hansson@linaro.org>
  *
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
  *
+=======
+>>>>>>> upstream/android-13
  *  Simple MMC power sequence management
  */
 #include <linux/clk.h>
@@ -40,6 +47,7 @@ static void mmc_pwrseq_simple_set_gpios_value(struct mmc_pwrseq_simple *pwrseq,
 	struct gpio_descs *reset_gpios = pwrseq->reset_gpios;
 
 	if (!IS_ERR(reset_gpios)) {
+<<<<<<< HEAD
 		int i, *values;
 		int nvalues = reset_gpios->ndescs;
 
@@ -51,6 +59,23 @@ static void mmc_pwrseq_simple_set_gpios_value(struct mmc_pwrseq_simple *pwrseq,
 			values[i] = value;
 
 		gpiod_set_array_value_cansleep(nvalues, reset_gpios->desc, values);
+=======
+		unsigned long *values;
+		int nvalues = reset_gpios->ndescs;
+
+		values = bitmap_alloc(nvalues, GFP_KERNEL);
+		if (!values)
+			return;
+
+		if (value)
+			bitmap_fill(values, nvalues);
+		else
+			bitmap_zero(values, nvalues);
+
+		gpiod_set_array_value_cansleep(nvalues, reset_gpios->desc,
+					       reset_gpios->info, values);
+
+>>>>>>> upstream/android-13
 		kfree(values);
 	}
 }

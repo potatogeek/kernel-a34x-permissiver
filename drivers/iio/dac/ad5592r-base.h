@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AD5592R / AD5593R Digital <-> Analog converters driver
  *
  * Copyright 2015-2016 Analog Devices Inc.
  * Author: Paul Cercueil <paul.cercueil@analog.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DRIVERS_IIO_DAC_AD5592R_BASE_H__
@@ -53,6 +60,10 @@ struct ad5592r_state {
 	struct regulator *reg;
 	struct gpio_chip gpiochip;
 	struct mutex gpio_lock;	/* Protect cached gpio_out, gpio_val, etc. */
+<<<<<<< HEAD
+=======
+	struct mutex lock;
+>>>>>>> upstream/android-13
 	unsigned int num_channels;
 	const struct ad5592r_rw_ops *ops;
 	int scale_avail[2][2];

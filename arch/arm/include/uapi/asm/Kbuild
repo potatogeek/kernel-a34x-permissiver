@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 # UAPI Header export list
 include include/uapi/asm-generic/Kbuild.asm
 
@@ -22,3 +23,9 @@ generic-y += socket.h
 generic-y += sockios.h
 generic-y += termbits.h
 generic-y += termios.h
+=======
+
+generated-y += unistd-oabi.h
+generated-y += unistd-eabi.h
+generic-y += kvm_para.h
+>>>>>>> upstream/android-13

@@ -20,7 +20,12 @@ trusted_get(const struct xattr_handler *handler, struct dentry *unused,
 }
 
 static int
+<<<<<<< HEAD
 trusted_set(const struct xattr_handler *handler, struct dentry *unused,
+=======
+trusted_set(const struct xattr_handler *handler,
+	    struct user_namespace *mnt_userns, struct dentry *unused,
+>>>>>>> upstream/android-13
 	    struct inode *inode, const char *name, const void *buffer,
 	    size_t size, int flags)
 {

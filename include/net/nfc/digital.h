@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NFC Digital Protocol stack
  * Copyright (c) 2013, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * NFC Digital Protocol stack
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __NFC_DIGITAL_H
@@ -200,7 +207,11 @@ struct digital_poll_tech {
 
 struct nfc_digital_dev {
 	struct nfc_dev *nfc_dev;
+<<<<<<< HEAD
 	struct nfc_digital_ops *ops;
+=======
+	const struct nfc_digital_ops *ops;
+>>>>>>> upstream/android-13
 
 	u32 protocols;
 
@@ -245,7 +256,11 @@ struct nfc_digital_dev {
 	void (*skb_add_crc)(struct sk_buff *skb);
 };
 
+<<<<<<< HEAD
 struct nfc_digital_dev *nfc_digital_allocate_device(struct nfc_digital_ops *ops,
+=======
+struct nfc_digital_dev *nfc_digital_allocate_device(const struct nfc_digital_ops *ops,
+>>>>>>> upstream/android-13
 						    __u32 supported_protocols,
 						    __u32 driver_capabilities,
 						    int tx_headroom,

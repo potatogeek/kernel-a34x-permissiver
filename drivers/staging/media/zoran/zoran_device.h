@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Zoran zr36057/zr36067 PCI controller driver, for the
  * Pinnacle/Miro DC10/DC10+/DC30/DC30+, Iomega Buz, Linux
@@ -6,6 +10,7 @@
  * This part handles card-specific data and detection
  *
  * Copyright (C) 2000 Serguei Miridonov <mirsev@cicese.mx>
+<<<<<<< HEAD
  *
  * Currently maintained by:
  *   Ronald Bultje    <rbultje@ronald.bitfreak.net>
@@ -21,12 +26,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ZORAN_DEVICE_H__
 #define __ZORAN_DEVICE_H__
 
 /* general purpose I/O */
+<<<<<<< HEAD
 extern void GPIO(struct zoran *zr,
 		 int bit,
 		 unsigned int value);
@@ -55,6 +63,22 @@ extern void write_overlay_mask(struct zoran_fh *fh,
 			       int count);
 extern void zr36057_set_memgrab(struct zoran *zr,
 				int mode);
+=======
+extern void GPIO(struct zoran *zr, int bit, unsigned int value);
+
+/* codec (or actually: guest bus) access */
+extern int post_office_wait(struct zoran *zr);
+extern int post_office_write(struct zoran *zr, unsigned int guest, unsigned int reg, unsigned int value);
+extern int post_office_read(struct zoran *zr, unsigned int guest, unsigned int reg);
+
+extern void jpeg_codec_sleep(struct zoran *zr, int sleep);
+extern int jpeg_codec_reset(struct zoran *zr);
+
+/* zr360x7 access to raw capture */
+extern void zr36057_overlay(struct zoran *zr, int on);
+extern void write_overlay_mask(struct zoran_fh *fh, struct v4l2_clip *vp, int count);
+extern void zr36057_set_memgrab(struct zoran *zr, int mode);
+>>>>>>> upstream/android-13
 extern int wait_grab_pending(struct zoran *zr);
 
 /* interrupts */
@@ -69,8 +93,12 @@ extern void zr36057_enable_jpg(struct zoran *zr,
 extern void zoran_feed_stat_com(struct zoran *zr);
 
 /* general */
+<<<<<<< HEAD
 extern void zoran_set_pci_master(struct zoran *zr,
 				 int set_master);
+=======
+extern void zoran_set_pci_master(struct zoran *zr, int set_master);
+>>>>>>> upstream/android-13
 extern void zoran_init_hardware(struct zoran *zr);
 extern void zr36057_restart(struct zoran *zr);
 

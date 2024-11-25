@@ -86,6 +86,11 @@ static int avs_map[] = {
 };
 
 struct armada37xx_cpufreq_state {
+<<<<<<< HEAD
+=======
+	struct platform_device *pdev;
+	struct device *cpu_dev;
+>>>>>>> upstream/android-13
 	struct regmap *regmap;
 	u32 nb_l0l1;
 	u32 nb_l2l3;
@@ -102,7 +107,15 @@ struct armada_37xx_dvfs {
 };
 
 static struct armada_37xx_dvfs armada_37xx_dvfs[] = {
+<<<<<<< HEAD
 	{.cpu_freq_max = 1200*1000*1000, .divider = {1, 2, 4, 6} },
+=======
+	/*
+	 * The cpufreq scaling for 1.2 GHz variant of the SOC is currently
+	 * unstable because we do not know how to configure it properly.
+	 */
+	/* {.cpu_freq_max = 1200*1000*1000, .divider = {1, 2, 4, 6} }, */
+>>>>>>> upstream/android-13
 	{.cpu_freq_max = 1000*1000*1000, .divider = {1, 2, 4, 5} },
 	{.cpu_freq_max = 800*1000*1000,  .divider = {1, 2, 3, 4} },
 	{.cpu_freq_max = 600*1000*1000,  .divider = {2, 4, 5, 6} },
@@ -300,7 +313,11 @@ static void __init armada37xx_cpufreq_avs_configure(struct regmap *base,
 static void __init armada37xx_cpufreq_avs_setup(struct regmap *base,
 						struct armada_37xx_dvfs *dvfs)
 {
+<<<<<<< HEAD
 	unsigned int avs_val = 0, freq;
+=======
+	unsigned int avs_val = 0;
+>>>>>>> upstream/android-13
 	int load_level = 0;
 
 	if (base == NULL)
@@ -318,8 +335,11 @@ static void __init armada37xx_cpufreq_avs_setup(struct regmap *base,
 
 
 	for (load_level = 1; load_level < LOAD_LEVEL_NR; load_level++) {
+<<<<<<< HEAD
 		freq = dvfs->cpu_freq_max / dvfs->divider[load_level];
 
+=======
+>>>>>>> upstream/android-13
 		avs_val = dvfs->avs[load_level];
 		regmap_update_bits(base, ARMADA_37XX_AVS_VSET(load_level-1),
 		    ARMADA_37XX_AVS_VDD_MASK << ARMADA_37XX_AVS_HIGH_VDD_LIMIT |
@@ -402,7 +422,11 @@ static int __init armada37xx_cpufreq_driver_init(void)
 	struct armada_37xx_dvfs *dvfs;
 	struct platform_device *pdev;
 	unsigned long freq;
+<<<<<<< HEAD
 	unsigned int cur_frequency, base_frequency;
+=======
+	unsigned int base_frequency;
+>>>>>>> upstream/android-13
 	struct regmap *nb_clk_base, *nb_pm_base, *avs_base;
 	struct device *cpu_dev;
 	int load_lvl, ret;
@@ -463,6 +487,7 @@ static int __init armada37xx_cpufreq_driver_init(void)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Get nominal (current) CPU frequency */
 	cur_frequency = clk_get_rate(clk);
 	if (!cur_frequency) {
@@ -471,6 +496,8 @@ static int __init armada37xx_cpufreq_driver_init(void)
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	dvfs = armada_37xx_cpu_freq_info_get(base_frequency);
 	if (!dvfs) {
 		clk_put(clk);
@@ -516,6 +543,12 @@ static int __init armada37xx_cpufreq_driver_init(void)
 	if (ret)
 		goto disable_dvfs;
 
+<<<<<<< HEAD
+=======
+	armada37xx_cpufreq_state->cpu_dev = cpu_dev;
+	armada37xx_cpufreq_state->pdev = pdev;
+	platform_set_drvdata(pdev, dvfs);
+>>>>>>> upstream/android-13
 	return 0;
 
 disable_dvfs:
@@ -534,6 +567,29 @@ remove_opp:
 /* late_initcall, to guarantee the driver is loaded after A37xx clock driver */
 late_initcall(armada37xx_cpufreq_driver_init);
 
+<<<<<<< HEAD
+=======
+static void __exit armada37xx_cpufreq_driver_exit(void)
+{
+	struct platform_device *pdev = armada37xx_cpufreq_state->pdev;
+	struct armada_37xx_dvfs *dvfs = platform_get_drvdata(pdev);
+	unsigned long freq;
+	int load_lvl;
+
+	platform_device_unregister(pdev);
+
+	armada37xx_cpufreq_disable_dvfs(armada37xx_cpufreq_state->regmap);
+
+	for (load_lvl = ARMADA_37XX_DVFS_LOAD_0; load_lvl < LOAD_LEVEL_NR; load_lvl++) {
+		freq = dvfs->cpu_freq_max / dvfs->divider[load_lvl];
+		dev_pm_opp_remove(armada37xx_cpufreq_state->cpu_dev, freq);
+	}
+
+	kfree(armada37xx_cpufreq_state);
+}
+module_exit(armada37xx_cpufreq_driver_exit);
+
+>>>>>>> upstream/android-13
 static const struct of_device_id __maybe_unused armada37xx_cpufreq_of_match[] = {
 	{ .compatible = "marvell,armada-3700-nb-pm" },
 	{ },

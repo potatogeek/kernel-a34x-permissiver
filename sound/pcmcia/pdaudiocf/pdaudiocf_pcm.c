@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Sound Core PDAudioCF soundcards
  *
  * PCM part
  *
  * Copyright (c) 2003 by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -58,7 +65,11 @@ static int pdacf_pcm_trigger(struct snd_pcm_substream *subs, int cmd)
 	case SNDRV_PCM_TRIGGER_START:
 		chip->pcm_hwptr = 0;
 		chip->pcm_tdone = 0;
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
 	case SNDRV_PCM_TRIGGER_RESUME:
 		mask = 0;
@@ -97,6 +108,7 @@ static int pdacf_pcm_trigger(struct snd_pcm_substream *subs, int cmd)
 }
 
 /*
+<<<<<<< HEAD
  * pdacf_pcm_hw_params - hw_params callback for playback and capture
  */
 static int pdacf_pcm_hw_params(struct snd_pcm_substream *subs,
@@ -115,6 +127,8 @@ static int pdacf_pcm_hw_free(struct snd_pcm_substream *subs)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * pdacf_pcm_prepare - prepare callback for playback and capture
  */
 static int pdacf_pcm_prepare(struct snd_pcm_substream *subs)
@@ -163,7 +177,11 @@ static int pdacf_pcm_prepare(struct snd_pcm_substream *subs)
 	case SNDRV_PCM_FORMAT_S24_3LE:
 	case SNDRV_PCM_FORMAT_S24_3BE:
 		chip->pcm_sample = 3;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default: /* 24-bit */
 		aval = AK4117_DIF_24R;
 		chip->pcm_frame = 3;
@@ -269,6 +287,7 @@ static snd_pcm_uframes_t pdacf_pcm_capture_pointer(struct snd_pcm_substream *sub
 static const struct snd_pcm_ops pdacf_pcm_capture_ops = {
 	.open =		pdacf_pcm_capture_open,
 	.close =	pdacf_pcm_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	pdacf_pcm_hw_params,
 	.hw_free =	pdacf_pcm_hw_free,
@@ -276,6 +295,11 @@ static const struct snd_pcm_ops pdacf_pcm_capture_ops = {
 	.trigger =	pdacf_pcm_trigger,
 	.pointer =	pdacf_pcm_capture_pointer,
 	.page =		snd_pcm_lib_get_vmalloc_page,
+=======
+	.prepare =	pdacf_pcm_prepare,
+	.trigger =	pdacf_pcm_trigger,
+	.pointer =	pdacf_pcm_capture_pointer,
+>>>>>>> upstream/android-13
 };
 
 
@@ -292,6 +316,12 @@ int snd_pdacf_pcm_new(struct snd_pdacf *chip)
 		return err;
 		
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &pdacf_pcm_capture_ops);
+<<<<<<< HEAD
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC,
+				       snd_dma_continuous_data(GFP_KERNEL | GFP_DMA32),
+				       0, 0);
+>>>>>>> upstream/android-13
 
 	pcm->private_data = chip;
 	pcm->info_flags = 0;

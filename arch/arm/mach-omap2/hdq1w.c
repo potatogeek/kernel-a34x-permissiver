@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IP block integration code for the HDQ1W/1-wire IP block
  *
@@ -6,6 +10,7 @@
  *
  * Based on the I2C reset code in arch/arm/mach-omap2/i2c.c by
  *     Avinash.H.M <avinashhm@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

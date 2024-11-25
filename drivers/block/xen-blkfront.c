@@ -42,6 +42,10 @@
 #include <linux/cdrom.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/major.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/scatterlist.h>
 #include <linux/bitmap.h>
@@ -80,6 +84,10 @@ enum blkif_state {
 	BLKIF_STATE_DISCONNECTED,
 	BLKIF_STATE_CONNECTED,
 	BLKIF_STATE_SUSPENDED,
+<<<<<<< HEAD
+=======
+	BLKIF_STATE_ERROR,
+>>>>>>> upstream/android-13
 };
 
 struct grant {
@@ -89,6 +97,10 @@ struct grant {
 };
 
 enum blk_req_status {
+<<<<<<< HEAD
+=======
+	REQ_PROCESSING,
+>>>>>>> upstream/android-13
 	REQ_WAITING,
 	REQ_DONE,
 	REQ_ERROR,
@@ -152,9 +164,12 @@ MODULE_PARM_DESC(max_ring_page_order, "Maximum order of pages to be used for the
 #define BLK_RING_SIZE(info)	\
 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * (info)->nr_ring_pages)
 
+<<<<<<< HEAD
 #define BLK_MAX_RING_SIZE	\
 	__CONST_RING_SIZE(blkif, XEN_PAGE_SIZE * XENBUS_MAX_RING_GRANTS)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * ring-ref%u i=(-1UL) would take 11 characters + 'ring-ref' is 8, so 19
  * characters are enough. Define to 20 to keep consistent with backend.
@@ -178,12 +193,19 @@ struct blkfront_ring_info {
 	unsigned int evtchn, irq;
 	struct work_struct work;
 	struct gnttab_free_callback callback;
+<<<<<<< HEAD
 	struct blk_shadow shadow[BLK_MAX_RING_SIZE];
+=======
+>>>>>>> upstream/android-13
 	struct list_head indirect_pages;
 	struct list_head grants;
 	unsigned int persistent_gnts_c;
 	unsigned long shadow_free;
 	struct blkfront_info *dev_info;
+<<<<<<< HEAD
+=======
+	struct blk_shadow shadow[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -217,6 +239,10 @@ struct blkfront_info
 	struct blk_mq_tag_set tag_set;
 	struct blkfront_ring_info *rinfo;
 	unsigned int nr_rings;
+<<<<<<< HEAD
+=======
+	unsigned int rinfo_size;
+>>>>>>> upstream/android-13
 	/* Save uncomplete reqs and bios for migration. */
 	struct list_head requests;
 	struct bio_list bio_list;
@@ -263,6 +289,21 @@ static int blkfront_setup_indirect(struct blkfront_ring_info *rinfo);
 static void blkfront_gather_backend_features(struct blkfront_info *info);
 static int negotiate_mq(struct blkfront_info *info);
 
+<<<<<<< HEAD
+=======
+#define for_each_rinfo(info, ptr, idx)				\
+	for ((ptr) = (info)->rinfo, (idx) = 0;			\
+	     (idx) < (info)->nr_rings;				\
+	     (idx)++, (ptr) = (void *)(ptr) + (info)->rinfo_size)
+
+static inline struct blkfront_ring_info *
+get_rinfo(const struct blkfront_info *info, unsigned int i)
+{
+	BUG_ON(i >= info->nr_rings);
+	return (void *)info->rinfo + i * info->rinfo_size;
+}
+
+>>>>>>> upstream/android-13
 static int get_id_from_freelist(struct blkfront_ring_info *rinfo)
 {
 	unsigned long free = rinfo->shadow_free;
@@ -492,6 +533,7 @@ static int blkif_getgeo(struct block_device *bd, struct hd_geometry *hg)
 static int blkif_ioctl(struct block_device *bdev, fmode_t mode,
 		       unsigned command, unsigned long argument)
 {
+<<<<<<< HEAD
 	struct blkfront_info *info = bdev->bd_disk->private_data;
 	int i;
 
@@ -501,10 +543,17 @@ static int blkif_ioctl(struct block_device *bdev, fmode_t mode,
 	switch (command) {
 	case CDROMMULTISESSION:
 		dev_dbg(&info->xbdev->dev, "FIXME: support multisession CDs later\n");
+=======
+	int i;
+
+	switch (command) {
+	case CDROMMULTISESSION:
+>>>>>>> upstream/android-13
 		for (i = 0; i < sizeof(struct cdrom_multisession); i++)
 			if (put_user(0, (char __user *)(argument + i)))
 				return -EFAULT;
 		return 0;
+<<<<<<< HEAD
 
 	case CDROM_GET_CAPABILITY: {
 		struct gendisk *gd = info->gd;
@@ -520,6 +569,15 @@ static int blkif_ioctl(struct block_device *bdev, fmode_t mode,
 	}
 
 	return 0;
+=======
+	case CDROM_GET_CAPABILITY:
+		if (bdev->bd_disk->flags & GENHD_FL_CD)
+			return 0;
+		return -EINVAL;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static unsigned long blkif_ring_get_request(struct blkfront_ring_info *rinfo,
@@ -533,10 +591,17 @@ static unsigned long blkif_ring_get_request(struct blkfront_ring_info *rinfo,
 
 	id = get_id_from_freelist(rinfo);
 	rinfo->shadow[id].request = req;
+<<<<<<< HEAD
 	rinfo->shadow[id].status = REQ_WAITING;
 	rinfo->shadow[id].associated_id = NO_ASSOCIATED_ID;
 
 	(*ring_req)->u.rw.id = id;
+=======
+	rinfo->shadow[id].status = REQ_PROCESSING;
+	rinfo->shadow[id].associated_id = NO_ASSOCIATED_ID;
+
+	rinfo->shadow[id].req.u.rw.id = id;
+>>>>>>> upstream/android-13
 
 	return id;
 }
@@ -544,11 +609,20 @@ static unsigned long blkif_ring_get_request(struct blkfront_ring_info *rinfo,
 static int blkif_queue_discard_req(struct request *req, struct blkfront_ring_info *rinfo)
 {
 	struct blkfront_info *info = rinfo->dev_info;
+<<<<<<< HEAD
 	struct blkif_request *ring_req;
 	unsigned long id;
 
 	/* Fill out a communications ring structure. */
 	id = blkif_ring_get_request(rinfo, req, &ring_req);
+=======
+	struct blkif_request *ring_req, *final_ring_req;
+	unsigned long id;
+
+	/* Fill out a communications ring structure. */
+	id = blkif_ring_get_request(rinfo, req, &final_ring_req);
+	ring_req = &rinfo->shadow[id].req;
+>>>>>>> upstream/android-13
 
 	ring_req->operation = BLKIF_OP_DISCARD;
 	ring_req->u.discard.nr_sectors = blk_rq_sectors(req);
@@ -559,8 +633,14 @@ static int blkif_queue_discard_req(struct request *req, struct blkfront_ring_inf
 	else
 		ring_req->u.discard.flag = 0;
 
+<<<<<<< HEAD
 	/* Keep a private copy so we can reissue requests when recovering. */
 	rinfo->shadow[id].req = *ring_req;
+=======
+	/* Copy the request to the ring page. */
+	*final_ring_req = *ring_req;
+	rinfo->shadow[id].status = REQ_WAITING;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -693,6 +773,10 @@ static int blkif_queue_rw_req(struct request *req, struct blkfront_ring_info *ri
 {
 	struct blkfront_info *info = rinfo->dev_info;
 	struct blkif_request *ring_req, *extra_ring_req = NULL;
+<<<<<<< HEAD
+=======
+	struct blkif_request *final_ring_req, *final_extra_ring_req = NULL;
+>>>>>>> upstream/android-13
 	unsigned long id, extra_id = NO_ASSOCIATED_ID;
 	bool require_extra_req = false;
 	int i;
@@ -737,7 +821,12 @@ static int blkif_queue_rw_req(struct request *req, struct blkfront_ring_info *ri
 	}
 
 	/* Fill out a communications ring structure. */
+<<<<<<< HEAD
 	id = blkif_ring_get_request(rinfo, req, &ring_req);
+=======
+	id = blkif_ring_get_request(rinfo, req, &final_ring_req);
+	ring_req = &rinfo->shadow[id].req;
+>>>>>>> upstream/android-13
 
 	num_sg = blk_rq_map_sg(req->q, req, rinfo->shadow[id].sg);
 	num_grant = 0;
@@ -788,7 +877,13 @@ static int blkif_queue_rw_req(struct request *req, struct blkfront_ring_info *ri
 		ring_req->u.rw.nr_segments = num_grant;
 		if (unlikely(require_extra_req)) {
 			extra_id = blkif_ring_get_request(rinfo, req,
+<<<<<<< HEAD
 							  &extra_ring_req);
+=======
+							  &final_extra_ring_req);
+			extra_ring_req = &rinfo->shadow[extra_id].req;
+
+>>>>>>> upstream/android-13
 			/*
 			 * Only the first request contains the scatter-gather
 			 * list.
@@ -830,10 +925,20 @@ static int blkif_queue_rw_req(struct request *req, struct blkfront_ring_info *ri
 	if (setup.segments)
 		kunmap_atomic(setup.segments);
 
+<<<<<<< HEAD
 	/* Keep a private copy so we can reissue requests when recovering. */
 	rinfo->shadow[id].req = *ring_req;
 	if (unlikely(require_extra_req))
 		rinfo->shadow[extra_id].req = *extra_ring_req;
+=======
+	/* Copy request(s) to the ring page. */
+	*final_ring_req = *ring_req;
+	rinfo->shadow[id].status = REQ_WAITING;
+	if (unlikely(require_extra_req)) {
+		*final_extra_ring_req = *extra_ring_req;
+		rinfo->shadow[extra_id].status = REQ_WAITING;
+	}
+>>>>>>> upstream/android-13
 
 	if (new_persistent_gnts)
 		gnttab_free_grant_references(setup.gref_head);
@@ -887,8 +992,12 @@ static blk_status_t blkif_queue_rq(struct blk_mq_hw_ctx *hctx,
 	struct blkfront_info *info = hctx->queue->queuedata;
 	struct blkfront_ring_info *rinfo = NULL;
 
+<<<<<<< HEAD
 	BUG_ON(info->nr_rings <= qid);
 	rinfo = &info->rinfo[qid];
+=======
+	rinfo = get_rinfo(info, qid);
+>>>>>>> upstream/android-13
 	blk_mq_start_request(qd->rq);
 	spin_lock_irqsave(&rinfo->ring_lock, flags);
 	if (RING_FULL(&rinfo->ring))
@@ -959,6 +1068,7 @@ static void blkif_set_queue_limits(struct blkfront_info *info)
 	blk_queue_dma_alignment(rq, 511);
 }
 
+<<<<<<< HEAD
 static int xlvbd_init_blk_queue(struct gendisk *gd, u16 sector_size,
 				unsigned int physical_sector_size)
 {
@@ -1001,6 +1111,8 @@ static int xlvbd_init_blk_queue(struct gendisk *gd, u16 sector_size,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const char *flush_info(struct blkfront_info *info)
 {
 	if (info->feature_flush && info->feature_fua)
@@ -1137,12 +1249,44 @@ static int xlvbd_alloc_gendisk(blkif_sector_t capacity,
 
 	err = xlbd_reserve_minors(minor, nr_minors);
 	if (err)
+<<<<<<< HEAD
 		goto out;
 	err = -ENODEV;
 
 	gd = alloc_disk(nr_minors);
 	if (gd == NULL)
 		goto release;
+=======
+		return err;
+
+	memset(&info->tag_set, 0, sizeof(info->tag_set));
+	info->tag_set.ops = &blkfront_mq_ops;
+	info->tag_set.nr_hw_queues = info->nr_rings;
+	if (HAS_EXTRA_REQ && info->max_indirect_segments == 0) {
+		/*
+		 * When indirect descriptior is not supported, the I/O request
+		 * will be split between multiple request in the ring.
+		 * To avoid problems when sending the request, divide by
+		 * 2 the depth of the queue.
+		 */
+		info->tag_set.queue_depth =  BLK_RING_SIZE(info) / 2;
+	} else
+		info->tag_set.queue_depth = BLK_RING_SIZE(info);
+	info->tag_set.numa_node = NUMA_NO_NODE;
+	info->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+	info->tag_set.cmd_size = sizeof(struct blkif_req);
+	info->tag_set.driver_data = info;
+
+	err = blk_mq_alloc_tag_set(&info->tag_set);
+	if (err)
+		goto out_release_minors;
+
+	gd = blk_mq_alloc_disk(&info->tag_set, info);
+	if (IS_ERR(gd)) {
+		err = PTR_ERR(gd);
+		goto out_free_tag_set;
+	}
+>>>>>>> upstream/android-13
 
 	strcpy(gd->disk_name, DEV_NAME);
 	ptr = encode_disk_name(gd->disk_name + sizeof(DEV_NAME) - 1, offset);
@@ -1155,14 +1299,26 @@ static int xlvbd_alloc_gendisk(blkif_sector_t capacity,
 
 	gd->major = XENVBD_MAJOR;
 	gd->first_minor = minor;
+<<<<<<< HEAD
+=======
+	gd->minors = nr_minors;
+>>>>>>> upstream/android-13
 	gd->fops = &xlvbd_block_fops;
 	gd->private_data = info;
 	set_capacity(gd, capacity);
 
+<<<<<<< HEAD
 	if (xlvbd_init_blk_queue(gd, sector_size, physical_sector_size)) {
 		del_gendisk(gd);
 		goto release;
 	}
+=======
+	info->rq = gd->queue;
+	info->gd = gd;
+	info->sector_size = sector_size;
+	info->physical_sector_size = physical_sector_size;
+	blkif_set_queue_limits(info);
+>>>>>>> upstream/android-13
 
 	xlvbd_flush(info);
 
@@ -1177,6 +1333,7 @@ static int xlvbd_alloc_gendisk(blkif_sector_t capacity,
 
 	return 0;
 
+<<<<<<< HEAD
  release:
 	xlbd_release_minors(minor, nr_minors);
  out:
@@ -1215,6 +1372,13 @@ static void xlvbd_release_gendisk(struct blkfront_info *info)
 
 	put_disk(info->gd);
 	info->gd = NULL;
+=======
+out_free_tag_set:
+	blk_mq_free_tag_set(&info->tag_set);
+out_release_minors:
+	xlbd_release_minors(minor, nr_minors);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /* Already hold rinfo->ring_lock. */
@@ -1333,7 +1497,12 @@ free_shadow:
 			rinfo->ring_ref[i] = GRANT_INVALID_REF;
 		}
 	}
+<<<<<<< HEAD
 	free_pages((unsigned long)rinfo->ring.sring, get_order(info->nr_ring_pages * XEN_PAGE_SIZE));
+=======
+	free_pages_exact(rinfo->ring.sring,
+			 info->nr_ring_pages * XEN_PAGE_SIZE);
+>>>>>>> upstream/android-13
 	rinfo->ring.sring = NULL;
 
 	if (rinfo->irq)
@@ -1344,6 +1513,10 @@ free_shadow:
 static void blkif_free(struct blkfront_info *info, int suspend)
 {
 	unsigned int i;
+<<<<<<< HEAD
+=======
+	struct blkfront_ring_info *rinfo;
+>>>>>>> upstream/android-13
 
 	/* Prevent new requests being issued until we fix things up. */
 	info->connected = suspend ?
@@ -1352,8 +1525,13 @@ static void blkif_free(struct blkfront_info *info, int suspend)
 	if (info->rq)
 		blk_mq_stop_hw_queues(info->rq);
 
+<<<<<<< HEAD
 	for (i = 0; i < info->nr_rings; i++)
 		blkif_free_ring(&info->rinfo[i]);
+=======
+	for_each_rinfo(info, rinfo, i)
+		blkif_free_ring(rinfo);
+>>>>>>> upstream/android-13
 
 	kvfree(info->rinfo);
 	info->rinfo = NULL;
@@ -1395,7 +1573,10 @@ static enum blk_req_status blkif_rsp_to_req_status(int rsp)
 	case BLKIF_RSP_EOPNOTSUPP:
 		return REQ_EOPNOTSUPP;
 	case BLKIF_RSP_ERROR:
+<<<<<<< HEAD
 		/* Fallthrough. */
+=======
+>>>>>>> upstream/android-13
 	default:
 		return REQ_ERROR;
 	}
@@ -1407,8 +1588,13 @@ static enum blk_req_status blkif_rsp_to_req_status(int rsp)
 static int blkif_get_final_status(enum blk_req_status s1,
 				  enum blk_req_status s2)
 {
+<<<<<<< HEAD
 	BUG_ON(s1 == REQ_WAITING);
 	BUG_ON(s2 == REQ_WAITING);
+=======
+	BUG_ON(s1 < REQ_DONE);
+	BUG_ON(s2 < REQ_DONE);
+>>>>>>> upstream/android-13
 
 	if (s1 == REQ_ERROR || s2 == REQ_ERROR)
 		return BLKIF_RSP_ERROR;
@@ -1417,9 +1603,21 @@ static int blkif_get_final_status(enum blk_req_status s1,
 	return BLKIF_RSP_OKAY;
 }
 
+<<<<<<< HEAD
 static bool blkif_completion(unsigned long *id,
 			     struct blkfront_ring_info *rinfo,
 			     struct blkif_response *bret)
+=======
+/*
+ * Return values:
+ *  1 response processed.
+ *  0 missing further responses.
+ * -1 error while processing.
+ */
+static int blkif_completion(unsigned long *id,
+			    struct blkfront_ring_info *rinfo,
+			    struct blkif_response *bret)
+>>>>>>> upstream/android-13
 {
 	int i = 0;
 	struct scatterlist *sg;
@@ -1441,8 +1639,13 @@ static bool blkif_completion(unsigned long *id,
 		s->status = blkif_rsp_to_req_status(bret->status);
 
 		/* Wait the second response if not yet here. */
+<<<<<<< HEAD
 		if (s2->status == REQ_WAITING)
 			return false;
+=======
+		if (s2->status < REQ_DONE)
+			return 0;
+>>>>>>> upstream/android-13
 
 		bret->status = blkif_get_final_status(s->status,
 						      s2->status);
@@ -1493,42 +1696,73 @@ static bool blkif_completion(unsigned long *id,
 	}
 	/* Add the persistent grant into the list of free grants */
 	for (i = 0; i < num_grant; i++) {
+<<<<<<< HEAD
 		if (gnttab_query_foreign_access(s->grants_used[i]->gref)) {
+=======
+		if (!gnttab_try_end_foreign_access(s->grants_used[i]->gref)) {
+>>>>>>> upstream/android-13
 			/*
 			 * If the grant is still mapped by the backend (the
 			 * backend has chosen to make this grant persistent)
 			 * we add it at the head of the list, so it will be
 			 * reused first.
 			 */
+<<<<<<< HEAD
 			if (!info->feature_persistent)
 				pr_alert_ratelimited("backed has not unmapped grant: %u\n",
 						     s->grants_used[i]->gref);
+=======
+			if (!info->feature_persistent) {
+				pr_alert("backed has not unmapped grant: %u\n",
+					 s->grants_used[i]->gref);
+				return -1;
+			}
+>>>>>>> upstream/android-13
 			list_add(&s->grants_used[i]->node, &rinfo->grants);
 			rinfo->persistent_gnts_c++;
 		} else {
 			/*
+<<<<<<< HEAD
 			 * If the grant is not mapped by the backend we end the
 			 * foreign access and add it to the tail of the list,
 			 * so it will not be picked again unless we run out of
 			 * persistent grants.
 			 */
 			gnttab_end_foreign_access(s->grants_used[i]->gref, 0, 0UL);
+=======
+			 * If the grant is not mapped by the backend we add it
+			 * to the tail of the list, so it will not be picked
+			 * again unless we run out of persistent grants.
+			 */
+>>>>>>> upstream/android-13
 			s->grants_used[i]->gref = GRANT_INVALID_REF;
 			list_add_tail(&s->grants_used[i]->node, &rinfo->grants);
 		}
 	}
 	if (s->req.operation == BLKIF_OP_INDIRECT) {
 		for (i = 0; i < INDIRECT_GREFS(num_grant); i++) {
+<<<<<<< HEAD
 			if (gnttab_query_foreign_access(s->indirect_grants[i]->gref)) {
 				if (!info->feature_persistent)
 					pr_alert_ratelimited("backed has not unmapped grant: %u\n",
 							     s->indirect_grants[i]->gref);
+=======
+			if (!gnttab_try_end_foreign_access(s->indirect_grants[i]->gref)) {
+				if (!info->feature_persistent) {
+					pr_alert("backed has not unmapped grant: %u\n",
+						 s->indirect_grants[i]->gref);
+					return -1;
+				}
+>>>>>>> upstream/android-13
 				list_add(&s->indirect_grants[i]->node, &rinfo->grants);
 				rinfo->persistent_gnts_c++;
 			} else {
 				struct page *indirect_page;
 
+<<<<<<< HEAD
 				gnttab_end_foreign_access(s->indirect_grants[i]->gref, 0, 0UL);
+=======
+>>>>>>> upstream/android-13
 				/*
 				 * Add the used indirect page back to the list of
 				 * available pages for indirect grefs.
@@ -1543,17 +1777,26 @@ static bool blkif_completion(unsigned long *id,
 		}
 	}
 
+<<<<<<< HEAD
 	return true;
+=======
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 {
 	struct request *req;
+<<<<<<< HEAD
 	struct blkif_response *bret;
+=======
+	struct blkif_response bret;
+>>>>>>> upstream/android-13
 	RING_IDX i, rp;
 	unsigned long flags;
 	struct blkfront_ring_info *rinfo = (struct blkfront_ring_info *)dev_id;
 	struct blkfront_info *info = rinfo->dev_info;
+<<<<<<< HEAD
 
 	if (unlikely(info->connected != BLKIF_STATE_CONNECTED))
 		return IRQ_HANDLED;
@@ -1568,12 +1811,41 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 
 		bret = RING_GET_RESPONSE(&rinfo->ring, i);
 		id   = bret->id;
+=======
+	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
+
+	if (unlikely(info->connected != BLKIF_STATE_CONNECTED)) {
+		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
+		return IRQ_HANDLED;
+	}
+
+	spin_lock_irqsave(&rinfo->ring_lock, flags);
+ again:
+	rp = READ_ONCE(rinfo->ring.sring->rsp_prod);
+	virt_rmb(); /* Ensure we see queued responses up to 'rp'. */
+	if (RING_RESPONSE_PROD_OVERFLOW(&rinfo->ring, rp)) {
+		pr_alert("%s: illegal number of responses %u\n",
+			 info->gd->disk_name, rp - rinfo->ring.rsp_cons);
+		goto err;
+	}
+
+	for (i = rinfo->ring.rsp_cons; i != rp; i++) {
+		unsigned long id;
+		unsigned int op;
+
+		eoiflag = 0;
+
+		RING_COPY_RESPONSE(&rinfo->ring, i, &bret);
+		id = bret.id;
+
+>>>>>>> upstream/android-13
 		/*
 		 * The backend has messed up and given us an id that we would
 		 * never have given to it (we stamp it up to BLK_RING_SIZE -
 		 * look in get_id_from_freelist.
 		 */
 		if (id >= BLK_RING_SIZE(info)) {
+<<<<<<< HEAD
 			WARN(1, "%s: response to %s has incorrect id (%ld)\n",
 			     info->gd->disk_name, op_name(bret->operation), id);
 			/* We can't safely get the 'struct request' as
@@ -1583,31 +1855,84 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 		req  = rinfo->shadow[id].request;
 
 		if (bret->operation != BLKIF_OP_DISCARD) {
+=======
+			pr_alert("%s: response has incorrect id (%ld)\n",
+				 info->gd->disk_name, id);
+			goto err;
+		}
+		if (rinfo->shadow[id].status != REQ_WAITING) {
+			pr_alert("%s: response references no pending request\n",
+				 info->gd->disk_name);
+			goto err;
+		}
+
+		rinfo->shadow[id].status = REQ_PROCESSING;
+		req  = rinfo->shadow[id].request;
+
+		op = rinfo->shadow[id].req.operation;
+		if (op == BLKIF_OP_INDIRECT)
+			op = rinfo->shadow[id].req.u.indirect.indirect_op;
+		if (bret.operation != op) {
+			pr_alert("%s: response has wrong operation (%u instead of %u)\n",
+				 info->gd->disk_name, bret.operation, op);
+			goto err;
+		}
+
+		if (bret.operation != BLKIF_OP_DISCARD) {
+			int ret;
+
+>>>>>>> upstream/android-13
 			/*
 			 * We may need to wait for an extra response if the
 			 * I/O request is split in 2
 			 */
+<<<<<<< HEAD
 			if (!blkif_completion(&id, rinfo, bret))
 				continue;
+=======
+			ret = blkif_completion(&id, rinfo, &bret);
+			if (!ret)
+				continue;
+			if (unlikely(ret < 0))
+				goto err;
+>>>>>>> upstream/android-13
 		}
 
 		if (add_id_to_freelist(rinfo, id)) {
 			WARN(1, "%s: response to %s (id %ld) couldn't be recycled!\n",
+<<<<<<< HEAD
 			     info->gd->disk_name, op_name(bret->operation), id);
 			continue;
 		}
 
 		if (bret->status == BLKIF_RSP_OKAY)
+=======
+			     info->gd->disk_name, op_name(bret.operation), id);
+			continue;
+		}
+
+		if (bret.status == BLKIF_RSP_OKAY)
+>>>>>>> upstream/android-13
 			blkif_req(req)->error = BLK_STS_OK;
 		else
 			blkif_req(req)->error = BLK_STS_IOERR;
 
+<<<<<<< HEAD
 		switch (bret->operation) {
 		case BLKIF_OP_DISCARD:
 			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
 				struct request_queue *rq = info->rq;
 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
 					   info->gd->disk_name, op_name(bret->operation));
+=======
+		switch (bret.operation) {
+		case BLKIF_OP_DISCARD:
+			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
+				struct request_queue *rq = info->rq;
+
+				pr_warn_ratelimited("blkfront: %s: %s op failed\n",
+					   info->gd->disk_name, op_name(bret.operation));
+>>>>>>> upstream/android-13
 				blkif_req(req)->error = BLK_STS_NOTSUPP;
 				info->feature_discard = 0;
 				info->feature_secdiscard = 0;
@@ -1617,6 +1942,7 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 			break;
 		case BLKIF_OP_FLUSH_DISKCACHE:
 		case BLKIF_OP_WRITE_BARRIER:
+<<<<<<< HEAD
 			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
 				       info->gd->disk_name, op_name(bret->operation));
@@ -1626,6 +1952,17 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 				     rinfo->shadow[id].req.u.rw.nr_segments == 0)) {
 				printk(KERN_WARNING "blkfront: %s: empty %s op failed\n",
 				       info->gd->disk_name, op_name(bret->operation));
+=======
+			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
+				pr_warn_ratelimited("blkfront: %s: %s op failed\n",
+				       info->gd->disk_name, op_name(bret.operation));
+				blkif_req(req)->error = BLK_STS_NOTSUPP;
+			}
+			if (unlikely(bret.status == BLKIF_RSP_ERROR &&
+				     rinfo->shadow[id].req.u.rw.nr_segments == 0)) {
+				pr_warn_ratelimited("blkfront: %s: empty %s op failed\n",
+				       info->gd->disk_name, op_name(bret.operation));
+>>>>>>> upstream/android-13
 				blkif_req(req)->error = BLK_STS_NOTSUPP;
 			}
 			if (unlikely(blkif_req(req)->error)) {
@@ -1635,19 +1972,34 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 				info->feature_flush = 0;
 				xlvbd_flush(info);
 			}
+<<<<<<< HEAD
 			/* fall through */
 		case BLKIF_OP_READ:
 		case BLKIF_OP_WRITE:
 			if (unlikely(bret->status != BLKIF_RSP_OKAY))
 				dev_dbg(&info->xbdev->dev, "Bad return from blkdev data "
 					"request: %x\n", bret->status);
+=======
+			fallthrough;
+		case BLKIF_OP_READ:
+		case BLKIF_OP_WRITE:
+			if (unlikely(bret.status != BLKIF_RSP_OKAY))
+				dev_dbg_ratelimited(&info->xbdev->dev,
+					"Bad return from blkdev data request: %#x\n",
+					bret.status);
+>>>>>>> upstream/android-13
 
 			break;
 		default:
 			BUG();
 		}
 
+<<<<<<< HEAD
 		blk_mq_complete_request(req);
+=======
+		if (likely(!blk_should_fake_timeout(req->q)))
+			blk_mq_complete_request(req);
+>>>>>>> upstream/android-13
 	}
 
 	rinfo->ring.rsp_cons = i;
@@ -1664,6 +2016,21 @@ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
 
 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
 
+<<<<<<< HEAD
+=======
+	xen_irq_lateeoi(irq, eoiflag);
+
+	return IRQ_HANDLED;
+
+ err:
+	info->connected = BLKIF_STATE_ERROR;
+
+	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
+
+	/* No EOI in order to avoid further interrupts. */
+
+	pr_alert("%s disabled for further use\n", info->gd->disk_name);
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -1680,8 +2047,12 @@ static int setup_blkring(struct xenbus_device *dev,
 	for (i = 0; i < info->nr_ring_pages; i++)
 		rinfo->ring_ref[i] = GRANT_INVALID_REF;
 
+<<<<<<< HEAD
 	sring = (struct blkif_sring *)__get_free_pages(GFP_NOIO | __GFP_HIGH,
 						       get_order(ring_size));
+=======
+	sring = alloc_pages_exact(ring_size, GFP_NOIO);
+>>>>>>> upstream/android-13
 	if (!sring) {
 		xenbus_dev_fatal(dev, -ENOMEM, "allocating shared ring");
 		return -ENOMEM;
@@ -1691,7 +2062,11 @@ static int setup_blkring(struct xenbus_device *dev,
 
 	err = xenbus_grant_ring(dev, rinfo->ring.sring, info->nr_ring_pages, gref);
 	if (err < 0) {
+<<<<<<< HEAD
 		free_pages((unsigned long)sring, get_order(ring_size));
+=======
+		free_pages_exact(sring, ring_size);
+>>>>>>> upstream/android-13
 		rinfo->ring.sring = NULL;
 		goto fail;
 	}
@@ -1702,8 +2077,13 @@ static int setup_blkring(struct xenbus_device *dev,
 	if (err)
 		goto fail;
 
+<<<<<<< HEAD
 	err = bind_evtchn_to_irqhandler(rinfo->evtchn, blkif_interrupt, 0,
 					"blkif", rinfo);
+=======
+	err = bind_evtchn_to_irqhandler_lateeoi(rinfo->evtchn, blkif_interrupt,
+						0, "blkif", rinfo);
+>>>>>>> upstream/android-13
 	if (err <= 0) {
 		xenbus_dev_fatal(dev, err,
 				 "bind_evtchn_to_irqhandler failed");
@@ -1765,12 +2145,15 @@ abort_transaction:
 	return err;
 }
 
+<<<<<<< HEAD
 static void free_info(struct blkfront_info *info)
 {
 	list_del(&info->info_list);
 	kfree(info);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Common code used when first setting up, and when resuming. */
 static int talk_to_blkback(struct xenbus_device *dev,
 			   struct blkfront_info *info)
@@ -1780,6 +2163,10 @@ static int talk_to_blkback(struct xenbus_device *dev,
 	int err;
 	unsigned int i, max_page_order;
 	unsigned int ring_page_order;
+<<<<<<< HEAD
+=======
+	struct blkfront_ring_info *rinfo;
+>>>>>>> upstream/android-13
 
 	if (!info)
 		return -ENODEV;
@@ -1793,9 +2180,13 @@ static int talk_to_blkback(struct xenbus_device *dev,
 	if (err)
 		goto destroy_blkring;
 
+<<<<<<< HEAD
 	for (i = 0; i < info->nr_rings; i++) {
 		struct blkfront_ring_info *rinfo = &info->rinfo[i];
 
+=======
+	for_each_rinfo(info, rinfo, i) {
+>>>>>>> upstream/android-13
 		/* Create shared ring, alloc event channel. */
 		err = setup_blkring(dev, rinfo);
 		if (err)
@@ -1820,7 +2211,11 @@ again:
 
 	/* We already got the number of queues/rings in _probe */
 	if (info->nr_rings == 1) {
+<<<<<<< HEAD
 		err = write_per_ring_nodes(xbt, &info->rinfo[0], dev->nodename);
+=======
+		err = write_per_ring_nodes(xbt, info->rinfo, dev->nodename);
+>>>>>>> upstream/android-13
 		if (err)
 			goto destroy_blkring;
 	} else {
@@ -1842,10 +2237,17 @@ again:
 			goto abort_transaction;
 		}
 
+<<<<<<< HEAD
 		for (i = 0; i < info->nr_rings; i++) {
 			memset(path, 0, pathsize);
 			snprintf(path, pathsize, "%s/queue-%u", dev->nodename, i);
 			err = write_per_ring_nodes(xbt, &info->rinfo[i], path);
+=======
+		for_each_rinfo(info, rinfo, i) {
+			memset(path, 0, pathsize);
+			snprintf(path, pathsize, "%s/queue-%u", dev->nodename, i);
+			err = write_per_ring_nodes(xbt, rinfo, path);
+>>>>>>> upstream/android-13
 			if (err) {
 				kfree(path);
 				goto destroy_blkring;
@@ -1859,8 +2261,13 @@ again:
 		message = "writing protocol";
 		goto abort_transaction;
 	}
+<<<<<<< HEAD
 	err = xenbus_printf(xbt, dev->nodename,
 			    "feature-persistent", "%u", 1);
+=======
+	err = xenbus_printf(xbt, dev->nodename, "feature-persistent", "%u",
+			info->feature_persistent);
+>>>>>>> upstream/android-13
 	if (err)
 		dev_warn(&dev->dev,
 			 "writing persistent grants feature to xenbus");
@@ -1873,9 +2280,14 @@ again:
 		goto destroy_blkring;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < info->nr_rings; i++) {
 		unsigned int j;
 		struct blkfront_ring_info *rinfo = &info->rinfo[i];
+=======
+	for_each_rinfo(info, rinfo, i) {
+		unsigned int j;
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < BLK_RING_SIZE(info); j++)
 			rinfo->shadow[j].req.u.rw.id = j + 1;
@@ -1891,6 +2303,7 @@ again:
 		xenbus_dev_fatal(dev, err, "%s", message);
  destroy_blkring:
 	blkif_free(info, 0);
+<<<<<<< HEAD
 
 	mutex_lock(&blkfront_mutex);
 	free_info(info);
@@ -1898,6 +2311,8 @@ again:
 
 	dev_set_drvdata(&dev->dev, NULL);
 
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1905,6 +2320,10 @@ static int negotiate_mq(struct blkfront_info *info)
 {
 	unsigned int backend_max_queues;
 	unsigned int i;
+<<<<<<< HEAD
+=======
+	struct blkfront_ring_info *rinfo;
+>>>>>>> upstream/android-13
 
 	BUG_ON(info->nr_rings);
 
@@ -1916,19 +2335,29 @@ static int negotiate_mq(struct blkfront_info *info)
 	if (!info->nr_rings)
 		info->nr_rings = 1;
 
+<<<<<<< HEAD
 	info->rinfo = kvcalloc(info->nr_rings,
 			       sizeof(struct blkfront_ring_info),
 			       GFP_KERNEL);
+=======
+	info->rinfo_size = struct_size(info->rinfo, shadow,
+				       BLK_RING_SIZE(info));
+	info->rinfo = kvcalloc(info->nr_rings, info->rinfo_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!info->rinfo) {
 		xenbus_dev_fatal(info->xbdev, -ENOMEM, "allocating ring_info structure");
 		info->nr_rings = 0;
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < info->nr_rings; i++) {
 		struct blkfront_ring_info *rinfo;
 
 		rinfo = &info->rinfo[i];
+=======
+	for_each_rinfo(info, rinfo, i) {
+>>>>>>> upstream/android-13
 		INIT_LIST_HEAD(&rinfo->indirect_pages);
 		INIT_LIST_HEAD(&rinfo->grants);
 		rinfo->dev_info = info;
@@ -1937,7 +2366,18 @@ static int negotiate_mq(struct blkfront_info *info)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 /**
+=======
+
+/* Enable the persistent grants feature. */
+static bool feature_persistent = true;
+module_param(feature_persistent, bool, 0644);
+MODULE_PARM_DESC(feature_persistent,
+		"Enables the persistent grants feature");
+
+/*
+>>>>>>> upstream/android-13
  * Entry point to this code when a new device is created.  Allocate the basic
  * structures and the ring buffer for communication with the backend, and
  * inform the backend of the appropriate details for those.  Switch to
@@ -2003,6 +2443,11 @@ static int blkfront_probe(struct xenbus_device *dev,
 	info->vdevice = vdevice;
 	info->connected = BLKIF_STATE_DISCONNECTED;
 
+<<<<<<< HEAD
+=======
+	info->feature_persistent = feature_persistent;
+
+>>>>>>> upstream/android-13
 	/* Front end dir is a number, which is used as the id. */
 	info->handle = simple_strtoul(strrchr(dev->nodename, '/')+1, NULL, 0);
 	dev_set_drvdata(&dev->dev, info);
@@ -2021,6 +2466,10 @@ static int blkif_recover(struct blkfront_info *info)
 	int rc;
 	struct bio *bio;
 	unsigned int segs;
+<<<<<<< HEAD
+=======
+	struct blkfront_ring_info *rinfo;
+>>>>>>> upstream/android-13
 
 	blkfront_gather_backend_features(info);
 	/* Reset limits changed by blk_mq_update_nr_hw_queues(). */
@@ -2028,9 +2477,13 @@ static int blkif_recover(struct blkfront_info *info)
 	segs = info->max_indirect_segments ? : BLKIF_MAX_SEGMENTS_PER_REQUEST;
 	blk_queue_max_segments(info->rq, segs / GRANTS_PER_PSEG);
 
+<<<<<<< HEAD
 	for (r_index = 0; r_index < info->nr_rings; r_index++) {
 		struct blkfront_ring_info *rinfo = &info->rinfo[r_index];
 
+=======
+	for_each_rinfo(info, rinfo, r_index) {
+>>>>>>> upstream/android-13
 		rc = blkfront_setup_indirect(rinfo);
 		if (rc)
 			return rc;
@@ -2040,10 +2493,14 @@ static int blkif_recover(struct blkfront_info *info)
 	/* Now safe for us to use the shared ring */
 	info->connected = BLKIF_STATE_CONNECTED;
 
+<<<<<<< HEAD
 	for (r_index = 0; r_index < info->nr_rings; r_index++) {
 		struct blkfront_ring_info *rinfo;
 
 		rinfo = &info->rinfo[r_index];
+=======
+	for_each_rinfo(info, rinfo, r_index) {
+>>>>>>> upstream/android-13
 		/* Kick any other new requests queued since we resumed */
 		kick_pending_request_queues(rinfo);
 	}
@@ -2065,7 +2522,11 @@ static int blkif_recover(struct blkfront_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * We are reconnecting to the backend, due to a suspend/resume, or a backend
  * driver restart.  We tear down our blkif structure and recreate it, but
  * leave the device-layer structures intact so that this is transparent to the
@@ -2076,13 +2537,21 @@ static int blkfront_resume(struct xenbus_device *dev)
 	struct blkfront_info *info = dev_get_drvdata(&dev->dev);
 	int err = 0;
 	unsigned int i, j;
+<<<<<<< HEAD
+=======
+	struct blkfront_ring_info *rinfo;
+>>>>>>> upstream/android-13
 
 	dev_dbg(&dev->dev, "blkfront_resume: %s\n", dev->nodename);
 
 	bio_list_init(&info->bio_list);
 	INIT_LIST_HEAD(&info->requests);
+<<<<<<< HEAD
 	for (i = 0; i < info->nr_rings; i++) {
 		struct blkfront_ring_info *rinfo = &info->rinfo[i];
+=======
+	for_each_rinfo(info, rinfo, i) {
+>>>>>>> upstream/android-13
 		struct bio_list merge_bio;
 		struct blk_shadow *shadow = rinfo->shadow;
 
@@ -2134,6 +2603,7 @@ static int blkfront_resume(struct xenbus_device *dev)
 static void blkfront_closing(struct blkfront_info *info)
 {
 	struct xenbus_device *xbdev = info->xbdev;
+<<<<<<< HEAD
 	struct block_device *bdev = NULL;
 
 	mutex_lock(&info->mutex);
@@ -2166,6 +2636,28 @@ static void blkfront_closing(struct blkfront_info *info)
 
 	mutex_unlock(&bdev->bd_mutex);
 	bdput(bdev);
+=======
+	struct blkfront_ring_info *rinfo;
+	unsigned int i;
+
+	if (xbdev->state == XenbusStateClosing)
+		return;
+
+	/* No more blkif_request(). */
+	blk_mq_stop_hw_queues(info->rq);
+	blk_mark_disk_dead(info->gd);
+	set_capacity(info->gd, 0);
+
+	for_each_rinfo(info, rinfo, i) {
+		/* No more gnttab callback work. */
+		gnttab_cancel_free_callback(&rinfo->callback);
+
+		/* Flush gnttab callback work. Must be done with no locks held. */
+		flush_work(&rinfo->work);
+	}
+
+	xenbus_frontend_closed(xbdev);
+>>>>>>> upstream/android-13
 }
 
 static void blkfront_setup_discard(struct blkfront_info *info)
@@ -2309,9 +2801,16 @@ static void blkfront_gather_backend_features(struct blkfront_info *info)
 	if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
 		blkfront_setup_discard(info);
 
+<<<<<<< HEAD
 	info->feature_persistent =
 		!!xenbus_read_unsigned(info->xbdev->otherend,
 				       "feature-persistent", 0);
+=======
+	if (info->feature_persistent)
+		info->feature_persistent =
+			!!xenbus_read_unsigned(info->xbdev->otherend,
+					       "feature-persistent", 0);
+>>>>>>> upstream/android-13
 
 	indirect_segments = xenbus_read_unsigned(info->xbdev->otherend,
 					"feature-max-indirect-segments", 0);
@@ -2338,8 +2837,13 @@ static void blkfront_connect(struct blkfront_info *info)
 	unsigned long sector_size;
 	unsigned int physical_sector_size;
 	unsigned int binfo;
+<<<<<<< HEAD
 	char *envp[] = { "RESIZE=1", NULL };
 	int err, i;
+=======
+	int err, i;
+	struct blkfront_ring_info *rinfo;
+>>>>>>> upstream/android-13
 
 	switch (info->connected) {
 	case BLKIF_STATE_CONNECTED:
@@ -2353,10 +2857,14 @@ static void blkfront_connect(struct blkfront_info *info)
 			return;
 		printk(KERN_INFO "Setting capacity to %Lu\n",
 		       sectors);
+<<<<<<< HEAD
 		set_capacity(info->gd, sectors);
 		revalidate_disk(info->gd);
 		kobject_uevent_env(&disk_to_dev(info->gd)->kobj,
 				   KOBJ_CHANGE, envp);
+=======
+		set_capacity_and_notify(info->gd, sectors);
+>>>>>>> upstream/android-13
 
 		return;
 	case BLKIF_STATE_SUSPENDED:
@@ -2389,7 +2897,11 @@ static void blkfront_connect(struct blkfront_info *info)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * physcial-sector-size is a newer field, so old backends may not
+=======
+	 * physical-sector-size is a newer field, so old backends may not
+>>>>>>> upstream/android-13
 	 * provide this. Assume physical sector size to be the same as
 	 * sector_size in that case.
 	 */
@@ -2397,8 +2909,13 @@ static void blkfront_connect(struct blkfront_info *info)
 						    "physical-sector-size",
 						    sector_size);
 	blkfront_gather_backend_features(info);
+<<<<<<< HEAD
 	for (i = 0; i < info->nr_rings; i++) {
 		err = blkfront_setup_indirect(&info->rinfo[i]);
+=======
+	for_each_rinfo(info, rinfo, i) {
+		err = blkfront_setup_indirect(rinfo);
+>>>>>>> upstream/android-13
 		if (err) {
 			xenbus_dev_fatal(info->xbdev, err, "setup_indirect at %s",
 					 info->xbdev->otherend);
@@ -2419,10 +2936,17 @@ static void blkfront_connect(struct blkfront_info *info)
 
 	/* Kick pending requests. */
 	info->connected = BLKIF_STATE_CONNECTED;
+<<<<<<< HEAD
 	for (i = 0; i < info->nr_rings; i++)
 		kick_pending_request_queues(&info->rinfo[i]);
 
 	device_add_disk(&info->xbdev->dev, info->gd);
+=======
+	for_each_rinfo(info, rinfo, i)
+		kick_pending_request_queues(rinfo);
+
+	device_add_disk(&info->xbdev->dev, info->gd, NULL);
+>>>>>>> upstream/android-13
 
 	info->is_ready = 1;
 	return;
@@ -2432,7 +2956,11 @@ fail:
 	return;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Callback received when the backend's state changes.
  */
 static void blkback_changed(struct xenbus_device *dev,
@@ -2448,6 +2976,10 @@ static void blkback_changed(struct xenbus_device *dev,
 			break;
 		if (talk_to_blkback(dev, info))
 			break;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case XenbusStateInitialising:
 	case XenbusStateInitialised:
 	case XenbusStateReconfiguring:
@@ -2479,10 +3011,16 @@ static void blkback_changed(struct xenbus_device *dev,
 	case XenbusStateClosed:
 		if (dev->state == XenbusStateClosed)
 			break;
+<<<<<<< HEAD
 		/* fall through */
 	case XenbusStateClosing:
 		if (info)
 			blkfront_closing(info);
+=======
+		fallthrough;
+	case XenbusStateClosing:
+		blkfront_closing(info);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -2490,6 +3028,7 @@ static void blkback_changed(struct xenbus_device *dev,
 static int blkfront_remove(struct xenbus_device *xbdev)
 {
 	struct blkfront_info *info = dev_get_drvdata(&xbdev->dev);
+<<<<<<< HEAD
 	struct block_device *bdev = NULL;
 	struct gendisk *disk;
 
@@ -2540,6 +3079,23 @@ static int blkfront_remove(struct xenbus_device *xbdev)
 	mutex_unlock(&bdev->bd_mutex);
 	bdput(bdev);
 
+=======
+
+	dev_dbg(&xbdev->dev, "%s removed", xbdev->nodename);
+
+	del_gendisk(info->gd);
+
+	mutex_lock(&blkfront_mutex);
+	list_del(&info->info_list);
+	mutex_unlock(&blkfront_mutex);
+
+	blkif_free(info, 0);
+	xlbd_release_minors(info->gd->first_minor, info->gd->minors);
+	blk_cleanup_disk(info->gd);
+	blk_mq_free_tag_set(&info->tag_set);
+
+	kfree(info);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2550,6 +3106,7 @@ static int blkfront_is_ready(struct xenbus_device *dev)
 	return info->is_ready && info->xbdev;
 }
 
+<<<<<<< HEAD
 static int blkif_open(struct block_device *bdev, fmode_t mode)
 {
 	struct gendisk *disk = bdev->bd_disk;
@@ -2633,6 +3190,14 @@ static const struct block_device_operations xlvbd_block_fops =
 	.release = blkif_release,
 	.getgeo = blkif_getgeo,
 	.ioctl = blkif_ioctl,
+=======
+static const struct block_device_operations xlvbd_block_fops =
+{
+	.owner = THIS_MODULE,
+	.getgeo = blkif_getgeo,
+	.ioctl = blkif_ioctl,
+	.compat_ioctl = blkdev_compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 
@@ -2654,9 +3219,15 @@ static void purge_persistent_grants(struct blkfront_info *info)
 {
 	unsigned int i;
 	unsigned long flags;
+<<<<<<< HEAD
 
 	for (i = 0; i < info->nr_rings; i++) {
 		struct blkfront_ring_info *rinfo = &info->rinfo[i];
+=======
+	struct blkfront_ring_info *rinfo;
+
+	for_each_rinfo(info, rinfo, i) {
+>>>>>>> upstream/android-13
 		struct grant *gnt_list_entry, *tmp;
 
 		spin_lock_irqsave(&rinfo->ring_lock, flags);
@@ -2669,11 +3240,18 @@ static void purge_persistent_grants(struct blkfront_info *info)
 		list_for_each_entry_safe(gnt_list_entry, tmp, &rinfo->grants,
 					 node) {
 			if (gnt_list_entry->gref == GRANT_INVALID_REF ||
+<<<<<<< HEAD
 			    gnttab_query_foreign_access(gnt_list_entry->gref))
 				continue;
 
 			list_del(&gnt_list_entry->node);
 			gnttab_end_foreign_access(gnt_list_entry->gref, 0, 0UL);
+=======
+			    !gnttab_try_end_foreign_access(gnt_list_entry->gref))
+				continue;
+
+			list_del(&gnt_list_entry->node);
+>>>>>>> upstream/android-13
 			rinfo->persistent_gnts_c--;
 			gnt_list_entry->gref = GRANT_INVALID_REF;
 			list_add_tail(&gnt_list_entry->node, &rinfo->grants);

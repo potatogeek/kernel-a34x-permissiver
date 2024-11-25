@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * GPL LICENSE SUMMARY
@@ -21,6 +22,13 @@
  * The full GNU General Public License is included in this distribution
  * in the file called LICENSE.GPL.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2008 - 2011 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <ilw@linux.intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -128,6 +136,7 @@ EXPORT_SYMBOL(il_update_stats);
 
 /* create and remove of files */
 #define DEBUGFS_ADD_FILE(name, parent, mode) do {			\
+<<<<<<< HEAD
 	if (!debugfs_create_file(#name, mode, parent, il,		\
 			 &il_dbgfs_##name##_ops))		\
 		goto err;						\
@@ -145,6 +154,14 @@ EXPORT_SYMBOL(il_update_stats);
 	__tmp = debugfs_create_x32(#name, 0600, parent, ptr);		\
 	if (IS_ERR(__tmp) || !__tmp)					\
 		goto err;						\
+=======
+	debugfs_create_file(#name, mode, parent, il,			\
+			    &il_dbgfs_##name##_ops);			\
+} while (0)
+
+#define DEBUGFS_ADD_BOOL(name, parent, ptr) do {			\
+	debugfs_create_bool(#name, 0600, parent, ptr);			\
+>>>>>>> upstream/android-13
 } while (0)
 
 /* file operation */
@@ -1341,13 +1358,18 @@ DEBUGFS_WRITE_FILE_OPS(wd_timeout);
  * Create the debugfs files and directories
  *
  */
+<<<<<<< HEAD
 int
+=======
+void
+>>>>>>> upstream/android-13
 il_dbgfs_register(struct il_priv *il, const char *name)
 {
 	struct dentry *phyd = il->hw->wiphy->debugfsdir;
 	struct dentry *dir_drv, *dir_data, *dir_rf, *dir_debug;
 
 	dir_drv = debugfs_create_dir(name, phyd);
+<<<<<<< HEAD
 	if (!dir_drv)
 		return -ENOMEM;
 
@@ -1362,6 +1384,13 @@ il_dbgfs_register(struct il_priv *il, const char *name)
 	dir_debug = debugfs_create_dir("debug", dir_drv);
 	if (!dir_debug)
 		goto err;
+=======
+	il->debugfs_dir = dir_drv;
+
+	dir_data = debugfs_create_dir("data", dir_drv);
+	dir_rf = debugfs_create_dir("rf", dir_drv);
+	dir_debug = debugfs_create_dir("debug", dir_drv);
+>>>>>>> upstream/android-13
 
 	DEBUGFS_ADD_FILE(nvm, dir_data, 0400);
 	DEBUGFS_ADD_FILE(sram, dir_data, 0600);
@@ -1399,6 +1428,7 @@ il_dbgfs_register(struct il_priv *il, const char *name)
 		DEBUGFS_ADD_BOOL(disable_chain_noise, dir_rf,
 				 &il->disable_chain_noise_cal);
 	DEBUGFS_ADD_BOOL(disable_tx_power, dir_rf, &il->disable_tx_power_cal);
+<<<<<<< HEAD
 	return 0;
 
 err:
@@ -1411,6 +1441,13 @@ EXPORT_SYMBOL(il_dbgfs_register);
 /**
  * Remove the debugfs files and directories
  *
+=======
+}
+EXPORT_SYMBOL(il_dbgfs_register);
+
+/*
+ * Remove the debugfs files and directories
+>>>>>>> upstream/android-13
  */
 void
 il_dbgfs_unregister(struct il_priv *il)

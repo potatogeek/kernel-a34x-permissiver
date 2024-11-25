@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # RapidIO master port configuration
 #
@@ -6,5 +10,9 @@ config RAPIDIO_TSI721
 	tristate "IDT Tsi721 PCI Express SRIO Controller support"
 	depends on RAPIDIO && PCIEPORTBUS
 	default "n"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Include support for IDT Tsi721 PCI Express Serial RapidIO controller.

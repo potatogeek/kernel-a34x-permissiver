@@ -34,6 +34,7 @@
  *
  * Security hooks for program execution operations.
  *
+<<<<<<< HEAD
  * @bprm_set_creds:
  *	Save security information in the bprm->security field, typically based
  *	on information about the bprm->file, for later use by the apply_creds
@@ -48,26 +49,66 @@
  *	indicate the need for a sanitized execution environment, and is also
  *	passed in the ELF auxiliary table on the initial stack to indicate
  *	whether libc should enable secure mode.
+=======
+ * @bprm_creds_for_exec:
+ *	If the setup in prepare_exec_creds did not setup @bprm->cred->security
+ *	properly for executing @bprm->file, update the LSM's portion of
+ *	@bprm->cred->security to be what commit_creds needs to install for the
+ *	new program.  This hook may also optionally check permissions
+ *	(e.g. for transitions between security domains).
+ *	The hook must set @bprm->secureexec to 1 if AT_SECURE should be set to
+ *	request libc enable secure mode.
+ *	@bprm contains the linux_binprm structure.
+ *	Return 0 if the hook is successful and permission is granted.
+ * @bprm_creds_from_file:
+ *	If @file is setpcap, suid, sgid or otherwise marked to change
+ *	privilege upon exec, update @bprm->cred to reflect that change.
+ *	This is called after finding the binary that will be executed.
+ *	without an interpreter.  This ensures that the credentials will not
+ *	be derived from a script that the binary will need to reopen, which
+ *	when reopend may end up being a completely different file.  This
+ *	hook may also optionally check permissions (e.g. for transitions
+ *	between security domains).
+ *	The hook must set @bprm->secureexec to 1 if AT_SECURE should be set to
+ *	request libc enable secure mode.
+ *	The hook must add to @bprm->per_clear any personality flags that
+ * 	should be cleared from current->personality.
+>>>>>>> upstream/android-13
  *	@bprm contains the linux_binprm structure.
  *	Return 0 if the hook is successful and permission is granted.
  * @bprm_check_security:
  *	This hook mediates the point when a search for a binary handler will
+<<<<<<< HEAD
  *	begin.  It allows a check the @bprm->security value which is set in the
  *	preceding set_creds call.  The primary difference from set_creds is
  *	that the argv list and envp list are reliably available in @bprm.  This
  *	hook may be called multiple times during a single execve; and in each
  *	pass set_creds is called first.
+=======
+ *	begin.  It allows a check against the @bprm->cred->security value
+ *	which was set in the preceding creds_for_exec call.  The argv list and
+ *	envp list are reliably available in @bprm.  This hook may be called
+ *	multiple times during a single execve.
+>>>>>>> upstream/android-13
  *	@bprm contains the linux_binprm structure.
  *	Return 0 if the hook is successful and permission is granted.
  * @bprm_committing_creds:
  *	Prepare to install the new security attributes of a process being
  *	transformed by an execve operation, based on the old credentials
  *	pointed to by @current->cred and the information set in @bprm->cred by
+<<<<<<< HEAD
  *	the bprm_set_creds hook.  @bprm points to the linux_binprm structure.
  *	This hook is a good place to perform state changes on the process such
  *	as closing open file descriptors to which access will no longer be
  *	granted when the attributes are changed.  This is called immediately
  *	before commit_creds().
+=======
+ *	the bprm_creds_for_exec hook.  @bprm points to the linux_binprm
+ *	structure.  This hook is a good place to perform state changes on the
+ *	process such as closing open file descriptors to which access will no
+ *	longer be granted when the attributes are changed.  This is called
+ *	immediately before commit_creds().
+>>>>>>> upstream/android-13
  * @bprm_committed_creds:
  *	Tidy up after the installation of the new security attributes of a
  *	process being transformed by an execve operation.  The new credentials
@@ -76,6 +117,25 @@
  *	changes on the process such as clearing out non-inheritable signal
  *	state.  This is called immediately after commit_creds().
  *
+<<<<<<< HEAD
+=======
+ * Security hooks for mount using fs_context.
+ *	[See also Documentation/filesystems/mount_api.rst]
+ *
+ * @fs_context_dup:
+ *	Allocate and attach a security structure to sc->security.  This pointer
+ *	is initialised to NULL by the caller.
+ *	@fc indicates the new filesystem context.
+ *	@src_fc indicates the original filesystem context.
+ * @fs_context_parse_param:
+ *	Userspace provided a parameter to configure a superblock.  The LSM may
+ *	reject it with an error and may use it for itself, in which case it
+ *	should return 0; otherwise it should return -ENOPARAM to pass it on to
+ *	the filesystem.
+ *	@fc indicates the filesystem context.
+ *	@param The parameter
+ *
+>>>>>>> upstream/android-13
  * Security hooks for filesystem operations.
  *
  * @sb_alloc_security:
@@ -84,9 +144,22 @@
  *	allocated.
  *	@sb contains the super_block structure to be modified.
  *	Return 0 if operation was successful.
+<<<<<<< HEAD
  * @sb_free_security:
  *	Deallocate and clear the sb->s_security field.
  *	@sb contains the super_block structure to be modified.
+=======
+ * @sb_delete:
+ *	Release objects tied to a superblock (e.g. inodes).
+ *	@sb contains the super_block structure being released.
+ * @sb_free_security:
+ *	Deallocate and clear the sb->s_security field.
+ *	@sb contains the super_block structure to be modified.
+ * @sb_free_mnt_opts:
+ * 	Free memory associated with @mnt_ops.
+ * @sb_eat_lsm_opts:
+ * 	Eat (scan @orig options) and save them in @mnt_opts.
+>>>>>>> upstream/android-13
  * @sb_statfs:
  *	Check permission before obtaining filesystem statistics for the @mnt
  *	mountpoint.
@@ -111,16 +184,35 @@
  *	options cleanly (a filesystem may modify the data e.g. with strsep()).
  *	This also allows the original mount data to be stripped of security-
  *	specific options to avoid having to make filesystems aware of them.
+<<<<<<< HEAD
  *	@type the type of filesystem being mounted.
  *	@orig the original mount data copied from userspace.
  *	@copy copied data which will be passed to the security module.
  *	Returns 0 if the copy was successful.
+=======
+ *	@orig the original mount data copied from userspace.
+ *	@copy copied data which will be passed to the security module.
+ *	Returns 0 if the copy was successful.
+ * @sb_mnt_opts_compat:
+ *	Determine if the new mount options in @mnt_opts are allowed given
+ *	the existing mounted filesystem at @sb.
+ *	@sb superblock being compared
+ *	@mnt_opts new mount options
+ *	Return 0 if options are compatible.
+>>>>>>> upstream/android-13
  * @sb_remount:
  *	Extracts security system specific mount options and verifies no changes
  *	are being made to those options.
  *	@sb superblock being remounted
  *	@data contains the filesystem-specific data.
  *	Return 0 if permission is granted.
+<<<<<<< HEAD
+=======
+ * @sb_kern_mount:
+ * 	Mount this @sb if allowed by permissions.
+ * @sb_show_options:
+ * 	Show (print on @m) mount options for this @sb.
+>>>>>>> upstream/android-13
  * @sb_umount:
  *	Check permission before the @mnt file system is unmounted.
  *	@mnt contains the mounted file system.
@@ -140,16 +232,34 @@
  *	Copy all security options from a given superblock to another
  *	@oldsb old superblock which contain information to clone
  *	@newsb new superblock which needs filled in
+<<<<<<< HEAD
+=======
+ * @sb_add_mnt_opt:
+ * 	Add one mount @option to @mnt_opts.
+>>>>>>> upstream/android-13
  * @sb_parse_opts_str:
  *	Parse a string of security data filling in the opts structure
  *	@options string containing all mount options known by the LSM
  *	@opts binary data structure usable by the LSM
+<<<<<<< HEAD
+=======
+ * @move_mount:
+ *	Check permission before a mount is moved.
+ *	@from_path indicates the mount that is going to be moved.
+ *	@to_path indicates the mountpoint that will be mounted upon.
+>>>>>>> upstream/android-13
  * @dentry_init_security:
  *	Compute a context for a dentry as the inode is not yet available
  *	since NFSv4 has no label backed by an EA anyway.
  *	@dentry dentry to use in calculating the context.
  *	@mode mode used to determine resource type.
  *	@name name of the last path component used to create file
+<<<<<<< HEAD
+=======
+ *	@xattr_name pointer to place the pointer to security xattr name.
+ *		    Caller does not have to free the resulting pointer. Its
+ *		    a pointer to static string.
+>>>>>>> upstream/android-13
  *	@ctx pointer to place the pointer to the resulting context in.
  *	@ctxlen point to place the length of the resulting context.
  * @dentry_create_files_as:
@@ -196,6 +306,18 @@
  *	Returns 0 if @name and @value have been successfully set,
  *	-EOPNOTSUPP if no security attribute is needed, or
  *	-ENOMEM on memory allocation failure.
+<<<<<<< HEAD
+=======
+ * @inode_init_security_anon:
+ *      Set up the incore security field for the new anonymous inode
+ *      and return whether the inode creation is permitted by the security
+ *      module or not.
+ *      @inode contains the inode structure
+ *      @name name of the anonymous inode class
+ *      @context_inode optional related inode
+ *	Returns 0 on success, -EACCES if the security module denies the
+ *	creation of this inode, or another -errno upon other errors.
+>>>>>>> upstream/android-13
  * @inode_create:
  *	Check permission to create a regular file.
  *	@dir contains inode structure of the parent of the new file.
@@ -304,10 +426,18 @@
  *	@new_dentry contains the dentry structure of the new link.
  *	Return 0 if permission is granted.
  * @path_chmod:
+<<<<<<< HEAD
  *	Check for permission to change DAC's permission of a file or directory.
  *	@dentry contains the dentry structure.
  *	@mnt contains the vfsmnt structure.
  *	@mode contains DAC's mode.
+=======
+ *	Check for permission to change a mode of the file @path. The new
+ *	mode is specified in @mode.
+ *	@path contains the path structure of the file to change the mode.
+ *	@mode contains the new DAC's permission, which is a bitmask of
+ *	constants from <include/uapi/linux/stat.h>
+>>>>>>> upstream/android-13
  *	Return 0 if permission is granted.
  * @path_chown:
  *	Check for permission to change owner/group of a file or directory.
@@ -319,6 +449,12 @@
  *	Check for permission to change root directory.
  *	@path contains the path structure.
  *	Return 0 if permission is granted.
+<<<<<<< HEAD
+=======
+ * @path_notify:
+ *	Check permissions before setting a watch on events as defined by @mask,
+ *	on an object at @path, whose type is defined by @obj_type.
+>>>>>>> upstream/android-13
  * @inode_readlink:
  *	Check the permission to read the symbolic link.
  *	@dentry contains the dentry structure for the file link.
@@ -403,6 +539,10 @@
  * @inode_killpriv:
  *	The setuid bit is being removed.  Remove similar security labels.
  *	Called with the dentry->d_inode->i_mutex held.
+<<<<<<< HEAD
+=======
+ *	@mnt_userns: user namespace of the mount
+>>>>>>> upstream/android-13
  *	@dentry is the dentry being changed.
  *	Return 0 on success.  If error is returned, then the operation
  *	causing setuid bit removal is failed.
@@ -428,6 +568,24 @@
  *	security module does not know about attribute or a negative error code
  *	to abort the copy up. Note that the caller is responsible for reading
  *	and writing the xattrs as this hook is merely a filter.
+<<<<<<< HEAD
+=======
+ * @d_instantiate:
+ * 	Fill in @inode security information for a @dentry if allowed.
+ * @getprocattr:
+ * 	Read attribute @name for process @p and store it into @value if allowed.
+ * @setprocattr:
+ * 	Write (set) attribute @name to @value, size @size if allowed.
+ *
+ * Security hooks for kernfs node operations
+ *
+ * @kernfs_init_security:
+ *	Initialize the security context of a newly created kernfs node based
+ *	on its own and its parent's attributes.
+ *
+ *	@kn_dir the parent kernfs node
+ *	@kn the new child kernfs node
+>>>>>>> upstream/android-13
  *
  * Security hooks for file operations
  *
@@ -486,7 +644,11 @@
  *	Return 0 if permission is granted.
  * @file_lock:
  *	Check permission before performing file locking operations.
+<<<<<<< HEAD
  *	Note: this hook mediates both flock and fcntl style locks.
+=======
+ *	Note the hook mediates both flock and fcntl style locks.
+>>>>>>> upstream/android-13
  *	@file contains the file structure.
  *	@cmd contains the posix-translated lock operation to perform
  *	(e.g. F_RDLCK, F_WRLCK).
@@ -579,12 +741,30 @@
  * @kernel_load_data:
  *	Load data provided by userspace.
  *	@id kernel load data identifier
+<<<<<<< HEAD
  *	Return 0 if permission is granted.
+=======
+ *	@contents if a subsequent @kernel_post_load_data will be called.
+ *	Return 0 if permission is granted.
+ * @kernel_post_load_data:
+ *	Load data provided by a non-file source (usually userspace buffer).
+ *	@buf pointer to buffer containing the data contents.
+ *	@size length of the data contents.
+ *	@id kernel load data identifier
+ *	@description a text description of what was loaded, @id-specific
+ *	Return 0 if permission is granted.
+ *	This must be paired with a prior @kernel_load_data call that had
+ *	@contents set to true.
+>>>>>>> upstream/android-13
  * @kernel_read_file:
  *	Read a file specified by userspace.
  *	@file contains the file structure pointing to the file being read
  *	by the kernel.
  *	@id kernel read file identifier
+<<<<<<< HEAD
+=======
+ *	@contents if a subsequent @kernel_post_read_file will be called.
+>>>>>>> upstream/android-13
  *	Return 0 if permission is granted.
  * @kernel_post_read_file:
  *	Read a file specified by userspace.
@@ -593,6 +773,11 @@
  *	@buf pointer to buffer containing the file contents.
  *	@size length of the file contents.
  *	@id kernel read file identifier
+<<<<<<< HEAD
+=======
+ *	This must be paired with a prior @kernel_read_file call that had
+ *	@contents set to true.
+>>>>>>> upstream/android-13
  *	Return 0 if permission is granted.
  * @task_fix_setuid:
  *	Update the module's state after setting one or more of the user
@@ -603,6 +788,18 @@
  *	@old is the set of credentials that are being replaces
  *	@flags contains one of the LSM_SETID_* values.
  *	Return 0 on success.
+<<<<<<< HEAD
+=======
+ * @task_fix_setgid:
+ *	Update the module's state after setting one or more of the group
+ *	identity attributes of the current process.  The @flags parameter
+ *	indicates which of the set*gid system calls invoked this hook.
+ *	@new is the set of credentials that will be installed.  Modifications
+ *	should be made to this rather than to @current->cred.
+ *	@old is the set of credentials that are being replaced.
+ *	@flags contains one of the LSM_SETID_* values.
+ *	Return 0 on success.
+>>>>>>> upstream/android-13
  * @task_setpgid:
  *	Check permission before setting the process group identifier of the
  *	process @p to @pgid.
@@ -619,9 +816,21 @@
  *	@p.
  *	@p contains the task_struct for the process.
  *	Return 0 if permission is granted.
+<<<<<<< HEAD
  * @task_getsecid:
  *	Retrieve the security identifier of the process @p.
  *	@p contains the task_struct for the process and place is into @secid.
+=======
+ * @task_getsecid_subj:
+ *	Retrieve the subjective security identifier of the task_struct in @p
+ *	and return it in @secid.  Special care must be taken to ensure that @p
+ *	is the either the "current" task, or the caller has exclusive access
+ *	to @p.
+ *	In case of failure, @secid will be set to zero.
+ * @task_getsecid_obj:
+ *	Retrieve the objective security identifier of the task_struct in @p
+ *	and return it in @secid.
+>>>>>>> upstream/android-13
  *	In case of failure, @secid will be set to zero.
  *
  * @task_setnice:
@@ -629,12 +838,20 @@
  *	@p contains the task_struct of process.
  *	@nice contains the new nice value.
  *	Return 0 if permission is granted.
+<<<<<<< HEAD
  * @task_setioprio
+=======
+ * @task_setioprio:
+>>>>>>> upstream/android-13
  *	Check permission before setting the ioprio value of @p to @ioprio.
  *	@p contains the task_struct of process.
  *	@ioprio contains the new ioprio value
  *	Return 0 if permission is granted.
+<<<<<<< HEAD
  * @task_getioprio
+=======
+ * @task_getioprio:
+>>>>>>> upstream/android-13
  *	Check permission before getting the ioprio value of @p.
  *	@p contains the task_struct of process.
  *	Return 0 if permission is granted.
@@ -656,23 +873,36 @@
  *	Return 0 if permission is granted.
  * @task_setscheduler:
  *	Check permission before setting scheduling policy and/or parameters of
+<<<<<<< HEAD
  *	process @p based on @policy and @lp.
  *	@p contains the task_struct for process.
  *	@policy contains the scheduling policy.
  *	@lp contains the scheduling parameters.
+=======
+ *	process @p.
+ *	@p contains the task_struct for process.
+>>>>>>> upstream/android-13
  *	Return 0 if permission is granted.
  * @task_getscheduler:
  *	Check permission before obtaining scheduling information for process
  *	@p.
  *	@p contains the task_struct for process.
  *	Return 0 if permission is granted.
+<<<<<<< HEAD
  * @task_movememory
+=======
+ * @task_movememory:
+>>>>>>> upstream/android-13
  *	Check permission before moving memory owned by process @p.
  *	@p contains the task_struct for process.
  *	Return 0 if permission is granted.
  * @task_kill:
  *	Check permission before sending signal @sig to @p.  @info can be NULL,
+<<<<<<< HEAD
  *	the constant 1, or a pointer to a siginfo structure.  If @info is 1 or
+=======
+ *	the constant 1, or a pointer to a kernel_siginfo structure.  If @info is 1 or
+>>>>>>> upstream/android-13
  *	SI_FROMKERNEL(info) is true, then the signal should be viewed as coming
  *	from the kernel and should typically be permitted.
  *	SIGIO signals are handled separately by the send_sigiotask hook in
@@ -752,10 +982,17 @@
  *	structure. Note that the security field was not added directly to the
  *	socket structure, but rather, the socket security information is stored
  *	in the associated inode.  Typically, the inode alloc_security hook will
+<<<<<<< HEAD
  *	allocate and and attach security information to
  *	sock->inode->i_security.  This hook may be used to update the
  *	sock->inode->i_security field with additional information that wasn't
  *	available when the inode was allocated.
+=======
+ *	allocate and attach security information to
+ *	SOCK_INODE(sock)->i_security.  This hook may be used to update the
+ *	SOCK_INODE(sock)->i_security field with additional information that
+ *	wasn't available when the inode was allocated.
+>>>>>>> upstream/android-13
  *	@sock contains the newly created socket structure.
  *	@family contains the requested protocol family.
  *	@type contains the requested communications type.
@@ -860,6 +1097,7 @@
  * @socket_getpeersec_dgram:
  *	This hook allows the security module to provide peer socket security
  *	state for udp sockets on a per-packet basis to userspace via
+<<<<<<< HEAD
  *	getsockopt SO_GETPEERSEC.  The application must first have indicated
  *	the IP_PASSSEC option via getsockopt.  It can then retrieve the
  *	security state returned by this hook for a packet via the SCM_SECURITY
@@ -867,6 +1105,15 @@
  *	@skb is the skbuff for the packet being queried
  *	@secdata is a pointer to a buffer in which to copy the security data
  *	@seclen is the maximum length for @secdata
+=======
+ *	getsockopt SO_GETPEERSEC. The application must first have indicated
+ *	the IP_PASSSEC option via getsockopt. It can then retrieve the
+ *	security state returned by this hook for a packet via the SCM_SECURITY
+ *	ancillary message type.
+ *	@sock contains the peer socket. May be NULL.
+ *	@skb is the sk_buff for the packet being queried. May be NULL.
+ *	@secid pointer to store the secid of the packet.
+>>>>>>> upstream/android-13
  *	Return 0 on success, error on failure.
  * @sk_alloc_security:
  *	Allocate and attach a security structure to the sk->sk_security field,
@@ -890,9 +1137,15 @@
  * @secmark_relabel_packet:
  *	check if the process should be allowed to relabel packets to
  *	the given secid
+<<<<<<< HEAD
  * @security_secmark_refcount_inc
  *	tells the LSM to increment the number of secmark labeling rules loaded
  * @security_secmark_refcount_dec
+=======
+ * @secmark_refcount_inc:
+ *	tells the LSM to increment the number of secmark labeling rules loaded
+ * @secmark_refcount_dec:
+>>>>>>> upstream/android-13
  *	tells the LSM to decrement the number of secmark labeling rules loaded
  * @req_classify_flow:
  *	Sets the flow's sid to the openreq sid.
@@ -1029,7 +1282,11 @@
  * @xfrm_state_pol_flow_match:
  *	@x contains the state to match.
  *	@xp contains the policy to check for a match.
+<<<<<<< HEAD
  *	@fl contains the flow to check for a match.
+=======
+ *	@flic contains the flowi_common struct to check for a match.
+>>>>>>> upstream/android-13
  *	Return 1 if there is a match.
  * @xfrm_decode_session:
  *	@skb points to skb to decode.
@@ -1083,6 +1340,10 @@
  *	In case of failure, @secid will be set to zero.
  *
  * Security hooks for individual messages held in System V IPC message queues
+<<<<<<< HEAD
+=======
+ *
+>>>>>>> upstream/android-13
  * @msg_msg_alloc_security:
  *	Allocate and attach a security structure to the msg->security field.
  *	The security field is initialized to NULL when the structure is first
@@ -1097,6 +1358,7 @@
  *
  * @msg_queue_alloc_security:
  *	Allocate and attach a security structure to the
+<<<<<<< HEAD
  *	msq->q_perm.security field. The security field is initialized to
  *	NULL when the structure is first created.
  *	@msq contains the message queue structure to be modified.
@@ -1110,28 +1372,61 @@
  *	message queue identifier for an existing message queue, not when a
  *	new message queue is created.
  *	@msq contains the message queue to act upon.
+=======
+ *	@perm->security field. The security field is initialized to
+ *	NULL when the structure is first created.
+ *	@perm contains the IPC permissions of the message queue.
+ *	Return 0 if operation was successful and permission is granted.
+ * @msg_queue_free_security:
+ *	Deallocate security field @perm->security for the message queue.
+ *	@perm contains the IPC permissions of the message queue.
+ * @msg_queue_associate:
+ *	Check permission when a message queue is requested through the
+ *	msgget system call. This hook is only called when returning the
+ *	message queue identifier for an existing message queue, not when a
+ *	new message queue is created.
+ *	@perm contains the IPC permissions of the message queue.
+>>>>>>> upstream/android-13
  *	@msqflg contains the operation control flags.
  *	Return 0 if permission is granted.
  * @msg_queue_msgctl:
  *	Check permission when a message control operation specified by @cmd
+<<<<<<< HEAD
  *	is to be performed on the message queue @msq.
  *	The @msq may be NULL, e.g. for IPC_INFO or MSG_INFO.
  *	@msq contains the message queue to act upon.  May be NULL.
+=======
+ *	is to be performed on the message queue with permissions @perm.
+ *	The @perm may be NULL, e.g. for IPC_INFO or MSG_INFO.
+ *	@perm contains the IPC permissions of the msg queue. May be NULL.
+>>>>>>> upstream/android-13
  *	@cmd contains the operation to be performed.
  *	Return 0 if permission is granted.
  * @msg_queue_msgsnd:
  *	Check permission before a message, @msg, is enqueued on the message
+<<<<<<< HEAD
  *	queue, @msq.
  *	@msq contains the message queue to send message to.
+=======
+ *	queue with permissions @perm.
+ *	@perm contains the IPC permissions of the message queue.
+>>>>>>> upstream/android-13
  *	@msg contains the message to be enqueued.
  *	@msqflg contains operational flags.
  *	Return 0 if permission is granted.
  * @msg_queue_msgrcv:
  *	Check permission before a message, @msg, is removed from the message
+<<<<<<< HEAD
  *	queue, @msq.  The @target task structure contains a pointer to the
  *	process that will be receiving the message (not equal to the current
  *	process when inline receives are being performed).
  *	@msq contains the message queue to retrieve message from.
+=======
+ *	queue. The @target task structure contains a pointer to the
+ *	process that will be receiving the message (not equal to the current
+ *	process when inline receives are being performed).
+ *	@perm contains the IPC permissions of the message queue.
+>>>>>>> upstream/android-13
  *	@msg contains the message destination.
  *	@target contains the task structure for recipient process.
  *	@type contains the type of message requested.
@@ -1141,6 +1436,7 @@
  * Security hooks for System V Shared Memory Segments
  *
  * @shm_alloc_security:
+<<<<<<< HEAD
  *	Allocate and attach a security structure to the shp->shm_perm.security
  *	field.  The security field is initialized to NULL when the structure is
  *	first created.
@@ -1155,20 +1451,48 @@
  *	memory region identifier for an existing region, not when a new shared
  *	memory region is created.
  *	@shp contains the shared memory structure to be modified.
+=======
+ *	Allocate and attach a security structure to the @perm->security
+ *	field. The security field is initialized to NULL when the structure is
+ *	first created.
+ *	@perm contains the IPC permissions of the shared memory structure.
+ *	Return 0 if operation was successful and permission is granted.
+ * @shm_free_security:
+ *	Deallocate the security structure @perm->security for the memory segment.
+ *	@perm contains the IPC permissions of the shared memory structure.
+ * @shm_associate:
+ *	Check permission when a shared memory region is requested through the
+ *	shmget system call. This hook is only called when returning the shared
+ *	memory region identifier for an existing region, not when a new shared
+ *	memory region is created.
+ *	@perm contains the IPC permissions of the shared memory structure.
+>>>>>>> upstream/android-13
  *	@shmflg contains the operation control flags.
  *	Return 0 if permission is granted.
  * @shm_shmctl:
  *	Check permission when a shared memory control operation specified by
+<<<<<<< HEAD
  *	@cmd is to be performed on the shared memory region @shp.
  *	The @shp may be NULL, e.g. for IPC_INFO or SHM_INFO.
  *	@shp contains shared memory structure to be modified.
+=======
+ *	@cmd is to be performed on the shared memory region with permissions @perm.
+ *	The @perm may be NULL, e.g. for IPC_INFO or SHM_INFO.
+ *	@perm contains the IPC permissions of the shared memory structure.
+>>>>>>> upstream/android-13
  *	@cmd contains the operation to be performed.
  *	Return 0 if permission is granted.
  * @shm_shmat:
  *	Check permissions prior to allowing the shmat system call to attach the
+<<<<<<< HEAD
  *	shared memory segment @shp to the data segment of the calling process.
  *	The attaching address is specified by @shmaddr.
  *	@shp contains the shared memory structure to be modified.
+=======
+ *	shared memory segment with permissions @perm to the data segment of the
+ *	calling process. The attaching address is specified by @shmaddr.
+ *	@perm contains the IPC permissions of the shared memory structure.
+>>>>>>> upstream/android-13
  *	@shmaddr contains the address to attach memory region to.
  *	@shmflg contains the operational flags.
  *	Return 0 if permission is granted.
@@ -1176,6 +1500,7 @@
  * Security hooks for System V Semaphores
  *
  * @sem_alloc_security:
+<<<<<<< HEAD
  *	Allocate and attach a security structure to the sma->sem_perm.security
  *	field.  The security field is initialized to NULL when the structure is
  *	first created.
@@ -1190,20 +1515,48 @@
  *	identifier for an existing semaphore, not when a new one must be
  *	created.
  *	@sma contains the semaphore structure.
+=======
+ *	Allocate and attach a security structure to the @perm->security
+ *	field. The security field is initialized to NULL when the structure is
+ *	first created.
+ *	@perm contains the IPC permissions of the semaphore.
+ *	Return 0 if operation was successful and permission is granted.
+ * @sem_free_security:
+ *	Deallocate security structure @perm->security for the semaphore.
+ *	@perm contains the IPC permissions of the semaphore.
+ * @sem_associate:
+ *	Check permission when a semaphore is requested through the semget
+ *	system call. This hook is only called when returning the semaphore
+ *	identifier for an existing semaphore, not when a new one must be
+ *	created.
+ *	@perm contains the IPC permissions of the semaphore.
+>>>>>>> upstream/android-13
  *	@semflg contains the operation control flags.
  *	Return 0 if permission is granted.
  * @sem_semctl:
  *	Check permission when a semaphore operation specified by @cmd is to be
+<<<<<<< HEAD
  *	performed on the semaphore @sma.  The @sma may be NULL, e.g. for
  *	IPC_INFO or SEM_INFO.
  *	@sma contains the semaphore structure.  May be NULL.
+=======
+ *	performed on the semaphore. The @perm may be NULL, e.g. for
+ *	IPC_INFO or SEM_INFO.
+ *	@perm contains the IPC permissions of the semaphore. May be NULL.
+>>>>>>> upstream/android-13
  *	@cmd contains the operation to be performed.
  *	Return 0 if permission is granted.
  * @sem_semop:
  *	Check permissions before performing operations on members of the
+<<<<<<< HEAD
  *	semaphore set @sma.  If the @alter flag is nonzero, the semaphore set
  *	may be modified.
  *	@sma contains the semaphore structure.
+=======
+ *	semaphore set. If the @alter flag is nonzero, the semaphore set
+ *	may be modified.
+ *	@perm contains the IPC permissions of the semaphore.
+>>>>>>> upstream/android-13
  *	@sops contains the operations to perform.
  *	@nsops contains the number of operations to perform.
  *	@alter contains the flag indicating whether changes are to be made.
@@ -1272,10 +1625,18 @@
  *	@cap contains the capability <include/linux/capability.h>.
  *	@opts contains options for the capable check <include/linux/security.h>
  *	Return 0 if the capability is granted for @tsk.
+<<<<<<< HEAD
+=======
+ * @quotactl:
+ * 	Check whether the quotactl syscall is allowed for this @sb.
+ * @quota_on:
+ * 	Check whether QUOTAON is allowed for this @dentry.
+>>>>>>> upstream/android-13
  * @syslog:
  *	Check permission before accessing the kernel message ring or changing
  *	logging to the console.
  *	See the syslog(2) manual page for an explanation of the @type values.
+<<<<<<< HEAD
  *	@type contains the type of action.
  *	@from_file indicates the context of action (if it came from /proc).
  *	Return 0 if permission is granted.
@@ -1283,6 +1644,14 @@
  *	Check permission to change the system time.
  *	struct timespec64 is defined in include/linux/time64.h and timezone
  *	is defined in include/linux/time.h
+=======
+ *	@type contains the SYSLOG_ACTION_* constant from <include/linux/syslog.h>
+ *	Return 0 if permission is granted.
+ * @settime:
+ *	Check permission to change the system time.
+ *	struct timespec64 is defined in <include/linux/time64.h> and timezone
+ *	is defined in <include/linux/time.h>
+>>>>>>> upstream/android-13
  *	@ts contains new time
  *	@tz contains new timezone
  *	Return 0 if permission is granted.
@@ -1324,7 +1693,11 @@
  * @audit_rule_init:
  *	Allocate and initialize an LSM audit rule structure.
  *	@field contains the required Audit action.
+<<<<<<< HEAD
  *	Fields flags are defined in include/linux/audit.h
+=======
+ *	Fields flags are defined in <include/linux/audit.h>
+>>>>>>> upstream/android-13
  *	@op contains the operator the rule uses.
  *	@rulestr contains the context where the rule will be applied to.
  *	@lsmrule contains a pointer to receive the result.
@@ -1332,9 +1705,15 @@
  *	-EINVAL in case of an invalid rule.
  *
  * @audit_rule_known:
+<<<<<<< HEAD
  *	Specifies whether given @rule contains any fields related to
  *	current LSM.
  *	@rule contains the audit rule of interest.
+=======
+ *	Specifies whether given @krule contains any fields related to
+ *	current LSM.
+ *	@krule contains the audit rule of interest.
+>>>>>>> upstream/android-13
  *	Return 1 in case of relation found, 0 otherwise.
  *
  * @audit_rule_match:
@@ -1343,14 +1722,22 @@
  *	@secid contains the security id in question.
  *	@field contains the field which relates to current LSM.
  *	@op contains the operator that will be used for matching.
+<<<<<<< HEAD
  *	@rule points to the audit rule that will be checked against.
  *	@actx points to the audit context associated with the check.
+=======
+ *	@lrule points to the audit rule that will be checked against.
+>>>>>>> upstream/android-13
  *	Return 1 if secid matches the rule, 0 if it does not, -ERRNO on failure.
  *
  * @audit_rule_free:
  *	Deallocate the LSM audit rule structure previously allocated by
  *	audit_rule_init.
+<<<<<<< HEAD
  *	@rule contains the allocated rule
+=======
+ *	@lsmrule contains the allocated rule
+>>>>>>> upstream/android-13
  *
  * @inode_invalidate_secctx:
  *	Notify the security module that it must revalidate the security context
@@ -1363,9 +1750,13 @@
  *	this hook to initialize the security context in its incore inode to the
  *	value provided by the server for the file when the server returned the
  *	file's attributes to the client.
+<<<<<<< HEAD
  *
  *	Must be called with inode->i_mutex locked.
  *
+=======
+ *	Must be called with inode->i_mutex locked.
+>>>>>>> upstream/android-13
  *	@inode we wish to set the security context of.
  *	@ctx contains the string which we wish to set in the inode.
  *	@ctxlen contains the length of @ctx.
@@ -1378,9 +1769,13 @@
  *	this hook to change the security context in its incore inode and on the
  *	backing filesystem to a value provided by the client on a SETATTR
  *	operation.
+<<<<<<< HEAD
  *
  *	Must be called with inode->i_mutex locked.
  *
+=======
+ *	Must be called with inode->i_mutex locked.
+>>>>>>> upstream/android-13
  *	@dentry contains the inode we wish to set the security context of.
  *	@ctx contains the string which we wish to set in the inode.
  *	@ctxlen contains the length of @ctx.
@@ -1388,11 +1783,31 @@
  * @inode_getsecctx:
  *	On success, returns 0 and fills out @ctx and @ctxlen with the security
  *	context for the given @inode.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *	@inode we wish to get the security context of.
  *	@ctx is a pointer in which to place the allocated security context.
  *	@ctxlen points to the place to put the length of @ctx.
  *
+<<<<<<< HEAD
+=======
+ * Security hooks for the general notification queue:
+ *
+ * @post_notification:
+ *	Check to see if a watch notification can be posted to a particular
+ *	queue.
+ *	@w_cred: The credentials of the whoever set the watch.
+ *	@cred: The event-triggerer's credentials
+ *	@n: The notification being posted
+ *
+ * @watch_key:
+ *	Check to see if a process is allowed to watch for event notifications
+ *	from a key or keyring.
+ *	@key: The key to watch.
+ *
+>>>>>>> upstream/android-13
  * Security hooks for using the eBPF maps and programs functionalities through
  * eBPF syscalls.
  *
@@ -1426,6 +1841,7 @@
  * @bpf_prog_free_security:
  *	Clean up the security information stored inside bpf prog.
  *
+<<<<<<< HEAD
  */
 union security_list_options {
 	int (*binder_set_context_mgr)(const struct cred *mgr);
@@ -2028,6 +2444,37 @@ struct security_hook_heads {
 	struct hlist_head perf_event_read;
 	struct hlist_head perf_event_write;
 #endif
+=======
+ * @locked_down:
+ *     Determine whether a kernel feature that potentially enables arbitrary
+ *     code execution in kernel space should be permitted.
+ *
+ *     @what: kernel feature being accessed
+ *
+ * Security hooks for perf events
+ *
+ * @perf_event_open:
+ * 	Check whether the @type of perf_event_open syscall is allowed.
+ * @perf_event_alloc:
+ * 	Allocate and save perf_event security info.
+ * @perf_event_free:
+ * 	Release (free) perf_event security info.
+ * @perf_event_read:
+ * 	Read perf_event security info if allowed.
+ * @perf_event_write:
+ * 	Write perf_event security info if allowed.
+ */
+union security_list_options {
+	#define LSM_HOOK(RET, DEFAULT, NAME, ...) RET (*NAME)(__VA_ARGS__);
+	#include "lsm_hook_defs.h"
+	#undef LSM_HOOK
+};
+
+struct security_hook_heads {
+	#define LSM_HOOK(RET, DEFAULT, NAME, ...) struct hlist_head NAME;
+	#include "lsm_hook_defs.h"
+	#undef LSM_HOOK
+>>>>>>> upstream/android-13
 } __randomize_layout;
 
 /*
@@ -2042,6 +2489,28 @@ struct security_hook_list {
 } __randomize_layout;
 
 /*
+<<<<<<< HEAD
+=======
+ * Security blob size or offset data.
+ */
+struct lsm_blob_sizes {
+	int	lbs_cred;
+	int	lbs_file;
+	int	lbs_inode;
+	int	lbs_superblock;
+	int	lbs_ipc;
+	int	lbs_msg_msg;
+	int	lbs_task;
+};
+
+/*
+ * LSM_RET_VOID is used as the default value in LSM_HOOK definitions for void
+ * LSM hooks (in include/linux/lsm_hook_defs.h).
+ */
+#define LSM_RET_VOID ((void) 0)
+
+/*
+>>>>>>> upstream/android-13
  * Initializing a security_hook_list structure takes
  * up a lot of space in a source file. This macro takes
  * care of the common case and reduces the amount of
@@ -2056,6 +2525,39 @@ extern char *lsm_names;
 extern void security_add_hooks(struct security_hook_list *hooks, int count,
 				char *lsm);
 
+<<<<<<< HEAD
+=======
+#define LSM_FLAG_LEGACY_MAJOR	BIT(0)
+#define LSM_FLAG_EXCLUSIVE	BIT(1)
+
+enum lsm_order {
+	LSM_ORDER_FIRST = -1,	/* This is only for capabilities. */
+	LSM_ORDER_MUTABLE = 0,
+};
+
+struct lsm_info {
+	const char *name;	/* Required. */
+	enum lsm_order order;	/* Optional: default is LSM_ORDER_MUTABLE */
+	unsigned long flags;	/* Optional: flags describing LSM */
+	int *enabled;		/* Optional: controlled by CONFIG_LSM */
+	int (*init)(void);	/* Required. */
+	struct lsm_blob_sizes *blobs; /* Optional: for blob sharing. */
+};
+
+extern struct lsm_info __start_lsm_info[], __end_lsm_info[];
+extern struct lsm_info __start_early_lsm_info[], __end_early_lsm_info[];
+
+#define DEFINE_LSM(lsm)							\
+	static struct lsm_info __lsm_##lsm				\
+		__used __section(".lsm_info.init")			\
+		__aligned(sizeof(unsigned long))
+
+#define DEFINE_EARLY_LSM(lsm)						\
+	static struct lsm_info __early_lsm_##lsm			\
+		__used __section(".early_lsm_info.init")		\
+		__aligned(sizeof(unsigned long))
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SECURITY_SELINUX_DISABLE
 /*
  * Assuring the safety of deleting a security module is up to
@@ -2086,6 +2588,7 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
 #define __lsm_ro_after_init	__ro_after_init
 #endif /* CONFIG_SECURITY_WRITABLE_HOOKS */
 
+<<<<<<< HEAD
 extern int __init security_module_enable(const char *module);
 extern void __init capability_add_hooks(void);
 #ifdef CONFIG_SECURITY_YAMA
@@ -2098,5 +2601,8 @@ void __init loadpin_add_hooks(void);
 #else
 static inline void loadpin_add_hooks(void) { };
 #endif
+=======
+extern int lsm_inode_alloc(struct inode *inode);
+>>>>>>> upstream/android-13
 
 #endif /* ! __LINUX_LSM_HOOKS_H */

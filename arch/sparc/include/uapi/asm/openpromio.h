@@ -4,7 +4,10 @@
 
 #include <linux/compiler.h>
 #include <linux/ioctl.h>
+<<<<<<< HEAD
 #include <linux/types.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  * SunOS and Solaris /dev/openprom definitions. The ioctl values
@@ -13,7 +16,11 @@
 
 struct openpromio
 {
+<<<<<<< HEAD
 	u_int	oprom_size;		/* Actual size of the oprom_array. */
+=======
+	unsigned int oprom_size;	/* Actual size of the oprom_array. */
+>>>>>>> upstream/android-13
 	char	oprom_array[1];		/* Holds property names and values. */
 };
 

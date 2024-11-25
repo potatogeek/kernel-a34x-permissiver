@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Keystone Queue Manager subsystem driver
  *
@@ -5,6 +9,7 @@
  * Authors:	Sandeep Nair <sandeep_n@ti.com>
  *		Cyril Chemparathy <cyril@ti.com>
  *		Santosh Shilimkar <santosh.shilimkar@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -33,6 +40,11 @@
 
 static struct knav_device *kdev;
 static DEFINE_MUTEX(knav_dev_lock);
+<<<<<<< HEAD
+=======
+#define knav_dev_lock_held() \
+	lockdep_is_held(&knav_dev_lock)
+>>>>>>> upstream/android-13
 
 /* Queue manager register indices in DTS */
 #define KNAV_QUEUE_PEEK_REG_INDEX	0
@@ -60,8 +72,14 @@ static DEFINE_MUTEX(knav_dev_lock);
 #define knav_queue_idx_to_inst(kdev, idx)			\
 	(kdev->instances + (idx << kdev->inst_shift))
 
+<<<<<<< HEAD
 #define for_each_handle_rcu(qh, inst)			\
 	list_for_each_entry_rcu(qh, &inst->handles, list)
+=======
+#define for_each_handle_rcu(qh, inst)				\
+	list_for_each_entry_rcu(qh, &inst->handles, list,	\
+				knav_dev_lock_held())
+>>>>>>> upstream/android-13
 
 #define for_each_instance(idx, inst, kdev)		\
 	for (idx = 0, inst = kdev->instances;		\
@@ -84,7 +102,11 @@ EXPORT_SYMBOL_GPL(knav_qmss_device_ready);
 /**
  * knav_queue_notify: qmss queue notfier call
  *
+<<<<<<< HEAD
  * @inst:		qmss queue instance like accumulator
+=======
+ * @inst:		- qmss queue instance like accumulator
+>>>>>>> upstream/android-13
  */
 void knav_queue_notify(struct knav_queue_inst *inst)
 {
@@ -414,7 +436,11 @@ static int knav_gp_close_queue(struct knav_range_info *range,
 	return 0;
 }
 
+<<<<<<< HEAD
 struct knav_range_ops knav_gp_range_ops = {
+=======
+static struct knav_range_ops knav_gp_range_ops = {
+>>>>>>> upstream/android-13
 	.set_notify	= knav_gp_set_notify,
 	.open_queue	= knav_gp_open_queue,
 	.close_queue	= knav_gp_close_queue,
@@ -483,6 +509,7 @@ static int knav_queue_debug_show(struct seq_file *s, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int knav_queue_debug_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, knav_queue_debug_show, NULL);
@@ -494,6 +521,9 @@ static const struct file_operations knav_queue_debug_ops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(knav_queue_debug);
+>>>>>>> upstream/android-13
 
 static inline int knav_queue_pdsp_wait(u32 * __iomem addr, unsigned timeout,
 					u32 flags)
@@ -526,10 +556,17 @@ static int knav_queue_flush(struct knav_queue *qh)
 
 /**
  * knav_queue_open()	- open a hardware queue
+<<<<<<< HEAD
  * @name		- name to give the queue handle
  * @id			- desired queue number if any or specifes the type
  *			  of queue
  * @flags		- the following flags are applicable to queues:
+=======
+ * @name:		- name to give the queue handle
+ * @id:			- desired queue number if any or specifes the type
+ *			  of queue
+ * @flags:		- the following flags are applicable to queues:
+>>>>>>> upstream/android-13
  *	KNAV_QUEUE_SHARED - allow the queue to be shared. Queues are
  *			     exclusive by default.
  *			     Subsequent attempts to open a shared queue should
@@ -560,7 +597,11 @@ EXPORT_SYMBOL_GPL(knav_queue_open);
 
 /**
  * knav_queue_close()	- close a hardware queue handle
+<<<<<<< HEAD
  * @qh			- handle to close
+=======
+ * @qhandle:		- handle to close
+>>>>>>> upstream/android-13
  */
 void knav_queue_close(void *qhandle)
 {
@@ -587,9 +628,15 @@ EXPORT_SYMBOL_GPL(knav_queue_close);
 
 /**
  * knav_queue_device_control()	- Perform control operations on a queue
+<<<<<<< HEAD
  * @qh				- queue handle
  * @cmd				- control commands
  * @arg				- command argument
+=======
+ * @qhandle:			- queue handle
+ * @cmd:			- control commands
+ * @arg:			- command argument
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success, errno otherwise.
  */
@@ -638,10 +685,17 @@ EXPORT_SYMBOL_GPL(knav_queue_device_control);
 
 /**
  * knav_queue_push()	- push data (or descriptor) to the tail of a queue
+<<<<<<< HEAD
  * @qh			- hardware queue handle
  * @data		- data to push
  * @size		- size of data to push
  * @flags		- can be used to pass additional information
+=======
+ * @qhandle:		- hardware queue handle
+ * @dma:		- DMA data to push
+ * @size:		- size of data to push
+ * @flags:		- can be used to pass additional information
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success, errno otherwise.
  */
@@ -661,8 +715,13 @@ EXPORT_SYMBOL_GPL(knav_queue_push);
 
 /**
  * knav_queue_pop()	- pop data (or descriptor) from the head of a queue
+<<<<<<< HEAD
  * @qh			- hardware queue handle
  * @size		- (optional) size of the data pop'ed.
+=======
+ * @qhandle:		- hardware queue handle
+ * @size:		- (optional) size of the data pop'ed.
+>>>>>>> upstream/android-13
  *
  * Returns a DMA address on success, 0 on failure.
  */
@@ -761,9 +820,15 @@ EXPORT_SYMBOL_GPL(knav_pool_desc_dma_to_virt);
 
 /**
  * knav_pool_create()	- Create a pool of descriptors
+<<<<<<< HEAD
  * @name		- name to give the pool handle
  * @num_desc		- numbers of descriptors in the pool
  * @region_id		- QMSS region id from which the descriptors are to be
+=======
+ * @name:		- name to give the pool handle
+ * @num_desc:		- numbers of descriptors in the pool
+ * @region_id:		- QMSS region id from which the descriptors are to be
+>>>>>>> upstream/android-13
  *			  allocated.
  *
  * Returns a pool handle on success.
@@ -871,7 +936,11 @@ EXPORT_SYMBOL_GPL(knav_pool_create);
 
 /**
  * knav_pool_destroy()	- Free a pool of descriptors
+<<<<<<< HEAD
  * @pool		- pool handle
+=======
+ * @ph:		- pool handle
+>>>>>>> upstream/android-13
  */
 void knav_pool_destroy(void *ph)
 {
@@ -899,7 +968,11 @@ EXPORT_SYMBOL_GPL(knav_pool_destroy);
 
 /**
  * knav_pool_desc_get()	- Get a descriptor from the pool
+<<<<<<< HEAD
  * @pool			- pool handle
+=======
+ * @ph:		- pool handle
+>>>>>>> upstream/android-13
  *
  * Returns descriptor from the pool.
  */
@@ -920,7 +993,12 @@ EXPORT_SYMBOL_GPL(knav_pool_desc_get);
 
 /**
  * knav_pool_desc_put()	- return a descriptor to the pool
+<<<<<<< HEAD
  * @pool			- pool handle
+=======
+ * @ph:		- pool handle
+ * @desc:	- virtual address
+>>>>>>> upstream/android-13
  */
 void knav_pool_desc_put(void *ph, void *desc)
 {
@@ -933,11 +1011,19 @@ EXPORT_SYMBOL_GPL(knav_pool_desc_put);
 
 /**
  * knav_pool_desc_map()	- Map descriptor for DMA transfer
+<<<<<<< HEAD
  * @pool			- pool handle
  * @desc			- address of descriptor to map
  * @size			- size of descriptor to map
  * @dma				- DMA address return pointer
  * @dma_sz			- adjusted return pointer
+=======
+ * @ph:				- pool handle
+ * @desc:			- address of descriptor to map
+ * @size:			- size of descriptor to map
+ * @dma:			- DMA address return pointer
+ * @dma_sz:			- adjusted return pointer
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success, errno otherwise.
  */
@@ -960,9 +1046,15 @@ EXPORT_SYMBOL_GPL(knav_pool_desc_map);
 
 /**
  * knav_pool_desc_unmap()	- Unmap descriptor after DMA transfer
+<<<<<<< HEAD
  * @pool			- pool handle
  * @dma				- DMA address of descriptor to unmap
  * @dma_sz			- size of descriptor to unmap
+=======
+ * @ph:				- pool handle
+ * @dma:			- DMA address of descriptor to unmap
+ * @dma_sz:			- size of descriptor to unmap
+>>>>>>> upstream/android-13
  *
  * Returns descriptor address on success, Use IS_ERR_OR_NULL() to identify
  * error values on return.
@@ -983,7 +1075,11 @@ EXPORT_SYMBOL_GPL(knav_pool_desc_unmap);
 
 /**
  * knav_pool_count()	- Get the number of descriptors in pool.
+<<<<<<< HEAD
  * @pool		- pool handle
+=======
+ * @ph:			- pool handle
+>>>>>>> upstream/android-13
  * Returns number of elements in the pool.
  */
 int knav_pool_count(void *ph)
@@ -1101,6 +1197,10 @@ static int knav_queue_setup_regions(struct knav_device *kdev,
 	for_each_child_of_node(regions, child) {
 		region = devm_kzalloc(dev, sizeof(*region), GFP_KERNEL);
 		if (!region) {
+<<<<<<< HEAD
+=======
+			of_node_put(child);
+>>>>>>> upstream/android-13
 			dev_err(dev, "out of memory allocating region\n");
 			return -ENOMEM;
 		}
@@ -1322,12 +1422,20 @@ static int knav_setup_queue_pools(struct knav_device *kdev,
 				   struct device_node *queue_pools)
 {
 	struct device_node *type, *range;
+<<<<<<< HEAD
 	int ret;
 
 	for_each_child_of_node(queue_pools, type) {
 		for_each_child_of_node(type, range) {
 			ret = knav_setup_queue_range(kdev, range);
 			/* return value ignored, we init the rest... */
+=======
+
+	for_each_child_of_node(queue_pools, type) {
+		for_each_child_of_node(type, range) {
+			/* return value ignored, we init the rest... */
+			knav_setup_queue_range(kdev, range);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1390,15 +1498,25 @@ static void __iomem *knav_queue_map_reg(struct knav_device *kdev,
 
 	ret = of_address_to_resource(node, index, &res);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(kdev->dev, "Can't translate of node(%s) address for index(%d)\n",
 			node->name, index);
+=======
+		dev_err(kdev->dev, "Can't translate of node(%pOFn) address for index(%d)\n",
+			node, index);
+>>>>>>> upstream/android-13
 		return ERR_PTR(ret);
 	}
 
 	regs = devm_ioremap_resource(kdev->dev, &res);
 	if (IS_ERR(regs))
+<<<<<<< HEAD
 		dev_err(kdev->dev, "Failed to map register base for index(%d) node(%s)\n",
 			index, node->name);
+=======
+		dev_err(kdev->dev, "Failed to map register base for index(%d) node(%pOFn)\n",
+			index, node);
+>>>>>>> upstream/android-13
 	return regs;
 }
 
@@ -1414,6 +1532,10 @@ static int knav_queue_init_qmgrs(struct knav_device *kdev,
 	for_each_child_of_node(qmgrs, child) {
 		qmgr = devm_kzalloc(dev, sizeof(*qmgr), GFP_KERNEL);
 		if (!qmgr) {
+<<<<<<< HEAD
+=======
+			of_node_put(child);
+>>>>>>> upstream/android-13
 			dev_err(dev, "out of memory allocating qmgr\n");
 			return -ENOMEM;
 		}
@@ -1513,6 +1635,10 @@ static int knav_queue_init_pdsps(struct knav_device *kdev,
 	for_each_child_of_node(pdsps, child) {
 		pdsp = devm_kzalloc(dev, sizeof(*pdsp), GFP_KERNEL);
 		if (!pdsp) {
+<<<<<<< HEAD
+=======
+			of_node_put(child);
+>>>>>>> upstream/android-13
 			dev_err(dev, "out of memory allocating pdsp\n");
 			return -ENOMEM;
 		}
@@ -1885,7 +2011,11 @@ static int knav_queue_probe(struct platform_device *pdev)
 	}
 
 	debugfs_create_file("qmss", S_IFREG | S_IRUGO, NULL, NULL,
+<<<<<<< HEAD
 			    &knav_queue_debug_ops);
+=======
+			    &knav_queue_debug_fops);
+>>>>>>> upstream/android-13
 	device_ready = true;
 	return 0;
 

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Line 6 Linux USB driver
  *
  * Copyright (C) 2004-2010 Markus Grabner (grabner@icg.tugraz.at)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef DRIVER_H
@@ -31,7 +38,11 @@
 #define LINE6_FALLBACK_INTERVAL 10
 #define LINE6_FALLBACK_MAXPACKETSIZE 16
 
+<<<<<<< HEAD
 #define LINE6_TIMEOUT 1
+=======
+#define LINE6_TIMEOUT 1000
+>>>>>>> upstream/android-13
 #define LINE6_BUFSIZE_LISTEN 64
 #define LINE6_MIDI_MESSAGE_MAXLEN 256
 
@@ -68,6 +79,7 @@
 
 #define LINE6_CHANNEL_MASK 0x0f
 
+<<<<<<< HEAD
 #define CHECK_STARTUP_PROGRESS(x, n)	\
 do {					\
 	if ((x) >= (n))			\
@@ -79,6 +91,12 @@ extern const unsigned char line6_midi_id[3];
 
 static const int SYSEX_DATA_OFS = sizeof(line6_midi_id) + 3;
 static const int SYSEX_EXTRA_SIZE = sizeof(line6_midi_id) + 4;
+=======
+extern const unsigned char line6_midi_id[3];
+
+#define SYSEX_DATA_OFS (sizeof(line6_midi_id) + 3)
+#define SYSEX_EXTRA_SIZE (sizeof(line6_midi_id) + 4)
+>>>>>>> upstream/android-13
 
 /*
 	 Common properties of Line 6 devices.
@@ -119,6 +137,11 @@ enum {
 	LINE6_CAP_CONTROL_MIDI = 1 << 4,
 	/* device provides low-level information */
 	LINE6_CAP_CONTROL_INFO = 1 << 5,
+<<<<<<< HEAD
+=======
+	/* device provides hardware monitoring volume control */
+	LINE6_CAP_HWMON_CTL =	1 << 6,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -174,6 +197,10 @@ struct usb_line6 {
 		struct mutex read_lock;
 		wait_queue_head_t wait_queue;
 		unsigned int active:1;
+<<<<<<< HEAD
+=======
+		unsigned int nonblock:1;
+>>>>>>> upstream/android-13
 		STRUCT_KFIFO_REC_2(LINE6_BUFSIZE_LISTEN * LINE6_RAW_MESSAGES_MAXCOUNT)
 			fifo;
 	} messages;
@@ -195,14 +222,22 @@ extern int line6_read_data(struct usb_line6 *line6, unsigned address,
 			   void *data, unsigned datalen);
 extern int line6_read_serial_number(struct usb_line6 *line6,
 				    u32 *serial_number);
+<<<<<<< HEAD
+=======
+extern int line6_send_raw_message(struct usb_line6 *line6,
+					const char *buffer, int size);
+>>>>>>> upstream/android-13
 extern int line6_send_raw_message_async(struct usb_line6 *line6,
 					const char *buffer, int size);
 extern int line6_send_sysex_message(struct usb_line6 *line6,
 				    const char *buffer, int size);
 extern ssize_t line6_set_raw(struct device *dev, struct device_attribute *attr,
 			     const char *buf, size_t count);
+<<<<<<< HEAD
 extern void line6_start_timer(struct timer_list *timer, unsigned long msecs,
 			      void (*function)(struct timer_list *t));
+=======
+>>>>>>> upstream/android-13
 extern int line6_version_request_async(struct usb_line6 *line6);
 extern int line6_write_data(struct usb_line6 *line6, unsigned address,
 			    void *data, unsigned datalen);

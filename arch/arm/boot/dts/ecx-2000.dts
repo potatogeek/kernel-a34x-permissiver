@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2012 Calxeda, Inc.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2011-2012 Calxeda, Inc.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -24,7 +30,10 @@
 	compatible = "calxeda,ecx-2000";
 	#address-cells = <2>;
 	#size-cells = <2>;
+<<<<<<< HEAD
 	clock-ranges;
+=======
+>>>>>>> upstream/android-13
 
 	cpus {
 		#address-cells = <1>;
@@ -94,8 +103,12 @@
 		intc: interrupt-controller@fff11000 {
 			compatible = "arm,cortex-a15-gic";
 			#interrupt-cells = <3>;
+<<<<<<< HEAD
 			#size-cells = <0>;
 			#address-cells = <1>;
+=======
+			#address-cells = <0>;
+>>>>>>> upstream/android-13
 			interrupt-controller;
 			interrupts = <1 9 0xf04>;
 			reg = <0xfff11000 0x1000>,
@@ -106,7 +119,11 @@
 
 		pmu {
 			compatible = "arm,cortex-a9-pmu";
+<<<<<<< HEAD
 			interrupts = <0 76 4  0 75 4  0 74 4  0 73 4>;
+=======
+			interrupts = <0 76 4>, <0 75 4>, <0 74 4>, <0 73 4>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

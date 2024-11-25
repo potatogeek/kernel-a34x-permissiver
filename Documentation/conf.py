@@ -29,11 +29,16 @@ from load_config import loadConfig
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
+<<<<<<< HEAD
 needs_sphinx = '1.3'
+=======
+needs_sphinx = '1.7'
+>>>>>>> upstream/android-13
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+<<<<<<< HEAD
 extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include', 'cdomain', 'kfigure', 'sphinx.ext.ifconfig']
 
 # The name of the math extension changed on Sphinx 1.4
@@ -41,6 +46,81 @@ if (major == 1 and minor > 3) or (major > 1):
     extensions.append("sphinx.ext.imgmath")
 else:
     extensions.append("sphinx.ext.pngmath")
+=======
+extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include',
+              'kfigure', 'sphinx.ext.ifconfig', 'automarkup',
+              'maintainers_include', 'sphinx.ext.autosectionlabel',
+              'kernel_abi', 'kernel_feat']
+
+if major >= 3:
+    if (major > 3) or (minor > 0 or patch >= 2):
+        # Sphinx c function parser is more pedantic with regards to type
+        # checking. Due to that, having macros at c:function cause problems.
+        # Those needed to be scaped by using c_id_attributes[] array
+        c_id_attributes = [
+            # GCC Compiler types not parsed by Sphinx:
+            "__restrict__",
+
+            # include/linux/compiler_types.h:
+            "__iomem",
+            "__kernel",
+            "noinstr",
+            "notrace",
+            "__percpu",
+            "__rcu",
+            "__user",
+
+            # include/linux/compiler_attributes.h:
+            "__alias",
+            "__aligned",
+            "__aligned_largest",
+            "__always_inline",
+            "__assume_aligned",
+            "__cold",
+            "__attribute_const__",
+            "__copy",
+            "__pure",
+            "__designated_init",
+            "__visible",
+            "__printf",
+            "__scanf",
+            "__gnu_inline",
+            "__malloc",
+            "__mode",
+            "__no_caller_saved_registers",
+            "__noclone",
+            "__nonstring",
+            "__noreturn",
+            "__packed",
+            "__pure",
+            "__section",
+            "__always_unused",
+            "__maybe_unused",
+            "__used",
+            "__weak",
+            "noinline",
+
+            # include/linux/memblock.h:
+            "__init_memblock",
+            "__meminit",
+
+            # include/linux/init.h:
+            "__init",
+            "__ref",
+
+            # include/linux/linkage.h:
+            "asmlinkage",
+        ]
+
+else:
+    extensions.append('cdomain')
+
+# Ensure that autosectionlabel will produce unique names
+autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = 2
+
+extensions.append("sphinx.ext.imgmath")
+>>>>>>> upstream/android-13
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -200,7 +280,11 @@ html_context = {
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
+<<<<<<< HEAD
 #html_use_smartypants = True
+=======
+html_use_smartypants = False
+>>>>>>> upstream/android-13
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
@@ -255,6 +339,7 @@ htmlhelp_basename = 'TheLinuxKerneldoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
+<<<<<<< HEAD
 # The paper size ('letterpaper' or 'a4paper').
 'papersize': 'a4paper',
 
@@ -345,6 +430,159 @@ if major == 1 and minor < 6:
 
      '''
 
+=======
+    # The paper size ('letterpaper' or 'a4paper').
+    'papersize': 'a4paper',
+
+    # The font size ('10pt', '11pt' or '12pt').
+    'pointsize': '11pt',
+
+    # Latex figure (float) alignment
+    #'figure_align': 'htbp',
+
+    # Don't mangle with UTF-8 chars
+    'inputenc': '',
+    'utf8extra': '',
+
+    # Set document margins
+    'sphinxsetup': '''
+        hmargin=0.5in, vmargin=1in,
+        parsedliteralwraps=true,
+        verbatimhintsturnover=false,
+    ''',
+
+    # For CJK One-half spacing, need to be in front of hyperref
+    'extrapackages': r'\usepackage{setspace}',
+
+    # Additional stuff for the LaTeX preamble.
+    'preamble': '''
+	% Prevent column squeezing of tabulary.
+	\\setlength{\\tymin}{20em}
+        % Use some font with UTF-8 support with XeLaTeX
+        \\usepackage{fontspec}
+        \\setsansfont{DejaVu Sans}
+        \\setromanfont{DejaVu Serif}
+        \\setmonofont{DejaVu Sans Mono}
+     ''',
+}
+
+# Translations have Asian (CJK) characters which are only displayed if
+# xeCJK is used
+
+latex_elements['preamble']  += '''
+    \\IfFontExistsTF{Noto Sans CJK SC}{
+	% This is needed for translations
+	\\usepackage{xeCJK}
+	\\IfFontExistsTF{Noto Serif CJK SC}{
+	    \\setCJKmainfont{Noto Serif CJK SC}[AutoFakeSlant]
+	}{
+	    \\setCJKmainfont{Noto Sans CJK SC}[AutoFakeSlant]
+	}
+	\\setCJKsansfont{Noto Sans CJK SC}[AutoFakeSlant]
+	\\setCJKmonofont{Noto Sans Mono CJK SC}[AutoFakeSlant]
+	% CJK Language-specific font choices
+	\\IfFontExistsTF{Noto Serif CJK SC}{
+	    \\newCJKfontfamily[SCmain]\\scmain{Noto Serif CJK SC}[AutoFakeSlant]
+	    \\newCJKfontfamily[SCserif]\\scserif{Noto Serif CJK SC}[AutoFakeSlant]
+	}{
+	    \\newCJKfontfamily[SCmain]\\scmain{Noto Sans CJK SC}[AutoFakeSlant]
+	    \\newCJKfontfamily[SCserif]\\scserif{Noto Sans CJK SC}[AutoFakeSlant]
+	}
+	\\newCJKfontfamily[SCsans]\\scsans{Noto Sans CJK SC}[AutoFakeSlant]
+	\\newCJKfontfamily[SCmono]\\scmono{Noto Sans Mono CJK SC}[AutoFakeSlant]
+	\\IfFontExistsTF{Noto Serif CJK TC}{
+	    \\newCJKfontfamily[TCmain]\\tcmain{Noto Serif CJK TC}[AutoFakeSlant]
+	    \\newCJKfontfamily[TCserif]\\tcserif{Noto Serif CJK TC}[AutoFakeSlant]
+	}{
+	    \\newCJKfontfamily[TCmain]\\tcmain{Noto Sans CJK TC}[AutoFakeSlant]
+	    \\newCJKfontfamily[TCserif]\\tcserif{Noto Sans CJK TC}[AutoFakeSlant]
+	}
+	\\newCJKfontfamily[TCsans]\\tcsans{Noto Sans CJK TC}[AutoFakeSlant]
+	\\newCJKfontfamily[TCmono]\\tcmono{Noto Sans Mono CJK TC}[AutoFakeSlant]
+	\\IfFontExistsTF{Noto Serif CJK KR}{
+	    \\newCJKfontfamily[KRmain]\\krmain{Noto Serif CJK KR}[AutoFakeSlant]
+	    \\newCJKfontfamily[KRserif]\\krserif{Noto Serif CJK KR}[AutoFakeSlant]
+	}{
+	    \\newCJKfontfamily[KRmain]\\krmain{Noto Sans CJK KR}[AutoFakeSlant]
+	    \\newCJKfontfamily[KRserif]\\krserif{Noto Sans CJK KR}[AutoFakeSlant]
+	}
+	\\newCJKfontfamily[KRsans]\\krsans{Noto Sans CJK KR}[AutoFakeSlant]
+	\\newCJKfontfamily[KRmono]\\krmono{Noto Sans Mono CJK KR}[AutoFakeSlant]
+	\\IfFontExistsTF{Noto Serif CJK JP}{
+	    \\newCJKfontfamily[JPmain]\\jpmain{Noto Serif CJK JP}[AutoFakeSlant]
+	    \\newCJKfontfamily[JPserif]\\jpserif{Noto Serif CJK JP}[AutoFakeSlant]
+	}{
+	    \\newCJKfontfamily[JPmain]\\jpmain{Noto Sans CJK JP}[AutoFakeSlant]
+	    \\newCJKfontfamily[JPserif]\\jpserif{Noto Sans CJK JP}[AutoFakeSlant]
+	}
+	\\newCJKfontfamily[JPsans]\\jpsans{Noto Sans CJK JP}[AutoFakeSlant]
+	\\newCJKfontfamily[JPmono]\\jpmono{Noto Sans Mono CJK JP}[AutoFakeSlant]
+	% Dummy commands for Sphinx < 2.3 (no 'extrapackages' support)
+	\\providecommand{\\onehalfspacing}{}
+	\\providecommand{\\singlespacing}{}
+	% Define custom macros to on/off CJK
+	\\newcommand{\\kerneldocCJKon}{\\makexeCJKactive\\onehalfspacing}
+	\\newcommand{\\kerneldocCJKoff}{\\makexeCJKinactive\\singlespacing}
+	\\newcommand{\\kerneldocBeginSC}{%
+	    \\begingroup%
+	    \\scmain%
+	}
+	\\newcommand{\\kerneldocEndSC}{\\endgroup}
+	\\newcommand{\\kerneldocBeginTC}{%
+	    \\begingroup%
+	    \\tcmain%
+	    \\renewcommand{\\CJKrmdefault}{TCserif}%
+	    \\renewcommand{\\CJKsfdefault}{TCsans}%
+	    \\renewcommand{\\CJKttdefault}{TCmono}%
+	}
+	\\newcommand{\\kerneldocEndTC}{\\endgroup}
+	\\newcommand{\\kerneldocBeginKR}{%
+	    \\begingroup%
+	    \\xeCJKDeclareCharClass{HalfLeft}{`“,`‘}%
+	    \\xeCJKDeclareCharClass{HalfRight}{`”,`’}%
+	    \\krmain%
+	    \\renewcommand{\\CJKrmdefault}{KRserif}%
+	    \\renewcommand{\\CJKsfdefault}{KRsans}%
+	    \\renewcommand{\\CJKttdefault}{KRmono}%
+	    \\xeCJKsetup{CJKspace = true} % For inter-phrase space
+	}
+	\\newcommand{\\kerneldocEndKR}{\\endgroup}
+	\\newcommand{\\kerneldocBeginJP}{%
+	    \\begingroup%
+	    \\xeCJKDeclareCharClass{HalfLeft}{`“,`‘}%
+	    \\xeCJKDeclareCharClass{HalfRight}{`”,`’}%
+	    \\jpmain%
+	    \\renewcommand{\\CJKrmdefault}{JPserif}%
+	    \\renewcommand{\\CJKsfdefault}{JPsans}%
+	    \\renewcommand{\\CJKttdefault}{JPmono}%
+	}
+	\\newcommand{\\kerneldocEndJP}{\\endgroup}
+	% Single spacing in literal blocks
+	\\fvset{baselinestretch=1}
+	% To customize \\sphinxtableofcontents
+	\\usepackage{etoolbox}
+	% Inactivate CJK after tableofcontents
+	\\apptocmd{\\sphinxtableofcontents}{\\kerneldocCJKoff}{}{}
+    }{ % No CJK font found
+	% Custom macros to on/off CJK (Dummy)
+	\\newcommand{\\kerneldocCJKon}{}
+	\\newcommand{\\kerneldocCJKoff}{}
+	\\newcommand{\\kerneldocBeginSC}{}
+	\\newcommand{\\kerneldocEndSC}{}
+	\\newcommand{\\kerneldocBeginTC}{}
+	\\newcommand{\\kerneldocEndTC}{}
+	\\newcommand{\\kerneldocBeginKR}{}
+	\\newcommand{\\kerneldocEndKR}{}
+	\\newcommand{\\kerneldocBeginJP}{}
+	\\newcommand{\\kerneldocEndJP}{}
+    }
+'''
+
+# Fix reference escape troubles with Sphinx 1.4.x
+if major == 1:
+    latex_elements['preamble']  += '\\renewcommand*{\\DUrole}[2]{ #2 }\n'
+
+>>>>>>> upstream/android-13
 # With Sphinx 1.6, it is possible to change the Bg color directly
 # by using:
 #	\definecolor{sphinxnoteBgColor}{RGB}{204,255,255}
@@ -369,6 +607,7 @@ if major == 1 and minor < 6:
 #  author, documentclass [howto, manual, or own class]).
 # Sorted in alphabetical order
 latex_documents = [
+<<<<<<< HEAD
     ('admin-guide/index', 'linux-user.tex', 'Linux Kernel User Documentation',
      'The kernel development community', 'manual'),
     ('core-api/index', 'core-api.tex', 'The kernel core API manual',
@@ -405,6 +644,25 @@ latex_documents = [
      'The kernel development community', 'manual'),
 ]
 
+=======
+]
+
+# Add all other index files from Documentation/ subdirectories
+for fn in os.listdir('.'):
+    doc = os.path.join(fn, "index")
+    if os.path.exists(doc + ".rst"):
+        has = False
+        for l in latex_documents:
+            if l[0] == doc:
+                has = True
+                break
+        if not has:
+            latex_documents.append((doc, fn + '.tex',
+                                    'Linux %s Documentation' % fn.capitalize(),
+                                    'The kernel development community',
+                                    'manual'))
+
+>>>>>>> upstream/android-13
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
 #latex_logo = None
@@ -538,7 +796,11 @@ epub_exclude_files = ['search.html']
 # Grouping the document tree into PDF files. List of tuples
 # (source start file, target name, title, author, options).
 #
+<<<<<<< HEAD
 # See the Sphinx chapter of http://ralsina.me/static/manual.pdf
+=======
+# See the Sphinx chapter of https://ralsina.me/static/manual.pdf
+>>>>>>> upstream/android-13
 #
 # FIXME: Do not add the index file here; the result will be too big. Adding
 # multiple PDF files here actually tries to get the cross-referencing right

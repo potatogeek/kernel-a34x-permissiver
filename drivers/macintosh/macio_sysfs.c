@@ -3,6 +3,7 @@
 #include <linux/stat.h>
 #include <asm/macio.h>
 
+<<<<<<< HEAD
 
 #define macio_config_of_attr(field, format_string)			\
 static ssize_t								\
@@ -14,6 +15,8 @@ field##_show (struct device *dev, struct device_attribute *attr,	\
 }									\
 static DEVICE_ATTR_RO(field);
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t
 compatible_show (struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -58,8 +61,24 @@ static ssize_t devspec_show(struct device *dev,
 static DEVICE_ATTR_RO(modalias);
 static DEVICE_ATTR_RO(devspec);
 
+<<<<<<< HEAD
 macio_config_of_attr (name, "%s\n");
 macio_config_of_attr (type, "%s\n");
+=======
+static ssize_t name_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%pOFn\n", dev->of_node);
+}
+static DEVICE_ATTR_RO(name);
+
+static ssize_t type_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%s\n", of_node_get_device_type(dev->of_node));
+}
+static DEVICE_ATTR_RO(type);
+>>>>>>> upstream/android-13
 
 static struct attribute *macio_dev_attrs[] = {
 	&dev_attr_name.attr,

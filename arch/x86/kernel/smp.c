@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Intel SMP support routines.
  *
@@ -6,9 +10,12 @@
  *      (c) 2002,2003 Andi Kleen, SuSE Labs.
  *
  *	i386 and x86_64 integration by Glauber Costa <gcosta@redhat.com>
+<<<<<<< HEAD
  *
  *	This code is released under the GNU General Public License version 2 or
  *	later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -29,6 +36,10 @@
 #include <asm/mmu_context.h>
 #include <asm/proto.h>
 #include <asm/apic.h>
+<<<<<<< HEAD
+=======
+#include <asm/idtentry.h>
+>>>>>>> upstream/android-13
 #include <asm/nmi.h>
 #include <asm/mce.h>
 #include <asm/trace/irq_vectors.h>
@@ -68,7 +79,11 @@
  *	5AP.	symmetric IO mode (normal Linux operation) not affected.
  *		'noapic' mode has vector 0xf filled out properly.
  *	6AP.	'noapic' mode might be affected - fixed in later steppings
+<<<<<<< HEAD
  *	7AP.	We do not assume writes to the LVT deassering IRQs
+=======
+ *	7AP.	We do not assume writes to the LVT deasserting IRQs
+>>>>>>> upstream/android-13
  *	8AP.	We do not enable low power mode (deep sleep) during MP bootup
  *	9AP.	We do not use mixed mode
  *
@@ -117,6 +132,7 @@
 static atomic_t stopping_cpu = ATOMIC_INIT(-1);
 static bool smp_no_nmi_ipi = false;
 
+<<<<<<< HEAD
 /*
  * this function sends a 'reschedule' IPI to another CPU.
  * it goes straight through and wastes no time serializing
@@ -157,6 +173,8 @@ void native_send_call_func_ipi(const struct cpumask *mask)
 	free_cpumask_var(allbutself);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int smp_stop_nmi_callback(unsigned int val, struct pt_regs *regs)
 {
 	/* We are registered on stopping cpu too, avoid spurious NMI */
@@ -172,6 +190,7 @@ static int smp_stop_nmi_callback(unsigned int val, struct pt_regs *regs)
 /*
  * this function calls the 'stop' function on all other CPUs in the system.
  */
+<<<<<<< HEAD
 
 asmlinkage __visible void smp_reboot_interrupt(void)
 {
@@ -179,6 +198,13 @@ asmlinkage __visible void smp_reboot_interrupt(void)
 	cpu_emergency_vmxoff();
 	stop_this_cpu(NULL);
 	irq_exit();
+=======
+DEFINE_IDTENTRY_SYSVEC(sysvec_reboot)
+{
+	ack_APIC_irq();
+	cpu_emergency_vmxoff();
+	stop_this_cpu(NULL);
+>>>>>>> upstream/android-13
 }
 
 static int register_stop_handler(void)
@@ -217,7 +243,11 @@ static void native_stop_other_cpus(int wait)
 		/* sync above data before sending IRQ */
 		wmb();
 
+<<<<<<< HEAD
 		apic->send_IPI_allbutself(REBOOT_VECTOR);
+=======
+		apic_send_IPI_allbutself(REBOOT_VECTOR);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Don't wait longer than a second for IPI completion. The
@@ -243,11 +273,19 @@ static void native_stop_other_cpus(int wait)
 
 			pr_emerg("Shutting down cpus with NMI\n");
 
+<<<<<<< HEAD
 			apic->send_IPI_allbutself(NMI_VECTOR);
 		}
 		/*
 		 * Don't wait longer than 10 ms if the caller didn't
 		 * reqeust it. If wait is true, the machine hangs here if
+=======
+			apic_send_IPI_allbutself(NMI_VECTOR);
+		}
+		/*
+		 * Don't wait longer than 10 ms if the caller didn't
+		 * request it. If wait is true, the machine hangs here if
+>>>>>>> upstream/android-13
 		 * one or more CPUs do not reach shutdown state.
 		 */
 		timeout = USEC_PER_MSEC * 10;
@@ -263,6 +301,7 @@ static void native_stop_other_cpus(int wait)
 
 /*
  * Reschedule call back. KVM uses this interrupt to force a cpu out of
+<<<<<<< HEAD
  * guest mode
  */
 __visible void __irq_entry smp_reschedule_interrupt(struct pt_regs *regs)
@@ -289,21 +328,48 @@ __visible void __irq_entry smp_reschedule_interrupt(struct pt_regs *regs)
 __visible void __irq_entry smp_call_function_interrupt(struct pt_regs *regs)
 {
 	ipi_entering_ack_irq();
+=======
+ * guest mode.
+ */
+DEFINE_IDTENTRY_SYSVEC_SIMPLE(sysvec_reschedule_ipi)
+{
+	ack_APIC_irq();
+	trace_reschedule_entry(RESCHEDULE_VECTOR);
+	inc_irq_stat(irq_resched_count);
+	scheduler_ipi();
+	trace_reschedule_exit(RESCHEDULE_VECTOR);
+}
+
+DEFINE_IDTENTRY_SYSVEC(sysvec_call_function)
+{
+	ack_APIC_irq();
+>>>>>>> upstream/android-13
 	trace_call_function_entry(CALL_FUNCTION_VECTOR);
 	inc_irq_stat(irq_call_count);
 	generic_smp_call_function_interrupt();
 	trace_call_function_exit(CALL_FUNCTION_VECTOR);
+<<<<<<< HEAD
 	exiting_irq();
 }
 
 __visible void __irq_entry smp_call_function_single_interrupt(struct pt_regs *r)
 {
 	ipi_entering_ack_irq();
+=======
+}
+
+DEFINE_IDTENTRY_SYSVEC(sysvec_call_function_single)
+{
+	ack_APIC_irq();
+>>>>>>> upstream/android-13
 	trace_call_function_single_entry(CALL_FUNCTION_SINGLE_VECTOR);
 	inc_irq_stat(irq_call_count);
 	generic_smp_call_function_single_interrupt();
 	trace_call_function_single_exit(CALL_FUNCTION_SINGLE_VECTOR);
+<<<<<<< HEAD
 	exiting_irq();
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __init nonmi_ipi_setup(char *str)

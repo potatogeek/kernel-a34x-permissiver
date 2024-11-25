@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -51,16 +52,80 @@
  *
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2017 Intel Deutschland GmbH
+ * Copyright (C) 2018-2021 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #include "iwl-trans.h"
 #include "iwl-fh.h"
 #include "iwl-context-info.h"
 #include "internal.h"
 #include "iwl-prph.h"
 
+<<<<<<< HEAD
 void iwl_pcie_ctxt_info_free_paging(struct iwl_trans *trans)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_self_init_dram *dram = &trans_pcie->init_dram;
+=======
+static void *_iwl_pcie_ctxt_info_dma_alloc_coherent(struct iwl_trans *trans,
+						    size_t size,
+						    dma_addr_t *phys,
+						    int depth)
+{
+	void *result;
+
+	if (WARN(depth > 2,
+		 "failed to allocate DMA memory not crossing 2^32 boundary"))
+		return NULL;
+
+	result = dma_alloc_coherent(trans->dev, size, phys, GFP_KERNEL);
+
+	if (!result)
+		return NULL;
+
+	if (unlikely(iwl_txq_crosses_4g_boundary(*phys, size))) {
+		void *old = result;
+		dma_addr_t oldphys = *phys;
+
+		result = _iwl_pcie_ctxt_info_dma_alloc_coherent(trans, size,
+								phys,
+								depth + 1);
+		dma_free_coherent(trans->dev, size, old, oldphys);
+	}
+
+	return result;
+}
+
+static void *iwl_pcie_ctxt_info_dma_alloc_coherent(struct iwl_trans *trans,
+						   size_t size,
+						   dma_addr_t *phys)
+{
+	return _iwl_pcie_ctxt_info_dma_alloc_coherent(trans, size, phys, 0);
+}
+
+int iwl_pcie_ctxt_info_alloc_dma(struct iwl_trans *trans,
+				 const void *data, u32 len,
+				 struct iwl_dram_data *dram)
+{
+	dram->block = iwl_pcie_ctxt_info_dma_alloc_coherent(trans, len,
+							    &dram->physical);
+	if (!dram->block)
+		return -ENOMEM;
+
+	dram->size = len;
+	memcpy(dram->block, data, len);
+
+	return 0;
+}
+
+void iwl_pcie_ctxt_info_free_paging(struct iwl_trans *trans)
+{
+	struct iwl_self_init_dram *dram = &trans->init_dram;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!dram->paging) {
@@ -83,8 +148,12 @@ int iwl_pcie_init_fw_sec(struct iwl_trans *trans,
 			 const struct fw_img *fw,
 			 struct iwl_context_info_dram *ctxt_dram)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_self_init_dram *dram = &trans_pcie->init_dram;
+=======
+	struct iwl_self_init_dram *dram = &trans->init_dram;
+>>>>>>> upstream/android-13
 	int i, ret, lmac_cnt, umac_cnt, paging_cnt;
 
 	if (WARN(dram->paging,
@@ -107,7 +176,12 @@ int iwl_pcie_init_fw_sec(struct iwl_trans *trans,
 
 	/* initialize lmac sections */
 	for (i = 0; i < lmac_cnt; i++) {
+<<<<<<< HEAD
 		ret = iwl_pcie_ctxt_info_alloc_dma(trans, &fw->sec[i],
+=======
+		ret = iwl_pcie_ctxt_info_alloc_dma(trans, fw->sec[i].data,
+						   fw->sec[i].len,
+>>>>>>> upstream/android-13
 						   &dram->fw[dram->fw_cnt]);
 		if (ret)
 			return ret;
@@ -120,7 +194,12 @@ int iwl_pcie_init_fw_sec(struct iwl_trans *trans,
 	for (i = 0; i < umac_cnt; i++) {
 		/* access FW with +1 to make up for lmac separator */
 		ret = iwl_pcie_ctxt_info_alloc_dma(trans,
+<<<<<<< HEAD
 						   &fw->sec[dram->fw_cnt + 1],
+=======
+						   fw->sec[dram->fw_cnt + 1].data,
+						   fw->sec[dram->fw_cnt + 1].len,
+>>>>>>> upstream/android-13
 						   &dram->fw[dram->fw_cnt]);
 		if (ret)
 			return ret;
@@ -143,7 +222,12 @@ int iwl_pcie_init_fw_sec(struct iwl_trans *trans,
 		/* access FW with +2 to make up for lmac & umac separators */
 		int fw_idx = dram->fw_cnt + i + 2;
 
+<<<<<<< HEAD
 		ret = iwl_pcie_ctxt_info_alloc_dma(trans, &fw->sec[fw_idx],
+=======
+		ret = iwl_pcie_ctxt_info_alloc_dma(trans, fw->sec[fw_idx].data,
+						   fw->sec[fw_idx].len,
+>>>>>>> upstream/android-13
 						   &dram->paging[i]);
 		if (ret)
 			return ret;
@@ -162,6 +246,7 @@ int iwl_pcie_ctxt_info_init(struct iwl_trans *trans,
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_context_info *ctxt_info;
 	struct iwl_context_info_rbd_cfg *rx_cfg;
+<<<<<<< HEAD
 	u32 control_flags = 0;
 	int ret;
 
@@ -171,17 +256,58 @@ int iwl_pcie_ctxt_info_init(struct iwl_trans *trans,
 	if (!ctxt_info)
 		return -ENOMEM;
 
+=======
+	u32 control_flags = 0, rb_size;
+	dma_addr_t phys;
+	int ret;
+
+	ctxt_info = iwl_pcie_ctxt_info_dma_alloc_coherent(trans,
+							  sizeof(*ctxt_info),
+							  &phys);
+	if (!ctxt_info)
+		return -ENOMEM;
+
+	trans_pcie->ctxt_info_dma_addr = phys;
+
+>>>>>>> upstream/android-13
 	ctxt_info->version.version = 0;
 	ctxt_info->version.mac_id =
 		cpu_to_le16((u16)iwl_read32(trans, CSR_HW_REV));
 	/* size is in DWs */
 	ctxt_info->version.size = cpu_to_le16(sizeof(*ctxt_info) / 4);
 
+<<<<<<< HEAD
 	BUILD_BUG_ON(RX_QUEUE_CB_SIZE(MQ_RX_TABLE_SIZE) > 0xF);
 	control_flags = IWL_CTXT_INFO_RB_SIZE_4K |
 			IWL_CTXT_INFO_TFD_FORMAT_LONG |
 			RX_QUEUE_CB_SIZE(MQ_RX_TABLE_SIZE) <<
 			IWL_CTXT_INFO_RB_CB_SIZE_POS;
+=======
+	switch (trans_pcie->rx_buf_size) {
+	case IWL_AMSDU_2K:
+		rb_size = IWL_CTXT_INFO_RB_SIZE_2K;
+		break;
+	case IWL_AMSDU_4K:
+		rb_size = IWL_CTXT_INFO_RB_SIZE_4K;
+		break;
+	case IWL_AMSDU_8K:
+		rb_size = IWL_CTXT_INFO_RB_SIZE_8K;
+		break;
+	case IWL_AMSDU_12K:
+		rb_size = IWL_CTXT_INFO_RB_SIZE_16K;
+		break;
+	default:
+		WARN_ON(1);
+		rb_size = IWL_CTXT_INFO_RB_SIZE_4K;
+	}
+
+	WARN_ON(RX_QUEUE_CB_SIZE(trans->cfg->num_rbds) > 12);
+	control_flags = IWL_CTXT_INFO_TFD_FORMAT_LONG;
+	control_flags |=
+		u32_encode_bits(RX_QUEUE_CB_SIZE(trans->cfg->num_rbds),
+				IWL_CTXT_INFO_RB_CB_SIZE);
+	control_flags |= u32_encode_bits(rb_size, IWL_CTXT_INFO_RB_SIZE);
+>>>>>>> upstream/android-13
 	ctxt_info->control.control_flags = cpu_to_le32(control_flags);
 
 	/* initialize RX default queue */
@@ -192,9 +318,15 @@ int iwl_pcie_ctxt_info_init(struct iwl_trans *trans,
 
 	/* initialize TX command queue */
 	ctxt_info->hcmd_cfg.cmd_queue_addr =
+<<<<<<< HEAD
 		cpu_to_le64(trans_pcie->txq[trans_pcie->cmd_queue]->dma_addr);
 	ctxt_info->hcmd_cfg.cmd_queue_size =
 		TFD_QUEUE_CB_SIZE(TFD_CMD_SLOTS);
+=======
+		cpu_to_le64(trans->txqs.txq[trans->txqs.cmd.q_id]->dma_addr);
+	ctxt_info->hcmd_cfg.cmd_queue_size =
+		TFD_QUEUE_CB_SIZE(IWL_CMD_QUEUE_SIZE);
+>>>>>>> upstream/android-13
 
 	/* allocate ucode sections in dram and set addresses */
 	ret = iwl_pcie_init_fw_sec(trans, fw, &ctxt_info->dram);
@@ -209,12 +341,19 @@ int iwl_pcie_ctxt_info_init(struct iwl_trans *trans,
 	iwl_enable_fw_load_int_ctx_info(trans);
 
 	/* Configure debug, if exists */
+<<<<<<< HEAD
 	if (trans->dbg_dest_tlv)
+=======
+	if (iwl_pcie_dbg_on(trans))
+>>>>>>> upstream/android-13
 		iwl_pcie_apply_destination(trans);
 
 	/* kick FW self load */
 	iwl_write64(trans, CSR_CTXT_INFO_BA, trans_pcie->ctxt_info_dma_addr);
+<<<<<<< HEAD
 	iwl_write_prph(trans, UREG_CPU_INIT_RUN, 1);
+=======
+>>>>>>> upstream/android-13
 
 	/* Context info will be released upon alive or failure to get one */
 

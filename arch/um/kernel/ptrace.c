@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/audit.h>
@@ -66,7 +72,11 @@ long arch_ptrace(struct task_struct *child, long request,
 
 #ifdef PTRACE_GETREGS
 	case PTRACE_GETREGS: { /* Get all gp regs from the child. */
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, p, MAX_REG_OFFSET)) {
+=======
+		if (!access_ok(p, MAX_REG_OFFSET)) {
+>>>>>>> upstream/android-13
 			ret = -EIO;
 			break;
 		}
@@ -81,7 +91,11 @@ long arch_ptrace(struct task_struct *child, long request,
 #ifdef PTRACE_SETREGS
 	case PTRACE_SETREGS: { /* Set all gp regs in the child. */
 		unsigned long tmp = 0;
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, p, MAX_REG_OFFSET)) {
+=======
+		if (!access_ok(p, MAX_REG_OFFSET)) {
+>>>>>>> upstream/android-13
 			ret = -EIO;
 			break;
 		}
@@ -112,13 +126,21 @@ long arch_ptrace(struct task_struct *child, long request,
 	return ret;
 }
 
+<<<<<<< HEAD
 static void send_sigtrap(struct task_struct *tsk, struct uml_pt_regs *regs,
 		  int error_code)
+=======
+static void send_sigtrap(struct uml_pt_regs *regs, int error_code)
+>>>>>>> upstream/android-13
 {
 	/* Send us the fake SIGTRAP */
 	force_sig_fault(SIGTRAP, TRAP_BRKPT,
 			/* User-mode eip? */
+<<<<<<< HEAD
 			UPT_IS_USER(regs) ? (void __user *) UPT_IP(regs) : NULL, tsk);
+=======
+			UPT_IS_USER(regs) ? (void __user *) UPT_IP(regs) : NULL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -147,7 +169,11 @@ void syscall_trace_leave(struct pt_regs *regs)
 
 	/* Fake a debug trap */
 	if (ptraced & PT_DTRACE)
+<<<<<<< HEAD
 		send_sigtrap(current, &regs->regs, 0);
+=======
+		send_sigtrap(&regs->regs, 0);
+>>>>>>> upstream/android-13
 
 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
 		return;

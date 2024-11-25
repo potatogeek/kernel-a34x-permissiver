@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  tw68 functions to handle video data
  *
@@ -13,6 +17,7 @@
  *  Refactored and updated to the latest v4l core frameworks:
  *
  *  Copyright (C) 2014 Hans Verkuil <hverkuil@xs4all.nl>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -43,53 +50,83 @@
  */
 static const struct tw68_format formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "15 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB555,
 		.depth		= 16,
 		.twformat	= ColorFormatRGB15,
 	}, {
+<<<<<<< HEAD
 		.name		= "15 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB555X,
 		.depth		= 16,
 		.twformat	= ColorFormatRGB15 | ColorFormatBSWAP,
 	}, {
+<<<<<<< HEAD
 		.name		= "16 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB565,
 		.depth		= 16,
 		.twformat	= ColorFormatRGB16,
 	}, {
+<<<<<<< HEAD
 		.name		= "16 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB565X,
 		.depth		= 16,
 		.twformat	= ColorFormatRGB16 | ColorFormatBSWAP,
 	}, {
+<<<<<<< HEAD
 		.name		= "24 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_BGR24,
 		.depth		= 24,
 		.twformat	= ColorFormatRGB24,
 	}, {
+<<<<<<< HEAD
 		.name		= "24 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB24,
 		.depth		= 24,
 		.twformat	= ColorFormatRGB24 | ColorFormatBSWAP,
 	}, {
+<<<<<<< HEAD
 		.name		= "32 bpp RGB, le",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_BGR32,
 		.depth		= 32,
 		.twformat	= ColorFormatRGB32,
 	}, {
+<<<<<<< HEAD
 		.name		= "32 bpp RGB, be",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB32,
 		.depth		= 32,
 		.twformat	= ColorFormatRGB32 | ColorFormatBSWAP |
 				  ColorFormatWSWAP,
 	}, {
+<<<<<<< HEAD
 		.name		= "4:2:2 packed, YUYV",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUYV,
 		.depth		= 16,
 		.twformat	= ColorFormatYUY2,
 	}, {
+<<<<<<< HEAD
 		.name		= "4:2:2 packed, UYVY",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_UYVY,
 		.depth		= 16,
 		.twformat	= ColorFormatYUY2 | ColorFormatBSWAP,
@@ -446,7 +483,11 @@ static void tw68_buf_queue(struct vb2_buffer *vb)
 /*
  * buffer_prepare
  *
+<<<<<<< HEAD
  * Set the ancilliary information into the buffer structure.  This
+=======
+ * Set the ancillary information into the buffer structure.  This
+>>>>>>> upstream/android-13
  * includes generating the necessary risc program if it hasn't already
  * been done for the current buffer format.
  * The structure fh contains the details of the format requested by the
@@ -504,7 +545,11 @@ static void tw68_buf_finish(struct vb2_buffer *vb)
 	struct tw68_dev *dev = vb2_get_drv_priv(vq);
 	struct tw68_buf *buf = container_of(vbuf, struct tw68_buf, vb);
 
+<<<<<<< HEAD
 	pci_free_consistent(dev->pci, buf->size, buf->cpu, buf->dma);
+=======
+	dma_free_coherent(&dev->pci->dev, buf->size, buf->cpu, buf->dma);
+>>>>>>> upstream/android-13
 }
 
 static int tw68_start_streaming(struct vb2_queue *q, unsigned int count)
@@ -601,7 +646,10 @@ static int tw68_g_fmt_vid_cap(struct file *file, void *priv,
 	f->fmt.pix.sizeimage =
 		f->fmt.pix.height * f->fmt.pix.bytesperline;
 	f->fmt.pix.colorspace	= V4L2_COLORSPACE_SMPTE170M;
+<<<<<<< HEAD
 	f->fmt.pix.priv = 0;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -734,6 +782,7 @@ static int tw68_querycap(struct file *file, void  *priv,
 {
 	struct tw68_dev *dev = video_drvdata(file);
 
+<<<<<<< HEAD
 	strcpy(cap->driver, "tw68");
 	strlcpy(cap->card, "Techwell Capture Card",
 		sizeof(cap->card));
@@ -744,6 +793,12 @@ static int tw68_querycap(struct file *file, void  *priv,
 		V4L2_CAP_STREAMING;
 
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, "tw68", sizeof(cap->driver));
+	strscpy(cap->card, "Techwell Capture Card",
+		sizeof(cap->card));
+	sprintf(cap->bus_info, "PCI:%s", pci_name(dev->pci));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -789,9 +844,12 @@ static int tw68_enum_fmt_vid_cap(struct file *file, void  *priv,
 	if (f->index >= FORMATS)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, formats[f->index].name,
 		sizeof(f->description));
 
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[f->index].fourcc;
 
 	return 0;
@@ -922,6 +980,11 @@ static const struct video_device tw68_video_template = {
 	.ioctl_ops		= &video_ioctl_ops,
 	.release		= video_device_release_empty,
 	.tvnorms		= TW68_NORMS,
+<<<<<<< HEAD
+=======
+	.device_caps		= V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+				  V4L2_CAP_STREAMING,
+>>>>>>> upstream/android-13
 };
 
 /* ------------------------------------------------------------------ */
@@ -989,7 +1052,11 @@ int tw68_video_init2(struct tw68_dev *dev, int video_nr)
 	dev->vdev.lock = &dev->lock;
 	dev->vdev.queue = &dev->vidq;
 	video_set_drvdata(&dev->vdev, dev);
+<<<<<<< HEAD
 	return video_register_device(&dev->vdev, VFL_TYPE_GRABBER, video_nr);
+=======
+	return video_register_device(&dev->vdev, VFL_TYPE_VIDEO, video_nr);
+>>>>>>> upstream/android-13
 }
 
 /*

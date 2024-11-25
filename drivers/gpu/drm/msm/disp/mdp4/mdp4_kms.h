@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MDP4_KMS_H__
@@ -233,6 +240,7 @@ static inline struct clk *mpd4_lvds_pll_init(struct drm_device *dev)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef DOWNSTREAM_CONFIG_MSM_BUS_SCALING
 /* bus scaling data is associated with extra pointless platform devices,
  * "dtv", etc.. this is a bit of a hack, but we need a way for encoders
@@ -246,4 +254,6 @@ static inline void *mdp4_find_pdata(const char *devname)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __MDP4_KMS_H__ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * poodle.c  --  SoC audio for Poodle
  *
@@ -6,12 +10,15 @@
  *
  * Authors: Liam Girdwood <lrg@slimlogic.co.uk>
  *          Richard Purdie <richard@openedhand.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -61,7 +68,11 @@ static void poodle_ext_control(struct snd_soc_dapm_context *dapm)
 		snd_soc_dapm_disable_pin(dapm, "Headphone Jack");
 	}
 
+<<<<<<< HEAD
 	/* set the enpoints to their new connetion states */
+=======
+	/* set the endpoints to their new connection states */
+>>>>>>> upstream/android-13
 	if (poodle_spk_func == POODLE_SPK_ON)
 		snd_soc_dapm_enable_pin(dapm, "Ext Spk");
 	else
@@ -73,7 +84,11 @@ static void poodle_ext_control(struct snd_soc_dapm_context *dapm)
 
 static int poodle_startup(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 
 	/* check the jack status at stream startup */
 	poodle_ext_control(&rtd->card->dapm);
@@ -94,9 +109,15 @@ static void poodle_shutdown(struct snd_pcm_substream *substream)
 static int poodle_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	unsigned int clk = 0;
 	int ret = 0;
 
@@ -224,6 +245,7 @@ static const struct snd_kcontrol_new wm8731_poodle_controls[] = {
 };
 
 /* poodle digital audio interface glue - connects codec <--> CPU */
+<<<<<<< HEAD
 static struct snd_soc_dai_link poodle_dai = {
 	.name = "WM8731",
 	.stream_name = "WM8731",
@@ -234,6 +256,20 @@ static struct snd_soc_dai_link poodle_dai = {
 	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 		   SND_SOC_DAIFMT_CBS_CFS,
 	.ops = &poodle_ops,
+=======
+SND_SOC_DAILINK_DEFS(wm8731,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-i2s")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm8731.0-001b", "wm8731-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+static struct snd_soc_dai_link poodle_dai = {
+	.name = "WM8731",
+	.stream_name = "WM8731",
+	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+		   SND_SOC_DAIFMT_CBS_CFS,
+	.ops = &poodle_ops,
+	SND_SOC_DAILINK_REG(wm8731),
+>>>>>>> upstream/android-13
 };
 
 /* poodle audio machine driver */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,6 +61,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2014, 2018-2020 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_modparams_h__
 #define __iwl_modparams_h__
 
@@ -114,6 +121,7 @@ enum iwl_uapsd_disable {
  * @power_save: enable power save, default = false
  * @power_level: power level, default = 1
  * @debug_level: levels are IWL_DL_*
+<<<<<<< HEAD
  * @antenna_coupling: antenna coupling in dB, default = 0
  * @nvm_file: specifies a external NVM file
  * @uapsd_disable: disable U-APSD, see &enum iwl_uapsd_disable, default =
@@ -125,6 +133,14 @@ enum iwl_uapsd_disable {
  * @fw_monitor: allow to use firmware monitor
  * @disable_11ac: disable VHT capabilities, default = false.
  * @remove_when_gone: remove an inaccessible device from the PCIe bus.
+=======
+ * @nvm_file: specifies a external NVM file
+ * @uapsd_disable: disable U-APSD, see &enum iwl_uapsd_disable, default =
+ *	IWL_DISABLE_UAPSD_BSS | IWL_DISABLE_UAPSD_P2P_CLIENT
+ * @disable_11ac: disable VHT capabilities, default = false.
+ * @remove_when_gone: remove an inaccessible device from the PCIe bus.
+ * @enable_ini: enable new FW debug infratructure (INI TLVs)
+>>>>>>> upstream/android-13
  */
 struct iwl_mod_params {
 	int swcrypto;
@@ -138,6 +154,7 @@ struct iwl_mod_params {
 #ifdef CONFIG_IWLWIFI_DEBUG
 	u32 debug_level;
 #endif
+<<<<<<< HEAD
 	int antenna_coupling;
 	char *nvm_file;
 	u32 uapsd_disable;
@@ -145,12 +162,40 @@ struct iwl_mod_params {
 	unsigned int d0i3_timeout;
 	bool lar_disable;
 	bool fw_monitor;
+=======
+	char *nvm_file;
+	u32 uapsd_disable;
+>>>>>>> upstream/android-13
 	bool disable_11ac;
 	/**
 	 * @disable_11ax: disable HE capabilities, default = false
 	 */
 	bool disable_11ax;
 	bool remove_when_gone;
+<<<<<<< HEAD
 };
 
+=======
+	bool enable_ini;
+};
+
+static inline bool iwl_enable_rx_ampdu(void)
+{
+	if (iwlwifi_mod_params.disable_11n & IWL_DISABLE_HT_RXAGG)
+		return false;
+	return true;
+}
+
+static inline bool iwl_enable_tx_ampdu(void)
+{
+	if (iwlwifi_mod_params.disable_11n & IWL_DISABLE_HT_TXAGG)
+		return false;
+	if (iwlwifi_mod_params.disable_11n & IWL_ENABLE_HT_TXAGG)
+		return true;
+
+	/* enabled by default */
+	return true;
+}
+
+>>>>>>> upstream/android-13
 #endif /* #__iwl_modparams_h__ */

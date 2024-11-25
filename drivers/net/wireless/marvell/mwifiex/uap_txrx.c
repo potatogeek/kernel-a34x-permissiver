@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: AP TX and RX data handling
  *
  * Copyright (C) 2012-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: AP TX and RX data handling
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -71,11 +80,18 @@ mwifiex_uap_del_tx_pkts_in_ralist(struct mwifiex_private *priv,
  */
 static void mwifiex_uap_cleanup_tx_queues(struct mwifiex_private *priv)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	struct list_head *ra_list;
 	int i;
 
 	spin_lock_irqsave(&priv->wmm.ra_list_spinlock, flags);
+=======
+	struct list_head *ra_list;
+	int i;
+
+	spin_lock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MAX_NUM_TID; i++, priv->del_list_idx++) {
 		if (priv->del_list_idx == MAX_NUM_TID)
@@ -87,7 +103,11 @@ static void mwifiex_uap_cleanup_tx_queues(struct mwifiex_private *priv)
 		}
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->wmm.ra_list_spinlock, flags);
+=======
+	spin_unlock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 }
 
 
@@ -351,11 +371,15 @@ int mwifiex_uap_recv_packet(struct mwifiex_private *priv,
 		skb->truesize += (skb->len - MWIFIEX_RX_DATA_BUF_SIZE);
 
 	/* Forward multicast/broadcast packet to upper layer*/
+<<<<<<< HEAD
 	if (in_interrupt())
 		netif_rx(skb);
 	else
 		netif_rx_ni(skb);
 
+=======
+	netif_rx_any_context(skb);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -378,7 +402,10 @@ int mwifiex_process_uap_rx_packet(struct mwifiex_private *priv,
 	struct rx_packet_hdr *rx_pkt_hdr;
 	u16 rx_pkt_type;
 	u8 ta[ETH_ALEN], pkt_type;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	struct mwifiex_sta_node *node;
 
 	uap_rx_pd = (struct uap_rxpd *)(skb->data);
@@ -413,12 +440,20 @@ int mwifiex_process_uap_rx_packet(struct mwifiex_private *priv,
 
 
 	if (rx_pkt_type != PKT_TYPE_BAR && uap_rx_pd->priority < MAX_NUM_TID) {
+<<<<<<< HEAD
 		spin_lock_irqsave(&priv->sta_list_spinlock, flags);
+=======
+		spin_lock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 		node = mwifiex_get_sta_entry(priv, ta);
 		if (node)
 			node->rx_seq[uap_rx_pd->priority] =
 						le16_to_cpu(uap_rx_pd->seq_num);
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+		spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 	}
 
 	if (!priv->ap_11n_enabled ||
@@ -481,8 +516,13 @@ void *mwifiex_process_uap_txpd(struct mwifiex_private *priv,
 
 	pkt_type = mwifiex_is_skb_mgmt_frame(skb) ? PKT_TYPE_MGMT : 0;
 
+<<<<<<< HEAD
 	pad = ((void *)skb->data - (sizeof(*txpd) + hroom) - NULL) &
 			(MWIFIEX_DMA_ALIGN_SZ - 1);
+=======
+	pad = ((uintptr_t)skb->data - (sizeof(*txpd) + hroom)) &
+	       (MWIFIEX_DMA_ALIGN_SZ - 1);
+>>>>>>> upstream/android-13
 
 	skb_push(skb, sizeof(*txpd) + pad);
 

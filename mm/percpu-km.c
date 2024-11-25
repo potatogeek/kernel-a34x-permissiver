@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/percpu-km.c - kernel memory based chunk allocation
  *
  * Copyright (C) 2010		SUSE Linux Products GmbH
  * Copyright (C) 2010		Tejun Heo <tj@kernel.org>
  *
+<<<<<<< HEAD
  * This file is released under the GPLv2.
  *
+=======
+>>>>>>> upstream/android-13
  * Chunks are allocated as a contiguous kernel memory using gfp
  * allocation.  This is to be used on nommu architectures.
  *
@@ -33,6 +40,15 @@
 
 #include <linux/log2.h>
 
+<<<<<<< HEAD
+=======
+static void pcpu_post_unmap_tlb_flush(struct pcpu_chunk *chunk,
+				      int page_start, int page_end)
+{
+	/* nothing */
+}
+
+>>>>>>> upstream/android-13
 static int pcpu_populate_chunk(struct pcpu_chunk *chunk,
 			       int page_start, int page_end, gfp_t gfp)
 {
@@ -67,10 +83,17 @@ static struct pcpu_chunk *pcpu_create_chunk(gfp_t gfp)
 		pcpu_set_page_chunk(nth_page(pages, i), chunk);
 
 	chunk->data = pages;
+<<<<<<< HEAD
 	chunk->base_addr = page_address(pages) - pcpu_group_offsets[0];
 
 	spin_lock_irqsave(&pcpu_lock, flags);
 	pcpu_chunk_populated(chunk, 0, nr_pages, false);
+=======
+	chunk->base_addr = page_address(pages);
+
+	spin_lock_irqsave(&pcpu_lock, flags);
+	pcpu_chunk_populated(chunk, 0, nr_pages);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&pcpu_lock, flags);
 
 	pcpu_stats_chunk_alloc();
@@ -118,3 +141,11 @@ static int __init pcpu_verify_alloc_info(const struct pcpu_alloc_info *ai)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static bool pcpu_should_reclaim_chunk(struct pcpu_chunk *chunk)
+{
+	return false;
+}
+>>>>>>> upstream/android-13

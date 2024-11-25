@@ -22,13 +22,17 @@
 #include "../../utility/shub_dev_core.h"
 #include "../../utility/shub_utility.h"
 #include "../../utility/shub_file_manager.h"
+<<<<<<< HEAD
 #include "../../sensor/hub_debugger.h"
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/device.h>
 #include <linux/of.h>
 #include <linux/slab.h>
 #include <linux/delay.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SHUB_KUNIT)
 #include <kunit/mock.h>
 #define __mockable __weak
@@ -38,15 +42,21 @@
 #define __visible_for_testing static
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*************************************************************************/
 /* factory Sysfs                                                         */
 /*************************************************************************/
 static struct device *light_sysfs_device;
+<<<<<<< HEAD
 __visible_for_testing s32 light_position[12];
 
 #define DUAL_CHECK_MODE 13
 static u8 fstate;
 static struct light_cal_data_legacy sub_cal_data;
+=======
+static u32 light_position[6];
+>>>>>>> upstream/android-13
 
 static ssize_t name_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -69,12 +79,17 @@ static ssize_t lux_show(struct device *dev, struct device_attribute *attr, char 
 {
 	struct light_event *sensor_value = (struct light_event *)(get_sensor_event(SENSOR_TYPE_LIGHT)->value);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d,%d,%d,%d,%d,%d\n", sensor_value->r, sensor_value->g, sensor_value->b, sensor_value->w,
+=======
+	return sprintf(buf, "%u,%u,%u,%u,%u,%u\n", sensor_value->r, sensor_value->g, sensor_value->b, sensor_value->w,
+>>>>>>> upstream/android-13
 		       sensor_value->a_time, sensor_value->a_gain);
 }
 
 static ssize_t raw_data_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct light_event *sensor_value;
 
 	if (!get_sensor_probe_state(SENSOR_TYPE_LIGHT)) {
@@ -85,11 +100,17 @@ static ssize_t raw_data_show(struct device *dev, struct device_attribute *attr, 
 	sensor_value = (struct light_event *)(get_sensor_event(SENSOR_TYPE_LIGHT)->value);
 
 	return sprintf(buf, "%d,%d,%d,%d,%d,%d\n", sensor_value->r, sensor_value->g, sensor_value->b, sensor_value->w,
+=======
+	struct light_event *sensor_value = (struct light_event *)(get_sensor_event(SENSOR_TYPE_LIGHT)->value);
+
+	return sprintf(buf, "%u,%u,%u,%u,%u,%u\n", sensor_value->r, sensor_value->g, sensor_value->b, sensor_value->w,
+>>>>>>> upstream/android-13
 		       sensor_value->a_time, sensor_value->a_gain);
 }
 
 static ssize_t light_circle_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct light_data *data = get_sensor(SENSOR_TYPE_LIGHT)->data;
 
 	if (data->light_dual) {
@@ -102,6 +123,11 @@ static ssize_t light_circle_show(struct device *dev, struct device_attribute *at
 			   light_position[0], light_position[1], light_position[2],
 			   light_position[3], light_position[4], light_position[5]);
 	}
+=======
+	return sprintf(buf, "%u.%u %u.%u %u.%u\n", light_position[0], light_position[1],
+		       light_position[2], light_position[3], light_position[4],
+		       light_position[5]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t hall_ic_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
@@ -241,12 +267,20 @@ retry:
 
 static ssize_t copr_roix_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	int ret = 0;
 	int retries = 0;
 	char *buffer = NULL;
 	int buffer_len = 0;
+<<<<<<< HEAD
 	short copr[15];
 	long copr_ret[3] = {0,};
+=======
+	short copr[12];
+>>>>>>> upstream/android-13
 
 	memset(copr, 0, sizeof(copr));
 retry:
@@ -269,6 +303,7 @@ retry:
 		return -EINVAL;
 	}
 	memcpy(&copr, buffer, sizeof(copr));
+<<<<<<< HEAD
 	copr_ret[0] = (long)copr[9]  + (long)copr[12] * 1000;
 	copr_ret[1] = (long)copr[10] + (long)copr[13] * 1000;
 	copr_ret[2] = (long)copr[11] + (long)copr[14] * 1000;
@@ -281,6 +316,16 @@ retry:
 	return snprintf(buf, PAGE_SIZE, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%ld,%ld,%ld\n",
 		copr[0], copr[1], copr[2], copr[3], copr[4], copr[5], copr[6], copr[7],
 		copr[8], copr_ret[0], copr_ret[1], copr_ret[2]);
+=======
+
+	shub_infof("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", __func__, copr[0], copr[1], copr[2],
+		copr[3], copr[4], copr[5], copr[6], copr[7], copr[8], copr[9], copr[10],
+		copr[11]);
+
+	return snprintf(buf, PAGE_SIZE, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", copr[0], copr[1], copr[2],
+			copr[3], copr[4], copr[5], copr[6], copr[7], copr[8], copr[9],
+			copr[10], copr[11]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t light_cal_show(struct device *dev, struct device_attribute *attr, char *buf)
@@ -288,6 +333,7 @@ static ssize_t light_cal_show(struct device *dev, struct device_attribute *attr,
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT);
 	struct light_data *data = sensor->data;
 
+<<<<<<< HEAD
 	if (fstate == DUAL_CHECK_MODE) {
 		return snprintf(buf, PAGE_SIZE, "%u, %u, %u, %u, %u, %u\n",
 				data->cal_data.result, data->cal_data.max, data->cal_data.lux,
@@ -296,10 +342,14 @@ static ssize_t light_cal_show(struct device *dev, struct device_attribute *attr,
 		return snprintf(buf, PAGE_SIZE, "%u, %u, %u\n",
 				data->cal_data.result, data->cal_data.max, data->cal_data.lux);
 	}
+=======
+	return snprintf(buf, PAGE_SIZE, "%u, %u, %u\n", data->cal_data.cal, data->cal_data.max, data->cal_data.lux);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t light_cal_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
+<<<<<<< HEAD
 	int ret, cal_data_size = 0;
 	bool init, update, file_write = false;
 
@@ -311,6 +361,12 @@ static ssize_t light_cal_store(struct device *dev, struct device_attribute *attr
 		cal_data_size = sizeof(data->cal_data);
 	else
 		cal_data_size = sizeof(cal_data_legacy);
+=======
+	int ret = 0;
+	bool init, update, file_write = false;
+	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT);
+	struct light_data *data = sensor->data;
+>>>>>>> upstream/android-13
 
 	if (!get_sensor_probe_state(SENSOR_TYPE_LIGHT))
 		return -ENOENT;
@@ -319,8 +375,11 @@ static ssize_t light_cal_store(struct device *dev, struct device_attribute *attr
 
 	init = sysfs_streq(buf, "0");
 	update = sysfs_streq(buf, "1");
+<<<<<<< HEAD
 	if (fstate == DUAL_CHECK_MODE)
 		cal_data_size = cal_data_size * 2;
+=======
+>>>>>>> upstream/android-13
 
 	if (init) {
 		char send_buf = 1;
@@ -332,9 +391,12 @@ static ssize_t light_cal_store(struct device *dev, struct device_attribute *attr
 		}
 
 		memset(&data->cal_data, 0, sizeof(data->cal_data));
+<<<<<<< HEAD
 		memset(&sub_cal_data, 0, sizeof(sub_cal_data));
 		memset(&cal_data_legacy, 0, sizeof(cal_data_legacy));
 
+=======
+>>>>>>> upstream/android-13
 		file_write = true;
 	} else if (update) {
 		char *buffer = NULL;
@@ -347,6 +409,7 @@ static ssize_t light_cal_store(struct device *dev, struct device_attribute *attr
 			shub_errf("CMD fail %d", ret);
 			return ret;
 		}
+<<<<<<< HEAD
 		if (buffer_length != cal_data_size) {
 			shub_errf("buffer_length(%d) != cal_data_size(%d)", buffer_length, cal_data_size);
 			return -EINVAL;
@@ -363,6 +426,13 @@ static ssize_t light_cal_store(struct device *dev, struct device_attribute *attr
 			if (fstate == DUAL_CHECK_MODE)
 				memcpy(&sub_cal_data, &buffer[sizeof(data->cal_data)], sizeof(sub_cal_data));
 			file_write = data->cal_data.result;
+=======
+
+		if (buffer_length == sizeof(data->cal_data)) {
+			memcpy(&(data->cal_data), buffer, sizeof(data->cal_data));
+
+			file_write = true;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		shub_errf("buf data is wrong %s", buf);
@@ -371,9 +441,12 @@ static ssize_t light_cal_store(struct device *dev, struct device_attribute *attr
 	if (file_write) {
 		ret = shub_file_write_no_wait(LIGHT_CALIBRATION_FILE_PATH, (u8 *)&(data->cal_data),
 									  sizeof(data->cal_data), 0);
+<<<<<<< HEAD
 		if (fstate == DUAL_CHECK_MODE)
 			shub_infof("Skip saving sub_cal_data");
 
+=======
+>>>>>>> upstream/android-13
 		if (ret != sizeof(data->cal_data))
 			shub_errf("Can't write light cal to file");
 	}
@@ -400,11 +473,18 @@ static ssize_t factory_fstate_store(struct device *dev,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	fstate = send_buf;
 
 	return size;
 }
 
+=======
+	return size;
+}
+
+
+>>>>>>> upstream/android-13
 static ssize_t trim_check_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	int ret = 0;
@@ -429,7 +509,11 @@ static ssize_t trim_check_show(struct device *dev, struct device_attribute *attr
 	memcpy(&trim_check, buffer, sizeof(trim_check));
 	kfree(buffer);
 
+<<<<<<< HEAD
 	shub_infof("%d", trim_check);
+=======
+	shub_infof("%d", __func__, trim_check);
+>>>>>>> upstream/android-13
 
 	if (trim_check != 0 && trim_check != 1) {
 		shub_errf("hub read trim NG");
@@ -480,11 +564,14 @@ static ssize_t debug_info_show(struct device *dev, struct device_attribute *attr
 			debug_info.mode, debug_info.brightness, debug_info.min_div_max, debug_info.lux);
 }
 
+<<<<<<< HEAD
 static ssize_t fifo_data_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "%s\n", get_hub_debugger_fifo_data());
 }
 
+=======
+>>>>>>> upstream/android-13
 static DEVICE_ATTR_RO(name);
 static DEVICE_ATTR_RO(vendor);
 static DEVICE_ATTR_RO(lux);
@@ -495,6 +582,7 @@ static DEVICE_ATTR(hall_ic, 0220, NULL, hall_ic_store);
 static DEVICE_ATTR_RO(sensorhub_ddi_spi_check);
 static DEVICE_ATTR_RO(test_copr);
 static DEVICE_ATTR_RO(copr_roix);
+<<<<<<< HEAD
 static DEVICE_ATTR(light_cal, 0664, light_cal_show, light_cal_store);
 static DEVICE_ATTR(fac_fstate, 0220, NULL, factory_fstate_store);
 static DEVICE_ATTR_RO(trim_check);
@@ -502,6 +590,14 @@ static DEVICE_ATTR_RO(debug_info);
 static DEVICE_ATTR_RO(fifo_data);
 
 __visible_for_testing struct device_attribute *light_attrs[] = {
+=======
+static DEVICE_ATTR_RW(light_cal);
+static DEVICE_ATTR(fac_fstate, 0220, NULL, factory_fstate_store);
+static DEVICE_ATTR_RO(trim_check);
+static DEVICE_ATTR_RO(debug_info);
+
+static struct device_attribute *light_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_name,
 	&dev_attr_vendor,
 	&dev_attr_lux,
@@ -509,7 +605,10 @@ __visible_for_testing struct device_attribute *light_attrs[] = {
 	&dev_attr_hall_ic,
 	&dev_attr_light_cal,
 	&dev_attr_debug_info,
+<<<<<<< HEAD
 	&dev_attr_fifo_data,
+=======
+>>>>>>> upstream/android-13
 	NULL,
 	NULL,
 	NULL,
@@ -526,11 +625,15 @@ static void check_light_dev_attr(void)
 	struct light_data *data = sensor->data;
 	struct device_node *np = get_shub_device()->of_node;
 	int index = 0;
+<<<<<<< HEAD
 	int light_position_size = 0;
+=======
+>>>>>>> upstream/android-13
 
 	while (light_attrs[index] != NULL)
 		index++;
 
+<<<<<<< HEAD
 	if (of_property_read_bool(np, "light-dual")) {
 		if (index < ARRAY_SIZE(light_attrs))
 			light_attrs[index++] = &dev_attr_fac_fstate;
@@ -557,6 +660,13 @@ static void check_light_dev_attr(void)
 				   light_position[0], light_position[1], light_position[2],
 				   light_position[3], light_position[4], light_position[5]);
 		}
+=======
+	if (!of_property_read_u32_array(np, "light-position", light_position, ARRAY_SIZE(light_position))) {
+		if (index < ARRAY_SIZE(light_attrs))
+			light_attrs[index++] = &dev_attr_light_circle;
+		shub_info("light-position - %u.%u %u.%u %u.%u", light_position[0], light_position[1],
+			   light_position[2], light_position[3], light_position[4], light_position[5]);
+>>>>>>> upstream/android-13
 	}
 
 	if (data->light_coef && index < ARRAY_SIZE(light_attrs))
@@ -568,9 +678,19 @@ static void check_light_dev_attr(void)
 		light_attrs[index++] = &dev_attr_copr_roix;
 	}
 
+<<<<<<< HEAD
 	if (sensor->spec.vendor == VENDOR_AMS
 	|| sensor->spec.vendor == VENDOR_CAPELLA
 	|| sensor->spec.vendor == VENDOR_SITRONIX) {
+=======
+	if (of_property_read_bool(np, "light-dual")) {
+		if (index < ARRAY_SIZE(light_attrs))
+			light_attrs[index++] = &dev_attr_fac_fstate;
+		shub_info("support light_dual");
+	}
+
+	if (sensor->spec.vendor == VENDOR_AMS || sensor->spec.vendor == VENDOR_SITRONIX) {
+>>>>>>> upstream/android-13
 		if (index < ARRAY_SIZE(light_attrs))
 			light_attrs[index++] = &dev_attr_trim_check;
 	}

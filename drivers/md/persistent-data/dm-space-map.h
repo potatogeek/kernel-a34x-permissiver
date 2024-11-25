@@ -46,8 +46,13 @@ struct dm_space_map {
 
 	int (*commit)(struct dm_space_map *sm);
 
+<<<<<<< HEAD
 	int (*inc_block)(struct dm_space_map *sm, dm_block_t b);
 	int (*dec_block)(struct dm_space_map *sm, dm_block_t b);
+=======
+	int (*inc_blocks)(struct dm_space_map *sm, dm_block_t b, dm_block_t e);
+	int (*dec_blocks)(struct dm_space_map *sm, dm_block_t b, dm_block_t e);
+>>>>>>> upstream/android-13
 
 	/*
 	 * new_block will increment the returned block.
@@ -117,14 +122,34 @@ static inline int dm_sm_commit(struct dm_space_map *sm)
 	return sm->commit(sm);
 }
 
+<<<<<<< HEAD
 static inline int dm_sm_inc_block(struct dm_space_map *sm, dm_block_t b)
 {
 	return sm->inc_block(sm, b);
+=======
+static inline int dm_sm_inc_blocks(struct dm_space_map *sm, dm_block_t b, dm_block_t e)
+{
+	return sm->inc_blocks(sm, b, e);
+}
+
+static inline int dm_sm_inc_block(struct dm_space_map *sm, dm_block_t b)
+{
+	return dm_sm_inc_blocks(sm, b, b + 1);
+}
+
+static inline int dm_sm_dec_blocks(struct dm_space_map *sm, dm_block_t b, dm_block_t e)
+{
+	return sm->dec_blocks(sm, b, e);
+>>>>>>> upstream/android-13
 }
 
 static inline int dm_sm_dec_block(struct dm_space_map *sm, dm_block_t b)
 {
+<<<<<<< HEAD
 	return sm->dec_block(sm, b);
+=======
+	return dm_sm_dec_blocks(sm, b, b + 1);
+>>>>>>> upstream/android-13
 }
 
 static inline int dm_sm_new_block(struct dm_space_map *sm, dm_block_t *b)

@@ -51,7 +51,10 @@ asmlinkage int do_IRQ(unsigned int irq, struct pt_regs *regs);
 #ifdef CONFIG_IRQSTACKS
 extern void irq_ctx_init(int cpu);
 extern void irq_ctx_exit(int cpu);
+<<<<<<< HEAD
 # define __ARCH_HAS_DO_SOFTIRQ
+=======
+>>>>>>> upstream/android-13
 #else
 # define irq_ctx_init(cpu) do { } while (0)
 # define irq_ctx_exit(cpu) do { } while (0)
@@ -66,8 +69,11 @@ extern void irq_finish(unsigned int irq);
 #endif
 
 #include <asm-generic/irq.h>
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_SH5
 #include <cpu/irq.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_SH_IRQ_H */

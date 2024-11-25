@@ -10,10 +10,14 @@
  *
  */
 
+<<<<<<< HEAD
 #include "../perf.h"
 #include "../util/util.h"
 #include <subcmd/parse-options.h>
 #include "../builtin.h"
+=======
+#include <subcmd/parse-options.h>
+>>>>>>> upstream/android-13
 #include "bench.h"
 
 /* Test groups of 20 processes spraying to 20 receivers */
@@ -43,7 +47,11 @@ struct sender_context {
 	unsigned int num_fds;
 	int ready_out;
 	int wakefd;
+<<<<<<< HEAD
 	int out_fds[0];
+=======
+	int out_fds[];
+>>>>>>> upstream/android-13
 };
 
 struct receiver_context {
@@ -69,11 +77,18 @@ static void fdpair(int fds[2])
 /* Block until we're ready to go */
 static void ready(int ready_out, int wakefd)
 {
+<<<<<<< HEAD
 	char dummy;
 	struct pollfd pollfd = { .fd = wakefd, .events = POLLIN };
 
 	/* Tell them we're ready. */
 	if (write(ready_out, &dummy, 1) != 1)
+=======
+	struct pollfd pollfd = { .fd = wakefd, .events = POLLIN };
+
+	/* Tell them we're ready. */
+	if (write(ready_out, "R", 1) != 1)
+>>>>>>> upstream/android-13
 		err(EXIT_FAILURE, "CLIENT: ready write");
 
 	/* Wait for "GO" signal */
@@ -88,6 +103,10 @@ static void *sender(struct sender_context *ctx)
 	unsigned int i, j;
 
 	ready(ctx->ready_out, ctx->wakefd);
+<<<<<<< HEAD
+=======
+	memset(data, 'S', sizeof(data));
+>>>>>>> upstream/android-13
 
 	/* Now pump to every receiver. */
 	for (i = 0; i < nr_loops; i++) {
@@ -312,11 +331,19 @@ int bench_sched_messaging(int argc, const char **argv)
 		       num_groups, num_groups * 2 * num_fds,
 		       thread_mode ? "threads" : "processes");
 		printf(" %14s: %lu.%03lu [sec]\n", "Total time",
+<<<<<<< HEAD
 		       diff.tv_sec,
 		       (unsigned long) (diff.tv_usec / USEC_PER_MSEC));
 		break;
 	case BENCH_FORMAT_SIMPLE:
 		printf("%lu.%03lu\n", diff.tv_sec,
+=======
+		       (unsigned long) diff.tv_sec,
+		       (unsigned long) (diff.tv_usec / USEC_PER_MSEC));
+		break;
+	case BENCH_FORMAT_SIMPLE:
+		printf("%lu.%03lu\n", (unsigned long) diff.tv_sec,
+>>>>>>> upstream/android-13
 		       (unsigned long) (diff.tv_usec / USEC_PER_MSEC));
 		break;
 	default:

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Aeroflex Gaisler GRGPIO General Purpose I/O cores.
  *
@@ -12,11 +16,14 @@
  * See "Documentation/devicetree/bindings/gpio/gpio-grgpio.txt" for
  * information on open firmware properties.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Contributors: Andreas Larsson <andreas@gaisler.com>
  */
 
@@ -30,7 +37,10 @@
 #include <linux/gpio/driver.h>
 #include <linux/slab.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio/driver.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/irqdomain.h>
@@ -336,7 +346,10 @@ static int grgpio_probe(struct platform_device *ofdev)
 	void  __iomem *regs;
 	struct gpio_chip *gc;
 	struct grgpio_priv *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int err;
 	u32 prop;
 	s32 *irqmap;
@@ -347,8 +360,12 @@ static int grgpio_probe(struct platform_device *ofdev)
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(&ofdev->dev, res);
+=======
+	regs = devm_platform_ioremap_resource(ofdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 
@@ -417,8 +434,11 @@ static int grgpio_probe(struct platform_device *ofdev)
 				 * Continue without irq functionality for that
 				 * gpio line
 				 */
+<<<<<<< HEAD
 				dev_err(priv->dev,
 					"Failed to get irq for offset %d\n", i);
+=======
+>>>>>>> upstream/android-13
 				continue;
 			}
 			priv->uirqs[lirq->index].uirq = ret;
@@ -444,12 +464,18 @@ static int grgpio_probe(struct platform_device *ofdev)
 static int grgpio_remove(struct platform_device *ofdev)
 {
 	struct grgpio_priv *priv = platform_get_drvdata(ofdev);
+<<<<<<< HEAD
 	unsigned long flags;
 	int i;
 	int ret = 0;
 
 	spin_lock_irqsave(&priv->gc.bgpio_lock, flags);
 
+=======
+	int i;
+	int ret = 0;
+
+>>>>>>> upstream/android-13
 	if (priv->domain) {
 		for (i = 0; i < GRGPIO_MAX_NGPIO; i++) {
 			if (priv->uirqs[i].refcnt != 0) {
@@ -465,8 +491,11 @@ static int grgpio_remove(struct platform_device *ofdev)
 		irq_domain_remove(priv->domain);
 
 out:
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->gc.bgpio_lock, flags);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 

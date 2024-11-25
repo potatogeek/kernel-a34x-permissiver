@@ -32,11 +32,19 @@
 #include "psb_drv.h"
 #include "psb_reg.h"
 #include "psb_intel_reg.h"
+<<<<<<< HEAD
+=======
+#include "psb_irq.h"
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/pm_runtime.h>
 
 static struct mutex power_mutex;	/* Serialize power ops */
+<<<<<<< HEAD
 static spinlock_t power_ctrl_lock;	/* Serialize power claim */
+=======
+static DEFINE_SPINLOCK(power_ctrl_lock);	/* Serialize power claim */
+>>>>>>> upstream/android-13
 
 /**
  *	gma_power_init		-	initialise power manager
@@ -55,7 +63,10 @@ void gma_power_init(struct drm_device *dev)
 	dev_priv->display_power = true;	/* We start active */
 	dev_priv->display_count = 0;	/* Currently no users */
 	dev_priv->suspended = false;	/* And not suspended */
+<<<<<<< HEAD
 	spin_lock_init(&power_ctrl_lock);
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&power_mutex);
 
 	if (dev_priv->ops->init_pm)
@@ -70,8 +81,13 @@ void gma_power_init(struct drm_device *dev)
  */
 void gma_power_uninit(struct drm_device *dev)
 {
+<<<<<<< HEAD
 	pm_runtime_disable(&dev->pdev->dev);
 	pm_runtime_set_suspended(&dev->pdev->dev);
+=======
+	pm_runtime_disable(dev->dev);
+	pm_runtime_set_suspended(dev->dev);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -93,6 +109,10 @@ static void gma_suspend_display(struct drm_device *dev)
 
 /**
  *	gma_resume_display	-	resume display side logic
+<<<<<<< HEAD
+=======
+ *	@pdev: PCI device
+>>>>>>> upstream/android-13
  *
  *	Resume the display hardware restoring state and enabling
  *	as necessary.
@@ -146,7 +166,11 @@ static void gma_suspend_pci(struct pci_dev *pdev)
 
 /**
  *	gma_resume_pci		-	resume helper
+<<<<<<< HEAD
  *	@dev: our PCI device
+=======
+ *	@pdev: our PCI device
+>>>>>>> upstream/android-13
  *
  *	Perform the resume processing on our PCI device state - rewrite
  *	register state and re-enable the PCI device
@@ -178,8 +202,12 @@ static bool gma_resume_pci(struct pci_dev *pdev)
 
 /**
  *	gma_power_suspend		-	bus callback for suspend
+<<<<<<< HEAD
  *	@pdev: our PCI device
  *	@state: suspend type
+=======
+ *	@_dev: our device
+>>>>>>> upstream/android-13
  *
  *	Called back by the PCI layer during a suspend of the system. We
  *	perform the necessary shut down steps and save enough state that
@@ -208,7 +236,11 @@ int gma_power_suspend(struct device *_dev)
 
 /**
  *	gma_power_resume		-	resume power
+<<<<<<< HEAD
  *	@pdev: PCI device
+=======
+ *	@_dev: our device
+>>>>>>> upstream/android-13
  *
  *	Resume the PCI side of the graphics and then the displays
  */
@@ -249,6 +281,10 @@ bool gma_power_is_on(struct drm_device *dev)
 bool gma_power_begin(struct drm_device *dev, bool force_on)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	int ret;
 	unsigned long flags;
 
@@ -256,7 +292,11 @@ bool gma_power_begin(struct drm_device *dev, bool force_on)
 	/* Power already on ? */
 	if (dev_priv->display_power) {
 		dev_priv->display_count++;
+<<<<<<< HEAD
 		pm_runtime_get(&dev->pdev->dev);
+=======
+		pm_runtime_get(dev->dev);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&power_ctrl_lock, flags);
 		return true;
 	}
@@ -264,11 +304,19 @@ bool gma_power_begin(struct drm_device *dev, bool force_on)
 		goto out_false;
 
 	/* Ok power up needed */
+<<<<<<< HEAD
 	ret = gma_resume_pci(dev->pdev);
 	if (ret == 0) {
 		psb_irq_preinstall(dev);
 		psb_irq_postinstall(dev);
 		pm_runtime_get(&dev->pdev->dev);
+=======
+	ret = gma_resume_pci(pdev);
+	if (ret == 0) {
+		psb_irq_preinstall(dev);
+		psb_irq_postinstall(dev);
+		pm_runtime_get(dev->dev);
+>>>>>>> upstream/android-13
 		dev_priv->display_count++;
 		spin_unlock_irqrestore(&power_ctrl_lock, flags);
 		return true;
@@ -293,7 +341,11 @@ void gma_power_end(struct drm_device *dev)
 	dev_priv->display_count--;
 	WARN_ON(dev_priv->display_count < 0);
 	spin_unlock_irqrestore(&power_ctrl_lock, flags);
+<<<<<<< HEAD
 	pm_runtime_put(&dev->pdev->dev);
+=======
+	pm_runtime_put(dev->dev);
+>>>>>>> upstream/android-13
 }
 
 int psb_runtime_suspend(struct device *dev)

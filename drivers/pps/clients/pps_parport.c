@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * pps_parport.c -- kernel parallel port PPS client
  *
@@ -17,6 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * pps_parport.c -- kernel parallel port PPS client
+ *
+ * Copyright (C) 2009   Alexander Gordeev <lasaine@lvk.cs.msu.su>
+>>>>>>> upstream/android-13
  */
 
 
@@ -36,8 +44,11 @@
 #include <linux/parport.h>
 #include <linux/pps_kernel.h>
 
+<<<<<<< HEAD
 #define DRVDESC "parallel port PPS client"
 
+=======
+>>>>>>> upstream/android-13
 /* module parameters */
 
 #define CLEAR_WAIT_MAX		100
@@ -152,6 +163,15 @@ static void parport_attach(struct parport *port)
 		.dev		= NULL
 	};
 
+<<<<<<< HEAD
+=======
+	if (clear_wait > CLEAR_WAIT_MAX) {
+		pr_err("clear_wait value should be not greater then %d\n",
+		       CLEAR_WAIT_MAX);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	device = kzalloc(sizeof(struct pps_client_pp), GFP_KERNEL);
 	if (!device) {
 		pr_err("memory allocation failed, not attaching\n");
@@ -179,7 +199,11 @@ static void parport_attach(struct parport *port)
 
 	device->pps = pps_register_source(&info,
 			PPS_CAPTUREBOTH | PPS_OFFSETASSERT | PPS_OFFSETCLEAR);
+<<<<<<< HEAD
 	if (device->pps == NULL) {
+=======
+	if (IS_ERR(device->pps)) {
+>>>>>>> upstream/android-13
 		pr_err("couldn't register PPS source\n");
 		goto err_release_dev;
 	}
@@ -228,6 +252,7 @@ static struct parport_driver pps_parport_driver = {
 	.detach = parport_detach,
 	.devmodel = true,
 };
+<<<<<<< HEAD
 
 /* module staff */
 
@@ -262,4 +287,10 @@ module_exit(pps_parport_exit);
 
 MODULE_AUTHOR("Alexander Gordeev <lasaine@lvk.cs.msu.su>");
 MODULE_DESCRIPTION(DRVDESC);
+=======
+module_parport_driver(pps_parport_driver);
+
+MODULE_AUTHOR("Alexander Gordeev <lasaine@lvk.cs.msu.su>");
+MODULE_DESCRIPTION("parallel port PPS client");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

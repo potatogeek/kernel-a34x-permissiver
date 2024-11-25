@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * bt87x.c - Brooktree Bt878/Bt879 driver for ALSA
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
  *
  * based on btaudio.c by Gerd Knorr <kraxel@bytesex.org>
+<<<<<<< HEAD
  *
  *
  *  This driver is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -37,14 +44,21 @@
 MODULE_AUTHOR("Clemens Ladisch <clemens@ladisch.de>");
 MODULE_DESCRIPTION("Brooktree Bt87x audio driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Brooktree,Bt878},"
 		"{Brooktree,Bt879}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = -2}; /* Exclude the first card */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
 static bool enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;	/* Enable this card */
 static int digital_rate[SNDRV_CARDS];	/* digital input rate */
+<<<<<<< HEAD
 static bool load_all;	/* allow to load the non-whitelisted cards */
+=======
+static bool load_all;	/* allow to load cards not the allowlist */
+>>>>>>> upstream/android-13
 
 module_param_array(index, int, NULL, 0444);
 MODULE_PARM_DESC(index, "Index value for Bt87x soundcard");
@@ -55,7 +69,11 @@ MODULE_PARM_DESC(enable, "Enable Bt87x soundcard");
 module_param_array(digital_rate, int, NULL, 0444);
 MODULE_PARM_DESC(digital_rate, "Digital input rate for Bt87x soundcard");
 module_param(load_all, bool, 0444);
+<<<<<<< HEAD
 MODULE_PARM_DESC(load_all, "Allow to load the non-whitelisted cards");
+=======
+MODULE_PARM_DESC(load_all, "Allow to load cards not on the allowlist");
+>>>>>>> upstream/android-13
 
 
 /* register offsets */
@@ -164,7 +182,11 @@ struct snd_bt87x_board {
 	unsigned no_digital:1;	/* No digital input */
 };
 
+<<<<<<< HEAD
 static struct snd_bt87x_board snd_bt87x_boards[] = {
+=======
+static const struct snd_bt87x_board snd_bt87x_boards[] = {
+>>>>>>> upstream/android-13
 	[SND_BT87X_BOARD_UNKNOWN] = {
 		.dig_rate = 32000, /* just a guess */
 	},
@@ -231,7 +253,11 @@ static int snd_bt87x_create_risc(struct snd_bt87x *chip, struct snd_pcm_substrea
 	__le32 *risc;
 
 	if (chip->dma_risc.area == NULL) {
+<<<<<<< HEAD
 		if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(chip->pci),
+=======
+		if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, &chip->pci->dev,
+>>>>>>> upstream/android-13
 					PAGE_ALIGN(MAX_RISC_SIZE), &chip->dma_risc) < 0)
 			return -ENOMEM;
 	}
@@ -285,6 +311,7 @@ static void snd_bt87x_free_risc(struct snd_bt87x *chip)
 
 static void snd_bt87x_pci_error(struct snd_bt87x *chip, unsigned int status)
 {
+<<<<<<< HEAD
 	u16 pci_status;
 
 	pci_read_config_word(chip->pci, PCI_STATUS, &pci_status);
@@ -292,6 +319,10 @@ static void snd_bt87x_pci_error(struct snd_bt87x *chip, unsigned int status)
 		PCI_STATUS_REC_TARGET_ABORT | PCI_STATUS_REC_MASTER_ABORT |
 		PCI_STATUS_SIG_SYSTEM_ERROR | PCI_STATUS_DETECTED_PARITY;
 	pci_write_config_word(chip->pci, PCI_STATUS, pci_status);
+=======
+	int pci_status = pci_status_get_and_clear_errors(chip->pci);
+
+>>>>>>> upstream/android-13
 	if (pci_status != PCI_STATUS_DETECTED_PARITY)
 		dev_err(chip->card->dev,
 			"Aieee - PCI error! status %#08x, PCI status %#04x\n",
@@ -346,7 +377,12 @@ static irqreturn_t snd_bt87x_interrupt(int irq, void *dev_id)
 		current_block = chip->current_line * 16 / chip->lines;
 		irq_block = status >> INT_RISCS_SHIFT;
 		if (current_block != irq_block)
+<<<<<<< HEAD
 			chip->current_line = (irq_block * chip->lines + 15) / 16;
+=======
+			chip->current_line = DIV_ROUND_UP(irq_block * chip->lines,
+							  16);
+>>>>>>> upstream/android-13
 
 		snd_pcm_period_elapsed(chip->substream);
 	}
@@ -466,12 +502,16 @@ static int snd_bt87x_hw_params(struct snd_pcm_substream *substream,
 			       struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_bt87x *chip = snd_pcm_substream_chip(substream);
+<<<<<<< HEAD
 	int err;
 
 	err = snd_pcm_lib_malloc_pages(substream,
 				       params_buffer_bytes(hw_params));
 	if (err < 0)
 		return err;
+=======
+
+>>>>>>> upstream/android-13
 	return snd_bt87x_create_risc(chip, substream,
 				     params_periods(hw_params),
 				     params_period_bytes(hw_params));
@@ -482,7 +522,10 @@ static int snd_bt87x_hw_free(struct snd_pcm_substream *substream)
 	struct snd_bt87x *chip = snd_pcm_substream_chip(substream);
 
 	snd_bt87x_free_risc(chip);
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -553,13 +596,19 @@ static snd_pcm_uframes_t snd_bt87x_pointer(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_bt87x_pcm_ops = {
 	.open = snd_bt87x_pcm_open,
 	.close = snd_bt87x_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params = snd_bt87x_hw_params,
 	.hw_free = snd_bt87x_hw_free,
 	.prepare = snd_bt87x_prepare,
 	.trigger = snd_bt87x_trigger,
 	.pointer = snd_bt87x_pointer,
+<<<<<<< HEAD
 	.page = snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int snd_bt87x_capture_volume_info(struct snd_kcontrol *kcontrol,
@@ -684,6 +733,7 @@ static const struct snd_kcontrol_new snd_bt87x_capture_source = {
 	.put = snd_bt87x_capture_source_put,
 };
 
+<<<<<<< HEAD
 static int snd_bt87x_free(struct snd_bt87x *chip)
 {
 	if (chip->mmio)
@@ -701,6 +751,13 @@ static int snd_bt87x_dev_free(struct snd_device *device)
 {
 	struct snd_bt87x *chip = device->device_data;
 	return snd_bt87x_free(chip);
+=======
+static void snd_bt87x_free(struct snd_card *card)
+{
+	struct snd_bt87x *chip = card->private_data;
+
+	snd_bt87x_stop(chip);
+>>>>>>> upstream/android-13
 }
 
 static int snd_bt87x_pcm(struct snd_bt87x *chip, int device, char *name)
@@ -714,6 +771,7 @@ static int snd_bt87x_pcm(struct snd_bt87x *chip, int device, char *name)
 	pcm->private_data = chip;
 	strcpy(pcm->name, name);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_bt87x_pcm_ops);
+<<<<<<< HEAD
 	return snd_pcm_lib_preallocate_pages_for_all(pcm,
 						     SNDRV_DMA_TYPE_DEV_SG,
 						     snd_dma_pci_data(chip->pci),
@@ -742,11 +800,31 @@ static int snd_bt87x_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
+				       &chip->pci->dev,
+				       128 * 1024,
+				       ALIGN(255 * 4092, 1024));
+	return 0;
+}
+
+static int snd_bt87x_create(struct snd_card *card,
+			    struct pci_dev *pci)
+{
+	struct snd_bt87x *chip = card->private_data;
+	int err;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	chip->card = card;
 	chip->pci = pci;
 	chip->irq = -1;
 	spin_lock_init(&chip->reg_lock);
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, "Bt87x audio")) < 0) {
 		kfree(chip);
 		pci_disable_device(pci);
@@ -758,6 +836,12 @@ static int snd_bt87x_create(struct snd_card *card,
 		err = -ENOMEM;
 		goto fail;
 	}
+=======
+	err = pcim_iomap_regions(pci, 1 << 0, "Bt87x audio");
+	if (err < 0)
+		return err;
+	chip->mmio = pcim_iomap_table(pci)[0];
+>>>>>>> upstream/android-13
 
 	chip->reg_control = CTL_A_PWRDN | CTL_DA_ES2 |
 			    CTL_PKTP_16 | (15 << CTL_DA_SDR_SHIFT);
@@ -766,6 +850,7 @@ static int snd_bt87x_create(struct snd_card *card,
 	snd_bt87x_writel(chip, REG_INT_MASK, 0);
 	snd_bt87x_writel(chip, REG_INT_STAT, MY_INTERRUPTS);
 
+<<<<<<< HEAD
 	err = request_irq(pci->irq, snd_bt87x_interrupt, IRQF_SHARED,
 			  KBUILD_MODNAME, chip);
 	if (err < 0) {
@@ -786,6 +871,20 @@ static int snd_bt87x_create(struct snd_card *card,
 fail:
 	snd_bt87x_free(chip);
 	return err;
+=======
+	err = devm_request_irq(&pci->dev, pci->irq, snd_bt87x_interrupt,
+			       IRQF_SHARED, KBUILD_MODNAME, chip);
+	if (err < 0) {
+		dev_err(card->dev, "cannot grab irq %d\n", pci->irq);
+		return err;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_bt87x_free;
+	pci_set_master(pci);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #define BT_DEVICE(chip, subvend, subdev, id) \
@@ -828,7 +927,11 @@ MODULE_DEVICE_TABLE(pci, snd_bt87x_ids);
  * (DVB cards use the audio function to transfer MPEG data) */
 static struct {
 	unsigned short subvendor, subdevice;
+<<<<<<< HEAD
 } blacklist[] = {
+=======
+} denylist[] = {
+>>>>>>> upstream/android-13
 	{0x0071, 0x0101}, /* Nebula Electronics DigiTV */
 	{0x11bd, 0x001c}, /* Pinnacle PCTV Sat */
 	{0x11bd, 0x0026}, /* Pinnacle PCTV SAT CI */
@@ -844,7 +947,11 @@ static struct {
 
 static struct pci_driver driver;
 
+<<<<<<< HEAD
 /* return the id of the card, or a negative value if it's blacklisted */
+=======
+/* return the id of the card, or a negative value if it's on the denylist */
+>>>>>>> upstream/android-13
 static int snd_bt87x_detect_card(struct pci_dev *pci)
 {
 	int i;
@@ -854,9 +961,15 @@ static int snd_bt87x_detect_card(struct pci_dev *pci)
 	if (supported && supported->driver_data > 0)
 		return supported->driver_data;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(blacklist); ++i)
 		if (blacklist[i].subvendor == pci->subsystem_vendor &&
 		    blacklist[i].subdevice == pci->subsystem_device) {
+=======
+	for (i = 0; i < ARRAY_SIZE(denylist); ++i)
+		if (denylist[i].subvendor == pci->subsystem_vendor &&
+		    denylist[i].subdevice == pci->subsystem_device) {
+>>>>>>> upstream/android-13
 			dev_dbg(&pci->dev,
 				"card %#04x-%#04x:%#04x has no audio\n",
 				    pci->device, pci->subsystem_vendor, pci->subsystem_device);
@@ -871,8 +984,13 @@ static int snd_bt87x_detect_card(struct pci_dev *pci)
 	return SND_BT87X_BOARD_UNKNOWN;
 }
 
+<<<<<<< HEAD
 static int snd_bt87x_probe(struct pci_dev *pci,
 			   const struct pci_device_id *pci_id)
+=======
+static int __snd_bt87x_probe(struct pci_dev *pci,
+			     const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -895,6 +1013,7 @@ static int snd_bt87x_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -903,6 +1022,17 @@ static int snd_bt87x_probe(struct pci_dev *pci,
 	err = snd_bt87x_create(card, pci, &chip);
 	if (err < 0)
 		goto _error;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	err = snd_bt87x_create(card, pci);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	memcpy(&chip->board, &snd_bt87x_boards[boardid], sizeof(chip->board));
 
@@ -914,11 +1044,16 @@ static int snd_bt87x_probe(struct pci_dev *pci,
 
 		err = snd_bt87x_pcm(chip, DEVICE_DIGITAL, "Bt87x Digital");
 		if (err < 0)
+<<<<<<< HEAD
 			goto _error;
+=======
+			return err;
+>>>>>>> upstream/android-13
 	}
 	if (!chip->board.no_analog) {
 		err = snd_bt87x_pcm(chip, DEVICE_ANALOG, "Bt87x Analog");
 		if (err < 0)
+<<<<<<< HEAD
 			goto _error;
 		err = snd_ctl_add(card, snd_ctl_new1(
 				  &snd_bt87x_capture_volume, chip));
@@ -932,6 +1067,21 @@ static int snd_bt87x_probe(struct pci_dev *pci,
 				  &snd_bt87x_capture_source, chip));
 		if (err < 0)
 			goto _error;
+=======
+			return err;
+		err = snd_ctl_add(card, snd_ctl_new1(
+				  &snd_bt87x_capture_volume, chip));
+		if (err < 0)
+			return err;
+		err = snd_ctl_add(card, snd_ctl_new1(
+				  &snd_bt87x_capture_boost, chip));
+		if (err < 0)
+			return err;
+		err = snd_ctl_add(card, snd_ctl_new1(
+				  &snd_bt87x_capture_source, chip));
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	}
 	dev_info(card->dev, "bt87x%d: Using board %d, %sanalog, %sdigital "
 		   "(rate %d Hz)\n", dev, boardid,
@@ -947,11 +1097,16 @@ static int snd_bt87x_probe(struct pci_dev *pci,
 
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto _error;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pci, card);
 	++dev;
 	return 0;
+<<<<<<< HEAD
 
 _error:
 	snd_card_free(card);
@@ -961,6 +1116,14 @@ _error:
 static void snd_bt87x_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+}
+
+static int snd_bt87x_probe(struct pci_dev *pci,
+			   const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_bt87x_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 /* default entries for all Bt87x cards - it's not exported */
@@ -975,7 +1138,10 @@ static struct pci_driver driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_bt87x_ids,
 	.probe = snd_bt87x_probe,
+<<<<<<< HEAD
 	.remove = snd_bt87x_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init alsa_card_bt87x_init(void)

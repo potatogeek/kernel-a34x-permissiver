@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0+ */
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * This file is part of AD5686 DAC driver
  *
@@ -13,7 +17,14 @@
 #include <linux/mutex.h>
 #include <linux/kernel.h>
 
+<<<<<<< HEAD
 #define AD5683_DATA(x)				((x) << 4)
+=======
+#define AD5310_CMD(x)				((x) << 12)
+
+#define AD5683_DATA(x)				((x) << 4)
+
+>>>>>>> upstream/android-13
 #define AD5686_ADDR(x)				((x) << 16)
 #define AD5686_CMD(x)				((x) << 20)
 
@@ -38,6 +49,11 @@
 
 #define AD5686_CMD_CONTROL_REG			0x4
 #define AD5686_CMD_READBACK_ENABLE_V2		0x5
+<<<<<<< HEAD
+=======
+
+#define AD5310_REF_BIT_MSK			BIT(8)
+>>>>>>> upstream/android-13
 #define AD5683_REF_BIT_MSK			BIT(12)
 #define AD5693_REF_BIT_MSK			BIT(12)
 
@@ -45,12 +61,27 @@
  * ad5686_supported_device_ids:
  */
 enum ad5686_supported_device_ids {
+<<<<<<< HEAD
 	ID_AD5311R,
 	ID_AD5671R,
 	ID_AD5672R,
 	ID_AD5675R,
 	ID_AD5676,
 	ID_AD5676R,
+=======
+	ID_AD5310R,
+	ID_AD5311R,
+	ID_AD5338R,
+	ID_AD5671R,
+	ID_AD5672R,
+	ID_AD5673R,
+	ID_AD5674R,
+	ID_AD5675R,
+	ID_AD5676,
+	ID_AD5676R,
+	ID_AD5677R,
+	ID_AD5679R,
+>>>>>>> upstream/android-13
 	ID_AD5681R,
 	ID_AD5682R,
 	ID_AD5683,
@@ -72,6 +103,10 @@ enum ad5686_supported_device_ids {
 };
 
 enum ad5686_regmap_type {
+<<<<<<< HEAD
+=======
+	AD5310_REGMAP,
+>>>>>>> upstream/android-13
 	AD5683_REGMAP,
 	AD5686_REGMAP,
 	AD5693_REGMAP
@@ -95,7 +130,11 @@ typedef int (*ad5686_read_func)(struct ad5686_state *st, u8 addr);
 struct ad5686_chip_info {
 	u16				int_vref_mv;
 	unsigned int			num_channels;
+<<<<<<< HEAD
 	struct iio_chan_spec		*channels;
+=======
+	const struct iio_chan_spec	*channels;
+>>>>>>> upstream/android-13
 	enum ad5686_regmap_type		regmap_type;
 };
 
@@ -108,6 +147,10 @@ struct ad5686_chip_info {
  * @pwr_down_mask:	power down mask
  * @pwr_down_mode:	current power down mode
  * @use_internal_vref:	set to true if the internal reference voltage is used
+<<<<<<< HEAD
+=======
+ * @lock		lock to protect the data buffer during regmap ops
+>>>>>>> upstream/android-13
  * @data:		spi transfer buffers
  */
 
@@ -121,6 +164,10 @@ struct ad5686_state {
 	ad5686_write_func		write;
 	ad5686_read_func		read;
 	bool				use_internal_vref;
+<<<<<<< HEAD
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 
 	/*
 	 * DMA (thus cache coherency maintenance) requires the

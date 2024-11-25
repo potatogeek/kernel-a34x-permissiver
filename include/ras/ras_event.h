@@ -27,7 +27,11 @@
 TRACE_EVENT(extlog_mem_event,
 	TP_PROTO(struct cper_sec_mem_err *mem,
 		 u32 err_seq,
+<<<<<<< HEAD
 		 const uuid_le *fru_id,
+=======
+		 const guid_t *fru_id,
+>>>>>>> upstream/android-13
 		 const char *fru_text,
 		 u8 sev),
 
@@ -39,7 +43,11 @@ TRACE_EVENT(extlog_mem_event,
 		__field(u8, sev)
 		__field(u64, pa)
 		__field(u8, pa_mask_lsb)
+<<<<<<< HEAD
 		__field_struct(uuid_le, fru_id)
+=======
+		__field_struct(guid_t, fru_id)
+>>>>>>> upstream/android-13
 		__string(fru_text, fru_text)
 		__field_struct(struct cper_mem_err_compact, data)
 	),
@@ -218,8 +226,13 @@ TRACE_EVENT(arm_event,
  */
 TRACE_EVENT(non_standard_event,
 
+<<<<<<< HEAD
 	TP_PROTO(const uuid_le *sec_type,
 		 const uuid_le *fru_id,
+=======
+	TP_PROTO(const guid_t *sec_type,
+		 const guid_t *fru_id,
+>>>>>>> upstream/android-13
 		 const char *fru_text,
 		 const u8 sev,
 		 const u8 *err,
@@ -361,6 +374,10 @@ TRACE_EVENT(aer_event,
 	EM ( MF_MSG_POISONED_HUGE, "huge page already hardware poisoned" )	\
 	EM ( MF_MSG_HUGE, "huge page" )					\
 	EM ( MF_MSG_FREE_HUGE, "free huge page" )			\
+<<<<<<< HEAD
+=======
+	EM ( MF_MSG_NON_PMD_HUGE, "non-pmd-sized huge page" )		\
+>>>>>>> upstream/android-13
 	EM ( MF_MSG_UNMAP_FAILED, "unmapping failed page" )		\
 	EM ( MF_MSG_DIRTY_SWAPCACHE, "dirty swapcache page" )		\
 	EM ( MF_MSG_CLEAN_SWAPCACHE, "clean swapcache page" )		\
@@ -373,6 +390,11 @@ TRACE_EVENT(aer_event,
 	EM ( MF_MSG_TRUNCATED_LRU, "already truncated LRU page" )	\
 	EM ( MF_MSG_BUDDY, "free buddy page" )				\
 	EM ( MF_MSG_BUDDY_2ND, "free buddy page (2nd try)" )		\
+<<<<<<< HEAD
+=======
+	EM ( MF_MSG_DAX, "dax page" )					\
+	EM ( MF_MSG_UNSPLIT_THP, "unsplit thp" )			\
+>>>>>>> upstream/android-13
 	EMe ( MF_MSG_UNKNOWN, "unknown page" )
 
 /*

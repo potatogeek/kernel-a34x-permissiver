@@ -178,6 +178,7 @@ void FPU_printall(void)
 	for (i = 0; i < 8; i++) {
 		FPU_REG *r = &st(i);
 		u_char tagi = FPU_gettagi(i);
+<<<<<<< HEAD
 		switch (tagi) {
 		case TAG_Empty:
 			continue;
@@ -185,6 +186,17 @@ void FPU_printall(void)
 		case TAG_Zero:
 		case TAG_Special:
 			tagi = FPU_Special(r);
+=======
+
+		switch (tagi) {
+		case TAG_Empty:
+			continue;
+		case TAG_Zero:
+		case TAG_Special:
+			/* Update tagi for the printk below */
+			tagi = FPU_Special(r);
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TAG_Valid:
 			printk("st(%d)  %c .%04lx %04lx %04lx %04lx e%+-6d ", i,
 			       getsign(r) ? '-' : '+',
@@ -198,7 +210,10 @@ void FPU_printall(void)
 			printk("Whoops! Error in errors.c: tag%d is %d ", i,
 			       tagi);
 			continue;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 		}
 		printk("%s\n", tag_desc[(int)(unsigned)tagi]);
 	}

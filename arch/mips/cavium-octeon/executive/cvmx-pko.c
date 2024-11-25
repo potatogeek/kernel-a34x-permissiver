@@ -35,7 +35,11 @@
 #include <asm/octeon/cvmx-pko.h>
 #include <asm/octeon/cvmx-helper.h>
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Internal state of packet output
  */
 
@@ -176,7 +180,11 @@ static void __cvmx_pko_chip_init(void)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Call before any other calls to initialize the packet
  * output system.  This does chip global config, and should only be
  * done by one core.
@@ -229,7 +237,11 @@ void cvmx_pko_initialize_global(void)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This function does per-core initialization required by the PKO routines.
  * This must be called on all cores that will do packet output, and must
  * be called after the FPA has been initialized and filled with pages.
@@ -243,7 +255,11 @@ int cvmx_pko_initialize_local(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Enables the packet output hardware. It must already be
  * configured.
  */
@@ -266,7 +282,11 @@ void cvmx_pko_enable(void)
 	cvmx_write_csr(CVMX_PKO_REG_FLAGS, flags.u64);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Disables the packet output. Does not affect any configuration.
  */
 void cvmx_pko_disable(void)
@@ -278,7 +298,11 @@ void cvmx_pko_disable(void)
 }
 EXPORT_SYMBOL_GPL(cvmx_pko_disable);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Reset the packet output.
  */
 static void __cvmx_pko_reset(void)
@@ -289,7 +313,11 @@ static void __cvmx_pko_reset(void)
 	cvmx_write_csr(CVMX_PKO_REG_FLAGS, pko_reg_flags.u64);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Shutdown and free resources required by packet output.
  */
 void cvmx_pko_shutdown(void)
@@ -320,7 +348,11 @@ void cvmx_pko_shutdown(void)
 }
 EXPORT_SYMBOL_GPL(cvmx_pko_shutdown);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Configure a output port and the associated queues for use.
  *
  * @port:	Port to configure.
@@ -485,11 +517,18 @@ cvmx_pko_status_t cvmx_pko_config_port(uint64_t port, uint64_t base_queue,
 			config.s.qos_mask = 0xff;
 			break;
 		case CVMX_PKO_QUEUE_STATIC_PRIORITY:
+<<<<<<< HEAD
 			/* Pass 1 will fall through to the error case */
+=======
+>>>>>>> upstream/android-13
 			if (!cvmx_octeon_is_pass1()) {
 				config.s.qos_mask = 0xff;
 				break;
 			}
+<<<<<<< HEAD
+=======
+			fallthrough;	/* to the error case, when Pass 1 */
+>>>>>>> upstream/android-13
 		default:
 			cvmx_dprintf("ERROR: cvmx_pko_config_port: Invalid "
 				     "priority %llu\n",
@@ -548,7 +587,11 @@ cvmx_pko_status_t cvmx_pko_config_port(uint64_t port, uint64_t base_queue,
 }
 
 #ifdef PKO_DEBUG
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Show map of ports -> queues for different cores.
  */
 void cvmx_pko_show_queue_map()
@@ -573,7 +616,11 @@ void cvmx_pko_show_queue_map()
 }
 #endif
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Rate limit a PKO port to a max packets/sec. This function is only
  * supported on CN51XX and higher, excluding CN58XX.
  *
@@ -606,7 +653,11 @@ int cvmx_pko_rate_limit_packets(int port, int packets_s, int burst)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Rate limit a PKO port to a max bits/sec. This function is only
  * supported on CN51XX and higher, excluding CN58XX.
  *

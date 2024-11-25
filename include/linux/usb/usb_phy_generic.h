@@ -3,6 +3,7 @@
 #define __LINUX_USB_NOP_XCEIV_H
 
 #include <linux/usb/otg.h>
+<<<<<<< HEAD
 #include <linux/gpio/consumer.h>
 
 struct usb_phy_generic_platform_data {
@@ -15,6 +16,8 @@ struct usb_phy_generic_platform_data {
 	int gpio_reset;
 	struct gpio_desc *gpiod_vbus;
 };
+=======
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_NOP_USB_XCEIV)
 /* sometimes transceivers are accessed only through e.g. ULPI */

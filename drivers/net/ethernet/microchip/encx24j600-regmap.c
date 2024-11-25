@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Register map access API - ENCX24J600 support
  *
  * Copyright 2015 Gridpoint
  *
  * Author: Jon Ringle <jringle@gridpoint.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -20,11 +28,14 @@
 
 #include "encx24j600_hw.h"
 
+<<<<<<< HEAD
 static inline bool is_bits_set(int value, int mask)
 {
 	return (value & mask) == mask;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int encx24j600_switch_bank(struct encx24j600_context *ctx,
 				  int bank)
 {
@@ -505,13 +516,28 @@ static struct regmap_bus phymap_encx24j600 = {
 	.reg_read = regmap_encx24j600_phy_reg_read,
 };
 
+<<<<<<< HEAD
 void devm_regmap_init_encx24j600(struct device *dev,
 				 struct encx24j600_context *ctx)
+=======
+int devm_regmap_init_encx24j600(struct device *dev,
+				struct encx24j600_context *ctx)
+>>>>>>> upstream/android-13
 {
 	mutex_init(&ctx->mutex);
 	regcfg.lock_arg = ctx;
 	ctx->regmap = devm_regmap_init(dev, &regmap_encx24j600, ctx, &regcfg);
+<<<<<<< HEAD
 	ctx->phymap = devm_regmap_init(dev, &phymap_encx24j600, ctx, &phycfg);
+=======
+	if (IS_ERR(ctx->regmap))
+		return PTR_ERR(ctx->regmap);
+	ctx->phymap = devm_regmap_init(dev, &phymap_encx24j600, ctx, &phycfg);
+	if (IS_ERR(ctx->phymap))
+		return PTR_ERR(ctx->phymap);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(devm_regmap_init_encx24j600);
 

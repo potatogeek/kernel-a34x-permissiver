@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+<<<<<<< HEAD
  * Xilinx ZC770 XM013 board DTS
+=======
+ * Xilinx ZC770 XM011 board DTS
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2013-2018 Xilinx, Inc.
  */

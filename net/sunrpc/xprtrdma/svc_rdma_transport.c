@@ -55,7 +55,10 @@
 
 #include <linux/sunrpc/addr.h>
 #include <linux/sunrpc/debug.h>
+<<<<<<< HEAD
 #include <linux/sunrpc/rpc_rdma.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/sunrpc/svc_xprt.h>
 #include <linux/sunrpc/svc_rdma.h>
 
@@ -81,10 +84,17 @@ static const struct svc_xprt_ops svc_rdma_ops = {
 	.xpo_create = svc_rdma_create,
 	.xpo_recvfrom = svc_rdma_recvfrom,
 	.xpo_sendto = svc_rdma_sendto,
+<<<<<<< HEAD
 	.xpo_release_rqst = svc_rdma_release_rqst,
 	.xpo_detach = svc_rdma_detach,
 	.xpo_free = svc_rdma_free,
 	.xpo_prep_reply_hdr = svc_rdma_prep_reply_hdr,
+=======
+	.xpo_result_payload = svc_rdma_result_payload,
+	.xpo_release_rqst = svc_rdma_release_rqst,
+	.xpo_detach = svc_rdma_detach,
+	.xpo_free = svc_rdma_free,
+>>>>>>> upstream/android-13
 	.xpo_has_wspace = svc_rdma_has_wspace,
 	.xpo_accept = svc_rdma_accept,
 	.xpo_secure_port = svc_rdma_secure_port,
@@ -99,6 +109,7 @@ struct svc_xprt_class svc_rdma_class = {
 	.xcl_ident = XPRT_TRANSPORT_RDMA,
 };
 
+<<<<<<< HEAD
 #if defined(CONFIG_SUNRPC_BACKCHANNEL)
 static struct svc_xprt *svc_rdma_bc_create(struct svc_serv *, struct net *,
 					   struct sockaddr *, int, int);
@@ -157,6 +168,8 @@ static void svc_rdma_bc_free(struct svc_xprt *xprt)
 }
 #endif	/* CONFIG_SUNRPC_BACKCHANNEL */
 
+=======
+>>>>>>> upstream/android-13
 /* QP event handler */
 static void qp_event_handler(struct ib_event *event, void *context)
 {
@@ -178,8 +191,12 @@ static void qp_event_handler(struct ib_event *event, void *context)
 	case IB_EVENT_QP_ACCESS_ERR:
 	case IB_EVENT_DEVICE_FATAL:
 	default:
+<<<<<<< HEAD
 		set_bit(XPT_CLOSE, &xprt->xpt_flags);
 		svc_xprt_enqueue(xprt);
+=======
+		svc_xprt_deferred_close(xprt);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -196,16 +213,25 @@ static struct svcxprt_rdma *svc_rdma_create_xprt(struct svc_serv *serv,
 	svc_xprt_init(net, &svc_rdma_class, &cma_xprt->sc_xprt, serv);
 	INIT_LIST_HEAD(&cma_xprt->sc_accept_q);
 	INIT_LIST_HEAD(&cma_xprt->sc_rq_dto_q);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&cma_xprt->sc_read_complete_q);
 	INIT_LIST_HEAD(&cma_xprt->sc_send_ctxts);
 	INIT_LIST_HEAD(&cma_xprt->sc_recv_ctxts);
 	INIT_LIST_HEAD(&cma_xprt->sc_rw_ctxts);
+=======
+	init_llist_head(&cma_xprt->sc_send_ctxts);
+	init_llist_head(&cma_xprt->sc_recv_ctxts);
+	init_llist_head(&cma_xprt->sc_rw_ctxts);
+>>>>>>> upstream/android-13
 	init_waitqueue_head(&cma_xprt->sc_send_wait);
 
 	spin_lock_init(&cma_xprt->sc_lock);
 	spin_lock_init(&cma_xprt->sc_rq_dto_lock);
 	spin_lock_init(&cma_xprt->sc_send_lock);
+<<<<<<< HEAD
 	spin_lock_init(&cma_xprt->sc_recv_lock);
+=======
+>>>>>>> upstream/android-13
 	spin_lock_init(&cma_xprt->sc_rw_ctxt_lock);
 
 	/*
@@ -270,7 +296,16 @@ static void handle_connect_req(struct rdma_cm_id *new_cma_id,
 	newxprt->sc_ord = param->initiator_depth;
 
 	sa = (struct sockaddr *)&newxprt->sc_cm_id->route.addr.dst_addr;
+<<<<<<< HEAD
 	svc_xprt_set_remote(&newxprt->sc_xprt, sa, svc_addr_len(sa));
+=======
+	newxprt->sc_xprt.xpt_remotelen = svc_addr_len(sa);
+	memcpy(&newxprt->sc_xprt.xpt_remote, sa,
+	       newxprt->sc_xprt.xpt_remotelen);
+	snprintf(newxprt->sc_xprt.xpt_remotebuf,
+		 sizeof(newxprt->sc_xprt.xpt_remotebuf) - 1, "%pISc", sa);
+
+>>>>>>> upstream/android-13
 	/* The remote port is arbitrary and not under the control of the
 	 * client ULP. Set it to a fixed value so that the DRC continues
 	 * to be effective after a reconnect.
@@ -284,14 +319,21 @@ static void handle_connect_req(struct rdma_cm_id *new_cma_id,
 	 * Enqueue the new transport on the accept queue of the listening
 	 * transport
 	 */
+<<<<<<< HEAD
 	spin_lock_bh(&listen_xprt->sc_lock);
 	list_add_tail(&newxprt->sc_accept_q, &listen_xprt->sc_accept_q);
 	spin_unlock_bh(&listen_xprt->sc_lock);
+=======
+	spin_lock(&listen_xprt->sc_lock);
+	list_add_tail(&newxprt->sc_accept_q, &listen_xprt->sc_accept_q);
+	spin_unlock(&listen_xprt->sc_lock);
+>>>>>>> upstream/android-13
 
 	set_bit(XPT_CONN, &listen_xprt->sc_xprt.xpt_flags);
 	svc_xprt_enqueue(&listen_xprt->sc_xprt);
 }
 
+<<<<<<< HEAD
 /*
  * Handles events generated on the listening endpoint. These events will be
  * either be incoming connect requests or adapter removal  events.
@@ -358,6 +400,60 @@ static int rdma_cma_handler(struct rdma_cm_id *cma_id,
 		dprintk("svcrdma: Unexpected event on DTO endpoint %p, "
 			"event = %s (%d)\n", cma_id,
 			rdma_event_msg(event->event), event->event);
+=======
+/**
+ * svc_rdma_listen_handler - Handle CM events generated on a listening endpoint
+ * @cma_id: the server's listener rdma_cm_id
+ * @event: details of the event
+ *
+ * Return values:
+ *     %0: Do not destroy @cma_id
+ *     %1: Destroy @cma_id (never returned here)
+ *
+ * NB: There is never a DEVICE_REMOVAL event for INADDR_ANY listeners.
+ */
+static int svc_rdma_listen_handler(struct rdma_cm_id *cma_id,
+				   struct rdma_cm_event *event)
+{
+	switch (event->event) {
+	case RDMA_CM_EVENT_CONNECT_REQUEST:
+		handle_connect_req(cma_id, &event->param.conn);
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
+/**
+ * svc_rdma_cma_handler - Handle CM events on client connections
+ * @cma_id: the server's listener rdma_cm_id
+ * @event: details of the event
+ *
+ * Return values:
+ *     %0: Do not destroy @cma_id
+ *     %1: Destroy @cma_id (never returned here)
+ */
+static int svc_rdma_cma_handler(struct rdma_cm_id *cma_id,
+				struct rdma_cm_event *event)
+{
+	struct svcxprt_rdma *rdma = cma_id->context;
+	struct svc_xprt *xprt = &rdma->sc_xprt;
+
+	switch (event->event) {
+	case RDMA_CM_EVENT_ESTABLISHED:
+		clear_bit(RDMAXPRT_CONN_PENDING, &rdma->sc_flags);
+
+		/* Handle any requests that were received while
+		 * CONN_PENDING was set. */
+		svc_xprt_enqueue(xprt);
+		break;
+	case RDMA_CM_EVENT_DISCONNECTED:
+	case RDMA_CM_EVENT_DEVICE_REMOVAL:
+		svc_xprt_deferred_close(xprt);
+		break;
+	default:
+>>>>>>> upstream/android-13
 		break;
 	}
 	return 0;
@@ -375,22 +471,34 @@ static struct svc_xprt *svc_rdma_create(struct svc_serv *serv,
 	struct svcxprt_rdma *cma_xprt;
 	int ret;
 
+<<<<<<< HEAD
 	dprintk("svcrdma: Creating RDMA listener\n");
 	if ((sa->sa_family != AF_INET) && (sa->sa_family != AF_INET6)) {
 		dprintk("svcrdma: Address family %d is not supported.\n", sa->sa_family);
 		return ERR_PTR(-EAFNOSUPPORT);
 	}
+=======
+	if (sa->sa_family != AF_INET && sa->sa_family != AF_INET6)
+		return ERR_PTR(-EAFNOSUPPORT);
+>>>>>>> upstream/android-13
 	cma_xprt = svc_rdma_create_xprt(serv, net);
 	if (!cma_xprt)
 		return ERR_PTR(-ENOMEM);
 	set_bit(XPT_LISTENER, &cma_xprt->sc_xprt.xpt_flags);
 	strcpy(cma_xprt->sc_xprt.xpt_remotebuf, "listener");
 
+<<<<<<< HEAD
 	listen_id = rdma_create_id(net, rdma_listen_handler, cma_xprt,
 				   RDMA_PS_TCP, IB_QPT_RC);
 	if (IS_ERR(listen_id)) {
 		ret = PTR_ERR(listen_id);
 		dprintk("svcrdma: rdma_create_id failed = %d\n", ret);
+=======
+	listen_id = rdma_create_id(net, svc_rdma_listen_handler, cma_xprt,
+				   RDMA_PS_TCP, IB_QPT_RC);
+	if (IS_ERR(listen_id)) {
+		ret = PTR_ERR(listen_id);
+>>>>>>> upstream/android-13
 		goto err0;
 	}
 
@@ -399,6 +507,7 @@ static struct svc_xprt *svc_rdma_create(struct svc_serv *serv,
 	 */
 #if IS_ENABLED(CONFIG_IPV6)
 	ret = rdma_set_afonly(listen_id, 1);
+<<<<<<< HEAD
 	if (ret) {
 		dprintk("svcrdma: rdma_set_afonly failed = %d\n", ret);
 		goto err1;
@@ -416,6 +525,19 @@ static struct svc_xprt *svc_rdma_create(struct svc_serv *serv,
 		dprintk("svcrdma: rdma_listen failed = %d\n", ret);
 		goto err1;
 	}
+=======
+	if (ret)
+		goto err1;
+#endif
+	ret = rdma_bind_addr(listen_id, sa);
+	if (ret)
+		goto err1;
+	cma_xprt->sc_cm_id = listen_id;
+
+	ret = rdma_listen(listen_id, RPCRDMA_LISTEN_BACKLOG);
+	if (ret)
+		goto err1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We need to use the address from the cm_id in case the
@@ -453,13 +575,22 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	struct ib_qp_init_attr qp_attr;
 	unsigned int ctxts, rq_depth;
 	struct ib_device *dev;
+<<<<<<< HEAD
 	struct sockaddr *sap;
 	int ret = 0;
+=======
+	int ret = 0;
+	RPC_IFDEBUG(struct sockaddr *sap);
+>>>>>>> upstream/android-13
 
 	listen_rdma = container_of(xprt, struct svcxprt_rdma, sc_xprt);
 	clear_bit(XPT_CONN, &xprt->xpt_flags);
 	/* Get the next entry off the accept list */
+<<<<<<< HEAD
 	spin_lock_bh(&listen_rdma->sc_lock);
+=======
+	spin_lock(&listen_rdma->sc_lock);
+>>>>>>> upstream/android-13
 	if (!list_empty(&listen_rdma->sc_accept_q)) {
 		newxprt = list_entry(listen_rdma->sc_accept_q.next,
 				     struct svcxprt_rdma, sc_accept_q);
@@ -467,6 +598,7 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	}
 	if (!list_empty(&listen_rdma->sc_accept_q))
 		set_bit(XPT_CONN, &listen_rdma->sc_xprt.xpt_flags);
+<<<<<<< HEAD
 	spin_unlock_bh(&listen_rdma->sc_lock);
 	if (!newxprt)
 		return NULL;
@@ -474,6 +606,12 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	dprintk("svcrdma: newxprt from accept queue = %p, cm_id=%p\n",
 		newxprt, newxprt->sc_cm_id);
 
+=======
+	spin_unlock(&listen_rdma->sc_lock);
+	if (!newxprt)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	dev = newxprt->sc_cm_id->device;
 	newxprt->sc_port_num = newxprt->sc_cm_id->port_num;
 
@@ -488,11 +626,21 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	newxprt->sc_max_req_size = svcrdma_max_req_size;
 	newxprt->sc_max_requests = svcrdma_max_requests;
 	newxprt->sc_max_bc_requests = svcrdma_max_bc_requests;
+<<<<<<< HEAD
 	rq_depth = newxprt->sc_max_requests + newxprt->sc_max_bc_requests;
+=======
+	newxprt->sc_recv_batch = RPCRDMA_MAX_RECV_BATCH;
+	rq_depth = newxprt->sc_max_requests + newxprt->sc_max_bc_requests +
+		   newxprt->sc_recv_batch;
+>>>>>>> upstream/android-13
 	if (rq_depth > dev->attrs.max_qp_wr) {
 		pr_warn("svcrdma: reducing receive depth to %d\n",
 			dev->attrs.max_qp_wr);
 		rq_depth = dev->attrs.max_qp_wr;
+<<<<<<< HEAD
+=======
+		newxprt->sc_recv_batch = 1;
+>>>>>>> upstream/android-13
 		newxprt->sc_max_requests = rq_depth - 2;
 		newxprt->sc_max_bc_requests = 2;
 	}
@@ -509,6 +657,7 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 
 	newxprt->sc_pd = ib_alloc_pd(dev, 0);
 	if (IS_ERR(newxprt->sc_pd)) {
+<<<<<<< HEAD
 		dprintk("svcrdma: error creating PD for connect request\n");
 		goto errout;
 	}
@@ -524,6 +673,19 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 		dprintk("svcrdma: error creating RQ CQ for connect request\n");
 		goto errout;
 	}
+=======
+		trace_svcrdma_pd_err(newxprt, PTR_ERR(newxprt->sc_pd));
+		goto errout;
+	}
+	newxprt->sc_sq_cq = ib_alloc_cq_any(dev, newxprt, newxprt->sc_sq_depth,
+					    IB_POLL_WORKQUEUE);
+	if (IS_ERR(newxprt->sc_sq_cq))
+		goto errout;
+	newxprt->sc_rq_cq =
+		ib_alloc_cq_any(dev, newxprt, rq_depth, IB_POLL_WORKQUEUE);
+	if (IS_ERR(newxprt->sc_rq_cq))
+		goto errout;
+>>>>>>> upstream/android-13
 
 	memset(&qp_attr, 0, sizeof qp_attr);
 	qp_attr.event_handler = qp_event_handler;
@@ -547,7 +709,11 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 
 	ret = rdma_create_qp(newxprt->sc_cm_id, newxprt->sc_pd, &qp_attr);
 	if (ret) {
+<<<<<<< HEAD
 		dprintk("svcrdma: failed to create QP, ret=%d\n", ret);
+=======
+		trace_svcrdma_qp_err(newxprt, ret);
+>>>>>>> upstream/android-13
 		goto errout;
 	}
 	newxprt->sc_qp = newxprt->sc_cm_id->qp;
@@ -555,15 +721,25 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	if (!(dev->attrs.device_cap_flags & IB_DEVICE_MEM_MGT_EXTENSIONS))
 		newxprt->sc_snd_w_inv = false;
 	if (!rdma_protocol_iwarp(dev, newxprt->sc_port_num) &&
+<<<<<<< HEAD
 	    !rdma_ib_or_roce(dev, newxprt->sc_port_num))
 		goto errout;
+=======
+	    !rdma_ib_or_roce(dev, newxprt->sc_port_num)) {
+		trace_svcrdma_fabric_err(newxprt, -EINVAL);
+		goto errout;
+	}
+>>>>>>> upstream/android-13
 
 	if (!svc_rdma_post_recvs(newxprt))
 		goto errout;
 
+<<<<<<< HEAD
 	/* Swap out the handler */
 	newxprt->sc_cm_id->event_handler = rdma_cma_handler;
 
+=======
+>>>>>>> upstream/android-13
 	/* Construct RDMA-CM private message */
 	pmsg.cp_magic = rpcrdma_cmp_magic;
 	pmsg.cp_version = RPCRDMA_CMP_VERSION;
@@ -578,16 +754,34 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	conn_param.initiator_depth = min_t(int, newxprt->sc_ord,
 					   dev->attrs.max_qp_init_rd_atom);
 	if (!conn_param.initiator_depth) {
+<<<<<<< HEAD
 		dprintk("svcrdma: invalid ORD setting\n");
 		ret = -EINVAL;
+=======
+		ret = -EINVAL;
+		trace_svcrdma_initdepth_err(newxprt, ret);
+>>>>>>> upstream/android-13
 		goto errout;
 	}
 	conn_param.private_data = &pmsg;
 	conn_param.private_data_len = sizeof(pmsg);
+<<<<<<< HEAD
 	ret = rdma_accept(newxprt->sc_cm_id, &conn_param);
 	if (ret)
 		goto errout;
 
+=======
+	rdma_lock_handler(newxprt->sc_cm_id);
+	newxprt->sc_cm_id->event_handler = svc_rdma_cma_handler;
+	ret = rdma_accept(newxprt->sc_cm_id, &conn_param);
+	rdma_unlock_handler(newxprt->sc_cm_id);
+	if (ret) {
+		trace_svcrdma_accept_err(newxprt, ret);
+		goto errout;
+	}
+
+#if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
+>>>>>>> upstream/android-13
 	dprintk("svcrdma: new connection %p accepted:\n", newxprt);
 	sap = (struct sockaddr *)&newxprt->sc_cm_id->route.addr.src_addr;
 	dprintk("    local address   : %pIS:%u\n", sap, rpc_get_port(sap));
@@ -598,6 +792,7 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	dprintk("    rdma_rw_ctxs    : %d\n", ctxts);
 	dprintk("    max_requests    : %d\n", newxprt->sc_max_requests);
 	dprintk("    ord             : %d\n", conn_param.initiator_depth);
+<<<<<<< HEAD
 
 	trace_svcrdma_xprt_accept(&newxprt->sc_xprt);
 	return &newxprt->sc_xprt;
@@ -605,6 +800,13 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
  errout:
 	dprintk("svcrdma: failure accepting new connection rc=%d.\n", ret);
 	trace_svcrdma_xprt_fail(&newxprt->sc_xprt);
+=======
+#endif
+
+	return &newxprt->sc_xprt;
+
+ errout:
+>>>>>>> upstream/android-13
 	/* Take a reference in case the DTO handler runs */
 	svc_xprt_get(&newxprt->sc_xprt);
 	if (newxprt->sc_qp && !IS_ERR(newxprt->sc_qp))
@@ -615,6 +817,7 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
 	return NULL;
 }
 
+<<<<<<< HEAD
 /*
  * When connected, an svc_xprt has at least two references:
  *
@@ -627,12 +830,17 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
  *
  * At a minimum one references should still be held.
  */
+=======
+>>>>>>> upstream/android-13
 static void svc_rdma_detach(struct svc_xprt *xprt)
 {
 	struct svcxprt_rdma *rdma =
 		container_of(xprt, struct svcxprt_rdma, sc_xprt);
 
+<<<<<<< HEAD
 	/* Disconnect and flush posted WQE */
+=======
+>>>>>>> upstream/android-13
 	rdma_disconnect(rdma->sc_cm_id);
 }
 
@@ -640,6 +848,7 @@ static void __svc_rdma_free(struct work_struct *work)
 {
 	struct svcxprt_rdma *rdma =
 		container_of(work, struct svcxprt_rdma, sc_work);
+<<<<<<< HEAD
 	struct svc_xprt *xprt = &rdma->sc_xprt;
 
 	trace_svcrdma_xprt_free(xprt);
@@ -660,6 +869,15 @@ static void __svc_rdma_free(struct work_struct *work)
 		xprt->xpt_bc_xprt = NULL;
 	}
 
+=======
+
+	/* This blocks until the Completion Queues are empty */
+	if (rdma->sc_qp && !IS_ERR(rdma->sc_qp))
+		ib_drain_qp(rdma->sc_qp);
+
+	svc_rdma_flush_recv_queues(rdma);
+
+>>>>>>> upstream/android-13
 	svc_rdma_destroy_rw_ctxts(rdma);
 	svc_rdma_send_ctxts_destroy(rdma);
 	svc_rdma_recv_ctxts_destroy(rdma);
@@ -687,8 +905,14 @@ static void svc_rdma_free(struct svc_xprt *xprt)
 {
 	struct svcxprt_rdma *rdma =
 		container_of(xprt, struct svcxprt_rdma, sc_xprt);
+<<<<<<< HEAD
 	INIT_WORK(&rdma->sc_work, __svc_rdma_free);
 	queue_work(svc_rdma_wq, &rdma->sc_work);
+=======
+
+	INIT_WORK(&rdma->sc_work, __svc_rdma_free);
+	schedule_work(&rdma->sc_work);
+>>>>>>> upstream/android-13
 }
 
 static int svc_rdma_has_wspace(struct svc_xprt *xprt)

@@ -14,6 +14,10 @@
 #include <linux/compiler.h>
 #include <asm/exceptions.h>
 #include <asm/pvr.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqflags.h>
+>>>>>>> upstream/android-13
 
 /*
  * Until we get an assembler that knows about the pvr registers,

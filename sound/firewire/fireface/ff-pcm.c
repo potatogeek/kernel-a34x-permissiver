@@ -1,18 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ff-pcm.c - a part of driver for RME Fireface series
  *
  * Copyright (c) 2015-2017 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ff.h"
 
+<<<<<<< HEAD
 static inline unsigned int get_multiplier_mode_with_index(unsigned int index)
 {
 	return ((int)index - 1) / 2;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hw_rule_rate(struct snd_pcm_hw_params *params,
 			struct snd_pcm_hw_rule *rule)
 {
@@ -24,10 +34,23 @@ static int hw_rule_rate(struct snd_pcm_hw_params *params,
 	struct snd_interval t = {
 		.min = UINT_MAX, .max = 0, .integer = 1
 	};
+<<<<<<< HEAD
 	unsigned int i, mode;
 
 	for (i = 0; i < ARRAY_SIZE(amdtp_rate_table); i++) {
 		mode = get_multiplier_mode_with_index(i);
+=======
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(amdtp_rate_table); i++) {
+		enum snd_ff_stream_mode mode;
+		int err;
+
+		err = snd_ff_stream_get_multiplier_mode(i, &mode);
+		if (err < 0)
+			continue;
+
+>>>>>>> upstream/android-13
 		if (!snd_interval_test(c, pcm_channels[mode]))
 			continue;
 
@@ -49,10 +72,23 @@ static int hw_rule_channels(struct snd_pcm_hw_params *params,
 	struct snd_interval t = {
 		.min = UINT_MAX, .max = 0, .integer = 1
 	};
+<<<<<<< HEAD
 	unsigned int i, mode;
 
 	for (i = 0; i < ARRAY_SIZE(amdtp_rate_table); i++) {
 		mode = get_multiplier_mode_with_index(i);
+=======
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(amdtp_rate_table); i++) {
+		enum snd_ff_stream_mode mode;
+		int err;
+
+		err = snd_ff_stream_get_multiplier_mode(i, &mode);
+		if (err < 0)
+			continue;
+
+>>>>>>> upstream/android-13
 		if (!snd_interval_test(r, amdtp_rate_table[i]))
 			continue;
 
@@ -66,7 +102,10 @@ static int hw_rule_channels(struct snd_pcm_hw_params *params,
 static void limit_channels_and_rates(struct snd_pcm_hardware *hw,
 				     const unsigned int *pcm_channels)
 {
+<<<<<<< HEAD
 	unsigned int mode;
+=======
+>>>>>>> upstream/android-13
 	unsigned int rate, channels;
 	int i;
 
@@ -76,7 +115,16 @@ static void limit_channels_and_rates(struct snd_pcm_hardware *hw,
 	hw->rate_max = 0;
 
 	for (i = 0; i < ARRAY_SIZE(amdtp_rate_table); i++) {
+<<<<<<< HEAD
 		mode = get_multiplier_mode_with_index(i);
+=======
+		enum snd_ff_stream_mode mode;
+		int err;
+
+		err = snd_ff_stream_get_multiplier_mode(i, &mode);
+		if (err < 0)
+			continue;
+>>>>>>> upstream/android-13
 
 		channels = pcm_channels[mode];
 		if (pcm_channels[mode] == 0)
@@ -129,6 +177,10 @@ static int pcm_init_hw_params(struct snd_ff *ff,
 static int pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_ff *ff = substream->private_data;
+<<<<<<< HEAD
+=======
+	struct amdtp_domain *d = &ff->domain;
+>>>>>>> upstream/android-13
 	unsigned int rate;
 	enum snd_ff_clock_src src;
 	int i, err;
@@ -145,16 +197,32 @@ static int pcm_open(struct snd_pcm_substream *substream)
 	if (err < 0)
 		goto release_lock;
 
+<<<<<<< HEAD
+=======
+	mutex_lock(&ff->mutex);
+
+	// When source of clock is not internal or any stream is reserved for
+	// transmission of PCM frames, the available sampling rate is limited
+	// at current one.
+>>>>>>> upstream/android-13
 	if (src != SND_FF_CLOCK_SRC_INTERNAL) {
 		for (i = 0; i < CIP_SFC_COUNT; ++i) {
 			if (amdtp_rate_table[i] == rate)
 				break;
 		}
+<<<<<<< HEAD
 		/*
 		 * The unit is configured at sampling frequency which packet
 		 * streaming engine can't support.
 		 */
 		if (i >= CIP_SFC_COUNT) {
+=======
+
+		// The unit is configured at sampling frequency which packet
+		// streaming engine can't support.
+		if (i >= CIP_SFC_COUNT) {
+			mutex_unlock(&ff->mutex);
+>>>>>>> upstream/android-13
 			err = -EIO;
 			goto release_lock;
 		}
@@ -162,6 +230,7 @@ static int pcm_open(struct snd_pcm_substream *substream)
 		substream->runtime->hw.rate_min = rate;
 		substream->runtime->hw.rate_max = rate;
 	} else {
+<<<<<<< HEAD
 		if (amdtp_stream_pcm_running(&ff->rx_stream) ||
 		    amdtp_stream_pcm_running(&ff->tx_stream)) {
 			rate = amdtp_rate_table[ff->rx_stream.sfc];
@@ -170,6 +239,36 @@ static int pcm_open(struct snd_pcm_substream *substream)
 		}
 	}
 
+=======
+		if (ff->substreams_counter > 0) {
+			unsigned int frames_per_period = d->events_per_period;
+			unsigned int frames_per_buffer = d->events_per_buffer;
+
+			rate = amdtp_rate_table[ff->rx_stream.sfc];
+			substream->runtime->hw.rate_min = rate;
+			substream->runtime->hw.rate_max = rate;
+
+			err = snd_pcm_hw_constraint_minmax(substream->runtime,
+					SNDRV_PCM_HW_PARAM_PERIOD_SIZE,
+					frames_per_period, frames_per_period);
+			if (err < 0) {
+				mutex_unlock(&ff->mutex);
+				goto release_lock;
+			}
+
+			err = snd_pcm_hw_constraint_minmax(substream->runtime,
+					SNDRV_PCM_HW_PARAM_BUFFER_SIZE,
+					frames_per_buffer, frames_per_buffer);
+			if (err < 0) {
+				mutex_unlock(&ff->mutex);
+				goto release_lock;
+			}
+		}
+	}
+
+	mutex_unlock(&ff->mutex);
+
+>>>>>>> upstream/android-13
 	snd_pcm_set_sync(substream);
 
 	return 0;
@@ -188,6 +287,7 @@ static int pcm_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pcm_capture_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *hw_params)
 {
@@ -229,18 +329,48 @@ static int pcm_playback_hw_params(struct snd_pcm_substream *substream,
 }
 
 static int pcm_capture_hw_free(struct snd_pcm_substream *substream)
+=======
+static int pcm_hw_params(struct snd_pcm_substream *substream,
+			 struct snd_pcm_hw_params *hw_params)
+{
+	struct snd_ff *ff = substream->private_data;
+	int err = 0;
+
+	if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN) {
+		unsigned int rate = params_rate(hw_params);
+		unsigned int frames_per_period = params_period_size(hw_params);
+		unsigned int frames_per_buffer = params_buffer_size(hw_params);
+
+		mutex_lock(&ff->mutex);
+		err = snd_ff_stream_reserve_duplex(ff, rate, frames_per_period,
+						   frames_per_buffer);
+		if (err >= 0)
+			++ff->substreams_counter;
+		mutex_unlock(&ff->mutex);
+	}
+
+	return err;
+}
+
+static int pcm_hw_free(struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_ff *ff = substream->private_data;
 
 	mutex_lock(&ff->mutex);
 
 	if (substream->runtime->status->state != SNDRV_PCM_STATE_OPEN)
+<<<<<<< HEAD
 		ff->substreams_counter--;
+=======
+		--ff->substreams_counter;
+>>>>>>> upstream/android-13
 
 	snd_ff_stream_stop_duplex(ff);
 
 	mutex_unlock(&ff->mutex);
 
+<<<<<<< HEAD
 	return snd_pcm_lib_free_vmalloc_buffer(substream);
 }
 
@@ -258,6 +388,9 @@ static int pcm_playback_hw_free(struct snd_pcm_substream *substream)
 	mutex_unlock(&ff->mutex);
 
 	return snd_pcm_lib_free_vmalloc_buffer(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int pcm_capture_prepare(struct snd_pcm_substream *substream)
@@ -334,28 +467,44 @@ static snd_pcm_uframes_t pcm_capture_pointer(struct snd_pcm_substream *sbstrm)
 {
 	struct snd_ff *ff = sbstrm->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_pointer(&ff->tx_stream);
+=======
+	return amdtp_domain_stream_pcm_pointer(&ff->domain, &ff->tx_stream);
+>>>>>>> upstream/android-13
 }
 
 static snd_pcm_uframes_t pcm_playback_pointer(struct snd_pcm_substream *sbstrm)
 {
 	struct snd_ff *ff = sbstrm->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_pointer(&ff->rx_stream);
+=======
+	return amdtp_domain_stream_pcm_pointer(&ff->domain, &ff->rx_stream);
+>>>>>>> upstream/android-13
 }
 
 static int pcm_capture_ack(struct snd_pcm_substream *substream)
 {
 	struct snd_ff *ff = substream->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_ack(&ff->tx_stream);
+=======
+	return amdtp_domain_stream_pcm_ack(&ff->domain, &ff->tx_stream);
+>>>>>>> upstream/android-13
 }
 
 static int pcm_playback_ack(struct snd_pcm_substream *substream)
 {
 	struct snd_ff *ff = substream->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_ack(&ff->rx_stream);
+=======
+	return amdtp_domain_stream_pcm_ack(&ff->domain, &ff->rx_stream);
+>>>>>>> upstream/android-13
 }
 
 int snd_ff_create_pcm_devices(struct snd_ff *ff)
@@ -363,26 +512,42 @@ int snd_ff_create_pcm_devices(struct snd_ff *ff)
 	static const struct snd_pcm_ops pcm_capture_ops = {
 		.open		= pcm_open,
 		.close		= pcm_close,
+<<<<<<< HEAD
 		.ioctl		= snd_pcm_lib_ioctl,
 		.hw_params	= pcm_capture_hw_params,
 		.hw_free	= pcm_capture_hw_free,
+=======
+		.hw_params	= pcm_hw_params,
+		.hw_free	= pcm_hw_free,
+>>>>>>> upstream/android-13
 		.prepare	= pcm_capture_prepare,
 		.trigger	= pcm_capture_trigger,
 		.pointer	= pcm_capture_pointer,
 		.ack		= pcm_capture_ack,
+<<<<<<< HEAD
 		.page		= snd_pcm_lib_get_vmalloc_page,
+=======
+>>>>>>> upstream/android-13
 	};
 	static const struct snd_pcm_ops pcm_playback_ops = {
 		.open		= pcm_open,
 		.close		= pcm_close,
+<<<<<<< HEAD
 		.ioctl		= snd_pcm_lib_ioctl,
 		.hw_params	= pcm_playback_hw_params,
 		.hw_free	= pcm_playback_hw_free,
+=======
+		.hw_params	= pcm_hw_params,
+		.hw_free	= pcm_hw_free,
+>>>>>>> upstream/android-13
 		.prepare	= pcm_playback_prepare,
 		.trigger	= pcm_playback_trigger,
 		.pointer	= pcm_playback_pointer,
 		.ack		= pcm_playback_ack,
+<<<<<<< HEAD
 		.page		= snd_pcm_lib_get_vmalloc_page,
+=======
+>>>>>>> upstream/android-13
 	};
 	struct snd_pcm *pcm;
 	int err;
@@ -396,6 +561,10 @@ int snd_ff_create_pcm_devices(struct snd_ff *ff)
 		 "%s PCM", ff->card->shortname);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &pcm_playback_ops);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &pcm_capture_ops);
+<<<<<<< HEAD
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

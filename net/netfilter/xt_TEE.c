@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	"TEE" target extension for Xtables
  *	Copyright © Sebastian Claßen, 2007
@@ -5,10 +9,13 @@
  *
  *	based on ipt_ROUTE.c from Cédric de Launois
  *	<delaunois@info.ucl.be>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	version 2 or later, as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/skbuff.h>

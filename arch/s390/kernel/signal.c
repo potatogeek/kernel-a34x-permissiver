@@ -16,6 +16,10 @@
 #include <linux/smp.h>
 #include <linux/kernel.h>
 #include <linux/signal.h>
+<<<<<<< HEAD
+=======
+#include <linux/entry-common.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/wait.h>
 #include <linux/ptrace.h>
@@ -31,6 +35,10 @@
 #include <linux/uaccess.h>
 #include <asm/lowcore.h>
 #include <asm/switch_to.h>
+<<<<<<< HEAD
+=======
+#include <asm/vdso.h>
+>>>>>>> upstream/android-13
 #include "entry.h"
 
 /*
@@ -232,7 +240,11 @@ SYSCALL_DEFINE0(sigreturn)
 	load_sigregs();
 	return regs->gprs[2];
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -256,7 +268,11 @@ SYSCALL_DEFINE0(rt_sigreturn)
 	load_sigregs();
 	return regs->gprs[2];
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -332,6 +348,7 @@ static int setup_frame(int sig, struct k_sigaction *ka,
 
 	/* Set up to return from userspace.  If provided, use a stub
 	   already in userspace.  */
+<<<<<<< HEAD
 	if (ka->sa.sa_flags & SA_RESTORER) {
 		restorer = (unsigned long) ka->sa.sa_restorer;
 	} else {
@@ -341,6 +358,12 @@ static int setup_frame(int sig, struct k_sigaction *ka,
 			return -EFAULT;
 		restorer = (unsigned long) svc;
 	}
+=======
+	if (ka->sa.sa_flags & SA_RESTORER)
+		restorer = (unsigned long) ka->sa.sa_restorer;
+	else
+		restorer = VDSO64_SYMBOL(current, sigreturn);
+>>>>>>> upstream/android-13
 
 	/* Set up registers for signal handler */
 	regs->gprs[14] = restorer;
@@ -395,6 +418,7 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 
 	/* Set up to return from userspace.  If provided, use a stub
 	   already in userspace.  */
+<<<<<<< HEAD
 	if (ksig->ka.sa.sa_flags & SA_RESTORER) {
 		restorer = (unsigned long) ksig->ka.sa.sa_restorer;
 	} else {
@@ -403,6 +427,12 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 			return -EFAULT;
 		restorer = (unsigned long) svc;
 	}
+=======
+	if (ksig->ka.sa.sa_flags & SA_RESTORER)
+		restorer = (unsigned long) ksig->ka.sa.sa_restorer;
+	else
+		restorer = VDSO64_SYMBOL(current, rt_sigreturn);
+>>>>>>> upstream/android-13
 
 	/* Create siginfo on the signal stack */
 	if (copy_siginfo_to_user(&frame->info, &ksig->info))
@@ -459,7 +489,12 @@ static void handle_signal(struct ksignal *ksig, sigset_t *oldset,
  * the kernel can handle, and then we build all the user-level signal handling
  * stack-frames in one go after that.
  */
+<<<<<<< HEAD
 void do_signal(struct pt_regs *regs)
+=======
+
+void arch_do_signal_or_restart(struct pt_regs *regs, bool has_signal)
+>>>>>>> upstream/android-13
 {
 	struct ksignal ksig;
 	sigset_t *oldset = sigmask_to_save();
@@ -472,7 +507,11 @@ void do_signal(struct pt_regs *regs)
 	current->thread.system_call =
 		test_pt_regs_flag(regs, PIF_SYSCALL) ? regs->int_code : 0;
 
+<<<<<<< HEAD
 	if (get_signal(&ksig)) {
+=======
+	if (has_signal && get_signal(&ksig)) {
+>>>>>>> upstream/android-13
 		/* Whee!  Actually deliver the signal.  */
 		if (current->thread.system_call) {
 			regs->int_code = current->thread.system_call;
@@ -487,7 +526,11 @@ void do_signal(struct pt_regs *regs)
 					regs->gprs[2] = -EINTR;
 					break;
 				}
+<<<<<<< HEAD
 			/* fallthrough */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case -ERESTARTNOINTR:
 				regs->gprs[2] = regs->orig_gpr2;
 				regs->psw.addr =
@@ -498,6 +541,10 @@ void do_signal(struct pt_regs *regs)
 		}
 		/* No longer in a system call */
 		clear_pt_regs_flag(regs, PIF_SYSCALL);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		rseq_signal_deliver(&ksig, regs);
 		if (is_compat_task())
 			handle_signal32(&ksig, oldset, regs);
@@ -513,6 +560,7 @@ void do_signal(struct pt_regs *regs)
 		switch (regs->gprs[2]) {
 		case -ERESTART_RESTARTBLOCK:
 			/* Restart with sys_restart_syscall */
+<<<<<<< HEAD
 			regs->int_code = __NR_restart_syscall;
 		/* fallthrough */
 		case -ERESTARTNOHAND:
@@ -523,6 +571,24 @@ void do_signal(struct pt_regs *regs)
 			set_pt_regs_flag(regs, PIF_SYSCALL);
 			if (test_thread_flag(TIF_SINGLE_STEP))
 				clear_pt_regs_flag(regs, PIF_PER_TRAP);
+=======
+			regs->gprs[2] = regs->orig_gpr2;
+			current->restart_block.arch_data = regs->psw.addr;
+			if (is_compat_task())
+				regs->psw.addr = VDSO32_SYMBOL(current, restart_syscall);
+			else
+				regs->psw.addr = VDSO64_SYMBOL(current, restart_syscall);
+			if (test_thread_flag(TIF_SINGLE_STEP))
+				clear_thread_flag(TIF_PER_TRAP);
+			break;
+		case -ERESTARTNOHAND:
+		case -ERESTARTSYS:
+		case -ERESTARTNOINTR:
+			regs->gprs[2] = regs->orig_gpr2;
+			regs->psw.addr = __rewind_psw(regs->psw, regs->int_code >> 16);
+			if (test_thread_flag(TIF_SINGLE_STEP))
+				clear_thread_flag(TIF_PER_TRAP);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -532,6 +598,7 @@ void do_signal(struct pt_regs *regs)
 	 */
 	restore_saved_sigmask();
 }
+<<<<<<< HEAD
 
 void do_notify_resume(struct pt_regs *regs)
 {
@@ -539,3 +606,5 @@ void do_notify_resume(struct pt_regs *regs)
 	tracehook_notify_resume(regs);
 	rseq_handle_notify_resume(NULL, regs);
 }
+=======
+>>>>>>> upstream/android-13

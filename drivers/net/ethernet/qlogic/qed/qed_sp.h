@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_SP_H
@@ -120,14 +127,26 @@ union ramrod_data {
 	struct fcoe_conn_terminate_ramrod_params fcoe_conn_terminate;
 	struct fcoe_stat_ramrod_params fcoe_stat;
 
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr iscsi_empty;
 	struct iscsi_init_ramrod_params iscsi_init;
 	struct iscsi_spe_func_dstry iscsi_destroy;
+=======
+	struct iscsi_init_ramrod_params iscsi_init;
+>>>>>>> upstream/android-13
 	struct iscsi_spe_conn_offload iscsi_conn_offload;
 	struct iscsi_conn_update_ramrod_params iscsi_conn_update;
 	struct iscsi_spe_conn_mac_update iscsi_conn_mac_update;
 	struct iscsi_spe_conn_termination iscsi_conn_terminate;
 
+<<<<<<< HEAD
+=======
+	struct nvmetcp_init_ramrod_params nvmetcp_init;
+	struct nvmetcp_spe_conn_offload nvmetcp_conn_offload;
+	struct nvmetcp_conn_update_ramrod_params nvmetcp_conn_update;
+	struct nvmetcp_spe_conn_termination nvmetcp_conn_terminate;
+
+>>>>>>> upstream/android-13
 	struct vf_start_ramrod_data vf_start;
 	struct vf_stop_ramrod_data vf_stop;
 };
@@ -182,12 +201,18 @@ struct qed_consq {
 	struct qed_chain chain;
 };
 
+<<<<<<< HEAD
 typedef int
 (*qed_spq_async_comp_cb)(struct qed_hwfn *p_hwfn,
 			 u8 opcode,
 			 u16 echo,
 			 union event_ring_data *data,
 			 u8 fw_return_code);
+=======
+typedef int (*qed_spq_async_comp_cb)(struct qed_hwfn *p_hwfn, u8 opcode,
+				     __le16 echo, union event_ring_data *data,
+				     u8 fw_return_code);
+>>>>>>> upstream/android-13
 
 int
 qed_spq_register_async_cb(struct qed_hwfn *p_hwfn,
@@ -227,7 +252,13 @@ struct qed_spq {
 	u32			comp_count;
 
 	u32			cid;
+<<<<<<< HEAD
 	qed_spq_async_comp_cb async_comp_cb[MAX_PROTOCOL_TYPE];
+=======
+	u32			db_addr_offset;
+	struct core_db_data	db_data;
+	qed_spq_async_comp_cb	async_comp_cb[MAX_PROTOCOL_TYPE];
+>>>>>>> upstream/android-13
 };
 
 /**

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2017 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2017 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #if !defined(__RVT_TRACE_RC_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __RVT_TRACE_RC_H
@@ -51,7 +57,11 @@
 #include <linux/trace_seq.h>
 
 #include <rdma/ib_verbs.h>
+<<<<<<< HEAD
 #include <rdma/rdma_vt.h>
+=======
+#include <rdma/rdmavt_qp.h>
+>>>>>>> upstream/android-13
 
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM rvt_rc
@@ -71,7 +81,11 @@ DECLARE_EVENT_CLASS(rvt_rc_template,
 			__field(u32, r_psn)
 			),
 		    TP_fast_assign(
+<<<<<<< HEAD
 			RDI_DEV_ASSIGN(ib_to_rvt(qp->ibqp.device))
+=======
+			RDI_DEV_ASSIGN(ib_to_rvt(qp->ibqp.device));
+>>>>>>> upstream/android-13
 			__entry->qpn = qp->ibqp.qp_num;
 			__entry->s_flags = qp->s_flags;
 			__entry->psn = psn;

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * A generic kernel FIFO implementation
  *
  * Copyright (C) 2009/2010 Stefani Seibold <stefani@seibold.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -429,7 +436,11 @@ static unsigned int __kfifo_peek_n(struct __kfifo *fifo, size_t recsize)
 	)
 
 /*
+<<<<<<< HEAD
  * __kfifo_poke_n internal helper function for storeing the length of
+=======
+ * __kfifo_poke_n internal helper function for storing the length of
+>>>>>>> upstream/android-13
  * the record into the fifo
  */
 static void __kfifo_poke_n(struct __kfifo *fifo, unsigned int n, size_t recsize)

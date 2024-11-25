@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Linker script for Hexagon kernel
  *
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm-generic/vmlinux.lds.h>
@@ -51,6 +58,11 @@ SECTIONS
 	.text : AT(ADDR(.text)) {
 		_text = .;
 		TEXT_TEXT
+<<<<<<< HEAD
+=======
+		IRQENTRY_TEXT
+		SOFTIRQENTRY_TEXT
+>>>>>>> upstream/android-13
 		SCHED_TEXT
 		CPUIDLE_TEXT
 		LOCK_TEXT
@@ -62,17 +74,26 @@ SECTIONS
 	INIT_DATA_SECTION(PAGE_SIZE)
 
 	_sdata = .;
+<<<<<<< HEAD
 		RW_DATA_SECTION(32,PAGE_SIZE,_THREAD_SIZE)
 		RO_DATA_SECTION(PAGE_SIZE)
 	_edata = .;
 
 	EXCEPTION_TABLE(16)
 	NOTES
+=======
+		RW_DATA(32,PAGE_SIZE,_THREAD_SIZE)
+		RO_DATA(PAGE_SIZE)
+	_edata = .;
+
+	EXCEPTION_TABLE(16)
+>>>>>>> upstream/android-13
 
 	BSS_SECTION(_PAGE_SIZE, _PAGE_SIZE, _PAGE_SIZE)
 
 	_end = .;
 
+<<<<<<< HEAD
 	/DISCARD/ : {
 		EXIT_TEXT
 		EXIT_DATA
@@ -82,4 +103,11 @@ SECTIONS
 	STABS_DEBUG
 	DWARF_DEBUG
 
+=======
+	STABS_DEBUG
+	DWARF_DEBUG
+	ELF_DETAILS
+
+	DISCARDS
+>>>>>>> upstream/android-13
 }

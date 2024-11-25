@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 BayLibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +30,18 @@
 #include "meson_vpp.h"
 #include "meson_vclk.h"
 #include "meson_registers.h"
+=======
+ */
+
+#include <linux/export.h>
+
+#include <drm/drm_modes.h>
+
+#include "meson_drv.h"
+#include "meson_registers.h"
+#include "meson_venc.h"
+#include "meson_vpp.h"
+>>>>>>> upstream/android-13
 
 /**
  * DOC: Video Encoder
@@ -57,7 +74,11 @@
  * The ENCI is designed for PAl or NTSC encoding and can go through the VDAC
  * directly for CVBS encoding or through the ENCI_DVI encoder for HDMI.
  * The ENCP is designed for Progressive encoding but can also generate
+<<<<<<< HEAD
  * 1080i interlaced pixels, and was initialy desined to encode pixels for
+=======
+ * 1080i interlaced pixels, and was initially designed to encode pixels for
+>>>>>>> upstream/android-13
  * VDAC to output RGB ou YUV analog outputs.
  * It's output is only used through the ENCP_DVI encoder for HDMI.
  * The ENCL LVDS encoder is not implemented.
@@ -73,7 +94,13 @@
 /* HHI Registers */
 #define HHI_GCLK_MPEG2		0x148 /* 0x52 offset in data sheet */
 #define HHI_VDAC_CNTL0		0x2F4 /* 0xbd offset in data sheet */
+<<<<<<< HEAD
 #define HHI_VDAC_CNTL1		0x2F8 /* 0xbe offset in data sheet */
+=======
+#define HHI_VDAC_CNTL0_G12A	0x2EC /* 0xbb offset in data sheet */
+#define HHI_VDAC_CNTL1		0x2F8 /* 0xbe offset in data sheet */
+#define HHI_VDAC_CNTL1_G12A	0x2F0 /* 0xbc offset in data sheet */
+>>>>>>> upstream/android-13
 #define HHI_HDMI_PHY_CNTL0	0x3a0 /* 0xe8 offset in data sheet */
 
 struct meson_cvbs_enci_mode meson_cvbs_enci_pal = {
@@ -202,7 +229,11 @@ union meson_hdmi_venc_mode meson_hdmi_enci_mode_480i = {
 		.hso_end = 129,
 		.vso_even = 3,
 		.vso_odd = 260,
+<<<<<<< HEAD
 		.macv_max_amp = 0x810b,
+=======
+		.macv_max_amp = 0xb,
+>>>>>>> upstream/android-13
 		.video_prog_mode = 0xf0,
 		.video_mode = 0x8,
 		.sch_adjust = 0x20,
@@ -222,7 +253,11 @@ union meson_hdmi_venc_mode meson_hdmi_enci_mode_576i = {
 		.hso_end = 129,
 		.vso_even = 3,
 		.vso_odd = 260,
+<<<<<<< HEAD
 		.macv_max_amp = 8107,
+=======
+		.macv_max_amp = 0x7,
+>>>>>>> upstream/android-13
 		.video_prog_mode = 0xff,
 		.video_mode = 0x13,
 		.sch_adjust = 0x28,
@@ -698,6 +733,135 @@ union meson_hdmi_venc_mode meson_hdmi_encp_mode_1080p60 = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+union meson_hdmi_venc_mode meson_hdmi_encp_mode_2160p24 = {
+	.encp = {
+		.dvi_settings = 0x1,
+		.video_mode = 0x4040,
+		.video_mode_adv = 0x8,
+		/* video_sync_mode */
+		/* video_yc_dly */
+		/* video_rgb_ctrl */
+		.video_filt_ctrl = 0x1000,
+		.video_filt_ctrl_present = true,
+		/* video_ofld_voav_ofst */
+		.yfp1_htime = 140,
+		.yfp2_htime = 140+3840,
+		.max_pxcnt = 3840+1660-1,
+		.hspuls_begin = 2156+1920,
+		.hspuls_end = 44,
+		.hspuls_switch = 44,
+		.vspuls_begin = 140,
+		.vspuls_end = 2059+1920,
+		.vspuls_bline = 0,
+		.vspuls_eline = 4,
+		.havon_begin = 148,
+		.havon_end = 3987,
+		.vavon_bline = 89,
+		.vavon_eline = 2248,
+		/* eqpuls_begin */
+		/* eqpuls_end */
+		/* eqpuls_bline */
+		/* eqpuls_eline */
+		.hso_begin = 44,
+		.hso_end = 2156+1920,
+		.vso_begin = 2100+1920,
+		.vso_end = 2164+1920,
+		.vso_bline = 51,
+		.vso_eline = 53,
+		.vso_eline_present = true,
+		/* sy_val */
+		/* sy2_val */
+		.max_lncnt = 2249,
+	},
+};
+
+union meson_hdmi_venc_mode meson_hdmi_encp_mode_2160p25 = {
+	.encp = {
+		.dvi_settings = 0x1,
+		.video_mode = 0x4040,
+		.video_mode_adv = 0x8,
+		/* video_sync_mode */
+		/* video_yc_dly */
+		/* video_rgb_ctrl */
+		.video_filt_ctrl = 0x1000,
+		.video_filt_ctrl_present = true,
+		/* video_ofld_voav_ofst */
+		.yfp1_htime = 140,
+		.yfp2_htime = 140+3840,
+		.max_pxcnt = 3840+1440-1,
+		.hspuls_begin = 2156+1920,
+		.hspuls_end = 44,
+		.hspuls_switch = 44,
+		.vspuls_begin = 140,
+		.vspuls_end = 2059+1920,
+		.vspuls_bline = 0,
+		.vspuls_eline = 4,
+		.havon_begin = 148,
+		.havon_end = 3987,
+		.vavon_bline = 89,
+		.vavon_eline = 2248,
+		/* eqpuls_begin */
+		/* eqpuls_end */
+		/* eqpuls_bline */
+		/* eqpuls_eline */
+		.hso_begin = 44,
+		.hso_end = 2156+1920,
+		.vso_begin = 2100+1920,
+		.vso_end = 2164+1920,
+		.vso_bline = 51,
+		.vso_eline = 53,
+		.vso_eline_present = true,
+		/* sy_val */
+		/* sy2_val */
+		.max_lncnt = 2249,
+	},
+};
+
+union meson_hdmi_venc_mode meson_hdmi_encp_mode_2160p30 = {
+	.encp = {
+		.dvi_settings = 0x1,
+		.video_mode = 0x4040,
+		.video_mode_adv = 0x8,
+		/* video_sync_mode */
+		/* video_yc_dly */
+		/* video_rgb_ctrl */
+		.video_filt_ctrl = 0x1000,
+		.video_filt_ctrl_present = true,
+		/* video_ofld_voav_ofst */
+		.yfp1_htime = 140,
+		.yfp2_htime = 140+3840,
+		.max_pxcnt = 3840+560-1,
+		.hspuls_begin = 2156+1920,
+		.hspuls_end = 44,
+		.hspuls_switch = 44,
+		.vspuls_begin = 140,
+		.vspuls_end = 2059+1920,
+		.vspuls_bline = 0,
+		.vspuls_eline = 4,
+		.havon_begin = 148,
+		.havon_end = 3987,
+		.vavon_bline = 89,
+		.vavon_eline = 2248,
+		/* eqpuls_begin */
+		/* eqpuls_end */
+		/* eqpuls_bline */
+		/* eqpuls_eline */
+		.hso_begin = 44,
+		.hso_end = 2156+1920,
+		.vso_begin = 2100+1920,
+		.vso_end = 2164+1920,
+		.vso_bline = 51,
+		.vso_eline = 53,
+		.vso_eline_present = true,
+		/* sy_val */
+		/* sy2_val */
+		.max_lncnt = 2249,
+	},
+};
+
+>>>>>>> upstream/android-13
 struct meson_hdmi_venc_vic_mode {
 	unsigned int vic;
 	union meson_hdmi_venc_mode *mode;
@@ -719,6 +883,14 @@ struct meson_hdmi_venc_vic_mode {
 	{ 34, &meson_hdmi_encp_mode_1080p30 },
 	{ 31, &meson_hdmi_encp_mode_1080p50 },
 	{ 16, &meson_hdmi_encp_mode_1080p60 },
+<<<<<<< HEAD
+=======
+	{ 93, &meson_hdmi_encp_mode_2160p24 },
+	{ 94, &meson_hdmi_encp_mode_2160p25 },
+	{ 95, &meson_hdmi_encp_mode_2160p30 },
+	{ 96, &meson_hdmi_encp_mode_2160p25 },
+	{ 97, &meson_hdmi_encp_mode_2160p30 },
+>>>>>>> upstream/android-13
 	{ 0, NULL}, /* sentinel */
 };
 
@@ -769,8 +941,13 @@ bool meson_venc_hdmi_supported_vic(int vic)
 }
 EXPORT_SYMBOL_GPL(meson_venc_hdmi_supported_vic);
 
+<<<<<<< HEAD
 void meson_venc_hdmi_get_dmt_vmode(const struct drm_display_mode *mode,
 				   union meson_hdmi_venc_mode *dmt_mode)
+=======
+static void meson_venc_hdmi_get_dmt_vmode(const struct drm_display_mode *mode,
+					  union meson_hdmi_venc_mode *dmt_mode)
+>>>>>>> upstream/android-13
 {
 	memset(dmt_mode, 0, sizeof(*dmt_mode));
 
@@ -825,7 +1002,13 @@ bool meson_venc_hdmi_venc_repeat(int vic)
 EXPORT_SYMBOL_GPL(meson_venc_hdmi_venc_repeat);
 
 void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
+<<<<<<< HEAD
 			      struct drm_display_mode *mode)
+=======
+			      unsigned int ycrcb_map,
+			      bool yuv420_mode,
+			      const struct drm_display_mode *mode)
+>>>>>>> upstream/android-13
 {
 	union meson_hdmi_venc_mode *vmode = NULL;
 	union meson_hdmi_venc_mode vmode_dmt;
@@ -855,6 +1038,17 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 	unsigned int eof_lines;
 	unsigned int sof_lines;
 	unsigned int vsync_lines;
+<<<<<<< HEAD
+=======
+	u32 reg;
+
+	/* Use VENCI for 480i and 576i and double HDMI pixels */
+	if (mode->flags & DRM_MODE_FLAG_DBLCLK) {
+		hdmi_repeat = true;
+		use_enci = true;
+		venc_hdmi_latency = 1;
+	}
+>>>>>>> upstream/android-13
 
 	if (meson_venc_hdmi_supported_vic(vic)) {
 		vmode = meson_venc_hdmi_get_vic_vmode(vic);
@@ -867,6 +1061,7 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 	} else {
 		meson_venc_hdmi_get_dmt_vmode(mode, &vmode_dmt);
 		vmode = &vmode_dmt;
+<<<<<<< HEAD
 	}
 
 	/* Use VENCI for 480i and 576i and double HDMI pixels */
@@ -874,6 +1069,9 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		hdmi_repeat = true;
 		use_enci = true;
 		venc_hdmi_latency = 1;
+=======
+		use_enci = false;
+>>>>>>> upstream/android-13
 	}
 
 	/* Repeat VENC pixels for 480/576i/p, 720p50/60 and 1080p50/60 */
@@ -926,8 +1124,16 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		unsigned int lines_f1;
 
 		/* CVBS Filter settings */
+<<<<<<< HEAD
 		writel_relaxed(0x12, priv->io_base + _REG(ENCI_CFILT_CTRL));
 		writel_relaxed(0x12, priv->io_base + _REG(ENCI_CFILT_CTRL2));
+=======
+		writel_relaxed(ENCI_CFILT_CMPT_SEL_HIGH | 0x10,
+			       priv->io_base + _REG(ENCI_CFILT_CTRL));
+		writel_relaxed(ENCI_CFILT_CMPT_CR_DLY(2) |
+			       ENCI_CFILT_CMPT_CB_DLY(1),
+			       priv->io_base + _REG(ENCI_CFILT_CTRL2));
+>>>>>>> upstream/android-13
 
 		/* Digital Video Select : Interlace, clk27 clk, external */
 		writel_relaxed(0, priv->io_base + _REG(VENC_DVI_SETTING));
@@ -949,8 +1155,14 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 				priv->io_base + _REG(ENCI_SYNC_VSO_ODDLN));
 
 		/* Macrovision max amplitude change */
+<<<<<<< HEAD
 		writel_relaxed(vmode->enci.macv_max_amp,
 				priv->io_base + _REG(ENCI_MACV_MAX_AMP));
+=======
+		writel_relaxed(ENCI_MACV_MAX_AMP_ENABLE_CHANGE |
+			       ENCI_MACV_MAX_AMP_VAL(vmode->enci.macv_max_amp),
+			       priv->io_base + _REG(ENCI_MACV_MAX_AMP));
+>>>>>>> upstream/android-13
 
 		/* Video mode */
 		writel_relaxed(vmode->enci.video_prog_mode,
@@ -958,7 +1170,12 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		writel_relaxed(vmode->enci.video_mode,
 				priv->io_base + _REG(ENCI_VIDEO_MODE));
 
+<<<<<<< HEAD
 		/* Advanced Video Mode :
+=======
+		/*
+		 * Advanced Video Mode :
+>>>>>>> upstream/android-13
 		 * Demux shifting 0x2
 		 * Blank line end at line17/22
 		 * High bandwidth Luma Filter
@@ -966,7 +1183,14 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		 * Bypass luma low pass filter
 		 * No macrovision on CSYNC
 		 */
+<<<<<<< HEAD
 		writel_relaxed(0x26, priv->io_base + _REG(ENCI_VIDEO_MODE_ADV));
+=======
+		writel_relaxed(ENCI_VIDEO_MODE_ADV_DMXMD(2) |
+			       ENCI_VIDEO_MODE_ADV_VBICTL_LINE_17_22 |
+			       ENCI_VIDEO_MODE_ADV_YBW_HIGH,
+			       priv->io_base + _REG(ENCI_VIDEO_MODE_ADV));
+>>>>>>> upstream/android-13
 
 		writel(vmode->enci.sch_adjust,
 				priv->io_base + _REG(ENCI_VIDEO_SCH));
@@ -982,8 +1206,22 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		/* UNreset Interlaced TV Encoder */
 		writel_relaxed(0, priv->io_base + _REG(ENCI_DBG_PX_RST));
 
+<<<<<<< HEAD
 		/* Enable Vfifo2vd, Y_Cb_Y_Cr select */
 		writel_relaxed(0x4e01, priv->io_base + _REG(ENCI_VFIFO2VD_CTL));
+=======
+		/*
+		 * Enable Vfifo2vd and set Y_Cb_Y_Cr:
+		 * Corresponding value:
+		 * Y  => 00 or 10
+		 * Cb => 01
+		 * Cr => 11
+		 * Ex: 0x4e => 01001110 would mean Cb/Y/Cr/Y
+		 */
+		writel_relaxed(ENCI_VFIFO2VD_CTL_ENABLE |
+			       ENCI_VFIFO2VD_CTL_VD_SEL(0x4e),
+			       priv->io_base + _REG(ENCI_VFIFO2VD_CTL));
+>>>>>>> upstream/android-13
 
 		/* Timings */
 		writel_relaxed(vmode->enci.pixel_start,
@@ -1005,7 +1243,12 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		meson_vpp_setup_mux(priv, MESON_VIU_VPP_MUX_ENCI);
 
 		/* Interlace video enable */
+<<<<<<< HEAD
 		writel_relaxed(1, priv->io_base + _REG(ENCI_VIDEO_EN));
+=======
+		writel_relaxed(ENCI_VIDEO_EN_ENABLE,
+			       priv->io_base + _REG(ENCI_VIDEO_EN));
+>>>>>>> upstream/android-13
 
 		lines_f0 = mode->vtotal >> 1;
 		lines_f1 = lines_f0 + 1;
@@ -1252,7 +1495,12 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		writel_relaxed(1, priv->io_base + _REG(ENCP_VIDEO_EN));
 
 		/* Set DE signal’s polarity is active high */
+<<<<<<< HEAD
 		writel_bits_relaxed(BIT(14), BIT(14),
+=======
+		writel_bits_relaxed(ENCP_VIDEO_MODE_DE_V_HIGH,
+				    ENCP_VIDEO_MODE_DE_V_HIGH,
+>>>>>>> upstream/android-13
 				    priv->io_base + _REG(ENCP_VIDEO_MODE));
 
 		/* Program DE timing */
@@ -1371,6 +1619,7 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		meson_vpp_setup_mux(priv, MESON_VIU_VPP_MUX_ENCP);
 	}
 
+<<<<<<< HEAD
 	writel_relaxed((use_enci ? 1 : 2) |
 		       (mode->flags & DRM_MODE_FLAG_PHSYNC ? 1 << 2 : 0) |
 		       (mode->flags & DRM_MODE_FLAG_PVSYNC ? 1 << 3 : 0) |
@@ -1378,6 +1627,41 @@ void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
 		       (venc_repeat ? 1 << 8 : 0) |
 		       (hdmi_repeat ? 1 << 12 : 0),
 		       priv->io_base + _REG(VPU_HDMI_SETTING));
+=======
+	/* Set VPU HDMI setting */
+	/* Select ENCP or ENCI data to HDMI */
+	if (use_enci)
+		reg = VPU_HDMI_ENCI_DATA_TO_HDMI;
+	else
+		reg = VPU_HDMI_ENCP_DATA_TO_HDMI;
+
+	/* Invert polarity of HSYNC from VENC */
+	if (mode->flags & DRM_MODE_FLAG_PHSYNC)
+		reg |= VPU_HDMI_INV_HSYNC;
+
+	/* Invert polarity of VSYNC from VENC */
+	if (mode->flags & DRM_MODE_FLAG_PVSYNC)
+		reg |= VPU_HDMI_INV_VSYNC;
+
+	/* Output data format */
+	reg |= ycrcb_map;
+
+	/*
+	 * Write rate to the async FIFO between VENC and HDMI.
+	 * One write every 2 wr_clk.
+	 */
+	if (venc_repeat || yuv420_mode)
+		reg |= VPU_HDMI_WR_RATE(2);
+
+	/*
+	 * Read rate to the async FIFO between VENC and HDMI.
+	 * One read every 2 wr_clk.
+	 */
+	if (hdmi_repeat)
+		reg |= VPU_HDMI_RD_RATE(2);
+
+	writel_relaxed(reg, priv->io_base + _REG(VPU_HDMI_SETTING));
+>>>>>>> upstream/android-13
 
 	priv->venc.hdmi_repeat = hdmi_repeat;
 	priv->venc.venc_repeat = venc_repeat;
@@ -1390,12 +1674,25 @@ EXPORT_SYMBOL_GPL(meson_venc_hdmi_mode_set);
 void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 			       struct meson_cvbs_enci_mode *mode)
 {
+<<<<<<< HEAD
+=======
+	u32 reg;
+
+>>>>>>> upstream/android-13
 	if (mode->mode_tag == priv->venc.current_mode)
 		return;
 
 	/* CVBS Filter settings */
+<<<<<<< HEAD
 	writel_relaxed(0x12, priv->io_base + _REG(ENCI_CFILT_CTRL));
 	writel_relaxed(0x12, priv->io_base + _REG(ENCI_CFILT_CTRL2));
+=======
+	writel_relaxed(ENCI_CFILT_CMPT_SEL_HIGH | 0x10,
+		       priv->io_base + _REG(ENCI_CFILT_CTRL));
+	writel_relaxed(ENCI_CFILT_CMPT_CR_DLY(2) |
+		       ENCI_CFILT_CMPT_CB_DLY(1),
+		       priv->io_base + _REG(ENCI_CFILT_CTRL2));
+>>>>>>> upstream/android-13
 
 	/* Digital Video Select : Interlace, clk27 clk, external */
 	writel_relaxed(0, priv->io_base + _REG(VENC_DVI_SETTING));
@@ -1417,8 +1714,14 @@ void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 			priv->io_base + _REG(ENCI_SYNC_VSO_ODDLN));
 
 	/* Macrovision max amplitude change */
+<<<<<<< HEAD
 	writel_relaxed(0x8100 + mode->macv_max_amp,
 			priv->io_base + _REG(ENCI_MACV_MAX_AMP));
+=======
+	writel_relaxed(ENCI_MACV_MAX_AMP_ENABLE_CHANGE |
+		       ENCI_MACV_MAX_AMP_VAL(mode->macv_max_amp),
+		       priv->io_base + _REG(ENCI_MACV_MAX_AMP));
+>>>>>>> upstream/android-13
 
 	/* Video mode */
 	writel_relaxed(mode->video_prog_mode,
@@ -1426,7 +1729,12 @@ void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 	writel_relaxed(mode->video_mode,
 			priv->io_base + _REG(ENCI_VIDEO_MODE));
 
+<<<<<<< HEAD
 	/* Advanced Video Mode :
+=======
+	/*
+	 * Advanced Video Mode :
+>>>>>>> upstream/android-13
 	 * Demux shifting 0x2
 	 * Blank line end at line17/22
 	 * High bandwidth Luma Filter
@@ -1434,7 +1742,14 @@ void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 	 * Bypass luma low pass filter
 	 * No macrovision on CSYNC
 	 */
+<<<<<<< HEAD
 	writel_relaxed(0x26, priv->io_base + _REG(ENCI_VIDEO_MODE_ADV));
+=======
+	writel_relaxed(ENCI_VIDEO_MODE_ADV_DMXMD(2) |
+		       ENCI_VIDEO_MODE_ADV_VBICTL_LINE_17_22 |
+		       ENCI_VIDEO_MODE_ADV_YBW_HIGH,
+		       priv->io_base + _REG(ENCI_VIDEO_MODE_ADV));
+>>>>>>> upstream/android-13
 
 	writel(mode->sch_adjust, priv->io_base + _REG(ENCI_VIDEO_SCH));
 
@@ -1466,16 +1781,61 @@ void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 	/* UNreset Interlaced TV Encoder */
 	writel_relaxed(0, priv->io_base + _REG(ENCI_DBG_PX_RST));
 
+<<<<<<< HEAD
 	/* Enable Vfifo2vd, Y_Cb_Y_Cr select */
 	writel_relaxed(0x4e01, priv->io_base + _REG(ENCI_VFIFO2VD_CTL));
+=======
+	/*
+	 * Enable Vfifo2vd and set Y_Cb_Y_Cr:
+	 * Corresponding value:
+	 * Y  => 00 or 10
+	 * Cb => 01
+	 * Cr => 11
+	 * Ex: 0x4e => 01001110 would mean Cb/Y/Cr/Y
+	 */
+	writel_relaxed(ENCI_VFIFO2VD_CTL_ENABLE |
+		       ENCI_VFIFO2VD_CTL_VD_SEL(0x4e),
+		       priv->io_base + _REG(ENCI_VFIFO2VD_CTL));
+>>>>>>> upstream/android-13
 
 	/* Power UP Dacs */
 	writel_relaxed(0, priv->io_base + _REG(VENC_VDAC_SETTING));
 
 	/* Video Upsampling */
+<<<<<<< HEAD
 	writel_relaxed(0x0061, priv->io_base + _REG(VENC_UPSAMPLE_CTRL0));
 	writel_relaxed(0x4061, priv->io_base + _REG(VENC_UPSAMPLE_CTRL1));
 	writel_relaxed(0x5061, priv->io_base + _REG(VENC_UPSAMPLE_CTRL2));
+=======
+	/*
+	 * CTRL0, CTRL1 and CTRL2:
+	 * Filter0: input data sample every 2 cloks
+	 * Filter1: filtering and upsample enable
+	 */
+	reg = VENC_UPSAMPLE_CTRL_F0_2_CLK_RATIO | VENC_UPSAMPLE_CTRL_F1_EN |
+		VENC_UPSAMPLE_CTRL_F1_UPSAMPLE_EN;
+
+	/*
+	 * Upsample CTRL0:
+	 * Interlace High Bandwidth Luma
+	 */
+	writel_relaxed(VENC_UPSAMPLE_CTRL_INTERLACE_HIGH_LUMA | reg,
+		       priv->io_base + _REG(VENC_UPSAMPLE_CTRL0));
+
+	/*
+	 * Upsample CTRL1:
+	 * Interlace Pb
+	 */
+	writel_relaxed(VENC_UPSAMPLE_CTRL_INTERLACE_PB | reg,
+		       priv->io_base + _REG(VENC_UPSAMPLE_CTRL1));
+
+	/*
+	 * Upsample CTRL2:
+	 * Interlace R
+	 */
+	writel_relaxed(VENC_UPSAMPLE_CTRL_INTERLACE_PR | reg,
+		       priv->io_base + _REG(VENC_UPSAMPLE_CTRL2));
+>>>>>>> upstream/android-13
 
 	/* Select Interlace Y DACs */
 	writel_relaxed(0, priv->io_base + _REG(VENC_VDAC_DACSEL0));
@@ -1489,14 +1849,24 @@ void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 	meson_vpp_setup_mux(priv, MESON_VIU_VPP_MUX_ENCI);
 
 	/* Enable ENCI FIFO */
+<<<<<<< HEAD
 	writel_relaxed(0x2000, priv->io_base + _REG(VENC_VDAC_FIFO_CTRL));
+=======
+	writel_relaxed(VENC_VDAC_FIFO_EN_ENCI_ENABLE,
+		       priv->io_base + _REG(VENC_VDAC_FIFO_CTRL));
+>>>>>>> upstream/android-13
 
 	/* Select ENCI DACs 0, 1, 4, and 5 */
 	writel_relaxed(0x11, priv->io_base + _REG(ENCI_DACSEL_0));
 	writel_relaxed(0x11, priv->io_base + _REG(ENCI_DACSEL_1));
 
 	/* Interlace video enable */
+<<<<<<< HEAD
 	writel_relaxed(1, priv->io_base + _REG(ENCI_VIDEO_EN));
+=======
+	writel_relaxed(ENCI_VIDEO_EN_ENABLE,
+		       priv->io_base + _REG(ENCI_VIDEO_EN));
+>>>>>>> upstream/android-13
 
 	/* Configure Video Saturation / Contrast / Brightness / Hue */
 	writel_relaxed(mode->video_saturation,
@@ -1509,7 +1879,12 @@ void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 			priv->io_base + _REG(ENCI_VIDEO_HUE));
 
 	/* Enable DAC0 Filter */
+<<<<<<< HEAD
 	writel_relaxed(0x1, priv->io_base + _REG(VENC_VDAC_DAC0_FILT_CTRL0));
+=======
+	writel_relaxed(VENC_VDAC_DAC0_FILT_CTRL0_EN,
+		       priv->io_base + _REG(VENC_VDAC_DAC0_FILT_CTRL0));
+>>>>>>> upstream/android-13
 	writel_relaxed(0xfc48, priv->io_base + _REG(VENC_VDAC_DAC0_FILT_CTRL1));
 
 	/* 0 in Macrovision register 0 */
@@ -1530,7 +1905,12 @@ unsigned int meson_venci_get_field(struct meson_drm *priv)
 
 void meson_venc_enable_vsync(struct meson_drm *priv)
 {
+<<<<<<< HEAD
 	writel_relaxed(2, priv->io_base + _REG(VENC_INTCTRL));
+=======
+	writel_relaxed(VENC_INTCTRL_ENCI_LNRST_INT_EN,
+		       priv->io_base + _REG(VENC_INTCTRL));
+>>>>>>> upstream/android-13
 	regmap_update_bits(priv->hhi, HHI_GCLK_MPEG2, BIT(25), BIT(25));
 }
 
@@ -1543,8 +1923,18 @@ void meson_venc_disable_vsync(struct meson_drm *priv)
 void meson_venc_init(struct meson_drm *priv)
 {
 	/* Disable CVBS VDAC */
+<<<<<<< HEAD
 	regmap_write(priv->hhi, HHI_VDAC_CNTL0, 0);
 	regmap_write(priv->hhi, HHI_VDAC_CNTL1, 8);
+=======
+	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		regmap_write(priv->hhi, HHI_VDAC_CNTL0_G12A, 0);
+		regmap_write(priv->hhi, HHI_VDAC_CNTL1_G12A, 8);
+	} else {
+		regmap_write(priv->hhi, HHI_VDAC_CNTL0, 0);
+		regmap_write(priv->hhi, HHI_VDAC_CNTL1, 8);
+	}
+>>>>>>> upstream/android-13
 
 	/* Power Down Dacs */
 	writel_relaxed(0xff, priv->io_base + _REG(VENC_VDAC_SETTING));
@@ -1553,7 +1943,12 @@ void meson_venc_init(struct meson_drm *priv)
 	regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL0, 0);
 
 	/* Disable HDMI */
+<<<<<<< HEAD
 	writel_bits_relaxed(0x3, 0,
+=======
+	writel_bits_relaxed(VPU_HDMI_ENCI_DATA_TO_HDMI |
+			    VPU_HDMI_ENCP_DATA_TO_HDMI, 0,
+>>>>>>> upstream/android-13
 			    priv->io_base + _REG(VPU_HDMI_SETTING));
 
 	/* Disable all encoders */

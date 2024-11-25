@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * spu aware cpufreq governor for the cell processor
  *
  * © Copyright IBM Corporation 2006-2008
  *
  * Author: Christian Krafft <krafft@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpufreq.h>
@@ -139,6 +146,7 @@ static struct cpufreq_governor spu_governor = {
 	.stop = spu_gov_stop,
 	.owner = THIS_MODULE,
 };
+<<<<<<< HEAD
 
 /*
  * module init and destoy
@@ -166,3 +174,10 @@ module_exit(spu_gov_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Christian Krafft <krafft@de.ibm.com>");
 
+=======
+cpufreq_governor_init(spu_governor);
+cpufreq_governor_exit(spu_governor);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Christian Krafft <krafft@de.ibm.com>");
+>>>>>>> upstream/android-13

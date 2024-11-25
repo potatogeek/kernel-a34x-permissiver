@@ -63,16 +63,34 @@ struct slot {
 	u32 index;
 	u32 type;
 	u32 power_domain;
+<<<<<<< HEAD
+=======
+	u8 attention_status;
+>>>>>>> upstream/android-13
 	char *name;
 	struct device_node *dn;
 	struct pci_bus *bus;
 	struct list_head *pci_devs;
+<<<<<<< HEAD
 	struct hotplug_slot *hotplug_slot;
 };
 
 extern struct hotplug_slot_ops rpaphp_hotplug_slot_ops;
 extern struct list_head rpaphp_slot_head;
 
+=======
+	struct hotplug_slot hotplug_slot;
+};
+
+extern const struct hotplug_slot_ops rpaphp_hotplug_slot_ops;
+extern struct list_head rpaphp_slot_head;
+
+static inline struct slot *to_slot(struct hotplug_slot *hotplug_slot)
+{
+	return container_of(hotplug_slot, struct slot, hotplug_slot);
+}
+
+>>>>>>> upstream/android-13
 /* function prototypes */
 
 /* rpaphp_pci.c */

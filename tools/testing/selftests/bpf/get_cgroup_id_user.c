@@ -57,6 +57,7 @@ int main(int argc, char **argv)
 	__u32 key = 0, pid;
 	int exit_code = 1;
 	char buf[256];
+<<<<<<< HEAD
 
 	err = setup_cgroup_environment();
 	if (CHECK(err, "setup_cgroup_environment", "err %d errno %d\n", err,
@@ -72,6 +73,17 @@ int main(int argc, char **argv)
 	if (CHECK(err, "join_cgroup", "err %d errno %d\n", err, errno))
 		goto cleanup_cgroup_env;
 
+=======
+	const struct timespec req = {
+		.tv_sec = 1,
+		.tv_nsec = 0,
+	};
+
+	cgroup_fd = cgroup_setup_and_join(TEST_CGROUP);
+	if (CHECK(cgroup_fd < 0, "cgroup_setup_and_join", "err %d errno %d\n", cgroup_fd, errno))
+		return 1;
+
+>>>>>>> upstream/android-13
 	err = bpf_prog_load(file, BPF_PROG_TYPE_TRACEPOINT, &obj, &prog_fd);
 	if (CHECK(err, "bpf_prog_load", "err %d errno %d\n", err, errno))
 		goto cleanup_cgroup_env;
@@ -125,7 +137,11 @@ int main(int argc, char **argv)
 		goto close_pmu;
 
 	/* trigger some syscalls */
+<<<<<<< HEAD
 	sleep(1);
+=======
+	syscall(__NR_nanosleep, &req, NULL);
+>>>>>>> upstream/android-13
 
 	err = bpf_map_lookup_elem(cgidmap_fd, &key, &kcgid);
 	if (CHECK(err, "bpf_map_lookup_elem", "err %d errno %d\n", err, errno))

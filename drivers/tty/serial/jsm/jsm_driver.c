@@ -16,10 +16,16 @@
 
 #include "jsm.h"
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Digi International, http://www.digi.com");
 MODULE_DESCRIPTION("Driver for the Digi International Neo and Classic PCI based product line");
 MODULE_LICENSE("GPL");
 MODULE_SUPPORTED_DEVICE("jsm");
+=======
+MODULE_AUTHOR("Digi International, https://www.digi.com");
+MODULE_DESCRIPTION("Driver for the Digi International Neo and Classic PCI based product line");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13
 
 #define JSM_DRIVER_NAME "jsm"
 #define NR_PORTS	32

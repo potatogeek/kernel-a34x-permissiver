@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 obj-$(CONFIG_XENFS) += xenfs.o
 
 xenfs-y			  = super.o

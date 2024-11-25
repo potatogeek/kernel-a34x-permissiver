@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver for TerraTec DMX 6Fire USB
  *
@@ -10,11 +14,14 @@
  * Thanks to:
  * - Holger Ruckdeschel: he found out how to control individual channel
  *   volumes and introduced mute switch
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -401,7 +408,11 @@ static int usb6fire_control_digital_thru_get(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new vol_elements[] = {
+=======
+static const struct snd_kcontrol_new vol_elements[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "Analog Playback Volume",
@@ -441,7 +452,11 @@ static struct snd_kcontrol_new vol_elements[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mute_elements[] = {
+=======
+static const struct snd_kcontrol_new mute_elements[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "Analog Playback Switch",
@@ -475,7 +490,11 @@ static struct snd_kcontrol_new mute_elements[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new elements[] = {
+=======
+static const struct snd_kcontrol_new elements[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "Line/Phono Capture Route",
@@ -521,7 +540,11 @@ static int usb6fire_control_add_virtual(
 	struct control_runtime *rt,
 	struct snd_card *card,
 	char *name,
+<<<<<<< HEAD
 	struct snd_kcontrol_new *elems)
+=======
+	const struct snd_kcontrol_new *elems)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	int i;
@@ -543,7 +566,11 @@ static int usb6fire_control_add_virtual(
 		ret = snd_ctl_add(card, control);
 		if (ret < 0)
 			return ret;
+<<<<<<< HEAD
 		ret = snd_ctl_add_slave(vmaster, control);
+=======
+		ret = snd_ctl_add_follower(vmaster, control);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		i++;

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Support for LGDT3306A - 8VSB/QAM-B
  *
  *    Copyright (C) 2013 Fred Richter <frichter@hauppauge.com>
  *    - driver structure based on lgdt3305.[ch] by Michael Krufky
  *    - code based on LG3306_V0.35 API by LG Electronics Inc.
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -720,6 +727,7 @@ static int lgdt3306a_set_inversion_auto(struct lgdt3306a_state *state,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int lgdt3306a_spectral_inversion(struct lgdt3306a_state *state,
 				       struct dtv_frontend_properties *p,
 				       int inversion)
@@ -753,6 +761,8 @@ static int lgdt3306a_spectral_inversion(struct lgdt3306a_state *state,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int lgdt3306a_set_if(struct lgdt3306a_state *state,
 			   struct dtv_frontend_properties *p)
 {
@@ -777,7 +787,11 @@ static int lgdt3306a_set_if(struct lgdt3306a_state *state,
 	default:
 		pr_warn("IF=%d KHz is not supported, 3250 assumed\n",
 			if_freq_khz);
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 3250: /* 3.25Mhz */
 		nco1 = 0x34;
 		nco2 = 0x00;
@@ -855,6 +869,10 @@ static int lgdt3306a_fe_sleep(struct dvb_frontend *fe)
 static int lgdt3306a_init(struct dvb_frontend *fe)
 {
 	struct lgdt3306a_state *state = fe->demodulator_priv;
+<<<<<<< HEAD
+=======
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+>>>>>>> upstream/android-13
 	u8 val;
 	int ret;
 
@@ -1006,6 +1024,12 @@ static int lgdt3306a_init(struct dvb_frontend *fe)
 	ret = lgdt3306a_sleep(state);
 	lg_chkerr(ret);
 
+<<<<<<< HEAD
+=======
+	c->cnr.len = 1;
+	c->cnr.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
+
+>>>>>>> upstream/android-13
 fail:
 	return ret;
 }
@@ -1053,10 +1077,14 @@ static int lgdt3306a_set_parameters(struct dvb_frontend *fe)
 	if (lg_chkerr(ret))
 		goto fail;
 
+<<<<<<< HEAD
 	ret = lgdt3306a_spectral_inversion(state, p,
 					state->cfg->spectral_inversion ? 1 : 0);
 	if (lg_chkerr(ret))
 		goto fail;
+=======
+	/* spectral_inversion defaults already set for VSB and QAM */
+>>>>>>> upstream/android-13
 
 	ret = lgdt3306a_mpeg_mode(state, state->cfg->mpeg_mode);
 	if (lg_chkerr(ret))
@@ -1606,6 +1634,10 @@ static int lgdt3306a_read_status(struct dvb_frontend *fe,
 				 enum fe_status *status)
 {
 	struct lgdt3306a_state *state = fe->demodulator_priv;
+<<<<<<< HEAD
+=======
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+>>>>>>> upstream/android-13
 	u16 strength = 0;
 	int ret = 0;
 
@@ -1646,6 +1678,18 @@ static int lgdt3306a_read_status(struct dvb_frontend *fe,
 		default:
 			ret = -EINVAL;
 		}
+<<<<<<< HEAD
+=======
+
+		if (*status & FE_HAS_SYNC) {
+			c->cnr.len = 1;
+			c->cnr.stat[0].scale = FE_SCALE_DECIBEL;
+			c->cnr.stat[0].svalue = lgdt3306a_calculate_snr_x100(state) * 10;
+		} else {
+			c->cnr.len = 1;
+			c->cnr.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
+		}
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -1685,7 +1729,14 @@ static int lgdt3306a_read_signal_strength(struct dvb_frontend *fe,
 	case QAM_256:
 	case QAM_AUTO:
 		/* need to know actual modulation to set proper SNR baseline */
+<<<<<<< HEAD
 		lgdt3306a_read_reg(state, 0x00a6, &val);
+=======
+		ret = lgdt3306a_read_reg(state, 0x00a6, &val);
+		if (lg_chkerr(ret))
+			goto fail;
+
+>>>>>>> upstream/android-13
 		if(val & 0x04)
 			ref_snr = 2800; /* QAM-256 28dB */
 		else
@@ -2205,15 +2256,23 @@ static int lgdt3306a_probe(struct i2c_client *client,
 	struct dvb_frontend *fe;
 	int ret;
 
+<<<<<<< HEAD
 	config = kzalloc(sizeof(struct lgdt3306a_config), GFP_KERNEL);
+=======
+	config = kmemdup(client->dev.platform_data,
+			 sizeof(struct lgdt3306a_config), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (config == NULL) {
 		ret = -ENOMEM;
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	memcpy(config, client->dev.platform_data,
 			sizeof(struct lgdt3306a_config));
 
+=======
+>>>>>>> upstream/android-13
 	config->i2c_addr = client->addr;
 	fe = lgdt3306a_attach(config, client->adapter);
 	if (fe == NULL) {

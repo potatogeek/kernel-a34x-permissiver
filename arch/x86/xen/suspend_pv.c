@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/types.h>
 
+<<<<<<< HEAD
 #include <asm/fixmap.h>
 
 #include <asm/xen/hypercall.h>
 #include <asm/xen/page.h>
 
+=======
+#include <asm/xen/hypercall.h>
+#include <asm/xen/page.h>
+
+#include <asm/fixmap.h>
+
+>>>>>>> upstream/android-13
 #include "xen-ops.h"
 
 void xen_pv_pre_suspend(void)

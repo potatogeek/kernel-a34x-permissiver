@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2000-2017, Ericsson AB
  * Copyright (c) 2005-2007, 2010-2013, Wind River Systems
+<<<<<<< HEAD
+=======
+ * Copyright (c) 2020-2021, Red Hat Inc
+>>>>>>> upstream/android-13
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,22 +43,44 @@
 #include "subscr.h"
 
 static void tipc_sub_send_event(struct tipc_subscription *sub,
+<<<<<<< HEAD
 				u32 found_lower, u32 found_upper,
 				u32 event, u32 port, u32 node)
 {
+=======
+				struct publication *p,
+				u32 event)
+{
+	struct tipc_subscr *s = &sub->evt.s;
+>>>>>>> upstream/android-13
 	struct tipc_event *evt = &sub->evt;
 
 	if (sub->inactive)
 		return;
 	tipc_evt_write(evt, event, event);
+<<<<<<< HEAD
 	tipc_evt_write(evt, found_lower, found_lower);
 	tipc_evt_write(evt, found_upper, found_upper);
 	tipc_evt_write(evt, port.ref, port);
 	tipc_evt_write(evt, port.node, node);
+=======
+	if (p) {
+		tipc_evt_write(evt, found_lower, p->sr.lower);
+		tipc_evt_write(evt, found_upper, p->sr.upper);
+		tipc_evt_write(evt, port.ref, p->sk.ref);
+		tipc_evt_write(evt, port.node, p->sk.node);
+	} else {
+		tipc_evt_write(evt, found_lower, s->seq.lower);
+		tipc_evt_write(evt, found_upper, s->seq.upper);
+		tipc_evt_write(evt, port.ref, 0);
+		tipc_evt_write(evt, port.node, 0);
+	}
+>>>>>>> upstream/android-13
 	tipc_topsrv_queue_evt(sub->net, sub->conid, event, evt);
 }
 
 /**
+<<<<<<< HEAD
  * tipc_sub_check_overlap - test for subscription overlap with the
  * given values
  *
@@ -97,17 +123,61 @@ void tipc_sub_report_overlap(struct tipc_subscription *sub,
 	spin_lock(&sub->lock);
 	tipc_sub_send_event(sub, found_lower, found_upper,
 			    event, port, node);
+=======
+ * tipc_sub_check_overlap - test for subscription overlap with the given values
+ * @subscribed: the service range subscribed for
+ * @found: the service range we are checking for match
+ *
+ * Returns true if there is overlap, otherwise false.
+ */
+static bool tipc_sub_check_overlap(struct tipc_service_range *subscribed,
+				   struct tipc_service_range *found)
+{
+	u32 found_lower = found->lower;
+	u32 found_upper = found->upper;
+
+	if (found_lower < subscribed->lower)
+		found_lower = subscribed->lower;
+	if (found_upper > subscribed->upper)
+		found_upper = subscribed->upper;
+	return found_lower <= found_upper;
+}
+
+void tipc_sub_report_overlap(struct tipc_subscription *sub,
+			     struct publication *p,
+			     u32 event, bool must)
+{
+	struct tipc_service_range *sr = &sub->s.seq;
+	u32 filter = sub->s.filter;
+
+	if (!tipc_sub_check_overlap(sr, &p->sr))
+		return;
+	if (!must && !(filter & TIPC_SUB_PORTS))
+		return;
+	if (filter & TIPC_SUB_CLUSTER_SCOPE && p->scope == TIPC_NODE_SCOPE)
+		return;
+	if (filter & TIPC_SUB_NODE_SCOPE && p->scope != TIPC_NODE_SCOPE)
+		return;
+	spin_lock(&sub->lock);
+	tipc_sub_send_event(sub, p, event);
+>>>>>>> upstream/android-13
 	spin_unlock(&sub->lock);
 }
 
 static void tipc_sub_timeout(struct timer_list *t)
 {
 	struct tipc_subscription *sub = from_timer(sub, t, timer);
+<<<<<<< HEAD
 	struct tipc_subscr *s = &sub->evt.s;
 
 	spin_lock(&sub->lock);
 	tipc_sub_send_event(sub, s->seq.lower, s->seq.upper,
 			    TIPC_SUBSCR_TIMEOUT, 0, 0);
+=======
+
+	spin_lock(&sub->lock);
+	tipc_sub_send_event(sub, NULL, TIPC_SUBSCR_TIMEOUT);
+>>>>>>> upstream/android-13
 	sub->inactive = true;
 	spin_unlock(&sub->lock);
 }
@@ -131,12 +201,21 @@ struct tipc_subscription *tipc_sub_subscribe(struct net *net,
 					     struct tipc_subscr *s,
 					     int conid)
 {
+<<<<<<< HEAD
+=======
+	u32 lower = tipc_sub_read(s, seq.lower);
+	u32 upper = tipc_sub_read(s, seq.upper);
+>>>>>>> upstream/android-13
 	u32 filter = tipc_sub_read(s, filter);
 	struct tipc_subscription *sub;
 	u32 timeout;
 
 	if ((filter & TIPC_SUB_PORTS && filter & TIPC_SUB_SERVICE) ||
+<<<<<<< HEAD
 	    (tipc_sub_read(s, seq.lower) > tipc_sub_read(s, seq.upper))) {
+=======
+	    lower > upper) {
+>>>>>>> upstream/android-13
 		pr_warn("Subscription rejected, illegal request\n");
 		return NULL;
 	}
@@ -151,6 +230,15 @@ struct tipc_subscription *tipc_sub_subscribe(struct net *net,
 	sub->conid = conid;
 	sub->inactive = false;
 	memcpy(&sub->evt.s, s, sizeof(*s));
+<<<<<<< HEAD
+=======
+	sub->s.seq.type = tipc_sub_read(s, seq.type);
+	sub->s.seq.lower = lower;
+	sub->s.seq.upper = upper;
+	sub->s.filter = filter;
+	sub->s.timeout = tipc_sub_read(s, timeout);
+	memcpy(sub->s.usr_handle, s->usr_handle, 8);
+>>>>>>> upstream/android-13
 	spin_lock_init(&sub->lock);
 	kref_init(&sub->kref);
 	if (!tipc_nametbl_subscribe(sub)) {

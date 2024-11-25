@@ -8,7 +8,11 @@
 #include <linux/module.h>
 #include "rc-core-priv.h"
 
+<<<<<<< HEAD
 #define IMON_UNIT		415662 /* ns */
+=======
+#define IMON_UNIT		416 /* us */
+>>>>>>> upstream/android-13
 #define IMON_BITS		30
 #define IMON_CHKBITS		(BIT(30) | BIT(25) | BIT(24) | BIT(22) | \
 				 BIT(21) | BIT(20) | BIT(19) | BIT(18) | \
@@ -70,6 +74,7 @@ static void ir_imon_decode_scancode(struct rc_dev *dev)
 		}
 
 		if (!imon->stick_keyboard) {
+<<<<<<< HEAD
 			struct lirc_scancode lsc = {
 				.scancode = imon->bits,
 				.rc_proto = RC_PROTO_IMON,
@@ -88,6 +93,15 @@ static void ir_imon_decode_scancode(struct rc_dev *dev)
 					 (imon->bits & 0x00040000) != 0);
 			input_sync(imon->idev);
 			return;
+=======
+			input_report_rel(dev->input_dev, REL_X, rel_x);
+			input_report_rel(dev->input_dev, REL_Y, rel_y);
+
+			input_report_key(dev->input_dev, BTN_LEFT,
+					 (imon->bits & 0x00010000) != 0);
+			input_report_key(dev->input_dev, BTN_RIGHT,
+					 (imon->bits & 0x00040000) != 0);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -113,8 +127,12 @@ static int ir_imon_decode(struct rc_dev *dev, struct ir_raw_event ev)
 
 	dev_dbg(&dev->dev,
 		"iMON decode started at state %d bitno %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, data->count, TO_US(ev.duration),
 		TO_STR(ev.pulse));
+=======
+		data->state, data->count, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Since iMON protocol is a series of bits, if at any point
@@ -127,7 +145,11 @@ static int ir_imon_decode(struct rc_dev *dev, struct ir_raw_event ev)
 	 * we're at a new scancode.
 	 */
 	if (data->state == STATE_ERROR) {
+<<<<<<< HEAD
 		if (!ev.pulse && ev.duration > MS_TO_NS(10))
+=======
+		if (!ev.pulse && ev.duration > MS_TO_US(10))
+>>>>>>> upstream/android-13
 			data->state = STATE_INACTIVE;
 		return 0;
 	}
@@ -180,8 +202,12 @@ static int ir_imon_decode(struct rc_dev *dev, struct ir_raw_event ev)
 err_out:
 	dev_dbg(&dev->dev,
 		"iMON decode failed at state %d bitno %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, data->count, TO_US(ev.duration),
 		TO_STR(ev.pulse));
+=======
+		data->state, data->count, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 
 	data->state = STATE_ERROR;
 
@@ -243,6 +269,7 @@ static int ir_imon_encode(enum rc_proto protocol, u32 scancode,
 
 static int ir_imon_register(struct rc_dev *dev)
 {
+<<<<<<< HEAD
 	struct input_dev *idev;
 	struct imon_dec *imon = &dev->raw->imon;
 	int ret;
@@ -277,11 +304,16 @@ static int ir_imon_register(struct rc_dev *dev)
 	}
 
 	imon->idev = idev;
+=======
+	struct imon_dec *imon = &dev->raw->imon;
+
+>>>>>>> upstream/android-13
 	imon->stick_keyboard = false;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ir_imon_unregister(struct rc_dev *dev)
 {
 	struct imon_dec *imon = &dev->raw->imon;
@@ -292,13 +324,18 @@ static int ir_imon_unregister(struct rc_dev *dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct ir_raw_handler imon_handler = {
 	.protocols	= RC_PROTO_BIT_IMON,
 	.decode		= ir_imon_decode,
 	.encode		= ir_imon_encode,
 	.carrier	= 38000,
 	.raw_register	= ir_imon_register,
+<<<<<<< HEAD
 	.raw_unregister	= ir_imon_unregister,
+=======
+>>>>>>> upstream/android-13
 	.min_timeout	= IMON_UNIT * IMON_BITS * 2,
 };
 

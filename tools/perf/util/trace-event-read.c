@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009, Steven Rostedt <srostedt@redhat.com>
  *
@@ -17,6 +18,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2009, Steven Rostedt <srostedt@redhat.com>
+>>>>>>> upstream/android-13
  */
 #include <dirent.h>
 #include <stdio.h>
@@ -31,8 +37,11 @@
 #include <unistd.h>
 #include <errno.h>
 
+<<<<<<< HEAD
 #include "../perf.h"
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 #include "trace-event.h"
 #include "debug.h"
 
@@ -93,7 +102,11 @@ static void skip(int size)
 		r = size > BUFSIZ ? BUFSIZ : size;
 		do_read(buf, r);
 		size -= r;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static unsigned int read4(struct tep_handle *pevent)
@@ -102,7 +115,11 @@ static unsigned int read4(struct tep_handle *pevent)
 
 	if (do_read(&data, 4) < 0)
 		return 0;
+<<<<<<< HEAD
 	return __data2host4(pevent, data);
+=======
+	return tep_read_number(pevent, &data, 4);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long long read8(struct tep_handle *pevent)
@@ -111,7 +128,11 @@ static unsigned long long read8(struct tep_handle *pevent)
 
 	if (do_read(&data, 8) < 0)
 		return 0;
+<<<<<<< HEAD
 	return __data2host8(pevent, data);
+=======
+	return tep_read_number(pevent, &data, 8);
+>>>>>>> upstream/android-13
 }
 
 static char *read_string(void)
@@ -241,7 +262,11 @@ static int read_header_files(struct tep_handle *pevent)
 		 * The commit field in the page is of type long,
 		 * use that instead, since it represents the kernel.
 		 */
+<<<<<<< HEAD
 		tep_set_long_size(pevent, pevent->header_page_size_size);
+=======
+		tep_set_long_size(pevent, tep_get_header_page_size(pevent));
+>>>>>>> upstream/android-13
 	}
 	free(header_page);
 
@@ -297,10 +322,15 @@ static int read_event_file(struct tep_handle *pevent, char *sys,
 	}
 
 	ret = do_read(buf, size);
+<<<<<<< HEAD
 	if (ret < 0) {
 		free(buf);
 		goto out;
 	}
+=======
+	if (ret < 0)
+		goto out;
+>>>>>>> upstream/android-13
 
 	ret = parse_event_file(pevent, buf, size, sys);
 	if (ret < 0)
@@ -445,7 +475,11 @@ ssize_t trace_report(int fd, struct trace_event *tevent, bool __repipe)
 
 	tep_set_flag(pevent, TEP_NSEC_OUTPUT);
 	tep_set_file_bigendian(pevent, file_bigendian);
+<<<<<<< HEAD
 	tep_set_host_bigendian(pevent, host_bigendian);
+=======
+	tep_set_local_bigendian(pevent, host_bigendian);
+>>>>>>> upstream/android-13
 
 	if (do_read(buf, 1) < 0)
 		goto out;

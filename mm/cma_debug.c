@@ -21,8 +21,11 @@ struct cma_mem {
 	unsigned long n;
 };
 
+<<<<<<< HEAD
 static struct dentry *cma_debugfs_root;
 
+=======
+>>>>>>> upstream/android-13
 static int cma_debugfs_get(void *data, u64 *val)
 {
 	unsigned long *p = data;
@@ -31,22 +34,37 @@ static int cma_debugfs_get(void *data, u64 *val)
 
 	return 0;
 }
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(cma_debugfs_fops, cma_debugfs_get, NULL, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(cma_debugfs_fops, cma_debugfs_get, NULL, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int cma_used_get(void *data, u64 *val)
 {
 	struct cma *cma = data;
 	unsigned long used;
 
+<<<<<<< HEAD
 	mutex_lock(&cma->lock);
 	/* pages counter is smaller than sizeof(int) */
 	used = bitmap_weight(cma->bitmap, (int)cma_bitmap_maxno(cma));
 	mutex_unlock(&cma->lock);
+=======
+	spin_lock_irq(&cma->lock);
+	/* pages counter is smaller than sizeof(int) */
+	used = bitmap_weight(cma->bitmap, (int)cma_bitmap_maxno(cma));
+	spin_unlock_irq(&cma->lock);
+>>>>>>> upstream/android-13
 	*val = (u64)used << cma->order_per_bit;
 
 	return 0;
 }
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(cma_used_fops, cma_used_get, NULL, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(cma_used_fops, cma_used_get, NULL, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int cma_maxchunk_get(void *data, u64 *val)
 {
@@ -55,7 +73,11 @@ static int cma_maxchunk_get(void *data, u64 *val)
 	unsigned long start, end = 0;
 	unsigned long bitmap_maxno = cma_bitmap_maxno(cma);
 
+<<<<<<< HEAD
 	mutex_lock(&cma->lock);
+=======
+	spin_lock_irq(&cma->lock);
+>>>>>>> upstream/android-13
 	for (;;) {
 		start = find_next_zero_bit(cma->bitmap, bitmap_maxno, end);
 		if (start >= bitmap_maxno)
@@ -63,12 +85,20 @@ static int cma_maxchunk_get(void *data, u64 *val)
 		end = find_next_bit(cma->bitmap, bitmap_maxno, start);
 		maxchunk = max(end - start, maxchunk);
 	}
+<<<<<<< HEAD
 	mutex_unlock(&cma->lock);
+=======
+	spin_unlock_irq(&cma->lock);
+>>>>>>> upstream/android-13
 	*val = (u64)maxchunk << cma->order_per_bit;
 
 	return 0;
 }
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(cma_maxchunk_fops, cma_maxchunk_get, NULL, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(cma_maxchunk_fops, cma_maxchunk_get, NULL, "%llu\n");
+>>>>>>> upstream/android-13
 
 static void cma_add_to_cma_mem_list(struct cma *cma, struct cma_mem *mem)
 {
@@ -128,7 +158,11 @@ static int cma_free_write(void *data, u64 val)
 
 	return cma_free_mem(cma, pages);
 }
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(cma_free_fops, NULL, cma_free_write, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(cma_free_fops, NULL, cma_free_write, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int cma_alloc_mem(struct cma *cma, int count)
 {
@@ -160,6 +194,7 @@ static int cma_alloc_write(void *data, u64 val)
 
 	return cma_alloc_mem(cma, pages);
 }
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(cma_alloc_fops, NULL, cma_alloc_write, "%llu\n");
 
 static void cma_debugfs_add_one(struct cma *cma, int idx)
@@ -171,6 +206,18 @@ static void cma_debugfs_add_one(struct cma *cma, int idx)
 	scnprintf(name, sizeof(name), "cma-%s", cma->name);
 
 	tmp = debugfs_create_dir(name, cma_debugfs_root);
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(cma_alloc_fops, NULL, cma_alloc_write, "%llu\n");
+
+static void cma_debugfs_add_one(struct cma *cma, struct dentry *root_dentry)
+{
+	struct dentry *tmp;
+	char name[16];
+
+	scnprintf(name, sizeof(name), "cma-%s", cma->name);
+
+	tmp = debugfs_create_dir(name, root_dentry);
+>>>>>>> upstream/android-13
 
 	debugfs_create_file("alloc", 0200, tmp, cma, &cma_alloc_fops);
 	debugfs_create_file("free", 0200, tmp, cma, &cma_free_fops);
@@ -182,12 +229,20 @@ static void cma_debugfs_add_one(struct cma *cma, int idx)
 	debugfs_create_file("used", 0444, tmp, cma, &cma_used_fops);
 	debugfs_create_file("maxchunk", 0444, tmp, cma, &cma_maxchunk_fops);
 
+<<<<<<< HEAD
 	u32s = DIV_ROUND_UP(cma_bitmap_maxno(cma), BITS_PER_BYTE * sizeof(u32));
 	debugfs_create_u32_array("bitmap", 0444, tmp, (u32 *)cma->bitmap, u32s);
+=======
+	cma->dfs_bitmap.array = (u32 *)cma->bitmap;
+	cma->dfs_bitmap.n_elements = DIV_ROUND_UP(cma_bitmap_maxno(cma),
+						  BITS_PER_BYTE * sizeof(u32));
+	debugfs_create_u32_array("bitmap", 0444, tmp, &cma->dfs_bitmap);
+>>>>>>> upstream/android-13
 }
 
 static int __init cma_debugfs_init(void)
 {
+<<<<<<< HEAD
 	int i;
 
 	cma_debugfs_root = debugfs_create_dir("cma", NULL);
@@ -196,6 +251,15 @@ static int __init cma_debugfs_init(void)
 
 	for (i = 0; i < cma_area_count; i++)
 		cma_debugfs_add_one(&cma_areas[i], i);
+=======
+	struct dentry *cma_debugfs_root;
+	int i;
+
+	cma_debugfs_root = debugfs_create_dir("cma", NULL);
+
+	for (i = 0; i < cma_area_count; i++)
+		cma_debugfs_add_one(&cma_areas[i], cma_debugfs_root);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

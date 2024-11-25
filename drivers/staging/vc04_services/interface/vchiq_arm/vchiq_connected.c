@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2010-2012 Broadcom. All rights reserved.
  *
@@ -34,6 +35,13 @@
 #include "vchiq_connected.h"
 #include "vchiq_core.h"
 #include "vchiq_killable.h"
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/* Copyright (c) 2010-2012 Broadcom. All rights reserved. */
+
+#include "vchiq_connected.h"
+#include "vchiq_core.h"
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/mutex.h>
 
@@ -43,6 +51,7 @@ static   int                        g_connected;
 static   int                        g_num_deferred_callbacks;
 static   VCHIQ_CONNECTED_CALLBACK_T g_deferred_callback[MAX_CALLBACKS];
 static   int                        g_once_init;
+<<<<<<< HEAD
 static   struct mutex               g_connected_mutex;
 
 /****************************************************************************
@@ -55,10 +64,19 @@ static void connected_init(void)
 {
 	if (!g_once_init) {
 		mutex_init(&g_connected_mutex);
+=======
+static   DEFINE_MUTEX(g_connected_mutex);
+
+/* Function to initialize our lock */
+static void connected_init(void)
+{
+	if (!g_once_init) {
+>>>>>>> upstream/android-13
 		g_once_init = 1;
 	}
 }
 
+<<<<<<< HEAD
 /****************************************************************************
 *
 * This function is used to defer initialization until the vchiq stack is
@@ -68,11 +86,23 @@ static void connected_init(void)
 *
 ***************************************************************************/
 
+=======
+/*
+ * This function is used to defer initialization until the vchiq stack is
+ * initialized. If the stack is already initialized, then the callback will
+ * be made immediately, otherwise it will be deferred until
+ * vchiq_call_connected_callbacks is called.
+ */
+>>>>>>> upstream/android-13
 void vchiq_add_connected_callback(VCHIQ_CONNECTED_CALLBACK_T callback)
 {
 	connected_init();
 
+<<<<<<< HEAD
 	if (mutex_lock_killable(&g_connected_mutex) != 0)
+=======
+	if (mutex_lock_killable(&g_connected_mutex))
+>>>>>>> upstream/android-13
 		return;
 
 	if (g_connected)
@@ -82,8 +112,12 @@ void vchiq_add_connected_callback(VCHIQ_CONNECTED_CALLBACK_T callback)
 	else {
 		if (g_num_deferred_callbacks >= MAX_CALLBACKS)
 			vchiq_log_error(vchiq_core_log_level,
+<<<<<<< HEAD
 				"There already %d callback registered - "
 				"please increase MAX_CALLBACKS",
+=======
+				"There already %d callback registered - please increase MAX_CALLBACKS",
+>>>>>>> upstream/android-13
 				g_num_deferred_callbacks);
 		else {
 			g_deferred_callback[g_num_deferred_callbacks] =
@@ -93,6 +127,7 @@ void vchiq_add_connected_callback(VCHIQ_CONNECTED_CALLBACK_T callback)
 	}
 	mutex_unlock(&g_connected_mutex);
 }
+<<<<<<< HEAD
 
 /****************************************************************************
 *
@@ -101,13 +136,25 @@ void vchiq_add_connected_callback(VCHIQ_CONNECTED_CALLBACK_T callback)
 *
 ***************************************************************************/
 
+=======
+EXPORT_SYMBOL(vchiq_add_connected_callback);
+
+/*
+ * This function is called by the vchiq stack once it has been connected to
+ * the videocore and clients can start to use the stack.
+ */
+>>>>>>> upstream/android-13
 void vchiq_call_connected_callbacks(void)
 {
 	int i;
 
 	connected_init();
 
+<<<<<<< HEAD
 	if (mutex_lock_killable(&g_connected_mutex) != 0)
+=======
+	if (mutex_lock_killable(&g_connected_mutex))
+>>>>>>> upstream/android-13
 		return;
 
 	for (i = 0; i <  g_num_deferred_callbacks; i++)
@@ -117,4 +164,7 @@ void vchiq_call_connected_callbacks(void)
 	g_connected = 1;
 	mutex_unlock(&g_connected_mutex);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(vchiq_add_connected_callback);
+=======
+>>>>>>> upstream/android-13

@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /* Advanced  Micro Devices Inc. AMD8111E Linux Network Driver
  * Copyright (C) 2004 Advanced Micro Devices
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright 2001,2002 Jeff Garzik <jgarzik@mandrakesoft.com> [ 8139cp.c,tg3.c ]
  * Copyright (C) 2001, 2002 David S. Miller (davem@redhat.com)[ tg3.c]
  * Copyright 1996-1999 Thomas Bogendoerfer [ pcnet32.c ]
@@ -12,6 +19,7 @@
  * Carsten Langgaard, carstenl@mips.com [ pcnet32.c ]
  * Copyright (C) 2000 MIPS Technologies, Inc.  All rights reserved.
  *
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +33,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 
 Module Name:
 
@@ -32,14 +42,22 @@ Module Name:
 
 Abstract:
 
+<<<<<<< HEAD
  	 AMD8111 based 10/100 Ethernet Controller Driver.
+=======
+	 AMD8111 based 10/100 Ethernet Controller Driver.
+>>>>>>> upstream/android-13
 
 Environment:
 
 	Kernel Mode
 
 Revision History:
+<<<<<<< HEAD
  	3.0.0
+=======
+	3.0.0
+>>>>>>> upstream/android-13
 	   Initial Revision.
 	3.0.1
 	 1. Dynamic interrupt coalescing.
@@ -97,9 +115,14 @@ Revision History:
 
 #include "amd8111e.h"
 #define MODULE_NAME	"amd8111e"
+<<<<<<< HEAD
 #define MODULE_VERS	"3.0.7"
 MODULE_AUTHOR("Advanced Micro Devices, Inc.");
 MODULE_DESCRIPTION ("AMD8111 based 10/100 Ethernet Controller. Driver Version "MODULE_VERS);
+=======
+MODULE_AUTHOR("Advanced Micro Devices, Inc.");
+MODULE_DESCRIPTION("AMD8111 based 10/100 Ethernet Controller.");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 module_param_array(speed_duplex, int, NULL, 0);
 MODULE_PARM_DESC(speed_duplex, "Set device speed and duplex modes, 0: Auto Negotiate, 1: 10Mbps Half Duplex, 2: 10Mbps Full Duplex, 3: 100Mbps Half Duplex, 4: 100Mbps Full Duplex");
@@ -114,6 +137,7 @@ static int amd8111e_read_phy(struct amd8111e_priv *lp,
 {
 	void __iomem *mmio = lp->mmio;
 	unsigned int reg_val;
+<<<<<<< HEAD
 	unsigned int repeat= REPEAT_CNT;
 
 	reg_val = readl(mmio + PHY_ACCESS);
@@ -127,6 +151,21 @@ static int amd8111e_read_phy(struct amd8111e_priv *lp,
 		udelay(30);  /* It takes 30 us to read/write data */
 	} while (--repeat && (reg_val & PHY_CMD_ACTIVE));
 	if(reg_val & PHY_RD_ERR)
+=======
+	unsigned int repeat = REPEAT_CNT;
+
+	reg_val = readl(mmio + PHY_ACCESS);
+	while (reg_val & PHY_CMD_ACTIVE)
+		reg_val = readl(mmio + PHY_ACCESS);
+
+	writel(PHY_RD_CMD | ((phy_id & 0x1f) << 21) |
+			   ((reg & 0x1f) << 16), mmio + PHY_ACCESS);
+	do {
+		reg_val = readl(mmio + PHY_ACCESS);
+		udelay(30);  /* It takes 30 us to read/write data */
+	} while (--repeat && (reg_val & PHY_CMD_ACTIVE));
+	if (reg_val & PHY_RD_ERR)
+>>>>>>> upstream/android-13
 		goto err_phy_read;
 
 	*val = reg_val & 0xffff;
@@ -147,17 +186,30 @@ static int amd8111e_write_phy(struct amd8111e_priv *lp,
 
 	reg_val = readl(mmio + PHY_ACCESS);
 	while (reg_val & PHY_CMD_ACTIVE)
+<<<<<<< HEAD
 		reg_val = readl( mmio + PHY_ACCESS );
 
 	writel( PHY_WR_CMD | ((phy_id & 0x1f) << 21) |
 			   ((reg & 0x1f) << 16)|val, mmio + PHY_ACCESS);
 
 	do{
+=======
+		reg_val = readl(mmio + PHY_ACCESS);
+
+	writel(PHY_WR_CMD | ((phy_id & 0x1f) << 21) |
+			   ((reg & 0x1f) << 16)|val, mmio + PHY_ACCESS);
+
+	do {
+>>>>>>> upstream/android-13
 		reg_val = readl(mmio + PHY_ACCESS);
 		udelay(30);  /* It takes 30 us to read/write the data */
 	} while (--repeat && (reg_val & PHY_CMD_ACTIVE));
 
+<<<<<<< HEAD
 	if(reg_val & PHY_RD_ERR)
+=======
+	if (reg_val & PHY_RD_ERR)
+>>>>>>> upstream/android-13
 		goto err_phy_write;
 
 	return 0;
@@ -173,7 +225,11 @@ static int amd8111e_mdio_read(struct net_device *dev, int phy_id, int reg_num)
 	struct amd8111e_priv *lp = netdev_priv(dev);
 	unsigned int reg_val;
 
+<<<<<<< HEAD
 	amd8111e_read_phy(lp,phy_id,reg_num,&reg_val);
+=======
+	amd8111e_read_phy(lp, phy_id, reg_num, &reg_val);
+>>>>>>> upstream/android-13
 	return reg_val;
 
 }
@@ -193,17 +249,30 @@ static void amd8111e_mdio_write(struct net_device *dev,
 static void amd8111e_set_ext_phy(struct net_device *dev)
 {
 	struct amd8111e_priv *lp = netdev_priv(dev);
+<<<<<<< HEAD
 	u32 bmcr,advert,tmp;
+=======
+	u32 bmcr, advert, tmp;
+>>>>>>> upstream/android-13
 
 	/* Determine mii register values to set the speed */
 	advert = amd8111e_mdio_read(dev, lp->ext_phy_addr, MII_ADVERTISE);
 	tmp = advert & ~(ADVERTISE_ALL | ADVERTISE_100BASE4);
+<<<<<<< HEAD
 	switch (lp->ext_phy_option){
 
 		default:
 		case SPEED_AUTONEG: /* advertise all values */
 			tmp |= ( ADVERTISE_10HALF|ADVERTISE_10FULL|
 				ADVERTISE_100HALF|ADVERTISE_100FULL) ;
+=======
+	switch (lp->ext_phy_option) {
+
+		default:
+		case SPEED_AUTONEG: /* advertise all values */
+			tmp |= (ADVERTISE_10HALF | ADVERTISE_10FULL |
+				ADVERTISE_100HALF | ADVERTISE_100FULL);
+>>>>>>> upstream/android-13
 			break;
 		case SPEED10_HALF:
 			tmp |= ADVERTISE_10HALF;
@@ -238,20 +307,38 @@ static int amd8111e_free_skbs(struct net_device *dev)
 	int i;
 
 	/* Freeing transmit skbs */
+<<<<<<< HEAD
 	for(i = 0; i < NUM_TX_BUFFERS; i++){
 		if(lp->tx_skbuff[i]){
 			pci_unmap_single(lp->pci_dev,lp->tx_dma_addr[i],					lp->tx_skbuff[i]->len,PCI_DMA_TODEVICE);
 			dev_kfree_skb (lp->tx_skbuff[i]);
+=======
+	for (i = 0; i < NUM_TX_BUFFERS; i++) {
+		if (lp->tx_skbuff[i]) {
+			dma_unmap_single(&lp->pci_dev->dev,
+					 lp->tx_dma_addr[i],
+					 lp->tx_skbuff[i]->len, DMA_TO_DEVICE);
+			dev_kfree_skb(lp->tx_skbuff[i]);
+>>>>>>> upstream/android-13
 			lp->tx_skbuff[i] = NULL;
 			lp->tx_dma_addr[i] = 0;
 		}
 	}
 	/* Freeing previously allocated receive buffers */
+<<<<<<< HEAD
 	for (i = 0; i < NUM_RX_BUFFERS; i++){
 		rx_skbuff = lp->rx_skbuff[i];
 		if(rx_skbuff != NULL){
 			pci_unmap_single(lp->pci_dev,lp->rx_dma_addr[i],
 				  lp->rx_buff_len - 2,PCI_DMA_FROMDEVICE);
+=======
+	for (i = 0; i < NUM_RX_BUFFERS; i++) {
+		rx_skbuff = lp->rx_skbuff[i];
+		if (rx_skbuff != NULL) {
+			dma_unmap_single(&lp->pci_dev->dev,
+					 lp->rx_dma_addr[i],
+					 lp->rx_buff_len - 2, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(lp->rx_skbuff[i]);
 			lp->rx_skbuff[i] = NULL;
 			lp->rx_dma_addr[i] = 0;
@@ -269,13 +356,21 @@ static inline void amd8111e_set_rx_buff_len(struct net_device *dev)
 	struct amd8111e_priv *lp = netdev_priv(dev);
 	unsigned int mtu = dev->mtu;
 
+<<<<<<< HEAD
 	if (mtu > ETH_DATA_LEN){
+=======
+	if (mtu > ETH_DATA_LEN) {
+>>>>>>> upstream/android-13
 		/* MTU + ethernet header + FCS
 		 * + optional VLAN tag + skb reserve space 2
 		 */
 		lp->rx_buff_len = mtu + ETH_HLEN + 10;
 		lp->options |= OPTION_JUMBO_ENABLE;
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		lp->rx_buff_len = PKT_BUFF_SZ;
 		lp->options &= ~OPTION_JUMBO_ENABLE;
 	}
@@ -296,6 +391,7 @@ static int amd8111e_init_ring(struct net_device *dev)
 	lp->tx_ring_idx = 0;
 
 
+<<<<<<< HEAD
 	if(lp->opened)
 		/* Free previously allocated transmit and receive skbs */
 		amd8111e_free_skbs(dev);
@@ -315,6 +411,27 @@ static int amd8111e_init_ring(struct net_device *dev)
 			goto err_free_tx_ring;
 
 	}
+=======
+	if (lp->opened)
+		/* Free previously allocated transmit and receive skbs */
+		amd8111e_free_skbs(dev);
+
+	else {
+		/* allocate the tx and rx descriptors */
+		lp->tx_ring = dma_alloc_coherent(&lp->pci_dev->dev,
+			sizeof(struct amd8111e_tx_dr) * NUM_TX_RING_DR,
+			&lp->tx_ring_dma_addr, GFP_ATOMIC);
+		if (!lp->tx_ring)
+			goto err_no_mem;
+
+		lp->rx_ring = dma_alloc_coherent(&lp->pci_dev->dev,
+			sizeof(struct amd8111e_rx_dr) * NUM_RX_RING_DR,
+			&lp->rx_ring_dma_addr, GFP_ATOMIC);
+		if (!lp->rx_ring)
+			goto err_free_tx_ring;
+	}
+
+>>>>>>> upstream/android-13
 	/* Set new receive buff size */
 	amd8111e_set_rx_buff_len(dev);
 
@@ -323,6 +440,7 @@ static int amd8111e_init_ring(struct net_device *dev)
 
 		lp->rx_skbuff[i] = netdev_alloc_skb(dev, lp->rx_buff_len);
 		if (!lp->rx_skbuff[i]) {
+<<<<<<< HEAD
 				/* Release previos allocated skbs */
 				for(--i; i >= 0 ;i--)
 					dev_kfree_skb(lp->rx_skbuff[i]);
@@ -334,6 +452,21 @@ static int amd8111e_init_ring(struct net_device *dev)
 	for (i = 0; i < NUM_RX_BUFFERS; i++) {
 		lp->rx_dma_addr[i] = pci_map_single(lp->pci_dev,
 			lp->rx_skbuff[i]->data,lp->rx_buff_len-2, PCI_DMA_FROMDEVICE);
+=======
+			/* Release previos allocated skbs */
+			for (--i; i >= 0; i--)
+				dev_kfree_skb(lp->rx_skbuff[i]);
+			goto err_free_rx_ring;
+		}
+		skb_reserve(lp->rx_skbuff[i], 2);
+	}
+        /* Initilaizing receive descriptors */
+	for (i = 0; i < NUM_RX_BUFFERS; i++) {
+		lp->rx_dma_addr[i] = dma_map_single(&lp->pci_dev->dev,
+						    lp->rx_skbuff[i]->data,
+						    lp->rx_buff_len - 2,
+						    DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		lp->rx_ring[i].buff_phy_addr = cpu_to_le32(lp->rx_dma_addr[i]);
 		lp->rx_ring[i].buff_count = cpu_to_le16(lp->rx_buff_len-2);
@@ -352,6 +485,7 @@ static int amd8111e_init_ring(struct net_device *dev)
 
 err_free_rx_ring:
 
+<<<<<<< HEAD
 	pci_free_consistent(lp->pci_dev,
 		sizeof(struct amd8111e_rx_dr)*NUM_RX_RING_DR,lp->rx_ring,
 		lp->rx_ring_dma_addr);
@@ -361,6 +495,17 @@ err_free_tx_ring:
 	pci_free_consistent(lp->pci_dev,
 		 sizeof(struct amd8111e_tx_dr)*NUM_TX_RING_DR,lp->tx_ring,
 		 lp->tx_ring_dma_addr);
+=======
+	dma_free_coherent(&lp->pci_dev->dev,
+			  sizeof(struct amd8111e_rx_dr) * NUM_RX_RING_DR,
+			  lp->rx_ring, lp->rx_ring_dma_addr);
+
+err_free_tx_ring:
+
+	dma_free_coherent(&lp->pci_dev->dev,
+			  sizeof(struct amd8111e_tx_dr) * NUM_TX_RING_DR,
+			  lp->tx_ring, lp->tx_ring_dma_addr);
+>>>>>>> upstream/android-13
 
 err_no_mem:
 	return -ENOMEM;
@@ -384,12 +529,18 @@ static int amd8111e_set_coalesce(struct net_device *dev, enum coal_mode cmod)
 		case RX_INTR_COAL :
 			timeout = coal_conf->rx_timeout;
 			event_count = coal_conf->rx_event_count;
+<<<<<<< HEAD
 			if( timeout > MAX_TIMEOUT ||
 					event_count > MAX_EVENT_COUNT )
+=======
+			if (timeout > MAX_TIMEOUT ||
+			    event_count > MAX_EVENT_COUNT)
+>>>>>>> upstream/android-13
 				return -EINVAL;
 
 			timeout = timeout * DELAY_TIMER_CONV;
 			writel(VAL0|STINTEN, mmio+INTEN0);
+<<<<<<< HEAD
 			writel((u32)DLY_INT_A_R0|( event_count<< 16 )|timeout,
 							mmio+DLY_INT_A);
 			break;
@@ -399,10 +550,22 @@ static int amd8111e_set_coalesce(struct net_device *dev, enum coal_mode cmod)
 			event_count = coal_conf->tx_event_count;
 			if( timeout > MAX_TIMEOUT ||
 					event_count > MAX_EVENT_COUNT )
+=======
+			writel((u32)DLY_INT_A_R0 | (event_count << 16) |
+				timeout, mmio + DLY_INT_A);
+			break;
+
+		case TX_INTR_COAL:
+			timeout = coal_conf->tx_timeout;
+			event_count = coal_conf->tx_event_count;
+			if (timeout > MAX_TIMEOUT ||
+			    event_count > MAX_EVENT_COUNT)
+>>>>>>> upstream/android-13
 				return -EINVAL;
 
 
 			timeout = timeout * DELAY_TIMER_CONV;
+<<<<<<< HEAD
 			writel(VAL0|STINTEN,mmio+INTEN0);
 			writel((u32)DLY_INT_B_T0|( event_count<< 16 )|timeout,
 							 mmio+DLY_INT_B);
@@ -418,6 +581,23 @@ static int amd8111e_set_coalesce(struct net_device *dev, enum coal_mode cmod)
 		       /* Start the timer */
 			writel((u32)SOFT_TIMER_FREQ, mmio+STVAL); /*  0.5 sec */
 			writel(VAL0|STINTEN, mmio+INTEN0);
+=======
+			writel(VAL0 | STINTEN, mmio + INTEN0);
+			writel((u32)DLY_INT_B_T0 | (event_count << 16) |
+				timeout, mmio + DLY_INT_B);
+			break;
+
+		case DISABLE_COAL:
+			writel(0, mmio + STVAL);
+			writel(STINTEN, mmio + INTEN0);
+			writel(0, mmio + DLY_INT_B);
+			writel(0, mmio + DLY_INT_A);
+			break;
+		 case ENABLE_COAL:
+		       /* Start the timer */
+			writel((u32)SOFT_TIMER_FREQ, mmio + STVAL); /* 0.5 sec */
+			writel(VAL0 | STINTEN, mmio + INTEN0);
+>>>>>>> upstream/android-13
 			break;
 		default:
 			break;
@@ -432,6 +612,7 @@ static int amd8111e_restart(struct net_device *dev)
 {
 	struct amd8111e_priv *lp = netdev_priv(dev);
 	void __iomem *mmio = lp->mmio;
+<<<<<<< HEAD
 	int i,reg_val;
 
 	/* stop the chip */
@@ -443,29 +624,55 @@ static int amd8111e_restart(struct net_device *dev)
 	/* enable the port manager and set auto negotiation always */
 	writel((u32) VAL1|EN_PMGR, mmio + CMD3 );
 	writel((u32)XPHYANE|XPHYRST , mmio + CTRL2);
+=======
+	int i, reg_val;
+
+	/* stop the chip */
+	writel(RUN, mmio + CMD0);
+
+	if (amd8111e_init_ring(dev))
+		return -ENOMEM;
+
+	/* enable the port manager and set auto negotiation always */
+	writel((u32)VAL1 | EN_PMGR, mmio + CMD3);
+	writel((u32)XPHYANE | XPHYRST, mmio + CTRL2);
+>>>>>>> upstream/android-13
 
 	amd8111e_set_ext_phy(dev);
 
 	/* set control registers */
 	reg_val = readl(mmio + CTRL1);
 	reg_val &= ~XMTSP_MASK;
+<<<<<<< HEAD
 	writel( reg_val| XMTSP_128 | CACHE_ALIGN, mmio + CTRL1 );
 
 	/* enable interrupt */
 	writel( APINT5EN | APINT4EN | APINT3EN | APINT2EN | APINT1EN |
+=======
+	writel(reg_val | XMTSP_128 | CACHE_ALIGN, mmio + CTRL1);
+
+	/* enable interrupt */
+	writel(APINT5EN | APINT4EN | APINT3EN | APINT2EN | APINT1EN |
+>>>>>>> upstream/android-13
 		APINT0EN | MIIPDTINTEN | MCCIINTEN | MCCINTEN | MREINTEN |
 		SPNDINTEN | MPINTEN | SINTEN | STINTEN, mmio + INTEN0);
 
 	writel(VAL3 | LCINTEN | VAL1 | TINTEN0 | VAL0 | RINTEN0, mmio + INTEN0);
 
 	/* initialize tx and rx ring base addresses */
+<<<<<<< HEAD
 	writel((u32)lp->tx_ring_dma_addr,mmio + XMT_RING_BASE_ADDR0);
 	writel((u32)lp->rx_ring_dma_addr,mmio+ RCV_RING_BASE_ADDR0);
+=======
+	writel((u32)lp->tx_ring_dma_addr, mmio + XMT_RING_BASE_ADDR0);
+	writel((u32)lp->rx_ring_dma_addr, mmio + RCV_RING_BASE_ADDR0);
+>>>>>>> upstream/android-13
 
 	writew((u32)NUM_TX_RING_DR, mmio + XMT_RING_LEN0);
 	writew((u16)NUM_RX_RING_DR, mmio + RCV_RING_LEN0);
 
 	/* set default IPG to 96 */
+<<<<<<< HEAD
 	writew((u32)DEFAULT_IPG,mmio+IPG);
 	writew((u32)(DEFAULT_IPG-IFS1_DELTA), mmio + IFS1);
 
@@ -477,10 +684,24 @@ static int amd8111e_restart(struct net_device *dev)
 		writel( VAL0 | APAD_XMT|REX_RTRY , mmio + CMD2);
 	}else{
 		writel( VAL0 | APAD_XMT | REX_RTRY|REX_UFLO, mmio + CMD2);
+=======
+	writew((u32)DEFAULT_IPG, mmio + IPG);
+	writew((u32)(DEFAULT_IPG-IFS1_DELTA), mmio + IFS1);
+
+	if (lp->options & OPTION_JUMBO_ENABLE) {
+		writel((u32)VAL2|JUMBO, mmio + CMD3);
+		/* Reset REX_UFLO */
+		writel(REX_UFLO, mmio + CMD2);
+		/* Should not set REX_UFLO for jumbo frames */
+		writel(VAL0 | APAD_XMT | REX_RTRY, mmio + CMD2);
+	} else {
+		writel(VAL0 | APAD_XMT | REX_RTRY | REX_UFLO, mmio + CMD2);
+>>>>>>> upstream/android-13
 		writel((u32)JUMBO, mmio + CMD3);
 	}
 
 #if AMD8111E_VLAN_TAG_USED
+<<<<<<< HEAD
 	writel((u32) VAL2|VSIZE|VL_TAG_DEL, mmio + CMD3);
 #endif
 	writel( VAL0 | APAD_XMT | REX_RTRY, mmio + CMD2 );
@@ -493,6 +714,20 @@ static int amd8111e_restart(struct net_device *dev)
 	if(lp->options & OPTION_INTR_COAL_ENABLE){
 		netdev_info(dev, "Interrupt Coalescing Enabled.\n");
 		amd8111e_set_coalesce(dev,ENABLE_COAL);
+=======
+	writel((u32)VAL2 | VSIZE | VL_TAG_DEL, mmio + CMD3);
+#endif
+	writel(VAL0 | APAD_XMT | REX_RTRY, mmio + CMD2);
+
+	/* Setting the MAC address to the device */
+	for (i = 0; i < ETH_ALEN; i++)
+		writeb(dev->dev_addr[i], mmio + PADR + i);
+
+	/* Enable interrupt coalesce */
+	if (lp->options & OPTION_INTR_COAL_ENABLE) {
+		netdev_info(dev, "Interrupt Coalescing Enabled.\n");
+		amd8111e_set_coalesce(dev, ENABLE_COAL);
+>>>>>>> upstream/android-13
 	}
 
 	/* set RUN bit to start the chip */
@@ -508,11 +743,19 @@ static int amd8111e_restart(struct net_device *dev)
 static void amd8111e_init_hw_default(struct amd8111e_priv *lp)
 {
 	unsigned int reg_val;
+<<<<<<< HEAD
 	unsigned int logic_filter[2] ={0,};
 	void __iomem *mmio = lp->mmio;
 
 
         /* stop the chip */
+=======
+	unsigned int logic_filter[2] = {0,};
+	void __iomem *mmio = lp->mmio;
+
+
+	/* stop the chip */
+>>>>>>> upstream/android-13
 	writel(RUN, mmio + CMD0);
 
 	/* AUTOPOLL0 Register *//*TBD default value is 8100 in FPS */
@@ -528,6 +771,7 @@ static void amd8111e_init_hw_default(struct amd8111e_priv *lp)
 	writel(0, mmio + XMT_RING_BASE_ADDR3);
 
 	/* Clear CMD0  */
+<<<<<<< HEAD
 	writel(CMD0_CLEAR,mmio + CMD0);
 
 	/* Clear CMD2 */
@@ -535,6 +779,15 @@ static void amd8111e_init_hw_default(struct amd8111e_priv *lp)
 
 	/* Clear CMD7 */
 	writel(CMD7_CLEAR , mmio + CMD7);
+=======
+	writel(CMD0_CLEAR, mmio + CMD0);
+
+	/* Clear CMD2 */
+	writel(CMD2_CLEAR, mmio + CMD2);
+
+	/* Clear CMD7 */
+	writel(CMD7_CLEAR, mmio + CMD7);
+>>>>>>> upstream/android-13
 
 	/* Clear DLY_INT_A and DLY_INT_B */
 	writel(0x0, mmio + DLY_INT_A);
@@ -551,6 +804,7 @@ static void amd8111e_init_hw_default(struct amd8111e_priv *lp)
 	writel(0x0, mmio + STVAL);
 
 	/* Clear INTEN0 */
+<<<<<<< HEAD
 	writel( INTEN0_CLEAR, mmio + INTEN0);
 
 	/* Clear LADRF */
@@ -561,6 +815,18 @@ static void amd8111e_init_hw_default(struct amd8111e_priv *lp)
 
 	/* Clear RCV_RING0_LEN */
 	writel(0x0, mmio +  RCV_RING_LEN0);
+=======
+	writel(INTEN0_CLEAR, mmio + INTEN0);
+
+	/* Clear LADRF */
+	writel(0x0, mmio + LADRF);
+
+	/* Set SRAM_SIZE & SRAM_BOUNDARY registers  */
+	writel(0x80010, mmio + SRAM_SIZE);
+
+	/* Clear RCV_RING0_LEN */
+	writel(0x0, mmio + RCV_RING_LEN0);
+>>>>>>> upstream/android-13
 
 	/* Clear XMT_RING0/1/2/3_LEN */
 	writel(0x0, mmio +  XMT_RING_LEN0);
@@ -580,10 +846,17 @@ static void amd8111e_init_hw_default(struct amd8111e_priv *lp)
 	/* SRAM_SIZE register */
 	reg_val = readl(mmio + SRAM_SIZE);
 
+<<<<<<< HEAD
 	if(lp->options & OPTION_JUMBO_ENABLE)
 		writel( VAL2|JUMBO, mmio + CMD3);
 #if AMD8111E_VLAN_TAG_USED
 	writel(VAL2|VSIZE|VL_TAG_DEL, mmio + CMD3 );
+=======
+	if (lp->options & OPTION_JUMBO_ENABLE)
+		writel(VAL2 | JUMBO, mmio + CMD3);
+#if AMD8111E_VLAN_TAG_USED
+	writel(VAL2 | VSIZE | VL_TAG_DEL, mmio + CMD3);
+>>>>>>> upstream/android-13
 #endif
 	/* Set default value to CTRL1 Register */
 	writel(CTRL1_DEFAULT, mmio + CTRL1);
@@ -625,6 +898,7 @@ static void amd8111e_stop_chip(struct amd8111e_priv *lp)
 static void amd8111e_free_ring(struct amd8111e_priv *lp)
 {
 	/* Free transmit and receive descriptor rings */
+<<<<<<< HEAD
 	if(lp->rx_ring){
 		pci_free_consistent(lp->pci_dev,
 			sizeof(struct amd8111e_rx_dr)*NUM_RX_RING_DR,
@@ -636,6 +910,19 @@ static void amd8111e_free_ring(struct amd8111e_priv *lp)
 		pci_free_consistent(lp->pci_dev,
 			sizeof(struct amd8111e_tx_dr)*NUM_TX_RING_DR,
 			lp->tx_ring, lp->tx_ring_dma_addr);
+=======
+	if (lp->rx_ring) {
+		dma_free_coherent(&lp->pci_dev->dev,
+				  sizeof(struct amd8111e_rx_dr) * NUM_RX_RING_DR,
+				  lp->rx_ring, lp->rx_ring_dma_addr);
+		lp->rx_ring = NULL;
+	}
+
+	if (lp->tx_ring) {
+		dma_free_coherent(&lp->pci_dev->dev,
+				  sizeof(struct amd8111e_tx_dr) * NUM_TX_RING_DR,
+				  lp->tx_ring, lp->tx_ring_dma_addr);
+>>>>>>> upstream/android-13
 
 		lp->tx_ring = NULL;
 	}
@@ -652,21 +939,37 @@ static int amd8111e_tx(struct net_device *dev)
 	int tx_index;
 	int status;
 	/* Complete all the transmit packet */
+<<<<<<< HEAD
 	while (lp->tx_complete_idx != lp->tx_idx){
 		tx_index =  lp->tx_complete_idx & TX_RING_DR_MOD_MASK;
 		status = le16_to_cpu(lp->tx_ring[tx_index].tx_flags);
 
 		if(status & OWN_BIT)
+=======
+	while (lp->tx_complete_idx != lp->tx_idx) {
+		tx_index =  lp->tx_complete_idx & TX_RING_DR_MOD_MASK;
+		status = le16_to_cpu(lp->tx_ring[tx_index].tx_flags);
+
+		if (status & OWN_BIT)
+>>>>>>> upstream/android-13
 			break;	/* It still hasn't been Txed */
 
 		lp->tx_ring[tx_index].buff_phy_addr = 0;
 
 		/* We must free the original skb */
 		if (lp->tx_skbuff[tx_index]) {
+<<<<<<< HEAD
 			pci_unmap_single(lp->pci_dev, lp->tx_dma_addr[tx_index],
 				  	lp->tx_skbuff[tx_index]->len,
 					PCI_DMA_TODEVICE);
 			dev_kfree_skb_irq (lp->tx_skbuff[tx_index]);
+=======
+			dma_unmap_single(&lp->pci_dev->dev,
+					 lp->tx_dma_addr[tx_index],
+					 lp->tx_skbuff[tx_index]->len,
+					 DMA_TO_DEVICE);
+			dev_consume_skb_irq(lp->tx_skbuff[tx_index]);
+>>>>>>> upstream/android-13
 			lp->tx_skbuff[tx_index] = NULL;
 			lp->tx_dma_addr[tx_index] = 0;
 		}
@@ -677,10 +980,17 @@ static int amd8111e_tx(struct net_device *dev)
 			le16_to_cpu(lp->tx_ring[tx_index].buff_count);
 
 		if (netif_queue_stopped(dev) &&
+<<<<<<< HEAD
 			lp->tx_complete_idx > lp->tx_idx - NUM_TX_BUFFERS +2){
 			/* The ring is no longer full, clear tbusy. */
 			/* lp->tx_full = 0; */
 			netif_wake_queue (dev);
+=======
+			lp->tx_complete_idx > lp->tx_idx - NUM_TX_BUFFERS + 2) {
+			/* The ring is no longer full, clear tbusy. */
+			/* lp->tx_full = 0; */
+			netif_wake_queue(dev);
+>>>>>>> upstream/android-13
 		}
 	}
 	return 0;
@@ -693,7 +1003,11 @@ static int amd8111e_rx_poll(struct napi_struct *napi, int budget)
 	struct net_device *dev = lp->amd8111e_net_dev;
 	int rx_index = lp->rx_idx & RX_RING_DR_MOD_MASK;
 	void __iomem *mmio = lp->mmio;
+<<<<<<< HEAD
 	struct sk_buff *skb,*new_skb;
+=======
+	struct sk_buff *skb, *new_skb;
+>>>>>>> upstream/android-13
 	int min_pkt_len, status;
 	int num_rx_pkt = 0;
 	short pkt_len;
@@ -718,7 +1032,11 @@ static int amd8111e_rx_poll(struct napi_struct *napi, int budget)
 			goto err_next_pkt;
 		}
 		/* check for STP and ENP */
+<<<<<<< HEAD
 		if (!((status & STP_BIT) && (status & ENP_BIT))){
+=======
+		if (!((status & STP_BIT) && (status & ENP_BIT))) {
+>>>>>>> upstream/android-13
 			/* resetting flags */
 			lp->rx_ring[rx_index].rx_flags &= RESET_RX_FLAGS;
 			goto err_next_pkt;
@@ -751,6 +1069,7 @@ static int amd8111e_rx_poll(struct napi_struct *napi, int budget)
 
 		skb_reserve(new_skb, 2);
 		skb = lp->rx_skbuff[rx_index];
+<<<<<<< HEAD
 		pci_unmap_single(lp->pci_dev,lp->rx_dma_addr[rx_index],
 				 lp->rx_buff_len-2, PCI_DMA_FROMDEVICE);
 		skb_put(skb, pkt_len);
@@ -759,11 +1078,25 @@ static int amd8111e_rx_poll(struct napi_struct *napi, int budget)
 							   new_skb->data,
 							   lp->rx_buff_len-2,
 							   PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&lp->pci_dev->dev, lp->rx_dma_addr[rx_index],
+				 lp->rx_buff_len - 2, DMA_FROM_DEVICE);
+		skb_put(skb, pkt_len);
+		lp->rx_skbuff[rx_index] = new_skb;
+		lp->rx_dma_addr[rx_index] = dma_map_single(&lp->pci_dev->dev,
+							   new_skb->data,
+							   lp->rx_buff_len - 2,
+							   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		skb->protocol = eth_type_trans(skb, dev);
 
 #if AMD8111E_VLAN_TAG_USED
+<<<<<<< HEAD
 		if (vtag == TT_VLAN_TAGGED){
+=======
+		if (vtag == TT_VLAN_TAGGED) {
+>>>>>>> upstream/android-13
 			u16 vlan_tag = le16_to_cpu(lp->rx_ring[rx_index].tag_ctrl_info);
 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), vlan_tag);
 		}
@@ -801,6 +1134,7 @@ err_next_pkt:
 static int amd8111e_link_change(struct net_device *dev)
 {
 	struct amd8111e_priv *lp = netdev_priv(dev);
+<<<<<<< HEAD
 	int status0,speed;
 
 	/* read the link change */
@@ -808,18 +1142,37 @@ static int amd8111e_link_change(struct net_device *dev)
 
 	if(status0 & LINK_STATS){
 		if(status0 & AUTONEG_COMPLETE)
+=======
+	int status0, speed;
+
+	/* read the link change */
+	status0 = readl(lp->mmio + STAT0);
+
+	if (status0 & LINK_STATS) {
+		if (status0 & AUTONEG_COMPLETE)
+>>>>>>> upstream/android-13
 			lp->link_config.autoneg = AUTONEG_ENABLE;
 		else
 			lp->link_config.autoneg = AUTONEG_DISABLE;
 
+<<<<<<< HEAD
 		if(status0 & FULL_DPLX)
+=======
+		if (status0 & FULL_DPLX)
+>>>>>>> upstream/android-13
 			lp->link_config.duplex = DUPLEX_FULL;
 		else
 			lp->link_config.duplex = DUPLEX_HALF;
 		speed = (status0 & SPEED_MASK) >> 7;
+<<<<<<< HEAD
 		if(speed == PHY_SPEED_10)
 			lp->link_config.speed = SPEED_10;
 		else if(speed == PHY_SPEED_100)
+=======
+		if (speed == PHY_SPEED_10)
+			lp->link_config.speed = SPEED_10;
+		else if (speed == PHY_SPEED_100)
+>>>>>>> upstream/android-13
 			lp->link_config.speed = SPEED_100;
 
 		netdev_info(dev, "Link is Up. Speed is %s Mbps %s Duplex\n",
@@ -829,8 +1182,12 @@ static int amd8111e_link_change(struct net_device *dev)
 							"Full" : "Half");
 
 		netif_carrier_on(dev);
+<<<<<<< HEAD
 	}
 	else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		lp->link_config.speed = SPEED_INVALID;
 		lp->link_config.duplex = DUPLEX_INVALID;
 		lp->link_config.autoneg = AUTONEG_INVALID;
@@ -848,7 +1205,11 @@ static int amd8111e_read_mib(void __iomem *mmio, u8 MIB_COUNTER)
 	unsigned  int data;
 	unsigned int repeat = REPEAT_CNT;
 
+<<<<<<< HEAD
 	writew( MIB_RD_CMD | MIB_COUNTER, mmio + MIB_ADDR);
+=======
+	writew(MIB_RD_CMD | MIB_COUNTER, mmio + MIB_ADDR);
+>>>>>>> upstream/android-13
 	do {
 		status = readw(mmio + MIB_ADDR);
 		udelay(2);	/* controller takes MAX 2 us to get mib data */
@@ -871,7 +1232,11 @@ static struct net_device_stats *amd8111e_get_stats(struct net_device *dev)
 
 	if (!lp->opened)
 		return new_stats;
+<<<<<<< HEAD
 	spin_lock_irqsave (&lp->lock, flags);
+=======
+	spin_lock_irqsave(&lp->lock, flags);
+>>>>>>> upstream/android-13
 
 	/* stats.rx_packets */
 	new_stats->rx_packets = amd8111e_read_mib(mmio, rcv_broadcast_pkts)+
@@ -951,7 +1316,11 @@ static struct net_device_stats *amd8111e_get_stats(struct net_device *dev)
 	/* Reset the mibs for collecting new statistics */
 	/* writew(MIB_CLEAR, mmio + MIB_ADDR);*/
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore (&lp->lock, flags);
+=======
+	spin_unlock_irqrestore(&lp->lock, flags);
+>>>>>>> upstream/android-13
 
 	return new_stats;
 }
@@ -982,6 +1351,7 @@ static int amd8111e_calc_coalesce(struct net_device *dev)
 	rx_data_rate = coal_conf->rx_bytes - coal_conf->rx_prev_bytes;
 	coal_conf->rx_prev_bytes =  coal_conf->rx_bytes;
 
+<<<<<<< HEAD
 	if(rx_pkt_rate < 800){
 		if(coal_conf->rx_coal_type != NO_COALESCE){
 
@@ -1028,10 +1398,56 @@ static int amd8111e_calc_coalesce(struct net_device *dev)
 				coal_conf->rx_timeout = 2;
 				coal_conf->rx_event_count = 3;
 				amd8111e_set_coalesce(dev,RX_INTR_COAL);
+=======
+	if (rx_pkt_rate < 800) {
+		if (coal_conf->rx_coal_type != NO_COALESCE) {
+
+			coal_conf->rx_timeout = 0x0;
+			coal_conf->rx_event_count = 0;
+			amd8111e_set_coalesce(dev, RX_INTR_COAL);
+			coal_conf->rx_coal_type = NO_COALESCE;
+		}
+	} else {
+
+		rx_pkt_size = rx_data_rate/rx_pkt_rate;
+		if (rx_pkt_size < 128) {
+			if (coal_conf->rx_coal_type != NO_COALESCE) {
+
+				coal_conf->rx_timeout = 0;
+				coal_conf->rx_event_count = 0;
+				amd8111e_set_coalesce(dev, RX_INTR_COAL);
+				coal_conf->rx_coal_type = NO_COALESCE;
+			}
+
+		} else if ((rx_pkt_size >= 128) && (rx_pkt_size < 512)) {
+
+			if (coal_conf->rx_coal_type !=  LOW_COALESCE) {
+				coal_conf->rx_timeout = 1;
+				coal_conf->rx_event_count = 4;
+				amd8111e_set_coalesce(dev, RX_INTR_COAL);
+				coal_conf->rx_coal_type = LOW_COALESCE;
+			}
+		} else if ((rx_pkt_size >= 512) && (rx_pkt_size < 1024)) {
+
+			if (coal_conf->rx_coal_type != MEDIUM_COALESCE) {
+				coal_conf->rx_timeout = 1;
+				coal_conf->rx_event_count = 4;
+				amd8111e_set_coalesce(dev, RX_INTR_COAL);
+				coal_conf->rx_coal_type = MEDIUM_COALESCE;
+			}
+
+		} else if (rx_pkt_size >= 1024) {
+
+			if (coal_conf->rx_coal_type !=  HIGH_COALESCE) {
+				coal_conf->rx_timeout = 2;
+				coal_conf->rx_event_count = 3;
+				amd8111e_set_coalesce(dev, RX_INTR_COAL);
+>>>>>>> upstream/android-13
 				coal_conf->rx_coal_type = HIGH_COALESCE;
 			}
 		}
 	}
+<<<<<<< HEAD
     	/* NOW FOR TX INTR COALESC */
 	if(tx_pkt_rate < 800){
 		if(coal_conf->tx_coal_type != NO_COALESCE){
@@ -1072,6 +1488,45 @@ static int amd8111e_calc_coalesce(struct net_device *dev)
 				coal_conf->tx_timeout = 2;
 				coal_conf->tx_event_count = 5;
 				amd8111e_set_coalesce(dev,TX_INTR_COAL);
+=======
+	/* NOW FOR TX INTR COALESC */
+	if (tx_pkt_rate < 800) {
+		if (coal_conf->tx_coal_type != NO_COALESCE) {
+
+			coal_conf->tx_timeout = 0x0;
+			coal_conf->tx_event_count = 0;
+			amd8111e_set_coalesce(dev, TX_INTR_COAL);
+			coal_conf->tx_coal_type = NO_COALESCE;
+		}
+	} else {
+
+		tx_pkt_size = tx_data_rate/tx_pkt_rate;
+		if (tx_pkt_size < 128) {
+
+			if (coal_conf->tx_coal_type != NO_COALESCE) {
+
+				coal_conf->tx_timeout = 0;
+				coal_conf->tx_event_count = 0;
+				amd8111e_set_coalesce(dev, TX_INTR_COAL);
+				coal_conf->tx_coal_type = NO_COALESCE;
+			}
+
+		} else if ((tx_pkt_size >= 128) && (tx_pkt_size < 512)) {
+
+			if (coal_conf->tx_coal_type != LOW_COALESCE) {
+				coal_conf->tx_timeout = 1;
+				coal_conf->tx_event_count = 2;
+				amd8111e_set_coalesce(dev, TX_INTR_COAL);
+				coal_conf->tx_coal_type = LOW_COALESCE;
+
+			}
+		} else if ((tx_pkt_size >= 512) && (tx_pkt_size < 1024)) {
+
+			if (coal_conf->tx_coal_type != MEDIUM_COALESCE) {
+				coal_conf->tx_timeout = 2;
+				coal_conf->tx_event_count = 5;
+				amd8111e_set_coalesce(dev, TX_INTR_COAL);
+>>>>>>> upstream/android-13
 				coal_conf->tx_coal_type = MEDIUM_COALESCE;
 			}
 		} else if (tx_pkt_size >= 1024) {
@@ -1099,7 +1554,11 @@ static irqreturn_t amd8111e_interrupt(int irq, void *dev_id)
 	unsigned int intr0, intren0;
 	unsigned int handled = 1;
 
+<<<<<<< HEAD
 	if(unlikely(dev == NULL))
+=======
+	if (unlikely(dev == NULL))
+>>>>>>> upstream/android-13
 		return IRQ_NONE;
 
 	spin_lock(&lp->lock);
@@ -1113,7 +1572,11 @@ static irqreturn_t amd8111e_interrupt(int irq, void *dev_id)
 
 	/* Process all the INT event until INTR bit is clear. */
 
+<<<<<<< HEAD
 	if (!(intr0 & INTR)){
+=======
+	if (!(intr0 & INTR)) {
+>>>>>>> upstream/android-13
 		handled = 0;
 		goto err_no_interrupt;
 	}
@@ -1148,7 +1611,11 @@ static irqreturn_t amd8111e_interrupt(int irq, void *dev_id)
 		amd8111e_calc_coalesce(dev);
 
 err_no_interrupt:
+<<<<<<< HEAD
 	writel( VAL0 | INTREN,mmio + CMD0);
+=======
+	writel(VAL0 | INTREN, mmio + CMD0);
+>>>>>>> upstream/android-13
 
 	spin_unlock(&lp->lock);
 
@@ -1188,7 +1655,11 @@ static int amd8111e_close(struct net_device *dev)
 	netif_carrier_off(lp->amd8111e_net_dev);
 
 	/* Delete ipg timer */
+<<<<<<< HEAD
 	if(lp->options & OPTION_DYN_IPG_ENABLE)
+=======
+	if (lp->options & OPTION_DYN_IPG_ENABLE)
+>>>>>>> upstream/android-13
 		del_timer_sync(&lp->ipg_data.ipg_timer);
 
 	spin_unlock_irq(&lp->lock);
@@ -1208,8 +1679,13 @@ static int amd8111e_open(struct net_device *dev)
 {
 	struct amd8111e_priv *lp = netdev_priv(dev);
 
+<<<<<<< HEAD
 	if(dev->irq ==0 || request_irq(dev->irq, amd8111e_interrupt, IRQF_SHARED,
 					 dev->name, dev))
+=======
+	if (dev->irq == 0 || request_irq(dev->irq, amd8111e_interrupt,
+					 IRQF_SHARED, dev->name, dev))
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 
 	napi_enable(&lp->napi);
@@ -1218,7 +1694,11 @@ static int amd8111e_open(struct net_device *dev)
 
 	amd8111e_init_hw_default(lp);
 
+<<<<<<< HEAD
 	if(amd8111e_restart(dev)){
+=======
+	if (amd8111e_restart(dev)) {
+>>>>>>> upstream/android-13
 		spin_unlock_irq(&lp->lock);
 		napi_disable(&lp->napi);
 		if (dev->irq)
@@ -1226,7 +1706,11 @@ static int amd8111e_open(struct net_device *dev)
 		return -ENOMEM;
 	}
 	/* Start ipg timer */
+<<<<<<< HEAD
 	if(lp->options & OPTION_DYN_IPG_ENABLE){
+=======
+	if (lp->options & OPTION_DYN_IPG_ENABLE) {
+>>>>>>> upstream/android-13
 		add_timer(&lp->ipg_data.ipg_timer);
 		netdev_info(dev, "Dynamic IPG Enabled\n");
 	}
@@ -1284,7 +1768,12 @@ static netdev_tx_t amd8111e_start_xmit(struct sk_buff *skb,
 	}
 #endif
 	lp->tx_dma_addr[tx_index] =
+<<<<<<< HEAD
 	    pci_map_single(lp->pci_dev, skb->data, skb->len, PCI_DMA_TODEVICE);
+=======
+	    dma_map_single(&lp->pci_dev->dev, skb->data, skb->len,
+			   DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	lp->tx_ring[tx_index].buff_phy_addr =
 	    cpu_to_le32(lp->tx_dma_addr[tx_index]);
 
@@ -1296,10 +1785,17 @@ static netdev_tx_t amd8111e_start_xmit(struct sk_buff *skb,
 	lp->tx_idx++;
 
 	/* Trigger an immediate send poll. */
+<<<<<<< HEAD
 	writel( VAL1 | TDMD0, lp->mmio + CMD0);
 	writel( VAL2 | RDMD0,lp->mmio + CMD0);
 
 	if(amd8111e_tx_queue_avail(lp) < 0){
+=======
+	writel(VAL1 | TDMD0, lp->mmio + CMD0);
+	writel(VAL2 | RDMD0, lp->mmio + CMD0);
+
+	if (amd8111e_tx_queue_avail(lp) < 0) {
+>>>>>>> upstream/android-13
 		netif_stop_queue(dev);
 	}
 	spin_unlock_irqrestore(&lp->lock, flags);
@@ -1333,6 +1829,7 @@ static void amd8111e_set_multicast_list(struct net_device *dev)
 {
 	struct netdev_hw_addr *ha;
 	struct amd8111e_priv *lp = netdev_priv(dev);
+<<<<<<< HEAD
 	u32 mc_filter[2] ;
 	int bit_num;
 
@@ -1342,6 +1839,17 @@ static void amd8111e_set_multicast_list(struct net_device *dev)
 	}
 	else
 		writel( PROM, lp->mmio + CMD2);
+=======
+	u32 mc_filter[2];
+	int bit_num;
+
+	if (dev->flags & IFF_PROMISC) {
+		writel(VAL2 | PROM, lp->mmio + CMD2);
+		return;
+	}
+	else
+		writel(PROM, lp->mmio + CMD2);
+>>>>>>> upstream/android-13
 	if (dev->flags & IFF_ALLMULTI ||
 	    netdev_mc_count(dev) > MAX_FILTER_SIZE) {
 		/* get all multicast packet */
@@ -1379,7 +1887,10 @@ static void amd8111e_get_drvinfo(struct net_device *dev,
 	struct amd8111e_priv *lp = netdev_priv(dev);
 	struct pci_dev *pci_dev = lp->pci_dev;
 	strlcpy(info->driver, MODULE_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, MODULE_VERS, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	snprintf(info->fw_version, sizeof(info->fw_version),
 		"%u", chip_version);
 	strlcpy(info->bus_info, pci_name(pci_dev), sizeof(info->bus_info));
@@ -1447,7 +1958,11 @@ static int amd8111e_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol_
 	if (wol_info->wolopts & WAKE_MAGIC)
 		lp->options |=
 			(OPTION_WOL_ENABLE | OPTION_WAKE_MAGIC_ENABLE);
+<<<<<<< HEAD
 	else if(wol_info->wolopts & WAKE_PHY)
+=======
+	else if (wol_info->wolopts & WAKE_PHY)
+>>>>>>> upstream/android-13
 		lp->options |=
 			(OPTION_WOL_ENABLE | OPTION_WAKE_PHY_ENABLE);
 	else
@@ -1472,18 +1987,30 @@ static const struct ethtool_ops ops = {
  * gets/sets driver speed, gets memory mapped register values, forces
  * auto negotiation, sets/gets WOL options for ethtool application.
  */
+<<<<<<< HEAD
 static int amd8111e_ioctl(struct net_device *dev , struct ifreq *ifr, int cmd)
+=======
+static int amd8111e_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct mii_ioctl_data *data = if_mii(ifr);
 	struct amd8111e_priv *lp = netdev_priv(dev);
 	int err;
 	u32 mii_regval;
 
+<<<<<<< HEAD
 	switch(cmd) {
 	case SIOCGMIIPHY:
 		data->phy_id = lp->ext_phy_addr;
 
 	/* fallthru */
+=======
+	switch (cmd) {
+	case SIOCGMIIPHY:
+		data->phy_id = lp->ext_phy_addr;
+
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SIOCGMIIREG:
 
 		spin_lock_irq(&lp->lock);
@@ -1519,7 +2046,11 @@ static int amd8111e_set_mac_address(struct net_device *dev, void *p)
 	spin_lock_irq(&lp->lock);
 	/* Setting the MAC address to the device */
 	for (i = 0; i < ETH_ALEN; i++)
+<<<<<<< HEAD
 		writeb( dev->dev_addr[i], lp->mmio + PADR + i );
+=======
+		writeb(dev->dev_addr[i], lp->mmio + PADR + i);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irq(&lp->lock);
 
@@ -1544,22 +2075,35 @@ static int amd8111e_change_mtu(struct net_device *dev, int new_mtu)
 
 	spin_lock_irq(&lp->lock);
 
+<<<<<<< HEAD
         /* stop the chip */
+=======
+	/* stop the chip */
+>>>>>>> upstream/android-13
 	writel(RUN, lp->mmio + CMD0);
 
 	dev->mtu = new_mtu;
 
 	err = amd8111e_restart(dev);
 	spin_unlock_irq(&lp->lock);
+<<<<<<< HEAD
 	if(!err)
+=======
+	if (!err)
+>>>>>>> upstream/android-13
 		netif_start_queue(dev);
 	return err;
 }
 
 static int amd8111e_enable_magicpkt(struct amd8111e_priv *lp)
 {
+<<<<<<< HEAD
 	writel( VAL1|MPPLBA, lp->mmio + CMD3);
 	writel( VAL0|MPEN_SW, lp->mmio + CMD7);
+=======
+	writel(VAL1 | MPPLBA, lp->mmio + CMD3);
+	writel(VAL0 | MPEN_SW, lp->mmio + CMD7);
+>>>>>>> upstream/android-13
 
 	/* To eliminate PCI posting bug */
 	readl(lp->mmio + CMD7);
@@ -1570,7 +2114,11 @@ static int amd8111e_enable_link_change(struct amd8111e_priv *lp)
 {
 
 	/* Adapter is already stoped/suspended/interrupt-disabled */
+<<<<<<< HEAD
 	writel(VAL0|LCMODE_SW,lp->mmio + CMD7);
+=======
+	writel(VAL0 | LCMODE_SW, lp->mmio + CMD7);
+>>>>>>> upstream/android-13
 
 	/* To eliminate PCI posting bug */
 	readl(lp->mmio + CMD7);
@@ -1582,7 +2130,11 @@ static int amd8111e_enable_link_change(struct amd8111e_priv *lp)
  * failed or the interface is locked up. This function will reinitialize
  * the hardware.
  */
+<<<<<<< HEAD
 static void amd8111e_tx_timeout(struct net_device *dev)
+=======
+static void amd8111e_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct amd8111e_priv *lp = netdev_priv(dev);
 	int err;
@@ -1592,12 +2144,22 @@ static void amd8111e_tx_timeout(struct net_device *dev)
 	spin_lock_irq(&lp->lock);
 	err = amd8111e_restart(dev);
 	spin_unlock_irq(&lp->lock);
+<<<<<<< HEAD
 	if(!err)
 		netif_wake_queue(dev);
 }
 static int amd8111e_suspend(struct pci_dev *pci_dev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pci_dev);
+=======
+	if (!err)
+		netif_wake_queue(dev);
+}
+
+static int __maybe_unused amd8111e_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct amd8111e_priv *lp = netdev_priv(dev);
 
 	if (!netif_running(dev))
@@ -1612,11 +2174,16 @@ static int amd8111e_suspend(struct pci_dev *pci_dev, pm_message_t state)
 
 	/* stop chip */
 	spin_lock_irq(&lp->lock);
+<<<<<<< HEAD
 	if(lp->options & OPTION_DYN_IPG_ENABLE)
+=======
+	if (lp->options & OPTION_DYN_IPG_ENABLE)
+>>>>>>> upstream/android-13
 		del_timer_sync(&lp->ipg_data.ipg_timer);
 	amd8111e_stop_chip(lp);
 	spin_unlock_irq(&lp->lock);
 
+<<<<<<< HEAD
 	if(lp->options & OPTION_WOL_ENABLE){
 		 /* enable wol */
 		if(lp->options & OPTION_WAKE_MAGIC_ENABLE)
@@ -1641,23 +2208,51 @@ static int amd8111e_suspend(struct pci_dev *pci_dev, pm_message_t state)
 static int amd8111e_resume(struct pci_dev *pci_dev)
 {
 	struct net_device *dev = pci_get_drvdata(pci_dev);
+=======
+	if (lp->options & OPTION_WOL_ENABLE) {
+		 /* enable wol */
+		if (lp->options & OPTION_WAKE_MAGIC_ENABLE)
+			amd8111e_enable_magicpkt(lp);
+		if (lp->options & OPTION_WAKE_PHY_ENABLE)
+			amd8111e_enable_link_change(lp);
+
+		device_set_wakeup_enable(dev_d, 1);
+
+	} else {
+		device_set_wakeup_enable(dev_d, 0);
+	}
+
+	return 0;
+}
+
+static int __maybe_unused amd8111e_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct amd8111e_priv *lp = netdev_priv(dev);
 
 	if (!netif_running(dev))
 		return 0;
 
+<<<<<<< HEAD
 	pci_set_power_state(pci_dev, PCI_D0);
 	pci_restore_state(pci_dev);
 
 	pci_enable_wake(pci_dev, PCI_D3hot, 0);
 	pci_enable_wake(pci_dev, PCI_D3cold, 0); /* D3 cold */
 
+=======
+>>>>>>> upstream/android-13
 	netif_device_attach(dev);
 
 	spin_lock_irq(&lp->lock);
 	amd8111e_restart(dev);
 	/* Restart ipg timer */
+<<<<<<< HEAD
 	if(lp->options & OPTION_DYN_IPG_ENABLE)
+=======
+	if (lp->options & OPTION_DYN_IPG_ENABLE)
+>>>>>>> upstream/android-13
 		mod_timer(&lp->ipg_data.ipg_timer,
 				jiffies + IPG_CONVERGE_JIFFIES);
 	spin_unlock_irq(&lp->lock);
@@ -1674,14 +2269,24 @@ static void amd8111e_config_ipg(struct timer_list *t)
 	unsigned int total_col_cnt;
 	unsigned int tmp_ipg;
 
+<<<<<<< HEAD
 	if(lp->link_config.duplex == DUPLEX_FULL){
+=======
+	if (lp->link_config.duplex == DUPLEX_FULL) {
+>>>>>>> upstream/android-13
 		ipg_data->ipg = DEFAULT_IPG;
 		return;
 	}
 
+<<<<<<< HEAD
 	if(ipg_data->ipg_state == SSTATE){
 
 		if(ipg_data->timer_tick == IPG_STABLE_TIME){
+=======
+	if (ipg_data->ipg_state == SSTATE) {
+
+		if (ipg_data->timer_tick == IPG_STABLE_TIME) {
+>>>>>>> upstream/android-13
 
 			ipg_data->timer_tick = 0;
 			ipg_data->ipg = MIN_IPG - IPG_STEP;
@@ -1693,7 +2298,11 @@ static void amd8111e_config_ipg(struct timer_list *t)
 			ipg_data->timer_tick++;
 	}
 
+<<<<<<< HEAD
 	if(ipg_data->ipg_state == CSTATE){
+=======
+	if (ipg_data->ipg_state == CSTATE) {
+>>>>>>> upstream/android-13
 
 		/* Get the current collision count */
 
@@ -1701,10 +2310,17 @@ static void amd8111e_config_ipg(struct timer_list *t)
 				amd8111e_read_mib(mmio, xmt_collisions);
 
 		if ((total_col_cnt - prev_col_cnt) <
+<<<<<<< HEAD
 				(ipg_data->diff_col_cnt)){
 
 			ipg_data->diff_col_cnt =
 				total_col_cnt - prev_col_cnt ;
+=======
+				(ipg_data->diff_col_cnt)) {
+
+			ipg_data->diff_col_cnt =
+				total_col_cnt - prev_col_cnt;
+>>>>>>> upstream/android-13
 
 			ipg_data->ipg = ipg_data->current_ipg;
 		}
@@ -1713,14 +2329,22 @@ static void amd8111e_config_ipg(struct timer_list *t)
 
 		if (ipg_data->current_ipg <= MAX_IPG)
 			tmp_ipg = ipg_data->current_ipg;
+<<<<<<< HEAD
 		else{
+=======
+		else {
+>>>>>>> upstream/android-13
 			tmp_ipg = ipg_data->ipg;
 			ipg_data->ipg_state = SSTATE;
 		}
 		writew((u32)tmp_ipg, mmio + IPG);
 		writew((u32)(tmp_ipg - IFS1_DELTA), mmio + IFS1);
 	}
+<<<<<<< HEAD
 	 mod_timer(&lp->ipg_data.ipg_timer, jiffies + IPG_CONVERGE_JIFFIES);
+=======
+	mod_timer(&lp->ipg_data.ipg_timer, jiffies + IPG_CONVERGE_JIFFIES);
+>>>>>>> upstream/android-13
 	return;
 
 }
@@ -1754,7 +2378,11 @@ static const struct net_device_ops amd8111e_netdev_ops = {
 	.ndo_set_rx_mode	= amd8111e_set_multicast_list,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= amd8111e_set_mac_address,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= amd8111e_ioctl,
+=======
+	.ndo_eth_ioctl		= amd8111e_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= amd8111e_change_mtu,
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	 = amd8111e_poll,
@@ -1765,24 +2393,40 @@ static int amd8111e_probe_one(struct pci_dev *pdev,
 				  const struct pci_device_id *ent)
 {
 	int err, i;
+<<<<<<< HEAD
 	unsigned long reg_addr,reg_len;
+=======
+	unsigned long reg_addr, reg_len;
+>>>>>>> upstream/android-13
 	struct amd8111e_priv *lp;
 	struct net_device *dev;
 
 	err = pci_enable_device(pdev);
+<<<<<<< HEAD
 	if(err){
+=======
+	if (err) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "Cannot enable new PCI device\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	if(!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM)){
+=======
+	if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM)) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "Cannot find PCI base address\n");
 		err = -ENODEV;
 		goto err_disable_pdev;
 	}
 
 	err = pci_request_regions(pdev, MODULE_NAME);
+<<<<<<< HEAD
 	if(err){
+=======
+	if (err) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "Cannot obtain PCI resources\n");
 		goto err_disable_pdev;
 	}
@@ -1797,7 +2441,11 @@ static int amd8111e_probe_one(struct pci_dev *pdev,
 	}
 
 	/* Initialize DMA */
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) < 0) {
+=======
+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32)) < 0) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "DMA not supported\n");
 		err = -ENODEV;
 		goto err_free_reg;
@@ -1815,7 +2463,11 @@ static int amd8111e_probe_one(struct pci_dev *pdev,
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
 #if AMD8111E_VLAN_TAG_USED
+<<<<<<< HEAD
 	dev->features |= NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_CTAG_RX ;
+=======
+	dev->features |= NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_CTAG_RX;
+>>>>>>> upstream/android-13
 #endif
 
 	lp = netdev_priv(dev);
@@ -1838,16 +2490,26 @@ static int amd8111e_probe_one(struct pci_dev *pdev,
 
 	/* Setting user defined parametrs */
 	lp->ext_phy_option = speed_duplex[card_idx];
+<<<<<<< HEAD
 	if(coalesce[card_idx])
 		lp->options |= OPTION_INTR_COAL_ENABLE;
 	if(dynamic_ipg[card_idx++])
+=======
+	if (coalesce[card_idx])
+		lp->options |= OPTION_INTR_COAL_ENABLE;
+	if (dynamic_ipg[card_idx++])
+>>>>>>> upstream/android-13
 		lp->options |= OPTION_DYN_IPG_ENABLE;
 
 
 	/* Initialize driver entry points */
 	dev->netdev_ops = &amd8111e_netdev_ops;
 	dev->ethtool_ops = &ops;
+<<<<<<< HEAD
 	dev->irq =pdev->irq;
+=======
+	dev->irq = pdev->irq;
+>>>>>>> upstream/android-13
 	dev->watchdog_timeo = AMD8111E_TX_TIMEOUT;
 	dev->min_mtu = AMD8111E_MIN_MTU;
 	dev->max_mtu = AMD8111E_MAX_MTU;
@@ -1878,7 +2540,11 @@ static int amd8111e_probe_one(struct pci_dev *pdev,
 	pci_set_drvdata(pdev, dev);
 
 	/* Initialize software ipg timer */
+<<<<<<< HEAD
 	if(lp->options & OPTION_DYN_IPG_ENABLE){
+=======
+	if (lp->options & OPTION_DYN_IPG_ENABLE) {
+>>>>>>> upstream/android-13
 		timer_setup(&lp->ipg_data.ipg_timer, amd8111e_config_ipg, 0);
 		lp->ipg_data.ipg_timer.expires = jiffies +
 						 IPG_CONVERGE_JIFFIES;
@@ -1887,8 +2553,12 @@ static int amd8111e_probe_one(struct pci_dev *pdev,
 	}
 
 	/*  display driver and device information */
+<<<<<<< HEAD
     	chip_version = (readl(lp->mmio + CHIPID) & 0xf0000000)>>28;
 	dev_info(&pdev->dev, "AMD-8111e Driver Version: %s\n", MODULE_VERS);
+=======
+	chip_version = (readl(lp->mmio + CHIPID) & 0xf0000000) >> 28;
+>>>>>>> upstream/android-13
 	dev_info(&pdev->dev, "[ Rev %x ] PCI 10/100BaseT Ethernet %pM\n",
 		 chip_version, dev->dev_addr);
 	if (lp->ext_phy_id)
@@ -1897,7 +2567,11 @@ static int amd8111e_probe_one(struct pci_dev *pdev,
 	else
 		dev_info(&pdev->dev, "Couldn't detect MII PHY, assuming address 0x01\n");
 
+<<<<<<< HEAD
     	return 0;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 err_free_dev:
 	free_netdev(dev);
@@ -1934,6 +2608,7 @@ static const struct pci_device_id amd8111e_pci_tbl[] = {
 };
 MODULE_DEVICE_TABLE(pci, amd8111e_pci_tbl);
 
+<<<<<<< HEAD
 static struct pci_driver amd8111e_driver = {
 	.name   	= MODULE_NAME,
 	.id_table	= amd8111e_pci_tbl,
@@ -1941,6 +2616,16 @@ static struct pci_driver amd8111e_driver = {
 	.remove		= amd8111e_remove_one,
 	.suspend	= amd8111e_suspend,
 	.resume		= amd8111e_resume
+=======
+static SIMPLE_DEV_PM_OPS(amd8111e_pm_ops, amd8111e_suspend, amd8111e_resume);
+
+static struct pci_driver amd8111e_driver = {
+	.name		= MODULE_NAME,
+	.id_table	= amd8111e_pci_tbl,
+	.probe		= amd8111e_probe_one,
+	.remove		= amd8111e_remove_one,
+	.driver.pm	= &amd8111e_pm_ops
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(amd8111e_driver);

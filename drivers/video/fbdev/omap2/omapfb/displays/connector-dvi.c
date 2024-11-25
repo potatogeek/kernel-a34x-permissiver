@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic DVI Connector driver
  *
  * Copyright (C) 2013 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -54,16 +61,23 @@ static int dvic_connect(struct omap_dss_device *dssdev)
 {
 	struct panel_drv_data *ddata = to_panel_data(dssdev);
 	struct omap_dss_device *in = ddata->in;
+<<<<<<< HEAD
 	int r;
+=======
+>>>>>>> upstream/android-13
 
 	if (omapdss_device_is_connected(dssdev))
 		return 0;
 
+<<<<<<< HEAD
 	r = in->ops.dvi->connect(in, dssdev);
 	if (r)
 		return r;
 
 	return 0;
+=======
+	return in->ops.dvi->connect(in, dssdev);
+>>>>>>> upstream/android-13
 }
 
 static void dvic_disconnect(struct omap_dss_device *dssdev)
@@ -254,6 +268,10 @@ static int dvic_probe_of(struct platform_device *pdev)
 	adapter_node = of_parse_phandle(node, "ddc-i2c-bus", 0);
 	if (adapter_node) {
 		adapter = of_get_i2c_adapter_by_node(adapter_node);
+<<<<<<< HEAD
+=======
+		of_node_put(adapter_node);
+>>>>>>> upstream/android-13
 		if (adapter == NULL) {
 			dev_err(&pdev->dev, "failed to parse ddc-i2c-bus\n");
 			omap_dss_put_device(ddata->in);

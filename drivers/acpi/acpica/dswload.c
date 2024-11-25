@@ -3,7 +3,11 @@
  *
  * Module Name: dswload - Dispatcher first pass namespace load callbacks
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -14,7 +18,10 @@
 #include "acdispat.h"
 #include "acinterp.h"
 #include "acnamesp.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #ifdef ACPI_ASL_COMPILER
 #include "acdisasm.h"
 #endif
@@ -73,12 +80,18 @@ acpi_ds_init_callbacks(struct acpi_walk_state *walk_state, u32 pass_number)
 
 		/* Execution pass */
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 		walk_state->parse_flags |= ACPI_PARSE_EXECUTE |
 		    ACPI_PARSE_DELETE_TREE;
 		walk_state->descending_callback = acpi_ds_exec_begin_op;
 		walk_state->ascending_callback = acpi_ds_exec_end_op;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -227,7 +240,11 @@ acpi_ds_load1_begin_op(struct acpi_walk_state *walk_state,
 				break;
 			}
 
+<<<<<<< HEAD
 			/*lint -fallthrough */
+=======
+			ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 		default:
 
@@ -364,7 +381,11 @@ acpi_ds_load1_begin_op(struct acpi_walk_state *walk_state,
 
 	/* Initialize the op */
 
+<<<<<<< HEAD
 #if (defined (ACPI_NO_METHOD_EXECUTION) || defined (ACPI_CONSTANT_EVAL_ONLY))
+=======
+#ifdef ACPI_CONSTANT_EVAL_ONLY
+>>>>>>> upstream/android-13
 	op->named.path = path;
 #endif
 
@@ -401,7 +422,10 @@ acpi_status acpi_ds_load1_end_op(struct acpi_walk_state *walk_state)
 	union acpi_parse_object *op;
 	acpi_object_type object_type;
 	acpi_status status = AE_OK;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #ifdef ACPI_ASL_COMPILER
 	u8 param_count;
 #endif
@@ -443,7 +467,10 @@ acpi_status acpi_ds_load1_end_op(struct acpi_walk_state *walk_state)
 
 	object_type = walk_state->op_info->object_type;
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 	if (walk_state->op_info->flags & AML_FIELD) {
 		/*
 		 * If we are executing a method, do not create any namespace objects
@@ -487,7 +514,10 @@ acpi_status acpi_ds_load1_end_op(struct acpi_walk_state *walk_state)
 			}
 		}
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	if (op->common.aml_opcode == AML_NAME_OP) {
 

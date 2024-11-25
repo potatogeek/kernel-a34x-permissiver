@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  *  (C) 2011 Thomas Renninger <trenn@suse.de>, Novell Inc.
  *
  *  Licensed under the terms of the GNU GPL License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2011 Thomas Renninger <trenn@suse.de>, Novell Inc.
+>>>>>>> upstream/android-13
  */
 
 
@@ -11,6 +17,10 @@
 #include <errno.h>
 #include <string.h>
 #include <getopt.h>
+<<<<<<< HEAD
+=======
+#include <sys/utsname.h>
+>>>>>>> upstream/android-13
 
 #include "helpers/helpers.h"
 #include "helpers/sysfs.h"
@@ -32,6 +42,10 @@ int cmd_set(int argc, char **argv)
 	extern char *optarg;
 	extern int optind, opterr, optopt;
 	unsigned int cpu;
+<<<<<<< HEAD
+=======
+	struct utsname uts;
+>>>>>>> upstream/android-13
 
 	union {
 		struct {
@@ -42,6 +56,16 @@ int cmd_set(int argc, char **argv)
 	int perf_bias = 0;
 	int ret = 0;
 
+<<<<<<< HEAD
+=======
+	ret = uname(&uts);
+	if (!ret && (!strcmp(uts.machine, "ppc64le") ||
+		     !strcmp(uts.machine, "ppc64"))) {
+		fprintf(stderr, _("Subcommand not supported on POWER.\n"));
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	setlocale(LC_ALL, "");
 	textdomain(PACKAGE);
 
@@ -64,7 +88,11 @@ int cmd_set(int argc, char **argv)
 		default:
 			print_wrong_arg_exit();
 		}
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	if (!params.params)
 		print_wrong_arg_exit();
@@ -87,7 +115,11 @@ int cmd_set(int argc, char **argv)
 		}
 
 		if (params.perf_bias) {
+<<<<<<< HEAD
 			ret = msr_intel_set_perf_bias(cpu, perf_bias);
+=======
+			ret = cpupower_intel_set_perf_bias(cpu, perf_bias);
+>>>>>>> upstream/android-13
 			if (ret) {
 				fprintf(stderr, _("Error setting perf-bias "
 						  "value on CPU %d\n"), cpu);

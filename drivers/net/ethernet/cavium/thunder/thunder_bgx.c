@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -597,9 +603,12 @@ static void bgx_lmac_handler(struct net_device *netdev)
 	struct phy_device *phydev;
 	int link_changed = 0;
 
+<<<<<<< HEAD
 	if (!lmac)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	phydev = lmac->phydev;
 
 	if (!phydev->link && lmac->last_link)
@@ -971,6 +980,7 @@ static void bgx_poll_for_sgmii_link(struct lmac *lmac)
 	lmac->last_duplex = (an_result >> 1) & 0x1;
 	switch (speed) {
 	case 0:
+<<<<<<< HEAD
 		lmac->last_speed = 10;
 		break;
 	case 1:
@@ -978,6 +988,15 @@ static void bgx_poll_for_sgmii_link(struct lmac *lmac)
 		break;
 	case 2:
 		lmac->last_speed = 1000;
+=======
+		lmac->last_speed = SPEED_10;
+		break;
+	case 1:
+		lmac->last_speed = SPEED_100;
+		break;
+	case 2:
+		lmac->last_speed = SPEED_1000;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		lmac->link_up = false;
@@ -1019,6 +1038,7 @@ static void bgx_poll_for_link(struct work_struct *work)
 
 	if ((spu_link & SPU_STATUS1_RCV_LNK) &&
 	    !(smu_link & SMU_RX_CTL_STATUS)) {
+<<<<<<< HEAD
 		lmac->link_up = 1;
 		if (lmac->lmac_type == BGX_MODE_XLAUI)
 			lmac->last_speed = 40000;
@@ -1027,6 +1047,16 @@ static void bgx_poll_for_link(struct work_struct *work)
 		lmac->last_duplex = 1;
 	} else {
 		lmac->link_up = 0;
+=======
+		lmac->link_up = true;
+		if (lmac->lmac_type == BGX_MODE_XLAUI)
+			lmac->last_speed = SPEED_40000;
+		else
+			lmac->last_speed = SPEED_10000;
+		lmac->last_duplex = DUPLEX_FULL;
+	} else {
+		lmac->link_up = false;
+>>>>>>> upstream/android-13
 		lmac->last_speed = SPEED_UNKNOWN;
 		lmac->last_duplex = DUPLEX_UNKNOWN;
 	}
@@ -1035,7 +1065,11 @@ static void bgx_poll_for_link(struct work_struct *work)
 		if (lmac->link_up) {
 			if (bgx_xaui_check_link(lmac)) {
 				/* Errors, clear link_up state */
+<<<<<<< HEAD
 				lmac->link_up = 0;
+=======
+				lmac->link_up = false;
+>>>>>>> upstream/android-13
 				lmac->last_speed = SPEED_UNKNOWN;
 				lmac->last_duplex = DUPLEX_UNKNOWN;
 			}
@@ -1051,7 +1085,11 @@ static int phy_interface_mode(u8 lmac_type)
 	if (lmac_type == BGX_MODE_QSGMII)
 		return PHY_INTERFACE_MODE_QSGMII;
 	if (lmac_type == BGX_MODE_RGMII)
+<<<<<<< HEAD
 		return PHY_INTERFACE_MODE_RGMII;
+=======
+		return PHY_INTERFACE_MODE_RGMII_RXID;
+>>>>>>> upstream/android-13
 
 	return PHY_INTERFACE_MODE_SGMII;
 }
@@ -1067,11 +1105,19 @@ static int bgx_lmac_enable(struct bgx *bgx, u8 lmacid)
 	if ((lmac->lmac_type == BGX_MODE_SGMII) ||
 	    (lmac->lmac_type == BGX_MODE_QSGMII) ||
 	    (lmac->lmac_type == BGX_MODE_RGMII)) {
+<<<<<<< HEAD
 		lmac->is_sgmii = 1;
 		if (bgx_lmac_sgmii_init(bgx, lmac))
 			return -1;
 	} else {
 		lmac->is_sgmii = 0;
+=======
+		lmac->is_sgmii = true;
+		if (bgx_lmac_sgmii_init(bgx, lmac))
+			return -1;
+	} else {
+		lmac->is_sgmii = false;
+>>>>>>> upstream/android-13
 		if (bgx_lmac_xaui_init(bgx, lmac))
 			return -1;
 	}
@@ -1114,8 +1160,13 @@ static int bgx_lmac_enable(struct bgx *bgx, u8 lmacid)
 			} else {
 				/* Default to below link speed and duplex */
 				lmac->link_up = true;
+<<<<<<< HEAD
 				lmac->last_speed = 1000;
 				lmac->last_duplex = 1;
+=======
+				lmac->last_speed = SPEED_1000;
+				lmac->last_duplex = DUPLEX_FULL;
+>>>>>>> upstream/android-13
 				bgx_sgmii_change_link_state(lmac);
 				return 0;
 			}
@@ -1226,7 +1277,11 @@ static void bgx_init_hw(struct bgx *bgx)
 
 	/* Disable MAC steering (NCSI traffic) */
 	for (i = 0; i < RX_TRAFFIC_STEER_RULE_COUNT; i++)
+<<<<<<< HEAD
 		bgx_reg_write(bgx, 0, BGX_CMR_RX_STREERING + (i * 8), 0x00);
+=======
+		bgx_reg_write(bgx, 0, BGX_CMR_RX_STEERING + (i * 8), 0x00);
+>>>>>>> upstream/android-13
 }
 
 static u8 bgx_get_lane2sds_cfg(struct bgx *bgx, struct lmac *lmac)
@@ -1316,7 +1371,11 @@ static void lmac_set_training(struct bgx *bgx, struct lmac *lmac, int lmacid)
 {
 	if ((lmac->lmac_type != BGX_MODE_10G_KR) &&
 	    (lmac->lmac_type != BGX_MODE_40G_KR)) {
+<<<<<<< HEAD
 		lmac->use_training = 0;
+=======
+		lmac->use_training = false;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1393,6 +1452,7 @@ static int acpi_get_mac_address(struct device *dev, struct acpi_device *adev,
 				u8 *dst)
 {
 	u8 mac[ETH_ALEN];
+<<<<<<< HEAD
 	int ret;
 
 	ret = fwnode_property_read_u8_array(acpi_fwnode_handle(adev),
@@ -1404,13 +1464,26 @@ static int acpi_get_mac_address(struct device *dev, struct acpi_device *adev,
 		dev_err(dev, "MAC address invalid: %pM\n", mac);
 		ret = -EINVAL;
 		goto out;
+=======
+	u8 *addr;
+
+	addr = fwnode_get_mac_address(acpi_fwnode_handle(adev), mac, ETH_ALEN);
+	if (!addr) {
+		dev_err(dev, "MAC address invalid: %pM\n", mac);
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	dev_info(dev, "MAC address set to: %pM\n", mac);
 
+<<<<<<< HEAD
 	memcpy(dst, mac, ETH_ALEN);
 out:
 	return ret;
+=======
+	ether_addr_copy(dst, mac);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Currently only sets the MAC address. */
@@ -1483,7 +1556,10 @@ static int bgx_init_of_phy(struct bgx *bgx)
 	device_for_each_child_node(&bgx->pdev->dev, fwn) {
 		struct phy_device *pd;
 		struct device_node *phy_np;
+<<<<<<< HEAD
 		const char *mac;
+=======
+>>>>>>> upstream/android-13
 
 		/* Should always be an OF node.  But if it is not, we
 		 * cannot handle it, so exit the loop.
@@ -1492,9 +1568,13 @@ static int bgx_init_of_phy(struct bgx *bgx)
 		if (!node)
 			break;
 
+<<<<<<< HEAD
 		mac = of_get_mac_address(node);
 		if (mac)
 			ether_addr_copy(bgx->lmac[lmac].mac, mac);
+=======
+		of_get_mac_address(node, bgx->lmac[lmac].mac);
+>>>>>>> upstream/android-13
 
 		SET_NETDEV_DEV(&bgx->lmac[lmac].netdev, &bgx->pdev->dev);
 		bgx->lmac[lmac].lmacid = lmac;

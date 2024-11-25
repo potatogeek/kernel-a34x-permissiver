@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2013 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2007-2013 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 
@@ -30,7 +36,10 @@
 #include <linux/in6.h>
 #include <linux/jiffies.h>
 #include <linux/time.h>
+<<<<<<< HEAD
 #include <linux/flex_array.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <net/inet_ecn.h>
 #include <net/ip_tunnels.h>

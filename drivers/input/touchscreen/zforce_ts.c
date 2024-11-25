@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012-2013 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -6,6 +10,7 @@
  *
  * Copyright (C) 2010 Barnes & Noble, Inc.
  * Author: Pieter Truter<ptruter@intrinsyc.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -634,14 +641,22 @@ static int __maybe_unused zforce_suspend(struct device *dev)
 		dev_dbg(&client->dev, "suspend while being a wakeup source\n");
 
 		/* Need to start device, if not open, to be a wakeup source. */
+<<<<<<< HEAD
 		if (!input->users) {
+=======
+		if (!input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 			ret = zforce_start(ts);
 			if (ret)
 				goto unlock;
 		}
 
 		enable_irq_wake(client->irq);
+<<<<<<< HEAD
 	} else if (input->users) {
+=======
+	} else if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		dev_dbg(&client->dev,
 			"suspend without being a wakeup source\n");
 
@@ -678,12 +693,20 @@ static int __maybe_unused zforce_resume(struct device *dev)
 		disable_irq_wake(client->irq);
 
 		/* need to stop device if it was not open on suspend */
+<<<<<<< HEAD
 		if (!input->users) {
+=======
+		if (!input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 			ret = zforce_stop(ts);
 			if (ret)
 				goto unlock;
 		}
+<<<<<<< HEAD
 	} else if (input->users) {
+=======
+	} else if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		dev_dbg(&client->dev, "resume without being a wakeup source\n");
 
 		enable_irq(client->irq);

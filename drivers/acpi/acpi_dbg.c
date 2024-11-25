@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ACPI AML interfacing support
  *
  * Copyright (C) 2015, Intel Corporation
  * Authors: Lv Zheng <lv.zheng@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* #define DEBUG */
@@ -120,6 +127,7 @@ static inline bool __acpi_aml_busy(void)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline bool __acpi_aml_opened(void)
 {
 	if (acpi_aml_io.flags & ACPI_AML_OPEN)
@@ -127,6 +135,8 @@ static inline bool __acpi_aml_opened(void)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool __acpi_aml_used(void)
 {
 	return acpi_aml_io.usages ? true : false;
@@ -390,7 +400,11 @@ again:
 	return size > 0 ? size : ret;
 }
 
+<<<<<<< HEAD
 static int acpi_aml_thread(void *unsed)
+=======
+static int acpi_aml_thread(void *unused)
+>>>>>>> upstream/android-13
 {
 	acpi_osd_exec_callback function = NULL;
 	void *context;
@@ -614,7 +628,11 @@ static ssize_t acpi_aml_read(struct file *file, char __user *buf,
 
 	if (!count)
 		return 0;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	while (count > 0) {
@@ -684,7 +702,11 @@ static ssize_t acpi_aml_write(struct file *file, const char __user *buf,
 
 	if (!count)
 		return 0;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	while (count > 0) {
@@ -748,6 +770,7 @@ static const struct acpi_debugger_ops acpi_aml_debugger = {
 	.notify_command_complete = acpi_aml_notify_command_complete,
 };
 
+<<<<<<< HEAD
 int __init acpi_aml_init(void)
 {
 	int ret = 0;
@@ -756,6 +779,11 @@ int __init acpi_aml_init(void)
 		ret = -ENOENT;
 		goto err_exit;
 	}
+=======
+static int __init acpi_aml_init(void)
+{
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (acpi_disabled)
 		return -ENODEV;
@@ -765,10 +793,15 @@ int __init acpi_aml_init(void)
 	init_waitqueue_head(&acpi_aml_io.wait);
 	acpi_aml_io.out_crc.buf = acpi_aml_io.out_buf;
 	acpi_aml_io.in_crc.buf = acpi_aml_io.in_buf;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	acpi_aml_dentry = debugfs_create_file("acpidbg",
 					      S_IFREG | S_IRUGO | S_IWUSR,
 					      acpi_debugfs_dir, NULL,
 					      &acpi_aml_operations);
+<<<<<<< HEAD
 	if (acpi_aml_dentry == NULL) {
 		ret = -ENODEV;
 		goto err_exit;
@@ -795,6 +828,26 @@ void __exit acpi_aml_exit(void)
 			debugfs_remove(acpi_aml_dentry);
 			acpi_aml_dentry = NULL;
 		}
+=======
+
+	ret = acpi_register_debugger(THIS_MODULE, &acpi_aml_debugger);
+	if (ret) {
+		debugfs_remove(acpi_aml_dentry);
+		acpi_aml_dentry = NULL;
+		return ret;
+	}
+
+	acpi_aml_initialized = true;
+	return 0;
+}
+
+static void __exit acpi_aml_exit(void)
+{
+	if (acpi_aml_initialized) {
+		acpi_unregister_debugger(&acpi_aml_debugger);
+		debugfs_remove(acpi_aml_dentry);
+		acpi_aml_dentry = NULL;
+>>>>>>> upstream/android-13
 		acpi_aml_initialized = false;
 	}
 }

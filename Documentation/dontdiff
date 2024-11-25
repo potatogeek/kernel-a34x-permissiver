@@ -30,6 +30,10 @@
 *.lzo
 *.mo
 *.moc
+<<<<<<< HEAD
+=======
+*.mod
+>>>>>>> upstream/android-13
 *.mod.c
 *.o
 *.o.*
@@ -54,6 +58,10 @@
 *.ver
 *.xml
 *.xz
+<<<<<<< HEAD
+=======
+*.zst
+>>>>>>> upstream/android-13
 *_MODULES
 *_vga16.c
 *~
@@ -106,7 +114,10 @@ compile.h*
 conf
 config
 config-*
+<<<<<<< HEAD
 config_data.h*
+=======
+>>>>>>> upstream/android-13
 config.mak
 config.mak.autogen
 conmakehash
@@ -128,7 +139,11 @@ flask.h
 fore200e_mkfirm
 fore200e_pca_fw.c*
 gconf
+<<<<<<< HEAD
 gconf.glade.h
+=======
+gconf-cfg
+>>>>>>> upstream/android-13
 gen-devlist
 gen_crc32table
 gen_init_cpio
@@ -149,24 +164,37 @@ int32.c
 int4.c
 int8.c
 kallsyms
+<<<<<<< HEAD
 kconfig
 keywords.c
 ksym.c*
 ksym.h*
 kxgettext
+=======
+keywords.c
+ksym.c*
+ksym.h*
+>>>>>>> upstream/android-13
 *lex.c
 *lex.*.c
 linux
 logo_*.c
 logo_*_clut224.c
 logo_*_mono.c
+<<<<<<< HEAD
 lxdialog
+=======
+>>>>>>> upstream/android-13
 mach-types
 mach-types.h
 machtypes.h
 map
 map_hugetlb
 mconf
+<<<<<<< HEAD
+=======
+mconf-cfg
+>>>>>>> upstream/android-13
 miboot*
 mk_elfconfig
 mkboot
@@ -179,10 +207,21 @@ mktables
 mktree
 mkutf8data
 modpost
+<<<<<<< HEAD
 modules.builtin
 modules.order
 modversions.h*
 nconf
+=======
+modules-only.symvers
+modules.builtin
+modules.builtin.modinfo
+modules.nsdeps
+modules.order
+modversions.h*
+nconf
+nconf-cfg
+>>>>>>> upstream/android-13
 ncscope.*
 offset.h
 oui.c*
@@ -202,6 +241,10 @@ pnmtologo
 ppc_defs.h*
 pss_boot.h
 qconf
+<<<<<<< HEAD
+=======
+qconf-cfg
+>>>>>>> upstream/android-13
 r100_reg_safe.h
 r200_reg_safe.h
 r300_reg_safe.h
@@ -249,6 +292,11 @@ vmlinux-*
 vmlinux.aout
 vmlinux.bin.all
 vmlinux.lds
+<<<<<<< HEAD
+=======
+vmlinux.map
+vmlinux.symvers
+>>>>>>> upstream/android-13
 vmlinuz
 voffset.h
 vsyscall.lds

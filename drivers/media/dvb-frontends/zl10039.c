@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for Zarlink ZL10039 DVB-S tuner
  *
  *  Copyright 2007 Jan D. Louw <jd.louw@mweb.co.za>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -288,8 +295,14 @@ struct dvb_frontend *zl10039_attach(struct dvb_frontend *fe,
 	state->id = state->id & 0x0f;
 	switch (state->id) {
 	case ID_ZL10039:
+<<<<<<< HEAD
 		strcpy(fe->ops.tuner_ops.info.name,
 			"Zarlink ZL10039 DVB-S tuner");
+=======
+		strscpy(fe->ops.tuner_ops.info.name,
+			"Zarlink ZL10039 DVB-S tuner",
+			sizeof(fe->ops.tuner_ops.info.name));
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dprintk("Chip ID=%x does not match a known type\n", state->id);

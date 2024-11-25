@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
    fp_arith.c: floating-point math routines for the Linux-m68k
@@ -8,9 +12,12 @@
    Somewhat based on the AlphaLinux floating point emulator, by David
    Mosberger-Tang.
 
+<<<<<<< HEAD
    You may copy, modify, and redistribute this file under the terms of
    the GNU General Public License, version 2, or any later version, at
    your convenience.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "fp_emu.h"

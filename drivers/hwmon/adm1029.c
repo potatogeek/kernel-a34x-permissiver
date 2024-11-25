@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * adm1029.c - Part of lm_sensors, Linux kernel modules for hardware monitoring
  *
@@ -9,6 +13,7 @@
  * Very rare chip please let me know if you use it
  *
  * http://www.analog.com/UploadedFiles/Data_Sheets/ADM1029.pdf
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -111,7 +118,11 @@ static const u8 ADM1029_REG_FAN_DIV[] = {
 
 struct adm1029_data {
 	struct i2c_client *client;
+<<<<<<< HEAD
 	struct mutex update_lock;
+=======
+	struct mutex update_lock; /* protect register access */
+>>>>>>> upstream/android-13
 	char valid;		/* zero until following fields are valid */
 	unsigned long last_updated;	/* in jiffies */
 
@@ -134,8 +145,12 @@ static struct adm1029_data *adm1029_update_device(struct device *dev)
 	 * Use the "cache" Luke, don't recheck values
 	 * if there are already checked not a long time later
 	 */
+<<<<<<< HEAD
 	if (time_after(jiffies, data->last_updated + HZ * 2)
 	 || !data->valid) {
+=======
+	if (time_after(jiffies, data->last_updated + HZ * 2) || !data->valid) {
+>>>>>>> upstream/android-13
 		int nr;
 
 		dev_dbg(&client->dev, "Updating adm1029 data\n");
@@ -170,22 +185,41 @@ static struct adm1029_data *adm1029_update_device(struct device *dev)
  */
 
 static ssize_t
+<<<<<<< HEAD
 show_temp(struct device *dev, struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adm1029_data *data = adm1029_update_device(dev);
+=======
+temp_show(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
+	struct adm1029_data *data = adm1029_update_device(dev);
+
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[attr->index]));
 }
 
 static ssize_t
+<<<<<<< HEAD
 show_fan(struct device *dev, struct device_attribute *devattr, char *buf)
+=======
+fan_show(struct device *dev, struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adm1029_data *data = adm1029_update_device(dev);
 	u16 val;
+<<<<<<< HEAD
 	if (data->fan[attr->index] == 0
 	    || (data->fan_div[attr->index] & 0xC0) == 0
 	    || data->fan[attr->index] == 255) {
+=======
+
+	if (data->fan[attr->index] == 0 ||
+	    (data->fan_div[attr->index] & 0xC0) == 0 ||
+	    data->fan[attr->index] == 255) {
+>>>>>>> upstream/android-13
 		return sprintf(buf, "0\n");
 	}
 
@@ -195,17 +229,31 @@ show_fan(struct device *dev, struct device_attribute *devattr, char *buf)
 }
 
 static ssize_t
+<<<<<<< HEAD
 show_fan_div(struct device *dev, struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adm1029_data *data = adm1029_update_device(dev);
+=======
+fan_div_show(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
+	struct adm1029_data *data = adm1029_update_device(dev);
+
+>>>>>>> upstream/android-13
 	if ((data->fan_div[attr->index] & 0xC0) == 0)
 		return sprintf(buf, "0\n");
 	return sprintf(buf, "%d\n", DIV_FROM_REG(data->fan_div[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_div(struct device *dev,
 	    struct device_attribute *devattr, const char *buf, size_t count)
+=======
+static ssize_t fan_div_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1029_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -213,6 +261,10 @@ static ssize_t set_fan_div(struct device *dev,
 	u8 reg;
 	long val;
 	int ret = kstrtol(buf, 10, &val);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -253,6 +305,7 @@ static ssize_t set_fan_div(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 /*
  * Access rights on sysfs. S_IRUGO: Is Readable by User, Group and Others
  *			   S_IWUSR: Is Writable by User.
@@ -279,6 +332,29 @@ static SENSOR_DEVICE_ATTR(fan1_div, S_IRUGO | S_IWUSR,
 			  show_fan_div, set_fan_div, 0);
 static SENSOR_DEVICE_ATTR(fan2_div, S_IRUGO | S_IWUSR,
 			  show_fan_div, set_fan_div, 1);
+=======
+/* Access rights on sysfs. */
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 2);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_max, temp, 3);
+static SENSOR_DEVICE_ATTR_RO(temp2_max, temp, 4);
+static SENSOR_DEVICE_ATTR_RO(temp3_max, temp, 5);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_min, temp, 6);
+static SENSOR_DEVICE_ATTR_RO(temp2_min, temp, 7);
+static SENSOR_DEVICE_ATTR_RO(temp3_min, temp, 8);
+
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+
+static SENSOR_DEVICE_ATTR_RO(fan1_min, fan, 2);
+static SENSOR_DEVICE_ATTR_RO(fan2_min, fan, 3);
+
+static SENSOR_DEVICE_ATTR_RW(fan1_div, fan_div, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_div, fan_div, 1);
+>>>>>>> upstream/android-13
 
 static struct attribute *adm1029_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -327,10 +403,17 @@ static int adm1029_detect(struct i2c_client *client,
 	temp_devices_installed = i2c_smbus_read_byte_data(client,
 					ADM1029_REG_TEMP_DEVICES_INSTALLED);
 	nb_fan_support = i2c_smbus_read_byte_data(client,
+<<<<<<< HEAD
 						ADM1029_REG_NB_FAN_SUPPORT);
 	/* 0x41 is Analog Devices */
 	if (man_id != 0x41 || (temp_devices_installed & 0xf9) != 0x01
 	    || nb_fan_support != 0x03)
+=======
+						  ADM1029_REG_NB_FAN_SUPPORT);
+	/* 0x41 is Analog Devices */
+	if (man_id != 0x41 || (temp_devices_installed & 0xf9) != 0x01 ||
+	    nb_fan_support != 0x03)
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	if ((chip_id & 0xF0) != 0x00) {
@@ -366,8 +449,12 @@ static int adm1029_init_client(struct i2c_client *client)
 	return 1;
 }
 
+<<<<<<< HEAD
 static int adm1029_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int adm1029_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct adm1029_data *data;
@@ -404,7 +491,11 @@ static struct i2c_driver adm1029_driver = {
 	.driver = {
 		.name = "adm1029",
 	},
+<<<<<<< HEAD
 	.probe		= adm1029_probe,
+=======
+	.probe_new	= adm1029_probe,
+>>>>>>> upstream/android-13
 	.id_table	= adm1029_id,
 	.detect		= adm1029_detect,
 	.address_list	= normal_i2c,

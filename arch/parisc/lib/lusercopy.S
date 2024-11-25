@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *    User Space Access Routines
  *
@@ -7,6 +11,7 @@
  *    Copyright (C) 2003 Randolph Chung <tausq with parisc-linux.org>
  *    Copyright (C) 2017 Helge Deller <deller@gmx.de>
  *    Copyright (C) 2017 John David Anglin <dave.anglin@bell.net>
+<<<<<<< HEAD
  *
  *
  *    This program is free software; you can redistribute it and/or modify
@@ -22,6 +27,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -42,6 +49,7 @@
 #include <linux/linkage.h>
 
 	/*
+<<<<<<< HEAD
 	 * get_sr gets the appropriate space value into
 	 * sr1 for kernel/user space access, depending
 	 * on the flag stored in the task structure.
@@ -57,6 +65,8 @@
 	.endm
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * unsigned long lclear_user(void *to, unsigned long n)
 	 *
 	 * Returns 0 for success.
@@ -65,10 +75,16 @@
 
 ENTRY_CFI(lclear_user)
 	comib,=,n   0,%r25,$lclu_done
+<<<<<<< HEAD
 	get_sr
 $lclu_loop:
 	addib,<>    -1,%r25,$lclu_loop
 1:      stbs,ma     %r0,1(%sr1,%r26)
+=======
+$lclu_loop:
+	addib,<>    -1,%r25,$lclu_loop
+1:	stbs,ma     %r0,1(%sr3,%r26)
+>>>>>>> upstream/android-13
 
 $lclu_done:
 	bv          %r0(%r2)
@@ -81,6 +97,7 @@ $lclu_done:
 ENDPROC_CFI(lclear_user)
 
 
+<<<<<<< HEAD
 	/*
 	 * long lstrnlen_user(char *s, long n)
 	 *
@@ -115,6 +132,8 @@ $lslen_nzero:
 ENDPROC_CFI(lstrnlen_user)
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * unsigned long pa_memcpy(void *dstp, const void *srcp, unsigned long len)
  *

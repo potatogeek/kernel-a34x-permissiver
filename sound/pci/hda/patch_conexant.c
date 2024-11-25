@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HD audio interface patch for Conexant HDA audio codec
  *
  * Copyright (c) 2006 Pototskiy Akex <alex.pototskiy@gmail.com>
  * 		      Takashi Iwai <tiwai@suse.de>
  * 		      Tobin Davis  <tdavis@dsl-only.net>
+<<<<<<< HEAD
  *
  *  This driver is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -27,7 +34,11 @@
 #include <sound/core.h>
 #include <sound/jack.h>
 
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 #include "hda_auto_parser.h"
 #include "hda_beep.h"
@@ -129,7 +140,11 @@ static void cx_auto_parse_eapd(struct hda_codec *codec)
 }
 
 static void cx_auto_turn_eapd(struct hda_codec *codec, int num_pins,
+<<<<<<< HEAD
 			      hda_nid_t *pins, bool on)
+=======
+			      const hda_nid_t *pins, bool on)
+>>>>>>> upstream/android-13
 {
 	int i;
 	for (i = 0; i < num_pins; i++) {
@@ -150,14 +165,41 @@ static void cx_auto_vmaster_hook(void *private_data, int enabled)
 }
 
 /* turn on/off EAPD according to Master switch (inversely!) for mute LED */
+<<<<<<< HEAD
 static void cx_auto_vmaster_hook_mute_led(void *private_data, int enabled)
 {
 	struct hda_codec *codec = private_data;
+=======
+static int cx_auto_vmaster_mute_led(struct led_classdev *led_cdev,
+				    enum led_brightness brightness)
+{
+	struct hda_codec *codec = dev_to_hda_codec(led_cdev->dev->parent);
+>>>>>>> upstream/android-13
 	struct conexant_spec *spec = codec->spec;
 
 	snd_hda_codec_write(codec, spec->mute_led_eapd, 0,
 			    AC_VERB_SET_EAPD_BTLENABLE,
+<<<<<<< HEAD
 			    enabled ? 0x00 : 0x02);
+=======
+			    brightness ? 0x02 : 0x00);
+	return 0;
+}
+
+static void cxt_init_gpio_led(struct hda_codec *codec)
+{
+	struct conexant_spec *spec = codec->spec;
+	unsigned int mask = spec->gpio_mute_led_mask | spec->gpio_mic_led_mask;
+
+	if (mask) {
+		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_MASK,
+				    mask);
+		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_DIRECTION,
+				    mask);
+		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_DATA,
+				    spec->gpio_led);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int cx_auto_init(struct hda_codec *codec)
@@ -167,35 +209,68 @@ static int cx_auto_init(struct hda_codec *codec)
 	if (!spec->dynamic_eapd)
 		cx_auto_turn_eapd(codec, spec->num_eapds, spec->eapds, true);
 
+<<<<<<< HEAD
+=======
+	cxt_init_gpio_led(codec);
+>>>>>>> upstream/android-13
 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_INIT);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cx_auto_reboot_notify(struct hda_codec *codec)
+=======
+static void cx_auto_shutdown(struct hda_codec *codec)
+>>>>>>> upstream/android-13
 {
 	struct conexant_spec *spec = codec->spec;
 
 	/* Turn the problematic codec into D3 to avoid spurious noises
 	   from the internal speaker during (and after) reboot */
 	cx_auto_turn_eapd(codec, spec->num_eapds, spec->eapds, false);
+<<<<<<< HEAD
 	snd_hda_gen_reboot_notify(codec);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void cx_auto_free(struct hda_codec *codec)
 {
+<<<<<<< HEAD
 	cx_auto_reboot_notify(codec);
 	snd_hda_gen_free(codec);
 }
 
+=======
+	cx_auto_shutdown(codec);
+	snd_hda_gen_free(codec);
+}
+
+#ifdef CONFIG_PM
+static int cx_auto_suspend(struct hda_codec *codec)
+{
+	cx_auto_shutdown(codec);
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static const struct hda_codec_ops cx_auto_patch_ops = {
 	.build_controls = snd_hda_gen_build_controls,
 	.build_pcms = snd_hda_gen_build_pcms,
 	.init = cx_auto_init,
+<<<<<<< HEAD
 	.reboot_notify = cx_auto_reboot_notify,
 	.free = cx_auto_free,
 	.unsol_event = snd_hda_jack_unsol_event,
 #ifdef CONFIG_PM
+=======
+	.free = cx_auto_free,
+	.unsol_event = snd_hda_jack_unsol_event,
+#ifdef CONFIG_PM
+	.suspend = cx_auto_suspend,
+>>>>>>> upstream/android-13
 	.check_power_status = snd_hda_gen_check_power_status,
 #endif
 };
@@ -226,6 +301,10 @@ enum {
 	CXT_FIXUP_HP_SPECTRE,
 	CXT_FIXUP_HP_GATE_MIC,
 	CXT_FIXUP_MUTE_LED_GPIO,
+<<<<<<< HEAD
+=======
+	CXT_FIXUP_HP_ZBOOK_MUTE_LED,
+>>>>>>> upstream/android-13
 	CXT_FIXUP_HEADSET_MIC,
 	CXT_FIXUP_HP_MIC_NO_PRESENCE,
 };
@@ -578,8 +657,13 @@ static void cxt_fixup_mute_led_eapd(struct hda_codec *codec,
 
 	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
 		spec->mute_led_eapd = 0x1b;
+<<<<<<< HEAD
 		spec->dynamic_eapd = 1;
 		spec->gen.vmaster_mute.hook = cx_auto_vmaster_hook_mute_led;
+=======
+		spec->dynamic_eapd = true;
+		snd_hda_gen_add_mute_led_cdev(codec, cx_auto_vmaster_mute_led);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -644,6 +728,7 @@ static void cxt_update_gpio_led(struct hda_codec *codec, unsigned int mask,
 }
 
 /* turn on/off mute LED via GPIO per vmaster hook */
+<<<<<<< HEAD
 static void cxt_fixup_gpio_mute_hook(void *private_data, int enabled)
 {
 	struct hda_codec *codec = private_data;
@@ -686,6 +771,59 @@ static void cxt_fixup_mute_led_gpio(struct hda_codec *codec,
 				    spec->gpio_led);
 }
 
+=======
+static int cxt_gpio_mute_update(struct led_classdev *led_cdev,
+				enum led_brightness brightness)
+{
+	struct hda_codec *codec = dev_to_hda_codec(led_cdev->dev->parent);
+	struct conexant_spec *spec = codec->spec;
+
+	cxt_update_gpio_led(codec, spec->gpio_mute_led_mask, brightness);
+	return 0;
+}
+
+/* turn on/off mic-mute LED via GPIO per capture hook */
+static int cxt_gpio_micmute_update(struct led_classdev *led_cdev,
+				   enum led_brightness brightness)
+{
+	struct hda_codec *codec = dev_to_hda_codec(led_cdev->dev->parent);
+	struct conexant_spec *spec = codec->spec;
+
+	cxt_update_gpio_led(codec, spec->gpio_mic_led_mask, brightness);
+	return 0;
+}
+
+static void cxt_setup_mute_led(struct hda_codec *codec,
+			       unsigned int mute, unsigned int mic_mute)
+{
+	struct conexant_spec *spec = codec->spec;
+
+	spec->gpio_led = 0;
+	spec->mute_led_polarity = 0;
+	if (mute) {
+		snd_hda_gen_add_mute_led_cdev(codec, cxt_gpio_mute_update);
+		spec->gpio_mute_led_mask = mute;
+	}
+	if (mic_mute) {
+		snd_hda_gen_add_micmute_led_cdev(codec, cxt_gpio_micmute_update);
+		spec->gpio_mic_led_mask = mic_mute;
+	}
+}
+
+static void cxt_fixup_mute_led_gpio(struct hda_codec *codec,
+				const struct hda_fixup *fix, int action)
+{
+	if (action == HDA_FIXUP_ACT_PRE_PROBE)
+		cxt_setup_mute_led(codec, 0x01, 0x02);
+}
+
+static void cxt_fixup_hp_zbook_mute_led(struct hda_codec *codec,
+					const struct hda_fixup *fix, int action)
+{
+	if (action == HDA_FIXUP_ACT_PRE_PROBE)
+		cxt_setup_mute_led(codec, 0x10, 0x20);
+}
+>>>>>>> upstream/android-13
 
 /* ThinkPad X200 & co with cxt5051 */
 static const struct hda_pintbl cxt_pincfg_lenovo_x200[] = {
@@ -846,6 +984,13 @@ static const struct hda_fixup cxt_fixups[] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = cxt_fixup_mute_led_gpio,
 	},
+<<<<<<< HEAD
+=======
+	[CXT_FIXUP_HP_ZBOOK_MUTE_LED] = {
+		.type = HDA_FIXUP_FUNC,
+		.v.func = cxt_fixup_hp_zbook_mute_led,
+	},
+>>>>>>> upstream/android-13
 	[CXT_FIXUP_HEADSET_MIC] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = cxt_fixup_headset_mic,
@@ -924,6 +1069,11 @@ static const struct snd_pci_quirk cxt5066_fixups[] = {
 	SND_PCI_QUIRK(0x103c, 0x83b3, "HP EliteBook 830 G5", CXT_FIXUP_HP_DOCK),
 	SND_PCI_QUIRK(0x103c, 0x83d3, "HP ProBook 640 G4", CXT_FIXUP_HP_DOCK),
 	SND_PCI_QUIRK(0x103c, 0x8402, "HP ProBook 645 G4", CXT_FIXUP_MUTE_LED_GPIO),
+<<<<<<< HEAD
+=======
+	SND_PCI_QUIRK(0x103c, 0x8427, "HP ZBook Studio G5", CXT_FIXUP_HP_ZBOOK_MUTE_LED),
+	SND_PCI_QUIRK(0x103c, 0x844f, "HP ZBook Studio G5", CXT_FIXUP_HP_ZBOOK_MUTE_LED),
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x103c, 0x8455, "HP Z2 G4", CXT_FIXUP_HP_MIC_NO_PRESENCE),
 	SND_PCI_QUIRK(0x103c, 0x8456, "HP Z2 G4 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
 	SND_PCI_QUIRK(0x103c, 0x8457, "HP Z2 G4 mini", CXT_FIXUP_HP_MIC_NO_PRESENCE),
@@ -963,6 +1113,10 @@ static const struct hda_model_fixup cxt5066_fixup_models[] = {
 	{ .id = CXT_FIXUP_MUTE_LED_EAPD, .name = "mute-led-eapd" },
 	{ .id = CXT_FIXUP_HP_DOCK, .name = "hp-dock" },
 	{ .id = CXT_FIXUP_MUTE_LED_GPIO, .name = "mute-led-gpio" },
+<<<<<<< HEAD
+=======
+	{ .id = CXT_FIXUP_HP_ZBOOK_MUTE_LED, .name = "hp-zbook-mute-led" },
+>>>>>>> upstream/android-13
 	{ .id = CXT_FIXUP_HP_MIC_NO_PRESENCE, .name = "hp-mic-fix" },
 	{}
 };
@@ -973,10 +1127,17 @@ static const struct hda_model_fixup cxt5066_fixup_models[] = {
 static void add_cx5051_fake_mutes(struct hda_codec *codec)
 {
 	struct conexant_spec *spec = codec->spec;
+<<<<<<< HEAD
 	static hda_nid_t out_nids[] = {
 		0x10, 0x11, 0
 	};
 	hda_nid_t *p;
+=======
+	static const hda_nid_t out_nids[] = {
+		0x10, 0x11, 0
+	};
+	const hda_nid_t *p;
+>>>>>>> upstream/android-13
 
 	for (p = out_nids; *p; p++)
 		snd_hda_override_amp_caps(codec, *p, HDA_OUTPUT,
@@ -1001,8 +1162,11 @@ static int patch_conexant_auto(struct hda_codec *codec)
 
 	cx_auto_parse_eapd(codec);
 	spec->gen.own_eapd_ctl = 1;
+<<<<<<< HEAD
 	if (spec->dynamic_eapd)
 		spec->gen.vmaster_mute.hook = cx_auto_vmaster_hook;
+=======
+>>>>>>> upstream/android-13
 
 	switch (codec->core.vendor_id) {
 	case 0x14f15045:
@@ -1027,7 +1191,11 @@ static int patch_conexant_auto(struct hda_codec *codec)
 		break;
 	case 0x14f150f2:
 		codec->power_save_node = 1;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		codec->pin_amp_workaround = 1;
 		snd_hda_pick_fixup(codec, cxt5066_fixup_models,
@@ -1035,6 +1203,7 @@ static int patch_conexant_auto(struct hda_codec *codec)
 		break;
 	}
 
+<<<<<<< HEAD
 	/* Show mute-led control only on HP laptops
 	 * This is a sort of white-list: on HP laptops, EAPD corresponds
 	 * only to the mute-LED without actualy amp function.  Meanwhile,
@@ -1046,6 +1215,10 @@ static int patch_conexant_auto(struct hda_codec *codec)
 		spec->gen.vmaster_mute_enum = 1;
 		break;
 	}
+=======
+	if (!spec->gen.vmaster_mute.hook && spec->dynamic_eapd)
+		spec->gen.vmaster_mute.hook = cx_auto_vmaster_hook;
+>>>>>>> upstream/android-13
 
 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_PRE_PROBE);
 

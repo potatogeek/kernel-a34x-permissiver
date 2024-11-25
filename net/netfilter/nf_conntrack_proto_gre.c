@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /*
  * ip_conntrack_proto_gre.c - Version 3.0
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Connection tracking protocol helper module for GRE.
  *
  * GRE is a generic encapsulation protocol, which is generally not very
@@ -48,6 +53,7 @@ static const unsigned int gre_timeouts[GRE_CT_MAX] = {
 	[GRE_CT_REPLIED]	= 180*HZ,
 };
 
+<<<<<<< HEAD
 static unsigned int proto_gre_net_id __read_mostly;
 
 static inline struct netns_proto_gre *gre_pernet(struct net *net)
@@ -66,6 +72,14 @@ static void nf_ct_gre_keymap_flush(struct net *net)
 		kfree(km);
 	}
 	write_unlock_bh(&net_gre->keymap_lock);
+=======
+/* used when expectation is added */
+static DEFINE_SPINLOCK(keymap_lock);
+
+static inline struct nf_gre_net *gre_pernet(struct net *net)
+{
+	return &net->ct.nf_ct_proto.gre;
+>>>>>>> upstream/android-13
 }
 
 static inline int gre_key_cmpfn(const struct nf_ct_gre_keymap *km,
@@ -81,18 +95,29 @@ static inline int gre_key_cmpfn(const struct nf_ct_gre_keymap *km,
 /* look up the source key for a given tuple */
 static __be16 gre_keymap_lookup(struct net *net, struct nf_conntrack_tuple *t)
 {
+<<<<<<< HEAD
 	struct netns_proto_gre *net_gre = gre_pernet(net);
 	struct nf_ct_gre_keymap *km;
 	__be16 key = 0;
 
 	read_lock_bh(&net_gre->keymap_lock);
 	list_for_each_entry(km, &net_gre->keymap_list, list) {
+=======
+	struct nf_gre_net *net_gre = gre_pernet(net);
+	struct nf_ct_gre_keymap *km;
+	__be16 key = 0;
+
+	list_for_each_entry_rcu(km, &net_gre->keymap_list, list) {
+>>>>>>> upstream/android-13
 		if (gre_key_cmpfn(km, t)) {
 			key = km->tuple.src.u.gre.key;
 			break;
 		}
 	}
+<<<<<<< HEAD
 	read_unlock_bh(&net_gre->keymap_lock);
+=======
+>>>>>>> upstream/android-13
 
 	pr_debug("lookup src key 0x%x for ", key);
 	nf_ct_dump_tuple(t);
@@ -105,13 +130,18 @@ int nf_ct_gre_keymap_add(struct nf_conn *ct, enum ip_conntrack_dir dir,
 			 struct nf_conntrack_tuple *t)
 {
 	struct net *net = nf_ct_net(ct);
+<<<<<<< HEAD
 	struct netns_proto_gre *net_gre = gre_pernet(net);
+=======
+	struct nf_gre_net *net_gre = gre_pernet(net);
+>>>>>>> upstream/android-13
 	struct nf_ct_pptp_master *ct_pptp_info = nfct_help_data(ct);
 	struct nf_ct_gre_keymap **kmp, *km;
 
 	kmp = &ct_pptp_info->keymap[dir];
 	if (*kmp) {
 		/* check whether it's a retransmission */
+<<<<<<< HEAD
 		read_lock_bh(&net_gre->keymap_lock);
 		list_for_each_entry(km, &net_gre->keymap_list, list) {
 			if (gre_key_cmpfn(km, t) && km == *kmp) {
@@ -120,6 +150,12 @@ int nf_ct_gre_keymap_add(struct nf_conn *ct, enum ip_conntrack_dir dir,
 			}
 		}
 		read_unlock_bh(&net_gre->keymap_lock);
+=======
+		list_for_each_entry_rcu(km, &net_gre->keymap_list, list) {
+			if (gre_key_cmpfn(km, t) && km == *kmp)
+				return 0;
+		}
+>>>>>>> upstream/android-13
 		pr_debug("trying to override keymap_%s for ct %p\n",
 			 dir == IP_CT_DIR_REPLY ? "reply" : "orig", ct);
 		return -EEXIST;
@@ -134,9 +170,15 @@ int nf_ct_gre_keymap_add(struct nf_conn *ct, enum ip_conntrack_dir dir,
 	pr_debug("adding new entry %p: ", km);
 	nf_ct_dump_tuple(&km->tuple);
 
+<<<<<<< HEAD
 	write_lock_bh(&net_gre->keymap_lock);
 	list_add_tail(&km->list, &net_gre->keymap_list);
 	write_unlock_bh(&net_gre->keymap_lock);
+=======
+	spin_lock_bh(&keymap_lock);
+	list_add_tail(&km->list, &net_gre->keymap_list);
+	spin_unlock_bh(&keymap_lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -145,32 +187,53 @@ EXPORT_SYMBOL_GPL(nf_ct_gre_keymap_add);
 /* destroy the keymap entries associated with specified master ct */
 void nf_ct_gre_keymap_destroy(struct nf_conn *ct)
 {
+<<<<<<< HEAD
 	struct net *net = nf_ct_net(ct);
 	struct netns_proto_gre *net_gre = gre_pernet(net);
+=======
+>>>>>>> upstream/android-13
 	struct nf_ct_pptp_master *ct_pptp_info = nfct_help_data(ct);
 	enum ip_conntrack_dir dir;
 
 	pr_debug("entering for ct %p\n", ct);
 
+<<<<<<< HEAD
 	write_lock_bh(&net_gre->keymap_lock);
+=======
+	spin_lock_bh(&keymap_lock);
+>>>>>>> upstream/android-13
 	for (dir = IP_CT_DIR_ORIGINAL; dir < IP_CT_DIR_MAX; dir++) {
 		if (ct_pptp_info->keymap[dir]) {
 			pr_debug("removing %p from list\n",
 				 ct_pptp_info->keymap[dir]);
+<<<<<<< HEAD
 			list_del(&ct_pptp_info->keymap[dir]->list);
 			kfree(ct_pptp_info->keymap[dir]);
 			ct_pptp_info->keymap[dir] = NULL;
 		}
 	}
 	write_unlock_bh(&net_gre->keymap_lock);
+=======
+			list_del_rcu(&ct_pptp_info->keymap[dir]->list);
+			kfree_rcu(ct_pptp_info->keymap[dir], rcu);
+			ct_pptp_info->keymap[dir] = NULL;
+		}
+	}
+	spin_unlock_bh(&keymap_lock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nf_ct_gre_keymap_destroy);
 
 /* PUBLIC CONNTRACK PROTO HELPER FUNCTIONS */
 
 /* gre hdr info to tuple */
+<<<<<<< HEAD
 static bool gre_pkt_to_tuple(const struct sk_buff *skb, unsigned int dataoff,
 			     struct net *net, struct nf_conntrack_tuple *tuple)
+=======
+bool gre_pkt_to_tuple(const struct sk_buff *skb, unsigned int dataoff,
+		      struct net *net, struct nf_conntrack_tuple *tuple)
+>>>>>>> upstream/android-13
 {
 	const struct pptp_gre_header *pgrehdr;
 	struct pptp_gre_header _pgrehdr;
@@ -216,6 +279,7 @@ static void gre_print_conntrack(struct seq_file *s, struct nf_conn *ct)
 
 static unsigned int *gre_get_timeouts(struct net *net)
 {
+<<<<<<< HEAD
 	return gre_pernet(net)->gre_timeouts;
 }
 
@@ -225,6 +289,30 @@ static int gre_packet(struct nf_conn *ct,
 		      unsigned int dataoff,
 		      enum ip_conntrack_info ctinfo)
 {
+=======
+	return gre_pernet(net)->timeouts;
+}
+
+/* Returns verdict for packet, and may modify conntrack */
+int nf_conntrack_gre_packet(struct nf_conn *ct,
+			    struct sk_buff *skb,
+			    unsigned int dataoff,
+			    enum ip_conntrack_info ctinfo,
+			    const struct nf_hook_state *state)
+{
+	if (!nf_ct_is_confirmed(ct)) {
+		unsigned int *timeouts = nf_ct_timeout_lookup(ct);
+
+		if (!timeouts)
+			timeouts = gre_get_timeouts(nf_ct_net(ct));
+
+		/* initialize to sane value.  Ideally a conntrack helper
+		 * (e.g. in case of pptp) is increasing them */
+		ct->proto.gre.stream_timeout = timeouts[GRE_CT_REPLIED];
+		ct->proto.gre.timeout = timeouts[GRE_CT_UNREPLIED];
+	}
+
+>>>>>>> upstream/android-13
 	/* If we've seen traffic both ways, this is a GRE connection.
 	 * Extend timeout. */
 	if (ct->status & IPS_SEEN_REPLY) {
@@ -240,6 +328,7 @@ static int gre_packet(struct nf_conn *ct,
 	return NF_ACCEPT;
 }
 
+<<<<<<< HEAD
 /* Called when a new connection for this protocol found. */
 static bool gre_new(struct nf_conn *ct, const struct sk_buff *skb,
 		    unsigned int dataoff)
@@ -273,6 +362,8 @@ static void gre_destroy(struct nf_conn *ct)
 		nf_ct_gre_keymap_destroy(master);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NF_CONNTRACK_TIMEOUT
 
 #include <linux/netfilter/nfnetlink.h>
@@ -282,13 +373,22 @@ static int gre_timeout_nlattr_to_obj(struct nlattr *tb[],
 				     struct net *net, void *data)
 {
 	unsigned int *timeouts = data;
+<<<<<<< HEAD
 	struct netns_proto_gre *net_gre = gre_pernet(net);
+=======
+	struct nf_gre_net *net_gre = gre_pernet(net);
+>>>>>>> upstream/android-13
 
 	if (!timeouts)
 		timeouts = gre_get_timeouts(net);
 	/* set default timeouts for GRE. */
+<<<<<<< HEAD
 	timeouts[GRE_CT_UNREPLIED] = net_gre->gre_timeouts[GRE_CT_UNREPLIED];
 	timeouts[GRE_CT_REPLIED] = net_gre->gre_timeouts[GRE_CT_REPLIED];
+=======
+	timeouts[GRE_CT_UNREPLIED] = net_gre->timeouts[GRE_CT_UNREPLIED];
+	timeouts[GRE_CT_REPLIED] = net_gre->timeouts[GRE_CT_REPLIED];
+>>>>>>> upstream/android-13
 
 	if (tb[CTA_TIMEOUT_GRE_UNREPLIED]) {
 		timeouts[GRE_CT_UNREPLIED] =
@@ -324,6 +424,7 @@ gre_timeout_nla_policy[CTA_TIMEOUT_GRE_MAX+1] = {
 };
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
 
+<<<<<<< HEAD
 static int gre_init_net(struct net *net, u_int16_t proto)
 {
 	struct netns_proto_gre *net_gre = gre_pernet(net);
@@ -349,6 +450,24 @@ static const struct nf_conntrack_l4proto nf_conntrack_l4proto_gre4 = {
 	.new		 = gre_new,
 	.destroy	 = gre_destroy,
 	.me 		 = THIS_MODULE,
+=======
+void nf_conntrack_gre_init_net(struct net *net)
+{
+	struct nf_gre_net *net_gre = gre_pernet(net);
+	int i;
+
+	INIT_LIST_HEAD(&net_gre->keymap_list);
+	for (i = 0; i < GRE_CT_MAX; i++)
+		net_gre->timeouts[i] = gre_timeouts[i];
+}
+
+/* protocol helper struct */
+const struct nf_conntrack_l4proto nf_conntrack_l4proto_gre = {
+	.l4proto	 = IPPROTO_GRE,
+#ifdef CONFIG_NF_CONNTRACK_PROCFS
+	.print_conntrack = gre_print_conntrack,
+#endif
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_NF_CT_NETLINK)
 	.tuple_to_nlattr = nf_ct_port_tuple_to_nlattr,
 	.nlattr_tuple_size = nf_ct_port_nlattr_tuple_size,
@@ -364,6 +483,7 @@ static const struct nf_conntrack_l4proto nf_conntrack_l4proto_gre4 = {
 		.nla_policy	= gre_timeout_nla_policy,
 	},
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
+<<<<<<< HEAD
 	.net_id		= &proto_gre_net_id,
 	.init_net	= gre_init_net,
 };
@@ -422,3 +542,6 @@ module_init(nf_ct_proto_gre_init);
 module_exit(nf_ct_proto_gre_fini);
 
 MODULE_LICENSE("GPL");
+=======
+};
+>>>>>>> upstream/android-13

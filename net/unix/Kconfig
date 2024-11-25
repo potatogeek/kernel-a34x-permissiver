@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Unix Domain Sockets
 #
 
 config UNIX
 	tristate "Unix domain sockets"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, you will include support for Unix domain sockets;
 	  sockets are the standard Unix mechanism for establishing and
 	  accessing network connections.  Many commonly used programs such as
@@ -24,10 +32,22 @@ config UNIX_SCM
 	depends on UNIX
 	default y
 
+<<<<<<< HEAD
+=======
+config	AF_UNIX_OOB
+	bool
+	depends on UNIX
+	default y
+
+>>>>>>> upstream/android-13
 config UNIX_DIAG
 	tristate "UNIX: socket monitoring interface"
 	depends on UNIX
 	default n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Support for UNIX socket monitoring interface used by the ss tool.
 	  If unsure, say Y.

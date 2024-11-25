@@ -82,7 +82,11 @@ struct args_ismountpoint {
 /*
  * All the ioctls use this structure.
  * When sending a path size must account for the total length
+<<<<<<< HEAD
  * of the chunk of memory otherwise is is the size of the
+=======
+ * of the chunk of memory otherwise it is the size of the
+>>>>>>> upstream/android-13
  * structure.
  */
 

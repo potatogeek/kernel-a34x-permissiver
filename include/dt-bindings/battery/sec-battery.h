@@ -43,12 +43,16 @@
 #define SEC_BATTERY_CABLE_PDIC_APDO              38
 #define SEC_BATTERY_CABLE_POGO                   39
 #define SEC_BATTERY_CABLE_POGO_9V		 40
+<<<<<<< HEAD
 #define SEC_BATTERY_CABLE_FPDO_DC		 41
 #define SEC_BATTERY_CABLE_WIRELESS_EPP		 42
 #define SEC_BATTERY_CABLE_LO_TA			43
 #define SEC_BATTERY_CABLE_WIRELESS_EPP_NV	 44
 #define SEC_BATTERY_CABLE_WIRELESS_EPP_FAKE	 45
 #define SEC_BATTERY_CABLE_MAX			46
+=======
+#define SEC_BATTERY_CABLE_MAX                    41
+>>>>>>> upstream/android-13
 
 /* d2d support type */
 #define SB_D2D_NONE	0
@@ -63,6 +67,7 @@
 
 /* ADC type */
 	/* NOT using this ADC channel */
+<<<<<<< HEAD
 #define SEC_BATTERY_ADC_TYPE_NONE	0
 	/* ADC in AP */
 #define SEC_BATTERY_ADC_TYPE_AP		1
@@ -73,6 +78,15 @@
 /* ADC read type */
 #define SEC_BATTERY_ADC_PROCESSED 0
 #define SEC_BATTERY_ADC_RAW 1
+=======
+#define SEC_BATTERY_ADC_TYPE_NONE 	0
+	/* ADC in AP */
+#define SEC_BATTERY_ADC_TYPE_AP 	1
+	 /* ADC by additional IC */
+#define SEC_BATTERY_ADC_TYPE_IC 	2
+#define SEC_BATTERY_ADC_TYPE_NUM 	3
+
+>>>>>>> upstream/android-13
 
 /* thermal source */
 /* none */
@@ -233,6 +247,7 @@
 
 
 /* enum sec_wireless_rx_power_list */
+<<<<<<< HEAD
 #define SEC_WIRELESS_RX_POWER_3W		3000000
 #define SEC_WIRELESS_RX_POWER_5W		5000000
 #define SEC_WIRELESS_RX_POWER_6_5W		6500000
@@ -243,6 +258,15 @@
 #define SEC_WIRELESS_RX_POWER_17_5W		17500000
 #define SEC_WIRELESS_RX_POWER_20W		20000000
 #define SEC_WIRELESS_RX_POWER_MAX		20000000
+=======
+#define SEC_WIRELESS_RX_POWER_5W		0
+#define SEC_WIRELESS_RX_POWER_7_5W		1
+#define SEC_WIRELESS_RX_POWER_12W		2
+#define SEC_WIRELESS_RX_POWER_15W		3
+#define SEC_WIRELESS_RX_POWER_17_5W		4
+#define SEC_WIRELESS_RX_POWER_20W		5
+#define SEC_WIRELESS_RX_POWER_MAX		6
+>>>>>>> upstream/android-13
 
 /* enum sec_wireless_rx_power_class_list */
 #define SEC_WIRELESS_RX_POWER_CLASS_1	1	/* 4.5W ~ 7.5W */
@@ -309,6 +333,7 @@
 #define WIRELESS_VOUT_9V_STEP		15
 #define WIRELESS_VOUT_10V_STEP		16
 #define WIRELESS_VOUT_OTG			17
+<<<<<<< HEAD
 #define WIRELESS_VOUT_FORCE_9V	18
 #define WIRELESS_VOUT_5_5V		19
 #define WIRELESS_VOUT_4_5V		20
@@ -316,6 +341,8 @@
 #define WIRELESS_VOUT_FORCE_4_8V		22
 #define WIRELESS_VOUT_FORCE_4_9V		23
 #define WIRELESS_VOUT_FORCE_5V	24
+=======
+>>>>>>> upstream/android-13
 
 /* enum mfc_send_command */
 #define MFC_END_SIG_STRENGTH		0
@@ -345,6 +372,7 @@
 #define MFC_LED_CONTROL_DIMMING		24
 #define MFC_SET_OP_FREQ			25
 #define MFC_TX_UNO_OFF			26
+<<<<<<< HEAD
 #define MFC_REQ_TX_PWR_BUDG	27
 
 #define MFC_VOUT_4_5V	0
@@ -362,11 +390,27 @@
 #define MFC_VOUT_12V	12
 #define MFC_VOUT_12_5V	13
 #define MFC_VOUT_OTG	14
+=======
+
+#define MFC_VOUT_4_5V	0
+#define MFC_VOUT_5V	1
+#define MFC_VOUT_5_5V	2
+#define MFC_VOUT_6V	3
+#define MFC_VOUT_7V	4
+#define MFC_VOUT_8V	5
+#define MFC_VOUT_9V	6
+#define MFC_VOUT_10V	7
+#define MFC_VOUT_11V	8
+#define MFC_VOUT_12V	9
+#define MFC_VOUT_12_5V	10
+#define MFC_VOUT_OTG	11
+>>>>>>> upstream/android-13
 
 /* fod macro */
 #define FOD_FLAG_NONE			0
 #define FOD_FLAG_ADD			1
 #define FOD_FLAG_USE_CC			2
+<<<<<<< HEAD
 #define FOD_FLAG_USE_CV			3
 #define FOD_FLAG_USE_FULL		4
 #define FOD_FLAG_USE_DEF_PAD	5
@@ -374,5 +418,12 @@
 #define SET_FOD_CC(_flag)		(FOD_FLAG_ ##_flag)
 #define SET_FOD_CV(_flag)		(FOD_FLAG_ ##_flag << 4)
 #define SET_FOD_FULL(_flag)		(FOD_FLAG_ ##_flag << 8)
+=======
+#define FOD_FLAG_USE_DEFAULT	3
+#define SET_FOD_CC(_flag)		(FOD_FLAG_ ##_flag)
+#define SET_FOD_CV(_flag)		(FOD_FLAG_ ##_flag << 4)
+#define SET_FOD_FULL(_flag)		(FOD_FLAG_ ##_flag << 8)
+#define SET_FOD_HV(_flag)		(FOD_FLAG_ ##_flag << 12)
+>>>>>>> upstream/android-13
 
 #endif /* _DT_BINDINGS_BATTERY_SEC_BATTERY_H */

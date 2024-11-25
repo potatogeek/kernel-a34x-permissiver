@@ -13,6 +13,10 @@
 #include <linux/slab.h>
 #include <linux/buffer_head.h>
 #include <linux/vfs.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 
 #include "efs.h"
 #include <linux/efs_vh.h>
@@ -74,6 +78,7 @@ static struct inode *efs_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void efs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -85,6 +90,13 @@ static void efs_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, efs_i_callback);
 }
 
+=======
+static void efs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(efs_inode_cachep, INODE_INFO(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct efs_inode_info *ei = (struct efs_inode_info *) foo;
@@ -122,7 +134,11 @@ static int efs_remount(struct super_block *sb, int *flags, char *data)
 
 static const struct super_operations efs_superblock_operations = {
 	.alloc_inode	= efs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= efs_destroy_inode,
+=======
+	.free_inode	= efs_free_inode,
+>>>>>>> upstream/android-13
 	.statfs		= efs_statfs,
 	.remount_fs	= efs_remount,
 };
@@ -263,6 +279,11 @@ static int efs_fill_super(struct super_block *s, void *d, int silent)
 	if (!sb)
 		return -ENOMEM;
 	s->s_fs_info = sb;
+<<<<<<< HEAD
+=======
+	s->s_time_min = 0;
+	s->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
  
 	s->s_magic		= EFS_SUPER_MAGIC;
 	if (!sb_set_blocksize(s, EFS_BLOCKSIZE)) {
@@ -345,8 +366,12 @@ static int efs_statfs(struct dentry *dentry, struct kstatfs *buf) {
 			sbi->inode_blocks *
 			(EFS_BLOCKSIZE / sizeof(struct efs_dinode));
 	buf->f_ffree   = sbi->inode_free;	/* free inodes */
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid    = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 	buf->f_namelen = EFS_MAXNAMELEN;	/* max filename length */
 
 	return 0;

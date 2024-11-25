@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * IBM Accelerator Family 'GenWQE'
  *
  * (C) Copyright IBM Corp. 2013
@@ -7,6 +12,7 @@
  * Author: Joerg-Stephan Vogt <jsvogt@de.ibm.com>
  * Author: Michael Jung <mijung@gmx.net>
  * Author: Michael Ruettger <michael@ibmra.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (version 2 only)
@@ -16,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -23,21 +31,31 @@
  */
 
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/vmalloc.h>
 #include <linux/page-flags.h>
 #include <linux/scatterlist.h>
 #include <linux/hugetlb.h>
 #include <linux/iommu.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/dma-mapping.h>
 #include <linux/ctype.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include "genwqe_driver.h"
 #include "card_base.h"
@@ -139,6 +157,12 @@ u32 __genwqe_readl(struct genwqe_dev *cd, u64 byte_offs)
 
 /**
  * genwqe_read_app_id() - Extract app_id
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+ * @app_name:   carrier used to pass-back name
+ * @len:        length of data for name
+>>>>>>> upstream/android-13
  *
  * app_unitcfg need to be filled with valid data first
  */
@@ -193,7 +217,11 @@ void genwqe_init_crc32(void)
  * @init:       initial crc (0xffffffff at start)
  *
  * polynomial = x^32 * + x^29 + x^18 + x^14 + x^3 + 1 (0x20044009)
+<<<<<<< HEAD
 
+=======
+ *
+>>>>>>> upstream/android-13
  * Example: 4 bytes 0x01 0x02 0x03 0x04 with init=0xffffffff should
  * result in a crc32 of 0xf33cb7d3.
  *
@@ -220,8 +248,13 @@ void *__genwqe_alloc_consistent(struct genwqe_dev *cd, size_t size,
 	if (get_order(size) >= MAX_ORDER)
 		return NULL;
 
+<<<<<<< HEAD
 	return dma_zalloc_coherent(&cd->pci_dev->dev, size, dma_handle,
 				   GFP_KERNEL);
+=======
+	return dma_alloc_coherent(&cd->pci_dev->dev, size, dma_handle,
+				  GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 void __genwqe_free_consistent(struct genwqe_dev *cd, size_t size,
@@ -287,7 +320,11 @@ static int genwqe_sgl_size(int num_pages)
 	return roundup(len, PAGE_SIZE);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * genwqe_alloc_sync_sgl() - Allocate memory for sgl and overlapping pages
  *
  * Allocates memory for sgl and overlapping pages. Pages which might
@@ -470,6 +507,11 @@ int genwqe_setup_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
 
 /**
  * genwqe_free_sync_sgl() - Free memory for sgl and overlapping pages
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+ * @sgl:        scatter gather list describing user-space memory
+>>>>>>> upstream/android-13
  *
  * After the DMA transfer has been completed we free the memory for
  * the sgl and the cached pages. Data is being transferred from cached
@@ -525,6 +567,7 @@ int genwqe_free_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl)
 }
 
 /**
+<<<<<<< HEAD
  * genwqe_free_user_pages() - Give pinned pages back
  *
  * Documentation of get_user_pages is in mm/gup.c:
@@ -549,6 +592,8 @@ static int genwqe_free_user_pages(struct page **page_list,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * genwqe_user_vmap() - Map user-space memory to virtual kernel memory
  * @cd:         pointer to genwqe device
  * @m:          mapping params
@@ -607,6 +652,7 @@ int genwqe_user_vmap(struct genwqe_dev *cd, struct dma_mapping *m, void *uaddr,
 	m->dma_list = (dma_addr_t *)(m->page_list + m->nr_pages);
 
 	/* pin user pages in memory */
+<<<<<<< HEAD
 	rc = get_user_pages_fast(data & PAGE_MASK, /* page aligned addr */
 				 m->nr_pages,
 				 m->write,		/* readable/writable */
@@ -619,6 +665,20 @@ int genwqe_user_vmap(struct genwqe_dev *cd, struct dma_mapping *m, void *uaddr,
 		genwqe_free_user_pages(m->page_list, rc, m->write);
 		rc = -EFAULT;
 		goto fail_get_user_pages;
+=======
+	rc = pin_user_pages_fast(data & PAGE_MASK, /* page aligned addr */
+				 m->nr_pages,
+				 m->write ? FOLL_WRITE : 0,	/* readable/writable */
+				 m->page_list);	/* ptrs to pages */
+	if (rc < 0)
+		goto fail_pin_user_pages;
+
+	/* assumption: pin_user_pages can be killed by signals. */
+	if (rc < m->nr_pages) {
+		unpin_user_pages_dirty_lock(m->page_list, rc, m->write);
+		rc = -EFAULT;
+		goto fail_pin_user_pages;
+>>>>>>> upstream/android-13
 	}
 
 	rc = genwqe_map_pages(cd, m->page_list, m->nr_pages, m->dma_list);
@@ -628,9 +688,15 @@ int genwqe_user_vmap(struct genwqe_dev *cd, struct dma_mapping *m, void *uaddr,
 	return 0;
 
  fail_free_user_pages:
+<<<<<<< HEAD
 	genwqe_free_user_pages(m->page_list, m->nr_pages, m->write);
 
  fail_get_user_pages:
+=======
+	unpin_user_pages_dirty_lock(m->page_list, m->nr_pages, m->write);
+
+ fail_pin_user_pages:
+>>>>>>> upstream/android-13
 	kfree(m->page_list);
 	m->page_list = NULL;
 	m->dma_list = NULL;
@@ -660,8 +726,13 @@ int genwqe_user_vunmap(struct genwqe_dev *cd, struct dma_mapping *m)
 		genwqe_unmap_pages(cd, m->dma_list, m->nr_pages);
 
 	if (m->page_list) {
+<<<<<<< HEAD
 		genwqe_free_user_pages(m->page_list, m->nr_pages, m->write);
 
+=======
+		unpin_user_pages_dirty_lock(m->page_list, m->nr_pages,
+					    m->write);
+>>>>>>> upstream/android-13
 		kfree(m->page_list);
 		m->page_list = NULL;
 		m->dma_list = NULL;
@@ -744,6 +815,10 @@ int genwqe_read_softreset(struct genwqe_dev *cd)
 /**
  * genwqe_set_interrupt_capability() - Configure MSI capability structure
  * @cd:         pointer to the device
+<<<<<<< HEAD
+=======
+ * @count:      number of vectors to allocate
+>>>>>>> upstream/android-13
  * Return: 0 if no error
  */
 int genwqe_set_interrupt_capability(struct genwqe_dev *cd, int count)
@@ -772,7 +847,11 @@ void genwqe_reset_interrupt_capability(struct genwqe_dev *cd)
  * @i:          index to desired entry
  * @m:          maximum possible entries
  * @addr:       addr which is read
+<<<<<<< HEAD
  * @index:      index in debug array
+=======
+ * @idx:        index in debug array
+>>>>>>> upstream/android-13
  * @val:        read value
  */
 static int set_reg_idx(struct genwqe_dev *cd, struct genwqe_reg *r,
@@ -852,6 +931,11 @@ int genwqe_read_ffdc_regs(struct genwqe_dev *cd, struct genwqe_reg *regs,
 
 /**
  * genwqe_ffdc_buff_size() - Calculates the number of dump registers
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+ * @uid:	unit ID
+>>>>>>> upstream/android-13
  */
 int genwqe_ffdc_buff_size(struct genwqe_dev *cd, int uid)
 {
@@ -905,6 +989,13 @@ int genwqe_ffdc_buff_size(struct genwqe_dev *cd, int uid)
 
 /**
  * genwqe_ffdc_buff_read() - Implements LogoutExtendedErrorRegisters procedure
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+ * @uid:	unit ID
+ * @regs:       register information
+ * @max_regs:   number of register entries
+>>>>>>> upstream/android-13
  */
 int genwqe_ffdc_buff_read(struct genwqe_dev *cd, int uid,
 			  struct genwqe_reg *regs, unsigned int max_regs)
@@ -990,6 +1081,13 @@ int genwqe_ffdc_buff_read(struct genwqe_dev *cd, int uid,
 
 /**
  * genwqe_write_vreg() - Write register in virtual window
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+ * @reg:	register (byte) offset within BAR
+ * @val:	value to write
+ * @func:	PCI virtual function
+>>>>>>> upstream/android-13
  *
  * Note, these registers are only accessible to the PF through the
  * VF-window. It is not intended for the VF to access.
@@ -1003,6 +1101,12 @@ int genwqe_write_vreg(struct genwqe_dev *cd, u32 reg, u64 val, int func)
 
 /**
  * genwqe_read_vreg() - Read register in virtual window
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+ * @reg:	register (byte) offset within BAR
+ * @func:	PCI virtual function
+>>>>>>> upstream/android-13
  *
  * Note, these registers are only accessible to the PF through the
  * VF-window. It is not intended for the VF to access.
@@ -1015,6 +1119,10 @@ u64 genwqe_read_vreg(struct genwqe_dev *cd, u32 reg, int func)
 
 /**
  * genwqe_base_clock_frequency() - Deteremine base clock frequency of the card
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+>>>>>>> upstream/android-13
  *
  * Note: From a design perspective it turned out to be a bad idea to
  * use codes here to specifiy the frequency/speed values. An old
@@ -1039,6 +1147,10 @@ int genwqe_base_clock_frequency(struct genwqe_dev *cd)
 
 /**
  * genwqe_stop_traps() - Stop traps
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+>>>>>>> upstream/android-13
  *
  * Before reading out the analysis data, we need to stop the traps.
  */
@@ -1049,6 +1161,10 @@ void genwqe_stop_traps(struct genwqe_dev *cd)
 
 /**
  * genwqe_start_traps() - Start traps
+<<<<<<< HEAD
+=======
+ * @cd:	        genwqe device descriptor
+>>>>>>> upstream/android-13
  *
  * After having read the data, we can/must enable the traps again.
  */

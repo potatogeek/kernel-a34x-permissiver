@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for MPC52xx processor BestComm General Buffer Descriptor
  *
  * Copyright (C) 2007 Sylvain Munaut <tnt@246tNt.com>
  * Copyright (C) 2006 AppSpec Computer Technologies Corp.
  *                    Jeff Gibbons <jeff.gibbons@appspec.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -146,7 +153,11 @@ bcom_gen_bd_rx_reset(struct bcom_task *tsk)
 	tsk->index = 0;
 	tsk->outdex = 0;
 
+<<<<<<< HEAD
 	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+=======
+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+>>>>>>> upstream/android-13
 
 	/* Configure some stuff */
 	bcom_set_task_pragma(tsk->tasknum, BCOM_GEN_RX_BD_PRAGMA);
@@ -230,7 +241,11 @@ bcom_gen_bd_tx_reset(struct bcom_task *tsk)
 	tsk->index = 0;
 	tsk->outdex = 0;
 
+<<<<<<< HEAD
 	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+=======
+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+>>>>>>> upstream/android-13
 
 	/* Configure some stuff */
 	bcom_set_task_pragma(tsk->tasknum, BCOM_GEN_TX_BD_PRAGMA);

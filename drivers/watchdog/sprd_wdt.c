@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Spreadtrum watchdog driver
  * Copyright (C) 2017 Spreadtrum - http://www.spreadtrum.com
@@ -10,10 +11,20 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Spreadtrum watchdog driver
+ * Copyright (C) 2017 Spreadtrum - http://www.spreadtrum.com
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/interrupt.h>
@@ -61,7 +72,11 @@
 
 #define SPRD_WDT_CNT_HIGH_SHIFT		16
 #define SPRD_WDT_LOW_VALUE_MASK		GENMASK(15, 0)
+<<<<<<< HEAD
 #define SPRD_WDT_LOAD_TIMEOUT		1000
+=======
+#define SPRD_WDT_LOAD_TIMEOUT		11
+>>>>>>> upstream/android-13
 
 struct sprd_wdt {
 	void __iomem *base;
@@ -117,15 +132,26 @@ static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
 	u32 prtmr_step = pretimeout * SPRD_WDT_CNT_STEP;
 
 	/*
+<<<<<<< HEAD
 	 * Waiting the load value operation done,
 	 * it needs two or three RTC clock cycles.
+=======
+	 * Checking busy bit to make sure the previous loading operation is
+	 * done. According to the specification, the busy bit would be set
+	 * after a new loading operation and last 2 or 3 RTC clock
+	 * cycles (about 60us~92us).
+>>>>>>> upstream/android-13
 	 */
 	do {
 		val = readl_relaxed(wdt->base + SPRD_WDT_INT_RAW);
 		if (!(val & SPRD_WDT_LD_BUSY_BIT))
 			break;
 
+<<<<<<< HEAD
 		cpu_relax();
+=======
+		usleep_range(10, 100);
+>>>>>>> upstream/android-13
 	} while (delay_cnt++ < SPRD_WDT_LOAD_TIMEOUT);
 
 	if (delay_cnt >= SPRD_WDT_LOAD_TIMEOUT)
@@ -246,9 +272,13 @@ static u32 sprd_wdt_get_timeleft(struct watchdog_device *wdd)
 	u32 val;
 
 	val = sprd_wdt_get_cnt_value(wdt);
+<<<<<<< HEAD
 	val = val / SPRD_WDT_CNT_STEP;
 
 	return val;
+=======
+	return val / SPRD_WDT_CNT_STEP;
+>>>>>>> upstream/android-13
 }
 
 static const struct watchdog_ops sprd_wdt_ops = {
@@ -270,6 +300,7 @@ static const struct watchdog_info sprd_wdt_info = {
 
 static int sprd_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *wdt_res;
 	struct sprd_wdt *wdt;
 	int ret;
@@ -292,10 +323,34 @@ static int sprd_wdt_probe(struct platform_device *pdev)
 	wdt->rtc_enable = devm_clk_get(&pdev->dev, "rtc_enable");
 	if (IS_ERR(wdt->rtc_enable)) {
 		dev_err(&pdev->dev, "can't get the rtc enable clock\n");
+=======
+	struct device *dev = &pdev->dev;
+	struct sprd_wdt *wdt;
+	int ret;
+
+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+	if (!wdt)
+		return -ENOMEM;
+
+	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(wdt->base))
+		return PTR_ERR(wdt->base);
+
+	wdt->enable = devm_clk_get(dev, "enable");
+	if (IS_ERR(wdt->enable)) {
+		dev_err(dev, "can't get the enable clock\n");
+		return PTR_ERR(wdt->enable);
+	}
+
+	wdt->rtc_enable = devm_clk_get(dev, "rtc_enable");
+	if (IS_ERR(wdt->rtc_enable)) {
+		dev_err(dev, "can't get the rtc enable clock\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(wdt->rtc_enable);
 	}
 
 	wdt->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (wdt->irq < 0) {
 		dev_err(&pdev->dev, "failed to get IRQ resource\n");
 		return wdt->irq;
@@ -305,18 +360,32 @@ static int sprd_wdt_probe(struct platform_device *pdev)
 			       IRQF_NO_SUSPEND, "sprd-wdt", (void *)wdt);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to register irq\n");
+=======
+	if (wdt->irq < 0)
+		return wdt->irq;
+
+	ret = devm_request_irq(dev, wdt->irq, sprd_wdt_isr, IRQF_NO_SUSPEND,
+			       "sprd-wdt", (void *)wdt);
+	if (ret) {
+		dev_err(dev, "failed to register irq\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	wdt->wdd.info = &sprd_wdt_info;
 	wdt->wdd.ops = &sprd_wdt_ops;
+<<<<<<< HEAD
 	wdt->wdd.parent = &pdev->dev;
+=======
+	wdt->wdd.parent = dev;
+>>>>>>> upstream/android-13
 	wdt->wdd.min_timeout = SPRD_WDT_MIN_TIMEOUT;
 	wdt->wdd.max_timeout = SPRD_WDT_MAX_TIMEOUT;
 	wdt->wdd.timeout = SPRD_WDT_MAX_TIMEOUT;
 
 	ret = sprd_wdt_enable(wdt);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to enable wdt\n");
 		return ret;
 	}
@@ -324,16 +393,32 @@ static int sprd_wdt_probe(struct platform_device *pdev)
 	if (ret) {
 		sprd_wdt_disable(wdt);
 		dev_err(&pdev->dev, "Failed to add wdt disable action\n");
+=======
+		dev_err(dev, "failed to enable wdt\n");
+		return ret;
+	}
+	ret = devm_add_action_or_reset(dev, sprd_wdt_disable, wdt);
+	if (ret) {
+		dev_err(dev, "Failed to add wdt disable action\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	watchdog_set_nowayout(&wdt->wdd, WATCHDOG_NOWAYOUT);
+<<<<<<< HEAD
 	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
 
 	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdd);
 	if (ret) {
 		sprd_wdt_disable(wdt);
 		dev_err(&pdev->dev, "failed to register watchdog\n");
+=======
+	watchdog_init_timeout(&wdt->wdd, 0, dev);
+
+	ret = devm_watchdog_register_device(dev, &wdt->wdd);
+	if (ret) {
+		sprd_wdt_disable(wdt);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	platform_set_drvdata(pdev, wdt);

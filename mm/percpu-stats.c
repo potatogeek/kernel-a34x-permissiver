@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/percpu-debug.c
  *
  * Copyright (C) 2017		Facebook Inc.
+<<<<<<< HEAD
  * Copyright (C) 2017		Dennis Zhou <dennisz@fb.com>
  *
  * This file is released under the GPLv2.
+=======
+ * Copyright (C) 2017		Dennis Zhou <dennis@kernel.org>
+>>>>>>> upstream/android-13
  *
  * Prints statistics about the percpu allocator and backing chunks.
  */
@@ -38,7 +46,11 @@ static int find_max_nr_alloc(void)
 
 	max_nr_alloc = 0;
 	for (slot = 0; slot < pcpu_nr_slots; slot++)
+<<<<<<< HEAD
 		list_for_each_entry(chunk, &pcpu_slot[slot], list)
+=======
+		list_for_each_entry(chunk, &pcpu_chunk_lists[slot], list)
+>>>>>>> upstream/android-13
 			max_nr_alloc = max(max_nr_alloc, chunk->nr_alloc);
 
 	return max_nr_alloc;
@@ -53,6 +65,10 @@ static int find_max_nr_alloc(void)
 static void chunk_map_stats(struct seq_file *m, struct pcpu_chunk *chunk,
 			    int *buffer)
 {
+<<<<<<< HEAD
+=======
+	struct pcpu_block_md *chunk_md = &chunk->chunk_md;
+>>>>>>> upstream/android-13
 	int i, last_alloc, as_len, start, end;
 	int *alloc_sizes, *p;
 	/* statistics */
@@ -121,9 +137,15 @@ static void chunk_map_stats(struct seq_file *m, struct pcpu_chunk *chunk,
 	P("nr_alloc", chunk->nr_alloc);
 	P("max_alloc_size", chunk->max_alloc_size);
 	P("empty_pop_pages", chunk->nr_empty_pop_pages);
+<<<<<<< HEAD
 	P("first_bit", chunk->first_bit);
 	P("free_bytes", chunk->free_bytes);
 	P("contig_bytes", chunk->contig_bits * PCPU_MIN_ALLOC_SIZE);
+=======
+	P("first_bit", chunk_md->first_free);
+	P("free_bytes", chunk->free_bytes);
+	P("contig_bytes", chunk_md->contig_hint * PCPU_MIN_ALLOC_SIZE);
+>>>>>>> upstream/android-13
 	P("sum_frag", sum_frag);
 	P("max_frag", max_frag);
 	P("cur_min_alloc", cur_min_alloc);
@@ -157,7 +179,11 @@ alloc_buffer:
 		goto alloc_buffer;
 	}
 
+<<<<<<< HEAD
 #define PL(X) \
+=======
+#define PL(X)								\
+>>>>>>> upstream/android-13
 	seq_printf(m, "  %-20s: %12lld\n", #X, (long long int)pcpu_stats_ai.X)
 
 	seq_printf(m,
@@ -203,6 +229,7 @@ alloc_buffer:
 	}
 
 	for (slot = 0; slot < pcpu_nr_slots; slot++) {
+<<<<<<< HEAD
 		list_for_each_entry(chunk, &pcpu_slot[slot], list) {
 			if (chunk == pcpu_first_chunk) {
 				seq_puts(m, "Chunk: <- First Chunk\n");
@@ -214,6 +241,18 @@ alloc_buffer:
 				chunk_map_stats(m, chunk, buffer);
 			}
 
+=======
+		list_for_each_entry(chunk, &pcpu_chunk_lists[slot], list) {
+			if (chunk == pcpu_first_chunk)
+				seq_puts(m, "Chunk: <- First Chunk\n");
+			else if (slot == pcpu_to_depopulate_slot)
+				seq_puts(m, "Chunk (to_depopulate)\n");
+			else if (slot == pcpu_sidelined_slot)
+				seq_puts(m, "Chunk (sidelined):\n");
+			else
+				seq_puts(m, "Chunk:\n");
+			chunk_map_stats(m, chunk, buffer);
+>>>>>>> upstream/android-13
 		}
 	}
 

@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 config RTLLIB
 	tristate "Support for rtllib wireless devices"
 	depends on WLAN && m
 	default n
 	select LIB80211
 	---help---
+=======
+# SPDX-License-Identifier: GPL-2.0
+config RTLLIB
+	tristate "Support for rtllib wireless devices"
+	depends on WLAN && m
+	select LIB80211
+	select CRC32
+	help
+>>>>>>> upstream/android-13
 	  If you have a wireless card that uses rtllib, say
 	  Y. Currently the only card is the rtl8192e.
 
@@ -14,9 +24,17 @@ if RTLLIB
 config RTLLIB_CRYPTO_CCMP
 	tristate "Support for rtllib CCMP crypto"
 	depends on RTLLIB
+<<<<<<< HEAD
 	select CRYPTO_AES
 	default y
 	---help---
+=======
+	select CRYPTO
+	select CRYPTO_AES
+	select CRYPTO_CCM
+	default y
+	help
+>>>>>>> upstream/android-13
 	  CCMP crypto driver for rtllib.
 
 	  If you enabled RTLLIB, you want this.
@@ -24,20 +42,35 @@ config RTLLIB_CRYPTO_CCMP
 config RTLLIB_CRYPTO_TKIP
 	tristate "Support for rtllib TKIP crypto"
 	depends on RTLLIB
+<<<<<<< HEAD
 	select CRYPTO_ARC4
 	select CRYPTO_MICHAEL_MIC
 	default y
 	---help---
+=======
+	select CRYPTO
+	select CRYPTO_LIB_ARC4
+	select CRYPTO_MICHAEL_MIC
+	default y
+	help
+>>>>>>> upstream/android-13
 	  TKIP crypto driver for rtllib.
 
 	  If you enabled RTLLIB, you want this.
 
 config RTLLIB_CRYPTO_WEP
 	tristate "Support for rtllib WEP crypto"
+<<<<<<< HEAD
 	select CRYPTO_ARC4
 	depends on RTLLIB
 	default y
 	---help---
+=======
+	select CRYPTO_LIB_ARC4
+	depends on RTLLIB
+	default y
+	help
+>>>>>>> upstream/android-13
 	  TKIP crypto driver for rtllib.
 
 	  If you enabled RTLLIB, you want this.

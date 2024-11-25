@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  ahci.h - Common AHCI SATA definitions and declarations
  *
@@ -7,6 +11,7 @@
  *
  *  Copyright 2004-2005 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,13 +28,18 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * libata documentation is available via 'make {ps|pdf}docs',
  * as Documentation/driver-api/libata.rst
  *
  * AHCI hardware documentation:
  * http://www.intel.com/technology/serialata/pdf/rev1_0.pdf
  * http://www.intel.com/technology/serialata/pdf/rev1_1.pdf
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _AHCI_H
@@ -254,6 +264,14 @@ enum {
 	AHCI_HFLAG_IS_MOBILE		= (1 << 25), /* mobile chipset, use
 							SATA_MOBILE_LPM_POLICY
 							as default lpm_policy */
+<<<<<<< HEAD
+=======
+	AHCI_HFLAG_SUSPEND_PHYS		= (1 << 26), /* handle PHYs during
+							suspend/resume */
+	AHCI_HFLAG_IGN_NOTSUPP_POWER_ON	= (1 << 27), /* ignore -EOPNOTSUPP
+							from phy_power_on() */
+	AHCI_HFLAG_NO_SXS		= (1 << 28), /* SXS not supported */
+>>>>>>> upstream/android-13
 
 	/* ap->flags bits */
 
@@ -350,10 +368,19 @@ struct ahci_host_priv {
 	u32 			em_loc; /* enclosure management location */
 	u32			em_buf_sz;	/* EM buffer size in byte */
 	u32			em_msg_type;	/* EM message type */
+<<<<<<< HEAD
+=======
+	u32			remapped_nvme;	/* NVMe remapped device count */
+>>>>>>> upstream/android-13
 	bool			got_runtime_pm; /* Did we do pm_runtime_get? */
 	struct clk		*clks[AHCI_MAX_CLKS]; /* Optional */
 	struct reset_control	*rsts;		/* Optional */
 	struct regulator	**target_pwrs;	/* Optional */
+<<<<<<< HEAD
+=======
+	struct regulator	*ahci_regulator;/* Optional */
+	struct regulator	*phy_regulator;/* Optional */
+>>>>>>> upstream/android-13
 	/*
 	 * If platform uses PHYs. There is a 1:1 relation between the port number and
 	 * the PHY position in this array.
@@ -392,12 +419,23 @@ extern struct device_attribute *ahci_sdev_attrs[];
  * for ATA_BASE_SHT
  */
 #define AHCI_SHT(drv_name)						\
+<<<<<<< HEAD
 	ATA_NCQ_SHT(drv_name),						\
+=======
+	__ATA_BASE_SHT(drv_name),					\
+>>>>>>> upstream/android-13
 	.can_queue		= AHCI_MAX_CMDS,			\
 	.sg_tablesize		= AHCI_MAX_SG,				\
 	.dma_boundary		= AHCI_DMA_BOUNDARY,			\
 	.shost_attrs		= ahci_shost_attrs,			\
+<<<<<<< HEAD
 	.sdev_attrs		= ahci_sdev_attrs
+=======
+	.sdev_attrs		= ahci_sdev_attrs,			\
+	.change_queue_depth     = ata_scsi_change_queue_depth,		\
+	.tag_alloc_policy       = BLK_TAG_ALLOC_RR,             	\
+	.slave_configure        = ata_scsi_slave_config
+>>>>>>> upstream/android-13
 
 extern struct ata_port_operations ahci_ops;
 extern struct ata_port_operations ahci_platform_ops;

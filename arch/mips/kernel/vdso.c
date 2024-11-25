@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Imagination Technologies
  * Author: Alex Smith <alex.smith@imgtec.com>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2015 Imagination Technologies
+ * Author: Alex Smith <alex.smith@imgtec.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/binfmts.h>
@@ -75,10 +82,19 @@ subsys_initcall(init_vdso);
 
 static unsigned long vdso_base(void)
 {
+<<<<<<< HEAD
 	unsigned long base;
 
 	/* Skip the delay slot emulation page */
 	base = STACK_TOP + PAGE_SIZE;
+=======
+	unsigned long base = STACK_TOP;
+
+	if (IS_ENABLED(CONFIG_MIPS_FP_SUPPORT)) {
+		/* Skip the delay slot emulation page */
+		base += PAGE_SIZE;
+	}
+>>>>>>> upstream/android-13
 
 	if (current->flags & PF_RANDOMIZE) {
 		base += get_random_int() & (VDSO_RANDOMIZE_SIZE - 1);
@@ -92,6 +108,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 {
 	struct mips_vdso_image *image = current->thread.abi->vdso;
 	struct mm_struct *mm = current->mm;
+<<<<<<< HEAD
 	unsigned long gic_size, vvar_size, size, base, data_addr, vdso_addr, gic_pfn;
 	struct vm_area_struct *vma;
 	int ret;
@@ -107,6 +124,25 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	if (IS_ERR_VALUE(base)) {
 		ret = base;
 		goto out;
+=======
+	unsigned long gic_size, vvar_size, size, base, data_addr, vdso_addr, gic_pfn, gic_base;
+	struct vm_area_struct *vma;
+	int ret;
+
+	if (mmap_write_lock_killable(mm))
+		return -EINTR;
+
+	if (IS_ENABLED(CONFIG_MIPS_FP_SUPPORT)) {
+		/* Map delay slot emulation page */
+		base = mmap_region(NULL, STACK_TOP, PAGE_SIZE,
+				VM_READ | VM_EXEC |
+				VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC,
+				0, NULL);
+		if (IS_ERR_VALUE(base)) {
+			ret = base;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -158,10 +194,18 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 
 	/* Map GIC user page. */
 	if (gic_size) {
+<<<<<<< HEAD
 		gic_pfn = virt_to_phys(mips_gic_base + MIPS_GIC_USER_OFS) >> PAGE_SHIFT;
 
 		ret = io_remap_pfn_range(vma, base, gic_pfn, gic_size,
 					 pgprot_noncached(PAGE_READONLY));
+=======
+		gic_base = (unsigned long)mips_gic_base + MIPS_GIC_USER_OFS;
+		gic_pfn = virt_to_phys((void *)gic_base) >> PAGE_SHIFT;
+
+		ret = io_remap_pfn_range(vma, base, gic_pfn, gic_size,
+					 pgprot_noncached(vma->vm_page_prot));
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out;
 	}
@@ -169,7 +213,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	/* Map data page. */
 	ret = remap_pfn_range(vma, data_addr,
 			      virt_to_phys(vdso_data) >> PAGE_SHIFT,
+<<<<<<< HEAD
 			      PAGE_SIZE, PAGE_READONLY);
+=======
+			      PAGE_SIZE, vma->vm_page_prot);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -187,6 +235,10 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	ret = 0;
 
 out:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	return ret;
 }

@@ -5,6 +5,11 @@
 
 #ifndef _LINUX_NOSPEC_H
 #define _LINUX_NOSPEC_H
+<<<<<<< HEAD
+=======
+
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 #include <asm/barrier.h>
 
 struct task_struct;

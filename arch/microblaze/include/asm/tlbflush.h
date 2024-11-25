@@ -1,24 +1,37 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2009 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2008-2009 PetaLogix
  * Copyright (C) 2006 Atmark Techno, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_TLBFLUSH_H
 #define _ASM_MICROBLAZE_TLBFLUSH_H
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/threads.h>
 #include <asm/processor.h>	/* For TASK_SIZE */
 #include <asm/mmu.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 
 extern void _tlbie(unsigned long address);
 extern void _tlbia(void);
@@ -54,6 +67,7 @@ static inline void local_flush_tlb_range(struct vm_area_struct *vma,
 static inline void flush_tlb_pgtables(struct mm_struct *mm,
 	unsigned long start, unsigned long end) { }
 
+<<<<<<< HEAD
 #else /* CONFIG_MMU */
 
 #define flush_tlb()				BUG()
@@ -66,4 +80,6 @@ static inline void flush_tlb_pgtables(struct mm_struct *mm,
 
 #endif /* CONFIG_MMU */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_MICROBLAZE_TLBFLUSH_H */

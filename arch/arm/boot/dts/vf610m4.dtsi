@@ -50,7 +50,10 @@
 	#size-cells = <1>;
 	chosen { };
 	aliases { };
+<<<<<<< HEAD
 	memory { device_type = "memory"; };
+=======
+>>>>>>> upstream/android-13
 };
 
 &mscm_ir {

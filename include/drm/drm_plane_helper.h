@@ -38,6 +38,7 @@
  */
 #define DRM_PLANE_HELPER_NO_SCALING (1<<16)
 
+<<<<<<< HEAD
 int drm_plane_helper_check_update(struct drm_plane *plane,
 				  struct drm_crtc *crtc,
 				  struct drm_framebuffer *fb,
@@ -76,4 +77,9 @@ int drm_plane_helper_disable(struct drm_plane *plane,
 int drm_plane_helper_commit(struct drm_plane *plane,
 			    struct drm_plane_state *plane_state,
 			    struct drm_framebuffer *old_fb);
+=======
+void drm_primary_helper_destroy(struct drm_plane *plane);
+extern const struct drm_plane_funcs drm_primary_helper_funcs;
+
+>>>>>>> upstream/android-13
 #endif

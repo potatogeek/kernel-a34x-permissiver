@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     Driver for SAA6588 RDS decoder
 
     (c) 2005 Hans J. Koch
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 
@@ -392,7 +399,11 @@ static void saa6588_configure(struct saa6588 *s)
 
 /* ---------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static long saa6588_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+=======
+static long saa6588_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+>>>>>>> upstream/android-13
 {
 	struct saa6588 *s = to_saa6588(sd);
 	struct saa6588_command *a = arg;
@@ -445,7 +456,11 @@ static int saa6588_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
 /* ----------------------------------------------------------------------- */
 
 static const struct v4l2_subdev_core_ops saa6588_core_ops = {
+<<<<<<< HEAD
 	.ioctl = saa6588_ioctl,
+=======
+	.command = saa6588_command,
+>>>>>>> upstream/android-13
 };
 
 static const struct v4l2_subdev_tuner_ops saa6588_tuner_ops = {

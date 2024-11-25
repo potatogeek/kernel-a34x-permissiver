@@ -424,12 +424,22 @@
 
 		.macro	RESTORE_SP_AND_RET docfi=0
 		RESTORE_SP \docfi
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_MIPSR6
 		eretnc
 #else
 		.set	arch=r4000
 		eret
 		.set	mips0
+=======
+#if defined(CONFIG_CPU_MIPSR5) || defined(CONFIG_CPU_MIPSR6)
+		eretnc
+#else
+		.set	push
+		.set	arch=r4000
+		eret
+		.set	pop
+>>>>>>> upstream/android-13
 #endif
 		.endm
 
@@ -449,7 +459,11 @@
  */
 		.macro	CLI
 		mfc0	t0, CP0_STATUS
+<<<<<<< HEAD
 		li	t1, ST0_CU0 | STATMASK
+=======
+		li	t1, ST0_KERNEL_CUMASK | STATMASK
+>>>>>>> upstream/android-13
 		or	t0, t1
 		xori	t0, STATMASK
 		mtc0	t0, CP0_STATUS
@@ -462,7 +476,11 @@
  */
 		.macro	STI
 		mfc0	t0, CP0_STATUS
+<<<<<<< HEAD
 		li	t1, ST0_CU0 | STATMASK
+=======
+		li	t1, ST0_KERNEL_CUMASK | STATMASK
+>>>>>>> upstream/android-13
 		or	t0, t1
 		xori	t0, STATMASK & ~1
 		mtc0	t0, CP0_STATUS
@@ -476,7 +494,11 @@
  */
 		.macro	KMODE
 		mfc0	t0, CP0_STATUS
+<<<<<<< HEAD
 		li	t1, ST0_CU0 | (STATMASK & ~1)
+=======
+		li	t1, ST0_KERNEL_CUMASK | (STATMASK & ~1)
+>>>>>>> upstream/android-13
 #if defined(CONFIG_CPU_R3000) || defined(CONFIG_CPU_TX39XX)
 		andi	t2, t0, ST0_IEP
 		srl	t2, 2

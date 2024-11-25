@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the BSD Socket
@@ -7,11 +11,14 @@
  *
  * Authors:	Lotsa people, from code originally in tcp, generalised here
  *		by Arnaldo Carvalho de Melo <acme@mandriva.com>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -25,6 +32,11 @@
 #include <net/ip.h>
 #include <net/sock_reuseport.h>
 
+<<<<<<< HEAD
+=======
+extern struct inet_hashinfo tcp_hashinfo;
+
+>>>>>>> upstream/android-13
 u32 inet6_ehashfn(const struct net *net,
 		  const struct in6_addr *laddr, const u16 lport,
 		  const struct in6_addr *faddr, const __be16 fport)
@@ -96,12 +108,17 @@ EXPORT_SYMBOL(__inet6_lookup_established);
 static inline int compute_score(struct sock *sk, struct net *net,
 				const unsigned short hnum,
 				const struct in6_addr *daddr,
+<<<<<<< HEAD
 				const int dif, const int sdif, bool exact_dif)
+=======
+				const int dif, const int sdif)
+>>>>>>> upstream/android-13
 {
 	int score = -1;
 
 	if (net_eq(sock_net(sk), net) && inet_sk(sk)->inet_num == hnum &&
 	    sk->sk_family == PF_INET6) {
+<<<<<<< HEAD
 
 		score = 1;
 		if (!ipv6_addr_any(&sk->sk_v6_rcv_saddr)) {
@@ -118,12 +135,41 @@ static inline int compute_score(struct sock *sk, struct net *net,
 			if (sk->sk_bound_dev_if)
 				score++;
 		}
+=======
+		if (!ipv6_addr_equal(&sk->sk_v6_rcv_saddr, daddr))
+			return -1;
+
+		if (!inet_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif))
+			return -1;
+
+		score =  sk->sk_bound_dev_if ? 2 : 1;
+>>>>>>> upstream/android-13
 		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
 			score++;
 	}
 	return score;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct sock *lookup_reuseport(struct net *net, struct sock *sk,
+					    struct sk_buff *skb, int doff,
+					    const struct in6_addr *saddr,
+					    __be16 sport,
+					    const struct in6_addr *daddr,
+					    unsigned short hnum)
+{
+	struct sock *reuse_sk = NULL;
+	u32 phash;
+
+	if (sk->sk_reuseport) {
+		phash = inet6_ehashfn(net, daddr, hnum, saddr, sport);
+		reuse_sk = reuseport_select_sock(sk, phash, skb, doff);
+	}
+	return reuse_sk;
+}
+
+>>>>>>> upstream/android-13
 /* called with rcu_read_lock() */
 static struct sock *inet6_lhash2_lookup(struct net *net,
 		struct inet_listen_hashbucket *ilb2,
@@ -132,6 +178,7 @@ static struct sock *inet6_lhash2_lookup(struct net *net,
 		const __be16 sport, const struct in6_addr *daddr,
 		const unsigned short hnum, const int dif, const int sdif)
 {
+<<<<<<< HEAD
 	bool exact_dif = inet6_exact_dif_match(net, skb);
 	struct inet_connection_sock *icsk;
 	struct sock *sk, *result = NULL;
@@ -151,6 +198,21 @@ static struct sock *inet6_lhash2_lookup(struct net *net,
 				if (result)
 					return result;
 			}
+=======
+	struct inet_connection_sock *icsk;
+	struct sock *sk, *result = NULL;
+	int score, hiscore = 0;
+
+	inet_lhash2_for_each_icsk_rcu(icsk, &ilb2->head) {
+		sk = (struct sock *)icsk;
+		score = compute_score(sk, net, hnum, daddr, dif, sdif);
+		if (score > hiscore) {
+			result = lookup_reuseport(net, sk, skb, doff,
+						  saddr, sport, daddr, hnum);
+			if (result)
+				return result;
+
+>>>>>>> upstream/android-13
 			result = sk;
 			hiscore = score;
 		}
@@ -159,6 +221,34 @@ static struct sock *inet6_lhash2_lookup(struct net *net,
 	return result;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct sock *inet6_lookup_run_bpf(struct net *net,
+						struct inet_hashinfo *hashinfo,
+						struct sk_buff *skb, int doff,
+						const struct in6_addr *saddr,
+						const __be16 sport,
+						const struct in6_addr *daddr,
+						const u16 hnum)
+{
+	struct sock *sk, *reuse_sk;
+	bool no_reuseport;
+
+	if (hashinfo != &tcp_hashinfo)
+		return NULL; /* only TCP is supported */
+
+	no_reuseport = bpf_sk_lookup_run_v6(net, IPPROTO_TCP,
+					    saddr, sport, daddr, hnum, &sk);
+	if (no_reuseport || IS_ERR_OR_NULL(sk))
+		return sk;
+
+	reuse_sk = lookup_reuseport(net, sk, skb, doff, saddr, sport, daddr, hnum);
+	if (reuse_sk)
+		sk = reuse_sk;
+	return sk;
+}
+
+>>>>>>> upstream/android-13
 struct sock *inet6_lookup_listener(struct net *net,
 		struct inet_hashinfo *hashinfo,
 		struct sk_buff *skb, int doff,
@@ -166,6 +256,7 @@ struct sock *inet6_lookup_listener(struct net *net,
 		const __be16 sport, const struct in6_addr *daddr,
 		const unsigned short hnum, const int dif, const int sdif)
 {
+<<<<<<< HEAD
 	unsigned int hash = inet_lhashfn(net, hnum);
 	struct inet_listen_hashbucket *ilb = &hashinfo->listening_hash[hash];
 	bool exact_dif = inet6_exact_dif_match(net, skb);
@@ -187,6 +278,22 @@ struct sock *inet6_lookup_listener(struct net *net,
 	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
 	if (ilb2->count > ilb->count)
 		goto port_lookup;
+=======
+	struct inet_listen_hashbucket *ilb2;
+	struct sock *result = NULL;
+	unsigned int hash2;
+
+	/* Lookup redirect from BPF */
+	if (static_branch_unlikely(&bpf_sk_lookup_enabled)) {
+		result = inet6_lookup_run_bpf(net, hashinfo, skb, doff,
+					      saddr, sport, daddr, hnum);
+		if (result)
+			goto done;
+	}
+
+	hash2 = ipv6_portaddr_hash(net, daddr, hnum);
+	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
+>>>>>>> upstream/android-13
 
 	result = inet6_lhash2_lookup(net, ilb2, skb, doff,
 				     saddr, sport, daddr, hnum,
@@ -195,6 +302,7 @@ struct sock *inet6_lookup_listener(struct net *net,
 		goto done;
 
 	/* Lookup lhash2 with in6addr_any */
+<<<<<<< HEAD
 
 	hash2 = ipv6_portaddr_hash(net, &in6addr_any, hnum);
 	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
@@ -224,6 +332,16 @@ port_lookup:
 	}
 done:
 	if (unlikely(IS_ERR(result)))
+=======
+	hash2 = ipv6_portaddr_hash(net, &in6addr_any, hnum);
+	ilb2 = inet_lhash2_bucket(hashinfo, hash2);
+
+	result = inet6_lhash2_lookup(net, ilb2, skb, doff,
+				     saddr, sport, &in6addr_any, hnum,
+				     dif, sdif);
+done:
+	if (IS_ERR(result))
+>>>>>>> upstream/android-13
 		return NULL;
 	return result;
 }
@@ -311,7 +429,11 @@ not_unique:
 	return -EADDRNOTAVAIL;
 }
 
+<<<<<<< HEAD
 static u32 inet6_sk_port_offset(const struct sock *sk)
+=======
+static u64 inet6_sk_port_offset(const struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	const struct inet_sock *inet = inet_sk(sk);
 
@@ -323,7 +445,11 @@ static u32 inet6_sk_port_offset(const struct sock *sk)
 int inet6_hash_connect(struct inet_timewait_death_row *death_row,
 		       struct sock *sk)
 {
+<<<<<<< HEAD
 	u32 port_offset = 0;
+=======
+	u64 port_offset = 0;
+>>>>>>> upstream/android-13
 
 	if (!inet_sk(sk)->inet_num)
 		port_offset = inet6_sk_port_offset(sk);
@@ -336,11 +462,16 @@ int inet6_hash(struct sock *sk)
 {
 	int err = 0;
 
+<<<<<<< HEAD
 	if (sk->sk_state != TCP_CLOSE) {
 		local_bh_disable();
 		err = __inet_hash(sk, NULL);
 		local_bh_enable();
 	}
+=======
+	if (sk->sk_state != TCP_CLOSE)
+		err = __inet_hash(sk, NULL);
+>>>>>>> upstream/android-13
 
 	return err;
 }

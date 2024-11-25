@@ -26,13 +26,20 @@
 #include <linux/leds.h>
 #include <linux/device.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/irq.h>
 #include <asm/bootinfo.h>
 #include <asm/idle.h>
 #include <asm/time.h>
 #include <asm/reboot.h>
 #include <asm/r4kcache.h>
+<<<<<<< HEAD
 #include <asm/sections.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/txx9/generic.h>
 #include <asm/txx9/pci.h>
@@ -340,6 +347,7 @@ void __init prom_init(void)
 	txx9_board_vec->prom_init();
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 	unsigned long saddr = PAGE_SIZE;
@@ -349,6 +357,8 @@ void __init prom_free_prom_memory(void)
 		free_init_pages("prom memory", saddr, eaddr);
 }
 
+=======
+>>>>>>> upstream/android-13
 const char *get_system_type(void)
 {
 	return txx9_system_type;

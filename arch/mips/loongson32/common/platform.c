@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2016 Zhang, Keguang <keguang.zhang@gmail.com>
  *
@@ -5,6 +6,11 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2011-2016 Zhang, Keguang <keguang.zhang@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -81,6 +87,7 @@ struct platform_device ls1x_cpufreq_pdev = {
 	},
 };
 
+<<<<<<< HEAD
 /* DMA */
 static struct resource ls1x_dma_resources[] = {
 	[0] = {
@@ -117,6 +124,8 @@ void __init ls1x_dma_set_platdata(struct plat_ls1x_dma *pdata)
 	ls1x_dma_pdev.dev.platform_data = pdata;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Synopsys Ethernet GMAC */
 static struct stmmac_mdio_bus_data ls1x_mdio_bus_data = {
 	.phy_mask	= 0,
@@ -291,6 +300,7 @@ struct platform_device ls1x_gpio1_pdev = {
 	.resource	= ls1x_gpio1_resources,
 };
 
+<<<<<<< HEAD
 /* NAND Flash */
 static struct resource ls1x_nand_resources[] = {
 	[0] = {
@@ -318,6 +328,8 @@ void __init ls1x_nand_set_platdata(struct plat_ls1x_nand *pdata)
 	ls1x_nand_pdev.dev.platform_data = pdata;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* USB EHCI */
 static u64 ls1x_ehci_dmamask = DMA_BIT_MASK(32);
 

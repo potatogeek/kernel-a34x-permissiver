@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+>>>>>>> upstream/android-13
  * journal.h
  *
  * Defines journalling api and structures.
  *
  * Copyright (C) 2003, 2005 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef OCFS2_JOURNAL_H
@@ -158,7 +166,10 @@ static inline void ocfs2_ci_set_new(struct ocfs2_super *osb,
 void ocfs2_orphan_scan_init(struct ocfs2_super *osb);
 void ocfs2_orphan_scan_start(struct ocfs2_super *osb);
 void ocfs2_orphan_scan_stop(struct ocfs2_super *osb);
+<<<<<<< HEAD
 void ocfs2_orphan_scan_exit(struct ocfs2_super *osb);
+=======
+>>>>>>> upstream/android-13
 
 void ocfs2_complete_recovery(struct work_struct *work);
 void ocfs2_wait_for_recovery(struct ocfs2_super *osb);
@@ -246,8 +257,13 @@ static inline void ocfs2_checkpoint_inode(struct inode *inode)
  *                          ocfs2_journal_access_*() unless you intend to
  *                          manage the checksum by hand.
  *  ocfs2_journal_dirty    - Mark a journalled buffer as having dirty data.
+<<<<<<< HEAD
  *  ocfs2_jbd2_file_inode  - Mark an inode so that its data goes out before
  *                           the current handle commits.
+=======
+ *  ocfs2_jbd2_inode_add_write  - Mark an inode with range so that its data goes
+ *                                out before the current handle commits.
+>>>>>>> upstream/android-13
  */
 
 /* You must always start_trans with a number of buffs > 0, but it's
@@ -455,7 +471,11 @@ static inline int ocfs2_mknod_credits(struct super_block *sb, int is_dir,
  * previous dirblock update in the free list */
 static inline int ocfs2_link_credits(struct super_block *sb)
 {
+<<<<<<< HEAD
 	return 2*OCFS2_INODE_UPDATE_CREDITS + 4 +
+=======
+	return 2 * OCFS2_INODE_UPDATE_CREDITS + 4 +
+>>>>>>> upstream/android-13
 	       ocfs2_quota_trans_credits(sb);
 }
 
@@ -589,6 +609,7 @@ static inline int ocfs2_calc_bg_discontig_credits(struct super_block *sb)
 	return ocfs2_extent_recs_per_gd(sb);
 }
 
+<<<<<<< HEAD
 static inline int ocfs2_calc_tree_trunc_credits(struct super_block *sb,
 						unsigned int clusters_to_del,
 						struct ocfs2_dinode *fe,
@@ -620,6 +641,14 @@ static inline int ocfs2_calc_tree_trunc_credits(struct super_block *sb,
 static inline int ocfs2_jbd2_file_inode(handle_t *handle, struct inode *inode)
 {
 	return jbd2_journal_inode_add_write(handle, &OCFS2_I(inode)->ip_jinode);
+=======
+static inline int ocfs2_jbd2_inode_add_write(handle_t *handle, struct inode *inode,
+					     loff_t start_byte, loff_t length)
+{
+	return jbd2_journal_inode_ranged_write(handle,
+					       &OCFS2_I(inode)->ip_jinode,
+					       start_byte, length);
+>>>>>>> upstream/android-13
 }
 
 static inline int ocfs2_begin_ordered_truncate(struct inode *inode,

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Copyright (C) 2012 Regents of the University of California
  * Copyright (C) 2017 SiFive
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_ATOMIC_H
@@ -23,30 +30,49 @@
 #include <asm/cmpxchg.h>
 #include <asm/barrier.h>
 
+<<<<<<< HEAD
 #define ATOMIC_INIT(i)	{ (i) }
 
+=======
+>>>>>>> upstream/android-13
 #define __atomic_acquire_fence()					\
 	__asm__ __volatile__(RISCV_ACQUIRE_BARRIER "" ::: "memory")
 
 #define __atomic_release_fence()					\
 	__asm__ __volatile__(RISCV_RELEASE_BARRIER "" ::: "memory");
 
+<<<<<<< HEAD
 static __always_inline int atomic_read(const atomic_t *v)
 {
 	return READ_ONCE(v->counter);
 }
 static __always_inline void atomic_set(atomic_t *v, int i)
+=======
+static __always_inline int arch_atomic_read(const atomic_t *v)
+{
+	return READ_ONCE(v->counter);
+}
+static __always_inline void arch_atomic_set(atomic_t *v, int i)
+>>>>>>> upstream/android-13
 {
 	WRITE_ONCE(v->counter, i);
 }
 
 #ifndef CONFIG_GENERIC_ATOMIC64
 #define ATOMIC64_INIT(i) { (i) }
+<<<<<<< HEAD
 static __always_inline long atomic64_read(const atomic64_t *v)
 {
 	return READ_ONCE(v->counter);
 }
 static __always_inline void atomic64_set(atomic64_t *v, long i)
+=======
+static __always_inline s64 arch_atomic64_read(const atomic64_t *v)
+{
+	return READ_ONCE(v->counter);
+}
+static __always_inline void arch_atomic64_set(atomic64_t *v, s64 i)
+>>>>>>> upstream/android-13
 {
 	WRITE_ONCE(v->counter, i);
 }
@@ -59,7 +85,11 @@ static __always_inline void atomic64_set(atomic64_t *v, long i)
  */
 #define ATOMIC_OP(op, asm_op, I, asm_type, c_type, prefix)		\
 static __always_inline							\
+<<<<<<< HEAD
 void atomic##prefix##_##op(c_type i, atomic##prefix##_t *v)		\
+=======
+void arch_atomic##prefix##_##op(c_type i, atomic##prefix##_t *v)	\
+>>>>>>> upstream/android-13
 {									\
 	__asm__ __volatile__ (						\
 		"	amo" #asm_op "." #asm_type " zero, %1, %0"	\
@@ -70,11 +100,19 @@ void atomic##prefix##_##op(c_type i, atomic##prefix##_t *v)		\
 
 #ifdef CONFIG_GENERIC_ATOMIC64
 #define ATOMIC_OPS(op, asm_op, I)					\
+<<<<<<< HEAD
         ATOMIC_OP (op, asm_op, I, w,  int,   )
 #else
 #define ATOMIC_OPS(op, asm_op, I)					\
         ATOMIC_OP (op, asm_op, I, w,  int,   )				\
         ATOMIC_OP (op, asm_op, I, d, long, 64)
+=======
+        ATOMIC_OP (op, asm_op, I, w, int,   )
+#else
+#define ATOMIC_OPS(op, asm_op, I)					\
+        ATOMIC_OP (op, asm_op, I, w, int,   )				\
+        ATOMIC_OP (op, asm_op, I, d, s64, 64)
+>>>>>>> upstream/android-13
 #endif
 
 ATOMIC_OPS(add, add,  i)
@@ -93,7 +131,11 @@ ATOMIC_OPS(xor, xor,  i)
  */
 #define ATOMIC_FETCH_OP(op, asm_op, I, asm_type, c_type, prefix)	\
 static __always_inline							\
+<<<<<<< HEAD
 c_type atomic##prefix##_fetch_##op##_relaxed(c_type i,			\
+=======
+c_type arch_atomic##prefix##_fetch_##op##_relaxed(c_type i,		\
+>>>>>>> upstream/android-13
 					     atomic##prefix##_t *v)	\
 {									\
 	register c_type ret;						\
@@ -105,7 +147,11 @@ c_type atomic##prefix##_fetch_##op##_relaxed(c_type i,			\
 	return ret;							\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_type atomic##prefix##_fetch_##op(c_type i, atomic##prefix##_t *v)	\
+=======
+c_type arch_atomic##prefix##_fetch_##op(c_type i, atomic##prefix##_t *v)	\
+>>>>>>> upstream/android-13
 {									\
 	register c_type ret;						\
 	__asm__ __volatile__ (						\
@@ -118,6 +164,7 @@ c_type atomic##prefix##_fetch_##op(c_type i, atomic##prefix##_t *v)	\
 
 #define ATOMIC_OP_RETURN(op, asm_op, c_op, I, asm_type, c_type, prefix)	\
 static __always_inline							\
+<<<<<<< HEAD
 c_type atomic##prefix##_##op##_return_relaxed(c_type i,			\
 					      atomic##prefix##_t *v)	\
 {									\
@@ -127,10 +174,22 @@ static __always_inline							\
 c_type atomic##prefix##_##op##_return(c_type i, atomic##prefix##_t *v)	\
 {									\
         return atomic##prefix##_fetch_##op(i, v) c_op I;		\
+=======
+c_type arch_atomic##prefix##_##op##_return_relaxed(c_type i,		\
+					      atomic##prefix##_t *v)	\
+{									\
+        return arch_atomic##prefix##_fetch_##op##_relaxed(i, v) c_op I;	\
+}									\
+static __always_inline							\
+c_type arch_atomic##prefix##_##op##_return(c_type i, atomic##prefix##_t *v)	\
+{									\
+        return arch_atomic##prefix##_fetch_##op(i, v) c_op I;		\
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_GENERIC_ATOMIC64
 #define ATOMIC_OPS(op, asm_op, c_op, I)					\
+<<<<<<< HEAD
         ATOMIC_FETCH_OP( op, asm_op,       I, w,  int,   )		\
         ATOMIC_OP_RETURN(op, asm_op, c_op, I, w,  int,   )
 #else
@@ -139,11 +198,22 @@ c_type atomic##prefix##_##op##_return(c_type i, atomic##prefix##_t *v)	\
         ATOMIC_OP_RETURN(op, asm_op, c_op, I, w,  int,   )		\
         ATOMIC_FETCH_OP( op, asm_op,       I, d, long, 64)		\
         ATOMIC_OP_RETURN(op, asm_op, c_op, I, d, long, 64)
+=======
+        ATOMIC_FETCH_OP( op, asm_op,       I, w, int,   )		\
+        ATOMIC_OP_RETURN(op, asm_op, c_op, I, w, int,   )
+#else
+#define ATOMIC_OPS(op, asm_op, c_op, I)					\
+        ATOMIC_FETCH_OP( op, asm_op,       I, w, int,   )		\
+        ATOMIC_OP_RETURN(op, asm_op, c_op, I, w, int,   )		\
+        ATOMIC_FETCH_OP( op, asm_op,       I, d, s64, 64)		\
+        ATOMIC_OP_RETURN(op, asm_op, c_op, I, d, s64, 64)
+>>>>>>> upstream/android-13
 #endif
 
 ATOMIC_OPS(add, add, +,  i)
 ATOMIC_OPS(sub, add, +, -i)
 
+<<<<<<< HEAD
 #define atomic_add_return_relaxed	atomic_add_return_relaxed
 #define atomic_sub_return_relaxed	atomic_sub_return_relaxed
 #define atomic_add_return		atomic_add_return
@@ -164,23 +234,54 @@ ATOMIC_OPS(sub, add, +, -i)
 #define atomic64_fetch_sub_relaxed	atomic64_fetch_sub_relaxed
 #define atomic64_fetch_add		atomic64_fetch_add
 #define atomic64_fetch_sub		atomic64_fetch_sub
+=======
+#define arch_atomic_add_return_relaxed	arch_atomic_add_return_relaxed
+#define arch_atomic_sub_return_relaxed	arch_atomic_sub_return_relaxed
+#define arch_atomic_add_return		arch_atomic_add_return
+#define arch_atomic_sub_return		arch_atomic_sub_return
+
+#define arch_atomic_fetch_add_relaxed	arch_atomic_fetch_add_relaxed
+#define arch_atomic_fetch_sub_relaxed	arch_atomic_fetch_sub_relaxed
+#define arch_atomic_fetch_add		arch_atomic_fetch_add
+#define arch_atomic_fetch_sub		arch_atomic_fetch_sub
+
+#ifndef CONFIG_GENERIC_ATOMIC64
+#define arch_atomic64_add_return_relaxed	arch_atomic64_add_return_relaxed
+#define arch_atomic64_sub_return_relaxed	arch_atomic64_sub_return_relaxed
+#define arch_atomic64_add_return		arch_atomic64_add_return
+#define arch_atomic64_sub_return		arch_atomic64_sub_return
+
+#define arch_atomic64_fetch_add_relaxed	arch_atomic64_fetch_add_relaxed
+#define arch_atomic64_fetch_sub_relaxed	arch_atomic64_fetch_sub_relaxed
+#define arch_atomic64_fetch_add		arch_atomic64_fetch_add
+#define arch_atomic64_fetch_sub		arch_atomic64_fetch_sub
+>>>>>>> upstream/android-13
 #endif
 
 #undef ATOMIC_OPS
 
 #ifdef CONFIG_GENERIC_ATOMIC64
 #define ATOMIC_OPS(op, asm_op, I)					\
+<<<<<<< HEAD
         ATOMIC_FETCH_OP(op, asm_op, I, w,  int,   )
 #else
 #define ATOMIC_OPS(op, asm_op, I)					\
         ATOMIC_FETCH_OP(op, asm_op, I, w,  int,   )			\
         ATOMIC_FETCH_OP(op, asm_op, I, d, long, 64)
+=======
+        ATOMIC_FETCH_OP(op, asm_op, I, w, int,   )
+#else
+#define ATOMIC_OPS(op, asm_op, I)					\
+        ATOMIC_FETCH_OP(op, asm_op, I, w, int,   )			\
+        ATOMIC_FETCH_OP(op, asm_op, I, d, s64, 64)
+>>>>>>> upstream/android-13
 #endif
 
 ATOMIC_OPS(and, and, i)
 ATOMIC_OPS( or,  or, i)
 ATOMIC_OPS(xor, xor, i)
 
+<<<<<<< HEAD
 #define atomic_fetch_and_relaxed	atomic_fetch_and_relaxed
 #define atomic_fetch_or_relaxed		atomic_fetch_or_relaxed
 #define atomic_fetch_xor_relaxed	atomic_fetch_xor_relaxed
@@ -195,6 +296,22 @@ ATOMIC_OPS(xor, xor, i)
 #define atomic64_fetch_and		atomic64_fetch_and
 #define atomic64_fetch_or		atomic64_fetch_or
 #define atomic64_fetch_xor		atomic64_fetch_xor
+=======
+#define arch_atomic_fetch_and_relaxed	arch_atomic_fetch_and_relaxed
+#define arch_atomic_fetch_or_relaxed	arch_atomic_fetch_or_relaxed
+#define arch_atomic_fetch_xor_relaxed	arch_atomic_fetch_xor_relaxed
+#define arch_atomic_fetch_and		arch_atomic_fetch_and
+#define arch_atomic_fetch_or		arch_atomic_fetch_or
+#define arch_atomic_fetch_xor		arch_atomic_fetch_xor
+
+#ifndef CONFIG_GENERIC_ATOMIC64
+#define arch_atomic64_fetch_and_relaxed	arch_atomic64_fetch_and_relaxed
+#define arch_atomic64_fetch_or_relaxed	arch_atomic64_fetch_or_relaxed
+#define arch_atomic64_fetch_xor_relaxed	arch_atomic64_fetch_xor_relaxed
+#define arch_atomic64_fetch_and		arch_atomic64_fetch_and
+#define arch_atomic64_fetch_or		arch_atomic64_fetch_or
+#define arch_atomic64_fetch_xor		arch_atomic64_fetch_xor
+>>>>>>> upstream/android-13
 #endif
 
 #undef ATOMIC_OPS
@@ -203,7 +320,11 @@ ATOMIC_OPS(xor, xor, i)
 #undef ATOMIC_OP_RETURN
 
 /* This is required to provide a full barrier on success. */
+<<<<<<< HEAD
 static __always_inline int atomic_fetch_add_unless(atomic_t *v, int a, int u)
+=======
+static __always_inline int arch_atomic_fetch_add_unless(atomic_t *v, int a, int u)
+>>>>>>> upstream/android-13
 {
        int prev, rc;
 
@@ -220,12 +341,22 @@ static __always_inline int atomic_fetch_add_unless(atomic_t *v, int a, int u)
 		: "memory");
 	return prev;
 }
+<<<<<<< HEAD
 #define atomic_fetch_add_unless atomic_fetch_add_unless
 
 #ifndef CONFIG_GENERIC_ATOMIC64
 static __always_inline long atomic64_fetch_add_unless(atomic64_t *v, long a, long u)
 {
        long prev, rc;
+=======
+#define arch_atomic_fetch_add_unless arch_atomic_fetch_add_unless
+
+#ifndef CONFIG_GENERIC_ATOMIC64
+static __always_inline s64 arch_atomic64_fetch_add_unless(atomic64_t *v, s64 a, s64 u)
+{
+       s64 prev;
+       long rc;
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__ (
 		"0:	lr.d     %[p],  %[c]\n"
@@ -240,7 +371,11 @@ static __always_inline long atomic64_fetch_add_unless(atomic64_t *v, long a, lon
 		: "memory");
 	return prev;
 }
+<<<<<<< HEAD
 #define atomic64_fetch_add_unless atomic64_fetch_add_unless
+=======
+#define arch_atomic64_fetch_add_unless arch_atomic64_fetch_add_unless
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -249,64 +384,120 @@ static __always_inline long atomic64_fetch_add_unless(atomic64_t *v, long a, lon
  */
 #define ATOMIC_OP(c_t, prefix, size)					\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_xchg_relaxed(atomic##prefix##_t *v, c_t n)		\
+=======
+c_t arch_atomic##prefix##_xchg_relaxed(atomic##prefix##_t *v, c_t n)	\
+>>>>>>> upstream/android-13
 {									\
 	return __xchg_relaxed(&(v->counter), n, size);			\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_xchg_acquire(atomic##prefix##_t *v, c_t n)		\
+=======
+c_t arch_atomic##prefix##_xchg_acquire(atomic##prefix##_t *v, c_t n)	\
+>>>>>>> upstream/android-13
 {									\
 	return __xchg_acquire(&(v->counter), n, size);			\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_xchg_release(atomic##prefix##_t *v, c_t n)		\
+=======
+c_t arch_atomic##prefix##_xchg_release(atomic##prefix##_t *v, c_t n)	\
+>>>>>>> upstream/android-13
 {									\
 	return __xchg_release(&(v->counter), n, size);			\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_xchg(atomic##prefix##_t *v, c_t n)			\
+=======
+c_t arch_atomic##prefix##_xchg(atomic##prefix##_t *v, c_t n)		\
+>>>>>>> upstream/android-13
 {									\
 	return __xchg(&(v->counter), n, size);				\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_cmpxchg_relaxed(atomic##prefix##_t *v,		\
+=======
+c_t arch_atomic##prefix##_cmpxchg_relaxed(atomic##prefix##_t *v,	\
+>>>>>>> upstream/android-13
 				     c_t o, c_t n)			\
 {									\
 	return __cmpxchg_relaxed(&(v->counter), o, n, size);		\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_cmpxchg_acquire(atomic##prefix##_t *v,		\
+=======
+c_t arch_atomic##prefix##_cmpxchg_acquire(atomic##prefix##_t *v,	\
+>>>>>>> upstream/android-13
 				     c_t o, c_t n)			\
 {									\
 	return __cmpxchg_acquire(&(v->counter), o, n, size);		\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_cmpxchg_release(atomic##prefix##_t *v,		\
+=======
+c_t arch_atomic##prefix##_cmpxchg_release(atomic##prefix##_t *v,	\
+>>>>>>> upstream/android-13
 				     c_t o, c_t n)			\
 {									\
 	return __cmpxchg_release(&(v->counter), o, n, size);		\
 }									\
 static __always_inline							\
+<<<<<<< HEAD
 c_t atomic##prefix##_cmpxchg(atomic##prefix##_t *v, c_t o, c_t n)	\
+=======
+c_t arch_atomic##prefix##_cmpxchg(atomic##prefix##_t *v, c_t o, c_t n)	\
+>>>>>>> upstream/android-13
 {									\
 	return __cmpxchg(&(v->counter), o, n, size);			\
 }
 
 #ifdef CONFIG_GENERIC_ATOMIC64
 #define ATOMIC_OPS()							\
+<<<<<<< HEAD
 	ATOMIC_OP( int,   , 4)
 #else
 #define ATOMIC_OPS()							\
 	ATOMIC_OP( int,   , 4)						\
 	ATOMIC_OP(long, 64, 8)
+=======
+	ATOMIC_OP(int,   , 4)
+#else
+#define ATOMIC_OPS()							\
+	ATOMIC_OP(int,   , 4)						\
+	ATOMIC_OP(s64, 64, 8)
+>>>>>>> upstream/android-13
 #endif
 
 ATOMIC_OPS()
 
+<<<<<<< HEAD
 #undef ATOMIC_OPS
 #undef ATOMIC_OP
 
 static __always_inline int atomic_sub_if_positive(atomic_t *v, int offset)
+=======
+#define arch_atomic_xchg_relaxed	arch_atomic_xchg_relaxed
+#define arch_atomic_xchg_acquire	arch_atomic_xchg_acquire
+#define arch_atomic_xchg_release	arch_atomic_xchg_release
+#define arch_atomic_xchg		arch_atomic_xchg
+#define arch_atomic_cmpxchg_relaxed	arch_atomic_cmpxchg_relaxed
+#define arch_atomic_cmpxchg_acquire	arch_atomic_cmpxchg_acquire
+#define arch_atomic_cmpxchg_release	arch_atomic_cmpxchg_release
+#define arch_atomic_cmpxchg		arch_atomic_cmpxchg
+
+#undef ATOMIC_OPS
+#undef ATOMIC_OP
+
+static __always_inline int arch_atomic_sub_if_positive(atomic_t *v, int offset)
+>>>>>>> upstream/android-13
 {
        int prev, rc;
 
@@ -324,12 +515,22 @@ static __always_inline int atomic_sub_if_positive(atomic_t *v, int offset)
 	return prev - offset;
 }
 
+<<<<<<< HEAD
 #define atomic_dec_if_positive(v)	atomic_sub_if_positive(v, 1)
 
 #ifndef CONFIG_GENERIC_ATOMIC64
 static __always_inline long atomic64_sub_if_positive(atomic64_t *v, int offset)
 {
        long prev, rc;
+=======
+#define arch_atomic_dec_if_positive(v)	arch_atomic_sub_if_positive(v, 1)
+
+#ifndef CONFIG_GENERIC_ATOMIC64
+static __always_inline s64 arch_atomic64_sub_if_positive(atomic64_t *v, s64 offset)
+{
+       s64 prev;
+       long rc;
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__ (
 		"0:	lr.d     %[p],  %[c]\n"
@@ -345,7 +546,11 @@ static __always_inline long atomic64_sub_if_positive(atomic64_t *v, int offset)
 	return prev - offset;
 }
 
+<<<<<<< HEAD
 #define atomic64_dec_if_positive(v)	atomic64_sub_if_positive(v, 1)
+=======
+#define arch_atomic64_dec_if_positive(v)	arch_atomic64_sub_if_positive(v, 1)
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* _ASM_RISCV_ATOMIC_H */

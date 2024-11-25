@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * iSCSI lib definitions
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2004 - 2006 Mike Christie
  * Copyright (C) 2004 - 2005 Dmitry Yusupov
  * Copyright (C) 2004 - 2005 Alex Aizman
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef LIBISCSI_H
 #define LIBISCSI_H
@@ -65,8 +72,15 @@ enum {
 
 #define ISID_SIZE			6
 
+<<<<<<< HEAD
 /* Connection suspend "bit" */
 #define ISCSI_SUSPEND_BIT		1
+=======
+/* Connection flags */
+#define ISCSI_CONN_FLAG_SUSPEND_TX	BIT(0)
+#define ISCSI_CONN_FLAG_SUSPEND_RX	BIT(1)
+#define ISCSI_CONN_FLAG_BOUND		BIT(2)
+>>>>>>> upstream/android-13
 
 #define ISCSI_ITT_MASK			0x1fff
 #define ISCSI_TOTAL_CMDS_MAX		4096
@@ -158,6 +172,16 @@ static inline void* iscsi_next_hdr(struct iscsi_task *task)
 	return (void*)task->hdr + task->hdr_len;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool iscsi_task_is_completed(struct iscsi_task *task)
+{
+	return task->state == ISCSI_TASK_COMPLETED ||
+	       task->state == ISCSI_TASK_ABRT_TMF ||
+	       task->state == ISCSI_TASK_ABRT_SESS_RECOV;
+}
+
+>>>>>>> upstream/android-13
 /* Connection's states */
 enum {
 	ISCSI_CONN_INITIAL_STAGE,
@@ -200,11 +224,16 @@ struct iscsi_conn {
 	struct iscsi_task	*task;		/* xmit task in progress */
 
 	/* xmit */
+<<<<<<< HEAD
 	spinlock_t		taskqueuelock;  /* protects the next three lists */
+=======
+	/* items must be added/deleted under frwd lock */
+>>>>>>> upstream/android-13
 	struct list_head	mgmtqueue;	/* mgmt (control) xmit queue */
 	struct list_head	cmdqueue;	/* data-path cmd queue */
 	struct list_head	requeue;	/* tasks needing another run */
 	struct work_struct	xmitwork;	/* per-conn. xmit workqueue */
+<<<<<<< HEAD
 	unsigned long		suspend_tx;	/* suspend Tx */
 	unsigned long		suspend_rx;	/* suspend Rx */
 
@@ -213,6 +242,9 @@ struct iscsi_conn {
 	struct iscsi_tm		tmhdr;
 	struct timer_list	tmf_timer;
 	int			tmf_state;	/* see TMF_INITIAL, etc.*/
+=======
+	unsigned long		flags;		/* ISCSI_CONN_FLAGs */
+>>>>>>> upstream/android-13
 
 	/* negotiated params */
 	unsigned		max_recv_dlength; /* initiator_max_recv_dsl*/
@@ -283,6 +315,15 @@ struct iscsi_session {
 	 * and recv lock.
 	 */
 	struct mutex		eh_mutex;
+<<<<<<< HEAD
+=======
+	/* abort */
+	wait_queue_head_t	ehwait;		/* used in eh_abort() */
+	struct iscsi_tm		tmhdr;
+	struct timer_list	tmf_timer;
+	int			tmf_state;	/* see TMF_INITIAL, etc.*/
+	struct iscsi_task	*running_aborted_task;
+>>>>>>> upstream/android-13
 
 	/* iSCSI session-wide sequencing */
 	uint32_t		cmdsn;
@@ -345,7 +386,11 @@ struct iscsi_session {
 						 * cmdsn, queued_cmdsn     *
 						 * session resources:      *
 						 * - cmdpool kfifo_out ,   *
+<<<<<<< HEAD
 						 * - mgmtpool,		   */
+=======
+						 * - mgmtpool, queues	   */
+>>>>>>> upstream/android-13
 	spinlock_t		back_lock;	/* protects cmdsn_exp      *
 						 * cmdsn_max,              *
 						 * cmdpool kfifo_in        */
@@ -408,6 +453,11 @@ extern struct Scsi_Host *iscsi_host_alloc(struct scsi_host_template *sht,
 extern void iscsi_host_remove(struct Scsi_Host *shost);
 extern void iscsi_host_free(struct Scsi_Host *shost);
 extern int iscsi_target_alloc(struct scsi_target *starget);
+<<<<<<< HEAD
+=======
+extern int iscsi_host_get_max_scsi_cmds(struct Scsi_Host *shost,
+					uint16_t requested_cmds_max);
+>>>>>>> upstream/android-13
 
 /*
  * session management
@@ -435,6 +485,10 @@ extern int iscsi_conn_start(struct iscsi_cls_conn *);
 extern void iscsi_conn_stop(struct iscsi_cls_conn *, int);
 extern int iscsi_conn_bind(struct iscsi_cls_session *, struct iscsi_cls_conn *,
 			   int);
+<<<<<<< HEAD
+=======
+extern void iscsi_conn_unbind(struct iscsi_cls_conn *cls_conn, bool is_active);
+>>>>>>> upstream/android-13
 extern void iscsi_conn_failure(struct iscsi_conn *conn, enum iscsi_err err);
 extern void iscsi_session_failure(struct iscsi_session *session,
 				  enum iscsi_err err);

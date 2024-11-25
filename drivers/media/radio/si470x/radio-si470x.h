@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  drivers/media/radio/si470x/radio-si470x.h
  *
  *  Driver for radios with Silicon Labs Si470x FM Radio Receivers
  *
  *  Copyright (c) 2009 Tobias Lorenz <tobias.lorenz@gmx.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -189,6 +196,10 @@ struct si470x_device {
 
 #if IS_ENABLED(CONFIG_I2C_SI470X)
 	struct i2c_client *client;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *gpio_reset;
+>>>>>>> upstream/android-13
 #endif
 };
 

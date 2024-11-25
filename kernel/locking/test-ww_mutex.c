@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Module-based API test facility for ww_mutexes
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, you can access it online at
  * http://www.gnu.org/licenses/gpl-2.0.html.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Module-based API test facility for ww_mutexes
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

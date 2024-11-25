@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * File Name:
  *   skfddi.c
@@ -5,11 +9,14 @@
  * Copyright Information:
  *   Copyright SysKonnect 1998,1999.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * The information in this file is provided "AS IS" without warranty.
  *
  * Abstract:
@@ -74,6 +81,10 @@ static const char * const boot_msg =
 /* Include files */
 
 #include <linux/capability.h>
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/errno.h>
@@ -107,7 +118,12 @@ static struct net_device_stats *skfp_ctl_get_stats(struct net_device *dev);
 static void skfp_ctl_set_multicast_list(struct net_device *dev);
 static void skfp_ctl_set_multicast_list_wo_lock(struct net_device *dev);
 static int skfp_ctl_set_mac_address(struct net_device *dev, void *addr);
+<<<<<<< HEAD
 static int skfp_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+=======
+static int skfp_siocdevprivate(struct net_device *dev, struct ifreq *rq,
+			       void __user *data, int cmd);
+>>>>>>> upstream/android-13
 static netdev_tx_t skfp_send_pkt(struct sk_buff *skb,
 				       struct net_device *dev);
 static void send_queued_packets(struct s_smc *smc);
@@ -168,7 +184,11 @@ static const struct net_device_ops skfp_netdev_ops = {
 	.ndo_get_stats		= skfp_ctl_get_stats,
 	.ndo_set_rx_mode	= skfp_ctl_set_multicast_list,
 	.ndo_set_mac_address	= skfp_ctl_set_mac_address,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= skfp_ioctl,
+=======
+	.ndo_siocdevprivate	= skfp_siocdevprivate,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -409,10 +429,17 @@ static  int skfp_driver_init(struct net_device *dev)
 	if (bp->SharedMemSize > 0) {
 		bp->SharedMemSize += 16;	// for descriptor alignment
 
+<<<<<<< HEAD
 		bp->SharedMemAddr = dma_zalloc_coherent(&bp->pdev.dev,
 							bp->SharedMemSize,
 							&bp->SharedMemDMA,
 							GFP_ATOMIC);
+=======
+		bp->SharedMemAddr = dma_alloc_coherent(&bp->pdev.dev,
+						       bp->SharedMemSize,
+						       &bp->SharedMemDMA,
+						       GFP_ATOMIC);
+>>>>>>> upstream/android-13
 		if (!bp->SharedMemAddr) {
 			printk("could not allocate mem for ");
 			printk("hardware module: %ld byte\n",
@@ -936,9 +963,15 @@ static int skfp_ctl_set_mac_address(struct net_device *dev, void *addr)
 
 
 /*
+<<<<<<< HEAD
  * ==============
  * = skfp_ioctl =
  * ==============
+=======
+ * =======================
+ * = skfp_siocdevprivate =
+ * =======================
+>>>>>>> upstream/android-13
  *   
  * Overview:
  *
@@ -958,16 +991,29 @@ static int skfp_ctl_set_mac_address(struct net_device *dev, void *addr)
  */
 
 
+<<<<<<< HEAD
 static int skfp_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+=======
+static int skfp_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct s_smc *smc = netdev_priv(dev);
 	skfddi_priv *lp = &smc->os;
 	struct s_skfp_ioctl ioc;
 	int status = 0;
 
+<<<<<<< HEAD
 	if (copy_from_user(&ioc, rq->ifr_data, sizeof(struct s_skfp_ioctl)))
 		return -EFAULT;
 
+=======
+	if (copy_from_user(&ioc, data, sizeof(struct s_skfp_ioctl)))
+		return -EFAULT;
+
+	if (in_compat_syscall())
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	switch (ioc.cmd) {
 	case SKFP_GET_STATS:	/* Get the driver statistics */
 		ioc.len = sizeof(lp->MacStat);
@@ -1173,8 +1219,13 @@ static void send_queued_packets(struct s_smc *smc)
 
 		txd = (struct s_smt_fp_txd *) HWM_GET_CURR_TXD(smc, queue);
 
+<<<<<<< HEAD
 		dma_address = pci_map_single(&bp->pdev, skb->data,
 					     skb->len, PCI_DMA_TODEVICE);
+=======
+		dma_address = dma_map_single(&(&bp->pdev)->dev, skb->data,
+					     skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		if (frame_status & LAN_TX) {
 			txd->txd_os.skb = skb;			// save skb
 			txd->txd_os.dma_addr = dma_address;	// save dma mapping
@@ -1183,8 +1234,13 @@ static void send_queued_packets(struct s_smc *smc)
                       frame_status | FIRST_FRAG | LAST_FRAG | EN_IRQ_EOF);
 
 		if (!(frame_status & LAN_TX)) {		// local only frame
+<<<<<<< HEAD
 			pci_unmap_single(&bp->pdev, dma_address,
 					 skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&(&bp->pdev)->dev, dma_address,
+					 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_irq(skb);
 		}
 		spin_unlock_irqrestore(&bp->DriverLock, Flags);
@@ -1466,8 +1522,14 @@ void dma_complete(struct s_smc *smc, volatile union s_fp_descr *descr, int flag)
 		if (r->rxd_os.skb && r->rxd_os.dma_addr) {
 			int MaxFrameSize = bp->MaxFrameSize;
 
+<<<<<<< HEAD
 			pci_unmap_single(&bp->pdev, r->rxd_os.dma_addr,
 					 MaxFrameSize, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&(&bp->pdev)->dev,
+					 r->rxd_os.dma_addr, MaxFrameSize,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			r->rxd_os.dma_addr = 0;
 		}
 	}
@@ -1502,8 +1564,13 @@ void mac_drv_tx_complete(struct s_smc *smc, volatile struct s_smt_fp_txd *txd)
 	txd->txd_os.skb = NULL;
 
 	// release the DMA mapping
+<<<<<<< HEAD
 	pci_unmap_single(&smc->os.pdev, txd->txd_os.dma_addr,
 			 skb->len, PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&(&smc->os.pdev)->dev, txd->txd_os.dma_addr,
+			 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	txd->txd_os.dma_addr = 0;
 
 	smc->os.MacStat.gen.tx_packets++;	// Count transmitted packets.
@@ -1524,6 +1591,7 @@ void mac_drv_tx_complete(struct s_smc *smc, volatile struct s_smt_fp_txd *txd)
 #ifdef DUMPPACKETS
 void dump_data(unsigned char *Data, int length)
 {
+<<<<<<< HEAD
 	int i, j;
 	unsigned char s[255], sh[10];
 	if (length > 64) {
@@ -1540,6 +1608,10 @@ void dump_data(unsigned char *Data, int length)
 		strcat(s, sh);
 	}
 	printk(KERN_INFO "%s\n", s);
+=======
+	printk(KERN_INFO "---Packet start---\n");
+	print_hex_dump(KERN_INFO, "", DUMP_PREFIX_NONE, 16, 1, Data, min_t(size_t, length, 64), false);
+>>>>>>> upstream/android-13
 	printk(KERN_INFO "------------------\n");
 }				// dump_data
 #else
@@ -1720,10 +1792,16 @@ void mac_drv_requeue_rxd(struct s_smc *smc, volatile struct s_smt_fp_rxd *rxd,
 				skb_reserve(skb, 3);
 				skb_put(skb, MaxFrameSize);
 				v_addr = skb->data;
+<<<<<<< HEAD
 				b_addr = pci_map_single(&smc->os.pdev,
 							v_addr,
 							MaxFrameSize,
 							PCI_DMA_FROMDEVICE);
+=======
+				b_addr = dma_map_single(&(&smc->os.pdev)->dev,
+							v_addr, MaxFrameSize,
+							DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				rxd->rxd_os.dma_addr = b_addr;
 			} else {
 				// no skb available, use local buffer
@@ -1736,10 +1814,15 @@ void mac_drv_requeue_rxd(struct s_smc *smc, volatile struct s_smt_fp_rxd *rxd,
 			// we use skb from old rxd
 			rxd->rxd_os.skb = skb;
 			v_addr = skb->data;
+<<<<<<< HEAD
 			b_addr = pci_map_single(&smc->os.pdev,
 						v_addr,
 						MaxFrameSize,
 						PCI_DMA_FROMDEVICE);
+=======
+			b_addr = dma_map_single(&(&smc->os.pdev)->dev, v_addr,
+						MaxFrameSize, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			rxd->rxd_os.dma_addr = b_addr;
 		}
 		hwm_rx_frag(smc, v_addr, b_addr, MaxFrameSize,
@@ -1791,10 +1874,15 @@ void mac_drv_fill_rxd(struct s_smc *smc)
 			skb_reserve(skb, 3);
 			skb_put(skb, MaxFrameSize);
 			v_addr = skb->data;
+<<<<<<< HEAD
 			b_addr = pci_map_single(&smc->os.pdev,
 						v_addr,
 						MaxFrameSize,
 						PCI_DMA_FROMDEVICE);
+=======
+			b_addr = dma_map_single(&(&smc->os.pdev)->dev, v_addr,
+						MaxFrameSize, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			rxd->rxd_os.dma_addr = b_addr;
 		} else {
 			// no skb available, use local buffer
@@ -1851,8 +1939,14 @@ void mac_drv_clear_rxd(struct s_smc *smc, volatile struct s_smt_fp_rxd *rxd,
 			skfddi_priv *bp = &smc->os;
 			int MaxFrameSize = bp->MaxFrameSize;
 
+<<<<<<< HEAD
 			pci_unmap_single(&bp->pdev, rxd->rxd_os.dma_addr,
 					 MaxFrameSize, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&(&bp->pdev)->dev,
+					 rxd->rxd_os.dma_addr, MaxFrameSize,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 			dev_kfree_skb(skb);
 			rxd->rxd_os.skb = NULL;

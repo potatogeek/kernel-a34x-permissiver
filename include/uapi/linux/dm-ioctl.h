@@ -193,8 +193,27 @@ struct dm_name_list {
 	__u32 next;		/* offset to the next record from
 				   the _start_ of this */
 	char name[0];
+<<<<<<< HEAD
 };
 
+=======
+
+	/*
+	 * The following members can be accessed by taking a pointer that
+	 * points immediately after the terminating zero character in "name"
+	 * and aligning this pointer to next 8-byte boundary.
+	 * Uuid is present if the flag DM_NAME_LIST_FLAG_HAS_UUID is set.
+	 *
+	 * __u32 event_nr;
+	 * __u32 flags;
+	 * char uuid[0];
+	 */
+};
+
+#define DM_NAME_LIST_FLAG_HAS_UUID		1
+#define DM_NAME_LIST_FLAG_DOESNT_HAVE_UUID	2
+
+>>>>>>> upstream/android-13
 /*
  * Used to retrieve the target versions
  */
@@ -243,6 +262,10 @@ enum {
 	DM_TARGET_MSG_CMD,
 	DM_DEV_SET_GEOMETRY_CMD,
 	DM_DEV_ARM_POLL_CMD,
+<<<<<<< HEAD
+=======
+	DM_GET_TARGET_VERSION_CMD,
+>>>>>>> upstream/android-13
 };
 
 #define DM_IOCTL 0xfd
@@ -265,14 +288,24 @@ enum {
 #define DM_TABLE_STATUS  _IOWR(DM_IOCTL, DM_TABLE_STATUS_CMD, struct dm_ioctl)
 
 #define DM_LIST_VERSIONS _IOWR(DM_IOCTL, DM_LIST_VERSIONS_CMD, struct dm_ioctl)
+<<<<<<< HEAD
+=======
+#define DM_GET_TARGET_VERSION _IOWR(DM_IOCTL, DM_GET_TARGET_VERSION_CMD, struct dm_ioctl)
+>>>>>>> upstream/android-13
 
 #define DM_TARGET_MSG	 _IOWR(DM_IOCTL, DM_TARGET_MSG_CMD, struct dm_ioctl)
 #define DM_DEV_SET_GEOMETRY	_IOWR(DM_IOCTL, DM_DEV_SET_GEOMETRY_CMD, struct dm_ioctl)
 
 #define DM_VERSION_MAJOR	4
+<<<<<<< HEAD
 #define DM_VERSION_MINOR	39
 #define DM_VERSION_PATCHLEVEL	0
 #define DM_VERSION_EXTRA	"-ioctl (2018-04-03)"
+=======
+#define DM_VERSION_MINOR	45
+#define DM_VERSION_PATCHLEVEL	0
+#define DM_VERSION_EXTRA	"-ioctl (2021-03-22)"
+>>>>>>> upstream/android-13
 
 /* Status bits */
 #define DM_READONLY_FLAG	(1 << 0) /* In/Out */
@@ -360,4 +393,13 @@ enum {
  */
 #define DM_INTERNAL_SUSPEND_FLAG	(1 << 18) /* Out */
 
+<<<<<<< HEAD
+=======
+/*
+ * If set, returns in the in buffer passed by UM, the raw table information
+ * that would be measured by IMA subsystem on device state change.
+ */
+#define DM_IMA_MEASUREMENT_FLAG	(1 << 19) /* In */
+
+>>>>>>> upstream/android-13
 #endif				/* _LINUX_DM_IOCTL_H */

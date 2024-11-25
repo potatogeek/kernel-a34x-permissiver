@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /* IEEE 802.11 SoftMAC layer
  * Copyright (c) 2005 Andrea Merello <andrea.merello@gmail.com>
  *
@@ -9,11 +13,15 @@
  *
  * PS wx handler mostly stolen from hostap, copyright who
  * own it's copyright ;-)
+<<<<<<< HEAD
  *
  * released under the GPL
  */
 
 
+=======
+ */
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 
 #include "rtllib.h"
@@ -542,6 +550,7 @@ int rtllib_wx_set_rawtx(struct rtllib_device *ieee,
 }
 EXPORT_SYMBOL(rtllib_wx_set_rawtx);
 
+<<<<<<< HEAD
 int rtllib_wx_get_name(struct rtllib_device *ieee,
 			     struct iw_request_info *info,
 			     union iwreq_data *wrqu, char *extra)
@@ -554,6 +563,16 @@ int rtllib_wx_get_name(struct rtllib_device *ieee,
 		strcat(wrqu->name, "g");
 	if (ieee->mode & (IEEE_N_24G | IEEE_N_5G))
 		strcat(wrqu->name, "n");
+=======
+int rtllib_wx_get_name(struct rtllib_device *ieee, struct iw_request_info *info,
+		       union iwreq_data *wrqu, char *extra)
+{
+	const char *b = ieee->modulation & RTLLIB_CCK_MODULATION ? "b" : "";
+	const char *g = ieee->modulation & RTLLIB_OFDM_MODULATION ? "g" : "";
+	const char *n = ieee->mode & (IEEE_N_24G | IEEE_N_5G) ? "n" : "";
+
+	scnprintf(wrqu->name, sizeof(wrqu->name), "802.11%s%s%s", b, g, n);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(rtllib_wx_get_name);

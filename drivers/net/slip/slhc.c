@@ -91,8 +91,13 @@ static unsigned short pull16(unsigned char **cpp);
 struct slcompress *
 slhc_init(int rslots, int tslots)
 {
+<<<<<<< HEAD
 	register short i;
 	register struct cstate *ts;
+=======
+	short i;
+	struct cstate *ts;
+>>>>>>> upstream/android-13
 	struct slcompress *comp;
 
 	if (rslots < 0 || rslots > 255 || tslots < 0 || tslots > 255)
@@ -206,7 +211,11 @@ pull16(unsigned char **cpp)
 static long
 decode(unsigned char **cpp)
 {
+<<<<<<< HEAD
 	register int x;
+=======
+	int x;
+>>>>>>> upstream/android-13
 
 	x = *(*cpp)++;
 	if(x == 0){
@@ -227,6 +236,7 @@ int
 slhc_compress(struct slcompress *comp, unsigned char *icp, int isize,
 	unsigned char *ocp, unsigned char **cpp, int compress_cid)
 {
+<<<<<<< HEAD
 	register struct cstate *ocs = &(comp->tstate[comp->xmit_oldest]);
 	register struct cstate *lcs = ocs;
 	register struct cstate *cs = lcs->next;
@@ -235,6 +245,16 @@ slhc_compress(struct slcompress *comp, unsigned char *icp, int isize,
 	int nlen, hlen;
 	unsigned char new_seq[16];
 	register unsigned char *cp = new_seq;
+=======
+	struct cstate *ocs = &(comp->tstate[comp->xmit_oldest]);
+	struct cstate *lcs = ocs;
+	struct cstate *cs = lcs->next;
+	unsigned long deltaS, deltaA;
+	short changes = 0;
+	int nlen, hlen;
+	unsigned char new_seq[16];
+	unsigned char *cp = new_seq;
+>>>>>>> upstream/android-13
 	struct iphdr *ip;
 	struct tcphdr *th, *oth;
 	__sum16 csum;
@@ -325,7 +345,11 @@ found:
 	 * Found it -- move to the front on the connection list.
 	 */
 	if(lcs == ocs) {
+<<<<<<< HEAD
  		/* found at most recently used */
+=======
+		/* found at most recently used */
+>>>>>>> upstream/android-13
 	} else if (cs == ocs) {
 		/* found at least recently used */
 		comp->xmit_oldest = lcs->cs_this;
@@ -492,11 +516,19 @@ uncompressed:
 int
 slhc_uncompress(struct slcompress *comp, unsigned char *icp, int isize)
 {
+<<<<<<< HEAD
 	register int changes;
 	long x;
 	register struct tcphdr *thp;
 	register struct iphdr *ip;
 	register struct cstate *cs;
+=======
+	int changes;
+	long x;
+	struct tcphdr *thp;
+	struct iphdr *ip;
+	struct cstate *cs;
+>>>>>>> upstream/android-13
 	int len, hdrlen;
 	unsigned char *cp = icp;
 
@@ -549,7 +581,11 @@ slhc_uncompress(struct slcompress *comp, unsigned char *icp, int isize)
 	switch(changes & SPECIALS_MASK){
 	case SPECIAL_I:		/* Echoed terminal traffic */
 		{
+<<<<<<< HEAD
 		register short i;
+=======
+		short i;
+>>>>>>> upstream/android-13
 		i = ntohs(ip->tot_len) - hdrlen;
 		thp->ack_seq = htonl( ntohl(thp->ack_seq) + i);
 		thp->seq = htonl( ntohl(thp->seq) + i);
@@ -643,7 +679,11 @@ bad:
 int
 slhc_remember(struct slcompress *comp, unsigned char *icp, int isize)
 {
+<<<<<<< HEAD
 	register struct cstate *cs;
+=======
+	struct cstate *cs;
+>>>>>>> upstream/android-13
 	unsigned ihl;
 
 	unsigned char index;

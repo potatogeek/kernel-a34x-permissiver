@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"[drm:%s:%d] " fmt, __func__, __LINE__
@@ -30,7 +35,11 @@
 #define DPU_MAX_IMG_WIDTH		0x3FFF
 #define DPU_MAX_IMG_HEIGHT		0x3FFF
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * DPU supported format packing, bpp, and other format
  * information.
  * DPU currently only supports interleaved RGB formats
@@ -216,7 +225,11 @@ static const struct dpu_format dpu_format_map[] = {
 	INTERLEAVED_RGB_FMT(XBGR8888,
 		COLOR_8BIT, COLOR_8BIT, COLOR_8BIT, COLOR_8BIT,
 		C2_R_Cr, C0_G_Y, C1_B_Cb, C3_ALPHA, 4,
+<<<<<<< HEAD
 		true, 4, 0,
+=======
+		false, 4, 0,
+>>>>>>> upstream/android-13
 		DPU_FETCH_LINEAR, 1),
 
 	INTERLEAVED_RGB_FMT(RGBA8888,
@@ -479,6 +492,7 @@ static const struct dpu_format dpu_format_map[] = {
 };
 
 /*
+<<<<<<< HEAD
  * A5x tile formats tables:
  * These tables hold the A5x tile formats supported.
  */
@@ -563,6 +577,8 @@ static const struct dpu_format dpu_format_map_tile[] = {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * UBWC formats table:
  * This table holds the UBWC formats supported.
  * If a compression ratio needs to be used for this or any other format,
@@ -581,12 +597,34 @@ static const struct dpu_format dpu_format_map_ubwc[] = {
 		true, 4, DPU_FORMAT_FLAG_COMPRESSED,
 		DPU_FETCH_UBWC, 2, DPU_TILE_HEIGHT_UBWC),
 
+<<<<<<< HEAD
+=======
+	/* ARGB8888 and ABGR8888 purposely have the same color
+	 * ordering.  The hardware only supports ABGR8888 UBWC
+	 * natively.
+	 */
+	INTERLEAVED_RGB_FMT_TILED(ARGB8888,
+		COLOR_8BIT, COLOR_8BIT, COLOR_8BIT, COLOR_8BIT,
+		C2_R_Cr, C0_G_Y, C1_B_Cb, C3_ALPHA, 4,
+		true, 4, DPU_FORMAT_FLAG_COMPRESSED,
+		DPU_FETCH_UBWC, 2, DPU_TILE_HEIGHT_UBWC),
+
+>>>>>>> upstream/android-13
 	INTERLEAVED_RGB_FMT_TILED(XBGR8888,
 		COLOR_8BIT, COLOR_8BIT, COLOR_8BIT, COLOR_8BIT,
 		C2_R_Cr, C0_G_Y, C1_B_Cb, C3_ALPHA, 4,
 		false, 4, DPU_FORMAT_FLAG_COMPRESSED,
 		DPU_FETCH_UBWC, 2, DPU_TILE_HEIGHT_UBWC),
 
+<<<<<<< HEAD
+=======
+	INTERLEAVED_RGB_FMT_TILED(XRGB8888,
+		COLOR_8BIT, COLOR_8BIT, COLOR_8BIT, COLOR_8BIT,
+		C2_R_Cr, C0_G_Y, C1_B_Cb, C3_ALPHA, 4,
+		false, 4, DPU_FORMAT_FLAG_COMPRESSED,
+		DPU_FETCH_UBWC, 2, DPU_TILE_HEIGHT_UBWC),
+
+>>>>>>> upstream/android-13
 	INTERLEAVED_RGB_FMT_TILED(ABGR2101010,
 		COLOR_8BIT, COLOR_8BIT, COLOR_8BIT, COLOR_8BIT,
 		C2_R_Cr, C0_G_Y, C1_B_Cb, C3_ALPHA, 4,
@@ -607,6 +645,7 @@ static const struct dpu_format dpu_format_map_ubwc[] = {
 		DPU_FETCH_UBWC, 4, DPU_TILE_HEIGHT_NV12),
 };
 
+<<<<<<< HEAD
 static const struct dpu_format dpu_format_map_p010[] = {
 	PSEUDO_YUV_FMT_LOOSE(NV12,
 		0, COLOR_8BIT, COLOR_8BIT, COLOR_8BIT,
@@ -633,6 +672,8 @@ static const struct dpu_format dpu_format_map_tp10_ubwc[] = {
 		DPU_FETCH_UBWC, 4, DPU_TILE_HEIGHT_NV12),
 };
 
+=======
+>>>>>>> upstream/android-13
 /* _dpu_get_v_h_subsample_rate - Get subsample rates for all formats we support
  *   Note: Not using the drm_format_*_subsampling since we have formats
  */
@@ -668,7 +709,13 @@ static int _dpu_format_get_media_color_ubwc(const struct dpu_format *fmt)
 {
 	static const struct dpu_media_color_map dpu_media_ubwc_map[] = {
 		{DRM_FORMAT_ABGR8888, COLOR_FMT_RGBA8888_UBWC},
+<<<<<<< HEAD
 		{DRM_FORMAT_XBGR8888, COLOR_FMT_RGBA8888_UBWC},
+=======
+		{DRM_FORMAT_ARGB8888, COLOR_FMT_RGBA8888_UBWC},
+		{DRM_FORMAT_XBGR8888, COLOR_FMT_RGBA8888_UBWC},
+		{DRM_FORMAT_XRGB8888, COLOR_FMT_RGBA8888_UBWC},
+>>>>>>> upstream/android-13
 		{DRM_FORMAT_ABGR2101010, COLOR_FMT_RGBA1010102_UBWC},
 		{DRM_FORMAT_XBGR2101010, COLOR_FMT_RGBA1010102_UBWC},
 		{DRM_FORMAT_BGR565, COLOR_FMT_RGB565_UBWC},
@@ -921,7 +968,11 @@ static int _dpu_format_populate_addrs_ubwc(
 			+ layout->plane_size[2] + layout->plane_size[3];
 
 		if (!meta)
+<<<<<<< HEAD
 			goto done;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 
 		/* configure Y metadata plane */
 		layout->plane_addr[2] = base_addr;
@@ -952,12 +1003,19 @@ static int _dpu_format_populate_addrs_ubwc(
 		layout->plane_addr[1] = 0;
 
 		if (!meta)
+<<<<<<< HEAD
 			goto done;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 
 		layout->plane_addr[2] = base_addr;
 		layout->plane_addr[3] = 0;
 	}
+<<<<<<< HEAD
 done:
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1041,10 +1099,18 @@ int dpu_format_check_modified_format(
 		const struct drm_mode_fb_cmd2 *cmd,
 		struct drm_gem_object **bos)
 {
+<<<<<<< HEAD
 	int ret, i, num_base_fmt_planes;
 	const struct dpu_format *fmt;
 	struct dpu_hw_fmt_layout layout;
 	uint32_t bos_total_size = 0;
+=======
+	const struct drm_format_info *info;
+	const struct dpu_format *fmt;
+	struct dpu_hw_fmt_layout layout;
+	uint32_t bos_total_size = 0;
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	if (!msm_fmt || !cmd || !bos) {
 		DRM_ERROR("invalid arguments\n");
@@ -1052,14 +1118,24 @@ int dpu_format_check_modified_format(
 	}
 
 	fmt = to_dpu_format(msm_fmt);
+<<<<<<< HEAD
 	num_base_fmt_planes = drm_format_num_planes(fmt->base.pixel_format);
+=======
+	info = drm_format_info(fmt->base.pixel_format);
+	if (!info)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	ret = dpu_format_get_plane_sizes(fmt, cmd->width, cmd->height,
 			&layout, cmd->pitches);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	for (i = 0; i < num_base_fmt_planes; i++) {
+=======
+	for (i = 0; i < info->num_planes; i++) {
+>>>>>>> upstream/android-13
 		if (!bos[i]) {
 			DRM_ERROR("invalid handle for plane %d\n", i);
 			return -EINVAL;
@@ -1090,7 +1166,11 @@ const struct dpu_format *dpu_get_dpu_format_ext(
 	 * Currently only support exactly zero or one modifier.
 	 * All planes use the same modifier.
 	 */
+<<<<<<< HEAD
 	DPU_DEBUG("plane format modifier 0x%llX\n", modifier);
+=======
+	DRM_DEBUG_ATOMIC("plane format modifier 0x%llX\n", modifier);
+>>>>>>> upstream/android-13
 
 	switch (modifier) {
 	case 0:
@@ -1100,7 +1180,11 @@ const struct dpu_format *dpu_get_dpu_format_ext(
 	case DRM_FORMAT_MOD_QCOM_COMPRESSED:
 		map = dpu_format_map_ubwc;
 		map_size = ARRAY_SIZE(dpu_format_map_ubwc);
+<<<<<<< HEAD
 		DPU_DEBUG("found fmt: %4.4s  DRM_FORMAT_MOD_QCOM_COMPRESSED\n",
+=======
+		DRM_DEBUG_ATOMIC("found fmt: %4.4s  DRM_FORMAT_MOD_QCOM_COMPRESSED\n",
+>>>>>>> upstream/android-13
 				(char *)&format);
 		break;
 	default:
@@ -1119,7 +1203,11 @@ const struct dpu_format *dpu_get_dpu_format_ext(
 		DPU_ERROR("unsupported fmt: %4.4s modifier 0x%llX\n",
 			(char *)&format, modifier);
 	else
+<<<<<<< HEAD
 		DPU_DEBUG("fmt %4.4s mod 0x%llX ubwc %d yuv %d\n",
+=======
+		DRM_DEBUG_ATOMIC("fmt %4.4s mod 0x%llX ubwc %d yuv %d\n",
+>>>>>>> upstream/android-13
 				(char *)&format, modifier,
 				DPU_FORMAT_IS_UBWC(fmt),
 				DPU_FORMAT_IS_YUV(fmt));
@@ -1138,6 +1226,7 @@ const struct msm_format *dpu_get_msm_format(
 		return &fmt->base;
 	return NULL;
 }
+<<<<<<< HEAD
 
 uint32_t dpu_populate_formats(
 		const struct dpu_format_extended *format_list,
@@ -1171,3 +1260,5 @@ uint32_t dpu_populate_formats(
 
 	return i;
 }
+=======
+>>>>>>> upstream/android-13

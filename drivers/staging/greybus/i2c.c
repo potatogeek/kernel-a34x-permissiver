@@ -10,8 +10,13 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "gbphy.h"
 
 struct gb_i2c_device {
@@ -31,7 +36,18 @@ static u32 gb_i2c_functionality_map(u32 gb_i2c_functionality)
 	return gb_i2c_functionality;	/* All bits the same for now */
 }
 
+<<<<<<< HEAD
 static int gb_i2c_functionality_operation(struct gb_i2c_device *gb_i2c_dev)
+=======
+/*
+ * Do initial setup of the i2c device.  This includes verifying we
+ * can support it (based on the protocol version it advertises).
+ * If that's OK, we get and cached its functionality bits.
+ *
+ * Note: gb_i2c_dev->connection is assumed to have been valid.
+ */
+static int gb_i2c_device_setup(struct gb_i2c_device *gb_i2c_dev)
+>>>>>>> upstream/android-13
 {
 	struct gb_i2c_functionality_response response;
 	u32 functionality;
@@ -107,7 +123,11 @@ gb_i2c_operation_create(struct gb_connection *connection,
 
 	/* Response consists only of incoming data */
 	operation = gb_operation_create(connection, GB_I2C_TYPE_TRANSFER,
+<<<<<<< HEAD
 				request_size, data_in_size, GFP_KERNEL);
+=======
+					request_size, data_in_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!operation)
 		return NULL;
 
@@ -137,7 +157,11 @@ gb_i2c_operation_create(struct gb_connection *connection,
 }
 
 static void gb_i2c_decode_response(struct i2c_msg *msgs, u32 msg_count,
+<<<<<<< HEAD
 				struct gb_i2c_transfer_response *response)
+=======
+				   struct gb_i2c_transfer_response *response)
+>>>>>>> upstream/android-13
 {
 	struct i2c_msg *msg = msgs;
 	u8 *data;
@@ -164,7 +188,11 @@ static bool gb_i2c_expected_transfer_error(int errno)
 }
 
 static int gb_i2c_transfer_operation(struct gb_i2c_device *gb_i2c_dev,
+<<<<<<< HEAD
 					struct i2c_msg *msgs, u32 msg_count)
+=======
+				     struct i2c_msg *msgs, u32 msg_count)
+>>>>>>> upstream/android-13
 {
 	struct gb_connection *connection = gb_i2c_dev->connection;
 	struct device *dev = &gb_i2c_dev->gbphy_dev->dev;
@@ -199,7 +227,11 @@ exit_operation_put:
 }
 
 static int gb_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+<<<<<<< HEAD
 		int msg_count)
+=======
+			      int msg_count)
+>>>>>>> upstream/android-13
 {
 	struct gb_i2c_device *gb_i2c_dev;
 
@@ -208,6 +240,7 @@ static int gb_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
 	return gb_i2c_transfer_operation(gb_i2c_dev, msgs, msg_count);
 }
 
+<<<<<<< HEAD
 #if 0
 /* Later */
 static int gb_i2c_smbus_xfer(struct i2c_adapter *adap,
@@ -222,6 +255,8 @@ static int gb_i2c_smbus_xfer(struct i2c_adapter *adap,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static u32 gb_i2c_functionality(struct i2c_adapter *adap)
 {
 	struct gb_i2c_device *gb_i2c_dev = i2c_get_adapdata(adap);
@@ -231,6 +266,7 @@ static u32 gb_i2c_functionality(struct i2c_adapter *adap)
 
 static const struct i2c_algorithm gb_i2c_algorithm = {
 	.master_xfer	= gb_i2c_master_xfer,
+<<<<<<< HEAD
 	/* .smbus_xfer	= gb_i2c_smbus_xfer, */
 	.functionality	= gb_i2c_functionality,
 };
@@ -250,6 +286,13 @@ static int gb_i2c_device_setup(struct gb_i2c_device *gb_i2c_dev)
 
 static int gb_i2c_probe(struct gbphy_device *gbphy_dev,
 			 const struct gbphy_device_id *id)
+=======
+	.functionality	= gb_i2c_functionality,
+};
+
+static int gb_i2c_probe(struct gbphy_device *gbphy_dev,
+			const struct gbphy_device_id *id)
+>>>>>>> upstream/android-13
 {
 	struct gb_connection *connection;
 	struct gb_i2c_device *gb_i2c_dev;
@@ -260,9 +303,16 @@ static int gb_i2c_probe(struct gbphy_device *gbphy_dev,
 	if (!gb_i2c_dev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	connection = gb_connection_create(gbphy_dev->bundle,
 					  le16_to_cpu(gbphy_dev->cport_desc->id),
 					  NULL);
+=======
+	connection =
+		gb_connection_create(gbphy_dev->bundle,
+				     le16_to_cpu(gbphy_dev->cport_desc->id),
+				     NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(connection)) {
 		ret = PTR_ERR(connection);
 		goto exit_i2cdev_free;
@@ -286,7 +336,10 @@ static int gb_i2c_probe(struct gbphy_device *gbphy_dev,
 	adapter->owner = THIS_MODULE;
 	adapter->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
 	adapter->algo = &gb_i2c_algorithm;
+<<<<<<< HEAD
 	/* adapter->algo_data = what? */
+=======
+>>>>>>> upstream/android-13
 
 	adapter->dev.parent = &gbphy_dev->dev;
 	snprintf(adapter->name, sizeof(adapter->name), "Greybus i2c adapter");

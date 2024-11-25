@@ -35,10 +35,16 @@
 
 #include <linux/compiler.h>
 #include <linux/page-flags.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
 
 #include <asm/intrinsics.h>
 #include <asm/pgtable.h>
+=======
+
+#include <asm/intrinsics.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/extable.h>
 
@@ -48,11 +54,18 @@
 #define KERNEL_DS	((mm_segment_t) { ~0UL })		/* cf. access_ok() */
 #define USER_DS		((mm_segment_t) { TASK_SIZE-1 })	/* cf. access_ok() */
 
+<<<<<<< HEAD
 #define get_ds()  (KERNEL_DS)
 #define get_fs()  (current_thread_info()->addr_limit)
 #define set_fs(x) (current_thread_info()->addr_limit = (x))
 
 #define segment_eq(a, b)	((a).seg == (b).seg)
+=======
+#define get_fs()  (current_thread_info()->addr_limit)
+#define set_fs(x) (current_thread_info()->addr_limit = (x))
+
+#define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+>>>>>>> upstream/android-13
 
 /*
  * When accessing user memory, we need to make sure the entire area really is in
@@ -67,7 +80,11 @@ static inline int __access_ok(const void __user *p, unsigned long size)
 	return likely(addr <= seg) &&
 	 (seg == KERNEL_DS.seg || likely(REGION_OFFSET(addr) < RGN_MAP_LIMIT));
 }
+<<<<<<< HEAD
 #define access_ok(type, addr, size)	__access_ok((addr), (size))
+=======
+#define access_ok(addr, size)	__access_ok((addr), (size))
+>>>>>>> upstream/android-13
 
 /*
  * These are the main single-value transfer routines.  They automatically
@@ -274,6 +291,7 @@ xlate_dev_mem_ptr(phys_addr_t p)
 	return ptr;
 }
 
+<<<<<<< HEAD
 /*
  * Convert a virtual cached kernel memory pointer to an uncached pointer
  */
@@ -292,4 +310,6 @@ xlate_dev_kmem_ptr(void *p)
 	return ptr;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_IA64_UACCESS_H */

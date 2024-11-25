@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014, Michael Ellerman, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2014, Michael Ellerman, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <signal.h>
@@ -11,7 +17,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <setjmp.h>
+<<<<<<< HEAD
 #include <signal.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "ebb.h"
 

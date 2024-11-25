@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 Zhao Zhang <zhzhl555@gmail.com>
  *
  * Derived from driver/rtc/rtc-au1xxx.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -180,7 +187,11 @@ static int ls1x_rtc_probe(struct platform_device *pdev)
 	rtcdev->range_min = RTC_TIMESTAMP_BEGIN_1900;
 	rtcdev->range_max = RTC_TIMESTAMP_END_2099;
 
+<<<<<<< HEAD
 	return rtc_register_device(rtcdev);
+=======
+	return devm_rtc_register_device(rtcdev);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver  ls1x_rtc_driver = {

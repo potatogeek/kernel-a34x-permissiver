@@ -522,7 +522,11 @@ ath5k_hw_set_power_mode(struct ath5k_hw *ah, enum ath5k_power_mode mode,
 	switch (mode) {
 	case AR5K_PM_AUTO:
 		staid &= ~AR5K_STA_ID1_DEFAULT_ANTENNA;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case AR5K_PM_NETWORK_SLEEP:
 		if (set_chip)
 			ath5k_hw_reg_write(ah,

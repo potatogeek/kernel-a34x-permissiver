@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Virtual EISA root driver.
  * Acts as a placeholder if we don't have a proper EISA bridge.
  *
  * (C) 2003 Marc Zyngier <maz@wild-wind.fr.eu.org>
  * modified for SNI usage by Thomas Bogendoerfer
+<<<<<<< HEAD
  *
  * This code is released under the GPL version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

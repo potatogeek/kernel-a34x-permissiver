@@ -340,6 +340,7 @@ int au1100fb_fb_pan_display(struct fb_var_screeninfo *var, struct fb_info *fbi)
  */
 int au1100fb_fb_mmap(struct fb_info *fbi, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	struct au1100fb_device *fbdev;
 
 	fbdev = to_au1100fb_device(fbi);
@@ -351,6 +352,17 @@ int au1100fb_fb_mmap(struct fb_info *fbi, struct vm_area_struct *vma)
 }
 
 static struct fb_ops au1100fb_ops =
+=======
+	struct au1100fb_device *fbdev = to_au1100fb_device(fbi);
+
+	pgprot_val(vma->vm_page_prot) |= (6 << 9); //CCA=6
+
+	return dma_mmap_coherent(fbdev->dev, vma, fbdev->fb_mem, fbdev->fb_phys,
+			fbdev->fb_len);
+}
+
+static const struct fb_ops au1100fb_ops =
+>>>>>>> upstream/android-13
 {
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= au1100fb_fb_setcolreg,
@@ -412,7 +424,10 @@ static int au1100fb_drv_probe(struct platform_device *dev)
 {
 	struct au1100fb_device *fbdev;
 	struct resource *regs_res;
+<<<<<<< HEAD
 	unsigned long page;
+=======
+>>>>>>> upstream/android-13
 	struct clk *c;
 
 	/* Allocate new device private */
@@ -424,6 +439,10 @@ static int au1100fb_drv_probe(struct platform_device *dev)
 		goto failed;
 
 	platform_set_drvdata(dev, (void *)fbdev);
+<<<<<<< HEAD
+=======
+	fbdev->dev = &dev->dev;
+>>>>>>> upstream/android-13
 
 	/* Allocate region for our registers and map them */
 	regs_res = platform_get_resource(dev, IORESOURCE_MEM, 0);
@@ -472,6 +491,7 @@ static int au1100fb_drv_probe(struct platform_device *dev)
 	au1100fb_fix.smem_start = fbdev->fb_phys;
 	au1100fb_fix.smem_len = fbdev->fb_len;
 
+<<<<<<< HEAD
 	/*
 	 * Set page reserved so that mmap will work. This is necessary
 	 * since we'll be remapping normal memory.
@@ -486,6 +506,8 @@ static int au1100fb_drv_probe(struct platform_device *dev)
 #endif
 	}
 
+=======
+>>>>>>> upstream/android-13
 	print_dbg("Framebuffer memory map at %p", fbdev->fb_mem);
 	print_dbg("phys=0x%08x, size=%dK", fbdev->fb_phys, fbdev->fb_len / 1024);
 

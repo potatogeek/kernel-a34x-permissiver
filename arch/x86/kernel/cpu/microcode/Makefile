@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 microcode-y				:= core.o
 obj-$(CONFIG_MICROCODE)			+= microcode.o
 microcode-$(CONFIG_MICROCODE_INTEL)	+= intel.o

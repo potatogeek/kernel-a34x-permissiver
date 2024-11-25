@@ -13,6 +13,7 @@ phandle arguments (so called PM domain specifiers) of length specified by the
 
 ==PM domain providers==
 
+<<<<<<< HEAD
 Required properties:
  - #power-domain-cells : Number of cells in a PM domain specifier;
    Typically 0 for nodes representing a single PM domain and 1 for nodes
@@ -107,6 +108,9 @@ Example 3:
 		exit-latency-us = <8000>;
 		min-residency-us = <7000>;
 	};
+=======
+See power-domain.yaml.
+>>>>>>> upstream/android-13
 
 ==PM domain consumers==
 
@@ -202,4 +206,8 @@ Example:
 		required-opps = <&domain1_opp_1>;
 	};
 
+<<<<<<< HEAD
 [1]. Documentation/devicetree/bindings/power/domain-idle-state.txt
+=======
+[1]. Documentation/devicetree/bindings/power/domain-idle-state.yaml
+>>>>>>> upstream/android-13

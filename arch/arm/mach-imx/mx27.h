@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright 2004-2007 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright 2008 Juergen Beisert, kernel@pengutronix.de
@@ -5,6 +9,7 @@
  * This contains i.MX27-specific hardware definitions. For those
  * hardware pieces that are common between i.MX21 and i.MX27, have a
  * look at mx2x.h.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MACH_MX27_H__
@@ -26,6 +33,7 @@
 
 #define MX27_AIPI_BASE_ADDR		0x10000000
 #define MX27_AIPI_SIZE			SZ_1M
+<<<<<<< HEAD
 #define MX27_DMA_BASE_ADDR			(MX27_AIPI_BASE_ADDR + 0x01000)
 #define MX27_WDOG_BASE_ADDR			(MX27_AIPI_BASE_ADDR + 0x02000)
 #define MX27_GPT1_BASE_ADDR			(MX27_AIPI_BASE_ADDR + 0x03000)
@@ -230,5 +238,15 @@
 #define MX27_DMA_REQ_UART6_RX	35
 #define MX27_DMA_REQ_SDHC3	36
 #define MX27_DMA_REQ_NFC	37
+=======
+
+#define MX27_SAHB1_BASE_ADDR		0x80000000
+#define MX27_SAHB1_SIZE			SZ_1M
+
+#define MX27_X_MEMC_BASE_ADDR		0xd8000000
+#define MX27_X_MEMC_SIZE		SZ_1M
+
+#define MX27_IO_P2V(x)			IMX_IO_P2V(x)
+>>>>>>> upstream/android-13
 
 #endif /* ifndef __MACH_MX27_H__ */

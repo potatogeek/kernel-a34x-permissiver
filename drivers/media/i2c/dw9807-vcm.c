@@ -130,6 +130,7 @@ static const struct v4l2_ctrl_ops dw9807_vcm_ctrl_ops = {
 
 static int dw9807_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
+<<<<<<< HEAD
 	int rval;
 
 	rval = pm_runtime_get_sync(sd->dev);
@@ -139,6 +140,9 @@ static int dw9807_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	}
 
 	return 0;
+=======
+	return pm_runtime_resume_and_get(sd->dev);
+>>>>>>> upstream/android-13
 }
 
 static int dw9807_close(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
@@ -230,7 +234,10 @@ static int dw9807_remove(struct i2c_client *client)
 	struct dw9807_device *dw9807_dev = sd_to_dw9807_vcm(sd);
 
 	pm_runtime_disable(&client->dev);
+<<<<<<< HEAD
 	pm_runtime_set_suspended(&client->dev);
+=======
+>>>>>>> upstream/android-13
 
 	dw9807_subdev_cleanup(dw9807_dev);
 
@@ -325,6 +332,10 @@ static struct i2c_driver dw9807_i2c_driver = {
 
 module_i2c_driver(dw9807_i2c_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Chiang, Alan <alanx.chiang@intel.com>");
+=======
+MODULE_AUTHOR("Chiang, Alan");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("DW9807 VCM driver");
 MODULE_LICENSE("GPL v2");

@@ -75,11 +75,19 @@ int tomoyo_write_group(struct tomoyo_acl_param *param, const u8 type)
 {
 	struct tomoyo_group *group = tomoyo_get_group(param, type);
 	int error = -EINVAL;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!group)
 		return -ENOMEM;
 	param->list = &group->member_list;
 	if (type == TOMOYO_PATH_GROUP) {
 		struct tomoyo_path_group e = { };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		e.member_name = tomoyo_get_name(tomoyo_read_token(param));
 		if (!e.member_name) {
 			error = -ENOMEM;
@@ -90,6 +98,10 @@ int tomoyo_write_group(struct tomoyo_acl_param *param, const u8 type)
 		tomoyo_put_name(e.member_name);
 	} else if (type == TOMOYO_NUMBER_GROUP) {
 		struct tomoyo_number_group e = { };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (param->data[0] == '@' ||
 		    !tomoyo_parse_number_union(param, &e.number))
 			goto out;
@@ -129,7 +141,13 @@ tomoyo_path_matches_group(const struct tomoyo_path_info *pathname,
 			  const struct tomoyo_group *group)
 {
 	struct tomoyo_path_group *member;
+<<<<<<< HEAD
 	list_for_each_entry_rcu(member, &group->member_list, head.list) {
+=======
+
+	list_for_each_entry_rcu(member, &group->member_list, head.list,
+				srcu_read_lock_held(&tomoyo_ss)) {
+>>>>>>> upstream/android-13
 		if (member->head.is_deleted)
 			continue;
 		if (!tomoyo_path_matches_pattern(pathname, member->member_name))
@@ -156,7 +174,13 @@ bool tomoyo_number_matches_group(const unsigned long min,
 {
 	struct tomoyo_number_group *member;
 	bool matched = false;
+<<<<<<< HEAD
 	list_for_each_entry_rcu(member, &group->member_list, head.list) {
+=======
+
+	list_for_each_entry_rcu(member, &group->member_list, head.list,
+				srcu_read_lock_held(&tomoyo_ss)) {
+>>>>>>> upstream/android-13
 		if (member->head.is_deleted)
 			continue;
 		if (min > member->number.values[1] ||
@@ -186,7 +210,12 @@ bool tomoyo_address_matches_group(const bool is_ipv6, const __be32 *address,
 	bool matched = false;
 	const u8 size = is_ipv6 ? 16 : 4;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(member, &group->member_list, head.list) {
+=======
+	list_for_each_entry_rcu(member, &group->member_list, head.list,
+				srcu_read_lock_held(&tomoyo_ss)) {
+>>>>>>> upstream/android-13
 		if (member->head.is_deleted)
 			continue;
 		if (member->address.is_ipv6 != is_ipv6)

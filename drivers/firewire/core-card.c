@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005-2007  Kristian Hoegsberg <krh@bitplanet.net>
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2005-2007  Kristian Hoegsberg <krh@bitplanet.net>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -681,6 +687,10 @@ EXPORT_SYMBOL_GPL(fw_card_release);
 void fw_core_remove_card(struct fw_card *card)
 {
 	struct fw_card_driver dummy_driver = dummy_driver_template;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	card->driver->update_phy_reg(card, 4,
 				     PHY_LINK_ACTIVE | PHY_CONTENDER, 0);
@@ -695,7 +705,13 @@ void fw_core_remove_card(struct fw_card *card)
 	dummy_driver.stop_iso		= card->driver->stop_iso;
 	card->driver = &dummy_driver;
 
+<<<<<<< HEAD
 	fw_destroy_nodes(card);
+=======
+	spin_lock_irqsave(&card->lock, flags);
+	fw_destroy_nodes(card);
+	spin_unlock_irqrestore(&card->lock, flags);
+>>>>>>> upstream/android-13
 
 	/* Wait for all users, especially device workqueue jobs, to finish. */
 	fw_card_put(card);

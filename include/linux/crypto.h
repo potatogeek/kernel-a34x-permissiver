@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Scatterlist Cryptographic API.
  *
@@ -7,12 +11,15 @@
  *
  * Portions derived from Cryptoapi, by Alexander Kjeldaas <astor@fast.no>
  * and Nettle, by Niels Möller.
+<<<<<<< HEAD
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option) 
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_CRYPTO_H
 #define _LINUX_CRYPTO_H
@@ -21,9 +28,14 @@
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/bug.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/uaccess.h>
+=======
+#include <linux/refcount.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 #include <linux/completion.h>
 
 /*
@@ -46,23 +58,33 @@
 #define CRYPTO_ALG_TYPE_CIPHER		0x00000001
 #define CRYPTO_ALG_TYPE_COMPRESS	0x00000002
 #define CRYPTO_ALG_TYPE_AEAD		0x00000003
+<<<<<<< HEAD
 #define CRYPTO_ALG_TYPE_BLKCIPHER	0x00000004
 #define CRYPTO_ALG_TYPE_ABLKCIPHER	0x00000005
 #define CRYPTO_ALG_TYPE_SKCIPHER	0x00000005
 #define CRYPTO_ALG_TYPE_GIVCIPHER	0x00000006
+=======
+#define CRYPTO_ALG_TYPE_SKCIPHER	0x00000005
+>>>>>>> upstream/android-13
 #define CRYPTO_ALG_TYPE_KPP		0x00000008
 #define CRYPTO_ALG_TYPE_ACOMPRESS	0x0000000a
 #define CRYPTO_ALG_TYPE_SCOMPRESS	0x0000000b
 #define CRYPTO_ALG_TYPE_RNG		0x0000000c
 #define CRYPTO_ALG_TYPE_AKCIPHER	0x0000000d
+<<<<<<< HEAD
 #define CRYPTO_ALG_TYPE_DIGEST		0x0000000e
+=======
+>>>>>>> upstream/android-13
 #define CRYPTO_ALG_TYPE_HASH		0x0000000e
 #define CRYPTO_ALG_TYPE_SHASH		0x0000000e
 #define CRYPTO_ALG_TYPE_AHASH		0x0000000f
 
 #define CRYPTO_ALG_TYPE_HASH_MASK	0x0000000e
 #define CRYPTO_ALG_TYPE_AHASH_MASK	0x0000000e
+<<<<<<< HEAD
 #define CRYPTO_ALG_TYPE_BLKCIPHER_MASK	0x0000000c
+=======
+>>>>>>> upstream/android-13
 #define CRYPTO_ALG_TYPE_ACOMPRESS_MASK	0x0000000e
 
 #define CRYPTO_ALG_LARVAL		0x00000010
@@ -71,18 +93,26 @@
 #define CRYPTO_ALG_ASYNC		0x00000080
 
 /*
+<<<<<<< HEAD
  * Set this bit if and only if the algorithm requires another algorithm of
  * the same type to handle corner cases.
+=======
+ * Set if the algorithm (or an algorithm which it uses) requires another
+ * algorithm of the same type to handle corner cases.
+>>>>>>> upstream/android-13
  */
 #define CRYPTO_ALG_NEED_FALLBACK	0x00000100
 
 /*
+<<<<<<< HEAD
  * This bit is set for symmetric key ciphers that have already been wrapped
  * with a generic IV generator to prevent them from being wrapped again.
  */
 #define CRYPTO_ALG_GENIV		0x00000200
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Set if the algorithm has passed automated run-time testing.  Note that
  * if there is no run-time testing for a given algorithm it is considered
  * to have passed.
@@ -118,11 +148,47 @@
 #define CRYPTO_NOLOAD			0x00008000
 
 /*
+<<<<<<< HEAD
+=======
+ * The algorithm may allocate memory during request processing, i.e. during
+ * encryption, decryption, or hashing.  Users can request an algorithm with this
+ * flag unset if they can't handle memory allocation failures.
+ *
+ * This flag is currently only implemented for algorithms of type "skcipher",
+ * "aead", "ahash", "shash", and "cipher".  Algorithms of other types might not
+ * have this flag set even if they allocate memory.
+ *
+ * In some edge cases, algorithms can allocate memory regardless of this flag.
+ * To avoid these cases, users must obey the following usage constraints:
+ *    skcipher:
+ *	- The IV buffer and all scatterlist elements must be aligned to the
+ *	  algorithm's alignmask.
+ *	- If the data were to be divided into chunks of size
+ *	  crypto_skcipher_walksize() (with any remainder going at the end), no
+ *	  chunk can cross a page boundary or a scatterlist element boundary.
+ *    aead:
+ *	- The IV buffer and all scatterlist elements must be aligned to the
+ *	  algorithm's alignmask.
+ *	- The first scatterlist element must contain all the associated data,
+ *	  and its pages must be !PageHighMem.
+ *	- If the plaintext/ciphertext were to be divided into chunks of size
+ *	  crypto_aead_walksize() (with the remainder going at the end), no chunk
+ *	  can cross a page boundary or a scatterlist element boundary.
+ *    ahash:
+ *	- The result buffer must be aligned to the algorithm's alignmask.
+ *	- crypto_ahash_finup() must not be used unless the algorithm implements
+ *	  ->finup() natively.
+ */
+#define CRYPTO_ALG_ALLOCATES_MEMORY	0x00010000
+
+/*
+>>>>>>> upstream/android-13
  * Transform masks and values (for crt_flags).
  */
 #define CRYPTO_TFM_NEED_KEY		0x00000001
 
 #define CRYPTO_TFM_REQ_MASK		0x000fff00
+<<<<<<< HEAD
 #define CRYPTO_TFM_RES_MASK		0xfff00000
 
 #define CRYPTO_TFM_REQ_WEAK_KEY		0x00000100
@@ -133,6 +199,11 @@
 #define CRYPTO_TFM_RES_BAD_KEY_SCHED 	0x00400000
 #define CRYPTO_TFM_RES_BAD_BLOCK_LEN 	0x00800000
 #define CRYPTO_TFM_RES_BAD_FLAGS 	0x01000000
+=======
+#define CRYPTO_TFM_REQ_FORBID_WEAK_KEYS	0x00000100
+#define CRYPTO_TFM_REQ_MAY_SLEEP	0x00000200
+#define CRYPTO_TFM_REQ_MAY_BACKLOG	0x00000400
+>>>>>>> upstream/android-13
 
 /*
  * Miscellaneous stuff.
@@ -143,21 +214,36 @@
  * The macro CRYPTO_MINALIGN_ATTR (along with the void * type in the actual
  * declaration) is used to ensure that the crypto_tfm context structure is
  * aligned correctly for the given architecture so that there are no alignment
+<<<<<<< HEAD
  * faults for C data types.  In particular, this is required on platforms such
  * as arm where pointers are 32-bit aligned but there are data types such as
  * u64 which require 64-bit alignment.
+=======
+ * faults for C data types.  On architectures that support non-cache coherent
+ * DMA, such as ARM or arm64, it also takes into account the minimal alignment
+ * that is required to ensure that the context struct member does not share any
+ * cachelines with the rest of the struct. This is needed to ensure that cache
+ * maintenance for non-coherent DMA (cache invalidation in particular) does not
+ * affect data that may be accessed by the CPU concurrently.
+>>>>>>> upstream/android-13
  */
 #define CRYPTO_MINALIGN ARCH_KMALLOC_MINALIGN
 
 #define CRYPTO_MINALIGN_ATTR __attribute__ ((__aligned__(CRYPTO_MINALIGN)))
 
 struct scatterlist;
+<<<<<<< HEAD
 struct crypto_ablkcipher;
 struct crypto_async_request;
 struct crypto_blkcipher;
 struct crypto_tfm;
 struct crypto_type;
 struct skcipher_givcrypt_request;
+=======
+struct crypto_async_request;
+struct crypto_tfm;
+struct crypto_type;
+>>>>>>> upstream/android-13
 
 typedef void (*crypto_completion_t)(struct crypto_async_request *req, int err);
 
@@ -177,6 +263,7 @@ struct crypto_async_request {
 	u32 flags;
 };
 
+<<<<<<< HEAD
 struct ablkcipher_request {
 	struct crypto_async_request base;
 
@@ -204,6 +291,8 @@ struct cipher_desc {
 	void *info;
 };
 
+=======
+>>>>>>> upstream/android-13
 /**
  * DOC: Block Cipher Algorithm Definitions
  *
@@ -212,6 +301,7 @@ struct cipher_desc {
  */
 
 /**
+<<<<<<< HEAD
  * struct ablkcipher_alg - asynchronous block cipher definition
  * @min_keysize: Minimum key size supported by the transformation. This is the
  *		 smallest key length supported by this transformation algorithm.
@@ -307,6 +397,8 @@ struct blkcipher_alg {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct cipher_alg - single-block symmetric ciphers definition
  * @cia_min_keysize: Minimum key size supported by the transformation. This is
  *		     the smallest key length supported by this transformation
@@ -362,6 +454,20 @@ struct cipher_alg {
 	void (*cia_decrypt)(struct crypto_tfm *tfm, u8 *dst, const u8 *src);
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * struct compress_alg - compression/decompression algorithm
+ * @coa_compress: Compress a buffer of specified length, storing the resulting
+ *		  data in the specified buffer. Return the length of the
+ *		  compressed data in dlen.
+ * @coa_decompress: Decompress the source buffer, storing the uncompressed
+ *		    data in the specified buffer. The length of the data is
+ *		    returned in dlen.
+ *
+ * All fields are mandatory.
+ */
+>>>>>>> upstream/android-13
 struct compress_alg {
 	int (*coa_compress)(struct crypto_tfm *tfm, const u8 *src,
 			    unsigned int slen, u8 *dst, unsigned int *dlen);
@@ -369,9 +475,122 @@ struct compress_alg {
 			      unsigned int slen, u8 *dst, unsigned int *dlen);
 };
 
+<<<<<<< HEAD
 
 #define cra_ablkcipher	cra_u.ablkcipher
 #define cra_blkcipher	cra_u.blkcipher
+=======
+#ifdef CONFIG_CRYPTO_STATS
+/*
+ * struct crypto_istat_aead - statistics for AEAD algorithm
+ * @encrypt_cnt:	number of encrypt requests
+ * @encrypt_tlen:	total data size handled by encrypt requests
+ * @decrypt_cnt:	number of decrypt requests
+ * @decrypt_tlen:	total data size handled by decrypt requests
+ * @err_cnt:		number of error for AEAD requests
+ */
+struct crypto_istat_aead {
+	atomic64_t encrypt_cnt;
+	atomic64_t encrypt_tlen;
+	atomic64_t decrypt_cnt;
+	atomic64_t decrypt_tlen;
+	atomic64_t err_cnt;
+};
+
+/*
+ * struct crypto_istat_akcipher - statistics for akcipher algorithm
+ * @encrypt_cnt:	number of encrypt requests
+ * @encrypt_tlen:	total data size handled by encrypt requests
+ * @decrypt_cnt:	number of decrypt requests
+ * @decrypt_tlen:	total data size handled by decrypt requests
+ * @verify_cnt:		number of verify operation
+ * @sign_cnt:		number of sign requests
+ * @err_cnt:		number of error for akcipher requests
+ */
+struct crypto_istat_akcipher {
+	atomic64_t encrypt_cnt;
+	atomic64_t encrypt_tlen;
+	atomic64_t decrypt_cnt;
+	atomic64_t decrypt_tlen;
+	atomic64_t verify_cnt;
+	atomic64_t sign_cnt;
+	atomic64_t err_cnt;
+};
+
+/*
+ * struct crypto_istat_cipher - statistics for cipher algorithm
+ * @encrypt_cnt:	number of encrypt requests
+ * @encrypt_tlen:	total data size handled by encrypt requests
+ * @decrypt_cnt:	number of decrypt requests
+ * @decrypt_tlen:	total data size handled by decrypt requests
+ * @err_cnt:		number of error for cipher requests
+ */
+struct crypto_istat_cipher {
+	atomic64_t encrypt_cnt;
+	atomic64_t encrypt_tlen;
+	atomic64_t decrypt_cnt;
+	atomic64_t decrypt_tlen;
+	atomic64_t err_cnt;
+};
+
+/*
+ * struct crypto_istat_compress - statistics for compress algorithm
+ * @compress_cnt:	number of compress requests
+ * @compress_tlen:	total data size handled by compress requests
+ * @decompress_cnt:	number of decompress requests
+ * @decompress_tlen:	total data size handled by decompress requests
+ * @err_cnt:		number of error for compress requests
+ */
+struct crypto_istat_compress {
+	atomic64_t compress_cnt;
+	atomic64_t compress_tlen;
+	atomic64_t decompress_cnt;
+	atomic64_t decompress_tlen;
+	atomic64_t err_cnt;
+};
+
+/*
+ * struct crypto_istat_hash - statistics for has algorithm
+ * @hash_cnt:		number of hash requests
+ * @hash_tlen:		total data size hashed
+ * @err_cnt:		number of error for hash requests
+ */
+struct crypto_istat_hash {
+	atomic64_t hash_cnt;
+	atomic64_t hash_tlen;
+	atomic64_t err_cnt;
+};
+
+/*
+ * struct crypto_istat_kpp - statistics for KPP algorithm
+ * @setsecret_cnt:		number of setsecrey operation
+ * @generate_public_key_cnt:	number of generate_public_key operation
+ * @compute_shared_secret_cnt:	number of compute_shared_secret operation
+ * @err_cnt:			number of error for KPP requests
+ */
+struct crypto_istat_kpp {
+	atomic64_t setsecret_cnt;
+	atomic64_t generate_public_key_cnt;
+	atomic64_t compute_shared_secret_cnt;
+	atomic64_t err_cnt;
+};
+
+/*
+ * struct crypto_istat_rng: statistics for RNG algorithm
+ * @generate_cnt:	number of RNG generate requests
+ * @generate_tlen:	total data size of generated data by the RNG
+ * @seed_cnt:		number of times the RNG was seeded
+ * @err_cnt:		number of error for RNG requests
+ */
+struct crypto_istat_rng {
+	atomic64_t generate_cnt;
+	atomic64_t generate_tlen;
+	atomic64_t seed_cnt;
+	atomic64_t err_cnt;
+};
+#endif /* CONFIG_CRYPTO_STATS */
+
+>>>>>>> upstream/android-13
 #define cra_cipher	cra_u.cipher
 #define cra_compress	cra_u.compress
 
@@ -419,9 +638,14 @@ struct compress_alg {
  *		     transformation algorithm.
  * @cra_type: Type of the cryptographic transformation. This is a pointer to
  *	      struct crypto_type, which implements callbacks common for all
+<<<<<<< HEAD
  *	      transformation types. There are multiple options:
  *	      &crypto_blkcipher_type, &crypto_ablkcipher_type,
  *	      &crypto_ahash_type, &crypto_rng_type.
+=======
+ *	      transformation types. There are multiple options, such as
+ *	      &crypto_skcipher_type, &crypto_ahash_type, &crypto_rng_type.
+>>>>>>> upstream/android-13
  *	      This field might be empty. In that case, there are no common
  *	      callbacks. This is the case for: cipher, compress, shash.
  * @cra_u: Callbacks implementing the transformation. This is a union of
@@ -440,10 +664,13 @@ struct compress_alg {
  * @cra_exit: Deinitialize the cryptographic transformation object. This is a
  *	      counterpart to @cra_init, used to remove various changes set in
  *	      @cra_init.
+<<<<<<< HEAD
  * @cra_u.ablkcipher: Union member which contains an asynchronous block cipher
  *		      definition. See @struct @ablkcipher_alg.
  * @cra_u.blkcipher: Union member which contains a synchronous block cipher
  * 		     definition See @struct @blkcipher_alg.
+=======
+>>>>>>> upstream/android-13
  * @cra_u.cipher: Union member which contains a single-block symmetric cipher
  *		  definition. See @struct @cipher_alg.
  * @cra_u.compress: Union member which contains a (de)compression algorithm.
@@ -454,6 +681,18 @@ struct compress_alg {
  * @cra_refcnt: internally used
  * @cra_destroy: internally used
  *
+<<<<<<< HEAD
+=======
+ * @stats: union of all possible crypto_istat_xxx structures
+ * @stats.aead:		statistics for AEAD algorithm
+ * @stats.akcipher:	statistics for akcipher algorithm
+ * @stats.cipher:	statistics for cipher algorithm
+ * @stats.compress:	statistics for compress algorithm
+ * @stats.hash:		statistics for hash algorithm
+ * @stats.rng:		statistics for rng algorithm
+ * @stats.kpp:		statistics for KPP algorithm
+ *
+>>>>>>> upstream/android-13
  * The struct crypto_alg describes a generic Crypto API algorithm and is common
  * for all of the transformations. Any variable not documented here shall not
  * be used by a cipher implementation as it is internal to the Crypto API.
@@ -476,8 +715,11 @@ struct crypto_alg {
 	const struct crypto_type *cra_type;
 
 	union {
+<<<<<<< HEAD
 		struct ablkcipher_alg ablkcipher;
 		struct blkcipher_alg blkcipher;
+=======
+>>>>>>> upstream/android-13
 		struct cipher_alg cipher;
 		struct compress_alg compress;
 	} cra_u;
@@ -487,8 +729,86 @@ struct crypto_alg {
 	void (*cra_destroy)(struct crypto_alg *alg);
 	
 	struct module *cra_module;
+<<<<<<< HEAD
 } CRYPTO_MINALIGN_ATTR;
 
+=======
+
+#ifdef CONFIG_CRYPTO_STATS
+	union {
+		struct crypto_istat_aead aead;
+		struct crypto_istat_akcipher akcipher;
+		struct crypto_istat_cipher cipher;
+		struct crypto_istat_compress compress;
+		struct crypto_istat_hash hash;
+		struct crypto_istat_rng rng;
+		struct crypto_istat_kpp kpp;
+	} stats;
+#endif /* CONFIG_CRYPTO_STATS */
+
+} CRYPTO_MINALIGN_ATTR;
+
+#ifdef CONFIG_CRYPTO_STATS
+void crypto_stats_init(struct crypto_alg *alg);
+void crypto_stats_get(struct crypto_alg *alg);
+void crypto_stats_aead_encrypt(unsigned int cryptlen, struct crypto_alg *alg, int ret);
+void crypto_stats_aead_decrypt(unsigned int cryptlen, struct crypto_alg *alg, int ret);
+void crypto_stats_ahash_update(unsigned int nbytes, int ret, struct crypto_alg *alg);
+void crypto_stats_ahash_final(unsigned int nbytes, int ret, struct crypto_alg *alg);
+void crypto_stats_akcipher_encrypt(unsigned int src_len, int ret, struct crypto_alg *alg);
+void crypto_stats_akcipher_decrypt(unsigned int src_len, int ret, struct crypto_alg *alg);
+void crypto_stats_akcipher_sign(int ret, struct crypto_alg *alg);
+void crypto_stats_akcipher_verify(int ret, struct crypto_alg *alg);
+void crypto_stats_compress(unsigned int slen, int ret, struct crypto_alg *alg);
+void crypto_stats_decompress(unsigned int slen, int ret, struct crypto_alg *alg);
+void crypto_stats_kpp_set_secret(struct crypto_alg *alg, int ret);
+void crypto_stats_kpp_generate_public_key(struct crypto_alg *alg, int ret);
+void crypto_stats_kpp_compute_shared_secret(struct crypto_alg *alg, int ret);
+void crypto_stats_rng_seed(struct crypto_alg *alg, int ret);
+void crypto_stats_rng_generate(struct crypto_alg *alg, unsigned int dlen, int ret);
+void crypto_stats_skcipher_encrypt(unsigned int cryptlen, int ret, struct crypto_alg *alg);
+void crypto_stats_skcipher_decrypt(unsigned int cryptlen, int ret, struct crypto_alg *alg);
+#else
+static inline void crypto_stats_init(struct crypto_alg *alg)
+{}
+static inline void crypto_stats_get(struct crypto_alg *alg)
+{}
+static inline void crypto_stats_aead_encrypt(unsigned int cryptlen, struct crypto_alg *alg, int ret)
+{}
+static inline void crypto_stats_aead_decrypt(unsigned int cryptlen, struct crypto_alg *alg, int ret)
+{}
+static inline void crypto_stats_ahash_update(unsigned int nbytes, int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_ahash_final(unsigned int nbytes, int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_akcipher_encrypt(unsigned int src_len, int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_akcipher_decrypt(unsigned int src_len, int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_akcipher_sign(int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_akcipher_verify(int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_compress(unsigned int slen, int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_decompress(unsigned int slen, int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_kpp_set_secret(struct crypto_alg *alg, int ret)
+{}
+static inline void crypto_stats_kpp_generate_public_key(struct crypto_alg *alg, int ret)
+{}
+static inline void crypto_stats_kpp_compute_shared_secret(struct crypto_alg *alg, int ret)
+{}
+static inline void crypto_stats_rng_seed(struct crypto_alg *alg, int ret)
+{}
+static inline void crypto_stats_rng_generate(struct crypto_alg *alg, unsigned int dlen, int ret)
+{}
+static inline void crypto_stats_skcipher_encrypt(unsigned int cryptlen, int ret, struct crypto_alg *alg)
+{}
+static inline void crypto_stats_skcipher_decrypt(unsigned int cryptlen, int ret, struct crypto_alg *alg)
+{}
+#endif
+>>>>>>> upstream/android-13
 /*
  * A helper struct for waiting for completion of async crypto ops
  */
@@ -518,7 +838,11 @@ static inline int crypto_wait_req(int err, struct crypto_wait *wait)
 		reinit_completion(&wait->completion);
 		err = wait->err;
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -532,9 +856,15 @@ static inline void crypto_init_wait(struct crypto_wait *wait)
  * Algorithm registration interface.
  */
 int crypto_register_alg(struct crypto_alg *alg);
+<<<<<<< HEAD
 int crypto_unregister_alg(struct crypto_alg *alg);
 int crypto_register_algs(struct crypto_alg *algs, int count);
 int crypto_unregister_algs(struct crypto_alg *algs, int count);
+=======
+void crypto_unregister_alg(struct crypto_alg *alg);
+int crypto_register_algs(struct crypto_alg *algs, int count);
+void crypto_unregister_algs(struct crypto_alg *algs, int count);
+>>>>>>> upstream/android-13
 
 /*
  * Algorithm query interface.
@@ -547,6 +877,7 @@ int crypto_has_alg(const char *name, u32 type, u32 mask);
  * crypto_free_*(), as well as the various helpers below.
  */
 
+<<<<<<< HEAD
 struct ablkcipher_tfm {
 	int (*setkey)(struct crypto_ablkcipher *tfm, const u8 *key,
 	              unsigned int keylen);
@@ -601,6 +932,14 @@ struct crypto_tfm {
 		struct compress_tfm compress;
 	} crt_u;
 
+=======
+struct crypto_tfm {
+
+	u32 crt_flags;
+
+	int node;
+	
+>>>>>>> upstream/android-13
 	void (*exit)(struct crypto_tfm *tfm);
 	
 	struct crypto_alg *__crt_alg;
@@ -608,6 +947,7 @@ struct crypto_tfm {
 	void *__crt_ctx[] CRYPTO_MINALIGN_ATTR;
 };
 
+<<<<<<< HEAD
 struct crypto_ablkcipher {
 	struct crypto_tfm base;
 };
@@ -620,10 +960,13 @@ struct crypto_cipher {
 	struct crypto_tfm base;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct crypto_comp {
 	struct crypto_tfm base;
 };
 
+<<<<<<< HEAD
 enum {
 	CRYPTOA_UNSPEC,
 	CRYPTOA_ALG,
@@ -650,6 +993,8 @@ struct crypto_attr_u32 {
 	u32 num;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* 
  * Transform user interface.
  */
@@ -723,6 +1068,7 @@ static inline unsigned int crypto_tfm_ctx_alignment(void)
 	return __alignof__(tfm->__crt_ctx);
 }
 
+<<<<<<< HEAD
 /*
  * API wrappers.
  */
@@ -1598,11 +1944,14 @@ static inline void crypto_cipher_decrypt_one(struct crypto_cipher *tfm,
 						dst, src);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct crypto_comp *__crypto_comp_cast(struct crypto_tfm *tfm)
 {
 	return (struct crypto_comp *)tfm;
 }
 
+<<<<<<< HEAD
 static inline struct crypto_comp *crypto_comp_cast(struct crypto_tfm *tfm)
 {
 	BUG_ON((crypto_tfm_alg_type(tfm) ^ CRYPTO_ALG_TYPE_COMPRESS) &
@@ -1610,6 +1959,8 @@ static inline struct crypto_comp *crypto_comp_cast(struct crypto_tfm *tfm)
 	return __crypto_comp_cast(tfm);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct crypto_comp *crypto_alloc_comp(const char *alg_name,
 						    u32 type, u32 mask)
 {
@@ -1644,6 +1995,7 @@ static inline const char *crypto_comp_name(struct crypto_comp *tfm)
 	return crypto_tfm_alg_name(crypto_comp_tfm(tfm));
 }
 
+<<<<<<< HEAD
 static inline struct compress_tfm *crypto_comp_crt(struct crypto_comp *tfm)
 {
 	return &crypto_comp_tfm(tfm)->crt_compress;
@@ -1664,6 +2016,15 @@ static inline int crypto_comp_decompress(struct crypto_comp *tfm,
 	return crypto_comp_crt(tfm)->cot_decompress(crypto_comp_tfm(tfm),
 						    src, slen, dst, dlen);
 }
+=======
+int crypto_comp_compress(struct crypto_comp *tfm,
+			 const u8 *src, unsigned int slen,
+			 u8 *dst, unsigned int *dlen);
+
+int crypto_comp_decompress(struct crypto_comp *tfm,
+			   const u8 *src, unsigned int slen,
+			   u8 *dst, unsigned int *dlen);
+>>>>>>> upstream/android-13
 
 #endif	/* _LINUX_CRYPTO_H */
 

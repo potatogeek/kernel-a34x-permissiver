@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, 2013, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012, 2013, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -191,7 +197,11 @@ static void __init tegra_super_clk_init(void __iomem *clk_base,
 					gen_info->num_cclk_g_parents,
 					CLK_SET_RATE_PARENT,
 					clk_base + CCLKG_BURST_POLICY,
+<<<<<<< HEAD
 					0, 4, 8, 0, NULL);
+=======
+					TEGRA210_CPU_CLK, 4, 8, 0, NULL);
+>>>>>>> upstream/android-13
 		} else {
 			clk = tegra_clk_register_super_mux("cclk_g",
 					gen_info->cclk_g_parents,
@@ -207,6 +217,14 @@ static void __init tegra_super_clk_init(void __iomem *clk_base,
 	dt_clk = tegra_lookup_dt_id(tegra_clk_cclk_lp, tegra_clks);
 	if (dt_clk) {
 		if (gen_info->gen == gen5) {
+<<<<<<< HEAD
+=======
+			/*
+			 * TEGRA210_CPU_CLK flag is not needed for cclk_lp as
+			 * cluster switching is not currently supported on
+			 * Tegra210 and also cpu_lp is not used.
+			 */
+>>>>>>> upstream/android-13
 			clk = tegra_clk_register_super_mux("cclk_lp",
 					gen_info->cclk_lp_parents,
 					gen_info->num_cclk_lp_parents,

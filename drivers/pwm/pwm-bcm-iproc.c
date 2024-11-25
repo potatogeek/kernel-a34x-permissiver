@@ -120,7 +120,11 @@ static void iproc_pwmc_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
 }
 
 static int iproc_pwmc_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+<<<<<<< HEAD
 			    struct pwm_state *state)
+=======
+			    const struct pwm_state *state)
+>>>>>>> upstream/android-13
 {
 	unsigned long prescale = IPROC_PWM_PRESCALE_MIN;
 	struct iproc_pwmc *ip = to_iproc_pwmc(chip);
@@ -148,8 +152,12 @@ static int iproc_pwmc_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 		value = rate * state->duty_cycle;
 		duty = div64_u64(value, div);
 
+<<<<<<< HEAD
 		if (period < IPROC_PWM_PERIOD_MIN ||
 		    duty < IPROC_PWM_DUTY_CYCLE_MIN)
+=======
+		if (period < IPROC_PWM_PERIOD_MIN)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		if (period <= IPROC_PWM_PERIOD_MAX &&
@@ -198,7 +206,10 @@ static const struct pwm_ops iproc_pwm_ops = {
 static int iproc_pwmc_probe(struct platform_device *pdev)
 {
 	struct iproc_pwmc *ip;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int i;
 	u32 value;
 	int ret;
@@ -211,6 +222,7 @@ static int iproc_pwmc_probe(struct platform_device *pdev)
 
 	ip->chip.dev = &pdev->dev;
 	ip->chip.ops = &iproc_pwm_ops;
+<<<<<<< HEAD
 	ip->chip.base = -1;
 	ip->chip.npwm = 4;
 	ip->chip.of_xlate = of_pwm_xlate_with_flags;
@@ -218,6 +230,11 @@ static int iproc_pwmc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ip->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	ip->chip.npwm = 4;
+
+	ip->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ip->base))
 		return PTR_ERR(ip->base);
 
@@ -257,9 +274,17 @@ static int iproc_pwmc_remove(struct platform_device *pdev)
 {
 	struct iproc_pwmc *ip = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(ip->clk);
 
 	return pwmchip_remove(&ip->chip);
+=======
+	pwmchip_remove(&ip->chip);
+
+	clk_disable_unprepare(ip->clk);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id bcm_iproc_pwmc_dt[] = {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Cyril Bur, IBM Corp.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2015, Cyril Bur, IBM Corp.
+ *
+>>>>>>> upstream/android-13
  * This test attempts to see if the VSX registers change across preemption.
  * There is no way to be sure preemption happened so this test just
  * uses many threads and a long wait. As such, a successful test
@@ -96,6 +103,11 @@ int test_preempt_vsx(void)
 	int i, rc, threads;
 	pthread_t *tids;
 
+<<<<<<< HEAD
+=======
+	SKIP_IF(!have_hwcap(PPC_FEATURE_HAS_VSX));
+
+>>>>>>> upstream/android-13
 	threads = sysconf(_SC_NPROCESSORS_ONLN) * THREAD_FACTOR;
 	tids = malloc(threads * sizeof(pthread_t));
 	FAIL_IF(!tids);

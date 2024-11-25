@@ -7,6 +7,9 @@
 
 void __init init_airq_interrupts(void);
 void __init init_cio_interrupts(void);
+<<<<<<< HEAD
 void __init init_ext_interrupts(void);
+=======
+>>>>>>> upstream/android-13
 
 #endif

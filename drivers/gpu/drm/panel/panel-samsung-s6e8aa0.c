@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MIPI-DSI based s6e8aa0 AMOLED LCD 5.3 inch panel driver.
  *
@@ -9,6 +13,7 @@
  * Eunchul Kim <chulspro.kim@samsung.com>
  * Tomasz Figa <t.figa@samsung.com>
  * Andrzej Hajda <a.hajda@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,12 +25,27 @@
 #include <drm/drm_panel.h>
 
 #include <linux/gpio/consumer.h>
+=======
+*/
+
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+#include <linux/module.h>
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 
 #include <video/mipi_display.h>
 #include <video/of_videomode.h>
 #include <video/videomode.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_modes.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 #define LDI_MTP_LENGTH			24
 #define GAMMA_LEVEL_NUM			25
 #define GAMMA_TABLE_LEN			26
@@ -919,15 +939,25 @@ static int s6e8aa0_enable(struct drm_panel *panel)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int s6e8aa0_get_modes(struct drm_panel *panel)
 {
 	struct drm_connector *connector = panel->connector;
+=======
+static int s6e8aa0_get_modes(struct drm_panel *panel,
+			     struct drm_connector *connector)
+{
+>>>>>>> upstream/android-13
 	struct s6e8aa0 *ctx = panel_to_s6e8aa0(panel);
 	struct drm_display_mode *mode;
 
 	mode = drm_mode_create(connector->dev);
 	if (!mode) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to create a new display mode\n");
+=======
+		dev_err(panel->dev, "failed to create a new display mode\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -990,8 +1020,13 @@ static int s6e8aa0_probe(struct mipi_dsi_device *dsi)
 	dsi->lanes = 4;
 	dsi->format = MIPI_DSI_FMT_RGB888;
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST
+<<<<<<< HEAD
 		| MIPI_DSI_MODE_VIDEO_HFP | MIPI_DSI_MODE_VIDEO_HBP
 		| MIPI_DSI_MODE_VIDEO_HSA | MIPI_DSI_MODE_EOT_PACKET
+=======
+		| MIPI_DSI_MODE_VIDEO_NO_HFP | MIPI_DSI_MODE_VIDEO_NO_HBP
+		| MIPI_DSI_MODE_VIDEO_NO_HSA | MIPI_DSI_MODE_NO_EOT_PACKET
+>>>>>>> upstream/android-13
 		| MIPI_DSI_MODE_VSYNC_FLUSH | MIPI_DSI_MODE_VIDEO_AUTO_VERT;
 
 	ret = s6e8aa0_parse_dt(ctx);
@@ -1016,6 +1051,7 @@ static int s6e8aa0_probe(struct mipi_dsi_device *dsi)
 
 	ctx->brightness = GAMMA_LEVEL_NUM - 1;
 
+<<<<<<< HEAD
 	drm_panel_init(&ctx->panel);
 	ctx->panel.dev = dev;
 	ctx->panel.funcs = &s6e8aa0_drm_funcs;
@@ -1023,6 +1059,12 @@ static int s6e8aa0_probe(struct mipi_dsi_device *dsi)
 	ret = drm_panel_add(&ctx->panel);
 	if (ret < 0)
 		return ret;
+=======
+	drm_panel_init(&ctx->panel, dev, &s6e8aa0_drm_funcs,
+		       DRM_MODE_CONNECTOR_DSI);
+
+	drm_panel_add(&ctx->panel);
+>>>>>>> upstream/android-13
 
 	ret = mipi_dsi_attach(dsi);
 	if (ret < 0)

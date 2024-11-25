@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (c) 2017 Stefano Stabellini <stefano@aporeto.com>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (c) 2017 Stefano Stabellini <stefano@aporeto.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/inet.h>
@@ -33,7 +39,11 @@
 #define PVCALLS_VERSIONS "1"
 #define MAX_RING_ORDER XENBUS_MAX_RING_GRANT_ORDER
 
+<<<<<<< HEAD
 struct pvcalls_back_global {
+=======
+static struct pvcalls_back_global {
+>>>>>>> upstream/android-13
 	struct list_head frontends;
 	struct semaphore frontends_lock;
 } pvcalls_back_global;
@@ -138,13 +148,21 @@ static bool pvcalls_conn_back_read(void *opaque)
 	if (masked_prod < masked_cons) {
 		vec[0].iov_base = data->in + masked_prod;
 		vec[0].iov_len = wanted;
+<<<<<<< HEAD
 		iov_iter_kvec(&msg.msg_iter, ITER_KVEC|WRITE, vec, 1, wanted);
+=======
+		iov_iter_kvec(&msg.msg_iter, WRITE, vec, 1, wanted);
+>>>>>>> upstream/android-13
 	} else {
 		vec[0].iov_base = data->in + masked_prod;
 		vec[0].iov_len = array_size - masked_prod;
 		vec[1].iov_base = data->in;
 		vec[1].iov_len = wanted - vec[0].iov_len;
+<<<<<<< HEAD
 		iov_iter_kvec(&msg.msg_iter, ITER_KVEC|WRITE, vec, 2, wanted);
+=======
+		iov_iter_kvec(&msg.msg_iter, WRITE, vec, 2, wanted);
+>>>>>>> upstream/android-13
 	}
 
 	atomic_set(&map->read, 0);
@@ -197,13 +215,21 @@ static bool pvcalls_conn_back_write(struct sock_mapping *map)
 	if (pvcalls_mask(prod, array_size) > pvcalls_mask(cons, array_size)) {
 		vec[0].iov_base = data->out + pvcalls_mask(cons, array_size);
 		vec[0].iov_len = size;
+<<<<<<< HEAD
 		iov_iter_kvec(&msg.msg_iter, ITER_KVEC|READ, vec, 1, size);
+=======
+		iov_iter_kvec(&msg.msg_iter, READ, vec, 1, size);
+>>>>>>> upstream/android-13
 	} else {
 		vec[0].iov_base = data->out + pvcalls_mask(cons, array_size);
 		vec[0].iov_len = array_size - pvcalls_mask(cons, array_size);
 		vec[1].iov_base = data->out;
 		vec[1].iov_len = size - vec[0].iov_len;
+<<<<<<< HEAD
 		iov_iter_kvec(&msg.msg_iter, ITER_KVEC|READ, vec, 2, size);
+=======
+		iov_iter_kvec(&msg.msg_iter, READ, vec, 2, size);
+>>>>>>> upstream/android-13
 	}
 
 	atomic_set(&map->write, 0);
@@ -322,7 +348,11 @@ static struct sock_mapping *pvcalls_new_active_socket(
 		struct pvcalls_fedata *fedata,
 		uint64_t id,
 		grant_ref_t ref,
+<<<<<<< HEAD
 		uint32_t evtchn,
+=======
+		evtchn_port_t evtchn,
+>>>>>>> upstream/android-13
 		struct socket *sock)
 {
 	int ret;
@@ -357,7 +387,11 @@ static struct sock_mapping *pvcalls_new_active_socket(
 	map->bytes = page;
 
 	ret = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+<<<<<<< HEAD
 			fedata->dev->otherend_id, evtchn,
+=======
+			fedata->dev, evtchn,
+>>>>>>> upstream/android-13
 			pvcalls_back_conn_event, 0, "pvcalls-backend", map);
 	if (ret < 0)
 		goto out;
@@ -930,7 +964,12 @@ static irqreturn_t pvcalls_back_conn_event(int irq, void *sock_map)
 
 static int backend_connect(struct xenbus_device *dev)
 {
+<<<<<<< HEAD
 	int err, evtchn;
+=======
+	int err;
+	evtchn_port_t evtchn;
+>>>>>>> upstream/android-13
 	grant_ref_t ring_ref;
 	struct pvcalls_fedata *fedata = NULL;
 
@@ -956,7 +995,11 @@ static int backend_connect(struct xenbus_device *dev)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	err = bind_interdomain_evtchn_to_irq_lateeoi(dev->otherend_id, evtchn);
+=======
+	err = bind_interdomain_evtchn_to_irq_lateeoi(dev, evtchn);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto error;
 	fedata->irq = err;

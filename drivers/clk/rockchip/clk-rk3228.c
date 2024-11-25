@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015 Rockchip Electronics Co. Ltd.
  * Author: Xing Zheng <zhengxing@rock-chips.com>
  *         Jeffy Chen <jeffy.chen@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,12 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/syscore_ops.h>
@@ -109,6 +120,10 @@ static struct rockchip_cpuclk_rate_table rk3228_cpuclk_rates[] __initdata = {
 	RK3228_CPUCLK_RATE(1608000000, 1, 7),
 	RK3228_CPUCLK_RATE(1512000000, 1, 7),
 	RK3228_CPUCLK_RATE(1488000000, 1, 5),
+<<<<<<< HEAD
+=======
+	RK3228_CPUCLK_RATE(1464000000, 1, 5),
+>>>>>>> upstream/android-13
 	RK3228_CPUCLK_RATE(1416000000, 1, 5),
 	RK3228_CPUCLK_RATE(1392000000, 1, 5),
 	RK3228_CPUCLK_RATE(1296000000, 1, 5),
@@ -126,9 +141,16 @@ static struct rockchip_cpuclk_rate_table rk3228_cpuclk_rates[] __initdata = {
 };
 
 static const struct rockchip_cpuclk_reg_data rk3228_cpuclk_data = {
+<<<<<<< HEAD
 	.core_reg = RK2928_CLKSEL_CON(0),
 	.div_core_shift = 0,
 	.div_core_mask = 0x1f,
+=======
+	.core_reg[0] = RK2928_CLKSEL_CON(0),
+	.div_core_shift[0] = 0,
+	.div_core_mask[0] = 0x1f,
+	.num_cores = 1,
+>>>>>>> upstream/android-13
 	.mux_core_alt = 1,
 	.mux_core_main = 0,
 	.mux_core_shift = 6,
@@ -252,7 +274,11 @@ static struct rockchip_clk_branch rk3228_clk_branches[] __initdata = {
 			RK2928_CLKGATE_CON(4), 0, GFLAGS),
 
 	/* PD_MISC */
+<<<<<<< HEAD
 	MUX(0, "hdmiphy", mux_hdmiphy_p, CLK_SET_RATE_PARENT,
+=======
+	MUX(SCLK_HDMI_PHY, "hdmiphy", mux_hdmiphy_p, CLK_SET_RATE_PARENT,
+>>>>>>> upstream/android-13
 			RK2928_MISC_CON, 13, 1, MFLAGS),
 	MUX(0, "usb480m_phy", mux_usb480m_phy_p, CLK_SET_RATE_PARENT,
 			RK2928_MISC_CON, 14, 1, MFLAGS),

@@ -28,11 +28,18 @@
 #include <linux/smp.h>
 #include <linux/string.h>
 #include <linux/cache.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cacheflush.h>
 #include <asm/cpu-type.h>
 #include <asm/mmu_context.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/war.h>
 #include <asm/uasm.h>
 #include <asm/setup.h>
@@ -83,14 +90,28 @@ static inline int r4k_250MHZhwbug(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int __maybe_unused bcm1250_m3_war(void)
 {
 	return BCM1250_M3_WAR;
+=======
+extern int sb1250_m3_workaround_needed(void);
+
+static inline int __maybe_unused bcm1250_m3_war(void)
+{
+	if (IS_ENABLED(CONFIG_SB1_PASS_2_WORKAROUNDS))
+		return sb1250_m3_workaround_needed();
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static inline int __maybe_unused r10000_llsc_war(void)
 {
+<<<<<<< HEAD
 	return R10000_LLSC_WAR;
+=======
+	return IS_ENABLED(CONFIG_WAR_R10000_LLSC);
+>>>>>>> upstream/android-13
 }
 
 static int use_bbit_insns(void)
@@ -572,11 +593,20 @@ void build_tlb_write_entry(u32 **p, struct uasm_label **l,
 	case CPU_BMIPS4350:
 	case CPU_BMIPS4380:
 	case CPU_BMIPS5000:
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
 	case CPU_LOONGSON3:
 	case CPU_R5500:
 		if (m4kc_tlbp_war())
 			uasm_i_nop(p);
+=======
+	case CPU_LOONGSON2EF:
+	case CPU_LOONGSON64:
+	case CPU_R5500:
+		if (m4kc_tlbp_war())
+			uasm_i_nop(p);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CPU_ALCHEMY:
 		tlbw(p);
 		break;
@@ -603,13 +633,20 @@ void build_tlb_write_entry(u32 **p, struct uasm_label **l,
 
 	case CPU_VR4131:
 	case CPU_VR4133:
+<<<<<<< HEAD
 	case CPU_R5432:
+=======
+>>>>>>> upstream/android-13
 		uasm_i_nop(p);
 		uasm_i_nop(p);
 		tlbw(p);
 		break;
 
+<<<<<<< HEAD
 	case CPU_JZRISC:
+=======
+	case CPU_XBURST:
+>>>>>>> upstream/android-13
 		tlbw(p);
 		uasm_i_nop(p);
 		break;
@@ -845,8 +882,13 @@ void build_get_pmde64(u32 **p, struct uasm_label **l, struct uasm_reloc **r,
 		/* Clear lower 23 bits of context. */
 		uasm_i_dins(p, ptr, 0, 0, 23);
 
+<<<<<<< HEAD
 		/* 1 0	1 0 1  << 6  xkphys cached */
 		uasm_i_ori(p, ptr, ptr, 0x540);
+=======
+		/* insert bit[63:59] of CAC_BASE into bit[11:6] of ptr */
+		uasm_i_ori(p, ptr, ptr, ((u64)(CAC_BASE) >> 53));
+>>>>>>> upstream/android-13
 		uasm_i_drotr(p, ptr, ptr, 11);
 #elif defined(CONFIG_SMP)
 		UASM_i_CPUID_MFC0(p, ptr, SMP_CPUID_REG);
@@ -943,6 +985,11 @@ build_get_pgd_vmalloc64(u32 **p, struct uasm_label **l, struct uasm_reloc **r,
 		 * to mimic that here by taking a load/istream page
 		 * fault.
 		 */
+<<<<<<< HEAD
+=======
+		if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
+			uasm_i_sync(p, 0);
+>>>>>>> upstream/android-13
 		UASM_i_LA(p, ptr, (unsigned long)tlb_do_page_fault_0);
 		uasm_i_jr(p, ptr);
 
@@ -1159,8 +1206,14 @@ build_fast_tlb_refill_handler (u32 **p, struct uasm_label **l,
 
 	if (pgd_reg == -1) {
 		vmalloc_branch_delay_filled = 1;
+<<<<<<< HEAD
 		/* 1 0	1 0 1  << 6  xkphys cached */
 		uasm_i_ori(p, ptr, ptr, 0x540);
+=======
+		/* insert bit[63:59] of CAC_BASE into bit[11:6] of ptr */
+		uasm_i_ori(p, ptr, ptr, ((u64)(CAC_BASE) >> 53));
+
+>>>>>>> upstream/android-13
 		uasm_i_drotr(p, ptr, ptr, 11);
 	}
 
@@ -1376,7 +1429,12 @@ static void build_r4000_tlb_refill_handler(void)
 	switch (boot_cpu_type()) {
 	default:
 		if (sizeof(long) == 4) {
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
+=======
+		fallthrough;
+	case CPU_LOONGSON2EF:
+>>>>>>> upstream/android-13
 		/* Loongson2 ebase is different than r4k, we have more space */
 			if ((p - tlb_handler) > 64)
 				panic("TLB refill handler space exceeded");
@@ -1666,6 +1724,11 @@ static void
 iPTE_LW(u32 **p, unsigned int pte, unsigned int ptr)
 {
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
+		uasm_i_sync(p, 0);
+>>>>>>> upstream/android-13
 # ifdef CONFIG_PHYS_ADDR_T_64BIT
 	if (cpu_has_64bits)
 		uasm_i_lld(p, pte, 0, ptr);
@@ -2157,6 +2220,7 @@ static void build_r4000_tlb_load_handler(void)
 		uasm_i_tlbr(&p);
 
 		switch (current_cpu_type()) {
+<<<<<<< HEAD
 		default:
 			if (cpu_has_mips_r2_exec_hazard) {
 				uasm_i_ehb(&p);
@@ -2166,6 +2230,16 @@ static void build_r4000_tlb_load_handler(void)
 		case CPU_CAVIUM_OCTEON2:
 				break;
 			}
+=======
+		case CPU_CAVIUM_OCTEON:
+		case CPU_CAVIUM_OCTEON_PLUS:
+		case CPU_CAVIUM_OCTEON2:
+			break;
+		default:
+			if (cpu_has_mips_r2_exec_hazard)
+				uasm_i_ehb(&p);
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		/* Examine  entrylo 0 or 1 based on ptr. */
@@ -2232,6 +2306,7 @@ static void build_r4000_tlb_load_handler(void)
 		uasm_i_tlbr(&p);
 
 		switch (current_cpu_type()) {
+<<<<<<< HEAD
 		default:
 			if (cpu_has_mips_r2_exec_hazard) {
 				uasm_i_ehb(&p);
@@ -2241,6 +2316,16 @@ static void build_r4000_tlb_load_handler(void)
 		case CPU_CAVIUM_OCTEON2:
 				break;
 			}
+=======
+		case CPU_CAVIUM_OCTEON:
+		case CPU_CAVIUM_OCTEON_PLUS:
+		case CPU_CAVIUM_OCTEON2:
+			break;
+		default:
+			if (cpu_has_mips_r2_exec_hazard)
+				uasm_i_ehb(&p);
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		/* Examine  entrylo 0 or 1 based on ptr. */
@@ -2279,6 +2364,11 @@ static void build_r4000_tlb_load_handler(void)
 #endif
 
 	uasm_l_nopage_tlbl(&l, p);
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
+		uasm_i_sync(&p, 0);
+>>>>>>> upstream/android-13
 	build_restore_work_registers(&p);
 #ifdef CONFIG_CPU_MICROMIPS
 	if ((unsigned long)tlb_do_page_fault_0 & 1) {
@@ -2333,6 +2423,11 @@ static void build_r4000_tlb_store_handler(void)
 #endif
 
 	uasm_l_nopage_tlbs(&l, p);
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
+		uasm_i_sync(&p, 0);
+>>>>>>> upstream/android-13
 	build_restore_work_registers(&p);
 #ifdef CONFIG_CPU_MICROMIPS
 	if ((unsigned long)tlb_do_page_fault_1 & 1) {
@@ -2388,6 +2483,11 @@ static void build_r4000_tlb_modify_handler(void)
 #endif
 
 	uasm_l_nopage_tlbm(&l, p);
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_CPU_LOONGSON3_WORKAROUNDS))
+		uasm_i_sync(&p, 0);
+>>>>>>> upstream/android-13
 	build_restore_work_registers(&p);
 #ifdef CONFIG_CPU_MICROMIPS
 	if ((unsigned long)tlb_do_page_fault_1 & 1) {
@@ -2608,6 +2708,7 @@ void build_tlb_refill_handler(void)
 	check_for_high_segbits = current_cpu_data.vmbits > (PGDIR_SHIFT + PGD_ORDER + PAGE_SHIFT - 3);
 #endif
 
+<<<<<<< HEAD
 	switch (current_cpu_type()) {
 	case CPU_R2000:
 	case CPU_R3000:
@@ -2623,6 +2724,13 @@ void build_tlb_refill_handler(void)
 			if (!cpu_has_local_ebase)
 				build_r3000_tlb_refill_handler();
 			build_setup_pgd();
+=======
+	if (cpu_has_3kex) {
+#ifndef CONFIG_MIPS_PGD_C0_CONTEXT
+		if (!run_once) {
+			build_setup_pgd();
+			build_r3000_tlb_refill_handler();
+>>>>>>> upstream/android-13
 			build_r3000_tlb_load_handler();
 			build_r3000_tlb_store_handler();
 			build_r3000_tlb_modify_handler();
@@ -2632,6 +2740,7 @@ void build_tlb_refill_handler(void)
 #else
 		panic("No R3000 TLB refill handler");
 #endif
+<<<<<<< HEAD
 		break;
 
 	case CPU_R8000:
@@ -2662,4 +2771,29 @@ void build_tlb_refill_handler(void)
 		if (cpu_has_htw)
 			config_htw_params();
 	}
+=======
+		return;
+	}
+
+	if (cpu_has_ldpte)
+		setup_pw();
+
+	if (!run_once) {
+		scratch_reg = allocate_kscratch();
+		build_setup_pgd();
+		build_r4000_tlb_load_handler();
+		build_r4000_tlb_store_handler();
+		build_r4000_tlb_modify_handler();
+		if (cpu_has_ldpte)
+			build_loongson3_tlb_refill_handler();
+		else
+			build_r4000_tlb_refill_handler();
+		flush_tlb_handlers();
+		run_once++;
+	}
+	if (cpu_has_xpa)
+		config_xpa_params();
+	if (cpu_has_htw)
+		config_htw_params();
+>>>>>>> upstream/android-13
 }

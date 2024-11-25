@@ -17,7 +17,11 @@
  * The algorithm was originally described in detail in this paper
  * (although the algorithm has evolved somewhat since then):
  *
+<<<<<<< HEAD
  *     http://www.ssrc.ucsc.edu/Papers/weil-sc06.pdf
+=======
+ *     https://www.ssrc.ucsc.edu/Papers/weil-sc06.pdf
+>>>>>>> upstream/android-13
  *
  * LGPL2
  */
@@ -87,7 +91,11 @@ struct crush_rule_mask {
 struct crush_rule {
 	__u32 len;
 	struct crush_rule_mask mask;
+<<<<<<< HEAD
 	struct crush_rule_step steps[0];
+=======
+	struct crush_rule_step steps[];
+>>>>>>> upstream/android-13
 };
 
 #define crush_rule_size(len) (sizeof(struct crush_rule) + \
@@ -301,6 +309,15 @@ struct crush_map {
 
 	__u32 *choose_tries;
 #else
+<<<<<<< HEAD
+=======
+	/* device/bucket type id -> type name (CrushWrapper::type_map) */
+	struct rb_root type_names;
+
+	/* device/bucket id -> name (CrushWrapper::name_map) */
+	struct rb_root names;
+
+>>>>>>> upstream/android-13
 	/* CrushWrapper::choose_args */
 	struct rb_root choose_args;
 #endif
@@ -340,6 +357,20 @@ struct crush_work_bucket {
 
 struct crush_work {
 	struct crush_work_bucket **work; /* Per-bucket working store */
+<<<<<<< HEAD
 };
 
+=======
+#ifdef __KERNEL__
+	struct list_head item;
+#endif
+};
+
+#ifdef __KERNEL__
+/* osdmap.c */
+void clear_crush_names(struct rb_root *root);
+void clear_choose_args(struct crush_map *c);
+#endif
+
+>>>>>>> upstream/android-13
 #endif

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * faulty.c : Multiple Devices driver for Linux
  *
  * Copyright (C) 2004 Neil Brown
  *
  * fautly-device-simulator personality for md
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -14,6 +19,8 @@
  * You should have received a copy of the GNU General Public License
  * (for example /usr/src/linux/COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -178,7 +185,11 @@ static bool faulty_make_request(struct mddev *mddev, struct bio *bio)
 	if (bio_data_dir(bio) == WRITE) {
 		/* write request */
 		if (atomic_read(&conf->counters[WriteAll])) {
+<<<<<<< HEAD
 			/* special case - don't decrement, don't generic_make_request,
+=======
+			/* special case - don't decrement, don't submit_bio_noacct,
+>>>>>>> upstream/android-13
 			 * just fail immediately
 			 */
 			bio_io_error(bio);
@@ -223,7 +234,11 @@ static bool faulty_make_request(struct mddev *mddev, struct bio *bio)
 	} else
 		bio_set_dev(bio, conf->rdev->bdev);
 
+<<<<<<< HEAD
 	generic_make_request(bio);
+=======
+	submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -366,7 +381,11 @@ static void raid_exit(void)
 module_init(raid_init);
 module_exit(raid_exit);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Fault injection personality for MD");
+=======
+MODULE_DESCRIPTION("Fault injection personality for MD (deprecated)");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("md-personality-10"); /* faulty */
 MODULE_ALIAS("md-faulty");
 MODULE_ALIAS("md-level--5");

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007-2009 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2007-2009 PetaLogix
@@ -5,11 +9,14 @@
  * based on v850 version which was
  * Copyright (C) 2001,02,03 NEC Electronics Corporation
  * Copyright (C) 2001,02,03 Miles Bader <miles@gnu.org>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General
  * Public License. See the file COPYING in the main directory of this
  * archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_CACHEFLUSH_H
@@ -61,9 +68,12 @@ void microblaze_cache_init(void);
 #define invalidate_icache()				mbc->iin();
 #define invalidate_icache_range(start, end)		mbc->iinr(start, end);
 
+<<<<<<< HEAD
 #define flush_icache_user_range(vma, pg, adr, len)	flush_icache();
 #define flush_icache_page(vma, pg)			do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #define enable_dcache()					mbc->de();
 #define disable_dcache()				mbc->dd();
 /* FIXME for LL-temac driver */
@@ -81,6 +91,7 @@ do { \
 	flush_dcache_range((unsigned) (addr), (unsigned) (addr) + PAGE_SIZE); \
 } while (0);
 
+<<<<<<< HEAD
 #define flush_dcache_mmap_lock(mapping)		do { } while (0)
 #define flush_dcache_mmap_unlock(mapping)	do { } while (0)
 
@@ -102,6 +113,11 @@ do { \
 
 #define flush_cache_range(vma, start, len) do { } while (0)
 
+=======
+#define flush_cache_page(vma, vmaddr, pfn) \
+	flush_dcache_range(pfn << PAGE_SHIFT, (pfn << PAGE_SHIFT) + PAGE_SIZE);
+
+>>>>>>> upstream/android-13
 static inline void copy_to_user_page(struct vm_area_struct *vma,
 				     struct page *page, unsigned long vaddr,
 				     void *dst, void *src, int len)
@@ -113,6 +129,7 @@ static inline void copy_to_user_page(struct vm_area_struct *vma,
 		flush_dcache_range(addr, addr + PAGE_SIZE);
 	}
 }
+<<<<<<< HEAD
 
 static inline void copy_from_user_page(struct vm_area_struct *vma,
 				       struct page *page, unsigned long vaddr,
@@ -120,5 +137,10 @@ static inline void copy_from_user_page(struct vm_area_struct *vma,
 {
 	memcpy(dst, src, len);
 }
+=======
+#define copy_to_user_page copy_to_user_page
+
+#include <asm-generic/cacheflush.h>
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_MICROBLAZE_CACHEFLUSH_H */

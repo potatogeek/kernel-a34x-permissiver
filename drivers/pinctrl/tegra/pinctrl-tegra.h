@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Driver for the NVIDIA Tegra pinmux
  *
  * Copyright (c) 2011, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PINMUX_TEGRA_H__
@@ -25,6 +32,10 @@ struct tegra_pmx {
 
 	int nbanks;
 	void __iomem **regs;
+<<<<<<< HEAD
+=======
+	u32 *backup_regs;
+>>>>>>> upstream/android-13
 };
 
 enum tegra_pinconf_param {
@@ -104,7 +115,10 @@ struct tegra_function {
  * @tri_reg:		Tri-state register offset.
  * @tri_bank:		Tri-state register bank.
  * @tri_bit:		Tri-state register bit.
+<<<<<<< HEAD
  * @parked_bit:		Parked register bit. -1 if unsupported.
+=======
+>>>>>>> upstream/android-13
  * @einput_bit:		Enable-input register bit.
  * @odrain_bit:		Open-drain register bit.
  * @lock_bit:		Lock register bit.
@@ -115,7 +129,12 @@ struct tegra_function {
  *			drvup, slwr, slwf, and drvtype parameters.
  * @drv_bank:		Drive fields register bank.
  * @hsm_bit:		High Speed Mode register bit.
+<<<<<<< HEAD
  * @schmitt_bit:	Scmitt register bit.
+=======
+ * @sfsel_bit:		GPIO/SFIO selection register bit.
+ * @schmitt_bit:	Schmitt register bit.
+>>>>>>> upstream/android-13
  * @lpmd_bit:		Low Power Mode register bit.
  * @drvdn_bit:		Drive Down register bit.
  * @drvdn_width:	Drive Down field width.
@@ -126,6 +145,10 @@ struct tegra_function {
  * @slwf_bit:		Slew Falling register bit.
  * @slwf_width:		Slew Falling field width.
  * @drvtype_bit:	Drive type register bit.
+<<<<<<< HEAD
+=======
+ * @parked_bitmask:	Parked register mask. 0 if unsupported.
+>>>>>>> upstream/android-13
  *
  * -1 in a *_reg field means that feature is unsupported for this group.
  * *_bank and *_reg values are irrelevant when *_reg is -1.
@@ -143,10 +166,17 @@ struct tegra_pingroup {
 	const unsigned *pins;
 	u8 npins;
 	u8 funcs[4];
+<<<<<<< HEAD
 	s16 mux_reg;
 	s16 pupd_reg;
 	s16 tri_reg;
 	s16 drv_reg;
+=======
+	s32 mux_reg;
+	s32 pupd_reg;
+	s32 tri_reg;
+	s32 drv_reg;
+>>>>>>> upstream/android-13
 	u32 mux_bank:2;
 	u32 pupd_bank:2;
 	u32 tri_bank:2;
@@ -154,13 +184,20 @@ struct tegra_pingroup {
 	s32 mux_bit:6;
 	s32 pupd_bit:6;
 	s32 tri_bit:6;
+<<<<<<< HEAD
 	s32 parked_bit:6;
+=======
+>>>>>>> upstream/android-13
 	s32 einput_bit:6;
 	s32 odrain_bit:6;
 	s32 lock_bit:6;
 	s32 ioreset_bit:6;
 	s32 rcv_sel_bit:6;
 	s32 hsm_bit:6;
+<<<<<<< HEAD
+=======
+	s32 sfsel_bit:6;
+>>>>>>> upstream/android-13
 	s32 schmitt_bit:6;
 	s32 lpmd_bit:6;
 	s32 drvdn_bit:6;
@@ -172,6 +209,10 @@ struct tegra_pingroup {
 	s32 drvup_width:6;
 	s32 slwr_width:6;
 	s32 slwf_width:6;
+<<<<<<< HEAD
+=======
+	u32 parked_bitmask;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -199,8 +240,16 @@ struct tegra_pinctrl_soc_data {
 	bool hsm_in_mux;
 	bool schmitt_in_mux;
 	bool drvtype_in_mux;
+<<<<<<< HEAD
 };
 
+=======
+	bool sfsel_in_mux;
+};
+
+extern const struct dev_pm_ops tegra_pinctrl_pm;
+
+>>>>>>> upstream/android-13
 int tegra_pinctrl_probe(struct platform_device *pdev,
 			const struct tegra_pinctrl_soc_data *soc_data);
 #endif

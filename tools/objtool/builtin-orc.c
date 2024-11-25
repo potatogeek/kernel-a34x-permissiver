@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Josh Poimboeuf <jpoimboe@redhat.com>
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2017 Josh Poimboeuf <jpoimboe@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -25,9 +31,14 @@
  */
 
 #include <string.h>
+<<<<<<< HEAD
 #include "builtin.h"
 #include "check.h"
 
+=======
+#include <objtool/builtin.h>
+#include <objtool/objtool.h>
+>>>>>>> upstream/android-13
 
 static const char *orc_usage[] = {
 	"objtool orc generate [<options>] file.o",
@@ -44,6 +55,7 @@ int cmd_orc(int argc, const char **argv)
 		usage_with_options(orc_usage, check_options);
 
 	if (!strncmp(argv[0], "gen", 3)) {
+<<<<<<< HEAD
 		argc = parse_options(argc, argv, check_options, orc_usage, 0);
 		if (argc != 1)
 			usage_with_options(orc_usage, check_options);
@@ -51,6 +63,33 @@ int cmd_orc(int argc, const char **argv)
 		objname = argv[0];
 
 		return check(objname, true);
+=======
+		struct objtool_file *file;
+		int ret;
+
+		argc = cmd_parse_options(argc, argv, orc_usage);
+		objname = argv[0];
+
+		file = objtool_open_read(objname);
+		if (!file)
+			return 1;
+
+		ret = check(file);
+		if (ret)
+			return ret;
+
+		if (list_empty(&file->insn_list))
+			return 0;
+
+		ret = orc_create(file);
+		if (ret)
+			return ret;
+
+		if (!file->elf->changed)
+			return 0;
+
+		return elf_write(file->elf);
+>>>>>>> upstream/android-13
 	}
 
 	if (!strcmp(argv[0], "dump")) {

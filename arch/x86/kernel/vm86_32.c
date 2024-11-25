@@ -98,7 +98,10 @@ void save_v86_state(struct kernel_vm86_regs *regs, int retval)
 	struct task_struct *tsk = current;
 	struct vm86plus_struct __user *user;
 	struct vm86 *vm86 = current->thread.vm86;
+<<<<<<< HEAD
 	long err = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * This gets called from entry.S with interrupts disabled, but
@@ -114,6 +117,7 @@ void save_v86_state(struct kernel_vm86_regs *regs, int retval)
 	set_flags(regs->pt.flags, VEFLAGS, X86_EFLAGS_VIF | vm86->veflags_mask);
 	user = vm86->user_vm86;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, user, vm86->vm86plus.is_vm86pus ?
 		       sizeof(struct vm86plus_struct) :
 		       sizeof(struct vm86_struct))) {
@@ -146,6 +150,38 @@ void save_v86_state(struct kernel_vm86_regs *regs, int retval)
 		do_exit(SIGSEGV);
 	}
 
+=======
+	if (!user_access_begin(user, vm86->vm86plus.is_vm86pus ?
+		       sizeof(struct vm86plus_struct) :
+		       sizeof(struct vm86_struct)))
+		goto Efault;
+
+	unsafe_put_user(regs->pt.bx, &user->regs.ebx, Efault_end);
+	unsafe_put_user(regs->pt.cx, &user->regs.ecx, Efault_end);
+	unsafe_put_user(regs->pt.dx, &user->regs.edx, Efault_end);
+	unsafe_put_user(regs->pt.si, &user->regs.esi, Efault_end);
+	unsafe_put_user(regs->pt.di, &user->regs.edi, Efault_end);
+	unsafe_put_user(regs->pt.bp, &user->regs.ebp, Efault_end);
+	unsafe_put_user(regs->pt.ax, &user->regs.eax, Efault_end);
+	unsafe_put_user(regs->pt.ip, &user->regs.eip, Efault_end);
+	unsafe_put_user(regs->pt.cs, &user->regs.cs, Efault_end);
+	unsafe_put_user(regs->pt.flags, &user->regs.eflags, Efault_end);
+	unsafe_put_user(regs->pt.sp, &user->regs.esp, Efault_end);
+	unsafe_put_user(regs->pt.ss, &user->regs.ss, Efault_end);
+	unsafe_put_user(regs->es, &user->regs.es, Efault_end);
+	unsafe_put_user(regs->ds, &user->regs.ds, Efault_end);
+	unsafe_put_user(regs->fs, &user->regs.fs, Efault_end);
+	unsafe_put_user(regs->gs, &user->regs.gs, Efault_end);
+
+	/*
+	 * Don't write screen_bitmap in case some user had a value there
+	 * and expected it to remain unchanged.
+	 */
+
+	user_access_end();
+
+exit_vm86:
+>>>>>>> upstream/android-13
 	preempt_disable();
 	tsk->thread.sp0 = vm86->saved_sp0;
 	tsk->thread.sysenter_cs = __KERNEL_CS;
@@ -159,6 +195,7 @@ void save_v86_state(struct kernel_vm86_regs *regs, int retval)
 	lazy_load_gs(vm86->regs32.gs);
 
 	regs->pt.ax = retval;
+<<<<<<< HEAD
 }
 
 static void mark_screen_rdonly(struct mm_struct *mm)
@@ -204,6 +241,18 @@ out:
 
 
 
+=======
+	return;
+
+Efault_end:
+	user_access_end();
+Efault:
+	pr_alert("could not access userspace vm86 info\n");
+	force_exit_sig(SIGSEGV);
+	goto exit_vm86;
+}
+
+>>>>>>> upstream/android-13
 static int do_vm86_irq_handling(int subfunction, int irqnumber);
 static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus);
 
@@ -243,6 +292,10 @@ static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 	struct kernel_vm86_regs vm86regs;
 	struct pt_regs *regs = current_pt_regs();
 	unsigned long err = 0;
+<<<<<<< HEAD
+=======
+	struct vm86_struct v;
+>>>>>>> upstream/android-13
 
 	err = security_mmap_addr(0);
 	if (err) {
@@ -278,6 +331,7 @@ static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 	if (vm86->saved_sp0)
 		return -EPERM;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, user_vm86, plus ?
 		       sizeof(struct vm86_struct) :
 		       sizeof(struct vm86plus_struct)))
@@ -311,6 +365,42 @@ static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 	} get_user_catch(err);
 	if (err)
 		return err;
+=======
+	if (copy_from_user(&v, user_vm86,
+			offsetof(struct vm86_struct, int_revectored)))
+		return -EFAULT;
+
+
+	/* VM86_SCREEN_BITMAP had numerous bugs and appears to have no users. */
+	if (v.flags & VM86_SCREEN_BITMAP) {
+		char comm[TASK_COMM_LEN];
+
+		pr_info_once("vm86: '%s' uses VM86_SCREEN_BITMAP, which is no longer supported\n", get_task_comm(comm, current));
+		return -EINVAL;
+	}
+
+	memset(&vm86regs, 0, sizeof(vm86regs));
+
+	vm86regs.pt.bx = v.regs.ebx;
+	vm86regs.pt.cx = v.regs.ecx;
+	vm86regs.pt.dx = v.regs.edx;
+	vm86regs.pt.si = v.regs.esi;
+	vm86regs.pt.di = v.regs.edi;
+	vm86regs.pt.bp = v.regs.ebp;
+	vm86regs.pt.ax = v.regs.eax;
+	vm86regs.pt.ip = v.regs.eip;
+	vm86regs.pt.cs = v.regs.cs;
+	vm86regs.pt.flags = v.regs.eflags;
+	vm86regs.pt.sp = v.regs.esp;
+	vm86regs.pt.ss = v.regs.ss;
+	vm86regs.es = v.regs.es;
+	vm86regs.ds = v.regs.ds;
+	vm86regs.fs = v.regs.fs;
+	vm86regs.gs = v.regs.gs;
+
+	vm86->flags = v.flags;
+	vm86->cpu_type = v.cpu_type;
+>>>>>>> upstream/android-13
 
 	if (copy_from_user(&vm86->int_revectored,
 			   &user_vm86->int_revectored,
@@ -369,7 +459,11 @@ static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 	preempt_disable();
 	tsk->thread.sp0 += 16;
 
+<<<<<<< HEAD
 	if (static_cpu_has(X86_FEATURE_SEP)) {
+=======
+	if (boot_cpu_has(X86_FEATURE_SEP)) {
+>>>>>>> upstream/android-13
 		tsk->thread.sysenter_cs = 0;
 		refresh_sysenter_cs(&tsk->thread);
 	}
@@ -377,11 +471,15 @@ static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
 	update_task_stack(tsk);
 	preempt_enable();
 
+<<<<<<< HEAD
 	if (vm86->flags & VM86_SCREEN_BITMAP)
 		mark_screen_rdonly(tsk->mm);
 
 	memcpy((struct kernel_vm86_regs *)regs, &vm86regs, sizeof(vm86regs));
 	force_iret();
+=======
+	memcpy((struct kernel_vm86_regs *)regs, &vm86regs, sizeof(vm86regs));
+>>>>>>> upstream/android-13
 	return regs->ax;
 }
 
@@ -583,7 +681,11 @@ int handle_vm86_trap(struct kernel_vm86_regs *regs, long error_code, int trapno)
 		return 1; /* we let this handle by the calling routine */
 	current->thread.trap_nr = trapno;
 	current->thread.error_code = error_code;
+<<<<<<< HEAD
 	force_sig(SIGTRAP, current);
+=======
+	force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

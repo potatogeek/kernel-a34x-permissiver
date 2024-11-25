@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright 2011 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
  *
@@ -64,6 +69,61 @@ BEGIN_FTR_SECTION
 END_FTR_SECTION_IFCLR(CPU_FTR_ARCH_207S)
 
 	/* Save host PMU registers */
+<<<<<<< HEAD
+=======
+	bl	kvmhv_save_host_pmu
+
+	/*
+	 * Put whatever is in the decrementer into the
+	 * hypervisor decrementer.
+	 * Because of a hardware deviation in P8,
+	 * we need to set LPCR[HDICE] before writing HDEC.
+	 */
+	ld	r5, HSTATE_KVM_VCORE(r13)
+	ld	r6, VCORE_KVM(r5)
+	ld	r9, KVM_HOST_LPCR(r6)
+	ori	r8, r9, LPCR_HDICE
+	mtspr	SPRN_LPCR, r8
+	isync
+	mfspr	r8,SPRN_DEC
+	mftb	r7
+	extsw	r8,r8
+	mtspr	SPRN_HDEC,r8
+	add	r8,r8,r7
+	std	r8,HSTATE_DECEXP(r13)
+
+	/* Jump to partition switch code */
+	bl	kvmppc_hv_entry_trampoline
+	nop
+
+/*
+ * We return here in virtual mode after the guest exits
+ * with something that we can't handle in real mode.
+ * Interrupts are still hard-disabled.
+ */
+
+	/*
+	 * Register usage at this point:
+	 *
+	 * R1       = host R1
+	 * R2       = host R2
+	 * R3       = trap number on this thread
+	 * R12      = exit handler id
+	 * R13      = PACA
+	 */
+
+	/* Restore non-volatile host registers (r14 - r31) and CR */
+	REST_NVGPRS(r1)
+	ld	r4, _CCR(r1)
+	mtcr	r4
+
+	addi    r1, r1, SWITCH_FRAME_SIZE
+	ld	r0, PPC_LR_STKOFF(r1)
+	mtlr	r0
+	blr
+
+_GLOBAL(kvmhv_save_host_pmu)
+>>>>>>> upstream/android-13
 BEGIN_FTR_SECTION
 	/* Work around P8 PMAE bug */
 	li	r3, -1
@@ -97,6 +157,17 @@ BEGIN_FTR_SECTION
 	std	r8, HSTATE_MMCR2(r13)
 	std	r9, HSTATE_SIER(r13)
 END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
+<<<<<<< HEAD
+=======
+BEGIN_FTR_SECTION
+	mfspr	r5, SPRN_MMCR3
+	mfspr	r6, SPRN_SIER2
+	mfspr	r7, SPRN_SIER3
+	std	r5, HSTATE_MMCR3(r13)
+	std	r6, HSTATE_SIER2(r13)
+	std	r7, HSTATE_SIER3(r13)
+END_FTR_SECTION_IFSET(CPU_FTR_ARCH_31)
+>>>>>>> upstream/android-13
 	mfspr	r3, SPRN_PMC1
 	mfspr	r5, SPRN_PMC2
 	mfspr	r6, SPRN_PMC3
@@ -109,6 +180,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
 	stw	r7, HSTATE_PMC4(r13)
 	stw	r8, HSTATE_PMC5(r13)
 	stw	r9, HSTATE_PMC6(r13)
+<<<<<<< HEAD
 31:
 
 	/*
@@ -161,3 +233,6 @@ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_300)
 	ld	r0, PPC_LR_STKOFF(r1)
 	mtlr	r0
 	blr
+=======
+31:	blr
+>>>>>>> upstream/android-13

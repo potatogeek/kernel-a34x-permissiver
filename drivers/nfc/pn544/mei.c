@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HCI based Driver for NXP pn544 NFC Chip
  *
@@ -14,6 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2013  Intel Corporation. All rights reserved.
+ *
+ * HCI based Driver for NXP pn544 NFC Chip
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -53,7 +61,11 @@ static int pn544_mei_probe(struct mei_cl_device *cldev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pn544_mei_remove(struct mei_cl_device *cldev)
+=======
+static void pn544_mei_remove(struct mei_cl_device *cldev)
+>>>>>>> upstream/android-13
 {
 	struct nfc_mei_phy *phy = mei_cldev_get_drvdata(cldev);
 
@@ -62,8 +74,11 @@ static int pn544_mei_remove(struct mei_cl_device *cldev)
 	pn544_hci_remove(phy->hdev);
 
 	nfc_mei_phy_free(phy);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct mei_cl_device_id pn544_mei_tbl[] = {

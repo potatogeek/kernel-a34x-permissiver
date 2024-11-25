@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015, Intel Corporation.
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014-2015, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __NVDIMM_PFN_H
@@ -32,11 +38,27 @@ struct nd_pfn_sb {
 	__le64 npfns;
 	__le32 mode;
 	/* minor-version-1 additions for section alignment */
+<<<<<<< HEAD
+=======
+	/**
+	 * @start_pad: Deprecated attribute to pad start-misaligned namespaces
+	 *
+	 * start_pad is deprecated because the original definition did
+	 * not comprehend that dataoff is relative to the base address
+	 * of the namespace not the start_pad adjusted base. The result
+	 * is that the dax path is broken, but the block-I/O path is
+	 * not. The kernel will no longer create namespaces using start
+	 * padding, but it still supports block-I/O for legacy
+	 * configurations mainly to allow a backup, reconfigure the
+	 * namespace, and restore flow to repair dax operation.
+	 */
+>>>>>>> upstream/android-13
 	__le32 start_pad;
 	__le32 end_trunc;
 	/* minor-version-2 record the base alignment of the mapping */
 	__le32 align;
 	/* minor-version-3 guarantee the padding and flags are zero */
+<<<<<<< HEAD
 	u8 padding[4000];
 	__le64 checksum;
 };
@@ -55,4 +77,13 @@ struct nd_pfn_sb {
 
 #define PHYS_SECTION_ALIGN_DOWN(x) PFN_PHYS(PFN_SECTION_ALIGN_DOWN(PHYS_PFN(x)))
 #define PHYS_SECTION_ALIGN_UP(x) PFN_PHYS(PFN_SECTION_ALIGN_UP(PHYS_PFN(x)))
+=======
+	/* minor-version-4 record the page size and struct page size */
+	__le32 page_size;
+	__le16 page_struct_size;
+	u8 padding[3994];
+	__le64 checksum;
+};
+
+>>>>>>> upstream/android-13
 #endif /* __NVDIMM_PFN_H */

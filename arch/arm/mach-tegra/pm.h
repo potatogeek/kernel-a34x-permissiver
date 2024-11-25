@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 Google, Inc.
  * Copyright (c) 2010-2012 NVIDIA Corporation. All rights reserved.
  *
  * Author:
  *	Colin Cross <ccross@google.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MACH_TEGRA_PM_H_
@@ -34,6 +41,7 @@ void tegra20_sleep_core_init(void);
 void tegra30_lp1_iram_hook(void);
 void tegra30_sleep_core_init(void);
 
+<<<<<<< HEAD
 void tegra_clear_cpu_in_lp2(void);
 bool tegra_set_cpu_in_lp2(void);
 int tegra_cpu_do_idle(void);
@@ -46,4 +54,8 @@ void tegra_init_suspend(void);
 static inline void tegra_init_suspend(void) {}
 #endif
 
+=======
+extern void (*tegra_tear_down_cpu)(void);
+
+>>>>>>> upstream/android-13
 #endif /* _MACH_TEGRA_PM_H_ */

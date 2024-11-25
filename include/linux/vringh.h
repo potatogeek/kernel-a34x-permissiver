@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Linux host-side vring helpers; for when the kernel needs to access
  * someone else's vring.
@@ -5,6 +9,7 @@
  * Copyright IBM Corporation, 2013.
  * Parts taken from drivers/vhost/vhost.c Copyright 2009 Red Hat, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Written by: Rusty Russell <rusty@rustcorp.com.au>
  */
 #ifndef _LINUX_VRINGH_H
@@ -27,6 +34,14 @@
 #include <linux/virtio_byteorder.h>
 #include <linux/uio.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/spinlock.h>
+#if IS_REACHABLE(CONFIG_VHOST_IOTLB)
+#include <linux/dma-direction.h>
+#include <linux/vhost_iotlb.h>
+#endif
+>>>>>>> upstream/android-13
 #include <asm/barrier.h>
 
 /* virtio_ring with information needed for host access. */
@@ -52,6 +67,15 @@ struct vringh {
 	/* The vring (note: it may contain user pointers!) */
 	struct vring vring;
 
+<<<<<<< HEAD
+=======
+	/* IOTLB for this vring */
+	struct vhost_iotlb *iotlb;
+
+	/* spinlock to synchronize IOTLB accesses */
+	spinlock_t *iotlb_lock;
+
+>>>>>>> upstream/android-13
 	/* The function to call to notify the guest about added buffers */
 	void (*notify)(struct vringh *);
 };
@@ -111,9 +135,15 @@ struct vringh_kiov {
 /* Helpers for userspace vrings. */
 int vringh_init_user(struct vringh *vrh, u64 features,
 		     unsigned int num, bool weak_barriers,
+<<<<<<< HEAD
 		     struct vring_desc __user *desc,
 		     struct vring_avail __user *avail,
 		     struct vring_used __user *used);
+=======
+		     vring_desc_t __user *desc,
+		     vring_avail_t __user *avail,
+		     vring_used_t __user *used);
+>>>>>>> upstream/android-13
 
 static inline void vringh_iov_init(struct vringh_iov *iov,
 				   struct iovec *iovec, unsigned num)
@@ -202,6 +232,22 @@ static inline void vringh_kiov_cleanup(struct vringh_kiov *kiov)
 	kiov->iov = NULL;
 }
 
+<<<<<<< HEAD
+=======
+static inline size_t vringh_kiov_length(struct vringh_kiov *kiov)
+{
+	size_t len = 0;
+	int i;
+
+	for (i = kiov->i; i < kiov->used; i++)
+		len += kiov->iov[i].iov_len;
+
+	return len;
+}
+
+void vringh_kiov_advance(struct vringh_kiov *kiov, size_t len);
+
+>>>>>>> upstream/android-13
 int vringh_getdesc_kern(struct vringh *vrh,
 			struct vringh_kiov *riov,
 			struct vringh_kiov *wiov,
@@ -261,4 +307,43 @@ static inline __virtio64 cpu_to_vringh64(const struct vringh *vrh, u64 val)
 {
 	return __cpu_to_virtio64(vringh_is_little_endian(vrh), val);
 }
+<<<<<<< HEAD
+=======
+
+#if IS_REACHABLE(CONFIG_VHOST_IOTLB)
+
+void vringh_set_iotlb(struct vringh *vrh, struct vhost_iotlb *iotlb,
+		      spinlock_t *iotlb_lock);
+
+int vringh_init_iotlb(struct vringh *vrh, u64 features,
+		      unsigned int num, bool weak_barriers,
+		      struct vring_desc *desc,
+		      struct vring_avail *avail,
+		      struct vring_used *used);
+
+int vringh_getdesc_iotlb(struct vringh *vrh,
+			 struct vringh_kiov *riov,
+			 struct vringh_kiov *wiov,
+			 u16 *head,
+			 gfp_t gfp);
+
+ssize_t vringh_iov_pull_iotlb(struct vringh *vrh,
+			      struct vringh_kiov *riov,
+			      void *dst, size_t len);
+ssize_t vringh_iov_push_iotlb(struct vringh *vrh,
+			      struct vringh_kiov *wiov,
+			      const void *src, size_t len);
+
+void vringh_abandon_iotlb(struct vringh *vrh, unsigned int num);
+
+int vringh_complete_iotlb(struct vringh *vrh, u16 head, u32 len);
+
+bool vringh_notify_enable_iotlb(struct vringh *vrh);
+void vringh_notify_disable_iotlb(struct vringh *vrh);
+
+int vringh_need_notify_iotlb(struct vringh *vrh);
+
+#endif /* CONFIG_VHOST_IOTLB */
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_VRINGH_H */

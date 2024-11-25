@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * eCryptfs: Linux filesystem encryption layer
  *
  * Copyright (C) 1997-2003 Erez Zadok
@@ -6,6 +11,7 @@
  * Copyright (C) 2004-2006 International Business Machines Corp.
  *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
  *              Michael C. Thompson <mcthomps@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -67,9 +75,14 @@ out:
 	return inode;
 }
 
+<<<<<<< HEAD
 static void ecryptfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
+=======
+static void ecryptfs_free_inode(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	struct ecryptfs_inode_info *inode_info;
 	inode_info = ecryptfs_inode_to_private(inode);
 
@@ -92,12 +105,19 @@ static void ecryptfs_destroy_inode(struct inode *inode)
 	inode_info = ecryptfs_inode_to_private(inode);
 	BUG_ON(inode_info->lower_file);
 	ecryptfs_destroy_crypt_stat(&inode_info->crypt_stat);
+<<<<<<< HEAD
 	call_rcu(&inode->i_rcu, ecryptfs_i_callback);
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
  * ecryptfs_statfs
+<<<<<<< HEAD
  * @sb: The ecryptfs super block
+=======
+ * @dentry: The ecryptfs dentry
+>>>>>>> upstream/android-13
  * @buf: The struct kstatfs to fill in with stats
  *
  * Get the filesystem statistics. Currently, we let this pass right through
@@ -124,7 +144,11 @@ static int ecryptfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 
 /**
  * ecryptfs_evict_inode
+<<<<<<< HEAD
  * @inode - The ecryptfs inode
+=======
+ * @inode: The ecryptfs inode
+>>>>>>> upstream/android-13
  *
  * Called by iput() when the inode reference count reached zero
  * and the inode is not hashed anywhere.  Used to clear anything
@@ -139,7 +163,11 @@ static void ecryptfs_evict_inode(struct inode *inode)
 	iput(ecryptfs_inode_to_lower(inode));
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ecryptfs_show_options
  *
  * Prints the mount options for a given superblock.
@@ -169,6 +197,7 @@ static int ecryptfs_show_options(struct seq_file *m, struct dentry *root)
 	if (mount_crypt_stat->global_default_cipher_key_size)
 		seq_printf(m, ",ecryptfs_key_bytes=%zd",
 			   mount_crypt_stat->global_default_cipher_key_size);
+<<<<<<< HEAD
 
 #ifdef CONFIG_WTL_ENCRYPTION_FILTER
 	if (mount_crypt_stat->flags & ECRYPTFS_ENABLE_FILTERING)
@@ -178,6 +207,8 @@ static int ecryptfs_show_options(struct seq_file *m, struct dentry *root)
 	if (mount_crypt_stat->flags & ECRYPTFS_ENABLE_CC)
 		seq_printf(m, ",ecryptfs_enable_cc");
 
+=======
+>>>>>>> upstream/android-13
 	if (mount_crypt_stat->flags & ECRYPTFS_PLAINTEXT_PASSTHROUGH_ENABLED)
 		seq_printf(m, ",ecryptfs_passthrough");
 	if (mount_crypt_stat->flags & ECRYPTFS_XATTR_METADATA_ENABLED)
@@ -195,6 +226,10 @@ static int ecryptfs_show_options(struct seq_file *m, struct dentry *root)
 const struct super_operations ecryptfs_sops = {
 	.alloc_inode = ecryptfs_alloc_inode,
 	.destroy_inode = ecryptfs_destroy_inode,
+<<<<<<< HEAD
+=======
+	.free_inode = ecryptfs_free_inode,
+>>>>>>> upstream/android-13
 	.statfs = ecryptfs_statfs,
 	.remount_fs = NULL,
 	.evict_inode = ecryptfs_evict_inode,

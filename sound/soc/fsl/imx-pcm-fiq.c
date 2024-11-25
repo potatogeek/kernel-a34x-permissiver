@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * imx-pcm-fiq.c  --  ALSA Soc Audio Layer
  *
@@ -11,6 +12,16 @@
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+// imx-pcm-fiq.c  --  ALSA Soc Audio Layer
+//
+// Copyright 2009 Sascha Hauer <s.hauer@pengutronix.de>
+//
+// This code is based on code copyrighted by Freescale,
+// Liam Girdwood, Javier Martin and probably others.
+
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/device.h>
@@ -74,8 +85,14 @@ static struct fiq_handler fh = {
 	.name		= DRV_NAME,
 };
 
+<<<<<<< HEAD
 static int snd_imx_pcm_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *params)
+=======
+static int snd_imx_pcm_hw_params(struct snd_soc_component *component,
+				 struct snd_pcm_substream *substream,
+				 struct snd_pcm_hw_params *params)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct imx_pcm_runtime_data *iprtd = runtime->private_data;
@@ -85,12 +102,20 @@ static int snd_imx_pcm_hw_params(struct snd_pcm_substream *substream,
 	iprtd->offset = 0;
 	iprtd->poll_time_ns = 1000000000 / params_rate(params) *
 				params_period_size(params);
+<<<<<<< HEAD
 	snd_pcm_set_runtime_buffer(substream, &substream->dma_buffer);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_imx_pcm_prepare(struct snd_pcm_substream *substream)
+=======
+static int snd_imx_pcm_prepare(struct snd_soc_component *component,
+			       struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct imx_pcm_runtime_data *iprtd = runtime->private_data;
@@ -109,7 +134,12 @@ static int snd_imx_pcm_prepare(struct snd_pcm_substream *substream)
 
 static int imx_pcm_fiq;
 
+<<<<<<< HEAD
 static int snd_imx_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
+=======
+static int snd_imx_pcm_trigger(struct snd_soc_component *component,
+			       struct snd_pcm_substream *substream, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct imx_pcm_runtime_data *iprtd = runtime->private_data;
@@ -146,7 +176,13 @@ static int snd_imx_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t snd_imx_pcm_pointer(struct snd_pcm_substream *substream)
+=======
+static snd_pcm_uframes_t
+snd_imx_pcm_pointer(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct imx_pcm_runtime_data *iprtd = runtime->private_data;
@@ -170,7 +206,12 @@ static const struct snd_pcm_hardware snd_imx_hardware = {
 	.fifo_size = 0,
 };
 
+<<<<<<< HEAD
 static int snd_imx_open(struct snd_pcm_substream *substream)
+=======
+static int snd_imx_open(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct imx_pcm_runtime_data *iprtd;
@@ -199,7 +240,12 @@ static int snd_imx_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_imx_close(struct snd_pcm_substream *substream)
+=======
+static int snd_imx_close(struct snd_soc_component *component,
+			 struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct imx_pcm_runtime_data *iprtd = runtime->private_data;
@@ -211,6 +257,7 @@ static int snd_imx_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_imx_pcm_mmap(struct snd_pcm_substream *substream,
 		struct vm_area_struct *vma)
 {
@@ -255,6 +302,8 @@ static int imx_pcm_preallocate_dma_buffer(struct snd_pcm *pcm, int stream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int imx_pcm_new(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_card *card = rtd->card->snd_card;
@@ -265,6 +314,7 @@ static int imx_pcm_new(struct snd_soc_pcm_runtime *rtd)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		ret = imx_pcm_preallocate_dma_buffer(pcm,
 			SNDRV_PCM_STREAM_PLAYBACK);
@@ -280,11 +330,21 @@ static int imx_pcm_new(struct snd_soc_pcm_runtime *rtd)
 	}
 
 	return 0;
+=======
+	return snd_pcm_set_fixed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV_WC,
+					    pcm->card->dev,
+					    IMX_SSI_DMABUF_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static int ssi_irq;
 
+<<<<<<< HEAD
 static int imx_pcm_fiq_new(struct snd_soc_pcm_runtime *rtd)
+=======
+static int snd_imx_pcm_new(struct snd_soc_component *component,
+			   struct snd_soc_pcm_runtime *rtd)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm *pcm = rtd->pcm;
 	struct snd_pcm_substream *substream;
@@ -314,6 +374,7 @@ static int imx_pcm_fiq_new(struct snd_soc_pcm_runtime *rtd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void imx_pcm_free(struct snd_pcm *pcm)
 {
 	struct snd_pcm_substream *substream;
@@ -345,6 +406,24 @@ static const struct snd_soc_component_driver imx_soc_component_fiq = {
 	.ops		= &imx_pcm_ops,
 	.pcm_new	= imx_pcm_fiq_new,
 	.pcm_free	= imx_pcm_fiq_free,
+=======
+static void snd_imx_pcm_free(struct snd_soc_component *component,
+			     struct snd_pcm *pcm)
+{
+	mxc_set_irq_fiq(ssi_irq, 0);
+	release_fiq(&fh);
+}
+
+static const struct snd_soc_component_driver imx_soc_component_fiq = {
+	.open		= snd_imx_open,
+	.close		= snd_imx_close,
+	.hw_params	= snd_imx_pcm_hw_params,
+	.prepare	= snd_imx_pcm_prepare,
+	.trigger	= snd_imx_pcm_trigger,
+	.pointer	= snd_imx_pcm_pointer,
+	.pcm_construct	= snd_imx_pcm_new,
+	.pcm_destruct	= snd_imx_pcm_free,
+>>>>>>> upstream/android-13
 };
 
 int imx_pcm_fiq_init(struct platform_device *pdev,

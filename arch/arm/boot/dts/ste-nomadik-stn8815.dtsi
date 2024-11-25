@@ -4,18 +4,29 @@
  */
 
 #include <dt-bindings/gpio/gpio.h>
+<<<<<<< HEAD
 #include "skeleton.dtsi"
+=======
+>>>>>>> upstream/android-13
 
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x04000000>,
 		    <0x08000000 0x04000000>;
 	};
 
+<<<<<<< HEAD
 	L2: l2-cache {
+=======
+	L2: cache-controller {
+>>>>>>> upstream/android-13
 		compatible = "arm,l210-cache";
 		reg = <0x10210000 0x1000>;
 		interrupt-parent = <&vica>;
@@ -755,14 +766,22 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		vica: intc@10140000 {
+=======
+		vica: interrupt-controller@10140000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,versatile-vic";
 			interrupt-controller;
 			#interrupt-cells = <1>;
 			reg = <0x10140000 0x20>;
 		};
 
+<<<<<<< HEAD
 		vicb: intc@10140020 {
+=======
+		vicb: interrupt-controller@10140020 {
+>>>>>>> upstream/android-13
 			compatible = "arm,versatile-vic";
 			interrupt-controller;
 			#interrupt-cells = <1>;
@@ -825,7 +844,11 @@
 			interrupts = <10>;
 		};
 
+<<<<<<< HEAD
 		mmcsd: sdi@101f6000 {
+=======
+		mmcsd: mmc@101f6000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl18x", "arm,primecell";
 			reg = <0x101f6000 0x1000>;
 			clocks = <&sdiclk>, <&pclksdi>;

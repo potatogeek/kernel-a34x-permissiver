@@ -127,6 +127,11 @@ static int com20020pci_probe(struct pci_dev *pdev,
 	int i, ioaddr, ret;
 	struct resource *r;
 
+<<<<<<< HEAD
+=======
+	ret = 0;
+
+>>>>>>> upstream/android-13
 	if (pci_enable_device(pdev))
 		return -EIO;
 
@@ -136,9 +141,20 @@ static int com20020pci_probe(struct pci_dev *pdev,
 		return -ENOMEM;
 
 	ci = (struct com20020_pci_card_info *)id->driver_data;
+<<<<<<< HEAD
 	priv->ci = ci;
 	mm = &ci->misc_map;
 
+=======
+	if (!ci)
+		return -EINVAL;
+
+	priv->ci = ci;
+	mm = &ci->misc_map;
+
+	pci_set_drvdata(pdev, priv);
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&priv->list_dev);
 
 	if (mm->size) {
@@ -161,7 +177,11 @@ static int com20020pci_probe(struct pci_dev *pdev,
 		dev = alloc_arcdev(device);
 		if (!dev) {
 			ret = -ENOMEM;
+<<<<<<< HEAD
 			goto out_port;
+=======
+			break;
+>>>>>>> upstream/android-13
 		}
 		dev->dev_port = i;
 
@@ -178,7 +198,11 @@ static int com20020pci_probe(struct pci_dev *pdev,
 			pr_err("IO region %xh-%xh already allocated\n",
 			       ioaddr, ioaddr + cm->size - 1);
 			ret = -EBUSY;
+<<<<<<< HEAD
 			goto out_port;
+=======
+			goto err_free_arcdev;
+>>>>>>> upstream/android-13
 		}
 
 		/* Dummy access after Reset
@@ -216,18 +240,30 @@ static int com20020pci_probe(struct pci_dev *pdev,
 		if (arcnet_inb(ioaddr, COM20020_REG_R_STATUS) == 0xFF) {
 			pr_err("IO address %Xh is empty!\n", ioaddr);
 			ret = -EIO;
+<<<<<<< HEAD
 			goto out_port;
 		}
 		if (com20020_check(dev)) {
 			ret = -EIO;
 			goto out_port;
+=======
+			goto err_free_arcdev;
+		}
+		if (com20020_check(dev)) {
+			ret = -EIO;
+			goto err_free_arcdev;
+>>>>>>> upstream/android-13
 		}
 
 		card = devm_kzalloc(&pdev->dev, sizeof(struct com20020_dev),
 				    GFP_KERNEL);
 		if (!card) {
 			ret = -ENOMEM;
+<<<<<<< HEAD
 			goto out_port;
+=======
+			goto err_free_arcdev;
+>>>>>>> upstream/android-13
 		}
 
 		card->index = i;
@@ -253,21 +289,34 @@ static int com20020pci_probe(struct pci_dev *pdev,
 
 		ret = devm_led_classdev_register(&pdev->dev, &card->tx_led);
 		if (ret)
+<<<<<<< HEAD
 			goto out_port;
 
 		ret = devm_led_classdev_register(&pdev->dev, &card->recon_led);
 		if (ret)
 			goto out_port;
+=======
+			goto err_free_arcdev;
+
+		ret = devm_led_classdev_register(&pdev->dev, &card->recon_led);
+		if (ret)
+			goto err_free_arcdev;
+>>>>>>> upstream/android-13
 
 		dev_set_drvdata(&dev->dev, card);
 
 		ret = com20020_found(dev, IRQF_SHARED);
 		if (ret)
+<<<<<<< HEAD
 			goto out_port;
+=======
+			goto err_free_arcdev;
+>>>>>>> upstream/android-13
 
 		devm_arcnet_led_init(dev, dev->dev_id, i);
 
 		list_add(&card->list, &priv->list_dev);
+<<<<<<< HEAD
 	}
 
 	pci_set_drvdata(pdev, priv);
@@ -276,6 +325,16 @@ static int com20020pci_probe(struct pci_dev *pdev,
 
 out_port:
 	com20020pci_remove(pdev);
+=======
+		continue;
+
+err_free_arcdev:
+		free_arcdev(dev);
+		break;
+	}
+	if (ret)
+		com20020pci_remove(pdev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -291,7 +350,11 @@ static void com20020pci_remove(struct pci_dev *pdev)
 
 		unregister_netdev(dev);
 		free_irq(dev->irq, dev);
+<<<<<<< HEAD
 		free_netdev(dev);
+=======
+		free_arcdev(dev);
+>>>>>>> upstream/android-13
 	}
 }
 

@@ -16,15 +16,30 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
+<<<<<<< HEAD
 	memory {
 		reg = <0x00000000 0x08000000
 		       0x88000000 0x08000000>;
+=======
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00000000 0x08000000>,
+		      <0x88000000 0x08000000>;
+	};
+
+	nvram@1c080000 {
+		compatible = "brcm,nvram";
+		reg = <0x1c080000 0x100000>;
+>>>>>>> upstream/android-13
 	};
 
 	gpio-keys {
 		compatible = "gpio-keys";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 
 		wps {
 			label = "WPS";
@@ -71,6 +86,10 @@
 		power {
 			label = "bcm53xx:white:power";
 			gpios = <&chipcommon 4 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
+=======
+			linux,default-trigger = "default-on";
+>>>>>>> upstream/android-13
 		};
 
 		wifi-disabled {
@@ -124,6 +143,7 @@
 		};
 	};
 
+<<<<<<< HEAD
 	mdio-bus-mux {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -151,6 +171,15 @@
 			reg = <0x0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+=======
+	mdio-mux@18003000 {
+
+		/* BIT(9) = 1 => external mdio */
+		mdio@200 {
+			reg = <0x200>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+>>>>>>> upstream/android-13
 
 			switch@0  {
 				compatible = "brcm,bcm53125";
@@ -160,6 +189,11 @@
 				reset-names = "robo_reset";
 				reg = <0>;
 				dsa,member = <1 0>;
+<<<<<<< HEAD
+=======
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinmux_mdio>;
+>>>>>>> upstream/android-13
 
 				ports {
 					#address-cells = <1>;
@@ -220,9 +254,12 @@
 	dsa,member = <0 0>;
 
 	ports {
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+=======
+>>>>>>> upstream/android-13
 		port@1 {
 			reg = <1>;
 			label = "lan7";
@@ -243,6 +280,33 @@
 			label = "wan";
 		};
 
+<<<<<<< HEAD
+=======
+		port@5 {
+			reg = <5>;
+			ethernet = <&gmac0>;
+			label = "cpu";
+			status = "disabled";
+
+			fixed-link {
+				speed = <1000>;
+				full-duplex;
+			};
+		};
+
+		port@7 {
+			reg = <7>;
+			ethernet = <&gmac1>;
+			label = "cpu";
+			status = "disabled";
+
+			fixed-link {
+				speed = <1000>;
+				full-duplex;
+			};
+		};
+
+>>>>>>> upstream/android-13
 		port@8 {
 			reg = <8>;
 			ethernet = <&gmac2>;
@@ -269,3 +333,45 @@
 &usb3_phy {
 	status = "okay";
 };
+<<<<<<< HEAD
+=======
+
+&nandcs {
+	partitions {
+		compatible = "linksys,ns-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		partition@0 {
+			label = "boot";
+			reg = <0x0000000 0x0080000>;
+			read-only;
+		};
+
+		partition@80000 {
+			label = "nvram";
+			reg = <0x080000 0x0100000>;
+		};
+
+		partition@180000{
+			label = "devinfo";
+			reg = <0x0180000 0x080000>;
+		};
+
+		partition@200000 {
+			reg = <0x0200000 0x01d00000>;
+			compatible = "linksys,ns-firmware", "brcm,trx";
+		};
+
+		partition@1f00000 {
+			reg = <0x01f00000 0x01d00000>;
+			compatible = "linksys,ns-firmware", "brcm,trx";
+		};
+
+		partition@5200000 {
+			label = "system";
+			reg = <0x05200000 0x02e00000>;
+		};
+	};
+};
+>>>>>>> upstream/android-13

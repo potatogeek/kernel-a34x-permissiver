@@ -1,14 +1,25 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ACPI support for CMOS RTC Address Space access
  *
  * Copyright (C) 2013, Intel Corporation
  * Authors: Lan Tianyu <tianyu.lan@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) "ACPI: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/acpi.h>
 #include <linux/device.h>
 #include <linux/err.h>
@@ -18,8 +29,11 @@
 
 #include "internal.h"
 
+<<<<<<< HEAD
 ACPI_MODULE_NAME("cmos rtc");
 
+=======
+>>>>>>> upstream/android-13
 static const struct acpi_device_id acpi_cmos_rtc_ids[] = {
 	{ "PNP0B00" },
 	{ "PNP0B01" },
@@ -64,7 +78,11 @@ static int acpi_install_cmos_rtc_space_handler(struct acpi_device *adev,
 			&acpi_cmos_rtc_space_handler,
 			NULL, NULL);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		pr_err(PREFIX "Error installing CMOS-RTC region handler\n");
+=======
+		pr_err("Error installing CMOS-RTC region handler\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -75,7 +93,11 @@ static void acpi_remove_cmos_rtc_space_handler(struct acpi_device *adev)
 {
 	if (ACPI_FAILURE(acpi_remove_address_space_handler(adev->handle,
 			ACPI_ADR_SPACE_CMOS, &acpi_cmos_rtc_space_handler)))
+<<<<<<< HEAD
 		pr_err(PREFIX "Error removing CMOS-RTC region handler\n");
+=======
+		pr_err("Error removing CMOS-RTC region handler\n");
+>>>>>>> upstream/android-13
 }
 
 static struct acpi_scan_handler cmos_rtc_handler = {

@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "util.h"
+<<<<<<< HEAD
 #include "../debug.h"
 
+=======
+#include "../util/debug.h"
+#include <stdio.h>
+>>>>>>> upstream/android-13
 
 /*
  * Default error logging functions

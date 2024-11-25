@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2014, Samsung Electronics Co. Ltd. All Rights Reserved.
  *
@@ -11,6 +12,11 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2014, Samsung Electronics Co. Ltd. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "ssp.h"
@@ -147,7 +153,11 @@ static int ssp_print_mcu_debug(char *data_frame, int *data_index,
 	if (length > received_len - *data_index || length <= 0) {
 		ssp_dbg("[SSP]: MSG From MCU-invalid debug length(%d/%d)\n",
 			length, received_len);
+<<<<<<< HEAD
 		return length ? length : -EPROTO;
+=======
+		return -EPROTO;
+>>>>>>> upstream/android-13
 	}
 
 	ssp_dbg("[SSP]: MSG From MCU - %s\n", &data_frame[*data_index]);
@@ -165,9 +175,15 @@ static int ssp_check_lines(struct ssp_data *data, bool state)
 {
 	int delay_cnt = 0;
 
+<<<<<<< HEAD
 	gpio_set_value_cansleep(data->ap_mcu_gpio, state);
 
 	while (gpio_get_value_cansleep(data->mcu_ap_gpio) != state) {
+=======
+	gpiod_set_value_cansleep(data->ap_mcu_gpiod, state);
+
+	while (gpiod_get_value_cansleep(data->mcu_ap_gpiod) != state) {
+>>>>>>> upstream/android-13
 		usleep_range(3000, 3500);
 
 		if (data->shut_down || delay_cnt++ > 500) {
@@ -175,7 +191,11 @@ static int ssp_check_lines(struct ssp_data *data, bool state)
 				__func__, state);
 
 			if (!state)
+<<<<<<< HEAD
 				gpio_set_value_cansleep(data->ap_mcu_gpio, 1);
+=======
+				gpiod_set_value_cansleep(data->ap_mcu_gpiod, 1);
+>>>>>>> upstream/android-13
 
 			return -ETIMEDOUT;
 		}
@@ -207,7 +227,11 @@ static int ssp_do_transfer(struct ssp_data *data, struct ssp_msg *msg,
 
 	status = spi_write(data->spi, msg->buffer, SSP_HEADER_SIZE);
 	if (status < 0) {
+<<<<<<< HEAD
 		gpio_set_value_cansleep(data->ap_mcu_gpio, 1);
+=======
+		gpiod_set_value_cansleep(data->ap_mcu_gpiod, 1);
+>>>>>>> upstream/android-13
 		dev_err(SSP_DEV, "%s spi_write fail\n", __func__);
 		goto _error_locked;
 	}
@@ -283,6 +307,11 @@ static int ssp_parse_dataframe(struct ssp_data *data, char *dataframe, int len)
 	for (idx = 0; idx < len;) {
 		switch (dataframe[idx++]) {
 		case SSP_MSG2AP_INST_BYPASS_DATA:
+<<<<<<< HEAD
+=======
+			if (idx >= len)
+				return -EPROTO;
+>>>>>>> upstream/android-13
 			sd = dataframe[idx++];
 			if (sd < 0 || sd >= SSP_SENSOR_MAX) {
 				dev_err(SSP_DEV,
@@ -292,10 +321,20 @@ static int ssp_parse_dataframe(struct ssp_data *data, char *dataframe, int len)
 
 			if (indio_devs[sd]) {
 				spd = iio_priv(indio_devs[sd]);
+<<<<<<< HEAD
 				if (spd->process_data)
 					spd->process_data(indio_devs[sd],
 							  &dataframe[idx],
 							  data->timestamp);
+=======
+				if (spd->process_data) {
+					if (idx >= len)
+						return -EPROTO;
+					spd->process_data(indio_devs[sd],
+							  &dataframe[idx],
+							  data->timestamp);
+				}
+>>>>>>> upstream/android-13
 			} else {
 				dev_err(SSP_DEV, "no client for frame\n");
 			}
@@ -303,6 +342,11 @@ static int ssp_parse_dataframe(struct ssp_data *data, char *dataframe, int len)
 			idx += ssp_offset_map[sd];
 			break;
 		case SSP_MSG2AP_INST_DEBUG_DATA:
+<<<<<<< HEAD
+=======
+			if (idx >= len)
+				return -EPROTO;
+>>>>>>> upstream/android-13
 			sd = ssp_print_mcu_debug(dataframe, &idx, len);
 			if (sd) {
 				dev_err(SSP_DEV,

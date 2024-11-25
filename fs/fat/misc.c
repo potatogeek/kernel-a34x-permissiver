@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/fat/misc.c
  *
@@ -7,6 +11,11 @@
  */
 
 #include "fat.h"
+<<<<<<< HEAD
+=======
+#include <linux/iversion.h>
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FAT_UEVENT
 static struct kobject fat_uevent_kobj;
@@ -124,7 +133,11 @@ int fat_clusters_flush(struct super_block *sb)
 	struct buffer_head *bh;
 	struct fat_boot_fsinfo *fsinfo;
 
+<<<<<<< HEAD
 	if (sbi->fat_bits != 32)
+=======
+	if (!is_fat32(sbi))
+>>>>>>> upstream/android-13
 		return 0;
 
 	bh = sb_bread(sb, sbi->fsinfo_sector);
@@ -246,6 +259,16 @@ static long days_in_year[] = {
 	0,   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 0, 0, 0,
 };
 
+<<<<<<< HEAD
+=======
+static inline int fat_tz_offset(struct msdos_sb_info *sbi)
+{
+	return (sbi->options.tz_set ?
+	       -sbi->options.time_offset :
+	       sys_tz.tz_minuteswest) * SECS_PER_MIN;
+}
+
+>>>>>>> upstream/android-13
 /* Convert a FAT time/date pair to a UNIX date (seconds since 1 1 70). */
 void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec64 *ts,
 		       __le16 __time, __le16 __date, u8 time_cs)
@@ -271,10 +294,14 @@ void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec64 *ts,
 		   + days_in_year[month] + day
 		   + DAYS_DELTA) * SECS_PER_DAY;
 
+<<<<<<< HEAD
 	if (!sbi->options.tz_set)
 		second += sys_tz.tz_minuteswest * SECS_PER_MIN;
 	else
 		second -= sbi->options.time_offset * SECS_PER_MIN;
+=======
+	second += fat_tz_offset(sbi);
+>>>>>>> upstream/android-13
 
 	if (time_cs) {
 		ts->tv_sec = second + (time_cs / 100);
@@ -285,14 +312,24 @@ void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec64 *ts,
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* Export fat_time_fat2unix() for the fat_test KUnit tests. */
+EXPORT_SYMBOL_GPL(fat_time_fat2unix);
+
+>>>>>>> upstream/android-13
 /* Convert linear UNIX date to a FAT time/date pair. */
 void fat_time_unix2fat(struct msdos_sb_info *sbi, struct timespec64 *ts,
 		       __le16 *time, __le16 *date, u8 *time_cs)
 {
 	struct tm tm;
+<<<<<<< HEAD
 	time64_to_tm(ts->tv_sec,
 		   (sbi->options.tz_set ? sbi->options.time_offset :
 		   -sys_tz.tz_minuteswest) * SECS_PER_MIN, &tm);
+=======
+	time64_to_tm(ts->tv_sec, -fat_tz_offset(sbi), &tm);
+>>>>>>> upstream/android-13
 
 	/*  FAT can only support year between 1980 to 2107 */
 	if (tm.tm_year < 1980 - 1900) {
@@ -324,6 +361,92 @@ void fat_time_unix2fat(struct msdos_sb_info *sbi, struct timespec64 *ts,
 }
 EXPORT_SYMBOL_GPL(fat_time_unix2fat);
 
+<<<<<<< HEAD
+=======
+static inline struct timespec64 fat_timespec64_trunc_2secs(struct timespec64 ts)
+{
+	return (struct timespec64){ ts.tv_sec & ~1ULL, 0 };
+}
+
+static inline struct timespec64 fat_timespec64_trunc_10ms(struct timespec64 ts)
+{
+	if (ts.tv_nsec)
+		ts.tv_nsec -= ts.tv_nsec % 10000000UL;
+	return ts;
+}
+
+/*
+ * truncate the various times with appropriate granularity:
+ *   root inode:
+ *     all times always 0
+ *   all other inodes:
+ *     mtime - 2 seconds
+ *     ctime
+ *       msdos - 2 seconds
+ *       vfat  - 10 milliseconds
+ *     atime - 24 hours (00:00:00 in local timezone)
+ */
+int fat_truncate_time(struct inode *inode, struct timespec64 *now, int flags)
+{
+	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
+	struct timespec64 ts;
+
+	if (inode->i_ino == MSDOS_ROOT_INO)
+		return 0;
+
+	if (now == NULL) {
+		now = &ts;
+		ts = current_time(inode);
+	}
+
+	if (flags & S_ATIME) {
+		/* to localtime */
+		time64_t seconds = now->tv_sec - fat_tz_offset(sbi);
+		s32 remainder;
+
+		div_s64_rem(seconds, SECS_PER_DAY, &remainder);
+		/* to day boundary, and back to unix time */
+		seconds = seconds + fat_tz_offset(sbi) - remainder;
+
+		inode->i_atime = (struct timespec64){ seconds, 0 };
+	}
+	if (flags & S_CTIME) {
+		if (sbi->options.isvfat)
+			inode->i_ctime = fat_timespec64_trunc_10ms(*now);
+		else
+			inode->i_ctime = fat_timespec64_trunc_2secs(*now);
+	}
+	if (flags & S_MTIME)
+		inode->i_mtime = fat_timespec64_trunc_2secs(*now);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(fat_truncate_time);
+
+int fat_update_time(struct inode *inode, struct timespec64 *now, int flags)
+{
+	int dirty_flags = 0;
+
+	if (inode->i_ino == MSDOS_ROOT_INO)
+		return 0;
+
+	if (flags & (S_ATIME | S_CTIME | S_MTIME)) {
+		fat_truncate_time(inode, now, flags);
+		if (inode->i_sb->s_flags & SB_LAZYTIME)
+			dirty_flags |= I_DIRTY_TIME;
+		else
+			dirty_flags |= I_DIRTY_SYNC;
+	}
+
+	if ((flags & S_VERSION) && inode_maybe_inc_iversion(inode, false))
+		dirty_flags |= I_DIRTY_SYNC;
+
+	__mark_inode_dirty(inode, dirty_flags);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(fat_update_time);
+
+>>>>>>> upstream/android-13
 int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs)
 {
 	int i, err = 0;

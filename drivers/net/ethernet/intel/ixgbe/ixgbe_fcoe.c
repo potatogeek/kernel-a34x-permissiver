@@ -5,6 +5,10 @@
 #include <linux/if_ether.h>
 #include <linux/gfp.h>
 #include <linux/if_vlan.h>
+<<<<<<< HEAD
+=======
+#include <generated/utsrelease.h>
+>>>>>>> upstream/android-13
 #include <scsi/scsi_cmnd.h>
 #include <scsi/scsi_device.h>
 #include <scsi/fc/fc_fs.h>
@@ -443,7 +447,11 @@ int ixgbe_fcoe_ddp(struct ixgbe_adapter *adapter,
 		ddp->err = (__force u32)ddp_err;
 		ddp->sgl = NULL;
 		ddp->sgc = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	/* if DDP length is present pass it through to ULD */
 	case cpu_to_le32(IXGBE_RXDADV_STAT_FCSTAT_NODDP):
 		/* update length of DDPed data */
@@ -968,8 +976,12 @@ int ixgbe_fcoe_get_hbainfo(struct net_device *netdev,
 {
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
 	struct ixgbe_hw *hw = &adapter->hw;
+<<<<<<< HEAD
 	int i, pos;
 	u8 buf[8];
+=======
+	u64 dsn;
+>>>>>>> upstream/android-13
 
 	if (!info)
 		return -EINVAL;
@@ -985,6 +997,7 @@ int ixgbe_fcoe_get_hbainfo(struct net_device *netdev,
 	/* Serial Number */
 
 	/* Get the PCI-e Device Serial Number Capability */
+<<<<<<< HEAD
 	pos = pci_find_ext_capability(adapter->pdev, PCI_EXT_CAP_ID_DSN);
 	if (pos) {
 		pos += 4;
@@ -996,6 +1009,13 @@ int ixgbe_fcoe_get_hbainfo(struct net_device *netdev,
 			 buf[7], buf[6], buf[5], buf[4],
 			 buf[3], buf[2], buf[1], buf[0]);
 	} else
+=======
+	dsn = pci_get_dsn(adapter->pdev);
+	if (dsn)
+		snprintf(info->serial_number, sizeof(info->serial_number),
+			 "%016llX", dsn);
+	else
+>>>>>>> upstream/android-13
 		snprintf(info->serial_number, sizeof(info->serial_number),
 			 "Unknown");
 
@@ -1008,7 +1028,11 @@ int ixgbe_fcoe_get_hbainfo(struct net_device *netdev,
 		 sizeof(info->driver_version),
 		 "%s v%s",
 		 ixgbe_driver_name,
+<<<<<<< HEAD
 		 ixgbe_driver_version);
+=======
+		 UTS_RELEASE);
+>>>>>>> upstream/android-13
 	/* Firmware Version */
 	strlcpy(info->firmware_version, adapter->eeprom_id,
 		sizeof(info->firmware_version));

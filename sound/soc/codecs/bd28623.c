@@ -222,7 +222,11 @@ static int bd28623_probe(struct platform_device *pdev)
 					       &soc_dai_bd, 1);
 }
 
+<<<<<<< HEAD
 static const struct of_device_id bd28623_of_match[] = {
+=======
+static const struct of_device_id bd28623_of_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "rohm,bd28623", },
 	{}
 };

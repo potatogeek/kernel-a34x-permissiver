@@ -72,6 +72,7 @@
 #define IXGBE_INCPER_SHIFT_82599 24
 
 #define IXGBE_OVERFLOW_PERIOD    (HZ * 30)
+<<<<<<< HEAD
 #define IXGBE_PTP_TX_TIMEOUT     (HZ * 15)
 
 /* half of a one second clock period, for use with PPS signal. We have to use
@@ -79,6 +80,15 @@
  * order to force at least 64bits of precision for shifting
  */
 #define IXGBE_PTP_PPS_HALF_SECOND 500000000ULL
+=======
+#define IXGBE_PTP_TX_TIMEOUT     (HZ)
+
+/* We use our own definitions instead of NSEC_PER_SEC because we want to mark
+ * the value as a ULL to force precision when bit shifting.
+ */
+#define NS_PER_SEC      1000000000ULL
+#define NS_PER_HALF_SEC  500000000ULL
+>>>>>>> upstream/android-13
 
 /* In contrast, the X550 controller has two registers, SYSTIMEH and SYSTIMEL
  * which contain measurements of seconds and nanoseconds respectively. This
@@ -141,6 +151,7 @@
 #define MAX_TIMADJ	0x7FFFFFFF
 
 /**
+<<<<<<< HEAD
  * ixgbe_ptp_setup_sdp_x540
  * @adapter: private adapter structure
  *
@@ -158,6 +169,28 @@ static void ixgbe_ptp_setup_sdp_x540(struct ixgbe_adapter *adapter)
 	int shift = adapter->hw_cc.shift;
 	u32 esdp, tsauxc, clktiml, clktimh, trgttiml, trgttimh, rem;
 	u64 ns = 0, clock_edge = 0;
+=======
+ * ixgbe_ptp_setup_sdp_X540
+ * @adapter: private adapter structure
+ *
+ * this function enables or disables the clock out feature on SDP0 for
+ * the X540 device. It will create a 1 second periodic output that can
+ * be used as the PPS (via an interrupt).
+ *
+ * It calculates when the system time will be on an exact second, and then
+ * aligns the start of the PPS signal to that value.
+ *
+ * This works by using the cycle counter shift and mult values in reverse, and
+ * assumes that the values we're shifting will not overflow.
+ */
+static void ixgbe_ptp_setup_sdp_X540(struct ixgbe_adapter *adapter)
+{
+	struct cyclecounter *cc = &adapter->hw_cc;
+	struct ixgbe_hw *hw = &adapter->hw;
+	u32 esdp, tsauxc, clktiml, clktimh, trgttiml, trgttimh, rem;
+	u64 ns = 0, clock_edge = 0, clock_period;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	/* disable the pin first */
 	IXGBE_WRITE_REG(hw, IXGBE_TSAUXC, 0x0);
@@ -177,6 +210,7 @@ static void ixgbe_ptp_setup_sdp_x540(struct ixgbe_adapter *adapter)
 	/* enable the Clock Out feature on SDP0, and allow
 	 * interrupts to occur when the pin changes
 	 */
+<<<<<<< HEAD
 	tsauxc = IXGBE_TSAUXC_EN_CLK |
 		 IXGBE_TSAUXC_SYNCLK |
 		 IXGBE_TSAUXC_SDP0_INT;
@@ -197,6 +231,35 @@ static void ixgbe_ptp_setup_sdp_x540(struct ixgbe_adapter *adapter)
 	clock_edge += ((IXGBE_PTP_PPS_HALF_SECOND - (u64)rem) << shift);
 
 	/* specify the initial clock start time */
+=======
+	tsauxc = (IXGBE_TSAUXC_EN_CLK |
+		  IXGBE_TSAUXC_SYNCLK |
+		  IXGBE_TSAUXC_SDP0_INT);
+
+	/* Determine the clock time period to use. This assumes that the
+	 * cycle counter shift is small enough to avoid overflow.
+	 */
+	clock_period = div_u64((NS_PER_HALF_SEC << cc->shift), cc->mult);
+	clktiml = (u32)(clock_period);
+	clktimh = (u32)(clock_period >> 32);
+
+	/* Read the current clock time, and save the cycle counter value */
+	spin_lock_irqsave(&adapter->tmreg_lock, flags);
+	ns = timecounter_read(&adapter->hw_tc);
+	clock_edge = adapter->hw_tc.cycle_last;
+	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
+
+	/* Figure out how many seconds to add in order to round up */
+	div_u64_rem(ns, NS_PER_SEC, &rem);
+
+	/* Figure out how many nanoseconds to add to round the clock edge up
+	 * to the next full second
+	 */
+	rem = (NS_PER_SEC - rem);
+
+	/* Adjust the clock edge to align with the next full second. */
+	clock_edge += div_u64(((u64)rem << cc->shift), cc->mult);
+>>>>>>> upstream/android-13
 	trgttiml = (u32)clock_edge;
 	trgttimh = (u32)(clock_edge >> 32);
 
@@ -212,8 +275,105 @@ static void ixgbe_ptp_setup_sdp_x540(struct ixgbe_adapter *adapter)
 }
 
 /**
+<<<<<<< HEAD
  * ixgbe_ptp_read_X550 - read cycle counter value
  * @hw_cc: cyclecounter structure
+=======
+ * ixgbe_ptp_setup_sdp_X550
+ * @adapter: private adapter structure
+ *
+ * Enable or disable a clock output signal on SDP 0 for X550 hardware.
+ *
+ * Use the target time feature to align the output signal on the next full
+ * second.
+ *
+ * This works by using the cycle counter shift and mult values in reverse, and
+ * assumes that the values we're shifting will not overflow.
+ */
+static void ixgbe_ptp_setup_sdp_X550(struct ixgbe_adapter *adapter)
+{
+	u32 esdp, tsauxc, freqout, trgttiml, trgttimh, rem, tssdp;
+	struct cyclecounter *cc = &adapter->hw_cc;
+	struct ixgbe_hw *hw = &adapter->hw;
+	u64 ns = 0, clock_edge = 0;
+	struct timespec64 ts;
+	unsigned long flags;
+
+	/* disable the pin first */
+	IXGBE_WRITE_REG(hw, IXGBE_TSAUXC, 0x0);
+	IXGBE_WRITE_FLUSH(hw);
+
+	if (!(adapter->flags2 & IXGBE_FLAG2_PTP_PPS_ENABLED))
+		return;
+
+	esdp = IXGBE_READ_REG(hw, IXGBE_ESDP);
+
+	/* enable the SDP0 pin as output, and connected to the
+	 * native function for Timesync (ClockOut)
+	 */
+	esdp |= IXGBE_ESDP_SDP0_DIR |
+		IXGBE_ESDP_SDP0_NATIVE;
+
+	/* enable the Clock Out feature on SDP0, and use Target Time 0 to
+	 * enable generation of interrupts on the clock change.
+	 */
+#define IXGBE_TSAUXC_DIS_TS_CLEAR 0x40000000
+	tsauxc = (IXGBE_TSAUXC_EN_CLK | IXGBE_TSAUXC_ST0 |
+		  IXGBE_TSAUXC_EN_TT0 | IXGBE_TSAUXC_SDP0_INT |
+		  IXGBE_TSAUXC_DIS_TS_CLEAR);
+
+	tssdp = (IXGBE_TSSDP_TS_SDP0_EN |
+		 IXGBE_TSSDP_TS_SDP0_CLK0);
+
+	/* Determine the clock time period to use. This assumes that the
+	 * cycle counter shift is small enough to avoid overflowing a 32bit
+	 * value.
+	 */
+	freqout = div_u64(NS_PER_HALF_SEC << cc->shift,  cc->mult);
+
+	/* Read the current clock time, and save the cycle counter value */
+	spin_lock_irqsave(&adapter->tmreg_lock, flags);
+	ns = timecounter_read(&adapter->hw_tc);
+	clock_edge = adapter->hw_tc.cycle_last;
+	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
+
+	/* Figure out how far past the next second we are */
+	div_u64_rem(ns, NS_PER_SEC, &rem);
+
+	/* Figure out how many nanoseconds to add to round the clock edge up
+	 * to the next full second
+	 */
+	rem = (NS_PER_SEC - rem);
+
+	/* Adjust the clock edge to align with the next full second. */
+	clock_edge += div_u64(((u64)rem << cc->shift), cc->mult);
+
+	/* X550 hardware stores the time in 32bits of 'billions of cycles' and
+	 * 32bits of 'cycles'. There's no guarantee that cycles represents
+	 * nanoseconds. However, we can use the math from a timespec64 to
+	 * convert into the hardware representation.
+	 *
+	 * See ixgbe_ptp_read_X550() for more details.
+	 */
+	ts = ns_to_timespec64(clock_edge);
+	trgttiml = (u32)ts.tv_nsec;
+	trgttimh = (u32)ts.tv_sec;
+
+	IXGBE_WRITE_REG(hw, IXGBE_FREQOUT0, freqout);
+	IXGBE_WRITE_REG(hw, IXGBE_TRGTTIML0, trgttiml);
+	IXGBE_WRITE_REG(hw, IXGBE_TRGTTIMH0, trgttimh);
+
+	IXGBE_WRITE_REG(hw, IXGBE_ESDP, esdp);
+	IXGBE_WRITE_REG(hw, IXGBE_TSSDP, tssdp);
+	IXGBE_WRITE_REG(hw, IXGBE_TSAUXC, tsauxc);
+
+	IXGBE_WRITE_FLUSH(hw);
+}
+
+/**
+ * ixgbe_ptp_read_X550 - read cycle counter value
+ * @cc: cyclecounter structure
+>>>>>>> upstream/android-13
  *
  * This function reads SYSTIME registers. It is called by the cyclecounter
  * structure to convert from internal representation into nanoseconds. We need
@@ -221,10 +381,17 @@ static void ixgbe_ptp_setup_sdp_x540(struct ixgbe_adapter *adapter)
  * result of SYSTIME is 32bits of "billions of cycles" and 32 bits of
  * "cycles", rather than seconds and nanoseconds.
  */
+<<<<<<< HEAD
 static u64 ixgbe_ptp_read_X550(const struct cyclecounter *hw_cc)
 {
 	struct ixgbe_adapter *adapter =
 			container_of(hw_cc, struct ixgbe_adapter, hw_cc);
+=======
+static u64 ixgbe_ptp_read_X550(const struct cyclecounter *cc)
+{
+	struct ixgbe_adapter *adapter =
+		container_of(cc, struct ixgbe_adapter, hw_cc);
+>>>>>>> upstream/android-13
 	struct ixgbe_hw *hw = &adapter->hw;
 	struct timespec64 ts;
 
@@ -443,13 +610,21 @@ static int ixgbe_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 }
 
 /**
+<<<<<<< HEAD
  * ixgbe_ptp_gettime
  * @ptp: the ptp clock structure
  * @ts: timespec structure to hold the current time value
+=======
+ * ixgbe_ptp_gettimex
+ * @ptp: the ptp clock structure
+ * @ts: timespec to hold the PHC timestamp
+ * @sts: structure to hold the system time before and after reading the PHC
+>>>>>>> upstream/android-13
  *
  * read the timecounter and return the correct value on ns,
  * after converting it into a struct timespec.
  */
+<<<<<<< HEAD
 static int ixgbe_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
 {
 	struct ixgbe_adapter *adapter =
@@ -459,6 +634,46 @@ static int ixgbe_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
 
 	spin_lock_irqsave(&adapter->tmreg_lock, flags);
 	ns = timecounter_read(&adapter->hw_tc);
+=======
+static int ixgbe_ptp_gettimex(struct ptp_clock_info *ptp,
+			      struct timespec64 *ts,
+			      struct ptp_system_timestamp *sts)
+{
+	struct ixgbe_adapter *adapter =
+		container_of(ptp, struct ixgbe_adapter, ptp_caps);
+	struct ixgbe_hw *hw = &adapter->hw;
+	unsigned long flags;
+	u64 ns, stamp;
+
+	spin_lock_irqsave(&adapter->tmreg_lock, flags);
+
+	switch (adapter->hw.mac.type) {
+	case ixgbe_mac_X550:
+	case ixgbe_mac_X550EM_x:
+	case ixgbe_mac_x550em_a:
+		/* Upper 32 bits represent billions of cycles, lower 32 bits
+		 * represent cycles. However, we use timespec64_to_ns for the
+		 * correct math even though the units haven't been corrected
+		 * yet.
+		 */
+		ptp_read_system_prets(sts);
+		IXGBE_READ_REG(hw, IXGBE_SYSTIMR);
+		ptp_read_system_postts(sts);
+		ts->tv_nsec = IXGBE_READ_REG(hw, IXGBE_SYSTIML);
+		ts->tv_sec = IXGBE_READ_REG(hw, IXGBE_SYSTIMH);
+		stamp = timespec64_to_ns(ts);
+		break;
+	default:
+		ptp_read_system_prets(sts);
+		stamp = IXGBE_READ_REG(hw, IXGBE_SYSTIML);
+		ptp_read_system_postts(sts);
+		stamp |= (u64)IXGBE_READ_REG(hw, IXGBE_SYSTIMH) << 32;
+		break;
+	}
+
+	ns = timecounter_cyc2time(&adapter->hw_tc, stamp);
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
 
 	*ts = ns_to_timespec64(ns);
@@ -567,10 +782,21 @@ void ixgbe_ptp_overflow_check(struct ixgbe_adapter *adapter)
 {
 	bool timeout = time_is_before_jiffies(adapter->last_overflow_check +
 					     IXGBE_OVERFLOW_PERIOD);
+<<<<<<< HEAD
 	struct timespec64 ts;
 
 	if (timeout) {
 		ixgbe_ptp_gettime(&adapter->ptp_caps, &ts);
+=======
+	unsigned long flags;
+
+	if (timeout) {
+		/* Update the timecounter */
+		spin_lock_irqsave(&adapter->tmreg_lock, flags);
+		timecounter_read(&adapter->hw_tc);
+		spin_unlock_irqrestore(&adapter->tmreg_lock, flags);
+
+>>>>>>> upstream/android-13
 		adapter->last_overflow_check = jiffies;
 	}
 }
@@ -804,6 +1030,18 @@ void ixgbe_ptp_rx_rgtstamp(struct ixgbe_q_vector *q_vector,
 	ixgbe_ptp_convert_to_hwtstamp(adapter, skb_hwtstamps(skb), regval);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * ixgbe_ptp_get_ts_config - get current hardware timestamping configuration
+ * @adapter: pointer to adapter structure
+ * @ifr: ioctl data
+ *
+ * This function returns the current timestamping settings. Rather than
+ * attempt to deconstruct registers to fill in the values, simply keep a copy
+ * of the old settings around, and return a copy when requested.
+ */
+>>>>>>> upstream/android-13
 int ixgbe_ptp_get_ts_config(struct ixgbe_adapter *adapter, struct ifreq *ifr)
 {
 	struct hwtstamp_config *config = &adapter->tstamp_config;
@@ -854,6 +1092,10 @@ static int ixgbe_ptp_set_timestamp_mode(struct ixgbe_adapter *adapter,
 	switch (config->tx_type) {
 	case HWTSTAMP_TX_OFF:
 		tsync_tx_ctl = 0;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case HWTSTAMP_TX_ON:
 		break;
 	default:
@@ -906,7 +1148,11 @@ static int ixgbe_ptp_set_timestamp_mode(struct ixgbe_adapter *adapter,
 			adapter->flags |= IXGBE_FLAG_RX_HWTSTAMP_ENABLED;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/*
 		 * register RXMTRL must be set in order to do V1 packets,
@@ -1097,7 +1343,11 @@ void ixgbe_ptp_start_cyclecounter(struct ixgbe_adapter *adapter)
 			cc.mult = 3;
 			cc.shift = 2;
 		}
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ixgbe_mac_x550em_a:
 	case ixgbe_mac_X550:
 		cc.read = ixgbe_ptp_read_X550;
@@ -1216,10 +1466,17 @@ static long ixgbe_ptp_create_clock(struct ixgbe_adapter *adapter)
 		adapter->ptp_caps.pps = 1;
 		adapter->ptp_caps.adjfreq = ixgbe_ptp_adjfreq_82599;
 		adapter->ptp_caps.adjtime = ixgbe_ptp_adjtime;
+<<<<<<< HEAD
 		adapter->ptp_caps.gettime64 = ixgbe_ptp_gettime;
 		adapter->ptp_caps.settime64 = ixgbe_ptp_settime;
 		adapter->ptp_caps.enable = ixgbe_ptp_feature_enable;
 		adapter->ptp_setup_sdp = ixgbe_ptp_setup_sdp_x540;
+=======
+		adapter->ptp_caps.gettimex64 = ixgbe_ptp_gettimex;
+		adapter->ptp_caps.settime64 = ixgbe_ptp_settime;
+		adapter->ptp_caps.enable = ixgbe_ptp_feature_enable;
+		adapter->ptp_setup_sdp = ixgbe_ptp_setup_sdp_X540;
+>>>>>>> upstream/android-13
 		break;
 	case ixgbe_mac_82599EB:
 		snprintf(adapter->ptp_caps.name,
@@ -1233,7 +1490,11 @@ static long ixgbe_ptp_create_clock(struct ixgbe_adapter *adapter)
 		adapter->ptp_caps.pps = 0;
 		adapter->ptp_caps.adjfreq = ixgbe_ptp_adjfreq_82599;
 		adapter->ptp_caps.adjtime = ixgbe_ptp_adjtime;
+<<<<<<< HEAD
 		adapter->ptp_caps.gettime64 = ixgbe_ptp_gettime;
+=======
+		adapter->ptp_caps.gettimex64 = ixgbe_ptp_gettimex;
+>>>>>>> upstream/android-13
 		adapter->ptp_caps.settime64 = ixgbe_ptp_settime;
 		adapter->ptp_caps.enable = ixgbe_ptp_feature_enable;
 		break;
@@ -1246,6 +1507,7 @@ static long ixgbe_ptp_create_clock(struct ixgbe_adapter *adapter)
 		adapter->ptp_caps.n_alarm = 0;
 		adapter->ptp_caps.n_ext_ts = 0;
 		adapter->ptp_caps.n_per_out = 0;
+<<<<<<< HEAD
 		adapter->ptp_caps.pps = 0;
 		adapter->ptp_caps.adjfreq = ixgbe_ptp_adjfreq_X550;
 		adapter->ptp_caps.adjtime = ixgbe_ptp_adjtime;
@@ -1253,6 +1515,15 @@ static long ixgbe_ptp_create_clock(struct ixgbe_adapter *adapter)
 		adapter->ptp_caps.settime64 = ixgbe_ptp_settime;
 		adapter->ptp_caps.enable = ixgbe_ptp_feature_enable;
 		adapter->ptp_setup_sdp = NULL;
+=======
+		adapter->ptp_caps.pps = 1;
+		adapter->ptp_caps.adjfreq = ixgbe_ptp_adjfreq_X550;
+		adapter->ptp_caps.adjtime = ixgbe_ptp_adjtime;
+		adapter->ptp_caps.gettimex64 = ixgbe_ptp_gettimex;
+		adapter->ptp_caps.settime64 = ixgbe_ptp_settime;
+		adapter->ptp_caps.enable = ixgbe_ptp_feature_enable;
+		adapter->ptp_setup_sdp = ixgbe_ptp_setup_sdp_X550;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		adapter->ptp_clock = NULL;

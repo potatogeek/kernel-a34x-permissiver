@@ -1,9 +1,14 @@
 #!/bin/bash
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 #
 # Analyze a given results directory for rcutorture progress.
 #
 # Usage: kvm-recheck-rcu.sh resdir
 #
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,11 @@
 # Copyright (C) IBM Corporation, 2014
 #
 # Authors: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+# Copyright (C) IBM Corporation, 2014
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
 
 i="$1"
 if test -d "$i" -a -r "$i"
@@ -38,12 +48,20 @@ stopstate="`grep 'End-test grace-period state: g' $i/console.log 2> /dev/null |
 	    tail -1 | sed -e 's/^\[[ 0-9.]*] //' |
 	    awk '{ print \"[\" $1 \" \" $5 \" \" $6 \" \" $7 \"]\"; }' |
 	    tr -d '\012\015'`"
+<<<<<<< HEAD
+=======
+fwdprog="`grep 'rcu_torture_fwd_prog_cr Duration' $i/console.log 2> /dev/null | sed -e 's/^\[[^]]*] //' | sort -k15nr | head -1 | awk '{ print $14 " " $15 }'`"
+>>>>>>> upstream/android-13
 if test -z "$ngps"
 then
 	echo "$configfile ------- " $stopstate
 else
 	title="$configfile ------- $ngps GPs"
+<<<<<<< HEAD
 	dur=`sed -e 's/^.* rcutorture.shutdown_secs=//' -e 's/ .*$//' < $i/qemu-cmd 2> /dev/null`
+=======
+	dur=`grep -v '^#' $i/qemu-cmd | sed -e 's/^.* rcutorture.shutdown_secs=//' -e 's/ .*$//'`
+>>>>>>> upstream/android-13
 	if test -z "$dur"
 	then
 		:
@@ -52,8 +70,27 @@ else
 			BEGIN { print ngps / dur }' < /dev/null`
 		title="$title ($ngpsps/s)"
 	fi
+<<<<<<< HEAD
 	echo $title $stopstate
 	nclosecalls=`grep --binary-files=text 'torture: Reader Batch' $i/console.log | tail -1 | awk '{for (i=NF-8;i<=NF;i++) sum+=$i; } END {print sum}'`
+=======
+	echo $title $stopstate $fwdprog
+	nclosecalls=`grep --binary-files=text 'torture: Reader Batch' $i/console.log | tail -1 | \
+		awk -v sum=0 '
+		{
+			for (i = 0; i <= NF; i++) {
+				sum += $i;
+				if ($i ~ /Batch:/) {
+					sum = 0;
+					i = i + 2;
+				}
+			}
+		}
+
+		END {
+			print sum
+		}'`
+>>>>>>> upstream/android-13
 	if test -z "$nclosecalls"
 	then
 		exit 0

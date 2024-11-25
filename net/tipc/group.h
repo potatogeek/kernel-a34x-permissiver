@@ -2,6 +2,10 @@
  * net/tipc/group.h: Include file for TIPC group unicast/multicast functions
  *
  * Copyright (c) 2017, Ericsson AB
+<<<<<<< HEAD
+=======
+ * Copyright (c) 2020, Red Hat Inc
+>>>>>>> upstream/android-13
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +54,11 @@ void tipc_group_delete(struct net *net, struct tipc_group *grp);
 void tipc_group_add_member(struct tipc_group *grp, u32 node,
 			   u32 port, u32 instance);
 struct tipc_nlist *tipc_group_dests(struct tipc_group *grp);
+<<<<<<< HEAD
 void tipc_group_self(struct tipc_group *grp, struct tipc_name_seq *seq,
+=======
+void tipc_group_self(struct tipc_group *grp, struct tipc_service_range *seq,
+>>>>>>> upstream/android-13
 		     int *scope);
 u32 tipc_group_exclude(struct tipc_group *grp);
 void tipc_group_filter_msg(struct tipc_group *grp,

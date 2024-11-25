@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TerraTec Cinergy T2/qanu USB2 DVB-T adapter.
  *
@@ -10,6 +14,7 @@
  *                  Holger Waechtler <holger@qanu.de>
  *
  *  Protocol Spec published on http://qanu.de/specs/terratec_cinergyT2.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cinergyT2.h"
@@ -33,7 +40,11 @@
  *  This function is probably reusable and may better get placed in a support
  *  library.
  *
+<<<<<<< HEAD
  *  We replace errornous fields by default TPS fields (the ones with value 0).
+=======
+ *  We replace erroneous fields by default TPS fields (the ones with value 0).
+>>>>>>> upstream/android-13
  */
 
 static uint16_t compute_tps(struct dtv_frontend_properties *op)

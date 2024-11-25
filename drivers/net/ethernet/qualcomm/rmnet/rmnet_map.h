@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,10 +9,18 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2013-2018, 2021, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _RMNET_MAP_H_
 #define _RMNET_MAP_H_
+<<<<<<< HEAD
+=======
+#include <linux/if_rmnet.h>
+>>>>>>> upstream/android-13
 
 struct rmnet_map_control_command {
 	u8  command_name;
@@ -39,6 +48,7 @@ enum rmnet_map_commands {
 	RMNET_MAP_COMMAND_ENUM_LENGTH
 };
 
+<<<<<<< HEAD
 struct rmnet_map_header {
 	u8  pad_len:6;
 	u8  reserved_bit:1;
@@ -75,6 +85,8 @@ struct rmnet_map_ul_csum_header {
 #define RMNET_MAP_GET_LENGTH(Y) (ntohs(((struct rmnet_map_header *) \
 					(Y)->data)->pkt_len))
 
+=======
+>>>>>>> upstream/android-13
 #define RMNET_MAP_COMMAND_REQUEST     0
 #define RMNET_MAP_COMMAND_ACK         1
 #define RMNET_MAP_COMMAND_UNSUPPORTED 2
@@ -86,10 +98,23 @@ struct rmnet_map_ul_csum_header {
 struct sk_buff *rmnet_map_deaggregate(struct sk_buff *skb,
 				      struct rmnet_port *port);
 struct rmnet_map_header *rmnet_map_add_map_header(struct sk_buff *skb,
+<<<<<<< HEAD
 						  int hdrlen, int pad);
 void rmnet_map_command(struct sk_buff *skb, struct rmnet_port *port);
 int rmnet_map_checksum_downlink_packet(struct sk_buff *skb, u16 len);
 void rmnet_map_checksum_uplink_packet(struct sk_buff *skb,
 				      struct net_device *orig_dev);
+=======
+						  int hdrlen,
+						  struct rmnet_port *port,
+						  int pad);
+void rmnet_map_command(struct sk_buff *skb, struct rmnet_port *port);
+int rmnet_map_checksum_downlink_packet(struct sk_buff *skb, u16 len);
+void rmnet_map_checksum_uplink_packet(struct sk_buff *skb,
+				      struct rmnet_port *port,
+				      struct net_device *orig_dev,
+				      int csum_type);
+int rmnet_map_process_next_hdr_packet(struct sk_buff *skb, u16 len);
+>>>>>>> upstream/android-13
 
 #endif /* _RMNET_MAP_H_ */

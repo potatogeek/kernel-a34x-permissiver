@@ -6,11 +6,15 @@
 #include <linux/compiler.h>
 #include <linux/list.h>
 #include <linux/rbtree.h>
+<<<<<<< HEAD
 #include <pthread.h>
+=======
+>>>>>>> upstream/android-13
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include "rwsem.h"
 
 struct dso;
@@ -19,6 +23,12 @@ struct ref_reloc_sym;
 struct map_groups;
 struct machine;
 struct perf_evsel;
+=======
+
+struct dso;
+struct maps;
+struct machine;
+>>>>>>> upstream/android-13
 
 struct map {
 	union {
@@ -27,6 +37,7 @@ struct map {
 	};
 	u64			start;
 	u64			end;
+<<<<<<< HEAD
 	bool			erange_warned;
 	u32			priv;
 	u32			prot;
@@ -36,6 +47,13 @@ struct map {
 	u32			maj, min; /* only valid for MMAP2 record */
 	u64			ino;      /* only valid for MMAP2 record */
 	u64			ino_generation;/* only valid for MMAP2 record */
+=======
+	bool			erange_warned:1;
+	bool			priv:1;
+	u32			prot;
+	u64			pgoff;
+	u64			reloc;
+>>>>>>> upstream/android-13
 
 	/* ip -> dso rip */
 	u64			(*map_ip)(struct map *, u64);
@@ -43,6 +61,7 @@ struct map {
 	u64			(*unmap_ip)(struct map *, u64);
 
 	struct dso		*dso;
+<<<<<<< HEAD
 	struct map_groups	*groups;
 	refcount_t		refcnt;
 };
@@ -82,6 +101,17 @@ void map_groups__put(struct map_groups *mg);
 struct kmap *__map__kmap(struct map *map);
 struct kmap *map__kmap(struct map *map);
 struct map_groups *map__kmaps(struct map *map);
+=======
+	refcount_t		refcnt;
+	u32			flags;
+};
+
+struct kmap;
+
+struct kmap *__map__kmap(struct map *map);
+struct kmap *map__kmap(struct map *map);
+struct maps *map__kmaps(struct map *map);
+>>>>>>> upstream/android-13
 
 static inline u64 map__map_ip(struct map *map, u64 ip)
 {
@@ -114,7 +144,11 @@ struct thread;
 
 /* map__for_each_symbol - iterate over the symbols in the given map
  *
+<<<<<<< HEAD
  * @map: the 'struct map *' in which symbols itereated
+=======
+ * @map: the 'struct map *' in which symbols are iterated
+>>>>>>> upstream/android-13
  * @pos: the 'struct symbol *' to use as a loop cursor
  * @n: the 'struct rb_node *' to use as a temporary storage
  * Note: caller must ensure map->dso is not NULL (map is loaded).
@@ -125,7 +159,11 @@ struct thread;
 /* map__for_each_symbol_with_name - iterate over the symbols in the given map
  *                                  that have the given name
  *
+<<<<<<< HEAD
  * @map: the 'struct map *' in which symbols itereated
+=======
+ * @map: the 'struct map *' in which symbols are iterated
+>>>>>>> upstream/android-13
  * @sym_name: the symbol name
  * @pos: the 'struct symbol *' to use as a loop cursor
  */
@@ -141,10 +179,20 @@ struct thread;
 
 void map__init(struct map *map,
 	       u64 start, u64 end, u64 pgoff, struct dso *dso);
+<<<<<<< HEAD
 struct map *map__new(struct machine *machine, u64 start, u64 len,
 		     u64 pgoff, u32 d_maj, u32 d_min, u64 ino,
 		     u64 ino_gen, u32 prot, u32 flags,
 		     char *filename, struct thread *thread);
+=======
+
+struct dso_id;
+struct build_id;
+
+struct map *map__new(struct machine *machine, u64 start, u64 len,
+		     u64 pgoff, struct dso_id *id, u32 prot, u32 flags,
+		     struct build_id *bid, char *filename, struct thread *thread);
+>>>>>>> upstream/android-13
 struct map *map__new2(u64 start, struct dso *dso);
 void map__delete(struct map *map);
 struct map *map__clone(struct map *map);
@@ -178,6 +226,7 @@ struct symbol *map__find_symbol_by_name(struct map *map, const char *name);
 void map__fixup_start(struct map *map);
 void map__fixup_end(struct map *map);
 
+<<<<<<< HEAD
 void map__reloc_vmlinux(struct map *map);
 
 void maps__insert(struct maps *maps, struct map *map);
@@ -241,6 +290,22 @@ bool __map__is_extra_kernel_map(const struct map *map);
 static inline bool __map__is_kmodule(const struct map *map)
 {
 	return !__map__is_kernel(map) && !__map__is_extra_kernel_map(map);
+=======
+int map__set_kallsyms_ref_reloc_sym(struct map *map, const char *symbol_name,
+				    u64 addr);
+
+bool __map__is_kernel(const struct map *map);
+bool __map__is_extra_kernel_map(const struct map *map);
+bool __map__is_bpf_prog(const struct map *map);
+bool __map__is_bpf_image(const struct map *map);
+bool __map__is_ool(const struct map *map);
+
+static inline bool __map__is_kmodule(const struct map *map)
+{
+	return !__map__is_kernel(map) && !__map__is_extra_kernel_map(map) &&
+	       !__map__is_bpf_prog(map) && !__map__is_ool(map) &&
+	       !__map__is_bpf_image(map);
+>>>>>>> upstream/android-13
 }
 
 bool map__has_symbols(const struct map *map);
@@ -252,4 +317,26 @@ static inline bool is_entry_trampoline(const char *name)
 	return !strcmp(name, ENTRY_TRAMPOLINE_NAME);
 }
 
+<<<<<<< HEAD
+=======
+static inline bool is_bpf_image(const char *name)
+{
+	return strncmp(name, "bpf_trampoline_", sizeof("bpf_trampoline_") - 1) == 0 ||
+	       strncmp(name, "bpf_dispatcher_", sizeof("bpf_dispatcher_") - 1) == 0;
+}
+
+static inline int is_anon_memory(const char *filename)
+{
+	return !strcmp(filename, "//anon") ||
+	       !strncmp(filename, "/dev/zero", sizeof("/dev/zero") - 1) ||
+	       !strncmp(filename, "/anon_hugepage", sizeof("/anon_hugepage") - 1);
+}
+
+static inline int is_no_dso_memory(const char *filename)
+{
+	return !strncmp(filename, "[stack", 6) ||
+	       !strncmp(filename, "/SYSV", 5)  ||
+	       !strcmp(filename, "[heap]");
+}
+>>>>>>> upstream/android-13
 #endif /* __PERF_MAP_H */

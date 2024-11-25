@@ -4,6 +4,10 @@
 
 #include <linux/rculist.h>
 #include <linux/wait.h>
+<<<<<<< HEAD
+=======
+#include <linux/refcount.h>
+>>>>>>> upstream/android-13
 
 enum pid_type
 {
@@ -57,10 +61,19 @@ struct upid {
 
 struct pid
 {
+<<<<<<< HEAD
 	atomic_t count;
 	unsigned int level;
 	/* lists of tasks that use this pid */
 	struct hlist_head tasks[PIDTYPE_MAX];
+=======
+	refcount_t count;
+	unsigned int level;
+	spinlock_t lock;
+	/* lists of tasks that use this pid */
+	struct hlist_head tasks[PIDTYPE_MAX];
+	struct hlist_head inodes;
+>>>>>>> upstream/android-13
 	/* wait queue for pidfd notifications */
 	wait_queue_head_t wait_pidfd;
 	struct rcu_head rcu;
@@ -71,15 +84,35 @@ extern struct pid init_struct_pid;
 
 extern const struct file_operations pidfd_fops;
 
+<<<<<<< HEAD
 static inline struct pid *get_pid(struct pid *pid)
 {
 	if (pid)
 		atomic_inc(&pid->count);
+=======
+struct file;
+
+extern struct pid *pidfd_pid(const struct file *file);
+struct pid *pidfd_get_pid(unsigned int fd, unsigned int *flags);
+int pidfd_create(struct pid *pid, unsigned int flags);
+
+static inline struct pid *get_pid(struct pid *pid)
+{
+	if (pid)
+		refcount_inc(&pid->count);
+>>>>>>> upstream/android-13
 	return pid;
 }
 
 extern void put_pid(struct pid *pid);
 extern struct task_struct *pid_task(struct pid *pid, enum pid_type);
+<<<<<<< HEAD
+=======
+static inline bool pid_has_task(struct pid *pid, enum pid_type type)
+{
+	return !hlist_empty(&pid->tasks[type]);
+}
+>>>>>>> upstream/android-13
 extern struct task_struct *get_pid_task(struct pid *pid, enum pid_type);
 
 extern struct pid *get_task_pid(struct task_struct *task, enum pid_type type);
@@ -91,12 +124,22 @@ extern void attach_pid(struct task_struct *task, enum pid_type);
 extern void detach_pid(struct task_struct *task, enum pid_type);
 extern void change_pid(struct task_struct *task, enum pid_type,
 			struct pid *pid);
+<<<<<<< HEAD
+=======
+extern void exchange_tids(struct task_struct *task, struct task_struct *old);
+>>>>>>> upstream/android-13
 extern void transfer_pid(struct task_struct *old, struct task_struct *new,
 			 enum pid_type);
 
 struct pid_namespace;
 extern struct pid_namespace init_pid_ns;
 
+<<<<<<< HEAD
+=======
+extern int pid_max;
+extern int pid_max_min, pid_max_max;
+
+>>>>>>> upstream/android-13
 /*
  * look up a PID in the hash table. Must be called with the tasklist_lock
  * or rcu_read_lock() held.
@@ -114,9 +157,15 @@ extern struct pid *find_vpid(int nr);
  */
 extern struct pid *find_get_pid(int nr);
 extern struct pid *find_ge_pid(int nr, struct pid_namespace *);
+<<<<<<< HEAD
 int next_pidmap(struct pid_namespace *pid_ns, unsigned int last);
 
 extern struct pid *alloc_pid(struct pid_namespace *ns);
+=======
+
+extern struct pid *alloc_pid(struct pid_namespace *ns, pid_t *set_tid,
+			     size_t set_tid_size);
+>>>>>>> upstream/android-13
 extern void free_pid(struct pid *pid);
 extern void disable_pid_allocation(struct pid_namespace *ns);
 

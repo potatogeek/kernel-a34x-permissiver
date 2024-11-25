@@ -25,6 +25,7 @@ struct ath_buf;
 struct fft_sample_tlv;
 
 #ifdef CONFIG_ATH9K_DEBUGFS
+<<<<<<< HEAD
 #define TX_STAT_INC(q, c) sc->debug.stats.txstats[q].c++
 #define RX_STAT_INC(c) (sc->debug.stats.rxstats.c++)
 #define RESET_STAT_INC(sc, type) sc->debug.stats.reset[type]++
@@ -36,6 +37,19 @@ struct fft_sample_tlv;
 #define RESET_STAT_INC(sc, type) do { } while (0)
 #define ANT_STAT_INC(i, c) do { } while (0)
 #define ANT_LNA_INC(i, c) do { } while (0)
+=======
+#define TX_STAT_INC(sc, q, c)	 do { (sc)->debug.stats.txstats[q].c++; } while (0)
+#define RX_STAT_INC(sc, c)	 do { (sc)->debug.stats.rxstats.c++; } while (0)
+#define RESET_STAT_INC(sc, type) do { (sc)->debug.stats.reset[type]++; } while (0)
+#define ANT_STAT_INC(sc, i, c)	 do { (sc)->debug.stats.ant_stats[i].c++; } while (0)
+#define ANT_LNA_INC(sc, i, c)	 do { (sc)->debug.stats.ant_stats[i].lna_recv_cnt[c]++; } while (0)
+#else
+#define TX_STAT_INC(sc, q, c)	 do { (void)(sc); } while (0)
+#define RX_STAT_INC(sc, c)	 do { (void)(sc); } while (0)
+#define RESET_STAT_INC(sc, type) do { (void)(sc); } while (0)
+#define ANT_STAT_INC(sc, i, c)	 do { (void)(sc); } while (0)
+#define ANT_LNA_INC(sc, i, c)	 do { (void)(sc); } while (0)
+>>>>>>> upstream/android-13
 #endif
 
 enum ath_reset_type {
@@ -319,20 +333,26 @@ ath9k_debug_sync_cause(struct ath_softc *sc, u32 sync_cause)
 void ath_debug_rate_stats(struct ath_softc *sc,
 			  struct ath_rx_status *rs,
 			  struct sk_buff *skb);
+<<<<<<< HEAD
 void ath_debug_airtime(struct ath_softc *sc,
 		       struct ath_node *an,
 		       u32 rx, u32 tx);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline void ath_debug_rate_stats(struct ath_softc *sc,
 					struct ath_rx_status *rs,
 					struct sk_buff *skb)
 {
 }
+<<<<<<< HEAD
 static inline void ath_debug_airtime(struct ath_softc *sc,
 			      struct ath_node *an,
 			      u32 rx, u32 tx)
 {
 }
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_ATH9K_STATION_STATISTICS */
 
 #endif /* DEBUG_H */

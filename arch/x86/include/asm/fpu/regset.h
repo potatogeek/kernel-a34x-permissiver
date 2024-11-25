@@ -8,8 +8,13 @@
 #include <linux/regset.h>
 
 extern user_regset_active_fn regset_fpregs_active, regset_xregset_fpregs_active;
+<<<<<<< HEAD
 extern user_regset_get_fn fpregs_get, xfpregs_get, fpregs_soft_get,
 				xstateregs_get;
+=======
+extern user_regset_get2_fn fpregs_get, xfpregs_get, fpregs_soft_get,
+				 xstateregs_get;
+>>>>>>> upstream/android-13
 extern user_regset_set_fn fpregs_set, xfpregs_set, fpregs_soft_set,
 				 xstateregs_set;
 

@@ -168,8 +168,15 @@ struct drm_mm_node {
 	struct rb_node rb_hole_addr;
 	u64 __subtree_last;
 	u64 hole_size;
+<<<<<<< HEAD
 	bool allocated : 1;
 	bool scanned_block : 1;
+=======
+	u64 subtree_max_hole;
+	unsigned long flags;
+#define DRM_MM_NODE_ALLOCATED_BIT	0
+#define DRM_MM_NODE_SCANNED_BIT		1
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DRM_DEBUG_MM
 	depot_stack_handle_t stack;
 #endif
@@ -253,7 +260,11 @@ struct drm_mm_scan {
  */
 static inline bool drm_mm_node_allocated(const struct drm_mm_node *node)
 {
+<<<<<<< HEAD
 	return node->allocated;
+=======
+	return test_bit(DRM_MM_NODE_ALLOCATED_BIT, &node->flags);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -271,7 +282,11 @@ static inline bool drm_mm_node_allocated(const struct drm_mm_node *node)
  */
 static inline bool drm_mm_initialized(const struct drm_mm *mm)
 {
+<<<<<<< HEAD
 	return mm->hole_stack.next;
+=======
+	return READ_ONCE(mm->hole_stack.next);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -336,7 +351,11 @@ static inline u64 drm_mm_hole_node_end(const struct drm_mm_node *hole_node)
 
 /**
  * drm_mm_nodes - list of nodes under the drm_mm range manager
+<<<<<<< HEAD
  * @mm: the struct drm_mm range manger
+=======
+ * @mm: the struct drm_mm range manager
+>>>>>>> upstream/android-13
  *
  * As the drm_mm range manager hides its node_list deep with its
  * structure, extracting it looks painful and repetitive. This is

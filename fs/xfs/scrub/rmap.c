@@ -9,6 +9,7 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_btree.h"
 #include "xfs_bit.h"
@@ -24,16 +25,31 @@
 #include "scrub/common.h"
 #include "scrub/btree.h"
 #include "scrub/trace.h"
+=======
+#include "xfs_btree.h"
+#include "xfs_rmap.h"
+#include "xfs_refcount.h"
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+#include "scrub/btree.h"
+#include "xfs_ag.h"
+>>>>>>> upstream/android-13
 
 /*
  * Set us up to scrub reverse mapping btrees.
  */
 int
 xchk_setup_ag_rmapbt(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_inode	*ip)
 {
 	return xchk_setup_ag_btree(sc, ip, false);
+=======
+	struct xfs_scrub	*sc)
+{
+	return xchk_setup_ag_btree(sc, false);
+>>>>>>> upstream/android-13
 }
 
 /* Reverse-mapping scrubber. */
@@ -97,11 +113,19 @@ xchk_rmapbt_xref(
 STATIC int
 xchk_rmapbt_rec(
 	struct xchk_btree	*bs,
+<<<<<<< HEAD
 	union xfs_btree_rec	*rec)
 {
 	struct xfs_mount	*mp = bs->cur->bc_mp;
 	struct xfs_rmap_irec	irec;
 	xfs_agnumber_t		agno = bs->cur->bc_private.a.agno;
+=======
+	const union xfs_btree_rec *rec)
+{
+	struct xfs_mount	*mp = bs->cur->bc_mp;
+	struct xfs_rmap_irec	irec;
+	xfs_agnumber_t		agno = bs->cur->bc_ag.pag->pag_agno;
+>>>>>>> upstream/android-13
 	bool			non_inode;
 	bool			is_unwritten;
 	bool			is_bmbt;
@@ -174,16 +198,22 @@ int
 xchk_rmapbt(
 	struct xfs_scrub	*sc)
 {
+<<<<<<< HEAD
 	struct xfs_owner_info	oinfo;
 
 	xfs_rmap_ag_owner(&oinfo, XFS_RMAP_OWN_AG);
 	return xchk_btree(sc, sc->sa.rmap_cur, xchk_rmapbt_rec,
 			&oinfo, NULL);
+=======
+	return xchk_btree(sc, sc->sa.rmap_cur, xchk_rmapbt_rec,
+			&XFS_RMAP_OINFO_AG, NULL);
+>>>>>>> upstream/android-13
 }
 
 /* xref check that the extent is owned by a given owner */
 static inline void
 xchk_xref_check_owner(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	xfs_agblock_t		bno,
 	xfs_extlen_t		len,
@@ -192,6 +222,16 @@ xchk_xref_check_owner(
 {
 	bool			has_rmap;
 	int			error;
+=======
+	struct xfs_scrub		*sc,
+	xfs_agblock_t			bno,
+	xfs_extlen_t			len,
+	const struct xfs_owner_info	*oinfo,
+	bool				should_have_rmap)
+{
+	bool				has_rmap;
+	int				error;
+>>>>>>> upstream/android-13
 
 	if (!sc->sa.rmap_cur || xchk_skip_xref(sc->sm))
 		return;
@@ -207,10 +247,17 @@ xchk_xref_check_owner(
 /* xref check that the extent is owned by a given owner */
 void
 xchk_xref_is_owned_by(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	xfs_agblock_t		bno,
 	xfs_extlen_t		len,
 	struct xfs_owner_info	*oinfo)
+=======
+	struct xfs_scrub		*sc,
+	xfs_agblock_t			bno,
+	xfs_extlen_t			len,
+	const struct xfs_owner_info	*oinfo)
+>>>>>>> upstream/android-13
 {
 	xchk_xref_check_owner(sc, bno, len, oinfo, true);
 }
@@ -218,10 +265,17 @@ xchk_xref_is_owned_by(
 /* xref check that the extent is not owned by a given owner */
 void
 xchk_xref_is_not_owned_by(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	xfs_agblock_t		bno,
 	xfs_extlen_t		len,
 	struct xfs_owner_info	*oinfo)
+=======
+	struct xfs_scrub		*sc,
+	xfs_agblock_t			bno,
+	xfs_extlen_t			len,
+	const struct xfs_owner_info	*oinfo)
+>>>>>>> upstream/android-13
 {
 	xchk_xref_check_owner(sc, bno, len, oinfo, false);
 }

@@ -104,7 +104,11 @@ nvkm_dma = {
 
 int
 nvkm_dma_new_(const struct nvkm_dma_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_dma **pdma)
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_dma **pdma)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_dma *dma;
 
@@ -112,5 +116,9 @@ nvkm_dma_new_(const struct nvkm_dma_func *func, struct nvkm_device *device,
 		return -ENOMEM;
 	dma->func = func;
 
+<<<<<<< HEAD
 	return nvkm_engine_ctor(&nvkm_dma, device, index, true, &dma->engine);
+=======
+	return nvkm_engine_ctor(&nvkm_dma, device, type, inst, true, &dma->engine);
+>>>>>>> upstream/android-13
 }

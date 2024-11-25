@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Software async crypto daemon.
  *
@@ -9,20 +13,27 @@
  *             Gabriele Paoloni <gabriele.paoloni@intel.com>
  *             Aidan O'Mahony (aidan.o.mahony@intel.com)
  *    Copyright (c) 2010, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/hash.h>
 #include <crypto/internal/aead.h>
 #include <crypto/internal/skcipher.h>
 #include <crypto/cryptd.h>
+<<<<<<< HEAD
 #include <crypto/crypto_wq.h>
 #include <linux/atomic.h>
+=======
+#include <linux/refcount.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -31,11 +42,20 @@
 #include <linux/scatterlist.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/workqueue.h>
+>>>>>>> upstream/android-13
 
 static unsigned int cryptd_max_cpu_qlen = 1000;
 module_param(cryptd_max_cpu_qlen, uint, 0);
 MODULE_PARM_DESC(cryptd_max_cpu_qlen, "Set cryptd Max queue depth");
 
+<<<<<<< HEAD
+=======
+static struct workqueue_struct *cryptd_wq;
+
+>>>>>>> upstream/android-13
 struct cryptd_cpu_queue {
 	struct crypto_queue queue;
 	struct work_struct work;
@@ -65,6 +85,7 @@ struct aead_instance_ctx {
 	struct cryptd_queue *queue;
 };
 
+<<<<<<< HEAD
 struct cryptd_blkcipher_ctx {
 	atomic_t refcnt;
 	struct crypto_blkcipher *child;
@@ -77,6 +98,11 @@ struct cryptd_blkcipher_request_ctx {
 struct cryptd_skcipher_ctx {
 	atomic_t refcnt;
 	struct crypto_skcipher *child;
+=======
+struct cryptd_skcipher_ctx {
+	refcount_t refcnt;
+	struct crypto_sync_skcipher *child;
+>>>>>>> upstream/android-13
 };
 
 struct cryptd_skcipher_request_ctx {
@@ -84,7 +110,11 @@ struct cryptd_skcipher_request_ctx {
 };
 
 struct cryptd_hash_ctx {
+<<<<<<< HEAD
 	atomic_t refcnt;
+=======
+	refcount_t refcnt;
+>>>>>>> upstream/android-13
 	struct crypto_shash *child;
 };
 
@@ -94,7 +124,11 @@ struct cryptd_hash_request_ctx {
 };
 
 struct cryptd_aead_ctx {
+<<<<<<< HEAD
 	atomic_t refcnt;
+=======
+	refcount_t refcnt;
+>>>>>>> upstream/android-13
 	struct crypto_aead *child;
 };
 
@@ -139,7 +173,11 @@ static int cryptd_enqueue_request(struct cryptd_queue *queue,
 {
 	int cpu, err;
 	struct cryptd_cpu_queue *cpu_queue;
+<<<<<<< HEAD
 	atomic_t *refcnt;
+=======
+	refcount_t *refcnt;
+>>>>>>> upstream/android-13
 
 	cpu = get_cpu();
 	cpu_queue = this_cpu_ptr(queue->cpu_queue);
@@ -150,12 +188,21 @@ static int cryptd_enqueue_request(struct cryptd_queue *queue,
 	if (err == -ENOSPC)
 		goto out_put_cpu;
 
+<<<<<<< HEAD
 	queue_work_on(cpu, kcrypto_wq, &cpu_queue->work);
 
 	if (!atomic_read(refcnt))
 		goto out_put_cpu;
 
 	atomic_inc(refcnt);
+=======
+	queue_work_on(cpu, cryptd_wq, &cpu_queue->work);
+
+	if (!refcount_read(refcnt))
+		goto out_put_cpu;
+
+	refcount_inc(refcnt);
+>>>>>>> upstream/android-13
 
 out_put_cpu:
 	put_cpu();
@@ -193,7 +240,11 @@ static void cryptd_queue_worker(struct work_struct *work)
 	req->complete(req, 0);
 
 	if (cpu_queue->queue.qlen)
+<<<<<<< HEAD
 		queue_work(kcrypto_wq, &cpu_queue->work);
+=======
+		queue_work(cryptd_wq, &cpu_queue->work);
+>>>>>>> upstream/android-13
 }
 
 static inline struct cryptd_queue *cryptd_get_queue(struct crypto_tfm *tfm)
@@ -203,6 +254,7 @@ static inline struct cryptd_queue *cryptd_get_queue(struct crypto_tfm *tfm)
 	return ictx->queue;
 }
 
+<<<<<<< HEAD
 static inline void cryptd_check_internal(struct rtattr **tb, u32 *type,
 					 u32 *mask)
 {
@@ -337,6 +389,22 @@ static void cryptd_blkcipher_exit_tfm(struct crypto_tfm *tfm)
 	struct cryptd_blkcipher_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	crypto_free_blkcipher(ctx->child);
+=======
+static void cryptd_type_and_mask(struct crypto_attr_type *algt,
+				 u32 *type, u32 *mask)
+{
+	/*
+	 * cryptd is allowed to wrap internal algorithms, but in that case the
+	 * resulting cryptd instance will be marked as internal as well.
+	 */
+	*type = algt->type & CRYPTO_ALG_INTERNAL;
+	*mask = algt->mask & CRYPTO_ALG_INTERNAL;
+
+	/* No point in cryptd wrapping an algorithm that's already async. */
+	*mask |= CRYPTO_ALG_ASYNC;
+
+	*mask |= crypto_algt_inherited_mask(algt);
+>>>>>>> upstream/android-13
 }
 
 static int cryptd_init_instance(struct crypto_instance *inst,
@@ -356,6 +424,7 @@ static int cryptd_init_instance(struct crypto_instance *inst,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void *cryptd_alloc_instance(struct crypto_alg *alg, unsigned int head,
 				   unsigned int tail)
 {
@@ -445,10 +514,13 @@ out_put_alg:
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cryptd_skcipher_setkey(struct crypto_skcipher *parent,
 				  const u8 *key, unsigned int keylen)
 {
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(parent);
+<<<<<<< HEAD
 	struct crypto_skcipher *child = ctx->child;
 	int err;
 
@@ -459,6 +531,15 @@ static int cryptd_skcipher_setkey(struct crypto_skcipher *parent,
 	crypto_skcipher_set_flags(parent, crypto_skcipher_get_flags(child) &
 					  CRYPTO_TFM_RES_MASK);
 	return err;
+=======
+	struct crypto_sync_skcipher *child = ctx->child;
+
+	crypto_sync_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
+	crypto_sync_skcipher_set_flags(child,
+				       crypto_skcipher_get_flags(parent) &
+					 CRYPTO_TFM_REQ_MASK);
+	return crypto_sync_skcipher_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static void cryptd_skcipher_complete(struct skcipher_request *req, int err)
@@ -466,13 +547,21 @@ static void cryptd_skcipher_complete(struct skcipher_request *req, int err)
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
+<<<<<<< HEAD
 	int refcnt = atomic_read(&ctx->refcnt);
+=======
+	int refcnt = refcount_read(&ctx->refcnt);
+>>>>>>> upstream/android-13
 
 	local_bh_disable();
 	rctx->complete(&req->base, err);
 	local_bh_enable();
 
+<<<<<<< HEAD
 	if (err != -EINPROGRESS && refcnt && atomic_dec_and_test(&ctx->refcnt))
+=======
+	if (err != -EINPROGRESS && refcnt && refcount_dec_and_test(&ctx->refcnt))
+>>>>>>> upstream/android-13
 		crypto_free_skcipher(tfm);
 }
 
@@ -483,13 +572,22 @@ static void cryptd_skcipher_encrypt(struct crypto_async_request *base,
 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+<<<<<<< HEAD
 	struct crypto_skcipher *child = ctx->child;
 	SKCIPHER_REQUEST_ON_STACK(subreq, child);
+=======
+	struct crypto_sync_skcipher *child = ctx->child;
+	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
+>>>>>>> upstream/android-13
 
 	if (unlikely(err == -EINPROGRESS))
 		goto out;
 
+<<<<<<< HEAD
 	skcipher_request_set_tfm(subreq, child);
+=======
+	skcipher_request_set_sync_tfm(subreq, child);
+>>>>>>> upstream/android-13
 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
 				      NULL, NULL);
 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
@@ -511,13 +609,22 @@ static void cryptd_skcipher_decrypt(struct crypto_async_request *base,
 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+<<<<<<< HEAD
 	struct crypto_skcipher *child = ctx->child;
 	SKCIPHER_REQUEST_ON_STACK(subreq, child);
+=======
+	struct crypto_sync_skcipher *child = ctx->child;
+	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
+>>>>>>> upstream/android-13
 
 	if (unlikely(err == -EINPROGRESS))
 		goto out;
 
+<<<<<<< HEAD
 	skcipher_request_set_tfm(subreq, child);
+=======
+	skcipher_request_set_sync_tfm(subreq, child);
+>>>>>>> upstream/android-13
 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
 				      NULL, NULL);
 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
@@ -568,7 +675,11 @@ static int cryptd_skcipher_init_tfm(struct crypto_skcipher *tfm)
 	if (IS_ERR(cipher))
 		return PTR_ERR(cipher);
 
+<<<<<<< HEAD
 	ctx->child = cipher;
+=======
+	ctx->child = (struct crypto_sync_skcipher *)cipher;
+>>>>>>> upstream/android-13
 	crypto_skcipher_set_reqsize(
 		tfm, sizeof(struct cryptd_skcipher_request_ctx));
 	return 0;
@@ -578,7 +689,11 @@ static void cryptd_skcipher_exit_tfm(struct crypto_skcipher *tfm)
 {
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
 
+<<<<<<< HEAD
 	crypto_free_skcipher(ctx->child);
+=======
+	crypto_free_sync_skcipher(ctx->child);
+>>>>>>> upstream/android-13
 }
 
 static void cryptd_skcipher_free(struct skcipher_instance *inst)
@@ -591,16 +706,24 @@ static void cryptd_skcipher_free(struct skcipher_instance *inst)
 
 static int cryptd_create_skcipher(struct crypto_template *tmpl,
 				  struct rtattr **tb,
+<<<<<<< HEAD
+=======
+				  struct crypto_attr_type *algt,
+>>>>>>> upstream/android-13
 				  struct cryptd_queue *queue)
 {
 	struct skcipherd_instance_ctx *ctx;
 	struct skcipher_instance *inst;
 	struct skcipher_alg *alg;
+<<<<<<< HEAD
 	const char *name;
+=======
+>>>>>>> upstream/android-13
 	u32 type;
 	u32 mask;
 	int err;
 
+<<<<<<< HEAD
 	type = 0;
 	mask = CRYPTO_ALG_ASYNC;
 
@@ -609,6 +732,9 @@ static int cryptd_create_skcipher(struct crypto_template *tmpl,
 	name = crypto_attr_alg_name(tb[1]);
 	if (IS_ERR(name))
 		return PTR_ERR(name);
+=======
+	cryptd_type_and_mask(algt, &type, &mask);
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
 	if (!inst)
@@ -617,19 +743,33 @@ static int cryptd_create_skcipher(struct crypto_template *tmpl,
 	ctx = skcipher_instance_ctx(inst);
 	ctx->queue = queue;
 
+<<<<<<< HEAD
 	crypto_set_skcipher_spawn(&ctx->spawn, skcipher_crypto_instance(inst));
 	err = crypto_grab_skcipher(&ctx->spawn, name, type, mask);
 	if (err)
 		goto out_free_inst;
+=======
+	err = crypto_grab_skcipher(&ctx->spawn, skcipher_crypto_instance(inst),
+				   crypto_attr_alg_name(tb[1]), type, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	alg = crypto_spawn_skcipher_alg(&ctx->spawn);
 	err = cryptd_init_instance(skcipher_crypto_instance(inst), &alg->base);
 	if (err)
+<<<<<<< HEAD
 		goto out_drop_skcipher;
 
 	inst->alg.base.cra_flags = CRYPTO_ALG_ASYNC |
 				   (alg->base.cra_flags & CRYPTO_ALG_INTERNAL);
 
+=======
+		goto err_free_inst;
+
+	inst->alg.base.cra_flags |= CRYPTO_ALG_ASYNC |
+		(alg->base.cra_flags & CRYPTO_ALG_INTERNAL);
+>>>>>>> upstream/android-13
 	inst->alg.ivsize = crypto_skcipher_alg_ivsize(alg);
 	inst->alg.chunksize = crypto_skcipher_alg_chunksize(alg);
 	inst->alg.min_keysize = crypto_skcipher_alg_min_keysize(alg);
@@ -648,10 +788,15 @@ static int cryptd_create_skcipher(struct crypto_template *tmpl,
 
 	err = skcipher_register_instance(tmpl, inst);
 	if (err) {
+<<<<<<< HEAD
 out_drop_skcipher:
 		crypto_drop_skcipher(&ctx->spawn);
 out_free_inst:
 		kfree(inst);
+=======
+err_free_inst:
+		cryptd_skcipher_free(inst);
+>>>>>>> upstream/android-13
 	}
 	return err;
 }
@@ -687,15 +832,22 @@ static int cryptd_hash_setkey(struct crypto_ahash *parent,
 {
 	struct cryptd_hash_ctx *ctx   = crypto_ahash_ctx(parent);
 	struct crypto_shash *child = ctx->child;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	crypto_shash_clear_flags(child, CRYPTO_TFM_REQ_MASK);
 	crypto_shash_set_flags(child, crypto_ahash_get_flags(parent) &
 				      CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_shash_setkey(child, key, keylen);
 	crypto_ahash_set_flags(parent, crypto_shash_get_flags(child) &
 				       CRYPTO_TFM_RES_MASK);
 	return err;
+=======
+	return crypto_shash_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int cryptd_hash_enqueue(struct ahash_request *req,
@@ -717,13 +869,21 @@ static void cryptd_hash_complete(struct ahash_request *req, int err)
 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
 	struct cryptd_hash_ctx *ctx = crypto_ahash_ctx(tfm);
 	struct cryptd_hash_request_ctx *rctx = ahash_request_ctx(req);
+<<<<<<< HEAD
 	int refcnt = atomic_read(&ctx->refcnt);
+=======
+	int refcnt = refcount_read(&ctx->refcnt);
+>>>>>>> upstream/android-13
 
 	local_bh_disable();
 	rctx->complete(&req->base, err);
 	local_bh_enable();
 
+<<<<<<< HEAD
 	if (err != -EINPROGRESS && refcnt && atomic_dec_and_test(&ctx->refcnt))
+=======
+	if (err != -EINPROGRESS && refcnt && refcount_dec_and_test(&ctx->refcnt))
+>>>>>>> upstream/android-13
 		crypto_free_ahash(tfm);
 }
 
@@ -739,7 +899,10 @@ static void cryptd_hash_init(struct crypto_async_request *req_async, int err)
 		goto out;
 
 	desc->tfm = child;
+<<<<<<< HEAD
 	desc->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	err = crypto_shash_init(desc);
 
@@ -831,7 +994,10 @@ static void cryptd_hash_digest(struct crypto_async_request *req_async, int err)
 		goto out;
 
 	desc->tfm = child;
+<<<<<<< HEAD
 	desc->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	err = shash_ahash_digest(req, desc);
 
@@ -860,16 +1026,33 @@ static int cryptd_hash_import(struct ahash_request *req, const void *in)
 	struct shash_desc *desc = cryptd_shash_desc(req);
 
 	desc->tfm = ctx->child;
+<<<<<<< HEAD
 	desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 
 	return crypto_shash_import(desc, in);
 }
 
+<<<<<<< HEAD
 static int cryptd_create_hash(struct crypto_template *tmpl, struct rtattr **tb,
+=======
+static void cryptd_hash_free(struct ahash_instance *inst)
+{
+	struct hashd_instance_ctx *ctx = ahash_instance_ctx(inst);
+
+	crypto_drop_shash(&ctx->spawn);
+	kfree(inst);
+}
+
+static int cryptd_create_hash(struct crypto_template *tmpl, struct rtattr **tb,
+			      struct crypto_attr_type *algt,
+>>>>>>> upstream/android-13
 			      struct cryptd_queue *queue)
 {
 	struct hashd_instance_ctx *ctx;
 	struct ahash_instance *inst;
+<<<<<<< HEAD
 	struct shash_alg *salg;
 	struct crypto_alg *alg;
 	u32 type = 0;
@@ -888,10 +1071,23 @@ static int cryptd_create_hash(struct crypto_template *tmpl, struct rtattr **tb,
 	err = PTR_ERR(inst);
 	if (IS_ERR(inst))
 		goto out_put_alg;
+=======
+	struct shash_alg *alg;
+	u32 type;
+	u32 mask;
+	int err;
+
+	cryptd_type_and_mask(algt, &type, &mask);
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	ctx = ahash_instance_ctx(inst);
 	ctx->queue = queue;
 
+<<<<<<< HEAD
 	err = crypto_init_shash_spawn(&ctx->spawn, salg,
 				      ahash_crypto_instance(inst));
 	if (err)
@@ -903,6 +1099,23 @@ static int cryptd_create_hash(struct crypto_template *tmpl, struct rtattr **tb,
 
 	inst->alg.halg.digestsize = salg->digestsize;
 	inst->alg.halg.statesize = salg->statesize;
+=======
+	err = crypto_grab_shash(&ctx->spawn, ahash_crypto_instance(inst),
+				crypto_attr_alg_name(tb[1]), type, mask);
+	if (err)
+		goto err_free_inst;
+	alg = crypto_spawn_shash_alg(&ctx->spawn);
+
+	err = cryptd_init_instance(ahash_crypto_instance(inst), &alg->base);
+	if (err)
+		goto err_free_inst;
+
+	inst->alg.halg.base.cra_flags |= CRYPTO_ALG_ASYNC |
+		(alg->base.cra_flags & (CRYPTO_ALG_INTERNAL|
+					CRYPTO_ALG_OPTIONAL_KEY));
+	inst->alg.halg.digestsize = alg->digestsize;
+	inst->alg.halg.statesize = alg->statesize;
+>>>>>>> upstream/android-13
 	inst->alg.halg.base.cra_ctxsize = sizeof(struct cryptd_hash_ctx);
 
 	inst->alg.halg.base.cra_init = cryptd_hash_init_tfm;
@@ -914,6 +1127,7 @@ static int cryptd_create_hash(struct crypto_template *tmpl, struct rtattr **tb,
 	inst->alg.finup  = cryptd_hash_finup_enqueue;
 	inst->alg.export = cryptd_hash_export;
 	inst->alg.import = cryptd_hash_import;
+<<<<<<< HEAD
 	if (crypto_shash_alg_has_setkey(salg))
 		inst->alg.setkey = cryptd_hash_setkey;
 	inst->alg.digest = cryptd_hash_digest_enqueue;
@@ -927,6 +1141,19 @@ out_free_inst:
 
 out_put_alg:
 	crypto_mod_put(alg);
+=======
+	if (crypto_shash_alg_has_setkey(alg))
+		inst->alg.setkey = cryptd_hash_setkey;
+	inst->alg.digest = cryptd_hash_digest_enqueue;
+
+	inst->free = cryptd_hash_free;
+
+	err = ahash_register_instance(tmpl, inst);
+	if (err) {
+err_free_inst:
+		cryptd_hash_free(inst);
+	}
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -971,13 +1198,21 @@ static void cryptd_aead_crypt(struct aead_request *req,
 
 out:
 	ctx = crypto_aead_ctx(tfm);
+<<<<<<< HEAD
 	refcnt = atomic_read(&ctx->refcnt);
+=======
+	refcnt = refcount_read(&ctx->refcnt);
+>>>>>>> upstream/android-13
 
 	local_bh_disable();
 	compl(&req->base, err);
 	local_bh_enable();
 
+<<<<<<< HEAD
 	if (err != -EINPROGRESS && refcnt && atomic_dec_and_test(&ctx->refcnt))
+=======
+	if (err != -EINPROGRESS && refcnt && refcount_dec_and_test(&ctx->refcnt))
+>>>>>>> upstream/android-13
 		crypto_free_aead(tfm);
 }
 
@@ -1048,13 +1283,28 @@ static void cryptd_aead_exit_tfm(struct crypto_aead *tfm)
 	crypto_free_aead(ctx->child);
 }
 
+<<<<<<< HEAD
 static int cryptd_create_aead(struct crypto_template *tmpl,
 		              struct rtattr **tb,
+=======
+static void cryptd_aead_free(struct aead_instance *inst)
+{
+	struct aead_instance_ctx *ctx = aead_instance_ctx(inst);
+
+	crypto_drop_aead(&ctx->aead_spawn);
+	kfree(inst);
+}
+
+static int cryptd_create_aead(struct crypto_template *tmpl,
+		              struct rtattr **tb,
+			      struct crypto_attr_type *algt,
+>>>>>>> upstream/android-13
 			      struct cryptd_queue *queue)
 {
 	struct aead_instance_ctx *ctx;
 	struct aead_instance *inst;
 	struct aead_alg *alg;
+<<<<<<< HEAD
 	const char *name;
 	u32 type = 0;
 	u32 mask = CRYPTO_ALG_ASYNC;
@@ -1065,6 +1315,13 @@ static int cryptd_create_aead(struct crypto_template *tmpl,
 	name = crypto_attr_alg_name(tb[1]);
 	if (IS_ERR(name))
 		return PTR_ERR(name);
+=======
+	u32 type;
+	u32 mask;
+	int err;
+
+	cryptd_type_and_mask(algt, &type, &mask);
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
 	if (!inst)
@@ -1073,18 +1330,32 @@ static int cryptd_create_aead(struct crypto_template *tmpl,
 	ctx = aead_instance_ctx(inst);
 	ctx->queue = queue;
 
+<<<<<<< HEAD
 	crypto_set_aead_spawn(&ctx->aead_spawn, aead_crypto_instance(inst));
 	err = crypto_grab_aead(&ctx->aead_spawn, name, type, mask);
 	if (err)
 		goto out_free_inst;
+=======
+	err = crypto_grab_aead(&ctx->aead_spawn, aead_crypto_instance(inst),
+			       crypto_attr_alg_name(tb[1]), type, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	alg = crypto_spawn_aead_alg(&ctx->aead_spawn);
 	err = cryptd_init_instance(aead_crypto_instance(inst), &alg->base);
 	if (err)
+<<<<<<< HEAD
 		goto out_drop_aead;
 
 	inst->alg.base.cra_flags = CRYPTO_ALG_ASYNC |
 				   (alg->base.cra_flags & CRYPTO_ALG_INTERNAL);
+=======
+		goto err_free_inst;
+
+	inst->alg.base.cra_flags |= CRYPTO_ALG_ASYNC |
+		(alg->base.cra_flags & CRYPTO_ALG_INTERNAL);
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_ctxsize = sizeof(struct cryptd_aead_ctx);
 
 	inst->alg.ivsize = crypto_aead_alg_ivsize(alg);
@@ -1097,12 +1368,21 @@ static int cryptd_create_aead(struct crypto_template *tmpl,
 	inst->alg.encrypt = cryptd_aead_encrypt_enqueue;
 	inst->alg.decrypt = cryptd_aead_decrypt_enqueue;
 
+<<<<<<< HEAD
 	err = aead_register_instance(tmpl, inst);
 	if (err) {
 out_drop_aead:
 		crypto_drop_aead(&ctx->aead_spawn);
 out_free_inst:
 		kfree(inst);
+=======
+	inst->free = cryptd_aead_free;
+
+	err = aead_register_instance(tmpl, inst);
+	if (err) {
+err_free_inst:
+		cryptd_aead_free(inst);
+>>>>>>> upstream/android-13
 	}
 	return err;
 }
@@ -1118,6 +1398,7 @@ static int cryptd_create(struct crypto_template *tmpl, struct rtattr **tb)
 		return PTR_ERR(algt);
 
 	switch (algt->type & algt->mask & CRYPTO_ALG_TYPE_MASK) {
+<<<<<<< HEAD
 	case CRYPTO_ALG_TYPE_BLKCIPHER:
 		if ((algt->type & CRYPTO_ALG_TYPE_MASK) ==
 		    CRYPTO_ALG_TYPE_BLKCIPHER)
@@ -1128,11 +1409,20 @@ static int cryptd_create(struct crypto_template *tmpl, struct rtattr **tb)
 		return cryptd_create_hash(tmpl, tb, &queue);
 	case CRYPTO_ALG_TYPE_AEAD:
 		return cryptd_create_aead(tmpl, tb, &queue);
+=======
+	case CRYPTO_ALG_TYPE_SKCIPHER:
+		return cryptd_create_skcipher(tmpl, tb, algt, &queue);
+	case CRYPTO_ALG_TYPE_HASH:
+		return cryptd_create_hash(tmpl, tb, algt, &queue);
+	case CRYPTO_ALG_TYPE_AEAD:
+		return cryptd_create_aead(tmpl, tb, algt, &queue);
+>>>>>>> upstream/android-13
 	}
 
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static void cryptd_free(struct crypto_instance *inst)
 {
 	struct cryptd_instance_ctx *ctx = crypto_instance_ctx(inst);
@@ -1213,6 +1503,14 @@ void cryptd_free_ablkcipher(struct cryptd_ablkcipher *tfm)
 }
 EXPORT_SYMBOL_GPL(cryptd_free_ablkcipher);
 
+=======
+static struct crypto_template cryptd_tmpl = {
+	.name = "cryptd",
+	.create = cryptd_create,
+	.module = THIS_MODULE,
+};
+
+>>>>>>> upstream/android-13
 struct cryptd_skcipher *cryptd_alloc_skcipher(const char *alg_name,
 					      u32 type, u32 mask)
 {
@@ -1234,7 +1532,11 @@ struct cryptd_skcipher *cryptd_alloc_skcipher(const char *alg_name,
 	}
 
 	ctx = crypto_skcipher_ctx(tfm);
+<<<<<<< HEAD
 	atomic_set(&ctx->refcnt, 1);
+=======
+	refcount_set(&ctx->refcnt, 1);
+>>>>>>> upstream/android-13
 
 	return container_of(tfm, struct cryptd_skcipher, base);
 }
@@ -1244,7 +1546,11 @@ struct crypto_skcipher *cryptd_skcipher_child(struct cryptd_skcipher *tfm)
 {
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(&tfm->base);
 
+<<<<<<< HEAD
 	return ctx->child;
+=======
+	return &ctx->child->base;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(cryptd_skcipher_child);
 
@@ -1252,7 +1558,11 @@ bool cryptd_skcipher_queued(struct cryptd_skcipher *tfm)
 {
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(&tfm->base);
 
+<<<<<<< HEAD
 	return atomic_read(&ctx->refcnt) - 1;
+=======
+	return refcount_read(&ctx->refcnt) - 1;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(cryptd_skcipher_queued);
 
@@ -1260,7 +1570,11 @@ void cryptd_free_skcipher(struct cryptd_skcipher *tfm)
 {
 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(&tfm->base);
 
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&ctx->refcnt))
+=======
+	if (refcount_dec_and_test(&ctx->refcnt))
+>>>>>>> upstream/android-13
 		crypto_free_skcipher(&tfm->base);
 }
 EXPORT_SYMBOL_GPL(cryptd_free_skcipher);
@@ -1284,7 +1598,11 @@ struct cryptd_ahash *cryptd_alloc_ahash(const char *alg_name,
 	}
 
 	ctx = crypto_ahash_ctx(tfm);
+<<<<<<< HEAD
 	atomic_set(&ctx->refcnt, 1);
+=======
+	refcount_set(&ctx->refcnt, 1);
+>>>>>>> upstream/android-13
 
 	return __cryptd_ahash_cast(tfm);
 }
@@ -1309,7 +1627,11 @@ bool cryptd_ahash_queued(struct cryptd_ahash *tfm)
 {
 	struct cryptd_hash_ctx *ctx = crypto_ahash_ctx(&tfm->base);
 
+<<<<<<< HEAD
 	return atomic_read(&ctx->refcnt) - 1;
+=======
+	return refcount_read(&ctx->refcnt) - 1;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(cryptd_ahash_queued);
 
@@ -1317,7 +1639,11 @@ void cryptd_free_ahash(struct cryptd_ahash *tfm)
 {
 	struct cryptd_hash_ctx *ctx = crypto_ahash_ctx(&tfm->base);
 
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&ctx->refcnt))
+=======
+	if (refcount_dec_and_test(&ctx->refcnt))
+>>>>>>> upstream/android-13
 		crypto_free_ahash(&tfm->base);
 }
 EXPORT_SYMBOL_GPL(cryptd_free_ahash);
@@ -1341,7 +1667,11 @@ struct cryptd_aead *cryptd_alloc_aead(const char *alg_name,
 	}
 
 	ctx = crypto_aead_ctx(tfm);
+<<<<<<< HEAD
 	atomic_set(&ctx->refcnt, 1);
+=======
+	refcount_set(&ctx->refcnt, 1);
+>>>>>>> upstream/android-13
 
 	return __cryptd_aead_cast(tfm);
 }
@@ -1359,7 +1689,11 @@ bool cryptd_aead_queued(struct cryptd_aead *tfm)
 {
 	struct cryptd_aead_ctx *ctx = crypto_aead_ctx(&tfm->base);
 
+<<<<<<< HEAD
 	return atomic_read(&ctx->refcnt) - 1;
+=======
+	return refcount_read(&ctx->refcnt) - 1;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(cryptd_aead_queued);
 
@@ -1367,7 +1701,11 @@ void cryptd_free_aead(struct cryptd_aead *tfm)
 {
 	struct cryptd_aead_ctx *ctx = crypto_aead_ctx(&tfm->base);
 
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&ctx->refcnt))
+=======
+	if (refcount_dec_and_test(&ctx->refcnt))
+>>>>>>> upstream/android-13
 		crypto_free_aead(&tfm->base);
 }
 EXPORT_SYMBOL_GPL(cryptd_free_aead);
@@ -1376,6 +1714,7 @@ static int __init cryptd_init(void)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = cryptd_init_queue(&queue, cryptd_max_cpu_qlen);
 	if (err)
 		return err;
@@ -1384,11 +1723,36 @@ static int __init cryptd_init(void)
 	if (err)
 		cryptd_fini_queue(&queue);
 
+=======
+	cryptd_wq = alloc_workqueue("cryptd", WQ_MEM_RECLAIM | WQ_CPU_INTENSIVE,
+				    1);
+	if (!cryptd_wq)
+		return -ENOMEM;
+
+	err = cryptd_init_queue(&queue, cryptd_max_cpu_qlen);
+	if (err)
+		goto err_destroy_wq;
+
+	err = crypto_register_template(&cryptd_tmpl);
+	if (err)
+		goto err_fini_queue;
+
+	return 0;
+
+err_fini_queue:
+	cryptd_fini_queue(&queue);
+err_destroy_wq:
+	destroy_workqueue(cryptd_wq);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static void __exit cryptd_exit(void)
 {
+<<<<<<< HEAD
+=======
+	destroy_workqueue(cryptd_wq);
+>>>>>>> upstream/android-13
 	cryptd_fini_queue(&queue);
 	crypto_unregister_template(&cryptd_tmpl);
 }

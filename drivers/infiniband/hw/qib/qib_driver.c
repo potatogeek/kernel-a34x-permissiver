@@ -49,8 +49,11 @@
  */
 const char ib_qib_version[] = QIB_DRIVER_VERSION "\n";
 
+<<<<<<< HEAD
 DEFINE_SPINLOCK(qib_devs_lock);
 LIST_HEAD(qib_dev_list);
+=======
+>>>>>>> upstream/android-13
 DEFINE_MUTEX(qib_mutex);	/* general driver use */
 
 unsigned qib_ibmtu;
@@ -96,11 +99,19 @@ int qib_count_active_units(void)
 {
 	struct qib_devdata *dd;
 	struct qib_pportdata *ppd;
+<<<<<<< HEAD
 	unsigned long flags;
 	int pidx, nunits_active = 0;
 
 	spin_lock_irqsave(&qib_devs_lock, flags);
 	list_for_each_entry(dd, &qib_dev_list, list) {
+=======
+	unsigned long index, flags;
+	int pidx, nunits_active = 0;
+
+	xa_lock_irqsave(&qib_dev_table, flags);
+	xa_for_each(&qib_dev_table, index, dd) {
+>>>>>>> upstream/android-13
 		if (!(dd->flags & QIB_PRESENT) || !dd->kregbase)
 			continue;
 		for (pidx = 0; pidx < dd->num_pports; ++pidx) {
@@ -112,7 +123,11 @@ int qib_count_active_units(void)
 			}
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&qib_devs_lock, flags);
+=======
+	xa_unlock_irqrestore(&qib_dev_table, flags);
+>>>>>>> upstream/android-13
 	return nunits_active;
 }
 
@@ -125,6 +140,7 @@ int qib_count_units(int *npresentp, int *nupp)
 {
 	int nunits = 0, npresent = 0, nup = 0;
 	struct qib_devdata *dd;
+<<<<<<< HEAD
 	unsigned long flags;
 	int pidx;
 	struct qib_pportdata *ppd;
@@ -132,6 +148,14 @@ int qib_count_units(int *npresentp, int *nupp)
 	spin_lock_irqsave(&qib_devs_lock, flags);
 
 	list_for_each_entry(dd, &qib_dev_list, list) {
+=======
+	unsigned long index, flags;
+	int pidx;
+	struct qib_pportdata *ppd;
+
+	xa_lock_irqsave(&qib_dev_table, flags);
+	xa_for_each(&qib_dev_table, index, dd) {
+>>>>>>> upstream/android-13
 		nunits++;
 		if ((dd->flags & QIB_PRESENT) && dd->kregbase)
 			npresent++;
@@ -142,8 +166,12 @@ int qib_count_units(int *npresentp, int *nupp)
 				nup++;
 		}
 	}
+<<<<<<< HEAD
 
 	spin_unlock_irqrestore(&qib_devs_lock, flags);
+=======
+	xa_unlock_irqrestore(&qib_dev_table, flags);
+>>>>>>> upstream/android-13
 
 	if (npresentp)
 		*npresentp = npresent;
@@ -155,7 +183,11 @@ int qib_count_units(int *npresentp, int *nupp)
 
 /**
  * qib_wait_linkstate - wait for an IB link state change to occur
+<<<<<<< HEAD
  * @dd: the qlogic_ib device
+=======
+ * @ppd: the qlogic_ib device
+>>>>>>> upstream/android-13
  * @state: the state to wait for
  * @msecs: the number of milliseconds to wait
  *

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/proc-arm7tdmi.S: utility functions for ARM7TDMI
  *
  *  Copyright (C) 2003-2006 Hyok S. Choi <hyok.choi@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,11 +15,20 @@
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
+=======
+ */
+#include <linux/linkage.h>
+#include <linux/init.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/assembler.h>
 #include <asm/asm-offsets.h>
 #include <asm/hwcap.h>
 #include <asm/pgtable-hwdef.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 
 #include "proc-macros.S"
@@ -76,7 +90,11 @@ __arm7tdmi_setup:
 
 		.align
 
+<<<<<<< HEAD
 		.section ".proc.info.init", #alloc
+=======
+		.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 
 .macro arm7tdmi_proc_info name:req, cpu_val:req, cpu_mask:req, cpu_name:req, \
 	extra_hwcaps=0

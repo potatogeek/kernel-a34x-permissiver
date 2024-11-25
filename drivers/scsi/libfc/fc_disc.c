@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2007 - 2008 Intel Corporation. All rights reserved.
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2007 - 2008 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 
@@ -313,8 +320,13 @@ static void fc_disc_error(struct fc_disc *disc, struct fc_frame *fp)
 	struct fc_lport *lport = fc_disc_lport(disc);
 	unsigned long delay = 0;
 
+<<<<<<< HEAD
 	FC_DISC_DBG(disc, "Error %ld, retries %d/%d\n",
 		    PTR_ERR(fp), disc->retry_count,
+=======
+	FC_DISC_DBG(disc, "Error %d, retries %d/%d\n",
+		    PTR_ERR_OR_ZERO(fp), disc->retry_count,
+>>>>>>> upstream/android-13
 		    FC_DISC_RETRY_LIMIT);
 
 	if (!fp || PTR_ERR(fp) == -FC_EX_TIMEOUT) {
@@ -349,7 +361,11 @@ static void fc_disc_error(struct fc_disc *disc, struct fc_frame *fp)
 
 /**
  * fc_disc_gpn_ft_req() - Send Get Port Names by FC-4 type (GPN_FT) request
+<<<<<<< HEAD
  * @lport: The discovery context
+=======
+ * @disc: The discovery context
+>>>>>>> upstream/android-13
  */
 static void fc_disc_gpn_ft_req(struct fc_disc *disc)
 {
@@ -382,7 +398,11 @@ err:
 
 /**
  * fc_disc_gpn_ft_parse() - Parse the body of the dNS GPN_FT response.
+<<<<<<< HEAD
  * @lport: The local port the GPN_FT was received on
+=======
+ * @disc:  The discovery context
+>>>>>>> upstream/android-13
  * @buf:   The GPN_FT response buffer
  * @len:   The size of response buffer
  *
@@ -500,7 +520,11 @@ static void fc_disc_timeout(struct work_struct *work)
  * fc_disc_gpn_ft_resp() - Handle a response frame from Get Port Names (GPN_FT)
  * @sp:	    The sequence that the GPN_FT response was received on
  * @fp:	    The GPN_FT response frame
+<<<<<<< HEAD
  * @lp_arg: The discovery context
+=======
+ * @disc_arg: The discovery context
+>>>>>>> upstream/android-13
  *
  * Locking Note: This function is called without disc mutex held, and
  *		 should do all its processing with the mutex held

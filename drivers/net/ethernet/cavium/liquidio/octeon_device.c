@@ -545,7 +545,11 @@ static atomic_t adapter_fw_states[MAX_OCTEON_DEVICES];
 
 static u32 octeon_device_count;
 /* locks device array (i.e. octeon_device[]) */
+<<<<<<< HEAD
 static spinlock_t octeon_devices_lock;
+=======
+static DEFINE_SPINLOCK(octeon_devices_lock);
+>>>>>>> upstream/android-13
 
 static struct octeon_core_setup core_setup[MAX_OCTEON_DEVICES];
 
@@ -563,7 +567,10 @@ void octeon_init_device_list(int conf_type)
 	memset(octeon_device, 0, (sizeof(void *) * MAX_OCTEON_DEVICES));
 	for (i = 0; i <  MAX_OCTEON_DEVICES; i++)
 		oct_set_config_info(i, conf_type);
+<<<<<<< HEAD
 	spin_lock_init(&octeon_devices_lock);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void *__retrieve_octeon_config_info(struct octeon_device *oct,
@@ -1044,8 +1051,12 @@ void octeon_delete_dispatch_list(struct octeon_device *oct)
 		dispatch = &oct->dispatch.dlist[i].list;
 		while (dispatch->next != dispatch) {
 			temp = dispatch->next;
+<<<<<<< HEAD
 			list_del(temp);
 			list_add_tail(temp, &freelist);
+=======
+			list_move_tail(temp, &freelist);
+>>>>>>> upstream/android-13
 		}
 
 		oct->dispatch.dlist[i].opcode = 0;
@@ -1057,7 +1068,11 @@ void octeon_delete_dispatch_list(struct octeon_device *oct)
 
 	list_for_each_safe(temp, tmp2, &freelist) {
 		list_del(temp);
+<<<<<<< HEAD
 		vfree(temp);
+=======
+		kfree(temp);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1153,6 +1168,7 @@ octeon_register_dispatch_fn(struct octeon_device *oct,
 
 		dev_dbg(&oct->pci_dev->dev,
 			"Adding opcode to dispatch list linked list\n");
+<<<<<<< HEAD
 		dispatch = (struct octeon_dispatch *)
 			   vmalloc(sizeof(struct octeon_dispatch));
 		if (!dispatch) {
@@ -1160,6 +1176,12 @@ octeon_register_dispatch_fn(struct octeon_device *oct,
 				"No memory to add dispatch function\n");
 			return 1;
 		}
+=======
+		dispatch = kmalloc(sizeof(*dispatch), GFP_KERNEL);
+		if (!dispatch)
+			return 1;
+
+>>>>>>> upstream/android-13
 		dispatch->opcode = combined_opcode;
 		dispatch->dispatch_fn = fn;
 		dispatch->arg = fn_arg;
@@ -1311,7 +1333,11 @@ struct octeon_config *octeon_get_conf(struct octeon_device *oct)
 /* scratch register address is same in all the OCT-II and CN70XX models */
 #define CNXX_SLI_SCRATCH1   0x3C0
 
+<<<<<<< HEAD
 /** Get the octeon device pointer.
+=======
+/* Get the octeon device pointer.
+>>>>>>> upstream/android-13
  *  @param octeon_id  - The id for which the octeon device pointer is required.
  *  @return Success: Octeon device pointer.
  *  @return Failure: NULL.
@@ -1328,7 +1354,11 @@ u64 lio_pci_readq(struct octeon_device *oct, u64 addr)
 {
 	u64 val64;
 	unsigned long flags;
+<<<<<<< HEAD
 	u32 val32, addrhi;
+=======
+	u32 addrhi;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&oct->pci_win_lock, flags);
 
@@ -1343,10 +1373,17 @@ u64 lio_pci_readq(struct octeon_device *oct, u64 addr)
 	writel(addrhi, oct->reg_list.pci_win_rd_addr_hi);
 
 	/* Read back to preserve ordering of writes */
+<<<<<<< HEAD
 	val32 = readl(oct->reg_list.pci_win_rd_addr_hi);
 
 	writel(addr & 0xffffffff, oct->reg_list.pci_win_rd_addr_lo);
 	val32 = readl(oct->reg_list.pci_win_rd_addr_lo);
+=======
+	readl(oct->reg_list.pci_win_rd_addr_hi);
+
+	writel(addr & 0xffffffff, oct->reg_list.pci_win_rd_addr_lo);
+	readl(oct->reg_list.pci_win_rd_addr_lo);
+>>>>>>> upstream/android-13
 
 	val64 = readq(oct->reg_list.pci_win_rd_data);
 
@@ -1359,7 +1396,10 @@ void lio_pci_writeq(struct octeon_device *oct,
 		    u64 val,
 		    u64 addr)
 {
+<<<<<<< HEAD
 	u32 val32;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&oct->pci_win_lock, flags);
@@ -1369,7 +1409,11 @@ void lio_pci_writeq(struct octeon_device *oct,
 	/* The write happens when the LSB is written. So write MSB first. */
 	writel(val >> 32, oct->reg_list.pci_win_wr_data_hi);
 	/* Read the MSB to ensure ordering of writes. */
+<<<<<<< HEAD
 	val32 = readl(oct->reg_list.pci_win_wr_data_hi);
+=======
+	readl(oct->reg_list.pci_win_wr_data_hi);
+>>>>>>> upstream/android-13
 
 	writel(val & 0xffffffff, oct->reg_list.pci_win_wr_data_lo);
 
@@ -1415,7 +1459,11 @@ int octeon_wait_for_ddr_init(struct octeon_device *oct, u32 *timeout)
 	return ret;
 }
 
+<<<<<<< HEAD
 /** Get the octeon id assigned to the octeon device passed as argument.
+=======
+/* Get the octeon id assigned to the octeon device passed as argument.
+>>>>>>> upstream/android-13
  *  This function is exported to other modules.
  *  @param dev - octeon device pointer passed as a void *.
  *  @return octeon device id
@@ -1440,12 +1488,17 @@ void lio_enable_irq(struct octeon_droq *droq, struct octeon_instr_queue *iq)
 	/* the whole thing needs to be atomic, ideally */
 	if (droq) {
 		pkts_pend = (u32)atomic_read(&droq->pkts_pending);
+<<<<<<< HEAD
 		spin_lock_bh(&droq->lock);
 		writel(droq->pkt_count - pkts_pend, droq->pkts_sent_reg);
 		droq->pkt_count = pkts_pend;
 		/* this write needs to be flushed before we release the lock */
 		mmiowb();
 		spin_unlock_bh(&droq->lock);
+=======
+		writel(droq->pkt_count - pkts_pend, droq->pkts_sent_reg);
+		droq->pkt_count = pkts_pend;
+>>>>>>> upstream/android-13
 		oct = droq->oct_dev;
 	}
 	if (iq) {
@@ -1454,7 +1507,10 @@ void lio_enable_irq(struct octeon_droq *droq, struct octeon_instr_queue *iq)
 		iq->pkt_in_done -= iq->pkts_processed;
 		iq->pkts_processed = 0;
 		/* this write needs to be flushed before we release the lock */
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		spin_unlock_bh(&iq->lock);
 		oct = iq->oct_dev;
 	}

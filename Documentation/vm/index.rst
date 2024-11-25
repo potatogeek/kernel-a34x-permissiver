@@ -2,7 +2,13 @@
 Linux Memory Management Documentation
 =====================================
 
+<<<<<<< HEAD
 This is a collection of documents about Linux memory management (mm) subsystem.
+=======
+This is a collection of documents about the Linux memory management (mm)
+subsystem.  If you are looking for advice on simply allocating memory,
+see the :ref:`memory_allocation`.
+>>>>>>> upstream/android-13
 
 User guides for MM features
 ===========================
@@ -27,15 +33,29 @@ descriptions of data structures and algorithms.
    :maxdepth: 1
 
    active_mm
+<<<<<<< HEAD
    balance
    cleancache
+=======
+   arch_pgtable_helpers
+   balance
+   cleancache
+   damon/index
+   free_page_reporting
+>>>>>>> upstream/android-13
    frontswap
    highmem
    hmm
    hwpoison
    hugetlbfs_reserv
    ksm
+<<<<<<< HEAD
    mmu_notifier
+=======
+   memory-model
+   mmu_notifier
+   multigen_lru
+>>>>>>> upstream/android-13
    numa
    overcommit-accounting
    page_migration

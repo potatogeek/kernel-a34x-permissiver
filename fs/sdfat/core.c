@@ -401,9 +401,12 @@ static s32 __load_upcase_table(struct super_block *sb, u64 sector, u64 num_secto
 	 * memset(upcase_table, 0, UTBL_COL_COUNT * sizeof(u16 *));
 	 */
 
+<<<<<<< HEAD
 	/* trigger read upcase_table ahead */
 	bdev_readahead(sb, sector, num_sectors);
 
+=======
+>>>>>>> upstream/android-13
 	fsi->vol_utbl = upcase_table;
 	num_sectors += sector;
 

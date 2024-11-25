@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2014 Intel Corporation. All rights reserved.
@@ -18,6 +19,13 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2007 - 2014 Intel Corporation. All rights reserved.
+ * Copyright(c) 2018 - 2020 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -82,16 +90,26 @@ static const struct iwl_eeprom_params iwl5000_eeprom_params = {
 	.fw_name_pre = IWL5000_FW_PRE,				\
 	.ucode_api_max = IWL5000_UCODE_API_MAX,			\
 	.ucode_api_min = IWL5000_UCODE_API_MIN,			\
+<<<<<<< HEAD
 	.device_family = IWL_DEVICE_FAMILY_5000,		\
+=======
+	.trans.device_family = IWL_DEVICE_FAMILY_5000,		\
+>>>>>>> upstream/android-13
 	.max_inst_size = IWLAGN_RTC_INST_SIZE,			\
 	.max_data_size = IWLAGN_RTC_DATA_SIZE,			\
 	.nvm_ver = EEPROM_5000_EEPROM_VERSION,		\
 	.nvm_calib_ver = EEPROM_5000_TX_POWER_VERSION,	\
+<<<<<<< HEAD
 	.base_params = &iwl5000_base_params,			\
 	.eeprom_params = &iwl5000_eeprom_params,		\
 	.led_mode = IWL_LED_BLINK,				\
 	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,	\
 	.csr = &iwl_csr_v1
+=======
+	.trans.base_params = &iwl5000_base_params,		\
+	.eeprom_params = &iwl5000_eeprom_params,		\
+	.led_mode = IWL_LED_BLINK
+>>>>>>> upstream/android-13
 
 const struct iwl_cfg iwl5300_agn_cfg = {
 	.name = "Intel(R) Ultimate N WiFi Link 5300 AGN",
@@ -130,34 +148,56 @@ const struct iwl_cfg iwl5350_agn_cfg = {
 	.fw_name_pre = IWL5000_FW_PRE,
 	.ucode_api_max = IWL5000_UCODE_API_MAX,
 	.ucode_api_min = IWL5000_UCODE_API_MIN,
+<<<<<<< HEAD
 	.device_family = IWL_DEVICE_FAMILY_5000,
+=======
+	.trans.device_family = IWL_DEVICE_FAMILY_5000,
+>>>>>>> upstream/android-13
 	.max_inst_size = IWLAGN_RTC_INST_SIZE,
 	.max_data_size = IWLAGN_RTC_DATA_SIZE,
 	.nvm_ver = EEPROM_5050_EEPROM_VERSION,
 	.nvm_calib_ver = EEPROM_5050_TX_POWER_VERSION,
+<<<<<<< HEAD
 	.base_params = &iwl5000_base_params,
+=======
+	.trans.base_params = &iwl5000_base_params,
+>>>>>>> upstream/android-13
 	.eeprom_params = &iwl5000_eeprom_params,
 	.ht_params = &iwl5000_ht_params,
 	.led_mode = IWL_LED_BLINK,
 	.internal_wimax_coex = true,
+<<<<<<< HEAD
 	.csr = &iwl_csr_v1,
+=======
+>>>>>>> upstream/android-13
 };
 
 #define IWL_DEVICE_5150						\
 	.fw_name_pre = IWL5150_FW_PRE,				\
 	.ucode_api_max = IWL5150_UCODE_API_MAX,			\
 	.ucode_api_min = IWL5150_UCODE_API_MIN,			\
+<<<<<<< HEAD
 	.device_family = IWL_DEVICE_FAMILY_5150,		\
+=======
+	.trans.device_family = IWL_DEVICE_FAMILY_5150,		\
+>>>>>>> upstream/android-13
 	.max_inst_size = IWLAGN_RTC_INST_SIZE,			\
 	.max_data_size = IWLAGN_RTC_DATA_SIZE,			\
 	.nvm_ver = EEPROM_5050_EEPROM_VERSION,		\
 	.nvm_calib_ver = EEPROM_5050_TX_POWER_VERSION,	\
+<<<<<<< HEAD
 	.base_params = &iwl5000_base_params,			\
 	.eeprom_params = &iwl5000_eeprom_params,		\
 	.led_mode = IWL_LED_BLINK,				\
 	.internal_wimax_coex = true,				\
 	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,	\
 	.csr = &iwl_csr_v1
+=======
+	.trans.base_params = &iwl5000_base_params,		\
+	.eeprom_params = &iwl5000_eeprom_params,		\
+	.led_mode = IWL_LED_BLINK,				\
+	.internal_wimax_coex = true
+>>>>>>> upstream/android-13
 
 const struct iwl_cfg iwl5150_agn_cfg = {
 	.name = "Intel(R) WiMAX/WiFi Link 5150 AGN",

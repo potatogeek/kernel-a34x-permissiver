@@ -438,7 +438,10 @@ static const struct file_operations xi2c_reg_value_fops = {
 
 void xgbe_debugfs_init(struct xgbe_prv_data *pdata)
 {
+<<<<<<< HEAD
 	struct dentry *pfile;
+=======
+>>>>>>> upstream/android-13
 	char *buf;
 
 	/* Set defaults */
@@ -451,6 +454,7 @@ void xgbe_debugfs_init(struct xgbe_prv_data *pdata)
 		return;
 
 	pdata->xgbe_debugfs = debugfs_create_dir(buf, NULL);
+<<<<<<< HEAD
 	if (!pdata->xgbe_debugfs) {
 		netdev_err(pdata->netdev, "debugfs_create_dir failed\n");
 		kfree(buf);
@@ -533,6 +537,50 @@ void xgbe_debugfs_init(struct xgbe_prv_data *pdata)
 		if (!pfile)
 			netdev_err(pdata->netdev,
 				   "debugfs_create_bool failed\n");
+=======
+
+	debugfs_create_file("xgmac_register", 0600, pdata->xgbe_debugfs, pdata,
+			    &xgmac_reg_addr_fops);
+
+	debugfs_create_file("xgmac_register_value", 0600, pdata->xgbe_debugfs,
+			    pdata, &xgmac_reg_value_fops);
+
+	debugfs_create_file("xpcs_mmd", 0600, pdata->xgbe_debugfs, pdata,
+			    &xpcs_mmd_fops);
+
+	debugfs_create_file("xpcs_register", 0600, pdata->xgbe_debugfs, pdata,
+			    &xpcs_reg_addr_fops);
+
+	debugfs_create_file("xpcs_register_value", 0600, pdata->xgbe_debugfs,
+			    pdata, &xpcs_reg_value_fops);
+
+	if (pdata->xprop_regs) {
+		debugfs_create_file("xprop_register", 0600, pdata->xgbe_debugfs,
+				    pdata, &xprop_reg_addr_fops);
+
+		debugfs_create_file("xprop_register_value", 0600,
+				    pdata->xgbe_debugfs, pdata,
+				    &xprop_reg_value_fops);
+	}
+
+	if (pdata->xi2c_regs) {
+		debugfs_create_file("xi2c_register", 0600, pdata->xgbe_debugfs,
+				    pdata, &xi2c_reg_addr_fops);
+
+		debugfs_create_file("xi2c_register_value", 0600,
+				    pdata->xgbe_debugfs, pdata,
+				    &xi2c_reg_value_fops);
+	}
+
+	if (pdata->vdata->an_cdr_workaround) {
+		debugfs_create_bool("an_cdr_workaround", 0600,
+				    pdata->xgbe_debugfs,
+				    &pdata->debugfs_an_cdr_workaround);
+
+		debugfs_create_bool("an_cdr_track_early", 0600,
+				    pdata->xgbe_debugfs,
+				    &pdata->debugfs_an_cdr_track_early);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(buf);
@@ -546,7 +594,10 @@ void xgbe_debugfs_exit(struct xgbe_prv_data *pdata)
 
 void xgbe_debugfs_rename(struct xgbe_prv_data *pdata)
 {
+<<<<<<< HEAD
 	struct dentry *pfile;
+=======
+>>>>>>> upstream/android-13
 	char *buf;
 
 	if (!pdata->xgbe_debugfs)
@@ -559,11 +610,16 @@ void xgbe_debugfs_rename(struct xgbe_prv_data *pdata)
 	if (!strcmp(pdata->xgbe_debugfs->d_name.name, buf))
 		goto out;
 
+<<<<<<< HEAD
 	pfile = debugfs_rename(pdata->xgbe_debugfs->d_parent,
 			       pdata->xgbe_debugfs,
 			       pdata->xgbe_debugfs->d_parent, buf);
 	if (!pfile)
 		netdev_err(pdata->netdev, "debugfs_rename failed\n");
+=======
+	debugfs_rename(pdata->xgbe_debugfs->d_parent, pdata->xgbe_debugfs,
+		       pdata->xgbe_debugfs->d_parent, buf);
+>>>>>>> upstream/android-13
 
 out:
 	kfree(buf);

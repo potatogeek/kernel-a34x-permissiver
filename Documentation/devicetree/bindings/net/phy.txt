@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 PHY nodes
 
 Required properties:
@@ -71,3 +72,6 @@ ethernet-phy@0 {
 	reset-assert-us = <1000>;
 	reset-deassert-us = <2000>;
 };
+=======
+This file has moved to ethernet-phy.yaml.
+>>>>>>> upstream/android-13

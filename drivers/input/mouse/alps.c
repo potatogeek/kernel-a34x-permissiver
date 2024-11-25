@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ALPS touchpad PS/2 mouse driver
  *
@@ -9,10 +13,13 @@
  *
  * ALPS detection, tap switching and status querying info is taken from
  * tpconfig utility (by C. Scott Ananian and Bruce Kall).
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -989,7 +996,11 @@ static void alps_get_finger_coordinate_v7(struct input_mt_pos *mt,
 	case V7_PACKET_ID_TWO:
 		mt[1].x &= ~0x000F;
 		mt[1].y |= 0x000F;
+<<<<<<< HEAD
 		/* Detect false-postive touches where x & y report max value */
+=======
+		/* Detect false-positive touches where x & y report max value */
+>>>>>>> upstream/android-13
 		if (mt[1].y == 0x7ff && mt[1].x == 0xff0) {
 			mt[1].x = 0;
 			/* y gets set to 0 at the end of this function */
@@ -1932,7 +1943,11 @@ static int alps_monitor_mode(struct psmouse *psmouse, bool enable)
 static int alps_absolute_mode_v6(struct psmouse *psmouse)
 {
 	u16 reg_val = 0x181;
+<<<<<<< HEAD
 	int ret = -1;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* enter monitor mode, to write the register */
 	if (alps_monitor_mode(psmouse, true))

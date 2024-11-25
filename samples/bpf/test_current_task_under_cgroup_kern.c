@@ -8,6 +8,7 @@
 #include <linux/ptrace.h>
 #include <uapi/linux/bpf.h>
 #include <linux/version.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 #include <uapi/linux/utsname.h>
 
@@ -27,6 +28,28 @@ struct bpf_map_def SEC("maps") perf_map = {
 
 /* Writes the last PID that called sync to a map at index 0 */
 SEC("kprobe/sys_sync")
+=======
+#include <bpf/bpf_helpers.h>
+#include <uapi/linux/utsname.h>
+#include "trace_common.h"
+
+struct {
+	__uint(type, BPF_MAP_TYPE_CGROUP_ARRAY);
+	__uint(key_size, sizeof(u32));
+	__uint(value_size, sizeof(u32));
+	__uint(max_entries, 1);
+} cgroup_map SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_ARRAY);
+	__type(key, u32);
+	__type(value, u64);
+	__uint(max_entries, 1);
+} perf_map SEC(".maps");
+
+/* Writes the last PID that called sync to a map at index 0 */
+SEC("kprobe/" SYSCALL(sys_sync))
+>>>>>>> upstream/android-13
 int bpf_prog1(struct pt_regs *ctx)
 {
 	u64 pid = bpf_get_current_pid_tgid();

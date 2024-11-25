@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
   Interval Trees
   (C) 2012  Michel Lespinasse <walken@google.com>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
 
   include/linux/interval_tree_generic.h
 */
@@ -42,6 +49,7 @@
 									      \
 /* Callbacks for augmented rbtree insert and remove */			      \
 									      \
+<<<<<<< HEAD
 static inline ITTYPE ITPREFIX ## _compute_subtree_last(ITSTRUCT *node)	      \
 {									      \
 	ITTYPE max = ITLAST(node), subtree_last;			      \
@@ -62,6 +70,10 @@ static inline ITTYPE ITPREFIX ## _compute_subtree_last(ITSTRUCT *node)	      \
 									      \
 RB_DECLARE_CALLBACKS(static, ITPREFIX ## _augment, ITSTRUCT, ITRB,	      \
 		     ITTYPE, ITSUBTREE, ITPREFIX ## _compute_subtree_last)    \
+=======
+RB_DECLARE_CALLBACKS_MAX(static, ITPREFIX ## _augment,			      \
+			 ITSTRUCT, ITRB, ITTYPE, ITSUBTREE, ITLAST)	      \
+>>>>>>> upstream/android-13
 									      \
 /* Insert / remove interval nodes from the tree */			      \
 									      \

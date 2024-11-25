@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "perf.h"
 #include "util/debug.h"
 #include "util/event.h"
+=======
+#include "util/debug.h"
+#include "util/dso.h"
+#include "util/event.h"
+#include "util/map.h"
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 #include "util/sort.h"
 #include "util/evsel.h"
@@ -49,7 +56,11 @@ static struct sample fake_samples[] = {
 static int add_hist_entries(struct hists *hists, struct machine *machine)
 {
 	struct addr_location al;
+<<<<<<< HEAD
 	struct perf_evsel *evsel = hists_to_evsel(hists);
+=======
+	struct evsel *evsel = hists_to_evsel(hists);
+>>>>>>> upstream/android-13
 	struct perf_sample sample = { .period = 100, };
 	size_t i;
 
@@ -91,8 +102,13 @@ out:
 static void del_hist_entries(struct hists *hists)
 {
 	struct hist_entry *he;
+<<<<<<< HEAD
 	struct rb_root *root_in;
 	struct rb_root *root_out;
+=======
+	struct rb_root_cached *root_in;
+	struct rb_root_cached *root_out;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	if (hists__has(hists, need_collapse))
@@ -102,17 +118,30 @@ static void del_hist_entries(struct hists *hists)
 
 	root_out = &hists->entries;
 
+<<<<<<< HEAD
 	while (!RB_EMPTY_ROOT(root_out)) {
 		node = rb_first(root_out);
 
 		he = rb_entry(node, struct hist_entry, rb_node);
 		rb_erase(node, root_out);
 		rb_erase(&he->rb_node_in, root_in);
+=======
+	while (!RB_EMPTY_ROOT(&root_out->rb_root)) {
+		node = rb_first_cached(root_out);
+
+		he = rb_entry(node, struct hist_entry, rb_node);
+		rb_erase_cached(node, root_out);
+		rb_erase_cached(&he->rb_node_in, root_in);
+>>>>>>> upstream/android-13
 		hist_entry__delete(he);
 	}
 }
 
+<<<<<<< HEAD
 typedef int (*test_fn_t)(struct perf_evsel *, struct machine *);
+=======
+typedef int (*test_fn_t)(struct evsel *, struct machine *);
+>>>>>>> upstream/android-13
 
 #define COMM(he)  (thread__comm_str(he->thread))
 #define DSO(he)   (he->ms.map->dso->short_name)
@@ -121,12 +150,20 @@ typedef int (*test_fn_t)(struct perf_evsel *, struct machine *);
 #define PID(he)   (he->thread->tid)
 
 /* default sort keys (no field) */
+<<<<<<< HEAD
 static int test1(struct perf_evsel *evsel, struct machine *machine)
+=======
+static int test1(struct evsel *evsel, struct machine *machine)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct hists *hists = evsel__hists(evsel);
 	struct hist_entry *he;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	field_order = NULL;
@@ -154,7 +191,11 @@ static int test1(struct perf_evsel *evsel, struct machine *machine)
 		goto out;
 
 	hists__collapse_resort(hists, NULL);
+<<<<<<< HEAD
 	perf_evsel__output_resort(evsel, NULL);
+=======
+	evsel__output_resort(evsel, NULL);
+>>>>>>> upstream/android-13
 
 	if (verbose > 2) {
 		pr_info("[fields = %s, sort = %s]\n", field_order, sort_order);
@@ -162,7 +203,11 @@ static int test1(struct perf_evsel *evsel, struct machine *machine)
 	}
 
 	root = &hists->entries;
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	he = rb_entry(node, struct hist_entry, rb_node);
 	TEST_ASSERT_VAL("Invalid hist entry",
 			!strcmp(COMM(he), "perf") && !strcmp(DSO(he), "perf") &&
@@ -223,12 +268,20 @@ out:
 }
 
 /* mixed fields and sort keys */
+<<<<<<< HEAD
 static int test2(struct perf_evsel *evsel, struct machine *machine)
+=======
+static int test2(struct evsel *evsel, struct machine *machine)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct hists *hists = evsel__hists(evsel);
 	struct hist_entry *he;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	field_order = "overhead,cpu";
@@ -254,7 +307,11 @@ static int test2(struct perf_evsel *evsel, struct machine *machine)
 		goto out;
 
 	hists__collapse_resort(hists, NULL);
+<<<<<<< HEAD
 	perf_evsel__output_resort(evsel, NULL);
+=======
+	evsel__output_resort(evsel, NULL);
+>>>>>>> upstream/android-13
 
 	if (verbose > 2) {
 		pr_info("[fields = %s, sort = %s]\n", field_order, sort_order);
@@ -262,7 +319,11 @@ static int test2(struct perf_evsel *evsel, struct machine *machine)
 	}
 
 	root = &hists->entries;
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	he = rb_entry(node, struct hist_entry, rb_node);
 	TEST_ASSERT_VAL("Invalid hist entry",
 			CPU(he) == 1 && PID(he) == 100 && he->stat.period == 300);
@@ -279,12 +340,20 @@ out:
 }
 
 /* fields only (no sort key) */
+<<<<<<< HEAD
 static int test3(struct perf_evsel *evsel, struct machine *machine)
+=======
+static int test3(struct evsel *evsel, struct machine *machine)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct hists *hists = evsel__hists(evsel);
 	struct hist_entry *he;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	field_order = "comm,overhead,dso";
@@ -308,7 +377,11 @@ static int test3(struct perf_evsel *evsel, struct machine *machine)
 		goto out;
 
 	hists__collapse_resort(hists, NULL);
+<<<<<<< HEAD
 	perf_evsel__output_resort(evsel, NULL);
+=======
+	evsel__output_resort(evsel, NULL);
+>>>>>>> upstream/android-13
 
 	if (verbose > 2) {
 		pr_info("[fields = %s, sort = %s]\n", field_order, sort_order);
@@ -316,7 +389,11 @@ static int test3(struct perf_evsel *evsel, struct machine *machine)
 	}
 
 	root = &hists->entries;
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	he = rb_entry(node, struct hist_entry, rb_node);
 	TEST_ASSERT_VAL("Invalid hist entry",
 			!strcmp(COMM(he), "bash") && !strcmp(DSO(he), "bash") &&
@@ -353,12 +430,20 @@ out:
 }
 
 /* handle duplicate 'dso' field */
+<<<<<<< HEAD
 static int test4(struct perf_evsel *evsel, struct machine *machine)
+=======
+static int test4(struct evsel *evsel, struct machine *machine)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct hists *hists = evsel__hists(evsel);
 	struct hist_entry *he;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	field_order = "dso,sym,comm,overhead,dso";
@@ -386,7 +471,11 @@ static int test4(struct perf_evsel *evsel, struct machine *machine)
 		goto out;
 
 	hists__collapse_resort(hists, NULL);
+<<<<<<< HEAD
 	perf_evsel__output_resort(evsel, NULL);
+=======
+	evsel__output_resort(evsel, NULL);
+>>>>>>> upstream/android-13
 
 	if (verbose > 2) {
 		pr_info("[fields = %s, sort = %s]\n", field_order, sort_order);
@@ -394,7 +483,11 @@ static int test4(struct perf_evsel *evsel, struct machine *machine)
 	}
 
 	root = &hists->entries;
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	he = rb_entry(node, struct hist_entry, rb_node);
 	TEST_ASSERT_VAL("Invalid hist entry",
 			!strcmp(DSO(he), "perf") && !strcmp(SYM(he), "cmd_record") &&
@@ -455,12 +548,20 @@ out:
 }
 
 /* full sort keys w/o overhead field */
+<<<<<<< HEAD
 static int test5(struct perf_evsel *evsel, struct machine *machine)
+=======
+static int test5(struct evsel *evsel, struct machine *machine)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct hists *hists = evsel__hists(evsel);
 	struct hist_entry *he;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	field_order = "cpu,pid,comm,dso,sym";
@@ -489,7 +590,11 @@ static int test5(struct perf_evsel *evsel, struct machine *machine)
 		goto out;
 
 	hists__collapse_resort(hists, NULL);
+<<<<<<< HEAD
 	perf_evsel__output_resort(evsel, NULL);
+=======
+	evsel__output_resort(evsel, NULL);
+>>>>>>> upstream/android-13
 
 	if (verbose > 2) {
 		pr_info("[fields = %s, sort = %s]\n", field_order, sort_order);
@@ -497,7 +602,11 @@ static int test5(struct perf_evsel *evsel, struct machine *machine)
 	}
 
 	root = &hists->entries;
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	he = rb_entry(node, struct hist_entry, rb_node);
 
 	TEST_ASSERT_VAL("Invalid hist entry",
@@ -579,8 +688,13 @@ int test__hists_output(struct test *test __maybe_unused, int subtest __maybe_unu
 	int err = TEST_FAIL;
 	struct machines machines;
 	struct machine *machine;
+<<<<<<< HEAD
 	struct perf_evsel *evsel;
 	struct perf_evlist *evlist = perf_evlist__new();
+=======
+	struct evsel *evsel;
+	struct evlist *evlist = evlist__new();
+>>>>>>> upstream/android-13
 	size_t i;
 	test_fn_t testcases[] = {
 		test1,
@@ -607,7 +721,11 @@ int test__hists_output(struct test *test __maybe_unused, int subtest __maybe_unu
 	if (verbose > 1)
 		machine__fprintf(machine, stderr);
 
+<<<<<<< HEAD
 	evsel = perf_evlist__first(evlist);
+=======
+	evsel = evlist__first(evlist);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(testcases); i++) {
 		err = testcases[i](evsel, machine);
@@ -617,7 +735,11 @@ int test__hists_output(struct test *test __maybe_unused, int subtest __maybe_unu
 
 out:
 	/* tear down everything */
+<<<<<<< HEAD
 	perf_evlist__delete(evlist);
+=======
+	evlist__delete(evlist);
+>>>>>>> upstream/android-13
 	machines__exit(&machines);
 
 	return err;

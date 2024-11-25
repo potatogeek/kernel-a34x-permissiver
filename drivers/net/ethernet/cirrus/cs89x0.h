@@ -459,7 +459,10 @@
 #define PNP_CNF_INT 0x70
 #define PNP_CNF_DMA 0x74
 #define PNP_CNF_MEM 0x48
+<<<<<<< HEAD
 
 #define BIT0 1
 #define BIT15 0x8000
 
+=======
+>>>>>>> upstream/android-13

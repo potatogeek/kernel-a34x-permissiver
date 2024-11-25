@@ -15,6 +15,10 @@
 #ifndef __ASSEMBLY__
 
 #include <linux/reboot.h>
+<<<<<<< HEAD
+=======
+#include <linux/platform_data/eth_ixp4xx.h>
+>>>>>>> upstream/android-13
 
 #include <asm/types.h>
 
@@ -79,6 +83,7 @@ extern unsigned long ixp4xx_exp_bus_size;
 #define IXP4XX_UART_XTAL        	14745600
 
 /*
+<<<<<<< HEAD
  * This structure provide a means for the board setup code
  * to give information to th pata_ixp4xx driver. It is
  * passed as platform_data.
@@ -114,6 +119,8 @@ struct hss_plat_info {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Frequency of clock used for primary clocksource
  */
 extern unsigned long ixp4xx_timer_freq;

@@ -20,15 +20,44 @@
 
 #define COMPUTE_TO		(5 * HZ)
 #define LATEACK_DELAY		(10 * HZ)
+<<<<<<< HEAD
 #define LATEACK_TO		256
 #define MAX_DELAY		300
+=======
+>>>>>>> upstream/android-13
 #define EWMA_LEVEL		96
 #define EWMA_DIV		128
 
 /**
+<<<<<<< HEAD
  * ath_dynack_ewma - EWMA (Exponentially Weighted Moving Average) calculation
  *
  */
+=======
+ * ath_dynack_get_max_to - set max timeout according to channel width
+ * @ah: ath hw
+ *
+ */
+static u32 ath_dynack_get_max_to(struct ath_hw *ah)
+{
+	const struct ath9k_channel *chan = ah->curchan;
+
+	if (!chan)
+		return 300;
+
+	if (IS_CHAN_HT40(chan))
+		return 300;
+	if (IS_CHAN_HALF_RATE(chan))
+		return 750;
+	if (IS_CHAN_QUARTER_RATE(chan))
+		return 1500;
+	return 600;
+}
+
+/*
+ * ath_dynack_ewma - EWMA (Exponentially Weighted Moving Average) calculation
+ */
+>>>>>>> upstream/android-13
 static inline int ath_dynack_ewma(int old, int new)
 {
 	if (old > 0)
@@ -79,6 +108,27 @@ static inline bool ath_dynack_bssidmask(struct ath_hw *ah, const u8 *mac)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * ath_dynack_set_timeout - configure timeouts/slottime registers
+ * @ah: ath hw
+ * @to: timeout value
+ *
+ */
+static void ath_dynack_set_timeout(struct ath_hw *ah, int to)
+{
+	struct ath_common *common = ath9k_hw_common(ah);
+	int slottime = (to - 3) / 2;
+
+	ath_dbg(common, DYNACK, "ACK timeout %u slottime %u\n",
+		to, slottime);
+	ath9k_hw_setslottime(ah, slottime);
+	ath9k_hw_set_ack_timeout(ah, to);
+	ath9k_hw_set_cts_timeout(ah, to);
+}
+
+/**
+>>>>>>> upstream/android-13
  * ath_dynack_compute_ackto - compute ACK timeout as the maximum STA timeout
  * @ah: ath hw
  *
@@ -86,7 +136,10 @@ static inline bool ath_dynack_bssidmask(struct ath_hw *ah, const u8 *mac)
  */
 static void ath_dynack_compute_ackto(struct ath_hw *ah)
 {
+<<<<<<< HEAD
 	struct ath_common *common = ath9k_hw_common(ah);
+=======
+>>>>>>> upstream/android-13
 	struct ath_dynack *da = &ah->dynack;
 	struct ath_node *an;
 	int to = 0;
@@ -96,6 +149,7 @@ static void ath_dynack_compute_ackto(struct ath_hw *ah)
 			to = an->ackto;
 
 	if (to && da->ackto != to) {
+<<<<<<< HEAD
 		u32 slottime;
 
 		slottime = (to - 3) / 2;
@@ -105,6 +159,10 @@ static void ath_dynack_compute_ackto(struct ath_hw *ah)
 		ath9k_hw_setslottime(ah, slottime);
 		ath9k_hw_set_ack_timeout(ah, da->ackto);
 		ath9k_hw_set_cts_timeout(ah, da->ackto);
+=======
+		ath_dynack_set_timeout(ah, to);
+		da->ackto = to;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -116,6 +174,7 @@ static void ath_dynack_compute_ackto(struct ath_hw *ah)
  */
 static void ath_dynack_compute_to(struct ath_hw *ah)
 {
+<<<<<<< HEAD
 	u32 ackto, ack_ts;
 	u8 *dst, *src;
 	struct ieee80211_sta *sta;
@@ -125,6 +184,18 @@ static void ath_dynack_compute_to(struct ath_hw *ah)
 
 	rcu_read_lock();
 
+=======
+	struct ath_dynack *da = &ah->dynack;
+	u32 ackto, ack_ts, max_to;
+	struct ieee80211_sta *sta;
+	struct ts_info *st_ts;
+	struct ath_node *an;
+	u8 *dst, *src;
+
+	rcu_read_lock();
+
+	max_to = ath_dynack_get_max_to(ah);
+>>>>>>> upstream/android-13
 	while (da->st_rbf.h_rb != da->st_rbf.t_rb &&
 	       da->ack_rbf.h_rb != da->ack_rbf.t_rb) {
 		ack_ts = da->ack_rbf.tstamp[da->ack_rbf.h_rb];
@@ -140,7 +211,11 @@ static void ath_dynack_compute_to(struct ath_hw *ah)
 		if (ack_ts > st_ts->tstamp + st_ts->dur) {
 			ackto = ack_ts - st_ts->tstamp - st_ts->dur;
 
+<<<<<<< HEAD
 			if (ackto < MAX_DELAY) {
+=======
+			if (ackto < max_to) {
+>>>>>>> upstream/android-13
 				sta = ieee80211_find_sta_by_ifaddr(ah->hw, dst,
 								   src);
 				if (sta) {
@@ -178,11 +253,19 @@ void ath_dynack_sample_tx_ts(struct ath_hw *ah, struct sk_buff *skb,
 			     struct ath_tx_status *ts,
 			     struct ieee80211_sta *sta)
 {
+<<<<<<< HEAD
 	u8 ridx;
+=======
+>>>>>>> upstream/android-13
 	struct ieee80211_hdr *hdr;
 	struct ath_dynack *da = &ah->dynack;
 	struct ath_common *common = ath9k_hw_common(ah);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+<<<<<<< HEAD
+=======
+	u32 dur = ts->duration;
+	u8 ridx;
+>>>>>>> upstream/android-13
 
 	if (!da->enabled || (info->flags & IEEE80211_TX_CTL_NO_ACK))
 		return;
@@ -196,11 +279,18 @@ void ath_dynack_sample_tx_ts(struct ath_hw *ah, struct sk_buff *skb,
 		if (ieee80211_is_assoc_req(hdr->frame_control) ||
 		    ieee80211_is_assoc_resp(hdr->frame_control) ||
 		    ieee80211_is_auth(hdr->frame_control)) {
+<<<<<<< HEAD
 			ath_dbg(common, DYNACK, "late ack\n");
 
 			ath9k_hw_setslottime(ah, (LATEACK_TO - 3) / 2);
 			ath9k_hw_set_ack_timeout(ah, LATEACK_TO);
 			ath9k_hw_set_cts_timeout(ah, LATEACK_TO);
+=======
+			u32 max_to = ath_dynack_get_max_to(ah);
+
+			ath_dbg(common, DYNACK, "late ack\n");
+			ath_dynack_set_timeout(ah, max_to);
+>>>>>>> upstream/android-13
 			if (sta) {
 				struct ath_node *an;
 
@@ -217,6 +307,7 @@ void ath_dynack_sample_tx_ts(struct ath_hw *ah, struct sk_buff *skb,
 	ridx = ts->ts_rateindex;
 
 	da->st_rbf.ts[da->st_rbf.t_rb].tstamp = ts->ts_tstamp;
+<<<<<<< HEAD
 	da->st_rbf.ts[da->st_rbf.t_rb].dur = ts->duration;
 	ether_addr_copy(da->st_rbf.addr[da->st_rbf.t_rb].h_dest, hdr->addr1);
 	ether_addr_copy(da->st_rbf.addr[da->st_rbf.t_rb].h_src, hdr->addr2);
@@ -225,6 +316,19 @@ void ath_dynack_sample_tx_ts(struct ath_hw *ah, struct sk_buff *skb,
 		u32 phy, sifs;
 		const struct ieee80211_rate *rate;
 		struct ieee80211_tx_rate *rates = info->status.rates;
+=======
+
+	/* ether_addr_copy() gives a false warning on gcc-10 so use memcpy()
+	 * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=97490
+	 */
+	memcpy(da->st_rbf.addr[da->st_rbf.t_rb].h_dest, hdr->addr1, ETH_ALEN);
+	memcpy(da->st_rbf.addr[da->st_rbf.t_rb].h_src, hdr->addr2, ETH_ALEN);
+
+	if (!(info->status.rates[ridx].flags & IEEE80211_TX_RC_MCS)) {
+		const struct ieee80211_rate *rate;
+		struct ieee80211_tx_rate *rates = info->status.rates;
+		u32 phy;
+>>>>>>> upstream/android-13
 
 		rate = &common->sbands[info->band].bitrates[rates[ridx].idx];
 		if (info->band == NL80211_BAND_2GHZ &&
@@ -233,6 +337,7 @@ void ath_dynack_sample_tx_ts(struct ath_hw *ah, struct sk_buff *skb,
 		else
 			phy = WLAN_RC_PHY_OFDM;
 
+<<<<<<< HEAD
 		sifs = ath_dynack_get_sifs(ah, phy);
 		da->st_rbf.ts[da->st_rbf.t_rb].dur -= sifs;
 	}
@@ -241,11 +346,23 @@ void ath_dynack_sample_tx_ts(struct ath_hw *ah, struct sk_buff *skb,
 		hdr->addr1, da->st_rbf.ts[da->st_rbf.t_rb].tstamp,
 		da->st_rbf.ts[da->st_rbf.t_rb].dur, da->st_rbf.h_rb,
 		(da->st_rbf.t_rb + 1) % ATH_DYN_BUF);
+=======
+		dur -= ath_dynack_get_sifs(ah, phy);
+	}
+	da->st_rbf.ts[da->st_rbf.t_rb].dur = dur;
+>>>>>>> upstream/android-13
 
 	INCR(da->st_rbf.t_rb, ATH_DYN_BUF);
 	if (da->st_rbf.t_rb == da->st_rbf.h_rb)
 		INCR(da->st_rbf.h_rb, ATH_DYN_BUF);
 
+<<<<<<< HEAD
+=======
+	ath_dbg(common, DYNACK, "{%pM} tx sample %u [dur %u][h %u-t %u]\n",
+		hdr->addr1, ts->ts_tstamp, dur, da->st_rbf.h_rb,
+		da->st_rbf.t_rb);
+
+>>>>>>> upstream/android-13
 	ath_dynack_compute_to(ah);
 
 	spin_unlock_bh(&da->qlock);
@@ -272,14 +389,23 @@ void ath_dynack_sample_ack_ts(struct ath_hw *ah, struct sk_buff *skb,
 	spin_lock_bh(&da->qlock);
 	da->ack_rbf.tstamp[da->ack_rbf.t_rb] = ts;
 
+<<<<<<< HEAD
 	ath_dbg(common, DYNACK, "rx sample %u [h %u-t %u]\n",
 		da->ack_rbf.tstamp[da->ack_rbf.t_rb],
 		da->ack_rbf.h_rb, (da->ack_rbf.t_rb + 1) % ATH_DYN_BUF);
 
+=======
+>>>>>>> upstream/android-13
 	INCR(da->ack_rbf.t_rb, ATH_DYN_BUF);
 	if (da->ack_rbf.t_rb == da->ack_rbf.h_rb)
 		INCR(da->ack_rbf.h_rb, ATH_DYN_BUF);
 
+<<<<<<< HEAD
+=======
+	ath_dbg(common, DYNACK, "rx sample %u [h %u-t %u]\n",
+		ts, da->ack_rbf.h_rb, da->ack_rbf.t_rb);
+
+>>>>>>> upstream/android-13
 	ath_dynack_compute_to(ah);
 
 	spin_unlock_bh(&da->qlock);
@@ -294,11 +420,17 @@ EXPORT_SYMBOL(ath_dynack_sample_ack_ts);
  */
 void ath_dynack_node_init(struct ath_hw *ah, struct ath_node *an)
 {
+<<<<<<< HEAD
 	/* ackto = slottime + sifs + air delay */
 	u32 ackto = 9 + 16 + 64;
 	struct ath_dynack *da = &ah->dynack;
 
 	an->ackto = ackto;
+=======
+	struct ath_dynack *da = &ah->dynack;
+
+	an->ackto = da->ackto;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&da->qlock);
 	list_add_tail(&an->list, &da->nodes);
@@ -329,22 +461,42 @@ EXPORT_SYMBOL(ath_dynack_node_deinit);
  */
 void ath_dynack_reset(struct ath_hw *ah)
 {
+<<<<<<< HEAD
 	/* ackto = slottime + sifs + air delay */
 	u32 ackto = 9 + 16 + 64;
 	struct ath_dynack *da = &ah->dynack;
 
 	da->lto = jiffies;
 	da->ackto = ackto;
+=======
+	struct ath_dynack *da = &ah->dynack;
+	struct ath_node *an;
+
+	spin_lock_bh(&da->qlock);
+
+	da->lto = jiffies + COMPUTE_TO;
+>>>>>>> upstream/android-13
 
 	da->st_rbf.t_rb = 0;
 	da->st_rbf.h_rb = 0;
 	da->ack_rbf.t_rb = 0;
 	da->ack_rbf.h_rb = 0;
 
+<<<<<<< HEAD
 	/* init acktimeout */
 	ath9k_hw_setslottime(ah, (ackto - 3) / 2);
 	ath9k_hw_set_ack_timeout(ah, ackto);
 	ath9k_hw_set_cts_timeout(ah, ackto);
+=======
+	da->ackto = ath_dynack_get_max_to(ah);
+	list_for_each_entry(an, &da->nodes, list)
+		an->ackto = da->ackto;
+
+	/* init acktimeout */
+	ath_dynack_set_timeout(ah, da->ackto);
+
+	spin_unlock_bh(&da->qlock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ath_dynack_reset);
 
@@ -361,6 +513,11 @@ void ath_dynack_init(struct ath_hw *ah)
 
 	spin_lock_init(&da->qlock);
 	INIT_LIST_HEAD(&da->nodes);
+<<<<<<< HEAD
+=======
+	/* ackto = slottime + sifs + air delay */
+	da->ackto = 9 + 16 + 64;
+>>>>>>> upstream/android-13
 
 	ah->hw->wiphy->features |= NL80211_FEATURE_ACKTO_ESTIMATION;
 }

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
  * Copyright (C) Terry Dawson VK2KTJ (terry@animats.net)
@@ -346,10 +351,18 @@ static int rose_del_node(struct rose_route_struct *rose_route,
 				case 0:
 					rose_node->neighbour[0] =
 						rose_node->neighbour[1];
+<<<<<<< HEAD
 					/* fall through */
 				case 1:
 					rose_node->neighbour[1] =
 						rose_node->neighbour[2];
+=======
+					fallthrough;
+				case 1:
+					rose_node->neighbour[1] =
+						rose_node->neighbour[2];
+					break;
+>>>>>>> upstream/android-13
 				case 2:
 					break;
 				}
@@ -508,9 +521,16 @@ void rose_rt_device_down(struct net_device *dev)
 				switch (i) {
 				case 0:
 					t->neighbour[0] = t->neighbour[1];
+<<<<<<< HEAD
 					/* fall through */
 				case 1:
 					t->neighbour[1] = t->neighbour[2];
+=======
+					fallthrough;
+				case 1:
+					t->neighbour[1] = t->neighbour[2];
+					break;
+>>>>>>> upstream/android-13
 				case 2:
 					break;
 				}
@@ -699,7 +719,10 @@ struct rose_neigh *rose_get_neigh(rose_address *addr, unsigned char *cause,
 				for (i = 0; i < node->count; i++) {
 					if (!rose_ftimer_running(node->neighbour[i])) {
 						res = node->neighbour[i];
+<<<<<<< HEAD
 						failed = 0;
+=======
+>>>>>>> upstream/android-13
 						goto out;
 					}
 					failed = 1;

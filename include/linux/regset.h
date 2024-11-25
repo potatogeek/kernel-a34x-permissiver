@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * User-mode machine state access
  *
  * Copyright (C) 2007 Red Hat, Inc.  All rights reserved.
  *
+<<<<<<< HEAD
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2.
  *
+=======
+>>>>>>> upstream/android-13
  * Red Hat Author: Roland McGrath.
  */
 
@@ -20,6 +27,67 @@
 struct task_struct;
 struct user_regset;
 
+<<<<<<< HEAD
+=======
+struct membuf {
+	void *p;
+	size_t left;
+};
+
+static inline int membuf_zero(struct membuf *s, size_t size)
+{
+	if (s->left) {
+		if (size > s->left)
+			size = s->left;
+		memset(s->p, 0, size);
+		s->p += size;
+		s->left -= size;
+	}
+	return s->left;
+}
+
+static inline int membuf_write(struct membuf *s, const void *v, size_t size)
+{
+	if (s->left) {
+		if (size > s->left)
+			size = s->left;
+		memcpy(s->p, v, size);
+		s->p += size;
+		s->left -= size;
+	}
+	return s->left;
+}
+
+static inline struct membuf membuf_at(const struct membuf *s, size_t offs)
+{
+	struct membuf n = *s;
+
+	if (offs > n.left)
+		offs = n.left;
+	n.p += offs;
+	n.left -= offs;
+
+	return n;
+}
+
+/* current s->p must be aligned for v; v must be a scalar */
+#define membuf_store(s, v)				\
+({							\
+	struct membuf *__s = (s);			\
+        if (__s->left) {				\
+		typeof(v) __v = (v);			\
+		size_t __size = sizeof(__v);		\
+		if (unlikely(__size > __s->left)) {	\
+			__size = __s->left;		\
+			memcpy(__s->p, &__v, __size);	\
+		} else {				\
+			*(typeof(__v + 0) *)__s->p = __v;	\
+		}					\
+		__s->p += __size;			\
+		__s->left -= __size;			\
+	}						\
+	__s->left;})
+>>>>>>> upstream/android-13
 
 /**
  * user_regset_active_fn - type of @active function in &struct user_regset
@@ -39,6 +107,7 @@ struct user_regset;
 typedef int user_regset_active_fn(struct task_struct *target,
 				  const struct user_regset *regset);
 
+<<<<<<< HEAD
 /**
  * user_regset_get_fn - type of @get function in &struct user_regset
  * @target:	thread being examined
@@ -59,6 +128,11 @@ typedef int user_regset_get_fn(struct task_struct *target,
 			       const struct user_regset *regset,
 			       unsigned int pos, unsigned int count,
 			       void *kbuf, void __user *ubuf);
+=======
+typedef int user_regset_get2_fn(struct task_struct *target,
+			       const struct user_regset *regset,
+			       struct membuf to);
+>>>>>>> upstream/android-13
 
 /**
  * user_regset_set_fn - type of @set function in &struct user_regset
@@ -107,6 +181,7 @@ typedef int user_regset_writeback_fn(struct task_struct *target,
 				     int immediate);
 
 /**
+<<<<<<< HEAD
  * user_regset_get_size_fn - type of @get_size function in &struct user_regset
  * @target:	thread being examined
  * @regset:	regset being examined
@@ -129,6 +204,8 @@ typedef unsigned int user_regset_get_size_fn(struct task_struct *target,
 					     const struct user_regset *regset);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct user_regset - accessible thread CPU state
  * @n:			Number of slots (registers).
  * @size:		Size in bytes of a slot (register).
@@ -139,7 +216,10 @@ typedef unsigned int user_regset_get_size_fn(struct task_struct *target,
  * @set:		Function to store values.
  * @active:		Function to report if regset is active, or %NULL.
  * @writeback:		Function to write data back to user memory, or %NULL.
+<<<<<<< HEAD
  * @get_size:		Function to return the regset's size, or %NULL.
+=======
+>>>>>>> upstream/android-13
  *
  * This data structure describes a machine resource we call a register set.
  * This is part of the state of an individual thread, not necessarily
@@ -147,12 +227,16 @@ typedef unsigned int user_regset_get_size_fn(struct task_struct *target,
  * similar slots, given by @n.  Each slot is @size bytes, and aligned to
  * @align bytes (which is at least @size).  For dynamically-sized
  * regsets, @n must contain the maximum possible number of slots for the
+<<<<<<< HEAD
  * regset, and @get_size must point to a function that returns the
  * current regset size.
  *
  * Callers that need to know only the current size of the regset and do
  * not care about its internal structure should call regset_size()
  * instead of inspecting @n or calling @get_size.
+=======
+ * regset.
+>>>>>>> upstream/android-13
  *
  * For backward compatibility, the @get and @set methods must pad to, or
  * accept, @n * @size bytes, even if the current regset size is smaller.
@@ -188,11 +272,18 @@ typedef unsigned int user_regset_get_size_fn(struct task_struct *target,
  * omitted when there is an @active function and it returns zero.
  */
 struct user_regset {
+<<<<<<< HEAD
 	user_regset_get_fn		*get;
 	user_regset_set_fn		*set;
 	user_regset_active_fn		*active;
 	user_regset_writeback_fn	*writeback;
 	user_regset_get_size_fn		*get_size;
+=======
+	user_regset_get2_fn		*regset_get;
+	user_regset_set_fn		*set;
+	user_regset_active_fn		*active;
+	user_regset_writeback_fn	*writeback;
+>>>>>>> upstream/android-13
 	unsigned int			n;
 	unsigned int 			size;
 	unsigned int 			align;
@@ -241,6 +332,7 @@ struct user_regset_view {
  */
 const struct user_regset_view *task_user_regset_view(struct task_struct *tsk);
 
+<<<<<<< HEAD
 
 /*
  * These are helpers for writing regset get/set functions in arch code.
@@ -279,6 +371,8 @@ static inline int user_regset_copyout(unsigned int *pos, unsigned int *count,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int user_regset_copyin(unsigned int *pos, unsigned int *count,
 				     const void **kbuf,
 				     const void __user **ubuf, void *data,
@@ -304,6 +398,7 @@ static inline int user_regset_copyin(unsigned int *pos, unsigned int *count,
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * These two parallel the two above, but for portions of a regset layout
  * that always read as all-zero or for which writes are ignored.
@@ -333,6 +428,8 @@ static inline int user_regset_copyout_zero(unsigned int *pos,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int user_regset_copyin_ignore(unsigned int *pos,
 					    unsigned int *count,
 					    const void **kbuf,
@@ -356,6 +453,7 @@ static inline int user_regset_copyin_ignore(unsigned int *pos,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * copy_regset_to_user - fetch a thread's user_regset data into user memory
  * @target:	thread to be examined
@@ -381,6 +479,21 @@ static inline int copy_regset_to_user(struct task_struct *target,
 
 	return regset->get(target, regset, offset, size, NULL, data);
 }
+=======
+extern int regset_get(struct task_struct *target,
+		      const struct user_regset *regset,
+		      unsigned int size, void *data);
+
+extern int regset_get_alloc(struct task_struct *target,
+			    const struct user_regset *regset,
+			    unsigned int size,
+			    void **data);
+
+extern int copy_regset_to_user(struct task_struct *target,
+			       const struct user_regset_view *view,
+			       unsigned int setno, unsigned int offset,
+			       unsigned int size, void __user *data);
+>>>>>>> upstream/android-13
 
 /**
  * copy_regset_from_user - store into thread's user_regset data from user memory
@@ -402,12 +515,17 @@ static inline int copy_regset_from_user(struct task_struct *target,
 	if (!regset->set)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, data, size))
+=======
+	if (!access_ok(data, size))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	return regset->set(target, regset, offset, size, NULL, data);
 }
 
+<<<<<<< HEAD
 /**
  * regset_size - determine the current size of a regset
  * @target:	thread to be examined
@@ -425,4 +543,6 @@ static inline unsigned int regset_size(struct task_struct *target,
 		return regset->get_size(target, regset);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* <linux/regset.h> */

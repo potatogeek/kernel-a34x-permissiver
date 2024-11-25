@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/net/sunrpc/stats.c
  *
@@ -68,12 +72,20 @@ static int rpc_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, rpc_proc_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations rpc_proc_fops = {
 	.owner = THIS_MODULE,
 	.open = rpc_proc_open,
 	.read  = seq_read,
 	.llseek = seq_lseek,
 	.release = single_release,
+=======
+static const struct proc_ops rpc_proc_ops = {
+	.proc_open	= rpc_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -176,6 +188,11 @@ void rpc_count_iostats_metrics(const struct rpc_task *task,
 
 	execute = ktime_sub(now, task->tk_start);
 	op_metrics->om_execute = ktime_add(op_metrics->om_execute, execute);
+<<<<<<< HEAD
+=======
+	if (task->tk_status < 0)
+		op_metrics->om_error_status++;
+>>>>>>> upstream/android-13
 
 	spin_unlock(&op_metrics->om_lock);
 
@@ -218,13 +235,21 @@ static void _add_rpc_iostats(struct rpc_iostats *a, struct rpc_iostats *b)
 	a->om_queue = ktime_add(a->om_queue, b->om_queue);
 	a->om_rtt = ktime_add(a->om_rtt, b->om_rtt);
 	a->om_execute = ktime_add(a->om_execute, b->om_execute);
+<<<<<<< HEAD
+=======
+	a->om_error_status += b->om_error_status;
+>>>>>>> upstream/android-13
 }
 
 static void _print_rpc_iostats(struct seq_file *seq, struct rpc_iostats *stats,
 			       int op, const struct rpc_procinfo *procs)
 {
 	_print_name(seq, op, procs);
+<<<<<<< HEAD
 	seq_printf(seq, "%lu %lu %lu %Lu %Lu %Lu %Lu %Lu\n",
+=======
+	seq_printf(seq, "%lu %lu %lu %llu %llu %llu %llu %llu %lu\n",
+>>>>>>> upstream/android-13
 		   stats->om_ops,
 		   stats->om_ntrans,
 		   stats->om_timeouts,
@@ -232,12 +257,28 @@ static void _print_rpc_iostats(struct seq_file *seq, struct rpc_iostats *stats,
 		   stats->om_bytes_recv,
 		   ktime_to_ms(stats->om_queue),
 		   ktime_to_ms(stats->om_rtt),
+<<<<<<< HEAD
 		   ktime_to_ms(stats->om_execute));
+=======
+		   ktime_to_ms(stats->om_execute),
+		   stats->om_error_status);
+}
+
+static int do_print_stats(struct rpc_clnt *clnt, struct rpc_xprt *xprt, void *seqv)
+{
+	struct seq_file *seq = seqv;
+
+	xprt->ops->print_stats(xprt, seq);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void rpc_clnt_show_stats(struct seq_file *seq, struct rpc_clnt *clnt)
 {
+<<<<<<< HEAD
 	struct rpc_xprt *xprt;
+=======
+>>>>>>> upstream/android-13
 	unsigned int op, maxproc = clnt->cl_maxproc;
 
 	if (!clnt->cl_metrics)
@@ -247,11 +288,15 @@ void rpc_clnt_show_stats(struct seq_file *seq, struct rpc_clnt *clnt)
 	seq_printf(seq, "p/v: %u/%u (%s)\n",
 			clnt->cl_prog, clnt->cl_vers, clnt->cl_program->name);
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	xprt = rcu_dereference(clnt->cl_xprt);
 	if (xprt)
 		xprt->ops->print_stats(xprt, seq);
 	rcu_read_unlock();
+=======
+	rpc_clnt_iterate_for_each_xprt(clnt, do_print_stats, seq);
+>>>>>>> upstream/android-13
 
 	seq_printf(seq, "\tper-op statistics\n");
 	for (op = 0; op < maxproc; op++) {
@@ -273,19 +318,31 @@ EXPORT_SYMBOL_GPL(rpc_clnt_show_stats);
  */
 static inline struct proc_dir_entry *
 do_register(struct net *net, const char *name, void *data,
+<<<<<<< HEAD
 	    const struct file_operations *fops)
+=======
+	    const struct proc_ops *proc_ops)
+>>>>>>> upstream/android-13
 {
 	struct sunrpc_net *sn;
 
 	dprintk("RPC:       registering /proc/net/rpc/%s\n", name);
 	sn = net_generic(net, sunrpc_net_id);
+<<<<<<< HEAD
 	return proc_create_data(name, 0, sn->proc_net_rpc, fops, data);
+=======
+	return proc_create_data(name, 0, sn->proc_net_rpc, proc_ops, data);
+>>>>>>> upstream/android-13
 }
 
 struct proc_dir_entry *
 rpc_proc_register(struct net *net, struct rpc_stat *statp)
 {
+<<<<<<< HEAD
 	return do_register(net, statp->program->name, statp, &rpc_proc_fops);
+=======
+	return do_register(net, statp->program->name, statp, &rpc_proc_ops);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rpc_proc_register);
 
@@ -300,9 +357,15 @@ rpc_proc_unregister(struct net *net, const char *name)
 EXPORT_SYMBOL_GPL(rpc_proc_unregister);
 
 struct proc_dir_entry *
+<<<<<<< HEAD
 svc_proc_register(struct net *net, struct svc_stat *statp, const struct file_operations *fops)
 {
 	return do_register(net, statp->program->pg_name, statp, fops);
+=======
+svc_proc_register(struct net *net, struct svc_stat *statp, const struct proc_ops *proc_ops)
+{
+	return do_register(net, statp->program->pg_name, statp, proc_ops);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(svc_proc_register);
 

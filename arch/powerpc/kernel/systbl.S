@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * This file contains the table of syscall-handling functions.
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -7,15 +11,19 @@
  *
  * Adapted for iSeries by Mike Corrigan (mikejc@us.ibm.com)
  * PPC64 updates by Dave Engebretsen (engebret@us.ibm.com) 
+<<<<<<< HEAD
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/ppc_asm.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 #define SYSCALL(func)		.8byte	DOTSYM(sys_##func),DOTSYM(sys_##func)
 #define COMPAT_SYS(func)	.8byte	DOTSYM(sys_##func),DOTSYM(compat_sys_##func)
@@ -38,13 +46,40 @@
 #define COMPAT_SPU_NEW(func)	COMPAT_SYS(func)
 #define SYSX_SPU(f, f3264, f32)	SYSX(f, f3264, f32)
 
+=======
+>>>>>>> upstream/android-13
 .section .rodata,"a"
 
 #ifdef CONFIG_PPC64
 	.p2align	3
+<<<<<<< HEAD
 #endif
 
 .globl sys_call_table
 sys_call_table:
 
 #include <asm/systbl.h>
+=======
+#define __SYSCALL(nr, entry)	.8byte entry
+#else
+#define __SYSCALL(nr, entry)	.long entry
+#endif
+
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
+.globl sys_call_table
+sys_call_table:
+#ifdef CONFIG_PPC64
+#include <asm/syscall_table_64.h>
+#else
+#include <asm/syscall_table_32.h>
+#endif
+
+#ifdef CONFIG_COMPAT
+#undef __SYSCALL_WITH_COMPAT
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, compat)
+.globl compat_sys_call_table
+compat_sys_call_table:
+#define compat_sys_sigsuspend	sys_sigsuspend
+#include <asm/syscall_table_32.h>
+#endif
+>>>>>>> upstream/android-13

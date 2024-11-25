@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  IUCV protocol stack for Linux on zSeries
  *
@@ -15,6 +19,10 @@
 #include <linux/module.h>
 #include <linux/netdevice.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <linux/limits.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
@@ -35,8 +43,11 @@
 
 static char iucv_userid[80];
 
+<<<<<<< HEAD
 static const struct proto_ops iucv_sock_ops;
 
+=======
+>>>>>>> upstream/android-13
 static struct proto iucv_proto = {
 	.name		= "AF_IUCV",
 	.owner		= THIS_MODULE,
@@ -44,12 +55,20 @@ static struct proto iucv_proto = {
 };
 
 static struct iucv_interface *pr_iucv;
+<<<<<<< HEAD
+=======
+static struct iucv_handler af_iucv_handler;
+>>>>>>> upstream/android-13
 
 /* special AF_IUCV IPRM messages */
 static const u8 iprm_shutdown[8] =
 	{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
 
+<<<<<<< HEAD
 #define TRGCLS_SIZE	(sizeof(((struct iucv_message *)0)->class))
+=======
+#define TRGCLS_SIZE	sizeof_field(struct iucv_message, class)
+>>>>>>> upstream/android-13
 
 #define __iucv_sock_wait(sk, condition, timeo, ret)			\
 do {									\
@@ -84,6 +103,7 @@ do {									\
 	__ret;								\
 })
 
+<<<<<<< HEAD
 static void iucv_sock_kill(struct sock *sk);
 static void iucv_sock_close(struct sock *sk);
 static void iucv_sever_path(struct sock *, int);
@@ -101,12 +121,21 @@ static void iucv_callback_connack(struct iucv_path *, u8 *);
 static int iucv_callback_connreq(struct iucv_path *, u8 *, u8 *);
 static void iucv_callback_connrej(struct iucv_path *, u8 *);
 static void iucv_callback_shutdown(struct iucv_path *, u8 *);
+=======
+static struct sock *iucv_accept_dequeue(struct sock *parent,
+					struct socket *newsock);
+static void iucv_sock_kill(struct sock *sk);
+static void iucv_sock_close(struct sock *sk);
+
+static void afiucv_hs_callback_txnotify(struct sock *sk, enum iucv_tx_notify);
+>>>>>>> upstream/android-13
 
 static struct iucv_sock_list iucv_sk_list = {
 	.lock = __RW_LOCK_UNLOCKED(iucv_sk_list.lock),
 	.autobind_name = ATOMIC_INIT(0)
 };
 
+<<<<<<< HEAD
 static struct iucv_handler af_iucv_handler = {
 	.path_pending	  = iucv_callback_connreq,
 	.path_complete	  = iucv_callback_connack,
@@ -116,6 +145,8 @@ static struct iucv_handler af_iucv_handler = {
 	.path_quiesced	  = iucv_callback_shutdown,
 };
 
+=======
+>>>>>>> upstream/android-13
 static inline void high_nmcpy(unsigned char *dst, char *src)
 {
        memcpy(dst, src, 8);
@@ -126,6 +157,7 @@ static inline void low_nmcpy(unsigned char *dst, char *src)
        memcpy(&dst[8], src, 8);
 }
 
+<<<<<<< HEAD
 static int afiucv_pm_prepare(struct device *dev)
 {
 #ifdef CONFIG_PM_DEBUG
@@ -230,6 +262,8 @@ static struct device_driver af_iucv_driver = {
 /* dummy device used as trigger for PM functions */
 static struct device *af_iucv_dev;
 
+=======
+>>>>>>> upstream/android-13
 /**
  * iucv_msg_length() - Returns the length of an iucv message.
  * @msg:	Pointer to struct iucv_message, MUST NOT be NULL
@@ -289,7 +323,11 @@ static inline int iucv_below_msglim(struct sock *sk)
 	if (sk->sk_state != IUCV_CONNECTED)
 		return 1;
 	if (iucv->transport == AF_IUCV_TRANS_IUCV)
+<<<<<<< HEAD
 		return (skb_queue_len(&iucv->send_skb_q) < iucv->path->msglim);
+=======
+		return (atomic_read(&iucv->skbs_in_xmit) < iucv->path->msglim);
+>>>>>>> upstream/android-13
 	else
 		return ((atomic_read(&iucv->msg_sent) < iucv->msglimit_peer) &&
 			(atomic_read(&iucv->pendings) <= 0));
@@ -318,6 +356,7 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
 {
 	struct iucv_sock *iucv = iucv_sk(sock);
 	struct af_iucv_trans_hdr *phs_hdr;
+<<<<<<< HEAD
 	struct sk_buff *nskb;
 	int err, confirm_recv = 0;
 
@@ -328,6 +367,13 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
 	skb_push(skb, ETH_HLEN);
 	skb_reset_mac_header(skb);
 	memset(phs_hdr, 0, sizeof(struct af_iucv_trans_hdr));
+=======
+	int err, confirm_recv = 0;
+
+	phs_hdr = skb_push(skb, sizeof(*phs_hdr));
+	memset(phs_hdr, 0, sizeof(*phs_hdr));
+	skb_reset_network_header(skb);
+>>>>>>> upstream/android-13
 
 	phs_hdr->magic = ETH_P_AF_IUCV;
 	phs_hdr->version = 1;
@@ -368,6 +414,7 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
 			err = -EMSGSIZE;
 			goto err_free;
 		}
+<<<<<<< HEAD
 		skb_trim(skb, skb->dev->mtu);
 	}
 	skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
@@ -384,6 +431,18 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
 	if (net_xmit_eval(err)) {
 		skb_unlink(nskb, &iucv->send_skb_q);
 		kfree_skb(nskb);
+=======
+		err = pskb_trim(skb, skb->dev->mtu);
+		if (err)
+			goto err_free;
+	}
+	skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
+
+	atomic_inc(&iucv->skbs_in_xmit);
+	err = dev_queue_xmit(skb);
+	if (net_xmit_eval(err)) {
+		atomic_dec(&iucv->skbs_in_xmit);
+>>>>>>> upstream/android-13
 	} else {
 		atomic_sub(confirm_recv, &iucv->msg_recv);
 		WARN_ON(atomic_read(&iucv->msg_recv) < 0);
@@ -438,6 +497,23 @@ static void iucv_sock_cleanup_listen(struct sock *parent)
 	parent->sk_state = IUCV_CLOSED;
 }
 
+<<<<<<< HEAD
+=======
+static void iucv_sock_link(struct iucv_sock_list *l, struct sock *sk)
+{
+	write_lock_bh(&l->lock);
+	sk_add_node(sk, &l->head);
+	write_unlock_bh(&l->lock);
+}
+
+static void iucv_sock_unlink(struct iucv_sock_list *l, struct sock *sk)
+{
+	write_lock_bh(&l->lock);
+	sk_del_node_init(sk);
+	write_unlock_bh(&l->lock);
+}
+
+>>>>>>> upstream/android-13
 /* Kill socket (only if zapped and orphaned) */
 static void iucv_sock_kill(struct sock *sk)
 {
@@ -515,11 +591,21 @@ static void iucv_sock_close(struct sock *sk)
 			sk->sk_state = IUCV_DISCONN;
 			sk->sk_state_change(sk);
 		}
+<<<<<<< HEAD
 	case IUCV_DISCONN:   /* fall through */
 		sk->sk_state = IUCV_CLOSING;
 		sk->sk_state_change(sk);
 
 		if (!err && !skb_queue_empty(&iucv->send_skb_q)) {
+=======
+		fallthrough;
+
+	case IUCV_DISCONN:
+		sk->sk_state = IUCV_CLOSING;
+		sk->sk_state_change(sk);
+
+		if (!err && atomic_read(&iucv->skbs_in_xmit) > 0) {
+>>>>>>> upstream/android-13
 			if (sock_flag(sk, SOCK_LINGER) && sk->sk_lingertime)
 				timeo = sk->sk_lingertime;
 			else
@@ -528,8 +614,14 @@ static void iucv_sock_close(struct sock *sk)
 					iucv_sock_in_state(sk, IUCV_CLOSED, 0),
 					timeo);
 		}
+<<<<<<< HEAD
 
 	case IUCV_CLOSING:   /* fall through */
+=======
+		fallthrough;
+
+	case IUCV_CLOSING:
+>>>>>>> upstream/android-13
 		sk->sk_state = IUCV_CLOSED;
 		sk->sk_state_change(sk);
 
@@ -538,8 +630,14 @@ static void iucv_sock_close(struct sock *sk)
 
 		skb_queue_purge(&iucv->send_skb_q);
 		skb_queue_purge(&iucv->backlog_skb_q);
+<<<<<<< HEAD
 
 	default:   /* fall through */
+=======
+		fallthrough;
+
+	default:
+>>>>>>> upstream/android-13
 		iucv_sever_path(sk, 1);
 	}
 
@@ -584,6 +682,10 @@ static struct sock *iucv_sock_alloc(struct socket *sock, int proto, gfp_t prio, 
 	atomic_set(&iucv->pendings, 0);
 	iucv->flags = 0;
 	iucv->msglimit = 0;
+<<<<<<< HEAD
+=======
+	atomic_set(&iucv->skbs_in_xmit, 0);
+>>>>>>> upstream/android-13
 	atomic_set(&iucv->msg_sent, 0);
 	atomic_set(&iucv->msg_recv, 0);
 	iucv->path = NULL;
@@ -596,7 +698,10 @@ static struct sock *iucv_sock_alloc(struct socket *sock, int proto, gfp_t prio, 
 
 	sk->sk_destruct = iucv_sock_destruct;
 	sk->sk_sndtimeo = IUCV_CONN_TIMEOUT;
+<<<<<<< HEAD
 	sk->sk_allocation = GFP_DMA;
+=======
+>>>>>>> upstream/android-13
 
 	sock_reset_flag(sk, SOCK_ZAPPED);
 
@@ -607,6 +712,7 @@ static struct sock *iucv_sock_alloc(struct socket *sock, int proto, gfp_t prio, 
 	return sk;
 }
 
+<<<<<<< HEAD
 /* Create an IUCV socket */
 static int iucv_sock_create(struct net *net, struct socket *sock, int protocol,
 			    int kern)
@@ -654,6 +760,9 @@ void iucv_sock_unlink(struct iucv_sock_list *l, struct sock *sk)
 }
 
 void iucv_accept_enqueue(struct sock *parent, struct sock *sk)
+=======
+static void iucv_accept_enqueue(struct sock *parent, struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct iucv_sock *par = iucv_sk(parent);
@@ -666,7 +775,11 @@ void iucv_accept_enqueue(struct sock *parent, struct sock *sk)
 	sk_acceptq_added(parent);
 }
 
+<<<<<<< HEAD
 void iucv_accept_unlink(struct sock *sk)
+=======
+static void iucv_accept_unlink(struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct iucv_sock *par = iucv_sk(iucv_sk(sk)->parent);
@@ -679,7 +792,12 @@ void iucv_accept_unlink(struct sock *sk)
 	sock_put(sk);
 }
 
+<<<<<<< HEAD
 struct sock *iucv_accept_dequeue(struct sock *parent, struct socket *newsock)
+=======
+static struct sock *iucv_accept_dequeue(struct sock *parent,
+					struct socket *newsock)
+>>>>>>> upstream/android-13
 {
 	struct iucv_sock *isk, *n;
 	struct sock *sk;
@@ -726,12 +844,20 @@ static void __iucv_auto_name(struct iucv_sock *iucv)
 static int iucv_sock_bind(struct socket *sock, struct sockaddr *addr,
 			  int addr_len)
 {
+<<<<<<< HEAD
 	struct sockaddr_iucv *sa = (struct sockaddr_iucv *) addr;
+=======
+	DECLARE_SOCKADDR(struct sockaddr_iucv *, sa, addr);
+	char uid[sizeof(sa->siucv_user_id)];
+>>>>>>> upstream/android-13
 	struct sock *sk = sock->sk;
 	struct iucv_sock *iucv;
 	int err = 0;
 	struct net_device *dev;
+<<<<<<< HEAD
 	char uid[9];
+=======
+>>>>>>> upstream/android-13
 
 	/* Verify the input sockaddr */
 	if (addr_len < sizeof(struct sockaddr_iucv) ||
@@ -766,7 +892,11 @@ static int iucv_sock_bind(struct socket *sock, struct sockaddr *addr,
 	for_each_netdev_rcu(&init_net, dev) {
 		if (!memcmp(dev->perm_addr, uid, 8)) {
 			memcpy(iucv->src_user_id, sa->siucv_user_id, 8);
+<<<<<<< HEAD
 			/* Check for unitialized siucv_name */
+=======
+			/* Check for uninitialized siucv_name */
+>>>>>>> upstream/android-13
 			if (strncmp(sa->siucv_name, "        ", 8) == 0)
 				__iucv_auto_name(iucv);
 			else
@@ -790,6 +920,10 @@ vm_bind:
 		memcpy(iucv->src_user_id, iucv_userid, 8);
 		sk->sk_state = IUCV_BOUND;
 		iucv->transport = AF_IUCV_TRANS_IUCV;
+<<<<<<< HEAD
+=======
+		sk->sk_allocation |= GFP_DMA;
+>>>>>>> upstream/android-13
 		if (!iucv->msglimit)
 			iucv->msglimit = IUCV_QUEUELEN_DEFAULT;
 		goto done_unlock;
@@ -814,6 +948,11 @@ static int iucv_sock_autobind(struct sock *sk)
 		return -EPROTO;
 
 	memcpy(iucv->src_user_id, iucv_userid, 8);
+<<<<<<< HEAD
+=======
+	iucv->transport = AF_IUCV_TRANS_IUCV;
+	sk->sk_allocation |= GFP_DMA;
+>>>>>>> upstream/android-13
 
 	write_lock_bh(&iucv_sk_list.lock);
 	__iucv_auto_name(iucv);
@@ -827,7 +966,11 @@ static int iucv_sock_autobind(struct sock *sk)
 
 static int afiucv_path_connect(struct socket *sock, struct sockaddr *addr)
 {
+<<<<<<< HEAD
 	struct sockaddr_iucv *sa = (struct sockaddr_iucv *) addr;
+=======
+	DECLARE_SOCKADDR(struct sockaddr_iucv *, sa, addr);
+>>>>>>> upstream/android-13
 	struct sock *sk = sock->sk;
 	struct iucv_sock *iucv = iucv_sk(sk);
 	unsigned char user_data[16];
@@ -874,7 +1017,11 @@ done:
 static int iucv_sock_connect(struct socket *sock, struct sockaddr *addr,
 			     int alen, int flags)
 {
+<<<<<<< HEAD
 	struct sockaddr_iucv *sa = (struct sockaddr_iucv *) addr;
+=======
+	DECLARE_SOCKADDR(struct sockaddr_iucv *, sa, addr);
+>>>>>>> upstream/android-13
 	struct sock *sk = sock->sk;
 	struct iucv_sock *iucv = iucv_sk(sk);
 	int err;
@@ -1010,7 +1157,11 @@ done:
 static int iucv_sock_getname(struct socket *sock, struct sockaddr *addr,
 			     int peer)
 {
+<<<<<<< HEAD
 	struct sockaddr_iucv *siucv = (struct sockaddr_iucv *) addr;
+=======
+	DECLARE_SOCKADDR(struct sockaddr_iucv *, siucv, addr);
+>>>>>>> upstream/android-13
 	struct sock *sk = sock->sk;
 	struct iucv_sock *iucv = iucv_sk(sk);
 
@@ -1097,7 +1248,10 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 
 	/* initialize defaults */
 	cmsg_done   = 0;	/* check for duplicate headers */
+<<<<<<< HEAD
 	txmsg.class = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* iterate over control messages */
 	for_each_cmsghdr(cmsg, msg) {
@@ -1141,7 +1295,11 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 	if (iucv->transport == AF_IUCV_TRANS_HIPER) {
 		headroom = sizeof(struct af_iucv_trans_hdr) +
 			   LL_RESERVED_SPACE(iucv->hs_dev);
+<<<<<<< HEAD
 		linear = len;
+=======
+		linear = min(len, PAGE_SIZE - headroom);
+>>>>>>> upstream/android-13
 	} else {
 		if (len < PAGE_SIZE) {
 			linear = len;
@@ -1192,6 +1350,10 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 		}
 	} else { /* Classic VM IUCV transport */
 		skb_queue_tail(&iucv->send_skb_q, skb);
+<<<<<<< HEAD
+=======
+		atomic_inc(&iucv->skbs_in_xmit);
+>>>>>>> upstream/android-13
 
 		if (((iucv->path->flags & IUCV_IPRMDATA) & iucv->flags) &&
 		    skb->len <= 7) {
@@ -1200,14 +1362,24 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 			/* on success: there is no message_complete callback */
 			/* for an IPRMDATA msg; remove skb from send queue   */
 			if (err == 0) {
+<<<<<<< HEAD
 				skb_unlink(skb, &iucv->send_skb_q);
 				kfree_skb(skb);
+=======
+				atomic_dec(&iucv->skbs_in_xmit);
+				skb_unlink(skb, &iucv->send_skb_q);
+				consume_skb(skb);
+>>>>>>> upstream/android-13
 			}
 
 			/* this error should never happen since the	*/
 			/* IUCV_IPRMDATA path flag is set... sever path */
 			if (err == 0x15) {
 				pr_iucv->path_sever(iucv->path, NULL);
+<<<<<<< HEAD
+=======
+				atomic_dec(&iucv->skbs_in_xmit);
+>>>>>>> upstream/android-13
 				skb_unlink(skb, &iucv->send_skb_q);
 				err = -EPIPE;
 				goto fail;
@@ -1246,6 +1418,11 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 			} else {
 				err = -EPIPE;
 			}
+<<<<<<< HEAD
+=======
+
+			atomic_dec(&iucv->skbs_in_xmit);
+>>>>>>> upstream/android-13
 			skb_unlink(skb, &iucv->send_skb_q);
 			goto fail;
 		}
@@ -1447,7 +1624,11 @@ static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
 			}
 		}
 
+<<<<<<< HEAD
 		kfree_skb(skb);
+=======
+		consume_skb(skb);
+>>>>>>> upstream/android-13
 		if (iucv->transport == AF_IUCV_TRANS_HIPER) {
 			atomic_inc(&iucv->msg_recv);
 			if (atomic_read(&iucv->msg_recv) > iucv->msglimit) {
@@ -1508,8 +1689,13 @@ static inline __poll_t iucv_accept_poll(struct sock *parent)
 	return 0;
 }
 
+<<<<<<< HEAD
 __poll_t iucv_sock_poll(struct file *file, struct socket *sock,
 			    poll_table *wait)
+=======
+static __poll_t iucv_sock_poll(struct file *file, struct socket *sock,
+			       poll_table *wait)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	__poll_t mask = 0;
@@ -1632,7 +1818,11 @@ static int iucv_sock_release(struct socket *sock)
 
 /* getsockopt and setsockopt */
 static int iucv_sock_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 				char __user *optval, unsigned int optlen)
+=======
+				sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	struct iucv_sock *iucv = iucv_sk(sk);
@@ -1645,7 +1835,11 @@ static int iucv_sock_setsockopt(struct socket *sock, int level, int optname,
 	if (optlen < sizeof(int))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (get_user(val, (int __user *) optval))
+=======
+	if (copy_from_sockptr(&val, optval, sizeof(int)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	rc = 0;
@@ -1662,7 +1856,11 @@ static int iucv_sock_setsockopt(struct socket *sock, int level, int optname,
 		switch (sk->sk_state) {
 		case IUCV_OPEN:
 		case IUCV_BOUND:
+<<<<<<< HEAD
 			if (val < 1 || val > (u16)(~0))
+=======
+			if (val < 1 || val > U16_MAX)
+>>>>>>> upstream/android-13
 				rc = -EINVAL;
 			else
 				iucv->msglimit = val;
@@ -1791,6 +1989,11 @@ static int iucv_callback_connreq(struct iucv_path *path,
 
 	niucv = iucv_sk(nsk);
 	iucv_sock_init(nsk, sk);
+<<<<<<< HEAD
+=======
+	niucv->transport = AF_IUCV_TRANS_IUCV;
+	nsk->sk_allocation |= GFP_DMA;
+>>>>>>> upstream/android-13
 
 	/* Set the new iucv_sock */
 	memcpy(niucv->dst_name, ipuser + 8, 8);
@@ -1883,6 +2086,7 @@ static void iucv_callback_txdone(struct iucv_path *path,
 {
 	struct sock *sk = path->private;
 	struct sk_buff *this = NULL;
+<<<<<<< HEAD
 	struct sk_buff_head *list = &iucv_sk(sk)->send_skb_q;
 	struct sk_buff *list_skb = list->next;
 	unsigned long flags;
@@ -1912,6 +2116,40 @@ static void iucv_callback_txdone(struct iucv_path *path,
 
 	if (sk->sk_state == IUCV_CLOSING) {
 		if (skb_queue_empty(&iucv_sk(sk)->send_skb_q)) {
+=======
+	struct sk_buff_head *list;
+	struct sk_buff *list_skb;
+	struct iucv_sock *iucv;
+	unsigned long flags;
+
+	iucv = iucv_sk(sk);
+	list = &iucv->send_skb_q;
+
+	bh_lock_sock(sk);
+
+	spin_lock_irqsave(&list->lock, flags);
+	skb_queue_walk(list, list_skb) {
+		if (msg->tag == IUCV_SKB_CB(list_skb)->tag) {
+			this = list_skb;
+			break;
+		}
+	}
+	if (this) {
+		atomic_dec(&iucv->skbs_in_xmit);
+		__skb_unlink(this, list);
+	}
+
+	spin_unlock_irqrestore(&list->lock, flags);
+
+	if (this) {
+		consume_skb(this);
+		/* wake up any process waiting for sending */
+		iucv_sock_wake_msglim(sk);
+	}
+
+	if (sk->sk_state == IUCV_CLOSING) {
+		if (atomic_read(&iucv->skbs_in_xmit) == 0) {
+>>>>>>> upstream/android-13
 			sk->sk_state = IUCV_CLOSED;
 			sk->sk_state_change(sk);
 		}
@@ -1950,11 +2188,27 @@ static void iucv_callback_shutdown(struct iucv_path *path, u8 ipuser[16])
 	bh_unlock_sock(sk);
 }
 
+<<<<<<< HEAD
 /***************** HiperSockets transport callbacks ********************/
 static void afiucv_swap_src_dest(struct sk_buff *skb)
 {
 	struct af_iucv_trans_hdr *trans_hdr =
 				(struct af_iucv_trans_hdr *)skb->data;
+=======
+static struct iucv_handler af_iucv_handler = {
+	.path_pending		= iucv_callback_connreq,
+	.path_complete		= iucv_callback_connack,
+	.path_severed		= iucv_callback_connrej,
+	.message_pending	= iucv_callback_rx,
+	.message_complete	= iucv_callback_txdone,
+	.path_quiesced		= iucv_callback_shutdown,
+};
+
+/***************** HiperSockets transport callbacks ********************/
+static void afiucv_swap_src_dest(struct sk_buff *skb)
+{
+	struct af_iucv_trans_hdr *trans_hdr = iucv_trans_hdr(skb);
+>>>>>>> upstream/android-13
 	char tmpID[8];
 	char tmpName[8];
 
@@ -1977,6 +2231,7 @@ static void afiucv_swap_src_dest(struct sk_buff *skb)
  **/
 static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct sock *nsk;
 	struct iucv_sock *iucv, *niucv;
 	struct af_iucv_trans_hdr *trans_hdr;
@@ -1984,6 +2239,14 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
 
 	iucv = iucv_sk(sk);
 	trans_hdr = (struct af_iucv_trans_hdr *)skb->data;
+=======
+	struct af_iucv_trans_hdr *trans_hdr = iucv_trans_hdr(skb);
+	struct sock *nsk;
+	struct iucv_sock *iucv, *niucv;
+	int err;
+
+	iucv = iucv_sk(sk);
+>>>>>>> upstream/android-13
 	if (!iucv) {
 		/* no sock - connection refused */
 		afiucv_swap_src_dest(skb);
@@ -2044,6 +2307,7 @@ out:
 static int afiucv_hs_callback_synack(struct sock *sk, struct sk_buff *skb)
 {
 	struct iucv_sock *iucv = iucv_sk(sk);
+<<<<<<< HEAD
 	struct af_iucv_trans_hdr *trans_hdr =
 					(struct af_iucv_trans_hdr *)skb->data;
 
@@ -2058,6 +2322,20 @@ static int afiucv_hs_callback_synack(struct sock *sk, struct sk_buff *skb)
 	bh_unlock_sock(sk);
 out:
 	kfree_skb(skb);
+=======
+
+	if (!iucv || sk->sk_state != IUCV_BOUND) {
+		kfree_skb(skb);
+		return NET_RX_SUCCESS;
+	}
+
+	bh_lock_sock(sk);
+	iucv->msglimit_peer = iucv_trans_hdr(skb)->window;
+	sk->sk_state = IUCV_CONNECTED;
+	sk->sk_state_change(sk);
+	bh_unlock_sock(sk);
+	consume_skb(skb);
+>>>>>>> upstream/android-13
 	return NET_RX_SUCCESS;
 }
 
@@ -2068,16 +2346,28 @@ static int afiucv_hs_callback_synfin(struct sock *sk, struct sk_buff *skb)
 {
 	struct iucv_sock *iucv = iucv_sk(sk);
 
+<<<<<<< HEAD
 	if (!iucv)
 		goto out;
 	if (sk->sk_state != IUCV_BOUND)
 		goto out;
+=======
+	if (!iucv || sk->sk_state != IUCV_BOUND) {
+		kfree_skb(skb);
+		return NET_RX_SUCCESS;
+	}
+
+>>>>>>> upstream/android-13
 	bh_lock_sock(sk);
 	sk->sk_state = IUCV_DISCONN;
 	sk->sk_state_change(sk);
 	bh_unlock_sock(sk);
+<<<<<<< HEAD
 out:
 	kfree_skb(skb);
+=======
+	consume_skb(skb);
+>>>>>>> upstream/android-13
 	return NET_RX_SUCCESS;
 }
 
@@ -2089,16 +2379,28 @@ static int afiucv_hs_callback_fin(struct sock *sk, struct sk_buff *skb)
 	struct iucv_sock *iucv = iucv_sk(sk);
 
 	/* other end of connection closed */
+<<<<<<< HEAD
 	if (!iucv)
 		goto out;
+=======
+	if (!iucv) {
+		kfree_skb(skb);
+		return NET_RX_SUCCESS;
+	}
+
+>>>>>>> upstream/android-13
 	bh_lock_sock(sk);
 	if (sk->sk_state == IUCV_CONNECTED) {
 		sk->sk_state = IUCV_DISCONN;
 		sk->sk_state_change(sk);
 	}
 	bh_unlock_sock(sk);
+<<<<<<< HEAD
 out:
 	kfree_skb(skb);
+=======
+	consume_skb(skb);
+>>>>>>> upstream/android-13
 	return NET_RX_SUCCESS;
 }
 
@@ -2108,8 +2410,11 @@ out:
 static int afiucv_hs_callback_win(struct sock *sk, struct sk_buff *skb)
 {
 	struct iucv_sock *iucv = iucv_sk(sk);
+<<<<<<< HEAD
 	struct af_iucv_trans_hdr *trans_hdr =
 					(struct af_iucv_trans_hdr *)skb->data;
+=======
+>>>>>>> upstream/android-13
 
 	if (!iucv)
 		return NET_RX_SUCCESS;
@@ -2117,7 +2422,11 @@ static int afiucv_hs_callback_win(struct sock *sk, struct sk_buff *skb)
 	if (sk->sk_state != IUCV_CONNECTED)
 		return NET_RX_SUCCESS;
 
+<<<<<<< HEAD
 	atomic_sub(trans_hdr->window, &iucv->msg_sent);
+=======
+	atomic_sub(iucv_trans_hdr(skb)->window, &iucv->msg_sent);
+>>>>>>> upstream/android-13
 	iucv_sock_wake_msglim(sk);
 	return NET_RX_SUCCESS;
 }
@@ -2180,6 +2489,7 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
 	int err = NET_RX_SUCCESS;
 	char nullstring[8];
 
+<<<<<<< HEAD
 	if (skb->len < (ETH_HLEN + sizeof(struct af_iucv_trans_hdr))) {
 		WARN_ONCE(1, "AF_IUCV too short skb, len=%d, min=%d",
 			  (int)skb->len,
@@ -2196,6 +2506,14 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
 		}
 	skb_pull(skb, ETH_HLEN);
 	trans_hdr = (struct af_iucv_trans_hdr *)skb->data;
+=======
+	if (!pskb_may_pull(skb, sizeof(*trans_hdr))) {
+		kfree_skb(skb);
+		return NET_RX_SUCCESS;
+	}
+
+	trans_hdr = iucv_trans_hdr(skb);
+>>>>>>> upstream/android-13
 	EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
 	EBCASC(trans_hdr->destUserID, sizeof(trans_hdr->destUserID));
 	EBCASC(trans_hdr->srcAppName, sizeof(trans_hdr->srcAppName));
@@ -2263,6 +2581,7 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
 	case (AF_IUCV_FLAG_WIN):
 		err = afiucv_hs_callback_win(sk, skb);
 		if (skb->len == sizeof(struct af_iucv_trans_hdr)) {
+<<<<<<< HEAD
 			kfree_skb(skb);
 			break;
 		}
@@ -2270,6 +2589,15 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
 	case (AF_IUCV_FLAG_SHT):
 		/* shutdown request */
 		/* fall through and receive zero length data */
+=======
+			consume_skb(skb);
+			break;
+		}
+		fallthrough;	/* and receive non-zero length data */
+	case (AF_IUCV_FLAG_SHT):
+		/* shutdown request */
+		fallthrough;	/* and receive zero length data */
+>>>>>>> upstream/android-13
 	case 0:
 		/* plain data frame */
 		IUCV_SKB_CB(skb)->class = trans_hdr->iucv_hdr.class;
@@ -2283,6 +2611,7 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * afiucv_hs_callback_txnotify() - handle send notifcations from HiperSockets
  *                                 transport
  **/
@@ -2356,10 +2685,48 @@ out_unlock:
 	if (sk->sk_state == IUCV_CLOSING) {
 		if (skb_queue_empty(&iucv_sk(sk)->send_skb_q)) {
 			sk->sk_state = IUCV_CLOSED;
+=======
+ * afiucv_hs_callback_txnotify() - handle send notifications from HiperSockets
+ *                                 transport
+ **/
+static void afiucv_hs_callback_txnotify(struct sock *sk, enum iucv_tx_notify n)
+{
+	struct iucv_sock *iucv = iucv_sk(sk);
+
+	if (sock_flag(sk, SOCK_ZAPPED))
+		return;
+
+	switch (n) {
+	case TX_NOTIFY_OK:
+		atomic_dec(&iucv->skbs_in_xmit);
+		iucv_sock_wake_msglim(sk);
+		break;
+	case TX_NOTIFY_PENDING:
+		atomic_inc(&iucv->pendings);
+		break;
+	case TX_NOTIFY_DELAYED_OK:
+		atomic_dec(&iucv->skbs_in_xmit);
+		if (atomic_dec_return(&iucv->pendings) <= 0)
+			iucv_sock_wake_msglim(sk);
+		break;
+	default:
+		atomic_dec(&iucv->skbs_in_xmit);
+		if (sk->sk_state == IUCV_CONNECTED) {
+			sk->sk_state = IUCV_DISCONN;
+>>>>>>> upstream/android-13
 			sk->sk_state_change(sk);
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (sk->sk_state == IUCV_CLOSING) {
+		if (atomic_read(&iucv->skbs_in_xmit) == 0) {
+			sk->sk_state = IUCV_CLOSED;
+			sk->sk_state_change(sk);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2418,6 +2785,38 @@ static const struct proto_ops iucv_sock_ops = {
 	.getsockopt	= iucv_sock_getsockopt,
 };
 
+<<<<<<< HEAD
+=======
+static int iucv_sock_create(struct net *net, struct socket *sock, int protocol,
+			    int kern)
+{
+	struct sock *sk;
+
+	if (protocol && protocol != PF_IUCV)
+		return -EPROTONOSUPPORT;
+
+	sock->state = SS_UNCONNECTED;
+
+	switch (sock->type) {
+	case SOCK_STREAM:
+	case SOCK_SEQPACKET:
+		/* currently, proto ops can handle both sk types */
+		sock->ops = &iucv_sock_ops;
+		break;
+	default:
+		return -ESOCKTNOSUPPORT;
+	}
+
+	sk = iucv_sock_alloc(sock, protocol, GFP_KERNEL, kern);
+	if (!sk)
+		return -ENOMEM;
+
+	iucv_sock_init(sk, NULL);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct net_proto_family iucv_sock_family_ops = {
 	.family	= AF_IUCV,
 	.owner	= THIS_MODULE,
@@ -2429,6 +2828,7 @@ static struct packet_type iucv_packet_type = {
 	.func = afiucv_hs_rcv,
 };
 
+<<<<<<< HEAD
 static int afiucv_iucv_init(void)
 {
 	int err;
@@ -2473,11 +2873,17 @@ static void afiucv_iucv_exit(void)
 	pr_iucv->iucv_unregister(&af_iucv_handler, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __init afiucv_init(void)
 {
 	int err;
 
+<<<<<<< HEAD
 	if (MACHINE_IS_VM) {
+=======
+	if (MACHINE_IS_VM && IS_ENABLED(CONFIG_IUCV)) {
+>>>>>>> upstream/android-13
 		cpcmd("QUERY USERID", iucv_userid, sizeof(iucv_userid), &err);
 		if (unlikely(err)) {
 			WARN_ON(err);
@@ -2485,11 +2891,15 @@ static int __init afiucv_init(void)
 			goto out;
 		}
 
+<<<<<<< HEAD
 		pr_iucv = try_then_request_module(symbol_get(iucv_if), "iucv");
 		if (!pr_iucv) {
 			printk(KERN_WARNING "iucv_if lookup failed\n");
 			memset(&iucv_userid, 0, sizeof(iucv_userid));
 		}
+=======
+		pr_iucv = &iucv_if;
+>>>>>>> upstream/android-13
 	} else {
 		memset(&iucv_userid, 0, sizeof(iucv_userid));
 		pr_iucv = NULL;
@@ -2503,7 +2913,11 @@ static int __init afiucv_init(void)
 		goto out_proto;
 
 	if (pr_iucv) {
+<<<<<<< HEAD
 		err = afiucv_iucv_init();
+=======
+		err = pr_iucv->iucv_register(&af_iucv_handler, 0);
+>>>>>>> upstream/android-13
 		if (err)
 			goto out_sock;
 	}
@@ -2517,23 +2931,35 @@ static int __init afiucv_init(void)
 
 out_notifier:
 	if (pr_iucv)
+<<<<<<< HEAD
 		afiucv_iucv_exit();
+=======
+		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
+>>>>>>> upstream/android-13
 out_sock:
 	sock_unregister(PF_IUCV);
 out_proto:
 	proto_unregister(&iucv_proto);
 out:
+<<<<<<< HEAD
 	if (pr_iucv)
 		symbol_put(iucv_if);
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static void __exit afiucv_exit(void)
 {
+<<<<<<< HEAD
 	if (pr_iucv) {
 		afiucv_iucv_exit();
 		symbol_put(iucv_if);
 	}
+=======
+	if (pr_iucv)
+		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
+>>>>>>> upstream/android-13
 
 	unregister_netdevice_notifier(&afiucv_netdev_notifier);
 	dev_remove_pack(&iucv_packet_type);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CoProcessor (SPU/AFU) mm fault handler
  *
@@ -5,6 +9,7 @@
  *
  * Author: Arnd Bergmann <arndb@de.ibm.com>
  * Author: Jeremy Kerr <jk@ozlabs.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/sched.h>
 #include <linux/mm.h>
@@ -46,7 +53,11 @@ int copro_handle_mm_fault(struct mm_struct *mm, unsigned long ea,
 	if (mm->pgd == NULL)
 		return -EFAULT;
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	ret = -EFAULT;
 	vma = find_vma(mm, ea);
 	if (!vma)
@@ -77,7 +88,11 @@ int copro_handle_mm_fault(struct mm_struct *mm, unsigned long ea,
 	}
 
 	ret = 0;
+<<<<<<< HEAD
 	*flt = handle_mm_fault(vma, ea, is_write ? FAULT_FLAG_WRITE : 0);
+=======
+	*flt = handle_mm_fault(vma, ea, is_write ? FAULT_FLAG_WRITE : 0, NULL);
+>>>>>>> upstream/android-13
 	if (unlikely(*flt & VM_FAULT_ERROR)) {
 		if (*flt & VM_FAULT_OOM) {
 			ret = -ENOMEM;
@@ -89,6 +104,7 @@ int copro_handle_mm_fault(struct mm_struct *mm, unsigned long ea,
 		BUG();
 	}
 
+<<<<<<< HEAD
 	if (*flt & VM_FAULT_MAJOR)
 		current->maj_flt++;
 	else
@@ -96,6 +112,10 @@ int copro_handle_mm_fault(struct mm_struct *mm, unsigned long ea,
 
 out_unlock:
 	up_read(&mm->mmap_sem);
+=======
+out_unlock:
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(copro_handle_mm_fault);
@@ -105,7 +125,11 @@ int copro_calculate_slb(struct mm_struct *mm, u64 ea, struct copro_slb *slb)
 	u64 vsid, vsidkey;
 	int psize, ssize;
 
+<<<<<<< HEAD
 	switch (REGION_ID(ea)) {
+=======
+	switch (get_region_id(ea)) {
+>>>>>>> upstream/android-13
 	case USER_REGION_ID:
 		pr_devel("%s: 0x%llx -- USER_REGION_ID\n", __func__, ea);
 		if (mm == NULL)
@@ -117,16 +141,32 @@ int copro_calculate_slb(struct mm_struct *mm, u64 ea, struct copro_slb *slb)
 		break;
 	case VMALLOC_REGION_ID:
 		pr_devel("%s: 0x%llx -- VMALLOC_REGION_ID\n", __func__, ea);
+<<<<<<< HEAD
 		if (ea < VMALLOC_END)
 			psize = mmu_vmalloc_psize;
 		else
 			psize = mmu_io_psize;
+=======
+		psize = mmu_vmalloc_psize;
+>>>>>>> upstream/android-13
 		ssize = mmu_kernel_ssize;
 		vsid = get_kernel_vsid(ea, mmu_kernel_ssize);
 		vsidkey = SLB_VSID_KERNEL;
 		break;
+<<<<<<< HEAD
 	case KERNEL_REGION_ID:
 		pr_devel("%s: 0x%llx -- KERNEL_REGION_ID\n", __func__, ea);
+=======
+	case IO_REGION_ID:
+		pr_devel("%s: 0x%llx -- IO_REGION_ID\n", __func__, ea);
+		psize = mmu_io_psize;
+		ssize = mmu_kernel_ssize;
+		vsid = get_kernel_vsid(ea, mmu_kernel_ssize);
+		vsidkey = SLB_VSID_KERNEL;
+		break;
+	case LINEAR_MAP_REGION_ID:
+		pr_devel("%s: 0x%llx -- LINEAR_MAP_REGION_ID\n", __func__, ea);
+>>>>>>> upstream/android-13
 		psize = mmu_linear_psize;
 		ssize = mmu_kernel_ssize;
 		vsid = get_kernel_vsid(ea, mmu_kernel_ssize);

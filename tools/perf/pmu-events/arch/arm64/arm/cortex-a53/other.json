@@ -1,9 +1,16 @@
 [
   {
+<<<<<<< HEAD
         "ArchStdEvent": "EXC_IRQ",
   },
   {
         "ArchStdEvent": "EXC_FIQ",
+=======
+        "ArchStdEvent": "EXC_IRQ"
+  },
+  {
+        "ArchStdEvent": "EXC_FIQ"
+>>>>>>> upstream/android-13
   },
   {
         "EventCode": "0xC6",

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_GRCTX_NVC0_H__
 #define __NVKM_GRCTX_NVC0_H__
 #include "gf100.h"
@@ -57,6 +61,10 @@ struct gf100_grctx_func {
 	/* floorsweeping */
 	void (*sm_id)(struct gf100_gr *, int gpc, int tpc, int sm);
 	void (*tpc_nr)(struct gf100_gr *, int gpc);
+<<<<<<< HEAD
+=======
+	bool skip_pd_num_tpc_per_gpc;
+>>>>>>> upstream/android-13
 	void (*r4060a8)(struct gf100_gr *);
 	void (*rop_mapping)(struct gf100_gr *);
 	void (*alpha_beta_tables)(struct gf100_gr *);
@@ -76,6 +84,10 @@ struct gf100_grctx_func {
 	void (*r418e94)(struct gf100_gr *);
 	void (*r419a3c)(struct gf100_gr *);
 	void (*r408840)(struct gf100_gr *);
+<<<<<<< HEAD
+=======
+	void (*r419c0c)(struct gf100_gr *);
+>>>>>>> upstream/android-13
 };
 
 extern const struct gf100_grctx_func gf100_grctx;
@@ -153,6 +165,17 @@ extern const struct gf100_grctx_func gp107_grctx;
 
 extern const struct gf100_grctx_func gv100_grctx;
 
+<<<<<<< HEAD
+=======
+extern const struct gf100_grctx_func tu102_grctx;
+void gv100_grctx_unkn88c(struct gf100_gr *, bool);
+void gv100_grctx_generate_unkn(struct gf100_gr *);
+extern const struct gf100_gr_init gv100_grctx_init_sw_veid_bundle_init_0[];
+void gv100_grctx_generate_attrib(struct gf100_grctx *);
+void gv100_grctx_generate_rop_mapping(struct gf100_gr *);
+void gv100_grctx_generate_r400088(struct gf100_gr *, bool);
+
+>>>>>>> upstream/android-13
 /* context init value lists */
 
 extern const struct gf100_gr_pack gf100_grctx_pack_icmd[];

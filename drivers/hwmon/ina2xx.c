@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Texas Instruments INA219, INA226 power monitor chips
  *
  * INA219:
  * Zero Drift Bi-Directional Current/Power Monitor with I2C Interface
+<<<<<<< HEAD
  * Datasheet: http://www.ti.com/product/ina219
  *
  * INA220:
@@ -23,6 +28,24 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+ * Datasheet: https://www.ti.com/product/ina219
+ *
+ * INA220:
+ * Bi-Directional Current/Power Monitor with I2C Interface
+ * Datasheet: https://www.ti.com/product/ina220
+ *
+ * INA226:
+ * Bi-Directional Current/Power Monitor with I2C Interface
+ * Datasheet: https://www.ti.com/product/ina226
+ *
+ * INA230:
+ * Bi-directional Current/Power Monitor with I2C Interface
+ * Datasheet: https://www.ti.com/product/ina230
+ *
+ * Copyright (C) 2012 Lothar Felten <lothar.felten@gmail.com>
+ * Thanks to Jan Volkering
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -77,6 +100,20 @@
 #define INA226_READ_AVG(reg)		(((reg) & INA226_AVG_RD_MASK) >> 9)
 #define INA226_SHIFT_AVG(val)		((val) << 9)
 
+<<<<<<< HEAD
+=======
+/* bit number of alert functions in Mask/Enable Register */
+#define INA226_SHUNT_OVER_VOLTAGE_BIT	15
+#define INA226_SHUNT_UNDER_VOLTAGE_BIT	14
+#define INA226_BUS_OVER_VOLTAGE_BIT	13
+#define INA226_BUS_UNDER_VOLTAGE_BIT	12
+#define INA226_POWER_OVER_LIMIT_BIT	11
+
+/* bit mask for alert config bits of Mask/Enable Register */
+#define INA226_ALERT_CONFIG_MASK	0xFC00
+#define INA226_ALERT_FUNCTION_FLAG	BIT(4)
+
+>>>>>>> upstream/android-13
 /* common attrs, ina226 attrs and NULL */
 #define INA2XX_MAX_ATTRIBUTE_GROUPS	3
 
@@ -140,7 +177,11 @@ static const struct ina2xx_config ina2xx_config[] = {
  * Available averaging rates for ina226. The indices correspond with
  * the bit values expected by the chip (according to the ina226 datasheet,
  * table 3 AVG bit settings, found at
+<<<<<<< HEAD
  * http://www.ti.com/lit/ds/symlink/ina226.pdf.
+=======
+ * https://www.ti.com/lit/ds/symlink/ina226.pdf.
+>>>>>>> upstream/android-13
  */
 static const int ina226_avg_tab[] = { 1, 4, 16, 64, 128, 256, 512, 1024 };
 
@@ -290,7 +331,11 @@ static int ina2xx_get_value(struct ina2xx_data *data, u8 reg,
 	return val;
 }
 
+<<<<<<< HEAD
 static ssize_t ina2xx_show_value(struct device *dev,
+=======
+static ssize_t ina2xx_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -302,8 +347,151 @@ static ssize_t ina2xx_show_value(struct device *dev,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n",
 			ina2xx_get_value(data, attr->index, regval));
+=======
+	return sysfs_emit(buf, "%d\n", ina2xx_get_value(data, attr->index, regval));
+}
+
+static int ina226_reg_to_alert(struct ina2xx_data *data, u8 bit, u16 regval)
+{
+	int reg;
+
+	switch (bit) {
+	case INA226_SHUNT_OVER_VOLTAGE_BIT:
+	case INA226_SHUNT_UNDER_VOLTAGE_BIT:
+		reg = INA2XX_SHUNT_VOLTAGE;
+		break;
+	case INA226_BUS_OVER_VOLTAGE_BIT:
+	case INA226_BUS_UNDER_VOLTAGE_BIT:
+		reg = INA2XX_BUS_VOLTAGE;
+		break;
+	case INA226_POWER_OVER_LIMIT_BIT:
+		reg = INA2XX_POWER;
+		break;
+	default:
+		/* programmer goofed */
+		WARN_ON_ONCE(1);
+		return 0;
+	}
+
+	return ina2xx_get_value(data, reg, regval);
+}
+
+/*
+ * Turns alert limit values into register values.
+ * Opposite of the formula in ina2xx_get_value().
+ */
+static s16 ina226_alert_to_reg(struct ina2xx_data *data, u8 bit, int val)
+{
+	switch (bit) {
+	case INA226_SHUNT_OVER_VOLTAGE_BIT:
+	case INA226_SHUNT_UNDER_VOLTAGE_BIT:
+		val *= data->config->shunt_div;
+		return clamp_val(val, SHRT_MIN, SHRT_MAX);
+	case INA226_BUS_OVER_VOLTAGE_BIT:
+	case INA226_BUS_UNDER_VOLTAGE_BIT:
+		val = (val * 1000) << data->config->bus_voltage_shift;
+		val = DIV_ROUND_CLOSEST(val, data->config->bus_voltage_lsb);
+		return clamp_val(val, 0, SHRT_MAX);
+	case INA226_POWER_OVER_LIMIT_BIT:
+		val = DIV_ROUND_CLOSEST(val, data->power_lsb_uW);
+		return clamp_val(val, 0, USHRT_MAX);
+	default:
+		/* programmer goofed */
+		WARN_ON_ONCE(1);
+		return 0;
+	}
+}
+
+static ssize_t ina226_alert_show(struct device *dev,
+				 struct device_attribute *da, char *buf)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+	struct ina2xx_data *data = dev_get_drvdata(dev);
+	int regval;
+	int val = 0;
+	int ret;
+
+	mutex_lock(&data->config_lock);
+	ret = regmap_read(data->regmap, INA226_MASK_ENABLE, &regval);
+	if (ret)
+		goto abort;
+
+	if (regval & BIT(attr->index)) {
+		ret = regmap_read(data->regmap, INA226_ALERT_LIMIT, &regval);
+		if (ret)
+			goto abort;
+		val = ina226_reg_to_alert(data, attr->index, regval);
+	}
+
+	ret = sysfs_emit(buf, "%d\n", val);
+abort:
+	mutex_unlock(&data->config_lock);
+	return ret;
+}
+
+static ssize_t ina226_alert_store(struct device *dev,
+				  struct device_attribute *da,
+				  const char *buf, size_t count)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+	struct ina2xx_data *data = dev_get_drvdata(dev);
+	unsigned long val;
+	int ret;
+
+	ret = kstrtoul(buf, 10, &val);
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * Clear all alerts first to avoid accidentally triggering ALERT pin
+	 * due to register write sequence. Then, only enable the alert
+	 * if the value is non-zero.
+	 */
+	mutex_lock(&data->config_lock);
+	ret = regmap_update_bits(data->regmap, INA226_MASK_ENABLE,
+				 INA226_ALERT_CONFIG_MASK, 0);
+	if (ret < 0)
+		goto abort;
+
+	ret = regmap_write(data->regmap, INA226_ALERT_LIMIT,
+			   ina226_alert_to_reg(data, attr->index, val));
+	if (ret < 0)
+		goto abort;
+
+	if (val != 0) {
+		ret = regmap_update_bits(data->regmap, INA226_MASK_ENABLE,
+					 INA226_ALERT_CONFIG_MASK,
+					 BIT(attr->index));
+		if (ret < 0)
+			goto abort;
+	}
+
+	ret = count;
+abort:
+	mutex_unlock(&data->config_lock);
+	return ret;
+}
+
+static ssize_t ina226_alarm_show(struct device *dev,
+				 struct device_attribute *da, char *buf)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+	struct ina2xx_data *data = dev_get_drvdata(dev);
+	int regval;
+	int alarm = 0;
+	int ret;
+
+	ret = regmap_read(data->regmap, INA226_MASK_ENABLE, &regval);
+	if (ret)
+		return ret;
+
+	alarm = (regval & BIT(attr->index)) &&
+		(regval & INA226_ALERT_FUNCTION_FLAG);
+	return sysfs_emit(buf, "%d\n", alarm);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -329,6 +517,7 @@ static int ina2xx_set_shunt(struct ina2xx_data *data, long val)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t ina2xx_show_shunt(struct device *dev,
 			      struct device_attribute *da,
 			      char *buf)
@@ -339,6 +528,17 @@ static ssize_t ina2xx_show_shunt(struct device *dev,
 }
 
 static ssize_t ina2xx_store_shunt(struct device *dev,
+=======
+static ssize_t ina2xx_shunt_show(struct device *dev,
+				 struct device_attribute *da, char *buf)
+{
+	struct ina2xx_data *data = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%li\n", data->rshunt);
+}
+
+static ssize_t ina2xx_shunt_store(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *da,
 				  const char *buf, size_t count)
 {
@@ -356,9 +556,15 @@ static ssize_t ina2xx_store_shunt(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t ina226_set_interval(struct device *dev,
 				   struct device_attribute *da,
 				   const char *buf, size_t count)
+=======
+static ssize_t ina226_interval_store(struct device *dev,
+				     struct device_attribute *da,
+				     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct ina2xx_data *data = dev_get_drvdata(dev);
 	unsigned long val;
@@ -380,7 +586,11 @@ static ssize_t ina226_set_interval(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t ina226_show_interval(struct device *dev,
+=======
+static ssize_t ina226_interval_show(struct device *dev,
+>>>>>>> upstream/android-13
 				    struct device_attribute *da, char *buf)
 {
 	struct ina2xx_data *data = dev_get_drvdata(dev);
@@ -391,6 +601,7 @@ static ssize_t ina226_show_interval(struct device *dev,
 	if (status)
 		return status;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ina226_reg_to_interval(regval));
 }
 
@@ -418,6 +629,51 @@ static SENSOR_DEVICE_ATTR(shunt_resistor, S_IRUGO | S_IWUSR,
 /* update interval (ina226 only) */
 static SENSOR_DEVICE_ATTR(update_interval, S_IRUGO | S_IWUSR,
 			  ina226_show_interval, ina226_set_interval, 0);
+=======
+	return sysfs_emit(buf, "%d\n", ina226_reg_to_interval(regval));
+}
+
+/* shunt voltage */
+static SENSOR_DEVICE_ATTR_RO(in0_input, ina2xx_value, INA2XX_SHUNT_VOLTAGE);
+/* shunt voltage over/under voltage alert setting and alarm */
+static SENSOR_DEVICE_ATTR_RW(in0_crit, ina226_alert,
+			     INA226_SHUNT_OVER_VOLTAGE_BIT);
+static SENSOR_DEVICE_ATTR_RW(in0_lcrit, ina226_alert,
+			     INA226_SHUNT_UNDER_VOLTAGE_BIT);
+static SENSOR_DEVICE_ATTR_RO(in0_crit_alarm, ina226_alarm,
+			     INA226_SHUNT_OVER_VOLTAGE_BIT);
+static SENSOR_DEVICE_ATTR_RO(in0_lcrit_alarm, ina226_alarm,
+			     INA226_SHUNT_UNDER_VOLTAGE_BIT);
+
+/* bus voltage */
+static SENSOR_DEVICE_ATTR_RO(in1_input, ina2xx_value, INA2XX_BUS_VOLTAGE);
+/* bus voltage over/under voltage alert setting and alarm */
+static SENSOR_DEVICE_ATTR_RW(in1_crit, ina226_alert,
+			     INA226_BUS_OVER_VOLTAGE_BIT);
+static SENSOR_DEVICE_ATTR_RW(in1_lcrit, ina226_alert,
+			     INA226_BUS_UNDER_VOLTAGE_BIT);
+static SENSOR_DEVICE_ATTR_RO(in1_crit_alarm, ina226_alarm,
+			     INA226_BUS_OVER_VOLTAGE_BIT);
+static SENSOR_DEVICE_ATTR_RO(in1_lcrit_alarm, ina226_alarm,
+			     INA226_BUS_UNDER_VOLTAGE_BIT);
+
+/* calculated current */
+static SENSOR_DEVICE_ATTR_RO(curr1_input, ina2xx_value, INA2XX_CURRENT);
+
+/* calculated power */
+static SENSOR_DEVICE_ATTR_RO(power1_input, ina2xx_value, INA2XX_POWER);
+/* over-limit power alert setting and alarm */
+static SENSOR_DEVICE_ATTR_RW(power1_crit, ina226_alert,
+			     INA226_POWER_OVER_LIMIT_BIT);
+static SENSOR_DEVICE_ATTR_RO(power1_crit_alarm, ina226_alarm,
+			     INA226_POWER_OVER_LIMIT_BIT);
+
+/* shunt resistance */
+static SENSOR_DEVICE_ATTR_RW(shunt_resistor, ina2xx_shunt, INA2XX_CALIBRATION);
+
+/* update interval (ina226 only) */
+static SENSOR_DEVICE_ATTR_RW(update_interval, ina226_interval, 0);
+>>>>>>> upstream/android-13
 
 /* pointers to created device attributes */
 static struct attribute *ina2xx_attrs[] = {
@@ -434,6 +690,19 @@ static const struct attribute_group ina2xx_group = {
 };
 
 static struct attribute *ina226_attrs[] = {
+<<<<<<< HEAD
+=======
+	&sensor_dev_attr_in0_crit.dev_attr.attr,
+	&sensor_dev_attr_in0_lcrit.dev_attr.attr,
+	&sensor_dev_attr_in0_crit_alarm.dev_attr.attr,
+	&sensor_dev_attr_in0_lcrit_alarm.dev_attr.attr,
+	&sensor_dev_attr_in1_crit.dev_attr.attr,
+	&sensor_dev_attr_in1_lcrit.dev_attr.attr,
+	&sensor_dev_attr_in1_crit_alarm.dev_attr.attr,
+	&sensor_dev_attr_in1_lcrit_alarm.dev_attr.attr,
+	&sensor_dev_attr_power1_crit.dev_attr.attr,
+	&sensor_dev_attr_power1_crit_alarm.dev_attr.attr,
+>>>>>>> upstream/android-13
 	&sensor_dev_attr_update_interval.dev_attr.attr,
 	NULL,
 };
@@ -442,8 +711,14 @@ static const struct attribute_group ina226_group = {
 	.attrs = ina226_attrs,
 };
 
+<<<<<<< HEAD
 static int ina2xx_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id ina2xx_id[];
+
+static int ina2xx_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct ina2xx_data *data;
@@ -455,7 +730,11 @@ static int ina2xx_probe(struct i2c_client *client,
 	if (client->dev.of_node)
 		chip = (enum ina2xx_ids)of_device_get_match_data(&client->dev);
 	else
+<<<<<<< HEAD
 		chip = id->driver_data;
+=======
+		chip = i2c_match_id(ina2xx_id, client)->driver_data;
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
@@ -515,7 +794,11 @@ static const struct i2c_device_id ina2xx_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, ina2xx_id);
 
+<<<<<<< HEAD
 static const struct of_device_id ina2xx_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused ina2xx_of_match[] = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "ti,ina219",
 		.data = (void *)ina219
@@ -545,7 +828,11 @@ static struct i2c_driver ina2xx_driver = {
 		.name	= "ina2xx",
 		.of_match_table = of_match_ptr(ina2xx_of_match),
 	},
+<<<<<<< HEAD
 	.probe		= ina2xx_probe,
+=======
+	.probe_new	= ina2xx_probe,
+>>>>>>> upstream/android-13
 	.id_table	= ina2xx_id,
 };
 

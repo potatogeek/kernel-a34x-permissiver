@@ -34,7 +34,11 @@
 
 		cpu@0 {
 			device_type = "cpu";
+<<<<<<< HEAD
 			compatible = "arm,arm1176jzf-s", "arm,arm1176";
+=======
+			compatible = "arm,arm1176jzf-s";
+>>>>>>> upstream/android-13
 			reg = <0x0>;
 		};
 	};

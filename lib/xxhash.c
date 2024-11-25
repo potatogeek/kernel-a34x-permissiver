@@ -34,7 +34,11 @@
  * ("BSD").
  *
  * You can contact the author at:
+<<<<<<< HEAD
  * - xxHash homepage: http://cyan4973.github.io/xxHash/
+=======
+ * - xxHash homepage: https://cyan4973.github.io/xxHash/
+>>>>>>> upstream/android-13
  * - xxHash source repository: https://github.com/Cyan4973/xxHash
  */
 

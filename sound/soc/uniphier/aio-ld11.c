@@ -218,8 +218,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_GNAME_HDMI,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.stream_name = AUD_NAME_PCMOUT1,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -242,8 +245,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_NAME_PCMIN2,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.capture = {
 			.stream_name = AUD_NAME_PCMIN2,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -257,8 +263,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_GNAME_LINE,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.stream_name = AUD_NAME_PCMOUT2,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -279,8 +288,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_NAME_HPCMOUT1,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.stream_name = AUD_NAME_HPCMOUT1,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -294,8 +306,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_NAME_PCMOUT3,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.stream_name = AUD_NAME_PCMOUT3,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -309,8 +324,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_NAME_HIECOUT1,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.stream_name = AUD_NAME_HIECOUT1,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -324,8 +342,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_NAME_EPCMOUT2,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.stream_name = AUD_NAME_EPCMOUT2,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -341,8 +362,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_NAME_EPCMOUT3,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.stream_name = AUD_NAME_EPCMOUT3,
 			.formats     = SNDRV_PCM_FMTBIT_S32_LE,
@@ -358,8 +382,11 @@ static struct snd_soc_dai_driver uniphier_aio_dai_ld11[] = {
 		.name    = AUD_NAME_HIECCOMPOUT1,
 		.probe   = uniphier_aio_ld11_probe,
 		.remove  = uniphier_aio_dai_remove,
+<<<<<<< HEAD
 		.suspend = uniphier_aio_dai_suspend,
 		.resume  = uniphier_aio_dai_resume,
+=======
+>>>>>>> upstream/android-13
 		.compress_new = snd_soc_new_compress,
 		.playback = {
 			.stream_name = AUD_NAME_HIECCOMPOUT1,
@@ -390,7 +417,11 @@ static const struct uniphier_aio_chip_spec uniphier_aio_ld20_spec = {
 	.addr_ext  = 1,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id uniphier_aio_of_match[] = {
+=======
+static const struct of_device_id uniphier_aio_of_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "socionext,uniphier-ld11-aio",
 		.data = &uniphier_aio_ld11_spec,

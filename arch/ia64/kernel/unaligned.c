@@ -1298,7 +1298,10 @@ ia64_handle_unaligned (unsigned long ifa, struct pt_regs *regs)
 	mm_segment_t old_fs = get_fs();
 	unsigned long bundle[2];
 	unsigned long opcode;
+<<<<<<< HEAD
 	struct siginfo si;
+=======
+>>>>>>> upstream/android-13
 	const struct exception_table_entry *eh = NULL;
 	union {
 		unsigned long l;
@@ -1432,7 +1435,11 @@ ia64_handle_unaligned (unsigned long ifa, struct pt_regs *regs)
 		if (u.insn.x)
 			/* oops, really a semaphore op (cmpxchg, etc) */
 			goto failure;
+<<<<<<< HEAD
 		/* no break */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	      case LDS_IMM_OP:
 	      case LDSA_IMM_OP:
 	      case LDFS_OP:
@@ -1460,7 +1467,11 @@ ia64_handle_unaligned (unsigned long ifa, struct pt_regs *regs)
 		if (u.insn.x)
 			/* oops, really a semaphore op (cmpxchg, etc) */
 			goto failure;
+<<<<<<< HEAD
 		/* no break */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	      case LD_IMM_OP:
 	      case LDA_IMM_OP:
 	      case LDBIAS_IMM_OP:
@@ -1476,7 +1487,11 @@ ia64_handle_unaligned (unsigned long ifa, struct pt_regs *regs)
 		if (u.insn.x)
 			/* oops, really a semaphore op (cmpxchg, etc) */
 			goto failure;
+<<<<<<< HEAD
 		/* no break */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	      case ST_IMM_OP:
 	      case STREL_IMM_OP:
 		ret = emulate_store_int(ifa, u.insn, regs);
@@ -1537,6 +1552,7 @@ ia64_handle_unaligned (unsigned long ifa, struct pt_regs *regs)
 		/* NOT_REACHED */
 	}
   force_sigbus:
+<<<<<<< HEAD
 	clear_siginfo(&si);
 	si.si_signo = SIGBUS;
 	si.si_errno = 0;
@@ -1546,5 +1562,9 @@ ia64_handle_unaligned (unsigned long ifa, struct pt_regs *regs)
 	si.si_isr = 0;
 	si.si_imm = 0;
 	force_sig_info(SIGBUS, &si, current);
+=======
+	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *) ifa,
+			0, 0, 0);
+>>>>>>> upstream/android-13
 	goto done;
 }

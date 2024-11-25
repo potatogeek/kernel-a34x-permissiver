@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* DVB USB library compliant Linux driver for the WideView/ Yakumo/ Hama/
  * Typhoon/ Yuan/ Miglia DVB-T USB2.0 receiver.
  *
@@ -5,11 +9,15 @@
  *
  * Thanks to Steve Chang from WideView for providing support for the WT-220U.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the Free
  *	Software Foundation, version 2.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 #include "dtt200u.h"
 

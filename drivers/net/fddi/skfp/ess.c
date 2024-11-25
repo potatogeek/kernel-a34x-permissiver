@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *	(C)Copyright 1998,1999 SysKonnect,
@@ -5,11 +9,14 @@
  *
  *	See the file "skfddi.c" for further information.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
@@ -44,7 +51,10 @@
 #ifdef ESS
 
 #ifndef lint
+<<<<<<< HEAD
 static const char ID_sccs[] = "@(#)ess.c	1.10 96/02/23 (C) SK" ;
+=======
+>>>>>>> upstream/android-13
 #define LINT_USE(x)
 #else
 #define LINT_USE(x)	(x)=(x)
@@ -152,7 +162,11 @@ int ess_raf_received_pack(struct s_smc *smc, SMbuf *mb, struct smt_header *sm,
 
 	DB_ESSN(2, "fc %x	ft %x", sm->smt_class, sm->smt_type);
 	DB_ESSN(2, "ver %x	tran %x", sm->smt_version, sm->smt_tid);
+<<<<<<< HEAD
 	DB_ESSN(2, "stn_id %s", addr_to_string(&sm->smt_source));
+=======
+	DB_ESSN(2, "stn_id %pM", &sm->smt_source);
+>>>>>>> upstream/android-13
 
 	DB_ESSN(2, "infolen %x	res %lx", sm->smt_len, msg_res_type);
 	DB_ESSN(2, "sbacmd %x", cmd->sba_cmd);
@@ -312,8 +326,13 @@ int ess_raf_received_pack(struct s_smc *smc, SMbuf *mb, struct smt_header *sm,
 		p = (void *) sm_to_para(smc,sm,SMT_P3210) ;
 		overhead = ((struct smt_p_3210 *)p)->mib_overhead ;
 
+<<<<<<< HEAD
 		DB_ESSN(2, "ESS: Change Request from %s",
 			addr_to_string(&sm->smt_source));
+=======
+		DB_ESSN(2, "ESS: Change Request from %pM",
+			&sm->smt_source);
+>>>>>>> upstream/android-13
 		DB_ESSN(2, "payload= %lx	overhead= %lx",
 			payload, overhead);
 
@@ -343,8 +362,13 @@ int ess_raf_received_pack(struct s_smc *smc, SMbuf *mb, struct smt_header *sm,
 			return fs;
 		}
 
+<<<<<<< HEAD
 		DB_ESSN(2, "ESS: Report Request from %s",
 			addr_to_string(&sm->smt_source));
+=======
+		DB_ESSN(2, "ESS: Report Request from %pM",
+			&sm->smt_source);
+>>>>>>> upstream/android-13
 
 		/*
 		 * verify that the resource type is sync bw only
@@ -384,17 +408,29 @@ static int process_bw_alloc(struct s_smc *smc, long int payload, long int overhe
 	 * if the payload is greater than zero.
 	 * For the SBAPayload and the SBAOverhead we have the following
 	 * unite quations
+<<<<<<< HEAD
  	 *		      _		  _
+=======
+	 *		      _		  _
+>>>>>>> upstream/android-13
 	 *		     |	     bytes |
 	 *	SBAPayload = | 8000 ------ |
 	 *		     |		s  |
 	 *		      -		  -
+<<<<<<< HEAD
  	 *		       _       _
+=======
+	 *		       _       _
+>>>>>>> upstream/android-13
 	 *		      |	 bytes	|
 	 *	SBAOverhead = | ------	|
 	 *		      |	 T-NEG	|
 	 *		       -       -
+<<<<<<< HEAD
  	 *
+=======
+	 *
+>>>>>>> upstream/android-13
 	 * T-NEG is described by the equation:
 	 *
 	 *		     (-) fddiMACT-NEG

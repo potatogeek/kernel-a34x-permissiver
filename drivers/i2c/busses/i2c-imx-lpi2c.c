@@ -75,12 +75,15 @@
 #define I2C_CLK_RATIO	2
 #define CHUNK_DATA	256
 
+<<<<<<< HEAD
 #define LPI2C_DEFAULT_RATE	100000
 #define STARDARD_MAX_BITRATE	400000
 #define FAST_MAX_BITRATE	1000000
 #define FAST_PLUS_MAX_BITRATE	3400000
 #define HIGHSPEED_MAX_BITRATE	5000000
 
+=======
+>>>>>>> upstream/android-13
 #define I2C_PM_TIMEOUT		10 /* ms */
 
 enum lpi2c_imx_mode {
@@ -152,6 +155,7 @@ static void lpi2c_imx_set_mode(struct lpi2c_imx_struct *lpi2c_imx)
 	unsigned int bitrate = lpi2c_imx->bitrate;
 	enum lpi2c_imx_mode mode;
 
+<<<<<<< HEAD
 	if (bitrate < STARDARD_MAX_BITRATE)
 		mode = STANDARD;
 	else if (bitrate < FAST_MAX_BITRATE)
@@ -159,6 +163,15 @@ static void lpi2c_imx_set_mode(struct lpi2c_imx_struct *lpi2c_imx)
 	else if (bitrate < FAST_PLUS_MAX_BITRATE)
 		mode = FAST_PLUS;
 	else if (bitrate < HIGHSPEED_MAX_BITRATE)
+=======
+	if (bitrate < I2C_MAX_FAST_MODE_FREQ)
+		mode = STANDARD;
+	else if (bitrate < I2C_MAX_FAST_MODE_PLUS_FREQ)
+		mode = FAST;
+	else if (bitrate < I2C_MAX_HIGH_SPEED_MODE_FREQ)
+		mode = FAST_PLUS;
+	else if (bitrate < I2C_MAX_ULTRA_FAST_MODE_FREQ)
+>>>>>>> upstream/android-13
 		mode = HS;
 	else
 		mode = ULTRA_FAST;
@@ -265,7 +278,11 @@ static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
 	unsigned int temp;
 	int ret;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(lpi2c_imx->adapter.dev.parent);
+=======
+	ret = pm_runtime_resume_and_get(lpi2c_imx->adapter.dev.parent);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -545,7 +562,10 @@ MODULE_DEVICE_TABLE(of, lpi2c_imx_of_match);
 static int lpi2c_imx_probe(struct platform_device *pdev)
 {
 	struct lpi2c_imx_struct *lpi2c_imx;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int temp;
 	int irq, ret;
 
@@ -553,16 +573,25 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
 	if (!lpi2c_imx)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	lpi2c_imx->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	lpi2c_imx->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(lpi2c_imx->base))
 		return PTR_ERR(lpi2c_imx->base);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "can't get irq number\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	lpi2c_imx->adapter.owner	= THIS_MODULE;
 	lpi2c_imx->adapter.algo		= &lpi2c_imx_algo;
@@ -580,7 +609,11 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
 	ret = of_property_read_u32(pdev->dev.of_node,
 				   "clock-frequency", &lpi2c_imx->bitrate);
 	if (ret)
+<<<<<<< HEAD
 		lpi2c_imx->bitrate = LPI2C_DEFAULT_RATE;
+=======
+		lpi2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(&pdev->dev, irq, lpi2c_imx_isr, 0,
 			       pdev->name, lpi2c_imx);
@@ -639,8 +672,12 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int lpi2c_runtime_suspend(struct device *dev)
+=======
+static int __maybe_unused lpi2c_runtime_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
 
@@ -650,7 +687,11 @@ static int lpi2c_runtime_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lpi2c_runtime_resume(struct device *dev)
+=======
+static int __maybe_unused lpi2c_runtime_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
 	int ret;
@@ -671,10 +712,13 @@ static const struct dev_pm_ops lpi2c_pm_ops = {
 	SET_RUNTIME_PM_OPS(lpi2c_runtime_suspend,
 			   lpi2c_runtime_resume, NULL)
 };
+<<<<<<< HEAD
 #define IMX_LPI2C_PM      (&lpi2c_pm_ops)
 #else
 #define IMX_LPI2C_PM      NULL
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver lpi2c_imx_driver = {
 	.probe = lpi2c_imx_probe,
@@ -682,7 +726,11 @@ static struct platform_driver lpi2c_imx_driver = {
 	.driver = {
 		.name = DRIVER_NAME,
 		.of_match_table = lpi2c_imx_of_match,
+<<<<<<< HEAD
 		.pm = IMX_LPI2C_PM,
+=======
+		.pm = &lpi2c_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 

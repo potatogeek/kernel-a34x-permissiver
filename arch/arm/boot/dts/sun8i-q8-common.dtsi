@@ -49,6 +49,22 @@
 		ethernet0 = &sdio_wifi;
 	};
 
+<<<<<<< HEAD
+=======
+	panel: panel {
+		/* Tablet dts should provide panel compatible */
+		backlight = <&backlight>;
+		enable-gpios = <&pio 7 7 GPIO_ACTIVE_HIGH>; /* PH7 */
+		power-supply = <&reg_dc1sw>;
+
+		port {
+			panel_input: endpoint {
+				remote-endpoint = <&tcon0_out_lcd>;
+			};
+		};
+	};
+
+>>>>>>> upstream/android-13
 	wifi_pwrseq: wifi_pwrseq {
 		compatible = "mmc-pwrseq-simple";
 		/*
@@ -64,13 +80,24 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&de {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &ehci0 {
 	status  = "okay";
 };
 
 &mmc1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&mmc1_pins_a>;
+=======
+	pinctrl-0 = <&mmc1_pg_pins>;
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_dldo1>;
 	mmc-pwrseq = <&wifi_pwrseq>;
 	bus-width = <4>;
@@ -82,18 +109,32 @@
 	};
 };
 
+<<<<<<< HEAD
 &mmc1_pins_a {
 	bias-pull-up;
 };
 
 &r_pio {
 	wifi_pwrseq_pin_q8: wifi_pwrseq_pin@0 {
+=======
+&r_pio {
+	wifi_pwrseq_pin_q8: wifi-pwrseq-pins {
+>>>>>>> upstream/android-13
 		pins = "PL6", "PL7", "PL11";
 		function = "gpio_in";
 		bias-pull-up;
 	};
 };
 
+<<<<<<< HEAD
+=======
+&tcon0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&lcd_rgb666_pins>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &usbphy {
 	usb1_vbus-supply = <&reg_dldo1>;
 };

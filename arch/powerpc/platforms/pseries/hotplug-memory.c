@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pseries Memory Hotplug infrastructure.
  *
  * Copyright (C) 2008 Badari Pulavarty, IBM Corporation
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"pseries-hotplug-mem: " fmt
@@ -26,8 +33,11 @@
 #include <asm/drmem.h>
 #include "pseries.h"
 
+<<<<<<< HEAD
 static bool rtas_hp_event;
 
+=======
+>>>>>>> upstream/android-13
 unsigned long pseries_memory_block_size(void)
 {
 	struct device_node *np;
@@ -36,12 +46,26 @@ unsigned long pseries_memory_block_size(void)
 
 	np = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
 	if (np) {
+<<<<<<< HEAD
 		const __be64 *size;
 
 		size = of_get_property(np, "ibm,lmb-size", NULL);
 		if (size)
 			memblock_size = be64_to_cpup(size);
 		of_node_put(np);
+=======
+		int len;
+		int size_cells;
+		const __be32 *prop;
+
+		size_cells = of_n_size_cells(np);
+
+		prop = of_get_property(np, "ibm,lmb-size", &len);
+		if (prop && len >= size_cells * sizeof(__be32))
+			memblock_size = of_read_number(prop, size_cells);
+		of_node_put(np);
+
+>>>>>>> upstream/android-13
 	} else  if (machine_is(pseries)) {
 		/* This fallback really only applies to pseries */
 		unsigned int memzero_size = 0;
@@ -181,6 +205,11 @@ static int update_lmb_associativity_index(struct drmem_lmb *lmb)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	update_numa_distance(lmb_node);
+
+>>>>>>> upstream/android-13
 	dr_node = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
 	if (!dr_node) {
 		dlpar_free_cc_nodes(lmb_node);
@@ -212,6 +241,7 @@ static int update_lmb_associativity_index(struct drmem_lmb *lmb)
 static struct memory_block *lmb_to_memblock(struct drmem_lmb *lmb)
 {
 	unsigned long section_nr;
+<<<<<<< HEAD
 	struct mem_section *mem_sect;
 	struct memory_block *mem_block;
 
@@ -219,6 +249,13 @@ static struct memory_block *lmb_to_memblock(struct drmem_lmb *lmb)
 	mem_sect = __nr_to_section(section_nr);
 
 	mem_block = find_memory_block(mem_sect);
+=======
+	struct memory_block *mem_block;
+
+	section_nr = pfn_to_section_nr(PFN_DOWN(lmb->base_addr));
+
+	mem_block = find_memory_block(section_nr);
+>>>>>>> upstream/android-13
 	return mem_block;
 }
 
@@ -283,11 +320,19 @@ static int dlpar_offline_lmb(struct drmem_lmb *lmb)
 	return dlpar_change_lmb_state(lmb, false);
 }
 
+<<<<<<< HEAD
 static int pseries_remove_memblock(unsigned long base, unsigned int memblock_size)
 {
 	unsigned long block_sz, start_pfn;
 	int sections_per_block;
 	int i, nid;
+=======
+static int pseries_remove_memblock(unsigned long base, unsigned long memblock_size)
+{
+	unsigned long block_sz, start_pfn;
+	int sections_per_block;
+	int i;
+>>>>>>> upstream/android-13
 
 	start_pfn = base >> PAGE_SHIFT;
 
@@ -298,10 +343,16 @@ static int pseries_remove_memblock(unsigned long base, unsigned int memblock_siz
 
 	block_sz = pseries_memory_block_size();
 	sections_per_block = block_sz / MIN_MEMORY_BLOCK_SIZE;
+<<<<<<< HEAD
 	nid = memory_add_physaddr_to_nid(base);
 
 	for (i = 0; i < sections_per_block; i++) {
 		__remove_memory(nid, base, MIN_MEMORY_BLOCK_SIZE);
+=======
+
+	for (i = 0; i < sections_per_block; i++) {
+		__remove_memory(base, MIN_MEMORY_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 		base += MIN_MEMORY_BLOCK_SIZE;
 	}
 
@@ -314,28 +365,56 @@ out:
 
 static int pseries_remove_mem_node(struct device_node *np)
 {
+<<<<<<< HEAD
 	const char *type;
 	const __be32 *regs;
 	unsigned long base;
 	unsigned int lmb_size;
 	int ret = -EINVAL;
+=======
+	const __be32 *prop;
+	unsigned long base;
+	unsigned long lmb_size;
+	int ret = -EINVAL;
+	int addr_cells, size_cells;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check to see if we are actually removing memory
 	 */
+<<<<<<< HEAD
 	type = of_get_property(np, "device_type", NULL);
 	if (type == NULL || strcmp(type, "memory") != 0)
+=======
+	if (!of_node_is_type(np, "memory"))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
 	 * Find the base address and size of the memblock
 	 */
+<<<<<<< HEAD
 	regs = of_get_property(np, "reg", NULL);
 	if (!regs)
 		return ret;
 
 	base = be64_to_cpu(*(unsigned long *)regs);
 	lmb_size = be32_to_cpu(regs[3]);
+=======
+	prop = of_get_property(np, "reg", NULL);
+	if (!prop)
+		return ret;
+
+	addr_cells = of_n_addr_cells(np);
+	size_cells = of_n_size_cells(np);
+
+	/*
+	 * "reg" property represents (addr,size) tuple.
+	 */
+	base = of_read_number(prop, addr_cells);
+	prop += addr_cells;
+	lmb_size = of_read_number(prop, size_cells);
+>>>>>>> upstream/android-13
 
 	pseries_remove_memblock(base, lmb_size);
 	return 0;
@@ -343,6 +422,7 @@ static int pseries_remove_mem_node(struct device_node *np)
 
 static bool lmb_is_removable(struct drmem_lmb *lmb)
 {
+<<<<<<< HEAD
 	int i, scns_per_block;
 	int rc = 1;
 	unsigned long pfn, block_sz;
@@ -355,11 +435,18 @@ static bool lmb_is_removable(struct drmem_lmb *lmb)
 	scns_per_block = block_sz / MIN_MEMORY_BLOCK_SIZE;
 	phys_addr = lmb->base_addr;
 
+=======
+	if ((lmb->flags & DRCONF_MEM_RESERVED) ||
+		!(lmb->flags & DRCONF_MEM_ASSIGNED))
+		return false;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FA_DUMP
 	/*
 	 * Don't hot-remove memory that falls in fadump boot memory area
 	 * and memory that is reserved for capturing old kernel memory.
 	 */
+<<<<<<< HEAD
 	if (is_fadump_memory_area(phys_addr, block_sz))
 		return false;
 #endif
@@ -376,18 +463,32 @@ static bool lmb_is_removable(struct drmem_lmb *lmb)
 	}
 
 	return rc ? true : false;
+=======
+	if (is_fadump_memory_area(lmb->base_addr, memory_block_size_bytes()))
+		return false;
+#endif
+	/* device_offline() will determine if we can actually remove this lmb */
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static int dlpar_add_lmb(struct drmem_lmb *);
 
 static int dlpar_remove_lmb(struct drmem_lmb *lmb)
 {
+<<<<<<< HEAD
 	unsigned long block_sz;
 	int nid, rc;
+=======
+	struct memory_block *mem_block;
+	unsigned long block_sz;
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (!lmb_is_removable(lmb))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	rc = dlpar_offline_lmb(lmb);
 	if (rc)
 		return rc;
@@ -396,6 +497,22 @@ static int dlpar_remove_lmb(struct drmem_lmb *lmb)
 	nid = memory_add_physaddr_to_nid(lmb->base_addr);
 
 	__remove_memory(nid, lmb->base_addr, block_sz);
+=======
+	mem_block = lmb_to_memblock(lmb);
+	if (mem_block == NULL)
+		return -EINVAL;
+
+	rc = dlpar_offline_lmb(lmb);
+	if (rc) {
+		put_device(&mem_block->dev);
+		return rc;
+	}
+
+	block_sz = pseries_memory_block_size();
+
+	__remove_memory(lmb->base_addr, block_sz);
+	put_device(&mem_block->dev);
+>>>>>>> upstream/android-13
 
 	/* Update memory regions for memory remove */
 	memblock_remove(lmb->base_addr, block_sz);
@@ -409,7 +526,11 @@ static int dlpar_remove_lmb(struct drmem_lmb *lmb)
 static int dlpar_memory_remove_by_count(u32 lmbs_to_remove)
 {
 	struct drmem_lmb *lmb;
+<<<<<<< HEAD
 	int lmbs_removed = 0;
+=======
+	int lmbs_reserved = 0;
+>>>>>>> upstream/android-13
 	int lmbs_available = 0;
 	int rc;
 
@@ -443,12 +564,21 @@ static int dlpar_memory_remove_by_count(u32 lmbs_to_remove)
 		 */
 		drmem_mark_lmb_reserved(lmb);
 
+<<<<<<< HEAD
 		lmbs_removed++;
 		if (lmbs_removed == lmbs_to_remove)
 			break;
 	}
 
 	if (lmbs_removed != lmbs_to_remove) {
+=======
+		lmbs_reserved++;
+		if (lmbs_reserved == lmbs_to_remove)
+			break;
+	}
+
+	if (lmbs_reserved != lmbs_to_remove) {
+>>>>>>> upstream/android-13
 		pr_err("Memory hot-remove failed, adding LMB's back\n");
 
 		for_each_drmem_lmb(lmb) {
@@ -461,6 +591,13 @@ static int dlpar_memory_remove_by_count(u32 lmbs_to_remove)
 				       lmb->drc_index);
 
 			drmem_remove_lmb_reservation(lmb);
+<<<<<<< HEAD
+=======
+
+			lmbs_reserved--;
+			if (lmbs_reserved == 0)
+				break;
+>>>>>>> upstream/android-13
 		}
 
 		rc = -EINVAL;
@@ -474,6 +611,13 @@ static int dlpar_memory_remove_by_count(u32 lmbs_to_remove)
 				lmb->base_addr);
 
 			drmem_remove_lmb_reservation(lmb);
+<<<<<<< HEAD
+=======
+
+			lmbs_reserved--;
+			if (lmbs_reserved == 0)
+				break;
+>>>>>>> upstream/android-13
 		}
 		rc = 0;
 	}
@@ -487,7 +631,11 @@ static int dlpar_memory_remove_by_index(u32 drc_index)
 	int lmb_found;
 	int rc;
 
+<<<<<<< HEAD
 	pr_info("Attempting to hot-remove LMB, drc index %x\n", drc_index);
+=======
+	pr_debug("Attempting to hot-remove LMB, drc index %x\n", drc_index);
+>>>>>>> upstream/android-13
 
 	lmb_found = 0;
 	for_each_drmem_lmb(lmb) {
@@ -505,6 +653,7 @@ static int dlpar_memory_remove_by_index(u32 drc_index)
 		rc = -EINVAL;
 
 	if (rc)
+<<<<<<< HEAD
 		pr_info("Failed to hot-remove memory at %llx\n",
 			lmb->base_addr);
 	else
@@ -543,6 +692,12 @@ static int dlpar_memory_readd_by_index(u32 drc_index)
 			lmb->base_addr);
 	else
 		pr_info("Memory at %llx was updated\n", lmb->base_addr);
+=======
+		pr_debug("Failed to hot-remove memory at %llx\n",
+			 lmb->base_addr);
+	else
+		pr_debug("Memory at %llx was hot-removed\n", lmb->base_addr);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -550,7 +705,10 @@ static int dlpar_memory_readd_by_index(u32 drc_index)
 static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
 {
 	struct drmem_lmb *lmb, *start_lmb, *end_lmb;
+<<<<<<< HEAD
 	int lmbs_available = 0;
+=======
+>>>>>>> upstream/android-13
 	int rc;
 
 	pr_info("Attempting to hot-remove %u LMB(s) at %x\n",
@@ -563,6 +721,7 @@ static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
 	if (rc)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Validate that there are enough LMBs to satisfy the request */
 	for_each_drmem_lmb_in_range(lmb, start_lmb, end_lmb) {
 		if (lmb->flags & DRCONF_MEM_RESERVED)
@@ -575,6 +734,31 @@ static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
 		return -EINVAL;
 
 	for_each_drmem_lmb_in_range(lmb, start_lmb, end_lmb) {
+=======
+	/*
+	 * Validate that all LMBs in range are not reserved. Note that it
+	 * is ok if they are !ASSIGNED since our goal here is to remove the
+	 * LMB range, regardless of whether some LMBs were already removed
+	 * by any other reason.
+	 *
+	 * This is a contrast to what is done in remove_by_count() where we
+	 * check for both RESERVED and !ASSIGNED (via lmb_is_removable()),
+	 * because we want to remove a fixed amount of LMBs in that function.
+	 */
+	for_each_drmem_lmb_in_range(lmb, start_lmb, end_lmb) {
+		if (lmb->flags & DRCONF_MEM_RESERVED) {
+			pr_err("Memory at %llx (drc index %x) is reserved\n",
+				lmb->base_addr, lmb->drc_index);
+			return -EINVAL;
+		}
+	}
+
+	for_each_drmem_lmb_in_range(lmb, start_lmb, end_lmb) {
+		/*
+		 * dlpar_remove_lmb() will error out if the LMB is already
+		 * !ASSIGNED, but this case is a no-op for us.
+		 */
+>>>>>>> upstream/android-13
 		if (!(lmb->flags & DRCONF_MEM_ASSIGNED))
 			continue;
 
@@ -593,6 +777,16 @@ static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
 			if (!drmem_lmb_reserved(lmb))
 				continue;
 
+<<<<<<< HEAD
+=======
+			/*
+			 * Setting the isolation state of an UNISOLATED/CONFIGURED
+			 * device to UNISOLATE is a no-op, but the hypervisor can
+			 * use it as a hint that the LMB removal failed.
+			 */
+			dlpar_unisolate_drc(lmb->drc_index);
+
+>>>>>>> upstream/android-13
 			rc = dlpar_add_lmb(lmb);
 			if (rc)
 				pr_err("Failed to add LMB, drc index %x\n",
@@ -619,7 +813,11 @@ static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
 
 #else
 static inline int pseries_remove_memblock(unsigned long base,
+<<<<<<< HEAD
 					  unsigned int memblock_size)
+=======
+					  unsigned long memblock_size)
+>>>>>>> upstream/android-13
 {
 	return -EOPNOTSUPP;
 }
@@ -627,10 +825,13 @@ static inline int pseries_remove_mem_node(struct device_node *np)
 {
 	return 0;
 }
+<<<<<<< HEAD
 static inline int dlpar_memory_remove(struct pseries_hp_errorlog *hp_elog)
 {
 	return -EOPNOTSUPP;
 }
+=======
+>>>>>>> upstream/android-13
 static int dlpar_remove_lmb(struct drmem_lmb *lmb)
 {
 	return -EOPNOTSUPP;
@@ -643,10 +844,13 @@ static int dlpar_memory_remove_by_index(u32 drc_index)
 {
 	return -EOPNOTSUPP;
 }
+<<<<<<< HEAD
 static int dlpar_memory_readd_by_index(u32 drc_index)
 {
 	return -EOPNOTSUPP;
 }
+=======
+>>>>>>> upstream/android-13
 
 static int dlpar_memory_remove_by_ic(u32 lmbs_to_remove, u32 drc_index)
 {
@@ -670,11 +874,21 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
 
 	block_sz = memory_block_size_bytes();
 
+<<<<<<< HEAD
 	/* Find the node id for this address */
 	nid = memory_add_physaddr_to_nid(lmb->base_addr);
 
 	/* Add the memory */
 	rc = __add_memory(nid, lmb->base_addr, block_sz);
+=======
+	/* Find the node id for this LMB.  Fake one if necessary. */
+	nid = of_drconf_to_nid_single(lmb);
+	if (nid < 0 || !node_possible(nid))
+		nid = first_online_node;
+
+	/* Add the memory */
+	rc = __add_memory(nid, lmb->base_addr, block_sz, MHP_NONE);
+>>>>>>> upstream/android-13
 	if (rc) {
 		invalidate_lmb_associativity_index(lmb);
 		return rc;
@@ -682,7 +896,11 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
 
 	rc = dlpar_online_lmb(lmb);
 	if (rc) {
+<<<<<<< HEAD
 		__remove_memory(nid, lmb->base_addr, block_sz);
+=======
+		__remove_memory(lmb->base_addr, block_sz);
+>>>>>>> upstream/android-13
 		invalidate_lmb_associativity_index(lmb);
 	} else {
 		lmb->flags |= DRCONF_MEM_ASSIGNED;
@@ -695,7 +913,11 @@ static int dlpar_memory_add_by_count(u32 lmbs_to_add)
 {
 	struct drmem_lmb *lmb;
 	int lmbs_available = 0;
+<<<<<<< HEAD
 	int lmbs_added = 0;
+=======
+	int lmbs_reserved = 0;
+>>>>>>> upstream/android-13
 	int rc;
 
 	pr_info("Attempting to hot-add %d LMB(s)\n", lmbs_to_add);
@@ -705,6 +927,12 @@ static int dlpar_memory_add_by_count(u32 lmbs_to_add)
 
 	/* Validate that there are enough LMBs to satisfy the request */
 	for_each_drmem_lmb(lmb) {
+<<<<<<< HEAD
+=======
+		if (lmb->flags & DRCONF_MEM_RESERVED)
+			continue;
+
+>>>>>>> upstream/android-13
 		if (!(lmb->flags & DRCONF_MEM_ASSIGNED))
 			lmbs_available++;
 
@@ -733,6 +961,7 @@ static int dlpar_memory_add_by_count(u32 lmbs_to_add)
 		 * requested LMBs cannot be added.
 		 */
 		drmem_mark_lmb_reserved(lmb);
+<<<<<<< HEAD
 
 		lmbs_added++;
 		if (lmbs_added == lmbs_to_add)
@@ -740,6 +969,14 @@ static int dlpar_memory_add_by_count(u32 lmbs_to_add)
 	}
 
 	if (lmbs_added != lmbs_to_add) {
+=======
+		lmbs_reserved++;
+		if (lmbs_reserved == lmbs_to_add)
+			break;
+	}
+
+	if (lmbs_reserved != lmbs_to_add) {
+>>>>>>> upstream/android-13
 		pr_err("Memory hot-add failed, removing any added LMBs\n");
 
 		for_each_drmem_lmb(lmb) {
@@ -754,6 +991,13 @@ static int dlpar_memory_add_by_count(u32 lmbs_to_add)
 				dlpar_release_drc(lmb->drc_index);
 
 			drmem_remove_lmb_reservation(lmb);
+<<<<<<< HEAD
+=======
+			lmbs_reserved--;
+
+			if (lmbs_reserved == 0)
+				break;
+>>>>>>> upstream/android-13
 		}
 		rc = -EINVAL;
 	} else {
@@ -761,9 +1005,19 @@ static int dlpar_memory_add_by_count(u32 lmbs_to_add)
 			if (!drmem_lmb_reserved(lmb))
 				continue;
 
+<<<<<<< HEAD
 			pr_info("Memory at %llx (drc index %x) was hot-added\n",
 				lmb->base_addr, lmb->drc_index);
 			drmem_remove_lmb_reservation(lmb);
+=======
+			pr_debug("Memory at %llx (drc index %x) was hot-added\n",
+				 lmb->base_addr, lmb->drc_index);
+			drmem_remove_lmb_reservation(lmb);
+			lmbs_reserved--;
+
+			if (lmbs_reserved == 0)
+				break;
+>>>>>>> upstream/android-13
 		}
 		rc = 0;
 	}
@@ -808,7 +1062,10 @@ static int dlpar_memory_add_by_index(u32 drc_index)
 static int dlpar_memory_add_by_ic(u32 lmbs_to_add, u32 drc_index)
 {
 	struct drmem_lmb *lmb, *start_lmb, *end_lmb;
+<<<<<<< HEAD
 	int lmbs_available = 0;
+=======
+>>>>>>> upstream/android-13
 	int rc;
 
 	pr_info("Attempting to hot-add %u LMB(s) at index %x\n",
@@ -823,6 +1080,7 @@ static int dlpar_memory_add_by_ic(u32 lmbs_to_add, u32 drc_index)
 
 	/* Validate that the LMBs in this range are not reserved */
 	for_each_drmem_lmb_in_range(lmb, start_lmb, end_lmb) {
+<<<<<<< HEAD
 		if (lmb->flags & DRCONF_MEM_RESERVED)
 			break;
 
@@ -832,6 +1090,16 @@ static int dlpar_memory_add_by_ic(u32 lmbs_to_add, u32 drc_index)
 	if (lmbs_available < lmbs_to_add)
 		return -EINVAL;
 
+=======
+		/* Fail immediately if the whole range can't be hot-added */
+		if (lmb->flags & DRCONF_MEM_RESERVED) {
+			pr_err("Memory at %llx (drc index %x) is reserved\n",
+					lmb->base_addr, lmb->drc_index);
+			return -EINVAL;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	for_each_drmem_lmb_in_range(lmb, start_lmb, end_lmb) {
 		if (lmb->flags & DRCONF_MEM_ASSIGNED)
 			continue;
@@ -889,6 +1157,7 @@ int dlpar_memory(struct pseries_hp_errorlog *hp_elog)
 
 	switch (hp_elog->action) {
 	case PSERIES_HP_ELOG_ACTION_ADD:
+<<<<<<< HEAD
 		if (hp_elog->id_type == PSERIES_HP_ELOG_ID_DRC_COUNT) {
 			count = hp_elog->_drc_u.drc_count;
 			rc = dlpar_memory_add_by_count(count);
@@ -901,10 +1170,30 @@ int dlpar_memory(struct pseries_hp_errorlog *hp_elog)
 			rc = dlpar_memory_add_by_ic(count, drc_index);
 		} else {
 			rc = -EINVAL;
+=======
+		switch (hp_elog->id_type) {
+		case PSERIES_HP_ELOG_ID_DRC_COUNT:
+			count = hp_elog->_drc_u.drc_count;
+			rc = dlpar_memory_add_by_count(count);
+			break;
+		case PSERIES_HP_ELOG_ID_DRC_INDEX:
+			drc_index = hp_elog->_drc_u.drc_index;
+			rc = dlpar_memory_add_by_index(drc_index);
+			break;
+		case PSERIES_HP_ELOG_ID_DRC_IC:
+			count = hp_elog->_drc_u.ic.count;
+			drc_index = hp_elog->_drc_u.ic.index;
+			rc = dlpar_memory_add_by_ic(count, drc_index);
+			break;
+		default:
+			rc = -EINVAL;
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		break;
 	case PSERIES_HP_ELOG_ACTION_REMOVE:
+<<<<<<< HEAD
 		if (hp_elog->id_type == PSERIES_HP_ELOG_ID_DRC_COUNT) {
 			count = hp_elog->_drc_u.drc_count;
 			rc = dlpar_memory_remove_by_count(count);
@@ -924,17 +1213,44 @@ int dlpar_memory(struct pseries_hp_errorlog *hp_elog)
 		drc_index = hp_elog->_drc_u.drc_index;
 		rc = dlpar_memory_readd_by_index(drc_index);
 		break;
+=======
+		switch (hp_elog->id_type) {
+		case PSERIES_HP_ELOG_ID_DRC_COUNT:
+			count = hp_elog->_drc_u.drc_count;
+			rc = dlpar_memory_remove_by_count(count);
+			break;
+		case PSERIES_HP_ELOG_ID_DRC_INDEX:
+			drc_index = hp_elog->_drc_u.drc_index;
+			rc = dlpar_memory_remove_by_index(drc_index);
+			break;
+		case PSERIES_HP_ELOG_ID_DRC_IC:
+			count = hp_elog->_drc_u.ic.count;
+			drc_index = hp_elog->_drc_u.ic.index;
+			rc = dlpar_memory_remove_by_ic(count, drc_index);
+			break;
+		default:
+			rc = -EINVAL;
+			break;
+		}
+
+		break;
+>>>>>>> upstream/android-13
 	default:
 		pr_err("Invalid action (%d) specified\n", hp_elog->action);
 		rc = -EINVAL;
 		break;
 	}
 
+<<<<<<< HEAD
 	if (!rc) {
 		rtas_hp_event = true;
 		rc = drmem_update_dt();
 		rtas_hp_event = false;
 	}
+=======
+	if (!rc)
+		rc = drmem_update_dt();
+>>>>>>> upstream/android-13
 
 	unlock_device_hotplug();
 	return rc;
@@ -942,28 +1258,55 @@ int dlpar_memory(struct pseries_hp_errorlog *hp_elog)
 
 static int pseries_add_mem_node(struct device_node *np)
 {
+<<<<<<< HEAD
 	const char *type;
 	const __be32 *regs;
 	unsigned long base;
 	unsigned int lmb_size;
 	int ret = -EINVAL;
+=======
+	const __be32 *prop;
+	unsigned long base;
+	unsigned long lmb_size;
+	int ret = -EINVAL;
+	int addr_cells, size_cells;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check to see if we are actually adding memory
 	 */
+<<<<<<< HEAD
 	type = of_get_property(np, "device_type", NULL);
 	if (type == NULL || strcmp(type, "memory") != 0)
+=======
+	if (!of_node_is_type(np, "memory"))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
 	 * Find the base and size of the memblock
 	 */
+<<<<<<< HEAD
 	regs = of_get_property(np, "reg", NULL);
 	if (!regs)
 		return ret;
 
 	base = be64_to_cpu(*(unsigned long *)regs);
 	lmb_size = be32_to_cpu(regs[3]);
+=======
+	prop = of_get_property(np, "reg", NULL);
+	if (!prop)
+		return ret;
+
+	addr_cells = of_n_addr_cells(np);
+	size_cells = of_n_size_cells(np);
+	/*
+	 * "reg" property represents (addr,size) tuple.
+	 */
+	base = of_read_number(prop, addr_cells);
+	prop += addr_cells;
+	lmb_size = of_read_number(prop, size_cells);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Update memory region to represent the memory add
@@ -972,6 +1315,7 @@ static int pseries_add_mem_node(struct device_node *np)
 	return (ret < 0) ? -EINVAL : 0;
 }
 
+<<<<<<< HEAD
 static int pseries_update_drconf_memory(struct of_reconfig_data *pr)
 {
 	struct of_drconf_cell_v1 *new_drmem, *old_drmem;
@@ -1026,6 +1370,8 @@ static int pseries_update_drconf_memory(struct of_reconfig_data *pr)
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pseries_memory_notifier(struct notifier_block *nb,
 				   unsigned long action, void *data)
 {
@@ -1040,9 +1386,15 @@ static int pseries_memory_notifier(struct notifier_block *nb,
 		err = pseries_remove_mem_node(rd->dn);
 		break;
 	case OF_RECONFIG_UPDATE_PROPERTY:
+<<<<<<< HEAD
 		if (!strcmp(rd->prop->name, "ibm,dynamic-memory"))
 			err = pseries_update_drconf_memory(rd);
 		break;
+=======
+		if (!strcmp(rd->dn->name,
+			    "ibm,dynamic-reconfiguration-memory"))
+			drmem_update_lmbs(rd->prop);
+>>>>>>> upstream/android-13
 	}
 	return notifier_from_errno(err);
 }

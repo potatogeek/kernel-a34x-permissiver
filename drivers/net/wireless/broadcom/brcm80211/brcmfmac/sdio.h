@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef	BRCMFMAC_SDIO_H
@@ -189,7 +195,10 @@ struct brcmf_sdio_dev {
 	bool sd_irq_requested;
 	bool irq_en;			/* irq enable flags */
 	spinlock_t irq_en_lock;
+<<<<<<< HEAD
 	bool irq_wake;			/* irq wake enable flags */
+=======
+>>>>>>> upstream/android-13
 	bool sg_support;
 	uint max_request_size;
 	ushort max_segment_count;
@@ -379,9 +388,18 @@ static inline void brcmf_sdiod_freezer_uncount(struct brcmf_sdio_dev *sdiodev)
 }
 #endif /* CONFIG_PM_SLEEP */
 
+<<<<<<< HEAD
 struct brcmf_sdio *brcmf_sdio_probe(struct brcmf_sdio_dev *sdiodev);
 void brcmf_sdio_remove(struct brcmf_sdio *bus);
 void brcmf_sdio_isr(struct brcmf_sdio *bus);
+=======
+int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev);
+int brcmf_sdiod_remove(struct brcmf_sdio_dev *sdiodev);
+
+struct brcmf_sdio *brcmf_sdio_probe(struct brcmf_sdio_dev *sdiodev);
+void brcmf_sdio_remove(struct brcmf_sdio *bus);
+void brcmf_sdio_isr(struct brcmf_sdio *bus, bool in_isr);
+>>>>>>> upstream/android-13
 
 void brcmf_sdio_wd_timer(struct brcmf_sdio *bus, bool active);
 void brcmf_sdio_wowl_config(struct device *dev, bool enabled);

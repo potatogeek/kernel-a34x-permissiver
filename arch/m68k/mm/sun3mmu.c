@@ -16,12 +16,19 @@
 #include <linux/string.h>
 #include <linux/types.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <asm/setup.h>
 #include <linux/uaccess.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/machdep.h>
 #include <asm/io.h>
 
@@ -42,10 +49,20 @@ void __init paging_init(void)
 	unsigned long address;
 	unsigned long next_pgtable;
 	unsigned long bootmem_end;
+<<<<<<< HEAD
 	unsigned long zones_size[MAX_NR_ZONES] = { 0, };
 	unsigned long size;
 
 	empty_zero_page = alloc_bootmem_pages(PAGE_SIZE);
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0, };
+	unsigned long size;
+
+	empty_zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+	if (!empty_zero_page)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, PAGE_SIZE, PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	address = PAGE_OFFSET;
 	pg_dir = swapper_pg_dir;
@@ -55,7 +72,14 @@ void __init paging_init(void)
 	size = num_pages * sizeof(pte_t);
 	size = (size + PAGE_SIZE) & ~(PAGE_SIZE-1);
 
+<<<<<<< HEAD
 	next_pgtable = (unsigned long)alloc_bootmem_pages(size);
+=======
+	next_pgtable = (unsigned long)memblock_alloc(size, PAGE_SIZE);
+	if (!next_pgtable)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, size, PAGE_SIZE);
+>>>>>>> upstream/android-13
 	bootmem_end = (next_pgtable + size + PAGE_SIZE) & PAGE_MASK;
 
 	/* Map whole memory from PAGE_OFFSET (0x0E000000) */
@@ -83,6 +107,7 @@ void __init paging_init(void)
 	current->mm = NULL;
 
 	/* memory sizing is a hack stolen from motorola.c..  hope it works for us */
+<<<<<<< HEAD
 	zones_size[ZONE_DMA] = ((unsigned long)high_memory - PAGE_OFFSET) >> PAGE_SHIFT;
 
 	/* I really wish I knew why the following change made things better...  -- Sam */
@@ -94,3 +119,12 @@ void __init paging_init(void)
 }
 
 
+=======
+	max_zone_pfn[ZONE_DMA] = ((unsigned long)high_memory) >> PAGE_SHIFT;
+
+	/* I really wish I knew why the following change made things better...  -- Sam */
+	free_area_init(max_zone_pfn);
+
+
+}
+>>>>>>> upstream/android-13

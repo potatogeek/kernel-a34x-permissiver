@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* AFS client file system
  *
  * Copyright (C) 2002,5 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -22,6 +29,10 @@
 MODULE_DESCRIPTION("AFS Client File System");
 MODULE_AUTHOR("Red Hat, Inc.");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 unsigned afs_debug;
 module_param_named(debug, afs_debug, uint, S_IWUSR | S_IRUGO);
@@ -82,16 +93,29 @@ static int __net_init afs_net_init(struct net *net_ns)
 	mutex_init(&net->socket_mutex);
 
 	net->cells = RB_ROOT;
+<<<<<<< HEAD
 	seqlock_init(&net->cells_lock);
 	INIT_WORK(&net->cells_manager, afs_manage_cells);
 	timer_setup(&net->cells_timer, afs_cells_timer, 0);
 
+=======
+	init_rwsem(&net->cells_lock);
+	INIT_WORK(&net->cells_manager, afs_manage_cells);
+	timer_setup(&net->cells_timer, afs_cells_timer, 0);
+
+	mutex_init(&net->cells_alias_lock);
+>>>>>>> upstream/android-13
 	mutex_init(&net->proc_cells_lock);
 	INIT_HLIST_HEAD(&net->proc_cells);
 
 	seqlock_init(&net->fs_lock);
 	net->fs_servers = RB_ROOT;
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&net->fs_updates);
+=======
+	INIT_LIST_HEAD(&net->fs_probe_fast);
+	INIT_LIST_HEAD(&net->fs_probe_slow);
+>>>>>>> upstream/android-13
 	INIT_HLIST_HEAD(&net->fs_proc);
 
 	INIT_HLIST_HEAD(&net->fs_addresses4);
@@ -100,6 +124,12 @@ static int __net_init afs_net_init(struct net *net_ns)
 
 	INIT_WORK(&net->fs_manager, afs_manage_servers);
 	timer_setup(&net->fs_timer, afs_servers_timer, 0);
+<<<<<<< HEAD
+=======
+	INIT_WORK(&net->fs_prober, afs_fs_probe_dispatcher);
+	timer_setup(&net->fs_probe_timer, afs_fs_probe_timer, 0);
+	atomic_set(&net->servers_outstanding, 1);
+>>>>>>> upstream/android-13
 
 	ret = -ENOMEM;
 	sysnames = kzalloc(sizeof(*sysnames), GFP_KERNEL);
@@ -130,6 +160,10 @@ static int __net_init afs_net_init(struct net *net_ns)
 
 error_open_socket:
 	net->live = false;
+<<<<<<< HEAD
+=======
+	afs_fs_probe_cleanup(net);
+>>>>>>> upstream/android-13
 	afs_cell_purge(net);
 	afs_purge_servers(net);
 error_cell_init:
@@ -150,6 +184,10 @@ static void __net_exit afs_net_exit(struct net *net_ns)
 	struct afs_net *net = afs_net(net_ns);
 
 	net->live = false;
+<<<<<<< HEAD
+=======
+	afs_fs_probe_cleanup(net);
+>>>>>>> upstream/android-13
 	afs_cell_purge(net);
 	afs_purge_servers(net);
 	afs_close_socket(net);
@@ -200,8 +238,13 @@ static int __init afs_init(void)
 		goto error_fs;
 
 	afs_proc_symlink = proc_symlink("fs/afs", NULL, "../self/net/afs");
+<<<<<<< HEAD
 	if (IS_ERR(afs_proc_symlink)) {
 		ret = PTR_ERR(afs_proc_symlink);
+=======
+	if (!afs_proc_symlink) {
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto error_proc;
 	}
 

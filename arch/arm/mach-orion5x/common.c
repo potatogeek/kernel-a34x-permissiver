@@ -12,6 +12,10 @@
 
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
 #include <linux/serial_8250.h>
@@ -20,7 +24,11 @@
 #include <linux/delay.h>
 #include <linux/clk-provider.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
 #include <net/dsa.h>
+=======
+#include <linux/platform_data/dsa.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/setup.h>
 #include <asm/system_misc.h>

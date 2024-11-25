@@ -26,7 +26,11 @@
 
 struct lsm_network_audit {
 	int netif;
+<<<<<<< HEAD
 	struct sock *sk;
+=======
+	const struct sock *sk;
+>>>>>>> upstream/android-13
 	u16 family;
 	__be16 dport;
 	__be16 sport;
@@ -48,6 +52,7 @@ struct lsm_ioctlop_audit {
 };
 
 struct lsm_ibpkey_audit {
+<<<<<<< HEAD
 	u64	subnet_prefix;
 	u16	pkey;
 };
@@ -55,6 +60,15 @@ struct lsm_ibpkey_audit {
 struct lsm_ibendport_audit {
 	char	dev_name[IB_DEVICE_NAME_MAX];
 	u8	port;
+=======
+	u64 subnet_prefix;
+	u16 pkey;
+};
+
+struct lsm_ibendport_audit {
+	const char *dev_name;
+	u8 port;
+>>>>>>> upstream/android-13
 };
 
 /* Auxiliary data to use in generating the audit record. */
@@ -74,6 +88,11 @@ struct common_audit_data {
 #define LSM_AUDIT_DATA_FILE	12
 #define LSM_AUDIT_DATA_IBPKEY	13
 #define LSM_AUDIT_DATA_IBENDPORT 14
+<<<<<<< HEAD
+=======
+#define LSM_AUDIT_DATA_LOCKDOWN 15
+#define LSM_AUDIT_DATA_NOTIFICATION 16
+>>>>>>> upstream/android-13
 	union 	{
 		struct path path;
 		struct dentry *dentry;
@@ -93,6 +112,10 @@ struct common_audit_data {
 		struct file *file;
 		struct lsm_ibpkey_audit *ibpkey;
 		struct lsm_ibendport_audit *ibendport;
+<<<<<<< HEAD
+=======
+		int reason;
+>>>>>>> upstream/android-13
 	} u;
 	/* this union contains LSM specific data */
 	union {

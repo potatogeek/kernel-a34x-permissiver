@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kallsyms.c: in-kernel printing of symbolic oopses and stack traces.
  *
@@ -23,7 +27,15 @@
 #include <linux/slab.h>
 #include <linux/filter.h>
 #include <linux/ftrace.h>
+<<<<<<< HEAD
 #include <linux/compiler.h>
+=======
+#include <linux/kprobes.h>
+#include <linux/build_bug.h>
+#include <linux/compiler.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 
 /*
  * These will be re-linked against their real values
@@ -37,6 +49,7 @@ extern const u8 kallsyms_names[] __weak;
  * Tell the compiler that the count isn't in the small data section if the arch
  * has one (eg: FRV).
  */
+<<<<<<< HEAD
 extern const unsigned long kallsyms_num_syms
 __attribute__((weak, section(".rodata")));
 
@@ -47,6 +60,18 @@ extern const u8 kallsyms_token_table[] __weak;
 extern const u16 kallsyms_token_index[] __weak;
 
 extern const unsigned long kallsyms_markers[] __weak;
+=======
+extern const unsigned int kallsyms_num_syms
+__section(".rodata") __attribute__((weak));
+
+extern const unsigned long kallsyms_relative_base
+__section(".rodata") __attribute__((weak));
+
+extern const char kallsyms_token_table[] __weak;
+extern const u16 kallsyms_token_index[] __weak;
+
+extern const unsigned int kallsyms_markers[] __weak;
+>>>>>>> upstream/android-13
 
 /*
  * Expand a compressed symbol data into the resulting uncompressed string,
@@ -57,7 +82,12 @@ static unsigned int kallsyms_expand_symbol(unsigned int off,
 					   char *result, size_t maxlen)
 {
 	int len, skipped_first = 0;
+<<<<<<< HEAD
 	const u8 *tptr, *data;
+=======
+	const char *tptr;
+	const u8 *data;
+>>>>>>> upstream/android-13
 
 	/* Get the compressed symbol length from the first symbol byte. */
 	data = &kallsyms_names[off];
@@ -158,6 +188,30 @@ static unsigned long kallsyms_sym_address(int idx)
 	return kallsyms_relative_base - 1 - kallsyms_offsets[idx];
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_CFI_CLANG) && defined(CONFIG_LTO_CLANG_THIN)
+/*
+ * LLVM appends a hash to static function names when ThinLTO and CFI are
+ * both enabled, i.e. foo() becomes foo$707af9a22804d33c81801f27dcfe489b.
+ * This causes confusion and potentially breaks user space tools, so we
+ * strip the suffix from expanded symbol names.
+ */
+static inline bool cleanup_symbol_name(char *s)
+{
+	char *res;
+
+	res = strrchr(s, '$');
+	if (res)
+		*res = '\0';
+
+	return res != NULL;
+}
+#else
+static inline bool cleanup_symbol_name(char *s) { return false; }
+#endif
+
+>>>>>>> upstream/android-13
 /* Lookup the address for this symbol. Returns 0 if not found. */
 unsigned long kallsyms_lookup_name(const char *name)
 {
@@ -170,10 +224,24 @@ unsigned long kallsyms_lookup_name(const char *name)
 
 		if (strcmp(namebuf, name) == 0)
 			return kallsyms_sym_address(i);
+<<<<<<< HEAD
+=======
+
+		if (cleanup_symbol_name(namebuf) && strcmp(namebuf, name) == 0)
+			return kallsyms_sym_address(i);
+>>>>>>> upstream/android-13
 	}
 	return module_kallsyms_lookup_name(name);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_LIVEPATCH
+/*
+ * Iterate over all symbols in vmlinux.  For symbols from modules use
+ * module_kallsyms_on_each_symbol instead.
+ */
+>>>>>>> upstream/android-13
 int kallsyms_on_each_symbol(int (*fn)(void *, const char *, struct module *,
 				      unsigned long),
 			    void *data)
@@ -189,8 +257,14 @@ int kallsyms_on_each_symbol(int (*fn)(void *, const char *, struct module *,
 		if (ret != 0)
 			return ret;
 	}
+<<<<<<< HEAD
 	return module_kallsyms_on_each_symbol(fn, data);
 }
+=======
+	return 0;
+}
+#endif /* CONFIG_LIVEPATCH */
+>>>>>>> upstream/android-13
 
 static unsigned long get_symbol_pos(unsigned long addr,
 				    unsigned long *symbolsize,
@@ -264,6 +338,7 @@ int kallsyms_lookup_size_offset(unsigned long addr, unsigned long *symbolsize,
 		get_symbol_pos(addr, symbolsize, offset);
 		return 1;
 	}
+<<<<<<< HEAD
 	return !!module_address_lookup(addr, symbolsize, offset, NULL, namebuf) ||
 	       !!__bpf_address_lookup(addr, symbolsize, offset, namebuf);
 }
@@ -303,6 +378,16 @@ const char *kallsyms_lookup(unsigned long addr,
 			    unsigned long *symbolsize,
 			    unsigned long *offset,
 			    char **modname, char *namebuf)
+=======
+	return !!module_address_lookup(addr, symbolsize, offset, NULL, NULL, namebuf) ||
+	       !!__bpf_address_lookup(addr, symbolsize, offset, namebuf);
+}
+
+static const char *kallsyms_lookup_buildid(unsigned long addr,
+			unsigned long *symbolsize,
+			unsigned long *offset, char **modname,
+			const unsigned char **modbuildid, char *namebuf)
+>>>>>>> upstream/android-13
 {
 	const char *ret;
 
@@ -318,6 +403,11 @@ const char *kallsyms_lookup(unsigned long addr,
 				       namebuf, KSYM_NAME_LEN);
 		if (modname)
 			*modname = NULL;
+<<<<<<< HEAD
+=======
+		if (modbuildid)
+			*modbuildid = NULL;
+>>>>>>> upstream/android-13
 
 		ret = namebuf;
 		goto found;
@@ -325,7 +415,11 @@ const char *kallsyms_lookup(unsigned long addr,
 
 	/* See if it's in a module or a BPF JITed image. */
 	ret = module_address_lookup(addr, symbolsize, offset,
+<<<<<<< HEAD
 				    modname, namebuf);
+=======
+				    modname, modbuildid, namebuf);
+>>>>>>> upstream/android-13
 	if (!ret)
 		ret = bpf_address_lookup(addr, symbolsize,
 					 offset, modname, namebuf);
@@ -339,6 +433,25 @@ found:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Lookup an address
+ * - modname is set to NULL if it's in the kernel.
+ * - We guarantee that the returned name is valid until we reschedule even if.
+ *   It resides in a module.
+ * - We also guarantee that modname will be valid until rescheduled.
+ */
+const char *kallsyms_lookup(unsigned long addr,
+			    unsigned long *symbolsize,
+			    unsigned long *offset,
+			    char **modname, char *namebuf)
+{
+	return kallsyms_lookup_buildid(addr, symbolsize, offset, modname,
+				       NULL, namebuf);
+}
+
+>>>>>>> upstream/android-13
 int lookup_symbol_name(unsigned long addr, char *symname)
 {
 	int res;
@@ -395,15 +508,27 @@ found:
 
 /* Look up a kernel symbol and return it in a text buffer. */
 static int __sprint_symbol(char *buffer, unsigned long address,
+<<<<<<< HEAD
 			   int symbol_offset, int add_offset)
 {
 	char *modname;
+=======
+			   int symbol_offset, int add_offset, int add_buildid)
+{
+	char *modname;
+	const unsigned char *buildid;
+>>>>>>> upstream/android-13
 	const char *name;
 	unsigned long offset, size;
 	int len;
 
 	address += symbol_offset;
+<<<<<<< HEAD
 	name = kallsyms_lookup(address, &size, &offset, &modname, buffer);
+=======
+	name = kallsyms_lookup_buildid(address, &size, &offset, &modname, &buildid,
+				       buffer);
+>>>>>>> upstream/android-13
 	if (!name)
 		return sprintf(buffer, "0x%lx", address - symbol_offset);
 
@@ -415,8 +540,24 @@ static int __sprint_symbol(char *buffer, unsigned long address,
 	if (add_offset)
 		len += sprintf(buffer + len, "+%#lx/%#lx", offset, size);
 
+<<<<<<< HEAD
 	if (modname)
 		len += sprintf(buffer + len, " [%s]", modname);
+=======
+	if (modname) {
+		len += sprintf(buffer + len, " [%s", modname);
+#if IS_ENABLED(CONFIG_STACKTRACE_BUILD_ID)
+		if (add_buildid && buildid) {
+			/* build ID should match length of sprintf */
+#if IS_ENABLED(CONFIG_MODULES)
+			static_assert(sizeof(typeof_member(struct module, build_id)) == 20);
+#endif
+			len += sprintf(buffer + len, " %20phN", buildid);
+		}
+#endif
+		len += sprintf(buffer + len, "]");
+	}
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -434,11 +575,35 @@ static int __sprint_symbol(char *buffer, unsigned long address,
  */
 int sprint_symbol(char *buffer, unsigned long address)
 {
+<<<<<<< HEAD
 	return __sprint_symbol(buffer, address, 0, 1);
+=======
+	return __sprint_symbol(buffer, address, 0, 1, 0);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sprint_symbol);
 
 /**
+<<<<<<< HEAD
+=======
+ * sprint_symbol_build_id - Look up a kernel symbol and return it in a text buffer
+ * @buffer: buffer to be stored
+ * @address: address to lookup
+ *
+ * This function looks up a kernel symbol with @address and stores its name,
+ * offset, size, module name and module build ID to @buffer if possible. If no
+ * symbol was found, just saves its @address as is.
+ *
+ * This function returns the number of bytes stored in @buffer.
+ */
+int sprint_symbol_build_id(char *buffer, unsigned long address)
+{
+	return __sprint_symbol(buffer, address, 0, 1, 1);
+}
+EXPORT_SYMBOL_GPL(sprint_symbol_build_id);
+
+/**
+>>>>>>> upstream/android-13
  * sprint_symbol_no_offset - Look up a kernel symbol and return it in a text buffer
  * @buffer: buffer to be stored
  * @address: address to lookup
@@ -451,7 +616,11 @@ EXPORT_SYMBOL_GPL(sprint_symbol);
  */
 int sprint_symbol_no_offset(char *buffer, unsigned long address)
 {
+<<<<<<< HEAD
 	return __sprint_symbol(buffer, address, 0, 0);
+=======
+	return __sprint_symbol(buffer, address, 0, 0, 0);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sprint_symbol_no_offset);
 
@@ -471,7 +640,31 @@ EXPORT_SYMBOL_GPL(sprint_symbol_no_offset);
  */
 int sprint_backtrace(char *buffer, unsigned long address)
 {
+<<<<<<< HEAD
 	return __sprint_symbol(buffer, address, -1, 1);
+=======
+	return __sprint_symbol(buffer, address, -1, 1, 0);
+}
+
+/**
+ * sprint_backtrace_build_id - Look up a backtrace symbol and return it in a text buffer
+ * @buffer: buffer to be stored
+ * @address: address to lookup
+ *
+ * This function is for stack backtrace and does the same thing as
+ * sprint_symbol() but with modified/decreased @address. If there is a
+ * tail-call to the function marked "noreturn", gcc optimized out code after
+ * the call so that the stack-saved return address could point outside of the
+ * caller. This function ensures that kallsyms will find the original caller
+ * by decreasing @address. This function also appends the module build ID to
+ * the @buffer if @address is within a kernel module.
+ *
+ * This function returns the number of bytes stored in @buffer.
+ */
+int sprint_backtrace_build_id(char *buffer, unsigned long address)
+{
+	return __sprint_symbol(buffer, address, -1, 1, 1);
+>>>>>>> upstream/android-13
 }
 
 /* To avoid using get_symbol_offset for every symbol, we carry prefix along. */
@@ -480,6 +673,10 @@ struct kallsym_iter {
 	loff_t pos_arch_end;
 	loff_t pos_mod_end;
 	loff_t pos_ftrace_mod_end;
+<<<<<<< HEAD
+=======
+	loff_t pos_bpf_end;
+>>>>>>> upstream/android-13
 	unsigned long value;
 	unsigned int nameoff; /* If iterating in core kernel symbols. */
 	char type;
@@ -523,6 +720,14 @@ static int get_ksymbol_mod(struct kallsym_iter *iter)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * ftrace_mod_get_kallsym() may also get symbols for pages allocated for ftrace
+ * purposes. In that case "__builtin__ftrace" is used as a module name, even
+ * though "__builtin__ftrace" is not a module.
+ */
+>>>>>>> upstream/android-13
 static int get_ksymbol_ftrace_mod(struct kallsym_iter *iter)
 {
 	int ret = ftrace_mod_get_kallsym(iter->pos - iter->pos_mod_end,
@@ -539,11 +744,41 @@ static int get_ksymbol_ftrace_mod(struct kallsym_iter *iter)
 
 static int get_ksymbol_bpf(struct kallsym_iter *iter)
 {
+<<<<<<< HEAD
 	iter->module_name[0] = '\0';
 	iter->exported = 0;
 	return bpf_get_kallsym(iter->pos - iter->pos_ftrace_mod_end,
 			       &iter->value, &iter->type,
 			       iter->name) < 0 ? 0 : 1;
+=======
+	int ret;
+
+	strlcpy(iter->module_name, "bpf", MODULE_NAME_LEN);
+	iter->exported = 0;
+	ret = bpf_get_kallsym(iter->pos - iter->pos_ftrace_mod_end,
+			      &iter->value, &iter->type,
+			      iter->name);
+	if (ret < 0) {
+		iter->pos_bpf_end = iter->pos;
+		return 0;
+	}
+
+	return 1;
+}
+
+/*
+ * This uses "__builtin__kprobes" as a module name for symbols for pages
+ * allocated for kprobes' purposes, even though "__builtin__kprobes" is not a
+ * module.
+ */
+static int get_ksymbol_kprobe(struct kallsym_iter *iter)
+{
+	strlcpy(iter->module_name, "__builtin__kprobes", MODULE_NAME_LEN);
+	iter->exported = 0;
+	return kprobe_get_kallsym(iter->pos - iter->pos_bpf_end,
+				  &iter->value, &iter->type,
+				  iter->name) < 0 ? 0 : 1;
+>>>>>>> upstream/android-13
 }
 
 /* Returns space to next name. */
@@ -570,6 +805,10 @@ static void reset_iter(struct kallsym_iter *iter, loff_t new_pos)
 		iter->pos_arch_end = 0;
 		iter->pos_mod_end = 0;
 		iter->pos_ftrace_mod_end = 0;
+<<<<<<< HEAD
+=======
+		iter->pos_bpf_end = 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -594,7 +833,15 @@ static int update_iter_mod(struct kallsym_iter *iter, loff_t pos)
 	    get_ksymbol_ftrace_mod(iter))
 		return 1;
 
+<<<<<<< HEAD
 	return get_ksymbol_bpf(iter);
+=======
+	if ((!iter->pos_bpf_end || iter->pos_bpf_end > pos) &&
+	    get_ksymbol_bpf(iter))
+		return 1;
+
+	return get_ksymbol_kprobe(iter);
+>>>>>>> upstream/android-13
 }
 
 /* Returns false if pos at or past end of file. */
@@ -693,12 +940,20 @@ bool kallsyms_show_value(const struct cred *cred)
 	case 0:
 		if (kallsyms_for_perf())
 			return true;
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		if (security_capable(cred, &init_user_ns, CAP_SYSLOG,
 				     CAP_OPT_NOAUDIT) == 0)
 			return true;
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return false;
 	}
@@ -745,16 +1000,28 @@ const char *kdb_walk_kallsyms(loff_t *pos)
 }
 #endif	/* CONFIG_KGDB_KDB */
 
+<<<<<<< HEAD
 static const struct file_operations kallsyms_operations = {
 	.open = kallsyms_open,
 	.read = seq_read,
 	.llseek = seq_lseek,
 	.release = seq_release_private,
+=======
+static const struct proc_ops kallsyms_proc_ops = {
+	.proc_open	= kallsyms_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release_private,
+>>>>>>> upstream/android-13
 };
 
 static int __init kallsyms_init(void)
 {
+<<<<<<< HEAD
 	proc_create("kallsyms", 0444, NULL, &kallsyms_operations);
+=======
+	proc_create("kallsyms", 0444, NULL, &kallsyms_proc_ops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 device_initcall(kallsyms_init);

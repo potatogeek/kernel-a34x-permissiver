@@ -28,12 +28,21 @@ static int scmdev_probe(struct device *dev)
 	return scmdrv->probe ? scmdrv->probe(scmdev) : -ENODEV;
 }
 
+<<<<<<< HEAD
 static int scmdev_remove(struct device *dev)
+=======
+static void scmdev_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct scm_device *scmdev = to_scm_dev(dev);
 	struct scm_driver *scmdrv = to_scm_drv(dev->driver);
 
+<<<<<<< HEAD
 	return scmdrv->remove ? scmdrv->remove(scmdev) : -ENODEV;
+=======
+	if (scmdrv->remove)
+		scmdrv->remove(scmdev);
+>>>>>>> upstream/android-13
 }
 
 static int scmdev_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -174,10 +183,17 @@ out:
 		kobject_uevent(&scmdev->dev.kobj, KOBJ_CHANGE);
 }
 
+<<<<<<< HEAD
 static int check_address(struct device *dev, void *data)
 {
 	struct scm_device *scmdev = to_scm_dev(dev);
 	struct sale *sale = data;
+=======
+static int check_address(struct device *dev, const void *data)
+{
+	struct scm_device *scmdev = to_scm_dev(dev);
+	const struct sale *sale = data;
+>>>>>>> upstream/android-13
 
 	return scmdev->address == sale->sa;
 }

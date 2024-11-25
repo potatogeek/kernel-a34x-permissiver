@@ -59,7 +59,11 @@ static int gfb_setcolreg(unsigned regno,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops gfb_ops = {
+=======
+static const struct fb_ops gfb_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= gfb_setcolreg,
 	.fb_fillrect		= cfb_fillrect,
@@ -121,7 +125,10 @@ static int gfb_probe(struct platform_device *op)
 
 	info = framebuffer_alloc(sizeof(struct gfb_info), &op->dev);
 	if (!info) {
+<<<<<<< HEAD
 		printk(KERN_ERR "gfb: Cannot allocate fb_info\n");
+=======
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto err_out;
 	}

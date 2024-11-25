@@ -31,6 +31,10 @@
  * network ports from the rest of the cvmx-helper files.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/bug.h>
+>>>>>>> upstream/android-13
 #include <asm/octeon/octeon.h>
 #include <asm/octeon/cvmx-bootinfo.h>
 
@@ -43,7 +47,11 @@
 #include <asm/octeon/cvmx-gmxx-defs.h>
 #include <asm/octeon/cvmx-asxx-defs.h>
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Return the MII PHY address associated with the given IPD
  * port. A result of -1 means there isn't a MII capable PHY
  * connected to this port. On chips supporting multiple MII
@@ -188,7 +196,11 @@ int cvmx_helper_board_get_mii_address(int ipd_port)
 	return -1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This function is the board specific method of determining an
  * ethernet ports link speed. Most Octeon boards have Marvell PHYs
  * and are handled by the fall through case. This function must be
@@ -206,24 +218,38 @@ int cvmx_helper_board_get_mii_address(int ipd_port)
  * Returns The ports link status. If the link isn't fully resolved, this must
  *	   return zero.
  */
+<<<<<<< HEAD
 cvmx_helper_link_info_t __cvmx_helper_board_link_get(int ipd_port)
 {
 	cvmx_helper_link_info_t result;
+=======
+union cvmx_helper_link_info __cvmx_helper_board_link_get(int ipd_port)
+{
+	union cvmx_helper_link_info result;
+
+	WARN(!octeon_is_simulation(),
+	     "Using deprecated link status - please update your DT");
+>>>>>>> upstream/android-13
 
 	/* Unless we fix it later, all links are defaulted to down */
 	result.u64 = 0;
 
+<<<<<<< HEAD
 	/*
 	 * This switch statement should handle all ports that either don't use
 	 * Marvell PHYS, or don't support in-band status.
 	 */
 	switch (cvmx_sysinfo_get()->board_type) {
 	case CVMX_BOARD_TYPE_SIM:
+=======
+	if (octeon_is_simulation()) {
+>>>>>>> upstream/android-13
 		/* The simulator gives you a simulated 1Gbps full duplex link */
 		result.s.link_up = 1;
 		result.s.full_duplex = 1;
 		result.s.speed = 1000;
 		return result;
+<<<<<<< HEAD
 	case CVMX_BOARD_TYPE_EBH3100:
 	case CVMX_BOARD_TYPE_CN3010_EVB_HS5:
 	case CVMX_BOARD_TYPE_CN3005_EVB_HS5:
@@ -260,6 +286,8 @@ cvmx_helper_link_info_t __cvmx_helper_board_link_get(int ipd_port)
 			return result;
 		}
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (OCTEON_IS_MODEL(OCTEON_CN3XXX)
@@ -311,7 +339,11 @@ cvmx_helper_link_info_t __cvmx_helper_board_link_get(int ipd_port)
 	return result;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This function is called by cvmx_helper_interface_probe() after it
  * determines the number of ports Octeon can support on a specific
  * interface. This function is the per board location to override
@@ -357,6 +389,7 @@ int __cvmx_helper_board_interface_probe(int interface, int supported_ports)
 	return supported_ports;
 }
 
+<<<<<<< HEAD
 /**
  * Enable packet input/output from the hardware. This function is
  * called after by cvmx_helper_packet_hardware_enable() to
@@ -397,6 +430,9 @@ int __cvmx_helper_board_hardware_enable(int interface)
 }
 
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Get the clock type used for the USB block based on board type.
  * Used by the USB code for auto configuration of clock type.
  *

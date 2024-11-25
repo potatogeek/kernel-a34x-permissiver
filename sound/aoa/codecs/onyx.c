@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Apple Onboard Audio driver for Onyx codec
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
  *
+<<<<<<< HEAD
  * GPL v2, can be found in COPYING.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This is a driver for the pcm3052 codec chip (codenamed Onyx)
  * that is present in newer Apple hardware (with digital output).
  *
@@ -29,7 +36,10 @@
  *	 having just a single card on a system, and making the
  *	 'card' pointer accessible to anyone who needs it instead
  *	 of hiding it in the aoa_snd_* functions...
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/module.h>
@@ -100,7 +110,11 @@ static int onyx_dev_register(struct snd_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_device_ops ops = {
+=======
+static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 	.dev_register = onyx_dev_register,
 };
 
@@ -416,7 +430,11 @@ static int onyx_snd_single_bit_put(struct snd_kcontrol *kcontrol,
 }
 
 #define SINGLE_BIT(n, type, description, address, mask, flags)	 	\
+<<<<<<< HEAD
 static struct snd_kcontrol_new n##_control = {				\
+=======
+static const struct snd_kcontrol_new n##_control = {			\
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_##type,				\
 	.name = description,						\
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,			\
@@ -546,7 +564,11 @@ static const struct snd_kcontrol_new onyx_spdif_ctrl = {
 
 /* our registers */
 
+<<<<<<< HEAD
 static u8 register_map[] = {
+=======
+static const u8 register_map[] = {
+>>>>>>> upstream/android-13
 	ONYX_REG_DAC_ATTEN_LEFT,
 	ONYX_REG_DAC_ATTEN_RIGHT,
 	ONYX_REG_CONTROL,
@@ -562,7 +584,11 @@ static u8 register_map[] = {
 	ONYX_REG_DIG_INFO4
 };
 
+<<<<<<< HEAD
 static u8 initial_values[ARRAY_SIZE(register_map)] = {
+=======
+static const u8 initial_values[ARRAY_SIZE(register_map)] = {
+>>>>>>> upstream/android-13
 	0x80, 0x80, /* muted */
 	ONYX_MRST | ONYX_SRST, /* but handled specially! */
 	ONYX_MUTE_LEFT | ONYX_MUTE_RIGHT,
@@ -1016,7 +1042,11 @@ static int onyx_i2c_probe(struct i2c_client *client,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	strlcpy(onyx->codec.name, "onyx", MAX_CODEC_NAME_LEN);
+=======
+	strscpy(onyx->codec.name, "onyx", MAX_CODEC_NAME_LEN);
+>>>>>>> upstream/android-13
 	onyx->codec.owner = THIS_MODULE;
 	onyx->codec.init = onyx_init_codec;
 	onyx->codec.exit = onyx_exit_codec;

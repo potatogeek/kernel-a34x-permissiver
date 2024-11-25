@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This only handles 32bit MTRR on 32bit hosts. This is strictly wrong
  * because MTRRs can span up to 40 bits (36bits on most modern x86)
  */
+<<<<<<< HEAD
 #define DEBUG
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/export.h>
 #include <linux/init.h>
@@ -14,7 +21,11 @@
 #include <asm/tlbflush.h>
 #include <asm/mtrr.h>
 #include <asm/msr.h>
+<<<<<<< HEAD
 #include <asm/pat.h>
+=======
+#include <asm/memtype.h>
+>>>>>>> upstream/android-13
 
 #include "mtrr.h"
 
@@ -53,13 +64,21 @@ static inline void k8_check_syscfg_dram_mod_en(void)
 	      (boot_cpu_data.x86 >= 0x0f)))
 		return;
 
+<<<<<<< HEAD
 	rdmsr(MSR_K8_SYSCFG, lo, hi);
+=======
+	rdmsr(MSR_AMD64_SYSCFG, lo, hi);
+>>>>>>> upstream/android-13
 	if (lo & K8_MTRRFIXRANGE_DRAM_MODIFY) {
 		pr_err(FW_WARN "MTRR: CPU %u: SYSCFG[MtrrFixDramModEn]"
 		       " not cleared by BIOS, clearing this bit\n",
 		       smp_processor_id());
 		lo &= ~K8_MTRRFIXRANGE_DRAM_MODIFY;
+<<<<<<< HEAD
 		mtrr_wrmsr(MSR_K8_SYSCFG, lo, hi);
+=======
+		mtrr_wrmsr(MSR_AMD64_SYSCFG, lo, hi);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -742,7 +761,19 @@ static void prepare_set(void) __acquires(set_atomicity_lock)
 	/* Enter the no-fill (CD=1, NW=0) cache mode and flush caches. */
 	cr0 = read_cr0() | X86_CR0_CD;
 	write_cr0(cr0);
+<<<<<<< HEAD
 	wbinvd();
+=======
+
+	/*
+	 * Cache flushing is the most time-consuming step when programming
+	 * the MTRRs. Fortunately, as per the Intel Software Development
+	 * Manual, we can skip it if the processor supports cache self-
+	 * snooping.
+	 */
+	if (!static_cpu_has(X86_FEATURE_SELFSNOOP))
+		wbinvd();
+>>>>>>> upstream/android-13
 
 	/* Save value of CR4 and clear Page Global Enable (bit 7) */
 	if (boot_cpu_has(X86_FEATURE_PGE)) {
@@ -752,21 +783,36 @@ static void prepare_set(void) __acquires(set_atomicity_lock)
 
 	/* Flush all TLBs via a mov %cr3, %reg; mov %reg, %cr3 */
 	count_vm_tlb_event(NR_TLB_LOCAL_FLUSH_ALL);
+<<<<<<< HEAD
 	__flush_tlb();
+=======
+	flush_tlb_local();
+>>>>>>> upstream/android-13
 
 	/* Save MTRR state */
 	rdmsr(MSR_MTRRdefType, deftype_lo, deftype_hi);
 
 	/* Disable MTRRs, and set the default type to uncached */
 	mtrr_wrmsr(MSR_MTRRdefType, deftype_lo & ~0xcff, deftype_hi);
+<<<<<<< HEAD
 	wbinvd();
+=======
+
+	/* Again, only flush caches if we have to. */
+	if (!static_cpu_has(X86_FEATURE_SELFSNOOP))
+		wbinvd();
+>>>>>>> upstream/android-13
 }
 
 static void post_set(void) __releases(set_atomicity_lock)
 {
 	/* Flush TLBs (no need to flush caches - they are disabled) */
 	count_vm_tlb_event(NR_TLB_LOCAL_FLUSH_ALL);
+<<<<<<< HEAD
 	__flush_tlb();
+=======
+	flush_tlb_local();
+>>>>>>> upstream/android-13
 
 	/* Intel (P6) standard MTRRs */
 	mtrr_wrmsr(MSR_MTRRdefType, deftype_lo, deftype_hi);
@@ -798,7 +844,11 @@ static void generic_set_all(void)
 	local_irq_restore(flags);
 
 	/* Use the atomic bitops to update the global mask */
+<<<<<<< HEAD
 	for (count = 0; count < sizeof mask * 8; ++count) {
+=======
+	for (count = 0; count < sizeof(mask) * 8; ++count) {
+>>>>>>> upstream/android-13
 		if (mask & 0x01)
 			set_bit(count, &smp_changes_mask);
 		mask >>= 1;

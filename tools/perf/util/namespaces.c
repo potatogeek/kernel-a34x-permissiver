@@ -1,14 +1,24 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2017 Hari Bathini, IBM Corporation
  */
 
 #include "namespaces.h"
+<<<<<<< HEAD
 #include "util.h"
 #include "event.h"
+=======
+#include "event.h"
+#include "get_current_dir_name.h"
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -19,8 +29,32 @@
 #include <string.h>
 #include <unistd.h>
 #include <asm/bug.h>
+<<<<<<< HEAD
 
 struct namespaces *namespaces__new(struct namespaces_event *event)
+=======
+#include <linux/kernel.h>
+#include <linux/zalloc.h>
+
+static const char *perf_ns__names[] = {
+	[NET_NS_INDEX]		= "net",
+	[UTS_NS_INDEX]		= "uts",
+	[IPC_NS_INDEX]		= "ipc",
+	[PID_NS_INDEX]		= "pid",
+	[USER_NS_INDEX]		= "user",
+	[MNT_NS_INDEX]		= "mnt",
+	[CGROUP_NS_INDEX]	= "cgroup",
+};
+
+const char *perf_ns__name(unsigned int id)
+{
+	if (id >= ARRAY_SIZE(perf_ns__names))
+		return "UNKNOWN";
+	return perf_ns__names[id];
+}
+
+struct namespaces *namespaces__new(struct perf_record_namespaces *event)
+>>>>>>> upstream/android-13
 {
 	struct namespaces *namespaces;
 	u64 link_info_size = ((event ? event->nr_namespaces : NR_NAMESPACES) *
@@ -49,6 +83,10 @@ int nsinfo__init(struct nsinfo *nsi)
 	char spath[PATH_MAX];
 	char *newns = NULL;
 	char *statln = NULL;
+<<<<<<< HEAD
+=======
+	char *nspid;
+>>>>>>> upstream/android-13
 	struct stat old_stat;
 	struct stat new_stat;
 	FILE *f = NULL;
@@ -95,8 +133,17 @@ int nsinfo__init(struct nsinfo *nsi)
 		}
 
 		if (strstr(statln, "NStgid:") != NULL) {
+<<<<<<< HEAD
 			nsi->nstgid = (pid_t)strtol(strrchr(statln, '\t'),
 						     NULL, 10);
+=======
+			nspid = strrchr(statln, '\t');
+			nsi->nstgid = (pid_t)strtol(nspid, NULL, 10);
+			/* If innermost tgid is not the first, process is in a different
+			 * PID namespace.
+			 */
+			nsi->in_pidns = (statln + sizeof("NStgid:") - 1) != nspid;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -123,6 +170,10 @@ struct nsinfo *nsinfo__new(pid_t pid)
 		nsi->tgid = pid;
 		nsi->nstgid = pid;
 		nsi->need_setns = false;
+<<<<<<< HEAD
+=======
+		nsi->in_pidns = false;
+>>>>>>> upstream/android-13
 		/* Init may fail if the process exits while we're trying to look
 		 * at its proc information.  In that case, save the pid but
 		 * don't try to enter the namespace.
@@ -149,6 +200,10 @@ struct nsinfo *nsinfo__copy(struct nsinfo *nsi)
 		nnsi->tgid = nsi->tgid;
 		nnsi->nstgid = nsi->nstgid;
 		nnsi->need_setns = nsi->need_setns;
+<<<<<<< HEAD
+=======
+		nnsi->in_pidns = nsi->in_pidns;
+>>>>>>> upstream/android-13
 		if (nsi->mntns_path) {
 			nnsi->mntns_path = strdup(nsi->mntns_path);
 			if (!nnsi->mntns_path) {
@@ -263,3 +318,18 @@ char *nsinfo__realpath(const char *path, struct nsinfo *nsi)
 
 	return rpath;
 }
+<<<<<<< HEAD
+=======
+
+int nsinfo__stat(const char *filename, struct stat *st, struct nsinfo *nsi)
+{
+	int ret;
+	struct nscookie nsc;
+
+	nsinfo__mountns_enter(nsi, &nsc);
+	ret = stat(filename, st);
+	nsinfo__mountns_exit(&nsc);
+
+	return ret;
+}
+>>>>>>> upstream/android-13

@@ -73,7 +73,11 @@ int pci_mmap_resource_range(struct pci_dev *pdev, int bar,
 #elif defined(HAVE_PCI_MMAP) /* && !ARCH_GENERIC_PCI_MMAP_RESOURCE */
 
 /*
+<<<<<<< HEAD
  * Legacy setup: Impement pci_mmap_resource_range() as a wrapper around
+=======
+ * Legacy setup: Implement pci_mmap_resource_range() as a wrapper around
+>>>>>>> upstream/android-13
  * the architecture's pci_mmap_page_range(), converting to "user visible"
  * addresses as necessary.
  */

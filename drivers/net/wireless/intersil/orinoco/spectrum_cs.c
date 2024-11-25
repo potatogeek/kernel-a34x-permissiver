@@ -278,12 +278,19 @@ static int
 spectrum_cs_suspend(struct pcmcia_device *link)
 {
 	struct orinoco_private *priv = link->priv;
+<<<<<<< HEAD
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* Mark the device as stopped, to block IO until later */
 	orinoco_down(priv);
 
+<<<<<<< HEAD
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int

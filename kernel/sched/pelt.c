@@ -28,8 +28,11 @@
 #include "sched.h"
 #include "pelt.h"
 
+<<<<<<< HEAD
 #include <trace/events/sched.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Approximate:
  *   val * y^n,    where y^32 ~= 0.5 (~1 scheduling period)
@@ -83,8 +86,11 @@ static u32 __accumulate_pelt_segments(u64 periods, u32 d1, u32 d3)
 	return c1 + c2 + c3;
 }
 
+<<<<<<< HEAD
 #define cap_scale(v, s) ((v)*(s) >> SCHED_CAPACITY_SHIFT)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Accumulate the three separate parts of the sum; d1 the remainder
  * of the last (incomplete) period, d2 the span of full periods and d3
@@ -121,23 +127,49 @@ accumulate_sum(u64 delta, struct sched_avg *sa,
 	 */
 	if (periods) {
 		sa->load_sum = decay_load(sa->load_sum, periods);
+<<<<<<< HEAD
 		sa->runnable_load_sum =
 			decay_load(sa->runnable_load_sum, periods);
+=======
+		sa->runnable_sum =
+			decay_load(sa->runnable_sum, periods);
+>>>>>>> upstream/android-13
 		sa->util_sum = decay_load((u64)(sa->util_sum), periods);
 
 		/*
 		 * Step 2
 		 */
 		delta %= 1024;
+<<<<<<< HEAD
 		contrib = __accumulate_pelt_segments(periods,
 				1024 - sa->period_contrib, delta);
+=======
+		if (load) {
+			/*
+			 * This relies on the:
+			 *
+			 * if (!load)
+			 *	runnable = running = 0;
+			 *
+			 * clause from ___update_load_sum(); this results in
+			 * the below usage of @contrib to disappear entirely,
+			 * so no point in calculating it.
+			 */
+			contrib = __accumulate_pelt_segments(periods,
+					1024 - sa->period_contrib, delta);
+		}
+>>>>>>> upstream/android-13
 	}
 	sa->period_contrib = delta;
 
 	if (load)
 		sa->load_sum += load * contrib;
 	if (runnable)
+<<<<<<< HEAD
 		sa->runnable_load_sum += runnable * contrib;
+=======
+		sa->runnable_sum += runnable * contrib << SCHED_CAPACITY_SHIFT;
+>>>>>>> upstream/android-13
 	if (running)
 		sa->util_sum += contrib << SCHED_CAPACITY_SHIFT;
 
@@ -172,9 +204,14 @@ accumulate_sum(u64 delta, struct sched_avg *sa,
  *   load_avg = u_0` + y*(u_0 + u_1*y + u_2*y^2 + ... )
  *            = u_0 + u_1*y + u_2*y^2 + ... [re-labeling u_i --> u_{i+1}]
  */
+<<<<<<< HEAD
 static __always_inline int
 ___update_load_sum(u64 now, struct sched_avg *sa,
 		  unsigned long load, unsigned long runnable, int running)
+=======
+int ___update_load_sum(u64 now, struct sched_avg *sa,
+		       unsigned long load, unsigned long runnable, int running)
+>>>>>>> upstream/android-13
 {
 	u64 delta;
 
@@ -205,7 +242,13 @@ ___update_load_sum(u64 now, struct sched_avg *sa,
 	 * This means that weight will be 0 but not running for a sched_entity
 	 * but also for a cfs_rq if the latter becomes idle. As an example,
 	 * this happens during idle_balance() which calls
+<<<<<<< HEAD
 	 * update_blocked_averages()
+=======
+	 * update_blocked_averages().
+	 *
+	 * Also see the comment in accumulate_sum().
+>>>>>>> upstream/android-13
 	 */
 	if (!load)
 		runnable = running = 0;
@@ -222,24 +265,64 @@ ___update_load_sum(u64 now, struct sched_avg *sa,
 
 	return 1;
 }
+<<<<<<< HEAD
 
 static __always_inline void
 ___update_load_avg(struct sched_avg *sa, unsigned long load, unsigned long runnable)
 {
 	u32 divider = LOAD_AVG_MAX - 1024 + sa->period_contrib;
+=======
+EXPORT_SYMBOL_GPL(___update_load_sum);
+
+/*
+ * When syncing *_avg with *_sum, we must take into account the current
+ * position in the PELT segment otherwise the remaining part of the segment
+ * will be considered as idle time whereas it's not yet elapsed and this will
+ * generate unwanted oscillation in the range [1002..1024[.
+ *
+ * The max value of *_sum varies with the position in the time segment and is
+ * equals to :
+ *
+ *   LOAD_AVG_MAX*y + sa->period_contrib
+ *
+ * which can be simplified into:
+ *
+ *   LOAD_AVG_MAX - 1024 + sa->period_contrib
+ *
+ * because LOAD_AVG_MAX*y == LOAD_AVG_MAX-1024
+ *
+ * The same care must be taken when a sched entity is added, updated or
+ * removed from a cfs_rq and we need to update sched_avg. Scheduler entities
+ * and the cfs rq, to which they are attached, have the same position in the
+ * time segment because they use the same clock. This means that we can use
+ * the period_contrib of cfs_rq when updating the sched_avg of a sched_entity
+ * if it's more convenient.
+ */
+void ___update_load_avg(struct sched_avg *sa, unsigned long load)
+{
+	u32 divider = get_pelt_divider(sa);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Step 2: update *_avg.
 	 */
 	sa->load_avg = div_u64(load * sa->load_sum, divider);
+<<<<<<< HEAD
 	sa->runnable_load_avg =	div_u64(runnable * sa->runnable_load_sum, divider);
 	WRITE_ONCE(sa->util_avg, sa->util_sum / divider);
 }
+=======
+	sa->runnable_avg = div_u64(sa->runnable_sum, divider);
+	WRITE_ONCE(sa->util_avg, sa->util_sum / divider);
+}
+EXPORT_SYMBOL_GPL(___update_load_avg);
+>>>>>>> upstream/android-13
 
 /*
  * sched_entity:
  *
  *   task:
+<<<<<<< HEAD
  *     se_runnable() == se_weight()
  *
  *   group: [ see update_cfs_group() ]
@@ -261,20 +344,48 @@ ___update_load_avg(struct sched_avg *sa, unsigned long load, unsigned long runna
  *
  *   runnable_load_sum = \Sum se_runnable(se) * se->avg.runnable_load_sum
  *   runnable_load_avg = \Sum se->avg.runable_load_avg
+=======
+ *     se_weight()   = se->load.weight
+ *     se_runnable() = !!on_rq
+ *
+ *   group: [ see update_cfs_group() ]
+ *     se_weight()   = tg->weight * grq->load_avg / tg->load_avg
+ *     se_runnable() = grq->h_nr_running
+ *
+ *   runnable_sum = se_runnable() * runnable = grq->runnable_sum
+ *   runnable_avg = runnable_sum
+ *
+ *   load_sum := runnable
+ *   load_avg = se_weight(se) * load_sum
+ *
+ * cfq_rq:
+ *
+ *   runnable_sum = \Sum se->avg.runnable_sum
+ *   runnable_avg = \Sum se->avg.runnable_avg
+ *
+ *   load_sum = \Sum se_weight(se) * se->avg.load_sum
+ *   load_avg = \Sum se->avg.load_avg
+>>>>>>> upstream/android-13
  */
 
 int __update_load_avg_blocked_se(u64 now, struct sched_entity *se)
 {
 	if (___update_load_sum(now, &se->avg, 0, 0, 0)) {
+<<<<<<< HEAD
 		___update_load_avg(&se->avg, se_weight(se), se_runnable(se));
 
 		trace_sched_load_se(se);
 
+=======
+		___update_load_avg(&se->avg, se_weight(se));
+		trace_pelt_se_tp(se);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	return 0;
 }
+<<<<<<< HEAD
 
 int __update_load_avg_se(u64 now, struct cfs_rq *cfs_rq, struct sched_entity *se)
 {
@@ -286,6 +397,18 @@ int __update_load_avg_se(u64 now, struct cfs_rq *cfs_rq, struct sched_entity *se
 
 		trace_sched_load_se(se);
 
+=======
+EXPORT_SYMBOL_GPL(__update_load_avg_blocked_se);
+
+int __update_load_avg_se(u64 now, struct cfs_rq *cfs_rq, struct sched_entity *se)
+{
+	if (___update_load_sum(now, &se->avg, !!se->on_rq, se_runnable(se),
+				cfs_rq->curr == se)) {
+
+		___update_load_avg(&se->avg, se_weight(se));
+		cfs_se_util_change(&se->avg);
+		trace_pelt_se_tp(se);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -296,6 +419,7 @@ int __update_load_avg_cfs_rq(u64 now, struct cfs_rq *cfs_rq)
 {
 	if (___update_load_sum(now, &cfs_rq->avg,
 				scale_load_down(cfs_rq->load.weight),
+<<<<<<< HEAD
 				scale_load_down(cfs_rq->runnable_weight),
 				cfs_rq->curr != NULL)) {
 
@@ -303,6 +427,13 @@ int __update_load_avg_cfs_rq(u64 now, struct cfs_rq *cfs_rq)
 
 		trace_sched_load_cfs_rq(cfs_rq);
 
+=======
+				cfs_rq->h_nr_running,
+				cfs_rq->curr != NULL)) {
+
+		___update_load_avg(&cfs_rq->avg, 1);
+		trace_pelt_cfs_tp(cfs_rq);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -314,9 +445,15 @@ int __update_load_avg_cfs_rq(u64 now, struct cfs_rq *cfs_rq)
  *
  *   util_sum = \Sum se->avg.util_sum but se->avg.util_sum is not tracked
  *   util_sum = cpu_scale * load_sum
+<<<<<<< HEAD
  *   runnable_load_sum = load_sum
  *
  *   load_avg and runnable_load_avg are not supported and meaningless.
+=======
+ *   runnable_sum = util_sum
+ *
+ *   load_avg and runnable_avg are not supported and meaningless.
+>>>>>>> upstream/android-13
  *
  */
 
@@ -327,10 +464,15 @@ int update_rt_rq_load_avg(u64 now, struct rq *rq, int running)
 				running,
 				running)) {
 
+<<<<<<< HEAD
 		___update_load_avg(&rq->avg_rt, 1, 1);
 
 		trace_sched_load_rt_rq(rq);
 
+=======
+		___update_load_avg(&rq->avg_rt, 1);
+		trace_pelt_rt_tp(rq);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -342,7 +484,13 @@ int update_rt_rq_load_avg(u64 now, struct rq *rq, int running)
  *
  *   util_sum = \Sum se->avg.util_sum but se->avg.util_sum is not tracked
  *   util_sum = cpu_scale * load_sum
+<<<<<<< HEAD
  *   runnable_load_sum = load_sum
+=======
+ *   runnable_sum = util_sum
+ *
+ *   load_avg and runnable_avg are not supported and meaningless.
+>>>>>>> upstream/android-13
  *
  */
 
@@ -353,20 +501,65 @@ int update_dl_rq_load_avg(u64 now, struct rq *rq, int running)
 				running,
 				running)) {
 
+<<<<<<< HEAD
 		___update_load_avg(&rq->avg_dl, 1, 1);
+=======
+		___update_load_avg(&rq->avg_dl, 1);
+		trace_pelt_dl_tp(rq);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SCHED_THERMAL_PRESSURE
+/*
+ * thermal:
+ *
+ *   load_sum = \Sum se->avg.load_sum but se->avg.load_sum is not tracked
+ *
+ *   util_avg and runnable_load_avg are not supported and meaningless.
+ *
+ * Unlike rt/dl utilization tracking that track time spent by a cpu
+ * running a rt/dl task through util_avg, the average thermal pressure is
+ * tracked through load_avg. This is because thermal pressure signal is
+ * time weighted "delta" capacity unlike util_avg which is binary.
+ * "delta capacity" =  actual capacity  -
+ *			capped capacity a cpu due to a thermal event.
+ */
+
+int update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity)
+{
+	if (___update_load_sum(now, &rq->avg_thermal,
+			       capacity,
+			       capacity,
+			       capacity)) {
+		___update_load_avg(&rq->avg_thermal, 1);
+		trace_pelt_thermal_tp(rq);
+		return 1;
+	}
+
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HAVE_SCHED_AVG_IRQ
 /*
  * irq:
  *
  *   util_sum = \Sum se->avg.util_sum but se->avg.util_sum is not tracked
  *   util_sum = cpu_scale * load_sum
+<<<<<<< HEAD
  *   runnable_load_sum = load_sum
+=======
+ *   runnable_sum = util_sum
+ *
+ *   load_avg and runnable_avg are not supported and meaningless.
+>>>>>>> upstream/android-13
  *
  */
 
@@ -380,7 +573,11 @@ int update_irq_load_avg(struct rq *rq, u64 running)
 	 * reflect the real amount of computation
 	 */
 	running = cap_scale(running, arch_scale_freq_capacity(cpu_of(rq)));
+<<<<<<< HEAD
 	running = cap_scale(running, arch_scale_cpu_capacity(NULL, cpu_of(rq)));
+=======
+	running = cap_scale(running, arch_scale_cpu_capacity(cpu_of(rq)));
+>>>>>>> upstream/android-13
 
 	/*
 	 * We know the time that has been used by interrupt since last update
@@ -402,9 +599,64 @@ int update_irq_load_avg(struct rq *rq, u64 running)
 				1,
 				1);
 
+<<<<<<< HEAD
 	if (ret)
 		___update_load_avg(&rq->avg_irq, 1, 1);
+=======
+	if (ret) {
+		___update_load_avg(&rq->avg_irq, 1);
+		trace_pelt_irq_tp(rq);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 #endif
+<<<<<<< HEAD
+=======
+
+#include <trace/hooks/sched.h>
+unsigned int sysctl_sched_pelt_multiplier = 1;
+__read_mostly unsigned int sched_pelt_lshift;
+
+int sched_pelt_multiplier(struct ctl_table *table, int write, void *buffer,
+			  size_t *lenp, loff_t *ppos)
+{
+	static DEFINE_MUTEX(mutex);
+	unsigned int old;
+	int ret;
+
+	mutex_lock(&mutex);
+
+	old = sysctl_sched_pelt_multiplier;
+	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+	if (ret)
+		goto undo;
+	if (!write)
+		goto done;
+
+	trace_android_vh_sched_pelt_multiplier(old, sysctl_sched_pelt_multiplier, &ret);
+	if (ret)
+		goto undo;
+
+	switch (sysctl_sched_pelt_multiplier)  {
+	case 1:
+		fallthrough;
+	case 2:
+		fallthrough;
+	case 4:
+		WRITE_ONCE(sched_pelt_lshift,
+			   sysctl_sched_pelt_multiplier >> 1);
+		goto done;
+	default:
+		ret = -EINVAL;
+	}
+
+undo:
+	sysctl_sched_pelt_multiplier = old;
+done:
+	mutex_unlock(&mutex);
+
+	return ret;
+}
+>>>>>>> upstream/android-13

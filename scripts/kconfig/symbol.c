@@ -1,13 +1,25 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+ */
+
+#include <sys/types.h>
+>>>>>>> upstream/android-13
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
+<<<<<<< HEAD
 #include <sys/utsname.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "lkc.h"
 
@@ -15,6 +27,7 @@ struct symbol symbol_yes = {
 	.name = "y",
 	.curr = { "y", yes },
 	.flags = SYMBOL_CONST|SYMBOL_VALID,
+<<<<<<< HEAD
 }, symbol_mod = {
 	.name = "m",
 	.curr = { "m", mod },
@@ -24,14 +37,36 @@ struct symbol symbol_yes = {
 	.curr = { "n", no },
 	.flags = SYMBOL_CONST|SYMBOL_VALID,
 }, symbol_empty = {
+=======
+};
+
+struct symbol symbol_mod = {
+	.name = "m",
+	.curr = { "m", mod },
+	.flags = SYMBOL_CONST|SYMBOL_VALID,
+};
+
+struct symbol symbol_no = {
+	.name = "n",
+	.curr = { "n", no },
+	.flags = SYMBOL_CONST|SYMBOL_VALID,
+};
+
+static struct symbol symbol_empty = {
+>>>>>>> upstream/android-13
 	.name = "",
 	.curr = { "", no },
 	.flags = SYMBOL_VALID,
 };
 
+<<<<<<< HEAD
 struct symbol *sym_defconfig_list;
 struct symbol *modules_sym;
 tristate modules_val;
+=======
+struct symbol *modules_sym;
+static tristate modules_val;
+>>>>>>> upstream/android-13
 
 enum symbol_type sym_get_type(struct symbol *sym)
 {
@@ -61,8 +96,11 @@ const char *sym_type_name(enum symbol_type type)
 		return "string";
 	case S_UNKNOWN:
 		return "unknown";
+<<<<<<< HEAD
 	case S_OTHER:
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 	return "???";
 }
@@ -88,7 +126,11 @@ static struct property *sym_get_default_prop(struct symbol *sym)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct property *sym_get_range_prop(struct symbol *sym)
+=======
+struct property *sym_get_range_prop(struct symbol *sym)
+>>>>>>> upstream/android-13
 {
 	struct property *prop;
 
@@ -223,7 +265,11 @@ static void sym_calc_visibility(struct symbol *sym)
 		sym_set_changed(sym);
 	}
 	tri = no;
+<<<<<<< HEAD
 	if (sym->implied.expr && sym->dir_dep.tri != no)
+=======
+	if (sym->implied.expr)
+>>>>>>> upstream/android-13
 		tri = expr_calc_value(sym->implied.expr);
 	if (tri == mod && sym_get_type(sym) == S_BOOLEAN)
 		tri = yes;
@@ -396,6 +442,11 @@ void sym_calc_value(struct symbol *sym)
 				if (sym->implied.tri != no) {
 					sym->flags |= SYMBOL_WRITE;
 					newval.tri = EXPR_OR(newval.tri, sym->implied.tri);
+<<<<<<< HEAD
+=======
+					newval.tri = EXPR_AND(newval.tri,
+							      sym->dir_dep.tri);
+>>>>>>> upstream/android-13
 				}
 			}
 		calc_newval:
@@ -403,8 +454,12 @@ void sym_calc_value(struct symbol *sym)
 				sym_warn_unmet_dep(sym);
 			newval.tri = EXPR_OR(newval.tri, sym->rev_dep.tri);
 		}
+<<<<<<< HEAD
 		if (newval.tri == mod &&
 		    (sym_get_type(sym) == S_BOOLEAN || sym->implied.tri == yes))
+=======
+		if (newval.tri == mod && sym_get_type(sym) == S_BOOLEAN)
+>>>>>>> upstream/android-13
 			newval.tri = yes;
 		break;
 	case S_STRING:
@@ -468,7 +523,11 @@ void sym_clear_all_valid(void)
 
 	for_all_symbols(i, sym)
 		sym->flags &= ~SYMBOL_VALID;
+<<<<<<< HEAD
 	sym_add_change_count(1);
+=======
+	conf_set_changed(true);
+>>>>>>> upstream/android-13
 	sym_calc_value(modules_sym);
 }
 
@@ -486,8 +545,11 @@ bool sym_tristate_within_range(struct symbol *sym, tristate val)
 		return false;
 	if (sym->visible <= sym->rev_dep.tri)
 		return false;
+<<<<<<< HEAD
 	if (sym->implied.tri == yes && val == mod)
 		return false;
+=======
+>>>>>>> upstream/android-13
 	if (sym_is_choice_value(sym) && sym->visible == yes)
 		return val == yes;
 	return val >= sym->rev_dep.tri && val <= sym->visible;
@@ -757,7 +819,10 @@ const char *sym_get_string_default(struct symbol *sym)
 		return str;
 	case S_STRING:
 		return str;
+<<<<<<< HEAD
 	case S_OTHER:
+=======
+>>>>>>> upstream/android-13
 	case S_UNKNOWN:
 		break;
 	}
@@ -788,7 +853,11 @@ const char *sym_get_string_value(struct symbol *sym)
 	return (const char *)sym->curr.val;
 }
 
+<<<<<<< HEAD
 bool sym_is_changable(struct symbol *sym)
+=======
+bool sym_is_changeable(struct symbol *sym)
+>>>>>>> upstream/android-13
 {
 	return sym->visible > sym->rev_dep.tri;
 }
@@ -835,7 +904,11 @@ struct symbol *sym_lookup(const char *name, int flags)
 	memset(symbol, 0, sizeof(*symbol));
 	symbol->name = new_name;
 	symbol->type = S_UNKNOWN;
+<<<<<<< HEAD
 	symbol->flags |= flags;
+=======
+	symbol->flags = flags;
+>>>>>>> upstream/android-13
 
 	symbol->next = symbol_hash[hash];
 	symbol_hash[hash] = symbol;
@@ -1117,7 +1190,11 @@ static void sym_check_print_recursive(struct symbol *last_sym)
 	}
 
 	fprintf(stderr,
+<<<<<<< HEAD
 		"For a resolution refer to Documentation/kbuild/kconfig-language.txt\n"
+=======
+		"For a resolution refer to Documentation/kbuild/kconfig-language.rst\n"
+>>>>>>> upstream/android-13
 		"subsection \"Kconfig recursive dependency limitations\"\n"
 		"\n");
 
@@ -1276,6 +1353,7 @@ struct symbol *sym_check_deps(struct symbol *sym)
 	return sym2;
 }
 
+<<<<<<< HEAD
 struct property *prop_alloc(enum prop_type type, struct symbol *sym)
 {
 	struct property *prop;
@@ -1298,6 +1376,8 @@ struct property *prop_alloc(enum prop_type type, struct symbol *sym)
 	return prop;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct symbol *prop_get_symbol(struct property *prop)
 {
 	if (prop->expr && (prop->expr->type == E_SYMBOL ||

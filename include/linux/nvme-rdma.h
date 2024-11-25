@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Mellanox Technologies. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (c) 2015 Mellanox Technologies. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_NVME_RDMA_H
@@ -85,7 +91,11 @@ struct nvme_rdma_cm_rep {
  * struct nvme_rdma_cm_rej - rdma connect reject
  *
  * @recfmt:        format of the RDMA Private Data
+<<<<<<< HEAD
  * @fsts:          error status for the associated connect request
+=======
+ * @sts:           error status for the associated connect request
+>>>>>>> upstream/android-13
  */
 struct nvme_rdma_cm_rej {
 	__le16		recfmt;

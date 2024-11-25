@@ -39,7 +39,10 @@
 #include <linux/fs.h>
 #include <linux/mm.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
 #include <linux/poll.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/usb.h>
 #include <linux/usbdevice_fs.h>
 #include <linux/usb/hcd.h>
@@ -97,6 +100,7 @@ static const char format_endpt[] =
 /* E:  Ad=xx(s) Atr=xx(ssss) MxPS=dddd Ivl=D?s */
   "E:  Ad=%02x(%c) Atr=%02x(%-4s) MxPS=%4d Ivl=%d%cs\n";
 
+<<<<<<< HEAD
 /*
  * Wait for an connect/disconnect event to happen. We initialize
  * the event counter with an odd number, and each event will increment
@@ -113,6 +117,8 @@ static struct device_connect_event {
 	.wait = __WAIT_QUEUE_HEAD_INITIALIZER(device_event.wait)
 };
 
+=======
+>>>>>>> upstream/android-13
 struct class_info {
 	int class;
 	char *class_name;
@@ -133,6 +139,13 @@ static const struct class_info clas_info[] = {
 	{USB_CLASS_CSCID,		"scard"},
 	{USB_CLASS_CONTENT_SEC,		"c-sec"},
 	{USB_CLASS_VIDEO,		"video"},
+<<<<<<< HEAD
+=======
+	{USB_CLASS_PERSONAL_HEALTHCARE,	"perhc"},
+	{USB_CLASS_AUDIO_VIDEO,		"av"},
+	{USB_CLASS_BILLBOARD,		"blbrd"},
+	{USB_CLASS_USB_TYPE_C_BRIDGE,	"bridg"},
+>>>>>>> upstream/android-13
 	{USB_CLASS_WIRELESS_CONTROLLER,	"wlcon"},
 	{USB_CLASS_MISC,		"misc"},
 	{USB_CLASS_APP_SPEC,		"app."},
@@ -142,12 +155,15 @@ static const struct class_info clas_info[] = {
 
 /*****************************************************************/
 
+<<<<<<< HEAD
 void usbfs_conn_disc_event(void)
 {
 	atomic_add(2, &device_event.count);
 	wake_up(&device_event.wait);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const char *class_decode(const int class)
 {
 	int ix;
@@ -176,14 +192,18 @@ static char *usb_dump_endpoint_descriptor(int speed, char *start, char *end,
 	switch (usb_endpoint_type(desc)) {
 	case USB_ENDPOINT_XFER_CONTROL:
 		type = "Ctrl";
+<<<<<<< HEAD
 		if (speed == USB_SPEED_HIGH)	/* uframes per NAK */
 			interval = desc->bInterval;
 		else
 			interval = 0;
+=======
+>>>>>>> upstream/android-13
 		dir = 'B';			/* ctrl is bidirectional */
 		break;
 	case USB_ENDPOINT_XFER_ISOC:
 		type = "Isoc";
+<<<<<<< HEAD
 		interval = 1 << (desc->bInterval - 1);
 		break;
 	case USB_ENDPOINT_XFER_BULK:
@@ -199,15 +219,31 @@ static char *usb_dump_endpoint_descriptor(int speed, char *start, char *end,
 			interval = 1 << (desc->bInterval - 1);
 		else
 			interval = desc->bInterval;
+=======
+		break;
+	case USB_ENDPOINT_XFER_BULK:
+		type = "Bulk";
+		break;
+	case USB_ENDPOINT_XFER_INT:
+		type = "Int.";
+>>>>>>> upstream/android-13
 		break;
 	default:	/* "can't happen" */
 		return start;
 	}
+<<<<<<< HEAD
 	interval *= (speed == USB_SPEED_HIGH ||
 		     speed >= USB_SPEED_SUPER) ? 125 : 1000;
 	if (interval % 1000)
 		unit = 'u';
 	else {
+=======
+
+	interval = usb_decode_interval(desc, speed);
+	if (interval % 1000) {
+		unit = 'u';
+	} else {
+>>>>>>> upstream/android-13
 		unit = 'm';
 		interval /= 1000;
 	}
@@ -598,8 +634,11 @@ static ssize_t usb_device_read(struct file *file, char __user *buf,
 		return -EINVAL;
 	if (nbytes <= 0)
 		return 0;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, nbytes))
 		return -EFAULT;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&usb_bus_idr_lock);
 	/* print devices for all busses */
@@ -621,6 +660,7 @@ static ssize_t usb_device_read(struct file *file, char __user *buf,
 	return total_written;
 }
 
+<<<<<<< HEAD
 /* Kernel lock for "lastev" protection */
 static __poll_t usb_device_poll(struct file *file,
 				    struct poll_table_struct *wait)
@@ -642,4 +682,9 @@ const struct file_operations usbfs_devices_fops = {
 	.llseek =	no_seek_end_llseek,
 	.read =		usb_device_read,
 	.poll =		usb_device_poll,
+=======
+const struct file_operations usbfs_devices_fops = {
+	.llseek =	no_seek_end_llseek,
+	.read =		usb_device_read,
+>>>>>>> upstream/android-13
 };

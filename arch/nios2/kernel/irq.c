@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Altera Corporation
  * Copyright (C) 2011 Tobias Klauser <tklauser@distanz.ch>
@@ -6,6 +10,7 @@
  * based on irq.c from m68k which is:
  *
  * Copyright (C) 2007 Greg Ungerer <gerg@snapgear.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +25,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 
 static u32 ienable;
@@ -31,11 +42,17 @@ static u32 ienable;
 asmlinkage void do_IRQ(int hwirq, struct pt_regs *regs)
 {
 	struct pt_regs *oldregs = set_irq_regs(regs);
+<<<<<<< HEAD
 	int irq;
 
 	irq_enter();
 	irq = irq_find_mapping(NULL, hwirq);
 	generic_handle_irq(irq);
+=======
+
+	irq_enter();
+	generic_handle_domain_irq(NULL, hwirq);
+>>>>>>> upstream/android-13
 	irq_exit();
 
 	set_irq_regs(oldregs);

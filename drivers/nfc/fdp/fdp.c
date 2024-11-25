@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -------------------------------------------------------------------------
  * Copyright (C) 2014-2016, Intel Corporation
  *
@@ -10,6 +11,12 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* -------------------------------------------------------------------------
+ * Copyright (C) 2014-2016, Intel Corporation
+ *
+>>>>>>> upstream/android-13
  * -------------------------------------------------------------------------
  */
 
@@ -46,7 +53,11 @@
 #define NCI_OP_PROP_SET_PDATA_OID		0x23
 
 struct fdp_nci_info {
+<<<<<<< HEAD
 	struct nfc_phy_ops *phy_ops;
+=======
+	const struct nfc_phy_ops *phy_ops;
+>>>>>>> upstream/android-13
 	struct fdp_i2c_phy *phy;
 	struct nci_dev *ndev;
 
@@ -60,7 +71,11 @@ struct fdp_nci_info {
 	u32 limited_otp_version;
 	u8 key_index;
 
+<<<<<<< HEAD
 	u8 *fw_vsc_cfg;
+=======
+	const u8 *fw_vsc_cfg;
+>>>>>>> upstream/android-13
 	u8 clock_type;
 	u32 clock_freq;
 
@@ -73,7 +88,11 @@ struct fdp_nci_info {
 	wait_queue_head_t setup_wq;
 };
 
+<<<<<<< HEAD
 static u8 nci_core_get_config_otp_ram_version[5] = {
+=======
+static const u8 nci_core_get_config_otp_ram_version[5] = {
+>>>>>>> upstream/android-13
 	0x04,
 	NCI_PARAM_ID_FW_RAM_VERSION,
 	NCI_PARAM_ID_FW_OTP_VERSION,
@@ -84,7 +103,11 @@ static u8 nci_core_get_config_otp_ram_version[5] = {
 struct nci_core_get_config_rsp {
 	u8 status;
 	u8 count;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 static int fdp_nci_create_conn(struct nci_dev *ndev)
@@ -119,7 +142,11 @@ static inline int fdp_nci_patch_cmd(struct nci_dev *ndev, u8 type)
 }
 
 static inline int fdp_nci_set_production_data(struct nci_dev *ndev, u8 len,
+<<<<<<< HEAD
 					      char *data)
+=======
+					      const char *data)
+>>>>>>> upstream/android-13
 {
 	return nci_prop_cmd(ndev, NCI_OP_PROP_SET_PDATA_OID, len, data);
 }
@@ -157,7 +184,11 @@ static void fdp_nci_send_patch_cb(struct nci_dev *ndev)
 	wake_up(&info->setup_wq);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Register a packet sent counter and a callback
  *
  * We have no other way of knowing when all firmware packets were sent out
@@ -175,7 +206,11 @@ static void fdp_nci_set_data_pkt_counter(struct nci_dev *ndev,
 	info->data_pkt_counter_cb = cb;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * The device is expecting a stream of packets. All packets need to
  * have the PBF flag set to 0x0 (last packet) even if the firmware
  * file is segmented and there are multiple packets. If we give the
@@ -184,7 +219,11 @@ static void fdp_nci_set_data_pkt_counter(struct nci_dev *ndev,
  *
  * The firmware will be analyzed and applied when we send NCI_OP_PROP_PATCH_CMD
  * command with NCI_PATCH_TYPE_EOT parameter. The device will send a
+<<<<<<< HEAD
  * NFCC_PATCH_NTF packaet and a NCI_OP_CORE_RESET_NTF packet.
+=======
+ * NFCC_PATCH_NTF packet and a NCI_OP_CORE_RESET_NTF packet.
+>>>>>>> upstream/android-13
  */
 static int fdp_nci_send_patch(struct nci_dev *ndev, u8 conn_id, u8 type)
 {
@@ -244,6 +283,7 @@ static int fdp_nci_send_patch(struct nci_dev *ndev, u8 conn_id, u8 type)
 
 static int fdp_nci_open(struct nci_dev *ndev)
 {
+<<<<<<< HEAD
 	int r;
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
 	struct device *dev = &info->phy->i2c_dev->dev;
@@ -253,23 +293,34 @@ static int fdp_nci_open(struct nci_dev *ndev)
 	r = info->phy_ops->enable(info->phy);
 
 	return r;
+=======
+	const struct fdp_nci_info *info = nci_get_drvdata(ndev);
+
+	return info->phy_ops->enable(info->phy);
+>>>>>>> upstream/android-13
 }
 
 static int fdp_nci_close(struct nci_dev *ndev)
 {
+<<<<<<< HEAD
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
 	struct device *dev = &info->phy->i2c_dev->dev;
 
 	dev_dbg(dev, "%s\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int fdp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
 {
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
+<<<<<<< HEAD
 	struct device *dev = &info->phy->i2c_dev->dev;
 
 	dev_dbg(dev, "%s\n", __func__);
+=======
+>>>>>>> upstream/android-13
 
 	if (atomic_dec_and_test(&info->data_pkt_counter))
 		info->data_pkt_counter_cb(ndev);
@@ -277,6 +328,7 @@ static int fdp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
 	return info->phy_ops->write(info->phy, skb);
 }
 
+<<<<<<< HEAD
 int fdp_nci_recv_frame(struct nci_dev *ndev, struct sk_buff *skb)
 {
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
@@ -287,34 +339,56 @@ int fdp_nci_recv_frame(struct nci_dev *ndev, struct sk_buff *skb)
 }
 EXPORT_SYMBOL(fdp_nci_recv_frame);
 
+=======
+>>>>>>> upstream/android-13
 static int fdp_nci_request_firmware(struct nci_dev *ndev)
 {
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
 	struct device *dev = &info->phy->i2c_dev->dev;
+<<<<<<< HEAD
 	u8 *data;
+=======
+	const u8 *data;
+>>>>>>> upstream/android-13
 	int r;
 
 	r = request_firmware(&info->ram_patch, FDP_RAM_PATCH_NAME, dev);
 	if (r < 0) {
 		nfc_err(dev, "RAM patch request error\n");
+<<<<<<< HEAD
 		goto error;
 	}
 
 	data = (u8 *) info->ram_patch->data;
+=======
+		return r;
+	}
+
+	data = info->ram_patch->data;
+>>>>>>> upstream/android-13
 	info->ram_patch_version =
 		data[FDP_FW_HEADER_SIZE] |
 		(data[FDP_FW_HEADER_SIZE + 1] << 8) |
 		(data[FDP_FW_HEADER_SIZE + 2] << 16) |
 		(data[FDP_FW_HEADER_SIZE + 3] << 24);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "RAM patch version: %d, size: %d\n",
 		  info->ram_patch_version, (int) info->ram_patch->size);
+=======
+	dev_dbg(dev, "RAM patch version: %d, size: %zu\n",
+		  info->ram_patch_version, info->ram_patch->size);
+>>>>>>> upstream/android-13
 
 
 	r = request_firmware(&info->otp_patch, FDP_OTP_PATCH_NAME, dev);
 	if (r < 0) {
 		nfc_err(dev, "OTP patch request error\n");
+<<<<<<< HEAD
 		goto out;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	data = (u8 *) info->otp_patch->data;
@@ -324,12 +398,18 @@ static int fdp_nci_request_firmware(struct nci_dev *ndev)
 		(data[FDP_FW_HEADER_SIZE+2] << 16) |
 		(data[FDP_FW_HEADER_SIZE+3] << 24);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "OTP patch version: %d, size: %d\n",
 		 info->otp_patch_version, (int) info->otp_patch->size);
 out:
 	return 0;
 error:
 	return r;
+=======
+	dev_dbg(dev, "OTP patch version: %d, size: %zu\n",
+		 info->otp_patch_version, info->otp_patch->size);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void fdp_nci_release_firmware(struct nci_dev *ndev)
@@ -355,7 +435,11 @@ static int fdp_nci_patch_otp(struct nci_dev *ndev)
 	int r = 0;
 
 	if (info->otp_version >= info->otp_patch_version)
+<<<<<<< HEAD
 		goto out;
+=======
+		return r;
+>>>>>>> upstream/android-13
 
 	info->setup_patch_sent = 0;
 	info->setup_reset_ntf = 0;
@@ -364,6 +448,7 @@ static int fdp_nci_patch_otp(struct nci_dev *ndev)
 	/* Patch init request */
 	r = fdp_nci_patch_cmd(ndev, NCI_PATCH_TYPE_OTP);
 	if (r)
+<<<<<<< HEAD
 		goto out;
 
 	/* Patch data connection creation */
@@ -372,11 +457,23 @@ static int fdp_nci_patch_otp(struct nci_dev *ndev)
 		r = conn_id;
 		goto out;
 	}
+=======
+		return r;
+
+	/* Patch data connection creation */
+	conn_id = fdp_nci_create_conn(ndev);
+	if (conn_id < 0)
+		return conn_id;
+>>>>>>> upstream/android-13
 
 	/* Send the patch over the data connection */
 	r = fdp_nci_send_patch(ndev, conn_id, NCI_PATCH_TYPE_OTP);
 	if (r)
+<<<<<<< HEAD
 		goto out;
+=======
+		return r;
+>>>>>>> upstream/android-13
 
 	/* Wait for all the packets to be send over i2c */
 	wait_event_interruptible(info->setup_wq,
@@ -388,13 +485,21 @@ static int fdp_nci_patch_otp(struct nci_dev *ndev)
 	/* Close the data connection */
 	r = nci_core_conn_close(info->ndev, conn_id);
 	if (r)
+<<<<<<< HEAD
 		goto out;
+=======
+		return r;
+>>>>>>> upstream/android-13
 
 	/* Patch finish message */
 	if (fdp_nci_patch_cmd(ndev, NCI_PATCH_TYPE_EOT)) {
 		nfc_err(dev, "OTP patch error 0x%x\n", r);
+<<<<<<< HEAD
 		r = -EINVAL;
 		goto out;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	/* If the patch notification didn't arrive yet, wait for it */
@@ -404,8 +509,12 @@ static int fdp_nci_patch_otp(struct nci_dev *ndev)
 	r = info->setup_patch_status;
 	if (r) {
 		nfc_err(dev, "OTP patch error 0x%x\n", r);
+<<<<<<< HEAD
 		r = -EINVAL;
 		goto out;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -414,7 +523,10 @@ static int fdp_nci_patch_otp(struct nci_dev *ndev)
 	 */
 	wait_event_interruptible(info->setup_wq, info->setup_reset_ntf);
 
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -426,7 +538,11 @@ static int fdp_nci_patch_ram(struct nci_dev *ndev)
 	int r = 0;
 
 	if (info->ram_version >= info->ram_patch_version)
+<<<<<<< HEAD
 		goto out;
+=======
+		return r;
+>>>>>>> upstream/android-13
 
 	info->setup_patch_sent = 0;
 	info->setup_reset_ntf = 0;
@@ -435,6 +551,7 @@ static int fdp_nci_patch_ram(struct nci_dev *ndev)
 	/* Patch init request */
 	r = fdp_nci_patch_cmd(ndev, NCI_PATCH_TYPE_RAM);
 	if (r)
+<<<<<<< HEAD
 		goto out;
 
 	/* Patch data connection creation */
@@ -443,11 +560,23 @@ static int fdp_nci_patch_ram(struct nci_dev *ndev)
 		r = conn_id;
 		goto out;
 	}
+=======
+		return r;
+
+	/* Patch data connection creation */
+	conn_id = fdp_nci_create_conn(ndev);
+	if (conn_id < 0)
+		return conn_id;
+>>>>>>> upstream/android-13
 
 	/* Send the patch over the data connection */
 	r = fdp_nci_send_patch(ndev, conn_id, NCI_PATCH_TYPE_RAM);
 	if (r)
+<<<<<<< HEAD
 		goto out;
+=======
+		return r;
+>>>>>>> upstream/android-13
 
 	/* Wait for all the packets to be send over i2c */
 	wait_event_interruptible(info->setup_wq,
@@ -459,13 +588,21 @@ static int fdp_nci_patch_ram(struct nci_dev *ndev)
 	/* Close the data connection */
 	r = nci_core_conn_close(info->ndev, conn_id);
 	if (r)
+<<<<<<< HEAD
 		goto out;
+=======
+		return r;
+>>>>>>> upstream/android-13
 
 	/* Patch finish message */
 	if (fdp_nci_patch_cmd(ndev, NCI_PATCH_TYPE_EOT)) {
 		nfc_err(dev, "RAM patch error 0x%x\n", r);
+<<<<<<< HEAD
 		r = -EINVAL;
 		goto out;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	/* If the patch notification didn't arrive yet, wait for it */
@@ -475,8 +612,12 @@ static int fdp_nci_patch_ram(struct nci_dev *ndev)
 	r = info->setup_patch_status;
 	if (r) {
 		nfc_err(dev, "RAM patch error 0x%x\n", r);
+<<<<<<< HEAD
 		r = -EINVAL;
 		goto out;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -485,7 +626,10 @@ static int fdp_nci_patch_ram(struct nci_dev *ndev)
 	 */
 	wait_event_interruptible(info->setup_wq, info->setup_reset_ntf);
 
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -497,8 +641,11 @@ static int fdp_nci_setup(struct nci_dev *ndev)
 	int r;
 	u8 patched = 0;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	r = nci_core_init(ndev);
 	if (r)
 		goto error;
@@ -606,9 +753,13 @@ static int fdp_nci_core_reset_ntf_packet(struct nci_dev *ndev,
 					  struct sk_buff *skb)
 {
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
+<<<<<<< HEAD
 	struct device *dev = &info->phy->i2c_dev->dev;
 
 	dev_dbg(dev, "%s\n", __func__);
+=======
+
+>>>>>>> upstream/android-13
 	info->setup_reset_ntf = 1;
 	wake_up(&info->setup_wq);
 
@@ -619,9 +770,13 @@ static int fdp_nci_prop_patch_ntf_packet(struct nci_dev *ndev,
 					  struct sk_buff *skb)
 {
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
+<<<<<<< HEAD
 	struct device *dev = &info->phy->i2c_dev->dev;
 
 	dev_dbg(dev, "%s\n", __func__);
+=======
+
+>>>>>>> upstream/android-13
 	info->setup_patch_ntf = 1;
 	info->setup_patch_status = skb->data[0];
 	wake_up(&info->setup_wq);
@@ -660,8 +815,14 @@ static int fdp_nci_core_get_config_rsp_packet(struct nci_dev *ndev,
 {
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
 	struct device *dev = &info->phy->i2c_dev->dev;
+<<<<<<< HEAD
 	struct nci_core_get_config_rsp *rsp = (void *) skb->data;
 	u8 i, *p;
+=======
+	const struct nci_core_get_config_rsp *rsp = (void *) skb->data;
+	unsigned int i;
+	const u8 *p;
+>>>>>>> upstream/android-13
 
 	if (rsp->status == NCI_STATUS_OK) {
 
@@ -701,7 +862,11 @@ static int fdp_nci_core_get_config_rsp_packet(struct nci_dev *ndev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct nci_driver_ops fdp_core_ops[] = {
+=======
+static const struct nci_driver_ops fdp_core_ops[] = {
+>>>>>>> upstream/android-13
 	{
 		.opcode = NCI_OP_CORE_GET_CONFIG_RSP,
 		.rsp = fdp_nci_core_get_config_rsp_packet,
@@ -712,7 +877,11 @@ static struct nci_driver_ops fdp_core_ops[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct nci_driver_ops fdp_prop_ops[] = {
+=======
+static const struct nci_driver_ops fdp_prop_ops[] = {
+>>>>>>> upstream/android-13
 	{
 		.opcode = nci_opcode_pack(NCI_GID_PROP, NCI_OP_PROP_PATCH_OID),
 		.rsp = fdp_nci_prop_patch_rsp_packet,
@@ -725,7 +894,11 @@ static struct nci_driver_ops fdp_prop_ops[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct nci_ops nci_ops = {
+=======
+static const struct nci_ops nci_ops = {
+>>>>>>> upstream/android-13
 	.open = fdp_nci_open,
 	.close = fdp_nci_close,
 	.send = fdp_nci_send,
@@ -737,10 +910,17 @@ static struct nci_ops nci_ops = {
 	.n_core_ops = ARRAY_SIZE(fdp_core_ops),
 };
 
+<<<<<<< HEAD
 int fdp_nci_probe(struct fdp_i2c_phy *phy, struct nfc_phy_ops *phy_ops,
 			struct nci_dev **ndevp, int tx_headroom,
 			int tx_tailroom, u8 clock_type, u32 clock_freq,
 			u8 *fw_vsc_cfg)
+=======
+int fdp_nci_probe(struct fdp_i2c_phy *phy, const struct nfc_phy_ops *phy_ops,
+			struct nci_dev **ndevp, int tx_headroom,
+			int tx_tailroom, u8 clock_type, u32 clock_freq,
+			const u8 *fw_vsc_cfg)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &phy->i2c_dev->dev;
 	struct fdp_nci_info *info;
@@ -768,6 +948,10 @@ int fdp_nci_probe(struct fdp_i2c_phy *phy, struct nfc_phy_ops *phy_ops,
 		    NFC_PROTO_NFC_DEP_MASK |
 		    NFC_PROTO_ISO15693_MASK;
 
+<<<<<<< HEAD
+=======
+	BUILD_BUG_ON(ARRAY_SIZE(fdp_prop_ops) > NCI_MAX_PROPRIETARY_CMD);
+>>>>>>> upstream/android-13
 	ndev = nci_allocate_device(&nci_ops, protocols, tx_headroom,
 				   tx_tailroom);
 	if (!ndev) {
@@ -794,11 +978,14 @@ EXPORT_SYMBOL(fdp_nci_probe);
 
 void fdp_nci_remove(struct nci_dev *ndev)
 {
+<<<<<<< HEAD
 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
 	struct device *dev = &info->phy->i2c_dev->dev;
 
 	dev_dbg(dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	nci_unregister_device(ndev);
 	nci_free_device(ndev);
 }

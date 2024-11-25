@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Dave DNET Ethernet Controller driver
  *
  * Copyright (C) 2008 Dave S.r.l. <www.dave.eu>
  * Copyright (C) 2009 Ilya Yanok, Emcraft Systems Ltd, <yanok@emcraft.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/module.h>
@@ -284,6 +291,7 @@ static int dnet_mii_probe(struct net_device *dev)
 
 	/* mask with MAC supported features */
 	if (bp->capabilities & DNET_HAS_GIGABIT)
+<<<<<<< HEAD
 		phydev->supported &= PHY_GBIT_FEATURES;
 	else
 		phydev->supported &= PHY_BASIC_FEATURES;
@@ -291,6 +299,13 @@ static int dnet_mii_probe(struct net_device *dev)
 	phydev->supported |= SUPPORTED_Asym_Pause | SUPPORTED_Pause;
 
 	phydev->advertising = phydev->supported;
+=======
+		phy_set_max_speed(phydev, SPEED_1000);
+	else
+		phy_set_max_speed(phydev, SPEED_100);
+
+	phy_support_asym_pause(phydev);
+>>>>>>> upstream/android-13
 
 	bp->link = 0;
 	bp->speed = 0;
@@ -512,23 +527,38 @@ static netdev_tx_t dnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 
 	struct dnet *bp = netdev_priv(dev);
+<<<<<<< HEAD
 	u32 tx_status, irq_enable;
 	unsigned int len, i, tx_cmd, wrsz;
 	unsigned long flags;
 	unsigned int *bufp;
 
 	tx_status = dnet_readl(bp, TX_STATUS);
+=======
+	unsigned int i, tx_cmd, wrsz;
+	unsigned long flags;
+	unsigned int *bufp;
+	u32 irq_enable;
+
+	dnet_readl(bp, TX_STATUS);
+>>>>>>> upstream/android-13
 
 	pr_debug("start_xmit: len %u head %p data %p\n",
 	       skb->len, skb->head, skb->data);
 	dnet_print_skb(skb);
 
+<<<<<<< HEAD
 	/* frame size (words) */
 	len = (skb->len + 3) >> 2;
 
 	spin_lock_irqsave(&bp->lock, flags);
 
 	tx_status = dnet_readl(bp, TX_STATUS);
+=======
+	spin_lock_irqsave(&bp->lock, flags);
+
+	dnet_readl(bp, TX_STATUS);
+>>>>>>> upstream/android-13
 
 	bufp = (unsigned int *)(((unsigned long) skb->data) & ~0x3UL);
 	wrsz = (u32) skb->len + 3;
@@ -550,7 +580,11 @@ static netdev_tx_t dnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	if (dnet_readl(bp, TX_FIFO_WCNT) > DNET_FIFO_TX_DATA_AF_TH) {
 		netif_stop_queue(dev);
+<<<<<<< HEAD
 		tx_status = dnet_readl(bp, INTR_SRC);
+=======
+		dnet_readl(bp, INTR_SRC);
+>>>>>>> upstream/android-13
 		irq_enable = dnet_readl(bp, INTR_ENB);
 		irq_enable |= DNET_INTR_ENB_TX_FIFOAE;
 		dnet_writel(bp, irq_enable, INTR_ENB);
@@ -730,6 +764,7 @@ static struct net_device_stats *dnet_get_stats(struct net_device *dev)
 	return nstat;
 }
 
+<<<<<<< HEAD
 static int dnet_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	struct phy_device *phydev = dev->phydev;
@@ -743,11 +778,16 @@ static int dnet_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	return phy_mii_ioctl(phydev, rq, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dnet_get_drvinfo(struct net_device *dev,
 			     struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, "0", sizeof(info->bus_info));
 }
 
@@ -764,7 +804,11 @@ static const struct net_device_ops dnet_netdev_ops = {
 	.ndo_stop		= dnet_close,
 	.ndo_get_stats		= dnet_get_stats,
 	.ndo_start_xmit		= dnet_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= dnet_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 };
@@ -795,8 +839,12 @@ static int dnet_probe(struct platform_device *pdev)
 
 	spin_lock_init(&bp->lock);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	bp->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	bp->regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bp->regs)) {
 		err = PTR_ERR(bp->regs);
 		goto err_out_free_dev;

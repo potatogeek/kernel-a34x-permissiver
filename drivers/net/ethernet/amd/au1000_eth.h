@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *
  * Alchemy Au1x00 ethernet driver include file
@@ -5,6 +9,7 @@
  * Author: Pete Popov <ppopov@mvista.com>
  *
  * Copyright 2001 MontaVista Software Inc.
+<<<<<<< HEAD
  *
  * ########################################################################
  *
@@ -23,6 +28,8 @@
  * ########################################################################
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 

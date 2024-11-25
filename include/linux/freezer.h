@@ -27,6 +27,14 @@ static inline bool frozen(struct task_struct *p)
 	return p->flags & PF_FROZEN;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool frozen_or_skipped(struct task_struct *p)
+{
+	return p->flags & (PF_FROZEN | PF_FREEZER_SKIP);
+}
+
+>>>>>>> upstream/android-13
 extern bool freezing_slow_path(struct task_struct *p);
 
 /*
@@ -207,6 +215,20 @@ static inline long freezable_schedule_timeout_interruptible(long timeout)
 	return __retval;
 }
 
+<<<<<<< HEAD
+=======
+/* DO NOT ADD ANY NEW CALLERS OF THIS FUNCTION */
+static inline long freezable_schedule_timeout_interruptible_unsafe(long timeout)
+{
+	long __retval;
+
+	freezer_do_not_count();
+	__retval = schedule_timeout_interruptible(timeout);
+	freezer_count_unsafe();
+	return __retval;
+}
+
+>>>>>>> upstream/android-13
 /* Like schedule_timeout_killable(), but should not block the freezer. */
 static inline long freezable_schedule_timeout_killable(long timeout)
 {
@@ -259,6 +281,10 @@ static inline int freezable_schedule_hrtimeout_range(ktime_t *expires,
 
 #else /* !CONFIG_FREEZER */
 static inline bool frozen(struct task_struct *p) { return false; }
+<<<<<<< HEAD
+=======
+static inline bool frozen_or_skipped(struct task_struct *p) { return false; }
+>>>>>>> upstream/android-13
 static inline bool freezing(struct task_struct *p) { return false; }
 static inline void __thaw_task(struct task_struct *t) {}
 
@@ -268,7 +294,10 @@ static inline int freeze_kernel_threads(void) { return -ENOSYS; }
 static inline void thaw_processes(void) {}
 static inline void thaw_kernel_threads(void) {}
 
+<<<<<<< HEAD
 static inline bool try_to_freeze_nowarn(void) { return false; }
+=======
+>>>>>>> upstream/android-13
 static inline bool try_to_freeze(void) { return false; }
 
 static inline void freezer_do_not_count(void) {}
@@ -285,6 +314,12 @@ static inline void set_freezable(void) {}
 #define freezable_schedule_timeout_interruptible(timeout)		\
 	schedule_timeout_interruptible(timeout)
 
+<<<<<<< HEAD
+=======
+#define freezable_schedule_timeout_interruptible_unsafe(timeout)	\
+	schedule_timeout_interruptible(timeout)
+
+>>>>>>> upstream/android-13
 #define freezable_schedule_timeout_killable(timeout)			\
 	schedule_timeout_killable(timeout)
 

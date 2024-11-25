@@ -17,7 +17,11 @@ struct compat_elf_siginfo
 	compat_int_t			si_errno;
 };
 
+<<<<<<< HEAD
 struct compat_elf_prstatus
+=======
+struct compat_elf_prstatus_common
+>>>>>>> upstream/android-13
 {
 	struct compat_elf_siginfo	pr_info;
 	short				pr_cursig;
@@ -27,6 +31,7 @@ struct compat_elf_prstatus
 	compat_pid_t			pr_ppid;
 	compat_pid_t			pr_pgrp;
 	compat_pid_t			pr_sid;
+<<<<<<< HEAD
 	struct compat_timeval		pr_utime;
 	struct compat_timeval		pr_stime;
 	struct compat_timeval		pr_cutime;
@@ -37,6 +42,12 @@ struct compat_elf_prstatus
 	compat_ulong_t			pr_interp_fdpic_loadmap;
 #endif
 	compat_int_t			pr_fpvalid;
+=======
+	struct old_timeval32		pr_utime;
+	struct old_timeval32		pr_stime;
+	struct old_timeval32		pr_cutime;
+	struct old_timeval32		pr_cstime;
+>>>>>>> upstream/android-13
 };
 
 struct compat_elf_prpsinfo
@@ -53,4 +64,18 @@ struct compat_elf_prpsinfo
 	char				pr_psargs[ELF_PRARGSZ];
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARCH_HAS_ELFCORE_COMPAT
+#include <asm/elfcore-compat.h>
+#endif
+
+struct compat_elf_prstatus
+{
+	struct compat_elf_prstatus_common	common;
+	compat_elf_gregset_t		pr_reg;
+	compat_int_t			pr_fpvalid;
+};
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_ELFCORE_COMPAT_H */

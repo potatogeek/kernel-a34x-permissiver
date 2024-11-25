@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PowerNV OPAL Dump Interface
  *
  * Copyright 2013,2014 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kobject.h>
@@ -92,9 +99,20 @@ static ssize_t dump_ack_store(struct dump_obj *dump_obj,
 			      const char *buf,
 			      size_t count)
 {
+<<<<<<< HEAD
 	dump_send_ack(dump_obj->id);
 	sysfs_remove_file_self(&dump_obj->kobj, &attr->attr);
 	kobject_put(&dump_obj->kobj);
+=======
+	/*
+	 * Try to self remove this attribute. If we are successful,
+	 * delete the kobject itself.
+	 */
+	if (sysfs_remove_file_self(&dump_obj->kobj, &attr->attr)) {
+		dump_send_ack(dump_obj->id);
+		kobject_put(&dump_obj->kobj);
+	}
+>>>>>>> upstream/android-13
 	return count;
 }
 

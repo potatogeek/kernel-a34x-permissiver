@@ -6,6 +6,7 @@
  * Copyright (C) 2016 Google, Inc.
  *
  * Based on code by Dmitry Chernenkov.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gfp.h>
@@ -37,7 +40,11 @@
 /* Data structure and operations for quarantine queues. */
 
 /*
+<<<<<<< HEAD
  * Each queue is a signle-linked list, which also stores the total size of
+=======
+ * Each queue is a single-linked list, which also stores the total size of
+>>>>>>> upstream/android-13
  * objects inside of it.
  */
 struct qlist_head {
@@ -142,11 +149,34 @@ static void *qlink_to_object(struct qlist_node *qlink, struct kmem_cache *cache)
 static void qlink_free(struct qlist_node *qlink, struct kmem_cache *cache)
 {
 	void *object = qlink_to_object(qlink, cache);
+<<<<<<< HEAD
+=======
+	struct kasan_free_meta *meta = kasan_get_free_meta(cache, object);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	if (IS_ENABLED(CONFIG_SLAB))
 		local_irq_save(flags);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If init_on_free is enabled and KASAN's free metadata is stored in
+	 * the object, zero the metadata. Otherwise, the object's memory will
+	 * not be properly zeroed, as KASAN saves the metadata after the slab
+	 * allocator zeroes the object.
+	 */
+	if (slab_want_init_on_free(cache) &&
+	    cache->kasan_info.free_meta_offset == 0)
+		memzero_explicit(meta, sizeof(*meta));
+
+	/*
+	 * As the object now gets freed from the quarantine, assume that its
+	 * free track is no longer valid.
+	 */
+	*(u8 *)kasan_mem_to_shadow(object) = KASAN_KMALLOC_FREE;
+
+>>>>>>> upstream/android-13
 	___cache_free(cache, object, _THIS_IP_);
 
 	if (IS_ENABLED(CONFIG_SLAB))
@@ -172,11 +202,16 @@ static void qlist_free_all(struct qlist_head *q, struct kmem_cache *cache)
 	qlist_init(q);
 }
 
+<<<<<<< HEAD
 void quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
+=======
+bool kasan_quarantine_put(struct kmem_cache *cache, void *object)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct qlist_head *q;
 	struct qlist_head temp = QLIST_INIT;
+<<<<<<< HEAD
 
 	/*
 	 * Note: irq must be disabled until after we move the batch to the
@@ -185,16 +220,41 @@ void quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
 	 * list. quarantine_remove_cache() executes on_each_cpu() at the
 	 * beginning which ensures that it either sees the objects in per-cpu
 	 * lists or in the global quarantine.
+=======
+	struct kasan_free_meta *meta = kasan_get_free_meta(cache, object);
+
+	/*
+	 * If there's no metadata for this object, don't put it into
+	 * quarantine.
+	 */
+	if (!meta)
+		return false;
+
+	/*
+	 * Note: irq must be disabled until after we move the batch to the
+	 * global quarantine. Otherwise kasan_quarantine_remove_cache() can
+	 * miss some objects belonging to the cache if they are in our local
+	 * temp list. kasan_quarantine_remove_cache() executes on_each_cpu()
+	 * at the beginning which ensures that it either sees the objects in
+	 * per-cpu lists or in the global quarantine.
+>>>>>>> upstream/android-13
 	 */
 	local_irq_save(flags);
 
 	q = this_cpu_ptr(&cpu_quarantine);
 	if (q->offline) {
+<<<<<<< HEAD
 		qlink_free(&info->quarantine_link, cache);
 		local_irq_restore(flags);
 		return;
 	}
 	qlist_put(q, &info->quarantine_link, cache->size);
+=======
+		local_irq_restore(flags);
+		return false;
+	}
+	qlist_put(q, &meta->quarantine_link, cache->size);
+>>>>>>> upstream/android-13
 	if (unlikely(q->bytes > QUARANTINE_PERCPU_SIZE)) {
 		qlist_move_all(q, &temp);
 
@@ -215,9 +275,17 @@ void quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
 	}
 
 	local_irq_restore(flags);
+<<<<<<< HEAD
 }
 
 void quarantine_reduce(void)
+=======
+
+	return true;
+}
+
+void kasan_quarantine_reduce(void)
+>>>>>>> upstream/android-13
 {
 	size_t total_size, new_quarantine_size, percpu_quarantines;
 	unsigned long flags;
@@ -229,7 +297,11 @@ void quarantine_reduce(void)
 		return;
 
 	/*
+<<<<<<< HEAD
 	 * srcu critical section ensures that quarantine_remove_cache()
+=======
+	 * srcu critical section ensures that kasan_quarantine_remove_cache()
+>>>>>>> upstream/android-13
 	 * will not miss objects belonging to the cache while they are in our
 	 * local to_free list. srcu is chosen because (1) it gives us private
 	 * grace period domain that does not interfere with anything else,
@@ -244,7 +316,11 @@ void quarantine_reduce(void)
 	 * Update quarantine size in case of hotplug. Allocate a fraction of
 	 * the installed memory to quarantine minus per-cpu queue limits.
 	 */
+<<<<<<< HEAD
 	total_size = (READ_ONCE(totalram_pages) << PAGE_SHIFT) /
+=======
+	total_size = (totalram_pages() << PAGE_SHIFT) /
+>>>>>>> upstream/android-13
 		QUARANTINE_FRACTION;
 	percpu_quarantines = QUARANTINE_PERCPU_SIZE * num_online_cpus();
 	new_quarantine_size = (total_size < percpu_quarantines) ?
@@ -299,20 +375,39 @@ static void per_cpu_remove_cache(void *arg)
 	struct qlist_head *q;
 
 	q = this_cpu_ptr(&cpu_quarantine);
+<<<<<<< HEAD
+=======
+	/*
+	 * Ensure the ordering between the writing to q->offline and
+	 * per_cpu_remove_cache.  Prevent cpu_quarantine from being corrupted
+	 * by interrupt.
+	 */
+	if (READ_ONCE(q->offline))
+		return;
+>>>>>>> upstream/android-13
 	qlist_move_cache(q, &to_free, cache);
 	qlist_free_all(&to_free, cache);
 }
 
 /* Free all quarantined objects belonging to cache. */
+<<<<<<< HEAD
 void quarantine_remove_cache(struct kmem_cache *cache)
+=======
+void kasan_quarantine_remove_cache(struct kmem_cache *cache)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags, i;
 	struct qlist_head to_free = QLIST_INIT;
 
 	/*
 	 * Must be careful to not miss any objects that are being moved from
+<<<<<<< HEAD
 	 * per-cpu list to the global quarantine in quarantine_put(),
 	 * nor objects being freed in quarantine_reduce(). on_each_cpu()
+=======
+	 * per-cpu list to the global quarantine in kasan_quarantine_put(),
+	 * nor objects being freed in kasan_quarantine_reduce(). on_each_cpu()
+>>>>>>> upstream/android-13
 	 * achieves the first goal, while synchronize_srcu() achieves the
 	 * second.
 	 */

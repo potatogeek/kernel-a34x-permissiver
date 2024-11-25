@@ -157,7 +157,12 @@ static int machxo2_cleanup(struct fpga_manager *mgr)
 	spi_message_init(&msg);
 	tx[1].tx_buf = &refresh;
 	tx[1].len = sizeof(refresh);
+<<<<<<< HEAD
 	tx[1].delay_usecs = MACHXO2_REFRESH_USEC;
+=======
+	tx[1].delay.value = MACHXO2_REFRESH_USEC;
+	tx[1].delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 	spi_message_add_tail(&tx[1], &msg);
 	ret = spi_sync(spi, &msg);
 	if (ret)
@@ -208,7 +213,12 @@ static int machxo2_write_init(struct fpga_manager *mgr,
 	spi_message_init(&msg);
 	tx[0].tx_buf = &enable;
 	tx[0].len = sizeof(enable);
+<<<<<<< HEAD
 	tx[0].delay_usecs = MACHXO2_LOW_DELAY_USEC;
+=======
+	tx[0].delay.value = MACHXO2_LOW_DELAY_USEC;
+	tx[0].delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 	spi_message_add_tail(&tx[0], &msg);
 
 	tx[1].tx_buf = &erase;
@@ -223,8 +233,15 @@ static int machxo2_write_init(struct fpga_manager *mgr,
 		goto fail;
 
 	get_status(spi, &status);
+<<<<<<< HEAD
 	if (test_bit(FAIL, &status))
 		goto fail;
+=======
+	if (test_bit(FAIL, &status)) {
+		ret = -EINVAL;
+		goto fail;
+	}
+>>>>>>> upstream/android-13
 	dump_status_reg(&status);
 
 	spi_message_init(&msg);
@@ -269,7 +286,12 @@ static int machxo2_write(struct fpga_manager *mgr, const char *buf,
 		spi_message_init(&msg);
 		tx.tx_buf = payload;
 		tx.len = MACHXO2_BUF_SIZE;
+<<<<<<< HEAD
 		tx.delay_usecs = MACHXO2_HIGH_DELAY_USEC;
+=======
+		tx.delay.value = MACHXO2_HIGH_DELAY_USEC;
+		tx.delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 		spi_message_add_tail(&tx, &msg);
 		ret = spi_sync(spi, &msg);
 		if (ret) {
@@ -310,6 +332,10 @@ static int machxo2_write_complete(struct fpga_manager *mgr,
 	dump_status_reg(&status);
 	if (!test_bit(DONE, &status)) {
 		machxo2_cleanup(mgr);
+<<<<<<< HEAD
+=======
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -317,7 +343,12 @@ static int machxo2_write_complete(struct fpga_manager *mgr,
 		spi_message_init(&msg);
 		tx[1].tx_buf = &refresh;
 		tx[1].len = sizeof(refresh);
+<<<<<<< HEAD
 		tx[1].delay_usecs = MACHXO2_REFRESH_USEC;
+=======
+		tx[1].delay.value = MACHXO2_REFRESH_USEC;
+		tx[1].delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 		spi_message_add_tail(&tx[1], &msg);
 		ret = spi_sync(spi, &msg);
 		if (ret)
@@ -331,6 +362,10 @@ static int machxo2_write_complete(struct fpga_manager *mgr,
 			break;
 		if (++refreshloop == MACHXO2_MAX_REFRESH_LOOP) {
 			machxo2_cleanup(mgr);
+<<<<<<< HEAD
+=======
+			ret = -EINVAL;
+>>>>>>> upstream/android-13
 			goto fail;
 		}
 	} while (1);
@@ -356,13 +391,17 @@ static int machxo2_spi_probe(struct spi_device *spi)
 {
 	struct device *dev = &spi->dev;
 	struct fpga_manager *mgr;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (spi->max_speed_hz > MACHXO2_MAX_SPEED) {
 		dev_err(dev, "Speed is too high\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mgr = fpga_mgr_create(dev, "Lattice MachXO2 SPI FPGA Manager",
 			      &machxo2_ops, spi);
 	if (!mgr)
@@ -386,11 +425,26 @@ static int machxo2_spi_remove(struct spi_device *spi)
 	return 0;
 }
 
+=======
+	mgr = devm_fpga_mgr_create(dev, "Lattice MachXO2 SPI FPGA Manager",
+				   &machxo2_ops, spi);
+	if (!mgr)
+		return -ENOMEM;
+
+	return devm_fpga_mgr_register(dev, mgr);
+}
+
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id of_match[] = {
 	{ .compatible = "lattice,machxo2-slave-spi", },
 	{}
 };
 MODULE_DEVICE_TABLE(of, of_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static const struct spi_device_id lattice_ids[] = {
 	{ "machxo2-slave-spi", 0 },
@@ -404,7 +458,10 @@ static struct spi_driver machxo2_spi_driver = {
 		.of_match_table = of_match_ptr(of_match),
 	},
 	.probe = machxo2_spi_probe,
+<<<<<<< HEAD
 	.remove = machxo2_spi_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table = lattice_ids,
 };
 

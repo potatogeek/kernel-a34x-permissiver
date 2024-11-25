@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001 Dave Engebretsen IBM Corporation
  *
@@ -17,6 +18,15 @@
  */
 
 #include <asm/prom.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2001 Dave Engebretsen IBM Corporation
+ */
+
+#include <linux/interrupt.h>
+#include <linux/of_irq.h>
+>>>>>>> upstream/android-13
 
 #include "pseries.h"
 
@@ -24,6 +34,7 @@ void request_event_sources_irqs(struct device_node *np,
 				irq_handler_t handler,
 				const char *name)
 {
+<<<<<<< HEAD
 	int i, index, count = 0;
 	struct of_phandle_args oirq;
 	unsigned int virqs[16];
@@ -55,3 +66,21 @@ void request_event_sources_irqs(struct device_node *np,
 	}
 }
 
+=======
+	int i, virq, rc;
+
+	for (i = 0; i < 16; i++) {
+		virq = of_irq_get(np, i);
+		if (virq < 0)
+			return;
+		if (WARN(!virq, "event-sources: Unable to allocate "
+			        "interrupt number for %pOF\n", np))
+			continue;
+
+		rc = request_irq(virq, handler, 0, name, NULL);
+		if (WARN(rc, "event-sources: Unable to request interrupt %d for %pOF\n",
+		    virq, np))
+			return;
+	}
+}
+>>>>>>> upstream/android-13

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 cec-objs := cec-core.o cec-adap.o cec-api.o
 
 ifeq ($(CONFIG_CEC_NOTIFIER),y)
@@ -14,3 +15,6 @@ ifeq ($(CONFIG_CEC_PIN_ERROR_INJ),y)
 endif
 
 obj-$(CONFIG_CEC_CORE) += cec.o
+=======
+obj-y += core/ i2c/ platform/ usb/
+>>>>>>> upstream/android-13

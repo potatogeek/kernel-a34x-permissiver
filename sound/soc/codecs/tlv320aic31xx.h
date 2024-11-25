@@ -2,7 +2,11 @@
 /*
  * ALSA SoC TLV320AIC31xx CODEC Driver Definitions
  *
+<<<<<<< HEAD
  * Copyright (C) 2014-2017 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2014-2017 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #ifndef _TLV320AIC31XX_H
@@ -20,6 +24,13 @@
 #define AIC31XX_MINIDSP_BIT		BIT(2)
 #define DAC31XX_BIT			BIT(3)
 
+<<<<<<< HEAD
+=======
+#define AIC31XX_JACK_MASK (SND_JACK_HEADPHONE | \
+			   SND_JACK_HEADSET | \
+			   SND_JACK_BTN_0)
+
+>>>>>>> upstream/android-13
 enum aic31xx_type {
 	AIC3100	= 0,
 	AIC3110 = AIC31XX_STEREO_CLASS_D_BIT,
@@ -147,8 +158,13 @@ struct aic31xx_pdata {
 #define AIC31XX_WORD_LEN_24BITS		0x02
 #define AIC31XX_WORD_LEN_32BITS		0x03
 #define AIC31XX_IFACE1_MASTER_MASK	GENMASK(3, 2)
+<<<<<<< HEAD
 #define AIC31XX_BCLK_MASTER		BIT(2)
 #define AIC31XX_WCLK_MASTER		BIT(3)
+=======
+#define AIC31XX_BCLK_MASTER		BIT(3)
+#define AIC31XX_WCLK_MASTER		BIT(2)
+>>>>>>> upstream/android-13
 
 /* AIC31XX_DATA_OFFSET */
 #define AIC31XX_DATA_OFFSET_MASK	GENMASK(7, 0)
@@ -173,6 +189,16 @@ struct aic31xx_pdata {
 #define AIC31XX_HPRDRVPWRSTATUS_MASK	BIT(1)
 #define AIC31XX_SPRDRVPWRSTATUS_MASK	BIT(0)
 
+<<<<<<< HEAD
+=======
+/* AIC31XX_OFFLAG */
+#define AIC31XX_DAC_OF_LEFT		BIT(7)
+#define AIC31XX_DAC_OF_RIGHT		BIT(6)
+#define AIC31XX_DAC_OF_SHIFTER		BIT(5)
+#define AIC31XX_ADC_OF			BIT(3)
+#define AIC31XX_ADC_OF_SHIFTER		BIT(1)
+
+>>>>>>> upstream/android-13
 /* AIC31XX_INTRDACFLAG */
 #define AIC31XX_HPLSCDETECT		BIT(7)
 #define AIC31XX_HPRSCDETECT		BIT(6)
@@ -191,12 +217,49 @@ struct aic31xx_pdata {
 #define AIC31XX_SC			BIT(3)
 #define AIC31XX_ENGINE			BIT(2)
 
+<<<<<<< HEAD
 /* AIC31XX_DACSETUP */
 #define AIC31XX_SOFTSTEP_MASK		GENMASK(1, 0)
+=======
+/* AIC31XX_GPIO1 */
+#define AIC31XX_GPIO1_FUNC_MASK		GENMASK(5, 2)
+#define AIC31XX_GPIO1_FUNC_SHIFT	2
+#define AIC31XX_GPIO1_DISABLED		0x00
+#define AIC31XX_GPIO1_INPUT		0x01
+#define AIC31XX_GPIO1_GPI		0x02
+#define AIC31XX_GPIO1_GPO		0x03
+#define AIC31XX_GPIO1_CLKOUT		0x04
+#define AIC31XX_GPIO1_INT1		0x05
+#define AIC31XX_GPIO1_INT2		0x06
+#define AIC31XX_GPIO1_ADC_WCLK		0x07
+#define AIC31XX_GPIO1_SBCLK		0x08
+#define AIC31XX_GPIO1_SWCLK		0x09
+#define AIC31XX_GPIO1_ADC_MOD_CLK	0x10
+#define AIC31XX_GPIO1_SDOUT		0x11
+>>>>>>> upstream/android-13
 
 /* AIC31XX_DACMUTE */
 #define AIC31XX_DACMUTE_MASK		GENMASK(3, 2)
 
+<<<<<<< HEAD
+=======
+/* AIC31XX_HSDETECT */
+#define AIC31XX_HSD_ENABLE		BIT(7)
+#define AIC31XX_HSD_TYPE_MASK		GENMASK(6, 5)
+#define AIC31XX_HSD_TYPE_SHIFT		5
+#define AIC31XX_HSD_NONE		0x00
+#define AIC31XX_HSD_HP			0x01
+#define AIC31XX_HSD_HS			0x03
+
+/* AIC31XX_HPDRIVER */
+#define AIC31XX_HPD_OCMV_MASK		GENMASK(4, 3)
+#define AIC31XX_HPD_OCMV_SHIFT		3
+#define AIC31XX_HPD_OCMV_1_35V		0x0
+#define AIC31XX_HPD_OCMV_1_5V		0x1
+#define AIC31XX_HPD_OCMV_1_65V		0x2
+#define AIC31XX_HPD_OCMV_1_8V		0x3
+
+>>>>>>> upstream/android-13
 /* AIC31XX_MICBIAS */
 #define AIC31XX_MICBIAS_MASK		GENMASK(1, 0)
 #define AIC31XX_MICBIAS_SHIFT		0

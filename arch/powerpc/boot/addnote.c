@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Program to hack in a PT_NOTE program header entry in an ELF file.
  * This is needed for OF on RS/6000s to load an image correctly.
@@ -8,11 +12,14 @@
  *
  * Adapted for 64 bit little endian images by Andrew Tauferner.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Usage: addnote zImage
  */
 #include <stdio.h>

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ISP1704 USB Charger Detection driver
  *
  * Copyright (C) 2010 Nokia Corporation
+<<<<<<< HEAD
  * Copyright (C) 2012 - 2013 Pali Rohár <pali.rohar@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+ * Copyright (C) 2012 - 2013 Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -30,13 +38,21 @@
 #include <linux/power_supply.h>
 #include <linux/delay.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 
+=======
+
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/otg.h>
 #include <linux/usb/ulpi.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
+<<<<<<< HEAD
 #include <linux/power/isp1704_charger.h>
+=======
+>>>>>>> upstream/android-13
 
 /* Vendor specific Power Control register */
 #define ISP1704_PWR_CTRL		0x3d
@@ -60,6 +76,10 @@ struct isp1704_charger {
 	struct device			*dev;
 	struct power_supply		*psy;
 	struct power_supply_desc	psy_desc;
+<<<<<<< HEAD
+=======
+	struct gpio_desc		*enable_gpio;
+>>>>>>> upstream/android-13
 	struct usb_phy			*phy;
 	struct notifier_block		nb;
 	struct work_struct		work;
@@ -81,6 +101,7 @@ static inline int isp1704_write(struct isp1704_charger *isp, u32 reg, u32 val)
 	return usb_phy_io_write(isp->phy, val, reg);
 }
 
+<<<<<<< HEAD
 /*
  * Disable/enable the power from the isp1704 if a function for it
  * has been provided with platform data.
@@ -93,6 +114,11 @@ static void isp1704_charger_set_power(struct isp1704_charger *isp, bool on)
 		board->set_power(on);
 	else if (board)
 		gpio_set_value(board->enable_gpio, on);
+=======
+static void isp1704_charger_set_power(struct isp1704_charger *isp, bool on)
+{
+	gpiod_set_value(isp->enable_gpio, on);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -364,7 +390,11 @@ static inline int isp1704_test_ulpi(struct isp1704_charger *isp)
 	int vendor;
 	int product;
 	int i;
+<<<<<<< HEAD
 	int ret = -ENODEV;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Test ULPI interface */
 	ret = isp1704_write(isp, ULPI_SCRATCH, 0xaa);
@@ -405,6 +435,7 @@ static int isp1704_charger_probe(struct platform_device *pdev)
 	int			ret = -ENODEV;
 	struct power_supply_config psy_cfg = {};
 
+<<<<<<< HEAD
 	struct isp1704_charger_data *pdata = dev_get_platdata(&pdev->dev);
 	struct device_node *np = pdev->dev.of_node;
 
@@ -440,11 +471,25 @@ static int isp1704_charger_probe(struct platform_device *pdev)
 	}
 
 
+=======
+>>>>>>> upstream/android-13
 	isp = devm_kzalloc(&pdev->dev, sizeof(*isp), GFP_KERNEL);
 	if (!isp)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (np)
+=======
+	isp->enable_gpio = devm_gpiod_get(&pdev->dev, "nxp,enable",
+					  GPIOD_OUT_HIGH);
+	if (IS_ERR(isp->enable_gpio)) {
+		ret = PTR_ERR(isp->enable_gpio);
+		dev_err(&pdev->dev, "Could not get reset gpio: %d\n", ret);
+		return ret;
+	}
+
+	if (pdev->dev.of_node)
+>>>>>>> upstream/android-13
 		isp->phy = devm_usb_get_phy_by_phandle(&pdev->dev, "usb-phy", 0);
 	else
 		isp->phy = devm_usb_get_phy(&pdev->dev, USB_PHY_TYPE_USB2);

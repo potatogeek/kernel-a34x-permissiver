@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Texas Instruments.
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2009 Texas Instruments.
+ *
+>>>>>>> upstream/android-13
  * common vpss system module platform driver for all video drivers.
  */
 #include <linux/module.h>
@@ -507,9 +514,15 @@ static struct platform_driver vpss_driver = {
 
 static void vpss_exit(void)
 {
+<<<<<<< HEAD
 	iounmap(oper_cfg.vpss_regs_base2);
 	release_mem_region(VPSS_CLK_CTRL, 4);
 	platform_driver_unregister(&vpss_driver);
+=======
+	platform_driver_unregister(&vpss_driver);
+	iounmap(oper_cfg.vpss_regs_base2);
+	release_mem_region(VPSS_CLK_CTRL, 4);
+>>>>>>> upstream/android-13
 }
 
 static int __init vpss_init(void)

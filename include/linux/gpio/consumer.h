@@ -2,9 +2,16 @@
 #ifndef __LINUX_GPIO_CONSUMER_H
 #define __LINUX_GPIO_CONSUMER_H
 
+<<<<<<< HEAD
 #include <linux/bug.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
+=======
+#include <linux/bits.h>
+#include <linux/bug.h>
+#include <linux/compiler_types.h>
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 
 struct device;
 
@@ -18,10 +25,25 @@ struct device;
 struct gpio_desc;
 
 /**
+<<<<<<< HEAD
+=======
+ * Opaque descriptor for a structure of GPIO array attributes.  This structure
+ * is attached to struct gpiod_descs obtained from gpiod_get_array() and can be
+ * passed back to get/set array functions in order to activate fast processing
+ * path if applicable.
+ */
+struct gpio_array;
+
+/**
+>>>>>>> upstream/android-13
  * Struct containing an array of descriptors that can be obtained using
  * gpiod_get_array().
  */
 struct gpio_descs {
+<<<<<<< HEAD
+=======
+	struct gpio_array *info;
+>>>>>>> upstream/android-13
 	unsigned int ndescs;
 	struct gpio_desc *desc[];
 };
@@ -30,6 +52,10 @@ struct gpio_descs {
 #define GPIOD_FLAGS_BIT_DIR_OUT		BIT(1)
 #define GPIOD_FLAGS_BIT_DIR_VAL		BIT(2)
 #define GPIOD_FLAGS_BIT_OPEN_DRAIN	BIT(3)
+<<<<<<< HEAD
+=======
+#define GPIOD_FLAGS_BIT_NONEXCLUSIVE	BIT(4)
+>>>>>>> upstream/android-13
 
 /**
  * Optional flags that can be passed to one of gpiod_* to configure direction
@@ -94,6 +120,10 @@ struct gpio_descs *__must_check
 devm_gpiod_get_array_optional(struct device *dev, const char *con_id,
 			      enum gpiod_flags flags);
 void devm_gpiod_put(struct device *dev, struct gpio_desc *desc);
+<<<<<<< HEAD
+=======
+void devm_gpiod_unhinge(struct device *dev, struct gpio_desc *desc);
+>>>>>>> upstream/android-13
 void devm_gpiod_put_array(struct device *dev, struct gpio_descs *descs);
 
 int gpiod_get_direction(struct gpio_desc *desc);
@@ -104,6 +134,7 @@ int gpiod_direction_output_raw(struct gpio_desc *desc, int value);
 /* Value get/set from non-sleeping context */
 int gpiod_get_value(const struct gpio_desc *desc);
 int gpiod_get_array_value(unsigned int array_size,
+<<<<<<< HEAD
 			  struct gpio_desc **desc_array, int *value_array);
 void gpiod_set_value(struct gpio_desc *desc, int value);
 void gpiod_set_array_value(unsigned int array_size,
@@ -116,11 +147,32 @@ void gpiod_set_raw_value(struct gpio_desc *desc, int value);
 int gpiod_set_raw_array_value(unsigned int array_size,
 			       struct gpio_desc **desc_array,
 			       int *value_array);
+=======
+			  struct gpio_desc **desc_array,
+			  struct gpio_array *array_info,
+			  unsigned long *value_bitmap);
+void gpiod_set_value(struct gpio_desc *desc, int value);
+int gpiod_set_array_value(unsigned int array_size,
+			  struct gpio_desc **desc_array,
+			  struct gpio_array *array_info,
+			  unsigned long *value_bitmap);
+int gpiod_get_raw_value(const struct gpio_desc *desc);
+int gpiod_get_raw_array_value(unsigned int array_size,
+			      struct gpio_desc **desc_array,
+			      struct gpio_array *array_info,
+			      unsigned long *value_bitmap);
+void gpiod_set_raw_value(struct gpio_desc *desc, int value);
+int gpiod_set_raw_array_value(unsigned int array_size,
+			      struct gpio_desc **desc_array,
+			      struct gpio_array *array_info,
+			      unsigned long *value_bitmap);
+>>>>>>> upstream/android-13
 
 /* Value get/set from sleeping context */
 int gpiod_get_value_cansleep(const struct gpio_desc *desc);
 int gpiod_get_array_value_cansleep(unsigned int array_size,
 				   struct gpio_desc **desc_array,
+<<<<<<< HEAD
 				   int *value_array);
 void gpiod_set_value_cansleep(struct gpio_desc *desc, int value);
 void gpiod_set_array_value_cansleep(unsigned int array_size,
@@ -137,6 +189,30 @@ int gpiod_set_raw_array_value_cansleep(unsigned int array_size,
 
 int gpiod_set_debounce(struct gpio_desc *desc, unsigned debounce);
 int gpiod_set_transitory(struct gpio_desc *desc, bool transitory);
+=======
+				   struct gpio_array *array_info,
+				   unsigned long *value_bitmap);
+void gpiod_set_value_cansleep(struct gpio_desc *desc, int value);
+int gpiod_set_array_value_cansleep(unsigned int array_size,
+				   struct gpio_desc **desc_array,
+				   struct gpio_array *array_info,
+				   unsigned long *value_bitmap);
+int gpiod_get_raw_value_cansleep(const struct gpio_desc *desc);
+int gpiod_get_raw_array_value_cansleep(unsigned int array_size,
+				       struct gpio_desc **desc_array,
+				       struct gpio_array *array_info,
+				       unsigned long *value_bitmap);
+void gpiod_set_raw_value_cansleep(struct gpio_desc *desc, int value);
+int gpiod_set_raw_array_value_cansleep(unsigned int array_size,
+				       struct gpio_desc **desc_array,
+				       struct gpio_array *array_info,
+				       unsigned long *value_bitmap);
+
+int gpiod_set_config(struct gpio_desc *desc, unsigned long config);
+int gpiod_set_debounce(struct gpio_desc *desc, unsigned int debounce);
+int gpiod_set_transitory(struct gpio_desc *desc, bool transitory);
+void gpiod_toggle_active_low(struct gpio_desc *desc);
+>>>>>>> upstream/android-13
 
 int gpiod_is_active_low(const struct gpio_desc *desc);
 int gpiod_cansleep(const struct gpio_desc *desc);
@@ -149,6 +225,7 @@ struct gpio_desc *gpio_to_desc(unsigned gpio);
 int desc_to_gpio(const struct gpio_desc *desc);
 
 /* Child properties interface */
+<<<<<<< HEAD
 struct device_node;
 struct fwnode_handle;
 
@@ -157,10 +234,15 @@ struct gpio_desc *devm_gpiod_get_from_of_node(struct device *dev,
 					      const char *propname, int index,
 					      enum gpiod_flags dflags,
 					      const char *label);
+=======
+struct fwnode_handle;
+
+>>>>>>> upstream/android-13
 struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
 					 const char *propname, int index,
 					 enum gpiod_flags dflags,
 					 const char *label);
+<<<<<<< HEAD
 struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
 						const char *con_id, int index,
 						struct fwnode_handle *child,
@@ -169,6 +251,22 @@ struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
 
 #else /* CONFIG_GPIOLIB */
 
+=======
+struct gpio_desc *fwnode_gpiod_get_index(struct fwnode_handle *fwnode,
+					 const char *con_id, int index,
+					 enum gpiod_flags flags,
+					 const char *label);
+struct gpio_desc *devm_fwnode_gpiod_get_index(struct device *dev,
+					      struct fwnode_handle *child,
+					      const char *con_id, int index,
+					      enum gpiod_flags flags,
+					      const char *label);
+
+#else /* CONFIG_GPIOLIB */
+
+#include <linux/kernel.h>
+
+>>>>>>> upstream/android-13
 static inline int gpiod_count(struct device *dev, const char *con_id)
 {
 	return 0;
@@ -225,6 +323,18 @@ static inline void gpiod_put(struct gpio_desc *desc)
 	WARN_ON(desc);
 }
 
+<<<<<<< HEAD
+=======
+static inline void devm_gpiod_unhinge(struct device *dev,
+				      struct gpio_desc *desc)
+{
+	might_sleep();
+
+	/* GPIO can never have been requested */
+	WARN_ON(desc);
+}
+
+>>>>>>> upstream/android-13
 static inline void gpiod_put_array(struct gpio_descs *descs)
 {
 	might_sleep();
@@ -330,7 +440,12 @@ static inline int gpiod_get_value(const struct gpio_desc *desc)
 }
 static inline int gpiod_get_array_value(unsigned int array_size,
 					struct gpio_desc **desc_array,
+<<<<<<< HEAD
 					int *value_array)
+=======
+					struct gpio_array *array_info,
+					unsigned long *value_bitmap)
+>>>>>>> upstream/android-13
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
@@ -341,12 +456,23 @@ static inline void gpiod_set_value(struct gpio_desc *desc, int value)
 	/* GPIO can never have been requested */
 	WARN_ON(desc);
 }
+<<<<<<< HEAD
 static inline void gpiod_set_array_value(unsigned int array_size,
 					 struct gpio_desc **desc_array,
 					 int *value_array)
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
+=======
+static inline int gpiod_set_array_value(unsigned int array_size,
+					struct gpio_desc **desc_array,
+					struct gpio_array *array_info,
+					unsigned long *value_bitmap)
+{
+	/* GPIO can never have been requested */
+	WARN_ON(desc_array);
+	return 0;
+>>>>>>> upstream/android-13
 }
 static inline int gpiod_get_raw_value(const struct gpio_desc *desc)
 {
@@ -356,7 +482,12 @@ static inline int gpiod_get_raw_value(const struct gpio_desc *desc)
 }
 static inline int gpiod_get_raw_array_value(unsigned int array_size,
 					    struct gpio_desc **desc_array,
+<<<<<<< HEAD
 					    int *value_array)
+=======
+					    struct gpio_array *array_info,
+					    unsigned long *value_bitmap)
+>>>>>>> upstream/android-13
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
@@ -368,8 +499,14 @@ static inline void gpiod_set_raw_value(struct gpio_desc *desc, int value)
 	WARN_ON(desc);
 }
 static inline int gpiod_set_raw_array_value(unsigned int array_size,
+<<<<<<< HEAD
 					     struct gpio_desc **desc_array,
 					     int *value_array)
+=======
+					    struct gpio_desc **desc_array,
+					    struct gpio_array *array_info,
+					    unsigned long *value_bitmap)
+>>>>>>> upstream/android-13
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
@@ -384,7 +521,12 @@ static inline int gpiod_get_value_cansleep(const struct gpio_desc *desc)
 }
 static inline int gpiod_get_array_value_cansleep(unsigned int array_size,
 				     struct gpio_desc **desc_array,
+<<<<<<< HEAD
 				     int *value_array)
+=======
+				     struct gpio_array *array_info,
+				     unsigned long *value_bitmap)
+>>>>>>> upstream/android-13
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
@@ -395,12 +537,23 @@ static inline void gpiod_set_value_cansleep(struct gpio_desc *desc, int value)
 	/* GPIO can never have been requested */
 	WARN_ON(desc);
 }
+<<<<<<< HEAD
 static inline void gpiod_set_array_value_cansleep(unsigned int array_size,
 					    struct gpio_desc **desc_array,
 					    int *value_array)
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
+=======
+static inline int gpiod_set_array_value_cansleep(unsigned int array_size,
+					    struct gpio_desc **desc_array,
+					    struct gpio_array *array_info,
+					    unsigned long *value_bitmap)
+{
+	/* GPIO can never have been requested */
+	WARN_ON(desc_array);
+	return 0;
+>>>>>>> upstream/android-13
 }
 static inline int gpiod_get_raw_value_cansleep(const struct gpio_desc *desc)
 {
@@ -410,7 +563,12 @@ static inline int gpiod_get_raw_value_cansleep(const struct gpio_desc *desc)
 }
 static inline int gpiod_get_raw_array_value_cansleep(unsigned int array_size,
 					       struct gpio_desc **desc_array,
+<<<<<<< HEAD
 					       int *value_array)
+=======
+					       struct gpio_array *array_info,
+					       unsigned long *value_bitmap)
+>>>>>>> upstream/android-13
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
@@ -424,14 +582,30 @@ static inline void gpiod_set_raw_value_cansleep(struct gpio_desc *desc,
 }
 static inline int gpiod_set_raw_array_value_cansleep(unsigned int array_size,
 						struct gpio_desc **desc_array,
+<<<<<<< HEAD
 						int *value_array)
+=======
+						struct gpio_array *array_info,
+						unsigned long *value_bitmap)
+>>>>>>> upstream/android-13
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc_array);
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int gpiod_set_debounce(struct gpio_desc *desc, unsigned debounce)
+=======
+static inline int gpiod_set_config(struct gpio_desc *desc, unsigned long config)
+{
+	/* GPIO can never have been requested */
+	WARN_ON(desc);
+	return -ENOSYS;
+}
+
+static inline int gpiod_set_debounce(struct gpio_desc *desc, unsigned int debounce)
+>>>>>>> upstream/android-13
 {
 	/* GPIO can never have been requested */
 	WARN_ON(desc);
@@ -445,6 +619,15 @@ static inline int gpiod_set_transitory(struct gpio_desc *desc, bool transitory)
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
+=======
+static inline void gpiod_toggle_active_low(struct gpio_desc *desc)
+{
+	/* GPIO can never have been requested */
+	WARN_ON(desc);
+}
+
+>>>>>>> upstream/android-13
 static inline int gpiod_is_active_low(const struct gpio_desc *desc)
 {
 	/* GPIO can never have been requested */
@@ -486,6 +669,7 @@ static inline int desc_to_gpio(const struct gpio_desc *desc)
 }
 
 /* Child properties interface */
+<<<<<<< HEAD
 struct device_node;
 struct fwnode_handle;
 
@@ -500,6 +684,11 @@ struct gpio_desc *devm_gpiod_get_from_of_node(struct device *dev,
 }
 
 static inline
+=======
+struct fwnode_handle;
+
+static inline
+>>>>>>> upstream/android-13
 struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
 					 const char *propname, int index,
 					 enum gpiod_flags dflags,
@@ -509,11 +698,22 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
 }
 
 static inline
-struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
-						const char *con_id, int index,
-						struct fwnode_handle *child,
-						enum gpiod_flags flags,
-						const char *label)
+<<<<<<< HEAD
+=======
+struct gpio_desc *fwnode_gpiod_get_index(struct fwnode_handle *fwnode,
+					 const char *con_id, int index,
+					 enum gpiod_flags flags,
+					 const char *label)
+{
+	return ERR_PTR(-ENOSYS);
+}
+
+static inline
+struct gpio_desc *devm_fwnode_gpiod_get_index(struct device *dev,
+					      struct fwnode_handle *fwnode,
+					      const char *con_id, int index,
+					      enum gpiod_flags flags,
+					      const char *label)
 {
 	return ERR_PTR(-ENOSYS);
 }
@@ -521,16 +721,160 @@ struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
 #endif /* CONFIG_GPIOLIB */
 
 static inline
+struct gpio_desc *devm_fwnode_gpiod_get(struct device *dev,
+					struct fwnode_handle *fwnode,
+					const char *con_id,
+					enum gpiod_flags flags,
+					const char *label)
+{
+	return devm_fwnode_gpiod_get_index(dev, fwnode, con_id, 0,
+					   flags, label);
+}
+
+static inline
+>>>>>>> upstream/android-13
+struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
+						const char *con_id, int index,
+						struct fwnode_handle *child,
+						enum gpiod_flags flags,
+						const char *label)
+{
+<<<<<<< HEAD
+	return ERR_PTR(-ENOSYS);
+}
+
+#endif /* CONFIG_GPIOLIB */
+
+=======
+	return devm_fwnode_gpiod_get_index(dev, child, con_id, index,
+					   flags, label);
+}
+
+>>>>>>> upstream/android-13
+static inline
 struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
 						   const char *con_id,
 						   struct fwnode_handle *child,
 						   enum gpiod_flags flags,
 						   const char *label)
 {
+<<<<<<< HEAD
 	return devm_fwnode_get_index_gpiod_from_child(dev, con_id, 0, child,
 						      flags, label);
 }
 
+=======
+	return devm_fwnode_gpiod_get_index(dev, child, con_id, 0, flags, label);
+}
+
+#if IS_ENABLED(CONFIG_GPIOLIB) && IS_ENABLED(CONFIG_OF_GPIO)
+struct device_node;
+
+struct gpio_desc *gpiod_get_from_of_node(const struct device_node *node,
+					 const char *propname, int index,
+					 enum gpiod_flags dflags,
+					 const char *label);
+
+#else  /* CONFIG_GPIOLIB && CONFIG_OF_GPIO */
+
+struct device_node;
+
+static inline
+struct gpio_desc *gpiod_get_from_of_node(const struct device_node *node,
+					 const char *propname, int index,
+					 enum gpiod_flags dflags,
+					 const char *label)
+{
+	return ERR_PTR(-ENOSYS);
+}
+
+#endif /* CONFIG_GPIOLIB && CONFIG_OF_GPIO */
+
+#ifdef CONFIG_GPIOLIB
+struct device_node;
+
+struct gpio_desc *devm_gpiod_get_from_of_node(struct device *dev,
+					      const struct device_node *node,
+					      const char *propname, int index,
+					      enum gpiod_flags dflags,
+					      const char *label);
+
+#else  /* CONFIG_GPIOLIB */
+
+struct device_node;
+
+static inline
+struct gpio_desc *devm_gpiod_get_from_of_node(struct device *dev,
+					      const struct device_node *node,
+					      const char *propname, int index,
+					      enum gpiod_flags dflags,
+					      const char *label)
+{
+	return ERR_PTR(-ENOSYS);
+}
+
+#endif /* CONFIG_GPIOLIB */
+
+struct acpi_gpio_params {
+	unsigned int crs_entry_index;
+	unsigned int line_index;
+	bool active_low;
+};
+
+struct acpi_gpio_mapping {
+	const char *name;
+	const struct acpi_gpio_params *data;
+	unsigned int size;
+
+/* Ignore IoRestriction field */
+#define ACPI_GPIO_QUIRK_NO_IO_RESTRICTION	BIT(0)
+/*
+ * When ACPI GPIO mapping table is in use the index parameter inside it
+ * refers to the GPIO resource in _CRS method. That index has no
+ * distinction of actual type of the resource. When consumer wants to
+ * get GpioIo type explicitly, this quirk may be used.
+ */
+#define ACPI_GPIO_QUIRK_ONLY_GPIOIO		BIT(1)
+/* Use given pin as an absolute GPIO number in the system */
+#define ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER		BIT(2)
+
+	unsigned int quirks;
+};
+
+struct acpi_device;
+
+#if IS_ENABLED(CONFIG_GPIOLIB) && IS_ENABLED(CONFIG_ACPI)
+
+int acpi_dev_add_driver_gpios(struct acpi_device *adev,
+			      const struct acpi_gpio_mapping *gpios);
+void acpi_dev_remove_driver_gpios(struct acpi_device *adev);
+
+int devm_acpi_dev_add_driver_gpios(struct device *dev,
+				   const struct acpi_gpio_mapping *gpios);
+void devm_acpi_dev_remove_driver_gpios(struct device *dev);
+
+struct gpio_desc *acpi_get_and_request_gpiod(char *path, int pin, char *label);
+
+#else  /* CONFIG_GPIOLIB && CONFIG_ACPI */
+
+static inline int acpi_dev_add_driver_gpios(struct acpi_device *adev,
+			      const struct acpi_gpio_mapping *gpios)
+{
+	return -ENXIO;
+}
+static inline void acpi_dev_remove_driver_gpios(struct acpi_device *adev) {}
+
+static inline int devm_acpi_dev_add_driver_gpios(struct device *dev,
+			      const struct acpi_gpio_mapping *gpios)
+{
+	return -ENXIO;
+}
+static inline void devm_acpi_dev_remove_driver_gpios(struct device *dev) {}
+
+#endif /* CONFIG_GPIOLIB && CONFIG_ACPI */
+
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_GPIOLIB) && IS_ENABLED(CONFIG_GPIO_SYSFS)
 
 int gpiod_export(struct gpio_desc *desc, bool direction_may_change);

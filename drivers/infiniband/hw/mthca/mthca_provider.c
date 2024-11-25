@@ -37,6 +37,10 @@
 #include <rdma/ib_smi.h>
 #include <rdma/ib_umem.h>
 #include <rdma/ib_user_verbs.h>
+<<<<<<< HEAD
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 
 #include <linux/sched.h>
 #include <linux/slab.h>
@@ -117,6 +121,7 @@ static int mthca_query_device(struct ib_device *ibdev, struct ib_device_attr *pr
 	props->max_mcast_qp_attach = MTHCA_QP_PER_MGM;
 	props->max_total_mcast_qp_attach = props->max_mcast_qp_attach *
 					   props->max_mcast_grp;
+<<<<<<< HEAD
 	/*
 	 * If Sinai memory key optimization is being used, then only
 	 * the 8-bit key portion will change.  For other HCAs, the
@@ -127,6 +132,8 @@ static int mthca_query_device(struct ib_device *ibdev, struct ib_device_attr *pr
 	else
 		props->max_map_per_fmr =
 			(1 << (32 - ilog2(mdev->limits.num_mpts))) - 1;
+=======
+>>>>>>> upstream/android-13
 
 	err = 0;
  out:
@@ -136,7 +143,11 @@ static int mthca_query_device(struct ib_device *ibdev, struct ib_device_attr *pr
 }
 
 static int mthca_query_port(struct ib_device *ibdev,
+<<<<<<< HEAD
 			    u8 port, struct ib_port_attr *props)
+=======
+			    u32 port, struct ib_port_attr *props)
+>>>>>>> upstream/android-13
 {
 	struct ib_smp *in_mad  = NULL;
 	struct ib_smp *out_mad = NULL;
@@ -203,7 +214,11 @@ static int mthca_modify_device(struct ib_device *ibdev,
 }
 
 static int mthca_modify_port(struct ib_device *ibdev,
+<<<<<<< HEAD
 			     u8 port, int port_modify_mask,
+=======
+			     u32 port, int port_modify_mask,
+>>>>>>> upstream/android-13
 			     struct ib_port_modify *props)
 {
 	struct mthca_set_ib_param set_ib;
@@ -232,7 +247,11 @@ out:
 }
 
 static int mthca_query_pkey(struct ib_device *ibdev,
+<<<<<<< HEAD
 			    u8 port, u16 index, u16 *pkey)
+=======
+			    u32 port, u16 index, u16 *pkey)
+>>>>>>> upstream/android-13
 {
 	struct ib_smp *in_mad  = NULL;
 	struct ib_smp *out_mad = NULL;
@@ -260,7 +279,11 @@ static int mthca_query_pkey(struct ib_device *ibdev,
 	return err;
 }
 
+<<<<<<< HEAD
 static int mthca_query_gid(struct ib_device *ibdev, u8 port,
+=======
+static int mthca_query_gid(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			   int index, union ib_gid *gid)
 {
 	struct ib_smp *in_mad  = NULL;
@@ -300,6 +323,7 @@ static int mthca_query_gid(struct ib_device *ibdev, u8 port,
 	return err;
 }
 
+<<<<<<< HEAD
 static struct ib_ucontext *mthca_alloc_ucontext(struct ib_device *ibdev,
 						struct ib_udata *udata)
 {
@@ -311,6 +335,18 @@ static struct ib_ucontext *mthca_alloc_ucontext(struct ib_device *ibdev,
 		return ERR_PTR(-EAGAIN);
 
 	memset(&uresp, 0, sizeof uresp);
+=======
+static int mthca_alloc_ucontext(struct ib_ucontext *uctx,
+				struct ib_udata *udata)
+{
+	struct ib_device *ibdev = uctx->device;
+	struct mthca_alloc_ucontext_resp uresp = {};
+	struct mthca_ucontext *context = to_mucontext(uctx);
+	int                              err;
+
+	if (!(to_mdev(ibdev)->active))
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 
 	uresp.qp_tab_size = to_mdev(ibdev)->limits.num_qps;
 	if (mthca_is_memfree(to_mdev(ibdev)))
@@ -318,6 +354,7 @@ static struct ib_ucontext *mthca_alloc_ucontext(struct ib_device *ibdev,
 	else
 		uresp.uarc_size = 0;
 
+<<<<<<< HEAD
 	context = kmalloc(sizeof *context, GFP_KERNEL);
 	if (!context)
 		return ERR_PTR(-ENOMEM);
@@ -327,11 +364,17 @@ static struct ib_ucontext *mthca_alloc_ucontext(struct ib_device *ibdev,
 		kfree(context);
 		return ERR_PTR(err);
 	}
+=======
+	err = mthca_uar_alloc(to_mdev(ibdev), &context->uar);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	context->db_tab = mthca_init_user_db_tab(to_mdev(ibdev));
 	if (IS_ERR(context->db_tab)) {
 		err = PTR_ERR(context->db_tab);
 		mthca_uar_free(to_mdev(ibdev), &context->uar);
+<<<<<<< HEAD
 		kfree(context);
 		return ERR_PTR(err);
 	}
@@ -341,21 +384,40 @@ static struct ib_ucontext *mthca_alloc_ucontext(struct ib_device *ibdev,
 		mthca_uar_free(to_mdev(ibdev), &context->uar);
 		kfree(context);
 		return ERR_PTR(-EFAULT);
+=======
+		return err;
+	}
+
+	if (ib_copy_to_udata(udata, &uresp, sizeof(uresp))) {
+		mthca_cleanup_user_db_tab(to_mdev(ibdev), &context->uar, context->db_tab);
+		mthca_uar_free(to_mdev(ibdev), &context->uar);
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	}
 
 	context->reg_mr_warned = 0;
 
+<<<<<<< HEAD
 	return &context->ibucontext;
 }
 
 static int mthca_dealloc_ucontext(struct ib_ucontext *context)
+=======
+	return 0;
+}
+
+static void mthca_dealloc_ucontext(struct ib_ucontext *context)
+>>>>>>> upstream/android-13
 {
 	mthca_cleanup_user_db_tab(to_mdev(context->device), &to_mucontext(context)->uar,
 				  to_mucontext(context)->db_tab);
 	mthca_uar_free(to_mdev(context->device), &to_mucontext(context)->uar);
+<<<<<<< HEAD
 	kfree(to_mucontext(context));
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int mthca_mmap_uar(struct ib_ucontext *context,
@@ -374,6 +436,7 @@ static int mthca_mmap_uar(struct ib_ucontext *context,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct ib_pd *mthca_alloc_pd(struct ib_device *ibdev,
 				    struct ib_ucontext *context,
 				    struct ib_udata *udata)
@@ -464,16 +527,84 @@ static struct ib_srq *mthca_create_srq(struct ib_pd *pd,
 		}
 
 		err = mthca_map_user_db(to_mdev(pd->device), &context->uar,
+=======
+static int mthca_alloc_pd(struct ib_pd *ibpd, struct ib_udata *udata)
+{
+	struct ib_device *ibdev = ibpd->device;
+	struct mthca_pd *pd = to_mpd(ibpd);
+	int err;
+
+	err = mthca_pd_alloc(to_mdev(ibdev), !udata, pd);
+	if (err)
+		return err;
+
+	if (udata) {
+		if (ib_copy_to_udata(udata, &pd->pd_num, sizeof (__u32))) {
+			mthca_pd_free(to_mdev(ibdev), pd);
+			return -EFAULT;
+		}
+	}
+
+	return 0;
+}
+
+static int mthca_dealloc_pd(struct ib_pd *pd, struct ib_udata *udata)
+{
+	mthca_pd_free(to_mdev(pd->device), to_mpd(pd));
+	return 0;
+}
+
+static int mthca_ah_create(struct ib_ah *ibah,
+			   struct rdma_ah_init_attr *init_attr,
+			   struct ib_udata *udata)
+
+{
+	struct mthca_ah *ah = to_mah(ibah);
+
+	return mthca_create_ah(to_mdev(ibah->device), to_mpd(ibah->pd),
+			       init_attr->ah_attr, ah);
+}
+
+static int mthca_ah_destroy(struct ib_ah *ah, u32 flags)
+{
+	mthca_destroy_ah(to_mdev(ah->device), to_mah(ah));
+	return 0;
+}
+
+static int mthca_create_srq(struct ib_srq *ibsrq,
+			    struct ib_srq_init_attr *init_attr,
+			    struct ib_udata *udata)
+{
+	struct mthca_create_srq ucmd;
+	struct mthca_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct mthca_ucontext, ibucontext);
+	struct mthca_srq *srq = to_msrq(ibsrq);
+	int err;
+
+	if (init_attr->srq_type != IB_SRQT_BASIC)
+		return -EOPNOTSUPP;
+
+	if (udata) {
+		if (ib_copy_from_udata(&ucmd, udata, sizeof(ucmd)))
+			return -EFAULT;
+
+		err = mthca_map_user_db(to_mdev(ibsrq->device), &context->uar,
+>>>>>>> upstream/android-13
 					context->db_tab, ucmd.db_index,
 					ucmd.db_page);
 
 		if (err)
+<<<<<<< HEAD
 			goto err_free;
+=======
+			return err;
+>>>>>>> upstream/android-13
 
 		srq->mr.ibmr.lkey = ucmd.lkey;
 		srq->db_index     = ucmd.db_index;
 	}
 
+<<<<<<< HEAD
 	err = mthca_alloc_srq(to_mdev(pd->device), to_mpd(pd),
 			      &init_attr->attr, srq);
 
@@ -504,12 +635,41 @@ static int mthca_destroy_srq(struct ib_srq *srq)
 
 	if (srq->uobject) {
 		context = to_mucontext(srq->uobject->context);
+=======
+	err = mthca_alloc_srq(to_mdev(ibsrq->device), to_mpd(ibsrq->pd),
+			      &init_attr->attr, srq, udata);
+
+	if (err && udata)
+		mthca_unmap_user_db(to_mdev(ibsrq->device), &context->uar,
+				    context->db_tab, ucmd.db_index);
+
+	if (err)
+		return err;
+
+	if (context && ib_copy_to_udata(udata, &srq->srqn, sizeof(__u32))) {
+		mthca_free_srq(to_mdev(ibsrq->device), srq);
+		return -EFAULT;
+	}
+
+	return 0;
+}
+
+static int mthca_destroy_srq(struct ib_srq *srq, struct ib_udata *udata)
+{
+	if (udata) {
+		struct mthca_ucontext *context =
+			rdma_udata_to_drv_context(
+				udata,
+				struct mthca_ucontext,
+				ibucontext);
+>>>>>>> upstream/android-13
 
 		mthca_unmap_user_db(to_mdev(srq->device), &context->uar,
 				    context->db_tab, to_msrq(srq)->db_index);
 	}
 
 	mthca_free_srq(to_mdev(srq->device), to_msrq(srq));
+<<<<<<< HEAD
 	kfree(srq);
 
 	return 0;
@@ -525,12 +685,31 @@ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
 
 	if (init_attr->create_flags)
 		return ERR_PTR(-EINVAL);
+=======
+	return 0;
+}
+
+static int mthca_create_qp(struct ib_qp *ibqp,
+			   struct ib_qp_init_attr *init_attr,
+			   struct ib_udata *udata)
+{
+	struct mthca_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct mthca_ucontext, ibucontext);
+	struct mthca_create_qp ucmd;
+	struct mthca_qp *qp = to_mqp(ibqp);
+	struct mthca_dev *dev = to_mdev(ibqp->device);
+	int err;
+
+	if (init_attr->create_flags)
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	switch (init_attr->qp_type) {
 	case IB_QPT_RC:
 	case IB_QPT_UC:
 	case IB_QPT_UD:
 	{
+<<<<<<< HEAD
 		struct mthca_ucontext *context;
 
 		qp = kzalloc(sizeof(*qp), GFP_KERNEL);
@@ -563,6 +742,28 @@ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
 						    ucmd.sq_db_index);
 				kfree(qp);
 				return ERR_PTR(err);
+=======
+		if (udata) {
+			if (ib_copy_from_udata(&ucmd, udata, sizeof(ucmd)))
+				return -EFAULT;
+
+			err = mthca_map_user_db(dev, &context->uar,
+						context->db_tab,
+						ucmd.sq_db_index,
+						ucmd.sq_db_page);
+			if (err)
+				return err;
+
+			err = mthca_map_user_db(dev, &context->uar,
+						context->db_tab,
+						ucmd.rq_db_index,
+						ucmd.rq_db_page);
+			if (err) {
+				mthca_unmap_user_db(dev, &context->uar,
+						    context->db_tab,
+						    ucmd.sq_db_index);
+				return err;
+>>>>>>> upstream/android-13
 			}
 
 			qp->mr.ibmr.lkey = ucmd.lkey;
@@ -570,6 +771,7 @@ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
 			qp->rq.db_index  = ucmd.rq_db_index;
 		}
 
+<<<<<<< HEAD
 		err = mthca_alloc_qp(to_mdev(pd->device), to_mpd(pd),
 				     to_mcq(init_attr->send_cq),
 				     to_mcq(init_attr->recv_cq),
@@ -586,6 +788,18 @@ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
 			mthca_unmap_user_db(to_mdev(pd->device),
 					    &context->uar,
 					    context->db_tab,
+=======
+		err = mthca_alloc_qp(dev, to_mpd(ibqp->pd),
+				     to_mcq(init_attr->send_cq),
+				     to_mcq(init_attr->recv_cq),
+				     init_attr->qp_type, init_attr->sq_sig_type,
+				     &init_attr->cap, qp, udata);
+
+		if (err && udata) {
+			mthca_unmap_user_db(dev, &context->uar, context->db_tab,
+					    ucmd.sq_db_index);
+			mthca_unmap_user_db(dev, &context->uar, context->db_tab,
+>>>>>>> upstream/android-13
 					    ucmd.rq_db_index);
 		}
 
@@ -595,6 +809,7 @@ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
 	case IB_QPT_SMI:
 	case IB_QPT_GSI:
 	{
+<<<<<<< HEAD
 		/* Don't allow userspace to create special QPs */
 		if (pd->uobject)
 			return ERR_PTR(-EINVAL);
@@ -611,16 +826,39 @@ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
 				      init_attr->sq_sig_type, &init_attr->cap,
 				      qp->ibqp.qp_num, init_attr->port_num,
 				      to_msqp(qp));
+=======
+		qp->sqp = kzalloc(sizeof(struct mthca_sqp), GFP_KERNEL);
+		if (!qp->sqp)
+			return -ENOMEM;
+
+		qp->ibqp.qp_num = init_attr->qp_type == IB_QPT_SMI ? 0 : 1;
+
+		err = mthca_alloc_sqp(dev, to_mpd(ibqp->pd),
+				      to_mcq(init_attr->send_cq),
+				      to_mcq(init_attr->recv_cq),
+				      init_attr->sq_sig_type, &init_attr->cap,
+				      qp->ibqp.qp_num, init_attr->port_num, qp,
+				      udata);
+>>>>>>> upstream/android-13
 		break;
 	}
 	default:
 		/* Don't support raw QPs */
+<<<<<<< HEAD
 		return ERR_PTR(-ENOSYS);
 	}
 
 	if (err) {
 		kfree(qp);
 		return ERR_PTR(err);
+=======
+		return -EOPNOTSUPP;
+	}
+
+	if (err) {
+		kfree(qp->sqp);
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	init_attr->cap.max_send_wr     = qp->sq.max;
@@ -629,6 +867,7 @@ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
 	init_attr->cap.max_recv_sge    = qp->rq.max_gs;
 	init_attr->cap.max_inline_data = qp->max_inline_data;
 
+<<<<<<< HEAD
 	return &qp->ibqp;
 }
 
@@ -654,11 +893,45 @@ static struct ib_cq *mthca_create_cq(struct ib_device *ibdev,
 				     struct ib_ucontext *context,
 				     struct ib_udata *udata)
 {
+=======
+	return 0;
+}
+
+static int mthca_destroy_qp(struct ib_qp *qp, struct ib_udata *udata)
+{
+	if (udata) {
+		struct mthca_ucontext *context =
+			rdma_udata_to_drv_context(
+				udata,
+				struct mthca_ucontext,
+				ibucontext);
+
+		mthca_unmap_user_db(to_mdev(qp->device),
+				    &context->uar,
+				    context->db_tab,
+				    to_mqp(qp)->sq.db_index);
+		mthca_unmap_user_db(to_mdev(qp->device),
+				    &context->uar,
+				    context->db_tab,
+				    to_mqp(qp)->rq.db_index);
+	}
+	mthca_free_qp(to_mdev(qp->device), to_mqp(qp));
+	kfree(to_mqp(qp)->sqp);
+	return 0;
+}
+
+static int mthca_create_cq(struct ib_cq *ibcq,
+			   const struct ib_cq_init_attr *attr,
+			   struct ib_udata *udata)
+{
+	struct ib_device *ibdev = ibcq->device;
+>>>>>>> upstream/android-13
 	int entries = attr->cqe;
 	struct mthca_create_cq ucmd;
 	struct mthca_cq *cq;
 	int nent;
 	int err;
+<<<<<<< HEAD
 
 	if (attr->flags)
 		return ERR_PTR(-EINVAL);
@@ -679,10 +952,35 @@ static struct ib_cq *mthca_create_cq(struct ib_device *ibdev,
 		err = mthca_map_user_db(to_mdev(ibdev), &to_mucontext(context)->uar,
 					to_mucontext(context)->db_tab,
 					ucmd.arm_db_index, ucmd.arm_db_page);
+=======
+	struct mthca_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct mthca_ucontext, ibucontext);
+
+	if (attr->flags)
+		return -EOPNOTSUPP;
+
+	if (entries < 1 || entries > to_mdev(ibdev)->limits.max_cqes)
+		return -EINVAL;
+
+	if (udata) {
+		if (ib_copy_from_udata(&ucmd, udata, sizeof(ucmd)))
+			return -EFAULT;
+
+		err = mthca_map_user_db(to_mdev(ibdev), &context->uar,
+					context->db_tab, ucmd.set_db_index,
+					ucmd.set_db_page);
+		if (err)
+			return err;
+
+		err = mthca_map_user_db(to_mdev(ibdev), &context->uar,
+					context->db_tab, ucmd.arm_db_index,
+					ucmd.arm_db_page);
+>>>>>>> upstream/android-13
 		if (err)
 			goto err_unmap_set;
 	}
 
+<<<<<<< HEAD
 	cq = kmalloc(sizeof *cq, GFP_KERNEL);
 	if (!cq) {
 		err = -ENOMEM;
@@ -690,6 +988,11 @@ static struct ib_cq *mthca_create_cq(struct ib_device *ibdev,
 	}
 
 	if (context) {
+=======
+	cq = to_mcq(ibcq);
+
+	if (udata) {
+>>>>>>> upstream/android-13
 		cq->buf.mr.ibmr.lkey = ucmd.lkey;
 		cq->set_ci_db_index  = ucmd.set_db_index;
 		cq->arm_db_index     = ucmd.arm_db_index;
@@ -698,6 +1001,7 @@ static struct ib_cq *mthca_create_cq(struct ib_device *ibdev,
 	for (nent = 1; nent <= entries; nent <<= 1)
 		; /* nothing */
 
+<<<<<<< HEAD
 	err = mthca_init_cq(to_mdev(ibdev), nent,
 			    context ? to_mucontext(context) : NULL,
 			    context ? ucmd.pdn : to_mdev(ibdev)->driver_pd.pd_num,
@@ -709,10 +1013,23 @@ static struct ib_cq *mthca_create_cq(struct ib_device *ibdev,
 		mthca_free_cq(to_mdev(ibdev), cq);
 		err = -EFAULT;
 		goto err_free;
+=======
+	err = mthca_init_cq(to_mdev(ibdev), nent, context,
+			    udata ? ucmd.pdn : to_mdev(ibdev)->driver_pd.pd_num,
+			    cq);
+	if (err)
+		goto err_unmap_arm;
+
+	if (udata && ib_copy_to_udata(udata, &cq->cqn, sizeof(__u32))) {
+		mthca_free_cq(to_mdev(ibdev), cq);
+		err = -EFAULT;
+		goto err_unmap_arm;
+>>>>>>> upstream/android-13
 	}
 
 	cq->resize_buf = NULL;
 
+<<<<<<< HEAD
 	return &cq->ibcq;
 
 err_free:
@@ -729,6 +1046,21 @@ err_unmap_set:
 				    to_mucontext(context)->db_tab, ucmd.set_db_index);
 
 	return ERR_PTR(err);
+=======
+	return 0;
+
+err_unmap_arm:
+	if (udata)
+		mthca_unmap_user_db(to_mdev(ibdev), &context->uar,
+				    context->db_tab, ucmd.arm_db_index);
+
+err_unmap_set:
+	if (udata)
+		mthca_unmap_user_db(to_mdev(ibdev), &context->uar,
+				    context->db_tab, ucmd.set_db_index);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int mthca_alloc_resize_buf(struct mthca_dev *dev, struct mthca_cq *cq,
@@ -852,6 +1184,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mthca_destroy_cq(struct ib_cq *cq)
 {
 	if (cq->uobject) {
@@ -867,6 +1200,27 @@ static int mthca_destroy_cq(struct ib_cq *cq)
 	mthca_free_cq(to_mdev(cq->device), to_mcq(cq));
 	kfree(cq);
 
+=======
+static int mthca_destroy_cq(struct ib_cq *cq, struct ib_udata *udata)
+{
+	if (udata) {
+		struct mthca_ucontext *context =
+			rdma_udata_to_drv_context(
+				udata,
+				struct mthca_ucontext,
+				ibucontext);
+
+		mthca_unmap_user_db(to_mdev(cq->device),
+				    &context->uar,
+				    context->db_tab,
+				    to_mcq(cq)->arm_db_index);
+		mthca_unmap_user_db(to_mdev(cq->device),
+				    &context->uar,
+				    context->db_tab,
+				    to_mcq(cq)->set_ci_db_index);
+	}
+	mthca_free_cq(to_mdev(cq->device), to_mcq(cq));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -906,22 +1260,40 @@ static struct ib_mr *mthca_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 				       u64 virt, int acc, struct ib_udata *udata)
 {
 	struct mthca_dev *dev = to_mdev(pd->device);
+<<<<<<< HEAD
 	struct scatterlist *sg;
 	struct mthca_mr *mr;
 	struct mthca_reg_mr ucmd;
 	u64 *pages;
 	int shift, n, len;
 	int i, k, entry;
+=======
+	struct ib_block_iter biter;
+	struct mthca_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct mthca_ucontext, ibucontext);
+	struct mthca_mr *mr;
+	struct mthca_reg_mr ucmd;
+	u64 *pages;
+	int n, i;
+>>>>>>> upstream/android-13
 	int err = 0;
 	int write_mtt_size;
 
 	if (udata->inlen < sizeof ucmd) {
+<<<<<<< HEAD
 		if (!to_mucontext(pd->uobject->context)->reg_mr_warned) {
+=======
+		if (!context->reg_mr_warned) {
+>>>>>>> upstream/android-13
 			mthca_warn(dev, "Process '%s' did not pass in MR attrs.\n",
 				   current->comm);
 			mthca_warn(dev, "  Update libmthca to fix this.\n");
 		}
+<<<<<<< HEAD
 		++to_mucontext(pd->uobject->context)->reg_mr_warned;
+=======
+		++context->reg_mr_warned;
+>>>>>>> upstream/android-13
 		ucmd.mr_attrs = 0;
 	} else if (ib_copy_from_udata(&ucmd, udata, sizeof ucmd))
 		return ERR_PTR(-EFAULT);
@@ -930,16 +1302,24 @@ static struct ib_mr *mthca_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 	if (!mr)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	mr->umem = ib_umem_get(pd->uobject->context, start, length, acc,
 			       ucmd.mr_attrs & MTHCA_MR_DMASYNC);
 
+=======
+	mr->umem = ib_umem_get(pd->device, start, length, acc);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mr->umem)) {
 		err = PTR_ERR(mr->umem);
 		goto err;
 	}
 
+<<<<<<< HEAD
 	shift = mr->umem->page_shift;
 	n = mr->umem->nmap;
+=======
+	n = ib_umem_num_dma_blocks(mr->umem, PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 	mr->mtt = mthca_alloc_mtt(dev, n);
 	if (IS_ERR(mr->mtt)) {
@@ -957,6 +1337,7 @@ static struct ib_mr *mthca_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 
 	write_mtt_size = min(mthca_write_mtt_size(dev), (int) (PAGE_SIZE / sizeof *pages));
 
+<<<<<<< HEAD
 	for_each_sg(mr->umem->sg_head.sgl, sg, mr->umem->nmap, entry) {
 		len = sg_dma_len(sg) >> shift;
 		for (k = 0; k < len; ++k) {
@@ -972,6 +1353,21 @@ static struct ib_mr *mthca_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 				n += i;
 				i = 0;
 			}
+=======
+	rdma_umem_for_each_dma_block(mr->umem, &biter, PAGE_SIZE) {
+		pages[i++] = rdma_block_iter_dma_address(&biter);
+
+		/*
+		 * Be friendly to write_mtt and pass it chunks
+		 * of appropriate size.
+		 */
+		if (i == write_mtt_size) {
+			err = mthca_write_mtt(dev, mr->mtt, n, pages, i);
+			if (err)
+				goto mtt_done;
+			n += i;
+			i = 0;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -982,7 +1378,11 @@ mtt_done:
 	if (err)
 		goto err_mtt;
 
+<<<<<<< HEAD
 	err = mthca_mr_alloc(dev, to_mpd(pd)->pd_num, shift, virt, length,
+=======
+	err = mthca_mr_alloc(dev, to_mpd(pd)->pd_num, PAGE_SHIFT, virt, length,
+>>>>>>> upstream/android-13
 			     convert_access(acc), mr);
 
 	if (err)
@@ -1001,18 +1401,27 @@ err:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 static int mthca_dereg_mr(struct ib_mr *mr)
+=======
+static int mthca_dereg_mr(struct ib_mr *mr, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct mthca_mr *mmr = to_mmr(mr);
 
 	mthca_free_mr(to_mdev(mr->device), mmr);
+<<<<<<< HEAD
 	if (mmr->umem)
 		ib_umem_release(mmr->umem);
+=======
+	ib_umem_release(mmr->umem);
+>>>>>>> upstream/android-13
 	kfree(mmr);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct ib_fmr *mthca_alloc_fmr(struct ib_pd *pd, int mr_access_flags,
 				      struct ib_fmr_attr *fmr_attr)
 {
@@ -1120,6 +1529,64 @@ static struct device_attribute *mthca_dev_attributes[] = {
 	&dev_attr_hw_rev,
 	&dev_attr_hca_type,
 	&dev_attr_board_id
+=======
+static ssize_t hw_rev_show(struct device *device,
+			   struct device_attribute *attr, char *buf)
+{
+	struct mthca_dev *dev =
+		rdma_device_to_drv_device(device, struct mthca_dev, ib_dev);
+
+	return sysfs_emit(buf, "%x\n", dev->rev_id);
+}
+static DEVICE_ATTR_RO(hw_rev);
+
+static const char *hca_type_string(int hca_type)
+{
+	switch (hca_type) {
+	case PCI_DEVICE_ID_MELLANOX_TAVOR:
+		return "MT23108";
+	case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
+		return "MT25208 (MT23108 compat mode)";
+	case PCI_DEVICE_ID_MELLANOX_ARBEL:
+		return "MT25208";
+	case PCI_DEVICE_ID_MELLANOX_SINAI:
+	case PCI_DEVICE_ID_MELLANOX_SINAI_OLD:
+		return "MT25204";
+	}
+
+	return "unknown";
+}
+
+static ssize_t hca_type_show(struct device *device,
+			     struct device_attribute *attr, char *buf)
+{
+	struct mthca_dev *dev =
+		rdma_device_to_drv_device(device, struct mthca_dev, ib_dev);
+
+	return sysfs_emit(buf, "%s\n", hca_type_string(dev->pdev->device));
+}
+static DEVICE_ATTR_RO(hca_type);
+
+static ssize_t board_id_show(struct device *device,
+			     struct device_attribute *attr, char *buf)
+{
+	struct mthca_dev *dev =
+		rdma_device_to_drv_device(device, struct mthca_dev, ib_dev);
+
+	return sysfs_emit(buf, "%.*s\n", MTHCA_BOARD_ID_LEN, dev->board_id);
+}
+static DEVICE_ATTR_RO(board_id);
+
+static struct attribute *mthca_dev_attributes[] = {
+	&dev_attr_hw_rev.attr,
+	&dev_attr_hca_type.attr,
+	&dev_attr_board_id.attr,
+	NULL
+};
+
+static const struct attribute_group mthca_attr_group = {
+	.attrs = mthca_dev_attributes,
+>>>>>>> upstream/android-13
 };
 
 static int mthca_init_node_data(struct mthca_dev *dev)
@@ -1160,7 +1627,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int mthca_port_immutable(struct ib_device *ibdev, u8 port_num,
+=======
+static int mthca_port_immutable(struct ib_device *ibdev, u32 port_num,
+>>>>>>> upstream/android-13
 			        struct ib_port_immutable *immutable)
 {
 	struct ib_port_attr attr;
@@ -1189,15 +1660,99 @@ static void get_dev_fw_str(struct ib_device *device, char *str)
 		 (int) dev->fw_ver & 0xffff);
 }
 
+<<<<<<< HEAD
 int mthca_register_device(struct mthca_dev *dev)
 {
 	int ret;
 	int i;
+=======
+static const struct ib_device_ops mthca_dev_ops = {
+	.owner = THIS_MODULE,
+	.driver_id = RDMA_DRIVER_MTHCA,
+	.uverbs_abi_ver = MTHCA_UVERBS_ABI_VERSION,
+	.uverbs_no_driver_id_binding = 1,
+
+	.alloc_pd = mthca_alloc_pd,
+	.alloc_ucontext = mthca_alloc_ucontext,
+	.attach_mcast = mthca_multicast_attach,
+	.create_ah = mthca_ah_create,
+	.create_cq = mthca_create_cq,
+	.create_qp = mthca_create_qp,
+	.dealloc_pd = mthca_dealloc_pd,
+	.dealloc_ucontext = mthca_dealloc_ucontext,
+	.dereg_mr = mthca_dereg_mr,
+	.destroy_ah = mthca_ah_destroy,
+	.destroy_cq = mthca_destroy_cq,
+	.destroy_qp = mthca_destroy_qp,
+	.detach_mcast = mthca_multicast_detach,
+	.device_group = &mthca_attr_group,
+	.get_dev_fw_str = get_dev_fw_str,
+	.get_dma_mr = mthca_get_dma_mr,
+	.get_port_immutable = mthca_port_immutable,
+	.mmap = mthca_mmap_uar,
+	.modify_device = mthca_modify_device,
+	.modify_port = mthca_modify_port,
+	.modify_qp = mthca_modify_qp,
+	.poll_cq = mthca_poll_cq,
+	.process_mad = mthca_process_mad,
+	.query_ah = mthca_ah_query,
+	.query_device = mthca_query_device,
+	.query_gid = mthca_query_gid,
+	.query_pkey = mthca_query_pkey,
+	.query_port = mthca_query_port,
+	.query_qp = mthca_query_qp,
+	.reg_user_mr = mthca_reg_user_mr,
+	.resize_cq = mthca_resize_cq,
+
+	INIT_RDMA_OBJ_SIZE(ib_ah, mthca_ah, ibah),
+	INIT_RDMA_OBJ_SIZE(ib_cq, mthca_cq, ibcq),
+	INIT_RDMA_OBJ_SIZE(ib_pd, mthca_pd, ibpd),
+	INIT_RDMA_OBJ_SIZE(ib_qp, mthca_qp, ibqp),
+	INIT_RDMA_OBJ_SIZE(ib_ucontext, mthca_ucontext, ibucontext),
+};
+
+static const struct ib_device_ops mthca_dev_arbel_srq_ops = {
+	.create_srq = mthca_create_srq,
+	.destroy_srq = mthca_destroy_srq,
+	.modify_srq = mthca_modify_srq,
+	.post_srq_recv = mthca_arbel_post_srq_recv,
+	.query_srq = mthca_query_srq,
+
+	INIT_RDMA_OBJ_SIZE(ib_srq, mthca_srq, ibsrq),
+};
+
+static const struct ib_device_ops mthca_dev_tavor_srq_ops = {
+	.create_srq = mthca_create_srq,
+	.destroy_srq = mthca_destroy_srq,
+	.modify_srq = mthca_modify_srq,
+	.post_srq_recv = mthca_tavor_post_srq_recv,
+	.query_srq = mthca_query_srq,
+
+	INIT_RDMA_OBJ_SIZE(ib_srq, mthca_srq, ibsrq),
+};
+
+static const struct ib_device_ops mthca_dev_arbel_ops = {
+	.post_recv = mthca_arbel_post_receive,
+	.post_send = mthca_arbel_post_send,
+	.req_notify_cq = mthca_arbel_arm_cq,
+};
+
+static const struct ib_device_ops mthca_dev_tavor_ops = {
+	.post_recv = mthca_tavor_post_receive,
+	.post_send = mthca_tavor_post_send,
+	.req_notify_cq = mthca_tavor_arm_cq,
+};
+
+int mthca_register_device(struct mthca_dev *dev)
+{
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = mthca_init_node_data(dev);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	strlcpy(dev->ib_dev.name, "mthca%d", IB_DEVICE_NAME_MAX);
 	dev->ib_dev.owner                = THIS_MODULE;
 
@@ -1220,10 +1775,13 @@ int mthca_register_device(struct mthca_dev *dev)
 		(1ull << IB_USER_VERBS_CMD_DESTROY_QP)		|
 		(1ull << IB_USER_VERBS_CMD_ATTACH_MCAST)	|
 		(1ull << IB_USER_VERBS_CMD_DETACH_MCAST);
+=======
+>>>>>>> upstream/android-13
 	dev->ib_dev.node_type            = RDMA_NODE_IB_CA;
 	dev->ib_dev.phys_port_cnt        = dev->limits.num_ports;
 	dev->ib_dev.num_comp_vectors     = 1;
 	dev->ib_dev.dev.parent           = &dev->pdev->dev;
+<<<<<<< HEAD
 	dev->ib_dev.query_device         = mthca_query_device;
 	dev->ib_dev.query_port           = mthca_query_port;
 	dev->ib_dev.modify_device        = mthca_modify_device;
@@ -1310,6 +1868,31 @@ int mthca_register_device(struct mthca_dev *dev)
 		}
 	}
 
+=======
+
+	if (dev->mthca_flags & MTHCA_FLAG_SRQ) {
+		if (mthca_is_memfree(dev))
+			ib_set_device_ops(&dev->ib_dev,
+					  &mthca_dev_arbel_srq_ops);
+		else
+			ib_set_device_ops(&dev->ib_dev,
+					  &mthca_dev_tavor_srq_ops);
+	}
+
+	ib_set_device_ops(&dev->ib_dev, &mthca_dev_ops);
+
+	if (mthca_is_memfree(dev))
+		ib_set_device_ops(&dev->ib_dev, &mthca_dev_arbel_ops);
+	else
+		ib_set_device_ops(&dev->ib_dev, &mthca_dev_tavor_ops);
+
+	mutex_init(&dev->cap_mask_mutex);
+
+	ret = ib_register_device(&dev->ib_dev, "mthca%d", &dev->pdev->dev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	mthca_start_catas_poll(dev);
 
 	return 0;

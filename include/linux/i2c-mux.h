@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *
  * i2c-mux.h - functions for the i2c-bus mux support
@@ -5,6 +9,7 @@
  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
  * Michael Lawnick <michael.lawnick.ext@nsn.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_I2C_MUX_H
@@ -43,7 +50,11 @@ struct i2c_mux_core {
 
 	int num_adapters;
 	int max_adapters;
+<<<<<<< HEAD
 	struct i2c_adapter *adapter[0];
+=======
+	struct i2c_adapter *adapter[];
+>>>>>>> upstream/android-13
 };
 
 struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,

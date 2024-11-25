@@ -148,6 +148,7 @@
 
 /* Generic 802.11 Header types */
 
+<<<<<<< HEAD
 struct p80211_hdr_a3 {
 	__le16 fc;
 	u16 dur;
@@ -170,6 +171,16 @@ struct p80211_hdr_a4 {
 union p80211_hdr {
 	struct p80211_hdr_a3 a3;
 	struct p80211_hdr_a4 a4;
+=======
+struct p80211_hdr {
+	__le16	frame_control;
+	u16	duration_id;
+	u8	address1[ETH_ALEN];
+	u8	address2[ETH_ALEN];
+	u8	address3[ETH_ALEN];
+	u16	sequence_control;
+	u8	address4[ETH_ALEN];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* Frame and header length macros */

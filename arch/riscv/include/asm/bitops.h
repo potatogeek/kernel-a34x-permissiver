@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Regents of the University of California
  *
@@ -9,6 +10,11 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_BITOPS_H
@@ -23,11 +29,14 @@
 #include <asm/barrier.h>
 #include <asm/bitsperlong.h>
 
+<<<<<<< HEAD
 #ifndef smp_mb__before_clear_bit
 #define smp_mb__before_clear_bit()  smp_mb()
 #define smp_mb__after_clear_bit()   smp_mb()
 #endif /* smp_mb__before_clear_bit */
 
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/bitops/__ffs.h>
 #include <asm-generic/bitops/ffz.h>
 #include <asm-generic/bitops/fls.h>

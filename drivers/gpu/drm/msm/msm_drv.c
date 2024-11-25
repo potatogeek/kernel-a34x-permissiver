@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
@@ -26,6 +27,36 @@
 #include "msm_gpu.h"
 #include "msm_kms.h"
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016-2018, 2020-2021 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <linux/dma-mapping.h>
+#include <linux/kthread.h>
+#include <linux/sched/mm.h>
+#include <linux/uaccess.h>
+#include <uapi/linux/sched/types.h>
+
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_prime.h>
+#include <drm/drm_of.h>
+#include <drm/drm_vblank.h>
+
+#include "disp/msm_disp_snapshot.h"
+#include "msm_drv.h"
+#include "msm_debugfs.h"
+#include "msm_fence.h"
+#include "msm_gem.h"
+#include "msm_gpu.h"
+#include "msm_kms.h"
+#include "adreno/adreno_gpu.h"
+>>>>>>> upstream/android-13
 
 /*
  * MSM driver version:
@@ -35,9 +66,21 @@
  * - 1.3.0 - adds GMEM_BASE + NR_RINGS params, SUBMITQUEUE_NEW +
  *           SUBMITQUEUE_CLOSE ioctls, and MSM_INFO_IOVA flag for
  *           MSM_GEM_INFO ioctl.
+<<<<<<< HEAD
  */
 #define MSM_VERSION_MAJOR	1
 #define MSM_VERSION_MINOR	3
+=======
+ * - 1.4.0 - softpin, MSM_RELOC_BO_DUMP, and GEM_INFO support to set/get
+ *           GEM object's debug name
+ * - 1.5.0 - Add SUBMITQUERY_QUERY ioctl
+ * - 1.6.0 - Syncobj support
+ * - 1.7.0 - Add MSM_PARAM_SUSPENDS to access suspend count
+ * - 1.8.0 - Add MSM_BO_CACHED_COHERENT for supported GPUs (a6xx)
+ */
+#define MSM_VERSION_MAJOR	1
+#define MSM_VERSION_MINOR	8
+>>>>>>> upstream/android-13
 #define MSM_VERSION_PATCHLEVEL	0
 
 static const struct drm_mode_config_funcs mode_config_funcs = {
@@ -81,6 +124,7 @@ module_param(modeset, bool, 0600);
  * Util/helpers:
  */
 
+<<<<<<< HEAD
 int msm_clk_bulk_get(struct device *dev, struct clk_bulk_data **bulk)
 {
 	struct property *prop;
@@ -121,6 +165,8 @@ int msm_clk_bulk_get(struct device *dev, struct clk_bulk_data **bulk)
 	return count;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct clk *msm_clk_bulk_get_clock(struct clk_bulk_data *bulk, int count,
 		const char *name)
 {
@@ -157,8 +203,13 @@ struct clk *msm_clk_get(struct platform_device *pdev, const char *name)
 	return clk;
 }
 
+<<<<<<< HEAD
 void __iomem *msm_ioremap(struct platform_device *pdev, const char *name,
 		const char *dbgname)
+=======
+static void __iomem *_msm_ioremap(struct platform_device *pdev, const char *name,
+				  const char *dbgname, bool quiet, phys_addr_t *psize)
+>>>>>>> upstream/android-13
 {
 	struct resource *res;
 	unsigned long size;
@@ -170,24 +221,63 @@ void __iomem *msm_ioremap(struct platform_device *pdev, const char *name,
 		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 	if (!res) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get memory resource: %s\n", name);
+=======
+		if (!quiet)
+			DRM_DEV_ERROR(&pdev->dev, "failed to get memory resource: %s\n", name);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
 	size = resource_size(res);
 
+<<<<<<< HEAD
 	ptr = devm_ioremap_nocache(&pdev->dev, res->start, size);
 	if (!ptr) {
 		dev_err(&pdev->dev, "failed to ioremap: %s\n", name);
+=======
+	ptr = devm_ioremap(&pdev->dev, res->start, size);
+	if (!ptr) {
+		if (!quiet)
+			DRM_DEV_ERROR(&pdev->dev, "failed to ioremap: %s\n", name);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOMEM);
 	}
 
 	if (reglog)
 		printk(KERN_DEBUG "IO:region %s %p %08lx\n", dbgname, ptr, size);
 
+<<<<<<< HEAD
 	return ptr;
 }
 
+=======
+	if (psize)
+		*psize = size;
+
+	return ptr;
+}
+
+void __iomem *msm_ioremap(struct platform_device *pdev, const char *name,
+			  const char *dbgname)
+{
+	return _msm_ioremap(pdev, name, dbgname, false, NULL);
+}
+
+void __iomem *msm_ioremap_quiet(struct platform_device *pdev, const char *name,
+				const char *dbgname)
+{
+	return _msm_ioremap(pdev, name, dbgname, true, NULL);
+}
+
+void __iomem *msm_ioremap_size(struct platform_device *pdev, const char *name,
+			  const char *dbgname, phys_addr_t *psize)
+{
+	return _msm_ioremap(pdev, name, dbgname, false, psize);
+}
+
+>>>>>>> upstream/android-13
 void msm_writel(u32 data, void __iomem *addr)
 {
 	if (reglog)
@@ -203,6 +293,7 @@ u32 msm_readl(const void __iomem *addr)
 	return val;
 }
 
+<<<<<<< HEAD
 struct vblank_event {
 	struct list_head node;
 	int crtc_id;
@@ -237,11 +328,107 @@ static void vblank_ctrl_worker(struct kthread_work *work)
 	}
 
 	spin_unlock_irqrestore(&vbl_ctrl->lock, flags);
+=======
+void msm_rmw(void __iomem *addr, u32 mask, u32 or)
+{
+	u32 val = msm_readl(addr);
+
+	val &= ~mask;
+	msm_writel(val | or, addr);
+}
+
+static irqreturn_t msm_irq(int irq, void *arg)
+{
+	struct drm_device *dev = arg;
+	struct msm_drm_private *priv = dev->dev_private;
+	struct msm_kms *kms = priv->kms;
+
+	BUG_ON(!kms);
+
+	return kms->funcs->irq(kms);
+}
+
+static void msm_irq_preinstall(struct drm_device *dev)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+	struct msm_kms *kms = priv->kms;
+
+	BUG_ON(!kms);
+
+	kms->funcs->irq_preinstall(kms);
+}
+
+static int msm_irq_postinstall(struct drm_device *dev)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+	struct msm_kms *kms = priv->kms;
+
+	BUG_ON(!kms);
+
+	if (kms->funcs->irq_postinstall)
+		return kms->funcs->irq_postinstall(kms);
+
+	return 0;
+}
+
+static int msm_irq_install(struct drm_device *dev, unsigned int irq)
+{
+	int ret;
+
+	if (irq == IRQ_NOTCONNECTED)
+		return -ENOTCONN;
+
+	msm_irq_preinstall(dev);
+
+	ret = request_irq(irq, msm_irq, 0, dev->driver->name, dev);
+	if (ret)
+		return ret;
+
+	ret = msm_irq_postinstall(dev);
+	if (ret) {
+		free_irq(irq, dev);
+		return ret;
+	}
+
+	return 0;
+}
+
+static void msm_irq_uninstall(struct drm_device *dev)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+	struct msm_kms *kms = priv->kms;
+
+	kms->funcs->irq_uninstall(kms);
+	free_irq(kms->irq, dev);
+}
+
+struct msm_vblank_work {
+	struct work_struct work;
+	int crtc_id;
+	bool enable;
+	struct msm_drm_private *priv;
+};
+
+static void vblank_ctrl_worker(struct work_struct *work)
+{
+	struct msm_vblank_work *vbl_work = container_of(work,
+						struct msm_vblank_work, work);
+	struct msm_drm_private *priv = vbl_work->priv;
+	struct msm_kms *kms = priv->kms;
+
+	if (vbl_work->enable)
+		kms->funcs->enable_vblank(kms, priv->crtcs[vbl_work->crtc_id]);
+	else
+		kms->funcs->disable_vblank(kms,	priv->crtcs[vbl_work->crtc_id]);
+
+	kfree(vbl_work);
+>>>>>>> upstream/android-13
 }
 
 static int vblank_ctrl_queue_work(struct msm_drm_private *priv,
 					int crtc_id, bool enable)
 {
+<<<<<<< HEAD
 	struct msm_vblank_ctrl *vbl_ctrl = &priv->vblank_ctrl;
 	struct vblank_event *vbl_ev;
 	unsigned long flags;
@@ -259,6 +446,21 @@ static int vblank_ctrl_queue_work(struct msm_drm_private *priv,
 
 	kthread_queue_work(&priv->disp_thread[crtc_id].worker,
 			&vbl_ctrl->work);
+=======
+	struct msm_vblank_work *vbl_work;
+
+	vbl_work = kzalloc(sizeof(*vbl_work), GFP_ATOMIC);
+	if (!vbl_work)
+		return -ENOMEM;
+
+	INIT_WORK(&vbl_work->work, vblank_ctrl_worker);
+
+	vbl_work->crtc_id = crtc_id;
+	vbl_work->enable = enable;
+	vbl_work->priv = priv;
+
+	queue_work(priv->wq, &vbl_work->work);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -270,6 +472,7 @@ static int msm_drm_uninit(struct device *dev)
 	struct msm_drm_private *priv = ddev->dev_private;
 	struct msm_kms *kms = priv->kms;
 	struct msm_mdss *mdss = priv->mdss;
+<<<<<<< HEAD
 	struct msm_vblank_ctrl *vbl_ctrl = &priv->vblank_ctrl;
 	struct vblank_event *vbl_ev, *tmp;
 	int i;
@@ -297,14 +500,44 @@ static int msm_drm_uninit(struct device *dev)
 			kthread_stop(priv->event_thread[i].thread);
 			priv->event_thread[i].thread = NULL;
 		}
+=======
+	int i;
+
+	/*
+	 * Shutdown the hw if we're far enough along where things might be on.
+	 * If we run this too early, we'll end up panicking in any variety of
+	 * places. Since we don't register the drm device until late in
+	 * msm_drm_init, drm_dev->registered is used as an indicator that the
+	 * shutdown will be successful.
+	 */
+	if (ddev->registered) {
+		drm_dev_unregister(ddev);
+		drm_atomic_helper_shutdown(ddev);
+	}
+
+	/* We must cancel and cleanup any pending vblank enable/disable
+	 * work before msm_irq_uninstall() to avoid work re-enabling an
+	 * irq after uninstall has disabled it.
+	 */
+
+	flush_workqueue(priv->wq);
+
+	/* clean up event worker threads */
+	for (i = 0; i < priv->num_crtcs; i++) {
+		if (priv->event_thread[i].worker)
+			kthread_destroy_worker(priv->event_thread[i].worker);
+>>>>>>> upstream/android-13
 	}
 
 	msm_gem_shrinker_cleanup(ddev);
 
 	drm_kms_helper_poll_fini(ddev);
 
+<<<<<<< HEAD
 	drm_dev_unregister(ddev);
 
+=======
+>>>>>>> upstream/android-13
 	msm_perf_debugfs_cleanup(priv);
 	msm_rd_debugfs_cleanup(priv);
 
@@ -312,6 +545,7 @@ static int msm_drm_uninit(struct device *dev)
 	if (fbdev && priv->fbdev)
 		msm_fbdev_free(ddev);
 #endif
+<<<<<<< HEAD
 	drm_mode_config_cleanup(ddev);
 
 	pm_runtime_get_sync(dev);
@@ -321,6 +555,17 @@ static int msm_drm_uninit(struct device *dev)
 	flush_workqueue(priv->wq);
 	destroy_workqueue(priv->wq);
 
+=======
+
+	msm_disp_snapshot_destroy(ddev);
+
+	drm_mode_config_cleanup(ddev);
+
+	pm_runtime_get_sync(dev);
+	msm_irq_uninstall(ddev);
+	pm_runtime_put_sync(dev);
+
+>>>>>>> upstream/android-13
 	if (kms && kms->funcs)
 		kms->funcs->destroy(kms);
 
@@ -337,8 +582,14 @@ static int msm_drm_uninit(struct device *dev)
 		mdss->funcs->destroy(ddev);
 
 	ddev->dev_private = NULL;
+<<<<<<< HEAD
 	drm_dev_unref(ddev);
 
+=======
+	drm_dev_put(ddev);
+
+	destroy_workqueue(priv->wq);
+>>>>>>> upstream/android-13
 	kfree(priv);
 
 	return 0;
@@ -357,6 +608,17 @@ static int get_mdp_ver(struct platform_device *pdev)
 
 #include <linux/of_address.h>
 
+<<<<<<< HEAD
+=======
+bool msm_use_mmu(struct drm_device *dev)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+
+	/* a2xx comes with its own MMU */
+	return priv->is_a2xx || iommu_present(&platform_bus_type);
+}
+
+>>>>>>> upstream/android-13
 static int msm_init_vram(struct drm_device *dev)
 {
 	struct msm_drm_private *priv = dev->dev_private;
@@ -388,14 +650,22 @@ static int msm_init_vram(struct drm_device *dev)
 		of_node_put(node);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 		size = r.end - r.start;
+=======
+		size = r.end - r.start + 1;
+>>>>>>> upstream/android-13
 		DRM_INFO("using VRAM carveout: %lx@%pa\n", size, &r.start);
 
 		/* if we have no IOMMU, then we need to use carveout allocator.
 		 * Grab the entire CMA chunk carved out in early startup in
 		 * mach-msm:
 		 */
+<<<<<<< HEAD
 	} else if (!iommu_present(&platform_bus_type)) {
+=======
+	} else if (!msm_use_mmu(dev)) {
+>>>>>>> upstream/android-13
 		DRM_INFO("using %s VRAM carveout\n", vram);
 		size = memparse(vram, NULL);
 	}
@@ -418,12 +688,20 @@ static int msm_init_vram(struct drm_device *dev)
 		p = dma_alloc_attrs(dev->dev, size,
 				&priv->vram.paddr, GFP_KERNEL, attrs);
 		if (!p) {
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to allocate VRAM\n");
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to allocate VRAM\n");
+>>>>>>> upstream/android-13
 			priv->vram.paddr = 0;
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		dev_info(dev->dev, "VRAM: %08x->%08x\n",
+=======
+		DRM_DEV_INFO(dev->dev, "VRAM: %08x->%08x\n",
+>>>>>>> upstream/android-13
 				(uint32_t)priv->vram.paddr,
 				(uint32_t)(priv->vram.paddr + size));
 	}
@@ -431,7 +709,11 @@ static int msm_init_vram(struct drm_device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int msm_drm_init(struct device *dev, struct drm_driver *drv)
+=======
+static int msm_drm_init(struct device *dev, const struct drm_driver *drv)
+>>>>>>> upstream/android-13
 {
 	struct platform_device *pdev = to_platform_device(dev);
 	struct drm_device *ddev;
@@ -439,11 +721,18 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	struct msm_kms *kms;
 	struct msm_mdss *mdss;
 	int ret, i;
+<<<<<<< HEAD
 	struct sched_param param;
 
 	ddev = drm_dev_alloc(drv, dev);
 	if (IS_ERR(ddev)) {
 		dev_err(dev, "failed to allocate drm_device\n");
+=======
+
+	ddev = drm_dev_alloc(drv, dev);
+	if (IS_ERR(ddev)) {
+		DRM_DEV_ERROR(dev, "failed to allocate drm_device\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(ddev);
 	}
 
@@ -452,7 +741,11 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if (!priv) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto err_unref_drm_dev;
+=======
+		goto err_put_drm_dev;
+>>>>>>> upstream/android-13
 	}
 
 	ddev->dev_private = priv;
@@ -475,11 +768,28 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	mdss = priv->mdss;
 
 	priv->wq = alloc_ordered_workqueue("msm", 0);
+<<<<<<< HEAD
 
 	INIT_LIST_HEAD(&priv->inactive_list);
 	INIT_LIST_HEAD(&priv->vblank_ctrl.event_list);
 	kthread_init_work(&priv->vblank_ctrl.work, vblank_ctrl_worker);
 	spin_lock_init(&priv->vblank_ctrl.lock);
+=======
+	priv->hangcheck_period = DRM_MSM_HANGCHECK_DEFAULT_PERIOD;
+
+	INIT_LIST_HEAD(&priv->objects);
+	mutex_init(&priv->obj_lock);
+
+	INIT_LIST_HEAD(&priv->inactive_willneed);
+	INIT_LIST_HEAD(&priv->inactive_dontneed);
+	INIT_LIST_HEAD(&priv->inactive_unpinned);
+	mutex_init(&priv->mm_lock);
+
+	/* Teach lockdep about lock ordering wrt. shrinker: */
+	fs_reclaim_acquire(GFP_KERNEL);
+	might_lock(&priv->mm_lock);
+	fs_reclaim_release(GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	drm_mode_config_init(ddev);
 
@@ -492,6 +802,7 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	if (ret)
 		goto err_destroy_mdss;
 
+<<<<<<< HEAD
 	if (!dev->dma_parms) {
 		dev->dma_parms = devm_kzalloc(dev, sizeof(*dev->dma_parms),
 					      GFP_KERNEL);
@@ -501,6 +812,9 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 		}
 	}
 	dma_set_max_seg_size(dev, DMA_BIT_MASK(32));
+=======
+	dma_set_max_seg_size(dev, UINT_MAX);
+>>>>>>> upstream/android-13
 
 	msm_gem_shrinker_init(ddev);
 
@@ -517,11 +831,18 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 		priv->kms = kms;
 		break;
 	default:
+<<<<<<< HEAD
 		kms = ERR_PTR(-ENODEV);
+=======
+		/* valid only for the dummy headless case, where of_node=NULL */
+		WARN_ON(dev->of_node);
+		kms = NULL;
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	if (IS_ERR(kms)) {
+<<<<<<< HEAD
 		/*
 		 * NOTE: once we have GPU support, having no kms should not
 		 * be considered fatal.. ideally we would still support gpu
@@ -530,6 +851,11 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 		 */
 		dev_err(dev, "failed to load kms\n");
 		ret = PTR_ERR(kms);
+=======
+		DRM_DEV_ERROR(dev, "failed to load kms\n");
+		ret = PTR_ERR(kms);
+		priv->kms = NULL;
+>>>>>>> upstream/android-13
 		goto err_msm_uninit;
 	}
 
@@ -537,9 +863,16 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	ddev->mode_config.normalize_zpos = true;
 
 	if (kms) {
+<<<<<<< HEAD
 		ret = kms->funcs->hw_init(kms);
 		if (ret) {
 			dev_err(dev, "kms hw init failed: %d\n", ret);
+=======
+		kms->dev = ddev;
+		ret = kms->funcs->hw_init(kms);
+		if (ret) {
+			DRM_DEV_ERROR(dev, "kms hw init failed: %d\n", ret);
+>>>>>>> upstream/android-13
 			goto err_msm_uninit;
 		}
 	}
@@ -547,6 +880,7 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	ddev->mode_config.funcs = &mode_config_funcs;
 	ddev->mode_config.helper_private = &mode_config_helper_funcs;
 
+<<<<<<< HEAD
 	/**
 	 * this priority was found during empiric testing to have appropriate
 	 * realtime scheduling to process display updates and interact with
@@ -618,20 +952,47 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 			}
 			goto err_msm_uninit;
 		}
+=======
+	for (i = 0; i < priv->num_crtcs; i++) {
+		/* initialize event thread */
+		priv->event_thread[i].crtc_id = priv->crtcs[i]->base.id;
+		priv->event_thread[i].dev = ddev;
+		priv->event_thread[i].worker = kthread_create_worker(0,
+			"crtc_event:%d", priv->event_thread[i].crtc_id);
+		if (IS_ERR(priv->event_thread[i].worker)) {
+			ret = PTR_ERR(priv->event_thread[i].worker);
+			DRM_DEV_ERROR(dev, "failed to create crtc_event kthread\n");
+			ret = PTR_ERR(priv->event_thread[i].worker);
+			goto err_msm_uninit;
+		}
+
+		sched_set_fifo(priv->event_thread[i].worker->task);
+>>>>>>> upstream/android-13
 	}
 
 	ret = drm_vblank_init(ddev, priv->num_crtcs);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to initialize vblank\n");
+=======
+		DRM_DEV_ERROR(dev, "failed to initialize vblank\n");
+>>>>>>> upstream/android-13
 		goto err_msm_uninit;
 	}
 
 	if (kms) {
 		pm_runtime_get_sync(dev);
+<<<<<<< HEAD
 		ret = drm_irq_install(ddev, kms->irq);
 		pm_runtime_put_sync(dev);
 		if (ret < 0) {
 			dev_err(dev, "failed to install IRQ handler\n");
+=======
+		ret = msm_irq_install(ddev, kms->irq);
+		pm_runtime_put_sync(dev);
+		if (ret < 0) {
+			DRM_DEV_ERROR(dev, "failed to install IRQ handler\n");
+>>>>>>> upstream/android-13
 			goto err_msm_uninit;
 		}
 	}
@@ -640,10 +1001,22 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	if (ret)
 		goto err_msm_uninit;
 
+<<<<<<< HEAD
 	drm_mode_config_reset(ddev);
 
 #ifdef CONFIG_DRM_FBDEV_EMULATION
 	if (fbdev)
+=======
+	if (kms) {
+		ret = msm_disp_snapshot_init(ddev);
+		if (ret)
+			DRM_DEV_ERROR(dev, "msm_disp_snapshot_init failed ret = %d\n", ret);
+	}
+	drm_mode_config_reset(ddev);
+
+#ifdef CONFIG_DRM_FBDEV_EMULATION
+	if (kms && fbdev)
+>>>>>>> upstream/android-13
 		priv->fbdev = msm_fbdev_init(ddev);
 #endif
 
@@ -663,8 +1036,14 @@ err_destroy_mdss:
 		mdss->funcs->destroy(ddev);
 err_free_priv:
 	kfree(priv);
+<<<<<<< HEAD
 err_unref_drm_dev:
 	drm_dev_unref(ddev);
+=======
+err_put_drm_dev:
+	drm_dev_put(ddev);
+	platform_set_drvdata(pdev, NULL);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -687,16 +1066,35 @@ static void load_gpu(struct drm_device *dev)
 
 static int context_init(struct drm_device *dev, struct drm_file *file)
 {
+<<<<<<< HEAD
+=======
+	static atomic_t ident = ATOMIC_INIT(0);
+	struct msm_drm_private *priv = dev->dev_private;
+>>>>>>> upstream/android-13
 	struct msm_file_private *ctx;
 
 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	msm_submitqueue_init(dev, ctx);
 
 	file->driver_priv = ctx;
 
+=======
+	INIT_LIST_HEAD(&ctx->submitqueues);
+	rwlock_init(&ctx->queuelock);
+
+	kref_init(&ctx->ref);
+	msm_submitqueue_init(dev, ctx);
+
+	ctx->aspace = msm_gpu_create_private_address_space(priv->gpu, current);
+	file->driver_priv = ctx;
+
+	ctx->seqno = atomic_inc_return(&ident);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -713,7 +1111,11 @@ static int msm_open(struct drm_device *dev, struct drm_file *file)
 static void context_close(struct msm_file_private *ctx)
 {
 	msm_submitqueue_close(ctx);
+<<<<<<< HEAD
 	kfree(ctx);
+=======
+	msm_file_private_put(ctx);
+>>>>>>> upstream/android-13
 }
 
 static void msm_postclose(struct drm_device *dev, struct drm_file *file)
@@ -729,6 +1131,7 @@ static void msm_postclose(struct drm_device *dev, struct drm_file *file)
 	context_close(ctx);
 }
 
+<<<<<<< HEAD
 static irqreturn_t msm_irq(int irq, void *arg)
 {
 	struct drm_device *dev = arg;
@@ -764,21 +1167,42 @@ static void msm_irq_uninstall(struct drm_device *dev)
 
 static int msm_enable_vblank(struct drm_device *dev, unsigned int pipe)
 {
+=======
+int msm_crtc_enable_vblank(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = crtc->index;
+>>>>>>> upstream/android-13
 	struct msm_drm_private *priv = dev->dev_private;
 	struct msm_kms *kms = priv->kms;
 	if (!kms)
 		return -ENXIO;
+<<<<<<< HEAD
 	DBG("dev=%p, crtc=%u", dev, pipe);
 	return vblank_ctrl_queue_work(priv, pipe, true);
 }
 
 static void msm_disable_vblank(struct drm_device *dev, unsigned int pipe)
 {
+=======
+	drm_dbg_vbl(dev, "crtc=%u", pipe);
+	return vblank_ctrl_queue_work(priv, pipe, true);
+}
+
+void msm_crtc_disable_vblank(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = crtc->index;
+>>>>>>> upstream/android-13
 	struct msm_drm_private *priv = dev->dev_private;
 	struct msm_kms *kms = priv->kms;
 	if (!kms)
 		return;
+<<<<<<< HEAD
 	DBG("dev=%p, crtc=%u", dev, pipe);
+=======
+	drm_dbg_vbl(dev, "crtc=%u", pipe);
+>>>>>>> upstream/android-13
 	vblank_ctrl_queue_work(priv, pipe, false);
 }
 
@@ -818,7 +1242,11 @@ static int msm_ioctl_gem_new(struct drm_device *dev, void *data,
 	}
 
 	return msm_gem_new_handle(dev, file, args->size,
+<<<<<<< HEAD
 			args->flags, &args->handle);
+=======
+			args->flags, &args->handle, NULL);
+>>>>>>> upstream/android-13
 }
 
 static inline ktime_t to_ktime(struct drm_msm_timespec timeout)
@@ -845,7 +1273,11 @@ static int msm_ioctl_gem_cpu_prep(struct drm_device *dev, void *data,
 
 	ret = msm_gem_cpu_prep(obj, args->op, &timeout);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -863,20 +1295,40 @@ static int msm_ioctl_gem_cpu_fini(struct drm_device *dev, void *data,
 
 	ret = msm_gem_cpu_fini(obj);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static int msm_ioctl_gem_info_iova(struct drm_device *dev,
+<<<<<<< HEAD
 		struct drm_gem_object *obj, uint64_t *iova)
 {
 	struct msm_drm_private *priv = dev->dev_private;
+=======
+		struct drm_file *file, struct drm_gem_object *obj,
+		uint64_t *iova)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+	struct msm_file_private *ctx = file->driver_priv;
+>>>>>>> upstream/android-13
 
 	if (!priv->gpu)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return msm_gem_get_iova(obj, priv->gpu->aspace, iova);
+=======
+	/*
+	 * Don't pin the memory here - just get an address so that userspace can
+	 * be productive
+	 */
+	return msm_gem_get_iova(obj, ctx->aspace, iova);
+>>>>>>> upstream/android-13
 }
 
 static int msm_ioctl_gem_info(struct drm_device *dev, void *data,
@@ -884,15 +1336,39 @@ static int msm_ioctl_gem_info(struct drm_device *dev, void *data,
 {
 	struct drm_msm_gem_info *args = data;
 	struct drm_gem_object *obj;
+<<<<<<< HEAD
 	int ret = 0;
 
 	if (args->flags & ~MSM_INFO_FLAGS)
 		return -EINVAL;
 
+=======
+	struct msm_gem_object *msm_obj;
+	int i, ret = 0;
+
+	if (args->pad)
+		return -EINVAL;
+
+	switch (args->info) {
+	case MSM_INFO_GET_OFFSET:
+	case MSM_INFO_GET_IOVA:
+		/* value returned as immediate, not pointer, so len==0: */
+		if (args->len)
+			return -EINVAL;
+		break;
+	case MSM_INFO_SET_NAME:
+	case MSM_INFO_GET_NAME:
+		break;
+	default:
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	obj = drm_gem_object_lookup(file, args->handle);
 	if (!obj)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	if (args->flags & MSM_INFO_IOVA) {
 		uint64_t iova;
 
@@ -904,6 +1380,95 @@ static int msm_ioctl_gem_info(struct drm_device *dev, void *data,
 	}
 
 	drm_gem_object_put_unlocked(obj);
+=======
+	msm_obj = to_msm_bo(obj);
+
+	switch (args->info) {
+	case MSM_INFO_GET_OFFSET:
+		args->value = msm_gem_mmap_offset(obj);
+		break;
+	case MSM_INFO_GET_IOVA:
+		ret = msm_ioctl_gem_info_iova(dev, file, obj, &args->value);
+		break;
+	case MSM_INFO_SET_NAME:
+		/* length check should leave room for terminating null: */
+		if (args->len >= sizeof(msm_obj->name)) {
+			ret = -EINVAL;
+			break;
+		}
+		if (copy_from_user(msm_obj->name, u64_to_user_ptr(args->value),
+				   args->len)) {
+			msm_obj->name[0] = '\0';
+			ret = -EFAULT;
+			break;
+		}
+		msm_obj->name[args->len] = '\0';
+		for (i = 0; i < args->len; i++) {
+			if (!isprint(msm_obj->name[i])) {
+				msm_obj->name[i] = '\0';
+				break;
+			}
+		}
+		break;
+	case MSM_INFO_GET_NAME:
+		if (args->value && (args->len < strlen(msm_obj->name))) {
+			ret = -EINVAL;
+			break;
+		}
+		args->len = strlen(msm_obj->name);
+		if (args->value) {
+			if (copy_to_user(u64_to_user_ptr(args->value),
+					 msm_obj->name, args->len))
+				ret = -EFAULT;
+		}
+		break;
+	}
+
+	drm_gem_object_put(obj);
+
+	return ret;
+}
+
+static int wait_fence(struct msm_gpu_submitqueue *queue, uint32_t fence_id,
+		      ktime_t timeout)
+{
+	struct dma_fence *fence;
+	int ret;
+
+	if (fence_id > queue->last_fence) {
+		DRM_ERROR_RATELIMITED("waiting on invalid fence: %u (of %u)\n",
+				      fence_id, queue->last_fence);
+		return -EINVAL;
+	}
+
+	/*
+	 * Map submitqueue scoped "seqno" (which is actually an idr key)
+	 * back to underlying dma-fence
+	 *
+	 * The fence is removed from the fence_idr when the submit is
+	 * retired, so if the fence is not found it means there is nothing
+	 * to wait for
+	 */
+	ret = mutex_lock_interruptible(&queue->lock);
+	if (ret)
+		return ret;
+	fence = idr_find(&queue->fence_idr, fence_id);
+	if (fence)
+		fence = dma_fence_get_rcu(fence);
+	mutex_unlock(&queue->lock);
+
+	if (!fence)
+		return 0;
+
+	ret = dma_fence_wait_timeout(fence, true, timeout_to_jiffies(&timeout));
+	if (ret == 0) {
+		ret = -ETIMEDOUT;
+	} else if (ret != -ERESTARTSYS) {
+		ret = 0;
+	}
+
+	dma_fence_put(fence);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -913,9 +1478,13 @@ static int msm_ioctl_wait_fence(struct drm_device *dev, void *data,
 {
 	struct msm_drm_private *priv = dev->dev_private;
 	struct drm_msm_wait_fence *args = data;
+<<<<<<< HEAD
 	ktime_t timeout = to_ktime(args->timeout);
 	struct msm_gpu_submitqueue *queue;
 	struct msm_gpu *gpu = priv->gpu;
+=======
+	struct msm_gpu_submitqueue *queue;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (args->pad) {
@@ -923,17 +1492,28 @@ static int msm_ioctl_wait_fence(struct drm_device *dev, void *data,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!gpu)
+=======
+	if (!priv->gpu)
+>>>>>>> upstream/android-13
 		return 0;
 
 	queue = msm_submitqueue_get(file->driver_priv, args->queueid);
 	if (!queue)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	ret = msm_wait_fence(gpu->rb[queue->prio]->fctx, args->fence, &timeout,
 		true);
 
 	msm_submitqueue_put(queue);
+=======
+	ret = wait_fence(queue, args->fence, to_ktime(args->timeout));
+
+	msm_submitqueue_put(queue);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -952,6 +1532,7 @@ static int msm_ioctl_gem_madvise(struct drm_device *dev, void *data,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ret = mutex_lock_interruptible(&dev->struct_mutex);
 	if (ret)
 		return ret;
@@ -960,6 +1541,11 @@ static int msm_ioctl_gem_madvise(struct drm_device *dev, void *data,
 	if (!obj) {
 		ret = -ENOENT;
 		goto unlock;
+=======
+	obj = drm_gem_object_lookup(file, args->handle);
+	if (!obj) {
+		return -ENOENT;
+>>>>>>> upstream/android-13
 	}
 
 	ret = msm_gem_madvise(obj, args->madv);
@@ -970,8 +1556,11 @@ static int msm_ioctl_gem_madvise(struct drm_device *dev, void *data,
 
 	drm_gem_object_put(obj);
 
+<<<<<<< HEAD
 unlock:
 	mutex_unlock(&dev->struct_mutex);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -988,6 +1577,14 @@ static int msm_ioctl_submitqueue_new(struct drm_device *dev, void *data,
 		args->flags, &args->id);
 }
 
+<<<<<<< HEAD
+=======
+static int msm_ioctl_submitqueue_query(struct drm_device *dev, void *data,
+		struct drm_file *file)
+{
+	return msm_submitqueue_query(dev, file->driver_priv, data);
+}
+>>>>>>> upstream/android-13
 
 static int msm_ioctl_submitqueue_close(struct drm_device *dev, void *data,
 		struct drm_file *file)
@@ -998,6 +1595,7 @@ static int msm_ioctl_submitqueue_close(struct drm_device *dev, void *data,
 }
 
 static const struct drm_ioctl_desc msm_ioctls[] = {
+<<<<<<< HEAD
 	DRM_IOCTL_DEF_DRV(MSM_GET_PARAM,    msm_ioctl_get_param,    DRM_AUTH|DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(MSM_GEM_NEW,      msm_ioctl_gem_new,      DRM_AUTH|DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(MSM_GEM_INFO,     msm_ioctl_gem_info,     DRM_AUTH|DRM_RENDER_ALLOW),
@@ -1046,10 +1644,37 @@ static struct drm_driver msm_driver = {
 	.disable_vblank     = msm_disable_vblank,
 	.gem_free_object    = msm_gem_free_object,
 	.gem_vm_ops         = &vm_ops,
+=======
+	DRM_IOCTL_DEF_DRV(MSM_GET_PARAM,    msm_ioctl_get_param,    DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_GEM_NEW,      msm_ioctl_gem_new,      DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_GEM_INFO,     msm_ioctl_gem_info,     DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_GEM_CPU_PREP, msm_ioctl_gem_cpu_prep, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_GEM_CPU_FINI, msm_ioctl_gem_cpu_fini, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_GEM_SUBMIT,   msm_ioctl_gem_submit,   DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_WAIT_FENCE,   msm_ioctl_wait_fence,   DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_GEM_MADVISE,  msm_ioctl_gem_madvise,  DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_SUBMITQUEUE_NEW,   msm_ioctl_submitqueue_new,   DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_SUBMITQUEUE_CLOSE, msm_ioctl_submitqueue_close, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_SUBMITQUEUE_QUERY, msm_ioctl_submitqueue_query, DRM_RENDER_ALLOW),
+};
+
+DEFINE_DRM_GEM_FOPS(fops);
+
+static const struct drm_driver msm_driver = {
+	.driver_features    = DRIVER_GEM |
+				DRIVER_RENDER |
+				DRIVER_ATOMIC |
+				DRIVER_MODESET |
+				DRIVER_SYNCOBJ,
+	.open               = msm_open,
+	.postclose           = msm_postclose,
+	.lastclose          = drm_fb_helper_lastclose,
+>>>>>>> upstream/android-13
 	.dumb_create        = msm_gem_dumb_create,
 	.dumb_map_offset    = msm_gem_dumb_map_offset,
 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+<<<<<<< HEAD
 	.gem_prime_export   = drm_gem_prime_export,
 	.gem_prime_import   = drm_gem_prime_import,
 	.gem_prime_res_obj  = msm_gem_prime_res_obj,
@@ -1060,6 +1685,10 @@ static struct drm_driver msm_driver = {
 	.gem_prime_vmap     = msm_gem_prime_vmap,
 	.gem_prime_vunmap   = msm_gem_prime_vunmap,
 	.gem_prime_mmap     = msm_gem_prime_mmap,
+=======
+	.gem_prime_import_sg_table = msm_gem_prime_import_sg_table,
+	.gem_prime_mmap     = drm_gem_prime_mmap,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 	.debugfs_init       = msm_debugfs_init,
 #endif
@@ -1074,6 +1703,7 @@ static struct drm_driver msm_driver = {
 	.patchlevel         = MSM_VERSION_PATCHLEVEL,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int msm_pm_suspend(struct device *dev)
 {
@@ -1115,6 +1745,9 @@ static int msm_pm_resume(struct device *dev)
 
 #ifdef CONFIG_PM
 static int msm_runtime_suspend(struct device *dev)
+=======
+static int __maybe_unused msm_runtime_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *ddev = dev_get_drvdata(dev);
 	struct msm_drm_private *priv = ddev->dev_private;
@@ -1128,7 +1761,11 @@ static int msm_runtime_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int msm_runtime_resume(struct device *dev)
+=======
+static int __maybe_unused msm_runtime_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *ddev = dev_get_drvdata(dev);
 	struct msm_drm_private *priv = ddev->dev_private;
@@ -1141,11 +1778,58 @@ static int msm_runtime_resume(struct device *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+
+static int __maybe_unused msm_pm_suspend(struct device *dev)
+{
+
+	if (pm_runtime_suspended(dev))
+		return 0;
+
+	return msm_runtime_suspend(dev);
+}
+
+static int __maybe_unused msm_pm_resume(struct device *dev)
+{
+	if (pm_runtime_suspended(dev))
+		return 0;
+
+	return msm_runtime_resume(dev);
+}
+
+static int __maybe_unused msm_pm_prepare(struct device *dev)
+{
+	struct drm_device *ddev = dev_get_drvdata(dev);
+	struct msm_drm_private *priv = ddev ? ddev->dev_private : NULL;
+
+	if (!priv || !priv->kms)
+		return 0;
+
+	return drm_mode_config_helper_suspend(ddev);
+}
+
+static void __maybe_unused msm_pm_complete(struct device *dev)
+{
+	struct drm_device *ddev = dev_get_drvdata(dev);
+	struct msm_drm_private *priv = ddev ? ddev->dev_private : NULL;
+
+	if (!priv || !priv->kms)
+		return;
+
+	drm_mode_config_helper_resume(ddev);
+}
+>>>>>>> upstream/android-13
 
 static const struct dev_pm_ops msm_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(msm_pm_suspend, msm_pm_resume)
 	SET_RUNTIME_PM_OPS(msm_runtime_suspend, msm_runtime_resume, NULL)
+<<<<<<< HEAD
+=======
+	.prepare = msm_pm_prepare,
+	.complete = msm_pm_complete,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1194,7 +1878,11 @@ static int add_components_mdp(struct device *mdp_dev,
 
 		ret = of_graph_parse_endpoint(ep_node, &ep);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(mdp_dev, "unable to parse port endpoint\n");
+=======
+			DRM_DEV_ERROR(mdp_dev, "unable to parse port endpoint\n");
+>>>>>>> upstream/android-13
 			of_node_put(ep_node);
 			return ret;
 		}
@@ -1216,8 +1904,15 @@ static int add_components_mdp(struct device *mdp_dev,
 		if (!intf)
 			continue;
 
+<<<<<<< HEAD
 		drm_of_component_match_add(master_dev, matchptr, compare_of,
 					   intf);
+=======
+		if (of_device_is_available(intf))
+			drm_of_component_match_add(master_dev, matchptr,
+						   compare_of, intf);
+
+>>>>>>> upstream/android-13
 		of_node_put(intf);
 	}
 
@@ -1229,10 +1924,18 @@ static int compare_name_mdp(struct device *dev, void *data)
 	return (strstr(dev_name(dev), "mdp") != NULL);
 }
 
+<<<<<<< HEAD
 static int add_display_components(struct device *dev,
 				  struct component_match **matchptr)
 {
 	struct device *mdp_dev;
+=======
+static int add_display_components(struct platform_device *pdev,
+				  struct component_match **matchptr)
+{
+	struct device *mdp_dev;
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/*
@@ -1241,17 +1944,30 @@ static int add_display_components(struct device *dev,
 	 * Populate the children devices, find the MDP5/DPU node, and then add
 	 * the interfaces to our components list.
 	 */
+<<<<<<< HEAD
 	if (of_device_is_compatible(dev->of_node, "qcom,mdss") ||
 	    of_device_is_compatible(dev->of_node, "qcom,sdm845-mdss")) {
 		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
 		if (ret) {
 			dev_err(dev, "failed to populate children devices\n");
+=======
+	switch (get_mdp_ver(pdev)) {
+	case KMS_MDP5:
+	case KMS_DPU:
+		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
+		if (ret) {
+			DRM_DEV_ERROR(dev, "failed to populate children devices\n");
+>>>>>>> upstream/android-13
 			return ret;
 		}
 
 		mdp_dev = device_find_child(dev, NULL, compare_name_mdp);
 		if (!mdp_dev) {
+<<<<<<< HEAD
 			dev_err(dev, "failed to find MDSS MDP node\n");
+=======
+			DRM_DEV_ERROR(dev, "failed to find MDSS MDP node\n");
+>>>>>>> upstream/android-13
 			of_platform_depopulate(dev);
 			return -ENODEV;
 		}
@@ -1261,9 +1977,17 @@ static int add_display_components(struct device *dev,
 		/* add the MDP component itself */
 		drm_of_component_match_add(dev, matchptr, compare_of,
 					   mdp_dev->of_node);
+<<<<<<< HEAD
 	} else {
 		/* MDP4 */
 		mdp_dev = dev;
+=======
+		break;
+	case KMS_MDP4:
+		/* MDP4 */
+		mdp_dev = dev;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	ret = add_components_mdp(mdp_dev, matchptr);
@@ -1281,6 +2005,10 @@ static int add_display_components(struct device *dev,
 static const struct of_device_id msm_gpu_match[] = {
 	{ .compatible = "qcom,adreno" },
 	{ .compatible = "qcom,adreno-3xx" },
+<<<<<<< HEAD
+=======
+	{ .compatible = "amd,imageon" },
+>>>>>>> upstream/android-13
 	{ .compatible = "qcom,kgsl-3d0" },
 	{ },
 };
@@ -1326,9 +2054,17 @@ static int msm_pdev_probe(struct platform_device *pdev)
 	struct component_match *match = NULL;
 	int ret;
 
+<<<<<<< HEAD
 	ret = add_display_components(&pdev->dev, &match);
 	if (ret)
 		return ret;
+=======
+	if (get_mdp_ver(pdev)) {
+		ret = add_display_components(pdev, &match);
+		if (ret)
+			return ret;
+	}
+>>>>>>> upstream/android-13
 
 	ret = add_gpu_components(&pdev->dev, &match);
 	if (ret)
@@ -1375,6 +2111,13 @@ static const struct of_device_id dt_match[] = {
 	{ .compatible = "qcom,mdp4", .data = (void *)KMS_MDP4 },
 	{ .compatible = "qcom,mdss", .data = (void *)KMS_MDP5 },
 	{ .compatible = "qcom,sdm845-mdss", .data = (void *)KMS_DPU },
+<<<<<<< HEAD
+=======
+	{ .compatible = "qcom,sc7180-mdss", .data = (void *)KMS_DPU },
+	{ .compatible = "qcom,sc7280-mdss", .data = (void *)KMS_DPU },
+	{ .compatible = "qcom,sm8150-mdss", .data = (void *)KMS_DPU },
+	{ .compatible = "qcom,sm8250-mdss", .data = (void *)KMS_DPU },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, dt_match);
@@ -1401,6 +2144,10 @@ static int __init msm_drm_register(void)
 	msm_dsi_register();
 	msm_edp_register();
 	msm_hdmi_register();
+<<<<<<< HEAD
+=======
+	msm_dp_register();
+>>>>>>> upstream/android-13
 	adreno_register();
 	return platform_driver_register(&msm_platform_driver);
 }
@@ -1409,6 +2156,10 @@ static void __exit msm_drm_unregister(void)
 {
 	DBG("fini");
 	platform_driver_unregister(&msm_platform_driver);
+<<<<<<< HEAD
+=======
+	msm_dp_unregister();
+>>>>>>> upstream/android-13
 	msm_hdmi_unregister();
 	adreno_unregister();
 	msm_edp_unregister();

@@ -30,7 +30,10 @@
 #include <asm/fpu.h>
 #include <asm/mipsregs.h>
 #include <asm/mipsmtregs.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/reg.h>
 #include <asm/syscall.h>
@@ -82,7 +85,10 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 	/* Read the word at location addr in the USER area. */
 	case PTRACE_PEEKUSR: {
 		struct pt_regs *regs;
+<<<<<<< HEAD
 		union fpureg *fregs;
+=======
+>>>>>>> upstream/android-13
 		unsigned int tmp;
 
 		regs = task_pt_regs(child);
@@ -92,7 +98,14 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 		case 0 ... 31:
 			tmp = regs->regs[addr];
 			break;
+<<<<<<< HEAD
 		case FPR_BASE ... FPR_BASE + 31:
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+		case FPR_BASE ... FPR_BASE + 31: {
+			union fpureg *fregs;
+
+>>>>>>> upstream/android-13
 			if (!tsk_used_math(child)) {
 				/* FP not yet used */
 				tmp = -1;
@@ -111,6 +124,18 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 			}
 			tmp = get_fpr64(&fregs[addr - FPR_BASE], 0);
 			break;
+<<<<<<< HEAD
+=======
+		}
+		case FPC_CSR:
+			tmp = child->thread.fpu.fcr31;
+			break;
+		case FPC_EIR:
+			/* implementation / version register */
+			tmp = boot_cpu_data.fpu_id;
+			break;
+#endif /* CONFIG_MIPS_FP_SUPPORT */
+>>>>>>> upstream/android-13
 		case PC:
 			tmp = regs->cp0_epc;
 			break;
@@ -126,6 +151,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 		case MMLO:
 			tmp = regs->lo;
 			break;
+<<<<<<< HEAD
 		case FPC_CSR:
 			tmp = child->thread.fpu.fcr31;
 			break;
@@ -133,6 +159,8 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 			/* implementation / version register */
 			tmp = boot_cpu_data.fpu_id;
 			break;
+=======
+>>>>>>> upstream/android-13
 		case DSP_BASE ... DSP_BASE + 5: {
 			dspreg_t *dregs;
 
@@ -203,6 +231,10 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 				 mips_syscall_is_indirect(child, regs))
 				mips_syscall_update_nr(child, regs);
 			break;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+>>>>>>> upstream/android-13
 		case FPR_BASE ... FPR_BASE + 31: {
 			union fpureg *fregs = get_fpu_regs(child);
 
@@ -225,6 +257,13 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 			set_fpr64(&fregs[addr - FPR_BASE], 0, data);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		case FPC_CSR:
+			child->thread.fpu.fcr31 = data;
+			break;
+#endif /* CONFIG_MIPS_FP_SUPPORT */
+>>>>>>> upstream/android-13
 		case PC:
 			regs->cp0_epc = data;
 			break;
@@ -234,9 +273,12 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 		case MMLO:
 			regs->lo = data;
 			break;
+<<<<<<< HEAD
 		case FPC_CSR:
 			child->thread.fpu.fcr31 = data;
 			break;
+=======
+>>>>>>> upstream/android-13
 		case DSP_BASE ... DSP_BASE + 5: {
 			dspreg_t *dregs;
 
@@ -274,6 +316,10 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 				(struct user_pt_regs __user *) (__u64) data);
 		break;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+>>>>>>> upstream/android-13
 	case PTRACE_GETFPREGS:
 		ret = ptrace_getfpregs(child, (__u32 __user *) (__u64) data);
 		break;
@@ -281,7 +327,11 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
 	case PTRACE_SETFPREGS:
 		ret = ptrace_setfpregs(child, (__u32 __user *) (__u64) data);
 		break;
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> upstream/android-13
 	case PTRACE_GET_THREAD_AREA:
 		ret = put_user(task_thread_info(child)->tp_value,
 				(unsigned int __user *) (unsigned long) data);

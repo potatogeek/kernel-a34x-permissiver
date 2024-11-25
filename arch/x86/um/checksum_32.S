@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -18,11 +22,14 @@
  *			     handling.
  *		Andi Kleen,  add zeroing on error
  *                   converted to pure assembler
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/errno.h>
@@ -114,7 +121,11 @@ csum_partial:
 7:	
 	popl %ebx
 	popl %esi
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 #else
 
@@ -212,7 +223,11 @@ csum_partial:
 80: 
 	popl %ebx
 	popl %esi
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 				
 #endif
 	EXPORT_SYMBOL(csum_partial)

@@ -94,11 +94,14 @@ int sec_bat_parse_dt_siop(
 	if (ret)
 		pdata->siop_hv_wpc_icl = SIOP_HV_WIRELESS_INPUT_LIMIT_CURRENT;
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np, "battery,rechg_hv_wpc_icl",
 			&pdata->rechg_hv_wpc_icl);
 	if (ret)
 		pdata->rechg_hv_wpc_icl = pdata->siop_hv_wpc_icl;
 
+=======
+>>>>>>> upstream/android-13
 	p = of_get_property(np, "battery,siop_hv_wpc_fcc", &len);
 	if (!p) {
 		pr_info("%s : battery,siop_hv_wpc_fcc is Empty\n", __func__);
@@ -287,11 +290,14 @@ __visible_for_testing void sec_bat_parse_thm_info(struct device_node *np, char *
 	if (ret)
 		pr_info("%s : %s is Empty %d\n", __func__, buf, ret);
 
+<<<<<<< HEAD
 	strcpy(buf+n_len, "temp_adc_rsense");
 	ret = of_property_read_u32(np, buf, &info->adc_rsense);
 	if (ret)
 		pr_info("%s : %s is Empty %d\n", __func__, buf, ret);
 
+=======
+>>>>>>> upstream/android-13
 	if (info->source == SEC_BATTERY_THERMAL_SOURCE_ADC) {
 		ret = of_property_read_u32(np, "battery,adc_check_count",
 				&info->check_count);
@@ -313,7 +319,10 @@ static void sec_bat_parse_dc_thm(struct device_node *np, sec_battery_platform_da
 
 	pdata->dctp_by_cgtp = of_property_read_bool(np, "battery,dctp_by_cgtp");
 	pdata->dctp_bootmode_en = of_property_read_bool(np, "battery,dctp_bootmode_en");
+<<<<<<< HEAD
 	pdata->lrpts_by_batts = of_property_read_bool(np, "battery,lrpts_by_batts");
+=======
+>>>>>>> upstream/android-13
 
 	/* dchg_high_temp */
 	p = of_get_property(np, "battery,dchg_high_temp", &len);
@@ -404,6 +413,7 @@ static void sec_bat_parse_dc_thm(struct device_node *np, sec_battery_platform_da
 }
 #endif
 
+<<<<<<< HEAD
 static void sec_bat_parse_health_condition(struct device_node *np, sec_battery_platform_data_t *pdata)
 {
 	int ret = 0, len = 0;
@@ -580,6 +590,8 @@ static void sec_bat_parse_age_data(struct device_node *np, sec_battery_platform_
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 int sec_bat_parse_dt(struct device *dev,
 		struct sec_battery_info *battery)
 {
@@ -589,6 +601,12 @@ int sec_bat_parse_dt(struct device *dev,
 	unsigned int i = 0;
 	const u32 *p;
 	u32 temp = 0;
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	char str[256] = {0, };
+#endif
+>>>>>>> upstream/android-13
 
 	np = of_find_node_by_name(NULL, "cable-info");
 	if (!np) {
@@ -636,6 +654,55 @@ int sec_bat_parse_dt(struct device *dev,
 			pdata->charging_current[i].fast_charging_current);
 	}
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+	battery->disable_mfc = of_property_read_bool(np,
+						     "battery,disable_mfc");
+
+	np = of_find_node_by_name(NULL, "wireless-power-info");
+	if (!np) {
+		pr_err ("%s : np NULL\n", __func__);
+	} else {
+		struct device_node *child;
+		u32 wireless_power_class = 0, vout = 0, input_current_limit = 0, fast_charging_current = 0, ttf_charge_current = 0, rx_power = 0;
+
+		ret = of_property_read_u32(np, "count", &battery->wc20_info_len);
+
+		pdata->wireless_power_info =
+			kzalloc(sizeof(sec_wireless_rx_power_info_t) * battery->wc20_info_len,
+				GFP_KERNEL);
+		i = 0;
+		for_each_child_of_node(np, child) {
+			ret = of_property_read_u32(child, "vout", &vout);
+			ret = of_property_read_u32(child, "input_current_limit", &input_current_limit);
+			ret = of_property_read_u32(child, "fast_charging_current", &fast_charging_current);
+			ret = of_property_read_u32(child, "ttf_charge_current", &ttf_charge_current);
+			ret = of_property_read_u32(child, "rx_power", &rx_power);
+			ret = of_property_read_u32(child, "wireless_power_class", &wireless_power_class);
+
+			pdata->wireless_power_info[i].wireless_power_class = (unsigned int)wireless_power_class;
+			pdata->wireless_power_info[i].vout = (unsigned int)vout;
+			pdata->wireless_power_info[i].input_current_limit = (unsigned int)input_current_limit;
+			pdata->wireless_power_info[i].fast_charging_current = (unsigned int)fast_charging_current;
+			pdata->wireless_power_info[i].ttf_charge_current = (unsigned int)ttf_charge_current;
+			pdata->wireless_power_info[i].rx_power = (unsigned int)rx_power;
+			i++;
+		}
+		for (i = 0; i < battery->wc20_info_len; i++) {
+			pr_info("%s : POWER_LIST(%d) POWER_CLASS(%d) VOUT(%d) INPUT(%d) CHARGING(%d) TTF(%d) POWER(%d)\n",
+				__func__, i,
+				pdata->wireless_power_info[i].wireless_power_class,
+				pdata->wireless_power_info[i].vout,
+				pdata->wireless_power_info[i].input_current_limit,
+				pdata->wireless_power_info[i].fast_charging_current,
+				pdata->wireless_power_info[i].ttf_charge_current,
+				pdata->wireless_power_info[i].rx_power);
+		}
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	pr_info("%s : TOPOFF_1ST(%d), TOPOFF_2ND(%d)\n",
 		__func__, pdata->full_check_current_1st, pdata->full_check_current_2nd);
 
@@ -697,6 +764,10 @@ int sec_bat_parse_dt(struct device *dev,
 	}
 #endif /*CONFIG_SEC_FACTORY */
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	else {
 		pr_info("%s : battery_full_capacity : %d\n", __func__, pdata->battery_full_capacity);
 		pdata->cisd_cap_high_thr = pdata->battery_full_capacity + 1000; /* battery_full_capacity + 1000 */
@@ -719,6 +790,10 @@ int sec_bat_parse_dt(struct device *dev,
 	} else {
 		pr_info("%s : set cisd_alg_index : %d\n", __func__, pdata->cisd_alg_index);
 	}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(np,
 				   "battery,expired_time", &temp);
@@ -809,6 +884,7 @@ int sec_bat_parse_dt(struct device *dev,
 	ret = of_property_read_u32(np,
 		"battery,wireless_cc_cv", &pdata->wireless_cc_cv);
 
+<<<<<<< HEAD
 	pdata->p2p_cv_headroom = of_property_read_bool(np,
 						     "battery,p2p_cv_headroom");
 
@@ -818,6 +894,11 @@ int sec_bat_parse_dt(struct device *dev,
 	pdata->bc12_ifcon_wa = of_property_read_bool(np,
 						     "battery,bc12_ifcon_wa");
 
+=======
+	pdata->fake_capacity = of_property_read_bool(np,
+						     "battery,fake_capacity");
+
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,power_value",
 		&pdata->power_value);
 	if (ret) {
@@ -825,6 +906,7 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_info("%s : power_value is Empty\n", __func__);
 	}
 
+<<<<<<< HEAD
 	pdata->en_batt_full_status_usage = of_property_read_bool(np,
 						     "battery,en_batt_full_status_usage");
 	pr_info("%s: batt_full_status_usage is %s.\n", __func__,
@@ -832,6 +914,10 @@ int sec_bat_parse_dt(struct device *dev,
 
 	pdata->en_auto_shipmode_temp_ctrl = of_property_read_bool(np,
 						     "battery,en_auto_shipmode_temp_ctrl");
+=======
+	pdata->dis_auto_shipmode_temp_ctrl = of_property_read_bool(np,
+						     "battery,dis_auto_shipmode_temp_ctrl");
+>>>>>>> upstream/android-13
 
 	pdata->boosting_voltage_aicl = of_property_read_bool(np,
 						     "battery,boosting_voltage_aicl");
@@ -873,6 +959,7 @@ int sec_bat_parse_dt(struct device *dev,
 	pdata->sub_bat_thm_info.channel = SEC_BAT_ADC_CHANNEL_SUB_BAT_TEMP;
 	sec_bat_parse_thm_info(np, "battery,blkt_", &pdata->blk_thm_info);
 	pdata->blk_thm_info.channel = SEC_BAT_ADC_CHANNEL_BLKT_TEMP;
+<<<<<<< HEAD
 	sec_bat_parse_thm_info(np, "battery,dchg_", &pdata->dchg_thm_info);
 	pdata->dchg_thm_info.channel = SEC_BAT_ADC_CHANNEL_DC_TEMP;
 
@@ -887,6 +974,8 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_info("%s : adc_read_type is %s\n",
 			__func__, (pdata->adc_read_type ? "raw" : "proc."));
 	}
+=======
+>>>>>>> upstream/android-13
 
 	/* parse dc thm info */
 	sec_bat_parse_dc_thm(np, pdata);
@@ -1024,6 +1113,30 @@ int sec_bat_parse_dt(struct device *dev,
 	}
 
 	if (pdata->wpc_thm_info.check_type) {
+<<<<<<< HEAD
+=======
+		pdata->enable_check_wpc_temp_v2 =
+			of_property_read_bool(np, "battery,enable_check_wpc_temp_v2");
+
+		if (pdata->enable_check_wpc_temp_v2) {
+			ret = of_property_read_u32(np, "battery,wpc_temp_v2_cond", &pdata->wpc_temp_v2_cond);
+			if (ret) {
+				pr_info("%s : wpc_temp_v2_cond is Empty\n", __func__);
+				pdata->wpc_temp_v2_cond = 0;
+			}
+			ret = of_property_read_u32(np, "battery,wpc_temp_v2_cond_12w", &pdata->wpc_temp_v2_cond_12w);
+			if (ret) {
+				pr_info("%s : wpc_temp_v2_cond is Empty\n", __func__);
+				pdata->wpc_temp_v2_cond_12w = pdata->wpc_temp_v2_cond;
+			}
+			ret = of_property_read_u32(np, "battery,wpc_temp_v2_cond_15w", &pdata->wpc_temp_v2_cond_15w);
+			if (ret) {
+				pr_info("%s : wpc_temp_v2_cond is Empty\n", __func__);
+				pdata->wpc_temp_v2_cond_15w = pdata->wpc_temp_v2_cond;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		ret = of_property_read_u32(np, "battery,sub_temp_control_source",
 				&pdata->sub_temp_control_source);
 		if (ret) {
@@ -1083,6 +1196,7 @@ int sec_bat_parse_dt(struct device *dev,
 			pdata->wpc_high_temp_recovery_15w = pdata->wpc_high_temp_recovery;
 		}
 
+<<<<<<< HEAD
 		pdata->wpc_high_check_using_lrp = of_property_read_bool(np, "battery,wpc_high_check_using_lrp");
 
 		if (pdata->wpc_high_check_using_lrp) {
@@ -1166,6 +1280,8 @@ int sec_bat_parse_dt(struct device *dev,
 			}
 		}
 
+=======
+>>>>>>> upstream/android-13
 		ret = of_property_read_u32(np, "battery,wpc_lcd_on_high_temp",
 				&pdata->wpc_lcd_on_high_temp);
 		if (ret) {
@@ -1456,6 +1572,16 @@ int sec_bat_parse_dt(struct device *dev,
 		pdata->pre_wc_afc_work_delay = 4000;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = of_property_read_u32(np, "battery,prepare_ta_delay",
+			&pdata->prepare_ta_delay);
+	if (ret) {
+		pr_info("%s : prepare_ta_delay is Empty\n", __func__);
+		pdata->prepare_ta_delay = 500;
+	}
+
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,select_pd_input_current",
 		&pdata->select_pd_input_current);
 	if (ret) {
@@ -1537,6 +1663,10 @@ int sec_bat_parse_dt(struct device *dev,
 		battery->overheatlimit_recovery = 680;
 	}
 
+<<<<<<< HEAD
+=======
+#if !defined(CONFIG_SEC_FACTORY)
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,usb_protection_temp", &temp);
 	battery->usb_protection_temp = (int)temp;
 	if (ret) {
@@ -1550,6 +1680,10 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_info("%s : temp gap value is Empty\n", __func__);
 		battery->temp_gap_bat_usb = 200;
 	}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(np, "battery,wire_warm_overheat_thresh", &temp);
 	pdata->wire_warm_overheat_thresh = (int)temp;
@@ -1562,7 +1696,11 @@ int sec_bat_parse_dt(struct device *dev,
 	pdata->wire_normal_warm_thresh = (int)temp;
 	if (ret) {
 		pr_info("%s : wire_normal_warm_thresh is Empty\n", __func__);
+<<<<<<< HEAD
 		pdata->wire_normal_warm_thresh = 420;
+=======
+		pdata->wire_normal_warm_thresh = 410;
+>>>>>>> upstream/android-13
 	}
 
 	ret = of_property_read_u32(np, "battery,wire_cool1_normal_thresh", &temp);
@@ -1731,11 +1869,14 @@ int sec_bat_parse_dt(struct device *dev,
 					&pdata->limiter_sub_cool3_current);
 	if (ret)
 		pr_info("%s: limiter_sub_cool3_current is Empty\n", __func__);
+<<<<<<< HEAD
 
 	ret = of_property_read_u32(np, "battery,limiter_aging_float_offset",
 					&pdata->limiter_aging_float_offset);
 	if (ret)
 		pr_info("%s: limiter_aging_float_offset is Empty\n", __func__);
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	ret = of_property_read_u32(np, "battery,high_temp_float", &temp);
@@ -1766,6 +1907,15 @@ int sec_bat_parse_dt(struct device *dev,
 		pdata->buck_recovery_margin = 50;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = of_property_read_u32(np, "battery,recharge_condition_vcell", &pdata->recharge_condition_vcell);
+	if (ret) {
+		pr_info("%s : recharge_condition_vcell is Empty\n", __func__);
+		pdata->recharge_condition_vcell = 4270;
+	}
+
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,swelling_high_rechg_voltage", &temp);
 	pdata->swelling_high_rechg_voltage = (int)temp;
 	if (ret) {
@@ -1773,9 +1923,25 @@ int sec_bat_parse_dt(struct device *dev,
 		pdata->swelling_high_rechg_voltage = 4000;
 	}
 
+<<<<<<< HEAD
 	pdata->chgen_over_swell_rechg_vol = of_property_read_bool(np, "battery,chgen_over_swell_rechg_vol");
 	pr_info("%s: chgen_over_swell_rechg_vol %s.\n", __func__,
 		pdata->chgen_over_swell_rechg_vol ? "Enabled" : "Disabled");
+=======
+	ret = of_property_read_u32(np, "battery,swelling_low_rechg_voltage", &temp);
+	pdata->swelling_low_rechg_voltage = (int)temp;
+	if (ret) {
+		pr_info("%s : swelling_low_rechg_voltage is Empty\n", __func__);
+		pdata->swelling_low_rechg_voltage = 4200;
+	}
+
+	ret = of_property_read_u32(np, "battery,swelling_low_cool3_rechg_voltage", &temp);
+	pdata->swelling_low_cool3_rechg_voltage = (int)temp;
+	if (ret) {
+		pr_info("%s : swelling_low_cool3_rechg_voltage is Empty\n", __func__);
+		pdata->swelling_low_cool3_rechg_voltage = pdata->swelling_low_rechg_voltage;
+	}
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(np, "battery,tx_high_threshold",
 				   &temp);
@@ -1873,6 +2039,14 @@ int sec_bat_parse_dt(struct device *dev,
 	if (ret)
 		pr_info("%s : Full condition soc is Empty\n", __func__);
 
+<<<<<<< HEAD
+=======
+	ret = of_property_read_u32(np, "battery,full_condition_vcell",
+		&pdata->full_condition_vcell);
+	if (ret)
+		pr_info("%s : Full condition vcell is Empty\n", __func__);
+
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,recharge_check_count",
 		&pdata->recharge_check_count);
 	if (ret)
@@ -1897,7 +2071,11 @@ int sec_bat_parse_dt(struct device *dev,
 		(unsigned int *)&pdata->chg_float_voltage);
 	if (ret) {
 		pr_info("%s: chg_float_voltage is Empty\n", __func__);
+<<<<<<< HEAD
 		pdata->chg_float_voltage = 4350;
+=======
+		pdata->chg_float_voltage = 43500;
+>>>>>>> upstream/android-13
 	}
 
 	ret = of_property_read_u32(np, "battery,chg_float_voltage_conv",
@@ -1907,6 +2085,7 @@ int sec_bat_parse_dt(struct device *dev,
 		pdata->chg_float_voltage_conv = 1;
 	}
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np, "battery,full_condition_vcell", &pdata->full_condition_vcell);
 	if (ret) {
 		if (pdata->chg_float_voltage > 0)
@@ -1957,6 +2136,66 @@ int sec_bat_parse_dt(struct device *dev,
 
 	sec_bat_parse_health_condition(np, battery->pdata);
 
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	p = of_get_property(np, "battery,age_data", &len);
+	if (p) {
+		battery->pdata->num_age_step = len / sizeof(sec_age_data_t);
+		battery->pdata->age_data = kzalloc(len, GFP_KERNEL);
+		ret = of_property_read_u32_array(np, "battery,age_data",
+				 (u32 *)battery->pdata->age_data, len/sizeof(u32));
+		if (ret) {
+			pr_err("%s failed to read battery->pdata->age_data: %d\n",
+					__func__, ret);
+			kfree(battery->pdata->age_data);
+			battery->pdata->age_data = NULL;
+			battery->pdata->num_age_step = 0;
+		}
+		pr_err("%s num_age_step : %d\n", __func__, battery->pdata->num_age_step);
+		for (len = 0; len < battery->pdata->num_age_step; ++len) {
+			memset(str, 0x0, sizeof(str));
+			sprintf(str + strlen(str), "[%d/%d]cycle:%d, float:%d, full_v:%d, recharge_v:%d, soc:%d",
+				len, battery->pdata->num_age_step-1,
+				battery->pdata->age_data[len].cycle,
+				battery->pdata->age_data[len].float_voltage,
+				battery->pdata->age_data[len].full_condition_vcell,
+				battery->pdata->age_data[len].recharge_condition_vcell,
+				battery->pdata->age_data[len].full_condition_soc);
+#if defined(CONFIG_BATTERY_AGE_FORECAST_B2B)
+			sprintf(str + strlen(str), ", max_c:%d",
+				battery->pdata->age_data[len].max_charging_current);
+#endif
+			pr_err("%s", str);
+		}
+	} else {
+		battery->pdata->num_age_step = 0;
+		pr_err("%s there is not age_data\n", __func__);
+	}
+#endif
+	p = of_get_property(np, "battery,health_condition", &len);
+	if (p || (len / sizeof(battery_health_condition)) == BATTERY_HEALTH_MAX) {
+		battery->pdata->health_condition = kzalloc(len, GFP_KERNEL);
+		ret = of_property_read_u32_array(np, "battery,health_condition",
+				(u32 *)battery->pdata->health_condition, len/sizeof(u32));
+		if (ret) {
+			pr_err("%s failed to read battery->pdata->health_condition: %d\n",
+					__func__, ret);
+			kfree(battery->pdata->health_condition);
+			battery->pdata->health_condition = NULL;
+		} else {
+			for (i = 0; i < BATTERY_HEALTH_MAX; i++) {
+				pr_err("%s: [BATTERY_HEALTH] %d: Cycle(~ %d), ASoC(~ %d)\n",
+						__func__, i,
+						battery->pdata->health_condition[i].cycle,
+						battery->pdata->health_condition[i].asoc);
+			}
+		}
+	} else {
+		battery->pdata->health_condition = NULL;
+		pr_err("%s there is not health_condition, len(%d)\n", __func__, len);
+	}
+
+>>>>>>> upstream/android-13
 	sec_bat_parse_dt_siop(battery, np);
 
 	ret = of_property_read_u32(np, "battery,wireless_otg_input_current",
@@ -1981,6 +2220,7 @@ int sec_bat_parse_dt(struct device *dev,
 		pdata->pd_charging_charge_power = 15000;
 	}
 
+<<<<<<< HEAD
 	pdata->support_fpdo_dc = of_property_read_bool(np, "battery,support_fpdo_dc");
 	if (pdata->support_fpdo_dc) {
 		ret = of_property_read_u32(np, "battery,fpdo_dc_charge_power",
@@ -1991,6 +2231,8 @@ int sec_bat_parse_dt(struct device *dev,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,rp_current_rp1",
 			&pdata->rp_current_rp1);
 	if (ret) {
@@ -2023,7 +2265,11 @@ int sec_bat_parse_dt(struct device *dev,
 			&pdata->rp_current_abnormal_rp3);
 	if (ret) {
 		pr_err("%s: rp_current_abnormal_rp3 is Empty\n", __func__);
+<<<<<<< HEAD
 		pdata->rp_current_abnormal_rp3 = 1800;
+=======
+		pdata->rp_current_rdu_rp3 = 1800;
+>>>>>>> upstream/android-13
 	}
 
 	ret = of_property_read_u32(np, "battery,nv_charge_power",
@@ -2047,6 +2293,7 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_err("%s: tx minduty 5V is Empty. set %d\n", __func__, pdata->tx_minduty_5V);
 	}
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np, "battery,tx_ping_duty_default",
 			&pdata->tx_ping_duty_default);
 	if (ret) {
@@ -2065,6 +2312,8 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_info("%s : tx_ping_duty_default: %d, tx_ping_duty_no_ta: %d\n",
 			__func__, pdata->tx_ping_duty_default, pdata->tx_ping_duty_no_ta);
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,tx_uno_vout",
 			&pdata->tx_uno_vout);
 	if (ret) {
@@ -2100,6 +2349,7 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_err("%s: tx uno iout is Empty. set %d\n", __func__, pdata->tx_uno_iout);
 	}
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np, "battery,tx_uno_iout_gear",
 			&pdata->tx_uno_iout_gear);
 	if (ret) {
@@ -2115,6 +2365,8 @@ int sec_bat_parse_dt(struct device *dev,
 			__func__, pdata->tx_uno_iout_gear);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,tx_mfc_iout_gear",
 			&pdata->tx_mfc_iout_gear);
 	if (ret) {
@@ -2122,6 +2374,7 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_err("%s: tx mfc iout gear is Empty. set %d\n", __func__, pdata->tx_mfc_iout_gear);
 	}
 
+<<<<<<< HEAD
 	ret = of_property_read_u32(np, "battery,tx_mfc_iout_aov_gear",
 			&pdata->tx_mfc_iout_aov_gear);
 	if (ret) {
@@ -2130,6 +2383,8 @@ int sec_bat_parse_dt(struct device *dev,
 			__func__, pdata->tx_mfc_iout_gear);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,tx_mfc_iout_phone",
 			&pdata->tx_mfc_iout_phone);
 	if (ret) {
@@ -2198,6 +2453,7 @@ int sec_bat_parse_dt(struct device *dev,
 		pr_err("%s: tx aov dealy phm escape is Empty. set %d\n", __func__, pdata->tx_aov_delay_phm_escape);
 	}
 
+<<<<<<< HEAD
 	pdata->wpc_warm_fod = of_property_read_bool(np, "battery,wpc_warm_fod");
 	pr_info("%s: WPC Warm FOD %s.\n", __func__,
 		pdata->wpc_warm_fod ? "Enabled" : "Disabled");
@@ -2218,6 +2474,8 @@ int sec_bat_parse_dt(struct device *dev,
 	if (ret)
 		pr_err("%s: max_wlc_icl_12w is Empty\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	pdata->lr_enable = of_property_read_bool(np, "battery,lr_enable");
 	if (pdata->lr_enable) {
 		ret = of_property_read_u32(np, "battery,lr_param_bat_thm",
@@ -2256,15 +2514,21 @@ int sec_bat_parse_dt(struct device *dev,
 		"initial_count : %d, check_count : %d\n"
 		"battery_check_type : %d, check_adc_max : %d, check_adc_min : %d\n"
 		"ovp_uvlo_check_type : %d, thermal_source : %d\n"
+<<<<<<< HEAD
 		"temp_check_type : %d, temp_check_count : %d, temp_adc_rsense : %d\n"
 		"nv_charge_power : %d, full_condition_type : %d, recharge_condition_type : %d\n"
 		"full_check_type : %d\n",
+=======
+		"temp_check_type : %d, temp_check_count : %d, nv_charge_power : %d\n"
+		"full_condition_type : %d, recharge_condition_type : %d, full_check_type : %d\n",
+>>>>>>> upstream/android-13
 		__func__,
 		pdata->vendor, pdata->technology,pdata->cable_check_type,
 		pdata->cable_source_type, pdata->polling_type,
 		pdata->monitor_initial_count, pdata->check_count,
 		pdata->battery_check_type, pdata->check_adc_max, pdata->check_adc_min,
 		pdata->ovp_uvlo_check_type, pdata->bat_thm_info.source,
+<<<<<<< HEAD
 		pdata->bat_thm_info.check_type, pdata->temp_check_count, pdata->bat_thm_info.adc_rsense,
 		pdata->nv_charge_power, pdata->full_condition_type, pdata->recharge_condition_type,
 		pdata->full_check_type
@@ -2291,6 +2555,21 @@ int sec_bat_parse_dt(struct device *dev,
 #if defined(CONFIG_STEP_CHARGING)
 	sec_step_charging_init(battery, dev);
 #endif
+=======
+		pdata->bat_thm_info.check_type, pdata->temp_check_count, pdata->nv_charge_power,
+		pdata->full_condition_type, pdata->recharge_condition_type, pdata->full_check_type
+		);
+
+#if defined(CONFIG_STEP_CHARGING)
+	sec_step_charging_init(battery, dev);
+#endif
+	ret = of_property_read_u32(np, "battery,max_charging_current",
+			&pdata->max_charging_current);
+	if (ret) {
+		pr_err("%s: max_charging_current is Empty\n", __func__);
+		pdata->max_charging_current = 3000;
+	}
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(np, "battery,max_charging_charge_power",
 			&pdata->max_charging_charge_power);
@@ -2471,6 +2750,7 @@ int sec_bat_parse_dt(struct device *dev,
 		}
 	}
 	np = of_find_node_by_name(NULL, "battery");
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_FUELGAUGE)
 	ret = of_property_read_string(np,
 		"battery,dual_fuelgauge_name", (char const **)&pdata->dual_fuelgauge_name);
@@ -2505,6 +2785,11 @@ int sec_bat_parse_dt(struct device *dev,
 #endif
 #endif
 
+=======
+#endif
+
+#if defined(CONFIG_BATTERY_CISD)
+>>>>>>> upstream/android-13
 	p = of_get_property(np, "battery,ignore_cisd_index", &len);
 	pdata->ignore_cisd_index = kzalloc(sizeof(*pdata->ignore_cisd_index) * 2, GFP_KERNEL);
 	if (p) {
@@ -2530,6 +2815,7 @@ int sec_bat_parse_dt(struct device *dev,
 	} else {
 		pr_info("%s : battery,ignore_cisd_index_d is Empty\n", __func__);
 	}
+<<<<<<< HEAD
 
 	pdata->support_usb_conn_check = of_property_read_bool(np,
 		"battery,support_usb_conn_check");
@@ -2551,6 +2837,10 @@ int sec_bat_parse_dt(struct device *dev,
 						     "battery,disable_mfc");
 	pr_info("%s: disable_mfc(%d)\n", __func__, battery->disable_mfc);
 #endif
+=======
+#endif
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(sec_bat_parse_dt);
@@ -2650,8 +2940,14 @@ void sec_bat_parse_mode_dt_work(struct work_struct *work)
 	sec_bat_parse_mode_dt(battery);
 
 	if (is_hv_wire_type(battery->cable_type) ||
+<<<<<<< HEAD
 		is_hv_wireless_type(battery->cable_type))
 		sec_bat_set_charging_current(battery);
+=======
+		is_hv_wireless_type(battery->cable_type)) {
+		sec_bat_set_charging_current(battery);
+	}
+>>>>>>> upstream/android-13
 
 	__pm_relax(battery->parse_mode_dt_ws);
 }

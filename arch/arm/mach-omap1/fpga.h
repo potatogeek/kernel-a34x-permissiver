@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Interrupt handler for OMAP-1510 FPGA
  *
@@ -8,10 +12,13 @@
  *
  * Separated FPGA interrupts from innovator1510.c and cleaned up for 2.6
  * Copyright (C) 2004 Nokia Corporation by Tony Lindrgen <tony@atomide.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ARCH_OMAP_FPGA_H

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Atheros CARL9170 driver
  *
  * firmware parser
  *
  * Copyright 2009, 2010, Christian Lamparter <chunkeey@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; see the file COPYING.  If not, see
  * http://www.gnu.org/licenses/.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

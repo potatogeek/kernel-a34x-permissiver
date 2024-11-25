@@ -3,7 +3,11 @@
  * Public definitions for the CAAM/QI (Queue Interface) backend.
  *
  * Copyright 2013-2016 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  * Copyright 2016-2017 NXP
+=======
+ * Copyright 2016-2017, 2020 NXP
+>>>>>>> upstream/android-13
  */
 
 #ifndef __QI_H__
@@ -14,6 +18,7 @@
 #include "desc.h"
 #include "desc_constr.h"
 
+<<<<<<< HEAD
 /*
  * CAAM hardware constructs a job descriptor which points to a shared descriptor
  * (as pointed by context_a of to-CAAM FQ).
@@ -40,6 +45,8 @@
  */
 #define MAX_SDLEN	((CAAM_DESC_BYTES_MAX - DESC_JOB_IO_LEN) / CAAM_CMD_SZ)
 
+=======
+>>>>>>> upstream/android-13
 /* Length of a single buffer in the QI driver memory cache */
 #define CAAM_QI_MEMCACHE_SIZE	768
 
@@ -62,7 +69,10 @@ typedef void (*caam_qi_cbk)(struct caam_drv_req *drv_req, u32 status);
 enum optype {
 	ENCRYPT,
 	DECRYPT,
+<<<<<<< HEAD
 	GIVENCRYPT,
+=======
+>>>>>>> upstream/android-13
 	NUM_OP
 };
 
@@ -79,6 +89,10 @@ enum optype {
  * @context_a: shared descriptor dma address
  * @req_fq: to-CAAM request frame queue
  * @rsp_fq: from-CAAM response frame queue
+<<<<<<< HEAD
+=======
+ * @refcnt: reference counter incremented for each frame enqueued in to-CAAM FQ
+>>>>>>> upstream/android-13
  * @cpu: cpu on which to receive CAAM response
  * @op_type: operation type
  * @qidev: device pointer for CAAM/QI backend
@@ -89,6 +103,10 @@ struct caam_drv_ctx {
 	dma_addr_t context_a;
 	struct qman_fq *req_fq;
 	struct qman_fq *rsp_fq;
+<<<<<<< HEAD
+=======
+	refcount_t refcnt;
+>>>>>>> upstream/android-13
 	int cpu;
 	enum optype op_type;
 	struct device *qidev;
@@ -174,7 +192,10 @@ int caam_drv_ctx_update(struct caam_drv_ctx *drv_ctx, u32 *sh_desc);
 void caam_drv_ctx_rel(struct caam_drv_ctx *drv_ctx);
 
 int caam_qi_init(struct platform_device *pdev);
+<<<<<<< HEAD
 int caam_qi_shutdown(struct device *dev);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * qi_cache_alloc - Allocate buffers from CAAM-QI cache

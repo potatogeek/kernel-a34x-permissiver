@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 #define _GNU_SOURCE
 #include <getopt.h>
+<<<<<<< HEAD
+=======
+#include <limits.h>
+>>>>>>> upstream/android-13
 #include <string.h>
 #include <poll.h>
 #include <sys/eventfd.h>
@@ -18,6 +22,11 @@
 #include <linux/virtio_ring.h>
 #include "../../drivers/vhost/test.h"
 
+<<<<<<< HEAD
+=======
+#define RANDOM_BATCH -1
+
+>>>>>>> upstream/android-13
 /* Unused */
 void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
 
@@ -43,6 +52,13 @@ struct vdev_info {
 	struct vhost_memory *mem;
 };
 
+<<<<<<< HEAD
+=======
+static const struct vhost_vring_file no_backend = { .fd = -1 },
+				     backend = { .fd = 1 };
+static const struct vhost_vring_state null_state = {};
+
+>>>>>>> upstream/android-13
 bool vq_notify(struct virtqueue *vq)
 {
 	struct vq_info *info = vq->priv;
@@ -88,6 +104,22 @@ void vhost_vq_setup(struct vdev_info *dev, struct vq_info *info)
 	assert(r >= 0);
 }
 
+<<<<<<< HEAD
+=======
+static void vq_reset(struct vq_info *info, int num, struct virtio_device *vdev)
+{
+	if (info->vq)
+		vring_del_virtqueue(info->vq);
+
+	memset(info->ring, 0, vring_size(num, 4096));
+	vring_init(&info->vring, num, info->ring, 4096);
+	info->vq = __vring_new_virtqueue(info->idx, info->vring, vdev, true,
+					 false, vq_notify, vq_callback, "test");
+	assert(info->vq);
+	info->vq->priv = info;
+}
+
+>>>>>>> upstream/android-13
 static void vq_info_add(struct vdev_info *dev, int num)
 {
 	struct vq_info *info = &dev->vqs[dev->nvqs];
@@ -97,6 +129,7 @@ static void vq_info_add(struct vdev_info *dev, int num)
 	info->call = eventfd(0, EFD_NONBLOCK);
 	r = posix_memalign(&info->ring, 4096, vring_size(num, 4096));
 	assert(r >= 0);
+<<<<<<< HEAD
 	memset(info->ring, 0, vring_size(num, 4096));
 	vring_init(&info->vring, num, info->ring, 4096);
 	info->vq = vring_new_virtqueue(info->idx,
@@ -105,6 +138,9 @@ static void vq_info_add(struct vdev_info *dev, int num)
 				       vq_notify, vq_callback, "test");
 	assert(info->vq);
 	info->vq->priv = info;
+=======
+	vq_reset(info, num, &dev->vdev);
+>>>>>>> upstream/android-13
 	vhost_vq_setup(dev, info);
 	dev->fds[info->idx].fd = info->call;
 	dev->fds[info->idx].events = POLLIN;
@@ -116,6 +152,11 @@ static void vdev_info_init(struct vdev_info* dev, unsigned long long features)
 	int r;
 	memset(dev, 0, sizeof *dev);
 	dev->vdev.features = features;
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&dev->vdev.vqs);
+	spin_lock_init(&dev->vdev.vqs_list_lock);
+>>>>>>> upstream/android-13
 	dev->buf_size = 1024;
 	dev->buf = malloc(dev->buf_size);
 	assert(dev->buf);
@@ -152,6 +193,7 @@ static void wait_for_interrupt(struct vdev_info *dev)
 }
 
 static void run_test(struct vdev_info *dev, struct vq_info *vq,
+<<<<<<< HEAD
 		     bool delayed, int bufs)
 {
 	struct scatterlist sl;
@@ -167,10 +209,40 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
 		completed_before = completed;
 		do {
 			if (started < bufs) {
+=======
+		     bool delayed, int batch, int reset_n, int bufs)
+{
+	struct scatterlist sl;
+	long started = 0, completed = 0, next_reset = reset_n;
+	long completed_before, started_before;
+	int r, test = 1;
+	unsigned len;
+	long long spurious = 0;
+	const bool random_batch = batch == RANDOM_BATCH;
+
+	r = ioctl(dev->control, VHOST_TEST_RUN, &test);
+	assert(r >= 0);
+	if (!reset_n) {
+		next_reset = INT_MAX;
+	}
+
+	for (;;) {
+		virtqueue_disable_cb(vq->vq);
+		completed_before = completed;
+		started_before = started;
+		do {
+			const bool reset = completed > next_reset;
+			if (random_batch)
+				batch = (random() % vq->vring.num) + 1;
+
+			while (started < bufs &&
+			       (started - completed) < batch) {
+>>>>>>> upstream/android-13
 				sg_init_one(&sl, dev->buf, dev->buf_size);
 				r = virtqueue_add_outbuf(vq->vq, &sl, 1,
 							 dev->buf + started,
 							 GFP_ATOMIC);
+<<<<<<< HEAD
 				if (likely(r == 0)) {
 					++started;
 					if (unlikely(!virtqueue_kick(vq->vq)))
@@ -181,12 +253,69 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
 
 			/* Flush out completed bufs if any */
 			if (virtqueue_get_buf(vq->vq, &len)) {
+=======
+				if (unlikely(r != 0)) {
+					if (r == -ENOSPC &&
+					    started > started_before)
+						r = 0;
+					else
+						r = -1;
+					break;
+				}
+
+				++started;
+
+				if (unlikely(!virtqueue_kick(vq->vq))) {
+					r = -1;
+					break;
+				}
+			}
+
+			if (started >= bufs)
+				r = -1;
+
+			if (reset) {
+				r = ioctl(dev->control, VHOST_TEST_SET_BACKEND,
+					  &no_backend);
+				assert(!r);
+			}
+
+			/* Flush out completed bufs if any */
+			while (virtqueue_get_buf(vq->vq, &len)) {
+>>>>>>> upstream/android-13
 				++completed;
 				r = 0;
 			}
 
+<<<<<<< HEAD
 		} while (r == 0);
 		if (completed == completed_before)
+=======
+			if (reset) {
+				struct vhost_vring_state s = { .index = 0 };
+
+				vq_reset(vq, vq->vring.num, &dev->vdev);
+
+				r = ioctl(dev->control, VHOST_GET_VRING_BASE,
+					  &s);
+				assert(!r);
+
+				s.num = 0;
+				r = ioctl(dev->control, VHOST_SET_VRING_BASE,
+					  &null_state);
+				assert(!r);
+
+				r = ioctl(dev->control, VHOST_TEST_SET_BACKEND,
+					  &backend);
+				assert(!r);
+
+				started = completed;
+				while (completed > next_reset)
+					next_reset += completed;
+			}
+		} while (r == 0);
+		if (completed == completed_before && started == started_before)
+>>>>>>> upstream/android-13
 			++spurious;
 		assert(completed <= bufs);
 		assert(started <= bufs);
@@ -203,7 +332,13 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
 	test = 0;
 	r = ioctl(dev->control, VHOST_TEST_RUN, &test);
 	assert(r >= 0);
+<<<<<<< HEAD
 	fprintf(stderr, "spurious wakeups: 0x%llx\n", spurious);
+=======
+	fprintf(stderr,
+		"spurious wakeups: 0x%llx started=0x%lx completed=0x%lx\n",
+		spurious, started, completed);
+>>>>>>> upstream/android-13
 }
 
 const char optstring[] = "h";
@@ -245,6 +380,19 @@ const struct option longopts[] = {
 		.val = 'd',
 	},
 	{
+<<<<<<< HEAD
+=======
+		.name = "batch",
+		.val = 'b',
+		.has_arg = required_argument,
+	},
+	{
+		.name = "reset",
+		.val = 'r',
+		.has_arg = optional_argument,
+	},
+	{
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -255,6 +403,11 @@ static void help(void)
 		" [--no-event-idx]"
 		" [--no-virtio-1]"
 		" [--delayed-interrupt]"
+<<<<<<< HEAD
+=======
+		" [--batch=random/N]"
+		" [--reset=N]"
+>>>>>>> upstream/android-13
 		"\n");
 }
 
@@ -263,6 +416,10 @@ int main(int argc, char **argv)
 	struct vdev_info dev;
 	unsigned long long features = (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
 		(1ULL << VIRTIO_RING_F_EVENT_IDX) | (1ULL << VIRTIO_F_VERSION_1);
+<<<<<<< HEAD
+=======
+	long batch = 1, reset = 0;
+>>>>>>> upstream/android-13
 	int o;
 	bool delayed = false;
 
@@ -289,6 +446,27 @@ int main(int argc, char **argv)
 		case 'D':
 			delayed = true;
 			break;
+<<<<<<< HEAD
+=======
+		case 'b':
+			if (0 == strcmp(optarg, "random")) {
+				batch = RANDOM_BATCH;
+			} else {
+				batch = strtol(optarg, NULL, 10);
+				assert(batch > 0);
+				assert(batch < (long)INT_MAX + 1);
+			}
+			break;
+		case 'r':
+			if (!optarg) {
+				reset = 1;
+			} else {
+				reset = strtol(optarg, NULL, 10);
+				assert(reset > 0);
+				assert(reset < (long)INT_MAX + 1);
+			}
+			break;
+>>>>>>> upstream/android-13
 		default:
 			assert(0);
 			break;
@@ -298,6 +476,10 @@ int main(int argc, char **argv)
 done:
 	vdev_info_init(&dev, features);
 	vq_info_add(&dev, 256);
+<<<<<<< HEAD
 	run_test(&dev, &dev.vqs[0], delayed, 0x100000);
+=======
+	run_test(&dev, &dev.vqs[0], delayed, batch, reset, 0x100000);
+>>>>>>> upstream/android-13
 	return 0;
 }

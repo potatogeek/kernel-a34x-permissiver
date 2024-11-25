@@ -193,7 +193,11 @@ static const struct pci_device_id intelfb_pci_table[] = {
 static int num_registered = 0;
 
 /* fb ops */
+<<<<<<< HEAD
 static struct fb_ops intel_fb_ops = {
+=======
+static const struct fb_ops intel_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner =		THIS_MODULE,
 	.fb_open =              intelfb_open,
 	.fb_release =           intelfb_release,
@@ -491,10 +495,16 @@ static int intelfb_pci_register(struct pci_dev *pdev,
 	}
 
 	info = framebuffer_alloc(sizeof(struct intelfb_info), &pdev->dev);
+<<<<<<< HEAD
 	if (!info) {
 		ERR_MSG("Could not allocate memory for intelfb_info.\n");
 		return -ENODEV;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	if (fb_alloc_cmap(&info->cmap, 256, 1) < 0) {
 		ERR_MSG("Could not allocate cmap for intelfb_info.\n");
 		goto err_out_cmap;
@@ -655,7 +665,11 @@ static int intelfb_pci_register(struct pci_dev *pdev,
 	}
 
 	dinfo->mmio_base =
+<<<<<<< HEAD
 		(u8 __iomem *)ioremap_nocache(dinfo->mmio_base_phys,
+=======
+		(u8 __iomem *)ioremap(dinfo->mmio_base_phys,
+>>>>>>> upstream/android-13
 					      INTEL_REG_SIZE);
 	if (!dinfo->mmio_base) {
 		ERR_MSG("Cannot remap MMIO region.\n");

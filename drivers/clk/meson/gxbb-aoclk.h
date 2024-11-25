@@ -7,6 +7,7 @@
 #ifndef __GXBB_AOCLKC_H
 #define __GXBB_AOCLKC_H
 
+<<<<<<< HEAD
 #define NR_CLKS	7
 
 /* AO Configuration Clock registers offsets */
@@ -26,6 +27,9 @@ struct aoclk_cec_32k {
 #define to_aoclk_cec_32k(_hw) container_of(_hw, struct aoclk_cec_32k, hw)
 
 extern const struct clk_ops meson_aoclk_cec_32k_ops;
+=======
+#define NR_CLKS	14
+>>>>>>> upstream/android-13
 
 #include <dt-bindings/clock/gxbb-aoclkc.h>
 #include <dt-bindings/reset/gxbb-aoclkc.h>

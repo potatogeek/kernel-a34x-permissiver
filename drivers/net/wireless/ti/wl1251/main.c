@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1251
  *
  * Copyright (C) 2008-2009 Nokia Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -572,7 +579,11 @@ static int wl1251_build_null_data(struct wl1251 *wl)
 out:
 	dev_kfree_skb(skb);
 	if (ret)
+<<<<<<< HEAD
 		wl1251_warning("cmd buld null data failed: %d", ret);
+=======
+		wl1251_warning("cmd build null data failed: %d", ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

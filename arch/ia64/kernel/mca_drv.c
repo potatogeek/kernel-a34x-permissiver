@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * File:	mca_drv.c
  * Purpose:	Generic MCA handling layer
@@ -14,7 +18,11 @@
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/kallsyms.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/acpi.h>
 #include <linux/timer.h>
 #include <linux/module.h>
@@ -25,7 +33,10 @@
 #include <linux/slab.h>
 
 #include <asm/delay.h>
+<<<<<<< HEAD
 #include <asm/machvec.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/ptrace.h>
 #include <asm/sal.h>
@@ -343,7 +354,11 @@ init_record_index_pools(void)
 
 	/* - 2 - */
 	sect_min_size = sal_log_sect_min_sizes[0];
+<<<<<<< HEAD
 	for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
+=======
+	for (i = 1; i < ARRAY_SIZE(sal_log_sect_min_sizes); i++)
+>>>>>>> upstream/android-13
 		if (sect_min_size > sal_log_sect_min_sizes[i])
 			sect_min_size = sal_log_sect_min_sizes[i];
 
@@ -496,7 +511,11 @@ recover_from_read_error(slidx_table_t *slidx,
 			struct ia64_sal_os_state *sos)
 {
 	u64 target_identifier;
+<<<<<<< HEAD
 	pal_min_state_area_t *pmsa;
+=======
+	struct pal_min_state_area *pmsa;
+>>>>>>> upstream/android-13
 	struct ia64_psr *psr1, *psr2;
 	ia64_fptr_t *mca_hdlr_bh = (ia64_fptr_t*)mca_handler_bhhook;
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  cx231xx-dif.h - driver for Conexant Cx23100/101/102 USB video capture devices
  *
  *  Copyright {C} 2009 <Bill.Liu@conexant.com>
+<<<<<<< HEAD
  *
  *  This program is free software, you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY, without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CX231XX_DIF_H

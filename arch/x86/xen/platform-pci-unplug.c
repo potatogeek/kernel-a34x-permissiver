@@ -1,8 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+
+>>>>>>> upstream/android-13
 /******************************************************************************
  * platform-pci-unplug.c
  *
  * Xen platform PCI device driver
  * Copyright (c) 2010, Citrix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -19,10 +25,20 @@
  *
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/export.h>
 
+<<<<<<< HEAD
+=======
+#include <xen/xen.h>
+>>>>>>> upstream/android-13
 #include <xen/platform_pci.h>
 #include "xen-ops.h"
 
@@ -30,7 +46,10 @@
 #define XEN_PLATFORM_ERR_PROTOCOL -2
 #define XEN_PLATFORM_ERR_BLACKLIST -3
 
+<<<<<<< HEAD
 #ifdef CONFIG_XEN_PVHVM
+=======
+>>>>>>> upstream/android-13
 /* store the value of xen_emul_unplug after the unplug is done */
 static int xen_platform_pci_unplug;
 static int xen_emul_unplug;
@@ -42,13 +61,21 @@ static int check_platform_magic(void)
 
 	magic = inw(XEN_IOPORT_MAGIC);
 	if (magic != XEN_IOPORT_MAGIC_VAL) {
+<<<<<<< HEAD
 		printk(KERN_ERR "Xen Platform PCI: unrecognised magic value\n");
+=======
+		pr_err("Xen Platform PCI: unrecognised magic value\n");
+>>>>>>> upstream/android-13
 		return XEN_PLATFORM_ERR_MAGIC;
 	}
 
 	protocol = inb(XEN_IOPORT_PROTOVER);
 
+<<<<<<< HEAD
 	printk(KERN_DEBUG "Xen Platform PCI: I/O protocol version %d\n",
+=======
+	pr_debug("Xen Platform PCI: I/O protocol version %d\n",
+>>>>>>> upstream/android-13
 			protocol);
 
 	switch (protocol) {
@@ -56,12 +83,20 @@ static int check_platform_magic(void)
 		outw(XEN_IOPORT_LINUX_PRODNUM, XEN_IOPORT_PRODNUM);
 		outl(XEN_IOPORT_LINUX_DRVVER, XEN_IOPORT_DRVVER);
 		if (inw(XEN_IOPORT_MAGIC) != XEN_IOPORT_MAGIC_VAL) {
+<<<<<<< HEAD
 			printk(KERN_ERR "Xen Platform: blacklisted by host\n");
+=======
+			pr_err("Xen Platform: blacklisted by host\n");
+>>>>>>> upstream/android-13
 			return XEN_PLATFORM_ERR_BLACKLIST;
 		}
 		break;
 	default:
+<<<<<<< HEAD
 		printk(KERN_WARNING "Xen Platform PCI: unknown I/O protocol version\n");
+=======
+		pr_warn("Xen Platform PCI: unknown I/O protocol version\n");
+>>>>>>> upstream/android-13
 		return XEN_PLATFORM_ERR_PROTOCOL;
 	}
 
@@ -167,12 +202,20 @@ void xen_unplug_emulated_devices(void)
 	 * been compiled for this kernel (modules or built-in are both OK). */
 	if (!xen_emul_unplug) {
 		if (xen_must_unplug_nics()) {
+<<<<<<< HEAD
 			printk(KERN_INFO "Netfront and the Xen platform PCI driver have "
+=======
+			pr_info("Netfront and the Xen platform PCI driver have "
+>>>>>>> upstream/android-13
 					"been compiled for this kernel: unplug emulated NICs.\n");
 			xen_emul_unplug |= XEN_UNPLUG_ALL_NICS;
 		}
 		if (xen_must_unplug_disks()) {
+<<<<<<< HEAD
 			printk(KERN_INFO "Blkfront and the Xen platform PCI driver have "
+=======
+			pr_info("Blkfront and the Xen platform PCI driver have "
+>>>>>>> upstream/android-13
 					"been compiled for this kernel: unplug emulated disks.\n"
 					"You might have to change the root device\n"
 					"from /dev/hd[a-d] to /dev/xvd[a-d]\n"
@@ -212,10 +255,17 @@ static int __init parse_xen_emul_unplug(char *arg)
 		else if (!strncmp(p, "never", l))
 			xen_emul_unplug |= XEN_UNPLUG_NEVER;
 		else
+<<<<<<< HEAD
 			printk(KERN_WARNING "unrecognised option '%s' "
+=======
+			pr_warn("unrecognised option '%s' "
+>>>>>>> upstream/android-13
 				 "in parameter 'xen_emul_unplug'\n", p);
 	}
 	return 0;
 }
 early_param("xen_emul_unplug", parse_xen_emul_unplug);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13

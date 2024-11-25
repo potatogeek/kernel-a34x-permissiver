@@ -60,7 +60,11 @@
 		};
 	};
 
+<<<<<<< HEAD
 	L2: l2-cache {
+=======
+	L2: cache-controller {
+>>>>>>> upstream/android-13
 		compatible = "arm,pl310-cache";
 		reg = <0x1f002000 0x1000>;
 		cache-unified;

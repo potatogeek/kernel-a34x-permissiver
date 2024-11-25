@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * axp288_adc.c - X-Powers AXP288 PMIC ADC Driver
  *
  * Copyright (C) 2014 Intel Corporation
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dmi.h>
@@ -266,10 +273,15 @@ static int axp288_adc_probe(struct platform_device *pdev)
 
 	info = iio_priv(indio_dev);
 	info->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (info->irq < 0) {
 		dev_err(&pdev->dev, "no irq resource?\n");
 		return info->irq;
 	}
+=======
+	if (info->irq < 0)
+		return info->irq;
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, indio_dev);
 	info->regmap = axp20x->regmap;
 	/*
@@ -282,7 +294,10 @@ static int axp288_adc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = pdev->name;
 	indio_dev->channels = axp288_adc_channels;
 	indio_dev->num_channels = ARRAY_SIZE(axp288_adc_channels);

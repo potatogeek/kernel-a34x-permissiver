@@ -6,6 +6,7 @@
 #ifndef __KCS_BMC_H__
 #define __KCS_BMC_H__
 
+<<<<<<< HEAD
 #include <linux/miscdevice.h>
 
 /* Different phases of the KCS BMC module.
@@ -54,6 +55,16 @@ enum kcs_errors {
 	KCS_LENGTH_ERROR            = 0x06,
 	KCS_UNSPECIFIED_ERROR       = 0xFF
 };
+=======
+#include <linux/list.h>
+
+#define KCS_BMC_EVENT_TYPE_OBE	BIT(0)
+#define KCS_BMC_EVENT_TYPE_IBF	BIT(1)
+
+#define KCS_BMC_STR_OBF		BIT(0)
+#define KCS_BMC_STR_IBF		BIT(1)
+#define KCS_BMC_STR_CMD_DAT	BIT(3)
+>>>>>>> upstream/android-13
 
 /* IPMI 2.0 - 9.5, KCS Interface Registers
  * @idr: Input Data Register
@@ -66,6 +77,7 @@ struct kcs_ioreg {
 	u32 str;
 };
 
+<<<<<<< HEAD
 struct kcs_bmc {
 	spinlock_t lock;
 
@@ -105,4 +117,23 @@ static inline void *kcs_bmc_priv(struct kcs_bmc *kcs_bmc)
 int kcs_bmc_handle_event(struct kcs_bmc *kcs_bmc);
 struct kcs_bmc *kcs_bmc_alloc(struct device *dev, int sizeof_priv,
 					u32 channel);
+=======
+struct kcs_bmc_device_ops;
+struct kcs_bmc_client;
+
+struct kcs_bmc_device {
+	struct list_head entry;
+
+	struct device *dev;
+	u32 channel;
+
+	struct kcs_ioreg ioreg;
+
+	const struct kcs_bmc_device_ops *ops;
+
+	spinlock_t lock;
+	struct kcs_bmc_client *client;
+};
+
+>>>>>>> upstream/android-13
 #endif /* __KCS_BMC_H__ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Hypervisor Maintenance Interrupt header file.
  *
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Hypervisor Maintenance Interrupt header file.
+ *
+>>>>>>> upstream/android-13
  * Copyright 2015 IBM Corporation
  * Author: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
  */

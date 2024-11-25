@@ -33,18 +33,30 @@ typedef enum
 
 /* sub command */
 enum {
+<<<<<<< HEAD
 	SCREEN_STATE = 0,
 	AP_RESUME,
 	AP_SUSPEND,
 	TIME_SYNC,
 	LCD_LPM, // Reserved
+=======
+	AP_SHUTDOWN = 0,
+	AP_RESUME,
+	AP_SUSPEND,
+	SYSTEM_TIME,
+	RTC_TIME,
+>>>>>>> upstream/android-13
 	LCD_ON,
 	LCD_OFF,
 	POW_CONNECTED,
 	POW_DISCONNECTED,
 	CALL_IDLE,
 	CALL_ACTIVE = 10,
+<<<<<<< HEAD
 	COPR_STATUS,
+=======
+	WHO_AM_I,
+>>>>>>> upstream/android-13
 	HUB_SYSTEM_INFO,
 	MOBEAM_DATA,
 	MOBEAM_HOP_TABLE,
@@ -99,11 +111,16 @@ enum {
 	DDI_COPR,
 	TEST_COPR,
 	COPR_ROIX,
+<<<<<<< HEAD
 	CMD_CTS_STATE_NOTIFICATION,
+=======
+	PANEL_STATE,
+>>>>>>> upstream/android-13
 	DEBUG_INFO,
 	MAGNETIC_COVER_MATRIX,
 	EXTRA_EXTERNAL_CLIENT_ADDED,
 	EXTRA_EXTERNAL_CLIENT_REMOVED,
+<<<<<<< HEAD
 	TYPE_OPTIONAL_PROXIMITY = 71, // TYPE_OPTIONAL_PROXIMITY in SensorService side. @ref ISensorHubCmdProtocol.java
 	// 72 (0x48)                  // DISPLAY_REFRESH_RATE @ref SensorAdditionalInfo.java
 	// 73 (0x49)                  // WIFI_DATA_ACTIVITY_ @ref SensorAdditionalInfo.java
@@ -115,4 +132,8 @@ enum {
 /* common operation for each sensor */
 #define DATA_INJECTION 125
 
+=======
+	CMD_VALUE_MAX,
+};
+>>>>>>> upstream/android-13
 #endif

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #include <linux/seq_file.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/cpumask.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -104,6 +108,12 @@ int __init irq_remapping_prepare(void)
 	else if (IS_ENABLED(CONFIG_AMD_IOMMU) &&
 		 amd_iommu_irq_ops.prepare() == 0)
 		remap_ops = &amd_iommu_irq_ops;
+<<<<<<< HEAD
+=======
+	else if (IS_ENABLED(CONFIG_HYPERV_IOMMU) &&
+		 hyperv_irq_remap_ops.prepare() == 0)
+		remap_ops = &hyperv_irq_remap_ops;
+>>>>>>> upstream/android-13
 	else
 		return -ENOSYS;
 
@@ -155,6 +165,7 @@ void panic_if_irq_remap(const char *msg)
 	if (irq_remapping_enabled)
 		panic(msg);
 }
+<<<<<<< HEAD
 
 /**
  * irq_remapping_get_ir_irq_domain - Get the irqdomain associated with the IOMMU
@@ -190,3 +201,5 @@ irq_remapping_get_irq_domain(struct irq_alloc_info *info)
 
 	return remap_ops->get_irq_domain(info);
 }
+=======
+>>>>>>> upstream/android-13

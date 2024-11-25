@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config INFINIBAND_QEDR
 	tristate "QLogic RoCE driver"
 	depends on 64BIT && QEDE
@@ -5,6 +9,10 @@ config INFINIBAND_QEDR
 	select QED_LL2
 	select QED_OOO
 	select QED_RDMA
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver provides low-level InfiniBand over Ethernet
 	  support for QLogic QED host channel adapters (HCAs).

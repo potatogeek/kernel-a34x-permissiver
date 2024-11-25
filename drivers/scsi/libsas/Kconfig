@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Kernel configuration file for the SAS Class
 #
 # Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
 # Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
 #
+<<<<<<< HEAD
 # This file is licensed under GPLv2.
 #
 # This program is free software; you can redistribute it and/or
@@ -21,12 +26,17 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 #
+=======
+>>>>>>> upstream/android-13
 
 config SCSI_SAS_LIBSAS
 	tristate "SAS Domain Transport Attributes"
 	depends on SCSI
 	select SCSI_SAS_ATTRS
+<<<<<<< HEAD
 	select BLK_DEV_BSGLIB
+=======
+>>>>>>> upstream/android-13
 	help
 	  This provides transport specific helpers for SAS drivers which
 	  use the domain device construct (like the aic94xxx).
@@ -35,6 +45,10 @@ config SCSI_SAS_ATA
 	bool "ATA support for libsas (requires libata)"
 	depends on SCSI_SAS_LIBSAS
 	depends on ATA = y || ATA = SCSI_SAS_LIBSAS
+<<<<<<< HEAD
+=======
+	select SATA_HOST
+>>>>>>> upstream/android-13
 	help
 		Builds in ATA support into libsas.  Will necessitate
 		the loading of libata along with libsas.

@@ -3,17 +3,30 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
+<<<<<<< HEAD
 #include <linux/bpf.h>
+=======
+>>>>>>> upstream/android-13
 #include <string.h>
 #include <sys/resource.h>
 
 #include <bpf/bpf.h>
+<<<<<<< HEAD
 #include "bpf_load.h"
+=======
+#include <bpf/libbpf.h>
+>>>>>>> upstream/android-13
 #include "bpf_util.h"
 
 #define MAX_INDEX	64
 #define MAX_STARS	38
 
+<<<<<<< HEAD
+=======
+/* my_map, my_hist_map */
+static int map_fd[2];
+
+>>>>>>> upstream/android-13
 static void stars(char *str, long val, long max, int width)
 {
 	int i;
@@ -114,6 +127,7 @@ static void int_exit(int sig)
 
 int main(int ac, char **argv)
 {
+<<<<<<< HEAD
 	struct rlimit r = {1024*1024, RLIM_INFINITY};
 	char filename[256];
 	long key, next_key, value;
@@ -125,22 +139,65 @@ int main(int ac, char **argv)
 	if (setrlimit(RLIMIT_MEMLOCK, &r)) {
 		perror("setrlimit(RLIMIT_MEMLOCK)");
 		return 1;
+=======
+	long key, next_key, value;
+	struct bpf_link *links[2];
+	struct bpf_program *prog;
+	struct bpf_object *obj;
+	char filename[256];
+	int i, j = 0;
+	FILE *f;
+
+	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
+	obj = bpf_object__open_file(filename, NULL);
+	if (libbpf_get_error(obj)) {
+		fprintf(stderr, "ERROR: opening BPF object file failed\n");
+		return 0;
+	}
+
+	/* load BPF program */
+	if (bpf_object__load(obj)) {
+		fprintf(stderr, "ERROR: loading BPF object file failed\n");
+		goto cleanup;
+	}
+
+	map_fd[0] = bpf_object__find_map_fd_by_name(obj, "my_map");
+	map_fd[1] = bpf_object__find_map_fd_by_name(obj, "my_hist_map");
+	if (map_fd[0] < 0 || map_fd[1] < 0) {
+		fprintf(stderr, "ERROR: finding a map in obj file failed\n");
+		goto cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	signal(SIGINT, int_exit);
 	signal(SIGTERM, int_exit);
 
 	/* start 'ping' in the background to have some kfree_skb events */
+<<<<<<< HEAD
 	f = popen("ping -c5 localhost", "r");
+=======
+	f = popen("ping -4 -c5 localhost", "r");
+>>>>>>> upstream/android-13
 	(void) f;
 
 	/* start 'dd' in the background to have plenty of 'write' syscalls */
 	f = popen("dd if=/dev/zero of=/dev/null count=5000000", "r");
 	(void) f;
 
+<<<<<<< HEAD
 	if (load_bpf_file(filename)) {
 		printf("%s", bpf_log_buf);
 		return 1;
+=======
+	bpf_object__for_each_program(prog, obj) {
+		links[j] = bpf_program__attach(prog);
+		if (libbpf_get_error(links[j])) {
+			fprintf(stderr, "ERROR: bpf_program__attach failed\n");
+			links[j] = NULL;
+			goto cleanup;
+		}
+		j++;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < 5; i++) {
@@ -156,5 +213,13 @@ int main(int ac, char **argv)
 	}
 	print_hist(map_fd[1]);
 
+<<<<<<< HEAD
+=======
+cleanup:
+	for (j--; j >= 0; j--)
+		bpf_link__destroy(links[j]);
+
+	bpf_object__close(obj);
+>>>>>>> upstream/android-13
 	return 0;
 }

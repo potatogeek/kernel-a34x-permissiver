@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/acorn/scsi/acornscsi.c
  *
  *  Acorn SCSI 3 driver
  *  By R.M.King.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Abandoned using the Select and Transfer command since there were
  * some nasty races between our software and the target devices that
  * were not easy to solve, and the device errata had a lot of entries
@@ -55,12 +62,17 @@
  * You can tell if you have a device that supports tagged queueing my
  * cating (eg) /proc/scsi/acornscsi/0 and see if the SCSI revision is reported
  * as '2 TAG'.
+<<<<<<< HEAD
  *
  * Also note that CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE is normally set in the config
  * scripts, but disabled here.  Once debugged, remove the #undef, otherwise to debug,
  * comment out the undef.
  */
 #undef CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE
+=======
+ */
+
+>>>>>>> upstream/android-13
 /*
  * SCSI-II Synchronous transfer support.
  *
@@ -147,12 +159,15 @@
 #define VER_MINOR 0
 #define VER_PATCH 6
 
+<<<<<<< HEAD
 #ifndef ABORT_TAG
 #define ABORT_TAG 0xd
 #else
 #error "Yippee!  ABORT TAG is now defined!  Remove this error!"
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef USE_DMAC
 /*
  * DMAC setup parameters
@@ -180,7 +195,11 @@ static void acornscsi_done(AS_Host *host, struct scsi_cmnd **SCpntp,
 			   unsigned int result);
 static int acornscsi_reconnect_finish(AS_Host *host);
 static void acornscsi_dma_cleanup(AS_Host *host);
+<<<<<<< HEAD
 static void acornscsi_abortcmd(AS_Host *host, unsigned char tag);
+=======
+static void acornscsi_abortcmd(AS_Host *host);
+>>>>>>> upstream/android-13
 
 /* ====================================================================================
  * Miscellaneous
@@ -750,6 +769,7 @@ intr_ret_t acornscsi_kick(AS_Host *host)
 #endif
 
     if (from_queue) {
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE
 	/*
 	 * tagged queueing - allocate a new tag to this command
@@ -761,6 +781,8 @@ intr_ret_t acornscsi_kick(AS_Host *host)
 	    SCpnt->tag = SCpnt->device->current_tag;
 	} else
 #endif
+=======
+>>>>>>> upstream/android-13
 	    set_bit(SCpnt->device->id * 8 +
 		    (u8)(SCpnt->device->lun & 0x07), host->busyluns);
 
@@ -803,7 +825,14 @@ static void acornscsi_done(AS_Host *host, struct scsi_cmnd **SCpntp,
 
 	acornscsi_dma_cleanup(host);
 
+<<<<<<< HEAD
 	SCpnt->result = result << 16 | host->scsi.SCp.Message << 8 | host->scsi.SCp.Status;
+=======
+	set_host_byte(SCpnt, result);
+	if (result == DID_OK)
+		scsi_msg_to_host_byte(SCpnt, host->scsi.SCp.Message);
+	set_status_byte(SCpnt, host->scsi.SCp.Status);
+>>>>>>> upstream/android-13
 
 	/*
 	 * In theory, this should not happen.  In practice, it seems to.
@@ -842,12 +871,21 @@ static void acornscsi_done(AS_Host *host, struct scsi_cmnd **SCpntp,
 			xfer_warn = 0;
 
 		if (xfer_warn) {
+<<<<<<< HEAD
 		    switch (status_byte(SCpnt->result)) {
 		    case CHECK_CONDITION:
 		    case COMMAND_TERMINATED:
 		    case BUSY:
 		    case QUEUE_FULL:
 		    case RESERVATION_CONFLICT:
+=======
+		    switch (get_status_byte(SCpnt)) {
+		    case SAM_STAT_CHECK_CONDITION:
+		    case SAM_STAT_COMMAND_TERMINATED:
+		    case SAM_STAT_BUSY:
+		    case SAM_STAT_TASK_SET_FULL:
+		    case SAM_STAT_RESERVATION_CONFLICT:
+>>>>>>> upstream/android-13
 			break;
 
 		    default:
@@ -1070,7 +1108,11 @@ void acornscsi_dma_setup(AS_Host *host, dmadir_t direction)
  * Purpose : ensure that all DMA transfers are up-to-date & host->scsi.SCp is correct
  * Params  : host - host to finish
  * Notes   : This is called when a command is:
+<<<<<<< HEAD
  *		terminating, RESTORE_POINTERS, SAVE_POINTERS, DISCONECT
+=======
+ *		terminating, RESTORE_POINTERS, SAVE_POINTERS, DISCONNECT
+>>>>>>> upstream/android-13
  *	   : This must not return until all transfers are completed.
  */
 static
@@ -1198,7 +1240,11 @@ void acornscsi_dma_intr(AS_Host *host)
 	 * the device recognises the attention.
 	 */
 	if (dmac_read(host, DMAC_STATUS) & STATUS_RQ0) {
+<<<<<<< HEAD
 	    acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+	    acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 
 	    dmac_write(host, DMAC_TXCNTLO, 0);
 	    dmac_write(host, DMAC_TXCNTHI, 0);
@@ -1493,8 +1539,13 @@ void acornscsi_message(AS_Host *host)
     }
 
     switch (message[0]) {
+<<<<<<< HEAD
     case ABORT:
     case ABORT_TAG:
+=======
+    case ABORT_TASK_SET:
+    case ABORT_TASK:
+>>>>>>> upstream/android-13
     case COMMAND_COMPLETE:
 	if (host->scsi.phase != PHASE_STATUSIN) {
 	    printk(KERN_ERR "scsi%d.%c: command complete following non-status in phase?\n",
@@ -1566,6 +1617,7 @@ void acornscsi_message(AS_Host *host)
 	    acornscsi_sbic_issuecmd(host, CMND_ASSERTATN);
 
 	switch (host->scsi.last_message) {
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE
 	case HEAD_OF_QUEUE_TAG:
 	case ORDERED_QUEUE_TAG:
@@ -1583,6 +1635,8 @@ void acornscsi_message(AS_Host *host)
 		    (u8)(host->SCpnt->device->lun & 0x7), host->busyluns);
 	    break;
 #endif
+=======
+>>>>>>> upstream/android-13
 	case EXTENDED_MESSAGE | (EXTENDED_SDTR << 8):
 	    /*
 	     * Target can't handle synchronous transfers
@@ -1599,10 +1653,13 @@ void acornscsi_message(AS_Host *host)
 	}
 	break;
 
+<<<<<<< HEAD
     case QUEUE_FULL:
 	/* TODO: target queue is full */
 	break;
 
+=======
+>>>>>>> upstream/android-13
     case SIMPLE_QUEUE_TAG:
 	/* tag queue reconnect... message[1] = queue tag.  Print something to indicate something happened! */
 	printk("scsi%d.%c: reconnect queue tag %02X\n",
@@ -1697,11 +1754,16 @@ void acornscsi_buildmessages(AS_Host *host)
 #if 0
     /* does the device need the current command aborted */
     if (cmd_aborted) {
+<<<<<<< HEAD
 	acornscsi_abortcmd(host->SCpnt->tag);
+=======
+	acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	return;
     }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE
     if (host->SCpnt->tag) {
 	unsigned int tag_type;
@@ -1715,6 +1777,8 @@ void acornscsi_buildmessages(AS_Host *host)
 	msgqueue_addmsg(&host->scsi.msgs, 2, tag_type, host->SCpnt->tag);
     }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SCSI_ACORNSCSI_SYNC
     if (host->device[host->SCpnt->device->id].sync_state == SYNC_NEGOCIATE) {
@@ -1808,7 +1872,11 @@ int acornscsi_reconnect(AS_Host *host)
 		"to reconnect with\n",
 		host->host->host_no, '0' + target);
 	acornscsi_dumplog(host, target);
+<<<<<<< HEAD
 	acornscsi_abortcmd(host, 0);
+=======
+	acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	if (host->SCpnt) {
 	    queue_add_cmd_tail(&host->queues.disconnected, host->SCpnt);
 	    host->SCpnt = NULL;
@@ -1819,7 +1887,11 @@ int acornscsi_reconnect(AS_Host *host)
 }
 
 /*
+<<<<<<< HEAD
  * Function: int acornscsi_reconect_finish(AS_Host *host)
+=======
+ * Function: int acornscsi_reconnect_finish(AS_Host *host)
+>>>>>>> upstream/android-13
  * Purpose : finish reconnecting a command
  * Params  : host - host to complete
  * Returns : 0 if failed
@@ -1831,7 +1903,11 @@ int acornscsi_reconnect_finish(AS_Host *host)
 	host->scsi.disconnectable = 0;
 	if (host->SCpnt->device->id  == host->scsi.reconnected.target &&
 	    host->SCpnt->device->lun == host->scsi.reconnected.lun &&
+<<<<<<< HEAD
 	    host->SCpnt->tag         == host->scsi.reconnected.tag) {
+=======
+	    scsi_cmd_to_rq(host->SCpnt)->tag == host->scsi.reconnected.tag) {
+>>>>>>> upstream/android-13
 #if (DEBUG & (DEBUG_QUEUES|DEBUG_DISCON))
 	    DBG(host->SCpnt, printk("scsi%d.%c: reconnected",
 		    host->host->host_no, acornscsi_target(host)));
@@ -1858,7 +1934,11 @@ int acornscsi_reconnect_finish(AS_Host *host)
     }
 
     if (!host->SCpnt)
+<<<<<<< HEAD
 	acornscsi_abortcmd(host, host->scsi.reconnected.tag);
+=======
+	acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
     else {
 	/*
 	 * Restore data pointer from SAVED pointers.
@@ -1899,21 +1979,31 @@ void acornscsi_disconnect_unexpected(AS_Host *host)
  * Function: void acornscsi_abortcmd(AS_host *host, unsigned char tag)
  * Purpose : abort a currently executing command
  * Params  : host - host with connected command to abort
+<<<<<<< HEAD
  *	     tag  - tag to abort
  */
 static
 void acornscsi_abortcmd(AS_Host *host, unsigned char tag)
+=======
+ */
+static
+void acornscsi_abortcmd(AS_Host *host)
+>>>>>>> upstream/android-13
 {
     host->scsi.phase = PHASE_ABORTED;
     sbic_arm_write(host, SBIC_CMND, CMND_ASSERTATN);
 
     msgqueue_flush(&host->scsi.msgs);
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE
     if (tag)
 	msgqueue_addmsg(&host->scsi.msgs, 2, ABORT_TAG, tag);
     else
 #endif
 	msgqueue_addmsg(&host->scsi.msgs, 1, ABORT);
+=======
+    msgqueue_addmsg(&host->scsi.msgs, 1, ABORT);
+>>>>>>> upstream/android-13
 }
 
 /* ==========================================================================================
@@ -2003,7 +2093,11 @@ intr_ret_t acornscsi_sbicintr(AS_Host *host, int in_irq)
 	    printk(KERN_ERR "scsi%d.%c: PHASE_CONNECTING, SSR %02X?\n",
 		    host->host->host_no, acornscsi_target(host), ssr);
 	    acornscsi_dumplog(host, host->SCpnt ? host->SCpnt->device->id : 8);
+<<<<<<< HEAD
 	    acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+	    acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	}
 	return INTR_PROCESSING;
 
@@ -2039,7 +2133,11 @@ intr_ret_t acornscsi_sbicintr(AS_Host *host, int in_irq)
 	    printk(KERN_ERR "scsi%d.%c: PHASE_CONNECTED, SSR %02X?\n",
 		    host->host->host_no, acornscsi_target(host), ssr);
 	    acornscsi_dumplog(host, host->SCpnt ? host->SCpnt->device->id : 8);
+<<<<<<< HEAD
 	    acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+	    acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	}
 	return INTR_PROCESSING;
 
@@ -2085,20 +2183,34 @@ intr_ret_t acornscsi_sbicintr(AS_Host *host, int in_irq)
 	case 0x18:			/* -> PHASE_DATAOUT				*/
 	    /* COMMAND -> DATA OUT */
 	    if (host->scsi.SCp.sent_command != host->SCpnt->cmd_len)
+<<<<<<< HEAD
 		acornscsi_abortcmd(host, host->SCpnt->tag);
 	    acornscsi_dma_setup(host, DMA_OUT);
 	    if (!acornscsi_starttransfer(host))
 		acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+		acornscsi_abortcmd(host);
+	    acornscsi_dma_setup(host, DMA_OUT);
+	    if (!acornscsi_starttransfer(host))
+		acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	    host->scsi.phase = PHASE_DATAOUT;
 	    return INTR_IDLE;
 
 	case 0x19:			/* -> PHASE_DATAIN				*/
 	    /* COMMAND -> DATA IN */
 	    if (host->scsi.SCp.sent_command != host->SCpnt->cmd_len)
+<<<<<<< HEAD
 		acornscsi_abortcmd(host, host->SCpnt->tag);
 	    acornscsi_dma_setup(host, DMA_IN);
 	    if (!acornscsi_starttransfer(host))
 		acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+		acornscsi_abortcmd(host);
+	    acornscsi_dma_setup(host, DMA_IN);
+	    if (!acornscsi_starttransfer(host))
+		acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	    host->scsi.phase = PHASE_DATAIN;
 	    return INTR_IDLE;
 
@@ -2166,7 +2278,11 @@ intr_ret_t acornscsi_sbicintr(AS_Host *host, int in_irq)
 	    /* MESSAGE IN -> DATA OUT */
 	    acornscsi_dma_setup(host, DMA_OUT);
 	    if (!acornscsi_starttransfer(host))
+<<<<<<< HEAD
 		acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+		acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	    host->scsi.phase = PHASE_DATAOUT;
 	    return INTR_IDLE;
 
@@ -2175,7 +2291,11 @@ intr_ret_t acornscsi_sbicintr(AS_Host *host, int in_irq)
 	    /* MESSAGE IN -> DATA IN */
 	    acornscsi_dma_setup(host, DMA_IN);
 	    if (!acornscsi_starttransfer(host))
+<<<<<<< HEAD
 		acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+		acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	    host->scsi.phase = PHASE_DATAIN;
 	    return INTR_IDLE;
 
@@ -2216,7 +2336,11 @@ intr_ret_t acornscsi_sbicintr(AS_Host *host, int in_irq)
 	switch (ssr) {
 	case 0x19:			/* -> PHASE_DATAIN				*/
 	case 0x89:			/* -> PHASE_DATAIN				*/
+<<<<<<< HEAD
 	    acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+	    acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	    return INTR_IDLE;
 
 	case 0x1b:			/* -> PHASE_STATUSIN				*/
@@ -2265,7 +2389,11 @@ intr_ret_t acornscsi_sbicintr(AS_Host *host, int in_irq)
 	switch (ssr) {
 	case 0x18:			/* -> PHASE_DATAOUT				*/
 	case 0x88:			/* -> PHASE_DATAOUT				*/
+<<<<<<< HEAD
 	    acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+	    acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 	    return INTR_IDLE;
 
 	case 0x1b:			/* -> PHASE_STATUSIN				*/
@@ -2483,7 +2611,11 @@ static int acornscsi_queuecmd_lck(struct scsi_cmnd *SCpnt,
     if (acornscsi_cmdtype(SCpnt->cmnd[0]) == CMD_WRITE && (NO_WRITE & (1 << SCpnt->device->id))) {
 	printk(KERN_CRIT "scsi%d.%c: WRITE attempted with NO_WRITE flag set\n",
 	    host->host->host_no, '0' + SCpnt->device->id);
+<<<<<<< HEAD
 	SCpnt->result = DID_NO_CONNECT << 16;
+=======
+	set_host_byte(SCpnt, DID_NO_CONNECT);
+>>>>>>> upstream/android-13
 	done(SCpnt);
 	return 0;
     }
@@ -2492,7 +2624,10 @@ static int acornscsi_queuecmd_lck(struct scsi_cmnd *SCpnt,
     SCpnt->scsi_done = done;
     SCpnt->host_scribble = NULL;
     SCpnt->result = 0;
+<<<<<<< HEAD
     SCpnt->tag = 0;
+=======
+>>>>>>> upstream/android-13
     SCpnt->SCp.phase = (int)acornscsi_datadirection(SCpnt->cmnd[0]);
     SCpnt->SCp.sent_command = 0;
     SCpnt->SCp.scsi_xferred = 0;
@@ -2505,7 +2640,11 @@ static int acornscsi_queuecmd_lck(struct scsi_cmnd *SCpnt,
 	unsigned long flags;
 
 	if (!queue_add_cmd_ordered(&host->queues.issue, SCpnt)) {
+<<<<<<< HEAD
 	    SCpnt->result = DID_ERROR << 16;
+=======
+		set_host_byte(SCpnt, DID_ERROR);
+>>>>>>> upstream/android-13
 	    done(SCpnt);
 	    return 0;
 	}
@@ -2519,6 +2658,7 @@ static int acornscsi_queuecmd_lck(struct scsi_cmnd *SCpnt,
 
 DEF_SCSI_QCMD(acornscsi_queuecmd)
 
+<<<<<<< HEAD
 /*
  * Prototype: void acornscsi_reportstatus(struct scsi_cmnd **SCpntp1, struct scsi_cmnd **SCpntp2, int result)
  * Purpose  : pass a result to *SCpntp1, and check if *SCpntp1 = *SCpntp2
@@ -2544,6 +2684,8 @@ static inline void acornscsi_reportstatus(struct scsi_cmnd **SCpntp1,
 	*SCpntp2 = NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 enum res_abort { res_not_running, res_success, res_success_clear, res_snooze };
 
 /*
@@ -2616,7 +2758,11 @@ static enum res_abort acornscsi_do_abort(AS_Host *host, struct scsi_cmnd *SCpnt)
 			break;
 
 		default:
+<<<<<<< HEAD
 			acornscsi_abortcmd(host, host->SCpnt->tag);
+=======
+			acornscsi_abortcmd(host);
+>>>>>>> upstream/android-13
 			res = res_snooze;
 		}
 		local_irq_restore(flags);
@@ -2677,6 +2823,10 @@ int acornscsi_abort(struct scsi_cmnd *SCpnt)
 //#endif
 		clear_bit(SCpnt->device->id * 8 +
 			  (u8)(SCpnt->device->lun & 0x7), host->busyluns);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We found the command, and cleared it out.  Either
@@ -2781,9 +2931,12 @@ char *acornscsi_info(struct Scsi_Host *host)
 #ifdef CONFIG_SCSI_ACORNSCSI_SYNC
     " SYNC"
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE
     " TAG"
 #endif
+=======
+>>>>>>> upstream/android-13
 #if (DEBUG & DEBUG_NO_WRITE)
     " NOWRITE (" __stringify(NO_WRITE) ")"
 #endif
@@ -2804,9 +2957,12 @@ static int acornscsi_show_info(struct seq_file *m, struct Scsi_Host *instance)
 #ifdef CONFIG_SCSI_ACORNSCSI_SYNC
     " SYNC"
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_ACORNSCSI_TAGGED_QUEUE
     " TAG"
 #endif
+=======
+>>>>>>> upstream/android-13
 #if (DEBUG & DEBUG_NO_WRITE)
     " NOWRITE (" __stringify(NO_WRITE) ")"
 #endif
@@ -2861,9 +3017,14 @@ static int acornscsi_show_info(struct seq_file *m, struct Scsi_Host *instance)
 	seq_printf(m, "Device/Lun TaggedQ      Sync\n");
 	seq_printf(m, "     %d/%llu   ", scd->id, scd->lun);
 	if (scd->tagged_supported)
+<<<<<<< HEAD
 		seq_printf(m, "%3sabled(%3d) ",
 			     scd->simple_tags ? "en" : "dis",
 			     scd->current_tag);
+=======
+		seq_printf(m, "%3sabled ",
+			     scd->simple_tags ? "en" : "dis");
+>>>>>>> upstream/android-13
 	else
 		seq_printf(m, "unsupported  ");
 
@@ -2890,7 +3051,11 @@ static struct scsi_host_template acornscsi_template = {
 	.this_id		= 7,
 	.sg_tablesize		= SG_ALL,
 	.cmd_per_lun		= 2,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 	.proc_name		= "acornscsi",
 };
 

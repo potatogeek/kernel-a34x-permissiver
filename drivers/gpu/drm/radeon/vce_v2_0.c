@@ -26,10 +26,18 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "cikd.h"
+=======
+
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "cikd.h"
+#include "vce.h"
+>>>>>>> upstream/android-13
 
 #define VCE_V2_0_FW_SIZE	(256 * 1024)
 #define VCE_V2_0_STACK_SIZE	(64 * 1024)

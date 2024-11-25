@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 STMicroelectronics R&D Ltd
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 STMicroelectronics R&D Ltd
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -70,8 +76,22 @@ struct clkgen_quadfs_data {
 			unsigned long *);
 };
 
+<<<<<<< HEAD
 static const struct clk_ops st_quadfs_pll_c32_ops;
 static const struct clk_ops st_quadfs_fs660c32_ops;
+=======
+struct clkgen_clk_out {
+	const char *name;
+	unsigned long flags;
+};
+
+struct clkgen_quadfs_data_clks {
+	struct clkgen_quadfs_data *data;
+	const struct clkgen_clk_out *outputs;
+};
+
+static const struct clk_ops st_quadfs_pll_c32_ops;
+>>>>>>> upstream/android-13
 
 static int clk_fs660c32_dig_get_params(unsigned long input,
 		unsigned long output, struct stm_fs *fs);
@@ -120,6 +140,21 @@ static const struct clkgen_quadfs_data st_fs660c32_C = {
 	.get_rate	= clk_fs660c32_dig_get_rate,
 };
 
+<<<<<<< HEAD
+=======
+static const struct clkgen_clk_out st_fs660c32_C_clks[] = {
+	{ .name = "clk-s-c0-fs0-ch0",	},
+	{ .name = "clk-s-c0-fs0-ch1",	},
+	{ .name = "clk-s-c0-fs0-ch2",	},
+	{ .name = "clk-s-c0-fs0-ch3",	},
+};
+
+static const struct clkgen_quadfs_data_clks st_fs660c32_C_data = {
+	.data	= (struct clkgen_quadfs_data *)&st_fs660c32_C,
+	.outputs	= st_fs660c32_C_clks,
+};
+
+>>>>>>> upstream/android-13
 static const struct clkgen_quadfs_data st_fs660c32_D = {
 	.nrst_present = true,
 	.nrst	= { CLKGEN_FIELD(0x2a0, 0x1, 0),
@@ -161,6 +196,49 @@ static const struct clkgen_quadfs_data st_fs660c32_D = {
 	.get_params	= clk_fs660c32_dig_get_params,
 	.get_rate	= clk_fs660c32_dig_get_rate,};
 
+<<<<<<< HEAD
+=======
+static const struct clkgen_quadfs_data_clks st_fs660c32_D_data = {
+	.data	= (struct clkgen_quadfs_data *)&st_fs660c32_D,
+};
+
+static const struct clkgen_clk_out st_fs660c32_D0_clks[] = {
+	{ .name = "clk-s-d0-fs0-ch0",	},
+	{ .name = "clk-s-d0-fs0-ch1",	},
+	{ .name = "clk-s-d0-fs0-ch2",	},
+	{ .name = "clk-s-d0-fs0-ch3",	},
+};
+
+static const struct clkgen_quadfs_data_clks st_fs660c32_D0_data = {
+	.data	= (struct clkgen_quadfs_data *)&st_fs660c32_D,
+	.outputs	= st_fs660c32_D0_clks,
+};
+
+static const struct clkgen_clk_out st_fs660c32_D2_clks[] = {
+	{ .name = "clk-s-d2-fs0-ch0",	},
+	{ .name = "clk-s-d2-fs0-ch1",	},
+	{ .name = "clk-s-d2-fs0-ch2",	},
+	{ .name = "clk-s-d2-fs0-ch3",	},
+};
+
+static const struct clkgen_quadfs_data_clks st_fs660c32_D2_data = {
+	.data	= (struct clkgen_quadfs_data *)&st_fs660c32_D,
+	.outputs	= st_fs660c32_D2_clks,
+};
+
+static const struct clkgen_clk_out st_fs660c32_D3_clks[] = {
+	{ .name = "clk-s-d3-fs0-ch0",	},
+	{ .name = "clk-s-d3-fs0-ch1",	},
+	{ .name = "clk-s-d3-fs0-ch2",	},
+	{ .name = "clk-s-d3-fs0-ch3",	},
+};
+
+static const struct clkgen_quadfs_data_clks st_fs660c32_D3_data = {
+	.data	= (struct clkgen_quadfs_data *)&st_fs660c32_D,
+	.outputs	= st_fs660c32_D3_clks,
+};
+
+>>>>>>> upstream/android-13
 /**
  * DOC: A Frequency Synthesizer that multiples its input clock by a fixed factor
  *
@@ -177,10 +255,17 @@ static const struct clkgen_quadfs_data st_fs660c32_D = {
  *                                  ST quad channel frequency synthesizer block
  *
  * @hw: handle between common and hardware-specific interfaces.
+<<<<<<< HEAD
  * @ndiv: regmap field for the ndiv control.
  * @regs_base: base address of the configuration registers.
  * @lock: spinlock.
  *
+=======
+ * @regs_base: base address of the configuration registers.
+ * @lock: spinlock.
+ * @data: local driver data
+ * @ndiv: regmap field for the ndiv control.
+>>>>>>> upstream/android-13
  */
 struct st_clk_quadfs_pll {
 	struct clk_hw	hw;
@@ -390,7 +475,11 @@ static struct clk * __init st_clk_register_quadfs_pll(
 {
 	struct st_clk_quadfs_pll *pll;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Sanity check required pointers.
@@ -404,7 +493,11 @@ static struct clk * __init st_clk_register_quadfs_pll(
 
 	init.name = name;
 	init.ops = quadfs->pll_ops;
+<<<<<<< HEAD
 	init.flags = CLK_IS_BASIC | CLK_GET_RATE_NOCACHE;
+=======
+	init.flags = CLK_GET_RATE_NOCACHE;
+>>>>>>> upstream/android-13
 	init.parent_names = &parent_name;
 	init.num_parents = 1;
 
@@ -431,7 +524,11 @@ static struct clk * __init st_clk_register_quadfs_pll(
  * parent - fixed parent.  No clk_set_parent support
  */
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct st_clk_quadfs_fsynth - One clock output from a four channel digital
  *                                  frequency synthesizer (fsynth) block.
  *
@@ -795,7 +892,10 @@ static int quadfs_set_rate(struct clk_hw *hw, unsigned long rate,
 	struct st_clk_quadfs_fsynth *fs = to_quadfs_fsynth(hw);
 	struct stm_fs params;
 	long hwrate;
+<<<<<<< HEAD
 	int uninitialized_var(i);
+=======
+>>>>>>> upstream/android-13
 
 	if (!rate || !parent_rate)
 		return -EINVAL;
@@ -829,7 +929,11 @@ static struct clk * __init st_clk_register_quadfs_fsynth(
 {
 	struct st_clk_quadfs_fsynth *fs;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Sanity check required pointers, note that nsdiv3 is optional.
@@ -843,7 +947,11 @@ static struct clk * __init st_clk_register_quadfs_fsynth(
 
 	init.name = name;
 	init.ops = &st_quadfs_ops;
+<<<<<<< HEAD
 	init.flags = flags | CLK_GET_RATE_NOCACHE | CLK_IS_BASIC;
+=======
+	init.flags = flags | CLK_GET_RATE_NOCACHE;
+>>>>>>> upstream/android-13
 	init.parent_names = &parent_name;
 	init.num_parents = 1;
 
@@ -863,7 +971,11 @@ static struct clk * __init st_clk_register_quadfs_fsynth(
 
 static void __init st_of_create_quadfs_fsynths(
 		struct device_node *np, const char *pll_name,
+<<<<<<< HEAD
 		struct clkgen_quadfs_data *quadfs, void __iomem *reg,
+=======
+		struct clkgen_quadfs_data_clks *quadfs, void __iomem *reg,
+>>>>>>> upstream/android-13
 		spinlock_t *lock)
 {
 	struct clk_onecell_data *clk_data;
@@ -887,9 +999,21 @@ static void __init st_of_create_quadfs_fsynths(
 		const char *clk_name;
 		unsigned long flags = 0;
 
+<<<<<<< HEAD
 		if (of_property_read_string_index(np, "clock-output-names",
 						  fschan, &clk_name)) {
 			break;
+=======
+		if (quadfs->outputs) {
+			clk_name = quadfs->outputs[fschan].name;
+			flags = quadfs->outputs[fschan].flags;
+		} else {
+			if (of_property_read_string_index(np,
+							"clock-output-names",
+							fschan, &clk_name))
+				break;
+			of_clk_detect_critical(np, fschan, &flags);
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -898,10 +1022,15 @@ static void __init st_of_create_quadfs_fsynths(
 		if (*clk_name == '\0')
 			continue;
 
+<<<<<<< HEAD
 		of_clk_detect_critical(np, fschan, &flags);
 
 		clk = st_clk_register_quadfs_fsynth(clk_name, pll_name,
 						    quadfs, reg, fschan,
+=======
+		clk = st_clk_register_quadfs_fsynth(clk_name, pll_name,
+						    quadfs->data, reg, fschan,
+>>>>>>> upstream/android-13
 						    flags, lock);
 
 		/*
@@ -921,7 +1050,11 @@ static void __init st_of_create_quadfs_fsynths(
 }
 
 static void __init st_of_quadfs_setup(struct device_node *np,
+<<<<<<< HEAD
 		struct clkgen_quadfs_data *data)
+=======
+		struct clkgen_quadfs_data_clks *datac)
+>>>>>>> upstream/android-13
 {
 	struct clk *clk;
 	const char *pll_name, *clk_parent_name;
@@ -936,7 +1069,11 @@ static void __init st_of_quadfs_setup(struct device_node *np,
 	if (!clk_parent_name)
 		return;
 
+<<<<<<< HEAD
 	pll_name = kasprintf(GFP_KERNEL, "%s.pll", np->name);
+=======
+	pll_name = kasprintf(GFP_KERNEL, "%pOFn.pll", np);
+>>>>>>> upstream/android-13
 	if (!pll_name)
 		return;
 
@@ -946,7 +1083,11 @@ static void __init st_of_quadfs_setup(struct device_node *np,
 
 	spin_lock_init(lock);
 
+<<<<<<< HEAD
 	clk = st_clk_register_quadfs_pll(pll_name, clk_parent_name, data,
+=======
+	clk = st_clk_register_quadfs_pll(pll_name, clk_parent_name, datac->data,
+>>>>>>> upstream/android-13
 			reg, lock);
 	if (IS_ERR(clk))
 		goto err_exit;
@@ -956,7 +1097,11 @@ static void __init st_of_quadfs_setup(struct device_node *np,
 			__clk_get_name(clk_get_parent(clk)),
 			(unsigned int)clk_get_rate(clk));
 
+<<<<<<< HEAD
 	st_of_create_quadfs_fsynths(np, pll_name, data, reg, lock);
+=======
+	st_of_create_quadfs_fsynths(np, pll_name, datac, reg, lock);
+>>>>>>> upstream/android-13
 
 err_exit:
 	kfree(pll_name); /* No longer need local copy of the PLL name */
@@ -964,12 +1109,45 @@ err_exit:
 
 static void __init st_of_quadfs660C_setup(struct device_node *np)
 {
+<<<<<<< HEAD
 	st_of_quadfs_setup(np, (struct clkgen_quadfs_data *) &st_fs660c32_C);
+=======
+	st_of_quadfs_setup(np,
+		(struct clkgen_quadfs_data_clks *) &st_fs660c32_C_data);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(quadfs660C, "st,quadfs-pll", st_of_quadfs660C_setup);
 
 static void __init st_of_quadfs660D_setup(struct device_node *np)
 {
+<<<<<<< HEAD
 	st_of_quadfs_setup(np, (struct clkgen_quadfs_data *) &st_fs660c32_D);
 }
 CLK_OF_DECLARE(quadfs660D, "st,quadfs", st_of_quadfs660D_setup);
+=======
+	st_of_quadfs_setup(np,
+		(struct clkgen_quadfs_data_clks *) &st_fs660c32_D_data);
+}
+CLK_OF_DECLARE(quadfs660D, "st,quadfs", st_of_quadfs660D_setup);
+
+static void __init st_of_quadfs660D0_setup(struct device_node *np)
+{
+	st_of_quadfs_setup(np,
+		(struct clkgen_quadfs_data_clks *) &st_fs660c32_D0_data);
+}
+CLK_OF_DECLARE(quadfs660D0, "st,quadfs-d0", st_of_quadfs660D0_setup);
+
+static void __init st_of_quadfs660D2_setup(struct device_node *np)
+{
+	st_of_quadfs_setup(np,
+		(struct clkgen_quadfs_data_clks *) &st_fs660c32_D2_data);
+}
+CLK_OF_DECLARE(quadfs660D2, "st,quadfs-d2", st_of_quadfs660D2_setup);
+
+static void __init st_of_quadfs660D3_setup(struct device_node *np)
+{
+	st_of_quadfs_setup(np,
+		(struct clkgen_quadfs_data_clks *) &st_fs660c32_D3_data);
+}
+CLK_OF_DECLARE(quadfs660D3, "st,quadfs-d3", st_of_quadfs660D3_setup);
+>>>>>>> upstream/android-13

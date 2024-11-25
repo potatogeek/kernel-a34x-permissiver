@@ -13,12 +13,19 @@
 
 #include <asm/io.h>
 #ifdef CONFIG_SPARC64
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/spitfire.h>
 #include <asm/cacheflush.h>
 #include <asm/page.h>
 #else
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/psr.h>
 #endif
 

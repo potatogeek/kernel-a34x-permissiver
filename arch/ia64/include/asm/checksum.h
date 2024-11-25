@@ -38,6 +38,7 @@ extern __wsum csum_tcpudp_nofold(__be32 saddr, __be32 daddr,
 extern __wsum csum_partial(const void *buff, int len, __wsum sum);
 
 /*
+<<<<<<< HEAD
  * Same as csum_partial, but copies from src while it checksums.
  *
  * Here it is even more important to align src and dst on a 32-bit (or
@@ -51,6 +52,8 @@ extern __wsum csum_partial_copy_nocheck(const void *src, void *dst,
 					       int len, __wsum sum);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * This routine is used for miscellaneous IP-like checksums, mainly in
  * icmp.c
  */

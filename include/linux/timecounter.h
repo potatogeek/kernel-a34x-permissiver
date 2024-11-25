@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * linux/include/linux/timecounter.h
  *
  * based on code that migrated away from
  * linux/include/linux/clocksource.h
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_TIMECOUNTER_H
 #define _LINUX_TIMECOUNTER_H
@@ -133,7 +140,11 @@ extern u64 timecounter_read(struct timecounter *tc);
  * This allows conversion of cycle counter values which were generated
  * in the past.
  */
+<<<<<<< HEAD
 extern u64 timecounter_cyc2time(struct timecounter *tc,
+=======
+extern u64 timecounter_cyc2time(const struct timecounter *tc,
+>>>>>>> upstream/android-13
 				u64 cycle_tstamp);
 
 #endif

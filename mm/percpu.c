@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/percpu.c - percpu memory allocator
  *
@@ -5,9 +9,13 @@
  * Copyright (C) 2009		Tejun Heo <tj@kernel.org>
  *
  * Copyright (C) 2017		Facebook Inc.
+<<<<<<< HEAD
  * Copyright (C) 2017		Dennis Zhou <dennisszhou@gmail.com>
  *
  * This file is released under the GPLv2 license.
+=======
+ * Copyright (C) 2017		Dennis Zhou <dennis@kernel.org>
+>>>>>>> upstream/android-13
  *
  * The percpu allocator handles both static and dynamic areas.  Percpu
  * areas are allocated in chunks which are divided into units.  There is
@@ -38,9 +46,20 @@
  * takes care of normal allocations.
  *
  * The allocator organizes chunks into lists according to free size and
+<<<<<<< HEAD
  * tries to allocate from the fullest chunk first.  Each chunk is managed
  * by a bitmap with metadata blocks.  The allocation map is updated on
  * every allocation and free to reflect the current state while the boundary
+=======
+ * memcg-awareness.  To make a percpu allocation memcg-aware the __GFP_ACCOUNT
+ * flag should be passed.  All memcg-aware allocations are sharing one set
+ * of chunks and all unaccounted allocations and allocations performed
+ * by processes belonging to the root memory cgroup are using the second set.
+ *
+ * The allocator tries to allocate from the fullest chunk first. Each chunk
+ * is managed by a bitmap with metadata blocks.  The allocation map is updated
+ * on every allocation and free to reflect the current state while the boundary
+>>>>>>> upstream/android-13
  * map is only updated on allocation.  Each metadata block contains
  * information to help mitigate the need to iterate over large portions
  * of the bitmap.  The reverse mapping from page to chunk is stored in
@@ -65,7 +84,12 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/bitmap.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/cpumask.h>
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/lcm.h>
 #include <linux/list.h>
@@ -81,6 +105,11 @@
 #include <linux/workqueue.h>
 #include <linux/kmemleak.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+#include <linux/memcontrol.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cacheflush.h>
 #include <asm/sections.h>
@@ -92,8 +121,18 @@
 
 #include "percpu-internal.h"
 
+<<<<<<< HEAD
 /* the slots are sorted by free bytes left, 1-31 bytes share the same slot */
 #define PCPU_SLOT_BASE_SHIFT		5
+=======
+/*
+ * The slots are sorted by the size of the biggest continuous free area.
+ * 1-31 bytes share the same slot.
+ */
+#define PCPU_SLOT_BASE_SHIFT		5
+/* chunks in slots below this are subject to being sidelined on failed alloc */
+#define PCPU_SLOT_FAIL_THRESHOLD	3
+>>>>>>> upstream/android-13
 
 #define PCPU_EMPTY_POP_PAGES_LOW	2
 #define PCPU_EMPTY_POP_PAGES_HIGH	4
@@ -123,6 +162,12 @@ static int pcpu_unit_size __ro_after_init;
 static int pcpu_nr_units __ro_after_init;
 static int pcpu_atom_size __ro_after_init;
 int pcpu_nr_slots __ro_after_init;
+<<<<<<< HEAD
+=======
+static int pcpu_free_slot __ro_after_init;
+int pcpu_sidelined_slot __ro_after_init;
+int pcpu_to_depopulate_slot __ro_after_init;
+>>>>>>> upstream/android-13
 static size_t pcpu_chunk_struct_size __ro_after_init;
 
 /* cpus with the lowest and highest unit addresses */
@@ -131,7 +176,10 @@ static unsigned int pcpu_high_unit_cpu __ro_after_init;
 
 /* the address of the first chunk which starts with the kernel static area */
 void *pcpu_base_addr __ro_after_init;
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pcpu_base_addr);
+=======
+>>>>>>> upstream/android-13
 
 static const int *pcpu_unit_map __ro_after_init;		/* cpu -> unit */
 const unsigned long *pcpu_unit_offsets __ro_after_init;	/* cpu -> unit offset */
@@ -158,14 +206,23 @@ struct pcpu_chunk *pcpu_reserved_chunk __ro_after_init;
 DEFINE_SPINLOCK(pcpu_lock);	/* all internal data structures */
 static DEFINE_MUTEX(pcpu_alloc_mutex);	/* chunk create/destroy, [de]pop, map ext */
 
+<<<<<<< HEAD
 struct list_head *pcpu_slot __ro_after_init; /* chunk list slots */
+=======
+struct list_head *pcpu_chunk_lists __ro_after_init; /* chunk list slots */
+>>>>>>> upstream/android-13
 
 /* chunks which need their map areas extended, protected by pcpu_lock */
 static LIST_HEAD(pcpu_map_extend_chunks);
 
 /*
+<<<<<<< HEAD
  * The number of empty populated pages, protected by pcpu_lock.  The
  * reserved chunk doesn't contribute to the count.
+=======
+ * The number of empty populated pages, protected by pcpu_lock.
+ * The reserved chunk doesn't contribute to the count.
+>>>>>>> upstream/android-13
  */
 int pcpu_nr_empty_pop_pages;
 
@@ -225,16 +282,30 @@ static int __pcpu_size_to_slot(int size)
 static int pcpu_size_to_slot(int size)
 {
 	if (size == pcpu_unit_size)
+<<<<<<< HEAD
 		return pcpu_nr_slots - 1;
+=======
+		return pcpu_free_slot;
+>>>>>>> upstream/android-13
 	return __pcpu_size_to_slot(size);
 }
 
 static int pcpu_chunk_slot(const struct pcpu_chunk *chunk)
 {
+<<<<<<< HEAD
 	if (chunk->free_bytes < PCPU_MIN_ALLOC_SIZE || chunk->contig_bits == 0)
 		return 0;
 
 	return pcpu_size_to_slot(chunk->free_bytes);
+=======
+	const struct pcpu_block_md *chunk_md = &chunk->chunk_md;
+
+	if (chunk->free_bytes < PCPU_MIN_ALLOC_SIZE ||
+	    chunk_md->contig_hint == 0)
+		return 0;
+
+	return pcpu_size_to_slot(chunk_md->contig_hint * PCPU_MIN_ALLOC_SIZE);
+>>>>>>> upstream/android-13
 }
 
 /* set the pointer to a chunk in a page struct */
@@ -266,6 +337,7 @@ static unsigned long pcpu_chunk_addr(struct pcpu_chunk *chunk,
 	       pcpu_unit_page_offset(cpu, page_idx);
 }
 
+<<<<<<< HEAD
 static void pcpu_next_unpop(unsigned long *bitmap, int *rs, int *re, int end)
 {
 	*rs = find_next_zero_bit(bitmap, end, *rs);
@@ -293,6 +365,8 @@ static void pcpu_next_pop(unsigned long *bitmap, int *rs, int *re, int end)
 	     (rs) < (re);						     \
 	     (rs) = (re) + 1, pcpu_next_pop((bitmap), &(rs), &(re), (end)))
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The following are helper functions to help access bitmaps and convert
  * between bitmap offsets to address offsets.
@@ -319,6 +393,56 @@ static unsigned long pcpu_block_off_to_off(int index, int off)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * pcpu_check_block_hint - check against the contig hint
+ * @block: block of interest
+ * @bits: size of allocation
+ * @align: alignment of area (max PAGE_SIZE)
+ *
+ * Check to see if the allocation can fit in the block's contig hint.
+ * Note, a chunk uses the same hints as a block so this can also check against
+ * the chunk's contig hint.
+ */
+static bool pcpu_check_block_hint(struct pcpu_block_md *block, int bits,
+				  size_t align)
+{
+	int bit_off = ALIGN(block->contig_hint_start, align) -
+		block->contig_hint_start;
+
+	return bit_off + bits <= block->contig_hint;
+}
+
+/*
+ * pcpu_next_hint - determine which hint to use
+ * @block: block of interest
+ * @alloc_bits: size of allocation
+ *
+ * This determines if we should scan based on the scan_hint or first_free.
+ * In general, we want to scan from first_free to fulfill allocations by
+ * first fit.  However, if we know a scan_hint at position scan_hint_start
+ * cannot fulfill an allocation, we can begin scanning from there knowing
+ * the contig_hint will be our fallback.
+ */
+static int pcpu_next_hint(struct pcpu_block_md *block, int alloc_bits)
+{
+	/*
+	 * The three conditions below determine if we can skip past the
+	 * scan_hint.  First, does the scan hint exist.  Second, is the
+	 * contig_hint after the scan_hint (possibly not true iff
+	 * contig_hint == scan_hint).  Third, is the allocation request
+	 * larger than the scan_hint.
+	 */
+	if (block->scan_hint &&
+	    block->contig_hint_start > block->scan_hint_start &&
+	    alloc_bits > block->scan_hint)
+		return block->scan_hint_start + block->scan_hint;
+
+	return block->first_free;
+}
+
+/**
+>>>>>>> upstream/android-13
  * pcpu_next_md_free_region - finds the next hint free area
  * @chunk: chunk of interest
  * @bit_off: chunk offset
@@ -413,9 +537,17 @@ static void pcpu_next_fit_region(struct pcpu_chunk *chunk, int alloc_bits,
 		if (block->contig_hint &&
 		    block->contig_hint_start >= block_off &&
 		    block->contig_hint >= *bits + alloc_bits) {
+<<<<<<< HEAD
 			*bits += alloc_bits + block->contig_hint_start -
 				 block->first_free;
 			*bit_off = pcpu_block_off_to_off(i, block->first_free);
+=======
+			int start = pcpu_next_hint(block, alloc_bits);
+
+			*bits += alloc_bits + block->contig_hint_start -
+				 start;
+			*bit_off = pcpu_block_off_to_off(i, start);
+>>>>>>> upstream/android-13
 			return;
 		}
 		/* reset to satisfy the second predicate above */
@@ -474,7 +606,11 @@ static void *pcpu_mem_zalloc(size_t size, gfp_t gfp)
 	if (size <= PAGE_SIZE)
 		return kzalloc(size, gfp);
 	else
+<<<<<<< HEAD
 		return __vmalloc(size, gfp | __GFP_ZERO, PAGE_KERNEL);
+=======
+		return __vmalloc(size, gfp | __GFP_ZERO);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -488,6 +624,25 @@ static void pcpu_mem_free(void *ptr)
 	kvfree(ptr);
 }
 
+<<<<<<< HEAD
+=======
+static void __pcpu_chunk_move(struct pcpu_chunk *chunk, int slot,
+			      bool move_front)
+{
+	if (chunk != pcpu_reserved_chunk) {
+		if (move_front)
+			list_move(&chunk->list, &pcpu_chunk_lists[slot]);
+		else
+			list_move_tail(&chunk->list, &pcpu_chunk_lists[slot]);
+	}
+}
+
+static void pcpu_chunk_move(struct pcpu_chunk *chunk, int slot)
+{
+	__pcpu_chunk_move(chunk, slot, true);
+}
+
+>>>>>>> upstream/android-13
 /**
  * pcpu_chunk_relocate - put chunk in the appropriate chunk slot
  * @chunk: chunk of interest
@@ -505,6 +660,7 @@ static void pcpu_chunk_relocate(struct pcpu_chunk *chunk, int oslot)
 {
 	int nslot = pcpu_chunk_slot(chunk);
 
+<<<<<<< HEAD
 	if (chunk != pcpu_reserved_chunk && oslot != nslot) {
 		if (oslot < nslot)
 			list_move(&chunk->list, &pcpu_slot[nslot]);
@@ -609,6 +765,67 @@ static void pcpu_chunk_refresh_hint(struct pcpu_chunk *chunk)
 			(nr_empty_pop_pages - chunk->nr_empty_pop_pages);
 
 	chunk->nr_empty_pop_pages = nr_empty_pop_pages;
+=======
+	/* leave isolated chunks in-place */
+	if (chunk->isolated)
+		return;
+
+	if (oslot != nslot)
+		__pcpu_chunk_move(chunk, nslot, oslot < nslot);
+}
+
+static void pcpu_isolate_chunk(struct pcpu_chunk *chunk)
+{
+	lockdep_assert_held(&pcpu_lock);
+
+	if (!chunk->isolated) {
+		chunk->isolated = true;
+		pcpu_nr_empty_pop_pages -= chunk->nr_empty_pop_pages;
+	}
+	list_move(&chunk->list, &pcpu_chunk_lists[pcpu_to_depopulate_slot]);
+}
+
+static void pcpu_reintegrate_chunk(struct pcpu_chunk *chunk)
+{
+	lockdep_assert_held(&pcpu_lock);
+
+	if (chunk->isolated) {
+		chunk->isolated = false;
+		pcpu_nr_empty_pop_pages += chunk->nr_empty_pop_pages;
+		pcpu_chunk_relocate(chunk, -1);
+	}
+}
+
+/*
+ * pcpu_update_empty_pages - update empty page counters
+ * @chunk: chunk of interest
+ * @nr: nr of empty pages
+ *
+ * This is used to keep track of the empty pages now based on the premise
+ * a md_block covers a page.  The hint update functions recognize if a block
+ * is made full or broken to calculate deltas for keeping track of free pages.
+ */
+static inline void pcpu_update_empty_pages(struct pcpu_chunk *chunk, int nr)
+{
+	chunk->nr_empty_pop_pages += nr;
+	if (chunk != pcpu_reserved_chunk && !chunk->isolated)
+		pcpu_nr_empty_pop_pages += nr;
+}
+
+/*
+ * pcpu_region_overlap - determines if two regions overlap
+ * @a: start of first region, inclusive
+ * @b: end of first region, exclusive
+ * @x: start of second region, inclusive
+ * @y: end of second region, exclusive
+ *
+ * This is used to determine if the hint region [a, b) overlaps with the
+ * allocated region [x, y).
+ */
+static inline bool pcpu_region_overlap(int a, int b, int x, int y)
+{
+	return (a < y) && (x < b);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -629,6 +846,7 @@ static void pcpu_block_update(struct pcpu_block_md *block, int start, int end)
 	if (start == 0)
 		block->left_free = contig;
 
+<<<<<<< HEAD
 	if (end == PCPU_BITMAP_BLOCK_BITS)
 		block->right_free = contig;
 
@@ -642,6 +860,136 @@ static void pcpu_block_update(struct pcpu_block_md *block, int start, int end)
 	}
 }
 
+=======
+	if (end == block->nr_bits)
+		block->right_free = contig;
+
+	if (contig > block->contig_hint) {
+		/* promote the old contig_hint to be the new scan_hint */
+		if (start > block->contig_hint_start) {
+			if (block->contig_hint > block->scan_hint) {
+				block->scan_hint_start =
+					block->contig_hint_start;
+				block->scan_hint = block->contig_hint;
+			} else if (start < block->scan_hint_start) {
+				/*
+				 * The old contig_hint == scan_hint.  But, the
+				 * new contig is larger so hold the invariant
+				 * scan_hint_start < contig_hint_start.
+				 */
+				block->scan_hint = 0;
+			}
+		} else {
+			block->scan_hint = 0;
+		}
+		block->contig_hint_start = start;
+		block->contig_hint = contig;
+	} else if (contig == block->contig_hint) {
+		if (block->contig_hint_start &&
+		    (!start ||
+		     __ffs(start) > __ffs(block->contig_hint_start))) {
+			/* start has a better alignment so use it */
+			block->contig_hint_start = start;
+			if (start < block->scan_hint_start &&
+			    block->contig_hint > block->scan_hint)
+				block->scan_hint = 0;
+		} else if (start > block->scan_hint_start ||
+			   block->contig_hint > block->scan_hint) {
+			/*
+			 * Knowing contig == contig_hint, update the scan_hint
+			 * if it is farther than or larger than the current
+			 * scan_hint.
+			 */
+			block->scan_hint_start = start;
+			block->scan_hint = contig;
+		}
+	} else {
+		/*
+		 * The region is smaller than the contig_hint.  So only update
+		 * the scan_hint if it is larger than or equal and farther than
+		 * the current scan_hint.
+		 */
+		if ((start < block->contig_hint_start &&
+		     (contig > block->scan_hint ||
+		      (contig == block->scan_hint &&
+		       start > block->scan_hint_start)))) {
+			block->scan_hint_start = start;
+			block->scan_hint = contig;
+		}
+	}
+}
+
+/*
+ * pcpu_block_update_scan - update a block given a free area from a scan
+ * @chunk: chunk of interest
+ * @bit_off: chunk offset
+ * @bits: size of free area
+ *
+ * Finding the final allocation spot first goes through pcpu_find_block_fit()
+ * to find a block that can hold the allocation and then pcpu_alloc_area()
+ * where a scan is used.  When allocations require specific alignments,
+ * we can inadvertently create holes which will not be seen in the alloc
+ * or free paths.
+ *
+ * This takes a given free area hole and updates a block as it may change the
+ * scan_hint.  We need to scan backwards to ensure we don't miss free bits
+ * from alignment.
+ */
+static void pcpu_block_update_scan(struct pcpu_chunk *chunk, int bit_off,
+				   int bits)
+{
+	int s_off = pcpu_off_to_block_off(bit_off);
+	int e_off = s_off + bits;
+	int s_index, l_bit;
+	struct pcpu_block_md *block;
+
+	if (e_off > PCPU_BITMAP_BLOCK_BITS)
+		return;
+
+	s_index = pcpu_off_to_block_index(bit_off);
+	block = chunk->md_blocks + s_index;
+
+	/* scan backwards in case of alignment skipping free bits */
+	l_bit = find_last_bit(pcpu_index_alloc_map(chunk, s_index), s_off);
+	s_off = (s_off == l_bit) ? 0 : l_bit + 1;
+
+	pcpu_block_update(block, s_off, e_off);
+}
+
+/**
+ * pcpu_chunk_refresh_hint - updates metadata about a chunk
+ * @chunk: chunk of interest
+ * @full_scan: if we should scan from the beginning
+ *
+ * Iterates over the metadata blocks to find the largest contig area.
+ * A full scan can be avoided on the allocation path as this is triggered
+ * if we broke the contig_hint.  In doing so, the scan_hint will be before
+ * the contig_hint or after if the scan_hint == contig_hint.  This cannot
+ * be prevented on freeing as we want to find the largest area possibly
+ * spanning blocks.
+ */
+static void pcpu_chunk_refresh_hint(struct pcpu_chunk *chunk, bool full_scan)
+{
+	struct pcpu_block_md *chunk_md = &chunk->chunk_md;
+	int bit_off, bits;
+
+	/* promote scan_hint to contig_hint */
+	if (!full_scan && chunk_md->scan_hint) {
+		bit_off = chunk_md->scan_hint_start + chunk_md->scan_hint;
+		chunk_md->contig_hint_start = chunk_md->scan_hint_start;
+		chunk_md->contig_hint = chunk_md->scan_hint;
+		chunk_md->scan_hint = 0;
+	} else {
+		bit_off = chunk_md->first_free;
+		chunk_md->contig_hint = 0;
+	}
+
+	bits = 0;
+	pcpu_for_each_md_free_region(chunk, bit_off, bits)
+		pcpu_block_update(chunk_md, bit_off, bit_off + bits);
+}
+
+>>>>>>> upstream/android-13
 /**
  * pcpu_block_refresh_hint
  * @chunk: chunk of interest
@@ -654,6 +1002,7 @@ static void pcpu_block_refresh_hint(struct pcpu_chunk *chunk, int index)
 {
 	struct pcpu_block_md *block = chunk->md_blocks + index;
 	unsigned long *alloc_map = pcpu_index_alloc_map(chunk, index);
+<<<<<<< HEAD
 	int rs, re;	/* region start, region end */
 
 	/* clear hints */
@@ -665,6 +1014,27 @@ static void pcpu_block_refresh_hint(struct pcpu_chunk *chunk, int index)
 				   PCPU_BITMAP_BLOCK_BITS) {
 		pcpu_block_update(block, rs, re);
 	}
+=======
+	unsigned int rs, re, start;	/* region start, region end */
+
+	/* promote scan_hint to contig_hint */
+	if (block->scan_hint) {
+		start = block->scan_hint_start + block->scan_hint;
+		block->contig_hint_start = block->scan_hint_start;
+		block->contig_hint = block->scan_hint;
+		block->scan_hint = 0;
+	} else {
+		start = block->first_free;
+		block->contig_hint = 0;
+	}
+
+	block->right_free = 0;
+
+	/* iterate over free areas and update the contig hints */
+	bitmap_for_each_clear_region(alloc_map, rs, re, start,
+				     PCPU_BITMAP_BLOCK_BITS)
+		pcpu_block_update(block, rs, re);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -680,6 +1050,11 @@ static void pcpu_block_refresh_hint(struct pcpu_chunk *chunk, int index)
 static void pcpu_block_update_hint_alloc(struct pcpu_chunk *chunk, int bit_off,
 					 int bits)
 {
+<<<<<<< HEAD
+=======
+	struct pcpu_block_md *chunk_md = &chunk->chunk_md;
+	int nr_empty_pages = 0;
+>>>>>>> upstream/android-13
 	struct pcpu_block_md *s_block, *e_block, *block;
 	int s_index, e_index;	/* block indexes of the freed allocation */
 	int s_off, e_off;	/* block offsets of the freed allocation */
@@ -704,15 +1079,38 @@ static void pcpu_block_update_hint_alloc(struct pcpu_chunk *chunk, int bit_off,
 	 * If the allocation breaks the contig_hint, a scan is required to
 	 * restore this hint.
 	 */
+<<<<<<< HEAD
+=======
+	if (s_block->contig_hint == PCPU_BITMAP_BLOCK_BITS)
+		nr_empty_pages++;
+
+>>>>>>> upstream/android-13
 	if (s_off == s_block->first_free)
 		s_block->first_free = find_next_zero_bit(
 					pcpu_index_alloc_map(chunk, s_index),
 					PCPU_BITMAP_BLOCK_BITS,
 					s_off + bits);
 
+<<<<<<< HEAD
 	if (s_off >= s_block->contig_hint_start &&
 	    s_off < s_block->contig_hint_start + s_block->contig_hint) {
 		/* block contig hint is broken - scan to fix it */
+=======
+	if (pcpu_region_overlap(s_block->scan_hint_start,
+				s_block->scan_hint_start + s_block->scan_hint,
+				s_off,
+				s_off + bits))
+		s_block->scan_hint = 0;
+
+	if (pcpu_region_overlap(s_block->contig_hint_start,
+				s_block->contig_hint_start +
+				s_block->contig_hint,
+				s_off,
+				s_off + bits)) {
+		/* block contig hint is broken - scan to fix it */
+		if (!s_off)
+			s_block->left_free = 0;
+>>>>>>> upstream/android-13
 		pcpu_block_refresh_hint(chunk, s_index);
 	} else {
 		/* update left and right contig manually */
@@ -728,6 +1126,12 @@ static void pcpu_block_update_hint_alloc(struct pcpu_chunk *chunk, int bit_off,
 	 * Update e_block.
 	 */
 	if (s_index != e_index) {
+<<<<<<< HEAD
+=======
+		if (e_block->contig_hint == PCPU_BITMAP_BLOCK_BITS)
+			nr_empty_pages++;
+
+>>>>>>> upstream/android-13
 		/*
 		 * When the allocation is across blocks, the end is along
 		 * the left part of the e_block.
@@ -740,11 +1144,21 @@ static void pcpu_block_update_hint_alloc(struct pcpu_chunk *chunk, int bit_off,
 			/* reset the block */
 			e_block++;
 		} else {
+<<<<<<< HEAD
+=======
+			if (e_off > e_block->scan_hint_start)
+				e_block->scan_hint = 0;
+
+			e_block->left_free = 0;
+>>>>>>> upstream/android-13
 			if (e_off > e_block->contig_hint_start) {
 				/* contig hint is broken - scan to fix it */
 				pcpu_block_refresh_hint(chunk, e_index);
 			} else {
+<<<<<<< HEAD
 				e_block->left_free = 0;
+=======
+>>>>>>> upstream/android-13
 				e_block->right_free =
 					min_t(int, e_block->right_free,
 					      PCPU_BITMAP_BLOCK_BITS - e_off);
@@ -752,21 +1166,49 @@ static void pcpu_block_update_hint_alloc(struct pcpu_chunk *chunk, int bit_off,
 		}
 
 		/* update in-between md_blocks */
+<<<<<<< HEAD
 		for (block = s_block + 1; block < e_block; block++) {
+=======
+		nr_empty_pages += (e_index - s_index - 1);
+		for (block = s_block + 1; block < e_block; block++) {
+			block->scan_hint = 0;
+>>>>>>> upstream/android-13
 			block->contig_hint = 0;
 			block->left_free = 0;
 			block->right_free = 0;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (nr_empty_pages)
+		pcpu_update_empty_pages(chunk, -nr_empty_pages);
+
+	if (pcpu_region_overlap(chunk_md->scan_hint_start,
+				chunk_md->scan_hint_start +
+				chunk_md->scan_hint,
+				bit_off,
+				bit_off + bits))
+		chunk_md->scan_hint = 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * The only time a full chunk scan is required is if the chunk
 	 * contig hint is broken.  Otherwise, it means a smaller space
 	 * was used and therefore the chunk contig hint is still correct.
 	 */
+<<<<<<< HEAD
 	if (bit_off >= chunk->contig_bits_start  &&
 	    bit_off < chunk->contig_bits_start + chunk->contig_bits)
 		pcpu_chunk_refresh_hint(chunk);
+=======
+	if (pcpu_region_overlap(chunk_md->contig_hint_start,
+				chunk_md->contig_hint_start +
+				chunk_md->contig_hint,
+				bit_off,
+				bit_off + bits))
+		pcpu_chunk_refresh_hint(chunk, false);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -782,13 +1224,24 @@ static void pcpu_block_update_hint_alloc(struct pcpu_chunk *chunk, int bit_off,
  *
  * A chunk update is triggered if a page becomes free, a block becomes free,
  * or the free spans across blocks.  This tradeoff is to minimize iterating
+<<<<<<< HEAD
  * over the block metadata to update chunk->contig_bits.  chunk->contig_bits
  * may be off by up to a page, but it will never be more than the available
  * space.  If the contig hint is contained in one block, it will be accurate.
+=======
+ * over the block metadata to update chunk_md->contig_hint.
+ * chunk_md->contig_hint may be off by up to a page, but it will never be more
+ * than the available space.  If the contig hint is contained in one block, it
+ * will be accurate.
+>>>>>>> upstream/android-13
  */
 static void pcpu_block_update_hint_free(struct pcpu_chunk *chunk, int bit_off,
 					int bits)
 {
+<<<<<<< HEAD
+=======
+	int nr_empty_pages = 0;
+>>>>>>> upstream/android-13
 	struct pcpu_block_md *s_block, *e_block, *block;
 	int s_index, e_index;	/* block indexes of the freed allocation */
 	int s_off, e_off;	/* block offsets of the freed allocation */
@@ -842,16 +1295,33 @@ static void pcpu_block_update_hint_free(struct pcpu_chunk *chunk, int bit_off,
 
 	/* update s_block */
 	e_off = (s_index == e_index) ? end : PCPU_BITMAP_BLOCK_BITS;
+<<<<<<< HEAD
+=======
+	if (!start && e_off == PCPU_BITMAP_BLOCK_BITS)
+		nr_empty_pages++;
+>>>>>>> upstream/android-13
 	pcpu_block_update(s_block, start, e_off);
 
 	/* freeing in the same block */
 	if (s_index != e_index) {
 		/* update e_block */
+<<<<<<< HEAD
 		pcpu_block_update(e_block, 0, end);
 
 		/* reset md_blocks in the middle */
 		for (block = s_block + 1; block < e_block; block++) {
 			block->first_free = 0;
+=======
+		if (end == PCPU_BITMAP_BLOCK_BITS)
+			nr_empty_pages++;
+		pcpu_block_update(e_block, 0, end);
+
+		/* reset md_blocks in the middle */
+		nr_empty_pages += (e_index - s_index - 1);
+		for (block = s_block + 1; block < e_block; block++) {
+			block->first_free = 0;
+			block->scan_hint = 0;
+>>>>>>> upstream/android-13
 			block->contig_hint_start = 0;
 			block->contig_hint = PCPU_BITMAP_BLOCK_BITS;
 			block->left_free = PCPU_BITMAP_BLOCK_BITS;
@@ -859,6 +1329,7 @@ static void pcpu_block_update_hint_free(struct pcpu_chunk *chunk, int bit_off,
 		}
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Refresh chunk metadata when the free makes a page free, a block
 	 * free, or spans across blocks.  The contig hint may be off by up to
@@ -872,6 +1343,23 @@ static void pcpu_block_update_hint_free(struct pcpu_chunk *chunk, int bit_off,
 	else
 		pcpu_chunk_update(chunk, pcpu_block_off_to_off(s_index, start),
 				  s_block->contig_hint);
+=======
+	if (nr_empty_pages)
+		pcpu_update_empty_pages(chunk, nr_empty_pages);
+
+	/*
+	 * Refresh chunk metadata when the free makes a block free or spans
+	 * across blocks.  The contig_hint may be off by up to a page, but if
+	 * the contig_hint is contained in a block, it will be accurate with
+	 * the else condition below.
+	 */
+	if (((end - start) >= PCPU_BITMAP_BLOCK_BITS) || s_index != e_index)
+		pcpu_chunk_refresh_hint(chunk, true);
+	else
+		pcpu_block_update(&chunk->chunk_md,
+				  pcpu_block_off_to_off(s_index, start),
+				  end);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -890,13 +1378,21 @@ static void pcpu_block_update_hint_free(struct pcpu_chunk *chunk, int bit_off,
 static bool pcpu_is_populated(struct pcpu_chunk *chunk, int bit_off, int bits,
 			      int *next_off)
 {
+<<<<<<< HEAD
 	int page_start, page_end, rs, re;
+=======
+	unsigned int page_start, page_end, rs, re;
+>>>>>>> upstream/android-13
 
 	page_start = PFN_DOWN(bit_off * PCPU_MIN_ALLOC_SIZE);
 	page_end = PFN_UP((bit_off + bits) * PCPU_MIN_ALLOC_SIZE);
 
 	rs = page_start;
+<<<<<<< HEAD
 	pcpu_next_unpop(chunk->populated, &rs, &re, page_end);
+=======
+	bitmap_next_clear_region(chunk->populated, &rs, &re, page_end);
+>>>>>>> upstream/android-13
 	if (rs >= page_end)
 		return true;
 
@@ -926,6 +1422,7 @@ static bool pcpu_is_populated(struct pcpu_chunk *chunk, int bit_off, int bits,
 static int pcpu_find_block_fit(struct pcpu_chunk *chunk, int alloc_bits,
 			       size_t align, bool pop_only)
 {
+<<<<<<< HEAD
 	int bit_off, bits, next_off;
 
 	/*
@@ -940,6 +1437,20 @@ static int pcpu_find_block_fit(struct pcpu_chunk *chunk, int alloc_bits,
 		return -1;
 
 	bit_off = chunk->first_bit;
+=======
+	struct pcpu_block_md *chunk_md = &chunk->chunk_md;
+	int bit_off, bits, next_off;
+
+	/*
+	 * This is an optimization to prevent scanning by assuming if the
+	 * allocation cannot fit in the global hint, there is memory pressure
+	 * and creating a new chunk would happen soon.
+	 */
+	if (!pcpu_check_block_hint(chunk_md, alloc_bits, align))
+		return -1;
+
+	bit_off = pcpu_next_hint(chunk_md, alloc_bits);
+>>>>>>> upstream/android-13
 	bits = 0;
 	pcpu_for_each_fit_region(chunk, alloc_bits, align, bit_off, bits) {
 		if (!pop_only || pcpu_is_populated(chunk, bit_off, bits,
@@ -956,6 +1467,65 @@ static int pcpu_find_block_fit(struct pcpu_chunk *chunk, int alloc_bits,
 	return bit_off;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * pcpu_find_zero_area - modified from bitmap_find_next_zero_area_off()
+ * @map: the address to base the search on
+ * @size: the bitmap size in bits
+ * @start: the bitnumber to start searching at
+ * @nr: the number of zeroed bits we're looking for
+ * @align_mask: alignment mask for zero area
+ * @largest_off: offset of the largest area skipped
+ * @largest_bits: size of the largest area skipped
+ *
+ * The @align_mask should be one less than a power of 2.
+ *
+ * This is a modified version of bitmap_find_next_zero_area_off() to remember
+ * the largest area that was skipped.  This is imperfect, but in general is
+ * good enough.  The largest remembered region is the largest failed region
+ * seen.  This does not include anything we possibly skipped due to alignment.
+ * pcpu_block_update_scan() does scan backwards to try and recover what was
+ * lost to alignment.  While this can cause scanning to miss earlier possible
+ * free areas, smaller allocations will eventually fill those holes.
+ */
+static unsigned long pcpu_find_zero_area(unsigned long *map,
+					 unsigned long size,
+					 unsigned long start,
+					 unsigned long nr,
+					 unsigned long align_mask,
+					 unsigned long *largest_off,
+					 unsigned long *largest_bits)
+{
+	unsigned long index, end, i, area_off, area_bits;
+again:
+	index = find_next_zero_bit(map, size, start);
+
+	/* Align allocation */
+	index = __ALIGN_MASK(index, align_mask);
+	area_off = index;
+
+	end = index + nr;
+	if (end > size)
+		return end;
+	i = find_next_bit(map, end, index);
+	if (i < end) {
+		area_bits = i - area_off;
+		/* remember largest unused area with best alignment */
+		if (area_bits > *largest_bits ||
+		    (area_bits == *largest_bits && *largest_off &&
+		     (!area_off || __ffs(area_off) > __ffs(*largest_off)))) {
+			*largest_off = area_off;
+			*largest_bits = area_bits;
+		}
+
+		start = i + 1;
+		goto again;
+	}
+	return index;
+}
+
+>>>>>>> upstream/android-13
 /**
  * pcpu_alloc_area - allocates an area from a pcpu_chunk
  * @chunk: chunk of interest
@@ -978,7 +1548,13 @@ static int pcpu_find_block_fit(struct pcpu_chunk *chunk, int alloc_bits,
 static int pcpu_alloc_area(struct pcpu_chunk *chunk, int alloc_bits,
 			   size_t align, int start)
 {
+<<<<<<< HEAD
 	size_t align_mask = (align) ? (align - 1) : 0;
+=======
+	struct pcpu_block_md *chunk_md = &chunk->chunk_md;
+	size_t align_mask = (align) ? (align - 1) : 0;
+	unsigned long area_off = 0, area_bits = 0;
+>>>>>>> upstream/android-13
 	int bit_off, end, oslot;
 
 	lockdep_assert_held(&pcpu_lock);
@@ -990,11 +1566,22 @@ static int pcpu_alloc_area(struct pcpu_chunk *chunk, int alloc_bits,
 	 */
 	end = min_t(int, start + alloc_bits + PCPU_BITMAP_BLOCK_BITS,
 		    pcpu_chunk_map_bits(chunk));
+<<<<<<< HEAD
 	bit_off = bitmap_find_next_zero_area(chunk->alloc_map, end, start,
 					     alloc_bits, align_mask);
 	if (bit_off >= end)
 		return -1;
 
+=======
+	bit_off = pcpu_find_zero_area(chunk->alloc_map, end, start, alloc_bits,
+				      align_mask, &area_off, &area_bits);
+	if (bit_off >= end)
+		return -1;
+
+	if (area_bits)
+		pcpu_block_update_scan(chunk, area_off, area_bits);
+
+>>>>>>> upstream/android-13
 	/* update alloc map */
 	bitmap_set(chunk->alloc_map, bit_off, alloc_bits);
 
@@ -1006,8 +1593,13 @@ static int pcpu_alloc_area(struct pcpu_chunk *chunk, int alloc_bits,
 	chunk->free_bytes -= alloc_bits * PCPU_MIN_ALLOC_SIZE;
 
 	/* update first free bit */
+<<<<<<< HEAD
 	if (bit_off == chunk->first_bit)
 		chunk->first_bit = find_next_zero_bit(
+=======
+	if (bit_off == chunk_md->first_free)
+		chunk_md->first_free = find_next_zero_bit(
+>>>>>>> upstream/android-13
 					chunk->alloc_map,
 					pcpu_chunk_map_bits(chunk),
 					bit_off + alloc_bits);
@@ -1026,10 +1618,21 @@ static int pcpu_alloc_area(struct pcpu_chunk *chunk, int alloc_bits,
  *
  * This function determines the size of an allocation to free using
  * the boundary bitmap and clears the allocation map.
+<<<<<<< HEAD
  */
 static void pcpu_free_area(struct pcpu_chunk *chunk, int off)
 {
 	int bit_off, bits, end, oslot;
+=======
+ *
+ * RETURNS:
+ * Number of freed bytes.
+ */
+static int pcpu_free_area(struct pcpu_chunk *chunk, int off)
+{
+	struct pcpu_block_md *chunk_md = &chunk->chunk_md;
+	int bit_off, bits, end, oslot, freed;
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&pcpu_lock);
 	pcpu_stats_area_dealloc(chunk);
@@ -1044,21 +1647,47 @@ static void pcpu_free_area(struct pcpu_chunk *chunk, int off)
 	bits = end - bit_off;
 	bitmap_clear(chunk->alloc_map, bit_off, bits);
 
+<<<<<<< HEAD
 	/* update metadata */
 	chunk->free_bytes += bits * PCPU_MIN_ALLOC_SIZE;
 
 	/* update first free bit */
 	chunk->first_bit = min(chunk->first_bit, bit_off);
+=======
+	freed = bits * PCPU_MIN_ALLOC_SIZE;
+
+	/* update metadata */
+	chunk->free_bytes += freed;
+
+	/* update first free bit */
+	chunk_md->first_free = min(chunk_md->first_free, bit_off);
+>>>>>>> upstream/android-13
 
 	pcpu_block_update_hint_free(chunk, bit_off, bits);
 
 	pcpu_chunk_relocate(chunk, oslot);
+<<<<<<< HEAD
+=======
+
+	return freed;
+}
+
+static void pcpu_init_md_block(struct pcpu_block_md *block, int nr_bits)
+{
+	block->scan_hint = 0;
+	block->contig_hint = nr_bits;
+	block->left_free = nr_bits;
+	block->right_free = nr_bits;
+	block->first_free = 0;
+	block->nr_bits = nr_bits;
+>>>>>>> upstream/android-13
 }
 
 static void pcpu_init_md_blocks(struct pcpu_chunk *chunk)
 {
 	struct pcpu_block_md *md_block;
 
+<<<<<<< HEAD
 	for (md_block = chunk->md_blocks;
 	     md_block != chunk->md_blocks + pcpu_chunk_nr_blocks(chunk);
 	     md_block++) {
@@ -1066,6 +1695,15 @@ static void pcpu_init_md_blocks(struct pcpu_chunk *chunk)
 		md_block->left_free = PCPU_BITMAP_BLOCK_BITS;
 		md_block->right_free = PCPU_BITMAP_BLOCK_BITS;
 	}
+=======
+	/* init the chunk's block */
+	pcpu_init_md_block(&chunk->chunk_md, pcpu_chunk_map_bits(chunk));
+
+	for (md_block = chunk->md_blocks;
+	     md_block != chunk->md_blocks + pcpu_chunk_nr_blocks(chunk);
+	     md_block++)
+		pcpu_init_md_block(md_block, PCPU_BITMAP_BLOCK_BITS);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1087,6 +1725,10 @@ static struct pcpu_chunk * __init pcpu_alloc_first_chunk(unsigned long tmp_addr,
 	struct pcpu_chunk *chunk;
 	unsigned long aligned_addr, lcm_align;
 	int start_offset, offset_bits, region_size, region_bits;
+<<<<<<< HEAD
+=======
+	size_t alloc_size;
+>>>>>>> upstream/android-13
 
 	/* region calculations */
 	aligned_addr = tmp_addr & PAGE_MASK;
@@ -1102,9 +1744,18 @@ static struct pcpu_chunk * __init pcpu_alloc_first_chunk(unsigned long tmp_addr,
 	region_size = ALIGN(start_offset + map_size, lcm_align);
 
 	/* allocate chunk */
+<<<<<<< HEAD
 	chunk = memblock_virt_alloc(sizeof(struct pcpu_chunk) +
 				    BITS_TO_LONGS(region_size >> PAGE_SHIFT) * sizeof(unsigned long),
 				    0);
+=======
+	alloc_size = struct_size(chunk, populated,
+				 BITS_TO_LONGS(region_size >> PAGE_SHIFT));
+	chunk = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!chunk)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&chunk->list);
 
@@ -1115,23 +1766,54 @@ static struct pcpu_chunk * __init pcpu_alloc_first_chunk(unsigned long tmp_addr,
 	chunk->nr_pages = region_size >> PAGE_SHIFT;
 	region_bits = pcpu_chunk_map_bits(chunk);
 
+<<<<<<< HEAD
 	chunk->alloc_map = memblock_virt_alloc(BITS_TO_LONGS(region_bits) *
 					       sizeof(chunk->alloc_map[0]), 0);
 	chunk->bound_map = memblock_virt_alloc(BITS_TO_LONGS(region_bits + 1) *
 					       sizeof(chunk->bound_map[0]), 0);
 	chunk->md_blocks = memblock_virt_alloc(pcpu_chunk_nr_blocks(chunk) *
 					       sizeof(chunk->md_blocks[0]), 0);
+=======
+	alloc_size = BITS_TO_LONGS(region_bits) * sizeof(chunk->alloc_map[0]);
+	chunk->alloc_map = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!chunk->alloc_map)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+
+	alloc_size =
+		BITS_TO_LONGS(region_bits + 1) * sizeof(chunk->bound_map[0]);
+	chunk->bound_map = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!chunk->bound_map)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+
+	alloc_size = pcpu_chunk_nr_blocks(chunk) * sizeof(chunk->md_blocks[0]);
+	chunk->md_blocks = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!chunk->md_blocks)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+
+#ifdef CONFIG_MEMCG_KMEM
+	/* first chunk is free to use */
+	chunk->obj_cgroups = NULL;
+#endif
+>>>>>>> upstream/android-13
 	pcpu_init_md_blocks(chunk);
 
 	/* manage populated page bitmap */
 	chunk->immutable = true;
 	bitmap_fill(chunk->populated, chunk->nr_pages);
 	chunk->nr_populated = chunk->nr_pages;
+<<<<<<< HEAD
 	chunk->nr_empty_pop_pages =
 		pcpu_cnt_pop_pages(chunk, start_offset / PCPU_MIN_ALLOC_SIZE,
 				   map_size / PCPU_MIN_ALLOC_SIZE);
 
 	chunk->contig_bits = map_size / PCPU_MIN_ALLOC_SIZE;
+=======
+	chunk->nr_empty_pop_pages = chunk->nr_pages;
+
+>>>>>>> upstream/android-13
 	chunk->free_bytes = map_size;
 
 	if (chunk->start_offset) {
@@ -1141,7 +1823,11 @@ static struct pcpu_chunk * __init pcpu_alloc_first_chunk(unsigned long tmp_addr,
 		set_bit(0, chunk->bound_map);
 		set_bit(offset_bits, chunk->bound_map);
 
+<<<<<<< HEAD
 		chunk->first_bit = offset_bits;
+=======
+		chunk->chunk_md.first_free = offset_bits;
+>>>>>>> upstream/android-13
 
 		pcpu_block_update_hint_alloc(chunk, 0, offset_bits);
 	}
@@ -1191,14 +1877,37 @@ static struct pcpu_chunk *pcpu_alloc_chunk(gfp_t gfp)
 	if (!chunk->md_blocks)
 		goto md_blocks_fail;
 
+<<<<<<< HEAD
 	pcpu_init_md_blocks(chunk);
 
 	/* init metadata */
 	chunk->contig_bits = region_bits;
+=======
+#ifdef CONFIG_MEMCG_KMEM
+	if (!mem_cgroup_kmem_disabled()) {
+		chunk->obj_cgroups =
+			pcpu_mem_zalloc(pcpu_chunk_map_bits(chunk) *
+					sizeof(struct obj_cgroup *), gfp);
+		if (!chunk->obj_cgroups)
+			goto objcg_fail;
+	}
+#endif
+
+	pcpu_init_md_blocks(chunk);
+
+	/* init metadata */
+>>>>>>> upstream/android-13
 	chunk->free_bytes = chunk->nr_pages * PAGE_SIZE;
 
 	return chunk;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMCG_KMEM
+objcg_fail:
+	pcpu_mem_free(chunk->md_blocks);
+#endif
+>>>>>>> upstream/android-13
 md_blocks_fail:
 	pcpu_mem_free(chunk->bound_map);
 bound_map_fail:
@@ -1213,6 +1922,12 @@ static void pcpu_free_chunk(struct pcpu_chunk *chunk)
 {
 	if (!chunk)
 		return;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMCG_KMEM
+	pcpu_mem_free(chunk->obj_cgroups);
+#endif
+>>>>>>> upstream/android-13
 	pcpu_mem_free(chunk->md_blocks);
 	pcpu_mem_free(chunk->bound_map);
 	pcpu_mem_free(chunk->alloc_map);
@@ -1224,17 +1939,26 @@ static void pcpu_free_chunk(struct pcpu_chunk *chunk)
  * @chunk: pcpu_chunk which got populated
  * @page_start: the start page
  * @page_end: the end page
+<<<<<<< HEAD
  * @for_alloc: if this is to populate for allocation
+=======
+>>>>>>> upstream/android-13
  *
  * Pages in [@page_start,@page_end) have been populated to @chunk.  Update
  * the bookkeeping information accordingly.  Must be called after each
  * successful population.
+<<<<<<< HEAD
  *
  * If this is @for_alloc, do not increment pcpu_nr_empty_pop_pages because it
  * is to serve an allocation in that area.
  */
 static void pcpu_chunk_populated(struct pcpu_chunk *chunk, int page_start,
 				 int page_end, bool for_alloc)
+=======
+ */
+static void pcpu_chunk_populated(struct pcpu_chunk *chunk, int page_start,
+				 int page_end)
+>>>>>>> upstream/android-13
 {
 	int nr = page_end - page_start;
 
@@ -1244,10 +1968,14 @@ static void pcpu_chunk_populated(struct pcpu_chunk *chunk, int page_start,
 	chunk->nr_populated += nr;
 	pcpu_nr_populated += nr;
 
+<<<<<<< HEAD
 	if (!for_alloc) {
 		chunk->nr_empty_pop_pages += nr;
 		pcpu_nr_empty_pop_pages += nr;
 	}
+=======
+	pcpu_update_empty_pages(chunk, nr);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1269,9 +1997,15 @@ static void pcpu_chunk_depopulated(struct pcpu_chunk *chunk,
 
 	bitmap_clear(chunk->populated, page_start, nr);
 	chunk->nr_populated -= nr;
+<<<<<<< HEAD
 	chunk->nr_empty_pop_pages -= nr;
 	pcpu_nr_empty_pop_pages -= nr;
 	pcpu_nr_populated -= nr;
+=======
+	pcpu_nr_populated -= nr;
+
+	pcpu_update_empty_pages(chunk, -nr);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1284,6 +2018,10 @@ static void pcpu_chunk_depopulated(struct pcpu_chunk *chunk,
  *
  * pcpu_populate_chunk		- populate the specified range of a chunk
  * pcpu_depopulate_chunk	- depopulate the specified range of a chunk
+<<<<<<< HEAD
+=======
+ * pcpu_post_unmap_tlb_flush	- flush tlb for the specified range of a chunk
+>>>>>>> upstream/android-13
  * pcpu_create_chunk		- create a new chunk
  * pcpu_destroy_chunk		- destroy a chunk, always preceded by full depop
  * pcpu_addr_to_page		- translate address to physical address
@@ -1293,6 +2031,11 @@ static int pcpu_populate_chunk(struct pcpu_chunk *chunk,
 			       int page_start, int page_end, gfp_t gfp);
 static void pcpu_depopulate_chunk(struct pcpu_chunk *chunk,
 				  int page_start, int page_end);
+<<<<<<< HEAD
+=======
+static void pcpu_post_unmap_tlb_flush(struct pcpu_chunk *chunk,
+				      int page_start, int page_end);
+>>>>>>> upstream/android-13
 static struct pcpu_chunk *pcpu_create_chunk(gfp_t gfp);
 static void pcpu_destroy_chunk(struct pcpu_chunk *chunk);
 static struct page *pcpu_addr_to_page(void *addr);
@@ -1335,6 +2078,91 @@ static struct pcpu_chunk *pcpu_chunk_addr_search(void *addr)
 	return pcpu_get_page_chunk(pcpu_addr_to_page(addr));
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMCG_KMEM
+static bool pcpu_memcg_pre_alloc_hook(size_t size, gfp_t gfp,
+				      struct obj_cgroup **objcgp)
+{
+	struct obj_cgroup *objcg;
+
+	if (!memcg_kmem_enabled() || !(gfp & __GFP_ACCOUNT))
+		return true;
+
+	objcg = get_obj_cgroup_from_current();
+	if (!objcg)
+		return true;
+
+	if (obj_cgroup_charge(objcg, gfp, size * num_possible_cpus())) {
+		obj_cgroup_put(objcg);
+		return false;
+	}
+
+	*objcgp = objcg;
+	return true;
+}
+
+static void pcpu_memcg_post_alloc_hook(struct obj_cgroup *objcg,
+				       struct pcpu_chunk *chunk, int off,
+				       size_t size)
+{
+	if (!objcg)
+		return;
+
+	if (likely(chunk && chunk->obj_cgroups)) {
+		chunk->obj_cgroups[off >> PCPU_MIN_ALLOC_SHIFT] = objcg;
+
+		rcu_read_lock();
+		mod_memcg_state(obj_cgroup_memcg(objcg), MEMCG_PERCPU_B,
+				size * num_possible_cpus());
+		rcu_read_unlock();
+	} else {
+		obj_cgroup_uncharge(objcg, size * num_possible_cpus());
+		obj_cgroup_put(objcg);
+	}
+}
+
+static void pcpu_memcg_free_hook(struct pcpu_chunk *chunk, int off, size_t size)
+{
+	struct obj_cgroup *objcg;
+
+	if (unlikely(!chunk->obj_cgroups))
+		return;
+
+	objcg = chunk->obj_cgroups[off >> PCPU_MIN_ALLOC_SHIFT];
+	if (!objcg)
+		return;
+	chunk->obj_cgroups[off >> PCPU_MIN_ALLOC_SHIFT] = NULL;
+
+	obj_cgroup_uncharge(objcg, size * num_possible_cpus());
+
+	rcu_read_lock();
+	mod_memcg_state(obj_cgroup_memcg(objcg), MEMCG_PERCPU_B,
+			-(size * num_possible_cpus()));
+	rcu_read_unlock();
+
+	obj_cgroup_put(objcg);
+}
+
+#else /* CONFIG_MEMCG_KMEM */
+static bool
+pcpu_memcg_pre_alloc_hook(size_t size, gfp_t gfp, struct obj_cgroup **objcgp)
+{
+	return true;
+}
+
+static void pcpu_memcg_post_alloc_hook(struct obj_cgroup *objcg,
+				       struct pcpu_chunk *chunk, int off,
+				       size_t size)
+{
+}
+
+static void pcpu_memcg_free_hook(struct pcpu_chunk *chunk, int off, size_t size)
+{
+}
+#endif /* CONFIG_MEMCG_KMEM */
+
+>>>>>>> upstream/android-13
 /**
  * pcpu_alloc - the percpu allocator
  * @size: size of area to allocate in bytes
@@ -1353,18 +2181,36 @@ static struct pcpu_chunk *pcpu_chunk_addr_search(void *addr)
 static void __percpu *pcpu_alloc(size_t size, size_t align, bool reserved,
 				 gfp_t gfp)
 {
+<<<<<<< HEAD
 	/* whitelisted flags that can be passed to the backing allocators */
 	gfp_t pcpu_gfp = gfp & (GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN);
 	bool is_atomic = (gfp & GFP_KERNEL) != GFP_KERNEL;
 	bool do_warn = !(gfp & __GFP_NOWARN);
 	static int warn_limit = 10;
 	struct pcpu_chunk *chunk;
+=======
+	gfp_t pcpu_gfp;
+	bool is_atomic;
+	bool do_warn;
+	struct obj_cgroup *objcg = NULL;
+	static int warn_limit = 10;
+	struct pcpu_chunk *chunk, *next;
+>>>>>>> upstream/android-13
 	const char *err;
 	int slot, off, cpu, ret;
 	unsigned long flags;
 	void __percpu *ptr;
 	size_t bits, bit_align;
 
+<<<<<<< HEAD
+=======
+	gfp = current_gfp_context(gfp);
+	/* whitelisted flags that can be passed to the backing allocators */
+	pcpu_gfp = gfp & (GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN);
+	is_atomic = (gfp & GFP_KERNEL) != GFP_KERNEL;
+	do_warn = !(gfp & __GFP_NOWARN);
+
+>>>>>>> upstream/android-13
 	/*
 	 * There is now a minimum allocation size of PCPU_MIN_ALLOC_SIZE,
 	 * therefore alignment must be a minimum of that many bytes.
@@ -1385,16 +2231,31 @@ static void __percpu *pcpu_alloc(size_t size, size_t align, bool reserved,
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (unlikely(!pcpu_memcg_pre_alloc_hook(size, gfp, &objcg)))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	if (!is_atomic) {
 		/*
 		 * pcpu_balance_workfn() allocates memory under this mutex,
 		 * and it may wait for memory reclaim. Allow current task
 		 * to become OOM victim, in case of memory pressure.
 		 */
+<<<<<<< HEAD
 		if (gfp & __GFP_NOFAIL)
 			mutex_lock(&pcpu_alloc_mutex);
 		else if (mutex_lock_killable(&pcpu_alloc_mutex))
 			return NULL;
+=======
+		if (gfp & __GFP_NOFAIL) {
+			mutex_lock(&pcpu_alloc_mutex);
+		} else if (mutex_lock_killable(&pcpu_alloc_mutex)) {
+			pcpu_memcg_post_alloc_hook(objcg, NULL, 0, size);
+			return NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_irqsave(&pcpu_lock, flags);
@@ -1419,6 +2280,7 @@ static void __percpu *pcpu_alloc(size_t size, size_t align, bool reserved,
 
 restart:
 	/* search through normal chunks */
+<<<<<<< HEAD
 	for (slot = pcpu_size_to_slot(size); slot < pcpu_nr_slots; slot++) {
 		list_for_each_entry(chunk, &pcpu_slot[slot], list) {
 			off = pcpu_find_block_fit(chunk, bits, bit_align,
@@ -1430,6 +2292,24 @@ restart:
 			if (off >= 0)
 				goto area_found;
 
+=======
+	for (slot = pcpu_size_to_slot(size); slot <= pcpu_free_slot; slot++) {
+		list_for_each_entry_safe(chunk, next, &pcpu_chunk_lists[slot],
+					 list) {
+			off = pcpu_find_block_fit(chunk, bits, bit_align,
+						  is_atomic);
+			if (off < 0) {
+				if (slot < PCPU_SLOT_FAIL_THRESHOLD)
+					pcpu_chunk_move(chunk, 0);
+				continue;
+			}
+
+			off = pcpu_alloc_area(chunk, bits, bit_align, off);
+			if (off >= 0) {
+				pcpu_reintegrate_chunk(chunk);
+				goto area_found;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1445,7 +2325,11 @@ restart:
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	if (list_empty(&pcpu_slot[pcpu_nr_slots - 1])) {
+=======
+	if (list_empty(&pcpu_chunk_lists[pcpu_free_slot])) {
+>>>>>>> upstream/android-13
 		chunk = pcpu_create_chunk(pcpu_gfp);
 		if (!chunk) {
 			err = "failed to allocate new chunk";
@@ -1466,13 +2350,22 @@ area_found:
 
 	/* populate if not all pages are already there */
 	if (!is_atomic) {
+<<<<<<< HEAD
 		int page_start, page_end, rs, re;
+=======
+		unsigned int page_start, page_end, rs, re;
+>>>>>>> upstream/android-13
 
 		page_start = PFN_DOWN(off);
 		page_end = PFN_UP(off + size);
 
+<<<<<<< HEAD
 		pcpu_for_each_unpop_region(chunk->populated, rs, re,
 					   page_start, page_end) {
+=======
+		bitmap_for_each_clear_region(chunk->populated, rs, re,
+					     page_start, page_end) {
+>>>>>>> upstream/android-13
 			WARN_ON(chunk->immutable);
 
 			ret = pcpu_populate_chunk(chunk, rs, re, pcpu_gfp);
@@ -1483,7 +2376,11 @@ area_found:
 				err = "failed to populate";
 				goto fail_unlock;
 			}
+<<<<<<< HEAD
 			pcpu_chunk_populated(chunk, rs, re, true);
+=======
+			pcpu_chunk_populated(chunk, rs, re);
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&pcpu_lock, flags);
 		}
 
@@ -1503,6 +2400,11 @@ area_found:
 	trace_percpu_alloc_percpu(reserved, is_atomic, size, align,
 			chunk->base_addr, off, ptr);
 
+<<<<<<< HEAD
+=======
+	pcpu_memcg_post_alloc_hook(objcg, chunk, off, size);
+
+>>>>>>> upstream/android-13
 	return ptr;
 
 fail_unlock:
@@ -1518,12 +2420,22 @@ fail:
 			pr_info("limit reached, disable warning\n");
 	}
 	if (is_atomic) {
+<<<<<<< HEAD
 		/* see the flag handling in pcpu_blance_workfn() */
+=======
+		/* see the flag handling in pcpu_balance_workfn() */
+>>>>>>> upstream/android-13
 		pcpu_atomic_alloc_failed = true;
 		pcpu_schedule_balance_work();
 	} else {
 		mutex_unlock(&pcpu_alloc_mutex);
 	}
+<<<<<<< HEAD
+=======
+
+	pcpu_memcg_post_alloc_hook(objcg, NULL, 0, size);
+
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -1583,6 +2495,7 @@ void __percpu *__alloc_reserved_percpu(size_t size, size_t align)
 }
 
 /**
+<<<<<<< HEAD
  * pcpu_balance_workfn - manage the amount of free chunks and populated pages
  * @work: unused
  *
@@ -1601,14 +2514,36 @@ static void pcpu_balance_workfn(struct work_struct *work)
 	struct list_head *free_head = &pcpu_slot[pcpu_nr_slots - 1];
 	struct pcpu_chunk *chunk, *next;
 	int slot, nr_to_pop, ret;
+=======
+ * pcpu_balance_free - manage the amount of free chunks
+ * @empty_only: free chunks only if there are no populated pages
+ *
+ * If empty_only is %false, reclaim all fully free chunks regardless of the
+ * number of populated pages.  Otherwise, only reclaim chunks that have no
+ * populated pages.
+ *
+ * CONTEXT:
+ * pcpu_lock (can be dropped temporarily)
+ */
+static void pcpu_balance_free(bool empty_only)
+{
+	LIST_HEAD(to_free);
+	struct list_head *free_head = &pcpu_chunk_lists[pcpu_free_slot];
+	struct pcpu_chunk *chunk, *next;
+
+	lockdep_assert_held(&pcpu_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * There's no reason to keep around multiple unused chunks and VM
 	 * areas can be scarce.  Destroy all free chunks except for one.
 	 */
+<<<<<<< HEAD
 	mutex_lock(&pcpu_alloc_mutex);
 	spin_lock_irq(&pcpu_lock);
 
+=======
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(chunk, next, free_head, list) {
 		WARN_ON(chunk->immutable);
 
@@ -1616,6 +2551,7 @@ static void pcpu_balance_workfn(struct work_struct *work)
 		if (chunk == list_first_entry(free_head, struct pcpu_chunk, list))
 			continue;
 
+<<<<<<< HEAD
 		list_move(&chunk->list, &to_free);
 	}
 
@@ -1626,6 +2562,21 @@ static void pcpu_balance_workfn(struct work_struct *work)
 
 		pcpu_for_each_pop_region(chunk->populated, rs, re, 0,
 					 chunk->nr_pages) {
+=======
+		if (!empty_only || chunk->nr_empty_pop_pages == 0)
+			list_move(&chunk->list, &to_free);
+	}
+
+	if (list_empty(&to_free))
+		return;
+
+	spin_unlock_irq(&pcpu_lock);
+	list_for_each_entry_safe(chunk, next, &to_free, list) {
+		unsigned int rs, re;
+
+		bitmap_for_each_set_region(chunk->populated, rs, re, 0,
+					   chunk->nr_pages) {
+>>>>>>> upstream/android-13
 			pcpu_depopulate_chunk(chunk, rs, re);
 			spin_lock_irq(&pcpu_lock);
 			pcpu_chunk_depopulated(chunk, rs, re);
@@ -1634,6 +2585,32 @@ static void pcpu_balance_workfn(struct work_struct *work)
 		pcpu_destroy_chunk(chunk);
 		cond_resched();
 	}
+<<<<<<< HEAD
+=======
+	spin_lock_irq(&pcpu_lock);
+}
+
+/**
+ * pcpu_balance_populated - manage the amount of populated pages
+ *
+ * Maintain a certain amount of populated pages to satisfy atomic allocations.
+ * It is possible that this is called when physical memory is scarce causing
+ * OOM killer to be triggered.  We should avoid doing so until an actual
+ * allocation causes the failure as it is possible that requests can be
+ * serviced from already backed regions.
+ *
+ * CONTEXT:
+ * pcpu_lock (can be dropped temporarily)
+ */
+static void pcpu_balance_populated(void)
+{
+	/* gfp flags passed to underlying allocators */
+	const gfp_t gfp = GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN;
+	struct pcpu_chunk *chunk;
+	int slot, nr_to_pop, ret;
+
+	lockdep_assert_held(&pcpu_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ensure there are certain number of free populated pages for
@@ -1656,24 +2633,37 @@ retry_pop:
 				  0, PCPU_EMPTY_POP_PAGES_HIGH);
 	}
 
+<<<<<<< HEAD
 	for (slot = pcpu_size_to_slot(PAGE_SIZE); slot < pcpu_nr_slots; slot++) {
 		int nr_unpop = 0, rs, re;
+=======
+	for (slot = pcpu_size_to_slot(PAGE_SIZE); slot <= pcpu_free_slot; slot++) {
+		unsigned int nr_unpop = 0, rs, re;
+>>>>>>> upstream/android-13
 
 		if (!nr_to_pop)
 			break;
 
+<<<<<<< HEAD
 		spin_lock_irq(&pcpu_lock);
 		list_for_each_entry(chunk, &pcpu_slot[slot], list) {
+=======
+		list_for_each_entry(chunk, &pcpu_chunk_lists[slot], list) {
+>>>>>>> upstream/android-13
 			nr_unpop = chunk->nr_pages - chunk->nr_populated;
 			if (nr_unpop)
 				break;
 		}
+<<<<<<< HEAD
 		spin_unlock_irq(&pcpu_lock);
+=======
+>>>>>>> upstream/android-13
 
 		if (!nr_unpop)
 			continue;
 
 		/* @chunk can't go away while pcpu_alloc_mutex is held */
+<<<<<<< HEAD
 		pcpu_for_each_unpop_region(chunk->populated, rs, re, 0,
 					   chunk->nr_pages) {
 			int nr = min(re - rs, nr_to_pop);
@@ -1684,6 +2674,19 @@ retry_pop:
 				spin_lock_irq(&pcpu_lock);
 				pcpu_chunk_populated(chunk, rs, rs + nr, false);
 				spin_unlock_irq(&pcpu_lock);
+=======
+		bitmap_for_each_clear_region(chunk->populated, rs, re, 0,
+					     chunk->nr_pages) {
+			int nr = min_t(int, re - rs, nr_to_pop);
+
+			spin_unlock_irq(&pcpu_lock);
+			ret = pcpu_populate_chunk(chunk, rs, rs + nr, gfp);
+			cond_resched();
+			spin_lock_irq(&pcpu_lock);
+			if (!ret) {
+				nr_to_pop -= nr;
+				pcpu_chunk_populated(chunk, rs, rs + nr);
+>>>>>>> upstream/android-13
 			} else {
 				nr_to_pop = 0;
 			}
@@ -1695,6 +2698,7 @@ retry_pop:
 
 	if (nr_to_pop) {
 		/* ran out of chunks to populate, create a new one and retry */
+<<<<<<< HEAD
 		chunk = pcpu_create_chunk(gfp);
 		if (chunk) {
 			spin_lock_irq(&pcpu_lock);
@@ -1704,6 +2708,151 @@ retry_pop:
 		}
 	}
 
+=======
+		spin_unlock_irq(&pcpu_lock);
+		chunk = pcpu_create_chunk(gfp);
+		cond_resched();
+		spin_lock_irq(&pcpu_lock);
+		if (chunk) {
+			pcpu_chunk_relocate(chunk, -1);
+			goto retry_pop;
+		}
+	}
+}
+
+/**
+ * pcpu_reclaim_populated - scan over to_depopulate chunks and free empty pages
+ *
+ * Scan over chunks in the depopulate list and try to release unused populated
+ * pages back to the system.  Depopulated chunks are sidelined to prevent
+ * repopulating these pages unless required.  Fully free chunks are reintegrated
+ * and freed accordingly (1 is kept around).  If we drop below the empty
+ * populated pages threshold, reintegrate the chunk if it has empty free pages.
+ * Each chunk is scanned in the reverse order to keep populated pages close to
+ * the beginning of the chunk.
+ *
+ * CONTEXT:
+ * pcpu_lock (can be dropped temporarily)
+ *
+ */
+static void pcpu_reclaim_populated(void)
+{
+	struct pcpu_chunk *chunk;
+	struct pcpu_block_md *block;
+	int freed_page_start, freed_page_end;
+	int i, end;
+	bool reintegrate;
+
+	lockdep_assert_held(&pcpu_lock);
+
+	/*
+	 * Once a chunk is isolated to the to_depopulate list, the chunk is no
+	 * longer discoverable to allocations whom may populate pages.  The only
+	 * other accessor is the free path which only returns area back to the
+	 * allocator not touching the populated bitmap.
+	 */
+	while (!list_empty(&pcpu_chunk_lists[pcpu_to_depopulate_slot])) {
+		chunk = list_first_entry(&pcpu_chunk_lists[pcpu_to_depopulate_slot],
+					 struct pcpu_chunk, list);
+		WARN_ON(chunk->immutable);
+
+		/*
+		 * Scan chunk's pages in the reverse order to keep populated
+		 * pages close to the beginning of the chunk.
+		 */
+		freed_page_start = chunk->nr_pages;
+		freed_page_end = 0;
+		reintegrate = false;
+		for (i = chunk->nr_pages - 1, end = -1; i >= 0; i--) {
+			/* no more work to do */
+			if (chunk->nr_empty_pop_pages == 0)
+				break;
+
+			/* reintegrate chunk to prevent atomic alloc failures */
+			if (pcpu_nr_empty_pop_pages < PCPU_EMPTY_POP_PAGES_HIGH) {
+				reintegrate = true;
+				goto end_chunk;
+			}
+
+			/*
+			 * If the page is empty and populated, start or
+			 * extend the (i, end) range.  If i == 0, decrease
+			 * i and perform the depopulation to cover the last
+			 * (first) page in the chunk.
+			 */
+			block = chunk->md_blocks + i;
+			if (block->contig_hint == PCPU_BITMAP_BLOCK_BITS &&
+			    test_bit(i, chunk->populated)) {
+				if (end == -1)
+					end = i;
+				if (i > 0)
+					continue;
+				i--;
+			}
+
+			/* depopulate if there is an active range */
+			if (end == -1)
+				continue;
+
+			spin_unlock_irq(&pcpu_lock);
+			pcpu_depopulate_chunk(chunk, i + 1, end + 1);
+			cond_resched();
+			spin_lock_irq(&pcpu_lock);
+
+			pcpu_chunk_depopulated(chunk, i + 1, end + 1);
+			freed_page_start = min(freed_page_start, i + 1);
+			freed_page_end = max(freed_page_end, end + 1);
+
+			/* reset the range and continue */
+			end = -1;
+		}
+
+end_chunk:
+		/* batch tlb flush per chunk to amortize cost */
+		if (freed_page_start < freed_page_end) {
+			spin_unlock_irq(&pcpu_lock);
+			pcpu_post_unmap_tlb_flush(chunk,
+						  freed_page_start,
+						  freed_page_end);
+			cond_resched();
+			spin_lock_irq(&pcpu_lock);
+		}
+
+		if (reintegrate || chunk->free_bytes == pcpu_unit_size)
+			pcpu_reintegrate_chunk(chunk);
+		else
+			list_move_tail(&chunk->list,
+				       &pcpu_chunk_lists[pcpu_sidelined_slot]);
+	}
+}
+
+/**
+ * pcpu_balance_workfn - manage the amount of free chunks and populated pages
+ * @work: unused
+ *
+ * For each chunk type, manage the number of fully free chunks and the number of
+ * populated pages.  An important thing to consider is when pages are freed and
+ * how they contribute to the global counts.
+ */
+static void pcpu_balance_workfn(struct work_struct *work)
+{
+	/*
+	 * pcpu_balance_free() is called twice because the first time we may
+	 * trim pages in the active pcpu_nr_empty_pop_pages which may cause us
+	 * to grow other chunks.  This then gives pcpu_reclaim_populated() time
+	 * to move fully free chunks to the active list to be freed if
+	 * appropriate.
+	 */
+	mutex_lock(&pcpu_alloc_mutex);
+	spin_lock_irq(&pcpu_lock);
+
+	pcpu_balance_free(false);
+	pcpu_reclaim_populated();
+	pcpu_balance_populated();
+	pcpu_balance_free(true);
+
+	spin_unlock_irq(&pcpu_lock);
+>>>>>>> upstream/android-13
 	mutex_unlock(&pcpu_alloc_mutex);
 }
 
@@ -1721,7 +2870,11 @@ void free_percpu(void __percpu *ptr)
 	void *addr;
 	struct pcpu_chunk *chunk;
 	unsigned long flags;
+<<<<<<< HEAD
 	int off;
+=======
+	int size, off;
+>>>>>>> upstream/android-13
 	bool need_balance = false;
 
 	if (!ptr)
@@ -1736,6 +2889,7 @@ void free_percpu(void __percpu *ptr)
 	chunk = pcpu_chunk_addr_search(addr);
 	off = addr - chunk->base_addr;
 
+<<<<<<< HEAD
 	pcpu_free_area(chunk, off);
 
 	/* if there are more than one fully free chunks, wake up grim reaper */
@@ -1743,10 +2897,31 @@ void free_percpu(void __percpu *ptr)
 		struct pcpu_chunk *pos;
 
 		list_for_each_entry(pos, &pcpu_slot[pcpu_nr_slots - 1], list)
+=======
+	size = pcpu_free_area(chunk, off);
+
+	pcpu_memcg_free_hook(chunk, off, size);
+
+	/*
+	 * If there are more than one fully free chunks, wake up grim reaper.
+	 * If the chunk is isolated, it may be in the process of being
+	 * reclaimed.  Let reclaim manage cleaning up of that chunk.
+	 */
+	if (!chunk->isolated && chunk->free_bytes == pcpu_unit_size) {
+		struct pcpu_chunk *pos;
+
+		list_for_each_entry(pos, &pcpu_chunk_lists[pcpu_free_slot], list)
+>>>>>>> upstream/android-13
 			if (pos != chunk) {
 				need_balance = true;
 				break;
 			}
+<<<<<<< HEAD
+=======
+	} else if (pcpu_should_reclaim_chunk(chunk)) {
+		pcpu_isolate_chunk(chunk);
+		need_balance = true;
+>>>>>>> upstream/android-13
 	}
 
 	trace_percpu_free_percpu(chunk->base_addr, off, ptr);
@@ -1890,11 +3065,19 @@ struct pcpu_alloc_info * __init pcpu_alloc_alloc_info(int nr_groups,
 	void *ptr;
 	int unit;
 
+<<<<<<< HEAD
 	base_size = ALIGN(sizeof(*ai) + nr_groups * sizeof(ai->groups[0]),
 			  __alignof__(ai->groups[0].cpu_map[0]));
 	ai_size = base_size + nr_units * sizeof(ai->groups[0].cpu_map[0]);
 
 	ptr = memblock_virt_alloc_nopanic(PFN_ALIGN(ai_size), PAGE_SIZE);
+=======
+	base_size = ALIGN(struct_size(ai, groups, nr_groups),
+			  __alignof__(ai->groups[0].cpu_map[0]));
+	ai_size = base_size + nr_units * sizeof(ai->groups[0].cpu_map[0]);
+
+	ptr = memblock_alloc(PFN_ALIGN(ai_size), PAGE_SIZE);
+>>>>>>> upstream/android-13
 	if (!ptr)
 		return NULL;
 	ai = ptr;
@@ -1985,7 +3168,11 @@ static void pcpu_dump_alloc_info(const char *lvl,
  * @base_addr: mapped address
  *
  * Initialize the first percpu chunk which contains the kernel static
+<<<<<<< HEAD
  * perpcu area.  This function is to be called from arch percpu area
+=======
+ * percpu area.  This function is to be called from arch percpu area
+>>>>>>> upstream/android-13
  * setup path.
  *
  * @ai contains all information necessary to initialize the first
@@ -2032,12 +3219,18 @@ static void pcpu_dump_alloc_info(const char *lvl,
  * share the same vm, but use offset regions in the area allocation map.
  * The chunk serving the dynamic region is circulated in the chunk slots
  * and available for dynamic allocation like any other chunk.
+<<<<<<< HEAD
  *
  * RETURNS:
  * 0 on success, -errno on failure.
  */
 int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
 				  void *base_addr)
+=======
+ */
+void __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
+				   void *base_addr)
+>>>>>>> upstream/android-13
 {
 	size_t size_sum = ai->static_size + ai->reserved_size + ai->dyn_size;
 	size_t static_size, dyn_size;
@@ -2050,6 +3243,10 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
 	int group, unit, i;
 	int map_size;
 	unsigned long tmp_addr;
+<<<<<<< HEAD
+=======
+	size_t alloc_size;
+>>>>>>> upstream/android-13
 
 #define PCPU_SETUP_BUG_ON(cond)	do {					\
 	if (unlikely(cond)) {						\
@@ -2081,12 +3278,38 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
 	PCPU_SETUP_BUG_ON(pcpu_verify_alloc_info(ai) < 0);
 
 	/* process group information and build config tables accordingly */
+<<<<<<< HEAD
 	group_offsets = memblock_virt_alloc(ai->nr_groups *
 					     sizeof(group_offsets[0]), 0);
 	group_sizes = memblock_virt_alloc(ai->nr_groups *
 					   sizeof(group_sizes[0]), 0);
 	unit_map = memblock_virt_alloc(nr_cpu_ids * sizeof(unit_map[0]), 0);
 	unit_off = memblock_virt_alloc(nr_cpu_ids * sizeof(unit_off[0]), 0);
+=======
+	alloc_size = ai->nr_groups * sizeof(group_offsets[0]);
+	group_offsets = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!group_offsets)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+
+	alloc_size = ai->nr_groups * sizeof(group_sizes[0]);
+	group_sizes = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!group_sizes)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+
+	alloc_size = nr_cpu_ids * sizeof(unit_map[0]);
+	unit_map = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!unit_map)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+
+	alloc_size = nr_cpu_ids * sizeof(unit_off[0]);
+	unit_off = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
+	if (!unit_off)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      alloc_size);
+>>>>>>> upstream/android-13
 
 	for (cpu = 0; cpu < nr_cpu_ids; cpu++)
 		unit_map[cpu] = UINT_MAX;
@@ -2140,12 +3363,18 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
 	pcpu_unit_pages = ai->unit_size >> PAGE_SHIFT;
 	pcpu_unit_size = pcpu_unit_pages << PAGE_SHIFT;
 	pcpu_atom_size = ai->atom_size;
+<<<<<<< HEAD
 	pcpu_chunk_struct_size = sizeof(struct pcpu_chunk) +
 		BITS_TO_LONGS(pcpu_unit_pages) * sizeof(unsigned long);
+=======
+	pcpu_chunk_struct_size = struct_size(chunk, populated,
+					     BITS_TO_LONGS(pcpu_unit_pages));
+>>>>>>> upstream/android-13
 
 	pcpu_stats_save_ai(ai);
 
 	/*
+<<<<<<< HEAD
 	 * Allocate chunk slots.  The additional last slot is for
 	 * empty chunks.
 	 */
@@ -2154,6 +3383,26 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
 			pcpu_nr_slots * sizeof(pcpu_slot[0]), 0);
 	for (i = 0; i < pcpu_nr_slots; i++)
 		INIT_LIST_HEAD(&pcpu_slot[i]);
+=======
+	 * Allocate chunk slots.  The slots after the active slots are:
+	 *   sidelined_slot - isolated, depopulated chunks
+	 *   free_slot - fully free chunks
+	 *   to_depopulate_slot - isolated, chunks to depopulate
+	 */
+	pcpu_sidelined_slot = __pcpu_size_to_slot(pcpu_unit_size) + 1;
+	pcpu_free_slot = pcpu_sidelined_slot + 1;
+	pcpu_to_depopulate_slot = pcpu_free_slot + 1;
+	pcpu_nr_slots = pcpu_to_depopulate_slot + 1;
+	pcpu_chunk_lists = memblock_alloc(pcpu_nr_slots *
+					  sizeof(pcpu_chunk_lists[0]),
+					  SMP_CACHE_BYTES);
+	if (!pcpu_chunk_lists)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      pcpu_nr_slots * sizeof(pcpu_chunk_lists[0]));
+
+	for (i = 0; i < pcpu_nr_slots; i++)
+		INIT_LIST_HEAD(&pcpu_chunk_lists[i]);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The end of the static region needs to be aligned with the
@@ -2201,7 +3450,10 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
 
 	/* we're done */
 	pcpu_base_addr = base_addr;
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_SMP
@@ -2274,17 +3526,29 @@ early_param("percpu_alloc", percpu_alloc_setup);
  * On success, pointer to the new allocation_info is returned.  On
  * failure, ERR_PTR value is returned.
  */
+<<<<<<< HEAD
 static struct pcpu_alloc_info * __init pcpu_build_alloc_info(
+=======
+static struct pcpu_alloc_info * __init __flatten pcpu_build_alloc_info(
+>>>>>>> upstream/android-13
 				size_t reserved_size, size_t dyn_size,
 				size_t atom_size,
 				pcpu_fc_cpu_distance_fn_t cpu_distance_fn)
 {
 	static int group_map[NR_CPUS] __initdata;
 	static int group_cnt[NR_CPUS] __initdata;
+<<<<<<< HEAD
 	const size_t static_size = __per_cpu_end - __per_cpu_start;
 	int nr_groups = 1, nr_units = 0;
 	size_t size_sum, min_unit_size, alloc_size;
 	int upa, max_upa, uninitialized_var(best_upa);	/* units_per_alloc */
+=======
+	static struct cpumask mask __initdata;
+	const size_t static_size = __per_cpu_end - __per_cpu_start;
+	int nr_groups = 1, nr_units = 0;
+	size_t size_sum, min_unit_size, alloc_size;
+	int upa, max_upa, best_upa;	/* units_per_alloc */
+>>>>>>> upstream/android-13
 	int last_allocs, group, unit;
 	unsigned int cpu, tcpu;
 	struct pcpu_alloc_info *ai;
@@ -2293,6 +3557,10 @@ static struct pcpu_alloc_info * __init pcpu_build_alloc_info(
 	/* this function may be called multiple times */
 	memset(group_map, 0, sizeof(group_map));
 	memset(group_cnt, 0, sizeof(group_cnt));
+<<<<<<< HEAD
+=======
+	cpumask_clear(&mask);
+>>>>>>> upstream/android-13
 
 	/* calculate size_sum and ensure dyn_size is enough for early alloc */
 	size_sum = PFN_ALIGN(static_size + reserved_size +
@@ -2314,6 +3582,7 @@ static struct pcpu_alloc_info * __init pcpu_build_alloc_info(
 		upa--;
 	max_upa = upa;
 
+<<<<<<< HEAD
 	/* group cpus according to their proximity */
 	for_each_possible_cpu(cpu) {
 		group = 0;
@@ -2332,6 +3601,29 @@ static struct pcpu_alloc_info * __init pcpu_build_alloc_info(
 		group_map[cpu] = group;
 		group_cnt[group]++;
 	}
+=======
+	cpumask_copy(&mask, cpu_possible_mask);
+
+	/* group cpus according to their proximity */
+	for (group = 0; !cpumask_empty(&mask); group++) {
+		/* pop the group's first cpu */
+		cpu = cpumask_first(&mask);
+		group_map[cpu] = group;
+		group_cnt[group]++;
+		cpumask_clear_cpu(cpu, &mask);
+
+		for_each_cpu(tcpu, &mask) {
+			if (!cpu_distance_fn ||
+			    (cpu_distance_fn(cpu, tcpu) == LOCAL_DISTANCE &&
+			     cpu_distance_fn(tcpu, cpu) == LOCAL_DISTANCE)) {
+				group_map[tcpu] = group;
+				group_cnt[group]++;
+				cpumask_clear_cpu(tcpu, &mask);
+			}
+		}
+	}
+	nr_groups = group;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Wasted space is caused by a ratio imbalance of upa to group_cnt.
@@ -2339,6 +3631,10 @@ static struct pcpu_alloc_info * __init pcpu_build_alloc_info(
 	 * Related to atom_size, which could be much larger than the unit_size.
 	 */
 	last_allocs = INT_MAX;
+<<<<<<< HEAD
+=======
+	best_upa = 0;
+>>>>>>> upstream/android-13
 	for (upa = max_upa; upa; upa--) {
 		int allocs = 0, wasted = 0;
 
@@ -2365,6 +3661,10 @@ static struct pcpu_alloc_info * __init pcpu_build_alloc_info(
 		last_allocs = allocs;
 		best_upa = upa;
 	}
+<<<<<<< HEAD
+=======
+	BUG_ON(!best_upa);
+>>>>>>> upstream/android-13
 	upa = best_upa;
 
 	/* allocate and fill alloc_info */
@@ -2388,7 +3688,11 @@ static struct pcpu_alloc_info * __init pcpu_build_alloc_info(
 	ai->atom_size = atom_size;
 	ai->alloc_size = alloc_size;
 
+<<<<<<< HEAD
 	for (group = 0, unit = 0; group_cnt[group]; group++) {
+=======
+	for (group = 0, unit = 0; group < nr_groups; group++) {
+>>>>>>> upstream/android-13
 		struct pcpu_group_info *gi = &ai->groups[group];
 
 		/*
@@ -2454,7 +3758,11 @@ int __init pcpu_embed_first_chunk(size_t reserved_size, size_t dyn_size,
 	struct pcpu_alloc_info *ai;
 	size_t size_sum, areas_size;
 	unsigned long max_distance;
+<<<<<<< HEAD
 	int group, i, highest_group, rc;
+=======
+	int group, i, highest_group, rc = 0;
+>>>>>>> upstream/android-13
 
 	ai = pcpu_build_alloc_info(reserved_size, dyn_size, atom_size,
 				   cpu_distance_fn);
@@ -2464,7 +3772,11 @@ int __init pcpu_embed_first_chunk(size_t reserved_size, size_t dyn_size,
 	size_sum = ai->static_size + ai->reserved_size + ai->dyn_size;
 	areas_size = PFN_ALIGN(ai->nr_groups * sizeof(void *));
 
+<<<<<<< HEAD
 	areas = memblock_virt_alloc_nopanic(areas_size, 0);
+=======
+	areas = memblock_alloc(areas_size, SMP_CACHE_BYTES);
+>>>>>>> upstream/android-13
 	if (!areas) {
 		rc = -ENOMEM;
 		goto out_free;
@@ -2539,7 +3851,11 @@ int __init pcpu_embed_first_chunk(size_t reserved_size, size_t dyn_size,
 		PFN_DOWN(size_sum), ai->static_size, ai->reserved_size,
 		ai->dyn_size, ai->unit_size);
 
+<<<<<<< HEAD
 	rc = pcpu_setup_first_chunk(ai, base);
+=======
+	pcpu_setup_first_chunk(ai, base);
+>>>>>>> upstream/android-13
 	goto out_free;
 
 out_free_areas:
@@ -2583,7 +3899,11 @@ int __init pcpu_page_first_chunk(size_t reserved_size,
 	int unit_pages;
 	size_t pages_size;
 	struct page **pages;
+<<<<<<< HEAD
 	int unit, i, j, rc;
+=======
+	int unit, i, j, rc = 0;
+>>>>>>> upstream/android-13
 	int upa;
 	int nr_g0_units;
 
@@ -2595,7 +3915,11 @@ int __init pcpu_page_first_chunk(size_t reserved_size,
 	BUG_ON(ai->nr_groups != 1);
 	upa = ai->alloc_size/ai->unit_size;
 	nr_g0_units = roundup(num_possible_cpus(), upa);
+<<<<<<< HEAD
 	if (unlikely(WARN_ON(ai->groups[0].nr_units != nr_g0_units))) {
+=======
+	if (WARN_ON(ai->groups[0].nr_units != nr_g0_units)) {
+>>>>>>> upstream/android-13
 		pcpu_free_alloc_info(ai);
 		return -EINVAL;
 	}
@@ -2605,7 +3929,14 @@ int __init pcpu_page_first_chunk(size_t reserved_size,
 	/* unaligned allocations can't be freed, round up to page size */
 	pages_size = PFN_ALIGN(unit_pages * num_possible_cpus() *
 			       sizeof(pages[0]));
+<<<<<<< HEAD
 	pages = memblock_virt_alloc(pages_size, 0);
+=======
+	pages = memblock_alloc(pages_size, SMP_CACHE_BYTES);
+	if (!pages)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      pages_size);
+>>>>>>> upstream/android-13
 
 	/* allocate pages */
 	j = 0;
@@ -2661,7 +3992,11 @@ int __init pcpu_page_first_chunk(size_t reserved_size,
 		unit_pages, psize_str, ai->static_size,
 		ai->reserved_size, ai->dyn_size);
 
+<<<<<<< HEAD
 	rc = pcpu_setup_first_chunk(ai, vm.addr);
+=======
+	pcpu_setup_first_chunk(ai, vm.addr);
+>>>>>>> upstream/android-13
 	goto out_free_ar;
 
 enomem:
@@ -2694,8 +4029,12 @@ EXPORT_SYMBOL(__per_cpu_offset);
 static void * __init pcpu_dfl_fc_alloc(unsigned int cpu, size_t size,
 				       size_t align)
 {
+<<<<<<< HEAD
 	return  memblock_virt_alloc_from_nopanic(
 			size, align, __pa(MAX_DMA_ADDRESS));
+=======
+	return  memblock_alloc_from(size, align, __pa(MAX_DMA_ADDRESS));
+>>>>>>> upstream/android-13
 }
 
 static void __init pcpu_dfl_fc_free(void *ptr, size_t size)
@@ -2743,9 +4082,13 @@ void __init setup_per_cpu_areas(void)
 	void *fc;
 
 	ai = pcpu_alloc_alloc_info(1, 1);
+<<<<<<< HEAD
 	fc = memblock_virt_alloc_from_nopanic(unit_size,
 					      PAGE_SIZE,
 					      __pa(MAX_DMA_ADDRESS));
+=======
+	fc = memblock_alloc_from(unit_size, PAGE_SIZE, __pa(MAX_DMA_ADDRESS));
+>>>>>>> upstream/android-13
 	if (!ai || !fc)
 		panic("Failed to allocate memory for percpu areas.");
 	/* kmemleak tracks the percpu allocations separately */
@@ -2758,8 +4101,12 @@ void __init setup_per_cpu_areas(void)
 	ai->groups[0].nr_units = 1;
 	ai->groups[0].cpu_map[0] = 0;
 
+<<<<<<< HEAD
 	if (pcpu_setup_first_chunk(ai, fc) < 0)
 		panic("Failed to initialize percpu areas.");
+=======
+	pcpu_setup_first_chunk(ai, fc);
+>>>>>>> upstream/android-13
 	pcpu_free_alloc_info(ai);
 }
 
@@ -2780,6 +4127,10 @@ unsigned long pcpu_nr_pages(void)
 {
 	return pcpu_nr_populated * pcpu_nr_units;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(pcpu_nr_pages);
+>>>>>>> upstream/android-13
 
 /*
  * Percpu allocator is initialized early during boot when neither slab or

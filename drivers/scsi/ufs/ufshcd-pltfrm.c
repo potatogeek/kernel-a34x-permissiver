@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 /*
  * Universal Flash Storage Host controller Platform bus based glue driver
  *
  * This code is based on drivers/scsi/ufs/ufshcd-pltfrm.c
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Universal Flash Storage Host controller Platform bus based glue driver
+>>>>>>> upstream/android-13
  * Copyright (C) 2011-2013 Samsung India Software Operations
  *
  * Authors:
  *	Santosh Yaraganavi <santosh.sy@samsung.com>
  *	Vinayak Holikatti <h.vinayak@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,6 +38,8 @@
  * circumstances will the contributor of this Program be liable for
  * any damages of any kind arising from your use or distribution of
  * this program.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -114,6 +123,7 @@ static int ufshcd_parse_clock_info(struct ufs_hba *hba)
 			goto out;
 		}
 
+<<<<<<< HEAD
 		/* skip vendor clk, vendor clk shall be handled by vops */
 		if (strstr(name, "vendor")) {
 			dev_info(dev, "%s: vendor clk %s is found and skipped\n",
@@ -124,6 +134,18 @@ static int ufshcd_parse_clock_info(struct ufs_hba *hba)
 		clki->min_freq = clkfreq[i];
 		clki->max_freq = clkfreq[i+1];
 		clki->name = kstrdup(name, GFP_KERNEL);
+=======
+		clki->min_freq = clkfreq[i];
+		clki->max_freq = clkfreq[i+1];
+		clki->name = devm_kstrdup(dev, name, GFP_KERNEL);
+		if (!clki->name) {
+			ret = -ENOMEM;
+			goto out;
+		}
+
+		if (!strcmp(name, "ref_clk"))
+			clki->keep_link_active = true;
+>>>>>>> upstream/android-13
 		dev_dbg(dev, "%s: min %u max %u name %s\n", "freq-table-hz",
 				clki->min_freq, clki->max_freq, clki->name);
 		list_add_tail(&clki->list, &hba->clk_list_head);
@@ -133,10 +155,16 @@ out:
 }
 
 #define MAX_PROP_SIZE 32
+<<<<<<< HEAD
 static int ufshcd_populate_vreg(struct device *dev, const char *name,
 		struct ufs_vreg **out_vreg)
 {
 	int ret = 0;
+=======
+int ufshcd_populate_vreg(struct device *dev, const char *name,
+			 struct ufs_vreg **out_vreg)
+{
+>>>>>>> upstream/android-13
 	char prop_name[MAX_PROP_SIZE];
 	struct ufs_vreg *vreg = NULL;
 	struct device_node *np = dev->of_node;
@@ -157,17 +185,24 @@ static int ufshcd_populate_vreg(struct device *dev, const char *name,
 	if (!vreg)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	vreg->name = kstrdup(name, GFP_KERNEL);
 	/* if fixed regulator no need further initialization */
 	snprintf(prop_name, MAX_PROP_SIZE, "%s-fixed-regulator", name);
 	if (of_property_read_bool(np, prop_name))
 		goto out;
+=======
+	vreg->name = devm_kstrdup(dev, name, GFP_KERNEL);
+	if (!vreg->name)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	snprintf(prop_name, MAX_PROP_SIZE, "%s-max-microamp", name);
 	if (of_property_read_u32(np, prop_name, &vreg->max_uA)) {
 		dev_info(dev, "%s: unable to find %s\n", __func__, prop_name);
 		vreg->max_uA = 0;
 	}
+<<<<<<< HEAD
 
 	if (!strcmp(name, "vcc")) {
 		if (of_property_read_bool(np, "vcc-supply-1p8")) {
@@ -192,6 +227,13 @@ out:
 		*out_vreg = vreg;
 	return ret;
 }
+=======
+out:
+	*out_vreg = vreg;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(ufshcd_populate_vreg);
+>>>>>>> upstream/android-13
 
 /**
  * ufshcd_parse_regulator_info - get regulator info from device tree
@@ -225,6 +267,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /**
  * ufshcd_pltfrm_suspend - suspend power management function
@@ -272,6 +315,8 @@ EXPORT_SYMBOL_GPL(ufshcd_pltfrm_runtime_idle);
 
 #endif /* CONFIG_PM */
 
+=======
+>>>>>>> upstream/android-13
 void ufshcd_pltfrm_shutdown(struct platform_device *pdev)
 {
 	ufshcd_shutdown((struct ufs_hba *)platform_get_drvdata(pdev));
@@ -390,6 +435,26 @@ int ufshcd_get_pwr_dev_param(struct ufs_dev_params *pltfrm_param,
 }
 EXPORT_SYMBOL_GPL(ufshcd_get_pwr_dev_param);
 
+<<<<<<< HEAD
+=======
+void ufshcd_init_pwr_dev_param(struct ufs_dev_params *dev_param)
+{
+	dev_param->tx_lanes = 2;
+	dev_param->rx_lanes = 2;
+	dev_param->hs_rx_gear = UFS_HS_G3;
+	dev_param->hs_tx_gear = UFS_HS_G3;
+	dev_param->pwm_rx_gear = UFS_PWM_G4;
+	dev_param->pwm_tx_gear = UFS_PWM_G4;
+	dev_param->rx_pwr_pwm = SLOW_MODE;
+	dev_param->tx_pwr_pwm = SLOW_MODE;
+	dev_param->rx_pwr_hs = FAST_MODE;
+	dev_param->tx_pwr_hs = FAST_MODE;
+	dev_param->hs_rate = PA_HS_MODE_B;
+	dev_param->desired_working_mode = UFS_HS_MODE;
+}
+EXPORT_SYMBOL_GPL(ufshcd_init_pwr_dev_param);
+
+>>>>>>> upstream/android-13
 /**
  * ufshcd_pltfrm_init - probe routine of the driver
  * @pdev: pointer to Platform device handle
@@ -402,12 +467,19 @@ int ufshcd_pltfrm_init(struct platform_device *pdev,
 {
 	struct ufs_hba *hba;
 	void __iomem *mmio_base;
+<<<<<<< HEAD
 	struct resource *mem_res;
 	int irq, err;
 	struct device *dev = &pdev->dev;
 
 	mem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mmio_base = devm_ioremap_resource(dev, mem_res);
+=======
+	int irq, err;
+	struct device *dev = &pdev->dev;
+
+	mmio_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mmio_base)) {
 		err = PTR_ERR(mmio_base);
 		goto out;
@@ -415,7 +487,11 @@ int ufshcd_pltfrm_init(struct platform_device *pdev,
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		err = -ENODEV;
+=======
+		err = irq;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -448,8 +524,11 @@ int ufshcd_pltfrm_init(struct platform_device *pdev,
 		goto dealloc_host;
 	}
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, hba);
 
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_set_active(&pdev->dev);
 	pm_runtime_enable(&pdev->dev);
 

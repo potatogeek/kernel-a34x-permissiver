@@ -24,8 +24,13 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 
+<<<<<<< HEAD
 #include <drm/drm_scdc_helper.h>
 #include <drm/drmP.h>
+=======
+#include <drm/drm_print.h>
+#include <drm/drm_scdc_helper.h>
+>>>>>>> upstream/android-13
 
 /**
  * DOC: scdc helpers
@@ -125,7 +130,11 @@ ssize_t drm_scdc_write(struct i2c_adapter *adapter, u8 offset,
 EXPORT_SYMBOL(drm_scdc_write);
 
 /**
+<<<<<<< HEAD
  * drm_scdc_check_scrambling_status - what is status of scrambling?
+=======
+ * drm_scdc_get_scrambling_status - what is status of scrambling?
+>>>>>>> upstream/android-13
  * @adapter: I2C adapter for DDC channel
  *
  * Reads the scrambler status over SCDC, and checks the
@@ -241,7 +250,11 @@ bool drm_scdc_set_high_tmds_clock_ratio(struct i2c_adapter *adapter, bool set)
 	/*
 	 * The spec says that a source should wait minimum 1ms and maximum
 	 * 100ms after writing the TMDS config for clock ratio. Lets allow a
+<<<<<<< HEAD
 	 * wait of upto 2ms here.
+=======
+	 * wait of up to 2ms here.
+>>>>>>> upstream/android-13
 	 */
 	usleep_range(1000, 2000);
 	return true;

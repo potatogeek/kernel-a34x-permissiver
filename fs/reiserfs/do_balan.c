@@ -239,10 +239,15 @@ static int balance_leaf_when_delete_left(struct tree_balance *tb)
 static int balance_leaf_when_delete(struct tree_balance *tb, int flag)
 {
 	struct buffer_head *tbS0 = PATH_PLAST_BUFFER(tb->tb_path);
+<<<<<<< HEAD
 	int item_pos = PATH_LAST_POSITION(tb->tb_path);
 	struct buffer_info bi;
 	int n;
 	struct item_head *ih;
+=======
+	struct buffer_info bi;
+	int n;
+>>>>>>> upstream/android-13
 
 	RFALSE(tb->FR[0] && B_LEVEL(tb->FR[0]) != DISK_LEAF_NODE_LEVEL + 1,
 	       "vs- 12000: level: wrong FR %z", tb->FR[0]);
@@ -251,7 +256,10 @@ static int balance_leaf_when_delete(struct tree_balance *tb, int flag)
 	RFALSE(!tb->blknum[0] && !PATH_H_PPARENT(tb->tb_path, 0),
 	       "PAP-12010: tree can not be empty");
 
+<<<<<<< HEAD
 	ih = item_head(tbS0, item_pos);
+=======
+>>>>>>> upstream/android-13
 	buffer_info_init_tbS0(tb, &bi);
 
 	/* Delete or truncate the item */
@@ -298,7 +306,10 @@ static unsigned int balance_leaf_insert_left(struct tree_balance *tb,
 	if (tb->item_pos == tb->lnum[0] - 1 && tb->lbytes != -1) {
 		/* part of new item falls into L[0] */
 		int new_item_len, shift;
+<<<<<<< HEAD
 		int version;
+=======
+>>>>>>> upstream/android-13
 
 		ret = leaf_shift_left(tb, tb->lnum[0] - 1, -1);
 
@@ -317,8 +328,11 @@ static unsigned int balance_leaf_insert_left(struct tree_balance *tb,
 		leaf_insert_into_buf(&bi, n + tb->item_pos - ret, ih, body,
 			     min_t(int, tb->zeroes_num, ih_item_len(ih)));
 
+<<<<<<< HEAD
 		version = ih_version(ih);
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * Calculate key component, item length and body to
 		 * insert into S[0]
@@ -632,7 +646,10 @@ static void balance_leaf_insert_right(struct tree_balance *tb,
 	struct buffer_head *tbS0 = PATH_PLAST_BUFFER(tb->tb_path);
 	int n = B_NR_ITEMS(tbS0);
 	struct buffer_info bi;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	/* new item or part of it doesn't fall into R[0] */
 	if (n - tb->rnum[0] >= tb->item_pos) {
@@ -646,13 +663,20 @@ static void balance_leaf_insert_right(struct tree_balance *tb,
 	if (tb->item_pos == n - tb->rnum[0] + 1 && tb->rbytes != -1) {
 		loff_t old_key_comp, old_len, r_zeroes_number;
 		const char *r_body;
+<<<<<<< HEAD
 		int version, shift;
+=======
+		int shift;
+>>>>>>> upstream/android-13
 		loff_t offset;
 
 		leaf_shift_right(tb, tb->rnum[0] - 1, -1);
 
+<<<<<<< HEAD
 		version = ih_version(ih);
 
+=======
+>>>>>>> upstream/android-13
 		/* Remember key component and item length */
 		old_key_comp = le_ih_k_offset(ih);
 		old_len = ih_item_len(ih);
@@ -698,7 +722,11 @@ static void balance_leaf_insert_right(struct tree_balance *tb,
 		/* whole new item falls into R[0] */
 
 		/* Shift rnum[0]-1 items to R[0] */
+<<<<<<< HEAD
 		ret = leaf_shift_right(tb, tb->rnum[0] - 1, tb->rbytes);
+=======
+		leaf_shift_right(tb, tb->rnum[0] - 1, tb->rbytes);
+>>>>>>> upstream/android-13
 
 		/* Insert new item into R[0] */
 		buffer_info_init_right(tb, &bi);
@@ -851,7 +879,11 @@ static void balance_leaf_paste_right_whole(struct tree_balance *tb,
 	struct item_head *pasted;
 	struct buffer_info bi;
 
+<<<<<<< HEAD
 							buffer_info_init_right(tb, &bi);
+=======
+	buffer_info_init_right(tb, &bi);
+>>>>>>> upstream/android-13
 	leaf_shift_right(tb, tb->rnum[0], tb->rbytes);
 
 	/* append item in R[0] */
@@ -950,14 +982,20 @@ static void balance_leaf_new_nodes_insert(struct tree_balance *tb,
 	if (tb->item_pos == n - tb->snum[i] + 1 && tb->sbytes[i] != -1) {
 		int old_key_comp, old_len, r_zeroes_number;
 		const char *r_body;
+<<<<<<< HEAD
 		int version;
+=======
+>>>>>>> upstream/android-13
 
 		/* Move snum[i]-1 items from S[0] to S_new[i] */
 		leaf_move_items(LEAF_FROM_S_TO_SNEW, tb, tb->snum[i] - 1, -1,
 				tb->S_new[i]);
 
 		/* Remember key component and item length */
+<<<<<<< HEAD
 		version = ih_version(ih);
+=======
+>>>>>>> upstream/android-13
 		old_key_comp = le_ih_k_offset(ih);
 		old_len = ih_item_len(ih);
 

@@ -4,7 +4,11 @@
  * Module Name: nsxfname - Public interfaces to the ACPI subsystem
  *                         ACPI Namespace oriented interfaces
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -425,8 +429,13 @@ acpi_get_object_info(acpi_handle handle,
 	}
 
 	if (cls) {
+<<<<<<< HEAD
 		next_id_string = acpi_ns_copy_device_id(&info->class_code,
 							cls, next_id_string);
+=======
+		(void)acpi_ns_copy_device_id(&info->class_code,
+					     cls, next_id_string);
+>>>>>>> upstream/android-13
 	}
 
 	/* Copy the fixed-length data */
@@ -495,8 +504,13 @@ acpi_status acpi_install_method(u8 *buffer)
 
 	/* Table must be a DSDT or SSDT */
 
+<<<<<<< HEAD
 	if (!ACPI_COMPARE_NAME(table->signature, ACPI_SIG_DSDT) &&
 	    !ACPI_COMPARE_NAME(table->signature, ACPI_SIG_SSDT)) {
+=======
+	if (!ACPI_COMPARE_NAMESEG(table->signature, ACPI_SIG_DSDT) &&
+	    !ACPI_COMPARE_NAMESEG(table->signature, ACPI_SIG_SSDT)) {
+>>>>>>> upstream/android-13
 		return (AE_BAD_HEADER);
 	}
 
@@ -516,7 +530,11 @@ acpi_status acpi_install_method(u8 *buffer)
 
 	method_flags = *parser_state.aml++;
 	aml_start = parser_state.aml;
+<<<<<<< HEAD
 	aml_length = ACPI_PTR_DIFF(parser_state.pkg_end, aml_start);
+=======
+	aml_length = (u32)ACPI_PTR_DIFF(parser_state.pkg_end, aml_start);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Allocate resources up-front. We don't want to have to delete a new

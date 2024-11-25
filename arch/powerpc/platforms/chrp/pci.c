@@ -8,9 +8,15 @@
 #include <linux/delay.h>
 #include <linux/string.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/hydra.h>
 #include <asm/prom.h>
@@ -131,8 +137,12 @@ static struct pci_ops rtas_pci_ops =
 
 volatile struct Hydra __iomem *Hydra = NULL;
 
+<<<<<<< HEAD
 int __init
 hydra_init(void)
+=======
+static int __init hydra_init(void)
+>>>>>>> upstream/android-13
 {
 	struct device_node *np;
 	struct resource r;
@@ -230,8 +240,13 @@ chrp_find_bridges(void)
 		else if (strncmp(machine, "Pegasos", 7) == 0)
 			is_pegasos = 1;
 	}
+<<<<<<< HEAD
 	for (dev = root->child; dev != NULL; dev = dev->sibling) {
 		if (dev->type == NULL || strcmp(dev->type, "pci") != 0)
+=======
+	for_each_child_of_node(root, dev) {
+		if (!of_node_is_type(dev, "pci"))
+>>>>>>> upstream/android-13
 			continue;
 		++index;
 		/* The GG2 bridge on the LongTrail doesn't have an address */
@@ -314,6 +329,17 @@ chrp_find_bridges(void)
 		}
 	}
 	of_node_put(root);
+<<<<<<< HEAD
+=======
+
+	/*
+	 *  "Temporary" fixes for PCI devices.
+	 *  -- Geert
+	 */
+	hydra_init();		/* Mac I/O */
+
+	pci_create_OF_bus_map();
+>>>>>>> upstream/android-13
 }
 
 /* SL82C105 IDE Control/Status Register */

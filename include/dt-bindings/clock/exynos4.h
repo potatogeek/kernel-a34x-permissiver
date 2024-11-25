@@ -1,13 +1,22 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  * Author: Andrzej Hajda <a.hajda@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * Device Tree binding constants for Exynos4 clock controller.
 */
+=======
+ * Device Tree binding constants for Exynos4 clock controller.
+ */
+>>>>>>> upstream/android-13
 
 #ifndef _DT_BINDINGS_CLOCK_EXYNOS_4_H
 #define _DT_BINDINGS_CLOCK_EXYNOS_4_H
@@ -190,6 +199,7 @@
 #define CLK_MIPI_HSI		349 /* Exynos4210 only */
 #define CLK_PIXELASYNCM0	351
 #define CLK_PIXELASYNCM1	352
+<<<<<<< HEAD
 #define CLK_FIMC_LITE0		353 /* Exynos4x12 only */
 #define CLK_FIMC_LITE1		354 /* Exynos4x12 only */
 #define CLK_PPMUISPX		355 /* Exynos4x12 only */
@@ -216,6 +226,9 @@
 #define CLK_SMMU_ISPCX		376 /* Exynos4x12 only */
 #define CLK_SPI0_ISP		377 /* Exynos4x12 only */
 #define CLK_SPI1_ISP		378 /* Exynos4x12 only */
+=======
+#define CLK_ASYNC_G3D		353 /* Exynos4x12 only */
+>>>>>>> upstream/android-13
 #define CLK_PWM_ISP_SCLK	379 /* Exynos4x12 only */
 #define CLK_SPI0_ISP_SCLK	380 /* Exynos4x12 only */
 #define CLK_SPI1_ISP_SCLK	381 /* Exynos4x12 only */
@@ -257,10 +270,13 @@
 #define CLK_PPMUACP		415
 
 /* div clocks */
+<<<<<<< HEAD
 #define CLK_DIV_ISP0		450 /* Exynos4x12 only */
 #define CLK_DIV_ISP1		451 /* Exynos4x12 only */
 #define CLK_DIV_MCUISP0		452 /* Exynos4x12 only */
 #define CLK_DIV_MCUISP1		453 /* Exynos4x12 only */
+=======
+>>>>>>> upstream/android-13
 #define CLK_DIV_ACLK200		454 /* Exynos4x12 only */
 #define CLK_DIV_ACLK400_MCUISP	455 /* Exynos4x12 only */
 #define CLK_DIV_ACP		456

@@ -3,7 +3,11 @@
  *
  * Module Name: nsparse - namespace interface to AML parser
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -107,8 +111,25 @@ acpi_ns_execute_table(u32 table_index, struct acpi_namespace_node *start_node)
 		goto cleanup;
 	}
 
+<<<<<<< HEAD
 	status = acpi_ps_execute_table(info);
 
+=======
+	/* Optional object evaluation log */
+
+	ACPI_DEBUG_PRINT_RAW((ACPI_DB_EVALUATION,
+			      "%-26s:  (Definition Block level)\n",
+			      "Module-level evaluation"));
+
+	status = acpi_ps_execute_table(info);
+
+	/* Optional object evaluation log */
+
+	ACPI_DEBUG_PRINT_RAW((ACPI_DB_EVALUATION,
+			      "%-26s:  (Definition Block level)\n",
+			      "Module-level complete"));
+
+>>>>>>> upstream/android-13
 cleanup:
 	if (info) {
 		ACPI_FREE(info->full_pathname);
@@ -191,7 +212,11 @@ acpi_ns_one_complete_parse(u32 pass_number,
 
 	/* Found OSDT table, enable the namespace override feature */
 
+<<<<<<< HEAD
 	if (ACPI_COMPARE_NAME(table->signature, ACPI_SIG_OSDT) &&
+=======
+	if (ACPI_COMPARE_NAMESEG(table->signature, ACPI_SIG_OSDT) &&
+>>>>>>> upstream/android-13
 	    pass_number == ACPI_IMODE_LOAD_PASS1) {
 		walk_state->namespace_override = TRUE;
 	}
@@ -241,6 +266,7 @@ acpi_ns_parse_table(u32 table_index, struct acpi_namespace_node *start_node)
 
 	ACPI_FUNCTION_TRACE(ns_parse_table);
 
+<<<<<<< HEAD
 	if (acpi_gbl_execute_tables_as_methods) {
 		/*
 		 * This case executes the AML table as one large control method.
@@ -296,6 +322,21 @@ acpi_ns_parse_table(u32 table_index, struct acpi_namespace_node *start_node)
 			return_ACPI_STATUS(status);
 		}
 	}
+=======
+	/*
+	 * Executes the AML table as one large control method.
+	 * The point of this is to execute any module-level code in-place
+	 * as the table is parsed. Some AML code depends on this behavior.
+	 *
+	 * Note: This causes the table to only have a single-pass parse.
+	 * However, this is compatible with other ACPI implementations.
+	 */
+	ACPI_DEBUG_PRINT_RAW((ACPI_DB_PARSE,
+			      "%s: **** Start table execution pass\n",
+			      ACPI_GET_FUNCTION_NAME));
+
+	status = acpi_ns_execute_table(table_index, start_node);
+>>>>>>> upstream/android-13
 
 	return_ACPI_STATUS(status);
 }

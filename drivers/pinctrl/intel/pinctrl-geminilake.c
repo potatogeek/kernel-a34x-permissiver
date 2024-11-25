@@ -6,17 +6,30 @@
  * Author: Mika Westerberg <mika.westerberg@linux.intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/acpi.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/pm.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinctrl.h>
 
 #include "pinctrl-intel.h"
 
 #define GLK_PAD_OWN	0x020
+<<<<<<< HEAD
 #define GLK_HOSTSW_OWN	0x0b0
 #define GLK_PADCFGLOCK	0x080
+=======
+#define GLK_PADCFGLOCK	0x080
+#define GLK_HOSTSW_OWN	0x0b0
+#define GLK_GPI_IS	0x100
+>>>>>>> upstream/android-13
 #define GLK_GPI_IE	0x110
 
 #define GLK_COMMUNITY(s, e)				\
@@ -24,6 +37,10 @@
 		.padown_offset = GLK_PAD_OWN,		\
 		.padcfglock_offset = GLK_PADCFGLOCK,	\
 		.hostown_offset = GLK_HOSTSW_OWN,	\
+<<<<<<< HEAD
+=======
+		.is_offset = GLK_GPI_IS,		\
+>>>>>>> upstream/android-13
 		.ie_offset = GLK_GPI_IE,		\
 		.gpp_size = 32,                         \
 		.pin_base = (s),			\
@@ -58,6 +75,7 @@ static const struct pinctrl_pin_desc glk_northwest_pins[] = {
 	PINCTRL_PIN(23, "GPIO_23"),
 	PINCTRL_PIN(24, "GPIO_24"),
 	PINCTRL_PIN(25, "GPIO_25"),
+<<<<<<< HEAD
 	PINCTRL_PIN(26, "GPIO_26"),
 	PINCTRL_PIN(27, "GPIO_27"),
 	PINCTRL_PIN(28, "GPIO_28"),
@@ -68,6 +86,18 @@ static const struct pinctrl_pin_desc glk_northwest_pins[] = {
 	PINCTRL_PIN(33, "GPIO_33"),
 	PINCTRL_PIN(34, "GPIO_34"),
 	PINCTRL_PIN(35, "GPIO_35"),
+=======
+	PINCTRL_PIN(26, "ISH_GPIO_0"),
+	PINCTRL_PIN(27, "ISH_GPIO_1"),
+	PINCTRL_PIN(28, "ISH_GPIO_2"),
+	PINCTRL_PIN(29, "ISH_GPIO_3"),
+	PINCTRL_PIN(30, "ISH_GPIO_4"),
+	PINCTRL_PIN(31, "ISH_GPIO_5"),
+	PINCTRL_PIN(32, "ISH_GPIO_6"),
+	PINCTRL_PIN(33, "ISH_GPIO_7"),
+	PINCTRL_PIN(34, "ISH_GPIO_8"),
+	PINCTRL_PIN(35, "ISH_GPIO_9"),
+>>>>>>> upstream/android-13
 	PINCTRL_PIN(36, "GPIO_36"),
 	PINCTRL_PIN(37, "GPIO_37"),
 	PINCTRL_PIN(38, "GPIO_38"),
@@ -195,12 +225,21 @@ static const struct pinctrl_pin_desc glk_north_pins[] = {
 	PINCTRL_PIN(5, "LPSS_SPI_0_FS1"),
 	PINCTRL_PIN(6, "LPSS_SPI_0_RXD"),
 	PINCTRL_PIN(7, "LPSS_SPI_0_TXD"),
+<<<<<<< HEAD
 	PINCTRL_PIN(8, "LPSS_SPI_1_CLK"),
 	PINCTRL_PIN(9, "LPSS_SPI_1_FS0"),
 	PINCTRL_PIN(10, "LPSS_SPI_1_FS1"),
 	PINCTRL_PIN(11, "LPSS_SPI_1_FS2"),
 	PINCTRL_PIN(12, "LPSS_SPI_1_RXD"),
 	PINCTRL_PIN(13, "LPSS_SPI_1_TXD"),
+=======
+	PINCTRL_PIN(8, "LPSS_SPI_2_CLK"),
+	PINCTRL_PIN(9, "LPSS_SPI_2_FS0"),
+	PINCTRL_PIN(10, "LPSS_SPI_2_FS1"),
+	PINCTRL_PIN(11, "LPSS_SPI_2_FS2"),
+	PINCTRL_PIN(12, "LPSS_SPI_2_RXD"),
+	PINCTRL_PIN(13, "LPSS_SPI_2_TXD"),
+>>>>>>> upstream/android-13
 	PINCTRL_PIN(14, "FST_SPI_CS0_B"),
 	PINCTRL_PIN(15, "FST_SPI_CS1_B"),
 	PINCTRL_PIN(16, "FST_SPI_MOSI_IO0"),
@@ -215,8 +254,13 @@ static const struct pinctrl_pin_desc glk_north_pins[] = {
 	PINCTRL_PIN(25, "PMU_SLP_S3_B"),
 	PINCTRL_PIN(26, "PMU_SLP_S4_B"),
 	PINCTRL_PIN(27, "SUSPWRDNACK"),
+<<<<<<< HEAD
 	PINCTRL_PIN(28, "EMMC_PWR_EN_B"),
 	PINCTRL_PIN(29, "PMU_AC_PRESENT"),
+=======
+	PINCTRL_PIN(28, "EMMC_DNX_PWR_EN_B"),
+	PINCTRL_PIN(29, "GPIO_105"),
+>>>>>>> upstream/android-13
 	PINCTRL_PIN(30, "PMU_BATLOW_B"),
 	PINCTRL_PIN(31, "PMU_RESETBUTTON_B"),
 	PINCTRL_PIN(32, "PMU_SUSCLK"),
@@ -445,15 +489,24 @@ static const struct intel_pinctrl_soc_data *glk_pinctrl_soc_data[] = {
 	&glk_north_soc_data,
 	&glk_audio_soc_data,
 	&glk_scc_soc_data,
+<<<<<<< HEAD
 	NULL,
 };
 
 static const struct acpi_device_id glk_pinctrl_acpi_match[] = {
 	{ "INT3453" },
+=======
+	NULL
+};
+
+static const struct acpi_device_id glk_pinctrl_acpi_match[] = {
+	{ "INT3453", (kernel_ulong_t)glk_pinctrl_soc_data },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, glk_pinctrl_acpi_match);
 
+<<<<<<< HEAD
 static int glk_pinctrl_probe(struct platform_device *pdev)
 {
 	const struct intel_pinctrl_soc_data *soc_data = NULL;
@@ -485,6 +538,12 @@ static const struct dev_pm_ops glk_pinctrl_pm_ops = {
 
 static struct platform_driver glk_pinctrl_driver = {
 	.probe = glk_pinctrl_probe,
+=======
+static INTEL_PINCTRL_PM_OPS(glk_pinctrl_pm_ops);
+
+static struct platform_driver glk_pinctrl_driver = {
+	.probe = intel_pinctrl_probe_by_uid,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "geminilake-pinctrl",
 		.acpi_match_table = glk_pinctrl_acpi_match,

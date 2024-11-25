@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  *
  * vim: noexpandtab sw=8 ts=8 sts=0:
@@ -19,6 +20,13 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *
+ * Copyright (C) 2004 Oracle.  All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * ----
  *
  * Callers for this were originally written against a very simple synchronus
@@ -916,7 +924,11 @@ static int o2net_recv_tcp_msg(struct socket *sock, void *data, size_t len)
 {
 	struct kvec vec = { .iov_len = len, .iov_base = data, };
 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT, };
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, READ | ITER_KVEC, &vec, 1, len);
+=======
+	iov_iter_kvec(&msg.msg_iter, READ, &vec, 1, len);
+>>>>>>> upstream/android-13
 	return sock_recvmsg(sock, &msg, MSG_DONTWAIT);
 }
 
@@ -1212,7 +1224,10 @@ static int o2net_process_message(struct o2net_sock_container *sc,
 			msglog(hdr, "bad magic\n");
 			ret = -EINVAL;
 			goto out;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* find a handler for it */
@@ -1455,6 +1470,7 @@ static void o2net_rx_until_empty(struct work_struct *work)
 	sc_put(sc);
 }
 
+<<<<<<< HEAD
 static int o2net_set_nodelay(struct socket *sock)
 {
 	int val = 1;
@@ -1471,6 +1487,8 @@ static int o2net_set_usertimeout(struct socket *sock)
 				(void *)&user_timeout, sizeof(user_timeout));
 }
 
+=======
+>>>>>>> upstream/android-13
 static void o2net_initialize_handshake(void)
 {
 	o2net_hand->o2hb_heartbeat_timeout_ms = cpu_to_be32(
@@ -1584,6 +1602,7 @@ static void o2net_start_connect(struct work_struct *work)
 	struct sockaddr_in myaddr = {0, }, remoteaddr = {0, };
 	int ret = 0, stop;
 	unsigned int timeout;
+<<<<<<< HEAD
 	unsigned int noio_flag;
 
 	/*
@@ -1593,6 +1612,15 @@ static void o2net_start_connect(struct work_struct *work)
 	 * are not reentering filesystem while doing memory reclaim.
 	 */
 	noio_flag = memalloc_noio_save();
+=======
+	unsigned int nofs_flag;
+
+	/*
+	 * sock_create allocates the sock with GFP_KERNEL. We must
+	 * prevent the filesystem from being reentered by memory reclaim.
+	 */
+	nofs_flag = memalloc_nofs_save();
+>>>>>>> upstream/android-13
 	/* if we're greater we initiate tx, otherwise we accept */
 	if (o2nm_this_node() <= o2net_num_from_nn(nn))
 		goto out;
@@ -1652,6 +1680,7 @@ static void o2net_start_connect(struct work_struct *work)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = o2net_set_nodelay(sc->sc_sock);
 	if (ret) {
 		mlog(ML_ERROR, "setting TCP_NODELAY failed with %d\n", ret);
@@ -1663,6 +1692,10 @@ static void o2net_start_connect(struct work_struct *work)
 		mlog(ML_ERROR, "set TCP_USER_TIMEOUT failed with %d\n", ret);
 		goto out;
 	}
+=======
+	tcp_sock_set_nodelay(sc->sc_sock->sk);
+	tcp_sock_set_user_timeout(sock->sk, O2NET_TCP_USER_TIMEOUT);
+>>>>>>> upstream/android-13
 
 	o2net_register_callbacks(sc->sc_sock->sk, sc);
 
@@ -1697,7 +1730,11 @@ out:
 	if (mynode)
 		o2nm_node_put(mynode);
 
+<<<<<<< HEAD
 	memalloc_noio_restore(noio_flag);
+=======
+	memalloc_nofs_restore(nofs_flag);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -1776,7 +1813,11 @@ static void o2net_hb_node_up_cb(struct o2nm_node *node, int node_num,
 		(msecs_to_jiffies(o2net_reconnect_delay()) + 1);
 
 	if (node_num != o2nm_this_node()) {
+<<<<<<< HEAD
 		/* believe it or not, accept and node hearbeating testing
+=======
+		/* believe it or not, accept and node heartbeating testing
+>>>>>>> upstream/android-13
 		 * can succeed for this node before we got here.. so
 		 * only use set_nn_state to clear the persistent error
 		 * if that hasn't already happened */
@@ -1824,6 +1865,7 @@ static int o2net_accept_one(struct socket *sock, int *more)
 	struct o2nm_node *local_node = NULL;
 	struct o2net_sock_container *sc = NULL;
 	struct o2net_node *nn;
+<<<<<<< HEAD
 	unsigned int noio_flag;
 
 	/*
@@ -1833,6 +1875,15 @@ static int o2net_accept_one(struct socket *sock, int *more)
 	 * are not reentering filesystem while doing memory reclaim.
 	 */
 	noio_flag = memalloc_noio_save();
+=======
+	unsigned int nofs_flag;
+
+	/*
+	 * sock_create_lite allocates the sock with GFP_KERNEL. We must
+	 * prevent the filesystem from being reentered by memory reclaim.
+	 */
+	nofs_flag = memalloc_nofs_save();
+>>>>>>> upstream/android-13
 
 	BUG_ON(sock == NULL);
 	*more = 0;
@@ -1850,6 +1901,7 @@ static int o2net_accept_one(struct socket *sock, int *more)
 	*more = 1;
 	new_sock->sk->sk_allocation = GFP_ATOMIC;
 
+<<<<<<< HEAD
 	ret = o2net_set_nodelay(new_sock);
 	if (ret) {
 		mlog(ML_ERROR, "setting TCP_NODELAY failed with %d\n", ret);
@@ -1861,6 +1913,10 @@ static int o2net_accept_one(struct socket *sock, int *more)
 		mlog(ML_ERROR, "set TCP_USER_TIMEOUT failed with %d\n", ret);
 		goto out;
 	}
+=======
+	tcp_sock_set_nodelay(new_sock->sk);
+	tcp_sock_set_user_timeout(new_sock->sk, O2NET_TCP_USER_TIMEOUT);
+>>>>>>> upstream/android-13
 
 	ret = new_sock->ops->getname(new_sock, (struct sockaddr *) &sin, 1);
 	if (ret < 0)
@@ -1948,7 +2004,11 @@ out:
 	if (sc)
 		sc_put(sc);
 
+<<<<<<< HEAD
 	memalloc_noio_restore(noio_flag);
+=======
+	memalloc_nofs_restore(nofs_flag);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1962,7 +2022,10 @@ static void o2net_accept_many(struct work_struct *work)
 {
 	struct socket *sock = o2net_listen_sock;
 	int	more;
+<<<<<<< HEAD
 	int	err;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * It is critical to note that due to interrupt moderation
@@ -1977,7 +2040,11 @@ static void o2net_accept_many(struct work_struct *work)
 	 */
 
 	for (;;) {
+<<<<<<< HEAD
 		err = o2net_accept_one(sock, &more);
+=======
+		o2net_accept_one(sock, &more);
+>>>>>>> upstream/android-13
 		if (!more)
 			break;
 		cond_resched();
@@ -2143,8 +2210,12 @@ int o2net_init(void)
 
 	o2quo_init();
 
+<<<<<<< HEAD
 	if (o2net_debugfs_init())
 		goto out;
+=======
+	o2net_debugfs_init();
+>>>>>>> upstream/android-13
 
 	o2net_hand = kzalloc(sizeof(struct o2net_handshake), GFP_KERNEL);
 	o2net_keep_req = kzalloc(sizeof(struct o2net_msg), GFP_KERNEL);

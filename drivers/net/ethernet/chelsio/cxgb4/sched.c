@@ -38,7 +38,10 @@
 #include "cxgb4.h"
 #include "sched.h"
 
+<<<<<<< HEAD
 /* Spinlock must be held by caller */
+=======
+>>>>>>> upstream/android-13
 static int t4_sched_class_fw_cmd(struct port_info *pi,
 				 struct ch_sched_params *p,
 				 enum sched_fw_ops op)
@@ -51,13 +54,22 @@ static int t4_sched_class_fw_cmd(struct port_info *pi,
 	e = &s->tab[p->u.params.class];
 	switch (op) {
 	case SCHED_FW_OP_ADD:
+<<<<<<< HEAD
+=======
+	case SCHED_FW_OP_DEL:
+>>>>>>> upstream/android-13
 		err = t4_sched_params(adap, p->type,
 				      p->u.params.level, p->u.params.mode,
 				      p->u.params.rateunit,
 				      p->u.params.ratemode,
 				      p->u.params.channel, e->idx,
 				      p->u.params.minrate, p->u.params.maxrate,
+<<<<<<< HEAD
 				      p->u.params.weight, p->u.params.pktsize);
+=======
+				      p->u.params.weight, p->u.params.pktsize,
+				      p->u.params.burstsize);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		err = -ENOTSUPP;
@@ -67,7 +79,10 @@ static int t4_sched_class_fw_cmd(struct port_info *pi,
 	return err;
 }
 
+<<<<<<< HEAD
 /* Spinlock must be held by caller */
+=======
+>>>>>>> upstream/android-13
 static int t4_sched_bind_unbind_op(struct port_info *pi, void *arg,
 				   enum sched_bind_type type, bool bind)
 {
@@ -94,10 +109,27 @@ static int t4_sched_bind_unbind_op(struct port_info *pi, void *arg,
 
 		pf = adap->pf;
 		vf = 0;
+<<<<<<< HEAD
+=======
+
+		err = t4_set_params(adap, adap->mbox, pf, vf, 1,
+				    &fw_param, &fw_class);
+		break;
+	}
+	case SCHED_FLOWC: {
+		struct sched_flowc_entry *fe;
+
+		fe = (struct sched_flowc_entry *)arg;
+
+		fw_class = bind ? fe->param.class : FW_SCHED_CLS_NONE;
+		err = cxgb4_ethofld_send_flowc(adap->port[pi->port_id],
+					       fe->param.tid, fw_class);
+>>>>>>> upstream/android-13
 		break;
 	}
 	default:
 		err = -ENOTSUPP;
+<<<<<<< HEAD
 		goto out;
 	}
 
@@ -133,6 +165,54 @@ static struct sched_class *t4_sched_queue_lookup(struct port_info *pi,
 				break;
 			}
 			i++;
+=======
+		break;
+	}
+
+	return err;
+}
+
+static void *t4_sched_entry_lookup(struct port_info *pi,
+				   enum sched_bind_type type,
+				   const u32 val)
+{
+	struct sched_table *s = pi->sched_tbl;
+	struct sched_class *e, *end;
+	void *found = NULL;
+
+	/* Look for an entry with matching @val */
+	end = &s->tab[s->sched_size];
+	for (e = &s->tab[0]; e != end; ++e) {
+		if (e->state == SCHED_STATE_UNUSED ||
+		    e->bind_type != type)
+			continue;
+
+		switch (type) {
+		case SCHED_QUEUE: {
+			struct sched_queue_entry *qe;
+
+			list_for_each_entry(qe, &e->entry_list, list) {
+				if (qe->cntxt_id == val) {
+					found = qe;
+					break;
+				}
+			}
+			break;
+		}
+		case SCHED_FLOWC: {
+			struct sched_flowc_entry *fe;
+
+			list_for_each_entry(fe, &e->entry_list, list) {
+				if (fe->param.tid == val) {
+					found = fe;
+					break;
+				}
+			}
+			break;
+		}
+		default:
+			return NULL;
+>>>>>>> upstream/android-13
 		}
 
 		if (found)
@@ -142,6 +222,7 @@ static struct sched_class *t4_sched_queue_lookup(struct port_info *pi,
 	return found;
 }
 
+<<<<<<< HEAD
 static int t4_sched_queue_unbind(struct port_info *pi, struct ch_sched_queue *p)
 {
 	struct adapter *adap = pi->adapter;
@@ -150,12 +231,37 @@ static int t4_sched_queue_unbind(struct port_info *pi, struct ch_sched_queue *p)
 	struct sge_eth_txq *txq;
 	unsigned int qid;
 	int index = -1;
+=======
+struct sched_class *cxgb4_sched_queue_lookup(struct net_device *dev,
+					     struct ch_sched_queue *p)
+{
+	struct port_info *pi = netdev2pinfo(dev);
+	struct sched_queue_entry *qe = NULL;
+	struct adapter *adap = pi->adapter;
+	struct sge_eth_txq *txq;
+
+	if (p->queue < 0 || p->queue >= pi->nqsets)
+		return NULL;
+
+	txq = &adap->sge.ethtxq[pi->first_qset + p->queue];
+	qe = t4_sched_entry_lookup(pi, SCHED_QUEUE, txq->q.cntxt_id);
+	return qe ? &pi->sched_tbl->tab[qe->param.class] : NULL;
+}
+
+static int t4_sched_queue_unbind(struct port_info *pi, struct ch_sched_queue *p)
+{
+	struct sched_queue_entry *qe = NULL;
+	struct adapter *adap = pi->adapter;
+	struct sge_eth_txq *txq;
+	struct sched_class *e;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	if (p->queue < 0 || p->queue >= pi->nqsets)
 		return -ERANGE;
 
 	txq = &adap->sge.ethtxq[pi->first_qset + p->queue];
+<<<<<<< HEAD
 	qid = txq->q.cntxt_id;
 
 	/* Find the existing class that the queue is bound to */
@@ -185,16 +291,41 @@ static int t4_sched_queue_unbind(struct port_info *pi, struct ch_sched_queue *p)
 		spin_unlock(&e->lock);
 	}
 out:
+=======
+
+	/* Find the existing entry that the queue is bound to */
+	qe = t4_sched_entry_lookup(pi, SCHED_QUEUE, txq->q.cntxt_id);
+	if (qe) {
+		err = t4_sched_bind_unbind_op(pi, (void *)qe, SCHED_QUEUE,
+					      false);
+		if (err)
+			return err;
+
+		e = &pi->sched_tbl->tab[qe->param.class];
+		list_del(&qe->list);
+		kvfree(qe);
+		if (atomic_dec_and_test(&e->refcnt))
+			cxgb4_sched_class_free(adap->port[pi->port_id], e->idx);
+	}
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static int t4_sched_queue_bind(struct port_info *pi, struct ch_sched_queue *p)
 {
+<<<<<<< HEAD
 	struct adapter *adap = pi->adapter;
 	struct sched_table *s = pi->sched_tbl;
 	struct sched_class *e;
 	struct sched_queue_entry *qe = NULL;
 	struct sge_eth_txq *txq;
+=======
+	struct sched_table *s = pi->sched_tbl;
+	struct sched_queue_entry *qe = NULL;
+	struct adapter *adap = pi->adapter;
+	struct sge_eth_txq *txq;
+	struct sched_class *e;
+>>>>>>> upstream/android-13
 	unsigned int qid;
 	int err = 0;
 
@@ -210,6 +341,7 @@ static int t4_sched_queue_bind(struct port_info *pi, struct ch_sched_queue *p)
 
 	/* Unbind queue from any existing class */
 	err = t4_sched_queue_unbind(pi, p);
+<<<<<<< HEAD
 	if (err) {
 		kvfree(qe);
 		goto out;
@@ -217,10 +349,17 @@ static int t4_sched_queue_bind(struct port_info *pi, struct ch_sched_queue *p)
 
 	/* Bind queue to specified class */
 	memset(qe, 0, sizeof(*qe));
+=======
+	if (err)
+		goto out_err;
+
+	/* Bind queue to specified class */
+>>>>>>> upstream/android-13
 	qe->cntxt_id = qid;
 	memcpy(&qe->param, p, sizeof(qe->param));
 
 	e = &s->tab[qe->param.class];
+<<<<<<< HEAD
 	spin_lock(&e->lock);
 	err = t4_sched_bind_unbind_op(pi, (void *)qe, SCHED_QUEUE, true);
 	if (err) {
@@ -233,6 +372,84 @@ static int t4_sched_queue_bind(struct port_info *pi, struct ch_sched_queue *p)
 	atomic_inc(&e->refcnt);
 	spin_unlock(&e->lock);
 out:
+=======
+	err = t4_sched_bind_unbind_op(pi, (void *)qe, SCHED_QUEUE, true);
+	if (err)
+		goto out_err;
+
+	list_add_tail(&qe->list, &e->entry_list);
+	e->bind_type = SCHED_QUEUE;
+	atomic_inc(&e->refcnt);
+	return err;
+
+out_err:
+	kvfree(qe);
+	return err;
+}
+
+static int t4_sched_flowc_unbind(struct port_info *pi, struct ch_sched_flowc *p)
+{
+	struct sched_flowc_entry *fe = NULL;
+	struct adapter *adap = pi->adapter;
+	struct sched_class *e;
+	int err = 0;
+
+	if (p->tid < 0 || p->tid >= adap->tids.neotids)
+		return -ERANGE;
+
+	/* Find the existing entry that the flowc is bound to */
+	fe = t4_sched_entry_lookup(pi, SCHED_FLOWC, p->tid);
+	if (fe) {
+		err = t4_sched_bind_unbind_op(pi, (void *)fe, SCHED_FLOWC,
+					      false);
+		if (err)
+			return err;
+
+		e = &pi->sched_tbl->tab[fe->param.class];
+		list_del(&fe->list);
+		kvfree(fe);
+		if (atomic_dec_and_test(&e->refcnt))
+			cxgb4_sched_class_free(adap->port[pi->port_id], e->idx);
+	}
+	return err;
+}
+
+static int t4_sched_flowc_bind(struct port_info *pi, struct ch_sched_flowc *p)
+{
+	struct sched_table *s = pi->sched_tbl;
+	struct sched_flowc_entry *fe = NULL;
+	struct adapter *adap = pi->adapter;
+	struct sched_class *e;
+	int err = 0;
+
+	if (p->tid < 0 || p->tid >= adap->tids.neotids)
+		return -ERANGE;
+
+	fe = kvzalloc(sizeof(*fe), GFP_KERNEL);
+	if (!fe)
+		return -ENOMEM;
+
+	/* Unbind flowc from any existing class */
+	err = t4_sched_flowc_unbind(pi, p);
+	if (err)
+		goto out_err;
+
+	/* Bind flowc to specified class */
+	memcpy(&fe->param, p, sizeof(fe->param));
+
+	e = &s->tab[fe->param.class];
+	err = t4_sched_bind_unbind_op(pi, (void *)fe, SCHED_FLOWC, true);
+	if (err)
+		goto out_err;
+
+	list_add_tail(&fe->list, &e->entry_list);
+	e->bind_type = SCHED_FLOWC;
+	atomic_inc(&e->refcnt);
+	return err;
+
+out_err:
+	kvfree(fe);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -247,10 +464,24 @@ static void t4_sched_class_unbind_all(struct port_info *pi,
 	case SCHED_QUEUE: {
 		struct sched_queue_entry *qe;
 
+<<<<<<< HEAD
 		list_for_each_entry(qe, &e->queue_list, list)
 			t4_sched_queue_unbind(pi, &qe->param);
 		break;
 	}
+=======
+		list_for_each_entry(qe, &e->entry_list, list)
+			t4_sched_queue_unbind(pi, &qe->param);
+		break;
+	}
+	case SCHED_FLOWC: {
+		struct sched_flowc_entry *fe;
+
+		list_for_each_entry(fe, &e->entry_list, list)
+			t4_sched_flowc_unbind(pi, &fe->param);
+		break;
+	}
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -274,6 +505,18 @@ static int t4_sched_class_bind_unbind_op(struct port_info *pi, void *arg,
 			err = t4_sched_queue_unbind(pi, qe);
 		break;
 	}
+<<<<<<< HEAD
+=======
+	case SCHED_FLOWC: {
+		struct ch_sched_flowc *fe = (struct ch_sched_flowc *)arg;
+
+		if (bind)
+			err = t4_sched_flowc_bind(pi, fe);
+		else
+			err = t4_sched_flowc_unbind(pi, fe);
+		break;
+	}
+>>>>>>> upstream/android-13
 	default:
 		err = -ENOTSUPP;
 		break;
@@ -296,8 +539,11 @@ int cxgb4_sched_class_bind(struct net_device *dev, void *arg,
 			   enum sched_bind_type type)
 {
 	struct port_info *pi = netdev2pinfo(dev);
+<<<<<<< HEAD
 	struct sched_table *s;
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 	u8 class_id;
 
 	if (!can_sched(dev))
@@ -313,6 +559,15 @@ int cxgb4_sched_class_bind(struct net_device *dev, void *arg,
 		class_id = qe->class;
 		break;
 	}
+<<<<<<< HEAD
+=======
+	case SCHED_FLOWC: {
+		struct ch_sched_flowc *fe = (struct ch_sched_flowc *)arg;
+
+		class_id = fe->class;
+		break;
+	}
+>>>>>>> upstream/android-13
 	default:
 		return -ENOTSUPP;
 	}
@@ -323,12 +578,17 @@ int cxgb4_sched_class_bind(struct net_device *dev, void *arg,
 	if (class_id == SCHED_CLS_NONE)
 		return -ENOTSUPP;
 
+<<<<<<< HEAD
 	s = pi->sched_tbl;
 	write_lock(&s->rw_lock);
 	err = t4_sched_class_bind_unbind_op(pi, arg, type, true);
 	write_unlock(&s->rw_lock);
 
 	return err;
+=======
+	return t4_sched_class_bind_unbind_op(pi, arg, type, true);
+
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -343,8 +603,11 @@ int cxgb4_sched_class_unbind(struct net_device *dev, void *arg,
 			     enum sched_bind_type type)
 {
 	struct port_info *pi = netdev2pinfo(dev);
+<<<<<<< HEAD
 	struct sched_table *s;
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 	u8 class_id;
 
 	if (!can_sched(dev))
@@ -360,6 +623,15 @@ int cxgb4_sched_class_unbind(struct net_device *dev, void *arg,
 		class_id = qe->class;
 		break;
 	}
+<<<<<<< HEAD
+=======
+	case SCHED_FLOWC: {
+		struct ch_sched_flowc *fe = (struct ch_sched_flowc *)arg;
+
+		class_id = fe->class;
+		break;
+	}
+>>>>>>> upstream/android-13
 	default:
 		return -ENOTSUPP;
 	}
@@ -367,12 +639,16 @@ int cxgb4_sched_class_unbind(struct net_device *dev, void *arg,
 	if (!valid_class_id(dev, class_id))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	s = pi->sched_tbl;
 	write_lock(&s->rw_lock);
 	err = t4_sched_class_bind_unbind_op(pi, arg, type, false);
 	write_unlock(&s->rw_lock);
 
 	return err;
+=======
+	return t4_sched_class_bind_unbind_op(pi, arg, type, false);
+>>>>>>> upstream/android-13
 }
 
 /* If @p is NULL, fetch any available unused class */
@@ -380,8 +656,13 @@ static struct sched_class *t4_sched_class_lookup(struct port_info *pi,
 						const struct ch_sched_params *p)
 {
 	struct sched_table *s = pi->sched_tbl;
+<<<<<<< HEAD
 	struct sched_class *e, *end;
 	struct sched_class *found = NULL;
+=======
+	struct sched_class *found = NULL;
+	struct sched_class *e, *end;
+>>>>>>> upstream/android-13
 
 	if (!p) {
 		/* Get any available unused class */
@@ -425,8 +706,12 @@ static struct sched_class *t4_sched_class_lookup(struct port_info *pi,
 static struct sched_class *t4_sched_class_alloc(struct port_info *pi,
 						struct ch_sched_params *p)
 {
+<<<<<<< HEAD
 	struct sched_table *s = pi->sched_tbl;
 	struct sched_class *e;
+=======
+	struct sched_class *e = NULL;
+>>>>>>> upstream/android-13
 	u8 class_id;
 	int err;
 
@@ -441,17 +726,28 @@ static struct sched_class *t4_sched_class_alloc(struct port_info *pi,
 	if (class_id != SCHED_CLS_NONE)
 		return NULL;
 
+<<<<<<< HEAD
 	write_lock(&s->rw_lock);
 	/* See if there's an exisiting class with same
 	 * requested sched params
 	 */
 	e = t4_sched_class_lookup(pi, p);
+=======
+	/* See if there's an exisiting class with same requested sched
+	 * params. Classes can only be shared among FLOWC types. For
+	 * other types, always request a new class.
+	 */
+	if (p->u.params.mode == SCHED_CLASS_MODE_FLOW)
+		e = t4_sched_class_lookup(pi, p);
+
+>>>>>>> upstream/android-13
 	if (!e) {
 		struct ch_sched_params np;
 
 		/* Fetch any available unused class */
 		e = t4_sched_class_lookup(pi, NULL);
 		if (!e)
+<<<<<<< HEAD
 			goto out;
 
 		memcpy(&np, p, sizeof(np));
@@ -473,6 +769,21 @@ static struct sched_class *t4_sched_class_alloc(struct port_info *pi,
 
 out:
 	write_unlock(&s->rw_lock);
+=======
+			return NULL;
+
+		memcpy(&np, p, sizeof(np));
+		np.u.params.class = e->idx;
+		/* New class */
+		err = t4_sched_class_fw_cmd(pi, &np, SCHED_FW_OP_ADD);
+		if (err)
+			return NULL;
+		memcpy(&e->info, &np, sizeof(e->info));
+		atomic_set(&e->refcnt, 0);
+		e->state = SCHED_STATE_ACTIVE;
+	}
+
+>>>>>>> upstream/android-13
 	return e;
 }
 
@@ -502,9 +813,63 @@ struct sched_class *cxgb4_sched_class_alloc(struct net_device *dev,
 	return t4_sched_class_alloc(pi, p);
 }
 
+<<<<<<< HEAD
 static void t4_sched_class_free(struct port_info *pi, struct sched_class *e)
 {
 	t4_sched_class_unbind_all(pi, e, SCHED_QUEUE);
+=======
+/**
+ * cxgb4_sched_class_free - free a scheduling class
+ * @dev: net_device pointer
+ * @classid: scheduling class id to free
+ *
+ * Frees a scheduling class if there are no users.
+ */
+void cxgb4_sched_class_free(struct net_device *dev, u8 classid)
+{
+	struct port_info *pi = netdev2pinfo(dev);
+	struct sched_table *s = pi->sched_tbl;
+	struct ch_sched_params p;
+	struct sched_class *e;
+	u32 speed;
+	int ret;
+
+	e = &s->tab[classid];
+	if (!atomic_read(&e->refcnt) && e->state != SCHED_STATE_UNUSED) {
+		/* Port based rate limiting needs explicit reset back
+		 * to max rate. But, we'll do explicit reset for all
+		 * types, instead of just port based type, to be on
+		 * the safer side.
+		 */
+		memcpy(&p, &e->info, sizeof(p));
+		/* Always reset mode to 0. Otherwise, FLOWC mode will
+		 * still be enabled even after resetting the traffic
+		 * class.
+		 */
+		p.u.params.mode = 0;
+		p.u.params.minrate = 0;
+		p.u.params.pktsize = 0;
+
+		ret = t4_get_link_params(pi, NULL, &speed, NULL);
+		if (!ret)
+			p.u.params.maxrate = speed * 1000; /* Mbps to Kbps */
+		else
+			p.u.params.maxrate = SCHED_MAX_RATE_KBPS;
+
+		t4_sched_class_fw_cmd(pi, &p, SCHED_FW_OP_DEL);
+
+		e->state = SCHED_STATE_UNUSED;
+		memset(&e->info, 0, sizeof(e->info));
+	}
+}
+
+static void t4_sched_class_free(struct net_device *dev, struct sched_class *e)
+{
+	struct port_info *pi = netdev2pinfo(dev);
+
+	t4_sched_class_unbind_all(pi, e, e->bind_type);
+	cxgb4_sched_class_free(dev, e->idx);
+>>>>>>> upstream/android-13
 }
 
 struct sched_table *t4_init_sched(unsigned int sched_size)
@@ -512,19 +877,30 @@ struct sched_table *t4_init_sched(unsigned int sched_size)
 	struct sched_table *s;
 	unsigned int i;
 
+<<<<<<< HEAD
 	s = kvzalloc(sizeof(*s) + sched_size * sizeof(struct sched_class), GFP_KERNEL);
+=======
+	s = kvzalloc(struct_size(s, tab, sched_size), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!s)
 		return NULL;
 
 	s->sched_size = sched_size;
+<<<<<<< HEAD
 	rwlock_init(&s->rw_lock);
+=======
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < s->sched_size; i++) {
 		memset(&s->tab[i], 0, sizeof(struct sched_class));
 		s->tab[i].idx = i;
 		s->tab[i].state = SCHED_STATE_UNUSED;
+<<<<<<< HEAD
 		INIT_LIST_HEAD(&s->tab[i].queue_list);
 		spin_lock_init(&s->tab[i].lock);
+=======
+		INIT_LIST_HEAD(&s->tab[i].entry_list);
+>>>>>>> upstream/android-13
 		atomic_set(&s->tab[i].refcnt, 0);
 	}
 	return s;
@@ -545,11 +921,17 @@ void t4_cleanup_sched(struct adapter *adap)
 		for (i = 0; i < s->sched_size; i++) {
 			struct sched_class *e;
 
+<<<<<<< HEAD
 			write_lock(&s->rw_lock);
 			e = &s->tab[i];
 			if (e->state == SCHED_STATE_ACTIVE)
 				t4_sched_class_free(pi, e);
 			write_unlock(&s->rw_lock);
+=======
+			e = &s->tab[i];
+			if (e->state == SCHED_STATE_ACTIVE)
+				t4_sched_class_free(adap->port[j], e);
+>>>>>>> upstream/android-13
 		}
 		kvfree(s);
 	}

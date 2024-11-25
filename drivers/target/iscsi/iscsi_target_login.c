@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * This file contains the login functions used by the iSCSI Target driver.
  *
@@ -5,6 +9,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <crypto/hash.h>
@@ -23,6 +30,10 @@
 #include <linux/sched/signal.h>
 #include <linux/idr.h>
 #include <linux/tcp.h>        /* TCP_NODELAY */
+<<<<<<< HEAD
+=======
+#include <net/ip.h>
+>>>>>>> upstream/android-13
 #include <net/ipv6.h>         /* ipv6_addr_v4mapped() */
 #include <scsi/iscsi_proto.h>
 #include <target/target_core_base.h>
@@ -579,7 +590,11 @@ int iscsi_login_post_auth_non_zero_tsih(
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Check for any connection recovery entires containing CID.
+=======
+	 * Check for any connection recovery entries containing CID.
+>>>>>>> upstream/android-13
 	 * We use the original ExpStatSN sent in the first login request
 	 * to acknowledge commands for the failed connection.
 	 *
@@ -863,7 +878,11 @@ int iscsit_setup_np(
 	struct sockaddr_storage *sockaddr)
 {
 	struct socket *sock = NULL;
+<<<<<<< HEAD
 	int backlog = ISCSIT_TCP_BACKLOG, ret, opt = 0, len;
+=======
+	int backlog = ISCSIT_TCP_BACKLOG, ret, len;
+>>>>>>> upstream/android-13
 
 	switch (np->np_network_transport) {
 	case ISCSI_TCP:
@@ -884,9 +903,12 @@ int iscsit_setup_np(
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	np->np_ip_proto = IPPROTO_TCP;
 	np->np_sock_type = SOCK_STREAM;
 
+=======
+>>>>>>> upstream/android-13
 	ret = sock_create(sockaddr->ss_family, np->np_sock_type,
 			np->np_ip_proto, &sock);
 	if (ret < 0) {
@@ -906,6 +928,7 @@ int iscsit_setup_np(
 	else
 		len = sizeof(struct sockaddr_in);
 	/*
+<<<<<<< HEAD
 	 * Set SO_REUSEADDR, and disable Nagel Algorithm with TCP_NODELAY.
 	 */
 	/* FIXME: Someone please explain why this is endian-safe */
@@ -936,6 +959,14 @@ int iscsit_setup_np(
 			" failed\n");
 		goto fail;
 	}
+=======
+	 * Set SO_REUSEADDR, and disable Nagle Algorithm with TCP_NODELAY.
+	 */
+	if (np->np_network_transport == ISCSI_TCP)
+		tcp_sock_set_nodelay(sock->sk);
+	sock_set_reuseaddr(sock->sk);
+	ip_sock_set_freebind(sock->sk);
+>>>>>>> upstream/android-13
 
 	ret = kernel_bind(sock, (struct sockaddr *)&np->np_sockaddr, len);
 	if (ret < 0) {
@@ -1160,13 +1191,22 @@ static struct iscsi_conn *iscsit_alloc_conn(struct iscsi_np *np)
 
 	if (!zalloc_cpumask_var(&conn->conn_cpumask, GFP_KERNEL)) {
 		pr_err("Unable to allocate conn->conn_cpumask\n");
+<<<<<<< HEAD
 		goto free_mask;
+=======
+		goto free_conn_ops;
+>>>>>>> upstream/android-13
 	}
 
 	return conn;
 
+<<<<<<< HEAD
 free_mask:
 	free_cpumask_var(conn->conn_cpumask);
+=======
+free_conn_ops:
+	kfree(conn->conn_ops);
+>>>>>>> upstream/android-13
 put_transport:
 	iscsit_put_transport(conn->conn_transport);
 free_conn:

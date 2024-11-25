@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  A low-level PATA driver to handle a Compact Flash connected on the
  *  Mikrotik's RouterBoard 532 board.
@@ -12,11 +16,14 @@
  *  Also was based on the driver for Linux 2.4.xx published by Mikrotik for
  *  their RouterBoard 1xx and 5xx series devices. The original Mikrotik code
  *  seems not to have a license.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gfp.h>
@@ -27,7 +34,11 @@
 #include <linux/io.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 #include <linux/libata.h>
 #include <scsi/scsi_host.h>
@@ -49,7 +60,11 @@
 
 struct rb532_cf_info {
 	void __iomem	*iobase;
+<<<<<<< HEAD
 	unsigned int	gpio_line;
+=======
+	struct gpio_desc *gpio_line;
+>>>>>>> upstream/android-13
 	unsigned int	irq;
 };
 
@@ -60,7 +75,11 @@ static irqreturn_t rb532_pata_irq_handler(int irq, void *dev_instance)
 	struct ata_host *ah = dev_instance;
 	struct rb532_cf_info *info = ah->private_data;
 
+<<<<<<< HEAD
 	if (gpio_get_value(info->gpio_line)) {
+=======
+	if (gpiod_get_value(info->gpio_line)) {
+>>>>>>> upstream/android-13
 		irq_set_irq_type(info->irq, IRQ_TYPE_LEVEL_LOW);
 		ata_sff_interrupt(info->irq, dev_instance);
 	} else {
@@ -106,10 +125,16 @@ static void rb532_pata_setup_ports(struct ata_host *ah)
 static int rb532_pata_driver_probe(struct platform_device *pdev)
 {
 	int irq;
+<<<<<<< HEAD
 	int gpio;
 	struct resource *res;
 	struct ata_host *ah;
 	struct cf_device *pdata;
+=======
+	struct gpio_desc *gpiod;
+	struct resource *res;
+	struct ata_host *ah;
+>>>>>>> upstream/android-13
 	struct rb532_cf_info *info;
 	int ret;
 
@@ -120,6 +145,7 @@ static int rb532_pata_driver_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq <= 0) {
 		dev_err(&pdev->dev, "no IRQ resource found\n");
 		return -ENOENT;
@@ -142,6 +168,19 @@ static int rb532_pata_driver_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "GPIO request failed\n");
 		return ret;
 	}
+=======
+	if (irq < 0)
+		return irq;
+	if (!irq)
+		return -EINVAL;
+
+	gpiod = devm_gpiod_get(&pdev->dev, NULL, GPIOD_IN);
+	if (IS_ERR(gpiod)) {
+		dev_err(&pdev->dev, "no GPIO found for irq%d\n", irq);
+		return PTR_ERR(gpiod);
+	}
+	gpiod_set_consumer_name(gpiod, DRV_NAME);
+>>>>>>> upstream/android-13
 
 	/* allocate host */
 	ah = ata_host_alloc(&pdev->dev, RB500_CF_MAXPORTS);
@@ -153,14 +192,22 @@ static int rb532_pata_driver_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	ah->private_data = info;
+<<<<<<< HEAD
 	info->gpio_line = gpio;
 	info->irq = irq;
 
 	info->iobase = devm_ioremap_nocache(&pdev->dev, res->start,
+=======
+	info->gpio_line = gpiod;
+	info->irq = irq;
+
+	info->iobase = devm_ioremap(&pdev->dev, res->start,
+>>>>>>> upstream/android-13
 				resource_size(res));
 	if (!info->iobase)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = gpio_direction_input(gpio);
 	if (ret) {
 		dev_err(&pdev->dev, "unable to set GPIO direction, err=%d\n",
@@ -168,11 +215,14 @@ static int rb532_pata_driver_probe(struct platform_device *pdev)
 		goto err_free_gpio;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	rb532_pata_setup_ports(ah);
 
 	ret = ata_host_activate(ah, irq, rb532_pata_irq_handler,
 				IRQF_TRIGGER_LOW, &rb532_pata_sht);
 	if (ret)
+<<<<<<< HEAD
 		goto err_free_gpio;
 
 	return 0;
@@ -181,15 +231,25 @@ err_free_gpio:
 	gpio_free(gpio);
 
 	return ret;
+=======
+		return ret;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int rb532_pata_driver_remove(struct platform_device *pdev)
 {
 	struct ata_host *ah = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct rb532_cf_info *info = ah->private_data;
 
 	ata_host_detach(ah);
 	gpio_free(info->gpio_line);
+=======
+
+	ata_host_detach(ah);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

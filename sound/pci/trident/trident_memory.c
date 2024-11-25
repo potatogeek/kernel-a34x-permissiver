@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Copyright (c) by Takashi Iwai <tiwai@suse.de>
@@ -5,6 +9,7 @@
  *
  *  Trident 4DWave-NX memory page allocation (TLB area)
  *  Trident chip can handle only 16MByte of the memory at the same time.
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -34,11 +41,16 @@
 /* page arguments of these two macros are Trident page (4096 bytes), not like
  * aligned pages in others
  */
+<<<<<<< HEAD
 #define __set_tlb_bus(trident,page,ptr,addr) \
 	do { (trident)->tlb.entries[page] = cpu_to_le32((addr) & ~(SNDRV_TRIDENT_PAGE_SIZE-1)); \
 	     (trident)->tlb.shadow_entries[page] = (ptr); } while (0)
 #define __tlb_to_ptr(trident,page) \
 	(void*)((trident)->tlb.shadow_entries[page])
+=======
+#define __set_tlb_bus(trident,page,addr) \
+	(trident)->tlb.entries[page] = cpu_to_le32((addr) & ~(SNDRV_TRIDENT_PAGE_SIZE-1))
+>>>>>>> upstream/android-13
 #define __tlb_to_addr(trident,page) \
 	(dma_addr_t)le32_to_cpu((trident->tlb.entries[page]) & ~(SNDRV_TRIDENT_PAGE_SIZE - 1))
 
@@ -47,15 +59,24 @@
 #define ALIGN_PAGE_SIZE		PAGE_SIZE	/* minimum page size for allocation */
 #define MAX_ALIGN_PAGES		SNDRV_TRIDENT_MAX_PAGES	/* maxmium aligned pages */
 /* fill TLB entrie(s) corresponding to page with ptr */
+<<<<<<< HEAD
 #define set_tlb_bus(trident,page,ptr,addr) __set_tlb_bus(trident,page,ptr,addr)
 /* fill TLB entrie(s) corresponding to page with silence pointer */
 #define set_silent_tlb(trident,page)	__set_tlb_bus(trident, page, (unsigned long)trident->tlb.silent_page.area, trident->tlb.silent_page.addr)
+=======
+#define set_tlb_bus(trident,page,addr) __set_tlb_bus(trident,page,addr)
+/* fill TLB entrie(s) corresponding to page with silence pointer */
+#define set_silent_tlb(trident,page)	__set_tlb_bus(trident, page, trident->tlb.silent_page->addr)
+>>>>>>> upstream/android-13
 /* get aligned page from offset address */
 #define get_aligned_page(offset)	((offset) >> 12)
 /* get offset address from aligned page */
 #define aligned_page_offset(page)	((page) << 12)
+<<<<<<< HEAD
 /* get buffer address from aligned page */
 #define page_to_ptr(trident,page)	__tlb_to_ptr(trident, page)
+=======
+>>>>>>> upstream/android-13
 /* get PCI physical address from aligned page */
 #define page_to_addr(trident,page)	__tlb_to_addr(trident, page)
 
@@ -65,22 +86,38 @@
 #define MAX_ALIGN_PAGES		(SNDRV_TRIDENT_MAX_PAGES / 2)
 #define get_aligned_page(offset)	((offset) >> 13)
 #define aligned_page_offset(page)	((page) << 13)
+<<<<<<< HEAD
 #define page_to_ptr(trident,page)	__tlb_to_ptr(trident, (page) << 1)
+=======
+>>>>>>> upstream/android-13
 #define page_to_addr(trident,page)	__tlb_to_addr(trident, (page) << 1)
 
 /* fill TLB entries -- we need to fill two entries */
 static inline void set_tlb_bus(struct snd_trident *trident, int page,
+<<<<<<< HEAD
 			       unsigned long ptr, dma_addr_t addr)
 {
 	page <<= 1;
 	__set_tlb_bus(trident, page, ptr, addr);
 	__set_tlb_bus(trident, page+1, ptr + SNDRV_TRIDENT_PAGE_SIZE, addr + SNDRV_TRIDENT_PAGE_SIZE);
+=======
+			       dma_addr_t addr)
+{
+	page <<= 1;
+	__set_tlb_bus(trident, page, addr);
+	__set_tlb_bus(trident, page+1, addr + SNDRV_TRIDENT_PAGE_SIZE);
+>>>>>>> upstream/android-13
 }
 static inline void set_silent_tlb(struct snd_trident *trident, int page)
 {
 	page <<= 1;
+<<<<<<< HEAD
 	__set_tlb_bus(trident, page, (unsigned long)trident->tlb.silent_page.area, trident->tlb.silent_page.addr);
 	__set_tlb_bus(trident, page+1, (unsigned long)trident->tlb.silent_page.area, trident->tlb.silent_page.addr);
+=======
+	__set_tlb_bus(trident, page, trident->tlb.silent_page->addr);
+	__set_tlb_bus(trident, page+1, trident->tlb.silent_page->addr);
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -95,18 +132,29 @@ static inline void set_silent_tlb(struct snd_trident *trident, int page)
  */
 #define get_aligned_page(offset)	((offset) / ALIGN_PAGE_SIZE)
 #define aligned_page_offset(page)	((page) * ALIGN_PAGE_SIZE)
+<<<<<<< HEAD
 #define page_to_ptr(trident,page)	__tlb_to_ptr(trident, (page) * UNIT_PAGES)
+=======
+>>>>>>> upstream/android-13
 #define page_to_addr(trident,page)	__tlb_to_addr(trident, (page) * UNIT_PAGES)
 
 /* fill TLB entries -- UNIT_PAGES entries must be filled */
 static inline void set_tlb_bus(struct snd_trident *trident, int page,
+<<<<<<< HEAD
 			       unsigned long ptr, dma_addr_t addr)
+=======
+			       dma_addr_t addr)
+>>>>>>> upstream/android-13
 {
 	int i;
 	page *= UNIT_PAGES;
 	for (i = 0; i < UNIT_PAGES; i++, page++) {
+<<<<<<< HEAD
 		__set_tlb_bus(trident, page, ptr, addr);
 		ptr += SNDRV_TRIDENT_PAGE_SIZE;
+=======
+		__set_tlb_bus(trident, page, addr);
+>>>>>>> upstream/android-13
 		addr += SNDRV_TRIDENT_PAGE_SIZE;
 	}
 }
@@ -115,11 +163,16 @@ static inline void set_silent_tlb(struct snd_trident *trident, int page)
 	int i;
 	page *= UNIT_PAGES;
 	for (i = 0; i < UNIT_PAGES; i++, page++)
+<<<<<<< HEAD
 		__set_tlb_bus(trident, page, (unsigned long)trident->tlb.silent_page.area, trident->tlb.silent_page.addr);
+=======
+		__set_tlb_bus(trident, page, trident->tlb.silent_page->addr);
+>>>>>>> upstream/android-13
 }
 
 #endif /* PAGE_SIZE */
 
+<<<<<<< HEAD
 /* calculate buffer pointer from offset address */
 static inline void *offset_ptr(struct snd_trident *trident, int offset)
 {
@@ -129,6 +182,8 @@ static inline void *offset_ptr(struct snd_trident *trident, int offset)
 	return (void*)ptr;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* first and last (aligned) pages of memory block */
 #define firstpg(blk)	(((struct snd_trident_memblk_arg *)snd_util_memblk_argptr(blk))->first_page)
 #define lastpg(blk)	(((struct snd_trident_memblk_arg *)snd_util_memblk_argptr(blk))->last_page)
@@ -216,14 +271,21 @@ snd_trident_alloc_sg_pages(struct snd_trident *trident,
 	for (page = firstpg(blk); page <= lastpg(blk); page++, idx++) {
 		unsigned long ofs = idx << PAGE_SHIFT;
 		dma_addr_t addr = snd_pcm_sgbuf_get_addr(substream, ofs);
+<<<<<<< HEAD
 		unsigned long ptr = (unsigned long)
 			snd_pcm_sgbuf_get_ptr(substream, ofs);
+=======
+>>>>>>> upstream/android-13
 		if (! is_valid_page(addr)) {
 			__snd_util_mem_free(hdr, blk);
 			mutex_unlock(&hdr->block_mutex);
 			return NULL;
 		}
+<<<<<<< HEAD
 		set_tlb_bus(trident, page, ptr, addr);
+=======
+		set_tlb_bus(trident, page, addr);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&hdr->block_mutex);
 	return blk;
@@ -241,7 +303,10 @@ snd_trident_alloc_cont_pages(struct snd_trident *trident,
 	int page;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	dma_addr_t addr;
+<<<<<<< HEAD
 	unsigned long ptr;
+=======
+>>>>>>> upstream/android-13
 
 	if (snd_BUG_ON(runtime->dma_bytes <= 0 ||
 		       runtime->dma_bytes > SNDRV_TRIDENT_MAX_PAGES *
@@ -260,15 +325,24 @@ snd_trident_alloc_cont_pages(struct snd_trident *trident,
 			   
 	/* set TLB entries */
 	addr = runtime->dma_addr;
+<<<<<<< HEAD
 	ptr = (unsigned long)runtime->dma_area;
 	for (page = firstpg(blk); page <= lastpg(blk); page++,
 	     ptr += SNDRV_TRIDENT_PAGE_SIZE, addr += SNDRV_TRIDENT_PAGE_SIZE) {
+=======
+	for (page = firstpg(blk); page <= lastpg(blk); page++,
+	     addr += SNDRV_TRIDENT_PAGE_SIZE) {
+>>>>>>> upstream/android-13
 		if (! is_valid_page(addr)) {
 			__snd_util_mem_free(hdr, blk);
 			mutex_unlock(&hdr->block_mutex);
 			return NULL;
 		}
+<<<<<<< HEAD
 		set_tlb_bus(trident, page, ptr, addr);
+=======
+		set_tlb_bus(trident, page, addr);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&hdr->block_mutex);
 	return blk;

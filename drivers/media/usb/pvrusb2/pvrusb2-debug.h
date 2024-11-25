@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
@@ -11,13 +12,23 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+>>>>>>> upstream/android-13
  */
 #ifndef __PVRUSB2_DEBUG_H
 #define __PVRUSB2_DEBUG_H
 
 extern int pvrusb2_debug;
 
+<<<<<<< HEAD
 #define pvr2_trace(msk, fmt, arg...) do {if(msk & pvrusb2_debug) printk(KERN_INFO "pvrusb2: " fmt "\n", ##arg); } while (0)
+=======
+#define pvr2_trace(msk, fmt, arg...) do {if (msk & pvrusb2_debug) pr_info("pvrusb2: " fmt "\n", ##arg); } while (0)
+>>>>>>> upstream/android-13
 
 /* These are listed in *rough* order of decreasing usefulness and
    increasing noise level. */

@@ -131,6 +131,7 @@ struct vcpu_hvm_context {
 typedef struct vcpu_hvm_context vcpu_hvm_context_t;
 
 #endif /* __XEN_PUBLIC_HVM_HVM_VCPU_H__ */
+<<<<<<< HEAD
 
 /*
  * Local variables:
@@ -141,3 +142,5 @@ typedef struct vcpu_hvm_context vcpu_hvm_context_t;
  * indent-tabs-mode: nil
  * End:
  */
+=======
+>>>>>>> upstream/android-13

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Atmel AT32 and AT91 SPI Controllers
  *
  * Copyright (C) 2006 Atmel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -19,6 +26,7 @@
 #include <linux/interrupt.h>
 #include <linux/spi/spi.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/platform_data/dma-atmel.h>
 #include <linux/of.h>
 
@@ -27,6 +35,15 @@
 #include <linux/of_gpio.h>
 #include <linux/pinctrl/consumer.h>
 #include <linux/pm_runtime.h>
+=======
+#include <linux/of.h>
+
+#include <linux/io.h>
+#include <linux/gpio/consumer.h>
+#include <linux/pinctrl/consumer.h>
+#include <linux/pm_runtime.h>
+#include <trace/events/spi.h>
+>>>>>>> upstream/android-13
 
 /* SPI register offsets */
 #define SPI_CR					0x0000
@@ -225,6 +242,7 @@
 	  | SPI_BF(name, value))
 
 /* Register access macros */
+<<<<<<< HEAD
 #ifdef CONFIG_AVR32
 #define spi_readl(port, reg) \
 	__raw_readl((port)->regs + SPI_##reg)
@@ -241,10 +259,13 @@
 #define spi_writeb(port, reg, value) \
 	__raw_writeb((value), (port)->regs + SPI_##reg)
 #else
+=======
+>>>>>>> upstream/android-13
 #define spi_readl(port, reg) \
 	readl_relaxed((port)->regs + SPI_##reg)
 #define spi_writel(port, reg, value) \
 	writel_relaxed((value), (port)->regs + SPI_##reg)
+<<<<<<< HEAD
 
 #define spi_readw(port, reg) \
 	readw_relaxed((port)->regs + SPI_##reg)
@@ -256,6 +277,11 @@
 #define spi_writeb(port, reg, value) \
 	writeb_relaxed((value), (port)->regs + SPI_##reg)
 #endif
+=======
+#define spi_writew(port, reg, value) \
+	writew_relaxed((value), (port)->regs + SPI_##reg)
+
+>>>>>>> upstream/android-13
 /* use PIO for small transfers, avoiding DMA setup/teardown overhead and
  * cache operations; better heuristics consider wordsize and bitrate.
  */
@@ -302,16 +328,27 @@ struct atmel_spi {
 
 	bool			use_dma;
 	bool			use_pdc;
+<<<<<<< HEAD
 	bool			use_cs_gpios;
+=======
+>>>>>>> upstream/android-13
 
 	bool			keep_cs;
 
 	u32			fifo_size;
+<<<<<<< HEAD
+=======
+	u8			native_cs_free;
+	u8			native_cs_for_gpio;
+>>>>>>> upstream/android-13
 };
 
 /* Controller-specific per-slave state */
 struct atmel_spi_device {
+<<<<<<< HEAD
 	unsigned int		npcs_pin;
+=======
+>>>>>>> upstream/android-13
 	u32			csr;
 };
 
@@ -338,11 +375,17 @@ static bool atmel_spi_is_v2(struct atmel_spi *as)
  * transmitted")  Not so!  Workaround uses nCSx pins as GPIOs; or newer
  * controllers have CSAAT and friends.
  *
+<<<<<<< HEAD
  * Since the CSAAT functionality is a bit weird on newer controllers as
  * well, we use GPIO to control nCSx pins on all controllers, updating
  * MR.PCS to avoid confusing the controller.  Using GPIOs also lets us
  * support active-high chipselects despite the controller's belief that
  * only active-low devices/systems exists.
+=======
+ * Even controller newer than ar91rm9200, using GPIOs can make sens as
+ * it lets us support active-high chipselects despite the controller's
+ * belief that only active-low devices/systems exists.
+>>>>>>> upstream/android-13
  *
  * However, at91rm9200 has a second erratum whereby nCS0 doesn't work
  * right when driven with GPIO.  ("Mode Fault does not allow more than one
@@ -354,31 +397,55 @@ static bool atmel_spi_is_v2(struct atmel_spi *as)
 static void cs_activate(struct atmel_spi *as, struct spi_device *spi)
 {
 	struct atmel_spi_device *asd = spi->controller_state;
+<<<<<<< HEAD
 	unsigned active = spi->mode & SPI_CS_HIGH;
 	u32 mr;
 
 	if (atmel_spi_is_v2(as)) {
 		spi_writel(as, CSR0 + 4 * spi->chip_select, asd->csr);
+=======
+	int chip_select;
+	u32 mr;
+
+	if (spi->cs_gpiod)
+		chip_select = as->native_cs_for_gpio;
+	else
+		chip_select = spi->chip_select;
+
+	if (atmel_spi_is_v2(as)) {
+		spi_writel(as, CSR0 + 4 * chip_select, asd->csr);
+>>>>>>> upstream/android-13
 		/* For the low SPI version, there is a issue that PDC transfer
 		 * on CS1,2,3 needs SPI_CSR0.BITS config as SPI_CSR1,2,3.BITS
 		 */
 		spi_writel(as, CSR0, asd->csr);
 		if (as->caps.has_wdrbt) {
 			spi_writel(as, MR,
+<<<<<<< HEAD
 					SPI_BF(PCS, ~(0x01 << spi->chip_select))
+=======
+					SPI_BF(PCS, ~(0x01 << chip_select))
+>>>>>>> upstream/android-13
 					| SPI_BIT(WDRBT)
 					| SPI_BIT(MODFDIS)
 					| SPI_BIT(MSTR));
 		} else {
 			spi_writel(as, MR,
+<<<<<<< HEAD
 					SPI_BF(PCS, ~(0x01 << spi->chip_select))
+=======
+					SPI_BF(PCS, ~(0x01 << chip_select))
+>>>>>>> upstream/android-13
 					| SPI_BIT(MODFDIS)
 					| SPI_BIT(MSTR));
 		}
 
 		mr = spi_readl(as, MR);
+<<<<<<< HEAD
 		if (as->use_cs_gpios)
 			gpio_set_value(asd->npcs_pin, active);
+=======
+>>>>>>> upstream/android-13
 	} else {
 		u32 cpol = (spi->mode & SPI_CPOL) ? SPI_BIT(CPOL) : 0;
 		int i;
@@ -393,6 +460,7 @@ static void cs_activate(struct atmel_spi *as, struct spi_device *spi)
 		}
 
 		mr = spi_readl(as, MR);
+<<<<<<< HEAD
 		mr = SPI_BFINS(PCS, ~(1 << spi->chip_select), mr);
 		if (as->use_cs_gpios && spi->chip_select != 0)
 			gpio_set_value(asd->npcs_pin, active);
@@ -402,23 +470,46 @@ static void cs_activate(struct atmel_spi *as, struct spi_device *spi)
 	dev_dbg(&spi->dev, "activate %u%s, mr %08x\n",
 			asd->npcs_pin, active ? " (high)" : "",
 			mr);
+=======
+		mr = SPI_BFINS(PCS, ~(1 << chip_select), mr);
+		spi_writel(as, MR, mr);
+	}
+
+	dev_dbg(&spi->dev, "activate NPCS, mr %08x\n", mr);
+>>>>>>> upstream/android-13
 }
 
 static void cs_deactivate(struct atmel_spi *as, struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct atmel_spi_device *asd = spi->controller_state;
 	unsigned active = spi->mode & SPI_CS_HIGH;
 	u32 mr;
 
+=======
+	int chip_select;
+	u32 mr;
+
+	if (spi->cs_gpiod)
+		chip_select = as->native_cs_for_gpio;
+	else
+		chip_select = spi->chip_select;
+
+>>>>>>> upstream/android-13
 	/* only deactivate *this* device; sometimes transfers to
 	 * another device may be active when this routine is called.
 	 */
 	mr = spi_readl(as, MR);
+<<<<<<< HEAD
 	if (~SPI_BFEXT(PCS, mr) & (1 << spi->chip_select)) {
+=======
+	if (~SPI_BFEXT(PCS, mr) & (1 << chip_select)) {
+>>>>>>> upstream/android-13
 		mr = SPI_BFINS(PCS, 0xf, mr);
 		spi_writel(as, MR, mr);
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&spi->dev, "DEactivate %u%s, mr %08x\n",
 			asd->npcs_pin, active ? " (low)" : "",
 			mr);
@@ -427,6 +518,12 @@ static void cs_deactivate(struct atmel_spi *as, struct spi_device *spi)
 		spi_writel(as, CR, SPI_BIT(LASTXFER));
 	else if (atmel_spi_is_v2(as) || spi->chip_select != 0)
 		gpio_set_value(asd->npcs_pin, !active);
+=======
+	dev_dbg(&spi->dev, "DEactivate NPCS, mr %08x\n", mr);
+
+	if (!spi->cs_gpiod)
+		spi_writel(as, CR, SPI_BIT(LASTXFER));
+>>>>>>> upstream/android-13
 }
 
 static void atmel_spi_lock(struct atmel_spi *as) __acquires(&as->lock)
@@ -531,6 +628,7 @@ static int atmel_spi_configure_dma(struct spi_master *master,
 	struct device *dev = &as->pdev->dev;
 	int err;
 
+<<<<<<< HEAD
 	dma_cap_mask_t mask;
 	dma_cap_zero(mask);
 	dma_cap_set(DMA_SLAVE, mask);
@@ -558,6 +656,23 @@ static int atmel_spi_configure_dma(struct spi_master *master,
 		dev_err(dev,
 			"DMA RX channel not available, SPI unable to use DMA\n");
 		err = -EBUSY;
+=======
+	master->dma_tx = dma_request_chan(dev, "tx");
+	if (IS_ERR(master->dma_tx)) {
+		err = PTR_ERR(master->dma_tx);
+		dev_dbg(dev, "No TX DMA channel, DMA is disabled\n");
+		goto error_clear;
+	}
+
+	master->dma_rx = dma_request_chan(dev, "rx");
+	if (IS_ERR(master->dma_rx)) {
+		err = PTR_ERR(master->dma_rx);
+		/*
+		 * No reason to check EPROBE_DEFER here since we have already
+		 * requested tx channel.
+		 */
+		dev_dbg(dev, "No RX DMA channel, DMA is disabled\n");
+>>>>>>> upstream/android-13
 		goto error;
 	}
 
@@ -572,7 +687,11 @@ static int atmel_spi_configure_dma(struct spi_master *master,
 
 	return 0;
 error:
+<<<<<<< HEAD
 	if (master->dma_rx)
+=======
+	if (!IS_ERR(master->dma_rx))
+>>>>>>> upstream/android-13
 		dma_release_channel(master->dma_rx);
 	if (!IS_ERR(master->dma_tx))
 		dma_release_channel(master->dma_tx);
@@ -752,8 +871,11 @@ static int atmel_spi_next_xfer_dma_submit(struct spi_master *master,
 	if (!rxchan || !txchan)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	/* release lock for DMA operations */
 	atmel_spi_unlock(as);
+=======
+>>>>>>> upstream/android-13
 
 	*plen = xfer->len;
 
@@ -822,15 +944,21 @@ static int atmel_spi_next_xfer_dma_submit(struct spi_master *master,
 	rxchan->device->device_issue_pending(rxchan);
 	txchan->device->device_issue_pending(txchan);
 
+<<<<<<< HEAD
 	/* take back lock */
 	atmel_spi_lock(as);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 err_dma:
 	spi_writel(as, IDR, SPI_BIT(OVRES));
 	atmel_spi_stop_dma(master);
 err_exit:
+<<<<<<< HEAD
 	atmel_spi_lock(as);
+=======
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 
@@ -852,6 +980,15 @@ static int atmel_spi_set_xfer_speed(struct atmel_spi *as,
 {
 	u32			scbr, csr;
 	unsigned long		bus_hz;
+<<<<<<< HEAD
+=======
+	int chip_select;
+
+	if (spi->cs_gpiod)
+		chip_select = as->native_cs_for_gpio;
+	else
+		chip_select = spi->chip_select;
+>>>>>>> upstream/android-13
 
 	/* v1 chips start out at half the peripheral bus speed. */
 	bus_hz = as->spi_clk;
@@ -880,9 +1017,16 @@ static int atmel_spi_set_xfer_speed(struct atmel_spi *as,
 			xfer->speed_hz, scbr, bus_hz);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	csr = spi_readl(as, CSR0 + 4 * spi->chip_select);
 	csr = SPI_BFINS(SCBR, scbr, csr);
 	spi_writel(as, CSR0 + 4 * spi->chip_select, csr);
+=======
+	csr = spi_readl(as, CSR0 + 4 * chip_select);
+	csr = SPI_BFINS(SCBR, scbr, csr);
+	spi_writel(as, CSR0 + 4 * chip_select, csr);
+	xfer->effective_speed_hz = bus_hz / scbr;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -892,7 +1036,10 @@ static int atmel_spi_set_xfer_speed(struct atmel_spi *as,
  * lock is held, spi irq is blocked
  */
 static void atmel_spi_pdc_next_xfer(struct spi_master *master,
+<<<<<<< HEAD
 					struct spi_message *msg,
+=======
+>>>>>>> upstream/android-13
 					struct spi_transfer *xfer)
 {
 	struct atmel_spi	*as = spi_master_get_devdata(master);
@@ -908,12 +1055,20 @@ static void atmel_spi_pdc_next_xfer(struct spi_master *master,
 	spi_writel(as, RPR, rx_dma);
 	spi_writel(as, TPR, tx_dma);
 
+<<<<<<< HEAD
 	if (msg->spi->bits_per_word > 8)
+=======
+	if (xfer->bits_per_word > 8)
+>>>>>>> upstream/android-13
 		len >>= 1;
 	spi_writel(as, RCR, len);
 	spi_writel(as, TCR, len);
 
+<<<<<<< HEAD
 	dev_dbg(&msg->spi->dev,
+=======
+	dev_dbg(&master->dev,
+>>>>>>> upstream/android-13
 		"  start xfer %p: len %u tx %p/%08llx rx %p/%08llx\n",
 		xfer, xfer->len, xfer->tx_buf,
 		(unsigned long long)xfer->tx_dma, xfer->rx_buf,
@@ -927,12 +1082,20 @@ static void atmel_spi_pdc_next_xfer(struct spi_master *master,
 		spi_writel(as, RNPR, rx_dma);
 		spi_writel(as, TNPR, tx_dma);
 
+<<<<<<< HEAD
 		if (msg->spi->bits_per_word > 8)
+=======
+		if (xfer->bits_per_word > 8)
+>>>>>>> upstream/android-13
 			len >>= 1;
 		spi_writel(as, RNCR, len);
 		spi_writel(as, TNCR, len);
 
+<<<<<<< HEAD
 		dev_dbg(&msg->spi->dev,
+=======
+		dev_dbg(&master->dev,
+>>>>>>> upstream/android-13
 			"  next xfer %p: len %u tx %p/%08llx rx %p/%08llx\n",
 			xfer, xfer->len, xfer->tx_buf,
 			(unsigned long long)xfer->tx_dma, xfer->rx_buf,
@@ -1083,8 +1246,11 @@ atmel_spi_pump_pio_data(struct atmel_spi *as, struct spi_transfer *xfer)
 
 /* Interrupt
  *
+<<<<<<< HEAD
  * No need for locking in this Interrupt handler: done_status is the
  * only information modified.
+=======
+>>>>>>> upstream/android-13
  */
 static irqreturn_t
 atmel_spi_pio_interrupt(int irq, void *dev_id)
@@ -1181,27 +1347,107 @@ atmel_spi_pdc_interrupt(int irq, void *dev_id)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int atmel_word_delay_csr(struct spi_device *spi, struct atmel_spi *as)
+{
+	struct spi_delay *delay = &spi->word_delay;
+	u32 value = delay->value;
+
+	switch (delay->unit) {
+	case SPI_DELAY_UNIT_NSECS:
+		value /= 1000;
+		break;
+	case SPI_DELAY_UNIT_USECS:
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return (as->spi_clk / 1000000 * value) >> 5;
+}
+
+static void initialize_native_cs_for_gpio(struct atmel_spi *as)
+{
+	int i;
+	struct spi_master *master = platform_get_drvdata(as->pdev);
+
+	if (!as->native_cs_free)
+		return; /* already initialized */
+
+	if (!master->cs_gpiods)
+		return; /* No CS GPIO */
+
+	/*
+	 * On the first version of the controller (AT91RM9200), CS0
+	 * can't be used associated with GPIO
+	 */
+	if (atmel_spi_is_v2(as))
+		i = 0;
+	else
+		i = 1;
+
+	for (; i < 4; i++)
+		if (master->cs_gpiods[i])
+			as->native_cs_free |= BIT(i);
+
+	if (as->native_cs_free)
+		as->native_cs_for_gpio = ffs(as->native_cs_free);
+}
+
+>>>>>>> upstream/android-13
 static int atmel_spi_setup(struct spi_device *spi)
 {
 	struct atmel_spi	*as;
 	struct atmel_spi_device	*asd;
 	u32			csr;
 	unsigned int		bits = spi->bits_per_word;
+<<<<<<< HEAD
 	unsigned int		npcs_pin;
+=======
+	int chip_select;
+	int			word_delay_csr;
+>>>>>>> upstream/android-13
 
 	as = spi_master_get_devdata(spi->master);
 
 	/* see notes above re chipselect */
+<<<<<<< HEAD
 	if (!as->use_cs_gpios && (spi->mode & SPI_CS_HIGH)) {
+=======
+	if (!spi->cs_gpiod && (spi->mode & SPI_CS_HIGH)) {
+>>>>>>> upstream/android-13
 		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Setup() is called during spi_register_controller(aka
+	 * spi_register_master) but after all membmers of the cs_gpiod
+	 * array have been filled, so we can looked for which native
+	 * CS will be free for using with GPIO
+	 */
+	initialize_native_cs_for_gpio(as);
+
+	if (spi->cs_gpiod && as->native_cs_free) {
+		dev_err(&spi->dev,
+			"No native CS available to support this GPIO CS\n");
+		return -EBUSY;
+	}
+
+	if (spi->cs_gpiod)
+		chip_select = as->native_cs_for_gpio;
+	else
+		chip_select = spi->chip_select;
+
+>>>>>>> upstream/android-13
 	csr = SPI_BF(BITS, bits - 8);
 	if (spi->mode & SPI_CPOL)
 		csr |= SPI_BIT(CPOL);
 	if (!(spi->mode & SPI_CPHA))
 		csr |= SPI_BIT(NCPHA);
+<<<<<<< HEAD
 	if (!as->use_cs_gpios)
 		csr |= SPI_BIT(CSAAT);
 
@@ -1221,6 +1467,21 @@ static int atmel_spi_setup(struct spi_device *spi)
 		npcs_pin = spi->chip_select;
 	else if (gpio_is_valid(spi->cs_gpio))
 		npcs_pin = spi->cs_gpio;
+=======
+
+	if (!spi->cs_gpiod)
+		csr |= SPI_BIT(CSAAT);
+	csr |= SPI_BF(DLYBS, 0);
+
+	word_delay_csr = atmel_word_delay_csr(spi, as);
+	if (word_delay_csr < 0)
+		return word_delay_csr;
+
+	/* DLYBCT adds delays between words.  This is useful for slow devices
+	 * that need a bit of time to setup the next transfer.
+	 */
+	csr |= SPI_BF(DLYBCT, word_delay_csr);
+>>>>>>> upstream/android-13
 
 	asd = spi->controller_state;
 	if (!asd) {
@@ -1228,11 +1489,14 @@ static int atmel_spi_setup(struct spi_device *spi)
 		if (!asd)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		if (as->use_cs_gpios)
 			gpio_direction_output(npcs_pin,
 					      !(spi->mode & SPI_CS_HIGH));
 
 		asd->npcs_pin = npcs_pin;
+=======
+>>>>>>> upstream/android-13
 		spi->controller_state = asd;
 	}
 
@@ -1243,17 +1507,46 @@ static int atmel_spi_setup(struct spi_device *spi)
 		bits, spi->mode, spi->chip_select, csr);
 
 	if (!atmel_spi_is_v2(as))
+<<<<<<< HEAD
 		spi_writel(as, CSR0 + 4 * spi->chip_select, csr);
+=======
+		spi_writel(as, CSR0 + 4 * chip_select, csr);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_spi_one_transfer(struct spi_master *master,
 					struct spi_message *msg,
 					struct spi_transfer *xfer)
 {
 	struct atmel_spi	*as;
 	struct spi_device	*spi = msg->spi;
+=======
+static void atmel_spi_set_cs(struct spi_device *spi, bool enable)
+{
+	struct atmel_spi *as = spi_master_get_devdata(spi->master);
+	/* the core doesn't really pass us enable/disable, but CS HIGH vs CS LOW
+	 * since we already have routines for activate/deactivate translate
+	 * high/low to active/inactive
+	 */
+	enable = (!!(spi->mode & SPI_CS_HIGH) == enable);
+
+	if (enable) {
+		cs_activate(as, spi);
+	} else {
+		cs_deactivate(as, spi);
+	}
+
+}
+
+static int atmel_spi_one_transfer(struct spi_master *master,
+					struct spi_device *spi,
+					struct spi_transfer *xfer)
+{
+	struct atmel_spi	*as;
+>>>>>>> upstream/android-13
 	u8			bits;
 	u32			len;
 	struct atmel_spi_device	*asd;
@@ -1263,11 +1556,14 @@ static int atmel_spi_one_transfer(struct spi_master *master,
 
 	as = spi_master_get_devdata(master);
 
+<<<<<<< HEAD
 	if (!(xfer->tx_buf || xfer->rx_buf) && xfer->len) {
 		dev_dbg(&spi->dev, "missing rx or tx buf\n");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	asd = spi->controller_state;
 	bits = (asd->csr >> 4) & 0xf;
 	if (bits != xfer->bits_per_word - 8) {
@@ -1280,13 +1576,21 @@ static int atmel_spi_one_transfer(struct spi_master *master,
 	 * DMA map early, for performance (empties dcache ASAP) and
 	 * better fault reporting.
 	 */
+<<<<<<< HEAD
 	if ((!msg->is_dma_mapped)
+=======
+	if ((!master->cur_msg->is_dma_mapped)
+>>>>>>> upstream/android-13
 		&& as->use_pdc) {
 		if (atmel_spi_dma_map_xfer(as, xfer) < 0)
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	atmel_spi_set_xfer_speed(as, msg->spi, xfer);
+=======
+	atmel_spi_set_xfer_speed(as, spi, xfer);
+>>>>>>> upstream/android-13
 
 	as->done_status = 0;
 	as->current_transfer = xfer;
@@ -1295,7 +1599,13 @@ static int atmel_spi_one_transfer(struct spi_master *master,
 		reinit_completion(&as->xfer_completion);
 
 		if (as->use_pdc) {
+<<<<<<< HEAD
 			atmel_spi_pdc_next_xfer(master, msg, xfer);
+=======
+			atmel_spi_lock(as);
+			atmel_spi_pdc_next_xfer(master, xfer);
+			atmel_spi_unlock(as);
+>>>>>>> upstream/android-13
 		} else if (atmel_spi_use_dma(as, xfer)) {
 			len = as->current_remaining_bytes;
 			ret = atmel_spi_next_xfer_dma_submit(master,
@@ -1303,13 +1613,19 @@ static int atmel_spi_one_transfer(struct spi_master *master,
 			if (ret) {
 				dev_err(&spi->dev,
 					"unable to use DMA, fallback to PIO\n");
+<<<<<<< HEAD
 				atmel_spi_next_xfer_pio(master, xfer);
+=======
+				as->done_status = ret;
+				break;
+>>>>>>> upstream/android-13
 			} else {
 				as->current_remaining_bytes -= len;
 				if (as->current_remaining_bytes < 0)
 					as->current_remaining_bytes = 0;
 			}
 		} else {
+<<<<<<< HEAD
 			atmel_spi_next_xfer_pio(master, xfer);
 		}
 
@@ -1318,6 +1634,15 @@ static int atmel_spi_one_transfer(struct spi_master *master,
 		dma_timeout = wait_for_completion_timeout(&as->xfer_completion,
 							  SPI_DMA_TIMEOUT);
 		atmel_spi_lock(as);
+=======
+			atmel_spi_lock(as);
+			atmel_spi_next_xfer_pio(master, xfer);
+			atmel_spi_unlock(as);
+		}
+
+		dma_timeout = wait_for_completion_timeout(&as->xfer_completion,
+							  SPI_DMA_TIMEOUT);
+>>>>>>> upstream/android-13
 		if (WARN_ON(dma_timeout == 0)) {
 			dev_err(&spi->dev, "spi transfer timeout\n");
 			as->done_status = -EIO;
@@ -1356,6 +1681,7 @@ static int atmel_spi_one_transfer(struct spi_master *master,
 		} else if (atmel_spi_use_dma(as, xfer)) {
 			atmel_spi_stop_dma(master);
 		}
+<<<<<<< HEAD
 
 		if (!msg->is_dma_mapped
 			&& as->use_pdc)
@@ -1437,6 +1763,18 @@ msg_done:
 	spi_finalize_current_message(spi->master);
 
 	return ret;
+=======
+	}
+
+	if (!master->cur_msg->is_dma_mapped
+		&& as->use_pdc)
+		atmel_spi_dma_unmap_xfer(master, xfer);
+
+	if (as->use_pdc)
+		atmel_spi_disable_pdc_transfer(as);
+
+	return as->done_status;
+>>>>>>> upstream/android-13
 }
 
 static void atmel_spi_cleanup(struct spi_device *spi)
@@ -1467,6 +1805,7 @@ static void atmel_get_caps(struct atmel_spi *as)
 	as->caps.has_pdc_support = version < 0x212;
 }
 
+<<<<<<< HEAD
 /*-------------------------------------------------------------------------*/
 static int atmel_spi_gpio_cs(struct platform_device *pdev)
 {
@@ -1502,6 +1841,8 @@ static int atmel_spi_gpio_cs(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void atmel_spi_init(struct atmel_spi *as)
 {
 	spi_writel(as, CR, SPI_BIT(SWRST));
@@ -1548,20 +1889,38 @@ static int atmel_spi_probe(struct platform_device *pdev)
 		return PTR_ERR(clk);
 
 	/* setup spi core then atmel-specific driver state */
+<<<<<<< HEAD
 	ret = -ENOMEM;
 	master = spi_alloc_master(&pdev->dev, sizeof(*as));
 	if (!master)
 		goto out_free;
 
 	/* the spi->mode bits understood by this driver: */
+=======
+	master = spi_alloc_master(&pdev->dev, sizeof(*as));
+	if (!master)
+		return -ENOMEM;
+
+	/* the spi->mode bits understood by this driver: */
+	master->use_gpio_descriptors = true;
+>>>>>>> upstream/android-13
 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH;
 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(8, 16);
 	master->dev.of_node = pdev->dev.of_node;
 	master->bus_num = pdev->id;
+<<<<<<< HEAD
 	master->num_chipselect = master->dev.of_node ? 0 : 4;
 	master->setup = atmel_spi_setup;
 	master->flags = (SPI_MASTER_MUST_RX | SPI_MASTER_MUST_TX);
 	master->transfer_one_message = atmel_spi_transfer_one_message;
+=======
+	master->num_chipselect = 4;
+	master->setup = atmel_spi_setup;
+	master->flags = (SPI_MASTER_MUST_RX | SPI_MASTER_MUST_TX |
+			SPI_MASTER_GPIO_SS);
+	master->transfer_one = atmel_spi_one_transfer;
+	master->set_cs = atmel_spi_set_cs;
+>>>>>>> upstream/android-13
 	master->cleanup = atmel_spi_cleanup;
 	master->auto_runtime_pm = true;
 	master->max_dma_len = SPI_MAX_DMA_XFER;
@@ -1586,6 +1945,7 @@ static int atmel_spi_probe(struct platform_device *pdev)
 
 	atmel_get_caps(as);
 
+<<<<<<< HEAD
 	as->use_cs_gpios = true;
 	if (atmel_spi_is_v2(as) &&
 	    pdev->dev.of_node &&
@@ -1598,6 +1958,8 @@ static int atmel_spi_probe(struct platform_device *pdev)
 	if (ret)
 		goto out_unmap_regs;
 
+=======
+>>>>>>> upstream/android-13
 	as->use_dma = false;
 	as->use_pdc = false;
 	if (as->caps.has_dma_support) {
@@ -1691,7 +2053,10 @@ out_free_dma:
 	clk_disable_unprepare(clk);
 out_free_irq:
 out_unmap_regs:
+<<<<<<< HEAD
 out_free:
+=======
+>>>>>>> upstream/android-13
 	spi_master_put(master);
 	return ret;
 }
@@ -1761,10 +2126,15 @@ static int atmel_spi_suspend(struct device *dev)
 
 	/* Stop the queue running */
 	ret = spi_master_suspend(master);
+<<<<<<< HEAD
 	if (ret) {
 		dev_warn(dev, "cannot suspend master\n");
 		return ret;
 	}
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (!pm_runtime_suspended(dev))
 		atmel_spi_runtime_suspend(dev);
@@ -1793,11 +2163,15 @@ static int atmel_spi_resume(struct device *dev)
 	}
 
 	/* Start the queue running */
+<<<<<<< HEAD
 	ret = spi_master_resume(master);
 	if (ret)
 		dev_err(dev, "problem starting queue (%d)\n", ret);
 
 	return ret;
+=======
+	return spi_master_resume(master);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -1811,20 +2185,30 @@ static const struct dev_pm_ops atmel_spi_pm_ops = {
 #define ATMEL_SPI_PM_OPS	NULL
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF)
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id atmel_spi_dt_ids[] = {
 	{ .compatible = "atmel,at91rm9200-spi" },
 	{ /* sentinel */ }
 };
 
 MODULE_DEVICE_TABLE(of, atmel_spi_dt_ids);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver atmel_spi_driver = {
 	.driver		= {
 		.name	= "atmel_spi",
 		.pm	= ATMEL_SPI_PM_OPS,
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(atmel_spi_dt_ids),
+=======
+		.of_match_table	= atmel_spi_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe		= atmel_spi_probe,
 	.remove		= atmel_spi_remove,

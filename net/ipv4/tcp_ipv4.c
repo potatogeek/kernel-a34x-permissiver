@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -7,18 +11,24 @@
  *
  *		IPv4 specific functions
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *		code split from:
  *		linux/ipv4/tcp.c
  *		linux/ipv4/tcp_input.c
  *		linux/ipv4/tcp_output.c
  *
  *		See tcp.c for author information
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -81,6 +91,10 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/inetdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/btf_ids.h>
+>>>>>>> upstream/android-13
 
 #include <crypto/hash.h>
 #include <linux/scatterlist.h>
@@ -126,11 +140,17 @@ int tcp_twsk_unique(struct sock *sk, struct sock *sktw, void *twp)
 #if IS_ENABLED(CONFIG_IPV6)
 		if (tw->tw_family == AF_INET6) {
 			if (ipv6_addr_loopback(&tw->tw_v6_daddr) ||
+<<<<<<< HEAD
 			    (ipv6_addr_v4mapped(&tw->tw_v6_daddr) &&
 			     (tw->tw_v6_daddr.s6_addr[12] == 127)) ||
 			    ipv6_addr_loopback(&tw->tw_v6_rcv_saddr) ||
 			    (ipv6_addr_v4mapped(&tw->tw_v6_rcv_saddr) &&
 			     (tw->tw_v6_rcv_saddr.s6_addr[12] == 127)))
+=======
+			    ipv6_addr_v4mapped_loopback(&tw->tw_v6_daddr) ||
+			    ipv6_addr_loopback(&tw->tw_v6_rcv_saddr) ||
+			    ipv6_addr_v4mapped_loopback(&tw->tw_v6_rcv_saddr))
+>>>>>>> upstream/android-13
 				loopback = true;
 		} else
 #endif
@@ -348,7 +368,11 @@ void tcp_v4_mtu_reduced(struct sock *sk)
 
 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
 		return;
+<<<<<<< HEAD
 	mtu = tcp_sk(sk)->mtu_info;
+=======
+	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
+>>>>>>> upstream/android-13
 	dst = inet_csk_update_pmtu(sk, mtu);
 	if (!dst)
 		return;
@@ -410,6 +434,49 @@ void tcp_req_err(struct sock *sk, u32 seq, bool abort)
 }
 EXPORT_SYMBOL(tcp_req_err);
 
+<<<<<<< HEAD
+=======
+/* TCP-LD (RFC 6069) logic */
+void tcp_ld_RTO_revert(struct sock *sk, u32 seq)
+{
+	struct inet_connection_sock *icsk = inet_csk(sk);
+	struct tcp_sock *tp = tcp_sk(sk);
+	struct sk_buff *skb;
+	s32 remaining;
+	u32 delta_us;
+
+	if (sock_owned_by_user(sk))
+		return;
+
+	if (seq != tp->snd_una  || !icsk->icsk_retransmits ||
+	    !icsk->icsk_backoff)
+		return;
+
+	skb = tcp_rtx_queue_head(sk);
+	if (WARN_ON_ONCE(!skb))
+		return;
+
+	icsk->icsk_backoff--;
+	icsk->icsk_rto = tp->srtt_us ? __tcp_set_rto(tp) : TCP_TIMEOUT_INIT;
+	icsk->icsk_rto = inet_csk_rto_backoff(icsk, TCP_RTO_MAX);
+
+	tcp_mstamp_refresh(tp);
+	delta_us = (u32)(tp->tcp_mstamp - tcp_skb_timestamp_us(skb));
+	remaining = icsk->icsk_rto - usecs_to_jiffies(delta_us);
+
+	if (remaining > 0) {
+		inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
+					  remaining, TCP_RTO_MAX);
+	} else {
+		/* RTO revert clocked out retransmission.
+		 * Will retransmit now.
+		 */
+		tcp_retransmit_timer(sk);
+	}
+}
+EXPORT_SYMBOL(tcp_ld_RTO_revert);
+
+>>>>>>> upstream/android-13
 /*
  * This routine is called by the ICMP module when it gets some
  * sort of error condition.  If err < 0 then the socket should
@@ -426,6 +493,7 @@ EXPORT_SYMBOL(tcp_req_err);
  *
  */
 
+<<<<<<< HEAD
 void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 {
 	const struct iphdr *iph = (const struct iphdr *)icmp_skb->data;
@@ -463,6 +531,42 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 				  (type == ICMP_DEST_UNREACH &&
 				   (code == ICMP_NET_UNREACH ||
 				    code == ICMP_HOST_UNREACH)));
+=======
+int tcp_v4_err(struct sk_buff *skb, u32 info)
+{
+	const struct iphdr *iph = (const struct iphdr *)skb->data;
+	struct tcphdr *th = (struct tcphdr *)(skb->data + (iph->ihl << 2));
+	struct tcp_sock *tp;
+	struct inet_sock *inet;
+	const int type = icmp_hdr(skb)->type;
+	const int code = icmp_hdr(skb)->code;
+	struct sock *sk;
+	struct request_sock *fastopen;
+	u32 seq, snd_una;
+	int err;
+	struct net *net = dev_net(skb->dev);
+
+	sk = __inet_lookup_established(net, &tcp_hashinfo, iph->daddr,
+				       th->dest, iph->saddr, ntohs(th->source),
+				       inet_iif(skb), 0);
+	if (!sk) {
+		__ICMP_INC_STATS(net, ICMP_MIB_INERRORS);
+		return -ENOENT;
+	}
+	if (sk->sk_state == TCP_TIME_WAIT) {
+		inet_twsk_put(inet_twsk(sk));
+		return 0;
+	}
+	seq = ntohl(th->seq);
+	if (sk->sk_state == TCP_NEW_SYN_RECV) {
+		tcp_req_err(sk, seq, type == ICMP_PARAMETERPROB ||
+				     type == ICMP_TIME_EXCEEDED ||
+				     (type == ICMP_DEST_UNREACH &&
+				      (code == ICMP_NET_UNREACH ||
+				       code == ICMP_HOST_UNREACH)));
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	bh_lock_sock(sk);
 	/* If too many ICMPs get dropped on busy
@@ -482,10 +586,16 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	icsk = inet_csk(sk);
 	tp = tcp_sk(sk);
 	/* XXX (TFO) - tp->snd_una should be ISN (tcp_create_openreq_child() */
 	fastopen = tp->fastopen_rsk;
+=======
+	tp = tcp_sk(sk);
+	/* XXX (TFO) - tp->snd_una should be ISN (tcp_create_openreq_child() */
+	fastopen = rcu_dereference(tp->fastopen_rsk);
+>>>>>>> upstream/android-13
 	snd_una = fastopen ? tcp_rsk(fastopen)->snt_isn : tp->snd_una;
 	if (sk->sk_state != TCP_LISTEN &&
 	    !between(seq, snd_una, tp->snd_nxt)) {
@@ -496,7 +606,11 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 	switch (type) {
 	case ICMP_REDIRECT:
 		if (!sock_owned_by_user(sk))
+<<<<<<< HEAD
 			do_redirect(icmp_skb, sk);
+=======
+			do_redirect(skb, sk);
+>>>>>>> upstream/android-13
 		goto out;
 	case ICMP_SOURCE_QUENCH:
 		/* Just silently ignore these. */
@@ -516,7 +630,11 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 			if (sk->sk_state == TCP_LISTEN)
 				goto out;
 
+<<<<<<< HEAD
 			tp->mtu_info = info;
+=======
+			WRITE_ONCE(tp->mtu_info, info);
+>>>>>>> upstream/android-13
 			if (!sock_owned_by_user(sk)) {
 				tcp_v4_mtu_reduced(sk);
 			} else {
@@ -527,6 +645,7 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 		}
 
 		err = icmp_err_convert[code].errno;
+<<<<<<< HEAD
 		/* check if icmp_skb allows revert of backoff
 		 * (see draft-zimmermann-tcp-lcd) */
 		if (code != ICMP_NET_UNREACH && code != ICMP_HOST_UNREACH)
@@ -561,6 +680,14 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 			tcp_retransmit_timer(sk);
 		}
 
+=======
+		/* check if this ICMP message allows revert of backoff.
+		 * (see RFC 6069)
+		 */
+		if (!fastopen &&
+		    (code == ICMP_NET_UNREACH || code == ICMP_HOST_UNREACH))
+			tcp_ld_RTO_revert(sk, seq);
+>>>>>>> upstream/android-13
 		break;
 	case ICMP_TIME_EXCEEDED:
 		err = EHOSTUNREACH;
@@ -573,15 +700,28 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 	case TCP_SYN_SENT:
 	case TCP_SYN_RECV:
 		/* Only in fast or simultaneous open. If a fast open socket is
+<<<<<<< HEAD
 		 * is already accepted it is treated as a connected one below.
+=======
+		 * already accepted it is treated as a connected one below.
+>>>>>>> upstream/android-13
 		 */
 		if (fastopen && !fastopen->sk)
 			break;
 
+<<<<<<< HEAD
 		if (!sock_owned_by_user(sk)) {
 			sk->sk_err = err;
 
 			sk->sk_error_report(sk);
+=======
+		ip_icmp_error(sk, skb, err, th->dest, info, (u8 *)th);
+
+		if (!sock_owned_by_user(sk)) {
+			sk->sk_err = err;
+
+			sk_error_report(sk);
+>>>>>>> upstream/android-13
 
 			tcp_done(sk);
 		} else {
@@ -609,7 +749,11 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 	inet = inet_sk(sk);
 	if (!sock_owned_by_user(sk) && inet->recverr) {
 		sk->sk_err = err;
+<<<<<<< HEAD
 		sk->sk_error_report(sk);
+=======
+		sk_error_report(sk);
+>>>>>>> upstream/android-13
 	} else	{ /* Only an error on timeout */
 		sk->sk_err_soft = err;
 	}
@@ -617,6 +761,10 @@ void tcp_v4_err(struct sk_buff *icmp_skb, u32 info)
 out:
 	bh_unlock_sock(sk);
 	sock_put(sk);
+<<<<<<< HEAD
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void __tcp_v4_send_check(struct sk_buff *skb, __be32 saddr, __be32 daddr)
@@ -650,14 +798,27 @@ EXPORT_SYMBOL(tcp_v4_send_check);
  *	Exception: precedence violation. We do not implement it in any case.
  */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TCP_MD5SIG
+#define OPTION_BYTES TCPOLEN_MD5SIG_ALIGNED
+#else
+#define OPTION_BYTES sizeof(__be32)
+#endif
+
+>>>>>>> upstream/android-13
 static void tcp_v4_send_reset(const struct sock *sk, struct sk_buff *skb)
 {
 	const struct tcphdr *th = tcp_hdr(skb);
 	struct {
 		struct tcphdr th;
+<<<<<<< HEAD
 #ifdef CONFIG_TCP_MD5SIG
 		__be32 opt[(TCPOLEN_MD5SIG_ALIGNED >> 2)];
 #endif
+=======
+		__be32 opt[OPTION_BYTES / sizeof(__be32)];
+>>>>>>> upstream/android-13
 	} rep;
 	struct ip_reply_arg arg;
 #ifdef CONFIG_TCP_MD5SIG
@@ -667,8 +828,14 @@ static void tcp_v4_send_reset(const struct sock *sk, struct sk_buff *skb)
 	int genhash;
 	struct sock *sk1 = NULL;
 #endif
+<<<<<<< HEAD
 	struct net *net;
 	struct sock *ctl_sk;
+=======
+	u64 transmit_time = 0;
+	struct sock *ctl_sk;
+	struct net *net;
+>>>>>>> upstream/android-13
 
 	/* Never send a reset in response to a reset. */
 	if (th->rst)
@@ -704,9 +871,27 @@ static void tcp_v4_send_reset(const struct sock *sk, struct sk_buff *skb)
 	rcu_read_lock();
 	hash_location = tcp_parse_md5sig_option(th);
 	if (sk && sk_fullsock(sk)) {
+<<<<<<< HEAD
 		key = tcp_md5_do_lookup(sk, (union tcp_md5_addr *)
 					&ip_hdr(skb)->saddr, AF_INET);
 	} else if (hash_location) {
+=======
+		const union tcp_md5_addr *addr;
+		int l3index;
+
+		/* sdif set, means packet ingressed via a device
+		 * in an L3 domain and inet_iif is set to it.
+		 */
+		l3index = tcp_v4_sdif(skb) ? inet_iif(skb) : 0;
+		addr = (union tcp_md5_addr *)&ip_hdr(skb)->saddr;
+		key = tcp_md5_do_lookup(sk, l3index, addr, AF_INET);
+	} else if (hash_location) {
+		const union tcp_md5_addr *addr;
+		int sdif = tcp_v4_sdif(skb);
+		int dif = inet_iif(skb);
+		int l3index;
+
+>>>>>>> upstream/android-13
 		/*
 		 * active side is lost. Try to find listening socket through
 		 * source port, and then find md5 key through listening socket.
@@ -717,14 +902,27 @@ static void tcp_v4_send_reset(const struct sock *sk, struct sk_buff *skb)
 		sk1 = __inet_lookup_listener(net, &tcp_hashinfo, NULL, 0,
 					     ip_hdr(skb)->saddr,
 					     th->source, ip_hdr(skb)->daddr,
+<<<<<<< HEAD
 					     ntohs(th->source), inet_iif(skb),
 					     tcp_v4_sdif(skb));
+=======
+					     ntohs(th->source), dif, sdif);
+>>>>>>> upstream/android-13
 		/* don't send rst if it can't find key */
 		if (!sk1)
 			goto out;
 
+<<<<<<< HEAD
 		key = tcp_md5_do_lookup(sk1, (union tcp_md5_addr *)
 					&ip_hdr(skb)->saddr, AF_INET);
+=======
+		/* sdif set, means packet ingressed via a device
+		 * in an L3 domain and dif is set to it.
+		 */
+		l3index = sdif ? dif : 0;
+		addr = (union tcp_md5_addr *)&ip_hdr(skb)->saddr;
+		key = tcp_md5_do_lookup(sk1, l3index, addr, AF_INET);
+>>>>>>> upstream/android-13
 		if (!key)
 			goto out;
 
@@ -749,6 +947,20 @@ static void tcp_v4_send_reset(const struct sock *sk, struct sk_buff *skb)
 				     ip_hdr(skb)->daddr, &rep.th);
 	}
 #endif
+<<<<<<< HEAD
+=======
+	/* Can't co-exist with TCPMD5, hence check rep.opt[0] */
+	if (rep.opt[0] == 0) {
+		__be32 mrst = mptcp_reset_option(skb);
+
+		if (mrst) {
+			rep.opt[0] = mrst;
+			arg.iov[0].iov_len += sizeof(mrst);
+			rep.th.doff = arg.iov[0].iov_len / 4;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	arg.csum = csum_tcpudp_nofold(ip_hdr(skb)->daddr,
 				      ip_hdr(skb)->saddr, /* XXX */
 				      arg.iov[0].iov_len, IPPROTO_TCP, 0);
@@ -771,6 +983,7 @@ static void tcp_v4_send_reset(const struct sock *sk, struct sk_buff *skb)
 	arg.tos = ip_hdr(skb)->tos;
 	arg.uid = sock_net_uid(net, sk && sk_fullsock(sk) ? sk : NULL);
 	local_bh_disable();
+<<<<<<< HEAD
 	ctl_sk = *this_cpu_ptr(net->ipv4.tcp_sk);
 	if (sk)
 		ctl_sk->sk_mark = (sk->sk_state == TCP_TIME_WAIT) ?
@@ -779,6 +992,21 @@ static void tcp_v4_send_reset(const struct sock *sk, struct sk_buff *skb)
 			      skb, &TCP_SKB_CB(skb)->header.h4.opt,
 			      ip_hdr(skb)->saddr, ip_hdr(skb)->daddr,
 			      &arg, arg.iov[0].iov_len);
+=======
+	ctl_sk = this_cpu_read(*net->ipv4.tcp_sk);
+	if (sk) {
+		ctl_sk->sk_mark = (sk->sk_state == TCP_TIME_WAIT) ?
+				   inet_twsk(sk)->tw_mark : sk->sk_mark;
+		ctl_sk->sk_priority = (sk->sk_state == TCP_TIME_WAIT) ?
+				   inet_twsk(sk)->tw_priority : sk->sk_priority;
+		transmit_time = tcp_transmit_time(sk);
+	}
+	ip_send_unicast_reply(ctl_sk,
+			      skb, &TCP_SKB_CB(skb)->header.h4.opt,
+			      ip_hdr(skb)->saddr, ip_hdr(skb)->daddr,
+			      &arg, arg.iov[0].iov_len,
+			      transmit_time);
+>>>>>>> upstream/android-13
 
 	ctl_sk->sk_mark = 0;
 	__TCP_INC_STATS(net, TCP_MIB_OUTSEGS);
@@ -813,6 +1041,10 @@ static void tcp_v4_send_ack(const struct sock *sk,
 	struct net *net = sock_net(sk);
 	struct ip_reply_arg arg;
 	struct sock *ctl_sk;
+<<<<<<< HEAD
+=======
+	u64 transmit_time;
+>>>>>>> upstream/android-13
 
 	memset(&rep.th, 0, sizeof(struct tcphdr));
 	memset(&arg, 0, sizeof(arg));
@@ -863,6 +1095,7 @@ static void tcp_v4_send_ack(const struct sock *sk,
 	arg.tos = tos;
 	arg.uid = sock_net_uid(net, sk_fullsock(sk) ? sk : NULL);
 	local_bh_disable();
+<<<<<<< HEAD
 	ctl_sk = *this_cpu_ptr(net->ipv4.tcp_sk);
 	if (sk)
 		ctl_sk->sk_mark = (sk->sk_state == TCP_TIME_WAIT) ?
@@ -871,6 +1104,19 @@ static void tcp_v4_send_ack(const struct sock *sk,
 			      skb, &TCP_SKB_CB(skb)->header.h4.opt,
 			      ip_hdr(skb)->saddr, ip_hdr(skb)->daddr,
 			      &arg, arg.iov[0].iov_len);
+=======
+	ctl_sk = this_cpu_read(*net->ipv4.tcp_sk);
+	ctl_sk->sk_mark = (sk->sk_state == TCP_TIME_WAIT) ?
+			   inet_twsk(sk)->tw_mark : sk->sk_mark;
+	ctl_sk->sk_priority = (sk->sk_state == TCP_TIME_WAIT) ?
+			   inet_twsk(sk)->tw_priority : sk->sk_priority;
+	transmit_time = tcp_transmit_time(sk);
+	ip_send_unicast_reply(ctl_sk,
+			      skb, &TCP_SKB_CB(skb)->header.h4.opt,
+			      ip_hdr(skb)->saddr, ip_hdr(skb)->daddr,
+			      &arg, arg.iov[0].iov_len,
+			      transmit_time);
+>>>>>>> upstream/android-13
 
 	ctl_sk->sk_mark = 0;
 	__TCP_INC_STATS(net, TCP_MIB_OUTSEGS);
@@ -899,6 +1145,12 @@ static void tcp_v4_timewait_ack(struct sock *sk, struct sk_buff *skb)
 static void tcp_v4_reqsk_send_ack(const struct sock *sk, struct sk_buff *skb,
 				  struct request_sock *req)
 {
+<<<<<<< HEAD
+=======
+	const union tcp_md5_addr *addr;
+	int l3index;
+
+>>>>>>> upstream/android-13
 	/* sk->sk_state == TCP_LISTEN -> for regular TCP_SYN_RECV
 	 * sk->sk_state == TCP_SYN_RECV -> for Fast Open.
 	 */
@@ -910,14 +1162,23 @@ static void tcp_v4_reqsk_send_ack(const struct sock *sk, struct sk_buff *skb,
 	 * exception of <SYN> segments, MUST be right-shifted by
 	 * Rcv.Wind.Shift bits:
 	 */
+<<<<<<< HEAD
+=======
+	addr = (union tcp_md5_addr *)&ip_hdr(skb)->saddr;
+	l3index = tcp_v4_sdif(skb) ? inet_iif(skb) : 0;
+>>>>>>> upstream/android-13
 	tcp_v4_send_ack(sk, skb, seq,
 			tcp_rsk(req)->rcv_nxt,
 			req->rsk_rcv_wnd >> inet_rsk(req)->rcv_wscale,
 			tcp_time_stamp_raw() + tcp_rsk(req)->ts_off,
 			req->ts_recent,
 			0,
+<<<<<<< HEAD
 			tcp_md5_do_lookup(sk, (union tcp_md5_addr *)&ip_hdr(skb)->saddr,
 					  AF_INET),
+=======
+			tcp_md5_do_lookup(sk, l3index, addr, AF_INET),
+>>>>>>> upstream/android-13
 			inet_rsk(req)->no_srccheck ? IP_REPLY_ARG_NOSRCCHECK : 0,
 			ip_hdr(skb)->tos);
 }
@@ -931,26 +1192,56 @@ static int tcp_v4_send_synack(const struct sock *sk, struct dst_entry *dst,
 			      struct flowi *fl,
 			      struct request_sock *req,
 			      struct tcp_fastopen_cookie *foc,
+<<<<<<< HEAD
 			      enum tcp_synack_type synack_type)
+=======
+			      enum tcp_synack_type synack_type,
+			      struct sk_buff *syn_skb)
+>>>>>>> upstream/android-13
 {
 	const struct inet_request_sock *ireq = inet_rsk(req);
 	struct flowi4 fl4;
 	int err = -1;
 	struct sk_buff *skb;
+<<<<<<< HEAD
+=======
+	u8 tos;
+>>>>>>> upstream/android-13
 
 	/* First, grab a route. */
 	if (!dst && (dst = inet_csk_route_req(sk, &fl4, req)) == NULL)
 		return -1;
 
+<<<<<<< HEAD
 	skb = tcp_make_synack(sk, dst, req, foc, synack_type);
+=======
+	skb = tcp_make_synack(sk, dst, req, foc, synack_type, syn_skb);
+>>>>>>> upstream/android-13
 
 	if (skb) {
 		__tcp_v4_send_check(skb, ireq->ir_loc_addr, ireq->ir_rmt_addr);
 
+<<<<<<< HEAD
 		rcu_read_lock();
 		err = ip_build_and_send_pkt(skb, sk, ireq->ir_loc_addr,
 					    ireq->ir_rmt_addr,
 					    rcu_dereference(ireq->ireq_opt));
+=======
+		tos = sock_net(sk)->ipv4.sysctl_tcp_reflect_tos ?
+				(tcp_rsk(req)->syn_tos & ~INET_ECN_MASK) |
+				(inet_sk(sk)->tos & INET_ECN_MASK) :
+				inet_sk(sk)->tos;
+
+		if (!INET_ECN_is_capable(tos) &&
+		    tcp_bpf_ca_needs_ecn((struct sock *)req))
+			tos |= INET_ECN_ECT_0;
+
+		rcu_read_lock();
+		err = ip_build_and_send_pkt(skb, sk, ireq->ir_loc_addr,
+					    ireq->ir_rmt_addr,
+					    rcu_dereference(ireq->ireq_opt),
+					    tos);
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		err = net_xmit_eval(err);
 	}
@@ -973,10 +1264,34 @@ static void tcp_v4_reqsk_destructor(struct request_sock *req)
  * We need to maintain these in the sk structure.
  */
 
+<<<<<<< HEAD
 /* Find the Key structure for an address.  */
 struct tcp_md5sig_key *tcp_md5_do_lookup(const struct sock *sk,
 					 const union tcp_md5_addr *addr,
 					 int family)
+=======
+DEFINE_STATIC_KEY_FALSE(tcp_md5_needed);
+EXPORT_SYMBOL(tcp_md5_needed);
+
+static bool better_md5_match(struct tcp_md5sig_key *old, struct tcp_md5sig_key *new)
+{
+	if (!old)
+		return true;
+
+	/* l3index always overrides non-l3index */
+	if (old->l3index && new->l3index == 0)
+		return false;
+	if (old->l3index == 0 && new->l3index)
+		return true;
+
+	return old->prefixlen < new->prefixlen;
+}
+
+/* Find the Key structure for an address.  */
+struct tcp_md5sig_key *__tcp_md5_do_lookup(const struct sock *sk, int l3index,
+					   const union tcp_md5_addr *addr,
+					   int family)
+>>>>>>> upstream/android-13
 {
 	const struct tcp_sock *tp = tcp_sk(sk);
 	struct tcp_md5sig_key *key;
@@ -991,10 +1306,19 @@ struct tcp_md5sig_key *tcp_md5_do_lookup(const struct sock *sk,
 	if (!md5sig)
 		return NULL;
 
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(key, &md5sig->head, node) {
 		if (key->family != family)
 			continue;
 
+=======
+	hlist_for_each_entry_rcu(key, &md5sig->head, node,
+				 lockdep_sock_is_held(sk)) {
+		if (key->family != family)
+			continue;
+		if (key->flags & TCP_MD5SIG_FLAG_IFINDEX && key->l3index != l3index)
+			continue;
+>>>>>>> upstream/android-13
 		if (family == AF_INET) {
 			mask = inet_make_mask(key->prefixlen);
 			match = (key->addr.a4.s_addr & mask) ==
@@ -1008,17 +1332,30 @@ struct tcp_md5sig_key *tcp_md5_do_lookup(const struct sock *sk,
 			match = false;
 		}
 
+<<<<<<< HEAD
 		if (match && (!best_match ||
 			      key->prefixlen > best_match->prefixlen))
+=======
+		if (match && better_md5_match(best_match, key))
+>>>>>>> upstream/android-13
 			best_match = key;
 	}
 	return best_match;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(tcp_md5_do_lookup);
 
 static struct tcp_md5sig_key *tcp_md5_do_lookup_exact(const struct sock *sk,
 						      const union tcp_md5_addr *addr,
 						      int family, u8 prefixlen)
+=======
+EXPORT_SYMBOL(__tcp_md5_do_lookup);
+
+static struct tcp_md5sig_key *tcp_md5_do_lookup_exact(const struct sock *sk,
+						      const union tcp_md5_addr *addr,
+						      int family, u8 prefixlen,
+						      int l3index, u8 flags)
+>>>>>>> upstream/android-13
 {
 	const struct tcp_sock *tp = tcp_sk(sk);
 	struct tcp_md5sig_key *key;
@@ -1034,9 +1371,20 @@ static struct tcp_md5sig_key *tcp_md5_do_lookup_exact(const struct sock *sk,
 	if (family == AF_INET6)
 		size = sizeof(struct in6_addr);
 #endif
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(key, &md5sig->head, node) {
 		if (key->family != family)
 			continue;
+=======
+	hlist_for_each_entry_rcu(key, &md5sig->head, node,
+				 lockdep_sock_is_held(sk)) {
+		if (key->family != family)
+			continue;
+		if ((key->flags & TCP_MD5SIG_FLAG_IFINDEX) != (flags & TCP_MD5SIG_FLAG_IFINDEX))
+			continue;
+		if (key->l3index != l3index)
+			continue;
+>>>>>>> upstream/android-13
 		if (!memcmp(&key->addr, addr, size) &&
 		    key->prefixlen == prefixlen)
 			return key;
@@ -1048,28 +1396,54 @@ struct tcp_md5sig_key *tcp_v4_md5_lookup(const struct sock *sk,
 					 const struct sock *addr_sk)
 {
 	const union tcp_md5_addr *addr;
+<<<<<<< HEAD
 
 	addr = (const union tcp_md5_addr *)&addr_sk->sk_daddr;
 	return tcp_md5_do_lookup(sk, addr, AF_INET);
+=======
+	int l3index;
+
+	l3index = l3mdev_master_ifindex_by_index(sock_net(sk),
+						 addr_sk->sk_bound_dev_if);
+	addr = (const union tcp_md5_addr *)&addr_sk->sk_daddr;
+	return tcp_md5_do_lookup(sk, l3index, addr, AF_INET);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(tcp_v4_md5_lookup);
 
 /* This can be called on a newly created socket, from other files */
 int tcp_md5_do_add(struct sock *sk, const union tcp_md5_addr *addr,
+<<<<<<< HEAD
 		   int family, u8 prefixlen, const u8 *newkey, u8 newkeylen,
 		   gfp_t gfp)
+=======
+		   int family, u8 prefixlen, int l3index, u8 flags,
+		   const u8 *newkey, u8 newkeylen, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	/* Add Key to the list */
 	struct tcp_md5sig_key *key;
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct tcp_md5sig_info *md5sig;
 
+<<<<<<< HEAD
 	key = tcp_md5_do_lookup_exact(sk, addr, family, prefixlen);
 	if (key) {
 		/* Pre-existing entry - just update that one.
 		 * Note that the key might be used concurrently.
 		 */
 		memcpy(key->key, newkey, newkeylen);
+=======
+	key = tcp_md5_do_lookup_exact(sk, addr, family, prefixlen, l3index, flags);
+	if (key) {
+		/* Pre-existing entry - just update that one.
+		 * Note that the key might be used concurrently.
+		 * data_race() is telling kcsan that we do not care of
+		 * key mismatches, since changing MD5 key on live flows
+		 * can lead to packet drops.
+		 */
+		data_race(memcpy(key->key, newkey, newkeylen));
+>>>>>>> upstream/android-13
 
 		/* Pairs with READ_ONCE() in tcp_md5_hash_key().
 		 * Also note that a reader could catch new key->keylen value
@@ -1105,6 +1479,11 @@ int tcp_md5_do_add(struct sock *sk, const union tcp_md5_addr *addr,
 	key->keylen = newkeylen;
 	key->family = family;
 	key->prefixlen = prefixlen;
+<<<<<<< HEAD
+=======
+	key->l3index = l3index;
+	key->flags = flags;
+>>>>>>> upstream/android-13
 	memcpy(&key->addr, addr,
 	       (family == AF_INET6) ? sizeof(struct in6_addr) :
 				      sizeof(struct in_addr));
@@ -1114,11 +1493,19 @@ int tcp_md5_do_add(struct sock *sk, const union tcp_md5_addr *addr,
 EXPORT_SYMBOL(tcp_md5_do_add);
 
 int tcp_md5_do_del(struct sock *sk, const union tcp_md5_addr *addr, int family,
+<<<<<<< HEAD
 		   u8 prefixlen)
 {
 	struct tcp_md5sig_key *key;
 
 	key = tcp_md5_do_lookup_exact(sk, addr, family, prefixlen);
+=======
+		   u8 prefixlen, int l3index, u8 flags)
+{
+	struct tcp_md5sig_key *key;
+
+	key = tcp_md5_do_lookup_exact(sk, addr, family, prefixlen, l3index, flags);
+>>>>>>> upstream/android-13
 	if (!key)
 		return -ENOENT;
 	hlist_del_rcu(&key->node);
@@ -1145,21 +1532,41 @@ static void tcp_clear_md5_list(struct sock *sk)
 }
 
 static int tcp_v4_parse_md5_keys(struct sock *sk, int optname,
+<<<<<<< HEAD
 				 char __user *optval, int optlen)
 {
 	struct tcp_md5sig cmd;
 	struct sockaddr_in *sin = (struct sockaddr_in *)&cmd.tcpm_addr;
 	u8 prefixlen = 32;
+=======
+				 sockptr_t optval, int optlen)
+{
+	struct tcp_md5sig cmd;
+	struct sockaddr_in *sin = (struct sockaddr_in *)&cmd.tcpm_addr;
+	const union tcp_md5_addr *addr;
+	u8 prefixlen = 32;
+	int l3index = 0;
+	u8 flags;
+>>>>>>> upstream/android-13
 
 	if (optlen < sizeof(cmd))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (copy_from_user(&cmd, optval, sizeof(cmd)))
+=======
+	if (copy_from_sockptr(&cmd, optval, sizeof(cmd)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	if (sin->sin_family != AF_INET)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	flags = cmd.tcpm_flags & TCP_MD5SIG_FLAG_IFINDEX;
+
+>>>>>>> upstream/android-13
 	if (optname == TCP_MD5SIG_EXT &&
 	    cmd.tcpm_flags & TCP_MD5SIG_FLAG_PREFIX) {
 		prefixlen = cmd.tcpm_prefixlen;
@@ -1167,16 +1574,46 @@ static int tcp_v4_parse_md5_keys(struct sock *sk, int optname,
 			return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!cmd.tcpm_keylen)
 		return tcp_md5_do_del(sk, (union tcp_md5_addr *)&sin->sin_addr.s_addr,
 				      AF_INET, prefixlen);
+=======
+	if (optname == TCP_MD5SIG_EXT && cmd.tcpm_ifindex &&
+	    cmd.tcpm_flags & TCP_MD5SIG_FLAG_IFINDEX) {
+		struct net_device *dev;
+
+		rcu_read_lock();
+		dev = dev_get_by_index_rcu(sock_net(sk), cmd.tcpm_ifindex);
+		if (dev && netif_is_l3_master(dev))
+			l3index = dev->ifindex;
+
+		rcu_read_unlock();
+
+		/* ok to reference set/not set outside of rcu;
+		 * right now device MUST be an L3 master
+		 */
+		if (!dev || !l3index)
+			return -EINVAL;
+	}
+
+	addr = (union tcp_md5_addr *)&sin->sin_addr.s_addr;
+
+	if (!cmd.tcpm_keylen)
+		return tcp_md5_do_del(sk, addr, AF_INET, prefixlen, l3index, flags);
+>>>>>>> upstream/android-13
 
 	if (cmd.tcpm_keylen > TCP_MD5SIG_MAXKEYLEN)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return tcp_md5_do_add(sk, (union tcp_md5_addr *)&sin->sin_addr.s_addr,
 			      AF_INET, prefixlen, cmd.tcpm_key, cmd.tcpm_keylen,
 			      GFP_KERNEL);
+=======
+	return tcp_md5_do_add(sk, addr, AF_INET, prefixlen, l3index, flags,
+			      cmd.tcpm_key, cmd.tcpm_keylen, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static int tcp_v4_md5_hash_headers(struct tcp_md5sig_pool *hp,
@@ -1286,7 +1723,12 @@ EXPORT_SYMBOL(tcp_v4_md5_hash_skb);
 
 /* Called with rcu_read_lock() */
 static bool tcp_v4_inbound_md5_hash(const struct sock *sk,
+<<<<<<< HEAD
 				    const struct sk_buff *skb)
+=======
+				    const struct sk_buff *skb,
+				    int dif, int sdif)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_TCP_MD5SIG
 	/*
@@ -1301,11 +1743,25 @@ static bool tcp_v4_inbound_md5_hash(const struct sock *sk,
 	struct tcp_md5sig_key *hash_expected;
 	const struct iphdr *iph = ip_hdr(skb);
 	const struct tcphdr *th = tcp_hdr(skb);
+<<<<<<< HEAD
 	int genhash;
 	unsigned char newhash[16];
 
 	hash_expected = tcp_md5_do_lookup(sk, (union tcp_md5_addr *)&iph->saddr,
 					  AF_INET);
+=======
+	const union tcp_md5_addr *addr;
+	unsigned char newhash[16];
+	int genhash, l3index;
+
+	/* sdif set, means packet ingressed via a device
+	 * in an L3 domain and dif is set to the l3mdev
+	 */
+	l3index = sdif ? dif : 0;
+
+	addr = (union tcp_md5_addr *)&iph->saddr;
+	hash_expected = tcp_md5_do_lookup(sk, l3index, addr, AF_INET);
+>>>>>>> upstream/android-13
 	hash_location = tcp_parse_md5sig_option(th);
 
 	/* We've parsed the options - do we have a hash? */
@@ -1331,11 +1787,19 @@ static bool tcp_v4_inbound_md5_hash(const struct sock *sk,
 
 	if (genhash || memcmp(hash_location, newhash, 16) != 0) {
 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPMD5FAILURE);
+<<<<<<< HEAD
 		net_info_ratelimited("MD5 Hash failed for (%pI4, %d)->(%pI4, %d)%s\n",
 				     &iph->saddr, ntohs(th->source),
 				     &iph->daddr, ntohs(th->dest),
 				     genhash ? " tcp_v4_calc_md5_hash failed"
 				     : "");
+=======
+		net_info_ratelimited("MD5 Hash failed for (%pI4, %d)->(%pI4, %d)%s L3 index %d\n",
+				     &iph->saddr, ntohs(th->source),
+				     &iph->daddr, ntohs(th->dest),
+				     genhash ? " tcp_v4_calc_md5_hash failed"
+				     : "", l3index);
+>>>>>>> upstream/android-13
 		return true;
 	}
 	return false;
@@ -1356,9 +1820,21 @@ static void tcp_v4_init_req(struct request_sock *req,
 }
 
 static struct dst_entry *tcp_v4_route_req(const struct sock *sk,
+<<<<<<< HEAD
 					  struct flowi *fl,
 					  const struct request_sock *req)
 {
+=======
+					  struct sk_buff *skb,
+					  struct flowi *fl,
+					  struct request_sock *req)
+{
+	tcp_v4_init_req(req, sk, skb);
+
+	if (security_inet_conn_request(sk, skb, req))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	return inet_csk_route_req(sk, &fl->u.ip4, req);
 }
 
@@ -1372,13 +1848,20 @@ struct request_sock_ops tcp_request_sock_ops __read_mostly = {
 	.syn_ack_timeout =	tcp_syn_ack_timeout,
 };
 
+<<<<<<< HEAD
 static const struct tcp_request_sock_ops tcp_request_sock_ipv4_ops = {
+=======
+const struct tcp_request_sock_ops tcp_request_sock_ipv4_ops = {
+>>>>>>> upstream/android-13
 	.mss_clamp	=	TCP_MSS_DEFAULT,
 #ifdef CONFIG_TCP_MD5SIG
 	.req_md5_lookup	=	tcp_v4_md5_lookup,
 	.calc_md5_hash	=	tcp_v4_md5_hash_skb,
 #endif
+<<<<<<< HEAD
 	.init_req	=	tcp_v4_init_req,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SYN_COOKIES
 	.cookie_init_seq =	cookie_v4_init_sequence,
 #endif
@@ -1415,11 +1898,21 @@ struct sock *tcp_v4_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
 				  bool *own_req)
 {
 	struct inet_request_sock *ireq;
+<<<<<<< HEAD
+=======
+	bool found_dup_sk = false;
+>>>>>>> upstream/android-13
 	struct inet_sock *newinet;
 	struct tcp_sock *newtp;
 	struct sock *newsk;
 #ifdef CONFIG_TCP_MD5SIG
+<<<<<<< HEAD
 	struct tcp_md5sig_key *key;
+=======
+	const union tcp_md5_addr *addr;
+	struct tcp_md5sig_key *key;
+	int l3index;
+>>>>>>> upstream/android-13
 #endif
 	struct ip_options_rcu *inet_opt;
 
@@ -1450,6 +1943,15 @@ struct sock *tcp_v4_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
 		inet_csk(newsk)->icsk_ext_hdr_len = inet_opt->opt.optlen;
 	newinet->inet_id = prandom_u32();
 
+<<<<<<< HEAD
+=======
+	/* Set ToS of the new socket based upon the value of incoming SYN.
+	 * ECT bits are set later in tcp_init_transfer().
+	 */
+	if (sock_net(sk)->ipv4.sysctl_tcp_reflect_tos)
+		newinet->tos = tcp_rsk(req)->syn_tos & ~INET_ECN_MASK;
+
+>>>>>>> upstream/android-13
 	if (!dst) {
 		dst = inet_csk_route_child_sock(sk, newsk, req);
 		if (!dst)
@@ -1467,9 +1969,16 @@ struct sock *tcp_v4_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
 	tcp_initialize_rcv_mss(newsk);
 
 #ifdef CONFIG_TCP_MD5SIG
+<<<<<<< HEAD
 	/* Copy over the MD5 key from the original socket */
 	key = tcp_md5_do_lookup(sk, (union tcp_md5_addr *)&newinet->inet_daddr,
 				AF_INET);
+=======
+	l3index = l3mdev_master_ifindex_by_index(sock_net(sk), ireq->ir_iif);
+	/* Copy over the MD5 key from the original socket */
+	addr = (union tcp_md5_addr *)&newinet->inet_daddr;
+	key = tcp_md5_do_lookup(sk, l3index, addr, AF_INET);
+>>>>>>> upstream/android-13
 	if (key) {
 		/*
 		 * We're using one, so create a matching key
@@ -1477,20 +1986,42 @@ struct sock *tcp_v4_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
 		 * memory, then we end up not copying the key
 		 * across. Shucks.
 		 */
+<<<<<<< HEAD
 		tcp_md5_do_add(newsk, (union tcp_md5_addr *)&newinet->inet_daddr,
 			       AF_INET, 32, key->key, key->keylen, GFP_ATOMIC);
+=======
+		tcp_md5_do_add(newsk, addr, AF_INET, 32, l3index, key->flags,
+			       key->key, key->keylen, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 		sk_nocaps_add(newsk, NETIF_F_GSO_MASK);
 	}
 #endif
 
 	if (__inet_inherit_port(sk, newsk) < 0)
 		goto put_and_exit;
+<<<<<<< HEAD
 	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash));
+=======
+	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash),
+				       &found_dup_sk);
+>>>>>>> upstream/android-13
 	if (likely(*own_req)) {
 		tcp_move_syn(newtp, req);
 		ireq->ireq_opt = NULL;
 	} else {
 		newinet->inet_opt = NULL;
+<<<<<<< HEAD
+=======
+
+		if (!req_unhash && found_dup_sk) {
+			/* This code path should only be executed in the
+			 * syncookie case only
+			 */
+			bh_unlock_sock(newsk);
+			sock_put(newsk);
+			newsk = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 	return newsk;
 
@@ -1520,6 +2051,26 @@ static struct sock *tcp_v4_cookie_check(struct sock *sk, struct sk_buff *skb)
 	return sk;
 }
 
+<<<<<<< HEAD
+=======
+u16 tcp_v4_get_syncookie(struct sock *sk, struct iphdr *iph,
+			 struct tcphdr *th, u32 *cookie)
+{
+	u16 mss = 0;
+#ifdef CONFIG_SYN_COOKIES
+	mss = tcp_get_syncookie_mss(&tcp_request_sock_ops,
+				    &tcp_request_sock_ipv4_ops, sk, th);
+	if (mss) {
+		*cookie = __cookie_v4_init_sequence(iph, th, &mss);
+		tcp_synq_overflow(sk);
+	}
+#endif
+	return mss;
+}
+
+INDIRECT_CALLABLE_DECLARE(struct dst_entry *ipv4_dst_check(struct dst_entry *,
+							   u32));
+>>>>>>> upstream/android-13
 /* The socket must have it's spinlock held when we get
  * here, unless it is a TCP_LISTEN socket.
  *
@@ -1533,15 +2084,30 @@ int tcp_v4_do_rcv(struct sock *sk, struct sk_buff *skb)
 	struct sock *rsk;
 
 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
+<<<<<<< HEAD
 		struct dst_entry *dst = sk->sk_rx_dst;
+=======
+		struct dst_entry *dst;
+
+		dst = rcu_dereference_protected(sk->sk_rx_dst,
+						lockdep_sock_is_held(sk));
+>>>>>>> upstream/android-13
 
 		sock_rps_save_rxhash(sk, skb);
 		sk_mark_napi_id(sk, skb);
 		if (dst) {
+<<<<<<< HEAD
 			if (inet_sk(sk)->rx_dst_ifindex != skb->skb_iif ||
 			    !dst->ops->check(dst, 0)) {
 				dst_release(dst);
 				sk->sk_rx_dst = NULL;
+=======
+			if (sk->sk_rx_dst_ifindex != skb->skb_iif ||
+			    !INDIRECT_CALL_1(dst->ops->check, ipv4_dst_check,
+					     dst, 0)) {
+				RCU_INIT_POINTER(sk->sk_rx_dst, NULL);
+				dst_release(dst);
+>>>>>>> upstream/android-13
 			}
 		}
 		tcp_rcv_established(sk, skb);
@@ -1584,6 +2150,10 @@ discard:
 	return 0;
 
 csum_err:
+<<<<<<< HEAD
+=======
+	trace_tcp_bad_csum(skb);
+>>>>>>> upstream/android-13
 	TCP_INC_STATS(sock_net(sk), TCP_MIB_CSUMERRORS);
 	TCP_INC_STATS(sock_net(sk), TCP_MIB_INERRS);
 	goto discard;
@@ -1616,12 +2186,20 @@ int tcp_v4_early_demux(struct sk_buff *skb)
 		skb->sk = sk;
 		skb->destructor = sock_edemux;
 		if (sk_fullsock(sk)) {
+<<<<<<< HEAD
 			struct dst_entry *dst = READ_ONCE(sk->sk_rx_dst);
+=======
+			struct dst_entry *dst = rcu_dereference(sk->sk_rx_dst);
+>>>>>>> upstream/android-13
 
 			if (dst)
 				dst = dst_check(dst, 0);
 			if (dst &&
+<<<<<<< HEAD
 			    inet_sk(sk)->rx_dst_ifindex == skb->skb_iif)
+=======
+			    sk->sk_rx_dst_ifindex == skb->skb_iif)
+>>>>>>> upstream/android-13
 				skb_dst_set_noref(skb, dst);
 		}
 	}
@@ -1630,6 +2208,7 @@ int tcp_v4_early_demux(struct sk_buff *skb)
 
 bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	u32 limit = sk->sk_rcvbuf + sk->sk_sndbuf;
 
 	/* Only socket owner can try to collapse/prune rx queues
@@ -1637,6 +2216,19 @@ bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
 	 * Few sockets backlog are possibly concurrently non empty.
 	 */
 	limit += 64*1024;
+=======
+	u32 limit = READ_ONCE(sk->sk_rcvbuf) + READ_ONCE(sk->sk_sndbuf);
+	u32 tail_gso_size, tail_gso_segs;
+	struct skb_shared_info *shinfo;
+	const struct tcphdr *th;
+	struct tcphdr *thtail;
+	struct sk_buff *tail;
+	unsigned int hdrlen;
+	bool fragstolen;
+	u32 gso_segs;
+	u32 gso_size;
+	int delta;
+>>>>>>> upstream/android-13
 
 	/* In case all data was pulled from skb frags (in __pskb_pull_tail()),
 	 * we can fix skb->truesize to its real value to avoid future drops.
@@ -1646,6 +2238,100 @@ bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
 	 */
 	skb_condense(skb);
 
+<<<<<<< HEAD
+=======
+	skb_dst_drop(skb);
+
+	if (unlikely(tcp_checksum_complete(skb))) {
+		bh_unlock_sock(sk);
+		trace_tcp_bad_csum(skb);
+		__TCP_INC_STATS(sock_net(sk), TCP_MIB_CSUMERRORS);
+		__TCP_INC_STATS(sock_net(sk), TCP_MIB_INERRS);
+		return true;
+	}
+
+	/* Attempt coalescing to last skb in backlog, even if we are
+	 * above the limits.
+	 * This is okay because skb capacity is limited to MAX_SKB_FRAGS.
+	 */
+	th = (const struct tcphdr *)skb->data;
+	hdrlen = th->doff * 4;
+
+	tail = sk->sk_backlog.tail;
+	if (!tail)
+		goto no_coalesce;
+	thtail = (struct tcphdr *)tail->data;
+
+	if (TCP_SKB_CB(tail)->end_seq != TCP_SKB_CB(skb)->seq ||
+	    TCP_SKB_CB(tail)->ip_dsfield != TCP_SKB_CB(skb)->ip_dsfield ||
+	    ((TCP_SKB_CB(tail)->tcp_flags |
+	      TCP_SKB_CB(skb)->tcp_flags) & (TCPHDR_SYN | TCPHDR_RST | TCPHDR_URG)) ||
+	    !((TCP_SKB_CB(tail)->tcp_flags &
+	      TCP_SKB_CB(skb)->tcp_flags) & TCPHDR_ACK) ||
+	    ((TCP_SKB_CB(tail)->tcp_flags ^
+	      TCP_SKB_CB(skb)->tcp_flags) & (TCPHDR_ECE | TCPHDR_CWR)) ||
+#ifdef CONFIG_TLS_DEVICE
+	    tail->decrypted != skb->decrypted ||
+#endif
+	    thtail->doff != th->doff ||
+	    memcmp(thtail + 1, th + 1, hdrlen - sizeof(*th)))
+		goto no_coalesce;
+
+	__skb_pull(skb, hdrlen);
+
+	shinfo = skb_shinfo(skb);
+	gso_size = shinfo->gso_size ?: skb->len;
+	gso_segs = shinfo->gso_segs ?: 1;
+
+	shinfo = skb_shinfo(tail);
+	tail_gso_size = shinfo->gso_size ?: (tail->len - hdrlen);
+	tail_gso_segs = shinfo->gso_segs ?: 1;
+
+	if (skb_try_coalesce(tail, skb, &fragstolen, &delta)) {
+		TCP_SKB_CB(tail)->end_seq = TCP_SKB_CB(skb)->end_seq;
+
+		if (likely(!before(TCP_SKB_CB(skb)->ack_seq, TCP_SKB_CB(tail)->ack_seq))) {
+			TCP_SKB_CB(tail)->ack_seq = TCP_SKB_CB(skb)->ack_seq;
+			thtail->window = th->window;
+		}
+
+		/* We have to update both TCP_SKB_CB(tail)->tcp_flags and
+		 * thtail->fin, so that the fast path in tcp_rcv_established()
+		 * is not entered if we append a packet with a FIN.
+		 * SYN, RST, URG are not present.
+		 * ACK is set on both packets.
+		 * PSH : we do not really care in TCP stack,
+		 *       at least for 'GRO' packets.
+		 */
+		thtail->fin |= th->fin;
+		TCP_SKB_CB(tail)->tcp_flags |= TCP_SKB_CB(skb)->tcp_flags;
+
+		if (TCP_SKB_CB(skb)->has_rxtstamp) {
+			TCP_SKB_CB(tail)->has_rxtstamp = true;
+			tail->tstamp = skb->tstamp;
+			skb_hwtstamps(tail)->hwtstamp = skb_hwtstamps(skb)->hwtstamp;
+		}
+
+		/* Not as strict as GRO. We only need to carry mss max value */
+		shinfo->gso_size = max(gso_size, tail_gso_size);
+		shinfo->gso_segs = min_t(u32, gso_segs + tail_gso_segs, 0xFFFF);
+
+		sk->sk_backlog.len += delta;
+		__NET_INC_STATS(sock_net(sk),
+				LINUX_MIB_TCPBACKLOGCOALESCE);
+		kfree_skb_partial(skb, fragstolen);
+		return false;
+	}
+	__skb_push(skb, hdrlen);
+
+no_coalesce:
+	/* Only socket owner can try to collapse/prune rx queues
+	 * to reduce memory overhead, so add a little headroom here.
+	 * Few sockets backlog are possibly concurrently non empty.
+	 */
+	limit += 64*1024;
+
+>>>>>>> upstream/android-13
 	if (unlikely(sk_add_backlog(sk, skb, limit))) {
 		bh_unlock_sock(sk);
 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPBACKLOGDROP);
@@ -1698,7 +2384,13 @@ static void tcp_v4_fill_cb(struct sk_buff *skb, const struct iphdr *iph,
 int tcp_v4_rcv(struct sk_buff *skb)
 {
 	struct net *net = dev_net(skb->dev);
+<<<<<<< HEAD
 	int sdif = inet_sdif(skb);
+=======
+	struct sk_buff *skb_to_free;
+	int sdif = inet_sdif(skb);
+	int dif = inet_iif(skb);
+>>>>>>> upstream/android-13
 	const struct iphdr *iph;
 	const struct tcphdr *th;
 	bool refcounted;
@@ -1747,7 +2439,11 @@ process:
 		struct sock *nsk;
 
 		sk = req->rsk_listener;
+<<<<<<< HEAD
 		if (unlikely(tcp_v4_inbound_md5_hash(sk, skb))) {
+=======
+		if (unlikely(tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))) {
+>>>>>>> upstream/android-13
 			sk_drops_add(sk, skb);
 			reqsk_put(req);
 			goto discard_it;
@@ -1757,6 +2453,7 @@ process:
 			goto csum_error;
 		}
 		if (unlikely(sk->sk_state != TCP_LISTEN)) {
+<<<<<<< HEAD
 			inet_csk_reqsk_queue_drop_and_put(sk, req);
 			goto lookup;
 		}
@@ -1764,6 +2461,23 @@ process:
 		 * as we might lose it too soon.
 		 */
 		sock_hold(sk);
+=======
+			nsk = reuseport_migrate_sock(sk, req_to_sk(req), skb);
+			if (!nsk) {
+				inet_csk_reqsk_queue_drop_and_put(sk, req);
+				goto lookup;
+			}
+			sk = nsk;
+			/* reuseport_migrate_sock() has already held one sk_refcnt
+			 * before returning.
+			 */
+		} else {
+			/* We own a reference on the listener, increase it again
+			 * as we might lose it too soon.
+			 */
+			sock_hold(sk);
+		}
+>>>>>>> upstream/android-13
 		refcounted = true;
 		nsk = NULL;
 		if (!tcp_filter(sk, skb)) {
@@ -1805,10 +2519,17 @@ process:
 	if (!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb))
 		goto discard_and_relse;
 
+<<<<<<< HEAD
 	if (tcp_v4_inbound_md5_hash(sk, skb))
 		goto discard_and_relse;
 
 	nf_reset(skb);
+=======
+	if (tcp_v4_inbound_md5_hash(sk, skb, dif, sdif))
+		goto discard_and_relse;
+
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	if (tcp_filter(sk, skb))
 		goto discard_and_relse;
@@ -1829,11 +2550,25 @@ process:
 	tcp_segs_in(tcp_sk(sk), skb);
 	ret = 0;
 	if (!sock_owned_by_user(sk)) {
+<<<<<<< HEAD
 		ret = tcp_v4_do_rcv(sk, skb);
 	} else if (tcp_add_backlog(sk, skb)) {
 		goto discard_and_relse;
 	}
 	bh_unlock_sock(sk);
+=======
+		skb_to_free = sk->sk_rx_skb_cache;
+		sk->sk_rx_skb_cache = NULL;
+		ret = tcp_v4_do_rcv(sk, skb);
+	} else {
+		if (tcp_add_backlog(sk, skb))
+			goto discard_and_relse;
+		skb_to_free = NULL;
+	}
+	bh_unlock_sock(sk);
+	if (skb_to_free)
+		__kfree_skb(skb_to_free);
+>>>>>>> upstream/android-13
 
 put_and_return:
 	if (refcounted)
@@ -1849,6 +2584,10 @@ no_tcp_socket:
 
 	if (tcp_checksum_complete(skb)) {
 csum_error:
+<<<<<<< HEAD
+=======
+		trace_tcp_bad_csum(skb);
+>>>>>>> upstream/android-13
 		__TCP_INC_STATS(net, TCP_MIB_CSUMERRORS);
 bad_packet:
 		__TCP_INC_STATS(net, TCP_MIB_INERRS);
@@ -1897,7 +2636,11 @@ do_time_wait:
 		}
 	}
 		/* to ACK */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TCP_TW_ACK:
 		tcp_v4_timewait_ack(sk, skb);
 		break;
@@ -1921,8 +2664,13 @@ void inet_sk_rx_dst_set(struct sock *sk, const struct sk_buff *skb)
 	struct dst_entry *dst = skb_dst(skb);
 
 	if (dst && dst_hold_safe(dst)) {
+<<<<<<< HEAD
 		sk->sk_rx_dst = dst;
 		inet_sk(sk)->rx_dst_ifindex = skb->skb_iif;
+=======
+		rcu_assign_pointer(sk->sk_rx_dst, dst);
+		sk->sk_rx_dst_ifindex = skb->skb_iif;
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(inet_sk_rx_dst_set);
@@ -1939,10 +2687,13 @@ const struct inet_connection_sock_af_ops ipv4_specific = {
 	.getsockopt	   = ip_getsockopt,
 	.addr2sockaddr	   = inet_csk_addr2sockaddr,
 	.sockaddr_len	   = sizeof(struct sockaddr_in),
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_ip_setsockopt,
 	.compat_getsockopt = compat_ip_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.mtu_reduced	   = tcp_v4_mtu_reduced,
 };
 EXPORT_SYMBOL(ipv4_specific);
@@ -2007,7 +2758,11 @@ void tcp_v4_destroy_sock(struct sock *sk)
 	if (inet_csk(sk)->icsk_bind_hash)
 		inet_put_port(sk);
 
+<<<<<<< HEAD
 	BUG_ON(tp->fastopen_rsk);
+=======
+	BUG_ON(rcu_access_pointer(tp->fastopen_rsk));
+>>>>>>> upstream/android-13
 
 	/* If socket is aborted during connect operation */
 	tcp_free_fastopen_req(tp);
@@ -2021,6 +2776,7 @@ EXPORT_SYMBOL(tcp_v4_destroy_sock);
 #ifdef CONFIG_PROC_FS
 /* Proc filesystem TCP sock list dumping. */
 
+<<<<<<< HEAD
 /*
  * Get next listener socket follow cur.  If cur is NULL, get first socket
  * starting from bucket given in st->bucket; when st->bucket is zero the
@@ -2060,6 +2816,74 @@ get_sk:
 	if (++st->bucket < INET_LHTABLE_SIZE)
 		goto get_head;
 	return NULL;
+=======
+static unsigned short seq_file_family(const struct seq_file *seq);
+
+static bool seq_sk_match(struct seq_file *seq, const struct sock *sk)
+{
+	unsigned short family = seq_file_family(seq);
+
+	/* AF_UNSPEC is used as a match all */
+	return ((family == AF_UNSPEC || family == sk->sk_family) &&
+		net_eq(sock_net(sk), seq_file_net(seq)));
+}
+
+/* Find a non empty bucket (starting from st->bucket)
+ * and return the first sk from it.
+ */
+static void *listening_get_first(struct seq_file *seq)
+{
+	struct tcp_iter_state *st = seq->private;
+
+	st->offset = 0;
+	for (; st->bucket <= tcp_hashinfo.lhash2_mask; st->bucket++) {
+		struct inet_listen_hashbucket *ilb2;
+		struct inet_connection_sock *icsk;
+		struct sock *sk;
+
+		ilb2 = &tcp_hashinfo.lhash2[st->bucket];
+		if (hlist_empty(&ilb2->head))
+			continue;
+
+		spin_lock(&ilb2->lock);
+		inet_lhash2_for_each_icsk(icsk, &ilb2->head) {
+			sk = (struct sock *)icsk;
+			if (seq_sk_match(seq, sk))
+				return sk;
+		}
+		spin_unlock(&ilb2->lock);
+	}
+
+	return NULL;
+}
+
+/* Find the next sk of "cur" within the same bucket (i.e. st->bucket).
+ * If "cur" is the last one in the st->bucket,
+ * call listening_get_first() to return the first sk of the next
+ * non empty bucket.
+ */
+static void *listening_get_next(struct seq_file *seq, void *cur)
+{
+	struct tcp_iter_state *st = seq->private;
+	struct inet_listen_hashbucket *ilb2;
+	struct inet_connection_sock *icsk;
+	struct sock *sk = cur;
+
+	++st->num;
+	++st->offset;
+
+	icsk = inet_csk(sk);
+	inet_lhash2_for_each_icsk_continue(icsk) {
+		sk = (struct sock *)icsk;
+		if (seq_sk_match(seq, sk))
+			return sk;
+	}
+
+	ilb2 = &tcp_hashinfo.lhash2[st->bucket];
+	spin_unlock(&ilb2->lock);
+	++st->bucket;
+	return listening_get_first(seq);
+>>>>>>> upstream/android-13
 }
 
 static void *listening_get_idx(struct seq_file *seq, loff_t *pos)
@@ -2069,7 +2893,11 @@ static void *listening_get_idx(struct seq_file *seq, loff_t *pos)
 
 	st->bucket = 0;
 	st->offset = 0;
+<<<<<<< HEAD
 	rc = listening_get_next(seq, NULL);
+=======
+	rc = listening_get_first(seq);
+>>>>>>> upstream/android-13
 
 	while (rc && *pos) {
 		rc = listening_get_next(seq, rc);
@@ -2089,10 +2917,14 @@ static inline bool empty_bucket(const struct tcp_iter_state *st)
  */
 static void *established_get_first(struct seq_file *seq)
 {
+<<<<<<< HEAD
 	struct tcp_seq_afinfo *afinfo = PDE_DATA(file_inode(seq->file));
 	struct tcp_iter_state *st = seq->private;
 	struct net *net = seq_file_net(seq);
 	void *rc = NULL;
+=======
+	struct tcp_iter_state *st = seq->private;
+>>>>>>> upstream/android-13
 
 	st->offset = 0;
 	for (; st->bucket <= tcp_hashinfo.ehash_mask; ++st->bucket) {
@@ -2106,6 +2938,7 @@ static void *established_get_first(struct seq_file *seq)
 
 		spin_lock_bh(lock);
 		sk_nulls_for_each(sk, node, &tcp_hashinfo.ehash[st->bucket].chain) {
+<<<<<<< HEAD
 			if (sk->sk_family != afinfo->family ||
 			    !net_eq(sock_net(sk), net)) {
 				continue;
@@ -2117,15 +2950,30 @@ static void *established_get_first(struct seq_file *seq)
 	}
 out:
 	return rc;
+=======
+			if (seq_sk_match(seq, sk))
+				return sk;
+		}
+		spin_unlock_bh(lock);
+	}
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static void *established_get_next(struct seq_file *seq, void *cur)
 {
+<<<<<<< HEAD
 	struct tcp_seq_afinfo *afinfo = PDE_DATA(file_inode(seq->file));
 	struct sock *sk = cur;
 	struct hlist_nulls_node *node;
 	struct tcp_iter_state *st = seq->private;
 	struct net *net = seq_file_net(seq);
+=======
+	struct sock *sk = cur;
+	struct hlist_nulls_node *node;
+	struct tcp_iter_state *st = seq->private;
+>>>>>>> upstream/android-13
 
 	++st->num;
 	++st->offset;
@@ -2133,8 +2981,12 @@ static void *established_get_next(struct seq_file *seq, void *cur)
 	sk = sk_nulls_next(sk);
 
 	sk_nulls_for_each_from(sk, node) {
+<<<<<<< HEAD
 		if (sk->sk_family == afinfo->family &&
 		    net_eq(sock_net(sk), net))
+=======
+		if (seq_sk_match(seq, sk))
+>>>>>>> upstream/android-13
 			return sk;
 	}
 
@@ -2177,28 +3029,48 @@ static void *tcp_get_idx(struct seq_file *seq, loff_t pos)
 static void *tcp_seek_last_pos(struct seq_file *seq)
 {
 	struct tcp_iter_state *st = seq->private;
+<<<<<<< HEAD
+=======
+	int bucket = st->bucket;
+>>>>>>> upstream/android-13
 	int offset = st->offset;
 	int orig_num = st->num;
 	void *rc = NULL;
 
 	switch (st->state) {
 	case TCP_SEQ_STATE_LISTENING:
+<<<<<<< HEAD
 		if (st->bucket >= INET_LHTABLE_SIZE)
 			break;
 		st->state = TCP_SEQ_STATE_LISTENING;
 		rc = listening_get_next(seq, NULL);
 		while (offset-- && rc)
+=======
+		if (st->bucket > tcp_hashinfo.lhash2_mask)
+			break;
+		st->state = TCP_SEQ_STATE_LISTENING;
+		rc = listening_get_first(seq);
+		while (offset-- && rc && bucket == st->bucket)
+>>>>>>> upstream/android-13
 			rc = listening_get_next(seq, rc);
 		if (rc)
 			break;
 		st->bucket = 0;
 		st->state = TCP_SEQ_STATE_ESTABLISHED;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TCP_SEQ_STATE_ESTABLISHED:
 		if (st->bucket > tcp_hashinfo.ehash_mask)
 			break;
 		rc = established_get_first(seq);
+<<<<<<< HEAD
 		while (offset-- && rc)
+=======
+		while (offset-- && rc && bucket == st->bucket)
+>>>>>>> upstream/android-13
 			rc = established_get_next(seq, rc);
 	}
 
@@ -2268,7 +3140,11 @@ void tcp_seq_stop(struct seq_file *seq, void *v)
 	switch (st->state) {
 	case TCP_SEQ_STATE_LISTENING:
 		if (v != SEQ_START_TOKEN)
+<<<<<<< HEAD
 			spin_unlock(&tcp_hashinfo.listening_hash[st->bucket].lock);
+=======
+			spin_unlock(&tcp_hashinfo.lhash2[st->bucket].lock);
+>>>>>>> upstream/android-13
 		break;
 	case TCP_SEQ_STATE_ESTABLISHED:
 		if (v)
@@ -2337,7 +3213,11 @@ static void get_tcp4_sock(struct sock *sk, struct seq_file *f, int i)
 
 	state = inet_sk_state_load(sk);
 	if (state == TCP_LISTEN)
+<<<<<<< HEAD
 		rx_queue = sk->sk_ack_backlog;
+=======
+		rx_queue = READ_ONCE(sk->sk_ack_backlog);
+>>>>>>> upstream/android-13
 	else
 		/* Because we don't lock the socket,
 		 * we might find a transient negative value.
@@ -2359,7 +3239,11 @@ static void get_tcp4_sock(struct sock *sk, struct seq_file *f, int i)
 		refcount_read(&sk->sk_refcnt), sk,
 		jiffies_to_clock_t(icsk->icsk_rto),
 		jiffies_to_clock_t(icsk->icsk_ack.ato),
+<<<<<<< HEAD
 		(icsk->icsk_ack.quick << 1) | icsk->icsk_ack.pingpong,
+=======
+		(icsk->icsk_ack.quick << 1) | inet_csk_in_pingpong_mode(sk),
+>>>>>>> upstream/android-13
 		tp->snd_cwnd,
 		state == TCP_LISTEN ?
 		    fastopenq->max_qlen :
@@ -2412,6 +3296,298 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BPF_SYSCALL
+struct bpf_tcp_iter_state {
+	struct tcp_iter_state state;
+	unsigned int cur_sk;
+	unsigned int end_sk;
+	unsigned int max_sk;
+	struct sock **batch;
+	bool st_bucket_done;
+};
+
+struct bpf_iter__tcp {
+	__bpf_md_ptr(struct bpf_iter_meta *, meta);
+	__bpf_md_ptr(struct sock_common *, sk_common);
+	uid_t uid __aligned(8);
+};
+
+static int tcp_prog_seq_show(struct bpf_prog *prog, struct bpf_iter_meta *meta,
+			     struct sock_common *sk_common, uid_t uid)
+{
+	struct bpf_iter__tcp ctx;
+
+	meta->seq_num--;  /* skip SEQ_START_TOKEN */
+	ctx.meta = meta;
+	ctx.sk_common = sk_common;
+	ctx.uid = uid;
+	return bpf_iter_run_prog(prog, &ctx);
+}
+
+static void bpf_iter_tcp_put_batch(struct bpf_tcp_iter_state *iter)
+{
+	while (iter->cur_sk < iter->end_sk)
+		sock_put(iter->batch[iter->cur_sk++]);
+}
+
+static int bpf_iter_tcp_realloc_batch(struct bpf_tcp_iter_state *iter,
+				      unsigned int new_batch_sz)
+{
+	struct sock **new_batch;
+
+	new_batch = kvmalloc(sizeof(*new_batch) * new_batch_sz,
+			     GFP_USER | __GFP_NOWARN);
+	if (!new_batch)
+		return -ENOMEM;
+
+	bpf_iter_tcp_put_batch(iter);
+	kvfree(iter->batch);
+	iter->batch = new_batch;
+	iter->max_sk = new_batch_sz;
+
+	return 0;
+}
+
+static unsigned int bpf_iter_tcp_listening_batch(struct seq_file *seq,
+						 struct sock *start_sk)
+{
+	struct bpf_tcp_iter_state *iter = seq->private;
+	struct tcp_iter_state *st = &iter->state;
+	struct inet_connection_sock *icsk;
+	unsigned int expected = 1;
+	struct sock *sk;
+
+	sock_hold(start_sk);
+	iter->batch[iter->end_sk++] = start_sk;
+
+	icsk = inet_csk(start_sk);
+	inet_lhash2_for_each_icsk_continue(icsk) {
+		sk = (struct sock *)icsk;
+		if (seq_sk_match(seq, sk)) {
+			if (iter->end_sk < iter->max_sk) {
+				sock_hold(sk);
+				iter->batch[iter->end_sk++] = sk;
+			}
+			expected++;
+		}
+	}
+	spin_unlock(&tcp_hashinfo.lhash2[st->bucket].lock);
+
+	return expected;
+}
+
+static unsigned int bpf_iter_tcp_established_batch(struct seq_file *seq,
+						   struct sock *start_sk)
+{
+	struct bpf_tcp_iter_state *iter = seq->private;
+	struct tcp_iter_state *st = &iter->state;
+	struct hlist_nulls_node *node;
+	unsigned int expected = 1;
+	struct sock *sk;
+
+	sock_hold(start_sk);
+	iter->batch[iter->end_sk++] = start_sk;
+
+	sk = sk_nulls_next(start_sk);
+	sk_nulls_for_each_from(sk, node) {
+		if (seq_sk_match(seq, sk)) {
+			if (iter->end_sk < iter->max_sk) {
+				sock_hold(sk);
+				iter->batch[iter->end_sk++] = sk;
+			}
+			expected++;
+		}
+	}
+	spin_unlock_bh(inet_ehash_lockp(&tcp_hashinfo, st->bucket));
+
+	return expected;
+}
+
+static struct sock *bpf_iter_tcp_batch(struct seq_file *seq)
+{
+	struct bpf_tcp_iter_state *iter = seq->private;
+	struct tcp_iter_state *st = &iter->state;
+	unsigned int expected;
+	bool resized = false;
+	struct sock *sk;
+
+	/* The st->bucket is done.  Directly advance to the next
+	 * bucket instead of having the tcp_seek_last_pos() to skip
+	 * one by one in the current bucket and eventually find out
+	 * it has to advance to the next bucket.
+	 */
+	if (iter->st_bucket_done) {
+		st->offset = 0;
+		st->bucket++;
+		if (st->state == TCP_SEQ_STATE_LISTENING &&
+		    st->bucket > tcp_hashinfo.lhash2_mask) {
+			st->state = TCP_SEQ_STATE_ESTABLISHED;
+			st->bucket = 0;
+		}
+	}
+
+again:
+	/* Get a new batch */
+	iter->cur_sk = 0;
+	iter->end_sk = 0;
+	iter->st_bucket_done = false;
+
+	sk = tcp_seek_last_pos(seq);
+	if (!sk)
+		return NULL; /* Done */
+
+	if (st->state == TCP_SEQ_STATE_LISTENING)
+		expected = bpf_iter_tcp_listening_batch(seq, sk);
+	else
+		expected = bpf_iter_tcp_established_batch(seq, sk);
+
+	if (iter->end_sk == expected) {
+		iter->st_bucket_done = true;
+		return sk;
+	}
+
+	if (!resized && !bpf_iter_tcp_realloc_batch(iter, expected * 3 / 2)) {
+		resized = true;
+		goto again;
+	}
+
+	return sk;
+}
+
+static void *bpf_iter_tcp_seq_start(struct seq_file *seq, loff_t *pos)
+{
+	/* bpf iter does not support lseek, so it always
+	 * continue from where it was stop()-ped.
+	 */
+	if (*pos)
+		return bpf_iter_tcp_batch(seq);
+
+	return SEQ_START_TOKEN;
+}
+
+static void *bpf_iter_tcp_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+{
+	struct bpf_tcp_iter_state *iter = seq->private;
+	struct tcp_iter_state *st = &iter->state;
+	struct sock *sk;
+
+	/* Whenever seq_next() is called, the iter->cur_sk is
+	 * done with seq_show(), so advance to the next sk in
+	 * the batch.
+	 */
+	if (iter->cur_sk < iter->end_sk) {
+		/* Keeping st->num consistent in tcp_iter_state.
+		 * bpf_iter_tcp does not use st->num.
+		 * meta.seq_num is used instead.
+		 */
+		st->num++;
+		/* Move st->offset to the next sk in the bucket such that
+		 * the future start() will resume at st->offset in
+		 * st->bucket.  See tcp_seek_last_pos().
+		 */
+		st->offset++;
+		sock_put(iter->batch[iter->cur_sk++]);
+	}
+
+	if (iter->cur_sk < iter->end_sk)
+		sk = iter->batch[iter->cur_sk];
+	else
+		sk = bpf_iter_tcp_batch(seq);
+
+	++*pos;
+	/* Keeping st->last_pos consistent in tcp_iter_state.
+	 * bpf iter does not do lseek, so st->last_pos always equals to *pos.
+	 */
+	st->last_pos = *pos;
+	return sk;
+}
+
+static int bpf_iter_tcp_seq_show(struct seq_file *seq, void *v)
+{
+	struct bpf_iter_meta meta;
+	struct bpf_prog *prog;
+	struct sock *sk = v;
+	bool slow;
+	uid_t uid;
+	int ret;
+
+	if (v == SEQ_START_TOKEN)
+		return 0;
+
+	if (sk_fullsock(sk))
+		slow = lock_sock_fast(sk);
+
+	if (unlikely(sk_unhashed(sk))) {
+		ret = SEQ_SKIP;
+		goto unlock;
+	}
+
+	if (sk->sk_state == TCP_TIME_WAIT) {
+		uid = 0;
+	} else if (sk->sk_state == TCP_NEW_SYN_RECV) {
+		const struct request_sock *req = v;
+
+		uid = from_kuid_munged(seq_user_ns(seq),
+				       sock_i_uid(req->rsk_listener));
+	} else {
+		uid = from_kuid_munged(seq_user_ns(seq), sock_i_uid(sk));
+	}
+
+	meta.seq = seq;
+	prog = bpf_iter_get_info(&meta, false);
+	ret = tcp_prog_seq_show(prog, &meta, v, uid);
+
+unlock:
+	if (sk_fullsock(sk))
+		unlock_sock_fast(sk, slow);
+	return ret;
+
+}
+
+static void bpf_iter_tcp_seq_stop(struct seq_file *seq, void *v)
+{
+	struct bpf_tcp_iter_state *iter = seq->private;
+	struct bpf_iter_meta meta;
+	struct bpf_prog *prog;
+
+	if (!v) {
+		meta.seq = seq;
+		prog = bpf_iter_get_info(&meta, true);
+		if (prog)
+			(void)tcp_prog_seq_show(prog, &meta, v, 0);
+	}
+
+	if (iter->cur_sk < iter->end_sk) {
+		bpf_iter_tcp_put_batch(iter);
+		iter->st_bucket_done = false;
+	}
+}
+
+static const struct seq_operations bpf_iter_tcp_seq_ops = {
+	.show		= bpf_iter_tcp_seq_show,
+	.start		= bpf_iter_tcp_seq_start,
+	.next		= bpf_iter_tcp_seq_next,
+	.stop		= bpf_iter_tcp_seq_stop,
+};
+#endif
+static unsigned short seq_file_family(const struct seq_file *seq)
+{
+	const struct tcp_seq_afinfo *afinfo;
+
+#ifdef CONFIG_BPF_SYSCALL
+	/* Iterated from bpf_iter.  Let the bpf prog to filter instead. */
+	if (seq->op == &bpf_iter_tcp_seq_ops)
+		return AF_UNSPEC;
+#endif
+
+	/* Iterated from proc fs */
+	afinfo = PDE_DATA(file_inode(seq->file));
+	return afinfo->family;
+}
+
+>>>>>>> upstream/android-13
 static const struct seq_operations tcp4_seq_ops = {
 	.show		= tcp4_seq_show,
 	.start		= tcp_seq_start,
@@ -2452,6 +3628,23 @@ void tcp4_proc_exit(void)
 }
 #endif /* CONFIG_PROC_FS */
 
+<<<<<<< HEAD
+=======
+/* @wake is one when sk_stream_write_space() calls us.
+ * This sends EPOLLOUT only if notsent_bytes is half the limit.
+ * This mimics the strategy used in sock_def_write_space().
+ */
+bool tcp_stream_memory_free(const struct sock *sk, int wake)
+{
+	const struct tcp_sock *tp = tcp_sk(sk);
+	u32 notsent_bytes = READ_ONCE(tp->write_seq) -
+			    READ_ONCE(tp->snd_nxt);
+
+	return (notsent_bytes << wake) < tcp_notsent_lowat(tp);
+}
+EXPORT_SYMBOL(tcp_stream_memory_free);
+
+>>>>>>> upstream/android-13
 struct proto tcp_prot = {
 	.name			= "TCP",
 	.owner			= THIS_MODULE,
@@ -2466,6 +3659,10 @@ struct proto tcp_prot = {
 	.shutdown		= tcp_shutdown,
 	.setsockopt		= tcp_setsockopt,
 	.getsockopt		= tcp_getsockopt,
+<<<<<<< HEAD
+=======
+	.bpf_bypass_getsockopt	= tcp_bpf_bypass_getsockopt,
+>>>>>>> upstream/android-13
 	.keepalive		= tcp_set_keepalive,
 	.recvmsg		= tcp_recvmsg,
 	.sendmsg		= tcp_sendmsg,
@@ -2475,6 +3672,12 @@ struct proto tcp_prot = {
 	.hash			= inet_hash,
 	.unhash			= inet_unhash,
 	.get_port		= inet_csk_get_port,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BPF_SYSCALL
+	.psock_update_sk_prot	= tcp_bpf_update_proto,
+#endif
+>>>>>>> upstream/android-13
 	.enter_memory_pressure	= tcp_enter_memory_pressure,
 	.leave_memory_pressure	= tcp_leave_memory_pressure,
 	.stream_memory_free	= tcp_stream_memory_free,
@@ -2492,10 +3695,13 @@ struct proto tcp_prot = {
 	.rsk_prot		= &tcp_request_sock_ops,
 	.h.hashinfo		= &tcp_hashinfo,
 	.no_autobind		= true,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt	= compat_tcp_setsockopt,
 	.compat_getsockopt	= compat_tcp_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.diag_destroy		= tcp_abort,
 };
 EXPORT_SYMBOL(tcp_prot);
@@ -2505,7 +3711,12 @@ static void __net_exit tcp_sk_exit(struct net *net)
 	int cpu;
 
 	if (net->ipv4.tcp_congestion_control)
+<<<<<<< HEAD
 		module_put(net->ipv4.tcp_congestion_control->owner);
+=======
+		bpf_module_put(net->ipv4.tcp_congestion_control,
+			       net->ipv4.tcp_congestion_control->owner);
+>>>>>>> upstream/android-13
 
 	for_each_possible_cpu(cpu)
 		inet_ctl_sock_destroy(*per_cpu_ptr(net->ipv4.tcp_sk, cpu));
@@ -2544,6 +3755,10 @@ static int __net_init tcp_sk_init(struct net *net)
 	net->ipv4.sysctl_tcp_min_snd_mss = TCP_MIN_SND_MSS;
 	net->ipv4.sysctl_tcp_probe_threshold = TCP_PROBE_THRESHOLD;
 	net->ipv4.sysctl_tcp_probe_interval = TCP_PROBE_INTERVAL;
+<<<<<<< HEAD
+=======
+	net->ipv4.sysctl_tcp_mtu_probe_floor = TCP_MIN_SND_MSS;
+>>>>>>> upstream/android-13
 
 	net->ipv4.sysctl_tcp_keepalive_time = TCP_KEEPALIVE_TIME;
 	net->ipv4.sysctl_tcp_keepalive_probes = TCP_KEEPALIVE_PROBES;
@@ -2559,12 +3774,22 @@ static int __net_init tcp_sk_init(struct net *net)
 	net->ipv4.sysctl_tcp_fin_timeout = TCP_FIN_TIMEOUT;
 	net->ipv4.sysctl_tcp_notsent_lowat = UINT_MAX;
 	net->ipv4.sysctl_tcp_tw_reuse = 2;
+<<<<<<< HEAD
 
 	cnt = tcp_hashinfo.ehash_mask + 1;
 	net->ipv4.tcp_death_row.sysctl_max_tw_buckets = (cnt + 1) / 2;
 	net->ipv4.tcp_death_row.hashinfo = &tcp_hashinfo;
 
 	net->ipv4.sysctl_max_syn_backlog = max(128, cnt / 256);
+=======
+	net->ipv4.sysctl_tcp_no_ssthresh_metrics_save = 1;
+
+	cnt = tcp_hashinfo.ehash_mask + 1;
+	net->ipv4.tcp_death_row.sysctl_max_tw_buckets = cnt / 2;
+	net->ipv4.tcp_death_row.hashinfo = &tcp_hashinfo;
+
+	net->ipv4.sysctl_max_syn_backlog = max(128, cnt / 128);
+>>>>>>> upstream/android-13
 	net->ipv4.sysctl_tcp_sack = 1;
 	net->ipv4.sysctl_tcp_window_scaling = 1;
 	net->ipv4.sysctl_tcp_timestamps = 1;
@@ -2602,15 +3827,27 @@ static int __net_init tcp_sk_init(struct net *net)
 		       sizeof(init_net.ipv4.sysctl_tcp_wmem));
 	}
 	net->ipv4.sysctl_tcp_comp_sack_delay_ns = NSEC_PER_MSEC;
+<<<<<<< HEAD
 	net->ipv4.sysctl_tcp_comp_sack_nr = 44;
 	net->ipv4.sysctl_tcp_fastopen = TFO_CLIENT_ENABLE;
 	spin_lock_init(&net->ipv4.tcp_fastopen_ctx_lock);
 	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 60 * 60;
+=======
+	net->ipv4.sysctl_tcp_comp_sack_slack_ns = 100 * NSEC_PER_USEC;
+	net->ipv4.sysctl_tcp_comp_sack_nr = 44;
+	net->ipv4.sysctl_tcp_fastopen = TFO_CLIENT_ENABLE;
+	net->ipv4.sysctl_tcp_fastopen_blackhole_timeout = 0;
+>>>>>>> upstream/android-13
 	atomic_set(&net->ipv4.tfo_active_disable_times, 0);
 
 	/* Reno is always built in */
 	if (!net_eq(net, &init_net) &&
+<<<<<<< HEAD
 	    try_module_get(init_net.ipv4.tcp_congestion_control->owner))
+=======
+	    bpf_try_module_get(init_net.ipv4.tcp_congestion_control,
+			       init_net.ipv4.tcp_congestion_control->owner))
+>>>>>>> upstream/android-13
 		net->ipv4.tcp_congestion_control = init_net.ipv4.tcp_congestion_control;
 	else
 		net->ipv4.tcp_congestion_control = &tcp_reno;
@@ -2638,8 +3875,91 @@ static struct pernet_operations __net_initdata tcp_sk_ops = {
        .exit_batch = tcp_sk_exit_batch,
 };
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_BPF_SYSCALL) && defined(CONFIG_PROC_FS)
+DEFINE_BPF_ITER_FUNC(tcp, struct bpf_iter_meta *meta,
+		     struct sock_common *sk_common, uid_t uid)
+
+#define INIT_BATCH_SZ 16
+
+static int bpf_iter_init_tcp(void *priv_data, struct bpf_iter_aux_info *aux)
+{
+	struct bpf_tcp_iter_state *iter = priv_data;
+	int err;
+
+	err = bpf_iter_init_seq_net(priv_data, aux);
+	if (err)
+		return err;
+
+	err = bpf_iter_tcp_realloc_batch(iter, INIT_BATCH_SZ);
+	if (err) {
+		bpf_iter_fini_seq_net(priv_data);
+		return err;
+	}
+
+	return 0;
+}
+
+static void bpf_iter_fini_tcp(void *priv_data)
+{
+	struct bpf_tcp_iter_state *iter = priv_data;
+
+	bpf_iter_fini_seq_net(priv_data);
+	kvfree(iter->batch);
+}
+
+static const struct bpf_iter_seq_info tcp_seq_info = {
+	.seq_ops		= &bpf_iter_tcp_seq_ops,
+	.init_seq_private	= bpf_iter_init_tcp,
+	.fini_seq_private	= bpf_iter_fini_tcp,
+	.seq_priv_size		= sizeof(struct bpf_tcp_iter_state),
+};
+
+static const struct bpf_func_proto *
+bpf_iter_tcp_get_func_proto(enum bpf_func_id func_id,
+			    const struct bpf_prog *prog)
+{
+	switch (func_id) {
+	case BPF_FUNC_setsockopt:
+		return &bpf_sk_setsockopt_proto;
+	case BPF_FUNC_getsockopt:
+		return &bpf_sk_getsockopt_proto;
+	default:
+		return NULL;
+	}
+}
+
+static struct bpf_iter_reg tcp_reg_info = {
+	.target			= "tcp",
+	.ctx_arg_info_size	= 1,
+	.ctx_arg_info		= {
+		{ offsetof(struct bpf_iter__tcp, sk_common),
+		  PTR_TO_BTF_ID_OR_NULL },
+	},
+	.get_func_proto		= bpf_iter_tcp_get_func_proto,
+	.seq_info		= &tcp_seq_info,
+};
+
+static void __init bpf_iter_register(void)
+{
+	tcp_reg_info.ctx_arg_info[0].btf_id = btf_sock_ids[BTF_SOCK_TYPE_SOCK_COMMON];
+	if (bpf_iter_reg_target(&tcp_reg_info))
+		pr_warn("Warning: could not register bpf iterator tcp\n");
+}
+
+#endif
+
+>>>>>>> upstream/android-13
 void __init tcp_v4_init(void)
 {
 	if (register_pernet_subsys(&tcp_sk_ops))
 		panic("Failed to create the TCP control socket.\n");
+<<<<<<< HEAD
+=======
+
+#if defined(CONFIG_BPF_SYSCALL) && defined(CONFIG_PROC_FS)
+	bpf_iter_register();
+#endif
+>>>>>>> upstream/android-13
 }

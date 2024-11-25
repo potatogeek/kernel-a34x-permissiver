@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
  *   Copyright 2007 rPath, Inc. - All Rights Reserved
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available under
  *   the terms of the GNU General Public License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -113,7 +120,11 @@ int check_cpu(int *cpu_level_ptr, int *req_level_ptr, u32 **err_flags_ptr)
 {
 	int err;
 
+<<<<<<< HEAD
 	memset(&cpu.flags, 0, sizeof cpu.flags);
+=======
+	memset(&cpu.flags, 0, sizeof(cpu.flags));
+>>>>>>> upstream/android-13
 	cpu.level = 3;
 
 	if (has_eflag(X86_EFLAGS_AC))

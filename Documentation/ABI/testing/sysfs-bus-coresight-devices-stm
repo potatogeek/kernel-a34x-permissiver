@@ -42,7 +42,11 @@ What:		/sys/bus/coresight/devices/<memory_map>.stm/status
 Date:		April 2016
 KernelVersion:	4.7
 Contact:	Mathieu Poirier <mathieu.poirier@linaro.org>
+<<<<<<< HEAD
 Description:	(R) List various control and status registers.  The specific
+=======
+Description:	(Read) List various control and status registers.  The specific
+>>>>>>> upstream/android-13
 		layout and content is driver specific.
 
 What:		/sys/bus/coresight/devices/<memory_map>.stm/traceid

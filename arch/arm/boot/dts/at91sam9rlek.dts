@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * at91sam9rlek.dts - Device Tree file for Atmel at91sam9rl reference board
  *
  *  Copyright (C) 2014 Microchip
  *  Alexandre Belloni <alexandre.belloni@free-electrons.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 only
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "at91sam9rl.dtsi"
@@ -18,7 +25,11 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x4000000>;
 	};
 
@@ -37,7 +48,11 @@
 			display = <&display0>;
 			status = "okay";
 
+<<<<<<< HEAD
 			display0: display {
+=======
+			display0: panel {
+>>>>>>> upstream/android-13
 				bits-per-pixel = <16>;
 				atmel,lcdcon-backlight;
 				atmel,dmacon = <0x1>;
@@ -219,26 +234,44 @@
 		};
 	};
 
+<<<<<<< HEAD
 	pwmleds {
 		compatible = "pwm-leds";
 
 		ds1 {
+=======
+	led-controller-1 {
+		compatible = "pwm-leds";
+
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "ds1";
 			pwms = <&pwm0 1 5000 PWM_POLARITY_INVERTED>;
 			max-brightness = <255>;
 		};
 
+<<<<<<< HEAD
 		ds2 {
+=======
+		led-2 {
+>>>>>>> upstream/android-13
 			label = "ds2";
 			pwms = <&pwm0 2 5000 PWM_POLARITY_INVERTED>;
 			max-brightness = <255>;
 		};
 	};
 
+<<<<<<< HEAD
 	leds {
 		compatible = "gpio-leds";
 
 		ds3 {
+=======
+	led-controller-2 {
+		compatible = "gpio-leds";
+
+		led-3 {
+>>>>>>> upstream/android-13
 			label = "ds3";
 			gpios = <&pioD 14 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";

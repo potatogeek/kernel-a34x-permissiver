@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* ----------------------------------------------------------------------- *
  *
  *  Copyright (C) 2009 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License version
  *  2 as published by the Free Software Foundation.
@@ -16,12 +21,17 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  *  02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  H. Peter Anvin <hpa@linux.intel.com>
  *
  * -----------------------------------------------------------------------
  *
  * Outputs a small assembly wrapper with the appropriate symbols defined.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdlib.h>
@@ -74,6 +84,15 @@ int main(int argc, char *argv[])
 	printf(".incbin \"%s\"\n", argv[1]);
 	printf("input_data_end:\n");
 
+<<<<<<< HEAD
+=======
+	printf(".section \".rodata\",\"a\",@progbits\n");
+	printf(".globl input_len\n");
+	printf("input_len:\n\t.long %lu\n", ilen);
+	printf(".globl output_len\n");
+	printf("output_len:\n\t.long %lu\n", (unsigned long)olen);
+
+>>>>>>> upstream/android-13
 	retval = 0;
 bail:
 	if (f)

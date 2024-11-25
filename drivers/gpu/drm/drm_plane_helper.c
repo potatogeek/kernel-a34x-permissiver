@@ -24,6 +24,7 @@
  */
 
 #include <linux/list.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_rect.h>
@@ -31,6 +32,17 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_encoder.h>
 #include <drm/drm_atomic_helper.h>
+=======
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_atomic_uapi.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_device.h>
+#include <drm/drm_encoder.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_rect.h>
+>>>>>>> upstream/android-13
 
 #define SUBPIXEL_MASK 0xffff
 
@@ -41,11 +53,16 @@
  * primary plane support on top of the normal CRTC configuration interface.
  * Since the legacy &drm_mode_config_funcs.set_config interface ties the primary
  * plane together with the CRTC state this does not allow userspace to disable
+<<<<<<< HEAD
  * the primary plane itself.  To avoid too much duplicated code use
  * drm_plane_helper_check_update() which can be used to enforce the same
  * restrictions as primary planes had thus. The default primary plane only
  * expose XRBG8888 and ARGB8888 as valid pixel formats for the attached
  * framebuffer.
+=======
+ * the primary plane itself. The default primary plane only expose XRBG8888 and
+ * ARGB8888 as valid pixel formats for the attached framebuffer.
+>>>>>>> upstream/android-13
  *
  * Drivers are highly recommended to implement proper support for primary
  * planes, and newly merged drivers must not rely upon these transitional
@@ -99,6 +116,7 @@ static int get_connectors_for_crtc(struct drm_crtc *crtc,
 	return count;
 }
 
+<<<<<<< HEAD
 /**
  * drm_plane_helper_check_update() - Check plane update for validity
  * @plane: plane object to update
@@ -136,6 +154,19 @@ int drm_plane_helper_check_update(struct drm_plane *plane,
 				  bool can_position,
 				  bool can_update_disabled,
 				  bool *visible)
+=======
+static int drm_plane_helper_check_update(struct drm_plane *plane,
+					 struct drm_crtc *crtc,
+					 struct drm_framebuffer *fb,
+					 struct drm_rect *src,
+					 struct drm_rect *dst,
+					 unsigned int rotation,
+					 int min_scale,
+					 int max_scale,
+					 bool can_position,
+					 bool can_update_disabled,
+					 bool *visible)
+>>>>>>> upstream/android-13
 {
 	struct drm_plane_state plane_state = {
 		.plane = plane,
@@ -150,7 +181,10 @@ int drm_plane_helper_check_update(struct drm_plane *plane,
 		.crtc_w = drm_rect_width(dst),
 		.crtc_h = drm_rect_height(dst),
 		.rotation = rotation,
+<<<<<<< HEAD
 		.visible = *visible,
+=======
+>>>>>>> upstream/android-13
 	};
 	struct drm_crtc_state crtc_state = {
 		.crtc = crtc,
@@ -172,6 +206,7 @@ int drm_plane_helper_check_update(struct drm_plane *plane,
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_plane_helper_check_update);
 
 /**
@@ -218,6 +253,16 @@ int drm_primary_helper_update(struct drm_plane *plane, struct drm_crtc *crtc,
 			      uint32_t src_x, uint32_t src_y,
 			      uint32_t src_w, uint32_t src_h,
 			      struct drm_modeset_acquire_ctx *ctx)
+=======
+
+static int drm_primary_helper_update(struct drm_plane *plane, struct drm_crtc *crtc,
+				     struct drm_framebuffer *fb,
+				     int crtc_x, int crtc_y,
+				     unsigned int crtc_w, unsigned int crtc_h,
+				     uint32_t src_x, uint32_t src_y,
+				     uint32_t src_w, uint32_t src_h,
+				     struct drm_modeset_acquire_ctx *ctx)
+>>>>>>> upstream/android-13
 {
 	struct drm_mode_set set = {
 		.crtc = crtc,
@@ -275,7 +320,11 @@ int drm_primary_helper_update(struct drm_plane *plane, struct drm_crtc *crtc,
 	 * We call set_config() directly here rather than using
 	 * drm_mode_set_config_internal.  We're reprogramming the same
 	 * connectors that were already in use, so we shouldn't need the extra
+<<<<<<< HEAD
 	 * cross-CRTC fb refcounting to accomodate stealing connectors.
+=======
+	 * cross-CRTC fb refcounting to accommodate stealing connectors.
+>>>>>>> upstream/android-13
 	 * drm_mode_setplane() already handles the basic refcounting for the
 	 * framebuffers involved in this operation.
 	 */
@@ -284,6 +333,7 @@ int drm_primary_helper_update(struct drm_plane *plane, struct drm_crtc *crtc,
 	kfree(connector_list);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_primary_helper_update);
 
 /**
@@ -313,6 +363,14 @@ int drm_primary_helper_disable(struct drm_plane *plane,
 	return -EINVAL;
 }
 EXPORT_SYMBOL(drm_primary_helper_disable);
+=======
+
+static int drm_primary_helper_disable(struct drm_plane *plane,
+				      struct drm_modeset_acquire_ctx *ctx)
+{
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 
 /**
  * drm_primary_helper_destroy() - Helper for primary plane destruction
@@ -335,6 +393,7 @@ const struct drm_plane_funcs drm_primary_helper_funcs = {
 	.destroy = drm_primary_helper_destroy,
 };
 EXPORT_SYMBOL(drm_primary_helper_funcs);
+<<<<<<< HEAD
 
 int drm_plane_helper_commit(struct drm_plane *plane,
 			    struct drm_plane_state *plane_state,
@@ -532,3 +591,5 @@ int drm_plane_helper_disable(struct drm_plane *plane,
 	return drm_plane_helper_commit(plane, plane_state, old_fb);
 }
 EXPORT_SYMBOL(drm_plane_helper_disable);
+=======
+>>>>>>> upstream/android-13

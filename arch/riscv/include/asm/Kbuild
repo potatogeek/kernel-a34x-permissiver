@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 generic-y += bugs.h
 generic-y += cacheflush.h
 generic-y += checksum.h
@@ -61,3 +62,12 @@ generic-y += user.h
 generic-y += vga.h
 generic-y += vmlinux.lds.h
 generic-y += xor.h
+=======
+# SPDX-License-Identifier: GPL-2.0
+generic-y += early_ioremap.h
+generic-y += extable.h
+generic-y += flat.h
+generic-y += kvm_para.h
+generic-y += user.h
+generic-y += vmlinux.lds.h
+>>>>>>> upstream/android-13

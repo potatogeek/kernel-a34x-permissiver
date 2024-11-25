@@ -143,6 +143,10 @@
 	gpio_ext: gpio@20 {
 		compatible = "nxp,pca9555";
 		reg = <0x20>;
+<<<<<<< HEAD
+=======
+		gpio-controller;
+>>>>>>> upstream/android-13
 		#gpio-cells = <2>;
 	};
 };

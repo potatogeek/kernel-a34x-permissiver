@@ -37,6 +37,10 @@
 
 void populate_pvinfo_page(struct intel_vgpu *vgpu)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	/* setup the ballooning information */
 	vgpu_vreg64_t(vgpu, vgtif_reg(magic)) = VGT_MAGIC;
 	vgpu_vreg_t(vgpu, vgtif_reg(version_major)) = 1;
@@ -44,7 +48,11 @@ void populate_pvinfo_page(struct intel_vgpu *vgpu)
 	vgpu_vreg_t(vgpu, vgtif_reg(display_ready)) = 0;
 	vgpu_vreg_t(vgpu, vgtif_reg(vgt_id)) = vgpu->id;
 
+<<<<<<< HEAD
 	vgpu_vreg_t(vgpu, vgtif_reg(vgt_caps)) = VGT_CAPS_FULL_48BIT_PPGTT;
+=======
+	vgpu_vreg_t(vgpu, vgtif_reg(vgt_caps)) = VGT_CAPS_FULL_PPGTT;
+>>>>>>> upstream/android-13
 	vgpu_vreg_t(vgpu, vgtif_reg(vgt_caps)) |= VGT_CAPS_HWSP_EMULATION;
 	vgpu_vreg_t(vgpu, vgtif_reg(vgt_caps)) |= VGT_CAPS_HUGE_GTT;
 
@@ -69,7 +77,11 @@ void populate_pvinfo_page(struct intel_vgpu *vgpu)
 		vgpu_hidden_gmadr_base(vgpu), vgpu_hidden_sz(vgpu));
 	gvt_dbg_core("fence size %d\n", vgpu_fence_sz(vgpu));
 
+<<<<<<< HEAD
 	WARN_ON(sizeof(struct vgt_if) != VGT_PVINFO_SIZE);
+=======
+	drm_WARN_ON(&i915->drm, sizeof(struct vgt_if) != VGT_PVINFO_SIZE);
+>>>>>>> upstream/android-13
 }
 
 #define VGPU_MAX_WEIGHT 16
@@ -123,7 +135,11 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
 	 */
 	low_avail = gvt_aperture_sz(gvt) - HOST_LOW_GM_SIZE;
 	high_avail = gvt_hidden_sz(gvt) - HOST_HIGH_GM_SIZE;
+<<<<<<< HEAD
 	num_types = sizeof(vgpu_types) / sizeof(vgpu_types[0]);
+=======
+	num_types = ARRAY_SIZE(vgpu_types);
+>>>>>>> upstream/android-13
 
 	gvt->types = kcalloc(num_types, sizeof(struct intel_vgpu_type),
 			     GFP_KERNEL);
@@ -148,12 +164,21 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
 		gvt->types[i].avail_instance = min(low_avail / vgpu_types[i].low_mm,
 						   high_avail / vgpu_types[i].high_mm);
 
+<<<<<<< HEAD
 		if (IS_GEN8(gvt->dev_priv))
 			sprintf(gvt->types[i].name, "GVTg_V4_%s",
 						vgpu_types[i].name);
 		else if (IS_GEN9(gvt->dev_priv))
 			sprintf(gvt->types[i].name, "GVTg_V5_%s",
 						vgpu_types[i].name);
+=======
+		if (GRAPHICS_VER(gvt->gt->i915) == 8)
+			sprintf(gvt->types[i].name, "GVTg_V4_%s",
+				vgpu_types[i].name);
+		else if (GRAPHICS_VER(gvt->gt->i915) == 9)
+			sprintf(gvt->types[i].name, "GVTg_V5_%s",
+				vgpu_types[i].name);
+>>>>>>> upstream/android-13
 
 		gvt_dbg_core("type[%d]: %s avail %u low %u high %u fence %u weight %u res %s\n",
 			     i, gvt->types[i].name,
@@ -212,9 +237,15 @@ static void intel_gvt_update_vgpu_types(struct intel_gvt *gvt)
  */
 void intel_gvt_activate_vgpu(struct intel_vgpu *vgpu)
 {
+<<<<<<< HEAD
 	mutex_lock(&vgpu->gvt->lock);
 	vgpu->active = true;
 	mutex_unlock(&vgpu->gvt->lock);
+=======
+	mutex_lock(&vgpu->vgpu_lock);
+	vgpu->active = true;
+	mutex_unlock(&vgpu->vgpu_lock);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -256,6 +287,10 @@ void intel_gvt_release_vgpu(struct intel_vgpu *vgpu)
 	intel_gvt_deactivate_vgpu(vgpu);
 
 	mutex_lock(&vgpu->vgpu_lock);
+<<<<<<< HEAD
+=======
+	vgpu->d3_entered = false;
+>>>>>>> upstream/android-13
 	intel_vgpu_clean_workloads(vgpu, ALL_ENGINES);
 	intel_vgpu_dmabuf_cleanup(vgpu);
 	mutex_unlock(&vgpu->vgpu_lock);
@@ -271,8 +306,14 @@ void intel_gvt_release_vgpu(struct intel_vgpu *vgpu)
 void intel_gvt_destroy_vgpu(struct intel_vgpu *vgpu)
 {
 	struct intel_gvt *gvt = vgpu->gvt;
+<<<<<<< HEAD
 
 	WARN(vgpu->active, "vGPU is still active!\n");
+=======
+	struct drm_i915_private *i915 = gvt->gt->i915;
+
+	drm_WARN(&i915->drm, vgpu->active, "vGPU is still active!\n");
+>>>>>>> upstream/android-13
 
 	/*
 	 * remove idr first so later clean can judge if need to stop
@@ -297,8 +338,11 @@ void intel_gvt_destroy_vgpu(struct intel_vgpu *vgpu)
 	mutex_unlock(&vgpu->vgpu_lock);
 
 	mutex_lock(&gvt->lock);
+<<<<<<< HEAD
 	if (idr_is_empty(&gvt->vgpu_idr))
 		intel_gvt_clean_irq(gvt);
+=======
+>>>>>>> upstream/android-13
 	intel_gvt_update_vgpu_types(gvt);
 	mutex_unlock(&gvt->lock);
 
@@ -365,6 +409,10 @@ void intel_gvt_destroy_idle_vgpu(struct intel_vgpu *vgpu)
 static struct intel_vgpu *__intel_gvt_create_vgpu(struct intel_gvt *gvt,
 		struct intel_vgpu_creation_params *param)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *dev_priv = gvt->gt->i915;
+>>>>>>> upstream/android-13
 	struct intel_vgpu *vgpu;
 	int ret;
 
@@ -389,8 +437,14 @@ static struct intel_vgpu *__intel_gvt_create_vgpu(struct intel_gvt *gvt,
 	mutex_init(&vgpu->dmabuf_lock);
 	INIT_LIST_HEAD(&vgpu->dmabuf_obj_list_head);
 	INIT_RADIX_TREE(&vgpu->page_track_tree, GFP_KERNEL);
+<<<<<<< HEAD
 	idr_init(&vgpu->object_idr);
 	intel_vgpu_init_cfg_space(vgpu, param->primary);
+=======
+	idr_init_base(&vgpu->object_idr, 1);
+	intel_vgpu_init_cfg_space(vgpu, param->primary);
+	vgpu->d3_entered = false;
+>>>>>>> upstream/android-13
 
 	ret = intel_vgpu_init_mmio(vgpu);
 	if (ret)
@@ -426,11 +480,24 @@ static struct intel_vgpu *__intel_gvt_create_vgpu(struct intel_gvt *gvt,
 	if (ret)
 		goto out_clean_submission;
 
+<<<<<<< HEAD
 	ret = intel_gvt_debugfs_add_vgpu(vgpu);
 	if (ret)
 		goto out_clean_sched_policy;
 
 	ret = intel_gvt_hypervisor_set_opregion(vgpu);
+=======
+	intel_gvt_debugfs_add_vgpu(vgpu);
+
+	ret = intel_gvt_hypervisor_set_opregion(vgpu);
+	if (ret)
+		goto out_clean_sched_policy;
+
+	if (IS_BROADWELL(dev_priv) || IS_BROXTON(dev_priv))
+		ret = intel_gvt_hypervisor_set_edid(vgpu, PORT_B);
+	else
+		ret = intel_gvt_hypervisor_set_edid(vgpu, PORT_D);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_clean_sched_policy;
 
@@ -489,9 +556,17 @@ struct intel_vgpu *intel_gvt_create_vgpu(struct intel_gvt *gvt,
 
 	mutex_lock(&gvt->lock);
 	vgpu = __intel_gvt_create_vgpu(gvt, &param);
+<<<<<<< HEAD
 	if (!IS_ERR(vgpu))
 		/* calculate left instance change for types */
 		intel_gvt_update_vgpu_types(gvt);
+=======
+	if (!IS_ERR(vgpu)) {
+		/* calculate left instance change for types */
+		intel_gvt_update_vgpu_types(gvt);
+		intel_gvt_update_reg_whitelist(vgpu);
+	}
+>>>>>>> upstream/android-13
 	mutex_unlock(&gvt->lock);
 
 	return vgpu;
@@ -526,11 +601,19 @@ struct intel_vgpu *intel_gvt_create_vgpu(struct intel_gvt *gvt,
  * GPU engines. For FLR, engine_mask is ignored.
  */
 void intel_gvt_reset_vgpu_locked(struct intel_vgpu *vgpu, bool dmlr,
+<<<<<<< HEAD
 				 unsigned int engine_mask)
 {
 	struct intel_gvt *gvt = vgpu->gvt;
 	struct intel_gvt_workload_scheduler *scheduler = &gvt->scheduler;
 	unsigned int resetting_eng = dmlr ? ALL_ENGINES : engine_mask;
+=======
+				 intel_engine_mask_t engine_mask)
+{
+	struct intel_gvt *gvt = vgpu->gvt;
+	struct intel_gvt_workload_scheduler *scheduler = &gvt->scheduler;
+	intel_engine_mask_t resetting_eng = dmlr ? ALL_ENGINES : engine_mask;
+>>>>>>> upstream/android-13
 
 	gvt_dbg_core("------------------------------------------\n");
 	gvt_dbg_core("resseting vgpu%d, dmlr %d, engine_mask %08x\n",
@@ -553,10 +636,22 @@ void intel_gvt_reset_vgpu_locked(struct intel_vgpu *vgpu, bool dmlr,
 	/* full GPU reset or device model level reset */
 	if (engine_mask == ALL_ENGINES || dmlr) {
 		intel_vgpu_select_submission_ops(vgpu, ALL_ENGINES, 0);
+<<<<<<< HEAD
 		intel_vgpu_invalidate_ppgtt(vgpu);
 		/*fence will not be reset during virtual reset */
 		if (dmlr) {
 			intel_vgpu_reset_gtt(vgpu);
+=======
+		if (engine_mask == ALL_ENGINES)
+			intel_vgpu_invalidate_ppgtt(vgpu);
+		/*fence will not be reset during virtual reset */
+		if (dmlr) {
+			if(!vgpu->d3_entered) {
+				intel_vgpu_invalidate_ppgtt(vgpu);
+				intel_vgpu_destroy_all_ppgtt_mm(vgpu);
+			}
+			intel_vgpu_reset_ggtt(vgpu, true);
+>>>>>>> upstream/android-13
 			intel_vgpu_reset_resource(vgpu);
 		}
 
@@ -568,7 +663,18 @@ void intel_gvt_reset_vgpu_locked(struct intel_vgpu *vgpu, bool dmlr,
 			intel_vgpu_reset_cfg_space(vgpu);
 			/* only reset the failsafe mode when dmlr reset */
 			vgpu->failsafe = false;
+<<<<<<< HEAD
 			vgpu->pv_notified = false;
+=======
+			/*
+			 * PCI_D0 is set before dmlr, so reset d3_entered here
+			 * after done using.
+			 */
+			if(vgpu->d3_entered)
+				vgpu->d3_entered = false;
+			else
+				vgpu->pv_notified = false;
+>>>>>>> upstream/android-13
 		}
 	}
 

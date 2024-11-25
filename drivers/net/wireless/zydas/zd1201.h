@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	Copyright (c) 2004, 2005 Jeroen Vreeken (pe1rxq@amsat.org)
  *
@@ -5,6 +6,12 @@
  *	modify it under the terms of the GNU General Public License
  *	version 2 as published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *	Copyright (c) 2004, 2005 Jeroen Vreeken (pe1rxq@amsat.org)
+ *
+>>>>>>> upstream/android-13
  *	Parts of this driver have been derived from a wlan-ng version
  *	modified by ZyDAS.
  *	Copyright (C) 1999 AbsoluteValue Systems, Inc.  All Rights Reserved.

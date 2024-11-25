@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 #include <errno.h>
 #include <stdio.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+>>>>>>> upstream/android-13
 #include <sys/epoll.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+<<<<<<< HEAD
 #include <util/util.h>
 #include <util/bpf-loader.h>
 #include <util/evlist.h>
@@ -15,10 +23,31 @@
 #include "tests.h"
 #include "llvm.h"
 #include "debug.h"
+=======
+#include <util/record.h>
+#include <util/util.h>
+#include <util/bpf-loader.h>
+#include <util/evlist.h>
+#include <linux/filter.h>
+#include <linux/kernel.h>
+#include <linux/string.h>
+#include <api/fs/fs.h>
+#include <perf/mmap.h>
+#include "tests.h"
+#include "llvm.h"
+#include "debug.h"
+#include "parse-events.h"
+#include "util/mmap.h"
+>>>>>>> upstream/android-13
 #define NR_ITERS       111
 #define PERF_TEST_BPF_PATH "/sys/fs/bpf/perf_test"
 
 #ifdef HAVE_LIBBPF_SUPPORT
+<<<<<<< HEAD
+=======
+#include <linux/bpf.h>
+#include <bpf/bpf.h>
+>>>>>>> upstream/android-13
 
 static int epoll_pwait_loop(void)
 {
@@ -80,7 +109,11 @@ static struct {
 		.msg_load_fail	  = "check your vmlinux setting?",
 		.target_func	  = &epoll_pwait_loop,
 		.expect_result	  = (NR_ITERS + 1) / 2,
+<<<<<<< HEAD
 		.pin 		  = true,
+=======
+		.pin		  = true,
+>>>>>>> upstream/android-13
 	},
 #ifdef HAVE_BPF_PROLOGUE
 	{
@@ -93,6 +126,7 @@ static struct {
 		.expect_result	  = (NR_ITERS + 1) / 4,
 	},
 #endif
+<<<<<<< HEAD
 	{
 		.prog_id	  = LLVM_TESTCASE_BPF_RELOCATION,
 		.desc		  = "BPF relocation checker",
@@ -100,6 +134,8 @@ static struct {
 		.msg_compile_fail = "fix 'perf test LLVM' first",
 		.msg_load_fail	  = "libbpf error when dealing with relocation",
 	},
+=======
+>>>>>>> upstream/android-13
 };
 
 static int do_test(struct bpf_object *obj, int (*func)(void),
@@ -117,7 +153,11 @@ static int do_test(struct bpf_object *obj, int (*func)(void),
 
 	char pid[16];
 	char sbuf[STRERR_BUFSIZE];
+<<<<<<< HEAD
 	struct perf_evlist *evlist;
+=======
+	struct evlist *evlist;
+>>>>>>> upstream/android-13
 	int i, ret = TEST_FAIL, err = 0, count = 0;
 
 	struct parse_events_state parse_state;
@@ -138,38 +178,63 @@ static int do_test(struct bpf_object *obj, int (*func)(void),
 	pid[sizeof(pid) - 1] = '\0';
 	opts.target.tid = opts.target.pid = pid;
 
+<<<<<<< HEAD
 	/* Instead of perf_evlist__new_default, don't add default events */
 	evlist = perf_evlist__new();
+=======
+	/* Instead of evlist__new_default, don't add default events */
+	evlist = evlist__new();
+>>>>>>> upstream/android-13
 	if (!evlist) {
 		pr_debug("Not enough memory to create evlist\n");
 		return TEST_FAIL;
 	}
 
+<<<<<<< HEAD
 	err = perf_evlist__create_maps(evlist, &opts.target);
+=======
+	err = evlist__create_maps(evlist, &opts.target);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		pr_debug("Not enough memory to create thread/cpu maps\n");
 		goto out_delete_evlist;
 	}
 
+<<<<<<< HEAD
 	perf_evlist__splice_list_tail(evlist, &parse_state.list);
 	evlist->nr_groups = parse_state.nr_groups;
 
 	perf_evlist__config(evlist, &opts, NULL);
 
 	err = perf_evlist__open(evlist);
+=======
+	evlist__splice_list_tail(evlist, &parse_state.list);
+	evlist->core.nr_groups = parse_state.nr_groups;
+
+	evlist__config(evlist, &opts, NULL);
+
+	err = evlist__open(evlist);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		pr_debug("perf_evlist__open: %s\n",
 			 str_error_r(errno, sbuf, sizeof(sbuf)));
 		goto out_delete_evlist;
 	}
 
+<<<<<<< HEAD
 	err = perf_evlist__mmap(evlist, opts.mmap_pages);
 	if (err < 0) {
 		pr_debug("perf_evlist__mmap: %s\n",
+=======
+	err = evlist__mmap(evlist, opts.mmap_pages);
+	if (err < 0) {
+		pr_debug("evlist__mmap: %s\n",
+>>>>>>> upstream/android-13
 			 str_error_r(errno, sbuf, sizeof(sbuf)));
 		goto out_delete_evlist;
 	}
 
+<<<<<<< HEAD
 	perf_evlist__enable(evlist);
 	(*func)();
 	perf_evlist__disable(evlist);
@@ -183,23 +248,50 @@ static int do_test(struct bpf_object *obj, int (*func)(void),
 			continue;
 
 		while ((event = perf_mmap__read_event(md)) != NULL) {
+=======
+	evlist__enable(evlist);
+	(*func)();
+	evlist__disable(evlist);
+
+	for (i = 0; i < evlist->core.nr_mmaps; i++) {
+		union perf_event *event;
+		struct mmap *md;
+
+		md = &evlist->mmap[i];
+		if (perf_mmap__read_init(&md->core) < 0)
+			continue;
+
+		while ((event = perf_mmap__read_event(&md->core)) != NULL) {
+>>>>>>> upstream/android-13
 			const u32 type = event->header.type;
 
 			if (type == PERF_RECORD_SAMPLE)
 				count ++;
 		}
+<<<<<<< HEAD
 		perf_mmap__read_done(md);
 	}
 
 	if (count != expect) {
 		pr_debug("BPF filter result incorrect, expected %d, got %d samples\n", expect, count);
+=======
+		perf_mmap__read_done(&md->core);
+	}
+
+	if (count != expect * evlist->core.nr_entries) {
+		pr_debug("BPF filter result incorrect, expected %d, got %d samples\n", expect * evlist->core.nr_entries, count);
+>>>>>>> upstream/android-13
 		goto out_delete_evlist;
 	}
 
 	ret = TEST_OK;
 
 out_delete_evlist:
+<<<<<<< HEAD
 	perf_evlist__delete(evlist);
+=======
+	evlist__delete(evlist);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -277,6 +369,10 @@ static int __test__bpf(int idx)
 	}
 
 out:
+<<<<<<< HEAD
+=======
+	free(obj_buf);
+>>>>>>> upstream/android-13
 	bpf__clear();
 	return ret;
 }

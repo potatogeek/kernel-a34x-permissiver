@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * cx88-vp3054-i2c.h  --  support for the secondary I2C bus of the
  *			  DNTV Live! DVB-T Pro (VP-3054), wired as:
  *			  GPIO[0] -> SCL, GPIO[1] -> SDA
  *
  * (c) 2005 Chris Pascoe <c.pascoe@itee.uq.edu.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* ----------------------------------------------------------------------- */

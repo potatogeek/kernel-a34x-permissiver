@@ -5,7 +5,11 @@
 
 
 /*
+<<<<<<< HEAD
  * See http://icawww1.epfl.ch/linux-atm/magic.html for the complete list of
+=======
+ * See https://icawww1.epfl.ch/linux-atm/magic.html for the complete list of
+>>>>>>> upstream/android-13
  * "magic" ioctl numbers.
  */
 

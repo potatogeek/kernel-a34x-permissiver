@@ -328,7 +328,11 @@ static void ov2685_fill_fmt(const struct ov2685_mode *mode,
 }
 
 static int ov2685_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *fmt)
 {
 	struct ov2685 *ov2685 = to_ov2685(sd);
@@ -341,7 +345,11 @@ static int ov2685_set_fmt(struct v4l2_subdev *sd,
 }
 
 static int ov2685_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *fmt)
 {
 	struct ov2685 *ov2685 = to_ov2685(sd);
@@ -353,7 +361,11 @@ static int ov2685_get_fmt(struct v4l2_subdev *sd,
 }
 
 static int ov2685_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index >= ARRAY_SIZE(supported_modes))
@@ -365,7 +377,11 @@ static int ov2685_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ov2685_enum_frame_sizes(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
+=======
+				   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	int index = fse->index;
@@ -456,11 +472,18 @@ static int ov2685_s_stream(struct v4l2_subdev *sd, int on)
 		goto unlock_and_return;
 
 	if (on) {
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(&ov2685->client->dev);
 		if (ret < 0) {
 			pm_runtime_put_noidle(&client->dev);
 			goto unlock_and_return;
 		}
+=======
+		ret = pm_runtime_resume_and_get(&ov2685->client->dev);
+		if (ret < 0)
+			goto unlock_and_return;
+
+>>>>>>> upstream/android-13
 		ret = __v4l2_ctrl_handler_setup(&ov2685->ctrl_handler);
 		if (ret) {
 			pm_runtime_put(&client->dev);
@@ -494,7 +517,11 @@ static int ov2685_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 
 	mutex_lock(&ov2685->mutex);
 
+<<<<<<< HEAD
 	try_fmt = v4l2_subdev_get_try_format(sd, fh->pad, 0);
+=======
+	try_fmt = v4l2_subdev_get_try_format(sd, fh->state, 0);
+>>>>>>> upstream/android-13
 	/* Initialize try_fmt */
 	ov2685_fill_fmt(&supported_modes[0], try_fmt);
 
@@ -506,8 +533,12 @@ static int ov2685_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 
 static int __maybe_unused ov2685_runtime_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct ov2685 *ov2685 = to_ov2685(sd);
 
 	return __ov2685_power_on(ov2685);
@@ -515,8 +546,12 @@ static int __maybe_unused ov2685_runtime_resume(struct device *dev)
 
 static int __maybe_unused ov2685_runtime_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct ov2685 *ov2685 = to_ov2685(sd);
 
 	__ov2685_power_off(ov2685);
@@ -576,7 +611,11 @@ static int ov2685_set_ctrl(struct v4l2_ctrl *ctrl)
 			 __func__, ctrl->id, ctrl->val);
 		ret = -EINVAL;
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	pm_runtime_put(&client->dev);
 

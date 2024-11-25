@@ -18,6 +18,10 @@
 #include <asm/fpregdef.h>
 #include <asm/mipsregs.h>
 #include <asm/stackframe.h>
+<<<<<<< HEAD
+=======
+#include <asm/sync.h>
+>>>>>>> upstream/android-13
 #include <asm/war.h>
 #include <asm/thread_info.h>
 
@@ -32,9 +36,12 @@
 NESTED(except_vec3_generic, 0, sp)
 	.set	push
 	.set	noat
+<<<<<<< HEAD
 #if R5432_CP0_INTERRUPT_WAR
 	mfc0	k0, CP0_INDEX
 #endif
+=======
+>>>>>>> upstream/android-13
 	mfc0	k1, CP0_CAUSE
 	andi	k1, k1, 0x7c
 #ifdef CONFIG_64BIT
@@ -351,6 +358,7 @@ NESTED(ejtag_debug_handler, PT_SIZE, sp)
 	MTC0	k0, CP0_DESAVE
 	mfc0	k0, CP0_DEBUG
 
+<<<<<<< HEAD
 	sll	k0, k0, 30	# Check for SDBBP.
 	bgez	k0, ejtag_return
 
@@ -358,6 +366,16 @@ NESTED(ejtag_debug_handler, PT_SIZE, sp)
 1:	PTR_LA	k0, ejtag_debug_buffer_spinlock
 	ll	k0, 0(k0)
 	bnez	k0, 1b
+=======
+	andi	k0, k0, MIPS_DEBUG_DBP	# Check for SDBBP.
+	beqz	k0, ejtag_return
+
+#ifdef CONFIG_SMP
+1:	PTR_LA	k0, ejtag_debug_buffer_spinlock
+	__SYNC(full, loongson3_war)
+2:	ll	k0, 0(k0)
+	bnez	k0, 2b
+>>>>>>> upstream/android-13
 	PTR_LA	k0, ejtag_debug_buffer_spinlock
 	sc	k0, 0(k0)
 	beqz	k0, 1b
@@ -499,20 +517,47 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	KMODE
 	.endm
 
+<<<<<<< HEAD
 	.macro	__BUILD_silent exception
 	.endm
 
 	/* Gas tries to parse the PRINT argument as a string containing
+=======
+	.macro __build_clear_gsexc
+	.set	push
+	/*
+	 * We need to specify a selector to access the CP0.Diag1 (GSCause)
+	 * register. All GSExc-equipped processors have MIPS32.
+	 */
+	.set	mips32
+	mfc0	a1, CP0_DIAGNOSTIC1
+	.set	pop
+	TRACE_IRQS_ON
+	STI
+	.endm
+
+	.macro	__BUILD_silent exception
+	.endm
+
+	/* Gas tries to parse the ASM_PRINT argument as a string containing
+>>>>>>> upstream/android-13
 	   string escapes and emits bogus warnings if it believes to
 	   recognize an unknown escape code.  So make the arguments
 	   start with an n and gas will believe \n is ok ...  */
 	.macro	__BUILD_verbose nexception
 	LONG_L	a1, PT_EPC(sp)
 #ifdef CONFIG_32BIT
+<<<<<<< HEAD
 	PRINT("Got \nexception at %08lx\012")
 #endif
 #ifdef CONFIG_64BIT
 	PRINT("Got \nexception at %016lx\012")
+=======
+	ASM_PRINT("Got \nexception at %08lx\012")
+#endif
+#ifdef CONFIG_64BIT
+	ASM_PRINT("Got \nexception at %016lx\012")
+>>>>>>> upstream/android-13
 #endif
 	.endm
 
@@ -553,8 +598,16 @@ NESTED(nmi_handler, PT_SIZE, sp)
 	BUILD_HANDLER ov ov sti silent			/* #12 */
 	BUILD_HANDLER tr tr sti silent			/* #13 */
 	BUILD_HANDLER msa_fpe msa_fpe msa_fpe silent	/* #14 */
+<<<<<<< HEAD
 	BUILD_HANDLER fpe fpe fpe silent		/* #15 */
 	BUILD_HANDLER ftlb ftlb none silent		/* #16 */
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+	BUILD_HANDLER fpe fpe fpe silent		/* #15 */
+#endif
+	BUILD_HANDLER ftlb ftlb none silent		/* #16 */
+	BUILD_HANDLER gsexc gsexc gsexc silent		/* #16 */
+>>>>>>> upstream/android-13
 	BUILD_HANDLER msa msa sti silent		/* #21 */
 	BUILD_HANDLER mdmx mdmx sti silent		/* #22 */
 #ifdef	CONFIG_HARDWARE_WATCHPOINTS
@@ -650,14 +703,25 @@ isrdhwr:
 	ori	k1, _THREAD_MASK
 	xori	k1, _THREAD_MASK
 	LONG_L	v1, TI_TP_VALUE(k1)
+<<<<<<< HEAD
 	.set	arch=r4000
 	eret
 	.set	mips0
+=======
+	.set	push
+	.set	arch=r4000
+	eret
+	.set	pop
+>>>>>>> upstream/android-13
 #endif
 	.set	pop
 	END(handle_ri_rdhwr)
 
+<<<<<<< HEAD
 #ifdef CONFIG_64BIT
+=======
+#ifdef CONFIG_CPU_R4X00_BUGS64
+>>>>>>> upstream/android-13
 /* A temporary overflow handler used by check_daddi(). */
 
 	__INIT

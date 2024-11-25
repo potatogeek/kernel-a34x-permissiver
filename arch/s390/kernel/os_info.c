@@ -52,7 +52,11 @@ void os_info_entry_add(int nr, void *ptr, u64 size)
 }
 
 /*
+<<<<<<< HEAD
  * Initialize OS info struture and set lowcore pointer
+=======
+ * Initialize OS info structure and set lowcore pointer
+>>>>>>> upstream/android-13
  */
 void __init os_info_init(void)
 {
@@ -121,7 +125,11 @@ static void os_info_old_init(void)
 
 	if (os_info_init)
 		return;
+<<<<<<< HEAD
 	if (!OLDMEM_BASE)
+=======
+	if (!oldmem_data.start)
+>>>>>>> upstream/android-13
 		goto fail;
 	if (copy_oldmem_kernel(&addr, &S390_lowcore.os_info, sizeof(addr)))
 		goto fail;

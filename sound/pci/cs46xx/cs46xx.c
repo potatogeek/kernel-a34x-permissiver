@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  The driver for the Cirrus Logic's Sound Fusion CS46XX based soundcards
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  The driver for the Cirrus Logic's Sound Fusion CS46XX based soundcards
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -36,6 +43,7 @@
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("Cirrus Logic Sound Fusion CS46XX");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Cirrus Logic,Sound Fusion (CS4280)},"
 		"{Cirrus Logic,Sound Fusion (CS4610)},"
 		"{Cirrus Logic,Sound Fusion (CS4612)},"
@@ -43,6 +51,8 @@ MODULE_SUPPORTED_DEVICE("{{Cirrus Logic,Sound Fusion (CS4280)},"
 		"{Cirrus Logic,Sound Fusion (CS4622)},"
 		"{Cirrus Logic,Sound Fusion (CS4624)},"
 		"{Cirrus Logic,Sound Fusion (CS4630)}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -88,6 +98,7 @@ static int snd_card_cs46xx_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -135,6 +146,46 @@ static int snd_card_cs46xx_probe(struct pci_dev *pci,
 		return err;
 	}
 
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+	err = snd_cs46xx_create(card, pci,
+				external_amp[dev], thinkpad[dev]);
+	if (err < 0)
+		return err;
+	card->private_data = chip;
+	chip->accept_valid = mmap_valid[dev];
+	err = snd_cs46xx_pcm(chip, 0);
+	if (err < 0)
+		return err;
+#ifdef CONFIG_SND_CS46XX_NEW_DSP
+	err = snd_cs46xx_pcm_rear(chip, 1);
+	if (err < 0)
+		return err;
+	err = snd_cs46xx_pcm_iec958(chip, 2);
+	if (err < 0)
+		return err;
+#endif
+	err = snd_cs46xx_mixer(chip, 2);
+	if (err < 0)
+		return err;
+#ifdef CONFIG_SND_CS46XX_NEW_DSP
+	if (chip->nr_ac97_codecs ==2) {
+		err = snd_cs46xx_pcm_center_lfe(chip, 3);
+		if (err < 0)
+			return err;
+	}
+#endif
+	err = snd_cs46xx_midi(chip, 0);
+	if (err < 0)
+		return err;
+	err = snd_cs46xx_start_dsp(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	snd_cs46xx_gameport(chip);
 
@@ -146,26 +197,38 @@ static int snd_card_cs46xx_probe(struct pci_dev *pci,
 		chip->ba1_addr,
 		chip->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_card_cs46xx_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct pci_driver cs46xx_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_cs46xx_ids,
 	.probe = snd_card_cs46xx_probe,
+<<<<<<< HEAD
 	.remove = snd_card_cs46xx_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 	.driver = {
 		.pm = &snd_cs46xx_pm,

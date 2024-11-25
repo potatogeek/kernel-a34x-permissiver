@@ -45,7 +45,12 @@ Description:
                 7. Device is unplugged.
 
                 References:
+<<<<<<< HEAD
                   [WUSB-AM] Association Models Supplement to the
+=======
+                  [WUSB-AM]
+			    Association Models Supplement to the
+>>>>>>> upstream/android-13
                             Certified Wireless Universal Serial Bus
                             Specification, version 1.0.
 

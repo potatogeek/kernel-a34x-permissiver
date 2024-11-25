@@ -17,6 +17,7 @@
 
 #define CRYPTO_CTX_SIZE	256
 
+<<<<<<< HEAD
 /* command queue alignments */
 #define PKT_IN_ALIGN	16
 
@@ -41,6 +42,31 @@ static int cmdq_common_init(struct nitrox_cmdq *cmdq)
 	spin_lock_init(&cmdq->response_lock);
 	spin_lock_init(&cmdq->cmdq_lock);
 	spin_lock_init(&cmdq->backlog_lock);
+=======
+/* packet inuput ring alignments */
+#define PKTIN_Q_ALIGN_BYTES 16
+/* AQM Queue input alignments */
+#define AQM_Q_ALIGN_BYTES 32
+
+static int nitrox_cmdq_init(struct nitrox_cmdq *cmdq, int align_bytes)
+{
+	struct nitrox_device *ndev = cmdq->ndev;
+
+	cmdq->qsize = (ndev->qlen * cmdq->instr_size) + align_bytes;
+	cmdq->unalign_base = dma_alloc_coherent(DEV(ndev), cmdq->qsize,
+						&cmdq->unalign_dma,
+						GFP_KERNEL);
+	if (!cmdq->unalign_base)
+		return -ENOMEM;
+
+	cmdq->dma = PTR_ALIGN(cmdq->unalign_dma, align_bytes);
+	cmdq->base = cmdq->unalign_base + (cmdq->dma - cmdq->unalign_dma);
+	cmdq->write_idx = 0;
+
+	spin_lock_init(&cmdq->cmd_qlock);
+	spin_lock_init(&cmdq->resp_qlock);
+	spin_lock_init(&cmdq->backlog_qlock);
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&cmdq->response_head);
 	INIT_LIST_HEAD(&cmdq->backlog_head);
@@ -51,6 +77,7 @@ static int cmdq_common_init(struct nitrox_cmdq *cmdq)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cmdq_common_cleanup(struct nitrox_cmdq *cmdq)
 {
 	struct nitrox_device *ndev = cmdq->ndev;
@@ -65,16 +92,52 @@ static void cmdq_common_cleanup(struct nitrox_cmdq *cmdq)
 
 	cmdq->dbell_csr_addr = NULL;
 	cmdq->head = NULL;
+=======
+static void nitrox_cmdq_reset(struct nitrox_cmdq *cmdq)
+{
+	cmdq->write_idx = 0;
+	atomic_set(&cmdq->pending_count, 0);
+	atomic_set(&cmdq->backlog_count, 0);
+}
+
+static void nitrox_cmdq_cleanup(struct nitrox_cmdq *cmdq)
+{
+	struct nitrox_device *ndev;
+
+	if (!cmdq)
+		return;
+
+	if (!cmdq->unalign_base)
+		return;
+
+	ndev = cmdq->ndev;
+	cancel_work_sync(&cmdq->backlog_qflush);
+
+	dma_free_coherent(DEV(ndev), cmdq->qsize,
+			  cmdq->unalign_base, cmdq->unalign_dma);
+	nitrox_cmdq_reset(cmdq);
+
+	cmdq->dbell_csr_addr = NULL;
+	cmdq->compl_cnt_csr_addr = NULL;
+	cmdq->unalign_base = NULL;
+	cmdq->base = NULL;
+	cmdq->unalign_dma = 0;
+>>>>>>> upstream/android-13
 	cmdq->dma = 0;
 	cmdq->qsize = 0;
 	cmdq->instr_size = 0;
 }
 
+<<<<<<< HEAD
 static void nitrox_cleanup_pkt_cmdqs(struct nitrox_device *ndev)
+=======
+static void nitrox_free_aqm_queues(struct nitrox_device *ndev)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < ndev->nr_queues; i++) {
+<<<<<<< HEAD
 		struct nitrox_cmdq *cmdq = &ndev->pkt_cmdqs[i];
 
 		cmdq_common_cleanup(cmdq);
@@ -90,17 +153,91 @@ static int nitrox_init_pkt_cmdqs(struct nitrox_device *ndev)
 	size = ndev->nr_queues * sizeof(struct nitrox_cmdq);
 	ndev->pkt_cmdqs = kzalloc(size, GFP_KERNEL);
 	if (!ndev->pkt_cmdqs)
+=======
+		nitrox_cmdq_cleanup(ndev->aqmq[i]);
+		kfree_sensitive(ndev->aqmq[i]);
+		ndev->aqmq[i] = NULL;
+	}
+}
+
+static int nitrox_alloc_aqm_queues(struct nitrox_device *ndev)
+{
+	int i, err;
+
+	for (i = 0; i < ndev->nr_queues; i++) {
+		struct nitrox_cmdq *cmdq;
+		u64 offset;
+
+		cmdq = kzalloc_node(sizeof(*cmdq), GFP_KERNEL, ndev->node);
+		if (!cmdq) {
+			err = -ENOMEM;
+			goto aqmq_fail;
+		}
+
+		cmdq->ndev = ndev;
+		cmdq->qno = i;
+		cmdq->instr_size = sizeof(struct aqmq_command_s);
+
+		/* AQM Queue Doorbell Counter Register Address */
+		offset = AQMQ_DRBLX(i);
+		cmdq->dbell_csr_addr = NITROX_CSR_ADDR(ndev, offset);
+		/* AQM Queue Commands Completed Count Register Address */
+		offset = AQMQ_CMD_CNTX(i);
+		cmdq->compl_cnt_csr_addr = NITROX_CSR_ADDR(ndev, offset);
+
+		err = nitrox_cmdq_init(cmdq, AQM_Q_ALIGN_BYTES);
+		if (err) {
+			kfree_sensitive(cmdq);
+			goto aqmq_fail;
+		}
+		ndev->aqmq[i] = cmdq;
+	}
+
+	return 0;
+
+aqmq_fail:
+	nitrox_free_aqm_queues(ndev);
+	return err;
+}
+
+static void nitrox_free_pktin_queues(struct nitrox_device *ndev)
+{
+	int i;
+
+	for (i = 0; i < ndev->nr_queues; i++) {
+		struct nitrox_cmdq *cmdq = &ndev->pkt_inq[i];
+
+		nitrox_cmdq_cleanup(cmdq);
+	}
+	kfree(ndev->pkt_inq);
+	ndev->pkt_inq = NULL;
+}
+
+static int nitrox_alloc_pktin_queues(struct nitrox_device *ndev)
+{
+	int i, err;
+
+	ndev->pkt_inq = kcalloc_node(ndev->nr_queues,
+				     sizeof(struct nitrox_cmdq),
+				     GFP_KERNEL, ndev->node);
+	if (!ndev->pkt_inq)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	for (i = 0; i < ndev->nr_queues; i++) {
 		struct nitrox_cmdq *cmdq;
 		u64 offset;
 
+<<<<<<< HEAD
 		cmdq = &ndev->pkt_cmdqs[i];
+=======
+		cmdq = &ndev->pkt_inq[i];
+>>>>>>> upstream/android-13
 		cmdq->ndev = ndev;
 		cmdq->qno = i;
 		cmdq->instr_size = sizeof(struct nps_pkt_instr);
 
+<<<<<<< HEAD
 		offset = NPS_PKT_IN_INSTR_BAOFF_DBELLX(i);
 		/* SE ring doorbell address for this queue */
 		cmdq->dbell_csr_addr = NITROX_CSR_ADDR(ndev, offset);
@@ -113,6 +250,23 @@ static int nitrox_init_pkt_cmdqs(struct nitrox_device *ndev)
 
 pkt_cmdq_fail:
 	nitrox_cleanup_pkt_cmdqs(ndev);
+=======
+		/* packet input ring doorbell address */
+		offset = NPS_PKT_IN_INSTR_BAOFF_DBELLX(i);
+		cmdq->dbell_csr_addr = NITROX_CSR_ADDR(ndev, offset);
+		/* packet solicit port completion count address */
+		offset = NPS_PKT_SLC_CNTSX(i);
+		cmdq->compl_cnt_csr_addr = NITROX_CSR_ADDR(ndev, offset);
+
+		err = nitrox_cmdq_init(cmdq, PKTIN_Q_ALIGN_BYTES);
+		if (err)
+			goto pktq_fail;
+	}
+	return 0;
+
+pktq_fail:
+	nitrox_free_pktin_queues(ndev);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -122,7 +276,11 @@ static int create_crypto_dma_pool(struct nitrox_device *ndev)
 
 	/* Crypto context pool, 16 byte aligned */
 	size = CRYPTO_CTX_SIZE + sizeof(struct ctx_hdr);
+<<<<<<< HEAD
 	ndev->ctx_pool = dma_pool_create("crypto-context",
+=======
+	ndev->ctx_pool = dma_pool_create("nitrox-context",
+>>>>>>> upstream/android-13
 					 DEV(ndev), size, 16, 0);
 	if (!ndev->ctx_pool)
 		return -ENOMEM;
@@ -154,7 +312,11 @@ void *crypto_alloc_context(struct nitrox_device *ndev)
 	if (!chdr)
 		return NULL;
 
+<<<<<<< HEAD
 	vaddr = dma_pool_alloc(ndev->ctx_pool, (GFP_KERNEL | __GFP_ZERO), &dma);
+=======
+	vaddr = dma_pool_zalloc(ndev->ctx_pool, GFP_KERNEL, &dma);
+>>>>>>> upstream/android-13
 	if (!vaddr) {
 		kfree(chdr);
 		return NULL;
@@ -206,10 +368,23 @@ int nitrox_common_sw_init(struct nitrox_device *ndev)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = nitrox_init_pkt_cmdqs(ndev);
 	if (err)
 		destroy_crypto_dma_pool(ndev);
 
+=======
+	err = nitrox_alloc_pktin_queues(ndev);
+	if (err)
+		destroy_crypto_dma_pool(ndev);
+
+	err = nitrox_alloc_aqm_queues(ndev);
+	if (err) {
+		nitrox_free_pktin_queues(ndev);
+		destroy_crypto_dma_pool(ndev);
+	}
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -219,6 +394,11 @@ int nitrox_common_sw_init(struct nitrox_device *ndev)
  */
 void nitrox_common_sw_cleanup(struct nitrox_device *ndev)
 {
+<<<<<<< HEAD
 	nitrox_cleanup_pkt_cmdqs(ndev);
+=======
+	nitrox_free_aqm_queues(ndev);
+	nitrox_free_pktin_queues(ndev);
+>>>>>>> upstream/android-13
 	destroy_crypto_dma_pool(ndev);
 }

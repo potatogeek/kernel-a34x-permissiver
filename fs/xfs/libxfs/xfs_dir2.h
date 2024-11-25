@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
  * All Rights Reserved.
@@ -18,6 +22,11 @@ struct xfs_dir2_sf_entry;
 struct xfs_dir2_data_hdr;
 struct xfs_dir2_data_entry;
 struct xfs_dir2_data_unused;
+<<<<<<< HEAD
+=======
+struct xfs_dir3_icfree_hdr;
+struct xfs_dir3_icleaf_hdr;
+>>>>>>> upstream/android-13
 
 extern struct xfs_name	xfs_name_dotdot;
 
@@ -27,6 +36,7 @@ extern struct xfs_name	xfs_name_dotdot;
 extern unsigned char xfs_mode_to_ftype(int mode);
 
 /*
+<<<<<<< HEAD
  * directory operations vector for encode/decode routines
  */
 struct xfs_dir_ops {
@@ -106,6 +116,8 @@ extern const struct xfs_dir_ops *
 	xfs_nondir_get_ops(struct xfs_mount *mp, struct xfs_inode *dp);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Generic directory interface routines
  */
 extern void xfs_dir_startup(void);
@@ -143,10 +155,14 @@ extern int xfs_dir2_isleaf(struct xfs_da_args *args, int *r);
 extern int xfs_dir2_shrink_inode(struct xfs_da_args *args, xfs_dir2_db_t db,
 				struct xfs_buf *bp);
 
+<<<<<<< HEAD
 extern void xfs_dir2_data_freescan_int(struct xfs_da_geometry *geo,
 		const struct xfs_dir_ops *ops,
 		struct xfs_dir2_data_hdr *hdr, int *loghead);
 extern void xfs_dir2_data_freescan(struct xfs_inode *dp,
+=======
+extern void xfs_dir2_data_freescan(struct xfs_mount *mp,
+>>>>>>> upstream/android-13
 		struct xfs_dir2_data_hdr *hdr, int *loghead);
 extern void xfs_dir2_data_log_entry(struct xfs_da_args *args,
 		struct xfs_buf *bp, struct xfs_dir2_data_entry *dep);
@@ -324,7 +340,13 @@ xfs_dir2_leaf_tail_p(struct xfs_da_geometry *geo, struct xfs_dir2_leaf *lp)
 #define XFS_READDIR_BUFSIZE	(32768)
 
 unsigned char xfs_dir3_get_dtype(struct xfs_mount *mp, uint8_t filetype);
+<<<<<<< HEAD
 void *xfs_dir3_data_endp(struct xfs_da_geometry *geo,
 		struct xfs_dir2_data_hdr *hdr);
+=======
+unsigned int xfs_dir3_data_end_offset(struct xfs_da_geometry *geo,
+		struct xfs_dir2_data_hdr *hdr);
+bool xfs_dir2_namecheck(const void *name, size_t length);
+>>>>>>> upstream/android-13
 
 #endif	/* __XFS_DIR2_H__ */

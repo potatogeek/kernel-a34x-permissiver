@@ -262,7 +262,11 @@ struct ip6t_get_entries {
 static __inline__ struct xt_entry_target *
 ip6t_get_target(struct ip6t_entry *e)
 {
+<<<<<<< HEAD
 	return (void *)e + e->target_offset;
+=======
+	return (struct xt_entry_target *)((char *)e + e->target_offset);
+>>>>>>> upstream/android-13
 }
 
 /*

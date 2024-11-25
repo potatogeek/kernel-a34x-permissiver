@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com/
  *
  * samsung - Common hr-timer support (s3c and s5p)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
 */
+=======
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/interrupt.h>
 #include <linux/irq.h>
@@ -25,7 +33,10 @@
 
 #include <clocksource/samsung_pwm.h>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Clocksource driver
  */
@@ -41,8 +52,13 @@
 #define TCFG0_PRESCALER_MASK		0xff
 #define TCFG0_PRESCALER1_SHIFT		8
 
+<<<<<<< HEAD
 #define TCFG1_SHIFT(x)	  		((x) * 4)
 #define TCFG1_MUX_MASK	  		0xf
+=======
+#define TCFG1_SHIFT(x)			((x) * 4)
+#define TCFG1_MUX_MASK			0xf
+>>>>>>> upstream/android-13
 
 /*
  * Each channel occupies 4 bits in TCON register, but there is a gap of 4
@@ -65,7 +81,11 @@ EXPORT_SYMBOL(samsung_pwm_lock);
 
 struct samsung_pwm_clocksource {
 	void __iomem *base;
+<<<<<<< HEAD
 	void __iomem *source_reg;
+=======
+	const void __iomem *source_reg;
+>>>>>>> upstream/android-13
 	unsigned int irq[SAMSUNG_PWM_NUM];
 	struct samsung_pwm_variant variant;
 
@@ -186,7 +206,11 @@ static void samsung_time_start(unsigned int channel, bool periodic)
 }
 
 static int samsung_set_next_event(unsigned long cycles,
+<<<<<<< HEAD
 				struct clock_event_device *evt)
+=======
+				  struct clock_event_device *evt)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * This check is needed to account for internal rounding
@@ -228,6 +252,10 @@ static void samsung_clockevent_resume(struct clock_event_device *cev)
 
 	if (pwm.variant.has_tint_cstat) {
 		u32 mask = (1 << pwm.event_id);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		writel(mask | (mask << 5), pwm.base + REG_TINT_CSTAT);
 	}
 }
@@ -251,6 +279,10 @@ static irqreturn_t samsung_clock_event_isr(int irq, void *dev_id)
 
 	if (pwm.variant.has_tint_cstat) {
 		u32 mask = (1 << pwm.event_id);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		writel(mask | (mask << 5), pwm.base + REG_TINT_CSTAT);
 	}
 
@@ -259,6 +291,7 @@ static irqreturn_t samsung_clock_event_isr(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction samsung_clock_event_irq = {
 	.name		= "samsung_time_irq",
 	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
@@ -266,6 +299,8 @@ static struct irqaction samsung_clock_event_irq = {
 	.dev_id		= &time_event_device,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init samsung_clockevent_init(void)
 {
 	unsigned long pclk;
@@ -282,6 +317,7 @@ static void __init samsung_clockevent_init(void)
 
 	time_event_device.cpumask = cpumask_of(0);
 	clockevents_config_and_register(&time_event_device,
+<<<<<<< HEAD
 						clock_rate, 1, pwm.tcnt_max);
 
 	irq_number = pwm.irq[pwm.event_id];
@@ -289,6 +325,19 @@ static void __init samsung_clockevent_init(void)
 
 	if (pwm.variant.has_tint_cstat) {
 		u32 mask = (1 << pwm.event_id);
+=======
+					clock_rate, 1, pwm.tcnt_max);
+
+	irq_number = pwm.irq[pwm.event_id];
+	if (request_irq(irq_number, samsung_clock_event_isr,
+			IRQF_TIMER | IRQF_IRQPOLL, "samsung_time_irq",
+			&time_event_device))
+		pr_err("%s: request_irq() failed\n", "samsung_time_irq");
+
+	if (pwm.variant.has_tint_cstat) {
+		u32 mask = (1 << pwm.event_id);
+
+>>>>>>> upstream/android-13
 		writel(mask | (mask << 5), pwm.base + REG_TINT_CSTAT);
 	}
 }
@@ -354,7 +403,11 @@ static int __init samsung_clocksource_init(void)
 		pwm.source_reg = pwm.base + pwm.source_id * 0x0c + 0x14;
 
 	sched_clock_register(samsung_read_sched_clock,
+<<<<<<< HEAD
 						pwm.variant.bits, clock_rate);
+=======
+			     pwm.variant.bits, clock_rate);
+>>>>>>> upstream/android-13
 
 	samsung_clocksource.mask = CLOCKSOURCE_MASK(pwm.variant.bits);
 	return clocksource_register_hz(&samsung_clocksource, clock_rate);
@@ -405,7 +458,12 @@ static int __init _samsung_pwm_clocksource_init(void)
 }
 
 void __init samsung_pwm_clocksource_init(void __iomem *base,
+<<<<<<< HEAD
 			unsigned int *irqs, struct samsung_pwm_variant *variant)
+=======
+					 unsigned int *irqs,
+					 const struct samsung_pwm_variant *variant)
+>>>>>>> upstream/android-13
 {
 	pwm.base = base;
 	memcpy(&pwm.variant, variant, sizeof(pwm.variant));
@@ -425,7 +483,11 @@ static int __init samsung_pwm_alloc(struct device_node *np,
 	struct property *prop;
 	const __be32 *cur;
 	u32 val;
+<<<<<<< HEAD
 	int i;
+=======
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	memcpy(&pwm.variant, variant, sizeof(pwm.variant));
 	for (i = 0; i < SAMSUNG_PWM_NUM; ++i)
@@ -433,8 +495,12 @@ static int __init samsung_pwm_alloc(struct device_node *np,
 
 	of_property_for_each_u32(np, "samsung,pwm-outputs", prop, cur, val) {
 		if (val >= SAMSUNG_PWM_NUM) {
+<<<<<<< HEAD
 			pr_warning("%s: invalid channel index in samsung,pwm-outputs property\n",
 								__func__);
+=======
+			pr_warn("%s: invalid channel index in samsung,pwm-outputs property\n", __func__);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		pwm.variant.output_mask |= 1 << val;
@@ -449,10 +515,31 @@ static int __init samsung_pwm_alloc(struct device_node *np,
 	pwm.timerclk = of_clk_get_by_name(np, "timers");
 	if (IS_ERR(pwm.timerclk)) {
 		pr_crit("failed to get timers clock for timer\n");
+<<<<<<< HEAD
 		return PTR_ERR(pwm.timerclk);
 	}
 
 	return _samsung_pwm_clocksource_init();
+=======
+		ret = PTR_ERR(pwm.timerclk);
+		goto err_clk;
+	}
+
+	ret = _samsung_pwm_clocksource_init();
+	if (ret)
+		goto err_clocksource;
+
+	return 0;
+
+err_clocksource:
+	clk_put(pwm.timerclk);
+	pwm.timerclk = NULL;
+err_clk:
+	iounmap(pwm.base);
+	pwm.base = NULL;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static const struct samsung_pwm_variant s3c24xx_variant = {

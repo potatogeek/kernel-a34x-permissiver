@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Pinctrl driver for the Wondermedia SoC's
  *
  * Copyright (c) 2013 Tony Prisk <linux@prisktech.co.nz>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,11 @@
  */
 
 #include <linux/gpio.h>
+=======
+ */
+
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 
 /* VT8500 has no enable register in the extgpio bank. */
 #define NO_REG	0xFFFF

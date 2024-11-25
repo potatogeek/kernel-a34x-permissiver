@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel Atom platform clocks driver for BayTrail and CherryTrail SoCs
  *
  * Copyright (C) 2016, Intel Corporation
  * Author: Irina Tirdea <irina.tirdea@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -12,11 +17,17 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/x86/clk-pmc-atom.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
@@ -170,7 +181,11 @@ static struct clk_plt *plt_clk_register(struct platform_device *pdev, int id,
 					int num_parents)
 {
 	struct clk_plt *pclk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	pclk = devm_kzalloc(&pdev->dev, sizeof(*pclk), GFP_KERNEL);

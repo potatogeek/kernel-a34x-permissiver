@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 Texas Instruments Inc
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2010 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 #ifndef _VPBE_H
 #define _VPBE_H
@@ -100,10 +106,13 @@ struct vpbe_config {
 struct vpbe_device;
 
 struct vpbe_device_ops {
+<<<<<<< HEAD
 	/* crop cap for the display */
 	int (*g_cropcap)(struct vpbe_device *vpbe_dev,
 			 struct v4l2_cropcap *cropcap);
 
+=======
+>>>>>>> upstream/android-13
 	/* Enumerate the outputs */
 	int (*enum_outputs)(struct vpbe_device *vpbe_dev,
 			    struct v4l2_output *output);

@@ -14,15 +14,21 @@
 KBUILD_DEFCONFIG := generic_defconfig
 
 NM := $(CROSS_COMPILE)nm -B
+<<<<<<< HEAD
 READELF := $(CROSS_COMPILE)readelf
 
 export AWK
+=======
+>>>>>>> upstream/android-13
 
 CHECKFLAGS	+= -D__ia64=1 -D__ia64__=1 -D_LP64 -D__LP64__
 
 OBJCOPYFLAGS	:= --strip-all
 LDFLAGS_vmlinux	:= -static
+<<<<<<< HEAD
 KBUILD_LDFLAGS_MODULE += -T $(srctree)/arch/ia64/module.lds
+=======
+>>>>>>> upstream/android-13
 KBUILD_AFLAGS_KERNEL := -mconstant-gp
 EXTRA		:=
 
@@ -41,10 +47,20 @@ $(error Sorry, you need a newer version of the assember, one that is built from	
 		ftp://ftp.hpl.hp.com/pub/linux-ia64/gas-030124.tar.gz)
 endif
 
+<<<<<<< HEAD
+=======
+quiet_cmd_gzip = GZIP    $@
+cmd_gzip = cat $(real-prereqs) | $(KGZIP) -n -f -9 > $@
+
+quiet_cmd_objcopy = OBJCOPY $@
+cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+
+>>>>>>> upstream/android-13
 KBUILD_CFLAGS += $(cflags-y)
 head-y := arch/ia64/kernel/head.o
 
 libs-y				+= arch/ia64/lib/
+<<<<<<< HEAD
 core-y				+= arch/ia64/kernel/ arch/ia64/mm/
 core-$(CONFIG_IA64_DIG) 	+= arch/ia64/dig/
 core-$(CONFIG_IA64_DIG_VTD) 	+= arch/ia64/dig/
@@ -64,6 +80,12 @@ drivers-$(CONFIG_OPROFILE)	+= arch/ia64/oprofile/
 boot := arch/ia64/hp/sim/boot
 
 PHONY += boot compressed check
+=======
+
+drivers-y			+= arch/ia64/pci/ arch/ia64/hp/common/
+
+PHONY += compressed check
+>>>>>>> upstream/android-13
 
 all: compressed unwcheck
 
@@ -71,6 +93,7 @@ compressed: vmlinux.gz
 
 vmlinuz: vmlinux.gz
 
+<<<<<<< HEAD
 vmlinux.gz: vmlinux
 	$(Q)$(MAKE) $(build)=$(boot) $@
 
@@ -84,6 +107,23 @@ CLEAN_FILES += vmlinux.gz bootloader
 
 boot:	lib/lib.a vmlinux
 	$(Q)$(MAKE) $(build)=$(boot) $@
+=======
+vmlinux.gz: vmlinux.bin FORCE
+	$(call if_changed,gzip)
+
+vmlinux.bin: vmlinux FORCE
+	$(call if_changed,objcopy)
+
+unwcheck: vmlinux
+	-$(Q)READELF=$(READELF) $(PYTHON3) $(srctree)/arch/ia64/scripts/unwcheck.py $<
+
+archclean:
+
+archheaders:
+	$(Q)$(MAKE) $(build)=arch/ia64/kernel/syscalls all
+
+CLEAN_FILES += vmlinux.gz
+>>>>>>> upstream/android-13
 
 install: vmlinux.gz
 	sh $(srctree)/arch/ia64/install.sh $(KERNELRELEASE) $< System.map "$(INSTALL_PATH)"
@@ -91,6 +131,7 @@ install: vmlinux.gz
 define archhelp
   echo '* compressed	- Build compressed kernel image'
   echo '  install	- Install compressed kernel image'
+<<<<<<< HEAD
   echo '  boot		- Build vmlinux and bootloader for Ski simulator'
   echo '* unwcheck	- Check vmlinux for invalid unwind info'
 endef
@@ -100,3 +141,7 @@ PHONY += make_nr_irqs_h
 
 make_nr_irqs_h:
 	$(Q)$(MAKE) $(build)=arch/ia64/kernel include/generated/nr-irqs.h
+=======
+  echo '* unwcheck	- Check vmlinux for invalid unwind info'
+endef
+>>>>>>> upstream/android-13

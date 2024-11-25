@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt298.c  --  RT298 ALSA SoC audio codec driver
  *
  * Copyright 2015 Realtek Semiconductor Corp.
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -270,11 +277,24 @@ static int rt298_jack_detect(struct rt298_priv *rt298, bool *hp, bool *mic)
 				msleep(300);
 				regmap_read(rt298->regmap,
 					RT298_CBJ_CTRL2, &val);
+<<<<<<< HEAD
 				if (0x0070 == (val & 0x0070))
 					*mic = true;
 				else
 					*mic = false;
 			}
+=======
+				if (0x0070 == (val & 0x0070)) {
+					*mic = true;
+				} else {
+					*mic = false;
+					regmap_update_bits(rt298->regmap,
+						RT298_CBJ_CTRL1,
+						0xfcc0, 0xc400);
+				}
+			}
+
+>>>>>>> upstream/android-13
 			regmap_update_bits(rt298->regmap,
 				RT298_DC_GAIN, 0x200, 0x0);
 
@@ -314,10 +334,17 @@ static void rt298_jack_detect_work(struct work_struct *work)
 	if (rt298_jack_detect(rt298, &hp, &mic) < 0)
 		return;
 
+<<<<<<< HEAD
 	if (hp == true)
 		status |= SND_JACK_HEADPHONE;
 
 	if (mic == true)
+=======
+	if (hp)
+		status |= SND_JACK_HEADPHONE;
+
+	if (mic)
+>>>>>>> upstream/android-13
 		status |= SND_JACK_MICROPHONE;
 
 	snd_soc_jack_report(rt298->jack, status,
@@ -345,10 +372,17 @@ int rt298_mic_detect(struct snd_soc_component *component, struct snd_soc_jack *j
 	regmap_update_bits(rt298->regmap, RT298_IRQ_CTRL, 0x2, 0x2);
 
 	rt298_jack_detect(rt298, &hp, &mic);
+<<<<<<< HEAD
 	if (hp == true)
 		status |= SND_JACK_HEADPHONE;
 
 	if (mic == true)
+=======
+	if (hp)
+		status |= SND_JACK_HEADPHONE;
+
+	if (mic)
+>>>>>>> upstream/android-13
 		status |= SND_JACK_MICROPHONE;
 
 	snd_soc_jack_report(rt298->jack, status,
@@ -511,7 +545,11 @@ static int rt298_adc_event(struct snd_soc_dapm_widget *w,
 			VERB_CMD(AC_VERB_SET_AMP_GAIN_MUTE, nid, 0),
 			0x7080, 0x7000);
 		 /* If MCLK doesn't exist, reset AD filter */
+<<<<<<< HEAD
 		if (!(snd_soc_component_read32(component, RT298_VAD_CTRL) & 0x200)) {
+=======
+		if (!(snd_soc_component_read(component, RT298_VAD_CTRL) & 0x200)) {
+>>>>>>> upstream/android-13
 			pr_info("NO MCLK\n");
 			switch (nid) {
 			case RT298_ADC_IN1:
@@ -989,10 +1027,17 @@ static irqreturn_t rt298_irq(int irq, void *data)
 	regmap_update_bits(rt298->regmap, RT298_IRQ_CTRL, 0x1, 0x1);
 
 	if (ret == 0) {
+<<<<<<< HEAD
 		if (hp == true)
 			status |= SND_JACK_HEADPHONE;
 
 		if (mic == true)
+=======
+		if (hp)
+			status |= SND_JACK_HEADPHONE;
+
+		if (mic)
+>>>>>>> upstream/android-13
 			status |= SND_JACK_MICROPHONE;
 
 		snd_soc_jack_report(rt298->jack, status,
@@ -1087,7 +1132,11 @@ static struct snd_soc_dai_driver rt298_dai[] = {
 			.formats = RT298_FORMATS,
 		},
 		.ops = &rt298_aif_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "rt298-aif2",
@@ -1107,7 +1156,11 @@ static struct snd_soc_dai_driver rt298_dai[] = {
 			.formats = RT298_FORMATS,
 		},
 		.ops = &rt298_aif_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 
 };
@@ -1148,11 +1201,19 @@ static const struct i2c_device_id rt298_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, rt298_i2c_id);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id rt298_acpi_match[] = {
 	{ "INT343A", 0 },
 	{},
 };
 MODULE_DEVICE_TABLE(acpi, rt298_acpi_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static const struct dmi_system_id force_combo_jack_table[] = {
 	{

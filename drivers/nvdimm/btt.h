@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Block Translation Table library
  * Copyright (c) 2014-2015, Intel Corporation.
@@ -10,12 +11,21 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Block Translation Table library
+ * Copyright (c) 2014-2015, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_BTT_H
 #define _LINUX_BTT_H
 
+<<<<<<< HEAD
 #include <linux/badblocks.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 #define BTT_SIG_LEN 16
@@ -205,10 +215,18 @@ struct arena_info {
 	int log_index[2];
 };
 
+<<<<<<< HEAD
 /**
  * struct btt - handle for a BTT instance
  * @btt_disk:		Pointer to the gendisk for BTT device
  * @btt_queue:		Pointer to the request queue for the BTT device
+=======
+struct badblocks;
+
+/**
+ * struct btt - handle for a BTT instance
+ * @btt_disk:		Pointer to the gendisk for BTT device
+>>>>>>> upstream/android-13
  * @arena_list:		Head of the list of arenas
  * @debugfs_dir:	Debugfs dentry
  * @nd_btt:		Parent nd_btt struct
@@ -226,7 +244,10 @@ struct arena_info {
  */
 struct btt {
 	struct gendisk *btt_disk;
+<<<<<<< HEAD
 	struct request_queue *btt_queue;
+=======
+>>>>>>> upstream/android-13
 	struct list_head arena_list;
 	struct dentry *debugfs_dir;
 	struct nd_btt *nd_btt;

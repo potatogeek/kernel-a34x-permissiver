@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * miscellaneous helper functions
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -67,6 +74,7 @@ int snd_fw_transaction(struct fw_unit *unit, int tcode,
 }
 EXPORT_SYMBOL(snd_fw_transaction);
 
+<<<<<<< HEAD
 #define PROBE_DELAY_MS		(2 * MSEC_PER_SEC)
 
 /**
@@ -99,6 +107,8 @@ void snd_fw_schedule_registration(struct fw_unit *unit,
 }
 EXPORT_SYMBOL(snd_fw_schedule_registration);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("FireWire audio helper functions");
 MODULE_AUTHOR("Clemens Ladisch <clemens@ladisch.de>");
 MODULE_LICENSE("GPL v2");

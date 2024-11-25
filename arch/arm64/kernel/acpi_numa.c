@@ -18,7 +18,10 @@
 
 #include <linux/acpi.h>
 #include <linux/bitmap.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/memblock.h>
@@ -46,7 +49,11 @@ static inline int get_cpu_for_acpi_id(u32 uid)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int __init acpi_parse_gicc_pxm(struct acpi_subtable_header *header,
+=======
+static int __init acpi_parse_gicc_pxm(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 				      const unsigned long end)
 {
 	struct acpi_srat_gicc_affinity *pa;
@@ -119,6 +126,7 @@ void __init acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa)
 	node_set(node, numa_nodes_parsed);
 }
 
+<<<<<<< HEAD
 int __init arm64_acpi_numa_init(void)
 {
 	int ret;
@@ -131,3 +139,5 @@ int __init arm64_acpi_numa_init(void)
 
 	return srat_disabled() ? -EINVAL : 0;
 }
+=======
+>>>>>>> upstream/android-13

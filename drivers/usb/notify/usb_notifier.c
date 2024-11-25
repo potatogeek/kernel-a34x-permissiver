@@ -21,8 +21,11 @@
 #endif
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 #include <linux/muic/common/muic.h>
+<<<<<<< HEAD
 #endif
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
+=======
+>>>>>>> upstream/android-13
 #include <linux/muic/common/muic_notifier.h>
 #endif
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
@@ -31,16 +34,21 @@
 #if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
 #include <linux/usb/typec/manager/usb_typec_manager_notifier.h>
 #endif
+<<<<<<< HEAD
 #if IS_MODULE(CONFIG_BATTERY_SAMSUNG)
 #include <linux/battery/sec_battery_common.h>
 #elif defined(CONFIG_BATTERY_SAMSUNG)
 #include "../../../battery/common/sec_charging_common.h"
 #endif
+=======
+#include <linux/battery/sec_battery_common.h>
+>>>>>>> upstream/android-13
 #include "usb_notifier.h"
 
 #include <linux/regulator/consumer.h>
 #include <linux/workqueue.h>
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MACH_MT6739) || IS_ENABLED(CONFIG_MACH_MT6765)
 #include "../../misc/mediatek/usb20/mtk_musb.h"
 #elif IS_ENABLED(CONFIG_EXTCON_MTK_USB)
@@ -50,6 +58,11 @@
 struct usb_notifier_platform_data {
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 	struct	notifier_block pdic_usb_nb;
+=======
+struct usb_notifier_platform_data {
+#if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
+	struct	notifier_block ccic_usb_nb;
+>>>>>>> upstream/android-13
 	int is_host;
 #endif
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
@@ -63,6 +76,13 @@ struct usb_notifier_platform_data {
 
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 	struct delayed_work usb_ldo_work;
+<<<<<<< HEAD
+=======
+#define USB_LDOCONTROL_EXYNOS8895	1 /* legacy */
+#define USB_LDOCONTROL_EXYNOS9810	2
+#define USB_LDOCONTROL_EXYNOS9820	3
+#define USB_LDOCONTROL_EXYNOS9830	4
+>>>>>>> upstream/android-13
 	unsigned int usb_ldocontrol;
 	unsigned int usb_ldo_onoff;
 	bool usb_ldo_off_working;
@@ -118,9 +138,14 @@ static void of_get_usb_redriver_dt(struct device_node *np,
 	pdata->device_wake_lock_enable =
 		!(of_property_read_bool(np, "disable_device_wakelock"));
 
+<<<<<<< HEAD
 	pr_info("%s, host_wake_lock_enable %d ,device_wake_lock_enable %d\n", __func__,
 		pdata->host_wake_lock_enable, pdata->device_wake_lock_enable);
 
+=======
+	pr_info("%s, host_wake_lock_enable %d ,device_wake_lock_enable %d\n",
+		__func__, pdata->host_wake_lock_enable, pdata->device_wake_lock_enable);
+>>>>>>> upstream/android-13
 }
 
 static int of_usb_notifier_dt(struct device *dev,
@@ -136,6 +161,44 @@ static int of_usb_notifier_dt(struct device *dev,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static struct device_node *exynos_udc_parse_dt(void)
+{
+	struct platform_device *pdev = NULL;
+	struct device *dev = NULL;
+	struct device_node *np = NULL;
+
+	np = of_find_compatible_node(NULL, NULL, "samsung,exynos5-dwusb3");
+	if (np)
+		goto find;
+
+	np = of_find_compatible_node(NULL, NULL, "samsung,usb-notifier");
+	if (!np) {
+		pr_err("%s: failed to get the usb-notifier device node\n",
+			__func__);
+		goto err;
+	}
+
+	pdev = of_find_device_by_node(np);
+	if (!pdev) {
+		pr_err("%s: failed to get platform_device\n", __func__);
+		goto err;
+	}
+
+	dev = &pdev->dev;
+	np = of_parse_phandle(dev->of_node, "udc", 0);
+	if (!np) {
+		pr_err("%s: device is not available\n", __func__);
+		goto err;
+	}
+find:
+	return np;
+err:
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 static void usb_hs_regulator_onoff(struct usb_notifier_platform_data *pdata,
 				   unsigned int onoff)
@@ -246,7 +309,11 @@ static void usb_regulator_onoff(void *data, unsigned int onoff)
 	pr_info("usb: %s - Turn %s (ldocontrol=%d, usb_ldo_off_working=%d)\n", __func__,
 		onoff ? "on":"off", pdata->usb_ldocontrol, pdata->usb_ldo_off_working);
 
+<<<<<<< HEAD
 	if (pdata->usb_ldocontrol) {
+=======
+	if (pdata->usb_ldocontrol == USB_LDOCONTROL_EXYNOS8895) {
+>>>>>>> upstream/android-13
 		if (onoff) {
 			if (!pdata->usb_ldo_onoff) {
 				if (pdata->usb_ldo_off_working) {
@@ -269,6 +336,11 @@ static void usb_regulator_onoff(void *data, unsigned int onoff)
 			}
 		}
 		pdata->usb_ldo_onoff = onoff;
+<<<<<<< HEAD
+=======
+	} else if (pdata->usb_ldocontrol >= USB_LDOCONTROL_EXYNOS9820) {
+		exynos_usbdrd_ldo_manual_control(onoff);
+>>>>>>> upstream/android-13
 	} else {
 		pr_err("%s: can't control\n", __func__);
 	}
@@ -290,14 +362,70 @@ static void usb_ldo_off_control(struct work_struct *work)
 }
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 static int pdic_usb_handle_notification(struct notifier_block *nb,
+=======
+static void check_usb_vbus_state(int state)
+{
+	struct device_node *np = NULL;
+	struct platform_device *pdev = NULL;
+
+	pr_info("%s vbus state = %d\n", __func__, state);
+
+	np = exynos_udc_parse_dt();
+	if (np) {
+		pdev = of_find_device_by_node(np);
+		of_node_put(np);
+		if (pdev) {
+			pr_info("%s: get the %s platform_device\n",
+				__func__, pdev->name);
+			dwc3_exynos_vbus_event(&pdev->dev, state);
+			goto end;
+		}
+	}
+
+	pr_err("%s: failed to get the platform_device\n", __func__);
+end:
+	return;
+}
+
+static void check_usb_id_state(int state)
+{
+	struct device_node *np = NULL;
+	struct platform_device *pdev = NULL;
+
+	pr_info("%s id state = %d\n", __func__, state);
+
+	np = exynos_udc_parse_dt();
+	if (np) {
+		pdev = of_find_device_by_node(np);
+		of_node_put(np);
+		if (pdev) {
+			pr_info("%s: get the %s platform_device\n",
+			__func__, pdev->name);
+			dwc3_exynos_id_event(&pdev->dev, state);
+			goto end;
+		}
+	}
+	pr_err("%s: failed to get the platform_device\n", __func__);
+end:
+	return;
+}
+
+#if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
+static int ccic_usb_handle_notification(struct notifier_block *nb,
+>>>>>>> upstream/android-13
 		unsigned long action, void *data)
 {
 	PD_NOTI_USB_STATUS_TYPEDEF usb_status = *(PD_NOTI_USB_STATUS_TYPEDEF *)data;
 	struct otg_notify *o_notify = get_otg_notify();
 	struct usb_notifier_platform_data *pdata =
+<<<<<<< HEAD
 		container_of(nb, struct usb_notifier_platform_data, pdic_usb_nb);
+=======
+		container_of(nb, struct usb_notifier_platform_data, ccic_usb_nb);
+>>>>>>> upstream/android-13
 
 	if (usb_status.dest != PDIC_NOTIFY_DEV_USB)
 		return 0;
@@ -331,6 +459,10 @@ static int pdic_usb_handle_notification(struct notifier_block *nb,
 	return 0;
 }
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 static int muic_usb_handle_notification(struct notifier_block *nb,
 		unsigned long action, void *data)
@@ -356,7 +488,10 @@ static int muic_usb_handle_notification(struct notifier_block *nb,
 			pr_err("%s - ACTION Error!\n", __func__);
 		break;
 	default:
+<<<<<<< HEAD
 		send_otg_notify(o_notify, NOTIFY_EVENT_USB_CABLE, 0);
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 #else
@@ -370,6 +505,7 @@ static int muic_usb_handle_notification(struct notifier_block *nb,
 	case ATTACHED_DEV_CDP_MUIC:
 	case ATTACHED_DEV_UNOFFICIAL_ID_USB_MUIC:
 	case ATTACHED_DEV_UNOFFICIAL_ID_CDP_MUIC:
+<<<<<<< HEAD
 		if (action == MUIC_NOTIFY_CMD_DETACH) {
 			send_otg_notify(o_notify, NOTIFY_EVENT_USB_CABLE, 0);
 			send_otg_notify(o_notify, NOTIFY_EVENT_VBUS, 0);
@@ -379,6 +515,14 @@ static int muic_usb_handle_notification(struct notifier_block *nb,
 		} else
 			pr_err("%s - ACTION Error!\n", __func__);
 		break;
+=======
+		if (action == MUIC_NOTIFY_CMD_DETACH)
+			send_otg_notify(o_notify, NOTIFY_EVENT_USB_CABLE, 0);
+		else if (action == MUIC_NOTIFY_CMD_ATTACH)
+			send_otg_notify(o_notify, NOTIFY_EVENT_USB_CABLE, 1);
+		else
+			;
+>>>>>>> upstream/android-13
 	case ATTACHED_DEV_JIG_USB_OFF_MUIC:
 	case ATTACHED_DEV_JIG_USB_ON_MUIC:
 		if (action == MUIC_NOTIFY_CMD_DETACH)
@@ -463,6 +607,7 @@ static int muic_usb_handle_notification(struct notifier_block *nb,
 			pr_err("%s - ACTION Error!\n", __func__);
 		break;
 	default:
+<<<<<<< HEAD
 		send_otg_notify(o_notify, NOTIFY_EVENT_USB_CABLE, 0);
 		break;
 	}
@@ -471,6 +616,15 @@ static int muic_usb_handle_notification(struct notifier_block *nb,
 	return 0;
 }
 #endif
+=======
+		break;
+	}
+#endif
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
 static int vbus_handle_notification(struct notifier_block *nb,
 		unsigned long cmd, void *data)
@@ -499,7 +653,10 @@ static int vbus_handle_notification(struct notifier_block *nb,
 
 static int otg_accessory_power(bool enable)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_BATTERY_SAMSUNG)
+=======
+>>>>>>> upstream/android-13
 	u8 on = (u8)!!enable;
 	union power_supply_propval val;
 
@@ -508,17 +665,28 @@ static int otg_accessory_power(bool enable)
 	val.intval = enable;
 	psy_do_property("otg", set,
 			POWER_SUPPLY_PROP_ONLINE, val);
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int set_online(int event, int state)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_BATTERY_SAMSUNG)
 	union power_supply_propval val;
 #endif
 	struct device_node *np_charger = NULL;
 	char *charger_name;
+=======
+	union power_supply_propval val;
+	struct device_node *np_charger = NULL;
+	char *charger_name;
+	struct power_supply *psy_otg;
+>>>>>>> upstream/android-13
 
 	if (event == NOTIFY_EVENT_SMTD_EXT_CURRENT)
 		pr_info("request smartdock charging current = %s\n",
@@ -531,6 +699,7 @@ static int set_online(int event, int state)
 	if (!np_charger) {
 		pr_err("%s: failed to get the battery device node\n", __func__);
 		return 0;
+<<<<<<< HEAD
 	} else {
 		if (!of_property_read_string(np_charger, "battery,charger_name",
 					(char const **)&charger_name)) {
@@ -604,6 +773,85 @@ static int usb_set_chg_current(int state)
 #if IS_ENABLED(CONFIG_BATTERY_SAMSUNG)
 	union power_supply_propval val;
 #endif
+=======
+	}
+
+	psy_otg = get_power_supply_by_name("otg");
+	if (!psy_otg) {
+		pr_err("%s: fail to get battery power_supply_otg\n", __func__);
+		return 0;
+	}
+
+	if (!of_property_read_string(np_charger, "battery,charger_name",
+				(char const **)&charger_name)) {
+		pr_info("%s: charger_name = %s\n", __func__, charger_name);
+	} else {
+		pr_err("%s: failed to get the charger name\n", __func__);
+		return 0;
+	}
+
+	if (event == NOTIFY_EVENT_HMD_EXT_CURRENT) {
+		pr_info("HMD connection state = %s\n",
+				state ? "Connected" : "Disconnected");
+		val.intval = state;
+		psy_otg->desc->set_property(psy_otg,
+				POWER_SUPPLY_PROP_VOLTAGE_MAX, &val);
+	} else {
+		/* for KNOX DT charging */
+		pr_info("Knox Desktop connection state = %s\n",
+				state ? "Connected" : "Disconnected");
+		if (state)
+			val.intval = SEC_BATTERY_CABLE_SMART_NOTG;
+		else
+			val.intval = SEC_BATTERY_CABLE_NONE;
+
+		psy_do_property("battery", set,
+				POWER_SUPPLY_PROP_ONLINE, val);
+	}
+
+	return 0;
+}
+
+static int exynos_set_host(bool enable)
+{
+	if (!enable) {
+		pr_info("%s USB_HOST_DETACHED\n", __func__);
+#ifdef CONFIG_OF
+		check_usb_id_state(1);
+#endif
+	} else {
+		pr_info("%s USB_HOST_ATTACHED\n", __func__);
+#ifdef CONFIG_OF
+		check_usb_id_state(0);
+#endif
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
+extern void set_ncm_ready(bool ready);
+#endif
+static int exynos_set_peripheral(bool enable)
+{
+	if (enable) {
+		pr_info("%s usb attached\n", __func__);
+		check_usb_vbus_state(1);
+	} else {
+		pr_info("%s usb detached\n", __func__);
+		check_usb_vbus_state(0);
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
+		set_ncm_ready(false);
+#endif
+	}
+	return 0;
+}
+
+#if IS_ENABLED(CONFIG_BATTERY_SAMSUNG)
+static int usb_set_chg_current(int state)
+{
+	union power_supply_propval val;
+>>>>>>> upstream/android-13
 	struct device_node *np_charger = NULL;
 	char *charger_name;
 
@@ -625,7 +873,10 @@ static int usb_set_chg_current(int state)
 	/* current setting */
 	pr_info("usb : charging current set = %d\n", state);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_BATTERY_SAMSUNG)
+=======
+>>>>>>> upstream/android-13
 	switch (state) {
 	case NOTIFY_USB_SUSPENDED:
 		val.intval = USB_CURRENT_SUSPENDED;
@@ -640,12 +891,23 @@ static int usb_set_chg_current(int state)
 		val.intval = USB_CURRENT_HIGH_SPEED;
 		break;
 	}
+<<<<<<< HEAD
 	psy_do_property("battery", set,
 			POWER_SUPPLY_EXT_PROP_USB_CONFIGURE, val);
 #endif
 
 	return 0;
 }
+=======
+
+	psy_do_property("battery", set,
+			POWER_SUPPLY_EXT_PROP_USB_CONFIGURE, val);
+
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_USB_HW_PARAM)
 static int is_skip_list(int index)
 {
@@ -664,6 +926,10 @@ static int is_skip_list(int index)
 	case USB_HOST_CLASS_WIRELESS_COUNT:
 	case USB_HOST_CLASS_MISC_COUNT:
 	case USB_HOST_CLASS_APP_COUNT:
+<<<<<<< HEAD
+=======
+	case USB_HALL_FOLDING_COUNT:
+>>>>>>> upstream/android-13
 	case USB_HOST_CLASS_VENDOR_COUNT:
 	case USB_CCIC_FWUP_ERROR_COUNT:
 	case USB_CCIC_VERSION:
@@ -676,11 +942,19 @@ static int is_skip_list(int index)
 	return ret;
 }
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_USB_MTK_HDRC) || IS_ENABLED(CONFIG_USB_MTU3)
 static struct otg_notify musb_mtk_notify = {
 	.vbus_drive	= otg_accessory_power,
 	.set_host = mtk_set_host,
 	.set_peripheral	= mtk_set_peripheral,
+=======
+
+static struct otg_notify dwc_lsi_notify = {
+	.vbus_drive	= otg_accessory_power,
+	.set_host = exynos_set_host,
+	.set_peripheral	= exynos_set_peripheral,
+>>>>>>> upstream/android-13
 	.vbus_detect_gpio = -1,
 	.is_host_wakelock = 1,
 	.is_wakelock = 1,
@@ -694,17 +968,25 @@ static struct otg_notify musb_mtk_notify = {
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 	.set_ldo_onoff = usb_regulator_onoff,
 #endif
+<<<<<<< HEAD
 	.set_chg_current = usb_set_chg_current,
 	.pre_peri_delay_us = 6,
 #if defined(CONFIG_USB_OTG_WHITELIST_FOR_MDM)
 	.sec_whitelist_enable = 0,
+=======
+#if IS_ENABLED(CONFIG_BATTERY_SAMSUNG)
+	.set_chg_current = usb_set_chg_current,
+>>>>>>> upstream/android-13
 #endif
 #if defined(CONFIG_USB_HW_PARAM)
 	.is_skip_list = is_skip_list,
 #endif
 	.pre_peri_delay_us = 6,
 };
+<<<<<<< HEAD
 #endif	/* CONFIG_USB_MTK_HDRC */
+=======
+>>>>>>> upstream/android-13
 
 static int usb_notifier_probe(struct platform_device *pdev)
 {
@@ -714,10 +996,15 @@ static int usb_notifier_probe(struct platform_device *pdev)
 	if (pdev->dev.of_node) {
 		pdata = devm_kzalloc(&pdev->dev,
 			sizeof(struct usb_notifier_platform_data), GFP_KERNEL);
+<<<<<<< HEAD
 		if (!pdata) {
 			dev_err(&pdev->dev, "Failed to allocate memory\n");
 			return -ENOMEM;
 		}
+=======
+		if (!pdata)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 
 		ret = of_usb_notifier_dt(&pdev->dev, pdata);
 		if (ret < 0) {
@@ -729,6 +1016,7 @@ static int usb_notifier_probe(struct platform_device *pdev)
 	} else
 		pdata = pdev->dev.platform_data;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_USB_MTK_HDRC) || IS_ENABLED(CONFIG_USB_MTU3)
 	musb_mtk_notify.redriver_en_gpio = pdata->gpio_redriver_en;
 	musb_mtk_notify.disable_control = pdata->can_disable_usb;
@@ -737,10 +1025,20 @@ static int usb_notifier_probe(struct platform_device *pdev)
 	set_otg_notify(&musb_mtk_notify);
 	set_notify_data(&musb_mtk_notify, pdata);
 #endif
+=======
+	dwc_lsi_notify.redriver_en_gpio = pdata->gpio_redriver_en;
+	dwc_lsi_notify.disable_control = pdata->can_disable_usb;
+	dwc_lsi_notify.is_host_wakelock = pdata->host_wake_lock_enable;
+	dwc_lsi_notify.is_wakelock = pdata->device_wake_lock_enable;
+	set_otg_notify(&dwc_lsi_notify);
+	set_notify_data(&dwc_lsi_notify, pdata);
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 	pdata->usb_ldo_onoff = 0;
 	INIT_DELAYED_WORK(&pdata->usb_ldo_work,
 		  usb_ldo_off_control);
+<<<<<<< HEAD
 	pdata->is_host = 0;
 #endif
 
@@ -751,15 +1049,34 @@ static int usb_notifier_probe(struct platform_device *pdev)
 	pdic_notifier_register(&pdata->pdic_usb_nb, pdic_usb_handle_notification,
 				   PDIC_NOTIFY_DEV_USB);
 #endif
+=======
+#endif
+
+#if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
+	pdata->is_host = 0;
+#if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
+	manager_notifier_register(&pdata->ccic_usb_nb, ccic_usb_handle_notification,
+					MANAGER_NOTIFY_PDIC_USB);
+#else
+	pdic_notifier_register(&pdata->ccic_usb_nb, ccic_usb_handle_notification,
+				   PDIC_NOTIFY_DEV_USB);
+#endif
+#endif
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 	muic_notifier_register(&pdata->muic_usb_nb, muic_usb_handle_notification,
 			       MUIC_NOTIFY_DEV_USB);
 #endif
 #if IS_ENABLED(CONFIG_VBUS_NOTIFIER)
 	vbus_notifier_register(&pdata->vbus_nb, vbus_handle_notification,
+<<<<<<< HEAD
 			       VBUS_NOTIFY_DEV_MANAGER);
 #endif
 
+=======
+			       VBUS_NOTIFY_DEV_USB);
+#endif
+>>>>>>> upstream/android-13
 	dev_info(&pdev->dev, "usb notifier probe\n");
 	return 0;
 }
@@ -769,9 +1086,15 @@ static int usb_notifier_remove(struct platform_device *pdev)
 	struct usb_notifier_platform_data *pdata = dev_get_platdata(&pdev->dev);
 #if IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 #if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
+<<<<<<< HEAD
 	manager_notifier_unregister(&pdata->pdic_usb_nb);
 #else
 	pdic_notifier_unregister(&pdata->pdic_usb_nb);
+=======
+	manager_notifier_unregister(&pdata->ccic_usb_nb);
+#else
+	pdic_notifier_unregister(&pdata->ccic_usb_nb);
+>>>>>>> upstream/android-13
 #endif
 #elif IS_ENABLED(CONFIG_MUIC_NOTIFIER)
 	muic_notifier_unregister(&pdata->muic_usb_nb);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * budget-av.c: driver for the SAA7146 based Budget DVB cards
  *              with analog video in
@@ -12,6 +16,7 @@
  * Copyright (C) 1999-2002 Ralph  Metzler
  *                       & Marcus Metzler for convergence integrated media GmbH
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -27,6 +32,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 
@@ -1240,7 +1247,11 @@ static void frontend_init(struct budget_av *budget_av)
 		 * but so far it has been only confirmed for this type
 		 */
 		budget_av->reinitialise_demod = 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SUBID_DVBS_KNC1_PLUS:
 	case SUBID_DVBS_EASYWATCH_1:
 		if (saa->pci->subsystem_vendor == 0x1894) {
@@ -1484,7 +1495,11 @@ static int budget_av_attach(struct saa7146_dev *dev, struct saa7146_pci_extensio
 		vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
 		vv_data.vid_ops.vidioc_s_input = vidioc_s_input;
 
+<<<<<<< HEAD
 		if ((err = saa7146_register_device(&budget_av->vd, dev, "knc1", VFL_TYPE_GRABBER))) {
+=======
+		if ((err = saa7146_register_device(&budget_av->vd, dev, "knc1", VFL_TYPE_VIDEO))) {
+>>>>>>> upstream/android-13
 			/* fixme: proper cleanup here */
 			ERR("cannot register capture v4l2 device\n");
 			saa7146_vv_release(dev);

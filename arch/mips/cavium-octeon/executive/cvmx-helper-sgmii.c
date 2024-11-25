@@ -200,7 +200,11 @@ static int __cvmx_helper_sgmii_hardware_init_link(int interface, int index)
  */
 static int __cvmx_helper_sgmii_hardware_init_link_speed(int interface,
 							int index,
+<<<<<<< HEAD
 							cvmx_helper_link_info_t
+=======
+							union cvmx_helper_link_info
+>>>>>>> upstream/android-13
 							link_info)
 {
 	int is_enabled;
@@ -394,9 +398,15 @@ int __cvmx_helper_sgmii_enable(int interface)
  *
  * Returns Link state
  */
+<<<<<<< HEAD
 cvmx_helper_link_info_t __cvmx_helper_sgmii_link_get(int ipd_port)
 {
 	cvmx_helper_link_info_t result;
+=======
+union cvmx_helper_link_info __cvmx_helper_sgmii_link_get(int ipd_port)
+{
+	union cvmx_helper_link_info result;
+>>>>>>> upstream/android-13
 	union cvmx_pcsx_miscx_ctl_reg pcs_misc_ctl_reg;
 	int interface = cvmx_helper_get_interface_num(ipd_port);
 	int index = cvmx_helper_get_interface_index_num(ipd_port);
@@ -505,7 +515,11 @@ cvmx_helper_link_info_t __cvmx_helper_sgmii_link_get(int ipd_port)
  * Returns Zero on success, negative on failure
  */
 int __cvmx_helper_sgmii_link_set(int ipd_port,
+<<<<<<< HEAD
 				 cvmx_helper_link_info_t link_info)
+=======
+				 union cvmx_helper_link_info link_info)
+>>>>>>> upstream/android-13
 {
 	int interface = cvmx_helper_get_interface_num(ipd_port);
 	int index = cvmx_helper_get_interface_index_num(ipd_port);
@@ -513,6 +527,7 @@ int __cvmx_helper_sgmii_link_set(int ipd_port,
 	return __cvmx_helper_sgmii_hardware_init_link_speed(interface, index,
 							    link_info);
 }
+<<<<<<< HEAD
 
 /**
  * Configure a port for internal and/or external loopback. Internal
@@ -551,3 +566,5 @@ int __cvmx_helper_sgmii_configure_loopback(int ipd_port, int enable_internal,
 	__cvmx_helper_sgmii_hardware_init_link(interface, index);
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

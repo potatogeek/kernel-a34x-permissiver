@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008-2009 ST-Ericsson AB
  * License terms: GNU General Public License (GPL) version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008-2009 ST-Ericsson AB
+>>>>>>> upstream/android-13
  * TCM memory handling for ARM systems
  *
  * Author: Linus Walleij <linus.walleij@stericsson.com>
@@ -18,6 +24,10 @@
 #include <asm/memory.h>
 #include <asm/system_info.h>
 #include <asm/traps.h>
+<<<<<<< HEAD
+=======
+#include <asm/tcm.h>
+>>>>>>> upstream/android-13
 
 #define TCMTR_FORMAT_MASK	0xe0000000U
 
@@ -30,8 +40,13 @@ extern char __itcm_start, __sitcm_text, __eitcm_text;
 extern char __dtcm_start, __sdtcm_data, __edtcm_data;
 
 /* These will be increased as we run */
+<<<<<<< HEAD
 u32 dtcm_end = DTCM_OFFSET;
 u32 itcm_end = ITCM_OFFSET;
+=======
+static u32 dtcm_end = DTCM_OFFSET;
+static u32 itcm_end = ITCM_OFFSET;
+>>>>>>> upstream/android-13
 
 /*
  * TCM memory resources

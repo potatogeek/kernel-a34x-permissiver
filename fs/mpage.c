@@ -34,17 +34,27 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/android_fs.h>
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 EXPORT_TRACEPOINT_SYMBOL(android_fs_datawrite_start);
 EXPORT_TRACEPOINT_SYMBOL(android_fs_datawrite_end);
 EXPORT_TRACEPOINT_SYMBOL(android_fs_dataread_start);
 EXPORT_TRACEPOINT_SYMBOL(android_fs_dataread_end);
+<<<<<<< HEAD
 EXPORT_TRACEPOINT_SYMBOL(android_fs_fsync_start);
 EXPORT_TRACEPOINT_SYMBOL(android_fs_fsync_end);
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_F2FS_ML_BASED_STREAM_SEPARATION
 EXPORT_TRACEPOINT_SYMBOL(android_fs_datawrite_start_wb);
 EXPORT_TRACEPOINT_SYMBOL(android_fs_separation_start);
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * I/O completion handler for multipage BIOs.
  *
@@ -60,7 +70,11 @@ EXPORT_TRACEPOINT_SYMBOL(android_fs_separation_start);
 static void mpage_end_io(struct bio *bio)
 {
 	struct bio_vec *bv;
+<<<<<<< HEAD
 	int i;
+=======
+	struct bvec_iter_all iter_all;
+>>>>>>> upstream/android-13
 
 	if (trace_android_fs_dataread_end_enabled() &&
 	    (bio_data_dir(bio) == READ)) {
@@ -72,7 +86,11 @@ static void mpage_end_io(struct bio *bio)
 						      bio->bi_iter.bi_size);
 	}
 
+<<<<<<< HEAD
 	bio_for_each_segment_all(bv, bio, i) {
+=======
+	bio_for_each_segment_all(bv, bio, iter_all) {
+>>>>>>> upstream/android-13
 		struct page *page = bv->bv_page;
 		page_endio(page, bio_op(bio),
 			   blk_status_to_errno(bio->bi_status));
@@ -103,7 +121,11 @@ static struct bio *mpage_bio_submit(int op, int op_flags, struct bio *bio)
 	}
 	bio->bi_end_io = mpage_end_io;
 	bio_set_op_attrs(bio, op, op_flags);
+<<<<<<< HEAD
 	guard_bio_eod(op, bio);
+=======
+	guard_bio_eod(bio);
+>>>>>>> upstream/android-13
 	submit_bio(bio);
 	return NULL;
 }
@@ -132,7 +154,11 @@ mpage_alloc(struct block_device *bdev,
 }
 
 /*
+<<<<<<< HEAD
  * support function for mpage_readpages.  The fs supplied get_block might
+=======
+ * support function for mpage_readahead.  The fs supplied get_block might
+>>>>>>> upstream/android-13
  * return an up to date buffer.  This is used to map that buffer into
  * the page, which allows readpage to avoid triggering a duplicate call
  * to get_block.
@@ -345,9 +371,13 @@ alloc_new:
 				goto out;
 		}
 		args->bio = mpage_alloc(bdev, blocks[0] << (blkbits - 9),
+<<<<<<< HEAD
 					min_t(int, args->nr_pages,
 					      BIO_MAX_PAGES),
 					gfp);
+=======
+					bio_max_segs(args->nr_pages), gfp);
+>>>>>>> upstream/android-13
 		if (args->bio == NULL)
 			goto confused;
 	}
@@ -379,6 +409,7 @@ confused:
 }
 
 /**
+<<<<<<< HEAD
  * mpage_readpages - populate an address space with some pages & start reads against them
  * @mapping: the address_space
  * @pages: The address of a list_head which contains the target pages.  These
@@ -386,6 +417,10 @@ confused:
  *   The page at @pages->prev has the lowest file offset, and reads should be
  *   issued in @pages->prev to @pages->next order.
  * @nr_pages: The number of pages at *@pages
+=======
+ * mpage_readahead - start reads against pages
+ * @rac: Describes which pages to read.
+>>>>>>> upstream/android-13
  * @get_block: The filesystem's block mapper function.
  *
  * This function walks the pages and the blocks within each page, building and
@@ -422,14 +457,21 @@ confused:
  *
  * This all causes the disk requests to be issued in the correct order.
  */
+<<<<<<< HEAD
 int
 mpage_readpages(struct address_space *mapping, struct list_head *pages,
 				unsigned nr_pages, get_block_t get_block)
 {
+=======
+void mpage_readahead(struct readahead_control *rac, get_block_t get_block)
+{
+	struct page *page;
+>>>>>>> upstream/android-13
 	struct mpage_readpage_args args = {
 		.get_block = get_block,
 		.is_readahead = true,
 	};
+<<<<<<< HEAD
 	unsigned page_idx;
 
 	for (page_idx = 0; page_idx < nr_pages; page_idx++) {
@@ -452,6 +494,20 @@ mpage_readpages(struct address_space *mapping, struct list_head *pages,
 	return 0;
 }
 EXPORT_SYMBOL(mpage_readpages);
+=======
+
+	while ((page = readahead_page(rac))) {
+		prefetchw(&page->flags);
+		args.page = page;
+		args.nr_pages = readahead_count(rac);
+		args.bio = do_mpage_readpage(&args);
+		put_page(page);
+	}
+	if (args.bio)
+		mpage_bio_submit(REQ_OP_READ, REQ_RAHEAD, args.bio);
+}
+EXPORT_SYMBOL_NS(mpage_readahead, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * This isn't called much at all
@@ -469,7 +525,11 @@ int mpage_readpage(struct page *page, get_block_t get_block)
 		mpage_bio_submit(REQ_OP_READ, 0, args.bio);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mpage_readpage);
+=======
+EXPORT_SYMBOL_NS(mpage_readpage, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * Writing is not so simple.
@@ -604,7 +664,11 @@ static int __mpage_writepage(struct page *page, struct writeback_control *wbc,
 		 * Page has buffers, but they are all unmapped. The page was
 		 * created by pagein or read over a hole which was handled by
 		 * block_read_full_page().  If this address_space is also
+<<<<<<< HEAD
 		 * using mpage_readpages then this can rarely happen.
+=======
+		 * using mpage_readahead then this can rarely happen.
+>>>>>>> upstream/android-13
 		 */
 		goto confused;
 	}
@@ -675,7 +739,11 @@ alloc_new:
 				goto out;
 		}
 		bio = mpage_alloc(bdev, blocks[0] << (blkbits - 9),
+<<<<<<< HEAD
 				BIO_MAX_PAGES, GFP_NOFS|__GFP_HIGH);
+=======
+				BIO_MAX_VECS, GFP_NOFS|__GFP_HIGH);
+>>>>>>> upstream/android-13
 		if (bio == NULL)
 			goto confused;
 
@@ -688,7 +756,11 @@ alloc_new:
 	 * the confused fail path above (OOM) will be very confused when
 	 * it finds all bh marked clean (i.e. it will not write anything)
 	 */
+<<<<<<< HEAD
 	wbc_account_io(wbc, page, PAGE_SIZE);
+=======
+	wbc_account_cgroup_owner(wbc, page, PAGE_SIZE);
+>>>>>>> upstream/android-13
 	length = first_unmapped << blkbits;
 	if (bio_add_page(bio, page, length, 0) < length) {
 		bio = mpage_bio_submit(REQ_OP_WRITE, op_flags, bio);

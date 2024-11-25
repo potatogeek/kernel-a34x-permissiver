@@ -13,4 +13,8 @@
 include/generated/machtypes.h: $(src)/gen-mach-types $(src)/mach-types
 	@echo '  Generating $@'
 	$(Q)mkdir -p $(dir $@)
+<<<<<<< HEAD
 	$(Q)LC_ALL=C $(AWK) -f $^ > $@ || { rm -f $@; /bin/false; }
+=======
+	$(Q)LC_ALL=C $(AWK) -f $^ > $@
+>>>>>>> upstream/android-13

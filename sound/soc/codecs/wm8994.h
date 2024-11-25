@@ -1,14 +1,24 @@
+<<<<<<< HEAD
 /*
  * wm8994.h  --  WM8994 Soc Audio driver
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * wm8994.h  --  WM8994 Soc Audio driver
+>>>>>>> upstream/android-13
  */
 
 #ifndef _WM8994_H
 #define _WM8994_H
 
+<<<<<<< HEAD
+=======
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <sound/soc.h>
 #include <linux/firmware.h>
 #include <linux/completion.h>
@@ -17,6 +27,15 @@
 
 #include "wm_hubs.h"
 
+<<<<<<< HEAD
+=======
+enum {
+	WM8994_MCLK1,
+	WM8994_MCLK2,
+	WM8994_NUM_MCLK
+};
+
+>>>>>>> upstream/android-13
 /* Sources for AIF1/2 SYSCLK - use with set_dai_sysclk() */
 #define WM8994_SYSCLK_MCLK1 1
 #define WM8994_SYSCLK_MCLK2 2
@@ -46,7 +65,11 @@ typedef void (*wm1811_mic_id_cb)(void *data, u16 status);
 int wm8994_mic_detect(struct snd_soc_component *component, struct snd_soc_jack *jack,
 		      int micbias);
 int wm8958_mic_detect(struct snd_soc_component *component, struct snd_soc_jack *jack,
+<<<<<<< HEAD
 		      wm1811_micdet_cb cb, void *det_cb_data,
+=======
+		      wm1811_micdet_cb det_cb, void *det_cb_data,
+>>>>>>> upstream/android-13
 		      wm1811_mic_id_cb id_cb, void *id_cb_data);
 
 int wm8994_vmid_mode(struct snd_soc_component *component, enum wm8994_vmid_mode mode);
@@ -76,9 +99,16 @@ struct wm8994;
 struct wm8994_priv {
 	struct wm_hubs_data hubs;
 	struct wm8994 *wm8994;
+<<<<<<< HEAD
 	int sysclk[2];
 	int sysclk_rate[2];
 	int mclk[2];
+=======
+	struct clk_bulk_data mclk[WM8994_NUM_MCLK];
+	int sysclk[2];
+	int sysclk_rate[2];
+	int mclk_rate[2];
+>>>>>>> upstream/android-13
 	int aifclk[2];
 	int aifdiv[2];
 	int channels[2];

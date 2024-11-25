@@ -20,11 +20,28 @@
 
 static void posix_cpu_timer_rearm(struct k_itimer *timer);
 
+<<<<<<< HEAD
 /*
  * Called after updating RLIMIT_CPU to run cpu timer and update
  * tsk->signal->cputime_expires expiration cache if necessary. Needs
  * siglock protection since other code may update expiration cache as
  * well.
+=======
+void posix_cputimers_group_init(struct posix_cputimers *pct, u64 cpu_limit)
+{
+	posix_cputimers_init(pct);
+	if (cpu_limit != RLIM_INFINITY) {
+		pct->bases[CPUCLOCK_PROF].nextevt = cpu_limit * NSEC_PER_SEC;
+		pct->timers_active = true;
+	}
+}
+
+/*
+ * Called after updating RLIMIT_CPU to run cpu timer and update
+ * tsk->signal->posix_cputimers.bases[clock].nextevt expiration cache if
+ * necessary. Needs siglock protection since other code may update the
+ * expiration cache as well.
+>>>>>>> upstream/android-13
  */
 void update_rlimit_cpu(struct task_struct *task, unsigned long rlim_new)
 {
@@ -35,6 +52,7 @@ void update_rlimit_cpu(struct task_struct *task, unsigned long rlim_new)
 	spin_unlock_irq(&task->sighand->siglock);
 }
 
+<<<<<<< HEAD
 static int check_clock(const clockid_t which_clock)
 {
 	int error = 0;
@@ -56,12 +74,77 @@ static int check_clock(const clockid_t which_clock)
 	rcu_read_unlock();
 
 	return error;
+=======
+/*
+ * Functions for validating access to tasks.
+ */
+static struct pid *pid_for_clock(const clockid_t clock, bool gettime)
+{
+	const bool thread = !!CPUCLOCK_PERTHREAD(clock);
+	const pid_t upid = CPUCLOCK_PID(clock);
+	struct pid *pid;
+
+	if (CPUCLOCK_WHICH(clock) >= CPUCLOCK_MAX)
+		return NULL;
+
+	/*
+	 * If the encoded PID is 0, then the timer is targeted at current
+	 * or the process to which current belongs.
+	 */
+	if (upid == 0)
+		return thread ? task_pid(current) : task_tgid(current);
+
+	pid = find_vpid(upid);
+	if (!pid)
+		return NULL;
+
+	if (thread) {
+		struct task_struct *tsk = pid_task(pid, PIDTYPE_PID);
+		return (tsk && same_thread_group(tsk, current)) ? pid : NULL;
+	}
+
+	/*
+	 * For clock_gettime(PROCESS) allow finding the process by
+	 * with the pid of the current task.  The code needs the tgid
+	 * of the process so that pid_task(pid, PIDTYPE_TGID) can be
+	 * used to find the process.
+	 */
+	if (gettime && (pid == task_pid(current)))
+		return task_tgid(current);
+
+	/*
+	 * For processes require that pid identifies a process.
+	 */
+	return pid_has_task(pid, PIDTYPE_TGID) ? pid : NULL;
+}
+
+static inline int validate_clock_permissions(const clockid_t clock)
+{
+	int ret;
+
+	rcu_read_lock();
+	ret = pid_for_clock(clock, false) ? 0 : -EINVAL;
+	rcu_read_unlock();
+
+	return ret;
+}
+
+static inline enum pid_type clock_pid_type(const clockid_t clock)
+{
+	return CPUCLOCK_PERTHREAD(clock) ? PIDTYPE_PID : PIDTYPE_TGID;
+}
+
+static inline struct task_struct *cpu_timer_task_rcu(struct k_itimer *timer)
+{
+	return pid_task(timer->it.cpu.pid, clock_pid_type(timer->it_clock));
+>>>>>>> upstream/android-13
 }
 
 /*
  * Update expiry time from increment, and increase overrun count,
  * given the current clock sample.
  */
+<<<<<<< HEAD
 static void bump_cpu_timer(struct k_itimer *timer, u64 now)
 {
 	int i;
@@ -75,6 +158,21 @@ static void bump_cpu_timer(struct k_itimer *timer, u64 now)
 
 	incr = timer->it.cpu.incr;
 	delta = now + incr - timer->it.cpu.expires;
+=======
+static u64 bump_cpu_timer(struct k_itimer *timer, u64 now)
+{
+	u64 delta, incr, expires = timer->it.cpu.node.expires;
+	int i;
+
+	if (!timer->it_interval)
+		return expires;
+
+	if (now < expires)
+		return expires;
+
+	incr = timer->it_interval;
+	delta = now + incr - expires;
+>>>>>>> upstream/android-13
 
 	/* Don't use (incr*2 < delta), incr*2 might overflow. */
 	for (i = 0; incr < delta - incr; i++)
@@ -84,6 +182,7 @@ static void bump_cpu_timer(struct k_itimer *timer, u64 now)
 		if (delta < incr)
 			continue;
 
+<<<<<<< HEAD
 		timer->it.cpu.expires += incr;
 		timer->it_overrun += 1LL << i;
 		delta -= incr;
@@ -120,12 +219,32 @@ static inline u64 virt_ticks(struct task_struct *p)
 	task_cputime(p, &utime, &stime);
 
 	return utime;
+=======
+		timer->it.cpu.node.expires += incr;
+		timer->it_overrun += 1LL << i;
+		delta -= incr;
+	}
+	return timer->it.cpu.node.expires;
+}
+
+/* Check whether all cache entries contain U64_MAX, i.e. eternal expiry time */
+static inline bool expiry_cache_is_inactive(const struct posix_cputimers *pct)
+{
+	return !(~pct->bases[CPUCLOCK_PROF].nextevt |
+		 ~pct->bases[CPUCLOCK_VIRT].nextevt |
+		 ~pct->bases[CPUCLOCK_SCHED].nextevt);
+>>>>>>> upstream/android-13
 }
 
 static int
 posix_cpu_clock_getres(const clockid_t which_clock, struct timespec64 *tp)
 {
+<<<<<<< HEAD
 	int error = check_clock(which_clock);
+=======
+	int error = validate_clock_permissions(which_clock);
+
+>>>>>>> upstream/android-13
 	if (!error) {
 		tp->tv_sec = 0;
 		tp->tv_nsec = ((NSEC_PER_SEC + HZ - 1) / HZ);
@@ -142,12 +261,20 @@ posix_cpu_clock_getres(const clockid_t which_clock, struct timespec64 *tp)
 }
 
 static int
+<<<<<<< HEAD
 posix_cpu_clock_set(const clockid_t which_clock, const struct timespec64 *tp)
 {
+=======
+posix_cpu_clock_set(const clockid_t clock, const struct timespec64 *tp)
+{
+	int error = validate_clock_permissions(clock);
+
+>>>>>>> upstream/android-13
 	/*
 	 * You can never reset a CPU clock, but we check for other errors
 	 * in the call before failing with EPERM.
 	 */
+<<<<<<< HEAD
 	int error = check_clock(which_clock);
 	if (error == 0) {
 		error = -EPERM;
@@ -174,10 +301,63 @@ static int cpu_clock_sample(const clockid_t which_clock,
 	case CPUCLOCK_SCHED:
 		*sample = task_sched_runtime(p);
 		break;
+=======
+	return error ? : -EPERM;
+}
+
+/*
+ * Sample a per-thread clock for the given task. clkid is validated.
+ */
+static u64 cpu_clock_sample(const clockid_t clkid, struct task_struct *p)
+{
+	u64 utime, stime;
+
+	if (clkid == CPUCLOCK_SCHED)
+		return task_sched_runtime(p);
+
+	task_cputime(p, &utime, &stime);
+
+	switch (clkid) {
+	case CPUCLOCK_PROF:
+		return utime + stime;
+	case CPUCLOCK_VIRT:
+		return utime;
+	default:
+		WARN_ON_ONCE(1);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline void store_samples(u64 *samples, u64 stime, u64 utime, u64 rtime)
+{
+	samples[CPUCLOCK_PROF] = stime + utime;
+	samples[CPUCLOCK_VIRT] = utime;
+	samples[CPUCLOCK_SCHED] = rtime;
+}
+
+static void task_sample_cputime(struct task_struct *p, u64 *samples)
+{
+	u64 stime, utime;
+
+	task_cputime(p, &utime, &stime);
+	store_samples(samples, stime, utime, p->se.sum_exec_runtime);
+}
+
+static void proc_sample_cputime_atomic(struct task_cputime_atomic *at,
+				       u64 *samples)
+{
+	u64 stime, utime, rtime;
+
+	utime = atomic64_read(&at->utime);
+	stime = atomic64_read(&at->stime);
+	rtime = atomic64_read(&at->sum_exec_runtime);
+	store_samples(samples, stime, utime, rtime);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Set cputime to sum_cputime if sum_cputime > cputime. Use cmpxchg
  * to avoid race conditions with concurrent updates to cputime.
@@ -193,13 +373,19 @@ retry:
 	}
 }
 
+<<<<<<< HEAD
 static void update_gt_cputime(struct task_cputime_atomic *cputime_atomic, struct task_cputime *sum)
+=======
+static void update_gt_cputime(struct task_cputime_atomic *cputime_atomic,
+			      struct task_cputime *sum)
+>>>>>>> upstream/android-13
 {
 	__update_gt_cputime(&cputime_atomic->utime, sum->utime);
 	__update_gt_cputime(&cputime_atomic->stime, sum->stime);
 	__update_gt_cputime(&cputime_atomic->sum_exec_runtime, sum->sum_exec_runtime);
 }
 
+<<<<<<< HEAD
 /* Sample task_cputime_atomic values in "atomic_timers", store results in "times". */
 static inline void sample_cputime_atomic(struct task_cputime *times,
 					 struct task_cputime_atomic *atomic_times)
@@ -216,6 +402,52 @@ void thread_group_cputimer(struct task_struct *tsk, struct task_cputime *times)
 
 	/* Check if cputimer isn't running. This is accessed without locking. */
 	if (!READ_ONCE(cputimer->running)) {
+=======
+/**
+ * thread_group_sample_cputime - Sample cputime for a given task
+ * @tsk:	Task for which cputime needs to be started
+ * @samples:	Storage for time samples
+ *
+ * Called from sys_getitimer() to calculate the expiry time of an active
+ * timer. That means group cputime accounting is already active. Called
+ * with task sighand lock held.
+ *
+ * Updates @times with an uptodate sample of the thread group cputimes.
+ */
+void thread_group_sample_cputime(struct task_struct *tsk, u64 *samples)
+{
+	struct thread_group_cputimer *cputimer = &tsk->signal->cputimer;
+	struct posix_cputimers *pct = &tsk->signal->posix_cputimers;
+
+	WARN_ON_ONCE(!pct->timers_active);
+
+	proc_sample_cputime_atomic(&cputimer->cputime_atomic, samples);
+}
+
+/**
+ * thread_group_start_cputime - Start cputime and return a sample
+ * @tsk:	Task for which cputime needs to be started
+ * @samples:	Storage for time samples
+ *
+ * The thread group cputime accounting is avoided when there are no posix
+ * CPU timers armed. Before starting a timer it's required to check whether
+ * the time accounting is active. If not, a full update of the atomic
+ * accounting store needs to be done and the accounting enabled.
+ *
+ * Updates @times with an uptodate sample of the thread group cputimes.
+ */
+static void thread_group_start_cputime(struct task_struct *tsk, u64 *samples)
+{
+	struct thread_group_cputimer *cputimer = &tsk->signal->cputimer;
+	struct posix_cputimers *pct = &tsk->signal->posix_cputimers;
+
+	lockdep_assert_task_sighand_held(tsk);
+
+	/* Check if cputimer isn't running. This is accessed without locking. */
+	if (!READ_ONCE(pct->timers_active)) {
+		struct task_cputime sum;
+
+>>>>>>> upstream/android-13
 		/*
 		 * The POSIX timer interface allows for absolute time expiry
 		 * values through the TIMER_ABSTIME flag, therefore we have
@@ -225,6 +457,7 @@ void thread_group_cputimer(struct task_struct *tsk, struct task_cputime *times)
 		update_gt_cputime(&cputimer->cputime_atomic, &sum);
 
 		/*
+<<<<<<< HEAD
 		 * We're setting cputimer->running without a lock. Ensure
 		 * this only gets written to in one operation. We set
 		 * running after update_gt_cputime() as a small optimization,
@@ -313,6 +546,72 @@ static int posix_cpu_clock_get(const clockid_t which_clock, struct timespec64 *t
 	}
 
 	return err;
+=======
+		 * We're setting timers_active without a lock. Ensure this
+		 * only gets written to in one operation. We set it after
+		 * update_gt_cputime() as a small optimization, but
+		 * barriers are not required because update_gt_cputime()
+		 * can handle concurrent updates.
+		 */
+		WRITE_ONCE(pct->timers_active, true);
+	}
+	proc_sample_cputime_atomic(&cputimer->cputime_atomic, samples);
+}
+
+static void __thread_group_cputime(struct task_struct *tsk, u64 *samples)
+{
+	struct task_cputime ct;
+
+	thread_group_cputime(tsk, &ct);
+	store_samples(samples, ct.stime, ct.utime, ct.sum_exec_runtime);
+}
+
+/*
+ * Sample a process (thread group) clock for the given task clkid. If the
+ * group's cputime accounting is already enabled, read the atomic
+ * store. Otherwise a full update is required.  clkid is already validated.
+ */
+static u64 cpu_clock_sample_group(const clockid_t clkid, struct task_struct *p,
+				  bool start)
+{
+	struct thread_group_cputimer *cputimer = &p->signal->cputimer;
+	struct posix_cputimers *pct = &p->signal->posix_cputimers;
+	u64 samples[CPUCLOCK_MAX];
+
+	if (!READ_ONCE(pct->timers_active)) {
+		if (start)
+			thread_group_start_cputime(p, samples);
+		else
+			__thread_group_cputime(p, samples);
+	} else {
+		proc_sample_cputime_atomic(&cputimer->cputime_atomic, samples);
+	}
+
+	return samples[clkid];
+}
+
+static int posix_cpu_clock_get(const clockid_t clock, struct timespec64 *tp)
+{
+	const clockid_t clkid = CPUCLOCK_WHICH(clock);
+	struct task_struct *tsk;
+	u64 t;
+
+	rcu_read_lock();
+	tsk = pid_task(pid_for_clock(clock, true), clock_pid_type(clock));
+	if (!tsk) {
+		rcu_read_unlock();
+		return -EINVAL;
+	}
+
+	if (CPUCLOCK_PERTHREAD(clock))
+		t = cpu_clock_sample(clkid, tsk);
+	else
+		t = cpu_clock_sample_group(clkid, tsk, false);
+	rcu_read_unlock();
+
+	*tp = ns_to_timespec64(t);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -322,6 +621,7 @@ static int posix_cpu_clock_get(const clockid_t which_clock, struct timespec64 *t
  */
 static int posix_cpu_timer_create(struct k_itimer *new_timer)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	const pid_t pid = CPUCLOCK_PID(new_timer->it_clock);
 	struct task_struct *p;
@@ -362,6 +662,85 @@ static int posix_cpu_timer_create(struct k_itimer *new_timer)
 	return ret;
 }
 
+=======
+	static struct lock_class_key posix_cpu_timers_key;
+	struct pid *pid;
+
+	rcu_read_lock();
+	pid = pid_for_clock(new_timer->it_clock, false);
+	if (!pid) {
+		rcu_read_unlock();
+		return -EINVAL;
+	}
+
+	/*
+	 * If posix timer expiry is handled in task work context then
+	 * timer::it_lock can be taken without disabling interrupts as all
+	 * other locking happens in task context. This requires a separate
+	 * lock class key otherwise regular posix timer expiry would record
+	 * the lock class being taken in interrupt context and generate a
+	 * false positive warning.
+	 */
+	if (IS_ENABLED(CONFIG_POSIX_CPU_TIMERS_TASK_WORK))
+		lockdep_set_class(&new_timer->it_lock, &posix_cpu_timers_key);
+
+	new_timer->kclock = &clock_posix_cpu;
+	timerqueue_init(&new_timer->it.cpu.node);
+	new_timer->it.cpu.pid = get_pid(pid);
+	rcu_read_unlock();
+	return 0;
+}
+
+static struct posix_cputimer_base *timer_base(struct k_itimer *timer,
+					      struct task_struct *tsk)
+{
+	int clkidx = CPUCLOCK_WHICH(timer->it_clock);
+
+	if (CPUCLOCK_PERTHREAD(timer->it_clock))
+		return tsk->posix_cputimers.bases + clkidx;
+	else
+		return tsk->signal->posix_cputimers.bases + clkidx;
+}
+
+/*
+ * Force recalculating the base earliest expiration on the next tick.
+ * This will also re-evaluate the need to keep around the process wide
+ * cputime counter and tick dependency and eventually shut these down
+ * if necessary.
+ */
+static void trigger_base_recalc_expires(struct k_itimer *timer,
+					struct task_struct *tsk)
+{
+	struct posix_cputimer_base *base = timer_base(timer, tsk);
+
+	base->nextevt = 0;
+}
+
+/*
+ * Dequeue the timer and reset the base if it was its earliest expiration.
+ * It makes sure the next tick recalculates the base next expiration so we
+ * don't keep the costly process wide cputime counter around for a random
+ * amount of time, along with the tick dependency.
+ *
+ * If another timer gets queued between this and the next tick, its
+ * expiration will update the base next event if necessary on the next
+ * tick.
+ */
+static void disarm_timer(struct k_itimer *timer, struct task_struct *p)
+{
+	struct cpu_timer *ctmr = &timer->it.cpu;
+	struct posix_cputimer_base *base;
+
+	if (!cpu_timer_dequeue(ctmr))
+		return;
+
+	base = timer_base(timer, p);
+	if (cpu_timer_getexpires(ctmr) == base->nextevt)
+		trigger_base_recalc_expires(timer, p);
+}
+
+
+>>>>>>> upstream/android-13
 /*
  * Clean up a CPU-clock timer that is about to be destroyed.
  * This is called from timer deletion with the timer already locked.
@@ -370,6 +749,7 @@ static int posix_cpu_timer_create(struct k_itimer *new_timer)
  */
 static int posix_cpu_timer_del(struct k_itimer *timer)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	unsigned long flags;
 	struct sighand_struct *sighand;
@@ -377,6 +757,18 @@ static int posix_cpu_timer_del(struct k_itimer *timer)
 
 	if (WARN_ON_ONCE(!p))
 		return -EINVAL;
+=======
+	struct cpu_timer *ctmr = &timer->it.cpu;
+	struct sighand_struct *sighand;
+	struct task_struct *p;
+	unsigned long flags;
+	int ret = 0;
+
+	rcu_read_lock();
+	p = cpu_timer_task_rcu(timer);
+	if (!p)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Protect against sighand release/switch in exit/exec and process/
@@ -385,25 +777,44 @@ static int posix_cpu_timer_del(struct k_itimer *timer)
 	sighand = lock_task_sighand(p, &flags);
 	if (unlikely(sighand == NULL)) {
 		/*
+<<<<<<< HEAD
 		 * We raced with the reaping of the task.
 		 * The deletion should have cleared us off the list.
 		 */
 		WARN_ON_ONCE(!list_empty(&timer->it.cpu.entry));
+=======
+		 * This raced with the reaping of the task. The exit cleanup
+		 * should have removed this timer from the timer queue.
+		 */
+		WARN_ON_ONCE(ctmr->head || timerqueue_node_queued(&ctmr->node));
+>>>>>>> upstream/android-13
 	} else {
 		if (timer->it.cpu.firing)
 			ret = TIMER_RETRY;
 		else
+<<<<<<< HEAD
 			list_del(&timer->it.cpu.entry);
+=======
+			disarm_timer(timer, p);
+>>>>>>> upstream/android-13
 
 		unlock_task_sighand(p, &flags);
 	}
 
+<<<<<<< HEAD
 	if (!ret)
 		put_task_struct(p);
+=======
+out:
+	rcu_read_unlock();
+	if (!ret)
+		put_pid(ctmr->pid);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static void cleanup_timers_list(struct list_head *head)
 {
 	struct cpu_timer_list *timer, *next;
@@ -423,6 +834,32 @@ static void cleanup_timers(struct list_head *head)
 	cleanup_timers_list(head);
 	cleanup_timers_list(++head);
 	cleanup_timers_list(++head);
+=======
+static void cleanup_timerqueue(struct timerqueue_head *head)
+{
+	struct timerqueue_node *node;
+	struct cpu_timer *ctmr;
+
+	while ((node = timerqueue_getnext(head))) {
+		timerqueue_del(head, node);
+		ctmr = container_of(node, struct cpu_timer, node);
+		ctmr->head = NULL;
+	}
+}
+
+/*
+ * Clean out CPU timers which are still armed when a thread exits. The
+ * timers are only removed from the list. No other updates are done. The
+ * corresponding posix timers are still accessible, but cannot be rearmed.
+ *
+ * This must be called with the siglock held.
+ */
+static void cleanup_timers(struct posix_cputimers *pct)
+{
+	cleanup_timerqueue(&pct->bases[CPUCLOCK_PROF].tqhead);
+	cleanup_timerqueue(&pct->bases[CPUCLOCK_VIRT].tqhead);
+	cleanup_timerqueue(&pct->bases[CPUCLOCK_SCHED].tqhead);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -432,6 +869,7 @@ static void cleanup_timers(struct list_head *head)
  */
 void posix_cpu_timers_exit(struct task_struct *tsk)
 {
+<<<<<<< HEAD
 	cleanup_timers(tsk->cpu_timers);
 }
 void posix_cpu_timers_exit_group(struct task_struct *tsk)
@@ -442,12 +880,20 @@ void posix_cpu_timers_exit_group(struct task_struct *tsk)
 static inline int expires_gt(u64 expires, u64 new_exp)
 {
 	return expires == 0 || expires > new_exp;
+=======
+	cleanup_timers(&tsk->posix_cputimers);
+}
+void posix_cpu_timers_exit_group(struct task_struct *tsk)
+{
+	cleanup_timers(&tsk->signal->posix_cputimers);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Insert the timer on the appropriate list before any timers that
  * expire later.  This must be called with the sighand lock held.
  */
+<<<<<<< HEAD
 static void arm_timer(struct k_itimer *timer)
 {
 	struct task_struct *p = timer->it.cpu.task;
@@ -502,6 +948,30 @@ static void arm_timer(struct k_itimer *timer)
 		else
 			tick_dep_set_signal(p->signal, TICK_DEP_BIT_POSIX_TIMER);
 	}
+=======
+static void arm_timer(struct k_itimer *timer, struct task_struct *p)
+{
+	struct posix_cputimer_base *base = timer_base(timer, p);
+	struct cpu_timer *ctmr = &timer->it.cpu;
+	u64 newexp = cpu_timer_getexpires(ctmr);
+
+	if (!cpu_timer_enqueue(&base->tqhead, ctmr))
+		return;
+
+	/*
+	 * We are the new earliest-expiring POSIX 1.b timer, hence
+	 * need to update expiration cache. Take into account that
+	 * for process timers we share expiration cache with itimers
+	 * and RLIMIT_CPU and for thread timers with RLIMIT_RTTIME.
+	 */
+	if (newexp < base->nextevt)
+		base->nextevt = newexp;
+
+	if (CPUCLOCK_PERTHREAD(timer->it_clock))
+		tick_dep_set_task(p, TICK_DEP_BIT_POSIX_TIMER);
+	else
+		tick_dep_set_signal(p, TICK_DEP_BIT_POSIX_TIMER);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -509,24 +979,42 @@ static void arm_timer(struct k_itimer *timer)
  */
 static void cpu_timer_fire(struct k_itimer *timer)
 {
+<<<<<<< HEAD
+=======
+	struct cpu_timer *ctmr = &timer->it.cpu;
+
+>>>>>>> upstream/android-13
 	if ((timer->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE) {
 		/*
 		 * User don't want any signal.
 		 */
+<<<<<<< HEAD
 		timer->it.cpu.expires = 0;
+=======
+		cpu_timer_setexpires(ctmr, 0);
+>>>>>>> upstream/android-13
 	} else if (unlikely(timer->sigq == NULL)) {
 		/*
 		 * This a special case for clock_nanosleep,
 		 * not a normal timer from sys_timer_create.
 		 */
 		wake_up_process(timer->it_process);
+<<<<<<< HEAD
 		timer->it.cpu.expires = 0;
 	} else if (timer->it.cpu.incr == 0) {
+=======
+		cpu_timer_setexpires(ctmr, 0);
+	} else if (!timer->it_interval) {
+>>>>>>> upstream/android-13
 		/*
 		 * One-shot timer.  Clear it as soon as it's fired.
 		 */
 		posix_timer_event(timer, 0);
+<<<<<<< HEAD
 		timer->it.cpu.expires = 0;
+=======
+		cpu_timer_setexpires(ctmr, 0);
+>>>>>>> upstream/android-13
 	} else if (posix_timer_event(timer, ++timer->it_requeue_pending)) {
 		/*
 		 * The signal did not get queued because the signal
@@ -540,6 +1028,7 @@ static void cpu_timer_fire(struct k_itimer *timer)
 }
 
 /*
+<<<<<<< HEAD
  * Sample a process (thread group) timer for the given group_leader task.
  * Must be called with task sighand lock held for safe while_each_thread()
  * traversal.
@@ -567,6 +1056,8 @@ static int cpu_timer_sample_group(const clockid_t which_clock,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Guts of sys_timer_settime for CPU timers.
  * This is called with the timer locked and interrupts disabled.
  * If we return TIMER_RETRY, it's necessary to release the timer's lock
@@ -575,6 +1066,7 @@ static int cpu_timer_sample_group(const clockid_t which_clock,
 static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 			       struct itimerspec64 *new, struct itimerspec64 *old)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	struct sighand_struct *sighand;
 	struct task_struct *p = timer->it.cpu.task;
@@ -583,6 +1075,26 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 
 	if (WARN_ON_ONCE(!p))
 		return -EINVAL;
+=======
+	clockid_t clkid = CPUCLOCK_WHICH(timer->it_clock);
+	u64 old_expires, new_expires, old_incr, val;
+	struct cpu_timer *ctmr = &timer->it.cpu;
+	struct sighand_struct *sighand;
+	struct task_struct *p;
+	unsigned long flags;
+	int ret = 0;
+
+	rcu_read_lock();
+	p = cpu_timer_task_rcu(timer);
+	if (!p) {
+		/*
+		 * If p has just been reaped, we can no
+		 * longer get any information about it at all.
+		 */
+		rcu_read_unlock();
+		return -ESRCH;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Use the to_ktime conversion because that clamps the maximum
@@ -600,12 +1112,17 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 	 * longer get any information about it at all.
 	 */
 	if (unlikely(sighand == NULL)) {
+<<<<<<< HEAD
+=======
+		rcu_read_unlock();
+>>>>>>> upstream/android-13
 		return -ESRCH;
 	}
 
 	/*
 	 * Disarm any old timer after extracting its expiry time.
 	 */
+<<<<<<< HEAD
 
 	ret = 0;
 	old_incr = timer->it.cpu.incr;
@@ -615,6 +1132,17 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 		ret = TIMER_RETRY;
 	} else
 		list_del_init(&timer->it.cpu.entry);
+=======
+	old_incr = timer->it_interval;
+	old_expires = cpu_timer_getexpires(ctmr);
+
+	if (unlikely(timer->it.cpu.firing)) {
+		timer->it.cpu.firing = -1;
+		ret = TIMER_RETRY;
+	} else {
+		cpu_timer_dequeue(ctmr);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * We need to sample the current value to convert the new
@@ -624,11 +1152,18 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 	 * times (in arm_timer).  With an absolute time, we must
 	 * check if it's already passed.  In short, we need a sample.
 	 */
+<<<<<<< HEAD
 	if (CPUCLOCK_PERTHREAD(timer->it_clock)) {
 		cpu_clock_sample(timer->it_clock, p, &val);
 	} else {
 		cpu_timer_sample_group(timer->it_clock, p, &val);
 	}
+=======
+	if (CPUCLOCK_PERTHREAD(timer->it_clock))
+		val = cpu_clock_sample(clkid, p);
+	else
+		val = cpu_clock_sample_group(clkid, p, true);
+>>>>>>> upstream/android-13
 
 	if (old) {
 		if (old_expires == 0) {
@@ -636,6 +1171,7 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 			old->it_value.tv_nsec = 0;
 		} else {
 			/*
+<<<<<<< HEAD
 			 * Update the timer in case it has
 			 * overrun already.  If it has,
 			 * we'll report it as having overrun
@@ -648,6 +1184,18 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 			bump_cpu_timer(timer, val);
 			if (val < timer->it.cpu.expires) {
 				old_expires = timer->it.cpu.expires - val;
+=======
+			 * Update the timer in case it has overrun already.
+			 * If it has, we'll report it as having overrun and
+			 * with the next reloaded timer already ticking,
+			 * though we are swallowing that pending
+			 * notification here to install the new setting.
+			 */
+			u64 exp = bump_cpu_timer(timer, val);
+
+			if (val < exp) {
+				old_expires = exp - val;
+>>>>>>> upstream/android-13
 				old->it_value = ns_to_timespec64(old_expires);
 			} else {
 				old->it_value.tv_nsec = 1;
@@ -676,9 +1224,15 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 	 * For a timer with no notification action, we don't actually
 	 * arm the timer (we'll just fake it for timer_gettime).
 	 */
+<<<<<<< HEAD
 	timer->it.cpu.expires = new_expires;
 	if (new_expires != 0 && val < new_expires) {
 		arm_timer(timer);
+=======
+	cpu_timer_setexpires(ctmr, new_expires);
+	if (new_expires != 0 && val < new_expires) {
+		arm_timer(timer, p);
+>>>>>>> upstream/android-13
 	}
 
 	unlock_task_sighand(p, &flags);
@@ -686,8 +1240,12 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 	 * Install the new reload setting, and
 	 * set up the signal and overrun bookkeeping.
 	 */
+<<<<<<< HEAD
 	timer->it.cpu.incr = timespec64_to_ns(&new->it_interval);
 	timer->it_interval = ns_to_ktime(timer->it.cpu.incr);
+=======
+	timer->it_interval = timespec64_to_ktime(new->it_interval);
+>>>>>>> upstream/android-13
 
 	/*
 	 * This acts as a modification timestamp for the timer,
@@ -699,6 +1257,7 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 	timer->it_overrun_last = 0;
 	timer->it_overrun = -1;
 
+<<<<<<< HEAD
 	if (new_expires != 0 && !(val < new_expires)) {
 		/*
 		 * The designated time already passed, so we notify
@@ -710,6 +1269,33 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 
 	ret = 0;
  out:
+=======
+	if (val >= new_expires) {
+		if (new_expires != 0) {
+			/*
+			 * The designated time already passed, so we notify
+			 * immediately, even if the thread never runs to
+			 * accumulate more time on this clock.
+			 */
+			cpu_timer_fire(timer);
+		}
+
+		/*
+		 * Make sure we don't keep around the process wide cputime
+		 * counter or the tick dependency if they are not necessary.
+		 */
+		sighand = lock_task_sighand(p, &flags);
+		if (!sighand)
+			goto out;
+
+		if (!cpu_timer_queued(ctmr))
+			trigger_base_recalc_expires(timer, p);
+
+		unlock_task_sighand(p, &flags);
+	}
+ out:
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	if (old)
 		old->it_interval = ns_to_timespec64(old_incr);
 
@@ -718,23 +1304,43 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
 
 static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp)
 {
+<<<<<<< HEAD
 	struct task_struct *p = timer->it.cpu.task;
 	u64 now;
 
 	if (WARN_ON_ONCE(!p))
 		return;
+=======
+	clockid_t clkid = CPUCLOCK_WHICH(timer->it_clock);
+	struct cpu_timer *ctmr = &timer->it.cpu;
+	u64 now, expires = cpu_timer_getexpires(ctmr);
+	struct task_struct *p;
+
+	rcu_read_lock();
+	p = cpu_timer_task_rcu(timer);
+	if (!p)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Easy part: convert the reload time.
 	 */
+<<<<<<< HEAD
 	itp->it_interval = ns_to_timespec64(timer->it.cpu.incr);
 
 	if (!timer->it.cpu.expires)
 		return;
+=======
+	itp->it_interval = ktime_to_timespec64(timer->it_interval);
+
+	if (!expires)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Sample the clock to take the difference with the expiry time.
 	 */
+<<<<<<< HEAD
 	if (CPUCLOCK_PERTHREAD(timer->it_clock)) {
 		cpu_clock_sample(timer->it_clock, p, &now);
 	} else {
@@ -763,6 +1369,15 @@ static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp
 
 	if (now < timer->it.cpu.expires) {
 		itp->it_value = ns_to_timespec64(timer->it.cpu.expires - now);
+=======
+	if (CPUCLOCK_PERTHREAD(timer->it_clock))
+		now = cpu_clock_sample(clkid, p);
+	else
+		now = cpu_clock_sample_group(clkid, p, false);
+
+	if (now < expires) {
+		itp->it_value = ns_to_timespec64(expires - now);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * The timer should have expired already, but the firing
@@ -771,6 +1386,7 @@ static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp
 		itp->it_value.tv_nsec = 1;
 		itp->it_value.tv_sec = 0;
 	}
+<<<<<<< HEAD
 }
 
 static unsigned long long
@@ -793,6 +1409,48 @@ check_timers_list(struct list_head *timers,
 	}
 
 	return 0;
+=======
+out:
+	rcu_read_unlock();
+}
+
+#define MAX_COLLECTED	20
+
+static u64 collect_timerqueue(struct timerqueue_head *head,
+			      struct list_head *firing, u64 now)
+{
+	struct timerqueue_node *next;
+	int i = 0;
+
+	while ((next = timerqueue_getnext(head))) {
+		struct cpu_timer *ctmr;
+		u64 expires;
+
+		ctmr = container_of(next, struct cpu_timer, node);
+		expires = cpu_timer_getexpires(ctmr);
+		/* Limit the number of timers to expire at once */
+		if (++i == MAX_COLLECTED || now < expires)
+			return expires;
+
+		ctmr->firing = 1;
+		cpu_timer_dequeue(ctmr);
+		list_add_tail(&ctmr->elist, firing);
+	}
+
+	return U64_MAX;
+}
+
+static void collect_posix_cputimers(struct posix_cputimers *pct, u64 *samples,
+				    struct list_head *firing)
+{
+	struct posix_cputimer_base *base = pct->bases;
+	int i;
+
+	for (i = 0; i < CPUCLOCK_MAX; i++, base++) {
+		base->nextevt = collect_timerqueue(&base->tqhead, firing,
+						    samples[i]);
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline void check_dl_overrun(struct task_struct *tsk)
@@ -803,6 +1461,23 @@ static inline void check_dl_overrun(struct task_struct *tsk)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static bool check_rlimit(u64 time, u64 limit, int signo, bool rt, bool hard)
+{
+	if (time < limit)
+		return false;
+
+	if (print_fatal_signals) {
+		pr_info("%s Watchdog Timeout (%s): %s[%d]\n",
+			rt ? "RT" : "CPU", hard ? "hard" : "soft",
+			current->comm, task_pid_nr(current));
+	}
+	__group_send_sig_info(signo, SEND_SIG_PRIV, current);
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Check for any per-thread CPU timers that have fired and move them off
  * the tsk->cpu_timers[N] list onto the firing list.  Here we update the
@@ -811,14 +1486,20 @@ static inline void check_dl_overrun(struct task_struct *tsk)
 static void check_thread_timers(struct task_struct *tsk,
 				struct list_head *firing)
 {
+<<<<<<< HEAD
 	struct list_head *timers = tsk->cpu_timers;
 	struct task_cputime *tsk_expires = &tsk->cputime_expires;
 	u64 expires;
+=======
+	struct posix_cputimers *pct = &tsk->posix_cputimers;
+	u64 samples[CPUCLOCK_MAX];
+>>>>>>> upstream/android-13
 	unsigned long soft;
 
 	if (dl_task(tsk))
 		check_dl_overrun(tsk);
 
+<<<<<<< HEAD
 	/*
 	 * If cputime_expires is zero, then there are no active
 	 * per thread CPU timers.
@@ -834,12 +1515,20 @@ static void check_thread_timers(struct task_struct *tsk,
 
 	tsk_expires->sched_exp = check_timers_list(++timers, firing,
 						   tsk->se.sum_exec_runtime);
+=======
+	if (expiry_cache_is_inactive(pct))
+		return;
+
+	task_sample_cputime(tsk, samples);
+	collect_posix_cputimers(pct, samples, firing);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check for the special case thread timers.
 	 */
 	soft = task_rlimit(tsk, RLIMIT_RTTIME);
 	if (soft != RLIM_INFINITY) {
+<<<<<<< HEAD
 		unsigned long hard = task_rlimit_max(tsk, RLIMIT_RTTIME);
 
 		if (hard != RLIM_INFINITY &&
@@ -872,15 +1561,41 @@ static void check_thread_timers(struct task_struct *tsk,
 		}
 	}
 	if (task_cputime_zero(tsk_expires))
+=======
+		/* Task RT timeout is accounted in jiffies. RTTIME is usec */
+		unsigned long rttime = tsk->rt.timeout * (USEC_PER_SEC / HZ);
+		unsigned long hard = task_rlimit_max(tsk, RLIMIT_RTTIME);
+
+		/* At the hard limit, send SIGKILL. No further action. */
+		if (hard != RLIM_INFINITY &&
+		    check_rlimit(rttime, hard, SIGKILL, true, true))
+			return;
+
+		/* At the soft limit, send a SIGXCPU every second */
+		if (check_rlimit(rttime, soft, SIGXCPU, true, false)) {
+			soft += USEC_PER_SEC;
+			tsk->signal->rlim[RLIMIT_RTTIME].rlim_cur = soft;
+		}
+	}
+
+	if (expiry_cache_is_inactive(pct))
+>>>>>>> upstream/android-13
 		tick_dep_clear_task(tsk, TICK_DEP_BIT_POSIX_TIMER);
 }
 
 static inline void stop_process_timers(struct signal_struct *sig)
 {
+<<<<<<< HEAD
 	struct thread_group_cputimer *cputimer = &sig->cputimer;
 
 	/* Turn off cputimer->running. This is done without locking. */
 	WRITE_ONCE(cputimer->running, false);
+=======
+	struct posix_cputimers *pct = &sig->posix_cputimers;
+
+	/* Turn off the active flag. This is done without locking. */
+	WRITE_ONCE(pct->timers_active, false);
+>>>>>>> upstream/android-13
 	tick_dep_clear_signal(sig, TICK_DEP_BIT_POSIX_TIMER);
 }
 
@@ -902,7 +1617,11 @@ static void check_cpu_itimer(struct task_struct *tsk, struct cpu_itimer *it,
 		__group_send_sig_info(signo, SEND_SIG_PRIV, tsk);
 	}
 
+<<<<<<< HEAD
 	if (it->expires && (!*expires || it->expires < *expires))
+=======
+	if (it->expires && it->expires < *expires)
+>>>>>>> upstream/android-13
 		*expires = it->expires;
 }
 
@@ -915,6 +1634,7 @@ static void check_process_timers(struct task_struct *tsk,
 				 struct list_head *firing)
 {
 	struct signal_struct *const sig = tsk->signal;
+<<<<<<< HEAD
 	u64 utime, ptime, virt_expires, prof_expires;
 	u64 sum_sched_runtime, sched_expires;
 	struct list_head *timers = sig->cpu_timers;
@@ -948,10 +1668,37 @@ static void check_process_timers(struct task_struct *tsk,
 	prof_expires = check_timers_list(timers, firing, ptime);
 	virt_expires = check_timers_list(++timers, firing, utime);
 	sched_expires = check_timers_list(++timers, firing, sum_sched_runtime);
+=======
+	struct posix_cputimers *pct = &sig->posix_cputimers;
+	u64 samples[CPUCLOCK_MAX];
+	unsigned long soft;
+
+	/*
+	 * If there are no active process wide timers (POSIX 1.b, itimers,
+	 * RLIMIT_CPU) nothing to check. Also skip the process wide timer
+	 * processing when there is already another task handling them.
+	 */
+	if (!READ_ONCE(pct->timers_active) || pct->expiry_active)
+		return;
+
+	/*
+	 * Signify that a thread is checking for process timers.
+	 * Write access to this field is protected by the sighand lock.
+	 */
+	pct->expiry_active = true;
+
+	/*
+	 * Collect the current process totals. Group accounting is active
+	 * so the sample can be taken directly.
+	 */
+	proc_sample_cputime_atomic(&sig->cputimer.cputime_atomic, samples);
+	collect_posix_cputimers(pct, samples, firing);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check for the special case process timers.
 	 */
+<<<<<<< HEAD
 	check_cpu_itimer(tsk, &sig->it[CPUCLOCK_PROF], &prof_expires, ptime,
 			 SIGPROF);
 	check_cpu_itimer(tsk, &sig->it[CPUCLOCK_VIRT], &virt_expires, utime,
@@ -999,6 +1746,43 @@ static void check_process_timers(struct task_struct *tsk,
 		stop_process_timers(sig);
 
 	sig->cputimer.checking_timer = false;
+=======
+	check_cpu_itimer(tsk, &sig->it[CPUCLOCK_PROF],
+			 &pct->bases[CPUCLOCK_PROF].nextevt,
+			 samples[CPUCLOCK_PROF], SIGPROF);
+	check_cpu_itimer(tsk, &sig->it[CPUCLOCK_VIRT],
+			 &pct->bases[CPUCLOCK_VIRT].nextevt,
+			 samples[CPUCLOCK_VIRT], SIGVTALRM);
+
+	soft = task_rlimit(tsk, RLIMIT_CPU);
+	if (soft != RLIM_INFINITY) {
+		/* RLIMIT_CPU is in seconds. Samples are nanoseconds */
+		unsigned long hard = task_rlimit_max(tsk, RLIMIT_CPU);
+		u64 ptime = samples[CPUCLOCK_PROF];
+		u64 softns = (u64)soft * NSEC_PER_SEC;
+		u64 hardns = (u64)hard * NSEC_PER_SEC;
+
+		/* At the hard limit, send SIGKILL. No further action. */
+		if (hard != RLIM_INFINITY &&
+		    check_rlimit(ptime, hardns, SIGKILL, false, true))
+			return;
+
+		/* At the soft limit, send a SIGXCPU every second */
+		if (check_rlimit(ptime, softns, SIGXCPU, false, false)) {
+			sig->rlim[RLIMIT_CPU].rlim_cur = soft + 1;
+			softns += NSEC_PER_SEC;
+		}
+
+		/* Update the expiry cache */
+		if (softns < pct->bases[CPUCLOCK_PROF].nextevt)
+			pct->bases[CPUCLOCK_PROF].nextevt = softns;
+	}
+
+	if (expiry_cache_is_inactive(pct))
+		stop_process_timers(sig);
+
+	pct->expiry_active = false;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1007,17 +1791,35 @@ static void check_process_timers(struct task_struct *tsk,
  */
 static void posix_cpu_timer_rearm(struct k_itimer *timer)
 {
+<<<<<<< HEAD
 	struct task_struct *p = timer->it.cpu.task;
+=======
+	clockid_t clkid = CPUCLOCK_WHICH(timer->it_clock);
+	struct task_struct *p;
+>>>>>>> upstream/android-13
 	struct sighand_struct *sighand;
 	unsigned long flags;
 	u64 now;
 
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(!p))
 		return;
+=======
+	rcu_read_lock();
+	p = cpu_timer_task_rcu(timer);
+	if (!p)
+		goto out;
+
+	/* Protect timer list r/w in arm_timer() */
+	sighand = lock_task_sighand(p, &flags);
+	if (unlikely(sighand == NULL))
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Fetch the current sample and update the timer's expiry time.
 	 */
+<<<<<<< HEAD
 	if (CPUCLOCK_PERTHREAD(timer->it_clock)) {
 		cpu_clock_sample(timer->it_clock, p, &now);
 		bump_cpu_timer(timer, now);
@@ -1049,10 +1851,19 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
 		bump_cpu_timer(timer, now);
 		/* Leave the sighand locked for the call below.  */
 	}
+=======
+	if (CPUCLOCK_PERTHREAD(timer->it_clock))
+		now = cpu_clock_sample(clkid, p);
+	else
+		now = cpu_clock_sample_group(clkid, p, true);
+
+	bump_cpu_timer(timer, now);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Now re-arm for the new expiry time.
 	 */
+<<<<<<< HEAD
 	arm_timer(timer);
 unlock:
 	unlock_task_sighand(p, &flags);
@@ -1079,6 +1890,33 @@ static inline int task_cputime_expired(const struct task_cputime *sample,
 	    sample->sum_exec_runtime >= expires->sum_exec_runtime)
 		return 1;
 	return 0;
+=======
+	arm_timer(timer, p);
+	unlock_task_sighand(p, &flags);
+out:
+	rcu_read_unlock();
+}
+
+/**
+ * task_cputimers_expired - Check whether posix CPU timers are expired
+ *
+ * @samples:	Array of current samples for the CPUCLOCK clocks
+ * @pct:	Pointer to a posix_cputimers container
+ *
+ * Returns true if any member of @samples is greater than the corresponding
+ * member of @pct->bases[CLK].nextevt. False otherwise
+ */
+static inline bool
+task_cputimers_expired(const u64 *samples, struct posix_cputimers *pct)
+{
+	int i;
+
+	for (i = 0; i < CPUCLOCK_MAX; i++) {
+		if (samples[i] >= pct->bases[i].nextevt)
+			return true;
+	}
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1091,6 +1929,7 @@ static inline int task_cputime_expired(const struct task_cputime *sample,
  * timers and compare them with the corresponding expiration times.  Return
  * true if a timer has expired, else return false.
  */
+<<<<<<< HEAD
 static inline int fastpath_timer_check(struct task_struct *tsk)
 {
 	struct signal_struct *sig;
@@ -1168,6 +2007,226 @@ void run_posix_cpu_timers(struct task_struct *tsk)
 
 	/*
 	 * We must release these locks before taking any timer's lock.
+=======
+static inline bool fastpath_timer_check(struct task_struct *tsk)
+{
+	struct posix_cputimers *pct = &tsk->posix_cputimers;
+	struct signal_struct *sig;
+
+	if (!expiry_cache_is_inactive(pct)) {
+		u64 samples[CPUCLOCK_MAX];
+
+		task_sample_cputime(tsk, samples);
+		if (task_cputimers_expired(samples, pct))
+			return true;
+	}
+
+	sig = tsk->signal;
+	pct = &sig->posix_cputimers;
+	/*
+	 * Check if thread group timers expired when timers are active and
+	 * no other thread in the group is already handling expiry for
+	 * thread group cputimers. These fields are read without the
+	 * sighand lock. However, this is fine because this is meant to be
+	 * a fastpath heuristic to determine whether we should try to
+	 * acquire the sighand lock to handle timer expiry.
+	 *
+	 * In the worst case scenario, if concurrently timers_active is set
+	 * or expiry_active is cleared, but the current thread doesn't see
+	 * the change yet, the timer checks are delayed until the next
+	 * thread in the group gets a scheduler interrupt to handle the
+	 * timer. This isn't an issue in practice because these types of
+	 * delays with signals actually getting sent are expected.
+	 */
+	if (READ_ONCE(pct->timers_active) && !READ_ONCE(pct->expiry_active)) {
+		u64 samples[CPUCLOCK_MAX];
+
+		proc_sample_cputime_atomic(&sig->cputimer.cputime_atomic,
+					   samples);
+
+		if (task_cputimers_expired(samples, pct))
+			return true;
+	}
+
+	if (dl_task(tsk) && tsk->dl.dl_overrun)
+		return true;
+
+	return false;
+}
+
+static void handle_posix_cpu_timers(struct task_struct *tsk);
+
+#ifdef CONFIG_POSIX_CPU_TIMERS_TASK_WORK
+static void posix_cpu_timers_work(struct callback_head *work)
+{
+	handle_posix_cpu_timers(current);
+}
+
+/*
+ * Clear existing posix CPU timers task work.
+ */
+void clear_posix_cputimers_work(struct task_struct *p)
+{
+	/*
+	 * A copied work entry from the old task is not meaningful, clear it.
+	 * N.B. init_task_work will not do this.
+	 */
+	memset(&p->posix_cputimers_work.work, 0,
+	       sizeof(p->posix_cputimers_work.work));
+	init_task_work(&p->posix_cputimers_work.work,
+		       posix_cpu_timers_work);
+	p->posix_cputimers_work.scheduled = false;
+}
+
+/*
+ * Initialize posix CPU timers task work in init task. Out of line to
+ * keep the callback static and to avoid header recursion hell.
+ */
+void __init posix_cputimers_init_work(void)
+{
+	clear_posix_cputimers_work(current);
+}
+
+/*
+ * Note: All operations on tsk->posix_cputimer_work.scheduled happen either
+ * in hard interrupt context or in task context with interrupts
+ * disabled. Aside of that the writer/reader interaction is always in the
+ * context of the current task, which means they are strict per CPU.
+ */
+static inline bool posix_cpu_timers_work_scheduled(struct task_struct *tsk)
+{
+	return tsk->posix_cputimers_work.scheduled;
+}
+
+static inline void __run_posix_cpu_timers(struct task_struct *tsk)
+{
+	if (WARN_ON_ONCE(tsk->posix_cputimers_work.scheduled))
+		return;
+
+	/* Schedule task work to actually expire the timers */
+	tsk->posix_cputimers_work.scheduled = true;
+	task_work_add(tsk, &tsk->posix_cputimers_work.work, TWA_RESUME);
+}
+
+static inline bool posix_cpu_timers_enable_work(struct task_struct *tsk,
+						unsigned long start)
+{
+	bool ret = true;
+
+	/*
+	 * On !RT kernels interrupts are disabled while collecting expired
+	 * timers, so no tick can happen and the fast path check can be
+	 * reenabled without further checks.
+	 */
+	if (!IS_ENABLED(CONFIG_PREEMPT_RT)) {
+		tsk->posix_cputimers_work.scheduled = false;
+		return true;
+	}
+
+	/*
+	 * On RT enabled kernels ticks can happen while the expired timers
+	 * are collected under sighand lock. But any tick which observes
+	 * the CPUTIMERS_WORK_SCHEDULED bit set, does not run the fastpath
+	 * checks. So reenabling the tick work has do be done carefully:
+	 *
+	 * Disable interrupts and run the fast path check if jiffies have
+	 * advanced since the collecting of expired timers started. If
+	 * jiffies have not advanced or the fast path check did not find
+	 * newly expired timers, reenable the fast path check in the timer
+	 * interrupt. If there are newly expired timers, return false and
+	 * let the collection loop repeat.
+	 */
+	local_irq_disable();
+	if (start != jiffies && fastpath_timer_check(tsk))
+		ret = false;
+	else
+		tsk->posix_cputimers_work.scheduled = false;
+	local_irq_enable();
+
+	return ret;
+}
+#else /* CONFIG_POSIX_CPU_TIMERS_TASK_WORK */
+static inline void __run_posix_cpu_timers(struct task_struct *tsk)
+{
+	lockdep_posixtimer_enter();
+	handle_posix_cpu_timers(tsk);
+	lockdep_posixtimer_exit();
+}
+
+static inline bool posix_cpu_timers_work_scheduled(struct task_struct *tsk)
+{
+	return false;
+}
+
+static inline bool posix_cpu_timers_enable_work(struct task_struct *tsk,
+						unsigned long start)
+{
+	return true;
+}
+#endif /* CONFIG_POSIX_CPU_TIMERS_TASK_WORK */
+
+static void handle_posix_cpu_timers(struct task_struct *tsk)
+{
+	struct k_itimer *timer, *next;
+	unsigned long flags, start;
+	LIST_HEAD(firing);
+
+	if (!lock_task_sighand(tsk, &flags))
+		return;
+
+	do {
+		/*
+		 * On RT locking sighand lock does not disable interrupts,
+		 * so this needs to be careful vs. ticks. Store the current
+		 * jiffies value.
+		 */
+		start = READ_ONCE(jiffies);
+		barrier();
+
+		/*
+		 * Here we take off tsk->signal->cpu_timers[N] and
+		 * tsk->cpu_timers[N] all the timers that are firing, and
+		 * put them on the firing list.
+		 */
+		check_thread_timers(tsk, &firing);
+
+		check_process_timers(tsk, &firing);
+
+		/*
+		 * The above timer checks have updated the expiry cache and
+		 * because nothing can have queued or modified timers after
+		 * sighand lock was taken above it is guaranteed to be
+		 * consistent. So the next timer interrupt fastpath check
+		 * will find valid data.
+		 *
+		 * If timer expiry runs in the timer interrupt context then
+		 * the loop is not relevant as timers will be directly
+		 * expired in interrupt context. The stub function below
+		 * returns always true which allows the compiler to
+		 * optimize the loop out.
+		 *
+		 * If timer expiry is deferred to task work context then
+		 * the following rules apply:
+		 *
+		 * - On !RT kernels no tick can have happened on this CPU
+		 *   after sighand lock was acquired because interrupts are
+		 *   disabled. So reenabling task work before dropping
+		 *   sighand lock and reenabling interrupts is race free.
+		 *
+		 * - On RT kernels ticks might have happened but the tick
+		 *   work ignored posix CPU timer handling because the
+		 *   CPUTIMERS_WORK_SCHEDULED bit is set. Reenabling work
+		 *   must be done very carefully including a check whether
+		 *   ticks have happened since the start of the timer
+		 *   expiry checks. posix_cpu_timers_enable_work() takes
+		 *   care of that and eventually lets the expiry checks
+		 *   run again.
+		 */
+	} while (!posix_cpu_timers_enable_work(tsk, start));
+
+	/*
+	 * We must release sighand lock before taking any timer's lock.
+>>>>>>> upstream/android-13
 	 * There is a potential race with timer deletion here, as the
 	 * siglock now protects our private firing list.  We have set
 	 * the firing flag in each timer, so that a deletion attempt
@@ -1182,11 +2241,26 @@ void run_posix_cpu_timers(struct task_struct *tsk)
 	 * each timer's lock before clearing its firing flag, so no
 	 * timer call will interfere.
 	 */
+<<<<<<< HEAD
 	list_for_each_entry_safe(timer, next, &firing, it.cpu.entry) {
 		int cpu_firing;
 
 		spin_lock(&timer->it_lock);
 		list_del_init(&timer->it.cpu.entry);
+=======
+	list_for_each_entry_safe(timer, next, &firing, it.cpu.elist) {
+		int cpu_firing;
+
+		/*
+		 * spin_lock() is sufficient here even independent of the
+		 * expiry context. If expiry happens in hard interrupt
+		 * context it's obvious. For task work context it's safe
+		 * because all other operations on timer::it_lock happen in
+		 * task context (syscall or exit).
+		 */
+		spin_lock(&timer->it_lock);
+		list_del_init(&timer->it.cpu.elist);
+>>>>>>> upstream/android-13
 		cpu_firing = timer->it.cpu.firing;
 		timer->it.cpu.firing = 0;
 		/*
@@ -1201,6 +2275,7 @@ void run_posix_cpu_timers(struct task_struct *tsk)
 }
 
 /*
+<<<<<<< HEAD
  * Set one of the process-wide special case CPU timers or RLIMIT_CPU.
  * The tsk->sighand->siglock must be held by the caller.
  */
@@ -1216,6 +2291,51 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clock_idx,
 	ret = cpu_timer_sample_group(clock_idx, tsk, &now);
 
 	if (oldval && ret != -EINVAL) {
+=======
+ * This is called from the timer interrupt handler.  The irq handler has
+ * already updated our counts.  We need to check if any timers fire now.
+ * Interrupts are disabled.
+ */
+void run_posix_cpu_timers(void)
+{
+	struct task_struct *tsk = current;
+
+	lockdep_assert_irqs_disabled();
+
+	/*
+	 * If the actual expiry is deferred to task work context and the
+	 * work is already scheduled there is no point to do anything here.
+	 */
+	if (posix_cpu_timers_work_scheduled(tsk))
+		return;
+
+	/*
+	 * The fast path checks that there are no expired thread or thread
+	 * group timers.  If that's so, just return.
+	 */
+	if (!fastpath_timer_check(tsk))
+		return;
+
+	__run_posix_cpu_timers(tsk);
+}
+
+/*
+ * Set one of the process-wide special case CPU timers or RLIMIT_CPU.
+ * The tsk->sighand->siglock must be held by the caller.
+ */
+void set_process_cpu_timer(struct task_struct *tsk, unsigned int clkid,
+			   u64 *newval, u64 *oldval)
+{
+	u64 now, *nextevt;
+
+	if (WARN_ON_ONCE(clkid >= CPUCLOCK_SCHED))
+		return;
+
+	nextevt = &tsk->signal->posix_cputimers.bases[clkid].nextevt;
+	now = cpu_clock_sample_group(clkid, tsk, true);
+
+	if (oldval) {
+>>>>>>> upstream/android-13
 		/*
 		 * We are setting itimer. The *oldval is absolute and we update
 		 * it to be relative, *newval argument is relative and we update
@@ -1230,6 +2350,7 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clock_idx,
 			}
 		}
 
+<<<<<<< HEAD
 		if (!*newval)
 			return;
 		*newval += now;
@@ -1251,6 +2372,20 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clock_idx,
 	}
 
 	tick_dep_set_signal(tsk->signal, TICK_DEP_BIT_POSIX_TIMER);
+=======
+		if (*newval)
+			*newval += now;
+	}
+
+	/*
+	 * Update expiration cache if this is the earliest timer. CPUCLOCK_PROF
+	 * expiry cache is also used by RLIMIT_CPU!.
+	 */
+	if (*newval < *nextevt)
+		*nextevt = *newval;
+
+	tick_dep_set_signal(tsk, TICK_DEP_BIT_POSIX_TIMER);
+>>>>>>> upstream/android-13
 }
 
 static int do_cpu_nanosleep(const clockid_t which_clock, int flags,
@@ -1270,6 +2405,10 @@ static int do_cpu_nanosleep(const clockid_t which_clock, int flags,
 	timer.it_overrun = -1;
 	error = posix_cpu_timer_create(&timer);
 	timer.it_process = current;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!error) {
 		static struct itimerspec64 zero_it;
 		struct restart_block *restart;
@@ -1285,7 +2424,11 @@ static int do_cpu_nanosleep(const clockid_t which_clock, int flags,
 		}
 
 		while (!signal_pending(current)) {
+<<<<<<< HEAD
 			if (timer.it.cpu.expires == 0) {
+=======
+			if (!cpu_timer_getexpires(&timer.it.cpu)) {
+>>>>>>> upstream/android-13
 				/*
 				 * Our timer fired and was reset, below
 				 * deletion can not fail.
@@ -1307,7 +2450,11 @@ static int do_cpu_nanosleep(const clockid_t which_clock, int flags,
 		/*
 		 * We were interrupted by a signal.
 		 */
+<<<<<<< HEAD
 		expires = timer.it.cpu.expires;
+=======
+		expires = cpu_timer_getexpires(&timer.it.cpu);
+>>>>>>> upstream/android-13
 		error = posix_cpu_timer_set(&timer, 0, &zero_it, &it);
 		if (!error) {
 			/*
@@ -1427,6 +2574,7 @@ static int thread_cpu_timer_create(struct k_itimer *timer)
 }
 
 const struct k_clock clock_posix_cpu = {
+<<<<<<< HEAD
 	.clock_getres	= posix_cpu_clock_getres,
 	.clock_set	= posix_cpu_clock_set,
 	.clock_get	= posix_cpu_clock_get,
@@ -1449,4 +2597,28 @@ const struct k_clock clock_thread = {
 	.clock_getres	= thread_cpu_clock_getres,
 	.clock_get	= thread_cpu_clock_get,
 	.timer_create	= thread_cpu_timer_create,
+=======
+	.clock_getres		= posix_cpu_clock_getres,
+	.clock_set		= posix_cpu_clock_set,
+	.clock_get_timespec	= posix_cpu_clock_get,
+	.timer_create		= posix_cpu_timer_create,
+	.nsleep			= posix_cpu_nsleep,
+	.timer_set		= posix_cpu_timer_set,
+	.timer_del		= posix_cpu_timer_del,
+	.timer_get		= posix_cpu_timer_get,
+	.timer_rearm		= posix_cpu_timer_rearm,
+};
+
+const struct k_clock clock_process = {
+	.clock_getres		= process_cpu_clock_getres,
+	.clock_get_timespec	= process_cpu_clock_get,
+	.timer_create		= process_cpu_timer_create,
+	.nsleep			= process_cpu_nsleep,
+};
+
+const struct k_clock clock_thread = {
+	.clock_getres		= thread_cpu_clock_getres,
+	.clock_get_timespec	= thread_cpu_clock_get,
+	.timer_create		= thread_cpu_timer_create,
+>>>>>>> upstream/android-13
 };

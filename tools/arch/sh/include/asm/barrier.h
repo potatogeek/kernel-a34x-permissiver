@@ -22,7 +22,11 @@
  * Historically we have only done this type of barrier for the MMUCR, but
  * it's also necessary for the CCR, so we make it generic here instead.
  */
+<<<<<<< HEAD
 #if defined(__SH4A__) || defined(__SH5__)
+=======
+#if defined(__SH4A__)
+>>>>>>> upstream/android-13
 #define mb()		__asm__ __volatile__ ("synco": : :"memory")
 #define rmb()		mb()
 #define wmb()		mb()

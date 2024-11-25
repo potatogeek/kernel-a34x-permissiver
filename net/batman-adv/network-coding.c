@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018  B.A.T.M.A.N. contributors:
  *
  * Martin Hundebøll, Jeppe Ledet-Pedersen
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Martin Hundebøll, Jeppe Ledet-Pedersen
+>>>>>>> upstream/android-13
  */
 
 #include "network-coding.h"
@@ -23,7 +29,10 @@
 #include <linux/bitops.h>
 #include <linux/byteorder/generic.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
 #include <linux/debugfs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/etherdevice.h>
 #include <linux/gfp.h>
@@ -38,11 +47,18 @@
 #include <linux/lockdep.h>
 #include <linux/net.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
 #include <linux/printk.h>
 #include <linux/random.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
 #include <linux/seq_file.h>
+=======
+#include <linux/prandom.h>
+#include <linux/printk.h>
+#include <linux/rculist.h>
+#include <linux/rcupdate.h>
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
@@ -51,7 +67,10 @@
 #include <linux/workqueue.h>
 #include <uapi/linux/batadv_packet.h>
 
+<<<<<<< HEAD
 #include "hard-interface.h"
+=======
+>>>>>>> upstream/android-13
 #include "hash.h"
 #include "log.h"
 #include "originator.h"
@@ -146,7 +165,11 @@ static void batadv_nc_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
 }
 
 /**
+<<<<<<< HEAD
  * batadv_nc_mesh_init() - initialise coding hash table and start house keeping
+=======
+ * batadv_nc_mesh_init() - initialise coding hash table and start housekeeping
+>>>>>>> upstream/android-13
  * @bat_priv: the bat priv with all the soft interface information
  *
  * Return: 0 on success or negative error number in case of failure
@@ -167,8 +190,15 @@ int batadv_nc_mesh_init(struct batadv_priv *bat_priv)
 				   &batadv_nc_coding_hash_lock_class_key);
 
 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
+<<<<<<< HEAD
 	if (!bat_priv->nc.decoding_hash)
 		goto err;
+=======
+	if (!bat_priv->nc.decoding_hash) {
+		batadv_hash_destroy(bat_priv->nc.coding_hash);
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
 				   &batadv_nc_decoding_hash_lock_class_key);
@@ -232,6 +262,12 @@ static void batadv_nc_node_release(struct kref *ref)
  */
 static void batadv_nc_node_put(struct batadv_nc_node *nc_node)
 {
+<<<<<<< HEAD
+=======
+	if (!nc_node)
+		return;
+
+>>>>>>> upstream/android-13
 	kref_put(&nc_node->refcount, batadv_nc_node_release);
 }
 
@@ -256,13 +292,23 @@ static void batadv_nc_path_release(struct kref *ref)
  */
 static void batadv_nc_path_put(struct batadv_nc_path *nc_path)
 {
+<<<<<<< HEAD
+=======
+	if (!nc_path)
+		return;
+
+>>>>>>> upstream/android-13
 	kref_put(&nc_path->refcount, batadv_nc_path_release);
 }
 
 /**
  * batadv_nc_packet_free() - frees nc packet
  * @nc_packet: the nc packet to free
+<<<<<<< HEAD
  * @dropped: whether the packet is freed because is is dropped
+=======
+ * @dropped: whether the packet is freed because is dropped
+>>>>>>> upstream/android-13
  */
 static void batadv_nc_packet_free(struct batadv_nc_packet *nc_packet,
 				  bool dropped)
@@ -712,7 +758,11 @@ batadv_nc_process_nc_paths(struct batadv_priv *bat_priv,
 }
 
 /**
+<<<<<<< HEAD
  * batadv_nc_worker() - periodic task for house keeping related to network
+=======
+ * batadv_nc_worker() - periodic task for housekeeping related to network
+>>>>>>> upstream/android-13
  *  coding
  * @work: kernel work struct
  */
@@ -945,10 +995,15 @@ void batadv_nc_update_nc_node(struct batadv_priv *bat_priv,
 	out_nc_node->last_seen = jiffies;
 
 out:
+<<<<<<< HEAD
 	if (in_nc_node)
 		batadv_nc_node_put(in_nc_node);
 	if (out_nc_node)
 		batadv_nc_node_put(out_nc_node);
+=======
+	batadv_nc_node_put(in_nc_node);
+	batadv_nc_node_put(out_nc_node);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1224,6 +1279,7 @@ static bool batadv_nc_code_packets(struct batadv_priv *bat_priv,
 	batadv_send_unicast_skb(skb_dest, first_dest);
 	res = true;
 out:
+<<<<<<< HEAD
 	if (router_neigh)
 		batadv_neigh_node_put(router_neigh);
 	if (router_coding)
@@ -1232,6 +1288,12 @@ out:
 		batadv_neigh_ifinfo_put(router_neigh_ifinfo);
 	if (router_coding_ifinfo)
 		batadv_neigh_ifinfo_put(router_coding_ifinfo);
+=======
+	batadv_neigh_node_put(router_neigh);
+	batadv_neigh_node_put(router_coding);
+	batadv_neigh_ifinfo_put(router_neigh_ifinfo);
+	batadv_neigh_ifinfo_put(router_coding_ifinfo);
+>>>>>>> upstream/android-13
 	return res;
 }
 
@@ -1328,7 +1390,11 @@ batadv_nc_path_search(struct batadv_priv *bat_priv,
 }
 
 /**
+<<<<<<< HEAD
  * batadv_nc_skb_src_search() - Loops through the list of neighoring nodes of
+=======
+ * batadv_nc_skb_src_search() - Loops through the list of neighboring nodes of
+>>>>>>> upstream/android-13
  *  the skb's sender (may be equal to the originator).
  * @bat_priv: the bat priv with all the soft interface information
  * @skb: data skb to forward
@@ -1414,10 +1480,17 @@ static void batadv_nc_skb_store_before_coding(struct batadv_priv *bat_priv,
  * @neigh_node: next hop to forward packet to
  * @ethhdr: pointer to the ethernet header inside the skb
  *
+<<<<<<< HEAD
  * Loops through list of neighboring nodes the next hop has a good connection to
  * (receives OGMs with a sufficient quality). We need to find a neighbor of our
  * next hop that potentially sent a packet which our next hop also received
  * (overheard) and has stored for later decoding.
+=======
+ * Loops through the list of neighboring nodes the next hop has a good
+ * connection to (receives OGMs with a sufficient quality). We need to find a
+ * neighbor of our next hop that potentially sent a packet which our next hop
+ * also received (overheard) and has stored for later decoding.
+>>>>>>> upstream/android-13
  *
  * Return: true if the skb was consumed (encoded packet sent) or false otherwise
  */
@@ -1888,6 +1961,7 @@ void batadv_nc_mesh_free(struct batadv_priv *bat_priv)
 	batadv_nc_purge_paths(bat_priv, bat_priv->nc.decoding_hash, NULL);
 	batadv_hash_destroy(bat_priv->nc.decoding_hash);
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 /**
@@ -1987,3 +2061,5 @@ out:
 	return -ENOMEM;
 }
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -11,6 +12,12 @@
  *
  * RMNET configuration engine
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+ *
+ * RMNET configuration engine
+>>>>>>> upstream/android-13
  */
 
 #include <net/sock.h>
@@ -35,7 +42,11 @@ static int rmnet_is_real_dev_registered(const struct net_device *real_dev)
 }
 
 /* Needs rtnl lock */
+<<<<<<< HEAD
 static struct rmnet_port*
+=======
+struct rmnet_port*
+>>>>>>> upstream/android-13
 rmnet_get_port_rtnl(const struct net_device *real_dev)
 {
 	return rtnl_dereference(real_dev->rx_handler_data);
@@ -74,7 +85,11 @@ static int rmnet_register_real_device(struct net_device *real_dev,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	port = kzalloc(sizeof(*port), GFP_ATOMIC);
+=======
+	port = kzalloc(sizeof(*port), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!port)
 		return -ENOMEM;
 
@@ -139,6 +154,7 @@ static int rmnet_newlink(struct net *src_net, struct net_device *dev,
 	}
 
 	real_dev = __dev_get_by_index(src_net, nla_get_u32(tb[IFLA_LINK]));
+<<<<<<< HEAD
 	if (!real_dev || !dev)
 		return -ENODEV;
 
@@ -146,6 +162,14 @@ static int rmnet_newlink(struct net *src_net, struct net_device *dev,
 		return -EINVAL;
 
 	ep = kzalloc(sizeof(*ep), GFP_ATOMIC);
+=======
+	if (!real_dev) {
+		NL_SET_ERR_MSG_MOD(extack, "link does not exist");
+		return -ENODEV;
+	}
+
+	ep = kzalloc(sizeof(*ep), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ep)
 		return -ENOMEM;
 
@@ -156,7 +180,11 @@ static int rmnet_newlink(struct net *src_net, struct net_device *dev,
 		goto err0;
 
 	port = rmnet_get_port_rtnl(real_dev);
+<<<<<<< HEAD
 	err = rmnet_vnd_newlink(mux_id, dev, port, real_dev, ep);
+=======
+	err = rmnet_vnd_newlink(mux_id, dev, port, real_dev, ep, extack);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err1;
 
@@ -173,7 +201,12 @@ static int rmnet_newlink(struct net *src_net, struct net_device *dev,
 		struct ifla_rmnet_flags *flags;
 
 		flags = nla_data(data[IFLA_RMNET_FLAGS]);
+<<<<<<< HEAD
 		data_format = flags->flags & flags->mask;
+=======
+		data_format &= ~flags->mask;
+		data_format |= flags->flags & flags->mask;
+>>>>>>> upstream/android-13
 	}
 
 	netdev_dbg(dev, "data format [0x%08X]\n", data_format);
@@ -263,7 +296,14 @@ static int rmnet_config_notify_cb(struct notifier_block *nb,
 		netdev_dbg(real_dev, "Kernel unregister\n");
 		rmnet_force_unassociate_device(real_dev);
 		break;
+<<<<<<< HEAD
 
+=======
+	case NETDEV_CHANGEMTU:
+		if (rmnet_vnd_validate_real_dev_mtu(real_dev))
+			return NOTIFY_BAD;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -280,12 +320,25 @@ static int rmnet_rtnl_validate(struct nlattr *tb[], struct nlattr *data[],
 {
 	u16 mux_id;
 
+<<<<<<< HEAD
 	if (!data || !data[IFLA_RMNET_MUX_ID])
 		return -EINVAL;
 
 	mux_id = nla_get_u16(data[IFLA_RMNET_MUX_ID]);
 	if (mux_id > (RMNET_MAX_LOGICAL_EP - 1))
 		return -ERANGE;
+=======
+	if (!data || !data[IFLA_RMNET_MUX_ID]) {
+		NL_SET_ERR_MSG_MOD(extack, "MUX ID not specified");
+		return -EINVAL;
+	}
+
+	mux_id = nla_get_u16(data[IFLA_RMNET_MUX_ID]);
+	if (mux_id > (RMNET_MAX_LOGICAL_EP - 1)) {
+		NL_SET_ERR_MSG_MOD(extack, "invalid MUX ID");
+		return -ERANGE;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -335,9 +388,24 @@ static int rmnet_changelink(struct net_device *dev, struct nlattr *tb[],
 
 	if (data[IFLA_RMNET_FLAGS]) {
 		struct ifla_rmnet_flags *flags;
+<<<<<<< HEAD
 
 		flags = nla_data(data[IFLA_RMNET_FLAGS]);
 		port->data_format = flags->flags & flags->mask;
+=======
+		u32 old_data_format;
+
+		old_data_format = port->data_format;
+		flags = nla_data(data[IFLA_RMNET_FLAGS]);
+		port->data_format &= ~flags->mask;
+		port->data_format |= flags->flags & flags->mask;
+
+		if (rmnet_vnd_update_dev_mtu(port, real_dev)) {
+			port->data_format = old_data_format;
+			NL_SET_ERR_MSG_MOD(extack, "Invalid MTU on real dev");
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -430,11 +498,30 @@ int rmnet_add_bridge(struct net_device *rmnet_dev,
 	/* If there is more than one rmnet dev attached, its probably being
 	 * used for muxing. Skip the briding in that case
 	 */
+<<<<<<< HEAD
 	if (port->nr_rmnet_devs > 1)
 		return -EINVAL;
 
 	if (rmnet_is_real_dev_registered(slave_dev))
 		return -EBUSY;
+=======
+	if (port->nr_rmnet_devs > 1) {
+		NL_SET_ERR_MSG_MOD(extack, "more than one rmnet dev attached");
+		return -EINVAL;
+	}
+
+	if (port->rmnet_mode != RMNET_EPMODE_VND) {
+		NL_SET_ERR_MSG_MOD(extack, "more than one bridge dev attached");
+		return -EINVAL;
+	}
+
+	if (rmnet_is_real_dev_registered(slave_dev)) {
+		NL_SET_ERR_MSG_MOD(extack,
+				   "slave cannot be another rmnet dev");
+
+		return -EBUSY;
+	}
+>>>>>>> upstream/android-13
 
 	err = rmnet_register_real_device(slave_dev, extack);
 	if (err)
@@ -496,4 +583,8 @@ static void __exit rmnet_exit(void)
 
 module_init(rmnet_init)
 module_exit(rmnet_exit)
+<<<<<<< HEAD
+=======
+MODULE_ALIAS_RTNL_LINK("rmnet");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

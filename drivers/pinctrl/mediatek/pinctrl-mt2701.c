@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 MediaTek Inc.
  * Author: Biao Huang <biao.huang@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 MediaTek Inc.
+ * Author: Biao Huang <biao.huang@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/pinctrl/mt65xx.h>
@@ -531,6 +538,12 @@ static const struct mtk_pinctrl_devdata mt2701_pinctrl_data = {
 	.port_shf = 4,
 	.port_mask = 0x1f,
 	.port_align = 4,
+<<<<<<< HEAD
+=======
+	.mode_mask = 0xf,
+	.mode_per_reg = 5,
+	.mode_shf = 4,
+>>>>>>> upstream/android-13
 	.eint_hw = {
 		.port_mask = 6,
 		.ports     = 6,

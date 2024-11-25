@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Hardware-specific External Interface I/O core definitions
  * for the BCM47xx family of SiliconBackplane-based chips.
@@ -14,8 +18,11 @@
  *
  * Copyright 2005, Broadcom Corporation
  * Copyright 2006, Michael Buesch
+<<<<<<< HEAD
  *
  * Licensed under the GPL version 2. See COPYING for details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef LINUX_SSB_EXTIFCORE_H_
 #define LINUX_SSB_EXTIFCORE_H_
@@ -198,7 +205,11 @@ struct ssb_extif {
 
 static inline bool ssb_extif_available(struct ssb_extif *extif)
 {
+<<<<<<< HEAD
 	return 0;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static inline

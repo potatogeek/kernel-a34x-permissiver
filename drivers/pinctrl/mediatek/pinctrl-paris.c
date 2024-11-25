@@ -9,9 +9,14 @@
  *	   Hongzhou.Yang <hongzhou.yang@mediatek.com>
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/gpio/driver.h>
 #include <linux/of_address.h>
+=======
+#include <linux/gpio/driver.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <dt-bindings/pinctrl/mt65xx.h>
 #include "pinctrl-paris.h"
 
@@ -53,11 +58,15 @@ static int mtk_pinmux_gpio_request_enable(struct pinctrl_dev *pctldev,
 					  struct pinctrl_gpio_range *range,
 					  unsigned int pin)
 {
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
 	const struct mtk_pin_desc *desc;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[pin];
+<<<<<<< HEAD
 	err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_MODE,
 				hw->soc->gpio_m);
 	if (err)
@@ -67,6 +76,11 @@ static int mtk_pinmux_gpio_request_enable(struct pinctrl_dev *pctldev,
 		mtk_eh_ctrl(hw, desc, hw->soc->gpio_m);
 
 	return 0;
+=======
+
+	return mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_MODE,
+				hw->soc->gpio_m);
+>>>>>>> upstream/android-13
 }
 
 static int mtk_pinmux_gpio_set_direction(struct pinctrl_dev *pctldev,
@@ -87,8 +101,12 @@ static int mtk_pinconf_get(struct pinctrl_dev *pctldev,
 {
 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
 	u32 param = pinconf_to_config_param(*config);
+<<<<<<< HEAD
 	int err, reg, ret = 1;
 	int pullup;
+=======
+	int pullup, err, reg, ret = 1;
+>>>>>>> upstream/android-13
 	const struct mtk_pin_desc *desc;
 
 	if (pin >= hw->soc->npins) {
@@ -105,6 +123,7 @@ static int mtk_pinconf_get(struct pinctrl_dev *pctldev,
 			err = hw->soc->bias_get_combo(hw, desc, &pullup, &ret);
 			if (err)
 				goto out;
+<<<<<<< HEAD
 			if (param == PIN_CONFIG_BIAS_DISABLE) {
 				if (ret == MTK_PUPD_SET_R1R0_00)
 					ret = MTK_DISABLE;
@@ -119,6 +138,18 @@ static int mtk_pinconf_get(struct pinctrl_dev *pctldev,
 				 *  error if current setting is pull-up
 				 */
 				if (pullup)
+=======
+			if (ret == MTK_PUPD_SET_R1R0_00)
+				ret = MTK_DISABLE;
+			if (param == PIN_CONFIG_BIAS_DISABLE) {
+				if (ret != MTK_DISABLE)
+					err = -EINVAL;
+			} else if (param == PIN_CONFIG_BIAS_PULL_UP) {
+				if (!pullup || ret == MTK_DISABLE)
+					err = -EINVAL;
+			} else if (param == PIN_CONFIG_BIAS_PULL_DOWN) {
+				if (pullup || ret == MTK_DISABLE)
+>>>>>>> upstream/android-13
 					err = -EINVAL;
 			}
 		} else {
@@ -174,8 +205,11 @@ static int mtk_pinconf_get(struct pinctrl_dev *pctldev,
 	case MTK_PIN_CONFIG_PU_ADV:
 	case MTK_PIN_CONFIG_PD_ADV:
 		if (hw->soc->adv_pull_get) {
+<<<<<<< HEAD
 			bool pullup;
 
+=======
+>>>>>>> upstream/android-13
 			pullup = param == MTK_PIN_CONFIG_PU_ADV;
 			err = hw->soc->adv_pull_get(hw, desc, pullup, &ret);
 		} else
@@ -199,8 +233,12 @@ out:
 }
 
 static int mtk_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
+<<<<<<< HEAD
 			   enum pin_config_param param,
 			   enum pin_config_param arg)
+=======
+			   enum pin_config_param param, u32 arg)
+>>>>>>> upstream/android-13
 {
 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
 	const struct mtk_pin_desc *desc;
@@ -258,6 +296,7 @@ static int mtk_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 		err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_SR, !!arg);
 		break;
 	case PIN_CONFIG_OUTPUT:
+<<<<<<< HEAD
 		err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DIR,
 				       MTK_OUTPUT);
 		if (err)
@@ -265,6 +304,15 @@ static int mtk_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 
 		err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DO,
 				       arg);
+=======
+		err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DO,
+				       arg);
+		if (err)
+			goto err;
+
+		err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DIR,
+				       MTK_OUTPUT);
+>>>>>>> upstream/android-13
 		break;
 	case PIN_CONFIG_INPUT_SCHMITT:
 	case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
@@ -287,7 +335,10 @@ static int mtk_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 	case MTK_PIN_CONFIG_RDSEL:
 		reg = (param == MTK_PIN_CONFIG_TDSEL) ?
 		       PINCTRL_PIN_REG_TDSEL : PINCTRL_PIN_REG_RDSEL;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		err = mtk_hw_set_value(hw, desc, reg, arg);
 		break;
 	case MTK_PIN_CONFIG_PU_ADV:
@@ -550,13 +601,21 @@ static int mtk_pctrl_get_group_pins(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mtk_hw_get_value_wrap(struct mtk_pinctrl *hw, unsigned int gpio,
 				int field)
+=======
+static int mtk_hw_get_value_wrap(struct mtk_pinctrl *hw, unsigned int gpio, int field)
+>>>>>>> upstream/android-13
 {
 	const struct mtk_pin_desc *desc;
 	int value, err;
 
+<<<<<<< HEAD
 	if (gpio > hw->soc->npins)
+=======
+	if (gpio >= hw->soc->npins)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
@@ -592,6 +651,7 @@ static int mtk_hw_get_value_wrap(struct mtk_pinctrl *hw, unsigned int gpio,
 ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
 	unsigned int gpio, char *buf, unsigned int bufLen)
 {
+<<<<<<< HEAD
 	const struct mtk_pin_desc *desc;
 	int pinmux, pullup = 0, pullen = 0, r1 = -1, r0 = -1, len = 0, val;
 
@@ -604,6 +664,18 @@ ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
 	 && desc->funcs[desc->eint.eint_m].name == 0)
 		return 0;
 
+=======
+	int pinmux, pullup, pullen, len = 0, r1 = -1, r0 = -1;
+	const struct mtk_pin_desc *desc;
+
+	if (gpio >= hw->soc->npins)
+		return -EINVAL;
+
+	if (mtk_is_virt_gpio(hw, gpio))
+		return -EINVAL;
+
+	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
+>>>>>>> upstream/android-13
 	pinmux = mtk_pctrl_get_pinmux(hw, gpio);
 	if (pinmux >= hw->soc->nfuncs)
 		pinmux -= hw->soc->nfuncs;
@@ -628,13 +700,19 @@ ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
 	} else if (pullen != MTK_DISABLE && pullen != MTK_ENABLE) {
 		pullen = 0;
 	}
+<<<<<<< HEAD
 
 	len += snprintf(buf + len, bufLen - len,
 			"%03d: %1d%1d%1d%1d",
+=======
+	len += scnprintf(buf + len, bufLen - len,
+			"%03d: %1d%1d%1d%1d%02d%1d%1d%1d%1d",
+>>>>>>> upstream/android-13
 			gpio,
 			pinmux,
 			mtk_pctrl_get_direction(hw, gpio),
 			mtk_pctrl_get_out(hw, gpio),
+<<<<<<< HEAD
 			mtk_pctrl_get_in(hw, gpio));
 
 	val = mtk_pctrl_get_driving(hw, gpio);
@@ -661,6 +739,21 @@ ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
 	else
 		len += snprintf(buf + len, bufLen - len, "%1d%1d\n",
 			pullen, pullup);
+=======
+			mtk_pctrl_get_in(hw, gpio),
+			mtk_pctrl_get_driving(hw, gpio),
+			mtk_pctrl_get_smt(hw, gpio),
+			mtk_pctrl_get_ies(hw, gpio),
+			pullen,
+			pullup);
+
+	if (r1 != -1) {
+		len += scnprintf(buf + len, bufLen - len, " (%1d %1d)\n",
+			r1, r0);
+	} else {
+		len += scnprintf(buf + len, bufLen - len, "\n");
+	}
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -689,10 +782,13 @@ static const struct pinctrl_ops mtk_pctlops = {
 
 static int mtk_pmx_get_funcs_cnt(struct pinctrl_dev *pctldev)
 {
+<<<<<<< HEAD
 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
 
 	if (hw->soc->nfuncs)
 		return (int)hw->soc->nfuncs;
+=======
+>>>>>>> upstream/android-13
 	return ARRAY_SIZE(mtk_gpio_functions);
 }
 
@@ -724,7 +820,10 @@ static int mtk_pmx_set_mux(struct pinctrl_dev *pctldev,
 	const struct mtk_func_desc *desc_func;
 	const struct mtk_pin_desc *desc;
 	bool ret;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	ret = mtk_pctrl_is_function_valid(hw, grp->pin, function);
 	if (!ret) {
@@ -738,10 +837,16 @@ static int mtk_pmx_set_mux(struct pinctrl_dev *pctldev,
 		return -EINVAL;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[grp->pin];
+<<<<<<< HEAD
 	err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_MODE,
 		desc_func->muxval);
 
 	return err;
+=======
+	mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_MODE, desc_func->muxval);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct pinmux_ops mtk_pmxops = {
@@ -757,10 +862,17 @@ static int mtk_pconf_group_get(struct pinctrl_dev *pctldev, unsigned group,
 			       unsigned long *config)
 {
 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
+<<<<<<< HEAD
 
 	*config = hw->groups[group].config;
 
 	return 0;
+=======
+	struct mtk_pinctrl_group *grp = &hw->groups[group];
+
+	 /* One pin per group only */
+	return mtk_pinconf_get(pctldev, grp->pin, config);
+>>>>>>> upstream/android-13
 }
 
 static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
@@ -776,8 +888,11 @@ static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
 				      pinconf_to_config_argument(configs[i]));
 		if (ret < 0)
 			return ret;
+<<<<<<< HEAD
 
 		grp->config = configs[i];
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -804,9 +919,19 @@ static int mtk_gpio_get_direction(struct gpio_chip *chip, unsigned int gpio)
 	const struct mtk_pin_desc *desc;
 	int value, err;
 
+<<<<<<< HEAD
 	if (gpio > hw->soc->npins)
 		return -EINVAL;
 
+=======
+	if (gpio >= hw->soc->npins)
+		return -EINVAL;
+
+	/*
+	 * "Virtual" GPIOs are always and only used for interrupts
+	 * Since they are only used for interrupts, they are always inputs
+	 */
+>>>>>>> upstream/android-13
 	if (mtk_is_virt_gpio(hw, gpio))
 		return 1;
 
@@ -816,7 +941,14 @@ static int mtk_gpio_get_direction(struct gpio_chip *chip, unsigned int gpio)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	return !value;
+=======
+	if (value)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int mtk_gpio_get(struct gpio_chip *chip, unsigned int gpio)
@@ -825,7 +957,11 @@ static int mtk_gpio_get(struct gpio_chip *chip, unsigned int gpio)
 	const struct mtk_pin_desc *desc;
 	int value, err;
 
+<<<<<<< HEAD
 	if (gpio > hw->soc->npins)
+=======
+	if (gpio >= hw->soc->npins)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
@@ -842,19 +978,31 @@ static void mtk_gpio_set(struct gpio_chip *chip, unsigned int gpio, int value)
 	struct mtk_pinctrl *hw = gpiochip_get_data(chip);
 	const struct mtk_pin_desc *desc;
 
+<<<<<<< HEAD
 	if (gpio > hw->soc->npins)
+=======
+	if (gpio >= hw->soc->npins)
+>>>>>>> upstream/android-13
 		return;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
 
+<<<<<<< HEAD
 	(void)mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DO, !!value);
+=======
+	mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DO, !!value);
+>>>>>>> upstream/android-13
 }
 
 static int mtk_gpio_direction_input(struct gpio_chip *chip, unsigned int gpio)
 {
 	struct mtk_pinctrl *hw = gpiochip_get_data(chip);
 
+<<<<<<< HEAD
 	if (gpio > hw->soc->npins)
+=======
+	if (gpio >= hw->soc->npins)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return pinctrl_gpio_direction_input(chip->base + gpio);
@@ -865,7 +1013,11 @@ static int mtk_gpio_direction_output(struct gpio_chip *chip, unsigned int gpio,
 {
 	struct mtk_pinctrl *hw = gpiochip_get_data(chip);
 
+<<<<<<< HEAD
 	if (gpio > hw->soc->npins)
+=======
+	if (gpio >= hw->soc->npins)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	mtk_gpio_set(chip, gpio, value);
@@ -922,8 +1074,13 @@ static int mtk_build_gpiochip(struct mtk_pinctrl *hw, struct device_node *np)
 	chip->direction_output	= mtk_gpio_direction_output;
 	chip->get		= mtk_gpio_get;
 	chip->set		= mtk_gpio_set;
+<<<<<<< HEAD
 	chip->to_irq		= mtk_gpio_to_irq,
 	chip->set_config	= mtk_gpio_set_config,
+=======
+	chip->to_irq		= mtk_gpio_to_irq;
+	chip->set_config	= mtk_gpio_set_config;
+>>>>>>> upstream/android-13
 	chip->base		= -1;
 	chip->ngpio		= hw->soc->npins;
 	chip->of_node		= np;
@@ -969,11 +1126,16 @@ static int mtk_pctrl_build_state(struct platform_device *pdev)
 int mtk_paris_pinctrl_probe(struct platform_device *pdev,
 			    const struct mtk_pin_soc *soc)
 {
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node, *node;
 	struct pinctrl_pin_desc *pins;
 	struct mtk_pinctrl *hw;
 	struct property *prop;
 	struct resource *res;
+=======
+	struct pinctrl_pin_desc *pins;
+	struct mtk_pinctrl *hw;
+>>>>>>> upstream/android-13
 	int err, i;
 
 	hw = devm_kzalloc(&pdev->dev, sizeof(*hw), GFP_KERNEL);
@@ -984,6 +1146,7 @@ int mtk_paris_pinctrl_probe(struct platform_device *pdev,
 	hw->soc = soc;
 	hw->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	if (hw->soc->nbase_names) {
 		hw->base = devm_kmalloc_array(&pdev->dev, hw->soc->nbase_names,
 				      sizeof(*hw->base), GFP_KERNEL);
@@ -1027,6 +1190,30 @@ int mtk_paris_pinctrl_probe(struct platform_device *pdev,
 		}
 	}
 
+=======
+	if (!hw->soc->nbase_names) {
+		dev_err(&pdev->dev,
+			"SoC should be assigned at least one register base\n");
+		return -EINVAL;
+	}
+
+	hw->base = devm_kmalloc_array(&pdev->dev, hw->soc->nbase_names,
+				      sizeof(*hw->base), GFP_KERNEL);
+	if (!hw->base)
+		return -ENOMEM;
+
+	for (i = 0; i < hw->soc->nbase_names; i++) {
+		hw->base[i] = devm_platform_ioremap_resource_byname(pdev,
+					hw->soc->base_names[i]);
+		if (IS_ERR(hw->base[i]))
+			return PTR_ERR(hw->base[i]);
+	}
+
+	hw->nbase = hw->soc->nbase_names;
+
+	spin_lock_init(&hw->lock);
+
+>>>>>>> upstream/android-13
 	err = mtk_pctrl_build_state(pdev);
 	if (err) {
 		dev_err(&pdev->dev, "build state failed: %d\n", err);
@@ -1080,5 +1267,27 @@ int mtk_paris_pinctrl_probe(struct platform_device *pdev,
 }
 EXPORT_SYMBOL_GPL(mtk_paris_pinctrl_probe);
 
+<<<<<<< HEAD
+=======
+static int mtk_paris_pinctrl_suspend(struct device *device)
+{
+	struct mtk_pinctrl *pctl = dev_get_drvdata(device);
+
+	return mtk_eint_do_suspend(pctl->eint);
+}
+
+static int mtk_paris_pinctrl_resume(struct device *device)
+{
+	struct mtk_pinctrl *pctl = dev_get_drvdata(device);
+
+	return mtk_eint_do_resume(pctl->eint);
+}
+
+const struct dev_pm_ops mtk_paris_pinctrl_pm_ops = {
+	.suspend_noirq = mtk_paris_pinctrl_suspend,
+	.resume_noirq = mtk_paris_pinctrl_resume,
+};
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("MediaTek Pinctrl Common Driver V2 Paris");

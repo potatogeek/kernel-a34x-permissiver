@@ -32,7 +32,11 @@ targets := Image zImage xipImage bootpImage uImage
 ifeq ($(CONFIG_XIP_KERNEL),y)
 
 cmd_deflate_xip_data = $(CONFIG_SHELL) -c \
+<<<<<<< HEAD
 	'$(srctree)/$(src)/deflate_xip_data.sh $< $@ || { rm -f $@; false; }'
+=======
+	'$(srctree)/$(src)/deflate_xip_data.sh $< $@'
+>>>>>>> upstream/android-13
 
 ifeq ($(CONFIG_XIP_DEFLATED_DATA),y)
 quiet_cmd_mkxip = XIPZ    $@
@@ -96,13 +100,18 @@ $(obj)/bootp/bootp: $(obj)/zImage initrd FORCE
 $(obj)/bootpImage: $(obj)/bootp/bootp FORCE
 	$(call if_changed,objcopy)
 
+<<<<<<< HEAD
 PHONY += initrd install zinstall uinstall
+=======
+PHONY += initrd
+>>>>>>> upstream/android-13
 initrd:
 	@test "$(INITRD_PHYS)" != "" || \
 	(echo This machine does not support INITRD; exit -1)
 	@test "$(INITRD)" != "" || \
 	(echo You must specify INITRD; exit -1)
 
+<<<<<<< HEAD
 install:
 	$(CONFIG_SHELL) $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" \
 	$(obj)/Image System.map "$(INSTALL_PATH)"
@@ -115,4 +124,6 @@ uinstall:
 	$(CONFIG_SHELL) $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" \
 	$(obj)/uImage System.map "$(INSTALL_PATH)"
 
+=======
+>>>>>>> upstream/android-13
 subdir-	    := bootp compressed dts

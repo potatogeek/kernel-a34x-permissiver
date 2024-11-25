@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <stdlib.h>
@@ -64,7 +70,11 @@ int run_helper(void (*pre_exec)(void *), void *pre_data, char **argv)
 		goto out_close;
 	}
 
+<<<<<<< HEAD
 	sp = stack + UM_KERN_PAGE_SIZE - sizeof(void *);
+=======
+	sp = stack + UM_KERN_PAGE_SIZE;
+>>>>>>> upstream/android-13
 	data.pre_exec = pre_exec;
 	data.pre_data = pre_data;
 	data.argv = argv;
@@ -120,7 +130,11 @@ int run_helper_thread(int (*proc)(void *), void *arg, unsigned int flags,
 	if (stack == 0)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	sp = stack + UM_KERN_PAGE_SIZE - sizeof(void *);
+=======
+	sp = stack + UM_KERN_PAGE_SIZE;
+>>>>>>> upstream/android-13
 	pid = clone(proc, (void *) sp, flags, arg);
 	if (pid < 0) {
 		err = -errno;

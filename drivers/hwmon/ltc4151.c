@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Linear Technology LTC4151 High Voltage I2C Current
  * and Voltage Monitor
@@ -11,6 +15,7 @@
  *  Copyright (C) 2010 Ericsson AB.
  *
  * Datasheet: http://www.linear.com/docs/Datasheet/4151fc.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +31,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -131,7 +138,11 @@ static int ltc4151_get_value(struct ltc4151_data *data, u8 reg)
 	return val;
 }
 
+<<<<<<< HEAD
 static ssize_t ltc4151_show_value(struct device *dev,
+=======
+static ssize_t ltc4151_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -142,12 +153,17 @@ static ssize_t ltc4151_show_value(struct device *dev,
 		return PTR_ERR(data);
 
 	value = ltc4151_get_value(data, attr->index);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", value);
+=======
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Input voltages.
  */
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in1_input, S_IRUGO, ltc4151_show_value, NULL,
 			  LTC4151_VIN_H);
 static SENSOR_DEVICE_ATTR(in2_input, S_IRUGO, ltc4151_show_value, NULL,
@@ -156,6 +172,13 @@ static SENSOR_DEVICE_ATTR(in2_input, S_IRUGO, ltc4151_show_value, NULL,
 /* Currents (via sense resistor) */
 static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, ltc4151_show_value, NULL,
 			  LTC4151_SENSE_H);
+=======
+static SENSOR_DEVICE_ATTR_RO(in1_input, ltc4151_value, LTC4151_VIN_H);
+static SENSOR_DEVICE_ATTR_RO(in2_input, ltc4151_value, LTC4151_ADIN_H);
+
+/* Currents (via sense resistor) */
+static SENSOR_DEVICE_ATTR_RO(curr1_input, ltc4151_value, LTC4151_SENSE_H);
+>>>>>>> upstream/android-13
 
 /*
  * Finally, construct an array of pointers to members of the above objects,
@@ -171,8 +194,12 @@ static struct attribute *ltc4151_attrs[] = {
 };
 ATTRIBUTE_GROUPS(ltc4151);
 
+<<<<<<< HEAD
 static int ltc4151_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int ltc4151_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct device *dev = &client->dev;
@@ -211,7 +238,11 @@ static const struct i2c_device_id ltc4151_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, ltc4151_id);
 
+<<<<<<< HEAD
 static const struct of_device_id ltc4151_match[] = {
+=======
+static const struct of_device_id __maybe_unused ltc4151_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "lltc,ltc4151" },
 	{},
 };
@@ -223,7 +254,11 @@ static struct i2c_driver ltc4151_driver = {
 		.name	= "ltc4151",
 		.of_match_table = of_match_ptr(ltc4151_match),
 	},
+<<<<<<< HEAD
 	.probe		= ltc4151_probe,
+=======
+	.probe_new	= ltc4151_probe,
+>>>>>>> upstream/android-13
 	.id_table	= ltc4151_id,
 };
 

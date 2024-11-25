@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the Diolan DLN-2 USB-I2C adapter
  *
@@ -6,10 +10,13 @@
  * Derived from:
  *  i2c-diolan-u2c.c
  *  Copyright (c) 2010-2011 Ericsson AB
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

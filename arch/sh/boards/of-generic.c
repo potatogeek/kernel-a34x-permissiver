@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH generic board support, using device tree
  *
  * Copyright (C) 2015-2016 Smart Energy Instruments, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
@@ -13,6 +18,15 @@
 #include <linux/clocksource.h>
 #include <linux/irqchip.h>
 #include <linux/clk-provider.h>
+=======
+ */
+
+#include <linux/of.h>
+#include <linux/of_clk.h>
+#include <linux/of_fdt.h>
+#include <linux/clocksource.h>
+#include <linux/irqchip.h>
+>>>>>>> upstream/android-13
 #include <asm/machvec.h>
 #include <asm/rtc.h>
 
@@ -52,7 +66,11 @@ static struct plat_smp_ops dummy_smp_ops = {
 
 extern const struct of_cpu_method __cpu_method_of_table[];
 const struct of_cpu_method __cpu_method_of_table_sentinel
+<<<<<<< HEAD
 	__section(__cpu_method_of_table_end);
+=======
+	__section("__cpu_method_of_table_end");
+>>>>>>> upstream/android-13
 
 static void sh_of_smp_probe(void)
 {
@@ -64,7 +82,11 @@ static void sh_of_smp_probe(void)
 
 	init_cpu_possible(cpumask_of(0));
 
+<<<<<<< HEAD
 	for_each_node_by_type(np, "cpu") {
+=======
+	for_each_of_cpu_node(np) {
+>>>>>>> upstream/android-13
 		const __be32 *cell = of_get_property(np, "reg", NULL);
 		u64 id = -1;
 		if (cell) id = of_read_number(cell, of_n_addr_cells(np));
@@ -117,18 +139,24 @@ static void __init sh_of_mem_reserve(void)
 	early_init_fdt_scan_reserved_mem();
 }
 
+<<<<<<< HEAD
 static void __init sh_of_time_init(void)
 {
 	pr_info("SH generic board support: scanning for clocksource devices\n");
 	timer_probe();
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init sh_of_setup(char **cmdline_p)
 {
 	struct device_node *root;
 
+<<<<<<< HEAD
 	board_time_init = sh_of_time_init;
 
+=======
+>>>>>>> upstream/android-13
 	sh_mv.mv_name = "Unknown SH model";
 	root = of_find_node_by_path("/");
 	if (root) {

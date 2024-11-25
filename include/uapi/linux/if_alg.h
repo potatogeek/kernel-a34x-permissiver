@@ -51,6 +51,10 @@ struct af_alg_iv {
 #define ALG_SET_OP			3
 #define ALG_SET_AEAD_ASSOCLEN		4
 #define ALG_SET_AEAD_AUTHSIZE		5
+<<<<<<< HEAD
+=======
+#define ALG_SET_DRBG_ENTROPY		6
+>>>>>>> upstream/android-13
 
 /* Operations */
 #define ALG_OP_DECRYPT			0

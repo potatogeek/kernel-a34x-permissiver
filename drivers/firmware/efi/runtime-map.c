@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * linux/drivers/efi/runtime-map.c
  * Copyright (C) 2013 Red Hat, Inc., Dave Young <dyoung@redhat.com>
  *
  * This file is released under the GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * linux/drivers/efi/runtime-map.c
+ * Copyright (C) 2013 Red Hat, Inc., Dave Young <dyoung@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/string.h>

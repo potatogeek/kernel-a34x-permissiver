@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LeadTek Y04G0051 remote controller keytable
  *
  * Copyright (C) 2010 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -25,6 +32,7 @@ static struct rc_map_table leadtek_y04g0051[] = {
 	{ 0x0300, KEY_POWER2 },
 	{ 0x0303, KEY_SCREEN },
 	{ 0x0304, KEY_RIGHT },
+<<<<<<< HEAD
 	{ 0x0305, KEY_1 },
 	{ 0x0306, KEY_2 },
 	{ 0x0307, KEY_3 },
@@ -39,6 +47,22 @@ static struct rc_map_table leadtek_y04g0051[] = {
 	{ 0x0310, KEY_DOWN },
 	{ 0x0311, KEY_AGAIN },
 	{ 0x0312, KEY_0 },
+=======
+	{ 0x0305, KEY_NUMERIC_1 },
+	{ 0x0306, KEY_NUMERIC_2 },
+	{ 0x0307, KEY_NUMERIC_3 },
+	{ 0x0308, KEY_LEFT },
+	{ 0x0309, KEY_NUMERIC_4 },
+	{ 0x030a, KEY_NUMERIC_5 },
+	{ 0x030b, KEY_NUMERIC_6 },
+	{ 0x030c, KEY_UP },
+	{ 0x030d, KEY_NUMERIC_7 },
+	{ 0x030e, KEY_NUMERIC_8 },
+	{ 0x030f, KEY_NUMERIC_9 },
+	{ 0x0310, KEY_DOWN },
+	{ 0x0311, KEY_AGAIN },
+	{ 0x0312, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x0313, KEY_OK },              /* 1st ok */
 	{ 0x0314, KEY_MUTE },
 	{ 0x0316, KEY_OK },              /* 2nd ok */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 MediaTek Inc.
  * Author: Chaotian.Jing <chaotian.jing@mediatek.com>
@@ -10,12 +11,22 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014-2015 MediaTek Inc.
+ * Author: Chaotian.Jing <chaotian.jing@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/irq.h>
 #include <linux/of_address.h>
@@ -30,12 +41,17 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/arm-smccc.h>
 #include <linux/soc/mediatek/mtk_sip_svc.h>
 #if defined(CONFIG_MACH_MT6768) && defined(CONFIG_MTK_PMQOS)
 #include <linux/soc/mediatek/mtk-pm-qos.h>
 #endif
 #include "../core/card.h"
+=======
+#include <linux/reset.h>
+
+>>>>>>> upstream/android-13
 #include <linux/mmc/card.h>
 #include <linux/mmc/core.h>
 #include <linux/mmc/host.h>
@@ -43,6 +59,7 @@
 #include <linux/mmc/sd.h>
 #include <linux/mmc/sdio.h>
 #include <linux/mmc/slot-gpio.h>
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 #include "../../misc/mediatek/include/mt-plat/mtk_chip.h"
 #include "mt8173_top_io.h"
@@ -57,6 +74,13 @@ void msdc_dump_info(struct mmc_host *mmc);
 #include "mmc-sec-sysfs.h"
 
 #define MAX_BD_NUM          1024
+=======
+
+#include "cqhci.h"
+
+#define MAX_BD_NUM          1024
+#define MSDC_NR_CLOCKS      3
+>>>>>>> upstream/android-13
 
 /*--------------------------------------------------------------------------*/
 /* Common Definition                                                        */
@@ -67,10 +91,13 @@ void msdc_dump_info(struct mmc_host *mmc);
 
 #define MSDC_BURST_64B          0x6
 
+<<<<<<< HEAD
 #define MSDC_EMMC          (0)
 #define MSDC_SD            (1)
 #define MSDC_SDIO          (2)
 
+=======
+>>>>>>> upstream/android-13
 /*--------------------------------------------------------------------------*/
 /* Register Offset                                                          */
 /*--------------------------------------------------------------------------*/
@@ -103,9 +130,18 @@ void msdc_dump_info(struct mmc_host *mmc);
 #define MSDC_PAD_TUNE0   0xf0
 #define PAD_DS_TUNE      0x188
 #define PAD_CMD_TUNE     0x18c
+<<<<<<< HEAD
 #define EMMC50_CFG0      0x208
 #define EMMC50_CFG3      0x220
 #define SDC_FIFO_CFG     0x228
+=======
+#define EMMC51_CFG0	 0x204
+#define EMMC50_CFG0      0x208
+#define EMMC50_CFG1      0x20c
+#define EMMC50_CFG3      0x220
+#define SDC_FIFO_CFG     0x228
+#define CQHCI_SETTING	 0x7fc
+>>>>>>> upstream/android-13
 
 /*--------------------------------------------------------------------------*/
 /* Top Pad Register Offset                                                  */
@@ -157,6 +193,10 @@ void msdc_dump_info(struct mmc_host *mmc);
 #define MSDC_PS_CDSTS           (0x1 << 1)	/* R  */
 #define MSDC_PS_CDDEBOUNCE      (0xf << 12)	/* RW */
 #define MSDC_PS_DAT             (0xff << 16)	/* R  */
+<<<<<<< HEAD
+=======
+#define MSDC_PS_DATA1           (0x1 << 17)	/* R  */
+>>>>>>> upstream/android-13
 #define MSDC_PS_CMD             (0x1 << 24)	/* R  */
 #define MSDC_PS_WP              (0x1 << 31)	/* R  */
 
@@ -223,6 +263,10 @@ void msdc_dump_info(struct mmc_host *mmc);
 #define SDC_STS_CMDBUSY         (0x1 << 1)	/* RW */
 #define SDC_STS_SWR_COMPL       (0x1 << 31)	/* RW */
 
+<<<<<<< HEAD
+=======
+#define SDC_DAT1_IRQ_TRIGGER	(0x1 << 19)	/* RW */
+>>>>>>> upstream/android-13
 /* SDC_ADV_CFG0 mask */
 #define SDC_RX_ENHANCE_EN	(0x1 << 20)	/* RW */
 
@@ -257,10 +301,16 @@ void msdc_dump_info(struct mmc_host *mmc);
 #define MSDC_PATCH_BIT_INTDLSEL   (0x1 << 28)	/* RW */
 #define MSDC_PATCH_BIT_SPCPUSH    (0x1 << 29)	/* RW */
 #define MSDC_PATCH_BIT_DECRCTMO   (0x1 << 30)	/* RW */
+<<<<<<< HEAD
 #define MSDC_PATCH_BIT1_WRTA      (0x7 << 0)    /* RW */
 
 #define MSDC_PB1_BUSY_CHECK_SEL   (0x1 << 7)    /* RW */
 #define MSDC_PATCH_BIT1_CMDTA     (0x7 << 3)    /* RW */
+=======
+
+#define MSDC_PATCH_BIT1_CMDTA     (0x7 << 3)    /* RW */
+#define MSDC_PB1_BUSY_CHECK_SEL   (0x1 << 7)    /* RW */
+>>>>>>> upstream/android-13
 #define MSDC_PATCH_BIT1_STOP_DLY  (0xf << 8)    /* RW */
 
 #define MSDC_PATCH_BIT2_CFGRESP   (0x1 << 15)   /* RW */
@@ -286,14 +336,28 @@ void msdc_dump_info(struct mmc_host *mmc);
 
 #define PAD_CMD_TUNE_RX_DLY3	  (0x1f << 1)  /* RW */
 
+<<<<<<< HEAD
 #define EMMC50_CFG_PADCMD_LATCHCK (0x1 << 0)   /* RW */
 #define EMMC50_CFG_CRCSTS_EDGE    (0x1 << 3)   /* RW */
 #define EMMC50_CFG_CFCSTS_SEL     (0x1 << 4)   /* RW */
+=======
+/* EMMC51_CFG0 mask */
+#define CMDQ_RDAT_CNT		  (0x3ff << 12)	/* RW */
+
+#define EMMC50_CFG_PADCMD_LATCHCK (0x1 << 0)   /* RW */
+#define EMMC50_CFG_CRCSTS_EDGE    (0x1 << 3)   /* RW */
+#define EMMC50_CFG_CFCSTS_SEL     (0x1 << 4)   /* RW */
+#define EMMC50_CFG_CMD_RESP_SEL   (0x1 << 9)   /* RW */
+
+/* EMMC50_CFG1 mask */
+#define EMMC50_CFG1_DS_CFG        (0x1 << 28)  /* RW */
+>>>>>>> upstream/android-13
 
 #define EMMC50_CFG3_OUTS_WR       (0x1f << 0)  /* RW */
 
 #define SDC_FIFO_CFG_WRVALIDSEL   (0x1 << 24)  /* RW */
 #define SDC_FIFO_CFG_RDVALIDSEL   (0x1 << 25)  /* RW */
+<<<<<<< HEAD
 /* MT8173 E2 top register 0x10000404 */
 #define MSDC1_DAT0_DELAY (0x1f << 10)
 #define MSDC1_DAT1_DELAY (0x1f << 15)
@@ -302,6 +366,12 @@ void msdc_dump_info(struct mmc_host *mmc);
 
 /* MT8173 E2 top register 0x10000408 */
 #define MSDC1_CMD_DELAY	 (0x1f << 25)
+=======
+
+/* CQHCI_SETTING */
+#define CQHCI_RD_CMD_WND_SEL	  (0x1 << 14) /* RW */
+#define CQHCI_WR_CMD_WND_SEL	  (0x1 << 15) /* RW */
+>>>>>>> upstream/android-13
 
 /* EMMC_TOP_CONTROL mask */
 #define PAD_RXDLY_SEL           (0x1 << 0)      /* RW */
@@ -340,9 +410,80 @@ void msdc_dump_info(struct mmc_host *mmc);
 #define CMD_TIMEOUT         (HZ/10 * 5)	/* 100ms x5 */
 #define DAT_TIMEOUT         (HZ    * 5)	/* 1000ms x5 */
 
+<<<<<<< HEAD
 #define PAD_DELAY_MAX	32 /* PAD delay cells */
 struct mtk_mmc_compatible {
 	u8 clk_div_bits;
+=======
+#define DEFAULT_DEBOUNCE	(8)	/* 8 cycles CD debounce */
+
+#define PAD_DELAY_MAX	32 /* PAD delay cells */
+/*--------------------------------------------------------------------------*/
+/* Descriptor Structure                                                     */
+/*--------------------------------------------------------------------------*/
+struct mt_gpdma_desc {
+	u32 gpd_info;
+#define GPDMA_DESC_HWO		(0x1 << 0)
+#define GPDMA_DESC_BDP		(0x1 << 1)
+#define GPDMA_DESC_CHECKSUM	(0xff << 8) /* bit8 ~ bit15 */
+#define GPDMA_DESC_INT		(0x1 << 16)
+#define GPDMA_DESC_NEXT_H4	(0xf << 24)
+#define GPDMA_DESC_PTR_H4	(0xf << 28)
+	u32 next;
+	u32 ptr;
+	u32 gpd_data_len;
+#define GPDMA_DESC_BUFLEN	(0xffff) /* bit0 ~ bit15 */
+#define GPDMA_DESC_EXTLEN	(0xff << 16) /* bit16 ~ bit23 */
+	u32 arg;
+	u32 blknum;
+	u32 cmd;
+};
+
+struct mt_bdma_desc {
+	u32 bd_info;
+#define BDMA_DESC_EOL		(0x1 << 0)
+#define BDMA_DESC_CHECKSUM	(0xff << 8) /* bit8 ~ bit15 */
+#define BDMA_DESC_BLKPAD	(0x1 << 17)
+#define BDMA_DESC_DWPAD		(0x1 << 18)
+#define BDMA_DESC_NEXT_H4	(0xf << 24)
+#define BDMA_DESC_PTR_H4	(0xf << 28)
+	u32 next;
+	u32 ptr;
+	u32 bd_data_len;
+#define BDMA_DESC_BUFLEN	(0xffff) /* bit0 ~ bit15 */
+#define BDMA_DESC_BUFLEN_EXT	(0xffffff) /* bit0 ~ bit23 */
+};
+
+struct msdc_dma {
+	struct scatterlist *sg;	/* I/O scatter list */
+	struct mt_gpdma_desc *gpd;		/* pointer to gpd array */
+	struct mt_bdma_desc *bd;		/* pointer to bd array */
+	dma_addr_t gpd_addr;	/* the physical address of gpd array */
+	dma_addr_t bd_addr;	/* the physical address of bd array */
+};
+
+struct msdc_save_para {
+	u32 msdc_cfg;
+	u32 iocon;
+	u32 sdc_cfg;
+	u32 pad_tune;
+	u32 patch_bit0;
+	u32 patch_bit1;
+	u32 patch_bit2;
+	u32 pad_ds_tune;
+	u32 pad_cmd_tune;
+	u32 emmc50_cfg0;
+	u32 emmc50_cfg3;
+	u32 sdc_fifo_cfg;
+	u32 emmc_top_control;
+	u32 emmc_top_cmd;
+	u32 emmc50_pad_ds_tune;
+};
+
+struct mtk_mmc_compatible {
+	u8 clk_div_bits;
+	bool recheck_sdio_irq;
+>>>>>>> upstream/android-13
 	bool hs400_tune; /* only used for MT8173 */
 	u32 pad_tune_reg;
 	bool async_fifo;
@@ -351,6 +492,18 @@ struct mtk_mmc_compatible {
 	bool stop_clk_fix;
 	bool enhance_rx;
 	bool support_64g;
+<<<<<<< HEAD
+=======
+	bool use_internal_cd;
+};
+
+struct msdc_tune_para {
+	u32 iocon;
+	u32 pad_tune;
+	u32 pad_cmd_tune;
+	u32 emmc_top_control;
+	u32 emmc_top_cmd;
+>>>>>>> upstream/android-13
 };
 
 struct msdc_delay_phase {
@@ -359,6 +512,7 @@ struct msdc_delay_phase {
 	u8 final_phase;
 };
 
+<<<<<<< HEAD
 
 struct tag_bootmode {
 	u32 size;
@@ -373,6 +527,65 @@ static bool msdc_top_lock_inited;
 #endif
 static const struct mtk_mmc_compatible mt8135_compat = {
 	.clk_div_bits = 8,
+=======
+struct msdc_host {
+	struct device *dev;
+	const struct mtk_mmc_compatible *dev_comp;
+	int cmd_rsp;
+
+	spinlock_t lock;
+	struct mmc_request *mrq;
+	struct mmc_command *cmd;
+	struct mmc_data *data;
+	int error;
+
+	void __iomem *base;		/* host base address */
+	void __iomem *top_base;		/* host top register base address */
+
+	struct msdc_dma dma;	/* dma channel */
+	u64 dma_mask;
+
+	u32 timeout_ns;		/* data timeout ns */
+	u32 timeout_clks;	/* data timeout clks */
+
+	struct pinctrl *pinctrl;
+	struct pinctrl_state *pins_default;
+	struct pinctrl_state *pins_uhs;
+	struct delayed_work req_timeout;
+	int irq;		/* host interrupt */
+	struct reset_control *reset;
+
+	struct clk *src_clk;	/* msdc source clock */
+	struct clk *h_clk;      /* msdc h_clk */
+	struct clk *bus_clk;	/* bus clock which used to access register */
+	struct clk *src_clk_cg; /* msdc source clock control gate */
+	struct clk *sys_clk_cg;	/* msdc subsys clock control gate */
+	struct clk_bulk_data bulk_clks[MSDC_NR_CLOCKS];
+	u32 mclk;		/* mmc subsystem clock frequency */
+	u32 src_clk_freq;	/* source clock frequency */
+	unsigned char timing;
+	bool vqmmc_enabled;
+	u32 latch_ck;
+	u32 hs400_ds_delay;
+	u32 hs400_ds_dly3;
+	u32 hs200_cmd_int_delay; /* cmd internal delay for HS200/SDR104 */
+	u32 hs400_cmd_int_delay; /* cmd internal delay for HS400 */
+	bool hs400_cmd_resp_sel_rising;
+				 /* cmd response sample selection for HS400 */
+	bool hs400_mode;	/* current eMMC will run at hs400 mode */
+	bool hs400_tuning;	/* hs400 mode online tuning */
+	bool internal_cd;	/* Use internal card-detect logic */
+	bool cqhci;		/* support eMMC hw cmdq */
+	struct msdc_save_para save_para; /* used when gate HCLK */
+	struct msdc_tune_para def_tune_para; /* default tune setting */
+	struct msdc_tune_para saved_tune_para; /* tune result of CMD21/CMD19 */
+	struct cqhci_host *cq_host;
+};
+
+static const struct mtk_mmc_compatible mt8135_compat = {
+	.clk_div_bits = 8,
+	.recheck_sdio_irq = true,
+>>>>>>> upstream/android-13
 	.hs400_tune = false,
 	.pad_tune_reg = MSDC_PAD_TUNE,
 	.async_fifo = false,
@@ -385,6 +598,10 @@ static const struct mtk_mmc_compatible mt8135_compat = {
 
 static const struct mtk_mmc_compatible mt8173_compat = {
 	.clk_div_bits = 8,
+<<<<<<< HEAD
+=======
+	.recheck_sdio_irq = true,
+>>>>>>> upstream/android-13
 	.hs400_tune = true,
 	.pad_tune_reg = MSDC_PAD_TUNE,
 	.async_fifo = false,
@@ -397,6 +614,10 @@ static const struct mtk_mmc_compatible mt8173_compat = {
 
 static const struct mtk_mmc_compatible mt8183_compat = {
 	.clk_div_bits = 12,
+<<<<<<< HEAD
+=======
+	.recheck_sdio_irq = false,
+>>>>>>> upstream/android-13
 	.hs400_tune = false,
 	.pad_tune_reg = MSDC_PAD_TUNE0,
 	.async_fifo = true,
@@ -409,6 +630,10 @@ static const struct mtk_mmc_compatible mt8183_compat = {
 
 static const struct mtk_mmc_compatible mt2701_compat = {
 	.clk_div_bits = 12,
+<<<<<<< HEAD
+=======
+	.recheck_sdio_irq = true,
+>>>>>>> upstream/android-13
 	.hs400_tune = false,
 	.pad_tune_reg = MSDC_PAD_TUNE0,
 	.async_fifo = true,
@@ -421,6 +646,10 @@ static const struct mtk_mmc_compatible mt2701_compat = {
 
 static const struct mtk_mmc_compatible mt2712_compat = {
 	.clk_div_bits = 12,
+<<<<<<< HEAD
+=======
+	.recheck_sdio_irq = false,
+>>>>>>> upstream/android-13
 	.hs400_tune = false,
 	.pad_tune_reg = MSDC_PAD_TUNE0,
 	.async_fifo = true,
@@ -433,6 +662,10 @@ static const struct mtk_mmc_compatible mt2712_compat = {
 
 static const struct mtk_mmc_compatible mt7622_compat = {
 	.clk_div_bits = 12,
+<<<<<<< HEAD
+=======
+	.recheck_sdio_irq = true,
+>>>>>>> upstream/android-13
 	.hs400_tune = false,
 	.pad_tune_reg = MSDC_PAD_TUNE0,
 	.async_fifo = true,
@@ -443,6 +676,7 @@ static const struct mtk_mmc_compatible mt7622_compat = {
 	.support_64g = false,
 };
 
+<<<<<<< HEAD
 static const struct mtk_mmc_compatible mt6779_compat = {
 	.clk_div_bits = 12,
 	.hs400_tune = false,
@@ -541,6 +775,35 @@ static const struct mtk_mmc_compatible mt6853_compat = {
 
 static const struct mtk_mmc_compatible mt6873_compat = {
 	.clk_div_bits = 12,
+=======
+static const struct mtk_mmc_compatible mt8516_compat = {
+	.clk_div_bits = 12,
+	.recheck_sdio_irq = true,
+	.hs400_tune = false,
+	.pad_tune_reg = MSDC_PAD_TUNE0,
+	.async_fifo = true,
+	.data_tune = true,
+	.busy_check = true,
+	.stop_clk_fix = true,
+};
+
+static const struct mtk_mmc_compatible mt7620_compat = {
+	.clk_div_bits = 8,
+	.recheck_sdio_irq = true,
+	.hs400_tune = false,
+	.pad_tune_reg = MSDC_PAD_TUNE,
+	.async_fifo = false,
+	.data_tune = false,
+	.busy_check = false,
+	.stop_clk_fix = false,
+	.enhance_rx = false,
+	.use_internal_cd = true,
+};
+
+static const struct mtk_mmc_compatible mt6779_compat = {
+	.clk_div_bits = 12,
+	.recheck_sdio_irq = false,
+>>>>>>> upstream/android-13
 	.hs400_tune = false,
 	.pad_tune_reg = MSDC_PAD_TUNE0,
 	.async_fifo = true,
@@ -558,6 +821,7 @@ static const struct of_device_id msdc_of_ids[] = {
 	{ .compatible = "mediatek,mt2701-mmc", .data = &mt2701_compat},
 	{ .compatible = "mediatek,mt2712-mmc", .data = &mt2712_compat},
 	{ .compatible = "mediatek,mt7622-mmc", .data = &mt7622_compat},
+<<<<<<< HEAD
 	{ .compatible = "mediatek,mt6779-mmc", .data = &mt6779_compat},
 	{ .compatible = "mediatek,mt6768-mmc", .data = &mt6768_compat},
 	{ .compatible = "mediatek,mt6781-mmc", .data = &mt6781_compat},
@@ -567,6 +831,11 @@ static const struct of_device_id msdc_of_ids[] = {
 	{ .compatible = "mediatek,mt6833-mmc", .data = &mt6833_compat},
 	{ .compatible = "mediatek,mt6853-mmc", .data = &mt6853_compat},
 	{ .compatible = "mediatek,mt6873-mmc", .data = &mt6873_compat},
+=======
+	{ .compatible = "mediatek,mt8516-mmc", .data = &mt8516_compat},
+	{ .compatible = "mediatek,mt7620-mmc", .data = &mt7620_compat},
+	{ .compatible = "mediatek,mt6779-mmc", .data = &mt6779_compat},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, msdc_of_ids);
@@ -603,6 +872,7 @@ static void sdr_get_field(void __iomem *reg, u32 field, u32 *val)
 	*val = ((tv & field) >> (ffs((unsigned int)field) - 1));
 }
 
+<<<<<<< HEAD
 static void msdc_retry(struct msdc_host *host, int addr, int val, int retry, int cnt,
 	struct mmc_host *mmc)
 {
@@ -625,10 +895,13 @@ static void msdc_retry(struct msdc_host *host, int addr, int val, int retry, int
 	}
 	WARN_ON(retry == 0);
 }
+=======
+>>>>>>> upstream/android-13
 static void msdc_reset_hw(struct msdc_host *host)
 {
 	u32 val;
 
+<<<<<<< HEAD
 	dev_dbg(host->mmc->parent, "%s %d\n",__func__,__LINE__);
 
 	//sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_RST);
@@ -642,10 +915,25 @@ static void msdc_reset_hw(struct msdc_host *host)
 	val = readl(host->base + MSDC_INT);
 	writel(val, host->base + MSDC_INT);
 
+=======
+	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_RST);
+	readl_poll_timeout(host->base + MSDC_CFG, val, !(val & MSDC_CFG_RST), 0, 0);
+
+	sdr_set_bits(host->base + MSDC_FIFOCS, MSDC_FIFOCS_CLR);
+	readl_poll_timeout(host->base + MSDC_FIFOCS, val,
+			   !(val & MSDC_FIFOCS_CLR), 0, 0);
+
+	val = readl(host->base + MSDC_INT);
+	writel(val, host->base + MSDC_INT);
+>>>>>>> upstream/android-13
 }
 
 static void msdc_cmd_next(struct msdc_host *host,
 		struct mmc_request *mrq, struct mmc_command *cmd);
+<<<<<<< HEAD
+=======
+static void __msdc_enable_sdio_irq(struct msdc_host *host, int enb);
+>>>>>>> upstream/android-13
 
 static const u32 cmd_ints_mask = MSDC_INTEN_CMDRDY | MSDC_INTEN_RSPCRCERR |
 			MSDC_INTEN_CMDTMO | MSDC_INTEN_ACMDRDY |
@@ -729,10 +1017,15 @@ static inline void msdc_dma_setup(struct msdc_host *host, struct msdc_dma *dma,
 	writel(lower_32_bits(dma->gpd_addr), host->base + MSDC_DMA_SA);
 }
 
+<<<<<<< HEAD
 static void msdc_prepare_data(struct msdc_host *host, struct mmc_request *mrq)
 {
 	struct mmc_data *data = mrq->data;
 
+=======
+static void msdc_prepare_data(struct msdc_host *host, struct mmc_data *data)
+{
+>>>>>>> upstream/android-13
 	if (!(data->host_cookie & MSDC_PREPARE_FLAG)) {
 		data->host_cookie |= MSDC_PREPARE_FLAG;
 		data->sg_count = dma_map_sg(host->dev, data->sg, data->sg_len,
@@ -740,10 +1033,15 @@ static void msdc_prepare_data(struct msdc_host *host, struct mmc_request *mrq)
 	}
 }
 
+<<<<<<< HEAD
 static void msdc_unprepare_data(struct msdc_host *host, struct mmc_request *mrq)
 {
 	struct mmc_data *data = mrq->data;
 
+=======
+static void msdc_unprepare_data(struct msdc_host *host, struct mmc_data *data)
+{
+>>>>>>> upstream/android-13
 	if (data->host_cookie & MSDC_ASYNC_FLAG)
 		return;
 
@@ -756,6 +1054,7 @@ static void msdc_unprepare_data(struct msdc_host *host, struct mmc_request *mrq)
 
 static u64 msdc_timeout_cal(struct msdc_host *host, u64 ns, u64 clks)
 {
+<<<<<<< HEAD
 	u64 timeout, clk_ns;
 	u32 mode = 0;
 
@@ -767,6 +1066,18 @@ static u64 msdc_timeout_cal(struct msdc_host *host, u64 ns, u64 clks)
 		clk_ns  = 1000000000UL;
 		do_div(clk_ns, host->mmc->actual_clock);
 		timeout = (ns + clk_ns - 1);
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+	u64 timeout, clk_ns;
+	u32 mode = 0;
+
+	if (mmc->actual_clock == 0) {
+		timeout = 0;
+	} else {
+		clk_ns  = 1000000000ULL;
+		do_div(clk_ns, mmc->actual_clock);
+		timeout = ns + clk_ns - 1;
+>>>>>>> upstream/android-13
 		do_div(timeout, clk_ns);
 		timeout += clks;
 		/* in 1048576 sclk cycle unit */
@@ -794,7 +1105,11 @@ static void msdc_set_timeout(struct msdc_host *host, u64 ns, u64 clks)
 
 	timeout = msdc_timeout_cal(host, ns, clks);
 	sdr_set_field(host->base + SDC_CFG, SDC_CFG_DTOC,
+<<<<<<< HEAD
 		(u32)(timeout > 255 ? 255 : timeout));
+=======
+		      (u32)(timeout > 255 ? 255 : timeout));
+>>>>>>> upstream/android-13
 }
 
 static void msdc_set_busy_timeout(struct msdc_host *host, u64 ns, u64 clks)
@@ -803,6 +1118,7 @@ static void msdc_set_busy_timeout(struct msdc_host *host, u64 ns, u64 clks)
 
 	timeout = msdc_timeout_cal(host, ns, clks);
 	sdr_set_field(host->base + SDC_CFG, SDC_CFG_WRDTOC,
+<<<<<<< HEAD
 		(u32)(timeout > 8191 ? 8191 : timeout));
 }
 
@@ -815,43 +1131,81 @@ void msdc_gate_clock(struct mmc_host *mmc)
 
 	if (mmc->caps2 & MMC_CAP2_CRYPTO)
 		clk_disable_unprepare(host->crypto_clk);
+=======
+		      (u32)(timeout > 8191 ? 8191 : timeout));
+}
+
+static void msdc_gate_clock(struct msdc_host *host)
+{
+	clk_bulk_disable_unprepare(MSDC_NR_CLOCKS, host->bulk_clks);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(host->src_clk_cg);
 	clk_disable_unprepare(host->src_clk);
 	clk_disable_unprepare(host->bus_clk);
 	clk_disable_unprepare(host->h_clk);
 }
 
+<<<<<<< HEAD
 void msdc_ungate_clock(struct mmc_host *mmc)
 {
 	struct msdc_host *host = mmc_priv(mmc);
 
 	if (!host)
 		return;
+=======
+static int msdc_ungate_clock(struct msdc_host *host)
+{
+	u32 val;
+	int ret;
+>>>>>>> upstream/android-13
 
 	clk_prepare_enable(host->h_clk);
 	clk_prepare_enable(host->bus_clk);
 	clk_prepare_enable(host->src_clk);
 	clk_prepare_enable(host->src_clk_cg);
+<<<<<<< HEAD
 	if (mmc->caps2 & MMC_CAP2_CRYPTO)
 		clk_prepare_enable(host->crypto_clk);
 
 	while (!(readl(host->base + MSDC_CFG) & MSDC_CFG_CKSTB))
 		cpu_relax();
+=======
+	ret = clk_bulk_prepare_enable(MSDC_NR_CLOCKS, host->bulk_clks);
+	if (ret) {
+		dev_err(host->dev, "Cannot enable pclk/axi/ahb clock gates\n");
+		return ret;
+	}
+
+	return readl_poll_timeout(host->base + MSDC_CFG, val,
+				  (val & MSDC_CFG_CKSTB), 1, 20000);
+>>>>>>> upstream/android-13
 }
 
 static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
 {
+<<<<<<< HEAD
 	struct mmc_host *mmc = host->mmc;
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+>>>>>>> upstream/android-13
 	u32 mode;
 	u32 flags;
 	u32 div;
 	u32 sclk;
 	u32 tune_reg = host->dev_comp->pad_tune_reg;
+<<<<<<< HEAD
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 
 	if (!hz) {
 		dev_dbg(host->dev, "set mclk to 0\n");
 		host->mclk = 0;
+<<<<<<< HEAD
 		host->mmc->actual_clock = 0;
+=======
+		mmc->actual_clock = 0;
+>>>>>>> upstream/android-13
 		sdr_clr_bits(host->base + MSDC_CFG, MSDC_CFG_CKPDN);
 		return;
 	}
@@ -905,6 +1259,10 @@ static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
 			sclk = (host->src_clk_freq >> 2) / div;
 		}
 	}
+<<<<<<< HEAD
+=======
+	sdr_clr_bits(host->base + MSDC_CFG, MSDC_CFG_CKPDN);
+>>>>>>> upstream/android-13
 	/*
 	 * As src_clk/HCLK use the same bit to gate/ungate,
 	 * So if want to only gate src_clk, need gate its parent(mux).
@@ -926,6 +1284,7 @@ static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
 	else
 		clk_prepare_enable(clk_get_parent(host->src_clk));
 
+<<<<<<< HEAD
 	while (!(readl(host->base + MSDC_CFG) & MSDC_CFG_CKSTB))
 		cpu_relax();
 	if (host->mclk == 0 && (mmc->caps2 & MMC_CAP2_NO_MMC)
@@ -941,6 +1300,11 @@ static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
 	host->sclk = sclk;
 #endif
 	host->mmc->actual_clock = sclk;
+=======
+	readl_poll_timeout(host->base + MSDC_CFG, val, (val & MSDC_CFG_CKSTB), 0, 0);
+	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_CKPDN);
+	mmc->actual_clock = sclk;
+>>>>>>> upstream/android-13
 	host->mclk = hz;
 	host->timing = timing;
 	/* need because clk changed. */
@@ -951,7 +1315,11 @@ static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
 	 * mmc_select_hs400() will drop to 50Mhz and High speed mode,
 	 * tune result of hs200/200Mhz is not suitable for 50Mhz
 	 */
+<<<<<<< HEAD
 	if (host->mmc->actual_clock <= 52000000) {
+=======
+	if (mmc->actual_clock <= 52000000) {
+>>>>>>> upstream/android-13
 		writel(host->def_tune_para.iocon, host->base + MSDC_IOCON);
 		if (host->top_base) {
 			writel(host->def_tune_para.emmc_top_control,
@@ -982,7 +1350,11 @@ static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
 		sdr_set_field(host->base + tune_reg,
 			      MSDC_PAD_TUNE_CMDRRDLY,
 			      host->hs400_cmd_int_delay);
+<<<<<<< HEAD
 	dev_info(host->dev, "sclk: %d, timing: %d\n", host->mmc->actual_clock,
+=======
+	dev_dbg(host->dev, "sclk: %d, timing: %d\n", mmc->actual_clock,
+>>>>>>> upstream/android-13
 		timing);
 }
 
@@ -1017,6 +1389,10 @@ static inline u32 msdc_cmd_find_resp(struct msdc_host *host,
 static inline u32 msdc_cmd_prepare_raw_cmd(struct msdc_host *host,
 		struct mmc_request *mrq, struct mmc_command *cmd)
 {
+<<<<<<< HEAD
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+>>>>>>> upstream/android-13
 	/* rawcmd :
 	 * vol_swt << 30 | auto_cmd << 28 | blklen << 16 | go_irq << 15 |
 	 * stop << 14 | rw << 13 | dtype << 11 | rsptyp << 7 | brk << 6 | opcode
@@ -1024,7 +1400,10 @@ static inline u32 msdc_cmd_prepare_raw_cmd(struct msdc_host *host,
 	u32 opcode = cmd->opcode;
 	u32 resp = msdc_cmd_find_resp(host, mrq, cmd);
 	u32 rawcmd = (opcode & 0x3f) | ((resp & 0x7) << 7);
+<<<<<<< HEAD
 	u32 blksz = (readl(host->base + SDC_CMD) >> 16) & 0xFFF;
+=======
+>>>>>>> upstream/android-13
 
 	host->cmd_rsp = resp;
 
@@ -1044,7 +1423,11 @@ static inline u32 msdc_cmd_prepare_raw_cmd(struct msdc_host *host,
 		struct mmc_data *data = cmd->data;
 
 		if (mmc_op_multi(opcode)) {
+<<<<<<< HEAD
 			if (mmc_card_mmc(host->mmc->card) && mrq->sbc &&
+=======
+			if (mmc_card_mmc(mmc->card) && mrq->sbc &&
+>>>>>>> upstream/android-13
 			    !(mrq->sbc->arg & 0xFFFF0000))
 				rawcmd |= 0x2 << 28; /* AutoCMD23 */
 		}
@@ -1065,9 +1448,13 @@ static inline u32 msdc_cmd_prepare_raw_cmd(struct msdc_host *host,
 					data->timeout_clks);
 
 		writel(data->blocks, host->base + SDC_BLK_NUM);
+<<<<<<< HEAD
 	} else
 		rawcmd |= blksz << 16;
 
+=======
+	}
+>>>>>>> upstream/android-13
 	return rawcmd;
 }
 
@@ -1103,9 +1490,12 @@ static int msdc_auto_cmd_done(struct msdc_host *host, int events,
 		if (events & MSDC_INT_ACMDCRCERR) {
 			cmd->error = -EILSEQ;
 			host->error |= REQ_STOP_EIO;
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 			host->tune_response_valid = false;
 #endif
+=======
+>>>>>>> upstream/android-13
 		} else if (events & MSDC_INT_ACMDTMO) {
 			cmd->error = -ETIMEDOUT;
 			host->error |= REQ_STOP_TMO;
@@ -1117,6 +1507,35 @@ static int msdc_auto_cmd_done(struct msdc_host *host, int events,
 	return cmd->error;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * msdc_recheck_sdio_irq - recheck whether the SDIO irq is lost
+ *
+ * Host controller may lost interrupt in some special case.
+ * Add SDIO irq recheck mechanism to make sure all interrupts
+ * can be processed immediately
+ */
+static void msdc_recheck_sdio_irq(struct msdc_host *host)
+{
+	struct mmc_host *mmc = mmc_from_priv(host);
+	u32 reg_int, reg_inten, reg_ps;
+
+	if (mmc->caps & MMC_CAP_SDIO_IRQ) {
+		reg_inten = readl(host->base + MSDC_INTEN);
+		if (reg_inten & MSDC_INTEN_SDIOIRQ) {
+			reg_int = readl(host->base + MSDC_INT);
+			reg_ps = readl(host->base + MSDC_PS);
+			if (!(reg_int & MSDC_INT_SDIOIRQ ||
+			      reg_ps & MSDC_PS_DATA1)) {
+				__msdc_enable_sdio_irq(host, 0);
+				sdio_signal_irq(mmc);
+			}
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static void msdc_track_cmd_data(struct msdc_host *host,
 				struct mmc_command *cmd, struct mmc_data *data)
 {
@@ -1141,8 +1560,17 @@ static void msdc_request_done(struct msdc_host *host, struct mmc_request *mrq)
 
 	msdc_track_cmd_data(host, mrq->cmd, mrq->data);
 	if (mrq->data)
+<<<<<<< HEAD
 		msdc_unprepare_data(host, mrq);
 	mmc_request_done(host->mmc, mrq);
+=======
+		msdc_unprepare_data(host, mrq->data);
+	if (host->error)
+		msdc_reset_hw(host);
+	mmc_request_done(mmc_from_priv(host), mrq);
+	if (host->dev_comp->recheck_sdio_irq)
+		msdc_recheck_sdio_irq(host);
+>>>>>>> upstream/android-13
 }
 
 /* returns true if command is fully handled; returns false otherwise */
@@ -1200,10 +1628,13 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
 			 */
 			msdc_reset_hw(host);
 		if (events & MSDC_INT_RSPCRCERR) {
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 			if (cmd->opcode != MMC_SEND_TUNING_BLOCK_HS200)
 				host->tune_response_valid = false;
 #endif
+=======
+>>>>>>> upstream/android-13
 			cmd->error = -EILSEQ;
 			host->error |= REQ_CMD_EIO;
 		} else if (events & MSDC_INT_CMDTMO) {
@@ -1211,8 +1642,12 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
 			host->error |= REQ_CMD_TMO;
 		}
 	}
+<<<<<<< HEAD
 	if (cmd->error && cmd->opcode != MMC_SEND_TUNING_BLOCK &&
 	    cmd->opcode != MMC_SEND_TUNING_BLOCK_HS200)
+=======
+	if (cmd->error)
+>>>>>>> upstream/android-13
 		dev_dbg(host->dev,
 				"%s: cmd=%d arg=%08X; rsp %08X; cmd_error=%d\n",
 				__func__, cmd->opcode, cmd->arg, rsp[0],
@@ -1229,6 +1664,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
 static inline bool msdc_cmd_is_ready(struct msdc_host *host,
 		struct mmc_request *mrq, struct mmc_command *cmd)
 {
+<<<<<<< HEAD
 	/* The max busy time we can endure is 20ms */
 	unsigned long tmo = jiffies + msecs_to_jiffies(20);
 
@@ -1249,6 +1685,26 @@ static inline bool msdc_cmd_is_ready(struct msdc_host *host,
 				time_before(jiffies, tmo))
 			cpu_relax();
 		if (readl(host->base + SDC_STS) & SDC_STS_SDCBUSY) {
+=======
+	u32 val;
+	int ret;
+
+	/* The max busy time we can endure is 20ms */
+	ret = readl_poll_timeout_atomic(host->base + SDC_STS, val,
+					!(val & SDC_STS_CMDBUSY), 1, 20000);
+	if (ret) {
+		dev_err(host->dev, "CMD bus busy detected\n");
+		host->error |= REQ_CMD_BUSY;
+		msdc_cmd_done(host, MSDC_INT_CMDTMO, mrq, cmd);
+		return false;
+	}
+
+	if (mmc_resp_type(cmd) == MMC_RSP_R1B || cmd->data) {
+		/* R1B or with data, should check SDCBUSY */
+		ret = readl_poll_timeout_atomic(host->base + SDC_STS, val,
+						!(val & SDC_STS_SDCBUSY), 1, 20000);
+		if (ret) {
+>>>>>>> upstream/android-13
 			dev_err(host->dev, "Controller busy detected\n");
 			host->error |= REQ_CMD_BUSY;
 			msdc_cmd_done(host, MSDC_INT_CMDTMO, mrq, cmd);
@@ -1267,8 +1723,11 @@ static void msdc_start_command(struct msdc_host *host,
 	WARN_ON(host->cmd);
 	host->cmd = cmd;
 
+<<<<<<< HEAD
 	dbg_add_host_log(host->mmc, 0, cmd->opcode, cmd->arg);
 
+=======
+>>>>>>> upstream/android-13
 	mod_delayed_work(system_wq, &host->req_timeout, DAT_TIMEOUT);
 	if (!msdc_cmd_is_ready(host, mrq, cmd))
 		return;
@@ -1317,7 +1776,11 @@ static void msdc_ops_request(struct mmc_host *mmc, struct mmc_request *mrq)
 	host->mrq = mrq;
 
 	if (mrq->data)
+<<<<<<< HEAD
 		msdc_prepare_data(host, mrq);
+=======
+		msdc_prepare_data(host, mrq->data);
+>>>>>>> upstream/android-13
 
 	/* if SBC is required, we have HW option and SW option.
 	 * if HW option is enabled, and SBC does not have "special" flags,
@@ -1338,7 +1801,11 @@ static void msdc_pre_req(struct mmc_host *mmc, struct mmc_request *mrq)
 	if (!data)
 		return;
 
+<<<<<<< HEAD
 	msdc_prepare_data(host, mrq);
+=======
+	msdc_prepare_data(host, data);
+>>>>>>> upstream/android-13
 	data->host_cookie |= MSDC_ASYNC_FLAG;
 }
 
@@ -1346,6 +1813,7 @@ static void msdc_post_req(struct mmc_host *mmc, struct mmc_request *mrq,
 		int err)
 {
 	struct msdc_host *host = mmc_priv(mmc);
+<<<<<<< HEAD
 	struct mmc_data *data;
 
 	data = mrq->data;
@@ -1359,6 +1827,20 @@ static void msdc_post_req(struct mmc_host *mmc, struct mmc_request *mrq,
 
 static void msdc_data_xfer_next(struct msdc_host *host,
 				struct mmc_request *mrq, struct mmc_data *data)
+=======
+	struct mmc_data *data = mrq->data;
+
+	if (!data)
+		return;
+
+	if (data->host_cookie) {
+		data->host_cookie &= ~MSDC_ASYNC_FLAG;
+		msdc_unprepare_data(host, data);
+	}
+}
+
+static void msdc_data_xfer_next(struct msdc_host *host, struct mmc_request *mrq)
+>>>>>>> upstream/android-13
 {
 	if (mmc_op_multi(mrq->cmd->opcode) && mrq->stop && !mrq->stop->error &&
 	    !mrq->sbc)
@@ -1377,6 +1859,11 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
 	    (MSDC_INT_XFER_COMPL | MSDC_INT_DATCRCERR | MSDC_INT_DATTMO
 	     | MSDC_INT_DMA_BDCSERR | MSDC_INT_DMA_GPDCSERR
 	     | MSDC_INT_DMA_PROTECT);
+<<<<<<< HEAD
+=======
+	u32 val;
+	int ret;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&host->lock, flags);
 	done = !host->data;
@@ -1393,8 +1880,19 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
 				readl(host->base + MSDC_DMA_CFG));
 		sdr_set_field(host->base + MSDC_DMA_CTRL, MSDC_DMA_CTRL_STOP,
 				1);
+<<<<<<< HEAD
 		while (readl(host->base + MSDC_DMA_CTRL) & MSDC_DMA_CTRL_STOP)
 			cpu_relax();
+=======
+
+		ret = readl_poll_timeout_atomic(host->base + MSDC_DMA_CFG, val,
+						!(val & MSDC_DMA_CFG_STS), 1, 20000);
+		if (ret) {
+			dev_dbg(host->dev, "DMA stop timed out\n");
+			return false;
+		}
+
+>>>>>>> upstream/android-13
 		sdr_clr_bits(host->base + MSDC_INTEN, data_ints_mask);
 		dev_dbg(host->dev, "DMA stop\n");
 
@@ -1411,6 +1909,7 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
 			else if (events & MSDC_INT_DATCRCERR)
 				data->error = -EILSEQ;
 
+<<<<<<< HEAD
 			if (mrq->cmd->opcode != MMC_SEND_TUNING_BLOCK &&
 			    mrq->cmd->opcode != MMC_SEND_TUNING_BLOCK_HS200) {
 				dev_dbg(host->dev, "%s: cmd=%d; blocks=%d",
@@ -1422,6 +1921,15 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
 		}
 
 		msdc_data_xfer_next(host, mrq, data);
+=======
+			dev_dbg(host->dev, "%s: cmd=%d; blocks=%d",
+				__func__, mrq->cmd->opcode, data->blocks);
+			dev_dbg(host->dev, "data_error=%d xfer_size=%d\n",
+				(int)data->error, data->bytes_xfered);
+		}
+
+		msdc_data_xfer_next(host, mrq);
+>>>>>>> upstream/android-13
 		done = true;
 	}
 	return done;
@@ -1453,7 +1961,11 @@ static void msdc_set_buswidth(struct msdc_host *host, u32 width)
 static int msdc_ops_switch_volt(struct mmc_host *mmc, struct mmc_ios *ios)
 {
 	struct msdc_host *host = mmc_priv(mmc);
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!IS_ERR(mmc->supply.vqmmc)) {
 		if (ios->signal_voltage != MMC_SIGNAL_VOLTAGE_330 &&
@@ -1463,6 +1975,7 @@ static int msdc_ops_switch_volt(struct mmc_host *mmc, struct mmc_ios *ios)
 		}
 
 		ret = mmc_regulator_set_vqmmc(mmc, ios);
+<<<<<<< HEAD
 		if (ret) {
 			dev_dbg(host->dev, "Regulator set error %d (%d)\n",
 				ret, ios->signal_voltage);
@@ -1475,6 +1988,21 @@ static int msdc_ops_switch_volt(struct mmc_host *mmc, struct mmc_ios *ios)
 		}
 	}
 	return ret;
+=======
+		if (ret < 0) {
+			dev_dbg(host->dev, "Regulator set error %d (%d)\n",
+				ret, ios->signal_voltage);
+			return ret;
+		}
+
+		/* Apply different pinctrl settings for different signal voltage */
+		if (ios->signal_voltage == MMC_SIGNAL_VOLTAGE_180)
+			pinctrl_select_state(host->pinctrl, host->pins_uhs);
+		else
+			pinctrl_select_state(host->pinctrl, host->pins_default);
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int msdc_card_busy(struct mmc_host *mmc)
@@ -1511,12 +2039,30 @@ static void msdc_request_timeout(struct work_struct *work)
 	}
 }
 
+<<<<<<< HEAD
 static void __msdc_enable_sdio_irq(struct mmc_host *mmc, int enb)
+=======
+static void __msdc_enable_sdio_irq(struct msdc_host *host, int enb)
+{
+	if (enb) {
+		sdr_set_bits(host->base + MSDC_INTEN, MSDC_INTEN_SDIOIRQ);
+		sdr_set_bits(host->base + SDC_CFG, SDC_CFG_SDIOIDE);
+		if (host->dev_comp->recheck_sdio_irq)
+			msdc_recheck_sdio_irq(host);
+	} else {
+		sdr_clr_bits(host->base + MSDC_INTEN, MSDC_INTEN_SDIOIRQ);
+		sdr_clr_bits(host->base + SDC_CFG, SDC_CFG_SDIOIDE);
+	}
+}
+
+static void msdc_enable_sdio_irq(struct mmc_host *mmc, int enb)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct msdc_host *host = mmc_priv(mmc);
 
 	spin_lock_irqsave(&host->lock, flags);
+<<<<<<< HEAD
 	if (enb)
 		sdr_set_bits(host->base + MSDC_INTEN, MSDC_INTEN_SDIOIRQ);
 	else
@@ -1529,6 +2075,10 @@ static void msdc_enable_sdio_irq(struct mmc_host *mmc, int enb)
 	struct msdc_host *host = mmc_priv(mmc);
 
 	__msdc_enable_sdio_irq(mmc, enb);
+=======
+	__msdc_enable_sdio_irq(host, enb);
+	spin_unlock_irqrestore(&host->lock, flags);
+>>>>>>> upstream/android-13
 
 	if (enb)
 		pm_runtime_get_noresume(host->dev);
@@ -1536,6 +2086,7 @@ static void msdc_enable_sdio_irq(struct mmc_host *mmc, int enb)
 		pm_runtime_put_noidle(host->dev);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMC_CQHCI
 static irqreturn_t msdc_cmdq_irq(struct msdc_host *host, u32 intsts)
 {
@@ -1566,45 +2117,109 @@ static irqreturn_t msdc_cmdq_irq(struct msdc_host *host, u32 intsts)
 	return cqhci_irq(host->mmc, 0, cmd_err, dat_err);
 }
 #endif
+=======
+static irqreturn_t msdc_cmdq_irq(struct msdc_host *host, u32 intsts)
+{
+	struct mmc_host *mmc = mmc_from_priv(host);
+	int cmd_err = 0, dat_err = 0;
+
+	if (intsts & MSDC_INT_RSPCRCERR) {
+		cmd_err = -EILSEQ;
+		dev_err(host->dev, "%s: CMD CRC ERR", __func__);
+	} else if (intsts & MSDC_INT_CMDTMO) {
+		cmd_err = -ETIMEDOUT;
+		dev_err(host->dev, "%s: CMD TIMEOUT ERR", __func__);
+	}
+
+	if (intsts & MSDC_INT_DATCRCERR) {
+		dat_err = -EILSEQ;
+		dev_err(host->dev, "%s: DATA CRC ERR", __func__);
+	} else if (intsts & MSDC_INT_DATTMO) {
+		dat_err = -ETIMEDOUT;
+		dev_err(host->dev, "%s: DATA TIMEOUT ERR", __func__);
+	}
+
+	if (cmd_err || dat_err) {
+		dev_err(host->dev, "cmd_err = %d, dat_err =%d, intsts = 0x%x",
+			cmd_err, dat_err, intsts);
+	}
+
+	return cqhci_irq(mmc, 0, cmd_err, dat_err);
+}
+>>>>>>> upstream/android-13
 
 static irqreturn_t msdc_irq(int irq, void *dev_id)
 {
 	struct msdc_host *host = (struct msdc_host *) dev_id;
+<<<<<<< HEAD
 
 	while (true) {
 		unsigned long flags;
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+
+	while (true) {
+>>>>>>> upstream/android-13
 		struct mmc_request *mrq;
 		struct mmc_command *cmd;
 		struct mmc_data *data;
 		u32 events, event_mask;
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&host->lock, flags);
 		events = readl(host->base + MSDC_INT);
 		event_mask = readl(host->base + MSDC_INTEN);
+=======
+		spin_lock(&host->lock);
+		events = readl(host->base + MSDC_INT);
+		event_mask = readl(host->base + MSDC_INTEN);
+		if ((events & event_mask) & MSDC_INT_SDIOIRQ)
+			__msdc_enable_sdio_irq(host, 0);
+>>>>>>> upstream/android-13
 		/* clear interrupts */
 		writel(events & event_mask, host->base + MSDC_INT);
 
 		mrq = host->mrq;
 		cmd = host->cmd;
 		data = host->data;
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&host->lock, flags);
 
 		if ((events & event_mask) & MSDC_INT_SDIOIRQ) {
 			__msdc_enable_sdio_irq(host->mmc, 0);
 			sdio_signal_irq(host->mmc);
+=======
+		spin_unlock(&host->lock);
+
+		if ((events & event_mask) & MSDC_INT_SDIOIRQ)
+			sdio_signal_irq(mmc);
+
+		if ((events & event_mask) & MSDC_INT_CDSC) {
+			if (host->internal_cd)
+				mmc_detect_change(mmc, msecs_to_jiffies(20));
+			events &= ~MSDC_INT_CDSC;
+>>>>>>> upstream/android-13
 		}
 
 		if (!(events & (event_mask & ~MSDC_INT_SDIOIRQ)))
 			break;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMC_CQHCI
 		if (host->cqhci && (events & MSDC_INT_CMDQ)) {
+=======
+		if ((mmc->caps2 & MMC_CAP2_CQE) &&
+		    (events & MSDC_INT_CMDQ)) {
+>>>>>>> upstream/android-13
 			msdc_cmdq_irq(host, events);
 			/* clear interrupts */
 			writel(events, host->base + MSDC_INT);
 			return IRQ_HANDLED;
 		}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 		if (!mrq) {
 			dev_err(host->dev,
@@ -1614,8 +2229,12 @@ static irqreturn_t msdc_irq(int irq, void *dev_id)
 			break;
 		}
 
+<<<<<<< HEAD
 		dev_dbg(host->dev, "%s: events=%08X,event_mask=%08X\n", __func__,
 			events, event_mask);
+=======
+		dev_dbg(host->dev, "%s: events=%08X\n", __func__, events);
+>>>>>>> upstream/android-13
 
 		if (cmd)
 			msdc_cmd_done(host, events, mrq, cmd);
@@ -1626,6 +2245,7 @@ static irqreturn_t msdc_irq(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 /* MT8173E1 Chip do not support SD data tune */
 static bool is_e1_chip(void)
@@ -1638,25 +2258,57 @@ static bool is_e1_chip(void)
 	return e1_chip;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 static void msdc_init_hw(struct msdc_host *host)
 {
 	u32 val;
 	u32 tune_reg = host->dev_comp->pad_tune_reg;
 
+<<<<<<< HEAD
 	/* Configure to MMC/SD mode */
 	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_MODE);
+=======
+	if (host->reset) {
+		reset_control_assert(host->reset);
+		usleep_range(10, 50);
+		reset_control_deassert(host->reset);
+	}
+
+	/* Configure to MMC/SD mode, clock free running */
+	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_MODE | MSDC_CFG_CKPDN);
+>>>>>>> upstream/android-13
 
 	/* Reset */
 	msdc_reset_hw(host);
 
+<<<<<<< HEAD
 	/* Disable card detection */
 	sdr_clr_bits(host->base + MSDC_PS, MSDC_PS_CDEN);
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable and clear all interrupts */
 	writel(0, host->base + MSDC_INTEN);
 	val = readl(host->base + MSDC_INT);
 	writel(val, host->base + MSDC_INT);
 
+<<<<<<< HEAD
+=======
+	/* Configure card detection */
+	if (host->internal_cd) {
+		sdr_set_field(host->base + MSDC_PS, MSDC_PS_CDDEBOUNCE,
+			      DEFAULT_DEBOUNCE);
+		sdr_set_bits(host->base + MSDC_PS, MSDC_PS_CDEN);
+		sdr_set_bits(host->base + MSDC_INTEN, MSDC_INTEN_CDSC);
+		sdr_set_bits(host->base + SDC_CFG, SDC_CFG_INSWKUP);
+	} else {
+		sdr_clr_bits(host->base + SDC_CFG, SDC_CFG_INSWKUP);
+		sdr_clr_bits(host->base + MSDC_PS, MSDC_PS_CDEN);
+		sdr_clr_bits(host->base + MSDC_INTEN, MSDC_INTEN_CDSC);
+	}
+
+>>>>>>> upstream/android-13
 	if (host->top_base) {
 		writel(0, host->top_base + EMMC_TOP_CONTROL);
 		writel(0, host->top_base + EMMC_TOP_CMD);
@@ -1665,6 +2317,7 @@ static void msdc_init_hw(struct msdc_host *host)
 	}
 	writel(0, host->base + MSDC_IOCON);
 	sdr_set_field(host->base + MSDC_IOCON, MSDC_IOCON_DDLSEL, 0);
+<<<<<<< HEAD
 	/* modify CKGEN delay also need protect, or will data timeout */
 	sdr_clr_bits(host->base + MSDC_CFG, MSDC_CFG_CKPDN);
 	/*
@@ -1688,6 +2341,11 @@ static void msdc_init_hw(struct msdc_host *host)
 	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_CKPDN);
 	writel(0xfffe4089, host->base + MSDC_PATCH_BIT1);
 
+=======
+	writel(0x403c0046, host->base + MSDC_PATCH_BIT);
+	sdr_set_field(host->base + MSDC_PATCH_BIT, MSDC_CKGEN_MSDC_DLY_SEL, 1);
+	writel(0xffff4089, host->base + MSDC_PATCH_BIT1);
+>>>>>>> upstream/android-13
 	sdr_set_bits(host->base + EMMC50_CFG0, EMMC50_CFG_CFCSTS_SEL);
 
 	if (host->dev_comp->stop_clk_fix) {
@@ -1757,10 +2415,15 @@ static void msdc_init_hw(struct msdc_host *host)
 	sdr_set_bits(host->base + SDC_CFG, SDC_CFG_SDIO);
 
 	/* Config SDIO device detect interrupt function */
+<<<<<<< HEAD
 	if (host->mmc->caps & MMC_CAP_SDIO_IRQ)
 		sdr_set_bits(host->base + SDC_CFG, SDC_CFG_SDIOIDE);
 	else
 		sdr_clr_bits(host->base + SDC_CFG, SDC_CFG_SDIOIDE);
+=======
+	sdr_clr_bits(host->base + SDC_CFG, SDC_CFG_SDIOIDE);
+	sdr_set_bits(host->base + SDC_ADV_CFG0, SDC_DAT1_IRQ_TRIGGER);
+>>>>>>> upstream/android-13
 
 	/* Configure to default data timeout */
 	sdr_set_field(host->base + SDC_CFG, SDC_CFG_DTOC, 3);
@@ -1780,6 +2443,7 @@ static void msdc_init_hw(struct msdc_host *host)
 		host->def_tune_para.pad_tune = readl(host->base + tune_reg);
 		host->saved_tune_para.pad_tune = readl(host->base + tune_reg);
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 	if (!is_e1_chip() && host->host_id == 1) {
 		/* SD use data tune */
@@ -1791,12 +2455,24 @@ static void msdc_init_hw(struct msdc_host *host)
 		top_sdr_set_field(host->top_base + 4, MSDC1_DAT3_DELAY, 0);
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(host->dev, "init hardware done!");
 }
 
 static void msdc_deinit_hw(struct msdc_host *host)
 {
 	u32 val;
+<<<<<<< HEAD
+=======
+
+	if (host->internal_cd) {
+		/* Disabled card-detect */
+		sdr_clr_bits(host->base + MSDC_PS, MSDC_PS_CDEN);
+		sdr_clr_bits(host->base + SDC_CFG, SDC_CFG_INSWKUP);
+	}
+
+>>>>>>> upstream/android-13
 	/* Disable and clear all interrupts */
 	writel(0, host->base + MSDC_INTEN);
 
@@ -1856,12 +2532,15 @@ static void msdc_ops_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 				return;
 			}
 		}
+<<<<<<< HEAD
 		if (host->pins_default) {
 			pinctrl_select_state(host->pinctrl, host->pins_default);
 			mdelay(1);
 		}
 		if (host->mclk != ios->clock || host->timing != ios->timing)
 			msdc_set_mclk(host, ios->timing, ios->clock);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case MMC_POWER_ON:
 		if (!IS_ERR(mmc->supply.vqmmc) && !host->vqmmc_enabled) {
@@ -1871,12 +2550,15 @@ static void msdc_ops_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			else
 				host->vqmmc_enabled = true;
 		}
+<<<<<<< HEAD
 		if (host->pins_default) {
 			pinctrl_select_state(host->pinctrl, host->pins_default);
 			mdelay(1);
 		}
 		if (host->mclk != ios->clock || host->timing != ios->timing)
 			msdc_set_mclk(host, ios->timing, ios->clock);
+=======
+>>>>>>> upstream/android-13
 		break;
 	case MMC_POWER_OFF:
 		if (!IS_ERR(mmc->supply.vmmc))
@@ -1886,17 +2568,25 @@ static void msdc_ops_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			regulator_disable(mmc->supply.vqmmc);
 			host->vqmmc_enabled = false;
 		}
+<<<<<<< HEAD
 		if (host->mclk != ios->clock || host->timing != ios->timing)
 			msdc_set_mclk(host, ios->timing, ios->clock);
 		if (host->pins_pull_down) {
 			pinctrl_select_state(host->pinctrl, host->pins_pull_down);
 			mdelay(1);
 		}
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	if (host->mclk != ios->clock || host->timing != ios->timing)
+		msdc_set_mclk(host, ios->timing, ios->clock);
+>>>>>>> upstream/android-13
 }
 
 static u32 test_delay_bit(u32 delay, u32 bit)
@@ -1953,6 +2643,7 @@ static struct msdc_delay_phase get_best_delay(struct msdc_host *host, u32 delay)
 	delay_phase.final_phase = final_phase;
 	return delay_phase;
 }
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 static int sd_tune_response(struct mmc_host *mmc, u32 opcode)
 {
@@ -2038,6 +2729,8 @@ static int sd_tune_data(struct mmc_host *mmc, u32 opcode)
 	return final_delay == 0xff ? -EIO : 0;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static inline void msdc_set_cmd_delay(struct msdc_host *host, u32 value)
 {
@@ -2180,6 +2873,7 @@ static int hs400_tune_response(struct mmc_host *mmc, u32 opcode)
 		sdr_clr_bits(host->base + MSDC_IOCON, MSDC_IOCON_RSPL);
 	else
 		sdr_set_bits(host->base + MSDC_IOCON, MSDC_IOCON_RSPL);
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 	/*
 	 * As Now tune 10 times for each pad macro, will tune 320 times for
@@ -2189,6 +2883,8 @@ static int hs400_tune_response(struct mmc_host *mmc, u32 opcode)
 	if (host->tune_response_valid)
 		goto skip_tune;
 #endif
+=======
+>>>>>>> upstream/android-13
 	for (i = 0 ; i < PAD_DELAY_MAX; i++) {
 		sdr_set_field(host->base + PAD_CMD_TUNE,
 			      PAD_CMD_TUNE_RX_DLY3, i);
@@ -2197,7 +2893,11 @@ static int hs400_tune_response(struct mmc_host *mmc, u32 opcode)
 		 * but sometimes it may fail. To make sure the parameters are
 		 * more stable, we test each set of parameters 3 times.
 		 */
+<<<<<<< HEAD
 		for (j = 0; j < 10; j++) {
+=======
+		for (j = 0; j < 3; j++) {
+>>>>>>> upstream/android-13
 			mmc_send_tuning(mmc, opcode, &cmd_err);
 			if (!cmd_err) {
 				cmd_delay |= (1 << i);
@@ -2212,6 +2912,7 @@ static int hs400_tune_response(struct mmc_host *mmc, u32 opcode)
 		      final_cmd_delay.final_phase);
 	final_delay = final_cmd_delay.final_phase;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 	if (cmd_delay != 0xffffffff && final_delay != 0xff) {
 		host->tune_response_delay = final_delay;
@@ -2226,6 +2927,10 @@ skip_tune:
 		      host->tune_response_delay);
 #endif
 	return 0;
+=======
+	dev_dbg(host->dev, "Final cmd pad delay: %x\n", final_delay);
+	return final_delay == 0xff ? -EIO : 0;
+>>>>>>> upstream/android-13
 }
 
 static int msdc_tune_data(struct mmc_host *mmc, u32 opcode)
@@ -2348,7 +3053,11 @@ static int msdc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 	struct msdc_host *host = mmc_priv(mmc);
 	int ret;
 	u32 tune_reg = host->dev_comp->pad_tune_reg;
+<<<<<<< HEAD
 	dev_info(host->dev, "%s\n", __func__);
+=======
+
+>>>>>>> upstream/android-13
 	if (host->dev_comp->data_tune && host->dev_comp->async_fifo) {
 		ret = msdc_tune_together(mmc, opcode);
 		if (host->hs400_mode) {
@@ -2364,8 +3073,12 @@ static int msdc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 	else
 		ret = msdc_tune_response(mmc, opcode);
 	if (ret == -EIO) {
+<<<<<<< HEAD
 		dev_info(host->dev, "Tune response fail!\n");
 		msdc_dump_info(mmc);
+=======
+		dev_err(host->dev, "Tune response fail!\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	if (host->hs400_mode == false) {
@@ -2373,6 +3086,7 @@ static int msdc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 		if (ret == -EIO)
 			dev_err(host->dev, "Tune data fail!\n");
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 	/*
 	 * Note that I assume that the code go here is running at MT8173
@@ -2402,19 +3116,27 @@ static int msdc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 		}
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 
 tune_done:
 	host->saved_tune_para.iocon = readl(host->base + MSDC_IOCON);
 	host->saved_tune_para.pad_tune = readl(host->base + tune_reg);
 	host->saved_tune_para.pad_cmd_tune = readl(host->base + PAD_CMD_TUNE);
+<<<<<<< HEAD
 #ifndef CONFIG_MACH_MT8173
+=======
+>>>>>>> upstream/android-13
 	if (host->top_base) {
 		host->saved_tune_para.emmc_top_control = readl(host->top_base +
 				EMMC_TOP_CONTROL);
 		host->saved_tune_para.emmc_top_cmd = readl(host->top_base +
 				EMMC_TOP_CMD);
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2466,16 +3188,25 @@ static int msdc_execute_hs400_tuning(struct mmc_host *mmc, struct mmc_card *card
 			sdr_set_field(host->base + PAD_DS_TUNE,
 				      PAD_DS_TUNE_DLY1, i);
 		ret = mmc_get_ext_csd(card, &ext_csd);
+<<<<<<< HEAD
 		if (!ret) {
 			result_dly1 |= (1 << i);
 			kfree(ext_csd);
 		}
+=======
+		if (!ret)
+			result_dly1 |= (1 << i);
+>>>>>>> upstream/android-13
 	}
 	host->hs400_tuning = false;
 
 	dly1_delay = get_best_delay(host, result_dly1);
 	if (dly1_delay.maxlen == 0) {
+<<<<<<< HEAD
 		dev_info(host->dev, "Failed to get DLY1 delay!\n");
+=======
+		dev_err(host->dev, "Failed to get DLY1 delay!\n");
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 	if (host->top_base)
@@ -2485,6 +3216,7 @@ static int msdc_execute_hs400_tuning(struct mmc_host *mmc, struct mmc_card *card
 		sdr_set_field(host->base + PAD_DS_TUNE,
 			      PAD_DS_TUNE_DLY1, dly1_delay.final_phase);
 
+<<<<<<< HEAD
 	if (host->top_base) {
 		val = readl(host->top_base + EMMC50_PAD_DS_TUNE);
 		dev_info(host->dev, "Fianl EMMC50_PAD_DS_TUNE: 0x%x\n", val);
@@ -2492,11 +3224,23 @@ static int msdc_execute_hs400_tuning(struct mmc_host *mmc, struct mmc_card *card
 		val = readl(host->base + PAD_DS_TUNE);
 		dev_info(host->dev, "Fianl PAD_DS_TUNE: 0x%x\n", val);
 	}
+=======
+	if (host->top_base)
+		val = readl(host->top_base + EMMC50_PAD_DS_TUNE);
+	else
+		val = readl(host->base + PAD_DS_TUNE);
+
+	dev_info(host->dev, "Fianl PAD_DS_TUNE: 0x%x\n", val);
+>>>>>>> upstream/android-13
 
 	return 0;
 
 fail:
+<<<<<<< HEAD
 	dev_info(host->dev, "Failed to tuning DS pin delay!\n");
+=======
+	dev_err(host->dev, "Failed to tuning DS pin delay!\n");
+>>>>>>> upstream/android-13
 	return -EIO;
 }
 
@@ -2511,7 +3255,59 @@ static void msdc_hw_reset(struct mmc_host *mmc)
 
 static void msdc_ack_sdio_irq(struct mmc_host *mmc)
 {
+<<<<<<< HEAD
 	__msdc_enable_sdio_irq(mmc, 1);
+=======
+	unsigned long flags;
+	struct msdc_host *host = mmc_priv(mmc);
+
+	spin_lock_irqsave(&host->lock, flags);
+	__msdc_enable_sdio_irq(host, 1);
+	spin_unlock_irqrestore(&host->lock, flags);
+}
+
+static int msdc_get_cd(struct mmc_host *mmc)
+{
+	struct msdc_host *host = mmc_priv(mmc);
+	int val;
+
+	if (mmc->caps & MMC_CAP_NONREMOVABLE)
+		return 1;
+
+	if (!host->internal_cd)
+		return mmc_gpio_get_cd(mmc);
+
+	val = readl(host->base + MSDC_PS) & MSDC_PS_CDSTS;
+	if (mmc->caps2 & MMC_CAP2_CD_ACTIVE_HIGH)
+		return !!val;
+	else
+		return !val;
+}
+
+static void msdc_hs400_enhanced_strobe(struct mmc_host *mmc,
+				       struct mmc_ios *ios)
+{
+	struct msdc_host *host = mmc_priv(mmc);
+
+	if (ios->enhanced_strobe) {
+		msdc_prepare_hs400_tuning(mmc, ios);
+		sdr_set_field(host->base + EMMC50_CFG0, EMMC50_CFG_PADCMD_LATCHCK, 1);
+		sdr_set_field(host->base + EMMC50_CFG0, EMMC50_CFG_CMD_RESP_SEL, 1);
+		sdr_set_field(host->base + EMMC50_CFG1, EMMC50_CFG1_DS_CFG, 1);
+
+		sdr_clr_bits(host->base + CQHCI_SETTING, CQHCI_RD_CMD_WND_SEL);
+		sdr_clr_bits(host->base + CQHCI_SETTING, CQHCI_WR_CMD_WND_SEL);
+		sdr_clr_bits(host->base + EMMC51_CFG0, CMDQ_RDAT_CNT);
+	} else {
+		sdr_set_field(host->base + EMMC50_CFG0, EMMC50_CFG_PADCMD_LATCHCK, 0);
+		sdr_set_field(host->base + EMMC50_CFG0, EMMC50_CFG_CMD_RESP_SEL, 0);
+		sdr_set_field(host->base + EMMC50_CFG1, EMMC50_CFG1_DS_CFG, 0);
+
+		sdr_set_bits(host->base + CQHCI_SETTING, CQHCI_RD_CMD_WND_SEL);
+		sdr_set_bits(host->base + CQHCI_SETTING, CQHCI_WR_CMD_WND_SEL);
+		sdr_set_field(host->base + EMMC51_CFG0, CMDQ_RDAT_CNT, 0xb4);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void msdc_cqe_enable(struct mmc_host *mmc)
@@ -2524,6 +3320,7 @@ static void msdc_cqe_enable(struct mmc_host *mmc)
 	sdr_set_bits(host->base + MSDC_PATCH_BIT1, MSDC_PB1_BUSY_CHECK_SEL);
 	/* default write data / busy timeout 20s */
 	msdc_set_busy_timeout(host, 20 * 1000000000ULL, 0);
+<<<<<<< HEAD
 	/* default read data timeout 100ms */
 	msdc_set_timeout(host, 100 * 1000000, 0);
 }
@@ -2535,6 +3332,16 @@ void msdc_cqe_disable(struct mmc_host *mmc, bool recovery)
 
 	val = readl(host->base + MSDC_INT);
 	writel(val, host->base + MSDC_INT);
+=======
+	/* default read data timeout 1s */
+	msdc_set_timeout(host, 1000000000ULL, 0);
+}
+
+static void msdc_cqe_disable(struct mmc_host *mmc, bool recovery)
+{
+	struct msdc_host *host = mmc_priv(mmc);
+	unsigned int val = 0;
+>>>>>>> upstream/android-13
 
 	/* disable cmdq irq */
 	sdr_clr_bits(host->base + MSDC_INTEN, MSDC_INT_CMDQ);
@@ -2543,20 +3350,55 @@ void msdc_cqe_disable(struct mmc_host *mmc, bool recovery)
 
 	if (recovery) {
 		sdr_set_field(host->base + MSDC_DMA_CTRL,
+<<<<<<< HEAD
 			MSDC_DMA_CTRL_STOP, 1);
 		while (readl(host->base + MSDC_DMA_CTRL) & MSDC_DMA_CTRL_STOP)
 			cpu_relax();
+=======
+			      MSDC_DMA_CTRL_STOP, 1);
+		if (WARN_ON(readl_poll_timeout(host->base + MSDC_DMA_CFG, val,
+			!(val & MSDC_DMA_CFG_STS), 1, 3000)))
+			return;
+>>>>>>> upstream/android-13
 		msdc_reset_hw(host);
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void msdc_cqe_pre_enable(struct mmc_host *mmc)
+{
+	struct cqhci_host *cq_host = mmc->cqe_private;
+	u32 reg;
+
+	reg = cqhci_readl(cq_host, CQHCI_CFG);
+	reg |= CQHCI_ENABLE;
+	cqhci_writel(cq_host, reg, CQHCI_CFG);
+}
+
+static void msdc_cqe_post_disable(struct mmc_host *mmc)
+{
+	struct cqhci_host *cq_host = mmc->cqe_private;
+	u32 reg;
+
+	reg = cqhci_readl(cq_host, CQHCI_CFG);
+	reg &= ~CQHCI_ENABLE;
+	cqhci_writel(cq_host, reg, CQHCI_CFG);
+}
+
+>>>>>>> upstream/android-13
 static const struct mmc_host_ops mt_msdc_ops = {
 	.post_req = msdc_post_req,
 	.pre_req = msdc_pre_req,
 	.request = msdc_ops_request,
 	.set_ios = msdc_ops_set_ios,
 	.get_ro = mmc_gpio_get_ro,
+<<<<<<< HEAD
 	.get_cd = mmc_gpio_get_cd,
+=======
+	.get_cd = msdc_get_cd,
+	.hs400_enhanced_strobe = msdc_hs400_enhanced_strobe,
+>>>>>>> upstream/android-13
 	.enable_sdio_irq = msdc_enable_sdio_irq,
 	.ack_sdio_irq = msdc_ack_sdio_irq,
 	.start_signal_voltage_switch = msdc_ops_switch_volt,
@@ -2567,6 +3409,7 @@ static const struct mmc_host_ops mt_msdc_ops = {
 	.hw_reset = msdc_hw_reset,
 };
 
+<<<<<<< HEAD
 void msdc_dump_info(struct mmc_host *mmc)
 {
 	struct msdc_host *host = mmc_priv(mmc);
@@ -2595,12 +3438,30 @@ static void msdc_of_property_parse(struct platform_device *pdev,
 {
 	unsigned int msdc_crypto_clk_base;
 
+=======
+static const struct cqhci_host_ops msdc_cmdq_ops = {
+	.enable         = msdc_cqe_enable,
+	.disable        = msdc_cqe_disable,
+	.pre_enable = msdc_cqe_pre_enable,
+	.post_disable = msdc_cqe_post_disable,
+};
+
+static void msdc_of_property_parse(struct platform_device *pdev,
+				   struct msdc_host *host)
+{
+>>>>>>> upstream/android-13
 	of_property_read_u32(pdev->dev.of_node, "mediatek,latch-ck",
 			     &host->latch_ck);
 
 	of_property_read_u32(pdev->dev.of_node, "hs400-ds-delay",
 			     &host->hs400_ds_delay);
 
+<<<<<<< HEAD
+=======
+	of_property_read_u32(pdev->dev.of_node, "mediatek,hs400-ds-dly3",
+			     &host->hs400_ds_dly3);
+
+>>>>>>> upstream/android-13
 	of_property_read_u32(pdev->dev.of_node, "mediatek,hs200-cmd-int-delay",
 			     &host->hs200_cmd_int_delay);
 
@@ -2614,6 +3475,7 @@ static void msdc_of_property_parse(struct platform_device *pdev,
 		host->hs400_cmd_resp_sel_rising = false;
 
 	if (of_property_read_bool(pdev->dev.of_node,
+<<<<<<< HEAD
 				  "mediatek,cqhci"))
 		host->cqhci = true;
 	else
@@ -2656,6 +3518,54 @@ static int check_boot_type(struct platform_device *pdev)
 	}
 
 	return ret;
+=======
+				  "supports-cqe"))
+		host->cqhci = true;
+	else
+		host->cqhci = false;
+}
+
+static int msdc_of_clock_parse(struct platform_device *pdev,
+			       struct msdc_host *host)
+{
+	int ret;
+
+	host->src_clk = devm_clk_get(&pdev->dev, "source");
+	if (IS_ERR(host->src_clk))
+		return PTR_ERR(host->src_clk);
+
+	host->h_clk = devm_clk_get(&pdev->dev, "hclk");
+	if (IS_ERR(host->h_clk))
+		return PTR_ERR(host->h_clk);
+
+	host->bus_clk = devm_clk_get_optional(&pdev->dev, "bus_clk");
+	if (IS_ERR(host->bus_clk))
+		host->bus_clk = NULL;
+
+	/*source clock control gate is optional clock*/
+	host->src_clk_cg = devm_clk_get_optional(&pdev->dev, "source_cg");
+	if (IS_ERR(host->src_clk_cg))
+		host->src_clk_cg = NULL;
+
+	host->sys_clk_cg = devm_clk_get_optional(&pdev->dev, "sys_cg");
+	if (IS_ERR(host->sys_clk_cg))
+		host->sys_clk_cg = NULL;
+
+	/* If present, always enable for this clock gate */
+	clk_prepare_enable(host->sys_clk_cg);
+
+	host->bulk_clks[0].id = "pclk_cg";
+	host->bulk_clks[1].id = "axi_cg";
+	host->bulk_clks[2].id = "ahb_cg";
+	ret = devm_clk_bulk_get_optional(&pdev->dev, MSDC_NR_CLOCKS,
+					 host->bulk_clks);
+	if (ret) {
+		dev_err(&pdev->dev, "Cannot get pclk/axi/ahb clock gates\n");
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int msdc_drv_probe(struct platform_device *pdev)
@@ -2663,6 +3573,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
 	struct mmc_host *mmc;
 	struct msdc_host *host;
 	struct resource *res;
+<<<<<<< HEAD
 	const char *dup_name;
 #ifdef CONFIG_MMC_CQHCI
 	struct arm_smccc_res smccc_res;
@@ -2677,11 +3588,16 @@ static int msdc_drv_probe(struct platform_device *pdev)
 		msdc_top_lock_inited = true;
 	}
 #endif
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	if (!pdev->dev.of_node) {
 		dev_err(&pdev->dev, "No DT found\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Add check_boot_type check and return ENODEV if not eMMC boot */
 	if (device_property_read_u32(&pdev->dev, "host-index", &host_index) < 0) {
 		dev_info(&pdev->dev, "index property is missing \n");
@@ -2693,6 +3609,8 @@ static int msdc_drv_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Allocate MMC host for this device */
 	mmc = mmc_alloc_host(sizeof(struct msdc_host), &pdev->dev);
 	if (!mmc)
@@ -2700,6 +3618,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
 
 	host = mmc_priv(mmc);
 	ret = mmc_of_parse(mmc);
+<<<<<<< HEAD
 
 	msdc_debug_proc_init();
 
@@ -2750,12 +3669,19 @@ static int msdc_drv_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	host->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	if (ret)
+		goto host_free;
+
+	host->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(host->base)) {
 		ret = PTR_ERR(host->base);
 		goto host_free;
 	}
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+<<<<<<< HEAD
 	host->top_base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(host->top_base))
 		host->top_base = NULL;
@@ -2774,10 +3700,19 @@ static int msdc_drv_probe(struct platform_device *pdev)
 	}
 #endif
 
+=======
+	if (res) {
+		host->top_base = devm_ioremap_resource(&pdev->dev, res);
+		if (IS_ERR(host->top_base))
+			host->top_base = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	ret = mmc_regulator_get_supply(mmc);
 	if (ret)
 		goto host_free;
 
+<<<<<<< HEAD
 	host->src_clk = devm_clk_get(&pdev->dev, "source");
 	if (IS_ERR(host->src_clk)) {
 		ret = PTR_ERR(host->src_clk);
@@ -2804,6 +3739,19 @@ static int msdc_drv_probe(struct platform_device *pdev)
 			host->crypto_clk = NULL;
 	}
 
+=======
+	ret = msdc_of_clock_parse(pdev, host);
+	if (ret)
+		goto host_free;
+
+	host->reset = devm_reset_control_get_optional_exclusive(&pdev->dev,
+								"hrst");
+	if (IS_ERR(host->reset)) {
+		ret = PTR_ERR(host->reset);
+		goto host_free;
+	}
+
+>>>>>>> upstream/android-13
 	host->irq = platform_get_irq(pdev, 0);
 	if (host->irq < 0) {
 		ret = -EINVAL;
@@ -2831,6 +3779,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
 		goto host_free;
 	}
 
+<<<<<<< HEAD
 	host->pins_pull_down = pinctrl_lookup_state(host->pinctrl, "pull_down");
 	if (IS_ERR(host->pins_pull_down)) {
 		ret = PTR_ERR(host->pins_pull_down);
@@ -2838,13 +3787,18 @@ static int msdc_drv_probe(struct platform_device *pdev)
 		host->pins_pull_down = NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	msdc_of_property_parse(pdev, host);
 
 	host->dev = &pdev->dev;
 	host->dev_comp = of_device_get_match_data(&pdev->dev);
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 	host->mmc = mmc;
 #endif
+=======
+>>>>>>> upstream/android-13
 	host->src_clk_freq = clk_get_rate(host->src_clk);
 	/* Set host parameters to mmc */
 	mmc->ops = &mt_msdc_ops;
@@ -2853,10 +3807,27 @@ static int msdc_drv_probe(struct platform_device *pdev)
 	else
 		mmc->f_min = DIV_ROUND_UP(host->src_clk_freq, 4 * 4095);
 
+<<<<<<< HEAD
 	if (mmc->caps & MMC_CAP_SDIO_IRQ)
 		mmc->caps2 |= MMC_CAP2_SDIO_IRQ_NOTHREAD;
 
 	mmc->caps |= MMC_CAP_ERASE | MMC_CAP_CMD23;
+=======
+	if (!(mmc->caps & MMC_CAP_NONREMOVABLE) &&
+	    !mmc_can_gpio_cd(mmc) &&
+	    host->dev_comp->use_internal_cd) {
+		/*
+		 * Is removable but no GPIO declared, so
+		 * use internal functionality.
+		 */
+		host->internal_cd = true;
+	}
+
+	if (mmc->caps & MMC_CAP_SDIO_IRQ)
+		mmc->caps2 |= MMC_CAP2_SDIO_IRQ_NOTHREAD;
+
+	mmc->caps |= MMC_CAP_CMD23;
+>>>>>>> upstream/android-13
 	if (host->cqhci)
 		mmc->caps2 |= MMC_CAP2_CQE | MMC_CAP2_CQE_DCMD;
 	/* MMC core transfer sizes tunable parameters */
@@ -2874,6 +3845,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
 		host->dma_mask = DMA_BIT_MASK(32);
 	mmc_dev(mmc)->dma_mask = &host->dma_mask;
 
+<<<<<<< HEAD
 	msdc_ungate_clock(mmc);
 #ifdef CONFIG_MMC_CQHCI
 	if (host->cqhci) {
@@ -2899,6 +3871,8 @@ static int msdc_drv_probe(struct platform_device *pdev)
 			1, 4, 1, 0, 0, 0, 0, &smccc_res);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	host->timeout_clks = 3 * 1048576;
 	host->dma.gpd = dma_alloc_coherent(&pdev->dev,
 				2 * sizeof(struct mt_gpdma_desc),
@@ -2915,6 +3889,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
 	spin_lock_init(&host->lock);
 
 	platform_set_drvdata(pdev, mmc);
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_MT8173
 	msdc_ungate_clock(mmc);
 #endif
@@ -2929,10 +3904,45 @@ static int msdc_drv_probe(struct platform_device *pdev)
 	mtk_pm_qos_add_request(&host->pm_qos, MTK_PM_QOS_VCORE_OPP, 1);
 #endif
 
+=======
+	ret = msdc_ungate_clock(host);
+	if (ret) {
+		dev_err(&pdev->dev, "Cannot ungate clocks!\n");
+		goto release_mem;
+	}
+	msdc_init_hw(host);
+
+	if (mmc->caps2 & MMC_CAP2_CQE) {
+		host->cq_host = devm_kzalloc(mmc->parent,
+					     sizeof(*host->cq_host),
+					     GFP_KERNEL);
+		if (!host->cq_host) {
+			ret = -ENOMEM;
+			goto host_free;
+		}
+		host->cq_host->caps |= CQHCI_TASK_DESC_SZ_128;
+		host->cq_host->mmio = host->base + 0x800;
+		host->cq_host->ops = &msdc_cmdq_ops;
+		ret = cqhci_init(host->cq_host, mmc, true);
+		if (ret)
+			goto host_free;
+		mmc->max_segs = 128;
+		/* cqhci 16bit length */
+		/* 0 size, means 65536 so we don't have to -1 here */
+		mmc->max_seg_size = 64 * 1024;
+	}
+
+	ret = devm_request_irq(&pdev->dev, host->irq, msdc_irq,
+			       IRQF_TRIGGER_NONE, pdev->name, host);
+	if (ret)
+		goto release;
+
+>>>>>>> upstream/android-13
 	pm_runtime_set_active(host->dev);
 	pm_runtime_set_autosuspend_delay(host->dev, MTK_MMC_AUTOSUSPEND_DELAY);
 	pm_runtime_use_autosuspend(host->dev);
 	pm_runtime_enable(host->dev);
+<<<<<<< HEAD
 
 	if (mmc->host_function == MSDC_EMMC) {
 		mmc->ocr_avail_mmc = MMC_VDD_EMMC;
@@ -2942,11 +3952,14 @@ static int msdc_drv_probe(struct platform_device *pdev)
 		mmc->ocr_avail = mmc->ocr_avail_sd;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = mmc_add_host(mmc);
 
 	if (ret)
 		goto end;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_RPMB)
 	ret = mmc_rpmb_register(mmc);
 #endif
@@ -2964,6 +3977,15 @@ release:
 	platform_set_drvdata(pdev, NULL);
 	msdc_deinit_hw(host);
 	msdc_gate_clock(mmc);
+=======
+	return 0;
+end:
+	pm_runtime_disable(host->dev);
+release:
+	platform_set_drvdata(pdev, NULL);
+	msdc_deinit_hw(host);
+	msdc_gate_clock(host);
+>>>>>>> upstream/android-13
 release_mem:
 	if (host->dma.gpd)
 		dma_free_coherent(&pdev->dev,
@@ -2990,9 +4012,15 @@ static int msdc_drv_remove(struct platform_device *pdev)
 	pm_runtime_get_sync(host->dev);
 
 	platform_set_drvdata(pdev, NULL);
+<<<<<<< HEAD
 	mmc_remove_host(host->mmc);
 	msdc_deinit_hw(host);
 	msdc_gate_clock(mmc);
+=======
+	mmc_remove_host(mmc);
+	msdc_deinit_hw(host);
+	msdc_gate_clock(host);
+>>>>>>> upstream/android-13
 
 	pm_runtime_disable(host->dev);
 	pm_runtime_put_noidle(host->dev);
@@ -3002,16 +4030,23 @@ static int msdc_drv_remove(struct platform_device *pdev)
 	dma_free_coherent(&pdev->dev, MAX_BD_NUM * sizeof(struct mt_bdma_desc),
 			host->dma.bd, host->dma.bd_addr);
 
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_MT6768) && defined(CONFIG_MTK_PMQOS)
 	mtk_pm_qos_remove_request(&host->pm_qos);
 #endif
 
 	mmc_free_host(host->mmc);
+=======
+	mmc_free_host(mmc);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
+=======
+>>>>>>> upstream/android-13
 static void msdc_save_reg(struct msdc_host *host)
 {
 	u32 tune_reg = host->dev_comp->pad_tune_reg;
@@ -3041,6 +4076,7 @@ static void msdc_save_reg(struct msdc_host *host)
 
 static void msdc_restore_reg(struct msdc_host *host)
 {
+<<<<<<< HEAD
 	u32 tune_reg = host->dev_comp->pad_tune_reg;
 	unsigned long tmo;
 
@@ -3072,6 +4108,14 @@ static void msdc_restore_reg(struct msdc_host *host)
 	writel(host->save_para.iocon, host->base + MSDC_IOCON);
 	writel(host->save_para.sdc_cfg, host->base + SDC_CFG);
 
+=======
+	struct mmc_host *mmc = mmc_from_priv(host);
+	u32 tune_reg = host->dev_comp->pad_tune_reg;
+
+	writel(host->save_para.msdc_cfg, host->base + MSDC_CFG);
+	writel(host->save_para.iocon, host->base + MSDC_IOCON);
+	writel(host->save_para.sdc_cfg, host->base + SDC_CFG);
+>>>>>>> upstream/android-13
 	writel(host->save_para.patch_bit0, host->base + MSDC_PATCH_BIT);
 	writel(host->save_para.patch_bit1, host->base + MSDC_PATCH_BIT1);
 	writel(host->save_para.patch_bit2, host->base + MSDC_PATCH_BIT2);
@@ -3090,6 +4134,7 @@ static void msdc_restore_reg(struct msdc_host *host)
 	} else {
 		writel(host->save_para.pad_tune, host->base + tune_reg);
 	}
+<<<<<<< HEAD
 }
 
 static int msdc_runtime_suspend(struct device *dev)
@@ -3118,10 +4163,52 @@ static int msdc_suspend(struct device *dev)
 
 	dev_err(host->dev,"%s, GPIO set cd wake enable",__func__);
 	mmc_gpio_set_cd_wake(mmc, true);
+=======
+
+	if (sdio_irq_claimed(mmc))
+		__msdc_enable_sdio_irq(host, 1);
+}
+
+static int __maybe_unused msdc_runtime_suspend(struct device *dev)
+{
+	struct mmc_host *mmc = dev_get_drvdata(dev);
+	struct msdc_host *host = mmc_priv(mmc);
+
+	msdc_save_reg(host);
+	msdc_gate_clock(host);
+	return 0;
+}
+
+static int __maybe_unused msdc_runtime_resume(struct device *dev)
+{
+	struct mmc_host *mmc = dev_get_drvdata(dev);
+	struct msdc_host *host = mmc_priv(mmc);
+	int ret;
+
+	ret = msdc_ungate_clock(host);
+	if (ret)
+		return ret;
+
+	msdc_restore_reg(host);
+	return 0;
+}
+
+static int __maybe_unused msdc_suspend(struct device *dev)
+{
+	struct mmc_host *mmc = dev_get_drvdata(dev);
+	int ret;
+
+	if (mmc->caps2 & MMC_CAP2_CQE) {
+		ret = cqhci_suspend(mmc);
+		if (ret)
+			return ret;
+	}
+>>>>>>> upstream/android-13
 
 	return pm_runtime_force_suspend(dev);
 }
 
+<<<<<<< HEAD
 static int msdc_runtime_resume(struct device *dev)
 {
 	struct mmc_host *mmc = dev_get_drvdata(dev);
@@ -3161,6 +4248,15 @@ static int msdc_resume(struct device *dev)
 static const struct dev_pm_ops msdc_dev_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(msdc_suspend, msdc_resume)
 
+=======
+static int __maybe_unused msdc_resume(struct device *dev)
+{
+	return pm_runtime_force_resume(dev);
+}
+
+static const struct dev_pm_ops msdc_dev_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(msdc_suspend, msdc_resume)
+>>>>>>> upstream/android-13
 	SET_RUNTIME_PM_OPS(msdc_runtime_suspend, msdc_runtime_resume, NULL)
 };
 
@@ -3169,6 +4265,10 @@ static struct platform_driver mt_msdc_driver = {
 	.remove = msdc_drv_remove,
 	.driver = {
 		.name = "mtk-msdc",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = msdc_of_ids,
 		.pm = &msdc_dev_pm_ops,
 	},

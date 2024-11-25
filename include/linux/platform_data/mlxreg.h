@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 Mellanox Technologies. All rights reserved.
  * Copyright (c) 2017 Vadim Pasternak <vadimp@mellanox.com>
@@ -29,12 +30,36 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+=======
+/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0 */
+/*
+ * Copyright (C) 2017-2020 Mellanox Technologies Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_PLATFORM_DATA_MLXREG_H
 #define __LINUX_PLATFORM_DATA_MLXREG_H
 
 #define MLXREG_CORE_LABEL_MAX_SIZE	32
+<<<<<<< HEAD
+=======
+#define MLXREG_CORE_WD_FEATURE_NOWAYOUT		BIT(0)
+#define MLXREG_CORE_WD_FEATURE_START_AT_BOOT	BIT(1)
+
+/**
+ * enum mlxreg_wdt_type - type of HW watchdog
+ *
+ * TYPE1 HW watchdog implementation exist in old systems.
+ * All new systems have TYPE2 HW watchdog.
+ * TYPE3 HW watchdog can exist on all systems with new CPLD.
+ * TYPE3 is selected by WD capability bit.
+ */
+enum mlxreg_wdt_type {
+	MLX_WDT_TYPE1,
+	MLX_WDT_TYPE2,
+	MLX_WDT_TYPE3,
+};
+>>>>>>> upstream/android-13
 
 /**
  * struct mlxreg_hotplug_device - I2C device data:
@@ -61,22 +86,42 @@ struct mlxreg_hotplug_device {
  * @reg: attribute register;
  * @mask: attribute access mask;
  * @bit: attribute effective bit;
+<<<<<<< HEAD
+=======
+ * @capability: attribute capability register;
+ * @reg_prsnt: attribute presence register;
+>>>>>>> upstream/android-13
  * @mode: access mode;
  * @np - pointer to node platform associated with attribute;
  * @hpdev - hotplug device data;
  * @health_cntr: dynamic device health indication counter;
  * @attached: true if device has been attached after good health indication;
+<<<<<<< HEAD
+=======
+ * @regnum: number of registers occupied by multi-register attribute;
+>>>>>>> upstream/android-13
  */
 struct mlxreg_core_data {
 	char label[MLXREG_CORE_LABEL_MAX_SIZE];
 	u32 reg;
 	u32 mask;
 	u32 bit;
+<<<<<<< HEAD
 	umode_t	mode;
 	struct device_node *np;
 	struct mlxreg_hotplug_device hpdev;
 	u8 health_cntr;
 	bool attached;
+=======
+	u32 capability;
+	u32 reg_prsnt;
+	umode_t	mode;
+	struct device_node *np;
+	struct mlxreg_hotplug_device hpdev;
+	u32 health_cntr;
+	bool attached;
+	u8 regnum;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -86,6 +131,10 @@ struct mlxreg_core_data {
  * @aggr_mask: group aggregation mask;
  * @reg: group interrupt status register;
  * @mask: group interrupt mask;
+<<<<<<< HEAD
+=======
+ * @capability: group capability register;
+>>>>>>> upstream/android-13
  * @cache: last status value for elements fro the same group;
  * @count: number of available elements in the group;
  * @ind: element's index inside the group;
@@ -97,6 +146,10 @@ struct mlxreg_core_item {
 	u32 aggr_mask;
 	u32 reg;
 	u32 mask;
+<<<<<<< HEAD
+=======
+	u32 capability;
+>>>>>>> upstream/android-13
 	u32 cache;
 	u8 count;
 	u8 ind;
@@ -107,14 +160,31 @@ struct mlxreg_core_item {
 /**
  * struct mlxreg_core_platform_data - platform data:
  *
+<<<<<<< HEAD
  * @led_data: led private data;
  * @regmap: register map of parent device;
  * @counter: number of led instances;
+=======
+ * @data: instance private data;
+ * @regmap: register map of parent device;
+ * @counter: number of instances;
+ * @features: supported features of device;
+ * @version: implementation version;
+ * @identity: device identity name;
+ * @capability: device capability register;
+>>>>>>> upstream/android-13
  */
 struct mlxreg_core_platform_data {
 	struct mlxreg_core_data *data;
 	void *regmap;
 	int counter;
+<<<<<<< HEAD
+=======
+	u32 features;
+	u32 version;
+	char identity[MLXREG_CORE_LABEL_MAX_SIZE];
+	u32 capability;
+>>>>>>> upstream/android-13
 };
 
 /**

@@ -7,10 +7,13 @@
  *  Based on drivers/serial/8250.c, by Russell King.
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_VR41XX_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/errno.h>
 #include <linux/init.h>
@@ -24,7 +27,11 @@
 #include <linux/tty.h>
 #include <linux/tty_flip.h>
 
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <asm/vr41xx/siu.h>
 #include <asm/vr41xx/vr41xx.h>
 
@@ -869,6 +876,10 @@ static int siu_probe(struct platform_device *dev)
 		port = &siu_uart_ports[i];
 		port->ops = &siu_uart_ops;
 		port->dev = &dev->dev;
+<<<<<<< HEAD
+=======
+		port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_VR41XX_CONSOLE);
+>>>>>>> upstream/android-13
 
 		retval = uart_add_one_port(&siu_uart_driver, port);
 		if (retval < 0) {

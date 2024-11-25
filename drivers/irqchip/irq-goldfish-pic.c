@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for MIPS Goldfish Programmable Interrupt Controller.
  *
  * Author: Miodrag Dinic <miodrag.dinic@mips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -38,15 +45,23 @@ static void goldfish_pic_cascade(struct irq_desc *desc)
 {
 	struct goldfish_pic_data *gfpic = irq_desc_get_handler_data(desc);
 	struct irq_chip *host_chip = irq_desc_get_chip(desc);
+<<<<<<< HEAD
 	u32 pending, hwirq, virq;
+=======
+	u32 pending, hwirq;
+>>>>>>> upstream/android-13
 
 	chained_irq_enter(host_chip, desc);
 
 	pending = readl(gfpic->base + GFPIC_REG_IRQ_PENDING);
 	while (pending) {
 		hwirq = __fls(pending);
+<<<<<<< HEAD
 		virq = irq_linear_revmap(gfpic->irq_domain, hwirq);
 		generic_handle_irq(virq);
+=======
+		generic_handle_domain_irq(gfpic->irq_domain, hwirq);
+>>>>>>> upstream/android-13
 		pending &= ~(1 << hwirq);
 	}
 

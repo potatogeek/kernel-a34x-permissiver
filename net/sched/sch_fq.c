@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * net/sched/sch_fq.c Fair Queue Packet Scheduler (per flow pacing)
  *
  *  Copyright (C) 2013-2015 Eric Dumazet <edumazet@google.com>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *  Meant to be mostly used for locally generated traffic :
  *  Fast classification depends on skb->sk being set before reaching us.
  *  If not, (router workload), we use rxhash as fallback, with 32 bits wide hash.
@@ -54,6 +61,7 @@
 #include <net/tcp_states.h>
 #include <net/tcp.h>
 
+<<<<<<< HEAD
 /*
  * Per flow structure, dynamically allocated
  */
@@ -73,6 +81,45 @@ struct fq_flow {
 	struct rb_node  rate_node;	/* anchor in q->delayed tree */
 	u64		time_next_packet;
 };
+=======
+struct fq_skb_cb {
+	u64	        time_to_send;
+};
+
+static inline struct fq_skb_cb *fq_skb_cb(struct sk_buff *skb)
+{
+	qdisc_cb_private_validate(skb, sizeof(struct fq_skb_cb));
+	return (struct fq_skb_cb *)qdisc_skb_cb(skb)->data;
+}
+
+/*
+ * Per flow structure, dynamically allocated.
+ * If packets have monotically increasing time_to_send, they are placed in O(1)
+ * in linear list (head,tail), otherwise are placed in a rbtree (t_root).
+ */
+struct fq_flow {
+/* First cache line : used in fq_gc(), fq_enqueue(), fq_dequeue() */
+	struct rb_root	t_root;
+	struct sk_buff	*head;		/* list of skbs for this flow : first skb */
+	union {
+		struct sk_buff *tail;	/* last skb in the list */
+		unsigned long  age;	/* (jiffies | 1UL) when flow was emptied, for gc */
+	};
+	struct rb_node	fq_node;	/* anchor in fq_root[] trees */
+	struct sock	*sk;
+	u32		socket_hash;	/* sk_hash */
+	int		qlen;		/* number of packets in flow queue */
+
+/* Second cache line, used in fq_dequeue() */
+	int		credit;
+	/* 32bit hole on 64bit arches */
+
+	struct fq_flow *next;		/* next pointer in RR lists */
+
+	struct rb_node  rate_node;	/* anchor in q->delayed tree */
+	u64		time_next_packet;
+} ____cacheline_aligned_in_smp;
+>>>>>>> upstream/android-13
 
 struct fq_flow_head {
 	struct fq_flow *first;
@@ -86,26 +133,42 @@ struct fq_sched_data {
 
 	struct rb_root	delayed;	/* for rate limited flows */
 	u64		time_next_delayed_flow;
+<<<<<<< HEAD
+=======
+	u64		ktime_cache;	/* copy of last ktime_get_ns() */
+>>>>>>> upstream/android-13
 	unsigned long	unthrottle_latency_ns;
 
 	struct fq_flow	internal;	/* for non classified or high prio packets */
 	u32		quantum;
 	u32		initial_quantum;
 	u32		flow_refill_delay;
+<<<<<<< HEAD
 	u32		flow_max_rate;	/* optional max rate per flow */
 	u32		flow_plimit;	/* max packets per flow */
+=======
+	u32		flow_plimit;	/* max packets per flow */
+	unsigned long	flow_max_rate;	/* optional max rate per flow */
+	u64		ce_threshold;
+	u64		horizon;	/* horizon in ns */
+>>>>>>> upstream/android-13
 	u32		orphan_mask;	/* mask for orphaned skb */
 	u32		low_rate_threshold;
 	struct rb_root	*fq_root;
 	u8		rate_enable;
 	u8		fq_trees_log;
+<<<<<<< HEAD
 
+=======
+	u8		horizon_drop;
+>>>>>>> upstream/android-13
 	u32		flows;
 	u32		inactive_flows;
 	u32		throttled_flows;
 
 	u64		stat_gc_flows;
 	u64		stat_internal_packets;
+<<<<<<< HEAD
 	u64		stat_tcp_retrans;
 	u64		stat_throttled;
 	u64		stat_flows_plimit;
@@ -121,13 +184,45 @@ static void fq_flow_set_detached(struct fq_flow *f)
 {
 	f->next = &detached;
 	f->age = jiffies;
+=======
+	u64		stat_throttled;
+	u64		stat_ce_mark;
+	u64		stat_horizon_drops;
+	u64		stat_horizon_caps;
+	u64		stat_flows_plimit;
+	u64		stat_pkts_too_long;
+	u64		stat_allocation_errors;
+
+	u32		timer_slack; /* hrtimer slack in ns */
+	struct qdisc_watchdog watchdog;
+};
+
+/*
+ * f->tail and f->age share the same location.
+ * We can use the low order bit to differentiate if this location points
+ * to a sk_buff or contains a jiffies value, if we force this value to be odd.
+ * This assumes f->tail low order bit must be 0 since alignof(struct sk_buff) >= 2
+ */
+static void fq_flow_set_detached(struct fq_flow *f)
+{
+	f->age = jiffies | 1UL;
+>>>>>>> upstream/android-13
 }
 
 static bool fq_flow_is_detached(const struct fq_flow *f)
 {
+<<<<<<< HEAD
 	return f->next == &detached;
 }
 
+=======
+	return !!(f->age & 1UL);
+}
+
+/* special value to mark a throttled flow (not on old/new list) */
+static struct fq_flow throttled;
+
+>>>>>>> upstream/android-13
 static bool fq_flow_is_throttled(const struct fq_flow *f)
 {
 	return f->next == &throttled;
@@ -192,9 +287,16 @@ static void fq_gc(struct fq_sched_data *q,
 		  struct rb_root *root,
 		  struct sock *sk)
 {
+<<<<<<< HEAD
 	struct fq_flow *f, *tofree[FQ_GC_MAX];
 	struct rb_node **p, *parent;
 	int fcnt = 0;
+=======
+	struct rb_node **p, *parent;
+	void *tofree[FQ_GC_MAX];
+	struct fq_flow *f;
+	int i, fcnt = 0;
+>>>>>>> upstream/android-13
 
 	p = &root->rb_node;
 	parent = NULL;
@@ -217,6 +319,7 @@ static void fq_gc(struct fq_sched_data *q,
 			p = &parent->rb_left;
 	}
 
+<<<<<<< HEAD
 	q->flows -= fcnt;
 	q->inactive_flows -= fcnt;
 	q->stat_gc_flows += fcnt;
@@ -226,6 +329,20 @@ static void fq_gc(struct fq_sched_data *q,
 		rb_erase(&f->fq_node, root);
 		kmem_cache_free(fq_flow_cachep, f);
 	}
+=======
+	if (!fcnt)
+		return;
+
+	for (i = fcnt; i > 0; ) {
+		f = tofree[--i];
+		rb_erase(&f->fq_node, root);
+	}
+	q->flows -= fcnt;
+	q->inactive_flows -= fcnt;
+	q->stat_gc_flows += fcnt;
+
+	kmem_cache_free_bulk(fq_flow_cachep, fcnt, tofree);
+>>>>>>> upstream/android-13
 }
 
 static struct fq_flow *fq_classify(struct sk_buff *skb, struct fq_sched_data *q)
@@ -256,6 +373,20 @@ static struct fq_flow *fq_classify(struct sk_buff *skb, struct fq_sched_data *q)
 		 */
 		sk = (struct sock *)((hash << 1) | 1UL);
 		skb_orphan(skb);
+<<<<<<< HEAD
+=======
+	} else if (sk->sk_state == TCP_CLOSE) {
+		unsigned long hash = skb_get_hash(skb) & q->orphan_mask;
+		/*
+		 * Sockets in TCP_CLOSE are non connected.
+		 * Typical use case is UDP sockets, they can send packets
+		 * with sendto() to many different destinations.
+		 * We probably could use a generic bit advertising
+		 * non connected sockets, instead of sk_state == TCP_CLOSE,
+		 * if we care enough.
+		 */
+		sk = (struct sock *)((hash << 1) | 1UL);
+>>>>>>> upstream/android-13
 	}
 
 	root = &q->fq_root[hash_ptr(sk, q->fq_trees_log)];
@@ -276,10 +407,20 @@ static struct fq_flow *fq_classify(struct sk_buff *skb, struct fq_sched_data *q)
 			 * It not, we need to refill credit with
 			 * initial quantum
 			 */
+<<<<<<< HEAD
 			if (unlikely(skb->sk &&
 				     f->socket_hash != sk->sk_hash)) {
 				f->credit = q->initial_quantum;
 				f->socket_hash = sk->sk_hash;
+=======
+			if (unlikely(skb->sk == sk &&
+				     f->socket_hash != sk->sk_hash)) {
+				f->credit = q->initial_quantum;
+				f->socket_hash = sk->sk_hash;
+				if (q->rate_enable)
+					smp_store_release(&sk->sk_pacing_status,
+							  SK_PACING_FQ);
+>>>>>>> upstream/android-13
 				if (fq_flow_is_throttled(f))
 					fq_flow_unset_throttled(q, f);
 				f->time_next_packet = 0ULL;
@@ -297,10 +438,23 @@ static struct fq_flow *fq_classify(struct sk_buff *skb, struct fq_sched_data *q)
 		q->stat_allocation_errors++;
 		return &q->internal;
 	}
+<<<<<<< HEAD
 	fq_flow_set_detached(f);
 	f->sk = sk;
 	if (skb->sk)
 		f->socket_hash = sk->sk_hash;
+=======
+	/* f->t_root is already zeroed after kmem_cache_zalloc() */
+
+	fq_flow_set_detached(f);
+	f->sk = sk;
+	if (skb->sk == sk) {
+		f->socket_hash = sk->sk_hash;
+		if (q->rate_enable)
+			smp_store_release(&sk->sk_pacing_status,
+					  SK_PACING_FQ);
+	}
+>>>>>>> upstream/android-13
 	f->credit = q->initial_quantum;
 
 	rb_link_node(&f->fq_node, parent, p);
@@ -311,6 +465,7 @@ static struct fq_flow *fq_classify(struct sk_buff *skb, struct fq_sched_data *q)
 	return f;
 }
 
+<<<<<<< HEAD
 
 /* remove one skb from head of flow queue */
 static struct sk_buff *fq_dequeue_head(struct Qdisc *sch, struct fq_flow *flow)
@@ -383,6 +538,84 @@ static void flow_queue_add(struct fq_flow *flow, struct sk_buff *skb)
 			skb->next = prev->next;
 		prev->next = skb;
 	}
+=======
+static struct sk_buff *fq_peek(struct fq_flow *flow)
+{
+	struct sk_buff *skb = skb_rb_first(&flow->t_root);
+	struct sk_buff *head = flow->head;
+
+	if (!skb)
+		return head;
+
+	if (!head)
+		return skb;
+
+	if (fq_skb_cb(skb)->time_to_send < fq_skb_cb(head)->time_to_send)
+		return skb;
+	return head;
+}
+
+static void fq_erase_head(struct Qdisc *sch, struct fq_flow *flow,
+			  struct sk_buff *skb)
+{
+	if (skb == flow->head) {
+		flow->head = skb->next;
+	} else {
+		rb_erase(&skb->rbnode, &flow->t_root);
+		skb->dev = qdisc_dev(sch);
+	}
+}
+
+/* Remove one skb from flow queue.
+ * This skb must be the return value of prior fq_peek().
+ */
+static void fq_dequeue_skb(struct Qdisc *sch, struct fq_flow *flow,
+			   struct sk_buff *skb)
+{
+	fq_erase_head(sch, flow, skb);
+	skb_mark_not_on_list(skb);
+	flow->qlen--;
+	qdisc_qstats_backlog_dec(sch, skb);
+	sch->q.qlen--;
+}
+
+static void flow_queue_add(struct fq_flow *flow, struct sk_buff *skb)
+{
+	struct rb_node **p, *parent;
+	struct sk_buff *head, *aux;
+
+	head = flow->head;
+	if (!head ||
+	    fq_skb_cb(skb)->time_to_send >= fq_skb_cb(flow->tail)->time_to_send) {
+		if (!head)
+			flow->head = skb;
+		else
+			flow->tail->next = skb;
+		flow->tail = skb;
+		skb->next = NULL;
+		return;
+	}
+
+	p = &flow->t_root.rb_node;
+	parent = NULL;
+
+	while (*p) {
+		parent = *p;
+		aux = rb_to_skb(parent);
+		if (fq_skb_cb(skb)->time_to_send >= fq_skb_cb(aux)->time_to_send)
+			p = &parent->rb_right;
+		else
+			p = &parent->rb_left;
+	}
+	rb_link_node(&skb->rbnode, parent, p);
+	rb_insert_color(&skb->rbnode, &flow->t_root);
+}
+
+static bool fq_packet_beyond_horizon(const struct sk_buff *skb,
+				    const struct fq_sched_data *q)
+{
+	return unlikely((s64)skb->tstamp > (s64)(q->ktime_cache + q->horizon));
+>>>>>>> upstream/android-13
 }
 
 static int fq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
@@ -394,6 +627,31 @@ static int fq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 	if (unlikely(sch->q.qlen >= sch->limit))
 		return qdisc_drop(skb, sch, to_free);
 
+<<<<<<< HEAD
+=======
+	if (!skb->tstamp) {
+		fq_skb_cb(skb)->time_to_send = q->ktime_cache = ktime_get_ns();
+	} else {
+		/* Check if packet timestamp is too far in the future.
+		 * Try first if our cached value, to avoid ktime_get_ns()
+		 * cost in most cases.
+		 */
+		if (fq_packet_beyond_horizon(skb, q)) {
+			/* Refresh our cache and check another time */
+			q->ktime_cache = ktime_get_ns();
+			if (fq_packet_beyond_horizon(skb, q)) {
+				if (q->horizon_drop) {
+					q->stat_horizon_drops++;
+					return qdisc_drop(skb, sch, to_free);
+				}
+				q->stat_horizon_caps++;
+				skb->tstamp = q->ktime_cache + q->horizon;
+			}
+		}
+		fq_skb_cb(skb)->time_to_send = skb->tstamp;
+	}
+
+>>>>>>> upstream/android-13
 	f = fq_classify(skb, q);
 	if (unlikely(f->qlen >= q->flow_plimit && f != &q->internal)) {
 		q->stat_flows_plimit++;
@@ -401,6 +659,7 @@ static int fq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 	}
 
 	f->qlen++;
+<<<<<<< HEAD
 	if (skb_is_retransmit(skb))
 		q->stat_tcp_retrans++;
 	qdisc_qstats_backlog_inc(sch, skb);
@@ -416,6 +675,13 @@ static int fq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 				smp_store_release(&sk->sk_pacing_status,
 						  SK_PACING_FQ);
 		}
+=======
+	qdisc_qstats_backlog_inc(sch, skb);
+	if (fq_flow_is_detached(f)) {
+		fq_flow_add_tail(&q->new_flows, f);
+		if (time_after(jiffies, f->age + q->flow_refill_delay))
+			f->credit = max_t(u32, f->credit, q->quantum);
+>>>>>>> upstream/android-13
 		q->inactive_flows--;
 	}
 
@@ -460,6 +726,7 @@ static void fq_check_throttled(struct fq_sched_data *q, u64 now)
 static struct sk_buff *fq_dequeue(struct Qdisc *sch)
 {
 	struct fq_sched_data *q = qdisc_priv(sch);
+<<<<<<< HEAD
 	u64 now = ktime_get_ns();
 	struct fq_flow_head *head;
 	struct sk_buff *skb;
@@ -469,6 +736,25 @@ static struct sk_buff *fq_dequeue(struct Qdisc *sch)
 	skb = fq_dequeue_head(sch, &q->internal);
 	if (skb)
 		goto out;
+=======
+	struct fq_flow_head *head;
+	struct sk_buff *skb;
+	struct fq_flow *f;
+	unsigned long rate;
+	u32 plen;
+	u64 now;
+
+	if (!sch->q.qlen)
+		return NULL;
+
+	skb = fq_peek(&q->internal);
+	if (unlikely(skb)) {
+		fq_dequeue_skb(sch, &q->internal, skb);
+		goto out;
+	}
+
+	q->ktime_cache = now = ktime_get_ns();
+>>>>>>> upstream/android-13
 	fq_check_throttled(q, now);
 begin:
 	head = &q->new_flows;
@@ -476,8 +762,14 @@ begin:
 		head = &q->old_flows;
 		if (!head->first) {
 			if (q->time_next_delayed_flow != ~0ULL)
+<<<<<<< HEAD
 				qdisc_watchdog_schedule_ns(&q->watchdog,
 							   q->time_next_delayed_flow);
+=======
+				qdisc_watchdog_schedule_range_ns(&q->watchdog,
+							q->time_next_delayed_flow,
+							q->timer_slack);
+>>>>>>> upstream/android-13
 			return NULL;
 		}
 	}
@@ -490,6 +782,7 @@ begin:
 		goto begin;
 	}
 
+<<<<<<< HEAD
 	skb = f->head;
 	if (unlikely(skb && now < f->time_next_packet &&
 		     !skb_is_tcp_pure_ack(skb))) {
@@ -500,6 +793,26 @@ begin:
 
 	skb = fq_dequeue_head(sch, f);
 	if (!skb) {
+=======
+	skb = fq_peek(f);
+	if (skb) {
+		u64 time_next_packet = max_t(u64, fq_skb_cb(skb)->time_to_send,
+					     f->time_next_packet);
+
+		if (now < time_next_packet) {
+			head->first = f->next;
+			f->time_next_packet = time_next_packet;
+			fq_flow_set_throttled(q, f);
+			goto begin;
+		}
+		prefetch(&skb->end);
+		if ((s64)(now - time_next_packet - q->ce_threshold) > 0) {
+			INET_ECN_set_ce(skb);
+			q->stat_ce_mark++;
+		}
+		fq_dequeue_skb(sch, f, skb);
+	} else {
+>>>>>>> upstream/android-13
 		head->first = f->next;
 		/* force a pass through old_flows to prevent starvation */
 		if ((head == &q->new_flows) && q->old_flows.first) {
@@ -510,12 +823,18 @@ begin:
 		}
 		goto begin;
 	}
+<<<<<<< HEAD
 	prefetch(&skb->end);
 	f->credit -= qdisc_pkt_len(skb);
+=======
+	plen = qdisc_pkt_len(skb);
+	f->credit -= plen;
+>>>>>>> upstream/android-13
 
 	if (!q->rate_enable)
 		goto out;
 
+<<<<<<< HEAD
 	/* Do not pace locally generated ack packets */
 	if (skb_is_tcp_pure_ack(skb))
 		goto out;
@@ -537,6 +856,31 @@ begin:
 
 		if (likely(rate))
 			do_div(len, rate);
+=======
+	rate = q->flow_max_rate;
+
+	/* If EDT time was provided for this skb, we need to
+	 * update f->time_next_packet only if this qdisc enforces
+	 * a flow max rate.
+	 */
+	if (!skb->tstamp) {
+		if (skb->sk)
+			rate = min(skb->sk->sk_pacing_rate, rate);
+
+		if (rate <= q->low_rate_threshold) {
+			f->credit = 0;
+		} else {
+			plen = max(plen, q->quantum);
+			if (f->credit > 0)
+				goto out;
+		}
+	}
+	if (rate != ~0UL) {
+		u64 len = (u64)plen * NSEC_PER_SEC;
+
+		if (likely(rate))
+			len = div64_ul(len, rate);
+>>>>>>> upstream/android-13
 		/* Since socket rate can change later,
 		 * clamp the delay to 1 second.
 		 * Really, providers of too big packets should be fixed !
@@ -560,6 +904,18 @@ out:
 
 static void fq_flow_purge(struct fq_flow *flow)
 {
+<<<<<<< HEAD
+=======
+	struct rb_node *p = rb_first(&flow->t_root);
+
+	while (p) {
+		struct sk_buff *skb = rb_to_skb(p);
+
+		p = rb_next(p);
+		rb_erase(&skb->rbnode, &flow->t_root);
+		rtnl_kfree_skbs(skb, skb);
+	}
+>>>>>>> upstream/android-13
 	rtnl_kfree_skbs(flow->head, flow->tail);
 	flow->head = NULL;
 	flow->qlen = 0;
@@ -686,6 +1042,11 @@ static int fq_resize(struct Qdisc *sch, u32 log)
 }
 
 static const struct nla_policy fq_policy[TCA_FQ_MAX + 1] = {
+<<<<<<< HEAD
+=======
+	[TCA_FQ_UNSPEC]			= { .strict_start_type = TCA_FQ_TIMER_SLACK },
+
+>>>>>>> upstream/android-13
 	[TCA_FQ_PLIMIT]			= { .type = NLA_U32 },
 	[TCA_FQ_FLOW_PLIMIT]		= { .type = NLA_U32 },
 	[TCA_FQ_QUANTUM]		= { .type = NLA_U32 },
@@ -697,6 +1058,13 @@ static const struct nla_policy fq_policy[TCA_FQ_MAX + 1] = {
 	[TCA_FQ_FLOW_REFILL_DELAY]	= { .type = NLA_U32 },
 	[TCA_FQ_ORPHAN_MASK]		= { .type = NLA_U32 },
 	[TCA_FQ_LOW_RATE_THRESHOLD]	= { .type = NLA_U32 },
+<<<<<<< HEAD
+=======
+	[TCA_FQ_CE_THRESHOLD]		= { .type = NLA_U32 },
+	[TCA_FQ_TIMER_SLACK]		= { .type = NLA_U32 },
+	[TCA_FQ_HORIZON]		= { .type = NLA_U32 },
+	[TCA_FQ_HORIZON_DROP]		= { .type = NLA_U8 },
+>>>>>>> upstream/android-13
 };
 
 static int fq_change(struct Qdisc *sch, struct nlattr *opt,
@@ -711,7 +1079,12 @@ static int fq_change(struct Qdisc *sch, struct nlattr *opt,
 	if (!opt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_FQ_MAX, opt, fq_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_FQ_MAX, opt, fq_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -751,9 +1124,17 @@ static int fq_change(struct Qdisc *sch, struct nlattr *opt,
 		pr_warn_ratelimited("sch_fq: defrate %u ignored.\n",
 				    nla_get_u32(tb[TCA_FQ_FLOW_DEFAULT_RATE]));
 
+<<<<<<< HEAD
 	if (tb[TCA_FQ_FLOW_MAX_RATE])
 		q->flow_max_rate = nla_get_u32(tb[TCA_FQ_FLOW_MAX_RATE]);
 
+=======
+	if (tb[TCA_FQ_FLOW_MAX_RATE]) {
+		u32 rate = nla_get_u32(tb[TCA_FQ_FLOW_MAX_RATE]);
+
+		q->flow_max_rate = (rate == ~0U) ? ~0UL : rate;
+	}
+>>>>>>> upstream/android-13
 	if (tb[TCA_FQ_LOW_RATE_THRESHOLD])
 		q->low_rate_threshold =
 			nla_get_u32(tb[TCA_FQ_LOW_RATE_THRESHOLD]);
@@ -776,7 +1157,26 @@ static int fq_change(struct Qdisc *sch, struct nlattr *opt,
 	if (tb[TCA_FQ_ORPHAN_MASK])
 		q->orphan_mask = nla_get_u32(tb[TCA_FQ_ORPHAN_MASK]);
 
+<<<<<<< HEAD
 	if (!err) {
+=======
+	if (tb[TCA_FQ_CE_THRESHOLD])
+		q->ce_threshold = (u64)NSEC_PER_USEC *
+				  nla_get_u32(tb[TCA_FQ_CE_THRESHOLD]);
+
+	if (tb[TCA_FQ_TIMER_SLACK])
+		q->timer_slack = nla_get_u32(tb[TCA_FQ_TIMER_SLACK]);
+
+	if (tb[TCA_FQ_HORIZON])
+		q->horizon = (u64)NSEC_PER_USEC *
+				  nla_get_u32(tb[TCA_FQ_HORIZON]);
+
+	if (tb[TCA_FQ_HORIZON_DROP])
+		q->horizon_drop = nla_get_u8(tb[TCA_FQ_HORIZON_DROP]);
+
+	if (!err) {
+
+>>>>>>> upstream/android-13
 		sch_tree_unlock(sch);
 		err = fq_resize(sch, fq_log);
 		sch_tree_lock(sch);
@@ -816,7 +1216,11 @@ static int fq_init(struct Qdisc *sch, struct nlattr *opt,
 	q->quantum		= 2 * psched_mtu(qdisc_dev(sch));
 	q->initial_quantum	= 10 * psched_mtu(qdisc_dev(sch));
 	q->flow_refill_delay	= msecs_to_jiffies(40);
+<<<<<<< HEAD
 	q->flow_max_rate	= ~0U;
+=======
+	q->flow_max_rate	= ~0UL;
+>>>>>>> upstream/android-13
 	q->time_next_delayed_flow = ~0ULL;
 	q->rate_enable		= 1;
 	q->new_flows.first	= NULL;
@@ -826,7 +1230,20 @@ static int fq_init(struct Qdisc *sch, struct nlattr *opt,
 	q->fq_trees_log		= ilog2(1024);
 	q->orphan_mask		= 1024 - 1;
 	q->low_rate_threshold	= 550000 / 8;
+<<<<<<< HEAD
 	qdisc_watchdog_init(&q->watchdog, sch);
+=======
+
+	q->timer_slack = 10 * NSEC_PER_USEC; /* 10 usec of hrtimer slack */
+
+	q->horizon = 10ULL * NSEC_PER_SEC; /* 10 seconds */
+	q->horizon_drop = 1; /* by default, drop packets beyond horizon */
+
+	/* Default ce_threshold of 4294 seconds */
+	q->ce_threshold		= (u64)NSEC_PER_USEC * ~0U;
+
+	qdisc_watchdog_init_clockid(&q->watchdog, sch, CLOCK_MONOTONIC);
+>>>>>>> upstream/android-13
 
 	if (opt)
 		err = fq_change(sch, opt, extack);
@@ -839,26 +1256,53 @@ static int fq_init(struct Qdisc *sch, struct nlattr *opt,
 static int fq_dump(struct Qdisc *sch, struct sk_buff *skb)
 {
 	struct fq_sched_data *q = qdisc_priv(sch);
+<<<<<<< HEAD
 	struct nlattr *opts;
 
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	u64 ce_threshold = q->ce_threshold;
+	u64 horizon = q->horizon;
+	struct nlattr *opts;
+
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (opts == NULL)
 		goto nla_put_failure;
 
 	/* TCA_FQ_FLOW_DEFAULT_RATE is not used anymore */
 
+<<<<<<< HEAD
+=======
+	do_div(ce_threshold, NSEC_PER_USEC);
+	do_div(horizon, NSEC_PER_USEC);
+
+>>>>>>> upstream/android-13
 	if (nla_put_u32(skb, TCA_FQ_PLIMIT, sch->limit) ||
 	    nla_put_u32(skb, TCA_FQ_FLOW_PLIMIT, q->flow_plimit) ||
 	    nla_put_u32(skb, TCA_FQ_QUANTUM, q->quantum) ||
 	    nla_put_u32(skb, TCA_FQ_INITIAL_QUANTUM, q->initial_quantum) ||
 	    nla_put_u32(skb, TCA_FQ_RATE_ENABLE, q->rate_enable) ||
+<<<<<<< HEAD
 	    nla_put_u32(skb, TCA_FQ_FLOW_MAX_RATE, q->flow_max_rate) ||
+=======
+	    nla_put_u32(skb, TCA_FQ_FLOW_MAX_RATE,
+			min_t(unsigned long, q->flow_max_rate, ~0U)) ||
+>>>>>>> upstream/android-13
 	    nla_put_u32(skb, TCA_FQ_FLOW_REFILL_DELAY,
 			jiffies_to_usecs(q->flow_refill_delay)) ||
 	    nla_put_u32(skb, TCA_FQ_ORPHAN_MASK, q->orphan_mask) ||
 	    nla_put_u32(skb, TCA_FQ_LOW_RATE_THRESHOLD,
 			q->low_rate_threshold) ||
+<<<<<<< HEAD
 	    nla_put_u32(skb, TCA_FQ_BUCKETS_LOG, q->fq_trees_log))
+=======
+	    nla_put_u32(skb, TCA_FQ_CE_THRESHOLD, (u32)ce_threshold) ||
+	    nla_put_u32(skb, TCA_FQ_BUCKETS_LOG, q->fq_trees_log) ||
+	    nla_put_u32(skb, TCA_FQ_TIMER_SLACK, q->timer_slack) ||
+	    nla_put_u32(skb, TCA_FQ_HORIZON, (u32)horizon) ||
+	    nla_put_u8(skb, TCA_FQ_HORIZON_DROP, q->horizon_drop))
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	return nla_nest_end(skb, opts);
@@ -876,17 +1320,32 @@ static int fq_dump_stats(struct Qdisc *sch, struct gnet_dump *d)
 
 	st.gc_flows		  = q->stat_gc_flows;
 	st.highprio_packets	  = q->stat_internal_packets;
+<<<<<<< HEAD
 	st.tcp_retrans		  = q->stat_tcp_retrans;
+=======
+	st.tcp_retrans		  = 0;
+>>>>>>> upstream/android-13
 	st.throttled		  = q->stat_throttled;
 	st.flows_plimit		  = q->stat_flows_plimit;
 	st.pkts_too_long	  = q->stat_pkts_too_long;
 	st.allocation_errors	  = q->stat_allocation_errors;
+<<<<<<< HEAD
 	st.time_next_delayed_flow = q->time_next_delayed_flow - ktime_get_ns();
+=======
+	st.time_next_delayed_flow = q->time_next_delayed_flow + q->timer_slack -
+				    ktime_get_ns();
+>>>>>>> upstream/android-13
 	st.flows		  = q->flows;
 	st.inactive_flows	  = q->inactive_flows;
 	st.throttled_flows	  = q->throttled_flows;
 	st.unthrottle_latency_ns  = min_t(unsigned long,
 					  q->unthrottle_latency_ns, ~0U);
+<<<<<<< HEAD
+=======
+	st.ce_mark		  = q->stat_ce_mark;
+	st.horizon_drops	  = q->stat_horizon_drops;
+	st.horizon_caps		  = q->stat_horizon_caps;
+>>>>>>> upstream/android-13
 	sch_tree_unlock(sch);
 
 	return gnet_stats_copy_app(d, &st, sizeof(st));
@@ -934,3 +1393,7 @@ module_init(fq_module_init)
 module_exit(fq_module_exit)
 MODULE_AUTHOR("Eric Dumazet");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Fair Queue Packet Scheduler");
+>>>>>>> upstream/android-13

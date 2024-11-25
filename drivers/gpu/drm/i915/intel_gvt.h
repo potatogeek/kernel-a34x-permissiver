@@ -24,27 +24,51 @@
 #ifndef _INTEL_GVT_H_
 #define _INTEL_GVT_H_
 
+<<<<<<< HEAD
 struct intel_gvt;
 
 #ifdef CONFIG_DRM_I915_GVT
 int intel_gvt_init(struct drm_i915_private *dev_priv);
 void intel_gvt_cleanup(struct drm_i915_private *dev_priv);
+=======
+struct drm_i915_private;
+
+#ifdef CONFIG_DRM_I915_GVT
+int intel_gvt_init(struct drm_i915_private *dev_priv);
+void intel_gvt_driver_remove(struct drm_i915_private *dev_priv);
+>>>>>>> upstream/android-13
 int intel_gvt_init_device(struct drm_i915_private *dev_priv);
 void intel_gvt_clean_device(struct drm_i915_private *dev_priv);
 int intel_gvt_init_host(void);
 void intel_gvt_sanitize_options(struct drm_i915_private *dev_priv);
+<<<<<<< HEAD
+=======
+void intel_gvt_resume(struct drm_i915_private *dev_priv);
+>>>>>>> upstream/android-13
 #else
 static inline int intel_gvt_init(struct drm_i915_private *dev_priv)
 {
 	return 0;
 }
+<<<<<<< HEAD
 static inline void intel_gvt_cleanup(struct drm_i915_private *dev_priv)
+=======
+
+static inline void intel_gvt_driver_remove(struct drm_i915_private *dev_priv)
+>>>>>>> upstream/android-13
 {
 }
 
 static inline void intel_gvt_sanitize_options(struct drm_i915_private *dev_priv)
 {
 }
+<<<<<<< HEAD
+=======
+
+static inline void intel_gvt_resume(struct drm_i915_private *dev_priv)
+{
+}
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* _INTEL_GVT_H_ */

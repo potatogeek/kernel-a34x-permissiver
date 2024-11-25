@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*******************************************************************************
   Header File to describe Normal/enhanced descriptor functions used for RING
   and CHAINED modes.
@@ -8,6 +12,7 @@
   descriptors in case of the DMA is configured to work in chained or
   in ring mode.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -19,6 +24,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -29,11 +36,21 @@
 /* Specific functions used for Ring mode */
 
 /* Enhanced descriptors */
+<<<<<<< HEAD
 static inline void ehn_desc_rx_set_on_ring(struct dma_desc *p, int end)
 {
 	p->des1 |= cpu_to_le32((BUF_SIZE_8KiB
 			<< ERDES1_BUFFER2_SIZE_SHIFT)
 		   & ERDES1_BUFFER2_SIZE_MASK);
+=======
+static inline void ehn_desc_rx_set_on_ring(struct dma_desc *p, int end,
+					   int bfsize)
+{
+	if (bfsize == BUF_SIZE_16KiB)
+		p->des1 |= cpu_to_le32((BUF_SIZE_8KiB
+				<< ERDES1_BUFFER2_SIZE_SHIFT)
+			   & ERDES1_BUFFER2_SIZE_MASK);
+>>>>>>> upstream/android-13
 
 	if (end)
 		p->des1 |= cpu_to_le32(ERDES1_END_RING);
@@ -59,11 +76,23 @@ static inline void enh_set_tx_desc_len_on_ring(struct dma_desc *p, int len)
 }
 
 /* Normal descriptors */
+<<<<<<< HEAD
 static inline void ndesc_rx_set_on_ring(struct dma_desc *p, int end)
 {
 	p->des1 |= cpu_to_le32(((BUF_SIZE_2KiB - 1)
 				<< RDES1_BUFFER2_SIZE_SHIFT)
 		    & RDES1_BUFFER2_SIZE_MASK);
+=======
+static inline void ndesc_rx_set_on_ring(struct dma_desc *p, int end, int bfsize)
+{
+	if (bfsize >= BUF_SIZE_2KiB) {
+		int bfsize2;
+
+		bfsize2 = min(bfsize - BUF_SIZE_2KiB + 1, BUF_SIZE_2KiB - 1);
+		p->des1 |= cpu_to_le32((bfsize2 << RDES1_BUFFER2_SIZE_SHIFT)
+			    & RDES1_BUFFER2_SIZE_MASK);
+	}
+>>>>>>> upstream/android-13
 
 	if (end)
 		p->des1 |= cpu_to_le32(RDES1_END_RING);

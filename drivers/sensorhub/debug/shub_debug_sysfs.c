@@ -23,20 +23,28 @@
 #include "../sensorhub/shub_device.h"
 #include "../utility/shub_utility.h"
 #include "../utility/shub_dev_core.h"
+<<<<<<< HEAD
 #include "../utility/shub_file_manager.h"
+=======
+>>>>>>> upstream/android-13
 #include "../utility/sensor_core.h"
 #include "../vendor/shub_vendor.h"
 #include "shub_sensor_dump.h"
 #include "shub_system_checker.h"
 #include "shub_debug.h"
 
+<<<<<<< HEAD
 #define TIMEINFO_SIZE   50
+=======
+#define TIMEINFO_SIZE      50
+>>>>>>> upstream/android-13
 #define SUPPORT_SENSORLIST \
 do { \
 	{SENSOR_TYPE_ACCELEROMETER, SENSOR_TYPE_GYROSCOPE, SENSOR_TYPE_GEOMAGNETIC_FIELD, SENSOR_TYPE_PRESSURE, \
 	SENSOR_TYPE_PROXIMITY, SENSOR_TYPE_LIGHT} \
 } while (0)
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SENSORS_GRIP_FAILURE_DEBUG)
 static void sensor_get_grip_info(void)
 {
@@ -52,6 +60,8 @@ static void sensor_get_grip_info(void)
  * Do not change the format. ex) !@#REG_DUMP!@#, @@TYPE:1##
  * Big data parses the data.
  */
+=======
+>>>>>>> upstream/android-13
 static ssize_t sensor_dump_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	char **sensor_dump_data  = get_sensor_dump_data();
@@ -59,17 +69,28 @@ static ssize_t sensor_dump_show(struct device *dev, struct device_attribute *att
 	char str_no_sensor_dump[] = "there is no sensor dump";
 	int i = 0, ret;
 	char *sensor_dump;
+<<<<<<< HEAD
 	char temp[sensor_dump_length(DUMPREGISTER_MAX_SIZE) + LENGTH_SENSOR_TYPE_MAX] = {0,};
+=======
+	char temp[sensor_dump_length(DUMPREGISTER_MAX_SIZE) + LENGTH_SENSOR_TYPE_MAX + 2] = {0,};
+>>>>>>> upstream/android-13
 	char time_temp[TIMEINFO_SIZE] = "";
 	char *time_info;
 	char str_no_registered_sensor[] = "there is no registered sensor";
 	char reset_info[TIMEINFO_SIZE*2 + 20] = "Sensor Hub Reset : ";
+<<<<<<< HEAD
 	char str_reg_dump_filter[] = "!@#REG_DUMP!@#";
+=======
+>>>>>>> upstream/android-13
 	int cnt = 0;
 	struct shub_sensor *sensor;
 
 	sensor_dump = kzalloc(
+<<<<<<< HEAD
 	    (sensor_dump_length(DUMPREGISTER_MAX_SIZE) + LENGTH_SENSOR_TYPE_MAX) * (ARRAY_SIZE(types)), GFP_KERNEL);
+=======
+	    (sensor_dump_length(DUMPREGISTER_MAX_SIZE) + LENGTH_SENSOR_TYPE_MAX + 3) * (ARRAY_SIZE(types)), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!sensor_dump) {
 		shub_errf("fail to allocate memory for dump buffer");
@@ -78,7 +99,13 @@ static ssize_t sensor_dump_show(struct device *dev, struct device_attribute *att
 
 	for (i = 0; i < ARRAY_SIZE(types); i++) {
 		if (sensor_dump_data[types[i]] != NULL) {
+<<<<<<< HEAD
 			snprintf(temp, sizeof(temp), "@@TYPE:%d##\n%s", types[i], sensor_dump_data[types[i]]);
+=======
+			snprintf(temp, (int)strlen(sensor_dump_data[types[i]]) + LENGTH_SENSOR_TYPE_MAX + 3,
+				 "%3d\n%s\n\n", types[i], sensor_dump_data[types[i]]);
+				 /* %3d -> 3 : LENGTH_SENSOR_TYPE_MAX */
+>>>>>>> upstream/android-13
 			strcpy(&sensor_dump[(int)strlen(sensor_dump)], temp);
 		}
 	}
@@ -183,6 +210,7 @@ print_sensordump:
 	if ((int)strlen(sensor_dump) == 0)
 		ret = snprintf(buf, PAGE_SIZE, "%s\n%s\n%s\n", str_no_sensor_dump, reset_info, time_info);
 	else
+<<<<<<< HEAD
 		ret = snprintf(buf, PAGE_SIZE, "%s\n%s%s\n\n%s\n%s\n",
 				str_reg_dump_filter, sensor_dump, str_reg_dump_filter, reset_info, time_info);
 
@@ -201,6 +229,9 @@ print_sensordump:
 			shub_info("save register_dump_%s", time_temp);
 		}
 	}
+=======
+		ret = snprintf(buf, PAGE_SIZE, "%s\n%s\n%s\n", sensor_dump, reset_info, time_info);
+>>>>>>> upstream/android-13
 
 	kfree(sensor_dump);
 	if (cnt > 0)
@@ -217,6 +248,7 @@ static ssize_t sensor_dump_store(struct device *dev, struct device_attribute *at
 	if (sscanf(buf, "%40s", name) != 1)             // 40 : SENSOR_NAME_MAX
 		return -EINVAL;
 
+<<<<<<< HEAD
 	clear_sensor_dump();
 
 	if ((strcmp(name, "all")) == 0) {
@@ -229,6 +261,9 @@ static ssize_t sensor_dump_store(struct device *dev, struct device_attribute *at
 
 		print_big_data();
 
+=======
+	if ((strcmp(name, "all")) == 0) {
+>>>>>>> upstream/android-13
 		sensorhub_save_ram_dump();
 		ret = send_all_sensor_dump_command();
 	} else {
@@ -251,9 +286,13 @@ static ssize_t sensor_dump_store(struct device *dev, struct device_attribute *at
 		}
 		ret = send_sensor_dump_command(sensor_type);
 	}
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SENSORS_GRIP_FAILURE_DEBUG)
 	sensor_get_grip_info();
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	return (ret == 0) ? size : ret;
 }
 
@@ -299,8 +338,12 @@ static ssize_t sensor_axis_store(struct device *dev, struct device_attribute *at
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (sensor->funcs && sensor->funcs->set_position)
 		sensor->funcs->set_position(position);
+=======
+	sensor->funcs->set_position(position);
+>>>>>>> upstream/android-13
 
 	return size;
 }
@@ -320,7 +363,11 @@ static ssize_t debug_enable_show(struct device *dev, struct device_attribute *at
 
 static ssize_t debug_enable_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
+<<<<<<< HEAD
 	char *input_str = NULL, *input_str_origin = NULL, *token = NULL;
+=======
+	char *input_str = NULL, *tmp = NULL, *dup_str = NULL;
+>>>>>>> upstream/android-13
 	unsigned int arg[5] = {0,};
 	int index = 0;
 
@@ -333,6 +380,7 @@ static ssize_t debug_enable_store(struct device *dev, struct device_attribute *a
 		return -ENOMEM;
 
 	memcpy(input_str, buf, strlen(buf));
+<<<<<<< HEAD
 	input_str_origin = input_str;
 
 	while (((token = strsep(&input_str, " ")) != NULL)) {
@@ -343,6 +391,18 @@ static ssize_t debug_enable_store(struct device *dev, struct device_attribute *a
 			break;
 		case 1:
 			if (kstrtoint(token, 10, &arg[1]) < 0)
+=======
+	dup_str = kstrdup(input_str, GFP_KERNEL);
+
+	while (((tmp = strsep(&dup_str, " ")) != NULL)) {
+		switch (index) {
+		case 0:
+			if (kstrtoint(tmp, 10, &arg[0]) < 0)
+				goto exit;
+			break;
+		case 1:
+			if (kstrtoint(tmp, 10, &arg[1]) < 0)
+>>>>>>> upstream/android-13
 				goto exit;
 			break;
 		default:
@@ -358,7 +418,12 @@ static ssize_t debug_enable_store(struct device *dev, struct device_attribute *a
 		debug_enable[arg[1]] = arg[0] ? true : false;
 	}
 exit:
+<<<<<<< HEAD
 	kfree(input_str_origin);
+=======
+	kfree(dup_str);
+	kfree(input_str);
+>>>>>>> upstream/android-13
 	return size;
 }
 
@@ -387,7 +452,11 @@ static ssize_t make_command_store(struct device *dev, struct device_attribute *a
 	int send_buf_len = 0;
 	unsigned int arg[10] = {0, };
 
+<<<<<<< HEAD
 	char *input_str = NULL, *input_str_origin = NULL, *token = NULL;
+=======
+	char *input_str, *tmp, *dup_str = NULL;
+>>>>>>> upstream/android-13
 	int index = 0, i = 0;
 
 	shub_infof("%s", buf);
@@ -400,30 +469,48 @@ static ssize_t make_command_store(struct device *dev, struct device_attribute *a
 		return -ENOMEM;
 
 	memcpy(input_str, buf, strlen(buf));
+<<<<<<< HEAD
 	input_str_origin = input_str;
 
 	while (((token = strsep(&input_str, " ")) != NULL)) {
 		switch (index) {
 		case 0:
 			if (kstrtou8(token, 10, &cmd) < 0) {
+=======
+	dup_str = kstrdup(input_str, GFP_KERNEL);
+
+	while (((tmp = strsep(&dup_str, " ")) != NULL)) {
+		switch (index) {
+		case 0:
+			if (kstrtou8(tmp, 10, &cmd) < 0) {
+>>>>>>> upstream/android-13
 				shub_errf("invalid cmd(%d)", cmd);
 				goto exit;
 			}
 			break;
 		case 1:
+<<<<<<< HEAD
 			if (kstrtou8(token, 10, &type) < 0) {
+=======
+			if (kstrtou8(tmp, 10, &type) < 0) {
+>>>>>>> upstream/android-13
 				shub_errf("invalid type(%d)", type);
 				goto exit;
 			}
 			break;
 		case 2:
+<<<<<<< HEAD
 			if (kstrtou8(token, 10, &subcmd) < 0) {
+=======
+			if (kstrtou8(tmp, 10, &subcmd) < 0) {
+>>>>>>> upstream/android-13
 				shub_errf("invalid subcmd(%d)", subcmd);
 				goto exit;
 			}
 			break;
 		case 3:
 			if (cmd == CMD_SETVALUE && subcmd == HUB_SYSTEM_CHECK) {
+<<<<<<< HEAD
 				if (kstrtouint(token, 10, &arg[0])) {
 					shub_errf("parsing error");
 					goto exit;
@@ -442,6 +529,18 @@ static ssize_t make_command_store(struct device *dev, struct device_attribute *a
 					goto exit;
 				}
 				send_buf_len = (strlen(token) - 1) / 2;
+=======
+				if (kstrtouint(tmp, 10, &arg[0])) {
+					shub_errf("parsing error");
+					goto exit;
+				}
+			} else {
+				if ((strlen(tmp) - 1) % 2 != 0) {
+					shub_errf("not match buf len(%d) != %d", (int)strlen(tmp), send_buf_len);
+					goto exit;
+				}
+				send_buf_len = (strlen(tmp) - 1) / 2;
+>>>>>>> upstream/android-13
 				send_buf = kzalloc(send_buf_len, GFP_KERNEL);
 				if (!send_buf) {
 					shub_errf("fail to alloc memory");
@@ -449,12 +548,17 @@ static ssize_t make_command_store(struct device *dev, struct device_attribute *a
 				}
 
 				for (i = 0; i < send_buf_len; i++) {
+<<<<<<< HEAD
 					send_buf[i] = (u8)((htou8(token[2 * i]) << 4) | htou8(token[2 * i + 1]));
+=======
+					send_buf[i] = (u8)((htou8(tmp[2 * i]) << 4) | htou8(tmp[2 * i + 1]));
+>>>>>>> upstream/android-13
 					shub_infof("[%d]:%d", i, send_buf[i]);
 				}
 			}
 			break;
 		case 4:
+<<<<<<< HEAD
 			if (cmd == CMD_SETVALUE && subcmd == HUB_SYSTEM_CHECK) {
 				if (kstrtouint(token, 10, &arg[1])) {
 					shub_errf("parsing error");
@@ -470,6 +574,13 @@ static ssize_t make_command_store(struct device *dev, struct device_attribute *a
 			} else {
 				shub_errf("unused input");
 			}
+=======
+			if (cmd == CMD_SETVALUE && subcmd == HUB_SYSTEM_CHECK)
+				if (kstrtouint(tmp, 10, &arg[1])) {
+					shub_errf("parsing error");
+					goto exit;
+				}
+>>>>>>> upstream/android-13
 			break;
 		default:
 			goto exit;
@@ -493,7 +604,12 @@ static ssize_t make_command_store(struct device *dev, struct device_attribute *a
 	}
 exit:
 	kfree(send_buf);
+<<<<<<< HEAD
 	kfree(input_str_origin);
+=======
+	kfree(dup_str);
+	kfree(input_str);
+>>>>>>> upstream/android-13
 
 	return size;
 }
@@ -522,39 +638,71 @@ static ssize_t register_rw_store(struct device *dev, struct device_attribute *at
 	char rw_cmd;
 
 	char input_str[20] = {0,};
+<<<<<<< HEAD
 	char *tmp_str = NULL, *token = NULL;
 
 	if (strlen(buf) >= sizeof(input_str)) {
 		shub_errf("bufsize too long(%d)", (int)strlen(buf));
+=======
+	char *dup_str = NULL;
+	char *tmp;
+
+	if (strlen(buf) >= sizeof(input_str)) {
+		shub_errf("bufsize too long(%d)", strlen(buf));
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
 	memcpy(input_str, buf, strlen(buf));
+<<<<<<< HEAD
 	tmp_str = input_str;
 
 	while (((token = strsep(&tmp_str, " ")) != NULL)) {
 		switch (index) {
 		case 0:
 			if (kstrtou8(token, 10, &sensor_type) < 0 || (sensor_type >= SENSOR_TYPE_MAX)) {
+=======
+	dup_str = kstrdup(input_str, GFP_KERNEL);
+
+	while (((tmp = strsep(&dup_str, " ")) != NULL)) {
+		switch (index) {
+		case 0:
+			if (kstrtou8(tmp, 10, &sensor_type) < 0 || (sensor_type >= SENSOR_TYPE_MAX)) {
+>>>>>>> upstream/android-13
 				shub_errf("invalid type(%d)", sensor_type);
 				goto exit;
 			}
 			break;
 		case 1:
+<<<<<<< HEAD
 			if (token[0] == 'r' || token[0] == 'w')
 				rw_cmd = token[0];
 			else {
 				shub_errf("invalid cmd(%c)", token[0]);
+=======
+			if (tmp[0] == 'r' || tmp[0] == 'w')
+				rw_cmd = tmp[0];
+			else {
+				shub_errf("invalid cmd(%c)", tmp[0]);
+>>>>>>> upstream/android-13
 				goto exit;
 			}
 			break;
 		case 2:
 		case 3:
+<<<<<<< HEAD
 			if ((strlen(token) == 4) && token[0] != '0' && token[1] != 'x') {
 				shub_errf("invalid value(0xOO) %s", token);
 				goto exit;
 			}
 			send_val[index - 2] = (u8)((htou8(token[2]) << 4) | htou8(token[3]));
+=======
+			if ((strlen(tmp) == 4) && tmp[0] != '0' && tmp[1] != 'x') {
+				shub_errf("invalid value(0xOO) %s", tmp);
+				goto exit;
+			}
+			send_val[index - 2] = (u8)((htou8(tmp[2]) << 4) | htou8(tmp[3]));
+>>>>>>> upstream/android-13
 			break;
 		default:
 			goto exit;
@@ -594,10 +742,15 @@ static ssize_t register_rw_store(struct device *dev, struct device_attribute *at
 	}
 
 exit:
+<<<<<<< HEAD
+=======
+	kfree(dup_str);
+>>>>>>> upstream/android-13
 	return size;
 }
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SENSORS_GRIP_FAILURE_DEBUG)
 void update_grip_error(u8 idx, u32 error_state)
 {
@@ -629,6 +782,8 @@ static ssize_t grip_fail_show(struct device *dev,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(sensor_dump, 0664, sensor_dump_show, sensor_dump_store);
 static DEVICE_ATTR_RW(sensor_axis);
 static DEVICE_ATTR_RW(debug_enable);
@@ -636,6 +791,7 @@ static DEVICE_ATTR_RW(debug_enable);
 static DEVICE_ATTR(make_command, 0220, NULL, make_command_store);
 static DEVICE_ATTR_RW(register_rw);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SENSORS_GRIP_FAILURE_DEBUG)
 static DEVICE_ATTR(grip_fail, 0440, grip_fail_show, NULL);
 #endif
@@ -644,6 +800,11 @@ static struct device_attribute *shub_debug_attrs[] = {
 #if IS_ENABLED(CONFIG_SENSORS_GRIP_FAILURE_DEBUG)
 	&dev_attr_grip_fail,
 #endif
+=======
+
+static struct device_attribute *shub_debug_attrs[] = {
+	&dev_attr_sensor_axis,
+>>>>>>> upstream/android-13
 	&dev_attr_sensor_dump,
 	&dev_attr_debug_enable,
 #ifdef CONFIG_SHUB_DEBUG

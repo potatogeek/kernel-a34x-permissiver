@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *		Swansea University Computer Society NET3
  *
@@ -33,11 +37,14 @@
  *		$Id: udp.h,v       0.8.4.1  1992/11/10 00:17:18 bir7 Exp $
  *		$Id: we.c,v        0.8.4.10 1993/01/23 18:00:11 bir7 Exp $
  *		$Id: wereg.h,v     0.8.4.1  1992/11/10 00:17:18 bir7 Exp $
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_INET_H
 #define _LINUX_INET_H

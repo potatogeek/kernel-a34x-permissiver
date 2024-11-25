@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Dallas DS1302 RTC Support
  *
  *  Copyright (C) 2002 David McCullough
  *  Copyright (C) 2003 - 2007 Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License version 2. See the file "COPYING" in the main directory of
  * this archive for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bcd.h>
@@ -18,8 +25,11 @@
 #include <linux/rtc.h>
 #include <linux/spi/spi.h>
 
+<<<<<<< HEAD
 #define DRV_NAME	"rtc-ds1302"
 
+=======
+>>>>>>> upstream/android-13
 #define	RTC_CMD_READ	0x81		/* Read command */
 #define	RTC_CMD_WRITE	0x80		/* Write command */
 
@@ -204,11 +214,24 @@ static const struct of_device_id ds1302_dt_ids[] = {
 MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
 #endif
 
+<<<<<<< HEAD
+=======
+static const struct spi_device_id ds1302_spi_ids[] = {
+	{ .name = "ds1302", },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(spi, ds1302_spi_ids);
+
+>>>>>>> upstream/android-13
 static struct spi_driver ds1302_driver = {
 	.driver.name	= "rtc-ds1302",
 	.driver.of_match_table = of_match_ptr(ds1302_dt_ids),
 	.probe		= ds1302_probe,
 	.remove		= ds1302_remove,
+<<<<<<< HEAD
+=======
+	.id_table	= ds1302_spi_ids,
+>>>>>>> upstream/android-13
 };
 
 module_spi_driver(ds1302_driver);

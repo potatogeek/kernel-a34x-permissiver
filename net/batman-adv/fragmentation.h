@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2013-2018  B.A.T.M.A.N. contributors:
  *
  * Martin Hundebøll <martin@hundeboll.net>
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Martin Hundebøll <martin@hundeboll.net>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_FRAGMENTATION_H_
@@ -23,11 +29,18 @@
 
 #include <linux/compiler.h>
 #include <linux/list.h>
+<<<<<<< HEAD
 #include <linux/stddef.h>
 #include <linux/types.h>
 
 struct sk_buff;
 
+=======
+#include <linux/skbuff.h>
+#include <linux/stddef.h>
+#include <linux/types.h>
+
+>>>>>>> upstream/android-13
 void batadv_frag_purge_orig(struct batadv_orig_node *orig,
 			    bool (*check_cb)(struct batadv_frag_table_entry *));
 bool batadv_frag_skb_fwd(struct sk_buff *skb,

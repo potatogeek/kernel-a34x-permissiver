@@ -16,7 +16,11 @@
 #include <linux/debugfs.h>
 #include "internals.h"
 
+<<<<<<< HEAD
 static int intc_irq_xlate_debug(struct seq_file *m, void *priv)
+=======
+static int intc_irq_xlate_show(struct seq_file *m, void *priv)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -37,6 +41,7 @@ static int intc_irq_xlate_debug(struct seq_file *m, void *priv)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int intc_irq_xlate_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, intc_irq_xlate_debug, inode->i_private);
@@ -48,6 +53,9 @@ static const struct file_operations intc_irq_xlate_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(intc_irq_xlate);
+>>>>>>> upstream/android-13
 
 static int __init intc_irq_xlate_init(void)
 {

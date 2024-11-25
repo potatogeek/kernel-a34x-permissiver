@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * tef6862.c Philips TEF6862 Car Radio Enhanced Selectivity Tuner
  * Copyright (c) 2009 Intel Corporation
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * tef6862.c Philips TEF6862 Car Radio Enhanced Selectivity Tuner
+ * Copyright (c) 2009 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -79,7 +86,11 @@ static int tef6862_g_tuner(struct v4l2_subdev *sd, struct v4l2_tuner *v)
 		return -EINVAL;
 
 	/* only support FM for now */
+<<<<<<< HEAD
 	strlcpy(v->name, "FM", sizeof(v->name));
+=======
+	strscpy(v->name, "FM", sizeof(v->name));
+>>>>>>> upstream/android-13
 	v->type = V4L2_TUNER_RADIO;
 	v->rangelow = TEF6862_LO_FREQ;
 	v->rangehigh = TEF6862_HI_FREQ;

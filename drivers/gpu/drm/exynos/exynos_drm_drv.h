@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* exynos_drm_drv.h
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
@@ -5,25 +9,43 @@
  *	Inki Dae <inki.dae@samsung.com>
  *	Joonyoung Shim <jy0922.shim@samsung.com>
  *	Seung-Woo Kim <sw0312.kim@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _EXYNOS_DRM_DRV_H_
 #define _EXYNOS_DRM_DRV_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <linux/module.h>
 
+=======
+#include <linux/module.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_device.h>
+#include <drm/drm_plane.h>
+
+>>>>>>> upstream/android-13
 #define MAX_CRTC	3
 #define MAX_PLANE	5
 #define MAX_FB_BUFFER	4
 
 #define DEFAULT_WIN	0
 
+<<<<<<< HEAD
+=======
+struct drm_crtc_state;
+struct drm_display_mode;
+
+>>>>>>> upstream/android-13
 #define to_exynos_crtc(x)	container_of(x, struct exynos_drm_crtc, base)
 #define to_exynos_plane(x)	container_of(x, struct exynos_drm_plane, base)
 
@@ -92,6 +114,11 @@ struct exynos_drm_plane {
 #define EXYNOS_DRM_PLANE_CAP_SCALE	(1 << 1)
 #define EXYNOS_DRM_PLANE_CAP_ZPOS	(1 << 2)
 #define EXYNOS_DRM_PLANE_CAP_TILE	(1 << 3)
+<<<<<<< HEAD
+=======
+#define EXYNOS_DRM_PLANE_CAP_PIX_BLEND	(1 << 4)
+#define EXYNOS_DRM_PLANE_CAP_WIN_BLEND	(1 << 5)
+>>>>>>> upstream/android-13
 
 /*
  * Exynos DRM plane configuration structure.
@@ -114,8 +141,13 @@ struct exynos_drm_plane_config {
 /*
  * Exynos drm crtc ops
  *
+<<<<<<< HEAD
  * @enable: enable the device
  * @disable: disable the device
+=======
+ * @atomic_enable: enable the device
+ * @atomic_disable: disable the device
+>>>>>>> upstream/android-13
  * @enable_vblank: specific driver callback for enabling vblank interrupt.
  * @disable_vblank: specific driver callback for disabling vblank interrupt.
  * @mode_valid: specific driver callback for mode validation
@@ -129,8 +161,13 @@ struct exynos_drm_plane_config {
  */
 struct exynos_drm_crtc;
 struct exynos_drm_crtc_ops {
+<<<<<<< HEAD
 	void (*enable)(struct exynos_drm_crtc *crtc);
 	void (*disable)(struct exynos_drm_crtc *crtc);
+=======
+	void (*atomic_enable)(struct exynos_drm_crtc *crtc);
+	void (*atomic_disable)(struct exynos_drm_crtc *crtc);
+>>>>>>> upstream/android-13
 	int (*enable_vblank)(struct exynos_drm_crtc *crtc);
 	void (*disable_vblank)(struct exynos_drm_crtc *crtc);
 	enum drm_mode_status (*mode_valid)(struct exynos_drm_crtc *crtc,
@@ -194,7 +231,10 @@ struct drm_exynos_file_private {
  */
 struct exynos_drm_private {
 	struct drm_fb_helper *fb_helper;
+<<<<<<< HEAD
 	struct drm_atomic_state *suspend_state;
+=======
+>>>>>>> upstream/android-13
 
 	struct device *g2d_dev;
 	struct device *dma_dev;
@@ -213,6 +253,22 @@ static inline struct device *to_dma_dev(struct drm_device *dev)
 	return priv->dma_dev;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool is_drm_iommu_supported(struct drm_device *drm_dev)
+{
+	struct exynos_drm_private *priv = drm_dev->dev_private;
+
+	return priv->mapping ? true : false;
+}
+
+int exynos_drm_register_dma(struct drm_device *drm, struct device *dev,
+			    void **dma_priv);
+void exynos_drm_unregister_dma(struct drm_device *drm, struct device *dev,
+			       void **dma_priv);
+void exynos_drm_cleanup_dma(struct drm_device *drm);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DRM_EXYNOS_DPI
 struct drm_encoder *exynos_dpi_probe(struct device *dev);
 int exynos_dpi_remove(struct drm_encoder *encoder);

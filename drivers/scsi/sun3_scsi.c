@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Sun3 SCSI stuff by Erik Verbruggen (erik@bigmama.xtdnet.nl)
  *
@@ -335,7 +339,11 @@ static int sun3scsi_dma_xfer_len(struct NCR5380_hostdata *hostdata,
 {
 	int wanted_len = cmd->SCp.this_residual;
 
+<<<<<<< HEAD
 	if (wanted_len < DMA_MIN_SIZE || blk_rq_is_passthrough(cmd->request))
+=======
+	if (wanted_len < DMA_MIN_SIZE || blk_rq_is_passthrough(scsi_cmd_to_rq(cmd)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return wanted_len;
@@ -365,8 +373,14 @@ static inline int sun3scsi_dma_start(unsigned long count, unsigned char *data)
 }
 
 /* clean up after our dma is done */
+<<<<<<< HEAD
 static int sun3scsi_dma_finish(int write_flag)
 {
+=======
+static int sun3scsi_dma_finish(enum dma_data_direction data_dir)
+{
+	const bool write_flag = data_dir == DMA_TO_DEVICE;
+>>>>>>> upstream/android-13
 	unsigned short __maybe_unused count;
 	unsigned short fifo;
 	int ret = 0;
@@ -396,10 +410,18 @@ static int sun3scsi_dma_finish(int write_flag)
 		case CSR_LEFT_3:
 			*vaddr = (dregs->bpack_lo & 0xff00) >> 8;
 			vaddr--;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case CSR_LEFT_2:
 			*vaddr = (dregs->bpack_hi & 0x00ff);
 			vaddr--;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case CSR_LEFT_1:
 			*vaddr = (dregs->bpack_hi & 0xff00) >> 8;
@@ -500,7 +522,11 @@ static struct scsi_host_template sun3_scsi_template = {
 	.this_id		= 7,
 	.sg_tablesize		= 1,
 	.cmd_per_lun		= 2,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 	.cmd_size		= NCR5380_CMD_SIZE,
 };
 

@@ -2,6 +2,7 @@
 #ifndef ___ASM_SPARC_DMA_MAPPING_H
 #define ___ASM_SPARC_DMA_MAPPING_H
 
+<<<<<<< HEAD
 #include <linux/scatterlist.h>
 #include <linux/mm.h>
 #include <linux/dma-debug.h>
@@ -21,6 +22,14 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
 		return &dma_noncoherent_ops;
 #endif
 	return dma_ops;
+=======
+extern const struct dma_map_ops *dma_ops;
+
+static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+{
+	/* sparc32 uses per-device dma_ops */
+	return IS_ENABLED(CONFIG_SPARC64) ? dma_ops : NULL;
+>>>>>>> upstream/android-13
 }
 
 #endif

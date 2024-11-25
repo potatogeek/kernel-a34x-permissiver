@@ -56,7 +56,11 @@
 		interrupt-parent = <&cpu_intc>;
 	};
 
+<<<<<<< HEAD
 	ehci@1b200000 {
+=======
+	usb@1b200000 {
+>>>>>>> upstream/android-13
 		compatible = "generic-ehci";
 		reg = <0x1b200000 0x1000>;
 
@@ -244,7 +248,11 @@
 		no-loopback-test;
 	};
 
+<<<<<<< HEAD
 	eth@1f010000 {
+=======
+	ethernet@1f010000 {
+>>>>>>> upstream/android-13
 		compatible = "smsc,lan9115";
 		reg = <0x1f010000 0x10000>;
 		reg-io-width = <4>;

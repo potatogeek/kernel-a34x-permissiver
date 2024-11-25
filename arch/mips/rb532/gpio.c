@@ -192,7 +192,11 @@ int __init rb532_gpio_init(void)
 	struct resource *r;
 
 	r = rb532_gpio_reg0_res;
+<<<<<<< HEAD
 	rb532_gpio_chip->regbase = ioremap_nocache(r->start, resource_size(r));
+=======
+	rb532_gpio_chip->regbase = ioremap(r->start, resource_size(r));
+>>>>>>> upstream/android-13
 
 	if (!rb532_gpio_chip->regbase) {
 		printk(KERN_ERR "rb532: cannot remap GPIO register 0\n");

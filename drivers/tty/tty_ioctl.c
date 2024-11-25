@@ -21,6 +21,10 @@
 #include <linux/bitops.h>
 #include <linux/mutex.h>
 #include <linux/compat.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <linux/uaccess.h>
@@ -53,12 +57,20 @@
  *	to be no queue on the device.
  */
 
+<<<<<<< HEAD
 int tty_chars_in_buffer(struct tty_struct *tty)
 {
 	if (tty->ops->chars_in_buffer)
 		return tty->ops->chars_in_buffer(tty);
 	else
 		return 0;
+=======
+unsigned int tty_chars_in_buffer(struct tty_struct *tty)
+{
+	if (tty->ops->chars_in_buffer)
+		return tty->ops->chars_in_buffer(tty);
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(tty_chars_in_buffer);
 
@@ -73,7 +85,11 @@ EXPORT_SYMBOL(tty_chars_in_buffer);
  *	returned and data may be lost as there will be no flow control.
  */
  
+<<<<<<< HEAD
 int tty_write_room(struct tty_struct *tty)
+=======
+unsigned int tty_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	if (tty->ops->write_room)
 		return tty->ops->write_room(tty);
@@ -97,6 +113,7 @@ void tty_driver_flush_buffer(struct tty_struct *tty)
 EXPORT_SYMBOL(tty_driver_flush_buffer);
 
 /**
+<<<<<<< HEAD
  *	tty_throttle		-	flow control
  *	@tty: terminal
  *
@@ -119,6 +136,8 @@ void tty_throttle(struct tty_struct *tty)
 EXPORT_SYMBOL(tty_throttle);
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	tty_unthrottle		-	flow control
  *	@tty: terminal
  *
@@ -146,10 +165,18 @@ EXPORT_SYMBOL(tty_unthrottle);
  *	tty_throttle_safe	-	flow control
  *	@tty: terminal
  *
+<<<<<<< HEAD
  *	Similar to tty_throttle() but will only attempt throttle
  *	if tty->flow_change is TTY_THROTTLE_SAFE. Prevents an accidental
  *	throttle due to race conditions when throttling is conditional
  *	on factors evaluated prior to throttling.
+=======
+ *	Indicate that a tty should stop transmitting data down the stack.
+ *	tty_throttle_safe will only attempt throttle if tty->flow_change is
+ *	TTY_THROTTLE_SAFE. Prevents an accidental throttle due to race
+ *	conditions when throttling is conditional on factors evaluated prior to
+ *	throttling.
+>>>>>>> upstream/android-13
  *
  *	Returns 0 if tty is throttled (or was already throttled)
  */
@@ -301,6 +328,54 @@ int tty_termios_hw_change(const struct ktermios *a, const struct ktermios *b)
 EXPORT_SYMBOL(tty_termios_hw_change);
 
 /**
+<<<<<<< HEAD
+=======
+ *	tty_get_char_size	-	get size of a character
+ *	@cflag: termios cflag value
+ *
+ *	Get the size (in bits) of a character depending on @cflag's %CSIZE
+ *	setting.
+ */
+unsigned char tty_get_char_size(unsigned int cflag)
+{
+	switch (cflag & CSIZE) {
+	case CS5:
+		return 5;
+	case CS6:
+		return 6;
+	case CS7:
+		return 7;
+	case CS8:
+	default:
+		return 8;
+	}
+}
+EXPORT_SYMBOL_GPL(tty_get_char_size);
+
+/**
+ *	tty_get_frame_size	-	get size of a frame
+ *	@cflag: termios cflag value
+ *
+ *	Get the size (in bits) of a frame depending on @cflag's %CSIZE, %CSTOPB,
+ *	and %PARENB setting. The result is a sum of character size, start and
+ *	stop bits -- one bit each -- second stop bit (if set), and parity bit
+ *	(if set).
+ */
+unsigned char tty_get_frame_size(unsigned int cflag)
+{
+	unsigned char bits = 2 + tty_get_char_size(cflag);
+
+	if (cflag & CSTOPB)
+		bits++;
+	if (cflag & PARENB)
+		bits++;
+
+	return bits;
+}
+EXPORT_SYMBOL_GPL(tty_get_frame_size);
+
+/**
+>>>>>>> upstream/android-13
  *	tty_set_termios		-	update termios values
  *	@tty: tty to update
  *	@new_termios: desired new value
@@ -443,6 +518,7 @@ static int get_termio(struct tty_struct *tty, struct termio __user *termio)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 #ifdef TCGETX
 
@@ -488,6 +564,8 @@ static int set_termiox(struct tty_struct *tty, void __user *arg, int opt)
 #endif
 
 
+=======
+>>>>>>> upstream/android-13
 #ifdef TIOCGETP
 /*
  * These are deprecated, but there is limited support..
@@ -815,6 +893,7 @@ int tty_mode_ioctl(struct tty_struct *tty, struct file *file,
 		return ret;
 #endif
 #ifdef TCGETX
+<<<<<<< HEAD
 	case TCGETX: {
 		struct termiox ktermx;
 		if (real_tty->termiox == NULL)
@@ -833,6 +912,14 @@ int tty_mode_ioctl(struct tty_struct *tty, struct file *file,
 	case TCSETXF:
 		return set_termiox(real_tty, p, TERMIOS_FLUSH);
 #endif		
+=======
+	case TCGETX:
+	case TCSETX:
+	case TCSETXW:
+	case TCSETXF:
+		return -ENOTTY;
+#endif
+>>>>>>> upstream/android-13
 	case TIOCGSOFTCAR:
 		copy_termios(real_tty, &kterm);
 		ret = put_user((kterm.c_cflag & CLOCAL) ? 1 : 0,
@@ -866,7 +953,11 @@ static int __tty_perform_flush(struct tty_struct *tty, unsigned long arg)
 			ld->ops->flush_buffer(tty);
 			tty_unthrottle(tty);
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TCOFLUSH:
 		tty_driver_flush_buffer(tty);
 		break;
@@ -903,6 +994,7 @@ int n_tty_ioctl_helper(struct tty_struct *tty, struct file *file,
 			return retval;
 		switch (arg) {
 		case TCOOFF:
+<<<<<<< HEAD
 			spin_lock_irq(&tty->flow_lock);
 			if (!tty->flow_stopped) {
 				tty->flow_stopped = 1;
@@ -917,6 +1009,22 @@ int n_tty_ioctl_helper(struct tty_struct *tty, struct file *file,
 				__start_tty(tty);
 			}
 			spin_unlock_irq(&tty->flow_lock);
+=======
+			spin_lock_irq(&tty->flow.lock);
+			if (!tty->flow.tco_stopped) {
+				tty->flow.tco_stopped = true;
+				__stop_tty(tty);
+			}
+			spin_unlock_irq(&tty->flow.lock);
+			break;
+		case TCOON:
+			spin_lock_irq(&tty->flow.lock);
+			if (tty->flow.tco_stopped) {
+				tty->flow.tco_stopped = false;
+				__start_tty(tty);
+			}
+			spin_unlock_irq(&tty->flow.lock);
+>>>>>>> upstream/android-13
 			break;
 		case TCIOFF:
 			if (STOP_CHAR(tty) != __DISABLED_CHAR)
@@ -941,6 +1049,7 @@ int n_tty_ioctl_helper(struct tty_struct *tty, struct file *file,
 	}
 }
 EXPORT_SYMBOL(n_tty_ioctl_helper);
+<<<<<<< HEAD
 
 #ifdef CONFIG_COMPAT
 long n_tty_compat_ioctl_helper(struct tty_struct *tty, struct file *file,
@@ -957,3 +1066,5 @@ long n_tty_compat_ioctl_helper(struct tty_struct *tty, struct file *file,
 EXPORT_SYMBOL(n_tty_compat_ioctl_helper);
 #endif
 
+=======
+>>>>>>> upstream/android-13

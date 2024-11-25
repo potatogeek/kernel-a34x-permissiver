@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -212,7 +219,14 @@ static int write_rcvrd_mst_node(struct ubifs_info *c,
 	save_flags = mst->flags;
 	mst->flags |= cpu_to_le32(UBIFS_MST_RCVRY);
 
+<<<<<<< HEAD
 	ubifs_prepare_node(c, mst, UBIFS_MST_NODE_SZ, 1);
+=======
+	err = ubifs_prepare_node_hmac(c, mst, UBIFS_MST_NODE_SZ,
+				      offsetof(struct ubifs_mst_node, hmac), 1);
+	if (err)
+		goto out;
+>>>>>>> upstream/android-13
 	err = ubifs_leb_change(c, lnum, mst, sz);
 	if (err)
 		goto out;
@@ -264,9 +278,13 @@ int ubifs_recover_master_node(struct ubifs_info *c)
 			offs2 = (void *)mst2 - buf2;
 			if (offs1 == offs2) {
 				/* Same offset, so must be the same */
+<<<<<<< HEAD
 				if (memcmp((void *)mst1 + UBIFS_CH_SZ,
 					   (void *)mst2 + UBIFS_CH_SZ,
 					   UBIFS_MST_NODE_SZ - UBIFS_CH_SZ))
+=======
+				if (ubifs_compare_master_node(c, mst1, mst2))
+>>>>>>> upstream/android-13
 					goto out_err;
 				mst = mst1;
 			} else if (offs2 + sz == offs1) {
@@ -363,11 +381,19 @@ out_free:
 	ubifs_err(c, "failed to recover master node");
 	if (mst1) {
 		ubifs_err(c, "dumping first master node");
+<<<<<<< HEAD
 		ubifs_dump_node(c, mst1);
 	}
 	if (mst2) {
 		ubifs_err(c, "dumping second master node");
 		ubifs_dump_node(c, mst2);
+=======
+		ubifs_dump_node(c, mst1, c->leb_size - ((void *)mst1 - buf1));
+	}
+	if (mst2) {
+		ubifs_err(c, "dumping second master node");
+		ubifs_dump_node(c, mst2, c->leb_size - ((void *)mst2 - buf2));
+>>>>>>> upstream/android-13
 	}
 	vfree(buf2);
 	vfree(buf1);
@@ -480,7 +506,11 @@ static int no_more_nodes(const struct ubifs_info *c, void *buf, int len,
 	 * The area after the common header size is not empty, so the common
 	 * header must be intact. Check it.
 	 */
+<<<<<<< HEAD
 	if (ubifs_check_node(c, buf, lnum, offs, 1, 0) != -EUCLEAN) {
+=======
+	if (ubifs_check_node(c, buf, len, lnum, offs, 1, 0) != -EUCLEAN) {
+>>>>>>> upstream/android-13
 		dbg_rcvry("unexpected bad common header at %d:%d", lnum, offs);
 		return 0;
 	}
@@ -829,7 +859,11 @@ static int get_cs_sqnum(struct ubifs_info *c, int lnum, int offs,
 		goto out_err;
 	}
 	if (cs_node->ch.node_type != UBIFS_CS_NODE) {
+<<<<<<< HEAD
 		ubifs_err(c, "Node a CS node, type is %d", cs_node->ch.node_type);
+=======
+		ubifs_err(c, "Not a CS node, type is %d", cs_node->ch.node_type);
+>>>>>>> upstream/android-13
 		goto out_err;
 	}
 	if (le64_to_cpu(cs_node->cmt_no) != c->cmt_no) {
@@ -1462,15 +1496,90 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * ubifs_recover_size - recover inode size.
  * @c: UBIFS file-system description object
+=======
+ * inode_fix_size - fix inode size
+ * @c: UBIFS file-system description object
+ * @e: inode size information for recovery
+ */
+static int inode_fix_size(struct ubifs_info *c, struct size_entry *e)
+{
+	struct inode *inode;
+	struct ubifs_inode *ui;
+	int err;
+
+	if (c->ro_mount)
+		ubifs_assert(c, !e->inode);
+
+	if (e->inode) {
+		/* Remounting rw, pick up inode we stored earlier */
+		inode = e->inode;
+	} else {
+		inode = ubifs_iget(c->vfs_sb, e->inum);
+		if (IS_ERR(inode))
+			return PTR_ERR(inode);
+
+		if (inode->i_size >= e->d_size) {
+			/*
+			 * The original inode in the index already has a size
+			 * big enough, nothing to do
+			 */
+			iput(inode);
+			return 0;
+		}
+
+		dbg_rcvry("ino %lu size %lld -> %lld",
+			  (unsigned long)e->inum,
+			  inode->i_size, e->d_size);
+
+		ui = ubifs_inode(inode);
+
+		inode->i_size = e->d_size;
+		ui->ui_size = e->d_size;
+		ui->synced_i_size = e->d_size;
+
+		e->inode = inode;
+	}
+
+	/*
+	 * In readonly mode just keep the inode pinned in memory until we go
+	 * readwrite. In readwrite mode write the inode to the journal with the
+	 * fixed size.
+	 */
+	if (c->ro_mount)
+		return 0;
+
+	err = ubifs_jnl_write_inode(c, inode);
+
+	iput(inode);
+
+	if (err)
+		return err;
+
+	rb_erase(&e->rb, &c->size_tree);
+	kfree(e);
+
+	return 0;
+}
+
+/**
+ * ubifs_recover_size - recover inode size.
+ * @c: UBIFS file-system description object
+ * @in_place: If true, do a in-place size fixup
+>>>>>>> upstream/android-13
  *
  * This function attempts to fix inode size discrepancies identified by the
  * 'ubifs_recover_size_accum()' function.
  *
  * This functions returns %0 on success and a negative error code on failure.
  */
+<<<<<<< HEAD
 int ubifs_recover_size(struct ubifs_info *c)
+=======
+int ubifs_recover_size(struct ubifs_info *c, bool in_place)
+>>>>>>> upstream/android-13
 {
 	struct rb_node *this = rb_first(&c->size_tree);
 
@@ -1479,6 +1588,12 @@ int ubifs_recover_size(struct ubifs_info *c)
 		int err;
 
 		e = rb_entry(this, struct size_entry, rb);
+<<<<<<< HEAD
+=======
+
+		this = rb_next(this);
+
+>>>>>>> upstream/android-13
 		if (!e->exists) {
 			union ubifs_key key;
 
@@ -1502,6 +1617,7 @@ int ubifs_recover_size(struct ubifs_info *c)
 		}
 
 		if (e->exists && e->i_size < e->d_size) {
+<<<<<<< HEAD
 			if (c->ro_mount) {
 				/* Fix the inode size and pin it in memory */
 				struct inode *inode;
@@ -1528,14 +1644,35 @@ int ubifs_recover_size(struct ubifs_info *c)
 				iput(inode);
 			} else {
 				/* Fix the size in place */
+=======
+			ubifs_assert(c, !(c->ro_mount && in_place));
+
+			/*
+			 * We found data that is outside the found inode size,
+			 * fixup the inode size
+			 */
+
+			if (in_place) {
+>>>>>>> upstream/android-13
 				err = fix_size_in_place(c, e);
 				if (err)
 					return err;
 				iput(e->inode);
+<<<<<<< HEAD
 			}
 		}
 
 		this = rb_next(this);
+=======
+			} else {
+				err = inode_fix_size(c, e);
+				if (err)
+					return err;
+				continue;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		rb_erase(&e->rb, &c->size_tree);
 		kfree(e);
 	}

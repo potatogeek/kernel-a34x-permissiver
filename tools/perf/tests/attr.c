@@ -30,9 +30,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+<<<<<<< HEAD
 #include "../perf.h"
 #include <subcmd/exec-cmd.h>
 #include "tests.h"
+=======
+#include <subcmd/exec-cmd.h>
+#include "event.h"
+#include "util.h"
+#include "tests.h"
+#include "pmu.h"
+>>>>>>> upstream/android-13
 
 #define ENV "PERF_TEST_ATTR"
 
@@ -181,6 +189,7 @@ int test__attr(struct test *test __maybe_unused, int subtest __maybe_unused)
 	struct stat st;
 	char path_perf[PATH_MAX];
 	char path_dir[PATH_MAX];
+<<<<<<< HEAD
 
 	/* First try developement tree tests. */
 	if (!lstat("./tests", &st))
@@ -189,6 +198,25 @@ int test__attr(struct test *test __maybe_unused, int subtest __maybe_unused)
 	/* Then installed path. */
 	snprintf(path_dir,  PATH_MAX, "%s/tests", get_argv_exec_path());
 	snprintf(path_perf, PATH_MAX, "%s/perf", BINDIR);
+=======
+	char *exec_path;
+
+	if (perf_pmu__has_hybrid())
+		return TEST_SKIP;
+
+	/* First try development tree tests. */
+	if (!lstat("./tests", &st))
+		return run_dir("./tests", "./perf");
+
+	exec_path = get_argv_exec_path();
+	if (exec_path == NULL)
+		return -1;
+
+	/* Then installed path. */
+	snprintf(path_dir,  PATH_MAX, "%s/tests", exec_path);
+	snprintf(path_perf, PATH_MAX, "%s/perf", BINDIR);
+	free(exec_path);
+>>>>>>> upstream/android-13
 
 	if (!lstat(path_dir, &st) &&
 	    !lstat(path_perf, &st))

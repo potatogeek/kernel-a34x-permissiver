@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/crypto.h>
 #include <linux/kernel.h>
@@ -451,10 +452,34 @@ int nitrox_crypto_register(void)
 {
 	return crypto_register_skciphers(nitrox_skciphers,
 					 ARRAY_SIZE(nitrox_skciphers));
+=======
+#include "nitrox_common.h"
+
+int nitrox_crypto_register(void)
+{
+	int err;
+
+	err = nitrox_register_skciphers();
+	if (err)
+		return err;
+
+	err = nitrox_register_aeads();
+	if (err) {
+		nitrox_unregister_skciphers();
+		return err;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void nitrox_crypto_unregister(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_skciphers(nitrox_skciphers,
 				    ARRAY_SIZE(nitrox_skciphers));
+=======
+	nitrox_unregister_aeads();
+	nitrox_unregister_skciphers();
+>>>>>>> upstream/android-13
 }

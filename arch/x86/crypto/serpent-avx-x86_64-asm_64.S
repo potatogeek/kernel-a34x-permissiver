@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Serpent Cipher 8-way parallel algorithm (x86_64/AVX)
  *
@@ -5,6 +9,7 @@
  *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
  *
  * Copyright © 2011-2013 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -33,10 +40,13 @@
 .align 16
 .Lbswap128_mask:
 	.byte 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+<<<<<<< HEAD
 .section	.rodata.cst16.xts_gf128mul_and_shl1_mask, "aM", @progbits, 16
 .align 16
 .Lxts_gf128mul_and_shl1_mask:
 	.byte 0x87, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+=======
+>>>>>>> upstream/android-13
 
 .text
 
@@ -570,7 +580,11 @@
 	transpose_4x4(x0, x1, x2, x3, t0, t1, t2)
 
 .align 8
+<<<<<<< HEAD
 __serpent_enc_blk8_avx:
+=======
+SYM_FUNC_START_LOCAL(__serpent_enc_blk8_avx)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2: blocks
@@ -620,11 +634,19 @@ __serpent_enc_blk8_avx:
 	write_blocks(RA1, RB1, RC1, RD1, RK0, RK1, RK2);
 	write_blocks(RA2, RB2, RC2, RD2, RK0, RK1, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__serpent_enc_blk8_avx)
 
 .align 8
 __serpent_dec_blk8_avx:
+=======
+	RET;
+SYM_FUNC_END(__serpent_enc_blk8_avx)
+
+.align 8
+SYM_FUNC_START_LOCAL(__serpent_dec_blk8_avx)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2: encrypted blocks
@@ -674,10 +696,17 @@ __serpent_dec_blk8_avx:
 	write_blocks(RC1, RD1, RB1, RE1, RK0, RK1, RK2);
 	write_blocks(RC2, RD2, RB2, RE2, RK0, RK1, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__serpent_dec_blk8_avx)
 
 ENTRY(serpent_ecb_enc_8way_avx)
+=======
+	RET;
+SYM_FUNC_END(__serpent_dec_blk8_avx)
+
+SYM_FUNC_START(serpent_ecb_enc_8way_avx)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -692,10 +721,17 @@ ENTRY(serpent_ecb_enc_8way_avx)
 	store_8way(%rsi, RA1, RB1, RC1, RD1, RA2, RB2, RC2, RD2);
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_ecb_enc_8way_avx)
 
 ENTRY(serpent_ecb_dec_8way_avx)
+=======
+	RET;
+SYM_FUNC_END(serpent_ecb_enc_8way_avx)
+
+SYM_FUNC_START(serpent_ecb_dec_8way_avx)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -710,10 +746,17 @@ ENTRY(serpent_ecb_dec_8way_avx)
 	store_8way(%rsi, RC1, RD1, RB1, RE1, RC2, RD2, RB2, RE2);
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_ecb_dec_8way_avx)
 
 ENTRY(serpent_cbc_dec_8way_avx)
+=======
+	RET;
+SYM_FUNC_END(serpent_ecb_dec_8way_avx)
+
+SYM_FUNC_START(serpent_cbc_dec_8way_avx)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -728,6 +771,7 @@ ENTRY(serpent_cbc_dec_8way_avx)
 	store_cbc_8way(%rdx, %rsi, RC1, RD1, RB1, RE1, RC2, RD2, RB2, RE2);
 
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_cbc_dec_8way_avx)
 
@@ -794,3 +838,7 @@ ENTRY(serpent_xts_dec_8way_avx)
 	FRAME_END
 	ret;
 ENDPROC(serpent_xts_dec_8way_avx)
+=======
+	RET;
+SYM_FUNC_END(serpent_cbc_dec_8way_avx)
+>>>>>>> upstream/android-13

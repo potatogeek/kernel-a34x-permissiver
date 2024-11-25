@@ -1,13 +1,22 @@
+<<<<<<< HEAD
 /*
  * exynos_ppmu.c - EXYNOS PPMU (Platform Performance Monitoring Unit) support
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * exynos_ppmu.c - Exynos PPMU (Platform Performance Monitoring Unit) support
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2014-2015 Samsung Electronics Co., Ltd.
  * Author : Chanwoo Choi <cw00.choi@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver is based on drivers/devfreq/exynos/exynos_ppmu.c
  */
 
@@ -16,6 +25,10 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of_address.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/suspend.h>
@@ -23,6 +36,14 @@
 
 #include "exynos-ppmu.h"
 
+<<<<<<< HEAD
+=======
+enum exynos_ppmu_type {
+	EXYNOS_TYPE_PPMU,
+	EXYNOS_TYPE_PPMU_V2,
+};
+
+>>>>>>> upstream/android-13
 struct exynos_ppmu_data {
 	struct clk *clk;
 };
@@ -36,6 +57,10 @@ struct exynos_ppmu {
 	struct regmap *regmap;
 
 	struct exynos_ppmu_data ppmu;
+<<<<<<< HEAD
+=======
+	enum exynos_ppmu_type ppmu_type;
+>>>>>>> upstream/android-13
 };
 
 #define PPMU_EVENT(name)			\
@@ -89,19 +114,43 @@ static struct __exynos_ppmu_events {
 	PPMU_EVENT(d1-cpu),
 	PPMU_EVENT(d1-general),
 	PPMU_EVENT(d1-rt),
+<<<<<<< HEAD
 };
 
 static int exynos_ppmu_find_ppmu_id(struct devfreq_event_dev *edev)
+=======
+
+	/* For Exynos5422 SoC */
+	PPMU_EVENT(dmc0_0),
+	PPMU_EVENT(dmc0_1),
+	PPMU_EVENT(dmc1_0),
+	PPMU_EVENT(dmc1_1),
+};
+
+static int __exynos_ppmu_find_ppmu_id(const char *edev_name)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(ppmu_events); i++)
+<<<<<<< HEAD
 		if (!strcmp(edev->desc->name, ppmu_events[i].name))
+=======
+		if (!strcmp(edev_name, ppmu_events[i].name))
+>>>>>>> upstream/android-13
 			return ppmu_events[i].id;
 
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static int exynos_ppmu_find_ppmu_id(struct devfreq_event_dev *edev)
+{
+	return __exynos_ppmu_find_ppmu_id(edev->desc->name);
+}
+
+>>>>>>> upstream/android-13
 /*
  * The devfreq-event ops structure for PPMU v1.1
  */
@@ -154,9 +203,15 @@ static int exynos_ppmu_set_event(struct devfreq_event_dev *edev)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	/* Set the event of Read/Write data count  */
 	ret = regmap_write(info->regmap, PPMU_BEVTxSEL(id),
 				PPMU_RO_DATA_CNT | PPMU_WO_DATA_CNT);
+=======
+	/* Set the event of proper data type monitoring */
+	ret = regmap_write(info->regmap, PPMU_BEVTxSEL(id),
+			   edev->desc->event_type);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -368,6 +423,7 @@ static int exynos_ppmu_v2_set_event(struct devfreq_event_dev *edev)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	/* Set the event of Read/Write data count  */
 	switch (id) {
 	case PPMU_PMNCNT0:
@@ -385,6 +441,13 @@ static int exynos_ppmu_v2_set_event(struct devfreq_event_dev *edev)
 			return ret;
 		break;
 	}
+=======
+	/* Set the event of proper data type monitoring */
+	ret = regmap_write(info->regmap, PPMU_V2_CH_EVx_TYPE(id),
+			   edev->desc->event_type);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Reset cycle counter/performance counter and enable PPMU */
 	ret = regmap_read(info->regmap, PPMU_V2_PMNC, &pmnc);
@@ -483,15 +546,23 @@ static const struct devfreq_event_ops exynos_ppmu_v2_ops = {
 static const struct of_device_id exynos_ppmu_id_match[] = {
 	{
 		.compatible = "samsung,exynos-ppmu",
+<<<<<<< HEAD
 		.data = (void *)&exynos_ppmu_ops,
 	}, {
 		.compatible = "samsung,exynos-ppmu-v2",
 		.data = (void *)&exynos_ppmu_v2_ops,
+=======
+		.data = (void *)EXYNOS_TYPE_PPMU,
+	}, {
+		.compatible = "samsung,exynos-ppmu-v2",
+		.data = (void *)EXYNOS_TYPE_PPMU_V2,
+>>>>>>> upstream/android-13
 	},
 	{ /* sentinel */ },
 };
 MODULE_DEVICE_TABLE(of, exynos_ppmu_id_match);
 
+<<<<<<< HEAD
 static struct devfreq_event_ops *exynos_bus_get_ops(struct device_node *np)
 {
 	const struct of_device_id *match;
@@ -500,14 +571,24 @@ static struct devfreq_event_ops *exynos_bus_get_ops(struct device_node *np)
 	return (struct devfreq_event_ops *)match->data;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int of_get_devfreq_events(struct device_node *np,
 				 struct exynos_ppmu *info)
 {
 	struct devfreq_event_desc *desc;
+<<<<<<< HEAD
 	struct devfreq_event_ops *event_ops;
 	struct device *dev = info->dev;
 	struct device_node *events_np, *node;
 	int i, j, count;
+=======
+	struct device *dev = info->dev;
+	struct device_node *events_np, *node;
+	int i, j, count;
+	const struct of_device_id *of_id;
+	int ret;
+>>>>>>> upstream/android-13
 
 	events_np = of_get_child_by_name(np, "events");
 	if (!events_np) {
@@ -515,7 +596,10 @@ static int of_get_devfreq_events(struct device_node *np,
 			"failed to get child node of devfreq-event devices\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	event_ops = exynos_bus_get_ops(np);
+=======
+>>>>>>> upstream/android-13
 
 	count = of_get_child_count(events_np);
 	desc = devm_kcalloc(dev, count, sizeof(*desc), GFP_KERNEL);
@@ -523,18 +607,32 @@ static int of_get_devfreq_events(struct device_node *np,
 		return -ENOMEM;
 	info->num_events = count;
 
+<<<<<<< HEAD
+=======
+	of_id = of_match_device(exynos_ppmu_id_match, dev);
+	if (of_id)
+		info->ppmu_type = (enum exynos_ppmu_type)of_id->data;
+	else
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	j = 0;
 	for_each_child_of_node(events_np, node) {
 		for (i = 0; i < ARRAY_SIZE(ppmu_events); i++) {
 			if (!ppmu_events[i].name)
 				continue;
 
+<<<<<<< HEAD
 			if (!of_node_cmp(node->name, ppmu_events[i].name))
+=======
+			if (of_node_name_eq(node, ppmu_events[i].name))
+>>>>>>> upstream/android-13
 				break;
 		}
 
 		if (i == ARRAY_SIZE(ppmu_events)) {
 			dev_warn(dev,
+<<<<<<< HEAD
 				"don't know how to configure events : %s\n",
 				node->name);
 			continue;
@@ -544,6 +642,56 @@ static int of_get_devfreq_events(struct device_node *np,
 		desc[j].driver_data = info;
 
 		of_property_read_string(node, "event-name", &desc[j].name);
+=======
+				"don't know how to configure events : %pOFn\n",
+				node);
+			continue;
+		}
+
+		switch (info->ppmu_type) {
+		case EXYNOS_TYPE_PPMU:
+			desc[j].ops = &exynos_ppmu_ops;
+			break;
+		case EXYNOS_TYPE_PPMU_V2:
+			desc[j].ops = &exynos_ppmu_v2_ops;
+			break;
+		}
+
+		desc[j].driver_data = info;
+
+		of_property_read_string(node, "event-name", &desc[j].name);
+		ret = of_property_read_u32(node, "event-data-type",
+					   &desc[j].event_type);
+		if (ret) {
+			/* Set the event of proper data type counting.
+			 * Check if the data type has been defined in DT,
+			 * use default if not.
+			 */
+			if (info->ppmu_type == EXYNOS_TYPE_PPMU_V2) {
+				int id;
+				/* Not all registers take the same value for
+				 * read+write data count.
+				 */
+				id = __exynos_ppmu_find_ppmu_id(desc[j].name);
+
+				switch (id) {
+				case PPMU_PMNCNT0:
+				case PPMU_PMNCNT1:
+				case PPMU_PMNCNT2:
+					desc[j].event_type = PPMU_V2_RO_DATA_CNT
+						| PPMU_V2_WO_DATA_CNT;
+					break;
+				case PPMU_PMNCNT3:
+					desc[j].event_type =
+						PPMU_V2_EVT3_RW_DATA_CNT;
+					break;
+				}
+			} else {
+				desc[j].event_type = PPMU_RO_DATA_CNT |
+					PPMU_WO_DATA_CNT;
+			}
+		}
+>>>>>>> upstream/android-13
 
 		j++;
 	}
@@ -636,7 +784,10 @@ static int exynos_ppmu_probe(struct platform_device *pdev)
 	for (i = 0; i < info->num_events; i++) {
 		edev[i] = devm_devfreq_event_add_edev(&pdev->dev, &desc[i]);
 		if (IS_ERR(edev[i])) {
+<<<<<<< HEAD
 			ret = PTR_ERR(edev[i]);
+=======
+>>>>>>> upstream/android-13
 			dev_err(&pdev->dev,
 				"failed to add devfreq-event device\n");
 			return PTR_ERR(edev[i]);

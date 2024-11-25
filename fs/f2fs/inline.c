@@ -8,9 +8,17 @@
 
 #include <linux/fs.h>
 #include <linux/f2fs_fs.h>
+<<<<<<< HEAD
 
 #include "f2fs.h"
 #include "node.h"
+=======
+#include <linux/fiemap.h>
+
+#include "f2fs.h"
+#include "node.h"
+#include <trace/events/f2fs.h>
+>>>>>>> upstream/android-13
 #include <trace/events/android_fs.h>
 
 bool f2fs_may_inline_data(struct inode *inode)
@@ -147,7 +155,11 @@ int f2fs_convert_inline_page(struct dnode_of_data *dn, struct page *page)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = f2fs_get_node_info(fio.sbi, dn->nid, &ni);
+=======
+	err = f2fs_get_node_info(fio.sbi, dn->nid, &ni, false);
+>>>>>>> upstream/android-13
 	if (err) {
 		f2fs_truncate_data_blocks_range(dn, 1);
 		f2fs_put_dnode(dn);
@@ -189,7 +201,11 @@ int f2fs_convert_inline_page(struct dnode_of_data *dn, struct page *page)
 
 	/* clear inline data and flag after data writeback */
 	f2fs_truncate_inline_inode(dn->inode, dn->inode_page, 0);
+<<<<<<< HEAD
 	clear_inline_node(dn->inode_page);
+=======
+	clear_page_private_inline(dn->inode_page);
+>>>>>>> upstream/android-13
 clear_out:
 	stat_dec_inline_inode(dn->inode);
 	clear_inode_flag(dn->inode, FI_INLINE_DATA);
@@ -204,10 +220,18 @@ int f2fs_convert_inline_inode(struct inode *inode)
 	struct page *ipage, *page;
 	int err = 0;
 
+<<<<<<< HEAD
 	if (!f2fs_has_inline_data(inode))
 		return 0;
 
 	err = dquot_initialize(inode);
+=======
+	if (!f2fs_has_inline_data(inode) ||
+			f2fs_hw_is_readonly(sbi) || f2fs_readonly(sbi->sb))
+		return 0;
+
+	err = f2fs_dquot_initialize(inode);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -265,12 +289,20 @@ int f2fs_write_inline_data(struct inode *inode, struct page *page)
 	kunmap_atomic(src_addr);
 	set_page_dirty(dn.inode_page);
 
+<<<<<<< HEAD
 	f2fs_clear_radix_tree_dirty_tag(page);
+=======
+	f2fs_clear_page_cache_dirty_tag(page);
+>>>>>>> upstream/android-13
 
 	set_inode_flag(inode, FI_APPEND_WRITE);
 	set_inode_flag(inode, FI_DATA_EXIST);
 
+<<<<<<< HEAD
 	clear_inline_node(dn.inode_page);
+=======
+	clear_page_private_inline(dn.inode_page);
+>>>>>>> upstream/android-13
 	f2fs_put_dnode(&dn);
 	return 0;
 }
@@ -287,7 +319,11 @@ int f2fs_recover_inline_data(struct inode *inode, struct page *npage)
 	 * [prev.] [next] of inline_data flag
 	 *    o       o  -> recover inline_data
 	 *    o       x  -> remove inline_data, and then recover data blocks
+<<<<<<< HEAD
 	 *    x       o  -> remove inline_data, and then recover inline_data
+=======
+	 *    x       o  -> remove data blocks, and then recover inline_data
+>>>>>>> upstream/android-13
 	 *    x       x  -> recover data blocks
 	 */
 	if (IS_INODE(npage))
@@ -319,6 +355,10 @@ process_inline:
 		if (IS_ERR(ipage))
 			return PTR_ERR(ipage);
 		f2fs_truncate_inline_inode(inode, ipage, 0);
+<<<<<<< HEAD
+=======
+		stat_dec_inline_inode(inode);
+>>>>>>> upstream/android-13
 		clear_inode_flag(inode, FI_INLINE_DATA);
 		f2fs_put_page(ipage, 1);
 	} else if (ri && (ri->i_inline & F2FS_INLINE_DATA)) {
@@ -327,6 +367,10 @@ process_inline:
 		ret = f2fs_truncate_blocks(inode, 0, false);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
+=======
+		stat_inc_inline_inode(inode);
+>>>>>>> upstream/android-13
 		goto process_inline;
 	}
 	return 0;
@@ -353,6 +397,13 @@ struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
 	make_dentry_ptr_inline(dir, &d, inline_dentry);
 	de = f2fs_find_target_dentry(&d, fname, NULL);
 	unlock_page(ipage);
+<<<<<<< HEAD
+=======
+	if (IS_ERR(de)) {
+		*res_page = ERR_CAST(de);
+		de = NULL;
+	}
+>>>>>>> upstream/android-13
 	if (de)
 		*res_page = ipage;
 	else
@@ -545,7 +596,11 @@ static int f2fs_move_rehashed_dirents(struct inode *dir, struct page *ipage,
 			!f2fs_has_inline_xattr(dir))
 		F2FS_I(dir)->i_inline_xattr_size = 0;
 
+<<<<<<< HEAD
 	kvfree(backup_dentry);
+=======
+	kfree(backup_dentry);
+>>>>>>> upstream/android-13
 	return 0;
 recover:
 	lock_page(ipage);
@@ -556,7 +611,11 @@ recover:
 	set_page_dirty(ipage);
 	f2fs_put_page(ipage, 1);
 
+<<<<<<< HEAD
 	kvfree(backup_dentry);
+=======
+	kfree(backup_dentry);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -638,7 +697,11 @@ int f2fs_add_inline_entry(struct inode *dir, const struct f2fs_filename *fname,
 	}
 
 	if (inode) {
+<<<<<<< HEAD
 		down_write(&F2FS_I(inode)->i_sem);
+=======
+		f2fs_down_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 		page = f2fs_init_inode_metadata(inode, dir, fname, ipage);
 		if (IS_ERR(page)) {
 			err = PTR_ERR(page);
@@ -667,7 +730,11 @@ int f2fs_add_inline_entry(struct inode *dir, const struct f2fs_filename *fname,
 	f2fs_update_parent_metadata(dir, inode, 0);
 fail:
 	if (inode)
+<<<<<<< HEAD
 		up_write(&F2FS_I(inode)->i_sem);
+=======
+		f2fs_up_write(&F2FS_I(inode)->i_sem);
+>>>>>>> upstream/android-13
 out:
 	f2fs_put_page(ipage, 1);
 	return err;
@@ -795,7 +862,11 @@ int f2fs_inline_data_fiemap(struct inode *inode,
 		ilen = start + len;
 	ilen -= start;
 
+<<<<<<< HEAD
 	err = f2fs_get_node_info(F2FS_I_SB(inode), inode->i_ino, &ni);
+=======
+	err = f2fs_get_node_info(F2FS_I_SB(inode), inode->i_ino, &ni, false);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
@@ -803,6 +874,10 @@ int f2fs_inline_data_fiemap(struct inode *inode,
 	byteaddr += (char *)inline_data_addr(inode, ipage) -
 					(char *)F2FS_INODE(ipage);
 	err = fiemap_fill_next_extent(fieinfo, start, byteaddr, ilen, flags);
+<<<<<<< HEAD
+=======
+	trace_f2fs_fiemap(inode, start, byteaddr, ilen, flags, err);
+>>>>>>> upstream/android-13
 out:
 	f2fs_put_page(ipage, 1);
 	return err;

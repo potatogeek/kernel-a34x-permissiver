@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <uapi/linux/mman.h> /* To get things like MAP_HUGETLB even on older libc headers */
+<<<<<<< HEAD
 #include "map.h"
 #include "thread.h"
 #include "vdso.h"
@@ -42,6 +43,30 @@ static inline int is_android_lib(const char *filename)
 {
 	return !strncmp(filename, "/data/app-lib", 13) ||
 	       !strncmp(filename, "/system/lib", 11);
+=======
+#include "dso.h"
+#include "map.h"
+#include "map_symbol.h"
+#include "thread.h"
+#include "vdso.h"
+#include "build-id.h"
+#include "debug.h"
+#include "machine.h"
+#include <linux/string.h>
+#include <linux/zalloc.h>
+#include "srcline.h"
+#include "namespaces.h"
+#include "unwind.h"
+#include "srccode.h"
+#include "ui/ui.h"
+
+static void __maps__insert(struct maps *maps, struct map *map);
+
+static inline int is_android_lib(const char *filename)
+{
+	return strstarts(filename, "/data/app-lib/") ||
+	       strstarts(filename, "/system/lib/");
+>>>>>>> upstream/android-13
 }
 
 static inline bool replace_android_lib(const char *filename, char *newfilename)
@@ -61,7 +86,11 @@ static inline bool replace_android_lib(const char *filename, char *newfilename)
 
 	app_abi_length = strlen(app_abi);
 
+<<<<<<< HEAD
 	if (!strncmp(filename, "/data/app-lib", 13)) {
+=======
+	if (strstarts(filename, "/data/app-lib/")) {
+>>>>>>> upstream/android-13
 		char *apk_path;
 
 		if (!app_abi_length)
@@ -85,7 +114,11 @@ static inline bool replace_android_lib(const char *filename, char *newfilename)
 		return true;
 	}
 
+<<<<<<< HEAD
 	if (!strncmp(filename, "/system/lib/", 12)) {
+=======
+	if (strstarts(filename, "/system/lib/")) {
+>>>>>>> upstream/android-13
 		char *ndk, *app;
 		const char *arch;
 		int ndk_length, app_length;
@@ -134,15 +167,24 @@ void map__init(struct map *map, u64 start, u64 end, u64 pgoff, struct dso *dso)
 	map->map_ip   = map__map_ip;
 	map->unmap_ip = map__unmap_ip;
 	RB_CLEAR_NODE(&map->rb_node);
+<<<<<<< HEAD
 	map->groups   = NULL;
+=======
+>>>>>>> upstream/android-13
 	map->erange_warned = false;
 	refcount_set(&map->refcnt, 1);
 }
 
 struct map *map__new(struct machine *machine, u64 start, u64 len,
+<<<<<<< HEAD
 		     u64 pgoff, u32 d_maj, u32 d_min, u64 ino,
 		     u64 ino_gen, u32 prot, u32 flags, char *filename,
 		     struct thread *thread)
+=======
+		     u64 pgoff, struct dso_id *id,
+		     u32 prot, u32 flags, struct build_id *bid,
+		     char *filename, struct thread *thread)
+>>>>>>> upstream/android-13
 {
 	struct map *map = malloc(sizeof(*map));
 	struct nsinfo *nsi = NULL;
@@ -154,6 +196,7 @@ struct map *map__new(struct machine *machine, u64 start, u64 len,
 		int anon, no_dso, vdso, android;
 
 		android = is_android_lib(filename);
+<<<<<<< HEAD
 		anon = is_anon_memory(filename, flags);
 		vdso = is_vdso_map(filename);
 		no_dso = is_no_dso_memory(filename);
@@ -162,6 +205,11 @@ struct map *map__new(struct machine *machine, u64 start, u64 len,
 		map->min = d_min;
 		map->ino = ino;
 		map->ino_generation = ino_gen;
+=======
+		anon = is_anon_memory(filename) || flags & MAP_HUGETLB;
+		vdso = is_vdso_map(filename);
+		no_dso = is_no_dso_memory(filename);
+>>>>>>> upstream/android-13
 		map->prot = prot;
 		map->flags = flags;
 		nsi = nsinfo__get(thread->nsinfo);
@@ -191,7 +239,11 @@ struct map *map__new(struct machine *machine, u64 start, u64 len,
 			pgoff = 0;
 			dso = machine__findnew_vdso(machine, thread);
 		} else
+<<<<<<< HEAD
 			dso = machine__findnew_dso(machine, filename);
+=======
+			dso = machine__findnew_dso_id(machine, filename, id);
+>>>>>>> upstream/android-13
 
 		if (dso == NULL)
 			goto out_delete;
@@ -210,6 +262,13 @@ struct map *map__new(struct machine *machine, u64 start, u64 len,
 				dso__set_loaded(dso);
 		}
 		dso->nsinfo = nsi;
+<<<<<<< HEAD
+=======
+
+		if (build_id__is_defined(bid))
+			dso__set_build_id(dso, bid);
+
+>>>>>>> upstream/android-13
 		dso__put(dso);
 	}
 	return map;
@@ -238,6 +297,7 @@ struct map *map__new2(u64 start, struct dso *dso)
 	return map;
 }
 
+<<<<<<< HEAD
 /*
  * Use this and __map__is_kmodule() for map instances that are in
  * machine->kmaps, and thus have map->groups->machine all properly set, to
@@ -250,6 +310,13 @@ struct map *map__new2(u64 start, struct dso *dso)
 bool __map__is_kernel(const struct map *map)
 {
 	return machine__kernel_map(map->groups->machine) == map;
+=======
+bool __map__is_kernel(const struct map *map)
+{
+	if (!map->dso->kernel)
+		return false;
+	return machine__kernel_map(map__kmaps((struct map *)map)->machine) == map;
+>>>>>>> upstream/android-13
 }
 
 bool __map__is_extra_kernel_map(const struct map *map)
@@ -259,6 +326,46 @@ bool __map__is_extra_kernel_map(const struct map *map)
 	return kmap && kmap->name[0];
 }
 
+<<<<<<< HEAD
+=======
+bool __map__is_bpf_prog(const struct map *map)
+{
+	const char *name;
+
+	if (map->dso->binary_type == DSO_BINARY_TYPE__BPF_PROG_INFO)
+		return true;
+
+	/*
+	 * If PERF_RECORD_BPF_EVENT is not included, the dso will not have
+	 * type of DSO_BINARY_TYPE__BPF_PROG_INFO. In such cases, we can
+	 * guess the type based on name.
+	 */
+	name = map->dso->short_name;
+	return name && (strstr(name, "bpf_prog_") == name);
+}
+
+bool __map__is_bpf_image(const struct map *map)
+{
+	const char *name;
+
+	if (map->dso->binary_type == DSO_BINARY_TYPE__BPF_IMAGE)
+		return true;
+
+	/*
+	 * If PERF_RECORD_KSYMBOL is not included, the dso will not have
+	 * type of DSO_BINARY_TYPE__BPF_IMAGE. In such cases, we can
+	 * guess the type based on name.
+	 */
+	name = map->dso->short_name;
+	return name && is_bpf_image(name);
+}
+
+bool __map__is_ool(const struct map *map)
+{
+	return map->dso && map->dso->binary_type == DSO_BINARY_TYPE__OOL;
+}
+
+>>>>>>> upstream/android-13
 bool map__has_symbols(const struct map *map)
 {
 	return dso__has_symbols(map->dso);
@@ -266,7 +373,11 @@ bool map__has_symbols(const struct map *map)
 
 static void map__exit(struct map *map)
 {
+<<<<<<< HEAD
 	BUG_ON(!RB_EMPTY_NODE(&map->rb_node));
+=======
+	BUG_ON(refcount_read(&map->refcnt) != 0);
+>>>>>>> upstream/android-13
 	dso__zput(map->dso);
 }
 
@@ -284,8 +395,13 @@ void map__put(struct map *map)
 
 void map__fixup_start(struct map *map)
 {
+<<<<<<< HEAD
 	struct rb_root *symbols = &map->dso->symbols;
 	struct rb_node *nd = rb_first(symbols);
+=======
+	struct rb_root_cached *symbols = &map->dso->symbols;
+	struct rb_node *nd = rb_first_cached(symbols);
+>>>>>>> upstream/android-13
 	if (nd != NULL) {
 		struct symbol *sym = rb_entry(nd, struct symbol, rb_node);
 		map->start = sym->start;
@@ -294,8 +410,13 @@ void map__fixup_start(struct map *map)
 
 void map__fixup_end(struct map *map)
 {
+<<<<<<< HEAD
 	struct rb_root *symbols = &map->dso->symbols;
 	struct rb_node *nd = rb_last(symbols);
+=======
+	struct rb_root_cached *symbols = &map->dso->symbols;
+	struct rb_node *nd = rb_last(&symbols->rb_root);
+>>>>>>> upstream/android-13
 	if (nd != NULL) {
 		struct symbol *sym = rb_entry(nd, struct symbol, rb_node);
 		map->end = sym->end;
@@ -317,6 +438,7 @@ int map__load(struct map *map)
 		if (map->dso->has_build_id) {
 			char sbuild_id[SBUILD_ID_SIZE];
 
+<<<<<<< HEAD
 			build_id__sprintf(map->dso->build_id,
 					  sizeof(map->dso->build_id),
 					  sbuild_id);
@@ -326,6 +448,14 @@ int map__load(struct map *map)
 			pr_warning("Failed to open %s", name);
 
 		pr_warning(", continuing without symbols\n");
+=======
+			build_id__sprintf(&map->dso->bid, sbuild_id);
+			pr_debug("%s with build id %s not found", name, sbuild_id);
+		} else
+			pr_debug("Failed to open %s", name);
+
+		pr_debug(", continuing without symbols\n");
+>>>>>>> upstream/android-13
 		return -1;
 	} else if (nr == 0) {
 #ifdef HAVE_LIBELF_SUPPORT
@@ -334,12 +464,20 @@ int map__load(struct map *map)
 
 		if (len > sizeof(DSO__DELETED) &&
 		    strcmp(name + real_len + 1, DSO__DELETED) == 0) {
+<<<<<<< HEAD
 			pr_warning("%.*s was updated (is prelink enabled?). "
 				"Restart the long running apps that use it!\n",
 				   (int)real_len, name);
 		} else {
 			pr_warning("no symbols found in %s, maybe install "
 				   "a debug package?\n", name);
+=======
+			pr_debug("%.*s was updated (is prelink enabled?). "
+				"Restart the long running apps that use it!\n",
+				   (int)real_len, name);
+		} else {
+			pr_debug("no symbols found in %s, maybe install a debug package?\n", name);
+>>>>>>> upstream/android-13
 		}
 #endif
 		return -1;
@@ -369,13 +507,26 @@ struct symbol *map__find_symbol_by_name(struct map *map, const char *name)
 
 struct map *map__clone(struct map *from)
 {
+<<<<<<< HEAD
 	struct map *map = memdup(from, sizeof(*map));
 
+=======
+	size_t size = sizeof(struct map);
+	struct map *map;
+
+	if (from->dso && from->dso->kernel)
+		size += sizeof(struct kmap);
+
+	map = memdup(from, size);
+>>>>>>> upstream/android-13
 	if (map != NULL) {
 		refcount_set(&map->refcnt, 1);
 		RB_CLEAR_NODE(&map->rb_node);
 		dso__get(map->dso);
+<<<<<<< HEAD
 		map->groups = NULL;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return map;
@@ -389,6 +540,10 @@ size_t map__fprintf(struct map *map, FILE *fp)
 
 size_t map__fprintf_dsoname(struct map *map, FILE *fp)
 {
+<<<<<<< HEAD
+=======
+	char buf[symbol_conf.pad_output_len_dso + 1];
+>>>>>>> upstream/android-13
 	const char *dsoname = "[unknown]";
 
 	if (map && map->dso) {
@@ -398,6 +553,14 @@ size_t map__fprintf_dsoname(struct map *map, FILE *fp)
 			dsoname = map->dso->name;
 	}
 
+<<<<<<< HEAD
+=======
+	if (symbol_conf.pad_output_len_dso) {
+		scnprintf_pad(buf, symbol_conf.pad_output_len_dso, "%s", dsoname);
+		dsoname = buf;
+	}
+
+>>>>>>> upstream/android-13
 	return fprintf(fp, "%s", dsoname);
 }
 
@@ -415,13 +578,26 @@ int map__fprintf_srcline(struct map *map, u64 addr, const char *prefix,
 
 	if (map && map->dso) {
 		char *srcline = map__srcline(map, addr, NULL);
+<<<<<<< HEAD
 		if (srcline != SRCLINE_UNKNOWN)
+=======
+		if (strncmp(srcline, SRCLINE_UNKNOWN, strlen(SRCLINE_UNKNOWN)) != 0)
+>>>>>>> upstream/android-13
 			ret = fprintf(fp, "%s%s", prefix, srcline);
 		free_srcline(srcline);
 	}
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+void srccode_state_free(struct srccode_state *state)
+{
+	zfree(&state->srcfile);
+	state->line = 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * map__rip_2objdump - convert symbol start address to objdump address.
  * @map: memory map
@@ -459,7 +635,11 @@ u64 map__rip_2objdump(struct map *map, u64 rip)
 	 * kernel modules also have DSO_TYPE_USER in dso->kernel,
 	 * but all kernel modules are ET_REL, so won't get here.
 	 */
+<<<<<<< HEAD
 	if (map->dso->kernel == DSO_TYPE_USER)
+=======
+	if (map->dso->kernel == DSO_SPACE__USER)
+>>>>>>> upstream/android-13
 		return rip + map->dso->text_offset;
 
 	return map->unmap_ip(map, rip) - map->reloc;
@@ -489,12 +669,17 @@ u64 map__objdump_2mem(struct map *map, u64 ip)
 	 * kernel modules also have DSO_TYPE_USER in dso->kernel,
 	 * but all kernel modules are ET_REL, so won't get here.
 	 */
+<<<<<<< HEAD
 	if (map->dso->kernel == DSO_TYPE_USER)
+=======
+	if (map->dso->kernel == DSO_SPACE__USER)
+>>>>>>> upstream/android-13
 		return map->unmap_ip(map, ip - map->dso->text_offset);
 
 	return ip + map->reloc;
 }
 
+<<<<<<< HEAD
 static void maps__init(struct maps *maps)
 {
 	maps->entries = RB_ROOT;
@@ -506,10 +691,90 @@ void map_groups__init(struct map_groups *mg, struct machine *machine)
 	maps__init(&mg->maps);
 	mg->machine = machine;
 	refcount_set(&mg->refcnt, 1);
+=======
+void maps__init(struct maps *maps, struct machine *machine)
+{
+	maps->entries = RB_ROOT;
+	init_rwsem(&maps->lock);
+	maps->machine = machine;
+	maps->last_search_by_name = NULL;
+	maps->nr_maps = 0;
+	maps->maps_by_name = NULL;
+	refcount_set(&maps->refcnt, 1);
+}
+
+static void __maps__free_maps_by_name(struct maps *maps)
+{
+	/*
+	 * Free everything to try to do it from the rbtree in the next search
+	 */
+	zfree(&maps->maps_by_name);
+	maps->nr_maps_allocated = 0;
+}
+
+void maps__insert(struct maps *maps, struct map *map)
+{
+	down_write(&maps->lock);
+	__maps__insert(maps, map);
+	++maps->nr_maps;
+
+	if (map->dso && map->dso->kernel) {
+		struct kmap *kmap = map__kmap(map);
+
+		if (kmap)
+			kmap->kmaps = maps;
+		else
+			pr_err("Internal error: kernel dso with non kernel map\n");
+	}
+
+
+	/*
+	 * If we already performed some search by name, then we need to add the just
+	 * inserted map and resort.
+	 */
+	if (maps->maps_by_name) {
+		if (maps->nr_maps > maps->nr_maps_allocated) {
+			int nr_allocate = maps->nr_maps * 2;
+			struct map **maps_by_name = realloc(maps->maps_by_name, nr_allocate * sizeof(map));
+
+			if (maps_by_name == NULL) {
+				__maps__free_maps_by_name(maps);
+				up_write(&maps->lock);
+				return;
+			}
+
+			maps->maps_by_name = maps_by_name;
+			maps->nr_maps_allocated = nr_allocate;
+		}
+		maps->maps_by_name[maps->nr_maps - 1] = map;
+		__maps__sort_by_name(maps);
+	}
+	up_write(&maps->lock);
+}
+
+static void __maps__remove(struct maps *maps, struct map *map)
+{
+	rb_erase_init(&map->rb_node, &maps->entries);
+	map__put(map);
+}
+
+void maps__remove(struct maps *maps, struct map *map)
+{
+	down_write(&maps->lock);
+	if (maps->last_search_by_name == map)
+		maps->last_search_by_name = NULL;
+
+	__maps__remove(maps, map);
+	--maps->nr_maps;
+	if (maps->maps_by_name)
+		__maps__free_maps_by_name(maps);
+	up_write(&maps->lock);
+>>>>>>> upstream/android-13
 }
 
 static void __maps__purge(struct maps *maps)
 {
+<<<<<<< HEAD
 	struct rb_root *root = &maps->entries;
 	struct rb_node *next = rb_first(root);
 
@@ -518,17 +783,28 @@ static void __maps__purge(struct maps *maps)
 
 		next = rb_next(&pos->rb_node);
 		rb_erase_init(&pos->rb_node, root);
+=======
+	struct map *pos, *next;
+
+	maps__for_each_entry_safe(maps, pos, next) {
+		rb_erase_init(&pos->rb_node,  &maps->entries);
+>>>>>>> upstream/android-13
 		map__put(pos);
 	}
 }
 
+<<<<<<< HEAD
 static void maps__exit(struct maps *maps)
+=======
+void maps__exit(struct maps *maps)
+>>>>>>> upstream/android-13
 {
 	down_write(&maps->lock);
 	__maps__purge(maps);
 	up_write(&maps->lock);
 }
 
+<<<<<<< HEAD
 void map_groups__exit(struct map_groups *mg)
 {
 	maps__exit(&mg->maps);
@@ -565,6 +841,39 @@ struct symbol *map_groups__find_symbol(struct map_groups *mg,
 				       u64 addr, struct map **mapp)
 {
 	struct map *map = map_groups__find(mg, addr);
+=======
+bool maps__empty(struct maps *maps)
+{
+	return !maps__first(maps);
+}
+
+struct maps *maps__new(struct machine *machine)
+{
+	struct maps *maps = zalloc(sizeof(*maps));
+
+	if (maps != NULL)
+		maps__init(maps, machine);
+
+	return maps;
+}
+
+void maps__delete(struct maps *maps)
+{
+	maps__exit(maps);
+	unwind__finish_access(maps);
+	free(maps);
+}
+
+void maps__put(struct maps *maps)
+{
+	if (maps && refcount_dec_and_test(&maps->refcnt))
+		maps__delete(maps);
+}
+
+struct symbol *maps__find_symbol(struct maps *maps, u64 addr, struct map **mapp)
+{
+	struct map *map = maps__find(maps, addr);
+>>>>>>> upstream/android-13
 
 	/* Ensure map is loaded before using map->map_ip */
 	if (map != NULL && map__load(map) >= 0) {
@@ -583,6 +892,7 @@ static bool map__contains_symbol(struct map *map, struct symbol *sym)
 	return ip >= map->start && ip < map->end;
 }
 
+<<<<<<< HEAD
 struct symbol *maps__find_symbol_by_name(struct maps *maps, const char *name,
 					 struct map **mapp)
 {
@@ -594,6 +904,16 @@ struct symbol *maps__find_symbol_by_name(struct maps *maps, const char *name,
 	for (nd = rb_first(&maps->entries); nd; nd = rb_next(nd)) {
 		struct map *pos = rb_entry(nd, struct map, rb_node);
 
+=======
+struct symbol *maps__find_symbol_by_name(struct maps *maps, const char *name, struct map **mapp)
+{
+	struct symbol *sym;
+	struct map *pos;
+
+	down_read(&maps->lock);
+
+	maps__for_each_entry(maps, pos) {
+>>>>>>> upstream/android-13
 		sym = map__find_symbol_by_name(pos, name);
 
 		if (sym == NULL)
@@ -613,6 +933,7 @@ out:
 	return sym;
 }
 
+<<<<<<< HEAD
 struct symbol *map_groups__find_symbol_by_name(struct map_groups *mg,
 					       const char *name,
 					       struct map **mapp)
@@ -645,6 +966,32 @@ static size_t maps__fprintf(struct maps *maps, FILE *fp)
 
 	for (nd = rb_first(&maps->entries); nd; nd = rb_next(nd)) {
 		struct map *pos = rb_entry(nd, struct map, rb_node);
+=======
+int maps__find_ams(struct maps *maps, struct addr_map_symbol *ams)
+{
+	if (ams->addr < ams->ms.map->start || ams->addr >= ams->ms.map->end) {
+		if (maps == NULL)
+			return -1;
+		ams->ms.map = maps__find(maps, ams->addr);
+		if (ams->ms.map == NULL)
+			return -1;
+	}
+
+	ams->al_addr = ams->ms.map->map_ip(ams->ms.map, ams->addr);
+	ams->ms.sym = map__find_symbol(ams->ms.map, ams->al_addr);
+
+	return ams->ms.sym ? 0 : -1;
+}
+
+size_t maps__fprintf(struct maps *maps, FILE *fp)
+{
+	size_t printed = 0;
+	struct map *pos;
+
+	down_read(&maps->lock);
+
+	maps__for_each_entry(maps, pos) {
+>>>>>>> upstream/android-13
 		printed += fprintf(fp, "Map:");
 		printed += map__fprintf(pos, fp);
 		if (verbose > 2) {
@@ -658,6 +1005,7 @@ static size_t maps__fprintf(struct maps *maps, FILE *fp)
 	return printed;
 }
 
+<<<<<<< HEAD
 size_t map_groups__fprintf(struct map_groups *mg, FILE *fp)
 {
 	return maps__fprintf(&mg->maps, fp);
@@ -670,6 +1018,9 @@ static void __map_groups__insert(struct map_groups *mg, struct map *map)
 }
 
 static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp)
+=======
+int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp)
+>>>>>>> upstream/android-13
 {
 	struct rb_root *root;
 	struct rb_node *next, *first;
@@ -712,8 +1063,12 @@ static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp
 		if (verbose >= 2) {
 
 			if (use_browser) {
+<<<<<<< HEAD
 				pr_warning("overlapping maps in %s "
 					   "(disable tui for more info)\n",
+=======
+				pr_debug("overlapping maps in %s (disable tui for more info)\n",
+>>>>>>> upstream/android-13
 					   map->dso->name);
 			} else {
 				fputs("overlapping maps:\n", fp);
@@ -736,7 +1091,11 @@ static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp
 			}
 
 			before->end = map->start;
+<<<<<<< HEAD
 			__map_groups__insert(pos->groups, before);
+=======
+			__maps__insert(maps, before);
+>>>>>>> upstream/android-13
 			if (verbose >= 2 && !use_browser)
 				map__fprintf(before, fp);
 			map__put(before);
@@ -753,7 +1112,11 @@ static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp
 			after->start = map->end;
 			after->pgoff += map->end - pos->start;
 			assert(pos->map_ip(pos, map->end) == after->map_ip(after, map->end));
+<<<<<<< HEAD
 			__map_groups__insert(pos->groups, after);
+=======
+			__maps__insert(maps, after);
+>>>>>>> upstream/android-13
 			if (verbose >= 2 && !use_browser)
 				map__fprintf(after, fp);
 			map__put(after);
@@ -771,6 +1134,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 int map_groups__fixup_overlappings(struct map_groups *mg, struct map *map,
 				   FILE *fp)
 {
@@ -799,12 +1163,42 @@ int map_groups__clone(struct thread *thread, struct map_groups *parent)
 			goto out_unlock;
 
 		map_groups__insert(mg, new);
+=======
+/*
+ * XXX This should not really _copy_ te maps, but refcount them.
+ */
+int maps__clone(struct thread *thread, struct maps *parent)
+{
+	struct maps *maps = thread->maps;
+	int err;
+	struct map *map;
+
+	down_read(&parent->lock);
+
+	maps__for_each_entry(parent, map) {
+		struct map *new = map__clone(map);
+
+		if (new == NULL) {
+			err = -ENOMEM;
+			goto out_unlock;
+		}
+
+		err = unwind__prepare_access(maps, new, NULL);
+		if (err)
+			goto out_unlock;
+
+		maps__insert(maps, new);
+>>>>>>> upstream/android-13
 		map__put(new);
 	}
 
 	err = 0;
 out_unlock:
+<<<<<<< HEAD
 	up_read(&maps->lock);
+=======
+	up_read(&parent->lock);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -829,6 +1223,7 @@ static void __maps__insert(struct maps *maps, struct map *map)
 	map__get(map);
 }
 
+<<<<<<< HEAD
 void maps__insert(struct maps *maps, struct map *map)
 {
 	down_write(&maps->lock);
@@ -852,10 +1247,16 @@ void maps__remove(struct maps *maps, struct map *map)
 struct map *maps__find(struct maps *maps, u64 ip)
 {
 	struct rb_node **p, *parent = NULL;
+=======
+struct map *maps__find(struct maps *maps, u64 ip)
+{
+	struct rb_node *p;
+>>>>>>> upstream/android-13
 	struct map *m;
 
 	down_read(&maps->lock);
 
+<<<<<<< HEAD
 	p = &maps->entries.rb_node;
 	while (*p != NULL) {
 		parent = *p;
@@ -864,6 +1265,15 @@ struct map *maps__find(struct maps *maps, u64 ip)
 			p = &(*p)->rb_left;
 		else if (ip >= m->end)
 			p = &(*p)->rb_right;
+=======
+	p = maps->entries.rb_node;
+	while (p != NULL) {
+		m = rb_entry(p, struct map, rb_node);
+		if (ip < m->start)
+			p = p->rb_left;
+		else if (ip >= m->end)
+			p = p->rb_right;
+>>>>>>> upstream/android-13
 		else
 			goto out;
 	}
@@ -883,7 +1293,11 @@ struct map *maps__first(struct maps *maps)
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct map *map__next(struct map *map)
+=======
+static struct map *__map__next(struct map *map)
+>>>>>>> upstream/android-13
 {
 	struct rb_node *next = rb_next(&map->rb_node);
 
@@ -892,6 +1306,14 @@ struct map *map__next(struct map *map)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+struct map *map__next(struct map *map)
+{
+	return map ? __map__next(map) : NULL;
+}
+
+>>>>>>> upstream/android-13
 struct kmap *__map__kmap(struct map *map)
 {
 	if (!map->dso || !map->dso->kernel)
@@ -908,7 +1330,11 @@ struct kmap *map__kmap(struct map *map)
 	return kmap;
 }
 
+<<<<<<< HEAD
 struct map_groups *map__kmaps(struct map *map)
+=======
+struct maps *map__kmaps(struct map *map)
+>>>>>>> upstream/android-13
 {
 	struct kmap *kmap = map__kmap(map);
 

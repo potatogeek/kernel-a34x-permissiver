@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hisilicon hi6220 SoC divider clock driver
  *
  * Copyright (c) 2015 Hisilicon Limited.
  *
  * Author: Bintian Wang <bintian.wang@huawei.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -107,7 +114,11 @@ struct clk *hi6220_register_clkdiv(struct device *dev, const char *name,
 {
 	struct hi6220_clk_divider *div;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_div_table *table;
 	u32 max_div, min_div;
 	int i;

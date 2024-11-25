@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2011 Jonathan Cameron
  *
@@ -5,6 +6,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011 Jonathan Cameron
+ *
+>>>>>>> upstream/android-13
  * Buffer handling elements of industrial I/O reference driver.
  * Uses the kfifo buffer.
  *
@@ -19,9 +26,15 @@
 #include <linux/bitmap.h>
 
 #include <linux/iio/iio.h>
+<<<<<<< HEAD
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/buffer.h>
 #include <linux/iio/kfifo_buf.h>
+=======
+#include <linux/iio/buffer.h>
+#include <linux/iio/trigger_consumer.h>
+#include <linux/iio/triggered_buffer.h>
+>>>>>>> upstream/android-13
 
 #include "iio_simple_dummy.h"
 
@@ -102,6 +115,7 @@ done:
 }
 
 static const struct iio_buffer_setup_ops iio_simple_dummy_buffer_setup_ops = {
+<<<<<<< HEAD
 	/*
 	 * iio_triggered_buffer_postenable:
 	 * Generic function that simply attaches the pollfunc to the trigger.
@@ -116,10 +130,13 @@ static const struct iio_buffer_setup_ops iio_simple_dummy_buffer_setup_ops = {
 	 * detached but before userspace knows we have disabled the ring.
 	 */
 	.predisable = &iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 };
 
 int iio_simple_dummy_configure_buffer(struct iio_dev *indio_dev)
 {
+<<<<<<< HEAD
 	int ret;
 	struct iio_buffer *buffer;
 
@@ -178,14 +195,27 @@ error_free_buffer:
 	iio_kfifo_free(indio_dev->buffer);
 error_ret:
 	return ret;
+=======
+	return iio_triggered_buffer_setup(indio_dev, NULL,
+					  iio_simple_dummy_trigger_h,
+					  &iio_simple_dummy_buffer_setup_ops);
+>>>>>>> upstream/android-13
 }
 
 /**
  * iio_simple_dummy_unconfigure_buffer() - release buffer resources
+<<<<<<< HEAD
  * @indo_dev: device instance state
  */
 void iio_simple_dummy_unconfigure_buffer(struct iio_dev *indio_dev)
 {
 	iio_dealloc_pollfunc(indio_dev->pollfunc);
 	iio_kfifo_free(indio_dev->buffer);
+=======
+ * @indio_dev: device instance state
+ */
+void iio_simple_dummy_unconfigure_buffer(struct iio_dev *indio_dev)
+{
+	iio_triggered_buffer_cleanup(indio_dev);
+>>>>>>> upstream/android-13
 }

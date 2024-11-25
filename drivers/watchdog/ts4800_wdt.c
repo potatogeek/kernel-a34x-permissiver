@@ -108,7 +108,12 @@ static const struct watchdog_info ts4800_wdt_info = {
 
 static int ts4800_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node;
+=======
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
+>>>>>>> upstream/android-13
 	struct device_node *syscon_np;
 	struct watchdog_device *wdd;
 	struct ts4800_wdt *wdt;
@@ -117,32 +122,54 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
 
 	syscon_np = of_parse_phandle(np, "syscon", 0);
 	if (!syscon_np) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "no syscon property\n");
+=======
+		dev_err(dev, "no syscon property\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	ret = of_property_read_u32_index(np, "syscon", 1, &reg);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "no offset in syscon\n");
+=======
+		dev_err(dev, "no offset in syscon\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	/* allocate memory for watchdog struct */
+<<<<<<< HEAD
 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+=======
+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!wdt)
 		return -ENOMEM;
 
 	/* set regmap and offset to know where to write */
 	wdt->feed_offset = reg;
 	wdt->regmap = syscon_node_to_regmap(syscon_np);
+<<<<<<< HEAD
 	if (IS_ERR(wdt->regmap)) {
 		dev_err(&pdev->dev, "cannot get parent's regmap\n");
+=======
+	of_node_put(syscon_np);
+	if (IS_ERR(wdt->regmap)) {
+		dev_err(dev, "cannot get parent's regmap\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(wdt->regmap);
 	}
 
 	/* Initialize struct watchdog_device */
 	wdd = &wdt->wdd;
+<<<<<<< HEAD
 	wdd->parent = &pdev->dev;
+=======
+	wdd->parent = dev;
+>>>>>>> upstream/android-13
 	wdd->info = &ts4800_wdt_info;
 	wdd->ops = &ts4800_wdt_ops;
 	wdd->min_timeout = ts4800_wdt_map[0].timeout;
@@ -150,7 +177,11 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
 
 	watchdog_set_drvdata(wdd, wdt);
 	watchdog_set_nowayout(wdd, nowayout);
+<<<<<<< HEAD
 	watchdog_init_timeout(wdd, 0, &pdev->dev);
+=======
+	watchdog_init_timeout(wdd, 0, dev);
+>>>>>>> upstream/android-13
 
 	/*
 	 * As this watchdog supports only a few values, ts4800_wdt_set_timeout
@@ -168,6 +199,7 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
 	 */
 	ts4800_wdt_stop(wdd);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdd);
 	if (ret) {
 		dev_err(&pdev->dev,
@@ -179,11 +211,21 @@ static int ts4800_wdt_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev,
 		 "initialized (timeout = %d sec, nowayout = %d)\n",
+=======
+	ret = devm_watchdog_register_device(dev, wdd);
+	if (ret)
+		return ret;
+
+	platform_set_drvdata(pdev, wdt);
+
+	dev_info(dev, "initialized (timeout = %d sec, nowayout = %d)\n",
+>>>>>>> upstream/android-13
 		 wdd->timeout, nowayout);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ts4800_wdt_remove(struct platform_device *pdev)
 {
 	struct ts4800_wdt *wdt = platform_get_drvdata(pdev);
@@ -193,6 +235,8 @@ static int ts4800_wdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id ts4800_wdt_of_match[] = {
 	{ .compatible = "technologic,ts4800-wdt", },
 	{ },
@@ -201,7 +245,10 @@ MODULE_DEVICE_TABLE(of, ts4800_wdt_of_match);
 
 static struct platform_driver ts4800_wdt_driver = {
 	.probe		= ts4800_wdt_probe,
+<<<<<<< HEAD
 	.remove		= ts4800_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= "ts4800_wdt",
 		.of_match_table = ts4800_wdt_of_match,

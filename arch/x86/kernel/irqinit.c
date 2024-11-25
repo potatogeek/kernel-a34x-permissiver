@@ -16,12 +16,22 @@
 #include <linux/acpi.h>
 #include <linux/io.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <linux/atomic.h>
 #include <asm/timer.h>
 #include <asm/hw_irq.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/desc.h>
+=======
+#include <asm/desc.h>
+#include <asm/io_apic.h>
+#include <asm/acpi.h>
+>>>>>>> upstream/android-13
 #include <asm/apic.h>
 #include <asm/setup.h>
 #include <asm/i8259.h>
@@ -44,6 +54,7 @@
  * (these are usually mapped into the 0x30-0xff vector range)
  */
 
+<<<<<<< HEAD
 /*
  * IRQ2 is cascade interrupt to second interrupt controller
  */
@@ -53,6 +64,8 @@ static struct irqaction irq2 = {
 	.flags = IRQF_NO_THREAD,
 };
 
+=======
+>>>>>>> upstream/android-13
 DEFINE_PER_CPU(vector_irq_t, vector_irq) = {
 	[0 ... NR_VECTORS - 1] = VECTOR_UNUSED,
 };
@@ -84,13 +97,22 @@ void __init init_IRQ(void)
 	 * On cpu 0, Assign ISA_IRQ_VECTOR(irq) to IRQ 0..15.
 	 * If these IRQ's are handled by legacy interrupt-controllers like PIC,
 	 * then this configuration will likely be static after the boot. If
+<<<<<<< HEAD
 	 * these IRQ's are handled by more mordern controllers like IO-APIC,
+=======
+	 * these IRQs are handled by more modern controllers like IO-APIC,
+>>>>>>> upstream/android-13
 	 * then this vector space can be freed and re-used dynamically as the
 	 * irq's migrate etc.
 	 */
 	for (i = 0; i < nr_legacy_irqs(); i++)
 		per_cpu(vector_irq, 0)[ISA_IRQ_VECTOR(i)] = irq_to_desc(i);
 
+<<<<<<< HEAD
+=======
+	BUG_ON(irq_init_percpu_irqstack(smp_processor_id()));
+
+>>>>>>> upstream/android-13
 	x86_init.irqs.intr_init();
 }
 
@@ -102,8 +124,16 @@ void __init native_init_IRQ(void)
 	idt_setup_apic_and_irq_gates();
 	lapic_assign_system_vectors();
 
+<<<<<<< HEAD
 	if (!acpi_ioapic && !of_ioapic && nr_legacy_irqs())
 		setup_irq(2, &irq2);
 
 	irq_ctx_init(smp_processor_id());
+=======
+	if (!acpi_ioapic && !of_ioapic && nr_legacy_irqs()) {
+		/* IRQ2 is cascade interrupt to second interrupt controller */
+		if (request_irq(2, no_action, IRQF_NO_THREAD, "cascade", NULL))
+			pr_err("%s: request_irq() failed\n", "cascade");
+	}
+>>>>>>> upstream/android-13
 }

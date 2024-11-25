@@ -21,6 +21,7 @@
  *
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
@@ -28,6 +29,17 @@
 #include "r600_dpm.h"
 #include "trinity_dpm.h"
 #include <linux/seq_file.h>
+=======
+#include <linux/pci.h>
+#include <linux/seq_file.h>
+
+#include "r600_dpm.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "trinity_dpm.h"
+#include "trinityd.h"
+#include "vce.h"
+>>>>>>> upstream/android-13
 
 #define TRINITY_MAX_DEEPSLEEP_DIVIDER_ID 5
 #define TRINITY_MINIMUM_ENGINE_CLOCK 800
@@ -115,6 +127,7 @@ static const u32 trinity_mgcg_shls_default[] =
 	0x00009220, 0x00090008, 0xffffffff,
 	0x00009294, 0x00000000, 0xffffffff
 };
+<<<<<<< HEAD
 
 static const u32 trinity_mgcg_shls_enable[] =
 {
@@ -137,11 +150,14 @@ static const u32 trinity_mgcg_shls_disable[] =
 	0x000008f8, 0x00000001, 0xffffffff,
 	0x000008fc, 0xffffffff, 0xE00B03FC
 };
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #ifndef TRINITY_SYSLS_SEQUENCE
 #define TRINITY_SYSLS_SEQUENCE  100
 
+<<<<<<< HEAD
 static const u32 trinity_sysls_default[] =
 {
 	/* Register, Value, Mask */
@@ -164,6 +180,8 @@ static const u32 trinity_sysls_default[] =
 	0x00006dfc, 0x00000000, 0xffffffff
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u32 trinity_sysls_disable[] =
 {
 	/* Register, Value, Mask */
@@ -336,7 +354,10 @@ static const u32 trinity_override_mgpg_sequences[] =
 	0x00000204, 0x00000000,
 };
 
+<<<<<<< HEAD
 extern void vce_v1_0_enable_mgcg(struct radeon_device *rdev, bool enable);
+=======
+>>>>>>> upstream/android-13
 static void trinity_program_clk_gating_hw_sequence(struct radeon_device *rdev,
 						   const u32 *seq, u32 count);
 static void trinity_override_dynamic_mg_powergating(struct radeon_device *rdev);

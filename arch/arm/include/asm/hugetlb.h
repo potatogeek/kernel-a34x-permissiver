@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/include/asm/hugetlb.h
  *
  * Copyright (C) 2012 ARM Ltd.
  *
  * Based on arch/x86/include/asm/hugetlb.h
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,12 +22,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ARM_HUGETLB_H
 #define _ASM_ARM_HUGETLB_H
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm-generic/hugetlb.h>
 
 #include <asm/hugetlb-3level.h>
@@ -62,10 +70,18 @@ static inline pte_t huge_pte_wrprotect(pte_t pte)
 {
 	return pte_wrprotect(pte);
 }
+=======
+#include <asm/hugetlb-3level.h>
+#include <asm-generic/hugetlb.h>
+>>>>>>> upstream/android-13
 
 static inline void arch_clear_hugepage_flags(struct page *page)
 {
 	clear_bit(PG_dcache_clean, &page->flags);
 }
+<<<<<<< HEAD
+=======
+#define arch_clear_hugepage_flags arch_clear_hugepage_flags
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_ARM_HUGETLB_H */

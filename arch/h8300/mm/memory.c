@@ -26,7 +26,10 @@
 #include <asm/setup.h>
 #include <asm/segment.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 #include <asm/io.h>
 

@@ -43,6 +43,25 @@
 #include "hns_roce_hem.h"
 #include "hns_roce_hw_v1.h"
 
+<<<<<<< HEAD
+=======
+/**
+ * hns_get_gid_index - Get gid index.
+ * @hr_dev: pointer to structure hns_roce_dev.
+ * @port:  port, value range: 0 ~ MAX
+ * @gid_index:  gid_index, value range: 0 ~ MAX
+ * Description:
+ *    N ports shared gids, allocation method as follow:
+ *		GID[0][0], GID[1][0],.....GID[N - 1][0],
+ *		GID[0][0], GID[1][0],.....GID[N - 1][0],
+ *		And so on
+ */
+u8 hns_get_gid_index(struct hns_roce_dev *hr_dev, u32 port, int gid_index)
+{
+	return gid_index * hr_dev->caps.num_ports + port;
+}
+
+>>>>>>> upstream/android-13
 static void set_data_seg(struct hns_roce_wqe_data_seg *dseg, struct ib_sge *sg)
 {
 	dseg->lkey = cpu_to_le32(sg->lkey);
@@ -69,6 +88,7 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 	struct hns_roce_wqe_data_seg *dseg = NULL;
 	struct hns_roce_qp *qp = to_hr_qp(ibqp);
 	struct device *dev = &hr_dev->pdev->dev;
+<<<<<<< HEAD
 	struct hns_roce_sq_db sq_db;
 	int ps_opcode = 0, i = 0;
 	unsigned long flags = 0;
@@ -79,6 +99,18 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 	int ret = 0;
 	u8 *smac;
 	int loopback;
+=======
+	struct hns_roce_sq_db sq_db = {};
+	int ps_opcode, i;
+	unsigned long flags = 0;
+	void *wqe = NULL;
+	__le32 doorbell[2];
+	int ret = 0;
+	int loopback;
+	u32 wqe_idx;
+	int nreq;
+	u8 *smac;
+>>>>>>> upstream/android-13
 
 	if (unlikely(ibqp->qp_type != IB_QPT_GSI &&
 		ibqp->qp_type != IB_QPT_RC)) {
@@ -88,7 +120,11 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 	}
 
 	spin_lock_irqsave(&qp->sq.lock, flags);
+<<<<<<< HEAD
 	ind = qp->sq_next_wqe;
+=======
+
+>>>>>>> upstream/android-13
 	for (nreq = 0; wr; ++nreq, wr = wr->next) {
 		if (hns_roce_wq_overflow(&qp->sq, nreq, qp->ibqp.send_cq)) {
 			ret = -ENOMEM;
@@ -96,6 +132,11 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 			goto out;
 		}
 
+<<<<<<< HEAD
+=======
+		wqe_idx = (qp->sq.head + nreq) & (qp->sq.wqe_cnt - 1);
+
+>>>>>>> upstream/android-13
 		if (unlikely(wr->num_sge > qp->sq.max_gs)) {
 			dev_err(dev, "num_sge=%d > qp->sq.max_gs=%d\n",
 				wr->num_sge, qp->sq.max_gs);
@@ -104,9 +145,14 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		wqe = get_send_wqe(qp, ind & (qp->sq.wqe_cnt - 1));
 		qp->sq.wrid[(qp->sq.head + nreq) & (qp->sq.wqe_cnt - 1)] =
 								      wr->wr_id;
+=======
+		wqe = hns_roce_get_send_wqe(qp, wqe_idx);
+		qp->sq.wrid[wqe_idx] = wr->wr_id;
+>>>>>>> upstream/android-13
 
 		/* Corresponding to the RC and RD type wqe process separately */
 		if (ibqp->qp_type == IB_QPT_GSI) {
@@ -175,6 +221,7 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 			roce_set_field(ud_sq_wqe->u32_36,
 				       UD_SEND_WQE_U32_36_FLOW_LABEL_M,
 				       UD_SEND_WQE_U32_36_FLOW_LABEL_S,
+<<<<<<< HEAD
 				       ah->av.sl_tclass_flowlabel &
 				       HNS_ROCE_FLOW_LABEL_MASK);
 			roce_set_field(ud_sq_wqe->u32_36,
@@ -182,6 +229,13 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 				      UD_SEND_WQE_U32_36_PRIORITY_S,
 				      le32_to_cpu(ah->av.sl_tclass_flowlabel) >>
 				      HNS_ROCE_SL_SHIFT);
+=======
+				       ah->av.flowlabel);
+			roce_set_field(ud_sq_wqe->u32_36,
+				      UD_SEND_WQE_U32_36_PRIORITY_M,
+				      UD_SEND_WQE_U32_36_PRIORITY_S,
+				      ah->av.sl);
+>>>>>>> upstream/android-13
 			roce_set_field(ud_sq_wqe->u32_36,
 				       UD_SEND_WQE_U32_36_SGID_INDEX_M,
 				       UD_SEND_WQE_U32_36_SGID_INDEX_S,
@@ -195,8 +249,12 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 			roce_set_field(ud_sq_wqe->u32_40,
 				       UD_SEND_WQE_U32_40_TRAFFIC_CLASS_M,
 				       UD_SEND_WQE_U32_40_TRAFFIC_CLASS_S,
+<<<<<<< HEAD
 				       ah->av.sl_tclass_flowlabel >>
 				       HNS_ROCE_TCLASS_SHIFT);
+=======
+				       ah->av.tclass);
+>>>>>>> upstream/android-13
 
 			memcpy(&ud_sq_wqe->dgid[0], &ah->av.dgid[0], GID_LEN);
 
@@ -213,7 +271,10 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 				       cpu_to_le32((wr->sg_list[1].addr) >> 32);
 			ud_sq_wqe->l_key1 =
 				       cpu_to_le32(wr->sg_list[1].lkey);
+<<<<<<< HEAD
 			ind++;
+=======
+>>>>>>> upstream/android-13
 		} else if (ibqp->qp_type == IB_QPT_RC) {
 			u32 tmp_len = 0;
 
@@ -242,7 +303,11 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 				break;
 			}
 
+<<<<<<< HEAD
 			/*Ctrl field, ctrl set type: sig, solic, imm, fence */
+=======
+			/* Ctrl field, ctrl set type: sig, solic, imm, fence */
+>>>>>>> upstream/android-13
 			/* SO wait for conforming application scenarios */
 			ctrl->flag |= (wr->send_flags & IB_SEND_SIGNALED ?
 				      cpu_to_le32(HNS_ROCE_WQE_CQ_NOTIFY) : 0) |
@@ -291,7 +356,11 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 					ret = -EINVAL;
 					*bad_wr = wr;
 					dev_err(dev, "inline len(1-%d)=%d, illegal",
+<<<<<<< HEAD
 						ctrl->msg_length,
+=======
+						le32_to_cpu(ctrl->msg_length),
+>>>>>>> upstream/android-13
 						hr_dev->caps.max_sq_inline);
 					goto out;
 				}
@@ -303,14 +372,21 @@ static int hns_roce_v1_post_send(struct ib_qp *ibqp,
 				}
 				ctrl->flag |= cpu_to_le32(HNS_ROCE_WQE_INLINE);
 			} else {
+<<<<<<< HEAD
 				/*sqe num is two */
+=======
+				/* sqe num is two */
+>>>>>>> upstream/android-13
 				for (i = 0; i < wr->num_sge; i++)
 					set_data_seg(dseg + i, wr->sg_list + i);
 
 				ctrl->flag |= cpu_to_le32(wr->num_sge <<
 					      HNS_ROCE_WQE_SGE_NUM_BIT);
 			}
+<<<<<<< HEAD
 			ind++;
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -318,11 +394,15 @@ out:
 	/* Set DB return */
 	if (likely(nreq)) {
 		qp->sq.head += nreq;
+<<<<<<< HEAD
 		/* Memory barrier */
 		wmb();
 
 		sq_db.u32_4 = 0;
 		sq_db.u32_8 = 0;
+=======
+
+>>>>>>> upstream/android-13
 		roce_set_field(sq_db.u32_4, SQ_DOORBELL_U32_4_SQ_HEAD_M,
 			       SQ_DOORBELL_U32_4_SQ_HEAD_S,
 			      (qp->sq.head & ((qp->sq.wqe_cnt << 1) - 1)));
@@ -334,11 +414,18 @@ out:
 			       SQ_DOORBELL_U32_8_QPN_S, qp->doorbell_qpn);
 		roce_set_bit(sq_db.u32_8, SQ_DOORBELL_HW_SYNC_S, 1);
 
+<<<<<<< HEAD
 		doorbell[0] = le32_to_cpu(sq_db.u32_4);
 		doorbell[1] = le32_to_cpu(sq_db.u32_8);
 
 		hns_roce_write64_k((__le32 *)doorbell, qp->sq.db_reg_l);
 		qp->sq_next_wqe = ind;
+=======
+		doorbell[0] = sq_db.u32_4;
+		doorbell[1] = sq_db.u32_8;
+
+		hns_roce_write64_k(doorbell, qp->sq.db_reg);
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_irqrestore(&qp->sq.lock, flags);
@@ -350,22 +437,38 @@ static int hns_roce_v1_post_recv(struct ib_qp *ibqp,
 				 const struct ib_recv_wr *wr,
 				 const struct ib_recv_wr **bad_wr)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	int nreq = 0;
 	int ind = 0;
 	int i = 0;
 	u32 reg_val;
 	unsigned long flags = 0;
+=======
+>>>>>>> upstream/android-13
 	struct hns_roce_rq_wqe_ctrl *ctrl = NULL;
 	struct hns_roce_wqe_data_seg *scat = NULL;
 	struct hns_roce_qp *hr_qp = to_hr_qp(ibqp);
 	struct hns_roce_dev *hr_dev = to_hr_dev(ibqp->device);
 	struct device *dev = &hr_dev->pdev->dev;
+<<<<<<< HEAD
 	struct hns_roce_rq_db rq_db;
 	uint32_t doorbell[2] = {0};
 
 	spin_lock_irqsave(&hr_qp->rq.lock, flags);
 	ind = hr_qp->rq.head & (hr_qp->rq.wqe_cnt - 1);
+=======
+	struct hns_roce_rq_db rq_db = {};
+	__le32 doorbell[2] = {0};
+	unsigned long flags = 0;
+	unsigned int wqe_idx;
+	int ret = 0;
+	int nreq;
+	int i;
+	u32 reg_val;
+
+	spin_lock_irqsave(&hr_qp->rq.lock, flags);
+>>>>>>> upstream/android-13
 
 	for (nreq = 0; wr; ++nreq, wr = wr->next) {
 		if (hns_roce_wq_overflow(&hr_qp->rq, nreq,
@@ -375,6 +478,11 @@ static int hns_roce_v1_post_recv(struct ib_qp *ibqp,
 			goto out;
 		}
 
+<<<<<<< HEAD
+=======
+		wqe_idx = (hr_qp->rq.head + nreq) & (hr_qp->rq.wqe_cnt - 1);
+
+>>>>>>> upstream/android-13
 		if (unlikely(wr->num_sge > hr_qp->rq.max_gs)) {
 			dev_err(dev, "rq:num_sge=%d > qp->sq.max_gs=%d\n",
 				wr->num_sge, hr_qp->rq.max_gs);
@@ -383,7 +491,11 @@ static int hns_roce_v1_post_recv(struct ib_qp *ibqp,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		ctrl = get_recv_wqe(hr_qp, ind);
+=======
+		ctrl = hns_roce_get_recv_wqe(hr_qp, wqe_idx);
+>>>>>>> upstream/android-13
 
 		roce_set_field(ctrl->rwqe_byte_12,
 			       RQ_WQE_CTRL_RWQE_BYTE_12_RWQE_SGE_NUM_M,
@@ -395,16 +507,23 @@ static int hns_roce_v1_post_recv(struct ib_qp *ibqp,
 		for (i = 0; i < wr->num_sge; i++)
 			set_data_seg(scat + i, wr->sg_list + i);
 
+<<<<<<< HEAD
 		hr_qp->rq.wrid[ind] = wr->wr_id;
 
 		ind = (ind + 1) & (hr_qp->rq.wqe_cnt - 1);
+=======
+		hr_qp->rq.wrid[wqe_idx] = wr->wr_id;
+>>>>>>> upstream/android-13
 	}
 
 out:
 	if (likely(nreq)) {
 		hr_qp->rq.head += nreq;
+<<<<<<< HEAD
 		/* Memory barrier */
 		wmb();
+=======
+>>>>>>> upstream/android-13
 
 		if (ibqp->qp_type == IB_QPT_GSI) {
 			__le32 tmp;
@@ -423,9 +542,12 @@ out:
 				   ROCEE_QP1C_CFG3_0_REG +
 				   QP1C_CFGN_OFFSET * hr_qp->phy_port, reg_val);
 		} else {
+<<<<<<< HEAD
 			rq_db.u32_4 = 0;
 			rq_db.u32_8 = 0;
 
+=======
+>>>>>>> upstream/android-13
 			roce_set_field(rq_db.u32_4, RQ_DOORBELL_U32_4_RQ_HEAD_M,
 				       RQ_DOORBELL_U32_4_RQ_HEAD_S,
 				       hr_qp->rq.head);
@@ -436,11 +558,18 @@ out:
 			roce_set_bit(rq_db.u32_8, RQ_DOORBELL_U32_8_HW_SYNC_S,
 				     1);
 
+<<<<<<< HEAD
 			doorbell[0] = le32_to_cpu(rq_db.u32_4);
 			doorbell[1] = le32_to_cpu(rq_db.u32_8);
 
 			hns_roce_write64_k((__le32 *)doorbell,
 					   hr_qp->rq.db_reg_l);
+=======
+			doorbell[0] = rq_db.u32_4;
+			doorbell[1] = rq_db.u32_8;
+
+			hns_roce_write64_k(doorbell, hr_qp->rq.db_reg);
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock_irqrestore(&hr_qp->rq.lock, flags);
@@ -462,6 +591,84 @@ static void hns_roce_set_db_event_mode(struct hns_roce_dev *hr_dev,
 	roce_write(hr_dev, ROCEE_GLB_CFG_REG, val);
 }
 
+<<<<<<< HEAD
+=======
+static int hns_roce_v1_set_hem(struct hns_roce_dev *hr_dev,
+			       struct hns_roce_hem_table *table, int obj,
+			       int step_idx)
+{
+	spinlock_t *lock = &hr_dev->bt_cmd_lock;
+	struct device *dev = hr_dev->dev;
+	struct hns_roce_hem_iter iter;
+	void __iomem *bt_cmd;
+	__le32 bt_cmd_val[2];
+	__le32 bt_cmd_h = 0;
+	unsigned long flags;
+	__le32 bt_cmd_l;
+	int ret = 0;
+	u64 bt_ba;
+	long end;
+
+	/* Find the HEM(Hardware Entry Memory) entry */
+	unsigned long i = obj / (table->table_chunk_size / table->obj_size);
+
+	switch (table->type) {
+	case HEM_TYPE_QPC:
+	case HEM_TYPE_MTPT:
+	case HEM_TYPE_CQC:
+	case HEM_TYPE_SRQC:
+		roce_set_field(bt_cmd_h, ROCEE_BT_CMD_H_ROCEE_BT_CMD_MDF_M,
+			ROCEE_BT_CMD_H_ROCEE_BT_CMD_MDF_S, table->type);
+		break;
+	default:
+		return ret;
+	}
+
+	roce_set_field(bt_cmd_h, ROCEE_BT_CMD_H_ROCEE_BT_CMD_IN_MDF_M,
+		       ROCEE_BT_CMD_H_ROCEE_BT_CMD_IN_MDF_S, obj);
+	roce_set_bit(bt_cmd_h, ROCEE_BT_CMD_H_ROCEE_BT_CMD_S, 0);
+	roce_set_bit(bt_cmd_h, ROCEE_BT_CMD_H_ROCEE_BT_CMD_HW_SYNS_S, 1);
+
+	/* Currently iter only a chunk */
+	for (hns_roce_hem_first(table->hem[i], &iter);
+	     !hns_roce_hem_last(&iter); hns_roce_hem_next(&iter)) {
+		bt_ba = hns_roce_hem_addr(&iter) >> HNS_HW_PAGE_SHIFT;
+
+		spin_lock_irqsave(lock, flags);
+
+		bt_cmd = hr_dev->reg_base + ROCEE_BT_CMD_H_REG;
+
+		end = HW_SYNC_TIMEOUT_MSECS;
+		while (end > 0) {
+			if (!(readl(bt_cmd) >> BT_CMD_SYNC_SHIFT))
+				break;
+
+			mdelay(HW_SYNC_SLEEP_TIME_INTERVAL);
+			end -= HW_SYNC_SLEEP_TIME_INTERVAL;
+		}
+
+		if (end <= 0) {
+			dev_err(dev, "Write bt_cmd err,hw_sync is not zero.\n");
+			spin_unlock_irqrestore(lock, flags);
+			return -EBUSY;
+		}
+
+		bt_cmd_l = cpu_to_le32(bt_ba);
+		roce_set_field(bt_cmd_h, ROCEE_BT_CMD_H_ROCEE_BT_CMD_BA_H_M,
+			       ROCEE_BT_CMD_H_ROCEE_BT_CMD_BA_H_S,
+			       upper_32_bits(bt_ba));
+
+		bt_cmd_val[0] = bt_cmd_l;
+		bt_cmd_val[1] = bt_cmd_h;
+		hns_roce_write64_k(bt_cmd_val,
+				   hr_dev->reg_base + ROCEE_BT_CMD_L_REG);
+		spin_unlock_irqrestore(lock, flags);
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static void hns_roce_set_db_ext_mode(struct hns_roce_dev *hr_dev, u32 sdb_mode,
 				     u32 odb_mode)
 {
@@ -514,16 +721,25 @@ static void hns_roce_set_odb(struct hns_roce_dev *hr_dev, u32 odb_alept,
 static void hns_roce_set_sdb_ext(struct hns_roce_dev *hr_dev, u32 ext_sdb_alept,
 				 u32 ext_sdb_alful)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	struct hns_roce_db_table *db;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_db_table *db = &priv->db_table;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 	dma_addr_t sdb_dma_addr;
 	__le32 tmp;
 	u32 val;
 
+<<<<<<< HEAD
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	db = &priv->db_table;
 
+=======
+>>>>>>> upstream/android-13
 	/* Configure extend SDB threshold */
 	roce_write(hr_dev, ROCEE_EXT_DB_SQ_WL_EMPTY_REG, ext_sdb_alept);
 	roce_write(hr_dev, ROCEE_EXT_DB_SQ_WL_REG, ext_sdb_alful);
@@ -541,7 +757,11 @@ static void hns_roce_set_sdb_ext(struct hns_roce_dev *hr_dev, u32 ext_sdb_alept,
 	/*
 	 * 44 = 32 + 12, When evaluating addr to hardware, shift 12 because of
 	 * using 4K page, and shift more 32 because of
+<<<<<<< HEAD
 	 * caculating the high 32 bit value evaluated to hardware.
+=======
+	 * calculating the high 32 bit value evaluated to hardware.
+>>>>>>> upstream/android-13
 	 */
 	roce_set_field(tmp, ROCEE_EXT_DB_SQ_H_EXT_DB_SQ_BA_H_M,
 		       ROCEE_EXT_DB_SQ_H_EXT_DB_SQ_BA_H_S, sdb_dma_addr >> 44);
@@ -549,23 +769,36 @@ static void hns_roce_set_sdb_ext(struct hns_roce_dev *hr_dev, u32 ext_sdb_alept,
 	roce_write(hr_dev, ROCEE_EXT_DB_SQ_H_REG, val);
 
 	dev_dbg(dev, "ext SDB depth: 0x%x\n", db->ext_db->esdb_dep);
+<<<<<<< HEAD
 	dev_dbg(dev, "ext SDB threshold: epmty: 0x%x, ful: 0x%x\n",
+=======
+	dev_dbg(dev, "ext SDB threshold: empty: 0x%x, ful: 0x%x\n",
+>>>>>>> upstream/android-13
 		ext_sdb_alept, ext_sdb_alful);
 }
 
 static void hns_roce_set_odb_ext(struct hns_roce_dev *hr_dev, u32 ext_odb_alept,
 				 u32 ext_odb_alful)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	struct hns_roce_db_table *db;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_db_table *db = &priv->db_table;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 	dma_addr_t odb_dma_addr;
 	__le32 tmp;
 	u32 val;
 
+<<<<<<< HEAD
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	db = &priv->db_table;
 
+=======
+>>>>>>> upstream/android-13
 	/* Configure extend ODB threshold */
 	roce_write(hr_dev, ROCEE_EXT_DB_OTHERS_WL_EMPTY_REG, ext_odb_alept);
 	roce_write(hr_dev, ROCEE_EXT_DB_OTHERS_WL_REG, ext_odb_alful);
@@ -594,16 +827,25 @@ static void hns_roce_set_odb_ext(struct hns_roce_dev *hr_dev, u32 ext_odb_alept,
 static int hns_roce_db_ext_init(struct hns_roce_dev *hr_dev, u32 sdb_ext_mod,
 				u32 odb_ext_mod)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	struct hns_roce_db_table *db;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_db_table *db = &priv->db_table;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 	dma_addr_t sdb_dma_addr;
 	dma_addr_t odb_dma_addr;
 	int ret = 0;
 
+<<<<<<< HEAD
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	db = &priv->db_table;
 
+=======
+>>>>>>> upstream/android-13
 	db->ext_db = kmalloc(sizeof(*db->ext_db), GFP_KERNEL);
 	if (!db->ext_db)
 		return -ENOMEM;
@@ -692,7 +934,11 @@ static struct hns_roce_qp *hns_roce_v1_create_lp_qp(struct hns_roce_dev *hr_dev,
 	init_attr.cap.max_recv_wr	= HNS_ROCE_MIN_WQE_NUM;
 	init_attr.cap.max_send_wr	= HNS_ROCE_MIN_WQE_NUM;
 
+<<<<<<< HEAD
 	qp = hns_roce_create_qp(pd, &init_attr, NULL);
+=======
+	qp = ib_create_qp(pd, &init_attr);
+>>>>>>> upstream/android-13
 	if (IS_ERR(qp)) {
 		dev_err(dev, "Create loop qp for mr free failed!");
 		return NULL;
@@ -703,16 +949,27 @@ static struct hns_roce_qp *hns_roce_v1_create_lp_qp(struct hns_roce_dev *hr_dev,
 
 static int hns_roce_v1_rsv_lp_qp(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct hns_roce_caps *caps = &hr_dev->caps;
 	struct device *dev = &hr_dev->pdev->dev;
 	struct ib_cq_init_attr cq_init_attr;
 	struct hns_roce_free_mr *free_mr;
 	struct ib_qp_attr attr = { 0 };
 	struct hns_roce_v1_priv *priv;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_free_mr *free_mr = &priv->free_mr;
+	struct hns_roce_caps *caps = &hr_dev->caps;
+	struct ib_device *ibdev = &hr_dev->ib_dev;
+	struct device *dev = &hr_dev->pdev->dev;
+	struct ib_cq_init_attr cq_init_attr;
+	struct ib_qp_attr attr = { 0 };
+>>>>>>> upstream/android-13
 	struct hns_roce_qp *hr_qp;
 	struct ib_cq *cq;
 	struct ib_pd *pd;
 	union ib_gid dgid;
+<<<<<<< HEAD
 	u64 subnet_prefix;
 	int attr_mask = 0;
 	int i, j;
@@ -732,6 +989,29 @@ static int hns_roce_v1_rsv_lp_qp(struct hns_roce_dev *hr_dev)
 	if (IS_ERR(cq)) {
 		dev_err(dev, "Create cq for reseved loop qp failed!");
 		return -ENOMEM;
+=======
+	__be64 subnet_prefix;
+	int attr_mask = 0;
+	int ret;
+	int i, j;
+	u8 queue_en[HNS_ROCE_V1_RESV_QP] = { 0 };
+	u8 phy_port;
+	u32 port = 0;
+	u8 sl;
+
+	/* Reserved cq for loop qp */
+	cq_init_attr.cqe		= HNS_ROCE_MIN_WQE_NUM * 2;
+	cq_init_attr.comp_vector	= 0;
+
+	cq = rdma_zalloc_drv_obj(ibdev, ib_cq);
+	if (!cq)
+		return -ENOMEM;
+
+	ret = hns_roce_create_cq(cq, &cq_init_attr, NULL);
+	if (ret) {
+		dev_err(dev, "Create cq for reserved loop qp failed!");
+		goto alloc_cq_failed;
+>>>>>>> upstream/android-13
 	}
 	free_mr->mr_free_cq = to_hr_cq(cq);
 	free_mr->mr_free_cq->ib_cq.device		= &hr_dev->ib_dev;
@@ -741,12 +1021,26 @@ static int hns_roce_v1_rsv_lp_qp(struct hns_roce_dev *hr_dev)
 	free_mr->mr_free_cq->ib_cq.cq_context		= NULL;
 	atomic_set(&free_mr->mr_free_cq->ib_cq.usecnt, 0);
 
+<<<<<<< HEAD
 	pd = hns_roce_alloc_pd(&hr_dev->ib_dev, NULL, NULL);
 	if (IS_ERR(pd)) {
 		dev_err(dev, "Create pd for reseved loop qp failed!");
 		ret = -ENOMEM;
 		goto alloc_pd_failed;
 	}
+=======
+	pd = rdma_zalloc_drv_obj(ibdev, ib_pd);
+	if (!pd) {
+		ret = -ENOMEM;
+		goto alloc_mem_failed;
+	}
+
+	pd->device  = ibdev;
+	ret = hns_roce_alloc_pd(pd, NULL);
+	if (ret)
+		goto alloc_pd_failed;
+
+>>>>>>> upstream/android-13
 	free_mr->mr_free_pd = to_hr_pd(pd);
 	free_mr->mr_free_pd->ibpd.device  = &hr_dev->ib_dev;
 	free_mr->mr_free_pd->ibpd.uobject = NULL;
@@ -812,7 +1106,11 @@ static int hns_roce_v1_rsv_lp_qp(struct hns_roce_dev *hr_dev)
 		attr.dest_qp_num	= hr_qp->qpn;
 		memcpy(rdma_ah_retrieve_dmac(&attr.ah_attr),
 		       hr_dev->dev_addr[port],
+<<<<<<< HEAD
 		       MAC_ADDR_OCTET_NUM);
+=======
+		       ETH_ALEN);
+>>>>>>> upstream/android-13
 
 		memcpy(&dgid.raw, &subnet_prefix, sizeof(u64));
 		memcpy(&dgid.raw[8], hr_dev->dev_addr[port], 3);
@@ -849,6 +1147,7 @@ static int hns_roce_v1_rsv_lp_qp(struct hns_roce_dev *hr_dev)
 create_lp_qp_failed:
 	for (i -= 1; i >= 0; i--) {
 		hr_qp = free_mr->mr_free_qp[i];
+<<<<<<< HEAD
 		if (hns_roce_v1_destroy_qp(&hr_qp->ibqp))
 			dev_err(dev, "Destroy qp %d for mr free failed!\n", i);
 	}
@@ -860,32 +1159,61 @@ alloc_pd_failed:
 	if (hns_roce_ib_destroy_cq(cq))
 		dev_err(dev, "Destroy cq for create_lp_qp failed!\n");
 
+=======
+		if (ib_destroy_qp(&hr_qp->ibqp))
+			dev_err(dev, "Destroy qp %d for mr free failed!\n", i);
+	}
+
+	hns_roce_dealloc_pd(pd, NULL);
+
+alloc_pd_failed:
+	kfree(pd);
+
+alloc_mem_failed:
+	hns_roce_destroy_cq(cq, NULL);
+alloc_cq_failed:
+	kfree(cq);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void hns_roce_v1_release_lp_qp(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_free_mr *free_mr;
 	struct hns_roce_v1_priv *priv;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_free_mr *free_mr = &priv->free_mr;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 	struct hns_roce_qp *hr_qp;
 	int ret;
 	int i;
 
+<<<<<<< HEAD
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	free_mr = &priv->free_mr;
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < HNS_ROCE_V1_RESV_QP; i++) {
 		hr_qp = free_mr->mr_free_qp[i];
 		if (!hr_qp)
 			continue;
 
+<<<<<<< HEAD
 		ret = hns_roce_v1_destroy_qp(&hr_qp->ibqp);
+=======
+		ret = ib_destroy_qp(&hr_qp->ibqp);
+>>>>>>> upstream/android-13
 		if (ret)
 			dev_err(dev, "Destroy qp %d for mr free failed(%d)!\n",
 				i, ret);
 	}
 
+<<<<<<< HEAD
 	ret = hns_roce_ib_destroy_cq(&free_mr->mr_free_cq->ib_cq);
 	if (ret)
 		dev_err(dev, "Destroy cq for mr_free failed(%d)!\n", ret);
@@ -893,21 +1221,37 @@ static void hns_roce_v1_release_lp_qp(struct hns_roce_dev *hr_dev)
 	ret = hns_roce_dealloc_pd(&free_mr->mr_free_pd->ibpd);
 	if (ret)
 		dev_err(dev, "Destroy pd for mr_free failed(%d)!\n", ret);
+=======
+	hns_roce_destroy_cq(&free_mr->mr_free_cq->ib_cq, NULL);
+	kfree(&free_mr->mr_free_cq->ib_cq);
+	hns_roce_dealloc_pd(&free_mr->mr_free_pd->ibpd, NULL);
+	kfree(&free_mr->mr_free_pd->ibpd);
+>>>>>>> upstream/android-13
 }
 
 static int hns_roce_db_init(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	struct hns_roce_db_table *db;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_db_table *db = &priv->db_table;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 	u32 sdb_ext_mod;
 	u32 odb_ext_mod;
 	u32 sdb_evt_mod;
 	u32 odb_evt_mod;
+<<<<<<< HEAD
 	int ret = 0;
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	db = &priv->db_table;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	memset(db, 0, sizeof(*db));
 
@@ -954,6 +1298,7 @@ static void hns_roce_v1_recreate_lp_qp_work_fn(struct work_struct *work)
 
 static int hns_roce_v1_recreate_lp_qp(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_recreate_lp_qp_work *lp_qp_work;
 	struct hns_roce_free_mr *free_mr;
@@ -964,6 +1309,14 @@ static int hns_roce_v1_recreate_lp_qp(struct hns_roce_dev *hr_dev)
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	free_mr = &priv->free_mr;
+=======
+	long end = HNS_ROCE_V1_RECREATE_LP_QP_TIMEOUT_MSECS;
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_free_mr *free_mr = &priv->free_mr;
+	struct hns_roce_recreate_lp_qp_work *lp_qp_work;
+	struct device *dev = &hr_dev->pdev->dev;
+	struct completion comp;
+>>>>>>> upstream/android-13
 
 	lp_qp_work = kzalloc(sizeof(struct hns_roce_recreate_lp_qp_work),
 			     GFP_KERNEL);
@@ -980,10 +1333,18 @@ static int hns_roce_v1_recreate_lp_qp(struct hns_roce_dev *hr_dev)
 
 	queue_work(free_mr->free_mr_wq, &(lp_qp_work->work));
 
+<<<<<<< HEAD
 	while (time_before_eq(jiffies, end)) {
 		if (try_wait_for_completion(&comp))
 			return 0;
 		msleep(HNS_ROCE_V1_RECREATE_LP_QP_WAIT_VALUE);
+=======
+	while (end > 0) {
+		if (try_wait_for_completion(&comp))
+			return 0;
+		msleep(HNS_ROCE_V1_RECREATE_LP_QP_WAIT_VALUE);
+		end -= HNS_ROCE_V1_RECREATE_LP_QP_WAIT_VALUE;
+>>>>>>> upstream/android-13
 	}
 
 	lp_qp_work->comp_flag = 0;
@@ -1021,6 +1382,7 @@ static int hns_roce_v1_send_lp_wqe(struct hns_roce_qp *hr_qp)
 
 static void hns_roce_v1_mr_free_work_fn(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct hns_roce_mr_free_work *mr_work;
 	struct ib_wc wc[HNS_ROCE_V1_RESV_QP];
 	struct hns_roce_free_mr *free_mr;
@@ -1044,6 +1406,23 @@ static void hns_roce_v1_mr_free_work_fn(struct work_struct *work)
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	free_mr = &priv->free_mr;
 	mr_free_cq = free_mr->mr_free_cq;
+=======
+	unsigned long end =
+		msecs_to_jiffies(HNS_ROCE_V1_FREE_MR_TIMEOUT_MSECS) + jiffies;
+	struct hns_roce_mr_free_work *mr_work =
+		container_of(work, struct hns_roce_mr_free_work, work);
+	struct hns_roce_dev *hr_dev = to_hr_dev(mr_work->ib_dev);
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_free_mr *free_mr = &priv->free_mr;
+	struct hns_roce_cq *mr_free_cq = free_mr->mr_free_cq;
+	struct hns_roce_mr *hr_mr = mr_work->mr;
+	struct device *dev = &hr_dev->pdev->dev;
+	struct ib_wc wc[HNS_ROCE_V1_RESV_QP];
+	struct hns_roce_qp *hr_qp;
+	int ne = 0;
+	int ret;
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < HNS_ROCE_V1_RESV_QP; i++) {
 		hr_qp = free_mr->mr_free_qp[i];
@@ -1090,6 +1469,7 @@ free_work:
 }
 
 static int hns_roce_v1_dereg_mr(struct hns_roce_dev *hr_dev,
+<<<<<<< HEAD
 				struct hns_roce_mr *mr)
 {
 	struct device *dev = &hr_dev->pdev->dev;
@@ -1110,6 +1490,24 @@ static int hns_roce_v1_dereg_mr(struct hns_roce_dev *hr_dev,
 		if (hns_roce_hw2sw_mpt(hr_dev, NULL, key_to_hw_index(mr->key)
 				       & (hr_dev->caps.num_mtpts - 1)))
 			dev_warn(dev, "HW2SW_MPT failed!\n");
+=======
+				struct hns_roce_mr *mr, struct ib_udata *udata)
+{
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_free_mr *free_mr = &priv->free_mr;
+	long end = HNS_ROCE_V1_FREE_MR_TIMEOUT_MSECS;
+	struct device *dev = &hr_dev->pdev->dev;
+	struct hns_roce_mr_free_work *mr_work;
+	unsigned long start = jiffies;
+	struct completion comp;
+	int ret = 0;
+
+	if (mr->enabled) {
+		if (hns_roce_hw_destroy_mpt(hr_dev, NULL,
+					    key_to_hw_index(mr->key) &
+					    (hr_dev->caps.num_mtpts - 1)))
+			dev_warn(dev, "DESTROY_MPT failed!\n");
+>>>>>>> upstream/android-13
 	}
 
 	mr_work = kzalloc(sizeof(*mr_work), GFP_KERNEL);
@@ -1128,10 +1526,18 @@ static int hns_roce_v1_dereg_mr(struct hns_roce_dev *hr_dev,
 
 	queue_work(free_mr->free_mr_wq, &(mr_work->work));
 
+<<<<<<< HEAD
 	while (time_before_eq(jiffies, end)) {
 		if (try_wait_for_completion(&comp))
 			goto free_mr;
 		msleep(HNS_ROCE_V1_FREE_MR_WAIT_VALUE);
+=======
+	while (end > 0) {
+		if (try_wait_for_completion(&comp))
+			goto free_mr;
+		msleep(HNS_ROCE_V1_FREE_MR_WAIT_VALUE);
+		end -= HNS_ROCE_V1_FREE_MR_WAIT_VALUE;
+>>>>>>> upstream/android-13
 	}
 
 	mr_work->comp_flag = 0;
@@ -1145,6 +1551,7 @@ free_mr:
 	dev_dbg(dev, "Free mr 0x%x use 0x%x us.\n",
 		mr->key, jiffies_to_usecs(jiffies) - jiffies_to_usecs(start));
 
+<<<<<<< HEAD
 	if (mr->size != ~0ULL) {
 		npages = ib_umem_page_count(mr->umem);
 		dma_free_coherent(dev, npages * 8, mr->pbl_buf,
@@ -1157,6 +1564,10 @@ free_mr:
 	if (mr->umem)
 		ib_umem_release(mr->umem);
 
+=======
+	ida_free(&hr_dev->mr_table.mtpt_ida.ida, (int)key_to_hw_index(mr->key));
+	hns_roce_mtr_destroy(hr_dev, &mr->pbl_mtr);
+>>>>>>> upstream/android-13
 	kfree(mr);
 
 	return ret;
@@ -1164,12 +1575,18 @@ free_mr:
 
 static void hns_roce_db_free(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	struct hns_roce_db_table *db;
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	db = &priv->db_table;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_db_table *db = &priv->db_table;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 
 	if (db->sdb_ext_mod) {
 		dma_free_coherent(dev, HNS_ROCE_V1_EXT_SDB_SIZE,
@@ -1190,6 +1607,7 @@ static void hns_roce_db_free(struct hns_roce_dev *hr_dev)
 
 static int hns_roce_raq_init(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	int ret;
 	u32 val;
 	__le32 tmp;
@@ -1201,6 +1619,16 @@ static int hns_roce_raq_init(struct hns_roce_dev *hr_dev)
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	raq = &priv->raq_table;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_raq_table *raq = &priv->raq_table;
+	struct device *dev = &hr_dev->pdev->dev;
+	dma_addr_t addr;
+	int raq_shift;
+	__le32 tmp;
+	u32 val;
+	int ret;
+>>>>>>> upstream/android-13
 
 	raq->e_raq_buf = kzalloc(sizeof(*(raq->e_raq_buf)), GFP_KERNEL);
 	if (!raq->e_raq_buf)
@@ -1214,7 +1642,11 @@ static int hns_roce_raq_init(struct hns_roce_dev *hr_dev)
 	}
 	raq->e_raq_buf->map = addr;
 
+<<<<<<< HEAD
 	/* Configure raq extended address. 48bit 4K align*/
+=======
+	/* Configure raq extended address. 48bit 4K align */
+>>>>>>> upstream/android-13
 	roce_write(hr_dev, ROCEE_EXT_RAQ_REG, raq->e_raq_buf->map >> 12);
 
 	/* Configure raq_shift */
@@ -1226,7 +1658,11 @@ static int hns_roce_raq_init(struct hns_roce_dev *hr_dev)
 	/*
 	 * 44 = 32 + 12, When evaluating addr to hardware, shift 12 because of
 	 * using 4K page, and shift more 32 because of
+<<<<<<< HEAD
 	 * caculating the high 32 bit value evaluated to hardware.
+=======
+	 * calculating the high 32 bit value evaluated to hardware.
+>>>>>>> upstream/android-13
 	 */
 	roce_set_field(tmp, ROCEE_EXT_RAQ_H_EXT_RAQ_BA_H_M,
 		       ROCEE_EXT_RAQ_H_EXT_RAQ_BA_H_S,
@@ -1280,12 +1716,18 @@ err_dma_alloc_raq:
 
 static void hns_roce_raq_free(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	struct hns_roce_raq_table *raq;
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	raq = &priv->raq_table;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_raq_table *raq = &priv->raq_table;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 
 	dma_free_coherent(dev, HNS_ROCE_V1_RAQ_SIZE, raq->e_raq_buf->buf,
 			  raq->e_raq_buf->map);
@@ -1319,12 +1761,19 @@ static void hns_roce_port_enable(struct hns_roce_dev *hr_dev, int enable_flag)
 
 static int hns_roce_bt_init(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	int ret;
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct device *dev = &hr_dev->pdev->dev;
+	int ret;
+
+>>>>>>> upstream/android-13
 	priv->bt_table.qpc_buf.buf = dma_alloc_coherent(dev,
 		HNS_ROCE_BT_RSV_BUF_SIZE, &priv->bt_table.qpc_buf.map,
 		GFP_KERNEL);
@@ -1362,10 +1811,15 @@ err_failed_alloc_mtpt_buf:
 
 static void hns_roce_bt_free(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 
 	dma_free_coherent(dev, HNS_ROCE_BT_RSV_BUF_SIZE,
 		priv->bt_table.cqc_buf.buf, priv->bt_table.cqc_buf.map);
@@ -1379,12 +1833,18 @@ static void hns_roce_bt_free(struct hns_roce_dev *hr_dev)
 
 static int hns_roce_tptr_init(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_buf_list *tptr_buf;
 	struct hns_roce_v1_priv *priv;
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	tptr_buf = &priv->tptr_table.tptr_buf;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_buf_list *tptr_buf = &priv->tptr_table.tptr_buf;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This buffer will be used for CQ's tptr(tail pointer), also
@@ -1405,12 +1865,18 @@ static int hns_roce_tptr_init(struct hns_roce_dev *hr_dev)
 
 static void hns_roce_tptr_free(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_buf_list *tptr_buf;
 	struct hns_roce_v1_priv *priv;
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	tptr_buf = &priv->tptr_table.tptr_buf;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_buf_list *tptr_buf = &priv->tptr_table.tptr_buf;
+	struct device *dev = &hr_dev->pdev->dev;
+>>>>>>> upstream/android-13
 
 	dma_free_coherent(dev, HNS_ROCE_V1_TPTR_BUF_SIZE,
 			  tptr_buf->buf, tptr_buf->map);
@@ -1418,6 +1884,7 @@ static void hns_roce_tptr_free(struct hns_roce_dev *hr_dev)
 
 static int hns_roce_free_mr_init(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_free_mr *free_mr;
 	struct hns_roce_v1_priv *priv;
@@ -1425,6 +1892,12 @@ static int hns_roce_free_mr_init(struct hns_roce_dev *hr_dev)
 
 	priv = (struct hns_roce_v1_priv *)hr_dev->priv;
 	free_mr = &priv->free_mr;
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_free_mr *free_mr = &priv->free_mr;
+	struct device *dev = &hr_dev->pdev->dev;
+	int ret;
+>>>>>>> upstream/android-13
 
 	free_mr->free_mr_wq = create_singlethread_workqueue("hns_roce_free_mr");
 	if (!free_mr->free_mr_wq) {
@@ -1435,7 +1908,10 @@ static int hns_roce_free_mr_init(struct hns_roce_dev *hr_dev)
 	ret = hns_roce_v1_rsv_lp_qp(hr_dev);
 	if (ret) {
 		dev_err(dev, "Reserved loop qp failed(%d)!\n", ret);
+<<<<<<< HEAD
 		flush_workqueue(free_mr->free_mr_wq);
+=======
+>>>>>>> upstream/android-13
 		destroy_workqueue(free_mr->free_mr_wq);
 	}
 
@@ -1444,6 +1920,7 @@ static int hns_roce_free_mr_init(struct hns_roce_dev *hr_dev)
 
 static void hns_roce_free_mr_free(struct hns_roce_dev *hr_dev)
 {
+<<<<<<< HEAD
 	struct hns_roce_free_mr *free_mr;
 	struct hns_roce_v1_priv *priv;
 
@@ -1451,6 +1928,11 @@ static void hns_roce_free_mr_free(struct hns_roce_dev *hr_dev)
 	free_mr = &priv->free_mr;
 
 	flush_workqueue(free_mr->free_mr_wq);
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_free_mr *free_mr = &priv->free_mr;
+
+>>>>>>> upstream/android-13
 	destroy_workqueue(free_mr->free_mr_wq);
 
 	hns_roce_v1_release_lp_qp(hr_dev);
@@ -1459,7 +1941,11 @@ static void hns_roce_free_mr_free(struct hns_roce_dev *hr_dev)
 /**
  * hns_roce_v1_reset - reset RoCE
  * @hr_dev: RoCE device struct pointer
+<<<<<<< HEAD
  * @enable: true -- drop reset, false -- reset
+=======
+ * @dereset: true -- drop reset, false -- reset
+>>>>>>> upstream/android-13
  * return 0 - success , negative --fail
  */
 static int hns_roce_v1_reset(struct hns_roce_dev *hr_dev, bool dereset)
@@ -1505,6 +1991,7 @@ static int hns_roce_v1_reset(struct hns_roce_dev *hr_dev, bool dereset)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int hns_roce_des_qp_init(struct hns_roce_dev *hr_dev)
 {
 	struct device *dev = &hr_dev->pdev->dev;
@@ -1541,6 +2028,12 @@ static int hns_roce_v1_profile(struct hns_roce_dev *hr_dev)
 {
 	int i = 0;
 	struct hns_roce_caps *caps = &hr_dev->caps;
+=======
+static int hns_roce_v1_profile(struct hns_roce_dev *hr_dev)
+{
+	struct hns_roce_caps *caps = &hr_dev->caps;
+	int i;
+>>>>>>> upstream/android-13
 
 	hr_dev->vendor_id = roce_read(hr_dev, ROCEE_VENDOR_ID_REG);
 	hr_dev->vendor_part_id = roce_read(hr_dev, ROCEE_VENDOR_PART_ID_REG);
@@ -1570,18 +2063,30 @@ static int hns_roce_v1_profile(struct hns_roce_dev *hr_dev)
 	caps->max_qp_dest_rdma	= HNS_ROCE_V1_MAX_QP_DEST_RDMA;
 	caps->max_sq_desc_sz	= HNS_ROCE_V1_MAX_SQ_DESC_SZ;
 	caps->max_rq_desc_sz	= HNS_ROCE_V1_MAX_RQ_DESC_SZ;
+<<<<<<< HEAD
 	caps->qpc_entry_sz	= HNS_ROCE_V1_QPC_ENTRY_SIZE;
+=======
+	caps->qpc_sz		= HNS_ROCE_V1_QPC_SIZE;
+>>>>>>> upstream/android-13
 	caps->irrl_entry_sz	= HNS_ROCE_V1_IRRL_ENTRY_SIZE;
 	caps->cqc_entry_sz	= HNS_ROCE_V1_CQC_ENTRY_SIZE;
 	caps->mtpt_entry_sz	= HNS_ROCE_V1_MTPT_ENTRY_SIZE;
 	caps->mtt_entry_sz	= HNS_ROCE_V1_MTT_ENTRY_SIZE;
+<<<<<<< HEAD
 	caps->cq_entry_sz	= HNS_ROCE_V1_CQE_ENTRY_SIZE;
+=======
+	caps->cqe_sz		= HNS_ROCE_V1_CQE_SIZE;
+>>>>>>> upstream/android-13
 	caps->page_size_cap	= HNS_ROCE_V1_PAGE_SIZE_SUPPORT;
 	caps->reserved_lkey	= 0;
 	caps->reserved_pds	= 0;
 	caps->reserved_mrws	= 1;
 	caps->reserved_uars	= 0;
 	caps->reserved_cqs	= 0;
+<<<<<<< HEAD
+=======
+	caps->reserved_qps	= 12; /* 2 SQP per port, six ports total 12 */
+>>>>>>> upstream/android-13
 	caps->chunk_sz		= HNS_ROCE_V1_TABLE_CHUNK_SIZE;
 
 	for (i = 0; i < caps->num_ports; i++)
@@ -1655,12 +2160,15 @@ static int hns_roce_v1_init(struct hns_roce_dev *hr_dev)
 		goto error_failed_tptr_init;
 	}
 
+<<<<<<< HEAD
 	ret = hns_roce_des_qp_init(hr_dev);
 	if (ret) {
 		dev_err(dev, "des qp init failed!\n");
 		goto error_failed_des_qp_init;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = hns_roce_free_mr_init(hr_dev);
 	if (ret) {
 		dev_err(dev, "free mr init failed!\n");
@@ -1672,9 +2180,12 @@ static int hns_roce_v1_init(struct hns_roce_dev *hr_dev)
 	return 0;
 
 error_failed_free_mr_init:
+<<<<<<< HEAD
 	hns_roce_des_qp_free(hr_dev);
 
 error_failed_des_qp_init:
+=======
+>>>>>>> upstream/android-13
 	hns_roce_tptr_free(hr_dev);
 
 error_failed_tptr_init:
@@ -1692,7 +2203,10 @@ static void hns_roce_v1_exit(struct hns_roce_dev *hr_dev)
 {
 	hns_roce_port_enable(hr_dev, HNS_ROCE_PORT_DOWN);
 	hns_roce_free_mr_free(hr_dev);
+<<<<<<< HEAD
 	hns_roce_des_qp_free(hr_dev);
+=======
+>>>>>>> upstream/android-13
 	hns_roce_tptr_free(hr_dev);
 	hns_roce_bt_free(hr_dev);
 	hns_roce_raq_free(hr_dev);
@@ -1744,16 +2258,26 @@ static int hns_roce_v1_post_mbox(struct hns_roce_dev *hr_dev, u64 in_param,
 
 	writel(val, hcr + 5);
 
+<<<<<<< HEAD
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int hns_roce_v1_chk_mbox(struct hns_roce_dev *hr_dev,
+<<<<<<< HEAD
 				unsigned long timeout)
 {
 	u8 __iomem *hcr = hr_dev->reg_base + ROCEE_MB1_REG;
 	unsigned long end = 0;
+=======
+				unsigned int timeout)
+{
+	u8 __iomem *hcr = hr_dev->reg_base + ROCEE_MB1_REG;
+	unsigned long end;
+>>>>>>> upstream/android-13
 	u32 status = 0;
 
 	end = msecs_to_jiffies(timeout) + jiffies;
@@ -1775,6 +2299,7 @@ static int hns_roce_v1_chk_mbox(struct hns_roce_dev *hr_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hns_roce_v1_set_gid(struct hns_roce_dev *hr_dev, u8 port,
 			       int gid_index, const union ib_gid *gid,
 			       const struct ib_gid_attr *attr)
@@ -1784,6 +2309,20 @@ static int hns_roce_v1_set_gid(struct hns_roce_dev *hr_dev, u8 port,
 
 	gid_idx = hns_get_gid_index(hr_dev, port, gid_index);
 
+=======
+static int hns_roce_v1_set_gid(struct hns_roce_dev *hr_dev, u32 port,
+			       int gid_index, const union ib_gid *gid,
+			       const struct ib_gid_attr *attr)
+{
+	unsigned long flags;
+	u32 *p = NULL;
+	u8 gid_idx;
+
+	gid_idx = hns_get_gid_index(hr_dev, port, gid_index);
+
+	spin_lock_irqsave(&hr_dev->iboe.lock, flags);
+
+>>>>>>> upstream/android-13
 	p = (u32 *)&gid->raw[0];
 	roce_raw_write(*p, hr_dev->reg_base + ROCEE_PORT_GID_L_0_REG +
 		       (HNS_ROCE_V1_GID_NUM * gid_idx));
@@ -1800,6 +2339,11 @@ static int hns_roce_v1_set_gid(struct hns_roce_dev *hr_dev, u8 port,
 	roce_raw_write(*p, hr_dev->reg_base + ROCEE_PORT_GID_H_0_REG +
 		       (HNS_ROCE_V1_GID_NUM * gid_idx));
 
+<<<<<<< HEAD
+=======
+	spin_unlock_irqrestore(&hr_dev->iboe.lock, flags);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1861,6 +2405,7 @@ static void hns_roce_v1_set_mtu(struct hns_roce_dev *hr_dev, u8 phy_port,
 		   val);
 }
 
+<<<<<<< HEAD
 static int hns_roce_v1_write_mtpt(void *mb_buf, struct hns_roce_mr *mr,
 				  unsigned long mtpt_idx)
 {
@@ -1868,6 +2413,17 @@ static int hns_roce_v1_write_mtpt(void *mb_buf, struct hns_roce_mr *mr,
 	struct scatterlist *sg;
 	u64 *pages;
 	int entry;
+=======
+static int hns_roce_v1_write_mtpt(struct hns_roce_dev *hr_dev, void *mb_buf,
+				  struct hns_roce_mr *mr,
+				  unsigned long mtpt_idx)
+{
+	u64 pages[HNS_ROCE_MAX_INNER_MTPT_NUM] = { 0 };
+	struct ib_device *ibdev = &hr_dev->ib_dev;
+	struct hns_roce_v1_mpt_entry *mpt_entry;
+	dma_addr_t pbl_ba;
+	int count;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* MPT filled into mailbox buf */
@@ -1917,6 +2473,7 @@ static int hns_roce_v1_write_mtpt(void *mb_buf, struct hns_roce_mr *mr,
 	if (mr->type == MR_TYPE_DMA)
 		return 0;
 
+<<<<<<< HEAD
 	pages = (u64 *) __get_free_page(GFP_KERNEL);
 	if (!pages)
 		return -ENOMEM;
@@ -1933,6 +2490,17 @@ static int hns_roce_v1_write_mtpt(void *mb_buf, struct hns_roce_mr *mr,
 
 	/* Register user mr */
 	for (i = 0; i < HNS_ROCE_MAX_INNER_MTPT_NUM; i++) {
+=======
+	count = hns_roce_mtr_find(hr_dev, &mr->pbl_mtr, 0, pages,
+				  ARRAY_SIZE(pages), &pbl_ba);
+	if (count < 1) {
+		ibdev_err(ibdev, "failed to find PBL mtr, count = %d.", count);
+		return -ENOBUFS;
+	}
+
+	/* Register user mr */
+	for (i = 0; i < count; i++) {
+>>>>>>> upstream/android-13
 		switch (i) {
 		case 0:
 			mpt_entry->pa0_l = cpu_to_le32((u32)(pages[i]));
@@ -1998,6 +2566,7 @@ static int hns_roce_v1_write_mtpt(void *mb_buf, struct hns_roce_mr *mr,
 		}
 	}
 
+<<<<<<< HEAD
 	free_page((unsigned long) pages);
 
 	mpt_entry->pbl_addr_l = cpu_to_le32((u32)(mr->pbl_dma_addr));
@@ -2005,14 +2574,23 @@ static int hns_roce_v1_write_mtpt(void *mb_buf, struct hns_roce_mr *mr,
 	roce_set_field(mpt_entry->mpt_byte_12, MPT_BYTE_12_PBL_ADDR_H_M,
 		       MPT_BYTE_12_PBL_ADDR_H_S,
 		       ((u32)(mr->pbl_dma_addr >> 32)));
+=======
+	mpt_entry->pbl_addr_l = cpu_to_le32(pbl_ba);
+	roce_set_field(mpt_entry->mpt_byte_12, MPT_BYTE_12_PBL_ADDR_H_M,
+		       MPT_BYTE_12_PBL_ADDR_H_S, upper_32_bits(pbl_ba));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void *get_cqe(struct hns_roce_cq *hr_cq, int n)
 {
+<<<<<<< HEAD
 	return hns_roce_buf_offset(&hr_cq->hr_buf.hr_buf,
 				   n * HNS_ROCE_V1_CQE_ENTRY_SIZE);
+=======
+	return hns_roce_buf_offset(hr_cq->mtr.kmem, n * HNS_ROCE_V1_CQE_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static void *get_sw_cqe(struct hns_roce_cq *hr_cq, int n)
@@ -2021,7 +2599,11 @@ static void *get_sw_cqe(struct hns_roce_cq *hr_cq, int n)
 
 	/* Get cqe when Owner bit is Conversely with the MSB of cons_idx */
 	return (roce_get_bit(hr_cqe->cqe_byte_4, CQE_BYTE_4_OWNER_S) ^
+<<<<<<< HEAD
 		!!(n & (hr_cq->ib_cq.cqe + 1))) ? hr_cqe : NULL;
+=======
+		!!(n & hr_cq->cq_depth)) ? hr_cqe : NULL;
+>>>>>>> upstream/android-13
 }
 
 static struct hns_roce_cqe *next_cqe_sw(struct hns_roce_cq *hr_cq)
@@ -2043,7 +2625,11 @@ static void hns_roce_v1_cq_set_ci(struct hns_roce_cq *hr_cq, u32 cons_index)
 	roce_set_field(doorbell[1], ROCEE_DB_OTHERS_H_ROCEE_DB_OTH_INP_H_M,
 		       ROCEE_DB_OTHERS_H_ROCEE_DB_OTH_INP_H_S, hr_cq->cqn);
 
+<<<<<<< HEAD
 	hns_roce_write64_k(doorbell, hr_cq->cq_db_l);
+=======
+	hns_roce_write64_k(doorbell, hr_cq->db_reg);
+>>>>>>> upstream/android-13
 }
 
 static void __hns_roce_v1_cq_clean(struct hns_roce_cq *hr_cq, u32 qpn,
@@ -2084,12 +2670,15 @@ static void __hns_roce_v1_cq_clean(struct hns_roce_cq *hr_cq, u32 qpn,
 
 	if (nfreed) {
 		hr_cq->cons_index += nfreed;
+<<<<<<< HEAD
 		/*
 		 * Make sure update of buffer contents is done before
 		 * updating consumer index.
 		 */
 		wmb();
 
+=======
+>>>>>>> upstream/android-13
 		hns_roce_v1_cq_set_ci(hr_cq, hr_cq->cons_index);
 	}
 }
@@ -2104,6 +2693,7 @@ static void hns_roce_v1_cq_clean(struct hns_roce_cq *hr_cq, u32 qpn,
 
 static void hns_roce_v1_write_cqc(struct hns_roce_dev *hr_dev,
 				  struct hns_roce_cq *hr_cq, void *mb_buf,
+<<<<<<< HEAD
 				  u64 *mtts, dma_addr_t dma_handle, int nent,
 				  u32 vector)
 {
@@ -2117,6 +2707,16 @@ static void hns_roce_v1_write_cqc(struct hns_roce_dev *hr_dev,
 	tptr_buf = &priv->tptr_table.tptr_buf;
 
 	cq_context = mb_buf;
+=======
+				  u64 *mtts, dma_addr_t dma_handle)
+{
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct hns_roce_buf_list *tptr_buf = &priv->tptr_table.tptr_buf;
+	struct hns_roce_cq_context *cq_context = mb_buf;
+	dma_addr_t tptr_dma_addr;
+	int offset;
+
+>>>>>>> upstream/android-13
 	memset(cq_context, 0, sizeof(*cq_context));
 
 	/* Get the tptr for this CQ. */
@@ -2140,9 +2740,15 @@ static void hns_roce_v1_write_cqc(struct hns_roce_dev *hr_dev,
 	roce_set_field(cq_context->cqc_byte_12,
 		       CQ_CONTEXT_CQC_BYTE_12_CQ_CQE_SHIFT_M,
 		       CQ_CONTEXT_CQC_BYTE_12_CQ_CQE_SHIFT_S,
+<<<<<<< HEAD
 		       ilog2((unsigned int)nent));
 	roce_set_field(cq_context->cqc_byte_12, CQ_CONTEXT_CQC_BYTE_12_CEQN_M,
 		       CQ_CONTEXT_CQC_BYTE_12_CEQN_S, vector);
+=======
+		       ilog2(hr_cq->cq_depth));
+	roce_set_field(cq_context->cqc_byte_12, CQ_CONTEXT_CQC_BYTE_12_CEQN_M,
+		       CQ_CONTEXT_CQC_BYTE_12_CEQN_S, hr_cq->vector);
+>>>>>>> upstream/android-13
 
 	cq_context->cur_cqe_ba0_l = cpu_to_le32((u32)(mtts[0]));
 
@@ -2156,7 +2762,11 @@ static void hns_roce_v1_write_cqc(struct hns_roce_dev *hr_dev,
 	/**
 	 * 44 = 32 + 12, When evaluating addr to hardware, shift 12 because of
 	 * using 4K page, and shift more 32 because of
+<<<<<<< HEAD
 	 * caculating the high 32 bit value evaluated to hardware.
+=======
+	 * calculating the high 32 bit value evaluated to hardware.
+>>>>>>> upstream/android-13
 	 */
 	roce_set_field(cq_context->cqc_byte_20,
 		       CQ_CONTEXT_CQC_BYTE_20_CQE_TPTR_ADDR_H_M,
@@ -2183,17 +2793,24 @@ static void hns_roce_v1_write_cqc(struct hns_roce_dev *hr_dev,
 		       CQ_CONTEXT_CQC_BYTE_32_CQ_CONS_IDX_S, 0);
 }
 
+<<<<<<< HEAD
 static int hns_roce_v1_modify_cq(struct ib_cq *cq, u16 cq_count, u16 cq_period)
 {
 	return -EOPNOTSUPP;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hns_roce_v1_req_notify_cq(struct ib_cq *ibcq,
 				     enum ib_cq_notify_flags flags)
 {
 	struct hns_roce_cq *hr_cq = to_hr_cq(ibcq);
 	u32 notification_flag;
+<<<<<<< HEAD
 	__le32 doorbell[2];
+=======
+	__le32 doorbell[2] = {};
+>>>>>>> upstream/android-13
 
 	notification_flag = (flags & IB_CQ_SOLICITED_MASK) ==
 			    IB_CQ_SOLICITED ? CQ_DB_REQ_NOT : CQ_DB_REQ_NOT_SOL;
@@ -2212,7 +2829,11 @@ static int hns_roce_v1_req_notify_cq(struct ib_cq *ibcq,
 		       ROCEE_DB_OTHERS_H_ROCEE_DB_OTH_INP_H_S,
 		       hr_cq->cqn | notification_flag);
 
+<<<<<<< HEAD
 	hns_roce_write64_k(doorbell, hr_cq->cq_db_l);
+=======
+	hns_roce_write64_k(doorbell, hr_cq->db_reg);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2325,9 +2946,16 @@ static int hns_roce_v1_poll_one(struct hns_roce_cq *hr_cq,
 
 	if (is_send) {
 		/* SQ conrespond to CQE */
+<<<<<<< HEAD
 		sq_wqe = get_send_wqe(*cur_qp, roce_get_field(cqe->cqe_byte_4,
 						CQE_BYTE_4_WQE_INDEX_M,
 						CQE_BYTE_4_WQE_INDEX_S)&
+=======
+		sq_wqe = hns_roce_get_send_wqe(*cur_qp,
+						roce_get_field(cqe->cqe_byte_4,
+						CQE_BYTE_4_WQE_INDEX_M,
+						CQE_BYTE_4_WQE_INDEX_S) &
+>>>>>>> upstream/android-13
 						((*cur_qp)->sq.wqe_cnt-1));
 		switch (le32_to_cpu(sq_wqe->flag) & HNS_ROCE_WQE_OPCODE_MASK) {
 		case HNS_ROCE_WQE_OPCODE_SEND:
@@ -2425,7 +3053,11 @@ int hns_roce_v1_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
 	struct hns_roce_qp *cur_qp = NULL;
 	unsigned long flags;
 	int npolled;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&hr_cq->lock, flags);
 
@@ -2439,8 +3071,11 @@ int hns_roce_v1_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
 		*hr_cq->tptr_addr = hr_cq->cons_index &
 			((hr_cq->cq_depth << 1) - 1);
 
+<<<<<<< HEAD
 		/* Memroy barrier */
 		wmb();
+=======
+>>>>>>> upstream/android-13
 		hns_roce_v1_cq_set_ci(hr_cq, hr_cq->cons_index);
 	}
 
@@ -2456,6 +3091,7 @@ static int hns_roce_v1_clear_hem(struct hns_roce_dev *hr_dev,
 				 struct hns_roce_hem_table *table, int obj,
 				 int step_idx)
 {
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_v1_priv *priv;
 	unsigned long end = 0, flags = 0;
@@ -2479,6 +3115,24 @@ static int hns_roce_v1_clear_hem(struct hns_roce_dev *hr_dev,
 	case HEM_TYPE_CQC:
 		roce_set_field(bt_cmd_val[1], ROCEE_BT_CMD_H_ROCEE_BT_CMD_MDF_M,
 			ROCEE_BT_CMD_H_ROCEE_BT_CMD_MDF_S, HEM_TYPE_CQC);
+=======
+	struct hns_roce_v1_priv *priv = hr_dev->priv;
+	struct device *dev = &hr_dev->pdev->dev;
+	long end = HW_SYNC_TIMEOUT_MSECS;
+	__le32 bt_cmd_val[2] = {0};
+	unsigned long flags = 0;
+	void __iomem *bt_cmd;
+	u64 bt_ba = 0;
+
+	switch (table->type) {
+	case HEM_TYPE_QPC:
+		bt_ba = priv->bt_table.qpc_buf.map >> 12;
+		break;
+	case HEM_TYPE_MTPT:
+		bt_ba = priv->bt_table.mtpt_buf.map >> 12;
+		break;
+	case HEM_TYPE_CQC:
+>>>>>>> upstream/android-13
 		bt_ba = priv->bt_table.cqc_buf.map >> 12;
 		break;
 	case HEM_TYPE_SRQC:
@@ -2487,6 +3141,11 @@ static int hns_roce_v1_clear_hem(struct hns_roce_dev *hr_dev,
 	default:
 		return 0;
 	}
+<<<<<<< HEAD
+=======
+	roce_set_field(bt_cmd_val[1], ROCEE_BT_CMD_H_ROCEE_BT_CMD_MDF_M,
+			ROCEE_BT_CMD_H_ROCEE_BT_CMD_MDF_S, table->type);
+>>>>>>> upstream/android-13
 	roce_set_field(bt_cmd_val[1], ROCEE_BT_CMD_H_ROCEE_BT_CMD_IN_MDF_M,
 		ROCEE_BT_CMD_H_ROCEE_BT_CMD_IN_MDF_S, obj);
 	roce_set_bit(bt_cmd_val[1], ROCEE_BT_CMD_H_ROCEE_BT_CMD_S, 0);
@@ -2496,10 +3155,16 @@ static int hns_roce_v1_clear_hem(struct hns_roce_dev *hr_dev,
 
 	bt_cmd = hr_dev->reg_base + ROCEE_BT_CMD_H_REG;
 
+<<<<<<< HEAD
 	end = msecs_to_jiffies(HW_SYNC_TIMEOUT_MSECS) + jiffies;
 	while (1) {
 		if (readl(bt_cmd) >> BT_CMD_SYNC_SHIFT) {
 			if (!(time_before(jiffies, end))) {
+=======
+	while (1) {
+		if (readl(bt_cmd) >> BT_CMD_SYNC_SHIFT) {
+			if (!end) {
+>>>>>>> upstream/android-13
 				dev_err(dev, "Write bt_cmd err,hw_sync is not zero.\n");
 				spin_unlock_irqrestore(&hr_dev->bt_cmd_lock,
 					flags);
@@ -2508,10 +3173,18 @@ static int hns_roce_v1_clear_hem(struct hns_roce_dev *hr_dev,
 		} else {
 			break;
 		}
+<<<<<<< HEAD
 		msleep(HW_SYNC_SLEEP_TIME_INTERVAL);
 	}
 
 	bt_cmd_val[0] = (__le32)bt_ba;
+=======
+		mdelay(HW_SYNC_SLEEP_TIME_INTERVAL);
+		end -= HW_SYNC_SLEEP_TIME_INTERVAL;
+	}
+
+	bt_cmd_val[0] = cpu_to_le32(bt_ba);
+>>>>>>> upstream/android-13
 	roce_set_field(bt_cmd_val[1], ROCEE_BT_CMD_H_ROCEE_BT_CMD_BA_H_M,
 		ROCEE_BT_CMD_H_ROCEE_BT_CMD_BA_H_S, bt_ba >> 32);
 	hns_roce_write64_k(bt_cmd_val, hr_dev->reg_base + ROCEE_BT_CMD_L_REG);
@@ -2522,7 +3195,10 @@ static int hns_roce_v1_clear_hem(struct hns_roce_dev *hr_dev,
 }
 
 static int hns_roce_v1_qp_modify(struct hns_roce_dev *hr_dev,
+<<<<<<< HEAD
 				 struct hns_roce_mtt *mtt,
+=======
+>>>>>>> upstream/android-13
 				 enum hns_roce_qp_state cur_state,
 				 enum hns_roce_qp_state new_state,
 				 struct hns_roce_qp_context *context,
@@ -2569,7 +3245,11 @@ static int hns_roce_v1_qp_modify(struct hns_roce_dev *hr_dev,
 
 	struct hns_roce_cmd_mailbox *mailbox;
 	struct device *dev = &hr_dev->pdev->dev;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (cur_state >= HNS_ROCE_QP_NUM_STATE ||
 	    new_state >= HNS_ROCE_QP_NUM_STATE ||
@@ -2603,6 +3283,31 @@ static int hns_roce_v1_qp_modify(struct hns_roce_dev *hr_dev,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int find_wqe_mtt(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
+			u64 *sq_ba, u64 *rq_ba, dma_addr_t *bt_ba)
+{
+	struct ib_device *ibdev = &hr_dev->ib_dev;
+	int count;
+
+	count = hns_roce_mtr_find(hr_dev, &hr_qp->mtr, 0, sq_ba, 1, bt_ba);
+	if (count < 1) {
+		ibdev_err(ibdev, "Failed to find SQ ba\n");
+		return -ENOBUFS;
+	}
+
+	count = hns_roce_mtr_find(hr_dev, &hr_qp->mtr, hr_qp->rq.offset, rq_ba,
+				  1, NULL);
+	if (!count) {
+		ibdev_err(ibdev, "Failed to find RQ ba\n");
+		return -ENOBUFS;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			     int attr_mask, enum ib_qp_state cur_state,
 			     enum ib_qp_state new_state)
@@ -2610,6 +3315,7 @@ static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 	struct hns_roce_dev *hr_dev = to_hr_dev(ibqp->device);
 	struct hns_roce_qp *hr_qp = to_hr_qp(ibqp);
 	struct hns_roce_sqp_context *context;
+<<<<<<< HEAD
 	struct device *dev = &hr_dev->pdev->dev;
 	dma_addr_t dma_handle = 0;
 	u32 __iomem *addr;
@@ -2617,18 +3323,31 @@ static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 	__le32 tmp;
 	u32 reg_val;
 	u64 *mtts;
+=======
+	dma_addr_t dma_handle = 0;
+	u32 __iomem *addr;
+	u64 sq_ba = 0;
+	u64 rq_ba = 0;
+	__le32 tmp;
+	u32 reg_val;
+>>>>>>> upstream/android-13
 
 	context = kzalloc(sizeof(*context), GFP_KERNEL);
 	if (!context)
 		return -ENOMEM;
 
 	/* Search QP buf's MTTs */
+<<<<<<< HEAD
 	mtts = hns_roce_table_find(hr_dev, &hr_dev->mr_table.mtt_table,
 				   hr_qp->mtt.first_seg, &dma_handle);
 	if (!mtts) {
 		dev_err(dev, "qp buf pa find failed\n");
 		goto out;
 	}
+=======
+	if (find_wqe_mtt(hr_dev, hr_qp, &sq_ba, &rq_ba, &dma_handle))
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (cur_state == IB_QPS_RESET && new_state == IB_QPS_INIT) {
 		roce_set_field(context->qp1c_bytes_4,
@@ -2642,11 +3361,19 @@ static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		roce_set_field(context->qp1c_bytes_4, QP1C_BYTES_4_PD_M,
 			       QP1C_BYTES_4_PD_S, to_hr_pd(ibqp->pd)->pdn);
 
+<<<<<<< HEAD
 		context->sq_rq_bt_l = cpu_to_le32((u32)(dma_handle));
 		roce_set_field(context->qp1c_bytes_12,
 			       QP1C_BYTES_12_SQ_RQ_BT_H_M,
 			       QP1C_BYTES_12_SQ_RQ_BT_H_S,
 			       ((u32)(dma_handle >> 32)));
+=======
+		context->sq_rq_bt_l = cpu_to_le32(dma_handle);
+		roce_set_field(context->qp1c_bytes_12,
+			       QP1C_BYTES_12_SQ_RQ_BT_H_M,
+			       QP1C_BYTES_12_SQ_RQ_BT_H_S,
+			       upper_32_bits(dma_handle));
+>>>>>>> upstream/android-13
 
 		roce_set_field(context->qp1c_bytes_16, QP1C_BYTES_16_RQ_HEAD_M,
 			       QP1C_BYTES_16_RQ_HEAD_S, hr_qp->rq.head);
@@ -2654,7 +3381,11 @@ static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			       QP1C_BYTES_16_PORT_NUM_S, hr_qp->phy_port);
 		roce_set_bit(context->qp1c_bytes_16,
 			     QP1C_BYTES_16_SIGNALING_TYPE_S,
+<<<<<<< HEAD
 			     le32_to_cpu(hr_qp->sq_signal_bits));
+=======
+			     hr_qp->sq_signal_bits);
+>>>>>>> upstream/android-13
 		roce_set_bit(context->qp1c_bytes_16, QP1C_BYTES_16_RQ_BA_FLG_S,
 			     1);
 		roce_set_bit(context->qp1c_bytes_16, QP1C_BYTES_16_SQ_BA_FLG_S,
@@ -2667,14 +3398,22 @@ static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		roce_set_field(context->qp1c_bytes_20, QP1C_BYTES_20_PKEY_IDX_M,
 			       QP1C_BYTES_20_PKEY_IDX_S, attr->pkey_index);
 
+<<<<<<< HEAD
 		rq_pa_start = (u32)hr_qp->rq.offset / PAGE_SIZE;
 		context->cur_rq_wqe_ba_l =
 				cpu_to_le32((u32)(mtts[rq_pa_start]));
+=======
+		context->cur_rq_wqe_ba_l = cpu_to_le32(rq_ba);
+>>>>>>> upstream/android-13
 
 		roce_set_field(context->qp1c_bytes_28,
 			       QP1C_BYTES_28_CUR_RQ_WQE_BA_H_M,
 			       QP1C_BYTES_28_CUR_RQ_WQE_BA_H_S,
+<<<<<<< HEAD
 			       (mtts[rq_pa_start]) >> 32);
+=======
+			       upper_32_bits(rq_ba));
+>>>>>>> upstream/android-13
 		roce_set_field(context->qp1c_bytes_28,
 			       QP1C_BYTES_28_RQ_CUR_IDX_M,
 			       QP1C_BYTES_28_RQ_CUR_IDX_S, 0);
@@ -2688,12 +3427,20 @@ static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			       QP1C_BYTES_32_TX_CQ_NUM_S,
 			       to_hr_cq(ibqp->send_cq)->cqn);
 
+<<<<<<< HEAD
 		context->cur_sq_wqe_ba_l  = cpu_to_le32((u32)mtts[0]);
+=======
+		context->cur_sq_wqe_ba_l = cpu_to_le32(sq_ba);
+>>>>>>> upstream/android-13
 
 		roce_set_field(context->qp1c_bytes_40,
 			       QP1C_BYTES_40_CUR_SQ_WQE_BA_H_M,
 			       QP1C_BYTES_40_CUR_SQ_WQE_BA_H_S,
+<<<<<<< HEAD
 			       (mtts[0]) >> 32);
+=======
+			       upper_32_bits(sq_ba));
+>>>>>>> upstream/android-13
 		roce_set_field(context->qp1c_bytes_40,
 			       QP1C_BYTES_40_SQ_CUR_IDX_M,
 			       QP1C_BYTES_40_SQ_CUR_IDX_S, 0);
@@ -2737,7 +3484,10 @@ static int hns_roce_v1_m_sqp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		hr_qp->rq.tail = 0;
 		hr_qp->sq.head = 0;
 		hr_qp->sq.tail = 0;
+<<<<<<< HEAD
 		hr_qp->sq_next_wqe = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	kfree(context);
@@ -2748,6 +3498,31 @@ out:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static bool check_qp_state(enum ib_qp_state cur_state,
+			   enum ib_qp_state new_state)
+{
+	static const bool sm[][IB_QPS_ERR + 1] = {
+		[IB_QPS_RESET] = { [IB_QPS_RESET] = true,
+				   [IB_QPS_INIT] = true },
+		[IB_QPS_INIT] = { [IB_QPS_RESET] = true,
+				  [IB_QPS_INIT] = true,
+				  [IB_QPS_RTR] = true,
+				  [IB_QPS_ERR] = true },
+		[IB_QPS_RTR] = { [IB_QPS_RESET] = true,
+				 [IB_QPS_RTS] = true,
+				 [IB_QPS_ERR] = true },
+		[IB_QPS_RTS] = { [IB_QPS_RESET] = true, [IB_QPS_ERR] = true },
+		[IB_QPS_SQD] = {},
+		[IB_QPS_SQE] = {},
+		[IB_QPS_ERR] = { [IB_QPS_RESET] = true, [IB_QPS_ERR] = true }
+	};
+
+	return sm[cur_state][new_state];
+}
+
+>>>>>>> upstream/android-13
 static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			    int attr_mask, enum ib_qp_state cur_state,
 			    enum ib_qp_state new_state)
@@ -2760,6 +3535,7 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 	dma_addr_t dma_handle_2 = 0;
 	dma_addr_t dma_handle = 0;
 	__le32 doorbell[2] = {0};
+<<<<<<< HEAD
 	int rq_pa_start = 0;
 	u64 *mtts_2 = NULL;
 	int ret = -EINVAL;
@@ -2769,17 +3545,40 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 	u8 *dmac;
 	u8 *smac;
 
+=======
+	u64 *mtts_2 = NULL;
+	int ret = -EINVAL;
+	u64 sq_ba = 0;
+	u64 rq_ba = 0;
+	u32 port;
+	u32 port_num;
+	u8 *dmac;
+	u8 *smac;
+
+	if (!check_qp_state(cur_state, new_state)) {
+		ibdev_err(ibqp->device,
+			  "not support QP(%u) status from %d to %d\n",
+			  ibqp->qp_num, cur_state, new_state);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	context = kzalloc(sizeof(*context), GFP_KERNEL);
 	if (!context)
 		return -ENOMEM;
 
 	/* Search qp buf's mtts */
+<<<<<<< HEAD
 	mtts = hns_roce_table_find(hr_dev, &hr_dev->mr_table.mtt_table,
 				   hr_qp->mtt.first_seg, &dma_handle);
 	if (mtts == NULL) {
 		dev_err(dev, "qp buf pa find failed\n");
 		goto out;
 	}
+=======
+	if (find_wqe_mtt(hr_dev, hr_qp, &sq_ba, &rq_ba, &dma_handle))
+		goto out;
+>>>>>>> upstream/android-13
 
 	/* Search IRRL's mtts */
 	mtts_2 = hns_roce_table_find(hr_dev, &hr_dev->qp_table.irrl_table,
@@ -2852,7 +3651,10 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		roce_set_field(context->qpc_bytes_16,
 			       QP_CONTEXT_QPC_BYTES_16_QP_NUM_M,
 			       QP_CONTEXT_QPC_BYTES_16_QP_NUM_S, hr_qp->qpn);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	} else if (cur_state == IB_QPS_INIT && new_state == IB_QPS_INIT) {
 		roce_set_field(context->qpc_bytes_4,
 			       QP_CONTEXT_QPC_BYTES_4_TRANSPORT_SERVICE_TYPE_M,
@@ -2934,11 +3736,19 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 
 		dmac = (u8 *)attr->ah_attr.roce.dmac;
 
+<<<<<<< HEAD
 		context->sq_rq_bt_l = cpu_to_le32((u32)(dma_handle));
 		roce_set_field(context->qpc_bytes_24,
 			       QP_CONTEXT_QPC_BYTES_24_SQ_RQ_BT_H_M,
 			       QP_CONTEXT_QPC_BYTES_24_SQ_RQ_BT_H_S,
 			       ((u32)(dma_handle >> 32)));
+=======
+		context->sq_rq_bt_l = cpu_to_le32(dma_handle);
+		roce_set_field(context->qpc_bytes_24,
+			       QP_CONTEXT_QPC_BYTES_24_SQ_RQ_BT_H_M,
+			       QP_CONTEXT_QPC_BYTES_24_SQ_RQ_BT_H_S,
+			       upper_32_bits(dma_handle));
+>>>>>>> upstream/android-13
 		roce_set_bit(context->qpc_bytes_24,
 			     QP_CONTEXT_QPC_BYTE_24_REMOTE_ENABLE_E2E_CREDITS_S,
 			     1);
@@ -2960,7 +3770,11 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			     1);
 		roce_set_bit(context->qpc_bytes_32,
 			     QP_CONTEXT_QPC_BYTE_32_SIGNALING_TYPE_S,
+<<<<<<< HEAD
 			     le32_to_cpu(hr_qp->sq_signal_bits));
+=======
+			     hr_qp->sq_signal_bits);
+>>>>>>> upstream/android-13
 
 		port = (attr_mask & IB_QP_PORT) ? (attr->port_num - 1) :
 			hr_qp->port;
@@ -3037,14 +3851,22 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			       QP_CONTEXT_QPC_BYTES_68_RQ_CUR_INDEX_M,
 			       QP_CONTEXT_QPC_BYTES_68_RQ_CUR_INDEX_S, 0);
 
+<<<<<<< HEAD
 		rq_pa_start = (u32)hr_qp->rq.offset / PAGE_SIZE;
 		context->cur_rq_wqe_ba_l =
 				cpu_to_le32((u32)(mtts[rq_pa_start]));
+=======
+		context->cur_rq_wqe_ba_l = cpu_to_le32(rq_ba);
+>>>>>>> upstream/android-13
 
 		roce_set_field(context->qpc_bytes_76,
 			QP_CONTEXT_QPC_BYTES_76_CUR_RQ_WQE_BA_H_M,
 			QP_CONTEXT_QPC_BYTES_76_CUR_RQ_WQE_BA_H_S,
+<<<<<<< HEAD
 			mtts[rq_pa_start] >> 32);
+=======
+			upper_32_bits(rq_ba));
+>>>>>>> upstream/android-13
 		roce_set_field(context->qpc_bytes_76,
 			       QP_CONTEXT_QPC_BYTES_76_RX_REQ_MSN_M,
 			       QP_CONTEXT_QPC_BYTES_76_RX_REQ_MSN_S, 0);
@@ -3106,8 +3928,12 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			       QP_CONTEXT_QPC_BYTES_156_SL_S,
 			       rdma_ah_get_sl(&attr->ah_attr));
 		hr_qp->sl = rdma_ah_get_sl(&attr->ah_attr);
+<<<<<<< HEAD
 	} else if (cur_state == IB_QPS_RTR &&
 		new_state == IB_QPS_RTS) {
+=======
+	} else if (cur_state == IB_QPS_RTR && new_state == IB_QPS_RTS) {
+>>>>>>> upstream/android-13
 		/* If exist optional param, return error */
 		if ((attr_mask & IB_QP_ALT_PATH) ||
 		    (attr_mask & IB_QP_ACCESS_FLAGS) ||
@@ -3119,12 +3945,20 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		context->rx_cur_sq_wqe_ba_l = cpu_to_le32((u32)(mtts[0]));
+=======
+		context->rx_cur_sq_wqe_ba_l = cpu_to_le32(sq_ba);
+>>>>>>> upstream/android-13
 
 		roce_set_field(context->qpc_bytes_120,
 			       QP_CONTEXT_QPC_BYTES_120_RX_CUR_SQ_WQE_BA_H_M,
 			       QP_CONTEXT_QPC_BYTES_120_RX_CUR_SQ_WQE_BA_H_S,
+<<<<<<< HEAD
 			       (mtts[0]) >> 32);
+=======
+			       upper_32_bits(sq_ba));
+>>>>>>> upstream/android-13
 
 		roce_set_field(context->qpc_bytes_124,
 			       QP_CONTEXT_QPC_BYTES_124_RX_ACK_MSN_M,
@@ -3267,18 +4101,27 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 			       QP_CONTEXT_QPC_BYTES_180_SQ_HEAD_M,
 			       QP_CONTEXT_QPC_BYTES_180_SQ_HEAD_S, 0);
 
+<<<<<<< HEAD
 		context->tx_cur_sq_wqe_ba_l = cpu_to_le32((u32)(mtts[0]));
+=======
+		context->tx_cur_sq_wqe_ba_l = cpu_to_le32(sq_ba);
+>>>>>>> upstream/android-13
 
 		roce_set_field(context->qpc_bytes_188,
 			       QP_CONTEXT_QPC_BYTES_188_TX_CUR_SQ_WQE_BA_H_M,
 			       QP_CONTEXT_QPC_BYTES_188_TX_CUR_SQ_WQE_BA_H_S,
+<<<<<<< HEAD
 			       (mtts[0]) >> 32);
+=======
+			       upper_32_bits(sq_ba));
+>>>>>>> upstream/android-13
 		roce_set_bit(context->qpc_bytes_188,
 			     QP_CONTEXT_QPC_BYTES_188_PKT_RETRY_FLG_S, 0);
 		roce_set_field(context->qpc_bytes_188,
 			       QP_CONTEXT_QPC_BYTES_188_TX_RETRY_CUR_INDEX_M,
 			       QP_CONTEXT_QPC_BYTES_188_TX_RETRY_CUR_INDEX_S,
 			       0);
+<<<<<<< HEAD
 	} else if (!((cur_state == IB_QPS_INIT && new_state == IB_QPS_RESET) ||
 		   (cur_state == IB_QPS_INIT && new_state == IB_QPS_ERR) ||
 		   (cur_state == IB_QPS_RTR && new_state == IB_QPS_RESET) ||
@@ -3289,6 +4132,8 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		   (cur_state == IB_QPS_ERR && new_state == IB_QPS_ERR))) {
 		dev_err(dev, "not support this status migration\n");
 		goto out;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* Every status migrate must change state */
@@ -3297,8 +4142,12 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		       QP_CONTEXT_QPC_BYTES_144_QP_STATE_S, new_state);
 
 	/* SW pass context to HW */
+<<<<<<< HEAD
 	ret = hns_roce_v1_qp_modify(hr_dev, &hr_qp->mtt,
 				    to_hns_roce_state(cur_state),
+=======
+	ret = hns_roce_v1_qp_modify(hr_dev, to_hns_roce_state(cur_state),
+>>>>>>> upstream/android-13
 				    to_hns_roce_state(new_state), context,
 				    hr_qp);
 	if (ret) {
@@ -3311,9 +4160,12 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 	 * need to hw to flash RQ HEAD by DB again
 	 */
 	if (cur_state == IB_QPS_INIT && new_state == IB_QPS_INIT) {
+<<<<<<< HEAD
 		/* Memory barrier */
 		wmb();
 
+=======
+>>>>>>> upstream/android-13
 		roce_set_field(doorbell[0], RQ_DOORBELL_U32_4_RQ_HEAD_M,
 			       RQ_DOORBELL_U32_4_RQ_HEAD_S, hr_qp->rq.head);
 		roce_set_field(doorbell[1], RQ_DOORBELL_U32_8_QPN_M,
@@ -3323,12 +4175,20 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		roce_set_bit(doorbell[1], RQ_DOORBELL_U32_8_HW_SYNC_S, 1);
 
 		if (ibqp->uobject) {
+<<<<<<< HEAD
 			hr_qp->rq.db_reg_l = hr_dev->reg_base +
+=======
+			hr_qp->rq.db_reg = hr_dev->reg_base +
+>>>>>>> upstream/android-13
 				     hr_dev->odb_offset +
 				     DB_REG_OFFSET * hr_dev->priv_uar.index;
 		}
 
+<<<<<<< HEAD
 		hns_roce_write64_k(doorbell, hr_qp->rq.db_reg_l);
+=======
+		hns_roce_write64_k(doorbell, hr_qp->rq.db_reg);
+>>>>>>> upstream/android-13
 	}
 
 	hr_qp->state = new_state;
@@ -3351,7 +4211,10 @@ static int hns_roce_v1_m_qp(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
 		hr_qp->rq.tail = 0;
 		hr_qp->sq.head = 0;
 		hr_qp->sq.tail = 0;
+<<<<<<< HEAD
 		hr_qp->sq_next_wqe = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 out:
 	kfree(context);
@@ -3363,6 +4226,11 @@ static int hns_roce_v1_modify_qp(struct ib_qp *ibqp,
 				 enum ib_qp_state cur_state,
 				 enum ib_qp_state new_state)
 {
+<<<<<<< HEAD
+=======
+	if (attr_mask & ~IB_QP_ATTR_STANDARD_BITS)
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	if (ibqp->qp_type == IB_QPT_GSI || ibqp->qp_type == IB_QPT_SMI)
 		return hns_roce_v1_m_sqp(ibqp, attr, attr_mask, cur_state,
@@ -3494,7 +4362,11 @@ static int hns_roce_v1_q_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
 	struct hns_roce_qp *hr_qp = to_hr_qp(ibqp);
 	struct device *dev = &hr_dev->pdev->dev;
 	struct hns_roce_qp_context *context;
+<<<<<<< HEAD
 	int tmp_qp_state = 0;
+=======
+	int tmp_qp_state;
+>>>>>>> upstream/android-13
 	int ret = 0;
 	int state;
 
@@ -3554,8 +4426,12 @@ static int hns_roce_v1_q_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
 				   ((roce_get_bit(context->qpc_bytes_4,
 			QP_CONTEXT_QPC_BYTE_4_ATOMIC_OPERATION_ENABLE_S)) << 3);
 
+<<<<<<< HEAD
 	if (hr_qp->ibqp.qp_type == IB_QPT_RC ||
 	    hr_qp->ibqp.qp_type == IB_QPT_UC) {
+=======
+	if (hr_qp->ibqp.qp_type == IB_QPT_RC) {
+>>>>>>> upstream/android-13
 		struct ib_global_route *grh =
 			rdma_ah_retrieve_grh(&qp_attr->ah_attr);
 
@@ -3605,7 +4481,11 @@ static int hns_roce_v1_q_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
 	qp_attr->retry_cnt = roce_get_field(context->qpc_bytes_148,
 			     QP_CONTEXT_QPC_BYTES_148_RETRY_COUNT_M,
 			     QP_CONTEXT_QPC_BYTES_148_RETRY_COUNT_S);
+<<<<<<< HEAD
 	qp_attr->rnr_retry = (u8)context->rnr_retry;
+=======
+	qp_attr->rnr_retry = (u8)le32_to_cpu(context->rnr_retry);
+>>>>>>> upstream/android-13
 
 done:
 	qp_attr->cur_qp_state = qp_attr->qp_state;
@@ -3639,6 +4519,7 @@ static int hns_roce_v1_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
 		hns_roce_v1_q_qp(ibqp, qp_attr, qp_attr_mask, qp_init_attr);
 }
 
+<<<<<<< HEAD
 static void hns_roce_check_sdb_status(struct hns_roce_dev *hr_dev,
 				      u32 *old_send, u32 *old_retry,
 				      u32 *tsp_st, u32 *success_flags)
@@ -3989,22 +4870,61 @@ int hns_roce_v1_destroy_qp(struct ib_qp *ibqp)
 		queue_work(priv->des_qp.qp_wq, &qp_work->work);
 		dev_dbg(dev, "Begin destroy QP(0x%lx) work.\n", hr_qp->qpn);
 	}
+=======
+int hns_roce_v1_destroy_qp(struct ib_qp *ibqp, struct ib_udata *udata)
+{
+	struct hns_roce_dev *hr_dev = to_hr_dev(ibqp->device);
+	struct hns_roce_qp *hr_qp = to_hr_qp(ibqp);
+	struct hns_roce_cq *send_cq, *recv_cq;
+	int ret;
+
+	ret = hns_roce_v1_modify_qp(ibqp, NULL, 0, hr_qp->state, IB_QPS_RESET);
+	if (ret)
+		return ret;
+
+	send_cq = hr_qp->ibqp.send_cq ? to_hr_cq(hr_qp->ibqp.send_cq) : NULL;
+	recv_cq = hr_qp->ibqp.recv_cq ? to_hr_cq(hr_qp->ibqp.recv_cq) : NULL;
+
+	hns_roce_lock_cqs(send_cq, recv_cq);
+	if (!udata) {
+		if (recv_cq)
+			__hns_roce_v1_cq_clean(recv_cq, hr_qp->qpn,
+					       (hr_qp->ibqp.srq ?
+						to_hr_srq(hr_qp->ibqp.srq) :
+						NULL));
+
+		if (send_cq && send_cq != recv_cq)
+			__hns_roce_v1_cq_clean(send_cq, hr_qp->qpn, NULL);
+	}
+	hns_roce_qp_remove(hr_dev, hr_qp);
+	hns_roce_unlock_cqs(send_cq, recv_cq);
+
+	hns_roce_qp_destroy(hr_dev, hr_qp, udata);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hns_roce_v1_destroy_cq(struct ib_cq *ibcq)
+=======
+static int hns_roce_v1_destroy_cq(struct ib_cq *ibcq, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct hns_roce_dev *hr_dev = to_hr_dev(ibcq->device);
 	struct hns_roce_cq *hr_cq = to_hr_cq(ibcq);
 	struct device *dev = &hr_dev->pdev->dev;
 	u32 cqe_cnt_ori;
 	u32 cqe_cnt_cur;
+<<<<<<< HEAD
 	u32 cq_buf_size;
 	int wait_time = 0;
 	int ret = 0;
 
 	hns_roce_free_cq(hr_dev, hr_cq);
+=======
+	int wait_time = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Before freeing cq buffer, we need to ensure that the outstanding CQE
@@ -4024,11 +4944,15 @@ static int hns_roce_v1_destroy_cq(struct ib_cq *ibcq)
 		if (wait_time > HNS_ROCE_MAX_FREE_CQ_WAIT_CNT) {
 			dev_warn(dev, "Destroy cq 0x%lx timeout!\n",
 				hr_cq->cqn);
+<<<<<<< HEAD
 			ret = -ETIMEDOUT;
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 		wait_time++;
 	}
+<<<<<<< HEAD
 
 	hns_roce_mtt_cleanup(hr_dev, &hr_cq->hr_buf.hr_mtt);
 
@@ -4049,6 +4973,15 @@ static void set_eq_cons_index_v1(struct hns_roce_eq *eq, int req_not)
 {
 	roce_raw_write((eq->cons_index & HNS_ROCE_V1_CONS_IDX_M) |
 		      (req_not << eq->log_entries), eq->doorbell);
+=======
+	return 0;
+}
+
+static void set_eq_cons_index_v1(struct hns_roce_eq *eq, u32 req_not)
+{
+	roce_raw_write((eq->cons_index & HNS_ROCE_V1_CONS_IDX_M) |
+		       (req_not << eq->log_entries), eq->db_reg);
+>>>>>>> upstream/android-13
 }
 
 static void hns_roce_v1_wq_catas_err_handle(struct hns_roce_dev *hr_dev,
@@ -4128,10 +5061,17 @@ static void hns_roce_v1_qp_err_handle(struct hns_roce_dev *hr_dev,
 	int phy_port;
 	int qpn;
 
+<<<<<<< HEAD
 	qpn = roce_get_field(aeqe->event.qp_event.qp,
 			     HNS_ROCE_AEQE_EVENT_QP_EVENT_QP_QPN_M,
 			     HNS_ROCE_AEQE_EVENT_QP_EVENT_QP_QPN_S);
 	phy_port = roce_get_field(aeqe->event.qp_event.qp,
+=======
+	qpn = roce_get_field(aeqe->event.queue_event.num,
+			     HNS_ROCE_AEQE_EVENT_QP_EVENT_QP_QPN_M,
+			     HNS_ROCE_AEQE_EVENT_QP_EVENT_QP_QPN_S);
+	phy_port = roce_get_field(aeqe->event.queue_event.num,
+>>>>>>> upstream/android-13
 				  HNS_ROCE_AEQE_EVENT_QP_EVENT_PORT_NUM_M,
 				  HNS_ROCE_AEQE_EVENT_QP_EVENT_PORT_NUM_S);
 	if (qpn <= 1)
@@ -4162,9 +5102,15 @@ static void hns_roce_v1_cq_err_handle(struct hns_roce_dev *hr_dev,
 	struct device *dev = &hr_dev->pdev->dev;
 	u32 cqn;
 
+<<<<<<< HEAD
 	cqn = roce_get_field(aeqe->event.cq_event.cq,
 			  HNS_ROCE_AEQE_EVENT_CQ_EVENT_CQ_CQN_M,
 			  HNS_ROCE_AEQE_EVENT_CQ_EVENT_CQ_CQN_S);
+=======
+	cqn = roce_get_field(aeqe->event.queue_event.num,
+			     HNS_ROCE_AEQE_EVENT_CQ_EVENT_CQ_CQN_M,
+			     HNS_ROCE_AEQE_EVENT_CQ_EVENT_CQ_CQN_S);
+>>>>>>> upstream/android-13
 
 	switch (event_type) {
 	case HNS_ROCE_EVENT_TYPE_CQ_ACCESS_ERROR:
@@ -4215,8 +5161,12 @@ static void hns_roce_v1_db_overflow_handle(struct hns_roce_dev *hr_dev,
 
 static struct hns_roce_aeqe *get_aeqe_v1(struct hns_roce_eq *eq, u32 entry)
 {
+<<<<<<< HEAD
 	unsigned long off = (entry & (eq->entries - 1)) *
 			     HNS_ROCE_AEQ_ENTRY_SIZE;
+=======
+	unsigned long off = (entry & (eq->entries - 1)) * HNS_ROCE_AEQE_SIZE;
+>>>>>>> upstream/android-13
 
 	return (struct hns_roce_aeqe *)((u8 *)
 		(eq->buf_list[off / HNS_ROCE_BA_SIZE].buf) +
@@ -4240,13 +5190,21 @@ static int hns_roce_v1_aeq_int(struct hns_roce_dev *hr_dev,
 	int event_type;
 
 	while ((aeqe = next_aeqe_sw_v1(eq))) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/* Make sure we read the AEQ entry after we have checked the
 		 * ownership bit
 		 */
 		dma_rmb();
 
+<<<<<<< HEAD
 		dev_dbg(dev, "aeqe = %p, aeqe->asyn.event_type = 0x%lx\n", aeqe,
+=======
+		dev_dbg(dev, "aeqe = %pK, aeqe->asyn.event_type = 0x%lx\n",
+			aeqe,
+>>>>>>> upstream/android-13
 			roce_get_field(aeqe->asyn,
 				       HNS_ROCE_AEQE_U32_4_EVENT_TYPE_M,
 				       HNS_ROCE_AEQE_U32_4_EVENT_TYPE_S));
@@ -4294,12 +5252,15 @@ static int hns_roce_v1_aeq_int(struct hns_roce_dev *hr_dev,
 		case HNS_ROCE_EVENT_TYPE_DB_OVERFLOW:
 			hns_roce_v1_db_overflow_handle(hr_dev, aeqe);
 			break;
+<<<<<<< HEAD
 		case HNS_ROCE_EVENT_TYPE_CEQ_OVERFLOW:
 			dev_warn(dev, "CEQ 0x%lx overflow.\n",
 			roce_get_field(aeqe->event.ce_event.ceqe,
 				     HNS_ROCE_AEQE_EVENT_CE_EVENT_CEQE_CEQN_M,
 				     HNS_ROCE_AEQE_EVENT_CE_EVENT_CEQE_CEQN_S));
 			break;
+=======
+>>>>>>> upstream/android-13
 		default:
 			dev_warn(dev, "Unhandled event %d on EQ %d at idx %u.\n",
 				 event_type, eq->eqn, eq->cons_index);
@@ -4309,10 +5270,15 @@ static int hns_roce_v1_aeq_int(struct hns_roce_dev *hr_dev,
 		eq->cons_index++;
 		aeqes_found = 1;
 
+<<<<<<< HEAD
 		if (eq->cons_index > 2 * hr_dev->caps.aeqe_depth - 1) {
 			dev_warn(dev, "cons_index overflow, set back to 0.\n");
 			eq->cons_index = 0;
 		}
+=======
+		if (eq->cons_index > 2 * hr_dev->caps.aeqe_depth - 1)
+			eq->cons_index = 0;
+>>>>>>> upstream/android-13
 	}
 
 	set_eq_cons_index_v1(eq, 0);
@@ -4322,8 +5288,12 @@ static int hns_roce_v1_aeq_int(struct hns_roce_dev *hr_dev,
 
 static struct hns_roce_ceqe *get_ceqe_v1(struct hns_roce_eq *eq, u32 entry)
 {
+<<<<<<< HEAD
 	unsigned long off = (entry & (eq->entries - 1)) *
 			     HNS_ROCE_CEQ_ENTRY_SIZE;
+=======
+	unsigned long off = (entry & (eq->entries - 1)) * HNS_ROCE_CEQE_SIZE;
+>>>>>>> upstream/android-13
 
 	return (struct hns_roce_ceqe *)((u8 *)
 			(eq->buf_list[off / HNS_ROCE_BA_SIZE].buf) +
@@ -4347,7 +5317,10 @@ static int hns_roce_v1_ceq_int(struct hns_roce_dev *hr_dev,
 	u32 cqn;
 
 	while ((ceqe = next_ceqe_sw_v1(eq))) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/* Make sure we read CEQ entry after we have checked the
 		 * ownership bit
 		 */
@@ -4361,11 +5334,17 @@ static int hns_roce_v1_ceq_int(struct hns_roce_dev *hr_dev,
 		++eq->cons_index;
 		ceqes_found = 1;
 
+<<<<<<< HEAD
 		if (eq->cons_index > 2 * hr_dev->caps.ceqe_depth - 1) {
 			dev_warn(&eq->hr_dev->pdev->dev,
 				"cons_index overflow, set back to 0.\n");
 			eq->cons_index = 0;
 		}
+=======
+		if (eq->cons_index >
+		    EQ_DEPTH_COEFF * hr_dev->caps.ceqe_depth - 1)
+			eq->cons_index = 0;
+>>>>>>> upstream/android-13
 	}
 
 	set_eq_cons_index_v1(eq, 0);
@@ -4377,7 +5356,11 @@ static irqreturn_t hns_roce_v1_msix_interrupt_eq(int irq, void *eq_ptr)
 {
 	struct hns_roce_eq  *eq  = eq_ptr;
 	struct hns_roce_dev *hr_dev = eq->hr_dev;
+<<<<<<< HEAD
 	int int_work = 0;
+=======
+	int int_work;
+>>>>>>> upstream/android-13
 
 	if (eq->type_flag == HNS_ROCE_CEQ)
 		/* CEQ irq routine, CEQ is pulse irq, not clear */
@@ -4575,9 +5558,15 @@ static int hns_roce_v1_create_eq(struct hns_roce_dev *hr_dev,
 	void __iomem *eqc = hr_dev->eq_table.eqc_base[eq->eqn];
 	struct device *dev = &hr_dev->pdev->dev;
 	dma_addr_t tmp_dma_addr;
+<<<<<<< HEAD
 	u32 eqconsindx_val = 0;
 	u32 eqcuridx_val = 0;
 	u32 eqshift_val = 0;
+=======
+	u32 eqcuridx_val;
+	u32 eqconsindx_val;
+	u32 eqshift_val;
+>>>>>>> upstream/android-13
 	__le32 tmp2 = 0;
 	__le32 tmp1 = 0;
 	__le32 tmp = 0;
@@ -4609,7 +5598,10 @@ static int hns_roce_v1_create_eq(struct hns_roce_dev *hr_dev,
 		}
 
 		eq->buf_list[i].map = tmp_dma_addr;
+<<<<<<< HEAD
 		memset(eq->buf_list[i].buf, 0, HNS_ROCE_BA_SIZE);
+=======
+>>>>>>> upstream/android-13
 	}
 	eq->cons_index = 0;
 	roce_set_field(tmp, ROCEE_CAEP_AEQC_AEQE_SHIFT_CAEP_AEQC_STATE_M,
@@ -4628,7 +5620,11 @@ static int hns_roce_v1_create_eq(struct hns_roce_dev *hr_dev,
 	 * Configure eq extended address 45~49 bit.
 	 * 44 = 32 + 12, When evaluating addr to hardware, shift 12 because of
 	 * using 4K page, and shift more 32 because of
+<<<<<<< HEAD
 	 * caculating the high 32 bit value evaluated to hardware.
+=======
+	 * calculating the high 32 bit value evaluated to hardware.
+>>>>>>> upstream/android-13
 	 */
 	roce_set_field(tmp1, ROCEE_CAEP_AEQE_CUR_IDX_CAEP_AEQ_BT_H_M,
 		       ROCEE_CAEP_AEQE_CUR_IDX_CAEP_AEQ_BT_H_S,
@@ -4692,22 +5688,39 @@ static int hns_roce_v1_init_eq_table(struct hns_roce_dev *hr_dev)
 						ROCEE_CAEP_CEQC_SHIFT_0_REG +
 						CEQ_REG_OFFSET * i;
 			eq->type_flag = HNS_ROCE_CEQ;
+<<<<<<< HEAD
 			eq->doorbell = hr_dev->reg_base +
 				       ROCEE_CAEP_CEQC_CONS_IDX_0_REG +
 				       CEQ_REG_OFFSET * i;
 			eq->entries = hr_dev->caps.ceqe_depth;
 			eq->log_entries = ilog2(eq->entries);
 			eq->eqe_size = HNS_ROCE_CEQ_ENTRY_SIZE;
+=======
+			eq->db_reg = hr_dev->reg_base +
+				     ROCEE_CAEP_CEQC_CONS_IDX_0_REG +
+				     CEQ_REG_OFFSET * i;
+			eq->entries = hr_dev->caps.ceqe_depth;
+			eq->log_entries = ilog2(eq->entries);
+			eq->eqe_size = HNS_ROCE_CEQE_SIZE;
+>>>>>>> upstream/android-13
 		} else {
 			/* AEQ */
 			eq_table->eqc_base[i] = hr_dev->reg_base +
 						ROCEE_CAEP_AEQC_AEQE_SHIFT_REG;
 			eq->type_flag = HNS_ROCE_AEQ;
+<<<<<<< HEAD
 			eq->doorbell = hr_dev->reg_base +
 				       ROCEE_CAEP_AEQE_CONS_IDX_REG;
 			eq->entries = hr_dev->caps.aeqe_depth;
 			eq->log_entries = ilog2(eq->entries);
 			eq->eqe_size = HNS_ROCE_AEQ_ENTRY_SIZE;
+=======
+			eq->db_reg = hr_dev->reg_base +
+				     ROCEE_CAEP_AEQE_CONS_IDX_REG;
+			eq->entries = hr_dev->caps.aeqe_depth;
+			eq->log_entries = ilog2(eq->entries);
+			eq->eqe_size = HNS_ROCE_AEQE_SIZE;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -4792,18 +5805,35 @@ static void hns_roce_v1_cleanup_eq_table(struct hns_roce_dev *hr_dev)
 	kfree(eq_table->eq);
 }
 
+<<<<<<< HEAD
+=======
+static const struct ib_device_ops hns_roce_v1_dev_ops = {
+	.destroy_qp = hns_roce_v1_destroy_qp,
+	.poll_cq = hns_roce_v1_poll_cq,
+	.post_recv = hns_roce_v1_post_recv,
+	.post_send = hns_roce_v1_post_send,
+	.query_qp = hns_roce_v1_query_qp,
+	.req_notify_cq = hns_roce_v1_req_notify_cq,
+};
+
+>>>>>>> upstream/android-13
 static const struct hns_roce_hw hns_roce_hw_v1 = {
 	.reset = hns_roce_v1_reset,
 	.hw_profile = hns_roce_v1_profile,
 	.hw_init = hns_roce_v1_init,
 	.hw_exit = hns_roce_v1_exit,
 	.post_mbox = hns_roce_v1_post_mbox,
+<<<<<<< HEAD
 	.chk_mbox = hns_roce_v1_chk_mbox,
+=======
+	.poll_mbox_done = hns_roce_v1_chk_mbox,
+>>>>>>> upstream/android-13
 	.set_gid = hns_roce_v1_set_gid,
 	.set_mac = hns_roce_v1_set_mac,
 	.set_mtu = hns_roce_v1_set_mtu,
 	.write_mtpt = hns_roce_v1_write_mtpt,
 	.write_cqc = hns_roce_v1_write_cqc,
+<<<<<<< HEAD
 	.modify_cq = hns_roce_v1_modify_cq,
 	.clear_hem = hns_roce_v1_clear_hem,
 	.modify_qp = hns_roce_v1_modify_qp,
@@ -4813,10 +5843,19 @@ static const struct hns_roce_hw hns_roce_hw_v1 = {
 	.post_recv = hns_roce_v1_post_recv,
 	.req_notify_cq = hns_roce_v1_req_notify_cq,
 	.poll_cq = hns_roce_v1_poll_cq,
+=======
+	.set_hem = hns_roce_v1_set_hem,
+	.clear_hem = hns_roce_v1_clear_hem,
+	.modify_qp = hns_roce_v1_modify_qp,
+>>>>>>> upstream/android-13
 	.dereg_mr = hns_roce_v1_dereg_mr,
 	.destroy_cq = hns_roce_v1_destroy_cq,
 	.init_eq = hns_roce_v1_init_eq_table,
 	.cleanup_eq = hns_roce_v1_cleanup_eq_table,
+<<<<<<< HEAD
+=======
+	.hns_roce_dev_ops = &hns_roce_v1_dev_ops,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id hns_roce_of_match[] = {
@@ -4831,19 +5870,26 @@ static const struct acpi_device_id hns_roce_acpi_match[] = {
 };
 MODULE_DEVICE_TABLE(acpi, hns_roce_acpi_match);
 
+<<<<<<< HEAD
 static int hns_roce_node_match(struct device *dev, void *fwnode)
 {
 	return dev->fwnode == fwnode;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct
 platform_device *hns_roce_find_pdev(struct fwnode_handle *fwnode)
 {
 	struct device *dev;
 
 	/* get the 'device' corresponding to the matching 'fwnode' */
+<<<<<<< HEAD
 	dev = bus_find_device(&platform_bus_type, NULL,
 			      fwnode, hns_roce_node_match);
+=======
+	dev = bus_find_device_by_fwnode(&platform_bus_type, fwnode);
+>>>>>>> upstream/android-13
 	/* get the platform device */
 	return dev ? to_platform_device(dev) : NULL;
 }
@@ -4854,7 +5900,10 @@ static int hns_roce_get_cfg(struct hns_roce_dev *hr_dev)
 	struct platform_device *pdev = NULL;
 	struct net_device *netdev = NULL;
 	struct device_node *net_node;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int port_cnt = 0;
 	u8 phy_port;
 	int ret;
@@ -4893,8 +5942,12 @@ static int hns_roce_get_cfg(struct hns_roce_dev *hr_dev)
 	}
 
 	/* get the mapped register base address */
+<<<<<<< HEAD
 	res = platform_get_resource(hr_dev->pdev, IORESOURCE_MEM, 0);
 	hr_dev->reg_base = devm_ioremap_resource(dev, res);
+=======
+	hr_dev->reg_base = devm_platform_ioremap_resource(hr_dev->pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hr_dev->reg_base))
 		return PTR_ERR(hr_dev->reg_base);
 
@@ -4969,10 +6022,15 @@ static int hns_roce_get_cfg(struct hns_roce_dev *hr_dev)
 	/* fetch the interrupt numbers */
 	for (i = 0; i < HNS_ROCE_V1_MAX_IRQ_NUM; i++) {
 		hr_dev->irq[i] = platform_get_irq(hr_dev->pdev, i);
+<<<<<<< HEAD
 		if (hr_dev->irq[i] <= 0) {
 			dev_err(dev, "platform get of irq[=%d] failed!\n", i);
 			return -EINVAL;
 		}
+=======
+		if (hr_dev->irq[i] <= 0)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -4990,7 +6048,11 @@ static int hns_roce_probe(struct platform_device *pdev)
 	struct hns_roce_dev *hr_dev;
 	struct device *dev = &pdev->dev;
 
+<<<<<<< HEAD
 	hr_dev = (struct hns_roce_dev *)ib_alloc_device(sizeof(*hr_dev));
+=======
+	hr_dev = ib_alloc_device(hns_roce_dev, ib_dev);
+>>>>>>> upstream/android-13
 	if (!hr_dev)
 		return -ENOMEM;
 

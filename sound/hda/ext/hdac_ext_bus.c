@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  hdac-ext-bus.c - HD-audio extended core bus functions.
  *
@@ -5,6 +9,7 @@
  *  Author: Jeeja KP <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -14,6 +19,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -25,6 +32,7 @@
 MODULE_DESCRIPTION("HDA extended core");
 MODULE_LICENSE("GPL v2");
 
+<<<<<<< HEAD
 static void hdac_ext_writel(u32 value, u32 __iomem *addr)
 {
 	writel(value, addr);
@@ -84,11 +92,20 @@ static const struct hdac_io_ops hdac_ext_default_io = {
  * @ops: bus verb operators
  * @io_ops: lowlevel I/O operators, can be NULL. If NULL core will use
  * default ops
+=======
+/**
+ * snd_hdac_ext_bus_init - initialize a HD-audio extended bus
+ * @bus: the pointer to HDAC bus object
+ * @dev: device pointer
+ * @ops: bus verb operators
+ * @ext_ops: operators used for ASoC HDA codec drivers
+>>>>>>> upstream/android-13
  *
  * Returns 0 if successful, or a negative error code.
  */
 int snd_hdac_ext_bus_init(struct hdac_bus *bus, struct device *dev,
 			const struct hdac_bus_ops *ops,
+<<<<<<< HEAD
 			const struct hdac_io_ops *io_ops,
 			const struct hdac_ext_bus_ops *ext_ops)
 {
@@ -100,14 +117,30 @@ int snd_hdac_ext_bus_init(struct hdac_bus *bus, struct device *dev,
 		io_ops = &hdac_ext_default_io;
 
 	ret = snd_hdac_bus_init(bus, dev, ops, io_ops);
+=======
+			const struct hdac_ext_bus_ops *ext_ops)
+{
+	int ret;
+
+	ret = snd_hdac_bus_init(bus, dev, ops);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	bus->ext_ops = ext_ops;
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&bus->hlink_list);
 	bus->idx = idx++;
 
 	mutex_init(&bus->lock);
+=======
+	/* FIXME:
+	 * Currently only one bus is supported, if there is device with more
+	 * buses, bus->idx should be greater than 0, but there needs to be a
+	 * reliable way to always assign same number.
+	 */
+	bus->idx = 0;
+>>>>>>> upstream/android-13
 	bus->cmd_dma_state = true;
 
 	return 0;
@@ -116,7 +149,11 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_bus_init);
 
 /**
  * snd_hdac_ext_bus_exit - clean up a HD-audio extended bus
+<<<<<<< HEAD
  * @ebus: the pointer to extended bus object
+=======
+ * @bus: the pointer to HDAC bus object
+>>>>>>> upstream/android-13
  */
 void snd_hdac_ext_bus_exit(struct hdac_bus *bus)
 {
@@ -127,18 +164,33 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_bus_exit);
 
 static void default_release(struct device *dev)
 {
+<<<<<<< HEAD
 	snd_hdac_ext_bus_device_exit(container_of(dev, struct hdac_device, dev));
+=======
+	snd_hdac_ext_bus_device_exit(dev_to_hdac_dev(dev));
+>>>>>>> upstream/android-13
 }
 
 /**
  * snd_hdac_ext_bus_device_init - initialize the HDA extended codec base device
+<<<<<<< HEAD
  * @ebus: hdac extended bus to attach to
  * @addr: codec address
+=======
+ * @bus: hdac bus to attach to
+ * @addr: codec address
+ * @hdev: hdac device to init
+ * @type: codec type (HDAC_DEV_*) to use for this device
+>>>>>>> upstream/android-13
  *
  * Returns zero for success or a negative error code.
  */
 int snd_hdac_ext_bus_device_init(struct hdac_bus *bus, int addr,
+<<<<<<< HEAD
 					struct hdac_device *hdev)
+=======
+				 struct hdac_device *hdev, int type)
+>>>>>>> upstream/android-13
 {
 	char name[15];
 	int ret;
@@ -152,7 +204,11 @@ int snd_hdac_ext_bus_device_init(struct hdac_bus *bus, int addr,
 		dev_err(bus->dev, "device init failed for hdac device\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	hdev->type = HDA_DEV_ASOC;
+=======
+	hdev->type = type;
+>>>>>>> upstream/android-13
 	hdev->dev.release = default_release;
 
 	ret = snd_hdac_device_register(hdev);
@@ -179,7 +235,11 @@ EXPORT_SYMBOL_GPL(snd_hdac_ext_bus_device_exit);
 /**
  * snd_hdac_ext_bus_device_remove - remove HD-audio extended codec base devices
  *
+<<<<<<< HEAD
  * @ebus: HD-audio extended bus
+=======
+ * @bus: the pointer to HDAC bus object
+>>>>>>> upstream/android-13
  */
 void snd_hdac_ext_bus_device_remove(struct hdac_bus *bus)
 {

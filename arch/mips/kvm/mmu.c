@@ -25,6 +25,7 @@
 #define KVM_MMU_CACHE_MIN_PAGES 2
 #endif
 
+<<<<<<< HEAD
 static int mmu_topup_memory_cache(struct kvm_mmu_memory_cache *cache,
 				  int min, int max)
 {
@@ -60,6 +61,11 @@ static void *mmu_memory_cache_alloc(struct kvm_mmu_memory_cache *mc)
 void kvm_mmu_free_memory_caches(struct kvm_vcpu *vcpu)
 {
 	mmu_free_memory_cache(&vcpu->arch.mmu_page_cache);
+=======
+void kvm_mmu_free_memory_caches(struct kvm_vcpu *vcpu)
+{
+	kvm_mmu_free_memory_cache(&vcpu->arch.mmu_page_cache);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -136,6 +142,10 @@ pgd_t *kvm_pgd_alloc(void)
 static pte_t *kvm_mips_walk_pgd(pgd_t *pgd, struct kvm_mmu_memory_cache *cache,
 				unsigned long addr)
 {
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	pmd_t *pmd;
 
@@ -145,13 +155,22 @@ static pte_t *kvm_mips_walk_pgd(pgd_t *pgd, struct kvm_mmu_memory_cache *cache,
 		BUG();
 		return NULL;
 	}
+<<<<<<< HEAD
 	pud = pud_offset(pgd, addr);
+=======
+	p4d = p4d_offset(pgd, addr);
+	pud = pud_offset(p4d, addr);
+>>>>>>> upstream/android-13
 	if (pud_none(*pud)) {
 		pmd_t *new_pmd;
 
 		if (!cache)
 			return NULL;
+<<<<<<< HEAD
 		new_pmd = mmu_memory_cache_alloc(cache);
+=======
+		new_pmd = kvm_mmu_memory_cache_alloc(cache);
+>>>>>>> upstream/android-13
 		pmd_init((unsigned long)new_pmd,
 			 (unsigned long)invalid_pte_table);
 		pud_populate(NULL, pud, new_pmd);
@@ -162,11 +181,19 @@ static pte_t *kvm_mips_walk_pgd(pgd_t *pgd, struct kvm_mmu_memory_cache *cache,
 
 		if (!cache)
 			return NULL;
+<<<<<<< HEAD
 		new_pte = mmu_memory_cache_alloc(cache);
 		clear_page(new_pte);
 		pmd_populate_kernel(NULL, pmd, new_pte);
 	}
 	return pte_offset(pmd, addr);
+=======
+		new_pte = kvm_mmu_memory_cache_alloc(cache);
+		clear_page(new_pte);
+		pmd_populate_kernel(NULL, pmd, new_pte);
+	}
+	return pte_offset_kernel(pmd, addr);
+>>>>>>> upstream/android-13
 }
 
 /* Caller must hold kvm->mm_lock */
@@ -185,8 +212,13 @@ static pte_t *kvm_mips_pte_for_gpa(struct kvm *kvm,
 static bool kvm_mips_flush_gpa_pte(pte_t *pte, unsigned long start_gpa,
 				   unsigned long end_gpa)
 {
+<<<<<<< HEAD
 	int i_min = __pte_offset(start_gpa);
 	int i_max = __pte_offset(end_gpa);
+=======
+	int i_min = pte_index(start_gpa);
+	int i_max = pte_index(end_gpa);
+>>>>>>> upstream/android-13
 	bool safe_to_remove = (i_min == 0 && i_max == PTRS_PER_PTE - 1);
 	int i;
 
@@ -204,8 +236,13 @@ static bool kvm_mips_flush_gpa_pmd(pmd_t *pmd, unsigned long start_gpa,
 {
 	pte_t *pte;
 	unsigned long end = ~0ul;
+<<<<<<< HEAD
 	int i_min = __pmd_offset(start_gpa);
 	int i_max = __pmd_offset(end_gpa);
+=======
+	int i_min = pmd_index(start_gpa);
+	int i_max = pmd_index(end_gpa);
+>>>>>>> upstream/android-13
 	bool safe_to_remove = (i_min == 0 && i_max == PTRS_PER_PMD - 1);
 	int i;
 
@@ -213,7 +250,11 @@ static bool kvm_mips_flush_gpa_pmd(pmd_t *pmd, unsigned long start_gpa,
 		if (!pmd_present(pmd[i]))
 			continue;
 
+<<<<<<< HEAD
 		pte = pte_offset(pmd + i, 0);
+=======
+		pte = pte_offset_kernel(pmd + i, 0);
+>>>>>>> upstream/android-13
 		if (i == i_max)
 			end = end_gpa;
 
@@ -232,8 +273,13 @@ static bool kvm_mips_flush_gpa_pud(pud_t *pud, unsigned long start_gpa,
 {
 	pmd_t *pmd;
 	unsigned long end = ~0ul;
+<<<<<<< HEAD
 	int i_min = __pud_offset(start_gpa);
 	int i_max = __pud_offset(end_gpa);
+=======
+	int i_min = pud_index(start_gpa);
+	int i_max = pud_index(end_gpa);
+>>>>>>> upstream/android-13
 	bool safe_to_remove = (i_min == 0 && i_max == PTRS_PER_PUD - 1);
 	int i;
 
@@ -258,6 +304,10 @@ static bool kvm_mips_flush_gpa_pud(pud_t *pud, unsigned long start_gpa,
 static bool kvm_mips_flush_gpa_pgd(pgd_t *pgd, unsigned long start_gpa,
 				   unsigned long end_gpa)
 {
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	unsigned long end = ~0ul;
 	int i_min = pgd_index(start_gpa);
@@ -269,7 +319,12 @@ static bool kvm_mips_flush_gpa_pgd(pgd_t *pgd, unsigned long start_gpa,
 		if (!pgd_present(pgd[i]))
 			continue;
 
+<<<<<<< HEAD
 		pud = pud_offset(pgd + i, 0);
+=======
+		p4d = p4d_offset(pgd, 0);
+		pud = pud_offset(p4d + i, 0);
+>>>>>>> upstream/android-13
 		if (i == i_max)
 			end = end_gpa;
 
@@ -308,8 +363,13 @@ static int kvm_mips_##name##_pte(pte_t *pte, unsigned long start,	\
 				 unsigned long end)			\
 {									\
 	int ret = 0;							\
+<<<<<<< HEAD
 	int i_min = __pte_offset(start);				\
 	int i_max = __pte_offset(end);					\
+=======
+	int i_min = pte_index(start);				\
+	int i_max = pte_index(end);					\
+>>>>>>> upstream/android-13
 	int i;								\
 	pte_t old, new;							\
 									\
@@ -334,15 +394,24 @@ static int kvm_mips_##name##_pmd(pmd_t *pmd, unsigned long start,	\
 	int ret = 0;							\
 	pte_t *pte;							\
 	unsigned long cur_end = ~0ul;					\
+<<<<<<< HEAD
 	int i_min = __pmd_offset(start);				\
 	int i_max = __pmd_offset(end);					\
+=======
+	int i_min = pmd_index(start);				\
+	int i_max = pmd_index(end);					\
+>>>>>>> upstream/android-13
 	int i;								\
 									\
 	for (i = i_min; i <= i_max; ++i, start = 0) {			\
 		if (!pmd_present(pmd[i]))				\
 			continue;					\
 									\
+<<<<<<< HEAD
 		pte = pte_offset(pmd + i, 0);				\
+=======
+		pte = pte_offset_kernel(pmd + i, 0);				\
+>>>>>>> upstream/android-13
 		if (i == i_max)						\
 			cur_end = end;					\
 									\
@@ -357,8 +426,13 @@ static int kvm_mips_##name##_pud(pud_t *pud, unsigned long start,	\
 	int ret = 0;							\
 	pmd_t *pmd;							\
 	unsigned long cur_end = ~0ul;					\
+<<<<<<< HEAD
 	int i_min = __pud_offset(start);				\
 	int i_max = __pud_offset(end);					\
+=======
+	int i_min = pud_index(start);				\
+	int i_max = pud_index(end);					\
+>>>>>>> upstream/android-13
 	int i;								\
 									\
 	for (i = i_min; i <= i_max; ++i, start = 0) {			\
@@ -378,6 +452,10 @@ static int kvm_mips_##name##_pgd(pgd_t *pgd, unsigned long start,	\
 				 unsigned long end)			\
 {									\
 	int ret = 0;							\
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;							\
+>>>>>>> upstream/android-13
 	pud_t *pud;							\
 	unsigned long cur_end = ~0ul;					\
 	int i_min = pgd_index(start);					\
@@ -388,7 +466,12 @@ static int kvm_mips_##name##_pgd(pgd_t *pgd, unsigned long start,	\
 		if (!pgd_present(pgd[i]))				\
 			continue;					\
 									\
+<<<<<<< HEAD
 		pud = pud_offset(pgd + i, 0);				\
+=======
+		p4d = p4d_offset(pgd, 0);				\
+		pud = pud_offset(p4d + i, 0);				\
+>>>>>>> upstream/android-13
 		if (i == i_max)						\
 			cur_end = end;					\
 									\
@@ -465,6 +548,7 @@ static int kvm_mips_mkold_gpa_pt(struct kvm *kvm, gfn_t start_gfn,
 				  end_gfn << PAGE_SHIFT);
 }
 
+<<<<<<< HEAD
 static int handle_hva_to_gpa(struct kvm *kvm,
 			     unsigned long start,
 			     unsigned long end,
@@ -526,10 +610,23 @@ static int kvm_set_spte_handler(struct kvm *kvm, gfn_t gfn, gfn_t gfn_end,
 {
 	gpa_t gpa = gfn << PAGE_SHIFT;
 	pte_t hva_pte = *(pte_t *)data;
+=======
+bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	kvm_mips_flush_gpa_pt(kvm, range->start, range->end);
+	return true;
+}
+
+bool kvm_set_spte_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	gpa_t gpa = range->start << PAGE_SHIFT;
+	pte_t hva_pte = range->pte;
+>>>>>>> upstream/android-13
 	pte_t *gpa_pte = kvm_mips_pte_for_gpa(kvm, NULL, gpa);
 	pte_t old_pte;
 
 	if (!gpa_pte)
+<<<<<<< HEAD
 		return 0;
 
 	/* Mapping may need adjusting depending on memslot flags */
@@ -537,13 +634,26 @@ static int kvm_set_spte_handler(struct kvm *kvm, gfn_t gfn, gfn_t gfn_end,
 	if (memslot->flags & KVM_MEM_LOG_DIRTY_PAGES && !pte_dirty(old_pte))
 		hva_pte = pte_mkclean(hva_pte);
 	else if (memslot->flags & KVM_MEM_READONLY)
+=======
+		return false;
+
+	/* Mapping may need adjusting depending on memslot flags */
+	old_pte = *gpa_pte;
+	if (range->slot->flags & KVM_MEM_LOG_DIRTY_PAGES && !pte_dirty(old_pte))
+		hva_pte = pte_mkclean(hva_pte);
+	else if (range->slot->flags & KVM_MEM_READONLY)
+>>>>>>> upstream/android-13
 		hva_pte = pte_wrprotect(hva_pte);
 
 	set_pte(gpa_pte, hva_pte);
 
 	/* Replacing an absent or old page doesn't need flushes */
 	if (!pte_present(old_pte) || !pte_young(old_pte))
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	/* Pages swapped, aged, moved, or cleaned require flushes */
 	return !pte_present(hva_pte) ||
@@ -552,6 +662,7 @@ static int kvm_set_spte_handler(struct kvm *kvm, gfn_t gfn, gfn_t gfn_end,
 	       (pte_dirty(old_pte) && !pte_dirty(hva_pte));
 }
 
+<<<<<<< HEAD
 void kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte)
 {
 	unsigned long end = hva + PAGE_SIZE;
@@ -589,6 +700,23 @@ int kvm_test_age_hva(struct kvm *kvm, unsigned long hva)
 	return handle_hva_to_gpa(kvm, hva, hva, kvm_test_age_hva_handler, NULL);
 }
 
+=======
+bool kvm_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	return kvm_mips_mkold_gpa_pt(kvm, range->start, range->end);
+}
+
+bool kvm_test_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	gpa_t gpa = range->start << PAGE_SHIFT;
+	pte_t *gpa_pte = kvm_mips_pte_for_gpa(kvm, NULL, gpa);
+
+	if (!gpa_pte)
+		return false;
+	return pte_young(*gpa_pte);
+}
+
+>>>>>>> upstream/android-13
 /**
  * _kvm_mips_map_page_fast() - Fast path GPA fault handler.
  * @vcpu:		VCPU pointer.
@@ -705,8 +833,12 @@ static int kvm_mips_map_page(struct kvm_vcpu *vcpu, unsigned long gpa,
 		goto out;
 
 	/* We need a minimum of cached pages ready for page table creation */
+<<<<<<< HEAD
 	err = mmu_topup_memory_cache(memcache, KVM_MMU_CACHE_MIN_PAGES,
 				     KVM_NR_MEM_OBJS);
+=======
+	err = kvm_mmu_topup_memory_cache(memcache, KVM_MMU_CACHE_MIN_PAGES);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
@@ -782,6 +914,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static pte_t *kvm_trap_emul_pte_for_gva(struct kvm_vcpu *vcpu,
 					unsigned long addr)
 {
@@ -984,6 +1117,8 @@ static pte_t kvm_mips_gpa_pte_to_gva_mapped(pte_t pte, long entrylo)
 }
 
 #ifdef CONFIG_KVM_MIPS_VZ
+=======
+>>>>>>> upstream/android-13
 int kvm_mips_handle_vz_root_tlb_fault(unsigned long badvaddr,
 				      struct kvm_vcpu *vcpu,
 				      bool write_fault)
@@ -997,6 +1132,7 @@ int kvm_mips_handle_vz_root_tlb_fault(unsigned long badvaddr,
 	/* Invalidate this entry in the TLB */
 	return kvm_vz_host_tlb_inv(vcpu, badvaddr);
 }
+<<<<<<< HEAD
 #endif
 
 /* XXXKYMA: Must be called with interrupts disabled */
@@ -1114,6 +1250,8 @@ int kvm_mips_handle_commpage_tlb_fault(unsigned long badvaddr,
 	kvm_mips_host_tlb_inv(vcpu, badvaddr, false, true);
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 /**
  * kvm_mips_migrate_count() - Migrate timer.
@@ -1176,6 +1314,7 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
 
 	local_irq_restore(flags);
 }
+<<<<<<< HEAD
 
 /**
  * kvm_trap_emul_gva_fault() - Safely attempt to handle a GVA access fault.
@@ -1259,3 +1398,5 @@ retry:
 	}
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

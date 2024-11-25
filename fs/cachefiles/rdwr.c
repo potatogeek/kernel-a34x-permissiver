@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Storage object read/write
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mount.h>
@@ -28,17 +35,27 @@ static int cachefiles_read_waiter(wait_queue_entry_t *wait, unsigned mode,
 		container_of(wait, struct cachefiles_one_read, monitor);
 	struct cachefiles_object *object;
 	struct fscache_retrieval *op = monitor->op;
+<<<<<<< HEAD
 	struct wait_bit_key *key = _key;
+=======
+	struct wait_page_key *key = _key;
+>>>>>>> upstream/android-13
 	struct page *page = wait->private;
 
 	ASSERT(key);
 
 	_enter("{%lu},%u,%d,{%p,%u}",
 	       monitor->netfs_page->index, mode, sync,
+<<<<<<< HEAD
 	       key->flags, key->bit_nr);
 
 	if (key->flags != &page->flags ||
 	    key->bit_nr != PG_locked)
+=======
+	       key->page, key->bit_nr);
+
+	if (key->page != page || key->bit_nr != PG_locked)
+>>>>>>> upstream/android-13
 		return 0;
 
 	_debug("--- monitor %p %lx ---", page, page->flags);
@@ -401,9 +418,15 @@ int cachefiles_read_or_alloc_page(struct fscache_retrieval *op,
 	struct cachefiles_object *object;
 	struct cachefiles_cache *cache;
 	struct inode *inode;
+<<<<<<< HEAD
 	sector_t block0, block;
 	unsigned shift;
 	int ret;
+=======
+	sector_t block;
+	unsigned shift;
+	int ret, ret2;
+>>>>>>> upstream/android-13
 
 	object = container_of(op->op.object,
 			      struct cachefiles_object, fscache);
@@ -417,8 +440,11 @@ int cachefiles_read_or_alloc_page(struct fscache_retrieval *op,
 
 	inode = d_backing_inode(object->backer);
 	ASSERT(S_ISREG(inode->i_mode));
+<<<<<<< HEAD
 	ASSERT(inode->i_mapping->a_ops->bmap);
 	ASSERT(inode->i_mapping->a_ops->readpages);
+=======
+>>>>>>> upstream/android-13
 
 	/* calculate the shift required to use bmap */
 	shift = PAGE_SHIFT - inode->i_sb->s_blocksize_bits;
@@ -433,12 +459,23 @@ int cachefiles_read_or_alloc_page(struct fscache_retrieval *op,
 	 *   enough for this as it doesn't indicate errors, but it's all we've
 	 *   got for the moment
 	 */
+<<<<<<< HEAD
 	block0 = page->index;
 	block0 <<= shift;
 
 	block = inode->i_mapping->a_ops->bmap(inode->i_mapping, block0);
 	_debug("%llx -> %llx",
 	       (unsigned long long) block0,
+=======
+	block = page->index;
+	block <<= shift;
+
+	ret2 = bmap(inode, &block);
+	ASSERT(ret2 == 0);
+
+	_debug("%llx -> %llx",
+	       (unsigned long long) (page->index << shift),
+>>>>>>> upstream/android-13
 	       (unsigned long long) block);
 
 	if (block) {
@@ -716,8 +753,11 @@ int cachefiles_read_or_alloc_pages(struct fscache_retrieval *op,
 
 	inode = d_backing_inode(object->backer);
 	ASSERT(S_ISREG(inode->i_mode));
+<<<<<<< HEAD
 	ASSERT(inode->i_mapping->a_ops->bmap);
 	ASSERT(inode->i_mapping->a_ops->readpages);
+=======
+>>>>>>> upstream/android-13
 
 	/* calculate the shift required to use bmap */
 	shift = PAGE_SHIFT - inode->i_sb->s_blocksize_bits;
@@ -733,7 +773,11 @@ int cachefiles_read_or_alloc_pages(struct fscache_retrieval *op,
 
 	ret = space ? -ENODATA : -ENOBUFS;
 	list_for_each_entry_safe(page, _n, pages, lru) {
+<<<<<<< HEAD
 		sector_t block0, block;
+=======
+		sector_t block;
+>>>>>>> upstream/android-13
 
 		/* we assume the absence or presence of the first block is a
 		 * good enough indication for the page as a whole
@@ -741,6 +785,7 @@ int cachefiles_read_or_alloc_pages(struct fscache_retrieval *op,
 		 *   good enough for this as it doesn't indicate errors, but
 		 *   it's all we've got for the moment
 		 */
+<<<<<<< HEAD
 		block0 = page->index;
 		block0 <<= shift;
 
@@ -748,6 +793,16 @@ int cachefiles_read_or_alloc_pages(struct fscache_retrieval *op,
 						      block0);
 		_debug("%llx -> %llx",
 		       (unsigned long long) block0,
+=======
+		block = page->index;
+		block <<= shift;
+
+		ret2 = bmap(inode, &block);
+		ASSERT(ret2 == 0);
+
+		_debug("%llx -> %llx",
+		       (unsigned long long) (page->index << shift),
+>>>>>>> upstream/android-13
 		       (unsigned long long) block);
 
 		if (block) {
@@ -941,7 +996,11 @@ int cachefiles_write_page(struct fscache_storage *op, struct page *page)
 	}
 
 	data = kmap(page);
+<<<<<<< HEAD
 	ret = __kernel_write(file, data, len, &pos);
+=======
+	ret = kernel_write(file, data, len, &pos);
+>>>>>>> upstream/android-13
 	kunmap(page);
 	fput(file);
 	if (ret != len)

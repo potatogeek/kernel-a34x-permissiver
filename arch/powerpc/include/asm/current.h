@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_CURRENT_H
 #define _ASM_POWERPC_CURRENT_H
 #ifdef __KERNEL__
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 struct task_struct;
@@ -19,7 +26,12 @@ static inline struct task_struct *get_current(void)
 {
 	struct task_struct *task;
 
+<<<<<<< HEAD
 	__asm__ __volatile__("ld %0,%1(13)"
+=======
+	/* get_current can be cached by the compiler, so no volatile */
+	asm ("ld %0,%1(13)"
+>>>>>>> upstream/android-13
 	: "=r" (task)
 	: "i" (offsetof(struct paca_struct, __current)));
 

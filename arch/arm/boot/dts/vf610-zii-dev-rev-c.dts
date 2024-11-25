@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015, 2016 Zodiac Inflight Innovations
  *
@@ -40,6 +41,11 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2015, 2016 Zodiac Inflight Innovations
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -200,6 +206,16 @@
 						phy-handle = <&switch1phy4>;
 					};
 
+<<<<<<< HEAD
+=======
+					port@9 {
+						reg = <9>;
+						label = "sff2";
+						phy-mode = "1000base-x";
+						managed = "in-band-status";
+						sfp = <&sff2>;
+					};
+>>>>>>> upstream/android-13
 
 					switch1port10: port@10 {
 						reg = <10>;
@@ -245,6 +261,25 @@
 			#size-cells = <0>;
 		};
 	};
+<<<<<<< HEAD
+=======
+
+	sff2: sff2 {
+		/* lower */
+		compatible = "sff,sff";
+		i2c-bus = <&sff2_i2c>;
+		los-gpios = <&gpio6 12 GPIO_ACTIVE_HIGH>;
+		tx-disable-gpios = <&gpio6 14 GPIO_ACTIVE_HIGH>;
+	};
+
+	sff3: sff3 {
+		/* upper */
+		compatible = "sff,sff";
+		i2c-bus = <&sff3_i2c>;
+		los-gpios = <&gpio6 13 GPIO_ACTIVE_HIGH>;
+		tx-disable-gpios = <&gpio6 15 GPIO_ACTIVE_HIGH>;
+	};
+>>>>>>> upstream/android-13
 };
 
 &dspi0 {
@@ -254,7 +289,11 @@
 	status = "okay";
 	spi-num-chipselects = <2>;
 
+<<<<<<< HEAD
 	m25p128@0 {
+=======
+	flash@0 {
+>>>>>>> upstream/android-13
 		compatible = "m25p128", "jedec,spi-nor";
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -290,7 +329,11 @@
 	 *    P1 - WE2_CMD
 	 *    P2 - WE2_CLK
 	 */
+<<<<<<< HEAD
 	gpio5: pca9557@18 {
+=======
+	gpio5: io-expander@18 {
+>>>>>>> upstream/android-13
 		compatible = "nxp,pca9557";
 		reg = <0x18>;
 		gpio-controller;
@@ -329,6 +372,7 @@
 		interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
 		gpio-controller;
 		interrupt-controller;
+<<<<<<< HEAD
 
 		enet_swr_en {
 			gpio-hog;
@@ -336,6 +380,8 @@
 			output-high;
 			line-name = "enet-swr-en";
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	/*
@@ -345,7 +391,11 @@
 	 *     IO0 - WE1_CLK
 	 *     IO1 - WE1_CMD
 	 */
+<<<<<<< HEAD
 	gpio7: pca9554@22 {
+=======
+	gpio7: io-expander@22 {
+>>>>>>> upstream/android-13
 		compatible = "nxp,pca9554";
 		reg = <0x22>;
 		gpio-controller;
@@ -355,7 +405,11 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	at24mac602@50 {
+=======
+	eeprom@50 {
+>>>>>>> upstream/android-13
 		compatible = "atmel,24c02";
 		reg = <0x50>;
 		read-only;
@@ -378,6 +432,7 @@
 			reg = <0>;
 		};
 
+<<<<<<< HEAD
 		i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -398,6 +453,18 @@
 				compatible = "atmel,24c02";
 				reg = <0x50>;
 			};
+=======
+		sff2_i2c: i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+		};
+
+		sff3_i2c: i2c@2 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <2>;
+>>>>>>> upstream/android-13
 		};
 
 		i2c@3 {

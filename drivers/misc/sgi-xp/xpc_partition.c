@@ -3,6 +3,10 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+<<<<<<< HEAD
+=======
+ * (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+>>>>>>> upstream/android-13
  * Copyright (c) 2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
@@ -93,6 +97,7 @@ xpc_get_rsvd_page_pa(int nasid)
 		if (ret != xpNeedMoreInfo)
 			break;
 
+<<<<<<< HEAD
 		/* !!! L1_CACHE_ALIGN() is only a sn2-bte_copy requirement */
 		if (is_shub())
 			len = L1_CACHE_ALIGN(len);
@@ -100,6 +105,10 @@ xpc_get_rsvd_page_pa(int nasid)
 		if (len > buf_len) {
 			if (buf_base != NULL)
 				kfree(buf_base);
+=======
+		if (len > buf_len) {
+			kfree(buf_base);
+>>>>>>> upstream/android-13
 			buf_len = L1_CACHE_ALIGN(len);
 			buf = xpc_kmalloc_cacheline_aligned(buf_len, GFP_KERNEL,
 							    &buf_base);
@@ -266,8 +275,13 @@ xpc_get_remote_rp(int nasid, unsigned long *discovered_nasids,
  * from us. Though we requested the remote partition to deactivate with regard
  * to us, we really only need to wait for the other side to disengage from us.
  */
+<<<<<<< HEAD
 int
 xpc_partition_disengaged(struct xpc_partition *part)
+=======
+static int __xpc_partition_disengaged(struct xpc_partition *part,
+				      bool from_timer)
+>>>>>>> upstream/android-13
 {
 	short partid = XPC_PARTID(part);
 	int disengaged;
@@ -293,9 +307,15 @@ xpc_partition_disengaged(struct xpc_partition *part)
 		}
 		part->disengage_timeout = 0;
 
+<<<<<<< HEAD
 		/* cancel the timer function, provided it's not us */
 		if (!in_interrupt())
 			del_singleshot_timer_sync(&part->disengage_timer);
+=======
+		/* Cancel the timer function if not called from it */
+		if (!from_timer)
+			del_timer_sync(&part->disengage_timer);
+>>>>>>> upstream/android-13
 
 		DBUG_ON(part->act_state != XPC_P_AS_DEACTIVATING &&
 			part->act_state != XPC_P_AS_INACTIVE);
@@ -307,6 +327,19 @@ xpc_partition_disengaged(struct xpc_partition *part)
 	return disengaged;
 }
 
+<<<<<<< HEAD
+=======
+int xpc_partition_disengaged(struct xpc_partition *part)
+{
+	return __xpc_partition_disengaged(part, false);
+}
+
+int xpc_partition_disengaged_from_timer(struct xpc_partition *part)
+{
+	return __xpc_partition_disengaged(part, true);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Mark specified partition as active.
  */
@@ -438,7 +471,11 @@ xpc_discovery(void)
 	 */
 	region_size = xp_region_size;
 
+<<<<<<< HEAD
 	if (is_uv())
+=======
+	if (is_uv_system())
+>>>>>>> upstream/android-13
 		max_regions = 256;
 	else {
 		max_regions = 64;
@@ -446,6 +483,7 @@ xpc_discovery(void)
 		switch (region_size) {
 		case 128:
 			max_regions *= 2;
+<<<<<<< HEAD
 			/* fall through */
 		case 64:
 			max_regions *= 2;
@@ -454,6 +492,15 @@ xpc_discovery(void)
 			max_regions *= 2;
 			region_size = 16;
 			DBUG_ON(!is_shub2());
+=======
+			fallthrough;
+		case 64:
+			max_regions *= 2;
+			fallthrough;
+		case 32:
+			max_regions *= 2;
+			region_size = 16;
+>>>>>>> upstream/android-13
 		}
 	}
 

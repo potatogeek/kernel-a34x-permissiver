@@ -36,7 +36,10 @@
 #include <linux/netdevice.h>
 #include <linux/vmalloc.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/idr.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/printk.h>
 #ifdef CONFIG_INFINIBAND_QIB_DCA
@@ -95,7 +98,11 @@ MODULE_PARM_DESC(cc_table_size, "Congestion control table entries 0 (CCA disable
 
 static void verify_interrupt(struct timer_list *);
 
+<<<<<<< HEAD
 static struct idr qib_unit_table;
+=======
+DEFINE_XARRAY_FLAGS(qib_dev_table, XA_FLAGS_ALLOC | XA_FLAGS_LOCK_IRQ);
+>>>>>>> upstream/android-13
 u32 qib_cpulist_count;
 unsigned long *qib_cpulist;
 
@@ -209,7 +216,10 @@ struct qib_ctxtdata *qib_create_ctxtdata(struct qib_pportdata *ppd, u32 ctxt,
 		rcd->rcvegrbuf_chunks = (rcd->rcvegrcnt +
 			rcd->rcvegrbufs_perchunk - 1) /
 			rcd->rcvegrbufs_perchunk;
+<<<<<<< HEAD
 		BUG_ON(!is_power_of_2(rcd->rcvegrbufs_perchunk));
+=======
+>>>>>>> upstream/android-13
 		rcd->rcvegrbufs_perchunk_shift =
 			ilog2(rcd->rcvegrbufs_perchunk);
 	}
@@ -786,6 +796,7 @@ void __attribute__((weak)) qib_disable_wc(struct qib_devdata *dd)
 {
 }
 
+<<<<<<< HEAD
 static inline struct qib_devdata *__qib_lookup(int unit)
 {
 	return idr_find(&qib_unit_table, unit);
@@ -801,6 +812,11 @@ struct qib_devdata *qib_lookup(int unit)
 	spin_unlock_irqrestore(&qib_devs_lock, flags);
 
 	return dd;
+=======
+struct qib_devdata *qib_lookup(int unit)
+{
+	return xa_load(&qib_dev_table, unit);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1047,10 +1063,16 @@ void qib_free_devdata(struct qib_devdata *dd)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&qib_devs_lock, flags);
 	idr_remove(&qib_unit_table, dd->unit);
 	list_del(&dd->list);
 	spin_unlock_irqrestore(&qib_devs_lock, flags);
+=======
+	xa_lock_irqsave(&qib_dev_table, flags);
+	__xa_erase(&qib_dev_table, dd->unit);
+	xa_unlock_irqrestore(&qib_dev_table, flags);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DEBUG_FS
 	qib_dbg_ibdev_exit(&dd->verbs_dev);
@@ -1071,6 +1093,7 @@ u64 qib_int_counter(struct qib_devdata *dd)
 
 u64 qib_sps_ints(void)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	struct qib_devdata *dd;
 	u64 sps_ints = 0;
@@ -1080,6 +1103,17 @@ u64 qib_sps_ints(void)
 		sps_ints += qib_int_counter(dd);
 	}
 	spin_unlock_irqrestore(&qib_devs_lock, flags);
+=======
+	unsigned long index, flags;
+	struct qib_devdata *dd;
+	u64 sps_ints = 0;
+
+	xa_lock_irqsave(&qib_dev_table, flags);
+	xa_for_each(&qib_dev_table, index, dd) {
+		sps_ints += qib_int_counter(dd);
+	}
+	xa_unlock_irqrestore(&qib_dev_table, flags);
+>>>>>>> upstream/android-13
 	return sps_ints;
 }
 
@@ -1088,12 +1122,18 @@ u64 qib_sps_ints(void)
  * allocator, because the verbs cleanup process both does cleanup and
  * free of the data structure.
  * "extra" is for chip-specific data.
+<<<<<<< HEAD
  *
  * Use the idr mechanism to get a unit number for this unit.
  */
 struct qib_devdata *qib_alloc_devdata(struct pci_dev *pdev, size_t extra)
 {
 	unsigned long flags;
+=======
+ */
+struct qib_devdata *qib_alloc_devdata(struct pci_dev *pdev, size_t extra)
+{
+>>>>>>> upstream/android-13
 	struct qib_devdata *dd;
 	int ret, nports;
 
@@ -1104,6 +1144,7 @@ struct qib_devdata *qib_alloc_devdata(struct pci_dev *pdev, size_t extra)
 	if (!dd)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&dd->list);
 
 	idr_preload(GFP_KERNEL);
@@ -1118,6 +1159,10 @@ struct qib_devdata *qib_alloc_devdata(struct pci_dev *pdev, size_t extra)
 	spin_unlock_irqrestore(&qib_devs_lock, flags);
 	idr_preload_end();
 
+=======
+	ret = xa_alloc_irq(&qib_dev_table, &dd->unit, dd, xa_limit_32b,
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		qib_early_err(&pdev->dev,
 			      "Could not allocate unit ID: error %d\n", -ret);
@@ -1256,8 +1301,11 @@ static int __init qib_ib_init(void)
 	 * These must be called before the driver is registered with
 	 * the PCI subsystem.
 	 */
+<<<<<<< HEAD
 	idr_init(&qib_unit_table);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_INFINIBAND_QIB_DCA
 	dca_register_notify(&dca_notifier);
 #endif
@@ -1282,7 +1330,10 @@ bail_dev:
 #ifdef CONFIG_DEBUG_FS
 	qib_dbg_exit();
 #endif
+<<<<<<< HEAD
 	idr_destroy(&qib_unit_table);
+=======
+>>>>>>> upstream/android-13
 	qib_dev_cleanup();
 bail:
 	return ret;
@@ -1314,7 +1365,11 @@ static void __exit qib_ib_cleanup(void)
 	qib_cpulist_count = 0;
 	kfree(qib_cpulist);
 
+<<<<<<< HEAD
 	idr_destroy(&qib_unit_table);
+=======
+	WARN_ON(!xa_empty(&qib_dev_table));
+>>>>>>> upstream/android-13
 	qib_dev_cleanup();
 }
 
@@ -1368,8 +1423,13 @@ static void cleanup_device_data(struct qib_devdata *dd)
 			for (i = ctxt_tidbase; i < maxtid; i++) {
 				if (!tmpp[i])
 					continue;
+<<<<<<< HEAD
 				pci_unmap_page(dd->pcidev, tmpd[i],
 					       PAGE_SIZE, PCI_DMA_FROMDEVICE);
+=======
+				dma_unmap_page(&dd->pcidev->dev, tmpd[i],
+					       PAGE_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				qib_release_user_pages(&tmpp[i], 1);
 				tmpp[i] = NULL;
 			}
@@ -1642,7 +1702,11 @@ bail:
 }
 
 /**
+<<<<<<< HEAD
  * allocate eager buffers, both kernel and user contexts.
+=======
+ * qib_setup_eagerbufs - allocate eager buffers, both kernel and user contexts.
+>>>>>>> upstream/android-13
  * @rcd: the context we are setting up.
  *
  * Allocate the eager TID buffers and program them into hip.
@@ -1792,7 +1856,11 @@ int init_chip_wc_pat(struct qib_devdata *dd, u32 vl15buflen)
 		qib_userlen = dd->ureg_align * dd->cfgctxts;
 
 	/* Sanity checks passed, now create the new mappings */
+<<<<<<< HEAD
 	qib_kregbase = ioremap_nocache(qib_physaddr, qib_kreglen);
+=======
+	qib_kregbase = ioremap(qib_physaddr, qib_kreglen);
+>>>>>>> upstream/android-13
 	if (!qib_kregbase)
 		goto bail;
 
@@ -1801,7 +1869,11 @@ int init_chip_wc_pat(struct qib_devdata *dd, u32 vl15buflen)
 		goto bail_kregbase;
 
 	if (qib_userlen) {
+<<<<<<< HEAD
 		qib_userbase = ioremap_nocache(qib_physaddr + dd->uregbase,
+=======
+		qib_userbase = ioremap(qib_physaddr + dd->uregbase,
+>>>>>>> upstream/android-13
 					       qib_userlen);
 		if (!qib_userbase)
 			goto bail_piobase;

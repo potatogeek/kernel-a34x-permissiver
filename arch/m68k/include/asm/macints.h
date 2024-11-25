@@ -121,7 +121,10 @@
 #define SLOT2IRQ(x)	  (x + 47)
 #define IRQ2SLOT(x)	  (x - 47)
 
+<<<<<<< HEAD
 #define INT_CLK   24576	    /* CLK while int_clk =2.456MHz and divide = 100 */
 #define INT_TICKS 246	    /* to make sched_time = 99.902... HZ */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* asm/macints.h */

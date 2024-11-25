@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 - 2016 Samsung Electronics Co., Ltd.
  *
@@ -8,10 +12,13 @@
  *
  * This module provides regmap for the Top SFR region and instantiates
  * devices for IP blocks like DMAC, I2S, UART.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -82,11 +89,20 @@ static void exynos_lpass_enable(struct exynos_lpass *lpass)
 		     LPASS_INTR_SFR | LPASS_INTR_DMA | LPASS_INTR_I2S);
 
 	regmap_write(lpass->top, SFR_LPASS_INTR_CPU_MASK,
+<<<<<<< HEAD
 		     LPASS_INTR_SFR | LPASS_INTR_DMA | LPASS_INTR_I2S);
+=======
+		     LPASS_INTR_SFR | LPASS_INTR_DMA | LPASS_INTR_I2S |
+		     LPASS_INTR_UART);
+>>>>>>> upstream/android-13
 
 	exynos_lpass_core_sw_reset(lpass, LPASS_I2S_SW_RESET);
 	exynos_lpass_core_sw_reset(lpass, LPASS_DMA_SW_RESET);
 	exynos_lpass_core_sw_reset(lpass, LPASS_MEM_SW_RESET);
+<<<<<<< HEAD
+=======
+	exynos_lpass_core_sw_reset(lpass, LPASS_UART_SW_RESET);
+>>>>>>> upstream/android-13
 }
 
 static void exynos_lpass_disable(struct exynos_lpass *lpass)

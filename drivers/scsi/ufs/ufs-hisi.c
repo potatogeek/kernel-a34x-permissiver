@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HiSilicon Hixxxx UFS Driver
  *
  * Copyright (c) 2016-2017 Linaro Ltd.
  * Copyright (c) 2016-2017 HiSilicon Technologies Co., Ltd.
+<<<<<<< HEAD
  *
  * Released under the GPLv2 only.
  * SPDX-License-Identifier: GPL-2.0
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -66,7 +73,11 @@ static int ufs_hisi_check_hibern8(struct ufs_hba *hba)
 	return err;
 }
 
+<<<<<<< HEAD
 static void ufs_hi3660_clk_init(struct ufs_hba *hba)
+=======
+static void ufs_hisi_clk_init(struct ufs_hba *hba)
+>>>>>>> upstream/android-13
 {
 	struct ufs_hisi_host *host = ufshcd_get_variant(hba);
 
@@ -80,7 +91,11 @@ static void ufs_hi3660_clk_init(struct ufs_hba *hba)
 	ufs_sys_ctrl_set_bits(host, BIT_SYSCTRL_REF_CLOCK_EN, PHY_CLK_CTRL);
 }
 
+<<<<<<< HEAD
 static void ufs_hi3660_soc_init(struct ufs_hba *hba)
+=======
+static void ufs_hisi_soc_init(struct ufs_hba *hba)
+>>>>>>> upstream/android-13
 {
 	struct ufs_hisi_host *host = ufshcd_get_variant(hba);
 	u32 reg;
@@ -139,6 +154,10 @@ static void ufs_hi3660_soc_init(struct ufs_hba *hba)
 
 static int ufs_hisi_link_startup_pre_change(struct ufs_hba *hba)
 {
+<<<<<<< HEAD
+=======
+	struct ufs_hisi_host *host = ufshcd_get_variant(hba);
+>>>>>>> upstream/android-13
 	int err;
 	uint32_t value;
 	uint32_t reg;
@@ -153,6 +172,17 @@ static int ufs_hisi_link_startup_pre_change(struct ufs_hba *hba)
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x8121, 0x0), 0x2D);
 	/* MPHY CBOVRCTRL3 */
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x8122, 0x0), 0x1);
+<<<<<<< HEAD
+=======
+
+	if (host->caps & UFS_HISI_CAP_PHY10nm) {
+		/* MPHY CBOVRCTRL4 */
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x8127, 0x0), 0x98);
+		/* MPHY CBOVRCTRL5 */
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x8128, 0x0), 0x1);
+	}
+
+>>>>>>> upstream/android-13
 	/* Unipro VS_MphyCfgUpdt */
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0xD085, 0x0), 0x1);
 	/* MPHY RXOVRCTRL4 rx0 */
@@ -173,10 +203,28 @@ static int ufs_hisi_link_startup_pre_change(struct ufs_hba *hba)
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x8113, 0x0), 0x1);
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0xD085, 0x0), 0x1);
 
+<<<<<<< HEAD
 	/* Tactive RX */
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x008F, 0x4), 0x7);
 	/* Tactive RX */
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x008F, 0x5), 0x7);
+=======
+	if (host->caps & UFS_HISI_CAP_PHY10nm) {
+		/* RX_Hibern8Time_Capability*/
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x0092, 0x4), 0xA);
+		/* RX_Hibern8Time_Capability*/
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x0092, 0x5), 0xA);
+		/* RX_Min_ActivateTime */
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x008f, 0x4), 0xA);
+		/* RX_Min_ActivateTime*/
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x008f, 0x5), 0xA);
+	} else {
+		/* Tactive RX */
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x008F, 0x4), 0x7);
+		/* Tactive RX */
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x008F, 0x5), 0x7);
+	}
+>>>>>>> upstream/android-13
 
 	/* Gear3 Synclength */
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x0095, 0x4), 0x4F);
@@ -208,7 +256,12 @@ static int ufs_hisi_link_startup_pre_change(struct ufs_hba *hba)
 	if (err)
 		dev_err(hba->dev, "ufs_hisi_check_hibern8 error\n");
 
+<<<<<<< HEAD
 	ufshcd_writel(hba, UFS_HCLKDIV_NORMAL_VALUE, UFS_REG_HCLKDIV);
+=======
+	if (!(host->caps & UFS_HISI_CAP_PHY10nm))
+		ufshcd_writel(hba, UFS_HCLKDIV_NORMAL_VALUE, UFS_REG_HCLKDIV);
+>>>>>>> upstream/android-13
 
 	/* disable auto H8 */
 	reg = ufshcd_readl(hba, REG_AUTO_HIBERNATE_IDLE_TIMER);
@@ -216,7 +269,11 @@ static int ufs_hisi_link_startup_pre_change(struct ufs_hba *hba)
 	ufshcd_writel(hba, reg, REG_AUTO_HIBERNATE_IDLE_TIMER);
 
 	/* Unipro PA_Local_TX_LCC_Enable */
+<<<<<<< HEAD
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0x155E, 0x0), 0x0);
+=======
+	ufshcd_disable_host_tx_lcc(hba);
+>>>>>>> upstream/android-13
 	/* close Unipro VS_Mk2ExtnSupport */
 	ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0xD0AB, 0x0), 0x0);
 	ufshcd_dme_get(hba, UIC_ARG_MIB_SEL(0xD0AB, 0x0), &value);
@@ -253,7 +310,11 @@ static int ufs_hisi_link_startup_post_change(struct ufs_hba *hba)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ufs_hi3660_link_startup_notify(struct ufs_hba *hba,
+=======
+static int ufs_hisi_link_startup_notify(struct ufs_hba *hba,
+>>>>>>> upstream/android-13
 					  enum ufs_notify_change_status status)
 {
 	int err = 0;
@@ -274,6 +335,7 @@ static int ufs_hi3660_link_startup_notify(struct ufs_hba *hba,
 
 static void ufs_hisi_set_dev_cap(struct ufs_dev_params *hisi_param)
 {
+<<<<<<< HEAD
 	hisi_param->rx_lanes = UFS_HISI_LIMIT_NUM_LANES_RX;
 	hisi_param->tx_lanes = UFS_HISI_LIMIT_NUM_LANES_TX;
 	hisi_param->hs_rx_gear = UFS_HISI_LIMIT_HSGEAR_RX;
@@ -286,10 +348,38 @@ static void ufs_hisi_set_dev_cap(struct ufs_dev_params *hisi_param)
 	hisi_param->tx_pwr_hs = UFS_HISI_LIMIT_TX_PWR_HS;
 	hisi_param->hs_rate = UFS_HISI_LIMIT_HS_RATE;
 	hisi_param->desired_working_mode = UFS_HISI_LIMIT_DESIRED_MODE;
+=======
+	ufshcd_init_pwr_dev_param(hisi_param);
+>>>>>>> upstream/android-13
 }
 
 static void ufs_hisi_pwr_change_pre_change(struct ufs_hba *hba)
 {
+<<<<<<< HEAD
+=======
+	struct ufs_hisi_host *host = ufshcd_get_variant(hba);
+
+	if (host->caps & UFS_HISI_CAP_PHY10nm) {
+		/*
+		 * Boston platform need to set SaveConfigTime to 0x13,
+		 * and change sync length to maximum value
+		 */
+		/* VS_DebugSaveConfigTime */
+		ufshcd_dme_set(hba, UIC_ARG_MIB((u32)0xD0A0), 0x13);
+		/* g1 sync length */
+		ufshcd_dme_set(hba, UIC_ARG_MIB((u32)0x1552), 0x4f);
+		/* g2 sync length */
+		ufshcd_dme_set(hba, UIC_ARG_MIB((u32)0x1554), 0x4f);
+		/* g3 sync length */
+		ufshcd_dme_set(hba, UIC_ARG_MIB((u32)0x1556), 0x4f);
+		/* PA_Hibern8Time */
+		ufshcd_dme_set(hba, UIC_ARG_MIB((u32)0x15a7), 0xA);
+		/* PA_Tactivate */
+		ufshcd_dme_set(hba, UIC_ARG_MIB((u32)0x15a8), 0xA);
+		ufshcd_dme_set(hba, UIC_ARG_MIB_SEL(0xd085, 0x0), 0x01);
+	}
+
+>>>>>>> upstream/android-13
 	if (hba->dev_quirks & UFS_DEVICE_QUIRK_HOST_VS_DEBUGSAVECONFIGTIME) {
 		pr_info("ufs flash device must set VS_DebugSaveConfigTime 0x10\n");
 		/* VS_DebugSaveConfigTime */
@@ -328,7 +418,11 @@ static void ufs_hisi_pwr_change_pre_change(struct ufs_hba *hba)
 	ufshcd_dme_set(hba, UIC_ARG_MIB(0xd046), 32767);
 }
 
+<<<<<<< HEAD
 static int ufs_hi3660_pwr_change_notify(struct ufs_hba *hba,
+=======
+static int ufs_hisi_pwr_change_notify(struct ufs_hba *hba,
+>>>>>>> upstream/android-13
 				       enum ufs_notify_change_status status,
 				       struct ufs_pa_layer_attr *dev_max_params,
 				       struct ufs_pa_layer_attr *dev_req_params)
@@ -366,11 +460,23 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ufs_hisi_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
 {
 	struct ufs_hisi_host *host = ufshcd_get_variant(hba);
 
 	if (ufshcd_is_runtime_pm(pm_op))
+=======
+static int ufs_hisi_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op,
+	enum ufs_notify_change_status status)
+{
+	struct ufs_hisi_host *host = ufshcd_get_variant(hba);
+
+	if (status == PRE_CHANGE)
+		return 0;
+
+	if (pm_op == UFS_RUNTIME_PM)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (host->in_suspend) {
@@ -406,17 +512,25 @@ static int ufs_hisi_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
 
 static int ufs_hisi_get_resource(struct ufs_hisi_host *host)
 {
+<<<<<<< HEAD
 	struct resource *mem_res;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = host->hba->dev;
 	struct platform_device *pdev = to_platform_device(dev);
 
 	/* get resource of ufs sys ctrl */
+<<<<<<< HEAD
 	mem_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	host->ufs_sys_ctrl = devm_ioremap_resource(dev, mem_res);
 	if (IS_ERR(host->ufs_sys_ctrl))
 		return PTR_ERR(host->ufs_sys_ctrl);
 
 	return 0;
+=======
+	host->ufs_sys_ctrl = devm_platform_ioremap_resource(pdev, 1);
+	return PTR_ERR_OR_ZERO(host->ufs_sys_ctrl);
+>>>>>>> upstream/android-13
 }
 
 static void ufs_hisi_set_pm_lvl(struct ufs_hba *hba)
@@ -439,6 +553,7 @@ static int ufs_hisi_init_common(struct ufs_hba *hba)
 	if (!host)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/*
 	 * Inline crypto is currently broken with ufs-hisi because the keyslots
 	 * overlap with the vendor-specific SYS CTRL registers -- and even if
@@ -454,17 +569,38 @@ static int ufs_hisi_init_common(struct ufs_hba *hba)
 	if (IS_ERR(host->rst)) {
 		dev_err(dev, "%s: failed to get reset control\n", __func__);
 		return PTR_ERR(host->rst);
+=======
+	host->hba = hba;
+	ufshcd_set_variant(hba, host);
+
+	host->rst = devm_reset_control_get(dev, "rst");
+	if (IS_ERR(host->rst)) {
+		dev_err(dev, "%s: failed to get reset control\n", __func__);
+		err = PTR_ERR(host->rst);
+		goto error;
+>>>>>>> upstream/android-13
 	}
 
 	ufs_hisi_set_pm_lvl(hba);
 
 	err = ufs_hisi_get_resource(host);
+<<<<<<< HEAD
 	if (err) {
 		ufshcd_set_variant(hba, NULL);
 		return err;
 	}
 
 	return 0;
+=======
+	if (err)
+		goto error;
+
+	return 0;
+
+error:
+	ufshcd_set_variant(hba, NULL);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int ufs_hi3660_init(struct ufs_hba *hba)
@@ -478,25 +614,89 @@ static int ufs_hi3660_init(struct ufs_hba *hba)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ufs_hi3660_clk_init(hba);
 
 	ufs_hi3660_soc_init(hba);
+=======
+	ufs_hisi_clk_init(hba);
+
+	ufs_hisi_soc_init(hba);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct ufs_hba_variant_ops ufs_hba_hisi_vops = {
 	.name = "hi3660",
 	.init = ufs_hi3660_init,
 	.link_startup_notify = ufs_hi3660_link_startup_notify,
 	.pwr_change_notify = ufs_hi3660_pwr_change_notify,
+=======
+static int ufs_hi3670_init(struct ufs_hba *hba)
+{
+	int ret = 0;
+	struct device *dev = hba->dev;
+	struct ufs_hisi_host *host;
+
+	ret = ufs_hisi_init_common(hba);
+	if (ret) {
+		dev_err(dev, "%s: ufs common init fail\n", __func__);
+		return ret;
+	}
+
+	ufs_hisi_clk_init(hba);
+
+	ufs_hisi_soc_init(hba);
+
+	/* Add cap for 10nm PHY variant on HI3670 SoC */
+	host = ufshcd_get_variant(hba);
+	host->caps |= UFS_HISI_CAP_PHY10nm;
+
+	return 0;
+}
+
+static const struct ufs_hba_variant_ops ufs_hba_hi3660_vops = {
+	.name = "hi3660",
+	.init = ufs_hi3660_init,
+	.link_startup_notify = ufs_hisi_link_startup_notify,
+	.pwr_change_notify = ufs_hisi_pwr_change_notify,
+>>>>>>> upstream/android-13
 	.suspend = ufs_hisi_suspend,
 	.resume = ufs_hisi_resume,
 };
 
+<<<<<<< HEAD
 static int ufs_hisi_probe(struct platform_device *pdev)
 {
 	return ufshcd_pltfrm_init(pdev, &ufs_hba_hisi_vops);
+=======
+static const struct ufs_hba_variant_ops ufs_hba_hi3670_vops = {
+	.name = "hi3670",
+	.init = ufs_hi3670_init,
+	.link_startup_notify = ufs_hisi_link_startup_notify,
+	.pwr_change_notify = ufs_hisi_pwr_change_notify,
+	.suspend = ufs_hisi_suspend,
+	.resume = ufs_hisi_resume,
+};
+
+static const struct of_device_id ufs_hisi_of_match[] = {
+	{ .compatible = "hisilicon,hi3660-ufs", .data = &ufs_hba_hi3660_vops },
+	{ .compatible = "hisilicon,hi3670-ufs", .data = &ufs_hba_hi3670_vops },
+	{},
+};
+
+MODULE_DEVICE_TABLE(of, ufs_hisi_of_match);
+
+static int ufs_hisi_probe(struct platform_device *pdev)
+{
+	const struct of_device_id *of_id;
+
+	of_id = of_match_node(ufs_hisi_of_match, pdev->dev.of_node);
+
+	return ufshcd_pltfrm_init(pdev, of_id->data);
+>>>>>>> upstream/android-13
 }
 
 static int ufs_hisi_remove(struct platform_device *pdev)
@@ -507,6 +707,7 @@ static int ufs_hisi_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id ufs_hisi_of_match[] = {
 	{ .compatible = "hisilicon,hi3660-ufs" },
 	{},
@@ -520,6 +721,13 @@ static const struct dev_pm_ops ufs_hisi_pm_ops = {
 	.runtime_suspend = ufshcd_pltfrm_runtime_suspend,
 	.runtime_resume  = ufshcd_pltfrm_runtime_resume,
 	.runtime_idle    = ufshcd_pltfrm_runtime_idle,
+=======
+static const struct dev_pm_ops ufs_hisi_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_system_suspend, ufshcd_system_resume)
+	SET_RUNTIME_PM_OPS(ufshcd_runtime_suspend, ufshcd_runtime_resume, NULL)
+	.prepare	 = ufshcd_suspend_prepare,
+	.complete	 = ufshcd_resume_complete,
+>>>>>>> upstream/android-13
 };
 
 static struct platform_driver ufs_hisi_pltform = {

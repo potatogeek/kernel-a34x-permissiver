@@ -1,14 +1,26 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig SND_X86
 	bool "X86 sound devices"
 	depends on X86
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  X86 sound devices that don't fall under SoC or PCI categories
 
 if SND_X86
 
 config HDMI_LPE_AUDIO
+<<<<<<< HEAD
 	tristate "HDMI audio without HDaudio on Intel Atom platforms"
+=======
+	tristate "HDMI audio without HDAudio on Intel Atom platforms"
+>>>>>>> upstream/android-13
 	depends on DRM_I915
 	select SND_PCM
 	help

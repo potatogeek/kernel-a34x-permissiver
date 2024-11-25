@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Linaro Ltd.
  * Copyright (c) 2014 Hisilicon Limited.
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014 Linaro Ltd.
+ * Copyright (c) 2014 HiSilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>

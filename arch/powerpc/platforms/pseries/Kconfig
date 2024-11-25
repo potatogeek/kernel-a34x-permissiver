@@ -5,7 +5,11 @@ config PPC_PSERIES
 	select HAVE_PCSPKR_PLATFORM
 	select MPIC
 	select OF_DYNAMIC
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PCI_MSI
 	select PPC_XICS
 	select PPC_XIVE_SPAPR
@@ -21,6 +25,7 @@ config PPC_PSERIES
 	select PPC_DOORBELL
 	select HOTPLUG_CPU
 	select ARCH_RANDOM
+<<<<<<< HEAD
 	select PPC_DOORBELL
 	select FORCE_SMP
 	default y
@@ -29,12 +34,31 @@ config PPC_SPLPAR
 	depends on PPC_PSERIES
 	bool "Support for shared-processor logical partitions"
 	default n
+=======
+	select FORCE_SMP
+	select SWIOTLB
+	default y
+
+config PARAVIRT_SPINLOCKS
+	bool
+
+config PPC_SPLPAR
+	bool "Support for shared-processor logical partitions"
+	depends on PPC_PSERIES
+	select PARAVIRT_SPINLOCKS if PPC_QUEUED_SPINLOCKS
+	default y
+>>>>>>> upstream/android-13
 	help
 	  Enabling this option will make the kernel run more efficiently
 	  on logically-partitioned pSeries systems which use shared
 	  processors, that is, which share physical processors between
 	  two or more partitions.
 
+<<<<<<< HEAD
+=======
+	  Say Y if you are unsure.
+
+>>>>>>> upstream/android-13
 config DTL
 	bool "Dispatch Trace Log"
 	depends on PPC_SPLPAR && DEBUG_FS
@@ -81,25 +105,41 @@ config LPARCFG
 	bool "LPAR Configuration Data"
 	depends on PPC_PSERIES
 	help
+<<<<<<< HEAD
 	Provide system capacity information via human readable
 	<key word>=<value> pairs through a /proc/ppc64/lparcfg interface.
+=======
+	  Provide system capacity information via human readable
+	  <key word>=<value> pairs through a /proc/ppc64/lparcfg interface.
+>>>>>>> upstream/android-13
 
 config PPC_PSERIES_DEBUG
 	depends on PPC_PSERIES && PPC_EARLY_DEBUG
 	bool "Enable extra debug logging in platforms/pseries"
+<<<<<<< HEAD
         help
+=======
+	default y
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you want the pseries core to produce a bunch of
 	  debug messages to the system log. Select this if you are having a
 	  problem with the pseries core and want to see more of what is
 	  going on. This does not enable debugging in lpar.c, which must
 	  be manually done due to its verbosity.
+<<<<<<< HEAD
 	default y
+=======
+>>>>>>> upstream/android-13
 
 config PPC_SMLPAR
 	bool "Support for shared-memory logical partitions"
 	depends on PPC_PSERIES
 	select LPARCFG
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  Select this option to enable shared memory partition support.
 	  With this option a system running in an LPAR can be given more
@@ -109,6 +149,10 @@ config PPC_SMLPAR
 config CMM
 	tristate "Collaborative memory management"
 	depends on PPC_SMLPAR
+<<<<<<< HEAD
+=======
+	select MEMORY_BALLOON
+>>>>>>> upstream/android-13
 	default y
 	help
 	  Select this option, if you want to enable the kernel interface
@@ -119,16 +163,27 @@ config CMM
 	  balance memory across many LPARs.
 
 config HV_PERF_CTRS
+<<<<<<< HEAD
        bool "Hypervisor supplied PMU events (24x7 & GPCI)"
        default y
        depends on PERF_EVENTS && PPC_PSERIES
        help
+=======
+	bool "Hypervisor supplied PMU events (24x7 & GPCI)"
+	default y
+	depends on PERF_EVENTS && PPC_PSERIES
+	help
+>>>>>>> upstream/android-13
 	  Enable access to hypervisor supplied counters in perf. Currently,
 	  this enables code that uses the hcall GetPerfCounterInfo and 24x7
 	  interfaces to retrieve counters. GPCI exists on Power 6 and later
 	  systems. 24x7 is available on Power 8 and later systems.
 
+<<<<<<< HEAD
           If unsure, select Y.
+=======
+	  If unsure, select Y.
+>>>>>>> upstream/android-13
 
 config IBMVIO
 	depends on PPC_PSERIES
@@ -140,3 +195,26 @@ config IBMEBUS
 	bool "Support for GX bus based adapters"
 	help
 	  Bus device driver for GX bus based adapters.
+<<<<<<< HEAD
+=======
+
+config PAPR_SCM
+	depends on PPC_PSERIES && MEMORY_HOTPLUG && LIBNVDIMM
+	tristate "Support for the PAPR Storage Class Memory interface"
+	help
+	  Enable access to hypervisor provided storage class memory.
+
+config PPC_SVM
+	bool "Secure virtual machine (SVM) support for POWER"
+	depends on PPC_PSERIES
+	select SWIOTLB
+	select ARCH_HAS_MEM_ENCRYPT
+	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
+	help
+	 There are certain POWER platforms which support secure guests using
+	 the Protected Execution Facility, with the help of an Ultravisor
+	 executing below the hypervisor layer. This enables support for
+	 those guests.
+
+	 If unsure, say "N".
+>>>>>>> upstream/android-13

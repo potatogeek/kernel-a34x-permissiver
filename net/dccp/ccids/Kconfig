@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "DCCP CCIDs Configuration"
 
 config IP_DCCP_CCID2_DEBUG
 	bool "CCID-2 debugging messages"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Enable CCID-2 specific debugging messages.
 
 	  The debugging output can additionally be toggled by setting the
@@ -13,7 +21,11 @@ config IP_DCCP_CCID2_DEBUG
 config IP_DCCP_CCID3
 	bool "CCID-3 (TCP-Friendly)"
 	def_bool y if (IP_DCCP = y || IP_DCCP = m)
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  CCID-3 denotes TCP-Friendly Rate Control (TFRC), an equation-based
 	  rate-controlled congestion control mechanism.  TFRC is designed to
 	  be reasonably fair when competing for bandwidth with TCP-like flows,
@@ -25,20 +37,32 @@ config IP_DCCP_CCID3
 	  relatively smooth sending rate is of importance.
 
 	  CCID-3 is further described in RFC 4342,
+<<<<<<< HEAD
 	  http://www.ietf.org/rfc/rfc4342.txt
+=======
+	  https://www.ietf.org/rfc/rfc4342.txt
+>>>>>>> upstream/android-13
 
 	  The TFRC congestion control algorithms were initially described in
 	  RFC 5348.
 
 	  This text was extracted from RFC 4340 (sec. 10.2),
+<<<<<<< HEAD
 	  http://www.ietf.org/rfc/rfc4340.txt
+=======
+	  https://www.ietf.org/rfc/rfc4340.txt
+>>>>>>> upstream/android-13
 
 	  If in doubt, say N.
 
 config IP_DCCP_CCID3_DEBUG
 	bool "CCID-3 debugging messages"
 	depends on IP_DCCP_CCID3
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Enable CCID-3 specific debugging messages.
 
 	  The debugging output can additionally be toggled by setting the

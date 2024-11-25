@@ -364,7 +364,10 @@ struct qlogicpti {
 	int                       qpti_id;
 	int                       scsi_id;
 	int                       prom_node;
+<<<<<<< HEAD
 	char                      prom_name[64];
+=======
+>>>>>>> upstream/android-13
 	int                       irq;
 	char                      differential, ultra, clock;
 	unsigned char             bursts;
@@ -379,7 +382,11 @@ struct qlogicpti {
 #define SREG_IMASK                0x0c   /* Interrupt level            */
 #define SREG_SPMASK               0x03   /* Mask for switch pack       */
 	unsigned char             swsreg;
+<<<<<<< HEAD
 	unsigned int	
+=======
+	unsigned int
+>>>>>>> upstream/android-13
 		gotirq	:	1,	/* this instance got an irq */
 		is_pti	: 	1;	/* Non-zero if this is a PTI board. */
 };

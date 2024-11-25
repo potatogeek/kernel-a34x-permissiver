@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *    wd33c93.h -  Linux device driver definitions for the
  *                 Commodore Amiga A2091/590 SCSI controller card
@@ -7,6 +11,7 @@
  * Copyright (c) 1996 John Shifflett, GeoLog Consulting
  *    john@geolog.com
  *    jshiffle@netcom.com
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef WD33C93_H
 #define WD33C93_H

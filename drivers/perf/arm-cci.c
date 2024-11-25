@@ -37,7 +37,11 @@
 
 #define CCI_PMU_CNTR_SIZE(model)	((model)->cntr_size)
 #define CCI_PMU_CNTR_BASE(model, idx)	((idx) * CCI_PMU_CNTR_SIZE(model))
+<<<<<<< HEAD
 #define CCI_PMU_CNTR_MASK		((1ULL << 32) -1)
+=======
+#define CCI_PMU_CNTR_MASK		((1ULL << 32) - 1)
+>>>>>>> upstream/android-13
 #define CCI_PMU_CNTR_LAST(cci_pmu)	(cci_pmu->num_cntrs - 1)
 
 #define CCI_PMU_MAX_HW_CNTRS(model) \
@@ -306,7 +310,11 @@ static ssize_t cci400_pmu_cycle_event_show(struct device *dev,
 {
 	struct dev_ext_attribute *eattr = container_of(attr,
 				struct dev_ext_attribute, attr);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "config=0x%lx\n", (unsigned long)eattr->var);
+=======
+	return sysfs_emit(buf, "config=0x%lx\n", (unsigned long)eattr->var);
+>>>>>>> upstream/android-13
 }
 
 static int cci400_get_event_idx(struct cci_pmu *cci_pmu,
@@ -525,8 +533,13 @@ static ssize_t cci5xx_pmu_global_event_show(struct device *dev,
 	struct dev_ext_attribute *eattr = container_of(attr,
 					struct dev_ext_attribute, attr);
 	/* Global events have single fixed source code */
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "event=0x%lx,source=0x%x\n",
 				(unsigned long)eattr->var, CCI5xx_PORT_GLOBAL);
+=======
+	return sysfs_emit(buf, "event=0x%lx,source=0x%x\n",
+			  (unsigned long)eattr->var, CCI5xx_PORT_GLOBAL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -696,7 +709,11 @@ static ssize_t cci_pmu_format_show(struct device *dev,
 {
 	struct dev_ext_attribute *eattr = container_of(attr,
 				struct dev_ext_attribute, attr);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%s\n", (char *)eattr->var);
+=======
+	return sysfs_emit(buf, "%s\n", (char *)eattr->var);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cci_pmu_event_show(struct device *dev,
@@ -705,8 +722,13 @@ static ssize_t cci_pmu_event_show(struct device *dev,
 	struct dev_ext_attribute *eattr = container_of(attr,
 				struct dev_ext_attribute, attr);
 	/* source parameter is mandatory for normal PMU events */
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "source=?,event=0x%lx\n",
 					 (unsigned long)eattr->var);
+=======
+	return sysfs_emit(buf, "source=?,event=0x%lx\n",
+			  (unsigned long)eattr->var);
+>>>>>>> upstream/android-13
 }
 
 static int pmu_is_valid_counter(struct cci_pmu *cci_pmu, int idx)
@@ -806,7 +828,11 @@ static int pmu_get_event_idx(struct cci_pmu_hw_events *hw, struct perf_event *ev
 		return cci_pmu->model->get_event_idx(cci_pmu, hw, cci_event);
 
 	/* Generic code to find an unused idx from the mask */
+<<<<<<< HEAD
 	for(idx = 0; idx <= CCI_PMU_CNTR_LAST(cci_pmu); idx++)
+=======
+	for (idx = 0; idx <= CCI_PMU_CNTR_LAST(cci_pmu); idx++)
+>>>>>>> upstream/android-13
 		if (!test_and_set_bit(idx, hw->used_mask))
 			return idx;
 
@@ -1026,12 +1052,19 @@ static void pmu_event_set_period(struct perf_event *event)
 
 static irqreturn_t pmu_handle_irq(int irq_num, void *dev)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	struct cci_pmu *cci_pmu = dev;
 	struct cci_pmu_hw_events *events = &cci_pmu->hw_events;
 	int idx, handled = IRQ_NONE;
 
+<<<<<<< HEAD
 	raw_spin_lock_irqsave(&events->pmu_lock, flags);
+=======
+	raw_spin_lock(&events->pmu_lock);
+>>>>>>> upstream/android-13
 
 	/* Disable the PMU while we walk through the counters */
 	__cci_pmu_disable(cci_pmu);
@@ -1061,7 +1094,11 @@ static irqreturn_t pmu_handle_irq(int irq_num, void *dev)
 
 	/* Enable the PMU and sync possibly overflowed counters */
 	__cci_pmu_enable_sync(cci_pmu);
+<<<<<<< HEAD
 	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
+=======
+	raw_spin_unlock(&events->pmu_lock);
+>>>>>>> upstream/android-13
 
 	return IRQ_RETVAL(handled);
 }
@@ -1327,6 +1364,7 @@ static int cci_pmu_event_init(struct perf_event *event)
 	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	/* We have no filtering of any kind */
 	if (event->attr.exclude_user	||
 	    event->attr.exclude_kernel	||
@@ -1336,6 +1374,8 @@ static int cci_pmu_event_init(struct perf_event *event)
 	    event->attr.exclude_guest)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Following the example set by other "uncore" PMUs, we accept any CPU
 	 * and rewrite its affinity dynamically rather than having perf core
@@ -1385,7 +1425,11 @@ static struct attribute *pmu_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group pmu_attr_group = {
+=======
+static const struct attribute_group pmu_attr_group = {
+>>>>>>> upstream/android-13
 	.attrs = pmu_attrs,
 };
 
@@ -1433,6 +1477,10 @@ static int cci_pmu_init(struct cci_pmu *cci_pmu, struct platform_device *pdev)
 		.stop		= cci_pmu_stop,
 		.read		= pmu_read,
 		.attr_groups	= pmu_attr_groups,
+<<<<<<< HEAD
+=======
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	cci_pmu->plat_device = pdev;
@@ -1650,7 +1698,10 @@ static struct cci_pmu *cci_pmu_alloc(struct device *dev)
 
 static int cci_pmu_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct cci_pmu *cci_pmu;
 	int i, ret, irq;
 
@@ -1658,8 +1709,12 @@ static int cci_pmu_probe(struct platform_device *pdev)
 	if (IS_ERR(cci_pmu))
 		return PTR_ERR(cci_pmu);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	cci_pmu->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	cci_pmu->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cci_pmu->base))
 		return -ENOMEM;
 
@@ -1728,6 +1783,10 @@ static struct platform_driver cci_pmu_driver = {
 	.driver = {
 		   .name = DRIVER_NAME,
 		   .of_match_table = arm_cci_pmu_matches,
+<<<<<<< HEAD
+=======
+		   .suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 		  },
 	.probe = cci_pmu_probe,
 	.remove = cci_pmu_remove,

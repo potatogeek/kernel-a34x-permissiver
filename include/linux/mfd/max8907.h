@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Functions to access MAX8907 power management chip.
  *
  * Copyright (C) 2010 Gyungoh Yoo <jack.yoo@maxim-ic.com>
  * Copyright (C) 2012, NVIDIA CORPORATION. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_MAX8907_H

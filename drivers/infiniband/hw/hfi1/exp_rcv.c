@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2017 Intel Corporation.
  *
@@ -43,14 +44,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2017 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include "exp_rcv.h"
 #include "trace.h"
 
 /**
+<<<<<<< HEAD
  * exp_tid_group_init - initialize exp_tid_set
  * @set - the set
+=======
+ * hfi1_exp_tid_set_init - initialize exp_tid_set
+ * @set: the set
+>>>>>>> upstream/android-13
  */
 static void hfi1_exp_tid_set_init(struct exp_tid_set *set)
 {
@@ -60,7 +71,11 @@ static void hfi1_exp_tid_set_init(struct exp_tid_set *set)
 
 /**
  * hfi1_exp_tid_group_init - initialize rcd expected receive
+<<<<<<< HEAD
  * @rcd - the rcd
+=======
+ * @rcd: the rcd
+>>>>>>> upstream/android-13
  */
 void hfi1_exp_tid_group_init(struct hfi1_ctxtdata *rcd)
 {
@@ -70,8 +85,13 @@ void hfi1_exp_tid_group_init(struct hfi1_ctxtdata *rcd)
 }
 
 /**
+<<<<<<< HEAD
  * alloc_ctxt_rcv_groups - initialize expected receive groups
  * @rcd - the context to add the groupings to
+=======
+ * hfi1_alloc_ctxt_rcv_groups - initialize expected receive groups
+ * @rcd: the context to add the groupings to
+>>>>>>> upstream/android-13
  */
 int hfi1_alloc_ctxt_rcv_groups(struct hfi1_ctxtdata *rcd)
 {
@@ -100,8 +120,13 @@ int hfi1_alloc_ctxt_rcv_groups(struct hfi1_ctxtdata *rcd)
 }
 
 /**
+<<<<<<< HEAD
  * free_ctxt_rcv_groups - free  expected receive groups
  * @rcd - the context to free
+=======
+ * hfi1_free_ctxt_rcv_groups - free  expected receive groups
+ * @rcd: the context to free
+>>>>>>> upstream/android-13
  *
  * The routine dismantles the expect receive linked
  * list and clears any tids associated with the receive
@@ -112,9 +137,12 @@ int hfi1_alloc_ctxt_rcv_groups(struct hfi1_ctxtdata *rcd)
  */
 void hfi1_free_ctxt_rcv_groups(struct hfi1_ctxtdata *rcd)
 {
+<<<<<<< HEAD
 	WARN_ON(!EXP_TID_SET_EMPTY(rcd->tid_full_list));
 	WARN_ON(!EXP_TID_SET_EMPTY(rcd->tid_used_list));
 
+=======
+>>>>>>> upstream/android-13
 	kfree(rcd->groups);
 	rcd->groups = NULL;
 	hfi1_exp_tid_group_init(rcd);

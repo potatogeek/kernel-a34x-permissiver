@@ -1,23 +1,48 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
 */
 
 #include <linux/backlight.h>
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Generic LVDS panel driver
+ *
+ * Copyright (C) 2016 Laurent Pinchart
+ * Copyright (C) 2016 Renesas Electronics Corporation
+ *
+ * Contact: Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_panel.h>
 
+=======
+#include <linux/regulator/consumer.h>
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include <video/display_timing.h>
 #include <video/of_display_timing.h>
 #include <video/videomode.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_crtc.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 struct panel_lvds {
 	struct drm_panel panel;
 	struct device *dev;
@@ -29,10 +54,19 @@ struct panel_lvds {
 	unsigned int bus_format;
 	bool data_mirror;
 
+<<<<<<< HEAD
 	struct backlight_device *backlight;
 
 	struct gpio_desc *enable_gpio;
 	struct gpio_desc *reset_gpio;
+=======
+	struct regulator *supply;
+
+	struct gpio_desc *enable_gpio;
+	struct gpio_desc *reset_gpio;
+
+	enum drm_panel_orientation orientation;
+>>>>>>> upstream/android-13
 };
 
 static inline struct panel_lvds *to_panel_lvds(struct drm_panel *panel)
@@ -40,6 +74,7 @@ static inline struct panel_lvds *to_panel_lvds(struct drm_panel *panel)
 	return container_of(panel, struct panel_lvds, panel);
 }
 
+<<<<<<< HEAD
 static int panel_lvds_disable(struct drm_panel *panel)
 {
 	struct panel_lvds *lvds = to_panel_lvds(panel);
@@ -53,6 +88,8 @@ static int panel_lvds_disable(struct drm_panel *panel)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int panel_lvds_unprepare(struct drm_panel *panel)
 {
 	struct panel_lvds *lvds = to_panel_lvds(panel);
@@ -60,6 +97,12 @@ static int panel_lvds_unprepare(struct drm_panel *panel)
 	if (lvds->enable_gpio)
 		gpiod_set_value_cansleep(lvds->enable_gpio, 0);
 
+<<<<<<< HEAD
+=======
+	if (lvds->supply)
+		regulator_disable(lvds->supply);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -67,12 +110,27 @@ static int panel_lvds_prepare(struct drm_panel *panel)
 {
 	struct panel_lvds *lvds = to_panel_lvds(panel);
 
+<<<<<<< HEAD
+=======
+	if (lvds->supply) {
+		int err;
+
+		err = regulator_enable(lvds->supply);
+		if (err < 0) {
+			dev_err(lvds->dev, "failed to enable supply: %d\n",
+				err);
+			return err;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (lvds->enable_gpio)
 		gpiod_set_value_cansleep(lvds->enable_gpio, 1);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int panel_lvds_enable(struct drm_panel *panel)
 {
 	struct panel_lvds *lvds = to_panel_lvds(panel);
@@ -93,6 +151,15 @@ static int panel_lvds_get_modes(struct drm_panel *panel)
 	struct drm_display_mode *mode;
 
 	mode = drm_mode_create(lvds->panel.drm);
+=======
+static int panel_lvds_get_modes(struct drm_panel *panel,
+				struct drm_connector *connector)
+{
+	struct panel_lvds *lvds = to_panel_lvds(panel);
+	struct drm_display_mode *mode;
+
+	mode = drm_mode_create(connector->dev);
+>>>>>>> upstream/android-13
 	if (!mode)
 		return 0;
 
@@ -107,15 +174,24 @@ static int panel_lvds_get_modes(struct drm_panel *panel)
 	connector->display_info.bus_flags = lvds->data_mirror
 					  ? DRM_BUS_FLAG_DATA_LSB_TO_MSB
 					  : DRM_BUS_FLAG_DATA_MSB_TO_LSB;
+<<<<<<< HEAD
+=======
+	drm_connector_set_panel_orientation(connector, lvds->orientation);
+>>>>>>> upstream/android-13
 
 	return 1;
 }
 
 static const struct drm_panel_funcs panel_lvds_funcs = {
+<<<<<<< HEAD
 	.disable = panel_lvds_disable,
 	.unprepare = panel_lvds_unprepare,
 	.prepare = panel_lvds_prepare,
 	.enable = panel_lvds_enable,
+=======
+	.unprepare = panel_lvds_unprepare,
+	.prepare = panel_lvds_prepare,
+>>>>>>> upstream/android-13
 	.get_modes = panel_lvds_get_modes,
 };
 
@@ -126,9 +202,24 @@ static int panel_lvds_parse_dt(struct panel_lvds *lvds)
 	const char *mapping;
 	int ret;
 
+<<<<<<< HEAD
 	ret = of_get_display_timing(np, "panel-timing", &timing);
 	if (ret < 0)
 		return ret;
+=======
+	ret = of_drm_get_panel_orientation(np, &lvds->orientation);
+	if (ret < 0) {
+		dev_err(lvds->dev, "%pOF: failed to get orientation %d\n", np, ret);
+		return ret;
+	}
+
+	ret = of_get_display_timing(np, "panel-timing", &timing);
+	if (ret < 0) {
+		dev_err(lvds->dev, "%pOF: problems parsing panel-timing (%d)\n",
+			np, ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	videomode_from_timing(&timing, &lvds->video_mode);
 
@@ -174,7 +265,10 @@ static int panel_lvds_parse_dt(struct panel_lvds *lvds)
 static int panel_lvds_probe(struct platform_device *pdev)
 {
 	struct panel_lvds *lvds;
+<<<<<<< HEAD
 	struct device_node *np;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	lvds = devm_kzalloc(&pdev->dev, sizeof(*lvds), GFP_KERNEL);
@@ -187,6 +281,23 @@ static int panel_lvds_probe(struct platform_device *pdev)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	lvds->supply = devm_regulator_get_optional(lvds->dev, "power");
+	if (IS_ERR(lvds->supply)) {
+		ret = PTR_ERR(lvds->supply);
+
+		if (ret != -ENODEV) {
+			if (ret != -EPROBE_DEFER)
+				dev_err(lvds->dev, "failed to request regulator: %d\n",
+					ret);
+			return ret;
+		}
+
+		lvds->supply = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	/* Get GPIOs and backlight controller. */
 	lvds->enable_gpio = devm_gpiod_get_optional(lvds->dev, "enable",
 						     GPIOD_OUT_LOW);
@@ -206,6 +317,7 @@ static int panel_lvds_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	np = of_parse_phandle(lvds->dev->of_node, "backlight", 0);
 	if (np) {
 		lvds->backlight = of_find_backlight_by_node(np);
@@ -215,6 +327,8 @@ static int panel_lvds_probe(struct platform_device *pdev)
 			return -EPROBE_DEFER;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * TODO: Handle all power supplies specified in the DT node in a generic
 	 * way for panels that don't care about power supply ordering. LVDS
@@ -223,6 +337,7 @@ static int panel_lvds_probe(struct platform_device *pdev)
 	 */
 
 	/* Register the panel. */
+<<<<<<< HEAD
 	drm_panel_init(&lvds->panel);
 	lvds->panel.dev = lvds->dev;
 	lvds->panel.funcs = &panel_lvds_funcs;
@@ -237,10 +352,24 @@ static int panel_lvds_probe(struct platform_device *pdev)
 error:
 	put_device(&lvds->backlight->dev);
 	return ret;
+=======
+	drm_panel_init(&lvds->panel, lvds->dev, &panel_lvds_funcs,
+		       DRM_MODE_CONNECTOR_LVDS);
+
+	ret = drm_panel_of_backlight(&lvds->panel);
+	if (ret)
+		return ret;
+
+	drm_panel_add(&lvds->panel);
+
+	dev_set_drvdata(lvds->dev, lvds);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int panel_lvds_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct panel_lvds *lvds = dev_get_drvdata(&pdev->dev);
 
 	drm_panel_detach(&lvds->panel);
@@ -250,6 +379,13 @@ static int panel_lvds_remove(struct platform_device *pdev)
 
 	if (lvds->backlight)
 		put_device(&lvds->backlight->dev);
+=======
+	struct panel_lvds *lvds = platform_get_drvdata(pdev);
+
+	drm_panel_remove(&lvds->panel);
+
+	drm_panel_disable(&lvds->panel);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

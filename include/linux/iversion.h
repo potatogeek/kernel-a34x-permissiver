@@ -113,6 +113,33 @@ inode_peek_iversion_raw(const struct inode *inode)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * inode_set_max_iversion_raw - update i_version new value is larger
+ * @inode: inode to set
+ * @val: new i_version to set
+ *
+ * Some self-managed filesystems (e.g Ceph) will only update the i_version
+ * value if the new value is larger than the one we already have.
+ */
+static inline void
+inode_set_max_iversion_raw(struct inode *inode, u64 val)
+{
+	u64 cur, old;
+
+	cur = inode_peek_iversion_raw(inode);
+	for (;;) {
+		if (cur > val)
+			break;
+		old = atomic64_cmpxchg(&inode->i_version, cur, val);
+		if (likely(old == cur))
+			break;
+		cur = old;
+	}
+}
+
+/**
+>>>>>>> upstream/android-13
  * inode_set_iversion - set i_version to a particular value
  * @inode: inode to set
  * @val: new i_version value to set
@@ -304,6 +331,22 @@ inode_query_iversion(struct inode *inode)
 	return cur >> I_VERSION_QUERIED_SHIFT;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * For filesystems without any sort of change attribute, the best we can
+ * do is fake one up from the ctime:
+ */
+static inline u64 time_to_chattr(struct timespec64 *t)
+{
+	u64 chattr = t->tv_sec;
+
+	chattr <<= 32;
+	chattr += t->tv_nsec;
+	return chattr;
+}
+
+>>>>>>> upstream/android-13
 /**
  * inode_eq_iversion_raw - check whether the raw i_version counter has changed
  * @inode: inode to check

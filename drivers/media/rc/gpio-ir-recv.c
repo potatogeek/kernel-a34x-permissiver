@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2012, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2012, Code Aurora Forum. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -19,6 +24,11 @@
 #include <linux/of.h>
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_runtime.h>
+#include <linux/pm_qos.h>
+>>>>>>> upstream/android-13
 #include <linux/irq.h>
 #include <media/rc-core.h>
 
@@ -28,17 +38,47 @@ struct gpio_rc_dev {
 	struct rc_dev *rcdev;
 	struct gpio_desc *gpiod;
 	int irq;
+<<<<<<< HEAD
+=======
+	struct device *pmdev;
+	struct pm_qos_request qos;
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t gpio_ir_recv_irq(int irq, void *dev_id)
 {
 	int val;
 	struct gpio_rc_dev *gpio_dev = dev_id;
+<<<<<<< HEAD
+=======
+	struct device *pmdev = gpio_dev->pmdev;
+
+	/*
+	 * For some cpuidle systems, not all:
+	 * Respond to interrupt taking more latency when cpu in idle.
+	 * Invoke asynchronous pm runtime get from interrupt context,
+	 * this may introduce a millisecond delay to call resume callback,
+	 * where to disable cpuilde.
+	 *
+	 * Two issues lead to fail to decode first frame, one is latency to
+	 * respond to interrupt, another is delay introduced by async api.
+	 */
+	if (pmdev)
+		pm_runtime_get(pmdev);
+>>>>>>> upstream/android-13
 
 	val = gpiod_get_value(gpio_dev->gpiod);
 	if (val >= 0)
 		ir_raw_event_store_edge(gpio_dev->rcdev, val == 1);
 
+<<<<<<< HEAD
+=======
+	if (pmdev) {
+		pm_runtime_mark_last_busy(pmdev);
+		pm_runtime_put_autosuspend(pmdev);
+	}
+
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -48,6 +88,10 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
 	struct device_node *np = dev->of_node;
 	struct gpio_rc_dev *gpio_dev;
 	struct rc_dev *rcdev;
+<<<<<<< HEAD
+=======
+	u32 period = 0;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!np)
@@ -98,6 +142,18 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
 		return rc;
 	}
 
+<<<<<<< HEAD
+=======
+	of_property_read_u32(np, "linux,autosuspend-period", &period);
+	if (period) {
+		gpio_dev->pmdev = dev;
+		pm_runtime_set_autosuspend_delay(dev, period);
+		pm_runtime_use_autosuspend(dev);
+		pm_runtime_set_suspended(dev);
+		pm_runtime_enable(dev);
+	}
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, gpio_dev);
 
 	return devm_request_irq(dev, gpio_dev->irq, gpio_ir_recv_irq,
@@ -130,9 +186,35 @@ static int gpio_ir_recv_resume(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct dev_pm_ops gpio_ir_recv_pm_ops = {
 	.suspend        = gpio_ir_recv_suspend,
 	.resume         = gpio_ir_recv_resume,
+=======
+static int gpio_ir_recv_runtime_suspend(struct device *dev)
+{
+	struct gpio_rc_dev *gpio_dev = dev_get_drvdata(dev);
+
+	cpu_latency_qos_remove_request(&gpio_dev->qos);
+
+	return 0;
+}
+
+static int gpio_ir_recv_runtime_resume(struct device *dev)
+{
+	struct gpio_rc_dev *gpio_dev = dev_get_drvdata(dev);
+
+	cpu_latency_qos_add_request(&gpio_dev->qos, 0);
+
+	return 0;
+}
+
+static const struct dev_pm_ops gpio_ir_recv_pm_ops = {
+	.suspend        = gpio_ir_recv_suspend,
+	.resume         = gpio_ir_recv_resume,
+	.runtime_suspend = gpio_ir_recv_runtime_suspend,
+	.runtime_resume  = gpio_ir_recv_runtime_resume,
+>>>>>>> upstream/android-13
 };
 #endif
 

@@ -31,9 +31,15 @@ SECTIONS
 
   _sdata = .;			/* Start of data section */
 
+<<<<<<< HEAD
   RODATA
 
   RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE)
+=======
+  RO_DATA(4096)
+
+  RW_DATA(16, PAGE_SIZE, THREAD_SIZE)
+>>>>>>> upstream/android-13
 
   BSS_SECTION(0, 0, 0)
 
@@ -49,7 +55,10 @@ SECTIONS
 	*(.m68k_fixup)
 	__stop_fixup = .;
   }
+<<<<<<< HEAD
   NOTES
+=======
+>>>>>>> upstream/android-13
   .init_end : {
 	/* This ALIGN be in a section so that _end is at the end of the
 	   load segment. */
@@ -60,7 +69,11 @@ SECTIONS
   _end = . ;
 
   STABS_DEBUG
+<<<<<<< HEAD
   .comment 0 : { *(.comment) }
+=======
+  ELF_DETAILS
+>>>>>>> upstream/android-13
 
   /* Sections to be discarded */
   DISCARDS

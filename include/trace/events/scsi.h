@@ -124,6 +124,7 @@
 		scsi_hostbyte_name(DID_TRANSPORT_DISRUPTED),	\
 		scsi_hostbyte_name(DID_TRANSPORT_FAILFAST))
 
+<<<<<<< HEAD
 #define scsi_driverbyte_name(result)	{ result, #result }
 #define show_driverbyte_name(val)				\
 	__print_symbolic(val,					\
@@ -168,6 +169,8 @@
 		scsi_msgbyte_name(BUS_DEVICE_RESET),		\
 		scsi_msgbyte_name(ABORT))
 
+=======
+>>>>>>> upstream/android-13
 #define scsi_statusbyte_name(result)	{ result, #result }
 #define show_statusbyte_name(val)				\
 	__print_symbolic(val,					\
@@ -327,9 +330,15 @@ DECLARE_EVENT_CLASS(scsi_cmd_done_timeout_template,
 		  show_opcode_name(__entry->opcode),
 		  __parse_cdb(__get_dynamic_array(cmnd), __entry->cmd_len),
 		  __print_hex(__get_dynamic_array(cmnd), __entry->cmd_len),
+<<<<<<< HEAD
 		  show_driverbyte_name(((__entry->result) >> 24) & 0xff),
 		  show_hostbyte_name(((__entry->result) >> 16) & 0xff),
 		  show_msgbyte_name(((__entry->result) >> 8) & 0xff),
+=======
+		  "DRIVER_OK",
+		  show_hostbyte_name(((__entry->result) >> 16) & 0xff),
+		  "COMMAND_COMPLETE",
+>>>>>>> upstream/android-13
 		  show_statusbyte_name(__entry->result & 0xff))
 );
 

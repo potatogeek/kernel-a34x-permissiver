@@ -710,8 +710,13 @@ static bool check_device_tree(struct ath6kl *ar)
 	for_each_compatible_node(node, NULL, "atheros,ath6kl") {
 		board_id = of_get_property(node, board_id_prop, NULL);
 		if (board_id == NULL) {
+<<<<<<< HEAD
 			ath6kl_warn("No \"%s\" property on %s node.\n",
 				    board_id_prop, node->name);
+=======
+			ath6kl_warn("No \"%s\" property on %pOFn node.\n",
+				    board_id_prop, node);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		snprintf(board_filename, sizeof(board_filename),
@@ -1140,7 +1145,11 @@ static int ath6kl_fetch_fw_apin(struct ath6kl *ar, const char *name)
 
 		len -= ie_len;
 		data += ie_len;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	ret = 0;
 out:
@@ -1575,7 +1584,11 @@ static int ath6kl_init_upload(struct ath6kl *ar)
 
 int ath6kl_init_hw_params(struct ath6kl *ar)
 {
+<<<<<<< HEAD
 	const struct ath6kl_hw *uninitialized_var(hw);
+=======
+	const struct ath6kl_hw *hw;
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(hw_list); i++) {
@@ -1752,7 +1765,11 @@ static int __ath6kl_init_hw_start(struct ath6kl *ar)
 
 	ret = ath6kl_init_service_ep(ar);
 	if (ret) {
+<<<<<<< HEAD
 		ath6kl_err("Endpoint service initilisation failed: %d\n", ret);
+=======
+		ath6kl_err("Endpoint service initialization failed: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto err_cleanup_scatter;
 	}
 
@@ -1904,7 +1921,13 @@ void ath6kl_stop_txrx(struct ath6kl *ar)
 		spin_unlock_bh(&ar->list_lock);
 		ath6kl_cfg80211_vif_stop(vif, test_bit(WMI_READY, &ar->flag));
 		rtnl_lock();
+<<<<<<< HEAD
 		ath6kl_cfg80211_vif_cleanup(vif);
+=======
+		wiphy_lock(ar->wiphy);
+		ath6kl_cfg80211_vif_cleanup(vif);
+		wiphy_unlock(ar->wiphy);
+>>>>>>> upstream/android-13
 		rtnl_unlock();
 		spin_lock_bh(&ar->list_lock);
 	}

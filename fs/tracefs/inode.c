@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  inode.c - part of tracefs, a pseudo file system for activating tracing
  *
@@ -5,12 +9,16 @@
  *
  *  Copyright (C) 2014 Red Hat Inc, author: Steven Rostedt <srostedt@redhat.com>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License version
  *	2 as published by the Free Software Foundation.
  *
  * tracefs is the file system that is used by the tracing infrastructure.
  *
+=======
+ * tracefs is the file system that is used by the tracing infrastructure.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,6 +28,10 @@
 #include <linux/namei.h>
 #include <linux/tracefs.h>
 #include <linux/fsnotify.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <linux/parser.h>
 #include <linux/magic.h>
@@ -70,7 +82,13 @@ static char *get_dname(struct dentry *dentry)
 	return name;
 }
 
+<<<<<<< HEAD
 static int tracefs_syscall_mkdir(struct inode *inode, struct dentry *dentry, umode_t mode)
+=======
+static int tracefs_syscall_mkdir(struct user_namespace *mnt_userns,
+				 struct inode *inode, struct dentry *dentry,
+				 umode_t mode)
+>>>>>>> upstream/android-13
 {
 	char *name;
 	int ret;
@@ -162,6 +180,80 @@ struct tracefs_fs_info {
 	struct tracefs_mount_opts mount_opts;
 };
 
+<<<<<<< HEAD
+=======
+static void change_gid(struct dentry *dentry, kgid_t gid)
+{
+	if (!dentry->d_inode)
+		return;
+	dentry->d_inode->i_gid = gid;
+}
+
+/*
+ * Taken from d_walk, but without he need for handling renames.
+ * Nothing can be renamed while walking the list, as tracefs
+ * does not support renames. This is only called when mounting
+ * or remounting the file system, to set all the files to
+ * the given gid.
+ */
+static void set_gid(struct dentry *parent, kgid_t gid)
+{
+	struct dentry *this_parent;
+	struct list_head *next;
+
+	this_parent = parent;
+	spin_lock(&this_parent->d_lock);
+
+	change_gid(this_parent, gid);
+repeat:
+	next = this_parent->d_subdirs.next;
+resume:
+	while (next != &this_parent->d_subdirs) {
+		struct list_head *tmp = next;
+		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
+		next = tmp->next;
+
+		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
+
+		change_gid(dentry, gid);
+
+		if (!list_empty(&dentry->d_subdirs)) {
+			spin_unlock(&this_parent->d_lock);
+			spin_release(&dentry->d_lock.dep_map, _RET_IP_);
+			this_parent = dentry;
+			spin_acquire(&this_parent->d_lock.dep_map, 0, 1, _RET_IP_);
+			goto repeat;
+		}
+		spin_unlock(&dentry->d_lock);
+	}
+	/*
+	 * All done at this level ... ascend and resume the search.
+	 */
+	rcu_read_lock();
+ascend:
+	if (this_parent != parent) {
+		struct dentry *child = this_parent;
+		this_parent = child->d_parent;
+
+		spin_unlock(&child->d_lock);
+		spin_lock(&this_parent->d_lock);
+
+		/* go into the first sibling still alive */
+		do {
+			next = child->d_child.next;
+			if (next == &this_parent->d_subdirs)
+				goto ascend;
+			child = list_entry(next, struct dentry, d_child);
+		} while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED));
+		rcu_read_unlock();
+		goto resume;
+	}
+	rcu_read_unlock();
+	spin_unlock(&this_parent->d_lock);
+	return;
+}
+
+>>>>>>> upstream/android-13
 static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
 {
 	substring_t args[MAX_OPT_ARGS];
@@ -220,7 +312,13 @@ static int tracefs_apply_options(struct super_block *sb)
 	inode->i_mode |= opts->mode;
 
 	inode->i_uid = opts->uid;
+<<<<<<< HEAD
 	inode->i_gid = opts->gid;
+=======
+
+	/* Set all the group ids to the mount option */
+	set_gid(sb->s_root, opts->gid);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -333,7 +431,14 @@ static struct dentry *start_creating(const char *name, struct dentry *parent)
 		parent = tracefs_mount->mnt_root;
 
 	inode_lock(parent->d_inode);
+<<<<<<< HEAD
 	dentry = lookup_one_len(name, parent, strlen(name));
+=======
+	if (unlikely(IS_DEADDIR(parent->d_inode)))
+		dentry = ERR_PTR(-ENOENT);
+	else
+		dentry = lookup_one_len(name, parent, strlen(name));
+>>>>>>> upstream/android-13
 	if (!IS_ERR(dentry) && dentry->d_inode) {
 		dput(dentry);
 		dentry = ERR_PTR(-EEXIST);
@@ -394,6 +499,12 @@ struct dentry *tracefs_create_file(const char *name, umode_t mode,
 	struct dentry *dentry;
 	struct inode *inode;
 
+<<<<<<< HEAD
+=======
+	if (security_locked_down(LOCKDOWN_TRACEFS))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	if (!(mode & S_IFMT))
 		mode |= S_IFREG;
 	BUG_ON(!S_ISREG(mode));
@@ -409,6 +520,11 @@ struct dentry *tracefs_create_file(const char *name, umode_t mode,
 	inode->i_mode = mode;
 	inode->i_fop = fops ? fops : &tracefs_file_operations;
 	inode->i_private = data;
+<<<<<<< HEAD
+=======
+	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
+	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+>>>>>>> upstream/android-13
 	d_instantiate(dentry, inode);
 	fsnotify_create(dentry->d_parent->d_inode, dentry);
 	return end_creating(dentry);
@@ -430,6 +546,11 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
 	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
 	inode->i_op = ops;
 	inode->i_fop = &simple_dir_operations;
+<<<<<<< HEAD
+=======
+	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
+	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+>>>>>>> upstream/android-13
 
 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
 	inc_nlink(inode);
@@ -472,7 +593,11 @@ struct dentry *tracefs_create_dir(const char *name, struct dentry *parent)
  *
  * The instances directory is special as it allows for mkdir and rmdir to
  * to be done by userspace. When a mkdir or rmdir is performed, the inode
+<<<<<<< HEAD
  * locks are released and the methhods passed in (@mkdir and @rmdir) are
+=======
+ * locks are released and the methods passed in (@mkdir and @rmdir) are
+>>>>>>> upstream/android-13
  * called without locks and with the name of the directory being created
  * within the instances directory.
  *
@@ -499,6 +624,7 @@ __init struct dentry *tracefs_create_instance_dir(const char *name,
 	return dentry;
 }
 
+<<<<<<< HEAD
 static int __tracefs_remove(struct dentry *dentry, struct dentry *parent)
 {
 	int ret = 0;
@@ -549,12 +675,22 @@ void tracefs_remove(struct dentry *dentry)
 
 /**
  * tracefs_remove_recursive - recursively removes a directory
+=======
+static void remove_one(struct dentry *victim)
+{
+	simple_release_fs(&tracefs_mount, &tracefs_mount_count);
+}
+
+/**
+ * tracefs_remove - recursively removes a directory
+>>>>>>> upstream/android-13
  * @dentry: a pointer to a the dentry of the directory to be removed.
  *
  * This function recursively removes a directory tree in tracefs that
  * was previously created with a call to another tracefs function
  * (like tracefs_create_file() or variants thereof.)
  */
+<<<<<<< HEAD
 void tracefs_remove_recursive(struct dentry *dentry)
 {
 	struct dentry *child, *parent;
@@ -612,6 +748,16 @@ void tracefs_remove_recursive(struct dentry *dentry)
 	if (!__tracefs_remove(child, parent))
 		simple_release_fs(&tracefs_mount, &tracefs_mount_count);
 	inode_unlock(parent->d_inode);
+=======
+void tracefs_remove(struct dentry *dentry)
+{
+	if (IS_ERR_OR_NULL(dentry))
+		return;
+
+	simple_pin_fs(&trace_fs_type, &tracefs_mount, &tracefs_mount_count);
+	simple_recursive_removal(dentry, remove_one);
+	simple_release_fs(&tracefs_mount, &tracefs_mount_count);
+>>>>>>> upstream/android-13
 }
 
 /**

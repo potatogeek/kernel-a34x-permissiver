@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 1999, 2000, 2004, 2005	 MIPS Technologies, Inc.
  *    All rights reserved.
@@ -5,6 +9,7 @@
  *	       Maciej W. Rozycki <macro@mips.com>
  * Copyright (C) 2005 Ralf Baechle (ralf@linux-mips.org)
  *
+<<<<<<< HEAD
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
  *  published by the Free Software Foundation.
@@ -20,6 +25,9 @@
  *
  * MIPS boards specific PCI support.
  *
+=======
+ * MIPS boards specific PCI support.
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/pci.h>

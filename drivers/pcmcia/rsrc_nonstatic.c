@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * rsrc_nonstatic.c -- Resource management routines for !SS_CAP_STATIC_MAP sockets
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * rsrc_nonstatic.c -- Resource management routines for !SS_CAP_STATIC_MAP sockets
+ *
+>>>>>>> upstream/android-13
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
@@ -260,7 +267,11 @@ static void do_io_probe(struct pcmcia_socket *s, unsigned int base,
 
 /*======================================================================*/
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * readable() - iomem validation function for cards with a valid CIS
  */
 static int readable(struct pcmcia_socket *s, struct resource *res,
@@ -291,7 +302,11 @@ static int readable(struct pcmcia_socket *s, struct resource *res,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * checksum() - iomem validation function for simple memory cards
  */
 static int checksum(struct pcmcia_socket *s, struct resource *res,
@@ -346,9 +361,15 @@ static int checksum(struct pcmcia_socket *s, struct resource *res,
  */
 static int do_validate_mem(struct pcmcia_socket *s,
 			   unsigned long base, unsigned long size,
+<<<<<<< HEAD
 			   int validate (struct pcmcia_socket *s,
 					 struct resource *res,
 					 unsigned int *value))
+=======
+			   int (*validate)(struct pcmcia_socket *s,
+					   struct resource *res,
+					   unsigned int *value))
+>>>>>>> upstream/android-13
 {
 	struct socket_data *s_data = s->resource_data;
 	struct resource *res1, *res2;
@@ -401,12 +422,21 @@ static int do_validate_mem(struct pcmcia_socket *s,
  * function returns the size of the usable memory area.
  */
 static int do_mem_probe(struct pcmcia_socket *s, u_long base, u_long num,
+<<<<<<< HEAD
 			int validate (struct pcmcia_socket *s,
 				      struct resource *res,
 				      unsigned int *value),
 			int fallback (struct pcmcia_socket *s,
 				      struct resource *res,
 				      unsigned int *value))
+=======
+			int (*validate)(struct pcmcia_socket *s,
+					struct resource *res,
+					unsigned int *value),
+			int (*fallback)(struct pcmcia_socket *s,
+					struct resource *res,
+					unsigned int *value))
+>>>>>>> upstream/android-13
 {
 	struct socket_data *s_data = s->resource_data;
 	u_long i, j, bad, fail, step;
@@ -693,6 +723,12 @@ static struct resource *__nonstatic_find_io_region(struct pcmcia_socket *s,
 	unsigned long min = base;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (!res)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	data.mask = align - 1;
 	data.offset = base & data.mask;
 	data.map = &s_data->io_db;
@@ -812,6 +848,12 @@ static struct resource *nonstatic_find_mem_region(u_long base, u_long num,
 	unsigned long min, max;
 	int ret, i, j;
 
+<<<<<<< HEAD
+=======
+	if (!res)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	low = low || !(s->features & SS_CAP_PAGE_REGS);
 
 	data.mask = align - 1;
@@ -1079,7 +1121,11 @@ static ssize_t show_io_db(struct device *dev,
 	for (p = data->io_db.next; p != &data->io_db; p = p->next) {
 		if (ret > (PAGE_SIZE - 10))
 			continue;
+<<<<<<< HEAD
 		ret += snprintf(&buf[ret], (PAGE_SIZE - ret - 1),
+=======
+		ret += scnprintf(&buf[ret], (PAGE_SIZE - ret - 1),
+>>>>>>> upstream/android-13
 				"0x%08lx - 0x%08lx\n",
 				((unsigned long) p->base),
 				((unsigned long) p->base + p->num - 1));
@@ -1136,7 +1182,11 @@ static ssize_t show_mem_db(struct device *dev,
 	     p = p->next) {
 		if (ret > (PAGE_SIZE - 10))
 			continue;
+<<<<<<< HEAD
 		ret += snprintf(&buf[ret], (PAGE_SIZE - ret - 1),
+=======
+		ret += scnprintf(&buf[ret], (PAGE_SIZE - ret - 1),
+>>>>>>> upstream/android-13
 				"0x%08lx - 0x%08lx\n",
 				((unsigned long) p->base),
 				((unsigned long) p->base + p->num - 1));
@@ -1145,7 +1195,11 @@ static ssize_t show_mem_db(struct device *dev,
 	for (p = data->mem_db.next; p != &data->mem_db; p = p->next) {
 		if (ret > (PAGE_SIZE - 10))
 			continue;
+<<<<<<< HEAD
 		ret += snprintf(&buf[ret], (PAGE_SIZE - ret - 1),
+=======
+		ret += scnprintf(&buf[ret], (PAGE_SIZE - ret - 1),
+>>>>>>> upstream/android-13
 				"0x%08lx - 0x%08lx\n",
 				((unsigned long) p->base),
 				((unsigned long) p->base + p->num - 1));

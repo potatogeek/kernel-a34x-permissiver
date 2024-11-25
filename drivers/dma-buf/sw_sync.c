@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Sync File validation framework
  *
  * Copyright (C) 2012 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/file.h>
@@ -158,7 +165,11 @@ static bool timeline_fence_signaled(struct dma_fence *fence)
 {
 	struct sync_timeline *parent = dma_fence_parent(fence);
 
+<<<<<<< HEAD
 	return !__dma_fence_is_later(fence->seqno, parent->value);
+=======
+	return !__dma_fence_is_later(fence->seqno, parent->value, fence->ops);
+>>>>>>> upstream/android-13
 }
 
 static bool timeline_fence_enable_signaling(struct dma_fence *fence)
@@ -169,7 +180,11 @@ static bool timeline_fence_enable_signaling(struct dma_fence *fence)
 static void timeline_fence_value_str(struct dma_fence *fence,
 				    char *str, int size)
 {
+<<<<<<< HEAD
 	snprintf(str, size, "%d", fence->seqno);
+=======
+	snprintf(str, size, "%lld", fence->seqno);
+>>>>>>> upstream/android-13
 }
 
 static void timeline_fence_timeline_value_str(struct dma_fence *fence,
@@ -417,5 +432,9 @@ const struct file_operations sw_sync_debugfs_fops = {
 	.open           = sw_sync_debugfs_open,
 	.release        = sw_sync_debugfs_release,
 	.unlocked_ioctl = sw_sync_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl	= sw_sync_ioctl,
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };

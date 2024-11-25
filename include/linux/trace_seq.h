@@ -12,7 +12,11 @@
  */
 
 struct trace_seq {
+<<<<<<< HEAD
 	unsigned char		buffer[PAGE_SIZE];
+=======
+	char			buffer[PAGE_SIZE];
+>>>>>>> upstream/android-13
 	struct seq_buf		seq;
 	int			full;
 };
@@ -51,7 +55,11 @@ static inline int trace_seq_used(struct trace_seq *s)
  * that is about to be written to and then return the result
  * of that write.
  */
+<<<<<<< HEAD
 static inline unsigned char *
+=======
+static inline char *
+>>>>>>> upstream/android-13
 trace_seq_buffer_ptr(struct trace_seq *s)
 {
 	return s->buffer + seq_buf_used(&s->seq);
@@ -92,6 +100,13 @@ extern int trace_seq_path(struct trace_seq *s, const struct path *path);
 extern void trace_seq_bitmask(struct trace_seq *s, const unsigned long *maskp,
 			     int nmaskbits);
 
+<<<<<<< HEAD
+=======
+extern int trace_seq_hex_dump(struct trace_seq *s, const char *prefix_str,
+			      int prefix_type, int rowsize, int groupsize,
+			      const void *buf, size_t len, bool ascii);
+
+>>>>>>> upstream/android-13
 #else /* CONFIG_TRACING */
 static inline void trace_seq_printf(struct trace_seq *s, const char *fmt, ...)
 {

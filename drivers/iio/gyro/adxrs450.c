@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADXRS450/ADXRS453 Digital Output Gyroscope Driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -425,7 +432,10 @@ static int adxrs450_probe(struct spi_device *spi)
 	/* This is only used for removal purposes */
 	spi_set_drvdata(spi, indio_dev);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &adxrs450_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels =

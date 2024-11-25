@@ -12,6 +12,7 @@ static struct rc_map_table flydvb[] = {
 	{ 0x01, KEY_ZOOM },		/* Full Screen */
 	{ 0x00, KEY_POWER },		/* Power */
 
+<<<<<<< HEAD
 	{ 0x03, KEY_1 },
 	{ 0x04, KEY_2 },
 	{ 0x05, KEY_3 },
@@ -23,6 +24,19 @@ static struct rc_map_table flydvb[] = {
 	{ 0x0d, KEY_9 },
 	{ 0x06, KEY_AGAIN },		/* Recall */
 	{ 0x0f, KEY_0 },
+=======
+	{ 0x03, KEY_NUMERIC_1 },
+	{ 0x04, KEY_NUMERIC_2 },
+	{ 0x05, KEY_NUMERIC_3 },
+	{ 0x07, KEY_NUMERIC_4 },
+	{ 0x08, KEY_NUMERIC_5 },
+	{ 0x09, KEY_NUMERIC_6 },
+	{ 0x0b, KEY_NUMERIC_7 },
+	{ 0x0c, KEY_NUMERIC_8 },
+	{ 0x0d, KEY_NUMERIC_9 },
+	{ 0x06, KEY_AGAIN },		/* Recall */
+	{ 0x0f, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x10, KEY_MUTE },		/* Mute */
 	{ 0x02, KEY_RADIO },		/* TV/Radio */
 	{ 0x1b, KEY_LANGUAGE },		/* SAP (Second Audio Program) */

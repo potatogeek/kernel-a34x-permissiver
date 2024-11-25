@@ -23,6 +23,7 @@ struct ceph_pagelist_cursor {
 	size_t room;		    /* room remaining to reset to */
 };
 
+<<<<<<< HEAD
 static inline void ceph_pagelist_init(struct ceph_pagelist *pl)
 {
 	INIT_LIST_HEAD(&pl->head);
@@ -33,6 +34,9 @@ static inline void ceph_pagelist_init(struct ceph_pagelist *pl)
 	pl->num_pages_free = 0;
 	refcount_set(&pl->refcnt, 1);
 }
+=======
+struct ceph_pagelist *ceph_pagelist_alloc(gfp_t gfp_flags);
+>>>>>>> upstream/android-13
 
 extern void ceph_pagelist_release(struct ceph_pagelist *pl);
 

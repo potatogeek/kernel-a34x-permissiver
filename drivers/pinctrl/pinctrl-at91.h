@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) SAN People
  *
  * Parallel I/O Controller (PIO) - System peripherals registers.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PINCTRL_AT91_H
@@ -69,4 +76,10 @@
 #define AT91SAM9X5_PIO_DRIVER1	0x114  /*PIO Driver 1 register offset*/
 #define AT91SAM9X5_PIO_DRIVER2	0x118  /*PIO Driver 2 register offset*/
 
+<<<<<<< HEAD
+=======
+#define SAM9X60_PIO_SLEWR	0x110	/* PIO Slew Rate Control Register */
+#define SAM9X60_PIO_DRIVER1	0x118	/* PIO Driver 1 register offset */
+
+>>>>>>> upstream/android-13
 #endif

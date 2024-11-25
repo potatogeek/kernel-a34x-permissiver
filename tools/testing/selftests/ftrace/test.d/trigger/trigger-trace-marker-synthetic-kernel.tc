@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: trace_marker trigger - test histogram with synthetic event against kernel event
+<<<<<<< HEAD
 # flags:
 
 do_reset() {
@@ -12,10 +13,17 @@ do_reset() {
 
 fail() { #msg
     do_reset
+=======
+# requires: set_event synthetic_events events/sched/sched_waking events/ftrace/print/trigger events/ftrace/print/hist
+# flags:
+
+fail() { #msg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -48,6 +56,8 @@ fi
 
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 echo "Test histogram kernel event to trace_marker latency histogram trigger"
 
 echo 'latency u64 lat' > synthetic_events
@@ -63,6 +73,9 @@ grep 'hitcount: *1$' events/ftrace/print/hist > /dev/null || \
 grep 'hitcount: *1$' events/synthetic/latency/hist > /dev/null || \
     fail "hist trigger did not trigger "
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

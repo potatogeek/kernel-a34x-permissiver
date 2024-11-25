@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  sst_mfld_platform.h - Intel MID Platform driver header file
  *
@@ -6,6 +10,7 @@
  *  Author: Harsha Priya <priya.harsha@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -15,6 +20,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -25,7 +32,11 @@
 #include "sst-atom-controls.h"
 
 extern struct sst_device *sst;
+<<<<<<< HEAD
 extern const struct snd_compr_ops sst_platform_compr_ops;
+=======
+extern const struct snd_compress_ops sst_platform_compress_ops;
+>>>>>>> upstream/android-13
 
 #define DRV_NAME "sst"
 
@@ -181,6 +192,11 @@ struct sst_data {
 	struct snd_soc_card *soc_card;
 	struct sst_cmd_sba_hw_set_ssp ssp_cmd;
 };
+<<<<<<< HEAD
 int sst_register_dsp(struct sst_device *sst);
 int sst_unregister_dsp(struct sst_device *sst);
+=======
+int sst_register_dsp(struct sst_device *dev);
+int sst_unregister_dsp(struct sst_device *dev);
+>>>>>>> upstream/android-13
 #endif

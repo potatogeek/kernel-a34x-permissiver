@@ -9,6 +9,10 @@
 #include <linux/module.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <sound/dmaengine_pcm.h>
 #include <sound/pcm_params.h>
 
@@ -21,8 +25,20 @@
 				SNDRV_PCM_FMTBIT_S24_LE)
 
 /**
+<<<<<<< HEAD
  * fsl_esai: ESAI private data
  *
+=======
+ * struct fsl_esai_soc_data - soc specific data
+ * @reset_at_xrun: flags for enable reset operaton
+ */
+struct fsl_esai_soc_data {
+	bool reset_at_xrun;
+};
+
+/**
+ * struct fsl_esai - ESAI private data
+>>>>>>> upstream/android-13
  * @dma_params_rx: DMA parameters for receive channel
  * @dma_params_tx: DMA parameters for transmit channel
  * @pdev: platform device pointer
@@ -31,9 +47,21 @@
  * @extalclk: esai clock source to derive HCK, SCK and FS
  * @fsysclk: system clock source to derive HCK, SCK and FS
  * @spbaclk: SPBA clock (optional, depending on SoC design)
+<<<<<<< HEAD
  * @fifo_depth: depth of tx/rx FIFO
  * @slot_width: width of each DAI slot
  * @slots: number of slots
+=======
+ * @work: work to handle the reset operation
+ * @soc: soc specific data
+ * @lock: spin lock between hw_reset() and trigger()
+ * @fifo_depth: depth of tx/rx FIFO
+ * @slot_width: width of each DAI slot
+ * @slots: number of slots
+ * @tx_mask: slot mask for TX
+ * @rx_mask: slot mask for RX
+ * @channels: channel num for tx or rx
+>>>>>>> upstream/android-13
  * @hck_rate: clock rate of desired HCKx clock
  * @sck_rate: clock rate of desired SCKx clock
  * @hck_dir: the direction of HCKx pads
@@ -51,11 +79,21 @@ struct fsl_esai {
 	struct clk *extalclk;
 	struct clk *fsysclk;
 	struct clk *spbaclk;
+<<<<<<< HEAD
+=======
+	struct work_struct work;
+	const struct fsl_esai_soc_data *soc;
+	spinlock_t lock; /* Protect hw_reset and trigger */
+>>>>>>> upstream/android-13
 	u32 fifo_depth;
 	u32 slot_width;
 	u32 slots;
 	u32 tx_mask;
 	u32 rx_mask;
+<<<<<<< HEAD
+=======
+	u32 channels[2];
+>>>>>>> upstream/android-13
 	u32 hck_rate[2];
 	u32 sck_rate[2];
 	bool hck_dir[2];
@@ -65,13 +103,45 @@ struct fsl_esai {
 	char name[32];
 };
 
+<<<<<<< HEAD
+=======
+static struct fsl_esai_soc_data fsl_esai_vf610 = {
+	.reset_at_xrun = true,
+};
+
+static struct fsl_esai_soc_data fsl_esai_imx35 = {
+	.reset_at_xrun = true,
+};
+
+static struct fsl_esai_soc_data fsl_esai_imx6ull = {
+	.reset_at_xrun = false,
+};
+
+>>>>>>> upstream/android-13
 static irqreturn_t esai_isr(int irq, void *devid)
 {
 	struct fsl_esai *esai_priv = (struct fsl_esai *)devid;
 	struct platform_device *pdev = esai_priv->pdev;
 	u32 esr;
+<<<<<<< HEAD
 
 	regmap_read(esai_priv->regmap, REG_ESAI_ESR, &esr);
+=======
+	u32 saisr;
+
+	regmap_read(esai_priv->regmap, REG_ESAI_ESR, &esr);
+	regmap_read(esai_priv->regmap, REG_ESAI_SAISR, &saisr);
+
+	if ((saisr & (ESAI_SAISR_TUE | ESAI_SAISR_ROE)) &&
+	    esai_priv->soc->reset_at_xrun) {
+		dev_dbg(&pdev->dev, "reset module for xrun\n");
+		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCR,
+				   ESAI_xCR_xEIE_MASK, 0);
+		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCR,
+				   ESAI_xCR_xEIE_MASK, 0);
+		schedule_work(&esai_priv->work);
+	}
+>>>>>>> upstream/android-13
 
 	if (esr & ESAI_ESR_TINIT_MASK)
 		dev_dbg(&pdev->dev, "isr: Transmission Initialized\n");
@@ -110,6 +180,7 @@ static irqreturn_t esai_isr(int irq, void *devid)
 }
 
 /**
+<<<<<<< HEAD
  * This function is used to calculate the divisors of psr, pm, fp and it is
  * supposed to be called in set_dai_sysclk() and set_bclk().
  *
@@ -117,6 +188,17 @@ static irqreturn_t esai_isr(int irq, void *devid)
  * @usefp: for HCK setting, there is no need to set fp divider
  * @fp: bypass other dividers by setting fp directly if fp != 0
  * @tx: current setting is for playback or capture
+=======
+ * fsl_esai_divisor_cal - This function is used to calculate the
+ * divisors of psr, pm, fp and it is supposed to be called in
+ * set_dai_sysclk() and set_bclk().
+ *
+ * @dai: pointer to DAI
+ * @tx: current setting is for playback or capture
+ * @ratio: desired overall ratio for the paticipating dividers
+ * @usefp: for HCK setting, there is no need to set fp divider
+ * @fp: bypass other dividers by setting fp directly if fp != 0
+>>>>>>> upstream/android-13
  */
 static int fsl_esai_divisor_cal(struct snd_soc_dai *dai, bool tx, u32 ratio,
 				bool usefp, u32 fp)
@@ -203,6 +285,7 @@ out_fp:
 }
 
 /**
+<<<<<<< HEAD
  * This function mainly configures the clock frequency of MCLK (HCKT/HCKR)
  *
  * @Parameters:
@@ -210,6 +293,14 @@ out_fp:
  *	  (Input from outside; output from inside, FSYS or EXTAL)
  * freq: The required clock rate of HCKT/HCKR
  * dir: The clock direction of HCKT/HCKR
+=======
+ * fsl_esai_set_dai_sysclk - configure the clock frequency of MCLK (HCKT/HCKR)
+ * @dai: pointer to DAI
+ * @clk_id: The clock source of HCKT/HCKR
+ *	  (Input from outside; output from inside, FSYS or EXTAL)
+ * @freq: The required clock rate of HCKT/HCKR
+ * @dir: The clock direction of HCKT/HCKR
+>>>>>>> upstream/android-13
  *
  * Note: If the direction is input, we do not care about clk_id.
  */
@@ -218,7 +309,11 @@ static int fsl_esai_set_dai_sysclk(struct snd_soc_dai *dai, int clk_id,
 {
 	struct fsl_esai *esai_priv = snd_soc_dai_get_drvdata(dai);
 	struct clk *clksrc = esai_priv->extalclk;
+<<<<<<< HEAD
 	bool tx = clk_id <= ESAI_HCKT_EXTAL;
+=======
+	bool tx = (clk_id <= ESAI_HCKT_EXTAL || esai_priv->synchronous);
+>>>>>>> upstream/android-13
 	bool in = dir == SND_SOC_CLOCK_IN;
 	u32 ratio, ecr = 0;
 	unsigned long clk_rate;
@@ -253,7 +348,11 @@ static int fsl_esai_set_dai_sysclk(struct snd_soc_dai *dai, int clk_id,
 		ecr |= ESAI_ECR_ETI;
 		break;
 	case ESAI_HCKR_EXTAL:
+<<<<<<< HEAD
 		ecr |= ESAI_ECR_ERI;
+=======
+		ecr |= esai_priv->synchronous ? ESAI_ECR_ETI : ESAI_ECR_ERI;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -261,7 +360,11 @@ static int fsl_esai_set_dai_sysclk(struct snd_soc_dai *dai, int clk_id,
 
 	if (IS_ERR(clksrc)) {
 		dev_err(dai->dev, "no assigned %s clock\n",
+<<<<<<< HEAD
 				clk_id % 2 ? "extal" : "fsys");
+=======
+			(clk_id % 2) ? "extal" : "fsys");
+>>>>>>> upstream/android-13
 		return PTR_ERR(clksrc);
 	}
 	clk_rate = clk_get_rate(clksrc);
@@ -311,7 +414,14 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * This function configures the related dividers according to the bclk rate
+=======
+ * fsl_esai_set_bclk - configure the related dividers according to the bclk rate
+ * @dai: pointer to DAI
+ * @tx: direction boolean
+ * @freq: bclk freq
+>>>>>>> upstream/android-13
  */
 static int fsl_esai_set_bclk(struct snd_soc_dai *dai, bool tx, u32 freq)
 {
@@ -466,6 +576,7 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
 			    struct snd_soc_dai *dai)
 {
 	struct fsl_esai *esai_priv = snd_soc_dai_get_drvdata(dai);
+<<<<<<< HEAD
 	int ret;
 
 	/*
@@ -492,6 +603,10 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
 	}
 
 	if (!dai->active) {
+=======
+
+	if (!snd_soc_dai_active(dai)) {
+>>>>>>> upstream/android-13
 		/* Set synchronous mode */
 		regmap_update_bits(esai_priv->regmap, REG_ESAI_SAICR,
 				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
@@ -508,6 +623,7 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
 
 	return 0;
 
+<<<<<<< HEAD
 err_fsysclk:
 	if (!IS_ERR(esai_priv->extalclk))
 		clk_disable_unprepare(esai_priv->extalclk);
@@ -518,6 +634,8 @@ err_spbaclk:
 	clk_disable_unprepare(esai_priv->coreclk);
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int fsl_esai_hw_params(struct snd_pcm_substream *substream,
@@ -539,10 +657,25 @@ static int fsl_esai_hw_params(struct snd_pcm_substream *substream,
 
 	bclk = params_rate(params) * slot_width * esai_priv->slots;
 
+<<<<<<< HEAD
 	ret = fsl_esai_set_bclk(dai, tx, bclk);
 	if (ret)
 		return ret;
 
+=======
+	ret = fsl_esai_set_bclk(dai, esai_priv->synchronous || tx, bclk);
+	if (ret)
+		return ret;
+
+	mask = ESAI_xCR_xSWS_MASK;
+	val = ESAI_xCR_xSWS(slot_width, width);
+
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx), mask, val);
+	/* Recording in synchronous mode needs to set TCR also */
+	if (!tx && esai_priv->synchronous)
+		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCR, mask, val);
+
+>>>>>>> upstream/android-13
 	/* Use Normal mode to support monaural audio */
 	regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx),
 			   ESAI_xCR_xMOD_MASK, params_channels(params) > 1 ?
@@ -558,10 +691,16 @@ static int fsl_esai_hw_params(struct snd_pcm_substream *substream,
 
 	regmap_update_bits(esai_priv->regmap, REG_ESAI_xFCR(tx), mask, val);
 
+<<<<<<< HEAD
 	mask = ESAI_xCR_xSWS_MASK | (tx ? ESAI_xCR_PADC : 0);
 	val = ESAI_xCR_xSWS(slot_width, width) | (tx ? ESAI_xCR_PADC : 0);
 
 	regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx), mask, val);
+=======
+	if (tx)
+		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCR,
+				ESAI_xCR_PADC, ESAI_xCR_PADC);
+>>>>>>> upstream/android-13
 
 	/* Remove ESAI personal reset by configuring ESAI_PCRC and ESAI_PRRC */
 	regmap_update_bits(esai_priv->regmap, REG_ESAI_PRRC,
@@ -571,6 +710,7 @@ static int fsl_esai_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void fsl_esai_shutdown(struct snd_pcm_substream *substream,
 			      struct snd_soc_dai *dai)
 {
@@ -583,6 +723,170 @@ static void fsl_esai_shutdown(struct snd_pcm_substream *substream,
 	if (!IS_ERR(esai_priv->spbaclk))
 		clk_disable_unprepare(esai_priv->spbaclk);
 	clk_disable_unprepare(esai_priv->coreclk);
+=======
+static int fsl_esai_hw_init(struct fsl_esai *esai_priv)
+{
+	struct platform_device *pdev = esai_priv->pdev;
+	int ret;
+
+	/* Reset ESAI unit */
+	ret = regmap_update_bits(esai_priv->regmap, REG_ESAI_ECR,
+				 ESAI_ECR_ESAIEN_MASK | ESAI_ECR_ERST_MASK,
+				 ESAI_ECR_ESAIEN | ESAI_ECR_ERST);
+	if (ret) {
+		dev_err(&pdev->dev, "failed to reset ESAI: %d\n", ret);
+		return ret;
+	}
+
+	/*
+	 * We need to enable ESAI so as to access some of its registers.
+	 * Otherwise, we would fail to dump regmap from user space.
+	 */
+	ret = regmap_update_bits(esai_priv->regmap, REG_ESAI_ECR,
+				 ESAI_ECR_ESAIEN_MASK | ESAI_ECR_ERST_MASK,
+				 ESAI_ECR_ESAIEN);
+	if (ret) {
+		dev_err(&pdev->dev, "failed to enable ESAI: %d\n", ret);
+		return ret;
+	}
+
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_PRRC,
+			   ESAI_PRRC_PDC_MASK, 0);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_PCRC,
+			   ESAI_PCRC_PC_MASK, 0);
+
+	return 0;
+}
+
+static int fsl_esai_register_restore(struct fsl_esai *esai_priv)
+{
+	int ret;
+
+	/* FIFO reset for safety */
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_TFCR,
+			   ESAI_xFCR_xFR, ESAI_xFCR_xFR);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_RFCR,
+			   ESAI_xFCR_xFR, ESAI_xFCR_xFR);
+
+	regcache_mark_dirty(esai_priv->regmap);
+	ret = regcache_sync(esai_priv->regmap);
+	if (ret)
+		return ret;
+
+	/* FIFO reset done */
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_TFCR, ESAI_xFCR_xFR, 0);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_RFCR, ESAI_xFCR_xFR, 0);
+
+	return 0;
+}
+
+static void fsl_esai_trigger_start(struct fsl_esai *esai_priv, bool tx)
+{
+	u8 i, channels = esai_priv->channels[tx];
+	u32 pins = DIV_ROUND_UP(channels, esai_priv->slots);
+	u32 mask;
+
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xFCR(tx),
+			   ESAI_xFCR_xFEN_MASK, ESAI_xFCR_xFEN);
+
+	/* Write initial words reqiured by ESAI as normal procedure */
+	for (i = 0; tx && i < channels; i++)
+		regmap_write(esai_priv->regmap, REG_ESAI_ETDR, 0x0);
+
+	/*
+	 * When set the TE/RE in the end of enablement flow, there
+	 * will be channel swap issue for multi data line case.
+	 * In order to workaround this issue, we switch the bit
+	 * enablement sequence to below sequence
+	 * 1) clear the xSMB & xSMA: which is done in probe and
+	 *                           stop state.
+	 * 2) set TE/RE
+	 * 3) set xSMB
+	 * 4) set xSMA:  xSMA is the last one in this flow, which
+	 *               will trigger esai to start.
+	 */
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx),
+			   tx ? ESAI_xCR_TE_MASK : ESAI_xCR_RE_MASK,
+			   tx ? ESAI_xCR_TE(pins) : ESAI_xCR_RE(pins));
+	mask = tx ? esai_priv->tx_mask : esai_priv->rx_mask;
+
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xSMB(tx),
+			   ESAI_xSMB_xS_MASK, ESAI_xSMB_xS(mask));
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xSMA(tx),
+			   ESAI_xSMA_xS_MASK, ESAI_xSMA_xS(mask));
+
+	/* Enable Exception interrupt */
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx),
+			   ESAI_xCR_xEIE_MASK, ESAI_xCR_xEIE);
+}
+
+static void fsl_esai_trigger_stop(struct fsl_esai *esai_priv, bool tx)
+{
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx),
+			   ESAI_xCR_xEIE_MASK, 0);
+
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx),
+			   tx ? ESAI_xCR_TE_MASK : ESAI_xCR_RE_MASK, 0);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xSMA(tx),
+			   ESAI_xSMA_xS_MASK, 0);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xSMB(tx),
+			   ESAI_xSMB_xS_MASK, 0);
+
+	/* Disable and reset FIFO */
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xFCR(tx),
+			   ESAI_xFCR_xFR | ESAI_xFCR_xFEN, ESAI_xFCR_xFR);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_xFCR(tx),
+			   ESAI_xFCR_xFR, 0);
+}
+
+static void fsl_esai_hw_reset(struct work_struct *work)
+{
+	struct fsl_esai *esai_priv = container_of(work, struct fsl_esai, work);
+	bool tx = true, rx = false, enabled[2];
+	unsigned long lock_flags;
+	u32 tfcr, rfcr;
+
+	spin_lock_irqsave(&esai_priv->lock, lock_flags);
+	/* Save the registers */
+	regmap_read(esai_priv->regmap, REG_ESAI_TFCR, &tfcr);
+	regmap_read(esai_priv->regmap, REG_ESAI_RFCR, &rfcr);
+	enabled[tx] = tfcr & ESAI_xFCR_xFEN;
+	enabled[rx] = rfcr & ESAI_xFCR_xFEN;
+
+	/* Stop the tx & rx */
+	fsl_esai_trigger_stop(esai_priv, tx);
+	fsl_esai_trigger_stop(esai_priv, rx);
+
+	/* Reset the esai, and ignore return value */
+	fsl_esai_hw_init(esai_priv);
+
+	/* Enforce ESAI personal resets for both TX and RX */
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_TCR,
+			   ESAI_xCR_xPR_MASK, ESAI_xCR_xPR);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_RCR,
+			   ESAI_xCR_xPR_MASK, ESAI_xCR_xPR);
+
+	/* Restore registers by regcache_sync, and ignore return value */
+	fsl_esai_register_restore(esai_priv);
+
+	/* Remove ESAI personal resets by configuring PCRC and PRRC also */
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_TCR,
+			   ESAI_xCR_xPR_MASK, 0);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_RCR,
+			   ESAI_xCR_xPR_MASK, 0);
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_PRRC,
+			   ESAI_PRRC_PDC_MASK, ESAI_PRRC_PDC(ESAI_GPIO));
+	regmap_update_bits(esai_priv->regmap, REG_ESAI_PCRC,
+			   ESAI_PCRC_PC_MASK, ESAI_PCRC_PC(ESAI_GPIO));
+
+	/* Restart tx / rx, if they already enabled */
+	if (enabled[tx])
+		fsl_esai_trigger_start(esai_priv, tx);
+	if (enabled[rx])
+		fsl_esai_trigger_start(esai_priv, rx);
+
+	spin_unlock_irqrestore(&esai_priv->lock, lock_flags);
+>>>>>>> upstream/android-13
 }
 
 static int fsl_esai_trigger(struct snd_pcm_substream *substream, int cmd,
@@ -590,14 +894,21 @@ static int fsl_esai_trigger(struct snd_pcm_substream *substream, int cmd,
 {
 	struct fsl_esai *esai_priv = snd_soc_dai_get_drvdata(dai);
 	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
+<<<<<<< HEAD
 	u8 i, channels = substream->runtime->channels;
 	u32 pins = DIV_ROUND_UP(channels, esai_priv->slots);
 	u32 mask;
+=======
+	unsigned long lock_flags;
+
+	esai_priv->channels[tx] = substream->runtime->channels;
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
 	case SNDRV_PCM_TRIGGER_RESUME:
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+<<<<<<< HEAD
 		regmap_update_bits(esai_priv->regmap, REG_ESAI_xFCR(tx),
 				   ESAI_xFCR_xFEN_MASK, ESAI_xFCR_xFEN);
 
@@ -627,10 +938,16 @@ static int fsl_esai_trigger(struct snd_pcm_substream *substream, int cmd,
 		regmap_update_bits(esai_priv->regmap, REG_ESAI_xSMA(tx),
 				   ESAI_xSMA_xS_MASK, ESAI_xSMA_xS(mask));
 
+=======
+		spin_lock_irqsave(&esai_priv->lock, lock_flags);
+		fsl_esai_trigger_start(esai_priv, tx);
+		spin_unlock_irqrestore(&esai_priv->lock, lock_flags);
+>>>>>>> upstream/android-13
 		break;
 	case SNDRV_PCM_TRIGGER_SUSPEND:
 	case SNDRV_PCM_TRIGGER_STOP:
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+<<<<<<< HEAD
 		regmap_update_bits(esai_priv->regmap, REG_ESAI_xCR(tx),
 				   tx ? ESAI_xCR_TE_MASK : ESAI_xCR_RE_MASK, 0);
 		regmap_update_bits(esai_priv->regmap, REG_ESAI_xSMA(tx),
@@ -643,6 +960,11 @@ static int fsl_esai_trigger(struct snd_pcm_substream *substream, int cmd,
 				   ESAI_xFCR_xFR | ESAI_xFCR_xFEN, ESAI_xFCR_xFR);
 		regmap_update_bits(esai_priv->regmap, REG_ESAI_xFCR(tx),
 				   ESAI_xFCR_xFR, 0);
+=======
+		spin_lock_irqsave(&esai_priv->lock, lock_flags);
+		fsl_esai_trigger_stop(esai_priv, tx);
+		spin_unlock_irqrestore(&esai_priv->lock, lock_flags);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -653,7 +975,10 @@ static int fsl_esai_trigger(struct snd_pcm_substream *substream, int cmd,
 
 static const struct snd_soc_dai_ops fsl_esai_dai_ops = {
 	.startup = fsl_esai_startup,
+<<<<<<< HEAD
 	.shutdown = fsl_esai_shutdown,
+=======
+>>>>>>> upstream/android-13
 	.trigger = fsl_esai_trigger,
 	.hw_params = fsl_esai_hw_params,
 	.set_sysclk = fsl_esai_set_dai_sysclk,
@@ -814,6 +1139,12 @@ static const struct regmap_config fsl_esai_regmap_config = {
 	.cache_type = REGCACHE_FLAT,
 };
 
+<<<<<<< HEAD
+=======
+static int fsl_esai_runtime_resume(struct device *dev);
+static int fsl_esai_runtime_suspend(struct device *dev);
+
+>>>>>>> upstream/android-13
 static int fsl_esai_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
@@ -828,6 +1159,7 @@ static int fsl_esai_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	esai_priv->pdev = pdev;
+<<<<<<< HEAD
 	strncpy(esai_priv->name, np->name, sizeof(esai_priv->name) - 1);
 
 	/* Get the addresses and IRQ */
@@ -838,6 +1170,18 @@ static int fsl_esai_probe(struct platform_device *pdev)
 
 	esai_priv->regmap = devm_regmap_init_mmio_clk(&pdev->dev,
 			"core", regs, &fsl_esai_regmap_config);
+=======
+	snprintf(esai_priv->name, sizeof(esai_priv->name), "%pOFn", np);
+
+	esai_priv->soc = of_device_get_match_data(&pdev->dev);
+
+	/* Get the addresses and IRQ */
+	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+	if (IS_ERR(regs))
+		return PTR_ERR(regs);
+
+	esai_priv->regmap = devm_regmap_init_mmio(&pdev->dev, regs, &fsl_esai_regmap_config);
+>>>>>>> upstream/android-13
 	if (IS_ERR(esai_priv->regmap)) {
 		dev_err(&pdev->dev, "failed to init regmap: %ld\n",
 				PTR_ERR(esai_priv->regmap));
@@ -867,12 +1211,19 @@ static int fsl_esai_probe(struct platform_device *pdev)
 				PTR_ERR(esai_priv->spbaclk));
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "no irq for node %s\n", pdev->name);
 		return irq;
 	}
 
 	ret = devm_request_irq(&pdev->dev, irq, esai_isr, 0,
+=======
+	if (irq < 0)
+		return irq;
+
+	ret = devm_request_irq(&pdev->dev, irq, esai_isr, IRQF_SHARED,
+>>>>>>> upstream/android-13
 			       esai_priv->name, esai_priv);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to claim irq %u\n", irq);
@@ -902,6 +1253,7 @@ static int fsl_esai_probe(struct platform_device *pdev)
 
 	/* Implement full symmetry for synchronous mode */
 	if (esai_priv->synchronous) {
+<<<<<<< HEAD
 		fsl_esai_dai.symmetric_rates = 1;
 		fsl_esai_dai.symmetric_channels = 1;
 		fsl_esai_dai.symmetric_samplebits = 1;
@@ -926,6 +1278,32 @@ static int fsl_esai_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+=======
+		fsl_esai_dai.symmetric_rate = 1;
+		fsl_esai_dai.symmetric_channels = 1;
+		fsl_esai_dai.symmetric_sample_bits = 1;
+	}
+
+	dev_set_drvdata(&pdev->dev, esai_priv);
+	spin_lock_init(&esai_priv->lock);
+	pm_runtime_enable(&pdev->dev);
+	if (!pm_runtime_enabled(&pdev->dev)) {
+		ret = fsl_esai_runtime_resume(&pdev->dev);
+		if (ret)
+			goto err_pm_disable;
+	}
+
+	ret = pm_runtime_get_sync(&pdev->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&pdev->dev);
+		goto err_pm_get_sync;
+	}
+
+	ret = fsl_esai_hw_init(esai_priv);
+	if (ret)
+		goto err_pm_get_sync;
+
+>>>>>>> upstream/android-13
 	esai_priv->tx_mask = 0xFFFFFFFF;
 	esai_priv->rx_mask = 0xFFFFFFFF;
 
@@ -935,10 +1313,28 @@ static int fsl_esai_probe(struct platform_device *pdev)
 	regmap_write(esai_priv->regmap, REG_ESAI_RSMA, 0);
 	regmap_write(esai_priv->regmap, REG_ESAI_RSMB, 0);
 
+<<<<<<< HEAD
+=======
+	ret = pm_runtime_put_sync(&pdev->dev);
+	if (ret < 0)
+		goto err_pm_get_sync;
+
+	/*
+	 * Register platform component before registering cpu dai for there
+	 * is not defer probe for platform component in snd_soc_add_pcm_runtime().
+	 */
+	ret = imx_pcm_dma_init(pdev, IMX_ESAI_DMABUF_SIZE);
+	if (ret) {
+		dev_err(&pdev->dev, "failed to init imx pcm dma: %d\n", ret);
+		goto err_pm_get_sync;
+	}
+
+>>>>>>> upstream/android-13
 	ret = devm_snd_soc_register_component(&pdev->dev, &fsl_esai_component,
 					      &fsl_esai_dai, 1);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to register DAI: %d\n", ret);
+<<<<<<< HEAD
 		return ret;
 	}
 
@@ -952,10 +1348,45 @@ static int fsl_esai_probe(struct platform_device *pdev)
 static const struct of_device_id fsl_esai_dt_ids[] = {
 	{ .compatible = "fsl,imx35-esai", },
 	{ .compatible = "fsl,vf610-esai", },
+=======
+		goto err_pm_get_sync;
+	}
+
+	INIT_WORK(&esai_priv->work, fsl_esai_hw_reset);
+
+	return ret;
+
+err_pm_get_sync:
+	if (!pm_runtime_status_suspended(&pdev->dev))
+		fsl_esai_runtime_suspend(&pdev->dev);
+err_pm_disable:
+	pm_runtime_disable(&pdev->dev);
+	return ret;
+}
+
+static int fsl_esai_remove(struct platform_device *pdev)
+{
+	struct fsl_esai *esai_priv = platform_get_drvdata(pdev);
+
+	pm_runtime_disable(&pdev->dev);
+	if (!pm_runtime_status_suspended(&pdev->dev))
+		fsl_esai_runtime_suspend(&pdev->dev);
+
+	cancel_work_sync(&esai_priv->work);
+
+	return 0;
+}
+
+static const struct of_device_id fsl_esai_dt_ids[] = {
+	{ .compatible = "fsl,imx35-esai", .data = &fsl_esai_imx35 },
+	{ .compatible = "fsl,vf610-esai", .data = &fsl_esai_vf610 },
+	{ .compatible = "fsl,imx6ull-esai", .data = &fsl_esai_imx6ull },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, fsl_esai_dt_ids);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int fsl_esai_suspend(struct device *dev)
 {
@@ -968,10 +1399,14 @@ static int fsl_esai_suspend(struct device *dev)
 }
 
 static int fsl_esai_resume(struct device *dev)
+=======
+static int fsl_esai_runtime_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct fsl_esai *esai = dev_get_drvdata(dev);
 	int ret;
 
+<<<<<<< HEAD
 	regcache_cache_only(esai->regmap, false);
 
 	/* FIFO reset for safety */
@@ -994,10 +1429,85 @@ static int fsl_esai_resume(struct device *dev)
 
 static const struct dev_pm_ops fsl_esai_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(fsl_esai_suspend, fsl_esai_resume)
+=======
+	/*
+	 * Some platforms might use the same bit to gate all three or two of
+	 * clocks, so keep all clocks open/close at the same time for safety
+	 */
+	ret = clk_prepare_enable(esai->coreclk);
+	if (ret)
+		return ret;
+	if (!IS_ERR(esai->spbaclk)) {
+		ret = clk_prepare_enable(esai->spbaclk);
+		if (ret)
+			goto err_spbaclk;
+	}
+	if (!IS_ERR(esai->extalclk)) {
+		ret = clk_prepare_enable(esai->extalclk);
+		if (ret)
+			goto err_extalclk;
+	}
+	if (!IS_ERR(esai->fsysclk)) {
+		ret = clk_prepare_enable(esai->fsysclk);
+		if (ret)
+			goto err_fsysclk;
+	}
+
+	regcache_cache_only(esai->regmap, false);
+
+	ret = fsl_esai_register_restore(esai);
+	if (ret)
+		goto err_regcache_sync;
+
+	return 0;
+
+err_regcache_sync:
+	if (!IS_ERR(esai->fsysclk))
+		clk_disable_unprepare(esai->fsysclk);
+err_fsysclk:
+	if (!IS_ERR(esai->extalclk))
+		clk_disable_unprepare(esai->extalclk);
+err_extalclk:
+	if (!IS_ERR(esai->spbaclk))
+		clk_disable_unprepare(esai->spbaclk);
+err_spbaclk:
+	clk_disable_unprepare(esai->coreclk);
+
+	return ret;
+}
+
+static int fsl_esai_runtime_suspend(struct device *dev)
+{
+	struct fsl_esai *esai = dev_get_drvdata(dev);
+
+	regcache_cache_only(esai->regmap, true);
+
+	if (!IS_ERR(esai->fsysclk))
+		clk_disable_unprepare(esai->fsysclk);
+	if (!IS_ERR(esai->extalclk))
+		clk_disable_unprepare(esai->extalclk);
+	if (!IS_ERR(esai->spbaclk))
+		clk_disable_unprepare(esai->spbaclk);
+	clk_disable_unprepare(esai->coreclk);
+
+	return 0;
+}
+
+static const struct dev_pm_ops fsl_esai_pm_ops = {
+	SET_RUNTIME_PM_OPS(fsl_esai_runtime_suspend,
+			   fsl_esai_runtime_resume,
+			   NULL)
+	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+				pm_runtime_force_resume)
+>>>>>>> upstream/android-13
 };
 
 static struct platform_driver fsl_esai_driver = {
 	.probe = fsl_esai_probe,
+<<<<<<< HEAD
+=======
+	.remove = fsl_esai_remove,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "fsl-esai-dai",
 		.pm = &fsl_esai_pm_ops,

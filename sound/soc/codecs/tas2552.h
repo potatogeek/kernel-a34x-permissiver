@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * tas2552.h - ALSA SoC Texas Instruments TAS2552 Mono Audio Amplifier
  *
@@ -13,6 +14,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * tas2552.h - ALSA SoC Texas Instruments TAS2552 Mono Audio Amplifier
+ *
+ * Copyright (C) 2014 Texas Instruments Incorporated -  https://www.ti.com
+ *
+ * Author: Dan Murphy <dmurphy@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TAS2552_H__

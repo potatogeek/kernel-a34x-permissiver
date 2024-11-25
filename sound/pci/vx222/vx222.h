@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram VX222 PCI soundcards
  *
  * Copyright (c) 2002 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __VX222_H
@@ -44,8 +51,13 @@ struct snd_vx222 {
 /* we use a lookup table with 148 values, see vx_mixer.c */
 #define VX2_AKM_LEVEL_MAX	0x93
 
+<<<<<<< HEAD
 extern struct snd_vx_ops vx222_ops;
 extern struct snd_vx_ops vx222_old_ops;
+=======
+extern const struct snd_vx_ops vx222_ops;
+extern const struct snd_vx_ops vx222_old_ops;
+>>>>>>> upstream/android-13
 
 /* Offset of registers with base equal to portDSP. */
 #define VX_RESET_DMA_REGISTER_OFFSET    0x00000008

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DaVinci Key Scan Driver for TI platforms
  *
@@ -6,6 +10,7 @@
  * Author: Miguel Aguilar <miguel.aguilar@ridgerun.com>
  *
  * Initial Code: Sandeep Paulraj <s-paulraj@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -32,10 +39,13 @@
 #include <linux/errno.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include <asm/irq.h>
 
 #include <mach/hardware.h>
 #include <mach/irqs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_data/keyscan-davinci.h>
 
 /* Key scan registers */
@@ -209,7 +219,10 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
 
 	davinci_ks->irq = platform_get_irq(pdev, 0);
 	if (davinci_ks->irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "no key scan irq\n");
+=======
+>>>>>>> upstream/android-13
 		error = davinci_ks->irq;
 		goto fail2;
 	}

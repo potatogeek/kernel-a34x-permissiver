@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Register map access API internal header
  *
  * Copyright 2011 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _REGMAP_INTERNAL_H
@@ -56,6 +63,13 @@ struct regmap {
 			spinlock_t spinlock;
 			unsigned long spinlock_flags;
 		};
+<<<<<<< HEAD
+=======
+		struct {
+			raw_spinlock_t raw_spinlock;
+			unsigned long raw_spinlock_flags;
+		};
+>>>>>>> upstream/android-13
 	};
 	regmap_lock lock;
 	regmap_unlock unlock;
@@ -94,11 +108,19 @@ struct regmap {
 	bool (*readable_reg)(struct device *dev, unsigned int reg);
 	bool (*volatile_reg)(struct device *dev, unsigned int reg);
 	bool (*precious_reg)(struct device *dev, unsigned int reg);
+<<<<<<< HEAD
+=======
+	bool (*writeable_noinc_reg)(struct device *dev, unsigned int reg);
+>>>>>>> upstream/android-13
 	bool (*readable_noinc_reg)(struct device *dev, unsigned int reg);
 	const struct regmap_access_table *wr_table;
 	const struct regmap_access_table *rd_table;
 	const struct regmap_access_table *volatile_table;
 	const struct regmap_access_table *precious_table;
+<<<<<<< HEAD
+=======
+	const struct regmap_access_table *wr_noinc_table;
+>>>>>>> upstream/android-13
 	const struct regmap_access_table *rd_noinc_table;
 
 	int (*reg_read)(void *context, unsigned int reg, unsigned int *val);
@@ -149,7 +171,11 @@ struct regmap {
 
 	/* if set, converts bulk read to single read */
 	bool use_single_read;
+<<<<<<< HEAD
 	/* if set, converts bulk read to single read */
+=======
+	/* if set, converts bulk write to single write */
+>>>>>>> upstream/android-13
 	bool use_single_write;
 	/* if set, the device supports multi write mode */
 	bool can_multi_write;
@@ -162,6 +188,12 @@ struct regmap {
 	void *selector_work_buf;	/* Scratch buffer used for selector */
 
 	struct hwspinlock *hwlock;
+<<<<<<< HEAD
+=======
+
+	/* if set, the regmap core can sleep */
+	bool can_sleep;
+>>>>>>> upstream/android-13
 };
 
 struct regcache_ops {
@@ -183,6 +215,10 @@ bool regmap_writeable(struct regmap *map, unsigned int reg);
 bool regmap_readable(struct regmap *map, unsigned int reg);
 bool regmap_volatile(struct regmap *map, unsigned int reg);
 bool regmap_precious(struct regmap *map, unsigned int reg);
+<<<<<<< HEAD
+=======
+bool regmap_writeable_noinc(struct regmap *map, unsigned int reg);
+>>>>>>> upstream/android-13
 bool regmap_readable_noinc(struct regmap *map, unsigned int reg);
 
 int _regmap_write(struct regmap *map, unsigned int reg,
@@ -217,7 +253,11 @@ struct regmap_field {
 
 #ifdef CONFIG_DEBUG_FS
 extern void regmap_debugfs_initcall(void);
+<<<<<<< HEAD
 extern void regmap_debugfs_init(struct regmap *map, const char *name);
+=======
+extern void regmap_debugfs_init(struct regmap *map);
+>>>>>>> upstream/android-13
 extern void regmap_debugfs_exit(struct regmap *map);
 
 static inline void regmap_debugfs_disable(struct regmap *map)
@@ -227,7 +267,11 @@ static inline void regmap_debugfs_disable(struct regmap *map)
 
 #else
 static inline void regmap_debugfs_initcall(void) { }
+<<<<<<< HEAD
 static inline void regmap_debugfs_init(struct regmap *map, const char *name) { }
+=======
+static inline void regmap_debugfs_init(struct regmap *map) { }
+>>>>>>> upstream/android-13
 static inline void regmap_debugfs_exit(struct regmap *map) { }
 static inline void regmap_debugfs_disable(struct regmap *map) { }
 #endif
@@ -259,7 +303,11 @@ bool regcache_set_val(struct regmap *map, void *base, unsigned int idx,
 int regcache_lookup_reg(struct regmap *map, unsigned int reg);
 
 int _regmap_raw_write(struct regmap *map, unsigned int reg,
+<<<<<<< HEAD
 		      const void *val, size_t val_len);
+=======
+		      const void *val, size_t val_len, bool noinc);
+>>>>>>> upstream/android-13
 
 void regmap_async_complete_cb(struct regmap_async *async, int ret);
 

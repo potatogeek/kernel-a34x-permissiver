@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Watchdog driver for z/VM and LPAR using the diag 288 interface.
  *
@@ -25,13 +29,19 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/miscdevice.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/watchdog.h>
 #include <linux/suspend.h>
 #include <asm/ebcdic.h>
 #include <asm/diag.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/uaccess.h>
+=======
+>>>>>>> upstream/android-13
 
 #define MAX_CMDLEN 240
 #define DEFAULT_CMD "SYSTEM RESTART"
@@ -69,7 +79,10 @@ MODULE_PARM_DESC(conceal, "Enable the CONCEAL CP option while the watchdog is ac
 module_param_named(nowayout, nowayout_info, bool, 0444);
 MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default = CONFIG_WATCHDOG_NOWAYOUT)");
 
+<<<<<<< HEAD
 MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+=======
+>>>>>>> upstream/android-13
 MODULE_ALIAS("vmwatchdog");
 
 static int __diag288(unsigned int func, unsigned int timeout,
@@ -120,8 +133,11 @@ static int wdt_start(struct watchdog_device *dev)
 	if (test_and_set_bit(DIAG_WDOG_BUSY, &wdt_status))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	ret = -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	if (MACHINE_IS_VM) {
 		ebc_cmd = kmalloc(MAX_CMDLEN, GFP_KERNEL);
 		if (!ebc_cmd) {
@@ -169,8 +185,11 @@ static int wdt_ping(struct watchdog_device *dev)
 	int ret;
 	unsigned int func;
 
+<<<<<<< HEAD
 	ret = -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	if (MACHINE_IS_VM) {
 		ebc_cmd = kmalloc(MAX_CMDLEN, GFP_KERNEL);
 		if (!ebc_cmd)

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * llc_output.c - LLC minimal output path
  *
  * Copyright (c) 1997 by Procom Technology, Inc.
  * 		 2001-2003 by Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  * This program can be redistributed or modified under the terms of the
  * GNU General Public License version 2 as published by the Free Software
@@ -11,6 +16,8 @@
  * of merchantability or fitness for a particular purpose.
  *
  * See the GNU General Public License version 2 for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/if_arp.h>

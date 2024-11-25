@@ -4,7 +4,11 @@ OHCI
 
 Required properties:
  - compatible: should be "samsung,s3c2410-ohci" for USB host controller
+<<<<<<< HEAD
  - reg: address and lenght of the controller memory mapped region
+=======
+ - reg: address and length of the controller memory mapped region
+>>>>>>> upstream/android-13
  - interrupts: interrupt number for the USB OHCI controller
  - clocks: Should reference the bus and host clocks
  - clock-names: Should contain two strings

@@ -118,9 +118,15 @@ static const struct of_device_id omap_control_usb_id_table[] = {
 MODULE_DEVICE_TABLE(of, omap_control_usb_id_table);
 
 static struct platform_driver am335x_control_driver;
+<<<<<<< HEAD
 static int match(struct device *dev, void *data)
 {
 	struct device_node *node = (struct device_node *)data;
+=======
+static int match(struct device *dev, const void *data)
+{
+	const struct device_node *node = (const struct device_node *)data;
+>>>>>>> upstream/android-13
 	return dev->of_node == node &&
 		dev->driver == &am335x_control_driver.driver;
 }
@@ -149,7 +155,10 @@ EXPORT_SYMBOL_GPL(am335x_get_phy_control);
 
 static int am335x_control_usb_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource	*res;
+=======
+>>>>>>> upstream/android-13
 	struct am335x_control_usb *ctrl_usb;
 	const struct of_device_id *of_id;
 	const struct phy_control *phy_ctrl;
@@ -166,6 +175,7 @@ static int am335x_control_usb_probe(struct platform_device *pdev)
 
 	ctrl_usb->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "phy_ctrl");
 	ctrl_usb->phy_reg = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(ctrl_usb->phy_reg))
@@ -173,6 +183,13 @@ static int am335x_control_usb_probe(struct platform_device *pdev)
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "wakeup");
 	ctrl_usb->wkup = devm_ioremap_resource(&pdev->dev, res);
+=======
+	ctrl_usb->phy_reg = devm_platform_ioremap_resource_byname(pdev, "phy_ctrl");
+	if (IS_ERR(ctrl_usb->phy_reg))
+		return PTR_ERR(ctrl_usb->phy_reg);
+
+	ctrl_usb->wkup = devm_platform_ioremap_resource_byname(pdev, "wakeup");
+>>>>>>> upstream/android-13
 	if (IS_ERR(ctrl_usb->wkup))
 		return PTR_ERR(ctrl_usb->wkup);
 

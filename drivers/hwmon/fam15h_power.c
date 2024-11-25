@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * fam15h_power.c - AMD Family 15h processor power monitoring
  *
  * Copyright (c) 2011-2016 Advanced Micro Devices, Inc.
  * Author: Andreas Herrmann <herrmann.der.user@googlemail.com>
+<<<<<<< HEAD
  *
  *
  * This driver is free software; you can redistribute it and/or
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this driver; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -53,10 +60,13 @@ MODULE_LICENSE("GPL");
 /* set maximum interval as 1 second */
 #define MAX_INTERVAL			1000
 
+<<<<<<< HEAD
 #define MSR_F15H_CU_PWR_ACCUMULATOR	0xc001007a
 #define MSR_F15H_CU_MAX_PWR_ACCUMULATOR	0xc001007b
 #define MSR_F15H_PTSC			0xc0010280
 
+=======
+>>>>>>> upstream/android-13
 #define PCI_DEVICE_ID_AMD_15H_M70H_NB_F4 0x15b4
 
 struct fam15h_power_data {
@@ -182,7 +192,11 @@ static int read_registers(struct fam15h_power_data *data)
 
 	memset(data->cu_on, 0, sizeof(int) * MAX_CUS);
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Choose the first online core of each compute unit, and then
@@ -206,7 +220,11 @@ static int read_registers(struct fam15h_power_data *data)
 
 	on_each_cpu_mask(mask, do_read_registers_on_cu, data, true);
 
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	free_cpumask_var(mask);
 
 	return 0;

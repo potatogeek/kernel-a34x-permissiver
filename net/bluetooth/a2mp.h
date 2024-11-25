@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
    Copyright (c) 2010,2011 Code Aurora Forum.  All rights reserved.
    Copyright (c) 2011,2012 Intel Corp.
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License version 2 and
    only version 2 as published by the Free Software Foundation.
@@ -10,6 +15,8 @@
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef __A2MP_H
@@ -43,14 +50,22 @@ struct a2mp_cmd {
 	__u8	code;
 	__u8	ident;
 	__le16	len;
+<<<<<<< HEAD
 	__u8	data[0];
+=======
+	__u8	data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* A2MP command codes */
 #define A2MP_COMMAND_REJ         0x01
 struct a2mp_cmd_rej {
 	__le16	reason;
+<<<<<<< HEAD
 	__u8	data[0];
+=======
+	__u8	data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define A2MP_DISCOVER_REQ        0x02
@@ -69,7 +84,11 @@ struct a2mp_cl {
 struct a2mp_discov_rsp {
 	__le16     mtu;
 	__le16     ext_feat;
+<<<<<<< HEAD
 	struct a2mp_cl cl[0];
+=======
+	struct a2mp_cl cl[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define A2MP_CHANGE_NOTIFY       0x04
@@ -100,7 +119,11 @@ struct a2mp_amp_assoc_req {
 struct a2mp_amp_assoc_rsp {
 	__u8	id;
 	__u8	status;
+<<<<<<< HEAD
 	__u8	amp_assoc[0];
+=======
+	__u8	amp_assoc[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define A2MP_CREATEPHYSLINK_REQ  0x0A
@@ -108,7 +131,11 @@ struct a2mp_amp_assoc_rsp {
 struct a2mp_physlink_req {
 	__u8	local_id;
 	__u8	remote_id;
+<<<<<<< HEAD
 	__u8	amp_assoc[0];
+=======
+	__u8	amp_assoc[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define A2MP_CREATEPHYSLINK_RSP  0x0B

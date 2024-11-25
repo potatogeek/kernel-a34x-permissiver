@@ -10,7 +10,11 @@
     |         arc: | TODO |
     |         arm: | TODO |
     |       arm64: |  ok  |
+<<<<<<< HEAD
     |         c6x: | TODO |
+=======
+    |        csky: | TODO |
+>>>>>>> upstream/android-13
     |       h8300: | TODO |
     |     hexagon: | TODO |
     |        ia64: | TODO |
@@ -27,7 +31,10 @@
     |          sh: | TODO |
     |       sparc: | TODO |
     |          um: | TODO |
+<<<<<<< HEAD
     |   unicore32: | TODO |
+=======
+>>>>>>> upstream/android-13
     |         x86: |  ok  |
     |      xtensa: | TODO |
     -----------------------

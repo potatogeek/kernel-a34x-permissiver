@@ -93,6 +93,13 @@
 #define SATA_HWID                                        168
 #define USB_HWID                                         170
 #define CCXSEC_HWID                                      176
+<<<<<<< HEAD
 #define XGBE_HWID                                        216
 #define MP0_HWID                                         254
+=======
+#define XGMI_HWID                                        200
+#define XGBE_HWID                                        216
+#define MP0_HWID                                         255
+
+>>>>>>> upstream/android-13
 #endif

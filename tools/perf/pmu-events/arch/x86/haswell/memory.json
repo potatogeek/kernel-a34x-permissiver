@@ -298,7 +298,11 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_4",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "100003",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 4.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 4.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
@@ -312,7 +316,11 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_8",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "50021",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 8.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 8.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
@@ -326,7 +334,11 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_16",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "20011",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 16.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 16.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
@@ -340,7 +352,11 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_32",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "100003",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 32.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 32.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
@@ -354,7 +370,11 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_64",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "2003",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 64.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 64.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
@@ -368,7 +388,11 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_128",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "1009",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 128.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 128.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
@@ -382,7 +406,11 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_256",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "503",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 256.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 256.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
@@ -396,11 +424,16 @@
         "EventName": "MEM_TRANS_RETIRED.LOAD_LATENCY_GT_512",
         "MSRIndex": "0x3F6",
         "SampleAfterValue": "101",
+<<<<<<< HEAD
         "BriefDescription": "Loads with latency value being above 512.",
+=======
+        "BriefDescription": "Randomly selected loads with latency value being above 512.",
+>>>>>>> upstream/android-13
         "TakenAlone": "1",
         "CounterHTOff": "3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all requests that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc08fff",
@@ -410,10 +443,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all requests that miss in the L3",
+=======
+        "PublicDescription": "Counts all requests miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC08FFF",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.ALL_REQUESTS.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all requests miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all data/code/rfo reads (demand & prefetch) that miss the L3 and the data is returned from local dram Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x01004007f7",
@@ -423,10 +468,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all data/code/rfo reads (demand & prefetch) that miss the L3 and the data is returned from local dram",
+=======
+        "PublicDescription": "miss the L3 and the data is returned from local dram",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x01004007F7",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.ALL_READS.L3_MISS.LOCAL_DRAM",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all data/code/rfo reads (demand & prefetch) that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc007f7",
@@ -436,23 +493,45 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all data/code/rfo reads (demand & prefetch) that miss in the L3",
+=======
+        "PublicDescription": "miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC007F7",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.ALL_READS.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand & prefetch code reads that miss the L3 and the data is returned from local dram Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "PublicDescription": "Counts all demand & prefetch code reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x0100400244",
         "Counter": "0,1,2,3",
         "UMask": "0x1",
         "EventName": "OFFCORE_RESPONSE.ALL_CODE_RD.L3_MISS.LOCAL_DRAM",
+<<<<<<< HEAD
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand & prefetch code reads that miss the L3 and the data is returned from local dram",
+=======
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand & prefetch code reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand & prefetch code reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00244",
@@ -462,23 +541,45 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand & prefetch code reads that miss in the L3",
+=======
+        "PublicDescription": "Counts all demand & prefetch code reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00244",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.ALL_CODE_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand & prefetch code reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand & prefetch RFOs that miss the L3 and the data is returned from local dram Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "PublicDescription": "Counts all demand & prefetch RFOs miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x0100400122",
         "Counter": "0,1,2,3",
         "UMask": "0x1",
         "EventName": "OFFCORE_RESPONSE.ALL_RFO.L3_MISS.LOCAL_DRAM",
+<<<<<<< HEAD
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand & prefetch RFOs that miss the L3 and the data is returned from local dram",
+=======
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand & prefetch RFOs miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand & prefetch RFOs that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00122",
@@ -488,23 +589,45 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand & prefetch RFOs that miss in the L3",
+=======
+        "PublicDescription": "Counts all demand & prefetch RFOs miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00122",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.ALL_RFO.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand & prefetch RFOs miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand & prefetch data reads that miss the L3 and the data is returned from local dram Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "PublicDescription": "Counts all demand & prefetch data reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x0100400091",
         "Counter": "0,1,2,3",
         "UMask": "0x1",
         "EventName": "OFFCORE_RESPONSE.ALL_DATA_RD.L3_MISS.LOCAL_DRAM",
+<<<<<<< HEAD
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand & prefetch data reads that miss the L3 and the data is returned from local dram",
+=======
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand & prefetch data reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand & prefetch data reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00091",
@@ -514,10 +637,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand & prefetch data reads that miss in the L3",
+=======
+        "PublicDescription": "Counts all demand & prefetch data reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00091",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.ALL_DATA_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand & prefetch data reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts prefetch (that bring data to LLC only) code reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00200",
@@ -527,10 +662,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts prefetch (that bring data to LLC only) code reads that miss in the L3",
+=======
+        "PublicDescription": "Counts prefetch (that bring data to LLC only) code reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00200",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.PF_L3_CODE_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts prefetch (that bring data to LLC only) code reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all prefetch (that bring data to LLC only) RFOs  that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00100",
@@ -540,10 +687,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all prefetch (that bring data to LLC only) RFOs  that miss in the L3",
+=======
+        "PublicDescription": "Counts all prefetch (that bring data to LLC only) RFOs miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00100",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.PF_L3_RFO.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all prefetch (that bring data to LLC only) RFOs miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all prefetch (that bring data to LLC only) data reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00080",
@@ -553,10 +712,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all prefetch (that bring data to LLC only) data reads that miss in the L3",
+=======
+        "PublicDescription": "Counts all prefetch (that bring data to LLC only) data reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00080",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.PF_L3_DATA_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all prefetch (that bring data to LLC only) data reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all prefetch (that bring data to LLC only) code reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00040",
@@ -566,10 +737,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all prefetch (that bring data to LLC only) code reads that miss in the L3",
+=======
+        "PublicDescription": "Counts all prefetch (that bring data to LLC only) code reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00040",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.PF_L2_CODE_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all prefetch (that bring data to LLC only) code reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all prefetch (that bring data to L2) RFOs that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00020",
@@ -579,10 +762,22 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all prefetch (that bring data to L2) RFOs that miss in the L3",
+=======
+        "PublicDescription": "Counts all prefetch (that bring data to L2) RFOs miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00020",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.PF_L2_RFO.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all prefetch (that bring data to L2) RFOs miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts prefetch (that bring data to L2) data reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00010",
@@ -592,23 +787,45 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts prefetch (that bring data to L2) data reads that miss in the L3",
+=======
+        "PublicDescription": "Counts prefetch (that bring data to L2) data reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00010",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.PF_L2_DATA_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts prefetch (that bring data to L2) data reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand code reads that miss the L3 and the data is returned from local dram Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "PublicDescription": "Counts all demand code reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x0100400004",
         "Counter": "0,1,2,3",
         "UMask": "0x1",
         "EventName": "OFFCORE_RESPONSE.DEMAND_CODE_RD.L3_MISS.LOCAL_DRAM",
+<<<<<<< HEAD
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand code reads that miss the L3 and the data is returned from local dram",
+=======
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand code reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand code reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00004",
@@ -618,23 +835,45 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand code reads that miss in the L3",
+=======
+        "PublicDescription": "Counts all demand code reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00004",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.DEMAND_CODE_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand code reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand data writes (RFOs) that miss the L3 and the data is returned from local dram Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "PublicDescription": "Counts all demand data writes (RFOs) miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x0100400002",
         "Counter": "0,1,2,3",
         "UMask": "0x1",
         "EventName": "OFFCORE_RESPONSE.DEMAND_RFO.L3_MISS.LOCAL_DRAM",
+<<<<<<< HEAD
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand data writes (RFOs) that miss the L3 and the data is returned from local dram",
+=======
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand data writes (RFOs) miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts all demand data writes (RFOs) that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00002",
@@ -644,23 +883,45 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts all demand data writes (RFOs) that miss in the L3",
+=======
+        "PublicDescription": "Counts all demand data writes (RFOs) miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00002",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.DEMAND_RFO.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts all demand data writes (RFOs) miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts demand data reads that miss the L3 and the data is returned from local dram Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "PublicDescription": "Counts demand data reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x0100400001",
         "Counter": "0,1,2,3",
         "UMask": "0x1",
         "EventName": "OFFCORE_RESPONSE.DEMAND_DATA_RD.L3_MISS.LOCAL_DRAM",
+<<<<<<< HEAD
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts demand data reads that miss the L3 and the data is returned from local dram",
+=======
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts demand data reads miss the L3 and the data is returned from local dram",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     },
     {
+<<<<<<< HEAD
         "PublicDescription": "Counts demand data reads that miss in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
         "EventCode": "0xB7, 0xBB",
         "MSRValue": "0x3fffc00001",
@@ -670,6 +931,17 @@
         "MSRIndex": "0x1a6,0x1a7",
         "SampleAfterValue": "100003",
         "BriefDescription": "Counts demand data reads that miss in the L3",
+=======
+        "PublicDescription": "Counts demand data reads miss in the L3",
+        "EventCode": "0xB7, 0xBB",
+        "MSRValue": "0x3FFFC00001",
+        "Counter": "0,1,2,3",
+        "UMask": "0x1",
+        "EventName": "OFFCORE_RESPONSE.DEMAND_DATA_RD.L3_MISS.ANY_RESPONSE",
+        "MSRIndex": "0x1a6, 0x1a7",
+        "SampleAfterValue": "100003",
+        "BriefDescription": "Counts demand data reads miss in the L3",
+>>>>>>> upstream/android-13
         "Offcore": "1",
         "CounterHTOff": "0,1,2,3"
     }

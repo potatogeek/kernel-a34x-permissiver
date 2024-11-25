@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Makefile for Marvell 88SE64xx/88SE84xx SAS/SATA driver.
 #
@@ -5,6 +9,7 @@
 # Copyright 2008 Marvell. <kewei@marvell.com>
 # Copyright 2009-2011 Marvell. <yuxiangl@marvell.com>
 #
+<<<<<<< HEAD
 # This file is licensed under GPLv2.
 #
 # This program is free software; you can redistribute it and/or
@@ -21,6 +26,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
+=======
+>>>>>>> upstream/android-13
 
 ccflags-$(CONFIG_SCSI_MVSAS_DEBUG) := -DMV_DEBUG
 

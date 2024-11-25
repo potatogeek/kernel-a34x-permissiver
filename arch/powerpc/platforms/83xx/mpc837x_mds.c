@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/platforms/83xx/mpc837x_mds.c
  *
  * Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
  *
  * MPC837x MDS board specific routines
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -97,6 +104,10 @@ define_machine(mpc837x_mds) {
 	.name			= "MPC837x MDS",
 	.probe			= mpc837x_mds_probe,
 	.setup_arch		= mpc837x_mds_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs  	= mpc83xx_setup_pci,
+>>>>>>> upstream/android-13
 	.init_IRQ		= mpc83xx_ipic_init_IRQ,
 	.get_irq		= ipic_get_irq,
 	.restart		= mpc83xx_restart,

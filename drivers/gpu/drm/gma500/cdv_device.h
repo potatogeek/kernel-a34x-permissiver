@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2011 Intel Corporation
  *
@@ -17,6 +18,18 @@
 
 extern const struct drm_crtc_helper_funcs cdv_intel_helper_funcs;
 extern const struct drm_crtc_funcs cdv_intel_crtc_funcs;
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright © 2011 Intel Corporation
+ */
+
+struct drm_crtc;
+struct drm_device;
+struct psb_intel_mode_device;
+
+extern const struct drm_crtc_helper_funcs cdv_intel_helper_funcs;
+>>>>>>> upstream/android-13
 extern const struct gma_clock_funcs cdv_clock_funcs;
 extern void cdv_intel_crt_init(struct drm_device *dev,
 			struct psb_intel_mode_device *mode_dev);

@@ -7,6 +7,10 @@
  */
 
 /dts-v1/;
+<<<<<<< HEAD
+=======
+#include <dt-bindings/clock/samsung,s2mps11.h>
+>>>>>>> upstream/android-13
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/input/input.h>
@@ -104,7 +108,11 @@
 	samsung,i2c-sda-delay = <100>;
 	samsung,i2c-max-bus-freq = <378000>;
 
+<<<<<<< HEAD
 	s5m8767-pmic@66 {
+=======
+	pmic@66 {
+>>>>>>> upstream/android-13
 		compatible = "samsung,s5m8767-pmic";
 		reg = <0x66>;
 		interrupt-parent = <&gpx3>;
@@ -114,12 +122,21 @@
 		wakeup-source;
 
 		s5m8767,pmic-buck-dvs-gpios = <&gpd1 0 GPIO_ACTIVE_LOW>, /* DVS1 */
+<<<<<<< HEAD
 		                              <&gpd1 1 GPIO_ACTIVE_LOW>, /* DVS2 */
 		                              <&gpd1 2 GPIO_ACTIVE_LOW>; /* DVS3 */
 
 		s5m8767,pmic-buck-ds-gpios = <&gpx2 3 GPIO_ACTIVE_LOW>, /* SET1 */
 		                             <&gpx2 4 GPIO_ACTIVE_LOW>, /* SET2 */
 		                             <&gpx2 5 GPIO_ACTIVE_LOW>; /* SET3 */
+=======
+					      <&gpd1 1 GPIO_ACTIVE_LOW>, /* DVS2 */
+					      <&gpd1 2 GPIO_ACTIVE_LOW>; /* DVS3 */
+
+		s5m8767,pmic-buck-ds-gpios = <&gpx2 3 GPIO_ACTIVE_LOW>, /* SET1 */
+					     <&gpx2 4 GPIO_ACTIVE_LOW>, /* SET2 */
+					     <&gpx2 5 GPIO_ACTIVE_LOW>; /* SET3 */
+>>>>>>> upstream/android-13
 
 		/*
 		 * The following arrays of DVS voltages are not used, since we are
@@ -127,6 +144,7 @@
 		 * to please the driver.
 		 */
 		s5m8767,pmic-buck2-dvs-voltage = <1350000>, <1300000>,
+<<<<<<< HEAD
 		                                 <1250000>, <1200000>,
 		                                 <1150000>, <1100000>,
 		                                 <1000000>, <950000>;
@@ -147,6 +165,28 @@
 			clock-output-names = "en32khz_ap",
 			                     "en32khz_cp",
 			                     "en32khz_bt";
+=======
+						 <1250000>, <1200000>,
+						 <1150000>, <1100000>,
+						 <1000000>, <950000>;
+
+		s5m8767,pmic-buck3-dvs-voltage = <1100000>, <1100000>,
+						 <1100000>, <1100000>,
+						 <1000000>, <1000000>,
+						 <1000000>, <1000000>;
+
+		s5m8767,pmic-buck4-dvs-voltage = <1200000>, <1200000>,
+						 <1200000>, <1200000>,
+						 <1200000>, <1200000>,
+						 <1200000>, <1200000>;
+
+		s5m8767_osc: clocks {
+			compatible = "samsung,s5m8767-clk";
+			#clock-cells = <1>;
+			clock-output-names = "en32khz_ap",
+					     "en32khz_cp",
+					     "en32khz_bt";
+>>>>>>> upstream/android-13
 		};
 
 		regulators {
@@ -456,7 +496,11 @@
 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
 	};
 
+<<<<<<< HEAD
 	dp_hpd_gpio: dp-hpd-gpio {
+=======
+	dp_hpd_gpio: dp-hpd {
+>>>>>>> upstream/android-13
 		samsung,pins = "gpc3-0";
 		samsung,pin-function = <EXYNOS_PIN_FUNC_INPUT>;
 		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
@@ -522,6 +566,15 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&rtc {
+	status = "okay";
+	clocks = <&clock CLK_RTC>, <&s5m8767_osc S2MPS11_CLK_AP>;
+	clock-names = "rtc", "rtc_src";
+};
+
+>>>>>>> upstream/android-13
 &sd1_bus4 {
 	samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
 };

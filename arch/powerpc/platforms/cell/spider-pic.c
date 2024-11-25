@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * External Interrupt Controller on Spider South Bridge
  *
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
  *
  * Author: Arnd Bergmann <arndb@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +23,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/ioport.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/io.h>
 
@@ -203,6 +215,7 @@ static void spider_irq_cascade(struct irq_desc *desc)
 {
 	struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct spider_pic *pic = irq_desc_get_handler_data(desc);
+<<<<<<< HEAD
 	unsigned int cs, virq;
 
 	cs = in_be32(pic->regs + TIR_CS) >> 24;
@@ -213,6 +226,13 @@ static void spider_irq_cascade(struct irq_desc *desc)
 
 	if (virq)
 		generic_handle_irq(virq);
+=======
+	unsigned int cs;
+
+	cs = in_be32(pic->regs + TIR_CS) >> 24;
+	if (cs != SPIDER_IRQ_INVALID)
+		generic_handle_domain_irq(pic->host, cs);
+>>>>>>> upstream/android-13
 
 	chip->irq_eoi(&desc->irq_data);
 }

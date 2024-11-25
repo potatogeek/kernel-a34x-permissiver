@@ -4,13 +4,21 @@
  * Queue Interface backend functionality
  *
  * Copyright 2013-2016 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  * Copyright 2016-2017 NXP
+=======
+ * Copyright 2016-2017, 2019-2020 NXP
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpumask.h>
 #include <linux/kthread.h>
 #include <soc/fsl/qman.h>
 
+<<<<<<< HEAD
+=======
+#include "debugfs.h"
+>>>>>>> upstream/android-13
 #include "regs.h"
 #include "qi.h"
 #include "desc.h"
@@ -18,6 +26,10 @@
 #include "desc_constr.h"
 
 #define PREHDR_RSLS_SHIFT	31
+<<<<<<< HEAD
+=======
+#define PREHDR_ABS		BIT(25)
+>>>>>>> upstream/android-13
 
 /*
  * Use a reasonable backlog of frames (per CPU) as congestion threshold,
@@ -58,11 +70,17 @@ static DEFINE_PER_CPU(int, last_cpu);
 /*
  * caam_qi_priv - CAAM QI backend private params
  * @cgr: QMan congestion group
+<<<<<<< HEAD
  * @qi_pdev: platform device for QI backend
  */
 struct caam_qi_priv {
 	struct qman_cgr cgr;
 	struct platform_device *qi_pdev;
+=======
+ */
+struct caam_qi_priv {
+	struct qman_cgr cgr;
+>>>>>>> upstream/android-13
 };
 
 static struct caam_qi_priv qipriv ____cacheline_aligned;
@@ -74,6 +92,7 @@ static struct caam_qi_priv qipriv ____cacheline_aligned;
 bool caam_congested __read_mostly;
 EXPORT_SYMBOL(caam_congested);
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 /*
  * This is a counter for the number of times the congestion group (where all
@@ -90,6 +109,8 @@ static u64 times_congested;
  */
 static int mod_init_cpu;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This is a a cache of buffers, from which the users of CAAM QI driver
  * can allocate short (CAAM_QI_MEMCACHE_SIZE) buffers. It's faster than
@@ -102,6 +123,19 @@ static int mod_init_cpu;
  */
 static struct kmem_cache *qi_cache;
 
+<<<<<<< HEAD
+=======
+static void *caam_iova_to_virt(struct iommu_domain *domain,
+			       dma_addr_t iova_addr)
+{
+	phys_addr_t phys_addr;
+
+	phys_addr = domain ? iommu_iova_to_phys(domain, iova_addr) : iova_addr;
+
+	return phys_to_virt(phys_addr);
+}
+
+>>>>>>> upstream/android-13
 int caam_qi_enqueue(struct device *qidev, struct caam_drv_req *req)
 {
 	struct qm_fd fd;
@@ -122,8 +156,15 @@ int caam_qi_enqueue(struct device *qidev, struct caam_drv_req *req)
 
 	do {
 		ret = qman_enqueue(req->drv_ctx->req_fq, &fd);
+<<<<<<< HEAD
 		if (likely(!ret))
 			return 0;
+=======
+		if (likely(!ret)) {
+			refcount_inc(&req->drv_ctx->refcnt);
+			return 0;
+		}
+>>>>>>> upstream/android-13
 
 		if (ret != -EBUSY)
 			break;
@@ -142,6 +183,7 @@ static void caam_fq_ern_cb(struct qman_portal *qm, struct qman_fq *fq,
 	const struct qm_fd *fd;
 	struct caam_drv_req *drv_req;
 	struct device *qidev = &(raw_cpu_ptr(&pcpu_qipriv)->net_dev.dev);
+<<<<<<< HEAD
 
 	fd = &msg->ern.fd;
 
@@ -151,16 +193,40 @@ static void caam_fq_ern_cb(struct qman_portal *qm, struct qman_fq *fq,
 	}
 
 	drv_req = (struct caam_drv_req *)phys_to_virt(qm_fd_addr_get64(fd));
+=======
+	struct caam_drv_private *priv = dev_get_drvdata(qidev);
+
+	fd = &msg->ern.fd;
+
+	drv_req = caam_iova_to_virt(priv->domain, qm_fd_addr_get64(fd));
+>>>>>>> upstream/android-13
 	if (!drv_req) {
 		dev_err(qidev,
 			"Can't find original request for CAAM response\n");
 		return;
 	}
 
+<<<<<<< HEAD
 	dma_unmap_single(drv_req->drv_ctx->qidev, qm_fd_addr(fd),
 			 sizeof(drv_req->fd_sgt), DMA_BIDIRECTIONAL);
 
 	drv_req->cbk(drv_req, -EIO);
+=======
+	refcount_dec(&drv_req->drv_ctx->refcnt);
+
+	if (qm_fd_get_format(fd) != qm_fd_compound) {
+		dev_err(qidev, "Non-compound FD from CAAM\n");
+		return;
+	}
+
+	dma_unmap_single(drv_req->drv_ctx->qidev, qm_fd_addr(fd),
+			 sizeof(drv_req->fd_sgt), DMA_BIDIRECTIONAL);
+
+	if (fd->status)
+		drv_req->cbk(drv_req, be32_to_cpu(fd->status));
+	else
+		drv_req->cbk(drv_req, JRSTA_SSRC_QI);
+>>>>>>> upstream/android-13
 }
 
 static struct qman_fq *create_caam_req_fq(struct device *qidev,
@@ -281,9 +347,16 @@ empty_fq:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int empty_caam_fq(struct qman_fq *fq)
 {
 	int ret;
+=======
+static int empty_caam_fq(struct qman_fq *fq, struct caam_drv_ctx *drv_ctx)
+{
+	int ret;
+	int retries = 10;
+>>>>>>> upstream/android-13
 	struct qm_mcr_queryfq_np np;
 
 	/* Wait till the older CAAM FQ get empty */
@@ -298,11 +371,26 @@ static int empty_caam_fq(struct qman_fq *fq)
 		msleep(20);
 	} while (1);
 
+<<<<<<< HEAD
 	/*
 	 * Give extra time for pending jobs from this FQ in holding tanks
 	 * to get processed
 	 */
 	msleep(20);
+=======
+	/* Wait until pending jobs from this FQ are processed by CAAM */
+	do {
+		if (refcount_read(&drv_ctx->refcnt) == 1)
+			break;
+
+		msleep(20);
+	} while (--retries);
+
+	if (!retries)
+		dev_warn_once(drv_ctx->qidev, "%d frames from FQID %u still pending in CAAM\n",
+			      refcount_read(&drv_ctx->refcnt), fq->fqid);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -325,7 +413,11 @@ int caam_drv_ctx_update(struct caam_drv_ctx *drv_ctx, u32 *sh_desc)
 	/* Create a new req FQ in parked state */
 	new_fq = create_caam_req_fq(drv_ctx->qidev, drv_ctx->rsp_fq,
 				    drv_ctx->context_a, 0);
+<<<<<<< HEAD
 	if (unlikely(IS_ERR_OR_NULL(new_fq))) {
+=======
+	if (IS_ERR(new_fq)) {
+>>>>>>> upstream/android-13
 		dev_err(qidev, "FQ allocation for shdesc update failed\n");
 		return PTR_ERR(new_fq);
 	}
@@ -334,7 +426,11 @@ int caam_drv_ctx_update(struct caam_drv_ctx *drv_ctx, u32 *sh_desc)
 	drv_ctx->req_fq = new_fq;
 
 	/* Empty and remove the older FQ */
+<<<<<<< HEAD
 	ret = empty_caam_fq(old_fq);
+=======
+	ret = empty_caam_fq(old_fq, drv_ctx);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(qidev, "Old CAAM FQ empty failed: %d\n", ret);
 
@@ -353,6 +449,10 @@ int caam_drv_ctx_update(struct caam_drv_ctx *drv_ctx, u32 *sh_desc)
 	 */
 	drv_ctx->prehdr[0] = cpu_to_caam32((1 << PREHDR_RSLS_SHIFT) |
 					   num_words);
+<<<<<<< HEAD
+=======
+	drv_ctx->prehdr[1] = cpu_to_caam32(PREHDR_ABS);
+>>>>>>> upstream/android-13
 	memcpy(drv_ctx->sh_desc, sh_desc, desc_bytes(sh_desc));
 	dma_sync_single_for_device(qidev, drv_ctx->context_a,
 				   sizeof(drv_ctx->sh_desc) +
@@ -408,6 +508,10 @@ struct caam_drv_ctx *caam_drv_ctx_init(struct device *qidev,
 	 */
 	drv_ctx->prehdr[0] = cpu_to_caam32((1 << PREHDR_RSLS_SHIFT) |
 					   num_words);
+<<<<<<< HEAD
+=======
+	drv_ctx->prehdr[1] = cpu_to_caam32(PREHDR_ABS);
+>>>>>>> upstream/android-13
 	memcpy(drv_ctx->sh_desc, sh_desc, desc_bytes(sh_desc));
 	size = sizeof(drv_ctx->prehdr) + sizeof(drv_ctx->sh_desc);
 	hwdesc = dma_map_single(qidev, drv_ctx->prehdr, size,
@@ -438,13 +542,23 @@ struct caam_drv_ctx *caam_drv_ctx_init(struct device *qidev,
 	/* Attach request FQ */
 	drv_ctx->req_fq = create_caam_req_fq(qidev, drv_ctx->rsp_fq, hwdesc,
 					     QMAN_INITFQ_FLAG_SCHED);
+<<<<<<< HEAD
 	if (unlikely(IS_ERR_OR_NULL(drv_ctx->req_fq))) {
+=======
+	if (IS_ERR(drv_ctx->req_fq)) {
+>>>>>>> upstream/android-13
 		dev_err(qidev, "create_caam_req_fq failed\n");
 		dma_unmap_single(qidev, hwdesc, size, DMA_BIDIRECTIONAL);
 		kfree(drv_ctx);
 		return ERR_PTR(-ENOMEM);
 	}
 
+<<<<<<< HEAD
+=======
+	/* init reference counter used to track references to request FQ */
+	refcount_set(&drv_ctx->refcnt, 1);
+
+>>>>>>> upstream/android-13
 	drv_ctx->qidev = qidev;
 	return drv_ctx;
 }
@@ -492,12 +606,21 @@ void caam_drv_ctx_rel(struct caam_drv_ctx *drv_ctx)
 }
 EXPORT_SYMBOL(caam_drv_ctx_rel);
 
+<<<<<<< HEAD
 int caam_qi_shutdown(struct device *qidev)
 {
 	int i, ret;
 	struct caam_qi_priv *priv = dev_get_drvdata(qidev);
 	const cpumask_t *cpus = qman_affine_cpus();
 	struct cpumask old_cpumask = current->cpus_allowed;
+=======
+static void caam_qi_shutdown(void *data)
+{
+	int i;
+	struct device *qidev = data;
+	struct caam_qi_priv *priv = &qipriv;
+	const cpumask_t *cpus = qman_affine_cpus();
+>>>>>>> upstream/android-13
 
 	for_each_cpu(i, cpus) {
 		struct napi_struct *irqtask;
@@ -510,6 +633,7 @@ int caam_qi_shutdown(struct device *qidev)
 			dev_err(qidev, "Rsp FQ kill failed, cpu: %d\n", i);
 	}
 
+<<<<<<< HEAD
 	/*
 	 * QMan driver requires CGRs to be deleted from same CPU from where they
 	 * were instantiated. Hence we get the module removal execute from the
@@ -530,6 +654,12 @@ int caam_qi_shutdown(struct device *qidev)
 
 	platform_device_unregister(priv->qi_pdev);
 	return ret;
+=======
+	qman_delete_cgr_safe(&priv->cgr);
+	qman_release_cgrid(priv->cgr.cgrid);
+
+	kmem_cache_destroy(qi_cache);
+>>>>>>> upstream/android-13
 }
 
 static void cgr_cb(struct qman_portal *qm, struct qman_cgr *cgr, int congested)
@@ -537,9 +667,14 @@ static void cgr_cb(struct qman_portal *qm, struct qman_cgr *cgr, int congested)
 	caam_congested = congested;
 
 	if (congested) {
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 		times_congested++;
 #endif
+=======
+		caam_debugfs_qi_congested();
+
+>>>>>>> upstream/android-13
 		pr_debug_ratelimited("CAAM entered congestion\n");
 
 	} else {
@@ -547,6 +682,7 @@ static void cgr_cb(struct qman_portal *qm, struct qman_cgr *cgr, int congested)
 	}
 }
 
+<<<<<<< HEAD
 static int caam_qi_napi_schedule(struct qman_portal *p, struct caam_napi *np)
 {
 	/*
@@ -555,6 +691,12 @@ static int caam_qi_napi_schedule(struct qman_portal *p, struct caam_napi *np)
 	 * softirq and irq contexts.
 	 */
 	if (unlikely(in_irq() || !in_serving_softirq())) {
+=======
+static int caam_qi_napi_schedule(struct qman_portal *p, struct caam_napi *np,
+				 bool sched_napi)
+{
+	if (sched_napi) {
+>>>>>>> upstream/android-13
 		/* Disable QMan IRQ source and invoke NAPI */
 		qman_p_irqsource_remove(p, QM_PIRQ_DQRI);
 		np->p = p;
@@ -566,18 +708,43 @@ static int caam_qi_napi_schedule(struct qman_portal *p, struct caam_napi *np)
 
 static enum qman_cb_dqrr_result caam_rsp_fq_dqrr_cb(struct qman_portal *p,
 						    struct qman_fq *rsp_fq,
+<<<<<<< HEAD
 						    const struct qm_dqrr_entry *dqrr)
+=======
+						    const struct qm_dqrr_entry *dqrr,
+						    bool sched_napi)
+>>>>>>> upstream/android-13
 {
 	struct caam_napi *caam_napi = raw_cpu_ptr(&pcpu_qipriv.caam_napi);
 	struct caam_drv_req *drv_req;
 	const struct qm_fd *fd;
 	struct device *qidev = &(raw_cpu_ptr(&pcpu_qipriv)->net_dev.dev);
+<<<<<<< HEAD
 	u32 status;
 
 	if (caam_qi_napi_schedule(p, caam_napi))
 		return qman_cb_dqrr_stop;
 
 	fd = &dqrr->fd;
+=======
+	struct caam_drv_private *priv = dev_get_drvdata(qidev);
+	u32 status;
+
+	if (caam_qi_napi_schedule(p, caam_napi, sched_napi))
+		return qman_cb_dqrr_stop;
+
+	fd = &dqrr->fd;
+
+	drv_req = caam_iova_to_virt(priv->domain, qm_fd_addr_get64(fd));
+	if (unlikely(!drv_req)) {
+		dev_err(qidev,
+			"Can't find original request for caam response\n");
+		return qman_cb_dqrr_consume;
+	}
+
+	refcount_dec(&drv_req->drv_ctx->refcnt);
+
+>>>>>>> upstream/android-13
 	status = be32_to_cpu(fd->status);
 	if (unlikely(status)) {
 		u32 ssrc = status & JRSTA_SSRC_MASK;
@@ -585,8 +752,14 @@ static enum qman_cb_dqrr_result caam_rsp_fq_dqrr_cb(struct qman_portal *p,
 
 		if (ssrc != JRSTA_SSRC_CCB_ERROR ||
 		    err_id != JRSTA_CCBERR_ERRID_ICVCHK)
+<<<<<<< HEAD
 			dev_err(qidev, "Error: %#x in CAAM response FD\n",
 				status);
+=======
+			dev_err_ratelimited(qidev,
+					    "Error: %#x in CAAM response FD\n",
+					    status);
+>>>>>>> upstream/android-13
 	}
 
 	if (unlikely(qm_fd_get_format(fd) != qm_fd_compound)) {
@@ -594,6 +767,7 @@ static enum qman_cb_dqrr_result caam_rsp_fq_dqrr_cb(struct qman_portal *p,
 		return qman_cb_dqrr_consume;
 	}
 
+<<<<<<< HEAD
 	drv_req = (struct caam_drv_req *)phys_to_virt(qm_fd_addr_get64(fd));
 	if (unlikely(!drv_req)) {
 		dev_err(qidev,
@@ -601,6 +775,8 @@ static enum qman_cb_dqrr_result caam_rsp_fq_dqrr_cb(struct qman_portal *p,
 		return qman_cb_dqrr_consume;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	dma_unmap_single(drv_req->drv_ctx->qidev, qm_fd_addr(fd),
 			 sizeof(drv_req->fd_sgt), DMA_BIDIRECTIONAL);
 
@@ -714,6 +890,7 @@ static void free_rsp_fqs(void)
 int caam_qi_init(struct platform_device *caam_pdev)
 {
 	int err, i;
+<<<<<<< HEAD
 	struct platform_device *qi_pdev;
 	struct device *ctrldev = &caam_pdev->dev, *qidev;
 	struct caam_drv_private *ctrlpriv;
@@ -746,12 +923,23 @@ int caam_qi_init(struct platform_device *caam_pdev)
 
 	qipriv.qi_pdev = qi_pdev;
 	dev_set_drvdata(qidev, &qipriv);
+=======
+	struct device *ctrldev = &caam_pdev->dev, *qidev;
+	struct caam_drv_private *ctrlpriv;
+	const cpumask_t *cpus = qman_affine_cpus();
+
+	ctrlpriv = dev_get_drvdata(ctrldev);
+	qidev = ctrldev;
+>>>>>>> upstream/android-13
 
 	/* Initialize the congestion detection */
 	err = init_cgr(qidev);
 	if (err) {
 		dev_err(qidev, "CGR initialization failed: %d\n", err);
+<<<<<<< HEAD
 		platform_device_unregister(qi_pdev);
+=======
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -760,7 +948,10 @@ int caam_qi_init(struct platform_device *caam_pdev)
 	if (err) {
 		dev_err(qidev, "Can't allocate CAAM response FQs: %d\n", err);
 		free_rsp_fqs();
+<<<<<<< HEAD
 		platform_device_unregister(qi_pdev);
+=======
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -783,14 +974,18 @@ int caam_qi_init(struct platform_device *caam_pdev)
 		napi_enable(irqtask);
 	}
 
+<<<<<<< HEAD
 	/* Hook up QI device to parent controlling caam device */
 	ctrlpriv->qidev = qidev;
 
+=======
+>>>>>>> upstream/android-13
 	qi_cache = kmem_cache_create("caamqicache", CAAM_QI_MEMCACHE_SIZE, 0,
 				     SLAB_CACHE_DMA, NULL);
 	if (!qi_cache) {
 		dev_err(qidev, "Can't allocate CAAM cache\n");
 		free_rsp_fqs();
+<<<<<<< HEAD
 		platform_device_unregister(qi_pdev);
 		return -ENOMEM;
 	}
@@ -801,6 +996,17 @@ int caam_qi_init(struct platform_device *caam_pdev)
 	debugfs_create_file("qi_congested", 0444, ctrlpriv->ctl,
 			    &times_congested, &caam_fops_u64_ro);
 #endif
+=======
+		return -ENOMEM;
+	}
+
+	caam_debugfs_qi_init(ctrlpriv);
+
+	err = devm_add_action_or_reset(qidev, caam_qi_shutdown, ctrlpriv);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	dev_info(qidev, "Linux CAAM Queue I/F driver initialised\n");
 	return 0;
 }

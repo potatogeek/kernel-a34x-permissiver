@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Device Tree Source for OMAP3 clock data
  *
  * Copyright (C) 2013 Texas Instruments, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 &prm_clocks {
 	virt_16_8m_ck: virt_16_8m_ck {
@@ -419,7 +426,11 @@
 		#clock-cells = <0>;
 		compatible = "ti,divider-clock";
 		clocks = <&dpll4_ck>;
+<<<<<<< HEAD
 		ti,max-div = <32>;
+=======
+		ti,max-div = <16>;
+>>>>>>> upstream/android-13
 		reg = <0x0e40>;
 		ti,index-starts-at-one;
 	};

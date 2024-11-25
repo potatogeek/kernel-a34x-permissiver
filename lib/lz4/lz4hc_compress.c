@@ -570,7 +570,11 @@ _Search3:
 			*op++ = (BYTE) lastRun;
 		} else
 			*op++ = (BYTE)(lastRun<<ML_BITS);
+<<<<<<< HEAD
 		memcpy(op, anchor, iend - anchor);
+=======
+		LZ4_memcpy(op, anchor, iend - anchor);
+>>>>>>> upstream/android-13
 		op += iend - anchor;
 	}
 
@@ -663,7 +667,10 @@ static void LZ4HC_setExternalDict(
 	/* match referencing will resume from there */
 	ctxPtr->nextToUpdate = ctxPtr->dictLimit;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(LZ4HC_setExternalDict);
+=======
+>>>>>>> upstream/android-13
 
 static int LZ4_compressHC_continue_generic(
 	LZ4_streamHC_t *LZ4_streamHCPtr,

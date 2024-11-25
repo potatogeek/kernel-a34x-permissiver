@@ -24,7 +24,11 @@
 #include <linux/firmware.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_ucode.h"
 

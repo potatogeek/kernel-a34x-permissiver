@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl871x_io.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -62,13 +69,21 @@ static uint _init_intf_hdl(struct _adapter *padapter,
 	init_intf_priv = &r8712_usb_init_intf_priv;
 	pintf_priv = pintf_hdl->pintfpriv = kmalloc(sizeof(struct intf_priv),
 						    GFP_ATOMIC);
+<<<<<<< HEAD
 	if (pintf_priv == NULL)
+=======
+	if (!pintf_priv)
+>>>>>>> upstream/android-13
 		goto _init_intf_hdl_fail;
 	pintf_hdl->adapter = (u8 *)padapter;
 	set_intf_option(&pintf_hdl->intf_option);
 	set_intf_funs(pintf_hdl);
 	set_intf_ops(&pintf_hdl->io_ops);
+<<<<<<< HEAD
 	pintf_priv->intf_dev = (u8 *)&(padapter->dvobjpriv);
+=======
+	pintf_priv->intf_dev = (u8 *)&padapter->dvobjpriv;
+>>>>>>> upstream/android-13
 	if (init_intf_priv(pintf_priv) == _FAIL)
 		goto _init_intf_hdl_fail;
 	return _SUCCESS;
@@ -92,7 +107,11 @@ static uint register_intf_hdl(u8 *dev, struct intf_hdl *pintfhdl)
 
 	pintfhdl->intf_option = 0;
 	pintfhdl->adapter = dev;
+<<<<<<< HEAD
 	pintfhdl->intf_dev = (u8 *)&(adapter->dvobjpriv);
+=======
+	pintfhdl->intf_dev = (u8 *)&adapter->dvobjpriv;
+>>>>>>> upstream/android-13
 	if (!_init_intf_hdl(adapter, pintfhdl))
 		goto register_intf_hdl_fail;
 	return _SUCCESS;
@@ -119,13 +138,20 @@ uint r8712_alloc_io_queue(struct _adapter *adapter)
 	INIT_LIST_HEAD(&pio_queue->processing);
 	INIT_LIST_HEAD(&pio_queue->pending);
 	spin_lock_init(&pio_queue->lock);
+<<<<<<< HEAD
 	pio_queue->pallocated_free_ioreqs_buf = kmalloc(NUM_IOREQ *
+=======
+	pio_queue->pallocated_free_ioreqs_buf = kzalloc(NUM_IOREQ *
+>>>>>>> upstream/android-13
 						(sizeof(struct io_req)) + 4,
 						GFP_ATOMIC);
 	if ((pio_queue->pallocated_free_ioreqs_buf) == NULL)
 		goto alloc_io_queue_fail;
+<<<<<<< HEAD
 	memset(pio_queue->pallocated_free_ioreqs_buf, 0,
 			(NUM_IOREQ * (sizeof(struct io_req)) + 4));
+=======
+>>>>>>> upstream/android-13
 	pio_queue->free_ioreqs_buf = pio_queue->pallocated_free_ioreqs_buf + 4
 			- ((addr_t)(pio_queue->pallocated_free_ioreqs_buf)
 			& 3);
@@ -135,7 +161,11 @@ uint r8712_alloc_io_queue(struct _adapter *adapter)
 		list_add_tail(&pio_req->list, &pio_queue->free_ioreqs);
 		pio_req++;
 	}
+<<<<<<< HEAD
 	if ((register_intf_hdl((u8 *)adapter, &(pio_queue->intf))) == _FAIL)
+=======
+	if ((register_intf_hdl((u8 *)adapter, &pio_queue->intf)) == _FAIL)
+>>>>>>> upstream/android-13
 		goto alloc_io_queue_fail;
 	adapter->pio_queue = pio_queue;
 	return _SUCCESS;

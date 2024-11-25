@@ -43,6 +43,11 @@ static struct cma *vmcp_cma;
 
 static int __init early_parse_vmcp_cma(char *p)
 {
+<<<<<<< HEAD
+=======
+	if (!p)
+		return 1;
+>>>>>>> upstream/android-13
 	vmcp_cma_size = ALIGN(memparse(p, NULL), PAGE_SIZE);
 	return 0;
 }

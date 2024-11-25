@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2010-2012 Broadcom. All rights reserved.
  *
@@ -30,6 +31,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* Copyright (c) 2010-2012 Broadcom. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #ifndef VCHIQ_PAGELIST_H
 #define VCHIQ_PAGELIST_H
@@ -38,7 +43,11 @@
 #define PAGELIST_READ 1
 #define PAGELIST_READ_WITH_FRAGMENTS 2
 
+<<<<<<< HEAD
 typedef struct pagelist_struct {
+=======
+struct pagelist {
+>>>>>>> upstream/android-13
 	u32 length;
 	u16 type;
 	u16 offset;
@@ -46,6 +55,10 @@ typedef struct pagelist_struct {
 			 * of following pages at consecutive
 			 * addresses.
 			 */
+<<<<<<< HEAD
 } PAGELIST_T;
+=======
+};
+>>>>>>> upstream/android-13
 
 #endif /* VCHIQ_PAGELIST_H */

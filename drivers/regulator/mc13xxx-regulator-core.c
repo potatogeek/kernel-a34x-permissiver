@@ -99,7 +99,11 @@ static int mc13xxx_regulator_get_voltage(struct regulator_dev *rdev)
 	return rdev->desc->volt_table[val];
 }
 
+<<<<<<< HEAD
 struct regulator_ops mc13xxx_regulator_ops = {
+=======
+const struct regulator_ops mc13xxx_regulator_ops = {
+>>>>>>> upstream/android-13
 	.enable = mc13xxx_regulator_enable,
 	.disable = mc13xxx_regulator_disable,
 	.is_enabled = mc13xxx_regulator_is_enabled,
@@ -127,7 +131,11 @@ int mc13xxx_fixed_regulator_set_voltage(struct regulator_dev *rdev, int min_uV,
 }
 EXPORT_SYMBOL_GPL(mc13xxx_fixed_regulator_set_voltage);
 
+<<<<<<< HEAD
 struct regulator_ops mc13xxx_fixed_regulator_ops = {
+=======
+const struct regulator_ops mc13xxx_fixed_regulator_ops = {
+>>>>>>> upstream/android-13
 	.enable = mc13xxx_regulator_enable,
 	.disable = mc13xxx_regulator_disable,
 	.is_enabled = mc13xxx_regulator_is_enabled,
@@ -186,7 +194,11 @@ struct mc13xxx_regulator_init_data *mc13xxx_parse_regulators_dt(
 		for (i = 0; i < num_regulators; i++) {
 			if (!regulators[i].desc.name)
 				continue;
+<<<<<<< HEAD
 			if (!of_node_cmp(child->name,
+=======
+			if (of_node_name_eq(child,
+>>>>>>> upstream/android-13
 					 regulators[i].desc.name)) {
 				p->id = i;
 				p->init_data = of_get_regulator_init_data(
@@ -203,7 +215,11 @@ struct mc13xxx_regulator_init_data *mc13xxx_parse_regulators_dt(
 
 		if (!found)
 			dev_warn(&pdev->dev,
+<<<<<<< HEAD
 				 "Unknown regulator: %s\n", child->name);
+=======
+				 "Unknown regulator: %pOFn\n", child);
+>>>>>>> upstream/android-13
 	}
 	of_node_put(parent);
 

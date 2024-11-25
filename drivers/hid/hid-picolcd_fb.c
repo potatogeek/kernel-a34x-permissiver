@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /***************************************************************************
  *   Copyright (C) 2010-2012 by Bruno Prémont <bonbons@linux-vserver.org>  *
  *                                                                         *
  *   Based on Logitech G13 driver (v0.4)                                   *
  *     Copyright (C) 2009 by Rick L. Vinyard, Jr. <rvinyard@cs.nmsu.edu>   *
  *                                                                         *
+<<<<<<< HEAD
  *   This program is free software: you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation, version 2 of the License.               *
@@ -15,6 +20,8 @@
  *                                                                         *
  *   You should have received a copy of the GNU General Public License     *
  *   along with this software. If not see <http://www.gnu.org/licenses/>.  *
+=======
+>>>>>>> upstream/android-13
  ***************************************************************************/
 
 #include <linux/hid.h>
@@ -427,8 +434,12 @@ static int picolcd_set_par(struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Note this can't be const because of struct fb_info definition */
 static struct fb_ops picolcdfb_ops = {
+=======
+static const struct fb_ops picolcdfb_ops = {
+>>>>>>> upstream/android-13
 	.owner        = THIS_MODULE,
 	.fb_destroy   = picolcd_fb_destroy,
 	.fb_read      = fb_sys_read,
@@ -469,9 +480,15 @@ static ssize_t picolcd_fb_update_rate_show(struct device *dev,
 		if (ret >= PAGE_SIZE)
 			break;
 		else if (i == fb_update_rate)
+<<<<<<< HEAD
 			ret += snprintf(buf+ret, PAGE_SIZE-ret, "[%u] ", i);
 		else
 			ret += snprintf(buf+ret, PAGE_SIZE-ret, "%u ", i);
+=======
+			ret += scnprintf(buf+ret, PAGE_SIZE-ret, "[%u] ", i);
+		else
+			ret += scnprintf(buf+ret, PAGE_SIZE-ret, "%u ", i);
+>>>>>>> upstream/android-13
 	if (ret > 0)
 		buf[min(ret, (size_t)PAGE_SIZE)-1] = '\n';
 	return ret;
@@ -522,10 +539,15 @@ int picolcd_init_framebuffer(struct picolcd_data *data)
 			sizeof(struct fb_deferred_io) +
 			sizeof(struct picolcd_fb_data) +
 			PICOLCDFB_SIZE, dev);
+<<<<<<< HEAD
 	if (info == NULL) {
 		dev_err(dev, "failed to allocate a framebuffer\n");
 		goto err_nomem;
 	}
+=======
+	if (!info)
+		goto err_nomem;
+>>>>>>> upstream/android-13
 
 	info->fbdefio = info->par;
 	*info->fbdefio = picolcd_fb_defio;

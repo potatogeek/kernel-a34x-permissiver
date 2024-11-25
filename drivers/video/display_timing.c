@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * generic display timing functions
  *
  * Copyright (c) 2012 Steffen Trumtrar <s.trumtrar@pengutronix.de>, Pengutronix
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>

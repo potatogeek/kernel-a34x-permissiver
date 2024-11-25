@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Common capabilities, needed by capability.o.
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -5,11 +6,18 @@
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Common capabilities, needed by capability.o.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
 #include <linux/audit.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/lsm_hooks.h>
@@ -56,9 +64,15 @@ static void warn_setuid_and_fcaps_mixed(const char *fname)
 /**
  * cap_capable - Determine whether a task has a particular effective capability
  * @cred: The credentials to use
+<<<<<<< HEAD
  * @ns:  The user namespace in which we need the capability
  * @cap: The capability to check for
  * @audit: Whether to write an audit message or not
+=======
+ * @targ_ns:  The user namespace in which we need the capability
+ * @cap: The capability to check for
+ * @opts: Bitmask of options defined in include/linux/security.h
+>>>>>>> upstream/android-13
  *
  * Determine whether the nominated task has the specified capability amongst
  * its effective set, returning 0 if it does, -ve if it does not.
@@ -295,7 +309,11 @@ int cap_capset(struct cred *new,
  * affects the security markings on that inode, and if it is, should
  * inode_killpriv() be invoked or the change rejected.
  *
+<<<<<<< HEAD
  * Returns 1 if security.capability has a value, meaning inode_killpriv()
+=======
+ * Return: 1 if security.capability has a value, meaning inode_killpriv()
+>>>>>>> upstream/android-13
  * is required, 0 otherwise, meaning inode_killpriv() is not required.
  */
 int cap_inode_need_killpriv(struct dentry *dentry)
@@ -309,6 +327,7 @@ int cap_inode_need_killpriv(struct dentry *dentry)
 
 /**
  * cap_inode_killpriv - Erase the security markings on an inode
+<<<<<<< HEAD
  * @dentry: The inode/dentry to alter
  *
  * Erase the privilege-enhancing security markings on an inode.
@@ -320,6 +339,27 @@ int cap_inode_killpriv(struct dentry *dentry)
 	int error;
 
 	error = __vfs_removexattr(dentry, XATTR_NAME_CAPS);
+=======
+ *
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dentry:	The inode/dentry to alter
+ *
+ * Erase the privilege-enhancing security markings on an inode.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then
+ * take care to map the inode according to @mnt_userns before checking
+ * permissions. On non-idmapped mounts or if permission checking is to be
+ * performed on the raw inode simply passs init_user_ns.
+ *
+ * Return: 0 if successful, -ve on error.
+ */
+int cap_inode_killpriv(struct user_namespace *mnt_userns, struct dentry *dentry)
+{
+	int error;
+
+	error = __vfs_removexattr(mnt_userns, dentry, XATTR_NAME_CAPS);
+>>>>>>> upstream/android-13
 	if (error == -EOPNOTSUPP)
 		error = 0;
 	return error;
@@ -372,7 +412,12 @@ static bool is_v3header(size_t size, const struct vfs_cap_data *cap)
  * by the integrity subsystem, which really wants the unconverted values -
  * so that's good.
  */
+<<<<<<< HEAD
 int cap_inode_getsecurity(struct inode *inode, const char *name, void **buffer,
+=======
+int cap_inode_getsecurity(struct user_namespace *mnt_userns,
+			  struct inode *inode, const char *name, void **buffer,
+>>>>>>> upstream/android-13
 			  bool alloc)
 {
 	int size, ret;
@@ -393,8 +438,13 @@ int cap_inode_getsecurity(struct inode *inode, const char *name, void **buffer,
 		return -EINVAL;
 
 	size = sizeof(struct vfs_ns_cap_data);
+<<<<<<< HEAD
 	ret = (int) vfs_getxattr_alloc(dentry, XATTR_NAME_CAPS,
 				 &tmpbuf, size, GFP_NOFS);
+=======
+	ret = (int)vfs_getxattr_alloc(mnt_userns, dentry, XATTR_NAME_CAPS,
+				      &tmpbuf, size, GFP_NOFS);
+>>>>>>> upstream/android-13
 	dput(dentry);
 
 	if (ret < 0 || !tmpbuf)
@@ -414,6 +464,12 @@ int cap_inode_getsecurity(struct inode *inode, const char *name, void **buffer,
 
 	kroot = make_kuid(fs_ns, root);
 
+<<<<<<< HEAD
+=======
+	/* If this is an idmapped mount shift the kuid. */
+	kroot = kuid_into_mnt(mnt_userns, kroot);
+
+>>>>>>> upstream/android-13
 	/* If the root kuid maps to a valid uid in current ns, then return
 	 * this as a nscap. */
 	mappedroot = from_kuid(current_user_ns(), kroot);
@@ -475,16 +531,44 @@ out_free:
 	return size;
 }
 
+<<<<<<< HEAD
 static kuid_t rootid_from_xattr(const void *value, size_t size,
 				struct user_namespace *task_ns)
 {
 	const struct vfs_ns_cap_data *nscap = value;
+=======
+/**
+ * rootid_from_xattr - translate root uid of vfs caps
+ *
+ * @value:	vfs caps value which may be modified by this function
+ * @size:	size of @ivalue
+ * @task_ns:	user namespace of the caller
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then
+ * take care to map the inode according to @mnt_userns before checking
+ * permissions. On non-idmapped mounts or if permission checking is to be
+ * performed on the raw inode simply passs init_user_ns.
+ */
+static kuid_t rootid_from_xattr(const void *value, size_t size,
+				struct user_namespace *task_ns,
+				struct user_namespace *mnt_userns)
+{
+	const struct vfs_ns_cap_data *nscap = value;
+	kuid_t rootkid;
+>>>>>>> upstream/android-13
 	uid_t rootid = 0;
 
 	if (size == XATTR_CAPS_SZ_3)
 		rootid = le32_to_cpu(nscap->rootid);
 
+<<<<<<< HEAD
 	return make_kuid(task_ns, rootid);
+=======
+	rootkid = make_kuid(task_ns, rootid);
+	return kuid_from_mnt(mnt_userns, rootkid);
+>>>>>>> upstream/android-13
 }
 
 static bool validheader(size_t size, const struct vfs_cap_data *cap)
@@ -492,6 +576,7 @@ static bool validheader(size_t size, const struct vfs_cap_data *cap)
 	return is_v2header(size, cap) || is_v3header(size, cap);
 }
 
+<<<<<<< HEAD
 /*
  * User requested a write of security.capability.  If needed, update the
  * xattr to change from v2 to v3, or to fixup the v3 rootid.
@@ -499,6 +584,29 @@ static bool validheader(size_t size, const struct vfs_cap_data *cap)
  * If all is ok, we return the new size, on error return < 0.
  */
 int cap_convert_nscap(struct dentry *dentry, void **ivalue, size_t size)
+=======
+/**
+ * cap_convert_nscap - check vfs caps
+ *
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dentry:	used to retrieve inode to check permissions on
+ * @ivalue:	vfs caps value which may be modified by this function
+ * @size:	size of @ivalue
+ *
+ * User requested a write of security.capability.  If needed, update the
+ * xattr to change from v2 to v3, or to fixup the v3 rootid.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then
+ * take care to map the inode according to @mnt_userns before checking
+ * permissions. On non-idmapped mounts or if permission checking is to be
+ * performed on the raw inode simply passs init_user_ns.
+ *
+ * Return: On success, return the new size; on error, return < 0.
+ */
+int cap_convert_nscap(struct user_namespace *mnt_userns, struct dentry *dentry,
+		      const void **ivalue, size_t size)
+>>>>>>> upstream/android-13
 {
 	struct vfs_ns_cap_data *nscap;
 	uid_t nsrootid;
@@ -514,14 +622,24 @@ int cap_convert_nscap(struct dentry *dentry, void **ivalue, size_t size)
 		return -EINVAL;
 	if (!validheader(size, cap))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (!capable_wrt_inode_uidgid(inode, CAP_SETFCAP))
 		return -EPERM;
 	if (size == XATTR_CAPS_SZ_2)
+=======
+	if (!capable_wrt_inode_uidgid(mnt_userns, inode, CAP_SETFCAP))
+		return -EPERM;
+	if (size == XATTR_CAPS_SZ_2 && (mnt_userns == &init_user_ns))
+>>>>>>> upstream/android-13
 		if (ns_capable(inode->i_sb->s_user_ns, CAP_SETFCAP))
 			/* user is privileged, just write the v2 */
 			return size;
 
+<<<<<<< HEAD
 	rootid = rootid_from_xattr(*ivalue, size, task_ns);
+=======
+	rootid = rootid_from_xattr(*ivalue, size, task_ns, mnt_userns);
+>>>>>>> upstream/android-13
 	if (!uid_valid(rootid))
 		return -EINVAL;
 
@@ -541,7 +659,10 @@ int cap_convert_nscap(struct dentry *dentry, void **ivalue, size_t size)
 	nscap->magic_etc = cpu_to_le32(nsmagic);
 	memcpy(&nscap->data, &cap->data, sizeof(__le32) * 2 * VFS_CAP_U32);
 
+<<<<<<< HEAD
 	kvfree(*ivalue);
+=======
+>>>>>>> upstream/android-13
 	*ivalue = nscap;
 	return newsize;
 }
@@ -590,10 +711,31 @@ static inline int bprm_caps_from_vfs_caps(struct cpu_vfs_cap_data *caps,
 	return *effective ? ret : 0;
 }
 
+<<<<<<< HEAD
 /*
  * Extract the on-exec-apply capability sets for an executable file.
  */
 int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data *cpu_caps)
+=======
+/**
+ * get_vfs_caps_from_disk - retrieve vfs caps from disk
+ *
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dentry:	dentry from which @inode is retrieved
+ * @cpu_caps:	vfs capabilities
+ *
+ * Extract the on-exec-apply capability sets for an executable file.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then
+ * take care to map the inode according to @mnt_userns before checking
+ * permissions. On non-idmapped mounts or if permission checking is to be
+ * performed on the raw inode simply passs init_user_ns.
+ */
+int get_vfs_caps_from_disk(struct user_namespace *mnt_userns,
+			   const struct dentry *dentry,
+			   struct cpu_vfs_cap_data *cpu_caps)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_backing_inode(dentry);
 	__u32 magic_etc;
@@ -649,6 +791,10 @@ int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data 
 	/* Limit the caps to the mounter of the filesystem
 	 * or the more limited uid specified in the xattr.
 	 */
+<<<<<<< HEAD
+=======
+	rootkuid = kuid_into_mnt(mnt_userns, rootkuid);
+>>>>>>> upstream/android-13
 	if (!rootid_owns_currentns(rootkuid))
 		return -ENODATA;
 
@@ -662,6 +808,11 @@ int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data 
 	cpu_caps->permitted.cap[CAP_LAST_U32] &= CAP_LAST_U32_VALID_MASK;
 	cpu_caps->inheritable.cap[CAP_LAST_U32] &= CAP_LAST_U32_VALID_MASK;
 
+<<<<<<< HEAD
+=======
+	cpu_caps->rootid = rootkuid;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -670,7 +821,12 @@ int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data 
  * its xattrs and, if present, apply them to the proposed credentials being
  * constructed by execve().
  */
+<<<<<<< HEAD
 static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_fcap)
+=======
+static int get_file_caps(struct linux_binprm *bprm, struct file *file,
+			 bool *effective, bool *has_fcap)
+>>>>>>> upstream/android-13
 {
 	int rc = 0;
 	struct cpu_vfs_cap_data vcaps;
@@ -680,7 +836,11 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_f
 	if (!file_caps_enabled)
 		return 0;
 
+<<<<<<< HEAD
 	if (!mnt_may_suid(bprm->file->f_path.mnt))
+=======
+	if (!mnt_may_suid(file->f_path.mnt))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -688,10 +848,18 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_f
 	 * explicit that capability bits are limited to s_user_ns and its
 	 * descendants.
 	 */
+<<<<<<< HEAD
 	if (!current_in_userns(bprm->file->f_path.mnt->mnt_sb->s_user_ns))
 		return 0;
 
 	rc = get_vfs_caps_from_disk(bprm->file->f_path.dentry, &vcaps);
+=======
+	if (!current_in_userns(file->f_path.mnt->mnt_sb->s_user_ns))
+		return 0;
+
+	rc = get_vfs_caps_from_disk(file_mnt_user_ns(file),
+				    file->f_path.dentry, &vcaps);
+>>>>>>> upstream/android-13
 	if (rc < 0) {
 		if (rc == -EINVAL)
 			printk(KERN_NOTICE "Invalid argument reading file caps for %s\n",
@@ -702,9 +870,12 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_f
 	}
 
 	rc = bprm_caps_from_vfs_caps(&vcaps, bprm, effective, has_fcap);
+<<<<<<< HEAD
 	if (rc == -EINVAL)
 		printk(KERN_NOTICE "%s: cap_from_disk returned %d for %s\n",
 		       __func__, rc, bprm->filename);
+=======
+>>>>>>> upstream/android-13
 
 out:
 	if (rc)
@@ -823,6 +994,7 @@ static inline bool nonroot_raised_pE(struct cred *new, const struct cred *old,
 }
 
 /**
+<<<<<<< HEAD
  * cap_bprm_set_creds - Set up the proposed credentials for execve().
  * @bprm: The execution parameters, including the proposed creds
  *
@@ -832,17 +1004,39 @@ static inline bool nonroot_raised_pE(struct cred *new, const struct cred *old,
  */
 int cap_bprm_set_creds(struct linux_binprm *bprm)
 {
+=======
+ * cap_bprm_creds_from_file - Set up the proposed credentials for execve().
+ * @bprm: The execution parameters, including the proposed creds
+ * @file: The file to pull the credentials from
+ *
+ * Set up the proposed credentials for a new execution context being
+ * constructed by execve().  The proposed creds in @bprm->cred is altered,
+ * which won't take effect immediately.
+ *
+ * Return: 0 if successful, -ve on error.
+ */
+int cap_bprm_creds_from_file(struct linux_binprm *bprm, struct file *file)
+{
+	/* Process setpcap binaries and capabilities for uid 0 */
+>>>>>>> upstream/android-13
 	const struct cred *old = current_cred();
 	struct cred *new = bprm->cred;
 	bool effective = false, has_fcap = false, is_setid;
 	int ret;
 	kuid_t root_uid;
 
+<<<<<<< HEAD
 	new->cap_ambient = old->cap_ambient;
 	if (WARN_ON(!cap_ambient_invariant_ok(old)))
 		return -EPERM;
 
 	ret = get_file_caps(bprm, &effective, &has_fcap);
+=======
+	if (WARN_ON(!cap_ambient_invariant_ok(old)))
+		return -EPERM;
+
+	ret = get_file_caps(bprm, file, &effective, &has_fcap);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -911,12 +1105,19 @@ int cap_bprm_set_creds(struct linux_binprm *bprm)
 		return -EPERM;
 
 	/* Check for privilege-elevated exec. */
+<<<<<<< HEAD
 	bprm->cap_elevated = 0;
+=======
+>>>>>>> upstream/android-13
 	if (is_setid ||
 	    (!__is_real(root_uid, new) &&
 	     (effective ||
 	      __cap_grew(permitted, ambient, new))))
+<<<<<<< HEAD
 		bprm->cap_elevated = 1;
+=======
+		bprm->secureexec = 1;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -942,7 +1143,11 @@ int cap_inode_setxattr(struct dentry *dentry, const char *name,
 
 	/* Ignore non-security xattrs */
 	if (strncmp(name, XATTR_SECURITY_PREFIX,
+<<<<<<< HEAD
 			sizeof(XATTR_SECURITY_PREFIX) - 1) != 0)
+=======
+			XATTR_SECURITY_PREFIX_LEN) != 0)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -959,22 +1164,47 @@ int cap_inode_setxattr(struct dentry *dentry, const char *name,
 
 /**
  * cap_inode_removexattr - Determine whether an xattr may be removed
+<<<<<<< HEAD
  * @dentry: The inode/dentry being altered
  * @name: The name of the xattr to be changed
+=======
+ *
+ * @mnt_userns:	User namespace of the mount the inode was found from
+ * @dentry:	The inode/dentry being altered
+ * @name:	The name of the xattr to be changed
+>>>>>>> upstream/android-13
  *
  * Determine whether an xattr may be removed from an inode, returning 0 if
  * permission is granted, -ve if denied.
  *
+<<<<<<< HEAD
  * This is used to make sure security xattrs don't get removed by those who
  * aren't privileged to remove them.
  */
 int cap_inode_removexattr(struct dentry *dentry, const char *name)
+=======
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then
+ * take care to map the inode according to @mnt_userns before checking
+ * permissions. On non-idmapped mounts or if permission checking is to be
+ * performed on the raw inode simply passs init_user_ns.
+ *
+ * This is used to make sure security xattrs don't get removed by those who
+ * aren't privileged to remove them.
+ */
+int cap_inode_removexattr(struct user_namespace *mnt_userns,
+			  struct dentry *dentry, const char *name)
+>>>>>>> upstream/android-13
 {
 	struct user_namespace *user_ns = dentry->d_sb->s_user_ns;
 
 	/* Ignore non-security xattrs */
 	if (strncmp(name, XATTR_SECURITY_PREFIX,
+<<<<<<< HEAD
 			sizeof(XATTR_SECURITY_PREFIX) - 1) != 0)
+=======
+			XATTR_SECURITY_PREFIX_LEN) != 0)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (strcmp(name, XATTR_NAME_CAPS) == 0) {
@@ -982,7 +1212,11 @@ int cap_inode_removexattr(struct dentry *dentry, const char *name)
 		struct inode *inode = d_backing_inode(dentry);
 		if (!inode)
 			return -EINVAL;
+<<<<<<< HEAD
 		if (!capable_wrt_inode_uidgid(inode, CAP_SETFCAP))
+=======
+		if (!capable_wrt_inode_uidgid(mnt_userns, inode, CAP_SETFCAP))
+>>>>>>> upstream/android-13
 			return -EPERM;
 		return 0;
 	}
@@ -1056,7 +1290,13 @@ static inline void cap_emulate_setxuid(struct cred *new, const struct cred *old)
  * @flags: Indications of what has changed
  *
  * Fix up the results of setuid() call before the credential changes are
+<<<<<<< HEAD
  * actually applied, returning 0 to grant the changes, -ve to deny them.
+=======
+ * actually applied.
+ *
+ * Return: 0 to grant the changes, -ve to deny them.
+>>>>>>> upstream/android-13
  */
 int cap_task_fix_setuid(struct cred *new, const struct cred *old, int flags)
 {
@@ -1126,7 +1366,13 @@ static int cap_safe_nice(struct task_struct *p)
  * @p: The task to affect
  *
  * Detemine if the requested scheduler policy change is permitted for the
+<<<<<<< HEAD
  * specified task, returning 0 if permission is granted, -ve if denied.
+=======
+ * specified task.
+ *
+ * Return: 0 if permission is granted, -ve if denied.
+>>>>>>> upstream/android-13
  */
 int cap_task_setscheduler(struct task_struct *p)
 {
@@ -1134,12 +1380,22 @@ int cap_task_setscheduler(struct task_struct *p)
 }
 
 /**
+<<<<<<< HEAD
  * cap_task_ioprio - Detemine if I/O priority change is permitted
+=======
+ * cap_task_setioprio - Detemine if I/O priority change is permitted
+>>>>>>> upstream/android-13
  * @p: The task to affect
  * @ioprio: The I/O priority to set
  *
  * Detemine if the requested I/O priority change is permitted for the specified
+<<<<<<< HEAD
  * task, returning 0 if permission is granted, -ve if denied.
+=======
+ * task.
+ *
+ * Return: 0 if permission is granted, -ve if denied.
+>>>>>>> upstream/android-13
  */
 int cap_task_setioprio(struct task_struct *p, int ioprio)
 {
@@ -1147,12 +1403,22 @@ int cap_task_setioprio(struct task_struct *p, int ioprio)
 }
 
 /**
+<<<<<<< HEAD
  * cap_task_ioprio - Detemine if task priority change is permitted
+=======
+ * cap_task_setnice - Detemine if task priority change is permitted
+>>>>>>> upstream/android-13
  * @p: The task to affect
  * @nice: The nice value to set
  *
  * Detemine if the requested task priority change is permitted for the
+<<<<<<< HEAD
  * specified task, returning 0 if permission is granted, -ve if denied.
+=======
+ * specified task.
+ *
+ * Return: 0 if permission is granted, -ve if denied.
+>>>>>>> upstream/android-13
  */
 int cap_task_setnice(struct task_struct *p, int nice)
 {
@@ -1182,12 +1448,23 @@ static int cap_prctl_drop(unsigned long cap)
 /**
  * cap_task_prctl - Implement process control functions for this security module
  * @option: The process control function requested
+<<<<<<< HEAD
  * @arg2, @arg3, @arg4, @arg5: The argument data for this function
+=======
+ * @arg2: The argument data for this function
+ * @arg3: The argument data for this function
+ * @arg4: The argument data for this function
+ * @arg5: The argument data for this function
+>>>>>>> upstream/android-13
  *
  * Allow process control functions (sys_prctl()) to alter capabilities; may
  * also deny access to other functions not otherwise implemented here.
  *
+<<<<<<< HEAD
  * Returns 0 or +ve on success, -ENOSYS if this function is not implemented
+=======
+ * Return: 0 or +ve on success, -ENOSYS if this function is not implemented
+>>>>>>> upstream/android-13
  * here, other -ve on error.  If -ENOSYS is returned, sys_prctl() and other LSM
  * modules will consider performing the function.
  */
@@ -1322,7 +1599,13 @@ int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
  * @pages: The size of the mapping
  *
  * Determine whether the allocation of a new virtual mapping by the current
+<<<<<<< HEAD
  * task is permitted, returning 1 if permission is granted, 0 if not.
+=======
+ * task is permitted.
+ *
+ * Return: 1 if permission is granted, 0 if not.
+>>>>>>> upstream/android-13
  */
 int cap_vm_enough_memory(struct mm_struct *mm, long pages)
 {
@@ -1335,14 +1618,24 @@ int cap_vm_enough_memory(struct mm_struct *mm, long pages)
 	return cap_sys_admin;
 }
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> upstream/android-13
  * cap_mmap_addr - check if able to map given addr
  * @addr: address attempting to be mapped
  *
  * If the process is attempting to map memory below dac_mmap_min_addr they need
  * CAP_SYS_RAWIO.  The other parameters to this function are unused by the
+<<<<<<< HEAD
  * capability security module.  Returns 0 if this mapping should be allowed
  * -EPERM if not.
+=======
+ * capability security module.
+ *
+ * Return: 0 if this mapping should be allowed or -EPERM if not.
+>>>>>>> upstream/android-13
  */
 int cap_mmap_addr(unsigned long addr)
 {
@@ -1366,14 +1659,22 @@ int cap_mmap_file(struct file *file, unsigned long reqprot,
 
 #ifdef CONFIG_SECURITY
 
+<<<<<<< HEAD
 struct security_hook_list capability_hooks[] __lsm_ro_after_init = {
+=======
+static struct security_hook_list capability_hooks[] __lsm_ro_after_init = {
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(capable, cap_capable),
 	LSM_HOOK_INIT(settime, cap_settime),
 	LSM_HOOK_INIT(ptrace_access_check, cap_ptrace_access_check),
 	LSM_HOOK_INIT(ptrace_traceme, cap_ptrace_traceme),
 	LSM_HOOK_INIT(capget, cap_capget),
 	LSM_HOOK_INIT(capset, cap_capset),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(bprm_set_creds, cap_bprm_set_creds),
+=======
+	LSM_HOOK_INIT(bprm_creds_from_file, cap_bprm_creds_from_file),
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(inode_need_killpriv, cap_inode_need_killpriv),
 	LSM_HOOK_INIT(inode_killpriv, cap_inode_killpriv),
 	LSM_HOOK_INIT(inode_getsecurity, cap_inode_getsecurity),
@@ -1387,10 +1688,26 @@ struct security_hook_list capability_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(vm_enough_memory, cap_vm_enough_memory),
 };
 
+<<<<<<< HEAD
 void __init capability_add_hooks(void)
 {
 	security_add_hooks(capability_hooks, ARRAY_SIZE(capability_hooks),
 				"capability");
 }
 
+=======
+static int __init capability_init(void)
+{
+	security_add_hooks(capability_hooks, ARRAY_SIZE(capability_hooks),
+				"capability");
+	return 0;
+}
+
+DEFINE_LSM(capability) = {
+	.name = "capability",
+	.order = LSM_ORDER_FIRST,
+	.init = capability_init,
+};
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SECURITY */

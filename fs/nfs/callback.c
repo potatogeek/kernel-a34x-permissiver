@@ -41,11 +41,20 @@ static struct svc_program nfs4_callback_program;
 
 static int nfs4_callback_up_net(struct svc_serv *serv, struct net *net)
 {
+<<<<<<< HEAD
+=======
+	const struct cred *cred = current_cred();
+>>>>>>> upstream/android-13
 	int ret;
 	struct nfs_net *nn = net_generic(net, nfs_net_id);
 
 	ret = svc_create_xprt(serv, "tcp", net, PF_INET,
+<<<<<<< HEAD
 				nfs_callback_set_tcpport, SVC_SOCK_ANONYMOUS);
+=======
+				nfs_callback_set_tcpport, SVC_SOCK_ANONYMOUS,
+				cred);
+>>>>>>> upstream/android-13
 	if (ret <= 0)
 		goto out_err;
 	nn->nfs_callback_tcpport = ret;
@@ -53,10 +62,18 @@ static int nfs4_callback_up_net(struct svc_serv *serv, struct net *net)
 		nn->nfs_callback_tcpport, PF_INET, net->ns.inum);
 
 	ret = svc_create_xprt(serv, "tcp", net, PF_INET6,
+<<<<<<< HEAD
 				nfs_callback_set_tcpport, SVC_SOCK_ANONYMOUS);
 	if (ret > 0) {
 		nn->nfs_callback_tcpport6 = ret;
 		dprintk("NFS: Callback listener port = %u (af %u, net %x\n",
+=======
+				nfs_callback_set_tcpport, SVC_SOCK_ANONYMOUS,
+				cred);
+	if (ret > 0) {
+		nn->nfs_callback_tcpport6 = ret;
+		dprintk("NFS: Callback listener port = %u (af %u, net %x)\n",
+>>>>>>> upstream/android-13
 			nn->nfs_callback_tcpport6, PF_INET6, net->ns.inum);
 	} else if (ret != -EAFNOSUPPORT)
 		goto out_err;
@@ -206,11 +223,21 @@ static int nfs_callback_up_net(int minorversion, struct svc_serv *serv,
 		goto err_bind;
 	}
 
+<<<<<<< HEAD
 	ret = -EPROTONOSUPPORT;
 	if (!IS_ENABLED(CONFIG_NFS_V4_1) || minorversion == 0)
 		ret = nfs4_callback_up_net(serv, net);
 	else if (xprt->ops->bc_up)
 		ret = xprt->ops->bc_up(serv, net);
+=======
+	ret = 0;
+	if (!IS_ENABLED(CONFIG_NFS_V4_1) || minorversion == 0)
+		ret = nfs4_callback_up_net(serv, net);
+	else if (xprt->ops->bc_setup)
+		set_bc_enabled(serv);
+	else
+		ret = -EPROTONOSUPPORT;
+>>>>>>> upstream/android-13
 
 	if (ret < 0) {
 		printk(KERN_ERR "NFS: callback service start failed\n");
@@ -424,6 +451,11 @@ check_gss_callback_principal(struct nfs_client *clp, struct svc_rqst *rqstp)
  */
 static int nfs_callback_authenticate(struct svc_rqst *rqstp)
 {
+<<<<<<< HEAD
+=======
+	rqstp->rq_auth_stat = rpc_autherr_badcred;
+
+>>>>>>> upstream/android-13
 	switch (rqstp->rq_authop->flavour) {
 	case RPC_AUTH_NULL:
 		if (rqstp->rq_proc != CB_NULL)
@@ -434,6 +466,11 @@ static int nfs_callback_authenticate(struct svc_rqst *rqstp)
 		 if (svc_is_backchannel(rqstp))
 			return SVC_DENIED;
 	}
+<<<<<<< HEAD
+=======
+
+	rqstp->rq_auth_stat = rpc_auth_ok;
+>>>>>>> upstream/android-13
 	return SVC_OK;
 }
 
@@ -455,4 +492,9 @@ static struct svc_program nfs4_callback_program = {
 	.pg_class = "nfs",				/* authentication class */
 	.pg_stats = &nfs4_callback_stats,
 	.pg_authenticate = nfs_callback_authenticate,
+<<<<<<< HEAD
+=======
+	.pg_init_request = svc_generic_init_request,
+	.pg_rpcbind_set	= svc_generic_rpcbind_set,
+>>>>>>> upstream/android-13
 };

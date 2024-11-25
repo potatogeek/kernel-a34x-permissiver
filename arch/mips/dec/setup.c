@@ -6,7 +6,11 @@
  * for more details.
  *
  * Copyright (C) 1998 Harald Koerfgen
+<<<<<<< HEAD
  * Copyright (C) 2000, 2001, 2002, 2003, 2005  Maciej W. Rozycki
+=======
+ * Copyright (C) 2000, 2001, 2002, 2003, 2005, 2020  Maciej W. Rozycki
+>>>>>>> upstream/android-13
  */
 #include <linux/console.h>
 #include <linux/export.h>
@@ -15,6 +19,10 @@
 #include <linux/ioport.h>
 #include <linux/irq.h>
 #include <linux/irqnr.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/param.h>
 #include <linux/percpu-defs.h>
 #include <linux/sched.h>
@@ -22,6 +30,10 @@
 #include <linux/types.h>
 #include <linux/pm.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/addrspace.h>
+>>>>>>> upstream/android-13
 #include <asm/bootinfo.h>
 #include <asm/cpu.h>
 #include <asm/cpu-features.h>
@@ -29,7 +41,13 @@
 #include <asm/irq.h>
 #include <asm/irq_cpu.h>
 #include <asm/mipsregs.h>
+<<<<<<< HEAD
 #include <asm/reboot.h>
+=======
+#include <asm/page.h>
+#include <asm/reboot.h>
+#include <asm/sections.h>
+>>>>>>> upstream/android-13
 #include <asm/time.h>
 #include <asm/traps.h>
 #include <asm/wbflush.h>
@@ -103,6 +121,7 @@ int_ptr asic_mask_nr_tbl[DEC_MAX_ASIC_INTS][2] = {
 int cpu_fpu_mask = DEC_CPU_IRQ_MASK(DEC_CPU_INR_FPU);
 int *fpu_kstat_irq;
 
+<<<<<<< HEAD
 static struct irqaction ioirq = {
 	.handler = no_action,
 	.name = "cascade",
@@ -125,6 +144,10 @@ static struct irqaction haltirq = {
 	.flags = IRQF_NO_THREAD,
 };
 
+=======
+static irq_handler_t busirq_handler;
+static unsigned int busirq_flags = IRQF_NO_THREAD;
+>>>>>>> upstream/android-13
 
 /*
  * Bus error (DBE/IBE exceptions and bus interrupts) handling setup.
@@ -134,21 +157,34 @@ static void __init dec_be_init(void)
 	switch (mips_machtype) {
 	case MACH_DS23100:	/* DS2100/DS3100 Pmin/Pmax */
 		board_be_handler = dec_kn01_be_handler;
+<<<<<<< HEAD
 		busirq.handler = dec_kn01_be_interrupt;
 		busirq.flags |= IRQF_SHARED;
+=======
+		busirq_handler = dec_kn01_be_interrupt;
+		busirq_flags |= IRQF_SHARED;
+>>>>>>> upstream/android-13
 		dec_kn01_be_init();
 		break;
 	case MACH_DS5000_1XX:	/* DS5000/1xx 3min */
 	case MACH_DS5000_XX:	/* DS5000/xx Maxine */
 		board_be_handler = dec_kn02xa_be_handler;
+<<<<<<< HEAD
 		busirq.handler = dec_kn02xa_be_interrupt;
+=======
+		busirq_handler = dec_kn02xa_be_interrupt;
+>>>>>>> upstream/android-13
 		dec_kn02xa_be_init();
 		break;
 	case MACH_DS5000_200:	/* DS5000/200 3max */
 	case MACH_DS5000_2X0:	/* DS5000/240 3max+ */
 	case MACH_DS5900:	/* DS5900 bigmax */
 		board_be_handler = dec_ecc_be_handler;
+<<<<<<< HEAD
 		busirq.handler = dec_ecc_be_interrupt;
+=======
+		busirq_handler = dec_ecc_be_interrupt;
+>>>>>>> upstream/android-13
 		dec_ecc_be_init();
 		break;
 	}
@@ -166,6 +202,12 @@ void __init plat_mem_setup(void)
 
 	ioport_resource.start = ~0UL;
 	ioport_resource.end = 0UL;
+<<<<<<< HEAD
+=======
+
+	/* Stay away from the firmware working memory area for now. */
+	memblock_reserve(PHYS_OFFSET, __pa_symbol(&_text) - PHYS_OFFSET);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -759,11 +801,17 @@ void __init arch_init_irq(void)
 		dec_interrupt[DEC_IRQ_HALT] = -1;
 
 	/* Register board interrupts: FPU and cascade. */
+<<<<<<< HEAD
 	if (dec_interrupt[DEC_IRQ_FPU] >= 0 && cpu_has_fpu) {
+=======
+	if (IS_ENABLED(CONFIG_MIPS_FP_SUPPORT) &&
+	    dec_interrupt[DEC_IRQ_FPU] >= 0 && cpu_has_fpu) {
+>>>>>>> upstream/android-13
 		struct irq_desc *desc_fpu;
 		int irq_fpu;
 
 		irq_fpu = dec_interrupt[DEC_IRQ_FPU];
+<<<<<<< HEAD
 		setup_irq(irq_fpu, &fpuirq);
 		desc_fpu = irq_to_desc(irq_fpu);
 		fpu_kstat_irq = this_cpu_ptr(desc_fpu->kstat_irqs);
@@ -778,6 +826,31 @@ void __init arch_init_irq(void)
 	/* Register the HALT interrupt. */
 	if (dec_interrupt[DEC_IRQ_HALT] >= 0)
 		setup_irq(dec_interrupt[DEC_IRQ_HALT], &haltirq);
+=======
+		if (request_irq(irq_fpu, no_action, IRQF_NO_THREAD, "fpu",
+				NULL))
+			pr_err("Failed to register fpu interrupt\n");
+		desc_fpu = irq_to_desc(irq_fpu);
+		fpu_kstat_irq = this_cpu_ptr(desc_fpu->kstat_irqs);
+	}
+	if (dec_interrupt[DEC_IRQ_CASCADE] >= 0) {
+		if (request_irq(dec_interrupt[DEC_IRQ_CASCADE], no_action,
+				IRQF_NO_THREAD, "cascade", NULL))
+			pr_err("Failed to register cascade interrupt\n");
+	}
+	/* Register the bus error interrupt. */
+	if (dec_interrupt[DEC_IRQ_BUS] >= 0 && busirq_handler) {
+		if (request_irq(dec_interrupt[DEC_IRQ_BUS], busirq_handler,
+				busirq_flags, "bus error", busirq_handler))
+			pr_err("Failed to register bus error interrupt\n");
+	}
+	/* Register the HALT interrupt. */
+	if (dec_interrupt[DEC_IRQ_HALT] >= 0) {
+		if (request_irq(dec_interrupt[DEC_IRQ_HALT], dec_intr_halt,
+				IRQF_NO_THREAD, "halt", NULL))
+			pr_err("Failed to register halt interrupt\n");
+	}
+>>>>>>> upstream/android-13
 }
 
 asmlinkage unsigned int dec_irq_dispatch(unsigned int irq)

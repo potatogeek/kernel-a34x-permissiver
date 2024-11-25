@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 - 2019 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -89,12 +95,18 @@ EXPORT_SYMBOL(rvt_check_ah);
 
 /**
  * rvt_create_ah - create an address handle
+<<<<<<< HEAD
  * @pd: the protection domain
  * @ah_attr: the attributes of the AH
+=======
+ * @ibah: the IB address handle
+ * @init_attr: the attributes of the AH
+>>>>>>> upstream/android-13
  * @udata: pointer to user's input output buffer information.
  *
  * This may be called from interrupt context.
  *
+<<<<<<< HEAD
  * Return: newly allocated ah
  */
 struct ib_ah *rvt_create_ah(struct ib_pd *pd,
@@ -111,17 +123,35 @@ struct ib_ah *rvt_create_ah(struct ib_pd *pd,
 	ah = kmalloc(sizeof(*ah), GFP_ATOMIC);
 	if (!ah)
 		return ERR_PTR(-ENOMEM);
+=======
+ * Return: 0 on success
+ */
+int rvt_create_ah(struct ib_ah *ibah, struct rdma_ah_init_attr *init_attr,
+		  struct ib_udata *udata)
+{
+	struct rvt_ah *ah = ibah_to_rvtah(ibah);
+	struct rvt_dev_info *dev = ib_to_rvt(ibah->device);
+	unsigned long flags;
+
+	if (rvt_check_ah(ibah->device, init_attr->ah_attr))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&dev->n_ahs_lock, flags);
 	if (dev->n_ahs_allocated == dev->dparms.props.max_ah) {
 		spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
+<<<<<<< HEAD
 		kfree(ah);
 		return ERR_PTR(-ENOMEM);
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	dev->n_ahs_allocated++;
 	spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
 
+<<<<<<< HEAD
 	rdma_copy_ah_attr(&ah->attr, ah_attr);
 
 	atomic_set(&ah->refcount, 0);
@@ -139,21 +169,45 @@ struct ib_ah *rvt_create_ah(struct ib_pd *pd,
  * Return: 0 on success
  */
 int rvt_destroy_ah(struct ib_ah *ibah)
+=======
+	rdma_copy_ah_attr(&ah->attr, init_attr->ah_attr);
+
+	if (dev->driver_f.notify_new_ah)
+		dev->driver_f.notify_new_ah(ibah->device,
+					    init_attr->ah_attr, ah);
+
+	return 0;
+}
+
+/**
+ * rvt_destroy_ah - Destroy an address handle
+ * @ibah: address handle
+ * @destroy_flags: destroy address handle flags (see enum rdma_destroy_ah_flags)
+ * Return: 0 on success
+ */
+int rvt_destroy_ah(struct ib_ah *ibah, u32 destroy_flags)
+>>>>>>> upstream/android-13
 {
 	struct rvt_dev_info *dev = ib_to_rvt(ibah->device);
 	struct rvt_ah *ah = ibah_to_rvtah(ibah);
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (atomic_read(&ah->refcount) != 0)
 		return -EBUSY;
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&dev->n_ahs_lock, flags);
 	dev->n_ahs_allocated--;
 	spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
 
 	rdma_destroy_ah_attr(&ah->attr);
+<<<<<<< HEAD
 	kfree(ah);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

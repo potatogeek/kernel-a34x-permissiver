@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
@@ -6,6 +7,16 @@
  */
 
 
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: Ming Hsiu Tsai <minghsiu.tsai@mediatek.com>
+ *         Rick Chang <rick.chang@mediatek.com>
+ *         Xia Jiang <xia.jiang@mediatek.com>
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _MTK_JPEG_DEC_HW_H
 #define _MTK_JPEG_DEC_HW_H
 
@@ -53,6 +64,7 @@ struct mtk_jpeg_dec_param {
 	u32 uv_size;
 	u32 dec_size;
 	u8 uv_brz_w;
+<<<<<<< HEAD
 	u8 huffman_exist;
 };
 
@@ -61,6 +73,10 @@ static inline u32 mtk_jpeg_align(u32 val, u32 align)
 	return (val + align - 1) & ~(align - 1);
 }
 
+=======
+};
+
+>>>>>>> upstream/android-13
 struct mtk_jpeg_bs {
 	dma_addr_t	str_addr;
 	dma_addr_t	end_addr;

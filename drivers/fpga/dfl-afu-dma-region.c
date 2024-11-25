@@ -12,6 +12,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/sched/signal.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
 #include "dfl-afu.h"
 
@@ -24,6 +25,12 @@ static void put_all_pages(struct page **pages, int npages)
 			put_page(pages[i]);
 }
 
+=======
+#include <linux/mm.h>
+
+#include "dfl-afu.h"
+
+>>>>>>> upstream/android-13
 void afu_dma_region_init(struct dfl_feature_platform_data *pdata)
 {
 	struct dfl_afu *afu = dfl_fpga_pdata_get_private(pdata);
@@ -32,6 +39,7 @@ void afu_dma_region_init(struct dfl_feature_platform_data *pdata)
 }
 
 /**
+<<<<<<< HEAD
  * afu_dma_adjust_locked_vm - adjust locked memory
  * @dev: port device
  * @npages: number of pages
@@ -78,6 +86,8 @@ static int afu_dma_adjust_locked_vm(struct device *dev, long npages, bool incr)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * afu_dma_pin_pages - pin pages of given dma memory region
  * @pdata: feature device platform data
  * @region: dma memory region to be pinned
@@ -92,7 +102,11 @@ static int afu_dma_pin_pages(struct dfl_feature_platform_data *pdata,
 	struct device *dev = &pdata->dev->dev;
 	int ret, pinned;
 
+<<<<<<< HEAD
 	ret = afu_dma_adjust_locked_vm(dev, npages, true);
+=======
+	ret = account_locked_vm(current->mm, npages, true);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -102,26 +116,43 @@ static int afu_dma_pin_pages(struct dfl_feature_platform_data *pdata,
 		goto unlock_vm;
 	}
 
+<<<<<<< HEAD
 	pinned = get_user_pages_fast(region->user_addr, npages, 1,
+=======
+	pinned = pin_user_pages_fast(region->user_addr, npages, FOLL_WRITE,
+>>>>>>> upstream/android-13
 				     region->pages);
 	if (pinned < 0) {
 		ret = pinned;
 		goto free_pages;
 	} else if (pinned != npages) {
 		ret = -EFAULT;
+<<<<<<< HEAD
 		goto put_pages;
+=======
+		goto unpin_pages;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(dev, "%d pages pinned\n", pinned);
 
 	return 0;
 
+<<<<<<< HEAD
 put_pages:
 	put_all_pages(region->pages, pinned);
 free_pages:
 	kfree(region->pages);
 unlock_vm:
 	afu_dma_adjust_locked_vm(dev, npages, false);
+=======
+unpin_pages:
+	unpin_user_pages(region->pages, pinned);
+free_pages:
+	kfree(region->pages);
+unlock_vm:
+	account_locked_vm(current->mm, npages, false);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -139,9 +170,15 @@ static void afu_dma_unpin_pages(struct dfl_feature_platform_data *pdata,
 	long npages = region->length >> PAGE_SHIFT;
 	struct device *dev = &pdata->dev->dev;
 
+<<<<<<< HEAD
 	put_all_pages(region->pages, npages);
 	kfree(region->pages);
 	afu_dma_adjust_locked_vm(dev, npages, false);
+=======
+	unpin_user_pages(region->pages, npages);
+	kfree(region->pages);
+	account_locked_vm(current->mm, npages, false);
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev, "%ld pages unpinned\n", npages);
 }
@@ -369,10 +406,13 @@ int afu_dma_map_region(struct dfl_feature_platform_data *pdata,
 	if (user_addr + length < user_addr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, (void __user *)(unsigned long)user_addr,
 		       length))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	region = kzalloc(sizeof(*region), GFP_KERNEL);
 	if (!region)
 		return -ENOMEM;

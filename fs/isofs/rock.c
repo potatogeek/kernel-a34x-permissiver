@@ -767,6 +767,10 @@ repeat:
 			rs.cont_extent = isonum_733(rr->u.CE.extent);
 			rs.cont_offset = isonum_733(rr->u.CE.offset);
 			rs.cont_size = isonum_733(rr->u.CE.size);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}

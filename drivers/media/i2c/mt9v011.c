@@ -327,7 +327,11 @@ static int mt9v011_reset(struct v4l2_subdev *sd, u32 val)
 }
 
 static int mt9v011_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->pad || code->index > 0)
@@ -338,7 +342,11 @@ static int mt9v011_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int mt9v011_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *fmt = &format->format;
@@ -358,7 +366,11 @@ static int mt9v011_set_fmt(struct v4l2_subdev *sd,
 
 		set_res(sd);
 	} else {
+<<<<<<< HEAD
 		cfg->try_fmt = *fmt;
+=======
+		sd_state->pads->try_fmt = *fmt;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef _ASMNDS32_TLBFLUSH_H
@@ -42,6 +46,9 @@ void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long addr);
 
 void update_mmu_cache(struct vm_area_struct *vma,
 		      unsigned long address, pte_t * pte);
+<<<<<<< HEAD
 void tlb_migrate_finish(struct mm_struct *mm);
+=======
+>>>>>>> upstream/android-13
 
 #endif

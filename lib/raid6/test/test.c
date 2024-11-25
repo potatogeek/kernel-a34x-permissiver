@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright 2002-2007 H. Peter Anvin - All Rights Reserved
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available under
  *   the terms of the GNU General Public License version 2 or (at your
  *   option) any later version; incorporated herein by reference.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -22,7 +29,10 @@
 #define NDISKS		16	/* Including P and Q */
 
 const char raid6_empty_zero_page[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+<<<<<<< HEAD
 struct raid6_calls raid6_call;
+=======
+>>>>>>> upstream/android-13
 
 char *dataptrs[NDISKS];
 char data[NDISKS][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));

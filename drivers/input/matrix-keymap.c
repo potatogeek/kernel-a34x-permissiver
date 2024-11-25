@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Helpers for matrix keyboard bindings
  *
@@ -5,6 +9,7 @@
  *
  * Author:
  *	Olof Johansson <olof@lixom.net>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -89,7 +96,11 @@ static int matrix_keypad_parse_keymap(const char *propname,
 	if (!propname)
 		propname = "linux,keymap";
 
+<<<<<<< HEAD
 	size = device_property_read_u32_array(dev, propname, NULL, 0);
+=======
+	size = device_property_count_u32(dev, propname);
+>>>>>>> upstream/android-13
 	if (size <= 0) {
 		dev_err(dev, "missing or malformed property %s: %d\n",
 			propname, size);

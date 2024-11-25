@@ -19,6 +19,10 @@ struct ipc_ids {
 	struct rw_semaphore rwsem;
 	struct idr ipcs_idr;
 	int max_idx;
+<<<<<<< HEAD
+=======
+	int last_idx;	/* For wrap around detection */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CHECKPOINT_RESTORE
 	int next_id;
 #endif
@@ -26,7 +30,10 @@ struct ipc_ids {
 };
 
 struct ipc_namespace {
+<<<<<<< HEAD
 	refcount_t	count;
+=======
+>>>>>>> upstream/android-13
 	struct ipc_ids	ids[3];
 
 	int		sem_ctls[4];
@@ -67,6 +74,11 @@ struct ipc_namespace {
 	struct user_namespace *user_ns;
 	struct ucounts *ucounts;
 
+<<<<<<< HEAD
+=======
+	struct llist_node mnt_llist;
+
+>>>>>>> upstream/android-13
 	struct ns_common ns;
 } __randomize_layout;
 
@@ -125,10 +137,27 @@ extern struct ipc_namespace *copy_ipcs(unsigned long flags,
 static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
 {
 	if (ns)
+<<<<<<< HEAD
 		refcount_inc(&ns->count);
 	return ns;
 }
 
+=======
+		refcount_inc(&ns->ns.count);
+	return ns;
+}
+
+static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
+{
+	if (ns) {
+		if (refcount_inc_not_zero(&ns->ns.count))
+			return ns;
+	}
+
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 extern void put_ipc_ns(struct ipc_namespace *ns);
 #else
 static inline struct ipc_namespace *copy_ipcs(unsigned long flags,
@@ -145,6 +174,14 @@ static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
 	return ns;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
+{
+	return ns;
+}
+
+>>>>>>> upstream/android-13
 static inline void put_ipc_ns(struct ipc_namespace *ns)
 {
 }

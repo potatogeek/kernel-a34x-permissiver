@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * copyright (c) 2013 Freescale Semiconductor, Inc.
  * Freescale IMX AHCI SATA platform driver
  *
  * based on the AHCI SATA platform driver by Jeff Garzik and Anton Vorontsov
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -22,8 +29,13 @@
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/ahci_platform.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/mfd/syscon.h>
 #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
 #include <linux/libata.h>
@@ -111,7 +123,11 @@ struct imx_ahci_priv {
 	struct clk *phy_pclk0;
 	struct clk *phy_pclk1;
 	void __iomem *phy_base;
+<<<<<<< HEAD
 	int clkreq_gpio;
+=======
+	struct gpio_desc *clkreq_gpiod;
+>>>>>>> upstream/android-13
 	struct regmap *gpr;
 	bool no_device;
 	bool first_time;
@@ -793,7 +809,11 @@ static int ahci_imx_softreset(struct ata_link *link, unsigned int *class,
 	struct ata_host *host = dev_get_drvdata(ap->dev);
 	struct ahci_host_priv *hpriv = host->private_data;
 	struct imx_ahci_priv *imxpriv = hpriv->plat_data;
+<<<<<<< HEAD
 	int ret = -EIO;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (imxpriv->type == AHCI_IMX53)
 		ret = ahci_pmp_retry_srst_ops.softreset(link, class, deadline);
@@ -991,7 +1011,10 @@ static struct scsi_host_template ahci_platform_sht = {
 
 static int imx8_sata_probe(struct device *dev, struct imx_ahci_priv *imxpriv)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	struct resource *phy_res;
 	struct platform_device *pdev = imxpriv->ahci_pdev;
 	struct device_node *np = dev->of_node;
@@ -1044,6 +1067,7 @@ static int imx8_sata_probe(struct device *dev, struct imx_ahci_priv *imxpriv)
 	}
 
 	/* Fetch GPIO, then enable the external OSC */
+<<<<<<< HEAD
 	imxpriv->clkreq_gpio = of_get_named_gpio(np, "clkreq-gpio", 0);
 	if (gpio_is_valid(imxpriv->clkreq_gpio)) {
 		ret = devm_gpio_request_one(dev, imxpriv->clkreq_gpio,
@@ -1058,6 +1082,14 @@ static int imx8_sata_probe(struct device *dev, struct imx_ahci_priv *imxpriv)
 	} else if (imxpriv->clkreq_gpio == -EPROBE_DEFER) {
 		return imxpriv->clkreq_gpio;
 	}
+=======
+	imxpriv->clkreq_gpiod = devm_gpiod_get_optional(dev, "clkreq",
+				GPIOD_OUT_LOW | GPIOD_FLAGS_BIT_NONEXCLUSIVE);
+	if (IS_ERR(imxpriv->clkreq_gpiod))
+		return PTR_ERR(imxpriv->clkreq_gpiod);
+	if (imxpriv->clkreq_gpiod)
+		gpiod_set_consumer_name(imxpriv->clkreq_gpiod, "SATA CLKREQ");
+>>>>>>> upstream/android-13
 
 	return 0;
 }

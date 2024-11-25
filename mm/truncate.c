@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/truncate.c - code for taking down pages from address_spaces
  *
@@ -33,6 +37,7 @@
 static inline void __clear_shadow_entry(struct address_space *mapping,
 				pgoff_t index, void *entry)
 {
+<<<<<<< HEAD
 	struct radix_tree_node *node;
 	void **slot;
 
@@ -43,6 +48,14 @@ static inline void __clear_shadow_entry(struct address_space *mapping,
 	__radix_tree_replace(&mapping->i_pages, node, slot, NULL,
 			     workingset_update_node);
 	mapping->nrexceptional--;
+=======
+	XA_STATE(xas, &mapping->i_pages, index);
+
+	xas_set_update(&xas, workingset_update_node);
+	if (xas_load(&xas) != entry)
+		return;
+	xas_store(&xas, NULL);
+>>>>>>> upstream/android-13
 }
 
 static void clear_shadow_entry(struct address_space *mapping, pgoff_t index,
@@ -59,40 +72,62 @@ static void clear_shadow_entry(struct address_space *mapping, pgoff_t index,
  * exceptional entries similar to what pagevec_remove_exceptionals does.
  */
 static void truncate_exceptional_pvec_entries(struct address_space *mapping,
+<<<<<<< HEAD
 				struct pagevec *pvec, pgoff_t *indices,
 				pgoff_t end)
 {
 	int i, j;
 	bool dax, lock;
+=======
+				struct pagevec *pvec, pgoff_t *indices)
+{
+	int i, j;
+	bool dax;
+>>>>>>> upstream/android-13
 
 	/* Handled by shmem itself */
 	if (shmem_mapping(mapping))
 		return;
 
 	for (j = 0; j < pagevec_count(pvec); j++)
+<<<<<<< HEAD
 		if (radix_tree_exceptional_entry(pvec->pages[j]))
+=======
+		if (xa_is_value(pvec->pages[j]))
+>>>>>>> upstream/android-13
 			break;
 
 	if (j == pagevec_count(pvec))
 		return;
 
 	dax = dax_mapping(mapping);
+<<<<<<< HEAD
 	lock = !dax && indices[j] < end;
 	if (lock)
+=======
+	if (!dax)
+>>>>>>> upstream/android-13
 		xa_lock_irq(&mapping->i_pages);
 
 	for (i = j; i < pagevec_count(pvec); i++) {
 		struct page *page = pvec->pages[i];
 		pgoff_t index = indices[i];
 
+<<<<<<< HEAD
 		if (!radix_tree_exceptional_entry(page)) {
+=======
+		if (!xa_is_value(page)) {
+>>>>>>> upstream/android-13
 			pvec->pages[j++] = page;
 			continue;
 		}
 
+<<<<<<< HEAD
 		if (index >= end)
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		if (unlikely(dax)) {
 			dax_delete_mapping_entry(mapping, index);
 			continue;
@@ -101,7 +136,11 @@ static void truncate_exceptional_pvec_entries(struct address_space *mapping,
 		__clear_shadow_entry(mapping, index, page);
 	}
 
+<<<<<<< HEAD
 	if (lock)
+=======
+	if (!dax)
+>>>>>>> upstream/android-13
 		xa_unlock_irq(&mapping->i_pages);
 	pvec->nr = j;
 }
@@ -170,11 +209,16 @@ void do_invalidatepage(struct page *page, unsigned int offset,
  * becomes orphaned.  It will be left on the LRU and may even be mapped into
  * user pagetables if we're racing with filemap_fault().
  *
+<<<<<<< HEAD
  * We need to bale out if page->mapping is no longer equal to the original
+=======
+ * We need to bail out if page->mapping is no longer equal to the original
+>>>>>>> upstream/android-13
  * mapping.  This happens a) when the VM reclaimed the page while we waited on
  * its lock, b) when a concurrent invalidate_mapping_pages got there first and
  * c) when tmpfs swizzles a page between a tmpfs inode and swapper_space.
  */
+<<<<<<< HEAD
 static void
 truncate_cleanup_page(struct address_space *mapping, struct page *page)
 {
@@ -185,6 +229,15 @@ truncate_cleanup_page(struct address_space *mapping, struct page *page)
 
 	if (page_has_private(page))
 		do_invalidatepage(page, 0, PAGE_SIZE);
+=======
+static void truncate_cleanup_page(struct page *page)
+{
+	if (page_mapped(page))
+		unmap_mapping_page(page);
+
+	if (page_has_private(page))
+		do_invalidatepage(page, 0, thp_size(page));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Some filesystems seem to re-dirty the page even after
@@ -226,7 +279,11 @@ int truncate_inode_page(struct address_space *mapping, struct page *page)
 	if (page->mapping != mapping)
 		return -EIO;
 
+<<<<<<< HEAD
 	truncate_cleanup_page(mapping, page);
+=======
+	truncate_cleanup_page(page);
+>>>>>>> upstream/android-13
 	delete_from_page_cache(page);
 	return 0;
 }
@@ -302,7 +359,11 @@ void truncate_inode_pages_range(struct address_space *mapping,
 	pgoff_t		index;
 	int		i;
 
+<<<<<<< HEAD
 	if (mapping->nrpages == 0 && mapping->nrexceptional == 0)
+=======
+	if (mapping_empty(mapping))
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* Offsets within partial pages */
@@ -328,6 +389,7 @@ void truncate_inode_pages_range(struct address_space *mapping,
 
 	pagevec_init(&pvec);
 	index = start;
+<<<<<<< HEAD
 	while (index < end && pagevec_lookup_entries(&pvec, mapping, index,
 			min(end - index, (pgoff_t)PAGEVEC_SIZE),
 			indices)) {
@@ -373,6 +435,21 @@ void truncate_inode_pages_range(struct address_space *mapping,
 		cond_resched();
 		index++;
 	}
+=======
+	while (index < end && find_lock_entries(mapping, index, end - 1,
+			&pvec, indices)) {
+		index = indices[pagevec_count(&pvec) - 1] + 1;
+		truncate_exceptional_pvec_entries(mapping, &pvec, indices);
+		for (i = 0; i < pagevec_count(&pvec); i++)
+			truncate_cleanup_page(pvec.pages[i]);
+		delete_from_page_cache_batch(mapping, &pvec);
+		for (i = 0; i < pagevec_count(&pvec); i++)
+			unlock_page(pvec.pages[i]);
+		pagevec_release(&pvec);
+		cond_resched();
+	}
+
+>>>>>>> upstream/android-13
 	if (partial_start) {
 		struct page *page = find_lock_page(mapping, start - 1);
 		if (page) {
@@ -415,8 +492,13 @@ void truncate_inode_pages_range(struct address_space *mapping,
 	index = start;
 	for ( ; ; ) {
 		cond_resched();
+<<<<<<< HEAD
 		if (!pagevec_lookup_entries(&pvec, mapping, index,
 			min(end - index, (pgoff_t)PAGEVEC_SIZE), indices)) {
+=======
+		if (!find_get_entries(mapping, index, end - 1, &pvec,
+				indices)) {
+>>>>>>> upstream/android-13
 			/* If all gone from start onwards, we're done */
 			if (index == start)
 				break;
@@ -424,18 +506,22 @@ void truncate_inode_pages_range(struct address_space *mapping,
 			index = start;
 			continue;
 		}
+<<<<<<< HEAD
 		if (index == start && indices[0] >= end) {
 			/* All gone out of hole to be punched, we're done */
 			pagevec_remove_exceptionals(&pvec);
 			pagevec_release(&pvec);
 			break;
 		}
+=======
+>>>>>>> upstream/android-13
 
 		for (i = 0; i < pagevec_count(&pvec); i++) {
 			struct page *page = pvec.pages[i];
 
 			/* We rely upon deletion not changing page->index */
 			index = indices[i];
+<<<<<<< HEAD
 			if (index >= end) {
 				/* Restart punch to make sure all gone */
 				index = start - 1;
@@ -443,6 +529,10 @@ void truncate_inode_pages_range(struct address_space *mapping,
 			}
 
 			if (radix_tree_exceptional_entry(page))
+=======
+
+			if (xa_is_value(page))
+>>>>>>> upstream/android-13
 				continue;
 
 			lock_page(page);
@@ -451,7 +541,11 @@ void truncate_inode_pages_range(struct address_space *mapping,
 			truncate_inode_page(mapping, page);
 			unlock_page(page);
 		}
+<<<<<<< HEAD
 		truncate_exceptional_pvec_entries(mapping, &pvec, indices, end);
+=======
+		truncate_exceptional_pvec_entries(mapping, &pvec, indices);
+>>>>>>> upstream/android-13
 		pagevec_release(&pvec);
 		index++;
 	}
@@ -466,7 +560,12 @@ EXPORT_SYMBOL(truncate_inode_pages_range);
  * @mapping: mapping to truncate
  * @lstart: offset from which to truncate
  *
+<<<<<<< HEAD
  * Called under (and serialised by) inode->i_mutex.
+=======
+ * Called under (and serialised by) inode->i_rwsem and
+ * mapping->invalidate_lock.
+>>>>>>> upstream/android-13
  *
  * Note: When this function returns, there can be a page in the process of
  * deletion (inside __delete_from_page_cache()) in the specified range.  Thus
@@ -483,16 +582,23 @@ EXPORT_SYMBOL(truncate_inode_pages);
  * truncate_inode_pages_final - truncate *all* pages before inode dies
  * @mapping: mapping to truncate
  *
+<<<<<<< HEAD
  * Called under (and serialized by) inode->i_mutex.
+=======
+ * Called under (and serialized by) inode->i_rwsem.
+>>>>>>> upstream/android-13
  *
  * Filesystems have to use this in the .evict_inode path to inform the
  * VM that this is the final truncate and the inode is going away.
  */
 void truncate_inode_pages_final(struct address_space *mapping)
 {
+<<<<<<< HEAD
 	unsigned long nrexceptional;
 	unsigned long nrpages;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Page reclaim can not participate in regular inode lifetime
 	 * management (can't call iput()) and thus can race with the
@@ -502,6 +608,7 @@ void truncate_inode_pages_final(struct address_space *mapping)
 	 */
 	mapping_set_exiting(mapping);
 
+<<<<<<< HEAD
 	/*
 	 * When reclaim installs eviction entries, it increases
 	 * nrexceptional first, then decreases nrpages.  Make sure we see
@@ -512,6 +619,9 @@ void truncate_inode_pages_final(struct address_space *mapping)
 	nrexceptional = mapping->nrexceptional;
 
 	if (nrpages || nrexceptional) {
+=======
+	if (!mapping_empty(mapping)) {
+>>>>>>> upstream/android-13
 		/*
 		 * As truncation uses a lockless tree lookup, cycle
 		 * the tree lock to make sure any ongoing tree
@@ -530,6 +640,7 @@ void truncate_inode_pages_final(struct address_space *mapping)
 }
 EXPORT_SYMBOL(truncate_inode_pages_final);
 
+<<<<<<< HEAD
 /**
  * invalidate_mapping_pages - Invalidate all the unlocked pages of one inode
  * @mapping: the address_space which holds the pages to invalidate
@@ -545,6 +656,10 @@ EXPORT_SYMBOL(truncate_inode_pages_final);
  */
 unsigned long invalidate_mapping_pages(struct address_space *mapping,
 		pgoff_t start, pgoff_t end)
+=======
+static unsigned long __invalidate_mapping_pages(struct address_space *mapping,
+		pgoff_t start, pgoff_t end, unsigned long *nr_pagevec)
+>>>>>>> upstream/android-13
 {
 	pgoff_t indices[PAGEVEC_SIZE];
 	struct pagevec pvec;
@@ -554,14 +669,19 @@ unsigned long invalidate_mapping_pages(struct address_space *mapping,
 	int i;
 
 	pagevec_init(&pvec);
+<<<<<<< HEAD
 	while (index <= end && pagevec_lookup_entries(&pvec, mapping, index,
 			min(end - index, (pgoff_t)PAGEVEC_SIZE - 1) + 1,
 			indices)) {
+=======
+	while (find_lock_entries(mapping, index, end, &pvec, indices)) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < pagevec_count(&pvec); i++) {
 			struct page *page = pvec.pages[i];
 
 			/* We rely upon deletion not changing page->index */
 			index = indices[i];
+<<<<<<< HEAD
 			if (index > end)
 				break;
 
@@ -593,6 +713,16 @@ unsigned long invalidate_mapping_pages(struct address_space *mapping,
 					continue;
 				}
 			}
+=======
+
+			if (xa_is_value(page)) {
+				count += invalidate_exceptional_entry(mapping,
+								      index,
+								      page);
+				continue;
+			}
+			index += thp_nr_pages(page) - 1;
+>>>>>>> upstream/android-13
 
 			ret = invalidate_inode_page(page);
 			unlock_page(page);
@@ -600,8 +730,17 @@ unsigned long invalidate_mapping_pages(struct address_space *mapping,
 			 * Invalidation is a hint that the page is no longer
 			 * of interest and try to speed up its reclaim.
 			 */
+<<<<<<< HEAD
 			if (!ret)
 				deactivate_file_page(page);
+=======
+			if (!ret) {
+				deactivate_file_page(page);
+				/* It is likely on the pagevec of a remote CPU */
+				if (nr_pagevec)
+					(*nr_pagevec)++;
+			}
+>>>>>>> upstream/android-13
 			count += ret;
 		}
 		pagevec_remove_exceptionals(&pvec);
@@ -611,8 +750,50 @@ unsigned long invalidate_mapping_pages(struct address_space *mapping,
 	}
 	return count;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(invalidate_mapping_pages);
 
+=======
+
+/**
+ * invalidate_mapping_pages - Invalidate all clean, unlocked cache of one inode
+ * @mapping: the address_space which holds the cache to invalidate
+ * @start: the offset 'from' which to invalidate
+ * @end: the offset 'to' which to invalidate (inclusive)
+ *
+ * This function removes pages that are clean, unmapped and unlocked,
+ * as well as shadow entries. It will not block on IO activity.
+ *
+ * If you want to remove all the pages of one inode, regardless of
+ * their use and writeback state, use truncate_inode_pages().
+ *
+ * Return: the number of the cache entries that were invalidated
+ */
+unsigned long invalidate_mapping_pages(struct address_space *mapping,
+		pgoff_t start, pgoff_t end)
+{
+	return __invalidate_mapping_pages(mapping, start, end, NULL);
+}
+EXPORT_SYMBOL(invalidate_mapping_pages);
+
+/**
+ * invalidate_mapping_pagevec - Invalidate all the unlocked pages of one inode
+ * @mapping: the address_space which holds the pages to invalidate
+ * @start: the offset 'from' which to invalidate
+ * @end: the offset 'to' which to invalidate (inclusive)
+ * @nr_pagevec: invalidate failed page number for caller
+ *
+ * This helper is similar to invalidate_mapping_pages(), except that it accounts
+ * for pages that are likely on a pagevec and counts them in @nr_pagevec, which
+ * will be used by the caller.
+ */
+void invalidate_mapping_pagevec(struct address_space *mapping,
+		pgoff_t start, pgoff_t end, unsigned long *nr_pagevec)
+{
+	__invalidate_mapping_pages(mapping, start, end, nr_pagevec);
+}
+
+>>>>>>> upstream/android-13
 /*
  * This is like invalidate_complete_page(), except it ignores the page's
  * refcount.  We do this because invalidate_inode_pages2() needs stronger
@@ -623,21 +804,32 @@ EXPORT_SYMBOL(invalidate_mapping_pages);
 static int
 invalidate_complete_page2(struct address_space *mapping, struct page *page)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
+=======
+>>>>>>> upstream/android-13
 	if (page->mapping != mapping)
 		return 0;
 
 	if (page_has_private(page) && !try_to_release_page(page, GFP_KERNEL))
 		return 0;
 
+<<<<<<< HEAD
 	xa_lock_irqsave(&mapping->i_pages, flags);
+=======
+	xa_lock_irq(&mapping->i_pages);
+>>>>>>> upstream/android-13
 	if (PageDirty(page))
 		goto failed;
 
 	BUG_ON(page_has_private(page));
 	__delete_from_page_cache(page, NULL);
+<<<<<<< HEAD
 	xa_unlock_irqrestore(&mapping->i_pages, flags);
+=======
+	xa_unlock_irq(&mapping->i_pages);
+>>>>>>> upstream/android-13
 
 	if (mapping->a_ops->freepage)
 		mapping->a_ops->freepage(page);
@@ -645,7 +837,11 @@ invalidate_complete_page2(struct address_space *mapping, struct page *page)
 	put_page(page);	/* pagecache ref */
 	return 1;
 failed:
+<<<<<<< HEAD
 	xa_unlock_irqrestore(&mapping->i_pages, flags);
+=======
+	xa_unlock_irq(&mapping->i_pages);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -667,7 +863,11 @@ static int do_launder_page(struct address_space *mapping, struct page *page)
  * Any pages which are found to be mapped into pagetables are unmapped prior to
  * invalidation.
  *
+<<<<<<< HEAD
  * Returns -EBUSY if any pages could not be invalidated.
+=======
+ * Return: -EBUSY if any pages could not be invalidated.
+>>>>>>> upstream/android-13
  */
 int invalidate_inode_pages2_range(struct address_space *mapping,
 				  pgoff_t start, pgoff_t end)
@@ -680,29 +880,55 @@ int invalidate_inode_pages2_range(struct address_space *mapping,
 	int ret2 = 0;
 	int did_range_unmap = 0;
 
+<<<<<<< HEAD
 	if (mapping->nrpages == 0 && mapping->nrexceptional == 0)
+=======
+	if (mapping_empty(mapping))
+>>>>>>> upstream/android-13
 		goto out;
 
 	pagevec_init(&pvec);
 	index = start;
+<<<<<<< HEAD
 	while (index <= end && pagevec_lookup_entries(&pvec, mapping, index,
 			min(end - index, (pgoff_t)PAGEVEC_SIZE - 1) + 1,
 			indices)) {
+=======
+	while (find_get_entries(mapping, index, end, &pvec, indices)) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < pagevec_count(&pvec); i++) {
 			struct page *page = pvec.pages[i];
 
 			/* We rely upon deletion not changing page->index */
 			index = indices[i];
+<<<<<<< HEAD
 			if (index > end)
 				break;
 
 			if (radix_tree_exceptional_entry(page)) {
+=======
+
+			if (xa_is_value(page)) {
+>>>>>>> upstream/android-13
 				if (!invalidate_exceptional_entry2(mapping,
 								   index, page))
 					ret = -EBUSY;
 				continue;
 			}
 
+<<<<<<< HEAD
+=======
+			if (!did_range_unmap && page_mapped(page)) {
+				/*
+				 * If page is mapped, before taking its lock,
+				 * zap the rest of the file in one hit.
+				 */
+				unmap_mapping_pages(mapping, index,
+						(1 + end - index), false);
+				did_range_unmap = 1;
+			}
+
+>>>>>>> upstream/android-13
 			lock_page(page);
 			WARN_ON(page_to_index(page) != index);
 			if (page->mapping != mapping) {
@@ -710,6 +936,7 @@ int invalidate_inode_pages2_range(struct address_space *mapping,
 				continue;
 			}
 			wait_on_page_writeback(page);
+<<<<<<< HEAD
 			if (page_mapped(page)) {
 				if (!did_range_unmap) {
 					/*
@@ -727,6 +954,13 @@ int invalidate_inode_pages2_range(struct address_space *mapping,
 				}
 			}
 			BUG_ON(page_mapped(page));
+=======
+
+			if (page_mapped(page))
+				unmap_mapping_page(page);
+			BUG_ON(page_mapped(page));
+
+>>>>>>> upstream/android-13
 			ret2 = do_launder_page(mapping, page);
 			if (ret2 == 0) {
 				if (!invalidate_complete_page2(mapping, page))
@@ -742,10 +976,17 @@ int invalidate_inode_pages2_range(struct address_space *mapping,
 		index++;
 	}
 	/*
+<<<<<<< HEAD
 	 * For DAX we invalidate page tables after invalidating radix tree.  We
 	 * could invalidate page tables while invalidating each entry however
 	 * that would be expensive. And doing range unmapping before doesn't
 	 * work as we have no cheap way to find whether radix tree entry didn't
+=======
+	 * For DAX we invalidate page tables after invalidating page cache.  We
+	 * could invalidate page tables while invalidating each entry however
+	 * that would be expensive. And doing range unmapping before doesn't
+	 * work as we have no cheap way to find whether page cache entry didn't
+>>>>>>> upstream/android-13
 	 * get remapped later.
 	 */
 	if (dax_mapping(mapping)) {
@@ -764,7 +1005,11 @@ EXPORT_SYMBOL_GPL(invalidate_inode_pages2_range);
  * Any pages which are found to be mapped into pagetables are unmapped prior to
  * invalidation.
  *
+<<<<<<< HEAD
  * Returns -EBUSY if any pages could not be invalidated.
+=======
+ * Return: -EBUSY if any pages could not be invalidated.
+>>>>>>> upstream/android-13
  */
 int invalidate_inode_pages2(struct address_space *mapping)
 {
@@ -817,7 +1062,11 @@ EXPORT_SYMBOL(truncate_pagecache);
  * setattr function when ATTR_SIZE is passed in.
  *
  * Must be called with a lock serializing truncates and writes (generally
+<<<<<<< HEAD
  * i_mutex but e.g. xfs uses a different lock) and before all filesystem
+=======
+ * i_rwsem but e.g. xfs uses a different lock) and before all filesystem
+>>>>>>> upstream/android-13
  * specific block truncation has been performed.
  */
 void truncate_setsize(struct inode *inode, loff_t newsize)
@@ -846,7 +1095,11 @@ EXPORT_SYMBOL(truncate_setsize);
  *
  * The function must be called after i_size is updated so that page fault
  * coming after we unlock the page will already see the new i_size.
+<<<<<<< HEAD
  * The function must be called while we still hold i_mutex - this not only
+=======
+ * The function must be called while we still hold i_rwsem - this not only
+>>>>>>> upstream/android-13
  * makes sure i_size is stable but also that userspace cannot observe new
  * i_size value before we are prepared to store mmap writes at new inode size.
  */

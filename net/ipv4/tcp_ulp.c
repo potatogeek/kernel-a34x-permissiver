@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pluggable TCP upper layer protocol support.
  *
@@ -6,7 +10,11 @@
  *
  */
 
+<<<<<<< HEAD
 #include<linux/module.h>
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/types.h>
 #include <linux/list.h>
@@ -21,7 +29,12 @@ static struct tcp_ulp_ops *tcp_ulp_find(const char *name)
 {
 	struct tcp_ulp_ops *e;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(e, &tcp_ulp_list, list) {
+=======
+	list_for_each_entry_rcu(e, &tcp_ulp_list, list,
+				lockdep_is_held(&tcp_ulp_list_lock)) {
+>>>>>>> upstream/android-13
 		if (strcmp(e->name, name) == 0)
 			return e;
 	}
@@ -29,6 +42,7 @@ static struct tcp_ulp_ops *tcp_ulp_find(const char *name)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct tcp_ulp_ops *tcp_ulp_find_id(const int ulp)
 {
 	struct tcp_ulp_ops *e;
@@ -41,6 +55,8 @@ static struct tcp_ulp_ops *tcp_ulp_find_id(const int ulp)
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct tcp_ulp_ops *__tcp_ulp_find_autoload(const char *name)
 {
 	const struct tcp_ulp_ops *ulp = NULL;
@@ -63,6 +79,7 @@ static const struct tcp_ulp_ops *__tcp_ulp_find_autoload(const char *name)
 	return ulp;
 }
 
+<<<<<<< HEAD
 static const struct tcp_ulp_ops *__tcp_ulp_lookup(const int uid)
 {
 	const struct tcp_ulp_ops *ulp;
@@ -75,6 +92,8 @@ static const struct tcp_ulp_ops *__tcp_ulp_lookup(const int uid)
 	return ulp;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Attach new upper layer protocol to the list
  * of available protocols.
  */
@@ -115,14 +134,39 @@ void tcp_get_available_ulp(char *buf, size_t maxlen)
 		offs += snprintf(buf + offs, maxlen - offs,
 				 "%s%s",
 				 offs == 0 ? "" : " ", ulp_ops->name);
+<<<<<<< HEAD
+=======
+
+		if (WARN_ON_ONCE(offs >= maxlen))
+			break;
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
+=======
+void tcp_update_ulp(struct sock *sk, struct proto *proto,
+		    void (*write_space)(struct sock *sk))
+{
+	struct inet_connection_sock *icsk = inet_csk(sk);
+
+	if (icsk->icsk_ulp_ops->update)
+		icsk->icsk_ulp_ops->update(sk, proto, write_space);
+}
+
+>>>>>>> upstream/android-13
 void tcp_cleanup_ulp(struct sock *sk)
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
 
+<<<<<<< HEAD
+=======
+	/* No sock_owned_by_me() check here as at the time the
+	 * stack calls this function, the socket is dead and
+	 * about to be destroyed.
+	 */
+>>>>>>> upstream/android-13
 	if (!icsk->icsk_ulp_ops)
 		return;
 
@@ -133,6 +177,7 @@ void tcp_cleanup_ulp(struct sock *sk)
 	icsk->icsk_ulp_ops = NULL;
 }
 
+<<<<<<< HEAD
 /* Change upper layer protocol for socket */
 int tcp_set_ulp(struct sock *sk, const char *name)
 {
@@ -142,11 +187,39 @@ int tcp_set_ulp(struct sock *sk, const char *name)
 
 	if (icsk->icsk_ulp_ops)
 		return -EEXIST;
+=======
+static int __tcp_set_ulp(struct sock *sk, const struct tcp_ulp_ops *ulp_ops)
+{
+	struct inet_connection_sock *icsk = inet_csk(sk);
+	int err;
+
+	err = -EEXIST;
+	if (icsk->icsk_ulp_ops)
+		goto out_err;
+
+	err = ulp_ops->init(sk);
+	if (err)
+		goto out_err;
+
+	icsk->icsk_ulp_ops = ulp_ops;
+	return 0;
+out_err:
+	module_put(ulp_ops->owner);
+	return err;
+}
+
+int tcp_set_ulp(struct sock *sk, const char *name)
+{
+	const struct tcp_ulp_ops *ulp_ops;
+
+	sock_owned_by_me(sk);
+>>>>>>> upstream/android-13
 
 	ulp_ops = __tcp_ulp_find_autoload(name);
 	if (!ulp_ops)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	if (!ulp_ops->user_visible) {
 		module_put(ulp_ops->owner);
 		return -ENOENT;
@@ -183,4 +256,7 @@ int tcp_set_ulp_id(struct sock *sk, int ulp)
 
 	icsk->icsk_ulp_ops = ulp_ops;
 	return 0;
+=======
+	return __tcp_set_ulp(sk, ulp_ops);
+>>>>>>> upstream/android-13
 }

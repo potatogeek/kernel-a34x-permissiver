@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "clang.h"
 #include "clang-c.h"
+<<<<<<< HEAD
 #include "llvm/IR/Function.h"
 #include "llvm/IR/LLVMContext.h"
 
 #include <util-cxx.h>
+=======
+extern "C" {
+#include "../util.h"
+}
+#include "llvm/IR/Function.h"
+#include "llvm/IR/LLVMContext.h"
+
+>>>>>>> upstream/android-13
 #include <tests/llvm.h>
 #include <string>
 

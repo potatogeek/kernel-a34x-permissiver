@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 generic-y += compat.h
 generic-y += current.h
 generic-y += early_ioremap.h
@@ -20,6 +21,13 @@ generic-y += simd.h
 generic-y += sizes.h
 generic-y += timex.h
 generic-y += trace_clock.h
+=======
+# SPDX-License-Identifier: GPL-2.0
+generic-y += early_ioremap.h
+generic-y += extable.h
+generic-y += flat.h
+generic-y += parport.h
+>>>>>>> upstream/android-13
 
 generated-y += mach-types.h
 generated-y += unistd-nr.h

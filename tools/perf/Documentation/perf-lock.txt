@@ -44,7 +44,11 @@ COMMON OPTIONS
 
 -f::
 --force::
+<<<<<<< HEAD
 	Don't complan, do it.
+=======
+	Don't complain, do it.
+>>>>>>> upstream/android-13
 
 REPORT OPTIONS
 --------------

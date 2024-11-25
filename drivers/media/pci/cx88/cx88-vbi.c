@@ -159,7 +159,12 @@ static void buffer_finish(struct vb2_buffer *vb)
 	struct cx88_riscmem *risc = &buf->risc;
 
 	if (risc->cpu)
+<<<<<<< HEAD
 		pci_free_consistent(dev->pci, risc->size, risc->cpu, risc->dma);
+=======
+		dma_free_coherent(&dev->pci->dev, risc->size, risc->cpu,
+				  risc->dma);
+>>>>>>> upstream/android-13
 	memset(risc, 0, sizeof(*risc));
 }
 

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2008 Juergen Beisert, kernel@pengutronix.de
  * Copyright 2009 Sascha Hauer, s.hauer@pengutronix.de
  * Copyright 2012 Philippe Retornaz, philippe.retornaz@epfl.ch
  *
  * Initial development of this code was funded by
+<<<<<<< HEAD
  * Phytec Messtechnik GmbH, http://www.phytec.de
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +24,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
+=======
+ * Phytec Messtechnik GmbH, https://www.phytec.de
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/device.h>
@@ -725,7 +733,11 @@ static struct snd_soc_dai_driver mc13783_dai_sync[] = {
 			.formats = MC13783_FORMATS,
 		},
 		.ops = &mc13783_ops_sync,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	}
 };
 

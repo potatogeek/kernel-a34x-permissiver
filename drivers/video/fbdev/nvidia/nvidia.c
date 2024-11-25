@@ -74,11 +74,15 @@ static int vram = 0;
 static int bpp = 8;
 static int reverse_i2c;
 static bool nomtrr = false;
+<<<<<<< HEAD
 #ifdef CONFIG_PMAC_BACKLIGHT
 static int backlight = 1;
 #else
 static int backlight = 0;
 #endif
+=======
+static int backlight = IS_BUILTIN(CONFIG_PMAC_BACKLIGHT);
+>>>>>>> upstream/android-13
 
 static char *mode_option = NULL;
 
@@ -168,6 +172,7 @@ static int nvidia_panel_tweak(struct nvidia_par *par,
 {
 	int tweak = 0;
 
+<<<<<<< HEAD
    if (par->paneltweak) {
 	   tweak = par->paneltweak;
    } else {
@@ -189,6 +194,28 @@ static int nvidia_panel_tweak(struct nvidia_par *par,
    }
 
    return tweak;
+=======
+	if (par->paneltweak) {
+		tweak = par->paneltweak;
+	} else {
+		/* Begin flat panel hacks.
+		 * This is unfortunate, but some chips need this register
+		 * tweaked or else you get artifacts where adjacent pixels are
+		 * swapped.  There are no hard rules for what to set here so all
+		 * we can do is experiment and apply hacks.
+		 */
+		if (((par->Chipset & 0xffff) == 0x0328) && (state->bpp == 32)) {
+			/* At least one NV34 laptop needs this workaround. */
+			tweak = -1;
+		}
+
+		if ((par->Chipset & 0xfff0) == 0x0310)
+			tweak = 1;
+		/* end flat panel hacks */
+	}
+
+	return tweak;
+>>>>>>> upstream/android-13
 }
 
 static void nvidia_screen_off(struct nvidia_par *par, int on)
@@ -607,6 +634,11 @@ static int nvidiafb_cursor(struct fb_info *info, struct fb_cursor *cursor)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static struct fb_ops nvidia_fb_ops;
+
+>>>>>>> upstream/android-13
 static int nvidiafb_set_par(struct fb_info *info)
 {
 	struct nvidia_par *par = info->par;
@@ -660,19 +692,33 @@ static int nvidiafb_set_par(struct fb_info *info)
 	info->fix.line_length = (info->var.xres_virtual *
 				 info->var.bits_per_pixel) >> 3;
 	if (info->var.accel_flags) {
+<<<<<<< HEAD
 		info->fbops->fb_imageblit = nvidiafb_imageblit;
 		info->fbops->fb_fillrect = nvidiafb_fillrect;
 		info->fbops->fb_copyarea = nvidiafb_copyarea;
 		info->fbops->fb_sync = nvidiafb_sync;
+=======
+		nvidia_fb_ops.fb_imageblit = nvidiafb_imageblit;
+		nvidia_fb_ops.fb_fillrect = nvidiafb_fillrect;
+		nvidia_fb_ops.fb_copyarea = nvidiafb_copyarea;
+		nvidia_fb_ops.fb_sync = nvidiafb_sync;
+>>>>>>> upstream/android-13
 		info->pixmap.scan_align = 4;
 		info->flags &= ~FBINFO_HWACCEL_DISABLED;
 		info->flags |= FBINFO_READS_FAST;
 		NVResetGraphics(info);
 	} else {
+<<<<<<< HEAD
 		info->fbops->fb_imageblit = cfb_imageblit;
 		info->fbops->fb_fillrect = cfb_fillrect;
 		info->fbops->fb_copyarea = cfb_copyarea;
 		info->fbops->fb_sync = NULL;
+=======
+		nvidia_fb_ops.fb_imageblit = cfb_imageblit;
+		nvidia_fb_ops.fb_fillrect = cfb_fillrect;
+		nvidia_fb_ops.fb_copyarea = cfb_copyarea;
+		nvidia_fb_ops.fb_sync = NULL;
+>>>>>>> upstream/android-13
 		info->pixmap.scan_align = 1;
 		info->flags |= FBINFO_HWACCEL_DISABLED;
 		info->flags &= ~FBINFO_READS_FAST;
@@ -1040,10 +1086,16 @@ static struct fb_ops nvidia_fb_ops = {
 	.fb_sync        = nvidiafb_sync,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int nvidiafb_suspend(struct pci_dev *dev, pm_message_t mesg)
 {
 	struct fb_info *info = pci_get_drvdata(dev);
+=======
+static int nvidiafb_suspend_late(struct device *dev, pm_message_t mesg)
+{
+	struct fb_info *info = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct nvidia_par *par = info->par;
 
 	if (mesg.event == PM_EVENT_PRETHAW)
@@ -1055,16 +1107,22 @@ static int nvidiafb_suspend(struct pci_dev *dev, pm_message_t mesg)
 		fb_set_suspend(info, 1);
 		nvidiafb_blank(FB_BLANK_POWERDOWN, info);
 		nvidia_write_regs(par, &par->SavedReg);
+<<<<<<< HEAD
 		pci_save_state(dev);
 		pci_disable_device(dev);
 		pci_set_power_state(dev, pci_choose_state(dev, mesg));
 	}
 	dev->dev.power.power_state = mesg;
+=======
+	}
+	dev->power.power_state = mesg;
+>>>>>>> upstream/android-13
 
 	console_unlock();
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nvidiafb_resume(struct pci_dev *dev)
 {
 	struct fb_info *info = pci_get_drvdata(dev);
@@ -1081,12 +1139,36 @@ static int nvidiafb_resume(struct pci_dev *dev)
 
 		pci_set_master(dev);
 	}
+=======
+static int __maybe_unused nvidiafb_suspend(struct device *dev)
+{
+	return nvidiafb_suspend_late(dev, PMSG_SUSPEND);
+}
+
+static int __maybe_unused nvidiafb_hibernate(struct device *dev)
+{
+	return nvidiafb_suspend_late(dev, PMSG_HIBERNATE);
+}
+
+static int __maybe_unused nvidiafb_freeze(struct device *dev)
+{
+	return nvidiafb_suspend_late(dev, PMSG_FREEZE);
+}
+
+static int __maybe_unused nvidiafb_resume(struct device *dev)
+{
+	struct fb_info *info = dev_get_drvdata(dev);
+	struct nvidia_par *par = info->par;
+
+	console_lock();
+>>>>>>> upstream/android-13
 
 	par->pm_state = PM_EVENT_ON;
 	nvidiafb_set_par(info);
 	fb_set_suspend (info, 0);
 	nvidiafb_blank(FB_BLANK_UNBLANK, info);
 
+<<<<<<< HEAD
 fail:
 	console_unlock();
 	return 0;
@@ -1095,6 +1177,22 @@ fail:
 #define nvidiafb_suspend NULL
 #define nvidiafb_resume NULL
 #endif
+=======
+	console_unlock();
+	return 0;
+}
+
+static const struct dev_pm_ops nvidiafb_pm_ops = {
+#ifdef CONFIG_PM_SLEEP
+	.suspend	= nvidiafb_suspend,
+	.resume		= nvidiafb_resume,
+	.freeze		= nvidiafb_freeze,
+	.thaw		= nvidiafb_resume,
+	.poweroff	= nvidiafb_hibernate,
+	.restore	= nvidiafb_resume,
+#endif /* CONFIG_PM_SLEEP */
+};
+>>>>>>> upstream/android-13
 
 static int nvidia_set_fbinfo(struct fb_info *info)
 {
@@ -1165,7 +1263,11 @@ static int nvidia_set_fbinfo(struct fb_info *info)
 	info->pixmap.flags = FB_PIXMAP_SYSTEM;
 
 	if (!hwcur)
+<<<<<<< HEAD
 	    info->fbops->fb_cursor = NULL;
+=======
+	    nvidia_fb_ops.fb_cursor = NULL;
+>>>>>>> upstream/android-13
 
 	info->var.accel_flags = (!noaccel);
 
@@ -1495,12 +1597,20 @@ static int nvidiafb_setup(char *options)
 #endif				/* !MODULE */
 
 static struct pci_driver nvidiafb_driver = {
+<<<<<<< HEAD
 	.name = "nvidiafb",
 	.id_table = nvidiafb_pci_tbl,
 	.probe    = nvidiafb_probe,
 	.suspend  = nvidiafb_suspend,
 	.resume   = nvidiafb_resume,
 	.remove   = nvidiafb_remove,
+=======
+	.name      = "nvidiafb",
+	.id_table  = nvidiafb_pci_tbl,
+	.probe     = nvidiafb_probe,
+	.driver.pm = &nvidiafb_pm_ops,
+	.remove    = nvidiafb_remove,
+>>>>>>> upstream/android-13
 };
 
 /* ------------------------------------------------------------------------- *

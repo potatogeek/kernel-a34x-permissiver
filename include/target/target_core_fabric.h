@@ -8,7 +8,22 @@
 
 struct target_core_fabric_ops {
 	struct module *module;
+<<<<<<< HEAD
 	const char *name;
+=======
+	/*
+	 * XXX: Special case for iscsi/iSCSI...
+	 * If non-null, fabric_alias is used for matching target/$fabric
+	 * ConfigFS paths. If null, fabric_name is used for this (see below).
+	 */
+	const char *fabric_alias;
+	/*
+	 * fabric_name is used for matching target/$fabric ConfigFS paths
+	 * without a fabric_alias (see above). It's also used for the ALUA state
+	 * path and is stored on disk with PR state.
+	 */
+	const char *fabric_name;
+>>>>>>> upstream/android-13
 	size_t node_acl_size;
 	/*
 	 * Limits number of scatterlist entries per SCF_SCSI_DATA_CDB payload.
@@ -23,7 +38,10 @@ struct target_core_fabric_ops {
 	 * XXX: Currently assumes single PAGE_SIZE per scatterlist entry
 	 */
 	u32 max_data_sg_nents;
+<<<<<<< HEAD
 	char *(*get_fabric_name)(void);
+=======
+>>>>>>> upstream/android-13
 	char *(*tpg_get_wwn)(struct se_portal_group *);
 	u16 (*tpg_get_tag)(struct se_portal_group *);
 	u32 (*tpg_get_default_depth)(struct se_portal_group *);
@@ -64,7 +82,10 @@ struct target_core_fabric_ops {
 	u32 (*sess_get_initiator_sid)(struct se_session *,
 				      unsigned char *, u32);
 	int (*write_pending)(struct se_cmd *);
+<<<<<<< HEAD
 	int (*write_pending_status)(struct se_cmd *);
+=======
+>>>>>>> upstream/android-13
 	void (*set_default_node_attributes)(struct se_node_acl *);
 	int (*get_cmd_state)(struct se_cmd *);
 	int (*queue_data_in)(struct se_cmd *);
@@ -101,6 +122,16 @@ struct target_core_fabric_ops {
 	struct configfs_attribute **tfc_tpg_nacl_attrib_attrs;
 	struct configfs_attribute **tfc_tpg_nacl_auth_attrs;
 	struct configfs_attribute **tfc_tpg_nacl_param_attrs;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Set this member variable to true if the SCSI transport protocol
+	 * (e.g. iSCSI) requires that the Data-Out buffer is transferred in
+	 * its entirety before a command is aborted.
+	 */
+	bool write_pending_must_be_called;
+>>>>>>> upstream/android-13
 };
 
 int target_register_template(const struct target_core_fabric_ops *fo);
@@ -126,11 +157,16 @@ void	transport_register_session(struct se_portal_group *,
 		struct se_node_acl *, struct se_session *, void *);
 ssize_t	target_show_dynamic_sessions(struct se_portal_group *, char *);
 void	transport_free_session(struct se_session *);
+<<<<<<< HEAD
+=======
+void	target_spc2_release(struct se_node_acl *nacl);
+>>>>>>> upstream/android-13
 void	target_put_nacl(struct se_node_acl *);
 void	transport_deregister_session_configfs(struct se_session *);
 void	transport_deregister_session(struct se_session *);
 
 
+<<<<<<< HEAD
 void	transport_init_se_cmd(struct se_cmd *,
 		const struct target_core_fabric_ops *,
 		struct se_session *, u32, int, int, unsigned char *);
@@ -142,6 +178,27 @@ int	target_submit_cmd_map_sgls(struct se_cmd *, struct se_session *,
 		struct scatterlist *, u32);
 int	target_submit_cmd(struct se_cmd *, struct se_session *, unsigned char *,
 		unsigned char *, u64, u32, int, int, int);
+=======
+void	__target_init_cmd(struct se_cmd *,
+		const struct target_core_fabric_ops *,
+		struct se_session *, u32, int, int, unsigned char *, u64);
+int	target_init_cmd(struct se_cmd *se_cmd, struct se_session *se_sess,
+		unsigned char *sense, u64 unpacked_lun, u32 data_length,
+		int task_attr, int data_dir, int flags);
+int	target_submit_prep(struct se_cmd *se_cmd, unsigned char *cdb,
+		struct scatterlist *sgl, u32 sgl_count,
+		struct scatterlist *sgl_bidi, u32 sgl_bidi_count,
+		struct scatterlist *sgl_prot, u32 sgl_prot_count, gfp_t gfp);
+void	target_submit(struct se_cmd *se_cmd);
+sense_reason_t transport_lookup_cmd_lun(struct se_cmd *);
+sense_reason_t target_cmd_init_cdb(struct se_cmd *se_cmd, unsigned char *cdb,
+				   gfp_t gfp);
+sense_reason_t target_cmd_parse_cdb(struct se_cmd *);
+void	target_submit_cmd(struct se_cmd *, struct se_session *, unsigned char *,
+		unsigned char *, u64, u32, int, int, int);
+void	target_queue_submission(struct se_cmd *se_cmd);
+
+>>>>>>> upstream/android-13
 int	target_submit_tmr(struct se_cmd *se_cmd, struct se_session *se_sess,
 		unsigned char *sense, u64 unpacked_lun,
 		void *fabric_tmr_ptr, unsigned char tm_type,
@@ -149,17 +206,30 @@ int	target_submit_tmr(struct se_cmd *se_cmd, struct se_session *se_sess,
 int	transport_handle_cdb_direct(struct se_cmd *);
 sense_reason_t	transport_generic_new_cmd(struct se_cmd *);
 
+<<<<<<< HEAD
+=======
+void	target_put_cmd_and_wait(struct se_cmd *cmd);
+>>>>>>> upstream/android-13
 void	target_execute_cmd(struct se_cmd *cmd);
 
 int	transport_generic_free_cmd(struct se_cmd *, int);
 
 bool	transport_wait_for_tasks(struct se_cmd *);
+<<<<<<< HEAD
 int	transport_check_aborted_status(struct se_cmd *, int);
 int	transport_send_check_condition_and_sense(struct se_cmd *,
 		sense_reason_t, int);
 int	target_get_sess_cmd(struct se_cmd *, bool);
 int	target_put_sess_cmd(struct se_cmd *);
 void	target_sess_cmd_list_set_waiting(struct se_session *);
+=======
+int	transport_send_check_condition_and_sense(struct se_cmd *,
+		sense_reason_t, int);
+int	target_send_busy(struct se_cmd *cmd);
+int	target_get_sess_cmd(struct se_cmd *, bool);
+int	target_put_sess_cmd(struct se_cmd *);
+void	target_stop_session(struct se_session *se_sess);
+>>>>>>> upstream/android-13
 void	target_wait_for_sess_cmds(struct se_session *);
 void	target_show_cmd(const char *pfx, struct se_cmd *cmd);
 
@@ -169,7 +239,11 @@ int	core_tmr_alloc_req(struct se_cmd *, void *, u8, gfp_t);
 void	core_tmr_release_req(struct se_tmr_req *);
 int	transport_generic_handle_tmr(struct se_cmd *);
 void	transport_generic_request_failure(struct se_cmd *, sense_reason_t);
+<<<<<<< HEAD
 int	transport_lookup_tmr_lun(struct se_cmd *, u64);
+=======
+int	transport_lookup_tmr_lun(struct se_cmd *);
+>>>>>>> upstream/android-13
 void	core_allocate_nexus_loss_ua(struct se_node_acl *acl);
 
 struct se_node_acl *core_tpg_get_initiator_node_acl(struct se_portal_group *tpg,

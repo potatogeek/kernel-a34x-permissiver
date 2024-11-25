@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * driver for the i2c-tiny-usb adapter - 1.0
  * http://www.harbaum.org/till/i2c_tiny_usb
  *
  * Copyright (C) 2006-2007 Till Harbaum (Till@Harbaum.org)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -88,7 +95,11 @@ static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
 				     pmsg->buf, pmsg->len) != pmsg->len) {
 				dev_err(&adapter->dev,
 					"failure reading data\n");
+<<<<<<< HEAD
 				ret = -EREMOTEIO;
+=======
+				ret = -EIO;
+>>>>>>> upstream/android-13
 				goto out;
 			}
 		} else {
@@ -98,7 +109,11 @@ static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
 				      pmsg->buf, pmsg->len) != pmsg->len) {
 				dev_err(&adapter->dev,
 					"failure writing data\n");
+<<<<<<< HEAD
 				ret = -EREMOTEIO;
+=======
+				ret = -EIO;
+>>>>>>> upstream/android-13
 				goto out;
 			}
 		}
@@ -106,13 +121,21 @@ static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
 		/* read status */
 		if (usb_read(adapter, CMD_GET_STATUS, 0, 0, pstatus, 1) != 1) {
 			dev_err(&adapter->dev, "failure reading status\n");
+<<<<<<< HEAD
 			ret = -EREMOTEIO;
+=======
+			ret = -EIO;
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
 		dev_dbg(&adapter->dev, "  status = %d\n", *pstatus);
 		if (*pstatus == STATUS_ADDRESS_NAK) {
+<<<<<<< HEAD
 			ret = -EREMOTEIO;
+=======
+			ret = -ENXIO;
+>>>>>>> upstream/android-13
 			goto out;
 		}
 	}

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * driver for Earthsoft PT1/PT2
  *
@@ -5,6 +9,7 @@
  *
  * based on pt1dvr - http://pt1dvr.sourceforge.jp/
  *	by Tomoaki Ishikawa <tomy@users.sourceforge.jp>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -343,8 +350,12 @@ static int pt1_sync(struct pt1 *pt1)
 static u64 pt1_identify(struct pt1 *pt1)
 {
 	int i;
+<<<<<<< HEAD
 	u64 id;
 	id = 0;
+=======
+	u64 id = 0;
+>>>>>>> upstream/android-13
 	for (i = 0; i < 57; i++) {
 		id |= (u64)(pt1_read_reg(pt1, 0) >> 30 & 1) << i;
 		pt1_write_reg(pt1, 0, 0x00000008);
@@ -1131,8 +1142,12 @@ static int pt1_i2c_end(struct pt1 *pt1, int addr)
 
 static void pt1_i2c_begin(struct pt1 *pt1, int *addrp)
 {
+<<<<<<< HEAD
 	int addr;
 	addr = 0;
+=======
+	int addr = 0;
+>>>>>>> upstream/android-13
 
 	pt1_i2c_emit(pt1, addr,     0, 0, 1, 1, addr /* itself */);
 	addr = addr + 1;
@@ -1226,8 +1241,12 @@ static void pt1_i2c_init(struct pt1 *pt1)
 
 static int pt1_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct pt1 *pt1 = pci_get_drvdata(pdev);
+=======
+	struct pt1 *pt1 = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	pt1_init_streams(pt1);
 	pt1_disable_ram(pt1);
@@ -1239,8 +1258,12 @@ static int pt1_suspend(struct device *dev)
 
 static int pt1_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct pt1 *pt1 = pci_get_drvdata(pdev);
+=======
+	struct pt1 *pt1 = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	int ret;
 	int i;
 
@@ -1396,7 +1419,11 @@ static int pt1_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	i2c_adap->algo = &pt1_i2c_algo;
 	i2c_adap->algo_data = NULL;
 	i2c_adap->dev.parent = &pdev->dev;
+<<<<<<< HEAD
 	strcpy(i2c_adap->name, DRIVER_NAME);
+=======
+	strscpy(i2c_adap->name, DRIVER_NAME, sizeof(i2c_adap->name));
+>>>>>>> upstream/android-13
 	i2c_set_adapdata(i2c_adap, pt1);
 	ret = i2c_add_adapter(i2c_adap);
 	if (ret < 0)

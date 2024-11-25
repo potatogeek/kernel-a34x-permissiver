@@ -30,6 +30,7 @@
 
 #include <nvif/user.h>
 
+<<<<<<< HEAD
 void
 OUT_RINGp(struct nouveau_channel *chan, const void *data, unsigned nr_dwords)
 {
@@ -43,6 +44,8 @@ OUT_RINGp(struct nouveau_channel *chan, const void *data, unsigned nr_dwords)
 	chan->dma.cur += nr_dwords;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Fetch and adjust GPU GET pointer
  *
  * Returns:
@@ -101,7 +104,11 @@ nv50_dma_push(struct nouveau_channel *chan, u64 offset, int length)
 
 	nvif_wr32(&chan->user, 0x8c, chan->dma.ib_put);
 	if (user->func && user->func->doorbell)
+<<<<<<< HEAD
 		user->func->doorbell(user, chan->chid);
+=======
+		user->func->doorbell(user, chan->token);
+>>>>>>> upstream/android-13
 	chan->dma.ib_free--;
 }
 
@@ -118,7 +125,11 @@ nv50_dma_push_wait(struct nouveau_channel *chan, int count)
 		}
 
 		if ((++cnt & 0xff) == 0) {
+<<<<<<< HEAD
 			DRM_UDELAY(1);
+=======
+			udelay(1);
+>>>>>>> upstream/android-13
 			if (cnt > 100000)
 				return -EBUSY;
 		}

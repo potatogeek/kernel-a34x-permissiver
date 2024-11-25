@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Data Modul AG
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Data Modul AG
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -30,6 +36,10 @@
 	};
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x80000000>;
 	};
 
@@ -104,7 +114,11 @@
 &ecspi5 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi5>;
+<<<<<<< HEAD
 	cs-gpios = <&gpio1 12 0>;
+=======
+	cs-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	flash: m25p80@0 {
@@ -117,7 +131,11 @@
 &fec {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
+<<<<<<< HEAD
 	phy-mode = "rgmii";
+=======
+	phy-mode = "rgmii-id";
+>>>>>>> upstream/android-13
 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
 	phy-supply = <&vgen2_1v2_eth>;
 	status = "okay";

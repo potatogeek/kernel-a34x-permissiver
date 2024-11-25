@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register cache access API - rbtree caching support
  *
@@ -9,6 +10,15 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register cache access API - rbtree caching support
+//
+// Copyright 2011 Wolfson Microelectronics plc
+//
+// Author: Dimitris Papastamos <dp@opensource.wolfsonmicro.com>
+>>>>>>> upstream/android-13
 
 #include <linux/debugfs.h>
 #include <linux/device.h>
@@ -33,7 +43,11 @@ struct regcache_rbtree_node {
 	unsigned int blklen;
 	/* the actual rbtree node holding this block */
 	struct rb_node node;
+<<<<<<< HEAD
 } __attribute__ ((packed));
+=======
+};
+>>>>>>> upstream/android-13
 
 struct regcache_rbtree_ctx {
 	struct rb_root root;
@@ -177,6 +191,7 @@ static int rbtree_show(struct seq_file *s, void *ignored)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rbtree_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, rbtree_show, inode->i_private);
@@ -188,6 +203,9 @@ static const struct file_operations rbtree_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(rbtree);
+>>>>>>> upstream/android-13
 
 static void rbtree_debugfs_init(struct regmap *map)
 {
@@ -295,14 +313,24 @@ static int regcache_rbtree_insert_to_block(struct regmap *map,
 	if (!blk)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	rbnode->block = blk;
+
+>>>>>>> upstream/android-13
 	if (BITS_TO_LONGS(blklen) > BITS_TO_LONGS(rbnode->blklen)) {
 		present = krealloc(rbnode->cache_present,
 				   BITS_TO_LONGS(blklen) * sizeof(*present),
 				   GFP_KERNEL);
+<<<<<<< HEAD
 		if (!present) {
 			kfree(blk);
 			return -ENOMEM;
 		}
+=======
+		if (!present)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 
 		memset(present + BITS_TO_LONGS(rbnode->blklen), 0,
 		       (BITS_TO_LONGS(blklen) - BITS_TO_LONGS(rbnode->blklen))
@@ -319,7 +347,10 @@ static int regcache_rbtree_insert_to_block(struct regmap *map,
 	}
 
 	/* update the rbnode block, its size and the base register */
+<<<<<<< HEAD
 	rbnode->block = blk;
+=======
+>>>>>>> upstream/android-13
 	rbnode->blklen = blklen;
 	rbnode->base_reg = base_reg;
 	rbnode->cache_present = present;

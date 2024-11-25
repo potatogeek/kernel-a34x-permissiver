@@ -4,15 +4,28 @@
  *
  * Common interface definitions for making balloon pages movable by compaction.
  *
+<<<<<<< HEAD
  * Despite being perfectly possible to perform ballooned pages migration, they
  * make a special corner case to compaction scans because balloon pages are not
  * enlisted at any LRU list like the other pages we do compact / migrate.
+=======
+ * Balloon page migration makes use of the general non-lru movable page
+ * feature.
+ *
+ * page->private is used to reference the responsible balloon device.
+ * page->mapping is used in context of non-lru page migration to reference
+ * the address space operations for page isolation/migration/compaction.
+>>>>>>> upstream/android-13
  *
  * As the page isolation scanning step a compaction thread does is a lockless
  * procedure (from a page standpoint), it might bring some racy situations while
  * performing balloon page compaction. In order to sort out these racy scenarios
  * and safely perform balloon's page compaction and migration we must, always,
+<<<<<<< HEAD
  * ensure following these three simple rules:
+=======
+ * ensure following these simple rules:
+>>>>>>> upstream/android-13
  *
  *   i. when updating a balloon's page ->mapping element, strictly do it under
  *      the following lock order, independently of the far superior
@@ -21,6 +34,7 @@
  *	      +--spin_lock_irq(&b_dev_info->pages_lock);
  *	            ... page->mapping updates here ...
  *
+<<<<<<< HEAD
  *  ii. before isolating or dequeueing a balloon page from the balloon device
  *      pages list, the page reference counter must be raised by one and the
  *      extra refcount must be dropped when the page is enqueued back into
@@ -34,6 +48,10 @@
  *
  *  iv. isolation or dequeueing procedure must clear PagePrivate flag under
  *      page lock together with removing page from balloon device page list.
+=======
+ *  ii. isolation or dequeueing procedure must remove the page from balloon
+ *      device page list under b_dev_info->pages_lock.
+>>>>>>> upstream/android-13
  *
  * The functions provided by this interface are placed to help on coping with
  * the aforementioned balloon page corner case, as well as to ensure the simple
@@ -72,6 +90,13 @@ extern struct page *balloon_page_alloc(void);
 extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
 				 struct page *page);
 extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info);
+<<<<<<< HEAD
+=======
+extern size_t balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
+				      struct list_head *pages);
+extern size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
+				     struct list_head *pages, size_t n_req_pages);
+>>>>>>> upstream/android-13
 
 static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
 {
@@ -103,7 +128,11 @@ extern int balloon_page_migrate(struct address_space *mapping,
 static inline void balloon_page_insert(struct balloon_dev_info *balloon,
 				       struct page *page)
 {
+<<<<<<< HEAD
 	__SetPageBalloon(page);
+=======
+	__SetPageOffline(page);
+>>>>>>> upstream/android-13
 	__SetPageMovable(page, balloon->inode->i_mapping);
 	set_page_private(page, (unsigned long)balloon);
 	list_add(&page->lru, &balloon->pages);
@@ -119,7 +148,11 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
  */
 static inline void balloon_page_delete(struct page *page)
 {
+<<<<<<< HEAD
 	__ClearPageBalloon(page);
+=======
+	__ClearPageOffline(page);
+>>>>>>> upstream/android-13
 	__ClearPageMovable(page);
 	set_page_private(page, 0);
 	/*
@@ -149,12 +182,17 @@ static inline gfp_t balloon_mapping_gfp_mask(void)
 static inline void balloon_page_insert(struct balloon_dev_info *balloon,
 				       struct page *page)
 {
+<<<<<<< HEAD
 	__SetPageBalloon(page);
+=======
+	__SetPageOffline(page);
+>>>>>>> upstream/android-13
 	list_add(&page->lru, &balloon->pages);
 }
 
 static inline void balloon_page_delete(struct page *page)
 {
+<<<<<<< HEAD
 	__ClearPageBalloon(page);
 	list_del(&page->lru);
 }
@@ -174,6 +212,12 @@ static inline bool isolated_balloon_page(struct page *page)
 	return false;
 }
 
+=======
+	__ClearPageOffline(page);
+	list_del(&page->lru);
+}
+
+>>>>>>> upstream/android-13
 static inline bool balloon_page_isolate(struct page *page)
 {
 	return false;

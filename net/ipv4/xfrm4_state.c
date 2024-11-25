@@ -8,6 +8,7 @@
  *
  */
 
+<<<<<<< HEAD
 #include <net/ip.h>
 #include <net/xfrm.h>
 #include <linux/pfkeyv2.h>
@@ -70,10 +71,14 @@ int xfrm4_extract_header(struct sk_buff *skb)
 
 	return 0;
 }
+=======
+#include <net/xfrm.h>
+>>>>>>> upstream/android-13
 
 static struct xfrm_state_afinfo xfrm4_state_afinfo = {
 	.family			= AF_INET,
 	.proto			= IPPROTO_IPIP,
+<<<<<<< HEAD
 	.eth_proto		= htons(ETH_P_IP),
 	.owner			= THIS_MODULE,
 	.init_flags		= xfrm4_init_flags,
@@ -83,6 +88,9 @@ static struct xfrm_state_afinfo xfrm4_state_afinfo = {
 	.output_finish		= xfrm4_output_finish,
 	.extract_input		= xfrm4_extract_input,
 	.extract_output		= xfrm4_extract_output,
+=======
+	.output			= xfrm4_output,
+>>>>>>> upstream/android-13
 	.transport_finish	= xfrm4_transport_finish,
 	.local_error		= xfrm4_local_error,
 };

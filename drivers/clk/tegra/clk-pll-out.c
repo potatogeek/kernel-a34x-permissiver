@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -80,10 +86,25 @@ static void clk_pll_out_disable(struct clk_hw *hw)
 		spin_unlock_irqrestore(pll_out->lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void tegra_clk_pll_out_restore_context(struct clk_hw *hw)
+{
+	if (!__clk_get_enable_count(hw->clk))
+		clk_pll_out_disable(hw);
+	else
+		clk_pll_out_enable(hw);
+}
+
+>>>>>>> upstream/android-13
 const struct clk_ops tegra_clk_pll_out_ops = {
 	.is_enabled = clk_pll_out_is_enabled,
 	.enable = clk_pll_out_enable,
 	.disable = clk_pll_out_disable,
+<<<<<<< HEAD
+=======
+	.restore_context = tegra_clk_pll_out_restore_context,
+>>>>>>> upstream/android-13
 };
 
 struct clk *tegra_clk_register_pll_out(const char *name,
@@ -93,7 +114,11 @@ struct clk *tegra_clk_register_pll_out(const char *name,
 {
 	struct tegra_clk_pll_out *pll_out;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	pll_out = kzalloc(sizeof(*pll_out), GFP_KERNEL);
 	if (!pll_out)

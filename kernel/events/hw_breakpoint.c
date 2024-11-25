@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +14,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) 2007 Alan Stern
  * Copyright (C) IBM Corporation, 2009
  * Copyright (C) 2009, Frederic Weisbecker <fweisbec@gmail.com>
@@ -226,6 +231,18 @@ toggle_bp_slot(struct perf_event *bp, bool enable, enum bp_type_idx type,
 		list_del(&bp->hw.bp_list);
 }
 
+<<<<<<< HEAD
+=======
+__weak int arch_reserve_bp_slot(struct perf_event *bp)
+{
+	return 0;
+}
+
+__weak void arch_release_bp_slot(struct perf_event *bp)
+{
+}
+
+>>>>>>> upstream/android-13
 /*
  * Function to perform processor-specific cleanup during unregistration
  */
@@ -238,7 +255,11 @@ __weak void arch_unregister_hw_breakpoint(struct perf_event *bp)
 }
 
 /*
+<<<<<<< HEAD
  * Contraints to check before allowing this new breakpoint counter:
+=======
+ * Constraints to check before allowing this new breakpoint counter:
+>>>>>>> upstream/android-13
  *
  *  == Non-pinned counter == (Considered as pinned for now)
  *
@@ -283,6 +304,10 @@ static int __reserve_bp_slot(struct perf_event *bp, u64 bp_type)
 	struct bp_busy_slots slots = {0};
 	enum bp_type_idx type;
 	int weight;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* We couldn't initialize breakpoint constraints on boot */
 	if (!constraints_initialized)
@@ -307,6 +332,13 @@ static int __reserve_bp_slot(struct perf_event *bp, u64 bp_type)
 	if (slots.pinned + (!!slots.flexible) > nr_slots[type])
 		return -ENOSPC;
 
+<<<<<<< HEAD
+=======
+	ret = arch_reserve_bp_slot(bp);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	toggle_bp_slot(bp, true, type, weight);
 
 	return 0;
@@ -330,6 +362,11 @@ static void __release_bp_slot(struct perf_event *bp, u64 bp_type)
 	enum bp_type_idx type;
 	int weight;
 
+<<<<<<< HEAD
+=======
+	arch_release_bp_slot(bp);
+
+>>>>>>> upstream/android-13
 	type = find_slot_idx(bp_type);
 	weight = hw_breakpoint_weight(bp);
 	toggle_bp_slot(bp, false, type, weight);
@@ -448,6 +485,10 @@ int register_perf_hw_breakpoint(struct perf_event *bp)
  * register_user_hw_breakpoint - register a hardware breakpoint for user space
  * @attr: breakpoint attributes
  * @triggered: callback to trigger when we hit the breakpoint
+<<<<<<< HEAD
+=======
+ * @context: context data could be used in the triggered callback
+>>>>>>> upstream/android-13
  * @tsk: pointer to 'task_struct' of the process to which the address belongs
  */
 struct perf_event *
@@ -547,6 +588,10 @@ EXPORT_SYMBOL_GPL(unregister_hw_breakpoint);
  * register_wide_hw_breakpoint - register a wide breakpoint in the kernel
  * @attr: breakpoint attributes
  * @triggered: callback to trigger when we hit the breakpoint
+<<<<<<< HEAD
+=======
+ * @context: context data could be used in the triggered callback
+>>>>>>> upstream/android-13
  *
  * @return a set of per_cpu pointers to perf events
  */
@@ -563,7 +608,11 @@ register_wide_hw_breakpoint(struct perf_event_attr *attr,
 	if (!cpu_events)
 		return (void __percpu __force *)ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	for_each_online_cpu(cpu) {
 		bp = perf_event_create_kernel_counter(attr, cpu, NULL,
 						      triggered, context);
@@ -574,7 +623,11 @@ register_wide_hw_breakpoint(struct perf_event_attr *attr,
 
 		per_cpu(*cpu_events, cpu) = bp;
 	}
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	if (likely(!err))
 		return cpu_events;

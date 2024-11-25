@@ -20,10 +20,17 @@
 #include <linux/string.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
 #include <linux/coda.h>
 #include <linux/coda_psdev.h>
 
+=======
+#include <linux/uio.h>
+
+#include <linux/coda.h>
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 #include "coda_int.h"
 
@@ -38,11 +45,33 @@ static ssize_t
 coda_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 {
 	struct file *coda_file = iocb->ki_filp;
+<<<<<<< HEAD
 	struct coda_file_info *cfi = CODA_FTOC(coda_file);
 
 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
 
 	return vfs_iter_read(cfi->cfi_container, to, &iocb->ki_pos, 0);
+=======
+	struct inode *coda_inode = file_inode(coda_file);
+	struct coda_file_info *cfi = coda_ftoc(coda_file);
+	loff_t ki_pos = iocb->ki_pos;
+	size_t count = iov_iter_count(to);
+	ssize_t ret;
+
+	ret = venus_access_intent(coda_inode->i_sb, coda_i2f(coda_inode),
+				  &cfi->cfi_access_intent,
+				  count, ki_pos, CODA_ACCESS_TYPE_READ);
+	if (ret)
+		goto finish_read;
+
+	ret = vfs_iter_read(cfi->cfi_container, to, &iocb->ki_pos, 0);
+
+finish_read:
+	venus_access_intent(coda_inode->i_sb, coda_i2f(coda_inode),
+			    &cfi->cfi_access_intent,
+			    count, ki_pos, CODA_ACCESS_TYPE_READ_FINISH);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -50,6 +79,7 @@ coda_file_write_iter(struct kiocb *iocb, struct iov_iter *to)
 {
 	struct file *coda_file = iocb->ki_filp;
 	struct inode *coda_inode = file_inode(coda_file);
+<<<<<<< HEAD
 	struct coda_file_info *cfi = CODA_FTOC(coda_file);
 	struct file *host_file;
 	ssize_t ret;
@@ -57,6 +87,20 @@ coda_file_write_iter(struct kiocb *iocb, struct iov_iter *to)
 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
 
 	host_file = cfi->cfi_container;
+=======
+	struct coda_file_info *cfi = coda_ftoc(coda_file);
+	struct file *host_file = cfi->cfi_container;
+	loff_t ki_pos = iocb->ki_pos;
+	size_t count = iov_iter_count(to);
+	ssize_t ret;
+
+	ret = venus_access_intent(coda_inode->i_sb, coda_i2f(coda_inode),
+				  &cfi->cfi_access_intent,
+				  count, ki_pos, CODA_ACCESS_TYPE_WRITE);
+	if (ret)
+		goto finish_write;
+
+>>>>>>> upstream/android-13
 	file_start_write(host_file);
 	inode_lock(coda_inode);
 	ret = vfs_iter_write(cfi->cfi_container, to, &iocb->ki_pos, 0);
@@ -65,6 +109,14 @@ coda_file_write_iter(struct kiocb *iocb, struct iov_iter *to)
 	coda_inode->i_mtime = coda_inode->i_ctime = current_time(coda_inode);
 	inode_unlock(coda_inode);
 	file_end_write(host_file);
+<<<<<<< HEAD
+=======
+
+finish_write:
+	venus_access_intent(coda_inode->i_sb, coda_i2f(coda_inode),
+			    &cfi->cfi_access_intent,
+			    count, ki_pos, CODA_ACCESS_TYPE_WRITE_FINISH);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -99,6 +151,7 @@ coda_vm_close(struct vm_area_struct *vma)
 static int
 coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	struct coda_file_info *cfi;
 	struct coda_inode_info *cii;
 	struct file *host_file;
@@ -110,19 +163,46 @@ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
 	host_file = cfi->cfi_container;
 
+=======
+	struct inode *coda_inode = file_inode(coda_file);
+	struct coda_file_info *cfi = coda_ftoc(coda_file);
+	struct file *host_file = cfi->cfi_container;
+	struct inode *host_inode = file_inode(host_file);
+	struct coda_inode_info *cii;
+	struct coda_vm_ops *cvm_ops;
+	loff_t ppos;
+	size_t count;
+	int ret;
+
+>>>>>>> upstream/android-13
 	if (!host_file->f_op->mmap)
 		return -ENODEV;
 
 	if (WARN_ON(coda_file != vma->vm_file))
 		return -EIO;
 
+<<<<<<< HEAD
+=======
+	count = vma->vm_end - vma->vm_start;
+	ppos = vma->vm_pgoff * PAGE_SIZE;
+
+	ret = venus_access_intent(coda_inode->i_sb, coda_i2f(coda_inode),
+				  &cfi->cfi_access_intent,
+				  count, ppos, CODA_ACCESS_TYPE_MMAP);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	cvm_ops = kmalloc(sizeof(struct coda_vm_ops), GFP_KERNEL);
 	if (!cvm_ops)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	coda_inode = file_inode(coda_file);
 	host_inode = file_inode(host_file);
 
+=======
+>>>>>>> upstream/android-13
 	cii = ITOC(coda_inode);
 	spin_lock(&cii->c_lock);
 	coda_file->f_mapping = host_file->f_mapping;
@@ -146,10 +226,17 @@ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
 	ret = call_mmap(vma->vm_file, vma);
 
 	if (ret) {
+<<<<<<< HEAD
 		/* if call_mmap fails, our caller will put coda_file so we
 		 * should drop the reference to the host_file that we got.
 		 */
 		fput(host_file);
+=======
+		/* if call_mmap fails, our caller will put host_file so we
+		 * should drop the reference to the coda_file that we got.
+		 */
+		fput(coda_file);
+>>>>>>> upstream/android-13
 		kfree(cvm_ops);
 	} else {
 		/* here we add redirects for the open/close vm_operations */
@@ -194,6 +281,11 @@ int coda_open(struct inode *coda_inode, struct file *coda_file)
 	cfi->cfi_magic = CODA_MAGIC;
 	cfi->cfi_mapcount = 0;
 	cfi->cfi_container = host_file;
+<<<<<<< HEAD
+=======
+	/* assume access intents are supported unless we hear otherwise */
+	cfi->cfi_access_intent = true;
+>>>>>>> upstream/android-13
 
 	BUG_ON(coda_file->private_data != NULL);
 	coda_file->private_data = cfi;
@@ -209,8 +301,12 @@ int coda_release(struct inode *coda_inode, struct file *coda_file)
 	struct inode *host_inode;
 	int err;
 
+<<<<<<< HEAD
 	cfi = CODA_FTOC(coda_file);
 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
+=======
+	cfi = coda_ftoc(coda_file);
+>>>>>>> upstream/android-13
 
 	err = venus_close(coda_inode->i_sb, coda_i2f(coda_inode),
 			  coda_flags, coda_file->f_cred->fsuid);
@@ -252,8 +348,12 @@ int coda_fsync(struct file *coda_file, loff_t start, loff_t end, int datasync)
 		return err;
 	inode_lock(coda_inode);
 
+<<<<<<< HEAD
 	cfi = CODA_FTOC(coda_file);
 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
+=======
+	cfi = coda_ftoc(coda_file);
+>>>>>>> upstream/android-13
 	host_file = cfi->cfi_container;
 
 	err = vfs_fsync(host_file, datasync);

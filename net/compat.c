@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 32bit Socket syscall emulation. Based on arch/sparc64/kernel/sys_sparc32.c.
  *
@@ -32,10 +36,17 @@
 #include <linux/uaccess.h>
 #include <net/compat.h>
 
+<<<<<<< HEAD
 int get_compat_msghdr(struct msghdr *kmsg,
 		      struct compat_msghdr __user *umsg,
 		      struct sockaddr __user **save_addr,
 		      struct iovec **iov)
+=======
+int __get_compat_msghdr(struct msghdr *kmsg,
+			struct compat_msghdr __user *umsg,
+			struct sockaddr __user **save_addr,
+			compat_uptr_t *ptr, compat_size_t *len)
+>>>>>>> upstream/android-13
 {
 	struct compat_msghdr msg;
 	ssize_t err;
@@ -55,7 +66,12 @@ int get_compat_msghdr(struct msghdr *kmsg,
 	if (kmsg->msg_namelen > sizeof(struct sockaddr_storage))
 		kmsg->msg_namelen = sizeof(struct sockaddr_storage);
 
+<<<<<<< HEAD
 	kmsg->msg_control = compat_ptr(msg.msg_control);
+=======
+	kmsg->msg_control_is_user = true;
+	kmsg->msg_control_user = compat_ptr(msg.msg_control);
+>>>>>>> upstream/android-13
 	kmsg->msg_controllen = msg.msg_controllen;
 
 	if (save_addr)
@@ -78,10 +94,34 @@ int get_compat_msghdr(struct msghdr *kmsg,
 		return -EMSGSIZE;
 
 	kmsg->msg_iocb = NULL;
+<<<<<<< HEAD
 
 	return compat_import_iovec(save_addr ? READ : WRITE,
 				   compat_ptr(msg.msg_iov), msg.msg_iovlen,
 				   UIO_FASTIOV, iov, &kmsg->msg_iter);
+=======
+	*ptr = msg.msg_iov;
+	*len = msg.msg_iovlen;
+	return 0;
+}
+
+int get_compat_msghdr(struct msghdr *kmsg,
+		      struct compat_msghdr __user *umsg,
+		      struct sockaddr __user **save_addr,
+		      struct iovec **iov)
+{
+	compat_uptr_t ptr;
+	compat_size_t len;
+	ssize_t err;
+
+	err = __get_compat_msghdr(kmsg, umsg, save_addr, &ptr, &len);
+	if (err)
+		return err;
+
+	err = import_iovec(save_addr ? READ : WRITE, compat_ptr(ptr), len,
+			   UIO_FASTIOV, iov, &kmsg->msg_iter);
+	return err < 0 ? err : 0;
+>>>>>>> upstream/android-13
 }
 
 /* Bleech... */
@@ -103,7 +143,11 @@ int get_compat_msghdr(struct msghdr *kmsg,
 	((ucmlen) >= sizeof(struct compat_cmsghdr) && \
 	 (ucmlen) <= (unsigned long) \
 	 ((mhdr)->msg_controllen - \
+<<<<<<< HEAD
 	  ((char *)(ucmsg) - (char *)(mhdr)->msg_control)))
+=======
+	  ((char __user *)(ucmsg) - (char __user *)(mhdr)->msg_control_user)))
+>>>>>>> upstream/android-13
 
 static inline struct compat_cmsghdr __user *cmsg_compat_nxthdr(struct msghdr *msg,
 		struct compat_cmsghdr __user *cmsg, int cmsg_len)
@@ -158,12 +202,17 @@ int cmsghdr_from_user_compat_to_kern(struct msghdr *kmsg, struct sock *sk,
 	if (kcmlen > stackbuf_size)
 		kcmsg_base = kcmsg = sock_kmalloc(sk, kcmlen, GFP_KERNEL);
 	if (kcmsg == NULL)
+<<<<<<< HEAD
 		return -ENOBUFS;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Now copy them over neatly. */
 	memset(kcmsg, 0, kcmlen);
 	ucmsg = CMSG_COMPAT_FIRSTHDR(kmsg);
 	while (ucmsg != NULL) {
+<<<<<<< HEAD
 		if (__get_user(ucmlen, &ucmsg->cmsg_len))
 			goto Efault;
 		if (!CMSG_COMPAT_OK(ucmlen, ucmsg, kmsg))
@@ -178,11 +227,32 @@ int cmsghdr_from_user_compat_to_kern(struct msghdr *kmsg, struct sock *sk,
 		    copy_from_user(CMSG_DATA(kcmsg),
 				   CMSG_COMPAT_DATA(ucmsg),
 				   (ucmlen - sizeof(*ucmsg))))
+=======
+		struct compat_cmsghdr cmsg;
+		if (copy_from_user(&cmsg, ucmsg, sizeof(cmsg)))
+			goto Efault;
+		if (!CMSG_COMPAT_OK(cmsg.cmsg_len, ucmsg, kmsg))
+			goto Einval;
+		tmp = ((cmsg.cmsg_len - sizeof(*ucmsg)) + sizeof(struct cmsghdr));
+		if ((char *)kcmsg_base + kcmlen - (char *)kcmsg < CMSG_ALIGN(tmp))
+			goto Einval;
+		kcmsg->cmsg_len = tmp;
+		kcmsg->cmsg_level = cmsg.cmsg_level;
+		kcmsg->cmsg_type = cmsg.cmsg_type;
+		tmp = CMSG_ALIGN(tmp);
+		if (copy_from_user(CMSG_DATA(kcmsg),
+				   CMSG_COMPAT_DATA(ucmsg),
+				   (cmsg.cmsg_len - sizeof(*ucmsg))))
+>>>>>>> upstream/android-13
 			goto Efault;
 
 		/* Advance. */
 		kcmsg = (struct cmsghdr *)((char *)kcmsg + tmp);
+<<<<<<< HEAD
 		ucmsg = cmsg_compat_nxthdr(kmsg, ucmsg, ucmlen);
+=======
+		ucmsg = cmsg_compat_nxthdr(kmsg, ucmsg, cmsg.cmsg_len);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -209,8 +279,13 @@ int put_cmsg_compat(struct msghdr *kmsg, int level, int type, int len, void *dat
 {
 	struct compat_cmsghdr __user *cm = (struct compat_cmsghdr __user *) kmsg->msg_control;
 	struct compat_cmsghdr cmhdr;
+<<<<<<< HEAD
 	struct compat_timeval ctv;
 	struct compat_timespec cts[3];
+=======
+	struct old_timeval32 ctv;
+	struct old_timespec32 cts[3];
+>>>>>>> upstream/android-13
 	int cmlen;
 
 	if (cm == NULL || kmsg->msg_controllen < sizeof(*cm)) {
@@ -219,18 +294,30 @@ int put_cmsg_compat(struct msghdr *kmsg, int level, int type, int len, void *dat
 	}
 
 	if (!COMPAT_USE_64BIT_TIME) {
+<<<<<<< HEAD
 		if (level == SOL_SOCKET && type == SCM_TIMESTAMP) {
 			struct timeval *tv = (struct timeval *)data;
+=======
+		if (level == SOL_SOCKET && type == SO_TIMESTAMP_OLD) {
+			struct __kernel_old_timeval *tv = (struct __kernel_old_timeval *)data;
+>>>>>>> upstream/android-13
 			ctv.tv_sec = tv->tv_sec;
 			ctv.tv_usec = tv->tv_usec;
 			data = &ctv;
 			len = sizeof(ctv);
 		}
 		if (level == SOL_SOCKET &&
+<<<<<<< HEAD
 		    (type == SCM_TIMESTAMPNS || type == SCM_TIMESTAMPING)) {
 			int count = type == SCM_TIMESTAMPNS ? 1 : 3;
 			int i;
 			struct timespec *ts = (struct timespec *)data;
+=======
+		    (type == SO_TIMESTAMPNS_OLD || type == SO_TIMESTAMPING_OLD)) {
+			int count = type == SO_TIMESTAMPNS_OLD ? 1 : 3;
+			int i;
+			struct __kernel_old_timespec *ts = data;
+>>>>>>> upstream/android-13
 			for (i = 0; i < count; i++) {
 				cts[i].tv_sec = ts[i].tv_sec;
 				cts[i].tv_nsec = ts[i].tv_nsec;
@@ -261,6 +348,7 @@ int put_cmsg_compat(struct msghdr *kmsg, int level, int type, int len, void *dat
 	return 0;
 }
 
+<<<<<<< HEAD
 void scm_detach_fds_compat(struct msghdr *kmsg, struct scm_cookie *scm)
 {
 	struct compat_cmsghdr __user *cm = (struct compat_cmsghdr __user *) kmsg->msg_control;
@@ -291,10 +379,36 @@ void scm_detach_fds_compat(struct msghdr *kmsg, struct scm_cookie *scm)
 		/* Bump the usage count and install the file. */
 		__receive_sock(fp[i]);
 		fd_install(new_fd, get_file(fp[i]));
+=======
+static int scm_max_fds_compat(struct msghdr *msg)
+{
+	if (msg->msg_controllen <= sizeof(struct compat_cmsghdr))
+		return 0;
+	return (msg->msg_controllen - sizeof(struct compat_cmsghdr)) / sizeof(int);
+}
+
+void scm_detach_fds_compat(struct msghdr *msg, struct scm_cookie *scm)
+{
+	struct compat_cmsghdr __user *cm =
+		(struct compat_cmsghdr __user *)msg->msg_control;
+	unsigned int o_flags = (msg->msg_flags & MSG_CMSG_CLOEXEC) ? O_CLOEXEC : 0;
+	int fdmax = min_t(int, scm_max_fds_compat(msg), scm->fp->count);
+	int __user *cmsg_data = CMSG_COMPAT_DATA(cm);
+	int err = 0, i;
+
+	for (i = 0; i < fdmax; i++) {
+		err = receive_fd_user(scm->fp->fp[i], cmsg_data + i, o_flags);
+		if (err < 0)
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	if (i > 0) {
 		int cmlen = CMSG_COMPAT_LEN(i * sizeof(int));
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		err = put_user(SOL_SOCKET, &cm->cmsg_level);
 		if (!err)
 			err = put_user(SCM_RIGHTS, &cm->cmsg_type);
@@ -302,6 +416,7 @@ void scm_detach_fds_compat(struct msghdr *kmsg, struct scm_cookie *scm)
 			err = put_user(cmlen, &cm->cmsg_len);
 		if (!err) {
 			cmlen = CMSG_COMPAT_SPACE(i * sizeof(int));
+<<<<<<< HEAD
 			kmsg->msg_control += cmlen;
 			kmsg->msg_controllen -= cmlen;
 		}
@@ -312,10 +427,26 @@ void scm_detach_fds_compat(struct msghdr *kmsg, struct scm_cookie *scm)
 	/*
 	 * All of the files that fit in the message have had their
 	 * usage counts incremented, so we just free the list.
+=======
+			if (msg->msg_controllen < cmlen)
+				cmlen = msg->msg_controllen;
+			msg->msg_control += cmlen;
+			msg->msg_controllen -= cmlen;
+		}
+	}
+
+	if (i < scm->fp->count || (scm->fp->count && fdmax <= 0))
+		msg->msg_flags |= MSG_CTRUNC;
+
+	/*
+	 * All of the files that fit in the message have had their usage counts
+	 * incremented, so we just free the list.
+>>>>>>> upstream/android-13
 	 */
 	__scm_destroy(scm);
 }
 
+<<<<<<< HEAD
 /* allocate a 64-bit sock_fprog on the user stack for duration of syscall. */
 struct sock_fprog __user *get_compat_bpf_fprog(char __user *optval)
 {
@@ -741,6 +872,8 @@ int compat_mc_getsockopt(struct sock *sock, int level, int optname,
 EXPORT_SYMBOL(compat_mc_getsockopt);
 
 
+=======
+>>>>>>> upstream/android-13
 /* Argument list sizes for compat_sys_socketcall */
 #define AL(x) ((x) * sizeof(u32))
 static unsigned char nas[21] = {
@@ -814,6 +947,7 @@ COMPAT_SYSCALL_DEFINE6(recvfrom, int, fd, void __user *, buf, compat_size_t, len
 	return __compat_sys_recvfrom(fd, buf, len, flags, addr, addrlen);
 }
 
+<<<<<<< HEAD
 static int __compat_sys_recvmmsg(int fd, struct compat_mmsghdr __user *mmsg,
 				 unsigned int vlen, unsigned int flags,
 				 struct compat_timespec __user *timeout)
@@ -843,6 +977,26 @@ COMPAT_SYSCALL_DEFINE5(recvmmsg, int, fd, struct compat_mmsghdr __user *, mmsg,
 	return __compat_sys_recvmmsg(fd, mmsg, vlen, flags, timeout);
 }
 
+=======
+COMPAT_SYSCALL_DEFINE5(recvmmsg_time64, int, fd, struct compat_mmsghdr __user *, mmsg,
+		       unsigned int, vlen, unsigned int, flags,
+		       struct __kernel_timespec __user *, timeout)
+{
+	return __sys_recvmmsg(fd, (struct mmsghdr __user *)mmsg, vlen,
+			      flags | MSG_CMSG_COMPAT, timeout, NULL);
+}
+
+#ifdef CONFIG_COMPAT_32BIT_TIME
+COMPAT_SYSCALL_DEFINE5(recvmmsg_time32, int, fd, struct compat_mmsghdr __user *, mmsg,
+		       unsigned int, vlen, unsigned int, flags,
+		       struct old_timespec32 __user *, timeout)
+{
+	return __sys_recvmmsg(fd, (struct mmsghdr __user *)mmsg, vlen,
+			      flags | MSG_CMSG_COMPAT, NULL, timeout);
+}
+#endif
+
+>>>>>>> upstream/android-13
 COMPAT_SYSCALL_DEFINE2(socketcall, int, call, u32 __user *, args)
 {
 	u32 a[AUDITSC_ARGS];
@@ -911,6 +1065,7 @@ COMPAT_SYSCALL_DEFINE2(socketcall, int, call, u32 __user *, args)
 		ret = __sys_shutdown(a0, a1);
 		break;
 	case SYS_SETSOCKOPT:
+<<<<<<< HEAD
 		ret = __compat_sys_setsockopt(a0, a1, a[2],
 					      compat_ptr(a[3]), a[4]);
 		break;
@@ -918,6 +1073,13 @@ COMPAT_SYSCALL_DEFINE2(socketcall, int, call, u32 __user *, args)
 		ret = __compat_sys_getsockopt(a0, a1, a[2],
 					      compat_ptr(a[3]),
 					      compat_ptr(a[4]));
+=======
+		ret = __sys_setsockopt(a0, a1, a[2], compat_ptr(a[3]), a[4]);
+		break;
+	case SYS_GETSOCKOPT:
+		ret = __sys_getsockopt(a0, a1, a[2], compat_ptr(a[3]),
+				       compat_ptr(a[4]));
+>>>>>>> upstream/android-13
 		break;
 	case SYS_SENDMSG:
 		ret = __compat_sys_sendmsg(a0, compat_ptr(a1), a[2]);
@@ -929,8 +1091,14 @@ COMPAT_SYSCALL_DEFINE2(socketcall, int, call, u32 __user *, args)
 		ret = __compat_sys_recvmsg(a0, compat_ptr(a1), a[2]);
 		break;
 	case SYS_RECVMMSG:
+<<<<<<< HEAD
 		ret = __compat_sys_recvmmsg(a0, compat_ptr(a1), a[2], a[3],
 					    compat_ptr(a[4]));
+=======
+		ret = __sys_recvmmsg(a0, compat_ptr(a1), a[2],
+				     a[3] | MSG_CMSG_COMPAT, NULL,
+				     compat_ptr(a[4]));
+>>>>>>> upstream/android-13
 		break;
 	case SYS_ACCEPT4:
 		ret = __sys_accept4(a0, compat_ptr(a1), compat_ptr(a[2]), a[3]);

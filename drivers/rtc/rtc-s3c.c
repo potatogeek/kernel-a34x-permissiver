@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/rtc/rtc-s3c.c
  *
  * Copyright (c) 2010 Samsung Electronics Co., Ltd.
@@ -7,10 +11,13 @@
  *	Ben Dooks, <ben@simtec.co.uk>
  *	http://armlinux.simtec.co.uk/
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * S3C2410/S3C2440/S3C24XX Internal RTC Driver
 */
 
@@ -26,6 +33,10 @@
 #include <linux/log2.h>
 #include <linux/slab.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/io.h>
 
@@ -39,11 +50,16 @@ struct s3c_rtc {
 	void __iomem *base;
 	struct clk *rtc_clk;
 	struct clk *rtc_src_clk;
+<<<<<<< HEAD
 	bool clk_disabled;
+=======
+	bool alarm_enabled;
+>>>>>>> upstream/android-13
 
 	const struct s3c_rtc_data *data;
 
 	int irq_alarm;
+<<<<<<< HEAD
 	int irq_tick;
 
 	spinlock_t pie_lock;
@@ -51,10 +67,15 @@ struct s3c_rtc {
 
 	int ticnt_save;
 	int ticnt_en_save;
+=======
+	spinlock_t alarm_lock;
+
+>>>>>>> upstream/android-13
 	bool wake_en;
 };
 
 struct s3c_rtc_data {
+<<<<<<< HEAD
 	int max_user_freq;
 	bool needs_src_clk;
 
@@ -64,12 +85,18 @@ struct s3c_rtc_data {
 	void (*select_tick_clk) (struct s3c_rtc *info);
 	void (*save_tick_cnt) (struct s3c_rtc *info);
 	void (*restore_tick_cnt) (struct s3c_rtc *info);
+=======
+	bool needs_src_clk;
+
+	void (*irq_handler) (struct s3c_rtc *info, int mask);
+>>>>>>> upstream/android-13
 	void (*enable) (struct s3c_rtc *info);
 	void (*disable) (struct s3c_rtc *info);
 };
 
 static int s3c_rtc_enable_clk(struct s3c_rtc *info)
 {
+<<<<<<< HEAD
 	unsigned long irq_flags;
 	int ret = 0;
 
@@ -94,10 +121,27 @@ out:
 	spin_unlock_irqrestore(&info->alarm_clk_lock, irq_flags);
 
 	return ret;
+=======
+	int ret;
+
+	ret = clk_enable(info->rtc_clk);
+	if (ret)
+		return ret;
+
+	if (info->data->needs_src_clk) {
+		ret = clk_enable(info->rtc_src_clk);
+		if (ret) {
+			clk_disable(info->rtc_clk);
+			return ret;
+		}
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void s3c_rtc_disable_clk(struct s3c_rtc *info)
 {
+<<<<<<< HEAD
 	unsigned long irq_flags;
 
 	spin_lock_irqsave(&info->alarm_clk_lock, irq_flags);
@@ -121,6 +165,14 @@ static irqreturn_t s3c_rtc_tickirq(int irq, void *id)
 	return IRQ_HANDLED;
 }
 
+=======
+	if (info->data->needs_src_clk)
+		clk_disable(info->rtc_src_clk);
+	clk_disable(info->rtc_clk);
+}
+
+/* IRQ Handler */
+>>>>>>> upstream/android-13
 static irqreturn_t s3c_rtc_alarmirq(int irq, void *id)
 {
 	struct s3c_rtc *info = (struct s3c_rtc *)id;
@@ -135,6 +187,10 @@ static irqreturn_t s3c_rtc_alarmirq(int irq, void *id)
 static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
 {
 	struct s3c_rtc *info = dev_get_drvdata(dev);
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	unsigned int tmp;
 	int ret;
 
@@ -151,6 +207,7 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
 
 	writeb(tmp, info->base + S3C2410_RTCALM);
 
+<<<<<<< HEAD
 	s3c_rtc_disable_clk(info);
 
 	if (enabled) {
@@ -184,6 +241,21 @@ static int s3c_rtc_setfreq(struct s3c_rtc *info, int freq)
 	s3c_rtc_disable_clk(info);
 
 	return 0;
+=======
+	spin_lock_irqsave(&info->alarm_lock, flags);
+
+	if (info->alarm_enabled && !enabled)
+		s3c_rtc_disable_clk(info);
+	else if (!info->alarm_enabled && enabled)
+		ret = s3c_rtc_enable_clk(info);
+
+	info->alarm_enabled = enabled;
+	spin_unlock_irqrestore(&info->alarm_lock, flags);
+
+	s3c_rtc_disable_clk(info);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Time read/write */
@@ -225,6 +297,7 @@ retry_get_time:
 	s3c_rtc_disable_clk(info);
 
 	rtc_tm->tm_year += 100;
+<<<<<<< HEAD
 
 	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
 		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
@@ -232,6 +305,11 @@ retry_get_time:
 
 	rtc_tm->tm_mon -= 1;
 
+=======
+	rtc_tm->tm_mon -= 1;
+
+	dev_dbg(dev, "read time %ptR\n", rtc_tm);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -241,9 +319,13 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
 	int year = tm->tm_year - 100;
 	int ret;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
 		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "set time %ptR\n", tm);
+>>>>>>> upstream/android-13
 
 	/* we get around y2k by simply not supporting it */
 
@@ -292,10 +374,14 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
 
 	alrm->enabled = (alm_en & S3C2410_RTCALM_ALMEN) ? 1 : 0;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "read alarm %d, %04d.%02d.%02d %02d:%02d:%02d\n",
 		alm_en,
 		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
 		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
+=======
+	dev_dbg(dev, "read alarm %d, %ptR\n", alm_en, alm_tm);
+>>>>>>> upstream/android-13
 
 	/* decode the alarm enable field */
 	if (alm_en & S3C2410_RTCALM_SECEN)
@@ -328,10 +414,14 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
 	unsigned int alrm_en;
 	int ret;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "s3c_rtc_setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
 		alrm->enabled,
 		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "s3c_rtc_setalarm: %d, %ptR\n", alrm->enabled, tm);
+>>>>>>> upstream/android-13
 
 	ret = s3c_rtc_enable_clk(info);
 	if (ret)
@@ -369,6 +459,7 @@ static int s3c_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
 
 	writeb(alrm_en, info->base + S3C2410_RTCALM);
 
+<<<<<<< HEAD
 	s3c_rtc_disable_clk(info);
 
 	s3c_rtc_setaie(dev, alrm->enabled);
@@ -388,6 +479,10 @@ static int s3c_rtc_proc(struct device *dev, struct seq_file *seq)
 	if (info->data->enable_tick)
 		info->data->enable_tick(info, seq);
 
+=======
+	s3c_rtc_setaie(dev, alrm->enabled);
+
+>>>>>>> upstream/android-13
 	s3c_rtc_disable_clk(info);
 
 	return 0;
@@ -398,7 +493,10 @@ static const struct rtc_class_ops s3c_rtcops = {
 	.set_time	= s3c_rtc_settime,
 	.read_alarm	= s3c_rtc_getalarm,
 	.set_alarm	= s3c_rtc_setalarm,
+<<<<<<< HEAD
 	.proc		= s3c_rtc_proc,
+=======
+>>>>>>> upstream/android-13
 	.alarm_irq_enable = s3c_rtc_setaie,
 };
 
@@ -468,6 +566,7 @@ static int s3c_rtc_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id s3c_rtc_dt_match[];
 
 static const struct s3c_rtc_data *s3c_rtc_get_data(struct platform_device *pdev)
@@ -483,12 +582,18 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 	struct s3c_rtc *info = NULL;
 	struct rtc_time rtc_tm;
 	struct resource *res;
+=======
+static int s3c_rtc_probe(struct platform_device *pdev)
+{
+	struct s3c_rtc *info = NULL;
+>>>>>>> upstream/android-13
 	int ret;
 
 	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/* find the IRQs */
 	info->irq_tick = platform_get_irq(pdev, 1);
 	if (info->irq_tick < 0) {
@@ -498,16 +603,25 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 
 	info->dev = &pdev->dev;
 	info->data = s3c_rtc_get_data(pdev);
+=======
+	info->dev = &pdev->dev;
+	info->data = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (!info->data) {
 		dev_err(&pdev->dev, "failed getting s3c_rtc_data\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	spin_lock_init(&info->pie_lock);
 	spin_lock_init(&info->alarm_clk_lock);
+=======
+	spin_lock_init(&info->alarm_lock);
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, info);
 
 	info->irq_alarm = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (info->irq_alarm < 0) {
 		dev_err(&pdev->dev, "no irq for alarm\n");
 		return info->irq_alarm;
@@ -519,6 +633,15 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 	/* get the memory region */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	info->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	if (info->irq_alarm < 0)
+		return info->irq_alarm;
+
+	dev_dbg(&pdev->dev, "s3c2410_rtc: alarm irq %d\n", info->irq_alarm);
+
+	/* get the memory region */
+	info->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info->base))
 		return PTR_ERR(info->base);
 
@@ -538,6 +661,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 	if (info->data->needs_src_clk) {
 		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
 		if (IS_ERR(info->rtc_src_clk)) {
+<<<<<<< HEAD
 			ret = PTR_ERR(info->rtc_src_clk);
 			if (ret != -EPROBE_DEFER)
 				dev_err(&pdev->dev,
@@ -545,6 +669,10 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 			else
 				dev_dbg(&pdev->dev,
 					"probe deferred due to missing rtc src clk\n");
+=======
+			ret = dev_err_probe(&pdev->dev, PTR_ERR(info->rtc_src_clk),
+					    "failed to find rtc source clock\n");
+>>>>>>> upstream/android-13
 			goto err_src_clk;
 		}
 		ret = clk_prepare_enable(info->rtc_src_clk);
@@ -552,6 +680,13 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 			goto err_src_clk;
 	}
 
+<<<<<<< HEAD
+=======
+	/* disable RTC enable bits potentially set by the bootloader */
+	if (info->data->disable)
+		info->data->disable(info);
+
+>>>>>>> upstream/android-13
 	/* check to see if everything is setup correctly */
 	if (info->data->enable)
 		info->data->enable(info);
@@ -561,6 +696,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 
 	device_init_wakeup(&pdev->dev, 1);
 
+<<<<<<< HEAD
 	/* Check RTC Time */
 	if (s3c_rtc_gettime(&pdev->dev, &rtc_tm)) {
 		rtc_tm.tm_year	= 100;
@@ -575,6 +711,8 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 		dev_warn(&pdev->dev, "warning: invalid RTC value so initializing it\n");
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* register RTC and exit */
 	info->rtc = devm_rtc_device_register(&pdev->dev, "s3c", &s3c_rtcops,
 					     THIS_MODULE);
@@ -591,6 +729,7 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 		goto err_nortc;
 	}
 
+<<<<<<< HEAD
 	ret = devm_request_irq(&pdev->dev, info->irq_tick, s3c_rtc_tickirq,
 			       0, "s3c2410-rtc tick", info);
 	if (ret) {
@@ -602,6 +741,9 @@ static int s3c_rtc_probe(struct platform_device *pdev)
 		info->data->select_tick_clk(info);
 
 	s3c_rtc_setfreq(info, 1);
+=======
+	s3c_rtc_disable_clk(info);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -628,10 +770,13 @@ static int s3c_rtc_suspend(struct device *dev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	/* save TICNT for anyone using periodic interrupts */
 	if (info->data->save_tick_cnt)
 		info->data->save_tick_cnt(info);
 
+=======
+>>>>>>> upstream/android-13
 	if (info->data->disable)
 		info->data->disable(info);
 
@@ -652,9 +797,12 @@ static int s3c_rtc_resume(struct device *dev)
 	if (info->data->enable)
 		info->data->enable(info);
 
+<<<<<<< HEAD
 	if (info->data->restore_tick_cnt)
 		info->data->restore_tick_cnt(info);
 
+=======
+>>>>>>> upstream/android-13
 	s3c_rtc_disable_clk(info);
 
 	if (device_may_wakeup(dev) && info->wake_en) {
@@ -678,6 +826,7 @@ static void s3c6410_rtc_irq(struct s3c_rtc *info, int mask)
 	writeb(mask, info->base + S3C2410_INTP);
 }
 
+<<<<<<< HEAD
 static void s3c2410_rtc_setfreq(struct s3c_rtc *info, int freq)
 {
 	unsigned int tmp = 0;
@@ -798,11 +947,16 @@ static struct s3c_rtc_data const s3c2410_rtc_data = {
 	.enable_tick		= s3c24xx_rtc_enable_tick,
 	.save_tick_cnt		= s3c24xx_rtc_save_tick_cnt,
 	.restore_tick_cnt	= s3c24xx_rtc_restore_tick_cnt,
+=======
+static struct s3c_rtc_data const s3c2410_rtc_data = {
+	.irq_handler		= s3c24xx_rtc_irq,
+>>>>>>> upstream/android-13
 	.enable			= s3c24xx_rtc_enable,
 	.disable		= s3c24xx_rtc_disable,
 };
 
 static struct s3c_rtc_data const s3c2416_rtc_data = {
+<<<<<<< HEAD
 	.max_user_freq		= 32768,
 	.irq_handler		= s3c24xx_rtc_irq,
 	.set_freq		= s3c2416_rtc_setfreq,
@@ -810,11 +964,15 @@ static struct s3c_rtc_data const s3c2416_rtc_data = {
 	.select_tick_clk	= s3c2416_rtc_select_tick_clk,
 	.save_tick_cnt		= s3c24xx_rtc_save_tick_cnt,
 	.restore_tick_cnt	= s3c24xx_rtc_restore_tick_cnt,
+=======
+	.irq_handler		= s3c24xx_rtc_irq,
+>>>>>>> upstream/android-13
 	.enable			= s3c24xx_rtc_enable,
 	.disable		= s3c24xx_rtc_disable,
 };
 
 static struct s3c_rtc_data const s3c2443_rtc_data = {
+<<<<<<< HEAD
 	.max_user_freq		= 32768,
 	.irq_handler		= s3c24xx_rtc_irq,
 	.set_freq		= s3c2443_rtc_setfreq,
@@ -822,11 +980,15 @@ static struct s3c_rtc_data const s3c2443_rtc_data = {
 	.select_tick_clk	= s3c2416_rtc_select_tick_clk,
 	.save_tick_cnt		= s3c24xx_rtc_save_tick_cnt,
 	.restore_tick_cnt	= s3c24xx_rtc_restore_tick_cnt,
+=======
+	.irq_handler		= s3c24xx_rtc_irq,
+>>>>>>> upstream/android-13
 	.enable			= s3c24xx_rtc_enable,
 	.disable		= s3c24xx_rtc_disable,
 };
 
 static struct s3c_rtc_data const s3c6410_rtc_data = {
+<<<<<<< HEAD
 	.max_user_freq		= 32768,
 	.needs_src_clk		= true,
 	.irq_handler		= s3c6410_rtc_irq,
@@ -834,11 +996,19 @@ static struct s3c_rtc_data const s3c6410_rtc_data = {
 	.enable_tick		= s3c6410_rtc_enable_tick,
 	.save_tick_cnt		= s3c6410_rtc_save_tick_cnt,
 	.restore_tick_cnt	= s3c6410_rtc_restore_tick_cnt,
+=======
+	.needs_src_clk		= true,
+	.irq_handler		= s3c6410_rtc_irq,
+>>>>>>> upstream/android-13
 	.enable			= s3c24xx_rtc_enable,
 	.disable		= s3c6410_rtc_disable,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id s3c_rtc_dt_match[] = {
+=======
+static const __maybe_unused struct of_device_id s3c_rtc_dt_match[] = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "samsung,s3c2410-rtc",
 		.data = &s3c2410_rtc_data,

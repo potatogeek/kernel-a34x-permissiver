@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Lowland audio support
  *
@@ -8,6 +9,13 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Lowland audio support
+//
+// Copyright 2011 Wolfson Microelectronics
+>>>>>>> upstream/android-13
 
 #include <sound/soc.h>
 #include <sound/soc-dapm.h>
@@ -37,7 +45,11 @@ static struct snd_soc_jack_pin lowland_headset_pins[] = {
 
 static int lowland_wm5100_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_component *component = rtd->codec_dai->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(rtd, 0)->component;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = snd_soc_component_set_sysclk(component, WM5100_CLK_SYSCLK,
@@ -70,7 +82,11 @@ static int lowland_wm5100_init(struct snd_soc_pcm_runtime *rtd)
 
 static int lowland_wm9081_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_component *component = rtd->codec_dai->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(rtd, 0)->component;
+>>>>>>> upstream/android-13
 
 	snd_soc_dapm_nc_pin(&rtd->card->dapm, "LINEOUT");
 
@@ -87,10 +103,27 @@ static const struct snd_soc_pcm_stream sub_params = {
 	.channels_max = 2,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(cpu,
+	DAILINK_COMP_ARRAY(COMP_CPU("samsung-i2s.0")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm5100.1-001a", "wm5100-aif1")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("samsung-i2s.0")));
+
+SND_SOC_DAILINK_DEFS(baseband,
+	DAILINK_COMP_ARRAY(COMP_CPU("wm5100-aif2")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm1250-ev1.1-0027", "wm1250-ev1")));
+
+SND_SOC_DAILINK_DEFS(speaker,
+	DAILINK_COMP_ARRAY(COMP_CPU("wm5100-aif3")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9081.1-006c", "wm9081-hifi")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link lowland_dai[] = {
 	{
 		.name = "CPU",
 		.stream_name = "CPU",
+<<<<<<< HEAD
 		.cpu_dai_name = "samsung-i2s.0",
 		.codec_dai_name = "wm5100-aif1",
 		.platform_name = "samsung-i2s.0",
@@ -98,34 +131,58 @@ static struct snd_soc_dai_link lowland_dai[] = {
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 				SND_SOC_DAIFMT_CBM_CFM,
 		.init = lowland_wm5100_init,
+=======
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+				SND_SOC_DAIFMT_CBM_CFM,
+		.init = lowland_wm5100_init,
+		SND_SOC_DAILINK_REG(cpu),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "Baseband",
 		.stream_name = "Baseband",
+<<<<<<< HEAD
 		.cpu_dai_name = "wm5100-aif2",
 		.codec_dai_name = "wm1250-ev1",
 		.codec_name = "wm1250-ev1.1-0027",
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 				SND_SOC_DAIFMT_CBM_CFM,
 		.ignore_suspend = 1,
+=======
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+				SND_SOC_DAIFMT_CBM_CFM,
+		.ignore_suspend = 1,
+		SND_SOC_DAILINK_REG(baseband),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "Sub Speaker",
 		.stream_name = "Sub Speaker",
+<<<<<<< HEAD
 		.cpu_dai_name = "wm5100-aif3",
 		.codec_dai_name = "wm9081-hifi",
 		.codec_name = "wm9081.1-006c",
+=======
+>>>>>>> upstream/android-13
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 				SND_SOC_DAIFMT_CBM_CFM,
 		.ignore_suspend = 1,
 		.params = &sub_params,
 		.init = lowland_wm9081_init,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(speaker),
+>>>>>>> upstream/android-13
 	},
 };
 
 static struct snd_soc_codec_conf lowland_codec_conf[] = {
 	{
+<<<<<<< HEAD
 		.dev_name = "wm9081.1-006c",
+=======
+		.dlc = COMP_CODEC_CONF("wm9081.1-006c"),
+>>>>>>> upstream/android-13
 		.name_prefix = "Sub",
 	},
 };
@@ -182,7 +239,11 @@ static int lowland_probe(struct platform_device *pdev)
 	card->dev = &pdev->dev;
 
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+<<<<<<< HEAD
 	if (ret)
+=======
+	if (ret && ret != -EPROBE_DEFER)
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "snd_soc_register_card() failed: %d\n",
 			ret);
 

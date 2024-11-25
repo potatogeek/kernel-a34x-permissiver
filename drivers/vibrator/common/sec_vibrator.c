@@ -4,11 +4,17 @@
  */
 
 #define pr_fmt(fmt) "[VIB] " fmt
+<<<<<<< HEAD
 #include <linux/device.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/hrtimer.h>
 #include <linux/of_device.h>
+=======
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/hrtimer.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/err.h>
 #include <linux/delay.h>
@@ -21,7 +27,11 @@
 #if defined(CONFIG_BATTERY_GKI)
 #include <linux/battery/sec_battery_common.h>
 #else
+<<<<<<< HEAD
 #include <linux/battery/common/sb_psy.h>
+=======
+#include "../../battery/common/sec_charging_common.h"
+>>>>>>> upstream/android-13
 #endif
 #endif
 #if defined(CONFIG_SEC_KUNIT)
@@ -30,12 +40,15 @@
 #define __visible_for_testing static
 #endif
 
+<<<<<<< HEAD
 enum {
 	VIB_NO_COMPEMSATION = 0,
 	VIB_COMPENSATION_WAY1,
 	VIB_COMPENSATION_WAY2,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const int  kMaxBufSize = 7;
 static const int kMaxHapticStepSize = 7;
 static const char *str_newline = "\n";
@@ -54,6 +67,7 @@ static const char sec_vib_event_cmd[EVENT_CMD_MAX][MAX_STR_LEN_EVENT_CMD] = {
 	[EVENT_CMD_TENT_OPEN]					= "FOLDER_TENT_OPEN",
 };
 
+<<<<<<< HEAD
 static struct sec_vibrator_pdata sec_vibrator_pdata = {
 	.probe_done = false,
 	.normal_ratio = 100,
@@ -61,6 +75,8 @@ static struct sec_vibrator_pdata sec_vibrator_pdata = {
 	.high_temp_ref = SEC_VIBRATOR_DEFAULT_HIGH_TEMP_REF,
 };
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_SEC_VIB_NOTIFIER)
 static struct vib_notifier_context vib_notifier;
 static struct blocking_notifier_head sec_vib_nb_head = BLOCKING_NOTIFIER_INIT(sec_vib_nb_head);
@@ -154,7 +170,10 @@ static int sec_vibrator_check_temp(struct sec_vibrator_drvdata *ddata)
 	return ret;
 }
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 __visible_for_testing int sec_vibrator_set_enable(struct sec_vibrator_drvdata *ddata, bool en)
 {
 	int ret = 0;
@@ -258,7 +277,10 @@ static void sec_vibrator_haptic_enable(struct sec_vibrator_drvdata *ddata)
 #if IS_ENABLED(CONFIG_BATTERY_SAMSUNG)
 	sec_vibrator_check_temp(ddata);
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	sec_vibrator_set_frequency(ddata, ddata->frequency);
 	sec_vibrator_set_intensity(ddata, ddata->intensity);
 	sec_vibrator_set_enable(ddata, true);
@@ -302,8 +324,11 @@ static void sec_vibrator_engine_run_packet(struct sec_vibrator_drvdata *ddata, s
 	int frequency = packet.freq;
 	int intensity = packet.intensity;
 	int overdrive = packet.overdrive;
+<<<<<<< HEAD
 	int fifo =  packet.fifo_flag;
 	int file_num = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (!ddata) {
 		pr_err("%s : ddata is NULL\n", __func__);
@@ -315,6 +340,7 @@ static void sec_vibrator_engine_run_packet(struct sec_vibrator_drvdata *ddata, s
 		return;
 	}
 
+<<<<<<< HEAD
 	if (fifo == 0)
 		pr_info("%s [%d] freq:%d, intensity:%d, time:%d overdrive: %d\n",
 		__func__, ddata->packet_cnt, frequency, intensity,
@@ -347,6 +373,17 @@ static void sec_vibrator_engine_run_packet(struct sec_vibrator_drvdata *ddata, s
 			sec_vibrator_set_enable(ddata, false);
 			ddata->vib_ops->enable_fifo(ddata->dev, file_num);
 		}
+=======
+	sec_vibrator_set_overdrive(ddata, overdrive);
+	sec_vibrator_set_frequency(ddata, frequency);
+	if (intensity) {
+		sec_vibrator_set_intensity(ddata, intensity);
+		if (!ddata->packet_running) {
+			pr_info("[haptic engine] motor run\n");
+			sec_vibrator_set_enable(ddata, true);
+		}
+		ddata->packet_running = true;
+>>>>>>> upstream/android-13
 	} else {
 		if (ddata->packet_running) {
 			pr_info("[haptic engine] motor stop\n");
@@ -356,7 +393,12 @@ static void sec_vibrator_engine_run_packet(struct sec_vibrator_drvdata *ddata, s
 		sec_vibrator_set_intensity(ddata, intensity);
 	}
 
+<<<<<<< HEAD
 	pr_info("%s end\n", __func__);
+=======
+	pr_info("%s [%d] freq:%d, intensity:%d, time:%d overdrive: %d\n",
+		__func__, ddata->packet_cnt, frequency, intensity, ddata->timeout, overdrive);
+>>>>>>> upstream/android-13
 }
 
 static void timed_output_enable(struct sec_vibrator_drvdata *ddata, unsigned int value)
@@ -420,7 +462,10 @@ static void sec_vibrator_work(struct kthread_work *work)
 {
 	struct sec_vibrator_drvdata *ddata;
 	struct hrtimer *timer;
+<<<<<<< HEAD
 	int fifo = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (!work) {
 		pr_err("%s : work is NULL\n", __func__);
@@ -441,13 +486,17 @@ static void sec_vibrator_work(struct kthread_work *work)
 		return;
 	}
 
+<<<<<<< HEAD
 	pr_info("%s\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&ddata->vib_mutex);
 
 	if (ddata->f_packet_en) {
 		ddata->packet_cnt++;
 		if (ddata->packet_cnt < ddata->packet_size) {
 			ddata->timeout = ddata->vib_pac[ddata->packet_cnt].time;
+<<<<<<< HEAD
 			fifo = ddata->vib_pac[ddata->packet_cnt].fifo_flag;
 			if (fifo == 0) {
 				sec_vibrator_engine_run_packet(ddata, ddata->vib_pac[ddata->packet_cnt]);
@@ -458,6 +507,10 @@ static void sec_vibrator_work(struct kthread_work *work)
 				HRTIMER_MODE_REL);
 				sec_vibrator_engine_run_packet(ddata, ddata->vib_pac[ddata->packet_cnt]);
 			}
+=======
+			sec_vibrator_engine_run_packet(ddata, ddata->vib_pac[ddata->packet_cnt]);
+			hrtimer_start(timer, ns_to_ktime((u64)ddata->timeout * NSEC_PER_MSEC), HRTIMER_MODE_REL);
+>>>>>>> upstream/android-13
 			goto unlock_without_vib_off;
 		} else {
 			ddata->f_packet_en = false;
@@ -494,6 +547,7 @@ __visible_for_testing inline bool is_valid_params(struct device *dev, struct dev
 	return true;
 }
 
+<<<<<<< HEAD
 __visible_for_testing ssize_t default_duty_store(struct device *dev, struct device_attribute *attr,
 	const char *buf, size_t count)
 {
@@ -650,6 +704,8 @@ __visible_for_testing ssize_t fold_close_duty_show(struct device *dev, struct de
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 __visible_for_testing ssize_t intensity_store(struct device *dev, struct device_attribute *attr,
 	const char *buf, size_t count)
 {
@@ -686,6 +742,7 @@ __visible_for_testing ssize_t intensity_show(struct device *dev, struct device_a
 	return snprintf(buf, VIB_BUFSIZE, "intensity: %u\n", ddata->intensity);
 }
 
+<<<<<<< HEAD
 static ssize_t fifo_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct sec_vibrator_drvdata *ddata = (struct sec_vibrator_drvdata *) dev_get_drvdata(dev);
@@ -727,6 +784,8 @@ static ssize_t fifo_show(struct device *dev,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 __visible_for_testing ssize_t multi_freq_store(struct device *dev, struct device_attribute *attr,
 	const char *buf, size_t count)
 {
@@ -835,6 +894,7 @@ __visible_for_testing ssize_t haptic_engine_show(struct device *dev, struct devi
 	return size;
 }
 
+<<<<<<< HEAD
 static ssize_t hybrid_haptic_engine_store(struct device *dev,
 	struct device_attribute *devattr, const char *buf, size_t count)
 {
@@ -965,6 +1025,8 @@ static ssize_t hybrid_haptic_engine_show(struct device *dev,
 	return size;
 }
 
+=======
+>>>>>>> upstream/android-13
 __visible_for_testing ssize_t cp_trigger_index_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct sec_vibrator_drvdata *ddata = g_ddata;
@@ -1201,6 +1263,7 @@ err:
 	return ret ? ret : size;
 }
 
+<<<<<<< HEAD
 int sec_vibrator_recheck_ratio(struct sec_vibrator_drvdata *ddata)
 {
 	int temp = ddata->temperature;
@@ -1245,6 +1308,8 @@ err:
 	return ret ? ret : count;
 }
 
+=======
+>>>>>>> upstream/android-13
 __visible_for_testing ssize_t num_waves_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct sec_vibrator_drvdata *ddata = g_ddata;
@@ -1449,7 +1514,11 @@ __visible_for_testing ssize_t event_cmd_store(struct device *dev,
 	if (!ddata->vib_ops->set_event_cmd)
 		return -ENOSYS;
 
+<<<<<<< HEAD
 	if (count >= MAX_STR_LEN_EVENT_CMD) {
+=======
+	if (count > MAX_STR_LEN_EVENT_CMD) {
+>>>>>>> upstream/android-13
 		pr_err("%s: size(%zu) is too long.\n", __func__, count);
 		goto error;
 	}
@@ -1487,6 +1556,7 @@ static DEVICE_ATTR_RW(pwle);
 static DEVICE_ATTR_RO(virtual_composite_indexes);
 static DEVICE_ATTR_RO(virtual_pwle_indexes);
 static DEVICE_ATTR_RW(enable);
+<<<<<<< HEAD
 static DEVICE_ATTR_RW(default_duty);
 static DEVICE_ATTR_RW(fold_open_duty);
 static DEVICE_ATTR_RW(fold_close_duty);
@@ -1495,6 +1565,10 @@ static DEVICE_ATTR_WO(use_sep_index);
 static DEVICE_ATTR_RW(current_temp);
 static DEVICE_ATTR_RW(fifo);
 static DEVICE_ATTR_RW(hybrid_haptic_engine);
+=======
+static DEVICE_ATTR_RO(motor_type);
+static DEVICE_ATTR_WO(use_sep_index);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR_RO(num_waves);
 static DEVICE_ATTR_RO(intensities);
 static DEVICE_ATTR_RO(haptic_intensities);
@@ -1503,6 +1577,7 @@ static DEVICE_ATTR_RW(event_cmd);
 
 static struct attribute *sec_vibrator_attributes[] = {
 	&dev_attr_enable.attr,
+<<<<<<< HEAD
 	&dev_attr_default_duty.attr,
 	&dev_attr_fold_open_duty.attr,
 	&dev_attr_fold_close_duty.attr,
@@ -1511,6 +1586,10 @@ static struct attribute *sec_vibrator_attributes[] = {
 	&dev_attr_current_temp.attr,
 	&dev_attr_fifo.attr,
 	&dev_attr_hybrid_haptic_engine.attr,
+=======
+	&dev_attr_motor_type.attr,
+	&dev_attr_use_sep_index.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1680,8 +1759,11 @@ int sec_vibrator_register(struct sec_vibrator_drvdata *ddata)
 		}
 	}
 
+<<<<<<< HEAD
 	ddata->pdata = &sec_vibrator_pdata;
 
+=======
+>>>>>>> upstream/android-13
 	pr_info("%s done\n", __func__);
 
 	ddata->is_registered = true;
@@ -1762,6 +1844,7 @@ int sec_vibrator_unregister(struct sec_vibrator_drvdata *ddata)
 }
 EXPORT_SYMBOL_GPL(sec_vibrator_unregister);
 
+<<<<<<< HEAD
 static int sec_vibrator_parse_dt(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
@@ -1831,5 +1914,7 @@ static struct platform_driver sec_vibrator_driver = {
 
 module_platform_driver(sec_vibrator_driver);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("sec vibrator driver");

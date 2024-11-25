@@ -17,11 +17,18 @@
 #include <linux/platform_device.h>
 #include <linux/serial_8250.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/jazz.h>
 #include <asm/jazzdma.h>
 #include <asm/reboot.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbmisc.h>
 
 extern asmlinkage void jazz_handle_int(void);

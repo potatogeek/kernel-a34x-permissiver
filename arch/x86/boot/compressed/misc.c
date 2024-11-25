@@ -30,12 +30,18 @@
 #define STATIC		static
 
 /*
+<<<<<<< HEAD
  * Use normal definitions of mem*() from string.c. There are already
  * included header files which expect a definition of memset() and by
  * the time we define memset macro, it is too late.
  */
 #undef memcpy
 #undef memset
+=======
+ * Provide definitions of memzero and memmove as some of the decompressors will
+ * try to define their own functions if these are not defined as macros.
+ */
+>>>>>>> upstream/android-13
 #define memzero(s, n)	memset((s), 0, (n))
 #define memmove		memmove
 
@@ -77,6 +83,13 @@ static int lines, cols;
 #ifdef CONFIG_KERNEL_LZ4
 #include "../../../../lib/decompress_unlz4.c"
 #endif
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_KERNEL_ZSTD
+#include "../../../../lib/decompress_unzstd.c"
+#endif
+>>>>>>> upstream/android-13
 /*
  * NOTE: When adding a new decompressor, please update the analysis in
  * ../header.S.
@@ -171,7 +184,11 @@ void __puthex(unsigned long value)
 	}
 }
 
+<<<<<<< HEAD
 #if CONFIG_X86_NEED_RELOCS
+=======
+#ifdef CONFIG_X86_NEED_RELOCS
+>>>>>>> upstream/android-13
 static void handle_relocations(void *output, unsigned long output_len,
 			       unsigned long virt_addr)
 {
@@ -345,6 +362,10 @@ asmlinkage __visible void *extract_kernel(void *rmode, memptr heap,
 {
 	const unsigned long kernel_total_size = VO__end - VO__text;
 	unsigned long virt_addr = LOAD_PHYSICAL_ADDR;
+<<<<<<< HEAD
+=======
+	unsigned long needed_size;
+>>>>>>> upstream/android-13
 
 	/* Retain x86 boot parameters pointer passed from startup_32/64. */
 	boot_params = rmode;
@@ -366,23 +387,58 @@ asmlinkage __visible void *extract_kernel(void *rmode, memptr heap,
 	cols = boot_params->screen_info.orig_video_cols;
 
 	console_init();
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Save RSDP address for later use. Have this after console_init()
+	 * so that early debugging output from the RSDP parsing code can be
+	 * collected.
+	 */
+	boot_params->acpi_rsdp_addr = get_rsdp_addr();
+
+>>>>>>> upstream/android-13
 	debug_putstr("early console in extract_kernel\n");
 
 	free_mem_ptr     = heap;	/* Heap */
 	free_mem_end_ptr = heap + BOOT_HEAP_SIZE;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The memory hole needed for the kernel is the larger of either
+	 * the entire decompressed kernel plus relocation table, or the
+	 * entire decompressed kernel plus .bss and .brk sections.
+	 *
+	 * On X86_64, the memory is mapped with PMD pages. Round the
+	 * size up so that the full extent of PMD pages mapped is
+	 * included in the check against the valid memory table
+	 * entries. This ensures the full mapped area is usable RAM
+	 * and doesn't include any reserved areas.
+	 */
+	needed_size = max(output_len, kernel_total_size);
+#ifdef CONFIG_X86_64
+	needed_size = ALIGN(needed_size, MIN_KERNEL_ALIGN);
+#endif
+
+>>>>>>> upstream/android-13
 	/* Report initial kernel position details. */
 	debug_putaddr(input_data);
 	debug_putaddr(input_len);
 	debug_putaddr(output);
 	debug_putaddr(output_len);
 	debug_putaddr(kernel_total_size);
+<<<<<<< HEAD
+=======
+	debug_putaddr(needed_size);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_64
 	/* Report address of 32-bit trampoline */
 	debug_putaddr(trampoline_32bit);
 #endif
 
+<<<<<<< HEAD
 	/*
 	 * The memory hole needed for the kernel is the larger of either
 	 * the entire decompressed kernel plus relocation table, or the
@@ -391,6 +447,11 @@ asmlinkage __visible void *extract_kernel(void *rmode, memptr heap,
 	choose_random_location((unsigned long)input_data, input_len,
 				(unsigned long *)&output,
 				max(output_len, kernel_total_size),
+=======
+	choose_random_location((unsigned long)input_data, input_len,
+				(unsigned long *)&output,
+				needed_size,
+>>>>>>> upstream/android-13
 				&virt_addr);
 
 	/* Validate memory location choices. */
@@ -408,8 +469,11 @@ asmlinkage __visible void *extract_kernel(void *rmode, memptr heap,
 		error("Destination address too large");
 #endif
 #ifndef CONFIG_RELOCATABLE
+<<<<<<< HEAD
 	if ((unsigned long)output != LOAD_PHYSICAL_ADDR)
 		error("Destination address does not match LOAD_PHYSICAL_ADDR");
+=======
+>>>>>>> upstream/android-13
 	if (virt_addr != LOAD_PHYSICAL_ADDR)
 		error("Destination virtual address changed when not relocatable");
 #endif
@@ -420,6 +484,13 @@ asmlinkage __visible void *extract_kernel(void *rmode, memptr heap,
 	parse_elf(output);
 	handle_relocations(output, output_len, virt_addr);
 	debug_putstr("done.\nBooting the kernel.\n");
+<<<<<<< HEAD
+=======
+
+	/* Disable exception handling before booting the kernel */
+	cleanup_exception_handling();
+
+>>>>>>> upstream/android-13
 	return output;
 }
 

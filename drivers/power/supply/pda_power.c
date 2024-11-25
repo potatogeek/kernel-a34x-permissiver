@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Common power driver for PDAs and phones with one or two external
  * power supplies (AC/USB) connected to main and backup batteries,
  * and optional builtin charger.
  *
  * Copyright © 2007 Anton Vorontsov <cbou@mail.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -432,6 +439,13 @@ wrongid:
 
 static int pda_power_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_PHY)
+	if (!IS_ERR_OR_NULL(transceiver) && pdata->use_otg_notifier)
+		usb_unregister_notifier(transceiver, &otg_nb);
+#endif
+>>>>>>> upstream/android-13
 	if (pdata->is_usb_online && usb_irq)
 		free_irq(usb_irq->start, pda_psy_usb);
 	if (pdata->is_ac_online && ac_irq)

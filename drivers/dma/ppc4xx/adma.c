@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2009 DENX Software Engineering.
  *
@@ -5,6 +9,7 @@
  *
  * Further porting to arch/powerpc by
  * 	Anatolij Gustschin <agust@denx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,6 +23,8 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -81,7 +88,11 @@ struct ppc_dma_chan_ref {
 };
 
 /* The list of channels exported by ppc440spe ADMA */
+<<<<<<< HEAD
 struct list_head
+=======
+static struct list_head
+>>>>>>> upstream/android-13
 ppc440spe_adma_chan_list = LIST_HEAD_INIT(ppc440spe_adma_chan_list);
 
 /* This flag is set when want to refetch the xor chain in the interrupt
@@ -571,7 +582,10 @@ static void ppc440spe_desc_set_src_mult(struct ppc440spe_adma_desc_slot *desc,
 			int sg_index, unsigned char mult_value)
 {
 	struct dma_cdb *dma_hw_desc;
+<<<<<<< HEAD
 	struct xor_cb *xor_hw_desc;
+=======
+>>>>>>> upstream/android-13
 	u32 *psgu;
 
 	switch (chan->device->id) {
@@ -602,7 +616,10 @@ static void ppc440spe_desc_set_src_mult(struct ppc440spe_adma_desc_slot *desc,
 		*psgu |= cpu_to_le32(mult_value << mult_index);
 		break;
 	case PPC440SPE_XOR_ID:
+<<<<<<< HEAD
 		xor_hw_desc = desc->hw_desc;
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		BUG();
@@ -1672,9 +1689,15 @@ static void __ppc440spe_adma_slot_cleanup(struct ppc440spe_adma_chan *chan)
 /**
  * ppc440spe_adma_tasklet - clean up watch-dog initiator
  */
+<<<<<<< HEAD
 static void ppc440spe_adma_tasklet(unsigned long data)
 {
 	struct ppc440spe_adma_chan *chan = (struct ppc440spe_adma_chan *) data;
+=======
+static void ppc440spe_adma_tasklet(struct tasklet_struct *t)
+{
+	struct ppc440spe_adma_chan *chan = from_tasklet(chan, t, irq_tasklet);
+>>>>>>> upstream/android-13
 
 	spin_lock_nested(&chan->lock, SINGLE_DEPTH_NESTING);
 	__ppc440spe_adma_slot_cleanup(chan);
@@ -4153,8 +4176,12 @@ static int ppc440spe_adma_probe(struct platform_device *ofdev)
 	chan->common.device = &adev->common;
 	dma_cookie_init(&chan->common);
 	list_add_tail(&chan->common.device_node, &adev->common.channels);
+<<<<<<< HEAD
 	tasklet_init(&chan->irq_tasklet, ppc440spe_adma_tasklet,
 		     (unsigned long)chan);
+=======
+	tasklet_setup(&chan->irq_tasklet, ppc440spe_adma_tasklet);
+>>>>>>> upstream/android-13
 
 	/* allocate and map helper pages for async validation or
 	 * async_mult/async_sum_product operations on DMA0/1.
@@ -4315,7 +4342,11 @@ static ssize_t devices_show(struct device_driver *dev, char *buf)
 	for (i = 0; i < PPC440SPE_ADMA_ENGINES_NUM; i++) {
 		if (ppc440spe_adma_devices[i] == -1)
 			continue;
+<<<<<<< HEAD
 		size += snprintf(buf + size, PAGE_SIZE - size,
+=======
+		size += scnprintf(buf + size, PAGE_SIZE - size,
+>>>>>>> upstream/android-13
 				 "PPC440SP(E)-ADMA.%d: %s\n", i,
 				 ppc_adma_errors[ppc440spe_adma_devices[i]]);
 	}
@@ -4334,6 +4365,10 @@ static ssize_t enable_store(struct device_driver *dev, const char *buf,
 			    size_t count)
 {
 	unsigned long val;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!count || count > 11)
 		return -EINVAL;
@@ -4342,7 +4377,14 @@ static ssize_t enable_store(struct device_driver *dev, const char *buf,
 		return -EFAULT;
 
 	/* Write a key */
+<<<<<<< HEAD
 	sscanf(buf, "%lx", &val);
+=======
+	err = kstrtoul(buf, 16, &val);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	dcr_write(ppc440spe_mq_dcr_host, DCRN_MQ0_XORBA, val);
 	isync();
 
@@ -4383,7 +4425,11 @@ static ssize_t poly_store(struct device_driver *dev, const char *buf,
 			  size_t count)
 {
 	unsigned long reg, val;
+<<<<<<< HEAD
 
+=======
+	int err;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_440SP
 	/* 440SP uses default 0x14D polynomial only */
 	return -EINVAL;
@@ -4393,7 +4439,13 @@ static ssize_t poly_store(struct device_driver *dev, const char *buf,
 		return -EINVAL;
 
 	/* e.g., 0x14D or 0x11D */
+<<<<<<< HEAD
 	sscanf(buf, "%lx", &val);
+=======
+	err = kstrtoul(buf, 16, &val);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	if (val & ~0x1FF)
 		return -EINVAL;

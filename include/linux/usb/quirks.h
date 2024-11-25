@@ -32,7 +32,11 @@
 #define USB_QUIRK_DELAY_INIT			BIT(6)
 
 /*
+<<<<<<< HEAD
  * For high speed and super speed interupt endpoints, the USB 2.0 and
+=======
+ * For high speed and super speed interrupt endpoints, the USB 2.0 and
+>>>>>>> upstream/android-13
  * USB 3.0 spec require the interval in microframes
  * (1 microframe = 125 microseconds) to be calculated as
  * interval = 2 ^ (bInterval-1).
@@ -69,10 +73,18 @@
 /* Hub needs extra delay after resetting its port. */
 #define USB_QUIRK_HUB_SLOW_RESET		BIT(14)
 
+<<<<<<< HEAD
 /* device has blacklisted endpoints */
 #define USB_QUIRK_ENDPOINT_BLACKLIST		BIT(15)
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 /* Hub can't support usb suspend */
 #define USB_QUIRK_HUB_NO_SUSPEND		BIT(20)
 #endif
+=======
+/* device has endpoints that should be ignored */
+#define USB_QUIRK_ENDPOINT_IGNORE		BIT(15)
+
+/* Hub can't support usb suspend */
+#define USB_QUIRK_HUB_NO_SUSPEND		BIT(20)
+>>>>>>> upstream/android-13
 #endif /* __LINUX_USB_QUIRKS_H */

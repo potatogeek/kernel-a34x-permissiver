@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config INOTIFY_USER
 	bool "Inotify support for userspace"
 	select FSNOTIFY
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to enable inotify support for userspace, including the
 	  associated system calls.  Inotify allows monitoring of both files and
 	  directories via a single open fd.  Events are read from the file
@@ -11,6 +19,10 @@ config INOTIFY_USER
 	  new features including multiple file events, one-shot support, and
 	  unmount notification.
 
+<<<<<<< HEAD
 	  For more information, see <file:Documentation/filesystems/inotify.txt>
+=======
+	  For more information, see <file:Documentation/filesystems/inotify.rst>
+>>>>>>> upstream/android-13
 
 	  If unsure, say Y.

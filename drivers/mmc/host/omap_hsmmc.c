@@ -30,7 +30,10 @@
 #include <linux/clk.h>
 #include <linux/of.h>
 #include <linux/of_irq.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of_device.h>
 #include <linux/mmc/host.h>
 #include <linux/mmc/core.h>
@@ -38,7 +41,10 @@
 #include <linux/mmc/slot-gpio.h>
 #include <linux/io.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/pinctrl/consumer.h>
 #include <linux/pm_runtime.h>
@@ -179,7 +185,11 @@ struct omap_hsmmc_host {
 	struct	regulator	*pbias;
 	bool			pbias_enabled;
 	void	__iomem		*base;
+<<<<<<< HEAD
 	int			vqmmc_enabled;
+=======
+	bool			vqmmc_enabled;
+>>>>>>> upstream/android-13
 	resource_size_t		mapbase;
 	spinlock_t		irq_lock; /* Prevent races with irq handler */
 	unsigned int		dma_len;
@@ -198,7 +208,10 @@ struct omap_hsmmc_host {
 	struct dma_chan		*rx_chan;
 	int			response_busy;
 	int			context_loss;
+<<<<<<< HEAD
 	int			protect_card;
+=======
+>>>>>>> upstream/android-13
 	int			reqs_blocked;
 	int			req_in_progress;
 	unsigned long		clk_rate;
@@ -207,6 +220,7 @@ struct omap_hsmmc_host {
 #define HSMMC_SDIO_IRQ_ENABLED	(1 << 1)        /* SDIO irq enabled */
 	struct omap_hsmmc_next	next_data;
 	struct	omap_hsmmc_platform_data	*pdata;
+<<<<<<< HEAD
 
 	/* return MMC cover switch state, can be NULL if not supported.
 	 *
@@ -217,6 +231,8 @@ struct omap_hsmmc_host {
 	int (*get_cover_state)(struct device *dev);
 
 	int (*card_detect)(struct device *dev);
+=======
+>>>>>>> upstream/android-13
 };
 
 struct omap_mmc_of_data {
@@ -226,6 +242,7 @@ struct omap_mmc_of_data {
 
 static void omap_hsmmc_start_dma_transfer(struct omap_hsmmc_host *host);
 
+<<<<<<< HEAD
 static int omap_hsmmc_card_detect(struct device *dev)
 {
 	struct omap_hsmmc_host *host = dev_get_drvdata(dev);
@@ -240,6 +257,8 @@ static int omap_hsmmc_get_cover_state(struct device *dev)
 	return mmc_gpio_get_cd(host->mmc);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int omap_hsmmc_enable_supply(struct mmc_host *mmc)
 {
 	int ret;
@@ -259,7 +278,11 @@ static int omap_hsmmc_enable_supply(struct mmc_host *mmc)
 			dev_err(mmc_dev(mmc), "vmmc_aux reg enable failed\n");
 			goto err_vqmmc;
 		}
+<<<<<<< HEAD
 		host->vqmmc_enabled = 1;
+=======
+		host->vqmmc_enabled = true;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -283,7 +306,11 @@ static int omap_hsmmc_disable_supply(struct mmc_host *mmc)
 			dev_err(mmc_dev(mmc), "vmmc_aux reg disable failed\n");
 			return ret;
 		}
+<<<<<<< HEAD
 		host->vqmmc_enabled = 0;
+=======
+		host->vqmmc_enabled = false;
+>>>>>>> upstream/android-13
 	}
 
 	if (!IS_ERR(mmc->supply.vmmc)) {
@@ -312,22 +339,37 @@ static int omap_hsmmc_set_pbias(struct omap_hsmmc_host *host, bool power_on)
 		return 0;
 
 	if (power_on) {
+<<<<<<< HEAD
 		if (host->pbias_enabled == 0) {
+=======
+		if (!host->pbias_enabled) {
+>>>>>>> upstream/android-13
 			ret = regulator_enable(host->pbias);
 			if (ret) {
 				dev_err(host->dev, "pbias reg enable fail\n");
 				return ret;
 			}
+<<<<<<< HEAD
 			host->pbias_enabled = 1;
 		}
 	} else {
 		if (host->pbias_enabled == 1) {
+=======
+			host->pbias_enabled = true;
+		}
+	} else {
+		if (host->pbias_enabled) {
+>>>>>>> upstream/android-13
 			ret = regulator_disable(host->pbias);
 			if (ret) {
 				dev_err(host->dev, "pbias reg disable fail\n");
 				return ret;
 			}
+<<<<<<< HEAD
 			host->pbias_enabled = 0;
+=======
+			host->pbias_enabled = false;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -484,6 +526,7 @@ static int omap_hsmmc_reg_get(struct omap_hsmmc_host *host)
 	return 0;
 }
 
+<<<<<<< HEAD
 static irqreturn_t omap_hsmmc_cover_irq(int irq, void *dev_id);
 
 static int omap_hsmmc_gpio_init(struct mmc_host *mmc,
@@ -516,6 +559,8 @@ static int omap_hsmmc_gpio_init(struct mmc_host *mmc,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Start clock to the card
  */
@@ -781,9 +826,12 @@ static void send_init_stream(struct omap_hsmmc_host *host)
 	int reg = 0;
 	unsigned long timeout;
 
+<<<<<<< HEAD
 	if (host->protect_card)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	disable_irq(host->irq);
 
 	OMAP_HSMMC_WRITE(host->base, IE, INT_EN_MASK);
@@ -804,6 +852,7 @@ static void send_init_stream(struct omap_hsmmc_host *host)
 	enable_irq(host->irq);
 }
 
+<<<<<<< HEAD
 static inline
 int omap_hsmmc_cover_is_closed(struct omap_hsmmc_host *host)
 {
@@ -827,6 +876,8 @@ omap_hsmmc_show_cover_switch(struct device *dev, struct device_attribute *attr,
 
 static DEVICE_ATTR(cover_switch, S_IRUGO, omap_hsmmc_show_cover_switch, NULL);
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t
 omap_hsmmc_show_slot_name(struct device *dev, struct device_attribute *attr,
 			char *buf)
@@ -1199,8 +1250,12 @@ static int omap_hsmmc_switch_opcond(struct omap_hsmmc_host *host, int vdd)
 	int ret;
 
 	/* Disable the clocks */
+<<<<<<< HEAD
 	if (host->dbclk)
 		clk_disable_unprepare(host->dbclk);
+=======
+	clk_disable_unprepare(host->dbclk);
+>>>>>>> upstream/android-13
 
 	/* Turn the power off */
 	ret = omap_hsmmc_set_power(host, 0);
@@ -1208,8 +1263,12 @@ static int omap_hsmmc_switch_opcond(struct omap_hsmmc_host *host, int vdd)
 	/* Turn the power ON with given VDD 1.8 or 3.0v */
 	if (!ret)
 		ret = omap_hsmmc_set_power(host, 1);
+<<<<<<< HEAD
 	if (host->dbclk)
 		clk_prepare_enable(host->dbclk);
+=======
+	clk_prepare_enable(host->dbclk);
+>>>>>>> upstream/android-13
 
 	if (ret != 0)
 		goto err;
@@ -1247,6 +1306,7 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 /* Protect the card while the cover is open */
 static void omap_hsmmc_protect_card(struct omap_hsmmc_host *host)
 {
@@ -1285,6 +1345,8 @@ static irqreturn_t omap_hsmmc_cover_irq(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void omap_hsmmc_dma_callback(void *param)
 {
 	struct omap_hsmmc_host *host = param;
@@ -1555,6 +1617,7 @@ static void omap_hsmmc_request(struct mmc_host *mmc, struct mmc_request *req)
 
 	BUG_ON(host->req_in_progress);
 	BUG_ON(host->dma_ch != -1);
+<<<<<<< HEAD
 	if (host->protect_card) {
 		if (host->reqs_blocked < 3) {
 			/*
@@ -1573,6 +1636,9 @@ static void omap_hsmmc_request(struct mmc_host *mmc, struct mmc_request *req)
 		mmc_request_done(mmc, req);
 		return;
 	} else if (host->reqs_blocked)
+=======
+	if (host->reqs_blocked)
+>>>>>>> upstream/android-13
 		host->reqs_blocked = 0;
 	WARN_ON(host->mrq != NULL);
 	host->mrq = req;
@@ -1646,6 +1712,7 @@ static void omap_hsmmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	omap_hsmmc_set_bus_mode(host);
 }
 
+<<<<<<< HEAD
 static int omap_hsmmc_get_cd(struct mmc_host *mmc)
 {
 	struct omap_hsmmc_host *host = mmc_priv(mmc);
@@ -1655,14 +1722,20 @@ static int omap_hsmmc_get_cd(struct mmc_host *mmc)
 	return host->card_detect(host->dev);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void omap_hsmmc_init_card(struct mmc_host *mmc, struct mmc_card *card)
 {
 	struct omap_hsmmc_host *host = mmc_priv(mmc);
 
+<<<<<<< HEAD
 	if (mmc_pdata(host)->init_card)
 		mmc_pdata(host)->init_card(card);
 	else if (card->type == MMC_TYPE_SDIO ||
 		 card->type == MMC_TYPE_SD_COMBO) {
+=======
+	if (card->type == MMC_TYPE_SDIO || card->type == MMC_TYPE_SD_COMBO) {
+>>>>>>> upstream/android-13
 		struct device_node *np = mmc_dev(mmc)->of_node;
 
 		/*
@@ -1757,12 +1830,15 @@ static int omap_hsmmc_configure_wake_irq(struct omap_hsmmc_host *host)
 			ret = PTR_ERR(p);
 			goto err_free_irq;
 		}
+<<<<<<< HEAD
 		if (IS_ERR(pinctrl_lookup_state(p, PINCTRL_STATE_DEFAULT))) {
 			dev_info(host->dev, "missing default pinctrl state\n");
 			devm_pinctrl_put(p);
 			ret = -EINVAL;
 			goto err_free_irq;
 		}
+=======
+>>>>>>> upstream/android-13
 
 		if (IS_ERR(pinctrl_lookup_state(p, PINCTRL_STATE_IDLE))) {
 			dev_info(host->dev, "missing idle pinctrl state\n");
@@ -1823,7 +1899,11 @@ static struct mmc_host_ops omap_hsmmc_ops = {
 	.pre_req = omap_hsmmc_pre_req,
 	.request = omap_hsmmc_request,
 	.set_ios = omap_hsmmc_set_ios,
+<<<<<<< HEAD
 	.get_cd = omap_hsmmc_get_cd,
+=======
+	.get_cd = mmc_gpio_get_cd,
+>>>>>>> upstream/android-13
 	.get_ro = mmc_gpio_get_ro,
 	.init_card = omap_hsmmc_init_card,
 	.enable_sdio_irq = omap_hsmmc_enable_sdio_irq,
@@ -1831,7 +1911,11 @@ static struct mmc_host_ops omap_hsmmc_ops = {
 
 #ifdef CONFIG_DEBUG_FS
 
+<<<<<<< HEAD
 static int omap_hsmmc_regs_show(struct seq_file *s, void *data)
+=======
+static int mmc_regs_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct mmc_host *mmc = s->private;
 	struct omap_hsmmc_host *host = mmc_priv(mmc);
@@ -1870,6 +1954,7 @@ static int omap_hsmmc_regs_show(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int omap_hsmmc_regs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, omap_hsmmc_regs_show, inode->i_private);
@@ -1881,6 +1966,9 @@ static const struct file_operations mmc_regs_fops = {
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(mmc_regs);
+>>>>>>> upstream/android-13
 
 static void omap_hsmmc_debugfs(struct mmc_host *mmc)
 {
@@ -1950,10 +2038,13 @@ static struct omap_hsmmc_platform_data *of_get_hsmmc_pdata(struct device *dev)
 	if (of_find_property(np, "ti,dual-volt", NULL))
 		pdata->controller_flags |= OMAP_HSMMC_SUPPORTS_DUAL_VOLT;
 
+<<<<<<< HEAD
 	pdata->gpio_cd = -EINVAL;
 	pdata->gpio_cod = -EINVAL;
 	pdata->gpio_wp = -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (of_find_property(np, "ti,non-removable", NULL)) {
 		pdata->nonremovable = true;
 		pdata->no_regulator_off_init = true;
@@ -2035,12 +2126,17 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
 	host->base	= base + pdata->reg_offset;
 	host->power_mode = MMC_POWER_OFF;
 	host->next_data.cookie = 1;
+<<<<<<< HEAD
 	host->pbias_enabled = 0;
 	host->vqmmc_enabled = 0;
 
 	ret = omap_hsmmc_gpio_init(mmc, host, pdata);
 	if (ret)
 		goto err_gpio;
+=======
+	host->pbias_enabled = false;
+	host->vqmmc_enabled = false;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, host);
 
@@ -2098,7 +2194,11 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
 	mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
 
 	mmc->caps |= MMC_CAP_MMC_HIGHSPEED | MMC_CAP_SD_HIGHSPEED |
+<<<<<<< HEAD
 		     MMC_CAP_WAIT_WHILE_BUSY | MMC_CAP_ERASE | MMC_CAP_CMD23;
+=======
+		     MMC_CAP_WAIT_WHILE_BUSY | MMC_CAP_CMD23;
+>>>>>>> upstream/android-13
 
 	mmc->caps |= mmc_pdata(host)->caps;
 	if (mmc->caps & MMC_CAP_8_BIT_DATA)
@@ -2165,8 +2265,11 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
 	if (!ret)
 		mmc->caps |= MMC_CAP_SDIO_IRQ;
 
+<<<<<<< HEAD
 	omap_hsmmc_protect_card(host);
 
+=======
+>>>>>>> upstream/android-13
 	mmc_add_host(mmc);
 
 	if (mmc_pdata(host)->name != NULL) {
@@ -2174,12 +2277,15 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
 		if (ret < 0)
 			goto err_slot_name;
 	}
+<<<<<<< HEAD
 	if (host->get_cover_state) {
 		ret = device_create_file(&mmc->class_dev,
 					 &dev_attr_cover_switch);
 		if (ret < 0)
 			goto err_slot_name;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	omap_hsmmc_debugfs(mmc);
 	pm_runtime_mark_last_busy(host->dev);
@@ -2198,10 +2304,15 @@ err_irq:
 	pm_runtime_dont_use_autosuspend(host->dev);
 	pm_runtime_put_sync(host->dev);
 	pm_runtime_disable(host->dev);
+<<<<<<< HEAD
 	if (host->dbclk)
 		clk_disable_unprepare(host->dbclk);
 err1:
 err_gpio:
+=======
+	clk_disable_unprepare(host->dbclk);
+err1:
+>>>>>>> upstream/android-13
 	mmc_free_host(mmc);
 err:
 	return ret;
@@ -2222,8 +2333,12 @@ static int omap_hsmmc_remove(struct platform_device *pdev)
 	pm_runtime_put_sync(host->dev);
 	pm_runtime_disable(host->dev);
 	device_init_wakeup(&pdev->dev, false);
+<<<<<<< HEAD
 	if (host->dbclk)
 		clk_disable_unprepare(host->dbclk);
+=======
+	clk_disable_unprepare(host->dbclk);
+>>>>>>> upstream/android-13
 
 	mmc_free_host(host->mmc);
 
@@ -2248,8 +2363,12 @@ static int omap_hsmmc_suspend(struct device *dev)
 				OMAP_HSMMC_READ(host->base, HCTL) & ~SDBP);
 	}
 
+<<<<<<< HEAD
 	if (host->dbclk)
 		clk_disable_unprepare(host->dbclk);
+=======
+	clk_disable_unprepare(host->dbclk);
+>>>>>>> upstream/android-13
 
 	pm_runtime_put_sync(host->dev);
 	return 0;
@@ -2265,13 +2384,20 @@ static int omap_hsmmc_resume(struct device *dev)
 
 	pm_runtime_get_sync(host->dev);
 
+<<<<<<< HEAD
 	if (host->dbclk)
 		clk_prepare_enable(host->dbclk);
+=======
+	clk_prepare_enable(host->dbclk);
+>>>>>>> upstream/android-13
 
 	if (!(host->mmc->pm_flags & MMC_PM_KEEP_POWER))
 		omap_hsmmc_conf_bus_power(host);
 
+<<<<<<< HEAD
 	omap_hsmmc_protect_card(host);
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_mark_last_busy(host->dev);
 	pm_runtime_put_autosuspend(host->dev);
 	return 0;
@@ -2284,7 +2410,11 @@ static int omap_hsmmc_runtime_suspend(struct device *dev)
 	unsigned long flags;
 	int ret = 0;
 
+<<<<<<< HEAD
 	host = platform_get_drvdata(to_platform_device(dev));
+=======
+	host = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	omap_hsmmc_context_save(host);
 	dev_dbg(dev, "disabled\n");
 
@@ -2325,7 +2455,11 @@ static int omap_hsmmc_runtime_resume(struct device *dev)
 	struct omap_hsmmc_host *host;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	host = platform_get_drvdata(to_platform_device(dev));
+=======
+	host = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	omap_hsmmc_context_restore(host);
 	dev_dbg(dev, "enabled\n");
 
@@ -2333,14 +2467,22 @@ static int omap_hsmmc_runtime_resume(struct device *dev)
 	if ((host->mmc->caps & MMC_CAP_SDIO_IRQ) &&
 	    (host->flags & HSMMC_SDIO_IRQ_ENABLED)) {
 
+<<<<<<< HEAD
 		pinctrl_pm_select_default_state(host->dev);
+=======
+		pinctrl_select_default_state(host->dev);
+>>>>>>> upstream/android-13
 
 		/* irq lost, if pinmux incorrect */
 		OMAP_HSMMC_WRITE(host->base, STAT, STAT_CLEAR);
 		OMAP_HSMMC_WRITE(host->base, ISE, CIRQ_EN);
 		OMAP_HSMMC_WRITE(host->base, IE, CIRQ_EN);
 	} else {
+<<<<<<< HEAD
 		pinctrl_pm_select_default_state(host->dev);
+=======
+		pinctrl_select_default_state(host->dev);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&host->irq_lock, flags);
 	return 0;
@@ -2357,6 +2499,10 @@ static struct platform_driver omap_hsmmc_driver = {
 	.remove		= omap_hsmmc_remove,
 	.driver		= {
 		.name = DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm = &omap_hsmmc_dev_pm_ops,
 		.of_match_table = of_match_ptr(omap_mmc_of_match),
 	},

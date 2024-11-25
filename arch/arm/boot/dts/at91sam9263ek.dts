@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * at91sam9263ek.dts - Device Tree file for Atmel at91sam9263 reference board
  *
  *  Copyright (C) 2012 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 only
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "at91sam9263.dtsi"
@@ -17,7 +24,11 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x4000000>;
 	};
 
@@ -73,6 +84,10 @@
 					&pinctrl_mmc0_clk
 					&pinctrl_mmc0_slot0_cmd_dat0
 					&pinctrl_mmc0_slot0_dat1_3>;
+<<<<<<< HEAD
+=======
+				pinctrl-names = "default";
+>>>>>>> upstream/android-13
 				status = "okay";
 				slot@0 {
 					reg = <0>;
@@ -111,7 +126,11 @@
 			display = <&display0>;
 			status = "okay";
 
+<<<<<<< HEAD
 			display0: display {
+=======
+			display0: panel {
+>>>>>>> upstream/android-13
 				bits-per-pixel = <16>;
 				atmel,lcdcon-backlight;
 				atmel,dmacon = <0x1>;

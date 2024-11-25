@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Real Time Clock driver for Freescale MC13XXX PMIC
  *
  * (C) 2009 Sascha Hauer, Pengutronix
  * (C) 2009 Uwe Kleine-Koenig, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/mc13xxx.h>
@@ -89,14 +96,22 @@ static int mc13xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mc13xxx_rtc_set_mmss(struct device *dev, time64_t secs)
+=======
+static int mc13xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>>>>>>> upstream/android-13
 {
 	struct mc13xxx_rtc *priv = dev_get_drvdata(dev);
 	unsigned int seconds, days;
 	unsigned int alarmseconds;
 	int ret;
 
+<<<<<<< HEAD
 	days = div_s64_rem(secs, SEC_PER_DAY, &seconds);
+=======
+	days = div_s64_rem(rtc_tm_to_time64(tm), SEC_PER_DAY, &seconds);
+>>>>>>> upstream/android-13
 
 	mc13xxx_lock(priv->mc13xxx);
 
@@ -158,7 +173,11 @@ out:
 static int mc13xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 {
 	struct mc13xxx_rtc *priv = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	unsigned seconds, days;
+=======
+	unsigned int seconds, days;
+>>>>>>> upstream/android-13
 	time64_t s1970;
 	int enabled, pending;
 	int ret;
@@ -253,7 +272,11 @@ static irqreturn_t mc13xxx_rtc_alarm_handler(int irq, void *dev)
 
 static const struct rtc_class_ops mc13xxx_rtc_ops = {
 	.read_time = mc13xxx_rtc_read_time,
+<<<<<<< HEAD
 	.set_mmss64 = mc13xxx_rtc_set_mmss,
+=======
+	.set_time = mc13xxx_rtc_set_time,
+>>>>>>> upstream/android-13
 	.read_alarm = mc13xxx_rtc_read_alarm,
 	.set_alarm = mc13xxx_rtc_set_alarm,
 	.alarm_irq_enable = mc13xxx_rtc_alarm_irq_enable,
@@ -285,8 +308,20 @@ static int __init mc13xxx_rtc_probe(struct platform_device *pdev)
 	priv->mc13xxx = mc13xxx;
 	priv->valid = 1;
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, priv);
 
+=======
+	priv->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(priv->rtc))
+		return PTR_ERR(priv->rtc);
+	platform_set_drvdata(pdev, priv);
+
+	priv->rtc->ops = &mc13xxx_rtc_ops;
+	/* 15bit days + hours, minutes, seconds */
+	priv->rtc->range_max = (timeu64_t)(1 << 15) * SEC_PER_DAY - 1;
+
+>>>>>>> upstream/android-13
 	mc13xxx_lock(mc13xxx);
 
 	mc13xxx_irq_ack(mc13xxx, MC13XXX_IRQ_RTCRST);
@@ -303,8 +338,16 @@ static int __init mc13xxx_rtc_probe(struct platform_device *pdev)
 
 	mc13xxx_unlock(mc13xxx);
 
+<<<<<<< HEAD
 	priv->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
 					     &mc13xxx_rtc_ops, THIS_MODULE);
+=======
+	ret = devm_rtc_register_device(priv->rtc);
+	if (ret) {
+		mc13xxx_lock(mc13xxx);
+		goto err_irq_request;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 

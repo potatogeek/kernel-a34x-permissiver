@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "../../util/util.h"
 #include <signal.h>
 #include <stdbool.h>
@@ -7,6 +8,14 @@
 
 #include "../../util/cache.h"
 #include "../../util/debug.h"
+=======
+#include <signal.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/ttydefaults.h>
+
+>>>>>>> upstream/android-13
 #include "../browser.h"
 #include "../keysyms.h"
 #include "../helpline.h"
@@ -25,7 +34,11 @@ static void ui_browser__argv_write(struct ui_browser *browser,
 	ui_browser__write_nstring(browser, *arg, browser->width);
 }
 
+<<<<<<< HEAD
 static int popup_menu__run(struct ui_browser *menu)
+=======
+static int popup_menu__run(struct ui_browser *menu, int *keyp)
+>>>>>>> upstream/android-13
 {
 	int key;
 
@@ -47,6 +60,14 @@ static int popup_menu__run(struct ui_browser *menu)
 			key = -1;
 			break;
 		default:
+<<<<<<< HEAD
+=======
+			if (keyp) {
+				*keyp = key;
+				key = menu->nr_entries;
+				break;
+			}
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -57,7 +78,11 @@ static int popup_menu__run(struct ui_browser *menu)
 	return key;
 }
 
+<<<<<<< HEAD
 int ui__popup_menu(int argc, char * const argv[])
+=======
+int ui__popup_menu(int argc, char * const argv[], int *keyp)
+>>>>>>> upstream/android-13
 {
 	struct ui_browser menu = {
 		.entries    = (void *)argv,
@@ -66,8 +91,12 @@ int ui__popup_menu(int argc, char * const argv[])
 		.write	    = ui_browser__argv_write,
 		.nr_entries = argc,
 	};
+<<<<<<< HEAD
 
 	return popup_menu__run(&menu);
+=======
+	return popup_menu__run(&menu, keyp);
+>>>>>>> upstream/android-13
 }
 
 int ui_browser__input_window(const char *title, const char *text, char *input,
@@ -162,8 +191,12 @@ next_key:
 	return key;
 }
 
+<<<<<<< HEAD
 int ui__question_window(const char *title, const char *text,
 			const char *exit_msg, int delay_secs)
+=======
+void __ui__info_window(const char *title, const char *text, const char *exit_msg)
+>>>>>>> upstream/android-13
 {
 	int x, y;
 	int max_len = 0, nr_lines = 0;
@@ -185,10 +218,17 @@ int ui__question_window(const char *title, const char *text,
 		t = sep + 1;
 	}
 
+<<<<<<< HEAD
 	pthread_mutex_lock(&ui__lock);
 
 	max_len += 2;
 	nr_lines += 4;
+=======
+	max_len += 2;
+	nr_lines += 2;
+	if (exit_msg)
+		nr_lines += 2;
+>>>>>>> upstream/android-13
 	y = SLtt_Screen_Rows / 2 - nr_lines / 2,
 	x = SLtt_Screen_Cols / 2 - max_len / 2;
 
@@ -199,6 +239,7 @@ int ui__question_window(const char *title, const char *text,
 		SLsmg_write_string((char *)title);
 	}
 	SLsmg_gotorc(++y, x);
+<<<<<<< HEAD
 	nr_lines -= 2;
 	max_len -= 2;
 	SLsmg_write_wrapped_string((unsigned char *)text, y, x,
@@ -211,6 +252,36 @@ int ui__question_window(const char *title, const char *text,
 
 	pthread_mutex_unlock(&ui__lock);
 
+=======
+	if (exit_msg)
+		nr_lines -= 2;
+	max_len -= 2;
+	SLsmg_write_wrapped_string((unsigned char *)text, y, x,
+				   nr_lines, max_len, 1);
+	if (exit_msg) {
+		SLsmg_gotorc(y + nr_lines - 2, x);
+		SLsmg_write_nstring((char *)" ", max_len);
+		SLsmg_gotorc(y + nr_lines - 1, x);
+		SLsmg_write_nstring((char *)exit_msg, max_len);
+	}
+}
+
+void ui__info_window(const char *title, const char *text)
+{
+	pthread_mutex_lock(&ui__lock);
+	__ui__info_window(title, text, NULL);
+	SLsmg_refresh();
+	pthread_mutex_unlock(&ui__lock);
+}
+
+int ui__question_window(const char *title, const char *text,
+			const char *exit_msg, int delay_secs)
+{
+	pthread_mutex_lock(&ui__lock);
+	__ui__info_window(title, text, exit_msg);
+	SLsmg_refresh();
+	pthread_mutex_unlock(&ui__lock);
+>>>>>>> upstream/android-13
 	return ui__getch(delay_secs);
 }
 

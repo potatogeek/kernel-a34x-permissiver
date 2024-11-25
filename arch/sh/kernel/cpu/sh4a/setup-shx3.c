@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH-X3 Prototype Setup
  *
  *  Copyright (C) 2007 - 2010  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/init.h>
@@ -17,6 +24,10 @@
 #include <linux/sh_intc.h>
 #include <cpu/shx3.h>
 #include <asm/mmzone.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 /*
  * This intentionally only registers SCIF ports 0, 1, and 3. SCIF 2
@@ -155,7 +166,11 @@ arch_initcall(shx3_devices_setup);
 
 void __init plat_early_device_setup(void)
 {
+<<<<<<< HEAD
 	early_platform_add_devices(shx3_early_devices,
+=======
+	sh_early_platform_add_devices(shx3_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(shx3_early_devices));
 }
 

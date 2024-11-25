@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2012 Marvell Technology Group Ltd.
  *  Author: Haojian Zhuang <haojian.zhuang@marvell.com>
@@ -11,6 +12,20 @@
 #include <dt-bindings/clock/marvell,pxa910.h>
 
 / {
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 2012 Marvell Technology Group Ltd.
+ *  Author: Haojian Zhuang <haojian.zhuang@marvell.com>
+ */
+
+#include <dt-bindings/clock/marvell,pxa910.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+>>>>>>> upstream/android-13
 	aliases {
 		serial0 = &uart1;
 		serial1 = &uart2;
@@ -68,27 +83,48 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			uart1: uart@d4017000 {
 				compatible = "mrvl,mmp-uart";
 				reg = <0xd4017000 0x1000>;
+=======
+			uart1: serial@d4017000 {
+				compatible = "mrvl,mmp-uart", "intel,xscale-uart";
+				reg = <0xd4017000 0x1000>;
+				reg-shift = <2>;
+>>>>>>> upstream/android-13
 				interrupts = <27>;
 				clocks = <&soc_clocks PXA910_CLK_UART0>;
 				resets = <&soc_clocks PXA910_CLK_UART0>;
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			uart2: uart@d4018000 {
 				compatible = "mrvl,mmp-uart";
 				reg = <0xd4018000 0x1000>;
+=======
+			uart2: serial@d4018000 {
+				compatible = "mrvl,mmp-uart", "intel,xscale-uart";
+				reg = <0xd4018000 0x1000>;
+				reg-shift = <2>;
+>>>>>>> upstream/android-13
 				interrupts = <28>;
 				clocks = <&soc_clocks PXA910_CLK_UART1>;
 				resets = <&soc_clocks PXA910_CLK_UART1>;
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			uart3: uart@d4036000 {
 				compatible = "mrvl,mmp-uart";
 				reg = <0xd4036000 0x1000>;
+=======
+			uart3: serial@d4036000 {
+				compatible = "mrvl,mmp-uart", "intel,xscale-uart";
+				reg = <0xd4036000 0x1000>;
+				reg-shift = <2>;
+>>>>>>> upstream/android-13
 				interrupts = <59>;
 				clocks = <&soc_clocks PXA910_CLK_UART2>;
 				resets = <&soc_clocks PXA910_CLK_UART2>;
@@ -107,7 +143,11 @@
 				clocks = <&soc_clocks PXA910_CLK_GPIO>;
 				resets = <&soc_clocks PXA910_CLK_GPIO>;
 				interrupt-controller;
+<<<<<<< HEAD
 				#interrupt-cells = <1>;
+=======
+				#interrupt-cells = <2>;
+>>>>>>> upstream/android-13
 				ranges;
 
 				gcb0: gpio@d4019000 {
@@ -153,7 +193,11 @@
 			rtc: rtc@d4010000 {
 				compatible = "mrvl,mmp-rtc";
 				reg = <0xd4010000 0x1000>;
+<<<<<<< HEAD
 				interrupts = <5 6>;
+=======
+				interrupts = <5>, <6>;
+>>>>>>> upstream/android-13
 				interrupt-names = "rtc 1Hz", "rtc alarm";
 				clocks = <&soc_clocks PXA910_CLK_RTC>;
 				resets = <&soc_clocks PXA910_CLK_RTC>;

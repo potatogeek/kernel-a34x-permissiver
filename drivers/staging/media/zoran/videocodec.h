@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * VIDEO MOTION CODECs internal API for video devices
  *
@@ -5,6 +9,7 @@
  * bound to a master device.
  *
  * (c) 2002 Wolfgang Scherr <scherr@net4you.at>
+<<<<<<< HEAD
  *
  * $Id: videocodec.h,v 1.1.2.4 2003/01/14 21:15:03 rbultje Exp $
  *
@@ -21,6 +26,8 @@
  * GNU General Public License for more details.
  *
  * ------------------------------------------------------------------------
+=======
+>>>>>>> upstream/android-13
  */
 
 /* =================== */
@@ -64,7 +71,10 @@
    device dependent and vary between MJPEG/MPEG/WAVELET/... devices. (!!!!)
    ----------------------------------------------------------------------------
 */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 
 /* ========================================== */
 /* description of the videocodec_io structure */
@@ -111,7 +121,11 @@
 		the calls include frame numbers and flags (even/odd/...)
 		if needed and a flag which allows blocking until its ready
 */
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> upstream/android-13
 /* ============== */
 /* user interface */
 /* ============== */
@@ -131,7 +145,10 @@ M                       zr36055[0] 0001 0000c001 00000000 (zr36050[0])
 M                       zr36055[1] 0001 0000c001 00000000 (zr36050[1])
 
 */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 
 /* =============================================== */
 /* special defines for the videocodec_io structure */
@@ -207,10 +224,16 @@ M                       zr36055[1] 0001 0000c001 00000000 (zr36050[1])
 #define CODEC_G_FLAG           0x8000	/* this is how 'get' is detected */
 
 /* types of transfer, directly user space or a kernel buffer (image-fn.'s) */
+<<<<<<< HEAD
 /*  -> used in get_image, put_image                                        */
 #define CODEC_TRANSFER_KERNEL 0	/* use "memcopy" */
 #define CODEC_TRANSFER_USER   1	/* use "to/from_user" */
 
+=======
+/*  -> used in get_image, put_image */
+#define CODEC_TRANSFER_KERNEL 0	/* use "memcopy" */
+#define CODEC_TRANSFER_USER   1	/* use "to/from_user" */
+>>>>>>> upstream/android-13
 
 /* ========================= */
 /* the structures itself ... */
@@ -236,7 +259,11 @@ struct vfe_settings {
 };
 
 struct tvnorm {
+<<<<<<< HEAD
 	u16 Wt, Wa, HStart, HSyncStart, Ht, Ha, VStart;
+=======
+	u16 wt, wa, h_start, h_sync_start, ht, ha, v_start;
+>>>>>>> upstream/android-13
 };
 
 struct jpeg_com_marker {
@@ -267,6 +294,7 @@ struct videocodec {
 	void *data;		/* private slave data */
 
 	/* attach/detach client functions (indirect call) */
+<<<<<<< HEAD
 	int (*setup) (struct videocodec * codec);
 	int (*unset) (struct videocodec * codec);
 
@@ -307,6 +335,29 @@ struct videocodec {
 			   long *flag,
 			   long size,
 			   void *buf);
+=======
+	int (*setup)(struct videocodec *codec);
+	int (*unset)(struct videocodec *codec);
+
+	/* main functions, every client needs them for sure! */
+	// set compression or decompression (or freeze, stop, standby, etc)
+	int (*set_mode)(struct videocodec *codec, int mode);
+	// setup picture size and norm (for the codec's video frontend)
+	int (*set_video)(struct videocodec *codec, const struct tvnorm *norm,
+			 struct vfe_settings *cap, struct vfe_polarity *pol);
+	// other control commands, also mmap setup etc.
+	int (*control)(struct videocodec *codec, int type, int size, void *data);
+
+	/* additional setup/query/processing (may be NULL pointer) */
+	// interrupt setup / handling (for irq's delivered by master)
+	int (*setup_interrupt)(struct videocodec *codec, long mode);
+	int (*handle_interrupt)(struct videocodec *codec, int source, long flag);
+	// picture interface (if any)
+	long (*put_image)(struct videocodec *codec, int tr_type, int block,
+			  long *fr_num, long *flag, long size, void *buf);
+	long (*get_image)(struct videocodec *codec, int tr_type, int block,
+			  long *fr_num, long *flag, long size, void *buf);
+>>>>>>> upstream/android-13
 };
 
 struct videocodec_master {
@@ -318,6 +369,7 @@ struct videocodec_master {
 
 	void *data;		/* private master data */
 
+<<<<<<< HEAD
 	 __u32(*readreg) (struct videocodec * codec,
 			  __u16 reg);
 	void (*writereg) (struct videocodec * codec,
@@ -325,6 +377,11 @@ struct videocodec_master {
 			  __u32 value);
 };
 
+=======
+	__u32 (*readreg)(struct videocodec *codec, __u16 reg);
+	void (*writereg)(struct videocodec *codec, __u16 reg, __u32 value);
+};
+>>>>>>> upstream/android-13
 
 /* ================================================= */
 /* function prototypes of the master/slave interface */

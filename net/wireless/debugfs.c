@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cfg80211 debugfs
  *
  * Copyright 2009	Luis R. Rodriguez <lrodriguez@atheros.com>
  * Copyright 2007	Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -76,8 +83,11 @@ static ssize_t ht40allow_map_read(struct file *file,
 	if (!buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rtnl_lock();
 
+=======
+>>>>>>> upstream/android-13
 	for (band = 0; band < NUM_NL80211_BANDS; band++) {
 		sband = wiphy->bands[band];
 		if (!sband)
@@ -87,8 +97,11 @@ static ssize_t ht40allow_map_read(struct file *file,
 						buf, buf_size, offset);
 	}
 
+<<<<<<< HEAD
 	rtnl_unlock();
 
+=======
+>>>>>>> upstream/android-13
 	r = simple_read_from_buffer(user_buf, count, ppos, buf, offset);
 
 	kfree(buf);

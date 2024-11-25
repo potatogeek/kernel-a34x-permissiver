@@ -22,7 +22,11 @@
 #include <linux/of_gpio.h>
 #include <linux/gpio.h>
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_KEYBOARD_STM32_POGO) || IS_ENABLED(CONFIG_KEYBOARD_STM32_POGO_V2) || IS_ENABLED(CONFIG_KEYBOARD_STM32_POGO_V3)
+=======
+#if IS_ENABLED(CONFIG_KEYBOARD_STM32_POGO) || IS_ENABLED(CONFIG_KEYBOARD_STM32_POGO_V2)
+>>>>>>> upstream/android-13
 #define SHUB_POGO
 #endif
 

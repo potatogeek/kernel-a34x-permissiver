@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * PHYTEC phyCORE-LPC3250 board
  *
@@ -9,6 +10,14 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * PHYTEC phyCORE-LPC3250 board
+ *
+ * Copyright (C) 2015-2019 Vladimir Zapolskiy <vz@mleia.com>
+ * Copyright 2012 Roland Stigge <stigge@antcom.de>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -17,14 +26,20 @@
 / {
 	model = "PHYTEC phyCORE-LPC3250 board based on NXP LPC3250";
 	compatible = "phytec,phy3250", "nxp,lpc3250";
+<<<<<<< HEAD
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	memory {
+=======
+
+	memory@80000000 {
+>>>>>>> upstream/android-13
 		device_type = "memory";
 		reg = <0x80000000 0x4000000>;
 	};
 
+<<<<<<< HEAD
 	regulators {
 		backlight_reg: regulator@0 {
 			compatible = "regulator-fixed";
@@ -56,6 +71,8 @@
 		};
 	};
 
+=======
+>>>>>>> upstream/android-13
 	leds {
 		compatible = "gpio-leds";
 
@@ -69,10 +86,66 @@
 			linux,default-trigger = "heartbeat";
 		};
 	};
+<<<<<<< HEAD
 };
 
 &clcd {
 	status = "okay";
+=======
+
+	panel: panel {
+		compatible = "sharp,lq035q7db03";
+		power-supply = <&reg_lcd>;
+
+		port {
+			panel_input: endpoint {
+				remote-endpoint = <&cldc_output>;
+			};
+		};
+	};
+
+	reg_backlight: regulator-backlight {
+		compatible = "regulator-fixed";
+		regulator-name = "backlight";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio 5 4 0>;
+		enable-active-high;
+		regulator-boot-on;
+	};
+
+	reg_lcd: regulator-lcd {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio 5 0 0>;
+		enable-active-high;
+		regulator-boot-on;
+	};
+
+	reg_sd: regulator-sd {
+		compatible = "regulator-fixed";
+		regulator-name = "sd";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio 5 5 0>;
+		enable-active-high;
+		regulator-boot-on;
+	};
+};
+
+&clcd {
+	max-memory-bandwidth = <18710000>;
+	status = "okay";
+
+	port {
+		cldc_output: endpoint {
+			remote-endpoint = <&panel_input>;
+			arm,pl11x,tft-r0g0b0-pads = <0 8 16>;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &i2c1 {
@@ -117,6 +190,10 @@
 &mac {
 	phy-mode = "rmii";
 	use-iram;
+<<<<<<< HEAD
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 /* Here, choose exactly one from: ohci, usbd */
@@ -130,7 +207,11 @@
 	cd-gpios = <&gpio 3 1 0>;
 	cd-inverted;
 	bus-width = <4>;
+<<<<<<< HEAD
 	vmmc-supply = <&sd_reg>;
+=======
+	vmmc-supply = <&reg_sd>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -184,8 +265,11 @@
 };
 
 &ssp0 {
+<<<<<<< HEAD
 	#address-cells = <1>;
 	#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 	num-cs = <1>;
 	cs-gpios = <&gpio 3 5 0>;
 	status = "okay";

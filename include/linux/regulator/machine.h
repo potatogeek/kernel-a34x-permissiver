@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * machine.h -- SoC Regulator support, machine/board driver API.
  *
@@ -5,10 +9,13 @@
  *
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Regulator Machine/Board Interface.
  */
 
@@ -86,6 +93,17 @@ struct regulator_state {
 	bool changeable;
 };
 
+<<<<<<< HEAD
+=======
+#define REGULATOR_NOTIF_LIMIT_DISABLE -1
+#define REGULATOR_NOTIF_LIMIT_ENABLE -2
+struct notification_limit {
+	int prot;
+	int err;
+	int warn;
+};
+
+>>>>>>> upstream/android-13
 /**
  * struct regulation_constraints - regulator operating constraints.
  *
@@ -103,7 +121,17 @@ struct regulator_state {
  * @ilim_uA: Maximum input current.
  * @system_load: Load that isn't captured by any consumer requests.
  *
+<<<<<<< HEAD
  * @max_spread: Max possible spread between coupled regulators
+=======
+ * @over_curr_limits:		Limits for acting on over current.
+ * @over_voltage_limits:	Limits for acting on over voltage.
+ * @under_voltage_limits:	Limits for acting on under voltage.
+ * @temp_limits:		Limits for acting on over temperature.
+ *
+ * @max_spread: Max possible spread between coupled regulators
+ * @max_uV_step: Max possible step change in voltage
+>>>>>>> upstream/android-13
  * @valid_modes_mask: Mask of modes which may be configured by consumers.
  * @valid_ops_mask: Operations which may be performed by consumers.
  *
@@ -118,6 +146,14 @@ struct regulator_state {
  * @pull_down: Enable pull down when regulator is disabled.
  * @over_current_protection: Auto disable on over current event.
  *
+<<<<<<< HEAD
+=======
+ * @over_current_detection: Configure over current limits.
+ * @over_voltage_detection: Configure over voltage limits.
+ * @under_voltage_detection: Configure under voltage limits.
+ * @over_temp_detection: Configure over temperature limits.
+ *
+>>>>>>> upstream/android-13
  * @input_uV: Input voltage for regulator when supplied by another regulator.
  *
  * @state_disk: State for regulator when system is suspended in disk mode.
@@ -156,7 +192,14 @@ struct regulation_constraints {
 	int system_load;
 
 	/* used for coupled regulators */
+<<<<<<< HEAD
 	int max_spread;
+=======
+	u32 *max_spread;
+
+	/* used for changing voltage in steps */
+	int max_uV_step;
+>>>>>>> upstream/android-13
 
 	/* valid regulator operating modes for this machine */
 	unsigned int valid_modes_mask;
@@ -171,6 +214,13 @@ struct regulation_constraints {
 	struct regulator_state state_disk;
 	struct regulator_state state_mem;
 	struct regulator_state state_standby;
+<<<<<<< HEAD
+=======
+	struct notification_limit over_curr_limits;
+	struct notification_limit over_voltage_limits;
+	struct notification_limit under_voltage_limits;
+	struct notification_limit temp_limits;
+>>>>>>> upstream/android-13
 	suspend_state_t initial_state; /* suspend state to set at init */
 
 	/* mode to set on startup */
@@ -192,6 +242,13 @@ struct regulation_constraints {
 	unsigned soft_start:1;	/* ramp voltage slowly */
 	unsigned pull_down:1;	/* pull down resistor when regulator off */
 	unsigned over_current_protection:1; /* auto disable on over current */
+<<<<<<< HEAD
+=======
+	unsigned over_current_detection:1; /* notify on over current */
+	unsigned over_voltage_detection:1; /* notify on over voltage */
+	unsigned under_voltage_detection:1; /* notify on under voltage */
+	unsigned over_temp_detection:1; /* notify on over temperature */
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -247,10 +304,22 @@ struct regulator_init_data {
 
 #ifdef CONFIG_REGULATOR
 void regulator_has_full_constraints(void);
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+int regulator_show_enabled(void);
+#endif /* CONFIG_SEC_PM_DEBUG */
+>>>>>>> upstream/android-13
 #else
 static inline void regulator_has_full_constraints(void)
 {
 }
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+static inline int regulator_show_enabled(void) { return 0; }
+#endif /* CONFIG_SEC_PM_DEBUG */
+>>>>>>> upstream/android-13
 #endif
 
 static inline int regulator_suspend_prepare(suspend_state_t state)

@@ -10,6 +10,7 @@
  * cpu_feature_enabled().
  */
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_INTEL_MPX
 # define DISABLE_MPX	0
 #else
@@ -17,6 +18,15 @@
 #endif
 
 #ifdef CONFIG_X86_INTEL_UMIP
+=======
+#ifdef CONFIG_X86_SMAP
+# define DISABLE_SMAP	0
+#else
+# define DISABLE_SMAP	(1<<(X86_FEATURE_SMAP & 31))
+#endif
+
+#ifdef CONFIG_X86_UMIP
+>>>>>>> upstream/android-13
 # define DISABLE_UMIP	0
 #else
 # define DISABLE_UMIP	(1<<(X86_FEATURE_UMIP & 31))
@@ -56,6 +66,18 @@
 # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
 #endif
 
+<<<<<<< HEAD
+=======
+/* Force disable because it's broken beyond repair */
+#define DISABLE_ENQCMD		(1 << (X86_FEATURE_ENQCMD & 31))
+
+#ifdef CONFIG_X86_SGX
+# define DISABLE_SGX	0
+#else
+# define DISABLE_SGX	(1 << (X86_FEATURE_SGX & 31))
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Make sure to add features to the correct mask
  */
@@ -68,16 +90,29 @@
 #define DISABLED_MASK6	0
 #define DISABLED_MASK7	(DISABLE_PTI)
 #define DISABLED_MASK8	0
+<<<<<<< HEAD
 #define DISABLED_MASK9	(DISABLE_MPX)
+=======
+#define DISABLED_MASK9	(DISABLE_SMAP|DISABLE_SGX)
+>>>>>>> upstream/android-13
 #define DISABLED_MASK10	0
 #define DISABLED_MASK11	0
 #define DISABLED_MASK12	0
 #define DISABLED_MASK13	0
 #define DISABLED_MASK14	0
 #define DISABLED_MASK15	0
+<<<<<<< HEAD
 #define DISABLED_MASK16	(DISABLE_PKU|DISABLE_OSPKE|DISABLE_LA57|DISABLE_UMIP)
 #define DISABLED_MASK17	0
 #define DISABLED_MASK18	0
 #define DISABLED_MASK_CHECK BUILD_BUG_ON_ZERO(NCAPINTS != 19)
+=======
+#define DISABLED_MASK16	(DISABLE_PKU|DISABLE_OSPKE|DISABLE_LA57|DISABLE_UMIP| \
+			 DISABLE_ENQCMD)
+#define DISABLED_MASK17	0
+#define DISABLED_MASK18	0
+#define DISABLED_MASK19	0
+#define DISABLED_MASK_CHECK BUILD_BUG_ON_ZERO(NCAPINTS != 20)
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_X86_DISABLED_FEATURES_H */

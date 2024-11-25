@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Sanechips Technology Co., Ltd.
  * Copyright 2017 Linaro Ltd.
@@ -5,16 +6,33 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2017 Sanechips Technology Co., Ltd.
+ * Copyright 2017 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/mfd/syscon.h>
+<<<<<<< HEAD
 #include <linux/regmap.h>
 
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drmP.h>
+=======
+#include <linux/module.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "zx_drm_drv.h"
 #include "zx_vga_regs.h"
@@ -73,10 +91,13 @@ static const struct drm_encoder_helper_funcs zx_vga_encoder_helper_funcs = {
 	.disable = zx_vga_encoder_disable,
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs zx_vga_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int zx_vga_connector_get_modes(struct drm_connector *connector)
 {
 	struct zx_vga *vga = to_zx_vga(connector);
@@ -155,23 +176,42 @@ static int zx_vga_register(struct drm_device *drm, struct zx_vga *vga)
 
 	encoder->possible_crtcs = VOU_CRTC_MASK;
 
+<<<<<<< HEAD
 	ret = drm_encoder_init(drm, encoder, &zx_vga_encoder_funcs,
 			       DRM_MODE_ENCODER_DAC, NULL);
 	if (ret) {
 		DRM_DEV_ERROR(dev, "failed to init encoder: %d\n", ret);
 		return ret;
 	};
+=======
+	ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_DAC);
+	if (ret) {
+		DRM_DEV_ERROR(dev, "failed to init encoder: %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	drm_encoder_helper_add(encoder, &zx_vga_encoder_helper_funcs);
 
 	vga->connector.polled = DRM_CONNECTOR_POLL_HPD;
 
+<<<<<<< HEAD
 	ret = drm_connector_init(drm, connector, &zx_vga_connector_funcs,
 				 DRM_MODE_CONNECTOR_VGA);
 	if (ret) {
 		DRM_DEV_ERROR(dev, "failed to init connector: %d\n", ret);
 		goto clean_encoder;
 	};
+=======
+	ret = drm_connector_init_with_ddc(drm, connector,
+					  &zx_vga_connector_funcs,
+					  DRM_MODE_CONNECTOR_VGA,
+					  &vga->ddc->adap);
+	if (ret) {
+		DRM_DEV_ERROR(dev, "failed to init connector: %d\n", ret);
+		goto clean_encoder;
+	}
+>>>>>>> upstream/android-13
 
 	drm_connector_helper_add(connector, &zx_vga_connector_helper_funcs);
 
@@ -179,7 +219,11 @@ static int zx_vga_register(struct drm_device *drm, struct zx_vga *vga)
 	if (ret) {
 		DRM_DEV_ERROR(dev, "failed to attach encoder: %d\n", ret);
 		goto clean_connector;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 

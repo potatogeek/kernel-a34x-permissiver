@@ -6,11 +6,16 @@
 
 #include <linux/mm_types.h>
 #include <linux/scatterlist.h>
+<<<<<<< HEAD
 #include <linux/dma-debug.h>
 #include <linux/kref.h>
 
 #define ARM_MAPPING_ERROR		(~(dma_addr_t)0x0)
 
+=======
+#include <linux/kref.h>
+
+>>>>>>> upstream/android-13
 struct dma_iommu_mapping {
 	/* iommu specific data */
 	struct iommu_domain	*domain;
@@ -35,7 +40,10 @@ int arm_iommu_attach_device(struct device *dev,
 					struct dma_iommu_mapping *mapping);
 void arm_iommu_detach_device(struct device *dev);
 
+<<<<<<< HEAD
 int arm_dma_supported(struct device *dev, u64 mask);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif

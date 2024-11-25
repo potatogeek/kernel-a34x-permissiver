@@ -11,6 +11,7 @@ static int ptdump_show(struct seq_file *m, void *v)
 	ptdump_walk_pgd(m, info);
 	return 0;
 }
+<<<<<<< HEAD
 
 static int ptdump_open(struct inode *inode, struct file *file)
 {
@@ -31,4 +32,11 @@ int ptdump_debugfs_register(struct ptdump_info *info, const char *name)
 	pe = debugfs_create_file(name, 0400, NULL, info, &ptdump_fops);
 	return pe ? 0 : -ENOMEM;
 
+=======
+DEFINE_SHOW_ATTRIBUTE(ptdump);
+
+void __init ptdump_debugfs_register(struct ptdump_info *info, const char *name)
+{
+	debugfs_create_file(name, 0400, NULL, info, &ptdump_fops);
+>>>>>>> upstream/android-13
 }

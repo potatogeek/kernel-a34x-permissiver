@@ -11,6 +11,12 @@
    more information about COFF, then O'Reilly has a very excellent book.
 */
 
+<<<<<<< HEAD
+=======
+#ifndef _UAPI_LINUX_COFF_H
+#define _UAPI_LINUX_COFF_H
+
+>>>>>>> upstream/android-13
 #define  E_SYMNMLEN  8   /* Number of characters in a symbol name         */
 #define  E_FILNMLEN 14   /* Number of characters in a file name           */
 #define  E_DIMNUM    4   /* Number of array dimensions in auxiliary entry */
@@ -350,3 +356,8 @@ struct COFF_reloc {
 
 /* For new sections we haven't heard of before */
 #define COFF_DEF_SECTION_ALIGNMENT       4
+<<<<<<< HEAD
+=======
+
+#endif /* _UAPI_LINUX_COFF_H */
+>>>>>>> upstream/android-13

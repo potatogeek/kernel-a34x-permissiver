@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_USER_EXP_RCV_H
 #define _HFI1_USER_EXP_RCV_H
 /*
@@ -49,6 +50,18 @@
 
 #include "hfi.h"
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2020 - Cornelis Networks, Inc.
+ * Copyright(c) 2015 - 2017 Intel Corporation.
+ */
+
+#ifndef _HFI1_USER_EXP_RCV_H
+#define _HFI1_USER_EXP_RCV_H
+
+#include "hfi.h"
+>>>>>>> upstream/android-13
 #include "exp_rcv.h"
 
 struct tid_pageset {
@@ -66,14 +79,23 @@ struct tid_user_buf {
 };
 
 struct tid_rb_node {
+<<<<<<< HEAD
 	struct mmu_rb_node mmu;
+=======
+	struct mmu_interval_notifier notifier;
+	struct hfi1_filedata *fdata;
+>>>>>>> upstream/android-13
 	unsigned long phys;
 	struct tid_group *grp;
 	u32 rcventry;
 	dma_addr_t dma_addr;
 	bool freed;
 	unsigned int npages;
+<<<<<<< HEAD
 	struct page *pages[0];
+=======
+	struct page *pages[];
+>>>>>>> upstream/android-13
 };
 
 static inline int num_user_pages(unsigned long addr,
@@ -95,4 +117,12 @@ int hfi1_user_exp_rcv_clear(struct hfi1_filedata *fd,
 int hfi1_user_exp_rcv_invalid(struct hfi1_filedata *fd,
 			      struct hfi1_tid_info *tinfo);
 
+<<<<<<< HEAD
+=======
+static inline struct mm_struct *mm_from_tid_node(struct tid_rb_node *node)
+{
+	return node->notifier.mm;
+}
+
+>>>>>>> upstream/android-13
 #endif /* _HFI1_USER_EXP_RCV_H */

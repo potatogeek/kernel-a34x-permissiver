@@ -12,7 +12,11 @@
 /*
  * Time out in seconds for disks and Magneto-opticals (which are slower).
  */
+<<<<<<< HEAD
 #define SD_TIMEOUT		(30 * HZ)
+=======
+#define SD_TIMEOUT		(10 * HZ)
+>>>>>>> upstream/android-13
 #define SD_MOD_TIMEOUT		(75 * HZ)
 /*
  * Flush timeout is a multiplier over the standard device timeout which is
@@ -75,6 +79,7 @@ struct scsi_disk {
 	struct opal_dev *opal_dev;
 #ifdef CONFIG_BLK_DEV_ZONED
 	u32		nr_zones;
+<<<<<<< HEAD
 	u32		zone_blocks;
 	u32		zone_shift;
 	u32		zones_optimal_open;
@@ -83,6 +88,24 @@ struct scsi_disk {
 #endif
 	atomic_t	openers;
 	sector_t	capacity;	/* size in logical blocks */
+=======
+	u32		rev_nr_zones;
+	u32		zone_blocks;
+	u32		rev_zone_blocks;
+	u32		zones_optimal_open;
+	u32		zones_optimal_nonseq;
+	u32		zones_max_open;
+	u32		*zones_wp_offset;
+	spinlock_t	zones_wp_offset_lock;
+	u32		*rev_wp_offset;
+	struct mutex	rev_mutex;
+	struct work_struct zone_wp_offset_work;
+	char		*zone_wp_update_buf;
+#endif
+	atomic_t	openers;
+	sector_t	capacity;	/* size in logical blocks */
+	int		max_retries;
+>>>>>>> upstream/android-13
 	u32		max_xfer_blocks;
 	u32		opt_xfer_blocks;
 	u32		max_ws_blocks;
@@ -136,7 +159,11 @@ static inline struct scsi_disk *scsi_disk(struct gendisk *disk)
 
 #define sd_first_printk(prefix, sdsk, fmt, a...)			\
 	do {								\
+<<<<<<< HEAD
 		if ((sdkp)->first_scan)					\
+=======
+		if ((sdsk)->first_scan)					\
+>>>>>>> upstream/android-13
 			sd_printk(prefix, sdsk, fmt, ##a);		\
 	} while (0)
 
@@ -192,6 +219,7 @@ static inline sector_t sectors_to_logical(struct scsi_device *sdev, sector_t sec
 	return sector >> (ilog2(sdev->sector_size) - 9);
 }
 
+<<<<<<< HEAD
 /*
  * Look up the DIX operation based on whether the command is read or
  * write and whether dix and dif are enabled.
@@ -254,6 +282,8 @@ static inline unsigned int sd_prot_flag_mask(unsigned int prot_op)
 	return flag_mask[prot_op];
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BLK_DEV_INTEGRITY
 
 extern void sd_dif_config_host(struct scsi_disk *);
@@ -273,6 +303,7 @@ static inline int sd_is_zoned(struct scsi_disk *sdkp)
 
 #ifdef CONFIG_BLK_DEV_ZONED
 
+<<<<<<< HEAD
 extern int sd_zbc_read_zones(struct scsi_disk *sdkp, unsigned char *buffer);
 extern void sd_zbc_remove(struct scsi_disk *sdkp);
 extern void sd_zbc_print_zones(struct scsi_disk *sdkp);
@@ -283,12 +314,32 @@ extern void sd_zbc_complete(struct scsi_cmnd *cmd, unsigned int good_bytes,
 
 #else /* CONFIG_BLK_DEV_ZONED */
 
+=======
+void sd_zbc_release_disk(struct scsi_disk *sdkp);
+int sd_zbc_read_zones(struct scsi_disk *sdkp, unsigned char *buffer);
+int sd_zbc_revalidate_zones(struct scsi_disk *sdkp);
+blk_status_t sd_zbc_setup_zone_mgmt_cmnd(struct scsi_cmnd *cmd,
+					 unsigned char op, bool all);
+unsigned int sd_zbc_complete(struct scsi_cmnd *cmd, unsigned int good_bytes,
+			     struct scsi_sense_hdr *sshdr);
+int sd_zbc_report_zones(struct gendisk *disk, sector_t sector,
+		unsigned int nr_zones, report_zones_cb cb, void *data);
+
+blk_status_t sd_zbc_prepare_zone_append(struct scsi_cmnd *cmd, sector_t *lba,
+				        unsigned int nr_blocks);
+
+#else /* CONFIG_BLK_DEV_ZONED */
+
+static inline void sd_zbc_release_disk(struct scsi_disk *sdkp) {}
+
+>>>>>>> upstream/android-13
 static inline int sd_zbc_read_zones(struct scsi_disk *sdkp,
 				    unsigned char *buf)
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void sd_zbc_remove(struct scsi_disk *sdkp) {}
 
 static inline void sd_zbc_print_zones(struct scsi_disk *sdkp) {}
@@ -309,4 +360,38 @@ static inline void sd_zbc_complete(struct scsi_cmnd *cmd,
 
 #endif /* CONFIG_BLK_DEV_ZONED */
 
+=======
+static inline int sd_zbc_revalidate_zones(struct scsi_disk *sdkp)
+{
+	return 0;
+}
+
+static inline blk_status_t sd_zbc_setup_zone_mgmt_cmnd(struct scsi_cmnd *cmd,
+						       unsigned char op,
+						       bool all)
+{
+	return BLK_STS_TARGET;
+}
+
+static inline unsigned int sd_zbc_complete(struct scsi_cmnd *cmd,
+			unsigned int good_bytes, struct scsi_sense_hdr *sshdr)
+{
+	return good_bytes;
+}
+
+static inline blk_status_t sd_zbc_prepare_zone_append(struct scsi_cmnd *cmd,
+						      sector_t *lba,
+						      unsigned int nr_blocks)
+{
+	return BLK_STS_TARGET;
+}
+
+#define sd_zbc_report_zones NULL
+
+#endif /* CONFIG_BLK_DEV_ZONED */
+
+void sd_print_sense_hdr(struct scsi_disk *sdkp, struct scsi_sense_hdr *sshdr);
+void sd_print_result(const struct scsi_disk *sdkp, const char *msg, int result);
+
+>>>>>>> upstream/android-13
 #endif /* _SCSI_DISK_H */

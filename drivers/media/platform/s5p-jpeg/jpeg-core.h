@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* linux/drivers/media/platform/s5p-jpeg/jpeg-core.h
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef JPEG_CORE_H_
@@ -40,6 +48,7 @@
 #define EXYNOS3250_IRQ_TIMEOUT		0x10000000
 
 /* a selection of JPEG markers */
+<<<<<<< HEAD
 #define TEM				0x01
 #define SOF0				0xc0
 #define DHT				0xc4
@@ -49,6 +58,17 @@
 #define	SOS				0xda
 #define DQT				0xdb
 #define DHP				0xde
+=======
+#define JPEG_MARKER_TEM				0x01
+#define JPEG_MARKER_SOF0				0xc0
+#define JPEG_MARKER_DHT				0xc4
+#define JPEG_MARKER_RST				0xd0
+#define JPEG_MARKER_SOI				0xd8
+#define JPEG_MARKER_EOI				0xd9
+#define	JPEG_MARKER_SOS				0xda
+#define JPEG_MARKER_DQT				0xdb
+#define JPEG_MARKER_DHP				0xde
+>>>>>>> upstream/android-13
 
 /* Flags that indicate a format can be used for capture/output */
 #define SJPEG_FMT_FLAG_ENC_CAPTURE	(1 << 0)
@@ -114,12 +134,21 @@ enum s5p_jpeg_ctx_state {
  * @m2m_dev:		v4l2 mem2mem device data
  * @regs:		JPEG IP registers mapping
  * @irq:		JPEG IP irq
+<<<<<<< HEAD
  * @clocks:		JPEG IP clock(s)
  * @dev:		JPEG IP struct device
  * @variant:		driver variant to be used
  * @irq_status		interrupt flags set during single encode/decode
 			operation
 
+=======
+ * @irq_ret:		JPEG IP irq result value
+ * @clocks:		JPEG IP clock(s)
+ * @dev:		JPEG IP struct device
+ * @variant:		driver variant to be used
+ * @irq_status:		interrupt flags set during single encode/decode
+ *			operation
+>>>>>>> upstream/android-13
  */
 struct s5p_jpeg {
 	struct mutex		lock;
@@ -152,6 +181,7 @@ struct s5p_jpeg_variant {
 };
 
 /**
+<<<<<<< HEAD
  * struct jpeg_fmt - driver's internal color format data
  * @name:	format descritpion
  * @fourcc:	the fourcc code, 0 if not applicable
@@ -163,6 +193,19 @@ struct s5p_jpeg_variant {
  */
 struct s5p_jpeg_fmt {
 	char	*name;
+=======
+ * struct s5p_jpeg_fmt - driver's internal color format data
+ * @fourcc:	the fourcc code, 0 if not applicable
+ * @depth:	number of bits per pixel
+ * @colplanes:	number of color planes (1 for packed formats)
+ * @memplanes:	number of memory planes (1 for packed formats)
+ * @h_align:	horizontal alignment order (align to 2^h_align)
+ * @v_align:	vertical alignment order (align to 2^v_align)
+ * @subsampling:subsampling of a raw format or a JPEG
+ * @flags:	flags describing format applicability
+ */
+struct s5p_jpeg_fmt {
+>>>>>>> upstream/android-13
 	u32	fourcc;
 	int	depth;
 	int	colplanes;
@@ -174,7 +217,11 @@ struct s5p_jpeg_fmt {
 };
 
 /**
+<<<<<<< HEAD
  * s5p_jpeg_marker - collection of markers from jpeg header
+=======
+ * struct s5p_jpeg_marker - collection of markers from jpeg header
+>>>>>>> upstream/android-13
  * @marker:	markers' positions relative to the buffer beginning
  * @len:	markers' payload lengths (without length field)
  * @n:		number of markers in collection
@@ -186,6 +233,7 @@ struct s5p_jpeg_marker {
 };
 
 /**
+<<<<<<< HEAD
  * s5p_jpeg_q_data - parameters of one queue
  * @fmt:	driver-specific format of this queue
  * @w:		image width
@@ -196,6 +244,17 @@ struct s5p_jpeg_marker {
  * @sof:	SOF0 marker's postition relative to the buffer beginning
  * @sof_len:	SOF0 marker's payload length (without length field itself)
  * @components:	number of image components
+=======
+ * struct s5p_jpeg_q_data - parameters of one queue
+ * @fmt:	driver-specific format of this queue
+ * @w:		image width
+ * @h:		image height
+ * @sos:	JPEG_MARKER_SOS's position relative to the buffer beginning
+ * @dht:	JPEG_MARKER_DHT' positions relative to the buffer beginning
+ * @dqt:	JPEG_MARKER_DQT' positions relative to the buffer beginning
+ * @sof:	JPEG_MARKER_SOF0's position relative to the buffer beginning
+ * @sof_len:	JPEG_MARKER_SOF0's payload length (without length field itself)
+>>>>>>> upstream/android-13
  * @size:	image buffer size in bytes
  */
 struct s5p_jpeg_q_data {
@@ -207,12 +266,19 @@ struct s5p_jpeg_q_data {
 	struct s5p_jpeg_marker	dqt;
 	u32			sof;
 	u32			sof_len;
+<<<<<<< HEAD
 	u32			components;
+=======
+>>>>>>> upstream/android-13
 	u32			size;
 };
 
 /**
+<<<<<<< HEAD
  * s5p_jpeg_ctx - the device context data
+=======
+ * struct s5p_jpeg_ctx - the device context data
+>>>>>>> upstream/android-13
  * @jpeg:		JPEG IP device for this context
  * @mode:		compression (encode) operation or decompression (decode)
  * @compr_quality:	destination image quality in compression (encode) mode
@@ -246,7 +312,11 @@ struct s5p_jpeg_ctx {
 };
 
 /**
+<<<<<<< HEAD
  * s5p_jpeg_buffer - description of memory containing input JPEG data
+=======
+ * struct s5p_jpeg_buffer - description of memory containing input JPEG data
+>>>>>>> upstream/android-13
  * @size:	buffer size
  * @curr:	current position in the buffer
  * @data:	pointer to the data

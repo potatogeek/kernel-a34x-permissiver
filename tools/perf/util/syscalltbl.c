@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * System call table mapper
  *
  * (C) 2016 Arnaldo Carvalho de Melo <acme@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,16 +16,25 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "syscalltbl.h"
 #include <stdlib.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 #ifdef HAVE_SYSCALL_TABLE_SUPPORT
 #include <string.h>
 #include "string2.h"
+<<<<<<< HEAD
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 
 #if defined(__x86_64__)
 #include <asm/syscalls_64.c>
@@ -42,6 +56,13 @@ static const char **syscalltbl_native = syscalltbl_powerpc_32;
 #include <asm/syscalls.c>
 const int syscalltbl_native_max_id = SYSCALLTBL_ARM64_MAX_ID;
 static const char **syscalltbl_native = syscalltbl_arm64;
+<<<<<<< HEAD
+=======
+#elif defined(__mips__)
+#include <asm/syscalls_n64.c>
+const int syscalltbl_native_max_id = SYSCALLTBL_MIPS_N64_MAX_ID;
+static const char **syscalltbl_native = syscalltbl_mips_n64;
+>>>>>>> upstream/android-13
 #endif
 
 struct syscall {
@@ -87,6 +108,10 @@ static int syscalltbl__init_native(struct syscalltbl *tbl)
 
 	qsort(tbl->syscalls.entries, nr_entries, sizeof(struct syscall), syscallcmp);
 	tbl->syscalls.nr_entries = nr_entries;
+<<<<<<< HEAD
+=======
+	tbl->syscalls.max_id	 = syscalltbl_native_max_id;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -149,7 +174,11 @@ int syscalltbl__strglobmatch_first(struct syscalltbl *tbl, const char *syscall_g
 
 struct syscalltbl *syscalltbl__new(void)
 {
+<<<<<<< HEAD
 	struct syscalltbl *tbl = malloc(sizeof(*tbl));
+=======
+	struct syscalltbl *tbl = zalloc(sizeof(*tbl));
+>>>>>>> upstream/android-13
 	if (tbl)
 		tbl->audit_machine = audit_detect_machine();
 	return tbl;

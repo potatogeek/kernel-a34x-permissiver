@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI driver for NVIDIA's Tegra114 SPI Controller.
  *
  * Copyright (c) 2013, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -95,8 +102,15 @@
 		(reg = (((val) & 0x1) << ((cs) * 8 + 5)) |	\
 			((reg) & ~(1 << ((cs) * 8 + 5))))
 #define SPI_SET_CYCLES_BETWEEN_PACKETS(reg, cs, val)		\
+<<<<<<< HEAD
 		(reg = (((val) & 0xF) << ((cs) * 8)) |		\
 			((reg) & ~(0xF << ((cs) * 8))))
+=======
+		(reg = (((val) & 0x1F) << ((cs) * 8)) |		\
+			((reg) & ~(0x1F << ((cs) * 8))))
+#define MAX_SETUP_HOLD_CYCLES			16
+#define MAX_INACTIVE_CYCLES			32
+>>>>>>> upstream/android-13
 
 #define SPI_TRANS_STATUS			0x010
 #define SPI_BLK_CNT(val)			(((val) >> 0) & 0xFFFF)
@@ -149,6 +163,11 @@
 
 #define SPI_TX_FIFO				0x108
 #define SPI_RX_FIFO				0x188
+<<<<<<< HEAD
+=======
+#define SPI_INTR_MASK				0x18c
+#define SPI_INTR_ALL_MASK			(0x1fUL << 25)
+>>>>>>> upstream/android-13
 #define MAX_CHIP_SELECT				4
 #define SPI_FIFO_DEPTH				64
 #define DATA_DIR_TX				(1 << 0)
@@ -161,6 +180,18 @@
 #define MAX_HOLD_CYCLES				16
 #define SPI_DEFAULT_SPEED			25000000
 
+<<<<<<< HEAD
+=======
+struct tegra_spi_soc_data {
+	bool has_intr_mask_reg;
+};
+
+struct tegra_spi_client_data {
+	int tx_clk_tap_delay;
+	int rx_clk_tap_delay;
+};
+
+>>>>>>> upstream/android-13
 struct tegra_spi_data {
 	struct device				*dev;
 	struct spi_master			*master;
@@ -187,6 +218,10 @@ struct tegra_spi_data {
 	unsigned				dma_buf_size;
 	unsigned				max_buf_size;
 	bool					is_curr_dma_xfer;
+<<<<<<< HEAD
+=======
+	bool					use_hw_based_cs;
+>>>>>>> upstream/android-13
 
 	struct completion			rx_dma_complete;
 	struct completion			tx_dma_complete;
@@ -199,6 +234,13 @@ struct tegra_spi_data {
 	u32					command1_reg;
 	u32					dma_control_reg;
 	u32					def_command1_reg;
+<<<<<<< HEAD
+=======
+	u32					def_command2_reg;
+	u32					spi_cs_timing1;
+	u32					spi_cs_timing2;
+	u8					last_used_cs;
+>>>>>>> upstream/android-13
 
 	struct completion			xfer_completion;
 	struct spi_transfer			*curr_xfer;
@@ -211,6 +253,10 @@ struct tegra_spi_data {
 	u32					*tx_dma_buf;
 	dma_addr_t				tx_dma_phys;
 	struct dma_async_tx_descriptor		*tx_dma_desc;
+<<<<<<< HEAD
+=======
+	const struct tegra_spi_soc_data		*soc_data;
+>>>>>>> upstream/android-13
 };
 
 static int tegra_spi_runtime_suspend(struct device *dev);
@@ -259,11 +305,20 @@ static unsigned tegra_spi_calculate_curr_xfer_param(
 
 	tspi->bytes_per_word = DIV_ROUND_UP(bits_per_word, 8);
 
+<<<<<<< HEAD
 	if (bits_per_word == 8 || bits_per_word == 16) {
 		tspi->is_packed = 1;
 		tspi->words_per_32bit = 32/bits_per_word;
 	} else {
 		tspi->is_packed = 0;
+=======
+	if ((bits_per_word == 8 || bits_per_word == 16 ||
+	     bits_per_word == 32) && t->len > 3) {
+		tspi->is_packed = true;
+		tspi->words_per_32bit = 32/bits_per_word;
+	} else {
+		tspi->is_packed = false;
+>>>>>>> upstream/android-13
 		tspi->words_per_32bit = 1;
 	}
 
@@ -553,11 +608,21 @@ static int tegra_spi_start_dma_based_transfer(
 		dma_burst = 8;
 	}
 
+<<<<<<< HEAD
 	if (tspi->cur_direction & DATA_DIR_TX)
 		val |= SPI_IE_TX;
 
 	if (tspi->cur_direction & DATA_DIR_RX)
 		val |= SPI_IE_RX;
+=======
+	if (!tspi->soc_data->has_intr_mask_reg) {
+		if (tspi->cur_direction & DATA_DIR_TX)
+			val |= SPI_IE_TX;
+
+		if (tspi->cur_direction & DATA_DIR_RX)
+			val |= SPI_IE_RX;
+	}
+>>>>>>> upstream/android-13
 
 	tegra_spi_writel(tspi, val, SPI_DMA_CTL);
 	tspi->dma_control_reg = val;
@@ -641,8 +706,14 @@ static int tegra_spi_start_cpu_based_transfer(
 
 	tspi->is_curr_dma_xfer = false;
 
+<<<<<<< HEAD
 	val |= SPI_DMA_EN;
 	tegra_spi_writel(tspi, val, SPI_DMA_CTL);
+=======
+	val = tspi->command1_reg;
+	val |= SPI_PIO;
+	tegra_spi_writel(tspi, val, SPI_COMMAND1);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -652,6 +723,7 @@ static int tegra_spi_init_dma_param(struct tegra_spi_data *tspi,
 	struct dma_chan *dma_chan;
 	u32 *dma_buf;
 	dma_addr_t dma_phys;
+<<<<<<< HEAD
 	int ret;
 
 	dma_chan = dma_request_slave_channel_reason(tspi->dev,
@@ -663,6 +735,13 @@ static int tegra_spi_init_dma_param(struct tegra_spi_data *tspi,
 				"Dma channel is not available: %d\n", ret);
 		return ret;
 	}
+=======
+
+	dma_chan = dma_request_chan(tspi->dev, dma_to_memory ? "rx" : "tx");
+	if (IS_ERR(dma_chan))
+		return dev_err_probe(tspi->dev, PTR_ERR(dma_chan),
+				     "Dma channel is not available\n");
+>>>>>>> upstream/android-13
 
 	dma_buf = dma_alloc_coherent(tspi->dev, tspi->dma_buf_size,
 				&dma_phys, GFP_KERNEL);
@@ -711,6 +790,7 @@ static void tegra_spi_deinit_dma_param(struct tegra_spi_data *tspi,
 	dma_release_channel(dma_chan);
 }
 
+<<<<<<< HEAD
 static u32 tegra_spi_setup_transfer_one(struct spi_device *spi,
 		struct spi_transfer *t, bool is_first_of_msg)
 {
@@ -719,6 +799,75 @@ static u32 tegra_spi_setup_transfer_one(struct spi_device *spi,
 	u8 bits_per_word = t->bits_per_word;
 	u32 command1;
 	int req_mode;
+=======
+static int tegra_spi_set_hw_cs_timing(struct spi_device *spi)
+{
+	struct tegra_spi_data *tspi = spi_master_get_devdata(spi->master);
+	struct spi_delay *setup = &spi->cs_setup;
+	struct spi_delay *hold = &spi->cs_hold;
+	struct spi_delay *inactive = &spi->cs_inactive;
+	u8 setup_dly, hold_dly, inactive_dly;
+	u32 setup_hold;
+	u32 spi_cs_timing;
+	u32 inactive_cycles;
+	u8 cs_state;
+
+	if ((setup && setup->unit != SPI_DELAY_UNIT_SCK) ||
+	    (hold && hold->unit != SPI_DELAY_UNIT_SCK) ||
+	    (inactive && inactive->unit != SPI_DELAY_UNIT_SCK)) {
+		dev_err(&spi->dev,
+			"Invalid delay unit %d, should be SPI_DELAY_UNIT_SCK\n",
+			SPI_DELAY_UNIT_SCK);
+		return -EINVAL;
+	}
+
+	setup_dly = setup ? setup->value : 0;
+	hold_dly = hold ? hold->value : 0;
+	inactive_dly = inactive ? inactive->value : 0;
+
+	setup_dly = min_t(u8, setup_dly, MAX_SETUP_HOLD_CYCLES);
+	hold_dly = min_t(u8, hold_dly, MAX_SETUP_HOLD_CYCLES);
+	if (setup_dly && hold_dly) {
+		setup_hold = SPI_SETUP_HOLD(setup_dly - 1, hold_dly - 1);
+		spi_cs_timing = SPI_CS_SETUP_HOLD(tspi->spi_cs_timing1,
+						  spi->chip_select,
+						  setup_hold);
+		if (tspi->spi_cs_timing1 != spi_cs_timing) {
+			tspi->spi_cs_timing1 = spi_cs_timing;
+			tegra_spi_writel(tspi, spi_cs_timing, SPI_CS_TIMING1);
+		}
+	}
+
+	inactive_cycles = min_t(u8, inactive_dly, MAX_INACTIVE_CYCLES);
+	if (inactive_cycles)
+		inactive_cycles--;
+	cs_state = inactive_cycles ? 0 : 1;
+	spi_cs_timing = tspi->spi_cs_timing2;
+	SPI_SET_CS_ACTIVE_BETWEEN_PACKETS(spi_cs_timing, spi->chip_select,
+					  cs_state);
+	SPI_SET_CYCLES_BETWEEN_PACKETS(spi_cs_timing, spi->chip_select,
+				       inactive_cycles);
+	if (tspi->spi_cs_timing2 != spi_cs_timing) {
+		tspi->spi_cs_timing2 = spi_cs_timing;
+		tegra_spi_writel(tspi, spi_cs_timing, SPI_CS_TIMING2);
+	}
+
+	return 0;
+}
+
+static u32 tegra_spi_setup_transfer_one(struct spi_device *spi,
+					struct spi_transfer *t,
+					bool is_first_of_msg,
+					bool is_single_xfer)
+{
+	struct tegra_spi_data *tspi = spi_master_get_devdata(spi->master);
+	struct tegra_spi_client_data *cdata = spi->controller_data;
+	u32 speed = t->speed_hz;
+	u8 bits_per_word = t->bits_per_word;
+	u32 command1, command2;
+	int req_mode;
+	u32 tx_tap = 0, rx_tap = 0;
+>>>>>>> upstream/android-13
 
 	if (speed != tspi->cur_speed) {
 		clk_set_rate(tspi->clk, speed);
@@ -748,6 +897,19 @@ static u32 tegra_spi_setup_transfer_one(struct spi_device *spi,
 		else if (req_mode == SPI_MODE_3)
 			command1 |= SPI_CONTROL_MODE_3;
 
+<<<<<<< HEAD
+=======
+		if (spi->mode & SPI_LSB_FIRST)
+			command1 |= SPI_LSBIT_FE;
+		else
+			command1 &= ~SPI_LSBIT_FE;
+
+		if (spi->mode & SPI_3WIRE)
+			command1 |= SPI_BIDIROE;
+		else
+			command1 &= ~SPI_BIDIROE;
+
+>>>>>>> upstream/android-13
 		if (tspi->cs_control) {
 			if (tspi->cs_control != spi)
 				tegra_spi_writel(tspi, command1, SPI_COMMAND1);
@@ -755,6 +917,7 @@ static u32 tegra_spi_setup_transfer_one(struct spi_device *spi,
 		} else
 			tegra_spi_writel(tspi, command1, SPI_COMMAND1);
 
+<<<<<<< HEAD
 		command1 |= SPI_CS_SW_HW;
 		if (spi->mode & SPI_CS_HIGH)
 			command1 |= SPI_CS_SW_VAL;
@@ -762,6 +925,36 @@ static u32 tegra_spi_setup_transfer_one(struct spi_device *spi,
 			command1 &= ~SPI_CS_SW_VAL;
 
 		tegra_spi_writel(tspi, 0, SPI_COMMAND2);
+=======
+		/* GPIO based chip select control */
+		if (spi->cs_gpiod)
+			gpiod_set_value(spi->cs_gpiod, 1);
+
+		if (is_single_xfer && !(t->cs_change)) {
+			tspi->use_hw_based_cs = true;
+			command1 &= ~(SPI_CS_SW_HW | SPI_CS_SW_VAL);
+		} else {
+			tspi->use_hw_based_cs = false;
+			command1 |= SPI_CS_SW_HW;
+			if (spi->mode & SPI_CS_HIGH)
+				command1 |= SPI_CS_SW_VAL;
+			else
+				command1 &= ~SPI_CS_SW_VAL;
+		}
+
+		if (tspi->last_used_cs != spi->chip_select) {
+			if (cdata && cdata->tx_clk_tap_delay)
+				tx_tap = cdata->tx_clk_tap_delay;
+			if (cdata && cdata->rx_clk_tap_delay)
+				rx_tap = cdata->rx_clk_tap_delay;
+			command2 = SPI_TX_TAP_DELAY(tx_tap) |
+				   SPI_RX_TAP_DELAY(rx_tap);
+			if (command2 != tspi->def_command2_reg)
+				tegra_spi_writel(tspi, command2, SPI_COMMAND2);
+			tspi->last_used_cs = spi->chip_select;
+		}
+
+>>>>>>> upstream/android-13
 	} else {
 		command1 = tspi->command1_reg;
 		command1 &= ~SPI_BIT_LENGTH(~0);
@@ -780,6 +973,14 @@ static int tegra_spi_start_transfer_one(struct spi_device *spi,
 
 	total_fifo_words = tegra_spi_calculate_curr_xfer_param(spi, tspi, t);
 
+<<<<<<< HEAD
+=======
+	if (t->rx_nbits == SPI_NBITS_DUAL || t->tx_nbits == SPI_NBITS_DUAL)
+		command1 |= SPI_BOTH_EN_BIT;
+	else
+		command1 &= ~SPI_BOTH_EN_BIT;
+
+>>>>>>> upstream/android-13
 	if (tspi->is_packed)
 		command1 |= SPI_PACKED;
 	else
@@ -812,9 +1013,48 @@ static int tegra_spi_start_transfer_one(struct spi_device *spi,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int tegra_spi_setup(struct spi_device *spi)
 {
 	struct tegra_spi_data *tspi = spi_master_get_devdata(spi->master);
+=======
+static struct tegra_spi_client_data
+	*tegra_spi_parse_cdata_dt(struct spi_device *spi)
+{
+	struct tegra_spi_client_data *cdata;
+	struct device_node *slave_np;
+
+	slave_np = spi->dev.of_node;
+	if (!slave_np) {
+		dev_dbg(&spi->dev, "device node not found\n");
+		return NULL;
+	}
+
+	cdata = kzalloc(sizeof(*cdata), GFP_KERNEL);
+	if (!cdata)
+		return NULL;
+
+	of_property_read_u32(slave_np, "nvidia,tx-clk-tap-delay",
+			     &cdata->tx_clk_tap_delay);
+	of_property_read_u32(slave_np, "nvidia,rx-clk-tap-delay",
+			     &cdata->rx_clk_tap_delay);
+	return cdata;
+}
+
+static void tegra_spi_cleanup(struct spi_device *spi)
+{
+	struct tegra_spi_client_data *cdata = spi->controller_data;
+
+	spi->controller_data = NULL;
+	if (spi->dev.of_node)
+		kfree(cdata);
+}
+
+static int tegra_spi_setup(struct spi_device *spi)
+{
+	struct tegra_spi_data *tspi = spi_master_get_devdata(spi->master);
+	struct tegra_spi_client_data *cdata = spi->controller_data;
+>>>>>>> upstream/android-13
 	u32 val;
 	unsigned long flags;
 	int ret;
@@ -825,14 +1065,41 @@ static int tegra_spi_setup(struct spi_device *spi)
 		spi->mode & SPI_CPHA ? "" : "~",
 		spi->max_speed_hz);
 
+<<<<<<< HEAD
+=======
+	if (!cdata) {
+		cdata = tegra_spi_parse_cdata_dt(spi);
+		spi->controller_data = cdata;
+	}
+
+>>>>>>> upstream/android-13
 	ret = pm_runtime_get_sync(tspi->dev);
 	if (ret < 0) {
 		pm_runtime_put_noidle(tspi->dev);
 		dev_err(tspi->dev, "pm runtime failed, e = %d\n", ret);
+<<<<<<< HEAD
 		return ret;
 	}
 
 	spin_lock_irqsave(&tspi->lock, flags);
+=======
+		if (cdata)
+			tegra_spi_cleanup(spi);
+		return ret;
+	}
+
+	if (tspi->soc_data->has_intr_mask_reg) {
+		val = tegra_spi_readl(tspi, SPI_INTR_MASK);
+		val &= ~SPI_INTR_ALL_MASK;
+		tegra_spi_writel(tspi, val, SPI_INTR_MASK);
+	}
+
+	spin_lock_irqsave(&tspi->lock, flags);
+	/* GPIO based chip select control */
+	if (spi->cs_gpiod)
+		gpiod_set_value(spi->cs_gpiod, 0);
+
+>>>>>>> upstream/android-13
 	val = tspi->def_command1_reg;
 	if (spi->mode & SPI_CS_HIGH)
 		val &= ~SPI_CS_POL_INACTIVE(spi->chip_select);
@@ -846,6 +1113,7 @@ static int tegra_spi_setup(struct spi_device *spi)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void tegra_spi_transfer_delay(int delay)
 {
 	if (!delay)
@@ -855,6 +1123,40 @@ static void tegra_spi_transfer_delay(int delay)
 		mdelay(delay / 1000);
 
 	udelay(delay % 1000);
+=======
+static void tegra_spi_transfer_end(struct spi_device *spi)
+{
+	struct tegra_spi_data *tspi = spi_master_get_devdata(spi->master);
+	int cs_val = (spi->mode & SPI_CS_HIGH) ? 0 : 1;
+
+	/* GPIO based chip select control */
+	if (spi->cs_gpiod)
+		gpiod_set_value(spi->cs_gpiod, 0);
+
+	if (!tspi->use_hw_based_cs) {
+		if (cs_val)
+			tspi->command1_reg |= SPI_CS_SW_VAL;
+		else
+			tspi->command1_reg &= ~SPI_CS_SW_VAL;
+		tegra_spi_writel(tspi, tspi->command1_reg, SPI_COMMAND1);
+	}
+
+	tegra_spi_writel(tspi, tspi->def_command1_reg, SPI_COMMAND1);
+}
+
+static void tegra_spi_dump_regs(struct tegra_spi_data *tspi)
+{
+	dev_dbg(tspi->dev, "============ SPI REGISTER DUMP ============\n");
+	dev_dbg(tspi->dev, "Command1:    0x%08x | Command2:    0x%08x\n",
+		tegra_spi_readl(tspi, SPI_COMMAND1),
+		tegra_spi_readl(tspi, SPI_COMMAND2));
+	dev_dbg(tspi->dev, "DMA_CTL:     0x%08x | DMA_BLK:     0x%08x\n",
+		tegra_spi_readl(tspi, SPI_DMA_CTL),
+		tegra_spi_readl(tspi, SPI_DMA_BLK));
+	dev_dbg(tspi->dev, "TRANS_STAT:  0x%08x | FIFO_STATUS: 0x%08x\n",
+		tegra_spi_readl(tspi, SPI_TRANS_STATUS),
+		tegra_spi_readl(tspi, SPI_FIFO_STATUS));
+>>>>>>> upstream/android-13
 }
 
 static int tegra_spi_transfer_one_message(struct spi_master *master,
@@ -866,16 +1168,29 @@ static int tegra_spi_transfer_one_message(struct spi_master *master,
 	struct spi_device *spi = msg->spi;
 	int ret;
 	bool skip = false;
+<<<<<<< HEAD
+=======
+	int single_xfer;
+>>>>>>> upstream/android-13
 
 	msg->status = 0;
 	msg->actual_length = 0;
 
+<<<<<<< HEAD
+=======
+	single_xfer = list_is_singular(&msg->transfers);
+>>>>>>> upstream/android-13
 	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
 		u32 cmd1;
 
 		reinit_completion(&tspi->xfer_completion);
 
+<<<<<<< HEAD
 		cmd1 = tegra_spi_setup_transfer_one(spi, xfer, is_first_msg);
+=======
+		cmd1 = tegra_spi_setup_transfer_one(spi, xfer, is_first_msg,
+						    single_xfer);
+>>>>>>> upstream/android-13
 
 		if (!xfer->len) {
 			ret = 0;
@@ -894,8 +1209,12 @@ static int tegra_spi_transfer_one_message(struct spi_master *master,
 		ret = wait_for_completion_timeout(&tspi->xfer_completion,
 						SPI_DMA_TIMEOUT);
 		if (WARN_ON(ret == 0)) {
+<<<<<<< HEAD
 			dev_err(tspi->dev,
 				"spi transfer timeout, err %d\n", ret);
+=======
+			dev_err(tspi->dev, "spi transfer timeout\n");
+>>>>>>> upstream/android-13
 			if (tspi->is_curr_dma_xfer &&
 			    (tspi->cur_direction & DATA_DIR_TX))
 				dmaengine_terminate_all(tspi->tx_dma_chan);
@@ -903,31 +1222,49 @@ static int tegra_spi_transfer_one_message(struct spi_master *master,
 			    (tspi->cur_direction & DATA_DIR_RX))
 				dmaengine_terminate_all(tspi->rx_dma_chan);
 			ret = -EIO;
+<<<<<<< HEAD
+=======
+			tegra_spi_dump_regs(tspi);
+>>>>>>> upstream/android-13
 			tegra_spi_flush_fifos(tspi);
 			reset_control_assert(tspi->rst);
 			udelay(2);
 			reset_control_deassert(tspi->rst);
+<<<<<<< HEAD
+=======
+			tspi->last_used_cs = master->num_chipselect + 1;
+>>>>>>> upstream/android-13
 			goto complete_xfer;
 		}
 
 		if (tspi->tx_status ||  tspi->rx_status) {
 			dev_err(tspi->dev, "Error in Transfer\n");
 			ret = -EIO;
+<<<<<<< HEAD
+=======
+			tegra_spi_dump_regs(tspi);
+>>>>>>> upstream/android-13
 			goto complete_xfer;
 		}
 		msg->actual_length += xfer->len;
 
 complete_xfer:
 		if (ret < 0 || skip) {
+<<<<<<< HEAD
 			tegra_spi_writel(tspi, tspi->def_command1_reg,
 					SPI_COMMAND1);
 			tegra_spi_transfer_delay(xfer->delay_usecs);
+=======
+			tegra_spi_transfer_end(spi);
+			spi_transfer_delay_exec(xfer);
+>>>>>>> upstream/android-13
 			goto exit;
 		} else if (list_is_last(&xfer->transfer_list,
 					&msg->transfers)) {
 			if (xfer->cs_change)
 				tspi->cs_control = spi;
 			else {
+<<<<<<< HEAD
 				tegra_spi_writel(tspi, tspi->def_command1_reg,
 						SPI_COMMAND1);
 				tegra_spi_transfer_delay(xfer->delay_usecs);
@@ -936,6 +1273,14 @@ complete_xfer:
 			tegra_spi_writel(tspi, tspi->def_command1_reg,
 					SPI_COMMAND1);
 			tegra_spi_transfer_delay(xfer->delay_usecs);
+=======
+				tegra_spi_transfer_end(spi);
+				spi_transfer_delay_exec(xfer);
+			}
+		} else if (xfer->cs_change) {
+			tegra_spi_transfer_end(spi);
+			spi_transfer_delay_exec(xfer);
+>>>>>>> upstream/android-13
 		}
 
 	}
@@ -957,12 +1302,23 @@ static irqreturn_t handle_cpu_based_xfer(struct tegra_spi_data *tspi)
 			tspi->status_reg);
 		dev_err(tspi->dev, "CpuXfer 0x%08x:0x%08x\n",
 			tspi->command1_reg, tspi->dma_control_reg);
+<<<<<<< HEAD
 		tegra_spi_flush_fifos(tspi);
 		reset_control_assert(tspi->rst);
 		udelay(2);
 		reset_control_deassert(tspi->rst);
 		complete(&tspi->xfer_completion);
 		goto exit;
+=======
+		tegra_spi_dump_regs(tspi);
+		tegra_spi_flush_fifos(tspi);
+		complete(&tspi->xfer_completion);
+		spin_unlock_irqrestore(&tspi->lock, flags);
+		reset_control_assert(tspi->rst);
+		udelay(2);
+		reset_control_deassert(tspi->rst);
+		return IRQ_HANDLED;
+>>>>>>> upstream/android-13
 	}
 
 	if (tspi->cur_direction & DATA_DIR_RX)
@@ -1030,12 +1386,22 @@ static irqreturn_t handle_dma_based_xfer(struct tegra_spi_data *tspi)
 			tspi->status_reg);
 		dev_err(tspi->dev, "DmaXfer 0x%08x:0x%08x\n",
 			tspi->command1_reg, tspi->dma_control_reg);
+<<<<<<< HEAD
 		tegra_spi_flush_fifos(tspi);
 		reset_control_assert(tspi->rst);
 		udelay(2);
 		reset_control_deassert(tspi->rst);
 		complete(&tspi->xfer_completion);
 		spin_unlock_irqrestore(&tspi->lock, flags);
+=======
+		tegra_spi_dump_regs(tspi);
+		tegra_spi_flush_fifos(tspi);
+		complete(&tspi->xfer_completion);
+		spin_unlock_irqrestore(&tspi->lock, flags);
+		reset_control_assert(tspi->rst);
+		udelay(2);
+		reset_control_deassert(tspi->rst);
+>>>>>>> upstream/android-13
 		return IRQ_HANDLED;
 	}
 
@@ -1091,8 +1457,34 @@ static irqreturn_t tegra_spi_isr(int irq, void *context_data)
 	return IRQ_WAKE_THREAD;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id tegra_spi_of_match[] = {
 	{ .compatible = "nvidia,tegra114-spi", },
+=======
+static struct tegra_spi_soc_data tegra114_spi_soc_data = {
+	.has_intr_mask_reg = false,
+};
+
+static struct tegra_spi_soc_data tegra124_spi_soc_data = {
+	.has_intr_mask_reg = false,
+};
+
+static struct tegra_spi_soc_data tegra210_spi_soc_data = {
+	.has_intr_mask_reg = true,
+};
+
+static const struct of_device_id tegra_spi_of_match[] = {
+	{
+		.compatible = "nvidia,tegra114-spi",
+		.data	    = &tegra114_spi_soc_data,
+	}, {
+		.compatible = "nvidia,tegra124-spi",
+		.data	    = &tegra124_spi_soc_data,
+	}, {
+		.compatible = "nvidia,tegra210-spi",
+		.data	    = &tegra210_spi_soc_data,
+	},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, tegra_spi_of_match);
@@ -1103,6 +1495,10 @@ static int tegra_spi_probe(struct platform_device *pdev)
 	struct tegra_spi_data	*tspi;
 	struct resource		*r;
 	int ret, spi_irq;
+<<<<<<< HEAD
+=======
+	int bus_num;
+>>>>>>> upstream/android-13
 
 	master = spi_alloc_master(&pdev->dev, sizeof(*tspi));
 	if (!master) {
@@ -1117,16 +1513,42 @@ static int tegra_spi_probe(struct platform_device *pdev)
 		master->max_speed_hz = 25000000; /* 25MHz */
 
 	/* the spi->mode bits understood by this driver: */
+<<<<<<< HEAD
 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH;
 	master->setup = tegra_spi_setup;
 	master->transfer_one_message = tegra_spi_transfer_one_message;
 	master->num_chipselect = MAX_CHIP_SELECT;
 	master->auto_runtime_pm = true;
+=======
+	master->use_gpio_descriptors = true;
+	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH | SPI_LSB_FIRST |
+			    SPI_TX_DUAL | SPI_RX_DUAL | SPI_3WIRE;
+	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 32);
+	master->setup = tegra_spi_setup;
+	master->cleanup = tegra_spi_cleanup;
+	master->transfer_one_message = tegra_spi_transfer_one_message;
+	master->set_cs_timing = tegra_spi_set_hw_cs_timing;
+	master->num_chipselect = MAX_CHIP_SELECT;
+	master->auto_runtime_pm = true;
+	bus_num = of_alias_get_id(pdev->dev.of_node, "spi");
+	if (bus_num >= 0)
+		master->bus_num = bus_num;
+>>>>>>> upstream/android-13
 
 	tspi->master = master;
 	tspi->dev = &pdev->dev;
 	spin_lock_init(&tspi->lock);
 
+<<<<<<< HEAD
+=======
+	tspi->soc_data = of_device_get_match_data(&pdev->dev);
+	if (!tspi->soc_data) {
+		dev_err(&pdev->dev, "unsupported tegra\n");
+		ret = -ENODEV;
+		goto exit_free_master;
+	}
+
+>>>>>>> upstream/android-13
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	tspi->base = devm_ioremap_resource(&pdev->dev, r);
 	if (IS_ERR(tspi->base)) {
@@ -1136,6 +1558,13 @@ static int tegra_spi_probe(struct platform_device *pdev)
 	tspi->phys = r->start;
 
 	spi_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
+=======
+	if (spi_irq < 0) {
+		ret = spi_irq;
+		goto exit_free_master;
+	}
+>>>>>>> upstream/android-13
 	tspi->irq = spi_irq;
 
 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
@@ -1177,6 +1606,10 @@ static int tegra_spi_probe(struct platform_device *pdev)
 	ret = pm_runtime_get_sync(&pdev->dev);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
+<<<<<<< HEAD
+=======
+		pm_runtime_put_noidle(&pdev->dev);
+>>>>>>> upstream/android-13
 		goto exit_pm_disable;
 	}
 
@@ -1185,6 +1618,13 @@ static int tegra_spi_probe(struct platform_device *pdev)
 	reset_control_deassert(tspi->rst);
 	tspi->def_command1_reg  = SPI_M_S;
 	tegra_spi_writel(tspi, tspi->def_command1_reg, SPI_COMMAND1);
+<<<<<<< HEAD
+=======
+	tspi->spi_cs_timing1 = tegra_spi_readl(tspi, SPI_CS_TIMING1);
+	tspi->spi_cs_timing2 = tegra_spi_readl(tspi, SPI_CS_TIMING2);
+	tspi->def_command2_reg = tegra_spi_readl(tspi, SPI_COMMAND2);
+	tspi->last_used_cs = master->num_chipselect + 1;
+>>>>>>> upstream/android-13
 	pm_runtime_put(&pdev->dev);
 	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
 				   tegra_spi_isr_thread, IRQF_ONESHOT,
@@ -1258,6 +1698,11 @@ static int tegra_spi_resume(struct device *dev)
 		return ret;
 	}
 	tegra_spi_writel(tspi, tspi->command1_reg, SPI_COMMAND1);
+<<<<<<< HEAD
+=======
+	tegra_spi_writel(tspi, tspi->def_command2_reg, SPI_COMMAND2);
+	tspi->last_used_cs = master->num_chipselect + 1;
+>>>>>>> upstream/android-13
 	pm_runtime_put(dev);
 
 	return spi_master_resume(master);

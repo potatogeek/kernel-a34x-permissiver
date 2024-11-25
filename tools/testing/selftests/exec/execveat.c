@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Google, Inc.
  *
@@ -7,6 +8,18 @@
  */
 
 #define _GNU_SOURCE  /* to get O_PATH, AT_EMPTY_PATH */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 Google, Inc.
+ *
+ * Selftests for execveat(2).
+ */
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE  /* to get O_PATH, AT_EMPTY_PATH */
+#endif
+>>>>>>> upstream/android-13
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
@@ -312,6 +325,13 @@ static int run_tests(void)
 	fail += check_execveat_fail(AT_FDCWD, fullname_symlink,
 				    AT_SYMLINK_NOFOLLOW, ELOOP);
 
+<<<<<<< HEAD
+=======
+	/*  Non-regular file failure */
+	fail += check_execveat_fail(dot_dfd, "pipe", 0, EACCES);
+	unlink("pipe");
+
+>>>>>>> upstream/android-13
 	/* Shell script wrapping executable file: */
 	/*   dfd + path */
 	fail += check_execveat(subdir_dfd, "../script", 0);
@@ -385,6 +405,11 @@ static void prerequisites(void)
 	fd = open("subdir.ephemeral/script", O_RDWR|O_CREAT|O_TRUNC, 0755);
 	write(fd, script, strlen(script));
 	close(fd);
+<<<<<<< HEAD
+=======
+
+	mkfifo("pipe", 0755);
+>>>>>>> upstream/android-13
 }
 
 int main(int argc, char **argv)

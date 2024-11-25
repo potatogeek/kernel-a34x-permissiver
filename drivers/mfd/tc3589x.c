@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License Terms: GNU General Public License, version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+ *
+>>>>>>> upstream/android-13
  * Author: Hanumath Prasad <hanumath.prasad@stericsson.com> for ST-Ericsson
  * Author: Rabin Vincent <rabin.vincent@stericsson.com> for ST-Ericsson
  */
@@ -18,7 +25,11 @@
 #include <linux/mfd/tc3589x.h>
 #include <linux/err.h>
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * enum tc3589x_version - indicates the TC3589x version
  */
 enum tc3589x_version {
@@ -141,7 +152,11 @@ out:
 }
 EXPORT_SYMBOL_GPL(tc3589x_set_bits);
 
+<<<<<<< HEAD
 static struct resource gpio_resources[] = {
+=======
+static const struct resource gpio_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start	= TC3589x_INT_GPIIRQ,
 		.end	= TC3589x_INT_GPIIRQ,
@@ -149,7 +164,11 @@ static struct resource gpio_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource keypad_resources[] = {
+=======
+static const struct resource keypad_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start  = TC3589x_INT_KBDIRQ,
 		.end    = TC3589x_INT_KBDIRQ,
@@ -187,7 +206,11 @@ again:
 
 	while (status) {
 		int bit = __ffs(status);
+<<<<<<< HEAD
 		int virq = irq_create_mapping(tc3589x->domain, bit);
+=======
+		int virq = irq_find_mapping(tc3589x->domain, bit);
+>>>>>>> upstream/android-13
 
 		handle_nested_irq(virq);
 		status &= ~(1 << bit);

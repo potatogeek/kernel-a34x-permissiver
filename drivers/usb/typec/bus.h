@@ -4,9 +4,16 @@
 #define __USB_TYPEC_ALTMODE_H__
 
 #include <linux/usb/typec_altmode.h>
+<<<<<<< HEAD
 #include <linux/usb/typec_mux.h>
 
 struct bus_type;
+=======
+#include <linux/android_kabi.h>
+
+struct bus_type;
+struct typec_mux;
+>>>>>>> upstream/android-13
 
 struct altmode {
 	unsigned int			id;
@@ -22,14 +29,19 @@ struct altmode {
 
 	struct altmode			*partner;
 	struct altmode			*plug[2];
+<<<<<<< HEAD
 
 	struct blocking_notifier_head	nh;
+=======
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 #define to_altmode(d) container_of(d, struct altmode, adev)
 
 extern struct bus_type typec_bus;
 extern const struct device_type typec_altmode_dev_type;
+<<<<<<< HEAD
 extern const struct device_type typec_port_dev_type;
 
 #define is_typec_altmode(_dev_) (_dev_->type == &typec_altmode_dev_type)
@@ -49,5 +61,9 @@ struct typec_mux {
 
 #define to_typec_switch(_dev_) container_of(_dev_, struct typec_switch, dev)
 #define to_typec_mux(_dev_) container_of(_dev_, struct typec_mux, dev)
+=======
+
+#define is_typec_altmode(_dev_) (_dev_->type == &typec_altmode_dev_type)
+>>>>>>> upstream/android-13
 
 #endif /* __USB_TYPEC_ALTMODE_H__ */

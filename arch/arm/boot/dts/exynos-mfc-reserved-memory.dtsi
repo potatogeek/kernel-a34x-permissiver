@@ -11,14 +11,22 @@
 		#size-cells = <1>;
 		ranges;
 
+<<<<<<< HEAD
 		mfc_left: region_mfc_left {
+=======
+		mfc_left: region-mfc-left {
+>>>>>>> upstream/android-13
 			compatible = "shared-dma-pool";
 			no-map;
 			size = <0x2400000>;
 			alignment = <0x100000>;
 		};
 
+<<<<<<< HEAD
 		mfc_right: region_mfc_right {
+=======
+		mfc_right: region-mfc-right {
+>>>>>>> upstream/android-13
 			compatible = "shared-dma-pool";
 			no-map;
 			size = <0x800000>;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/sound/oss/dmasound/dmasound_atari.c
  *
@@ -1431,6 +1435,7 @@ static int FalconMixerIoctl(u_int cmd, u_long arg)
 {
 	int data;
 	switch (cmd) {
+<<<<<<< HEAD
 	    case SOUND_MIXER_READ_RECMASK:
 		return IOCTL_OUT(arg, SOUND_MASK_MIC);
 	    case SOUND_MIXER_READ_DEVMASK:
@@ -1444,12 +1449,32 @@ static int FalconMixerIoctl(u_int cmd, u_long arg)
 	    case SOUND_MIXER_READ_CAPS:
 		return IOCTL_OUT(arg, SOUND_CAP_EXCL_INPUT);
 	    case SOUND_MIXER_WRITE_MIC:
+=======
+	case SOUND_MIXER_READ_RECMASK:
+		return IOCTL_OUT(arg, SOUND_MASK_MIC);
+	case SOUND_MIXER_READ_DEVMASK:
+		return IOCTL_OUT(arg, SOUND_MASK_VOLUME | SOUND_MASK_MIC | SOUND_MASK_SPEAKER);
+	case SOUND_MIXER_READ_STEREODEVS:
+		return IOCTL_OUT(arg, SOUND_MASK_VOLUME | SOUND_MASK_MIC);
+	case SOUND_MIXER_READ_VOLUME:
+		return IOCTL_OUT(arg,
+			VOLUME_ATT_TO_VOXWARE(dmasound.volume_left) |
+			VOLUME_ATT_TO_VOXWARE(dmasound.volume_right) << 8);
+	case SOUND_MIXER_READ_CAPS:
+		return IOCTL_OUT(arg, SOUND_CAP_EXCL_INPUT);
+	case SOUND_MIXER_WRITE_MIC:
+>>>>>>> upstream/android-13
 		IOCTL_IN(arg, data);
 		tt_dmasnd.input_gain =
 			RECLEVEL_VOXWARE_TO_GAIN(data & 0xff) << 4 |
 			RECLEVEL_VOXWARE_TO_GAIN(data >> 8 & 0xff);
+<<<<<<< HEAD
 		/* fall thru, return set value */
 	    case SOUND_MIXER_READ_MIC:
+=======
+		fallthrough;	/* return set value */
+	case SOUND_MIXER_READ_MIC:
+>>>>>>> upstream/android-13
 		return IOCTL_OUT(arg,
 			RECLEVEL_GAIN_TO_VOXWARE(tt_dmasnd.input_gain >> 4 & 0xf) |
 			RECLEVEL_GAIN_TO_VOXWARE(tt_dmasnd.input_gain & 0xf) << 8);

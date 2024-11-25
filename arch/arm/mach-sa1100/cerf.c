@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * linux/arch/arm/mach-sa1100/cerf.c
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * linux/arch/arm/mach-sa1100/cerf.c
+ *
+>>>>>>> upstream/android-13
  * Apr-2003 : Removed some old PDA crud [FB]
  * Oct-2003 : Added uart2 resource [FB]
  * Jan-2004 : Removed io map for flash [FB]
@@ -89,6 +96,7 @@ static struct gpio_led_platform_data cerf_gpio_led_info = {
 	.num_leds	= ARRAY_SIZE(cerf_gpio_leds),
 };
 
+<<<<<<< HEAD
 static struct platform_device cerf_leds = {
 	.name	= "leds-gpio",
 	.id	= -1,
@@ -101,6 +109,10 @@ static struct platform_device cerf_leds = {
 static struct platform_device *cerf_devices[] __initdata = {
 	&cerfuart2_device,
 	&cerf_leds,
+=======
+static struct platform_device *cerf_devices[] __initdata = {
+	&cerfuart2_device,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_SA1100_CERF_FLASH_32MB
@@ -176,6 +188,10 @@ static void __init cerf_init(void)
 {
 	sa11x0_ppc_configure_mcp();
 	platform_add_devices(cerf_devices, ARRAY_SIZE(cerf_devices));
+<<<<<<< HEAD
+=======
+	gpio_led_register_device(-1, &cerf_gpio_led_info);
+>>>>>>> upstream/android-13
 	sa11x0_register_mtd(&cerf_flash_data, &cerf_flash_resource, 1);
 	sa11x0_register_mcp(&cerf_mcp_data);
 	sa11x0_register_pcmcia(1, &cerf_cf_gpio_table);

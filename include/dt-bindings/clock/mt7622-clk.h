@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 MediaTek Inc.
  * Author: Chen Zhong <chen.zhong@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2017 MediaTek Inc.
+ * Author: Chen Zhong <chen.zhong@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLK_MT7622_H

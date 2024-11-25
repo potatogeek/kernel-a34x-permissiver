@@ -13,6 +13,10 @@
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
 #include <linux/if_vlan.h>
+<<<<<<< HEAD
+=======
+#include <linux/phylink.h>
+>>>>>>> upstream/android-13
 
 /* Packet size info */
 #define XAE_HDR_SIZE			14 /* Size of Ethernet header */
@@ -83,6 +87,11 @@
 #define XAXIDMA_CR_RUNSTOP_MASK	0x00000001 /* Start/stop DMA channel */
 #define XAXIDMA_CR_RESET_MASK	0x00000004 /* Reset DMA engine */
 
+<<<<<<< HEAD
+=======
+#define XAXIDMA_SR_HALT_MASK	0x00000001 /* Indicates DMA channel halted */
+
+>>>>>>> upstream/android-13
 #define XAXIDMA_BD_NDESC_OFFSET		0x00 /* Next descriptor pointer */
 #define XAXIDMA_BD_BUFA_OFFSET		0x08 /* Buffer address */
 #define XAXIDMA_BD_CTRL_LEN_OFFSET	0x18 /* Control/buffer length */
@@ -158,10 +167,15 @@
 #define XAE_FCC_OFFSET		0x0000040C /* Flow Control Configuration */
 #define XAE_EMMC_OFFSET		0x00000410 /* EMAC mode configuration */
 #define XAE_PHYC_OFFSET		0x00000414 /* RGMII/SGMII configuration */
+<<<<<<< HEAD
+=======
+#define XAE_ID_OFFSET		0x000004F8 /* Identification register */
+>>>>>>> upstream/android-13
 #define XAE_MDIO_MC_OFFSET	0x00000500 /* MII Management Config */
 #define XAE_MDIO_MCR_OFFSET	0x00000504 /* MII Management Control */
 #define XAE_MDIO_MWD_OFFSET	0x00000508 /* MII Management Write Data */
 #define XAE_MDIO_MRD_OFFSET	0x0000050C /* MII Management Read Data */
+<<<<<<< HEAD
 #define XAE_MDIO_MIS_OFFSET	0x00000600 /* MII Management Interrupt Status */
 /* MII Mgmt Interrupt Pending register offset */
 #define XAE_MDIO_MIP_OFFSET	0x00000620
@@ -169,6 +183,8 @@
 #define XAE_MDIO_MIE_OFFSET	0x00000640
 /* MII Management Interrupt Clear register offset. */
 #define XAE_MDIO_MIC_OFFSET	0x00000660
+=======
+>>>>>>> upstream/android-13
 #define XAE_UAW0_OFFSET		0x00000700 /* Unicast address word 0 */
 #define XAE_UAW1_OFFSET		0x00000704 /* Unicast address word 1 */
 #define XAE_FMI_OFFSET		0x00000708 /* Filter Mask Index */
@@ -189,7 +205,11 @@
 #define XAE_RAF_TXVSTRPMODE_MASK	0x00000180 /* Tx VLAN STRIP mode */
 #define XAE_RAF_RXVSTRPMODE_MASK	0x00000600 /* Rx VLAN STRIP mode */
 #define XAE_RAF_NEWFNCENBL_MASK		0x00000800 /* New function mode */
+<<<<<<< HEAD
 /* Exteneded Multicast Filtering mode */
+=======
+/* Extended Multicast Filtering mode */
+>>>>>>> upstream/android-13
 #define XAE_RAF_EMULTIFLTRENBL_MASK	0x00001000
 #define XAE_RAF_STATSRST_MASK		0x00002000 /* Stats. Counter Reset */
 #define XAE_RAF_RXBADFRMEN_MASK		0x00004000 /* Recv Bad Frame Enable */
@@ -332,6 +352,10 @@
 #define XAE_FEATURE_PARTIAL_TX_CSUM	(1 << 1)
 #define XAE_FEATURE_FULL_RX_CSUM	(1 << 2)
 #define XAE_FEATURE_FULL_TX_CSUM	(1 << 3)
+<<<<<<< HEAD
+=======
+#define XAE_FEATURE_DMA_64BIT		(1 << 4)
+>>>>>>> upstream/android-13
 
 #define XAE_NO_CSUM_OFFLOAD		0
 
@@ -341,12 +365,25 @@
 
 #define DELAY_OF_ONE_MILLISEC		1000
 
+<<<<<<< HEAD
 /**
  * struct axidma_bd - Axi Dma buffer descriptor layout
  * @next:         MM2S/S2MM Next Descriptor Pointer
  * @reserved1:    Reserved and not used
  * @phys:         MM2S/S2MM Buffer Address
  * @reserved2:    Reserved and not used
+=======
+/* Xilinx PCS/PMA PHY register for switching 1000BaseX or SGMII */
+#define XLNX_MII_STD_SELECT_REG		0x11
+#define XLNX_MII_STD_SELECT_SGMII	BIT(0)
+
+/**
+ * struct axidma_bd - Axi Dma buffer descriptor layout
+ * @next:         MM2S/S2MM Next Descriptor Pointer
+ * @next_msb:     MM2S/S2MM Next Descriptor Pointer (high 32 bits)
+ * @phys:         MM2S/S2MM Buffer Address
+ * @phys_msb:     MM2S/S2MM Buffer Address (high 32 bits)
+>>>>>>> upstream/android-13
  * @reserved3:    Reserved and not used
  * @reserved4:    Reserved and not used
  * @cntrl:        MM2S/S2MM Control value
@@ -356,6 +393,7 @@
  * @app2:         MM2S/S2MM User Application Field 2.
  * @app3:         MM2S/S2MM User Application Field 3.
  * @app4:         MM2S/S2MM User Application Field 4.
+<<<<<<< HEAD
  * @sw_id_offset: MM2S/S2MM Sw ID
  * @reserved5:    Reserved and not used
  * @reserved6:    Reserved and not used
@@ -365,6 +403,14 @@ struct axidma_bd {
 	u32 reserved1;
 	u32 phys;
 	u32 reserved2;
+=======
+ */
+struct axidma_bd {
+	u32 next;	/* Physical address of next buffer descriptor */
+	u32 next_msb;	/* high 32 bits for IP >= v7.1, reserved on older IP */
+	u32 phys;
+	u32 phys_msb;	/* for IP >= v7.1, reserved for older IP */
+>>>>>>> upstream/android-13
 	u32 reserved3;
 	u32 reserved4;
 	u32 cntrl;
@@ -373,17 +419,26 @@ struct axidma_bd {
 	u32 app1;	/* TX start << 16 | insert */
 	u32 app2;	/* TX csum seed */
 	u32 app3;
+<<<<<<< HEAD
 	u32 app4;
 	u32 sw_id_offset;
 	u32 reserved5;
 	u32 reserved6;
 };
+=======
+	u32 app4;   /* Last field used by HW */
+	struct sk_buff *skb;
+} __aligned(XAXIDMA_BD_MINIMUM_ALIGNMENT);
+
+#define XAE_NUM_MISC_CLOCKS 3
+>>>>>>> upstream/android-13
 
 /**
  * struct axienet_local - axienet private per device data
  * @ndev:	Pointer for net_device to which it will be attached.
  * @dev:	Pointer to device structure
  * @phy_node:	Pointer to device node structure
+<<<<<<< HEAD
  * @mii_bus:	Pointer to MII bus structure
  * @regs:	Base address for the axienet_local device address space
  * @dma_regs:	Base address for the axidma device address space
@@ -398,6 +453,32 @@ struct axidma_bd {
  * @tx_bd_p:	Physical address(start address) of the TX buffer descr. ring
  * @rx_bd_v:	Virtual address of the RX buffer descriptor ring
  * @rx_bd_p:	Physical address(start address) of the RX buffer descr. ring
+=======
+ * @phylink:	Pointer to phylink instance
+ * @phylink_config: phylink configuration settings
+ * @pcs_phy:	Reference to PCS/PMA PHY if used
+ * @switch_x_sgmii: Whether switchable 1000BaseX/SGMII mode is enabled in the core
+ * @axi_clk:	AXI4-Lite bus clock
+ * @misc_clks:	Misc ethernet clocks (AXI4-Stream, Ref, MGT clocks)
+ * @mii_bus:	Pointer to MII bus structure
+ * @mii_clk_div: MII bus clock divider value
+ * @regs_start: Resource start for axienet device addresses
+ * @regs:	Base address for the axienet_local device address space
+ * @dma_regs:	Base address for the axidma device address space
+ * @dma_err_task: Work structure to process Axi DMA errors
+ * @tx_irq:	Axidma TX IRQ number
+ * @rx_irq:	Axidma RX IRQ number
+ * @eth_irq:	Ethernet core IRQ number
+ * @phy_mode:	Phy type to identify between MII/GMII/RGMII/SGMII/1000 Base-X
+ * @options:	AxiEthernet option word
+ * @features:	Stores the extended features supported by the axienet hw
+ * @tx_bd_v:	Virtual address of the TX buffer descriptor ring
+ * @tx_bd_p:	Physical address(start address) of the TX buffer descr. ring
+ * @tx_bd_num:	Size of TX buffer descriptor ring
+ * @rx_bd_v:	Virtual address of the RX buffer descriptor ring
+ * @rx_bd_p:	Physical address(start address) of the RX buffer descr. ring
+ * @rx_bd_num:	Size of RX buffer descriptor ring
+>>>>>>> upstream/android-13
  * @tx_bd_ci:	Stores the index of the Tx buffer descriptor in the ring being
  *		accessed currently. Used while alloc. BDs before a TX starts
  * @tx_bd_tail:	Stores the index of the Tx buffer descriptor in the ring being
@@ -419,6 +500,7 @@ struct axienet_local {
 	struct net_device *ndev;
 	struct device *dev;
 
+<<<<<<< HEAD
 	/* Connection to PHY device */
 	struct device_node *phy_node;
 
@@ -444,6 +526,43 @@ struct axienet_local {
 	dma_addr_t tx_bd_p;
 	struct axidma_bd *rx_bd_v;
 	dma_addr_t rx_bd_p;
+=======
+	struct device_node *phy_node;
+
+	struct phylink *phylink;
+	struct phylink_config phylink_config;
+
+	struct mdio_device *pcs_phy;
+
+	bool switch_x_sgmii;
+
+	struct clk *axi_clk;
+	struct clk_bulk_data misc_clks[XAE_NUM_MISC_CLOCKS];
+
+	struct mii_bus *mii_bus;
+	u8 mii_clk_div;
+
+	resource_size_t regs_start;
+	void __iomem *regs;
+	void __iomem *dma_regs;
+
+	struct work_struct dma_err_task;
+
+	int tx_irq;
+	int rx_irq;
+	int eth_irq;
+	phy_interface_t phy_mode;
+
+	u32 options;
+	u32 features;
+
+	struct axidma_bd *tx_bd_v;
+	dma_addr_t tx_bd_p;
+	u32 tx_bd_num;
+	struct axidma_bd *rx_bd_v;
+	dma_addr_t rx_bd_p;
+	u32 rx_bd_num;
+>>>>>>> upstream/android-13
 	u32 tx_bd_ci;
 	u32 tx_bd_tail;
 	u32 rx_bd_ci;
@@ -481,7 +600,28 @@ struct axienet_option {
  */
 static inline u32 axienet_ior(struct axienet_local *lp, off_t offset)
 {
+<<<<<<< HEAD
 	return in_be32(lp->regs + offset);
+=======
+	return ioread32(lp->regs + offset);
+}
+
+static inline u32 axinet_ior_read_mcr(struct axienet_local *lp)
+{
+	return axienet_ior(lp, XAE_MDIO_MCR_OFFSET);
+}
+
+static inline void axienet_lock_mii(struct axienet_local *lp)
+{
+	if (lp->mii_bus)
+		mutex_lock(&lp->mii_bus->mdio_lock);
+}
+
+static inline void axienet_unlock_mii(struct axienet_local *lp)
+{
+	if (lp->mii_bus)
+		mutex_unlock(&lp->mii_bus->mdio_lock);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -496,12 +636,22 @@ static inline u32 axienet_ior(struct axienet_local *lp, off_t offset)
 static inline void axienet_iow(struct axienet_local *lp, off_t offset,
 			       u32 value)
 {
+<<<<<<< HEAD
 	out_be32((lp->regs + offset), value);
 }
 
 /* Function prototypes visible in xilinx_axienet_mdio.c for other files */
 int axienet_mdio_setup(struct axienet_local *lp, struct device_node *np);
 int axienet_mdio_wait_until_ready(struct axienet_local *lp);
+=======
+	iowrite32(value, lp->regs + offset);
+}
+
+/* Function prototypes visible in xilinx_axienet_mdio.c for other files */
+int axienet_mdio_enable(struct axienet_local *lp);
+void axienet_mdio_disable(struct axienet_local *lp);
+int axienet_mdio_setup(struct axienet_local *lp);
+>>>>>>> upstream/android-13
 void axienet_mdio_teardown(struct axienet_local *lp);
 
 #endif /* XILINX_AXI_ENET_H */

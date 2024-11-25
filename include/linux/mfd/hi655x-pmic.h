@@ -1,15 +1,26 @@
+<<<<<<< HEAD
 /*
  * Device driver for regulators in hi655x IC
  *
  * Copyright (c) 2016 Hisilicon.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Device driver for regulators in hi655x IC
+ *
+ * Copyright (c) 2016 HiSilicon Ltd.
+>>>>>>> upstream/android-13
  *
  * Authors:
  * Chen Feng <puck.chen@hisilicon.com>
  * Fei  Wang <w.f@huawei.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HI655X_PMIC_H

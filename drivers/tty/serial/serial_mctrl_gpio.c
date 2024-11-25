@@ -27,6 +27,7 @@ struct mctrl_gpios {
 static const struct {
 	const char *name;
 	unsigned int mctrl;
+<<<<<<< HEAD
 	bool dir_out;
 } mctrl_gpios_desc[UART_GPIO_MAX] = {
 	{ "cts", TIOCM_CTS, false, },
@@ -37,23 +38,54 @@ static const struct {
 	{ "dtr", TIOCM_DTR, true, },
 };
 
+=======
+	enum gpiod_flags flags;
+} mctrl_gpios_desc[UART_GPIO_MAX] = {
+	{ "cts", TIOCM_CTS, GPIOD_IN, },
+	{ "dsr", TIOCM_DSR, GPIOD_IN, },
+	{ "dcd", TIOCM_CD,  GPIOD_IN, },
+	{ "rng", TIOCM_RNG, GPIOD_IN, },
+	{ "rts", TIOCM_RTS, GPIOD_OUT_LOW, },
+	{ "dtr", TIOCM_DTR, GPIOD_OUT_LOW, },
+};
+
+static bool mctrl_gpio_flags_is_dir_out(unsigned int idx)
+{
+	return mctrl_gpios_desc[idx].flags & GPIOD_FLAGS_BIT_DIR_OUT;
+}
+
+>>>>>>> upstream/android-13
 void mctrl_gpio_set(struct mctrl_gpios *gpios, unsigned int mctrl)
 {
 	enum mctrl_gpio_idx i;
 	struct gpio_desc *desc_array[UART_GPIO_MAX];
+<<<<<<< HEAD
 	int value_array[UART_GPIO_MAX];
+=======
+	DECLARE_BITMAP(values, UART_GPIO_MAX);
+>>>>>>> upstream/android-13
 	unsigned int count = 0;
 
 	if (gpios == NULL)
 		return;
 
 	for (i = 0; i < UART_GPIO_MAX; i++)
+<<<<<<< HEAD
 		if (gpios->gpio[i] && mctrl_gpios_desc[i].dir_out) {
 			desc_array[count] = gpios->gpio[i];
 			value_array[count] = !!(mctrl & mctrl_gpios_desc[i].mctrl);
 			count++;
 		}
 	gpiod_set_array_value(count, desc_array, value_array);
+=======
+		if (gpios->gpio[i] && mctrl_gpio_flags_is_dir_out(i)) {
+			desc_array[count] = gpios->gpio[i];
+			__assign_bit(count, values,
+				     mctrl & mctrl_gpios_desc[i].mctrl);
+			count++;
+		}
+	gpiod_set_array_value(count, desc_array, NULL, values);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mctrl_gpio_set);
 
@@ -75,7 +107,11 @@ unsigned int mctrl_gpio_get(struct mctrl_gpios *gpios, unsigned int *mctrl)
 		return *mctrl;
 
 	for (i = 0; i < UART_GPIO_MAX; i++) {
+<<<<<<< HEAD
 		if (gpios->gpio[i] && !mctrl_gpios_desc[i].dir_out) {
+=======
+		if (gpios->gpio[i] && !mctrl_gpio_flags_is_dir_out(i)) {
+>>>>>>> upstream/android-13
 			if (gpiod_get_value(gpios->gpio[i]))
 				*mctrl |= mctrl_gpios_desc[i].mctrl;
 			else
@@ -96,7 +132,11 @@ mctrl_gpio_get_outputs(struct mctrl_gpios *gpios, unsigned int *mctrl)
 		return *mctrl;
 
 	for (i = 0; i < UART_GPIO_MAX; i++) {
+<<<<<<< HEAD
 		if (gpios->gpio[i] && mctrl_gpios_desc[i].dir_out) {
+=======
+		if (gpios->gpio[i] && mctrl_gpio_flags_is_dir_out(i)) {
+>>>>>>> upstream/android-13
 			if (gpiod_get_value(gpios->gpio[i]))
 				*mctrl |= mctrl_gpios_desc[i].mctrl;
 			else
@@ -118,7 +158,10 @@ struct mctrl_gpios *mctrl_gpio_init_noauto(struct device *dev, unsigned int idx)
 		return ERR_PTR(-ENOMEM);
 
 	for (i = 0; i < UART_GPIO_MAX; i++) {
+<<<<<<< HEAD
 		enum gpiod_flags flags;
+=======
+>>>>>>> upstream/android-13
 		char *gpio_str;
 		bool present;
 
@@ -133,6 +176,7 @@ struct mctrl_gpios *mctrl_gpio_init_noauto(struct device *dev, unsigned int idx)
 		if (!present)
 			continue;
 
+<<<<<<< HEAD
 		if (mctrl_gpios_desc[i].dir_out)
 			flags = GPIOD_OUT_LOW;
 		else
@@ -142,6 +186,13 @@ struct mctrl_gpios *mctrl_gpio_init_noauto(struct device *dev, unsigned int idx)
 			devm_gpiod_get_index_optional(dev,
 						      mctrl_gpios_desc[i].name,
 						      idx, flags);
+=======
+		gpios->gpio[i] =
+			devm_gpiod_get_index_optional(dev,
+						      mctrl_gpios_desc[i].name,
+						      idx,
+						      mctrl_gpios_desc[i].flags);
+>>>>>>> upstream/android-13
 
 		if (IS_ERR(gpios->gpio[i]))
 			return ERR_CAST(gpios->gpio[i]);
@@ -202,11 +253,19 @@ struct mctrl_gpios *mctrl_gpio_init(struct uart_port *port, unsigned int idx)
 	for (i = 0; i < UART_GPIO_MAX; ++i) {
 		int ret;
 
+<<<<<<< HEAD
 		if (!gpios->gpio[i] || mctrl_gpios_desc[i].dir_out)
 			continue;
 
 		ret = gpiod_to_irq(gpios->gpio[i]);
 		if (ret <= 0) {
+=======
+		if (!gpios->gpio[i] || mctrl_gpio_flags_is_dir_out(i))
+			continue;
+
+		ret = gpiod_to_irq(gpios->gpio[i]);
+		if (ret < 0) {
+>>>>>>> upstream/android-13
 			dev_err(port->dev,
 				"failed to find corresponding irq for %s (idx=%d, err=%d)\n",
 				mctrl_gpios_desc[i].name, idx, ret);

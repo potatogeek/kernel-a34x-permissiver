@@ -8,9 +8,12 @@
 /*
  * This file handles the architecture-dependent parts of process handling..
  */
+<<<<<<< HEAD
 
 #include <stdarg.h>
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/elfcore.h>
 #include <linux/errno.h>
 #include <linux/module.h>
@@ -34,8 +37,11 @@
 #include <asm/oplib.h>
 #include <linux/uaccess.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/delay.h>
 #include <asm/processor.h>
 #include <asm/psr.h>
@@ -76,7 +82,11 @@ void arch_cpu_idle(void)
 {
 	if (sparc_idle)
 		(*sparc_idle)();
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 /* XXX cli/sti -> local_irq_xxx here, check this works once SMP is fixed. */
@@ -110,7 +120,11 @@ void machine_restart(char * cmd)
 void machine_power_off(void)
 {
 	if (auxio_power_register &&
+<<<<<<< HEAD
 	    (strcmp(of_console_device->type, "serial") || scons_pwroff)) {
+=======
+	    (!of_node_is_type(of_console_device, "serial") || scons_pwroff)) {
+>>>>>>> upstream/android-13
 		u8 power_register = sbus_readb(auxio_power_register);
 		power_register |= AUXIO_POWER_OFF;
 		sbus_writeb(power_register, auxio_power_register);
@@ -145,10 +159,17 @@ void show_regs(struct pt_regs *r)
 }
 
 /*
+<<<<<<< HEAD
  * The show_stack is an external API which we do not use ourselves.
  * The oops is printed in die_if_kernel.
  */
 void show_stack(struct task_struct *tsk, unsigned long *_ksp)
+=======
+ * The show_stack() is external API which we do not use ourselves.
+ * The oops is printed in die_if_kernel.
+ */
+void show_stack(struct task_struct *tsk, unsigned long *_ksp, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long pc, fp;
 	unsigned long task_base;
@@ -170,11 +191,19 @@ void show_stack(struct task_struct *tsk, unsigned long *_ksp)
 			break;
 		rw = (struct reg_window32 *) fp;
 		pc = rw->ins[7];
+<<<<<<< HEAD
 		printk("[%08lx : ", pc);
 		printk("%pS ] ", (void *) pc);
 		fp = rw->ins[6];
 	} while (++count < 16);
 	printk("\n");
+=======
+		printk("%s[%08lx : ", loglvl, pc);
+		printk("%s%pS ] ", loglvl, (void *) pc);
+		fp = rw->ins[6];
+	} while (++count < 16);
+	printk("%s\n", loglvl);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -185,7 +214,11 @@ void exit_thread(struct task_struct *tsk)
 #ifndef CONFIG_SMP
 	if (last_task_used_math == tsk) {
 #else
+<<<<<<< HEAD
 	if (test_ti_thread_flag(task_thread_info(tsk), TIF_USEDFPU)) {
+=======
+	if (test_tsk_thread_flag(tsk, TIF_USEDFPU)) {
+>>>>>>> upstream/android-13
 #endif
 		/* Keep process from leaving FPU in a bogon state. */
 		put_psr(get_psr() | PSR_EF);
@@ -218,6 +251,7 @@ void flush_thread(void)
 		clear_thread_flag(TIF_USEDFPU);
 #endif
 	}
+<<<<<<< HEAD
 
 	/* This task is no longer a kernel thread. */
 	if (current->thread.flags & SPARC_FLAG_KTHREAD) {
@@ -228,6 +262,8 @@ void flush_thread(void)
 		current->thread.kregs = (struct pt_regs *)
 		    (task_stack_page(current) + (THREAD_SIZE - TRACEREG_SZ));
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline struct sparc_stackf __user *
@@ -258,6 +294,7 @@ clone_stackframe(struct sparc_stackf __user *dst,
 	return sp;
 }
 
+<<<<<<< HEAD
 asmlinkage int sparc_do_fork(unsigned long clone_flags,
                              unsigned long stack_start,
                              struct pt_regs *regs,
@@ -285,6 +322,8 @@ asmlinkage int sparc_do_fork(unsigned long clone_flags,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Copy a Sparc thread.  The fork() return value conventions
  * under SunOS are nothing short of bletcherous:
  * Parent -->  %o0 == childs  pid, %o1 == 0
@@ -301,8 +340,13 @@ asmlinkage int sparc_do_fork(unsigned long clone_flags,
 extern void ret_from_fork(void);
 extern void ret_from_kernel_thread(void);
 
+<<<<<<< HEAD
 int copy_thread(unsigned long clone_flags, unsigned long sp,
 		unsigned long arg, struct task_struct *p)
+=======
+int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
+		struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct thread_info *ti = task_thread_info(p);
 	struct pt_regs *childregs, *regs = current_pt_regs();
@@ -338,11 +382,18 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
 	ti->ksp = (unsigned long) new_stack;
 	p->thread.kregs = childregs;
 
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
 		extern int nwindows;
 		unsigned long psr;
 		memset(new_stack, 0, STACKFRAME_SZ + TRACEREG_SZ);
 		p->thread.flags |= SPARC_FLAG_KTHREAD;
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+		extern int nwindows;
+		unsigned long psr;
+		memset(new_stack, 0, STACKFRAME_SZ + TRACEREG_SZ);
+>>>>>>> upstream/android-13
 		p->thread.current_ds = KERNEL_DS;
 		ti->kpc = (((unsigned long) ret_from_kernel_thread) - 0x8);
 		childregs->u_regs[UREG_G1] = sp; /* function */
@@ -354,7 +405,10 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
 	}
 	memcpy(new_stack, (char *)regs - STACKFRAME_SZ, STACKFRAME_SZ + TRACEREG_SZ);
 	childregs->u_regs[UREG_FP] = sp;
+<<<<<<< HEAD
 	p->thread.flags &= ~SPARC_FLAG_KTHREAD;
+=======
+>>>>>>> upstream/android-13
 	p->thread.current_ds = USER_DS;
 	ti->kpc = (((unsigned long) ret_from_fork) - 0x8);
 	ti->kpsr = current->thread.fork_kpsr | PSR_PIL;
@@ -404,11 +458,16 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
 	regs->u_regs[UREG_I1] = 0;
 
 	if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 		childregs->u_regs[UREG_G7] = regs->u_regs[UREG_I3];
+=======
+		childregs->u_regs[UREG_G7] = tls;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * fill in the fpu structure for a core dump.
  */
@@ -458,6 +517,8 @@ int dump_fpu (struct pt_regs * regs, elf_fpregset_t * fpregs)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 unsigned long get_wchan(struct task_struct *task)
 {
 	unsigned long pc, fp, bias = 0;
@@ -466,8 +527,12 @@ unsigned long get_wchan(struct task_struct *task)
 	struct reg_window32 *rw;
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!task || task == current ||
             task->state == TASK_RUNNING)
+=======
+	if (!task || task == current || task_is_running(task))
+>>>>>>> upstream/android-13
 		goto out;
 
 	fp = task_thread_info(task)->ksp + bias;

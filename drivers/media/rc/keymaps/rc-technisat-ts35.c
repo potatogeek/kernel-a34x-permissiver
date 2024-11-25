@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* rc-technisat-ts35.c - Keytable for TechniSat TS35 remote
  *
  * Copyright (c) 2013 by Jan Klötzke <jan@kloetzke.net>
@@ -6,6 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* rc-technisat-ts35.c - Keytable for TechniSat TS35 remote
+ *
+ * Copyright (c) 2013 by Jan Klötzke <jan@kloetzke.net>
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -17,6 +24,7 @@ static struct rc_map_table technisat_ts35[] = {
 	{0x1c, KEY_AB},
 	{0x33, KEY_POWER},
 
+<<<<<<< HEAD
 	{0x3e, KEY_1},
 	{0x3d, KEY_2},
 	{0x3c, KEY_3},
@@ -27,6 +35,18 @@ static struct rc_map_table technisat_ts35[] = {
 	{0x37, KEY_8},
 	{0x36, KEY_9},
 	{0x3f, KEY_0},
+=======
+	{0x3e, KEY_NUMERIC_1},
+	{0x3d, KEY_NUMERIC_2},
+	{0x3c, KEY_NUMERIC_3},
+	{0x3b, KEY_NUMERIC_4},
+	{0x3a, KEY_NUMERIC_5},
+	{0x39, KEY_NUMERIC_6},
+	{0x38, KEY_NUMERIC_7},
+	{0x37, KEY_NUMERIC_8},
+	{0x36, KEY_NUMERIC_9},
+	{0x3f, KEY_NUMERIC_0},
+>>>>>>> upstream/android-13
 	{0x35, KEY_DIGITS},
 	{0x2c, KEY_TV},
 

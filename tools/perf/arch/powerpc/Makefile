@@ -14,18 +14,30 @@ PERF_HAVE_JITDUMP := 1
 out    := $(OUTPUT)arch/powerpc/include/generated/asm
 header32 := $(out)/syscalls_32.c
 header64 := $(out)/syscalls_64.c
+<<<<<<< HEAD
 sysdef := $(srctree)/tools/arch/powerpc/include/uapi/asm/unistd.h
 sysprf := $(srctree)/tools/perf/arch/powerpc/entry/syscalls/
+=======
+sysprf := $(srctree)/tools/perf/arch/powerpc/entry/syscalls
+sysdef := $(sysprf)/syscall.tbl
+>>>>>>> upstream/android-13
 systbl := $(sysprf)/mksyscalltbl
 
 # Create output directory if not already present
 _dummy := $(shell [ -d '$(out)' ] || mkdir -p '$(out)')
 
 $(header64): $(sysdef) $(systbl)
+<<<<<<< HEAD
 	$(Q)$(SHELL) '$(systbl)' '64' '$(CC)' $(sysdef) > $@
 
 $(header32): $(sysdef) $(systbl)
 	$(Q)$(SHELL) '$(systbl)' '32' '$(CC)' $(sysdef) > $@
+=======
+	$(Q)$(SHELL) '$(systbl)' '64' $(sysdef) > $@
+
+$(header32): $(sysdef) $(systbl)
+	$(Q)$(SHELL) '$(systbl)' '32' $(sysdef) > $@
+>>>>>>> upstream/android-13
 
 clean::
 	$(call QUIET_CLEAN, powerpc) $(RM) $(header32) $(header64)

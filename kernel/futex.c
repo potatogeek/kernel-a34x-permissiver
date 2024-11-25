@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Fast Userspace Mutexes (which I call "Futexes!").
  *  (C) Rusty Russell, IBM 2002
@@ -29,6 +33,7 @@
  *
  *  "The futexes are also cursed."
  *  "But they come in a choice of three flavours!"
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -68,10 +73,25 @@
 #include <linux/freezer.h>
 #include <linux/bootmem.h>
 #include <linux/fault-inject.h>
+=======
+ */
+#include <linux/compat.h>
+#include <linux/jhash.h>
+#include <linux/pagemap.h>
+#include <linux/syscalls.h>
+#include <linux/freezer.h>
+#include <linux/memblock.h>
+#include <linux/fault-inject.h>
+#include <linux/time_namespace.h>
+>>>>>>> upstream/android-13
 
 #include <asm/futex.h>
 
 #include "locking/rtmutex_common.h"
+<<<<<<< HEAD
+=======
+#include <trace/hooks/futex.h>
+>>>>>>> upstream/android-13
 
 /*
  * READ this before attempting to hack on futexes!
@@ -147,8 +167,12 @@
  *
  * Where (A) orders the waiters increment and the futex value read through
  * atomic operations (see hb_waiters_inc) and where (B) orders the write
+<<<<<<< HEAD
  * to futex and the waiters read -- this is done by the barriers for both
  * shared and private futexes in get_futex_key_refs().
+=======
+ * to futex and the waiters read (see hb_waiters_pending()).
+>>>>>>> upstream/android-13
  *
  * This yields the following case (where X:=waiters, Y:=futex):
  *
@@ -209,10 +233,17 @@ struct futex_pi_state {
 	/*
 	 * The PI object:
 	 */
+<<<<<<< HEAD
 	struct rt_mutex pi_mutex;
 
 	struct task_struct *owner;
 	atomic_t refcount;
+=======
+	struct rt_mutex_base pi_mutex;
+
+	struct task_struct *owner;
+	refcount_t refcount;
+>>>>>>> upstream/android-13
 
 	union futex_key key;
 } __randomize_layout;
@@ -227,6 +258,11 @@ struct futex_pi_state {
  * @rt_waiter:		rt_waiter storage for use with requeue_pi
  * @requeue_pi_key:	the requeue_pi target futex key
  * @bitset:		bitset for the optional bitmasked wakeup
+<<<<<<< HEAD
+=======
+ * @requeue_state:	State field for futex_requeue_pi()
+ * @requeue_wait:	RCU wait for futex_requeue_pi() (RT only)
+>>>>>>> upstream/android-13
  *
  * We use this hashed waitqueue, instead of a normal wait_queue_entry_t, so
  * we can wake only the relevant ones (hashed queues may be shared).
@@ -249,12 +285,77 @@ struct futex_q {
 	struct rt_mutex_waiter *rt_waiter;
 	union futex_key *requeue_pi_key;
 	u32 bitset;
+<<<<<<< HEAD
 } __randomize_layout;
 
 static const struct futex_q futex_q_init = {
 	/* list gets initialized in queue_me()*/
 	.key = FUTEX_KEY_INIT,
 	.bitset = FUTEX_BITSET_MATCH_ANY
+=======
+	atomic_t requeue_state;
+#ifdef CONFIG_PREEMPT_RT
+	struct rcuwait requeue_wait;
+#endif
+} __randomize_layout;
+
+/*
+ * On PREEMPT_RT, the hash bucket lock is a 'sleeping' spinlock with an
+ * underlying rtmutex. The task which is about to be requeued could have
+ * just woken up (timeout, signal). After the wake up the task has to
+ * acquire hash bucket lock, which is held by the requeue code.  As a task
+ * can only be blocked on _ONE_ rtmutex at a time, the proxy lock blocking
+ * and the hash bucket lock blocking would collide and corrupt state.
+ *
+ * On !PREEMPT_RT this is not a problem and everything could be serialized
+ * on hash bucket lock, but aside of having the benefit of common code,
+ * this allows to avoid doing the requeue when the task is already on the
+ * way out and taking the hash bucket lock of the original uaddr1 when the
+ * requeue has been completed.
+ *
+ * The following state transitions are valid:
+ *
+ * On the waiter side:
+ *   Q_REQUEUE_PI_NONE		-> Q_REQUEUE_PI_IGNORE
+ *   Q_REQUEUE_PI_IN_PROGRESS	-> Q_REQUEUE_PI_WAIT
+ *
+ * On the requeue side:
+ *   Q_REQUEUE_PI_NONE		-> Q_REQUEUE_PI_INPROGRESS
+ *   Q_REQUEUE_PI_IN_PROGRESS	-> Q_REQUEUE_PI_DONE/LOCKED
+ *   Q_REQUEUE_PI_IN_PROGRESS	-> Q_REQUEUE_PI_NONE (requeue failed)
+ *   Q_REQUEUE_PI_WAIT		-> Q_REQUEUE_PI_DONE/LOCKED
+ *   Q_REQUEUE_PI_WAIT		-> Q_REQUEUE_PI_IGNORE (requeue failed)
+ *
+ * The requeue side ignores a waiter with state Q_REQUEUE_PI_IGNORE as this
+ * signals that the waiter is already on the way out. It also means that
+ * the waiter is still on the 'wait' futex, i.e. uaddr1.
+ *
+ * The waiter side signals early wakeup to the requeue side either through
+ * setting state to Q_REQUEUE_PI_IGNORE or to Q_REQUEUE_PI_WAIT depending
+ * on the current state. In case of Q_REQUEUE_PI_IGNORE it can immediately
+ * proceed to take the hash bucket lock of uaddr1. If it set state to WAIT,
+ * which means the wakeup is interleaving with a requeue in progress it has
+ * to wait for the requeue side to change the state. Either to DONE/LOCKED
+ * or to IGNORE. DONE/LOCKED means the waiter q is now on the uaddr2 futex
+ * and either blocked (DONE) or has acquired it (LOCKED). IGNORE is set by
+ * the requeue side when the requeue attempt failed via deadlock detection
+ * and therefore the waiter q is still on the uaddr1 futex.
+ */
+enum {
+	Q_REQUEUE_PI_NONE		=  0,
+	Q_REQUEUE_PI_IGNORE,
+	Q_REQUEUE_PI_IN_PROGRESS,
+	Q_REQUEUE_PI_WAIT,
+	Q_REQUEUE_PI_DONE,
+	Q_REQUEUE_PI_LOCKED,
+};
+
+static const struct futex_q futex_q_init = {
+	/* list gets initialized in queue_me()*/
+	.key		= FUTEX_KEY_INIT,
+	.bitset		= FUTEX_BITSET_MATCH_ANY,
+	.requeue_state	= ATOMIC_INIT(Q_REQUEUE_PI_NONE),
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -268,10 +369,13 @@ struct futex_hash_bucket {
 	struct plist_head chain;
 } ____cacheline_aligned_in_smp;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 #include <mt-plat/task_turbo_futex.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The base of the bucket array and its size are always used together
  * (after initialization only in hash_futex()), so ensure that they
@@ -325,12 +429,17 @@ static int __init fail_futex_debugfs(void)
 	if (IS_ERR(dir))
 		return PTR_ERR(dir);
 
+<<<<<<< HEAD
 	if (!debugfs_create_bool("ignore-private", mode, dir,
 				 &fail_futex.ignore_private)) {
 		debugfs_remove_recursive(dir);
 		return -ENOMEM;
 	}
 
+=======
+	debugfs_create_bool("ignore-private", mode, dir,
+			    &fail_futex.ignore_private);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -347,6 +456,7 @@ static inline bool should_fail_futex(bool fshared)
 
 #ifdef CONFIG_COMPAT
 static void compat_exit_robust_list(struct task_struct *curr);
+<<<<<<< HEAD
 #else
 static inline void compat_exit_robust_list(struct task_struct *curr) { }
 #endif
@@ -362,6 +472,10 @@ static inline void futex_get_mm(union futex_key *key)
 	smp_mb__after_atomic();
 }
 
+=======
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Reflects a new waiter being added to the waitqueue.
  */
@@ -390,6 +504,13 @@ static inline void hb_waiters_dec(struct futex_hash_bucket *hb)
 static inline int hb_waiters_pending(struct futex_hash_bucket *hb)
 {
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
+=======
+	/*
+	 * Full barrier (B), see the ordering comment above.
+	 */
+	smp_mb();
+>>>>>>> upstream/android-13
 	return atomic_read(&hb->waiters);
 #else
 	return 1;
@@ -427,6 +548,7 @@ static inline int match_futex(union futex_key *key1, union futex_key *key2)
 		&& key1->both.offset == key2->both.offset);
 }
 
+<<<<<<< HEAD
 /*
  * Take a reference to the resource addressed by a key.
  * Can be called while holding spinlocks.
@@ -488,6 +610,40 @@ static void drop_futex_key_refs(union futex_key *key)
 		mmdrop(key->private.mm);
 		break;
 	}
+=======
+enum futex_access {
+	FUTEX_READ,
+	FUTEX_WRITE
+};
+
+/**
+ * futex_setup_timer - set up the sleeping hrtimer.
+ * @time:	ptr to the given timeout value
+ * @timeout:	the hrtimer_sleeper structure to be set up
+ * @flags:	futex flags
+ * @range_ns:	optional range in ns
+ *
+ * Return: Initialized hrtimer_sleeper structure or NULL if no timeout
+ *	   value given
+ */
+static inline struct hrtimer_sleeper *
+futex_setup_timer(ktime_t *time, struct hrtimer_sleeper *timeout,
+		  int flags, u64 range_ns)
+{
+	if (!time)
+		return NULL;
+
+	hrtimer_init_sleeper_on_stack(timeout, (flags & FLAGS_CLOCKRT) ?
+				      CLOCK_REALTIME : CLOCK_MONOTONIC,
+				      HRTIMER_MODE_ABS);
+	/*
+	 * If range_ns is 0, calling hrtimer_set_expires_range_ns() is
+	 * effectively the same as calling hrtimer_set_expires().
+	 */
+	hrtimer_set_expires_range_ns(&timeout->timer, *time, range_ns);
+
+	return timeout;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -533,20 +689,37 @@ static u64 get_inode_sequence_number(struct inode *inode)
 /**
  * get_futex_key() - Get parameters which are the keys for a futex
  * @uaddr:	virtual address of the futex
+<<<<<<< HEAD
  * @fshared:	0 for a PROCESS_PRIVATE futex, 1 for PROCESS_SHARED
  * @key:	address where result is stored.
  * @rw:		mapping needs to be read/write (values: VERIFY_READ,
  *              VERIFY_WRITE)
+=======
+ * @fshared:	false for a PROCESS_PRIVATE futex, true for PROCESS_SHARED
+ * @key:	address where result is stored.
+ * @rw:		mapping needs to be read/write (values: FUTEX_READ,
+ *              FUTEX_WRITE)
+>>>>>>> upstream/android-13
  *
  * Return: a negative error code or 0
  *
  * The key words are stored in @key on success.
  *
  * For shared mappings (when @fshared), the key is:
+<<<<<<< HEAD
  *   ( inode->i_sequence, page->index, offset_within_page )
  * [ also see get_inode_sequence_number() ]
  *
  * For private mappings (or when !@fshared), the key is:
+=======
+ *
+ *   ( inode->i_sequence, page->index, offset_within_page )
+ *
+ * [ also see get_inode_sequence_number() ]
+ *
+ * For private mappings (or when !@fshared), the key is:
+ *
+>>>>>>> upstream/android-13
  *   ( current->mm, address, 0 )
  *
  * This allows (cross process, where applicable) identification of the futex
@@ -554,8 +727,13 @@ static u64 get_inode_sequence_number(struct inode *inode)
  *
  * lock_page() might sleep, the caller should not hold a spinlock.
  */
+<<<<<<< HEAD
 static int
 get_futex_key(u32 __user *uaddr, int fshared, union futex_key *key, int rw)
+=======
+static int get_futex_key(u32 __user *uaddr, bool fshared, union futex_key *key,
+			 enum futex_access rw)
+>>>>>>> upstream/android-13
 {
 	unsigned long address = (unsigned long)uaddr;
 	struct mm_struct *mm = current->mm;
@@ -571,7 +749,11 @@ get_futex_key(u32 __user *uaddr, int fshared, union futex_key *key, int rw)
 		return -EINVAL;
 	address -= key->both.offset;
 
+<<<<<<< HEAD
 	if (unlikely(!access_ok(rw, uaddr, sizeof(u32))))
+=======
+	if (unlikely(!access_ok(uaddr, sizeof(u32))))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	if (unlikely(should_fail_futex(fshared)))
@@ -587,21 +769,35 @@ get_futex_key(u32 __user *uaddr, int fshared, union futex_key *key, int rw)
 	if (!fshared) {
 		key->private.mm = mm;
 		key->private.address = address;
+<<<<<<< HEAD
 		get_futex_key_refs(key);  /* implies smp_mb(); (B) */
+=======
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 again:
 	/* Ignore any VERIFY_READ mapping (futex common case) */
+<<<<<<< HEAD
 	if (unlikely(should_fail_futex(fshared)))
 		return -EFAULT;
 
 	err = get_user_pages_fast(address, 1, 1, &page);
+=======
+	if (unlikely(should_fail_futex(true)))
+		return -EFAULT;
+
+	err = get_user_pages_fast(address, 1, FOLL_WRITE, &page);
+>>>>>>> upstream/android-13
 	/*
 	 * If write access is not required (eg. FUTEX_WAIT), try
 	 * and get read-only access.
 	 */
+<<<<<<< HEAD
 	if (err == -EFAULT && rw == VERIFY_READ) {
+=======
+	if (err == -EFAULT && rw == FUTEX_READ) {
+>>>>>>> upstream/android-13
 		err = get_user_pages_fast(address, 1, 0, &page);
 		ro = 1;
 	}
@@ -681,7 +877,11 @@ again:
 		 * A RO anonymous page will never change and thus doesn't make
 		 * sense for futex operations.
 		 */
+<<<<<<< HEAD
 		if (unlikely(should_fail_futex(fshared)) || ro) {
+=======
+		if (unlikely(should_fail_futex(true)) || ro) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			goto out;
 		}
@@ -723,22 +923,32 @@ again:
 
 		key->both.offset |= FUT_OFF_INODE; /* inode-based key */
 		key->shared.i_seq = get_inode_sequence_number(inode);
+<<<<<<< HEAD
 		key->shared.pgoff = basepage_index(tail);
 		rcu_read_unlock();
 	}
 
 	get_futex_key_refs(key); /* implies smp_mb(); (B) */
 
+=======
+		key->shared.pgoff = page_to_pgoff(tail);
+		rcu_read_unlock();
+	}
+
+>>>>>>> upstream/android-13
 out:
 	put_page(page);
 	return err;
 }
 
+<<<<<<< HEAD
 static inline void put_futex_key(union futex_key *key)
 {
 	drop_futex_key_refs(key);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * fault_in_user_writeable() - Fault in user address and verify RW access
  * @uaddr:	pointer to faulting user space address
@@ -756,10 +966,17 @@ static int fault_in_user_writeable(u32 __user *uaddr)
 	struct mm_struct *mm = current->mm;
 	int ret;
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
 	ret = fixup_user_fault(current, mm, (unsigned long)uaddr,
 			       FAULT_FLAG_WRITE, NULL);
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+	ret = fixup_user_fault(mm, (unsigned long)uaddr,
+			       FAULT_FLAG_WRITE, NULL);
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 	return ret < 0 ? ret : 0;
 }
@@ -825,7 +1042,11 @@ static int refill_pi_state_cache(void)
 	INIT_LIST_HEAD(&pi_state->list);
 	/* pi_mutex gets initialized later */
 	pi_state->owner = NULL;
+<<<<<<< HEAD
 	atomic_set(&pi_state->refcount, 1);
+=======
+	refcount_set(&pi_state->refcount, 1);
+>>>>>>> upstream/android-13
 	pi_state->key = FUTEX_KEY_INIT;
 
 	current->pi_state_cache = pi_state;
@@ -868,7 +1089,11 @@ static void pi_state_update_owner(struct futex_pi_state *pi_state,
 
 static void get_pi_state(struct futex_pi_state *pi_state)
 {
+<<<<<<< HEAD
 	WARN_ON_ONCE(!atomic_inc_not_zero(&pi_state->refcount));
+=======
+	WARN_ON_ONCE(!refcount_inc_not_zero(&pi_state->refcount));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -880,7 +1105,11 @@ static void put_pi_state(struct futex_pi_state *pi_state)
 	if (!pi_state)
 		return;
 
+<<<<<<< HEAD
 	if (!atomic_dec_and_test(&pi_state->refcount))
+=======
+	if (!refcount_dec_and_test(&pi_state->refcount))
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -905,7 +1134,11 @@ static void put_pi_state(struct futex_pi_state *pi_state)
 		 * refcount is at 0 - put it back to 1.
 		 */
 		pi_state->owner = NULL;
+<<<<<<< HEAD
 		atomic_set(&pi_state->refcount, 1);
+=======
+		refcount_set(&pi_state->refcount, 1);
+>>>>>>> upstream/android-13
 		current->pi_state_cache = pi_state;
 	}
 }
@@ -948,7 +1181,11 @@ static void exit_pi_state_list(struct task_struct *curr)
 		 * In that case; drop the locks to let put_pi_state() make
 		 * progress and retry the loop.
 		 */
+<<<<<<< HEAD
 		if (!atomic_inc_not_zero(&pi_state->refcount)) {
+=======
+		if (!refcount_inc_not_zero(&pi_state->refcount)) {
+>>>>>>> upstream/android-13
 			raw_spin_unlock_irq(&curr->pi_lock);
 			cpu_relax();
 			raw_spin_lock_irq(&curr->pi_lock);
@@ -1013,7 +1250,11 @@ static inline void exit_pi_state_list(struct task_struct *curr) { }
  * [10] Found  | Found    | task      | !=taskTID | 0/1    | Invalid
  *
  * [1]	Indicates that the kernel can acquire the futex atomically. We
+<<<<<<< HEAD
  *	came came here due to a stale FUTEX_WAITERS/FUTEX_OWNER_DIED bit.
+=======
+ *	came here due to a stale FUTEX_WAITERS/FUTEX_OWNER_DIED bit.
+>>>>>>> upstream/android-13
  *
  * [2]	Valid, if TID does not belong to a kernel thread. If no matching
  *      thread is found then it indicates that the owner TID has died.
@@ -1061,6 +1302,10 @@ static inline void exit_pi_state_list(struct task_struct *curr) { }
  * p->pi_lock:
  *
  *	p->pi_state_list -> pi_state->list, relation
+<<<<<<< HEAD
+=======
+ *	pi_mutex->owner -> pi_state->owner, relation
+>>>>>>> upstream/android-13
  *
  * pi_state->refcount:
  *
@@ -1106,7 +1351,11 @@ static int attach_to_pi_state(u32 __user *uaddr, u32 uval,
 	 * and futex_wait_requeue_pi() as it cannot go to 0 and consequently
 	 * free pi_state before we can take a reference ourselves.
 	 */
+<<<<<<< HEAD
 	WARN_ON(!atomic_read(&pi_state->refcount));
+=======
+	WARN_ON(!refcount_read(&pi_state->refcount));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Now that we have a pi_state, we can acquire wait_lock
@@ -1200,6 +1449,10 @@ out_error:
 
 /**
  * wait_for_owner_exiting - Block until the owner has exited
+<<<<<<< HEAD
+=======
+ * @ret: owner's current futex lock status
+>>>>>>> upstream/android-13
  * @exiting:	Pointer to the exiting task
  *
  * Caller must hold a refcount on @exiting.
@@ -1284,6 +1537,39 @@ static int handle_exit_race(u32 __user *uaddr, u32 uval,
 	return -ESRCH;
 }
 
+<<<<<<< HEAD
+=======
+static void __attach_to_pi_owner(struct task_struct *p, union futex_key *key,
+				 struct futex_pi_state **ps)
+{
+	/*
+	 * No existing pi state. First waiter. [2]
+	 *
+	 * This creates pi_state, we have hb->lock held, this means nothing can
+	 * observe this state, wait_lock is irrelevant.
+	 */
+	struct futex_pi_state *pi_state = alloc_pi_state();
+
+	/*
+	 * Initialize the pi_mutex in locked state and make @p
+	 * the owner of it:
+	 */
+	rt_mutex_init_proxy_locked(&pi_state->pi_mutex, p);
+
+	/* Store the key for possible exit cleanups: */
+	pi_state->key = *key;
+
+	WARN_ON(!list_empty(&pi_state->list));
+	list_add(&pi_state->list, &p->pi_state_list);
+	/*
+	 * Assignment without holding pi_state->pi_mutex.wait_lock is safe
+	 * because there is no concurrency as the object is not published yet.
+	 */
+	pi_state->owner = p;
+
+	*ps = pi_state;
+}
+>>>>>>> upstream/android-13
 /*
  * Lookup the task for the TID provided from user space and attach to
  * it after doing proper sanity checks.
@@ -1293,7 +1579,10 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
 			      struct task_struct **exiting)
 {
 	pid_t pid = uval & FUTEX_TID_MASK;
+<<<<<<< HEAD
 	struct futex_pi_state *pi_state;
+=======
+>>>>>>> upstream/android-13
 	struct task_struct *p;
 
 	/*
@@ -1345,6 +1634,7 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * No existing pi state. First waiter. [2]
 	 *
@@ -1369,10 +1659,14 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
 	 * because there is no concurrency as the object is not published yet.
 	 */
 	pi_state->owner = p;
+=======
+	__attach_to_pi_owner(p, key, ps);
+>>>>>>> upstream/android-13
 	raw_spin_unlock_irq(&p->pi_lock);
 
 	put_task_struct(p);
 
+<<<<<<< HEAD
 	*ps = pi_state;
 
 	return 0;
@@ -1403,6 +1697,15 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
 {
 	int err;
 	u32 uninitialized_var(curval);
+=======
+	return 0;
+}
+
+static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+{
+	int err;
+	u32 curval;
+>>>>>>> upstream/android-13
 
 	if (unlikely(should_fail_futex(true)))
 		return -EFAULT;
@@ -1433,7 +1736,11 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
  *  -  1 - acquired the lock;
  *  - <0 - error
  *
+<<<<<<< HEAD
  * The hb->lock and futex_key refs shall be held by the caller.
+=======
+ * The hb->lock must be held by the caller.
+>>>>>>> upstream/android-13
  *
  * @exiting is only set when the return value is -EBUSY. If so, this holds
  * a refcount on the exiting task on return and the caller needs to drop it
@@ -1496,8 +1803,31 @@ static int futex_lock_pi_atomic(u32 __user *uaddr, struct futex_hash_bucket *hb,
 			newval |= FUTEX_WAITERS;
 
 		ret = lock_pi_update_atomic(uaddr, uval, newval);
+<<<<<<< HEAD
 		/* If the take over worked, return 1 */
 		return ret < 0 ? ret : 1;
+=======
+		if (ret)
+			return ret;
+
+		/*
+		 * If the waiter bit was requested the caller also needs PI
+		 * state attached to the new owner of the user space futex.
+		 *
+		 * @task is guaranteed to be alive and it cannot be exiting
+		 * because it is either sleeping or waiting in
+		 * futex_requeue_pi_wakeup_sync().
+		 *
+		 * No need to do the full attach_to_pi_owner() exercise
+		 * because @task is known and valid.
+		 */
+		if (set_waiters) {
+			raw_spin_lock_irq(&task->pi_lock);
+			__attach_to_pi_owner(task, key, ps);
+			raw_spin_unlock_irq(&task->pi_lock);
+		}
+		return 1;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1527,9 +1857,15 @@ static void __unqueue_futex(struct futex_q *q)
 {
 	struct futex_hash_bucket *hb;
 
+<<<<<<< HEAD
 	if (WARN_ON_SMP(!q->lock_ptr || !spin_is_locked(q->lock_ptr))
 	    || WARN_ON(plist_node_empty(&q->list)))
 		return;
+=======
+	if (WARN_ON_SMP(!q->lock_ptr) || WARN_ON(plist_node_empty(&q->list)))
+		return;
+	lockdep_assert_held(q->lock_ptr);
+>>>>>>> upstream/android-13
 
 	hb = container_of(q->lock_ptr, struct futex_hash_bucket, lock);
 	plist_del(&q->list, &hb->chain);
@@ -1562,10 +1898,16 @@ static void mark_wake_futex(struct wake_q_head *wake_q, struct futex_q *q)
 
 	/*
 	 * Queue the task for later wakeup for after we've released
+<<<<<<< HEAD
 	 * the hb->lock. wake_q_add() grabs reference to p.
 	 */
 	wake_q_add(wake_q, p);
 	put_task_struct(p);
+=======
+	 * the hb->lock.
+	 */
+	wake_q_add_safe(wake_q, p);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1573,6 +1915,7 @@ static void mark_wake_futex(struct wake_q_head *wake_q, struct futex_q *q)
  */
 static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_state)
 {
+<<<<<<< HEAD
 	u32 uninitialized_var(curval), newval;
 	struct task_struct *new_owner;
 	bool postunlock = false;
@@ -1581,6 +1924,17 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
 
 	new_owner = rt_mutex_next_owner(&pi_state->pi_mutex);
 	if (WARN_ON_ONCE(!new_owner)) {
+=======
+	struct rt_mutex_waiter *top_waiter;
+	struct task_struct *new_owner;
+	bool postunlock = false;
+	DEFINE_RT_WAKE_Q(wqh);
+	u32 curval, newval;
+	int ret = 0;
+
+	top_waiter = rt_mutex_top_waiter(&pi_state->pi_mutex);
+	if (WARN_ON_ONCE(!top_waiter)) {
+>>>>>>> upstream/android-13
 		/*
 		 * As per the comment in futex_unlock_pi() this should not happen.
 		 *
@@ -1593,6 +1947,11 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
+=======
+	new_owner = top_waiter->task;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We pass it to the next owner. The WAITERS bit is always kept
 	 * enabled while there is PI state around. We cleanup the owner
@@ -1626,14 +1985,22 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
 		 * not fail.
 		 */
 		pi_state_update_owner(pi_state, new_owner);
+<<<<<<< HEAD
 		postunlock = __rt_mutex_futex_unlock(&pi_state->pi_mutex, &wake_q);
+=======
+		postunlock = __rt_mutex_futex_unlock(&pi_state->pi_mutex, &wqh);
+>>>>>>> upstream/android-13
 	}
 
 out_unlock:
 	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
 
 	if (postunlock)
+<<<<<<< HEAD
 		rt_mutex_postunlock(&wake_q);
+=======
+		rt_mutex_postunlock(&wqh);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1672,23 +2039,41 @@ futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset)
 	struct futex_q *this, *next;
 	union futex_key key = FUTEX_KEY_INIT;
 	int ret;
+<<<<<<< HEAD
+=======
+	int target_nr;
+>>>>>>> upstream/android-13
 	DEFINE_WAKE_Q(wake_q);
 
 	if (!bitset)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &key, VERIFY_READ);
 	if (unlikely(ret != 0))
 		goto out;
+=======
+	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &key, FUTEX_READ);
+	if (unlikely(ret != 0))
+		return ret;
+>>>>>>> upstream/android-13
 
 	hb = hash_futex(&key);
 
 	/* Make sure we really have tasks to wakeup */
 	if (!hb_waiters_pending(hb))
+<<<<<<< HEAD
 		goto out_put_key;
 
 	spin_lock(&hb->lock);
 
+=======
+		return ret;
+
+	spin_lock(&hb->lock);
+
+	trace_android_vh_futex_wake_traverse_plist(&hb->chain, &target_nr, key, bitset);
+>>>>>>> upstream/android-13
 	plist_for_each_entry_safe(this, next, &hb->chain, list) {
 		if (match_futex (&this->key, &key)) {
 			if (this->pi_state || this->rt_waiter) {
@@ -1700,6 +2085,10 @@ futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset)
 			if (!(this->bitset & bitset))
 				continue;
 
+<<<<<<< HEAD
+=======
+			trace_android_vh_futex_wake_this(ret, nr_wake, target_nr, this->task);
+>>>>>>> upstream/android-13
 			mark_wake_futex(&wake_q, this);
 			if (++ret >= nr_wake)
 				break;
@@ -1708,9 +2097,13 @@ futex_wake(u32 __user *uaddr, unsigned int flags, int nr_wake, u32 bitset)
 
 	spin_unlock(&hb->lock);
 	wake_up_q(&wake_q);
+<<<<<<< HEAD
 out_put_key:
 	put_futex_key(&key);
 out:
+=======
+	trace_android_vh_futex_wake_up_q_finish(nr_wake, target_nr);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1736,10 +2129,16 @@ static int futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
 		oparg = 1 << oparg;
 	}
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
 		return -EFAULT;
 
 	ret = arch_futex_atomic_op_inuser(op, oparg, &oldval, uaddr);
+=======
+	pagefault_disable();
+	ret = arch_futex_atomic_op_inuser(op, oparg, &oldval, uaddr);
+	pagefault_enable();
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1776,12 +2175,21 @@ futex_wake_op(u32 __user *uaddr1, unsigned int flags, u32 __user *uaddr2,
 	DEFINE_WAKE_Q(wake_q);
 
 retry:
+<<<<<<< HEAD
 	ret = get_futex_key(uaddr1, flags & FLAGS_SHARED, &key1, VERIFY_READ);
 	if (unlikely(ret != 0))
 		goto out;
 	ret = get_futex_key(uaddr2, flags & FLAGS_SHARED, &key2, VERIFY_WRITE);
 	if (unlikely(ret != 0))
 		goto out_put_key1;
+=======
+	ret = get_futex_key(uaddr1, flags & FLAGS_SHARED, &key1, FUTEX_READ);
+	if (unlikely(ret != 0))
+		return ret;
+	ret = get_futex_key(uaddr2, flags & FLAGS_SHARED, &key2, FUTEX_WRITE);
+	if (unlikely(ret != 0))
+		return ret;
+>>>>>>> upstream/android-13
 
 	hb1 = hash_futex(&key1);
 	hb2 = hash_futex(&key2);
@@ -1799,12 +2207,17 @@ retry_private:
 			 * an MMU, but we might get them from range checking
 			 */
 			ret = op_ret;
+<<<<<<< HEAD
 			goto out_put_keys;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 
 		if (op_ret == -EFAULT) {
 			ret = fault_in_user_writeable(uaddr2);
 			if (ret)
+<<<<<<< HEAD
 				goto out_put_keys;
 		}
 
@@ -1816,6 +2229,14 @@ retry_private:
 		put_futex_key(&key2);
 		put_futex_key(&key1);
 		cond_resched();
+=======
+				return ret;
+		}
+
+		cond_resched();
+		if (!(flags & FLAGS_SHARED))
+			goto retry_private;
+>>>>>>> upstream/android-13
 		goto retry;
 	}
 
@@ -1850,11 +2271,14 @@ retry_private:
 out_unlock:
 	double_unlock_hb(hb1, hb2);
 	wake_up_q(&wake_q);
+<<<<<<< HEAD
 out_put_keys:
 	put_futex_key(&key2);
 out_put_key1:
 	put_futex_key(&key1);
 out:
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1881,10 +2305,118 @@ void requeue_futex(struct futex_q *q, struct futex_hash_bucket *hb1,
 		plist_add(&q->list, &hb2->chain);
 		q->lock_ptr = &hb2->lock;
 	}
+<<<<<<< HEAD
 	get_futex_key_refs(key2);
 	q->key = *key2;
 }
 
+=======
+	q->key = *key2;
+}
+
+static inline bool futex_requeue_pi_prepare(struct futex_q *q,
+					    struct futex_pi_state *pi_state)
+{
+	int old, new;
+
+	/*
+	 * Set state to Q_REQUEUE_PI_IN_PROGRESS unless an early wakeup has
+	 * already set Q_REQUEUE_PI_IGNORE to signal that requeue should
+	 * ignore the waiter.
+	 */
+	old = atomic_read_acquire(&q->requeue_state);
+	do {
+		if (old == Q_REQUEUE_PI_IGNORE)
+			return false;
+
+		/*
+		 * futex_proxy_trylock_atomic() might have set it to
+		 * IN_PROGRESS and a interleaved early wake to WAIT.
+		 *
+		 * It was considered to have an extra state for that
+		 * trylock, but that would just add more conditionals
+		 * all over the place for a dubious value.
+		 */
+		if (old != Q_REQUEUE_PI_NONE)
+			break;
+
+		new = Q_REQUEUE_PI_IN_PROGRESS;
+	} while (!atomic_try_cmpxchg(&q->requeue_state, &old, new));
+
+	q->pi_state = pi_state;
+	return true;
+}
+
+static inline void futex_requeue_pi_complete(struct futex_q *q, int locked)
+{
+	int old, new;
+
+	old = atomic_read_acquire(&q->requeue_state);
+	do {
+		if (old == Q_REQUEUE_PI_IGNORE)
+			return;
+
+		if (locked >= 0) {
+			/* Requeue succeeded. Set DONE or LOCKED */
+			WARN_ON_ONCE(old != Q_REQUEUE_PI_IN_PROGRESS &&
+				     old != Q_REQUEUE_PI_WAIT);
+			new = Q_REQUEUE_PI_DONE + locked;
+		} else if (old == Q_REQUEUE_PI_IN_PROGRESS) {
+			/* Deadlock, no early wakeup interleave */
+			new = Q_REQUEUE_PI_NONE;
+		} else {
+			/* Deadlock, early wakeup interleave. */
+			WARN_ON_ONCE(old != Q_REQUEUE_PI_WAIT);
+			new = Q_REQUEUE_PI_IGNORE;
+		}
+	} while (!atomic_try_cmpxchg(&q->requeue_state, &old, new));
+
+#ifdef CONFIG_PREEMPT_RT
+	/* If the waiter interleaved with the requeue let it know */
+	if (unlikely(old == Q_REQUEUE_PI_WAIT))
+		rcuwait_wake_up(&q->requeue_wait);
+#endif
+}
+
+static inline int futex_requeue_pi_wakeup_sync(struct futex_q *q)
+{
+	int old, new;
+
+	old = atomic_read_acquire(&q->requeue_state);
+	do {
+		/* Is requeue done already? */
+		if (old >= Q_REQUEUE_PI_DONE)
+			return old;
+
+		/*
+		 * If not done, then tell the requeue code to either ignore
+		 * the waiter or to wake it up once the requeue is done.
+		 */
+		new = Q_REQUEUE_PI_WAIT;
+		if (old == Q_REQUEUE_PI_NONE)
+			new = Q_REQUEUE_PI_IGNORE;
+	} while (!atomic_try_cmpxchg(&q->requeue_state, &old, new));
+
+	/* If the requeue was in progress, wait for it to complete */
+	if (old == Q_REQUEUE_PI_IN_PROGRESS) {
+#ifdef CONFIG_PREEMPT_RT
+		rcuwait_wait_event(&q->requeue_wait,
+				   atomic_read(&q->requeue_state) != Q_REQUEUE_PI_WAIT,
+				   TASK_UNINTERRUPTIBLE);
+#else
+		(void)atomic_cond_read_relaxed(&q->requeue_state, VAL != Q_REQUEUE_PI_WAIT);
+#endif
+	}
+
+	/*
+	 * Requeue is now either prohibited or complete. Reread state
+	 * because during the wait above it might have changed. Nothing
+	 * will modify q->requeue_state after this point.
+	 */
+	return atomic_read(&q->requeue_state);
+}
+
+>>>>>>> upstream/android-13
 /**
  * requeue_pi_wake_futex() - Wake a task that acquired the lock during requeue
  * @q:		the futex_q
@@ -1892,18 +2424,44 @@ void requeue_futex(struct futex_q *q, struct futex_hash_bucket *hb1,
  * @hb:		the hash_bucket of the requeue target futex
  *
  * During futex_requeue, with requeue_pi=1, it is possible to acquire the
+<<<<<<< HEAD
  * target futex if it is uncontended or via a lock steal.  Set the futex_q key
  * to the requeue target futex so the waiter can detect the wakeup on the right
  * futex, but remove it from the hb and NULL the rt_waiter so it can detect
  * atomic lock acquisition.  Set the q->lock_ptr to the requeue target hb->lock
  * to protect access to the pi_state to fixup the owner later.  Must be called
  * with both q->lock_ptr and hb->lock held.
+=======
+ * target futex if it is uncontended or via a lock steal.
+ *
+ * 1) Set @q::key to the requeue target futex key so the waiter can detect
+ *    the wakeup on the right futex.
+ *
+ * 2) Dequeue @q from the hash bucket.
+ *
+ * 3) Set @q::rt_waiter to NULL so the woken up task can detect atomic lock
+ *    acquisition.
+ *
+ * 4) Set the q->lock_ptr to the requeue target hb->lock for the case that
+ *    the waiter has to fixup the pi state.
+ *
+ * 5) Complete the requeue state so the waiter can make progress. After
+ *    this point the waiter task can return from the syscall immediately in
+ *    case that the pi state does not have to be fixed up.
+ *
+ * 6) Wake the waiter task.
+ *
+ * Must be called with both q->lock_ptr and hb->lock held.
+>>>>>>> upstream/android-13
  */
 static inline
 void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
 			   struct futex_hash_bucket *hb)
 {
+<<<<<<< HEAD
 	get_futex_key_refs(key);
+=======
+>>>>>>> upstream/android-13
 	q->key = *key;
 
 	__unqueue_futex(q);
@@ -1913,6 +2471,11 @@ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
 
 	q->lock_ptr = &hb->lock;
 
+<<<<<<< HEAD
+=======
+	/* Signal locked state to the waiter */
+	futex_requeue_pi_complete(q, 1);
+>>>>>>> upstream/android-13
 	wake_up_state(q->task, TASK_NORMAL);
 }
 
@@ -1950,7 +2513,11 @@ futex_proxy_trylock_atomic(u32 __user *pifutex, struct futex_hash_bucket *hb1,
 {
 	struct futex_q *top_waiter = NULL;
 	u32 curval;
+<<<<<<< HEAD
 	int ret, vpid;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (get_futex_value_locked(&curval, pifutex))
 		return -EFAULT;
@@ -1963,7 +2530,11 @@ futex_proxy_trylock_atomic(u32 __user *pifutex, struct futex_hash_bucket *hb1,
 	 * If the caller intends to requeue more than 1 waiter to pifutex,
 	 * force futex_lock_pi_atomic() to set the FUTEX_WAITERS bit now,
 	 * as we have means to handle the possible fault.  If not, don't set
+<<<<<<< HEAD
 	 * the bit unecessarily as it will force the subsequent unlock to enter
+=======
+	 * the bit unnecessarily as it will force the subsequent unlock to enter
+>>>>>>> upstream/android-13
 	 * the kernel.
 	 */
 	top_waiter = futex_top_waiter(hb1, key1);
@@ -1972,10 +2543,21 @@ futex_proxy_trylock_atomic(u32 __user *pifutex, struct futex_hash_bucket *hb1,
 	if (!top_waiter)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Ensure that this is a waiter sitting in futex_wait_requeue_pi()
+	 * and waiting on the 'waitqueue' futex which is always !PI.
+	 */
+	if (!top_waiter->rt_waiter || top_waiter->pi_state)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* Ensure we requeue to the expected futex. */
 	if (!match_futex(top_waiter->requeue_pi_key, key2))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/*
 	 * Try to take the lock for top_waiter.  Set the FUTEX_WAITERS bit in
 	 * the contended case or if set_waiters is 1.  The pi_state is returned
@@ -1987,6 +2569,43 @@ futex_proxy_trylock_atomic(u32 __user *pifutex, struct futex_hash_bucket *hb1,
 	if (ret == 1) {
 		requeue_pi_wake_futex(top_waiter, key2, hb2);
 		return vpid;
+=======
+	/* Ensure that this does not race against an early wakeup */
+	if (!futex_requeue_pi_prepare(top_waiter, NULL))
+		return -EAGAIN;
+
+	/*
+	 * Try to take the lock for top_waiter and set the FUTEX_WAITERS bit
+	 * in the contended case or if @set_waiters is true.
+	 *
+	 * In the contended case PI state is attached to the lock owner. If
+	 * the user space lock can be acquired then PI state is attached to
+	 * the new owner (@top_waiter->task) when @set_waiters is true.
+	 */
+	ret = futex_lock_pi_atomic(pifutex, hb2, key2, ps, top_waiter->task,
+				   exiting, set_waiters);
+	if (ret == 1) {
+		/*
+		 * Lock was acquired in user space and PI state was
+		 * attached to @top_waiter->task. That means state is fully
+		 * consistent and the waiter can return to user space
+		 * immediately after the wakeup.
+		 */
+		requeue_pi_wake_futex(top_waiter, key2, hb2);
+	} else if (ret < 0) {
+		/* Rewind top_waiter::requeue_state */
+		futex_requeue_pi_complete(top_waiter, ret);
+	} else {
+		/*
+		 * futex_lock_pi_atomic() did not acquire the user space
+		 * futex, but managed to establish the proxy lock and pi
+		 * state. top_waiter::requeue_state cannot be fixed up here
+		 * because the waiter is not enqueued on the rtmutex
+		 * yet. This is handled at the callsite depending on the
+		 * result of rt_mutex_start_proxy_lock() which is
+		 * guaranteed to be reached with this function returning 0.
+		 */
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -2014,7 +2633,11 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
 			 u32 *cmpval, int requeue_pi)
 {
 	union futex_key key1 = FUTEX_KEY_INIT, key2 = FUTEX_KEY_INIT;
+<<<<<<< HEAD
 	int drop_count = 0, task_count = 0, ret;
+=======
+	int task_count = 0, ret;
+>>>>>>> upstream/android-13
 	struct futex_pi_state *pi_state = NULL;
 	struct futex_hash_bucket *hb1, *hb2;
 	struct futex_q *this, *next;
@@ -2041,11 +2664,39 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
 			return -EINVAL;
 
 		/*
+<<<<<<< HEAD
+=======
+		 * futex_requeue() allows the caller to define the number
+		 * of waiters to wake up via the @nr_wake argument. With
+		 * REQUEUE_PI, waking up more than one waiter is creating
+		 * more problems than it solves. Waking up a waiter makes
+		 * only sense if the PI futex @uaddr2 is uncontended as
+		 * this allows the requeue code to acquire the futex
+		 * @uaddr2 before waking the waiter. The waiter can then
+		 * return to user space without further action. A secondary
+		 * wakeup would just make the futex_wait_requeue_pi()
+		 * handling more complex, because that code would have to
+		 * look up pi_state and do more or less all the handling
+		 * which the requeue code has to do for the to be requeued
+		 * waiters. So restrict the number of waiters to wake to
+		 * one, and only wake it up when the PI futex is
+		 * uncontended. Otherwise requeue it and let the unlock of
+		 * the PI futex handle the wakeup.
+		 *
+		 * All REQUEUE_PI users, e.g. pthread_cond_signal() and
+		 * pthread_cond_broadcast() must use nr_wake=1.
+		 */
+		if (nr_wake != 1)
+			return -EINVAL;
+
+		/*
+>>>>>>> upstream/android-13
 		 * requeue_pi requires a pi_state, try to allocate it now
 		 * without any locks in case it fails.
 		 */
 		if (refill_pi_state_cache())
 			return -ENOMEM;
+<<<<<<< HEAD
 		/*
 		 * requeue_pi must wake as many tasks as it can, up to nr_wake
 		 * + nr_requeue, since it acquires the rt_mutex prior to
@@ -2068,15 +2719,32 @@ retry:
 			    requeue_pi ? VERIFY_WRITE : VERIFY_READ);
 	if (unlikely(ret != 0))
 		goto out_put_key1;
+=======
+	}
+
+retry:
+	ret = get_futex_key(uaddr1, flags & FLAGS_SHARED, &key1, FUTEX_READ);
+	if (unlikely(ret != 0))
+		return ret;
+	ret = get_futex_key(uaddr2, flags & FLAGS_SHARED, &key2,
+			    requeue_pi ? FUTEX_WRITE : FUTEX_READ);
+	if (unlikely(ret != 0))
+		return ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The check above which compares uaddrs is not sufficient for
 	 * shared futexes. We need to compare the keys:
 	 */
+<<<<<<< HEAD
 	if (requeue_pi && match_futex(&key1, &key2)) {
 		ret = -EINVAL;
 		goto out_put_keys;
 	}
+=======
+	if (requeue_pi && match_futex(&key1, &key2))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	hb1 = hash_futex(&key1);
 	hb2 = hash_futex(&key2);
@@ -2096,13 +2764,20 @@ retry_private:
 
 			ret = get_user(curval, uaddr1);
 			if (ret)
+<<<<<<< HEAD
 				goto out_put_keys;
+=======
+				return ret;
+>>>>>>> upstream/android-13
 
 			if (!(flags & FLAGS_SHARED))
 				goto retry_private;
 
+<<<<<<< HEAD
 			put_futex_key(&key2);
 			put_futex_key(&key1);
+=======
+>>>>>>> upstream/android-13
 			goto retry;
 		}
 		if (curval != *cmpval) {
@@ -2111,7 +2786,11 @@ retry_private:
 		}
 	}
 
+<<<<<<< HEAD
 	if (requeue_pi && (task_count - nr_wake < nr_requeue)) {
+=======
+	if (requeue_pi) {
+>>>>>>> upstream/android-13
 		struct task_struct *exiting = NULL;
 
 		/*
@@ -2119,12 +2798,18 @@ retry_private:
 		 * intend to requeue waiters, force setting the FUTEX_WAITERS
 		 * bit.  We force this here where we are able to easily handle
 		 * faults rather in the requeue loop below.
+<<<<<<< HEAD
+=======
+		 *
+		 * Updates topwaiter::requeue_state if a top waiter exists.
+>>>>>>> upstream/android-13
 		 */
 		ret = futex_proxy_trylock_atomic(uaddr2, hb1, hb2, &key1,
 						 &key2, &pi_state,
 						 &exiting, nr_requeue);
 
 		/*
+<<<<<<< HEAD
 		 * At this point the top_waiter has either taken uaddr2 or is
 		 * waiting on it.  If the former, then the pi_state will not
 		 * exist yet, look it up one more time to ensure we have a
@@ -2153,11 +2838,47 @@ retry_private:
 					      &pi_state, &exiting);
 		}
 
+=======
+		 * At this point the top_waiter has either taken uaddr2 or
+		 * is waiting on it. In both cases pi_state has been
+		 * established and an initial refcount on it. In case of an
+		 * error there's nothing.
+		 *
+		 * The top waiter's requeue_state is up to date:
+		 *
+		 *  - If the lock was acquired atomically (ret == 1), then
+		 *    the state is Q_REQUEUE_PI_LOCKED.
+		 *
+		 *    The top waiter has been dequeued and woken up and can
+		 *    return to user space immediately. The kernel/user
+		 *    space state is consistent. In case that there must be
+		 *    more waiters requeued the WAITERS bit in the user
+		 *    space futex is set so the top waiter task has to go
+		 *    into the syscall slowpath to unlock the futex. This
+		 *    will block until this requeue operation has been
+		 *    completed and the hash bucket locks have been
+		 *    dropped.
+		 *
+		 *  - If the trylock failed with an error (ret < 0) then
+		 *    the state is either Q_REQUEUE_PI_NONE, i.e. "nothing
+		 *    happened", or Q_REQUEUE_PI_IGNORE when there was an
+		 *    interleaved early wakeup.
+		 *
+		 *  - If the trylock did not succeed (ret == 0) then the
+		 *    state is either Q_REQUEUE_PI_IN_PROGRESS or
+		 *    Q_REQUEUE_PI_WAIT if an early wakeup interleaved.
+		 *    This will be cleaned up in the loop below, which
+		 *    cannot fail because futex_proxy_trylock_atomic() did
+		 *    the same sanity checks for requeue_pi as the loop
+		 *    below does.
+		 */
+>>>>>>> upstream/android-13
 		switch (ret) {
 		case 0:
 			/* We hold a reference on the pi state. */
 			break;
 
+<<<<<<< HEAD
 			/* If the above failed, then pi_state is NULL */
 		case -EFAULT:
 			double_unlock_hb(hb1, hb2);
@@ -2168,6 +2889,28 @@ retry_private:
 			if (!ret)
 				goto retry;
 			goto out;
+=======
+		case 1:
+			/*
+			 * futex_proxy_trylock_atomic() acquired the user space
+			 * futex. Adjust task_count.
+			 */
+			task_count++;
+			ret = 0;
+			break;
+
+		/*
+		 * If the above failed, then pi_state is NULL and
+		 * waiter::requeue_state is correct.
+		 */
+		case -EFAULT:
+			double_unlock_hb(hb1, hb2);
+			hb_waiters_dec(hb2);
+			ret = fault_in_user_writeable(uaddr2);
+			if (!ret)
+				goto retry;
+			return ret;
+>>>>>>> upstream/android-13
 		case -EBUSY:
 		case -EAGAIN:
 			/*
@@ -2178,8 +2921,11 @@ retry_private:
 			 */
 			double_unlock_hb(hb1, hb2);
 			hb_waiters_dec(hb2);
+<<<<<<< HEAD
 			put_futex_key(&key2);
 			put_futex_key(&key1);
+=======
+>>>>>>> upstream/android-13
 			/*
 			 * Handle the case where the owner is in the middle of
 			 * exiting. Wait for the exit to complete otherwise
@@ -2201,7 +2947,11 @@ retry_private:
 			continue;
 
 		/*
+<<<<<<< HEAD
 		 * FUTEX_WAIT_REQEUE_PI and FUTEX_CMP_REQUEUE_PI should always
+=======
+		 * FUTEX_WAIT_REQUEUE_PI and FUTEX_CMP_REQUEUE_PI should always
+>>>>>>> upstream/android-13
 		 * be paired with each other and no other futex ops.
 		 *
 		 * We should never be requeueing a futex_q with a pi_state,
@@ -2214,6 +2964,7 @@ retry_private:
 			break;
 		}
 
+<<<<<<< HEAD
 		/*
 		 * Wake nr_wake waiters.  For requeue_pi, if we acquired the
 		 * lock, we already woke the top_waiter.  If not, it will be
@@ -2221,11 +2972,23 @@ retry_private:
 		 */
 		if (++task_count <= nr_wake && !requeue_pi) {
 			mark_wake_futex(&wake_q, this);
+=======
+		/* Plain futexes just wake or requeue and are done */
+		if (!requeue_pi) {
+			if (++task_count <= nr_wake)
+				mark_wake_futex(&wake_q, this);
+			else
+				requeue_futex(this, hb1, hb2, &key2);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
 		/* Ensure we requeue to the expected futex for requeue_pi. */
+<<<<<<< HEAD
 		if (requeue_pi && !match_futex(this->requeue_pi_key, &key2)) {
+=======
+		if (!match_futex(this->requeue_pi_key, &key2)) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
@@ -2233,6 +2996,7 @@ retry_private:
 		/*
 		 * Requeue nr_requeue waiters and possibly one more in the case
 		 * of requeue_pi if we couldn't acquire the lock atomically.
+<<<<<<< HEAD
 		 */
 		if (requeue_pi) {
 			/*
@@ -2283,6 +3047,68 @@ retry_private:
 	 * We took an extra initial reference to the pi_state either
 	 * in futex_proxy_trylock_atomic() or in lookup_pi_state(). We
 	 * need to drop it here again.
+=======
+		 *
+		 * Prepare the waiter to take the rt_mutex. Take a refcount
+		 * on the pi_state and store the pointer in the futex_q
+		 * object of the waiter.
+		 */
+		get_pi_state(pi_state);
+
+		/* Don't requeue when the waiter is already on the way out. */
+		if (!futex_requeue_pi_prepare(this, pi_state)) {
+			/*
+			 * Early woken waiter signaled that it is on the
+			 * way out. Drop the pi_state reference and try the
+			 * next waiter. @this->pi_state is still NULL.
+			 */
+			put_pi_state(pi_state);
+			continue;
+		}
+
+		ret = rt_mutex_start_proxy_lock(&pi_state->pi_mutex,
+						this->rt_waiter,
+						this->task);
+
+		if (ret == 1) {
+			/*
+			 * We got the lock. We do neither drop the refcount
+			 * on pi_state nor clear this->pi_state because the
+			 * waiter needs the pi_state for cleaning up the
+			 * user space value. It will drop the refcount
+			 * after doing so. this::requeue_state is updated
+			 * in the wakeup as well.
+			 */
+			requeue_pi_wake_futex(this, &key2, hb2);
+			task_count++;
+		} else if (!ret) {
+			/* Waiter is queued, move it to hb2 */
+			requeue_futex(this, hb1, hb2, &key2);
+			futex_requeue_pi_complete(this, 0);
+			task_count++;
+		} else {
+			/*
+			 * rt_mutex_start_proxy_lock() detected a potential
+			 * deadlock when we tried to queue that waiter.
+			 * Drop the pi_state reference which we took above
+			 * and remove the pointer to the state from the
+			 * waiters futex_q object.
+			 */
+			this->pi_state = NULL;
+			put_pi_state(pi_state);
+			futex_requeue_pi_complete(this, ret);
+			/*
+			 * We stop queueing more waiters and let user space
+			 * deal with the mess.
+			 */
+			break;
+		}
+	}
+
+	/*
+	 * We took an extra initial reference to the pi_state in
+	 * futex_proxy_trylock_atomic(). We need to drop it here again.
+>>>>>>> upstream/android-13
 	 */
 	put_pi_state(pi_state);
 
@@ -2290,6 +3116,7 @@ out_unlock:
 	double_unlock_hb(hb1, hb2);
 	wake_up_q(&wake_q);
 	hb_waiters_dec(hb2);
+<<<<<<< HEAD
 
 	/*
 	 * drop_futex_key_refs() must be called outside the spinlocks. During
@@ -2305,6 +3132,8 @@ out_put_keys:
 out_put_key1:
 	put_futex_key(&key1);
 out:
+=======
+>>>>>>> upstream/android-13
 	return ret ? ret : task_count;
 }
 
@@ -2324,11 +3153,19 @@ static inline struct futex_hash_bucket *queue_lock(struct futex_q *q)
 	 * decrement the counter at queue_unlock() when some error has
 	 * occurred and we don't end up adding the task to the list.
 	 */
+<<<<<<< HEAD
 	hb_waiters_inc(hb);
 
 	q->lock_ptr = &hb->lock;
 
 	spin_lock(&hb->lock); /* implies smp_mb(); (A) */
+=======
+	hb_waiters_inc(hb); /* implies smp_mb(); (A) */
+
+	q->lock_ptr = &hb->lock;
+
+	spin_lock(&hb->lock);
+>>>>>>> upstream/android-13
 	return hb;
 }
 
@@ -2343,6 +3180,10 @@ queue_unlock(struct futex_hash_bucket *hb)
 static inline void __queue_me(struct futex_q *q, struct futex_hash_bucket *hb)
 {
 	int prio;
+<<<<<<< HEAD
+=======
+	bool already_on_hb = false;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The priority used to register this element is
@@ -2355,11 +3196,17 @@ static inline void __queue_me(struct futex_q *q, struct futex_hash_bucket *hb)
 	prio = min(current->normal_prio, MAX_RT_PRIO);
 
 	plist_node_init(&q->list, prio);
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 	futex_plist_add(q, hb);
 #else
 	plist_add(&q->list, &hb->chain);
 #endif
+=======
+	trace_android_vh_alter_futex_plist_add(&q->list, &hb->chain, &already_on_hb);
+	if (!already_on_hb)
+		plist_add(&q->list, &hb->chain);
+>>>>>>> upstream/android-13
 	q->task = current;
 }
 
@@ -2433,33 +3280,52 @@ retry:
 		ret = 1;
 	}
 
+<<<<<<< HEAD
 	drop_futex_key_refs(&q->key);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /*
+<<<<<<< HEAD
  * PI futexes can not be requeued and must remove themself from the
  * hash bucket. The hash bucket lock (i.e. lock_ptr) is held on entry
  * and dropped here.
  */
 static void unqueue_me_pi(struct futex_q *q)
 	__releases(q->lock_ptr)
+=======
+ * PI futexes can not be requeued and must remove themselves from the
+ * hash bucket. The hash bucket lock (i.e. lock_ptr) is held.
+ */
+static void unqueue_me_pi(struct futex_q *q)
+>>>>>>> upstream/android-13
 {
 	__unqueue_futex(q);
 
 	BUG_ON(!q->pi_state);
 	put_pi_state(q->pi_state);
 	q->pi_state = NULL;
+<<<<<<< HEAD
 
 	spin_unlock(q->lock_ptr);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
 				  struct task_struct *argowner)
 {
+<<<<<<< HEAD
 	u32 uval, uninitialized_var(curval), newval, newtid;
 	struct futex_pi_state *pi_state = q->pi_state;
 	struct task_struct *oldowner, *newowner;
+=======
+	struct futex_pi_state *pi_state = q->pi_state;
+	struct task_struct *oldowner, *newowner;
+	u32 uval, curval, newval, newtid;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	oldowner = pi_state->owner;
@@ -2485,7 +3351,11 @@ static int __fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
 	 * Modifying pi_state _before_ the user space value would leave the
 	 * pi_state in an inconsistent state when we fault here, because we
 	 * need to drop the locks to handle the fault. This might be observed
+<<<<<<< HEAD
 	 * in the PID check in lookup_pi_state.
+=======
+	 * in the PID checks when attaching to PI state .
+>>>>>>> upstream/android-13
 	 */
 retry:
 	if (!argowner) {
@@ -2714,7 +3584,11 @@ static void futex_wait_queue_me(struct futex_hash_bucket *hb, struct futex_q *q,
 
 	/* Arm the timer */
 	if (timeout)
+<<<<<<< HEAD
 		hrtimer_start_expires(&timeout->timer, HRTIMER_MODE_ABS);
+=======
+		hrtimer_sleeper_start_expires(timeout, HRTIMER_MODE_ABS);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we have been removed from the hash list, then another task
@@ -2726,8 +3600,15 @@ static void futex_wait_queue_me(struct futex_hash_bucket *hb, struct futex_q *q,
 		 * flagged for rescheduling. Only call schedule if there
 		 * is no timeout, or if it has yet to expire.
 		 */
+<<<<<<< HEAD
 		if (!timeout || timeout->task)
 			freezable_schedule();
+=======
+		if (!timeout || timeout->task) {
+			trace_android_vh_futex_sleep_start(current);
+			freezable_schedule();
+		}
+>>>>>>> upstream/android-13
 	}
 	__set_current_state(TASK_RUNNING);
 }
@@ -2742,8 +3623,12 @@ static void futex_wait_queue_me(struct futex_hash_bucket *hb, struct futex_q *q,
  *
  * Setup the futex_q and locate the hash_bucket.  Get the futex value and
  * compare it with the expected value.  Handle atomic faults internally.
+<<<<<<< HEAD
  * Return with the hb lock held and a q.key reference on success, and unlocked
  * with no q.key reference on failure.
+=======
+ * Return with the hb lock held on success, and unlocked on failure.
+>>>>>>> upstream/android-13
  *
  * Return:
  *  -  0 - uaddr contains val and hb has been locked;
@@ -2774,7 +3659,11 @@ static int futex_wait_setup(u32 __user *uaddr, u32 val, unsigned int flags,
 	 * while the syscall executes.
 	 */
 retry:
+<<<<<<< HEAD
 	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &q->key, VERIFY_READ);
+=======
+	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &q->key, FUTEX_READ);
+>>>>>>> upstream/android-13
 	if (unlikely(ret != 0))
 		return ret;
 
@@ -2788,12 +3677,19 @@ retry_private:
 
 		ret = get_user(uval, uaddr);
 		if (ret)
+<<<<<<< HEAD
 			goto out;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		if (!(flags & FLAGS_SHARED))
 			goto retry_private;
 
+<<<<<<< HEAD
 		put_futex_key(&q->key);
+=======
+>>>>>>> upstream/android-13
 		goto retry;
 	}
 
@@ -2802,16 +3698,23 @@ retry_private:
 		ret = -EWOULDBLOCK;
 	}
 
+<<<<<<< HEAD
 out:
 	if (ret)
 		put_futex_key(&q->key);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
 		      ktime_t *abs_time, u32 bitset)
 {
+<<<<<<< HEAD
 	struct hrtimer_sleeper timeout, *to = NULL;
+=======
+	struct hrtimer_sleeper timeout, *to;
+>>>>>>> upstream/android-13
 	struct restart_block *restart;
 	struct futex_hash_bucket *hb;
 	struct futex_q q = futex_q_init;
@@ -2820,6 +3723,7 @@ static int futex_wait(u32 __user *uaddr, unsigned int flags, u32 val,
 	if (!bitset)
 		return -EINVAL;
 	q.bitset = bitset;
+<<<<<<< HEAD
 
 	if (abs_time) {
 		to = &timeout;
@@ -2836,6 +3740,16 @@ retry:
 	/*
 	 * Prepare to wait on uaddr. On success, holds hb lock and increments
 	 * q.key refs.
+=======
+	trace_android_vh_futex_wait_start(flags, bitset);
+
+	to = futex_setup_timer(abs_time, &timeout, flags,
+			       current->timer_slack_ns);
+retry:
+	/*
+	 * Prepare to wait on uaddr. On success, it holds hb->lock and q
+	 * is initialized.
+>>>>>>> upstream/android-13
 	 */
 	ret = futex_wait_setup(uaddr, val, flags, &q, &hb);
 	if (ret)
@@ -2846,7 +3760,10 @@ retry:
 
 	/* If we were woken (and unqueued), we succeeded, whatever. */
 	ret = 0;
+<<<<<<< HEAD
 	/* unqueue_me() drops q.key ref */
+=======
+>>>>>>> upstream/android-13
 	if (!unqueue_me(&q))
 		goto out;
 	ret = -ETIMEDOUT;
@@ -2878,6 +3795,10 @@ out:
 		hrtimer_cancel(&to->timer);
 		destroy_hrtimer_on_stack(&to->timer);
 	}
+<<<<<<< HEAD
+=======
+	trace_android_vh_futex_wait_end(flags, bitset);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2910,7 +3831,11 @@ static long futex_wait_restart(struct restart_block *restart)
 static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
 			 ktime_t *time, int trylock)
 {
+<<<<<<< HEAD
 	struct hrtimer_sleeper timeout, *to = NULL;
+=======
+	struct hrtimer_sleeper timeout, *to;
+>>>>>>> upstream/android-13
 	struct task_struct *exiting = NULL;
 	struct rt_mutex_waiter rt_waiter;
 	struct futex_hash_bucket *hb;
@@ -2923,6 +3848,7 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
 	if (refill_pi_state_cache())
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (time) {
 		to = &timeout;
 		hrtimer_init_on_stack(&to->timer, CLOCK_REALTIME,
@@ -2933,6 +3859,12 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
 
 retry:
 	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &q.key, VERIFY_WRITE);
+=======
+	to = futex_setup_timer(time, &timeout, flags, 0);
+
+retry:
+	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &q.key, FUTEX_WRITE);
+>>>>>>> upstream/android-13
 	if (unlikely(ret != 0))
 		goto out;
 
@@ -2962,7 +3894,10 @@ retry_private:
 			 * - EAGAIN: The user space value changed.
 			 */
 			queue_unlock(hb);
+<<<<<<< HEAD
 			put_futex_key(&q.key);
+=======
+>>>>>>> upstream/android-13
 			/*
 			 * Handle the case where the owner is in the middle of
 			 * exiting. Wait for the exit to complete otherwise
@@ -3022,7 +3957,11 @@ retry_private:
 	}
 
 	if (unlikely(to))
+<<<<<<< HEAD
 		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
+=======
+		hrtimer_sleeper_start_expires(to, HRTIMER_MODE_ABS);
+>>>>>>> upstream/android-13
 
 	ret = rt_mutex_wait_proxy_lock(&q.pi_state->pi_mutex, to, &rt_waiter);
 
@@ -3047,22 +3986,35 @@ no_block:
 	 */
 	res = fixup_owner(uaddr, &q, !ret);
 	/*
+<<<<<<< HEAD
 	 * If fixup_owner() returned an error, proprogate that.  If it acquired
+=======
+	 * If fixup_owner() returned an error, propagate that.  If it acquired
+>>>>>>> upstream/android-13
 	 * the lock, clear our -ETIMEDOUT or -EINTR.
 	 */
 	if (res)
 		ret = (res < 0) ? res : 0;
 
+<<<<<<< HEAD
 	/* Unqueue and drop the lock */
 	unqueue_me_pi(&q);
 
 	goto out_put_key;
+=======
+	unqueue_me_pi(&q);
+	spin_unlock(q.lock_ptr);
+	goto out;
+>>>>>>> upstream/android-13
 
 out_unlock_put_key:
 	queue_unlock(hb);
 
+<<<<<<< HEAD
 out_put_key:
 	put_futex_key(&q.key);
+=======
+>>>>>>> upstream/android-13
 out:
 	if (to) {
 		hrtimer_cancel(&to->timer);
@@ -3075,12 +4027,19 @@ uaddr_faulted:
 
 	ret = fault_in_user_writeable(uaddr);
 	if (ret)
+<<<<<<< HEAD
 		goto out_put_key;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (!(flags & FLAGS_SHARED))
 		goto retry_private;
 
+<<<<<<< HEAD
 	put_futex_key(&q.key);
+=======
+>>>>>>> upstream/android-13
 	goto retry;
 }
 
@@ -3091,7 +4050,11 @@ uaddr_faulted:
  */
 static int futex_unlock_pi(u32 __user *uaddr, unsigned int flags)
 {
+<<<<<<< HEAD
 	u32 uninitialized_var(curval), uval, vpid = task_pid_vnr(current);
+=======
+	u32 curval, uval, vpid = task_pid_vnr(current);
+>>>>>>> upstream/android-13
 	union futex_key key = FUTEX_KEY_INIT;
 	struct futex_hash_bucket *hb;
 	struct futex_q *top_waiter;
@@ -3109,7 +4072,11 @@ retry:
 	if ((uval & FUTEX_TID_MASK) != vpid)
 		return -EPERM;
 
+<<<<<<< HEAD
 	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &key, VERIFY_WRITE);
+=======
+	ret = get_futex_key(uaddr, flags & FLAGS_SHARED, &key, FUTEX_WRITE);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -3159,7 +4126,11 @@ retry:
 		 * Success, we're done! No tricky corner cases.
 		 */
 		if (!ret)
+<<<<<<< HEAD
 			goto out_putkey;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		/*
 		 * The atomic access to the futex value generated a
 		 * pagefault, so retry the user-access and the wakeup:
@@ -3176,7 +4147,11 @@ retry:
 		 * wake_futex_pi has detected invalid state. Tell user
 		 * space.
 		 */
+<<<<<<< HEAD
 		goto out_putkey;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -3197,7 +4172,11 @@ retry:
 
 		default:
 			WARN_ON_ONCE(1);
+<<<<<<< HEAD
 			goto out_putkey;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3208,17 +4187,26 @@ retry:
 
 out_unlock:
 	spin_unlock(&hb->lock);
+<<<<<<< HEAD
 out_putkey:
 	put_futex_key(&key);
 	return ret;
 
 pi_retry:
 	put_futex_key(&key);
+=======
+	return ret;
+
+pi_retry:
+>>>>>>> upstream/android-13
 	cond_resched();
 	goto retry;
 
 pi_faulted:
+<<<<<<< HEAD
 	put_futex_key(&key);
+=======
+>>>>>>> upstream/android-13
 
 	ret = fault_in_user_writeable(uaddr);
 	if (!ret)
@@ -3228,6 +4216,7 @@ pi_faulted:
 }
 
 /**
+<<<<<<< HEAD
  * handle_early_requeue_pi_wakeup() - Detect early wakeup on the initial futex
  * @hb:		the hash_bucket futex_q was original enqueued on
  * @q:		the futex_q woken while waiting to be requeued
@@ -3249,6 +4238,24 @@ int handle_early_requeue_pi_wakeup(struct futex_hash_bucket *hb,
 				   struct hrtimer_sleeper *timeout)
 {
 	int ret = 0;
+=======
+ * handle_early_requeue_pi_wakeup() - Handle early wakeup on the initial futex
+ * @hb:		the hash_bucket futex_q was original enqueued on
+ * @q:		the futex_q woken while waiting to be requeued
+ * @timeout:	the timeout associated with the wait (NULL if none)
+ *
+ * Determine the cause for the early wakeup.
+ *
+ * Return:
+ *  -EWOULDBLOCK or -ETIMEDOUT or -ERESTARTNOINTR
+ */
+static inline
+int handle_early_requeue_pi_wakeup(struct futex_hash_bucket *hb,
+				   struct futex_q *q,
+				   struct hrtimer_sleeper *timeout)
+{
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * With the hb lock held, we avoid races while we process the wakeup.
@@ -3257,6 +4264,7 @@ int handle_early_requeue_pi_wakeup(struct futex_hash_bucket *hb,
 	 * It can't be requeued from uaddr2 to something else since we don't
 	 * support a PI aware source futex for requeue.
 	 */
+<<<<<<< HEAD
 	if (!match_futex(&q->key, key2)) {
 		WARN_ON(q->lock_ptr && (&hb->lock != q->lock_ptr));
 		/*
@@ -3273,6 +4281,23 @@ int handle_early_requeue_pi_wakeup(struct futex_hash_bucket *hb,
 		else if (signal_pending(current))
 			ret = -ERESTARTNOINTR;
 	}
+=======
+	WARN_ON_ONCE(&hb->lock != q->lock_ptr);
+
+	/*
+	 * We were woken prior to requeue by a timeout or a signal.
+	 * Unqueue the futex_q and determine which it was.
+	 */
+	plist_del(&q->list, &hb->chain);
+	hb_waiters_dec(hb);
+
+	/* Handle spurious wakeups gracefully */
+	ret = -EWOULDBLOCK;
+	if (timeout && !timeout->task)
+		ret = -ETIMEDOUT;
+	else if (signal_pending(current))
+		ret = -ERESTARTNOINTR;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -3320,11 +4345,19 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 				 u32 val, ktime_t *abs_time, u32 bitset,
 				 u32 __user *uaddr2)
 {
+<<<<<<< HEAD
 	struct hrtimer_sleeper timeout, *to = NULL;
+=======
+	struct hrtimer_sleeper timeout, *to;
+>>>>>>> upstream/android-13
 	struct rt_mutex_waiter rt_waiter;
 	struct futex_hash_bucket *hb;
 	union futex_key key2 = FUTEX_KEY_INIT;
 	struct futex_q q = futex_q_init;
+<<<<<<< HEAD
+=======
+	struct rt_mutex_base *pi_mutex;
+>>>>>>> upstream/android-13
 	int res, ret;
 
 	if (!IS_ENABLED(CONFIG_FUTEX_PI))
@@ -3336,6 +4369,7 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 	if (!bitset)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (abs_time) {
 		to = &timeout;
 		hrtimer_init_on_stack(&to->timer, (flags & FLAGS_CLOCKRT) ?
@@ -3345,6 +4379,10 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 		hrtimer_set_expires_range_ns(&to->timer, *abs_time,
 					     current->timer_slack_ns);
 	}
+=======
+	to = futex_setup_timer(abs_time, &timeout, flags,
+			       current->timer_slack_ns);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The waiter is allocated on our stack, manipulated by the requeue
@@ -3352,7 +4390,11 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 	 */
 	rt_mutex_init_waiter(&rt_waiter);
 
+<<<<<<< HEAD
 	ret = get_futex_key(uaddr2, flags & FLAGS_SHARED, &key2, VERIFY_WRITE);
+=======
+	ret = get_futex_key(uaddr2, flags & FLAGS_SHARED, &key2, FUTEX_WRITE);
+>>>>>>> upstream/android-13
 	if (unlikely(ret != 0))
 		goto out;
 
@@ -3361,12 +4403,21 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 	q.requeue_pi_key = &key2;
 
 	/*
+<<<<<<< HEAD
 	 * Prepare to wait on uaddr. On success, increments q.key (key1) ref
 	 * count.
 	 */
 	ret = futex_wait_setup(uaddr, val, flags, &q, &hb);
 	if (ret)
 		goto out_key2;
+=======
+	 * Prepare to wait on uaddr. On success, it holds hb->lock and q
+	 * is initialized.
+	 */
+	ret = futex_wait_setup(uaddr, val, flags, &q, &hb);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The check above which compares uaddrs is not sufficient for
@@ -3375,12 +4426,17 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 	if (match_futex(&q.key, &key2)) {
 		queue_unlock(hb);
 		ret = -EINVAL;
+<<<<<<< HEAD
 		goto out_put_keys;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/* Queue the futex_q, drop the hb lock, wait for wakeup. */
 	futex_wait_queue_me(hb, &q, to);
 
+<<<<<<< HEAD
 	spin_lock(&hb->lock);
 	ret = handle_early_requeue_pi_wakeup(hb, &q, &key2, to);
 	spin_unlock(&hb->lock);
@@ -3408,6 +4464,24 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 			/*
 			 * Drop the reference to the pi state which
 			 * the requeue_pi() code acquired for us.
+=======
+	switch (futex_requeue_pi_wakeup_sync(&q)) {
+	case Q_REQUEUE_PI_IGNORE:
+		/* The waiter is still on uaddr1 */
+		spin_lock(&hb->lock);
+		ret = handle_early_requeue_pi_wakeup(hb, &q, to);
+		spin_unlock(&hb->lock);
+		break;
+
+	case Q_REQUEUE_PI_LOCKED:
+		/* The requeue acquired the lock */
+		if (q.pi_state && (q.pi_state->owner != current)) {
+			spin_lock(q.lock_ptr);
+			ret = fixup_owner(uaddr2, &q, true);
+			/*
+			 * Drop the reference to the pi state which the
+			 * requeue_pi() code acquired for us.
+>>>>>>> upstream/android-13
 			 */
 			put_pi_state(q.pi_state);
 			spin_unlock(q.lock_ptr);
@@ -3417,6 +4491,7 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 			 */
 			ret = ret < 0 ? ret : 0;
 		}
+<<<<<<< HEAD
 	} else {
 		struct rt_mutex *pi_mutex;
 
@@ -3429,6 +4504,16 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 		pi_mutex = &q.pi_state->pi_mutex;
 		ret = rt_mutex_wait_proxy_lock(pi_mutex, to, &rt_waiter);
 
+=======
+		break;
+
+	case Q_REQUEUE_PI_DONE:
+		/* Requeue completed. Current is 'pi_blocked_on' the rtmutex */
+		pi_mutex = &q.pi_state->pi_mutex;
+		ret = rt_mutex_wait_proxy_lock(pi_mutex, to, &rt_waiter);
+
+		/* Current is not longer pi_blocked_on */
+>>>>>>> upstream/android-13
 		spin_lock(q.lock_ptr);
 		if (ret && !rt_mutex_cleanup_proxy_lock(pi_mutex, &rt_waiter))
 			ret = 0;
@@ -3440,12 +4525,17 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 		 */
 		res = fixup_owner(uaddr2, &q, !ret);
 		/*
+<<<<<<< HEAD
 		 * If fixup_owner() returned an error, proprogate that.  If it
+=======
+		 * If fixup_owner() returned an error, propagate that.  If it
+>>>>>>> upstream/android-13
 		 * acquired the lock, clear -ETIMEDOUT or -EINTR.
 		 */
 		if (res)
 			ret = (res < 0) ? res : 0;
 
+<<<<<<< HEAD
 		/* Unqueue and drop the lock. */
 		unqueue_me_pi(&q);
 	}
@@ -3466,6 +4556,27 @@ out_put_keys:
 out_key2:
 	put_futex_key(&key2);
 
+=======
+		unqueue_me_pi(&q);
+		spin_unlock(q.lock_ptr);
+
+		if (ret == -EINTR) {
+			/*
+			 * We've already been requeued, but cannot restart
+			 * by calling futex_lock_pi() directly. We could
+			 * restart this syscall, but it would detect that
+			 * the user space "val" changed and return
+			 * -EWOULDBLOCK.  Save the overhead of the restart
+			 * and return -EWOULDBLOCK directly.
+			 */
+			ret = -EWOULDBLOCK;
+		}
+		break;
+	default:
+		BUG();
+	}
+
+>>>>>>> upstream/android-13
 out:
 	if (to) {
 		hrtimer_cancel(&to->timer);
@@ -3566,7 +4677,11 @@ err_unlock:
 static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
 			      bool pi, bool pending_op)
 {
+<<<<<<< HEAD
 	u32 uval, uninitialized_var(nval), mval;
+=======
+	u32 uval, nval, mval;
+>>>>>>> upstream/android-13
 	int err;
 
 	/* Futex address must be 32bit aligned */
@@ -3696,7 +4811,11 @@ static void exit_robust_list(struct task_struct *curr)
 	struct robust_list_head __user *head = curr->robust_list;
 	struct robust_list __user *entry, *next_entry, *pending;
 	unsigned int limit = ROBUST_LIST_LIMIT, pi, pip;
+<<<<<<< HEAD
 	unsigned int uninitialized_var(next_pi);
+=======
+	unsigned int next_pi;
+>>>>>>> upstream/android-13
 	unsigned long futex_offset;
 	int rc;
 
@@ -3843,7 +4962,11 @@ void futex_exec_release(struct task_struct *tsk)
 {
 	/*
 	 * The state handling is done for consistency, but in the case of
+<<<<<<< HEAD
 	 * exec() there is no way to prevent futher damage as the PID stays
+=======
+	 * exec() there is no way to prevent further damage as the PID stays
+>>>>>>> upstream/android-13
 	 * the same. But for the unlikely and arguably buggy case that a
 	 * futex is held on exec(), this provides at least as much state
 	 * consistency protection which is possible.
@@ -3875,12 +4998,21 @@ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
 
 	if (op & FUTEX_CLOCK_REALTIME) {
 		flags |= FLAGS_CLOCKRT;
+<<<<<<< HEAD
 		if (cmd != FUTEX_WAIT_BITSET &&	cmd != FUTEX_WAIT_REQUEUE_PI)
+=======
+		if (cmd != FUTEX_WAIT_BITSET && cmd != FUTEX_WAIT_REQUEUE_PI &&
+		    cmd != FUTEX_LOCK_PI2)
+>>>>>>> upstream/android-13
 			return -ENOSYS;
 	}
 
 	switch (cmd) {
 	case FUTEX_LOCK_PI:
+<<<<<<< HEAD
+=======
+	case FUTEX_LOCK_PI2:
+>>>>>>> upstream/android-13
 	case FUTEX_UNLOCK_PI:
 	case FUTEX_TRYLOCK_PI:
 	case FUTEX_WAIT_REQUEUE_PI:
@@ -3889,15 +5021,27 @@ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
 			return -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	switch (cmd) {
 	case FUTEX_WAIT:
 		val3 = FUTEX_BITSET_MATCH_ANY;
 		/* fall through */
+=======
+	trace_android_vh_do_futex(cmd, &flags, uaddr2);
+	switch (cmd) {
+	case FUTEX_WAIT:
+		val3 = FUTEX_BITSET_MATCH_ANY;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FUTEX_WAIT_BITSET:
 		return futex_wait(uaddr, flags, val, timeout, val3);
 	case FUTEX_WAKE:
 		val3 = FUTEX_BITSET_MATCH_ANY;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FUTEX_WAKE_BITSET:
 		return futex_wake(uaddr, flags, val, val3);
 	case FUTEX_REQUEUE:
@@ -3907,6 +5051,12 @@ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
 	case FUTEX_WAKE_OP:
 		return futex_wake_op(uaddr, flags, uaddr2, val, val2, val3);
 	case FUTEX_LOCK_PI:
+<<<<<<< HEAD
+=======
+		flags |= FLAGS_CLOCKRT;
+		fallthrough;
+	case FUTEX_LOCK_PI2:
+>>>>>>> upstream/android-13
 		return futex_lock_pi(uaddr, flags, timeout, 0);
 	case FUTEX_UNLOCK_PI:
 		return futex_unlock_pi(uaddr, flags);
@@ -3922,6 +5072,7 @@ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
 
 SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
 		struct timespec __user *, utime, u32 __user *, uaddr2,
@@ -3956,6 +5107,55 @@ SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
 		val2 = (u32) (unsigned long) utime;
 
 	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
+=======
+static __always_inline bool futex_cmd_has_timeout(u32 cmd)
+{
+	switch (cmd) {
+	case FUTEX_WAIT:
+	case FUTEX_LOCK_PI:
+	case FUTEX_LOCK_PI2:
+	case FUTEX_WAIT_BITSET:
+	case FUTEX_WAIT_REQUEUE_PI:
+		return true;
+	}
+	return false;
+}
+
+static __always_inline int
+futex_init_timeout(u32 cmd, u32 op, struct timespec64 *ts, ktime_t *t)
+{
+	if (!timespec64_valid(ts))
+		return -EINVAL;
+
+	*t = timespec64_to_ktime(*ts);
+	if (cmd == FUTEX_WAIT)
+		*t = ktime_add_safe(ktime_get(), *t);
+	else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
+		*t = timens_ktime_to_host(CLOCK_MONOTONIC, *t);
+	return 0;
+}
+
+SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
+		const struct __kernel_timespec __user *, utime,
+		u32 __user *, uaddr2, u32, val3)
+{
+	int ret, cmd = op & FUTEX_CMD_MASK;
+	ktime_t t, *tp = NULL;
+	struct timespec64 ts;
+
+	if (utime && futex_cmd_has_timeout(cmd)) {
+		if (unlikely(should_fail_futex(!(op & FUTEX_PRIVATE_FLAG))))
+			return -EFAULT;
+		if (get_timespec64(&ts, utime))
+			return -EFAULT;
+		ret = futex_init_timeout(cmd, op, &ts, &t);
+		if (ret)
+			return ret;
+		tp = &t;
+	}
+
+	return do_futex(uaddr, op, val, tp, uaddr2, (unsigned long)utime, val3);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_COMPAT
@@ -3995,7 +5195,11 @@ static void compat_exit_robust_list(struct task_struct *curr)
 	struct compat_robust_list_head __user *head = curr->compat_robust_list;
 	struct robust_list __user *entry, *next_entry, *pending;
 	unsigned int limit = ROBUST_LIST_LIMIT, pi, pip;
+<<<<<<< HEAD
 	unsigned int uninitialized_var(next_pi);
+=======
+	unsigned int next_pi;
+>>>>>>> upstream/android-13
 	compat_uptr_t uentry, next_uentry, upending;
 	compat_long_t futex_offset;
 	int rc;
@@ -4114,6 +5318,7 @@ err_unlock:
 
 	return ret;
 }
+<<<<<<< HEAD
 
 COMPAT_SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
 		struct old_timespec32 __user *, utime, u32 __user *, uaddr2,
@@ -4144,6 +5349,31 @@ COMPAT_SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
 	return do_futex(uaddr, op, val, tp, uaddr2, val2, val3);
 }
 #endif /* CONFIG_COMPAT */
+=======
+#endif /* CONFIG_COMPAT */
+
+#ifdef CONFIG_COMPAT_32BIT_TIME
+SYSCALL_DEFINE6(futex_time32, u32 __user *, uaddr, int, op, u32, val,
+		const struct old_timespec32 __user *, utime, u32 __user *, uaddr2,
+		u32, val3)
+{
+	int ret, cmd = op & FUTEX_CMD_MASK;
+	ktime_t t, *tp = NULL;
+	struct timespec64 ts;
+
+	if (utime && futex_cmd_has_timeout(cmd)) {
+		if (get_old_timespec32(&ts, utime))
+			return -EFAULT;
+		ret = futex_init_timeout(cmd, op, &ts, &t);
+		if (ret)
+			return ret;
+		tp = &t;
+	}
+
+	return do_futex(uaddr, op, val, tp, uaddr2, (unsigned long)utime, val3);
+}
+#endif /* CONFIG_COMPAT_32BIT_TIME */
+>>>>>>> upstream/android-13
 
 static void __init futex_detect_cmpxchg(void)
 {

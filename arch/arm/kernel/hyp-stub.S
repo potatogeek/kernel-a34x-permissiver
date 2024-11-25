@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Linaro Limited.
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2012 Linaro Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -37,6 +43,7 @@ ENTRY(__boot_cpu_mode)
 .text
 
 	/*
+<<<<<<< HEAD
 	 * Save the primary CPU boot mode. Requires 3 scratch registers.
 	 */
 	.macro	store_primary_cpu_mode	reg1, reg2, reg3
@@ -45,12 +52,21 @@ ENTRY(__boot_cpu_mode)
 	adr	\reg2, .L__boot_cpu_mode_offset
 	ldr	\reg3, [\reg2]
 	str	\reg1, [\reg2, \reg3]
+=======
+	 * Save the primary CPU boot mode. Requires 2 scratch registers.
+	 */
+	.macro	store_primary_cpu_mode	reg1, reg2
+	mrs	\reg1, cpsr
+	and	\reg1, \reg1, #MODE_MASK
+	str_l	\reg1, __boot_cpu_mode, \reg2
+>>>>>>> upstream/android-13
 	.endm
 
 	/*
 	 * Compare the current mode with the one saved on the primary CPU.
 	 * If they don't match, record that fact. The Z bit indicates
 	 * if there's a match or not.
+<<<<<<< HEAD
 	 * Requires 3 additionnal scratch registers.
 	 */
 	.macro	compare_cpu_mode_with_primary mode, reg1, reg2, reg3
@@ -60,18 +76,36 @@ ENTRY(__boot_cpu_mode)
 	cmp	\mode, \reg1		@ matches primary CPU boot mode?
 	orrne	\reg1, \reg1, #BOOT_CPU_MODE_MISMATCH
 	strne	\reg1, [\reg2, \reg3]	@ record what happened and give up
+=======
+	 * Requires 2 additional scratch registers.
+	 */
+	.macro	compare_cpu_mode_with_primary mode, reg1, reg2
+	adr_l	\reg2, __boot_cpu_mode
+	ldr	\reg1, [\reg2]
+	cmp	\mode, \reg1		@ matches primary CPU boot mode?
+	orrne	\reg1, \reg1, #BOOT_CPU_MODE_MISMATCH
+	strne	\reg1, [\reg2]		@ record what happened and give up
+>>>>>>> upstream/android-13
 	.endm
 
 #else	/* ZIMAGE */
 
+<<<<<<< HEAD
 	.macro	store_primary_cpu_mode	reg1:req, reg2:req, reg3:req
+=======
+	.macro	store_primary_cpu_mode	reg1:req, reg2:req
+>>>>>>> upstream/android-13
 	.endm
 
 /*
  * The zImage loader only runs on one CPU, so we don't bother with mult-CPU
  * consistency checking:
  */
+<<<<<<< HEAD
 	.macro	compare_cpu_mode_with_primary mode, reg1, reg2, reg3
+=======
+	.macro	compare_cpu_mode_with_primary mode, reg1, reg2
+>>>>>>> upstream/android-13
 	cmp	\mode, \mode
 	.endm
 
@@ -86,7 +120,11 @@ ENTRY(__boot_cpu_mode)
  */
 @ Call this from the primary CPU
 ENTRY(__hyp_stub_install)
+<<<<<<< HEAD
 	store_primary_cpu_mode	r4, r5, r6
+=======
+	store_primary_cpu_mode	r4, r5
+>>>>>>> upstream/android-13
 ENDPROC(__hyp_stub_install)
 
 	@ fall through...
@@ -100,7 +138,11 @@ ENTRY(__hyp_stub_install_secondary)
 	 * If the secondary has booted with a different mode, give up
 	 * immediately.
 	 */
+<<<<<<< HEAD
 	compare_cpu_mode_with_primary	r4, r5, r6, r7
+=======
+	compare_cpu_mode_with_primary	r4, r5, r6
+>>>>>>> upstream/android-13
 	retne	lr
 
 	/*
@@ -202,6 +244,7 @@ ARM_BE8(orr	r7, r7, #(1 << 25))     @ HSCTLR.EE
 ENDPROC(__hyp_stub_install_secondary)
 
 __hyp_stub_do_trap:
+<<<<<<< HEAD
 	teq	r0, #HVC_SET_VECTORS
 	bne	1f
 	mcr	p15, 4, r1, c12, c0, 0	@ set HVBAR
@@ -215,6 +258,21 @@ __hyp_stub_do_trap:
 	beq	__hyp_stub_exit
 
 	ldr	r0, =HVC_STUB_ERR
+=======
+#ifdef ZIMAGE
+	teq	r0, #HVC_SET_VECTORS
+	bne	1f
+	/* Only the ZIMAGE stubs can change the HYP vectors */
+	mcr	p15, 4, r1, c12, c0, 0	@ set HVBAR
+	b	__hyp_stub_exit
+#endif
+
+1:	teq	r0, #HVC_SOFT_RESTART
+	bne	2f
+	bx	r1
+
+2:	ldr	r0, =HVC_STUB_ERR
+>>>>>>> upstream/android-13
 	__ERET
 
 __hyp_stub_exit:
@@ -223,6 +281,7 @@ __hyp_stub_exit:
 ENDPROC(__hyp_stub_do_trap)
 
 /*
+<<<<<<< HEAD
  * __hyp_set_vectors: Call this after boot to set the initial hypervisor
  * vectors as part of hypervisor installation.  On an SMP system, this should
  * be called on each CPU.
@@ -243,6 +302,11 @@ ENDPROC(__hyp_stub_do_trap)
  * When you call into your shiny new hypervisor, sp_hyp will contain junk,
  * so you will need to set that to something sensible at the new hypervisor's
  * initialisation entry point.
+=======
+ * __hyp_set_vectors is only used when ZIMAGE must bounce between HYP
+ * and SVC. For the kernel itself, the vectors are set once and for
+ * all by the stubs.
+>>>>>>> upstream/android-13
  */
 ENTRY(__hyp_set_vectors)
 	mov	r1, r0
@@ -258,6 +322,7 @@ ENTRY(__hyp_soft_restart)
 	ret	lr
 ENDPROC(__hyp_soft_restart)
 
+<<<<<<< HEAD
 ENTRY(__hyp_reset_vectors)
 	mov	r0, #HVC_RESET_VECTORS
 	__HVC(0)
@@ -270,6 +335,8 @@ ENDPROC(__hyp_reset_vectors)
 	.long	__boot_cpu_mode - .
 #endif
 
+=======
+>>>>>>> upstream/android-13
 .align 5
 ENTRY(__hyp_stub_vectors)
 __hyp_stub_reset:	W(b)	.

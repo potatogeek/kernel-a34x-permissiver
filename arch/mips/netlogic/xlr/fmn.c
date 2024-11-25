@@ -103,19 +103,26 @@ static irqreturn_t fmn_message_handler(int irq, void *data)
 				mflags = nlm_cop2_enable_irqsave();
 			}
 		}
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	/* Enable message ring intr, to any thread in core */
 	nlm_fmn_setup_intr(irq, (1 << nlm_threads_per_core) - 1);
 	nlm_cop2_disable_irqrestore(mflags);
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 struct irqaction fmn_irqaction = {
 	.handler = fmn_message_handler,
 	.flags = IRQF_PERCPU,
 	.name = "fmn",
 };
 
+=======
+>>>>>>> upstream/android-13
 void xlr_percpu_fmn_init(void)
 {
 	struct xlr_fmn_info *cpu_fmn_info;
@@ -195,8 +202,14 @@ void nlm_setup_fmn_irq(void)
 {
 	uint32_t flags;
 
+<<<<<<< HEAD
 	/* setup irq only once */
 	setup_irq(IRQ_FMN, &fmn_irqaction);
+=======
+	/* request irq only once */
+	if (request_irq(IRQ_FMN, fmn_message_handler, IRQF_PERCPU, "fmn", NULL))
+		pr_err("Failed to request irq %d (fmn)\n", IRQ_FMN);
+>>>>>>> upstream/android-13
 
 	flags = nlm_cop2_enable_irqsave();
 	nlm_fmn_setup_intr(IRQ_FMN, (1 << nlm_threads_per_core) - 1);

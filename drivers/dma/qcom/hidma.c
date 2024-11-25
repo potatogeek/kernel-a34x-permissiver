@@ -90,12 +90,15 @@ static inline struct hidma_chan *to_hidma_chan(struct dma_chan *dmach)
 	return container_of(dmach, struct hidma_chan, chan);
 }
 
+<<<<<<< HEAD
 static inline
 struct hidma_desc *to_hidma_desc(struct dma_async_tx_descriptor *t)
 {
 	return container_of(t, struct hidma_desc, desc);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void hidma_free(struct hidma_dev *dmadev)
 {
 	INIT_LIST_HEAD(&dmadev->ddev.channels);
@@ -224,9 +227,15 @@ static int hidma_chan_init(struct hidma_dev *dmadev, u32 dma_sig)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void hidma_issue_task(unsigned long arg)
 {
 	struct hidma_dev *dmadev = (struct hidma_dev *)arg;
+=======
+static void hidma_issue_task(struct tasklet_struct *t)
+{
+	struct hidma_dev *dmadev = from_tasklet(dmadev, t, task);
+>>>>>>> upstream/android-13
 
 	pm_runtime_get_sync(dmadev->ddev.dev);
 	hidma_ll_start(dmadev->lldev);
@@ -550,7 +559,11 @@ static void hidma_free_chan_resources(struct dma_chan *dmach)
 		kfree(mdesc);
 	}
 
+<<<<<<< HEAD
 	mchan->allocated = 0;
+=======
+	mchan->allocated = false;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&mchan->lock, irqflags);
 }
 
@@ -885,7 +898,11 @@ static int hidma_probe(struct platform_device *pdev)
 		goto uninit;
 
 	dmadev->irq = chirq;
+<<<<<<< HEAD
 	tasklet_init(&dmadev->task, hidma_issue_task, (unsigned long)dmadev);
+=======
+	tasklet_setup(&dmadev->task, hidma_issue_task);
+>>>>>>> upstream/android-13
 	hidma_debug_init(dmadev);
 	hidma_sysfs_init(dmadev);
 	dev_info(&pdev->dev, "HI-DMA engine driver registration complete\n");
@@ -897,7 +914,10 @@ uninit:
 	if (msi)
 		hidma_free_msis(dmadev);
 
+<<<<<<< HEAD
 	hidma_debug_uninit(dmadev);
+=======
+>>>>>>> upstream/android-13
 	hidma_ll_uninit(dmadev->lldev);
 dmafree:
 	if (dmadev)

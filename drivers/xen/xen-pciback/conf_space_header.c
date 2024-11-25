@@ -6,6 +6,10 @@
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+<<<<<<< HEAD
+=======
+#define dev_fmt pr_fmt
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/pci.h>
@@ -67,24 +71,33 @@ static int command_write(struct pci_dev *dev, int offset, u16 value, void *data)
 
 	dev_data = pci_get_drvdata(dev);
 	if (!pci_is_enabled(dev) && is_enable_cmd(value)) {
+<<<<<<< HEAD
 		if (unlikely(verbose_request))
 			printk(KERN_DEBUG DRV_NAME ": %s: enable\n",
 			       pci_name(dev));
+=======
+		dev_dbg(&dev->dev, "enable\n");
+>>>>>>> upstream/android-13
 		err = pci_enable_device(dev);
 		if (err)
 			return err;
 		if (dev_data)
 			dev_data->enable_intx = 1;
 	} else if (pci_is_enabled(dev) && !is_enable_cmd(value)) {
+<<<<<<< HEAD
 		if (unlikely(verbose_request))
 			printk(KERN_DEBUG DRV_NAME ": %s: disable\n",
 			       pci_name(dev));
+=======
+		dev_dbg(&dev->dev, "disable\n");
+>>>>>>> upstream/android-13
 		pci_disable_device(dev);
 		if (dev_data)
 			dev_data->enable_intx = 0;
 	}
 
 	if (!dev->is_busmaster && is_master_cmd(value)) {
+<<<<<<< HEAD
 		if (unlikely(verbose_request))
 			printk(KERN_DEBUG DRV_NAME ": %s: set bus master\n",
 			       pci_name(dev));
@@ -93,11 +106,18 @@ static int command_write(struct pci_dev *dev, int offset, u16 value, void *data)
 		if (unlikely(verbose_request))
 			printk(KERN_DEBUG DRV_NAME ": %s: clear bus master\n",
 			       pci_name(dev));
+=======
+		dev_dbg(&dev->dev, "set bus master\n");
+		pci_set_master(dev);
+	} else if (dev->is_busmaster && !is_master_cmd(value)) {
+		dev_dbg(&dev->dev, "clear bus master\n");
+>>>>>>> upstream/android-13
 		pci_clear_master(dev);
 	}
 
 	if (!(cmd->val & PCI_COMMAND_INVALIDATE) &&
 	    (value & PCI_COMMAND_INVALIDATE)) {
+<<<<<<< HEAD
 		if (unlikely(verbose_request))
 			printk(KERN_DEBUG
 			       DRV_NAME ": %s: enable memory-write-invalidate\n",
@@ -106,10 +126,18 @@ static int command_write(struct pci_dev *dev, int offset, u16 value, void *data)
 		if (err) {
 			pr_warn("%s: cannot enable memory-write-invalidate (%d)\n",
 				pci_name(dev), err);
+=======
+		dev_dbg(&dev->dev, "enable memory-write-invalidate\n");
+		err = pci_set_mwi(dev);
+		if (err) {
+			dev_warn(&dev->dev, "cannot enable memory-write-invalidate (%d)\n",
+				err);
+>>>>>>> upstream/android-13
 			value &= ~PCI_COMMAND_INVALIDATE;
 		}
 	} else if ((cmd->val & PCI_COMMAND_INVALIDATE) &&
 		   !(value & PCI_COMMAND_INVALIDATE)) {
+<<<<<<< HEAD
 		if (unlikely(verbose_request))
 			printk(KERN_DEBUG
 			       DRV_NAME ": %s: disable memory-write-invalidate\n",
@@ -117,6 +145,31 @@ static int command_write(struct pci_dev *dev, int offset, u16 value, void *data)
 		pci_clear_mwi(dev);
 	}
 
+=======
+		dev_dbg(&dev->dev, "disable memory-write-invalidate\n");
+		pci_clear_mwi(dev);
+	}
+
+	if (dev_data && dev_data->allow_interrupt_control) {
+		if ((cmd->val ^ value) & PCI_COMMAND_INTX_DISABLE) {
+			if (value & PCI_COMMAND_INTX_DISABLE) {
+				pci_intx(dev, 0);
+			} else {
+				/* Do not allow enabling INTx together with MSI or MSI-X. */
+				switch (xen_pcibk_get_interrupt_type(dev)) {
+				case INTERRUPT_TYPE_NONE:
+					pci_intx(dev, 1);
+					break;
+				case INTERRUPT_TYPE_INTX:
+					break;
+				default:
+					return PCIBIOS_SET_FAILED;
+				}
+			}
+		}
+	}
+
+>>>>>>> upstream/android-13
 	cmd->val = value;
 
 	if (!xen_pcibk_permissive && (!dev_data || !dev_data->permissive))
@@ -138,8 +191,12 @@ static int rom_write(struct pci_dev *dev, int offset, u32 value, void *data)
 	struct pci_bar_info *bar = data;
 
 	if (unlikely(!bar)) {
+<<<<<<< HEAD
 		pr_warn(DRV_NAME ": driver data not found for %s\n",
 		       pci_name(dev));
+=======
+		dev_warn(&dev->dev, "driver data not found\n");
+>>>>>>> upstream/android-13
 		return XEN_PCI_ERR_op_failed;
 	}
 
@@ -175,8 +232,12 @@ static int bar_write(struct pci_dev *dev, int offset, u32 value, void *data)
 	u32 mask;
 
 	if (unlikely(!bar)) {
+<<<<<<< HEAD
 		pr_warn(DRV_NAME ": driver data not found for %s\n",
 		       pci_name(dev));
+=======
+		dev_warn(&dev->dev, "driver data not found\n");
+>>>>>>> upstream/android-13
 		return XEN_PCI_ERR_op_failed;
 	}
 
@@ -209,8 +270,12 @@ static int bar_read(struct pci_dev *dev, int offset, u32 * value, void *data)
 	struct pci_bar_info *bar = data;
 
 	if (unlikely(!bar)) {
+<<<<<<< HEAD
 		pr_warn(DRV_NAME ": driver data not found for %s\n",
 		       pci_name(dev));
+=======
+		dev_warn(&dev->dev, "driver data not found\n");
+>>>>>>> upstream/android-13
 		return XEN_PCI_ERR_op_failed;
 	}
 
@@ -414,8 +479,13 @@ int xen_pcibk_config_header_add_fields(struct pci_dev *dev)
 
 	default:
 		err = -EINVAL;
+<<<<<<< HEAD
 		pr_err("%s: Unsupported header type %d!\n",
 		       pci_name(dev), dev->hdr_type);
+=======
+		dev_err(&dev->dev, "Unsupported header type %d!\n",
+			dev->hdr_type);
+>>>>>>> upstream/android-13
 		break;
 	}
 

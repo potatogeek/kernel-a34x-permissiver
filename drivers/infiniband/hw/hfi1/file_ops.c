@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015-2017 Intel Corporation.
  *
@@ -44,6 +45,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2020 Cornelis Networks, Inc.
+ * Copyright(c) 2015-2020 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/poll.h>
 #include <linux/cdev.h>
 #include <linux/vmalloc.h>
@@ -193,7 +202,11 @@ static int hfi1_file_open(struct inode *inode, struct file *fp)
 	if (!((dd->flags & HFI1_PRESENT) && dd->kregbase1))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!atomic_inc_not_zero(&dd->user_refcount))
+=======
+	if (!refcount_inc_not_zero(&dd->user_refcount))
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	/* The real work is performed later in assign_ctxt() */
@@ -206,16 +219,24 @@ static int hfi1_file_open(struct inode *inode, struct file *fp)
 	spin_lock_init(&fd->tid_lock);
 	spin_lock_init(&fd->invalid_lock);
 	fd->rec_cpu_num = -1; /* no cpu affinity by default */
+<<<<<<< HEAD
 	fd->mm = current->mm;
 	mmgrab(fd->mm);
 	fd->dd = dd;
 	kobject_get(&fd->dd->kobj);
+=======
+	fd->dd = dd;
+>>>>>>> upstream/android-13
 	fp->private_data = fd;
 	return 0;
 nomem:
 	kfree(fd);
 	fp->private_data = NULL;
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&dd->user_refcount))
+=======
+	if (refcount_dec_and_test(&dd->user_refcount))
+>>>>>>> upstream/android-13
 		complete(&dd->user_comp);
 	return -ENOMEM;
 }
@@ -516,12 +537,20 @@ static int hfi1_file_mmap(struct file *fp, struct vm_area_struct *vma)
 			ret = -EINVAL;
 			goto done;
 		}
+<<<<<<< HEAD
 		if ((flags & VM_WRITE) || !uctxt->rcvhdrtail_kvaddr) {
+=======
+		if ((flags & VM_WRITE) || !hfi1_rcvhdrtail_kvaddr(uctxt)) {
+>>>>>>> upstream/android-13
 			ret = -EPERM;
 			goto done;
 		}
 		memlen = PAGE_SIZE;
+<<<<<<< HEAD
 		memvirt = (void *)uctxt->rcvhdrtail_kvaddr;
+=======
+		memvirt = (void *)hfi1_rcvhdrtail_kvaddr(uctxt);
+>>>>>>> upstream/android-13
 		flags &= ~VM_MAYWRITE;
 		break;
 	case SUBCTXT_UREGS:
@@ -692,7 +721,12 @@ static int hfi1_file_close(struct inode *inode, struct file *fp)
 		     HFI1_RCVCTRL_TAILUPD_DIS |
 		     HFI1_RCVCTRL_ONE_PKT_EGR_DIS |
 		     HFI1_RCVCTRL_NO_RHQ_DROP_DIS |
+<<<<<<< HEAD
 		     HFI1_RCVCTRL_NO_EGR_DROP_DIS, uctxt);
+=======
+		     HFI1_RCVCTRL_NO_EGR_DROP_DIS |
+		     HFI1_RCVCTRL_URGENT_DIS, uctxt);
+>>>>>>> upstream/android-13
 	/* Clear the context's J_KEY */
 	hfi1_clear_ctxt_jkey(dd, uctxt);
 	/*
@@ -711,10 +745,15 @@ static int hfi1_file_close(struct inode *inode, struct file *fp)
 
 	deallocate_ctxt(uctxt);
 done:
+<<<<<<< HEAD
 	mmdrop(fdata->mm);
 	kobject_put(&dd->kobj);
 
 	if (atomic_dec_and_test(&dd->user_refcount))
+=======
+
+	if (refcount_dec_and_test(&dd->user_refcount))
+>>>>>>> upstream/android-13
 		complete(&dd->user_comp);
 
 	cleanup_srcu_struct(&fdata->pq_srcu);
@@ -739,7 +778,11 @@ static u64 kvirt_to_phys(void *addr)
 }
 
 /**
+<<<<<<< HEAD
  * complete_subctxt
+=======
+ * complete_subctxt - complete sub-context info
+>>>>>>> upstream/android-13
  * @fd: valid filedata pointer
  *
  * Sub-context info can only be set up after the base context
@@ -844,7 +887,11 @@ static int assign_ctxt(struct hfi1_filedata *fd, unsigned long arg, u32 len)
 }
 
 /**
+<<<<<<< HEAD
  * match_ctxt
+=======
+ * match_ctxt - match context
+>>>>>>> upstream/android-13
  * @fd: valid filedata pointer
  * @uinfo: user info to compare base context with
  * @uctxt: context to compare uinfo to.
@@ -901,7 +948,11 @@ static int match_ctxt(struct hfi1_filedata *fd,
 }
 
 /**
+<<<<<<< HEAD
  * find_sub_ctxt
+=======
+ * find_sub_ctxt - fund sub-context
+>>>>>>> upstream/android-13
  * @fd: valid filedata pointer
  * @uinfo: matching info to use to find a possible context to share.
  *
@@ -1101,13 +1152,21 @@ static void user_init(struct hfi1_ctxtdata *uctxt)
 	 * don't have to wait to be sure the DMA update has happened
 	 * (chip resets head/tail to 0 on transition to enable).
 	 */
+<<<<<<< HEAD
 	if (uctxt->rcvhdrtail_kvaddr)
+=======
+	if (hfi1_rcvhdrtail_kvaddr(uctxt))
+>>>>>>> upstream/android-13
 		clear_rcvhdrtail(uctxt);
 
 	/* Setup J_KEY before enabling the context */
 	hfi1_set_ctxt_jkey(uctxt->dd, uctxt, uctxt->jkey);
 
 	rcvctrl_ops = HFI1_RCVCTRL_CTXT_ENB;
+<<<<<<< HEAD
+=======
+	rcvctrl_ops |= HFI1_RCVCTRL_URGENT_ENB;
+>>>>>>> upstream/android-13
 	if (HFI1_CAP_UGET_MASK(uctxt->flags, HDRSUPP))
 		rcvctrl_ops |= HFI1_RCVCTRL_TIDFLOW_ENB;
 	/*
@@ -1148,7 +1207,11 @@ static int get_ctxt_info(struct hfi1_filedata *fd, unsigned long arg, u32 len)
 			HFI1_CAP_UGET_MASK(uctxt->flags, MASK) |
 			HFI1_CAP_KGET_MASK(uctxt->flags, K2U);
 	/* adjust flag if this fd is not able to cache */
+<<<<<<< HEAD
 	if (!fd->handler)
+=======
+	if (!fd->use_mn)
+>>>>>>> upstream/android-13
 		cinfo.runtime_flags |= HFI1_CAP_TID_UNMAP; /* no caching */
 
 	cinfo.num_active = hfi1_count_active_units();
@@ -1164,8 +1227,13 @@ static int get_ctxt_info(struct hfi1_filedata *fd, unsigned long arg, u32 len)
 	cinfo.send_ctxt = uctxt->sc->hw_context;
 
 	cinfo.egrtids = uctxt->egrbufs.alloced;
+<<<<<<< HEAD
 	cinfo.rcvhdrq_cnt = uctxt->rcvhdrq_cnt;
 	cinfo.rcvhdrq_entsize = uctxt->rcvhdrqentsize << 2;
+=======
+	cinfo.rcvhdrq_cnt = get_hdrq_cnt(uctxt);
+	cinfo.rcvhdrq_entsize = get_hdrqentsize(uctxt) << 2;
+>>>>>>> upstream/android-13
 	cinfo.sdma_ring_size = fd->cq->nentries;
 	cinfo.rcvegr_size = uctxt->egrbufs.rcvtid_size;
 
@@ -1264,7 +1332,11 @@ static int get_base_info(struct hfi1_filedata *fd, unsigned long arg, u32 len)
 	memset(&binfo, 0, sizeof(binfo));
 	binfo.hw_version = dd->revision;
 	binfo.sw_version = HFI1_KERN_SWVERSION;
+<<<<<<< HEAD
 	binfo.bthqp = kdeth_qp;
+=======
+	binfo.bthqp = RVT_KDETH_QP_PREFIX;
+>>>>>>> upstream/android-13
 	binfo.jkey = uctxt->jkey;
 	/*
 	 * If more than 64 contexts are enabled the allocated credit
@@ -1524,7 +1596,11 @@ int hfi1_set_uevent_bits(struct hfi1_pportdata *ppd, const int evtbit)
  * manage_rcvq - manage a context's receive queue
  * @uctxt: the context
  * @subctxt: the sub-context
+<<<<<<< HEAD
  * @start_stop: action to carry out
+=======
+ * @arg: start/stop action to carry out
+>>>>>>> upstream/android-13
  *
  * start_stop == 0 disables receive on the context, for use in queue
  * overflow conditions.  start_stop==1 re-enables, to be used to
@@ -1553,7 +1629,11 @@ static int manage_rcvq(struct hfi1_ctxtdata *uctxt, u16 subctxt,
 		 * always resets it's tail register back to 0 on a
 		 * transition from disabled to enabled.
 		 */
+<<<<<<< HEAD
 		if (uctxt->rcvhdrtail_kvaddr)
+=======
+		if (hfi1_rcvhdrtail_kvaddr(uctxt))
+>>>>>>> upstream/android-13
 			clear_rcvhdrtail(uctxt);
 		rcvctrl_op = HFI1_RCVCTRL_CTXT_ENB;
 	} else {
@@ -1694,7 +1774,11 @@ static int user_add(struct hfi1_devdata *dd)
 	snprintf(name, sizeof(name), "%s_%d", class_name(), dd->unit);
 	ret = hfi1_cdev_init(dd->unit, name, &hfi1_file_ops,
 			     &dd->user_cdev, &dd->user_device,
+<<<<<<< HEAD
 			     true, &dd->kobj);
+=======
+			     true, &dd->verbs_dev.rdi.ibdev.dev.kobj);
+>>>>>>> upstream/android-13
 	if (ret)
 		user_remove(dd);
 

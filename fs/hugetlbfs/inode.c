@@ -27,7 +27,11 @@
 #include <linux/backing-dev.h>
 #include <linux/hugetlb.h>
 #include <linux/pagevec.h>
+<<<<<<< HEAD
 #include <linux/parser.h>
+=======
+#include <linux/fs_parser.h>
+>>>>>>> upstream/android-13
 #include <linux/mman.h>
 #include <linux/slab.h>
 #include <linux/dnotify.h>
@@ -38,6 +42,10 @@
 #include <linux/uio.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+>>>>>>> upstream/android-13
 
 static const struct super_operations hugetlbfs_ops;
 static const struct address_space_operations hugetlbfs_aops;
@@ -45,11 +53,25 @@ const struct file_operations hugetlbfs_file_operations;
 static const struct inode_operations hugetlbfs_dir_inode_operations;
 static const struct inode_operations hugetlbfs_inode_operations;
 
+<<<<<<< HEAD
 struct hugetlbfs_config {
 	struct hstate		*hstate;
 	long			max_hpages;
 	long			nr_inodes;
 	long			min_hpages;
+=======
+enum hugetlbfs_size_type { NO_SIZE, SIZE_STD, SIZE_PERCENT };
+
+struct hugetlbfs_fs_context {
+	struct hstate		*hstate;
+	unsigned long long	max_size_opt;
+	unsigned long long	min_size_opt;
+	long			max_hpages;
+	long			nr_inodes;
+	long			min_hpages;
+	enum hugetlbfs_size_type max_val_type;
+	enum hugetlbfs_size_type min_val_type;
+>>>>>>> upstream/android-13
 	kuid_t			uid;
 	kgid_t			gid;
 	umode_t			mode;
@@ -57,6 +79,7 @@ struct hugetlbfs_config {
 
 int sysctl_hugetlb_shm_group;
 
+<<<<<<< HEAD
 enum {
 	Opt_size, Opt_nr_inodes,
 	Opt_mode, Opt_uid, Opt_gid,
@@ -73,6 +96,27 @@ static const match_table_t tokens = {
 	{Opt_pagesize,	"pagesize=%s"},
 	{Opt_min_size,	"min_size=%s"},
 	{Opt_err,	NULL},
+=======
+enum hugetlb_param {
+	Opt_gid,
+	Opt_min_size,
+	Opt_mode,
+	Opt_nr_inodes,
+	Opt_pagesize,
+	Opt_size,
+	Opt_uid,
+};
+
+static const struct fs_parameter_spec hugetlb_fs_parameters[] = {
+	fsparam_u32   ("gid",		Opt_gid),
+	fsparam_string("min_size",	Opt_min_size),
+	fsparam_u32oct("mode",		Opt_mode),
+	fsparam_string("nr_inodes",	Opt_nr_inodes),
+	fsparam_string("pagesize",	Opt_pagesize),
+	fsparam_string("size",		Opt_size),
+	fsparam_u32   ("uid",		Opt_uid),
+	{}
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_NUMA
@@ -121,6 +165,10 @@ static void huge_pagevec_release(struct pagevec *pvec)
 static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct inode *inode = file_inode(file);
+<<<<<<< HEAD
+=======
+	struct hugetlbfs_inode_info *info = HUGETLBFS_I(inode);
+>>>>>>> upstream/android-13
 	loff_t len, vma_len;
 	int ret;
 	struct hstate *h = hstate_file(file);
@@ -130,12 +178,23 @@ static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
 	 * already been checked by prepare_hugepage_range.  If you add
 	 * any error returns here, do so after setting VM_HUGETLB, so
 	 * is_vm_hugetlb_page tests below unmap_region go the right
+<<<<<<< HEAD
 	 * way when do_mmap_pgoff unwinds (may be important on powerpc
+=======
+	 * way when do_mmap unwinds (may be important on powerpc
+>>>>>>> upstream/android-13
 	 * and ia64).
 	 */
 	vma->vm_flags |= VM_HUGETLB | VM_DONTEXPAND;
 	vma->vm_ops = &hugetlb_vm_ops;
 
+<<<<<<< HEAD
+=======
+	ret = seal_check_future_write(info->seals, vma);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * page based offset in vm_pgoff could be sufficiently large to
 	 * overflow a loff_t when converted to byte offset.  This can
@@ -161,7 +220,11 @@ static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
 	file_accessed(file);
 
 	ret = -ENOMEM;
+<<<<<<< HEAD
 	if (hugetlb_reserve_pages(inode,
+=======
+	if (!hugetlb_reserve_pages(inode,
+>>>>>>> upstream/android-13
 				vma->vm_pgoff >> huge_page_order(h),
 				len >> huge_page_shift(h), vma,
 				vma->vm_flags))
@@ -177,18 +240,77 @@ out:
 }
 
 /*
+<<<<<<< HEAD
  * Called under down_write(mmap_sem).
+=======
+ * Called under mmap_write_lock(mm).
+>>>>>>> upstream/android-13
  */
 
 #ifndef HAVE_ARCH_HUGETLB_UNMAPPED_AREA
 static unsigned long
+<<<<<<< HEAD
+=======
+hugetlb_get_unmapped_area_bottomup(struct file *file, unsigned long addr,
+		unsigned long len, unsigned long pgoff, unsigned long flags)
+{
+	struct hstate *h = hstate_file(file);
+	struct vm_unmapped_area_info info;
+
+	info.flags = 0;
+	info.length = len;
+	info.low_limit = current->mm->mmap_base;
+	info.high_limit = arch_get_mmap_end(addr);
+	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+	info.align_offset = 0;
+	return vm_unmapped_area(&info);
+}
+
+static unsigned long
+hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
+		unsigned long len, unsigned long pgoff, unsigned long flags)
+{
+	struct hstate *h = hstate_file(file);
+	struct vm_unmapped_area_info info;
+
+	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
+	info.length = len;
+	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
+	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+	info.align_offset = 0;
+	addr = vm_unmapped_area(&info);
+
+	/*
+	 * A failed mmap() very likely causes application failure,
+	 * so fall back to the bottom-up function here. This scenario
+	 * can happen with large stack limits and large mmap()
+	 * allocations.
+	 */
+	if (unlikely(offset_in_page(addr))) {
+		VM_BUG_ON(addr != -ENOMEM);
+		info.flags = 0;
+		info.low_limit = current->mm->mmap_base;
+		info.high_limit = arch_get_mmap_end(addr);
+		addr = vm_unmapped_area(&info);
+	}
+
+	return addr;
+}
+
+static unsigned long
+>>>>>>> upstream/android-13
 hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 		unsigned long len, unsigned long pgoff, unsigned long flags)
 {
 	struct mm_struct *mm = current->mm;
 	struct vm_area_struct *vma;
 	struct hstate *h = hstate_file(file);
+<<<<<<< HEAD
 	struct vm_unmapped_area_info info;
+=======
+	const unsigned long mmap_end = arch_get_mmap_end(addr);
+>>>>>>> upstream/android-13
 
 	if (len & ~huge_page_mask(h))
 		return -EINVAL;
@@ -204,11 +326,16 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 	if (addr) {
 		addr = ALIGN(addr, huge_page_size(h));
 		vma = find_vma(mm, addr);
+<<<<<<< HEAD
 		if (TASK_SIZE - len >= addr &&
+=======
+		if (mmap_end - len >= addr &&
+>>>>>>> upstream/android-13
 		    (!vma || addr + len <= vm_start_gap(vma)))
 			return addr;
 	}
 
+<<<<<<< HEAD
 	info.flags = 0;
 	info.length = len;
 	info.low_limit = TASK_UNMAPPED_BASE;
@@ -216,6 +343,18 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
 	info.align_offset = 0;
 	return vm_unmapped_area(&info);
+=======
+	/*
+	 * Use mm->get_unmapped_area value as a hint to use topdown routine.
+	 * If architectures have special needs, they should define their own
+	 * version of hugetlb_get_unmapped_area.
+	 */
+	if (mm->get_unmapped_area == arch_get_unmapped_area_topdown)
+		return hugetlb_get_unmapped_area_topdown(file, addr, len,
+				pgoff, flags);
+	return hugetlb_get_unmapped_area_bottomup(file, addr, len,
+			pgoff, flags);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -250,7 +389,11 @@ hugetlbfs_read_actor(struct page *page, unsigned long offset,
 
 /*
  * Support for read() - Find the page attached to f_mapping and copy out the
+<<<<<<< HEAD
  * data. Its *very* similar to do_generic_mapping_read(), we can't use that
+=======
+ * data. Its *very* similar to generic_file_buffered_read(), we can't use that
+>>>>>>> upstream/android-13
  * since it has PAGE_SIZE assumptions.
  */
 static ssize_t hugetlbfs_read_iter(struct kiocb *iocb, struct iov_iter *to)
@@ -344,10 +487,18 @@ hugetlb_vmdelete_list(struct rb_root_cached *root, pgoff_t start, pgoff_t end)
 	struct vm_area_struct *vma;
 
 	/*
+<<<<<<< HEAD
 	 * end == 0 indicates that the entire range after
 	 * start should be unmapped.
 	 */
 	vma_interval_tree_foreach(vma, root, start, end ? end : ULONG_MAX) {
+=======
+	 * end == 0 indicates that the entire range after start should be
+	 * unmapped.  Note, end is exclusive, whereas the interval tree takes
+	 * an inclusive "last".
+	 */
+	vma_interval_tree_foreach(vma, root, start, end ? end - 1 : ULONG_MAX) {
+>>>>>>> upstream/android-13
 		unsigned long v_offset;
 		unsigned long v_end;
 
@@ -382,6 +533,7 @@ hugetlb_vmdelete_list(struct rb_root_cached *root, pgoff_t start, pgoff_t end)
  *
  * truncation is indicated by end of range being LLONG_MAX
  *	In this case, we first scan the range and release found pages.
+<<<<<<< HEAD
  *	After releasing pages, hugetlb_unreserve_pages cleans up region/reserv
  *	maps and global counts.  Page faults can not race with truncation
  *	in this routine.  hugetlb_no_page() prevents page faults in the
@@ -392,6 +544,17 @@ hugetlb_vmdelete_list(struct rb_root_cached *root, pgoff_t start, pgoff_t end)
  *	In the hole punch case we scan the range and release found pages.
  *	Only when releasing a page is the associated region/reserv map
  *	deleted.  The region/reserv map for ranges without associated
+=======
+ *	After releasing pages, hugetlb_unreserve_pages cleans up region/reserve
+ *	maps and global counts.  Page faults can not race with truncation
+ *	in this routine.  hugetlb_no_page() holds i_mmap_rwsem and prevents
+ *	page faults in the truncated range by checking i_size.  i_size is
+ *	modified while holding i_mmap_rwsem.
+ * hole punch is indicated if end is not LLONG_MAX
+ *	In the hole punch case we scan the range and release found pages.
+ *	Only when releasing a page is the associated region/reserve map
+ *	deleted.  The region/reserve map for ranges without associated
+>>>>>>> upstream/android-13
  *	pages are not modified.  Page faults can race with hole punch.
  *	This is indicated if we find a mapped page.
  * Note: If the passed end of range value is beyond the end of file, but
@@ -404,14 +567,20 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
 	struct address_space *mapping = &inode->i_data;
 	const pgoff_t start = lstart >> huge_page_shift(h);
 	const pgoff_t end = lend >> huge_page_shift(h);
+<<<<<<< HEAD
 	struct vm_area_struct pseudo_vma;
+=======
+>>>>>>> upstream/android-13
 	struct pagevec pvec;
 	pgoff_t next, index;
 	int i, freed = 0;
 	bool truncate_op = (lend == LLONG_MAX);
 
+<<<<<<< HEAD
 	vma_init(&pseudo_vma, current->mm);
 	pseudo_vma.vm_flags = (VM_HUGETLB | VM_MAYSHARE | VM_SHARED);
+=======
+>>>>>>> upstream/android-13
 	pagevec_init(&pvec);
 	next = start;
 	while (next < end) {
@@ -423,11 +592,27 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
 
 		for (i = 0; i < pagevec_count(&pvec); ++i) {
 			struct page *page = pvec.pages[i];
+<<<<<<< HEAD
 			u32 hash;
 
 			index = page->index;
 			hash = hugetlb_fault_mutex_hash(h, mapping, index, 0);
 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+=======
+			u32 hash = 0;
+
+			index = page->index;
+			if (!truncate_op) {
+				/*
+				 * Only need to hold the fault mutex in the
+				 * hole punch case.  This prevents races with
+				 * page faults.  Races are not possible in the
+				 * case of truncation.
+				 */
+				hash = hugetlb_fault_mutex_hash(mapping, index);
+				mutex_lock(&hugetlb_fault_mutex_table[hash]);
+			}
+>>>>>>> upstream/android-13
 
 			/*
 			 * If page is mapped, it was faulted in after being
@@ -441,7 +626,13 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
 			if (unlikely(page_mapped(page))) {
 				BUG_ON(truncate_op);
 
+<<<<<<< HEAD
 				i_mmap_lock_write(mapping);
+=======
+				mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+				i_mmap_lock_write(mapping);
+				mutex_lock(&hugetlb_fault_mutex_table[hash]);
+>>>>>>> upstream/android-13
 				hugetlb_vmdelete_list(&mapping->i_mmap,
 					index * pages_per_huge_page(h),
 					(index + 1) * pages_per_huge_page(h));
@@ -458,7 +649,11 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
 			 * the subpool and global reserve usage count can need
 			 * to be adjusted.
 			 */
+<<<<<<< HEAD
 			VM_BUG_ON(PagePrivate(page));
+=======
+			VM_BUG_ON(HPageRestoreReserve(page));
+>>>>>>> upstream/android-13
 			remove_huge_page(page);
 			freed++;
 			if (!truncate_op) {
@@ -468,7 +663,12 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
 			}
 
 			unlock_page(page);
+<<<<<<< HEAD
 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+=======
+			if (!truncate_op)
+				mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+>>>>>>> upstream/android-13
 		}
 		huge_pagevec_release(&pvec);
 		cond_resched();
@@ -483,14 +683,30 @@ static void hugetlbfs_evict_inode(struct inode *inode)
 	struct resv_map *resv_map;
 
 	remove_inode_hugepages(inode, 0, LLONG_MAX);
+<<<<<<< HEAD
 	resv_map = (struct resv_map *)inode->i_mapping->private_data;
 	/* root inode doesn't have the resv_map, so we should check it */
+=======
+
+	/*
+	 * Get the resv_map from the address space embedded in the inode.
+	 * This is the address space which points to any resv_map allocated
+	 * at inode creation time.  If this is a device special inode,
+	 * i_mapping may not point to the original address space.
+	 */
+	resv_map = (struct resv_map *)(&inode->i_data)->private_data;
+	/* Only regular and link inodes have associated reserve maps */
+>>>>>>> upstream/android-13
 	if (resv_map)
 		resv_map_release(&resv_map->refs);
 	clear_inode(inode);
 }
 
+<<<<<<< HEAD
 static int hugetlb_vmtruncate(struct inode *inode, loff_t offset)
+=======
+static void hugetlb_vmtruncate(struct inode *inode, loff_t offset)
+>>>>>>> upstream/android-13
 {
 	pgoff_t pgoff;
 	struct address_space *mapping = inode->i_mapping;
@@ -499,13 +715,21 @@ static int hugetlb_vmtruncate(struct inode *inode, loff_t offset)
 	BUG_ON(offset & ~huge_page_mask(h));
 	pgoff = offset >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	i_size_write(inode, offset);
 	i_mmap_lock_write(mapping);
+=======
+	i_mmap_lock_write(mapping);
+	i_size_write(inode, offset);
+>>>>>>> upstream/android-13
 	if (!RB_EMPTY_ROOT(&mapping->i_mmap.rb_root))
 		hugetlb_vmdelete_list(&mapping->i_mmap, pgoff, 0);
 	i_mmap_unlock_write(mapping);
 	remove_inode_hugepages(inode, offset, LLONG_MAX);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static long hugetlbfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
@@ -527,7 +751,11 @@ static long hugetlbfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
 
 		inode_lock(inode);
 
+<<<<<<< HEAD
 		/* protected by i_mutex */
+=======
+		/* protected by i_rwsem */
+>>>>>>> upstream/android-13
 		if (info->seals & (F_SEAL_WRITE | F_SEAL_FUTURE_WRITE)) {
 			inode_unlock(inode);
 			return -EPERM;
@@ -603,7 +831,10 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
 		 */
 		struct page *page;
 		unsigned long addr;
+<<<<<<< HEAD
 		int avoid_reserve = 0;
+=======
+>>>>>>> upstream/android-13
 
 		cond_resched();
 
@@ -622,8 +853,17 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
 		/* addr is the offset within the file (zero based) */
 		addr = index * hpage_size;
 
+<<<<<<< HEAD
 		/* mutex taken here, fault path and hole punch */
 		hash = hugetlb_fault_mutex_hash(h, mapping, index, addr);
+=======
+		/*
+		 * fault mutex taken here, protects against fault path
+		 * and hole punch.  inode_lock previously taken protects
+		 * against truncation.
+		 */
+		hash = hugetlb_fault_mutex_hash(mapping, index);
+>>>>>>> upstream/android-13
 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
 
 		/* See if already present in mapping to avoid alloc/free */
@@ -635,8 +875,20 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
 			continue;
 		}
 
+<<<<<<< HEAD
 		/* Allocate page and add to page cache */
 		page = alloc_huge_page(&pseudo_vma, addr, avoid_reserve);
+=======
+		/*
+		 * Allocate page without setting the avoid_reserve argument.
+		 * There certainly are no reserves associated with the
+		 * pseudo_vma.  However, there could be shared mappings with
+		 * reserves for the file at the inode level.  If we fallocate
+		 * pages in these areas, we need to consume the reserves
+		 * to keep reservation accounting consistent.
+		 */
+		page = alloc_huge_page(&pseudo_vma, addr, 0);
+>>>>>>> upstream/android-13
 		hugetlb_drop_vma_policy(&pseudo_vma);
 		if (IS_ERR(page)) {
 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
@@ -647,6 +899,10 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
 		__SetPageUptodate(page);
 		error = huge_add_to_page_cache(page, mapping, index);
 		if (unlikely(error)) {
+<<<<<<< HEAD
+=======
+			restore_reserve_on_error(h, &pseudo_vma, addr, page);
+>>>>>>> upstream/android-13
 			put_page(page);
 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
 			goto out;
@@ -654,7 +910,11 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
 
 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
 
+<<<<<<< HEAD
 		set_page_huge_active(page);
+=======
+		SetHPageMigratable(page);
+>>>>>>> upstream/android-13
 		/*
 		 * unlock_page because locked by add_to_page_cache()
 		 * put_page() due to reference from alloc_huge_page()
@@ -671,7 +931,12 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
 static int hugetlbfs_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+static int hugetlbfs_setattr(struct user_namespace *mnt_userns,
+			     struct dentry *dentry, struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	struct hstate *h = hstate_inode(inode);
@@ -679,9 +944,13 @@ static int hugetlbfs_setattr(struct dentry *dentry, struct iattr *attr)
 	unsigned int ia_valid = attr->ia_valid;
 	struct hugetlbfs_inode_info *info = HUGETLBFS_I(inode);
 
+<<<<<<< HEAD
 	BUG_ON(!inode);
 
 	error = setattr_prepare(dentry, attr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -691,6 +960,7 @@ static int hugetlbfs_setattr(struct dentry *dentry, struct iattr *attr)
 
 		if (newsize & ~huge_page_mask(h))
 			return -EINVAL;
+<<<<<<< HEAD
 		/* protected by i_mutex */
 		if ((newsize < oldsize && (info->seals & F_SEAL_SHRINK)) ||
 		    (newsize > oldsize && (info->seals & F_SEAL_GROW)))
@@ -701,21 +971,41 @@ static int hugetlbfs_setattr(struct dentry *dentry, struct iattr *attr)
 	}
 
 	setattr_copy(inode, attr);
+=======
+		/* protected by i_rwsem */
+		if ((newsize < oldsize && (info->seals & F_SEAL_SHRINK)) ||
+		    (newsize > oldsize && (info->seals & F_SEAL_GROW)))
+			return -EPERM;
+		hugetlb_vmtruncate(inode, newsize);
+	}
+
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }
 
 static struct inode *hugetlbfs_get_root(struct super_block *sb,
+<<<<<<< HEAD
 					struct hugetlbfs_config *config)
+=======
+					struct hugetlbfs_fs_context *ctx)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 
 	inode = new_inode(sb);
 	if (inode) {
 		inode->i_ino = get_next_ino();
+<<<<<<< HEAD
 		inode->i_mode = S_IFDIR | config->mode;
 		inode->i_uid = config->uid;
 		inode->i_gid = config->gid;
+=======
+		inode->i_mode = S_IFDIR | ctx->mode;
+		inode->i_uid = ctx->uid;
+		inode->i_gid = ctx->gid;
+>>>>>>> upstream/android-13
 		inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
 		inode->i_op = &hugetlbfs_dir_inode_operations;
 		inode->i_fop = &simple_dir_operations;
@@ -756,7 +1046,11 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
 		struct hugetlbfs_inode_info *info = HUGETLBFS_I(inode);
 
 		inode->i_ino = get_next_ino();
+<<<<<<< HEAD
 		inode_init_owner(inode, dir, mode);
+=======
+		inode_init_owner(&init_user_ns, inode, dir, mode);
+>>>>>>> upstream/android-13
 		lockdep_set_class(&inode->i_mapping->i_mmap_rwsem,
 				&hugetlbfs_i_mmap_rwsem_key);
 		inode->i_mapping->a_ops = &hugetlbfs_aops;
@@ -795,8 +1089,16 @@ static struct inode *hugetlbfs_get_inode(struct super_block *sb,
 /*
  * File creation. Allocate an inode, and we're done..
  */
+<<<<<<< HEAD
 static int hugetlbfs_mknod(struct inode *dir,
 			struct dentry *dentry, umode_t mode, dev_t dev)
+=======
+static int do_hugetlbfs_mknod(struct inode *dir,
+			struct dentry *dentry,
+			umode_t mode,
+			dev_t dev,
+			bool tmpfile)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	int error = -ENOSPC;
@@ -804,21 +1106,45 @@ static int hugetlbfs_mknod(struct inode *dir,
 	inode = hugetlbfs_get_inode(dir->i_sb, dir, mode, dev);
 	if (inode) {
 		dir->i_ctime = dir->i_mtime = current_time(dir);
+<<<<<<< HEAD
 		d_instantiate(dentry, inode);
 		dget(dentry);	/* Extra count - pin the dentry in core */
+=======
+		if (tmpfile) {
+			d_tmpfile(dentry, inode);
+		} else {
+			d_instantiate(dentry, inode);
+			dget(dentry);/* Extra count - pin the dentry in core */
+		}
+>>>>>>> upstream/android-13
 		error = 0;
 	}
 	return error;
 }
 
+<<<<<<< HEAD
 static int hugetlbfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	int retval = hugetlbfs_mknod(dir, dentry, mode | S_IFDIR, 0);
+=======
+static int hugetlbfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+			   struct dentry *dentry, umode_t mode, dev_t dev)
+{
+	return do_hugetlbfs_mknod(dir, dentry, mode, dev, false);
+}
+
+static int hugetlbfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+			   struct dentry *dentry, umode_t mode)
+{
+	int retval = hugetlbfs_mknod(&init_user_ns, dir, dentry,
+				     mode | S_IFDIR, 0);
+>>>>>>> upstream/android-13
 	if (!retval)
 		inc_nlink(dir);
 	return retval;
 }
 
+<<<<<<< HEAD
 static int hugetlbfs_create(struct inode *dir, struct dentry *dentry, umode_t mode, bool excl)
 {
 	return hugetlbfs_mknod(dir, dentry, mode | S_IFREG, 0);
@@ -826,6 +1152,25 @@ static int hugetlbfs_create(struct inode *dir, struct dentry *dentry, umode_t mo
 
 static int hugetlbfs_symlink(struct inode *dir,
 			struct dentry *dentry, const char *symname)
+=======
+static int hugetlbfs_create(struct user_namespace *mnt_userns,
+			    struct inode *dir, struct dentry *dentry,
+			    umode_t mode, bool excl)
+{
+	return hugetlbfs_mknod(&init_user_ns, dir, dentry, mode | S_IFREG, 0);
+}
+
+static int hugetlbfs_tmpfile(struct user_namespace *mnt_userns,
+			     struct inode *dir, struct dentry *dentry,
+			     umode_t mode)
+{
+	return do_hugetlbfs_mknod(dir, dentry, mode | S_IFREG, 0, true);
+}
+
+static int hugetlbfs_symlink(struct user_namespace *mnt_userns,
+			     struct inode *dir, struct dentry *dentry,
+			     const char *symname)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	int error = -ENOSPC;
@@ -845,6 +1190,7 @@ static int hugetlbfs_symlink(struct inode *dir,
 	return error;
 }
 
+<<<<<<< HEAD
 /*
  * mark the head page dirty
  */
@@ -856,6 +1202,8 @@ static int hugetlbfs_set_page_dirty(struct page *page)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hugetlbfs_migrate_page(struct address_space *mapping,
 				struct page *newpage, struct page *page,
 				enum migrate_mode mode)
@@ -866,6 +1214,7 @@ static int hugetlbfs_migrate_page(struct address_space *mapping,
 	if (rc != MIGRATEPAGE_SUCCESS)
 		return rc;
 
+<<<<<<< HEAD
 	/*
 	 * page_private is subpool pointer in hugetlb pages.  Transfer to
 	 * new page.  PagePrivate is not associated with page_private for
@@ -875,6 +1224,11 @@ static int hugetlbfs_migrate_page(struct address_space *mapping,
 	if (page_private(page)) {
 		set_page_private(newpage, page_private(page));
 		set_page_private(page, 0);
+=======
+	if (hugetlb_page_subpool(page)) {
+		hugetlb_set_page_subpool(newpage, hugetlb_page_subpool(page));
+		hugetlb_set_page_subpool(page, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	if (mode != MIGRATE_SYNC_NO_COPY)
@@ -1035,9 +1389,14 @@ static struct inode *hugetlbfs_alloc_inode(struct super_block *sb)
 	return &p->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void hugetlbfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
+=======
+static void hugetlbfs_free_inode(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	kmem_cache_free(hugetlbfs_inode_cachep, HUGETLBFS_I(inode));
 }
 
@@ -1045,13 +1404,20 @@ static void hugetlbfs_destroy_inode(struct inode *inode)
 {
 	hugetlbfs_inc_free_inodes(HUGETLBFS_SB(inode->i_sb));
 	mpol_free_shared_policy(&HUGETLBFS_I(inode)->policy);
+<<<<<<< HEAD
 	call_rcu(&inode->i_rcu, hugetlbfs_i_callback);
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct address_space_operations hugetlbfs_aops = {
 	.write_begin	= hugetlbfs_write_begin,
 	.write_end	= hugetlbfs_write_end,
+<<<<<<< HEAD
 	.set_page_dirty	= hugetlbfs_set_page_dirty,
+=======
+	.set_page_dirty	=  __set_page_dirty_no_writeback,
+>>>>>>> upstream/android-13
 	.migratepage    = hugetlbfs_migrate_page,
 	.error_remove_page	= hugetlbfs_error_remove_page,
 };
@@ -1084,6 +1450,10 @@ static const struct inode_operations hugetlbfs_dir_inode_operations = {
 	.mknod		= hugetlbfs_mknod,
 	.rename		= simple_rename,
 	.setattr	= hugetlbfs_setattr,
+<<<<<<< HEAD
+=======
+	.tmpfile	= hugetlbfs_tmpfile,
+>>>>>>> upstream/android-13
 };
 
 static const struct inode_operations hugetlbfs_inode_operations = {
@@ -1092,6 +1462,10 @@ static const struct inode_operations hugetlbfs_inode_operations = {
 
 static const struct super_operations hugetlbfs_ops = {
 	.alloc_inode    = hugetlbfs_alloc_inode,
+<<<<<<< HEAD
+=======
+	.free_inode     = hugetlbfs_free_inode,
+>>>>>>> upstream/android-13
 	.destroy_inode  = hugetlbfs_destroy_inode,
 	.evict_inode	= hugetlbfs_evict_inode,
 	.statfs		= hugetlbfs_statfs,
@@ -1099,8 +1473,11 @@ static const struct super_operations hugetlbfs_ops = {
 	.show_options	= hugetlbfs_show_options,
 };
 
+<<<<<<< HEAD
 enum hugetlbfs_size_type { NO_SIZE, SIZE_STD, SIZE_PERCENT };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Convert size option passed from command line to number of huge pages
  * in the pool specified by hstate.  Size option could be in bytes
@@ -1123,6 +1500,7 @@ hugetlbfs_size_to_hpages(struct hstate *h, unsigned long long size_opt,
 	return size_opt;
 }
 
+<<<<<<< HEAD
 static int
 hugetlbfs_parse_options(char *options, struct hugetlbfs_config *pconfig)
 {
@@ -1212,25 +1590,127 @@ hugetlbfs_parse_options(char *options, struct hugetlbfs_config *pconfig)
 		}
 	}
 
+=======
+/*
+ * Parse one mount parameter.
+ */
+static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *param)
+{
+	struct hugetlbfs_fs_context *ctx = fc->fs_private;
+	struct fs_parse_result result;
+	char *rest;
+	unsigned long ps;
+	int opt;
+
+	opt = fs_parse(fc, hugetlb_fs_parameters, param, &result);
+	if (opt < 0)
+		return opt;
+
+	switch (opt) {
+	case Opt_uid:
+		ctx->uid = make_kuid(current_user_ns(), result.uint_32);
+		if (!uid_valid(ctx->uid))
+			goto bad_val;
+		return 0;
+
+	case Opt_gid:
+		ctx->gid = make_kgid(current_user_ns(), result.uint_32);
+		if (!gid_valid(ctx->gid))
+			goto bad_val;
+		return 0;
+
+	case Opt_mode:
+		ctx->mode = result.uint_32 & 01777U;
+		return 0;
+
+	case Opt_size:
+		/* memparse() will accept a K/M/G without a digit */
+		if (!isdigit(param->string[0]))
+			goto bad_val;
+		ctx->max_size_opt = memparse(param->string, &rest);
+		ctx->max_val_type = SIZE_STD;
+		if (*rest == '%')
+			ctx->max_val_type = SIZE_PERCENT;
+		return 0;
+
+	case Opt_nr_inodes:
+		/* memparse() will accept a K/M/G without a digit */
+		if (!isdigit(param->string[0]))
+			goto bad_val;
+		ctx->nr_inodes = memparse(param->string, &rest);
+		return 0;
+
+	case Opt_pagesize:
+		ps = memparse(param->string, &rest);
+		ctx->hstate = size_to_hstate(ps);
+		if (!ctx->hstate) {
+			pr_err("Unsupported page size %lu MB\n", ps >> 20);
+			return -EINVAL;
+		}
+		return 0;
+
+	case Opt_min_size:
+		/* memparse() will accept a K/M/G without a digit */
+		if (!isdigit(param->string[0]))
+			goto bad_val;
+		ctx->min_size_opt = memparse(param->string, &rest);
+		ctx->min_val_type = SIZE_STD;
+		if (*rest == '%')
+			ctx->min_val_type = SIZE_PERCENT;
+		return 0;
+
+	default:
+		return -EINVAL;
+	}
+
+bad_val:
+	return invalfc(fc, "Bad value '%s' for mount option '%s'\n",
+		      param->string, param->key);
+}
+
+/*
+ * Validate the parsed options.
+ */
+static int hugetlbfs_validate(struct fs_context *fc)
+{
+	struct hugetlbfs_fs_context *ctx = fc->fs_private;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Use huge page pool size (in hstate) to convert the size
 	 * options to number of huge pages.  If NO_SIZE, -1 is returned.
 	 */
+<<<<<<< HEAD
 	pconfig->max_hpages = hugetlbfs_size_to_hpages(pconfig->hstate,
 						max_size_opt, max_val_type);
 	pconfig->min_hpages = hugetlbfs_size_to_hpages(pconfig->hstate,
 						min_size_opt, min_val_type);
+=======
+	ctx->max_hpages = hugetlbfs_size_to_hpages(ctx->hstate,
+						   ctx->max_size_opt,
+						   ctx->max_val_type);
+	ctx->min_hpages = hugetlbfs_size_to_hpages(ctx->hstate,
+						   ctx->min_size_opt,
+						   ctx->min_val_type);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If max_size was specified, then min_size must be smaller
 	 */
+<<<<<<< HEAD
 	if (max_val_type > NO_SIZE &&
 	    pconfig->min_hpages > pconfig->max_hpages) {
 		pr_err("minimum size can not be greater than maximum size\n");
+=======
+	if (ctx->max_val_type > NO_SIZE &&
+	    ctx->min_hpages > ctx->max_hpages) {
+		pr_err("Minimum size can not be greater than maximum size\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	return 0;
+<<<<<<< HEAD
 
 bad_val:
 	pr_err("Bad value '%s' for mount option '%s'\n", args[0].from, p);
@@ -1255,10 +1735,21 @@ hugetlbfs_fill_super(struct super_block *sb, void *data, int silent)
 	if (ret)
 		return ret;
 
+=======
+}
+
+static int
+hugetlbfs_fill_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct hugetlbfs_fs_context *ctx = fc->fs_private;
+	struct hugetlbfs_sb_info *sbinfo;
+
+>>>>>>> upstream/android-13
 	sbinfo = kmalloc(sizeof(struct hugetlbfs_sb_info), GFP_KERNEL);
 	if (!sbinfo)
 		return -ENOMEM;
 	sb->s_fs_info = sbinfo;
+<<<<<<< HEAD
 	sbinfo->hstate = config.hstate;
 	spin_lock_init(&sbinfo->stat_lock);
 	sbinfo->max_inodes = config.nr_inodes;
@@ -1277,16 +1768,51 @@ hugetlbfs_fill_super(struct super_block *sb, void *data, int silent)
 		sbinfo->spool = hugepage_new_subpool(config.hstate,
 							config.max_hpages,
 							config.min_hpages);
+=======
+	spin_lock_init(&sbinfo->stat_lock);
+	sbinfo->hstate		= ctx->hstate;
+	sbinfo->max_inodes	= ctx->nr_inodes;
+	sbinfo->free_inodes	= ctx->nr_inodes;
+	sbinfo->spool		= NULL;
+	sbinfo->uid		= ctx->uid;
+	sbinfo->gid		= ctx->gid;
+	sbinfo->mode		= ctx->mode;
+
+	/*
+	 * Allocate and initialize subpool if maximum or minimum size is
+	 * specified.  Any needed reservations (for minimum size) are taken
+	 * taken when the subpool is created.
+	 */
+	if (ctx->max_hpages != -1 || ctx->min_hpages != -1) {
+		sbinfo->spool = hugepage_new_subpool(ctx->hstate,
+						     ctx->max_hpages,
+						     ctx->min_hpages);
+>>>>>>> upstream/android-13
 		if (!sbinfo->spool)
 			goto out_free;
 	}
 	sb->s_maxbytes = MAX_LFS_FILESIZE;
+<<<<<<< HEAD
 	sb->s_blocksize = huge_page_size(config.hstate);
 	sb->s_blocksize_bits = huge_page_shift(config.hstate);
 	sb->s_magic = HUGETLBFS_MAGIC;
 	sb->s_op = &hugetlbfs_ops;
 	sb->s_time_gran = 1;
 	sb->s_root = d_make_root(hugetlbfs_get_root(sb, &config));
+=======
+	sb->s_blocksize = huge_page_size(ctx->hstate);
+	sb->s_blocksize_bits = huge_page_shift(ctx->hstate);
+	sb->s_magic = HUGETLBFS_MAGIC;
+	sb->s_op = &hugetlbfs_ops;
+	sb->s_time_gran = 1;
+
+	/*
+	 * Due to the special and limited functionality of hugetlbfs, it does
+	 * not work well as a stacking filesystem.
+	 */
+	sb->s_stack_depth = FILESYSTEM_MAX_STACK_DEPTH;
+	sb->s_root = d_make_root(hugetlbfs_get_root(sb, ctx));
+>>>>>>> upstream/android-13
 	if (!sb->s_root)
 		goto out_free;
 	return 0;
@@ -1296,6 +1822,7 @@ out_free:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 static struct dentry *hugetlbfs_mount(struct file_system_type *fs_type,
 	int flags, const char *dev_name, void *data)
 {
@@ -1306,6 +1833,54 @@ static struct file_system_type hugetlbfs_fs_type = {
 	.name		= "hugetlbfs",
 	.mount		= hugetlbfs_mount,
 	.kill_sb	= kill_litter_super,
+=======
+static int hugetlbfs_get_tree(struct fs_context *fc)
+{
+	int err = hugetlbfs_validate(fc);
+	if (err)
+		return err;
+	return get_tree_nodev(fc, hugetlbfs_fill_super);
+}
+
+static void hugetlbfs_fs_context_free(struct fs_context *fc)
+{
+	kfree(fc->fs_private);
+}
+
+static const struct fs_context_operations hugetlbfs_fs_context_ops = {
+	.free		= hugetlbfs_fs_context_free,
+	.parse_param	= hugetlbfs_parse_param,
+	.get_tree	= hugetlbfs_get_tree,
+};
+
+static int hugetlbfs_init_fs_context(struct fs_context *fc)
+{
+	struct hugetlbfs_fs_context *ctx;
+
+	ctx = kzalloc(sizeof(struct hugetlbfs_fs_context), GFP_KERNEL);
+	if (!ctx)
+		return -ENOMEM;
+
+	ctx->max_hpages	= -1; /* No limit on size by default */
+	ctx->nr_inodes	= -1; /* No limit on number of inodes by default */
+	ctx->uid	= current_fsuid();
+	ctx->gid	= current_fsgid();
+	ctx->mode	= 0755;
+	ctx->hstate	= &default_hstate;
+	ctx->min_hpages	= -1; /* No default minimum size */
+	ctx->max_val_type = NO_SIZE;
+	ctx->min_val_type = NO_SIZE;
+	fc->fs_private = ctx;
+	fc->ops	= &hugetlbfs_fs_context_ops;
+	return 0;
+}
+
+static struct file_system_type hugetlbfs_fs_type = {
+	.name			= "hugetlbfs",
+	.init_fs_context	= hugetlbfs_init_fs_context,
+	.parameters		= hugetlb_fs_parameters,
+	.kill_sb		= kill_litter_super,
+>>>>>>> upstream/android-13
 };
 
 static struct vfsmount *hugetlbfs_vfsmount[HUGE_MAX_HSTATE];
@@ -1323,7 +1898,11 @@ static int get_hstate_idx(int page_size_log)
 
 	if (!h)
 		return -1;
+<<<<<<< HEAD
 	return h - hstates;
+=======
+	return hstate_index(h);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1331,7 +1910,11 @@ static int get_hstate_idx(int page_size_log)
  * otherwise hugetlb_reserve_pages reserves one less hugepages than intended.
  */
 struct file *hugetlb_file_setup(const char *name, size_t size,
+<<<<<<< HEAD
 				vm_flags_t acctflag, struct user_struct **user,
+=======
+				vm_flags_t acctflag, struct ucounts **ucounts,
+>>>>>>> upstream/android-13
 				int creat_flags, int page_size_log)
 {
 	struct inode *inode;
@@ -1343,20 +1926,33 @@ struct file *hugetlb_file_setup(const char *name, size_t size,
 	if (hstate_idx < 0)
 		return ERR_PTR(-ENODEV);
 
+<<<<<<< HEAD
 	*user = NULL;
+=======
+	*ucounts = NULL;
+>>>>>>> upstream/android-13
 	mnt = hugetlbfs_vfsmount[hstate_idx];
 	if (!mnt)
 		return ERR_PTR(-ENOENT);
 
 	if (creat_flags == HUGETLB_SHMFS_INODE && !can_do_hugetlb_shm()) {
+<<<<<<< HEAD
 		*user = current_user();
 		if (user_shm_lock(size, *user)) {
+=======
+		*ucounts = current_ucounts();
+		if (user_shm_lock(size, *ucounts)) {
+>>>>>>> upstream/android-13
 			task_lock(current);
 			pr_warn_once("%s (%d): Using mlock ulimits for SHM_HUGETLB is deprecated\n",
 				current->comm, current->pid);
 			task_unlock(current);
 		} else {
+<<<<<<< HEAD
 			*user = NULL;
+=======
+			*ucounts = NULL;
+>>>>>>> upstream/android-13
 			return ERR_PTR(-EPERM);
 		}
 	}
@@ -1371,7 +1967,11 @@ struct file *hugetlb_file_setup(const char *name, size_t size,
 	inode->i_size = size;
 	clear_nlink(inode);
 
+<<<<<<< HEAD
 	if (hugetlb_reserve_pages(inode, 0,
+=======
+	if (!hugetlb_reserve_pages(inode, 0,
+>>>>>>> upstream/android-13
 			size >> huge_page_shift(hstate_inode(inode)), NULL,
 			acctflag))
 		file = ERR_PTR(-ENOMEM);
@@ -1383,15 +1983,47 @@ struct file *hugetlb_file_setup(const char *name, size_t size,
 
 	iput(inode);
 out:
+<<<<<<< HEAD
 	if (*user) {
 		user_shm_unlock(size, *user);
 		*user = NULL;
+=======
+	if (*ucounts) {
+		user_shm_unlock(size, *ucounts);
+		*ucounts = NULL;
+>>>>>>> upstream/android-13
 	}
 	return file;
 }
 
+<<<<<<< HEAD
 static int __init init_hugetlbfs_fs(void)
 {
+=======
+static struct vfsmount *__init mount_one_hugetlbfs(struct hstate *h)
+{
+	struct fs_context *fc;
+	struct vfsmount *mnt;
+
+	fc = fs_context_for_mount(&hugetlbfs_fs_type, SB_KERNMOUNT);
+	if (IS_ERR(fc)) {
+		mnt = ERR_CAST(fc);
+	} else {
+		struct hugetlbfs_fs_context *ctx = fc->fs_private;
+		ctx->hstate = h;
+		mnt = fc_mount(fc);
+		put_fs_context(fc);
+	}
+	if (IS_ERR(mnt))
+		pr_err("Cannot mount internal hugetlbfs for page size %luK",
+		       huge_page_size(h) >> 10);
+	return mnt;
+}
+
+static int __init init_hugetlbfs_fs(void)
+{
+	struct vfsmount *mnt;
+>>>>>>> upstream/android-13
 	struct hstate *h;
 	int error;
 	int i;
@@ -1406,6 +2038,7 @@ static int __init init_hugetlbfs_fs(void)
 					sizeof(struct hugetlbfs_inode_info),
 					0, SLAB_ACCOUNT, init_once);
 	if (hugetlbfs_inode_cachep == NULL)
+<<<<<<< HEAD
 		goto out2;
 
 	error = register_filesystem(&hugetlbfs_fs_type);
@@ -1436,6 +2069,45 @@ static int __init init_hugetlbfs_fs(void)
  out:
 	kmem_cache_destroy(hugetlbfs_inode_cachep);
  out2:
+=======
+		goto out;
+
+	error = register_filesystem(&hugetlbfs_fs_type);
+	if (error)
+		goto out_free;
+
+	/* default hstate mount is required */
+	mnt = mount_one_hugetlbfs(&default_hstate);
+	if (IS_ERR(mnt)) {
+		error = PTR_ERR(mnt);
+		goto out_unreg;
+	}
+	hugetlbfs_vfsmount[default_hstate_idx] = mnt;
+
+	/* other hstates are optional */
+	i = 0;
+	for_each_hstate(h) {
+		if (i == default_hstate_idx) {
+			i++;
+			continue;
+		}
+
+		mnt = mount_one_hugetlbfs(h);
+		if (IS_ERR(mnt))
+			hugetlbfs_vfsmount[i] = NULL;
+		else
+			hugetlbfs_vfsmount[i] = mnt;
+		i++;
+	}
+
+	return 0;
+
+ out_unreg:
+	(void)unregister_filesystem(&hugetlbfs_fs_type);
+ out_free:
+	kmem_cache_destroy(hugetlbfs_inode_cachep);
+ out:
+>>>>>>> upstream/android-13
 	return error;
 }
 fs_initcall(init_hugetlbfs_fs)

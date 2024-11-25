@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2007 Eugene Konev <ejka@openwrt.org>
  * Copyright (C) 2009-2010 Florian Fainelli <florian@openwrt.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -321,7 +328,11 @@ int __init ar7_gpio_init(void)
 		size = 0x1f;
 	}
 
+<<<<<<< HEAD
 	gpch->regs = ioremap_nocache(AR7_REGS_GPIO, size);
+=======
+	gpch->regs = ioremap(AR7_REGS_GPIO, size);
+>>>>>>> upstream/android-13
 	if (!gpch->regs) {
 		printk(KERN_ERR "%s: failed to ioremap regs\n",
 					gpch->chip.label);
@@ -332,6 +343,10 @@ int __init ar7_gpio_init(void)
 	if (ret) {
 		printk(KERN_ERR "%s: failed to add gpiochip\n",
 					gpch->chip.label);
+<<<<<<< HEAD
+=======
+		iounmap(gpch->regs);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	printk(KERN_INFO "%s: registered %d GPIOs\n",

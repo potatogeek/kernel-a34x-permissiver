@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -7,12 +11,15 @@
  * Old U-boot compatibility for mpc7448hpc2 board
  * Based on the code of Scott Wood <scottwood@freescale.com>
  * for 83xx and 85xx.
+<<<<<<< HEAD
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of  the GNU General  Public License as published by
  * the Free Software Foundation;  either version 2 of the  License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ops.h"

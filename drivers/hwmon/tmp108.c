@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Texas Instruments TMP108 SMBus temperature sensor driver
  *
  * Copyright (C) 2016 John Muir <john@jmuir.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Texas Instruments TMP108 SMBus temperature sensor driver
+ *
+ * Copyright (C) 2016 John Muir <john@jmuir.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -281,6 +288,7 @@ static umode_t tmp108_is_visible(const void *data, enum hwmon_sensor_types type,
 	}
 }
 
+<<<<<<< HEAD
 static u32 tmp108_chip_config[] = {
 	HWMON_C_REGISTER_TZ | HWMON_C_UPDATE_INTERVAL,
 	0
@@ -305,6 +313,15 @@ static const struct hwmon_channel_info tmp108_temp = {
 static const struct hwmon_channel_info *tmp108_info[] = {
 	&tmp108_chip,
 	&tmp108_temp,
+=======
+static const struct hwmon_channel_info *tmp108_info[] = {
+	HWMON_CHANNEL_INFO(chip,
+			   HWMON_C_REGISTER_TZ | HWMON_C_UPDATE_INTERVAL),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_MIN |
+			   HWMON_T_MIN_HYST | HWMON_T_MAX_HYST |
+			   HWMON_T_MIN_ALARM | HWMON_T_MAX_ALARM),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -345,11 +362,19 @@ static const struct regmap_config tmp108_regmap_config = {
 	.volatile_reg = tmp108_is_volatile_reg,
 	.val_format_endian = REGMAP_ENDIAN_BIG,
 	.cache_type = REGCACHE_RBTREE,
+<<<<<<< HEAD
 	.use_single_rw = true,
 };
 
 static int tmp108_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+};
+
+static int tmp108_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -458,7 +483,11 @@ static struct i2c_driver tmp108_driver = {
 		.pm	= &tmp108_dev_pm_ops,
 		.of_match_table = of_match_ptr(tmp108_of_ids),
 	},
+<<<<<<< HEAD
 	.probe		= tmp108_probe,
+=======
+	.probe_new	= tmp108_probe,
+>>>>>>> upstream/android-13
 	.id_table	= tmp108_i2c_ids,
 };
 

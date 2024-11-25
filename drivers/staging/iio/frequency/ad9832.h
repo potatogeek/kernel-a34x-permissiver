@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * AD9832 SPI DDS driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef IIO_DDS_AD9832_H_
 #define IIO_DDS_AD9832_H_
@@ -24,7 +31,10 @@
  */
 
 struct ad9832_platform_data {
+<<<<<<< HEAD
 	unsigned long		mclk;
+=======
+>>>>>>> upstream/android-13
 	unsigned long		freq0;
 	unsigned long		freq1;
 	unsigned short		phase0;

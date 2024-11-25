@@ -597,7 +597,11 @@ static int pxafb_blank(int blank, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops pxafb_ops = {
+=======
+static const struct fb_ops pxafb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= pxafb_check_var,
 	.fb_set_par	= pxafb_set_par,
@@ -865,7 +869,11 @@ static int overlayfb_set_par(struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops overlay_fb_ops = {
+=======
+static const struct fb_ops overlay_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_open		= overlayfb_open,
 	.fb_release		= overlayfb_release,
@@ -1614,7 +1622,11 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		 */
 		if (old_state != C_DISABLE_PM)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case C_ENABLE:
 		/*
@@ -1678,6 +1690,7 @@ pxafb_freq_transition(struct notifier_block *nb, unsigned long val, void *data)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 static int
 pxafb_freq_policy(struct notifier_block *nb, unsigned long val, void *data)
@@ -1696,6 +1709,8 @@ pxafb_freq_policy(struct notifier_block *nb, unsigned long val, void *data)
 	}
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_PM
@@ -2068,7 +2083,11 @@ static int __init pxafb_setup_options(void)
 #define pxafb_setup_options()		(0)
 
 module_param_string(options, g_options, sizeof(g_options), 0);
+<<<<<<< HEAD
 MODULE_PARM_DESC(options, "LCD parameters (see Documentation/fb/pxafb.txt)");
+=======
+MODULE_PARM_DESC(options, "LCD parameters (see Documentation/fb/pxafb.rst)");
+>>>>>>> upstream/android-13
 #endif
 
 #else
@@ -2255,7 +2274,10 @@ static int pxafb_probe(struct platform_device *dev)
 {
 	struct pxafb_info *fbi;
 	struct pxafb_mach_info *inf, *pdata;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	int i, irq, ret;
 
 	dev_dbg(&dev->dev, "pxafb_probe\n");
@@ -2321,6 +2343,7 @@ static int pxafb_probe(struct platform_device *dev)
 		fbi->lcd_supply = NULL;
 	}
 
+<<<<<<< HEAD
 	r = platform_get_resource(dev, IORESOURCE_MEM, 0);
 	if (r == NULL) {
 		dev_err(&dev->dev, "no I/O memory resource defined\n");
@@ -2332,6 +2355,12 @@ static int pxafb_probe(struct platform_device *dev)
 	if (IS_ERR(fbi->mmio_base)) {
 		dev_err(&dev->dev, "failed to get I/O memory\n");
 		ret = -EBUSY;
+=======
+	fbi->mmio_base = devm_platform_ioremap_resource(dev, 0);
+	if (IS_ERR(fbi->mmio_base)) {
+		dev_err(&dev->dev, "failed to get I/O memory\n");
+		ret = PTR_ERR(fbi->mmio_base);
+>>>>>>> upstream/android-13
 		goto failed;
 	}
 
@@ -2400,11 +2429,16 @@ static int pxafb_probe(struct platform_device *dev)
 
 #ifdef CONFIG_CPU_FREQ
 	fbi->freq_transition.notifier_call = pxafb_freq_transition;
+<<<<<<< HEAD
 	fbi->freq_policy.notifier_call = pxafb_freq_policy;
 	cpufreq_register_notifier(&fbi->freq_transition,
 				CPUFREQ_TRANSITION_NOTIFIER);
 	cpufreq_register_notifier(&fbi->freq_policy,
 				CPUFREQ_POLICY_NOTIFIER);
+=======
+	cpufreq_register_notifier(&fbi->freq_transition,
+				CPUFREQ_TRANSITION_NOTIFIER);
+>>>>>>> upstream/android-13
 #endif
 
 	/*

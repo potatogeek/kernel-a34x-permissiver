@@ -97,7 +97,11 @@ nvkm_sw = {
 
 int
 nvkm_sw_new_(const struct nvkm_sw_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	     int index, struct nvkm_sw **psw)
+=======
+	     enum nvkm_subdev_type type, int inst, struct nvkm_sw **psw)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_sw *sw;
 
@@ -106,5 +110,9 @@ nvkm_sw_new_(const struct nvkm_sw_func *func, struct nvkm_device *device,
 	INIT_LIST_HEAD(&sw->chan);
 	sw->func = func;
 
+<<<<<<< HEAD
 	return nvkm_engine_ctor(&nvkm_sw, device, index, true, &sw->engine);
+=======
+	return nvkm_engine_ctor(&nvkm_sw, device, type, inst, true, &sw->engine);
+>>>>>>> upstream/android-13
 }

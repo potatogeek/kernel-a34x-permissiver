@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* RxRPC virtual connection handler, common bits.
  *
  * Copyright (C) 2007, 2016 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -45,8 +52,11 @@ struct rxrpc_connection *rxrpc_alloc_connection(gfp_t gfp)
 	conn = kzalloc(sizeof(struct rxrpc_connection), gfp);
 	if (conn) {
 		INIT_LIST_HEAD(&conn->cache_link);
+<<<<<<< HEAD
 		spin_lock_init(&conn->channel_lock);
 		INIT_LIST_HEAD(&conn->waiting_calls);
+=======
+>>>>>>> upstream/android-13
 		timer_setup(&conn->timer, &rxrpc_connection_timer, 0);
 		INIT_WORK(&conn->processor, &rxrpc_process_connection);
 		INIT_LIST_HEAD(&conn->proc_link);
@@ -55,7 +65,10 @@ struct rxrpc_connection *rxrpc_alloc_connection(gfp_t gfp)
 		conn->security = &rxrpc_no_security;
 		spin_lock_init(&conn->state_lock);
 		conn->debug_id = atomic_inc_return(&rxrpc_debug_id);
+<<<<<<< HEAD
 		conn->size_align = 4;
+=======
+>>>>>>> upstream/android-13
 		conn->idle_timestamp = jiffies;
 	}
 
@@ -86,11 +99,20 @@ struct rxrpc_connection *rxrpc_find_connection_rcu(struct rxrpc_local *local,
 
 	_enter(",%x", sp->hdr.cid & RXRPC_CIDMASK);
 
+<<<<<<< HEAD
 	if (rxrpc_extract_addr_from_skb(local, &srx, skb) < 0)
 		goto not_found;
 
 	/* We may have to handle mixing IPv4 and IPv6 */
 	if (srx.transport.family != local->srx.transport.family) {
+=======
+	if (rxrpc_extract_addr_from_skb(&srx, skb) < 0)
+		goto not_found;
+
+	if (srx.transport.family != local->srx.transport.family &&
+	    (srx.transport.family == AF_INET &&
+	     local->srx.transport.family != AF_INET6)) {
+>>>>>>> upstream/android-13
 		pr_warn_ratelimited("AF_RXRPC: Protocol mismatch %u not %u\n",
 				    srx.transport.family,
 				    local->srx.transport.family);
@@ -222,11 +244,19 @@ void rxrpc_disconnect_call(struct rxrpc_call *call)
 	}
 
 	if (rxrpc_is_client_call(call))
+<<<<<<< HEAD
 		return rxrpc_disconnect_client_call(call);
 
 	spin_lock(&conn->channel_lock);
 	__rxrpc_disconnect_call(conn, call);
 	spin_unlock(&conn->channel_lock);
+=======
+		return rxrpc_disconnect_client_call(conn->bundle, call);
+
+	spin_lock(&conn->bundle->channel_lock);
+	__rxrpc_disconnect_call(conn, call);
+	spin_unlock(&conn->bundle->channel_lock);
+>>>>>>> upstream/android-13
 
 	set_bit(RXRPC_CALL_DISCONNECTED, &call->flags);
 	conn->idle_timestamp = jiffies;
@@ -295,12 +325,20 @@ void rxrpc_see_connection(struct rxrpc_connection *conn)
 /*
  * Get a ref on a connection.
  */
+<<<<<<< HEAD
 void rxrpc_get_connection(struct rxrpc_connection *conn)
+=======
+struct rxrpc_connection *rxrpc_get_connection(struct rxrpc_connection *conn)
+>>>>>>> upstream/android-13
 {
 	const void *here = __builtin_return_address(0);
 	int n = atomic_inc_return(&conn->usage);
 
 	trace_rxrpc_conn(conn->debug_id, rxrpc_conn_got, n, here);
+<<<<<<< HEAD
+=======
+	return conn;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -367,7 +405,11 @@ static void rxrpc_destroy_connection(struct rcu_head *rcu)
 
 	conn->security->clear(conn);
 	key_put(conn->params.key);
+<<<<<<< HEAD
 	key_put(conn->server_key);
+=======
+	rxrpc_put_bundle(conn->bundle);
+>>>>>>> upstream/android-13
 	rxrpc_put_peer(conn->params.peer);
 
 	if (atomic_dec_and_test(&conn->params.local->rxnet->nr_conns))

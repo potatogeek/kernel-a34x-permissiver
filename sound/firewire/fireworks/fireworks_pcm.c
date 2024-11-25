@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fireworks_pcm.c - a part of driver for Fireworks based devices
  *
  * Copyright (c) 2009-2010 Clemens Ladisch
  * Copyright (c) 2013-2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 #include "./fireworks.h"
 
@@ -149,7 +156,11 @@ pcm_init_hw_params(struct snd_efw *efw,
 	}
 
 	/* limit rates */
+<<<<<<< HEAD
 	runtime->hw.rates = efw->supported_sampling_rate,
+=======
+	runtime->hw.rates = efw->supported_sampling_rate;
+>>>>>>> upstream/android-13
 	snd_pcm_limit_hw_rates(runtime);
 
 	limit_channels(&runtime->hw, pcm_channels);
@@ -174,13 +185,21 @@ end:
 static int pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_efw *efw = substream->private_data;
+<<<<<<< HEAD
 	unsigned int sampling_rate;
+=======
+	struct amdtp_domain *d = &efw->domain;
+>>>>>>> upstream/android-13
 	enum snd_efw_clock_source clock_source;
 	int err;
 
 	err = snd_efw_stream_lock_try(efw);
 	if (err < 0)
+<<<<<<< HEAD
 		goto end;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	err = pcm_init_hw_params(efw, substream);
 	if (err < 0)
@@ -190,6 +209,7 @@ static int pcm_open(struct snd_pcm_substream *substream)
 	if (err < 0)
 		goto err_locked;
 
+<<<<<<< HEAD
 	/*
 	 * When source of clock is not internal or any PCM streams are running,
 	 * available sampling rate is limited at current sampling rate.
@@ -207,6 +227,51 @@ static int pcm_open(struct snd_pcm_substream *substream)
 	snd_pcm_set_sync(substream);
 end:
 	return err;
+=======
+	mutex_lock(&efw->mutex);
+
+	// When source of clock is not internal or any stream is reserved for
+	// transmission of PCM frames, the available sampling rate is limited
+	// at current one.
+	if ((clock_source != SND_EFW_CLOCK_SOURCE_INTERNAL) ||
+	    (efw->substreams_counter > 0 && d->events_per_period > 0)) {
+		unsigned int frames_per_period = d->events_per_period;
+		unsigned int frames_per_buffer = d->events_per_buffer;
+		unsigned int sampling_rate;
+
+		err = snd_efw_command_get_sampling_rate(efw, &sampling_rate);
+		if (err < 0) {
+			mutex_unlock(&efw->mutex);
+			goto err_locked;
+		}
+		substream->runtime->hw.rate_min = sampling_rate;
+		substream->runtime->hw.rate_max = sampling_rate;
+
+		if (frames_per_period > 0) {
+			err = snd_pcm_hw_constraint_minmax(substream->runtime,
+					SNDRV_PCM_HW_PARAM_PERIOD_SIZE,
+					frames_per_period, frames_per_period);
+			if (err < 0) {
+				mutex_unlock(&efw->mutex);
+				goto err_locked;
+			}
+
+			err = snd_pcm_hw_constraint_minmax(substream->runtime,
+					SNDRV_PCM_HW_PARAM_BUFFER_SIZE,
+					frames_per_buffer, frames_per_buffer);
+			if (err < 0) {
+				mutex_unlock(&efw->mutex);
+				goto err_locked;
+			}
+		}
+	}
+
+	mutex_unlock(&efw->mutex);
+
+	snd_pcm_set_sync(substream);
+
+	return 0;
+>>>>>>> upstream/android-13
 err_locked:
 	snd_efw_stream_lock_release(efw);
 	return err;
@@ -219,6 +284,7 @@ static int pcm_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pcm_capture_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *hw_params)
 {
@@ -285,15 +351,59 @@ static int pcm_playback_hw_free(struct snd_pcm_substream *substream)
 	snd_efw_stream_stop_duplex(efw);
 
 	return snd_pcm_lib_free_vmalloc_buffer(substream);
+=======
+static int pcm_hw_params(struct snd_pcm_substream *substream,
+				 struct snd_pcm_hw_params *hw_params)
+{
+	struct snd_efw *efw = substream->private_data;
+	int err = 0;
+
+	if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN) {
+		unsigned int rate = params_rate(hw_params);
+		unsigned int frames_per_period = params_period_size(hw_params);
+		unsigned int frames_per_buffer = params_buffer_size(hw_params);
+
+		mutex_lock(&efw->mutex);
+		err = snd_efw_stream_reserve_duplex(efw, rate,
+					frames_per_period, frames_per_buffer);
+		if (err >= 0)
+			++efw->substreams_counter;
+		mutex_unlock(&efw->mutex);
+	}
+
+	return err;
+}
+
+static int pcm_hw_free(struct snd_pcm_substream *substream)
+{
+	struct snd_efw *efw = substream->private_data;
+
+	mutex_lock(&efw->mutex);
+
+	if (substream->runtime->status->state != SNDRV_PCM_STATE_OPEN)
+		--efw->substreams_counter;
+
+	snd_efw_stream_stop_duplex(efw);
+
+	mutex_unlock(&efw->mutex);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int pcm_capture_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_efw *efw = substream->private_data;
+<<<<<<< HEAD
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
 	err = snd_efw_stream_start_duplex(efw, runtime->rate);
+=======
+	int err;
+
+	err = snd_efw_stream_start_duplex(efw);
+>>>>>>> upstream/android-13
 	if (err >= 0)
 		amdtp_stream_pcm_prepare(&efw->tx_stream);
 
@@ -302,10 +412,16 @@ static int pcm_capture_prepare(struct snd_pcm_substream *substream)
 static int pcm_playback_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_efw *efw = substream->private_data;
+<<<<<<< HEAD
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
 	err = snd_efw_stream_start_duplex(efw, runtime->rate);
+=======
+	int err;
+
+	err = snd_efw_stream_start_duplex(efw);
+>>>>>>> upstream/android-13
 	if (err >= 0)
 		amdtp_stream_pcm_prepare(&efw->rx_stream);
 
@@ -350,26 +466,44 @@ static int pcm_playback_trigger(struct snd_pcm_substream *substream, int cmd)
 static snd_pcm_uframes_t pcm_capture_pointer(struct snd_pcm_substream *sbstrm)
 {
 	struct snd_efw *efw = sbstrm->private_data;
+<<<<<<< HEAD
 	return amdtp_stream_pcm_pointer(&efw->tx_stream);
+=======
+
+	return amdtp_domain_stream_pcm_pointer(&efw->domain, &efw->tx_stream);
+>>>>>>> upstream/android-13
 }
 static snd_pcm_uframes_t pcm_playback_pointer(struct snd_pcm_substream *sbstrm)
 {
 	struct snd_efw *efw = sbstrm->private_data;
+<<<<<<< HEAD
 	return amdtp_stream_pcm_pointer(&efw->rx_stream);
+=======
+
+	return amdtp_domain_stream_pcm_pointer(&efw->domain, &efw->rx_stream);
+>>>>>>> upstream/android-13
 }
 
 static int pcm_capture_ack(struct snd_pcm_substream *substream)
 {
 	struct snd_efw *efw = substream->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_ack(&efw->tx_stream);
+=======
+	return amdtp_domain_stream_pcm_ack(&efw->domain, &efw->tx_stream);
+>>>>>>> upstream/android-13
 }
 
 static int pcm_playback_ack(struct snd_pcm_substream *substream)
 {
 	struct snd_efw *efw = substream->private_data;
 
+<<<<<<< HEAD
 	return amdtp_stream_pcm_ack(&efw->rx_stream);
+=======
+	return amdtp_domain_stream_pcm_ack(&efw->domain, &efw->rx_stream);
+>>>>>>> upstream/android-13
 }
 
 int snd_efw_create_pcm_devices(struct snd_efw *efw)
@@ -377,26 +511,42 @@ int snd_efw_create_pcm_devices(struct snd_efw *efw)
 	static const struct snd_pcm_ops capture_ops = {
 		.open		= pcm_open,
 		.close		= pcm_close,
+<<<<<<< HEAD
 		.ioctl		= snd_pcm_lib_ioctl,
 		.hw_params	= pcm_capture_hw_params,
 		.hw_free	= pcm_capture_hw_free,
+=======
+		.hw_params	= pcm_hw_params,
+		.hw_free	= pcm_hw_free,
+>>>>>>> upstream/android-13
 		.prepare	= pcm_capture_prepare,
 		.trigger	= pcm_capture_trigger,
 		.pointer	= pcm_capture_pointer,
 		.ack		= pcm_capture_ack,
+<<<<<<< HEAD
 		.page		= snd_pcm_lib_get_vmalloc_page,
+=======
+>>>>>>> upstream/android-13
 	};
 	static const struct snd_pcm_ops playback_ops = {
 		.open		= pcm_open,
 		.close		= pcm_close,
+<<<<<<< HEAD
 		.ioctl		= snd_pcm_lib_ioctl,
 		.hw_params	= pcm_playback_hw_params,
 		.hw_free	= pcm_playback_hw_free,
+=======
+		.hw_params	= pcm_hw_params,
+		.hw_free	= pcm_hw_free,
+>>>>>>> upstream/android-13
 		.prepare	= pcm_playback_prepare,
 		.trigger	= pcm_playback_trigger,
 		.pointer	= pcm_playback_pointer,
 		.ack		= pcm_playback_ack,
+<<<<<<< HEAD
 		.page		= snd_pcm_lib_get_vmalloc_page,
+=======
+>>>>>>> upstream/android-13
 	};
 	struct snd_pcm *pcm;
 	int err;
@@ -409,6 +559,10 @@ int snd_efw_create_pcm_devices(struct snd_efw *efw)
 	snprintf(pcm->name, sizeof(pcm->name), "%s PCM", efw->card->shortname);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &playback_ops);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &capture_ops);
+<<<<<<< HEAD
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+>>>>>>> upstream/android-13
 end:
 	return err;
 }

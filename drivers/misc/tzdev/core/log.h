@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -30,11 +34,23 @@ extern unsigned int tzdev_kthread_verbosity;
 extern unsigned int tzdev_iwsock_verbosity;
 extern unsigned int tzdev_uiwsock_verbosity;
 extern unsigned int tzdev_deploy_tzar_verbosity;
+<<<<<<< HEAD
 extern unsigned int tzdev_mem_verbosity;
 extern unsigned int tzdev_profiler_verbosity;
 extern unsigned int tzdev_nwfs_verbosity;
 extern unsigned int tzdev_pmf_verbosity;
 extern unsigned int tzdev_cpufreq_verbosity;
+=======
+extern unsigned int tzdev_uiwshmem_verbosity;
+extern unsigned int tzdev_profiler_verbosity;
+extern unsigned int tzdev_pmf_verbosity;
+extern unsigned int tzdev_cpufreq_verbosity;
+extern unsigned int tzdev_cred_verbosity;
+extern unsigned int tzdev_smc_channel_verbosity;
+extern unsigned int tzdev_iw_mem_verbosity;
+extern unsigned int tzdev_iw_events_verbosity;
+extern unsigned int tzdev_iw_shmem_verbosity;
+>>>>>>> upstream/android-13
 
 enum {
 	TZDEV_LOG_LEVEL_ERROR,

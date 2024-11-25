@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /*
  *    Support for OR51132 (pcHDTV HD-3000) - VSB/QAM
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *    Support for OR51132 (pcHDTV HD-3000) - VSB/QAM
+ *
+>>>>>>> upstream/android-13
  *    Copyright (C) 2007 Trent Piepho <xyzzy@speakeasy.org>
  *
  *    Copyright (C) 2005 Kirk Lapray <kirk_lapray@bigfoot.com>
  *
  *    Based on code from Jack Kelliher (kelliher@xmission.com)
  *                           Copyright (C) 2002 & pcHDTV, inc.
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -19,6 +27,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
 */
 
 /*
@@ -493,7 +503,11 @@ start:
 	switch (reg&0xff) {
 	case 0x06:
 		if (reg & 0x1000) usK = 3 << 24;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0x43: /* QAM64 */
 		c = 150204167;
 		break;

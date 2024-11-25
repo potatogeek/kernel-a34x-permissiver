@@ -67,7 +67,11 @@ SECTIONS
 	.data1 : {
 		*(.data1)
 	}
+<<<<<<< HEAD
 	RW_DATA_SECTION(SMP_CACHE_BYTES, 0, THREAD_SIZE)
+=======
+	RW_DATA(SMP_CACHE_BYTES, 0, THREAD_SIZE)
+>>>>>>> upstream/android-13
 
 	/* End of data section */
 	_edata = .;
@@ -78,7 +82,10 @@ SECTIONS
 		__stop___fixup = .;
 	}
 	EXCEPTION_TABLE(16)
+<<<<<<< HEAD
 	NOTES
+=======
+>>>>>>> upstream/android-13
 
 	. = ALIGN(PAGE_SIZE);
 	__init_begin = ALIGN(PAGE_SIZE);
@@ -188,6 +195,10 @@ SECTIONS
 
 	STABS_DEBUG
 	DWARF_DEBUG
+<<<<<<< HEAD
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	DISCARDS
 }

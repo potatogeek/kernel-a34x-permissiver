@@ -5,6 +5,7 @@
 #include <linux/cpumask.h>
 #include <asm/percpu.h>
 
+<<<<<<< HEAD
 /*
  * We need the APIC definitions automatically as part of 'smp.h'
  */
@@ -15,6 +16,8 @@
 #  include <asm/io_apic.h>
 # endif
 #endif
+=======
+>>>>>>> upstream/android-13
 #include <asm/thread_info.h>
 #include <asm/cpumask.h>
 
@@ -23,6 +26,10 @@ extern unsigned int num_processors;
 
 DECLARE_PER_CPU_READ_MOSTLY(cpumask_var_t, cpu_sibling_map);
 DECLARE_PER_CPU_READ_MOSTLY(cpumask_var_t, cpu_core_map);
+<<<<<<< HEAD
+=======
+DECLARE_PER_CPU_READ_MOSTLY(cpumask_var_t, cpu_die_map);
+>>>>>>> upstream/android-13
 /* cpus sharing the last level cache: */
 DECLARE_PER_CPU_READ_MOSTLY(cpumask_var_t, cpu_llc_shared_map);
 DECLARE_PER_CPU_READ_MOSTLY(u16, cpu_llc_id);
@@ -131,7 +138,11 @@ void native_smp_prepare_boot_cpu(void);
 void native_smp_prepare_cpus(unsigned int max_cpus);
 void calculate_max_logical_packages(void);
 void native_smp_cpus_done(unsigned int max_cpus);
+<<<<<<< HEAD
 void common_cpu_up(unsigned int cpunum, struct task_struct *tidle);
+=======
+int common_cpu_up(unsigned int cpunum, struct task_struct *tidle);
+>>>>>>> upstream/android-13
 int native_cpu_up(unsigned int cpunum, struct task_struct *tidle);
 int native_cpu_disable(void);
 int common_cpu_die(unsigned int cpu);
@@ -141,13 +152,28 @@ void native_play_dead(void);
 void play_dead_common(void);
 void wbinvd_on_cpu(int cpu);
 int wbinvd_on_all_cpus(void);
+<<<<<<< HEAD
 
+=======
+void cond_wakeup_cpu0(void);
+
+void native_smp_send_reschedule(int cpu);
+>>>>>>> upstream/android-13
 void native_send_call_func_ipi(const struct cpumask *mask);
 void native_send_call_func_single_ipi(int cpu);
 void x86_idle_thread_init(unsigned int cpu, struct task_struct *idle);
 
 void smp_store_boot_cpu_info(void);
 void smp_store_cpu_info(int id);
+<<<<<<< HEAD
+=======
+
+asmlinkage __visible void smp_reboot_interrupt(void);
+__visible void smp_reschedule_interrupt(struct pt_regs *regs);
+__visible void smp_call_function_interrupt(struct pt_regs *regs);
+__visible void smp_call_function_single_interrupt(struct pt_regs *r);
+
+>>>>>>> upstream/android-13
 #define cpu_physical_id(cpu)	per_cpu(x86_cpu_to_apicid, cpu)
 #define cpu_acpi_id(cpu)	per_cpu(x86_cpu_to_acpiid, cpu)
 
@@ -156,7 +182,12 @@ void smp_store_cpu_info(int id);
  * from the initial startup. We map APIC_BASE very early in page_setup(),
  * so this is correct in the x86 case.
  */
+<<<<<<< HEAD
 #define raw_smp_processor_id() (this_cpu_read(cpu_number))
+=======
+#define raw_smp_processor_id()  this_cpu_read(cpu_number)
+#define __smp_processor_id() __this_cpu_read(cpu_number)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_32
 extern int safe_smp_processor_id(void);

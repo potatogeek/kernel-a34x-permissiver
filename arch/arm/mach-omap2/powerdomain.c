@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP powerdomain control
  *
@@ -7,10 +11,13 @@
  * Written by Paul Walmsley
  * Added OMAP4 specific support by Abhijit Pagare <abhijitpagare@ti.com>
  * State counting code by Tero Kristo <tero.kristo@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #undef DEBUG
 
@@ -1205,6 +1212,7 @@ bool pwrdm_can_ever_lose_context(struct powerdomain *pwrdm)
 	if (!pwrdm) {
 		pr_debug("powerdomain: %s: invalid powerdomain pointer\n",
 			 __func__);
+<<<<<<< HEAD
 		return 1;
 	}
 
@@ -1218,13 +1226,34 @@ bool pwrdm_can_ever_lose_context(struct powerdomain *pwrdm)
 		for (i = 0; i < pwrdm->banks; i++)
 			if (pwrdm->pwrsts_mem_ret[i] & PWRSTS_OFF)
 				return 1;
+=======
+		return true;
+	}
+
+	if (pwrdm->pwrsts & PWRSTS_OFF)
+		return true;
+
+	if (pwrdm->pwrsts & PWRSTS_RET) {
+		if (pwrdm->pwrsts_logic_ret & PWRSTS_OFF)
+			return true;
+
+		for (i = 0; i < pwrdm->banks; i++)
+			if (pwrdm->pwrsts_mem_ret[i] & PWRSTS_OFF)
+				return true;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < pwrdm->banks; i++)
 		if (pwrdm->pwrsts_mem_on[i] & PWRSTS_OFF)
+<<<<<<< HEAD
 			return 1;
 
 	return 0;
+=======
+			return true;
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /**

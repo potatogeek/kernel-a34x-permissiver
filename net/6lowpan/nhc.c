@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	6LoWPAN next header compression
  *
@@ -9,6 +10,14 @@
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *	6LoWPAN next header compression
+ *
+ *	Authors:
+ *	Alexander Aring		<aar@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/netdevice.h>

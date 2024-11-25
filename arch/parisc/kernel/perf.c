@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Parisc performance counters
  *  Copyright (C) 2001 Randolph Chung <tausq@debian.org>
  *
  *  This code is derived, with permission, from HP/UX sources.
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -313,7 +320,11 @@ static ssize_t perf_write(struct file *file, const char __user *buf,
 	else
 		return -EFAULT;
 
+<<<<<<< HEAD
 	if (!capable(CAP_SYS_ADMIN))
+=======
+	if (!perfmon_capable())
+>>>>>>> upstream/android-13
 		return -EACCES;
 
 	if (count != sizeof(uint32_t))
@@ -805,7 +816,11 @@ static int perf_write_image(uint64_t *memaddr)
 		return -1;
 	}
 
+<<<<<<< HEAD
 	runway = ioremap_nocache(cpu_device->hpa.start, 4096);
+=======
+	runway = ioremap(cpu_device->hpa.start, 4096);
+>>>>>>> upstream/android-13
 	if (!runway) {
 		pr_err("perf_write_image: ioremap failed!\n");
 		return -ENOMEM;

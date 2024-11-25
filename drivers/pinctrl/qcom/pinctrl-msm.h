@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013, Sony Mobile Communications AB.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2013, Sony Mobile Communications AB.
+>>>>>>> upstream/android-13
  */
 #ifndef __PINCTRL_MSM_H__
 #define __PINCTRL_MSM_H__
@@ -46,6 +52,10 @@ struct msm_function {
  * @mux_bit:              Offset in @ctl_reg for the pinmux function selection.
  * @pull_bit:             Offset in @ctl_reg for the bias configuration.
  * @drv_bit:              Offset in @ctl_reg for the drive strength configuration.
+<<<<<<< HEAD
+=======
+ * @od_bit:               Offset in @ctl_reg for controlling open drain.
+>>>>>>> upstream/android-13
  * @oe_bit:               Offset in @ctl_reg for controlling output enable.
  * @in_bit:               Offset in @io_reg for the input bit value.
  * @out_bit:              Offset in @io_reg for the output bit value.
@@ -76,11 +86,20 @@ struct msm_pingroup {
 	u32 intr_status_reg;
 	u32 intr_target_reg;
 
+<<<<<<< HEAD
+=======
+	unsigned int tile:2;
+
+>>>>>>> upstream/android-13
 	unsigned mux_bit:5;
 
 	unsigned pull_bit:5;
 	unsigned drv_bit:5;
 
+<<<<<<< HEAD
+=======
+	unsigned od_bit:5;
+>>>>>>> upstream/android-13
 	unsigned oe_bit:5;
 	unsigned in_bit:5;
 	unsigned out_bit:5;
@@ -98,6 +117,19 @@ struct msm_pingroup {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * struct msm_gpio_wakeirq_map - Map of GPIOs and their wakeup pins
+ * @gpio:          The GPIOs that are wakeup capable
+ * @wakeirq:       The interrupt at the always-on interrupt controller
+ */
+struct msm_gpio_wakeirq_map {
+	unsigned int gpio;
+	unsigned int wakeirq;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct msm_pinctrl_soc_data - Qualcomm pin controller driver configuration
  * @pins:	    An array describing all pins the pin controller affects.
  * @npins:	    The number of entries in @pins.
@@ -107,6 +139,15 @@ struct msm_pingroup {
  * @ngroups:	    The numbmer of entries in @groups.
  * @ngpio:	    The number of pingroups the driver should expose as GPIOs.
  * @pull_no_keeper: The SoC does not support keeper bias.
+<<<<<<< HEAD
+=======
+ * @wakeirq_map:    The map of wakeup capable GPIOs and the pin at PDC/MPM
+ * @nwakeirq_map:   The number of entries in @wakeirq_map
+ * @wakeirq_dual_edge_errata: If true then GPIOs using the wakeirq_map need
+ *                            to be aware that their parent can't handle dual
+ *                            edge interrupts.
+ * @gpio_func: Which function number is GPIO (usually 0).
+>>>>>>> upstream/android-13
  */
 struct msm_pinctrl_soc_data {
 	const struct pinctrl_pin_desc *pins;
@@ -117,8 +158,22 @@ struct msm_pinctrl_soc_data {
 	unsigned ngroups;
 	unsigned ngpios;
 	bool pull_no_keeper;
+<<<<<<< HEAD
 };
 
+=======
+	const char *const *tiles;
+	unsigned int ntiles;
+	const int *reserved_gpios;
+	const struct msm_gpio_wakeirq_map *wakeirq_map;
+	unsigned int nwakeirq_map;
+	bool wakeirq_dual_edge_errata;
+	unsigned int gpio_func;
+};
+
+extern const struct dev_pm_ops msm_pinctrl_dev_pm_ops;
+
+>>>>>>> upstream/android-13
 int msm_pinctrl_probe(struct platform_device *pdev,
 		      const struct msm_pinctrl_soc_data *soc_data);
 int msm_pinctrl_remove(struct platform_device *pdev);

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) 2014 Redpine Signals Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -24,10 +28,14 @@
 /* Default operating mode is wlan STA + BT */
 static u16 dev_oper_mode = DEV_OPMODE_STA_BT_DUAL;
 module_param(dev_oper_mode, ushort, 0444);
+<<<<<<< HEAD
 MODULE_PARM_DESC(dev_oper_mode,
 		 "1[Wi-Fi], 4[BT], 8[BT LE], 5[Wi-Fi STA + BT classic]\n"
 		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
 		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
+=======
+MODULE_PARM_DESC(dev_oper_mode, DEV_OPMODE_PARAM_DESC);
+>>>>>>> upstream/android-13
 
 /**
  * rsi_sdio_set_cmd52_arg() - This function prepares cmd 52 read/write arg.
@@ -138,7 +146,11 @@ static int rsi_issue_sdiocommand(struct sdio_func *func,
 }
 
 /**
+<<<<<<< HEAD
  * rsi_handle_interrupt() - This function is called upon the occurence
+=======
+ * rsi_handle_interrupt() - This function is called upon the occurrence
+>>>>>>> upstream/android-13
  *			    of an interrupt.
  * @function: Pointer to the sdio_func structure.
  *
@@ -231,9 +243,15 @@ static void rsi_reset_card(struct sdio_func *pfunction)
 	err = rsi_issue_sdiocommand(pfunction,	SD_IO_SEND_OP_COND, 0,
 				    (MMC_RSP_R4 | MMC_CMD_BCR), &resp);
 	if (err)
+<<<<<<< HEAD
 		rsi_dbg(ERR_ZONE, "%s: CMD5 failed : %d\n", __func__, err);
 	card->ocr = resp;
 
+=======
+		rsi_dbg(ERR_ZONE, "%s: CMD5 failed : %d\n",
+			__func__, err);
+	card->ocr = resp;
+>>>>>>> upstream/android-13
 	/* Issue CMD5, arg = ocr. Wait till card is ready  */
 	for (i = 0; i < 100; i++) {
 		err = rsi_issue_sdiocommand(pfunction, SD_IO_SEND_OP_COND,
@@ -797,7 +815,11 @@ static int rsi_sdio_host_intf_write_pkt(struct rsi_hw *adapter,
 
 /**
  * rsi_sdio_host_intf_read_pkt() - This function reads the packet
+<<<<<<< HEAD
 				   from the device.
+=======
+ *				   from the device.
+>>>>>>> upstream/android-13
  * @adapter: Pointer to the adapter data structure.
  * @pkt: Pointer to the packet data to be read from the the device.
  * @length: Length of the data to be read from the device.
@@ -830,20 +852,35 @@ int rsi_sdio_host_intf_read_pkt(struct rsi_hw *adapter,
  * rsi_init_sdio_interface() - This function does init specific to SDIO.
  *
  * @adapter: Pointer to the adapter data structure.
+<<<<<<< HEAD
  * @pkt: Pointer to the packet data to be read from the the device.
  *
  * Return: 0 on success, -1 on failure.
  */
 
+=======
+ * @pfunction: Pointer to the sdio_func structure.
+ *
+ * Return: 0 on success, -1 on failure.
+ */
+>>>>>>> upstream/android-13
 static int rsi_init_sdio_interface(struct rsi_hw *adapter,
 				   struct sdio_func *pfunction)
 {
 	struct rsi_91x_sdiodev *rsi_91x_dev;
+<<<<<<< HEAD
 	int status = -ENOMEM;
 
 	rsi_91x_dev = kzalloc(sizeof(*rsi_91x_dev), GFP_KERNEL);
 	if (!rsi_91x_dev)
 		return status;
+=======
+	int status;
+
+	rsi_91x_dev = kzalloc(sizeof(*rsi_91x_dev), GFP_KERNEL);
+	if (!rsi_91x_dev)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	adapter->rsi_dev = rsi_91x_dev;
 
@@ -870,7 +907,11 @@ static int rsi_init_sdio_interface(struct rsi_hw *adapter,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	rsi_dbg(INIT_ZONE, "%s: Setup card succesfully\n", __func__);
+=======
+	rsi_dbg(INIT_ZONE, "%s: Setup card successfully\n", __func__);
+>>>>>>> upstream/android-13
 
 	status = rsi_init_sdio_slave_regs(adapter);
 	if (status) {
@@ -885,7 +926,11 @@ static int rsi_init_sdio_interface(struct rsi_hw *adapter,
 #ifdef CONFIG_RSI_DEBUGFS
 	adapter->num_debugfs_entries = MAX_DEBUGFS_ENTRIES;
 #endif
+<<<<<<< HEAD
 	return status;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 fail:
 	sdio_disable_func(pfunction);
 	sdio_release_host(pfunction);
@@ -918,6 +963,80 @@ static int rsi_sdio_reinit_device(struct rsi_hw *adapter)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int rsi_sdio_ta_reset(struct rsi_hw *adapter)
+{
+	int status;
+	u32 addr;
+	u8 *data;
+
+	data = kzalloc(RSI_9116_REG_SIZE, GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	status = rsi_sdio_master_access_msword(adapter, TA_BASE_ADDR);
+	if (status < 0) {
+		rsi_dbg(ERR_ZONE,
+			"Unable to set ms word to common reg\n");
+		goto err;
+	}
+
+	rsi_dbg(INIT_ZONE, "%s: Bring TA out of reset\n", __func__);
+	put_unaligned_le32(TA_HOLD_THREAD_VALUE, data);
+	addr = TA_HOLD_THREAD_REG | RSI_SD_REQUEST_MASTER;
+	status = rsi_sdio_write_register_multiple(adapter, addr,
+						  (u8 *)data,
+						  RSI_9116_REG_SIZE);
+	if (status < 0) {
+		rsi_dbg(ERR_ZONE, "Unable to hold TA threads\n");
+		goto err;
+	}
+
+	put_unaligned_le32(TA_SOFT_RST_CLR, data);
+	addr = TA_SOFT_RESET_REG | RSI_SD_REQUEST_MASTER;
+	status = rsi_sdio_write_register_multiple(adapter, addr,
+						  (u8 *)data,
+						  RSI_9116_REG_SIZE);
+	if (status < 0) {
+		rsi_dbg(ERR_ZONE, "Unable to get TA out of reset\n");
+		goto err;
+	}
+
+	put_unaligned_le32(TA_PC_ZERO, data);
+	addr = TA_TH0_PC_REG | RSI_SD_REQUEST_MASTER;
+	status = rsi_sdio_write_register_multiple(adapter, addr,
+						  (u8 *)data,
+						  RSI_9116_REG_SIZE);
+	if (status < 0) {
+		rsi_dbg(ERR_ZONE, "Unable to Reset TA PC value\n");
+		status = -EINVAL;
+		goto err;
+	}
+
+	put_unaligned_le32(TA_RELEASE_THREAD_VALUE, data);
+	addr = TA_RELEASE_THREAD_REG | RSI_SD_REQUEST_MASTER;
+	status = rsi_sdio_write_register_multiple(adapter, addr,
+						  (u8 *)data,
+						  RSI_9116_REG_SIZE);
+	if (status < 0) {
+		rsi_dbg(ERR_ZONE, "Unable to release TA threads\n");
+		goto err;
+	}
+
+	status = rsi_sdio_master_access_msword(adapter, MISC_CFG_BASE_ADDR);
+	if (status < 0) {
+		rsi_dbg(ERR_ZONE, "Unable to set ms word to common reg\n");
+		goto err;
+	}
+	rsi_dbg(INIT_ZONE, "***** TA Reset done *****\n");
+
+err:
+	kfree(data);
+	return status;
+}
+
+>>>>>>> upstream/android-13
 static struct rsi_host_intf_ops sdio_host_intf_ops = {
 	.write_pkt		= rsi_sdio_host_intf_write_pkt,
 	.read_pkt		= rsi_sdio_host_intf_read_pkt,
@@ -928,6 +1047,10 @@ static struct rsi_host_intf_ops sdio_host_intf_ops = {
 	.master_reg_write	= rsi_sdio_master_reg_write,
 	.load_data_master_write	= rsi_sdio_load_data_master_write,
 	.reinit_device          = rsi_sdio_reinit_device,
+<<<<<<< HEAD
+=======
+	.ta_reset		= rsi_sdio_ta_reset,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -944,7 +1067,11 @@ static int rsi_probe(struct sdio_func *pfunction,
 {
 	struct rsi_hw *adapter;
 	struct rsi_91x_sdiodev *sdev;
+<<<<<<< HEAD
 	int status;
+=======
+	int status = -EINVAL;
+>>>>>>> upstream/android-13
 
 	rsi_dbg(INIT_ZONE, "%s: Init function called\n", __func__);
 
@@ -963,6 +1090,23 @@ static int rsi_probe(struct sdio_func *pfunction,
 		status = -EIO;
 		goto fail_free_adapter;
 	}
+<<<<<<< HEAD
+=======
+
+	if (pfunction->device == SDIO_DEVICE_ID_RSI_9113) {
+		rsi_dbg(ERR_ZONE, "%s: 9113 module detected\n", __func__);
+		adapter->device_model = RSI_DEV_9113;
+	} else  if (pfunction->device == SDIO_DEVICE_ID_RSI_9116) {
+		rsi_dbg(ERR_ZONE, "%s: 9116 module detected\n", __func__);
+		adapter->device_model = RSI_DEV_9116;
+	} else {
+		rsi_dbg(ERR_ZONE,
+			"%s: Unsupported RSI device id 0x%x\n", __func__,
+			pfunction->device);
+		goto fail_free_adapter;
+	}
+
+>>>>>>> upstream/android-13
 	sdev = (struct rsi_91x_sdiodev *)adapter->rsi_dev;
 	rsi_init_event(&sdev->rx_thread.event);
 	status = rsi_create_kthread(adapter->priv, &sdev->rx_thread,
@@ -1081,6 +1225,7 @@ static void rsi_reset_chip(struct rsi_hw *adapter)
 	 * and any pending dma transfers to rf spi in device to finish.
 	 */
 	msleep(100);
+<<<<<<< HEAD
 
 	ulp_read_write(adapter, RSI_ULP_RESET_REG, RSI_ULP_WRITE_0, 32);
 	ulp_read_write(adapter, RSI_WATCH_DOG_TIMER_1, RSI_ULP_WRITE_2, 32);
@@ -1091,6 +1236,43 @@ static void rsi_reset_chip(struct rsi_hw *adapter)
 		       32);
 	ulp_read_write(adapter, RSI_WATCH_DOG_TIMER_ENABLE,
 		       RSI_ULP_TIMER_ENABLE, 32);
+=======
+	if (adapter->device_model != RSI_DEV_9116) {
+		ulp_read_write(adapter, RSI_ULP_RESET_REG, RSI_ULP_WRITE_0, 32);
+		ulp_read_write(adapter,
+			       RSI_WATCH_DOG_TIMER_1, RSI_ULP_WRITE_2, 32);
+		ulp_read_write(adapter, RSI_WATCH_DOG_TIMER_2, RSI_ULP_WRITE_0,
+			       32);
+		ulp_read_write(adapter, RSI_WATCH_DOG_DELAY_TIMER_1,
+			       RSI_ULP_WRITE_50, 32);
+		ulp_read_write(adapter, RSI_WATCH_DOG_DELAY_TIMER_2,
+			       RSI_ULP_WRITE_0, 32);
+		ulp_read_write(adapter, RSI_WATCH_DOG_TIMER_ENABLE,
+			       RSI_ULP_TIMER_ENABLE, 32);
+	} else {
+		if ((rsi_sdio_master_reg_write(adapter,
+					       NWP_WWD_INTERRUPT_TIMER,
+					       NWP_WWD_INT_TIMER_CLKS,
+					       RSI_9116_REG_SIZE)) < 0) {
+			rsi_dbg(ERR_ZONE, "Failed to write to intr timer\n");
+		}
+		if ((rsi_sdio_master_reg_write(adapter,
+					       NWP_WWD_SYSTEM_RESET_TIMER,
+					       NWP_WWD_SYS_RESET_TIMER_CLKS,
+					       RSI_9116_REG_SIZE)) < 0) {
+			rsi_dbg(ERR_ZONE,
+				"Failed to write to system reset timer\n");
+		}
+		if ((rsi_sdio_master_reg_write(adapter,
+					       NWP_WWD_MODE_AND_RSTART,
+					       NWP_WWD_TIMER_DISABLE,
+					       RSI_9116_REG_SIZE)) < 0) {
+			rsi_dbg(ERR_ZONE,
+				"Failed to write to mode and restart\n");
+		}
+		rsi_dbg(ERR_ZONE, "***** Watch Dog Reset Successful *****\n");
+	}
+>>>>>>> upstream/android-13
 	/* This msleep will be sufficient for the ulp
 	 * read write operations to complete for chip reset.
 	 */
@@ -1353,12 +1535,24 @@ static void rsi_shutdown(struct device *dev)
 	struct rsi_91x_sdiodev *sdev =
 		(struct rsi_91x_sdiodev *)adapter->rsi_dev;
 	struct ieee80211_hw *hw = adapter->hw;
+<<<<<<< HEAD
 	struct cfg80211_wowlan *wowlan = hw->wiphy->wowlan_config;
 
 	rsi_dbg(ERR_ZONE, "SDIO Bus shutdown =====>\n");
 
 	if (rsi_config_wowlan(adapter, wowlan))
 		rsi_dbg(ERR_ZONE, "Failed to configure WoWLAN\n");
+=======
+
+	rsi_dbg(ERR_ZONE, "SDIO Bus shutdown =====>\n");
+
+	if (hw) {
+		struct cfg80211_wowlan *wowlan = hw->wiphy->wowlan_config;
+
+		if (rsi_config_wowlan(adapter, wowlan))
+			rsi_dbg(ERR_ZONE, "Failed to configure WoWLAN\n");
+	}
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_RSI_COEX) && adapter->priv->coex_mode > 1 &&
 	    adapter->priv->bt_adapter) {
@@ -1389,7 +1583,11 @@ static int rsi_restore(struct device *dev)
 	common->iface_down = true;
 
 	adapter->sc_nvifs = 0;
+<<<<<<< HEAD
 	ieee80211_restart_hw(adapter->hw);
+=======
+	adapter->ps_state = PS_NONE;
+>>>>>>> upstream/android-13
 
 	common->wow_flags = 0;
 	common->iface_down = false;
@@ -1408,7 +1606,12 @@ static const struct dev_pm_ops rsi_pm_ops = {
 #endif
 
 static const struct sdio_device_id rsi_dev_table[] =  {
+<<<<<<< HEAD
 	{ SDIO_DEVICE(RSI_SDIO_VID_9113, RSI_SDIO_PID_9113) },
+=======
+	{ SDIO_DEVICE(SDIO_VENDOR_ID_RSI, SDIO_DEVICE_ID_RSI_9113) },
+	{ SDIO_DEVICE(SDIO_VENDOR_ID_RSI, SDIO_DEVICE_ID_RSI_9116) },
+>>>>>>> upstream/android-13
 	{ /* Blank */},
 };
 
@@ -1457,7 +1660,10 @@ module_exit(rsi_module_exit);
 
 MODULE_AUTHOR("Redpine Signals Inc");
 MODULE_DESCRIPTION("Common SDIO layer for RSI drivers");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("RSI-91x");
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(sdio, rsi_dev_table);
 MODULE_FIRMWARE(FIRMWARE_RSI9113);
 MODULE_VERSION("0.1");

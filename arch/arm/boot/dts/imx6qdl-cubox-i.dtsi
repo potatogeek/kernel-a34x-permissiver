@@ -44,6 +44,10 @@
 / {
 	/* Will be filled by the bootloader */
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0>;
 	};
 
@@ -54,12 +58,20 @@
 		pinctrl-0 = <&pinctrl_cubox_i_ir>;
 	};
 
+<<<<<<< HEAD
 	pwmleds {
+=======
+	led-controller {
+>>>>>>> upstream/android-13
 		compatible = "pwm-leds";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_cubox_i_pwm1>;
 
+<<<<<<< HEAD
 		front {
+=======
+		led-1 {
+>>>>>>> upstream/android-13
 			active-low;
 			label = "imx6:red:front";
 			max-brightness = <248>;
@@ -232,6 +244,10 @@
 };
 
 &pwm1 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

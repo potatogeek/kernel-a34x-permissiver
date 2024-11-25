@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * polling/bitbanging SPI master controller driver utilities
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * polling/bitbanging SPI master controller driver utilities
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -69,7 +75,12 @@ static unsigned bitbang_txrx_8(
 	unsigned		ns,
 	struct spi_transfer	*t,
 	unsigned flags
+<<<<<<< HEAD
 ) {
+=======
+)
+{
+>>>>>>> upstream/android-13
 	unsigned		bits = t->bits_per_word;
 	unsigned		count = t->len;
 	const u8		*tx = t->tx_buf;
@@ -97,7 +108,12 @@ static unsigned bitbang_txrx_16(
 	unsigned		ns,
 	struct spi_transfer	*t,
 	unsigned flags
+<<<<<<< HEAD
 ) {
+=======
+)
+{
+>>>>>>> upstream/android-13
 	unsigned		bits = t->bits_per_word;
 	unsigned		count = t->len;
 	const u16		*tx = t->tx_buf;
@@ -125,7 +141,12 @@ static unsigned bitbang_txrx_32(
 	unsigned		ns,
 	struct spi_transfer	*t,
 	unsigned flags
+<<<<<<< HEAD
 ) {
+=======
+)
+{
+>>>>>>> upstream/android-13
 	unsigned		bits = t->bits_per_word;
 	unsigned		count = t->len;
 	const u32		*tx = t->tx_buf;
@@ -183,13 +204,22 @@ int spi_bitbang_setup_transfer(struct spi_device *spi, struct spi_transfer *t)
 }
 EXPORT_SYMBOL_GPL(spi_bitbang_setup_transfer);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * spi_bitbang_setup - default setup for per-word I/O loops
  */
 int spi_bitbang_setup(struct spi_device *spi)
 {
 	struct spi_bitbang_cs	*cs = spi->controller_state;
 	struct spi_bitbang	*bitbang;
+<<<<<<< HEAD
+=======
+	bool			initial_setup = false;
+	int			retval;
+>>>>>>> upstream/android-13
 
 	bitbang = spi_master_get_devdata(spi->master);
 
@@ -198,10 +228,15 @@ int spi_bitbang_setup(struct spi_device *spi)
 		if (!cs)
 			return -ENOMEM;
 		spi->controller_state = cs;
+<<<<<<< HEAD
+=======
+		initial_setup = true;
+>>>>>>> upstream/android-13
 	}
 
 	/* per-word shift register access, in hardware or bitbanging */
 	cs->txrx_word = bitbang->txrx_word[spi->mode & (SPI_CPOL|SPI_CPHA)];
+<<<<<<< HEAD
 	if (!cs->txrx_word)
 		return -EINVAL;
 
@@ -209,10 +244,22 @@ int spi_bitbang_setup(struct spi_device *spi)
 		int retval = bitbang->setup_transfer(spi, NULL);
 		if (retval < 0)
 			return retval;
+=======
+	if (!cs->txrx_word) {
+		retval = -EINVAL;
+		goto err_free;
+	}
+
+	if (bitbang->setup_transfer) {
+		retval = bitbang->setup_transfer(spi, NULL);
+		if (retval < 0)
+			goto err_free;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(&spi->dev, "%s, %u nsec/bit\n", __func__, 2 * cs->nsecs);
 
+<<<<<<< HEAD
 	/* NOTE we _need_ to call chipselect() early, ideally with adapter
 	 * setup, unless the hardware defaults cooperate to avoid confusion
 	 * between normal (active low) and inverted chipselects.
@@ -231,6 +278,18 @@ int spi_bitbang_setup(struct spi_device *spi)
 EXPORT_SYMBOL_GPL(spi_bitbang_setup);
 
 /**
+=======
+	return 0;
+
+err_free:
+	if (initial_setup)
+		kfree(cs);
+	return retval;
+}
+EXPORT_SYMBOL_GPL(spi_bitbang_setup);
+
+/*
+>>>>>>> upstream/android-13
  * spi_bitbang_cleanup - default cleanup for per-word I/O loops
  */
 void spi_bitbang_cleanup(struct spi_device *spi)
@@ -348,6 +407,62 @@ static void spi_bitbang_set_cs(struct spi_device *spi, bool enable)
 
 /*----------------------------------------------------------------------*/
 
+<<<<<<< HEAD
+=======
+int spi_bitbang_init(struct spi_bitbang *bitbang)
+{
+	struct spi_master *master = bitbang->master;
+	bool custom_cs;
+
+	if (!master)
+		return -EINVAL;
+	/*
+	 * We only need the chipselect callback if we are actually using it.
+	 * If we just use GPIO descriptors, it is surplus. If the
+	 * SPI_MASTER_GPIO_SS flag is set, we always need to call the
+	 * driver-specific chipselect routine.
+	 */
+	custom_cs = (!master->use_gpio_descriptors ||
+		     (master->flags & SPI_MASTER_GPIO_SS));
+
+	if (custom_cs && !bitbang->chipselect)
+		return -EINVAL;
+
+	mutex_init(&bitbang->lock);
+
+	if (!master->mode_bits)
+		master->mode_bits = SPI_CPOL | SPI_CPHA | bitbang->flags;
+
+	if (master->transfer || master->transfer_one_message)
+		return -EINVAL;
+
+	master->prepare_transfer_hardware = spi_bitbang_prepare_hardware;
+	master->unprepare_transfer_hardware = spi_bitbang_unprepare_hardware;
+	master->transfer_one = spi_bitbang_transfer_one;
+	/*
+	 * When using GPIO descriptors, the ->set_cs() callback doesn't even
+	 * get called unless SPI_MASTER_GPIO_SS is set.
+	 */
+	if (custom_cs)
+		master->set_cs = spi_bitbang_set_cs;
+
+	if (!bitbang->txrx_bufs) {
+		bitbang->use_dma = 0;
+		bitbang->txrx_bufs = spi_bitbang_bufs;
+		if (!master->setup) {
+			if (!bitbang->setup_transfer)
+				bitbang->setup_transfer =
+					 spi_bitbang_setup_transfer;
+			master->setup = spi_bitbang_setup;
+			master->cleanup = spi_bitbang_cleanup;
+		}
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(spi_bitbang_init);
+
+>>>>>>> upstream/android-13
 /**
  * spi_bitbang_start - start up a polled/bitbanging SPI master driver
  * @bitbang: driver handle
@@ -381,6 +496,7 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
 	struct spi_master *master = bitbang->master;
 	int ret;
 
+<<<<<<< HEAD
 	if (!master || !bitbang->chipselect)
 		return -EINVAL;
 
@@ -408,6 +524,11 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
 			master->cleanup = spi_bitbang_cleanup;
 		}
 	}
+=======
+	ret = spi_bitbang_init(bitbang);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* driver may get busy before register() returns, especially
 	 * if someone registered boardinfo for devices
@@ -420,7 +541,11 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
 }
 EXPORT_SYMBOL_GPL(spi_bitbang_start);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * spi_bitbang_stop - stops the task providing spi communication
  */
 void spi_bitbang_stop(struct spi_bitbang *bitbang)

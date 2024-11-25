@@ -2,9 +2,14 @@
 config PPC_PASEMI
 	depends on PPC64 && PPC_BOOK3S && CPU_BIG_ENDIAN
 	bool "PA Semi SoC-based platforms"
+<<<<<<< HEAD
 	default n
 	select MPIC
 	select PCI
+=======
+	select MPIC
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC_UDBG_16550
 	select PPC_NATIVE
 	select MPIC_BROKEN_REGREAD

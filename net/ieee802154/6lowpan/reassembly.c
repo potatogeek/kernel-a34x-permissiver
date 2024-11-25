@@ -1,15 +1,24 @@
+<<<<<<< HEAD
 /*	6LoWPAN fragment reassembly
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*	6LoWPAN fragment reassembly
+ *
+>>>>>>> upstream/android-13
  *	Authors:
  *	Alexander Aring		<aar@pengutronix.de>
  *
  *	Based on: net/ipv6/reassembly.c
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "6LoWPAN: " fmt
@@ -27,6 +36,10 @@
 #include <net/6lowpan.h>
 #include <net/ipv6_frag.h>
 #include <net/inet_frag.h>
+<<<<<<< HEAD
+=======
+#include <net/ip.h>
+>>>>>>> upstream/android-13
 
 #include "6lowpan_i.h"
 
@@ -34,8 +47,13 @@ static const char lowpan_frags_cache_name[] = "lowpan-frags";
 
 static struct inet_frags lowpan_frags;
 
+<<<<<<< HEAD
 static int lowpan_frag_reasm(struct lowpan_frag_queue *fq,
 			     struct sk_buff *prev, struct net_device *ldev);
+=======
+static int lowpan_frag_reasm(struct lowpan_frag_queue *fq, struct sk_buff *skb,
+			     struct sk_buff *prev,  struct net_device *ldev);
+>>>>>>> upstream/android-13
 
 static void lowpan_frag_init(struct inet_frag_queue *q, const void *a)
 {
@@ -78,7 +96,11 @@ fq_find(struct net *net, const struct lowpan_802154_cb *cb,
 	key.src = *src;
 	key.dst = *dst;
 
+<<<<<<< HEAD
 	q = inet_frag_find(&ieee802154_lowpan->frags, &key);
+=======
+	q = inet_frag_find(ieee802154_lowpan->fqdir, &key);
+>>>>>>> upstream/android-13
 	if (!q)
 		return NULL;
 
@@ -88,9 +110,21 @@ fq_find(struct net *net, const struct lowpan_802154_cb *cb,
 static int lowpan_frag_queue(struct lowpan_frag_queue *fq,
 			     struct sk_buff *skb, u8 frag_type)
 {
+<<<<<<< HEAD
 	struct sk_buff *prev, *next;
 	struct net_device *ldev;
 	int end, offset;
+=======
+	struct sk_buff *prev_tail;
+	struct net_device *ldev;
+	int end, offset, err;
+
+	/* inet_frag_queue_* functions use skb->cb; see struct ipfrag_skb_cb
+	 * in inet_fragment.c
+	 */
+	BUILD_BUG_ON(sizeof(struct lowpan_802154_cb) > sizeof(struct inet_skb_parm));
+	BUILD_BUG_ON(sizeof(struct lowpan_802154_cb) > sizeof(struct inet6_skb_parm));
+>>>>>>> upstream/android-13
 
 	if (fq->q.flags & INET_FRAG_COMPLETE)
 		goto err;
@@ -117,6 +151,7 @@ static int lowpan_frag_queue(struct lowpan_frag_queue *fq,
 		}
 	}
 
+<<<<<<< HEAD
 	/* Find out which fragments are in front and at the back of us
 	 * in the chain of fragments so far.  We must know where to put
 	 * this fragment, right?
@@ -149,13 +184,28 @@ found:
 	ldev = skb->dev;
 	if (ldev)
 		skb->dev = NULL;
+=======
+	ldev = skb->dev;
+	if (ldev)
+		skb->dev = NULL;
+	barrier();
+
+	prev_tail = fq->q.fragments_tail;
+	err = inet_frag_queue_insert(&fq->q, skb, offset, end);
+	if (err)
+		goto err;
+>>>>>>> upstream/android-13
 
 	fq->q.stamp = skb->tstamp;
 	if (frag_type == LOWPAN_DISPATCH_FRAG1)
 		fq->q.flags |= INET_FRAG_FIRST_IN;
 
 	fq->q.meat += skb->len;
+<<<<<<< HEAD
 	add_frag_mem_limit(fq->q.net, skb->truesize);
+=======
+	add_frag_mem_limit(fq->q.fqdir, skb->truesize);
+>>>>>>> upstream/android-13
 
 	if (fq->q.flags == (INET_FRAG_FIRST_IN | INET_FRAG_LAST_IN) &&
 	    fq->q.meat == fq->q.len) {
@@ -163,10 +213,18 @@ found:
 		unsigned long orefdst = skb->_skb_refdst;
 
 		skb->_skb_refdst = 0UL;
+<<<<<<< HEAD
 		res = lowpan_frag_reasm(fq, prev, ldev);
 		skb->_skb_refdst = orefdst;
 		return res;
 	}
+=======
+		res = lowpan_frag_reasm(fq, skb, prev_tail, ldev);
+		skb->_skb_refdst = orefdst;
+		return res;
+	}
+	skb_dst_drop(skb);
+>>>>>>> upstream/android-13
 
 	return -1;
 err:
@@ -175,13 +233,17 @@ err:
 }
 
 /*	Check if this packet is complete.
+<<<<<<< HEAD
  *	Returns NULL on failure by any reason, and pointer
  *	to current nexthdr field in reassembled frame.
+=======
+>>>>>>> upstream/android-13
  *
  *	It is called with locked fq, and caller must check that
  *	queue is eligible for reassembly i.e. it is not COMPLETE,
  *	the last and the first frames arrived and all the bits are here.
  */
+<<<<<<< HEAD
 static int lowpan_frag_reasm(struct lowpan_frag_queue *fq, struct sk_buff *prev,
 			     struct net_device *ldev)
 {
@@ -266,6 +328,25 @@ static int lowpan_frag_reasm(struct lowpan_frag_queue *fq, struct sk_buff *prev,
 
 	fq->q.fragments = NULL;
 	fq->q.fragments_tail = NULL;
+=======
+static int lowpan_frag_reasm(struct lowpan_frag_queue *fq, struct sk_buff *skb,
+			     struct sk_buff *prev_tail, struct net_device *ldev)
+{
+	void *reasm_data;
+
+	inet_frag_kill(&fq->q);
+
+	reasm_data = inet_frag_reasm_prepare(&fq->q, skb, prev_tail);
+	if (!reasm_data)
+		goto out_oom;
+	inet_frag_reasm_finish(&fq->q, skb, reasm_data, false);
+
+	skb->dev = ldev;
+	skb->tstamp = fq->q.stamp;
+	fq->q.rb_fragments = RB_ROOT;
+	fq->q.fragments_tail = NULL;
+	fq->q.last_run_head = NULL;
+>>>>>>> upstream/android-13
 
 	return 1;
 out_oom:
@@ -284,7 +365,11 @@ static int lowpan_frag_rx_handlers_result(struct sk_buff *skb,
 		net_warn_ratelimited("%s: received unknown dispatch\n",
 				     __func__);
 
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* all others failure */
 		return NET_RX_DROP;
@@ -410,6 +495,7 @@ err:
 static struct ctl_table lowpan_frags_ns_ctl_table[] = {
 	{
 		.procname	= "6lowpanfrag_high_thresh",
+<<<<<<< HEAD
 		.data		= &init_net.ieee802154_lowpan.frags.high_thresh,
 		.maxlen		= sizeof(unsigned long),
 		.mode		= 0644,
@@ -427,6 +513,20 @@ static struct ctl_table lowpan_frags_ns_ctl_table[] = {
 	{
 		.procname	= "6lowpanfrag_time",
 		.data		= &init_net.ieee802154_lowpan.frags.timeout,
+=======
+		.maxlen		= sizeof(unsigned long),
+		.mode		= 0644,
+		.proc_handler	= proc_doulongvec_minmax,
+	},
+	{
+		.procname	= "6lowpanfrag_low_thresh",
+		.maxlen		= sizeof(unsigned long),
+		.mode		= 0644,
+		.proc_handler	= proc_doulongvec_minmax,
+	},
+	{
+		.procname	= "6lowpanfrag_time",
+>>>>>>> upstream/android-13
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_jiffies,
@@ -461,6 +561,7 @@ static int __net_init lowpan_frags_ns_sysctl_register(struct net *net)
 		if (table == NULL)
 			goto err_alloc;
 
+<<<<<<< HEAD
 		table[0].data = &ieee802154_lowpan->frags.high_thresh;
 		table[0].extra1 = &ieee802154_lowpan->frags.low_thresh;
 		table[0].extra2 = &init_net.ieee802154_lowpan.frags.high_thresh;
@@ -468,11 +569,22 @@ static int __net_init lowpan_frags_ns_sysctl_register(struct net *net)
 		table[1].extra2 = &ieee802154_lowpan->frags.high_thresh;
 		table[2].data = &ieee802154_lowpan->frags.timeout;
 
+=======
+>>>>>>> upstream/android-13
 		/* Don't export sysctls to unprivileged users */
 		if (net->user_ns != &init_user_ns)
 			table[0].procname = NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	table[0].data	= &ieee802154_lowpan->fqdir->high_thresh;
+	table[0].extra1	= &ieee802154_lowpan->fqdir->low_thresh;
+	table[1].data	= &ieee802154_lowpan->fqdir->low_thresh;
+	table[1].extra2	= &ieee802154_lowpan->fqdir->high_thresh;
+	table[2].data	= &ieee802154_lowpan->fqdir->timeout;
+
+>>>>>>> upstream/android-13
 	hdr = register_net_sysctl(net, "net/ieee802154/6lowpan", table);
 	if (hdr == NULL)
 		goto err_reg;
@@ -539,6 +651,7 @@ static int __net_init lowpan_frags_init_net(struct net *net)
 		net_ieee802154_lowpan(net);
 	int res;
 
+<<<<<<< HEAD
 	ieee802154_lowpan->frags.high_thresh = IPV6_FRAG_HIGH_THRESH;
 	ieee802154_lowpan->frags.low_thresh = IPV6_FRAG_LOW_THRESH;
 	ieee802154_lowpan->frags.timeout = IPV6_FRAG_TIMEOUT;
@@ -553,18 +666,53 @@ static int __net_init lowpan_frags_init_net(struct net *net)
 	return res;
 }
 
+=======
+
+	res = fqdir_init(&ieee802154_lowpan->fqdir, &lowpan_frags, net);
+	if (res < 0)
+		return res;
+
+	ieee802154_lowpan->fqdir->high_thresh = IPV6_FRAG_HIGH_THRESH;
+	ieee802154_lowpan->fqdir->low_thresh = IPV6_FRAG_LOW_THRESH;
+	ieee802154_lowpan->fqdir->timeout = IPV6_FRAG_TIMEOUT;
+
+	res = lowpan_frags_ns_sysctl_register(net);
+	if (res < 0)
+		fqdir_exit(ieee802154_lowpan->fqdir);
+	return res;
+}
+
+static void __net_exit lowpan_frags_pre_exit_net(struct net *net)
+{
+	struct netns_ieee802154_lowpan *ieee802154_lowpan =
+		net_ieee802154_lowpan(net);
+
+	fqdir_pre_exit(ieee802154_lowpan->fqdir);
+}
+
+>>>>>>> upstream/android-13
 static void __net_exit lowpan_frags_exit_net(struct net *net)
 {
 	struct netns_ieee802154_lowpan *ieee802154_lowpan =
 		net_ieee802154_lowpan(net);
 
 	lowpan_frags_ns_sysctl_unregister(net);
+<<<<<<< HEAD
 	inet_frags_exit_net(&ieee802154_lowpan->frags);
 }
 
 static struct pernet_operations lowpan_frags_ops = {
 	.init = lowpan_frags_init_net,
 	.exit = lowpan_frags_exit_net,
+=======
+	fqdir_exit(ieee802154_lowpan->fqdir);
+}
+
+static struct pernet_operations lowpan_frags_ops = {
+	.init		= lowpan_frags_init_net,
+	.pre_exit	= lowpan_frags_pre_exit_net,
+	.exit		= lowpan_frags_exit_net,
+>>>>>>> upstream/android-13
 };
 
 static u32 lowpan_key_hashfn(const void *data, u32 len, u32 seed)

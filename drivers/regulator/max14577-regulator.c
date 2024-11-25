@@ -155,6 +155,7 @@ static const struct regulator_desc max77836_supported_regulators[] = {
 	[MAX77836_LDO2] = MAX77836_LDO_REG(2),
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static struct of_regulator_match max14577_regulator_matches[] = {
 	{ .name	= "SAFEOUT", },
@@ -208,6 +209,9 @@ static inline struct device_node *match_of_node(int index,
 #endif /* CONFIG_OF */
 
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Registers for regulators of max77836 use different I2C slave addresses so
  * different regmaps must be used for them.
  *
@@ -265,9 +269,12 @@ static int max14577_regulator_probe(struct platform_device *pdev)
 		if (pdata && pdata->regulators) {
 			config.init_data = pdata->regulators[i].initdata;
 			config.of_node = pdata->regulators[i].of_node;
+<<<<<<< HEAD
 		} else {
 			config.init_data = match_init_data(i, dev_type);
 			config.of_node = match_of_node(i, dev_type);
+=======
+>>>>>>> upstream/android-13
 		}
 		config.regmap = max14577_get_regmap(max14577,
 				supported_regulators[i].id);
@@ -324,4 +331,7 @@ module_exit(max14577_regulator_exit);
 MODULE_AUTHOR("Krzysztof Kozlowski <krzk@kernel.org>");
 MODULE_DESCRIPTION("Maxim 14577/77836 regulator driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_ALIAS("platform:max14577-regulator");
+=======
+>>>>>>> upstream/android-13

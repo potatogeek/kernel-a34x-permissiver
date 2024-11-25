@@ -7,6 +7,10 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+<<<<<<< HEAD
+=======
+#include <string.h>
+>>>>>>> upstream/android-13
 #include <sys/ptrace.h>
 #include <asm/ptrace.h>
 #include <errno.h>
@@ -72,7 +76,11 @@ static int bp_modify1(void)
 	/*
 	 * The parent does following steps:
 	 *  - creates a new breakpoint (id 0) for bp_2 function
+<<<<<<< HEAD
 	 *  - changes that breakponit to bp_1 function
+=======
+	 *  - changes that breakpoint to bp_1 function
+>>>>>>> upstream/android-13
 	 *  - waits for the breakpoint to hit and checks
 	 *    it has proper rip of bp_1 function
 	 *  - detaches the child

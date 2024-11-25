@@ -87,10 +87,17 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
 				    struct device *dev)
 {
 	struct s390_domain *s390_domain = to_s390_domain(domain);
+<<<<<<< HEAD
 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
 	struct s390_domain_device *domain_device;
 	unsigned long flags;
 	int rc;
+=======
+	struct zpci_dev *zdev = to_zpci_dev(dev);
+	struct s390_domain_device *domain_device;
+	unsigned long flags;
+	int cc, rc;
+>>>>>>> upstream/android-13
 
 	if (!zdev)
 		return -ENODEV;
@@ -99,6 +106,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
 	if (!domain_device)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (zdev->dma_table)
 		zpci_dma_exit_device(zdev);
 
@@ -107,6 +115,23 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
 				(u64) zdev->dma_table);
 	if (rc)
 		goto out_restore;
+=======
+	if (zdev->dma_table) {
+		cc = zpci_dma_exit_device(zdev);
+		if (cc) {
+			rc = -EIO;
+			goto out_free;
+		}
+	}
+
+	zdev->dma_table = s390_domain->dma_table;
+	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+				(u64) zdev->dma_table);
+	if (cc) {
+		rc = -EIO;
+		goto out_restore;
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&s390_domain->list_lock, flags);
 	/* First device defines the DMA range limits */
@@ -130,6 +155,10 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
 
 out_restore:
 	zpci_dma_init_device(zdev);
+<<<<<<< HEAD
+=======
+out_free:
+>>>>>>> upstream/android-13
 	kfree(domain_device);
 
 	return rc;
@@ -139,7 +168,11 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
 				     struct device *dev)
 {
 	struct s390_domain *s390_domain = to_s390_domain(domain);
+<<<<<<< HEAD
 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+=======
+	struct zpci_dev *zdev = to_zpci_dev(dev);
+>>>>>>> upstream/android-13
 	struct s390_domain_device *domain_device, *tmp;
 	unsigned long flags;
 	int found = 0;
@@ -166,6 +199,7 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
 	}
 }
 
+<<<<<<< HEAD
 static int s390_iommu_add_device(struct device *dev)
 {
 	struct iommu_group *group = iommu_group_get_for_dev(dev);
@@ -183,6 +217,18 @@ static int s390_iommu_add_device(struct device *dev)
 static void s390_iommu_remove_device(struct device *dev)
 {
 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+=======
+static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+{
+	struct zpci_dev *zdev = to_zpci_dev(dev);
+
+	return &zdev->iommu_dev;
+}
+
+static void s390_iommu_release_device(struct device *dev)
+{
+	struct zpci_dev *zdev = to_zpci_dev(dev);
+>>>>>>> upstream/android-13
 	struct iommu_domain *domain;
 
 	/*
@@ -191,7 +237,11 @@ static void s390_iommu_remove_device(struct device *dev)
 	 * to vfio-pci and completing the VFIO_SET_IOMMU ioctl (which triggers
 	 * the attach_dev), removing the device via
 	 * "echo 1 > /sys/bus/pci/devices/.../remove" won't trigger detach_dev,
+<<<<<<< HEAD
 	 * only remove_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
+=======
+	 * only release_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
+>>>>>>> upstream/android-13
 	 * notifier.
 	 *
 	 * So let's call detach_dev from here if it hasn't been called before.
@@ -201,9 +251,12 @@ static void s390_iommu_remove_device(struct device *dev)
 		if (domain)
 			s390_iommu_detach_device(domain, dev);
 	}
+<<<<<<< HEAD
 
 	iommu_device_unlink(&zdev->iommu_dev, dev);
 	iommu_group_remove_device(dev);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int s390_iommu_update_trans(struct s390_domain *s390_domain,
@@ -265,7 +318,11 @@ undo_cpu_trans:
 }
 
 static int s390_iommu_map(struct iommu_domain *domain, unsigned long iova,
+<<<<<<< HEAD
 			  phys_addr_t paddr, size_t size, int prot)
+=======
+			  phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct s390_domain *s390_domain = to_s390_domain(domain);
 	int flags = ZPCI_PTE_VALID, rc = 0;
@@ -314,7 +371,12 @@ static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
 }
 
 static size_t s390_iommu_unmap(struct iommu_domain *domain,
+<<<<<<< HEAD
 			       unsigned long iova, size_t size)
+=======
+			       unsigned long iova, size_t size,
+			       struct iommu_iotlb_gather *gather)
+>>>>>>> upstream/android-13
 {
 	struct s390_domain *s390_domain = to_s390_domain(domain);
 	int flags = ZPCI_PTE_INVALID;
@@ -342,9 +404,13 @@ int zpci_init_iommu(struct zpci_dev *zdev)
 	if (rc)
 		goto out_err;
 
+<<<<<<< HEAD
 	iommu_device_set_ops(&zdev->iommu_dev, &s390_iommu_ops);
 
 	rc = iommu_device_register(&zdev->iommu_dev);
+=======
+	rc = iommu_device_register(&zdev->iommu_dev, &s390_iommu_ops, NULL);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out_sysfs;
 
@@ -372,8 +438,13 @@ static const struct iommu_ops s390_iommu_ops = {
 	.map = s390_iommu_map,
 	.unmap = s390_iommu_unmap,
 	.iova_to_phys = s390_iommu_iova_to_phys,
+<<<<<<< HEAD
 	.add_device = s390_iommu_add_device,
 	.remove_device = s390_iommu_remove_device,
+=======
+	.probe_device = s390_iommu_probe_device,
+	.release_device = s390_iommu_release_device,
+>>>>>>> upstream/android-13
 	.device_group = generic_device_group,
 	.pgsize_bitmap = S390_IOMMU_PGSIZES,
 };

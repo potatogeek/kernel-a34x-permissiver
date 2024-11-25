@@ -761,7 +761,11 @@ tape_3590_done(struct tape_device *device, struct tape_request *request)
  * This function is called, when error recovery was successful
  */
 static inline int
+<<<<<<< HEAD
 tape_3590_erp_succeded(struct tape_device *device, struct tape_request *request)
+=======
+tape_3590_erp_succeeded(struct tape_device *device, struct tape_request *request)
+>>>>>>> upstream/android-13
 {
 	DBF_EVENT(3, "Error Recovery successful for %s\n",
 		  tape_op_verbose[request->op]);
@@ -831,7 +835,11 @@ tape_3590_erp_basic(struct tape_device *device, struct tape_request *request,
 	case SENSE_BRA_PER:
 		return tape_3590_erp_failed(device, request, irb, rc);
 	case SENSE_BRA_CONT:
+<<<<<<< HEAD
 		return tape_3590_erp_succeded(device, request);
+=======
+		return tape_3590_erp_succeeded(device, request);
+>>>>>>> upstream/android-13
 	case SENSE_BRA_RE:
 		return tape_3590_erp_retry(device, request, irb);
 	case SENSE_BRA_DRE:
@@ -971,7 +979,11 @@ tape_3590_print_mim_msg_f0(struct tape_device *device, struct irb *irb)
 		snprintf(exception, BUFSIZE, "Data degraded");
 		break;
 	case 0x03:
+<<<<<<< HEAD
 		snprintf(exception, BUFSIZE, "Data degraded in partion %i",
+=======
+		snprintf(exception, BUFSIZE, "Data degraded in partition %i",
+>>>>>>> upstream/android-13
 			sense->fmt.f70.mp);
 		break;
 	case 0x04:
@@ -1651,7 +1663,10 @@ static struct ccw_driver tape_3590_driver = {
 	.remove = tape_generic_remove,
 	.set_offline = tape_generic_offline,
 	.set_online = tape_3590_online,
+<<<<<<< HEAD
 	.freeze = tape_generic_pm_suspend,
+=======
+>>>>>>> upstream/android-13
 	.int_class = IRQIO_TAP,
 };
 

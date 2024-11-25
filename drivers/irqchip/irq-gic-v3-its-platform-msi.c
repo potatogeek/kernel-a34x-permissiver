@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013-2015 ARM Limited, All Rights Reserved.
  * Author: Marc Zyngier <marc.zyngier@arm.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013-2015 ARM Limited, All Rights Reserved.
+ * Author: Marc Zyngier <marc.zyngier@arm.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi_iort.h>
@@ -117,7 +124,11 @@ static int __init its_pmsi_init_one(struct fwnode_handle *fwnode,
 
 #ifdef CONFIG_ACPI
 static int __init
+<<<<<<< HEAD
 its_pmsi_parse_madt(struct acpi_subtable_header *header,
+=======
+its_pmsi_parse_madt(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 			const unsigned long end)
 {
 	struct acpi_madt_generic_translator *its_entry;

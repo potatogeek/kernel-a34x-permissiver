@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
  * Copyright (c) BayLibre, SAS.
  * Author : Neil Armstrong <narmstrong@baylibre.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -1702,6 +1709,11 @@ static const struct qcom_cc_desc gcc_mdm9615_desc = {
 	.num_clks = ARRAY_SIZE(gcc_mdm9615_clks),
 	.resets = gcc_mdm9615_resets,
 	.num_resets = ARRAY_SIZE(gcc_mdm9615_resets),
+<<<<<<< HEAD
+=======
+	.clk_hws = gcc_mdm9615_hws,
+	.num_clk_hws = ARRAY_SIZE(gcc_mdm9615_hws),
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id gcc_mdm9615_match_table[] = {
@@ -1712,21 +1724,28 @@ MODULE_DEVICE_TABLE(of, gcc_mdm9615_match_table);
 
 static int gcc_mdm9615_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	struct regmap *regmap;
 	int ret;
 	int i;
+=======
+	struct regmap *regmap;
+>>>>>>> upstream/android-13
 
 	regmap = qcom_cc_map(pdev, &gcc_mdm9615_desc);
 	if (IS_ERR(regmap))
 		return PTR_ERR(regmap);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(gcc_mdm9615_hws); i++) {
 		ret = devm_clk_hw_register(dev, gcc_mdm9615_hws[i]);
 		if (ret)
 			return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return qcom_cc_really_probe(pdev, &gcc_mdm9615_desc, regmap);
 }
 

@@ -3,6 +3,10 @@
 #define __OF_RESERVED_MEM_H
 
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 
 struct of_phandle_args;
 struct reserved_mem_ops;
@@ -15,7 +19,10 @@ struct reserved_mem {
 	phys_addr_t			base;
 	phys_addr_t			size;
 	void				*priv;
+<<<<<<< HEAD
 	bool				reusable;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct reserved_mem_ops {
@@ -27,6 +34,7 @@ struct reserved_mem_ops {
 
 typedef int (*reservedmem_of_init_fn)(struct reserved_mem *rmem);
 
+<<<<<<< HEAD
 #define RESERVEDMEM_OF_DECLARE(name, compat, init)			\
 	_OF_DECLARE(reservedmem, name, compat, init, reservedmem_of_init_fn)
 
@@ -48,16 +56,49 @@ void fdt_reserved_mem_save_node(unsigned long node, const char *uname,
 			       phys_addr_t base, phys_addr_t size);
 struct reserved_mem *of_reserved_mem_lookup(struct device_node *np);
 #else
+=======
+#ifdef CONFIG_OF_RESERVED_MEM
+
+#define RESERVEDMEM_OF_DECLARE(name, compat, init)			\
+	_OF_DECLARE(reservedmem, name, compat, init, reservedmem_of_init_fn)
+
+int of_reserved_mem_device_init_by_idx(struct device *dev,
+				       struct device_node *np, int idx);
+int of_reserved_mem_device_init_by_name(struct device *dev,
+					struct device_node *np,
+					const char *name);
+void of_reserved_mem_device_release(struct device *dev);
+
+struct reserved_mem *of_reserved_mem_lookup(struct device_node *np);
+#else
+
+#define RESERVEDMEM_OF_DECLARE(name, compat, init)			\
+	_OF_DECLARE_STUB(reservedmem, name, compat, init, reservedmem_of_init_fn)
+
+>>>>>>> upstream/android-13
 static inline int of_reserved_mem_device_init_by_idx(struct device *dev,
 					struct device_node *np, int idx)
 {
 	return -ENOSYS;
 }
+<<<<<<< HEAD
 static inline void of_reserved_mem_device_release(struct device *pdev) { }
 
 static inline void fdt_init_reserved_mem(void) { }
 static inline void fdt_reserved_mem_save_node(unsigned long node,
 		const char *uname, phys_addr_t base, phys_addr_t size) { }
+=======
+
+static inline int of_reserved_mem_device_init_by_name(struct device *dev,
+						      struct device_node *np,
+						      const char *name)
+{
+	return -ENOSYS;
+}
+
+static inline void of_reserved_mem_device_release(struct device *pdev) { }
+
+>>>>>>> upstream/android-13
 static inline struct reserved_mem *of_reserved_mem_lookup(struct device_node *np)
 {
 	return NULL;

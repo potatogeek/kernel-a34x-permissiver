@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Keyboard backlight LED driver for Chrome OS.
  *
@@ -13,6 +14,12 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+// Keyboard backlight LED driver for ChromeOS
+//
+// Copyright (C) 2012 Google, Inc.
+>>>>>>> upstream/android-13
 
 #include <linux/acpi.h>
 #include <linux/leds.h>

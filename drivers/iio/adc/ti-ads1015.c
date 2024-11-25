@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADS1015 - Texas Instruments Analog-to-Digital Converter
  *
  * Copyright (c) 2016, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * IIO driver for ADS1015 ADC 7-bit I2C slave address:
  *	* 0x48 - ADDR connected to Ground
  *	* 0x49 - ADDR connected to Vdd
@@ -15,17 +22,27 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
 #include <linux/init.h>
 #include <linux/irq.h>
 #include <linux/i2c.h>
+=======
+#include <linux/init.h>
+#include <linux/irq.h>
+#include <linux/i2c.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/pm_runtime.h>
 #include <linux/mutex.h>
 #include <linux/delay.h>
 
+<<<<<<< HEAD
 #include <linux/platform_data/ads1015.h>
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/iio/iio.h>
 #include <linux/iio/types.h>
 #include <linux/iio/sysfs.h>
@@ -36,6 +53,11 @@
 
 #define ADS1015_DRV_NAME "ads1015"
 
+<<<<<<< HEAD
+=======
+#define ADS1015_CHANNELS 8
+
+>>>>>>> upstream/android-13
 #define ADS1015_CONV_REG	0x00
 #define ADS1015_CFG_REG		0x01
 #define ADS1015_LO_THRESH_REG	0x02
@@ -80,6 +102,10 @@
 #define ADS1015_DEFAULT_CHAN		0
 
 enum chip_ids {
+<<<<<<< HEAD
+=======
+	ADSXXXX = 0,
+>>>>>>> upstream/android-13
 	ADS1015,
 	ADS1115,
 };
@@ -222,6 +248,15 @@ static const struct iio_event_spec ads1015_events[] = {
 	.datasheet_name = "AIN"#_chan"-AIN"#_chan2,		\
 }
 
+<<<<<<< HEAD
+=======
+struct ads1015_channel_data {
+	bool enabled;
+	unsigned int pga;
+	unsigned int data_rate;
+};
+
+>>>>>>> upstream/android-13
 struct ads1015_thresh_data {
 	unsigned int comp_queue;
 	int high_thresh;
@@ -319,9 +354,13 @@ static int ads1015_set_power_state(struct ads1015_data *data, bool on)
 	struct device *dev = regmap_get_device(data->regmap);
 
 	if (on) {
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(dev);
 		if (ret < 0)
 			pm_runtime_put_noidle(dev);
+=======
+		ret = pm_runtime_resume_and_get(dev);
+>>>>>>> upstream/android-13
 	} else {
 		pm_runtime_mark_last_busy(dev);
 		ret = pm_runtime_put_autosuspend(dev);
@@ -391,10 +430,21 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
 	struct iio_poll_func *pf = p;
 	struct iio_dev *indio_dev = pf->indio_dev;
 	struct ads1015_data *data = iio_priv(indio_dev);
+<<<<<<< HEAD
 	s16 buf[8]; /* 1x s16 ADC val + 3x s16 padding +  4x s16 timestamp */
 	int chan, ret, res;
 
 	memset(buf, 0, sizeof(buf));
+=======
+	/* Ensure natural alignment of timestamp */
+	struct {
+		s16 chan;
+		s64 timestamp __aligned(8);
+	} scan;
+	int chan, ret, res;
+
+	memset(&scan, 0, sizeof(scan));
+>>>>>>> upstream/android-13
 
 	mutex_lock(&data->lock);
 	chan = find_first_bit(indio_dev->active_scan_mask,
@@ -405,10 +455,17 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	buf[0] = res;
 	mutex_unlock(&data->lock);
 
 	iio_push_to_buffers_with_timestamp(indio_dev, buf,
+=======
+	scan.chan = res;
+	mutex_unlock(&data->lock);
+
+	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
+>>>>>>> upstream/android-13
 					   iio_get_time_ns(indio_dev));
 
 err:
@@ -794,8 +851,11 @@ static int ads1015_buffer_postdisable(struct iio_dev *indio_dev)
 
 static const struct iio_buffer_setup_ops ads1015_buffer_setup_ops = {
 	.preenable	= ads1015_buffer_preenable,
+<<<<<<< HEAD
 	.postenable	= iio_triggered_buffer_postenable,
 	.predisable	= iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable	= ads1015_buffer_postdisable,
 	.validate_scan_mask = &iio_validate_scan_mask_onehot,
 };
@@ -850,6 +910,7 @@ static const struct iio_info ads1115_info = {
 	.attrs          = &ads1115_attribute_group,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static int ads1015_get_channels_config_of(struct i2c_client *client)
 {
@@ -862,35 +923,64 @@ static int ads1015_get_channels_config_of(struct i2c_client *client)
 		return -EINVAL;
 
 	for_each_child_of_node(client->dev.of_node, node) {
+=======
+static int ads1015_client_get_channels_config(struct i2c_client *client)
+{
+	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+	struct ads1015_data *data = iio_priv(indio_dev);
+	struct device *dev = &client->dev;
+	struct fwnode_handle *node;
+	int i = -1;
+
+	device_for_each_child_node(dev, node) {
+>>>>>>> upstream/android-13
 		u32 pval;
 		unsigned int channel;
 		unsigned int pga = ADS1015_DEFAULT_PGA;
 		unsigned int data_rate = ADS1015_DEFAULT_DATA_RATE;
 
+<<<<<<< HEAD
 		if (of_property_read_u32(node, "reg", &pval)) {
 			dev_err(&client->dev, "invalid reg on %pOF\n",
 				node);
+=======
+		if (fwnode_property_read_u32(node, "reg", &pval)) {
+			dev_err(dev, "invalid reg on %pfw\n", node);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
 		channel = pval;
 		if (channel >= ADS1015_CHANNELS) {
+<<<<<<< HEAD
 			dev_err(&client->dev,
 				"invalid channel index %d on %pOF\n",
+=======
+			dev_err(dev, "invalid channel index %d on %pfw\n",
+>>>>>>> upstream/android-13
 				channel, node);
 			continue;
 		}
 
+<<<<<<< HEAD
 		if (!of_property_read_u32(node, "ti,gain", &pval)) {
 			pga = pval;
 			if (pga > 6) {
 				dev_err(&client->dev, "invalid gain on %pOF\n",
 					node);
 				of_node_put(node);
+=======
+		if (!fwnode_property_read_u32(node, "ti,gain", &pval)) {
+			pga = pval;
+			if (pga > 6) {
+				dev_err(dev, "invalid gain on %pfw\n", node);
+				fwnode_handle_put(node);
+>>>>>>> upstream/android-13
 				return -EINVAL;
 			}
 		}
 
+<<<<<<< HEAD
 		if (!of_property_read_u32(node, "ti,datarate", &pval)) {
 			data_rate = pval;
 			if (data_rate > 7) {
@@ -898,17 +988,33 @@ static int ads1015_get_channels_config_of(struct i2c_client *client)
 					"invalid data_rate on %pOF\n",
 					node);
 				of_node_put(node);
+=======
+		if (!fwnode_property_read_u32(node, "ti,datarate", &pval)) {
+			data_rate = pval;
+			if (data_rate > 7) {
+				dev_err(dev, "invalid data_rate on %pfw\n", node);
+				fwnode_handle_put(node);
+>>>>>>> upstream/android-13
 				return -EINVAL;
 			}
 		}
 
 		data->channel_data[channel].pga = pga;
 		data->channel_data[channel].data_rate = data_rate;
+<<<<<<< HEAD
 	}
 
 	return 0;
 }
 #endif
+=======
+
+		i++;
+	}
+
+	return i < 0 ? -EINVAL : 0;
+}
+>>>>>>> upstream/android-13
 
 static void ads1015_get_channels_config(struct i2c_client *client)
 {
@@ -916,6 +1022,7 @@ static void ads1015_get_channels_config(struct i2c_client *client)
 
 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
 	struct ads1015_data *data = iio_priv(indio_dev);
+<<<<<<< HEAD
 	struct ads1015_platform_data *pdata = dev_get_platdata(&client->dev);
 
 	/* prefer platform data */
@@ -929,6 +1036,12 @@ static void ads1015_get_channels_config(struct i2c_client *client)
 	if (!ads1015_get_channels_config_of(client))
 		return;
 #endif
+=======
+
+	if (!ads1015_client_get_channels_config(client))
+		return;
+
+>>>>>>> upstream/android-13
 	/* fallback on default configuration */
 	for (k = 0; k < ADS1015_CHANNELS; ++k) {
 		data->channel_data[k].pga = ADS1015_DEFAULT_PGA;
@@ -961,6 +1074,7 @@ static int ads1015_probe(struct i2c_client *client,
 
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
 	indio_dev->dev.of_node = client->dev.of_node;
 	indio_dev->name = ADS1015_DRV_NAME;
@@ -969,6 +1083,13 @@ static int ads1015_probe(struct i2c_client *client,
 	if (client->dev.of_node)
 		chip = (enum chip_ids)of_device_get_match_data(&client->dev);
 	else
+=======
+	indio_dev->name = ADS1015_DRV_NAME;
+	indio_dev->modes = INDIO_DIRECT_MODE;
+
+	chip = (enum chip_ids)device_get_match_data(&client->dev);
+	if (chip == ADSXXXX)
+>>>>>>> upstream/android-13
 		chip = id->driver_data;
 	switch (chip) {
 	case ADS1015:
@@ -983,6 +1104,12 @@ static int ads1015_probe(struct i2c_client *client,
 		indio_dev->info = &ads1115_info;
 		data->data_rate = (unsigned int *) &ads1115_data_rate;
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		dev_err(&client->dev, "Unknown chip %d\n", chip);
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	data->event_channel = ADS1015_CHANNELS;
@@ -1080,7 +1207,10 @@ static int ads1015_remove(struct i2c_client *client)
 
 	pm_runtime_disable(&client->dev);
 	pm_runtime_set_suspended(&client->dev);
+<<<<<<< HEAD
 	pm_runtime_put_noidle(&client->dev);
+=======
+>>>>>>> upstream/android-13
 
 	/* power down single shot mode */
 	return ads1015_set_conv_mode(data, ADS1015_SINGLESHOT);

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * alternative runtime patching
  * inspired by the x86 version
  *
  * Copyright (C) 2014 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "alternatives: " fmt
@@ -28,21 +35,47 @@
 #include <asm/sections.h>
 #include <linux/stop_machine.h>
 
+<<<<<<< HEAD
 #define __ALT_PTR(a,f)		((void *)&(a)->f + (a)->f)
 #define ALT_ORIG_PTR(a)		__ALT_PTR(a, orig_offset)
 #define ALT_REPL_PTR(a)		__ALT_PTR(a, alt_offset)
 
 int alternatives_applied;
+=======
+#define __ALT_PTR(a, f)		((void *)&(a)->f + (a)->f)
+#define ALT_ORIG_PTR(a)		__ALT_PTR(a, orig_offset)
+#define ALT_REPL_PTR(a)		__ALT_PTR(a, alt_offset)
+
+/* Volatile, as we may be patching the guts of READ_ONCE() */
+static volatile int all_alternatives_applied;
+
+static DECLARE_BITMAP(applied_alternatives, ARM64_NCAPS);
+>>>>>>> upstream/android-13
 
 struct alt_region {
 	struct alt_instr *begin;
 	struct alt_instr *end;
 };
 
+<<<<<<< HEAD
 /*
  * Check if the target PC is within an alternative block.
  */
 static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+=======
+bool alternative_is_applied(u16 cpufeature)
+{
+	if (WARN_ON(cpufeature >= ARM64_NCAPS))
+		return false;
+
+	return test_bit(cpufeature, applied_alternatives);
+}
+
+/*
+ * Check if the target PC is within an alternative block.
+ */
+static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+>>>>>>> upstream/android-13
 {
 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
@@ -50,7 +83,11 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
 
 #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
 
+<<<<<<< HEAD
 static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
+=======
+static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
+>>>>>>> upstream/android-13
 {
 	u32 insn;
 
@@ -95,7 +132,11 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
 	return insn;
 }
 
+<<<<<<< HEAD
 static void patch_alternative(struct alt_instr *alt,
+=======
+static noinstr void patch_alternative(struct alt_instr *alt,
+>>>>>>> upstream/android-13
 			      __le32 *origptr, __le32 *updptr, int nr_inst)
 {
 	__le32 *replptr;
@@ -133,16 +174,29 @@ static void clean_dcache_range_nopatch(u64 start, u64 end)
 	} while (cur += d_size, cur < end);
 }
 
+<<<<<<< HEAD
 static void __nocfi __apply_alternatives(void *alt_region, bool is_module)
 {
 	struct alt_instr *alt;
 	struct alt_region *region = alt_region;
+=======
+static void __nocfi __apply_alternatives(struct alt_region *region, bool is_module,
+				 unsigned long *feature_mask)
+{
+	struct alt_instr *alt;
+>>>>>>> upstream/android-13
 	__le32 *origptr, *updptr;
 	alternative_cb_t alt_cb;
 
 	for (alt = region->begin; alt < region->end; alt++) {
 		int nr_inst;
 
+<<<<<<< HEAD
+=======
+		if (!test_bit(alt->cpufeature, feature_mask))
+			continue;
+
+>>>>>>> upstream/android-13
 		/* Use ARM64_CB_PATCH as an unconditional patch */
 		if (alt->cpufeature < ARM64_CB_PATCH &&
 		    !cpus_have_cap(alt->cpufeature))
@@ -178,8 +232,19 @@ static void __nocfi __apply_alternatives(void *alt_region, bool is_module)
 	 */
 	if (!is_module) {
 		dsb(ish);
+<<<<<<< HEAD
 		__flush_icache_all();
 		isb();
+=======
+		icache_inval_all_pou();
+		isb();
+
+		/* Ignore ARM64_CB bit from feature mask */
+		bitmap_or(applied_alternatives, applied_alternatives,
+			  feature_mask, ARM64_NCAPS);
+		bitmap_and(applied_alternatives, applied_alternatives,
+			   cpu_hwcaps, ARM64_NCAPS);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -196,6 +261,7 @@ static int __apply_alternatives_multi_stop(void *unused)
 
 	/* We always have a CPU 0 at this point (__init) */
 	if (smp_processor_id()) {
+<<<<<<< HEAD
 		while (!READ_ONCE(alternatives_applied))
 			cpu_relax();
 		isb();
@@ -204,6 +270,21 @@ static int __apply_alternatives_multi_stop(void *unused)
 		__apply_alternatives(&region, false);
 		/* Barriers provided by the cache flushing */
 		WRITE_ONCE(alternatives_applied, 1);
+=======
+		while (!all_alternatives_applied)
+			cpu_relax();
+		isb();
+	} else {
+		DECLARE_BITMAP(remaining_capabilities, ARM64_NPATCHABLE);
+
+		bitmap_complement(remaining_capabilities, boot_capabilities,
+				  ARM64_NPATCHABLE);
+
+		BUG_ON(all_alternatives_applied);
+		__apply_alternatives(&region, false, remaining_capabilities);
+		/* Barriers provided by the cache flushing */
+		all_alternatives_applied = 1;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -215,6 +296,27 @@ void __init apply_alternatives_all(void)
 	stop_machine(__apply_alternatives_multi_stop, NULL, cpu_online_mask);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * This is called very early in the boot process (directly after we run
+ * a feature detect on the boot CPU). No need to worry about other CPUs
+ * here.
+ */
+void __init apply_boot_alternatives(void)
+{
+	struct alt_region region = {
+		.begin	= (struct alt_instr *)__alt_instructions,
+		.end	= (struct alt_instr *)__alt_instructions_end,
+	};
+
+	/* If called on non-boot cpu things could go wrong */
+	WARN_ON(smp_processor_id() != 0);
+
+	__apply_alternatives(&region, false, &boot_capabilities[0]);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MODULES
 void apply_alternatives_module(void *start, size_t length)
 {
@@ -222,7 +324,15 @@ void apply_alternatives_module(void *start, size_t length)
 		.begin	= start,
 		.end	= start + length,
 	};
+<<<<<<< HEAD
 
 	__apply_alternatives(&region, true);
+=======
+	DECLARE_BITMAP(all_capabilities, ARM64_NPATCHABLE);
+
+	bitmap_fill(all_capabilities, ARM64_NPATCHABLE);
+
+	__apply_alternatives(&region, true, &all_capabilities[0]);
+>>>>>>> upstream/android-13
 }
 #endif

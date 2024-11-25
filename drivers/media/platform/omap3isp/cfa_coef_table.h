@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * cfa_coef_table.h
  *
@@ -7,10 +11,13 @@
  *
  * Contacts: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	     Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 { 244, 0, 247,   0,  12,  27,  36, 247, 250,   0,  27,   0,   4, 250,  12, 244,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * This interface is used for compatibility with old U-boots *ONLY*.
  * Please do not imitate or extend this.
@@ -6,6 +10,7 @@
 /*
  * (C) Copyright 2000, 2001
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PPCBOOT_H__

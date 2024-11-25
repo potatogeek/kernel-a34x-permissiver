@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016,2017 IBM Corporation.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016,2017 IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "xive: " fmt
@@ -24,6 +30,10 @@
 #include <linux/mm.h>
 #include <linux/kmemleak.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/machdep.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/io.h>
 #include <asm/smp.h>
@@ -44,6 +54,10 @@ static u32 xive_queue_shift;
 static u32 xive_pool_vps = XIVE_INVALID_VP;
 static struct kmem_cache *xive_provision_cache;
 static bool xive_has_single_esc;
+<<<<<<< HEAD
+=======
+static bool xive_has_save_restore;
+>>>>>>> upstream/android-13
 
 int xive_native_populate_irq_data(u32 hw_irq, struct xive_irq_data *data)
 {
@@ -67,12 +81,15 @@ int xive_native_populate_irq_data(u32 hw_irq, struct xive_irq_data *data)
 		data->flags |= XIVE_IRQ_FLAG_STORE_EOI;
 	if (opal_flags & OPAL_XIVE_IRQ_LSI)
 		data->flags |= XIVE_IRQ_FLAG_LSI;
+<<<<<<< HEAD
 	if (opal_flags & OPAL_XIVE_IRQ_SHIFT_BUG)
 		data->flags |= XIVE_IRQ_FLAG_SHIFT_BUG;
 	if (opal_flags & OPAL_XIVE_IRQ_MASK_VIA_FW)
 		data->flags |= XIVE_IRQ_FLAG_MASK_FW;
 	if (opal_flags & OPAL_XIVE_IRQ_EOI_VIA_FW)
 		data->flags |= XIVE_IRQ_FLAG_EOI_FW;
+=======
+>>>>>>> upstream/android-13
 	data->eoi_page = be64_to_cpu(eoi_page);
 	data->trig_page = be64_to_cpu(trig_page);
 	data->esb_shift = be32_to_cpu(esb_shift);
@@ -116,6 +133,25 @@ int xive_native_configure_irq(u32 hw_irq, u32 target, u8 prio, u32 sw_irq)
 }
 EXPORT_SYMBOL_GPL(xive_native_configure_irq);
 
+<<<<<<< HEAD
+=======
+static int xive_native_get_irq_config(u32 hw_irq, u32 *target, u8 *prio,
+				      u32 *sw_irq)
+{
+	s64 rc;
+	__be64 vp;
+	__be32 lirq;
+
+	rc = opal_xive_get_irq_config(hw_irq, &vp, prio, &lirq);
+
+	*target = be64_to_cpu(vp);
+	*sw_irq = be32_to_cpu(lirq);
+
+	return rc == 0 ? 0 : -ENXIO;
+}
+
+#define vp_err(vp, fmt, ...) pr_err("VP[0x%x]: " fmt, vp, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 /* This can be called multiple time to change a queue configuration */
 int xive_native_configure_queue(u32 vp_id, struct xive_q *q, u8 prio,
@@ -144,7 +180,11 @@ int xive_native_configure_queue(u32 vp_id, struct xive_q *q, u8 prio,
 				      &esc_irq_be,
 				      NULL);
 	if (rc) {
+<<<<<<< HEAD
 		pr_err("Error %lld getting queue info prio %d\n", rc, prio);
+=======
+		vp_err(vp_id, "Failed to get queue %d info : %lld\n", prio, rc);
+>>>>>>> upstream/android-13
 		rc = -EIO;
 		goto fail;
 	}
@@ -167,7 +207,11 @@ int xive_native_configure_queue(u32 vp_id, struct xive_q *q, u8 prio,
 		msleep(OPAL_BUSY_DELAY_MS);
 	}
 	if (rc) {
+<<<<<<< HEAD
 		pr_err("Error %lld setting queue for prio %d\n", rc, prio);
+=======
+		vp_err(vp_id, "Failed to set queue %d info: %lld\n", prio, rc);
+>>>>>>> upstream/android-13
 		rc = -EIO;
 	} else {
 		/*
@@ -194,7 +238,11 @@ static void __xive_native_disable_queue(u32 vp_id, struct xive_q *q, u8 prio)
 		msleep(OPAL_BUSY_DELAY_MS);
 	}
 	if (rc)
+<<<<<<< HEAD
 		pr_err("Error %lld disabling queue for prio %d\n", rc, prio);
+=======
+		vp_err(vp_id, "Failed to disable queue %d : %lld\n", prio, rc);
+>>>>>>> upstream/android-13
 }
 
 void xive_native_disable_queue(u32 vp_id, struct xive_q *q, u8 prio)
@@ -250,6 +298,7 @@ static s64 opal_xive_allocate_irq(u32 chip_id)
 #ifdef CONFIG_SMP
 static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
 {
+<<<<<<< HEAD
 	struct device_node *np;
 	unsigned int chip_id;
 	s64 irq;
@@ -264,6 +313,13 @@ static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
 	/* Allocate an IPI and populate info about it */
 	for (;;) {
 		irq = opal_xive_allocate_irq(chip_id);
+=======
+	s64 irq;
+
+	/* Allocate an IPI and populate info about it */
+	for (;;) {
+		irq = opal_xive_allocate_irq(xc->chip_id);
+>>>>>>> upstream/android-13
 		if (irq == OPAL_BUSY) {
 			msleep(OPAL_BUSY_DELAY_MS);
 			continue;
@@ -279,12 +335,20 @@ static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
 }
 #endif /* CONFIG_SMP */
 
+<<<<<<< HEAD
 u32 xive_native_alloc_irq(void)
+=======
+u32 xive_native_alloc_irq_on_chip(u32 chip_id)
+>>>>>>> upstream/android-13
 {
 	s64 rc;
 
 	for (;;) {
+<<<<<<< HEAD
 		rc = opal_xive_allocate_irq(OPAL_XIVE_ANY_CHIP);
+=======
+		rc = opal_xive_allocate_irq(chip_id);
+>>>>>>> upstream/android-13
 		if (rc != OPAL_BUSY)
 			break;
 		msleep(OPAL_BUSY_DELAY_MS);
@@ -293,7 +357,11 @@ u32 xive_native_alloc_irq(void)
 		return 0;
 	return rc;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(xive_native_alloc_irq);
+=======
+EXPORT_SYMBOL_GPL(xive_native_alloc_irq_on_chip);
+>>>>>>> upstream/android-13
 
 void xive_native_free_irq(u32 irq)
 {
@@ -382,6 +450,7 @@ static void xive_native_update_pending(struct xive_cpu *xc)
 	}
 }
 
+<<<<<<< HEAD
 static void xive_native_eoi(u32 hw_irq)
 {
 	/*
@@ -389,6 +458,11 @@ static void xive_native_eoi(u32 hw_irq)
 	 * a workaround on EOI.
 	 */
 	opal_int_eoi(hw_irq);
+=======
+static void xive_native_prepare_cpu(unsigned int cpu, struct xive_cpu *xc)
+{
+	xc->chip_id = cpu_to_chip_id(cpu);
+>>>>>>> upstream/android-13
 }
 
 static void xive_native_setup_cpu(unsigned int cpu, struct xive_cpu *xc)
@@ -458,15 +532,32 @@ void xive_native_sync_source(u32 hw_irq)
 }
 EXPORT_SYMBOL_GPL(xive_native_sync_source);
 
+<<<<<<< HEAD
 static const struct xive_ops xive_native_ops = {
 	.populate_irq_data	= xive_native_populate_irq_data,
 	.configure_irq		= xive_native_configure_irq,
+=======
+void xive_native_sync_queue(u32 hw_irq)
+{
+	opal_xive_sync(XIVE_SYNC_QUEUE, hw_irq);
+}
+EXPORT_SYMBOL_GPL(xive_native_sync_queue);
+
+static const struct xive_ops xive_native_ops = {
+	.populate_irq_data	= xive_native_populate_irq_data,
+	.configure_irq		= xive_native_configure_irq,
+	.get_irq_config		= xive_native_get_irq_config,
+>>>>>>> upstream/android-13
 	.setup_queue		= xive_native_setup_queue,
 	.cleanup_queue		= xive_native_cleanup_queue,
 	.match			= xive_native_match,
 	.shutdown		= xive_native_shutdown,
 	.update_pending		= xive_native_update_pending,
+<<<<<<< HEAD
 	.eoi			= xive_native_eoi,
+=======
+	.prepare_cpu		= xive_native_prepare_cpu,
+>>>>>>> upstream/android-13
 	.setup_cpu		= xive_native_setup_cpu,
 	.teardown_cpu		= xive_native_teardown_cpu,
 	.sync_source		= xive_native_sync_source,
@@ -536,6 +627,12 @@ u32 xive_native_default_eq_shift(void)
 }
 EXPORT_SYMBOL_GPL(xive_native_default_eq_shift);
 
+<<<<<<< HEAD
+=======
+unsigned long xive_tima_os;
+EXPORT_SYMBOL_GPL(xive_tima_os);
+
+>>>>>>> upstream/android-13
 bool __init xive_native_init(void)
 {
 	struct device_node *np;
@@ -584,10 +681,27 @@ bool __init xive_native_init(void)
 	if (of_get_property(np, "single-escalation-support", NULL) != NULL)
 		xive_has_single_esc = true;
 
+<<<<<<< HEAD
+=======
+	if (of_get_property(np, "vp-save-restore", NULL))
+		xive_has_save_restore = true;
+
+>>>>>>> upstream/android-13
 	/* Configure Thread Management areas for KVM */
 	for_each_possible_cpu(cpu)
 		kvmppc_set_xive_tima(cpu, r.start, tima);
 
+<<<<<<< HEAD
+=======
+	/* Resource 2 is OS window */
+	if (of_address_to_resource(np, 2, &r)) {
+		pr_err("Failed to get thread mgmnt area resource\n");
+		return false;
+	}
+
+	xive_tima_os = r.start;
+
+>>>>>>> upstream/android-13
 	/* Grab size of provisionning pages */
 	xive_parse_provisioning(np);
 
@@ -602,7 +716,11 @@ bool __init xive_native_init(void)
 	xive_native_setup_pools();
 
 	/* Initialize XIVE core with our backend */
+<<<<<<< HEAD
 	if (!xive_core_init(&xive_native_ops, tima, TM_QW3_HV_PHYS,
+=======
+	if (!xive_core_init(np, &xive_native_ops, tima, TM_QW3_HV_PHYS,
+>>>>>>> upstream/android-13
 			    max_prio)) {
 		opal_xive_reset(OPAL_XIVE_MODE_EMU);
 		return false;
@@ -694,6 +812,11 @@ int xive_native_enable_vp(u32 vp_id, bool single_escalation)
 			break;
 		msleep(OPAL_BUSY_DELAY_MS);
 	}
+<<<<<<< HEAD
+=======
+	if (rc)
+		vp_err(vp_id, "Failed to enable VP : %lld\n", rc);
+>>>>>>> upstream/android-13
 	return rc ? -EIO : 0;
 }
 EXPORT_SYMBOL_GPL(xive_native_enable_vp);
@@ -708,6 +831,11 @@ int xive_native_disable_vp(u32 vp_id)
 			break;
 		msleep(OPAL_BUSY_DELAY_MS);
 	}
+<<<<<<< HEAD
+=======
+	if (rc)
+		vp_err(vp_id, "Failed to disable VP : %lld\n", rc);
+>>>>>>> upstream/android-13
 	return rc ? -EIO : 0;
 }
 EXPORT_SYMBOL_GPL(xive_native_disable_vp);
@@ -719,8 +847,15 @@ int xive_native_get_vp_info(u32 vp_id, u32 *out_cam_id, u32 *out_chip_id)
 	s64 rc;
 
 	rc = opal_xive_get_vp_info(vp_id, NULL, &vp_cam_be, NULL, &vp_chip_id_be);
+<<<<<<< HEAD
 	if (rc)
 		return -EIO;
+=======
+	if (rc) {
+		vp_err(vp_id, "Failed to get VP info : %lld\n", rc);
+		return -EIO;
+	}
+>>>>>>> upstream/android-13
 	*out_cam_id = be64_to_cpu(vp_cam_be) & 0xffffffffu;
 	*out_chip_id = be32_to_cpu(vp_chip_id_be);
 
@@ -733,3 +868,110 @@ bool xive_native_has_single_escalation(void)
 	return xive_has_single_esc;
 }
 EXPORT_SYMBOL_GPL(xive_native_has_single_escalation);
+<<<<<<< HEAD
+=======
+
+bool xive_native_has_save_restore(void)
+{
+	return xive_has_save_restore;
+}
+EXPORT_SYMBOL_GPL(xive_native_has_save_restore);
+
+int xive_native_get_queue_info(u32 vp_id, u32 prio,
+			       u64 *out_qpage,
+			       u64 *out_qsize,
+			       u64 *out_qeoi_page,
+			       u32 *out_escalate_irq,
+			       u64 *out_qflags)
+{
+	__be64 qpage;
+	__be64 qsize;
+	__be64 qeoi_page;
+	__be32 escalate_irq;
+	__be64 qflags;
+	s64 rc;
+
+	rc = opal_xive_get_queue_info(vp_id, prio, &qpage, &qsize,
+				      &qeoi_page, &escalate_irq, &qflags);
+	if (rc) {
+		vp_err(vp_id, "failed to get queue %d info : %lld\n", prio, rc);
+		return -EIO;
+	}
+
+	if (out_qpage)
+		*out_qpage = be64_to_cpu(qpage);
+	if (out_qsize)
+		*out_qsize = be32_to_cpu(qsize);
+	if (out_qeoi_page)
+		*out_qeoi_page = be64_to_cpu(qeoi_page);
+	if (out_escalate_irq)
+		*out_escalate_irq = be32_to_cpu(escalate_irq);
+	if (out_qflags)
+		*out_qflags = be64_to_cpu(qflags);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(xive_native_get_queue_info);
+
+int xive_native_get_queue_state(u32 vp_id, u32 prio, u32 *qtoggle, u32 *qindex)
+{
+	__be32 opal_qtoggle;
+	__be32 opal_qindex;
+	s64 rc;
+
+	rc = opal_xive_get_queue_state(vp_id, prio, &opal_qtoggle,
+				       &opal_qindex);
+	if (rc) {
+		vp_err(vp_id, "failed to get queue %d state : %lld\n", prio, rc);
+		return -EIO;
+	}
+
+	if (qtoggle)
+		*qtoggle = be32_to_cpu(opal_qtoggle);
+	if (qindex)
+		*qindex = be32_to_cpu(opal_qindex);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(xive_native_get_queue_state);
+
+int xive_native_set_queue_state(u32 vp_id, u32 prio, u32 qtoggle, u32 qindex)
+{
+	s64 rc;
+
+	rc = opal_xive_set_queue_state(vp_id, prio, qtoggle, qindex);
+	if (rc) {
+		vp_err(vp_id, "failed to set queue %d state : %lld\n", prio, rc);
+		return -EIO;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(xive_native_set_queue_state);
+
+bool xive_native_has_queue_state_support(void)
+{
+	return opal_check_token(OPAL_XIVE_GET_QUEUE_STATE) &&
+		opal_check_token(OPAL_XIVE_SET_QUEUE_STATE);
+}
+EXPORT_SYMBOL_GPL(xive_native_has_queue_state_support);
+
+int xive_native_get_vp_state(u32 vp_id, u64 *out_state)
+{
+	__be64 state;
+	s64 rc;
+
+	rc = opal_xive_get_vp_state(vp_id, &state);
+	if (rc) {
+		vp_err(vp_id, "failed to get vp state : %lld\n", rc);
+		return -EIO;
+	}
+
+	if (out_state)
+		*out_state = be64_to_cpu(state);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(xive_native_get_vp_state);
+
+machine_arch_initcall(powernv, xive_core_debug_init);
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014 Mahesh Bandewar <maheshb@google.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -5,6 +6,10 @@
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Copyright (c) 2014 Mahesh Bandewar <maheshb@google.com>
+>>>>>>> upstream/android-13
  */
 
 #include "ipvlan.h"
@@ -138,7 +143,11 @@ bool ipvlan_addr_busy(struct ipvl_port *port, void *iaddr, bool is_v6)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void *ipvlan_get_L3_hdr(struct ipvl_port *port, struct sk_buff *skb, int *type)
+=======
+void *ipvlan_get_L3_hdr(struct ipvl_port *port, struct sk_buff *skb, int *type)
+>>>>>>> upstream/android-13
 {
 	void *lyr3h = NULL;
 
@@ -356,9 +365,14 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct ipvl_addr *ipvlan_addr_lookup(struct ipvl_port *port,
 					    void *lyr3h, int addr_type,
 					    bool use_dest)
+=======
+struct ipvl_addr *ipvlan_addr_lookup(struct ipvl_port *port, void *lyr3h,
+				     int addr_type, bool use_dest)
+>>>>>>> upstream/android-13
 {
 	struct ipvl_addr *addr = NULL;
 
@@ -650,13 +664,23 @@ int ipvlan_queue_xmit(struct sk_buff *skb, struct net_device *dev)
 	case IPVLAN_MODE_L2:
 		return ipvlan_xmit_mode_l2(skb, dev);
 	case IPVLAN_MODE_L3:
+<<<<<<< HEAD
 	case IPVLAN_MODE_L3S:
+=======
+#ifdef CONFIG_IPVLAN_L3S
+	case IPVLAN_MODE_L3S:
+#endif
+>>>>>>> upstream/android-13
 		return ipvlan_xmit_mode_l3(skb, dev);
 	}
 
 	/* Should not reach here */
+<<<<<<< HEAD
 	WARN_ONCE(true, "ipvlan_queue_xmit() called for mode = [%hx]\n",
 			  port->mode);
+=======
+	WARN_ONCE(true, "%s called for mode = [%x]\n", __func__, port->mode);
+>>>>>>> upstream/android-13
 out:
 	kfree_skb(skb);
 	return NET_XMIT_DROP;
@@ -746,6 +770,7 @@ rx_handler_result_t ipvlan_handle_frame(struct sk_buff **pskb)
 		return ipvlan_handle_mode_l2(pskb, port);
 	case IPVLAN_MODE_L3:
 		return ipvlan_handle_mode_l3(pskb, port);
+<<<<<<< HEAD
 	case IPVLAN_MODE_L3S:
 		return RX_HANDLER_PASS;
 	}
@@ -850,3 +875,16 @@ unsigned int ipvlan_nf_input(void *priv, struct sk_buff *skb,
 out:
 	return NF_ACCEPT;
 }
+=======
+#ifdef CONFIG_IPVLAN_L3S
+	case IPVLAN_MODE_L3S:
+		return RX_HANDLER_PASS;
+#endif
+	}
+
+	/* Should not reach here */
+	WARN_ONCE(true, "%s called for mode = [%x]\n", __func__, port->mode);
+	kfree_skb(skb);
+	return RX_HANDLER_CONSUMED;
+}
+>>>>>>> upstream/android-13

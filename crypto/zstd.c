@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
  * Copyright (c) 2017-present, Facebook, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/crypto.h>
 #include <linux/init.h>
@@ -145,7 +152,11 @@ static void __zstd_exit(void *ctx)
 static void zstd_free_ctx(struct crypto_scomp *tfm, void *ctx)
 {
 	__zstd_exit(ctx);
+<<<<<<< HEAD
 	kzfree(ctx);
+=======
+	kfree_sensitive(ctx);
+>>>>>>> upstream/android-13
 }
 
 static void zstd_exit(struct crypto_tfm *tfm)
@@ -214,6 +225,10 @@ static int zstd_sdecompress(struct crypto_scomp *tfm, const u8 *src,
 
 static struct crypto_alg alg = {
 	.cra_name		= "zstd",
+<<<<<<< HEAD
+=======
+	.cra_driver_name	= "zstd-generic",
+>>>>>>> upstream/android-13
 	.cra_flags		= CRYPTO_ALG_TYPE_COMPRESS,
 	.cra_ctxsize		= sizeof(struct zstd_ctx),
 	.cra_module		= THIS_MODULE,
@@ -257,7 +272,11 @@ static void __exit zstd_mod_fini(void)
 	crypto_unregister_scomp(&scomp);
 }
 
+<<<<<<< HEAD
 module_init(zstd_mod_init);
+=======
+subsys_initcall(zstd_mod_init);
+>>>>>>> upstream/android-13
 module_exit(zstd_mod_fini);
 
 MODULE_LICENSE("GPL");

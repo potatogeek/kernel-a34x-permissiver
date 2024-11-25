@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92C_PHY_COMMON_H__
 #define __RTL92C_PHY_COMMON_H__
@@ -44,9 +49,15 @@
 
 #define LOOP_LIMIT			5
 #define MAX_STALL_TIME			50
+<<<<<<< HEAD
 #define AntennaDiversityValue		0x80
 #define MAX_TXPWR_IDX_NMODE_92S		63
 #define Reset_Cnt_Limit			3
+=======
+#define ANTENNADIVERSITYVALUE		0x80
+#define MAX_TXPWR_IDX_NMODE_92S		63
+#define RESET_CNT_LIMIT			3
+>>>>>>> upstream/android-13
 
 #define IQK_ADDA_REG_NUM		16
 #define IQK_MAC_REG_NUM			4
@@ -242,7 +253,11 @@ void _rtl92c_phy_rf_serial_write(struct ieee80211_hw *hw,
 				 enum radio_path rfpath, u32 offset,
 				 u32 data);
 bool _rtl92c_phy_bb8192c_config_parafile(struct ieee80211_hw *hw);
+<<<<<<< HEAD
 void _rtl92c_store_pwrIndex_diffrate_offset(struct ieee80211_hw *hw,
+=======
+void _rtl92c_store_pwrindex_diffrate_offset(struct ieee80211_hw *hw,
+>>>>>>> upstream/android-13
 					    u32 regaddr, u32 bitmask,
 					    u32 data);
 bool rtl92c_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype);

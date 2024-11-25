@@ -21,12 +21,20 @@ static inline void edac_atomic_scrub(void *va, u32 size)
 		 */
 
 		__asm__ __volatile__ (
+<<<<<<< HEAD
+=======
+		"	.set	push					\n"
+>>>>>>> upstream/android-13
 		"	.set	mips2					\n"
 		"1:	ll	%0, %1		# edac_atomic_scrub	\n"
 		"	addu	%0, $0					\n"
 		"	sc	%0, %1					\n"
 		"	beqz	%0, 1b					\n"
+<<<<<<< HEAD
 		"	.set	mips0					\n"
+=======
+		"	.set	pop					\n"
+>>>>>>> upstream/android-13
 		: "=&r" (temp), "=" GCC_OFF_SMALL_ASM() (*virt_addr)
 		: GCC_OFF_SMALL_ASM() (*virt_addr));
 

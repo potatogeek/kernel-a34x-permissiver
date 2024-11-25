@@ -2,8 +2,13 @@
 #include "builtin.h"
 #include "perf.h"
 #include "color.h"
+<<<<<<< HEAD
 #include <linux/compiler.h>
 #include <tools/config.h>
+=======
+#include <tools/config.h>
+#include <stdbool.h>
+>>>>>>> upstream/android-13
 #include <stdio.h>
 #include <string.h>
 #include <subcmd/parse-options.h>
@@ -60,7 +65,10 @@ static void library_status(void)
 	STATUS(HAVE_DWARF_SUPPORT, dwarf);
 	STATUS(HAVE_DWARF_GETLOCATIONS_SUPPORT, dwarf_getlocations);
 	STATUS(HAVE_GLIBC_SUPPORT, glibc);
+<<<<<<< HEAD
 	STATUS(HAVE_GTK2_SUPPORT, gtk2);
+=======
+>>>>>>> upstream/android-13
 #ifndef HAVE_SYSCALL_TABLE_SUPPORT
 	STATUS(HAVE_LIBAUDIT_SUPPORT, libaudit);
 #endif
@@ -79,6 +87,12 @@ static void library_status(void)
 	STATUS(HAVE_LZMA_SUPPORT, lzma);
 	STATUS(HAVE_AUXTRACE_SUPPORT, get_cpuid);
 	STATUS(HAVE_LIBBPF_SUPPORT, bpf);
+<<<<<<< HEAD
+=======
+	STATUS(HAVE_AIO_SUPPORT, aio);
+	STATUS(HAVE_ZSTD_SUPPORT, zstd);
+	STATUS(HAVE_LIBPFM, libpfm4);
+>>>>>>> upstream/android-13
 }
 
 int cmd_version(int argc, const char **argv)

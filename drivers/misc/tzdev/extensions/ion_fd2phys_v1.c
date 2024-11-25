@@ -14,12 +14,22 @@
 #define pr_fmt(fmt) "IONFD2PHYS: " fmt
 /* #define DEBUG */
 
+<<<<<<< HEAD
 #include <linux/uaccess.h>
 #include <linux/device.h>
 #include <linux/dma-buf.h>
 #include <linux/ioctl.h>
 #include <linux/fs.h>
 #include <linux/init.h>
+=======
+#include <linux/compat.h>
+#include <linux/device.h>
+#include <linux/dma-buf.h>
+#include <linux/fs.h>
+#include <linux/init.h>
+#include <linux/ioctl.h>
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_ION_FD2PHYS_USE_ION_FROM_STAGING)
 #include "../../../staging/android/ion/ion.h"
@@ -194,7 +204,15 @@ static struct tz_cdev ionfd2phys_cdev = {
 static ssize_t system_heap_id_show(struct device *dev, struct device_attribute *attr,
 			char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", ION_HEAP_TYPE_SYSTEM);
+=======
+#if defined(CONFIG_DMABUF_HEAP_FD2PHYS)
+	return sprintf(buf, "%d\n", ION_HEAP_TYPE_CUSTOM);
+#else
+	return sprintf(buf, "%d\n", ION_HEAP_TYPE_SYSTEM);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(system_heap_id, S_IRUGO, system_heap_id_show, NULL);
@@ -202,7 +220,15 @@ static DEVICE_ATTR(system_heap_id, S_IRUGO, system_heap_id_show, NULL);
 static ssize_t ionfd2phys_id_show(struct device *dev, struct device_attribute *attr,
 			char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", 1);
+=======
+#if defined(CONFIG_DMABUF_HEAP_FD2PHYS)
+	return sprintf(buf, "%d\n", 2);
+#else
+	return sprintf(buf, "%d\n", 1);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(ionfd2phys_id, S_IRUGO, ionfd2phys_id_show, NULL);

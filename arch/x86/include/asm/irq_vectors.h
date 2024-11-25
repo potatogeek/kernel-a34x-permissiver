@@ -18,16 +18,26 @@
  *  Vectors   0 ...  31 : system traps and exceptions - hardcoded events
  *  Vectors  32 ... 127 : device interrupts
  *  Vector  128         : legacy int80 syscall interface
+<<<<<<< HEAD
  *  Vectors 129 ... INVALIDATE_TLB_VECTOR_START-1 except 204 : device interrupts
  *  Vectors INVALIDATE_TLB_VECTOR_START ... 255 : special interrupts
+=======
+ *  Vectors 129 ... LOCAL_TIMER_VECTOR-1
+ *  Vectors LOCAL_TIMER_VECTOR ... 255 : special interrupts
+>>>>>>> upstream/android-13
  *
  * 64-bit x86 has per CPU IDT tables, 32-bit has one shared IDT table.
  *
  * This file enumerates the exact layout of them:
  */
 
+<<<<<<< HEAD
 #define NMI_VECTOR			0x02
 #define MCE_VECTOR			0x12
+=======
+/* This is used as an interrupt vector when programming the APIC. */
+#define NMI_VECTOR			0x02
+>>>>>>> upstream/android-13
 
 /*
  * IDT vectors usable for external interrupt sources start at 0x20.
@@ -84,7 +94,11 @@
  */
 #define IRQ_WORK_VECTOR			0xf6
 
+<<<<<<< HEAD
 #define UV_BAU_MESSAGE			0xf5
+=======
+/* 0xf5 - unused, was UV_BAU_MESSAGE */
+>>>>>>> upstream/android-13
 #define DEFERRED_ERROR_VECTOR		0xf4
 
 /* Vector on which hypervisor callbacks will be delivered */
@@ -114,6 +128,12 @@
 #define FIRST_SYSTEM_VECTOR		NR_VECTORS
 #endif
 
+<<<<<<< HEAD
+=======
+#define NR_EXTERNAL_VECTORS		(FIRST_SYSTEM_VECTOR - FIRST_EXTERNAL_VECTOR)
+#define NR_SYSTEM_VECTORS		(NR_VECTORS - FIRST_SYSTEM_VECTOR)
+
+>>>>>>> upstream/android-13
 /*
  * Size the maximum number of interrupts.
  *

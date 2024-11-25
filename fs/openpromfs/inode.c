@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* inode.c: /proc/openprom handling routines
  *
  * Copyright (C) 1996-1999 Jakub Jelinek  (jakub@redhat.com)
@@ -8,6 +12,10 @@
 #include <linux/types.h>
 #include <linux/string.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/seq_file.h>
@@ -199,10 +207,18 @@ static struct dentry *openpromfs_lookup(struct inode *dir, struct dentry *dentry
 
 	child = dp->child;
 	while (child) {
+<<<<<<< HEAD
 		int n = strlen(child->path_component_name);
 
 		if (len == n &&
 		    !strncmp(child->path_component_name, name, len)) {
+=======
+		const char *node_name = kbasename(child->full_name);
+		int n = strlen(node_name);
+
+		if (len == n &&
+		    !strncmp(node_name, name, len)) {
+>>>>>>> upstream/android-13
 			ent_type = op_inode_node;
 			ent_data.node = child;
 			ino = child->unique_id;
@@ -233,6 +249,7 @@ found:
 	mutex_unlock(&op_mutex);
 	if (IS_ERR(inode))
 		return ERR_CAST(inode);
+<<<<<<< HEAD
 	ent_oi = OP_I(inode);
 	ent_oi->type = ent_type;
 	ent_oi->u = ent_data;
@@ -254,6 +271,33 @@ found:
 		set_nlink(inode, 1);
 		inode->i_size = ent_oi->u.prop->length;
 		break;
+=======
+	if (inode->i_state & I_NEW) {
+		inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+		ent_oi = OP_I(inode);
+		ent_oi->type = ent_type;
+		ent_oi->u = ent_data;
+
+		switch (ent_type) {
+		case op_inode_node:
+			inode->i_mode = S_IFDIR | S_IRUGO | S_IXUGO;
+			inode->i_op = &openprom_inode_operations;
+			inode->i_fop = &openprom_operations;
+			set_nlink(inode, 2);
+			break;
+		case op_inode_prop:
+			if (of_node_name_eq(dp, "options") && (len == 17) &&
+			    !strncmp (name, "security-password", 17))
+				inode->i_mode = S_IFREG | S_IRUSR | S_IWUSR;
+			else
+				inode->i_mode = S_IFREG | S_IRUGO;
+			inode->i_fop = &openpromfs_prop_ops;
+			set_nlink(inode, 1);
+			inode->i_size = ent_oi->u.prop->length;
+			break;
+		}
+		unlock_new_inode(inode);
+>>>>>>> upstream/android-13
 	}
 
 	return d_splice_alias(inode, dentry);
@@ -293,8 +337,13 @@ static int openpromfs_readdir(struct file *file, struct dir_context *ctx)
 	}
 	while (child) {
 		if (!dir_emit(ctx,
+<<<<<<< HEAD
 			    child->path_component_name,
 			    strlen(child->path_component_name),
+=======
+			    kbasename(child->full_name),
+			    strlen(kbasename(child->full_name)),
+>>>>>>> upstream/android-13
 			    child->unique_id, DT_DIR))
 			goto out;
 
@@ -335,6 +384,7 @@ static struct inode *openprom_alloc_inode(struct super_block *sb)
 	return &oi->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void openprom_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -362,6 +412,18 @@ static struct inode *openprom_iget(struct super_block *sb, ino_t ino)
 		}
 		unlock_new_inode(inode);
 	}
+=======
+static void openprom_free_inode(struct inode *inode)
+{
+	kmem_cache_free(op_inode_cachep, OP_I(inode));
+}
+
+static struct inode *openprom_iget(struct super_block *sb, ino_t ino)
+{
+	struct inode *inode = iget_locked(sb, ino);
+	if (!inode)
+		inode = ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 	return inode;
 }
 
@@ -374,12 +436,20 @@ static int openprom_remount(struct super_block *sb, int *flags, char *data)
 
 static const struct super_operations openprom_sops = {
 	.alloc_inode	= openprom_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= openprom_destroy_inode,
+=======
+	.free_inode	= openprom_free_inode,
+>>>>>>> upstream/android-13
 	.statfs		= simple_statfs,
 	.remount_fs	= openprom_remount,
 };
 
+<<<<<<< HEAD
 static int openprom_fill_super(struct super_block *s, void *data, int silent)
+=======
+static int openprom_fill_super(struct super_block *s, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	struct inode *root_inode;
 	struct op_inode_info *oi;
@@ -397,9 +467,21 @@ static int openprom_fill_super(struct super_block *s, void *data, int silent)
 		goto out_no_root;
 	}
 
+<<<<<<< HEAD
 	oi = OP_I(root_inode);
 	oi->type = op_inode_node;
 	oi->u.node = of_find_node_by_path("/");
+=======
+	root_inode->i_mtime = root_inode->i_atime =
+		root_inode->i_ctime = current_time(root_inode);
+	root_inode->i_op = &openprom_inode_operations;
+	root_inode->i_fop = &openprom_operations;
+	root_inode->i_mode = S_IFDIR | S_IRUGO | S_IXUGO;
+	oi = OP_I(root_inode);
+	oi->type = op_inode_node;
+	oi->u.node = of_find_node_by_path("/");
+	unlock_new_inode(root_inode);
+>>>>>>> upstream/android-13
 
 	s->s_root = d_make_root(root_inode);
 	if (!s->s_root)
@@ -413,16 +495,36 @@ out_no_root:
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct dentry *openprom_mount(struct file_system_type *fs_type,
 	int flags, const char *dev_name, void *data)
 {
 	return mount_single(fs_type, flags, data, openprom_fill_super);
+=======
+static int openpromfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, openprom_fill_super);
+}
+
+static const struct fs_context_operations openpromfs_context_ops = {
+	.get_tree	= openpromfs_get_tree,
+};
+
+static int openpromfs_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &openpromfs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type openprom_fs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "openpromfs",
+<<<<<<< HEAD
 	.mount		= openprom_mount,
+=======
+	.init_fs_context = openpromfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_anon_super,
 };
 MODULE_ALIAS_FS("openpromfs");

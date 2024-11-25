@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014, Sony Mobile Communications Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -9,6 +10,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2014, Sony Mobile Communications Inc.
+ *
+>>>>>>> upstream/android-13
  * This driver is for the multi-block Switch-Mode Battery Charger and Boost
  * (SMBB) hardware, found in Qualcomm PM8941 PMICs.  The charger is an
  * integrated, single-cell lithium-ion battery charger.
@@ -937,11 +943,16 @@ static int smbb_charger_probe(struct platform_device *pdev)
 		int irq;
 
 		irq = platform_get_irq_byname(pdev, smbb_charger_irqs[i].name);
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(&pdev->dev, "failed to get irq '%s'\n",
 				smbb_charger_irqs[i].name);
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 
 		smbb_charger_irqs[i].handler(irq, chg);
 

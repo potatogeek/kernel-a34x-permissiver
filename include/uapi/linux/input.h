@@ -25,6 +25,7 @@
  * application's request to use 64 bit time_t.
  */
 
+<<<<<<< HEAD
 /*
  * sec Log
  */
@@ -137,6 +138,8 @@
 #endif
 #endif
 
+=======
+>>>>>>> upstream/android-13
 struct input_event {
 #if (__BITS_PER_LONG != 32 || !defined(__USE_TIME_BITS64)) && !defined(__KERNEL__)
 	struct timeval time;
@@ -196,7 +199,11 @@ struct input_id {
  * in units per radian.
  * When INPUT_PROP_ACCELEROMETER is set the resolution changes.
  * The main axes (ABS_X, ABS_Y, ABS_Z) are then reported in
+<<<<<<< HEAD
  * in units per g (units/g) and in units per degree per second
+=======
+ * units per g (units/g) and in units per degree per second
+>>>>>>> upstream/android-13
  * (units/deg/s) for rotational axes (ABS_RX, ABS_RY, ABS_RZ).
  */
 struct input_absinfo {

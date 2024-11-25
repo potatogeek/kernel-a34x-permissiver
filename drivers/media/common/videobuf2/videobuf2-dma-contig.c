@@ -40,6 +40,11 @@ struct vb2_dc_buf {
 
 	/* DMABUF related */
 	struct dma_buf_attachment	*db_attach;
+<<<<<<< HEAD
+=======
+
+	struct vb2_buffer		*vb;
+>>>>>>> upstream/android-13
 };
 
 /*********************************************/
@@ -53,10 +58,17 @@ static unsigned long vb2_dc_get_contiguous_size(struct sg_table *sgt)
 	unsigned int i;
 	unsigned long size = 0;
 
+<<<<<<< HEAD
 	for_each_sg(sgt->sgl, s, sgt->nents, i) {
 		if (sg_dma_address(s) != expected)
 			break;
 		expected = sg_dma_address(s) + sg_dma_len(s);
+=======
+	for_each_sgtable_dma_sg(sgt, s, i) {
+		if (sg_dma_address(s) != expected)
+			break;
+		expected += sg_dma_len(s);
+>>>>>>> upstream/android-13
 		size += sg_dma_len(s);
 	}
 	return size;
@@ -66,19 +78,36 @@ static unsigned long vb2_dc_get_contiguous_size(struct sg_table *sgt)
 /*         callbacks for all buffers         */
 /*********************************************/
 
+<<<<<<< HEAD
 static void *vb2_dc_cookie(void *buf_priv)
+=======
+static void *vb2_dc_cookie(struct vb2_buffer *vb, void *buf_priv)
+>>>>>>> upstream/android-13
 {
 	struct vb2_dc_buf *buf = buf_priv;
 
 	return &buf->dma_addr;
 }
 
+<<<<<<< HEAD
 static void *vb2_dc_vaddr(void *buf_priv)
 {
 	struct vb2_dc_buf *buf = buf_priv;
 
 	if (!buf->vaddr && buf->db_attach)
 		buf->vaddr = dma_buf_vmap(buf->db_attach->dmabuf);
+=======
+static void *vb2_dc_vaddr(struct vb2_buffer *vb, void *buf_priv)
+{
+	struct vb2_dc_buf *buf = buf_priv;
+	struct dma_buf_map map;
+	int ret;
+
+	if (!buf->vaddr && buf->db_attach) {
+		ret = dma_buf_vmap(buf->db_attach->dmabuf, &map);
+		buf->vaddr = ret ? NULL : map.vaddr;
+	}
+>>>>>>> upstream/android-13
 
 	return buf->vaddr;
 }
@@ -95,12 +124,19 @@ static void vb2_dc_prepare(void *buf_priv)
 	struct vb2_dc_buf *buf = buf_priv;
 	struct sg_table *sgt = buf->dma_sgt;
 
+<<<<<<< HEAD
 	/* DMABUF exporter will flush the cache for us */
 	if (!sgt || buf->db_attach)
 		return;
 
 	dma_sync_sg_for_device(buf->dev, sgt->sgl, sgt->orig_nents,
 			       buf->dma_dir);
+=======
+	if (!sgt)
+		return;
+
+	dma_sync_sgtable_for_device(buf->dev, sgt, buf->dma_dir);
+>>>>>>> upstream/android-13
 }
 
 static void vb2_dc_finish(void *buf_priv)
@@ -108,11 +144,18 @@ static void vb2_dc_finish(void *buf_priv)
 	struct vb2_dc_buf *buf = buf_priv;
 	struct sg_table *sgt = buf->dma_sgt;
 
+<<<<<<< HEAD
 	/* DMABUF exporter will flush the cache for us */
 	if (!sgt || buf->db_attach)
 		return;
 
 	dma_sync_sg_for_cpu(buf->dev, sgt->sgl, sgt->orig_nents, buf->dma_dir);
+=======
+	if (!sgt)
+		return;
+
+	dma_sync_sgtable_for_cpu(buf->dev, sgt, buf->dma_dir);
+>>>>>>> upstream/android-13
 }
 
 /*********************************************/
@@ -136,9 +179,15 @@ static void vb2_dc_put(void *buf_priv)
 	kfree(buf);
 }
 
+<<<<<<< HEAD
 static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
 			  unsigned long size, enum dma_data_direction dma_dir,
 			  gfp_t gfp_flags)
+=======
+static void *vb2_dc_alloc(struct vb2_buffer *vb,
+			  struct device *dev,
+			  unsigned long size)
+>>>>>>> upstream/android-13
 {
 	struct vb2_dc_buf *buf;
 
@@ -149,12 +198,21 @@ static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
 	if (!buf)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	if (attrs)
 		buf->attrs = attrs;
 	buf->cookie = dma_alloc_attrs(dev, size, &buf->dma_addr,
 					GFP_KERNEL | gfp_flags, buf->attrs);
 	if (!buf->cookie) {
 		dev_err(dev, "dma_alloc_coherent of size %ld failed\n", size);
+=======
+	buf->attrs = vb->vb2_queue->dma_attrs;
+	buf->cookie = dma_alloc_attrs(dev, size, &buf->dma_addr,
+				      GFP_KERNEL | vb->vb2_queue->gfp_flags,
+				      buf->attrs);
+	if (!buf->cookie) {
+		dev_err(dev, "dma_alloc_coherent of size %lu failed\n", size);
+>>>>>>> upstream/android-13
 		kfree(buf);
 		return ERR_PTR(-ENOMEM);
 	}
@@ -165,11 +223,19 @@ static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
 	/* Prevent the device from being released while the buffer is used */
 	buf->dev = get_device(dev);
 	buf->size = size;
+<<<<<<< HEAD
 	buf->dma_dir = dma_dir;
+=======
+	buf->dma_dir = vb->vb2_queue->dma_dir;
+>>>>>>> upstream/android-13
 
 	buf->handler.refcount = &buf->refcount;
 	buf->handler.put = vb2_dc_put;
 	buf->handler.arg = buf;
+<<<<<<< HEAD
+=======
+	buf->vb = vb;
+>>>>>>> upstream/android-13
 
 	refcount_set(&buf->refcount, 1);
 
@@ -186,12 +252,15 @@ static int vb2_dc_mmap(void *buf_priv, struct vm_area_struct *vma)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * dma_mmap_* uses vm_pgoff as in-buffer offset, but we want to
 	 * map whole buffer
 	 */
 	vma->vm_pgoff = 0;
 
+=======
+>>>>>>> upstream/android-13
 	ret = dma_mmap_attrs(buf->dev, vma, buf->cookie,
 		buf->dma_addr, buf->size, buf->attrs);
 
@@ -206,9 +275,15 @@ static int vb2_dc_mmap(void *buf_priv, struct vm_area_struct *vma)
 
 	vma->vm_ops->open(vma);
 
+<<<<<<< HEAD
 	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %ld\n",
 		__func__, (unsigned long)buf->dma_addr, vma->vm_start,
 		buf->size);
+=======
+	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %lu\n",
+		 __func__, (unsigned long)buf->dma_addr, vma->vm_start,
+		 buf->size);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -273,8 +348,19 @@ static void vb2_dc_dmabuf_ops_detach(struct dma_buf *dbuf,
 
 	/* release the scatterlist cache */
 	if (attach->dma_dir != DMA_NONE)
+<<<<<<< HEAD
 		dma_unmap_sg(db_attach->dev, sgt->sgl, sgt->orig_nents,
 			attach->dma_dir);
+=======
+		/*
+		 * Cache sync can be skipped here, as the vb2_dc memory is
+		 * allocated from device coherent memory, which means the
+		 * memory locations do not require any explicit cache
+		 * maintenance prior or after being used by the device.
+		 */
+		dma_unmap_sgtable(db_attach->dev, sgt, attach->dma_dir,
+				  DMA_ATTR_SKIP_CPU_SYNC);
+>>>>>>> upstream/android-13
 	sg_free_table(sgt);
 	kfree(attach);
 	db_attach->priv = NULL;
@@ -299,6 +385,7 @@ static struct sg_table *vb2_dc_dmabuf_ops_map(
 
 	/* release any previous cache */
 	if (attach->dma_dir != DMA_NONE) {
+<<<<<<< HEAD
 		dma_unmap_sg(db_attach->dev, sgt->sgl, sgt->orig_nents,
 			attach->dma_dir);
 		attach->dma_dir = DMA_NONE;
@@ -308,6 +395,19 @@ static struct sg_table *vb2_dc_dmabuf_ops_map(
 	sgt->nents = dma_map_sg(db_attach->dev, sgt->sgl, sgt->orig_nents,
 				dma_dir);
 	if (!sgt->nents) {
+=======
+		dma_unmap_sgtable(db_attach->dev, sgt, attach->dma_dir,
+				  DMA_ATTR_SKIP_CPU_SYNC);
+		attach->dma_dir = DMA_NONE;
+	}
+
+	/*
+	 * mapping to the client with new direction, no cache sync
+	 * required see comment in vb2_dc_dmabuf_ops_detach()
+	 */
+	if (dma_map_sgtable(db_attach->dev, sgt, dma_dir,
+			    DMA_ATTR_SKIP_CPU_SYNC)) {
+>>>>>>> upstream/android-13
 		pr_err("failed to map scatterlist\n");
 		mutex_unlock(lock);
 		return ERR_PTR(-EIO);
@@ -332,6 +432,7 @@ static void vb2_dc_dmabuf_ops_release(struct dma_buf *dbuf)
 	vb2_dc_put(dbuf->priv);
 }
 
+<<<<<<< HEAD
 static void *vb2_dc_dmabuf_ops_kmap(struct dma_buf *dbuf, unsigned long pgnum)
 {
 	struct vb2_dc_buf *buf = dbuf->priv;
@@ -344,6 +445,29 @@ static void *vb2_dc_dmabuf_ops_vmap(struct dma_buf *dbuf)
 	struct vb2_dc_buf *buf = dbuf->priv;
 
 	return buf->vaddr;
+=======
+static int
+vb2_dc_dmabuf_ops_begin_cpu_access(struct dma_buf *dbuf,
+				   enum dma_data_direction direction)
+{
+	return 0;
+}
+
+static int
+vb2_dc_dmabuf_ops_end_cpu_access(struct dma_buf *dbuf,
+				 enum dma_data_direction direction)
+{
+	return 0;
+}
+
+static int vb2_dc_dmabuf_ops_vmap(struct dma_buf *dbuf, struct dma_buf_map *map)
+{
+	struct vb2_dc_buf *buf = dbuf->priv;
+
+	dma_buf_map_set_vaddr(map, buf->vaddr);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int vb2_dc_dmabuf_ops_mmap(struct dma_buf *dbuf,
@@ -357,7 +481,12 @@ static const struct dma_buf_ops vb2_dc_dmabuf_ops = {
 	.detach = vb2_dc_dmabuf_ops_detach,
 	.map_dma_buf = vb2_dc_dmabuf_ops_map,
 	.unmap_dma_buf = vb2_dc_dmabuf_ops_unmap,
+<<<<<<< HEAD
 	.map = vb2_dc_dmabuf_ops_kmap,
+=======
+	.begin_cpu_access = vb2_dc_dmabuf_ops_begin_cpu_access,
+	.end_cpu_access = vb2_dc_dmabuf_ops_end_cpu_access,
+>>>>>>> upstream/android-13
 	.vmap = vb2_dc_dmabuf_ops_vmap,
 	.mmap = vb2_dc_dmabuf_ops_mmap,
 	.release = vb2_dc_dmabuf_ops_release,
@@ -385,7 +514,13 @@ static struct sg_table *vb2_dc_get_base_sgt(struct vb2_dc_buf *buf)
 	return sgt;
 }
 
+<<<<<<< HEAD
 static struct dma_buf *vb2_dc_get_dmabuf(void *buf_priv, unsigned long flags)
+=======
+static struct dma_buf *vb2_dc_get_dmabuf(struct vb2_buffer *vb,
+					 void *buf_priv,
+					 unsigned long flags)
+>>>>>>> upstream/android-13
 {
 	struct vb2_dc_buf *buf = buf_priv;
 	struct dma_buf *dbuf;
@@ -428,8 +563,13 @@ static void vb2_dc_put_userptr(void *buf_priv)
 		 * No need to sync to CPU, it's already synced to the CPU
 		 * since the finish() memop will have been called before this.
 		 */
+<<<<<<< HEAD
 		dma_unmap_sg_attrs(buf->dev, sgt->sgl, sgt->orig_nents,
 				   buf->dma_dir, DMA_ATTR_SKIP_CPU_SYNC);
+=======
+		dma_unmap_sgtable(buf->dev, sgt, buf->dma_dir,
+				  DMA_ATTR_SKIP_CPU_SYNC);
+>>>>>>> upstream/android-13
 		pages = frame_vector_pages(buf->vec);
 		/* sgt should exist only if vector contains pages... */
 		BUG_ON(IS_ERR(pages));
@@ -439,11 +579,18 @@ static void vb2_dc_put_userptr(void *buf_priv)
 				set_page_dirty_lock(pages[i]);
 		sg_free_table(sgt);
 		kfree(sgt);
+<<<<<<< HEAD
+=======
+	} else {
+		dma_unmap_resource(buf->dev, buf->dma_addr, buf->size,
+				   buf->dma_dir, 0);
+>>>>>>> upstream/android-13
 	}
 	vb2_destroy_framevec(buf->vec);
 	kfree(buf);
 }
 
+<<<<<<< HEAD
 /*
  * For some kind of reserved memory there might be no struct page available,
  * so all that can be done to support such 'pages' is to try to convert
@@ -478,6 +625,10 @@ static inline dma_addr_t vb2_dc_pfn_to_dma(struct device *dev, unsigned long pfn
 static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
 	unsigned long size, enum dma_data_direction dma_dir,
 	unsigned long attrs)
+=======
+static void *vb2_dc_get_userptr(struct vb2_buffer *vb, struct device *dev,
+				unsigned long vaddr, unsigned long size)
+>>>>>>> upstream/android-13
 {
 	struct vb2_dc_buf *buf;
 	struct frame_vector *vec;
@@ -507,11 +658,19 @@ static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
 		return ERR_PTR(-ENOMEM);
 
 	buf->dev = dev;
+<<<<<<< HEAD
 	buf->dma_dir = dma_dir;
 
 	offset = lower_32_bits(offset_in_page(vaddr));
 	vec = vb2_create_framevec(vaddr, size, dma_dir == DMA_FROM_DEVICE ||
 					       dma_dir == DMA_BIDIRECTIONAL);
+=======
+	buf->dma_dir = vb->vb2_queue->dma_dir;
+	buf->vb = vb;
+
+	offset = lower_32_bits(offset_in_page(vaddr));
+	vec = vb2_create_framevec(vaddr, size);
+>>>>>>> upstream/android-13
 	if (IS_ERR(vec)) {
 		ret = PTR_ERR(vec);
 		goto fail_buf;
@@ -529,7 +688,16 @@ static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
 		for (i = 1; i < n_pages; i++)
 			if (nums[i-1] + 1 != nums[i])
 				goto fail_pfnvec;
+<<<<<<< HEAD
 		buf->dma_addr = vb2_dc_pfn_to_dma(buf->dev, nums[0]);
+=======
+		buf->dma_addr = dma_map_resource(buf->dev,
+				__pfn_to_phys(nums[0]), size, buf->dma_dir, 0);
+		if (dma_mapping_error(buf->dev, buf->dma_addr)) {
+			ret = -ENOMEM;
+			goto fail_pfnvec;
+		}
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -551,9 +719,14 @@ static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
 	 * No need to sync to the device, this will happen later when the
 	 * prepare() memop is called.
 	 */
+<<<<<<< HEAD
 	sgt->nents = dma_map_sg_attrs(buf->dev, sgt->sgl, sgt->orig_nents,
 				      buf->dma_dir, DMA_ATTR_SKIP_CPU_SYNC);
 	if (sgt->nents <= 0) {
+=======
+	if (dma_map_sgtable(buf->dev, sgt, buf->dma_dir,
+			    DMA_ATTR_SKIP_CPU_SYNC)) {
+>>>>>>> upstream/android-13
 		pr_err("failed to map scatterlist\n");
 		ret = -EIO;
 		goto fail_sgt_init;
@@ -575,8 +748,12 @@ out:
 	return buf;
 
 fail_map_sg:
+<<<<<<< HEAD
 	dma_unmap_sg_attrs(buf->dev, sgt->sgl, sgt->orig_nents,
 			   buf->dma_dir, DMA_ATTR_SKIP_CPU_SYNC);
+=======
+	dma_unmap_sgtable(buf->dev, sgt, buf->dma_dir, DMA_ATTR_SKIP_CPU_SYNC);
+>>>>>>> upstream/android-13
 
 fail_sgt_init:
 	sg_free_table(sgt);
@@ -623,6 +800,7 @@ static int vb2_dc_map_dmabuf(void *mem_priv)
 	/* checking if dmabuf is big enough to store contiguous chunk */
 	contig_size = vb2_dc_get_contiguous_size(sgt);
 	if (contig_size < buf->size) {
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_IOMMU_V2
 		pr_err("contiguous chunk is too small %lu/%lu b\n",
 			contig_size, buf->size);
@@ -631,6 +809,12 @@ static int vb2_dc_map_dmabuf(void *mem_priv)
 #ifdef CONFIG_MTK_IOMMU_V2
 		return -EFAULT;
 #endif
+=======
+		pr_err("contiguous chunk is too small %lu/%lu\n",
+		       contig_size, buf->size);
+		dma_buf_unmap_attachment(buf->db_attach, sgt, buf->dma_dir);
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	}
 
 	buf->dma_addr = sg_dma_address(sgt->sgl);
@@ -644,6 +828,10 @@ static void vb2_dc_unmap_dmabuf(void *mem_priv)
 {
 	struct vb2_dc_buf *buf = mem_priv;
 	struct sg_table *sgt = buf->dma_sgt;
+<<<<<<< HEAD
+=======
+	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(buf->vaddr);
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(!buf->db_attach)) {
 		pr_err("trying to unpin a not attached buffer\n");
@@ -656,7 +844,11 @@ static void vb2_dc_unmap_dmabuf(void *mem_priv)
 	}
 
 	if (buf->vaddr) {
+<<<<<<< HEAD
 		dma_buf_vunmap(buf->db_attach->dmabuf, buf->vaddr);
+=======
+		dma_buf_vunmap(buf->db_attach->dmabuf, &map);
+>>>>>>> upstream/android-13
 		buf->vaddr = NULL;
 	}
 	dma_buf_unmap_attachment(buf->db_attach, sgt, buf->dma_dir);
@@ -678,8 +870,13 @@ static void vb2_dc_detach_dmabuf(void *mem_priv)
 	kfree(buf);
 }
 
+<<<<<<< HEAD
 static void *vb2_dc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
 	unsigned long size, enum dma_data_direction dma_dir)
+=======
+static void *vb2_dc_attach_dmabuf(struct vb2_buffer *vb, struct device *dev,
+				  struct dma_buf *dbuf, unsigned long size)
+>>>>>>> upstream/android-13
 {
 	struct vb2_dc_buf *buf;
 	struct dma_buf_attachment *dba;
@@ -695,6 +892,11 @@ static void *vb2_dc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
 		return ERR_PTR(-ENOMEM);
 
 	buf->dev = dev;
+<<<<<<< HEAD
+=======
+	buf->vb = vb;
+
+>>>>>>> upstream/android-13
 	/* create attachment for the dmabuf with the user device */
 	dba = dma_buf_attach(dbuf, buf->dev);
 	if (IS_ERR(dba)) {
@@ -703,7 +905,11 @@ static void *vb2_dc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
 		return dba;
 	}
 
+<<<<<<< HEAD
 	buf->dma_dir = dma_dir;
+=======
+	buf->dma_dir = vb->vb2_queue->dma_dir;
+>>>>>>> upstream/android-13
 	buf->size = size;
 	buf->db_attach = dba;
 
@@ -760,9 +966,14 @@ EXPORT_SYMBOL_GPL(vb2_dma_contig_memops);
 int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size)
 {
 	if (!dev->dma_parms) {
+<<<<<<< HEAD
 		dev->dma_parms = kzalloc(sizeof(*dev->dma_parms), GFP_KERNEL);
 		if (!dev->dma_parms)
 			return -ENOMEM;
+=======
+		dev_err(dev, "Failed to set max_seg_size: dma_parms is NULL\n");
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 	if (dma_get_max_seg_size(dev) < size)
 		return dma_set_max_seg_size(dev, size);
@@ -771,6 +982,7 @@ int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size)
 }
 EXPORT_SYMBOL_GPL(vb2_dma_contig_set_max_seg_size);
 
+<<<<<<< HEAD
 /*
  * vb2_dma_contig_clear_max_seg_size() - release resources for DMA parameters
  * @dev:	device for configuring DMA parameters
@@ -786,6 +998,8 @@ void vb2_dma_contig_clear_max_seg_size(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(vb2_dma_contig_clear_max_seg_size);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("DMA-contig memory handling routines for videobuf2");
 MODULE_AUTHOR("Pawel Osciak <pawel@osciak.com>");
 MODULE_LICENSE("GPL");

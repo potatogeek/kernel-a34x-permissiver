@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Marvell Armada XP SoC clocks
  *
@@ -7,9 +11,12 @@
  * Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
  * Andrew Lunn <andrew@lunn.ch>
  *
+<<<<<<< HEAD
  * This file is licensed under the terms of the GNU General Public
  * License version 2.  This program is licensed "as is" without any
  * warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -52,12 +59,15 @@ static u32 __init axp_get_tclk_freq(void __iomem *sar)
 	return 250000000;
 }
 
+<<<<<<< HEAD
 /* MV98DX3236 TCLK frequency is fixed to 200MHz */
 static u32 __init mv98dx3236_get_tclk_freq(void __iomem *sar)
 {
 	return 200000000;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const u32 axp_cpu_freqs[] __initconst = {
 	1000000000,
 	1066000000,
@@ -95,12 +105,15 @@ static u32 __init axp_get_cpu_freq(void __iomem *sar)
 	return cpu_freq;
 }
 
+<<<<<<< HEAD
 /* MV98DX3236 CLK frequency is fixed to 800MHz */
 static u32 __init mv98dx3236_get_cpu_freq(void __iomem *sar)
 {
 	return 800000000;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const int axp_nbclk_ratios[32][2] __initconst = {
 	{0, 1}, {1, 2}, {2, 2}, {2, 2},
 	{1, 2}, {1, 2}, {1, 1}, {2, 3},
@@ -170,11 +183,14 @@ static const struct coreclk_soc_desc axp_coreclks = {
 	.num_ratios = ARRAY_SIZE(axp_coreclk_ratios),
 };
 
+<<<<<<< HEAD
 static const struct coreclk_soc_desc mv98dx3236_coreclks = {
 	.get_tclk_freq = mv98dx3236_get_tclk_freq,
 	.get_cpu_freq = mv98dx3236_get_cpu_freq,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Clock Gating Control
  */
@@ -212,6 +228,7 @@ static const struct clk_gating_soc_desc axp_gating_desc[] __initconst = {
 	{ }
 };
 
+<<<<<<< HEAD
 static const struct clk_gating_soc_desc mv98dx3236_gating_desc[] __initconst = {
 	{ "ge1", NULL, 3, 0 },
 	{ "ge0", NULL, 4, 0 },
@@ -221,6 +238,8 @@ static const struct clk_gating_soc_desc mv98dx3236_gating_desc[] __initconst = {
 	{ }
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init axp_clk_init(struct device_node *np)
 {
 	struct device_node *cgnp =

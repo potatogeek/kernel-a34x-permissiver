@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+<<<<<<< HEAD
 /*
  * Copyright (C) 2018 Netronome Systems, Inc.
  *
@@ -34,6 +35,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* Copyright (C) 2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #include <linux/list.h>
 #include <stdlib.h>
@@ -191,6 +195,14 @@ static bool cfg_partition_funcs(struct cfg *cfg, struct bpf_insn *cur,
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static bool is_jmp_insn(__u8 code)
+{
+	return BPF_CLASS(code) == BPF_JMP || BPF_CLASS(code) == BPF_JMP32;
+}
+
+>>>>>>> upstream/android-13
 static bool func_partition_bb_head(struct func_node *func)
 {
 	struct bpf_insn *cur, *end;
@@ -204,8 +216,13 @@ static bool func_partition_bb_head(struct func_node *func)
 		return true;
 
 	for (; cur <= end; cur++) {
+<<<<<<< HEAD
 		if (BPF_CLASS(cur->code) == BPF_JMP) {
 			u8 opcode = BPF_OP(cur->code);
+=======
+		if (is_jmp_insn(cur->code)) {
+			__u8 opcode = BPF_OP(cur->code);
+>>>>>>> upstream/android-13
 
 			if (opcode == BPF_EXIT || opcode == BPF_CALL)
 				continue;
@@ -330,7 +347,11 @@ static bool func_add_bb_edges(struct func_node *func)
 		e->src = bb;
 
 		insn = bb->tail;
+<<<<<<< HEAD
 		if (BPF_CLASS(insn->code) != BPF_JMP ||
+=======
+		if (!is_jmp_insn(insn->code) ||
+>>>>>>> upstream/android-13
 		    BPF_OP(insn->code) == BPF_EXIT) {
 			e->dst = bb_next(bb);
 			e->flags |= EDGE_FLAG_FALLTHROUGH;

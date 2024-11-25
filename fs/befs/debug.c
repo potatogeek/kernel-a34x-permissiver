@@ -14,7 +14,11 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #ifdef __KERNEL__
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/spinlock.h>
 #include <linux/kernel.h>

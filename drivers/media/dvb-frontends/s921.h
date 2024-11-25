@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *   Sharp s921 driver
  *
  *   Copyright (C) 2009 Mauro Carvalho Chehab
  *   Copyright (C) 2009 Douglas Landgraf <dougsland@redhat.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License as
@@ -12,6 +17,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *   General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef S921_H

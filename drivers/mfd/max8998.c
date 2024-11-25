@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * max8998.c - mfd core driver for the Maxim 8998
  *
@@ -19,6 +20,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// max8998.c - mfd core driver for the Maxim 8998
+//
+//  Copyright (C) 2009-2010 Samsung Electronics
+//  Kyungmin Park <kyungmin.park@samsung.com>
+//  Marek Szyprowski <m.szyprowski@samsung.com>
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 #include <linux/init.h>
@@ -26,6 +36,10 @@
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 #include <linux/pm_runtime.h>
 #include <linux/mutex.h>
@@ -169,11 +183,16 @@ static struct max8998_platform_data *max8998_i2c_parse_dt_pdata(
 static inline unsigned long max8998_i2c_get_driver_data(struct i2c_client *i2c,
 						const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_OF) && i2c->dev.of_node) {
 		const struct of_device_id *match;
 		match = of_match_node(max8998_dt_match, i2c->dev.of_node);
 		return (unsigned long)match->data;
 	}
+=======
+	if (i2c->dev.of_node)
+		return (unsigned long)of_device_get_match_data(&i2c->dev);
+>>>>>>> upstream/android-13
 
 	return id->driver_data;
 }
@@ -209,10 +228,17 @@ static int max8998_i2c_probe(struct i2c_client *i2c,
 	}
 	mutex_init(&max8998->iolock);
 
+<<<<<<< HEAD
 	max8998->rtc = i2c_new_dummy(i2c->adapter, RTC_I2C_ADDR);
 	if (!max8998->rtc) {
 		dev_err(&i2c->dev, "Failed to allocate I2C device for RTC\n");
 		return -ENODEV;
+=======
+	max8998->rtc = i2c_new_dummy_device(i2c->adapter, RTC_I2C_ADDR);
+	if (IS_ERR(max8998->rtc)) {
+		dev_err(&i2c->dev, "Failed to allocate I2C device for RTC\n");
+		return PTR_ERR(max8998->rtc);
+>>>>>>> upstream/android-13
 	}
 	i2c_set_clientdata(max8998->rtc, max8998);
 

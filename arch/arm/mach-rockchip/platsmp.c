@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2013 MundoReader S.L.
+ * Author: Heiko Stuebner <heiko@sntech.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -189,7 +196,11 @@ static int __init rockchip_smp_prepare_sram(struct device_node *node)
 
 	rsize = resource_size(&res);
 	if (rsize < trampoline_sz) {
+<<<<<<< HEAD
 		pr_err("%s: reserved block with size 0x%x is to small for trampoline size 0x%x\n",
+=======
+		pr_err("%s: reserved block with size 0x%x is too small for trampoline size 0x%x\n",
+>>>>>>> upstream/android-13
 		       __func__, rsize, trampoline_sz);
 		return -EINVAL;
 	}
@@ -245,6 +256,10 @@ static int __init rockchip_smp_prepare_pmu(void)
 	}
 
 	pmu_base = of_iomap(node, 0);
+<<<<<<< HEAD
+=======
+	of_node_put(node);
+>>>>>>> upstream/android-13
 	if (!pmu_base) {
 		pr_err("%s: could not map pmu registers\n", __func__);
 		return -ENOMEM;
@@ -277,6 +292,7 @@ static void __init rockchip_smp_prepare_cpus(unsigned int max_cpus)
 	sram_base_addr = of_iomap(node, 0);
 	if (!sram_base_addr) {
 		pr_err("%s: could not map sram registers\n", __func__);
+<<<<<<< HEAD
 		return;
 	}
 
@@ -286,10 +302,30 @@ static void __init rockchip_smp_prepare_cpus(unsigned int max_cpus)
 	if (read_cpuid_part() == ARM_CPU_PART_CORTEX_A9) {
 		if (rockchip_smp_prepare_sram(node))
 			return;
+=======
+		of_node_put(node);
+		return;
+	}
+
+	if (has_pmu && rockchip_smp_prepare_pmu()) {
+		of_node_put(node);
+		return;
+	}
+
+	if (read_cpuid_part() == ARM_CPU_PART_CORTEX_A9) {
+		if (rockchip_smp_prepare_sram(node)) {
+			of_node_put(node);
+			return;
+		}
+>>>>>>> upstream/android-13
 
 		/* enable the SCU power domain */
 		pmu_set_power_domain(PMU_PWRDN_SCU, true);
 
+<<<<<<< HEAD
+=======
+		of_node_put(node);
+>>>>>>> upstream/android-13
 		node = of_find_compatible_node(NULL, NULL, "arm,cortex-a9-scu");
 		if (!node) {
 			pr_err("%s: missing scu\n", __func__);
@@ -299,6 +335,10 @@ static void __init rockchip_smp_prepare_cpus(unsigned int max_cpus)
 		scu_base_addr = of_iomap(node, 0);
 		if (!scu_base_addr) {
 			pr_err("%s: could not map scu registers\n", __func__);
+<<<<<<< HEAD
+=======
+			of_node_put(node);
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -317,6 +357,10 @@ static void __init rockchip_smp_prepare_cpus(unsigned int max_cpus)
 		asm ("mrc p15, 1, %0, c9, c0, 2\n" : "=r" (l2ctlr));
 		ncores = ((l2ctlr >> 24) & 0x3) + 1;
 	}
+<<<<<<< HEAD
+=======
+	of_node_put(node);
+>>>>>>> upstream/android-13
 
 	/* Make sure that all cores except the first are really off */
 	for (i = 1; i < ncores; i++)

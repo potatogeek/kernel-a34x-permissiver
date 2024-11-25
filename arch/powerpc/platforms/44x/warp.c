@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PIKA Warp(tm) board specific routines
  *
  * Copyright (c) 2008-2009 PIKA Technologies
  *   Sean MacLennan <smaclennan@pikatech.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/of_platform.h>
@@ -47,9 +54,12 @@ static int __init warp_probe(void)
 	if (!of_machine_is_compatible("pika,warp"))
 		return 0;
 
+<<<<<<< HEAD
 	/* For __dma_alloc_coherent */
 	ISA_DMA_THRESHOLD = ~0L;
 
+=======
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -179,9 +189,15 @@ static int pika_setup_leds(void)
 	}
 
 	for_each_child_of_node(np, child)
+<<<<<<< HEAD
 		if (strcmp(child->name, "green") == 0)
 			green_led = of_get_gpio(child, 0);
 		else if (strcmp(child->name, "red") == 0)
+=======
+		if (of_node_name_eq(child, "green"))
+			green_led = of_get_gpio(child, 0);
+		else if (of_node_name_eq(child, "red"))
+>>>>>>> upstream/android-13
 			red_led = of_get_gpio(child, 0);
 
 	of_node_put(np);

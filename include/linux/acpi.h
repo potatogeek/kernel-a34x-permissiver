@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * acpi.h - ACPI Interface
  *
  * Copyright (C) 2001 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -16,6 +21,8 @@
  * GNU General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_ACPI_H
@@ -23,6 +30,10 @@
 
 #include <linux/errno.h>
 #include <linux/ioport.h>	/* for struct resource */
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 #include <linux/resource_ext.h>
 #include <linux/device.h>
 #include <linux/property.h>
@@ -67,7 +78,11 @@ static inline struct fwnode_handle *acpi_alloc_fwnode_static(void)
 	if (!fwnode)
 		return NULL;
 
+<<<<<<< HEAD
 	fwnode->ops = &acpi_static_fwnode_ops;
+=======
+	fwnode_init(fwnode, &acpi_static_fwnode_ops);
+>>>>>>> upstream/android-13
 
 	return fwnode;
 }
@@ -141,10 +156,22 @@ enum acpi_address_range_id {
 
 
 /* Table Handlers */
+<<<<<<< HEAD
 
 typedef int (*acpi_tbl_table_handler)(struct acpi_table_header *table);
 
 typedef int (*acpi_tbl_entry_handler)(struct acpi_subtable_header *header,
+=======
+union acpi_subtable_headers {
+	struct acpi_subtable_header common;
+	struct acpi_hmat_structure hmat;
+	struct acpi_prmt_module_header prmt;
+};
+
+typedef int (*acpi_tbl_table_handler)(struct acpi_table_header *table);
+
+typedef int (*acpi_tbl_entry_handler)(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 				      const unsigned long end);
 
 /* Debugger support */
@@ -256,7 +283,11 @@ void acpi_table_print_madt_entry (struct acpi_subtable_header *madt);
 /* the following numa functions are architecture-dependent */
 void acpi_numa_slit_init (struct acpi_table_slit *slit);
 
+<<<<<<< HEAD
 #if defined(CONFIG_X86) || defined(CONFIG_IA64)
+=======
+#if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(CONFIG_LOONGARCH)
+>>>>>>> upstream/android-13
 void acpi_numa_processor_affinity_init (struct acpi_srat_cpu_affinity *pa);
 #else
 static inline void
@@ -267,9 +298,18 @@ void acpi_numa_x2apic_affinity_init(struct acpi_srat_x2apic_cpu_affinity *pa);
 
 #ifdef CONFIG_ARM64
 void acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa);
+<<<<<<< HEAD
 #else
 static inline void
 acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa) { }
+=======
+void acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size);
+#else
+static inline void
+acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa) { }
+static inline void
+acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size) { }
+>>>>>>> upstream/android-13
 #endif
 
 int acpi_numa_memory_affinity_init (struct acpi_srat_mem_affinity *ma);
@@ -291,6 +331,24 @@ static inline bool invalid_phys_cpuid(phys_cpuid_t phys_id)
 
 /* Validate the processor object's proc_id */
 bool acpi_duplicate_processor_id(int proc_id);
+<<<<<<< HEAD
+=======
+/* Processor _CTS control */
+struct acpi_processor_power;
+
+#ifdef CONFIG_ACPI_PROCESSOR_CSTATE
+bool acpi_processor_claim_cst_control(void);
+int acpi_processor_evaluate_cst(acpi_handle handle, u32 cpu,
+				struct acpi_processor_power *info);
+#else
+static inline bool acpi_processor_claim_cst_control(void) { return false; }
+static inline int acpi_processor_evaluate_cst(acpi_handle handle, u32 cpu,
+					      struct acpi_processor_power *info)
+{
+	return -ENODEV;
+}
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ACPI_HOTPLUG_CPU
 /* Arch dependent functions for cpu hotplug support */
@@ -327,6 +385,15 @@ int acpi_isa_irq_to_gsi (unsigned isa_irq, u32 *gsi);
 void acpi_set_irq_model(enum acpi_irq_model_id model,
 			struct fwnode_handle *fwnode);
 
+<<<<<<< HEAD
+=======
+struct irq_domain *acpi_irq_create_hierarchy(unsigned int flags,
+					     unsigned int size,
+					     struct fwnode_handle *fwnode,
+					     const struct irq_domain_ops *ops,
+					     void *host_data);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_IO_APIC
 extern int acpi_get_override_irq(u32 gsi, int *trigger, int *polarity);
 #else
@@ -347,7 +414,18 @@ struct pci_dev;
 int acpi_pci_irq_enable (struct pci_dev *dev);
 void acpi_penalize_isa_irq(int irq, int active);
 bool acpi_isa_irq_available(int irq);
+<<<<<<< HEAD
 void acpi_penalize_sci_irq(int irq, int trigger, int polarity);
+=======
+#ifdef CONFIG_PCI
+void acpi_penalize_sci_irq(int irq, int trigger, int polarity);
+#else
+static inline void acpi_penalize_sci_irq(int irq, int trigger,
+					int polarity)
+{
+}
+#endif
+>>>>>>> upstream/android-13
 void acpi_pci_irq_disable (struct pci_dev *dev);
 
 extern int ec_read(u8 addr, u8 *val);
@@ -376,6 +454,10 @@ extern acpi_status wmi_install_notify_handler(const char *guid,
 extern acpi_status wmi_remove_notify_handler(const char *guid);
 extern acpi_status wmi_get_event_data(u32 event, struct acpi_buffer *out);
 extern bool wmi_has_guid(const char *guid);
+<<<<<<< HEAD
+=======
+extern char *wmi_get_acpi_device_uid(const char *guid);
+>>>>>>> upstream/android-13
 
 #endif	/* CONFIG_ACPI_WMI */
 
@@ -399,10 +481,42 @@ extern void acpi_osi_setup(char *str);
 extern bool acpi_osi_is_win8(void);
 
 #ifdef CONFIG_ACPI_NUMA
+<<<<<<< HEAD
 int acpi_map_pxm_to_online_node(int pxm);
 int acpi_get_node(acpi_handle handle);
 #else
 static inline int acpi_map_pxm_to_online_node(int pxm)
+=======
+int acpi_map_pxm_to_node(int pxm);
+int acpi_get_node(acpi_handle handle);
+
+/**
+ * pxm_to_online_node - Map proximity ID to online node
+ * @pxm: ACPI proximity ID
+ *
+ * This is similar to pxm_to_node(), but always returns an online
+ * node.  When the mapped node from a given proximity ID is offline, it
+ * looks up the node distance table and returns the nearest online node.
+ *
+ * ACPI device drivers, which are called after the NUMA initialization has
+ * completed in the kernel, can call this interface to obtain their device
+ * NUMA topology from ACPI tables.  Such drivers do not have to deal with
+ * offline nodes.  A node may be offline when SRAT memory entry does not exist,
+ * or NUMA is disabled, ex. "numa=off" on x86.
+ */
+static inline int pxm_to_online_node(int pxm)
+{
+	int node = pxm_to_node(pxm);
+
+	return numa_map_to_online_node(node);
+}
+#else
+static inline int pxm_to_online_node(int pxm)
+{
+	return 0;
+}
+static inline int acpi_map_pxm_to_node(int pxm)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -466,6 +580,14 @@ void __init acpi_nvs_nosave_s3(void);
 void __init acpi_sleep_no_blacklist(void);
 #endif /* CONFIG_PM_SLEEP */
 
+<<<<<<< HEAD
+=======
+int acpi_register_wakeup_handler(
+	int wake_irq, bool (*wakeup)(void *context), void *context);
+void acpi_unregister_wakeup_handler(
+	bool (*wakeup)(void *context), void *context);
+
+>>>>>>> upstream/android-13
 struct acpi_osc_context {
 	char *uuid_str;			/* UUID string */
 	int rev;
@@ -498,9 +620,27 @@ acpi_status acpi_run_osc(acpi_handle handle, struct acpi_osc_context *context);
 #define OSC_SB_PCLPI_SUPPORT			0x00000080
 #define OSC_SB_OSLPI_SUPPORT			0x00000100
 #define OSC_SB_CPC_DIVERSE_HIGH_SUPPORT		0x00001000
+<<<<<<< HEAD
 
 extern bool osc_sb_apei_support_acked;
 extern bool osc_pc_lpi_support_confirmed;
+=======
+#define OSC_SB_GENERIC_INITIATOR_SUPPORT	0x00002000
+#define OSC_SB_NATIVE_USB4_SUPPORT		0x00040000
+#define OSC_SB_PRM_SUPPORT			0x00200000
+
+extern bool osc_sb_apei_support_acked;
+extern bool osc_pc_lpi_support_confirmed;
+extern bool osc_sb_native_usb4_support_confirmed;
+
+/* USB4 Capabilities */
+#define OSC_USB_USB3_TUNNELING			0x00000001
+#define OSC_USB_DP_TUNNELING			0x00000002
+#define OSC_USB_PCIE_TUNNELING			0x00000004
+#define OSC_USB_XDOMAIN				0x00000008
+
+extern u32 osc_sb_native_usb4_control;
+>>>>>>> upstream/android-13
 
 /* PCI Host Bridge _OSC: Capabilities DWORD 2: Support Field */
 #define OSC_PCI_EXT_CONFIG_SUPPORT		0x00000001
@@ -508,7 +648,13 @@ extern bool osc_pc_lpi_support_confirmed;
 #define OSC_PCI_CLOCK_PM_SUPPORT		0x00000004
 #define OSC_PCI_SEGMENT_GROUPS_SUPPORT		0x00000008
 #define OSC_PCI_MSI_SUPPORT			0x00000010
+<<<<<<< HEAD
 #define OSC_PCI_SUPPORT_MASKS			0x0000001f
+=======
+#define OSC_PCI_EDR_SUPPORT			0x00000080
+#define OSC_PCI_HPX_TYPE_3_SUPPORT		0x00000100
+#define OSC_PCI_SUPPORT_MASKS			0x0000019f
+>>>>>>> upstream/android-13
 
 /* PCI Host Bridge _OSC: Capabilities DWORD 3: Control Field */
 #define OSC_PCI_EXPRESS_NATIVE_HP_CONTROL	0x00000001
@@ -517,7 +663,12 @@ extern bool osc_pc_lpi_support_confirmed;
 #define OSC_PCI_EXPRESS_AER_CONTROL		0x00000008
 #define OSC_PCI_EXPRESS_CAPABILITY_CONTROL	0x00000010
 #define OSC_PCI_EXPRESS_LTR_CONTROL		0x00000020
+<<<<<<< HEAD
 #define OSC_PCI_CONTROL_MASKS			0x0000003f
+=======
+#define OSC_PCI_EXPRESS_DPC_CONTROL		0x00000080
+#define OSC_PCI_CONTROL_MASKS			0x000000bf
+>>>>>>> upstream/android-13
 
 #define ACPI_GSB_ACCESS_ATTRIB_QUICK		0x00000002
 #define ACPI_GSB_ACCESS_ATTRIB_SEND_RCV         0x00000004
@@ -530,9 +681,12 @@ extern bool osc_pc_lpi_support_confirmed;
 #define ACPI_GSB_ACCESS_ATTRIB_RAW_BYTES	0x0000000E
 #define ACPI_GSB_ACCESS_ATTRIB_RAW_PROCESS	0x0000000F
 
+<<<<<<< HEAD
 extern acpi_status acpi_pci_osc_control_set(acpi_handle handle,
 					     u32 *mask, u32 req);
 
+=======
+>>>>>>> upstream/android-13
 /* Enable _OST when all relevant hotplug operations are enabled */
 #if defined(CONFIG_ACPI_HOTPLUG_CPU) &&			\
 	defined(CONFIG_ACPI_HOTPLUG_MEMORY) &&		\
@@ -604,7 +758,10 @@ extern bool acpi_driver_match_device(struct device *dev,
 				     const struct device_driver *drv);
 int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
 int acpi_device_modalias(struct device *, char *, int);
+<<<<<<< HEAD
 void acpi_walk_dep_device_list(acpi_handle handle);
+=======
+>>>>>>> upstream/android-13
 
 struct platform_device *acpi_create_platform_device(struct acpi_device *,
 						    struct property_entry *);
@@ -635,6 +792,15 @@ bool acpi_gtdt_c3stop(int type);
 int acpi_arch_timer_mem_init(struct arch_timer_mem *timer_mem, int *timer_count);
 #endif
 
+<<<<<<< HEAD
+=======
+#ifndef ACPI_HAVE_ARCH_SET_ROOT_POINTER
+static inline void acpi_arch_set_root_pointer(u64 addr)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifndef ACPI_HAVE_ARCH_GET_ROOT_POINTER
 static inline u64 acpi_arch_get_root_pointer(void)
 {
@@ -642,6 +808,11 @@ static inline u64 acpi_arch_get_root_pointer(void)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+int acpi_get_local_address(acpi_handle handle, u32 *addr);
+
+>>>>>>> upstream/android-13
 #else	/* !CONFIG_ACPI */
 
 #define acpi_disabled 1
@@ -652,6 +823,11 @@ static inline u64 acpi_arch_get_root_pointer(void)
 #define ACPI_HANDLE_FWNODE(fwnode)	(NULL)
 #define ACPI_DEVICE_CLASS(_cls, _msk)	.cls = (0), .cls_msk = (0),
 
+<<<<<<< HEAD
+=======
+#include <acpi/acpi_numa.h>
+
+>>>>>>> upstream/android-13
 struct fwnode_handle;
 
 static inline bool acpi_dev_found(const char *hid)
@@ -664,6 +840,7 @@ static inline bool acpi_dev_present(const char *hid, const char *uid, s64 hrv)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline const char *
 acpi_dev_get_first_match_name(const char *hid, const char *uid, s64 hrv)
 {
@@ -671,31 +848,76 @@ acpi_dev_get_first_match_name(const char *hid, const char *uid, s64 hrv)
 }
 
 static inline bool is_acpi_node(struct fwnode_handle *fwnode)
+=======
+struct acpi_device;
+
+static inline bool
+acpi_dev_hid_uid_match(struct acpi_device *adev, const char *hid2, const char *uid2)
+>>>>>>> upstream/android-13
 {
 	return false;
 }
 
+<<<<<<< HEAD
 static inline bool is_acpi_device_node(struct fwnode_handle *fwnode)
 {
 	return false;
 }
 
 static inline struct acpi_device *to_acpi_device_node(struct fwnode_handle *fwnode)
+=======
+static inline struct acpi_device *
+acpi_dev_get_first_match_dev(const char *hid, const char *uid, s64 hrv)
+>>>>>>> upstream/android-13
 {
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline bool is_acpi_data_node(struct fwnode_handle *fwnode)
+=======
+static inline bool acpi_reduced_hardware(void)
+>>>>>>> upstream/android-13
 {
 	return false;
 }
 
+<<<<<<< HEAD
 static inline struct acpi_data_node *to_acpi_data_node(struct fwnode_handle *fwnode)
+=======
+static inline void acpi_dev_put(struct acpi_device *adev) {}
+
+static inline bool is_acpi_node(const struct fwnode_handle *fwnode)
+{
+	return false;
+}
+
+static inline bool is_acpi_device_node(const struct fwnode_handle *fwnode)
+{
+	return false;
+}
+
+static inline struct acpi_device *to_acpi_device_node(const struct fwnode_handle *fwnode)
+>>>>>>> upstream/android-13
 {
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline bool acpi_data_node_match(struct fwnode_handle *fwnode,
+=======
+static inline bool is_acpi_data_node(const struct fwnode_handle *fwnode)
+{
+	return false;
+}
+
+static inline struct acpi_data_node *to_acpi_data_node(const struct fwnode_handle *fwnode)
+{
+	return NULL;
+}
+
+static inline bool acpi_data_node_match(const struct fwnode_handle *fwnode,
+>>>>>>> upstream/android-13
 					const char *name)
 {
 	return false;
@@ -801,7 +1023,11 @@ static inline bool acpi_driver_match_device(struct device *dev,
 
 static inline union acpi_object *acpi_evaluate_dsm(acpi_handle handle,
 						   const guid_t *guid,
+<<<<<<< HEAD
 						   int rev, int func,
+=======
+						   u64 rev, u64 func,
+>>>>>>> upstream/android-13
 						   union acpi_object *argv4)
 {
 	return NULL;
@@ -826,7 +1052,11 @@ acpi_create_platform_device(struct acpi_device *adev,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline bool acpi_dma_supported(struct acpi_device *adev)
+=======
+static inline bool acpi_dma_supported(const struct acpi_device *adev)
+>>>>>>> upstream/android-13
 {
 	return false;
 }
@@ -848,7 +1078,16 @@ static inline int acpi_dma_configure(struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void acpi_dma_deconfigure(struct device *dev) { }
+=======
+static inline int acpi_dma_configure_id(struct device *dev,
+					enum dev_dma_attr attr,
+					const u32 *input_id)
+{
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 #define ACPI_PTR(_ptr)	(NULL)
 
@@ -875,6 +1114,23 @@ static inline struct acpi_device *acpi_resource_consumer(struct resource *res)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static inline int acpi_get_local_address(acpi_handle handle, u32 *addr)
+{
+	return -ENODEV;
+}
+
+static inline int acpi_register_wakeup_handler(int wake_irq,
+	bool (*wakeup)(void *context), void *context)
+{
+	return -ENXIO;
+}
+
+static inline void acpi_unregister_wakeup_handler(
+	bool (*wakeup)(void *context), void *context) { }
+
+>>>>>>> upstream/android-13
 #endif	/* !CONFIG_ACPI */
 
 #ifdef CONFIG_ACPI_HOTPLUG_IOAPIC
@@ -896,7 +1152,11 @@ void acpi_os_set_prepare_extended_sleep(int (*func)(u8 sleep_state,
 acpi_status acpi_os_prepare_extended_sleep(u8 sleep_state,
 					   u32 val_a, u32 val_b);
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86
+=======
+#ifndef CONFIG_IA64
+>>>>>>> upstream/android-13
 void arch_reserve_mem_area(acpi_physical_address addr, size_t size);
 #else
 static inline void arch_reserve_mem_area(acpi_physical_address addr,
@@ -914,19 +1174,34 @@ int acpi_dev_resume(struct device *dev);
 int acpi_subsys_runtime_suspend(struct device *dev);
 int acpi_subsys_runtime_resume(struct device *dev);
 int acpi_dev_pm_attach(struct device *dev, bool power_on);
+<<<<<<< HEAD
 #else
 static inline int acpi_dev_runtime_suspend(struct device *dev) { return 0; }
 static inline int acpi_dev_runtime_resume(struct device *dev) { return 0; }
+=======
+bool acpi_storage_d3(struct device *dev);
+#else
+>>>>>>> upstream/android-13
 static inline int acpi_subsys_runtime_suspend(struct device *dev) { return 0; }
 static inline int acpi_subsys_runtime_resume(struct device *dev) { return 0; }
 static inline int acpi_dev_pm_attach(struct device *dev, bool power_on)
 {
 	return 0;
 }
+<<<<<<< HEAD
 #endif
 
 #if defined(CONFIG_ACPI) && defined(CONFIG_PM_SLEEP)
 int acpi_dev_suspend_late(struct device *dev);
+=======
+static inline bool acpi_storage_d3(struct device *dev)
+{
+	return false;
+}
+#endif
+
+#if defined(CONFIG_ACPI) && defined(CONFIG_PM_SLEEP)
+>>>>>>> upstream/android-13
 int acpi_subsys_prepare(struct device *dev);
 void acpi_subsys_complete(struct device *dev);
 int acpi_subsys_suspend_late(struct device *dev);
@@ -934,8 +1209,14 @@ int acpi_subsys_suspend_noirq(struct device *dev);
 int acpi_subsys_suspend(struct device *dev);
 int acpi_subsys_freeze(struct device *dev);
 int acpi_subsys_poweroff(struct device *dev);
+<<<<<<< HEAD
 #else
 static inline int acpi_dev_resume_early(struct device *dev) { return 0; }
+=======
+void acpi_ec_mark_gpe_for_wake(void);
+void acpi_ec_set_gpe_wake_mask(u8 action);
+#else
+>>>>>>> upstream/android-13
 static inline int acpi_subsys_prepare(struct device *dev) { return 0; }
 static inline void acpi_subsys_complete(struct device *dev) {}
 static inline int acpi_subsys_suspend_late(struct device *dev) { return 0; }
@@ -943,23 +1224,42 @@ static inline int acpi_subsys_suspend_noirq(struct device *dev) { return 0; }
 static inline int acpi_subsys_suspend(struct device *dev) { return 0; }
 static inline int acpi_subsys_freeze(struct device *dev) { return 0; }
 static inline int acpi_subsys_poweroff(struct device *dev) { return 0; }
+<<<<<<< HEAD
+=======
+static inline void acpi_ec_mark_gpe_for_wake(void) {}
+static inline void acpi_ec_set_gpe_wake_mask(u8 action) {}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_ACPI
 __printf(3, 4)
 void acpi_handle_printk(const char *level, acpi_handle handle,
 			const char *fmt, ...);
+<<<<<<< HEAD
 #else	/* !CONFIG_ACPI */
 static inline __printf(3, 4) void
 acpi_handle_printk(const char *level, void *handle, const char *fmt, ...) {}
+=======
+void acpi_evaluation_failure_warn(acpi_handle handle, const char *name,
+				  acpi_status status);
+#else	/* !CONFIG_ACPI */
+static inline __printf(3, 4) void
+acpi_handle_printk(const char *level, void *handle, const char *fmt, ...) {}
+static inline void acpi_evaluation_failure_warn(acpi_handle handle,
+						const char *name,
+						acpi_status status) {}
+>>>>>>> upstream/android-13
 #endif	/* !CONFIG_ACPI */
 
 #if defined(CONFIG_ACPI) && defined(CONFIG_DYNAMIC_DEBUG)
 __printf(3, 4)
 void __acpi_handle_debug(struct _ddebug *descriptor, acpi_handle handle, const char *fmt, ...);
+<<<<<<< HEAD
 #else
 #define __acpi_handle_debug(descriptor, handle, fmt, ...)		\
 	acpi_handle_printk(KERN_DEBUG, handle, fmt, ##__VA_ARGS__);
+=======
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -989,12 +1289,17 @@ void __acpi_handle_debug(struct _ddebug *descriptor, acpi_handle handle, const c
 #else
 #if defined(CONFIG_DYNAMIC_DEBUG)
 #define acpi_handle_debug(handle, fmt, ...)				\
+<<<<<<< HEAD
 do {									\
 	DEFINE_DYNAMIC_DEBUG_METADATA(descriptor, fmt);			\
 	if (unlikely(descriptor.flags & _DPRINTK_FLAGS_PRINT))		\
 		__acpi_handle_debug(&descriptor, handle, pr_fmt(fmt),	\
 				##__VA_ARGS__);				\
 } while (0)
+=======
+	_dynamic_func_call(fmt, __acpi_handle_debug,			\
+			   handle, pr_fmt(fmt), ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 #else
 #define acpi_handle_debug(handle, fmt, ...)				\
 ({									\
@@ -1005,6 +1310,7 @@ do {									\
 #endif
 #endif
 
+<<<<<<< HEAD
 struct acpi_gpio_params {
 	unsigned int crs_entry_index;
 	unsigned int line_index;
@@ -1054,17 +1360,44 @@ static inline int devm_acpi_dev_add_driver_gpios(struct device *dev,
 }
 static inline void devm_acpi_dev_remove_driver_gpios(struct device *dev) {}
 
+=======
+#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
+bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+				struct acpi_resource_gpio **agpio);
+bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
+			       struct acpi_resource_gpio **agpio);
+int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int index);
+#else
+>>>>>>> upstream/android-13
 static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
 					      struct acpi_resource_gpio **agpio)
 {
 	return false;
 }
+<<<<<<< HEAD
 static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
+=======
+static inline bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
+					     struct acpi_resource_gpio **agpio)
+{
+	return false;
+}
+static inline int acpi_dev_gpio_irq_get_by(struct acpi_device *adev,
+					   const char *name, int index)
+>>>>>>> upstream/android-13
 {
 	return -ENXIO;
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
+{
+	return acpi_dev_gpio_irq_get_by(adev, NULL, index);
+}
+
+>>>>>>> upstream/android-13
 /* Device properties */
 
 #ifdef CONFIG_ACPI
@@ -1083,6 +1416,7 @@ static inline int acpi_node_get_property_reference(
 		NR_FWNODE_REFERENCE_ARGS, args);
 }
 
+<<<<<<< HEAD
 int acpi_node_prop_get(const struct fwnode_handle *fwnode, const char *propname,
 		       void **valptr);
 int acpi_dev_prop_read_single(struct acpi_device *adev,
@@ -1093,6 +1427,19 @@ int acpi_node_prop_read(const struct fwnode_handle *fwnode,
 			void *val, size_t nval);
 int acpi_dev_prop_read(const struct acpi_device *adev, const char *propname,
 		       enum dev_prop_type proptype, void *val, size_t nval);
+=======
+static inline bool acpi_dev_has_props(const struct acpi_device *adev)
+{
+	return !list_empty(&adev->data.properties);
+}
+
+struct acpi_device_properties *
+acpi_data_add_props(struct acpi_device_data *data, const guid_t *guid,
+		    const union acpi_object *properties);
+
+int acpi_node_prop_get(const struct fwnode_handle *fwnode, const char *propname,
+		       void **valptr);
+>>>>>>> upstream/android-13
 
 struct fwnode_handle *acpi_get_next_subnode(const struct fwnode_handle *fwnode,
 					    struct fwnode_handle *child);
@@ -1128,6 +1475,7 @@ struct acpi_probe_entry {
 	kernel_ulong_t driver_data;
 };
 
+<<<<<<< HEAD
 #define ACPI_DECLARE_PROBE_ENTRY(table, name, table_id, subtable, valid, data, fn)	\
 	static const struct acpi_probe_entry __acpi_probe_##name	\
 		__used __section(__##table##_acpi_probe_table)		\
@@ -1138,6 +1486,29 @@ struct acpi_probe_entry {
 			.probe_table = (acpi_tbl_table_handler)fn,	\
 			.driver_data = data, 				\
 		   }
+=======
+#define ACPI_DECLARE_PROBE_ENTRY(table, name, table_id, subtable,	\
+				 valid, data, fn)			\
+	static const struct acpi_probe_entry __acpi_probe_##name	\
+		__used __section("__" #table "_acpi_probe_table") = {	\
+			.id = table_id,					\
+			.type = subtable,				\
+			.subtable_valid = valid,			\
+			.probe_table = fn,				\
+			.driver_data = data,				\
+		}
+
+#define ACPI_DECLARE_SUBTABLE_PROBE_ENTRY(table, name, table_id,	\
+					  subtable, valid, data, fn)	\
+	static const struct acpi_probe_entry __acpi_probe_##name	\
+		__used __section("__" #table "_acpi_probe_table") = {	\
+			.id = table_id,					\
+			.type = subtable,				\
+			.subtable_valid = valid,			\
+			.probe_subtbl = fn,				\
+			.driver_data = data,				\
+		}
+>>>>>>> upstream/android-13
 
 #define ACPI_PROBE_TABLE(name)		__##name##_acpi_probe_table
 #define ACPI_PROBE_TABLE_END(name)	__##name##_acpi_probe_table_end
@@ -1183,6 +1554,7 @@ static inline int acpi_node_prop_get(const struct fwnode_handle *fwnode,
 	return -ENXIO;
 }
 
+<<<<<<< HEAD
 static inline int acpi_dev_prop_get(const struct acpi_device *adev,
 				    const char *propname,
 				    void **valptr)
@@ -1214,6 +1586,8 @@ static inline int acpi_dev_prop_read(const struct acpi_device *adev,
 	return -ENXIO;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct fwnode_handle *
 acpi_get_next_subnode(const struct fwnode_handle *fwnode,
 		      struct fwnode_handle *child)
@@ -1300,6 +1674,10 @@ static inline int lpit_read_residency_count_address(u64 *address)
 int acpi_pptt_cpu_is_thread(unsigned int cpu);
 int find_acpi_cpu_topology(unsigned int cpu, int level);
 int find_acpi_cpu_topology_package(unsigned int cpu);
+<<<<<<< HEAD
+=======
+int find_acpi_cpu_topology_hetero_id(unsigned int cpu);
+>>>>>>> upstream/android-13
 int find_acpi_cpu_cache_topology(unsigned int cpu, int level);
 #else
 static inline int acpi_pptt_cpu_is_thread(unsigned int cpu)
@@ -1314,10 +1692,28 @@ static inline int find_acpi_cpu_topology_package(unsigned int cpu)
 {
 	return -EINVAL;
 }
+<<<<<<< HEAD
+=======
+static inline int find_acpi_cpu_topology_hetero_id(unsigned int cpu)
+{
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 static inline int find_acpi_cpu_cache_topology(unsigned int cpu, int level)
 {
 	return -EINVAL;
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+extern void acpi_device_notify(struct device *dev);
+extern void acpi_device_notify_remove(struct device *dev);
+#else
+static inline void acpi_device_notify(struct device *dev) { }
+static inline void acpi_device_notify_remove(struct device *dev) { }
+#endif
+
+>>>>>>> upstream/android-13
 #endif	/*_LINUX_ACPI_H*/

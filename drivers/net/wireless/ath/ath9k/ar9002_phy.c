@@ -119,7 +119,11 @@ static int ar9002_hw_set_channel(struct ath_hw *ah, struct ath9k_channel *chan)
 				aModeRefSel = 2;
 			if (aModeRefSel)
 				break;
+<<<<<<< HEAD
 			/* else: fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 1:
 		default:
 			aModeRefSel = 0;

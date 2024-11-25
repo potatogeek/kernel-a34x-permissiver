@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Driver for C-Media CMI8338 and 8738 PCI soundcards.
  * Copyright (c) 2000 by Takashi Iwai <tiwai@suse.de>
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Driver for C-Media CMI8338 and 8738 PCI soundcards.
+ * Copyright (c) 2000 by Takashi Iwai <tiwai@suse.de>
+>>>>>>> upstream/android-13
  */
  
 /* Does not work. Warning may block system in capture mode */
@@ -43,10 +50,13 @@
 MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
 MODULE_DESCRIPTION("C-Media CMI8x38 PCI");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{C-Media,CMI8738},"
 		"{C-Media,CMI8738B},"
 		"{C-Media,CMI8338A},"
 		"{C-Media,CMI8338B}}");
+=======
+>>>>>>> upstream/android-13
 
 #if IS_REACHABLE(CONFIG_GAMEPORT)
 #define SUPPORT_JOYSTICK 1
@@ -55,7 +65,11 @@ MODULE_SUPPORTED_DEVICE("{{C-Media,CMI8738},"
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
 static bool enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;	/* Enable switches */
+<<<<<<< HEAD
 static long mpu_port[SNDRV_CARDS];
+=======
+static long mpu_port[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS-1)] = 1};
+>>>>>>> upstream/android-13
 static long fm_port[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS-1)]=1};
 static bool soft_ac3[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS-1)]=1};
 #ifdef SUPPORT_JOYSTICK
@@ -315,7 +329,10 @@ MODULE_PARM_DESC(joystick_port, "Joystick port address.");
 #define CM_MICGAINZ		0x01	/* mic boost */
 #define CM_MICGAINZ_SHIFT	0
 
+<<<<<<< HEAD
 #define CM_REG_MIXER3		0x24
+=======
+>>>>>>> upstream/android-13
 #define CM_REG_AUX_VOL		0x26
 #define CM_VAUXL_MASK		0xf0
 #define CM_VAUXR_MASK		0x0f
@@ -599,7 +616,11 @@ static int snd_cmipci_clear_bit_b(struct cmipci *cm, unsigned int cmd, unsigned 
  * calculate frequency
  */
 
+<<<<<<< HEAD
 static unsigned int rates[] = { 5512, 11025, 22050, 44100, 8000, 16000, 32000, 48000 };
+=======
+static const unsigned int rates[] = { 5512, 11025, 22050, 44100, 8000, 16000, 32000, 48000 };
+>>>>>>> upstream/android-13
 
 static unsigned int snd_cmipci_rate_freq(unsigned int rate)
 {
@@ -679,12 +700,15 @@ static void snd_cmipci_set_pll(struct cmipci *cm, unsigned int rate, unsigned in
 }
 #endif /* USE_VAR48KRATE */
 
+<<<<<<< HEAD
 static int snd_cmipci_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *hw_params)
 {
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_cmipci_playback2_hw_params(struct snd_pcm_substream *substream,
 					  struct snd_pcm_hw_params *hw_params)
 {
@@ -699,7 +723,11 @@ static int snd_cmipci_playback2_hw_params(struct snd_pcm_substream *substream,
 		cm->opened[CM_CH_PLAY] = CM_OPEN_PLAYBACK_MULTI;
 		mutex_unlock(&cm->open_mutex);
 	}
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void snd_cmipci_ch_reset(struct cmipci *cm, int ch)
@@ -710,11 +738,14 @@ static void snd_cmipci_ch_reset(struct cmipci *cm, int ch)
 	udelay(10);
 }
 
+<<<<<<< HEAD
 static int snd_cmipci_hw_free(struct snd_pcm_substream *substream)
 {
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 
 /*
  */
@@ -1253,9 +1284,17 @@ static int setup_spdif_playback(struct cmipci *cm, struct snd_pcm_substream *sub
 
 	rate = subs->runtime->rate;
 
+<<<<<<< HEAD
 	if (up && do_ac3)
 		if ((err = save_mixer_state(cm)) < 0)
 			return err;
+=======
+	if (up && do_ac3) {
+		err = save_mixer_state(cm);
+		if (err < 0)
+			return err;
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&cm->reg_lock);
 	cm->spdif_playback_avail = up;
@@ -1304,7 +1343,12 @@ static int snd_cmipci_playback_prepare(struct snd_pcm_substream *substream)
 		    substream->runtime->channels == 2);
 	if (do_spdif && cm->can_ac3_hw) 
 		do_ac3 = cm->dig_pcm_status & IEC958_AES0_NONAUDIO;
+<<<<<<< HEAD
 	if ((err = setup_spdif_playback(cm, substream, do_spdif, do_ac3)) < 0)
+=======
+	err = setup_spdif_playback(cm, substream, do_spdif, do_ac3);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	return snd_cmipci_pcm_prepare(cm, &cm->channel[CM_CH_PLAY], substream);
 }
@@ -1319,7 +1363,12 @@ static int snd_cmipci_playback_spdif_prepare(struct snd_pcm_substream *substream
 		do_ac3 = cm->dig_pcm_status & IEC958_AES0_NONAUDIO;
 	else
 		do_ac3 = 1; /* doesn't matter */
+<<<<<<< HEAD
 	if ((err = setup_spdif_playback(cm, substream, 1, do_ac3)) < 0)
+=======
+	err = setup_spdif_playback(cm, substream, 1, do_ac3);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	return snd_cmipci_pcm_prepare(cm, &cm->channel[CM_CH_PLAY], substream);
 }
@@ -1384,14 +1433,22 @@ static int snd_cmipci_playback_hw_free(struct snd_pcm_substream *substream)
 	setup_spdif_playback(cm, substream, 0, 0);
 	restore_mixer_state(cm);
 	snd_cmipci_silence_hack(cm, &cm->channel[0]);
+<<<<<<< HEAD
 	return snd_cmipci_hw_free(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int snd_cmipci_playback2_hw_free(struct snd_pcm_substream *substream)
 {
 	struct cmipci *cm = snd_pcm_substream_chip(substream);
 	snd_cmipci_silence_hack(cm, &cm->channel[1]);
+<<<<<<< HEAD
 	return snd_cmipci_hw_free(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* capture */
@@ -1433,7 +1490,11 @@ static int snd_cmipci_capture_spdif_hw_free(struct snd_pcm_substream *subs)
 	snd_cmipci_clear_bit(cm, CM_REG_MISC_CTRL, CM_SPD32SEL);
 	spin_unlock_irq(&cm->reg_lock);
 
+<<<<<<< HEAD
 	return snd_cmipci_hw_free(subs);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -1667,7 +1728,12 @@ static int snd_cmipci_playback_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = open_device_check(cm, CM_OPEN_PLAYBACK, substream)) < 0)
+=======
+	err = open_device_check(cm, CM_OPEN_PLAYBACK, substream);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	runtime->hw = snd_cmipci_playback;
 	if (cm->chip_version == 68) {
@@ -1693,7 +1759,12 @@ static int snd_cmipci_capture_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = open_device_check(cm, CM_OPEN_CAPTURE, substream)) < 0)
+=======
+	err = open_device_check(cm, CM_OPEN_CAPTURE, substream);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	runtime->hw = snd_cmipci_capture;
 	if (cm->chip_version == 68) {	// 8768 only supports 44k/48k recording
@@ -1717,7 +1788,13 @@ static int snd_cmipci_playback2_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = open_device_check(cm, CM_OPEN_PLAYBACK2, substream)) < 0) /* use channel B */
+=======
+	/* use channel B */
+	err = open_device_check(cm, CM_OPEN_PLAYBACK2, substream);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	runtime->hw = snd_cmipci_playback2;
 	mutex_lock(&cm->open_mutex);
@@ -1755,7 +1832,13 @@ static int snd_cmipci_playback_spdif_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = open_device_check(cm, CM_OPEN_SPDIF_PLAYBACK, substream)) < 0) /* use channel A */
+=======
+	/* use channel A */
+	err = open_device_check(cm, CM_OPEN_SPDIF_PLAYBACK, substream);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	if (cm->can_ac3_hw) {
 		runtime->hw = snd_cmipci_playback_spdif;
@@ -1782,7 +1865,13 @@ static int snd_cmipci_capture_spdif_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = open_device_check(cm, CM_OPEN_SPDIF_CAPTURE, substream)) < 0) /* use channel B */
+=======
+	/* use channel B */
+	err = open_device_check(cm, CM_OPEN_SPDIF_CAPTURE, substream);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	runtime->hw = snd_cmipci_capture_spdif;
 	if (cm->can_96k && !(cm->chip_version == 68)) {
@@ -1841,8 +1930,11 @@ static int snd_cmipci_capture_spdif_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_cmipci_playback_ops = {
 	.open =		snd_cmipci_playback_open,
 	.close =	snd_cmipci_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_cmipci_hw_params,
+=======
+>>>>>>> upstream/android-13
 	.hw_free =	snd_cmipci_playback_hw_free,
 	.prepare =	snd_cmipci_playback_prepare,
 	.trigger =	snd_cmipci_playback_trigger,
@@ -1852,9 +1944,12 @@ static const struct snd_pcm_ops snd_cmipci_playback_ops = {
 static const struct snd_pcm_ops snd_cmipci_capture_ops = {
 	.open =		snd_cmipci_capture_open,
 	.close =	snd_cmipci_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_cmipci_hw_params,
 	.hw_free =	snd_cmipci_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_cmipci_capture_prepare,
 	.trigger =	snd_cmipci_capture_trigger,
 	.pointer =	snd_cmipci_capture_pointer,
@@ -1863,7 +1958,10 @@ static const struct snd_pcm_ops snd_cmipci_capture_ops = {
 static const struct snd_pcm_ops snd_cmipci_playback2_ops = {
 	.open =		snd_cmipci_playback2_open,
 	.close =	snd_cmipci_playback2_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_cmipci_playback2_hw_params,
 	.hw_free =	snd_cmipci_playback2_hw_free,
 	.prepare =	snd_cmipci_capture_prepare,	/* channel B */
@@ -1874,8 +1972,11 @@ static const struct snd_pcm_ops snd_cmipci_playback2_ops = {
 static const struct snd_pcm_ops snd_cmipci_playback_spdif_ops = {
 	.open =		snd_cmipci_playback_spdif_open,
 	.close =	snd_cmipci_playback_spdif_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_cmipci_hw_params,
+=======
+>>>>>>> upstream/android-13
 	.hw_free =	snd_cmipci_playback_hw_free,
 	.prepare =	snd_cmipci_playback_spdif_prepare,	/* set up rate */
 	.trigger =	snd_cmipci_playback_trigger,
@@ -1885,8 +1986,11 @@ static const struct snd_pcm_ops snd_cmipci_playback_spdif_ops = {
 static const struct snd_pcm_ops snd_cmipci_capture_spdif_ops = {
 	.open =		snd_cmipci_capture_spdif_open,
 	.close =	snd_cmipci_capture_spdif_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_cmipci_hw_params,
+=======
+>>>>>>> upstream/android-13
 	.hw_free =	snd_cmipci_capture_spdif_hw_free,
 	.prepare =	snd_cmipci_capture_spdif_prepare,
 	.trigger =	snd_cmipci_capture_trigger,
@@ -1914,8 +2018,13 @@ static int snd_cmipci_pcm_new(struct cmipci *cm, int device)
 	strcpy(pcm->name, "C-Media PCI DAC/ADC");
 	cm->pcm = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(cm->pci), 64*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &cm->pci->dev, 64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1936,8 +2045,13 @@ static int snd_cmipci_pcm2_new(struct cmipci *cm, int device)
 	strcpy(pcm->name, "C-Media PCI 2nd DAC");
 	cm->pcm2 = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(cm->pci), 64*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &cm->pci->dev, 64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1959,8 +2073,13 @@ static int snd_cmipci_pcm_spdif_new(struct cmipci *cm, int device)
 	strcpy(pcm->name, "C-Media PCI IEC958");
 	cm->pcm_spdif = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(cm->pci), 64*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &cm->pci->dev, 64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	err = snd_pcm_add_chmap_ctls(pcm, SNDRV_PCM_STREAM_PLAYBACK,
 				     snd_pcm_alt_chmaps, cm->max_channels, 0,
@@ -2290,7 +2409,11 @@ static int snd_cmipci_put_native_mixer_sensitive(struct snd_kcontrol *kcontrol,
 }
 
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_cmipci_mixers[] = {
+=======
+static const struct snd_kcontrol_new snd_cmipci_mixers[] = {
+>>>>>>> upstream/android-13
 	CMIPCI_SB_VOL_STEREO("Master Playback Volume", SB_DSP4_MASTER_DEV, 3, 31),
 	CMIPCI_MIXER_SW_MONO("3D Control - Switch", CM_REG_MIXER1, CM_X3DEN_SHIFT, 0),
 	CMIPCI_SB_VOL_STEREO("PCM Playback Volume", SB_DSP4_PCM_DEV, 3, 31),
@@ -2601,7 +2724,11 @@ static int snd_cmipci_mic_in_mode_put(struct snd_kcontrol *kcontrol,
 }
 
 /* both for CM8338/8738 */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_cmipci_mixer_switches[] = {
+=======
+static const struct snd_kcontrol_new snd_cmipci_mixer_switches[] = {
+>>>>>>> upstream/android-13
 	DEFINE_MIXER_SWITCH("Four Channel Mode", fourch),
 	{
 		.name = "Line-In Mode",
@@ -2613,11 +2740,19 @@ static struct snd_kcontrol_new snd_cmipci_mixer_switches[] = {
 };
 
 /* for non-multichannel chips */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_cmipci_nomulti_switch =
 DEFINE_MIXER_SWITCH("Exchange DAC", exchange_dac);
 
 /* only for CM8738 */
 static struct snd_kcontrol_new snd_cmipci_8738_mixer_switches[] = {
+=======
+static const struct snd_kcontrol_new snd_cmipci_nomulti_switch =
+DEFINE_MIXER_SWITCH("Exchange DAC", exchange_dac);
+
+/* only for CM8738 */
+static const struct snd_kcontrol_new snd_cmipci_8738_mixer_switches[] = {
+>>>>>>> upstream/android-13
 #if 0 /* controlled in pcm device */
 	DEFINE_MIXER_SWITCH("IEC958 In Record", spdif_in),
 	DEFINE_MIXER_SWITCH("IEC958 Out", spdif_out),
@@ -2639,14 +2774,22 @@ static struct snd_kcontrol_new snd_cmipci_8738_mixer_switches[] = {
 };
 
 /* only for model 033/037 */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_cmipci_old_mixer_switches[] = {
+=======
+static const struct snd_kcontrol_new snd_cmipci_old_mixer_switches[] = {
+>>>>>>> upstream/android-13
 	DEFINE_MIXER_SWITCH("IEC958 Mix Analog", spdif_dac_out),
 	DEFINE_MIXER_SWITCH("IEC958 In Phase Inverse", spdi_phase),
 	DEFINE_MIXER_SWITCH("IEC958 In Select", spdif_in_sel1),
 };
 
 /* only for model 039 or later */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_cmipci_extra_mixer_switches[] = {
+=======
+static const struct snd_kcontrol_new snd_cmipci_extra_mixer_switches[] = {
+>>>>>>> upstream/android-13
 	DEFINE_MIXER_SWITCH("IEC958 In Select", spdif_in_sel2),
 	DEFINE_MIXER_SWITCH("IEC958 In Phase Inverse", spdi_phase2),
 	{
@@ -2659,14 +2802,22 @@ static struct snd_kcontrol_new snd_cmipci_extra_mixer_switches[] = {
 };
 
 /* card control switches */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_cmipci_modem_switch =
+=======
+static const struct snd_kcontrol_new snd_cmipci_modem_switch =
+>>>>>>> upstream/android-13
 DEFINE_CARD_SWITCH("Modem", modem);
 
 
 static int snd_cmipci_mixer_new(struct cmipci *cm, int pcm_spdif_device)
 {
 	struct snd_card *card;
+<<<<<<< HEAD
 	struct snd_kcontrol_new *sw;
+=======
+	const struct snd_kcontrol_new *sw;
+>>>>>>> upstream/android-13
 	struct snd_kcontrol *kctl;
 	unsigned int idx;
 	int err;
@@ -2688,7 +2839,12 @@ static int snd_cmipci_mixer_new(struct cmipci *cm, int pcm_spdif_device)
 				"PCM Playback Volume"))
 				continue;
 		}
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, snd_ctl_new1(&snd_cmipci_mixers[idx], cm))) < 0)
+=======
+		err = snd_ctl_add(card, snd_ctl_new1(&snd_cmipci_mixers[idx], cm));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 	}
 
@@ -2713,6 +2869,7 @@ static int snd_cmipci_mixer_new(struct cmipci *cm, int pcm_spdif_device)
 				return err;
 		}
 		if (cm->can_ac3_hw) {
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(card, kctl = snd_ctl_new1(&snd_cmipci_spdif_default, cm))) < 0)
 				return err;
 			kctl->id.device = pcm_spdif_device;
@@ -2720,6 +2877,21 @@ static int snd_cmipci_mixer_new(struct cmipci *cm, int pcm_spdif_device)
 				return err;
 			kctl->id.device = pcm_spdif_device;
 			if ((err = snd_ctl_add(card, kctl = snd_ctl_new1(&snd_cmipci_spdif_stream, cm))) < 0)
+=======
+			kctl = snd_ctl_new1(&snd_cmipci_spdif_default, cm);
+			err = snd_ctl_add(card, kctl);
+			if (err < 0)
+				return err;
+			kctl->id.device = pcm_spdif_device;
+			kctl = snd_ctl_new1(&snd_cmipci_spdif_mask, cm);
+			err = snd_ctl_add(card, kctl);
+			if (err < 0)
+				return err;
+			kctl->id.device = pcm_spdif_device;
+			kctl = snd_ctl_new1(&snd_cmipci_spdif_stream, cm);
+			err = snd_ctl_add(card, kctl);
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 			kctl->id.device = pcm_spdif_device;
 		}
@@ -2792,10 +2964,14 @@ static void snd_cmipci_proc_read(struct snd_info_entry *entry,
 
 static void snd_cmipci_proc_init(struct cmipci *cm)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 
 	if (! snd_card_proc_new(cm->card, "cmipci", &entry))
 		snd_info_set_text_ops(entry, cm, snd_cmipci_proc_read);
+=======
+	snd_card_ro_proc_new(cm->card, "cmipci", cm, snd_cmipci_proc_read);
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id snd_cmipci_ids[] = {
@@ -2863,7 +3039,11 @@ static void query_chip(struct cmipci *cm)
 #ifdef SUPPORT_JOYSTICK
 static int snd_cmipci_create_gameport(struct cmipci *cm, int dev)
 {
+<<<<<<< HEAD
 	static int ports[] = { 0x201, 0x200, 0 }; /* FIXME: majority is 0x201? */
+=======
+	static const int ports[] = { 0x201, 0x200, 0 }; /* FIXME: majority is 0x201? */
+>>>>>>> upstream/android-13
 	struct gameport *gp;
 	struct resource *r = NULL;
 	int i, io_port = 0;
@@ -2874,13 +3054,23 @@ static int snd_cmipci_create_gameport(struct cmipci *cm, int dev)
 	if (joystick_port[dev] == 1) { /* auto-detect */
 		for (i = 0; ports[i]; i++) {
 			io_port = ports[i];
+<<<<<<< HEAD
 			r = request_region(io_port, 1, "CMIPCI gameport");
+=======
+			r = devm_request_region(&cm->pci->dev, io_port, 1,
+						"CMIPCI gameport");
+>>>>>>> upstream/android-13
 			if (r)
 				break;
 		}
 	} else {
 		io_port = joystick_port[dev];
+<<<<<<< HEAD
 		r = request_region(io_port, 1, "CMIPCI gameport");
+=======
+		r = devm_request_region(&cm->pci->dev, io_port, 1,
+					"CMIPCI gameport");
+>>>>>>> upstream/android-13
 	}
 
 	if (!r) {
@@ -2891,14 +3081,20 @@ static int snd_cmipci_create_gameport(struct cmipci *cm, int dev)
 	cm->gameport = gp = gameport_allocate_port();
 	if (!gp) {
 		dev_err(cm->card->dev, "cannot allocate memory for gameport\n");
+<<<<<<< HEAD
 		release_and_free_resource(r);
+=======
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 	gameport_set_name(gp, "C-Media Gameport");
 	gameport_set_phys(gp, "pci%s/gameport0", pci_name(cm->pci));
 	gameport_set_dev_parent(gp, &cm->pci->dev);
 	gp->io = io_port;
+<<<<<<< HEAD
 	gameport_set_port_data(gp, r);
+=======
+>>>>>>> upstream/android-13
 
 	snd_cmipci_set_bit(cm, CM_REG_FUNCTRL1, CM_JYSTK_EN);
 
@@ -2910,13 +3106,19 @@ static int snd_cmipci_create_gameport(struct cmipci *cm, int dev)
 static void snd_cmipci_free_gameport(struct cmipci *cm)
 {
 	if (cm->gameport) {
+<<<<<<< HEAD
 		struct resource *r = gameport_get_port_data(cm->gameport);
 
+=======
+>>>>>>> upstream/android-13
 		gameport_unregister_port(cm->gameport);
 		cm->gameport = NULL;
 
 		snd_cmipci_clear_bit(cm, CM_REG_FUNCTRL1, CM_JYSTK_EN);
+<<<<<<< HEAD
 		release_and_free_resource(r);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 #else
@@ -2924,6 +3126,7 @@ static inline int snd_cmipci_create_gameport(struct cmipci *cm, int dev) { retur
 static inline void snd_cmipci_free_gameport(struct cmipci *cm) { }
 #endif
 
+<<<<<<< HEAD
 static int snd_cmipci_free(struct cmipci *cm)
 {
 	if (cm->irq >= 0) {
@@ -2952,6 +3155,24 @@ static int snd_cmipci_dev_free(struct snd_device *device)
 {
 	struct cmipci *cm = device->device_data;
 	return snd_cmipci_free(cm);
+=======
+static void snd_cmipci_free(struct snd_card *card)
+{
+	struct cmipci *cm = card->private_data;
+
+	snd_cmipci_clear_bit(cm, CM_REG_MISC_CTRL, CM_FM_EN);
+	snd_cmipci_clear_bit(cm, CM_REG_LEGACY_CTRL, CM_ENSPDOUT);
+	snd_cmipci_write(cm, CM_REG_INT_HLDCLR, 0);  /* disable ints */
+	snd_cmipci_ch_reset(cm, CM_CH_PLAY);
+	snd_cmipci_ch_reset(cm, CM_CH_CAPT);
+	snd_cmipci_write(cm, CM_REG_FUNCTRL0, 0); /* disable channels */
+	snd_cmipci_write(cm, CM_REG_FUNCTRL1, 0);
+
+	/* reset mixer */
+	snd_cmipci_mixer_write(cm, 0, 0);
+
+	snd_cmipci_free_gameport(cm);
+>>>>>>> upstream/android-13
 }
 
 static int snd_cmipci_create_fm(struct cmipci *cm, long fm_port)
@@ -2996,7 +3217,12 @@ static int snd_cmipci_create_fm(struct cmipci *cm, long fm_port)
 			goto disable_fm;
 		}
 	}
+<<<<<<< HEAD
 	if ((err = snd_opl3_hwdep_new(opl3, 0, 1, NULL)) < 0) {
+=======
+	err = snd_opl3_hwdep_new(opl3, 0, 1, NULL);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		dev_err(cm->card->dev, "cannot create OPL3 hwdep\n");
 		return err;
 	}
@@ -3009,6 +3235,7 @@ static int snd_cmipci_create_fm(struct cmipci *cm, long fm_port)
 }
 
 static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
+<<<<<<< HEAD
 			     int dev, struct cmipci **rcmipci)
 {
 	struct cmipci *cm;
@@ -3016,6 +3243,12 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 	static struct snd_device_ops ops = {
 		.dev_free =	snd_cmipci_dev_free,
 	};
+=======
+			     int dev)
+{
+	struct cmipci *cm = card->private_data;
+	int err;
+>>>>>>> upstream/android-13
 	unsigned int val;
 	long iomidi = 0;
 	int integrated_midi = 0;
@@ -3026,6 +3259,7 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 		{ },
 	};
 
+<<<<<<< HEAD
 	*rcmipci = NULL;
 
 	if ((err = pci_enable_device(pci)) < 0)
@@ -3037,6 +3271,12 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 		return -ENOMEM;
 	}
 
+=======
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&cm->reg_lock);
 	mutex_init(&cm->open_mutex);
 	cm->device = pci->device;
@@ -3047,6 +3287,7 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 	cm->channel[1].ch = 1;
 	cm->channel[0].is_dac = cm->channel[1].is_dac = 1; /* dual DAC mode */
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, card->driver)) < 0) {
 		kfree(cm);
 		pci_disable_device(pci);
@@ -3061,6 +3302,21 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 		return -EBUSY;
 	}
 	cm->irq = pci->irq;
+=======
+	err = pci_request_regions(pci, card->driver);
+	if (err < 0)
+		return err;
+	cm->iobase = pci_resource_start(pci, 0);
+
+	if (devm_request_irq(&pci->dev, pci->irq, snd_cmipci_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, cm)) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return -EBUSY;
+	}
+	cm->irq = pci->irq;
+	card->sync_irq = cm->irq;
+	card->private_free = snd_cmipci_free;
+>>>>>>> upstream/android-13
 
 	pci_set_master(cm->pci);
 
@@ -3160,6 +3416,7 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 	sprintf(card->longname, "%s%s at %#lx, irq %i",
 		card->shortname, modelstr, cm->iobase, cm->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, cm, &ops)) < 0) {
 		snd_cmipci_free(cm);
 		return err;
@@ -3169,6 +3426,13 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 		val = snd_cmipci_read_b(cm, CM_REG_MPU_PCI + 1);
 		if (val != 0x00 && val != 0xff) {
 			iomidi = cm->iobase + CM_REG_MPU_PCI;
+=======
+	if (cm->chip_version >= 39) {
+		val = snd_cmipci_read_b(cm, CM_REG_MPU_PCI + 1);
+		if (val != 0x00 && val != 0xff) {
+			if (mpu_port[dev])
+				iomidi = cm->iobase + CM_REG_MPU_PCI;
+>>>>>>> upstream/android-13
 			integrated_midi = 1;
 		}
 	}
@@ -3211,19 +3475,34 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 
 	/* create pcm devices */
 	pcm_index = pcm_spdif_index = 0;
+<<<<<<< HEAD
 	if ((err = snd_cmipci_pcm_new(cm, pcm_index)) < 0)
 		return err;
 	pcm_index++;
 	if ((err = snd_cmipci_pcm2_new(cm, pcm_index)) < 0)
+=======
+	err = snd_cmipci_pcm_new(cm, pcm_index);
+	if (err < 0)
+		return err;
+	pcm_index++;
+	err = snd_cmipci_pcm2_new(cm, pcm_index);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	pcm_index++;
 	if (cm->can_ac3_hw || cm->can_ac3_sw) {
 		pcm_spdif_index = pcm_index;
+<<<<<<< HEAD
 		if ((err = snd_cmipci_pcm_spdif_new(cm, pcm_index)) < 0)
+=======
+		err = snd_cmipci_pcm_spdif_new(cm, pcm_index);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 	}
 
 	/* create mixer interface & switches */
+<<<<<<< HEAD
 	if ((err = snd_cmipci_mixer_new(cm, pcm_spdif_index)) < 0)
 		return err;
 
@@ -3237,6 +3516,22 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 			dev_err(cm->card->dev,
 				"no UART401 device at 0x%lx\n", iomidi);
 		}
+=======
+	err = snd_cmipci_mixer_new(cm, pcm_spdif_index);
+	if (err < 0)
+		return err;
+
+	if (iomidi > 0) {
+		err = snd_mpu401_uart_new(card, 0, MPU401_HW_CMIPCI,
+					  iomidi,
+					  (integrated_midi ?
+					   MPU401_INFO_INTEGRATED : 0) |
+					  MPU401_INFO_IRQ_HOOK,
+					  -1, &cm->rmidi);
+		if (err < 0)
+			dev_err(cm->card->dev,
+				"no UART401 device at 0x%lx\n", iomidi);
+>>>>>>> upstream/android-13
 	}
 
 #ifdef USE_VAR48KRATE
@@ -3252,7 +3547,10 @@ static int snd_cmipci_create(struct snd_card *card, struct pci_dev *pci,
 	if (snd_cmipci_create_gameport(cm, dev) < 0)
 		snd_cmipci_clear_bit(cm, CM_REG_FUNCTRL1, CM_JYSTK_EN);
 
+<<<<<<< HEAD
 	*rcmipci = cm;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3276,10 +3574,18 @@ static int snd_cmipci_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
 		return err;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*cm), &card);
+	if (err < 0)
+		return err;
+	cm = card->private_data;
+>>>>>>> upstream/android-13
 	
 	switch (pci->device) {
 	case PCI_DEVICE_ID_CMEDIA_CM8738:
@@ -3295,6 +3601,7 @@ static int snd_cmipci_probe(struct pci_dev *pci,
 		break;
 	}
 
+<<<<<<< HEAD
 	err = snd_cmipci_create(card, pci, dev, &cm);
 	if (err < 0)
 		goto free_card;
@@ -3304,35 +3611,61 @@ static int snd_cmipci_probe(struct pci_dev *pci,
 	err = snd_card_register(card);
 	if (err < 0)
 		goto free_card;
+=======
+	err = snd_cmipci_create(card, pci, dev);
+	if (err < 0)
+		goto error;
+
+	err = snd_card_register(card);
+	if (err < 0)
+		goto error;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
 
+<<<<<<< HEAD
 free_card:
+=======
+ error:
+>>>>>>> upstream/android-13
 	snd_card_free(card);
 	return err;
 }
 
+<<<<<<< HEAD
 static void snd_cmipci_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
 }
 
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 /*
  * power management
  */
+<<<<<<< HEAD
 static unsigned char saved_regs[] = {
 	CM_REG_FUNCTRL1, CM_REG_CHFORMAT, CM_REG_LEGACY_CTRL, CM_REG_MISC_CTRL,
 	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_MIXER3, CM_REG_PLL,
+=======
+static const unsigned char saved_regs[] = {
+	CM_REG_FUNCTRL1, CM_REG_CHFORMAT, CM_REG_LEGACY_CTRL, CM_REG_MISC_CTRL,
+	CM_REG_MIXER0, CM_REG_MIXER1, CM_REG_MIXER2, CM_REG_AUX_VOL, CM_REG_PLL,
+>>>>>>> upstream/android-13
 	CM_REG_CH0_FRAME1, CM_REG_CH0_FRAME2,
 	CM_REG_CH1_FRAME1, CM_REG_CH1_FRAME2, CM_REG_EXT_MISC,
 	CM_REG_INT_STATUS, CM_REG_INT_HLDCLR, CM_REG_FUNCTRL0,
 };
 
+<<<<<<< HEAD
 static unsigned char saved_mixers[] = {
+=======
+static const unsigned char saved_mixers[] = {
+>>>>>>> upstream/android-13
 	SB_DSP4_MASTER_DEV, SB_DSP4_MASTER_DEV + 1,
 	SB_DSP4_PCM_DEV, SB_DSP4_PCM_DEV + 1,
 	SB_DSP4_SYNTH_DEV, SB_DSP4_SYNTH_DEV + 1,
@@ -3351,10 +3684,13 @@ static int snd_cmipci_suspend(struct device *dev)
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
 	
+<<<<<<< HEAD
 	snd_pcm_suspend_all(cm->pcm);
 	snd_pcm_suspend_all(cm->pcm2);
 	snd_pcm_suspend_all(cm->pcm_spdif);
 
+=======
+>>>>>>> upstream/android-13
 	/* save registers */
 	for (i = 0; i < ARRAY_SIZE(saved_regs); i++)
 		cm->saved_regs[i] = snd_cmipci_read(cm, saved_regs[i]);
@@ -3398,7 +3734,10 @@ static struct pci_driver cmipci_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_cmipci_ids,
 	.probe = snd_cmipci_probe,
+<<<<<<< HEAD
 	.remove = snd_cmipci_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = SND_CMIPCI_PM_OPS,
 	},

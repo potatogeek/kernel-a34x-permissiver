@@ -33,7 +33,11 @@ TRACE_EVENT(wbt_stat,
 	),
 
 	TP_fast_assign(
+<<<<<<< HEAD
 		strlcpy(__entry->name, dev_name(bdi->dev),
+=======
+		strlcpy(__entry->name, bdi_dev_name(bdi),
+>>>>>>> upstream/android-13
 			ARRAY_SIZE(__entry->name));
 		__entry->rmean		= stat[0].mean;
 		__entry->rmin		= stat[0].min;
@@ -46,7 +50,11 @@ TRACE_EVENT(wbt_stat,
 	),
 
 	TP_printk("%s: rmean=%llu, rmin=%llu, rmax=%llu, rsamples=%llu, "
+<<<<<<< HEAD
 		  "wmean=%llu, wmin=%llu, wmax=%llu, wsamples=%llu\n",
+=======
+		  "wmean=%llu, wmin=%llu, wmax=%llu, wsamples=%llu",
+>>>>>>> upstream/android-13
 		  __entry->name, __entry->rmean, __entry->rmin, __entry->rmax,
 		  __entry->rnr_samples, __entry->wmean, __entry->wmin,
 		  __entry->wmax, __entry->wnr_samples)
@@ -68,12 +76,20 @@ TRACE_EVENT(wbt_lat,
 	),
 
 	TP_fast_assign(
+<<<<<<< HEAD
 		strlcpy(__entry->name, dev_name(bdi->dev),
+=======
+		strlcpy(__entry->name, bdi_dev_name(bdi),
+>>>>>>> upstream/android-13
 			ARRAY_SIZE(__entry->name));
 		__entry->lat = div_u64(lat, 1000);
 	),
 
+<<<<<<< HEAD
 	TP_printk("%s: latency %lluus\n", __entry->name,
+=======
+	TP_printk("%s: latency %lluus", __entry->name,
+>>>>>>> upstream/android-13
 			(unsigned long long) __entry->lat)
 );
 
@@ -105,7 +121,11 @@ TRACE_EVENT(wbt_step,
 	),
 
 	TP_fast_assign(
+<<<<<<< HEAD
 		strlcpy(__entry->name, dev_name(bdi->dev),
+=======
+		strlcpy(__entry->name, bdi_dev_name(bdi),
+>>>>>>> upstream/android-13
 			ARRAY_SIZE(__entry->name));
 		__entry->msg	= msg;
 		__entry->step	= step;
@@ -115,7 +135,11 @@ TRACE_EVENT(wbt_step,
 		__entry->max	= max;
 	),
 
+<<<<<<< HEAD
 	TP_printk("%s: %s: step=%d, window=%luus, background=%u, normal=%u, max=%u\n",
+=======
+	TP_printk("%s: %s: step=%d, window=%luus, background=%u, normal=%u, max=%u",
+>>>>>>> upstream/android-13
 		  __entry->name, __entry->msg, __entry->step, __entry->window,
 		  __entry->bg, __entry->normal, __entry->max)
 );
@@ -141,14 +165,22 @@ TRACE_EVENT(wbt_timer,
 	),
 
 	TP_fast_assign(
+<<<<<<< HEAD
 		strlcpy(__entry->name, dev_name(bdi->dev),
+=======
+		strlcpy(__entry->name, bdi_dev_name(bdi),
+>>>>>>> upstream/android-13
 			ARRAY_SIZE(__entry->name));
 		__entry->status		= status;
 		__entry->step		= step;
 		__entry->inflight	= inflight;
 	),
 
+<<<<<<< HEAD
 	TP_printk("%s: status=%u, step=%d, inflight=%u\n", __entry->name,
+=======
+	TP_printk("%s: status=%u, step=%d, inflight=%u", __entry->name,
+>>>>>>> upstream/android-13
 		  __entry->status, __entry->step, __entry->inflight)
 );
 

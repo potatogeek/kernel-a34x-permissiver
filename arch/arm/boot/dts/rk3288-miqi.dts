@@ -30,7 +30,11 @@
 	leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		work {
+=======
+		work_led: led-0 {
+>>>>>>> upstream/android-13
 			gpios = <&gpio7 RK_PA2 GPIO_ACTIVE_HIGH>;
 			label = "miqi:green:user";
 			linux,default-trigger = "timer";
@@ -81,13 +85,32 @@
 };
 
 &cpu0 {
+<<<<<<< HEAD
 	cpu0-supply = <&vdd_cpu>;
+=======
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu1 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu2 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu3 {
+	cpu-supply = <&vdd_cpu>;
+>>>>>>> upstream/android-13
 };
 
 &emmc {
 	bus-width = <8>;
 	cap-mmc-highspeed;
+<<<<<<< HEAD
 	disable-wp;
+=======
+>>>>>>> upstream/android-13
 	non-removable;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_clk>, <&emmc_cmd>, <&emmc_pwr>, <&emmc_bus8>;
@@ -109,7 +132,16 @@
 	snps,reset-gpio = <&gpio4 RK_PB0 GPIO_ACTIVE_LOW>;
 	tx_delay = <0x30>;
 	rx_delay = <0x10>;
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+};
+
+&gpu {
+	mali-supply = <&vdd_gpu>;
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -297,6 +329,7 @@
 
 	act8846 {
 		pmic_int: pmic-int {
+<<<<<<< HEAD
 			rockchip,pins = <0 4 RK_FUNC_GPIO &pcfg_pull_up>;
 		};
 
@@ -306,11 +339,23 @@
 
 		pmic_vsel: pmic-vsel {
 			rockchip,pins = <7 1 RK_FUNC_GPIO &pcfg_output_low>;
+=======
+			rockchip,pins = <0 RK_PA4 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+
+		pmic_sleep: pmic-sleep {
+			rockchip,pins = <0 RK_PA0 RK_FUNC_GPIO &pcfg_output_low>;
+		};
+
+		pmic_vsel: pmic-vsel {
+			rockchip,pins = <7 RK_PA1 RK_FUNC_GPIO &pcfg_output_low>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	gmac {
 		phy_int: phy-int {
+<<<<<<< HEAD
 			rockchip,pins = <0 9 RK_FUNC_GPIO &pcfg_pull_up>;
 		};
 
@@ -320,6 +365,17 @@
 
 		phy_rst: phy-rst {
 			rockchip,pins = <4 8 RK_FUNC_GPIO &pcfg_output_high>;
+=======
+			rockchip,pins = <0 RK_PB1 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+
+		phy_pmeb: phy-pmeb {
+			rockchip,pins = <0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+
+		phy_rst: phy-rst {
+			rockchip,pins = <4 RK_PB0 RK_FUNC_GPIO &pcfg_output_high>;
+>>>>>>> upstream/android-13
 		};
 	};
 
@@ -329,6 +385,7 @@
 		 * high-speed mode on firefly board so bump up to 12ma.
 		 */
 		sdmmc_bus4: sdmmc-bus4 {
+<<<<<<< HEAD
 			rockchip,pins = <6 16 RK_FUNC_1 &pcfg_pull_up_drv_12ma>,
 					<6 17 RK_FUNC_1 &pcfg_pull_up_drv_12ma>,
 					<6 18 RK_FUNC_1 &pcfg_pull_up_drv_12ma>,
@@ -345,12 +402,34 @@
 
 		sdmmc_pwr: sdmmc-pwr {
 			rockchip,pins = <7 11 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <6 RK_PC0 1 &pcfg_pull_up_drv_12ma>,
+					<6 RK_PC1 1 &pcfg_pull_up_drv_12ma>,
+					<6 RK_PC2 1 &pcfg_pull_up_drv_12ma>,
+					<6 RK_PC3 1 &pcfg_pull_up_drv_12ma>;
+		};
+
+		sdmmc_clk: sdmmc-clk {
+			rockchip,pins = <6 RK_PC4 1 &pcfg_pull_none_12ma>;
+		};
+
+		sdmmc_cmd: sdmmc-cmd {
+			rockchip,pins = <6 RK_PC5 1 &pcfg_pull_up_drv_12ma>;
+		};
+
+		sdmmc_pwr: sdmmc-pwr {
+			rockchip,pins = <7 RK_PB3 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	usb_host {
 		host_vbus_drv: host-vbus-drv {
+<<<<<<< HEAD
 			rockchip,pins = <0 14 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <0 RK_PB6 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

@@ -11,12 +11,17 @@
 #include "xfs_shared.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_bmap_btree.h"
 #include "xfs_inode.h"
 #include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_symlink.h"
 #include "xfs_cksum.h"
+=======
+#include "xfs_inode.h"
+#include "xfs_error.h"
+>>>>>>> upstream/android-13
 #include "xfs_trans.h"
 #include "xfs_buf_item.h"
 #include "xfs_log.h"
@@ -46,7 +51,11 @@ xfs_symlink_hdr_set(
 {
 	struct xfs_dsymlink_hdr	*dsl = bp->b_addr;
 
+<<<<<<< HEAD
 	if (!xfs_sb_version_hascrc(&mp->m_sb))
+=======
+	if (!xfs_has_crc(mp))
+>>>>>>> upstream/android-13
 		return 0;
 
 	memset(dsl, 0, sizeof(struct xfs_dsymlink_hdr));
@@ -55,7 +64,11 @@ xfs_symlink_hdr_set(
 	dsl->sl_bytes = cpu_to_be32(size);
 	uuid_copy(&dsl->sl_uuid, &mp->m_sb.sb_meta_uuid);
 	dsl->sl_owner = cpu_to_be64(ino);
+<<<<<<< HEAD
 	dsl->sl_blkno = cpu_to_be64(bp->b_bn);
+=======
+	dsl->sl_blkno = cpu_to_be64(xfs_buf_daddr(bp));
+>>>>>>> upstream/android-13
 	bp->b_ops = &xfs_symlink_buf_ops;
 
 	return sizeof(struct xfs_dsymlink_hdr);
@@ -90,6 +103,7 @@ static xfs_failaddr_t
 xfs_symlink_verify(
 	struct xfs_buf		*bp)
 {
+<<<<<<< HEAD
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
 	struct xfs_dsymlink_hdr	*dsl = bp->b_addr;
 
@@ -100,6 +114,18 @@ xfs_symlink_verify(
 	if (!uuid_equal(&dsl->sl_uuid, &mp->m_sb.sb_meta_uuid))
 		return __this_address;
 	if (bp->b_bn != be64_to_cpu(dsl->sl_blkno))
+=======
+	struct xfs_mount	*mp = bp->b_mount;
+	struct xfs_dsymlink_hdr	*dsl = bp->b_addr;
+
+	if (!xfs_has_crc(mp))
+		return __this_address;
+	if (!xfs_verify_magic(bp, dsl->sl_magic))
+		return __this_address;
+	if (!uuid_equal(&dsl->sl_uuid, &mp->m_sb.sb_meta_uuid))
+		return __this_address;
+	if (xfs_buf_daddr(bp) != be64_to_cpu(dsl->sl_blkno))
+>>>>>>> upstream/android-13
 		return __this_address;
 	if (be32_to_cpu(dsl->sl_offset) +
 				be32_to_cpu(dsl->sl_bytes) >= XFS_SYMLINK_MAXLEN)
@@ -116,11 +142,19 @@ static void
 xfs_symlink_read_verify(
 	struct xfs_buf	*bp)
 {
+<<<<<<< HEAD
 	struct xfs_mount *mp = bp->b_target->bt_mount;
 	xfs_failaddr_t	fa;
 
 	/* no verification of non-crc buffers */
 	if (!xfs_sb_version_hascrc(&mp->m_sb))
+=======
+	struct xfs_mount *mp = bp->b_mount;
+	xfs_failaddr_t	fa;
+
+	/* no verification of non-crc buffers */
+	if (!xfs_has_crc(mp))
+>>>>>>> upstream/android-13
 		return;
 
 	if (!xfs_buf_verify_cksum(bp, XFS_SYMLINK_CRC_OFF))
@@ -136,12 +170,20 @@ static void
 xfs_symlink_write_verify(
 	struct xfs_buf	*bp)
 {
+<<<<<<< HEAD
 	struct xfs_mount *mp = bp->b_target->bt_mount;
+=======
+	struct xfs_mount *mp = bp->b_mount;
+>>>>>>> upstream/android-13
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 	xfs_failaddr_t		fa;
 
 	/* no verification of non-crc buffers */
+<<<<<<< HEAD
 	if (!xfs_sb_version_hascrc(&mp->m_sb))
+=======
+	if (!xfs_has_crc(mp))
+>>>>>>> upstream/android-13
 		return;
 
 	fa = xfs_symlink_verify(bp);
@@ -159,6 +201,10 @@ xfs_symlink_write_verify(
 
 const struct xfs_buf_ops xfs_symlink_buf_ops = {
 	.name = "xfs_symlink",
+<<<<<<< HEAD
+=======
+	.magic = { 0, cpu_to_be32(XFS_SYMLINK_MAGIC) },
+>>>>>>> upstream/android-13
 	.verify_read = xfs_symlink_read_verify,
 	.verify_write = xfs_symlink_write_verify,
 	.verify_struct = xfs_symlink_verify,
@@ -176,7 +222,11 @@ xfs_symlink_local_to_remote(
 
 	xfs_trans_buf_set_type(tp, bp, XFS_BLFT_SYMLINK_BUF);
 
+<<<<<<< HEAD
 	if (!xfs_sb_version_hascrc(&mp->m_sb)) {
+=======
+	if (!xfs_has_crc(mp)) {
+>>>>>>> upstream/android-13
 		bp->b_ops = NULL;
 		memcpy(bp->b_addr, ifp->if_u1.if_data, ifp->if_bytes);
 		xfs_trans_log_buf(tp, bp, 0, ifp->if_bytes - 1);
@@ -207,6 +257,7 @@ xfs_failaddr_t
 xfs_symlink_shortform_verify(
 	struct xfs_inode	*ip)
 {
+<<<<<<< HEAD
 	char			*sfp;
 	char			*endp;
 	struct xfs_ifork	*ifp;
@@ -217,6 +268,14 @@ xfs_symlink_shortform_verify(
 	sfp = (char *)ifp->if_u1.if_data;
 	size = ifp->if_bytes;
 	endp = sfp + size;
+=======
+	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, XFS_DATA_FORK);
+	char			*sfp = (char *)ifp->if_u1.if_data;
+	int			size = ifp->if_bytes;
+	char			*endp = sfp + size;
+
+	ASSERT(ifp->if_format == XFS_DINODE_FMT_LOCAL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Zero length symlinks should never occur in memory as they are

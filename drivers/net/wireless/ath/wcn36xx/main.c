@@ -25,6 +25,10 @@
 #include <linux/rpmsg.h>
 #include <linux/soc/qcom/smem_state.h>
 #include <linux/soc/qcom/wcnss_ctrl.h>
+<<<<<<< HEAD
+=======
+#include <net/ipv6.h>
+>>>>>>> upstream/android-13
 #include "wcn36xx.h"
 #include "testmode.h"
 
@@ -39,10 +43,17 @@ MODULE_PARM_DESC(debug_mask, "Debugging mask");
 	.max_power = 25, \
 }
 
+<<<<<<< HEAD
 #define CHAN5G(_freq, _idx) { \
 	.band = NL80211_BAND_5GHZ, \
 	.center_freq = (_freq), \
 	.hw_value = (_idx), \
+=======
+#define CHAN5G(_freq, _idx, _phy_val) { \
+	.band = NL80211_BAND_5GHZ, \
+	.center_freq = (_freq), \
+	.hw_value = (_phy_val) << HW_VALUE_PHY_SHIFT | HW_VALUE_CHANNEL(_idx), \
+>>>>>>> upstream/android-13
 	.max_power = 25, \
 }
 
@@ -67,6 +78,7 @@ static struct ieee80211_channel wcn_2ghz_channels[] = {
 };
 
 static struct ieee80211_channel wcn_5ghz_channels[] = {
+<<<<<<< HEAD
 	CHAN5G(5180, 36),
 	CHAN5G(5200, 40),
 	CHAN5G(5220, 44),
@@ -90,6 +102,31 @@ static struct ieee80211_channel wcn_5ghz_channels[] = {
 	CHAN5G(5785, 157),
 	CHAN5G(5805, 161),
 	CHAN5G(5825, 165)
+=======
+	CHAN5G(5180, 36, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW),
+	CHAN5G(5200, 40, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW),
+	CHAN5G(5220, 44, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH),
+	CHAN5G(5240, 48, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH),
+	CHAN5G(5260, 52, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW),
+	CHAN5G(5280, 56, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW),
+	CHAN5G(5300, 60, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH),
+	CHAN5G(5320, 64, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH),
+	CHAN5G(5500, 100, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW),
+	CHAN5G(5520, 104, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW),
+	CHAN5G(5540, 108, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH),
+	CHAN5G(5560, 112, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH),
+	CHAN5G(5580, 116, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW),
+	CHAN5G(5600, 120, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW),
+	CHAN5G(5620, 124, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH),
+	CHAN5G(5640, 128, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH),
+	CHAN5G(5660, 132, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW),
+	CHAN5G(5700, 140, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH),
+	CHAN5G(5745, 149, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW),
+	CHAN5G(5765, 153, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW),
+	CHAN5G(5785, 157, PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH),
+	CHAN5G(5805, 161, PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH),
+	CHAN5G(5825, 165, 0)
+>>>>>>> upstream/android-13
 };
 
 #define RATE(_bitrate, _hw_rate, _flags) { \
@@ -134,7 +171,13 @@ static struct ieee80211_supported_band wcn_band_2ghz = {
 		.cap =	IEEE80211_HT_CAP_GRN_FLD |
 			IEEE80211_HT_CAP_SGI_20 |
 			IEEE80211_HT_CAP_DSSSCCK40 |
+<<<<<<< HEAD
 			IEEE80211_HT_CAP_LSIG_TXOP_PROT,
+=======
+			IEEE80211_HT_CAP_LSIG_TXOP_PROT |
+			IEEE80211_HT_CAP_SGI_40 |
+			IEEE80211_HT_CAP_SUP_WIDTH_20_40,
+>>>>>>> upstream/android-13
 		.ht_supported = true,
 		.ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K,
 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
@@ -172,7 +215,13 @@ static struct ieee80211_supported_band wcn_band_5ghz = {
 #ifdef CONFIG_PM
 
 static const struct wiphy_wowlan_support wowlan_support = {
+<<<<<<< HEAD
 	.flags = WIPHY_WOWLAN_ANY
+=======
+	.flags = WIPHY_WOWLAN_ANY	|
+		 WIPHY_WOWLAN_MAGIC_PKT	|
+		 WIPHY_WOWLAN_SUPPORTS_GTK_REKEY
+>>>>>>> upstream/android-13
 };
 
 #endif
@@ -293,6 +342,7 @@ static int wcn36xx_start(struct ieee80211_hw *hw)
 		goto out_free_dxe_pool;
 	}
 
+<<<<<<< HEAD
 	wcn->hal_buf = kmalloc(WCN36XX_HAL_BUF_SIZE, GFP_KERNEL);
 	if (!wcn->hal_buf) {
 		wcn36xx_err("Failed to allocate smd buf\n");
@@ -304,12 +354,22 @@ static int wcn36xx_start(struct ieee80211_hw *hw)
 	if (ret) {
 		wcn36xx_err("Failed to push NV to chip\n");
 		goto out_free_smd_buf;
+=======
+	ret = wcn36xx_smd_load_nv(wcn);
+	if (ret) {
+		wcn36xx_err("Failed to push NV to chip\n");
+		goto out_free_dxe_ctl;
+>>>>>>> upstream/android-13
 	}
 
 	ret = wcn36xx_smd_start(wcn);
 	if (ret) {
 		wcn36xx_err("Failed to start chip\n");
+<<<<<<< HEAD
 		goto out_free_smd_buf;
+=======
+		goto out_free_dxe_ctl;
+>>>>>>> upstream/android-13
 	}
 
 	if (!wcn36xx_is_fw_version(wcn, 1, 2, 2, 24)) {
@@ -336,8 +396,11 @@ static int wcn36xx_start(struct ieee80211_hw *hw)
 
 out_smd_stop:
 	wcn36xx_smd_stop(wcn);
+<<<<<<< HEAD
 out_free_smd_buf:
 	kfree(wcn->hal_buf);
+=======
+>>>>>>> upstream/android-13
 out_free_dxe_ctl:
 	wcn36xx_dxe_free_ctl_blks(wcn);
 out_free_dxe_pool:
@@ -354,8 +417,11 @@ static void wcn36xx_stop(struct ieee80211_hw *hw)
 
 	wcn36xx_dbg(WCN36XX_DBG_MAC, "mac stop\n");
 
+<<<<<<< HEAD
 	cancel_work_sync(&wcn->scan_work);
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&wcn->scan_lock);
 	if (wcn->scan_req) {
 		struct cfg80211_scan_info scan_info = {
@@ -374,15 +440,49 @@ static void wcn36xx_stop(struct ieee80211_hw *hw)
 
 	wcn36xx_dxe_free_mem_pools(wcn);
 	wcn36xx_dxe_free_ctl_blks(wcn);
+<<<<<<< HEAD
 
 	kfree(wcn->hal_buf);
+=======
+}
+
+static void wcn36xx_change_ps(struct wcn36xx *wcn, bool enable)
+{
+	struct ieee80211_vif *vif = NULL;
+	struct wcn36xx_vif *tmp;
+
+	list_for_each_entry(tmp, &wcn->vif_list, list) {
+		vif = wcn36xx_priv_to_vif(tmp);
+		if (enable && !wcn->sw_scan) {
+			if (vif->bss_conf.ps) /* ps allowed ? */
+				wcn36xx_pmc_enter_bmps_state(wcn, vif);
+		} else {
+			wcn36xx_pmc_exit_bmps_state(wcn, vif);
+		}
+	}
+}
+
+static void wcn36xx_change_opchannel(struct wcn36xx *wcn, int ch)
+{
+	struct ieee80211_vif *vif = NULL;
+	struct wcn36xx_vif *tmp;
+
+	list_for_each_entry(tmp, &wcn->vif_list, list) {
+		vif = wcn36xx_priv_to_vif(tmp);
+		wcn36xx_smd_switch_channel(wcn, vif, ch);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int wcn36xx_config(struct ieee80211_hw *hw, u32 changed)
 {
 	struct wcn36xx *wcn = hw->priv;
+<<<<<<< HEAD
 	struct ieee80211_vif *vif = NULL;
 	struct wcn36xx_vif *tmp;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	wcn36xx_dbg(WCN36XX_DBG_MAC, "mac config changed 0x%08x\n", changed);
 
@@ -392,6 +492,7 @@ static int wcn36xx_config(struct ieee80211_hw *hw, u32 changed)
 		int ch = WCN36XX_HW_CHANNEL(wcn);
 		wcn36xx_dbg(WCN36XX_DBG_MAC, "wcn36xx_config channel switch=%d\n",
 			    ch);
+<<<<<<< HEAD
 		list_for_each_entry(tmp, &wcn->vif_list, list) {
 			vif = wcn36xx_priv_to_vif(tmp);
 			wcn36xx_smd_switch_channel(wcn, vif, ch);
@@ -409,6 +510,46 @@ static int wcn36xx_config(struct ieee80211_hw *hw, u32 changed)
 			}
 		}
 	}
+=======
+
+		if (wcn->sw_scan_opchannel == ch && wcn->sw_scan_channel) {
+			/* If channel is the initial operating channel, we may
+			 * want to receive/transmit regular data packets, then
+			 * simply stop the scan session and exit PS mode.
+			 */
+			if (wcn->sw_scan_channel)
+				wcn36xx_smd_end_scan(wcn, wcn->sw_scan_channel);
+			if (wcn->sw_scan_init) {
+				wcn36xx_smd_finish_scan(wcn, HAL_SYS_MODE_SCAN,
+							wcn->sw_scan_vif);
+			}
+		} else if (wcn->sw_scan) {
+			/* A scan is ongoing, do not change the operating
+			 * channel, but start a scan session on the channel.
+			 */
+			if (wcn->sw_scan_channel)
+				wcn36xx_smd_end_scan(wcn, wcn->sw_scan_channel);
+			if (!wcn->sw_scan_init) {
+				/* This can fail if we are unable to notify the
+				 * operating channel.
+				 */
+				ret = wcn36xx_smd_init_scan(wcn,
+							    HAL_SYS_MODE_SCAN,
+							    wcn->sw_scan_vif);
+				if (ret) {
+					mutex_unlock(&wcn->conf_mutex);
+					return -EIO;
+				}
+			}
+			wcn36xx_smd_start_scan(wcn, ch);
+		} else {
+			wcn36xx_change_opchannel(wcn, ch);
+		}
+	}
+
+	if (changed & IEEE80211_CONF_CHANGE_PS)
+		wcn36xx_change_ps(wcn, hw->conf.flags & IEEE80211_CONF_PS);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&wcn->conf_mutex);
 
@@ -547,12 +688,21 @@ static int wcn36xx_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 		if (IEEE80211_KEY_FLAG_PAIRWISE & key_conf->flags) {
 			sta_priv->is_data_encrypted = true;
 			/* Reconfigure bss with encrypt_type */
+<<<<<<< HEAD
 			if (NL80211_IFTYPE_STATION == vif->type)
+=======
+			if (NL80211_IFTYPE_STATION == vif->type) {
+>>>>>>> upstream/android-13
 				wcn36xx_smd_config_bss(wcn,
 						       vif,
 						       sta,
 						       sta->addr,
 						       true);
+<<<<<<< HEAD
+=======
+				wcn36xx_smd_config_sta(wcn, vif, sta);
+			}
+>>>>>>> upstream/android-13
 
 			wcn36xx_smd_set_stakey(wcn,
 				vif_priv->encrypt_type,
@@ -614,6 +764,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void wcn36xx_hw_scan_worker(struct work_struct *work)
 {
 	struct wcn36xx *wcn = container_of(work, struct wcn36xx, scan_work);
@@ -658,11 +809,31 @@ static void wcn36xx_hw_scan_worker(struct work_struct *work)
 	mutex_unlock(&wcn->scan_lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int wcn36xx_hw_scan(struct ieee80211_hw *hw,
 			   struct ieee80211_vif *vif,
 			   struct ieee80211_scan_request *hw_req)
 {
 	struct wcn36xx *wcn = hw->priv;
+<<<<<<< HEAD
+=======
+	int i;
+
+	if (!get_feat_caps(wcn->fw_feat_caps, SCAN_OFFLOAD)) {
+		/* fallback to mac80211 software scan */
+		return 1;
+	}
+
+	/* For unknown reason, the hardware offloaded scan only works with
+	 * 2.4Ghz channels, fallback to software scan in other cases.
+	 */
+	for (i = 0; i < hw_req->req.n_channels; i++) {
+		if (hw_req->req.channels[i]->band != NL80211_BAND_2GHZ)
+			return 1;
+	}
+
+>>>>>>> upstream/android-13
 	mutex_lock(&wcn->scan_lock);
 	if (wcn->scan_req) {
 		mutex_unlock(&wcn->scan_lock);
@@ -674,12 +845,16 @@ static int wcn36xx_hw_scan(struct ieee80211_hw *hw,
 
 	mutex_unlock(&wcn->scan_lock);
 
+<<<<<<< HEAD
 	if (!get_feat_caps(wcn->fw_feat_caps, SCAN_OFFLOAD)) {
 		/* legacy manual/sw scan */
 		schedule_work(&wcn->scan_work);
 		return 0;
 	}
 
+=======
+	wcn36xx_smd_update_channel_list(wcn, &hw_req->req);
+>>>>>>> upstream/android-13
 	return wcn36xx_smd_start_hw_scan(wcn, vif, &hw_req->req);
 }
 
@@ -696,6 +871,7 @@ static void wcn36xx_cancel_hw_scan(struct ieee80211_hw *hw,
 		/* ieee80211_scan_completed will be called on FW scan
 		 * indication */
 		wcn36xx_smd_stop_hw_scan(wcn);
+<<<<<<< HEAD
 	} else {
 		struct cfg80211_scan_info scan_info = {
 			.aborted = true,
@@ -706,6 +882,43 @@ static void wcn36xx_cancel_hw_scan(struct ieee80211_hw *hw,
 	}
 }
 
+=======
+	}
+}
+
+static void wcn36xx_sw_scan_start(struct ieee80211_hw *hw,
+				  struct ieee80211_vif *vif,
+				  const u8 *mac_addr)
+{
+	struct wcn36xx *wcn = hw->priv;
+	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
+
+	wcn->sw_scan = true;
+	wcn->sw_scan_vif = vif;
+	wcn->sw_scan_channel = 0;
+	if (vif_priv->sta_assoc)
+		wcn->sw_scan_opchannel = WCN36XX_HW_CHANNEL(wcn);
+	else
+		wcn->sw_scan_opchannel = 0;
+}
+
+static void wcn36xx_sw_scan_complete(struct ieee80211_hw *hw,
+				     struct ieee80211_vif *vif)
+{
+	struct wcn36xx *wcn = hw->priv;
+
+	/* ensure that any scan session is finished */
+	if (wcn->sw_scan_channel)
+		wcn36xx_smd_end_scan(wcn, wcn->sw_scan_channel);
+	if (wcn->sw_scan_init) {
+		wcn36xx_smd_finish_scan(wcn, HAL_SYS_MODE_SCAN,
+					wcn->sw_scan_vif);
+	}
+	wcn->sw_scan = false;
+	wcn->sw_scan_opchannel = 0;
+}
+
+>>>>>>> upstream/android-13
 static void wcn36xx_update_allowed_rates(struct ieee80211_sta *sta,
 					 enum nl80211_band band)
 {
@@ -745,7 +958,20 @@ static void wcn36xx_update_allowed_rates(struct ieee80211_sta *sta,
 		       sta->ht_cap.mcs.rx_mask,
 		       sizeof(sta->ht_cap.mcs.rx_mask));
 	}
+<<<<<<< HEAD
 }
+=======
+
+	if (sta->vht_cap.vht_supported) {
+		sta_priv->supported_rates.op_rate_mode = STA_11ac;
+		sta_priv->supported_rates.vht_rx_mcs_map =
+				sta->vht_cap.vht_mcs.rx_mcs_map;
+		sta_priv->supported_rates.vht_tx_mcs_map =
+				sta->vht_cap.vht_mcs.tx_mcs_map;
+	}
+}
+
+>>>>>>> upstream/android-13
 void wcn36xx_set_default_rates(struct wcn36xx_hal_supported_rates *rates)
 {
 	u16 ofdm_rates[WCN36XX_HAL_NUM_OFDM_RATES] = {
@@ -772,6 +998,17 @@ void wcn36xx_set_default_rates(struct wcn36xx_hal_supported_rates *rates)
 		sizeof(*ofdm_rates) * WCN36XX_HAL_NUM_OFDM_RATES);
 	rates->supported_mcs_set[0] = 0xFF;
 }
+<<<<<<< HEAD
+=======
+
+void wcn36xx_set_default_rates_v1(struct wcn36xx_hal_supported_rates_v1 *rates)
+{
+	rates->op_rate_mode = STA_11ac;
+	rates->vht_rx_mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_9;
+	rates->vht_tx_mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_9;
+}
+
+>>>>>>> upstream/android-13
 static void wcn36xx_bss_info_changed(struct ieee80211_hw *hw,
 				     struct ieee80211_vif *vif,
 				     struct ieee80211_bss_conf *bss_conf,
@@ -872,6 +1109,10 @@ static void wcn36xx_bss_info_changed(struct ieee80211_hw *hw,
 			 * place where AID is available.
 			 */
 			wcn36xx_smd_config_sta(wcn, vif, sta);
+<<<<<<< HEAD
+=======
+			wcn36xx_enable_keep_alive_null_packet(wcn, vif);
+>>>>>>> upstream/android-13
 		} else {
 			wcn36xx_dbg(WCN36XX_DBG_MAC,
 				    "disassociated bss %pM vif %pM AID=%d\n",
@@ -935,8 +1176,11 @@ static void wcn36xx_bss_info_changed(struct ieee80211_hw *hw,
 out:
 
 	mutex_unlock(&wcn->conf_mutex);
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 /* this is required when using IEEE80211_HW_HAS_RATE_CONTROL */
@@ -1050,6 +1294,7 @@ static int wcn36xx_sta_remove(struct ieee80211_hw *hw,
 
 #ifdef CONFIG_PM
 
+<<<<<<< HEAD
 static int wcn36xx_suspend(struct ieee80211_hw *hw, struct cfg80211_wowlan *wow)
 {
 	struct wcn36xx *wcn = hw->priv;
@@ -1059,11 +1304,64 @@ static int wcn36xx_suspend(struct ieee80211_hw *hw, struct cfg80211_wowlan *wow)
 	flush_workqueue(wcn->hal_ind_wq);
 	wcn36xx_smd_set_power_params(wcn, true);
 	return 0;
+=======
+static struct ieee80211_vif *wcn36xx_get_first_assoc_vif(struct wcn36xx *wcn)
+{
+	struct wcn36xx_vif *vif_priv = NULL;
+	struct ieee80211_vif *vif = NULL;
+
+	list_for_each_entry(vif_priv, &wcn->vif_list, list) {
+		if (vif_priv->sta_assoc) {
+			vif = wcn36xx_priv_to_vif(vif_priv);
+			break;
+		}
+	}
+	return vif;
+}
+
+static int wcn36xx_suspend(struct ieee80211_hw *hw, struct cfg80211_wowlan *wow)
+{
+	struct wcn36xx *wcn = hw->priv;
+	struct ieee80211_vif *vif = NULL;
+	int ret = 0;
+
+	wcn36xx_dbg(WCN36XX_DBG_MAC, "mac suspend\n");
+
+	mutex_lock(&wcn->conf_mutex);
+
+	vif = wcn36xx_get_first_assoc_vif(wcn);
+	if (vif) {
+		ret = wcn36xx_smd_arp_offload(wcn, vif, true);
+		if (ret)
+			goto out;
+		ret = wcn36xx_smd_ipv6_ns_offload(wcn, vif, true);
+		if (ret)
+			goto out;
+		ret = wcn36xx_smd_gtk_offload(wcn, vif, true);
+		if (ret)
+			goto out;
+		ret = wcn36xx_smd_set_power_params(wcn, true);
+		if (ret)
+			goto out;
+		ret = wcn36xx_smd_wlan_host_suspend_ind(wcn);
+	}
+
+	/* Disable IRQ, we don't want to handle any packet before mac80211 is
+	 * resumed and ready to receive packets.
+	 */
+	disable_irq(wcn->tx_irq);
+	disable_irq(wcn->rx_irq);
+
+out:
+	mutex_unlock(&wcn->conf_mutex);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int wcn36xx_resume(struct ieee80211_hw *hw)
 {
 	struct wcn36xx *wcn = hw->priv;
+<<<<<<< HEAD
 
 	wcn36xx_dbg(WCN36XX_DBG_MAC, "mac resume\n");
 
@@ -1072,6 +1370,49 @@ static int wcn36xx_resume(struct ieee80211_hw *hw)
 	return 0;
 }
 
+=======
+	struct ieee80211_vif *vif = NULL;
+
+	wcn36xx_dbg(WCN36XX_DBG_MAC, "mac resume\n");
+
+	mutex_lock(&wcn->conf_mutex);
+	vif = wcn36xx_get_first_assoc_vif(wcn);
+	if (vif) {
+		wcn36xx_smd_host_resume(wcn);
+		wcn36xx_smd_set_power_params(wcn, false);
+		wcn36xx_smd_gtk_offload_get_info(wcn, vif);
+		wcn36xx_smd_gtk_offload(wcn, vif, false);
+		wcn36xx_smd_ipv6_ns_offload(wcn, vif, false);
+		wcn36xx_smd_arp_offload(wcn, vif, false);
+	}
+
+	enable_irq(wcn->tx_irq);
+	enable_irq(wcn->rx_irq);
+
+	mutex_unlock(&wcn->conf_mutex);
+
+	return 0;
+}
+
+static void wcn36xx_set_rekey_data(struct ieee80211_hw *hw,
+				   struct ieee80211_vif *vif,
+				   struct cfg80211_gtk_rekey_data *data)
+{
+	struct wcn36xx *wcn = hw->priv;
+	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
+
+	mutex_lock(&wcn->conf_mutex);
+
+	memcpy(vif_priv->rekey_data.kek, data->kek, NL80211_KEK_LEN);
+	memcpy(vif_priv->rekey_data.kck, data->kck, NL80211_KCK_LEN);
+	vif_priv->rekey_data.replay_ctr =
+		cpu_to_le64(be64_to_cpup((__be64 *)data->replay_ctr));
+	vif_priv->rekey_data.valid = true;
+
+	mutex_unlock(&wcn->conf_mutex);
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 static int wcn36xx_ampdu_action(struct ieee80211_hw *hw,
@@ -1084,6 +1425,11 @@ static int wcn36xx_ampdu_action(struct ieee80211_hw *hw,
 	enum ieee80211_ampdu_mlme_action action = params->action;
 	u16 tid = params->tid;
 	u16 *ssn = &params->ssn;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+	u8 session;
+>>>>>>> upstream/android-13
 
 	wcn36xx_dbg(WCN36XX_DBG_MAC, "mac ampdu action action %d tid %d\n",
 		    action, tid);
@@ -1093,6 +1439,7 @@ static int wcn36xx_ampdu_action(struct ieee80211_hw *hw,
 	switch (action) {
 	case IEEE80211_AMPDU_RX_START:
 		sta_priv->tid = tid;
+<<<<<<< HEAD
 		wcn36xx_smd_add_ba_session(wcn, sta, tid, ssn, 0,
 			get_sta_index(vif, sta_priv));
 		wcn36xx_smd_add_ba(wcn);
@@ -1100,13 +1447,27 @@ static int wcn36xx_ampdu_action(struct ieee80211_hw *hw,
 		break;
 	case IEEE80211_AMPDU_RX_STOP:
 		wcn36xx_smd_del_ba(wcn, tid, get_sta_index(vif, sta_priv));
+=======
+		session = wcn36xx_smd_add_ba_session(wcn, sta, tid, ssn, 0,
+						     get_sta_index(vif, sta_priv));
+		wcn36xx_smd_add_ba(wcn, session);
+		wcn36xx_smd_trigger_ba(wcn, get_sta_index(vif, sta_priv), tid,
+				       session);
+		break;
+	case IEEE80211_AMPDU_RX_STOP:
+		wcn36xx_smd_del_ba(wcn, tid, 0, get_sta_index(vif, sta_priv));
+>>>>>>> upstream/android-13
 		break;
 	case IEEE80211_AMPDU_TX_START:
 		spin_lock_bh(&sta_priv->ampdu_lock);
 		sta_priv->ampdu_state[tid] = WCN36XX_AMPDU_START;
 		spin_unlock_bh(&sta_priv->ampdu_lock);
 
+<<<<<<< HEAD
 		ieee80211_start_tx_ba_cb_irqsafe(vif, sta->addr, tid);
+=======
+		ret = IEEE80211_AMPDU_TX_START_IMMEDIATE;
+>>>>>>> upstream/android-13
 		break;
 	case IEEE80211_AMPDU_TX_OPERATIONAL:
 		spin_lock_bh(&sta_priv->ampdu_lock);
@@ -1123,6 +1484,10 @@ static int wcn36xx_ampdu_action(struct ieee80211_hw *hw,
 		sta_priv->ampdu_state[tid] = WCN36XX_AMPDU_NONE;
 		spin_unlock_bh(&sta_priv->ampdu_lock);
 
+<<<<<<< HEAD
+=======
+		wcn36xx_smd_del_ba(wcn, tid, 1, get_sta_index(vif, sta_priv));
+>>>>>>> upstream/android-13
 		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
 		break;
 	default:
@@ -1131,9 +1496,43 @@ static int wcn36xx_ampdu_action(struct ieee80211_hw *hw,
 
 	mutex_unlock(&wcn->conf_mutex);
 
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+	return ret;
+}
+
+#if IS_ENABLED(CONFIG_IPV6)
+static void wcn36xx_ipv6_addr_change(struct ieee80211_hw *hw,
+				     struct ieee80211_vif *vif,
+				     struct inet6_dev *idev)
+{
+	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
+	struct inet6_ifaddr *ifa;
+	int idx = 0;
+
+	memset(vif_priv->tentative_addrs, 0, sizeof(vif_priv->tentative_addrs));
+
+	read_lock_bh(&idev->lock);
+	list_for_each_entry(ifa, &idev->addr_list, if_list) {
+		vif_priv->target_ipv6_addrs[idx] = ifa->addr;
+		if (ifa->flags & IFA_F_TENTATIVE)
+			__set_bit(idx, vif_priv->tentative_addrs);
+		idx++;
+		if (idx >= WCN36XX_HAL_IPV6_OFFLOAD_ADDR_MAX)
+			break;
+		wcn36xx_dbg(WCN36XX_DBG_MAC, "%pI6 %s\n", &ifa->addr,
+			    (ifa->flags & IFA_F_TENTATIVE) ? "tentative" : NULL);
+	}
+	read_unlock_bh(&idev->lock);
+
+	vif_priv->num_target_ipv6_addrs = idx;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static const struct ieee80211_ops wcn36xx_ops = {
 	.start			= wcn36xx_start,
 	.stop			= wcn36xx_stop,
@@ -1142,6 +1541,10 @@ static const struct ieee80211_ops wcn36xx_ops = {
 #ifdef CONFIG_PM
 	.suspend		= wcn36xx_suspend,
 	.resume			= wcn36xx_resume,
+<<<<<<< HEAD
+=======
+	.set_rekey_data		= wcn36xx_set_rekey_data,
+>>>>>>> upstream/android-13
 #endif
 	.config			= wcn36xx_config,
 	.prepare_multicast	= wcn36xx_prepare_multicast,
@@ -1150,15 +1553,58 @@ static const struct ieee80211_ops wcn36xx_ops = {
 	.set_key		= wcn36xx_set_key,
 	.hw_scan		= wcn36xx_hw_scan,
 	.cancel_hw_scan		= wcn36xx_cancel_hw_scan,
+<<<<<<< HEAD
+=======
+	.sw_scan_start		= wcn36xx_sw_scan_start,
+	.sw_scan_complete	= wcn36xx_sw_scan_complete,
+>>>>>>> upstream/android-13
 	.bss_info_changed	= wcn36xx_bss_info_changed,
 	.set_rts_threshold	= wcn36xx_set_rts_threshold,
 	.sta_add		= wcn36xx_sta_add,
 	.sta_remove		= wcn36xx_sta_remove,
 	.ampdu_action		= wcn36xx_ampdu_action,
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IPV6)
+	.ipv6_addr_change	= wcn36xx_ipv6_addr_change,
+#endif
+>>>>>>> upstream/android-13
 
 	CFG80211_TESTMODE_CMD(wcn36xx_tm_cmd)
 };
 
+<<<<<<< HEAD
+=======
+static void
+wcn36xx_set_ieee80211_vht_caps(struct ieee80211_sta_vht_cap *vht_cap)
+{
+	vht_cap->vht_supported = true;
+
+	vht_cap->cap = (IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_3895 |
+			IEEE80211_VHT_CAP_SHORT_GI_80 |
+			IEEE80211_VHT_CAP_RXSTBC_1 |
+			IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE |
+			IEEE80211_VHT_CAP_MU_BEAMFORMEE_CAPABLE |
+			3 << IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT |
+			7 << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT);
+
+	vht_cap->vht_mcs.rx_mcs_map =
+		cpu_to_le16(IEEE80211_VHT_MCS_SUPPORT_0_9 |
+			    IEEE80211_VHT_MCS_NOT_SUPPORTED << 2 |
+			    IEEE80211_VHT_MCS_NOT_SUPPORTED << 4 |
+			    IEEE80211_VHT_MCS_NOT_SUPPORTED << 6 |
+			    IEEE80211_VHT_MCS_NOT_SUPPORTED << 8 |
+			    IEEE80211_VHT_MCS_NOT_SUPPORTED << 10 |
+			    IEEE80211_VHT_MCS_NOT_SUPPORTED << 12 |
+			    IEEE80211_VHT_MCS_NOT_SUPPORTED << 14);
+
+	vht_cap->vht_mcs.rx_highest = cpu_to_le16(433);
+	vht_cap->vht_mcs.tx_highest = vht_cap->vht_mcs.rx_highest;
+
+	vht_cap->vht_mcs.tx_mcs_map = vht_cap->vht_mcs.rx_mcs_map;
+}
+
+>>>>>>> upstream/android-13
 static int wcn36xx_init_ieee80211(struct wcn36xx *wcn)
 {
 	static const u32 cipher_suites[] = {
@@ -1170,11 +1616,18 @@ static int wcn36xx_init_ieee80211(struct wcn36xx *wcn)
 
 	ieee80211_hw_set(wcn->hw, TIMING_BEACON_ONLY);
 	ieee80211_hw_set(wcn->hw, AMPDU_AGGREGATION);
+<<<<<<< HEAD
 	ieee80211_hw_set(wcn->hw, CONNECTION_MONITOR);
+=======
+>>>>>>> upstream/android-13
 	ieee80211_hw_set(wcn->hw, SUPPORTS_PS);
 	ieee80211_hw_set(wcn->hw, SIGNAL_DBM);
 	ieee80211_hw_set(wcn->hw, HAS_RATE_CONTROL);
 	ieee80211_hw_set(wcn->hw, SINGLE_SCAN_ON_ALL_BANDS);
+<<<<<<< HEAD
+=======
+	ieee80211_hw_set(wcn->hw, REPORTS_TX_ACK_STATUS);
+>>>>>>> upstream/android-13
 
 	wcn->hw->wiphy->interface_modes = BIT(NL80211_IFTYPE_STATION) |
 		BIT(NL80211_IFTYPE_AP) |
@@ -1185,6 +1638,12 @@ static int wcn36xx_init_ieee80211(struct wcn36xx *wcn)
 	if (wcn->rf_id != RF_IRIS_WCN3620)
 		wcn->hw->wiphy->bands[NL80211_BAND_5GHZ] = &wcn_band_5ghz;
 
+<<<<<<< HEAD
+=======
+	if (wcn->rf_id == RF_IRIS_WCN3680)
+		wcn36xx_set_ieee80211_vht_caps(&wcn_band_5ghz.vht_cap);
+
+>>>>>>> upstream/android-13
 	wcn->hw->wiphy->max_scan_ssids = WCN36XX_MAX_SCAN_SSIDS;
 	wcn->hw->wiphy->max_scan_ie_len = WCN36XX_MAX_SCAN_IE_LEN;
 
@@ -1282,6 +1741,14 @@ static int wcn36xx_platform_get_resources(struct wcn36xx *wcn,
 	if (iris_node) {
 		if (of_device_is_compatible(iris_node, "qcom,wcn3620"))
 			wcn->rf_id = RF_IRIS_WCN3620;
+<<<<<<< HEAD
+=======
+		if (of_device_is_compatible(iris_node, "qcom,wcn3660") ||
+		    of_device_is_compatible(iris_node, "qcom,wcn3660b"))
+			wcn->rf_id = RF_IRIS_WCN3660;
+		if (of_device_is_compatible(iris_node, "qcom,wcn3680"))
+			wcn->rf_id = RF_IRIS_WCN3680;
+>>>>>>> upstream/android-13
 		of_node_put(iris_node);
 	}
 
@@ -1322,13 +1789,31 @@ static int wcn36xx_probe(struct platform_device *pdev)
 	mutex_init(&wcn->hal_mutex);
 	mutex_init(&wcn->scan_lock);
 
+<<<<<<< HEAD
+=======
+	wcn->hal_buf = devm_kmalloc(wcn->dev, WCN36XX_HAL_BUF_SIZE, GFP_KERNEL);
+	if (!wcn->hal_buf) {
+		ret = -ENOMEM;
+		goto out_wq;
+	}
+
+>>>>>>> upstream/android-13
 	ret = dma_set_mask_and_coherent(wcn->dev, DMA_BIT_MASK(32));
 	if (ret < 0) {
 		wcn36xx_err("failed to set DMA mask: %d\n", ret);
 		goto out_wq;
 	}
 
+<<<<<<< HEAD
 	INIT_WORK(&wcn->scan_work, wcn36xx_hw_scan_worker);
+=======
+	wcn->nv_file = WLAN_NV_FILE;
+	ret = of_property_read_string(wcn->dev->parent->of_node, "firmware-name", &wcn->nv_file);
+	if (ret < 0 && ret != -EINVAL) {
+		wcn36xx_err("failed to read \"firmware-name\" property: %d\n", ret);
+		goto out_wq;
+	}
+>>>>>>> upstream/android-13
 
 	wcn->smd_channel = qcom_wcnss_open_channel(wcnss, "WLAN_CTRL", wcn36xx_smd_rsp_process, hw);
 	if (IS_ERR(wcn->smd_channel)) {

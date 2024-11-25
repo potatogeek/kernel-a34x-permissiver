@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2009. SUSE Linux Products GmbH. All rights reserved.
  *
@@ -13,10 +17,13 @@
  *
  * This file is derived from arch/powerpc/kvm/44x.c,
  * by Hollis Blanchard <hollisb@us.ibm.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kvm_host.h>
@@ -28,6 +35,10 @@
 #include <asm/cputable.h>
 #include <asm/cacheflush.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/kvm_ppc.h>
 #include <asm/kvm_book3s.h>
@@ -93,7 +104,47 @@ static void kvmppc_fixup_split_real(struct kvm_vcpu *vcpu)
 	kvmppc_set_pc(vcpu, pc | SPLIT_HACK_OFFS);
 }
 
+<<<<<<< HEAD
 void kvmppc_unfixup_split_real(struct kvm_vcpu *vcpu);
+=======
+static void kvmppc_unfixup_split_real(struct kvm_vcpu *vcpu)
+{
+	if (vcpu->arch.hflags & BOOK3S_HFLAG_SPLIT_HACK) {
+		ulong pc = kvmppc_get_pc(vcpu);
+		ulong lr = kvmppc_get_lr(vcpu);
+		if ((pc & SPLIT_HACK_MASK) == SPLIT_HACK_OFFS)
+			kvmppc_set_pc(vcpu, pc & ~SPLIT_HACK_MASK);
+		if ((lr & SPLIT_HACK_MASK) == SPLIT_HACK_OFFS)
+			kvmppc_set_lr(vcpu, lr & ~SPLIT_HACK_MASK);
+		vcpu->arch.hflags &= ~BOOK3S_HFLAG_SPLIT_HACK;
+	}
+}
+
+static void kvmppc_inject_interrupt_pr(struct kvm_vcpu *vcpu, int vec, u64 srr1_flags)
+{
+	unsigned long msr, pc, new_msr, new_pc;
+
+	kvmppc_unfixup_split_real(vcpu);
+
+	msr = kvmppc_get_msr(vcpu);
+	pc = kvmppc_get_pc(vcpu);
+	new_msr = vcpu->arch.intr_msr;
+	new_pc = to_book3s(vcpu)->hior + vec;
+
+#ifdef CONFIG_PPC_BOOK3S_64
+	/* If transactional, change to suspend mode on IRQ delivery */
+	if (MSR_TM_TRANSACTIONAL(msr))
+		new_msr |= MSR_TS_S;
+	else
+		new_msr |= msr & MSR_TS_MASK;
+#endif
+
+	kvmppc_set_srr0(vcpu, pc);
+	kvmppc_set_srr1(vcpu, (msr & SRR1_MSR_BITS) | srr1_flags);
+	kvmppc_set_pc(vcpu, new_pc);
+	kvmppc_set_msr(vcpu, new_msr);
+}
+>>>>>>> upstream/android-13
 
 static void kvmppc_core_vcpu_load_pr(struct kvm_vcpu *vcpu, int cpu)
 {
@@ -206,7 +257,11 @@ static void kvmppc_recalc_shadow_msr(struct kvm_vcpu *vcpu)
 	smsr |= (guest_msr & vcpu->arch.guest_owned_ext);
 	/* 64-bit Process MSR values */
 #ifdef CONFIG_PPC_BOOK3S_64
+<<<<<<< HEAD
 	smsr |= MSR_ISF | MSR_HV;
+=======
+	smsr |= MSR_HV;
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 	/*
@@ -392,6 +447,7 @@ static int kvmppc_core_check_requests_pr(struct kvm_vcpu *vcpu)
 }
 
 /************* MMU Notifiers *************/
+<<<<<<< HEAD
 static void do_kvm_unmap_hva(struct kvm *kvm, unsigned long start,
 			     unsigned long end)
 {
@@ -447,6 +503,41 @@ static void kvm_set_spte_hva_pr(struct kvm *kvm, unsigned long hva, pte_t pte)
 {
 	/* The page will get remapped properly on its next fault */
 	do_kvm_unmap_hva(kvm, hva, hva + PAGE_SIZE);
+=======
+static bool do_kvm_unmap_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	long i;
+	struct kvm_vcpu *vcpu;
+
+	kvm_for_each_vcpu(i, vcpu, kvm)
+		kvmppc_mmu_pte_pflush(vcpu, range->start << PAGE_SHIFT,
+				      range->end << PAGE_SHIFT);
+
+	return false;
+}
+
+static bool kvm_unmap_gfn_range_pr(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	return do_kvm_unmap_gfn(kvm, range);
+}
+
+static bool kvm_age_gfn_pr(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	/* XXX could be more clever ;) */
+	return false;
+}
+
+static bool kvm_test_age_gfn_pr(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	/* XXX could be more clever ;) */
+	return false;
+}
+
+static bool kvm_set_spte_gfn_pr(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	/* The page will get remapped properly on its next fault */
+	return do_kvm_unmap_gfn(kvm, range);
+>>>>>>> upstream/android-13
 }
 
 /*****************************************/
@@ -482,7 +573,11 @@ static void kvmppc_set_msr_pr(struct kvm_vcpu *vcpu, u64 msr)
 		if (!vcpu->arch.pending_exceptions) {
 			kvm_vcpu_block(vcpu);
 			kvm_clear_request(KVM_REQ_UNHALT, vcpu);
+<<<<<<< HEAD
 			vcpu->stat.halt_wakeup++;
+=======
+			vcpu->stat.generic.halt_wakeup++;
+>>>>>>> upstream/android-13
 
 			/* Unset POW bit after we woke up */
 			msr &= ~MSR_POW;
@@ -536,7 +631,11 @@ static void kvmppc_set_msr_pr(struct kvm_vcpu *vcpu, u64 msr)
 #endif
 }
 
+<<<<<<< HEAD
 void kvmppc_set_pvr_pr(struct kvm_vcpu *vcpu, u32 pvr)
+=======
+static void kvmppc_set_pvr_pr(struct kvm_vcpu *vcpu, u32 pvr)
+>>>>>>> upstream/android-13
 {
 	u32 host_pvr;
 
@@ -587,6 +686,10 @@ void kvmppc_set_pvr_pr(struct kvm_vcpu *vcpu, u32 pvr)
 	case PVR_POWER8:
 	case PVR_POWER8E:
 	case PVR_POWER8NVL:
+<<<<<<< HEAD
+=======
+	case PVR_POWER9:
+>>>>>>> upstream/android-13
 		vcpu->arch.hflags |= BOOK3S_HFLAG_MULTI_PGSIZE |
 			BOOK3S_HFLAG_NEW_TLBIE;
 		break;
@@ -666,7 +769,11 @@ static bool kvmppc_visible_gpa(struct kvm_vcpu *vcpu, gpa_t gpa)
 	return kvm_is_visible_gfn(vcpu->kvm, gpa >> PAGE_SHIFT);
 }
 
+<<<<<<< HEAD
 int kvmppc_handle_pagefault(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+static int kvmppc_handle_pagefault(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 			    ulong eaddr, int vec)
 {
 	bool data = (vec == BOOK3S_INTERRUPT_DATA_STORAGE);
@@ -706,7 +813,11 @@ int kvmppc_handle_pagefault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		    (vcpu->arch.hflags & BOOK3S_HFLAG_SPLIT_HACK) &&
 		    ((pte.raddr & SPLIT_HACK_MASK) == SPLIT_HACK_OFFS))
 			pte.raddr &= ~SPLIT_HACK_MASK;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MSR_IR:
 		vcpu->arch.mmu.esid_to_vsid(vcpu, eaddr >> SID_SHIFT, &vsid);
 
@@ -761,7 +872,11 @@ int kvmppc_handle_pagefault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		/* The guest's PTE is not mapped yet. Map on the host */
 		if (kvmppc_mmu_map_page(vcpu, &pte, iswrite) == -EIO) {
 			/* Exit KVM if mapping failed */
+<<<<<<< HEAD
 			run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+=======
+			vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+>>>>>>> upstream/android-13
 			return RESUME_HOST;
 		}
 		if (data)
@@ -774,7 +889,11 @@ int kvmppc_handle_pagefault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		vcpu->stat.mmio_exits++;
 		vcpu->arch.paddr_accessed = pte.raddr;
 		vcpu->arch.vaddr_accessed = pte.eaddr;
+<<<<<<< HEAD
 		r = kvmppc_emulate_mmio(run, vcpu);
+=======
+		r = kvmppc_emulate_mmio(vcpu);
+>>>>>>> upstream/android-13
 		if ( r == RESUME_HOST_NV )
 			r = RESUME_HOST;
 	}
@@ -958,7 +1077,11 @@ static void kvmppc_emulate_fac(struct kvm_vcpu *vcpu, ulong fac)
 	enum emulation_result er = EMULATE_FAIL;
 
 	if (!(kvmppc_get_msr(vcpu) & MSR_PR))
+<<<<<<< HEAD
 		er = kvmppc_emulate_instruction(vcpu->run, vcpu);
+=======
+		er = kvmppc_emulate_instruction(vcpu);
+>>>>>>> upstream/android-13
 
 	if ((er != EMULATE_DONE) && (er != EMULATE_AGAIN)) {
 		/* Couldn't emulate, trigger interrupt in guest */
@@ -1055,8 +1178,12 @@ static void kvmppc_clear_debug(struct kvm_vcpu *vcpu)
 	}
 }
 
+<<<<<<< HEAD
 static int kvmppc_exit_pr_progint(struct kvm_run *run, struct kvm_vcpu *vcpu,
 				  unsigned int exit_nr)
+=======
+static int kvmppc_exit_pr_progint(struct kvm_vcpu *vcpu, unsigned int exit_nr)
+>>>>>>> upstream/android-13
 {
 	enum emulation_result er;
 	ulong flags;
@@ -1090,7 +1217,11 @@ static int kvmppc_exit_pr_progint(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	}
 
 	vcpu->stat.emulated_inst_exits++;
+<<<<<<< HEAD
 	er = kvmppc_emulate_instruction(run, vcpu);
+=======
+	er = kvmppc_emulate_instruction(vcpu);
+>>>>>>> upstream/android-13
 	switch (er) {
 	case EMULATE_DONE:
 		r = RESUME_GUEST_NV;
@@ -1105,7 +1236,11 @@ static int kvmppc_exit_pr_progint(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		r = RESUME_GUEST;
 		break;
 	case EMULATE_DO_MMIO:
+<<<<<<< HEAD
 		run->exit_reason = KVM_EXIT_MMIO;
+=======
+		vcpu->run->exit_reason = KVM_EXIT_MMIO;
+>>>>>>> upstream/android-13
 		r = RESUME_HOST_NV;
 		break;
 	case EMULATE_EXIT_USER:
@@ -1118,9 +1253,15 @@ static int kvmppc_exit_pr_progint(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	return r;
 }
 
+<<<<<<< HEAD
 int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			  unsigned int exit_nr)
 {
+=======
+int kvmppc_handle_exit_pr(struct kvm_vcpu *vcpu, unsigned int exit_nr)
+{
+	struct kvm_run *run = vcpu->run;
+>>>>>>> upstream/android-13
 	int r = RESUME_HOST;
 	int s;
 
@@ -1164,7 +1305,11 @@ int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		/* only care about PTEG not found errors, but leave NX alone */
 		if (shadow_srr1 & 0x40000000) {
 			int idx = srcu_read_lock(&vcpu->kvm->srcu);
+<<<<<<< HEAD
 			r = kvmppc_handle_pagefault(run, vcpu, kvmppc_get_pc(vcpu), exit_nr);
+=======
+			r = kvmppc_handle_pagefault(vcpu, kvmppc_get_pc(vcpu), exit_nr);
+>>>>>>> upstream/android-13
 			srcu_read_unlock(&vcpu->kvm->srcu, idx);
 			vcpu->stat.sp_instruc++;
 		} else if (vcpu->arch.mmu.is_dcbz32(vcpu) &&
@@ -1214,7 +1359,11 @@ int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		 */
 		if (fault_dsisr & (DSISR_NOHPTE | DSISR_PROTFAULT)) {
 			int idx = srcu_read_lock(&vcpu->kvm->srcu);
+<<<<<<< HEAD
 			r = kvmppc_handle_pagefault(run, vcpu, dar, exit_nr);
+=======
+			r = kvmppc_handle_pagefault(vcpu, dar, exit_nr);
+>>>>>>> upstream/android-13
 			srcu_read_unlock(&vcpu->kvm->srcu, idx);
 		} else {
 			kvmppc_core_queue_data_storage(vcpu, dar, fault_dsisr);
@@ -1246,7 +1395,10 @@ int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		r = RESUME_GUEST;
 		break;
 	case BOOK3S_INTERRUPT_EXTERNAL:
+<<<<<<< HEAD
 	case BOOK3S_INTERRUPT_EXTERNAL_LEVEL:
+=======
+>>>>>>> upstream/android-13
 	case BOOK3S_INTERRUPT_EXTERNAL_HV:
 	case BOOK3S_INTERRUPT_H_VIRT:
 		vcpu->stat.ext_intr_exits++;
@@ -1259,7 +1411,11 @@ int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		break;
 	case BOOK3S_INTERRUPT_PROGRAM:
 	case BOOK3S_INTERRUPT_H_EMUL_ASSIST:
+<<<<<<< HEAD
 		r = kvmppc_exit_pr_progint(run, vcpu, exit_nr);
+=======
+		r = kvmppc_exit_pr_progint(vcpu, exit_nr);
+>>>>>>> upstream/android-13
 		break;
 	case BOOK3S_INTERRUPT_SYSCALL:
 	{
@@ -1337,7 +1493,11 @@ int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			emul = kvmppc_get_last_inst(vcpu, INST_GENERIC,
 						    &last_inst);
 			if (emul == EMULATE_DONE)
+<<<<<<< HEAD
 				r = kvmppc_exit_pr_progint(run, vcpu, exit_nr);
+=======
+				r = kvmppc_exit_pr_progint(vcpu, exit_nr);
+>>>>>>> upstream/android-13
 			else
 				r = RESUME_GUEST;
 
@@ -1711,6 +1871,7 @@ static int kvmppc_set_one_reg_pr(struct kvm_vcpu *vcpu, u64 id,
 	return r;
 }
 
+<<<<<<< HEAD
 static struct kvm_vcpu *kvmppc_core_vcpu_create_pr(struct kvm *kvm,
 						   unsigned int id)
 {
@@ -1726,6 +1887,19 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_pr(struct kvm *kvm,
 	vcpu_book3s = vzalloc(sizeof(struct kvmppc_vcpu_book3s));
 	if (!vcpu_book3s)
 		goto free_vcpu;
+=======
+static int kvmppc_core_vcpu_create_pr(struct kvm_vcpu *vcpu)
+{
+	struct kvmppc_vcpu_book3s *vcpu_book3s;
+	unsigned long p;
+	int err;
+
+	err = -ENOMEM;
+
+	vcpu_book3s = vzalloc(sizeof(struct kvmppc_vcpu_book3s));
+	if (!vcpu_book3s)
+		goto out;
+>>>>>>> upstream/android-13
 	vcpu->arch.book3s = vcpu_book3s;
 
 #ifdef CONFIG_KVM_BOOK3S_32_HANDLER
@@ -1735,6 +1909,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_pr(struct kvm *kvm,
 		goto free_vcpu3s;
 #endif
 
+<<<<<<< HEAD
 	err = kvm_vcpu_init(vcpu, kvm, id);
 	if (err)
 		goto free_shadow_vcpu;
@@ -1743,6 +1918,11 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_pr(struct kvm *kvm,
 	p = __get_free_page(GFP_KERNEL|__GFP_ZERO);
 	if (!p)
 		goto uninit_vcpu;
+=======
+	p = __get_free_page(GFP_KERNEL|__GFP_ZERO);
+	if (!p)
+		goto free_shadow_vcpu;
+>>>>>>> upstream/android-13
 	vcpu->arch.shared = (void *)p;
 #ifdef CONFIG_PPC_BOOK3S_64
 	/* Always start the shared struct in native endian mode */
@@ -1764,12 +1944,17 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_pr(struct kvm *kvm,
 #else
 	/* default to book3s_32 (750) */
 	vcpu->arch.pvr = 0x84202;
+<<<<<<< HEAD
+=======
+	vcpu->arch.intr_msr = 0;
+>>>>>>> upstream/android-13
 #endif
 	kvmppc_set_pvr_pr(vcpu, vcpu->arch.pvr);
 	vcpu->arch.slb_nr = 64;
 
 	vcpu->arch.shadow_msr = MSR_USER64 & ~MSR_LE;
 
+<<<<<<< HEAD
 	err = kvmppc_mmu_init(vcpu);
 	if (err < 0)
 		goto free_shared_page;
@@ -1780,28 +1965,49 @@ free_shared_page:
 	free_page((unsigned long)vcpu->arch.shared);
 uninit_vcpu:
 	kvm_vcpu_uninit(vcpu);
+=======
+	err = kvmppc_mmu_init_pr(vcpu);
+	if (err < 0)
+		goto free_shared_page;
+
+	return 0;
+
+free_shared_page:
+	free_page((unsigned long)vcpu->arch.shared);
+>>>>>>> upstream/android-13
 free_shadow_vcpu:
 #ifdef CONFIG_KVM_BOOK3S_32_HANDLER
 	kfree(vcpu->arch.shadow_vcpu);
 free_vcpu3s:
 #endif
 	vfree(vcpu_book3s);
+<<<<<<< HEAD
 free_vcpu:
 	kmem_cache_free(kvm_vcpu_cache, vcpu);
 out:
 	return ERR_PTR(err);
+=======
+out:
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void kvmppc_core_vcpu_free_pr(struct kvm_vcpu *vcpu)
 {
 	struct kvmppc_vcpu_book3s *vcpu_book3s = to_book3s(vcpu);
 
+<<<<<<< HEAD
 	free_page((unsigned long)vcpu->arch.shared & PAGE_MASK);
 	kvm_vcpu_uninit(vcpu);
+=======
+	kvmppc_mmu_destroy_pr(vcpu);
+	free_page((unsigned long)vcpu->arch.shared & PAGE_MASK);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KVM_BOOK3S_32_HANDLER
 	kfree(vcpu->arch.shadow_vcpu);
 #endif
 	vfree(vcpu_book3s);
+<<<<<<< HEAD
 	kmem_cache_free(kvm_vcpu_cache, vcpu);
 }
 
@@ -1815,6 +2021,17 @@ static int kvmppc_vcpu_run_pr(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
 	/* Check if we can run the vcpu at all */
 	if (!vcpu->arch.sane) {
 		kvm_run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+=======
+}
+
+static int kvmppc_vcpu_run_pr(struct kvm_vcpu *vcpu)
+{
+	int ret;
+
+	/* Check if we can run the vcpu at all */
+	if (!vcpu->arch.sane) {
+		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out;
 	}
@@ -1841,7 +2058,11 @@ static int kvmppc_vcpu_run_pr(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
 
 	kvmppc_fix_ee_before_entry();
 
+<<<<<<< HEAD
 	ret = __kvmppc_vcpu_run(kvm_run, vcpu);
+=======
+	ret = __kvmppc_vcpu_run(vcpu);
+>>>>>>> upstream/android-13
 
 	kvmppc_clear_debug(vcpu);
 
@@ -1854,6 +2075,10 @@ static int kvmppc_vcpu_run_pr(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
 	/* Make sure we save the guest TAR/EBB/DSCR state */
 	kvmppc_giveup_fac(vcpu, FSCR_TAR_LG);
 
+<<<<<<< HEAD
+=======
+	srr_regs_clobbered();
+>>>>>>> upstream/android-13
 out:
 	vcpu->mode = OUTSIDE_GUEST_MODE;
 	return ret;
@@ -1865,7 +2090,10 @@ out:
 static int kvm_vm_ioctl_get_dirty_log_pr(struct kvm *kvm,
 					 struct kvm_dirty_log *log)
 {
+<<<<<<< HEAD
 	struct kvm_memslots *slots;
+=======
+>>>>>>> upstream/android-13
 	struct kvm_memory_slot *memslot;
 	struct kvm_vcpu *vcpu;
 	ulong ga, ga_end;
@@ -1875,15 +2103,22 @@ static int kvm_vm_ioctl_get_dirty_log_pr(struct kvm *kvm,
 
 	mutex_lock(&kvm->slots_lock);
 
+<<<<<<< HEAD
 	r = kvm_get_dirty_log(kvm, log, &is_dirty);
+=======
+	r = kvm_get_dirty_log(kvm, log, &is_dirty, &memslot);
+>>>>>>> upstream/android-13
 	if (r)
 		goto out;
 
 	/* If nothing is dirty, don't bother messing with page tables. */
 	if (is_dirty) {
+<<<<<<< HEAD
 		slots = kvm_memslots(kvm);
 		memslot = id_to_memslot(slots, log->slot);
 
+=======
+>>>>>>> upstream/android-13
 		ga = memslot->base_gfn << PAGE_SHIFT;
 		ga_end = ga + (memslot->npages << PAGE_SHIFT);
 
@@ -1908,7 +2143,12 @@ static void kvmppc_core_flush_memslot_pr(struct kvm *kvm,
 
 static int kvmppc_core_prepare_memory_region_pr(struct kvm *kvm,
 					struct kvm_memory_slot *memslot,
+<<<<<<< HEAD
 					const struct kvm_userspace_memory_region *mem)
+=======
+					const struct kvm_userspace_memory_region *mem,
+					enum kvm_mr_change change)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -1916,17 +2156,27 @@ static int kvmppc_core_prepare_memory_region_pr(struct kvm *kvm,
 static void kvmppc_core_commit_memory_region_pr(struct kvm *kvm,
 				const struct kvm_userspace_memory_region *mem,
 				const struct kvm_memory_slot *old,
+<<<<<<< HEAD
 				const struct kvm_memory_slot *new)
+=======
+				const struct kvm_memory_slot *new,
+				enum kvm_mr_change change)
+>>>>>>> upstream/android-13
 {
 	return;
 }
 
+<<<<<<< HEAD
 static void kvmppc_core_free_memslot_pr(struct kvm_memory_slot *free,
 					struct kvm_memory_slot *dont)
+=======
+static void kvmppc_core_free_memslot_pr(struct kvm_memory_slot *slot)
+>>>>>>> upstream/android-13
 {
 	return;
 }
 
+<<<<<<< HEAD
 static int kvmppc_core_create_memslot_pr(struct kvm_memory_slot *slot,
 					 unsigned long npages)
 {
@@ -1934,6 +2184,8 @@ static int kvmppc_core_create_memslot_pr(struct kvm_memory_slot *slot,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC64
 static int kvm_vm_ioctl_get_smmu_info_pr(struct kvm *kvm,
 					 struct kvm_ppc_smmu_info *info)
@@ -1997,6 +2249,10 @@ static int kvm_vm_ioctl_get_smmu_info_pr(struct kvm *kvm,
 {
 	/* We should not get called */
 	BUG();
+<<<<<<< HEAD
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_PPC64 */
 
@@ -2062,6 +2318,10 @@ static struct kvmppc_ops kvm_ops_pr = {
 	.set_one_reg = kvmppc_set_one_reg_pr,
 	.vcpu_load   = kvmppc_core_vcpu_load_pr,
 	.vcpu_put    = kvmppc_core_vcpu_put_pr,
+<<<<<<< HEAD
+=======
+	.inject_interrupt = kvmppc_inject_interrupt_pr,
+>>>>>>> upstream/android-13
 	.set_msr     = kvmppc_set_msr_pr,
 	.vcpu_run    = kvmppc_vcpu_run_pr,
 	.vcpu_create = kvmppc_core_vcpu_create_pr,
@@ -2071,6 +2331,7 @@ static struct kvmppc_ops kvm_ops_pr = {
 	.flush_memslot = kvmppc_core_flush_memslot_pr,
 	.prepare_memory_region = kvmppc_core_prepare_memory_region_pr,
 	.commit_memory_region = kvmppc_core_commit_memory_region_pr,
+<<<<<<< HEAD
 	.unmap_hva_range = kvm_unmap_hva_range_pr,
 	.age_hva  = kvm_age_hva_pr,
 	.test_age_hva = kvm_test_age_hva_pr,
@@ -2078,6 +2339,13 @@ static struct kvmppc_ops kvm_ops_pr = {
 	.mmu_destroy  = kvmppc_mmu_destroy_pr,
 	.free_memslot = kvmppc_core_free_memslot_pr,
 	.create_memslot = kvmppc_core_create_memslot_pr,
+=======
+	.unmap_gfn_range = kvm_unmap_gfn_range_pr,
+	.age_gfn  = kvm_age_gfn_pr,
+	.test_age_gfn = kvm_test_age_gfn_pr,
+	.set_spte_gfn = kvm_set_spte_gfn_pr,
+	.free_memslot = kvmppc_core_free_memslot_pr,
+>>>>>>> upstream/android-13
 	.init_vm = kvmppc_core_init_vm_pr,
 	.destroy_vm = kvmppc_core_destroy_vm_pr,
 	.get_smmu_info = kvm_vm_ioctl_get_smmu_info_pr,

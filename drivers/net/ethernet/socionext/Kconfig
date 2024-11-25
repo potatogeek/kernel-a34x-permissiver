@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 config NET_VENDOR_SOCIONEXT
 	bool "Socionext ethernet drivers"
 	default y
 	---help---
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config NET_VENDOR_SOCIONEXT
+	bool "Socionext ethernet drivers"
+	default y
+	help
+>>>>>>> upstream/android-13
 	  Option to select ethernet drivers for Socionext platforms.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -17,7 +25,11 @@ config SNI_AVE
 	depends on HAS_IOMEM
 	select MFD_SYSCON
 	select PHYLIB
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Driver for gigabit ethernet MACs, called AVE, in the
 	  Socionext UniPhier family.
 
@@ -25,8 +37,14 @@ config SNI_NETSEC
 	tristate "Socionext NETSEC ethernet support"
 	depends on (ARCH_SYNQUACER || COMPILE_TEST) && OF
 	select PHYLIB
+<<<<<<< HEAD
 	select MII
 	---help---
+=======
+	select PAGE_POOL
+	select MII
+	help
+>>>>>>> upstream/android-13
 	  Enable to add support for the SocioNext NetSec Gigabit Ethernet
 	  controller + PHY, as found on the Synquacer SC2A11 SoC
 

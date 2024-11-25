@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2006, Intel Corporation.
  *
@@ -6,6 +7,14 @@
  * Copyright (C) 2006-2008 Intel Corporation
  * Author: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2006, Intel Corporation.
+ *
+ * Copyright (C) 2006-2008 Intel Corporation
+ * Author: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _IOVA_H_
@@ -74,8 +83,21 @@ struct iova_domain {
 	struct rb_node	*cached32_node; /* Save last 32-bit alloced node */
 	unsigned long	granule;	/* pfn granularity for this domain */
 	unsigned long	start_pfn;	/* Lower limit for this domain */
+<<<<<<< HEAD
 	unsigned long	end_pfn;        /* Upper limit for this domain */
 	unsigned long	dma_32bit_pfn;
+=======
+	unsigned long	dma_32bit_pfn;
+	unsigned long	max32_alloc_size; /* Size of last failed allocation */
+	struct iova_fq __percpu *fq;	/* Flush Queue */
+
+	atomic64_t	fq_flush_start_cnt;	/* Number of TLB flushes that
+						   have been started */
+
+	atomic64_t	fq_flush_finish_cnt;	/* Number of TLB flushes that
+						   have been finished */
+
+>>>>>>> upstream/android-13
 	struct iova	anchor;		/* rbtree lookup anchor */
 	struct iova_rcache rcaches[IOVA_RANGE_CACHE_MAX_SIZE];	/* IOVA range caches */
 
@@ -85,6 +107,7 @@ struct iova_domain {
 	iova_entry_dtor entry_dtor;	/* IOMMU driver specific destructor for
 					   iova entry */
 
+<<<<<<< HEAD
 	struct iova_fq __percpu *fq;	/* Flush Queue */
 
 	atomic64_t	fq_flush_start_cnt;	/* Number of TLB flushes that
@@ -93,10 +116,16 @@ struct iova_domain {
 	atomic64_t	fq_flush_finish_cnt;	/* Number of TLB flushes that
 						   have been finished */
 
+=======
+>>>>>>> upstream/android-13
 	struct timer_list fq_timer;		/* Timer to regularily empty the
 						   flush-queues */
 	atomic_t fq_timer_on;			/* 1 when timer is active, 0
 						   when not */
+<<<<<<< HEAD
+=======
+	struct hlist_node	cpuhp_dead;
+>>>>>>> upstream/android-13
 	bool best_fit;
 };
 
@@ -139,8 +168,11 @@ static inline unsigned long iova_pfn(struct iova_domain *iovad, dma_addr_t iova)
 int iova_cache_get(void);
 void iova_cache_put(void);
 
+<<<<<<< HEAD
 struct iova *alloc_iova_mem(void);
 void free_iova_mem(struct iova *iova);
+=======
+>>>>>>> upstream/android-13
 void free_iova(struct iova_domain *iovad, unsigned long pfn);
 void __free_iova(struct iova_domain *iovad, struct iova *iova);
 struct iova *alloc_iova(struct iova_domain *iovad, unsigned long size,
@@ -151,6 +183,7 @@ void free_iova_fast(struct iova_domain *iovad, unsigned long pfn,
 void queue_iova(struct iova_domain *iovad,
 		unsigned long pfn, unsigned long pages,
 		unsigned long data);
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_IOMMU_V2
 unsigned long
 alloc_iova_fast(struct iova_domain *iovad, unsigned long size,
@@ -173,13 +206,24 @@ void iovad_scan_reserved_iova(void *arg,
 void init_iova_domain(struct iova_domain *iovad, unsigned long granule,
 	unsigned long start_pfn);
 bool has_iova_flush_queue(struct iova_domain *iovad);
+=======
+unsigned long alloc_iova_fast(struct iova_domain *iovad, unsigned long size,
+			      unsigned long limit_pfn, bool flush_rcache);
+struct iova *reserve_iova(struct iova_domain *iovad, unsigned long pfn_lo,
+	unsigned long pfn_hi);
+void init_iova_domain(struct iova_domain *iovad, unsigned long granule,
+	unsigned long start_pfn);
+>>>>>>> upstream/android-13
 int init_iova_flush_queue(struct iova_domain *iovad,
 			  iova_flush_cb flush_cb, iova_entry_dtor entry_dtor);
 struct iova *find_iova(struct iova_domain *iovad, unsigned long pfn);
 void put_iova_domain(struct iova_domain *iovad);
+<<<<<<< HEAD
 struct iova *split_and_remove_iova(struct iova_domain *iovad,
 	struct iova *iova, unsigned long pfn_lo, unsigned long pfn_hi);
 void free_cpu_cached_iovas(unsigned int cpu, struct iova_domain *iovad);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline int iova_cache_get(void)
 {
@@ -190,6 +234,7 @@ static inline void iova_cache_put(void)
 {
 }
 
+<<<<<<< HEAD
 static inline struct iova *alloc_iova_mem(void)
 {
 	return NULL;
@@ -199,6 +244,8 @@ static inline void free_iova_mem(struct iova *iova)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void free_iova(struct iova_domain *iovad, unsigned long pfn)
 {
 }
@@ -242,22 +289,28 @@ static inline struct iova *reserve_iova(struct iova_domain *iovad,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline void copy_reserved_iova(struct iova_domain *from,
 				      struct iova_domain *to)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void init_iova_domain(struct iova_domain *iovad,
 				    unsigned long granule,
 				    unsigned long start_pfn)
 {
 }
 
+<<<<<<< HEAD
 static inline bool has_iova_flush_queue(struct iova_domain *iovad)
 {
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int init_iova_flush_queue(struct iova_domain *iovad,
 					iova_flush_cb flush_cb,
 					iova_entry_dtor entry_dtor)
@@ -275,6 +328,7 @@ static inline void put_iova_domain(struct iova_domain *iovad)
 {
 }
 
+<<<<<<< HEAD
 static inline struct iova *split_and_remove_iova(struct iova_domain *iovad,
 						 struct iova *iova,
 						 unsigned long pfn_lo,
@@ -287,6 +341,8 @@ static inline void free_cpu_cached_iovas(unsigned int cpu,
 					 struct iova_domain *iovad)
 {
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif

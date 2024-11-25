@@ -5,22 +5,37 @@
  *  Copyright (C) 2006,2007 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
  *  Copyright (C) 2007 Red Hat, Inc., Peter Zijlstra
  *
+<<<<<<< HEAD
  * see Documentation/locking/lockdep-design.txt for more details.
+=======
+ * see Documentation/locking/lockdep-design.rst for more details.
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_LOCKDEP_H
 #define __LINUX_LOCKDEP_H
 
+<<<<<<< HEAD
 struct task_struct;
 struct lockdep_map;
+=======
+#include <linux/lockdep_types.h>
+#include <linux/smp.h>
+#include <asm/percpu.h>
+
+struct task_struct;
+>>>>>>> upstream/android-13
 
 /* for sysctl */
 extern int prove_locking;
 extern int lock_stat;
 
+<<<<<<< HEAD
 #define MAX_LOCKDEP_SUBCLASSES		8UL
 
 #include <linux/types.h>
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_LOCKDEP
 
 #include <linux/linkage.h>
@@ -28,6 +43,7 @@ extern int lock_stat;
 #include <linux/debug_locks.h>
 #include <linux/stacktrace.h>
 
+<<<<<<< HEAD
 /*
  * We'd rather not expose kernel/lockdep_states.h this wide, but we do need
  * the total number of states... :-(
@@ -160,6 +176,8 @@ struct lockdep_map {
 #endif
 };
 
+=======
+>>>>>>> upstream/android-13
 static inline void lockdep_copy_map(struct lockdep_map *to,
 				    struct lockdep_map *from)
 {
@@ -185,8 +203,18 @@ static inline void lockdep_copy_map(struct lockdep_map *to,
 struct lock_list {
 	struct list_head		entry;
 	struct lock_class		*class;
+<<<<<<< HEAD
 	struct stack_trace		trace;
 	int				distance;
+=======
+	struct lock_class		*links_to;
+	const struct lock_trace		*trace;
+	u16				distance;
+	/* bitmap of different dependencies from head to this */
+	u8				dep;
+	/* used by BFS to record whether "prev -> this" only has -(*R)-> */
+	u8				only_xr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The parent field is used to implement breadth-first search, and the
@@ -195,11 +223,25 @@ struct lock_list {
 	struct lock_list		*parent;
 };
 
+<<<<<<< HEAD
 /*
  * We record lock dependency chains, so that we can cache them:
  */
 struct lock_chain {
 	/* see BUILD_BUG_ON()s in lookup_chain_cache() */
+=======
+/**
+ * struct lock_chain - lock dependency chain record
+ *
+ * @irq_context: the same as irq_context in held_lock below
+ * @depth:       the number of held locks in this chain
+ * @base:        the index in chain_hlocks for this chain
+ * @entry:       the collided lock chains in lock_chain hash list
+ * @chain_key:   the hash key of this lock_chain
+ */
+struct lock_chain {
+	/* see BUILD_BUG_ON()s in add_chain_cache() */
+>>>>>>> upstream/android-13
 	unsigned int			irq_context :  2,
 					depth       :  6,
 					base	    : 24;
@@ -209,12 +251,17 @@ struct lock_chain {
 };
 
 #define MAX_LOCKDEP_KEYS_BITS		13
+<<<<<<< HEAD
 /*
  * Subtract one because we offset hlock->class_idx by 1 in order
  * to make 0 mean no class. This avoids overflowing the class_idx
  * bitfield and hitting the BUG in hlock_class().
  */
 #define MAX_LOCKDEP_KEYS		((1UL << MAX_LOCKDEP_KEYS_BITS) - 1)
+=======
+#define MAX_LOCKDEP_KEYS		(1UL << MAX_LOCKDEP_KEYS_BITS)
+#define INITIAL_CHAIN_KEY		-1
+>>>>>>> upstream/android-13
 
 struct held_lock {
 	/*
@@ -239,6 +286,14 @@ struct held_lock {
 	u64 				waittime_stamp;
 	u64				holdtime_stamp;
 #endif
+<<<<<<< HEAD
+=======
+	/*
+	 * class_idx is zero-indexed; it points to the element in
+	 * lock_classes this held lock instance belongs to. class_idx is in
+	 * the range from 0 to (MAX_LOCKDEP_KEYS-1) inclusive.
+	 */
+>>>>>>> upstream/android-13
 	unsigned int			class_idx:MAX_LOCKDEP_KEYS_BITS;
 	/*
 	 * The lock-stack is unified in that the lock chains of interrupt
@@ -261,6 +316,7 @@ struct held_lock {
 	unsigned int hardirqs_off:1;
 	unsigned int references:12;					/* 32 bits */
 	unsigned int pin_count;
+<<<<<<< HEAD
 
 	/* MTK_LOCK_DEBUG_HELD_LOCK */
 #define HELD_LOCK_STACK_TRACE_DEPTH 20
@@ -269,6 +325,8 @@ struct held_lock {
 	/* MTK_LOCK_MONITOR */
 	unsigned long long timestamp;
 	bool acquired;
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -279,9 +337,40 @@ extern void lockdep_reset(void);
 extern void lockdep_reset_lock(struct lockdep_map *lock);
 extern void lockdep_free_key_range(void *start, unsigned long size);
 extern asmlinkage void lockdep_sys_exit(void);
+<<<<<<< HEAD
 
 extern void lockdep_off(void);
 extern void lockdep_on(void);
+=======
+extern void lockdep_set_selftest_task(struct task_struct *task);
+
+extern void lockdep_init_task(struct task_struct *task);
+
+/*
+ * Split the recursion counter in two to readily detect 'off' vs recursion.
+ */
+#define LOCKDEP_RECURSION_BITS	16
+#define LOCKDEP_OFF		(1U << LOCKDEP_RECURSION_BITS)
+#define LOCKDEP_RECURSION_MASK	(LOCKDEP_OFF - 1)
+
+/*
+ * lockdep_{off,on}() are macros to avoid tracing and kprobes; not inlines due
+ * to header dependencies.
+ */
+
+#define lockdep_off()					\
+do {							\
+	current->lockdep_recursion += LOCKDEP_OFF;	\
+} while (0)
+
+#define lockdep_on()					\
+do {							\
+	current->lockdep_recursion -= LOCKDEP_OFF;	\
+} while (0)
+
+extern void lockdep_register_key(struct lock_class_key *key);
+extern void lockdep_unregister_key(struct lock_class_key *key);
+>>>>>>> upstream/android-13
 
 /*
  * These methods are used by specific locking variants (spinlocks,
@@ -289,8 +378,33 @@ extern void lockdep_on(void);
  * to lockdep:
  */
 
+<<<<<<< HEAD
 extern void lockdep_init_map(struct lockdep_map *lock, const char *name,
 			     struct lock_class_key *key, int subclass);
+=======
+extern void lockdep_init_map_type(struct lockdep_map *lock, const char *name,
+	struct lock_class_key *key, int subclass, u8 inner, u8 outer, u8 lock_type);
+
+static inline void
+lockdep_init_map_waits(struct lockdep_map *lock, const char *name,
+		       struct lock_class_key *key, int subclass, u8 inner, u8 outer)
+{
+	lockdep_init_map_type(lock, name, key, subclass, inner, LD_WAIT_INV, LD_LOCK_NORMAL);
+}
+
+static inline void
+lockdep_init_map_wait(struct lockdep_map *lock, const char *name,
+		      struct lock_class_key *key, int subclass, u8 inner)
+{
+	lockdep_init_map_waits(lock, name, key, subclass, inner, LD_WAIT_INV);
+}
+
+static inline void lockdep_init_map(struct lockdep_map *lock, const char *name,
+			     struct lock_class_key *key, int subclass)
+{
+	lockdep_init_map_wait(lock, name, key, subclass, LD_WAIT_INV);
+}
+>>>>>>> upstream/android-13
 
 /*
  * Reinitialize a lock key - for cases where there is special locking or
@@ -298,6 +412,7 @@ extern void lockdep_init_map(struct lockdep_map *lock, const char *name,
  * of dependencies wrong: they are either too broad (they need a class-split)
  * or they are too narrow (they suffer from a false class-split):
  */
+<<<<<<< HEAD
 #define lockdep_set_class(lock, key) \
 		lockdep_init_map(&(lock)->dep_map, #key, key, 0)
 #define lockdep_set_class_and_name(lock, key, name) \
@@ -310,6 +425,31 @@ extern void lockdep_init_map(struct lockdep_map *lock, const char *name,
 
 #define lockdep_set_novalidate_class(lock) \
 	lockdep_set_class_and_name(lock, &__lockdep_no_validate__, #lock)
+=======
+#define lockdep_set_class(lock, key)				\
+	lockdep_init_map_waits(&(lock)->dep_map, #key, key, 0,	\
+			       (lock)->dep_map.wait_type_inner,	\
+			       (lock)->dep_map.wait_type_outer)
+
+#define lockdep_set_class_and_name(lock, key, name)		\
+	lockdep_init_map_waits(&(lock)->dep_map, name, key, 0,	\
+			       (lock)->dep_map.wait_type_inner,	\
+			       (lock)->dep_map.wait_type_outer)
+
+#define lockdep_set_class_and_subclass(lock, key, sub)		\
+	lockdep_init_map_waits(&(lock)->dep_map, #key, key, sub,\
+			       (lock)->dep_map.wait_type_inner,	\
+			       (lock)->dep_map.wait_type_outer)
+
+#define lockdep_set_subclass(lock, sub)					\
+	lockdep_init_map_waits(&(lock)->dep_map, #lock, (lock)->dep_map.key, sub,\
+			       (lock)->dep_map.wait_type_inner,		\
+			       (lock)->dep_map.wait_type_outer)
+
+#define lockdep_set_novalidate_class(lock) \
+	lockdep_set_class_and_name(lock, &__lockdep_no_validate__, #lock)
+
+>>>>>>> upstream/android-13
 /*
  * Compare locking classes
  */
@@ -339,8 +479,17 @@ extern void lock_acquire(struct lockdep_map *lock, unsigned int subclass,
 			 int trylock, int read, int check,
 			 struct lockdep_map *nest_lock, unsigned long ip);
 
+<<<<<<< HEAD
 extern void lock_release(struct lockdep_map *lock, int nested,
 			 unsigned long ip);
+=======
+extern void lock_release(struct lockdep_map *lock, unsigned long ip);
+
+/* lock_is_held_type() returns */
+#define LOCK_STATE_UNKNOWN	-1
+#define LOCK_STATE_NOT_HELD	0
+#define LOCK_STATE_HELD		1
+>>>>>>> upstream/android-13
 
 /*
  * Same "read" as for lock_acquire(), except -1 means any.
@@ -367,8 +516,11 @@ static inline void lock_set_subclass(struct lockdep_map *lock,
 
 extern void lock_downgrade(struct lockdep_map *lock, unsigned long ip);
 
+<<<<<<< HEAD
 struct pin_cookie { unsigned int val; };
 
+=======
+>>>>>>> upstream/android-13
 #define NIL_COOKIE (struct pin_cookie){ .val = 0U, }
 
 extern struct pin_cookie lock_pin_lock(struct lockdep_map *lock);
@@ -377,6 +529,7 @@ extern void lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie);
 
 #define lockdep_depth(tsk)	(debug_locks ? (tsk)->lockdep_depth : 0)
 
+<<<<<<< HEAD
 #define lockdep_assert_held(l)	do {				\
 		WARN_ON(debug_locks && !lockdep_is_held(l));	\
 	} while (0)
@@ -392,6 +545,31 @@ extern void lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie);
 #define lockdep_assert_held_once(l)	do {				\
 		WARN_ON_ONCE(debug_locks && !lockdep_is_held(l));	\
 	} while (0)
+=======
+#define lockdep_assert(cond)		\
+	do { WARN_ON(debug_locks && !(cond)); } while (0)
+
+#define lockdep_assert_once(cond)	\
+	do { WARN_ON_ONCE(debug_locks && !(cond)); } while (0)
+
+#define lockdep_assert_held(l)		\
+	lockdep_assert(lockdep_is_held(l) != LOCK_STATE_NOT_HELD)
+
+#define lockdep_assert_not_held(l)	\
+	lockdep_assert(lockdep_is_held(l) != LOCK_STATE_HELD)
+
+#define lockdep_assert_held_write(l)	\
+	lockdep_assert(lockdep_is_held_type(l, 0))
+
+#define lockdep_assert_held_read(l)	\
+	lockdep_assert(lockdep_is_held_type(l, 1))
+
+#define lockdep_assert_held_once(l)		\
+	lockdep_assert_once(lockdep_is_held(l) != LOCK_STATE_NOT_HELD)
+
+#define lockdep_assert_none_held_once()		\
+	lockdep_assert_once(!current->lockdep_depth)
+>>>>>>> upstream/android-13
 
 #define lockdep_recursing(tsk)	((tsk)->lockdep_recursion)
 
@@ -401,6 +579,13 @@ extern void lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie);
 
 #else /* !CONFIG_LOCKDEP */
 
+<<<<<<< HEAD
+=======
+static inline void lockdep_init_task(struct task_struct *task)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline void lockdep_off(void)
 {
 }
@@ -409,12 +594,30 @@ static inline void lockdep_on(void)
 {
 }
 
+<<<<<<< HEAD
 # define lock_acquire(l, s, t, r, c, n, i)	do { } while (0)
 # define lock_release(l, n, i)			do { } while (0)
+=======
+static inline void lockdep_set_selftest_task(struct task_struct *task)
+{
+}
+
+# define lock_acquire(l, s, t, r, c, n, i)	do { } while (0)
+# define lock_release(l, i)			do { } while (0)
+>>>>>>> upstream/android-13
 # define lock_downgrade(l, i)			do { } while (0)
 # define lock_set_class(l, n, k, s, i)		do { } while (0)
 # define lock_set_subclass(l, s, i)		do { } while (0)
 # define lockdep_init()				do { } while (0)
+<<<<<<< HEAD
+=======
+# define lockdep_init_map_type(lock, name, key, sub, inner, outer, type) \
+		do { (void)(name); (void)(key); } while (0)
+# define lockdep_init_map_waits(lock, name, key, sub, inner, outer) \
+		do { (void)(name); (void)(key); } while (0)
+# define lockdep_init_map_wait(lock, name, key, sub, inner) \
+		do { (void)(name); (void)(key); } while (0)
+>>>>>>> upstream/android-13
 # define lockdep_init_map(lock, name, key, sub) \
 		do { (void)(name); (void)(key); } while (0)
 # define lockdep_set_class(lock, key)		do { (void)(key); } while (0)
@@ -435,6 +638,7 @@ static inline void lockdep_on(void)
 # define lockdep_reset()		do { debug_locks = 1; } while (0)
 # define lockdep_free_key_range(start, size)	do { } while (0)
 # define lockdep_sys_exit() 			do { } while (0)
+<<<<<<< HEAD
 /*
  * The class key takes no space if lockdep is disabled:
  */
@@ -461,6 +665,42 @@ struct pin_cookie { };
 #define NIL_COOKIE (struct pin_cookie){ }
 
 #define lockdep_pin_lock(l)			({ struct pin_cookie cookie; cookie; })
+=======
+
+static inline void lockdep_register_key(struct lock_class_key *key)
+{
+}
+
+static inline void lockdep_unregister_key(struct lock_class_key *key)
+{
+}
+
+#define lockdep_depth(tsk)	(0)
+
+/*
+ * Dummy forward declarations, allow users to write less ifdef-y code
+ * and depend on dead code elimination.
+ */
+extern int lock_is_held(const void *);
+extern int lockdep_is_held(const void *);
+#define lockdep_is_held_type(l, r)		(1)
+
+#define lockdep_assert(c)			do { } while (0)
+#define lockdep_assert_once(c)			do { } while (0)
+
+#define lockdep_assert_held(l)			do { (void)(l); } while (0)
+#define lockdep_assert_not_held(l)		do { (void)(l); } while (0)
+#define lockdep_assert_held_write(l)		do { (void)(l); } while (0)
+#define lockdep_assert_held_read(l)		do { (void)(l); } while (0)
+#define lockdep_assert_held_once(l)		do { (void)(l); } while (0)
+#define lockdep_assert_none_held_once()	do { } while (0)
+
+#define lockdep_recursing(tsk)			(0)
+
+#define NIL_COOKIE (struct pin_cookie){ }
+
+#define lockdep_pin_lock(l)			({ struct pin_cookie cookie = { }; cookie; })
+>>>>>>> upstream/android-13
 #define lockdep_repin_lock(l, c)		do { (void)(l); (void)(c); } while (0)
 #define lockdep_unpin_lock(l, c)		do { (void)(l); (void)(c); } while (0)
 
@@ -481,10 +721,16 @@ enum xhlock_context_t {
 	{ .name = (_name), .key = (void *)(_key), }
 
 static inline void lockdep_invariant_state(bool force) {}
+<<<<<<< HEAD
 static inline void lockdep_init_task(struct task_struct *task) {}
 static inline void lockdep_free_task(struct task_struct *task) {}
 
 #if defined(CONFIG_LOCK_STAT) || defined(CONFIG_DEBUG_LOCK_ALLOC)
+=======
+static inline void lockdep_free_task(struct task_struct *task) {}
+
+#ifdef CONFIG_LOCK_STAT
+>>>>>>> upstream/android-13
 
 extern void lock_contended(struct lockdep_map *lock, unsigned long ip);
 extern void lock_acquired(struct lockdep_map *lock, unsigned long ip);
@@ -548,6 +794,23 @@ static inline void print_irqtrace_events(struct task_struct *curr)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+/* Variable used to make lockdep treat read_lock() as recursive in selftests */
+#ifdef CONFIG_DEBUG_LOCKING_API_SELFTESTS
+extern unsigned int force_read_lock_recursive;
+#else /* CONFIG_DEBUG_LOCKING_API_SELFTESTS */
+#define force_read_lock_recursive 0
+#endif /* CONFIG_DEBUG_LOCKING_API_SELFTESTS */
+
+#ifdef CONFIG_LOCKDEP
+extern bool read_lock_is_recursive(void);
+#else /* CONFIG_LOCKDEP */
+/* If !LOCKDEP, the value is meaningless */
+#define read_lock_is_recursive() 0
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * For trivial one-depth nesting of a lock-class, the following
  * global define can be used. (Subsystems with multiple levels
@@ -566,6 +829,7 @@ static inline void print_irqtrace_events(struct task_struct *curr)
 
 #define spin_acquire(l, s, t, i)		lock_acquire_exclusive(l, s, t, NULL, i)
 #define spin_acquire_nest(l, s, t, n, i)	lock_acquire_exclusive(l, s, t, n, i)
+<<<<<<< HEAD
 #define spin_release(l, n, i)			lock_release(l, n, i)
 
 #define rwlock_acquire(l, s, t, i)		lock_acquire_exclusive(l, s, t, NULL, i)
@@ -579,15 +843,42 @@ static inline void print_irqtrace_events(struct task_struct *curr)
 #define mutex_acquire(l, s, t, i)		lock_acquire_exclusive(l, s, t, NULL, i)
 #define mutex_acquire_nest(l, s, t, n, i)	lock_acquire_exclusive(l, s, t, n, i)
 #define mutex_release(l, n, i)			lock_release(l, n, i)
+=======
+#define spin_release(l, i)			lock_release(l, i)
+
+#define rwlock_acquire(l, s, t, i)		lock_acquire_exclusive(l, s, t, NULL, i)
+#define rwlock_acquire_read(l, s, t, i)					\
+do {									\
+	if (read_lock_is_recursive())					\
+		lock_acquire_shared_recursive(l, s, t, NULL, i);	\
+	else								\
+		lock_acquire_shared(l, s, t, NULL, i);			\
+} while (0)
+
+#define rwlock_release(l, i)			lock_release(l, i)
+
+#define seqcount_acquire(l, s, t, i)		lock_acquire_exclusive(l, s, t, NULL, i)
+#define seqcount_acquire_read(l, s, t, i)	lock_acquire_shared_recursive(l, s, t, NULL, i)
+#define seqcount_release(l, i)			lock_release(l, i)
+
+#define mutex_acquire(l, s, t, i)		lock_acquire_exclusive(l, s, t, NULL, i)
+#define mutex_acquire_nest(l, s, t, n, i)	lock_acquire_exclusive(l, s, t, n, i)
+#define mutex_release(l, i)			lock_release(l, i)
+>>>>>>> upstream/android-13
 
 #define rwsem_acquire(l, s, t, i)		lock_acquire_exclusive(l, s, t, NULL, i)
 #define rwsem_acquire_nest(l, s, t, n, i)	lock_acquire_exclusive(l, s, t, n, i)
 #define rwsem_acquire_read(l, s, t, i)		lock_acquire_shared(l, s, t, NULL, i)
+<<<<<<< HEAD
 #define rwsem_release(l, n, i)			lock_release(l, n, i)
+=======
+#define rwsem_release(l, i)			lock_release(l, i)
+>>>>>>> upstream/android-13
 
 #define lock_map_acquire(l)			lock_acquire_exclusive(l, 0, 0, NULL, _THIS_IP_)
 #define lock_map_acquire_read(l)		lock_acquire_shared_recursive(l, 0, 0, NULL, _THIS_IP_)
 #define lock_map_acquire_tryread(l)		lock_acquire_shared_recursive(l, 0, 1, NULL, _THIS_IP_)
+<<<<<<< HEAD
 #define lock_map_release(l)			lock_release(l, 1, _THIS_IP_)
 
 #ifdef CONFIG_PROVE_LOCKING
@@ -615,17 +906,118 @@ do {									\
 			  current->hardirqs_enabled,			\
 			  "IRQs not disabled as expected\n");		\
 	} while (0)
+=======
+#define lock_map_release(l)			lock_release(l, _THIS_IP_)
+
+#ifdef CONFIG_PROVE_LOCKING
+# define might_lock(lock)						\
+do {									\
+	typecheck(struct lockdep_map *, &(lock)->dep_map);		\
+	lock_acquire(&(lock)->dep_map, 0, 0, 0, 1, NULL, _THIS_IP_);	\
+	lock_release(&(lock)->dep_map, _THIS_IP_);			\
+} while (0)
+# define might_lock_read(lock)						\
+do {									\
+	typecheck(struct lockdep_map *, &(lock)->dep_map);		\
+	lock_acquire(&(lock)->dep_map, 0, 0, 1, 1, NULL, _THIS_IP_);	\
+	lock_release(&(lock)->dep_map, _THIS_IP_);			\
+} while (0)
+# define might_lock_nested(lock, subclass)				\
+do {									\
+	typecheck(struct lockdep_map *, &(lock)->dep_map);		\
+	lock_acquire(&(lock)->dep_map, subclass, 0, 1, 1, NULL,		\
+		     _THIS_IP_);					\
+	lock_release(&(lock)->dep_map, _THIS_IP_);			\
+} while (0)
+
+DECLARE_PER_CPU(int, hardirqs_enabled);
+DECLARE_PER_CPU(int, hardirq_context);
+DECLARE_PER_CPU(unsigned int, lockdep_recursion);
+
+#define __lockdep_enabled	(debug_locks && !this_cpu_read(lockdep_recursion))
+
+#define lockdep_assert_irqs_enabled()					\
+do {									\
+	WARN_ON_ONCE(__lockdep_enabled && !this_cpu_read(hardirqs_enabled)); \
+} while (0)
+
+#define lockdep_assert_irqs_disabled()					\
+do {									\
+	WARN_ON_ONCE(__lockdep_enabled && this_cpu_read(hardirqs_enabled)); \
+} while (0)
+
+#define lockdep_assert_in_irq()						\
+do {									\
+	WARN_ON_ONCE(__lockdep_enabled && !this_cpu_read(hardirq_context)); \
+} while (0)
+
+#define lockdep_assert_preemption_enabled()				\
+do {									\
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_PREEMPT_COUNT)	&&		\
+		     __lockdep_enabled			&&		\
+		     (preempt_count() != 0		||		\
+		      !this_cpu_read(hardirqs_enabled)));		\
+} while (0)
+
+#define lockdep_assert_preemption_disabled()				\
+do {									\
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_PREEMPT_COUNT)	&&		\
+		     __lockdep_enabled			&&		\
+		     (preempt_count() == 0		&&		\
+		      this_cpu_read(hardirqs_enabled)));		\
+} while (0)
+
+/*
+ * Acceptable for protecting per-CPU resources accessed from BH.
+ * Much like in_softirq() - semantics are ambiguous, use carefully.
+ */
+#define lockdep_assert_in_softirq()					\
+do {									\
+	WARN_ON_ONCE(__lockdep_enabled			&&		\
+		     (!in_softirq() || in_irq() || in_nmi()));		\
+} while (0)
+>>>>>>> upstream/android-13
 
 #else
 # define might_lock(lock) do { } while (0)
 # define might_lock_read(lock) do { } while (0)
+<<<<<<< HEAD
 # define lockdep_assert_irqs_enabled() do { } while (0)
 # define lockdep_assert_irqs_disabled() do { } while (0)
+=======
+# define might_lock_nested(lock, subclass) do { } while (0)
+
+# define lockdep_assert_irqs_enabled() do { } while (0)
+# define lockdep_assert_irqs_disabled() do { } while (0)
+# define lockdep_assert_in_irq() do { } while (0)
+
+# define lockdep_assert_preemption_enabled() do { } while (0)
+# define lockdep_assert_preemption_disabled() do { } while (0)
+# define lockdep_assert_in_softirq() do { } while (0)
+#endif
+
+#ifdef CONFIG_PROVE_RAW_LOCK_NESTING
+
+# define lockdep_assert_RT_in_threaded_ctx() do {			\
+		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
+			  lockdep_hardirq_context() &&			\
+			  !(current->hardirq_threaded || current->irq_config),	\
+			  "Not in threaded context on PREEMPT_RT as expected\n");	\
+} while (0)
+
+#else
+
+# define lockdep_assert_RT_in_threaded_ctx() do { } while (0)
+
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_LOCKDEP
 void lockdep_rcu_suspicious(const char *file, const int line, const char *s);
+<<<<<<< HEAD
 extern unsigned long long debug_locks_off_ts;
+=======
+>>>>>>> upstream/android-13
 #else
 static inline void
 lockdep_rcu_suspicious(const char *file, const int line, const char *s)
@@ -633,6 +1025,7 @@ lockdep_rcu_suspicious(const char *file, const int line, const char *s)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_LOCKDEP
 void check_held_locks(int force);
 void mt_aee_dump_held_locks(void);
@@ -648,4 +1041,6 @@ mt_aee_dump_held_locks(void)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __LINUX_LOCKDEP_H */

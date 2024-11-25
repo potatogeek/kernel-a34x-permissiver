@@ -10,7 +10,10 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/timer.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/gfp.h>
 #include <linux/io.h>
@@ -31,6 +34,7 @@ MODULE_DESCRIPTION("QDIO base support");
 MODULE_LICENSE("GPL");
 
 static inline int do_siga_sync(unsigned long schid,
+<<<<<<< HEAD
 			       unsigned int out_mask, unsigned int in_mask,
 			       unsigned int fc)
 {
@@ -63,6 +67,43 @@ static inline int do_siga_input(unsigned long schid, unsigned int mask,
 		"	srl	%0,28\n"
 		: "=d" (cc)
 		: "d" (__fc), "d" (__schid), "d" (__mask) : "cc");
+=======
+			       unsigned long out_mask, unsigned long in_mask,
+			       unsigned int fc)
+{
+	int cc;
+
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[schid]\n"
+		"	lgr	2,%[out]\n"
+		"	lgr	3,%[in]\n"
+		"	siga	0\n"
+		"	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		: [cc] "=&d" (cc)
+		: [fc] "d" (fc), [schid] "d" (schid),
+		  [out] "d" (out_mask), [in] "d" (in_mask)
+		: "cc", "0", "1", "2", "3");
+	return cc;
+}
+
+static inline int do_siga_input(unsigned long schid, unsigned long mask,
+				unsigned long fc)
+{
+	int cc;
+
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[schid]\n"
+		"	lgr	2,%[mask]\n"
+		"	siga	0\n"
+		"	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		: [cc] "=&d" (cc)
+		: [fc] "d" (fc), [schid] "d" (schid), [mask] "d" (mask)
+		: "cc", "0", "1", "2");
+>>>>>>> upstream/android-13
 	return cc;
 }
 
@@ -78,6 +119,7 @@ static inline int do_siga_input(unsigned long schid, unsigned int mask,
  * Note: For IQDC unicast queues only the highest priority queue is processed.
  */
 static inline int do_siga_output(unsigned long schid, unsigned long mask,
+<<<<<<< HEAD
 				 unsigned int *bb, unsigned int fc,
 				 unsigned long aob)
 {
@@ -95,6 +137,26 @@ static inline int do_siga_output(unsigned long schid, unsigned long mask,
 		: "d" (__schid), "d" (__mask)
 		: "cc");
 	*bb = __fc >> 31;
+=======
+				 unsigned int *bb, unsigned long fc,
+				 unsigned long aob)
+{
+	int cc;
+
+	asm volatile(
+		"	lgr	0,%[fc]\n"
+		"	lgr	1,%[schid]\n"
+		"	lgr	2,%[mask]\n"
+		"	lgr	3,%[aob]\n"
+		"	siga	0\n"
+		"	lgr	%[fc],0\n"
+		"	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		: [cc] "=&d" (cc), [fc] "+&d" (fc)
+		: [schid] "d" (schid), [mask] "d" (mask), [aob] "d" (aob)
+		: "cc", "0", "1", "2", "3");
+	*bb = fc >> 31;
+>>>>>>> upstream/android-13
 	return cc;
 }
 
@@ -131,7 +193,11 @@ again:
 	case 96:
 		/* not all buffers processed */
 		qperf_inc(q, eqbs_partial);
+<<<<<<< HEAD
 		DBF_DEV_EVENT(DBF_WARN, q->irq_ptr, "EQBS part:%02x",
+=======
+		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "EQBS part:%02x",
+>>>>>>> upstream/android-13
 			tmp_count);
 		return count - tmp_count;
 	case 97:
@@ -143,7 +209,11 @@ again:
 		DBF_ERROR("%4x EQBS ERROR", SCH_NO(q));
 		DBF_ERROR("%3d%3d%2d", count, tmp_count, nr);
 		q->handler(q->irq_ptr->cdev, QDIO_ERROR_GET_BUF_STATE, q->nr,
+<<<<<<< HEAD
 			   q->first_to_kick, count, q->irq_ptr->int_parm);
+=======
+			   q->first_to_check, count, q->irq_ptr->int_parm);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 }
@@ -191,7 +261,11 @@ again:
 		DBF_ERROR("%4x SQBS ERROR", SCH_NO(q));
 		DBF_ERROR("%3d%3d%2d", count, tmp_count, nr);
 		q->handler(q->irq_ptr->cdev, QDIO_ERROR_SET_BUF_STATE, q->nr,
+<<<<<<< HEAD
 			   q->first_to_kick, count, q->irq_ptr->int_parm);
+=======
+			   q->first_to_check, count, q->irq_ptr->int_parm);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 }
@@ -202,16 +276,24 @@ again:
  */
 static inline int get_buf_states(struct qdio_q *q, unsigned int bufnr,
 				 unsigned char *state, unsigned int count,
+<<<<<<< HEAD
 				 int auto_ack, int merge_pending)
 {
 	unsigned char __state = 0;
 	int i;
+=======
+				 int auto_ack)
+{
+	unsigned char __state = 0;
+	int i = 1;
+>>>>>>> upstream/android-13
 
 	if (is_qebsm(q))
 		return qdio_do_eqbs(q, state, bufnr, count, auto_ack);
 
 	/* get initial state: */
 	__state = q->slsb.val[bufnr];
+<<<<<<< HEAD
 	if (merge_pending && __state == SLSB_P_OUTPUT_PENDING)
 		__state = SLSB_P_OUTPUT_EMPTY;
 
@@ -224,10 +306,25 @@ static inline int get_buf_states(struct qdio_q *q, unsigned int bufnr,
 		    __state == SLSB_P_OUTPUT_EMPTY)
 			continue;
 
+=======
+
+	/* Bail out early if there is no work on the queue: */
+	if (__state & SLSB_OWNER_CU)
+		goto out;
+
+	for (; i < count; i++) {
+		bufnr = next_buf(bufnr);
+
+>>>>>>> upstream/android-13
 		/* stop if next state differs from initial state: */
 		if (q->slsb.val[bufnr] != __state)
 			break;
 	}
+<<<<<<< HEAD
+=======
+
+out:
+>>>>>>> upstream/android-13
 	*state = __state;
 	return i;
 }
@@ -235,7 +332,11 @@ static inline int get_buf_states(struct qdio_q *q, unsigned int bufnr,
 static inline int get_buf_state(struct qdio_q *q, unsigned int bufnr,
 				unsigned char *state, int auto_ack)
 {
+<<<<<<< HEAD
 	return get_buf_states(q, bufnr, state, 1, auto_ack, 0);
+=======
+	return get_buf_states(q, bufnr, state, 1, auto_ack);
+>>>>>>> upstream/android-13
 }
 
 /* wrap-around safe setting of slsb states, returns number of changed buffers */
@@ -247,10 +348,24 @@ static inline int set_buf_states(struct qdio_q *q, int bufnr,
 	if (is_qebsm(q))
 		return qdio_do_sqbs(q, state, bufnr, count);
 
+<<<<<<< HEAD
 	for (i = 0; i < count; i++) {
 		xchg(&q->slsb.val[bufnr], state);
 		bufnr = next_buf(bufnr);
 	}
+=======
+	/* Ensure that all preceding changes to the SBALs are visible: */
+	mb();
+
+	for (i = 0; i < count; i++) {
+		WRITE_ONCE(q->slsb.val[bufnr], state);
+		bufnr = next_buf(bufnr);
+	}
+
+	/* Make our SLSB changes visible: */
+	mb();
+
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -295,6 +410,7 @@ static inline int qdio_siga_sync(struct qdio_q *q, unsigned int output,
 	return (cc) ? -EIO : 0;
 }
 
+<<<<<<< HEAD
 static inline int qdio_siga_sync_q(struct qdio_q *q)
 {
 	if (q->is_input_q)
@@ -305,11 +421,34 @@ static inline int qdio_siga_sync_q(struct qdio_q *q)
 
 static int qdio_siga_output(struct qdio_q *q, unsigned int *busy_bit,
 	unsigned long aob)
+=======
+static inline int qdio_sync_input_queue(struct qdio_q *q)
+{
+	return qdio_siga_sync(q, 0, q->mask);
+}
+
+static inline int qdio_sync_output_queue(struct qdio_q *q)
+{
+	return qdio_siga_sync(q, q->mask, 0);
+}
+
+static inline int qdio_siga_sync_q(struct qdio_q *q)
+{
+	if (q->is_input_q)
+		return qdio_sync_input_queue(q);
+	else
+		return qdio_sync_output_queue(q);
+}
+
+static int qdio_siga_output(struct qdio_q *q, unsigned int count,
+			    unsigned int *busy_bit, unsigned long aob)
+>>>>>>> upstream/android-13
 {
 	unsigned long schid = *((u32 *) &q->irq_ptr->schid);
 	unsigned int fc = QDIO_SIGA_WRITE;
 	u64 start_time = 0;
 	int retries = 0, cc;
+<<<<<<< HEAD
 	unsigned long laob = 0;
 
 	WARN_ON_ONCE(aob && ((queue_type(q) != QDIO_IQDIO_QFMT) ||
@@ -317,6 +456,14 @@ static int qdio_siga_output(struct qdio_q *q, unsigned int *busy_bit,
 	if (q->u.out.use_cq && aob != 0) {
 		fc = QDIO_SIGA_WRITEQ;
 		laob = aob;
+=======
+
+	if (queue_type(q) == QDIO_IQDIO_QFMT && !multicast_outbound(q)) {
+		if (count > 1)
+			fc = QDIO_SIGA_WRITEM;
+		else if (aob)
+			fc = QDIO_SIGA_WRITEQ;
+>>>>>>> upstream/android-13
 	}
 
 	if (is_qebsm(q)) {
@@ -324,7 +471,11 @@ static int qdio_siga_output(struct qdio_q *q, unsigned int *busy_bit,
 		fc |= QDIO_SIGA_QEBSM_FLAG;
 	}
 again:
+<<<<<<< HEAD
 	cc = do_siga_output(schid, q->mask, busy_bit, fc, laob);
+=======
+	cc = do_siga_output(schid, q->mask, busy_bit, fc, aob);
+>>>>>>> upstream/android-13
 
 	/* hipersocket busy condition */
 	if (unlikely(*busy_bit)) {
@@ -365,6 +516,7 @@ static inline int qdio_siga_input(struct qdio_q *q)
 	return (cc) ? -EIO : 0;
 }
 
+<<<<<<< HEAD
 #define qdio_siga_sync_out(q) qdio_siga_sync(q, ~0U, 0)
 #define qdio_siga_sync_all(q) qdio_siga_sync(q, ~0U, ~0U)
 
@@ -383,10 +535,19 @@ int debug_get_buf_state(struct qdio_q *q, unsigned int bufnr,
 	if (need_siga_sync(q))
 		qdio_siga_sync_q(q);
 	return get_buf_states(q, bufnr, state, 1, 0, 0);
+=======
+int debug_get_buf_state(struct qdio_q *q, unsigned int bufnr,
+			unsigned char *state)
+{
+	if (qdio_need_siga_sync(q->irq_ptr))
+		qdio_siga_sync_q(q);
+	return get_buf_state(q, bufnr, state, 0);
+>>>>>>> upstream/android-13
 }
 
 static inline void qdio_stop_polling(struct qdio_q *q)
 {
+<<<<<<< HEAD
 	if (!q->u.in.polling)
 		return;
 
@@ -400,10 +561,22 @@ static inline void qdio_stop_polling(struct qdio_q *q)
 		q->u.in.ack_count = 0;
 	} else
 		set_buf_state(q, q->u.in.ack_start, SLSB_P_INPUT_NOT_INIT);
+=======
+	if (!q->u.in.batch_count)
+		return;
+
+	qperf_inc(q, stop_polling);
+
+	/* show the card that we are not polling anymore */
+	set_buf_states(q, q->u.in.batch_start, SLSB_P_INPUT_NOT_INIT,
+		       q->u.in.batch_count);
+	q->u.in.batch_count = 0;
+>>>>>>> upstream/android-13
 }
 
 static inline void account_sbals(struct qdio_q *q, unsigned int count)
 {
+<<<<<<< HEAD
 	int pos;
 
 	q->q_stats.nr_sbal_total += count;
@@ -429,10 +602,26 @@ static void process_buffer_error(struct qdio_q *q, int count)
 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "OUTFULL FTC:%02x",
 			      q->first_to_check);
 		goto set;
+=======
+	q->q_stats.nr_sbal_total += count;
+	q->q_stats.nr_sbals[ilog2(count)]++;
+}
+
+static void process_buffer_error(struct qdio_q *q, unsigned int start,
+				 int count)
+{
+	/* special handling for no target buffer empty */
+	if (queue_type(q) == QDIO_IQDIO_QFMT && !q->is_input_q &&
+	    q->sbal[start]->element[15].sflags == 0x10) {
+		qperf_inc(q, target_full);
+		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "OUTFULL FTC:%02x", start);
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	DBF_ERROR("%4x BUF ERROR", SCH_NO(q));
 	DBF_ERROR((q->is_input_q) ? "IN:%2d" : "OUT:%2d", q->nr);
+<<<<<<< HEAD
 	DBF_ERROR("FTC:%3d C:%3d", q->first_to_check, count);
 	DBF_ERROR("F14:%2x F15:%2x",
 		  q->sbal[q->first_to_check]->element[14].sflags,
@@ -492,12 +681,35 @@ static inline void inbound_primed(struct qdio_q *q, int count)
 }
 
 static int get_inbound_buffer_frontier(struct qdio_q *q)
+=======
+	DBF_ERROR("FTC:%3d C:%3d", start, count);
+	DBF_ERROR("F14:%2x F15:%2x",
+		  q->sbal[start]->element[14].sflags,
+		  q->sbal[start]->element[15].sflags);
+}
+
+static inline void inbound_handle_work(struct qdio_q *q, unsigned int start,
+				       int count, bool auto_ack)
+{
+	/* ACK the newest SBAL: */
+	if (!auto_ack)
+		set_buf_state(q, add_buf(start, count - 1), SLSB_P_INPUT_ACK);
+
+	if (!q->u.in.batch_count)
+		q->u.in.batch_start = start;
+	q->u.in.batch_count += count;
+}
+
+static int get_inbound_buffer_frontier(struct qdio_q *q, unsigned int start,
+				       unsigned int *error)
+>>>>>>> upstream/android-13
 {
 	unsigned char state = 0;
 	int count;
 
 	q->timestamp = get_tod_clock_fast();
 
+<<<<<<< HEAD
 	/*
 	 * Don't check 128 buffers, as otherwise qdio_inbound_q_moved
 	 * would return 0.
@@ -518,18 +730,49 @@ static int get_inbound_buffer_frontier(struct qdio_q *q)
 	case SLSB_P_INPUT_PRIMED:
 		inbound_primed(q, count);
 		q->first_to_check = add_buf(q->first_to_check, count);
+=======
+	count = atomic_read(&q->nr_buf_used);
+	if (!count)
+		return 0;
+
+	if (qdio_need_siga_sync(q->irq_ptr))
+		qdio_sync_input_queue(q);
+
+	count = get_buf_states(q, start, &state, count, 1);
+	if (!count)
+		return 0;
+
+	switch (state) {
+	case SLSB_P_INPUT_PRIMED:
+		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "in prim:%1d %02x", q->nr,
+			      count);
+
+		inbound_handle_work(q, start, count, is_qebsm(q));
+>>>>>>> upstream/android-13
 		if (atomic_sub_return(count, &q->nr_buf_used) == 0)
 			qperf_inc(q, inbound_queue_full);
 		if (q->irq_ptr->perf_stat_enabled)
 			account_sbals(q, count);
+<<<<<<< HEAD
 		break;
 	case SLSB_P_INPUT_ERROR:
 		process_buffer_error(q, count);
 		q->first_to_check = add_buf(q->first_to_check, count);
+=======
+		return count;
+	case SLSB_P_INPUT_ERROR:
+		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "in err:%1d %02x", q->nr,
+			      count);
+
+		*error = QDIO_ERROR_SLSB_STATE;
+		process_buffer_error(q, start, count);
+		inbound_handle_work(q, start, count, false);
+>>>>>>> upstream/android-13
 		if (atomic_sub_return(count, &q->nr_buf_used) == 0)
 			qperf_inc(q, inbound_queue_full);
 		if (q->irq_ptr->perf_stat_enabled)
 			account_sbals_error(q, count);
+<<<<<<< HEAD
 		break;
 	case SLSB_CU_INPUT_EMPTY:
 	case SLSB_P_INPUT_NOT_INIT:
@@ -562,20 +805,48 @@ static int qdio_inbound_q_moved(struct qdio_q *q)
 }
 
 static inline int qdio_inbound_q_done(struct qdio_q *q)
+=======
+		return count;
+	case SLSB_CU_INPUT_EMPTY:
+		if (q->irq_ptr->perf_stat_enabled)
+			q->q_stats.nr_sbal_nop++;
+		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "in nop:%1d %#02x",
+			      q->nr, start);
+		return 0;
+	case SLSB_P_INPUT_NOT_INIT:
+	case SLSB_P_INPUT_ACK:
+		/* We should never see this state, throw a WARN: */
+	default:
+		dev_WARN_ONCE(&q->irq_ptr->cdev->dev, 1,
+			      "found state %#x at index %u on queue %u\n",
+			      state, start, q->nr);
+		return 0;
+	}
+}
+
+static inline int qdio_inbound_q_done(struct qdio_q *q, unsigned int start)
+>>>>>>> upstream/android-13
 {
 	unsigned char state = 0;
 
 	if (!atomic_read(&q->nr_buf_used))
 		return 1;
 
+<<<<<<< HEAD
 	if (need_siga_sync(q))
 		qdio_siga_sync_q(q);
 	get_buf_state(q, q->first_to_check, &state, 0);
+=======
+	if (qdio_need_siga_sync(q->irq_ptr))
+		qdio_sync_input_queue(q);
+	get_buf_state(q, start, &state, 0);
+>>>>>>> upstream/android-13
 
 	if (state == SLSB_P_INPUT_PRIMED || state == SLSB_P_INPUT_ERROR)
 		/* more work coming */
 		return 0;
 
+<<<<<<< HEAD
 	if (is_thinint_irq(q->irq_ptr))
 		return 1;
 
@@ -721,12 +992,20 @@ void qdio_inbound_processing(unsigned long data)
 }
 
 static int get_outbound_buffer_frontier(struct qdio_q *q)
+=======
+	return 1;
+}
+
+static int get_outbound_buffer_frontier(struct qdio_q *q, unsigned int start,
+					unsigned int *error)
+>>>>>>> upstream/android-13
 {
 	unsigned char state = 0;
 	int count;
 
 	q->timestamp = get_tod_clock_fast();
 
+<<<<<<< HEAD
 	if (need_siga_sync(q))
 		if (((queue_type(q) != QDIO_IQDIO_QFMT) &&
 		    !pci_out_supported(q)) ||
@@ -750,11 +1029,30 @@ static int get_outbound_buffer_frontier(struct qdio_q *q)
 	switch (state) {
 	case SLSB_P_OUTPUT_EMPTY:
 	case SLSB_P_OUTPUT_PENDING:
+=======
+	count = atomic_read(&q->nr_buf_used);
+	if (!count)
+		return 0;
+
+	if (qdio_need_siga_sync(q->irq_ptr))
+		qdio_sync_output_queue(q);
+
+	count = get_buf_states(q, start, &state, count, 0);
+	if (!count)
+		return 0;
+
+	switch (state) {
+	case SLSB_P_OUTPUT_PENDING:
+		*error = QDIO_ERROR_SLSB_PENDING;
+		fallthrough;
+	case SLSB_P_OUTPUT_EMPTY:
+>>>>>>> upstream/android-13
 		/* the adapter got it */
 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr,
 			"out empty:%1d %02x", q->nr, count);
 
 		atomic_sub(count, &q->nr_buf_used);
+<<<<<<< HEAD
 		q->first_to_check = add_buf(q->first_to_check, count);
 		if (q->irq_ptr->perf_stat_enabled)
 			account_sbals(q, count);
@@ -767,12 +1065,28 @@ static int get_outbound_buffer_frontier(struct qdio_q *q)
 		if (q->irq_ptr->perf_stat_enabled)
 			account_sbals_error(q, count);
 		break;
+=======
+		if (q->irq_ptr->perf_stat_enabled)
+			account_sbals(q, count);
+		return count;
+	case SLSB_P_OUTPUT_ERROR:
+		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "out error:%1d %02x",
+			      q->nr, count);
+
+		*error = QDIO_ERROR_SLSB_STATE;
+		process_buffer_error(q, start, count);
+		atomic_sub(count, &q->nr_buf_used);
+		if (q->irq_ptr->perf_stat_enabled)
+			account_sbals_error(q, count);
+		return count;
+>>>>>>> upstream/android-13
 	case SLSB_CU_OUTPUT_PRIMED:
 		/* the adapter has not fetched the output yet */
 		if (q->irq_ptr->perf_stat_enabled)
 			q->q_stats.nr_sbal_nop++;
 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "out primed:%1d",
 			      q->nr);
+<<<<<<< HEAD
 		break;
 	case SLSB_P_OUTPUT_NOT_INIT:
 	case SLSB_P_OUTPUT_HALTED:
@@ -806,18 +1120,43 @@ static inline int qdio_outbound_q_moved(struct qdio_q *q)
 }
 
 static int qdio_kick_outbound_q(struct qdio_q *q, unsigned long aob)
+=======
+		return 0;
+	case SLSB_P_OUTPUT_HALTED:
+		return 0;
+	case SLSB_P_OUTPUT_NOT_INIT:
+		/* We should never see this state, throw a WARN: */
+	default:
+		dev_WARN_ONCE(&q->irq_ptr->cdev->dev, 1,
+			      "found state %#x at index %u on queue %u\n",
+			      state, start, q->nr);
+		return 0;
+	}
+}
+
+static int qdio_kick_outbound_q(struct qdio_q *q, unsigned int count,
+				unsigned long aob)
+>>>>>>> upstream/android-13
 {
 	int retries = 0, cc;
 	unsigned int busy_bit;
 
+<<<<<<< HEAD
 	if (!need_siga_out(q))
+=======
+	if (!qdio_need_siga_out(q->irq_ptr))
+>>>>>>> upstream/android-13
 		return 0;
 
 	DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "siga-w:%1d", q->nr);
 retry:
 	qperf_inc(q, siga_write);
 
+<<<<<<< HEAD
 	cc = qdio_siga_output(q, &busy_bit, aob);
+=======
+	cc = qdio_siga_output(q, count, &busy_bit, aob);
+>>>>>>> upstream/android-13
 	switch (cc) {
 	case 0:
 		break;
@@ -847,6 +1186,7 @@ retry:
 	return cc;
 }
 
+<<<<<<< HEAD
 static void __qdio_outbound_processing(struct qdio_q *q)
 {
 	qperf_inc(q, tasklet_outbound);
@@ -946,6 +1286,8 @@ void tiqdio_inbound_processing(unsigned long data)
 	__tiqdio_inbound_processing(q);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void qdio_set_state(struct qdio_irq *irq_ptr,
 				  enum qdio_irq_states state)
 {
@@ -967,6 +1309,7 @@ static void qdio_irq_check_sense(struct qdio_irq *irq_ptr, struct irb *irb)
 /* PCI interrupt handler */
 static void qdio_int_handler_pci(struct qdio_irq *irq_ptr)
 {
+<<<<<<< HEAD
 	int i;
 	struct qdio_q *q;
 
@@ -1006,6 +1349,20 @@ static void qdio_handle_activate_check(struct ccw_device *cdev,
 	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
 	struct qdio_q *q;
 	int count;
+=======
+	if (unlikely(irq_ptr->state != QDIO_IRQ_STATE_ACTIVE))
+		return;
+
+	qdio_deliver_irq(irq_ptr);
+	irq_ptr->last_data_irq_time = S390_lowcore.int_clock;
+}
+
+static void qdio_handle_activate_check(struct qdio_irq *irq_ptr,
+				       unsigned long intparm, int cstat,
+				       int dstat)
+{
+	struct qdio_q *q;
+>>>>>>> upstream/android-13
 
 	DBF_ERROR("%4x ACT CHECK", irq_ptr->schid.sch_no);
 	DBF_ERROR("intp :%lx", intparm);
@@ -1020,9 +1377,14 @@ static void qdio_handle_activate_check(struct ccw_device *cdev,
 		goto no_handler;
 	}
 
+<<<<<<< HEAD
 	count = sub_buf(q->first_to_check, q->first_to_kick);
 	q->handler(q->irq_ptr->cdev, QDIO_ERROR_ACTIVATE,
 		   q->nr, q->first_to_kick, count, irq_ptr->int_parm);
+=======
+	q->handler(q->irq_ptr->cdev, QDIO_ERROR_ACTIVATE,
+		   q->nr, q->first_to_check, 0, irq_ptr->int_parm);
+>>>>>>> upstream/android-13
 no_handler:
 	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_STOPPED);
 	/*
@@ -1032,11 +1394,17 @@ no_handler:
 	lgr_info_log();
 }
 
+<<<<<<< HEAD
 static void qdio_establish_handle_irq(struct ccw_device *cdev, int cstat,
 				      int dstat)
 {
 	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
 
+=======
+static void qdio_establish_handle_irq(struct qdio_irq *irq_ptr, int cstat,
+				      int dstat)
+{
+>>>>>>> upstream/android-13
 	DBF_DEV_EVENT(DBF_INFO, irq_ptr, "qest irq");
 
 	if (cstat)
@@ -1083,7 +1451,11 @@ void qdio_int_handler(struct ccw_device *cdev, unsigned long intparm,
 
 	switch (irq_ptr->state) {
 	case QDIO_IRQ_STATE_INACTIVE:
+<<<<<<< HEAD
 		qdio_establish_handle_irq(cdev, cstat, dstat);
+=======
+		qdio_establish_handle_irq(irq_ptr, cstat, dstat);
+>>>>>>> upstream/android-13
 		break;
 	case QDIO_IRQ_STATE_CLEANUP:
 		qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
@@ -1095,7 +1467,11 @@ void qdio_int_handler(struct ccw_device *cdev, unsigned long intparm,
 			return;
 		}
 		if (cstat || dstat)
+<<<<<<< HEAD
 			qdio_handle_activate_check(cdev, intparm, cstat,
+=======
+			qdio_handle_activate_check(irq_ptr, intparm, cstat,
+>>>>>>> upstream/android-13
 						   dstat);
 		break;
 	case QDIO_IRQ_STATE_STOPPED:
@@ -1128,6 +1504,7 @@ int qdio_get_ssqd_desc(struct ccw_device *cdev,
 }
 EXPORT_SYMBOL_GPL(qdio_get_ssqd_desc);
 
+<<<<<<< HEAD
 static void qdio_shutdown_queues(struct ccw_device *cdev)
 {
 	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
@@ -1141,6 +1518,36 @@ static void qdio_shutdown_queues(struct ccw_device *cdev)
 		del_timer_sync(&q->u.out.timer);
 		tasklet_kill(&q->tasklet);
 	}
+=======
+static int qdio_cancel_ccw(struct qdio_irq *irq, int how)
+{
+	struct ccw_device *cdev = irq->cdev;
+	long timeout;
+	int rc;
+
+	spin_lock_irq(get_ccwdev_lock(cdev));
+	qdio_set_state(irq, QDIO_IRQ_STATE_CLEANUP);
+	if (how & QDIO_FLAG_CLEANUP_USING_CLEAR)
+		rc = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
+	else
+		/* default behaviour is halt */
+		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
+	spin_unlock_irq(get_ccwdev_lock(cdev));
+	if (rc) {
+		DBF_ERROR("%4x SHUTD ERR", irq->schid.sch_no);
+		DBF_ERROR("rc:%4d", rc);
+		return rc;
+	}
+
+	timeout = wait_event_interruptible_timeout(cdev->private->wait_q,
+						   irq->state == QDIO_IRQ_STATE_INACTIVE ||
+						   irq->state == QDIO_IRQ_STATE_ERR,
+						   10 * HZ);
+	if (timeout <= 0)
+		rc = (timeout == -ERESTARTSYS) ? -EINTR : -ETIME;
+
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1172,6 +1579,7 @@ int qdio_shutdown(struct ccw_device *cdev, int how)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Indicate that the device is going down. Scheduling the queue
 	 * tasklets is forbidden from here on.
 	 */
@@ -1212,6 +1620,17 @@ no_cleanup:
 		cdev->private->intparm = 0;
 	}
 	spin_unlock_irq(get_ccwdev_lock(cdev));
+=======
+	 * Indicate that the device is going down.
+	 */
+	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_STOPPED);
+
+	qdio_shutdown_debug_entries(irq_ptr);
+
+	rc = qdio_cancel_ccw(irq_ptr, how);
+	qdio_shutdown_thinint(irq_ptr);
+	qdio_shutdown_irq(irq_ptr);
+>>>>>>> upstream/android-13
 
 	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
 	mutex_unlock(&irq_ptr->setup_mutex);
@@ -1242,13 +1661,21 @@ int qdio_free(struct ccw_device *cdev)
 	cdev->private->qdio_data = NULL;
 	mutex_unlock(&irq_ptr->setup_mutex);
 
+<<<<<<< HEAD
 	qdio_release_memory(irq_ptr);
+=======
+	qdio_free_queues(irq_ptr);
+	free_page((unsigned long) irq_ptr->qdr);
+	free_page(irq_ptr->chsc_page);
+	free_page((unsigned long) irq_ptr);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(qdio_free);
 
 /**
  * qdio_allocate - allocate qdio queues and associated data
+<<<<<<< HEAD
  * @init_data: initialization data
  */
 int qdio_allocate(struct qdio_initialize *init_data)
@@ -1269,16 +1696,46 @@ int qdio_allocate(struct qdio_initialize *init_data)
 
 	if ((!init_data->input_sbal_addr_array) ||
 	    (!init_data->output_sbal_addr_array))
+=======
+ * @cdev: associated ccw device
+ * @no_input_qs: allocate this number of Input Queues
+ * @no_output_qs: allocate this number of Output Queues
+ */
+int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
+		  unsigned int no_output_qs)
+{
+	struct subchannel_id schid;
+	struct qdio_irq *irq_ptr;
+	int rc = -ENOMEM;
+
+	ccw_device_get_schid(cdev, &schid);
+	DBF_EVENT("qallocate:%4x", schid.sch_no);
+
+	if (no_input_qs > QDIO_MAX_QUEUES_PER_IRQ ||
+	    no_output_qs > QDIO_MAX_QUEUES_PER_IRQ)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* irq_ptr must be in GFP_DMA since it contains ccw1.cda */
 	irq_ptr = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
 	if (!irq_ptr)
+<<<<<<< HEAD
 		goto out_err;
 
 	mutex_init(&irq_ptr->setup_mutex);
 	if (qdio_allocate_dbf(init_data, irq_ptr))
 		goto out_rel;
+=======
+		return -ENOMEM;
+
+	irq_ptr->cdev = cdev;
+	mutex_init(&irq_ptr->setup_mutex);
+	if (qdio_allocate_dbf(irq_ptr))
+		goto err_dbf;
+
+	DBF_DEV_EVENT(DBF_ERR, irq_ptr, "alloc niq:%1u noq:%1u", no_input_qs,
+		      no_output_qs);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Allocate a page for the chsc calls in qdio_establish.
@@ -1288,11 +1745,16 @@ int qdio_allocate(struct qdio_initialize *init_data)
 	 */
 	irq_ptr->chsc_page = get_zeroed_page(GFP_KERNEL);
 	if (!irq_ptr->chsc_page)
+<<<<<<< HEAD
 		goto out_rel;
+=======
+		goto err_chsc;
+>>>>>>> upstream/android-13
 
 	/* qdr is used in ccw1.cda which is u32 */
 	irq_ptr->qdr = (struct qdr *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
 	if (!irq_ptr->qdr)
+<<<<<<< HEAD
 		goto out_rel;
 
 	if (qdio_allocate_qs(irq_ptr, init_data->no_input_qs,
@@ -1327,10 +1789,48 @@ static void qdio_detect_hsicq(struct qdio_irq *irq_ptr)
 			qdio_disable_async_operation(&q->u.out);
 	}
 	DBF_EVENT("use_cq:%d", use_cq);
+=======
+		goto err_qdr;
+
+	rc = qdio_allocate_qs(irq_ptr, no_input_qs, no_output_qs);
+	if (rc)
+		goto err_queues;
+
+	cdev->private->qdio_data = irq_ptr;
+	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
+	return 0;
+
+err_queues:
+	free_page((unsigned long) irq_ptr->qdr);
+err_qdr:
+	free_page(irq_ptr->chsc_page);
+err_chsc:
+err_dbf:
+	free_page((unsigned long) irq_ptr);
+	return rc;
+}
+EXPORT_SYMBOL_GPL(qdio_allocate);
+
+static void qdio_trace_init_data(struct qdio_irq *irq,
+				 struct qdio_initialize *data)
+{
+	DBF_DEV_EVENT(DBF_ERR, irq, "qfmt:%1u", data->q_format);
+	DBF_DEV_EVENT(DBF_ERR, irq, "qpff%4x", data->qib_param_field_format);
+	DBF_DEV_HEX(irq, &data->qib_param_field, sizeof(void *), DBF_ERR);
+	DBF_DEV_EVENT(DBF_ERR, irq, "niq:%1u noq:%1u", data->no_input_qs,
+		      data->no_output_qs);
+	DBF_DEV_HEX(irq, &data->input_handler, sizeof(void *), DBF_ERR);
+	DBF_DEV_HEX(irq, &data->output_handler, sizeof(void *), DBF_ERR);
+	DBF_DEV_HEX(irq, &data->int_parm, sizeof(long), DBF_ERR);
+	DBF_DEV_HEX(irq, &data->input_sbal_addr_array, sizeof(void *), DBF_ERR);
+	DBF_DEV_HEX(irq, &data->output_sbal_addr_array, sizeof(void *),
+		    DBF_ERR);
+>>>>>>> upstream/android-13
 }
 
 /**
  * qdio_establish - establish queues on a qdio subchannel
+<<<<<<< HEAD
  * @init_data: initialization data
  */
 int qdio_establish(struct qdio_initialize *init_data)
@@ -1338,11 +1838,23 @@ int qdio_establish(struct qdio_initialize *init_data)
 	struct ccw_device *cdev = init_data->cdev;
 	struct subchannel_id schid;
 	struct qdio_irq *irq_ptr;
+=======
+ * @cdev: associated ccw device
+ * @init_data: initialization data
+ */
+int qdio_establish(struct ccw_device *cdev,
+		   struct qdio_initialize *init_data)
+{
+	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
+	struct subchannel_id schid;
+	long timeout;
+>>>>>>> upstream/android-13
 	int rc;
 
 	ccw_device_get_schid(cdev, &schid);
 	DBF_EVENT("qestablish:%4x", schid.sch_no);
 
+<<<<<<< HEAD
 	irq_ptr = cdev->private->qdio_data;
 	if (!irq_ptr)
 		return -ENODEV;
@@ -1356,12 +1868,43 @@ int qdio_establish(struct qdio_initialize *init_data)
 		qdio_shutdown(cdev, QDIO_FLAG_CLEANUP_USING_CLEAR);
 		return rc;
 	}
+=======
+	if (!irq_ptr)
+		return -ENODEV;
+
+	if (init_data->no_input_qs > irq_ptr->max_input_qs ||
+	    init_data->no_output_qs > irq_ptr->max_output_qs)
+		return -EINVAL;
+
+	if ((init_data->no_input_qs && !init_data->input_handler) ||
+	    (init_data->no_output_qs && !init_data->output_handler))
+		return -EINVAL;
+
+	if (!init_data->input_sbal_addr_array ||
+	    !init_data->output_sbal_addr_array)
+		return -EINVAL;
+
+	if (!init_data->irq_poll)
+		return -EINVAL;
+
+	mutex_lock(&irq_ptr->setup_mutex);
+	qdio_trace_init_data(irq_ptr, init_data);
+	qdio_setup_irq(irq_ptr, init_data);
+
+	rc = qdio_establish_thinint(irq_ptr);
+	if (rc)
+		goto err_thinint;
+>>>>>>> upstream/android-13
 
 	/* establish q */
 	irq_ptr->ccw.cmd_code = irq_ptr->equeue.cmd;
 	irq_ptr->ccw.flags = CCW_FLAG_SLI;
 	irq_ptr->ccw.count = irq_ptr->equeue.count;
+<<<<<<< HEAD
 	irq_ptr->ccw.cda = (u32)((addr_t)irq_ptr->qdr);
+=======
+	irq_ptr->ccw.cda = (u32) virt_to_phys(irq_ptr->qdr);
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(get_ccwdev_lock(cdev));
 	ccw_device_set_options_mask(cdev, 0);
@@ -1371,6 +1914,7 @@ int qdio_establish(struct qdio_initialize *init_data)
 	if (rc) {
 		DBF_ERROR("%4x est IO ERR", irq_ptr->schid.sch_no);
 		DBF_ERROR("rc:%4x", rc);
+<<<<<<< HEAD
 		mutex_unlock(&irq_ptr->setup_mutex);
 		qdio_shutdown(cdev, QDIO_FLAG_CLEANUP_USING_CLEAR);
 		return rc;
@@ -1384,19 +1928,55 @@ int qdio_establish(struct qdio_initialize *init_data)
 		mutex_unlock(&irq_ptr->setup_mutex);
 		qdio_shutdown(cdev, QDIO_FLAG_CLEANUP_USING_CLEAR);
 		return -EIO;
+=======
+		goto err_ccw_start;
+	}
+
+	timeout = wait_event_interruptible_timeout(cdev->private->wait_q,
+						   irq_ptr->state == QDIO_IRQ_STATE_ESTABLISHED ||
+						   irq_ptr->state == QDIO_IRQ_STATE_ERR, HZ);
+	if (timeout <= 0) {
+		rc = (timeout == -ERESTARTSYS) ? -EINTR : -ETIME;
+		goto err_ccw_timeout;
+	}
+
+	if (irq_ptr->state != QDIO_IRQ_STATE_ESTABLISHED) {
+		rc = -EIO;
+		goto err_ccw_error;
+>>>>>>> upstream/android-13
 	}
 
 	qdio_setup_ssqd_info(irq_ptr);
 
+<<<<<<< HEAD
 	qdio_detect_hsicq(irq_ptr);
 
+=======
+>>>>>>> upstream/android-13
 	/* qebsm is now setup if available, initialize buffer states */
 	qdio_init_buf_states(irq_ptr);
 
 	mutex_unlock(&irq_ptr->setup_mutex);
+<<<<<<< HEAD
 	qdio_print_subchannel_info(irq_ptr, cdev);
 	qdio_setup_debug_entries(irq_ptr, cdev);
 	return 0;
+=======
+	qdio_print_subchannel_info(irq_ptr);
+	qdio_setup_debug_entries(irq_ptr);
+	return 0;
+
+err_ccw_timeout:
+	qdio_cancel_ccw(irq_ptr, QDIO_FLAG_CLEANUP_USING_CLEAR);
+err_ccw_error:
+err_ccw_start:
+	qdio_shutdown_thinint(irq_ptr);
+err_thinint:
+	qdio_shutdown_irq(irq_ptr);
+	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
+	mutex_unlock(&irq_ptr->setup_mutex);
+	return rc;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(qdio_establish);
 
@@ -1406,14 +1986,22 @@ EXPORT_SYMBOL_GPL(qdio_establish);
  */
 int qdio_activate(struct ccw_device *cdev)
 {
+<<<<<<< HEAD
 	struct subchannel_id schid;
 	struct qdio_irq *irq_ptr;
+=======
+	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
+	struct subchannel_id schid;
+>>>>>>> upstream/android-13
 	int rc;
 
 	ccw_device_get_schid(cdev, &schid);
 	DBF_EVENT("qactivate:%4x", schid.sch_no);
 
+<<<<<<< HEAD
 	irq_ptr = cdev->private->qdio_data;
+=======
+>>>>>>> upstream/android-13
 	if (!irq_ptr)
 		return -ENODEV;
 
@@ -1440,9 +2028,12 @@ int qdio_activate(struct ccw_device *cdev)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (is_thinint_irq(irq_ptr))
 		tiqdio_add_input_queues(irq_ptr);
 
+=======
+>>>>>>> upstream/android-13
 	/* wait for subchannel to become active */
 	msleep(5);
 
@@ -1461,6 +2052,7 @@ out:
 }
 EXPORT_SYMBOL_GPL(qdio_activate);
 
+<<<<<<< HEAD
 static inline int buf_in_between(int bufnr, int start, int count)
 {
 	int end = add_buf(start, count);
@@ -1526,6 +2118,32 @@ set:
 	atomic_add(count, &q->nr_buf_used);
 
 	if (need_siga_in(q))
+=======
+/**
+ * handle_inbound - reset processed input buffers
+ * @q: queue containing the buffers
+ * @bufnr: first buffer to process
+ * @count: how many buffers are emptied
+ */
+static int handle_inbound(struct qdio_q *q, int bufnr, int count)
+{
+	int overlap;
+
+	qperf_inc(q, inbound_call);
+
+	/* If any processed SBALs are returned to HW, adjust our tracking: */
+	overlap = min_t(int, count - sub_buf(q->u.in.batch_start, bufnr),
+			     q->u.in.batch_count);
+	if (overlap > 0) {
+		q->u.in.batch_start = add_buf(q->u.in.batch_start, overlap);
+		q->u.in.batch_count -= overlap;
+	}
+
+	count = set_buf_states(q, bufnr, SLSB_CU_INPUT_EMPTY, count);
+	atomic_add(count, &q->nr_buf_used);
+
+	if (qdio_need_siga_in(q->irq_ptr))
+>>>>>>> upstream/android-13
 		return qdio_siga_input(q);
 
 	return 0;
@@ -1534,12 +2152,21 @@ set:
 /**
  * handle_outbound - process filled outbound buffers
  * @q: queue containing the buffers
+<<<<<<< HEAD
  * @callflags: flags
  * @bufnr: first buffer to process
  * @count: how many buffers are filled
  */
 static int handle_outbound(struct qdio_q *q, unsigned int callflags,
 			   int bufnr, int count)
+=======
+ * @bufnr: first buffer to process
+ * @count: how many buffers are filled
+ * @aob: asynchronous operation block
+ */
+static int handle_outbound(struct qdio_q *q, unsigned int bufnr, unsigned int count,
+			   struct qaob *aob)
+>>>>>>> upstream/android-13
 {
 	unsigned char state = 0;
 	int used, rc = 0;
@@ -1552,6 +2179,7 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
 	if (used == QDIO_MAX_BUFFERS_PER_Q)
 		qperf_inc(q, outbound_queue_full);
 
+<<<<<<< HEAD
 	if (callflags & QDIO_FLAG_PCI_OUT) {
 		q->u.out.pci_out_enabled = 1;
 		qperf_inc(q, pci_request_int);
@@ -1569,12 +2197,22 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
 		rc = qdio_kick_outbound_q(q, phys_aob);
 	} else if (need_siga_sync(q)) {
 		rc = qdio_siga_sync_q(q);
+=======
+	if (queue_type(q) == QDIO_IQDIO_QFMT) {
+		unsigned long phys_aob = aob ? virt_to_phys(aob) : 0;
+
+		WARN_ON_ONCE(!IS_ALIGNED(phys_aob, 256));
+		rc = qdio_kick_outbound_q(q, count, phys_aob);
+	} else if (qdio_need_siga_sync(q->irq_ptr)) {
+		rc = qdio_sync_output_queue(q);
+>>>>>>> upstream/android-13
 	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
 		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
 		   state == SLSB_CU_OUTPUT_PRIMED) {
 		/* The previous buffer is not processed yet, tack on. */
 		qperf_inc(q, fast_requeue);
 	} else {
+<<<<<<< HEAD
 		rc = qdio_kick_outbound_q(q, 0);
 	}
 
@@ -1586,6 +2224,11 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
 		if (!timer_pending(&q->u.out.timer) &&
 		    likely(q->irq_ptr->state == QDIO_IRQ_STATE_ACTIVE))
 			mod_timer(&q->u.out.timer, jiffies + HZ);
+=======
+		rc = qdio_kick_outbound_q(q, count, 0);
+	}
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1596,16 +2239,28 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
  * @q_nr: queue number
  * @bufnr: buffer number
  * @count: how many buffers to process
+<<<<<<< HEAD
  */
 int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
 	    int q_nr, unsigned int bufnr, unsigned int count)
 {
 	struct qdio_irq *irq_ptr;
+=======
+ * @aob: asynchronous operation block (outbound only)
+ */
+int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
+	    int q_nr, unsigned int bufnr, unsigned int count, struct qaob *aob)
+{
+	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
+>>>>>>> upstream/android-13
 
 	if (bufnr >= QDIO_MAX_BUFFERS_PER_Q || count > QDIO_MAX_BUFFERS_PER_Q)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	irq_ptr = cdev->private->qdio_data;
+=======
+>>>>>>> upstream/android-13
 	if (!irq_ptr)
 		return -ENODEV;
 
@@ -1617,24 +2272,36 @@ int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
 	if (!count)
 		return 0;
 	if (callflags & QDIO_FLAG_SYNC_INPUT)
+<<<<<<< HEAD
 		return handle_inbound(irq_ptr->input_qs[q_nr],
 				      callflags, bufnr, count);
 	else if (callflags & QDIO_FLAG_SYNC_OUTPUT)
 		return handle_outbound(irq_ptr->output_qs[q_nr],
 				       callflags, bufnr, count);
+=======
+		return handle_inbound(irq_ptr->input_qs[q_nr], bufnr, count);
+	else if (callflags & QDIO_FLAG_SYNC_OUTPUT)
+		return handle_outbound(irq_ptr->output_qs[q_nr], bufnr, count, aob);
+>>>>>>> upstream/android-13
 	return -EINVAL;
 }
 EXPORT_SYMBOL_GPL(do_QDIO);
 
 /**
+<<<<<<< HEAD
  * qdio_start_irq - process input buffers
  * @cdev: associated ccw_device for the qdio subchannel
  * @nr: input queue number
+=======
+ * qdio_start_irq - enable interrupt processing for the device
+ * @cdev: associated ccw_device for the qdio subchannel
+>>>>>>> upstream/android-13
  *
  * Return codes
  *   0 - success
  *   1 - irqs not started since new data is available
  */
+<<<<<<< HEAD
 int qdio_start_irq(struct ccw_device *cdev, int nr)
 {
 	struct qdio_q *q;
@@ -1647,6 +2314,21 @@ int qdio_start_irq(struct ccw_device *cdev, int nr)
 	clear_nonshared_ind(irq_ptr);
 	qdio_stop_polling(q);
 	clear_bit(QDIO_QUEUE_IRQS_DISABLED, &q->u.in.queue_irq_state);
+=======
+int qdio_start_irq(struct ccw_device *cdev)
+{
+	struct qdio_q *q;
+	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
+	unsigned int i;
+
+	if (!irq_ptr)
+		return -ENODEV;
+
+	for_each_input_queue(irq_ptr, q, i)
+		qdio_stop_polling(q);
+
+	clear_bit(QDIO_IRQ_DISABLED, &irq_ptr->poll_state);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We need to check again to not lose initiative after
@@ -1654,6 +2336,7 @@ int qdio_start_irq(struct ccw_device *cdev, int nr)
 	 */
 	if (test_nonshared_ind(irq_ptr))
 		goto rescan;
+<<<<<<< HEAD
 	if (!qdio_inbound_q_done(q))
 		goto rescan;
 	return 0;
@@ -1661,6 +2344,18 @@ int qdio_start_irq(struct ccw_device *cdev, int nr)
 rescan:
 	if (test_and_set_bit(QDIO_QUEUE_IRQS_DISABLED,
 			     &q->u.in.queue_irq_state))
+=======
+
+	for_each_input_queue(irq_ptr, q, i) {
+		if (!qdio_inbound_q_done(q, q->first_to_check))
+			goto rescan;
+	}
+
+	return 0;
+
+rescan:
+	if (test_and_set_bit(QDIO_IRQ_DISABLED, &irq_ptr->poll_state))
+>>>>>>> upstream/android-13
 		return 0;
 	else
 		return 1;
@@ -1668,6 +2363,7 @@ rescan:
 }
 EXPORT_SYMBOL(qdio_start_irq);
 
+<<<<<<< HEAD
 /**
  * qdio_get_next_buffers - process input buffers
  * @cdev: associated ccw_device for the qdio subchannel
@@ -1719,33 +2415,82 @@ int qdio_get_next_buffers(struct ccw_device *cdev, int nr, int *bufnr,
 	return sub_buf(end, start);
 }
 EXPORT_SYMBOL(qdio_get_next_buffers);
+=======
+static int __qdio_inspect_queue(struct qdio_q *q, unsigned int *bufnr,
+				unsigned int *error)
+{
+	unsigned int start = q->first_to_check;
+	int count;
+
+	*error = 0;
+	count = q->is_input_q ? get_inbound_buffer_frontier(q, start, error) :
+				get_outbound_buffer_frontier(q, start, error);
+	if (count == 0)
+		return 0;
+
+	*bufnr = start;
+
+	/* for the next time */
+	q->first_to_check = add_buf(start, count);
+
+	return count;
+}
+
+int qdio_inspect_queue(struct ccw_device *cdev, unsigned int nr, bool is_input,
+		       unsigned int *bufnr, unsigned int *error)
+{
+	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
+	struct qdio_q *q;
+
+	if (!irq_ptr)
+		return -ENODEV;
+	q = is_input ? irq_ptr->input_qs[nr] : irq_ptr->output_qs[nr];
+
+	return __qdio_inspect_queue(q, bufnr, error);
+}
+EXPORT_SYMBOL_GPL(qdio_inspect_queue);
+>>>>>>> upstream/android-13
 
 /**
  * qdio_stop_irq - disable interrupt processing for the device
  * @cdev: associated ccw_device for the qdio subchannel
+<<<<<<< HEAD
  * @nr: input queue number
+=======
+>>>>>>> upstream/android-13
  *
  * Return codes
  *   0 - interrupts were already disabled
  *   1 - interrupts successfully disabled
  */
+<<<<<<< HEAD
 int qdio_stop_irq(struct ccw_device *cdev, int nr)
 {
 	struct qdio_q *q;
+=======
+int qdio_stop_irq(struct ccw_device *cdev)
+{
+>>>>>>> upstream/android-13
 	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
 
 	if (!irq_ptr)
 		return -ENODEV;
+<<<<<<< HEAD
 	q = irq_ptr->input_qs[nr];
 
 	if (test_and_set_bit(QDIO_QUEUE_IRQS_DISABLED,
 			     &q->u.in.queue_irq_state))
+=======
+
+	if (test_and_set_bit(QDIO_IRQ_DISABLED, &irq_ptr->poll_state))
+>>>>>>> upstream/android-13
 		return 0;
 	else
 		return 1;
 }
 EXPORT_SYMBOL(qdio_stop_irq);
 
+<<<<<<< HEAD
 /**
  * qdio_pnso_brinfo() - perform network subchannel op #0 - bridge info.
  * @schid:		Subchannel ID.
@@ -1834,6 +2579,8 @@ out:
 }
 EXPORT_SYMBOL_GPL(qdio_pnso_brinfo);
 
+=======
+>>>>>>> upstream/android-13
 static int __init init_QDIO(void)
 {
 	int rc;
@@ -1844,6 +2591,7 @@ static int __init init_QDIO(void)
 	rc = qdio_setup_init();
 	if (rc)
 		goto out_debug;
+<<<<<<< HEAD
 	rc = tiqdio_allocate_memory();
 	if (rc)
 		goto out_cache;
@@ -1854,6 +2602,13 @@ static int __init init_QDIO(void)
 
 out_ti:
 	tiqdio_free_memory();
+=======
+	rc = qdio_thinint_init();
+	if (rc)
+		goto out_cache;
+	return 0;
+
+>>>>>>> upstream/android-13
 out_cache:
 	qdio_setup_exit();
 out_debug:
@@ -1863,8 +2618,12 @@ out_debug:
 
 static void __exit exit_QDIO(void)
 {
+<<<<<<< HEAD
 	tiqdio_unregister_thinints();
 	tiqdio_free_memory();
+=======
+	qdio_thinint_exit();
+>>>>>>> upstream/android-13
 	qdio_setup_exit();
 	qdio_debug_exit();
 }

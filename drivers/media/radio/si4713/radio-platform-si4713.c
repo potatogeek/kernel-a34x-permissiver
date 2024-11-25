@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/media/radio/radio-si4713.c
  *
@@ -5,6 +9,7 @@
  *
  * Copyright (c) 2008 Instituto Nokia de Tecnologia - INdT
  * Contact: Eduardo Valentin <eduardo.valentin@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -67,6 +74,7 @@ static const struct v4l2_file_operations radio_si4713_fops = {
 static int radio_si4713_querycap(struct file *file, void *priv,
 					struct v4l2_capability *capability)
 {
+<<<<<<< HEAD
 	strlcpy(capability->driver, "radio-si4713", sizeof(capability->driver));
 	strlcpy(capability->card, "Silicon Labs Si4713 Modulator",
 		sizeof(capability->card));
@@ -75,6 +83,13 @@ static int radio_si4713_querycap(struct file *file, void *priv,
 	capability->device_caps = V4L2_CAP_MODULATOR | V4L2_CAP_RDS_OUTPUT;
 	capability->capabilities = capability->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(capability->driver, "radio-si4713", sizeof(capability->driver));
+	strscpy(capability->card, "Silicon Labs Si4713 Modulator",
+		sizeof(capability->card));
+	strscpy(capability->bus_info, "platform:radio-si4713",
+		sizeof(capability->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -122,7 +137,11 @@ static long radio_si4713_default(struct file *file, void *p,
 					  ioctl, cmd, arg);
 }
 
+<<<<<<< HEAD
 static struct v4l2_ioctl_ops radio_si4713_ioctl_ops = {
+=======
+static const struct v4l2_ioctl_ops radio_si4713_ioctl_ops = {
+>>>>>>> upstream/android-13
 	.vidioc_querycap	= radio_si4713_querycap,
 	.vidioc_g_modulator	= radio_si4713_g_modulator,
 	.vidioc_s_modulator	= radio_si4713_s_modulator,
@@ -184,6 +203,10 @@ static int radio_si4713_pdriver_probe(struct platform_device *pdev)
 	rsdev->radio_dev.ctrl_handler = sd->ctrl_handler;
 	/* Serialize all access to the si4713 */
 	rsdev->radio_dev.lock = &rsdev->lock;
+<<<<<<< HEAD
+=======
+	rsdev->radio_dev.device_caps = V4L2_CAP_MODULATOR | V4L2_CAP_RDS_OUTPUT;
+>>>>>>> upstream/android-13
 	video_set_drvdata(&rsdev->radio_dev, rsdev);
 	if (video_register_device(&rsdev->radio_dev, VFL_TYPE_RADIO, radio_nr)) {
 		dev_err(&pdev->dev, "Could not register video device.\n");

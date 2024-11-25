@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -23,8 +30,13 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #ifndef _IO_H_
 #define _IO_H_
+=======
+#ifndef _RTL871X_IO_H_
+#define _RTL871X_IO_H_
+>>>>>>> upstream/android-13
 
 #include "osdep_service.h"
 #include "osdep_intf.h"
@@ -135,7 +147,10 @@ struct	intf_hdl {
 };
 
 struct reg_protocol_rd {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #ifdef __LITTLE_ENDIAN
 	/* DW1 */
 	u32		NumOfTrans:4;
@@ -246,5 +261,9 @@ void r8712_write_port(struct _adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 uint r8712_alloc_io_queue(struct _adapter *adapter);
 void r8712_free_io_queue(struct _adapter *adapter);
 
+<<<<<<< HEAD
 #endif	/*_RTL8711_IO_H_*/
 
+=======
+#endif	/*_RTL871X_IO_H_*/
+>>>>>>> upstream/android-13

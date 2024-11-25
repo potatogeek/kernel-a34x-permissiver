@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Regents of the University of California
  * Copyright (C) 2017 SiFive
@@ -10,6 +11,12 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Regents of the University of California
+ * Copyright (C) 2017 SiFive
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_MMU_CONTEXT_H
@@ -20,6 +27,7 @@
 
 #include <linux/mm.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <asm/tlbflush.h>
 #include <asm/cacheflush.h>
 
@@ -95,15 +103,39 @@ static inline void switch_mm(struct mm_struct *prev,
 	}
 }
 
+=======
+
+void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+	struct task_struct *task);
+
+#define activate_mm activate_mm
+>>>>>>> upstream/android-13
 static inline void activate_mm(struct mm_struct *prev,
 			       struct mm_struct *next)
 {
 	switch_mm(prev, next, NULL);
 }
 
+<<<<<<< HEAD
 static inline void deactivate_mm(struct task_struct *task,
 	struct mm_struct *mm)
 {
 }
 
+=======
+#define init_new_context init_new_context
+static inline int init_new_context(struct task_struct *tsk,
+			struct mm_struct *mm)
+{
+#ifdef CONFIG_MMU
+	atomic_long_set(&mm->context.id, 0);
+#endif
+	return 0;
+}
+
+DECLARE_STATIC_KEY_FALSE(use_asid_allocator);
+
+#include <asm-generic/mmu_context.h>
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_RISCV_MMU_CONTEXT_H */

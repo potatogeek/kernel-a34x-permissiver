@@ -1,4 +1,8 @@
 #!/bin/bash
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 #
 # config_override.sh base override
 #
@@ -6,6 +10,7 @@
 # that conflict with any in override, concatenating what remains and
 # sending the result to standard output.
 #
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +28,11 @@
 # Copyright (C) IBM Corporation, 2017
 #
 # Authors: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+# Copyright (C) IBM Corporation, 2017
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
 
 base=$1
 if test -r $base

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * A RTC driver for the Simtek STK17TA8
  *
@@ -5,10 +9,13 @@
  *
  * Based on the DS1553 driver from
  * Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bcd.h>
@@ -259,7 +266,10 @@ static int stk17ta8_nvram_write(void *priv, unsigned int pos, void *val,
 
 static int stk17ta8_rtc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int cal;
 	unsigned int flags;
 	struct rtc_plat_data *pdata;
@@ -278,8 +288,12 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
 	if (!pdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ioaddr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ioaddr))
 		return PTR_ERR(ioaddr);
 	pdata->ioaddr = ioaddr;
@@ -316,6 +330,7 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
 		return PTR_ERR(pdata->rtc);
 
 	pdata->rtc->ops = &stk17ta8_rtc_ops;
+<<<<<<< HEAD
 	pdata->rtc->nvram_old_abi = true;
 
 	nvmem_cfg.priv = pdata;
@@ -324,6 +339,15 @@ static int stk17ta8_rtc_probe(struct platform_device *pdev)
 		return ret;
 
 	return rtc_register_device(pdata->rtc);
+=======
+
+	nvmem_cfg.priv = pdata;
+	ret = devm_rtc_nvmem_register(pdata->rtc, &nvmem_cfg);
+	if (ret)
+		return ret;
+
+	return devm_rtc_register_device(pdata->rtc);
+>>>>>>> upstream/android-13
 }
 
 /* work with hotplug and coldplug */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CIPHER_H_
@@ -48,6 +54,7 @@ struct qce_cipher_reqctx {
 	struct scatterlist result_sg;
 	struct sg_table dst_tbl;
 	struct scatterlist *dst_sg;
+<<<<<<< HEAD
 	struct sg_table src_tbl;
 	struct scatterlist *src_sg;
 	unsigned int cryptlen;
@@ -60,5 +67,19 @@ static inline struct qce_alg_template *to_cipher_tmpl(struct crypto_tfm *tfm)
 }
 
 extern const struct qce_algo_ops ablkcipher_ops;
+=======
+	struct scatterlist *src_sg;
+	unsigned int cryptlen;
+	struct skcipher_request fallback_req;	// keep at the end
+};
+
+static inline struct qce_alg_template *to_cipher_tmpl(struct crypto_skcipher *tfm)
+{
+	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
+	return container_of(alg, struct qce_alg_template, alg.skcipher);
+}
+
+extern const struct qce_algo_ops skcipher_ops;
+>>>>>>> upstream/android-13
 
 #endif /* _CIPHER_H_ */

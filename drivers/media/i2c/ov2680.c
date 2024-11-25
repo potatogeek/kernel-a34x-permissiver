@@ -645,7 +645,11 @@ unlock:
 }
 
 static int ov2680_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				 struct v4l2_subdev_pad_config *cfg,
+=======
+				 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct ov2680_dev *sensor = to_ov2680_dev(sd);
@@ -659,7 +663,11 @@ static int ov2680_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ov2680_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *format)
 {
 	struct ov2680_dev *sensor = to_ov2680_dev(sd);
@@ -673,9 +681,16 @@ static int ov2680_get_fmt(struct v4l2_subdev *sd,
 
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 #ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
+<<<<<<< HEAD
 		fmt = v4l2_subdev_get_try_format(&sensor->sd, cfg, format->pad);
 #else
 		ret = -ENOTTY;
+=======
+		fmt = v4l2_subdev_get_try_format(&sensor->sd, sd_state,
+						 format->pad);
+#else
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 #endif
 	} else {
 		fmt = &sensor->fmt;
@@ -690,7 +705,11 @@ static int ov2680_get_fmt(struct v4l2_subdev *sd,
 }
 
 static int ov2680_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *format)
 {
 	struct ov2680_dev *sensor = to_ov2680_dev(sd);
@@ -721,12 +740,18 @@ static int ov2680_set_fmt(struct v4l2_subdev *sd,
 
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 #ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
+<<<<<<< HEAD
 		try_fmt = v4l2_subdev_get_try_format(sd, cfg, 0);
 		format->format = *try_fmt;
 #else
 		ret = -ENOTTY;
 #endif
 
+=======
+		try_fmt = v4l2_subdev_get_try_format(sd, sd_state, 0);
+		format->format = *try_fmt;
+#endif
+>>>>>>> upstream/android-13
 		goto unlock;
 	}
 
@@ -746,22 +771,38 @@ unlock:
 }
 
 static int ov2680_init_cfg(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg)
 {
 	struct v4l2_subdev_format fmt = {
 		.which = cfg ? V4L2_SUBDEV_FORMAT_TRY
 				: V4L2_SUBDEV_FORMAT_ACTIVE,
+=======
+			   struct v4l2_subdev_state *sd_state)
+{
+	struct v4l2_subdev_format fmt = {
+		.which = sd_state ? V4L2_SUBDEV_FORMAT_TRY
+		: V4L2_SUBDEV_FORMAT_ACTIVE,
+>>>>>>> upstream/android-13
 		.format = {
 			.width = 800,
 			.height = 600,
 		}
 	};
 
+<<<<<<< HEAD
 	return ov2680_set_fmt(sd, cfg, &fmt);
 }
 
 static int ov2680_enum_frame_size(struct v4l2_subdev *sd,
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+	return ov2680_set_fmt(sd, sd_state, &fmt);
+}
+
+static int ov2680_enum_frame_size(struct v4l2_subdev *sd,
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_frame_size_enum *fse)
 {
 	int index = fse->index;
@@ -778,7 +819,11 @@ static int ov2680_enum_frame_size(struct v4l2_subdev *sd,
 }
 
 static int ov2680_enum_frame_interval(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_frame_interval_enum *fie)
 {
 	struct v4l2_fract tpf;
@@ -918,7 +963,11 @@ static int ov2680_mode_init(struct ov2680_dev *sensor)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ov2680_v4l2_init(struct ov2680_dev *sensor)
+=======
+static int ov2680_v4l2_register(struct ov2680_dev *sensor)
+>>>>>>> upstream/android-13
 {
 	const struct v4l2_ctrl_ops *ops = &ov2680_ctrl_ops;
 	struct ov2680_ctrls *ctrls = &sensor->ctrls;
@@ -1023,7 +1072,11 @@ static int ov2680_check_id(struct ov2680_dev *sensor)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ov2860_parse_dt(struct ov2680_dev *sensor)
+=======
+static int ov2680_parse_dt(struct ov2680_dev *sensor)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = ov2680_to_dev(sensor);
 	int ret;
@@ -1064,7 +1117,11 @@ static int ov2680_probe(struct i2c_client *client)
 
 	sensor->i2c_client = client;
 
+<<<<<<< HEAD
 	ret = ov2860_parse_dt(sensor);
+=======
+	ret = ov2680_parse_dt(sensor);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return -EINVAL;
 
@@ -1084,7 +1141,11 @@ static int ov2680_probe(struct i2c_client *client)
 	if (ret < 0)
 		goto lock_destroy;
 
+<<<<<<< HEAD
 	ret = ov2680_v4l2_init(sensor);
+=======
+	ret = ov2680_v4l2_register(sensor);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto lock_destroy;
 
@@ -1114,8 +1175,12 @@ static int ov2680_remove(struct i2c_client *client)
 
 static int __maybe_unused ov2680_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct ov2680_dev *sensor = to_ov2680_dev(sd);
 
 	if (sensor->is_streaming)
@@ -1126,8 +1191,12 @@ static int __maybe_unused ov2680_suspend(struct device *dev)
 
 static int __maybe_unused ov2680_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct ov2680_dev *sensor = to_ov2680_dev(sd);
 	int ret;
 

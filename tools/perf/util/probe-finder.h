@@ -4,8 +4,14 @@
 
 #include <stdbool.h>
 #include "intlist.h"
+<<<<<<< HEAD
 #include "probe-event.h"
 #include "sane_ctype.h"
+=======
+#include "build-id.h"
+#include "probe-event.h"
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 
 #define MAX_PROBE_BUFFER	1024
 #define MAX_PROBES		 128
@@ -32,6 +38,10 @@ struct debuginfo {
 	Dwfl_Module	*mod;
 	Dwfl		*dwfl;
 	Dwarf_Addr	bias;
+<<<<<<< HEAD
+=======
+	const unsigned char	*build_id;
+>>>>>>> upstream/android-13
 };
 
 /* This also tries to open distro debuginfo */
@@ -44,7 +54,11 @@ int debuginfo__find_trace_events(struct debuginfo *dbg,
 				 struct probe_trace_event **tevs);
 
 /* Find a perf_probe_point from debuginfo */
+<<<<<<< HEAD
 int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
+=======
+int debuginfo__find_probe_point(struct debuginfo *dbg, u64 addr,
+>>>>>>> upstream/android-13
 				struct perf_probe_point *ppt);
 
 int debuginfo__get_text_offset(struct debuginfo *dbg, Dwarf_Addr *offs,
@@ -59,11 +73,20 @@ int debuginfo__find_available_vars_at(struct debuginfo *dbg,
 				      struct variable_list **vls);
 
 /* Find a src file from a DWARF tag path */
+<<<<<<< HEAD
 int get_real_path(const char *raw_path, const char *comp_dir,
 			 char **new_path);
 
 struct probe_finder {
 	struct perf_probe_event	*pev;		/* Target probe event */
+=======
+int find_source_path(const char *raw_path, const char *sbuild_id,
+		     const char *comp_dir, char **new_path);
+
+struct probe_finder {
+	struct perf_probe_event	*pev;		/* Target probe event */
+	struct debuginfo	*dbg;
+>>>>>>> upstream/android-13
 
 	/* Callback when a probe point is found */
 	int (*callback)(Dwarf_Die *sc_die, struct probe_finder *pf);
@@ -87,6 +110,10 @@ struct probe_finder {
 	unsigned int		machine;	/* Target machine arch */
 	struct perf_probe_arg	*pvar;		/* Current target variable */
 	struct probe_trace_arg	*tvar;		/* Current result variable */
+<<<<<<< HEAD
+=======
+	bool			skip_empty_arg;	/* Skip non-exist args */
+>>>>>>> upstream/android-13
 };
 
 struct trace_event_finder {

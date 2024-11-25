@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ov2640 Camera Driver
  *
@@ -7,10 +11,13 @@
  *
  * Copyright 2005-2009 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright (C) 2006, OmniVision
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -26,6 +33,10 @@
 #include <linux/videodev2.h>
 
 #include <media/v4l2-device.h>
+<<<<<<< HEAD
+=======
+#include <media/v4l2-event.h>
+>>>>>>> upstream/android-13
 #include <media/v4l2-subdev.h>
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-image-sizes.h>
@@ -705,6 +716,14 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static const char * const ov2640_test_pattern_menu[] = {
+	"Disabled",
+	"Eight Vertical Colour Bars",
+};
+
+>>>>>>> upstream/android-13
 /*
  * functions
  */
@@ -740,6 +759,12 @@ static int ov2640_s_ctrl(struct v4l2_ctrl *ctrl)
 	case V4L2_CID_HFLIP:
 		val = ctrl->val ? REG04_HFLIP_IMG : 0x00;
 		return ov2640_mask_set(client, REG04, REG04_HFLIP_IMG, val);
+<<<<<<< HEAD
+=======
+	case V4L2_CID_TEST_PATTERN:
+		val = ctrl->val ? COM7_COLOR_BAR_TEST : 0x00;
+		return ov2640_mask_set(client, COM7, COM7_COLOR_BAR_TEST, val);
+>>>>>>> upstream/android-13
 	}
 
 	return -EINVAL;
@@ -833,9 +858,12 @@ static int ov2640_set_params(struct i2c_client *client,
 	u8 val;
 	int ret;
 
+<<<<<<< HEAD
 	if (!win)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	switch (code) {
 	case MEDIA_BUS_FMT_RGB565_2X8_BE:
 		dev_dbg(&client->dev, "%s: Selected cfmt RGB565 BE", __func__);
@@ -910,7 +938,11 @@ err:
 }
 
 static int ov2640_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *mf = &format->format;
@@ -920,9 +952,20 @@ static int ov2640_get_fmt(struct v4l2_subdev *sd,
 	if (format->pad)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!priv->win) {
 		priv->win = ov2640_select_win(SVGA_WIDTH, SVGA_HEIGHT);
 		priv->cfmt_code = MEDIA_BUS_FMT_UYVY8_2X8;
+=======
+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
+#ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
+		mf = v4l2_subdev_get_try_format(sd, sd_state, 0);
+		format->format = *mf;
+		return 0;
+#else
+		return -EINVAL;
+#endif
+>>>>>>> upstream/android-13
 	}
 
 	mf->width	= priv->win->width;
@@ -930,12 +973,22 @@ static int ov2640_get_fmt(struct v4l2_subdev *sd,
 	mf->code	= priv->cfmt_code;
 	mf->colorspace	= V4L2_COLORSPACE_SRGB;
 	mf->field	= V4L2_FIELD_NONE;
+<<<<<<< HEAD
+=======
+	mf->ycbcr_enc	= V4L2_YCBCR_ENC_DEFAULT;
+	mf->quantization = V4L2_QUANTIZATION_DEFAULT;
+	mf->xfer_func	= V4L2_XFER_FUNC_DEFAULT;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int ov2640_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *mf = &format->format;
@@ -956,6 +1009,12 @@ static int ov2640_set_fmt(struct v4l2_subdev *sd,
 
 	mf->field	= V4L2_FIELD_NONE;
 	mf->colorspace	= V4L2_COLORSPACE_SRGB;
+<<<<<<< HEAD
+=======
+	mf->ycbcr_enc	= V4L2_YCBCR_ENC_DEFAULT;
+	mf->quantization = V4L2_QUANTIZATION_DEFAULT;
+	mf->xfer_func	= V4L2_XFER_FUNC_DEFAULT;
+>>>>>>> upstream/android-13
 
 	switch (mf->code) {
 	case MEDIA_BUS_FMT_RGB565_2X8_BE:
@@ -982,7 +1041,11 @@ static int ov2640_set_fmt(struct v4l2_subdev *sd,
 		/* select format */
 		priv->cfmt_code = mf->code;
 	} else {
+<<<<<<< HEAD
 		cfg->try_fmt = *mf;
+=======
+		sd_state->pads->try_fmt = *mf;
+>>>>>>> upstream/android-13
 	}
 out:
 	mutex_unlock(&priv->lock);
@@ -990,8 +1053,34 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ov2640_enum_mbus_code(struct v4l2_subdev *sd,
 		struct v4l2_subdev_pad_config *cfg,
+=======
+static int ov2640_init_cfg(struct v4l2_subdev *sd,
+			   struct v4l2_subdev_state *sd_state)
+{
+#ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
+	struct v4l2_mbus_framefmt *try_fmt =
+		v4l2_subdev_get_try_format(sd, sd_state, 0);
+	const struct ov2640_win_size *win =
+		ov2640_select_win(SVGA_WIDTH, SVGA_HEIGHT);
+
+	try_fmt->width = win->width;
+	try_fmt->height = win->height;
+	try_fmt->code = MEDIA_BUS_FMT_UYVY8_2X8;
+	try_fmt->colorspace = V4L2_COLORSPACE_SRGB;
+	try_fmt->field = V4L2_FIELD_NONE;
+	try_fmt->ycbcr_enc = V4L2_YCBCR_ENC_DEFAULT;
+	try_fmt->quantization = V4L2_QUANTIZATION_DEFAULT;
+	try_fmt->xfer_func = V4L2_XFER_FUNC_DEFAULT;
+#endif
+	return 0;
+}
+
+static int ov2640_enum_mbus_code(struct v4l2_subdev *sd,
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->pad || code->index >= ARRAY_SIZE(ov2640_codes))
@@ -1002,7 +1091,11 @@ static int ov2640_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ov2640_get_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_selection *sel)
 {
 	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE)
@@ -1010,7 +1103,10 @@ static int ov2640_get_selection(struct v4l2_subdev *sd,
 
 	switch (sel->target) {
 	case V4L2_SEL_TGT_CROP_BOUNDS:
+<<<<<<< HEAD
 	case V4L2_SEL_TGT_CROP_DEFAULT:
+=======
+>>>>>>> upstream/android-13
 	case V4L2_SEL_TGT_CROP:
 		sel->r.left = 0;
 		sel->r.top = 0;
@@ -1089,6 +1185,12 @@ static const struct v4l2_ctrl_ops ov2640_ctrl_ops = {
 };
 
 static const struct v4l2_subdev_core_ops ov2640_subdev_core_ops = {
+<<<<<<< HEAD
+=======
+	.log_status = v4l2_ctrl_subdev_log_status,
+	.subscribe_event = v4l2_ctrl_subdev_subscribe_event,
+	.unsubscribe_event = v4l2_event_subdev_unsubscribe,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VIDEO_ADV_DEBUG
 	.g_register	= ov2640_g_register,
 	.s_register	= ov2640_s_register,
@@ -1097,6 +1199,10 @@ static const struct v4l2_subdev_core_ops ov2640_subdev_core_ops = {
 };
 
 static const struct v4l2_subdev_pad_ops ov2640_subdev_pad_ops = {
+<<<<<<< HEAD
+=======
+	.init_cfg	= ov2640_init_cfg,
+>>>>>>> upstream/android-13
 	.enum_mbus_code = ov2640_enum_mbus_code,
 	.get_selection	= ov2640_get_selection,
 	.get_fmt	= ov2640_get_fmt,
@@ -1152,11 +1258,18 @@ static int ov2640_probe_dt(struct i2c_client *client,
 /*
  * i2c_driver functions
  */
+<<<<<<< HEAD
 static int ov2640_probe(struct i2c_client *client,
 			const struct i2c_device_id *did)
 {
 	struct ov2640_priv	*priv;
 	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+=======
+static int ov2640_probe(struct i2c_client *client)
+{
+	struct ov2640_priv	*priv;
+	struct i2c_adapter	*adapter = client->adapter;
+>>>>>>> upstream/android-13
 	int			ret;
 
 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
@@ -1182,15 +1295,33 @@ static int ov2640_probe(struct i2c_client *client,
 	if (ret)
 		goto err_clk;
 
+<<<<<<< HEAD
 	v4l2_i2c_subdev_init(&priv->subdev, client, &ov2640_subdev_ops);
 	priv->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 	mutex_init(&priv->lock);
 	v4l2_ctrl_handler_init(&priv->hdl, 2);
+=======
+	priv->win = ov2640_select_win(SVGA_WIDTH, SVGA_HEIGHT);
+	priv->cfmt_code = MEDIA_BUS_FMT_UYVY8_2X8;
+
+	v4l2_i2c_subdev_init(&priv->subdev, client, &ov2640_subdev_ops);
+	priv->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
+			      V4L2_SUBDEV_FL_HAS_EVENTS;
+	mutex_init(&priv->lock);
+	v4l2_ctrl_handler_init(&priv->hdl, 3);
+>>>>>>> upstream/android-13
 	priv->hdl.lock = &priv->lock;
 	v4l2_ctrl_new_std(&priv->hdl, &ov2640_ctrl_ops,
 			V4L2_CID_VFLIP, 0, 1, 1, 0);
 	v4l2_ctrl_new_std(&priv->hdl, &ov2640_ctrl_ops,
 			V4L2_CID_HFLIP, 0, 1, 1, 0);
+<<<<<<< HEAD
+=======
+	v4l2_ctrl_new_std_menu_items(&priv->hdl, &ov2640_ctrl_ops,
+			V4L2_CID_TEST_PATTERN,
+			ARRAY_SIZE(ov2640_test_pattern_menu) - 1, 0, 0,
+			ov2640_test_pattern_menu);
+>>>>>>> upstream/android-13
 	priv->subdev.ctrl_handler = &priv->hdl;
 	if (priv->hdl.error) {
 		ret = priv->hdl.error;
@@ -1256,7 +1387,11 @@ static struct i2c_driver ov2640_i2c_driver = {
 		.name = "ov2640",
 		.of_match_table = of_match_ptr(ov2640_of_match),
 	},
+<<<<<<< HEAD
 	.probe    = ov2640_probe,
+=======
+	.probe_new = ov2640_probe,
+>>>>>>> upstream/android-13
 	.remove   = ov2640_remove,
 	.id_table = ov2640_id,
 };

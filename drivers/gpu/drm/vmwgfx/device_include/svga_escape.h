@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 OR MIT */
 /**********************************************************
  * Copyright 2007-2015 VMware, Inc.
+=======
+/**********************************************************
+ * Copyright 2007,2020 VMware, Inc.
+ * SPDX-License-Identifier: GPL-2.0 OR MIT
+>>>>>>> upstream/android-13
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -30,6 +36,7 @@
  *    Definitions for our own (vendor-specific) SVGA Escape commands.
  */
 
+<<<<<<< HEAD
 #ifndef _SVGA_ESCAPE_H_
 #define _SVGA_ESCAPE_H_
 
@@ -88,3 +95,29 @@ struct {
 } SVGAEscapeHintFullscreen;
 
 #endif /* _SVGA_ESCAPE_H_ */
+=======
+
+
+#ifndef _SVGA_ESCAPE_H_
+#define _SVGA_ESCAPE_H_
+
+#define SVGA_ESCAPE_NSID_VMWARE 0x00000000
+#define SVGA_ESCAPE_NSID_DEVEL 0xFFFFFFFF
+
+#define SVGA_ESCAPE_VMWARE_MAJOR_MASK 0xFFFF0000
+
+#define SVGA_ESCAPE_VMWARE_HINT 0x00030000
+#define SVGA_ESCAPE_VMWARE_HINT_FULLSCREEN 0x00030001
+
+#pragma pack(push, 1)
+typedef struct {
+	uint32 command;
+	uint32 fullscreen;
+	struct {
+		int32 x, y;
+	} monitorPosition;
+} SVGAEscapeHintFullscreen;
+#pragma pack(pop)
+
+#endif
+>>>>>>> upstream/android-13

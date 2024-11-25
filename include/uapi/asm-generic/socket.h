@@ -2,6 +2,10 @@
 #ifndef __ASM_GENERIC_SOCKET_H
 #define __ASM_GENERIC_SOCKET_H
 
+<<<<<<< HEAD
+=======
+#include <linux/posix_types.h>
+>>>>>>> upstream/android-13
 #include <asm/sockios.h>
 
 /* For setsockopt(2) */
@@ -29,8 +33,13 @@
 #define SO_PEERCRED	17
 #define SO_RCVLOWAT	18
 #define SO_SNDLOWAT	19
+<<<<<<< HEAD
 #define SO_RCVTIMEO	20
 #define SO_SNDTIMEO	21
+=======
+#define SO_RCVTIMEO_OLD	20
+#define SO_SNDTIMEO_OLD	21
+>>>>>>> upstream/android-13
 #endif
 
 /* Security levels - as per NRL IPv6 - don't actually do anything */
@@ -46,13 +55,17 @@
 #define SO_GET_FILTER		SO_ATTACH_FILTER
 
 #define SO_PEERNAME		28
+<<<<<<< HEAD
 #define SO_TIMESTAMP		29
 #define SCM_TIMESTAMP		SO_TIMESTAMP
+=======
+>>>>>>> upstream/android-13
 
 #define SO_ACCEPTCONN		30
 
 #define SO_PEERSEC		31
 #define SO_PASSSEC		34
+<<<<<<< HEAD
 #define SO_TIMESTAMPNS		35
 #define SCM_TIMESTAMPNS		SO_TIMESTAMPNS
 
@@ -61,6 +74,11 @@
 #define SO_TIMESTAMPING		37
 #define SCM_TIMESTAMPING	SO_TIMESTAMPING
 
+=======
+
+#define SO_MARK			36
+
+>>>>>>> upstream/android-13
 #define SO_PROTOCOL		38
 #define SO_DOMAIN		39
 
@@ -106,13 +124,66 @@
 #define SO_PEERGROUPS		59
 
 #define SO_ZEROCOPY		60
+<<<<<<< HEAD
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
 #define SO_SET_DOMAIN_NAME 1000
 #define SO_SET_DNS_UID 1001
 #define SO_SET_DNS_PID 1002
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+=======
+>>>>>>> upstream/android-13
 
 #define SO_TXTIME		61
 #define SCM_TXTIME		SO_TXTIME
 
+<<<<<<< HEAD
+=======
+#define SO_BINDTOIFINDEX	62
+
+#define SO_TIMESTAMP_OLD        29
+#define SO_TIMESTAMPNS_OLD      35
+#define SO_TIMESTAMPING_OLD     37
+
+#define SO_TIMESTAMP_NEW        63
+#define SO_TIMESTAMPNS_NEW      64
+#define SO_TIMESTAMPING_NEW     65
+
+#define SO_RCVTIMEO_NEW         66
+#define SO_SNDTIMEO_NEW         67
+
+#define SO_DETACH_REUSEPORT_BPF 68
+
+#define SO_PREFER_BUSY_POLL	69
+#define SO_BUSY_POLL_BUDGET	70
+
+#define SO_NETNS_COOKIE		71
+
+#define SO_BUF_LOCK		72
+
+#if !defined(__KERNEL__)
+
+#if __BITS_PER_LONG == 64 || (defined(__x86_64__) && defined(__ILP32__))
+/* on 64-bit and x32, avoid the ?: operator */
+#define SO_TIMESTAMP		SO_TIMESTAMP_OLD
+#define SO_TIMESTAMPNS		SO_TIMESTAMPNS_OLD
+#define SO_TIMESTAMPING		SO_TIMESTAMPING_OLD
+
+#define SO_RCVTIMEO		SO_RCVTIMEO_OLD
+#define SO_SNDTIMEO		SO_SNDTIMEO_OLD
+#else
+#define SO_TIMESTAMP (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMP_OLD : SO_TIMESTAMP_NEW)
+#define SO_TIMESTAMPNS (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPNS_OLD : SO_TIMESTAMPNS_NEW)
+#define SO_TIMESTAMPING (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPING_OLD : SO_TIMESTAMPING_NEW)
+
+#define SO_RCVTIMEO (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_RCVTIMEO_OLD : SO_RCVTIMEO_NEW)
+#define SO_SNDTIMEO (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_SNDTIMEO_OLD : SO_SNDTIMEO_NEW)
+#endif
+
+#define SCM_TIMESTAMP           SO_TIMESTAMP
+#define SCM_TIMESTAMPNS         SO_TIMESTAMPNS
+#define SCM_TIMESTAMPING        SO_TIMESTAMPING
+
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __ASM_GENERIC_SOCKET_H */

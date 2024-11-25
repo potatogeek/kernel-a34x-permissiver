@@ -2,6 +2,10 @@
  * QorIQ 10G MDIO Controller
  *
  * Copyright 2012 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
+=======
+ * Copyright 2021 NXP
+>>>>>>> upstream/android-13
  *
  * Authors: Andy Fleming <afleming@freescale.com>
  *          Timur Tabi <timur@freescale.com>
@@ -11,6 +15,7 @@
  * kind, whether express or implied.
  */
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/interrupt.h>
@@ -20,6 +25,19 @@
 #include <linux/of_address.h>
 #include <linux/of_platform.h>
 #include <linux/of_mdio.h>
+=======
+#include <linux/acpi.h>
+#include <linux/acpi_mdio.h>
+#include <linux/interrupt.h>
+#include <linux/kernel.h>
+#include <linux/mdio.h>
+#include <linux/module.h>
+#include <linux/of_address.h>
+#include <linux/of_mdio.h>
+#include <linux/of_platform.h>
+#include <linux/phy.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 /* Number of microseconds to wait for a register to respond */
 #define TIMEOUT	1000
@@ -49,6 +67,10 @@ struct tgec_mdio_controller {
 struct mdio_fsl_priv {
 	struct	tgec_mdio_controller __iomem *mdio_base;
 	bool	is_little_endian;
+<<<<<<< HEAD
+=======
+	bool	has_a009885;
+>>>>>>> upstream/android-13
 	bool	has_a011043;
 };
 
@@ -184,10 +206,17 @@ static int xgmac_mdio_read(struct mii_bus *bus, int phy_id, int regnum)
 {
 	struct mdio_fsl_priv *priv = (struct mdio_fsl_priv *)bus->priv;
 	struct tgec_mdio_controller __iomem *regs = priv->mdio_base;
+<<<<<<< HEAD
 	uint16_t dev_addr;
 	uint32_t mdio_stat;
 	uint32_t mdio_ctl;
 	uint16_t value;
+=======
+	unsigned long flags;
+	uint16_t dev_addr;
+	uint32_t mdio_stat;
+	uint32_t mdio_ctl;
+>>>>>>> upstream/android-13
 	int ret;
 	bool endian = priv->is_little_endian;
 
@@ -219,16 +248,30 @@ static int xgmac_mdio_read(struct mii_bus *bus, int phy_id, int regnum)
 			return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	if (priv->has_a009885)
+		/* Once the operation completes, i.e. MDIO_STAT_BSY clears, we
+		 * must read back the data register within 16 MDC cycles.
+		 */
+		local_irq_save(flags);
+
+>>>>>>> upstream/android-13
 	/* Initiate the read */
 	xgmac_write32(mdio_ctl | MDIO_CTL_READ, &regs->mdio_ctl, endian);
 
 	ret = xgmac_wait_until_done(&bus->dev, regs, endian);
 	if (ret)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto irq_restore;
+>>>>>>> upstream/android-13
 
 	/* Return all Fs if nothing was there */
 	if ((xgmac_read32(&regs->mdio_stat, endian) & MDIO_STAT_RD_ER) &&
 	    !priv->has_a011043) {
+<<<<<<< HEAD
 		dev_err(&bus->dev,
 			"Error while reading PHY%d reg at %d.%hhu\n",
 			phy_id, dev_addr, regnum);
@@ -239,10 +282,27 @@ static int xgmac_mdio_read(struct mii_bus *bus, int phy_id, int regnum)
 	dev_dbg(&bus->dev, "read %04x\n", value);
 
 	return value;
+=======
+		dev_dbg(&bus->dev,
+			"Error while reading PHY%d reg at %d.%hhu\n",
+			phy_id, dev_addr, regnum);
+		ret = 0xffff;
+	} else {
+		ret = xgmac_read32(&regs->mdio_data, endian) & 0xffff;
+		dev_dbg(&bus->dev, "read %04x\n", ret);
+	}
+
+irq_restore:
+	if (priv->has_a009885)
+		local_irq_restore(flags);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int xgmac_mdio_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node;
 	struct mii_bus *bus;
 	struct resource res;
@@ -253,6 +313,23 @@ static int xgmac_mdio_probe(struct platform_device *pdev)
 	if (ret) {
 		dev_err(&pdev->dev, "could not obtain address\n");
 		return ret;
+=======
+	struct fwnode_handle *fwnode;
+	struct mdio_fsl_priv *priv;
+	struct resource *res;
+	struct mii_bus *bus;
+	int ret;
+
+	/* In DPAA-1, MDIO is one of the many FMan sub-devices. The FMan
+	 * defines a register space that spans a large area, covering all the
+	 * subdevice areas. Therefore, MDIO cannot claim exclusive access to
+	 * this register area.
+	 */
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!res) {
+		dev_err(&pdev->dev, "could not obtain address\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	bus = mdiobus_alloc_size(sizeof(struct mdio_fsl_priv));
@@ -263,16 +340,26 @@ static int xgmac_mdio_probe(struct platform_device *pdev)
 	bus->read = xgmac_mdio_read;
 	bus->write = xgmac_mdio_write;
 	bus->parent = &pdev->dev;
+<<<<<<< HEAD
 	snprintf(bus->id, MII_BUS_ID_SIZE, "%llx", (unsigned long long)res.start);
 
 	/* Set the PHY base address */
 	priv = bus->priv;
 	priv->mdio_base = of_iomap(np, 0);
+=======
+	bus->probe_capabilities = MDIOBUS_C22_C45;
+	snprintf(bus->id, MII_BUS_ID_SIZE, "%pa", &res->start);
+
+	/* Set the PHY base address */
+	priv = bus->priv;
+	priv->mdio_base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!priv->mdio_base) {
 		ret = -ENOMEM;
 		goto err_ioremap;
 	}
 
+<<<<<<< HEAD
 	priv->is_little_endian = of_property_read_bool(pdev->dev.of_node,
 						       "little-endian");
 
@@ -280,6 +367,26 @@ static int xgmac_mdio_probe(struct platform_device *pdev)
 						  "fsl,erratum-a011043");
 
 	ret = of_mdiobus_register(bus, np);
+=======
+	/* For both ACPI and DT cases, endianness of MDIO controller
+	 * needs to be specified using "little-endian" property.
+	 */
+	priv->is_little_endian = device_property_read_bool(&pdev->dev,
+							   "little-endian");
+
+	priv->has_a009885 = device_property_read_bool(&pdev->dev,
+						      "fsl,erratum-a009885");
+	priv->has_a011043 = device_property_read_bool(&pdev->dev,
+						      "fsl,erratum-a011043");
+
+	fwnode = pdev->dev.fwnode;
+	if (is_of_node(fwnode))
+		ret = of_mdiobus_register(bus, to_of_node(fwnode));
+	else if (is_acpi_node(fwnode))
+		ret = acpi_mdiobus_register(bus, fwnode);
+	else
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "cannot register MDIO bus\n");
 		goto err_registration;
@@ -301,9 +408,16 @@ err_ioremap:
 static int xgmac_mdio_remove(struct platform_device *pdev)
 {
 	struct mii_bus *bus = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	mdiobus_unregister(bus);
 	iounmap(bus->priv);
+=======
+	struct mdio_fsl_priv *priv = bus->priv;
+
+	mdiobus_unregister(bus);
+	iounmap(priv->mdio_base);
+>>>>>>> upstream/android-13
 	mdiobus_free(bus);
 
 	return 0;
@@ -320,10 +434,23 @@ static const struct of_device_id xgmac_mdio_match[] = {
 };
 MODULE_DEVICE_TABLE(of, xgmac_mdio_match);
 
+<<<<<<< HEAD
+=======
+static const struct acpi_device_id xgmac_acpi_match[] = {
+	{ "NXP0006" },
+	{ }
+};
+MODULE_DEVICE_TABLE(acpi, xgmac_acpi_match);
+
+>>>>>>> upstream/android-13
 static struct platform_driver xgmac_mdio_driver = {
 	.driver = {
 		.name = "fsl-fman_xmdio",
 		.of_match_table = xgmac_mdio_match,
+<<<<<<< HEAD
+=======
+		.acpi_match_table = xgmac_acpi_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = xgmac_mdio_probe,
 	.remove = xgmac_mdio_remove,

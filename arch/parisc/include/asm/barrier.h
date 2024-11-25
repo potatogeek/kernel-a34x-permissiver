@@ -2,11 +2,22 @@
 #ifndef __ASM_BARRIER_H
 #define __ASM_BARRIER_H
 
+<<<<<<< HEAD
+=======
+#include <asm/alternative.h>
+
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 
 /* The synchronize caches instruction executes as a nop on systems in
    which all memory references are performed in order. */
+<<<<<<< HEAD
 #define synchronize_caches() __asm__ __volatile__ ("sync" : : : "memory")
+=======
+#define synchronize_caches() asm volatile("sync" \
+	ALTERNATIVE(ALT_COND_NO_SMP, INSN_NOP) \
+	: : : "memory")
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_SMP)
 #define mb()		do { synchronize_caches(); } while (0)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ks8842.c timberdale KS8842 ethernet driver
  * Copyright (c) 2009 Intel Corporation
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * ks8842.c timberdale KS8842 ethernet driver
+ * Copyright (c) 2009 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 /* Supports:
@@ -592,19 +599,30 @@ out:
 		dma_unmap_single(adapter->dev, sg_dma_address(sg),
 			DMA_BUFFER_SIZE, DMA_FROM_DEVICE);
 	sg_dma_address(sg) = 0;
+<<<<<<< HEAD
 	if (ctl->skb)
 		dev_kfree_skb(ctl->skb);
 
+=======
+	dev_kfree_skb(ctl->skb);
+>>>>>>> upstream/android-13
 	ctl->skb = NULL;
 
 	printk(KERN_ERR DRV_NAME": Failed to start RX DMA: %d\n", err);
 	return err;
 }
 
+<<<<<<< HEAD
 static void ks8842_rx_frame_dma_tasklet(unsigned long arg)
 {
 	struct net_device *netdev = (struct net_device *)arg;
 	struct ks8842_adapter *adapter = netdev_priv(netdev);
+=======
+static void ks8842_rx_frame_dma_tasklet(struct tasklet_struct *t)
+{
+	struct ks8842_adapter *adapter = from_tasklet(adapter, t, dma_rx.tasklet);
+	struct net_device *netdev = adapter->netdev;
+>>>>>>> upstream/android-13
 	struct ks8842_rx_dma_ctl *ctl = &adapter->dma_rx;
 	struct sk_buff *skb = ctl->skb;
 	dma_addr_t addr = sg_dma_address(&ctl->sg);
@@ -734,10 +752,17 @@ static void ks8842_handle_rx_overrun(struct net_device *netdev,
 	netdev->stats.rx_fifo_errors++;
 }
 
+<<<<<<< HEAD
 static void ks8842_tasklet(unsigned long arg)
 {
 	struct net_device *netdev = (struct net_device *)arg;
 	struct ks8842_adapter *adapter = netdev_priv(netdev);
+=======
+static void ks8842_tasklet(struct tasklet_struct *t)
+{
+	struct ks8842_adapter *adapter = from_tasklet(adapter, t, tasklet);
+	struct net_device *netdev = adapter->netdev;
+>>>>>>> upstream/android-13
 	u16 isr;
 	unsigned long flags;
 	u16 entry_bank;
@@ -967,8 +992,12 @@ static int ks8842_alloc_dma_bufs(struct net_device *netdev)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&rx_ctl->tasklet, ks8842_rx_frame_dma_tasklet,
 		(unsigned long)netdev);
+=======
+	tasklet_setup(&rx_ctl->tasklet, ks8842_rx_frame_dma_tasklet);
+>>>>>>> upstream/android-13
 
 	return 0;
 err:
@@ -1117,7 +1146,11 @@ static void ks8842_tx_timeout_work(struct work_struct *work)
 		__ks8842_start_new_rx_dma(netdev);
 }
 
+<<<<<<< HEAD
 static void ks8842_tx_timeout(struct net_device *netdev)
+=======
+static void ks8842_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ks8842_adapter *adapter = netdev_priv(netdev);
 
@@ -1150,6 +1183,13 @@ static int ks8842_probe(struct platform_device *pdev)
 	unsigned i;
 
 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+<<<<<<< HEAD
+=======
+	if (!iomem) {
+		dev_err(&pdev->dev, "Invalid resource\n");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 	if (!request_mem_region(iomem->start, resource_size(iomem), DRV_NAME))
 		goto err_mem_region;
 
@@ -1187,7 +1227,11 @@ static int ks8842_probe(struct platform_device *pdev)
 		adapter->dma_tx.channel = -1;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&adapter->tasklet, ks8842_tasklet, (unsigned long)netdev);
+=======
+	tasklet_setup(&adapter->tasklet, ks8842_tasklet);
+>>>>>>> upstream/android-13
 	spin_lock_init(&adapter->lock);
 
 	netdev->netdev_ops = &ks8842_netdev_ops;

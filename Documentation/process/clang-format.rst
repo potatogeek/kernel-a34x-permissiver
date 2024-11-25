@@ -32,7 +32,11 @@ Linux distributions for a long time. Search for ``clang-format`` in
 your repositories. Otherwise, you can either download pre-built
 LLVM/clang binaries or build the source code from:
 
+<<<<<<< HEAD
     http://releases.llvm.org/download.html
+=======
+    https://releases.llvm.org/download.html
+>>>>>>> upstream/android-13
 
 See more information about the tool at:
 
@@ -97,7 +101,11 @@ it can be very useful.
 
 There are integrations for many popular text editors. For some of them,
 like vim, emacs, BBEdit and Visual Studio you can find support built-in.
+<<<<<<< HEAD
 For instructions, read the appropiate section at:
+=======
+For instructions, read the appropriate section at:
+>>>>>>> upstream/android-13
 
     https://clang.llvm.org/docs/ClangFormat.html
 

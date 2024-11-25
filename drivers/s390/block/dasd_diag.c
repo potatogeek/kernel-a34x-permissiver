@@ -58,7 +58,11 @@ struct dasd_diag_private {
 
 struct dasd_diag_req {
 	unsigned int block_count;
+<<<<<<< HEAD
 	struct dasd_diag_bio bio[0];
+=======
+	struct dasd_diag_bio bio[];
+>>>>>>> upstream/android-13
 };
 
 static const u8 DASD_DIAG_CMS1[] = { 0xc3, 0xd4, 0xe2, 0xf1 };/* EBCDIC CMS1 */
@@ -69,11 +73,16 @@ static const u8 DASD_DIAG_CMS1[] = { 0xc3, 0xd4, 0xe2, 0xf1 };/* EBCDIC CMS1 */
  * resulting condition code and DIAG return code. */
 static inline int __dia250(void *iob, int cmd)
 {
+<<<<<<< HEAD
 	register unsigned long reg2 asm ("2") = (unsigned long) iob;
+=======
+	union register_pair rx = { .even = (unsigned long)iob, };
+>>>>>>> upstream/android-13
 	typedef union {
 		struct dasd_diag_init_io init_io;
 		struct dasd_diag_rw_io rw_io;
 	} addr_type;
+<<<<<<< HEAD
 	int rc;
 
 	rc = 3;
@@ -88,6 +97,21 @@ static inline int __dia250(void *iob, int cmd)
 		: "d" (cmd), "d" (reg2), "m" (*(addr_type *) iob)
 		: "3", "cc");
 	return rc;
+=======
+	int cc;
+
+	cc = 3;
+	asm volatile(
+		"	diag	%[rx],%[cmd],0x250\n"
+		"0:	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		"1:\n"
+		EX_TABLE(0b,1b)
+		: [cc] "+&d" (cc), [rx] "+&d" (rx.pair), "+m" (*(addr_type *)iob)
+		: [cmd] "d" (cmd)
+		: "cc");
+	return cc | rx.odd;
+>>>>>>> upstream/android-13
 }
 
 static inline int dia250(void *iob, int cmd)
@@ -319,7 +343,11 @@ dasd_diag_check_device(struct dasd_device *device)
 	struct dasd_diag_characteristics *rdc_data;
 	struct vtoc_cms_label *label;
 	struct dasd_block *block;
+<<<<<<< HEAD
 	struct dasd_diag_bio bio;
+=======
+	struct dasd_diag_bio *bio;
+>>>>>>> upstream/android-13
 	unsigned int sb, bsize;
 	blocknum_t end_block;
 	int rc;
@@ -395,29 +423,54 @@ dasd_diag_check_device(struct dasd_device *device)
 		rc = -ENOMEM;
 		goto out;
 	}
+<<<<<<< HEAD
+=======
+	bio = kzalloc(sizeof(*bio), GFP_KERNEL);
+	if (bio == NULL)  {
+		DBF_DEV_EVENT(DBF_WARNING, device, "%s",
+			      "No memory to allocate initialization bio");
+		rc = -ENOMEM;
+		goto out_label;
+	}
+>>>>>>> upstream/android-13
 	rc = 0;
 	end_block = 0;
 	/* try all sizes - needed for ECKD devices */
 	for (bsize = 512; bsize <= PAGE_SIZE; bsize <<= 1) {
 		mdsk_init_io(device, bsize, 0, &end_block);
+<<<<<<< HEAD
 		memset(&bio, 0, sizeof (struct dasd_diag_bio));
 		bio.type = MDSK_READ_REQ;
 		bio.block_number = private->pt_block + 1;
 		bio.buffer = label;
+=======
+		memset(bio, 0, sizeof(*bio));
+		bio->type = MDSK_READ_REQ;
+		bio->block_number = private->pt_block + 1;
+		bio->buffer = label;
+>>>>>>> upstream/android-13
 		memset(&private->iob, 0, sizeof (struct dasd_diag_rw_io));
 		private->iob.dev_nr = rdc_data->dev_nr;
 		private->iob.key = 0;
 		private->iob.flags = 0;	/* do synchronous io */
 		private->iob.block_count = 1;
 		private->iob.interrupt_params = 0;
+<<<<<<< HEAD
 		private->iob.bio_list = &bio;
+=======
+		private->iob.bio_list = bio;
+>>>>>>> upstream/android-13
 		private->iob.flaga = DASD_DIAG_FLAGA_DEFAULT;
 		rc = dia250(&private->iob, RW_BIO);
 		if (rc == 3) {
 			pr_warn("%s: A 64-bit DIAG call failed\n",
 				dev_name(&device->cdev->dev));
 			rc = -EOPNOTSUPP;
+<<<<<<< HEAD
 			goto out_label;
+=======
+			goto out_bio;
+>>>>>>> upstream/android-13
 		}
 		mdsk_term_io(device);
 		if (rc == 0)
@@ -427,7 +480,11 @@ dasd_diag_check_device(struct dasd_device *device)
 		pr_warn("%s: Accessing the DASD failed because of an incorrect format (rc=%d)\n",
 			dev_name(&device->cdev->dev), rc);
 		rc = -EIO;
+<<<<<<< HEAD
 		goto out_label;
+=======
+		goto out_bio;
+>>>>>>> upstream/android-13
 	}
 	/* check for label block */
 	if (memcmp(label->label_id, DASD_DIAG_CMS1,
@@ -457,6 +514,11 @@ dasd_diag_check_device(struct dasd_device *device)
 			(rc == 4) ? ", read-only device" : "");
 		rc = 0;
 	}
+<<<<<<< HEAD
+=======
+out_bio:
+	kfree(bio);
+>>>>>>> upstream/android-13
 out_label:
 	free_page((long) label);
 out:
@@ -506,7 +568,11 @@ static struct dasd_ccw_req *dasd_diag_build_cp(struct dasd_device *memdev,
 	struct req_iterator iter;
 	struct bio_vec bv;
 	char *dst;
+<<<<<<< HEAD
 	unsigned int count, datasize;
+=======
+	unsigned int count;
+>>>>>>> upstream/android-13
 	sector_t recid, first_rec, last_rec;
 	unsigned int blksize, off;
 	unsigned char rw_cmd;
@@ -534,10 +600,15 @@ static struct dasd_ccw_req *dasd_diag_build_cp(struct dasd_device *memdev,
 	if (count != last_rec - first_rec + 1)
 		return ERR_PTR(-EINVAL);
 	/* Build the request */
+<<<<<<< HEAD
 	datasize = sizeof(struct dasd_diag_req) +
 		count*sizeof(struct dasd_diag_bio);
 	cqr = dasd_smalloc_request(DASD_DIAG_MAGIC, 0, datasize, memdev,
 				   blk_mq_rq_to_pdu(req));
+=======
+	cqr = dasd_smalloc_request(DASD_DIAG_MAGIC, 0, struct_size(dreq, bio, count),
+				   memdev, blk_mq_rq_to_pdu(req));
+>>>>>>> upstream/android-13
 	if (IS_ERR(cqr))
 		return cqr;
 
@@ -546,7 +617,11 @@ static struct dasd_ccw_req *dasd_diag_build_cp(struct dasd_device *memdev,
 	dbio = dreq->bio;
 	recid = first_rec;
 	rq_for_each_segment(bv, req, iter) {
+<<<<<<< HEAD
 		dst = page_address(bv.bv_page) + bv.bv_offset;
+=======
+		dst = bvec_virt(&bv);
+>>>>>>> upstream/android-13
 		for (off = 0; off < bv.bv_len; off += blksize) {
 			memset(dbio, 0, sizeof (struct dasd_diag_bio));
 			dbio->type = rw_cmd;
@@ -615,14 +690,50 @@ dasd_diag_dump_sense(struct dasd_device *device, struct dasd_ccw_req * req,
 		    "dump sense not available for DIAG data");
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Initialize block layer request queue.
+ */
+static void dasd_diag_setup_blk_queue(struct dasd_block *block)
+{
+	unsigned int logical_block_size = block->bp_block;
+	struct request_queue *q = block->request_queue;
+	int max;
+
+	max = DIAG_MAX_BLOCKS << block->s2b_shift;
+	blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+	q->limits.max_dev_sectors = max;
+	blk_queue_logical_block_size(q, logical_block_size);
+	blk_queue_max_hw_sectors(q, max);
+	blk_queue_max_segments(q, USHRT_MAX);
+	/* With page sized segments each segment can be translated into one idaw/tidaw */
+	blk_queue_max_segment_size(q, PAGE_SIZE);
+	blk_queue_segment_boundary(q, PAGE_SIZE - 1);
+}
+
+static int dasd_diag_pe_handler(struct dasd_device *device,
+				__u8 tbvpm, __u8 fcsecpm)
+{
+	return dasd_generic_verify_path(device, tbvpm);
+}
+
+>>>>>>> upstream/android-13
 static struct dasd_discipline dasd_diag_discipline = {
 	.owner = THIS_MODULE,
 	.name = "DIAG",
 	.ebcname = "DIAG",
+<<<<<<< HEAD
 	.max_blocks = DIAG_MAX_BLOCKS,
 	.check_device = dasd_diag_check_device,
 	.verify_path = dasd_generic_verify_path,
 	.fill_geometry = dasd_diag_fill_geometry,
+=======
+	.check_device = dasd_diag_check_device,
+	.pe_handler = dasd_diag_pe_handler,
+	.fill_geometry = dasd_diag_fill_geometry,
+	.setup_blk_queue = dasd_diag_setup_blk_queue,
+>>>>>>> upstream/android-13
 	.start_IO = dasd_start_diag,
 	.term_IO = dasd_diag_term_IO,
 	.handle_terminated_request = dasd_diag_handle_terminated_request,

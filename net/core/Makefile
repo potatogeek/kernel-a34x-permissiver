@@ -8,10 +8,17 @@ obj-y := sock.o request_sock.o skbuff.o datagram.o stream.o scm.o \
 
 obj-$(CONFIG_SYSCTL) += sysctl_net_core.o
 
+<<<<<<< HEAD
 obj-y		     += dev.o ethtool.o dev_addr_lists.o dst.o netevent.o \
 			neighbour.o rtnetlink.o utils.o link_watch.o filter.o \
 			sock_diag.o dev_ioctl.o tso.o sock_reuseport.o \
 			fib_notifier.o xdp.o
+=======
+obj-y		     += dev.o dev_addr_lists.o dst.o netevent.o \
+			neighbour.o rtnetlink.o utils.o link_watch.o filter.o \
+			sock_diag.o dev_ioctl.o tso.o sock_reuseport.o \
+			fib_notifier.o xdp.o flow_offload.o
+>>>>>>> upstream/android-13
 
 obj-y += net-sysfs.o
 obj-$(CONFIG_PAGE_POOL) += page_pool.o
@@ -21,6 +28,10 @@ obj-$(CONFIG_NETPOLL) += netpoll.o
 obj-$(CONFIG_FIB_RULES) += fib_rules.o
 obj-$(CONFIG_TRACEPOINTS) += net-traces.o
 obj-$(CONFIG_NET_DROP_MONITOR) += drop_monitor.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_NET_SELFTESTS) += selftests.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_NETWORK_PHY_TIMESTAMPING) += timestamping.o
 obj-$(CONFIG_NET_PTP_CLASSIFY) += ptp_classifier.o
 obj-$(CONFIG_CGROUP_NET_PRIO) += netprio_cgroup.o
@@ -32,3 +43,10 @@ obj-$(CONFIG_HWBM) += hwbm.o
 obj-$(CONFIG_NET_DEVLINK) += devlink.o
 obj-$(CONFIG_GRO_CELLS) += gro_cells.o
 obj-$(CONFIG_FAILOVER) += failover.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_NET_SOCK_MSG) += skmsg.o
+obj-$(CONFIG_BPF_SYSCALL) += sock_map.o
+obj-$(CONFIG_BPF_SYSCALL) += bpf_sk_storage.o
+obj-$(CONFIG_OF)	+= of_net.o
+>>>>>>> upstream/android-13

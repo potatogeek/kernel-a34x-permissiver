@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+.. SPDX-License-Identifier: GPL-2.0
+
+>>>>>>> upstream/android-13
 ============================
 System-Wide Power Management
 ============================
@@ -6,3 +11,7 @@ System-Wide Power Management
    :maxdepth: 2
 
    sleep-states
+<<<<<<< HEAD
+=======
+   suspend-flows
+>>>>>>> upstream/android-13

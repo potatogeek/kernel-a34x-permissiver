@@ -22,7 +22,11 @@ Possible uses:
 * minimizing kernel configurations (do I need this option if the
   associated code is never run?)
 
+<<<<<<< HEAD
 .. _gcov: http://gcc.gnu.org/onlinedocs/gcc/Gcov.html
+=======
+.. _gcov: https://gcc.gnu.org/onlinedocs/gcc/Gcov.html
+>>>>>>> upstream/android-13
 .. _lcov: http://ltp.sourceforge.net/coverage/lcov.php
 
 
@@ -124,6 +128,11 @@ box for setups where kernels are built and run on the same machine. In
 cases where the kernel runs on a separate machine, special preparations
 must be made, depending on where the gcov tool is used:
 
+<<<<<<< HEAD
+=======
+.. _gcov-test:
+
+>>>>>>> upstream/android-13
 a) gcov is run on the TEST machine
 
     The gcov tool version on the test machine must be compatible with the
@@ -143,6 +152,11 @@ a) gcov is run on the TEST machine
     machine. If any of the path components is symbolic link, the actual
     directory needs to be used instead (due to make's CURDIR handling).
 
+<<<<<<< HEAD
+=======
+.. _gcov-build:
+
+>>>>>>> upstream/android-13
 b) gcov is run on the BUILD machine
 
     The following files need to be copied after each test case from test
@@ -171,7 +185,11 @@ Note on compilers
 GCC and LLVM gcov tools are not necessarily compatible. Use gcov_ to work with
 GCC-generated .gcno and .gcda files, and use llvm-cov_ for Clang.
 
+<<<<<<< HEAD
 .. _gcov: http://gcc.gnu.org/onlinedocs/gcc/Gcov.html
+=======
+.. _gcov: https://gcc.gnu.org/onlinedocs/gcc/Gcov.html
+>>>>>>> upstream/android-13
 .. _llvm-cov: https://llvm.org/docs/CommandGuide/llvm-cov.html
 
 Build differences between GCC and Clang gcov are handled by Kconfig. It
@@ -203,7 +221,11 @@ Cause
     may not correctly copy files from sysfs.
 
 Solution
+<<<<<<< HEAD
     Use ``cat``' to read ``.gcda`` files and ``cp -d`` to copy links.
+=======
+    Use ``cat`` to read ``.gcda`` files and ``cp -d`` to copy links.
+>>>>>>> upstream/android-13
     Alternatively use the mechanism shown in Appendix B.
 
 
@@ -211,7 +233,11 @@ Appendix A: gather_on_build.sh
 ------------------------------
 
 Sample script to gather coverage meta files on the build machine
+<<<<<<< HEAD
 (see 6a):
+=======
+(see :ref:`Separated build and test machines a. <gcov-test>`):
+>>>>>>> upstream/android-13
 
 .. code-block:: sh
 
@@ -244,7 +270,11 @@ Appendix B: gather_on_test.sh
 -----------------------------
 
 Sample script to gather coverage data files on the test machine
+<<<<<<< HEAD
 (see 6b):
+=======
+(see :ref:`Separated build and test machines b. <gcov-build>`):
+>>>>>>> upstream/android-13
 
 .. code-block:: sh
 

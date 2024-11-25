@@ -9,8 +9,14 @@
 
 #undef i386
 
+<<<<<<< HEAD
 OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
 OUTPUT_ARCH(i386)
+=======
+OUTPUT_FORMAT("elf32-i386")
+OUTPUT_ARCH(i386)
+ENTRY(pa_text_start)
+>>>>>>> upstream/android-13
 
 SECTIONS
 {
@@ -70,7 +76,10 @@ SECTIONS
 	/DISCARD/ : {
 		*(.note*)
 		*(.debug*)
+<<<<<<< HEAD
 		*(.eh_frame*)
+=======
+>>>>>>> upstream/android-13
 	}
 
 #include "pasyms.h"

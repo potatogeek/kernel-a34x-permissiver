@@ -17,6 +17,10 @@ Required properties:
 	"fsl,t4240-esdhc"
     Possible compatibles for ARM:
 	"fsl,ls1012a-esdhc"
+<<<<<<< HEAD
+=======
+	"fsl,ls1028a-esdhc"
+>>>>>>> upstream/android-13
 	"fsl,ls1088a-esdhc"
 	"fsl,ls1043a-esdhc"
 	"fsl,ls1046a-esdhc"

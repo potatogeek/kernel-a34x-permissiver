@@ -5,8 +5,11 @@
 #include <linux/types.h>
 #include <linux/pkt_cls.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_PEDIT 7
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	TCA_PEDIT_UNSPEC,
 	TCA_PEDIT_TM,

@@ -8,9 +8,15 @@
 #include "transaction.h"
 #include "print-tree.h"
 
+<<<<<<< HEAD
 int btrfs_find_name_in_backref(struct extent_buffer *leaf, int slot,
 			       const char *name,
 			       int name_len, struct btrfs_inode_ref **ref_ret)
+=======
+struct btrfs_inode_ref *btrfs_find_name_in_backref(struct extent_buffer *leaf,
+						   int slot, const char *name,
+						   int name_len)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_inode_ref *ref;
 	unsigned long ptr;
@@ -28,6 +34,7 @@ int btrfs_find_name_in_backref(struct extent_buffer *leaf, int slot,
 		cur_offset += len + sizeof(*ref);
 		if (len != name_len)
 			continue;
+<<<<<<< HEAD
 		if (memcmp_extent_buffer(leaf, name, name_ptr, name_len) == 0) {
 			if (ref_ret)
 				*ref_ret = ref;
@@ -41,6 +48,17 @@ int btrfs_find_name_in_ext_backref(struct extent_buffer *leaf, int slot,
 				   u64 ref_objectid,
 				   const char *name, int name_len,
 				   struct btrfs_inode_extref **extref_ret)
+=======
+		if (memcmp_extent_buffer(leaf, name, name_ptr, name_len) == 0)
+			return ref;
+	}
+	return NULL;
+}
+
+struct btrfs_inode_extref *btrfs_find_name_in_ext_backref(
+		struct extent_buffer *leaf, int slot, u64 ref_objectid,
+		const char *name, int name_len)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_inode_extref *extref;
 	unsigned long ptr;
@@ -65,6 +83,7 @@ int btrfs_find_name_in_ext_backref(struct extent_buffer *leaf, int slot,
 
 		if (ref_name_len == name_len &&
 		    btrfs_inode_extref_parent(leaf, extref) == ref_objectid &&
+<<<<<<< HEAD
 		    (memcmp_extent_buffer(leaf, name, name_ptr, name_len) == 0)) {
 			if (extref_ret)
 				*extref_ret = extref;
@@ -74,6 +93,14 @@ int btrfs_find_name_in_ext_backref(struct extent_buffer *leaf, int slot,
 		cur_offset += ref_name_len + sizeof(*extref);
 	}
 	return 0;
+=======
+		    (memcmp_extent_buffer(leaf, name, name_ptr, name_len) == 0))
+			return extref;
+
+		cur_offset += ref_name_len + sizeof(*extref);
+	}
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /* Returns NULL if no extref found */
@@ -87,7 +114,10 @@ btrfs_lookup_inode_extref(struct btrfs_trans_handle *trans,
 {
 	int ret;
 	struct btrfs_key key;
+<<<<<<< HEAD
 	struct btrfs_inode_extref *extref;
+=======
+>>>>>>> upstream/android-13
 
 	key.objectid = inode_objectid;
 	key.type = BTRFS_INODE_EXTREF_KEY;
@@ -98,11 +128,17 @@ btrfs_lookup_inode_extref(struct btrfs_trans_handle *trans,
 		return ERR_PTR(ret);
 	if (ret > 0)
 		return NULL;
+<<<<<<< HEAD
 	if (!btrfs_find_name_in_ext_backref(path->nodes[0], path->slots[0],
 					    ref_objectid, name, name_len,
 					    &extref))
 		return NULL;
 	return extref;
+=======
+	return btrfs_find_name_in_ext_backref(path->nodes[0], path->slots[0],
+					      ref_objectid, name, name_len);
+
+>>>>>>> upstream/android-13
 }
 
 static int btrfs_del_inode_extref(struct btrfs_trans_handle *trans,
@@ -129,8 +165,11 @@ static int btrfs_del_inode_extref(struct btrfs_trans_handle *trans,
 	if (!path)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	path->leave_spinning = 1;
 
+=======
+>>>>>>> upstream/android-13
 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
 	if (ret > 0)
 		ret = -ENOENT;
@@ -142,9 +181,15 @@ static int btrfs_del_inode_extref(struct btrfs_trans_handle *trans,
 	 * This should always succeed so error here will make the FS
 	 * readonly.
 	 */
+<<<<<<< HEAD
 	if (!btrfs_find_name_in_ext_backref(path->nodes[0], path->slots[0],
 					    ref_objectid,
 					    name, name_len, &extref)) {
+=======
+	extref = btrfs_find_name_in_ext_backref(path->nodes[0], path->slots[0],
+						ref_objectid, name, name_len);
+	if (!extref) {
+>>>>>>> upstream/android-13
 		btrfs_handle_fs_error(root->fs_info, -ENOENT, NULL);
 		ret = -EROFS;
 		goto out;
@@ -170,7 +215,11 @@ static int btrfs_del_inode_extref(struct btrfs_trans_handle *trans,
 	memmove_extent_buffer(leaf, ptr, ptr + del_len,
 			      item_size - (ptr + del_len - item_start));
 
+<<<<<<< HEAD
 	btrfs_truncate_item(root->fs_info, path, item_size - del_len, 1);
+=======
+	btrfs_truncate_item(path, item_size - del_len, 1);
+>>>>>>> upstream/android-13
 
 out:
 	btrfs_free_path(path);
@@ -203,8 +252,11 @@ int btrfs_del_inode_ref(struct btrfs_trans_handle *trans,
 	if (!path)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	path->leave_spinning = 1;
 
+=======
+>>>>>>> upstream/android-13
 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
 	if (ret > 0) {
 		ret = -ENOENT;
@@ -213,8 +265,15 @@ int btrfs_del_inode_ref(struct btrfs_trans_handle *trans,
 	} else if (ret < 0) {
 		goto out;
 	}
+<<<<<<< HEAD
 	if (!btrfs_find_name_in_backref(path->nodes[0], path->slots[0],
 					name, name_len, &ref)) {
+=======
+
+	ref = btrfs_find_name_in_backref(path->nodes[0], path->slots[0], name,
+					 name_len);
+	if (!ref) {
+>>>>>>> upstream/android-13
 		ret = -ENOENT;
 		search_ext_refs = 1;
 		goto out;
@@ -234,7 +293,11 @@ int btrfs_del_inode_ref(struct btrfs_trans_handle *trans,
 	item_start = btrfs_item_ptr_offset(leaf, path->slots[0]);
 	memmove_extent_buffer(leaf, ptr, ptr + sub_item_len,
 			      item_size - (ptr + sub_item_len - item_start));
+<<<<<<< HEAD
 	btrfs_truncate_item(root->fs_info, path, item_size - sub_item_len, 1);
+=======
+	btrfs_truncate_item(path, item_size - sub_item_len, 1);
+>>>>>>> upstream/android-13
 out:
 	btrfs_free_path(path);
 
@@ -278,17 +341,27 @@ static int btrfs_insert_inode_extref(struct btrfs_trans_handle *trans,
 	if (!path)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 	ret = btrfs_insert_empty_item(trans, root, path, &key,
 				      ins_len);
 	if (ret == -EEXIST) {
 		if (btrfs_find_name_in_ext_backref(path->nodes[0],
 						   path->slots[0],
 						   ref_objectid,
+<<<<<<< HEAD
 						   name, name_len, NULL))
 			goto out;
 
 		btrfs_extend_item(root->fs_info, path, ins_len);
+=======
+						   name, name_len))
+			goto out;
+
+		btrfs_extend_item(path, ins_len);
+>>>>>>> upstream/android-13
 		ret = 0;
 	}
 	if (ret < 0)
@@ -335,12 +408,16 @@ int btrfs_insert_inode_ref(struct btrfs_trans_handle *trans,
 	if (!path)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 	path->skip_release_on_error = 1;
 	ret = btrfs_insert_empty_item(trans, root, path, &key,
 				      ins_len);
 	if (ret == -EEXIST) {
 		u32 old_size;
+<<<<<<< HEAD
 
 		if (btrfs_find_name_in_backref(path->nodes[0], path->slots[0],
 					       name, name_len, &ref))
@@ -348,6 +425,15 @@ int btrfs_insert_inode_ref(struct btrfs_trans_handle *trans,
 
 		old_size = btrfs_item_size_nr(path->nodes[0], path->slots[0]);
 		btrfs_extend_item(fs_info, path, ins_len);
+=======
+		ref = btrfs_find_name_in_backref(path->nodes[0], path->slots[0],
+						 name, name_len);
+		if (ref)
+			goto out;
+
+		old_size = btrfs_item_size_nr(path->nodes[0], path->slots[0]);
+		btrfs_extend_item(path, ins_len);
+>>>>>>> upstream/android-13
 		ref = btrfs_item_ptr(path->nodes[0], path->slots[0],
 				     struct btrfs_inode_ref);
 		ref = (struct btrfs_inode_ref *)((unsigned long)ref + old_size);
@@ -359,7 +445,11 @@ int btrfs_insert_inode_ref(struct btrfs_trans_handle *trans,
 		if (ret == -EOVERFLOW) {
 			if (btrfs_find_name_in_backref(path->nodes[0],
 						       path->slots[0],
+<<<<<<< HEAD
 						       name, name_len, &ref))
+=======
+						       name, name_len))
+>>>>>>> upstream/android-13
 				ret = -EEXIST;
 			else
 				ret = -EMLINK;

@@ -9,7 +9,11 @@
  * on the Melbourne quota system as used on BSD derived systems. The internal
  * implementation is based on one of the several variants of the LINUX
  * inode-subsystem with added complexity of the diskquota system.
+<<<<<<< HEAD
  * 
+=======
+ *
+>>>>>>> upstream/android-13
  * Author:	Marco van Wieringen <mvw@planets.elm.net>
  *
  * Fixes:   Dmitry Gorodchanin <pgmdsg@ibi.com>, 11 Feb 96
@@ -51,7 +55,11 @@
  *		Added journalled quota support, fix lock inversion problems
  *		Jan Kara, <jack@suse.cz>, 2003,2004
  *
+<<<<<<< HEAD
  * (C) Copyright 1994 - 1997 Marco van Wieringen 
+=======
+ * (C) Copyright 1994 - 1997 Marco van Wieringen
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -78,6 +86,10 @@
 #include <linux/namei.h>
 #include <linux/capability.h>
 #include <linux/quotaops.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 #include "../internal.h" /* ugh */
 
 #include <linux/uaccess.h>
@@ -197,7 +209,11 @@ static struct quota_format_type *find_quota_format(int id)
 		int qm;
 
 		spin_unlock(&dq_list_lock);
+<<<<<<< HEAD
 		
+=======
+
+>>>>>>> upstream/android-13
 		for (qm = 0; module_names[qm].qm_fmt_id &&
 			     module_names[qm].qm_fmt_id != id; qm++)
 			;
@@ -223,9 +239,15 @@ static void put_quota_format(struct quota_format_type *fmt)
 
 /*
  * Dquot List Management:
+<<<<<<< HEAD
  * The quota code uses three lists for dquot management: the inuse_list,
  * free_dquots, and dquot_hash[] array. A single dquot structure may be
  * on all three lists, depending on its current state.
+=======
+ * The quota code uses four lists for dquot management: the inuse_list,
+ * free_dquots, dqi_dirty_list, and dquot_hash[] array. A single dquot
+ * structure may be on some of those lists, depending on its current state.
+>>>>>>> upstream/android-13
  *
  * All dquots are placed to the end of inuse_list when first created, and this
  * list is used for invalidate operation, which must look at every dquot.
@@ -236,6 +258,14 @@ static void put_quota_format(struct quota_format_type *fmt)
  * dqstats.free_dquots gives the number of dquots on the list. When
  * dquot is invalidated it's completely released from memory.
  *
+<<<<<<< HEAD
+=======
+ * Dirty dquots are added to the dqi_dirty_list of quota_info when mark
+ * dirtied, and this list is searched when writing dirty dquots back to
+ * quota file. Note that some filesystems do dirty dquot tracking on their
+ * own (e.g. in a journal) and thus don't use dqi_dirty_list.
+ *
+>>>>>>> upstream/android-13
  * Dquots with a specific identity (device, type and id) are placed on
  * one of the dquot_hash[] hash chains. The provides an efficient search
  * mechanism to locate a specific dquot.
@@ -282,6 +312,7 @@ static inline void remove_dquot_hash(struct dquot *dquot)
 static struct dquot *find_dquot(unsigned int hashent, struct super_block *sb,
 				struct kqid qid)
 {
+<<<<<<< HEAD
 	struct hlist_node *node;
 	struct dquot *dquot;
 
@@ -290,6 +321,14 @@ static struct dquot *find_dquot(unsigned int hashent, struct super_block *sb,
 		if (dquot->dq_sb == sb && qid_eq(dquot->dq_id, qid))
 			return dquot;
 	}
+=======
+	struct dquot *dquot;
+
+	hlist_for_each_entry(dquot, dquot_hash+hashent, dq_hash)
+		if (dquot->dq_sb == sb && qid_eq(dquot->dq_id, qid))
+			return dquot;
+
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -424,10 +463,18 @@ int dquot_acquire(struct dquot *dquot)
 	struct quota_info *dqopt = sb_dqopt(dquot->dq_sb);
 
 	mutex_lock(&dquot->dq_lock);
+<<<<<<< HEAD
 	if (!test_bit(DQ_READ_B, &dquot->dq_flags))
 		ret = dqopt->ops[dquot->dq_id.type]->read_dqblk(dquot);
 	if (ret < 0)
 		goto out_iolock;
+=======
+	if (!test_bit(DQ_READ_B, &dquot->dq_flags)) {
+		ret = dqopt->ops[dquot->dq_id.type]->read_dqblk(dquot);
+		if (ret < 0)
+			goto out_iolock;
+	}
+>>>>>>> upstream/android-13
 	/* Make sure flags update is visible after dquot has been filled */
 	smp_mb__before_atomic();
 	set_bit(DQ_READ_B, &dquot->dq_flags);
@@ -589,7 +636,10 @@ int dquot_scan_active(struct super_block *sb,
 		/* Now we have active dquot so we can just increase use count */
 		atomic_inc(&dquot->dq_count);
 		spin_unlock(&dq_list_lock);
+<<<<<<< HEAD
 		dqstats_inc(DQST_LOOKUPS);
+=======
+>>>>>>> upstream/android-13
 		dqput(old_dquot);
 		old_dquot = dquot;
 		/*
@@ -644,7 +694,10 @@ int dquot_writeback_dquots(struct super_block *sb, int type)
 			 * use count */
 			dqgrab(dquot);
 			spin_unlock(&dq_list_lock);
+<<<<<<< HEAD
 			dqstats_inc(DQST_LOOKUPS);
+=======
+>>>>>>> upstream/android-13
 			err = sb->dq_op->write_dquot(dquot);
 			if (err) {
 				/*
@@ -687,9 +740,20 @@ int dquot_quota_sync(struct super_block *sb, int type)
 	/* This is not very clever (and fast) but currently I don't know about
 	 * any other simple way of getting quota data to disk and we must get
 	 * them there for userspace to be visible... */
+<<<<<<< HEAD
 	if (sb->s_op->sync_fs)
 		sb->s_op->sync_fs(sb, 1);
 	sync_blockdev(sb->s_bdev);
+=======
+	if (sb->s_op->sync_fs) {
+		ret = sb->s_op->sync_fs(sb, 1);
+		if (ret)
+			return ret;
+	}
+	ret = sync_blockdev(sb->s_bdev);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Now when everything is written we can discard the pagecache so
@@ -1051,7 +1115,13 @@ static void remove_dquot_ref(struct super_block *sb, int type,
 		struct list_head *tofree_head)
 {
 	struct inode *inode;
+<<<<<<< HEAD
 	int reserved = 0;
+=======
+#ifdef CONFIG_QUOTA_DEBUG
+	int reserved = 0;
+#endif
+>>>>>>> upstream/android-13
 
 	spin_lock(&sb->s_inode_list_lock);
 	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
@@ -1063,8 +1133,15 @@ static void remove_dquot_ref(struct super_block *sb, int type,
 		 */
 		spin_lock(&dq_data_lock);
 		if (!IS_NOQUOTA(inode)) {
+<<<<<<< HEAD
 			if (unlikely(inode_get_rsv_space(inode) > 0))
 				reserved = 1;
+=======
+#ifdef CONFIG_QUOTA_DEBUG
+			if (unlikely(inode_get_rsv_space(inode) > 0))
+				reserved = 1;
+#endif
+>>>>>>> upstream/android-13
 			remove_inode_dquot_ref(inode, type, tofree_head);
 		}
 		spin_unlock(&dq_data_lock);
@@ -1665,7 +1742,11 @@ int __dquot_alloc_space(struct inode *inode, qsize_t number, int flags)
 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
 		if (!dquots[cnt])
 			continue;
+<<<<<<< HEAD
 		if (flags & DQUOT_SPACE_RESERVE) {
+=======
+		if (reserve) {
+>>>>>>> upstream/android-13
 			ret = dquot_add_space(dquots[cnt], 0, number, flags,
 					      &warn[cnt]);
 		} else {
@@ -1678,6 +1759,7 @@ int __dquot_alloc_space(struct inode *inode, qsize_t number, int flags)
 				if (!dquots[cnt])
 					continue;
 				spin_lock(&dquots[cnt]->dq_dqb_lock);
+<<<<<<< HEAD
 				if (flags & DQUOT_SPACE_RESERVE) {
 					dquots[cnt]->dq_dqb.dqb_rsvspace -=
 									number;
@@ -1685,6 +1767,13 @@ int __dquot_alloc_space(struct inode *inode, qsize_t number, int flags)
 					dquots[cnt]->dq_dqb.dqb_curspace -=
 									number;
 				}
+=======
+				if (reserve)
+					dquot_free_reserved_space(dquots[cnt],
+								  number);
+				else
+					dquot_decr_space(dquots[cnt], number);
+>>>>>>> upstream/android-13
 				spin_unlock(&dquots[cnt]->dq_dqb_lock);
 			}
 			spin_unlock(&inode->i_lock);
@@ -1735,7 +1824,11 @@ int dquot_alloc_inode(struct inode *inode)
 					continue;
 				/* Back out changes we already did */
 				spin_lock(&dquots[cnt]->dq_dqb_lock);
+<<<<<<< HEAD
 				dquots[cnt]->dq_dqb.dqb_curinodes--;
+=======
+				dquot_decr_inodes(dquots[cnt], 1);
+>>>>>>> upstream/android-13
 				spin_unlock(&dquots[cnt]->dq_dqb_lock);
 			}
 			goto warn_put_all;
@@ -2156,14 +2249,38 @@ int dquot_file_open(struct inode *inode, struct file *file)
 }
 EXPORT_SYMBOL(dquot_file_open);
 
+<<<<<<< HEAD
+=======
+static void vfs_cleanup_quota_inode(struct super_block *sb, int type)
+{
+	struct quota_info *dqopt = sb_dqopt(sb);
+	struct inode *inode = dqopt->files[type];
+
+	if (!inode)
+		return;
+	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
+		inode_lock(inode);
+		inode->i_flags &= ~S_NOQUOTA;
+		inode_unlock(inode);
+	}
+	dqopt->files[type] = NULL;
+	iput(inode);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Turn quota off on a device. type == -1 ==> quotaoff for all types (umount)
  */
 int dquot_disable(struct super_block *sb, int type, unsigned int flags)
 {
+<<<<<<< HEAD
 	int cnt, ret = 0;
 	struct quota_info *dqopt = sb_dqopt(sb);
 	struct inode *toputinode[MAXQUOTAS];
+=======
+	int cnt;
+	struct quota_info *dqopt = sb_dqopt(sb);
+>>>>>>> upstream/android-13
 
 	/* s_umount should be held in exclusive mode */
 	if (WARN_ON_ONCE(down_read_trylock(&sb->s_umount)))
@@ -2185,7 +2302,10 @@ int dquot_disable(struct super_block *sb, int type, unsigned int flags)
 		return 0;
 
 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+<<<<<<< HEAD
 		toputinode[cnt] = NULL;
+=======
+>>>>>>> upstream/android-13
 		if (type != -1 && cnt != type)
 			continue;
 		if (!sb_has_quota_loaded(sb, cnt))
@@ -2205,8 +2325,12 @@ int dquot_disable(struct super_block *sb, int type, unsigned int flags)
 				dqopt->flags &=	~dquot_state_flag(
 							DQUOT_SUSPENDED, cnt);
 				spin_unlock(&dq_state_lock);
+<<<<<<< HEAD
 				iput(dqopt->files[cnt]);
 				dqopt->files[cnt] = NULL;
+=======
+				vfs_cleanup_quota_inode(sb, cnt);
+>>>>>>> upstream/android-13
 				continue;
 			}
 			spin_unlock(&dq_state_lock);
@@ -2228,10 +2352,13 @@ int dquot_disable(struct super_block *sb, int type, unsigned int flags)
 		if (dqopt->ops[cnt]->free_file_info)
 			dqopt->ops[cnt]->free_file_info(sb, cnt);
 		put_quota_format(dqopt->info[cnt].dqi_format);
+<<<<<<< HEAD
 
 		toputinode[cnt] = dqopt->files[cnt];
 		if (!sb_has_quota_loaded(sb, cnt))
 			dqopt->files[cnt] = NULL;
+=======
+>>>>>>> upstream/android-13
 		dqopt->info[cnt].dqi_flags = 0;
 		dqopt->info[cnt].dqi_igrace = 0;
 		dqopt->info[cnt].dqi_bgrace = 0;
@@ -2253,6 +2380,7 @@ int dquot_disable(struct super_block *sb, int type, unsigned int flags)
 	 * must also discard the blockdev buffers so that we see the
 	 * changes done by userspace on the next quotaon() */
 	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
+<<<<<<< HEAD
 		/* This can happen when suspending quotas on remount-ro... */
 		if (toputinode[cnt] && !sb_has_quota_loaded(sb, cnt)) {
 			inode_lock(toputinode[cnt]);
@@ -2260,10 +2388,17 @@ int dquot_disable(struct super_block *sb, int type, unsigned int flags)
 			truncate_inode_pages(&toputinode[cnt]->i_data, 0);
 			inode_unlock(toputinode[cnt]);
 			mark_inode_dirty_sync(toputinode[cnt]);
+=======
+		if (!sb_has_quota_loaded(sb, cnt) && dqopt->files[cnt]) {
+			inode_lock(dqopt->files[cnt]);
+			truncate_inode_pages(&dqopt->files[cnt]->i_data, 0);
+			inode_unlock(dqopt->files[cnt]);
+>>>>>>> upstream/android-13
 		}
 	if (sb->s_bdev)
 		invalidate_bdev(sb->s_bdev);
 put_inodes:
+<<<<<<< HEAD
 	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
 		if (toputinode[cnt]) {
 			/* On remount RO, we keep the inode pointer so that we
@@ -2279,6 +2414,16 @@ put_inodes:
 				ret = -EBUSY;
 		}
 	return ret;
+=======
+	/* We are done when suspending quotas */
+	if (flags & DQUOT_SUSPENDED)
+		return 0;
+
+	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
+		if (!sb_has_quota_loaded(sb, cnt))
+			vfs_cleanup_quota_inode(sb, cnt);
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(dquot_disable);
 
@@ -2293,6 +2438,7 @@ EXPORT_SYMBOL(dquot_quota_off);
  *	Turn quotas on on a device
  */
 
+<<<<<<< HEAD
 /*
  * Helper function to turn quotas on when we already have the inode of
  * quota file and no quota information is loaded.
@@ -2315,6 +2461,54 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
 		error = -EROFS;
 		goto out_fmt;
 	}
+=======
+static int vfs_setup_quota_inode(struct inode *inode, int type)
+{
+	struct super_block *sb = inode->i_sb;
+	struct quota_info *dqopt = sb_dqopt(sb);
+
+	if (!S_ISREG(inode->i_mode))
+		return -EACCES;
+	if (IS_RDONLY(inode))
+		return -EROFS;
+	if (sb_has_quota_loaded(sb, type))
+		return -EBUSY;
+
+	dqopt->files[type] = igrab(inode);
+	if (!dqopt->files[type])
+		return -EIO;
+	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
+		/* We don't want quota and atime on quota files (deadlocks
+		 * possible) Also nobody should write to the file - we use
+		 * special IO operations which ignore the immutable bit. */
+		inode_lock(inode);
+		inode->i_flags |= S_NOQUOTA;
+		inode_unlock(inode);
+		/*
+		 * When S_NOQUOTA is set, remove dquot references as no more
+		 * references can be added
+		 */
+		__dquot_drop(inode);
+	}
+	return 0;
+}
+
+int dquot_load_quota_sb(struct super_block *sb, int type, int format_id,
+	unsigned int flags)
+{
+	struct quota_format_type *fmt = find_quota_format(format_id);
+	struct quota_info *dqopt = sb_dqopt(sb);
+	int error;
+
+	/* Just unsuspend quotas? */
+	BUG_ON(flags & DQUOT_SUSPENDED);
+	/* s_umount should be held in exclusive mode */
+	if (WARN_ON_ONCE(down_read_trylock(&sb->s_umount)))
+		up_read(&sb->s_umount);
+
+	if (!fmt)
+		return -ESRCH;
+>>>>>>> upstream/android-13
 	if (!sb->s_op->quota_write || !sb->s_op->quota_read ||
 	    (type == PRJQUOTA && sb->dq_op->get_projid == NULL)) {
 		error = -EINVAL;
@@ -2346,6 +2540,7 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
 		invalidate_bdev(sb->s_bdev);
 	}
 
+<<<<<<< HEAD
 	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
 		/* We don't want quota and atime on quota files (deadlocks
 		 * possible) Also nobody should write to the file - we use
@@ -2367,6 +2562,11 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
 	error = -EINVAL;
 	if (!fmt->qf_ops->check_quota_file(sb, type))
 		goto out_file_init;
+=======
+	error = -EINVAL;
+	if (!fmt->qf_ops->check_quota_file(sb, type))
+		goto out_fmt;
+>>>>>>> upstream/android-13
 
 	dqopt->ops[type] = fmt->qf_ops;
 	dqopt->info[type].dqi_format = fmt;
@@ -2374,7 +2574,11 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
 	INIT_LIST_HEAD(&dqopt->info[type].dqi_dirty_list);
 	error = dqopt->ops[type]->read_file_info(sb, type);
 	if (error < 0)
+<<<<<<< HEAD
 		goto out_file_init;
+=======
+		goto out_fmt;
+>>>>>>> upstream/android-13
 	if (dqopt->flags & DQUOT_QUOTA_SYS_FILE) {
 		spin_lock(&dq_data_lock);
 		dqopt->info[type].dqi_flags |= DQF_SYS_FILE;
@@ -2389,6 +2593,7 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
 		dquot_disable(sb, type, flags);
 
 	return error;
+<<<<<<< HEAD
 out_file_init:
 	dqopt->files[type] = NULL;
 	iput(inode);
@@ -2401,12 +2606,42 @@ out_fmt:
 
 	return error; 
 }
+=======
+out_fmt:
+	put_quota_format(fmt);
+
+	return error;
+}
+EXPORT_SYMBOL(dquot_load_quota_sb);
+
+/*
+ * More powerful function for turning on quotas on given quota inode allowing
+ * setting of individual quota flags
+ */
+int dquot_load_quota_inode(struct inode *inode, int type, int format_id,
+	unsigned int flags)
+{
+	int err;
+
+	err = vfs_setup_quota_inode(inode, type);
+	if (err < 0)
+		return err;
+	err = dquot_load_quota_sb(inode->i_sb, type, format_id, flags);
+	if (err < 0)
+		vfs_cleanup_quota_inode(inode->i_sb, type);
+	return err;
+}
+EXPORT_SYMBOL(dquot_load_quota_inode);
+>>>>>>> upstream/android-13
 
 /* Reenable quotas on remount RW */
 int dquot_resume(struct super_block *sb, int type)
 {
 	struct quota_info *dqopt = sb_dqopt(sb);
+<<<<<<< HEAD
 	struct inode *inode;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0, cnt;
 	unsigned int flags;
 
@@ -2420,8 +2655,11 @@ int dquot_resume(struct super_block *sb, int type)
 		if (!sb_has_quota_suspended(sb, cnt))
 			continue;
 
+<<<<<<< HEAD
 		inode = dqopt->files[cnt];
 		dqopt->files[cnt] = NULL;
+=======
+>>>>>>> upstream/android-13
 		spin_lock(&dq_state_lock);
 		flags = dqopt->flags & dquot_state_flag(DQUOT_USAGE_ENABLED |
 							DQUOT_LIMITS_ENABLED,
@@ -2430,9 +2668,16 @@ int dquot_resume(struct super_block *sb, int type)
 		spin_unlock(&dq_state_lock);
 
 		flags = dquot_generic_flag(flags, cnt);
+<<<<<<< HEAD
 		ret = vfs_load_quota_inode(inode, cnt,
 				dqopt->info[cnt].dqi_fmt_id, flags);
 		iput(inode);
+=======
+		ret = dquot_load_quota_sb(sb, cnt, dqopt->info[cnt].dqi_fmt_id,
+					  flags);
+		if (ret < 0)
+			vfs_cleanup_quota_inode(sb, cnt);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -2449,7 +2694,11 @@ int dquot_quota_on(struct super_block *sb, int type, int format_id,
 	if (path->dentry->d_sb != sb)
 		error = -EXDEV;
 	else
+<<<<<<< HEAD
 		error = vfs_load_quota_inode(d_inode(path->dentry), type,
+=======
+		error = dquot_load_quota_inode(d_inode(path->dentry), type,
+>>>>>>> upstream/android-13
 					     format_id, DQUOT_USAGE_ENABLED |
 					     DQUOT_LIMITS_ENABLED);
 	return error;
@@ -2457,6 +2706,7 @@ int dquot_quota_on(struct super_block *sb, int type, int format_id,
 EXPORT_SYMBOL(dquot_quota_on);
 
 /*
+<<<<<<< HEAD
  * More powerful function for turning on quotas allowing setting
  * of individual quota flags
  */
@@ -2492,6 +2742,8 @@ int dquot_enable(struct inode *inode, int type, int format_id,
 EXPORT_SYMBOL(dquot_enable);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * This function is used when filesystem needs to initialize quotas
  * during mount time.
  */
@@ -2501,6 +2753,7 @@ int dquot_quota_on_mount(struct super_block *sb, char *qf_name,
 	struct dentry *dentry;
 	int error;
 
+<<<<<<< HEAD
 	dentry = lookup_one_len_unlocked(qf_name, sb->s_root, strlen(qf_name));
 	if (IS_ERR(dentry))
 		return PTR_ERR(dentry);
@@ -2516,6 +2769,17 @@ int dquot_quota_on_mount(struct super_block *sb, char *qf_name,
 				DQUOT_USAGE_ENABLED | DQUOT_LIMITS_ENABLED);
 
 out:
+=======
+	dentry = lookup_positive_unlocked(qf_name, sb->s_root, strlen(qf_name));
+	if (IS_ERR(dentry))
+		return PTR_ERR(dentry);
+
+	error = security_quota_on(dentry);
+	if (!error)
+		error = dquot_load_quota_inode(d_inode(dentry), type, format_id,
+				DQUOT_USAGE_ENABLED | DQUOT_LIMITS_ENABLED);
+
+>>>>>>> upstream/android-13
 	dput(dentry);
 	return error;
 }
@@ -2537,6 +2801,7 @@ static int dquot_quota_enable(struct super_block *sb, unsigned int flags)
 		if (!(flags & qtype_enforce_flag(type)))
 			continue;
 		/* Can't enforce without accounting */
+<<<<<<< HEAD
 		if (!sb_has_quota_usage_enabled(sb, type))
 			return -EINVAL;
 		ret = dquot_enable(dqopt->files[type], type,
@@ -2544,6 +2809,19 @@ static int dquot_quota_enable(struct super_block *sb, unsigned int flags)
 				   DQUOT_LIMITS_ENABLED);
 		if (ret < 0)
 			goto out_err;
+=======
+		if (!sb_has_quota_usage_enabled(sb, type)) {
+			ret = -EINVAL;
+			goto out_err;
+		}
+		if (sb_has_quota_limits_enabled(sb, type)) {
+			ret = -EBUSY;
+			goto out_err;
+		}
+		spin_lock(&dq_state_lock);
+		dqopt->flags |= dquot_state_flag(DQUOT_LIMITS_ENABLED, type);
+		spin_unlock(&dq_state_lock);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 out_err:
@@ -2593,10 +2871,19 @@ static int dquot_quota_disable(struct super_block *sb, unsigned int flags)
 out_err:
 	/* Backout enforcement disabling we already did */
 	for (type--; type >= 0; type--)  {
+<<<<<<< HEAD
 		if (flags & qtype_enforce_flag(type))
 			dquot_enable(dqopt->files[type], type,
 				     dqopt->info[type].dqi_fmt_id,
 				     DQUOT_LIMITS_ENABLED);
+=======
+		if (flags & qtype_enforce_flag(type)) {
+			spin_lock(&dq_state_lock);
+			dqopt->flags |=
+				dquot_state_flag(DQUOT_LIMITS_ENABLED, type);
+			spin_unlock(&dq_state_lock);
+		}
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -2725,7 +3012,11 @@ static int do_set_dqblk(struct dquot *dquot, struct qc_dqblk *di)
 
 	if (check_blim) {
 		if (!dm->dqb_bsoftlimit ||
+<<<<<<< HEAD
 		    dm->dqb_curspace + dm->dqb_rsvspace < dm->dqb_bsoftlimit) {
+=======
+		    dm->dqb_curspace + dm->dqb_rsvspace <= dm->dqb_bsoftlimit) {
+>>>>>>> upstream/android-13
 			dm->dqb_btime = 0;
 			clear_bit(DQ_BLKS_B, &dquot->dq_flags);
 		} else if (!(di->d_fieldmask & QC_SPC_TIMER))
@@ -2734,7 +3025,11 @@ static int do_set_dqblk(struct dquot *dquot, struct qc_dqblk *di)
 	}
 	if (check_ilim) {
 		if (!dm->dqb_isoftlimit ||
+<<<<<<< HEAD
 		    dm->dqb_curinodes < dm->dqb_isoftlimit) {
+=======
+		    dm->dqb_curinodes <= dm->dqb_isoftlimit) {
+>>>>>>> upstream/android-13
 			dm->dqb_itime = 0;
 			clear_bit(DQ_INODES_B, &dquot->dq_flags);
 		} else if (!(di->d_fieldmask & QC_INO_TIMER))
@@ -2777,7 +3072,11 @@ int dquot_get_state(struct super_block *sb, struct qc_state *state)
 	struct qc_type_state *tstate;
 	struct quota_info *dqopt = sb_dqopt(sb);
 	int type;
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> upstream/android-13
 	memset(state, 0, sizeof(*state));
 	for (type = 0; type < MAXQUOTAS; type++) {
 		if (!sb_has_quota_active(sb, type))
@@ -2794,8 +3093,15 @@ int dquot_get_state(struct super_block *sb, struct qc_state *state)
 			tstate->flags |= QCI_LIMITS_ENFORCED;
 		tstate->spc_timelimit = mi->dqi_bgrace;
 		tstate->ino_timelimit = mi->dqi_igrace;
+<<<<<<< HEAD
 		tstate->ino = dqopt->files[type]->i_ino;
 		tstate->blocks = dqopt->files[type]->i_blocks;
+=======
+		if (dqopt->files[type]) {
+			tstate->ino = dqopt->files[type]->i_ino;
+			tstate->blocks = dqopt->files[type]->i_blocks;
+		}
+>>>>>>> upstream/android-13
 		tstate->nextents = 1;	/* We don't know... */
 		spin_unlock(&dq_data_lock);
 	}
@@ -2852,7 +3158,11 @@ const struct quotactl_ops dquot_quotactl_sysfile_ops = {
 EXPORT_SYMBOL(dquot_quotactl_sysfile_ops);
 
 static int do_proc_dqstats(struct ctl_table *table, int write,
+<<<<<<< HEAD
 		     void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+		     void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	unsigned int type = (unsigned long *)table->data - dqstats.stat;
 	s64 value = percpu_counter_sum(&dqstats.counter[type]);
@@ -2982,11 +3292,15 @@ static int __init dquot_init(void)
 
 	/* Find power-of-two hlist_heads which can fit into allocation */
 	nr_hash = (1UL << order) * PAGE_SIZE / sizeof(struct hlist_head);
+<<<<<<< HEAD
 	dq_hash_bits = 0;
 	do {
 		dq_hash_bits++;
 	} while (nr_hash >> dq_hash_bits);
 	dq_hash_bits--;
+=======
+	dq_hash_bits = ilog2(nr_hash);
+>>>>>>> upstream/android-13
 
 	nr_hash = 1UL << dq_hash_bits;
 	dq_hash_mask = nr_hash - 1;

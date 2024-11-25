@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  c 2001 PPC 64 Team, IBM Corp
  *
@@ -8,6 +9,13 @@
  *
  * /dev/nvram driver for PPC
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  c 2001 PPC 64 Team, IBM Corp
+ *
+ * /dev/nvram driver for PPC
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -24,7 +32,11 @@ static unsigned int nvram_size;
 static unsigned char nvram_buf[4];
 static DEFINE_SPINLOCK(nvram_lock);
 
+<<<<<<< HEAD
 static unsigned char chrp_nvram_read(int addr)
+=======
+static unsigned char chrp_nvram_read_val(int addr)
+>>>>>>> upstream/android-13
 {
 	unsigned int done;
 	unsigned long flags;
@@ -46,7 +58,11 @@ static unsigned char chrp_nvram_read(int addr)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void chrp_nvram_write(int addr, unsigned char val)
+=======
+static void chrp_nvram_write_val(int addr, unsigned char val)
+>>>>>>> upstream/android-13
 {
 	unsigned int done;
 	unsigned long flags;
@@ -64,6 +80,14 @@ static void chrp_nvram_write(int addr, unsigned char val)
 	spin_unlock_irqrestore(&nvram_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t chrp_nvram_size(void)
+{
+	return nvram_size;
+}
+
+>>>>>>> upstream/android-13
 void __init chrp_nvram_init(void)
 {
 	struct device_node *nvram;
@@ -85,8 +109,14 @@ void __init chrp_nvram_init(void)
 	printk(KERN_INFO "CHRP nvram contains %u bytes\n", nvram_size);
 	of_node_put(nvram);
 
+<<<<<<< HEAD
 	ppc_md.nvram_read_val = chrp_nvram_read;
 	ppc_md.nvram_write_val = chrp_nvram_write;
+=======
+	ppc_md.nvram_read_val  = chrp_nvram_read_val;
+	ppc_md.nvram_write_val = chrp_nvram_write_val;
+	ppc_md.nvram_size      = chrp_nvram_size;
+>>>>>>> upstream/android-13
 
 	return;
 }

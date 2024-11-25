@@ -25,6 +25,7 @@
  * Daniel Vetter <daniel.vetter@ffwll.ch>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic.h>
 #include <drm/drm_plane_helper.h>
@@ -32,6 +33,26 @@
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_writeback.h>
 #include <linux/dma-fence.h>
+=======
+#include <linux/dma-fence.h>
+#include <linux/ktime.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_atomic_uapi.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_damage_helper.h>
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_print.h>
+#include <drm/drm_self_refresh_helper.h>
+#include <drm/drm_vblank.h>
+#include <drm/drm_writeback.h>
+
+#include <trace/hooks/drm_atomic.h>
+>>>>>>> upstream/android-13
 
 #include "drm_crtc_helper_internal.h"
 #include "drm_crtc_internal.h"
@@ -53,9 +74,15 @@
  *
  * This library also provides implementations for all the legacy driver
  * interfaces on top of the atomic interface. See drm_atomic_helper_set_config(),
+<<<<<<< HEAD
  * drm_atomic_helper_disable_plane(), drm_atomic_helper_disable_plane() and the
  * various functions to implement set_property callbacks. New drivers must not
  * implement these functions themselves but must use the provided helpers.
+=======
+ * drm_atomic_helper_disable_plane(), and the various functions to implement
+ * set_property callbacks. New drivers must not implement these functions
+ * themselves but must use the provided helpers.
+>>>>>>> upstream/android-13
  *
  * The atomic helper uses the same function table structures as all other
  * modesetting helpers. See the documentation for &struct drm_crtc_helper_funcs,
@@ -98,7 +125,11 @@ static int handle_conflicting_encoders(struct drm_atomic_state *state,
 	struct drm_connector *connector;
 	struct drm_connector_list_iter conn_iter;
 	struct drm_encoder *encoder;
+<<<<<<< HEAD
 	unsigned encoder_mask = 0;
+=======
+	unsigned int encoder_mask = 0;
+>>>>>>> upstream/android-13
 	int i, ret = 0;
 
 	/*
@@ -114,11 +145,20 @@ static int handle_conflicting_encoders(struct drm_atomic_state *state,
 			continue;
 
 		if (funcs->atomic_best_encoder)
+<<<<<<< HEAD
 			new_encoder = funcs->atomic_best_encoder(connector, new_conn_state);
 		else if (funcs->best_encoder)
 			new_encoder = funcs->best_encoder(connector);
 		else
 			new_encoder = drm_atomic_helper_best_encoder(connector);
+=======
+			new_encoder = funcs->atomic_best_encoder(connector,
+								 state);
+		else if (funcs->best_encoder)
+			new_encoder = funcs->best_encoder(connector);
+		else
+			new_encoder = drm_connector_get_single_encoder(connector);
+>>>>>>> upstream/android-13
 
 		if (new_encoder) {
 			if (encoder_mask & drm_encoder_mask(new_encoder)) {
@@ -143,8 +183,13 @@ static int handle_conflicting_encoders(struct drm_atomic_state *state,
 	 * is not set, an error is returned. Userspace can provide a solution
 	 * through the atomic ioctl.
 	 *
+<<<<<<< HEAD
 	 * If the flag is set conflicting connectors are removed from the crtc
 	 * and the crtc is disabled if no encoder is left. This preserves
+=======
+	 * If the flag is set conflicting connectors are removed from the CRTC
+	 * and the CRTC is disabled if no encoder is left. This preserves
+>>>>>>> upstream/android-13
 	 * compatibility with the legacy set_config behavior.
 	 */
 	drm_connector_list_iter_begin(state->dev, &conn_iter);
@@ -213,7 +258,11 @@ set_best_encoder(struct drm_atomic_state *state,
 		crtc = conn_state->connector->state->crtc;
 
 		/* A NULL crtc is an error here because we should have
+<<<<<<< HEAD
 		 *  duplicated a NULL best_encoder when crtc was NULL.
+=======
+		 * duplicated a NULL best_encoder when crtc was NULL.
+>>>>>>> upstream/android-13
 		 * As an exception restoring duplicated atomic state
 		 * during resume is allowed, so don't warn when
 		 * best_encoder is equal to encoder we intend to set.
@@ -307,6 +356,7 @@ update_connector_routing(struct drm_atomic_state *state,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	funcs = connector->helper_private;
 
 	if (funcs->atomic_best_encoder)
@@ -316,6 +366,43 @@ update_connector_routing(struct drm_atomic_state *state,
 		new_encoder = funcs->best_encoder(connector);
 	else
 		new_encoder = drm_atomic_helper_best_encoder(connector);
+=======
+	crtc_state = drm_atomic_get_new_crtc_state(state,
+						   new_connector_state->crtc);
+	/*
+	 * For compatibility with legacy users, we want to make sure that
+	 * we allow DPMS On->Off modesets on unregistered connectors. Modesets
+	 * which would result in anything else must be considered invalid, to
+	 * avoid turning on new displays on dead connectors.
+	 *
+	 * Since the connector can be unregistered at any point during an
+	 * atomic check or commit, this is racy. But that's OK: all we care
+	 * about is ensuring that userspace can't do anything but shut off the
+	 * display on a connector that was destroyed after it's been notified,
+	 * not before.
+	 *
+	 * Additionally, we also want to ignore connector registration when
+	 * we're trying to restore an atomic state during system resume since
+	 * there's a chance the connector may have been destroyed during the
+	 * process, but it's better to ignore that then cause
+	 * drm_atomic_helper_resume() to fail.
+	 */
+	if (!state->duplicated && drm_connector_is_unregistered(connector) &&
+	    crtc_state->active) {
+		DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] is not registered\n",
+				 connector->base.id, connector->name);
+		return -EINVAL;
+	}
+
+	funcs = connector->helper_private;
+
+	if (funcs->atomic_best_encoder)
+		new_encoder = funcs->atomic_best_encoder(connector, state);
+	else if (funcs->best_encoder)
+		new_encoder = funcs->best_encoder(connector);
+	else
+		new_encoder = drm_connector_get_single_encoder(connector);
+>>>>>>> upstream/android-13
 
 	if (!new_encoder) {
 		DRM_DEBUG_ATOMIC("No suitable encoder found for [CONNECTOR:%d:%s]\n",
@@ -351,7 +438,10 @@ update_connector_routing(struct drm_atomic_state *state,
 
 	set_best_encoder(state, new_connector_state, new_encoder);
 
+<<<<<<< HEAD
 	crtc_state = drm_atomic_get_new_crtc_state(state, new_connector_state->crtc);
+=======
+>>>>>>> upstream/android-13
 	crtc_state->connectors_changed = true;
 
 	DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] using [ENCODER:%d:%s] on [CRTC:%d:%s]\n",
@@ -386,6 +476,10 @@ mode_fixup(struct drm_atomic_state *state)
 	for_each_new_connector_in_state(state, connector, new_conn_state, i) {
 		const struct drm_encoder_helper_funcs *funcs;
 		struct drm_encoder *encoder;
+<<<<<<< HEAD
+=======
+		struct drm_bridge *bridge;
+>>>>>>> upstream/android-13
 
 		WARN_ON(!!new_conn_state->best_encoder != !!new_conn_state->crtc);
 
@@ -402,11 +496,21 @@ mode_fixup(struct drm_atomic_state *state)
 		encoder = new_conn_state->best_encoder;
 		funcs = encoder->helper_private;
 
+<<<<<<< HEAD
 		ret = drm_bridge_mode_fixup(encoder->bridge, &new_crtc_state->mode,
 				&new_crtc_state->adjusted_mode);
 		if (!ret) {
 			DRM_DEBUG_ATOMIC("Bridge fixup failed\n");
 			return -EINVAL;
+=======
+		bridge = drm_bridge_chain_get_first_bridge(encoder);
+		ret = drm_atomic_bridge_chain_check(bridge,
+						    new_crtc_state,
+						    new_conn_state);
+		if (ret) {
+			DRM_DEBUG_ATOMIC("Bridge atomic check failed\n");
+			return ret;
+>>>>>>> upstream/android-13
 		}
 
 		if (funcs && funcs->atomic_check) {
@@ -439,7 +543,11 @@ mode_fixup(struct drm_atomic_state *state)
 			continue;
 
 		funcs = crtc->helper_private;
+<<<<<<< HEAD
 		if (!funcs->mode_fixup)
+=======
+		if (!funcs || !funcs->mode_fixup)
+>>>>>>> upstream/android-13
 			continue;
 
 		ret = funcs->mode_fixup(crtc, &new_crtc_state->mode,
@@ -457,8 +565,14 @@ mode_fixup(struct drm_atomic_state *state)
 static enum drm_mode_status mode_valid_path(struct drm_connector *connector,
 					    struct drm_encoder *encoder,
 					    struct drm_crtc *crtc,
+<<<<<<< HEAD
 					    struct drm_display_mode *mode)
 {
+=======
+					    const struct drm_display_mode *mode)
+{
+	struct drm_bridge *bridge;
+>>>>>>> upstream/android-13
 	enum drm_mode_status ret;
 
 	ret = drm_encoder_mode_valid(encoder, mode);
@@ -468,7 +582,13 @@ static enum drm_mode_status mode_valid_path(struct drm_connector *connector,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = drm_bridge_mode_valid(encoder->bridge, mode);
+=======
+	bridge = drm_bridge_chain_get_first_bridge(encoder);
+	ret = drm_bridge_chain_mode_valid(bridge, &connector->display_info,
+					  mode);
+>>>>>>> upstream/android-13
 	if (ret != MODE_OK) {
 		DRM_DEBUG_ATOMIC("[BRIDGE] mode_valid() failed\n");
 		return ret;
@@ -496,7 +616,11 @@ mode_valid(struct drm_atomic_state *state)
 		struct drm_crtc *crtc = conn_state->crtc;
 		struct drm_crtc_state *crtc_state;
 		enum drm_mode_status mode_status;
+<<<<<<< HEAD
 		struct drm_display_mode *mode;
+=======
+		const struct drm_display_mode *mode;
+>>>>>>> upstream/android-13
 
 		if (!crtc || !encoder)
 			continue;
@@ -523,18 +647,28 @@ mode_valid(struct drm_atomic_state *state)
  * @state: the driver state object
  *
  * Check the state object to see if the requested state is physically possible.
+<<<<<<< HEAD
  * This does all the crtc and connector related computations for an atomic
+=======
+ * This does all the CRTC and connector related computations for an atomic
+>>>>>>> upstream/android-13
  * update and adds any additional connectors needed for full modesets. It calls
  * the various per-object callbacks in the follow order:
  *
  * 1. &drm_connector_helper_funcs.atomic_best_encoder for determining the new encoder.
  * 2. &drm_connector_helper_funcs.atomic_check to validate the connector state.
+<<<<<<< HEAD
  * 3. If it's determined a modeset is needed then all connectors on the affected crtc
  *    crtc are added and &drm_connector_helper_funcs.atomic_check is run on them.
+=======
+ * 3. If it's determined a modeset is needed then all connectors on the affected
+ *    CRTC are added and &drm_connector_helper_funcs.atomic_check is run on them.
+>>>>>>> upstream/android-13
  * 4. &drm_encoder_helper_funcs.mode_valid, &drm_bridge_funcs.mode_valid and
  *    &drm_crtc_helper_funcs.mode_valid are called on the affected components.
  * 5. &drm_bridge_funcs.mode_fixup is called on all encoder bridges.
  * 6. &drm_encoder_helper_funcs.atomic_check is called to validate any encoder state.
+<<<<<<< HEAD
  *    This function is only called when the encoder will be part of a configured crtc,
  *    it must not be used for implementing connector property validation.
  *    If this function is NULL, &drm_atomic_encoder_helper_funcs.mode_fixup is called
@@ -545,17 +679,37 @@ mode_valid(struct drm_atomic_state *state)
  * &drm_crtc_state.connectors_changed is set when a connector is added or
  * removed from the crtc.  &drm_crtc_state.active_changed is set when
  * &drm_crtc_state.active changes, which is used for DPMS.
+=======
+ *    This function is only called when the encoder will be part of a configured CRTC,
+ *    it must not be used for implementing connector property validation.
+ *    If this function is NULL, &drm_atomic_encoder_helper_funcs.mode_fixup is called
+ *    instead.
+ * 7. &drm_crtc_helper_funcs.mode_fixup is called last, to fix up the mode with CRTC constraints.
+ *
+ * &drm_crtc_state.mode_changed is set when the input mode is changed.
+ * &drm_crtc_state.connectors_changed is set when a connector is added or
+ * removed from the CRTC.  &drm_crtc_state.active_changed is set when
+ * &drm_crtc_state.active changes, which is used for DPMS.
+ * &drm_crtc_state.no_vblank is set from the result of drm_dev_has_vblank().
+>>>>>>> upstream/android-13
  * See also: drm_atomic_crtc_needs_modeset()
  *
  * IMPORTANT:
  *
  * Drivers which set &drm_crtc_state.mode_changed (e.g. in their
  * &drm_plane_helper_funcs.atomic_check hooks if a plane update can't be done
+<<<<<<< HEAD
  * without a full modeset) _must_ call this function afterwards after that
  * change. It is permitted to call this function multiple times for the same
  * update, e.g. when the &drm_crtc_helper_funcs.atomic_check functions depend
  * upon the adjusted dotclock for fifo space allocation and watermark
  * computation.
+=======
+ * without a full modeset) _must_ call this function after that change. It is
+ * permitted to call this function multiple times for the same update, e.g.
+ * when the &drm_crtc_helper_funcs.atomic_check functions depend upon the
+ * adjusted dotclock for fifo space allocation and watermark computation.
+>>>>>>> upstream/android-13
  *
  * RETURNS:
  * Zero for success or -errno
@@ -569,7 +723,12 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 	struct drm_connector *connector;
 	struct drm_connector_state *old_connector_state, *new_connector_state;
 	int i, ret;
+<<<<<<< HEAD
 	unsigned connectors_mask = 0;
+=======
+	unsigned int connectors_mask = 0;
+	bool allow = false;
+>>>>>>> upstream/android-13
 
 	for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
 		bool has_connectors =
@@ -593,7 +752,11 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 			 * connectors and a NULL mode.
 			 *
 			 * The other way around is true as well. enable != 0
+<<<<<<< HEAD
 			 * iff connectors are attached and a mode is set.
+=======
+			 * implies that connectors are attached and a mode is set.
+>>>>>>> upstream/android-13
 			 */
 			new_crtc_state->mode_changed = true;
 			new_crtc_state->connectors_changed = true;
@@ -611,6 +774,14 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 
 			return -EINVAL;
 		}
+<<<<<<< HEAD
+=======
+
+		if (drm_dev_has_vblank(dev))
+			new_crtc_state->no_vblank = false;
+		else
+			new_crtc_state->no_vblank = true;
+>>>>>>> upstream/android-13
 	}
 
 	ret = handle_conflicting_encoders(state, false);
@@ -638,10 +809,21 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 			if (old_connector_state->link_status !=
 			    new_connector_state->link_status)
 				new_crtc_state->connectors_changed = true;
+<<<<<<< HEAD
 		}
 
 		if (funcs->atomic_check)
 			ret = funcs->atomic_check(connector, new_connector_state);
+=======
+
+			if (old_connector_state->max_requested_bpc !=
+			    new_connector_state->max_requested_bpc)
+				new_crtc_state->connectors_changed = true;
+		}
+
+		if (funcs->atomic_check)
+			ret = funcs->atomic_check(connector, state);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -650,7 +832,11 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 
 	/*
 	 * After all the routing has been prepared we need to add in any
+<<<<<<< HEAD
 	 * connector which is itself unchanged, but who's crtc changes it's
+=======
+	 * connector which is itself unchanged, but whose CRTC changes its
+>>>>>>> upstream/android-13
 	 * configuration. This must be done before calling mode_fixup in case a
 	 * crtc only changed its mode but has the same set of connectors.
 	 */
@@ -667,6 +853,13 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 		if (ret != 0)
 			return ret;
 
+<<<<<<< HEAD
+=======
+		trace_android_vh_drm_atomic_check_modeset(state, crtc, &allow);
+		if (allow)
+			continue;
+
+>>>>>>> upstream/android-13
 		ret = drm_atomic_add_affected_planes(state, crtc);
 		if (ret != 0)
 			return ret;
@@ -683,7 +876,31 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
 			continue;
 
 		if (funcs->atomic_check)
+<<<<<<< HEAD
 			ret = funcs->atomic_check(connector, new_connector_state);
+=======
+			ret = funcs->atomic_check(connector, state);
+		if (ret)
+			return ret;
+	}
+
+	/*
+	 * Iterate over all connectors again, and add all affected bridges to
+	 * the state.
+	 */
+	for_each_oldnew_connector_in_state(state, connector,
+					   old_connector_state,
+					   new_connector_state, i) {
+		struct drm_encoder *encoder;
+
+		encoder = old_connector_state->best_encoder;
+		ret = drm_atomic_add_encoder_bridges(state, encoder);
+		if (ret)
+			return ret;
+
+		encoder = new_connector_state->best_encoder;
+		ret = drm_atomic_add_encoder_bridges(state, encoder);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -699,6 +916,7 @@ EXPORT_SYMBOL(drm_atomic_helper_check_modeset);
 /**
  * drm_atomic_helper_check_plane_state() - Check plane state for validity
  * @plane_state: plane state to check
+<<<<<<< HEAD
  * @crtc_state: crtc state to check
  * @min_scale: minimum @src:@dest scaling factor in 16.16 fixed point
  * @max_scale: maximum @src:@dest scaling factor in 16.16 fixed point
@@ -706,6 +924,15 @@ EXPORT_SYMBOL(drm_atomic_helper_check_modeset);
  *                doesn't cover the entire crtc?  This will generally
  *                only be false for primary planes.
  * @can_update_disabled: can the plane be updated while the crtc
+=======
+ * @crtc_state: CRTC state to check
+ * @min_scale: minimum @src:@dest scaling factor in 16.16 fixed point
+ * @max_scale: maximum @src:@dest scaling factor in 16.16 fixed point
+ * @can_position: is it legal to position the plane such that it
+ *                doesn't cover the entire CRTC?  This will generally
+ *                only be false for primary planes.
+ * @can_update_disabled: can the plane be updated while the CRTC
+>>>>>>> upstream/android-13
  *                       is disabled?
  *
  * Checks that a desired plane update is valid, and updates various
@@ -802,7 +1029,11 @@ EXPORT_SYMBOL(drm_atomic_helper_check_plane_state);
  * &drm_crtc_helper_funcs.atomic_check and &drm_plane_helper_funcs.atomic_check
  * hooks provided by the driver.
  *
+<<<<<<< HEAD
  * It also sets &drm_crtc_state.planes_changed to indicate that a crtc has
+=======
+ * It also sets &drm_crtc_state.planes_changed to indicate that a CRTC has
+>>>>>>> upstream/android-13
  * updated planes.
  *
  * RETURNS:
@@ -827,10 +1058,19 @@ drm_atomic_helper_check_planes(struct drm_device *dev,
 
 		drm_atomic_helper_plane_changed(state, old_plane_state, new_plane_state, plane);
 
+<<<<<<< HEAD
 		if (!funcs || !funcs->atomic_check)
 			continue;
 
 		ret = funcs->atomic_check(plane, new_plane_state);
+=======
+		drm_atomic_helper_check_plane_damage(state, new_plane_state);
+
+		if (!funcs || !funcs->atomic_check)
+			continue;
+
+		ret = funcs->atomic_check(plane, state);
+>>>>>>> upstream/android-13
 		if (ret) {
 			DRM_DEBUG_ATOMIC("[PLANE:%d:%s] atomic driver check failed\n",
 					 plane->base.id, plane->name);
@@ -846,7 +1086,11 @@ drm_atomic_helper_check_planes(struct drm_device *dev,
 		if (!funcs || !funcs->atomic_check)
 			continue;
 
+<<<<<<< HEAD
 		ret = funcs->atomic_check(crtc, new_crtc_state);
+=======
+		ret = funcs->atomic_check(crtc, state);
+>>>>>>> upstream/android-13
 		if (ret) {
 			DRM_DEBUG_ATOMIC("[CRTC:%d:%s] atomic driver check failed\n",
 					 crtc->base.id, crtc->name);
@@ -864,7 +1108,11 @@ EXPORT_SYMBOL(drm_atomic_helper_check_planes);
  * @state: the driver state object
  *
  * Check the state object to see if the requested state is physically possible.
+<<<<<<< HEAD
  * Only crtcs and planes have check callbacks, so for any additional (global)
+=======
+ * Only CRTCs and planes have check callbacks, so for any additional (global)
+>>>>>>> upstream/android-13
  * checking that a driver needs it can simply wrap that around this function.
  * Drivers without such needs can directly use this as their
  * &drm_mode_config_funcs.atomic_check callback.
@@ -906,10 +1154,39 @@ int drm_atomic_helper_check(struct drm_device *dev,
 	if (state->legacy_cursor_update)
 		state->async_update = !drm_atomic_helper_async_check(dev, state);
 
+<<<<<<< HEAD
+=======
+	drm_self_refresh_helper_alter_state(state);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(drm_atomic_helper_check);
 
+<<<<<<< HEAD
+=======
+static bool
+crtc_needs_disable(struct drm_crtc_state *old_state,
+		   struct drm_crtc_state *new_state)
+{
+	/*
+	 * No new_state means the CRTC is off, so the only criteria is whether
+	 * it's currently active or in self refresh mode.
+	 */
+	if (!new_state)
+		return drm_atomic_crtc_effectively_active(old_state);
+
+	/*
+	 * We need to run through the crtc_funcs->disable() function if the CRTC
+	 * is currently on, if it's transitioning to self refresh mode, or if
+	 * it's in self refresh mode and needs to be fully disabled.
+	 */
+	return old_state->active ||
+	       (old_state->self_refresh_active && !new_state->active) ||
+	       new_state->self_refresh_active;
+}
+
+>>>>>>> upstream/android-13
 static void
 disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 {
@@ -922,15 +1199,35 @@ disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 	for_each_oldnew_connector_in_state(old_state, connector, old_conn_state, new_conn_state, i) {
 		const struct drm_encoder_helper_funcs *funcs;
 		struct drm_encoder *encoder;
+<<<<<<< HEAD
 
 		/* Shut down everything that's in the changeset and currently
 		 * still on. So need to check the old, saved state. */
+=======
+		struct drm_bridge *bridge;
+
+		/*
+		 * Shut down everything that's in the changeset and currently
+		 * still on. So need to check the old, saved state.
+		 */
+>>>>>>> upstream/android-13
 		if (!old_conn_state->crtc)
 			continue;
 
 		old_crtc_state = drm_atomic_get_old_crtc_state(old_state, old_conn_state->crtc);
 
+<<<<<<< HEAD
 		if (!old_crtc_state->active ||
+=======
+		if (new_conn_state->crtc)
+			new_crtc_state = drm_atomic_get_new_crtc_state(
+						old_state,
+						new_conn_state->crtc);
+		else
+			new_crtc_state = NULL;
+
+		if (!crtc_needs_disable(old_crtc_state, new_crtc_state) ||
+>>>>>>> upstream/android-13
 		    !drm_atomic_crtc_needs_modeset(old_conn_state->crtc->state))
 			continue;
 
@@ -951,11 +1248,22 @@ disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 		 * Each encoder has at most one connector (since we always steal
 		 * it away), so we won't call disable hooks twice.
 		 */
+<<<<<<< HEAD
 		drm_bridge_disable(encoder->bridge);
 
 		/* Right function depends upon target state. */
 		if (funcs) {
 			if (new_conn_state->crtc && funcs->prepare)
+=======
+		bridge = drm_bridge_chain_get_first_bridge(encoder);
+		drm_atomic_bridge_chain_disable(bridge, old_state);
+
+		/* Right function depends upon target state. */
+		if (funcs) {
+			if (funcs->atomic_disable)
+				funcs->atomic_disable(encoder, old_state);
+			else if (new_conn_state->crtc && funcs->prepare)
+>>>>>>> upstream/android-13
 				funcs->prepare(encoder);
 			else if (funcs->disable)
 				funcs->disable(encoder);
@@ -963,7 +1271,11 @@ disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 				funcs->dpms(encoder, DRM_MODE_DPMS_OFF);
 		}
 
+<<<<<<< HEAD
 		drm_bridge_post_disable(encoder->bridge);
+=======
+		drm_atomic_bridge_chain_post_disable(bridge, old_state);
+>>>>>>> upstream/android-13
 	}
 
 	for_each_oldnew_crtc_in_state(old_state, crtc, old_crtc_state, new_crtc_state, i) {
@@ -974,7 +1286,11 @@ disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 		if (!drm_atomic_crtc_needs_modeset(new_crtc_state))
 			continue;
 
+<<<<<<< HEAD
 		if (!old_crtc_state->active)
+=======
+		if (!crtc_needs_disable(old_crtc_state, new_crtc_state))
+>>>>>>> upstream/android-13
 			continue;
 
 		funcs = crtc->helper_private;
@@ -987,6 +1303,7 @@ disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 		if (new_crtc_state->enable && funcs->prepare)
 			funcs->prepare(crtc);
 		else if (funcs->atomic_disable)
+<<<<<<< HEAD
 			funcs->atomic_disable(crtc, old_crtc_state);
 		else if (funcs->disable)
 			funcs->disable(crtc);
@@ -994,6 +1311,15 @@ disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 			funcs->dpms(crtc, DRM_MODE_DPMS_OFF);
 
 		if (!(dev->irq_enabled && dev->num_crtcs))
+=======
+			funcs->atomic_disable(crtc, old_state);
+		else if (funcs->disable)
+			funcs->disable(crtc);
+		else if (funcs->dpms)
+			funcs->dpms(crtc, DRM_MODE_DPMS_OFF);
+
+		if (!drm_dev_has_vblank(dev))
+>>>>>>> upstream/android-13
 			continue;
 
 		ret = drm_crtc_vblank_get(crtc);
@@ -1009,9 +1335,13 @@ disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
  * @old_state: atomic state object with old state structures
  *
  * This function updates all the various legacy modeset state pointers in
+<<<<<<< HEAD
  * connectors, encoders and crtcs. It also updates the timestamping constants
  * used for precise vblank timestamps by calling
  * drm_calc_timestamping_constants().
+=======
+ * connectors, encoders and CRTCs.
+>>>>>>> upstream/android-13
  *
  * Drivers can use this for building their own atomic commit if they don't have
  * a pure helper-based modeset implementation.
@@ -1080,13 +1410,38 @@ drm_atomic_helper_update_legacy_modeset_state(struct drm_device *dev,
 			crtc->x = new_plane_state->src_x >> 16;
 			crtc->y = new_plane_state->src_y >> 16;
 		}
+<<<<<<< HEAD
 
+=======
+	}
+}
+EXPORT_SYMBOL(drm_atomic_helper_update_legacy_modeset_state);
+
+/**
+ * drm_atomic_helper_calc_timestamping_constants - update vblank timestamping constants
+ * @state: atomic state object
+ *
+ * Updates the timestamping constants used for precise vblank timestamps
+ * by calling drm_calc_timestamping_constants() for all enabled crtcs in @state.
+ */
+void drm_atomic_helper_calc_timestamping_constants(struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *new_crtc_state;
+	struct drm_crtc *crtc;
+	int i;
+
+	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i) {
+>>>>>>> upstream/android-13
 		if (new_crtc_state->enable)
 			drm_calc_timestamping_constants(crtc,
 							&new_crtc_state->adjusted_mode);
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_atomic_helper_update_legacy_modeset_state);
+=======
+EXPORT_SYMBOL(drm_atomic_helper_calc_timestamping_constants);
+>>>>>>> upstream/android-13
 
 static void
 crtc_set_mode(struct drm_device *dev, struct drm_atomic_state *old_state)
@@ -1117,6 +1472,10 @@ crtc_set_mode(struct drm_device *dev, struct drm_atomic_state *old_state)
 		const struct drm_encoder_helper_funcs *funcs;
 		struct drm_encoder *encoder;
 		struct drm_display_mode *mode, *adjusted_mode;
+<<<<<<< HEAD
+=======
+		struct drm_bridge *bridge;
+>>>>>>> upstream/android-13
 
 		if (!new_conn_state->best_encoder)
 			continue;
@@ -1144,7 +1503,12 @@ crtc_set_mode(struct drm_device *dev, struct drm_atomic_state *old_state)
 			funcs->mode_set(encoder, mode, adjusted_mode);
 		}
 
+<<<<<<< HEAD
 		drm_bridge_mode_set(encoder->bridge, mode, adjusted_mode);
+=======
+		bridge = drm_bridge_chain_get_first_bridge(encoder);
+		drm_bridge_chain_mode_set(bridge, mode, adjusted_mode);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1156,7 +1520,11 @@ crtc_set_mode(struct drm_device *dev, struct drm_atomic_state *old_state)
  * This function shuts down all the outputs that need to be shut down and
  * prepares them (if required) with the new mode.
  *
+<<<<<<< HEAD
  * For compatibility with legacy crtc helpers this should be called before
+=======
+ * For compatibility with legacy CRTC helpers this should be called before
+>>>>>>> upstream/android-13
  * drm_atomic_helper_commit_planes(), which is what the default commit function
  * does. But drivers with different needs can group the modeset commits together
  * and do the plane commits at the end. This is useful for drivers doing runtime
@@ -1168,6 +1536,10 @@ void drm_atomic_helper_commit_modeset_disables(struct drm_device *dev,
 	disable_outputs(dev, old_state);
 
 	drm_atomic_helper_update_legacy_modeset_state(dev, old_state);
+<<<<<<< HEAD
+=======
+	drm_atomic_helper_calc_timestamping_constants(old_state);
+>>>>>>> upstream/android-13
 
 	crtc_set_mode(dev, old_state);
 }
@@ -1189,7 +1561,11 @@ static void drm_atomic_helper_commit_writebacks(struct drm_device *dev,
 
 		if (new_conn_state->writeback_job && new_conn_state->writeback_job->fb) {
 			WARN_ON(connector->connector_type != DRM_MODE_CONNECTOR_WRITEBACK);
+<<<<<<< HEAD
 			funcs->atomic_commit(connector, new_conn_state);
+=======
+			funcs->atomic_commit(connector, old_state);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -1202,7 +1578,11 @@ static void drm_atomic_helper_commit_writebacks(struct drm_device *dev,
  * This function enables all the outputs with the new configuration which had to
  * be turned off for the update.
  *
+<<<<<<< HEAD
  * For compatibility with legacy crtc helpers this should be called after
+=======
+ * For compatibility with legacy CRTC helpers this should be called after
+>>>>>>> upstream/android-13
  * drm_atomic_helper_commit_planes(), which is what the default commit function
  * does. But drivers with different needs can group the modeset commits together
  * and do the plane commits at the end. This is useful for drivers doing runtime
@@ -1233,10 +1613,16 @@ void drm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 		if (new_crtc_state->enable) {
 			DRM_DEBUG_ATOMIC("enabling [CRTC:%d:%s]\n",
 					 crtc->base.id, crtc->name);
+<<<<<<< HEAD
 
 			if (funcs->atomic_enable)
 				funcs->atomic_enable(crtc, old_crtc_state);
 			else
+=======
+			if (funcs->atomic_enable)
+				funcs->atomic_enable(crtc, old_state);
+			else if (funcs->commit)
+>>>>>>> upstream/android-13
 				funcs->commit(crtc);
 		}
 	}
@@ -1244,6 +1630,10 @@ void drm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 	for_each_new_connector_in_state(old_state, connector, new_conn_state, i) {
 		const struct drm_encoder_helper_funcs *funcs;
 		struct drm_encoder *encoder;
+<<<<<<< HEAD
+=======
+		struct drm_bridge *bridge;
+>>>>>>> upstream/android-13
 
 		if (!new_conn_state->best_encoder)
 			continue;
@@ -1262,16 +1652,30 @@ void drm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 		 * Each encoder has at most one connector (since we always steal
 		 * it away), so we won't call enable hooks twice.
 		 */
+<<<<<<< HEAD
 		drm_bridge_pre_enable(encoder->bridge);
 
 		if (funcs) {
 			if (funcs->enable)
+=======
+		bridge = drm_bridge_chain_get_first_bridge(encoder);
+		drm_atomic_bridge_chain_pre_enable(bridge, old_state);
+
+		if (funcs) {
+			if (funcs->atomic_enable)
+				funcs->atomic_enable(encoder, old_state);
+			else if (funcs->enable)
+>>>>>>> upstream/android-13
 				funcs->enable(encoder);
 			else if (funcs->commit)
 				funcs->commit(encoder);
 		}
 
+<<<<<<< HEAD
 		drm_bridge_enable(encoder->bridge);
+=======
+		drm_atomic_bridge_chain_enable(bridge, old_state);
+>>>>>>> upstream/android-13
 	}
 
 	drm_atomic_helper_commit_writebacks(dev, old_state);
@@ -1283,7 +1687,11 @@ EXPORT_SYMBOL(drm_atomic_helper_commit_modeset_enables);
  * @dev: DRM device
  * @state: atomic state object with old state structures
  * @pre_swap: If true, do an interruptible wait, and @state is the new state.
+<<<<<<< HEAD
  * 	Otherwise @state is the old state.
+=======
+ *	Otherwise @state is the old state.
+>>>>>>> upstream/android-13
  *
  * For implicit sync, driver should fish the exclusive fence out from the
  * incoming fb's and stash it in the drm_plane_state.  This is called after
@@ -1331,12 +1739,21 @@ int drm_atomic_helper_wait_for_fences(struct drm_device *dev,
 EXPORT_SYMBOL(drm_atomic_helper_wait_for_fences);
 
 /**
+<<<<<<< HEAD
  * drm_atomic_helper_wait_for_vblanks - wait for vblank on crtcs
  * @dev: DRM device
  * @old_state: atomic state object with old state structures
  *
  * Helper to, after atomic commit, wait for vblanks on all effected
  * crtcs (ie. before cleaning up old framebuffers using
+=======
+ * drm_atomic_helper_wait_for_vblanks - wait for vblank on CRTCs
+ * @dev: DRM device
+ * @old_state: atomic state object with old state structures
+ *
+ * Helper to, after atomic commit, wait for vblanks on all affected
+ * CRTCs (ie. before cleaning up old framebuffers using
+>>>>>>> upstream/android-13
  * drm_atomic_helper_cleanup_planes()). It will only wait on CRTCs where the
  * framebuffers have actually changed to optimize for the legacy cursor and
  * plane update use-case.
@@ -1352,7 +1769,11 @@ drm_atomic_helper_wait_for_vblanks(struct drm_device *dev,
 	struct drm_crtc *crtc;
 	struct drm_crtc_state *old_crtc_state, *new_crtc_state;
 	int i, ret;
+<<<<<<< HEAD
 	unsigned crtc_mask = 0;
+=======
+	unsigned int crtc_mask = 0;
+>>>>>>> upstream/android-13
 
 	 /*
 	  * Legacy cursor ioctls are completely unsynced, and userspace
@@ -1380,7 +1801,11 @@ drm_atomic_helper_wait_for_vblanks(struct drm_device *dev,
 		ret = wait_event_timeout(dev->vblank[i].queue,
 				old_state->crtcs[i].last_vblank_count !=
 					drm_crtc_vblank_count(crtc),
+<<<<<<< HEAD
 				msecs_to_jiffies(50));
+=======
+				msecs_to_jiffies(100));
+>>>>>>> upstream/android-13
 
 		WARN(!ret, "[CRTC:%d:%s] vblank wait timed out\n",
 		     crtc->base.id, crtc->name);
@@ -1395,10 +1820,17 @@ EXPORT_SYMBOL(drm_atomic_helper_wait_for_vblanks);
  * @dev: DRM device
  * @old_state: atomic state object with old state structures
  *
+<<<<<<< HEAD
  * Helper to, after atomic commit, wait for page flips on all effected
  * crtcs (ie. before cleaning up old framebuffers using
  * drm_atomic_helper_cleanup_planes()). Compared to
  * drm_atomic_helper_wait_for_vblanks() this waits for the completion of on all
+=======
+ * Helper to, after atomic commit, wait for page flips on all affected
+ * crtcs (ie. before cleaning up old framebuffers using
+ * drm_atomic_helper_cleanup_planes()). Compared to
+ * drm_atomic_helper_wait_for_vblanks() this waits for the completion on all
+>>>>>>> upstream/android-13
  * CRTCs, assuming that cursors-only updates are signalling their completion
  * immediately (or using a different path).
  *
@@ -1499,18 +1931,62 @@ static void commit_tail(struct drm_atomic_state *old_state)
 {
 	struct drm_device *dev = old_state->dev;
 	const struct drm_mode_config_helper_funcs *funcs;
+<<<<<<< HEAD
 
 	funcs = dev->mode_config.helper_private;
 
+=======
+	struct drm_crtc_state *new_crtc_state;
+	struct drm_crtc *crtc;
+	ktime_t start;
+	s64 commit_time_ms;
+	unsigned int i, new_self_refresh_mask = 0;
+
+	funcs = dev->mode_config.helper_private;
+
+	/*
+	 * We're measuring the _entire_ commit, so the time will vary depending
+	 * on how many fences and objects are involved. For the purposes of self
+	 * refresh, this is desirable since it'll give us an idea of how
+	 * congested things are. This will inform our decision on how often we
+	 * should enter self refresh after idle.
+	 *
+	 * These times will be averaged out in the self refresh helpers to avoid
+	 * overreacting over one outlier frame
+	 */
+	start = ktime_get();
+
+>>>>>>> upstream/android-13
 	drm_atomic_helper_wait_for_fences(dev, old_state, false);
 
 	drm_atomic_helper_wait_for_dependencies(old_state);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * We cannot safely access new_crtc_state after
+	 * drm_atomic_helper_commit_hw_done() so figure out which crtc's have
+	 * self-refresh active beforehand:
+	 */
+	for_each_new_crtc_in_state(old_state, crtc, new_crtc_state, i)
+		if (new_crtc_state->self_refresh_active)
+			new_self_refresh_mask |= BIT(i);
+
+>>>>>>> upstream/android-13
 	if (funcs && funcs->atomic_commit_tail)
 		funcs->atomic_commit_tail(old_state);
 	else
 		drm_atomic_helper_commit_tail(old_state);
 
+<<<<<<< HEAD
+=======
+	commit_time_ms = ktime_ms_delta(ktime_get(), start);
+	if (commit_time_ms > 0)
+		drm_self_refresh_helper_update_avg_times(old_state,
+						 (unsigned long)commit_time_ms,
+						 new_self_refresh_mask);
+
+>>>>>>> upstream/android-13
 	drm_atomic_helper_commit_cleanup_done(old_state);
 
 	drm_atomic_state_put(old_state);
@@ -1525,7 +2001,11 @@ static void commit_work(struct work_struct *work)
 }
 
 /**
+<<<<<<< HEAD
  * drm_atomic_helper_async_check - check if state can be commited asynchronously
+=======
+ * drm_atomic_helper_async_check - check if state can be committed asynchronously
+>>>>>>> upstream/android-13
  * @dev: DRM device
  * @state: the driver state object
  *
@@ -1534,7 +2014,11 @@ static void commit_work(struct work_struct *work)
  * but just do in-place changes on the current state.
  *
  * It will return 0 if the commit can happen in an asynchronous fashion or error
+<<<<<<< HEAD
  * if not. Note that error just mean it can't be commited asynchronously, if it
+=======
+ * if not. Note that error just mean it can't be committed asynchronously, if it
+>>>>>>> upstream/android-13
  * fails the commit should be treated like a normal synchronous commit.
  */
 int drm_atomic_helper_async_check(struct drm_device *dev,
@@ -1564,6 +2048,7 @@ int drm_atomic_helper_async_check(struct drm_device *dev,
 	    old_plane_state->crtc != new_plane_state->crtc)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/*
 	 * FIXME: Since prepare_fb and cleanup_fb are always called on
 	 * the new_plane_state for async updates we need to block framebuffer
@@ -1573,6 +2058,8 @@ int drm_atomic_helper_async_check(struct drm_device *dev,
 	if (old_plane_state->fb != new_plane_state->fb)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	funcs = plane->helper_private;
 	if (!funcs->atomic_async_update)
 		return -EINVAL;
@@ -1586,10 +2073,20 @@ int drm_atomic_helper_async_check(struct drm_device *dev,
 	 * overridden by a previous synchronous update's state.
 	 */
 	if (old_plane_state->commit &&
+<<<<<<< HEAD
 	    !try_wait_for_completion(&old_plane_state->commit->hw_done))
 		return -EBUSY;
 
 	return funcs->atomic_async_check(plane, new_plane_state);
+=======
+	    !try_wait_for_completion(&old_plane_state->commit->hw_done)) {
+		DRM_DEBUG_ATOMIC("[PLANE:%d:%s] inflight previous commit preventing async commit\n",
+			plane->base.id, plane->name);
+		return -EBUSY;
+	}
+
+	return funcs->atomic_async_check(plane, state);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_atomic_helper_async_check);
 
@@ -1619,7 +2116,11 @@ void drm_atomic_helper_async_commit(struct drm_device *dev,
 		struct drm_framebuffer *old_fb = plane->state->fb;
 
 		funcs = plane->helper_private;
+<<<<<<< HEAD
 		funcs->atomic_async_update(plane, plane_state);
+=======
+		funcs->atomic_async_update(plane, state);
+>>>>>>> upstream/android-13
 
 		/*
 		 * ->atomic_async_update() is supposed to update the
@@ -1653,7 +2154,11 @@ EXPORT_SYMBOL(drm_atomic_helper_async_commit);
  * drm_atomic_helper_setup_commit() and related functions.
  *
  * Committing the actual hardware state is done through the
+<<<<<<< HEAD
  * &drm_mode_config_helper_funcs.atomic_commit_tail callback, or it's default
+=======
+ * &drm_mode_config_helper_funcs.atomic_commit_tail callback, or its default
+>>>>>>> upstream/android-13
  * implementation drm_atomic_helper_commit_tail().
  *
  * RETURNS:
@@ -1719,7 +2224,11 @@ int drm_atomic_helper_commit(struct drm_device *dev,
 	 *
 	 * NOTE: Commit work has multiple phases, first hardware commit, then
 	 * cleanup. We want them to overlap, hence need system_unbound_wq to
+<<<<<<< HEAD
 	 * make sure work items don't artifically stall on each another.
+=======
+	 * make sure work items don't artificially stall on each another.
+>>>>>>> upstream/android-13
 	 */
 
 	drm_atomic_state_get(state);
@@ -1739,6 +2248,7 @@ EXPORT_SYMBOL(drm_atomic_helper_commit);
 /**
  * DOC: implementing nonblocking commit
  *
+<<<<<<< HEAD
  * Nonblocking atomic commits have to be implemented in the following sequence:
  *
  * 1. Run drm_atomic_helper_prepare_planes() first. This is the only function
@@ -1754,27 +2264,73 @@ EXPORT_SYMBOL(drm_atomic_helper_commit);
  * Asynchronous workers need to have sufficient parallelism to be able to run
  * different atomic commits on different CRTCs in parallel. The simplest way to
  * achive this is by running them on the &system_unbound_wq work queue. Note
+=======
+ * Nonblocking atomic commits should use struct &drm_crtc_commit to sequence
+ * different operations against each another. Locks, especially struct
+ * &drm_modeset_lock, should not be held in worker threads or any other
+ * asynchronous context used to commit the hardware state.
+ *
+ * drm_atomic_helper_commit() implements the recommended sequence for
+ * nonblocking commits, using drm_atomic_helper_setup_commit() internally:
+ *
+ * 1. Run drm_atomic_helper_prepare_planes(). Since this can fail and we
+ * need to propagate out of memory/VRAM errors to userspace, it must be called
+ * synchronously.
+ *
+ * 2. Synchronize with any outstanding nonblocking commit worker threads which
+ * might be affected by the new state update. This is handled by
+ * drm_atomic_helper_setup_commit().
+ *
+ * Asynchronous workers need to have sufficient parallelism to be able to run
+ * different atomic commits on different CRTCs in parallel. The simplest way to
+ * achieve this is by running them on the &system_unbound_wq work queue. Note
+>>>>>>> upstream/android-13
  * that drivers are not required to split up atomic commits and run an
  * individual commit in parallel - userspace is supposed to do that if it cares.
  * But it might be beneficial to do that for modesets, since those necessarily
  * must be done as one global operation, and enabling or disabling a CRTC can
  * take a long time. But even that is not required.
  *
+<<<<<<< HEAD
  * 3. The software state is updated synchronously with
  * drm_atomic_helper_swap_state(). Doing this under the protection of all modeset
  * locks means concurrent callers never see inconsistent state. And doing this
  * while it's guaranteed that no relevant nonblocking worker runs means that
  * nonblocking workers do not need grab any locks. Actually they must not grab
  * locks, for otherwise the work flushing will deadlock.
+=======
+ * IMPORTANT: A &drm_atomic_state update for multiple CRTCs is sequenced
+ * against all CRTCs therein. Therefore for atomic state updates which only flip
+ * planes the driver must not get the struct &drm_crtc_state of unrelated CRTCs
+ * in its atomic check code: This would prevent committing of atomic updates to
+ * multiple CRTCs in parallel. In general, adding additional state structures
+ * should be avoided as much as possible, because this reduces parallelism in
+ * (nonblocking) commits, both due to locking and due to commit sequencing
+ * requirements.
+ *
+ * 3. The software state is updated synchronously with
+ * drm_atomic_helper_swap_state(). Doing this under the protection of all modeset
+ * locks means concurrent callers never see inconsistent state. Note that commit
+ * workers do not hold any locks; their access is only coordinated through
+ * ordering. If workers would access state only through the pointers in the
+ * free-standing state objects (currently not the case for any driver) then even
+ * multiple pending commits could be in-flight at the same time.
+>>>>>>> upstream/android-13
  *
  * 4. Schedule a work item to do all subsequent steps, using the split-out
  * commit helpers: a) pre-plane commit b) plane commit c) post-plane commit and
  * then cleaning up the framebuffers after the old framebuffer is no longer
+<<<<<<< HEAD
  * being displayed.
  *
  * The above scheme is implemented in the atomic helper libraries in
  * drm_atomic_helper_commit() using a bunch of helper functions. See
  * drm_atomic_helper_setup_commit() for a starting point.
+=======
+ * being displayed. The scheduled work should synchronize against other workers
+ * using the &drm_crtc_commit infrastructure as needed. See
+ * drm_atomic_helper_setup_commit() for more details.
+>>>>>>> upstream/android-13
  */
 
 static int stall_checks(struct drm_crtc *crtc, bool nonblock)
@@ -1789,10 +2345,22 @@ static int stall_checks(struct drm_crtc *crtc, bool nonblock)
 	list_for_each_entry(commit, &crtc->commit_list, commit_entry) {
 		if (i == 0) {
 			completed = try_wait_for_completion(&commit->flip_done);
+<<<<<<< HEAD
 			/* Userspace is not allowed to get ahead of the previous
 			 * commit with nonblocking ones. */
 			if (!completed && nonblock) {
 				spin_unlock(&crtc->commit_lock);
+=======
+			/*
+			 * Userspace is not allowed to get ahead of the previous
+			 * commit with nonblocking ones.
+			 */
+			if (!completed && nonblock) {
+				spin_unlock(&crtc->commit_lock);
+				DRM_DEBUG_ATOMIC("[CRTC:%d:%s] busy with a previous commit\n",
+					crtc->base.id, crtc->name);
+
+>>>>>>> upstream/android-13
 				return -EBUSY;
 			}
 		} else if (i == 1) {
@@ -1872,11 +2440,21 @@ crtc_or_fake_commit(struct drm_atomic_state *state, struct drm_crtc *crtc)
  * should always call this function from their
  * &drm_mode_config_funcs.atomic_commit hook.
  *
+<<<<<<< HEAD
+=======
+ * Drivers that need to extend the commit setup to private objects can use the
+ * &drm_mode_config_helper_funcs.atomic_commit_setup hook.
+ *
+>>>>>>> upstream/android-13
  * To be able to use this support drivers need to use a few more helper
  * functions. drm_atomic_helper_wait_for_dependencies() must be called before
  * actually committing the hardware state, and for nonblocking commits this call
  * must be placed in the async worker. See also drm_atomic_helper_swap_state()
+<<<<<<< HEAD
  * and it's stall parameter, for when a driver's commit hooks look at the
+=======
+ * and its stall parameter, for when a driver's commit hooks look at the
+>>>>>>> upstream/android-13
  * &drm_crtc.state, &drm_plane.state or &drm_connector.state pointer directly.
  *
  * Completion of the hardware commit step must be signalled using
@@ -1915,8 +2493,16 @@ int drm_atomic_helper_setup_commit(struct drm_atomic_state *state,
 	struct drm_plane *plane;
 	struct drm_plane_state *old_plane_state, *new_plane_state;
 	struct drm_crtc_commit *commit;
+<<<<<<< HEAD
 	int i, ret;
 
+=======
+	const struct drm_mode_config_helper_funcs *funcs;
+	int i, ret;
+
+	funcs = state->dev->mode_config.helper_private;
+
+>>>>>>> upstream/android-13
 	for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
 		commit = kzalloc(sizeof(*commit), GFP_KERNEL);
 		if (!commit)
@@ -1930,9 +2516,17 @@ int drm_atomic_helper_setup_commit(struct drm_atomic_state *state,
 		if (ret)
 			return ret;
 
+<<<<<<< HEAD
 		/* Drivers only send out events when at least either current or
 		 * new CRTC state is active. Complete right away if everything
 		 * stays off. */
+=======
+		/*
+		 * Drivers only send out events when at least either current or
+		 * new CRTC state is active. Complete right away if everything
+		 * stays off.
+		 */
+>>>>>>> upstream/android-13
 		if (!old_crtc_state->active && !new_crtc_state->active) {
 			complete_all(&commit->flip_done);
 			continue;
@@ -1964,11 +2558,25 @@ int drm_atomic_helper_setup_commit(struct drm_atomic_state *state,
 	}
 
 	for_each_oldnew_connector_in_state(state, conn, old_conn_state, new_conn_state, i) {
+<<<<<<< HEAD
 		/* Userspace is not allowed to get ahead of the previous
 		 * commit with nonblocking ones. */
 		if (nonblock && old_conn_state->commit &&
 		    !try_wait_for_completion(&old_conn_state->commit->flip_done))
 			return -EBUSY;
+=======
+		/*
+		 * Userspace is not allowed to get ahead of the previous
+		 * commit with nonblocking ones.
+		 */
+		if (nonblock && old_conn_state->commit &&
+		    !try_wait_for_completion(&old_conn_state->commit->flip_done)) {
+			DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] busy with a previous commit\n",
+				conn->base.id, conn->name);
+
+			return -EBUSY;
+		}
+>>>>>>> upstream/android-13
 
 		/* Always track connectors explicitly for e.g. link retraining. */
 		commit = crtc_or_fake_commit(state, new_conn_state->crtc ?: old_conn_state->crtc);
@@ -1979,11 +2587,25 @@ int drm_atomic_helper_setup_commit(struct drm_atomic_state *state,
 	}
 
 	for_each_oldnew_plane_in_state(state, plane, old_plane_state, new_plane_state, i) {
+<<<<<<< HEAD
 		/* Userspace is not allowed to get ahead of the previous
 		 * commit with nonblocking ones. */
 		if (nonblock && old_plane_state->commit &&
 		    !try_wait_for_completion(&old_plane_state->commit->flip_done))
 			return -EBUSY;
+=======
+		/*
+		 * Userspace is not allowed to get ahead of the previous
+		 * commit with nonblocking ones.
+		 */
+		if (nonblock && old_plane_state->commit &&
+		    !try_wait_for_completion(&old_plane_state->commit->flip_done)) {
+			DRM_DEBUG_ATOMIC("[PLANE:%d:%s] busy with a previous commit\n",
+				plane->base.id, plane->name);
+
+			return -EBUSY;
+		}
+>>>>>>> upstream/android-13
 
 		/* Always track planes explicitly for async pageflip support. */
 		commit = crtc_or_fake_commit(state, new_plane_state->crtc ?: old_plane_state->crtc);
@@ -1993,6 +2615,12 @@ int drm_atomic_helper_setup_commit(struct drm_atomic_state *state,
 		new_plane_state->commit = drm_crtc_commit_get(commit);
 	}
 
+<<<<<<< HEAD
+=======
+	if (funcs && funcs->atomic_commit_setup)
+		return funcs->atomic_commit_setup(state);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(drm_atomic_helper_setup_commit);
@@ -2003,7 +2631,11 @@ EXPORT_SYMBOL(drm_atomic_helper_setup_commit);
  *
  * This function waits for all preceeding commits that touch the same CRTC as
  * @old_state to both be committed to the hardware (as signalled by
+<<<<<<< HEAD
  * drm_atomic_helper_commit_hw_done) and executed by the hardware (as signalled
+=======
+ * drm_atomic_helper_commit_hw_done()) and executed by the hardware (as signalled
+>>>>>>> upstream/android-13
  * by calling drm_crtc_send_vblank_event() on the &drm_crtc_state.event).
  *
  * This is part of the atomic helper support for nonblocking commits, see
@@ -2017,11 +2649,15 @@ void drm_atomic_helper_wait_for_dependencies(struct drm_atomic_state *old_state)
 	struct drm_plane_state *old_plane_state;
 	struct drm_connector *conn;
 	struct drm_connector_state *old_conn_state;
+<<<<<<< HEAD
 	struct drm_crtc_commit *commit;
+=======
+>>>>>>> upstream/android-13
 	int i;
 	long ret;
 
 	for_each_old_crtc_in_state(old_state, crtc, old_crtc_state, i) {
+<<<<<<< HEAD
 		commit = old_crtc_state->commit;
 
 		if (!commit)
@@ -2039,10 +2675,16 @@ void drm_atomic_helper_wait_for_dependencies(struct drm_atomic_state *old_state)
 						  10*HZ);
 		if (ret == 0)
 			DRM_ERROR("[CRTC:%d:%s] flip_done timed out\n",
+=======
+		ret = drm_crtc_commit_wait(old_crtc_state->commit);
+		if (ret)
+			DRM_ERROR("[CRTC:%d:%s] commit wait timed out\n",
+>>>>>>> upstream/android-13
 				  crtc->base.id, crtc->name);
 	}
 
 	for_each_old_connector_in_state(old_state, conn, old_conn_state, i) {
+<<<<<<< HEAD
 		commit = old_conn_state->commit;
 
 		if (!commit)
@@ -2060,10 +2702,16 @@ void drm_atomic_helper_wait_for_dependencies(struct drm_atomic_state *old_state)
 						  10*HZ);
 		if (ret == 0)
 			DRM_ERROR("[CONNECTOR:%d:%s] flip_done timed out\n",
+=======
+		ret = drm_crtc_commit_wait(old_conn_state->commit);
+		if (ret)
+			DRM_ERROR("[CONNECTOR:%d:%s] commit wait timed out\n",
+>>>>>>> upstream/android-13
 				  conn->base.id, conn->name);
 	}
 
 	for_each_old_plane_in_state(old_state, plane, old_plane_state, i) {
+<<<<<<< HEAD
 		commit = old_plane_state->commit;
 
 		if (!commit)
@@ -2081,6 +2729,11 @@ void drm_atomic_helper_wait_for_dependencies(struct drm_atomic_state *old_state)
 						  10*HZ);
 		if (ret == 0)
 			DRM_ERROR("[PLANE:%d:%s] flip_done timed out\n",
+=======
+		ret = drm_crtc_commit_wait(old_plane_state->commit);
+		if (ret)
+			DRM_ERROR("[PLANE:%d:%s] commit wait timed out\n",
+>>>>>>> upstream/android-13
 				  plane->base.id, plane->name);
 	}
 }
@@ -2090,14 +2743,24 @@ EXPORT_SYMBOL(drm_atomic_helper_wait_for_dependencies);
  * drm_atomic_helper_fake_vblank - fake VBLANK events if needed
  * @old_state: atomic state object with old state structures
  *
+<<<<<<< HEAD
  * This function walks all CRTCs and fake VBLANK events on those with
+=======
+ * This function walks all CRTCs and fakes VBLANK events on those with
+>>>>>>> upstream/android-13
  * &drm_crtc_state.no_vblank set to true and &drm_crtc_state.event != NULL.
  * The primary use of this function is writeback connectors working in oneshot
  * mode and faking VBLANK events. In this case they only fake the VBLANK event
  * when a job is queued, and any change to the pipeline that does not touch the
  * connector is leading to timeouts when calling
  * drm_atomic_helper_wait_for_vblanks() or
+<<<<<<< HEAD
  * drm_atomic_helper_wait_for_flip_done().
+=======
+ * drm_atomic_helper_wait_for_flip_done(). In addition to writeback
+ * connectors, this function can also fake VBLANK events for CRTCs without
+ * VBLANK interrupt.
+>>>>>>> upstream/android-13
  *
  * This is part of the atomic helper support for nonblocking commits, see
  * drm_atomic_helper_setup_commit() for an overview.
@@ -2205,8 +2868,15 @@ void drm_atomic_helper_commit_cleanup_done(struct drm_atomic_state *old_state)
 		spin_unlock(&crtc->commit_lock);
 	}
 
+<<<<<<< HEAD
 	if (old_state->fake_commit)
 		complete_all(&old_state->fake_commit->cleanup_done);
+=======
+	if (old_state->fake_commit) {
+		complete_all(&old_state->fake_commit->cleanup_done);
+		WARN_ON(!try_wait_for_completion(&old_state->fake_commit->hw_done));
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_atomic_helper_commit_cleanup_done);
 
@@ -2226,10 +2896,27 @@ EXPORT_SYMBOL(drm_atomic_helper_commit_cleanup_done);
 int drm_atomic_helper_prepare_planes(struct drm_device *dev,
 				     struct drm_atomic_state *state)
 {
+<<<<<<< HEAD
+=======
+	struct drm_connector *connector;
+	struct drm_connector_state *new_conn_state;
+>>>>>>> upstream/android-13
 	struct drm_plane *plane;
 	struct drm_plane_state *new_plane_state;
 	int ret, i, j;
 
+<<<<<<< HEAD
+=======
+	for_each_new_connector_in_state(state, connector, new_conn_state, i) {
+		if (!new_conn_state->writeback_job)
+			continue;
+
+		ret = drm_writeback_prepare_job(new_conn_state->writeback_job);
+		if (ret < 0)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	for_each_new_plane_in_state(state, plane, new_plane_state, i) {
 		const struct drm_plane_helper_funcs *funcs;
 
@@ -2239,6 +2926,18 @@ int drm_atomic_helper_prepare_planes(struct drm_device *dev,
 			ret = funcs->prepare_fb(plane, new_plane_state);
 			if (ret)
 				goto fail;
+<<<<<<< HEAD
+=======
+		} else {
+			WARN_ON_ONCE(funcs->cleanup_fb);
+
+			if (!drm_core_check_feature(dev, DRIVER_GEM))
+				continue;
+
+			ret = drm_gem_plane_helper_prepare_fb(plane, new_plane_state);
+			if (ret)
+				goto fail;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2273,7 +2972,11 @@ static bool plane_crtc_active(const struct drm_plane_state *state)
  * @flags: flags for committing plane state
  *
  * This function commits the new plane state using the plane and atomic helper
+<<<<<<< HEAD
  * functions for planes and crtcs. It assumes that the atomic state has already
+=======
+ * functions for planes and CRTCs. It assumes that the atomic state has already
+>>>>>>> upstream/android-13
  * been pushed into the relevant object state pointers, since this step can no
  * longer fail.
  *
@@ -2330,7 +3033,11 @@ void drm_atomic_helper_commit_planes(struct drm_device *dev,
 		if (active_only && !new_crtc_state->active)
 			continue;
 
+<<<<<<< HEAD
 		funcs->atomic_begin(crtc, old_crtc_state);
+=======
+		funcs->atomic_begin(crtc, old_state);
+>>>>>>> upstream/android-13
 	}
 
 	for_each_oldnew_plane_in_state(old_state, plane, old_plane_state, new_plane_state, i) {
@@ -2371,9 +3078,15 @@ void drm_atomic_helper_commit_planes(struct drm_device *dev,
 			    no_disable)
 				continue;
 
+<<<<<<< HEAD
 			funcs->atomic_disable(plane, old_plane_state);
 		} else if (new_plane_state->crtc || disabling) {
 			funcs->atomic_update(plane, old_plane_state);
+=======
+			funcs->atomic_disable(plane, old_state);
+		} else if (new_plane_state->crtc || disabling) {
+			funcs->atomic_update(plane, old_state);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2388,12 +3101,17 @@ void drm_atomic_helper_commit_planes(struct drm_device *dev,
 		if (active_only && !new_crtc_state->active)
 			continue;
 
+<<<<<<< HEAD
 		funcs->atomic_flush(crtc, old_crtc_state);
+=======
+		funcs->atomic_flush(crtc, old_state);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(drm_atomic_helper_commit_planes);
 
 /**
+<<<<<<< HEAD
  * drm_atomic_helper_commit_planes_on_crtc - commit plane state for a crtc
  * @old_crtc_state: atomic state object with the old crtc state
  *
@@ -2403,11 +3121,26 @@ EXPORT_SYMBOL(drm_atomic_helper_commit_planes);
  * step can no longer fail.
  *
  * This function is useful when plane updates should be done crtc-by-crtc
+=======
+ * drm_atomic_helper_commit_planes_on_crtc - commit plane state for a CRTC
+ * @old_crtc_state: atomic state object with the old CRTC state
+ *
+ * This function commits the new plane state using the plane and atomic helper
+ * functions for planes on the specific CRTC. It assumes that the atomic state
+ * has already been pushed into the relevant object state pointers, since this
+ * step can no longer fail.
+ *
+ * This function is useful when plane updates should be done CRTC-by-CRTC
+>>>>>>> upstream/android-13
  * instead of one global step like drm_atomic_helper_commit_planes() does.
  *
  * This function can only be savely used when planes are not allowed to move
  * between different CRTCs because this function doesn't handle inter-CRTC
+<<<<<<< HEAD
  * depencies. Callers need to ensure that either no such depencies exist,
+=======
+ * dependencies. Callers need to ensure that either no such dependencies exist,
+>>>>>>> upstream/android-13
  * resolve them through ordering of commit calls or through some other means.
  */
 void
@@ -2419,14 +3152,22 @@ drm_atomic_helper_commit_planes_on_crtc(struct drm_crtc_state *old_crtc_state)
 	struct drm_crtc_state *new_crtc_state =
 		drm_atomic_get_new_crtc_state(old_state, crtc);
 	struct drm_plane *plane;
+<<<<<<< HEAD
 	unsigned plane_mask;
+=======
+	unsigned int plane_mask;
+>>>>>>> upstream/android-13
 
 	plane_mask = old_crtc_state->plane_mask;
 	plane_mask |= new_crtc_state->plane_mask;
 
 	crtc_funcs = crtc->helper_private;
 	if (crtc_funcs && crtc_funcs->atomic_begin)
+<<<<<<< HEAD
 		crtc_funcs->atomic_begin(crtc, old_crtc_state);
+=======
+		crtc_funcs->atomic_begin(crtc, old_state);
+>>>>>>> upstream/android-13
 
 	drm_for_each_plane_mask(plane, crtc->dev, plane_mask) {
 		struct drm_plane_state *old_plane_state =
@@ -2445,6 +3186,7 @@ drm_atomic_helper_commit_planes_on_crtc(struct drm_crtc_state *old_crtc_state)
 
 		if (drm_atomic_plane_disabling(old_plane_state, new_plane_state) &&
 		    plane_funcs->atomic_disable)
+<<<<<<< HEAD
 			plane_funcs->atomic_disable(plane, old_plane_state);
 		else if (new_plane_state->crtc ||
 			 drm_atomic_plane_disabling(old_plane_state, new_plane_state))
@@ -2453,6 +3195,16 @@ drm_atomic_helper_commit_planes_on_crtc(struct drm_crtc_state *old_crtc_state)
 
 	if (crtc_funcs && crtc_funcs->atomic_flush)
 		crtc_funcs->atomic_flush(crtc, old_crtc_state);
+=======
+			plane_funcs->atomic_disable(plane, old_state);
+		else if (new_plane_state->crtc ||
+			 drm_atomic_plane_disabling(old_plane_state, new_plane_state))
+			plane_funcs->atomic_update(plane, old_state);
+	}
+
+	if (crtc_funcs && crtc_funcs->atomic_flush)
+		crtc_funcs->atomic_flush(crtc, old_state);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_atomic_helper_commit_planes_on_crtc);
 
@@ -2544,7 +3296,11 @@ EXPORT_SYMBOL(drm_atomic_helper_cleanup_planes);
 /**
  * drm_atomic_helper_swap_state - store atomic state into current sw state
  * @state: atomic state
+<<<<<<< HEAD
  * @stall: stall for preceeding commits
+=======
+ * @stall: stall for preceding commits
+>>>>>>> upstream/android-13
  *
  * This function stores the atomic state into the current state pointers in all
  * driver objects. It should be called after all failing steps have been done
@@ -2692,10 +3448,17 @@ EXPORT_SYMBOL(drm_atomic_helper_swap_state);
  * @plane: plane object to update
  * @crtc: owning CRTC of owning plane
  * @fb: framebuffer to flip onto plane
+<<<<<<< HEAD
  * @crtc_x: x offset of primary plane on crtc
  * @crtc_y: y offset of primary plane on crtc
  * @crtc_w: width of primary plane rectangle on crtc
  * @crtc_h: height of primary plane rectangle on crtc
+=======
+ * @crtc_x: x offset of primary plane on @crtc
+ * @crtc_y: y offset of primary plane on @crtc
+ * @crtc_w: width of primary plane rectangle on @crtc
+ * @crtc_h: height of primary plane rectangle on @crtc
+>>>>>>> upstream/android-13
  * @src_x: x offset of @fb for panning
  * @src_y: y offset of @fb for panning
  * @src_w: width of source rectangle in @fb
@@ -2796,6 +3559,7 @@ fail:
 }
 EXPORT_SYMBOL(drm_atomic_helper_disable_plane);
 
+<<<<<<< HEAD
 /* just used from fb-helper and atomic-helper: */
 int __drm_atomic_helper_disable_plane(struct drm_plane *plane,
 		struct drm_plane_state *plane_state)
@@ -2886,12 +3650,18 @@ static int update_output_state(struct drm_atomic_state *state,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * drm_atomic_helper_set_config - set a new config from userspace
  * @set: mode set configuration
  * @ctx: lock acquisition context
  *
+<<<<<<< HEAD
  * Provides a default crtc set_config handler using the atomic driver interface.
+=======
+ * Provides a default CRTC set_config handler using the atomic driver interface.
+>>>>>>> upstream/android-13
  *
  * NOTE: For backwards compatibility with old userspace this automatically
  * resets the "link-status" property to GOOD, to force any link
@@ -2930,6 +3700,7 @@ fail:
 }
 EXPORT_SYMBOL(drm_atomic_helper_set_config);
 
+<<<<<<< HEAD
 /* just used from fb-helper and atomic-helper: */
 int __drm_atomic_helper_set_config(struct drm_mode_set *set,
 		struct drm_atomic_state *state)
@@ -3009,6 +3780,33 @@ EXPORT_SYMBOL_GPL(__drm_atomic_helper_set_config);
 static int __drm_atomic_helper_disable_all(struct drm_device *dev,
 					   struct drm_modeset_acquire_ctx *ctx,
 					   bool clean_old_fbs)
+=======
+/**
+ * drm_atomic_helper_disable_all - disable all currently active outputs
+ * @dev: DRM device
+ * @ctx: lock acquisition context
+ *
+ * Loops through all connectors, finding those that aren't turned off and then
+ * turns them off by setting their DPMS mode to OFF and deactivating the CRTC
+ * that they are connected to.
+ *
+ * This is used for example in suspend/resume to disable all currently active
+ * functions when suspending. If you just want to shut down everything at e.g.
+ * driver unload, look at drm_atomic_helper_shutdown().
+ *
+ * Note that if callers haven't already acquired all modeset locks this might
+ * return -EDEADLK, which must be handled by calling drm_modeset_backoff().
+ *
+ * Returns:
+ * 0 on success or a negative error code on failure.
+ *
+ * See also:
+ * drm_atomic_helper_suspend(), drm_atomic_helper_resume() and
+ * drm_atomic_helper_shutdown().
+ */
+int drm_atomic_helper_disable_all(struct drm_device *dev,
+				  struct drm_modeset_acquire_ctx *ctx)
+>>>>>>> upstream/android-13
 {
 	struct drm_atomic_state *state;
 	struct drm_connector_state *conn_state;
@@ -3066,6 +3864,7 @@ free:
 	drm_atomic_state_put(state);
 	return ret;
 }
+<<<<<<< HEAD
 
 /**
  * drm_atomic_helper_disable_all - disable all currently active outputs
@@ -3095,6 +3894,8 @@ int drm_atomic_helper_disable_all(struct drm_device *dev,
 {
 	return __drm_atomic_helper_disable_all(dev, ctx, false);
 }
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(drm_atomic_helper_disable_all);
 
 /**
@@ -3113,6 +3914,7 @@ void drm_atomic_helper_shutdown(struct drm_device *dev)
 	struct drm_modeset_acquire_ctx ctx;
 	int ret;
 
+<<<<<<< HEAD
 	drm_modeset_acquire_init(&ctx, 0);
 	while (1) {
 		ret = drm_modeset_lock_all_ctx(dev, &ctx);
@@ -3130,10 +3932,110 @@ void drm_atomic_helper_shutdown(struct drm_device *dev)
 
 	drm_modeset_drop_locks(&ctx);
 	drm_modeset_acquire_fini(&ctx);
+=======
+	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, 0, ret);
+
+	ret = drm_atomic_helper_disable_all(dev, &ctx);
+	if (ret)
+		DRM_ERROR("Disabling all crtc's during unload failed with %i\n", ret);
+
+	DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_atomic_helper_shutdown);
 
 /**
+<<<<<<< HEAD
+=======
+ * drm_atomic_helper_duplicate_state - duplicate an atomic state object
+ * @dev: DRM device
+ * @ctx: lock acquisition context
+ *
+ * Makes a copy of the current atomic state by looping over all objects and
+ * duplicating their respective states. This is used for example by suspend/
+ * resume support code to save the state prior to suspend such that it can
+ * be restored upon resume.
+ *
+ * Note that this treats atomic state as persistent between save and restore.
+ * Drivers must make sure that this is possible and won't result in confusion
+ * or erroneous behaviour.
+ *
+ * Note that if callers haven't already acquired all modeset locks this might
+ * return -EDEADLK, which must be handled by calling drm_modeset_backoff().
+ *
+ * Returns:
+ * A pointer to the copy of the atomic state object on success or an
+ * ERR_PTR()-encoded error code on failure.
+ *
+ * See also:
+ * drm_atomic_helper_suspend(), drm_atomic_helper_resume()
+ */
+struct drm_atomic_state *
+drm_atomic_helper_duplicate_state(struct drm_device *dev,
+				  struct drm_modeset_acquire_ctx *ctx)
+{
+	struct drm_atomic_state *state;
+	struct drm_connector *conn;
+	struct drm_connector_list_iter conn_iter;
+	struct drm_plane *plane;
+	struct drm_crtc *crtc;
+	int err = 0;
+
+	state = drm_atomic_state_alloc(dev);
+	if (!state)
+		return ERR_PTR(-ENOMEM);
+
+	state->acquire_ctx = ctx;
+	state->duplicated = true;
+
+	drm_for_each_crtc(crtc, dev) {
+		struct drm_crtc_state *crtc_state;
+
+		crtc_state = drm_atomic_get_crtc_state(state, crtc);
+		if (IS_ERR(crtc_state)) {
+			err = PTR_ERR(crtc_state);
+			goto free;
+		}
+	}
+
+	drm_for_each_plane(plane, dev) {
+		struct drm_plane_state *plane_state;
+
+		plane_state = drm_atomic_get_plane_state(state, plane);
+		if (IS_ERR(plane_state)) {
+			err = PTR_ERR(plane_state);
+			goto free;
+		}
+	}
+
+	drm_connector_list_iter_begin(dev, &conn_iter);
+	drm_for_each_connector_iter(conn, &conn_iter) {
+		struct drm_connector_state *conn_state;
+
+		conn_state = drm_atomic_get_connector_state(state, conn);
+		if (IS_ERR(conn_state)) {
+			err = PTR_ERR(conn_state);
+			drm_connector_list_iter_end(&conn_iter);
+			goto free;
+		}
+	}
+	drm_connector_list_iter_end(&conn_iter);
+
+	/* clear the acquire context so that it isn't accidentally reused */
+	state->acquire_ctx = NULL;
+
+free:
+	if (err < 0) {
+		drm_atomic_state_put(state);
+		state = ERR_PTR(err);
+	}
+
+	return state;
+}
+EXPORT_SYMBOL(drm_atomic_helper_duplicate_state);
+
+/**
+>>>>>>> upstream/android-13
  * drm_atomic_helper_suspend - subsystem-level suspend helper
  * @dev: DRM device
  *
@@ -3164,6 +4066,7 @@ struct drm_atomic_state *drm_atomic_helper_suspend(struct drm_device *dev)
 	struct drm_atomic_state *state;
 	int err;
 
+<<<<<<< HEAD
 	drm_modeset_acquire_init(&ctx, 0);
 
 retry:
@@ -3172,6 +4075,12 @@ retry:
 		state = ERR_PTR(err);
 		goto unlock;
 	}
+=======
+	/* This can never be returned, but it makes the compiler happy */
+	state = ERR_PTR(-EINVAL);
+
+	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, 0, err);
+>>>>>>> upstream/android-13
 
 	state = drm_atomic_helper_duplicate_state(dev, &ctx);
 	if (IS_ERR(state))
@@ -3185,6 +4094,7 @@ retry:
 	}
 
 unlock:
+<<<<<<< HEAD
 	if (PTR_ERR(state) == -EDEADLK) {
 		drm_modeset_backoff(&ctx);
 		goto retry;
@@ -3192,6 +4102,12 @@ unlock:
 
 	drm_modeset_drop_locks(&ctx);
 	drm_modeset_acquire_fini(&ctx);
+=======
+	DRM_MODESET_LOCK_ALL_END(dev, ctx, err);
+	if (err)
+		return ERR_PTR(err);
+
+>>>>>>> upstream/android-13
 	return state;
 }
 EXPORT_SYMBOL(drm_atomic_helper_suspend);
@@ -3265,6 +4181,7 @@ int drm_atomic_helper_resume(struct drm_device *dev,
 
 	drm_mode_config_reset(dev);
 
+<<<<<<< HEAD
 	drm_modeset_acquire_init(&ctx, 0);
 	while (1) {
 		err = drm_modeset_lock_all_ctx(dev, &ctx);
@@ -3282,6 +4199,14 @@ out:
 	drm_atomic_state_put(state);
 	drm_modeset_drop_locks(&ctx);
 	drm_modeset_acquire_fini(&ctx);
+=======
+	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, 0, err);
+
+	err = drm_atomic_helper_commit_duplicated_state(state, &ctx);
+
+	DRM_MODESET_LOCK_ALL_END(dev, ctx, err);
+	drm_atomic_state_put(state);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -3303,7 +4228,11 @@ static int page_flip_common(struct drm_atomic_state *state,
 		return PTR_ERR(crtc_state);
 
 	crtc_state->event = event;
+<<<<<<< HEAD
 	crtc_state->pageflip_flags = flags;
+=======
+	crtc_state->async_flip = flags & DRM_MODE_PAGE_FLIP_ASYNC;
+>>>>>>> upstream/android-13
 
 	plane_state = drm_atomic_get_plane_state(state, plane);
 	if (IS_ERR(plane_state))
@@ -3327,7 +4256,11 @@ static int page_flip_common(struct drm_atomic_state *state,
 
 /**
  * drm_atomic_helper_page_flip - execute a legacy page flip
+<<<<<<< HEAD
  * @crtc: DRM crtc
+=======
+ * @crtc: DRM CRTC
+>>>>>>> upstream/android-13
  * @fb: DRM framebuffer
  * @event: optional DRM event to signal upon completion
  * @flags: flip flags for non-vblank sync'ed updates
@@ -3371,7 +4304,11 @@ EXPORT_SYMBOL(drm_atomic_helper_page_flip);
 
 /**
  * drm_atomic_helper_page_flip_target - do page flip on target vblank period.
+<<<<<<< HEAD
  * @crtc: DRM crtc
+=======
+ * @crtc: DRM CRTC
+>>>>>>> upstream/android-13
  * @fb: DRM framebuffer
  * @event: optional DRM event to signal upon completion
  * @flags: flip flags for non-vblank sync'ed updates
@@ -3422,6 +4359,7 @@ fail:
 EXPORT_SYMBOL(drm_atomic_helper_page_flip_target);
 
 /**
+<<<<<<< HEAD
  * drm_atomic_helper_best_encoder - Helper for
  * 	&drm_connector_helper_funcs.best_encoder callback
  * @connector: Connector control structure
@@ -3989,3 +4927,44 @@ void __drm_atomic_helper_private_obj_duplicate_state(struct drm_private_obj *obj
 	memcpy(state, obj->state, sizeof(*state));
 }
 EXPORT_SYMBOL(__drm_atomic_helper_private_obj_duplicate_state);
+=======
+ * drm_atomic_helper_bridge_propagate_bus_fmt() - Propagate output format to
+ *						  the input end of a bridge
+ * @bridge: bridge control structure
+ * @bridge_state: new bridge state
+ * @crtc_state: new CRTC state
+ * @conn_state: new connector state
+ * @output_fmt: tested output bus format
+ * @num_input_fmts: will contain the size of the returned array
+ *
+ * This helper is a pluggable implementation of the
+ * &drm_bridge_funcs.atomic_get_input_bus_fmts operation for bridges that don't
+ * modify the bus configuration between their input and their output. It
+ * returns an array of input formats with a single element set to @output_fmt.
+ *
+ * RETURNS:
+ * a valid format array of size @num_input_fmts, or NULL if the allocation
+ * failed
+ */
+u32 *
+drm_atomic_helper_bridge_propagate_bus_fmt(struct drm_bridge *bridge,
+					struct drm_bridge_state *bridge_state,
+					struct drm_crtc_state *crtc_state,
+					struct drm_connector_state *conn_state,
+					u32 output_fmt,
+					unsigned int *num_input_fmts)
+{
+	u32 *input_fmts;
+
+	input_fmts = kzalloc(sizeof(*input_fmts), GFP_KERNEL);
+	if (!input_fmts) {
+		*num_input_fmts = 0;
+		return NULL;
+	}
+
+	*num_input_fmts = 1;
+	input_fmts[0] = output_fmt;
+	return input_fmts;
+}
+EXPORT_SYMBOL(drm_atomic_helper_bridge_propagate_bus_fmt);
+>>>>>>> upstream/android-13

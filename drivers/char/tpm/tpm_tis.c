@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005, 2006 IBM Corporation
  * Copyright (C) 2014, 2015 Intel Corporation
@@ -13,11 +17,14 @@
  *
  * This device driver implements the TPM interface as defined in
  * the TCG TPM Interface Spec version 1.2, revision 1.0.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -264,6 +271,16 @@ static int tpm_tis_pnp_init(struct pnp_dev *pnp_dev,
 	return tpm_tis_init(&pnp_dev->dev, &tpm_info);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * There is a known bug caused by 93e1b7d42e1e ("[PATCH] tpm: add HID module
+ * parameter"). This commit added IFX0102 device ID, which is also used by
+ * tpm_infineon but ignored to add quirks to probe which driver ought to be
+ * used.
+ */
+
+>>>>>>> upstream/android-13
 static struct pnp_device_id tpm_pnp_tbl[] = {
 	{"PNP0C31", 0},		/* TPM */
 	{"ATM1200", 0},		/* Atmel */
@@ -315,7 +332,11 @@ static int tpm_tis_plat_probe(struct platform_device *pdev)
 	}
 	tpm_info.res = *res;
 
+<<<<<<< HEAD
 	tpm_info.irq = platform_get_irq(pdev, 0);
+=======
+	tpm_info.irq = platform_get_irq_optional(pdev, 0);
+>>>>>>> upstream/android-13
 	if (tpm_info.irq <= 0) {
 		if (pdev != force_pdev)
 			tpm_info.irq = -1;
@@ -360,11 +381,15 @@ static int tpm_tis_force_device(void)
 {
 	struct platform_device *pdev;
 	static const struct resource x86_resources[] = {
+<<<<<<< HEAD
 		{
 			.start = 0xFED40000,
 			.end = 0xFED40000 + TIS_MEM_LEN - 1,
 			.flags = IORESOURCE_MEM,
 		},
+=======
+		DEFINE_RES_MEM(0xFED40000, TIS_MEM_LEN)
+>>>>>>> upstream/android-13
 	};
 
 	if (!force)

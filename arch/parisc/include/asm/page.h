@@ -42,6 +42,7 @@ typedef struct { unsigned long pte; } pte_t; /* either 32 or 64bit */
 
 /* NOTE: even on 64 bits, these entries are __u32 because we allocate
  * the pmd and pgd in ZONE_DMA (i.e. under 4GB) */
+<<<<<<< HEAD
 typedef struct { __u32 pmd; } pmd_t;
 typedef struct { __u32 pgd; } pgd_t;
 typedef struct { unsigned long pgprot; } pgprot_t;
@@ -49,10 +50,24 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define pte_val(x)	((x).pte)
 /* These do not work lvalues, so make sure we don't use them as such. */
 #define pmd_val(x)	((x).pmd + 0)
+=======
+typedef struct { __u32 pgd; } pgd_t;
+typedef struct { unsigned long pgprot; } pgprot_t;
+
+#if CONFIG_PGTABLE_LEVELS == 3
+typedef struct { __u32 pmd; } pmd_t;
+#define __pmd(x)	((pmd_t) { (x) } )
+/* pXd_val() do not work as lvalues, so make sure we don't use them as such. */
+#define pmd_val(x)	((x).pmd + 0)
+#endif
+
+#define pte_val(x)	((x).pte)
+>>>>>>> upstream/android-13
 #define pgd_val(x)	((x).pgd + 0)
 #define pgprot_val(x)	((x).pgprot)
 
 #define __pte(x)	((pte_t) { (x) } )
+<<<<<<< HEAD
 #define __pmd(x)	((pmd_t) { (x) } )
 #define __pgd(x)	((pgd_t) { (x) } )
 #define __pgprot(x)	((pgprot_t) { (x) } )
@@ -60,21 +75,40 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define __pmd_val_set(x,n) (x).pmd = (n)
 #define __pgd_val_set(x,n) (x).pgd = (n)
 
+=======
+#define __pgd(x)	((pgd_t) { (x) } )
+#define __pgprot(x)	((pgprot_t) { (x) } )
+
+>>>>>>> upstream/android-13
 #else
 /*
  * .. while these make it easier on the compiler
  */
 typedef unsigned long pte_t;
+<<<<<<< HEAD
 typedef         __u32 pmd_t;
+=======
+
+#if CONFIG_PGTABLE_LEVELS == 3
+typedef         __u32 pmd_t;
+#define pmd_val(x)      (x)
+#define __pmd(x)	(x)
+#endif
+
+>>>>>>> upstream/android-13
 typedef         __u32 pgd_t;
 typedef unsigned long pgprot_t;
 
 #define pte_val(x)      (x)
+<<<<<<< HEAD
 #define pmd_val(x)      (x)
+=======
+>>>>>>> upstream/android-13
 #define pgd_val(x)      (x)
 #define pgprot_val(x)   (x)
 
 #define __pte(x)        (x)
+<<<<<<< HEAD
 #define __pmd(x)	(x)
 #define __pgd(x)        (x)
 #define __pgprot(x)     (x)
@@ -84,6 +118,18 @@ typedef unsigned long pgprot_t;
 
 #endif /* STRICT_MM_TYPECHECKS */
 
+=======
+#define __pgd(x)        (x)
+#define __pgprot(x)     (x)
+
+#endif /* STRICT_MM_TYPECHECKS */
+
+#define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
+#if CONFIG_PGTABLE_LEVELS == 3
+#define set_pud(pudptr, pudval) (*(pudptr) = (pudval))
+#endif
+
+>>>>>>> upstream/android-13
 typedef struct page *pgtable_t;
 
 typedef struct __physmem_range {
@@ -106,7 +152,11 @@ extern int npmem_ranges;
 #else
 #define BITS_PER_PTE_ENTRY	2
 #define BITS_PER_PMD_ENTRY	2
+<<<<<<< HEAD
 #define BITS_PER_PGD_ENTRY	BITS_PER_PMD_ENTRY
+=======
+#define BITS_PER_PGD_ENTRY	2
+>>>>>>> upstream/android-13
 #endif
 #define PGD_ENTRY_SIZE	(1UL << BITS_PER_PGD_ENTRY)
 #define PMD_ENTRY_SIZE	(1UL << BITS_PER_PMD_ENTRY)
@@ -117,6 +167,7 @@ extern int npmem_ranges;
 /* This governs the relationship between virtual and physical addresses.
  * If you alter it, make sure to take care of our various fixed mapping
  * segments in fixmap.h */
+<<<<<<< HEAD
 #if defined(BOOTLOADER)
 #define __PAGE_OFFSET	(0)		/* bootloader uses physical addresses */
 #else
@@ -125,6 +176,18 @@ extern int npmem_ranges;
 #else
 #define __PAGE_OFFSET	(0x10000000)	/* 256MB */
 #endif
+=======
+#ifdef CONFIG_64BIT
+#define __PAGE_OFFSET_DEFAULT	(0x40000000)	/* 1GB */
+#else
+#define __PAGE_OFFSET_DEFAULT	(0x10000000)	/* 256MB */
+#endif
+
+#if defined(BOOTLOADER)
+#define __PAGE_OFFSET	(0)	/* bootloader uses physical addresses */
+#else
+#define __PAGE_OFFSET	__PAGE_OFFSET_DEFAULT
+>>>>>>> upstream/android-13
 #endif /* BOOTLOADER */
 
 #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
@@ -172,14 +235,21 @@ extern int npmem_ranges;
 #define page_to_phys(page)	(page_to_pfn(page) << PAGE_SHIFT)
 #define virt_to_page(kaddr)     pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
 
+<<<<<<< HEAD
 #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/memory_model.h>
 #include <asm-generic/getorder.h>
 #include <asm/pdc.h>
 
+<<<<<<< HEAD
 #define PAGE0   ((struct zeropage *)__PAGE_OFFSET)
+=======
+#define PAGE0   ((struct zeropage *)absolute_pointer(__PAGE_OFFSET))
+>>>>>>> upstream/android-13
 
 /* DEFINITION OF THE ZERO-PAGE (PAG0) */
 /* based on work by Jason Eckhardt (jason@equator.com) */

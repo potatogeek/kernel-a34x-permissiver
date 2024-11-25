@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * AD193X Audio Codec driver
  *
  * Copyright 2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AD193X_H__
@@ -31,8 +38,22 @@ int ad193x_probe(struct device *dev, struct regmap *regmap,
 #define AD193X_PLL_INPUT_512    (2 << 1)
 #define AD193X_PLL_INPUT_768    (3 << 1)
 #define AD193X_PLL_CLK_CTRL1    0x01
+<<<<<<< HEAD
 #define AD193X_DAC_CTRL0        0x02
 #define AD193X_DAC_POWERDOWN           0x01
+=======
+#define AD193X_PLL_SRC_MASK	0x03
+#define AD193X_PLL_DAC_SRC_PLL  0
+#define AD193X_PLL_DAC_SRC_MCLK 1
+#define AD193X_PLL_CLK_SRC_PLL  (0 << 1)
+#define AD193X_PLL_CLK_SRC_MCLK	(1 << 1)
+#define AD193X_DAC_CTRL0        0x02
+#define AD193X_DAC_POWERDOWN           0x01
+#define AD193X_DAC_SR_MASK           0x06
+#define AD193X_DAC_SR_48	(0 << 1)
+#define AD193X_DAC_SR_96	(1 << 1)
+#define AD193X_DAC_SR_192	(2 << 1)
+>>>>>>> upstream/android-13
 #define AD193X_DAC_SERFMT_MASK		0xC0
 #define AD193X_DAC_SERFMT_STEREO	(0 << 6)
 #define AD193X_DAC_SERFMT_TDM		(1 << 6)
@@ -96,4 +117,10 @@ int ad193x_probe(struct device *dev, struct regmap *regmap,
 
 #define AD193X_NUM_REGS          17
 
+<<<<<<< HEAD
+=======
+#define AD193X_SYSCLK_PLL	0
+#define AD193X_SYSCLK_MCLK	1
+
+>>>>>>> upstream/android-13
 #endif

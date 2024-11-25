@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef LINUX_MMC_CQHCI_H
 #define LINUX_MMC_CQHCI_H
@@ -30,16 +35,25 @@
 
 /* capabilities */
 #define CQHCI_CAP			0x04
+<<<<<<< HEAD
 #define CQHCI_CAP_CS			(1 << 28)
 #define CQHCI_CCAP			0x100
 #define CQHCI_CRYPTOCAP			0x104
+=======
+#define CQHCI_CAP_CS			0x10000000 /* Crypto Support */
+>>>>>>> upstream/android-13
 
 /* configuration */
 #define CQHCI_CFG			0x08
 #define CQHCI_DCMD			0x00001000
 #define CQHCI_TASK_DESC_SZ		0x00000100
+<<<<<<< HEAD
 #define CQHCI_ENABLE			0x00000001
 #define CQHCI_CRYPTO_ENABLE		0x00000002
+=======
+#define CQHCI_CRYPTO_GENERAL_ENABLE	0x00000002
+#define CQHCI_ENABLE			0x00000001
+>>>>>>> upstream/android-13
 
 /* control */
 #define CQHCI_CTL			0x0C
@@ -52,8 +66,16 @@
 #define CQHCI_IS_TCC			BIT(1)
 #define CQHCI_IS_RED			BIT(2)
 #define CQHCI_IS_TCL			BIT(3)
+<<<<<<< HEAD
 
 #define CQHCI_IS_MASK (CQHCI_IS_TCC | CQHCI_IS_RED)
+=======
+#define CQHCI_IS_GCE			BIT(4) /* General Crypto Error */
+#define CQHCI_IS_ICCE			BIT(5) /* Invalid Crypto Config Error */
+
+#define CQHCI_IS_MASK (CQHCI_IS_TCC | CQHCI_IS_RED | \
+		       CQHCI_IS_GCE | CQHCI_IS_ICCE)
+>>>>>>> upstream/android-13
 
 /* interrupt status enable */
 #define CQHCI_ISTE			0x14
@@ -91,8 +113,17 @@
 /* task clear */
 #define CQHCI_TCLR			0x38
 
+<<<<<<< HEAD
 /* send status config 1 */
 #define CQHCI_SSC1			0x40
+=======
+/* task descriptor processing error */
+#define CQHCI_TDPE			0x3c
+
+/* send status config 1 */
+#define CQHCI_SSC1			0x40
+#define CQHCI_SSC1_CBC_MASK		GENMASK(19, 16)
+>>>>>>> upstream/android-13
 
 /* send status config 2 */
 #define CQHCI_SSC2			0x44
@@ -119,10 +150,16 @@
 /* command response argument */
 #define CQHCI_CRA			0x5C
 
+<<<<<<< HEAD
 #define CQHCI_CRNQP         0x70
 #define CQHCI_CRNQDUN       0x74
 #define CQHCI_CRNQIS        0x78
 #define CQHCI_CRNQIE        0x7c
+=======
+/* crypto capabilities */
+#define CQHCI_CCAP			0x100
+#define CQHCI_CRYPTOCAP			0x104
+>>>>>>> upstream/android-13
 
 #define CQHCI_INT_ALL			0xF
 #define CQHCI_IC_DEFAULT_ICCTH		31
@@ -150,6 +187,13 @@
 #define CQHCI_CMD_TIMING(x)		(((x) & 1) << 22)
 #define CQHCI_RESP_TYPE(x)		(((x) & 0x3) << 23)
 
+<<<<<<< HEAD
+=======
+/* crypto task descriptor fields (for bits 64-127 of task descriptor) */
+#define CQHCI_CRYPTO_ENABLE_BIT		(1ULL << 47)
+#define CQHCI_CRYPTO_KEYSLOT(x)		((u64)(x) << 32)
+
+>>>>>>> upstream/android-13
 /* transfer descriptor fields */
 #define CQHCI_DAT_LENGTH(x)		(((x) & 0xFFFF) << 16)
 #define CQHCI_DAT_ADDR_LO(x)		(((x) & 0xFFFFFFFF) << 32)
@@ -199,7 +243,10 @@ union cqhci_crypto_cfg_entry {
 	__le32 reg_val[32];
 	struct {
 		u8 crypto_key[CQHCI_CRYPTO_KEY_MAX_SIZE];
+<<<<<<< HEAD
 		/* 4KB/512 = 8 */
+=======
+>>>>>>> upstream/android-13
 		u8 data_unit_size;
 		u8 crypto_cap_idx;
 		u8 reserved_1;
@@ -213,6 +260,10 @@ union cqhci_crypto_cfg_entry {
 
 struct cqhci_host_ops;
 struct mmc_host;
+<<<<<<< HEAD
+=======
+struct mmc_request;
+>>>>>>> upstream/android-13
 struct cqhci_slot;
 
 struct cqhci_host {
@@ -235,8 +286,12 @@ struct cqhci_host {
 #define CQHCI_TASK_DESC_SZ_128		0x1
 
 	u32 quirks;
+<<<<<<< HEAD
 #define CQHCI_QUIRK_SHORT_TXFR_DESC_SZ		(1 << 0)
 #define CQHCI_QUIRK_DIS_BEFORE_NON_CQ_CMD	(1 << 1)
+=======
+#define CQHCI_QUIRK_SHORT_TXFR_DESC_SZ	0x1
+>>>>>>> upstream/android-13
 
 	bool enabled;
 	bool halted;
@@ -269,6 +324,10 @@ struct cqhci_host {
 	struct completion halt_comp;
 	wait_queue_head_t wait_queue;
 	struct cqhci_slot *slot;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MMC_CRYPTO
 	union cqhci_crypto_capabilities crypto_capabilities;
 	union cqhci_crypto_cap_entry *crypto_cap_array;
@@ -282,6 +341,17 @@ struct cqhci_host_ops {
 	u32 (*read_l)(struct cqhci_host *host, int reg);
 	void (*enable)(struct mmc_host *mmc);
 	void (*disable)(struct mmc_host *mmc, bool recovery);
+<<<<<<< HEAD
+=======
+	void (*update_dcmd_desc)(struct mmc_host *mmc, struct mmc_request *mrq,
+				 u64 *data);
+	void (*pre_enable)(struct mmc_host *mmc);
+	void (*post_disable)(struct mmc_host *mmc);
+#ifdef CONFIG_MMC_CRYPTO
+	int (*program_key)(struct cqhci_host *cq_host,
+			   const union cqhci_crypto_cfg_entry *cfg, int slot);
+#endif
+>>>>>>> upstream/android-13
 };
 
 static inline void cqhci_writel(struct cqhci_host *host, u32 val, int reg)
@@ -306,9 +376,18 @@ irqreturn_t cqhci_irq(struct mmc_host *mmc, u32 intmask, int cmd_error,
 		      int data_error);
 int cqhci_init(struct cqhci_host *cq_host, struct mmc_host *mmc, bool dma64);
 struct cqhci_host *cqhci_pltfm_init(struct platform_device *pdev);
+<<<<<<< HEAD
 int cqhci_suspend(struct mmc_host *mmc);
 int cqhci_resume(struct mmc_host *mmc);
 void msdc_gate_clock(struct mmc_host *mmc);
 void msdc_ungate_clock(struct mmc_host *mmc);
+=======
+int cqhci_deactivate(struct mmc_host *mmc);
+static inline int cqhci_suspend(struct mmc_host *mmc)
+{
+	return cqhci_deactivate(mmc);
+}
+int cqhci_resume(struct mmc_host *mmc);
+>>>>>>> upstream/android-13
 
 #endif

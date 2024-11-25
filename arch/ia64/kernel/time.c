@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/ia64/kernel/time.c
  *
@@ -24,14 +28,23 @@
 #include <linux/platform_device.h>
 #include <linux/sched/cputime.h>
 
+<<<<<<< HEAD
 #include <asm/machvec.h>
 #include <asm/delay.h>
+=======
+#include <asm/delay.h>
+#include <asm/efi.h>
+>>>>>>> upstream/android-13
 #include <asm/hw_irq.h>
 #include <asm/ptrace.h>
 #include <asm/sal.h>
 #include <asm/sections.h>
 
 #include "fsyscall_gtod_data.h"
+<<<<<<< HEAD
+=======
+#include "irq.h"
+>>>>>>> upstream/android-13
 
 static u64 itc_get_cycles(struct clocksource *cs);
 
@@ -132,11 +145,16 @@ static __u64 vtime_delta(struct task_struct *tsk)
 	return delta_stime;
 }
 
+<<<<<<< HEAD
 void vtime_account_system(struct task_struct *tsk)
+=======
+void vtime_account_kernel(struct task_struct *tsk)
+>>>>>>> upstream/android-13
 {
 	struct thread_info *ti = task_thread_info(tsk);
 	__u64 stime = vtime_delta(tsk);
 
+<<<<<<< HEAD
 	if ((tsk->flags & PF_VCPU) && !irq_count())
 		ti->gtime += stime;
 	else if (hardirq_count())
@@ -147,6 +165,14 @@ void vtime_account_system(struct task_struct *tsk)
 		ti->stime += stime;
 }
 EXPORT_SYMBOL_GPL(vtime_account_system);
+=======
+	if (tsk->flags & PF_VCPU)
+		ti->gtime += stime;
+	else
+		ti->stime += stime;
+}
+EXPORT_SYMBOL_GPL(vtime_account_kernel);
+>>>>>>> upstream/android-13
 
 void vtime_account_idle(struct task_struct *tsk)
 {
@@ -155,6 +181,23 @@ void vtime_account_idle(struct task_struct *tsk)
 	ti->idle_time += vtime_delta(tsk);
 }
 
+<<<<<<< HEAD
+=======
+void vtime_account_softirq(struct task_struct *tsk)
+{
+	struct thread_info *ti = task_thread_info(tsk);
+
+	ti->softirq_time += vtime_delta(tsk);
+}
+
+void vtime_account_hardirq(struct task_struct *tsk)
+{
+	struct thread_info *ti = task_thread_info(tsk);
+
+	ti->hardirq_time += vtime_delta(tsk);
+}
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
 
 static irqreturn_t
@@ -166,14 +209,18 @@ timer_interrupt (int irq, void *dev_id)
 		return IRQ_HANDLED;
 	}
 
+<<<<<<< HEAD
 	platform_timer_interrupt(irq, dev_id);
 
+=======
+>>>>>>> upstream/android-13
 	new_itm = local_cpu_data->itm_next;
 
 	if (!time_after(ia64_get_itc(), new_itm))
 		printk(KERN_ERR "Oops: timer tick before it's due (itc=%lx,itm=%lx)\n",
 		       ia64_get_itc(), new_itm);
 
+<<<<<<< HEAD
 	profile_tick(CPU_PROFILING);
 
 	while (1) {
@@ -183,6 +230,12 @@ timer_interrupt (int irq, void *dev_id)
 
 		if (smp_processor_id() == time_keeper_id)
 			xtime_update(1);
+=======
+	while (1) {
+		new_itm += local_cpu_data->itm_delta;
+
+		legacy_timer_tick(smp_processor_id() == time_keeper_id);
+>>>>>>> upstream/android-13
 
 		local_cpu_data->itm_next = new_itm;
 
@@ -382,6 +435,7 @@ static u64 itc_get_cycles(struct clocksource *cs)
 	return now;
 }
 
+<<<<<<< HEAD
 
 static struct irqaction timer_irqaction = {
 	.handler =	timer_interrupt,
@@ -389,6 +443,8 @@ static struct irqaction timer_irqaction = {
 	.name =		"timer"
 };
 
+=======
+>>>>>>> upstream/android-13
 void read_persistent_clock64(struct timespec64 *ts)
 {
 	efi_gettimeofday(ts);
@@ -397,7 +453,12 @@ void read_persistent_clock64(struct timespec64 *ts)
 void __init
 time_init (void)
 {
+<<<<<<< HEAD
 	register_percpu_irq(IA64_TIMER_VECTOR, &timer_irqaction);
+=======
+	register_percpu_irq(IA64_TIMER_VECTOR, timer_interrupt, IRQF_IRQPOLL,
+			    "timer");
+>>>>>>> upstream/android-13
 	ia64_init_itm();
 }
 

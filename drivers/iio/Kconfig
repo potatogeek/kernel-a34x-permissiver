@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Industrial I/O subsystem configuration
 #
@@ -27,7 +31,11 @@ config IIO_CONFIGFS
 	help
 	  This allows configuring various IIO bits through configfs
 	  (e.g. software triggers). For more info see
+<<<<<<< HEAD
 	  Documentation/iio/iio_configfs.txt.
+=======
+	  Documentation/iio/iio_configfs.rst.
+>>>>>>> upstream/android-13
 
 config IIO_TRIGGER
 	bool "Enable triggered sampling support"
@@ -38,31 +46,55 @@ config IIO_TRIGGER
 	  data now' interrupt.
 
 config IIO_CONSUMERS_PER_TRIGGER
+<<<<<<< HEAD
        int "Maximum number of consumers per trigger"
        depends on IIO_TRIGGER
        default "2"
        help
 	This value controls the maximum number of consumers that a
 	given trigger may handle. Default is 2.
+=======
+	int "Maximum number of consumers per trigger"
+	depends on IIO_TRIGGER
+	default "2"
+	help
+	  This value controls the maximum number of consumers that a
+	  given trigger may handle. Default is 2.
+>>>>>>> upstream/android-13
 
 config IIO_SW_DEVICE
 	tristate "Enable software IIO device support"
 	select IIO_CONFIGFS
 	help
+<<<<<<< HEAD
 	 Provides IIO core support for software devices. A software
 	 device can be created via configfs or directly by a driver
 	 using the API provided.
+=======
+	  Provides IIO core support for software devices. A software
+	  device can be created via configfs or directly by a driver
+	  using the API provided.
+>>>>>>> upstream/android-13
 
 config IIO_SW_TRIGGER
 	tristate "Enable software triggers support"
 	select IIO_CONFIGFS
 	help
+<<<<<<< HEAD
 	 Provides IIO core support for software triggers. A software
 	 trigger can be created via configfs or directly by a driver
 	 using the API provided.
 
 config IIO_TRIGGERED_EVENT
 	tristate
+=======
+	  Provides IIO core support for software triggers. A software
+	  trigger can be created via configfs or directly by a driver
+	  using the API provided.
+
+config IIO_TRIGGERED_EVENT
+	tristate "Enable triggered events support"
+>>>>>>> upstream/android-13
 	select IIO_TRIGGER
 	help
 	  Provides helper functions for setting up triggered events.
@@ -71,9 +103,15 @@ source "drivers/iio/accel/Kconfig"
 source "drivers/iio/adc/Kconfig"
 source "drivers/iio/afe/Kconfig"
 source "drivers/iio/amplifiers/Kconfig"
+<<<<<<< HEAD
 source "drivers/iio/chemical/Kconfig"
 source "drivers/iio/common/Kconfig"
 source "drivers/iio/counter/Kconfig"
+=======
+source "drivers/iio/cdc/Kconfig"
+source "drivers/iio/chemical/Kconfig"
+source "drivers/iio/common/Kconfig"
+>>>>>>> upstream/android-13
 source "drivers/iio/dac/Kconfig"
 source "drivers/iio/dummy/Kconfig"
 source "drivers/iio/frequency/Kconfig"
@@ -85,9 +123,17 @@ source "drivers/iio/light/Kconfig"
 source "drivers/iio/magnetometer/Kconfig"
 source "drivers/iio/multiplexer/Kconfig"
 source "drivers/iio/orientation/Kconfig"
+<<<<<<< HEAD
 if IIO_TRIGGER
    source "drivers/iio/trigger/Kconfig"
 endif #IIO_TRIGGER
+=======
+source "drivers/iio/test/Kconfig"
+if IIO_TRIGGER
+   source "drivers/iio/trigger/Kconfig"
+endif #IIO_TRIGGER
+source "drivers/iio/position/Kconfig"
+>>>>>>> upstream/android-13
 source "drivers/iio/potentiometer/Kconfig"
 source "drivers/iio/potentiostat/Kconfig"
 source "drivers/iio/pressure/Kconfig"

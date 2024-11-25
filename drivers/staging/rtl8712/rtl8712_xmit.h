@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -48,10 +55,15 @@
 #define MAX_AMSDU_XMITBUF_SZ 8704
 #define MAX_TXAGG_XMITBUF_SZ 16384 /*16k*/
 
+<<<<<<< HEAD
 
 #define tx_cmd tx_desc
 
 
+=======
+#define tx_cmd tx_desc
+
+>>>>>>> upstream/android-13
 /*
  *defined for TX DESC Operation
  */
@@ -101,10 +113,16 @@ struct tx_desc {
 	__le32 txdw7;
 };
 
+<<<<<<< HEAD
 
 union txdesc {
 	struct tx_desc txdesc;
 	unsigned int value[TXDESC_SIZE>>2];
+=======
+union txdesc {
+	struct tx_desc txdesc;
+	unsigned int value[TXDESC_SIZE >> 2];
+>>>>>>> upstream/android-13
 };
 
 int r8712_xmitframe_complete(struct _adapter *padapter,
@@ -114,10 +132,17 @@ void r8712_do_queue_select(struct _adapter *padapter,
 			   struct pkt_attrib *pattrib);
 
 #ifdef CONFIG_R8712_TX_AGGR
+<<<<<<< HEAD
 u8 r8712_xmitframe_aggr_1st(struct xmit_buf *pxmitbuf,
 			struct xmit_frame *pxmitframe);
 u8 r8712_dump_aggr_xframe(struct xmit_buf *pxmitbuf,
 			struct xmit_frame *pxmitframe);
+=======
+void r8712_xmitframe_aggr_1st(struct xmit_buf *pxmitbuf,
+			      struct xmit_frame *pxmitframe);
+void r8712_dump_aggr_xframe(struct xmit_buf *pxmitbuf,
+			    struct xmit_frame *pxmitframe);
+>>>>>>> upstream/android-13
 #endif
 
 #endif

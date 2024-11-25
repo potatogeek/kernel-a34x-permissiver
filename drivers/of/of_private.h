@@ -8,6 +8,11 @@
  * Copyright (C) 1996-2005 Paul Mackerras.
  */
 
+<<<<<<< HEAD
+=======
+#define FDT_ALIGN_SIZE 8
+
+>>>>>>> upstream/android-13
 /**
  * struct alias_prop - Alias property in 'aliases' node
  * @link:	List node to link the structure in aliases_lookup list
@@ -24,9 +29,23 @@ struct alias_prop {
 	const char *alias;
 	struct device_node *np;
 	int id;
+<<<<<<< HEAD
 	char stem[0];
 };
 
+=======
+	char stem[];
+};
+
+#if defined(CONFIG_SPARC)
+#define OF_ROOT_NODE_ADDR_CELLS_DEFAULT 2
+#else
+#define OF_ROOT_NODE_ADDR_CELLS_DEFAULT 1
+#endif
+
+#define OF_ROOT_NODE_SIZE_CELLS_DEFAULT 1
+
+>>>>>>> upstream/android-13
 extern struct mutex of_mutex;
 extern struct list_head aliases_lookup;
 extern struct kset *of_kset;
@@ -76,15 +95,22 @@ static inline void __of_detach_node_sysfs(struct device_node *np) {}
 int of_resolve_phandles(struct device_node *tree);
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF_DYNAMIC)
 void __of_free_phandle_cache_entry(phandle handle);
 #endif
+=======
+void __of_phandle_cache_inv_entry(phandle handle);
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_OF_OVERLAY)
 void of_overlay_mutex_lock(void);
 void of_overlay_mutex_unlock(void);
+<<<<<<< HEAD
 int of_free_phandle_cache(void);
 void of_populate_phandle_cache(void);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline void of_overlay_mutex_lock(void) {};
 static inline void of_overlay_mutex_unlock(void) {};
@@ -150,4 +176,26 @@ extern void __of_sysfs_remove_bin_file(struct device_node *np,
 #define for_each_transaction_entry_reverse(_oft, _te) \
 	list_for_each_entry_reverse(_te, &(_oft)->te_list, node)
 
+<<<<<<< HEAD
+=======
+extern int of_bus_n_addr_cells(struct device_node *np);
+extern int of_bus_n_size_cells(struct device_node *np);
+
+struct bus_dma_region;
+#if defined(CONFIG_OF_ADDRESS) && defined(CONFIG_HAS_DMA)
+int of_dma_get_range(struct device_node *np,
+		const struct bus_dma_region **map);
+#else
+static inline int of_dma_get_range(struct device_node *np,
+		const struct bus_dma_region **map)
+{
+	return -ENODEV;
+}
+#endif
+
+void fdt_init_reserved_mem(void);
+void fdt_reserved_mem_save_node(unsigned long node, const char *uname,
+			       phys_addr_t base, phys_addr_t size);
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_OF_PRIVATE_H */

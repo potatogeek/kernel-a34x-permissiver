@@ -153,8 +153,13 @@ isofs_find_entry(struct inode *dir, struct dentry *dentry,
 struct dentry *isofs_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
 {
 	int found;
+<<<<<<< HEAD
 	unsigned long uninitialized_var(block);
 	unsigned long uninitialized_var(offset);
+=======
+	unsigned long block;
+	unsigned long offset;
+>>>>>>> upstream/android-13
 	struct inode *inode;
 	struct page *page;
 

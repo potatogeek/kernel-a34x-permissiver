@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  tm6000-dvb.c - dvb-t support for TM5600/TM6000/TM6010 USB video capture devices
  *
  *  Copyright (C) 2007 Michel Ludwig <michel.ludwig@gmail.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -11,6 +16,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -31,8 +38,11 @@ MODULE_DESCRIPTION("DVB driver extension module for tm5600/6000/6010 based TV ca
 MODULE_AUTHOR("Mauro Carvalho Chehab");
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Trident, tm5600},{{Trident, tm6000},{{Trident, tm6010}");
 
+=======
+>>>>>>> upstream/android-13
 static int debug;
 
 module_param(debug, int, 0644);
@@ -155,7 +165,11 @@ static int tm6000_start_stream(struct tm6000_core *dev)
 		dvb->bulk_urb = NULL;
 		return ret;
 	} else
+<<<<<<< HEAD
 		printk(KERN_ERR "tm6000: pipe resetted\n");
+=======
+		printk(KERN_ERR "tm6000: pipe reset\n");
+>>>>>>> upstream/android-13
 
 /*	mutex_lock(&tm6000_driver.open_close_mutex); */
 	ret = usb_submit_urb(dvb->bulk_urb, GFP_ATOMIC);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * DMA Pool allocator
  *
@@ -5,10 +9,13 @@
  * Copyright 2007 Intel Corporation
  *   Author: Matthew Wilcox <willy@linux.intel.com>
  *
+<<<<<<< HEAD
  * This software may be redistributed and/or modified under the terms of
  * the GNU General Public License ("GPL") version 2 as published by the
  * Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This allocator returns small blocks of a given size which are DMA-able by
  * the given device.  It uses the dma_alloc_coherent page allocator to get
  * new pages, then splits them up into blocks of the required size.
@@ -31,6 +38,10 @@
 #include <linux/mutex.h>
 #include <linux/poison.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/stat.h>
 #include <linux/spinlock.h>
@@ -64,8 +75,12 @@ struct dma_page {		/* cacheable header for 'allocation' bytes */
 static DEFINE_MUTEX(pools_lock);
 static DEFINE_MUTEX(pools_reg_lock);
 
+<<<<<<< HEAD
 static ssize_t
 show_pools(struct device *dev, struct device_attribute *attr, char *buf)
+=======
+static ssize_t pools_show(struct device *dev, struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	unsigned temp;
 	unsigned size;
@@ -105,7 +120,11 @@ show_pools(struct device *dev, struct device_attribute *attr, char *buf)
 	return PAGE_SIZE - size;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(pools, 0444, show_pools, NULL);
+=======
+static DEVICE_ATTR_RO(pools);
+>>>>>>> upstream/android-13
 
 /**
  * dma_pool_create - Creates a pool of consistent memory blocks, for dma.
@@ -114,10 +133,16 @@ static DEVICE_ATTR(pools, 0444, show_pools, NULL);
  * @size: size of the blocks in this pool.
  * @align: alignment requirement for blocks; must be a power of two
  * @boundary: returned blocks won't cross this power of two boundary
+<<<<<<< HEAD
  * Context: !in_interrupt()
  *
  * Returns a dma allocation pool with the requested characteristics, or
  * null if one can't be created.  Given one of these pools, dma_pool_alloc()
+=======
+ * Context: not in_interrupt()
+ *
+ * Given one of these pools, dma_pool_alloc()
+>>>>>>> upstream/android-13
  * may be used to allocate memory.  Such memory will all have "consistent"
  * DMA mappings, accessible by the device and its driver without using
  * cache flushing primitives.  The actual size of blocks allocated may be
@@ -127,6 +152,12 @@ static DEVICE_ATTR(pools, 0444, show_pools, NULL);
  * cross that size boundary.  This is useful for devices which have
  * addressing restrictions on individual DMA transfers, such as not crossing
  * boundaries of 4KBytes.
+<<<<<<< HEAD
+=======
+ *
+ * Return: a dma allocation pool with the requested characteristics, or
+ * %NULL if one can't be created.
+>>>>>>> upstream/android-13
  */
 struct dma_pool *dma_pool_create(const char *name, struct device *dev,
 				 size_t size, size_t align, size_t boundary)
@@ -145,9 +176,13 @@ struct dma_pool *dma_pool_create(const char *name, struct device *dev,
 	else if (size < 4)
 		size = 4;
 
+<<<<<<< HEAD
 	if ((size % align) != 0)
 		size = ALIGN(size, align);
 
+=======
+	size = ALIGN(size, align);
+>>>>>>> upstream/android-13
 	allocation = max_t(size_t, size, PAGE_SIZE);
 
 	if (!boundary)
@@ -159,7 +194,11 @@ struct dma_pool *dma_pool_create(const char *name, struct device *dev,
 	if (!retval)
 		return retval;
 
+<<<<<<< HEAD
 	strlcpy(retval->name, name, sizeof(retval->name));
+=======
+	strscpy(retval->name, name, sizeof(retval->name));
+>>>>>>> upstream/android-13
 
 	retval->dev = dev;
 
@@ -269,6 +308,10 @@ static void pool_free_page(struct dma_pool *pool, struct dma_page *page)
  */
 void dma_pool_destroy(struct dma_pool *pool)
 {
+<<<<<<< HEAD
+=======
+	struct dma_page *page, *tmp;
+>>>>>>> upstream/android-13
 	bool empty = false;
 
 	if (unlikely(!pool))
@@ -284,6 +327,7 @@ void dma_pool_destroy(struct dma_pool *pool)
 		device_remove_file(pool->dev, &dev_attr_pools);
 	mutex_unlock(&pools_reg_lock);
 
+<<<<<<< HEAD
 	while (!list_empty(&pool->page_list)) {
 		struct dma_page *page;
 		page = list_entry(pool->page_list.next,
@@ -295,6 +339,15 @@ void dma_pool_destroy(struct dma_pool *pool)
 					pool->name, page->vaddr);
 			else
 				pr_err("dma_pool_destroy %s, %p busy\n",
+=======
+	list_for_each_entry_safe(page, tmp, &pool->page_list, page_list) {
+		if (is_page_busy(page)) {
+			if (pool->dev)
+				dev_err(pool->dev, "%s %s, %p busy\n", __func__,
+					pool->name, page->vaddr);
+			else
+				pr_err("%s %s, %p busy\n", __func__,
+>>>>>>> upstream/android-13
 				       pool->name, page->vaddr);
 			/* leak the still-in-use consistent memory */
 			list_del(&page->page_list);
@@ -313,7 +366,11 @@ EXPORT_SYMBOL(dma_pool_destroy);
  * @mem_flags: GFP_* bitmask
  * @handle: pointer to dma address of block
  *
+<<<<<<< HEAD
  * This returns the kernel virtual address of a currently unused block,
+=======
+ * Return: the kernel virtual address of a currently unused block,
+>>>>>>> upstream/android-13
  * and reports its dma address through the handle.
  * If such a memory block can't be allocated, %NULL is returned.
  */
@@ -325,7 +382,11 @@ void *dma_pool_alloc(struct dma_pool *pool, gfp_t mem_flags,
 	size_t offset;
 	void *retval;
 
+<<<<<<< HEAD
 	might_sleep_if(gfpflags_allow_blocking(mem_flags));
+=======
+	might_alloc(mem_flags);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&pool->lock, flags);
 	list_for_each_entry(page, &pool->page_list, page_list) {
@@ -358,12 +419,20 @@ void *dma_pool_alloc(struct dma_pool *pool, gfp_t mem_flags,
 			if (data[i] == POOL_POISON_FREED)
 				continue;
 			if (pool->dev)
+<<<<<<< HEAD
 				dev_err(pool->dev,
 					"dma_pool_alloc %s, %p (corrupted)\n",
 					pool->name, retval);
 			else
 				pr_err("dma_pool_alloc %s, %p (corrupted)\n",
 					pool->name, retval);
+=======
+				dev_err(pool->dev, "%s %s, %p (corrupted)\n",
+					__func__, pool->name, retval);
+			else
+				pr_err("%s %s, %p (corrupted)\n",
+					__func__, pool->name, retval);
+>>>>>>> upstream/android-13
 
 			/*
 			 * Dump the first 4 bytes even if they are not
@@ -419,12 +488,20 @@ void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t dma)
 	if (!page) {
 		spin_unlock_irqrestore(&pool->lock, flags);
 		if (pool->dev)
+<<<<<<< HEAD
 			dev_err(pool->dev,
 				"dma_pool_free %s, %p/%lx (bad dma)\n",
 				pool->name, vaddr, (unsigned long)dma);
 		else
 			pr_err("dma_pool_free %s, %p/%lx (bad dma)\n",
 			       pool->name, vaddr, (unsigned long)dma);
+=======
+			dev_err(pool->dev, "%s %s, %p/%pad (bad dma)\n",
+				__func__, pool->name, vaddr, &dma);
+		else
+			pr_err("%s %s, %p/%pad (bad dma)\n",
+			       __func__, pool->name, vaddr, &dma);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -435,12 +512,20 @@ void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t dma)
 	if ((dma - page->dma) != offset) {
 		spin_unlock_irqrestore(&pool->lock, flags);
 		if (pool->dev)
+<<<<<<< HEAD
 			dev_err(pool->dev,
 				"dma_pool_free %s, %p (bad vaddr)/%pad\n",
 				pool->name, vaddr, &dma);
 		else
 			pr_err("dma_pool_free %s, %p (bad vaddr)/%pad\n",
 			       pool->name, vaddr, &dma);
+=======
+			dev_err(pool->dev, "%s %s, %p (bad vaddr)/%pad\n",
+				__func__, pool->name, vaddr, &dma);
+		else
+			pr_err("%s %s, %p (bad vaddr)/%pad\n",
+			       __func__, pool->name, vaddr, &dma);
+>>>>>>> upstream/android-13
 		return;
 	}
 	{
@@ -452,11 +537,19 @@ void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t dma)
 			}
 			spin_unlock_irqrestore(&pool->lock, flags);
 			if (pool->dev)
+<<<<<<< HEAD
 				dev_err(pool->dev, "dma_pool_free %s, dma %pad already free\n",
 					pool->name, &dma);
 			else
 				pr_err("dma_pool_free %s, dma %pad already free\n",
 				       pool->name, &dma);
+=======
+				dev_err(pool->dev, "%s %s, dma %pad already free\n",
+					__func__, pool->name, &dma);
+			else
+				pr_err("%s %s, dma %pad already free\n",
+				       __func__, pool->name, &dma);
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
@@ -500,6 +593,12 @@ static int dmam_pool_match(struct device *dev, void *res, void *match_data)
  *
  * Managed dma_pool_create().  DMA pool created with this function is
  * automatically destroyed on driver detach.
+<<<<<<< HEAD
+=======
+ *
+ * Return: a managed dma allocation pool with the requested
+ * characteristics, or %NULL if one can't be created.
+>>>>>>> upstream/android-13
  */
 struct dma_pool *dmam_pool_create(const char *name, struct device *dev,
 				  size_t size, size_t align, size_t allocation)

@@ -53,6 +53,7 @@ struct pt_regs {
 
 static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	return regs->regs[31];
 }
 
@@ -61,6 +62,11 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
  * sense on MIPS.  We rather want an error if they get invoked.
  */
 
+=======
+	return regs->regs[29];
+}
+
+>>>>>>> upstream/android-13
 static inline void instruction_pointer_set(struct pt_regs *regs,
                                            unsigned long val)
 {

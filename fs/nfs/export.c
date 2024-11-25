@@ -105,6 +105,10 @@ nfs_fh_to_dentry(struct super_block *sb, struct fid *fid,
 	ret = rpc_ops->getattr(NFS_SB(sb), server_fh, fattr, label, NULL);
 	if (ret) {
 		dprintk("%s: getattr failed %d\n", __func__, ret);
+<<<<<<< HEAD
+=======
+		trace_nfs_fh_to_dentry(sb, server_fh, fattr->fileid, ret);
+>>>>>>> upstream/android-13
 		dentry = ERR_PTR(ret);
 		goto out_free_label;
 	}
@@ -166,8 +170,24 @@ out:
 	return parent;
 }
 
+<<<<<<< HEAD
+=======
+static u64 nfs_fetch_iversion(struct inode *inode)
+{
+	nfs_revalidate_inode(inode, NFS_INO_INVALID_CHANGE);
+	return inode_peek_iversion_raw(inode);
+}
+
+>>>>>>> upstream/android-13
 const struct export_operations nfs_export_ops = {
 	.encode_fh = nfs_encode_fh,
 	.fh_to_dentry = nfs_fh_to_dentry,
 	.get_parent = nfs_get_parent,
+<<<<<<< HEAD
+=======
+	.fetch_iversion = nfs_fetch_iversion,
+	.flags = EXPORT_OP_NOWCC|EXPORT_OP_NOSUBTREECHK|
+		EXPORT_OP_CLOSE_BEFORE_UNLINK|EXPORT_OP_REMOTE_FS|
+		EXPORT_OP_NOATOMIC_ATTR|EXPORT_OP_SYNC_LOCKS,
+>>>>>>> upstream/android-13
 };

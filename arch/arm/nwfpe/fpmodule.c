@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /*
     NetWinder Floating Point Emulator
@@ -6,6 +10,7 @@
 
     Direct questions, comments to Scott Bambrough <scottb@netwinder.org>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include "fpa11.h"
@@ -147,7 +154,11 @@ void float_raise(signed char flags)
 #ifdef CONFIG_DEBUG_USER
 	if (flags & debug)
  		printk(KERN_DEBUG
+<<<<<<< HEAD
 		       "NWFPE: %s[%d] takes exception %08x at %pf from %08lx\n",
+=======
+		       "NWFPE: %s[%d] takes exception %08x at %ps from %08lx\n",
+>>>>>>> upstream/android-13
 		       current->comm, current->pid, flags,
 		       __builtin_return_address(0), GET_USERREG()->ARM_pc);
 #endif

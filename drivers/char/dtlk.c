@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*                                              -*- linux-c -*-
  * dtlk.c - DoubleTalk PC driver for Linux
  *
@@ -298,12 +302,19 @@ static int dtlk_open(struct inode *inode, struct file *file)
 {
 	TRACE_TEXT("(dtlk_open");
 
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+>>>>>>> upstream/android-13
 	switch (iminor(inode)) {
 	case DTLK_MINOR:
 		if (dtlk_busy)
 			return -EBUSY;
+<<<<<<< HEAD
 		return nonseekable_open(inode, file);
+=======
+		return stream_open(inode, file);
+>>>>>>> upstream/android-13
 
 	default:
 		return -ENXIO;

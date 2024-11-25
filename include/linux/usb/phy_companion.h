@@ -2,7 +2,11 @@
 /*
  * phy-companion.h -- phy companion to indicate the comparator part of PHY
  *
+<<<<<<< HEAD
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com
+=======
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or

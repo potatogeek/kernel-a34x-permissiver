@@ -59,6 +59,13 @@
 
 typedef __s32 sctp_assoc_t;
 
+<<<<<<< HEAD
+=======
+#define SCTP_FUTURE_ASSOC	0
+#define SCTP_CURRENT_ASSOC	1
+#define SCTP_ALL_ASSOC		2
+
+>>>>>>> upstream/android-13
 /* The following symbols come from the Sockets API Extensions for
  * SCTP <draft-ietf-tsvwg-sctpsocket-07.txt>.
  */
@@ -101,6 +108,10 @@ typedef __s32 sctp_assoc_t;
 #define SCTP_DEFAULT_SNDINFO	34
 #define SCTP_AUTH_DEACTIVATE_KEY	35
 #define SCTP_REUSE_PORT		36
+<<<<<<< HEAD
+=======
+#define SCTP_PEER_ADDR_THLDS_V2	37
+>>>>>>> upstream/android-13
 
 /* Internal Socket Options. Some of the sctp library functions are
  * implemented using these socket options.
@@ -129,6 +140,17 @@ typedef __s32 sctp_assoc_t;
 #define SCTP_STREAM_SCHEDULER_VALUE	124
 #define SCTP_INTERLEAVING_SUPPORTED	125
 #define SCTP_SENDMSG_CONNECT	126
+<<<<<<< HEAD
+=======
+#define SCTP_EVENT	127
+#define SCTP_ASCONF_SUPPORTED	128
+#define SCTP_AUTH_SUPPORTED	129
+#define SCTP_ECN_SUPPORTED	130
+#define SCTP_EXPOSE_POTENTIALLY_FAILED_STATE	131
+#define SCTP_EXPOSE_PF_STATE	SCTP_EXPOSE_POTENTIALLY_FAILED_STATE
+#define SCTP_REMOTE_UDP_ENCAPS_PORT	132
+#define SCTP_PLPMTUD_PROBE_INTERVAL	133
+>>>>>>> upstream/android-13
 
 /* PR-SCTP policies */
 #define SCTP_PR_SCTP_NONE	0x0000
@@ -402,6 +424,11 @@ enum sctp_spc_state {
 	SCTP_ADDR_ADDED,
 	SCTP_ADDR_MADE_PRIM,
 	SCTP_ADDR_CONFIRMED,
+<<<<<<< HEAD
+=======
+	SCTP_ADDR_POTENTIALLY_FAILED,
+#define SCTP_ADDR_PF	SCTP_ADDR_POTENTIALLY_FAILED
+>>>>>>> upstream/android-13
 };
 
 
@@ -441,6 +468,19 @@ struct sctp_send_failed {
 	__u8 ssf_data[0];
 };
 
+<<<<<<< HEAD
+=======
+struct sctp_send_failed_event {
+	__u16 ssf_type;
+	__u16 ssf_flags;
+	__u32 ssf_length;
+	__u32 ssf_error;
+	struct sctp_sndinfo ssfe_info;
+	sctp_assoc_t ssf_assoc_id;
+	__u8 ssf_data[0];
+};
+
+>>>>>>> upstream/android-13
 /*
  *   ssf_flags: 16 bits (unsigned integer)
  *
@@ -597,6 +637,10 @@ struct sctp_event_subscribe {
 	__u8 sctp_stream_reset_event;
 	__u8 sctp_assoc_reset_event;
 	__u8 sctp_stream_change_event;
+<<<<<<< HEAD
+=======
+	__u8 sctp_send_failure_event_event;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -624,6 +668,10 @@ union sctp_notification {
 	struct sctp_stream_reset_event sn_strreset_event;
 	struct sctp_assoc_reset_event sn_assocreset_event;
 	struct sctp_stream_change_event sn_strchange_event;
+<<<<<<< HEAD
+=======
+	struct sctp_send_failed_event sn_send_failed_event;
+>>>>>>> upstream/android-13
 };
 
 /* Section 5.3.1
@@ -632,7 +680,13 @@ union sctp_notification {
  */
 
 enum sctp_sn_type {
+<<<<<<< HEAD
 	SCTP_SN_TYPE_BASE     = (1<<15),
+=======
+	SCTP_SN_TYPE_BASE	= (1<<15),
+	SCTP_DATA_IO_EVENT	= SCTP_SN_TYPE_BASE,
+#define SCTP_DATA_IO_EVENT		SCTP_DATA_IO_EVENT
+>>>>>>> upstream/android-13
 	SCTP_ASSOC_CHANGE,
 #define SCTP_ASSOC_CHANGE		SCTP_ASSOC_CHANGE
 	SCTP_PEER_ADDR_CHANGE,
@@ -657,6 +711,13 @@ enum sctp_sn_type {
 #define SCTP_ASSOC_RESET_EVENT		SCTP_ASSOC_RESET_EVENT
 	SCTP_STREAM_CHANGE_EVENT,
 #define SCTP_STREAM_CHANGE_EVENT	SCTP_STREAM_CHANGE_EVENT
+<<<<<<< HEAD
+=======
+	SCTP_SEND_FAILED_EVENT,
+#define SCTP_SEND_FAILED_EVENT		SCTP_SEND_FAILED_EVENT
+	SCTP_SN_TYPE_MAX	= SCTP_SEND_FAILED_EVENT,
+#define SCTP_SN_TYPE_MAX		SCTP_SN_TYPE_MAX
+>>>>>>> upstream/android-13
 };
 
 /* Notification error codes used to fill up the error fields in some
@@ -907,6 +968,10 @@ struct sctp_paddrinfo {
 enum sctp_spinfo_state {
 	SCTP_INACTIVE,
 	SCTP_PF,
+<<<<<<< HEAD
+=======
+#define	SCTP_POTENTIALLY_FAILED		SCTP_PF
+>>>>>>> upstream/android-13
 	SCTP_ACTIVE,
 	SCTP_UNCONFIRMED,
 	SCTP_UNKNOWN = 0xffff  /* Value used for transport state unknown */
@@ -1056,6 +1121,18 @@ struct sctp_paddrthlds {
 	__u16 spt_pathpfthld;
 };
 
+<<<<<<< HEAD
+=======
+/* Use a new structure with spt_pathcpthld for back compatibility */
+struct sctp_paddrthlds_v2 {
+	sctp_assoc_t spt_assoc_id;
+	struct sockaddr_storage spt_address;
+	__u16 spt_pathmaxrxt;
+	__u16 spt_pathpfthld;
+	__u16 spt_pathcpthld;
+};
+
+>>>>>>> upstream/android-13
 /*
  * Socket Option for Getting the Association/Stream-Specific PR-SCTP Status
  */
@@ -1150,6 +1227,21 @@ struct sctp_add_streams {
 	uint16_t sas_outstrms;
 };
 
+<<<<<<< HEAD
+=======
+struct sctp_event {
+	sctp_assoc_t se_assoc_id;
+	uint16_t se_type;
+	uint8_t se_on;
+};
+
+struct sctp_udpencaps {
+	sctp_assoc_t sue_assoc_id;
+	struct sockaddr_storage sue_address;
+	uint16_t sue_port;
+};
+
+>>>>>>> upstream/android-13
 /* SCTP Stream schedulers */
 enum sctp_sched_type {
 	SCTP_SS_FCFS,
@@ -1159,4 +1251,14 @@ enum sctp_sched_type {
 	SCTP_SS_MAX = SCTP_SS_RR
 };
 
+<<<<<<< HEAD
+=======
+/* Probe Interval socket option */
+struct sctp_probeinterval {
+	sctp_assoc_t spi_assoc_id;
+	struct sockaddr_storage spi_address;
+	__u32 spi_interval;
+};
+
+>>>>>>> upstream/android-13
 #endif /* _UAPI_SCTP_H */

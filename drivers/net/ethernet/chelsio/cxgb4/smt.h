@@ -59,14 +59,22 @@ struct smt_entry {
 	u16 idx;
 	u16 pfvf;
 	u8 src_mac[ETH_ALEN];
+<<<<<<< HEAD
 	atomic_t refcnt;
+=======
+	int refcnt;
+>>>>>>> upstream/android-13
 	spinlock_t lock;	/* protect smt entry add,removal */
 };
 
 struct smt_data {
 	unsigned int smt_size;
 	rwlock_t lock;
+<<<<<<< HEAD
 	struct smt_entry smtab[0];
+=======
+	struct smt_entry smtab[];
+>>>>>>> upstream/android-13
 };
 
 struct smt_data *t4_init_smt(void);

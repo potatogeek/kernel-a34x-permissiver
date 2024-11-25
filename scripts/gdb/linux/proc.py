@@ -29,6 +29,10 @@ class LxCmdLine(gdb.Command):
     def invoke(self, arg, from_tty):
         gdb.write(gdb.parse_and_eval("saved_command_line").string() + "\n")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 LxCmdLine()
 
 
@@ -43,6 +47,10 @@ class LxVersion(gdb.Command):
         # linux_banner should contain a newline
         gdb.write(gdb.parse_and_eval("(char *)linux_banner").string())
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 LxVersion()
 
 
@@ -86,6 +94,10 @@ Equivalent to cat /proc/iomem on a running target"""
     def invoke(self, arg, from_tty):
         return show_lx_resources("iomem_resource")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 LxIOMem()
 
 
@@ -100,6 +112,10 @@ Equivalent to cat /proc/ioports on a running target"""
     def invoke(self, arg, from_tty):
         return show_lx_resources("ioport_resource")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 LxIOPorts()
 
 
@@ -114,11 +130,19 @@ def info_opts(lst, opt):
     return opts
 
 
+<<<<<<< HEAD
 FS_INFO = {constants.LX_MS_SYNCHRONOUS: ",sync",
            constants.LX_MS_MANDLOCK: ",mand",
            constants.LX_MS_DIRSYNC: ",dirsync",
            constants.LX_MS_NOATIME: ",noatime",
            constants.LX_MS_NODIRATIME: ",nodiratime"}
+=======
+FS_INFO = {constants.LX_SB_SYNCHRONOUS: ",sync",
+           constants.LX_SB_MANDLOCK: ",mand",
+           constants.LX_SB_DIRSYNC: ",dirsync",
+           constants.LX_SB_NOATIME: ",noatime",
+           constants.LX_SB_NODIRATIME: ",nodiratime"}
+>>>>>>> upstream/android-13
 
 MNT_INFO = {constants.LX_MNT_NOSUID: ",nosuid",
             constants.LX_MNT_NODEV: ",nodev",
@@ -149,7 +173,11 @@ values of that process namespace"""
         if len(argv) >= 1:
             try:
                 pid = int(argv[0])
+<<<<<<< HEAD
             except:
+=======
+            except gdb.error:
+>>>>>>> upstream/android-13
                 raise gdb.GdbError("Provide a PID as integer value")
         else:
             pid = 1
@@ -163,6 +191,12 @@ values of that process namespace"""
         if not namespace:
             raise gdb.GdbError("No namespace for current process")
 
+<<<<<<< HEAD
+=======
+        gdb.write("{:^18} {:^15} {:>9} {} {} options\n".format(
+                  "mount", "super_block", "devname", "pathname", "fstype"))
+
+>>>>>>> upstream/android-13
         for vfs in lists.list_for_each_entry(namespace['list'],
                                              mount_ptr_type, "mnt_list"):
             devname = vfs['mnt_devname'].string()
@@ -184,6 +218,7 @@ values of that process namespace"""
             fstype = superblock['s_type']['name'].string()
             s_flags = int(superblock['s_flags'])
             m_flags = int(vfs['mnt']['mnt_flags'])
+<<<<<<< HEAD
             rd = "ro" if (s_flags & constants.LX_MS_RDONLY) else "rw"
 
             gdb.write(
@@ -194,6 +229,15 @@ values of that process namespace"""
                         rd,
                         info_opts(FS_INFO, s_flags),
                         info_opts(MNT_INFO, m_flags)))
+=======
+            rd = "ro" if (s_flags & constants.LX_SB_RDONLY) else "rw"
+
+            gdb.write("{} {} {} {} {} {}{}{} 0 0\n".format(
+                      vfs.format_string(), superblock.format_string(), devname,
+                      pathname, fstype, rd, info_opts(FS_INFO, s_flags),
+                      info_opts(MNT_INFO, m_flags)))
+
+>>>>>>> upstream/android-13
 
 LxMounts()
 
@@ -259,7 +303,11 @@ class LxFdtDump(gdb.Command):
 
         try:
             f = open(filename, 'wb')
+<<<<<<< HEAD
         except:
+=======
+        except gdb.error:
+>>>>>>> upstream/android-13
             raise gdb.GdbError("Could not open file to dump fdt")
 
         f.write(fdt_buf)
@@ -267,4 +315,8 @@ class LxFdtDump(gdb.Command):
 
         gdb.write("Dumped fdt blob to " + filename + "\n")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 LxFdtDump()

@@ -14,16 +14,25 @@
 #include <linux/compat.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 
 #include <asm/user.h>
 #include <asm/fpu/api.h>
 #include <asm/fpu/xstate.h>
+<<<<<<< HEAD
+=======
+#include <asm/fpu/xcr.h>
+>>>>>>> upstream/android-13
 #include <asm/cpufeature.h>
 #include <asm/trace/fpu.h>
 
 /*
  * High level FPU state handling functions:
  */
+<<<<<<< HEAD
 extern void fpu__initialize(struct fpu *fpu);
 extern void fpu__prepare_read(struct fpu *fpu);
 extern void fpu__prepare_write(struct fpu *fpu);
@@ -35,6 +44,18 @@ extern int  fpu__copy(struct fpu *dst_fpu, struct fpu *src_fpu);
 extern void fpu__clear(struct fpu *fpu);
 extern int  fpu__exception_code(struct fpu *fpu, int trap_nr);
 extern int  dump_fpu(struct pt_regs *ptregs, struct user_i387_struct *fpstate);
+=======
+extern int  fpu__restore_sig(void __user *buf, int ia32_frame);
+extern void fpu__drop(struct fpu *fpu);
+extern void fpu__clear_user_states(struct fpu *fpu);
+extern int  fpu__exception_code(struct fpu *fpu, int trap_nr);
+
+extern void fpu_sync_fpstate(struct fpu *fpu);
+
+/* Clone and exit operations */
+extern int  fpu_clone(struct task_struct *dst);
+extern void fpu_flush_thread(void);
+>>>>>>> upstream/android-13
 
 /*
  * Boot time FPU initialization functions:
@@ -45,7 +66,10 @@ extern void fpu__init_cpu_xstate(void);
 extern void fpu__init_system(struct cpuinfo_x86 *c);
 extern void fpu__init_check_bugs(void);
 extern void fpu__resume_cpu(void);
+<<<<<<< HEAD
 extern u64 fpu__get_supported_xfeatures_mask(void);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Debugging facility:
@@ -86,6 +110,7 @@ extern void fpstate_init_soft(struct swregs_state *soft);
 #else
 static inline void fpstate_init_soft(struct swregs_state *soft) {}
 #endif
+<<<<<<< HEAD
 
 static inline void fpstate_init_xstate(struct xregs_state *xsave)
 {
@@ -103,6 +128,11 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
 }
 extern void fpstate_sanitize_xstate(struct fpu *fpu);
 
+=======
+extern void save_fpregs_to_fpstate(struct fpu *fpu);
+
+/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
+>>>>>>> upstream/android-13
 #define user_insn(insn, output, input...)				\
 ({									\
 	int err;							\
@@ -110,9 +140,30 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
 	might_fault();							\
 									\
 	asm volatile(ASM_STAC "\n"					\
+<<<<<<< HEAD
 		     "1:" #insn "\n\t"					\
 		     "2: " ASM_CLAC "\n"				\
 		     ".section .fixup,\"ax\"\n"				\
+=======
+		     "1: " #insn "\n"					\
+		     "2: " ASM_CLAC "\n"				\
+		     ".section .fixup,\"ax\"\n"				\
+		     "3:  negl %%eax\n"					\
+		     "    jmp  2b\n"					\
+		     ".previous\n"					\
+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
+		     : [err] "=a" (err), output				\
+		     : "0"(0), input);					\
+	err;								\
+})
+
+#define kernel_insn_err(insn, output, input...)				\
+({									\
+	int err;							\
+	asm volatile("1:" #insn "\n\t"					\
+		     "2:\n"						\
+		     ".section .fixup,\"ax\"\n"				\
+>>>>>>> upstream/android-13
 		     "3:  movl $-1,%[err]\n"				\
 		     "    jmp  2b\n"					\
 		     ".previous\n"					\
@@ -128,11 +179,16 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
 		     _ASM_EXTABLE_HANDLE(1b, 2b, ex_handler_fprestore)	\
 		     : output : input)
 
+<<<<<<< HEAD
 static inline int copy_fregs_to_user(struct fregs_state __user *fx)
+=======
+static inline int fnsave_to_user_sigframe(struct fregs_state __user *fx)
+>>>>>>> upstream/android-13
 {
 	return user_insn(fnsave %[fx]; fwait,  [fx] "=m" (*fx), "m" (*fx));
 }
 
+<<<<<<< HEAD
 static inline int copy_fxregs_to_user(struct fxregs_state __user *fx)
 {
 	if (IS_ENABLED(CONFIG_X86_32))
@@ -171,15 +227,61 @@ static inline int copy_user_to_fxregs(struct fxregs_state __user *fx)
 }
 
 static inline void copy_kernel_to_fregs(struct fregs_state *fx)
+=======
+static inline int fxsave_to_user_sigframe(struct fxregs_state __user *fx)
+{
+	if (IS_ENABLED(CONFIG_X86_32))
+		return user_insn(fxsave %[fx], [fx] "=m" (*fx), "m" (*fx));
+	else
+		return user_insn(fxsaveq %[fx], [fx] "=m" (*fx), "m" (*fx));
+
+}
+
+static inline void fxrstor(struct fxregs_state *fx)
+{
+	if (IS_ENABLED(CONFIG_X86_32))
+		kernel_insn(fxrstor %[fx], "=m" (*fx), [fx] "m" (*fx));
+	else
+		kernel_insn(fxrstorq %[fx], "=m" (*fx), [fx] "m" (*fx));
+}
+
+static inline int fxrstor_safe(struct fxregs_state *fx)
+{
+	if (IS_ENABLED(CONFIG_X86_32))
+		return kernel_insn_err(fxrstor %[fx], "=m" (*fx), [fx] "m" (*fx));
+	else
+		return kernel_insn_err(fxrstorq %[fx], "=m" (*fx), [fx] "m" (*fx));
+}
+
+static inline int fxrstor_from_user_sigframe(struct fxregs_state __user *fx)
+{
+	if (IS_ENABLED(CONFIG_X86_32))
+		return user_insn(fxrstor %[fx], "=m" (*fx), [fx] "m" (*fx));
+	else
+		return user_insn(fxrstorq %[fx], "=m" (*fx), [fx] "m" (*fx));
+}
+
+static inline void frstor(struct fregs_state *fx)
+>>>>>>> upstream/android-13
 {
 	kernel_insn(frstor %[fx], "=m" (*fx), [fx] "m" (*fx));
 }
 
+<<<<<<< HEAD
 static inline int copy_user_to_fregs(struct fregs_state __user *fx)
+=======
+static inline int frstor_safe(struct fregs_state *fx)
+{
+	return kernel_insn_err(frstor %[fx], "=m" (*fx), [fx] "m" (*fx));
+}
+
+static inline int frstor_from_user_sigframe(struct fregs_state __user *fx)
+>>>>>>> upstream/android-13
 {
 	return user_insn(frstor %[fx], "=m" (*fx), [fx] "m" (*fx));
 }
 
+<<<<<<< HEAD
 static inline void copy_fxregs_to_kernel(struct fpu *fpu)
 {
 	if (IS_ENABLED(CONFIG_X86_32))
@@ -212,6 +314,14 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
 			     : "=m" (fpu->state.fxsave)
 			     : [fx] "R" (&fpu->state.fxsave));
 	}
+=======
+static inline void fxsave(struct fxregs_state *fx)
+{
+	if (IS_ENABLED(CONFIG_X86_32))
+		asm volatile( "fxsave %[fx]" : [fx] "=m" (*fx));
+	else
+		asm volatile("fxsaveq %[fx]" : [fx] "=m" (*fx));
+>>>>>>> upstream/android-13
 }
 
 /* These macros all use (%edi)/(%rdi) as the single memory argument. */
@@ -221,16 +331,31 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
 #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
 #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
 
+<<<<<<< HEAD
+=======
+/*
+ * After this @err contains 0 on success or the negated trap number when
+ * the operation raises an exception. For faults this results in -EFAULT.
+ */
+>>>>>>> upstream/android-13
 #define XSTATE_OP(op, st, lmask, hmask, err)				\
 	asm volatile("1:" op "\n\t"					\
 		     "xor %[err], %[err]\n"				\
 		     "2:\n\t"						\
 		     ".pushsection .fixup,\"ax\"\n\t"			\
+<<<<<<< HEAD
 		     "3: movl $-2,%[err]\n\t"				\
 		     "jmp 2b\n\t"					\
 		     ".popsection\n\t"					\
 		     _ASM_EXTABLE(1b, 3b)				\
 		     : [err] "=r" (err)					\
+=======
+		     "3: negl %%eax\n\t"				\
+		     "jmp 2b\n\t"					\
+		     ".popsection\n\t"					\
+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
+		     : [err] "=a" (err)					\
+>>>>>>> upstream/android-13
 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
 		     : "memory")
 
@@ -282,15 +407,22 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
  * This function is called only during boot time when x86 caps are not set
  * up and alternative can not be used yet.
  */
+<<<<<<< HEAD
 static inline void copy_xregs_to_kernel_booting(struct xregs_state *xstate)
 {
 	u64 mask = -1;
+=======
+static inline void os_xrstor_booting(struct xregs_state *xstate)
+{
+	u64 mask = xfeatures_mask_fpstate();
+>>>>>>> upstream/android-13
 	u32 lmask = mask;
 	u32 hmask = mask >> 32;
 	int err;
 
 	WARN_ON(system_state != SYSTEM_BOOTING);
 
+<<<<<<< HEAD
 	if (static_cpu_has(X86_FEATURE_XSAVES))
 		XSTATE_OP(XSAVES, xstate, lmask, hmask, err);
 	else
@@ -314,6 +446,9 @@ static inline void copy_kernel_to_xregs_booting(struct xregs_state *xstate)
 	WARN_ON(system_state != SYSTEM_BOOTING);
 
 	if (static_cpu_has(X86_FEATURE_XSAVES))
+=======
+	if (boot_cpu_has(X86_FEATURE_XSAVES))
+>>>>>>> upstream/android-13
 		XSTATE_OP(XRSTORS, xstate, lmask, hmask, err);
 	else
 		XSTATE_OP(XRSTOR, xstate, lmask, hmask, err);
@@ -327,10 +462,20 @@ static inline void copy_kernel_to_xregs_booting(struct xregs_state *xstate)
 
 /*
  * Save processor xstate to xsave area.
+<<<<<<< HEAD
  */
 static inline void copy_xregs_to_kernel(struct xregs_state *xstate)
 {
 	u64 mask = -1;
+=======
+ *
+ * Uses either XSAVE or XSAVEOPT or XSAVES depending on the CPU features
+ * and command line options. The choice is permanent until the next reboot.
+ */
+static inline void os_xsave(struct xregs_state *xstate)
+{
+	u64 mask = xfeatures_mask_all;
+>>>>>>> upstream/android-13
 	u32 lmask = mask;
 	u32 hmask = mask >> 32;
 	int err;
@@ -345,8 +490,15 @@ static inline void copy_xregs_to_kernel(struct xregs_state *xstate)
 
 /*
  * Restore processor xstate from xsave area.
+<<<<<<< HEAD
  */
 static inline void copy_kernel_to_xregs(struct xregs_state *xstate, u64 mask)
+=======
+ *
+ * Uses XRSTORS when XSAVES is used, XRSTOR otherwise.
+ */
+static inline void os_xrstor(struct xregs_state *xstate, u64 mask)
+>>>>>>> upstream/android-13
 {
 	u32 lmask = mask;
 	u32 hmask = mask >> 32;
@@ -364,8 +516,21 @@ static inline void copy_kernel_to_xregs(struct xregs_state *xstate, u64 mask)
  * backward compatibility for old applications which don't understand
  * compacted format of xsave area.
  */
+<<<<<<< HEAD
 static inline int copy_xregs_to_user(struct xregs_state __user *buf)
 {
+=======
+static inline int xsave_to_user_sigframe(struct xregs_state __user *buf)
+{
+	/*
+	 * Include the features which are not xsaved/rstored by the kernel
+	 * internally, e.g. PKRU. That's user space ABI and also required
+	 * to allow the signal handler to modify PKRU.
+	 */
+	u64 mask = xfeatures_mask_uabi();
+	u32 lmask = mask;
+	u32 hmask = mask >> 32;
+>>>>>>> upstream/android-13
 	int err;
 
 	/*
@@ -377,7 +542,11 @@ static inline int copy_xregs_to_user(struct xregs_state __user *buf)
 		return -EFAULT;
 
 	stac();
+<<<<<<< HEAD
 	XSTATE_OP(XSAVE, buf, -1, -1, err);
+=======
+	XSTATE_OP(XSAVE, buf, lmask, hmask, err);
+>>>>>>> upstream/android-13
 	clac();
 
 	return err;
@@ -386,7 +555,11 @@ static inline int copy_xregs_to_user(struct xregs_state __user *buf)
 /*
  * Restore xstate from user space xsave area.
  */
+<<<<<<< HEAD
 static inline int copy_user_to_xregs(struct xregs_state __user *buf, u64 mask)
+=======
+static inline int xrstor_from_user_sigframe(struct xregs_state __user *buf, u64 mask)
+>>>>>>> upstream/android-13
 {
 	struct xregs_state *xstate = ((__force struct xregs_state *)buf);
 	u32 lmask = mask;
@@ -401,6 +574,7 @@ static inline int copy_user_to_xregs(struct xregs_state __user *buf, u64 mask)
 }
 
 /*
+<<<<<<< HEAD
  * These must be called with preempt disabled. Returns
  * 'true' if the FPU state is still intact and we can
  * keep registers active.
@@ -459,6 +633,30 @@ static inline void copy_kernel_to_fpregs(union fpregs_state *fpstate)
 	}
 
 	__copy_kernel_to_fpregs(fpstate, -1);
+=======
+ * Restore xstate from kernel space xsave area, return an error code instead of
+ * an exception.
+ */
+static inline int os_xrstor_safe(struct xregs_state *xstate, u64 mask)
+{
+	u32 lmask = mask;
+	u32 hmask = mask >> 32;
+	int err;
+
+	if (cpu_feature_enabled(X86_FEATURE_XSAVES))
+		XSTATE_OP(XRSTORS, xstate, lmask, hmask, err);
+	else
+		XSTATE_OP(XRSTOR, xstate, lmask, hmask, err);
+
+	return err;
+}
+
+extern void __restore_fpregs_from_fpstate(union fpregs_state *fpstate, u64 mask);
+
+static inline void restore_fpregs_from_fpstate(union fpregs_state *fpstate)
+{
+	__restore_fpregs_from_fpstate(fpstate, xfeatures_mask_fpstate());
+>>>>>>> upstream/android-13
 }
 
 extern int copy_fpstate_to_sigframe(void __user *buf, void __user *fp, int size);
@@ -498,7 +696,11 @@ static inline void __fpu_invalidate_fpregs_state(struct fpu *fpu)
 
 static inline int fpregs_state_valid(struct fpu *fpu, unsigned int cpu)
 {
+<<<<<<< HEAD
 	return fpu == this_cpu_read_stable(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
+=======
+	return fpu == this_cpu_read(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -517,6 +719,40 @@ static inline void fpregs_activate(struct fpu *fpu)
 	trace_x86_fpu_regs_activated(fpu);
 }
 
+<<<<<<< HEAD
+=======
+/* Internal helper for switch_fpu_return() and signal frame setup */
+static inline void fpregs_restore_userregs(void)
+{
+	struct fpu *fpu = &current->thread.fpu;
+	int cpu = smp_processor_id();
+
+	if (WARN_ON_ONCE(current->flags & PF_KTHREAD))
+		return;
+
+	if (!fpregs_state_valid(fpu, cpu)) {
+		u64 mask;
+
+		/*
+		 * This restores _all_ xstate which has not been
+		 * established yet.
+		 *
+		 * If PKRU is enabled, then the PKRU value is already
+		 * correct because it was either set in switch_to() or in
+		 * flush_thread(). So it is excluded because it might be
+		 * not up to date in current->thread.fpu.xsave state.
+		 */
+		mask = xfeatures_mask_restore_user() |
+			xfeatures_mask_supervisor();
+		__restore_fpregs_from_fpstate(&fpu->state, mask);
+
+		fpregs_activate(fpu);
+		fpu->last_cpu = cpu;
+	}
+	clear_thread_flag(TIF_NEED_FPU_LOAD);
+}
+
+>>>>>>> upstream/android-13
 /*
  * FPU state switching for scheduling.
  *
@@ -525,6 +761,7 @@ static inline void fpregs_activate(struct fpu *fpu)
  *  - switch_fpu_prepare() saves the old state.
  *    This is done within the context of the old process.
  *
+<<<<<<< HEAD
  *  - switch_fpu_finish() restores the new state as
  *    necessary.
  */
@@ -541,6 +778,38 @@ switch_fpu_prepare(struct fpu *old_fpu, int cpu)
 		trace_x86_fpu_regs_deactivated(old_fpu);
 	} else
 		old_fpu->last_cpu = -1;
+=======
+ *  - switch_fpu_finish() sets TIF_NEED_FPU_LOAD; the floating point state
+ *    will get loaded on return to userspace, or when the kernel needs it.
+ *
+ * If TIF_NEED_FPU_LOAD is cleared then the CPU's FPU registers
+ * are saved in the current thread's FPU register state.
+ *
+ * If TIF_NEED_FPU_LOAD is set then CPU's FPU registers may not
+ * hold current()'s FPU registers. It is required to load the
+ * registers before returning to userland or using the content
+ * otherwise.
+ *
+ * The FPU context is only stored/restored for a user task and
+ * PF_KTHREAD is used to distinguish between kernel and user threads.
+ */
+static inline void switch_fpu_prepare(struct fpu *old_fpu, int cpu)
+{
+	if (static_cpu_has(X86_FEATURE_FPU) && !(current->flags & PF_KTHREAD)) {
+		save_fpregs_to_fpstate(old_fpu);
+		/*
+		 * The save operation preserved register state, so the
+		 * fpu_fpregs_owner_ctx is still @old_fpu. Store the
+		 * current CPU number in @old_fpu, so the next return
+		 * to user space can avoid the FPU register restore
+		 * when is returns on the same CPU and still owns the
+		 * context.
+		 */
+		old_fpu->last_cpu = cpu;
+
+		trace_x86_fpu_regs_deactivated(old_fpu);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -548,6 +817,7 @@ switch_fpu_prepare(struct fpu *old_fpu, int cpu)
  */
 
 /*
+<<<<<<< HEAD
  * Set up the userspace FPU context for the new task, if the task
  * has used the FPU.
  */
@@ -605,6 +875,15 @@ static inline void xsetbv(u32 index, u64 value)
 
 	asm volatile(".byte 0x0f,0x01,0xd1" /* xsetbv */
 		     : : "a" (eax), "d" (edx), "c" (index));
+=======
+ * Delay loading of the complete FPU state until the return to userland.
+ * PKRU is handled separately.
+ */
+static inline void switch_fpu_finish(struct fpu *new_fpu)
+{
+	if (cpu_feature_enabled(X86_FEATURE_FPU))
+		set_thread_flag(TIF_NEED_FPU_LOAD);
+>>>>>>> upstream/android-13
 }
 
 #endif /* _ASM_X86_FPU_INTERNAL_H */

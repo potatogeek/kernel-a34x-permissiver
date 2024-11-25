@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Matt Wu <Matt_Wu@acersoftech.com.cn>
  *  Apr 26, 2001
@@ -8,6 +12,7 @@
  *
  *  TODO:
  *    --
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public Lcodecnse as published by
@@ -23,6 +28,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -43,7 +50,10 @@
 MODULE_AUTHOR("Matt Wu <Matt_Wu@acersoftech.com.cn>");
 MODULE_DESCRIPTION("ALI M5451");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{ALI,M5451,pci},{ALI,M5451}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index = SNDRV_DEFAULT_IDX1;	/* Index */
 static char *id = SNDRV_DEFAULT_STR1;	/* ID for this card */
@@ -1084,7 +1094,11 @@ static int snd_ali_trigger(struct snd_pcm_substream *substream,
 {
 	struct snd_ali *codec = snd_pcm_substream_chip(substream);
 	struct snd_pcm_substream *s;
+<<<<<<< HEAD
 	unsigned int what, whati, capture_flag;
+=======
+	unsigned int what, whati;
+>>>>>>> upstream/android-13
 	struct snd_ali_voice *pvoice, *evoice;
 	unsigned int val;
 	int do_start;
@@ -1102,7 +1116,11 @@ static int snd_ali_trigger(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	what = whati = capture_flag = 0;
+=======
+	what = whati = 0;
+>>>>>>> upstream/android-13
 	snd_pcm_group_for_each_entry(s, substream) {
 		if ((struct snd_ali *) snd_pcm_substream_chip(s) == codec) {
 			pvoice = s->runtime->private_data;
@@ -1124,8 +1142,11 @@ static int snd_ali_trigger(struct snd_pcm_substream *substream,
 					evoice->running = 0;
 			}
 			snd_pcm_trigger_done(s, substream);
+<<<<<<< HEAD
 			if (pvoice->mode)
 				capture_flag = 1;
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_lock(&codec->reg_lock);
@@ -1152,6 +1173,7 @@ static int snd_ali_playback_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_ali_voice *pvoice = runtime->private_data;
 	struct snd_ali_voice *evoice = pvoice->extra;
+<<<<<<< HEAD
 	int err;
 
 	err = snd_pcm_lib_malloc_pages(substream,
@@ -1159,6 +1181,9 @@ static int snd_ali_playback_hw_params(struct snd_pcm_substream *substream,
 	if (err < 0)
 		return err;
 	
+=======
+
+>>>>>>> upstream/android-13
 	/* voice management */
 
 	if (params_buffer_size(hw_params) / 2 !=
@@ -1189,7 +1214,10 @@ static int snd_ali_playback_hw_free(struct snd_pcm_substream *substream)
 	struct snd_ali_voice *pvoice = runtime->private_data;
 	struct snd_ali_voice *evoice = pvoice ? pvoice->extra : NULL;
 
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	if (evoice) {
 		snd_ali_free_voice(codec, evoice);
 		pvoice->extra = NULL;
@@ -1197,6 +1225,7 @@ static int snd_ali_playback_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_ali_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *hw_params)
 {
@@ -1209,6 +1238,8 @@ static int snd_ali_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_ali_playback_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_ali *codec = snd_pcm_substream_chip(substream);
@@ -1433,7 +1464,11 @@ static snd_pcm_uframes_t snd_ali_pointer(struct snd_pcm_substream *substream)
 	return cso;
 }
 
+<<<<<<< HEAD
 static struct snd_pcm_hardware snd_ali_playback =
+=======
+static const struct snd_pcm_hardware snd_ali_playback =
+>>>>>>> upstream/android-13
 {
 	.info =		(SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_INTERLEAVED |
 			 SNDRV_PCM_INFO_BLOCK_TRANSFER |
@@ -1459,7 +1494,11 @@ static struct snd_pcm_hardware snd_ali_playback =
  *  Capture support device description
  */
 
+<<<<<<< HEAD
 static struct snd_pcm_hardware snd_ali_capture =
+=======
+static const struct snd_pcm_hardware snd_ali_capture =
+>>>>>>> upstream/android-13
 {
 	.info =		(SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_INTERLEAVED |
 			 SNDRV_PCM_INFO_BLOCK_TRANSFER |
@@ -1490,7 +1529,11 @@ static void snd_ali_pcm_free_substream(struct snd_pcm_runtime *runtime)
 }
 
 static int snd_ali_open(struct snd_pcm_substream *substream, int rec,
+<<<<<<< HEAD
 			int channel, struct snd_pcm_hardware *phw)
+=======
+			int channel, const struct snd_pcm_hardware *phw)
+>>>>>>> upstream/android-13
 {
 	struct snd_ali *codec = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -1540,7 +1583,10 @@ static int snd_ali_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_ali_playback_ops = {
 	.open =		snd_ali_playback_open,
 	.close =	snd_ali_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_ali_playback_hw_params,
 	.hw_free =	snd_ali_playback_hw_free,
 	.prepare =	snd_ali_playback_prepare,
@@ -1551,9 +1597,12 @@ static const struct snd_pcm_ops snd_ali_playback_ops = {
 static const struct snd_pcm_ops snd_ali_capture_ops = {
 	.open =		snd_ali_capture_open,
 	.close =	snd_ali_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ali_hw_params,
 	.hw_free =	snd_ali_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_ali_prepare,
 	.trigger =	snd_ali_trigger,
 	.pointer =	snd_ali_pointer,
@@ -1571,10 +1620,17 @@ static int snd_ali_modem_hw_params(struct snd_pcm_substream *substream,
 	snd_ac97_write(chip->ac97[modem_num], AC97_LINE1_RATE,
 		       params_rate(hw_params));
 	snd_ac97_write(chip->ac97[modem_num], AC97_LINE1_LEVEL, 0);
+<<<<<<< HEAD
 	return snd_ali_hw_params(substream, hw_params);
 }
 
 static struct snd_pcm_hardware snd_ali_modem =
+=======
+	return 0;
+}
+
+static const struct snd_pcm_hardware snd_ali_modem =
+>>>>>>> upstream/android-13
 {
 	.info =		(SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_INTERLEAVED |
 			 SNDRV_PCM_INFO_BLOCK_TRANSFER |
@@ -1626,9 +1682,13 @@ static int snd_ali_modem_capture_open(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_ali_modem_playback_ops = {
 	.open =		snd_ali_modem_playback_open,
 	.close =	snd_ali_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ali_modem_hw_params,
 	.hw_free =	snd_ali_hw_free,
+=======
+	.hw_params =	snd_ali_modem_hw_params,
+>>>>>>> upstream/android-13
 	.prepare =	snd_ali_prepare,
 	.trigger =	snd_ali_trigger,
 	.pointer =	snd_ali_pointer,
@@ -1637,9 +1697,13 @@ static const struct snd_pcm_ops snd_ali_modem_playback_ops = {
 static const struct snd_pcm_ops snd_ali_modem_capture_ops = {
 	.open =		snd_ali_modem_capture_open,
 	.close =	snd_ali_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ali_modem_hw_params,
 	.hw_free =	snd_ali_hw_free,
+=======
+	.hw_params =	snd_ali_modem_hw_params,
+>>>>>>> upstream/android-13
 	.prepare =	snd_ali_prepare,
 	.trigger =	snd_ali_trigger,
 	.pointer =	snd_ali_pointer,
@@ -1685,9 +1749,14 @@ static int snd_ali_pcm(struct snd_ali *codec, int device,
 		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE,
 				desc->capture_ops);
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(codec->pci),
 					      64*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &codec->pci->dev, 64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	pcm->info_flags = 0;
 	pcm->dev_class = desc->class;
@@ -1818,7 +1887,11 @@ static int snd_ali5451_spdif_put(struct snd_kcontrol *kcontrol,
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_ali5451_mixer_spdif[] = {
+=======
+static const struct snd_kcontrol_new snd_ali5451_mixer_spdif[] = {
+>>>>>>> upstream/android-13
 	/* spdif aplayback switch */
 	/* FIXME: "IEC958 Playback Switch" may conflict with one on ac97_codec */
 	ALI5451_SPDIF(SNDRV_CTL_NAME_IEC958("Output ",NONE,SWITCH), 0, 0),
@@ -1833,7 +1906,11 @@ static int snd_ali_mixer(struct snd_ali *codec)
 	struct snd_ac97_template ac97;
 	unsigned int idx;
 	int i, err;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_ali_codec_write,
 		.read = snd_ali_codec_read,
 	};
@@ -1882,10 +1959,15 @@ static int ali_suspend(struct device *dev)
 		return 0;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	for (i = 0; i < chip->num_of_codecs; i++) {
 		snd_pcm_suspend_all(chip->pcm[i]);
 		snd_ac97_suspend(chip->ac97[i]);
 	}
+=======
+	for (i = 0; i < chip->num_of_codecs; i++)
+		snd_ac97_suspend(chip->ac97[i]);
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&chip->reg_lock);
 	
@@ -1961,6 +2043,7 @@ static SIMPLE_DEV_PM_OPS(ali_pm, ali_suspend, ali_resume);
 #define ALI_PM_OPS	NULL
 #endif /* CONFIG_PM_SLEEP */
 
+<<<<<<< HEAD
 static int snd_ali_free(struct snd_ali * codec)
 {
 	if (codec->hw_initialized)
@@ -1977,6 +2060,16 @@ static int snd_ali_free(struct snd_ali * codec)
 	pci_dev_put(codec->pci_m7101);
 	kfree(codec);
 	return 0;
+=======
+static void snd_ali_free(struct snd_card *card)
+{
+	struct snd_ali *codec = card->private_data;
+
+	if (codec->hw_initialized)
+		snd_ali_disable_address_interrupt(codec);
+	pci_dev_put(codec->pci_m1533);
+	pci_dev_put(codec->pci_m7101);
+>>>>>>> upstream/android-13
 }
 
 static int snd_ali_chip_init(struct snd_ali *codec)
@@ -2051,9 +2144,13 @@ static void snd_ali_proc_read(struct snd_info_entry *entry,
 
 static void snd_ali_proc_init(struct snd_ali *codec)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	if (!snd_card_proc_new(codec->card, "ali5451", &entry))
 		snd_info_set_text_ops(entry, codec, snd_ali_proc_read);
+=======
+	snd_card_ro_proc_new(codec->card, "ali5451", codec, snd_ali_proc_read);
+>>>>>>> upstream/android-13
 }
 
 static int snd_ali_resources(struct snd_ali *codec)
@@ -2066,12 +2163,19 @@ static int snd_ali_resources(struct snd_ali *codec)
 		return err;
 	codec->port = pci_resource_start(codec->pci, 0);
 
+<<<<<<< HEAD
 	if (request_irq(codec->pci->irq, snd_ali_card_interrupt,
 			IRQF_SHARED, KBUILD_MODNAME, codec)) {
+=======
+	if (devm_request_irq(&codec->pci->dev, codec->pci->irq,
+			     snd_ali_card_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, codec)) {
+>>>>>>> upstream/android-13
 		dev_err(codec->card->dev, "Unable to request irq.\n");
 		return -EBUSY;
 	}
 	codec->irq = codec->pci->irq;
+<<<<<<< HEAD
 	dev_dbg(codec->card->dev, "resources allocated.\n");
 	return 0;
 }
@@ -2081,10 +2185,17 @@ static int snd_ali_dev_free(struct snd_device *device)
 	snd_ali_free(codec);
 	return 0;
 }
+=======
+	codec->card->sync_irq = codec->irq;
+	dev_dbg(codec->card->dev, "resources allocated.\n");
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int snd_ali_create(struct snd_card *card,
 			  struct pci_dev *pci,
 			  int pcm_streams,
+<<<<<<< HEAD
 			  int spdif_support,
 			  struct snd_ali **r_ali)
 {
@@ -2096,10 +2207,18 @@ static int snd_ali_create(struct snd_card *card,
         };
 
 	*r_ali = NULL;
+=======
+			  int spdif_support)
+{
+	struct snd_ali *codec = card->private_data;
+	int i, err;
+	unsigned short cmdw;
+>>>>>>> upstream/android-13
 
 	dev_dbg(card->dev, "creating ...\n");
 
 	/* enable PCI device */
+<<<<<<< HEAD
 	err = pci_enable_device(pci);
 	if (err < 0)
 		return err;
@@ -2118,6 +2237,18 @@ static int snd_ali_create(struct snd_card *card,
 		return -ENOMEM;
 	}
 
+=======
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+	/* check, if we can restrict PCI DMA transfers to 31 bits */
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(31))) {
+		dev_err(card->dev,
+			"architecture does not support 31bit PCI busmaster DMA\n");
+		return -ENXIO;
+	}
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&codec->reg_lock);
 	spin_lock_init(&codec->voice_alloc);
 
@@ -2138,6 +2269,7 @@ static int snd_ali_create(struct snd_card *card,
 		cmdw |= PCI_COMMAND_IO;
 		pci_write_config_word(pci, PCI_COMMAND, cmdw);
 	}
+<<<<<<< HEAD
 	pci_set_master(pci);
 	
 	if (snd_ali_resources(codec)) {
@@ -2146,6 +2278,12 @@ static int snd_ali_create(struct snd_card *card,
 	}
 
 	synchronize_irq(pci->irq);
+=======
+	
+	if (snd_ali_resources(codec))
+		return -EBUSY;
+	card->private_free = snd_ali_free;
+>>>>>>> upstream/android-13
 
 	codec->synth.chmap = 0;
 	codec->synth.chcnt = 0;
@@ -2172,13 +2310,17 @@ static int snd_ali_create(struct snd_card *card,
 	codec->pci_m1533 = pci_get_device(0x10b9, 0x1533, NULL);
 	if (!codec->pci_m1533) {
 		dev_err(card->dev, "cannot find ALi 1533 chip.\n");
+<<<<<<< HEAD
 		snd_ali_free(codec);
+=======
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 	/* M7101: power management */
 	codec->pci_m7101 = pci_get_device(0x10b9, 0x7101, NULL);
 	if (!codec->pci_m7101 && codec->revision == ALI_5451_V02) {
 		dev_err(card->dev, "cannot find ALi 7101 chip.\n");
+<<<<<<< HEAD
 		snd_ali_free(codec);
 		return -ENODEV;
 	}
@@ -2190,6 +2332,11 @@ static int snd_ali_create(struct snd_card *card,
 		return err;
 	}
 
+=======
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	/* initialise synth voices*/
 	for (i = 0; i < ALI_CHANNELS; i++)
 		codec->synth.voices[i].number = i;
@@ -2201,13 +2348,19 @@ static int snd_ali_create(struct snd_card *card,
 	}
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 	codec->image = kmalloc(sizeof(*codec->image), GFP_KERNEL);
+=======
+	codec->image = devm_kmalloc(&pci->dev, sizeof(*codec->image),
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!codec->image)
 		dev_warn(card->dev, "can't allocate apm buffer\n");
 #endif
 
 	snd_ali_enable_address_interrupt(codec);
 	codec->hw_initialized = 1;
+<<<<<<< HEAD
 
 	*r_ali = codec;
 	dev_dbg(card->dev, "created.\n");
@@ -2216,6 +2369,13 @@ static int snd_ali_create(struct snd_card *card,
 
 static int snd_ali_probe(struct pci_dev *pci,
 			 const struct pci_device_id *pci_id)
+=======
+	return 0;
+}
+
+static int __snd_ali_probe(struct pci_dev *pci,
+			   const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card;
 	struct snd_ali *codec;
@@ -2223,6 +2383,7 @@ static int snd_ali_probe(struct pci_dev *pci,
 
 	dev_dbg(&pci->dev, "probe ...\n");
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index, id, THIS_MODULE, 0, &card);
 	if (err < 0)
 		return err;
@@ -2231,16 +2392,35 @@ static int snd_ali_probe(struct pci_dev *pci,
 	if (err < 0)
 		goto error;
 	card->private_data = codec;
+=======
+	err = snd_devm_card_new(&pci->dev, index, id, THIS_MODULE,
+				sizeof(*codec), &card);
+	if (err < 0)
+		return err;
+	codec = card->private_data;
+
+	err = snd_ali_create(card, pci, pcm_channels, spdif);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	dev_dbg(&pci->dev, "mixer building ...\n");
 	err = snd_ali_mixer(codec);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
+=======
+		return err;
+>>>>>>> upstream/android-13
 	
 	dev_dbg(&pci->dev, "pcm building ...\n");
 	err = snd_ali_build_pcms(codec);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	snd_ali_proc_init(codec);
 
@@ -2253,6 +2433,7 @@ static int snd_ali_probe(struct pci_dev *pci,
 	dev_dbg(&pci->dev, "register card.\n");
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
 
 	pci_set_drvdata(pci, card);
@@ -2266,13 +2447,28 @@ static int snd_ali_probe(struct pci_dev *pci,
 static void snd_ali_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+		return err;
+
+	pci_set_drvdata(pci, card);
+	return 0;
+}
+
+static int snd_ali_probe(struct pci_dev *pci,
+			 const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_ali_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver ali5451_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_ali_ids,
 	.probe = snd_ali_probe,
+<<<<<<< HEAD
 	.remove = snd_ali_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = ALI_PM_OPS,
 	},

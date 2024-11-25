@@ -180,22 +180,41 @@ _ctl_display_some_debug(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 	case MPI2_FUNCTION_SMP_PASSTHROUGH:
 		desc = "smp_passthrough";
 		break;
+<<<<<<< HEAD
+=======
+	case MPI2_FUNCTION_TOOLBOX:
+		desc = "toolbox";
+		break;
+	case MPI2_FUNCTION_NVME_ENCAPSULATED:
+		desc = "nvme_encapsulated";
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (!desc)
 		return;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "%s: %s, smid(%d)\n",
 	    ioc->name, calling_function_name, desc, smid);
+=======
+	ioc_info(ioc, "%s: %s, smid(%d)\n", calling_function_name, desc, smid);
+>>>>>>> upstream/android-13
 
 	if (!mpi_reply)
 		return;
 
 	if (mpi_reply->IOCStatus || mpi_reply->IOCLogInfo)
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT
 		    "\tiocstatus(0x%04x), loginfo(0x%08x)\n",
 		    ioc->name, le16_to_cpu(mpi_reply->IOCStatus),
 		    le32_to_cpu(mpi_reply->IOCLogInfo));
+=======
+		ioc_info(ioc, "\tiocstatus(0x%04x), loginfo(0x%08x)\n",
+			 le16_to_cpu(mpi_reply->IOCStatus),
+			 le32_to_cpu(mpi_reply->IOCLogInfo));
+>>>>>>> upstream/android-13
 
 	if (mpi_request->Function == MPI2_FUNCTION_SCSI_IO_REQUEST ||
 	    mpi_request->Function ==
@@ -208,6 +227,7 @@ _ctl_display_some_debug(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 		sas_device = mpt3sas_get_sdev_by_handle(ioc,
 		    le16_to_cpu(scsi_reply->DevHandle));
 		if (sas_device) {
+<<<<<<< HEAD
 			pr_warn(MPT3SAS_FMT "\tsas_address(0x%016llx), phy(%d)\n",
 				ioc->name, (unsigned long long)
 			    sas_device->sas_address, sas_device->phy);
@@ -215,12 +235,21 @@ _ctl_display_some_debug(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 			    "\tenclosure_logical_id(0x%016llx), slot(%d)\n",
 			    ioc->name, (unsigned long long)
 			    sas_device->enclosure_logical_id, sas_device->slot);
+=======
+			ioc_warn(ioc, "\tsas_address(0x%016llx), phy(%d)\n",
+				 (u64)sas_device->sas_address,
+				 sas_device->phy);
+			ioc_warn(ioc, "\tenclosure_logical_id(0x%016llx), slot(%d)\n",
+				 (u64)sas_device->enclosure_logical_id,
+				 sas_device->slot);
+>>>>>>> upstream/android-13
 			sas_device_put(sas_device);
 		}
 		if (!sas_device) {
 			pcie_device = mpt3sas_get_pdev_by_handle(ioc,
 				le16_to_cpu(scsi_reply->DevHandle));
 			if (pcie_device) {
+<<<<<<< HEAD
 				pr_warn(MPT3SAS_FMT
 				    "\tWWID(0x%016llx), port(%d)\n", ioc->name,
 				    (unsigned long long)pcie_device->wwid,
@@ -231,15 +260,30 @@ _ctl_display_some_debug(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 					    ioc->name, (unsigned long long)
 					    pcie_device->enclosure_logical_id,
 					    pcie_device->slot);
+=======
+				ioc_warn(ioc, "\tWWID(0x%016llx), port(%d)\n",
+					 (unsigned long long)pcie_device->wwid,
+					 pcie_device->port_num);
+				if (pcie_device->enclosure_handle != 0)
+					ioc_warn(ioc, "\tenclosure_logical_id(0x%016llx), slot(%d)\n",
+						 (u64)pcie_device->enclosure_logical_id,
+						 pcie_device->slot);
+>>>>>>> upstream/android-13
 				pcie_device_put(pcie_device);
 			}
 		}
 		if (scsi_reply->SCSIState || scsi_reply->SCSIStatus)
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT
 			    "\tscsi_state(0x%02x), scsi_status"
 			    "(0x%02x)\n", ioc->name,
 			    scsi_reply->SCSIState,
 			    scsi_reply->SCSIStatus);
+=======
+			ioc_info(ioc, "\tscsi_state(0x%02x), scsi_status(0x%02x)\n",
+				 scsi_reply->SCSIState,
+				 scsi_reply->SCSIStatus);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -456,7 +500,11 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * mpt3sas_ctl_reset_handler - reset callback handler (for ctl)
+=======
+ * mpt3sas_ctl_pre_reset_handler - reset callback handler (for ctl)
+>>>>>>> upstream/android-13
  * @ioc: per adapter object
  *
  * The handler for doing any required cleanup or initialization.
@@ -466,8 +514,12 @@ void mpt3sas_ctl_pre_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 	int i;
 	u8 issue_reset;
 
+<<<<<<< HEAD
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: MPT3_IOC_PRE_RESET\n", ioc->name, __func__));
+=======
+	dtmprintk(ioc, ioc_info(ioc, "%s: MPT3_IOC_PRE_RESET\n", __func__));
+>>>>>>> upstream/android-13
 	for (i = 0; i < MPI2_DIAG_BUF_TYPE_COUNT; i++) {
 		if (!(ioc->diag_buffer_status[i] &
 		      MPT3_DIAG_BUFFER_IS_REGISTERED))
@@ -475,20 +527,43 @@ void mpt3sas_ctl_pre_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 		if ((ioc->diag_buffer_status[i] &
 		     MPT3_DIAG_BUFFER_IS_RELEASED))
 			continue;
+<<<<<<< HEAD
+=======
+
+		/*
+		 * add a log message to indicate the release
+		 */
+		ioc_info(ioc,
+		    "%s: Releasing the trace buffer due to adapter reset.",
+		    __func__);
+		ioc->htb_rel.buffer_rel_condition =
+		    MPT3_DIAG_BUFFER_REL_TRIGGER;
+>>>>>>> upstream/android-13
 		mpt3sas_send_diag_release(ioc, i, &issue_reset);
 	}
 }
 
 /**
+<<<<<<< HEAD
  * mpt3sas_ctl_reset_handler - reset callback handler (for ctl)
+=======
+ * mpt3sas_ctl_clear_outstanding_ioctls - clears outstanding ioctl cmd.
+>>>>>>> upstream/android-13
  * @ioc: per adapter object
  *
  * The handler for doing any required cleanup or initialization.
  */
+<<<<<<< HEAD
 void mpt3sas_ctl_after_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 {
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: MPT3_IOC_AFTER_RESET\n", ioc->name, __func__));
+=======
+void mpt3sas_ctl_clear_outstanding_ioctls(struct MPT3SAS_ADAPTER *ioc)
+{
+	dtmprintk(ioc,
+	    ioc_info(ioc, "%s: clear outstanding ioctl cmd\n", __func__));
+>>>>>>> upstream/android-13
 	if (ioc->ctl_cmds.status & MPT3_CMD_PENDING) {
 		ioc->ctl_cmds.status |= MPT3_CMD_RESET;
 		mpt3sas_base_free_smid(ioc, ioc->ctl_cmds.smid);
@@ -497,7 +572,11 @@ void mpt3sas_ctl_after_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 }
 
 /**
+<<<<<<< HEAD
  * mpt3sas_ctl_reset_handler - reset callback handler (for ctl)
+=======
+ * mpt3sas_ctl_reset_done_handler - reset callback handler (for ctl)
+>>>>>>> upstream/android-13
  * @ioc: per adapter object
  *
  * The handler for doing any required cleanup or initialization.
@@ -506,8 +585,12 @@ void mpt3sas_ctl_reset_done_handler(struct MPT3SAS_ADAPTER *ioc)
 {
 	int i;
 
+<<<<<<< HEAD
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: MPT3_IOC_DONE_RESET\n", ioc->name, __func__));
+=======
+	dtmprintk(ioc, ioc_info(ioc, "%s: MPT3_IOC_DONE_RESET\n", __func__));
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MPI2_DIAG_BUF_TYPE_COUNT; i++) {
 		if (!(ioc->diag_buffer_status[i] &
@@ -607,6 +690,7 @@ _ctl_set_task_mid(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command *karg,
 		if (priv_data->sas_target->handle != handle)
 			continue;
 		st = scsi_cmd_priv(scmd);
+<<<<<<< HEAD
 		tm_request->TaskMID = cpu_to_le16(st->smid);
 		found = 1;
 	}
@@ -616,6 +700,25 @@ _ctl_set_task_mid(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command *karg,
 			"%s: handle(0x%04x), lun(%d), no active mid!!\n",
 			ioc->name,
 		    desc, le16_to_cpu(tm_request->DevHandle), lun));
+=======
+
+		/*
+		 * If the given TaskMID from the user space is zero, then the
+		 * first outstanding smid will be picked up.  Otherwise,
+		 * targeted smid will be the one.
+		 */
+		if (!tm_request->TaskMID || tm_request->TaskMID == st->smid) {
+			tm_request->TaskMID = cpu_to_le16(st->smid);
+			found = 1;
+		}
+	}
+
+	if (!found) {
+		dctlprintk(ioc,
+			   ioc_info(ioc, "%s: handle(0x%04x), lun(%d), no active mid!!\n",
+				    desc, le16_to_cpu(tm_request->DevHandle),
+				    lun));
+>>>>>>> upstream/android-13
 		tm_reply = ioc->ctl_cmds.reply;
 		tm_reply->DevHandle = tm_request->DevHandle;
 		tm_reply->Function = MPI2_FUNCTION_SCSI_TASK_MGMT;
@@ -631,10 +734,17 @@ _ctl_set_task_mid(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command *karg,
 		return 1;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: handle(0x%04x), lun(%d), task_mid(%d)\n", ioc->name,
 	    desc, le16_to_cpu(tm_request->DevHandle), lun,
 	     le16_to_cpu(tm_request->TaskMID)));
+=======
+	dctlprintk(ioc,
+		   ioc_info(ioc, "%s: handle(0x%04x), lun(%d), task_mid(%d)\n",
+			    desc, le16_to_cpu(tm_request->DevHandle), lun,
+			    le16_to_cpu(tm_request->TaskMID)));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -652,7 +762,10 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	MPI2DefaultReply_t *mpi_reply;
 	Mpi26NVMeEncapsulatedRequest_t *nvme_encap_request = NULL;
 	struct _pcie_device *pcie_device = NULL;
+<<<<<<< HEAD
 	u32 ioc_state;
+=======
+>>>>>>> upstream/android-13
 	u16 smid;
 	unsigned long timeout;
 	u8 issue_reset;
@@ -665,19 +778,28 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	dma_addr_t data_in_dma = 0;
 	size_t data_in_sz = 0;
 	long ret;
+<<<<<<< HEAD
 	u16 wait_state_count;
 	u16 device_handle = MPT3SAS_INVALID_DEVICE_HANDLE;
 	u8 tr_method = MPI26_SCSITASKMGMT_MSGFLAGS_PROTOCOL_LVL_RST_PCIE;
+=======
+	u16 device_handle = MPT3SAS_INVALID_DEVICE_HANDLE;
+>>>>>>> upstream/android-13
 
 	issue_reset = 0;
 
 	if (ioc->ctl_cmds.status != MPT3_CMD_NOT_USED) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: ctl_cmd in use\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: ctl_cmd in use\n", __func__);
+>>>>>>> upstream/android-13
 		ret = -EAGAIN;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	wait_state_count = 0;
 	ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
 	while (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
@@ -704,6 +826,16 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		pr_err(MPT3SAS_FMT
 			"%s: failed obtaining a memory for mpi_request\n",
 			ioc->name, __func__);
+=======
+	ret = mpt3sas_wait_for_ioc(ioc,	IOC_OPERATIONAL_WAIT_COUNT);
+	if (ret)
+		goto out;
+
+	mpi_request = kzalloc(ioc->request_sz, GFP_KERNEL);
+	if (!mpi_request) {
+		ioc_err(ioc, "%s: failed obtaining a memory for mpi_request\n",
+			__func__);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
@@ -726,8 +858,12 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	if (mpi_request->Function == MPI2_FUNCTION_SCSI_TASK_MGMT) {
 		smid = mpt3sas_base_get_smid_hpr(ioc, ioc->ctl_cb_idx);
 		if (!smid) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 			    ioc->name, __func__);
+=======
+			ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+>>>>>>> upstream/android-13
 			ret = -EAGAIN;
 			goto out;
 		}
@@ -740,6 +876,10 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	ioc->ctl_cmds.status = MPT3_CMD_PENDING;
 	memset(ioc->ctl_cmds.reply, 0, ioc->reply_sz);
 	request = mpt3sas_base_get_msg_frame(ioc, smid);
+<<<<<<< HEAD
+=======
+	memset(request, 0, ioc->request_sz);
+>>>>>>> upstream/android-13
 	memcpy(request, mpi_request, karg.data_sge_offset*4);
 	ioc->ctl_cmds.smid = smid;
 	data_out_sz = karg.data_out_size;
@@ -762,8 +902,13 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 
 	/* obtain dma-able memory for data transfer */
 	if (data_out_sz) /* WRITE */ {
+<<<<<<< HEAD
 		data_out = pci_alloc_consistent(ioc->pdev, data_out_sz,
 		    &data_out_dma);
+=======
+		data_out = dma_alloc_coherent(&ioc->pdev->dev, data_out_sz,
+				&data_out_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!data_out) {
 			pr_err("failure at %s:%d/%s()!\n", __FILE__,
 			    __LINE__, __func__);
@@ -782,8 +927,13 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	}
 
 	if (data_in_sz) /* READ */ {
+<<<<<<< HEAD
 		data_in = pci_alloc_consistent(ioc->pdev, data_in_sz,
 		    &data_in_dma);
+=======
+		data_in = dma_alloc_coherent(&ioc->pdev->dev, data_in_sz,
+				&data_in_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!data_in) {
 			pr_err("failure at %s:%d/%s()!\n", __FILE__,
 			    __LINE__, __func__);
@@ -803,6 +953,21 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	case MPI2_FUNCTION_NVME_ENCAPSULATED:
 	{
 		nvme_encap_request = (Mpi26NVMeEncapsulatedRequest_t *)request;
+<<<<<<< HEAD
+=======
+		if (!ioc->pcie_sg_lookup) {
+			dtmprintk(ioc, ioc_info(ioc,
+			    "HBA doesn't support NVMe. Rejecting NVMe Encapsulated request.\n"
+			    ));
+
+			if (ioc->logging_level & MPT_DEBUG_TM)
+				_debug_dump_mf(nvme_encap_request,
+				    ioc->request_sz/4);
+			mpt3sas_base_free_smid(ioc, smid);
+			ret = -EINVAL;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 		/*
 		 * Get the Physical Address of the sense buffer.
 		 * Use Error Response buffer address field to hold the sense
@@ -823,9 +988,15 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		ioc->build_nvme_prp(ioc, smid, nvme_encap_request,
 		    data_out_dma, data_out_sz, data_in_dma, data_in_sz);
 		if (test_bit(device_handle, ioc->device_remove_in_progress)) {
+<<<<<<< HEAD
 			dtmprintk(ioc, pr_info(MPT3SAS_FMT "handle(0x%04x) :"
 			    "ioctl failed due to device removal in progress\n",
 			    ioc->name, device_handle));
+=======
+			dtmprintk(ioc,
+				  ioc_info(ioc, "handle(0x%04x): ioctl failed due to device removal in progress\n",
+					   device_handle));
+>>>>>>> upstream/android-13
 			mpt3sas_base_free_smid(ioc, smid);
 			ret = -EINVAL;
 			goto out;
@@ -843,9 +1014,15 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		    mpt3sas_base_get_sense_buffer_dma(ioc, smid);
 		memset(ioc->ctl_cmds.sense, 0, SCSI_SENSE_BUFFERSIZE);
 		if (test_bit(device_handle, ioc->device_remove_in_progress)) {
+<<<<<<< HEAD
 			dtmprintk(ioc, pr_info(MPT3SAS_FMT
 				"handle(0x%04x) :ioctl failed due to device removal in progress\n",
 				ioc->name, device_handle));
+=======
+			dtmprintk(ioc,
+				  ioc_info(ioc, "handle(0x%04x) :ioctl failed due to device removal in progress\n",
+					   device_handle));
+>>>>>>> upstream/android-13
 			mpt3sas_base_free_smid(ioc, smid);
 			ret = -EINVAL;
 			goto out;
@@ -855,7 +1032,11 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		if (mpi_request->Function == MPI2_FUNCTION_SCSI_IO_REQUEST)
 			ioc->put_smid_scsi_io(ioc, smid, device_handle);
 		else
+<<<<<<< HEAD
 			mpt3sas_base_put_smid_default(ioc, smid);
+=======
+			ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case MPI2_FUNCTION_SCSI_TASK_MGMT:
@@ -863,10 +1044,17 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		Mpi2SCSITaskManagementRequest_t *tm_request =
 		    (Mpi2SCSITaskManagementRequest_t *)request;
 
+<<<<<<< HEAD
 		dtmprintk(ioc, pr_info(MPT3SAS_FMT
 			"TASK_MGMT: handle(0x%04x), task_type(0x%02x)\n",
 			ioc->name,
 		    le16_to_cpu(tm_request->DevHandle), tm_request->TaskType));
+=======
+		dtmprintk(ioc,
+			  ioc_info(ioc, "TASK_MGMT: handle(0x%04x), task_type(0x%02x)\n",
+				   le16_to_cpu(tm_request->DevHandle),
+				   tm_request->TaskType));
+>>>>>>> upstream/android-13
 		ioc->got_task_abort_from_ioctl = 1;
 		if (tm_request->TaskType ==
 		    MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK ||
@@ -881,9 +1069,15 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		ioc->got_task_abort_from_ioctl = 0;
 
 		if (test_bit(device_handle, ioc->device_remove_in_progress)) {
+<<<<<<< HEAD
 			dtmprintk(ioc, pr_info(MPT3SAS_FMT
 				"handle(0x%04x) :ioctl failed due to device removal in progress\n",
 				ioc->name, device_handle));
+=======
+			dtmprintk(ioc,
+				  ioc_info(ioc, "handle(0x%04x) :ioctl failed due to device removal in progress\n",
+					   device_handle));
+>>>>>>> upstream/android-13
 			mpt3sas_base_free_smid(ioc, smid);
 			ret = -EINVAL;
 			goto out;
@@ -892,7 +1086,11 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		    tm_request->DevHandle));
 		ioc->build_sg_mpi(ioc, psge, data_out_dma, data_out_sz,
 		    data_in_dma, data_in_sz);
+<<<<<<< HEAD
 		mpt3sas_base_put_smid_hi_priority(ioc, smid, 0);
+=======
+		ioc->put_smid_hi_priority(ioc, smid, 0);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case MPI2_FUNCTION_SMP_PASSTHROUGH:
@@ -901,8 +1099,15 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		    (Mpi2SmpPassthroughRequest_t *)mpi_request;
 		u8 *data;
 
+<<<<<<< HEAD
 		/* ioc determines which port to use */
 		smp_request->PhysicalPort = 0xFF;
+=======
+		if (!ioc->multipath_on_hba) {
+			/* ioc determines which port to use */
+			smp_request->PhysicalPort = 0xFF;
+		}
+>>>>>>> upstream/android-13
 		if (smp_request->PassthroughFlags &
 		    MPI2_SMP_PT_REQ_PT_FLAGS_IMMEDIATE)
 			data = (u8 *)&smp_request->SGL;
@@ -923,22 +1128,36 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		}
 		ioc->build_sg(ioc, psge, data_out_dma, data_out_sz, data_in_dma,
 		    data_in_sz);
+<<<<<<< HEAD
 		mpt3sas_base_put_smid_default(ioc, smid);
+=======
+		ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case MPI2_FUNCTION_SATA_PASSTHROUGH:
 	{
 		if (test_bit(device_handle, ioc->device_remove_in_progress)) {
+<<<<<<< HEAD
 			dtmprintk(ioc, pr_info(MPT3SAS_FMT
 				"handle(0x%04x) :ioctl failed due to device removal in progress\n",
 				ioc->name, device_handle));
+=======
+			dtmprintk(ioc,
+				  ioc_info(ioc, "handle(0x%04x) :ioctl failed due to device removal in progress\n",
+					   device_handle));
+>>>>>>> upstream/android-13
 			mpt3sas_base_free_smid(ioc, smid);
 			ret = -EINVAL;
 			goto out;
 		}
 		ioc->build_sg(ioc, psge, data_out_dma, data_out_sz, data_in_dma,
 		    data_in_sz);
+<<<<<<< HEAD
 		mpt3sas_base_put_smid_default(ioc, smid);
+=======
+		ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case MPI2_FUNCTION_FW_DOWNLOAD:
@@ -946,7 +1165,11 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	{
 		ioc->build_sg(ioc, psge, data_out_dma, data_out_sz, data_in_dma,
 		    data_in_sz);
+<<<<<<< HEAD
 		mpt3sas_base_put_smid_default(ioc, smid);
+=======
+		ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case MPI2_FUNCTION_TOOLBOX:
@@ -954,6 +1177,7 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		Mpi2ToolboxCleanRequest_t *toolbox_request =
 			(Mpi2ToolboxCleanRequest_t *)mpi_request;
 
+<<<<<<< HEAD
 		if (toolbox_request->Tool == MPI2_TOOLBOX_DIAGNOSTIC_CLI_TOOL) {
 			ioc->build_sg(ioc, psge, data_out_dma, data_out_sz,
 				data_in_dma, data_in_sz);
@@ -962,6 +1186,40 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 				data_in_dma, data_in_sz);
 		}
 		mpt3sas_base_put_smid_default(ioc, smid);
+=======
+		if ((toolbox_request->Tool == MPI2_TOOLBOX_DIAGNOSTIC_CLI_TOOL)
+		    || (toolbox_request->Tool ==
+		    MPI26_TOOLBOX_BACKEND_PCIE_LANE_MARGIN))
+			ioc->build_sg(ioc, psge, data_out_dma, data_out_sz,
+				data_in_dma, data_in_sz);
+		else if (toolbox_request->Tool ==
+				MPI2_TOOLBOX_MEMORY_MOVE_TOOL) {
+			Mpi2ToolboxMemMoveRequest_t *mem_move_request =
+					(Mpi2ToolboxMemMoveRequest_t *)request;
+			Mpi2SGESimple64_t tmp, *src = NULL, *dst = NULL;
+
+			ioc->build_sg_mpi(ioc, psge, data_out_dma,
+					data_out_sz, data_in_dma, data_in_sz);
+			if (data_out_sz && !data_in_sz) {
+				dst =
+				    (Mpi2SGESimple64_t *)&mem_move_request->SGL;
+				src = (void *)dst + ioc->sge_size;
+
+				memcpy(&tmp, src, ioc->sge_size);
+				memcpy(src, dst, ioc->sge_size);
+				memcpy(dst, &tmp, ioc->sge_size);
+			}
+			if (ioc->logging_level & MPT_DEBUG_TM) {
+				ioc_info(ioc,
+				  "Mpi2ToolboxMemMoveRequest_t request msg\n");
+				_debug_dump_mf(mem_move_request,
+							ioc->request_sz/4);
+			}
+		} else
+			ioc->build_sg_mpi(ioc, psge, data_out_dma, data_out_sz,
+			    data_in_dma, data_in_sz);
+		ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case MPI2_FUNCTION_SAS_IO_UNIT_CONTROL:
@@ -977,11 +1235,19 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		}
 		/* drop to default case for posting the request */
 	}
+<<<<<<< HEAD
 		/* fall through */
 	default:
 		ioc->build_sg_mpi(ioc, psge, data_out_dma, data_out_sz,
 		    data_in_dma, data_in_sz);
 		mpt3sas_base_put_smid_default(ioc, smid);
+=======
+		fallthrough;
+	default:
+		ioc->build_sg_mpi(ioc, psge, data_out_dma, data_out_sz,
+		    data_in_dma, data_in_sz);
+		ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -1003,10 +1269,16 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		ioc->ignore_loginfos = 0;
 	}
 	if (!(ioc->ctl_cmds.status & MPT3_CMD_COMPLETE)) {
+<<<<<<< HEAD
 		issue_reset =
 			mpt3sas_base_check_cmd_timeout(ioc,
 				ioc->ctl_cmds.status, mpi_request,
 				karg.data_sge_offset);
+=======
+		mpt3sas_check_cmd_timeout(ioc,
+		    ioc->ctl_cmds.status, mpi_request,
+		    karg.data_sge_offset, issue_reset);
+>>>>>>> upstream/android-13
 		goto issue_host_reset;
 	}
 
@@ -1017,12 +1289,19 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		Mpi2SCSITaskManagementReply_t *tm_reply =
 		    (Mpi2SCSITaskManagementReply_t *)mpi_reply;
 
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "TASK_MGMT: " \
 		    "IOCStatus(0x%04x), IOCLogInfo(0x%08x), "
 		    "TerminationCount(0x%08x)\n", ioc->name,
 		    le16_to_cpu(tm_reply->IOCStatus),
 		    le32_to_cpu(tm_reply->IOCLogInfo),
 		    le32_to_cpu(tm_reply->TerminationCount));
+=======
+		ioc_info(ioc, "TASK_MGMT: IOCStatus(0x%04x), IOCLogInfo(0x%08x), TerminationCount(0x%08x)\n",
+			 le16_to_cpu(tm_reply->IOCStatus),
+			 le32_to_cpu(tm_reply->IOCLogInfo),
+			 le32_to_cpu(tm_reply->TerminationCount));
+>>>>>>> upstream/android-13
 	}
 
 	/* copy out xdata to user */
@@ -1054,9 +1333,13 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 	    MPI2_FUNCTION_RAID_SCSI_IO_PASSTHROUGH || mpi_request->Function ==
 	    MPI2_FUNCTION_NVME_ENCAPSULATED)) {
 		if (karg.sense_data_ptr == NULL) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "Response buffer provided"
 			    " by application is NULL; Response data will"
 			    " not be returned.\n", ioc->name);
+=======
+			ioc_info(ioc, "Response buffer provided by application is NULL; Response data will not be returned\n");
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		sz_arg = (mpi_request->Function ==
@@ -1079,6 +1362,7 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 		    mpi_request->Function ==
 		    MPI2_FUNCTION_RAID_SCSI_IO_PASSTHROUGH ||
 		    mpi_request->Function == MPI2_FUNCTION_SATA_PASSTHROUGH)) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "issue target reset: handle = (0x%04x)\n",
 				ioc->name,
 				le16_to_cpu(mpi_request->FunctionDependent1));
@@ -1095,6 +1379,27 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 				mpt3sas_scsih_issue_locked_tm(ioc,
 				  le16_to_cpu(mpi_request->FunctionDependent1),
 				  0, MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET, 0,
+=======
+			ioc_info(ioc, "issue target reset: handle = (0x%04x)\n",
+				 le16_to_cpu(mpi_request->FunctionDependent1));
+			mpt3sas_halt_firmware(ioc);
+			pcie_device = mpt3sas_get_pdev_by_handle(ioc,
+				le16_to_cpu(mpi_request->FunctionDependent1));
+			if (pcie_device && (!ioc->tm_custom_handling) &&
+			    (!(mpt3sas_scsih_is_pcie_scsi_device(
+			    pcie_device->device_info))))
+				mpt3sas_scsih_issue_locked_tm(ioc,
+				  le16_to_cpu(mpi_request->FunctionDependent1),
+				  0, 0, 0,
+				  MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET, 0,
+				  0, pcie_device->reset_timeout,
+			MPI26_SCSITASKMGMT_MSGFLAGS_PROTOCOL_LVL_RST_PCIE);
+			else
+				mpt3sas_scsih_issue_locked_tm(ioc,
+				  le16_to_cpu(mpi_request->FunctionDependent1),
+				  0, 0, 0,
+				  MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET, 0,
+>>>>>>> upstream/android-13
 				  0, 30, MPI2_SCSITASKMGMT_MSGFLAGS_LINK_RESET);
 		} else
 			mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
@@ -1106,11 +1411,19 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
 
 	/* free memory associated with sg buffers */
 	if (data_in)
+<<<<<<< HEAD
 		pci_free_consistent(ioc->pdev, data_in_sz, data_in,
 		    data_in_dma);
 
 	if (data_out)
 		pci_free_consistent(ioc->pdev, data_out_sz, data_out,
+=======
+		dma_free_coherent(&ioc->pdev->dev, data_in_sz, data_in,
+		    data_in_dma);
+
+	if (data_out)
+		dma_free_coherent(&ioc->pdev->dev, data_out_sz, data_out,
+>>>>>>> upstream/android-13
 		    data_out_dma);
 
 	kfree(mpi_request);
@@ -1128,8 +1441,13 @@ _ctl_getiocinfo(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 {
 	struct mpt3_ioctl_iocinfo karg;
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: enter\n", ioc->name,
 	    __func__));
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s: enter\n",
+				 __func__));
+>>>>>>> upstream/android-13
 
 	memset(&karg, 0 , sizeof(karg));
 	if (ioc->pfacts)
@@ -1188,8 +1506,13 @@ _ctl_eventquery(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: enter\n", ioc->name,
 	    __func__));
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s: enter\n",
+				 __func__));
+>>>>>>> upstream/android-13
 
 	karg.event_entries = MPT3SAS_CTL_EVENT_LOG_SIZE;
 	memcpy(karg.event_types, ioc->event_type,
@@ -1219,8 +1542,13 @@ _ctl_eventenable(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: enter\n", ioc->name,
 	    __func__));
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s: enter\n",
+				 __func__));
+>>>>>>> upstream/android-13
 
 	memcpy(ioc->event_type, karg.event_types,
 	    MPI2_EVENT_NOTIFY_EVENTMASK_WORDS * sizeof(u32));
@@ -1259,8 +1587,13 @@ _ctl_eventreport(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: enter\n", ioc->name,
 	    __func__));
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s: enter\n",
+				 __func__));
+>>>>>>> upstream/android-13
 
 	number_bytes = karg.hdr.max_data_size -
 	    sizeof(struct mpt3_ioctl_header);
@@ -1306,12 +1639,22 @@ _ctl_do_reset(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	    ioc->is_driver_loading)
 		return -EAGAIN;
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: enter\n", ioc->name,
 	    __func__));
 
 	retval = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
 	pr_info(MPT3SAS_FMT "host reset: %s\n",
 	    ioc->name, ((!retval) ? "SUCCESS" : "FAILED"));
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s: enter\n",
+				 __func__));
+
+	ioc->reset_from_user = 1;
+	retval = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
+	ioc_info(ioc,
+	    "Ioctl: host reset: %s\n", ((!retval) ? "SUCCESS" : "FAILED"));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1440,8 +1783,13 @@ _ctl_btdh_mapping(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",
+				 __func__));
+>>>>>>> upstream/android-13
 
 	rc = _ctl_btdh_search_sas_device(ioc, &karg);
 	if (!rc)
@@ -1489,6 +1837,29 @@ _ctl_diag_capability(struct MPT3SAS_ADAPTER *ioc, u8 buffer_type)
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * _ctl_diag_get_bufftype - return diag buffer type
+ *              either TRACE, SNAPSHOT, or EXTENDED
+ * @ioc: per adapter object
+ * @unique_id: specifies the unique_id for the buffer
+ *
+ * returns MPT3_DIAG_UID_NOT_FOUND if the id not found
+ */
+static u8
+_ctl_diag_get_bufftype(struct MPT3SAS_ADAPTER *ioc, u32 unique_id)
+{
+	u8  index;
+
+	for (index = 0; index < MPI2_DIAG_BUF_TYPE_COUNT; index++) {
+		if (ioc->unique_id[index] == unique_id)
+			return index;
+	}
+
+	return MPT3_DIAG_UID_NOT_FOUND;
+}
+>>>>>>> upstream/android-13
 
 /**
  * _ctl_diag_register_2 - wrapper for registering diag buffer support
@@ -1512,6 +1883,7 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	u32 ioc_state;
 	u8 issue_reset = 0;
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
 
@@ -1520,19 +1892,33 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 		pr_err(MPT3SAS_FMT
 		    "%s: failed due to ioc not operational\n",
 		    ioc->name, __func__);
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",
+				 __func__));
+
+	ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
+	if (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
+		ioc_err(ioc, "%s: failed due to ioc not operational\n",
+			__func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
 
 	if (ioc->ctl_cmds.status != MPT3_CMD_NOT_USED) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: ctl_cmd in use\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: ctl_cmd in use\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
 
 	buffer_type = diag_register->buffer_type;
 	if (!_ctl_diag_capability(ioc, buffer_type)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have capability for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
@@ -1552,13 +1938,111 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 		pr_err(MPT3SAS_FMT
 			"%s: the requested_buffer_size is not 4 byte aligned\n",
 			ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: doesn't have capability for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+		return -EPERM;
+	}
+
+	if (diag_register->unique_id == 0) {
+		ioc_err(ioc,
+		    "%s: Invalid UID(0x%08x), buffer_type(0x%02x)\n", __func__,
+		    diag_register->unique_id, buffer_type);
+		return -EINVAL;
+	}
+
+	if ((ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_APP_OWNED) &&
+	    !(ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_RELEASED)) {
+		ioc_err(ioc,
+		    "%s: buffer_type(0x%02x) is already registered by application with UID(0x%08x)\n",
+		    __func__, buffer_type, ioc->unique_id[buffer_type]);
+		return -EINVAL;
+	}
+
+	if (ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_REGISTERED) {
+		/*
+		 * If driver posts buffer initially, then an application wants
+		 * to Register that buffer (own it) without Releasing first,
+		 * the application Register command MUST have the same buffer
+		 * type and size in the Register command (obtained from the
+		 * Query command). Otherwise that Register command will be
+		 * failed. If the application has released the buffer but wants
+		 * to re-register it, it should be allowed as long as the
+		 * Unique-Id/Size match.
+		 */
+
+		if (ioc->unique_id[buffer_type] == MPT3DIAGBUFFUNIQUEID &&
+		    ioc->diag_buffer_sz[buffer_type] ==
+		    diag_register->requested_buffer_size) {
+
+			if (!(ioc->diag_buffer_status[buffer_type] &
+			     MPT3_DIAG_BUFFER_IS_RELEASED)) {
+				dctlprintk(ioc, ioc_info(ioc,
+				    "%s: diag_buffer (%d) ownership changed. old-ID(0x%08x), new-ID(0x%08x)\n",
+				    __func__, buffer_type,
+				    ioc->unique_id[buffer_type],
+				    diag_register->unique_id));
+
+				/*
+				 * Application wants to own the buffer with
+				 * the same size.
+				 */
+				ioc->unique_id[buffer_type] =
+				    diag_register->unique_id;
+				rc = 0; /* success */
+				goto out;
+			}
+		} else if (ioc->unique_id[buffer_type] !=
+		    MPT3DIAGBUFFUNIQUEID) {
+			if (ioc->unique_id[buffer_type] !=
+			    diag_register->unique_id ||
+			    ioc->diag_buffer_sz[buffer_type] !=
+			    diag_register->requested_buffer_size ||
+			    !(ioc->diag_buffer_status[buffer_type] &
+			    MPT3_DIAG_BUFFER_IS_RELEASED)) {
+				ioc_err(ioc,
+				    "%s: already has a registered buffer for buffer_type(0x%02x)\n",
+				    __func__, buffer_type);
+				return -EINVAL;
+			}
+		} else {
+			ioc_err(ioc, "%s: already has a registered buffer for buffer_type(0x%02x)\n",
+			    __func__, buffer_type);
+			return -EINVAL;
+		}
+	} else if (ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED) {
+
+		if (ioc->unique_id[buffer_type] != MPT3DIAGBUFFUNIQUEID ||
+		    ioc->diag_buffer_sz[buffer_type] !=
+		    diag_register->requested_buffer_size) {
+
+			ioc_err(ioc,
+			    "%s: already a buffer is allocated for buffer_type(0x%02x) of size %d bytes, so please try registering again with same size\n",
+			     __func__, buffer_type,
+			    ioc->diag_buffer_sz[buffer_type]);
+			return -EINVAL;
+		}
+	}
+
+	if (diag_register->requested_buffer_size % 4)  {
+		ioc_err(ioc, "%s: the requested_buffer_size is not 4 byte aligned\n",
+			__func__);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	smid = mpt3sas_base_get_smid(ioc, ioc->ctl_cb_idx);
 	if (!smid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
@@ -1572,7 +2056,15 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	request_data = ioc->diag_buffer[buffer_type];
 	request_data_sz = diag_register->requested_buffer_size;
 	ioc->unique_id[buffer_type] = diag_register->unique_id;
+<<<<<<< HEAD
 	ioc->diag_buffer_status[buffer_type] = 0;
+=======
+	/* Reset ioc variables used for additional query commands */
+	ioc->reset_from_user = 0;
+	memset(&ioc->htb_rel, 0, sizeof(struct htb_rel_query));
+	ioc->diag_buffer_status[buffer_type] &=
+	    MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED;
+>>>>>>> upstream/android-13
 	memcpy(ioc->product_specific[buffer_type],
 	    diag_register->product_specific, MPT3_PRODUCT_SPECIFIC_DWORDS);
 	ioc->diagnostic_flags[buffer_type] = diag_register->diagnostic_flags;
@@ -1580,9 +2072,15 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	if (request_data) {
 		request_data_dma = ioc->diag_buffer_dma[buffer_type];
 		if (request_data_sz != ioc->diag_buffer_sz[buffer_type]) {
+<<<<<<< HEAD
 			pci_free_consistent(ioc->pdev,
 			    ioc->diag_buffer_sz[buffer_type],
 			    request_data, request_data_dma);
+=======
+			dma_free_coherent(&ioc->pdev->dev,
+					ioc->diag_buffer_sz[buffer_type],
+					request_data, request_data_dma);
+>>>>>>> upstream/android-13
 			request_data = NULL;
 		}
 	}
@@ -1590,12 +2088,20 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	if (request_data == NULL) {
 		ioc->diag_buffer_sz[buffer_type] = 0;
 		ioc->diag_buffer_dma[buffer_type] = 0;
+<<<<<<< HEAD
 		request_data = pci_alloc_consistent(
 			ioc->pdev, request_data_sz, &request_data_dma);
 		if (request_data == NULL) {
 			pr_err(MPT3SAS_FMT "%s: failed allocating memory" \
 			    " for diag buffers, requested size(%d)\n",
 			    ioc->name, __func__, request_data_sz);
+=======
+		request_data = dma_alloc_coherent(&ioc->pdev->dev,
+				request_data_sz, &request_data_dma, GFP_KERNEL);
+		if (request_data == NULL) {
+			ioc_err(ioc, "%s: failed allocating memory for diag buffers, requested size(%d)\n",
+				__func__, request_data_sz);
+>>>>>>> upstream/android-13
 			mpt3sas_base_free_smid(ioc, smid);
 			rc = -ENOMEM;
 			goto out;
@@ -1613,33 +2119,55 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	mpi_request->VF_ID = 0; /* TODO */
 	mpi_request->VP_ID = 0;
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: diag_buffer(0x%p), dma(0x%llx), sz(%d)\n",
 		ioc->name, __func__, request_data,
 	    (unsigned long long)request_data_dma,
 	    le32_to_cpu(mpi_request->BufferLength)));
+=======
+	dctlprintk(ioc,
+		   ioc_info(ioc, "%s: diag_buffer(0x%p), dma(0x%llx), sz(%d)\n",
+			    __func__, request_data,
+			    (unsigned long long)request_data_dma,
+			    le32_to_cpu(mpi_request->BufferLength)));
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MPT3_PRODUCT_SPECIFIC_DWORDS; i++)
 		mpi_request->ProductSpecific[i] =
 			cpu_to_le32(ioc->product_specific[buffer_type][i]);
 
 	init_completion(&ioc->ctl_cmds.done);
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_default(ioc, smid);
+=======
+	ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 	wait_for_completion_timeout(&ioc->ctl_cmds.done,
 	    MPT3_IOCTL_DEFAULT_TIMEOUT*HZ);
 
 	if (!(ioc->ctl_cmds.status & MPT3_CMD_COMPLETE)) {
+<<<<<<< HEAD
 		issue_reset =
 			mpt3sas_base_check_cmd_timeout(ioc,
 				ioc->ctl_cmds.status, mpi_request,
 				sizeof(Mpi2DiagBufferPostRequest_t)/4);
+=======
+		mpt3sas_check_cmd_timeout(ioc,
+		    ioc->ctl_cmds.status, mpi_request,
+		    sizeof(Mpi2DiagBufferPostRequest_t)/4, issue_reset);
+>>>>>>> upstream/android-13
 		goto issue_host_reset;
 	}
 
 	/* process the completed Reply Message Frame */
 	if ((ioc->ctl_cmds.status & MPT3_CMD_REPLY_VALID) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: no reply message\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: no reply message\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 		goto out;
 	}
@@ -1650,6 +2178,7 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 	if (ioc_status == MPI2_IOCSTATUS_SUCCESS) {
 		ioc->diag_buffer_status[buffer_type] |=
 			MPT3_DIAG_BUFFER_IS_REGISTERED;
+<<<<<<< HEAD
 		dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: success\n",
 		    ioc->name, __func__));
 	} else {
@@ -1657,6 +2186,13 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 			"%s: ioc_status(0x%04x) log_info(0x%08x)\n",
 			ioc->name, __func__,
 		    ioc_status, le32_to_cpu(mpi_reply->IOCLogInfo));
+=======
+		dctlprintk(ioc, ioc_info(ioc, "%s: success\n", __func__));
+	} else {
+		ioc_info(ioc, "%s: ioc_status(0x%04x) log_info(0x%08x)\n",
+			 __func__,
+			 ioc_status, le32_to_cpu(mpi_reply->IOCLogInfo));
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 	}
 
@@ -1666,9 +2202,18 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
 
  out:
 
+<<<<<<< HEAD
 	if (rc && request_data)
 		pci_free_consistent(ioc->pdev, request_data_sz,
 		    request_data, request_data_dma);
+=======
+	if (rc && request_data) {
+		dma_free_coherent(&ioc->pdev->dev, request_data_sz,
+		    request_data, request_data_dma);
+		ioc->diag_buffer_status[buffer_type] &=
+		    ~MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED;
+	}
+>>>>>>> upstream/android-13
 
 	ioc->ctl_cmds.status = MPT3_CMD_NOT_USED;
 	return rc;
@@ -1686,10 +2231,18 @@ void
 mpt3sas_enable_diag_buffer(struct MPT3SAS_ADAPTER *ioc, u8 bits_to_register)
 {
 	struct mpt3_diag_register diag_register;
+<<<<<<< HEAD
+=======
+	u32 ret_val;
+	u32 trace_buff_size = ioc->manu_pg11.HostTraceBufferMaxSizeKB<<10;
+	u32 min_trace_buff_size = 0;
+	u32 decr_trace_buff_size = 0;
+>>>>>>> upstream/android-13
 
 	memset(&diag_register, 0, sizeof(struct mpt3_diag_register));
 
 	if (bits_to_register & 1) {
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "registering trace buffer support\n",
 		    ioc->name);
 		ioc->diag_trigger_master.MasterData =
@@ -1704,6 +2257,78 @@ mpt3sas_enable_diag_buffer(struct MPT3SAS_ADAPTER *ioc, u8 bits_to_register)
 	if (bits_to_register & 2) {
 		pr_info(MPT3SAS_FMT "registering snapshot buffer support\n",
 		    ioc->name);
+=======
+		ioc_info(ioc, "registering trace buffer support\n");
+		ioc->diag_trigger_master.MasterData =
+		    (MASTER_TRIGGER_FW_FAULT + MASTER_TRIGGER_ADAPTER_RESET);
+		diag_register.buffer_type = MPI2_DIAG_BUF_TYPE_TRACE;
+		diag_register.unique_id =
+		    (ioc->hba_mpi_version_belonged == MPI2_VERSION) ?
+		    (MPT2DIAGBUFFUNIQUEID):(MPT3DIAGBUFFUNIQUEID);
+
+		if (trace_buff_size != 0) {
+			diag_register.requested_buffer_size = trace_buff_size;
+			min_trace_buff_size =
+			    ioc->manu_pg11.HostTraceBufferMinSizeKB<<10;
+			decr_trace_buff_size =
+			    ioc->manu_pg11.HostTraceBufferDecrementSizeKB<<10;
+
+			if (min_trace_buff_size > trace_buff_size) {
+				/* The buff size is not set correctly */
+				ioc_err(ioc,
+				    "Min Trace Buff size (%d KB) greater than Max Trace Buff size (%d KB)\n",
+				     min_trace_buff_size>>10,
+				     trace_buff_size>>10);
+				ioc_err(ioc,
+				    "Using zero Min Trace Buff Size\n");
+				min_trace_buff_size = 0;
+			}
+
+			if (decr_trace_buff_size == 0) {
+				/*
+				 * retry the min size if decrement
+				 * is not available.
+				 */
+				decr_trace_buff_size =
+				    trace_buff_size - min_trace_buff_size;
+			}
+		} else {
+			/* register for 2MB buffers  */
+			diag_register.requested_buffer_size = 2 * (1024 * 1024);
+		}
+
+		do {
+			ret_val = _ctl_diag_register_2(ioc,  &diag_register);
+
+			if (ret_val == -ENOMEM && min_trace_buff_size &&
+			    (trace_buff_size - decr_trace_buff_size) >=
+			    min_trace_buff_size) {
+				/* adjust the buffer size */
+				trace_buff_size -= decr_trace_buff_size;
+				diag_register.requested_buffer_size =
+				    trace_buff_size;
+			} else
+				break;
+		} while (true);
+
+		if (ret_val == -ENOMEM)
+			ioc_err(ioc,
+			    "Cannot allocate trace buffer memory. Last memory tried = %d KB\n",
+			    diag_register.requested_buffer_size>>10);
+		else if (ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE]
+		    & MPT3_DIAG_BUFFER_IS_REGISTERED) {
+			ioc_err(ioc, "Trace buffer memory %d KB allocated\n",
+			    diag_register.requested_buffer_size>>10);
+			if (ioc->hba_mpi_version_belonged != MPI2_VERSION)
+				ioc->diag_buffer_status[
+				    MPI2_DIAG_BUF_TYPE_TRACE] |=
+				    MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED;
+		}
+	}
+
+	if (bits_to_register & 2) {
+		ioc_info(ioc, "registering snapshot buffer support\n");
+>>>>>>> upstream/android-13
 		diag_register.buffer_type = MPI2_DIAG_BUF_TYPE_SNAPSHOT;
 		/* register for 2MB buffers  */
 		diag_register.requested_buffer_size = 2 * (1024 * 1024);
@@ -1712,8 +2337,12 @@ mpt3sas_enable_diag_buffer(struct MPT3SAS_ADAPTER *ioc, u8 bits_to_register)
 	}
 
 	if (bits_to_register & 4) {
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "registering extended buffer support\n",
 		    ioc->name);
+=======
+		ioc_info(ioc, "registering extended buffer support\n");
+>>>>>>> upstream/android-13
 		diag_register.buffer_type = MPI2_DIAG_BUF_TYPE_EXTENDED;
 		/* register for 2MB buffers  */
 		diag_register.requested_buffer_size = 2 * (1024 * 1024);
@@ -1743,6 +2372,15 @@ _ctl_diag_register(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	}
 
 	rc = _ctl_diag_register_2(ioc, &karg);
+<<<<<<< HEAD
+=======
+
+	if (!rc && (ioc->diag_buffer_status[karg.buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_REGISTERED))
+		ioc->diag_buffer_status[karg.buffer_type] |=
+		    MPT3_DIAG_BUFFER_IS_APP_OWNED;
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1769,6 +2407,7 @@ _ctl_diag_unregister(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
 
@@ -1777,33 +2416,64 @@ _ctl_diag_unregister(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have capability for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",
+				 __func__));
+
+	buffer_type = _ctl_diag_get_bufftype(ioc, karg.unique_id);
+	if (buffer_type == MPT3_DIAG_UID_NOT_FOUND) {
+		ioc_err(ioc, "%s: buffer with unique_id(0x%08x) not found\n",
+		    __func__, karg.unique_id);
+		return -EINVAL;
+	}
+
+	if (!_ctl_diag_capability(ioc, buffer_type)) {
+		ioc_err(ioc, "%s: doesn't have capability for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 
 	if ((ioc->diag_buffer_status[buffer_type] &
 	    MPT3_DIAG_BUFFER_IS_REGISTERED) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: buffer_type(0x%02x) is not registered\n",
 			ioc->name, __func__, buffer_type);
+=======
+		ioc_err(ioc, "%s: buffer_type(0x%02x) is not registered\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	if ((ioc->diag_buffer_status[buffer_type] &
 	    MPT3_DIAG_BUFFER_IS_RELEASED) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: buffer_type(0x%02x) has not been released\n",
 			ioc->name, __func__, buffer_type);
+=======
+		ioc_err(ioc, "%s: buffer_type(0x%02x) has not been released\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (karg.unique_id != ioc->unique_id[buffer_type]) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: unique_id(0x%08x) is not registered\n",
 			ioc->name, __func__, karg.unique_id);
+=======
+		ioc_err(ioc, "%s: unique_id(0x%08x) is not registered\n",
+			__func__, karg.unique_id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	request_data = ioc->diag_buffer[buffer_type];
 	if (!request_data) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have memory allocated for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
@@ -1816,6 +2486,28 @@ _ctl_diag_unregister(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	    request_data, request_data_dma);
 	ioc->diag_buffer[buffer_type] = NULL;
 	ioc->diag_buffer_status[buffer_type] = 0;
+=======
+		ioc_err(ioc, "%s: doesn't have memory allocated for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+		return -ENOMEM;
+	}
+
+	if (ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED) {
+		ioc->unique_id[buffer_type] = MPT3DIAGBUFFUNIQUEID;
+		ioc->diag_buffer_status[buffer_type] &=
+		    ~MPT3_DIAG_BUFFER_IS_APP_OWNED;
+		ioc->diag_buffer_status[buffer_type] &=
+		    ~MPT3_DIAG_BUFFER_IS_REGISTERED;
+	} else {
+		request_data_sz = ioc->diag_buffer_sz[buffer_type];
+		request_data_dma = ioc->diag_buffer_dma[buffer_type];
+		dma_free_coherent(&ioc->pdev->dev, request_data_sz,
+				request_data, request_data_dma);
+		ioc->diag_buffer[buffer_type] = NULL;
+		ioc->diag_buffer_status[buffer_type] = 0;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1842,13 +2534,19 @@ _ctl_diag_query(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",
+				 __func__));
+>>>>>>> upstream/android-13
 
 	karg.application_flags = 0;
 	buffer_type = karg.buffer_type;
 
 	if (!_ctl_diag_capability(ioc, buffer_type)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have capability for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
@@ -1868,12 +2566,34 @@ _ctl_diag_query(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 			pr_err(MPT3SAS_FMT
 				"%s: unique_id(0x%08x) is not registered\n",
 				ioc->name, __func__, karg.unique_id);
+=======
+		ioc_err(ioc, "%s: doesn't have capability for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+		return -EPERM;
+	}
+
+	if (!(ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED)) {
+		if ((ioc->diag_buffer_status[buffer_type] &
+		    MPT3_DIAG_BUFFER_IS_REGISTERED) == 0) {
+			ioc_err(ioc, "%s: buffer_type(0x%02x) is not registered\n",
+				__func__, buffer_type);
+			return -EINVAL;
+		}
+	}
+
+	if (karg.unique_id) {
+		if (karg.unique_id != ioc->unique_id[buffer_type]) {
+			ioc_err(ioc, "%s: unique_id(0x%08x) is not registered\n",
+				__func__, karg.unique_id);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	}
 
 	request_data = ioc->diag_buffer[buffer_type];
 	if (!request_data) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have buffer for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
@@ -1887,6 +2607,28 @@ _ctl_diag_query(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		karg.application_flags = (MPT3_APP_FLAGS_APP_OWNED |
 		    MPT3_APP_FLAGS_BUFFER_VALID |
 		    MPT3_APP_FLAGS_FW_BUFFER_ACCESS);
+=======
+		ioc_err(ioc, "%s: doesn't have buffer for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+		return -ENOMEM;
+	}
+
+	if ((ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_REGISTERED))
+		karg.application_flags |= MPT3_APP_FLAGS_BUFFER_VALID;
+
+	if (!(ioc->diag_buffer_status[buffer_type] &
+	     MPT3_DIAG_BUFFER_IS_RELEASED))
+		karg.application_flags |= MPT3_APP_FLAGS_FW_BUFFER_ACCESS;
+
+	if (!(ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED))
+		karg.application_flags |= MPT3_APP_FLAGS_DYNAMIC_BUFFER_ALLOC;
+
+	if ((ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_APP_OWNED))
+		karg.application_flags |= MPT3_APP_FLAGS_APP_OWNED;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MPT3_PRODUCT_SPECIFIC_DWORDS; i++)
 		karg.product_specific[i] =
@@ -1898,9 +2640,14 @@ _ctl_diag_query(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	karg.diagnostic_flags = ioc->diagnostic_flags[buffer_type];
 
 	if (copy_to_user(arg, &karg, sizeof(struct mpt3_diag_query))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: unable to write mpt3_diag_query data @ %p\n",
 			ioc->name, __func__, arg);
+=======
+		ioc_err(ioc, "%s: unable to write mpt3_diag_query data @ %p\n",
+			__func__, arg);
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 	return 0;
@@ -1923,37 +2670,62 @@ mpt3sas_send_diag_release(struct MPT3SAS_ADAPTER *ioc, u8 buffer_type,
 	u16 ioc_status;
 	u32 ioc_state;
 	int rc;
+<<<<<<< HEAD
 
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
+=======
+	u8 reset_needed = 0;
+
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",
+				 __func__));
+>>>>>>> upstream/android-13
 
 	rc = 0;
 	*issue_reset = 0;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
 	if (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
 		if (ioc->diag_buffer_status[buffer_type] &
 		    MPT3_DIAG_BUFFER_IS_REGISTERED)
 			ioc->diag_buffer_status[buffer_type] |=
 			    MPT3_DIAG_BUFFER_IS_RELEASED;
+<<<<<<< HEAD
 		dctlprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: skipping due to FAULT state\n", ioc->name,
 		    __func__));
+=======
+		dctlprintk(ioc,
+			   ioc_info(ioc, "%s: skipping due to FAULT state\n",
+				    __func__));
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
 
 	if (ioc->ctl_cmds.status != MPT3_CMD_NOT_USED) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: ctl_cmd in use\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: ctl_cmd in use\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
 
 	smid = mpt3sas_base_get_smid(ioc, ioc->ctl_cb_idx);
 	if (!smid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
@@ -1969,22 +2741,37 @@ mpt3sas_send_diag_release(struct MPT3SAS_ADAPTER *ioc, u8 buffer_type,
 	mpi_request->VP_ID = 0;
 
 	init_completion(&ioc->ctl_cmds.done);
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_default(ioc, smid);
+=======
+	ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 	wait_for_completion_timeout(&ioc->ctl_cmds.done,
 	    MPT3_IOCTL_DEFAULT_TIMEOUT*HZ);
 
 	if (!(ioc->ctl_cmds.status & MPT3_CMD_COMPLETE)) {
+<<<<<<< HEAD
 		*issue_reset = mpt3sas_base_check_cmd_timeout(ioc,
 				ioc->ctl_cmds.status, mpi_request,
 				sizeof(Mpi2DiagReleaseRequest_t)/4);
+=======
+		mpt3sas_check_cmd_timeout(ioc,
+		    ioc->ctl_cmds.status, mpi_request,
+		    sizeof(Mpi2DiagReleaseRequest_t)/4, reset_needed);
+		*issue_reset = reset_needed;
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 		goto out;
 	}
 
 	/* process the completed Reply Message Frame */
 	if ((ioc->ctl_cmds.status & MPT3_CMD_REPLY_VALID) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: no reply message\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: no reply message\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 		goto out;
 	}
@@ -1995,6 +2782,7 @@ mpt3sas_send_diag_release(struct MPT3SAS_ADAPTER *ioc, u8 buffer_type,
 	if (ioc_status == MPI2_IOCSTATUS_SUCCESS) {
 		ioc->diag_buffer_status[buffer_type] |=
 		    MPT3_DIAG_BUFFER_IS_RELEASED;
+<<<<<<< HEAD
 		dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: success\n",
 		    ioc->name, __func__));
 	} else {
@@ -2002,6 +2790,13 @@ mpt3sas_send_diag_release(struct MPT3SAS_ADAPTER *ioc, u8 buffer_type,
 			"%s: ioc_status(0x%04x) log_info(0x%08x)\n",
 			ioc->name, __func__,
 		    ioc_status, le32_to_cpu(mpi_reply->IOCLogInfo));
+=======
+		dctlprintk(ioc, ioc_info(ioc, "%s: success\n", __func__));
+	} else {
+		ioc_info(ioc, "%s: ioc_status(0x%04x) log_info(0x%08x)\n",
+			 __func__,
+			 ioc_status, le32_to_cpu(mpi_reply->IOCLogInfo));
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 	}
 
@@ -2034,6 +2829,7 @@ _ctl_diag_release(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
 
@@ -2042,39 +2838,75 @@ _ctl_diag_release(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have capability for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",
+				 __func__));
+
+	buffer_type = _ctl_diag_get_bufftype(ioc, karg.unique_id);
+	if (buffer_type == MPT3_DIAG_UID_NOT_FOUND) {
+		ioc_err(ioc, "%s: buffer with unique_id(0x%08x) not found\n",
+		    __func__, karg.unique_id);
+		return -EINVAL;
+	}
+
+	if (!_ctl_diag_capability(ioc, buffer_type)) {
+		ioc_err(ioc, "%s: doesn't have capability for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 
 	if ((ioc->diag_buffer_status[buffer_type] &
 	    MPT3_DIAG_BUFFER_IS_REGISTERED) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: buffer_type(0x%02x) is not registered\n",
 			ioc->name, __func__, buffer_type);
+=======
+		ioc_err(ioc, "%s: buffer_type(0x%02x) is not registered\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (karg.unique_id != ioc->unique_id[buffer_type]) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: unique_id(0x%08x) is not registered\n",
 			ioc->name, __func__, karg.unique_id);
+=======
+		ioc_err(ioc, "%s: unique_id(0x%08x) is not registered\n",
+			__func__, karg.unique_id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (ioc->diag_buffer_status[buffer_type] &
 	    MPT3_DIAG_BUFFER_IS_RELEASED) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: buffer_type(0x%02x) is already released\n",
 			ioc->name, __func__,
 		    buffer_type);
 		return 0;
+=======
+		ioc_err(ioc, "%s: buffer_type(0x%02x) is already released\n",
+			__func__, buffer_type);
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	request_data = ioc->diag_buffer[buffer_type];
 
 	if (!request_data) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have memory allocated for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
+=======
+		ioc_err(ioc, "%s: doesn't have memory allocated for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -2085,9 +2917,14 @@ _ctl_diag_release(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		    MPT3_DIAG_BUFFER_IS_RELEASED;
 		ioc->diag_buffer_status[buffer_type] &=
 		    ~MPT3_DIAG_BUFFER_IS_DIAG_RESET;
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: buffer_type(0x%02x) was released due to host reset\n",
 			ioc->name, __func__, buffer_type);
+=======
+		ioc_err(ioc, "%s: buffer_type(0x%02x) was released due to host reset\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -2125,6 +2962,7 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
 
@@ -2133,30 +2971,60 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have capability for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
+=======
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",
+				 __func__));
+
+	buffer_type = _ctl_diag_get_bufftype(ioc, karg.unique_id);
+	if (buffer_type == MPT3_DIAG_UID_NOT_FOUND) {
+		ioc_err(ioc, "%s: buffer with unique_id(0x%08x) not found\n",
+		    __func__, karg.unique_id);
+		return -EINVAL;
+	}
+
+	if (!_ctl_diag_capability(ioc, buffer_type)) {
+		ioc_err(ioc, "%s: doesn't have capability for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 
 	if (karg.unique_id != ioc->unique_id[buffer_type]) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: unique_id(0x%08x) is not registered\n",
 			ioc->name, __func__, karg.unique_id);
+=======
+		ioc_err(ioc, "%s: unique_id(0x%08x) is not registered\n",
+			__func__, karg.unique_id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	request_data = ioc->diag_buffer[buffer_type];
 	if (!request_data) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: doesn't have buffer for buffer_type(0x%02x)\n",
 			ioc->name, __func__, buffer_type);
+=======
+		ioc_err(ioc, "%s: doesn't have buffer for buffer_type(0x%02x)\n",
+			__func__, buffer_type);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	request_size = ioc->diag_buffer_sz[buffer_type];
 
 	if ((karg.starting_offset % 4) || (karg.bytes_to_read % 4)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: either the starting_offset " \
 		    "or bytes_to_read are not 4 byte aligned\n", ioc->name,
 		    __func__);
+=======
+		ioc_err(ioc, "%s: either the starting_offset or bytes_to_read are not 4 byte aligned\n",
+			__func__);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2164,10 +3032,17 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		return -EINVAL;
 
 	diag_data = (void *)(request_data + karg.starting_offset);
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: diag_buffer(%p), offset(%d), sz(%d)\n",
 		ioc->name, __func__,
 	    diag_data, karg.starting_offset, karg.bytes_to_read));
+=======
+	dctlprintk(ioc,
+		   ioc_info(ioc, "%s: diag_buffer(%p), offset(%d), sz(%d)\n",
+			    __func__, diag_data, karg.starting_offset,
+			    karg.bytes_to_read));
+>>>>>>> upstream/android-13
 
 	/* Truncate data on requests that are too large */
 	if ((diag_data + karg.bytes_to_read < diag_data) ||
@@ -2178,15 +3053,21 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 
 	if (copy_to_user((void __user *)uarg->diagnostic_data,
 	    diag_data, copy_size)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: Unable to write mpt_diag_read_buffer_t data @ %p\n",
 			ioc->name, __func__, diag_data);
+=======
+		ioc_err(ioc, "%s: Unable to write mpt_diag_read_buffer_t data @ %p\n",
+			__func__, diag_data);
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
 	if ((karg.flags & MPT3_FLAGS_REREGISTER) == 0)
 		return 0;
 
+<<<<<<< HEAD
 	dctlprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: Reregister buffer_type(0x%02x)\n",
 		ioc->name, __func__, buffer_type));
@@ -2195,22 +3076,40 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 		dctlprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: buffer_type(0x%02x) is still registered\n",
 			ioc->name, __func__, buffer_type));
+=======
+	dctlprintk(ioc,
+		   ioc_info(ioc, "%s: Reregister buffer_type(0x%02x)\n",
+			    __func__, buffer_type));
+	if ((ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_RELEASED) == 0) {
+		dctlprintk(ioc,
+			   ioc_info(ioc, "%s: buffer_type(0x%02x) is still registered\n",
+				    __func__, buffer_type));
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	/* Get a free request frame and save the message context.
 	*/
 
 	if (ioc->ctl_cmds.status != MPT3_CMD_NOT_USED) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: ctl_cmd in use\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: ctl_cmd in use\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
 
 	smid = mpt3sas_base_get_smid(ioc, ioc->ctl_cb_idx);
 	if (!smid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
@@ -2234,22 +3133,36 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	mpi_request->VP_ID = 0;
 
 	init_completion(&ioc->ctl_cmds.done);
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_default(ioc, smid);
+=======
+	ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 	wait_for_completion_timeout(&ioc->ctl_cmds.done,
 	    MPT3_IOCTL_DEFAULT_TIMEOUT*HZ);
 
 	if (!(ioc->ctl_cmds.status & MPT3_CMD_COMPLETE)) {
+<<<<<<< HEAD
 		issue_reset =
 			mpt3sas_base_check_cmd_timeout(ioc,
 				ioc->ctl_cmds.status, mpi_request,
 				sizeof(Mpi2DiagBufferPostRequest_t)/4);
+=======
+		mpt3sas_check_cmd_timeout(ioc,
+		    ioc->ctl_cmds.status, mpi_request,
+		    sizeof(Mpi2DiagBufferPostRequest_t)/4, issue_reset);
+>>>>>>> upstream/android-13
 		goto issue_host_reset;
 	}
 
 	/* process the completed Reply Message Frame */
 	if ((ioc->ctl_cmds.status & MPT3_CMD_REPLY_VALID) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: no reply message\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: no reply message\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 		goto out;
 	}
@@ -2260,6 +3173,7 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	if (ioc_status == MPI2_IOCSTATUS_SUCCESS) {
 		ioc->diag_buffer_status[buffer_type] |=
 		    MPT3_DIAG_BUFFER_IS_REGISTERED;
+<<<<<<< HEAD
 		dctlprintk(ioc, pr_info(MPT3SAS_FMT "%s: success\n",
 		    ioc->name, __func__));
 	} else {
@@ -2267,6 +3181,15 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 			"%s: ioc_status(0x%04x) log_info(0x%08x)\n",
 			ioc->name, __func__,
 		    ioc_status, le32_to_cpu(mpi_reply->IOCLogInfo));
+=======
+		ioc->diag_buffer_status[buffer_type] &=
+		    ~MPT3_DIAG_BUFFER_IS_RELEASED;
+		dctlprintk(ioc, ioc_info(ioc, "%s: success\n", __func__));
+	} else {
+		ioc_info(ioc, "%s: ioc_status(0x%04x) log_info(0x%08x)\n",
+			 __func__, ioc_status,
+			 le32_to_cpu(mpi_reply->IOCLogInfo));
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 	}
 
@@ -2280,7 +3203,64 @@ _ctl_diag_read_buffer(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
 	return rc;
 }
 
+<<<<<<< HEAD
 
+=======
+/**
+ * _ctl_addnl_diag_query - query relevant info associated with diag buffers
+ * @ioc: per adapter object
+ * @arg: user space buffer containing ioctl content
+ *
+ * The application will send only unique_id.  Driver will
+ * inspect unique_id first, if valid, fill the details related to cause
+ * for diag buffer release.
+ */
+static long
+_ctl_addnl_diag_query(struct MPT3SAS_ADAPTER *ioc, void __user *arg)
+{
+	struct mpt3_addnl_diag_query karg;
+	u32 buffer_type = 0;
+
+	if (copy_from_user(&karg, arg, sizeof(karg))) {
+		pr_err("%s: failure at %s:%d/%s()!\n",
+		    ioc->name, __FILE__, __LINE__, __func__);
+		return -EFAULT;
+	}
+	dctlprintk(ioc, ioc_info(ioc, "%s\n",  __func__));
+	if (karg.unique_id == 0) {
+		ioc_err(ioc, "%s: unique_id is(0x%08x)\n",
+		    __func__, karg.unique_id);
+		return -EPERM;
+	}
+	buffer_type = _ctl_diag_get_bufftype(ioc, karg.unique_id);
+	if (buffer_type == MPT3_DIAG_UID_NOT_FOUND) {
+		ioc_err(ioc, "%s: buffer with unique_id(0x%08x) not found\n",
+		    __func__, karg.unique_id);
+		return -EPERM;
+	}
+	memset(&karg.rel_query, 0, sizeof(karg.rel_query));
+	if ((ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_REGISTERED) == 0) {
+		ioc_info(ioc, "%s: buffer_type(0x%02x) is not registered\n",
+		    __func__, buffer_type);
+		goto out;
+	}
+	if ((ioc->diag_buffer_status[buffer_type] &
+	    MPT3_DIAG_BUFFER_IS_RELEASED) == 0) {
+		ioc_err(ioc, "%s: buffer_type(0x%02x) is not released\n",
+		    __func__, buffer_type);
+		return -EPERM;
+	}
+	memcpy(&karg.rel_query, &ioc->htb_rel, sizeof(karg.rel_query));
+out:
+	if (copy_to_user(arg, &karg, sizeof(struct mpt3_addnl_diag_query))) {
+		ioc_err(ioc, "%s: unable to write mpt3_addnl_diag_query data @ %p\n",
+		    __func__, arg);
+		return -EFAULT;
+	}
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_COMPAT
 /**
@@ -2344,7 +3324,11 @@ _ctl_ioctl_main(struct file *file, unsigned int cmd, void __user *arg,
 	struct MPT3SAS_ADAPTER *ioc;
 	struct mpt3_ioctl_header ioctl_header;
 	enum block_state state;
+<<<<<<< HEAD
 	long ret = -EINVAL;
+=======
+	long ret = -ENOIOCTLCMD;
+>>>>>>> upstream/android-13
 
 	/* get IOCTL header */
 	if (copy_from_user(&ioctl_header, (char __user *)arg,
@@ -2405,6 +3389,13 @@ _ctl_ioctl_main(struct file *file, unsigned int cmd, void __user *arg,
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		if (karg.hdr.ioc_number != ioctl_header.ioc_number) {
+			ret = -EINVAL;
+			break;
+		}
+>>>>>>> upstream/android-13
 		if (_IOC_SIZE(cmd) == sizeof(struct mpt3_ioctl_command)) {
 			uarg = arg;
 			ret = _ctl_do_mpt_command(ioc, karg, &uarg->mf);
@@ -2450,9 +3441,20 @@ _ctl_ioctl_main(struct file *file, unsigned int cmd, void __user *arg,
 		if (_IOC_SIZE(cmd) == sizeof(struct mpt3_diag_read_buffer))
 			ret = _ctl_diag_read_buffer(ioc, arg);
 		break;
+<<<<<<< HEAD
 	default:
 		dctlprintk(ioc, pr_info(MPT3SAS_FMT
 		    "unsupported ioctl opcode(0x%08x)\n", ioc->name, cmd));
+=======
+	case MPT3ADDNLDIAGQUERY:
+		if (_IOC_SIZE(cmd) == sizeof(struct mpt3_addnl_diag_query))
+			ret = _ctl_addnl_diag_query(ioc, arg);
+		break;
+	default:
+		dctlprintk(ioc,
+			   ioc_info(ioc, "unsupported ioctl opcode(0x%08x)\n",
+				    cmd));
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -2501,7 +3503,11 @@ _ctl_mpt2_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 }
 #ifdef CONFIG_COMPAT
 /**
+<<<<<<< HEAD
  *_ ctl_ioctl_compat - main ioctl entry point (compat)
+=======
+ * _ctl_ioctl_compat - main ioctl entry point (compat)
+>>>>>>> upstream/android-13
  * @file: ?
  * @cmd: ?
  * @arg: ?
@@ -2519,7 +3525,11 @@ _ctl_ioctl_compat(struct file *file, unsigned cmd, unsigned long arg)
 }
 
 /**
+<<<<<<< HEAD
  *_ ctl_mpt2_ioctl_compat - main ioctl entry point (compat)
+=======
+ * _ctl_mpt2_ioctl_compat - main ioctl entry point (compat)
+>>>>>>> upstream/android-13
  * @file: ?
  * @cmd: ?
  * @arg: ?
@@ -2538,7 +3548,11 @@ _ctl_mpt2_ioctl_compat(struct file *file, unsigned cmd, unsigned long arg)
 
 /* scsi host attributes */
 /**
+<<<<<<< HEAD
  * _ctl_version_fw_show - firmware version
+=======
+ * version_fw_show - firmware version
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2546,7 +3560,11 @@ _ctl_mpt2_ioctl_compat(struct file *file, unsigned cmd, unsigned long arg)
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_version_fw_show(struct device *cdev, struct device_attribute *attr,
+=======
+version_fw_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2558,10 +3576,17 @@ _ctl_version_fw_show(struct device *cdev, struct device_attribute *attr,
 	    (ioc->facts.FWVersion.Word & 0x0000FF00) >> 8,
 	    ioc->facts.FWVersion.Word & 0x000000FF);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(version_fw, S_IRUGO, _ctl_version_fw_show, NULL);
 
 /**
  * _ctl_version_bios_show - bios version
+=======
+static DEVICE_ATTR_RO(version_fw);
+
+/**
+ * version_bios_show - bios version
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2569,7 +3594,11 @@ static DEVICE_ATTR(version_fw, S_IRUGO, _ctl_version_fw_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_version_bios_show(struct device *cdev, struct device_attribute *attr,
+=======
+version_bios_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2583,10 +3612,17 @@ _ctl_version_bios_show(struct device *cdev, struct device_attribute *attr,
 	    (version & 0x0000FF00) >> 8,
 	    version & 0x000000FF);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(version_bios, S_IRUGO, _ctl_version_bios_show, NULL);
 
 /**
  * _ctl_version_mpi_show - MPI (message passing interface) version
+=======
+static DEVICE_ATTR_RO(version_bios);
+
+/**
+ * version_mpi_show - MPI (message passing interface) version
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2594,7 +3630,11 @@ static DEVICE_ATTR(version_bios, S_IRUGO, _ctl_version_bios_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_version_mpi_show(struct device *cdev, struct device_attribute *attr,
+=======
+version_mpi_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2603,10 +3643,17 @@ _ctl_version_mpi_show(struct device *cdev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "%03x.%02x\n",
 	    ioc->facts.MsgVersion, ioc->facts.HeaderVersion >> 8);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(version_mpi, S_IRUGO, _ctl_version_mpi_show, NULL);
 
 /**
  * _ctl_version_product_show - product name
+=======
+static DEVICE_ATTR_RO(version_mpi);
+
+/**
+ * version_product_show - product name
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2614,7 +3661,11 @@ static DEVICE_ATTR(version_mpi, S_IRUGO, _ctl_version_mpi_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_version_product_show(struct device *cdev, struct device_attribute *attr,
+=======
+version_product_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2622,10 +3673,17 @@ _ctl_version_product_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, 16, "%s\n", ioc->manu_pg0.ChipName);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(version_product, S_IRUGO, _ctl_version_product_show, NULL);
 
 /**
  * _ctl_version_nvdata_persistent_show - ndvata persistent version
+=======
+static DEVICE_ATTR_RO(version_product);
+
+/**
+ * version_nvdata_persistent_show - ndvata persistent version
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2633,7 +3691,11 @@ static DEVICE_ATTR(version_product, S_IRUGO, _ctl_version_product_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_version_nvdata_persistent_show(struct device *cdev,
+=======
+version_nvdata_persistent_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2642,11 +3704,18 @@ _ctl_version_nvdata_persistent_show(struct device *cdev,
 	return snprintf(buf, PAGE_SIZE, "%08xh\n",
 	    le32_to_cpu(ioc->iounit_pg0.NvdataVersionPersistent.Word));
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(version_nvdata_persistent, S_IRUGO,
 	_ctl_version_nvdata_persistent_show, NULL);
 
 /**
  * _ctl_version_nvdata_default_show - nvdata default version
+=======
+static DEVICE_ATTR_RO(version_nvdata_persistent);
+
+/**
+ * version_nvdata_default_show - nvdata default version
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2654,7 +3723,11 @@ static DEVICE_ATTR(version_nvdata_persistent, S_IRUGO,
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_version_nvdata_default_show(struct device *cdev, struct device_attribute
+=======
+version_nvdata_default_show(struct device *cdev, struct device_attribute
+>>>>>>> upstream/android-13
 	*attr, char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2663,11 +3736,18 @@ _ctl_version_nvdata_default_show(struct device *cdev, struct device_attribute
 	return snprintf(buf, PAGE_SIZE, "%08xh\n",
 	    le32_to_cpu(ioc->iounit_pg0.NvdataVersionDefault.Word));
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(version_nvdata_default, S_IRUGO,
 	_ctl_version_nvdata_default_show, NULL);
 
 /**
  * _ctl_board_name_show - board name
+=======
+static DEVICE_ATTR_RO(version_nvdata_default);
+
+/**
+ * board_name_show - board name
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2675,7 +3755,11 @@ static DEVICE_ATTR(version_nvdata_default, S_IRUGO,
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_board_name_show(struct device *cdev, struct device_attribute *attr,
+=======
+board_name_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2683,10 +3767,17 @@ _ctl_board_name_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, 16, "%s\n", ioc->manu_pg0.BoardName);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(board_name, S_IRUGO, _ctl_board_name_show, NULL);
 
 /**
  * _ctl_board_assembly_show - board assembly name
+=======
+static DEVICE_ATTR_RO(board_name);
+
+/**
+ * board_assembly_show - board assembly name
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2694,7 +3785,11 @@ static DEVICE_ATTR(board_name, S_IRUGO, _ctl_board_name_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_board_assembly_show(struct device *cdev, struct device_attribute *attr,
+=======
+board_assembly_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2702,10 +3797,17 @@ _ctl_board_assembly_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, 16, "%s\n", ioc->manu_pg0.BoardAssembly);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(board_assembly, S_IRUGO, _ctl_board_assembly_show, NULL);
 
 /**
  * _ctl_board_tracer_show - board tracer number
+=======
+static DEVICE_ATTR_RO(board_assembly);
+
+/**
+ * board_tracer_show - board tracer number
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2713,7 +3815,11 @@ static DEVICE_ATTR(board_assembly, S_IRUGO, _ctl_board_assembly_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_board_tracer_show(struct device *cdev, struct device_attribute *attr,
+=======
+board_tracer_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2721,10 +3827,17 @@ _ctl_board_tracer_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, 16, "%s\n", ioc->manu_pg0.BoardTracerNumber);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(board_tracer, S_IRUGO, _ctl_board_tracer_show, NULL);
 
 /**
  * _ctl_io_delay_show - io missing delay
+=======
+static DEVICE_ATTR_RO(board_tracer);
+
+/**
+ * io_delay_show - io missing delay
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2735,7 +3848,11 @@ static DEVICE_ATTR(board_tracer, S_IRUGO, _ctl_board_tracer_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_io_delay_show(struct device *cdev, struct device_attribute *attr,
+=======
+io_delay_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2743,10 +3860,17 @@ _ctl_io_delay_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, PAGE_SIZE, "%02d\n", ioc->io_missing_delay);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(io_delay, S_IRUGO, _ctl_io_delay_show, NULL);
 
 /**
  * _ctl_device_delay_show - device missing delay
+=======
+static DEVICE_ATTR_RO(io_delay);
+
+/**
+ * device_delay_show - device missing delay
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2757,7 +3881,11 @@ static DEVICE_ATTR(io_delay, S_IRUGO, _ctl_io_delay_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_device_delay_show(struct device *cdev, struct device_attribute *attr,
+=======
+device_delay_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2765,10 +3893,17 @@ _ctl_device_delay_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, PAGE_SIZE, "%02d\n", ioc->device_missing_delay);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(device_delay, S_IRUGO, _ctl_device_delay_show, NULL);
 
 /**
  * _ctl_fw_queue_depth_show - global credits
+=======
+static DEVICE_ATTR_RO(device_delay);
+
+/**
+ * fw_queue_depth_show - global credits
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2778,7 +3913,11 @@ static DEVICE_ATTR(device_delay, S_IRUGO, _ctl_device_delay_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_fw_queue_depth_show(struct device *cdev, struct device_attribute *attr,
+=======
+fw_queue_depth_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2786,10 +3925,17 @@ _ctl_fw_queue_depth_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, PAGE_SIZE, "%02d\n", ioc->facts.RequestCredit);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(fw_queue_depth, S_IRUGO, _ctl_fw_queue_depth_show, NULL);
 
 /**
  * _ctl_sas_address_show - sas address
+=======
+static DEVICE_ATTR_RO(fw_queue_depth);
+
+/**
+ * host_sas_address_show - sas address
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2799,7 +3945,11 @@ static DEVICE_ATTR(fw_queue_depth, S_IRUGO, _ctl_fw_queue_depth_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_host_sas_address_show(struct device *cdev, struct device_attribute *attr,
+=======
+host_sas_address_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 
 {
@@ -2809,11 +3959,18 @@ _ctl_host_sas_address_show(struct device *cdev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "0x%016llx\n",
 	    (unsigned long long)ioc->sas_hba.sas_address);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(host_sas_address, S_IRUGO,
 	_ctl_host_sas_address_show, NULL);
 
 /**
  * _ctl_logging_level_show - logging level
+=======
+static DEVICE_ATTR_RO(host_sas_address);
+
+/**
+ * logging_level_show - logging level
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2821,7 +3978,11 @@ static DEVICE_ATTR(host_sas_address, S_IRUGO,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_logging_level_show(struct device *cdev, struct device_attribute *attr,
+=======
+logging_level_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2830,7 +3991,11 @@ _ctl_logging_level_show(struct device *cdev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "%08xh\n", ioc->logging_level);
 }
 static ssize_t
+<<<<<<< HEAD
 _ctl_logging_level_store(struct device *cdev, struct device_attribute *attr,
+=======
+logging_level_store(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	const char *buf, size_t count)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2841,6 +4006,7 @@ _ctl_logging_level_store(struct device *cdev, struct device_attribute *attr,
 		return -EINVAL;
 
 	ioc->logging_level = val;
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "logging_level=%08xh\n", ioc->name,
 	    ioc->logging_level);
 	return strlen(buf);
@@ -2850,6 +4016,16 @@ static DEVICE_ATTR(logging_level, S_IRUGO | S_IWUSR, _ctl_logging_level_show,
 
 /**
  * _ctl_fwfault_debug_show - show/store fwfault_debug
+=======
+	ioc_info(ioc, "logging_level=%08xh\n",
+		 ioc->logging_level);
+	return strlen(buf);
+}
+static DEVICE_ATTR_RW(logging_level);
+
+/**
+ * fwfault_debug_show - show/store fwfault_debug
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2858,7 +4034,11 @@ static DEVICE_ATTR(logging_level, S_IRUGO | S_IWUSR, _ctl_logging_level_show,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_fwfault_debug_show(struct device *cdev, struct device_attribute *attr,
+=======
+fwfault_debug_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2867,7 +4047,11 @@ _ctl_fwfault_debug_show(struct device *cdev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "%d\n", ioc->fwfault_debug);
 }
 static ssize_t
+<<<<<<< HEAD
 _ctl_fwfault_debug_store(struct device *cdev, struct device_attribute *attr,
+=======
+fwfault_debug_store(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	const char *buf, size_t count)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2878,6 +4062,7 @@ _ctl_fwfault_debug_store(struct device *cdev, struct device_attribute *attr,
 		return -EINVAL;
 
 	ioc->fwfault_debug = val;
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "fwfault_debug=%d\n", ioc->name,
 	    ioc->fwfault_debug);
 	return strlen(buf);
@@ -2887,6 +4072,16 @@ static DEVICE_ATTR(fwfault_debug, S_IRUGO | S_IWUSR,
 
 /**
  * _ctl_ioc_reset_count_show - ioc reset count
+=======
+	ioc_info(ioc, "fwfault_debug=%d\n",
+		 ioc->fwfault_debug);
+	return strlen(buf);
+}
+static DEVICE_ATTR_RW(fwfault_debug);
+
+/**
+ * ioc_reset_count_show - ioc reset count
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2896,7 +4091,11 @@ static DEVICE_ATTR(fwfault_debug, S_IRUGO | S_IWUSR,
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_ioc_reset_count_show(struct device *cdev, struct device_attribute *attr,
+=======
+ioc_reset_count_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -2904,10 +4103,17 @@ _ctl_ioc_reset_count_show(struct device *cdev, struct device_attribute *attr,
 
 	return snprintf(buf, PAGE_SIZE, "%d\n", ioc->ioc_reset_count);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(ioc_reset_count, S_IRUGO, _ctl_ioc_reset_count_show, NULL);
 
 /**
  * _ctl_ioc_reply_queue_count_show - number of reply queues
+=======
+static DEVICE_ATTR_RO(ioc_reset_count);
+
+/**
+ * reply_queue_count_show - number of reply queues
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2917,7 +4123,11 @@ static DEVICE_ATTR(ioc_reset_count, S_IRUGO, _ctl_ioc_reset_count_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_ioc_reply_queue_count_show(struct device *cdev,
+=======
+reply_queue_count_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 {
 	u8 reply_queue_count;
@@ -2932,11 +4142,18 @@ _ctl_ioc_reply_queue_count_show(struct device *cdev,
 
 	return snprintf(buf, PAGE_SIZE, "%d\n", reply_queue_count);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(reply_queue_count, S_IRUGO, _ctl_ioc_reply_queue_count_show,
 	NULL);
 
 /**
  * _ctl_BRM_status_show - Backup Rail Monitor Status
+=======
+static DEVICE_ATTR_RO(reply_queue_count);
+
+/**
+ * BRM_status_show - Backup Rail Monitor Status
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -2946,12 +4163,20 @@ static DEVICE_ATTR(reply_queue_count, S_IRUGO, _ctl_ioc_reply_queue_count_show,
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_BRM_status_show(struct device *cdev, struct device_attribute *attr,
+=======
+BRM_status_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+<<<<<<< HEAD
 	Mpi2IOUnitPage3_t *io_unit_pg3 = NULL;
+=======
+	Mpi2IOUnitPage3_t io_unit_pg3;
+>>>>>>> upstream/android-13
 	Mpi2ConfigReply_t mpi_reply;
 	u16 backup_rail_monitor_status = 0;
 	u16 ioc_status;
@@ -2959,6 +4184,7 @@ _ctl_BRM_status_show(struct device *cdev, struct device_attribute *attr,
 	ssize_t rc = 0;
 
 	if (!ioc->is_warpdrive) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: BRM attribute is only for"
 		    " warpdrive\n", ioc->name, __func__);
 		goto out;
@@ -2984,11 +4210,31 @@ _ctl_BRM_status_show(struct device *cdev, struct device_attribute *attr,
 		pr_err(MPT3SAS_FMT
 		    "%s: failed reading iounit_pg3\n", ioc->name,
 		    __func__);
+=======
+		ioc_err(ioc, "%s: BRM attribute is only for warpdrive\n",
+			__func__);
+		return 0;
+	}
+	/* pci_access_mutex lock acquired by sysfs show path */
+	mutex_lock(&ioc->pci_access_mutex);
+	if (ioc->pci_error_recovery || ioc->remove_host)
+		goto out;
+
+	sz = sizeof(io_unit_pg3);
+	memset(&io_unit_pg3, 0, sz);
+
+	if (mpt3sas_config_get_iounit_pg3(ioc, &mpi_reply, &io_unit_pg3, sz) !=
+	    0) {
+		ioc_err(ioc, "%s: failed reading iounit_pg3\n",
+			__func__);
+		rc = -EINVAL;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) & MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: iounit_pg3 failed with "
 		    "ioc_status(0x%04x)\n", ioc->name, __func__, ioc_status);
 		goto out;
@@ -2998,10 +4244,23 @@ _ctl_BRM_status_show(struct device *cdev, struct device_attribute *attr,
 		pr_err(MPT3SAS_FMT "%s: iounit_pg3->GPIOCount less than "
 		     "25 entries, detected (%d) entries\n", ioc->name, __func__,
 		    io_unit_pg3->GPIOCount);
+=======
+		ioc_err(ioc, "%s: iounit_pg3 failed with ioc_status(0x%04x)\n",
+			__func__, ioc_status);
+		rc = -EINVAL;
+		goto out;
+	}
+
+	if (io_unit_pg3.GPIOCount < 25) {
+		ioc_err(ioc, "%s: iounit_pg3.GPIOCount less than 25 entries, detected (%d) entries\n",
+			__func__, io_unit_pg3.GPIOCount);
+		rc = -EINVAL;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	/* BRM status is in bit zero of GPIOVal[24] */
+<<<<<<< HEAD
 	backup_rail_monitor_status = le16_to_cpu(io_unit_pg3->GPIOVal[24]);
 	rc = snprintf(buf, PAGE_SIZE, "%d\n", (backup_rail_monitor_status & 1));
 
@@ -3011,6 +4270,16 @@ _ctl_BRM_status_show(struct device *cdev, struct device_attribute *attr,
 	return rc;
 }
 static DEVICE_ATTR(BRM_status, S_IRUGO, _ctl_BRM_status_show, NULL);
+=======
+	backup_rail_monitor_status = le16_to_cpu(io_unit_pg3.GPIOVal[24]);
+	rc = snprintf(buf, PAGE_SIZE, "%d\n", (backup_rail_monitor_status & 1));
+
+ out:
+	mutex_unlock(&ioc->pci_access_mutex);
+	return rc;
+}
+static DEVICE_ATTR_RO(BRM_status);
+>>>>>>> upstream/android-13
 
 struct DIAG_BUFFER_START {
 	__le32	Size;
@@ -3023,7 +4292,11 @@ struct DIAG_BUFFER_START {
 };
 
 /**
+<<<<<<< HEAD
  * _ctl_host_trace_buffer_size_show - host buffer size (trace only)
+=======
+ * host_trace_buffer_size_show - host buffer size (trace only)
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3031,7 +4304,11 @@ struct DIAG_BUFFER_START {
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_host_trace_buffer_size_show(struct device *cdev,
+=======
+host_trace_buffer_size_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3040,17 +4317,27 @@ _ctl_host_trace_buffer_size_show(struct device *cdev,
 	struct DIAG_BUFFER_START *request_data;
 
 	if (!ioc->diag_buffer[MPI2_DIAG_BUF_TYPE_TRACE]) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: host_trace_buffer is not registered\n",
 			ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: host_trace_buffer is not registered\n",
+			__func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	if ((ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE] &
 	    MPT3_DIAG_BUFFER_IS_REGISTERED) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: host_trace_buffer is not registered\n",
 			ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: host_trace_buffer is not registered\n",
+			__func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -3065,11 +4352,18 @@ _ctl_host_trace_buffer_size_show(struct device *cdev,
 	ioc->ring_buffer_sz = size;
 	return snprintf(buf, PAGE_SIZE, "%d\n", size);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(host_trace_buffer_size, S_IRUGO,
 	_ctl_host_trace_buffer_size_show, NULL);
 
 /**
  * _ctl_host_trace_buffer_show - firmware ring buffer (trace only)
+=======
+static DEVICE_ATTR_RO(host_trace_buffer_size);
+
+/**
+ * host_trace_buffer_show - firmware ring buffer (trace only)
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3081,7 +4375,11 @@ static DEVICE_ATTR(host_trace_buffer_size, S_IRUGO,
  * offset to the same attribute, it will move the pointer.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_host_trace_buffer_show(struct device *cdev, struct device_attribute *attr,
+=======
+host_trace_buffer_show(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3090,17 +4388,27 @@ _ctl_host_trace_buffer_show(struct device *cdev, struct device_attribute *attr,
 	u32 size;
 
 	if (!ioc->diag_buffer[MPI2_DIAG_BUF_TYPE_TRACE]) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: host_trace_buffer is not registered\n",
 			ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: host_trace_buffer is not registered\n",
+			__func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	if ((ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE] &
 	    MPT3_DIAG_BUFFER_IS_REGISTERED) == 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"%s: host_trace_buffer is not registered\n",
 			ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: host_trace_buffer is not registered\n",
+			__func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -3115,7 +4423,11 @@ _ctl_host_trace_buffer_show(struct device *cdev, struct device_attribute *attr,
 }
 
 static ssize_t
+<<<<<<< HEAD
 _ctl_host_trace_buffer_store(struct device *cdev, struct device_attribute *attr,
+=======
+host_trace_buffer_store(struct device *cdev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	const char *buf, size_t count)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3128,14 +4440,22 @@ _ctl_host_trace_buffer_store(struct device *cdev, struct device_attribute *attr,
 	ioc->ring_buffer_offset = val;
 	return strlen(buf);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(host_trace_buffer, S_IRUGO | S_IWUSR,
 	_ctl_host_trace_buffer_show, _ctl_host_trace_buffer_store);
+=======
+static DEVICE_ATTR_RW(host_trace_buffer);
+>>>>>>> upstream/android-13
 
 
 /*****************************************/
 
 /**
+<<<<<<< HEAD
  * _ctl_host_trace_buffer_enable_show - firmware ring buffer (trace only)
+=======
+ * host_trace_buffer_enable_show - firmware ring buffer (trace only)
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3145,7 +4465,11 @@ static DEVICE_ATTR(host_trace_buffer, S_IRUGO | S_IWUSR,
  * This is a mechnism to post/release host_trace_buffers
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_host_trace_buffer_enable_show(struct device *cdev,
+=======
+host_trace_buffer_enable_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3163,7 +4487,11 @@ _ctl_host_trace_buffer_enable_show(struct device *cdev,
 }
 
 static ssize_t
+<<<<<<< HEAD
 _ctl_host_trace_buffer_enable_store(struct device *cdev,
+=======
+host_trace_buffer_enable_store(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3189,6 +4517,7 @@ _ctl_host_trace_buffer_enable_store(struct device *cdev,
 		    MPT3_DIAG_BUFFER_IS_RELEASED) == 0))
 			goto out;
 		memset(&diag_register, 0, sizeof(struct mpt3_diag_register));
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "posting host trace buffers\n",
 		    ioc->name);
 		diag_register.buffer_type = MPI2_DIAG_BUF_TYPE_TRACE;
@@ -3196,6 +4525,51 @@ _ctl_host_trace_buffer_enable_store(struct device *cdev,
 		diag_register.unique_id = 0x7075900;
 		ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE] = 0;
 		_ctl_diag_register_2(ioc,  &diag_register);
+=======
+		ioc_info(ioc, "posting host trace buffers\n");
+		diag_register.buffer_type = MPI2_DIAG_BUF_TYPE_TRACE;
+
+		if (ioc->manu_pg11.HostTraceBufferMaxSizeKB != 0 &&
+		    ioc->diag_buffer_sz[MPI2_DIAG_BUF_TYPE_TRACE] != 0) {
+			/* post the same buffer allocated previously */
+			diag_register.requested_buffer_size =
+			    ioc->diag_buffer_sz[MPI2_DIAG_BUF_TYPE_TRACE];
+		} else {
+			/*
+			 * Free the diag buffer memory which was previously
+			 * allocated by an application.
+			 */
+			if ((ioc->diag_buffer_sz[MPI2_DIAG_BUF_TYPE_TRACE] != 0)
+			    &&
+			    (ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE] &
+			    MPT3_DIAG_BUFFER_IS_APP_OWNED)) {
+				dma_free_coherent(&ioc->pdev->dev,
+						  ioc->diag_buffer_sz[MPI2_DIAG_BUF_TYPE_TRACE],
+						  ioc->diag_buffer[MPI2_DIAG_BUF_TYPE_TRACE],
+						  ioc->diag_buffer_dma[MPI2_DIAG_BUF_TYPE_TRACE]);
+				ioc->diag_buffer[MPI2_DIAG_BUF_TYPE_TRACE] =
+				    NULL;
+			}
+
+			diag_register.requested_buffer_size = (1024 * 1024);
+		}
+
+		diag_register.unique_id =
+		    (ioc->hba_mpi_version_belonged == MPI2_VERSION) ?
+		    (MPT2DIAGBUFFUNIQUEID):(MPT3DIAGBUFFUNIQUEID);
+		ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE] = 0;
+		_ctl_diag_register_2(ioc,  &diag_register);
+		if (ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE] &
+		    MPT3_DIAG_BUFFER_IS_REGISTERED) {
+			ioc_info(ioc,
+			    "Trace buffer %d KB allocated through sysfs\n",
+			    diag_register.requested_buffer_size>>10);
+			if (ioc->hba_mpi_version_belonged != MPI2_VERSION)
+				ioc->diag_buffer_status[
+				    MPI2_DIAG_BUF_TYPE_TRACE] |=
+				    MPT3_DIAG_BUFFER_IS_DRIVER_ALLOCATED;
+		}
+>>>>>>> upstream/android-13
 	} else if (!strcmp(str, "release")) {
 		/* exit out if host buffers are already released */
 		if (!ioc->diag_buffer[MPI2_DIAG_BUF_TYPE_TRACE])
@@ -3206,8 +4580,13 @@ _ctl_host_trace_buffer_enable_store(struct device *cdev,
 		if ((ioc->diag_buffer_status[MPI2_DIAG_BUF_TYPE_TRACE] &
 		    MPT3_DIAG_BUFFER_IS_RELEASED))
 			goto out;
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "releasing host trace buffer\n",
 		    ioc->name);
+=======
+		ioc_info(ioc, "releasing host trace buffer\n");
+		ioc->htb_rel.buffer_rel_condition = MPT3_DIAG_BUFFER_REL_SYSFS;
+>>>>>>> upstream/android-13
 		mpt3sas_send_diag_release(ioc, MPI2_DIAG_BUF_TYPE_TRACE,
 		    &issue_reset);
 	}
@@ -3215,14 +4594,22 @@ _ctl_host_trace_buffer_enable_store(struct device *cdev,
  out:
 	return strlen(buf);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(host_trace_buffer_enable, S_IRUGO | S_IWUSR,
 	_ctl_host_trace_buffer_enable_show,
 	_ctl_host_trace_buffer_enable_store);
+=======
+static DEVICE_ATTR_RW(host_trace_buffer_enable);
+>>>>>>> upstream/android-13
 
 /*********** diagnostic trigger suppport *********************************/
 
 /**
+<<<<<<< HEAD
  * _ctl_diag_trigger_master_show - show the diag_trigger_master attribute
+=======
+ * diag_trigger_master_show - show the diag_trigger_master attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3230,7 +4617,11 @@ static DEVICE_ATTR(host_trace_buffer_enable, S_IRUGO | S_IWUSR,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_master_show(struct device *cdev,
+=======
+diag_trigger_master_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 
 {
@@ -3247,7 +4638,11 @@ _ctl_diag_trigger_master_show(struct device *cdev,
 }
 
 /**
+<<<<<<< HEAD
  * _ctl_diag_trigger_master_store - store the diag_trigger_master attribute
+=======
+ * diag_trigger_master_store - store the diag_trigger_master attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3256,7 +4651,11 @@ _ctl_diag_trigger_master_show(struct device *cdev,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_master_store(struct device *cdev,
+=======
+diag_trigger_master_store(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, const char *buf, size_t count)
 
 {
@@ -3275,12 +4674,20 @@ _ctl_diag_trigger_master_store(struct device *cdev,
 	spin_unlock_irqrestore(&ioc->diag_trigger_lock, flags);
 	return rc;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(diag_trigger_master, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_master_show, _ctl_diag_trigger_master_store);
 
 
 /**
  * _ctl_diag_trigger_event_show - show the diag_trigger_event attribute
+=======
+static DEVICE_ATTR_RW(diag_trigger_master);
+
+
+/**
+ * diag_trigger_event_show - show the diag_trigger_event attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3288,7 +4695,11 @@ static DEVICE_ATTR(diag_trigger_master, S_IRUGO | S_IWUSR,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_event_show(struct device *cdev,
+=======
+diag_trigger_event_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3304,7 +4715,11 @@ _ctl_diag_trigger_event_show(struct device *cdev,
 }
 
 /**
+<<<<<<< HEAD
  * _ctl_diag_trigger_event_store - store the diag_trigger_event attribute
+=======
+ * diag_trigger_event_store - store the diag_trigger_event attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3313,7 +4728,11 @@ _ctl_diag_trigger_event_show(struct device *cdev,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_event_store(struct device *cdev,
+=======
+diag_trigger_event_store(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, const char *buf, size_t count)
 
 {
@@ -3332,12 +4751,20 @@ _ctl_diag_trigger_event_store(struct device *cdev,
 	spin_unlock_irqrestore(&ioc->diag_trigger_lock, flags);
 	return sz;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(diag_trigger_event, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_event_show, _ctl_diag_trigger_event_store);
 
 
 /**
  * _ctl_diag_trigger_scsi_show - show the diag_trigger_scsi attribute
+=======
+static DEVICE_ATTR_RW(diag_trigger_event);
+
+
+/**
+ * diag_trigger_scsi_show - show the diag_trigger_scsi attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3345,7 +4772,11 @@ static DEVICE_ATTR(diag_trigger_event, S_IRUGO | S_IWUSR,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_scsi_show(struct device *cdev,
+=======
+diag_trigger_scsi_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3361,7 +4792,11 @@ _ctl_diag_trigger_scsi_show(struct device *cdev,
 }
 
 /**
+<<<<<<< HEAD
  * _ctl_diag_trigger_scsi_store - store the diag_trigger_scsi attribute
+=======
+ * diag_trigger_scsi_store - store the diag_trigger_scsi attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3370,7 +4805,11 @@ _ctl_diag_trigger_scsi_show(struct device *cdev,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_scsi_store(struct device *cdev,
+=======
+diag_trigger_scsi_store(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3379,21 +4818,34 @@ _ctl_diag_trigger_scsi_store(struct device *cdev,
 	ssize_t sz;
 
 	spin_lock_irqsave(&ioc->diag_trigger_lock, flags);
+<<<<<<< HEAD
 	sz = min(sizeof(struct SL_WH_SCSI_TRIGGERS_T), count);
 	memset(&ioc->diag_trigger_scsi, 0,
 	    sizeof(struct SL_WH_EVENT_TRIGGERS_T));
+=======
+	sz = min(sizeof(ioc->diag_trigger_scsi), count);
+	memset(&ioc->diag_trigger_scsi, 0, sizeof(ioc->diag_trigger_scsi));
+>>>>>>> upstream/android-13
 	memcpy(&ioc->diag_trigger_scsi, buf, sz);
 	if (ioc->diag_trigger_scsi.ValidEntries > NUM_VALID_ENTRIES)
 		ioc->diag_trigger_scsi.ValidEntries = NUM_VALID_ENTRIES;
 	spin_unlock_irqrestore(&ioc->diag_trigger_lock, flags);
 	return sz;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(diag_trigger_scsi, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_scsi_show, _ctl_diag_trigger_scsi_store);
 
 
 /**
  * _ctl_diag_trigger_scsi_show - show the diag_trigger_mpi attribute
+=======
+static DEVICE_ATTR_RW(diag_trigger_scsi);
+
+
+/**
+ * diag_trigger_mpi_show - show the diag_trigger_mpi attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3401,7 +4853,11 @@ static DEVICE_ATTR(diag_trigger_scsi, S_IRUGO | S_IWUSR,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_mpi_show(struct device *cdev,
+=======
+diag_trigger_mpi_show(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, char *buf)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3417,7 +4873,11 @@ _ctl_diag_trigger_mpi_show(struct device *cdev,
 }
 
 /**
+<<<<<<< HEAD
  * _ctl_diag_trigger_mpi_store - store the diag_trigger_mpi attribute
+=======
+ * diag_trigger_mpi_store - store the diag_trigger_mpi attribute
+>>>>>>> upstream/android-13
  * @cdev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3426,7 +4886,11 @@ _ctl_diag_trigger_mpi_show(struct device *cdev,
  * A sysfs 'read/write' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_diag_trigger_mpi_store(struct device *cdev,
+=======
+diag_trigger_mpi_store(struct device *cdev,
+>>>>>>> upstream/android-13
 	struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct Scsi_Host *shost = class_to_shost(cdev);
@@ -3445,13 +4909,144 @@ _ctl_diag_trigger_mpi_store(struct device *cdev,
 	return sz;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(diag_trigger_mpi, S_IRUGO | S_IWUSR,
 	_ctl_diag_trigger_mpi_show, _ctl_diag_trigger_mpi_store);
+=======
+static DEVICE_ATTR_RW(diag_trigger_mpi);
+>>>>>>> upstream/android-13
 
 /*********** diagnostic trigger suppport *** END ****************************/
 
 /*****************************************/
 
+<<<<<<< HEAD
+=======
+/**
+ * drv_support_bitmap_show - driver supported feature bitmap
+ * @cdev: pointer to embedded class device
+ * @attr: unused
+ * @buf: the buffer returned
+ *
+ * A sysfs 'read-only' shost attribute.
+ */
+static ssize_t
+drv_support_bitmap_show(struct device *cdev,
+	struct device_attribute *attr, char *buf)
+{
+	struct Scsi_Host *shost = class_to_shost(cdev);
+	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+
+	return snprintf(buf, PAGE_SIZE, "0x%08x\n", ioc->drv_support_bitmap);
+}
+static DEVICE_ATTR_RO(drv_support_bitmap);
+
+/**
+ * enable_sdev_max_qd_show - display whether sdev max qd is enabled/disabled
+ * @cdev: pointer to embedded class device
+ * @attr: unused
+ * @buf: the buffer returned
+ *
+ * A sysfs read/write shost attribute. This attribute is used to set the
+ * targets queue depth to HBA IO queue depth if this attribute is enabled.
+ */
+static ssize_t
+enable_sdev_max_qd_show(struct device *cdev,
+	struct device_attribute *attr, char *buf)
+{
+	struct Scsi_Host *shost = class_to_shost(cdev);
+	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+
+	return snprintf(buf, PAGE_SIZE, "%d\n", ioc->enable_sdev_max_qd);
+}
+
+/**
+ * enable_sdev_max_qd_store - Enable/disable sdev max qd
+ * @cdev: pointer to embedded class device
+ * @attr: unused
+ * @buf: the buffer returned
+ * @count: unused
+ *
+ * A sysfs read/write shost attribute. This attribute is used to set the
+ * targets queue depth to HBA IO queue depth if this attribute is enabled.
+ * If this attribute is disabled then targets will have corresponding default
+ * queue depth.
+ */
+static ssize_t
+enable_sdev_max_qd_store(struct device *cdev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct Scsi_Host *shost = class_to_shost(cdev);
+	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+	struct MPT3SAS_DEVICE *sas_device_priv_data;
+	struct MPT3SAS_TARGET *sas_target_priv_data;
+	int val = 0;
+	struct scsi_device *sdev;
+	struct _raid_device *raid_device;
+	int qdepth;
+
+	if (kstrtoint(buf, 0, &val) != 0)
+		return -EINVAL;
+
+	switch (val) {
+	case 0:
+		ioc->enable_sdev_max_qd = 0;
+		shost_for_each_device(sdev, ioc->shost) {
+			sas_device_priv_data = sdev->hostdata;
+			if (!sas_device_priv_data)
+				continue;
+			sas_target_priv_data = sas_device_priv_data->sas_target;
+			if (!sas_target_priv_data)
+				continue;
+
+			if (sas_target_priv_data->flags &
+			    MPT_TARGET_FLAGS_VOLUME) {
+				raid_device =
+				    mpt3sas_raid_device_find_by_handle(ioc,
+				    sas_target_priv_data->handle);
+
+				switch (raid_device->volume_type) {
+				case MPI2_RAID_VOL_TYPE_RAID0:
+					if (raid_device->device_info &
+					    MPI2_SAS_DEVICE_INFO_SSP_TARGET)
+						qdepth =
+						    MPT3SAS_SAS_QUEUE_DEPTH;
+					else
+						qdepth =
+						    MPT3SAS_SATA_QUEUE_DEPTH;
+					break;
+				case MPI2_RAID_VOL_TYPE_RAID1E:
+				case MPI2_RAID_VOL_TYPE_RAID1:
+				case MPI2_RAID_VOL_TYPE_RAID10:
+				case MPI2_RAID_VOL_TYPE_UNKNOWN:
+				default:
+					qdepth = MPT3SAS_RAID_QUEUE_DEPTH;
+				}
+			} else if (sas_target_priv_data->flags &
+			    MPT_TARGET_FLAGS_PCIE_DEVICE)
+				qdepth = ioc->max_nvme_qd;
+			else
+				qdepth = (sas_target_priv_data->sas_dev->port_type > 1) ?
+				    ioc->max_wideport_qd : ioc->max_narrowport_qd;
+
+			mpt3sas_scsih_change_queue_depth(sdev, qdepth);
+		}
+		break;
+	case 1:
+		ioc->enable_sdev_max_qd = 1;
+		shost_for_each_device(sdev, ioc->shost)
+			mpt3sas_scsih_change_queue_depth(sdev,
+			    shost->can_queue);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return strlen(buf);
+}
+static DEVICE_ATTR_RW(enable_sdev_max_qd);
+
+>>>>>>> upstream/android-13
 struct device_attribute *mpt3sas_host_attrs[] = {
 	&dev_attr_version_fw,
 	&dev_attr_version_bios,
@@ -3477,14 +5072,24 @@ struct device_attribute *mpt3sas_host_attrs[] = {
 	&dev_attr_diag_trigger_event,
 	&dev_attr_diag_trigger_scsi,
 	&dev_attr_diag_trigger_mpi,
+<<<<<<< HEAD
 	&dev_attr_BRM_status,
+=======
+	&dev_attr_drv_support_bitmap,
+	&dev_attr_BRM_status,
+	&dev_attr_enable_sdev_max_qd,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
 /* device attributes */
 
 /**
+<<<<<<< HEAD
  * _ctl_device_sas_address_show - sas address
+=======
+ * sas_address_show - sas address
+>>>>>>> upstream/android-13
  * @dev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3494,7 +5099,11 @@ struct device_attribute *mpt3sas_host_attrs[] = {
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_device_sas_address_show(struct device *dev, struct device_attribute *attr,
+=======
+sas_address_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct scsi_device *sdev = to_scsi_device(dev);
@@ -3503,10 +5112,17 @@ _ctl_device_sas_address_show(struct device *dev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "0x%016llx\n",
 	    (unsigned long long)sas_device_priv_data->sas_target->sas_address);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(sas_address, S_IRUGO, _ctl_device_sas_address_show, NULL);
 
 /**
  * _ctl_device_handle_show - device handle
+=======
+static DEVICE_ATTR_RO(sas_address);
+
+/**
+ * sas_device_handle_show - device handle
+>>>>>>> upstream/android-13
  * @dev: pointer to embedded class device
  * @attr: ?
  * @buf: the buffer returned
@@ -3516,7 +5132,11 @@ static DEVICE_ATTR(sas_address, S_IRUGO, _ctl_device_sas_address_show, NULL);
  * A sysfs 'read-only' shost attribute.
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_device_handle_show(struct device *dev, struct device_attribute *attr,
+=======
+sas_device_handle_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 	char *buf)
 {
 	struct scsi_device *sdev = to_scsi_device(dev);
@@ -3525,10 +5145,35 @@ _ctl_device_handle_show(struct device *dev, struct device_attribute *attr,
 	return snprintf(buf, PAGE_SIZE, "0x%04x\n",
 	    sas_device_priv_data->sas_target->handle);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(sas_device_handle, S_IRUGO, _ctl_device_handle_show, NULL);
 
 /**
  * _ctl_device_ncq_io_prio_show - send prioritized io commands to device
+=======
+static DEVICE_ATTR_RO(sas_device_handle);
+
+/**
+ * sas_ncq_prio_supported_show - Indicate if device supports NCQ priority
+ * @dev: pointer to embedded device
+ * @attr: sas_ncq_prio_supported attribute descriptor
+ * @buf: the buffer returned
+ *
+ * A sysfs 'read-only' sdev attribute, only works with SATA
+ */
+static ssize_t
+sas_ncq_prio_supported_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+{
+	struct scsi_device *sdev = to_scsi_device(dev);
+
+	return sysfs_emit(buf, "%d\n", scsih_ncq_prio_supp(sdev));
+}
+static DEVICE_ATTR_RO(sas_ncq_prio_supported);
+
+/**
+ * sas_ncq_prio_enable_show - send prioritized io commands to device
+>>>>>>> upstream/android-13
  * @dev: pointer to embedded device
  * @attr: ?
  * @buf: the buffer returned
@@ -3536,7 +5181,11 @@ static DEVICE_ATTR(sas_device_handle, S_IRUGO, _ctl_device_handle_show, NULL);
  * A sysfs 'read/write' sdev attribute, only works with SATA
  */
 static ssize_t
+<<<<<<< HEAD
 _ctl_device_ncq_prio_enable_show(struct device *dev,
+=======
+sas_ncq_prio_enable_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *attr, char *buf)
 {
 	struct scsi_device *sdev = to_scsi_device(dev);
@@ -3547,7 +5196,11 @@ _ctl_device_ncq_prio_enable_show(struct device *dev,
 }
 
 static ssize_t
+<<<<<<< HEAD
 _ctl_device_ncq_prio_enable_store(struct device *dev,
+=======
+sas_ncq_prio_enable_store(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *attr,
 				  const char *buf, size_t count)
 {
@@ -3564,13 +5217,21 @@ _ctl_device_ncq_prio_enable_store(struct device *dev,
 	sas_device_priv_data->ncq_prio_enable = ncq_prio_enable;
 	return strlen(buf);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(sas_ncq_prio_enable, S_IRUGO | S_IWUSR,
 		   _ctl_device_ncq_prio_enable_show,
 		   _ctl_device_ncq_prio_enable_store);
+=======
+static DEVICE_ATTR_RW(sas_ncq_prio_enable);
+>>>>>>> upstream/android-13
 
 struct device_attribute *mpt3sas_dev_attrs[] = {
 	&dev_attr_sas_address,
 	&dev_attr_sas_device_handle,
+<<<<<<< HEAD
+=======
+	&dev_attr_sas_ncq_prio_supported,
+>>>>>>> upstream/android-13
 	&dev_attr_sas_ncq_prio_enable,
 	NULL,
 };
@@ -3653,6 +5314,7 @@ mpt3sas_ctl_exit(ushort hbas_to_enumerate)
 		for (i = 0; i < MPI2_DIAG_BUF_TYPE_COUNT; i++) {
 			if (!ioc->diag_buffer[i])
 				continue;
+<<<<<<< HEAD
 			if (!(ioc->diag_buffer_status[i] &
 			    MPT3_DIAG_BUFFER_IS_REGISTERED))
 				continue;
@@ -3661,6 +5323,12 @@ mpt3sas_ctl_exit(ushort hbas_to_enumerate)
 				continue;
 			pci_free_consistent(ioc->pdev, ioc->diag_buffer_sz[i],
 			ioc->diag_buffer[i], ioc->diag_buffer_dma[i]);
+=======
+			dma_free_coherent(&ioc->pdev->dev,
+					  ioc->diag_buffer_sz[i],
+					  ioc->diag_buffer[i],
+					  ioc->diag_buffer_dma[i]);
+>>>>>>> upstream/android-13
 			ioc->diag_buffer[i] = NULL;
 			ioc->diag_buffer_status[i] = 0;
 		}

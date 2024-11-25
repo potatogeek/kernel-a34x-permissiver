@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lib80211 crypt: host-based TKIP encryption implementation for lib80211
  *
  * Copyright (c) 2003-2004, Jouni Malinen <j@w1.fi>
  * Copyright (c) 2008, John W. Linville <linville@tuxdriver.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. See README and COPYING for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/fips.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/slab.h>
@@ -29,8 +40,14 @@
 #include <linux/ieee80211.h>
 #include <net/iw_handler.h>
 
+<<<<<<< HEAD
 #include <crypto/hash.h>
 #include <crypto/skcipher.h>
+=======
+#include <crypto/arc4.h>
+#include <crypto/hash.h>
+#include <linux/crypto.h>
+>>>>>>> upstream/android-13
 #include <linux/crc32.h>
 
 #include <net/lib80211.h>
@@ -64,9 +81,15 @@ struct lib80211_tkip_data {
 
 	int key_idx;
 
+<<<<<<< HEAD
 	struct crypto_skcipher *rx_tfm_arc4;
 	struct crypto_shash *rx_tfm_michael;
 	struct crypto_skcipher *tx_tfm_arc4;
+=======
+	struct arc4_ctx rx_ctx_arc4;
+	struct arc4_ctx tx_ctx_arc4;
+	struct crypto_shash *rx_tfm_michael;
+>>>>>>> upstream/android-13
 	struct crypto_shash *tx_tfm_michael;
 
 	/* scratch buffers for virt_to_page() (crypto API) */
@@ -93,12 +116,19 @@ static void *lib80211_tkip_init(int key_idx)
 {
 	struct lib80211_tkip_data *priv;
 
+<<<<<<< HEAD
+=======
+	if (fips_enabled)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	priv = kzalloc(sizeof(*priv), GFP_ATOMIC);
 	if (priv == NULL)
 		goto fail;
 
 	priv->key_idx = key_idx;
 
+<<<<<<< HEAD
 	priv->tx_tfm_arc4 = crypto_alloc_skcipher("ecb(arc4)", 0,
 						  CRYPTO_ALG_ASYNC);
 	if (IS_ERR(priv->tx_tfm_arc4)) {
@@ -106,12 +136,15 @@ static void *lib80211_tkip_init(int key_idx)
 		goto fail;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	priv->tx_tfm_michael = crypto_alloc_shash("michael_mic", 0, 0);
 	if (IS_ERR(priv->tx_tfm_michael)) {
 		priv->tx_tfm_michael = NULL;
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	priv->rx_tfm_arc4 = crypto_alloc_skcipher("ecb(arc4)", 0,
 						  CRYPTO_ALG_ASYNC);
 	if (IS_ERR(priv->rx_tfm_arc4)) {
@@ -119,6 +152,8 @@ static void *lib80211_tkip_init(int key_idx)
 		goto fail;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	priv->rx_tfm_michael = crypto_alloc_shash("michael_mic", 0, 0);
 	if (IS_ERR(priv->rx_tfm_michael)) {
 		priv->rx_tfm_michael = NULL;
@@ -130,9 +165,13 @@ static void *lib80211_tkip_init(int key_idx)
       fail:
 	if (priv) {
 		crypto_free_shash(priv->tx_tfm_michael);
+<<<<<<< HEAD
 		crypto_free_skcipher(priv->tx_tfm_arc4);
 		crypto_free_shash(priv->rx_tfm_michael);
 		crypto_free_skcipher(priv->rx_tfm_arc4);
+=======
+		crypto_free_shash(priv->rx_tfm_michael);
+>>>>>>> upstream/android-13
 		kfree(priv);
 	}
 
@@ -144,11 +183,17 @@ static void lib80211_tkip_deinit(void *priv)
 	struct lib80211_tkip_data *_priv = priv;
 	if (_priv) {
 		crypto_free_shash(_priv->tx_tfm_michael);
+<<<<<<< HEAD
 		crypto_free_skcipher(_priv->tx_tfm_arc4);
 		crypto_free_shash(_priv->rx_tfm_michael);
 		crypto_free_skcipher(_priv->rx_tfm_arc4);
 	}
 	kfree(priv);
+=======
+		crypto_free_shash(_priv->rx_tfm_michael);
+	}
+	kfree_sensitive(priv);
+>>>>>>> upstream/android-13
 }
 
 static inline u16 RotR1(u16 val)
@@ -344,12 +389,18 @@ static int lib80211_tkip_hdr(struct sk_buff *skb, int hdr_len,
 static int lib80211_tkip_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 {
 	struct lib80211_tkip_data *tkey = priv;
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(req, tkey->tx_tfm_arc4);
 	int len;
 	u8 rc4key[16], *pos, *icv;
 	u32 crc;
 	struct scatterlist sg;
 	int err;
+=======
+	int len;
+	u8 rc4key[16], *pos, *icv;
+	u32 crc;
+>>>>>>> upstream/android-13
 
 	if (tkey->flags & IEEE80211_CRYPTO_TKIP_COUNTERMEASURES) {
 		struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
@@ -374,6 +425,7 @@ static int lib80211_tkip_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	icv[2] = crc >> 16;
 	icv[3] = crc >> 24;
 
+<<<<<<< HEAD
 	crypto_skcipher_setkey(tkey->tx_tfm_arc4, rc4key, 16);
 	sg_init_one(&sg, pos, len + 4);
 	skcipher_request_set_tfm(req, tkey->tx_tfm_arc4);
@@ -382,6 +434,12 @@ static int lib80211_tkip_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	err = crypto_skcipher_encrypt(req);
 	skcipher_request_zero(req);
 	return err;
+=======
+	arc4_setkey(&tkey->tx_ctx_arc4, rc4key, 16);
+	arc4_crypt(&tkey->tx_ctx_arc4, pos, pos, len + 4);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -400,7 +458,10 @@ static inline int tkip_replay_check(u32 iv32_n, u16 iv16_n,
 static int lib80211_tkip_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 {
 	struct lib80211_tkip_data *tkey = priv;
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(req, tkey->rx_tfm_arc4);
+=======
+>>>>>>> upstream/android-13
 	u8 rc4key[16];
 	u8 keyidx, *pos;
 	u32 iv32;
@@ -408,9 +469,13 @@ static int lib80211_tkip_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	struct ieee80211_hdr *hdr;
 	u8 icv[4];
 	u32 crc;
+<<<<<<< HEAD
 	struct scatterlist sg;
 	int plen;
 	int err;
+=======
+	int plen;
+>>>>>>> upstream/android-13
 
 	hdr = (struct ieee80211_hdr *)skb->data;
 
@@ -463,6 +528,7 @@ static int lib80211_tkip_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 
 	plen = skb->len - hdr_len - 12;
 
+<<<<<<< HEAD
 	crypto_skcipher_setkey(tkey->rx_tfm_arc4, rc4key, 16);
 	sg_init_one(&sg, pos, plen + 4);
 	skcipher_request_set_tfm(req, tkey->rx_tfm_arc4);
@@ -475,6 +541,10 @@ static int lib80211_tkip_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 				    hdr->addr2);
 		return -7;
 	}
+=======
+	arc4_setkey(&tkey->rx_ctx_arc4, rc4key, 16);
+	arc4_crypt(&tkey->rx_ctx_arc4, pos, pos, plen + 4);
+>>>>>>> upstream/android-13
 
 	crc = ~crc32_le(~0, pos, plen);
 	icv[0] = crc;
@@ -520,7 +590,10 @@ static int michael_mic(struct crypto_shash *tfm_michael, u8 *key, u8 *hdr,
 	}
 
 	desc->tfm = tfm_michael;
+<<<<<<< HEAD
 	desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (crypto_shash_setkey(tfm_michael, key, 8))
 		return -1;
@@ -660,17 +733,29 @@ static int lib80211_tkip_set_key(void *key, int len, u8 * seq, void *priv)
 	struct lib80211_tkip_data *tkey = priv;
 	int keyidx;
 	struct crypto_shash *tfm = tkey->tx_tfm_michael;
+<<<<<<< HEAD
 	struct crypto_skcipher *tfm2 = tkey->tx_tfm_arc4;
 	struct crypto_shash *tfm3 = tkey->rx_tfm_michael;
 	struct crypto_skcipher *tfm4 = tkey->rx_tfm_arc4;
+=======
+	struct arc4_ctx *tfm2 = &tkey->tx_ctx_arc4;
+	struct crypto_shash *tfm3 = tkey->rx_tfm_michael;
+	struct arc4_ctx *tfm4 = &tkey->rx_ctx_arc4;
+>>>>>>> upstream/android-13
 
 	keyidx = tkey->key_idx;
 	memset(tkey, 0, sizeof(*tkey));
 	tkey->key_idx = keyidx;
 	tkey->tx_tfm_michael = tfm;
+<<<<<<< HEAD
 	tkey->tx_tfm_arc4 = tfm2;
 	tkey->rx_tfm_michael = tfm3;
 	tkey->rx_tfm_arc4 = tfm4;
+=======
+	tkey->tx_ctx_arc4 = *tfm2;
+	tkey->rx_tfm_michael = tfm3;
+	tkey->rx_ctx_arc4 = *tfm4;
+>>>>>>> upstream/android-13
 	if (len == TKIP_KEY_LEN) {
 		memcpy(tkey->key, key, TKIP_KEY_LEN);
 		tkey->key_set = 1;

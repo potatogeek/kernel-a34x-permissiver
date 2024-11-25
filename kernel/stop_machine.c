@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * kernel/stop_machine.c
  *
@@ -5,9 +9,14 @@
  * Copyright (C) 2008, 2005	Rusty Russell rusty@rustcorp.com.au
  * Copyright (C) 2010		SUSE Linux Products GmbH
  * Copyright (C) 2010		Tejun Heo <tj@kernel.org>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2 and any later version.
  */
+=======
+ */
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 #include <linux/completion.h>
 #include <linux/cpu.h>
 #include <linux/init.h>
@@ -42,11 +51,33 @@ struct cpu_stopper {
 	struct list_head	works;		/* list of pending works */
 
 	struct cpu_stop_work	stop_work;	/* for stop_cpus */
+<<<<<<< HEAD
+=======
+	unsigned long		caller;
+	cpu_stop_fn_t		fn;
+>>>>>>> upstream/android-13
 };
 
 static DEFINE_PER_CPU(struct cpu_stopper, cpu_stopper);
 static bool stop_machine_initialized = false;
 
+<<<<<<< HEAD
+=======
+void print_stop_info(const char *log_lvl, struct task_struct *task)
+{
+	/*
+	 * If @task is a stopper task, it cannot migrate and task_cpu() is
+	 * stable.
+	 */
+	struct cpu_stopper *stopper = per_cpu_ptr(&cpu_stopper, task_cpu(task));
+
+	if (task != stopper->thread)
+		return;
+
+	printk("%sStopper: %pS <- %pS\n", log_lvl, stopper->fn, (void *)stopper->caller);
+}
+
+>>>>>>> upstream/android-13
 /* static data for stop_cpus */
 static DEFINE_MUTEX(stop_cpus_mutex);
 static bool stop_cpus_in_progress;
@@ -123,7 +154,11 @@ static bool cpu_stop_queue_work(unsigned int cpu, struct cpu_stop_work *work)
 int stop_one_cpu(unsigned int cpu, cpu_stop_fn_t fn, void *arg)
 {
 	struct cpu_stop_done done;
+<<<<<<< HEAD
 	struct cpu_stop_work work = { .fn = fn, .arg = arg, .done = &done };
+=======
+	struct cpu_stop_work work = { .fn = fn, .arg = arg, .done = &done, .caller = _RET_IP_ };
+>>>>>>> upstream/android-13
 
 	cpu_stop_init_done(&done, 1);
 	if (!cpu_stop_queue_work(cpu, &work))
@@ -136,6 +171,10 @@ int stop_one_cpu(unsigned int cpu, cpu_stop_fn_t fn, void *arg)
 	wait_for_completion(&done.completion);
 	return done.ret;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(stop_one_cpu);
+>>>>>>> upstream/android-13
 
 /* This controls the threads on each CPU. */
 enum multi_stop_state {
@@ -168,7 +207,11 @@ static void set_state(struct multi_stop_data *msdata,
 	/* Reset ack counter. */
 	atomic_set(&msdata->thread_ack, msdata->num_threads);
 	smp_wmb();
+<<<<<<< HEAD
 	msdata->state = newstate;
+=======
+	WRITE_ONCE(msdata->state, newstate);
+>>>>>>> upstream/android-13
 }
 
 /* Last one to ack a state moves to the next state. */
@@ -178,12 +221,26 @@ static void ack_state(struct multi_stop_data *msdata)
 		set_state(msdata, msdata->state + 1);
 }
 
+<<<<<<< HEAD
+=======
+notrace void __weak stop_machine_yield(const struct cpumask *cpumask)
+{
+	cpu_relax();
+}
+
+>>>>>>> upstream/android-13
 /* This is the cpu_stop function which stops the CPU. */
 static int multi_cpu_stop(void *data)
 {
 	struct multi_stop_data *msdata = data;
+<<<<<<< HEAD
 	enum multi_stop_state curstate = MULTI_STOP_NONE;
 	int cpu = smp_processor_id(), err = 0;
+=======
+	enum multi_stop_state newstate, curstate = MULTI_STOP_NONE;
+	int cpu = smp_processor_id(), err = 0;
+	const struct cpumask *cpumask;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	bool is_active;
 
@@ -193,17 +250,34 @@ static int multi_cpu_stop(void *data)
 	 */
 	local_save_flags(flags);
 
+<<<<<<< HEAD
 	if (!msdata->active_cpus)
 		is_active = cpu == cpumask_first(cpu_online_mask);
 	else
 		is_active = cpumask_test_cpu(cpu, msdata->active_cpus);
+=======
+	if (!msdata->active_cpus) {
+		cpumask = cpu_online_mask;
+		is_active = cpu == cpumask_first(cpumask);
+	} else {
+		cpumask = msdata->active_cpus;
+		is_active = cpumask_test_cpu(cpu, cpumask);
+	}
+>>>>>>> upstream/android-13
 
 	/* Simple state machine */
 	do {
 		/* Chill out and ensure we re-read multi_stop_state. */
+<<<<<<< HEAD
 		cpu_relax_yield();
 		if (msdata->state != curstate) {
 			curstate = msdata->state;
+=======
+		stop_machine_yield(cpumask);
+		newstate = READ_ONCE(msdata->state);
+		if (newstate != curstate) {
+			curstate = newstate;
+>>>>>>> upstream/android-13
 			switch (curstate) {
 			case MULTI_STOP_DISABLE_IRQ:
 				local_irq_disable();
@@ -225,6 +299,10 @@ static int multi_cpu_stop(void *data)
 			 */
 			touch_nmi_watchdog();
 		}
+<<<<<<< HEAD
+=======
+		rcu_momentary_dyntick_idle();
+>>>>>>> upstream/android-13
 	} while (curstate != MULTI_STOP_EXIT);
 
 	local_irq_restore(flags);
@@ -320,7 +398,12 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
 	work1 = work2 = (struct cpu_stop_work){
 		.fn = multi_cpu_stop,
 		.arg = &msdata,
+<<<<<<< HEAD
 		.done = &done
+=======
+		.done = &done,
+		.caller = _RET_IP_,
+>>>>>>> upstream/android-13
 	};
 
 	cpu_stop_init_done(&done, 2);
@@ -356,9 +439,16 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
 bool stop_one_cpu_nowait(unsigned int cpu, cpu_stop_fn_t fn, void *arg,
 			struct cpu_stop_work *work_buf)
 {
+<<<<<<< HEAD
 	*work_buf = (struct cpu_stop_work){ .fn = fn, .arg = arg, };
 	return cpu_stop_queue_work(cpu, work_buf);
 }
+=======
+	*work_buf = (struct cpu_stop_work){ .fn = fn, .arg = arg, .caller = _RET_IP_, };
+	return cpu_stop_queue_work(cpu, work_buf);
+}
+EXPORT_SYMBOL_GPL(stop_one_cpu_nowait);
+>>>>>>> upstream/android-13
 
 static bool queue_stop_cpus_work(const struct cpumask *cpumask,
 				 cpu_stop_fn_t fn, void *arg,
@@ -375,14 +465,26 @@ static bool queue_stop_cpus_work(const struct cpumask *cpumask,
 	 */
 	preempt_disable();
 	stop_cpus_in_progress = true;
+<<<<<<< HEAD
+=======
+	barrier();
+>>>>>>> upstream/android-13
 	for_each_cpu(cpu, cpumask) {
 		work = &per_cpu(cpu_stopper.stop_work, cpu);
 		work->fn = fn;
 		work->arg = arg;
 		work->done = done;
+<<<<<<< HEAD
 		if (cpu_stop_queue_work(cpu, work))
 			queued = true;
 	}
+=======
+		work->caller = _RET_IP_;
+		if (cpu_stop_queue_work(cpu, work))
+			queued = true;
+	}
+	barrier();
+>>>>>>> upstream/android-13
 	stop_cpus_in_progress = false;
 	preempt_enable();
 
@@ -429,7 +531,11 @@ static int __stop_cpus(const struct cpumask *cpumask,
  * @cpumask were offline; otherwise, 0 if all executions of @fn
  * returned 0, any non zero return value if any returned non zero.
  */
+<<<<<<< HEAD
 int stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg)
+=======
+static int stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -440,6 +546,7 @@ int stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg)
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
  * try_stop_cpus - try to stop multiple cpus
  * @cpumask: cpus to stop
@@ -470,6 +577,8 @@ int try_stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cpu_stop_should_run(unsigned int cpu)
 {
 	struct cpu_stopper *stopper = &per_cpu(cpu_stopper, cpu);
@@ -504,6 +613,11 @@ repeat:
 		int ret;
 
 		/* cpu stop callbacks must not sleep, make in_atomic() == T */
+<<<<<<< HEAD
+=======
+		stopper->caller = work->caller;
+		stopper->fn = fn;
+>>>>>>> upstream/android-13
 		preempt_count_inc();
 		ret = fn(arg);
 		if (done) {
@@ -512,8 +626,15 @@ repeat:
 			cpu_stop_signal_done(done);
 		}
 		preempt_count_dec();
+<<<<<<< HEAD
 		WARN_ONCE(preempt_count(),
 			  "cpu_stop: %pf(%p) leaked preempt count\n", fn, arg);
+=======
+		stopper->fn = NULL;
+		stopper->caller = 0;
+		WARN_ONCE(preempt_count(),
+			  "cpu_stop: %ps(%p) leaked preempt count\n", fn, arg);
+>>>>>>> upstream/android-13
 		goto repeat;
 	}
 }

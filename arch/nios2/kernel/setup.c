@@ -16,7 +16,11 @@
 #include <linux/sched.h>
 #include <linux/sched/task.h>
 #include <linux/console.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/initrd.h>
 #include <linux/of_fdt.h>
 #include <linux/screen_info.h>
@@ -32,8 +36,11 @@ EXPORT_SYMBOL(memory_start);
 unsigned long memory_end;
 EXPORT_SYMBOL(memory_end);
 
+<<<<<<< HEAD
 unsigned long memory_size;
 
+=======
+>>>>>>> upstream/android-13
 static struct pt_regs fake_regs = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 0, 0,
 					0};
@@ -123,7 +130,11 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
 		dtb_passed = r6;
 
 		if (r7)
+<<<<<<< HEAD
 			strncpy(cmdline_passed, (char *)r7, COMMAND_LINE_SIZE);
+=======
+			strlcpy(cmdline_passed, (char *)r7, COMMAND_LINE_SIZE);
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -131,16 +142,24 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
 
 #ifndef CONFIG_CMDLINE_FORCE
 	if (cmdline_passed[0])
+<<<<<<< HEAD
 		strncpy(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
 #ifdef CONFIG_NIOS2_CMDLINE_IGNORE_DTB
 	else
 		strncpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+=======
+		strlcpy(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
+#ifdef CONFIG_NIOS2_CMDLINE_IGNORE_DTB
+	else
+		strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+>>>>>>> upstream/android-13
 #endif
 #endif
 
 	parse_early_param();
 }
 
+<<<<<<< HEAD
 void __init setup_arch(char **cmdline_p)
 {
 	int bootmap_size;
@@ -154,11 +173,30 @@ void __init setup_arch(char **cmdline_p)
 	init_mm.end_code = (unsigned long) _etext;
 	init_mm.end_data = (unsigned long) _edata;
 	init_mm.brk = (unsigned long) _end;
+=======
+static void __init find_limits(unsigned long *min, unsigned long *max_low,
+			       unsigned long *max_high)
+{
+	*max_low = PFN_DOWN(memblock_get_current_limit());
+	*min = PFN_UP(memblock_start_of_DRAM());
+	*max_high = PFN_DOWN(memblock_end_of_DRAM());
+}
+
+void __init setup_arch(char **cmdline_p)
+{
+	console_verbose();
+
+	memory_start = memblock_start_of_DRAM();
+	memory_end = memblock_end_of_DRAM();
+
+	setup_initial_init_mm(_stext, _etext, _edata, _end);
+>>>>>>> upstream/android-13
 	init_task.thread.kregs = &fake_regs;
 
 	/* Keep a copy of command line */
 	*cmdline_p = boot_command_line;
 
+<<<<<<< HEAD
 	min_low_pfn = PFN_UP(memory_start);
 	max_low_pfn = PFN_DOWN(memory_end);
 	max_mapnr = max_low_pfn;
@@ -196,6 +234,16 @@ void __init setup_arch(char **cmdline_p)
 	if (initrd_start) {
 		reserve_bootmem(virt_to_phys((void *)initrd_start),
 				initrd_end - initrd_start, BOOTMEM_DEFAULT);
+=======
+	find_limits(&min_low_pfn, &max_low_pfn, &max_pfn);
+	max_mapnr = max_low_pfn;
+
+	memblock_reserve(__pa_symbol(_stext), _end - _stext);
+#ifdef CONFIG_BLK_DEV_INITRD
+	if (initrd_start) {
+		memblock_reserve(virt_to_phys((void *)initrd_start),
+				initrd_end - initrd_start);
+>>>>>>> upstream/android-13
 	}
 #endif /* CONFIG_BLK_DEV_INITRD */
 
@@ -222,8 +270,11 @@ void __init setup_arch(char **cmdline_p)
 	 * get kmalloc into gear
 	 */
 	paging_init();
+<<<<<<< HEAD
 
 #if defined(CONFIG_VT) && defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
 #endif
+=======
+>>>>>>> upstream/android-13
 }

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * IIO DAC emulation driver using a digital potentiometer
  *
  * Copyright (C) 2016 Axentia Technologies AB
  *
  * Author: Peter Rosin <peda@axentia.se>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -81,7 +88,12 @@ static int dpot_dac_read_raw(struct iio_dev *indio_dev,
 			 */
 			*val2 = 1;
 			ret = IIO_VAL_FRACTIONAL;
+<<<<<<< HEAD
 			/* ...and fall through. */
+=======
+			/* ...and fall through. Say it again for GCC. */
+			fallthrough;
+>>>>>>> upstream/android-13
 		case IIO_VAL_FRACTIONAL:
 			*val *= regulator_get_voltage(dac->vref) / 1000;
 			*val2 *= dac->max_ohms;
@@ -180,13 +192,17 @@ static int dpot_dac_probe(struct platform_device *pdev)
 	dac = iio_priv(indio_dev);
 
 	indio_dev->name = dev_name(dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &dpot_dac_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = &dpot_dac_iio_channel;
 	indio_dev->num_channels = 1;
 
 	dac->vref = devm_regulator_get(dev, "vref");
+<<<<<<< HEAD
 	if (IS_ERR(dac->vref)) {
 		if (PTR_ERR(dac->vref) != -EPROBE_DEFER)
 			dev_err(&pdev->dev, "failed to get vref regulator\n");
@@ -199,6 +215,16 @@ static int dpot_dac_probe(struct platform_device *pdev)
 			dev_err(dev, "failed to get dpot input channel\n");
 		return PTR_ERR(dac->dpot);
 	}
+=======
+	if (IS_ERR(dac->vref))
+		return dev_err_probe(&pdev->dev, PTR_ERR(dac->vref),
+				     "failed to get vref regulator\n");
+
+	dac->dpot = devm_iio_channel_get(dev, "dpot");
+	if (IS_ERR(dac->dpot))
+		return dev_err_probe(&pdev->dev, PTR_ERR(dac->dpot),
+				     "failed to get dpot input channel\n");
+>>>>>>> upstream/android-13
 
 	ret = iio_get_channel_type(dac->dpot, &type);
 	if (ret < 0)

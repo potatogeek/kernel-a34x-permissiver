@@ -20,7 +20,11 @@ static inline const char *kallsyms_lookup(unsigned long addr,
 
 #include <execinfo.h>
 #include <stdlib.h>
+<<<<<<< HEAD
 static inline void print_ip_sym(unsigned long ip)
+=======
+static inline void print_ip_sym(const char *loglvl, unsigned long ip)
+>>>>>>> upstream/android-13
 {
 	char **name;
 

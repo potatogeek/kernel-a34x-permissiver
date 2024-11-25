@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/kernel/return_address.c
  *
  * Copyright (C) 2009 Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>
  * for Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -12,6 +17,11 @@
 #include <linux/ftrace.h>
 
 #if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND)
+=======
+ */
+#include <linux/export.h>
+#include <linux/ftrace.h>
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 
 #include <asm/stacktrace.h>
@@ -56,6 +66,9 @@ void *return_address(unsigned int level)
 		return NULL;
 }
 
+<<<<<<< HEAD
 #endif /* if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND) */
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(return_address);

@@ -13,6 +13,10 @@
 #include <linux/securebits.h>
 #include <linux/seqlock.h>
 #include <linux/rbtree.h>
+<<<<<<< HEAD
+=======
+#include <linux/refcount.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/autogroup.h>
 #include <net/net_namespace.h>
 #include <linux/sched/rt.h>
@@ -25,7 +29,10 @@
 extern struct files_struct init_files;
 extern struct fs_struct init_fs;
 extern struct nsproxy init_nsproxy;
+<<<<<<< HEAD
 extern struct group_info init_groups;
+=======
+>>>>>>> upstream/android-13
 extern struct cred init_cred;
 
 #ifndef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
@@ -36,6 +43,7 @@ extern struct cred init_cred;
 #define INIT_PREV_CPUTIME(x)
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_POSIX_TIMERS
 #define INIT_CPU_TIMERS(s)						\
 	.cpu_timers = {							\
@@ -47,6 +55,8 @@ extern struct cred init_cred;
 #define INIT_CPU_TIMERS(s)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FIVE
 # define INIT_TASK_INTEGRITY(integrity) {				\
 	.user_value = INTEGRITY_NONE,					\
@@ -56,9 +66,14 @@ extern struct cred init_cred;
 	.list_lock = __SPIN_LOCK_UNLOCKED(integrity.list_lock),		\
 	.events = { .list = LIST_HEAD_INIT(integrity.events.list),},   \
 }
+<<<<<<< HEAD
 
 # define INIT_INTEGRITY(tsk)						\
 	.integrity = &init_integrity,
+=======
+# define INIT_INTEGRITY(tsk)						\
+	.android_oem_data1[2] = (u64)&init_integrity,
+>>>>>>> upstream/android-13
 #else
 # define INIT_INTEGRITY(tsk)
 # define INIT_TASK_INTEGRITY(integrity)
@@ -68,12 +83,20 @@ extern struct cred init_cred;
 
 /* Attach to the init_task data structure for proper alignment */
 #ifdef CONFIG_ARCH_TASK_STRUCT_ON_STACK
+<<<<<<< HEAD
 #define __init_task_data __attribute__((__section__(".data..init_task")))
+=======
+#define __init_task_data __section(".data..init_task")
+>>>>>>> upstream/android-13
 #else
 #define __init_task_data /**/
 #endif
 
 /* Attach to the thread_info data structure for proper alignment */
+<<<<<<< HEAD
 #define __init_thread_info __attribute__((__section__(".data..init_thread_info")))
+=======
+#define __init_thread_info __section(".data..init_thread_info")
+>>>>>>> upstream/android-13
 
 #endif

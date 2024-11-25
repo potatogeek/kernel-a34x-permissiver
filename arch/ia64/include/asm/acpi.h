@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 1999 VA Linux Systems
  *  Copyright (C) 1999 Walt Drummond <drummond@valinux.com>
  *  Copyright (C) 2000,2001 J.I. Lee <jung-ik.lee@intel.com>
  *  Copyright (C) 2001,2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -21,6 +26,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ACPI_H
@@ -34,7 +41,11 @@
 #include <linux/numa.h>
 #include <asm/numa.h>
 
+<<<<<<< HEAD
 #ifdef	CONFIG_ACPI
+=======
+
+>>>>>>> upstream/android-13
 extern int acpi_lapic;
 #define acpi_disabled 0	/* ACPI always enabled on IA64 */
 #define acpi_noirq 0	/* ACPI always enabled on IA64 */
@@ -45,6 +56,7 @@ static inline bool acpi_has_cpu_in_madt(void)
 {
 	return !!acpi_lapic;
 }
+<<<<<<< HEAD
 #endif
 #define acpi_processor_cstate_check(x) (x) /* no idle limits on IA64 :) */
 static inline void disable_acpi(void) { }
@@ -73,13 +85,26 @@ static inline const char *acpi_get_sysname (void)
 # endif
 }
 #endif
+=======
+
+#define acpi_processor_cstate_check(x) (x) /* no idle limits on IA64 :) */
+static inline void disable_acpi(void) { }
+
+>>>>>>> upstream/android-13
 int acpi_request_vector (u32 int_type);
 int acpi_gsi_to_irq (u32 gsi, unsigned int *irq);
 
 /* Low-level suspend routine. */
 extern int acpi_suspend_lowlevel(void);
 
+<<<<<<< HEAD
 extern unsigned long acpi_wakeup_address;
+=======
+static inline unsigned long acpi_get_wakeup_address(void)
+{
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Record the cpei override flag and current logical cpu. This is
@@ -112,8 +137,11 @@ static inline void arch_acpi_set_pdc_bits(u32 *buf)
 	buf[2] |= ACPI_PDC_EST_CAPABILITY_SMP;
 }
 
+<<<<<<< HEAD
 #define acpi_unlazy_tlb(x)
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ACPI_NUMA
 extern cpumask_t early_cpu_possible_map;
 #define for_each_possible_early_cpu(cpu)  \

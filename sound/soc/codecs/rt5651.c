@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt5651.c  --  RT5651 ALSA SoC audio codec driver
  *
  * Copyright 2014 Realtek Semiconductor Corp.
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,15 @@
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/pm.h>
+=======
+ */
+
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/delay.h>
+#include <linux/pm.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/regmap.h>
 #include <linux/platform_device.h>
@@ -748,11 +762,19 @@ static int rt5651_hp_event(struct snd_soc_dapm_widget *w,
 			RT5651_HP_CP_PD | RT5651_HP_SG_EN);
 		regmap_update_bits(rt5651->regmap, RT5651_PR_BASE +
 			RT5651_CHPUMP_INT_REG1, 0x0700, 0x0400);
+<<<<<<< HEAD
 		rt5651->hp_mute = 0;
 		break;
 
 	case SND_SOC_DAPM_PRE_PMD:
 		rt5651->hp_mute = 1;
+=======
+		rt5651->hp_mute = false;
+		break;
+
+	case SND_SOC_DAPM_PRE_PMD:
+		rt5651->hp_mute = true;
+>>>>>>> upstream/android-13
 		usleep_range(70000, 75000);
 		break;
 
@@ -1501,8 +1523,13 @@ static int rt5651_set_dai_pll(struct snd_soc_dai *dai, int pll_id, int source,
 	snd_soc_component_write(component, RT5651_PLL_CTRL1,
 		pll_code.n_code << RT5651_PLL_N_SFT | pll_code.k_code);
 	snd_soc_component_write(component, RT5651_PLL_CTRL2,
+<<<<<<< HEAD
 		(pll_code.m_bp ? 0 : pll_code.m_code) << RT5651_PLL_M_SFT |
 		pll_code.m_bp << RT5651_PLL_M_BP_SFT);
+=======
+		((pll_code.m_bp ? 0 : pll_code.m_code) << RT5651_PLL_M_SFT) |
+		(pll_code.m_bp << RT5651_PLL_M_BP_SFT));
+>>>>>>> upstream/android-13
 
 	rt5651->pll_in = freq_in;
 	rt5651->pll_out = freq_out;
@@ -1517,7 +1544,11 @@ static int rt5651_set_bias_level(struct snd_soc_component *component,
 	switch (level) {
 	case SND_SOC_BIAS_PREPARE:
 		if (SND_SOC_BIAS_STANDBY == snd_soc_component_get_bias_level(component)) {
+<<<<<<< HEAD
 			if (snd_soc_component_read32(component, RT5651_PLL_MODE_1) & 0x9200)
+=======
+			if (snd_soc_component_read(component, RT5651_PLL_MODE_1) & 0x9200)
+>>>>>>> upstream/android-13
 				snd_soc_component_update_bits(component, RT5651_D_MISC,
 						    0xc00, 0xc00);
 		}
@@ -1611,7 +1642,11 @@ static bool rt5651_micbias1_ovcd(struct snd_soc_component *component)
 {
 	int val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5651_IRQ_CTRL2);
+=======
+	val = snd_soc_component_read(component, RT5651_IRQ_CTRL2);
+>>>>>>> upstream/android-13
 	dev_dbg(component->dev, "irq ctrl2 %#04x\n", val);
 
 	return (val & RT5651_MB1_OC_CLR);
@@ -1622,7 +1657,17 @@ static bool rt5651_jack_inserted(struct snd_soc_component *component)
 	struct rt5651_priv *rt5651 = snd_soc_component_get_drvdata(component);
 	int val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5651_INT_IRQ_ST);
+=======
+	if (rt5651->gpiod_hp_det) {
+		val = gpiod_get_value_cansleep(rt5651->gpiod_hp_det);
+		dev_dbg(component->dev, "jack-detect gpio %d\n", val);
+		return val;
+	}
+
+	val = snd_soc_component_read(component, RT5651_INT_IRQ_ST);
+>>>>>>> upstream/android-13
 	dev_dbg(component->dev, "irq status %#04x\n", val);
 
 	switch (rt5651->jd_src) {
@@ -1639,7 +1684,14 @@ static bool rt5651_jack_inserted(struct snd_soc_component *component)
 		break;
 	}
 
+<<<<<<< HEAD
 	return val == 0;
+=======
+	if (rt5651->jd_active_high)
+		return val != 0;
+	else
+		return val == 0;
+>>>>>>> upstream/android-13
 }
 
 /* Jack detect and button-press timings */
@@ -1762,12 +1814,29 @@ static int rt5651_detect_headset(struct snd_soc_component *component)
 	return SND_JACK_HEADPHONE;
 }
 
+<<<<<<< HEAD
+=======
+static bool rt5651_support_button_press(struct rt5651_priv *rt5651)
+{
+	if (!rt5651->hp_jack)
+		return false;
+
+	/* Button press support only works with internal jack-detection */
+	return (rt5651->hp_jack->status & SND_JACK_MICROPHONE) &&
+		rt5651->gpiod_hp_det == NULL;
+}
+
+>>>>>>> upstream/android-13
 static void rt5651_jack_detect_work(struct work_struct *work)
 {
 	struct rt5651_priv *rt5651 =
 		container_of(work, struct rt5651_priv, jack_detect_work);
 	struct snd_soc_component *component = rt5651->component;
+<<<<<<< HEAD
 	int report = 0;
+=======
+	int report;
+>>>>>>> upstream/android-13
 
 	if (!rt5651_jack_inserted(component)) {
 		/* Jack removed, or spurious IRQ? */
@@ -1786,15 +1855,24 @@ static void rt5651_jack_detect_work(struct work_struct *work)
 		WARN_ON(rt5651->ovcd_irq_enabled);
 		rt5651_enable_micbias1_for_ovcd(component);
 		report = rt5651_detect_headset(component);
+<<<<<<< HEAD
 		if (report == SND_JACK_HEADSET) {
+=======
+		dev_dbg(component->dev, "detect report %#02x\n", report);
+		snd_soc_jack_report(rt5651->hp_jack, report, SND_JACK_HEADSET);
+		if (rt5651_support_button_press(rt5651)) {
+>>>>>>> upstream/android-13
 			/* Enable ovcd IRQ for button press detect. */
 			rt5651_enable_micbias1_ovcd_irq(component);
 		} else {
 			/* No more need for overcurrent detect. */
 			rt5651_disable_micbias1_for_ovcd(component);
 		}
+<<<<<<< HEAD
 		dev_dbg(component->dev, "detect report %#02x\n", report);
 		snd_soc_jack_report(rt5651->hp_jack, report, SND_JACK_HEADSET);
+=======
+>>>>>>> upstream/android-13
 	} else if (rt5651->ovcd_irq_enabled && rt5651_micbias1_ovcd(component)) {
 		dev_dbg(component->dev, "OVCD IRQ\n");
 
@@ -1838,6 +1916,7 @@ static void rt5651_cancel_work(void *data)
 }
 
 static void rt5651_enable_jack_detect(struct snd_soc_component *component,
+<<<<<<< HEAD
 				      struct snd_soc_jack *hp_jack)
 {
 	struct rt5651_priv *rt5651 = snd_soc_component_get_drvdata(component);
@@ -1853,29 +1932,100 @@ static void rt5651_enable_jack_detect(struct snd_soc_component *component,
 			RT5651_JD_TRG_SEL_MASK, RT5651_JD_TRG_SEL_JD1_1);
 		snd_soc_component_update_bits(component, RT5651_IRQ_CTRL1,
 			RT5651_JD1_1_IRQ_EN, RT5651_JD1_1_IRQ_EN);
+=======
+				      struct snd_soc_jack *hp_jack,
+				      struct gpio_desc *gpiod_hp_det)
+{
+	struct rt5651_priv *rt5651 = snd_soc_component_get_drvdata(component);
+	bool using_internal_jack_detect = true;
+
+	/* Select jack detect source */
+	switch (rt5651->jd_src) {
+	case RT5651_JD_NULL:
+		rt5651->gpiod_hp_det = gpiod_hp_det;
+		if (!rt5651->gpiod_hp_det)
+			return; /* No jack detect */
+		using_internal_jack_detect = false;
+		break;
+	case RT5651_JD1_1:
+		snd_soc_component_update_bits(component, RT5651_JD_CTRL2,
+			RT5651_JD_TRG_SEL_MASK, RT5651_JD_TRG_SEL_JD1_1);
+		/* active-low is normal, set inv flag for active-high */
+		if (rt5651->jd_active_high)
+			snd_soc_component_update_bits(component,
+				RT5651_IRQ_CTRL1,
+				RT5651_JD1_1_IRQ_EN | RT5651_JD1_1_INV,
+				RT5651_JD1_1_IRQ_EN | RT5651_JD1_1_INV);
+		else
+			snd_soc_component_update_bits(component,
+				RT5651_IRQ_CTRL1,
+				RT5651_JD1_1_IRQ_EN | RT5651_JD1_1_INV,
+				RT5651_JD1_1_IRQ_EN);
+>>>>>>> upstream/android-13
 		break;
 	case RT5651_JD1_2:
 		snd_soc_component_update_bits(component, RT5651_JD_CTRL2,
 			RT5651_JD_TRG_SEL_MASK, RT5651_JD_TRG_SEL_JD1_2);
+<<<<<<< HEAD
 		snd_soc_component_update_bits(component, RT5651_IRQ_CTRL1,
 			RT5651_JD1_2_IRQ_EN, RT5651_JD1_2_IRQ_EN);
+=======
+		/* active-low is normal, set inv flag for active-high */
+		if (rt5651->jd_active_high)
+			snd_soc_component_update_bits(component,
+				RT5651_IRQ_CTRL1,
+				RT5651_JD1_2_IRQ_EN | RT5651_JD1_2_INV,
+				RT5651_JD1_2_IRQ_EN | RT5651_JD1_2_INV);
+		else
+			snd_soc_component_update_bits(component,
+				RT5651_IRQ_CTRL1,
+				RT5651_JD1_2_IRQ_EN | RT5651_JD1_2_INV,
+				RT5651_JD1_2_IRQ_EN);
+>>>>>>> upstream/android-13
 		break;
 	case RT5651_JD2:
 		snd_soc_component_update_bits(component, RT5651_JD_CTRL2,
 			RT5651_JD_TRG_SEL_MASK, RT5651_JD_TRG_SEL_JD2);
+<<<<<<< HEAD
 		snd_soc_component_update_bits(component, RT5651_IRQ_CTRL1,
 			RT5651_JD2_IRQ_EN, RT5651_JD2_IRQ_EN);
 		break;
 	case RT5651_JD_NULL:
 		return;
+=======
+		/* active-low is normal, set inv flag for active-high */
+		if (rt5651->jd_active_high)
+			snd_soc_component_update_bits(component,
+				RT5651_IRQ_CTRL1,
+				RT5651_JD2_IRQ_EN | RT5651_JD2_INV,
+				RT5651_JD2_IRQ_EN | RT5651_JD2_INV);
+		else
+			snd_soc_component_update_bits(component,
+				RT5651_IRQ_CTRL1,
+				RT5651_JD2_IRQ_EN | RT5651_JD2_INV,
+				RT5651_JD2_IRQ_EN);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(component->dev, "Currently only JD1_1 / JD1_2 / JD2 are supported\n");
 		return;
 	}
 
+<<<<<<< HEAD
 	/* Enable jack detect power */
 	snd_soc_component_update_bits(component, RT5651_PWR_ANLG2,
 		RT5651_PWR_JD_M, RT5651_PWR_JD_M);
+=======
+	if (using_internal_jack_detect) {
+		/* IRQ output on GPIO1 */
+		snd_soc_component_update_bits(component, RT5651_GPIO_CTRL1,
+			RT5651_GP1_PIN_MASK, RT5651_GP1_PIN_IRQ);
+
+		/* Enable jack detect power */
+		snd_soc_component_update_bits(component, RT5651_PWR_ANLG2,
+			RT5651_PWR_JD_M, RT5651_PWR_JD_M);
+	}
+>>>>>>> upstream/android-13
 
 	/* Set OVCD threshold current and scale-factor */
 	snd_soc_component_write(component, RT5651_PR_BASE + RT5651_BIAS_CUR4,
@@ -1904,7 +2054,11 @@ static void rt5651_enable_jack_detect(struct snd_soc_component *component,
 		RT5651_MB1_OC_STKY_MASK, RT5651_MB1_OC_STKY_EN);
 
 	rt5651->hp_jack = hp_jack;
+<<<<<<< HEAD
 	if (rt5651->hp_jack->status & SND_JACK_MICROPHONE) {
+=======
+	if (rt5651_support_button_press(rt5651)) {
+>>>>>>> upstream/android-13
 		rt5651_enable_micbias1_for_ovcd(component);
 		rt5651_enable_micbias1_ovcd_irq(component);
 	}
@@ -1921,7 +2075,11 @@ static void rt5651_disable_jack_detect(struct snd_soc_component *component)
 	disable_irq(rt5651->irq);
 	rt5651_cancel_work(rt5651);
 
+<<<<<<< HEAD
 	if (rt5651->hp_jack->status & SND_JACK_MICROPHONE) {
+=======
+	if (rt5651_support_button_press(rt5651)) {
+>>>>>>> upstream/android-13
 		rt5651_disable_micbias1_ovcd_irq(component);
 		rt5651_disable_micbias1_for_ovcd(component);
 		snd_soc_jack_report(rt5651->hp_jack, 0, SND_JACK_BTN_0);
@@ -1934,7 +2092,11 @@ static int rt5651_set_jack(struct snd_soc_component *component,
 			   struct snd_soc_jack *jack, void *data)
 {
 	if (jack)
+<<<<<<< HEAD
 		rt5651_enable_jack_detect(component, jack);
+=======
+		rt5651_enable_jack_detect(component, jack, data);
+>>>>>>> upstream/android-13
 	else
 		rt5651_disable_jack_detect(component);
 
@@ -1965,6 +2127,12 @@ static void rt5651_apply_properties(struct snd_soc_component *component)
 				     "realtek,jack-detect-source", &val) == 0)
 		rt5651->jd_src = val;
 
+<<<<<<< HEAD
+=======
+	if (device_property_read_bool(component->dev, "realtek,jack-detect-not-inverted"))
+		rt5651->jd_active_high = true;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Testing on various boards has shown that good defaults for the OVCD
 	 * threshold and scale-factor are 2000µA and 0.75. For an effective
@@ -2124,7 +2292,12 @@ static const struct regmap_config rt5651_regmap = {
 	.num_reg_defaults = ARRAY_SIZE(rt5651_reg),
 	.ranges = rt5651_ranges,
 	.num_ranges = ARRAY_SIZE(rt5651_ranges),
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 
 #if defined(CONFIG_OF)
@@ -2138,6 +2311,10 @@ MODULE_DEVICE_TABLE(of, rt5651_of_match);
 #ifdef CONFIG_ACPI
 static const struct acpi_device_id rt5651_acpi_match[] = {
 	{ "10EC5651", 0 },
+<<<<<<< HEAD
+=======
+	{ "10EC5640", 0 },
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, rt5651_acpi_match);
@@ -2158,6 +2335,10 @@ static int rt5651_i2c_probe(struct i2c_client *i2c,
 {
 	struct rt5651_priv *rt5651;
 	int ret;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	rt5651 = devm_kzalloc(&i2c->dev, sizeof(*rt5651),
 				GFP_KERNEL);
@@ -2174,7 +2355,14 @@ static int rt5651_i2c_probe(struct i2c_client *i2c,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	regmap_read(rt5651->regmap, RT5651_DEVICE_ID, &ret);
+=======
+	err = regmap_read(rt5651->regmap, RT5651_DEVICE_ID, &ret);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	if (ret != RT5651_DEVICE_ID_VALUE) {
 		dev_err(&i2c->dev,
 			"Device with ID register %#x is not rt5651\n", ret);
@@ -2189,7 +2377,11 @@ static int rt5651_i2c_probe(struct i2c_client *i2c,
 		dev_warn(&i2c->dev, "Failed to apply regmap patch: %d\n", ret);
 
 	rt5651->irq = i2c->irq;
+<<<<<<< HEAD
 	rt5651->hp_mute = 1;
+=======
+	rt5651->hp_mute = true;
+>>>>>>> upstream/android-13
 
 	INIT_DELAYED_WORK(&rt5651->bp_work, rt5651_button_press_work);
 	INIT_WORK(&rt5651->jack_detect_work, rt5651_jack_detect_work);
@@ -2201,11 +2393,16 @@ static int rt5651_i2c_probe(struct i2c_client *i2c,
 
 	ret = devm_request_irq(&i2c->dev, rt5651->irq, rt5651_irq,
 			       IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING
+<<<<<<< HEAD
 			       | IRQF_ONESHOT, "rt5651", rt5651);
 	if (ret == 0) {
 		/* Gets re-enabled by rt5651_set_jack() */
 		disable_irq(rt5651->irq);
 	} else {
+=======
+			       | IRQF_ONESHOT | IRQF_NO_AUTOEN, "rt5651", rt5651);
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_warn(&i2c->dev, "Failed to reguest IRQ %d: %d\n",
 			 rt5651->irq, ret);
 		rt5651->irq = -ENXIO;

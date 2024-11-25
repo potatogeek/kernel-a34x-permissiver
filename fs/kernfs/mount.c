@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fs/kernfs/mount.c - kernfs mount implementation
  *
  * Copyright (c) 2001-3 Patrick Mochel
  * Copyright (c) 2007 SUSE Linux Products GmbH
  * Copyright (c) 2007, 2013 Tejun Heo <tj@kernel.org>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -20,6 +27,7 @@
 
 #include "kernfs-internal.h"
 
+<<<<<<< HEAD
 struct kmem_cache *kernfs_node_cache;
 
 static int kernfs_sop_remount_fs(struct super_block *sb, int *flags, char *data)
@@ -31,6 +39,9 @@ static int kernfs_sop_remount_fs(struct super_block *sb, int *flags, char *data)
 		return scops->remount_fs(root, flags, data);
 	return 0;
 }
+=======
+struct kmem_cache *kernfs_node_cache, *kernfs_iattrs_cache;
+>>>>>>> upstream/android-13
 
 static int kernfs_sop_show_options(struct seq_file *sf, struct dentry *dentry)
 {
@@ -60,11 +71,15 @@ const struct super_operations kernfs_sops = {
 	.drop_inode	= generic_delete_inode,
 	.evict_inode	= kernfs_evict_inode,
 
+<<<<<<< HEAD
 	.remount_fs	= kernfs_sop_remount_fs,
+=======
+>>>>>>> upstream/android-13
 	.show_options	= kernfs_sop_show_options,
 	.show_path	= kernfs_sop_show_path,
 };
 
+<<<<<<< HEAD
 /*
  * Similar to kernfs_fh_get_inode, this one gets kernfs node from inode
  * number and generation
@@ -97,11 +112,73 @@ static struct inode *kernfs_fh_get_inode(struct super_block *sb,
 	kn = kernfs_find_and_get_node_by_ino(info->root, ino);
 	if (!kn)
 		return ERR_PTR(-ESTALE);
+=======
+static int kernfs_encode_fh(struct inode *inode, __u32 *fh, int *max_len,
+			    struct inode *parent)
+{
+	struct kernfs_node *kn = inode->i_private;
+
+	if (*max_len < 2) {
+		*max_len = 2;
+		return FILEID_INVALID;
+	}
+
+	*max_len = 2;
+	*(u64 *)fh = kn->id;
+	return FILEID_KERNFS;
+}
+
+static struct dentry *__kernfs_fh_to_dentry(struct super_block *sb,
+					    struct fid *fid, int fh_len,
+					    int fh_type, bool get_parent)
+{
+	struct kernfs_super_info *info = kernfs_info(sb);
+	struct kernfs_node *kn;
+	struct inode *inode;
+	u64 id;
+
+	if (fh_len < 2)
+		return NULL;
+
+	switch (fh_type) {
+	case FILEID_KERNFS:
+		id = *(u64 *)fid;
+		break;
+	case FILEID_INO32_GEN:
+	case FILEID_INO32_GEN_PARENT:
+		/*
+		 * blk_log_action() exposes "LOW32,HIGH32" pair without
+		 * type and userland can call us with generic fid
+		 * constructed from them.  Combine it back to ID.  See
+		 * blk_log_action().
+		 */
+		id = ((u64)fid->i32.gen << 32) | fid->i32.ino;
+		break;
+	default:
+		return NULL;
+	}
+
+	kn = kernfs_find_and_get_node_by_id(info->root, id);
+	if (!kn)
+		return ERR_PTR(-ESTALE);
+
+	if (get_parent) {
+		struct kernfs_node *parent;
+
+		parent = kernfs_get_parent(kn);
+		kernfs_put(kn);
+		kn = parent;
+		if (!kn)
+			return ERR_PTR(-ESTALE);
+	}
+
+>>>>>>> upstream/android-13
 	inode = kernfs_get_inode(sb, kn);
 	kernfs_put(kn);
 	if (!inode)
 		return ERR_PTR(-ESTALE);
 
+<<<<<<< HEAD
 	if (generation && inode->i_generation != generation) {
 		/* we didn't find the right inode.. */
 		iput(inode);
@@ -122,6 +199,23 @@ static struct dentry *kernfs_fh_to_parent(struct super_block *sb, struct fid *fi
 {
 	return generic_fh_to_parent(sb, fid, fh_len, fh_type,
 				    kernfs_fh_get_inode);
+=======
+	return d_obtain_alias(inode);
+}
+
+static struct dentry *kernfs_fh_to_dentry(struct super_block *sb,
+					  struct fid *fid, int fh_len,
+					  int fh_type)
+{
+	return __kernfs_fh_to_dentry(sb, fid, fh_len, fh_type, false);
+}
+
+static struct dentry *kernfs_fh_to_parent(struct super_block *sb,
+					  struct fid *fid, int fh_len,
+					  int fh_type)
+{
+	return __kernfs_fh_to_dentry(sb, fid, fh_len, fh_type, true);
+>>>>>>> upstream/android-13
 }
 
 static struct dentry *kernfs_get_parent_dentry(struct dentry *child)
@@ -132,6 +226,10 @@ static struct dentry *kernfs_get_parent_dentry(struct dentry *child)
 }
 
 static const struct export_operations kernfs_export_ops = {
+<<<<<<< HEAD
+=======
+	.encode_fh	= kernfs_encode_fh,
+>>>>>>> upstream/android-13
 	.fh_to_dentry	= kernfs_fh_to_dentry,
 	.fh_to_parent	= kernfs_fh_to_parent,
 	.get_parent	= kernfs_get_parent_dentry,
@@ -212,7 +310,11 @@ struct dentry *kernfs_node_dentry(struct kernfs_node *kn,
 			dput(dentry);
 			return ERR_PTR(-EINVAL);
 		}
+<<<<<<< HEAD
 		dtmp = lookup_one_len_unlocked(kntmp->name, dentry,
+=======
+		dtmp = lookup_positive_unlocked(kntmp->name, dentry,
+>>>>>>> upstream/android-13
 					       strlen(kntmp->name));
 		dput(dentry);
 		if (IS_ERR(dtmp))
@@ -222,7 +324,11 @@ struct dentry *kernfs_node_dentry(struct kernfs_node *kn,
 	} while (true);
 }
 
+<<<<<<< HEAD
 static int kernfs_fill_super(struct super_block *sb, unsigned long magic)
+=======
+static int kernfs_fill_super(struct super_block *sb, struct kernfs_fs_context *kfc)
+>>>>>>> upstream/android-13
 {
 	struct kernfs_super_info *info = kernfs_info(sb);
 	struct inode *inode;
@@ -233,7 +339,11 @@ static int kernfs_fill_super(struct super_block *sb, unsigned long magic)
 	sb->s_iflags |= SB_I_NOEXEC | SB_I_NODEV;
 	sb->s_blocksize = PAGE_SIZE;
 	sb->s_blocksize_bits = PAGE_SHIFT;
+<<<<<<< HEAD
 	sb->s_magic = magic;
+=======
+	sb->s_magic = kfc->magic;
+>>>>>>> upstream/android-13
 	sb->s_op = &kernfs_sops;
 	sb->s_xattr = kernfs_xattr_handlers;
 	if (info->root->flags & KERNFS_ROOT_SUPPORT_EXPORTOP)
@@ -244,9 +354,15 @@ static int kernfs_fill_super(struct super_block *sb, unsigned long magic)
 	sb->s_shrink.seeks = 0;
 
 	/* get root inode, initialize and unlock it */
+<<<<<<< HEAD
 	mutex_lock(&kernfs_mutex);
 	inode = kernfs_get_inode(sb, info->root->kn);
 	mutex_unlock(&kernfs_mutex);
+=======
+	down_read(&kernfs_rwsem);
+	inode = kernfs_get_inode(sb, info->root->kn);
+	up_read(&kernfs_rwsem);
+>>>>>>> upstream/android-13
 	if (!inode) {
 		pr_debug("kernfs: could not get root inode\n");
 		return -ENOMEM;
@@ -263,14 +379,22 @@ static int kernfs_fill_super(struct super_block *sb, unsigned long magic)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int kernfs_test_super(struct super_block *sb, void *data)
 {
 	struct kernfs_super_info *sb_info = kernfs_info(sb);
 	struct kernfs_super_info *info = data;
+=======
+static int kernfs_test_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct kernfs_super_info *sb_info = kernfs_info(sb);
+	struct kernfs_super_info *info = fc->s_fs_info;
+>>>>>>> upstream/android-13
 
 	return sb_info->root == info->root && sb_info->ns == info->ns;
 }
 
+<<<<<<< HEAD
 static int kernfs_set_super(struct super_block *sb, void *data)
 {
 	int error;
@@ -278,6 +402,14 @@ static int kernfs_set_super(struct super_block *sb, void *data)
 	if (!error)
 		sb->s_fs_info = data;
 	return error;
+=======
+static int kernfs_set_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct kernfs_fs_context *kfc = fc->fs_private;
+
+	kfc->ns_tag = NULL;
+	return set_anon_super_fc(sb, fc);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -294,6 +426,7 @@ const void *kernfs_super_ns(struct super_block *sb)
 }
 
 /**
+<<<<<<< HEAD
  * kernfs_mount_ns - kernfs mount helper
  * @fs_type: file_system_type of the fs being mounted
  * @flags: mount flags specified for the mount
@@ -313,12 +446,26 @@ struct dentry *kernfs_mount_ns(struct file_system_type *fs_type, int flags,
 				struct kernfs_root *root, unsigned long magic,
 				bool *new_sb_created, const void *ns)
 {
+=======
+ * kernfs_get_tree - kernfs filesystem access/retrieval helper
+ * @fc: The filesystem context.
+ *
+ * This is to be called from each kernfs user's fs_context->ops->get_tree()
+ * implementation, which should set the specified ->@fs_type and ->@flags, and
+ * specify the hierarchy and namespace tag to mount via ->@root and ->@ns,
+ * respectively.
+ */
+int kernfs_get_tree(struct fs_context *fc)
+{
+	struct kernfs_fs_context *kfc = fc->fs_private;
+>>>>>>> upstream/android-13
 	struct super_block *sb;
 	struct kernfs_super_info *info;
 	int error;
 
 	info = kzalloc(sizeof(*info), GFP_KERNEL);
 	if (!info)
+<<<<<<< HEAD
 		return ERR_PTR(-ENOMEM);
 
 	info->root = root;
@@ -334,10 +481,23 @@ struct dentry *kernfs_mount_ns(struct file_system_type *fs_type, int flags,
 
 	if (new_sb_created)
 		*new_sb_created = !sb->s_root;
+=======
+		return -ENOMEM;
+
+	info->root = kfc->root;
+	info->ns = kfc->ns_tag;
+	INIT_LIST_HEAD(&info->node);
+
+	fc->s_fs_info = info;
+	sb = sget_fc(fc, kernfs_test_super, kernfs_set_super);
+	if (IS_ERR(sb))
+		return PTR_ERR(sb);
+>>>>>>> upstream/android-13
 
 	if (!sb->s_root) {
 		struct kernfs_super_info *info = kernfs_info(sb);
 
+<<<<<<< HEAD
 		error = kernfs_fill_super(sb, magic);
 		if (error) {
 			deactivate_locked_super(sb);
@@ -351,6 +511,31 @@ struct dentry *kernfs_mount_ns(struct file_system_type *fs_type, int flags,
 	}
 
 	return dget(sb->s_root);
+=======
+		kfc->new_sb_created = true;
+
+		error = kernfs_fill_super(sb, kfc);
+		if (error) {
+			deactivate_locked_super(sb);
+			return error;
+		}
+		sb->s_flags |= SB_ACTIVE;
+
+		down_write(&kernfs_rwsem);
+		list_add(&info->node, &info->root->supers);
+		up_write(&kernfs_rwsem);
+	}
+
+	fc->root = dget(sb->s_root);
+	return 0;
+}
+
+void kernfs_free_fs_context(struct fs_context *fc)
+{
+	/* Note that we don't deal with kfc->ns_tag here. */
+	kfree(fc->s_fs_info);
+	fc->s_fs_info = NULL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -365,9 +550,15 @@ void kernfs_kill_sb(struct super_block *sb)
 {
 	struct kernfs_super_info *info = kernfs_info(sb);
 
+<<<<<<< HEAD
 	mutex_lock(&kernfs_mutex);
 	list_del(&info->node);
 	mutex_unlock(&kernfs_mutex);
+=======
+	down_write(&kernfs_rwsem);
+	list_del(&info->node);
+	up_write(&kernfs_rwsem);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Remove the superblock from fs_supers/s_instances
@@ -377,6 +568,7 @@ void kernfs_kill_sb(struct super_block *sb)
 	kfree(info);
 }
 
+<<<<<<< HEAD
 /**
  * kernfs_pin_sb: try to pin the superblock associated with a kernfs_root
  * @kernfs_root: the kernfs_root in question
@@ -421,4 +613,16 @@ void __init kernfs_init(void)
 					      0,
 					      SLAB_PANIC | SLAB_TYPESAFE_BY_RCU,
 					      NULL);
+=======
+void __init kernfs_init(void)
+{
+	kernfs_node_cache = kmem_cache_create("kernfs_node_cache",
+					      sizeof(struct kernfs_node),
+					      0, SLAB_PANIC, NULL);
+
+	/* Creates slab cache for kernfs inode attributes */
+	kernfs_iattrs_cache  = kmem_cache_create("kernfs_iattrs_cache",
+					      sizeof(struct kernfs_iattrs),
+					      0, SLAB_PANIC, NULL);
+>>>>>>> upstream/android-13
 }

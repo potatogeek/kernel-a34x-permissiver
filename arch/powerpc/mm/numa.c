@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pSeries NUMA support
  *
  * Copyright (C) 2002 Anton Blanchard <anton@au.ibm.com>, IBM
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) "numa: " fmt
 
 #include <linux/threads.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/mmzone.h>
@@ -19,7 +30,10 @@
 #include <linux/nodemask.h>
 #include <linux/cpu.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
 #include <linux/memblock.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/pfn.h>
 #include <linux/cpuset.h>
@@ -33,7 +47,10 @@
 #include <asm/sparsemem.h>
 #include <asm/prom.h>
 #include <asm/smp.h>
+<<<<<<< HEAD
 #include <asm/cputhreads.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/topology.h>
 #include <asm/firmware.h>
 #include <asm/paca.h>
@@ -46,9 +63,12 @@ static int numa_enabled = 1;
 
 static char *cmdline __initdata;
 
+<<<<<<< HEAD
 static int numa_debug;
 #define dbg(args...) if (numa_debug) { printk(KERN_INFO args); }
 
+=======
+>>>>>>> upstream/android-13
 int numa_cpu_lookup_table[NR_CPUS];
 cpumask_var_t node_to_cpumask_map[MAX_NUMNODES];
 struct pglist_data *node_data[MAX_NUMNODES];
@@ -57,14 +77,31 @@ EXPORT_SYMBOL(numa_cpu_lookup_table);
 EXPORT_SYMBOL(node_to_cpumask_map);
 EXPORT_SYMBOL(node_data);
 
+<<<<<<< HEAD
 static int min_common_depth;
 static int n_mem_addr_cells, n_mem_size_cells;
 static int form1_affinity;
+=======
+static int primary_domain_index;
+static int n_mem_addr_cells, n_mem_size_cells;
+
+#define FORM0_AFFINITY 0
+#define FORM1_AFFINITY 1
+#define FORM2_AFFINITY 2
+static int affinity_form;
+>>>>>>> upstream/android-13
 
 #define MAX_DISTANCE_REF_POINTS 4
 static int distance_ref_points_depth;
 static const __be32 *distance_ref_points;
 static int distance_lookup_table[MAX_NUMNODES][MAX_DISTANCE_REF_POINTS];
+<<<<<<< HEAD
+=======
+static int numa_distance_table[MAX_NUMNODES][MAX_NUMNODES] = {
+	[0 ... MAX_NUMNODES - 1] = { [0 ... MAX_NUMNODES - 1] = -1 }
+};
+static int numa_id_index_table[MAX_NUMNODES] = { [0 ... MAX_NUMNODES - 1] = NUMA_NO_NODE };
+>>>>>>> upstream/android-13
 
 /*
  * Allocate node_to_cpumask_map based on number of available nodes
@@ -85,7 +122,11 @@ static void __init setup_node_to_cpumask_map(void)
 		alloc_bootmem_cpumask_var(&node_to_cpumask_map[node]);
 
 	/* cpumask_of_node() will now work */
+<<<<<<< HEAD
 	dbg("Node to cpumask map for %d nodes\n", nr_node_ids);
+=======
+	pr_debug("Node to cpumask map for %u nodes\n", nr_node_ids);
+>>>>>>> upstream/android-13
 }
 
 static int __init fake_numa_create_new_node(unsigned long end_pfn,
@@ -129,7 +170,11 @@ static int __init fake_numa_create_new_node(unsigned long end_pfn,
 		cmdline = p;
 		fake_nid++;
 		*nid = fake_nid;
+<<<<<<< HEAD
 		dbg("created new fake_node with id %d\n", fake_nid);
+=======
+		pr_debug("created new fake_node with id %d\n", fake_nid);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 	return 0;
@@ -143,6 +188,7 @@ static void reset_numa_cpu_lookup_table(void)
 		numa_cpu_lookup_table[cpu] = -1;
 }
 
+<<<<<<< HEAD
 static void map_cpu_to_node(int cpu, int node)
 {
 	update_numa_cpu_lookup_table(cpu, node);
@@ -165,10 +211,108 @@ static void unmap_cpu_from_node(unsigned long cpu)
 	} else {
 		printk(KERN_ERR "WARNING: cpu %lu not found in node %d\n",
 		       cpu, node);
+=======
+void map_cpu_to_node(int cpu, int node)
+{
+	update_numa_cpu_lookup_table(cpu, node);
+
+	if (!(cpumask_test_cpu(cpu, node_to_cpumask_map[node]))) {
+		pr_debug("adding cpu %d to node %d\n", cpu, node);
+		cpumask_set_cpu(cpu, node_to_cpumask_map[node]);
+	}
+}
+
+#if defined(CONFIG_HOTPLUG_CPU) || defined(CONFIG_PPC_SPLPAR)
+void unmap_cpu_from_node(unsigned long cpu)
+{
+	int node = numa_cpu_lookup_table[cpu];
+
+	if (cpumask_test_cpu(cpu, node_to_cpumask_map[node])) {
+		cpumask_clear_cpu(cpu, node_to_cpumask_map[node]);
+		pr_debug("removing cpu %lu from node %d\n", cpu, node);
+	} else {
+		pr_warn("Warning: cpu %lu not found in node %d\n", cpu, node);
+>>>>>>> upstream/android-13
 	}
 }
 #endif /* CONFIG_HOTPLUG_CPU || CONFIG_PPC_SPLPAR */
 
+<<<<<<< HEAD
+=======
+static int __associativity_to_nid(const __be32 *associativity,
+				  int max_array_sz)
+{
+	int nid;
+	/*
+	 * primary_domain_index is 1 based array index.
+	 */
+	int index = primary_domain_index  - 1;
+
+	if (!numa_enabled || index >= max_array_sz)
+		return NUMA_NO_NODE;
+
+	nid = of_read_number(&associativity[index], 1);
+
+	/* POWER4 LPAR uses 0xffff as invalid node */
+	if (nid == 0xffff || nid >= nr_node_ids)
+		nid = NUMA_NO_NODE;
+	return nid;
+}
+/*
+ * Returns nid in the range [0..nr_node_ids], or -1 if no useful NUMA
+ * info is found.
+ */
+static int associativity_to_nid(const __be32 *associativity)
+{
+	int array_sz = of_read_number(associativity, 1);
+
+	/* Skip the first element in the associativity array */
+	return __associativity_to_nid((associativity + 1), array_sz);
+}
+
+static int __cpu_form2_relative_distance(__be32 *cpu1_assoc, __be32 *cpu2_assoc)
+{
+	int dist;
+	int node1, node2;
+
+	node1 = associativity_to_nid(cpu1_assoc);
+	node2 = associativity_to_nid(cpu2_assoc);
+
+	dist = numa_distance_table[node1][node2];
+	if (dist <= LOCAL_DISTANCE)
+		return 0;
+	else if (dist <= REMOTE_DISTANCE)
+		return 1;
+	else
+		return 2;
+}
+
+static int __cpu_form1_relative_distance(__be32 *cpu1_assoc, __be32 *cpu2_assoc)
+{
+	int dist = 0;
+
+	int i, index;
+
+	for (i = 0; i < distance_ref_points_depth; i++) {
+		index = be32_to_cpu(distance_ref_points[i]);
+		if (cpu1_assoc[index] == cpu2_assoc[index])
+			break;
+		dist++;
+	}
+
+	return dist;
+}
+
+int cpu_relative_distance(__be32 *cpu1_assoc, __be32 *cpu2_assoc)
+{
+	/* We should not get called with FORM0 */
+	VM_WARN_ON(affinity_form == FORM0_AFFINITY);
+	if (affinity_form == FORM1_AFFINITY)
+		return __cpu_form1_relative_distance(cpu1_assoc, cpu2_assoc);
+	return __cpu_form2_relative_distance(cpu1_assoc, cpu2_assoc);
+}
+
+>>>>>>> upstream/android-13
 /* must hold reference to node during call */
 static const __be32 *of_get_associativity(struct device_node *dev)
 {
@@ -180,7 +324,13 @@ int __node_distance(int a, int b)
 	int i;
 	int distance = LOCAL_DISTANCE;
 
+<<<<<<< HEAD
 	if (!form1_affinity)
+=======
+	if (affinity_form == FORM2_AFFINITY)
+		return numa_distance_table[a][b];
+	else if (affinity_form == FORM0_AFFINITY)
+>>>>>>> upstream/android-13
 		return ((a == b) ? LOCAL_DISTANCE : REMOTE_DISTANCE);
 
 	for (i = 0; i < distance_ref_points_depth; i++) {
@@ -195,6 +345,7 @@ int __node_distance(int a, int b)
 }
 EXPORT_SYMBOL(__node_distance);
 
+<<<<<<< HEAD
 static void initialize_distance_lookup_table(int nid,
 		const __be32 *associativity)
 {
@@ -240,12 +391,18 @@ out:
 	return nid;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Returns the nid associated with the given device tree node,
  * or -1 if not found.
  */
 static int of_node_to_nid_single(struct device_node *device)
 {
+<<<<<<< HEAD
 	int nid = -1;
+=======
+	int nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 	const __be32 *tmp;
 
 	tmp = of_get_associativity(device);
@@ -257,7 +414,11 @@ static int of_node_to_nid_single(struct device_node *device)
 /* Walk the device tree upwards, looking for an associativity id */
 int of_node_to_nid(struct device_node *device)
 {
+<<<<<<< HEAD
 	int nid = -1;
+=======
+	int nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	of_node_get(device);
 	while (device) {
@@ -273,10 +434,161 @@ int of_node_to_nid(struct device_node *device)
 }
 EXPORT_SYMBOL(of_node_to_nid);
 
+<<<<<<< HEAD
 static int __init find_min_common_depth(void)
 {
 	int depth;
 	struct device_node *root;
+=======
+static void __initialize_form1_numa_distance(const __be32 *associativity,
+					     int max_array_sz)
+{
+	int i, nid;
+
+	if (affinity_form != FORM1_AFFINITY)
+		return;
+
+	nid = __associativity_to_nid(associativity, max_array_sz);
+	if (nid != NUMA_NO_NODE) {
+		for (i = 0; i < distance_ref_points_depth; i++) {
+			const __be32 *entry;
+			int index = be32_to_cpu(distance_ref_points[i]) - 1;
+
+			/*
+			 * broken hierarchy, return with broken distance table
+			 */
+			if (WARN(index >= max_array_sz, "Broken ibm,associativity property"))
+				return;
+
+			entry = &associativity[index];
+			distance_lookup_table[nid][i] = of_read_number(entry, 1);
+		}
+	}
+}
+
+static void initialize_form1_numa_distance(const __be32 *associativity)
+{
+	int array_sz;
+
+	array_sz = of_read_number(associativity, 1);
+	/* Skip the first element in the associativity array */
+	__initialize_form1_numa_distance(associativity + 1, array_sz);
+}
+
+/*
+ * Used to update distance information w.r.t newly added node.
+ */
+void update_numa_distance(struct device_node *node)
+{
+	int nid;
+
+	if (affinity_form == FORM0_AFFINITY)
+		return;
+	else if (affinity_form == FORM1_AFFINITY) {
+		const __be32 *associativity;
+
+		associativity = of_get_associativity(node);
+		if (!associativity)
+			return;
+
+		initialize_form1_numa_distance(associativity);
+		return;
+	}
+
+	/* FORM2 affinity  */
+	nid = of_node_to_nid_single(node);
+	if (nid == NUMA_NO_NODE)
+		return;
+
+	/*
+	 * With FORM2 we expect NUMA distance of all possible NUMA
+	 * nodes to be provided during boot.
+	 */
+	WARN(numa_distance_table[nid][nid] == -1,
+	     "NUMA distance details for node %d not provided\n", nid);
+}
+
+/*
+ * ibm,numa-lookup-index-table= {N, domainid1, domainid2, ..... domainidN}
+ * ibm,numa-distance-table = { N, 1, 2, 4, 5, 1, 6, .... N elements}
+ */
+static void initialize_form2_numa_distance_lookup_table(void)
+{
+	int i, j;
+	struct device_node *root;
+	const __u8 *form2_distances;
+	const __be32 *numa_lookup_index;
+	int form2_distances_length;
+	int max_numa_index, distance_index;
+
+	if (firmware_has_feature(FW_FEATURE_OPAL))
+		root = of_find_node_by_path("/ibm,opal");
+	else
+		root = of_find_node_by_path("/rtas");
+	if (!root)
+		root = of_find_node_by_path("/");
+
+	numa_lookup_index = of_get_property(root, "ibm,numa-lookup-index-table", NULL);
+	max_numa_index = of_read_number(&numa_lookup_index[0], 1);
+
+	/* first element of the array is the size and is encode-int */
+	form2_distances = of_get_property(root, "ibm,numa-distance-table", NULL);
+	form2_distances_length = of_read_number((const __be32 *)&form2_distances[0], 1);
+	/* Skip the size which is encoded int */
+	form2_distances += sizeof(__be32);
+
+	pr_debug("form2_distances_len = %d, numa_dist_indexes_len = %d\n",
+		 form2_distances_length, max_numa_index);
+
+	for (i = 0; i < max_numa_index; i++)
+		/* +1 skip the max_numa_index in the property */
+		numa_id_index_table[i] = of_read_number(&numa_lookup_index[i + 1], 1);
+
+
+	if (form2_distances_length != max_numa_index * max_numa_index) {
+		WARN(1, "Wrong NUMA distance information\n");
+		form2_distances = NULL; // don't use it
+	}
+	distance_index = 0;
+	for (i = 0;  i < max_numa_index; i++) {
+		for (j = 0; j < max_numa_index; j++) {
+			int nodeA = numa_id_index_table[i];
+			int nodeB = numa_id_index_table[j];
+			int dist;
+
+			if (form2_distances)
+				dist = form2_distances[distance_index++];
+			else if (nodeA == nodeB)
+				dist = LOCAL_DISTANCE;
+			else
+				dist = REMOTE_DISTANCE;
+			numa_distance_table[nodeA][nodeB] = dist;
+			pr_debug("dist[%d][%d]=%d ", nodeA, nodeB, dist);
+		}
+	}
+
+	of_node_put(root);
+}
+
+static int __init find_primary_domain_index(void)
+{
+	int index;
+	struct device_node *root;
+
+	/*
+	 * Check for which form of affinity.
+	 */
+	if (firmware_has_feature(FW_FEATURE_OPAL)) {
+		affinity_form = FORM1_AFFINITY;
+	} else if (firmware_has_feature(FW_FEATURE_FORM2_AFFINITY)) {
+		pr_debug("Using form 2 affinity\n");
+		affinity_form = FORM2_AFFINITY;
+	} else if (firmware_has_feature(FW_FEATURE_FORM1_AFFINITY)) {
+		pr_debug("Using form 1 affinity\n");
+		affinity_form = FORM1_AFFINITY;
+	} else
+		affinity_form = FORM0_AFFINITY;
+>>>>>>> upstream/android-13
 
 	if (firmware_has_feature(FW_FEATURE_OPAL))
 		root = of_find_node_by_path("/ibm,opal");
@@ -302,11 +614,16 @@ static int __init find_min_common_depth(void)
 					&distance_ref_points_depth);
 
 	if (!distance_ref_points) {
+<<<<<<< HEAD
 		dbg("NUMA: ibm,associativity-reference-points not found.\n");
+=======
+		pr_debug("ibm,associativity-reference-points not found.\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
 	distance_ref_points_depth /= sizeof(int);
+<<<<<<< HEAD
 
 	if (firmware_has_feature(FW_FEATURE_OPAL) ||
 	    firmware_has_feature(FW_FEATURE_TYPE1_AFFINITY)) {
@@ -326,18 +643,43 @@ static int __init find_min_common_depth(void)
 		depth = of_read_number(&distance_ref_points[1], 1);
 	}
 
+=======
+	if (affinity_form == FORM0_AFFINITY) {
+		if (distance_ref_points_depth < 2) {
+			pr_warn("short ibm,associativity-reference-points\n");
+			goto err;
+		}
+
+		index = of_read_number(&distance_ref_points[1], 1);
+	} else {
+		/*
+		 * Both FORM1 and FORM2 affinity find the primary domain details
+		 * at the same offset.
+		 */
+		index = of_read_number(distance_ref_points, 1);
+	}
+>>>>>>> upstream/android-13
 	/*
 	 * Warn and cap if the hardware supports more than
 	 * MAX_DISTANCE_REF_POINTS domains.
 	 */
 	if (distance_ref_points_depth > MAX_DISTANCE_REF_POINTS) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "NUMA: distance array capped at "
 			"%d entries\n", MAX_DISTANCE_REF_POINTS);
+=======
+		pr_warn("distance array capped at %d entries\n",
+			MAX_DISTANCE_REF_POINTS);
+>>>>>>> upstream/android-13
 		distance_ref_points_depth = MAX_DISTANCE_REF_POINTS;
 	}
 
 	of_node_put(root);
+<<<<<<< HEAD
 	return depth;
+=======
+	return index;
+>>>>>>> upstream/android-13
 
 err:
 	of_node_put(root);
@@ -415,6 +757,7 @@ static int of_get_assoc_arrays(struct assoc_arrays *aa)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * This is like of_node_to_nid_single() for memory represented in the
  * ibm,dynamic-reconfiguration-memory node.
@@ -426,10 +769,23 @@ static int of_drconf_to_nid_single(struct drmem_lmb *lmb)
 	int nid = default_nid;
 	int rc, index;
 
+=======
+static int get_nid_and_numa_distance(struct drmem_lmb *lmb)
+{
+	struct assoc_arrays aa = { .arrays = NULL };
+	int default_nid = NUMA_NO_NODE;
+	int nid = default_nid;
+	int rc, index;
+
+	if ((primary_domain_index < 0) || !numa_enabled)
+		return default_nid;
+
+>>>>>>> upstream/android-13
 	rc = of_get_assoc_arrays(&aa);
 	if (rc)
 		return default_nid;
 
+<<<<<<< HEAD
 	if (min_common_depth > 0 && min_common_depth <= aa.array_sz &&
 	    !(lmb->flags & DRCONF_MEM_AI_INVALID) &&
 	    lmb->aa_index < aa.n_arrays) {
@@ -446,28 +802,157 @@ static int of_drconf_to_nid_single(struct drmem_lmb *lmb)
 		}
 	}
 
+=======
+	if (primary_domain_index <= aa.array_sz &&
+	    !(lmb->flags & DRCONF_MEM_AI_INVALID) && lmb->aa_index < aa.n_arrays) {
+		const __be32 *associativity;
+
+		index = lmb->aa_index * aa.array_sz;
+		associativity = &aa.arrays[index];
+		nid = __associativity_to_nid(associativity, aa.array_sz);
+		if (nid > 0 && affinity_form == FORM1_AFFINITY) {
+			/*
+			 * lookup array associativity entries have
+			 * no length of the array as the first element.
+			 */
+			__initialize_form1_numa_distance(associativity, aa.array_sz);
+		}
+	}
+>>>>>>> upstream/android-13
 	return nid;
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * This is like of_node_to_nid_single() for memory represented in the
+ * ibm,dynamic-reconfiguration-memory node.
+ */
+int of_drconf_to_nid_single(struct drmem_lmb *lmb)
+{
+	struct assoc_arrays aa = { .arrays = NULL };
+	int default_nid = NUMA_NO_NODE;
+	int nid = default_nid;
+	int rc, index;
+
+	if ((primary_domain_index < 0) || !numa_enabled)
+		return default_nid;
+
+	rc = of_get_assoc_arrays(&aa);
+	if (rc)
+		return default_nid;
+
+	if (primary_domain_index <= aa.array_sz &&
+	    !(lmb->flags & DRCONF_MEM_AI_INVALID) && lmb->aa_index < aa.n_arrays) {
+		const __be32 *associativity;
+
+		index = lmb->aa_index * aa.array_sz;
+		associativity = &aa.arrays[index];
+		nid = __associativity_to_nid(associativity, aa.array_sz);
+	}
+	return nid;
+}
+
+#ifdef CONFIG_PPC_SPLPAR
+
+static int __vphn_get_associativity(long lcpu, __be32 *associativity)
+{
+	long rc, hwid;
+
+	/*
+	 * On a shared lpar, device tree will not have node associativity.
+	 * At this time lppaca, or its __old_status field may not be
+	 * updated. Hence kernel cannot detect if its on a shared lpar. So
+	 * request an explicit associativity irrespective of whether the
+	 * lpar is shared or dedicated. Use the device tree property as a
+	 * fallback. cpu_to_phys_id is only valid between
+	 * smp_setup_cpu_maps() and smp_setup_pacas().
+	 */
+	if (firmware_has_feature(FW_FEATURE_VPHN)) {
+		if (cpu_to_phys_id)
+			hwid = cpu_to_phys_id[lcpu];
+		else
+			hwid = get_hard_smp_processor_id(lcpu);
+
+		rc = hcall_vphn(hwid, VPHN_FLAG_VCPU, associativity);
+		if (rc == H_SUCCESS)
+			return 0;
+	}
+
+	return -1;
+}
+
+static int vphn_get_nid(long lcpu)
+{
+	__be32 associativity[VPHN_ASSOC_BUFSIZE] = {0};
+
+
+	if (!__vphn_get_associativity(lcpu, associativity))
+		return associativity_to_nid(associativity);
+
+	return NUMA_NO_NODE;
+
+}
+#else
+
+static int __vphn_get_associativity(long lcpu, __be32 *associativity)
+{
+	return -1;
+}
+
+static int vphn_get_nid(long unused)
+{
+	return NUMA_NO_NODE;
+}
+#endif  /* CONFIG_PPC_SPLPAR */
+
+/*
+>>>>>>> upstream/android-13
  * Figure out to which domain a cpu belongs and stick it there.
  * Return the id of the domain used.
  */
 static int numa_setup_cpu(unsigned long lcpu)
 {
+<<<<<<< HEAD
 	int nid = -1;
 	struct device_node *cpu;
+=======
+	struct device_node *cpu;
+	int fcpu = cpu_first_thread_sibling(lcpu);
+	int nid = NUMA_NO_NODE;
+
+	if (!cpu_present(lcpu)) {
+		set_cpu_numa_node(lcpu, first_online_node);
+		return first_online_node;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * If a valid cpu-to-node mapping is already available, use it
 	 * directly instead of querying the firmware, since it represents
 	 * the most recent mapping notified to us by the platform (eg: VPHN).
+<<<<<<< HEAD
 	 */
 	if ((nid = numa_cpu_lookup_table[lcpu]) >= 0) {
+=======
+	 * Since cpu_to_node binding remains the same for all threads in the
+	 * core. If a valid cpu-to-node mapping is already available, for
+	 * the first thread in the core, use it.
+	 */
+	nid = numa_cpu_lookup_table[fcpu];
+	if (nid >= 0) {
+>>>>>>> upstream/android-13
 		map_cpu_to_node(lcpu, nid);
 		return nid;
 	}
 
+<<<<<<< HEAD
+=======
+	nid = vphn_get_nid(lcpu);
+	if (nid != NUMA_NO_NODE)
+		goto out_present;
+
+>>>>>>> upstream/android-13
 	cpu = of_get_cpu_node(lcpu, NULL);
 
 	if (!cpu) {
@@ -479,13 +964,34 @@ static int numa_setup_cpu(unsigned long lcpu)
 	}
 
 	nid = of_node_to_nid_single(cpu);
+<<<<<<< HEAD
+=======
+	of_node_put(cpu);
+>>>>>>> upstream/android-13
 
 out_present:
 	if (nid < 0 || !node_possible(nid))
 		nid = first_online_node;
 
+<<<<<<< HEAD
 	map_cpu_to_node(lcpu, nid);
 	of_node_put(cpu);
+=======
+	/*
+	 * Update for the first thread of the core. All threads of a core
+	 * have to be part of the same node. This not only avoids querying
+	 * for every other thread in the core, but always avoids a case
+	 * where virtual node associativity change causes subsequent threads
+	 * of a core to be associated with different nid. However if first
+	 * thread is already online, expect it to have a valid mapping.
+	 */
+	if (fcpu != lcpu) {
+		WARN_ON(cpu_online(fcpu));
+		map_cpu_to_node(fcpu, nid);
+	}
+
+	map_cpu_to_node(lcpu, nid);
+>>>>>>> upstream/android-13
 out:
 	return nid;
 }
@@ -523,9 +1029,12 @@ static int ppc_numa_cpu_prepare(unsigned int cpu)
 
 static int ppc_numa_cpu_dead(unsigned int cpu)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_HOTPLUG_CPU
 	unmap_cpu_from_node(cpu);
 #endif
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -575,8 +1084,14 @@ static inline int __init read_usm_ranges(const __be32 **usm)
  * Extract NUMA information from the ibm,dynamic-reconfiguration-memory
  * node.  This assumes n_mem_{addr,size}_cells have been set.
  */
+<<<<<<< HEAD
 static void __init numa_setup_drmem_lmb(struct drmem_lmb *lmb,
 					const __be32 **usm)
+=======
+static int __init numa_setup_drmem_lmb(struct drmem_lmb *lmb,
+					const __be32 **usm,
+					void *data)
+>>>>>>> upstream/android-13
 {
 	unsigned int ranges, is_kexec_kdump = 0;
 	unsigned long base, size, sz;
@@ -588,7 +1103,11 @@ static void __init numa_setup_drmem_lmb(struct drmem_lmb *lmb,
 	 */
 	if ((lmb->flags & DRCONF_MEM_RESERVED)
 	    || !(lmb->flags & DRCONF_MEM_ASSIGNED))
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (*usm)
 		is_kexec_kdump = 1;
@@ -600,7 +1119,11 @@ static void __init numa_setup_drmem_lmb(struct drmem_lmb *lmb,
 	if (is_kexec_kdump) {
 		ranges = read_usm_ranges(usm);
 		if (!ranges) /* there are no (base, size) duple */
+<<<<<<< HEAD
 			return;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 	}
 
 	do {
@@ -609,7 +1132,11 @@ static void __init numa_setup_drmem_lmb(struct drmem_lmb *lmb,
 			size = read_n_cells(n_mem_size_cells, usm);
 		}
 
+<<<<<<< HEAD
 		nid = of_drconf_to_nid_single(lmb);
+=======
+		nid = get_nid_and_numa_distance(lmb);
+>>>>>>> upstream/android-13
 		fake_numa_create_new_node(((base + size) >> PAGE_SHIFT),
 					  &nid);
 		node_set_online(nid);
@@ -617,6 +1144,11 @@ static void __init numa_setup_drmem_lmb(struct drmem_lmb *lmb,
 		if (sz)
 			memblock_set_node(base, sz, &memblock.memory, nid);
 	} while (--ranges);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __init parse_numa_properties(void)
@@ -624,6 +1156,7 @@ static int __init parse_numa_properties(void)
 	struct device_node *memory;
 	int default_nid = 0;
 	unsigned long i;
+<<<<<<< HEAD
 
 	if (numa_enabled == 0) {
 		printk(KERN_WARNING "NUMA disabled by user\n");
@@ -636,6 +1169,33 @@ static int __init parse_numa_properties(void)
 		return min_common_depth;
 
 	dbg("NUMA associativity depth for CPU/Memory: %d\n", min_common_depth);
+=======
+	const __be32 *associativity;
+
+	if (numa_enabled == 0) {
+		pr_warn("disabled by user\n");
+		return -1;
+	}
+
+	primary_domain_index = find_primary_domain_index();
+
+	if (primary_domain_index < 0) {
+		/*
+		 * if we fail to parse primary_domain_index from device tree
+		 * mark the numa disabled, boot with numa disabled.
+		 */
+		numa_enabled = false;
+		return primary_domain_index;
+	}
+
+	pr_debug("associativity depth for CPU/Memory: %d\n", primary_domain_index);
+
+	/*
+	 * If it is FORM2 initialize the distance table here.
+	 */
+	if (affinity_form == FORM2_AFFINITY)
+		initialize_form2_numa_distance_lookup_table();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Even though we connect cpus to numa domains later in SMP
@@ -643,6 +1203,7 @@ static int __init parse_numa_properties(void)
 	 * each node to be onlined must have NODE_DATA etc backing it.
 	 */
 	for_each_present_cpu(i) {
+<<<<<<< HEAD
 		struct device_node *cpu;
 		int nid;
 
@@ -659,6 +1220,38 @@ static int __init parse_numa_properties(void)
 		if (nid < 0)
 			continue;
 		node_set_online(nid);
+=======
+		__be32 vphn_assoc[VPHN_ASSOC_BUFSIZE];
+		struct device_node *cpu;
+		int nid = NUMA_NO_NODE;
+
+		memset(vphn_assoc, 0, VPHN_ASSOC_BUFSIZE * sizeof(__be32));
+
+		if (__vphn_get_associativity(i, vphn_assoc) == 0) {
+			nid = associativity_to_nid(vphn_assoc);
+			initialize_form1_numa_distance(vphn_assoc);
+		} else {
+
+			/*
+			 * Don't fall back to default_nid yet -- we will plug
+			 * cpus into nodes once the memory scan has discovered
+			 * the topology.
+			 */
+			cpu = of_get_cpu_node(i, NULL);
+			BUG_ON(!cpu);
+
+			associativity = of_get_associativity(cpu);
+			if (associativity) {
+				nid = associativity_to_nid(associativity);
+				initialize_form1_numa_distance(associativity);
+			}
+			of_node_put(cpu);
+		}
+
+		/* node_set_online() is an UB if 'nid' is negative */
+		if (likely(nid >= 0))
+			node_set_online(nid);
+>>>>>>> upstream/android-13
 	}
 
 	get_n_mem_cells(&n_mem_addr_cells, &n_mem_size_cells);
@@ -690,8 +1283,16 @@ new_range:
 		 * have associativity properties.  If none, then
 		 * everything goes to default_nid.
 		 */
+<<<<<<< HEAD
 		nid = of_node_to_nid_single(memory);
 		if (nid < 0)
+=======
+		associativity = of_get_associativity(memory);
+		if (associativity) {
+			nid = associativity_to_nid(associativity);
+			initialize_form1_numa_distance(associativity);
+		} else
+>>>>>>> upstream/android-13
 			nid = default_nid;
 
 		fake_numa_create_new_node(((start + size) >> PAGE_SHIFT), &nid);
@@ -712,7 +1313,11 @@ new_range:
 	 */
 	memory = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
 	if (memory) {
+<<<<<<< HEAD
 		walk_drmem_lmbs(memory, numa_setup_drmem_lmb);
+=======
+		walk_drmem_lmbs(memory, NULL, numa_setup_drmem_lmb);
+>>>>>>> upstream/android-13
 		of_node_put(memory);
 	}
 
@@ -725,6 +1330,7 @@ static void __init setup_nonnuma(void)
 	unsigned long total_ram = memblock_phys_mem_size();
 	unsigned long start_pfn, end_pfn;
 	unsigned int nid = 0;
+<<<<<<< HEAD
 	struct memblock_region *reg;
 
 	printk(KERN_DEBUG "Top of RAM: 0x%lx, Total RAM: 0x%lx\n",
@@ -736,6 +1342,14 @@ static void __init setup_nonnuma(void)
 		start_pfn = memblock_region_memory_base_pfn(reg);
 		end_pfn = memblock_region_memory_end_pfn(reg);
 
+=======
+	int i;
+
+	pr_debug("Top of RAM: 0x%lx, Total RAM: 0x%lx\n", top_of_ram, total_ram);
+	pr_debug("Memory hole size: %ldMB\n", (top_of_ram - total_ram) >> 20);
+
+	for_each_mem_pfn_range(i, MAX_NUMNODES, &start_pfn, &end_pfn, NULL) {
+>>>>>>> upstream/android-13
 		fake_numa_create_new_node(end_pfn, &nid);
 		memblock_set_node(PFN_PHYS(start_pfn),
 				  PFN_PHYS(end_pfn - start_pfn),
@@ -749,7 +1363,11 @@ void __init dump_numa_cpu_topology(void)
 	unsigned int node;
 	unsigned int cpu, count;
 
+<<<<<<< HEAD
 	if (min_common_depth == -1 || !numa_enabled)
+=======
+	if (!numa_enabled)
+>>>>>>> upstream/android-13
 		return;
 
 	for_each_online_node(node) {
@@ -788,7 +1406,15 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
 	void *nd;
 	int tnid;
 
+<<<<<<< HEAD
 	nd_pa = memblock_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
+=======
+	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
+	if (!nd_pa)
+		panic("Cannot allocate %zu bytes for node %d data\n",
+		      nd_size, nid);
+
+>>>>>>> upstream/android-13
 	nd = __va(nd_pa);
 
 	/* report and initialize */
@@ -808,25 +1434,67 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
 static void __init find_possible_nodes(void)
 {
 	struct device_node *rtas;
+<<<<<<< HEAD
 	u32 numnodes, i;
 
 	if (min_common_depth <= 0)
+=======
+	const __be32 *domains = NULL;
+	int prop_length, max_nodes;
+	u32 i;
+
+	if (!numa_enabled)
+>>>>>>> upstream/android-13
 		return;
 
 	rtas = of_find_node_by_path("/rtas");
 	if (!rtas)
 		return;
 
+<<<<<<< HEAD
 	if (of_property_read_u32_index(rtas,
 				"ibm,max-associativity-domains",
 				min_common_depth, &numnodes))
 		goto out;
 
 	for (i = 0; i < numnodes; i++) {
+=======
+	/*
+	 * ibm,current-associativity-domains is a fairly recent property. If
+	 * it doesn't exist, then fallback on ibm,max-associativity-domains.
+	 * Current denotes what the platform can support compared to max
+	 * which denotes what the Hypervisor can support.
+	 *
+	 * If the LPAR is migratable, new nodes might be activated after a LPM,
+	 * so we should consider the max number in that case.
+	 */
+	if (!of_get_property(of_root, "ibm,migratable-partition", NULL))
+		domains = of_get_property(rtas,
+					  "ibm,current-associativity-domains",
+					  &prop_length);
+	if (!domains) {
+		domains = of_get_property(rtas, "ibm,max-associativity-domains",
+					&prop_length);
+		if (!domains)
+			goto out;
+	}
+
+	max_nodes = of_read_number(&domains[primary_domain_index], 1);
+	pr_info("Partition configured for %d NUMA nodes.\n", max_nodes);
+
+	for (i = 0; i < max_nodes; i++) {
+>>>>>>> upstream/android-13
 		if (!node_possible(i))
 			node_set(i, node_possible_map);
 	}
 
+<<<<<<< HEAD
+=======
+	prop_length /= sizeof(int);
+	if (prop_length > primary_domain_index + 2)
+		coregroup_enabled = 1;
+
+>>>>>>> upstream/android-13
 out:
 	of_node_put(rtas);
 }
@@ -835,6 +1503,19 @@ void __init mem_topology_setup(void)
 {
 	int cpu;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Linux/mm assumes node 0 to be online at boot. However this is not
+	 * true on PowerPC, where node 0 is similar to any other node, it
+	 * could be cpuless, memoryless node. So force node 0 to be offline
+	 * for now. This will prevent cpuless, memoryless node 0 showing up
+	 * unnecessarily as online. If a node has cpus or memory that need
+	 * to be online, then node will anyway be marked online.
+	 */
+	node_set_offline(0);
+
+>>>>>>> upstream/android-13
 	if (parse_numa_properties())
 		setup_nonnuma();
 
@@ -852,8 +1533,22 @@ void __init mem_topology_setup(void)
 
 	reset_numa_cpu_lookup_table();
 
+<<<<<<< HEAD
 	for_each_present_cpu(cpu)
 		numa_setup_cpu(cpu);
+=======
+	for_each_possible_cpu(cpu) {
+		/*
+		 * Powerpc with CONFIG_NUMA always used to have a node 0,
+		 * even if it was memoryless or cpuless. For all cpus that
+		 * are possible but not present, cpu_to_node() would point
+		 * to node 0. To remove a cpuless, memoryless dummy node,
+		 * powerpc need to make sure all possible but not present
+		 * cpu_to_node are set to a proper node.
+		 */
+		numa_setup_cpu(cpu);
+	}
+>>>>>>> upstream/android-13
 }
 
 void __init initmem_init(void)
@@ -870,7 +1565,10 @@ void __init initmem_init(void)
 
 		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
 		setup_node_data(nid, start_pfn, end_pfn);
+<<<<<<< HEAD
 		sparse_memory_present_with_active_regions(nid);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	sparse_init();
@@ -894,9 +1592,12 @@ static int __init early_numa(char *p)
 	if (strstr(p, "off"))
 		numa_enabled = 0;
 
+<<<<<<< HEAD
 	if (strstr(p, "debug"))
 		numa_debug = 1;
 
+=======
+>>>>>>> upstream/android-13
 	p = strstr(p, "fake=");
 	if (p)
 		cmdline = p + strlen("fake=");
@@ -905,6 +1606,7 @@ static int __init early_numa(char *p)
 }
 early_param("numa", early_numa);
 
+<<<<<<< HEAD
 static bool topology_updates_enabled = true;
 
 static int __init early_topology_updates(char *p)
@@ -921,6 +1623,8 @@ static int __init early_topology_updates(char *p)
 }
 early_param("topology_updates", early_topology_updates);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MEMORY_HOTPLUG
 /*
  * Find the node associated with a hot added memory section for
@@ -931,7 +1635,11 @@ static int hot_add_drconf_scn_to_nid(unsigned long scn_addr)
 {
 	struct drmem_lmb *lmb;
 	unsigned long lmb_size;
+<<<<<<< HEAD
 	int nid = -1;
+=======
+	int nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	lmb_size = drmem_lmb_size();
 
@@ -961,7 +1669,11 @@ static int hot_add_drconf_scn_to_nid(unsigned long scn_addr)
 static int hot_add_node_scn_to_nid(unsigned long scn_addr)
 {
 	struct device_node *memory;
+<<<<<<< HEAD
 	int nid = -1;
+=======
+	int nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	for_each_node_by_type(memory, "memory") {
 		unsigned long start, size;
@@ -1006,7 +1718,11 @@ int hot_add_scn_to_nid(unsigned long scn_addr)
 	struct device_node *memory = NULL;
 	int nid;
 
+<<<<<<< HEAD
 	if (!numa_enabled || (min_common_depth < 0))
+=======
+	if (!numa_enabled)
+>>>>>>> upstream/android-13
 		return first_online_node;
 
 	memory = of_find_node_by_path("/ibm,dynamic-reconfiguration-memory");
@@ -1059,6 +1775,7 @@ u64 memory_hotplug_max(void)
 
 /* Virtual Processor Home Node (VPHN) support */
 #ifdef CONFIG_PPC_SPLPAR
+<<<<<<< HEAD
 
 #include "vphn.h"
 
@@ -1170,11 +1887,20 @@ static long hcall_vphn(unsigned long cpu, __be32 *associativity)
 	return rc;
 }
 
+=======
+static int topology_inited;
+
+/*
+ * Retrieve the new associativity information for a virtual processor's
+ * home node.
+ */
+>>>>>>> upstream/android-13
 static long vphn_get_associativity(unsigned long cpu,
 					__be32 *associativity)
 {
 	long rc;
 
+<<<<<<< HEAD
 	rc = hcall_vphn(cpu, associativity);
 
 	switch (rc) {
@@ -1195,6 +1921,33 @@ static long vphn_get_associativity(unsigned long cpu,
 		break;
 	}
 
+=======
+	rc = hcall_vphn(get_hard_smp_processor_id(cpu),
+				VPHN_FLAG_VCPU, associativity);
+
+	switch (rc) {
+	case H_SUCCESS:
+		pr_debug("VPHN hcall succeeded. Reset polling...\n");
+		goto out;
+
+	case H_FUNCTION:
+		pr_err_ratelimited("VPHN unsupported. Disabling polling...\n");
+		break;
+	case H_HARDWARE:
+		pr_err_ratelimited("hcall_vphn() experienced a hardware fault "
+			"preventing VPHN. Disabling polling...\n");
+		break;
+	case H_PARAMETER:
+		pr_err_ratelimited("hcall_vphn() was passed an invalid parameter. "
+			"Disabling polling...\n");
+		break;
+	default:
+		pr_err_ratelimited("hcall_vphn() returned %ld. Disabling polling...\n"
+			, rc);
+		break;
+	}
+out:
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1237,6 +1990,7 @@ int find_and_online_cpu_nid(int cpu)
 	return new_nid;
 }
 
+<<<<<<< HEAD
 /*
  * Update the CPU maps and sysfs entries for a single CPU when its NUMA
  * characteristics change. This function doesn't perform any locking and is
@@ -1614,6 +2368,35 @@ static int topology_update_init(void)
 	if (!proc_create("powerpc/topology_updates", 0644, NULL, &topology_ops))
 		return -ENOMEM;
 
+=======
+int cpu_to_coregroup_id(int cpu)
+{
+	__be32 associativity[VPHN_ASSOC_BUFSIZE] = {0};
+	int index;
+
+	if (cpu < 0 || cpu > nr_cpu_ids)
+		return -1;
+
+	if (!coregroup_enabled)
+		goto out;
+
+	if (!firmware_has_feature(FW_FEATURE_VPHN))
+		goto out;
+
+	if (vphn_get_associativity(cpu, associativity))
+		goto out;
+
+	index = of_read_number(associativity, 1);
+	if (index > primary_domain_index + 1)
+		return of_read_number(&associativity[index - 1], 1);
+
+out:
+	return cpu_to_core_id(cpu);
+}
+
+static int topology_update_init(void)
+{
+>>>>>>> upstream/android-13
 	topology_inited = 1;
 	return 0;
 }

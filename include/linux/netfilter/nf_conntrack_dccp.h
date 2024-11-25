@@ -25,7 +25,10 @@ enum ct_dccp_roles {
 };
 #define CT_DCCP_ROLE_MAX	(__CT_DCCP_ROLE_MAX - 1)
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+>>>>>>> upstream/android-13
 #include <linux/netfilter/nf_conntrack_tuple_common.h>
 
 struct nf_ct_dccp {
@@ -36,6 +39,9 @@ struct nf_ct_dccp {
 	u_int64_t	handshake_seq;
 };
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _NF_CONNTRACK_DCCP_H */

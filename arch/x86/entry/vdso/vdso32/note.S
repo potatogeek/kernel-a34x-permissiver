@@ -16,6 +16,7 @@ ELFNOTE_START(Linux, 0, "a")
 ELFNOTE_END
 
 BUILD_SALT
+<<<<<<< HEAD
 
 #ifdef CONFIG_XEN
 /*
@@ -46,3 +47,5 @@ VDSO32_NOTE_MASK:		/* Symbol used by arch/x86/xen/setup.c */
 	.byte VDSO_NOTE_NONEGSEG_BIT; .asciz "nosegneg"	/* bit, name */
 ELFNOTE_END
 #endif
+=======
+>>>>>>> upstream/android-13

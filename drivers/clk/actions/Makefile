@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 obj-$(CONFIG_CLK_ACTIONS)	+= clk-owl.o
 
 clk-owl-y			+= owl-common.o
@@ -7,7 +11,14 @@ clk-owl-y			+= owl-divider.o
 clk-owl-y			+= owl-factor.o
 clk-owl-y			+= owl-composite.o
 clk-owl-y			+= owl-pll.o
+<<<<<<< HEAD
 
 # SoC support
+=======
+clk-owl-y			+= owl-reset.o
+
+# SoC support
+obj-$(CONFIG_CLK_OWL_S500)	+= owl-s500.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_CLK_OWL_S700)	+= owl-s700.o
 obj-$(CONFIG_CLK_OWL_S900)	+= owl-s900.o

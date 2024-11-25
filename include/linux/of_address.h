@@ -6,6 +6,7 @@
 #include <linux/of.h>
 #include <linux/io.h>
 
+<<<<<<< HEAD
 struct of_pci_range_parser {
 	struct device_node *node;
 	const __be32 *range;
@@ -17,13 +18,42 @@ struct of_pci_range_parser {
 struct of_pci_range {
 	u32 pci_space;
 	u64 pci_addr;
+=======
+struct of_bus;
+
+struct of_pci_range_parser {
+	struct device_node *node;
+	struct of_bus *bus;
+	const __be32 *range;
+	const __be32 *end;
+	int na;
+	int ns;
+	int pna;
+	bool dma;
+};
+#define of_range_parser of_pci_range_parser
+
+struct of_pci_range {
+	union {
+		u64 pci_addr;
+		u64 bus_addr;
+	};
+>>>>>>> upstream/android-13
 	u64 cpu_addr;
 	u64 size;
 	u32 flags;
 };
+<<<<<<< HEAD
 
 #define for_each_of_pci_range(parser, range) \
 	for (; of_pci_range_parser_one(parser, range);)
+=======
+#define of_range of_pci_range
+
+#define for_each_of_pci_range(parser, range) \
+	for (; of_pci_range_parser_one(parser, range);)
+#define for_each_of_range for_each_of_pci_range
+>>>>>>> upstream/android-13
 
 /* Translate a DMA address from device space to CPU space */
 extern u64 of_translate_dma_address(struct device_node *dev,
@@ -33,10 +63,13 @@ extern u64 of_translate_dma_address(struct device_node *dev,
 extern u64 of_translate_address(struct device_node *np, const __be32 *addr);
 extern int of_address_to_resource(struct device_node *dev, int index,
 				  struct resource *r);
+<<<<<<< HEAD
 extern struct device_node *of_find_matching_node_by_address(
 					struct device_node *from,
 					const struct of_device_id *matches,
 					u64 base_address);
+=======
+>>>>>>> upstream/android-13
 extern void __iomem *of_iomap(struct device_node *device, int index);
 void __iomem *of_io_request_and_map(struct device_node *device,
 				    int index, const char *name);
@@ -45,8 +78,13 @@ void __iomem *of_io_request_and_map(struct device_node *device,
  * the address space flags too. The PCI version uses a BAR number
  * instead of an absolute index
  */
+<<<<<<< HEAD
 extern const __be32 *of_get_address(struct device_node *dev, int index,
 			   u64 *size, unsigned int *flags);
+=======
+extern const __be32 *__of_get_address(struct device_node *dev, int index, int bar_no,
+				      u64 *size, unsigned int *flags);
+>>>>>>> upstream/android-13
 
 extern int of_pci_range_parser_init(struct of_pci_range_parser *parser,
 			struct device_node *node);
@@ -55,8 +93,16 @@ extern int of_pci_dma_range_parser_init(struct of_pci_range_parser *parser,
 extern struct of_pci_range *of_pci_range_parser_one(
 					struct of_pci_range_parser *parser,
 					struct of_pci_range *range);
+<<<<<<< HEAD
 extern int of_dma_get_range(struct device_node *np, u64 *dma_addr,
 				u64 *paddr, u64 *size);
+=======
+extern int of_pci_address_to_resource(struct device_node *dev, int bar,
+				      struct resource *r);
+extern int of_pci_range_to_resource(struct of_pci_range *range,
+				    struct device_node *np,
+				    struct resource *res);
+>>>>>>> upstream/android-13
 extern bool of_dma_is_coherent(struct device_node *np);
 #else /* CONFIG_OF_ADDRESS */
 static inline void __iomem *of_io_request_and_map(struct device_node *device,
@@ -71,6 +117,7 @@ static inline u64 of_translate_address(struct device_node *np,
 	return OF_BAD_ADDR;
 }
 
+<<<<<<< HEAD
 static inline struct device_node *of_find_matching_node_by_address(
 					struct device_node *from,
 					const struct of_device_id *matches,
@@ -81,6 +128,10 @@ static inline struct device_node *of_find_matching_node_by_address(
 
 static inline const __be32 *of_get_address(struct device_node *dev, int index,
 					u64 *size, unsigned int *flags)
+=======
+static inline const __be32 *__of_get_address(struct device_node *dev, int index, int bar_no,
+					     u64 *size, unsigned int *flags)
+>>>>>>> upstream/android-13
 {
 	return NULL;
 }
@@ -104,10 +155,24 @@ static inline struct of_pci_range *of_pci_range_parser_one(
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline int of_dma_get_range(struct device_node *np, u64 *dma_addr,
 				u64 *paddr, u64 *size)
 {
 	return -ENODEV;
+=======
+static inline int of_pci_address_to_resource(struct device_node *dev, int bar,
+				             struct resource *r)
+{
+	return -ENOSYS;
+}
+
+static inline int of_pci_range_to_resource(struct of_pci_range *range,
+					   struct device_node *np,
+					   struct resource *res)
+{
+	return -ENOSYS;
+>>>>>>> upstream/android-13
 }
 
 static inline bool of_dma_is_coherent(struct device_node *np)
@@ -132,6 +197,7 @@ static inline void __iomem *of_iomap(struct device_node *device, int index)
 	return NULL;
 }
 #endif
+<<<<<<< HEAD
 
 #if defined(CONFIG_OF_ADDRESS) && defined(CONFIG_PCI)
 extern const __be32 *of_get_pci_address(struct device_node *dev, int bar_no,
@@ -163,3 +229,20 @@ static inline int of_pci_range_to_resource(struct of_pci_range *range,
 
 #endif /* __OF_ADDRESS_H */
 
+=======
+#define of_range_parser_init of_pci_range_parser_init
+
+static inline const __be32 *of_get_address(struct device_node *dev, int index,
+					   u64 *size, unsigned int *flags)
+{
+	return __of_get_address(dev, index, -1, size, flags);
+}
+
+static inline const __be32 *of_get_pci_address(struct device_node *dev, int bar_no,
+					       u64 *size, unsigned int *flags)
+{
+	return __of_get_address(dev, -1, bar_no, size, flags);
+}
+
+#endif /* __OF_ADDRESS_H */
+>>>>>>> upstream/android-13

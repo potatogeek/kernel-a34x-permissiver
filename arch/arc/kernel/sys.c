@@ -7,6 +7,10 @@
 #include <asm/syscalls.h>
 
 #define sys_clone	sys_clone_wrapper
+<<<<<<< HEAD
+=======
+#define sys_clone3	sys_clone3_wrapper
+>>>>>>> upstream/android-13
 
 #undef __SYSCALL
 #define __SYSCALL(nr, call) [nr] = (call),

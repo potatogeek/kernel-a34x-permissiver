@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Cypress Trackpad PS/2 mouse driver
  *
@@ -9,10 +13,13 @@
  * Additional contributors include:
  *   Kamal Mostafa <kamal@canonical.com>
  *   Kyle Fazzari <git@status.e4ward.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

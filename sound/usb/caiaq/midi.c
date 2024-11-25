@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (c) 2006,2007 Daniel Mack
  *
@@ -14,6 +15,11 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (c) 2006,2007 Daniel Mack
+>>>>>>> upstream/android-13
 */
 
 #include <linux/device.h>
@@ -138,7 +144,11 @@ int snd_usb_caiaq_midi_init(struct snd_usb_caiaqdev *device)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	strlcpy(rmidi->name, device->product_name, sizeof(rmidi->name));
+=======
+	strscpy(rmidi->name, device->product_name, sizeof(rmidi->name));
+>>>>>>> upstream/android-13
 
 	rmidi->info_flags = SNDRV_RAWMIDI_INFO_DUPLEX;
 	rmidi->private_data = device;

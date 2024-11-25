@@ -204,7 +204,12 @@ extern const struct address_space_operations hfs_btree_aops;
 extern struct inode *hfs_new_inode(struct inode *, const struct qstr *, umode_t);
 extern void hfs_inode_write_fork(struct inode *, struct hfs_extent *, __be32 *, __be32 *);
 extern int hfs_write_inode(struct inode *, struct writeback_control *);
+<<<<<<< HEAD
 extern int hfs_inode_setattr(struct dentry *, struct iattr *);
+=======
+extern int hfs_inode_setattr(struct user_namespace *, struct dentry *,
+			     struct iattr *);
+>>>>>>> upstream/android-13
 extern void hfs_inode_read_fork(struct inode *inode, struct hfs_extent *ext,
 			__be32 log_size, __be32 phys_size, u32 clump_size);
 extern struct inode *hfs_iget(struct super_block *, struct hfs_cat_key *, hfs_cat_rec *);
@@ -242,6 +247,7 @@ extern void hfs_mark_mdb_dirty(struct super_block *sb);
 /*
  * There are two time systems.  Both are based on seconds since
  * a particular time/date.
+<<<<<<< HEAD
  *	Unix:	unsigned lil-endian since 00:00 GMT, Jan. 1, 1970
  *	mac:	unsigned big-endian since 00:00 GMT, Jan. 1, 1904
  *
@@ -255,6 +261,37 @@ extern void hfs_mark_mdb_dirty(struct super_block *sb);
 #define hfs_m_to_utime(time)	(struct timespec){ .tv_sec = __hfs_m_to_utime(time) }
 #define hfs_u_to_mtime(time)	__hfs_u_to_mtime((time).tv_sec)
 #define hfs_mtime()		__hfs_u_to_mtime(get_seconds())
+=======
+ *	Unix:	signed little-endian since 00:00 GMT, Jan. 1, 1970
+ *	mac:	unsigned big-endian since 00:00 GMT, Jan. 1, 1904
+ *
+ * HFS implementations are highly inconsistent, this one matches the
+ * traditional behavior of 64-bit Linux, giving the most useful
+ * time range between 1970 and 2106, by treating any on-disk timestamp
+ * under HFS_UTC_OFFSET (Jan 1 1970) as a time between 2040 and 2106.
+ */
+#define HFS_UTC_OFFSET 2082844800U
+
+static inline time64_t __hfs_m_to_utime(__be32 mt)
+{
+	time64_t ut = (u32)(be32_to_cpu(mt) - HFS_UTC_OFFSET);
+
+	return ut + sys_tz.tz_minuteswest * 60;
+}
+
+static inline __be32 __hfs_u_to_mtime(time64_t ut)
+{
+	ut -= sys_tz.tz_minuteswest * 60;
+
+	return cpu_to_be32(lower_32_bits(ut) + HFS_UTC_OFFSET);
+}
+#define HFS_I(inode)	(container_of(inode, struct hfs_inode_info, vfs_inode))
+#define HFS_SB(sb)	((struct hfs_sb_info *)(sb)->s_fs_info)
+
+#define hfs_m_to_utime(time)   (struct timespec64){ .tv_sec = __hfs_m_to_utime(time) }
+#define hfs_u_to_mtime(time)   __hfs_u_to_mtime((time).tv_sec)
+#define hfs_mtime()		__hfs_u_to_mtime(ktime_get_real_seconds())
+>>>>>>> upstream/android-13
 
 static inline const char *hfs_mdb_name(struct super_block *sb)
 {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -49,6 +53,10 @@ static void led_blink(struct timer_list *unused)
 	add_timer(&led_blink_timer);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PROC_FS
+>>>>>>> upstream/android-13
 static int led_proc_show(struct seq_file *m, void *v)
 {
 	if (get_auxio() & AUXIO_LED)
@@ -103,6 +111,7 @@ static ssize_t led_proc_write(struct file *file, const char __user *buffer,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations led_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= led_proc_open,
@@ -111,6 +120,16 @@ static const struct file_operations led_proc_fops = {
 	.release	= single_release,
 	.write		= led_proc_write,
 };
+=======
+static const struct proc_ops led_proc_ops = {
+	.proc_open	= led_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= led_proc_write,
+};
+#endif
+>>>>>>> upstream/android-13
 
 static struct proc_dir_entry *led;
 
@@ -120,7 +139,11 @@ static int __init led_init(void)
 {
 	timer_setup(&led_blink_timer, led_blink, 0);
 
+<<<<<<< HEAD
 	led = proc_create("led", 0, NULL, &led_proc_fops);
+=======
+	led = proc_create("led", 0, NULL, &led_proc_ops);
+>>>>>>> upstream/android-13
 	if (!led)
 		return -ENOMEM;
 

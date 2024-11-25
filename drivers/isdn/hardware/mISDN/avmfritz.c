@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * avm_fritz.c    low level stuff for AVM FRITZ!CARD PCI ISDN cards
  *                Thanks to AVM, Berlin for informations
@@ -5,6 +9,7 @@
  * Author       Karsten Keil <keil@isdn4linux.de>
  *
  * Copyright 2009  by Karsten Keil <keil@isdn4linux.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/interrupt.h>
 #include <linux/module.h>
@@ -361,7 +368,11 @@ modehdlc(struct bchannel *bch, int protocol)
 	switch (protocol) {
 	case -1: /* used for init */
 		bch->state = -1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ISDN_P_NONE:
 		if (bch->state == ISDN_P_NONE)
 			break;
@@ -415,8 +426,13 @@ hdlc_empty_fifo(struct bchannel *bch, int count)
 	} else {
 		cnt = bchannel_get_rxbuf(bch, count);
 		if (cnt < 0) {
+<<<<<<< HEAD
 			pr_warning("%s.B%d: No bufferspace for %d bytes\n",
 				   fc->name, bch->nr, count);
+=======
+			pr_warn("%s.B%d: No bufferspace for %d bytes\n",
+				fc->name, bch->nr, count);
+>>>>>>> upstream/android-13
 			return;
 		}
 		p = skb_put(bch->rx_skb, count);
@@ -522,8 +538,12 @@ HDLC_irq_xpr(struct bchannel *bch)
 	if (bch->tx_skb && bch->tx_idx < bch->tx_skb->len) {
 		hdlc_fill_fifo(bch);
 	} else {
+<<<<<<< HEAD
 		if (bch->tx_skb)
 			dev_kfree_skb(bch->tx_skb);
+=======
+		dev_kfree_skb(bch->tx_skb);
+>>>>>>> upstream/android-13
 		if (get_next_bframe(bch)) {
 			hdlc_fill_fifo(bch);
 			test_and_clear_bit(FLG_TX_EMPTY, &bch->Flags);
@@ -552,8 +572,13 @@ HDLC_irq(struct bchannel *bch, u32 stat)
 	}
 	if (stat & HDLC_INT_RPR) {
 		if (stat & HDLC_STAT_RDO) {
+<<<<<<< HEAD
 			pr_warning("%s: ch%d stat %x RDO\n",
 				   fc->name, bch->nr, stat);
+=======
+			pr_warn("%s: ch%d stat %x RDO\n",
+				fc->name, bch->nr, stat);
+>>>>>>> upstream/android-13
 			hdlc->ctrl.sr.xml = 0;
 			hdlc->ctrl.sr.cmd |= HDLC_CMD_RRS;
 			write_ctrl(bch, 1);
@@ -575,8 +600,13 @@ HDLC_irq(struct bchannel *bch, u32 stat)
 				    HDLC_STAT_CRCVFR) {
 					recv_Bchannel(bch, 0, false);
 				} else {
+<<<<<<< HEAD
 					pr_warning("%s: got invalid frame\n",
 						   fc->name);
+=======
+					pr_warn("%s: got invalid frame\n",
+						fc->name);
+>>>>>>> upstream/android-13
 					skb_trim(bch->rx_skb, 0);
 				}
 			}
@@ -588,8 +618,13 @@ handle_tx:
 		 * restart transmitting the whole frame on HDLC
 		 * in transparent mode we send the next data
 		 */
+<<<<<<< HEAD
 		pr_warning("%s: ch%d stat %x XDU %s\n", fc->name, bch->nr,
 			   stat, bch->tx_skb ? "tx_skb" : "no tx_skb");
+=======
+		pr_warn("%s: ch%d stat %x XDU %s\n", fc->name, bch->nr,
+			stat, bch->tx_skb ? "tx_skb" : "no tx_skb");
+>>>>>>> upstream/android-13
 		if (bch->tx_skb && bch->tx_skb->len) {
 			if (!test_bit(FLG_TRANSPARENT, &bch->Flags))
 				bch->tx_idx = 0;

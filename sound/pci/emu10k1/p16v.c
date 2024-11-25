@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by James Courtier-Dutton <James@superbug.demon.co.uk>
  *  Driver p16v chips
@@ -71,6 +75,7 @@
  *
  *  This code was initially based on code from ALSA's emu10k1x.c which is:
  *  Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -86,6 +91,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -208,7 +215,12 @@ static int snd_p16v_pcm_open_playback_channel(struct snd_pcm_substream *substrea
 #endif /* debug */
 	/* channel->interrupt = snd_p16v_pcm_channel_interrupt; */
 	channel->epcm = epcm;
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0)
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+>>>>>>> upstream/android-13
                 return err;
 
 	runtime->sync.id32[0] = substream->pcm->card->number;
@@ -256,7 +268,12 @@ static int snd_p16v_pcm_open_capture_channel(struct snd_pcm_substream *substream
 #endif /* debug */
 	/* channel->interrupt = snd_p16v_pcm_channel_interrupt; */
 	channel->epcm = epcm;
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0)
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	return 0;
@@ -296,6 +313,7 @@ static int snd_p16v_pcm_open_capture(struct snd_pcm_substream *substream)
 	return snd_p16v_pcm_open_capture_channel(substream, 0);
 }
 
+<<<<<<< HEAD
 /* hw_params callback */
 static int snd_p16v_pcm_hw_params_playback(struct snd_pcm_substream *substream,
 				      struct snd_pcm_hw_params *hw_params)
@@ -326,13 +344,19 @@ static int snd_p16v_pcm_hw_free_capture(struct snd_pcm_substream *substream)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /* prepare playback callback */
 static int snd_p16v_pcm_prepare_playback(struct snd_pcm_substream *substream)
 {
 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int channel = substream->pcm->device - emu->p16v_device_offset;
+<<<<<<< HEAD
 	u32 *table_base = (u32 *)(emu->p16v_buffer.area+(8*16*channel));
+=======
+	u32 *table_base = (u32 *)(emu->p16v_buffer->area+(8*16*channel));
+>>>>>>> upstream/android-13
 	u32 period_size_bytes = frames_to_bytes(runtime, runtime->period_size);
 	int i;
 	u32 tmp;
@@ -350,8 +374,13 @@ static int snd_p16v_pcm_prepare_playback(struct snd_pcm_substream *substream)
 		   runtime->dma_addr, runtime->dma_area, table_base);
 	dev_dbg(emu->card->dev,
 		"dma_addr=%x, dma_area=%p, dma_bytes(size)=%x\n",
+<<<<<<< HEAD
 		   emu->p16v_buffer.addr, emu->p16v_buffer.area,
 		   emu->p16v_buffer.bytes);
+=======
+		   emu->p16v_buffer->addr, emu->p16v_buffer->area,
+		   emu->p16v_buffer->bytes);
+>>>>>>> upstream/android-13
 #endif /* debug */
 	tmp = snd_emu10k1_ptr_read(emu, A_SPDIF_SAMPLERATE, channel);
         switch (runtime->rate) {
@@ -375,7 +404,11 @@ static int snd_p16v_pcm_prepare_playback(struct snd_pcm_substream *substream)
 		table_base[(i*2)+1]=period_size_bytes<<16;
 	}
  
+<<<<<<< HEAD
 	snd_emu10k1_ptr20_write(emu, PLAYBACK_LIST_ADDR, channel, emu->p16v_buffer.addr+(8*16*channel));
+=======
+	snd_emu10k1_ptr20_write(emu, PLAYBACK_LIST_ADDR, channel, emu->p16v_buffer->addr+(8*16*channel));
+>>>>>>> upstream/android-13
 	snd_emu10k1_ptr20_write(emu, PLAYBACK_LIST_SIZE, channel, (runtime->periods - 1) << 19);
 	snd_emu10k1_ptr20_write(emu, PLAYBACK_LIST_PTR, channel, 0);
 	snd_emu10k1_ptr20_write(emu, PLAYBACK_DMA_ADDR, channel, runtime->dma_addr);
@@ -596,9 +629,12 @@ snd_p16v_pcm_pointer_capture(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_p16v_playback_front_ops = {
 	.open =        snd_p16v_pcm_open_playback_front,
 	.close =       snd_p16v_pcm_close_playback,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_p16v_pcm_hw_params_playback,
 	.hw_free =     snd_p16v_pcm_hw_free_playback,
+=======
+>>>>>>> upstream/android-13
 	.prepare =     snd_p16v_pcm_prepare_playback,
 	.trigger =     snd_p16v_pcm_trigger_playback,
 	.pointer =     snd_p16v_pcm_pointer_playback,
@@ -607,14 +643,18 @@ static const struct snd_pcm_ops snd_p16v_playback_front_ops = {
 static const struct snd_pcm_ops snd_p16v_capture_ops = {
 	.open =        snd_p16v_pcm_open_capture,
 	.close =       snd_p16v_pcm_close_capture,
+<<<<<<< HEAD
 	.ioctl =       snd_pcm_lib_ioctl,
 	.hw_params =   snd_p16v_pcm_hw_params_capture,
 	.hw_free =     snd_p16v_pcm_hw_free_capture,
+=======
+>>>>>>> upstream/android-13
 	.prepare =     snd_p16v_pcm_prepare_capture,
 	.trigger =     snd_p16v_pcm_trigger_capture,
 	.pointer =     snd_p16v_pcm_pointer_capture,
 };
 
+<<<<<<< HEAD
 
 int snd_p16v_free(struct snd_emu10k1 *chip)
 {
@@ -629,6 +669,8 @@ int snd_p16v_free(struct snd_emu10k1 *chip)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 int snd_p16v_pcm(struct snd_emu10k1 *emu, int device)
 {
 	struct snd_pcm *pcm;
@@ -639,7 +681,12 @@ int snd_p16v_pcm(struct snd_emu10k1 *emu, int device)
 	/* dev_dbg(emu->card->dev, "snd_p16v_pcm called. device=%d\n", device); */
 	emu->p16v_device_offset = device;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(emu->card, "p16v", device, 1, capture, &pcm)) < 0)
+=======
+	err = snd_pcm_new(emu->card, "p16v", device, 1, capture, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
   
 	pcm->private_data = emu;
@@ -656,11 +703,18 @@ int snd_p16v_pcm(struct snd_emu10k1 *emu, int device)
 	for(substream = pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream; 
 	    substream; 
 	    substream = substream->next) {
+<<<<<<< HEAD
 		if ((err = snd_pcm_lib_preallocate_pages(substream, 
 							 SNDRV_DMA_TYPE_DEV, 
 							 snd_dma_pci_data(emu->pci), 
 							 ((65536 - 64) * 8), ((65536 - 64) * 8))) < 0) 
 			return err;
+=======
+		snd_pcm_set_managed_buffer(substream, SNDRV_DMA_TYPE_DEV,
+					   &emu->pci->dev,
+					   (65536 - 64) * 8,
+					   (65536 - 64) * 8);
+>>>>>>> upstream/android-13
 		/*
 		dev_dbg(emu->card->dev,
 			   "preallocate playback substream: err=%d\n", err);
@@ -670,11 +724,17 @@ int snd_p16v_pcm(struct snd_emu10k1 *emu, int device)
 	for (substream = pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream; 
 	      substream; 
 	      substream = substream->next) {
+<<<<<<< HEAD
  		if ((err = snd_pcm_lib_preallocate_pages(substream, 
 	                                           SNDRV_DMA_TYPE_DEV, 
 	                                           snd_dma_pci_data(emu->pci), 
 	                                           65536 - 64, 65536 - 64)) < 0)
 			return err;
+=======
+		snd_pcm_set_managed_buffer(substream, SNDRV_DMA_TYPE_DEV,
+					   &emu->pci->dev,
+					   65536 - 64, 65536 - 64);
+>>>>>>> upstream/android-13
 		/*
 		dev_dbg(emu->card->dev,
 			   "preallocate capture substream: err=%d\n", err);
@@ -829,7 +889,11 @@ static const DECLARE_TLV_DB_SCALE(snd_p16v_db_scale1, -5175, 25, 1);
 	.private_value = ((xreg) | ((xhl) << 8)) \
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new p16v_mixer_controls[] = {
+=======
+static const struct snd_kcontrol_new p16v_mixer_controls[] = {
+>>>>>>> upstream/android-13
 	P16V_VOL("HD Analog Front Playback Volume", PLAYBACK_VOLUME_MIXER9, 0),
 	P16V_VOL("HD Analog Rear Playback Volume", PLAYBACK_VOLUME_MIXER10, 1),
 	P16V_VOL("HD Analog Center/LFE Playback Volume", PLAYBACK_VOLUME_MIXER9, 1),
@@ -861,8 +925,13 @@ int snd_p16v_mixer(struct snd_emu10k1 *emu)
         struct snd_card *card = emu->card;
 
 	for (i = 0; i < ARRAY_SIZE(p16v_mixer_controls); i++) {
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, snd_ctl_new1(&p16v_mixer_controls[i],
 							  emu))) < 0)
+=======
+		err = snd_ctl_add(card, snd_ctl_new1(&p16v_mixer_controls[i], emu));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 	}
         return 0;

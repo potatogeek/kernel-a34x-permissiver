@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Linux network driver for QLogic BR-series Converged Network Adapter.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Linux network driver for QLogic BR-series Converged Network Adapter.
+>>>>>>> upstream/android-13
   */
 /*
  * Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
@@ -1644,7 +1650,11 @@ bna_bfi_rx_enet_start(struct bna_rx *rx)
 						&q1->qpt);
 			cfg_req->q_cfg[i].qs.rx_buffer_size =
 				htons((u16)q1->buffer_size);
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case BNA_RXP_SINGLE:
 			/* Large/Single RxQ */

@@ -45,3 +45,8 @@ int80_and_ret:
 
 	.type int80_and_ret, @function
 	.size int80_and_ret, .-int80_and_ret
+<<<<<<< HEAD
+=======
+
+.section .note.GNU-stack,"",%progbits
+>>>>>>> upstream/android-13

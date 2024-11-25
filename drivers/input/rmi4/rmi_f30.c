@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2016 Synaptics Incorporated
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2016 Synaptics Incorporated
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -171,17 +177,29 @@ static int rmi_f30_config(struct rmi_function *fn)
 				rmi_get_platform_data(fn->rmi_dev);
 	int error;
 
+<<<<<<< HEAD
 	/* can happen if f30_data.disable is set */
 	if (!f30)
 		return 0;
 
 	if (pdata->f30_data.trackstick_buttons) {
+=======
+	/* can happen if gpio_data.disable is set */
+	if (!f30)
+		return 0;
+
+	if (pdata->gpio_data.trackstick_buttons) {
+>>>>>>> upstream/android-13
 		/* Try [re-]establish link to F03. */
 		f30->f03 = rmi_find_function(fn->rmi_dev, 0x03);
 		f30->trackstick_buttons = f30->f03 != NULL;
 	}
 
+<<<<<<< HEAD
 	if (pdata->f30_data.disable) {
+=======
+	if (pdata->gpio_data.disable) {
+>>>>>>> upstream/android-13
 		drv->clear_irq_bits(fn->rmi_dev, fn->irq_mask);
 	} else {
 		/* Write Control Register values back to device */
@@ -248,10 +266,17 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
 		if (!rmi_f30_is_valid_button(i, f30->ctrl))
 			continue;
 
+<<<<<<< HEAD
 		if (pdata->f30_data.trackstick_buttons &&
 		    i >= TRACKSTICK_RANGE_START && i < TRACKSTICK_RANGE_END) {
 			f30->gpioled_key_map[i] = trackstick_button++;
 		} else if (!pdata->f30_data.buttonpad || !button_mapped) {
+=======
+		if (pdata->gpio_data.trackstick_buttons &&
+		    i >= TRACKSTICK_RANGE_START && i < TRACKSTICK_RANGE_END) {
+			f30->gpioled_key_map[i] = trackstick_button++;
+		} else if (!pdata->gpio_data.buttonpad || !button_mapped) {
+>>>>>>> upstream/android-13
 			f30->gpioled_key_map[i] = button;
 			input_set_capability(input, EV_KEY, button++);
 			button_mapped = true;
@@ -267,7 +292,11 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
 	 * but I am not sure, so use only the pdata info and the number of
 	 * mapped buttons.
 	 */
+<<<<<<< HEAD
 	if (pdata->f30_data.buttonpad || (button - BTN_LEFT == 1))
+=======
+	if (pdata->gpio_data.buttonpad || (button - BTN_LEFT == 1))
+>>>>>>> upstream/android-13
 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
 
 	return 0;
@@ -375,7 +404,11 @@ static int rmi_f30_probe(struct rmi_function *fn)
 	struct f30_data *f30;
 	int error;
 
+<<<<<<< HEAD
 	if (pdata->f30_data.disable)
+=======
+	if (pdata->gpio_data.disable)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (!drv_data->input) {

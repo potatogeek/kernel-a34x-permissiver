@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC85xx RDB Board Setup
  *
  * Copyright 2009,2012-2013 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -27,7 +34,10 @@
 #include <asm/udbg.h>
 #include <asm/mpic.h>
 #include <soc/fsl/qe/qe.h>
+<<<<<<< HEAD
 #include <soc/fsl/qe/qe_ic.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <sysdev/fsl_soc.h>
 #include <sysdev/fsl_pci.h>
@@ -48,10 +58,13 @@ void __init mpc85xx_rdb_pic_init(void)
 {
 	struct mpic *mpic;
 
+<<<<<<< HEAD
 #ifdef CONFIG_QUICC_ENGINE
 	struct device_node *np;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (of_machine_is_compatible("fsl,MPC85XXRDB-CAMP")) {
 		mpic = mpic_alloc(NULL, 0, MPIC_NO_RESET |
 			MPIC_BIG_ENDIAN |
@@ -66,6 +79,7 @@ void __init mpc85xx_rdb_pic_init(void)
 
 	BUG_ON(mpic == NULL);
 	mpic_init(mpic);
+<<<<<<< HEAD
 
 #ifdef CONFIG_QUICC_ENGINE
 	np = of_find_compatible_node(NULL, NULL, "fsl,qe-ic");
@@ -78,6 +92,8 @@ void __init mpc85xx_rdb_pic_init(void)
 		pr_err("%s: Could not find qe-ic node\n", __func__);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -93,7 +109,10 @@ static void __init mpc85xx_rdb_setup_arch(void)
 	fsl_pci_assign_primary();
 
 #ifdef CONFIG_QUICC_ENGINE
+<<<<<<< HEAD
 	mpc85xx_qe_init();
+=======
+>>>>>>> upstream/android-13
 	mpc85xx_qe_par_io_init();
 #if defined(CONFIG_UCC_GETH) || defined(CONFIG_SERIAL_QE)
 	if (machine_is(p1025_rdb)) {

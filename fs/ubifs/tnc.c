@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -35,7 +42,11 @@
 #include "ubifs.h"
 
 static int try_read_node(const struct ubifs_info *c, void *buf, int type,
+<<<<<<< HEAD
 			 int len, int lnum, int offs);
+=======
+			 struct ubifs_zbranch *zbr);
+>>>>>>> upstream/android-13
 static int fallible_read_node(struct ubifs_info *c, const union ubifs_key *key,
 			      struct ubifs_zbranch *zbr, void *node);
 
@@ -328,7 +339,11 @@ static int lnc_add(struct ubifs_info *c, struct ubifs_zbranch *zbr,
 	err = ubifs_validate_entry(c, dent);
 	if (err) {
 		dump_stack();
+<<<<<<< HEAD
 		ubifs_dump_node(c, dent);
+=======
+		ubifs_dump_node(c, dent, zbr->len);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -361,7 +376,11 @@ static int lnc_add_directly(struct ubifs_info *c, struct ubifs_zbranch *zbr,
 	err = ubifs_validate_entry(c, node);
 	if (err) {
 		dump_stack();
+<<<<<<< HEAD
 		ubifs_dump_node(c, node);
+=======
+		ubifs_dump_node(c, node, zbr->len);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -372,7 +391,10 @@ static int lnc_add_directly(struct ubifs_info *c, struct ubifs_zbranch *zbr,
 /**
  * lnc_free - remove a leaf node from the leaf node cache.
  * @zbr: zbranch of leaf node
+<<<<<<< HEAD
  * @node: leaf node
+=======
+>>>>>>> upstream/android-13
  */
 static void lnc_free(struct ubifs_zbranch *zbr)
 {
@@ -390,7 +412,11 @@ static void lnc_free(struct ubifs_zbranch *zbr)
  *
  * This function reads a "hashed" node defined by @zbr from the leaf node cache
  * (in it is there) or from the hash media, in which case the node is also
+<<<<<<< HEAD
  * added to LNC. Returns zero in case of success or a negative negative error
+=======
+ * added to LNC. Returns zero in case of success or a negative error
+>>>>>>> upstream/android-13
  * code in case of failure.
  */
 static int tnc_read_hashed_node(struct ubifs_info *c, struct ubifs_zbranch *zbr,
@@ -433,9 +459,13 @@ static int tnc_read_hashed_node(struct ubifs_info *c, struct ubifs_zbranch *zbr,
  * @c: UBIFS file-system description object
  * @buf: buffer to read to
  * @type: node type
+<<<<<<< HEAD
  * @len: node length (not aligned)
  * @lnum: LEB number of node to read
  * @offs: offset of node to read
+=======
+ * @zbr: the zbranch describing the node to read
+>>>>>>> upstream/android-13
  *
  * This function tries to read a node of known type and length, checks it and
  * stores it in @buf. This function returns %1 if a node is present and %0 if
@@ -453,8 +483,16 @@ static int tnc_read_hashed_node(struct ubifs_info *c, struct ubifs_zbranch *zbr,
  * journal nodes may potentially be corrupted, so checking is required.
  */
 static int try_read_node(const struct ubifs_info *c, void *buf, int type,
+<<<<<<< HEAD
 			 int len, int lnum, int offs)
 {
+=======
+			 struct ubifs_zbranch *zbr)
+{
+	int len = zbr->len;
+	int lnum = zbr->lnum;
+	int offs = zbr->offs;
+>>>>>>> upstream/android-13
 	int err, node_len;
 	struct ubifs_ch *ch = buf;
 	uint32_t crc, node_crc;
@@ -478,6 +516,7 @@ static int try_read_node(const struct ubifs_info *c, void *buf, int type,
 	if (node_len != len)
 		return 0;
 
+<<<<<<< HEAD
 	if (type == UBIFS_DATA_NODE && c->no_chk_data_crc && !c->mounting &&
 	    !c->remounting_rw)
 		return 1;
@@ -486,6 +525,21 @@ static int try_read_node(const struct ubifs_info *c, void *buf, int type,
 	node_crc = le32_to_cpu(ch->crc);
 	if (crc != node_crc)
 		return 0;
+=======
+	if (type != UBIFS_DATA_NODE || !c->no_chk_data_crc || c->mounting ||
+	    c->remounting_rw) {
+		crc = crc32(UBIFS_CRC32_INIT, buf + 8, node_len - 8);
+		node_crc = le32_to_cpu(ch->crc);
+		if (crc != node_crc)
+			return 0;
+	}
+
+	err = ubifs_node_check_hash(c, buf, zbr->hash);
+	if (err) {
+		ubifs_bad_hash(c, buf, zbr->hash, lnum, offs);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -507,8 +561,12 @@ static int fallible_read_node(struct ubifs_info *c, const union ubifs_key *key,
 
 	dbg_tnck(key, "LEB %d:%d, key ", zbr->lnum, zbr->offs);
 
+<<<<<<< HEAD
 	ret = try_read_node(c, node, key_type(c, key), zbr->len, zbr->lnum,
 			    zbr->offs);
+=======
+	ret = try_read_node(c, node, key_type(c, key), zbr);
+>>>>>>> upstream/android-13
 	if (ret == 1) {
 		union ubifs_key node_key;
 		struct ubifs_dent_node *dent = node;
@@ -899,7 +957,11 @@ static int fallible_resolve_collision(struct ubifs_info *c,
 				      int adding)
 {
 	struct ubifs_znode *o_znode = NULL, *znode = *zn;
+<<<<<<< HEAD
 	int uninitialized_var(o_n), err, cmp, unsure = 0, nn = *n;
+=======
+	int o_n, err, cmp, unsure = 0, nn = *n;
+>>>>>>> upstream/android-13
 
 	cmp = fallible_matches_name(c, &znode->zbranch[nn], nm);
 	if (unlikely(cmp < 0))
@@ -1521,8 +1583,13 @@ out:
  */
 int ubifs_tnc_get_bu_keys(struct ubifs_info *c, struct bu_info *bu)
 {
+<<<<<<< HEAD
 	int n, err = 0, lnum = -1, uninitialized_var(offs);
 	int uninitialized_var(len);
+=======
+	int n, err = 0, lnum = -1, offs;
+	int len;
+>>>>>>> upstream/android-13
 	unsigned int block = key_block(c, &bu->key);
 	struct ubifs_znode *znode;
 
@@ -1707,12 +1774,25 @@ static int validate_data_node(struct ubifs_info *c, void *buf,
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	err = ubifs_check_node(c, buf, zbr->lnum, zbr->offs, 0, 0);
+=======
+	err = ubifs_check_node(c, buf, zbr->len, zbr->lnum, zbr->offs, 0, 0);
+>>>>>>> upstream/android-13
 	if (err) {
 		ubifs_err(c, "expected node type %d", UBIFS_DATA_NODE);
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	err = ubifs_node_check_hash(c, buf, zbr->hash);
+	if (err) {
+		ubifs_bad_hash(c, buf, zbr->hash, zbr->lnum, zbr->offs);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	len = le32_to_cpu(ch->len);
 	if (len != zbr->len) {
 		ubifs_err(c, "bad node length %d, expected %d", len, zbr->len);
@@ -1735,7 +1815,11 @@ out_err:
 	err = -EINVAL;
 out:
 	ubifs_err(c, "bad node at LEB %d:%d", zbr->lnum, zbr->offs);
+<<<<<<< HEAD
 	ubifs_dump_node(c, buf);
+=======
+	ubifs_dump_node(c, buf, zbr->len);
+>>>>>>> upstream/android-13
 	dump_stack();
 	return err;
 }
@@ -2266,13 +2350,21 @@ do_split:
  * @lnum: LEB number of node
  * @offs: node offset
  * @len: node length
+<<<<<<< HEAD
+=======
+ * @hash: The hash over the node
+>>>>>>> upstream/android-13
  *
  * This function adds a node with key @key to TNC. The node may be new or it may
  * obsolete some existing one. Returns %0 on success or negative error code on
  * failure.
  */
 int ubifs_tnc_add(struct ubifs_info *c, const union ubifs_key *key, int lnum,
+<<<<<<< HEAD
 		  int offs, int len)
+=======
+		  int offs, int len, const u8 *hash)
+>>>>>>> upstream/android-13
 {
 	int found, n, err = 0;
 	struct ubifs_znode *znode;
@@ -2287,6 +2379,10 @@ int ubifs_tnc_add(struct ubifs_info *c, const union ubifs_key *key, int lnum,
 		zbr.lnum = lnum;
 		zbr.offs = offs;
 		zbr.len = len;
+<<<<<<< HEAD
+=======
+		ubifs_copy_hash(c, hash, zbr.hash);
+>>>>>>> upstream/android-13
 		key_copy(c, key, &zbr.key);
 		err = tnc_insert(c, znode, &zbr, n + 1);
 	} else if (found == 1) {
@@ -2297,6 +2393,10 @@ int ubifs_tnc_add(struct ubifs_info *c, const union ubifs_key *key, int lnum,
 		zbr->lnum = lnum;
 		zbr->offs = offs;
 		zbr->len = len;
+<<<<<<< HEAD
+=======
+		ubifs_copy_hash(c, hash, zbr->hash);
+>>>>>>> upstream/android-13
 	} else
 		err = found;
 	if (!err)
@@ -2398,13 +2498,21 @@ out_unlock:
  * @lnum: LEB number of node
  * @offs: node offset
  * @len: node length
+<<<<<<< HEAD
+=======
+ * @hash: The hash over the node
+>>>>>>> upstream/android-13
  * @nm: node name
  *
  * This is the same as 'ubifs_tnc_add()' but it should be used with keys which
  * may have collisions, like directory entry keys.
  */
 int ubifs_tnc_add_nm(struct ubifs_info *c, const union ubifs_key *key,
+<<<<<<< HEAD
 		     int lnum, int offs, int len,
+=======
+		     int lnum, int offs, int len, const u8 *hash,
+>>>>>>> upstream/android-13
 		     const struct fscrypt_name *nm)
 {
 	int found, n, err = 0;
@@ -2447,6 +2555,10 @@ int ubifs_tnc_add_nm(struct ubifs_info *c, const union ubifs_key *key,
 			zbr->lnum = lnum;
 			zbr->offs = offs;
 			zbr->len = len;
+<<<<<<< HEAD
+=======
+			ubifs_copy_hash(c, hash, zbr->hash);
+>>>>>>> upstream/android-13
 			goto out_unlock;
 		}
 	}
@@ -2458,6 +2570,10 @@ int ubifs_tnc_add_nm(struct ubifs_info *c, const union ubifs_key *key,
 		zbr.lnum = lnum;
 		zbr.offs = offs;
 		zbr.len = len;
+<<<<<<< HEAD
+=======
+		ubifs_copy_hash(c, hash, zbr.hash);
+>>>>>>> upstream/android-13
 		key_copy(c, key, &zbr.key);
 		err = tnc_insert(c, znode, &zbr, n + 1);
 		if (err)
@@ -2880,6 +2996,10 @@ int ubifs_tnc_remove_ino(struct ubifs_info *c, ino_t inum)
 			err = PTR_ERR(xent);
 			if (err == -ENOENT)
 				break;
+<<<<<<< HEAD
+=======
+			kfree(pxent);
+>>>>>>> upstream/android-13
 			return err;
 		}
 
@@ -2893,6 +3013,10 @@ int ubifs_tnc_remove_ino(struct ubifs_info *c, ino_t inum)
 		fname_len(&nm) = le16_to_cpu(xent->nlen);
 		err = ubifs_tnc_remove_nm(c, &key1, &nm);
 		if (err) {
+<<<<<<< HEAD
+=======
+			kfree(pxent);
+>>>>>>> upstream/android-13
 			kfree(xent);
 			return err;
 		}
@@ -2901,6 +3025,10 @@ int ubifs_tnc_remove_ino(struct ubifs_info *c, ino_t inum)
 		highest_ino_key(c, &key2, xattr_inum);
 		err = ubifs_tnc_remove_range(c, &key1, &key2);
 		if (err) {
+<<<<<<< HEAD
+=======
+			kfree(pxent);
+>>>>>>> upstream/android-13
 			kfree(xent);
 			return err;
 		}
@@ -3461,7 +3589,11 @@ out_unlock:
 /**
  * dbg_check_inode_size - check if inode size is correct.
  * @c: UBIFS file-system description object
+<<<<<<< HEAD
  * @inum: inode number
+=======
+ * @inode: inode to check
+>>>>>>> upstream/android-13
  * @size: inode size
  *
  * This function makes sure that the inode size (@size) is correct and it does

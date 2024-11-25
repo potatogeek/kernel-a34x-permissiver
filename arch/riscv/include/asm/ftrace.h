@@ -1,6 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /* Copyright (C) 2017 Andes Technology Corporation */
 
+<<<<<<< HEAD
+=======
+#ifndef _ASM_RISCV_FTRACE_H
+#define _ASM_RISCV_FTRACE_H
+
+>>>>>>> upstream/android-13
 /*
  * The graph frame test is not possible if CONFIG_FRAME_POINTER is not enabled.
  * Check arch/riscv/kernel/mcount.S for detail.
@@ -81,3 +87,8 @@ int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
 #endif
 
 #endif
+<<<<<<< HEAD
+=======
+
+#endif /* _ASM_RISCV_FTRACE_H */
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PCI Dynamic LPAR, PCI Hot Plug and PCI EEH recovery code
  * for RPA-compliant PPC64 platform.
@@ -6,6 +10,7 @@
  *
  * Updates, 2005, John Rose <johnrose@austin.ibm.com>
  * Updates, 2005, Linas Vepstas <linas@austin.ibm.com>
+<<<<<<< HEAD
  *
  * All rights reserved.
  *
@@ -23,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -49,11 +56,21 @@ struct pci_controller *init_phb_dynamic(struct device_node *dn)
 
 	pci_devs_phb_init_dynamic(phb);
 
+<<<<<<< HEAD
 	/* Create EEH devices for the PHB */
 	eeh_dev_phb_init_dynamic(phb);
 
 	if (dn->child)
 		eeh_add_device_tree_early(PCI_DN(dn));
+=======
+	pseries_msi_allocate_domains(phb);
+
+	/* Create EEH devices for the PHB */
+	eeh_phb_pe_create(phb);
+
+	if (dn->child)
+		pseries_eeh_init_edev_recursive(PCI_DN(dn));
+>>>>>>> upstream/android-13
 
 	pcibios_scan_phb(phb);
 	pcibios_finish_adding_to_bus(phb->bus);
@@ -90,6 +107,14 @@ int remove_phb_dynamic(struct pci_controller *phb)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	pseries_msi_free_domains(phb);
+
+	/* Keep a reference so phb isn't freed yet */
+	get_device(&host_bridge->dev);
+
+>>>>>>> upstream/android-13
 	/* Remove the PCI bus and unregister the bridge device from sysfs */
 	phb->bus = NULL;
 	pci_remove_bus(b);
@@ -113,6 +138,10 @@ int remove_phb_dynamic(struct pci_controller *phb)
 	 * the pcibios_free_controller_deferred() callback;
 	 * see pseries_root_bridge_prepare().
 	 */
+<<<<<<< HEAD
+=======
+	put_device(&host_bridge->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -57,8 +57,14 @@ static const struct snd_kcontrol_new mt8173_rt5650_controls[] = {
 static int mt8173_rt5650_hw_params(struct snd_pcm_substream *substream,
 				   struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	unsigned int mclk_clock;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	unsigned int mclk_clock;
+	struct snd_soc_dai *codec_dai;
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	switch (mt8173_rt5650_priv.pll_from) {
@@ -76,9 +82,13 @@ static int mt8173_rt5650_hw_params(struct snd_pcm_substream *substream,
 		break;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < rtd->num_codecs; i++) {
 		struct snd_soc_dai *codec_dai = rtd->codec_dais[i];
 
+=======
+	for_each_rtd_codec_dais(rtd, i, codec_dai) {
+>>>>>>> upstream/android-13
 		/* pll from mclk */
 		ret = snd_soc_dai_set_pll(codec_dai, 0, 0, mclk_clock,
 					  params_rate(params) * 512);
@@ -99,13 +109,22 @@ static const struct snd_soc_ops mt8173_rt5650_ops = {
 	.hw_params = mt8173_rt5650_hw_params,
 };
 
+<<<<<<< HEAD
 static struct snd_soc_jack mt8173_rt5650_jack;
+=======
+static struct snd_soc_jack mt8173_rt5650_jack, mt8173_rt5650_hdmi_jack;
+>>>>>>> upstream/android-13
 
 static int mt8173_rt5650_init(struct snd_soc_pcm_runtime *runtime)
 {
 	struct snd_soc_card *card = runtime->card;
+<<<<<<< HEAD
 	struct snd_soc_component *component = runtime->codec_dais[0]->component;
 	const char *codec_capture_dai = runtime->codec_dais[1]->name;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(runtime, 0)->component;
+	const char *codec_capture_dai = asoc_rtd_to_codec(runtime, 1)->name;
+>>>>>>> upstream/android-13
 	int ret;
 
 	rt5645_sel_asrc_clk_src(component,
@@ -145,6 +164,7 @@ static int mt8173_rt5650_init(struct snd_soc_pcm_runtime *runtime)
 				      &mt8173_rt5650_jack);
 }
 
+<<<<<<< HEAD
 static struct snd_soc_dai_link_component mt8173_rt5650_codecs[] = {
 	{
 		/* Playback */
@@ -155,6 +175,20 @@ static struct snd_soc_dai_link_component mt8173_rt5650_codecs[] = {
 		.dai_name = "rt5645-aif1",
 	},
 };
+=======
+static int mt8173_rt5650_hdmi_init(struct snd_soc_pcm_runtime *rtd)
+{
+	int ret;
+
+	ret = snd_soc_card_jack_new(rtd->card, "HDMI Jack", SND_JACK_LINEOUT,
+				    &mt8173_rt5650_hdmi_jack, NULL, 0);
+	if (ret)
+		return ret;
+
+	return snd_soc_component_set_jack(asoc_rtd_to_codec(rtd, 0)->component,
+					  &mt8173_rt5650_hdmi_jack, NULL);
+}
+>>>>>>> upstream/android-13
 
 enum {
 	DAI_LINK_PLAYBACK,
@@ -164,46 +198,100 @@ enum {
 	DAI_LINK_HDMI_I2S,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(playback,
+	DAILINK_COMP_ARRAY(COMP_CPU("DL1")),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(capture,
+	DAILINK_COMP_ARRAY(COMP_CPU("VUL")),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(hdmi_pcm,
+	DAILINK_COMP_ARRAY(COMP_CPU("HDMI")),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(codec,
+	DAILINK_COMP_ARRAY(COMP_CPU("I2S")),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "rt5645-aif1"), /* Playback */
+			   COMP_CODEC(NULL, "rt5645-aif1")),/* Capture */
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(hdmi_be,
+	DAILINK_COMP_ARRAY(COMP_CPU("HDMIO")),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "i2s-hifi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+>>>>>>> upstream/android-13
 /* Digital audio interface glue - connects codec <---> CPU */
 static struct snd_soc_dai_link mt8173_rt5650_dais[] = {
 	/* Front End DAI links */
 	[DAI_LINK_PLAYBACK] = {
 		.name = "rt5650 Playback",
 		.stream_name = "rt5650 Playback",
+<<<<<<< HEAD
 		.cpu_dai_name = "DL1",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dynamic = 1,
 		.dpcm_playback = 1,
+=======
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dynamic = 1,
+		.dpcm_playback = 1,
+		SND_SOC_DAILINK_REG(playback),
+>>>>>>> upstream/android-13
 	},
 	[DAI_LINK_CAPTURE] = {
 		.name = "rt5650 Capture",
 		.stream_name = "rt5650 Capture",
+<<<<<<< HEAD
 		.cpu_dai_name = "VUL",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dynamic = 1,
 		.dpcm_capture = 1,
+=======
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dynamic = 1,
+		.dpcm_capture = 1,
+		SND_SOC_DAILINK_REG(capture),
+>>>>>>> upstream/android-13
 	},
 	[DAI_LINK_HDMI] = {
 		.name = "HDMI",
 		.stream_name = "HDMI PCM",
+<<<<<<< HEAD
 		.cpu_dai_name = "HDMI",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dynamic = 1,
 		.dpcm_playback = 1,
+=======
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dynamic = 1,
+		.dpcm_playback = 1,
+		SND_SOC_DAILINK_REG(hdmi_pcm),
+>>>>>>> upstream/android-13
 	},
 	/* Back End DAI links */
 	[DAI_LINK_CODEC_I2S] = {
 		.name = "Codec",
+<<<<<<< HEAD
 		.cpu_dai_name = "I2S",
 		.no_pcm = 1,
 		.codecs = mt8173_rt5650_codecs,
 		.num_codecs = 2,
+=======
+		.no_pcm = 1,
+>>>>>>> upstream/android-13
 		.init = mt8173_rt5650_init,
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			   SND_SOC_DAIFMT_CBS_CFS,
@@ -211,6 +299,7 @@ static struct snd_soc_dai_link mt8173_rt5650_dais[] = {
 		.ignore_pmdown_time = 1,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
+<<<<<<< HEAD
 	},
 	[DAI_LINK_HDMI_I2S] = {
 		.name = "HDMI BE",
@@ -218,6 +307,16 @@ static struct snd_soc_dai_link mt8173_rt5650_dais[] = {
 		.no_pcm = 1,
 		.codec_dai_name = "i2s-hifi",
 		.dpcm_playback = 1,
+=======
+		SND_SOC_DAILINK_REG(codec),
+	},
+	[DAI_LINK_HDMI_I2S] = {
+		.name = "HDMI BE",
+		.no_pcm = 1,
+		.dpcm_playback = 1,
+		.init = mt8173_rt5650_hdmi_init,
+		SND_SOC_DAILINK_REG(hdmi_be),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -240,6 +339,10 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
 	struct device_node *platform_node;
 	struct device_node *np;
 	const char *codec_capture_dai;
+<<<<<<< HEAD
+=======
+	struct snd_soc_dai_link *dai_link;
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	platform_node = of_parse_phandle(pdev->dev.of_node,
@@ -249,6 +352,7 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < card->num_links; i++) {
 		if (mt8173_rt5650_dais[i].platform_name)
 			continue;
@@ -258,11 +362,27 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
 	mt8173_rt5650_codecs[0].of_node =
 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 0);
 	if (!mt8173_rt5650_codecs[0].of_node) {
+=======
+	for_each_card_prelinks(card, i, dai_link) {
+		if (dai_link->platforms->name)
+			continue;
+		dai_link->platforms->of_node = platform_node;
+	}
+
+	mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node =
+		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 0);
+	if (!mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev,
 			"Property 'audio-codec' missing or invalid\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	mt8173_rt5650_codecs[1].of_node = mt8173_rt5650_codecs[0].of_node;
+=======
+	mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
+		mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node;
+>>>>>>> upstream/android-13
 
 	np = of_get_child_by_name(pdev->dev.of_node, "codec-capture");
 	if (np) {
@@ -274,7 +394,12 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
 				__func__, ret);
 			return ret;
 		}
+<<<<<<< HEAD
 		mt8173_rt5650_codecs[1].dai_name = codec_capture_dai;
+=======
+		mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[1].dai_name =
+			codec_capture_dai;
+>>>>>>> upstream/android-13
 	}
 
 	if (device_property_present(&pdev->dev, "mediatek,mclk")) {
@@ -288,9 +413,15 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	mt8173_rt5650_dais[DAI_LINK_HDMI_I2S].codec_of_node =
 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
 	if (!mt8173_rt5650_dais[DAI_LINK_HDMI_I2S].codec_of_node) {
+=======
+	mt8173_rt5650_dais[DAI_LINK_HDMI_I2S].codecs->of_node =
+		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+	if (!mt8173_rt5650_dais[DAI_LINK_HDMI_I2S].codecs->of_node) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev,
 			"Property 'audio-codec' missing or invalid\n");
 		return -EINVAL;
@@ -301,6 +432,11 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
 	if (ret)
 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
 			__func__, ret);
+<<<<<<< HEAD
+=======
+
+	of_node_put(platform_node);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

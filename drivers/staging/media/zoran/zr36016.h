@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Zoran ZR36016 basic configuration functions - header file
  *
  * Copyright (C) 2001 Wolfgang Scherr <scherr@net4you.at>
+<<<<<<< HEAD
  *
  * $Id: zr36016.h,v 1.1.2.3 2003/01/14 21:18:07 rbultje Exp $
  *
@@ -18,6 +23,8 @@
  * GNU General Public License for more details.
  *
  * ------------------------------------------------------------------------
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ZR36016_H

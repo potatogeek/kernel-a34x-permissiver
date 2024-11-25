@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016-17 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016-17 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "vas: " fmt
@@ -13,6 +19,10 @@
 #include <linux/slab.h>
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <asm/vas.h>
+>>>>>>> upstream/android-13
 #include "vas.h"
 
 static struct dentry *vas_debugfs;
@@ -30,9 +40,15 @@ static char *cop_to_str(int cop)
 	}
 }
 
+<<<<<<< HEAD
 static int info_dbg_show(struct seq_file *s, void *private)
 {
 	struct vas_window *window = s->private;
+=======
+static int info_show(struct seq_file *s, void *private)
+{
+	struct pnv_vas_window *window = s->private;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vas_mutex);
 
@@ -40,15 +56,22 @@ static int info_dbg_show(struct seq_file *s, void *private)
 	if (!window->hvwc_map)
 		goto unlock;
 
+<<<<<<< HEAD
 	seq_printf(s, "Type: %s, %s\n", cop_to_str(window->cop),
 					window->tx_win ? "Send" : "Receive");
 	seq_printf(s, "Pid : %d\n", window->pid);
+=======
+	seq_printf(s, "Type: %s, %s\n", cop_to_str(window->vas_win.cop),
+					window->tx_win ? "Send" : "Receive");
+	seq_printf(s, "Pid : %d\n", vas_window_pid(&window->vas_win));
+>>>>>>> upstream/android-13
 
 unlock:
 	mutex_unlock(&vas_mutex);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int info_dbg_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, info_dbg_show, inode->i_private);
@@ -62,14 +85,25 @@ static const struct file_operations info_fops = {
 };
 
 static inline void print_reg(struct seq_file *s, struct vas_window *win,
+=======
+DEFINE_SHOW_ATTRIBUTE(info);
+
+static inline void print_reg(struct seq_file *s, struct pnv_vas_window *win,
+>>>>>>> upstream/android-13
 			char *name, u32 reg)
 {
 	seq_printf(s, "0x%016llx %s\n", read_hvwc_reg(win, name, reg), name);
 }
 
+<<<<<<< HEAD
 static int hvwc_dbg_show(struct seq_file *s, void *private)
 {
 	struct vas_window *window = s->private;
+=======
+static int hvwc_show(struct seq_file *s, void *private)
+{
+	struct pnv_vas_window *window = s->private;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vas_mutex);
 
@@ -115,6 +149,7 @@ unlock:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hvwc_dbg_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, hvwc_dbg_show, inode->i_private);
@@ -129,6 +164,14 @@ static const struct file_operations hvwc_fops = {
 
 void vas_window_free_dbgdir(struct vas_window *window)
 {
+=======
+DEFINE_SHOW_ATTRIBUTE(hvwc);
+
+void vas_window_free_dbgdir(struct pnv_vas_window *pnv_win)
+{
+	struct vas_window *window =  &pnv_win->vas_win;
+
+>>>>>>> upstream/android-13
 	if (window->dbgdir) {
 		debugfs_remove_recursive(window->dbgdir);
 		kfree(window->dbgname);
@@ -137,13 +180,20 @@ void vas_window_free_dbgdir(struct vas_window *window)
 	}
 }
 
+<<<<<<< HEAD
 void vas_window_init_dbgdir(struct vas_window *window)
 {
 	struct dentry *f, *d;
+=======
+void vas_window_init_dbgdir(struct pnv_vas_window *window)
+{
+	struct dentry *d;
+>>>>>>> upstream/android-13
 
 	if (!window->vinst->dbgdir)
 		return;
 
+<<<<<<< HEAD
 	window->dbgname = kzalloc(16, GFP_KERNEL);
 	if (!window->dbgname)
 		return;
@@ -173,6 +223,19 @@ remove_dir:
 free_name:
 	kfree(window->dbgname);
 	window->dbgname = NULL;
+=======
+	window->vas_win.dbgname = kzalloc(16, GFP_KERNEL);
+	if (!window->vas_win.dbgname)
+		return;
+
+	snprintf(window->vas_win.dbgname, 16, "w%d", window->vas_win.winid);
+
+	d = debugfs_create_dir(window->vas_win.dbgname, window->vinst->dbgdir);
+	window->vas_win.dbgdir = d;
+
+	debugfs_create_file("info", 0444, d, window, &info_fops);
+	debugfs_create_file("hvwc", 0444, d, window, &hvwc_fops);
+>>>>>>> upstream/android-13
 }
 
 void vas_instance_init_dbgdir(struct vas_instance *vinst)
@@ -180,8 +243,11 @@ void vas_instance_init_dbgdir(struct vas_instance *vinst)
 	struct dentry *d;
 
 	vas_init_dbgdir();
+<<<<<<< HEAD
 	if (!vas_debugfs)
 		return;
+=======
+>>>>>>> upstream/android-13
 
 	vinst->dbgname = kzalloc(16, GFP_KERNEL);
 	if (!vinst->dbgname)
@@ -190,6 +256,7 @@ void vas_instance_init_dbgdir(struct vas_instance *vinst)
 	snprintf(vinst->dbgname, 16, "v%d", vinst->vas_id);
 
 	d = debugfs_create_dir(vinst->dbgname, vas_debugfs);
+<<<<<<< HEAD
 	if (IS_ERR(d))
 		goto free_name;
 
@@ -200,6 +267,9 @@ free_name:
 	kfree(vinst->dbgname);
 	vinst->dbgname = NULL;
 	vinst->dbgdir = NULL;
+=======
+	vinst->dbgdir = d;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -215,6 +285,9 @@ void vas_init_dbgdir(void)
 
 	first_time = false;
 	vas_debugfs = debugfs_create_dir("vas", NULL);
+<<<<<<< HEAD
 	if (IS_ERR(vas_debugfs))
 		vas_debugfs = NULL;
+=======
+>>>>>>> upstream/android-13
 }

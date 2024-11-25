@@ -24,6 +24,10 @@
 
 #define AOV_VOUT_STEP	500
 #define AOV_VOUT_MAX	7500
+<<<<<<< HEAD
+=======
+#define AOV_VOUT_MIN	5000
+>>>>>>> upstream/android-13
 
 enum sb_tx_aov_state {
 	AOV_STATE_NONE = 0,
@@ -67,10 +71,15 @@ struct sb_tx_aov {
 	unsigned int low_freq;
 	unsigned int high_freq;
 	unsigned int delay;
+<<<<<<< HEAD
 	unsigned int preset_delay;
 	unsigned int phm_icl;
 	unsigned int phm_icl_full;
 	unsigned int vout_min;
+=======
+	unsigned int phm_icl;
+	unsigned int phm_icl_full;
+>>>>>>> upstream/android-13
 };
 
 struct sb_tx {
@@ -157,7 +166,11 @@ bool sb_tx_is_aov_enabled(int cable_type)
 
 	if (is_pd_apdo_wire_type(cable_type)) {
 		if (tx->aov.state == AOV_STATE_NONE) {
+<<<<<<< HEAD
 			unsigned int min_iv = aov->vout_min, max_iv = AOV_VOUT_MAX;
+=======
+			unsigned int min_iv = AOV_VOUT_MIN, max_iv = AOV_VOUT_MAX;
+>>>>>>> upstream/android-13
 
 			if (sec_pd_get_pdo_power(NULL, &min_iv, &max_iv, NULL) <= 0)
 				return false;
@@ -198,19 +211,30 @@ int sb_tx_monitor_aov(int vout, bool phm)
 	case AOV_STATE_PRESET:
 		if (vout < aov->start_vout) {
 			if (prev_aov_state == AOV_STATE_NONE) {
+<<<<<<< HEAD
 				sec_bat_run_wpc_tx_work(battery, (aov->preset_delay + 1000));
+=======
+				sec_bat_run_wpc_tx_work(battery, (aov->delay + 1000));
+>>>>>>> upstream/android-13
 			} else {
 				vout = vout + AOV_VOUT_STEP;
 				sec_vote(battery->iv_vote, VOTER_WC_TX, true, vout);
 				sec_bat_wireless_vout_cntl(tx->battery, vout);
 				sec_bat_run_wpc_tx_work(battery,
+<<<<<<< HEAD
 					((vout == aov->start_vout) ? (aov->preset_delay * 2) : 500));
+=======
+					((vout == aov->start_vout) ? (aov->delay * 2) : 500));
+>>>>>>> upstream/android-13
 			}
 			break;
 		}
 
 		aov->state = AOV_STATE_MONITOR;
+<<<<<<< HEAD
 		fallthrough;
+=======
+>>>>>>> upstream/android-13
 	case AOV_STATE_MONITOR:
 		if (phm) {
 			int phm_icl = (check_full_state(tx)) ?
@@ -229,7 +253,11 @@ int sb_tx_monitor_aov(int vout, bool phm)
 			psy_do_property(tx->wrl_name, get, POWER_SUPPLY_EXT_PROP_WIRELESS_OP_FREQ, freq);
 			if ((freq.intval <= aov->low_freq) && (vout < AOV_VOUT_MAX))
 				vout = vout + AOV_VOUT_STEP;
+<<<<<<< HEAD
 			else if ((freq.intval >= aov->high_freq) && (vout > aov->vout_min))
+=======
+			else if ((freq.intval >= aov->high_freq) && (vout > AOV_VOUT_MIN))
+>>>>>>> upstream/android-13
 				vout = vout - AOV_VOUT_STEP;
 
 			if ((prev_vout != vout) ||
@@ -358,8 +386,11 @@ static int sb_tx_parse_aov_dt(struct device_node *np, struct sb_tx_aov *aov)
 	sb_of_parse_u32(np, aov, low_freq, 131);
 	sb_of_parse_u32(np, aov, high_freq, 147);
 	sb_of_parse_u32(np, aov, delay, 3000);
+<<<<<<< HEAD
 	sb_of_parse_u32(np, aov, preset_delay, 3000);
 	sb_of_parse_u32(np, aov, vout_min, 5000);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

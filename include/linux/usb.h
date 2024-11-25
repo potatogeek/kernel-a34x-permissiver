@@ -331,7 +331,11 @@ struct usb_interface_cache {
 
 	/* variable-length array of alternate settings for this interface,
 	 * stored in no particular order */
+<<<<<<< HEAD
 	struct usb_host_interface altsetting[0];
+=======
+	struct usb_host_interface altsetting[];
+>>>>>>> upstream/android-13
 };
 #define	ref_to_usb_interface_cache(r) \
 		container_of(r, struct usb_interface_cache, ref)
@@ -347,7 +351,11 @@ struct usb_interface_cache {
  * @interface: array of pointers to usb_interface structures, one for each
  *	interface in the configuration.  The number of interfaces is stored
  *	in desc.bNumInterfaces.  These pointers are valid only while the
+<<<<<<< HEAD
  *	the configuration is active.
+=======
+ *	configuration is active.
+>>>>>>> upstream/android-13
  * @intf_cache: array of pointers to usb_interface_cache structures, one
  *	for each interface in the configuration.  These structures exist
  *	for the entire life of the device.
@@ -408,8 +416,11 @@ struct usb_host_bos {
 	struct usb_ssp_cap_descriptor	*ssp_cap;
 	struct usb_ss_container_id_descriptor	*ss_id;
 	struct usb_ptm_cap_descriptor	*ptm_cap;
+<<<<<<< HEAD
 	struct usb_config_summary_descriptor	*config_summary;
 	unsigned int	num_config_summary_desc;
+=======
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -435,11 +446,18 @@ struct usb_devmap {
  * Allocated per bus (tree of devices) we have:
  */
 struct usb_bus {
+<<<<<<< HEAD
 	struct device *controller;	/* host/master side hardware */
 	struct device *sysdev;		/* as seen from firmware or bus */
 	int busnum;			/* Bus number (in order of reg) */
 	const char *bus_name;		/* stable id (PCI slot_name etc) */
 	u8 uses_dma;			/* Does the host controller use DMA? */
+=======
+	struct device *controller;	/* host side hardware */
+	struct device *sysdev;		/* as seen from firmware or bus */
+	int busnum;			/* Bus number (in order of reg) */
+	const char *bus_name;		/* stable id (PCI slot_name etc) */
+>>>>>>> upstream/android-13
 	u8 uses_pio_for_control;	/*
 					 * Does the host controller use PIO
 					 * for control transfers?
@@ -475,6 +493,7 @@ struct usb_bus {
 
 	unsigned resuming_ports;	/* bit array: resuming root-hub ports */
 
+<<<<<<< HEAD
 #if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
 	struct mon_bus *mon_bus;	/* non-null when associated */
 	int monitored;			/* non-zero when monitored */
@@ -488,6 +507,10 @@ struct usb_bus {
 					 * wakeup is detected or an interface
 					 * driver starts I/O.
 					 */
+=======
+	struct mon_bus *mon_bus;	/* non-null when associated */
+	int monitored;			/* non-zero when monitored */
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -501,12 +524,15 @@ struct usb_dev_state;
 
 struct usb_tt;
 
+<<<<<<< HEAD
 enum usb_device_removable {
 	USB_DEVICE_REMOVABLE_UNKNOWN = 0,
 	USB_DEVICE_REMOVABLE,
 	USB_DEVICE_FIXED,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum usb_port_connect_type {
 	USB_PORT_CONNECT_TYPE_UNKNOWN = 0,
 	USB_PORT_CONNECT_TYPE_HOT_PLUG,
@@ -588,6 +614,10 @@ struct usb3_lpm_parameters {
  * @speed: device speed: high/full/low (or error)
  * @rx_lanes: number of rx lanes in use, USB 3.2 adds dual-lane support
  * @tx_lanes: number of tx lanes in use, USB 3.2 adds dual-lane support
+<<<<<<< HEAD
+=======
+ * @ssp_rate: SuperSpeed Plus phy signaling rate and lane count
+>>>>>>> upstream/android-13
  * @tt: Transaction Translator info; used with low/full speed dev, highspeed hub
  * @ttport: device port on that tt hub
  * @toggle: one bit for each endpoint, with ([0] = IN, [1] = OUT) endpoints
@@ -605,6 +635,10 @@ struct usb3_lpm_parameters {
  * @bus_mA: Current available from the bus
  * @portnum: parent port number (origin 1)
  * @level: number of USB hub ancestors
+<<<<<<< HEAD
+=======
+ * @devaddr: device address, XHCI: assigned by HW, others: same as devnum
+>>>>>>> upstream/android-13
  * @can_submit: URBs may be submitted
  * @persist_enabled:  USB_PERSIST enabled for this device
  * @have_langid: whether string_langid is valid
@@ -647,9 +681,15 @@ struct usb3_lpm_parameters {
  *	Management to be disabled for this usb_device.  This count should only
  *	be manipulated by those functions, with the bandwidth_mutex is held.
  * @hub_delay: cached value consisting of:
+<<<<<<< HEAD
  *		parent->hub_delay + wHubDelay + tTPTransmissionDelay (40ns)
  *
  *	Will be used as wValue for SetIsochDelay requests.
+=======
+ *	parent->hub_delay + wHubDelay + tTPTransmissionDelay (40ns)
+ *	Will be used as wValue for SetIsochDelay requests.
+ * @use_generic_driver: ask driver core to reprobe using the generic driver.
+>>>>>>> upstream/android-13
  *
  * Notes:
  * Usbcore drivers should not set usbdev->state directly.  Instead use
@@ -663,6 +703,10 @@ struct usb_device {
 	enum usb_device_speed	speed;
 	unsigned int		rx_lanes;
 	unsigned int		tx_lanes;
+<<<<<<< HEAD
+=======
+	enum usb_ssp_rate	ssp_rate;
+>>>>>>> upstream/android-13
 
 	struct usb_tt	*tt;
 	int		ttport;
@@ -688,6 +732,10 @@ struct usb_device {
 	unsigned short bus_mA;
 	u8 portnum;
 	u8 level;
+<<<<<<< HEAD
+=======
+	u8 devaddr;
+>>>>>>> upstream/android-13
 
 	unsigned can_submit:1;
 	unsigned persist_enabled:1;
@@ -727,13 +775,20 @@ struct usb_device {
 #endif
 	struct wusb_dev *wusb_dev;
 	int slot_id;
+<<<<<<< HEAD
 	enum usb_device_removable removable;
+=======
+>>>>>>> upstream/android-13
 	struct usb2_lpm_parameters l1_params;
 	struct usb3_lpm_parameters u1_params;
 	struct usb3_lpm_parameters u2_params;
 	unsigned lpm_disable_count;
 
 	u16 hub_delay;
+<<<<<<< HEAD
+=======
+	unsigned use_generic_driver:1;
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -776,6 +831,11 @@ extern int usb_lock_device_for_reset(struct usb_device *udev,
 extern int usb_reset_device(struct usb_device *dev);
 extern void usb_queue_reset_device(struct usb_interface *dev);
 
+<<<<<<< HEAD
+=======
+extern struct device *usb_intf_get_dma_device(struct usb_interface *intf);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ACPI
 extern int usb_acpi_set_power_state(struct usb_device *hdev, int index,
 	bool enable);
@@ -856,6 +916,7 @@ static inline bool usb_device_no_sg_constraint(struct usb_device *udev)
 
 /* for drivers using iso endpoints */
 extern int usb_get_current_frame_number(struct usb_device *usb_dev);
+<<<<<<< HEAD
 extern int usb_sec_event_ring_setup(struct usb_device *dev,
 	unsigned int intr_num);
 extern int usb_sec_event_ring_cleanup(struct usb_device *dev,
@@ -869,6 +930,8 @@ extern int usb_get_controller_id(struct usb_device *dev);
 
 extern int usb_stop_endpoint(struct usb_device *dev,
 	struct usb_host_endpoint *ep);
+=======
+>>>>>>> upstream/android-13
 
 /* Sets up a group of bulk endpoints to support multiple stream IDs. */
 extern int usb_alloc_streams(struct usb_interface *interface,
@@ -882,7 +945,11 @@ extern int usb_free_streams(struct usb_interface *interface,
 
 /* used these for multi-interface device registration */
 extern int usb_driver_claim_interface(struct usb_driver *driver,
+<<<<<<< HEAD
 			struct usb_interface *iface, void *priv);
+=======
+			struct usb_interface *iface, void *data);
+>>>>>>> upstream/android-13
 
 /**
  * usb_interface_claimed - returns true iff an interface is claimed
@@ -921,6 +988,18 @@ extern struct usb_host_interface *usb_find_alt_setting(
 		unsigned int iface_num,
 		unsigned int alt_num);
 
+<<<<<<< HEAD
+=======
+#if IS_REACHABLE(CONFIG_USB)
+int usb_for_each_port(void *data, int (*fn)(struct device *, void *));
+#else
+static inline int usb_for_each_port(void *data, int (*fn)(struct device *, void *))
+{
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /* port claiming functions */
 int usb_hub_claim_port(struct usb_device *hdev, unsigned port1,
 		struct usb_dev_state *owner);
@@ -1194,6 +1273,11 @@ struct usbdrv_wrap {
  * @id_table: USB drivers use ID table to support hotplugging.
  *	Export this with MODULE_DEVICE_TABLE(usb,...).  This must be set
  *	or your driver's probe function will never get called.
+<<<<<<< HEAD
+=======
+ * @dev_groups: Attributes attached to the device that will be created once it
+ *	is bound to the driver.
+>>>>>>> upstream/android-13
  * @dynids: used internally to hold the list of dynamically added device
  *	ids for this driver.
  * @drvwrap: Driver-model core structure wrapper.
@@ -1241,6 +1325,10 @@ struct usb_driver {
 	int (*post_reset)(struct usb_interface *intf);
 
 	const struct usb_device_id *id_table;
+<<<<<<< HEAD
+=======
+	const struct attribute_group **dev_groups;
+>>>>>>> upstream/android-13
 
 	struct usb_dynids dynids;
 	struct usbdrv_wrap drvwrap;
@@ -1260,6 +1348,10 @@ struct usb_driver {
  * struct usb_device_driver - identifies USB device driver to usbcore
  * @name: The driver name should be unique among USB drivers,
  *	and should normally be the same as the module name.
+<<<<<<< HEAD
+=======
+ * @match: If set, used for better device/driver matching.
+>>>>>>> upstream/android-13
  * @probe: Called to see if the driver is willing to manage a particular
  *	device.  If it is, probe returns zero and uses dev_set_drvdata()
  *	to associate driver-specific data with the device.  If unwilling
@@ -1269,28 +1361,59 @@ struct usb_driver {
  *	module is being unloaded.
  * @suspend: Called when the device is going to be suspended by the system.
  * @resume: Called when the device is being resumed by the system.
+<<<<<<< HEAD
  * @drvwrap: Driver-model core structure wrapper.
  * @supports_autosuspend: if set to 0, the USB core will not allow autosuspend
  *	for devices bound to this driver.
  *
  * USB drivers must provide all the fields listed above except drvwrap.
+=======
+ * @dev_groups: Attributes attached to the device that will be created once it
+ *	is bound to the driver.
+ * @drvwrap: Driver-model core structure wrapper.
+ * @id_table: used with @match() to select better matching driver at
+ * 	probe() time.
+ * @supports_autosuspend: if set to 0, the USB core will not allow autosuspend
+ *	for devices bound to this driver.
+ * @generic_subclass: if set to 1, the generic USB driver's probe, disconnect,
+ *	resume and suspend functions will be called in addition to the driver's
+ *	own, so this part of the setup does not need to be replicated.
+ *
+ * USB drivers must provide all the fields listed above except drvwrap,
+ * match, and id_table.
+>>>>>>> upstream/android-13
  */
 struct usb_device_driver {
 	const char *name;
 
+<<<<<<< HEAD
+=======
+	bool (*match) (struct usb_device *udev);
+>>>>>>> upstream/android-13
 	int (*probe) (struct usb_device *udev);
 	void (*disconnect) (struct usb_device *udev);
 
 	int (*suspend) (struct usb_device *udev, pm_message_t message);
 	int (*resume) (struct usb_device *udev, pm_message_t message);
+<<<<<<< HEAD
 	struct usbdrv_wrap drvwrap;
 	unsigned int supports_autosuspend:1;
+=======
+	const struct attribute_group **dev_groups;
+	struct usbdrv_wrap drvwrap;
+	const struct usb_device_id *id_table;
+	unsigned int supports_autosuspend:1;
+	unsigned int generic_subclass:1;
+>>>>>>> upstream/android-13
 };
 #define	to_usb_device_driver(d) container_of(d, struct usb_device_driver, \
 		drvwrap.driver)
 
+<<<<<<< HEAD
 extern struct bus_type usb_bus_type;
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct usb_class_driver - identifies a USB driver that wants to use the USB major number
  * @name: the usb class device name for this driver.  Will show up in sysfs.
@@ -1505,8 +1628,13 @@ typedef void (*usb_complete_t)(struct urb *);
  * field rather than determining a dma address themselves.
  *
  * Note that transfer_buffer must still be set if the controller
+<<<<<<< HEAD
  * does not support DMA (as indicated by bus.uses_dma) and when talking
  * to root hub. If you have to trasfer between highmem zone and the device
+=======
+ * does not support DMA (as indicated by hcd_uses_dma()) and when talking
+ * to root hub. If you have to transfer between highmem zone and the device
+>>>>>>> upstream/android-13
  * on such controller, create a bounce buffer or bail out with an error.
  * If transfer_buffer cannot be set (is in highmem) and the controller is DMA
  * capable, assign NULL to it, so that usbmon knows not to use the value.
@@ -1593,10 +1721,17 @@ typedef void (*usb_complete_t)(struct urb *);
 struct urb {
 	/* private: usb core and host controller only fields in the urb */
 	struct kref kref;		/* reference count of the URB */
+<<<<<<< HEAD
 	void *hcpriv;			/* private data for host controller */
 	atomic_t use_count;		/* concurrent submissions counter */
 	atomic_t reject;		/* submissions will fail */
 	int unlinked;			/* unlink error code */
+=======
+	int unlinked;			/* unlink error code */
+	void *hcpriv;			/* private data for host controller */
+	atomic_t use_count;		/* concurrent submissions counter */
+	atomic_t reject;		/* submissions will fail */
+>>>>>>> upstream/android-13
 
 	/* public: documented fields in the urb that can be used by drivers */
 	struct list_head urb_list;	/* list head for use by the urb's
@@ -1625,12 +1760,22 @@ struct urb {
 	int error_count;		/* (return) number of ISO errors */
 	void *context;			/* (in) context for completion */
 	usb_complete_t complete;	/* (in) completion routine */
+<<<<<<< HEAD
 	struct usb_iso_packet_descriptor iso_frame_desc[0];
 					/* (in) ISO ONLY */
+=======
+
+>>>>>>> upstream/android-13
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
+<<<<<<< HEAD
+=======
+
+	struct usb_iso_packet_descriptor iso_frame_desc[];
+					/* (in) ISO ONLY */
+>>>>>>> upstream/android-13
 };
 
 /* ----------------------------------------------------------------------- */
@@ -1800,6 +1945,10 @@ static inline int usb_urb_dir_out(struct urb *urb)
 	return (urb->transfer_flags & URB_DIR_MASK) == URB_DIR_OUT;
 }
 
+<<<<<<< HEAD
+=======
+int usb_pipe_type_check(struct usb_device *dev, unsigned int pipe);
+>>>>>>> upstream/android-13
 int usb_urb_ep_type_check(const struct urb *urb);
 
 void *usb_alloc_coherent(struct usb_device *dev, size_t size,
@@ -1837,6 +1986,17 @@ extern int usb_bulk_msg(struct usb_device *usb_dev, unsigned int pipe,
 	int timeout);
 
 /* wrappers around usb_control_msg() for the most common standard requests */
+<<<<<<< HEAD
+=======
+int usb_control_msg_send(struct usb_device *dev, __u8 endpoint, __u8 request,
+			 __u8 requesttype, __u16 value, __u16 index,
+			 const void *data, __u16 size, int timeout,
+			 gfp_t memflags);
+int usb_control_msg_recv(struct usb_device *dev, __u8 endpoint, __u8 request,
+			 __u8 requesttype, __u16 value, __u16 index,
+			 void *data, __u16 size, int timeout,
+			 gfp_t memflags);
+>>>>>>> upstream/android-13
 extern int usb_get_descriptor(struct usb_device *dev, unsigned char desctype,
 	unsigned char descindex, void *buf, int size);
 extern int usb_get_status(struct usb_device *dev,
@@ -2044,11 +2204,16 @@ static inline int usb_translate_errors(int error_code)
 #define USB_DEVICE_REMOVE	0x0002
 #define USB_BUS_ADD		0x0003
 #define USB_BUS_REMOVE		0x0004
+<<<<<<< HEAD
 #define USB_BUS_DIED		0x0005
 extern void usb_register_notify(struct notifier_block *nb);
 extern void usb_unregister_notify(struct notifier_block *nb);
 extern void usb_register_atomic_notify(struct notifier_block *nb);
 extern void usb_unregister_atomic_notify(struct notifier_block *nb);
+=======
+extern void usb_register_notify(struct notifier_block *nb);
+extern void usb_unregister_notify(struct notifier_block *nb);
+>>>>>>> upstream/android-13
 
 /* debugfs stuff */
 extern struct dentry *usb_debug_root;
@@ -2059,6 +2224,21 @@ enum usb_led_event {
 	USB_LED_EVENT_GADGET = 1,
 };
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_HOST_CERTIFICATION)
+/* USB certification */
+enum usb_host_certi_type {
+	USB_HOST_CERTI_UNSUPPORT_ACCESSORY,
+	USB_HOST_CERTI_NO_RESPONSE,
+	USB_HOST_CERTI_HUB_DEPTH_EXCEED,
+	USB_HOST_CERTI_HUB_POWER_EXCEED,
+	USB_HOST_CERTI_HOST_RESOURCE_EXCEED,
+	USB_HOST_CERTI_WARM_RESET
+};
+extern void send_usb_host_certi_uevent(struct device *dev, int usb_certi);
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_USB_LED_TRIG
 extern void usb_led_activity(enum usb_led_event ev);
 #else

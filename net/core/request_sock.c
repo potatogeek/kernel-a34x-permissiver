@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NET		Generic infrastructure for Network protocols.
  *
  * Authors:	Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *
  * 		From code originally in include/net/tcp.h
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -100,7 +107,11 @@ void reqsk_fastopen_remove(struct sock *sk, struct request_sock *req,
 
 	fastopenq = &inet_csk(lsk)->icsk_accept_queue.fastopenq;
 
+<<<<<<< HEAD
 	tcp_sk(sk)->fastopen_rsk = NULL;
+=======
+	RCU_INIT_POINTER(tcp_sk(sk)->fastopen_rsk, NULL);
+>>>>>>> upstream/android-13
 	spin_lock_bh(&fastopenq->lock);
 	fastopenq->qlen--;
 	tcp_rsk(req)->tfo_listener = false;

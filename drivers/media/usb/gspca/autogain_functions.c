@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Functions for auto gain.
  *
  * Copyright (C) 2010-2012 Hans de Goede <hdegoede@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include "gspca.h"
 
@@ -98,7 +105,11 @@ EXPORT_SYMBOL(gspca_expo_autogain);
    80 %) and if that does not help, only then changes exposure. This leads
    to a much more stable image then using the knee algorithm which at
    certain points of the knee graph will only try to adjust exposure,
+<<<<<<< HEAD
    which leads to oscilating as one exposure step is huge.
+=======
+   which leads to oscillating as one exposure step is huge.
+>>>>>>> upstream/android-13
 
    Returns 0 if no changes were made, 1 if the gain and or exposure settings
    where changed. */

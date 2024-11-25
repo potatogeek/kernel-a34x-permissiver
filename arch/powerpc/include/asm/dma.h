@@ -151,10 +151,16 @@
 #define DMA2_EXT_REG		0x4D6
 
 #ifndef __powerpc64__
+<<<<<<< HEAD
     /* in arch/ppc/kernel/setup.c -- Cort */
     extern unsigned int DMA_MODE_WRITE;
     extern unsigned int DMA_MODE_READ;
     extern unsigned long ISA_DMA_THRESHOLD;
+=======
+    /* in arch/powerpc/kernel/setup_32.c -- Cort */
+    extern unsigned int DMA_MODE_WRITE;
+    extern unsigned int DMA_MODE_READ;
+>>>>>>> upstream/android-13
 #else
     #define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
     #define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */

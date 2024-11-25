@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2011-2018  B.A.T.M.A.N. contributors:
  *
  * Antonio Quartulli
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Antonio Quartulli
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_DISTRIBUTED_ARP_TABLE_H_
@@ -23,15 +29,23 @@
 
 #include <linux/compiler.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/netlink.h>
+#include <linux/skbuff.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <uapi/linux/batadv_packet.h>
 
 #include "originator.h"
 
+<<<<<<< HEAD
 struct netlink_callback;
 struct seq_file;
 struct sk_buff;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BATMAN_ADV_DAT
 
 /* BATADV_DAT_ADDR_MAX - maximum address value in the DHT space */
@@ -46,6 +60,15 @@ void batadv_dat_snoop_outgoing_arp_reply(struct batadv_priv *bat_priv,
 					 struct sk_buff *skb);
 bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
 					 struct sk_buff *skb, int hdr_size);
+<<<<<<< HEAD
+=======
+void batadv_dat_snoop_outgoing_dhcp_ack(struct batadv_priv *bat_priv,
+					struct sk_buff *skb,
+					__be16 proto,
+					unsigned short vid);
+void batadv_dat_snoop_incoming_dhcp_ack(struct batadv_priv *bat_priv,
+					struct sk_buff *skb, int hdr_size);
+>>>>>>> upstream/android-13
 bool batadv_dat_drop_broadcast_packet(struct batadv_priv *bat_priv,
 				      struct batadv_forw_packet *forw_packet);
 
@@ -81,7 +104,10 @@ batadv_dat_init_own_addr(struct batadv_priv *bat_priv,
 
 int batadv_dat_init(struct batadv_priv *bat_priv);
 void batadv_dat_free(struct batadv_priv *bat_priv);
+<<<<<<< HEAD
 int batadv_dat_cache_seq_print_text(struct seq_file *seq, void *offset);
+=======
+>>>>>>> upstream/android-13
 int batadv_dat_cache_dump(struct sk_buff *msg, struct netlink_callback *cb);
 
 /**
@@ -140,6 +166,22 @@ batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static inline void
+batadv_dat_snoop_outgoing_dhcp_ack(struct batadv_priv *bat_priv,
+				   struct sk_buff *skb, __be16 proto,
+				   unsigned short vid)
+{
+}
+
+static inline void
+batadv_dat_snoop_incoming_dhcp_ack(struct batadv_priv *bat_priv,
+				   struct sk_buff *skb, int hdr_size)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline bool
 batadv_dat_drop_broadcast_packet(struct batadv_priv *bat_priv,
 				 struct batadv_forw_packet *forw_packet)
@@ -157,11 +199,14 @@ static inline void batadv_dat_init_own_addr(struct batadv_priv *bat_priv,
 {
 }
 
+<<<<<<< HEAD
 static inline void batadv_arp_change_timeout(struct net_device *soft_iface,
 					     const char *name)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int batadv_dat_init(struct batadv_priv *bat_priv)
 {
 	return 0;

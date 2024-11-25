@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/gen_estimator.c	Simple rate estimator.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/gen_estimator.c	Simple rate estimator.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *		Eric Dumazet <edumazet@google.com>
  *
@@ -52,7 +59,11 @@ struct net_rate_estimator {
 	u8			intvl_log; /* period : (250ms << intvl_log) */
 
 	seqcount_t		seq;
+<<<<<<< HEAD
 	u32			last_packets;
+=======
+	u64			last_packets;
+>>>>>>> upstream/android-13
 	u64			last_bytes;
 
 	u64			avpps;
@@ -87,7 +98,11 @@ static void est_timer(struct timer_list *t)
 	brate = (b.bytes - est->last_bytes) << (10 - est->intvl_log);
 	brate = (brate >> est->ewma_log) - (est->avbps >> est->ewma_log);
 
+<<<<<<< HEAD
 	rate = (u64)(b.packets - est->last_packets) << (10 - est->intvl_log);
+=======
+	rate = (b.packets - est->last_packets) << (10 - est->intvl_log);
+>>>>>>> upstream/android-13
 	rate = (rate >> est->ewma_log) - (est->avpps >> est->ewma_log);
 
 	write_seqcount_begin(&est->seq);

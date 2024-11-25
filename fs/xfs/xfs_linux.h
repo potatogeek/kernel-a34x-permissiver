@@ -60,6 +60,10 @@ typedef __u32			xfs_nlink_t;
 #include <linux/list_sort.h>
 #include <linux/ratelimit.h>
 #include <linux/rhashtable.h>
+<<<<<<< HEAD
+=======
+#include <linux/xattr.h>
+>>>>>>> upstream/android-13
 
 #include <asm/page.h>
 #include <asm/div64.h>
@@ -97,6 +101,7 @@ typedef __u32			xfs_nlink_t;
 #define xfs_rotorstep		xfs_params.rotorstep.val
 #define xfs_inherit_nodefrag	xfs_params.inherit_nodfrg.val
 #define xfs_fstrm_centisecs	xfs_params.fstrm_timer.val
+<<<<<<< HEAD
 #define xfs_eofb_secs		xfs_params.eofb_timer.val
 #define xfs_cowb_secs		xfs_params.cowb_timer.val
 
@@ -112,6 +117,16 @@ typedef __u32			xfs_nlink_t;
 
 #define spinlock_destroy(lock)
 
+=======
+#define xfs_blockgc_secs	xfs_params.blockgc_timer.val
+
+#define current_cpu()		(raw_smp_processor_id())
+#define current_set_flags_nested(sp, f)		\
+		(*(sp) = current->flags, current->flags |= (f))
+#define current_restore_flags_nested(sp, f)	\
+		(current->flags = ((current->flags & ~(f)) | (*(sp) & (f))))
+
+>>>>>>> upstream/android-13
 #define NBBY		8		/* number of bits per byte */
 
 /*
@@ -128,7 +143,10 @@ typedef __u32			xfs_nlink_t;
 #define EFSCORRUPTED	EUCLEAN		/* Filesystem is corrupted */
 #define EFSBADCRC	EBADMSG		/* Bad CRC detected */
 
+<<<<<<< HEAD
 #define SYNCHRONIZE()	barrier()
+=======
+>>>>>>> upstream/android-13
 #define __return_address __builtin_return_address(0)
 
 /*
@@ -165,6 +183,7 @@ struct xstats {
 
 extern struct xstats xfsstats;
 
+<<<<<<< HEAD
 /* Kernel uid/gid conversion. These are used to convert to/from the on disk
  * uid_t/gid_t types to the kuid_t/kgid_t types that the kernel uses internally.
  * The conversion here is type only, the value will remain the same since we
@@ -191,6 +210,8 @@ static inline kgid_t xfs_gid_to_kgid(uint32_t gid)
 	return make_kgid(&init_user_ns, gid);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline dev_t xfs_to_linux_dev_t(xfs_dev_t dev)
 {
 	return MKDEV(sysv_major(dev) & 0x1ff, sysv_minor(dev));
@@ -207,6 +228,15 @@ static inline xfs_dev_t linux_to_xfs_dev_t(dev_t dev)
 #define xfs_sort(a,n,s,fn)	sort(a,n,s,fn,NULL)
 #define xfs_stack_trace()	dump_stack()
 
+<<<<<<< HEAD
+=======
+static inline uint64_t rounddown_64(uint64_t x, uint32_t y)
+{
+	do_div(x, y);
+	return x * y;
+}
+
+>>>>>>> upstream/android-13
 static inline uint64_t roundup_64(uint64_t x, uint32_t y)
 {
 	x += y - 1;
@@ -221,27 +251,58 @@ static inline uint64_t howmany_64(uint64_t x, uint32_t y)
 	return x;
 }
 
+<<<<<<< HEAD
 #define ASSERT_ALWAYS(expr)	\
 	(likely(expr) ? (void)0 : assfail(#expr, __FILE__, __LINE__))
 
 #ifdef DEBUG
 #define ASSERT(expr)	\
 	(likely(expr) ? (void)0 : assfail(#expr, __FILE__, __LINE__))
+=======
+int xfs_rw_bdev(struct block_device *bdev, sector_t sector, unsigned int count,
+		char *data, unsigned int op);
+void xfs_flush_bdev_async(struct bio *bio, struct block_device *bdev,
+		struct completion *done);
+
+#define ASSERT_ALWAYS(expr)	\
+	(likely(expr) ? (void)0 : assfail(NULL, #expr, __FILE__, __LINE__))
+
+#ifdef DEBUG
+#define ASSERT(expr)	\
+	(likely(expr) ? (void)0 : assfail(NULL, #expr, __FILE__, __LINE__))
+>>>>>>> upstream/android-13
 
 #else	/* !DEBUG */
 
 #ifdef XFS_WARN
 
 #define ASSERT(expr)	\
+<<<<<<< HEAD
 	(likely(expr) ? (void)0 : asswarn(#expr, __FILE__, __LINE__))
 
 #else	/* !DEBUG && !XFS_WARN */
 
 #define ASSERT(expr)	((void)0)
+=======
+	(likely(expr) ? (void)0 : asswarn(NULL, #expr, __FILE__, __LINE__))
+
+#else	/* !DEBUG && !XFS_WARN */
+
+#define ASSERT(expr)		((void)0)
+>>>>>>> upstream/android-13
 
 #endif /* XFS_WARN */
 #endif /* DEBUG */
 
+<<<<<<< HEAD
+=======
+#define XFS_IS_CORRUPT(mp, expr)	\
+	(unlikely(expr) ? xfs_corruption_error(#expr, XFS_ERRLEVEL_LOW, (mp), \
+					       NULL, 0, __FILE__, __LINE__, \
+					       __this_address), \
+			  true : false)
+
+>>>>>>> upstream/android-13
 #define STATIC static noinline
 
 #ifdef CONFIG_XFS_RT
@@ -251,7 +312,11 @@ static inline uint64_t howmany_64(uint64_t x, uint32_t y)
  * configured realtime device.
  */
 #define XFS_IS_REALTIME_INODE(ip)			\
+<<<<<<< HEAD
 	(((ip)->i_d.di_flags & XFS_DIFLAG_REALTIME) &&	\
+=======
+	(((ip)->i_diflags & XFS_DIFLAG_REALTIME) &&	\
+>>>>>>> upstream/android-13
 	 (ip)->i_mount->m_rtdev_targp)
 #define XFS_IS_REALTIME_MOUNT(mp) ((mp)->m_rtdev_targp ? 1 : 0)
 #else

@@ -40,7 +40,11 @@ struct sccb_mgr_info {
 	u16 si_per_targ_ultra_nego;
 	u16 si_per_targ_no_disc;
 	u16 si_per_targ_wide_nego;
+<<<<<<< HEAD
 	u16 si_flags;
+=======
+	u16 si_mflags;
+>>>>>>> upstream/android-13
 	unsigned char si_card_family;
 	unsigned char si_bustype;
 	unsigned char si_card_model[3];
@@ -304,6 +308,7 @@ typedef struct SCCBscam_info {
 
 } SCCBSCAM_INFO;
 
+<<<<<<< HEAD
 #define  SCSI_REQUEST_SENSE      0x03
 #define  SCSI_READ               0x08
 #define  SCSI_WRITE              0x0A
@@ -329,15 +334,22 @@ typedef struct SCCBscam_info {
 #define	SMABORT_TAG					0x0D
 #define	SMINIT_RECOVERY			0x0F
 #define	SMREL_RECOVERY				0x10
+=======
+>>>>>>> upstream/android-13
 
 #define  SMIDENT                 0x80
 #define  DISC_PRIV               0x40
 
+<<<<<<< HEAD
 #define  SMSYNC                  0x01
 #define  SMWDTR                  0x03
 #define  SM8BIT                  0x00
 #define  SM16BIT                 0x01
 #define  SMIGNORWR               0x23	/* Ignore Wide Residue */
+=======
+#define  SM8BIT                  0x00
+#define  SM16BIT                 0x01
+>>>>>>> upstream/android-13
 
 #define  SIX_BYTE_CMD            0x06
 #define  TWELVE_BYTE_CMD         0x0C
@@ -1034,11 +1046,22 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
 			temp6 >>= 1;
 			switch (temp & 0x3) {
 			case AUTO_RATE_20:	/* Synchronous, 20 mega-transfers/second */
+<<<<<<< HEAD
 				temp6 |= 0x8000;	/* Fall through */
 			case AUTO_RATE_10:	/* Synchronous, 10 mega-transfers/second */
 				temp5 |= 0x8000;	/* Fall through */
 			case AUTO_RATE_05:	/* Synchronous, 5 mega-transfers/second */
 				temp2 |= 0x8000;	/* Fall through */
+=======
+				temp6 |= 0x8000;
+				fallthrough;
+			case AUTO_RATE_10:	/* Synchronous, 10 mega-transfers/second */
+				temp5 |= 0x8000;
+				fallthrough;
+			case AUTO_RATE_05:	/* Synchronous, 5 mega-transfers/second */
+				temp2 |= 0x8000;
+				fallthrough;
+>>>>>>> upstream/android-13
 			case AUTO_RATE_00:	/* Asynchronous */
 				break;
 			}
@@ -1070,6 +1093,7 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
 		ScamFlg =
 		    (unsigned char)FPT_utilEERead(ioport, SCAM_CONFIG / 2);
 
+<<<<<<< HEAD
 	pCardInfo->si_flags = 0x0000;
 
 	if (i & 0x01)
@@ -1086,6 +1110,24 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
 
 	if (ScamFlg & SCAM_LEVEL2)
 		pCardInfo->si_flags |= FLAG_SCAM_LEVEL2;
+=======
+	pCardInfo->si_mflags = 0x0000;
+
+	if (i & 0x01)
+		pCardInfo->si_mflags |= SCSI_PARITY_ENA;
+
+	if (!(i & 0x02))
+		pCardInfo->si_mflags |= SOFT_RESET;
+
+	if (i & 0x10)
+		pCardInfo->si_mflags |= EXTENDED_TRANSLATION;
+
+	if (ScamFlg & SCAM_ENABLED)
+		pCardInfo->si_mflags |= FLAG_SCAM_ENABLED;
+
+	if (ScamFlg & SCAM_LEVEL2)
+		pCardInfo->si_mflags |= FLAG_SCAM_LEVEL2;
+>>>>>>> upstream/android-13
 
 	j = (RD_HARPOON(ioport + hp_bm_ctrl) & ~SCSI_TERM_ENA_L);
 	if (i & 0x04) {
@@ -1101,7 +1143,11 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
 
 	if (!(RD_HARPOON(ioport + hp_page_ctrl) & NARROW_SCSI_CARD))
 
+<<<<<<< HEAD
 		pCardInfo->si_flags |= SUPPORT_16TAR_32LUN;
+=======
+		pCardInfo->si_mflags |= SUPPORT_16TAR_32LUN;
+>>>>>>> upstream/android-13
 
 	pCardInfo->si_card_family = HARPOON_FAMILY;
 	pCardInfo->si_bustype = BUSTYPE_PCI;
@@ -1137,15 +1183,26 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
 
 	if (pCardInfo->si_card_model[1] == '3') {
 		if (RD_HARPOON(ioport + hp_ee_ctrl) & BIT(7))
+<<<<<<< HEAD
 			pCardInfo->si_flags |= LOW_BYTE_TERM;
+=======
+			pCardInfo->si_mflags |= LOW_BYTE_TERM;
+>>>>>>> upstream/android-13
 	} else if (pCardInfo->si_card_model[2] == '0') {
 		temp = RD_HARPOON(ioport + hp_xfer_pad);
 		WR_HARPOON(ioport + hp_xfer_pad, (temp & ~BIT(4)));
 		if (RD_HARPOON(ioport + hp_ee_ctrl) & BIT(7))
+<<<<<<< HEAD
 			pCardInfo->si_flags |= LOW_BYTE_TERM;
 		WR_HARPOON(ioport + hp_xfer_pad, (temp | BIT(4)));
 		if (RD_HARPOON(ioport + hp_ee_ctrl) & BIT(7))
 			pCardInfo->si_flags |= HIGH_BYTE_TERM;
+=======
+			pCardInfo->si_mflags |= LOW_BYTE_TERM;
+		WR_HARPOON(ioport + hp_xfer_pad, (temp | BIT(4)));
+		if (RD_HARPOON(ioport + hp_ee_ctrl) & BIT(7))
+			pCardInfo->si_mflags |= HIGH_BYTE_TERM;
+>>>>>>> upstream/android-13
 		WR_HARPOON(ioport + hp_xfer_pad, temp);
 	} else {
 		temp = RD_HARPOON(ioport + hp_ee_ctrl);
@@ -1163,9 +1220,15 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
 		WR_HARPOON(ioport + hp_ee_ctrl, temp);
 		WR_HARPOON(ioport + hp_xfer_pad, temp2);
 		if (!(temp3 & BIT(7)))
+<<<<<<< HEAD
 			pCardInfo->si_flags |= LOW_BYTE_TERM;
 		if (!(temp3 & BIT(6)))
 			pCardInfo->si_flags |= HIGH_BYTE_TERM;
+=======
+			pCardInfo->si_mflags |= LOW_BYTE_TERM;
+		if (!(temp3 & BIT(6)))
+			pCardInfo->si_mflags |= HIGH_BYTE_TERM;
+>>>>>>> upstream/android-13
 	}
 
 	ARAM_ACCESS(ioport);
@@ -1272,7 +1335,11 @@ static void *FlashPoint_HardwareResetHostAdapter(struct sccb_mgr_info
 	WR_HARPOON(ioport + hp_arb_id, pCardInfo->si_id);
 	CurrCard->ourId = pCardInfo->si_id;
 
+<<<<<<< HEAD
 	i = (unsigned char)pCardInfo->si_flags;
+=======
+	i = (unsigned char)pCardInfo->si_mflags;
+>>>>>>> upstream/android-13
 	if (i & SCSI_PARITY_ENA)
 		WR_HARPOON(ioport + hp_portctrl_1, (HOST_MODE8 | CHK_SCSI_P));
 
@@ -1286,14 +1353,22 @@ static void *FlashPoint_HardwareResetHostAdapter(struct sccb_mgr_info
 		j |= SCSI_TERM_ENA_H;
 	WR_HARPOON(ioport + hp_ee_ctrl, j);
 
+<<<<<<< HEAD
 	if (!(pCardInfo->si_flags & SOFT_RESET)) {
+=======
+	if (!(pCardInfo->si_mflags & SOFT_RESET)) {
+>>>>>>> upstream/android-13
 
 		FPT_sresb(ioport, thisCard);
 
 		FPT_scini(thisCard, pCardInfo->si_id, 0);
 	}
 
+<<<<<<< HEAD
 	if (pCardInfo->si_flags & POST_ALL_UNDERRRUNS)
+=======
+	if (pCardInfo->si_mflags & POST_ALL_UNDERRRUNS)
+>>>>>>> upstream/android-13
 		CurrCard->globalFlags |= F_NO_FILTER;
 
 	if (pCurrNvRam) {
@@ -1612,7 +1687,10 @@ static int FlashPoint_AbortCCB(void *pCurrCard, struct sccb *p_Sccb)
 
 	unsigned char thisCard;
 	CALL_BK_FN callback;
+<<<<<<< HEAD
 	unsigned char TID;
+=======
+>>>>>>> upstream/android-13
 	struct sccb *pSaveSCCB;
 	struct sccb_mgr_tar_info *currTar_Info;
 
@@ -1649,9 +1727,12 @@ static int FlashPoint_AbortCCB(void *pCurrCard, struct sccb *p_Sccb)
 			}
 
 			else {
+<<<<<<< HEAD
 
 				TID = p_Sccb->TargID;
 
+=======
+>>>>>>> upstream/android-13
 				if (p_Sccb->Sccb_tag) {
 					MDISABLE_INT(ioport);
 					if (((struct sccb_card *)pCurrCard)->
@@ -1661,7 +1742,11 @@ static int FlashPoint_AbortCCB(void *pCurrCard, struct sccb *p_Sccb)
 						p_Sccb->Sccb_scsistat =
 						    ABORT_ST;
 						p_Sccb->Sccb_scsimsg =
+<<<<<<< HEAD
 						    SMABORT_TAG;
+=======
+						    ABORT_TASK;
+>>>>>>> upstream/android-13
 
 						if (((struct sccb_card *)
 						     pCurrCard)->currentSCCB ==
@@ -1813,7 +1898,11 @@ static int FlashPoint_HandleInterrupt(void *pcard)
 				FPT_phaseChkFifo(ioport, thisCard);
 
 			if (RD_HARPOON(ioport + hp_gp_reg_1) ==
+<<<<<<< HEAD
 					SMSAVE_DATA_PTR) {
+=======
+					SAVE_POINTERS) {
+>>>>>>> upstream/android-13
 
 				WR_HARPOON(ioport + hp_gp_reg_1, 0x00);
 				currSCCB->Sccb_XferState |= F_NO_DATA_YET;
@@ -1866,7 +1955,11 @@ static int FlashPoint_HandleInterrupt(void *pcard)
 					FPT_phaseChkFifo(ioport, thisCard);
 
 				if (RD_HARPOON(ioport + hp_gp_reg_1) ==
+<<<<<<< HEAD
 				    SMSAVE_DATA_PTR) {
+=======
+				    SAVE_POINTERS) {
+>>>>>>> upstream/android-13
 					WR_HARPOON(ioport + hp_gp_reg_1, 0x00);
 					currSCCB->Sccb_XferState |=
 					    F_NO_DATA_YET;
@@ -2259,7 +2352,11 @@ static unsigned char FPT_sfm(u32 port, struct sccb *pCurrSCCB)
 		WR_HARPOON(port + hp_fiforead, 0);
 		WR_HARPOON(port + hp_fifowrite, 0);
 		if (pCurrSCCB != NULL) {
+<<<<<<< HEAD
 			pCurrSCCB->Sccb_scsimsg = SMPARITY;
+=======
+			pCurrSCCB->Sccb_scsimsg = MSG_PARITY_ERROR;
+>>>>>>> upstream/android-13
 		}
 		message = 0x00;
 		do {
@@ -2412,7 +2509,11 @@ static void FPT_ssel(u32 port, unsigned char p_card)
 
 		WRW_HARPOON((port + ID_MSG_STRT + 2), BRH_OP + ALWAYS + NP);
 
+<<<<<<< HEAD
 		currSCCB->Sccb_scsimsg = SMDEV_RESET;
+=======
+		currSCCB->Sccb_scsimsg = TARGET_RESET;
+>>>>>>> upstream/android-13
 
 		WR_HARPOON(port + hp_autostart_3, (SELECT + SELCHK_STRT));
 		auto_loaded = 1;
@@ -2759,9 +2860,15 @@ static void FPT_sres(u32 port, unsigned char p_card,
 		if (message == 0) {
 			msgRetryCount++;
 			if (msgRetryCount == 1) {
+<<<<<<< HEAD
 				FPT_SendMsg(port, SMPARITY);
 			} else {
 				FPT_SendMsg(port, SMDEV_RESET);
+=======
+				FPT_SendMsg(port, MSG_PARITY_ERROR);
+			} else {
+				FPT_SendMsg(port, TARGET_RESET);
+>>>>>>> upstream/android-13
 
 				FPT_sssyncv(port, our_target, NARROW_SCSI,
 					    currTar_Info);
@@ -2861,8 +2968,13 @@ static void FPT_SendMsg(u32 port, unsigned char message)
 
 		WR_HARPOON(port + hp_portctrl_0, 0x00);
 
+<<<<<<< HEAD
 		if ((message == SMABORT) || (message == SMDEV_RESET) ||
 		    (message == SMABORT_TAG)) {
+=======
+		if ((message == ABORT_TASK_SET) || (message == TARGET_RESET) ||
+		    (message == ABORT_TASK)) {
+>>>>>>> upstream/android-13
 			while (!
 			       (RDW_HARPOON((port + hp_intstat)) &
 				(BUS_FREE | PHASE))) {
@@ -2894,7 +3006,11 @@ static void FPT_sdecm(unsigned char message, u32 port, unsigned char p_card)
 
 	currTar_Info = &FPT_sccbMgrTbl[p_card][currSCCB->TargID];
 
+<<<<<<< HEAD
 	if (message == SMREST_DATA_PTR) {
+=======
+	if (message == RESTORE_POINTERS) {
+>>>>>>> upstream/android-13
 		if (!(currSCCB->Sccb_XferState & F_NO_DATA_YET)) {
 			currSCCB->Sccb_ATC = currSCCB->Sccb_savedATC;
 
@@ -2906,7 +3022,11 @@ static void FPT_sdecm(unsigned char message, u32 port, unsigned char p_card)
 			   (AUTO_IMMED + DISCONNECT_START));
 	}
 
+<<<<<<< HEAD
 	else if (message == SMCMD_COMP) {
+=======
+	else if (message == COMMAND_COMPLETE) {
+>>>>>>> upstream/android-13
 
 		if (currSCCB->Sccb_scsistat == SELECT_Q_ST) {
 			currTar_Info->TarStatus &=
@@ -2918,15 +3038,25 @@ static void FPT_sdecm(unsigned char message, u32 port, unsigned char p_card)
 
 	}
 
+<<<<<<< HEAD
 	else if ((message == SMNO_OP) || (message >= SMIDENT)
 		 || (message == SMINIT_RECOVERY) || (message == SMREL_RECOVERY)) {
+=======
+	else if ((message == NOP) || (message >= IDENTIFY_BASE) ||
+		 (message == INITIATE_RECOVERY) ||
+		 (message == RELEASE_RECOVERY)) {
+>>>>>>> upstream/android-13
 
 		ACCEPT_MSG(port);
 		WR_HARPOON(port + hp_autostart_1,
 			   (AUTO_IMMED + DISCONNECT_START));
 	}
 
+<<<<<<< HEAD
 	else if (message == SMREJECT) {
+=======
+	else if (message == MESSAGE_REJECT) {
+>>>>>>> upstream/android-13
 
 		if ((currSCCB->Sccb_scsistat == SELECT_SN_ST) ||
 		    (currSCCB->Sccb_scsistat == SELECT_WN_ST) ||
@@ -2944,7 +3074,11 @@ static void FPT_sdecm(unsigned char message, u32 port, unsigned char p_card)
 			}
 
 			if (currSCCB->Lun == 0x00) {
+<<<<<<< HEAD
 				if ((currSCCB->Sccb_scsistat == SELECT_SN_ST)) {
+=======
+				if (currSCCB->Sccb_scsistat == SELECT_SN_ST) {
+>>>>>>> upstream/android-13
 
 					currTar_Info->TarStatus |=
 					    (unsigned char)SYNC_SUPPORTED;
@@ -2953,8 +3087,13 @@ static void FPT_sdecm(unsigned char message, u32 port, unsigned char p_card)
 					    ~EE_SYNC_MASK;
 				}
 
+<<<<<<< HEAD
 				else if ((currSCCB->Sccb_scsistat ==
 					  SELECT_WN_ST)) {
+=======
+				else if (currSCCB->Sccb_scsistat ==
+					  SELECT_WN_ST) {
+>>>>>>> upstream/android-13
 
 					currTar_Info->TarStatus =
 					    (currTar_Info->
@@ -3027,19 +3166,31 @@ static void FPT_sdecm(unsigned char message, u32 port, unsigned char p_card)
 		}
 	}
 
+<<<<<<< HEAD
 	else if (message == SMEXT) {
+=======
+	else if (message == EXTENDED_MESSAGE) {
+>>>>>>> upstream/android-13
 
 		ACCEPT_MSG(port);
 		FPT_shandem(port, p_card, currSCCB);
 	}
 
+<<<<<<< HEAD
 	else if (message == SMIGNORWR) {
+=======
+	else if (message == IGNORE_WIDE_RESIDUE) {
+>>>>>>> upstream/android-13
 
 		ACCEPT_MSG(port);	/* ACK the RESIDUE MSG */
 
 		message = FPT_sfm(port, currSCCB);
 
+<<<<<<< HEAD
 		if (currSCCB->Sccb_scsimsg != SMPARITY)
+=======
+		if (currSCCB->Sccb_scsimsg != MSG_PARITY_ERROR)
+>>>>>>> upstream/android-13
 			ACCEPT_MSG(port);
 		WR_HARPOON(port + hp_autostart_1,
 			   (AUTO_IMMED + DISCONNECT_START));
@@ -3048,7 +3199,11 @@ static void FPT_sdecm(unsigned char message, u32 port, unsigned char p_card)
 	else {
 
 		currSCCB->HostStatus = SCCB_PHASE_SEQUENCE_FAIL;
+<<<<<<< HEAD
 		currSCCB->Sccb_scsimsg = SMREJECT;
+=======
+		currSCCB->Sccb_scsimsg = MESSAGE_REJECT;
+>>>>>>> upstream/android-13
 
 		ACCEPT_MSG_ATN(port);
 		WR_HARPOON(port + hp_autostart_1,
@@ -3074,7 +3229,11 @@ static void FPT_shandem(u32 port, unsigned char p_card, struct sccb *pCurrSCCB)
 		message = FPT_sfm(port, pCurrSCCB);
 		if (message) {
 
+<<<<<<< HEAD
 			if (message == SMSYNC) {
+=======
+			if (message == EXTENDED_SDTR) {
+>>>>>>> upstream/android-13
 
 				if (length == 0x03) {
 
@@ -3082,10 +3241,17 @@ static void FPT_shandem(u32 port, unsigned char p_card, struct sccb *pCurrSCCB)
 					FPT_stsyncn(port, p_card);
 				} else {
 
+<<<<<<< HEAD
 					pCurrSCCB->Sccb_scsimsg = SMREJECT;
 					ACCEPT_MSG_ATN(port);
 				}
 			} else if (message == SMWDTR) {
+=======
+					pCurrSCCB->Sccb_scsimsg = MESSAGE_REJECT;
+					ACCEPT_MSG_ATN(port);
+				}
+			} else if (message == EXTENDED_WDTR) {
+>>>>>>> upstream/android-13
 
 				if (length == 0x02) {
 
@@ -3093,7 +3259,11 @@ static void FPT_shandem(u32 port, unsigned char p_card, struct sccb *pCurrSCCB)
 					FPT_stwidn(port, p_card);
 				} else {
 
+<<<<<<< HEAD
 					pCurrSCCB->Sccb_scsimsg = SMREJECT;
+=======
+					pCurrSCCB->Sccb_scsimsg = MESSAGE_REJECT;
+>>>>>>> upstream/android-13
 					ACCEPT_MSG_ATN(port);
 
 					WR_HARPOON(port + hp_autostart_1,
@@ -3102,20 +3272,32 @@ static void FPT_shandem(u32 port, unsigned char p_card, struct sccb *pCurrSCCB)
 				}
 			} else {
 
+<<<<<<< HEAD
 				pCurrSCCB->Sccb_scsimsg = SMREJECT;
+=======
+				pCurrSCCB->Sccb_scsimsg = MESSAGE_REJECT;
+>>>>>>> upstream/android-13
 				ACCEPT_MSG_ATN(port);
 
 				WR_HARPOON(port + hp_autostart_1,
 					   (AUTO_IMMED + DISCONNECT_START));
 			}
 		} else {
+<<<<<<< HEAD
 			if (pCurrSCCB->Sccb_scsimsg != SMPARITY)
+=======
+			if (pCurrSCCB->Sccb_scsimsg != MSG_PARITY_ERROR)
+>>>>>>> upstream/android-13
 				ACCEPT_MSG(port);
 			WR_HARPOON(port + hp_autostart_1,
 				   (AUTO_IMMED + DISCONNECT_START));
 		}
 	} else {
+<<<<<<< HEAD
 		if (pCurrSCCB->Sccb_scsimsg == SMPARITY)
+=======
+		if (pCurrSCCB->Sccb_scsimsg == MSG_PARITY_ERROR)
+>>>>>>> upstream/android-13
 			WR_HARPOON(port + hp_autostart_1,
 				   (AUTO_IMMED + DISCONNECT_START));
 	}
@@ -3149,10 +3331,17 @@ static unsigned char FPT_sisyncn(u32 port, unsigned char p_card,
 		WRW_HARPOON((port + ID_MSG_STRT + 2), BRH_OP + ALWAYS + CMDPZ);
 
 		WRW_HARPOON((port + SYNC_MSGS + 0),
+<<<<<<< HEAD
 			    (MPM_OP + AMSG_OUT + SMEXT));
 		WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x03));
 		WRW_HARPOON((port + SYNC_MSGS + 4),
 			    (MPM_OP + AMSG_OUT + SMSYNC));
+=======
+			    (MPM_OP + AMSG_OUT + EXTENDED_MESSAGE));
+		WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x03));
+		WRW_HARPOON((port + SYNC_MSGS + 4),
+			    (MPM_OP + AMSG_OUT + EXTENDED_SDTR));
+>>>>>>> upstream/android-13
 
 		if ((currTar_Info->TarEEValue & EE_SYNC_MASK) == EE_SYNC_20MB)
 
@@ -3222,7 +3411,11 @@ static void FPT_stsyncn(u32 port, unsigned char p_card)
 
 	sync_msg = FPT_sfm(port, currSCCB);
 
+<<<<<<< HEAD
 	if ((sync_msg == 0x00) && (currSCCB->Sccb_scsimsg == SMPARITY)) {
+=======
+	if ((sync_msg == 0x00) && (currSCCB->Sccb_scsimsg == MSG_PARITY_ERROR)) {
+>>>>>>> upstream/android-13
 		WR_HARPOON(port + hp_autostart_1,
 			   (AUTO_IMMED + DISCONNECT_START));
 		return;
@@ -3232,7 +3425,11 @@ static void FPT_stsyncn(u32 port, unsigned char p_card)
 
 	offset = FPT_sfm(port, currSCCB);
 
+<<<<<<< HEAD
 	if ((offset == 0x00) && (currSCCB->Sccb_scsimsg == SMPARITY)) {
+=======
+	if ((offset == 0x00) && (currSCCB->Sccb_scsimsg == MSG_PARITY_ERROR)) {
+>>>>>>> upstream/android-13
 		WR_HARPOON(port + hp_autostart_1,
 			   (AUTO_IMMED + DISCONNECT_START));
 		return;
@@ -3344,9 +3541,17 @@ static void FPT_sisyncr(u32 port, unsigned char sync_pulse,
 			unsigned char offset)
 {
 	ARAM_ACCESS(port);
+<<<<<<< HEAD
 	WRW_HARPOON((port + SYNC_MSGS + 0), (MPM_OP + AMSG_OUT + SMEXT));
 	WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x03));
 	WRW_HARPOON((port + SYNC_MSGS + 4), (MPM_OP + AMSG_OUT + SMSYNC));
+=======
+	WRW_HARPOON((port + SYNC_MSGS + 0),
+		    (MPM_OP + AMSG_OUT + EXTENDED_MESSAGE));
+	WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x03));
+	WRW_HARPOON((port + SYNC_MSGS + 4),
+		    (MPM_OP + AMSG_OUT + EXTENDED_SDTR));
+>>>>>>> upstream/android-13
 	WRW_HARPOON((port + SYNC_MSGS + 6), (MPM_OP + AMSG_OUT + sync_pulse));
 	WRW_HARPOON((port + SYNC_MSGS + 8), (RAT_OP));
 	WRW_HARPOON((port + SYNC_MSGS + 10), (MPM_OP + AMSG_OUT + offset));
@@ -3389,10 +3594,17 @@ static unsigned char FPT_siwidn(u32 port, unsigned char p_card)
 		WRW_HARPOON((port + ID_MSG_STRT + 2), BRH_OP + ALWAYS + CMDPZ);
 
 		WRW_HARPOON((port + SYNC_MSGS + 0),
+<<<<<<< HEAD
 			    (MPM_OP + AMSG_OUT + SMEXT));
 		WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x02));
 		WRW_HARPOON((port + SYNC_MSGS + 4),
 			    (MPM_OP + AMSG_OUT + SMWDTR));
+=======
+			    (MPM_OP + AMSG_OUT + EXTENDED_MESSAGE));
+		WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x02));
+		WRW_HARPOON((port + SYNC_MSGS + 4),
+			    (MPM_OP + AMSG_OUT + EXTENDED_WDTR));
+>>>>>>> upstream/android-13
 		WRW_HARPOON((port + SYNC_MSGS + 6), (RAT_OP));
 		WRW_HARPOON((port + SYNC_MSGS + 8),
 			    (MPM_OP + AMSG_OUT + SM16BIT));
@@ -3437,7 +3649,11 @@ static void FPT_stwidn(u32 port, unsigned char p_card)
 
 	width = FPT_sfm(port, currSCCB);
 
+<<<<<<< HEAD
 	if ((width == 0x00) && (currSCCB->Sccb_scsimsg == SMPARITY)) {
+=======
+	if ((width == 0x00) && (currSCCB->Sccb_scsimsg == MSG_PARITY_ERROR)) {
+>>>>>>> upstream/android-13
 		WR_HARPOON(port + hp_autostart_1,
 			   (AUTO_IMMED + DISCONNECT_START));
 		return;
@@ -3500,9 +3716,17 @@ static void FPT_stwidn(u32 port, unsigned char p_card)
 static void FPT_siwidr(u32 port, unsigned char width)
 {
 	ARAM_ACCESS(port);
+<<<<<<< HEAD
 	WRW_HARPOON((port + SYNC_MSGS + 0), (MPM_OP + AMSG_OUT + SMEXT));
 	WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x02));
 	WRW_HARPOON((port + SYNC_MSGS + 4), (MPM_OP + AMSG_OUT + SMWDTR));
+=======
+	WRW_HARPOON((port + SYNC_MSGS + 0),
+		    (MPM_OP + AMSG_OUT + EXTENDED_MESSAGE));
+	WRW_HARPOON((port + SYNC_MSGS + 2), (MPM_OP + AMSG_OUT + 0x02));
+	WRW_HARPOON((port + SYNC_MSGS + 4),
+		    (MPM_OP + AMSG_OUT + EXTENDED_WDTR));
+>>>>>>> upstream/android-13
 	WRW_HARPOON((port + SYNC_MSGS + 6), (RAT_OP));
 	WRW_HARPOON((port + SYNC_MSGS + 8), (MPM_OP + AMSG_OUT + width));
 	WRW_HARPOON((port + SYNC_MSGS + 10), (BRH_OP + ALWAYS + NP));
@@ -3683,7 +3907,11 @@ static void FPT_ssenss(struct sccb_card *pCurrCard)
 	}
 
 	currSCCB->CdbLength = SIX_BYTE_CMD;
+<<<<<<< HEAD
 	currSCCB->Cdb[0] = SCSI_REQUEST_SENSE;
+=======
+	currSCCB->Cdb[0] = REQUEST_SENSE;
+>>>>>>> upstream/android-13
 	currSCCB->Cdb[1] = currSCCB->Cdb[1] & (unsigned char)0xE0;	/*Keep LUN. */
 	currSCCB->Cdb[2] = 0x00;
 	currSCCB->Cdb[3] = 0x00;
@@ -3940,6 +4168,7 @@ static void FPT_sinits(struct sccb *p_sccb, unsigned char p_card)
 */
 	if ((currTar_Info->TarStatus & TAR_ALLOW_DISC) ||
 	    (currTar_Info->TarStatus & TAG_Q_TRYING)) {
+<<<<<<< HEAD
 		p_sccb->Sccb_idmsg =
 		    (unsigned char)(SMIDENT | DISC_PRIV) | p_sccb->Lun;
 	}
@@ -3947,6 +4176,11 @@ static void FPT_sinits(struct sccb *p_sccb, unsigned char p_card)
 	else {
 
 		p_sccb->Sccb_idmsg = (unsigned char)SMIDENT | p_sccb->Lun;
+=======
+		p_sccb->Sccb_idmsg = IDENTIFY(true, p_sccb->Lun);
+	} else {
+		p_sccb->Sccb_idmsg = IDENTIFY(false, p_sccb->Lun);
+>>>>>>> upstream/android-13
 	}
 
 	p_sccb->HostStatus = 0x00;
@@ -3963,7 +4197,11 @@ static void FPT_sinits(struct sccb *p_sccb, unsigned char p_card)
  */
 	p_sccb->Sccb_scsistat = BUS_FREE_ST;
 	p_sccb->SccbStatus = SCCB_IN_PROCESS;
+<<<<<<< HEAD
 	p_sccb->Sccb_scsimsg = SMNO_OP;
+=======
+	p_sccb->Sccb_scsimsg = NOP;
+>>>>>>> upstream/android-13
 
 }
 
@@ -4168,7 +4406,11 @@ static void FPT_phaseMsgOut(u32 port, unsigned char p_card)
 		message = currSCCB->Sccb_scsimsg;
 		scsiID = currSCCB->TargID;
 
+<<<<<<< HEAD
 		if (message == SMDEV_RESET) {
+=======
+		if (message == TARGET_RESET) {
+>>>>>>> upstream/android-13
 
 			currTar_Info = &FPT_sccbMgrTbl[p_card][scsiID];
 			currTar_Info->TarSyncCtrl = 0;
@@ -4204,7 +4446,11 @@ static void FPT_phaseMsgOut(u32 port, unsigned char p_card)
 
 		else if (currSCCB->Sccb_scsistat < COMMAND_ST) {
 
+<<<<<<< HEAD
 			if (message == SMNO_OP) {
+=======
+			if (message == NOP) {
+>>>>>>> upstream/android-13
 				currSCCB->Sccb_MGRFlags |= F_DEV_SELECTED;
 
 				FPT_ssel(port, p_card);
@@ -4212,13 +4458,21 @@ static void FPT_phaseMsgOut(u32 port, unsigned char p_card)
 			}
 		} else {
 
+<<<<<<< HEAD
 			if (message == SMABORT)
+=======
+			if (message == ABORT_TASK_SET)
+>>>>>>> upstream/android-13
 
 				FPT_queueFlushSccb(p_card, SCCB_COMPLETE);
 		}
 
 	} else {
+<<<<<<< HEAD
 		message = SMABORT;
+=======
+		message = ABORT_TASK_SET;
+>>>>>>> upstream/android-13
 	}
 
 	WRW_HARPOON((port + hp_intstat), (BUS_FREE | PHASE | XFER_CNT_0));
@@ -4233,8 +4487,13 @@ static void FPT_phaseMsgOut(u32 port, unsigned char p_card)
 
 	WR_HARPOON(port + hp_portctrl_0, 0x00);
 
+<<<<<<< HEAD
 	if ((message == SMABORT) || (message == SMDEV_RESET) ||
 	    (message == SMABORT_TAG)) {
+=======
+	if ((message == ABORT_TASK_SET) || (message == TARGET_RESET) ||
+	    (message == ABORT_TASK)) {
+>>>>>>> upstream/android-13
 
 		while (!(RDW_HARPOON((port + hp_intstat)) & (BUS_FREE | PHASE))) {
 		}
@@ -4276,8 +4535,13 @@ static void FPT_phaseMsgOut(u32 port, unsigned char p_card)
 
 	else {
 
+<<<<<<< HEAD
 		if (message == SMPARITY) {
 			currSCCB->Sccb_scsimsg = SMNO_OP;
+=======
+		if (message == MSG_PARITY_ERROR) {
+			currSCCB->Sccb_scsimsg = NOP;
+>>>>>>> upstream/android-13
 			WR_HARPOON(port + hp_autostart_1,
 				   (AUTO_IMMED + DISCONNECT_START));
 		} else {
@@ -4307,7 +4571,11 @@ static void FPT_phaseMsgIn(u32 port, unsigned char p_card)
 	}
 
 	message = RD_HARPOON(port + hp_scsidata_0);
+<<<<<<< HEAD
 	if ((message == SMDISC) || (message == SMSAVE_DATA_PTR)) {
+=======
+	if ((message == DISCONNECT) || (message == SAVE_POINTERS)) {
+>>>>>>> upstream/android-13
 
 		WR_HARPOON(port + hp_autostart_1,
 			   (AUTO_IMMED + END_DATA_START));
@@ -4322,7 +4590,11 @@ static void FPT_phaseMsgIn(u32 port, unsigned char p_card)
 			FPT_sdecm(message, port, p_card);
 
 		} else {
+<<<<<<< HEAD
 			if (currSCCB->Sccb_scsimsg != SMPARITY)
+=======
+			if (currSCCB->Sccb_scsimsg != MSG_PARITY_ERROR)
+>>>>>>> upstream/android-13
 				ACCEPT_MSG(port);
 			WR_HARPOON(port + hp_autostart_1,
 				   (AUTO_IMMED + DISCONNECT_START));
@@ -4352,7 +4624,11 @@ static void FPT_phaseIllegal(u32 port, unsigned char p_card)
 
 		currSCCB->HostStatus = SCCB_PHASE_SEQUENCE_FAIL;
 		currSCCB->Sccb_scsistat = ABORT_ST;
+<<<<<<< HEAD
 		currSCCB->Sccb_scsimsg = SMABORT;
+=======
+		currSCCB->Sccb_scsimsg = ABORT_TASK_SET;
+>>>>>>> upstream/android-13
 	}
 
 	ACCEPT_MSG_ATN(port);
@@ -4531,7 +4807,11 @@ static void FPT_phaseBusFree(u32 port, unsigned char p_card)
  *
  * Function: Auto Load Default Map
  *
+<<<<<<< HEAD
  * Description: Load the Automation RAM with the defualt map values.
+=======
+ * Description: Load the Automation RAM with the default map values.
+>>>>>>> upstream/android-13
  *
  *---------------------------------------------------------------------*/
 static void FPT_autoLoadDefaultMap(u32 p_port)
@@ -4651,9 +4931,15 @@ static void FPT_autoCmdCmplt(u32 p_port, unsigned char p_card)
 
 	FPT_sccbMgrTbl[p_card][currSCCB->TargID].TarLUN_CA = 0;
 
+<<<<<<< HEAD
 	if (status_byte != SSGOOD) {
 
 		if (status_byte == SSQ_FULL) {
+=======
+	if (status_byte != SAM_STAT_GOOD) {
+
+		if (status_byte == SAM_STAT_TASK_SET_FULL) {
+>>>>>>> upstream/android-13
 
 			if (((FPT_BL_Card[p_card].globalFlags & F_CONLUN_IO) &&
 			     ((FPT_sccbMgrTbl[p_card][currSCCB->TargID].
@@ -4785,7 +5071,11 @@ static void FPT_autoCmdCmplt(u32 p_port, unsigned char p_card)
 
 		}
 
+<<<<<<< HEAD
 		if (status_byte == SSCHECK) {
+=======
+		if (status_byte == SAM_STAT_CHECK_CONDITION) {
+>>>>>>> upstream/android-13
 			if (FPT_BL_Card[p_card].globalFlags & F_DO_RENEGO) {
 				if (FPT_sccbMgrTbl[p_card][currSCCB->TargID].
 				    TarEEValue & EE_SYNC_MASK) {
@@ -4807,7 +5097,11 @@ static void FPT_autoCmdCmplt(u32 p_port, unsigned char p_card)
 			currSCCB->SccbStatus = SCCB_ERROR;
 			currSCCB->TargetStatus = status_byte;
 
+<<<<<<< HEAD
 			if (status_byte == SSCHECK) {
+=======
+			if (status_byte == SAM_STAT_CHECK_CONDITION) {
+>>>>>>> upstream/android-13
 
 				FPT_sccbMgrTbl[p_card][currSCCB->TargID].
 				    TarLUN_CA = 1;
@@ -6869,6 +7163,7 @@ static void FPT_queueCmdComplete(struct sccb_card *pCurrCard,
 		if ((p_sccb->
 		     ControlByte & (SCCB_DATA_XFER_OUT | SCCB_DATA_XFER_IN))
 		    && (p_sccb->HostStatus == SCCB_COMPLETE)
+<<<<<<< HEAD
 		    && (p_sccb->TargetStatus != SSCHECK))
 
 			if ((SCSIcmd == SCSI_READ) ||
@@ -6877,6 +7172,16 @@ static void FPT_queueCmdComplete(struct sccb_card *pCurrCard,
 			    (SCSIcmd == SCSI_WRITE_EXTENDED) ||
 			    (SCSIcmd == SCSI_WRITE_AND_VERIFY) ||
 			    (SCSIcmd == SCSI_START_STOP_UNIT) ||
+=======
+		    && (p_sccb->TargetStatus != SAM_STAT_CHECK_CONDITION))
+
+			if ((SCSIcmd == READ_6) ||
+			    (SCSIcmd == WRITE_6) ||
+			    (SCSIcmd == READ_10) ||
+			    (SCSIcmd == WRITE_10) ||
+			    (SCSIcmd == WRITE_VERIFY) ||
+			    (SCSIcmd == START_STOP) ||
+>>>>>>> upstream/android-13
 			    (pCurrCard->globalFlags & F_NO_FILTER)
 			    )
 				p_sccb->HostStatus = SCCB_DATA_UNDER_RUN;

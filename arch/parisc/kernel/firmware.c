@@ -1,9 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/parisc/kernel/firmware.c  - safe PDC access routines
  *
  *	PDC == Processor Dependent Code
  *
+<<<<<<< HEAD
  * See http://www.parisc-linux.org/documentation/index.html
+=======
+ * See PDC documentation at
+ * https://parisc.wiki.kernel.org/index.php/Technical_Documentation
+>>>>>>> upstream/android-13
  * for documentation describing the entry points and calling
  * conventions defined below.
  *
@@ -12,12 +21,15 @@
  * Copyright 2003 Grant Grundler <grundler parisc-linux org>
  * Copyright 2003,2004 Ryan Bradetich <rbrad@parisc-linux.org>
  * Copyright 2004,2006 Thibaut VARENE <varenet@parisc-linux.org>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
  *    (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*	I think it would be in everyone's best interest to follow this
@@ -55,7 +67,11 @@
  *					prumpf	991016	
  */
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -87,7 +103,11 @@ extern unsigned long pdc_result2[NUM_PDC_RESULT];
 
 /* Firmware needs to be initially set to narrow to determine the 
  * actual firmware width. */
+<<<<<<< HEAD
 int parisc_narrow_firmware __read_mostly = 1;
+=======
+int parisc_narrow_firmware __ro_after_init = 1;
+>>>>>>> upstream/android-13
 #endif
 
 /* On most currently-supported platforms, IODC I/O calls are 32-bit calls
@@ -317,6 +337,22 @@ int pdc_chassis_disp(unsigned long disp)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * pdc_cpu_rendenzvous - Stop currently executing CPU
+ * @retval: -1 on error, 0 on success
+ */
+int __pdc_cpu_rendezvous(void)
+{
+	if (is_pdc_pat())
+		return mem_pdc_call(PDC_PAT_CPU, PDC_PAT_CPU_RENDEZVOUS);
+	else
+		return mem_pdc_call(PDC_PROC, 1, 0);
+}
+
+
+/**
+>>>>>>> upstream/android-13
  * pdc_chassis_warn - Fetches chassis warnings
  * @retval: -1 on error, 0 on success
  */
@@ -569,6 +605,33 @@ int pdc_model_capabilities(unsigned long *capabilities)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * pdc_model_platform_info - Returns machine product and serial number.
+ * @orig_prod_num: Return buffer for original product number.
+ * @current_prod_num: Return buffer for current product number.
+ * @serial_no: Return buffer for serial number.
+ *
+ * Returns strings containing the original and current product numbers and the
+ * serial number of the system.
+ */
+int pdc_model_platform_info(char *orig_prod_num, char *current_prod_num,
+		char *serial_no)
+{
+	int retval;
+	unsigned long flags;
+
+	spin_lock_irqsave(&pdc_lock, flags);
+	retval = mem_pdc_call(PDC_MODEL, PDC_MODEL_GET_PLATFORM_INFO,
+		__pa(orig_prod_num), __pa(current_prod_num), __pa(serial_no));
+	convert_to_wide(pdc_result);
+	spin_unlock_irqrestore(&pdc_lock, flags);
+
+	return retval;
+}
+
+/**
+>>>>>>> upstream/android-13
  * pdc_cache_info - Return cache and TLB information.
  * @cache_info: The return buffer.
  *
@@ -1326,6 +1389,39 @@ int pdc_pat_cell_module(unsigned long *actcnt, unsigned long ploc, unsigned long
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * pdc_pat_cell_info - Retrieve the cell's information.
+ * @info: The pointer to a struct pdc_pat_cell_info_rtn_block.
+ * @actcnt: The number of bytes which should be written to info.
+ * @offset: offset of the structure.
+ * @cell_number: The cell number which should be asked, or -1 for current cell.
+ *
+ * This PDC call returns information about the given cell (or all cells).
+ */
+int pdc_pat_cell_info(struct pdc_pat_cell_info_rtn_block *info,
+		unsigned long *actcnt, unsigned long offset,
+		unsigned long cell_number)
+{
+	int retval;
+	unsigned long flags;
+	struct pdc_pat_cell_info_rtn_block result;
+
+	spin_lock_irqsave(&pdc_lock, flags);
+	retval = mem_pdc_call(PDC_PAT_CELL, PDC_PAT_CELL_GET_INFO,
+			__pa(pdc_result), __pa(&result), *actcnt,
+			offset, cell_number);
+	if (!retval) {
+		*actcnt = pdc_result[0];
+		memcpy(info, &result, *actcnt);
+	}
+	spin_unlock_irqrestore(&pdc_lock, flags);
+
+	return retval;
+}
+
+/**
+>>>>>>> upstream/android-13
  * pdc_pat_cpu_get_number - Retrieve the cpu number.
  * @cpu_info: The return buffer.
  * @hpa: The Hard Physical Address of the CPU.
@@ -1413,6 +1509,36 @@ int pdc_pat_pd_get_addr_map(unsigned long *actual_len, void *mem_addr,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * pdc_pat_pd_get_PDC_interface_revisions - Retrieve PDC interface revisions.
+ * @legacy_rev: The legacy revision.
+ * @pat_rev: The PAT revision.
+ * @pdc_cap: The PDC capabilities.
+ *
+ */
+int pdc_pat_pd_get_pdc_revisions(unsigned long *legacy_rev,
+		unsigned long *pat_rev, unsigned long *pdc_cap)
+{
+	int retval;
+	unsigned long flags;
+
+	spin_lock_irqsave(&pdc_lock, flags);
+	retval = mem_pdc_call(PDC_PAT_PD, PDC_PAT_PD_GET_PDC_INTERF_REV,
+				__pa(pdc_result));
+	if (retval == PDC_OK) {
+		*legacy_rev = pdc_result[0];
+		*pat_rev = pdc_result[1];
+		*pdc_cap = pdc_result[2];
+	}
+	spin_unlock_irqrestore(&pdc_lock, flags);
+
+	return retval;
+}
+
+
+/**
+>>>>>>> upstream/android-13
  * pdc_pat_io_pci_cfg_read - Read PCI configuration space.
  * @pci_addr: PCI configuration space address for which the read request is being made.
  * @pci_size: Size of read in bytes. Valid values are 1, 2, and 4. 

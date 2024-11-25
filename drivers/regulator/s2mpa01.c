@@ -17,10 +17,14 @@
 #include <linux/mfd/samsung/core.h>
 #include <linux/mfd/samsung/s2mpa01.h>
 
+<<<<<<< HEAD
 #define S2MPA01_REGULATOR_CNT ARRAY_SIZE(regulators)
 
 struct s2mpa01_info {
 	struct of_regulator_match rdata[S2MPA01_REGULATOR_MAX];
+=======
+struct s2mpa01_info {
+>>>>>>> upstream/android-13
 	int ramp_delay24;
 	int ramp_delay3;
 	int ramp_delay5;
@@ -232,6 +236,11 @@ static const struct regulator_ops s2mpa01_buck_ops = {
 
 #define regulator_desc_ldo(num, step) {			\
 	.name		= "LDO"#num,			\
+<<<<<<< HEAD
+=======
+	.of_match	= of_match_ptr("LDO"#num),	\
+	.regulators_node = of_match_ptr("regulators"),	\
+>>>>>>> upstream/android-13
 	.id		= S2MPA01_LDO##num,		\
 	.ops		= &s2mpa01_ldo_ops,		\
 	.type		= REGULATOR_VOLTAGE,		\
@@ -247,6 +256,11 @@ static const struct regulator_ops s2mpa01_buck_ops = {
 
 #define regulator_desc_buck1_4(num)	{			\
 	.name		= "BUCK"#num,				\
+<<<<<<< HEAD
+=======
+	.of_match	= of_match_ptr("BUCK"#num),		\
+	.regulators_node = of_match_ptr("regulators"),		\
+>>>>>>> upstream/android-13
 	.id		= S2MPA01_BUCK##num,			\
 	.ops		= &s2mpa01_buck_ops,			\
 	.type		= REGULATOR_VOLTAGE,			\
@@ -263,6 +277,11 @@ static const struct regulator_ops s2mpa01_buck_ops = {
 
 #define regulator_desc_buck5	{				\
 	.name		= "BUCK5",				\
+<<<<<<< HEAD
+=======
+	.of_match	= of_match_ptr("BUCK5"),		\
+	.regulators_node = of_match_ptr("regulators"),		\
+>>>>>>> upstream/android-13
 	.id		= S2MPA01_BUCK5,			\
 	.ops		= &s2mpa01_buck_ops,			\
 	.type		= REGULATOR_VOLTAGE,			\
@@ -279,6 +298,11 @@ static const struct regulator_ops s2mpa01_buck_ops = {
 
 #define regulator_desc_buck6_10(num, min, step) {			\
 	.name		= "BUCK"#num,				\
+<<<<<<< HEAD
+=======
+	.of_match	= of_match_ptr("BUCK"#num),		\
+	.regulators_node = of_match_ptr("regulators"),		\
+>>>>>>> upstream/android-13
 	.id		= S2MPA01_BUCK##num,			\
 	.ops		= &s2mpa01_buck_ops,			\
 	.type		= REGULATOR_VOLTAGE,			\
@@ -335,10 +359,14 @@ static const struct regulator_desc regulators[] = {
 static int s2mpa01_pmic_probe(struct platform_device *pdev)
 {
 	struct sec_pmic_dev *iodev = dev_get_drvdata(pdev->dev.parent);
+<<<<<<< HEAD
 	struct sec_platform_data *pdata = dev_get_platdata(iodev->dev);
 	struct device_node *reg_np = NULL;
 	struct regulator_config config = { };
 	struct of_regulator_match *rdata;
+=======
+	struct regulator_config config = { };
+>>>>>>> upstream/android-13
 	struct s2mpa01_info *s2mpa01;
 	int i;
 
@@ -346,6 +374,7 @@ static int s2mpa01_pmic_probe(struct platform_device *pdev)
 	if (!s2mpa01)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rdata = s2mpa01->rdata;
 	for (i = 0; i < S2MPA01_REGULATOR_CNT; i++)
 		rdata[i].name = regulators[i].name;
@@ -367,11 +396,15 @@ static int s2mpa01_pmic_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, s2mpa01);
 
 	config.dev = &pdev->dev;
+=======
+	config.dev = iodev->dev;
+>>>>>>> upstream/android-13
 	config.regmap = iodev->regmap_pmic;
 	config.driver_data = s2mpa01;
 
 	for (i = 0; i < S2MPA01_REGULATOR_MAX; i++) {
 		struct regulator_dev *rdev;
+<<<<<<< HEAD
 		if (pdata)
 			config.init_data = pdata->regulators[i].initdata;
 		else
@@ -379,6 +412,8 @@ static int s2mpa01_pmic_probe(struct platform_device *pdev)
 
 		if (reg_np)
 			config.of_node = rdata[i].of_node;
+=======
+>>>>>>> upstream/android-13
 
 		rdev = devm_regulator_register(&pdev->dev,
 						&regulators[i], &config);
@@ -411,5 +446,9 @@ module_platform_driver(s2mpa01_pmic_driver);
 /* Module information */
 MODULE_AUTHOR("Sangbeom Kim <sbkim73@samsung.com>");
 MODULE_AUTHOR("Sachin Kamat <sachin.kamat@samsung.com>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("SAMSUNG S2MPA01 Regulator Driver");
+=======
+MODULE_DESCRIPTION("Samsung S2MPA01 Regulator Driver");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

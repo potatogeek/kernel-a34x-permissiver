@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	STV6110(A) Silicon tuner driver
 
@@ -5,6 +9,7 @@
 
 	Copyright (C) ST Microelectronics
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef __STV6110x_PRIV_H
@@ -66,11 +73,19 @@
 #define REFCLOCK_MHz				(stv6110x->config->refclk / 1000000)
 
 struct stv6110x_state {
+<<<<<<< HEAD
+=======
+	struct dvb_frontend		*frontend;
+>>>>>>> upstream/android-13
 	struct i2c_adapter		*i2c;
 	const struct stv6110x_config	*config;
 	u8				regs[8];
 
+<<<<<<< HEAD
 	const struct stv6110x_devctl	*devctl;
+=======
+	struct stv6110x_devctl	*devctl;
+>>>>>>> upstream/android-13
 };
 
 #endif /* __STV6110x_PRIV_H */

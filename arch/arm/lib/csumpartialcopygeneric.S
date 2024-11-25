@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/csumpartialcopygeneric.S
  *
  *  Copyright (C) 1995-2001 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <asm/assembler.h>
 
@@ -89,6 +96,10 @@ sum	.req	r3
 
 FN_ENTRY
 		save_regs
+<<<<<<< HEAD
+=======
+		mov	sum, #-1
+>>>>>>> upstream/android-13
 
 		cmp	len, #8			@ Ensure that we have at least
 		blo	.Lless8			@ 8 bytes to copy.
@@ -148,9 +159,15 @@ FN_ENTRY
 		strb	r5, [dst], #1
 		mov	r5, r4, get_byte_2
 .Lexit:		tst	len, #1
+<<<<<<< HEAD
 		strneb	r5, [dst], #1
 		andne	r5, r5, #255
 		adcnes	sum, sum, r5, put_byte_0
+=======
+		strbne	r5, [dst], #1
+		andne	r5, r5, #255
+		adcsne	sum, sum, r5, put_byte_0
+>>>>>>> upstream/android-13
 
 		/*
 		 * If the dst pointer was not 16-bit aligned, we

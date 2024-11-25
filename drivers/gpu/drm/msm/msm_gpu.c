@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,17 +14,31 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include "msm_gpu.h"
 #include "msm_gem.h"
 #include "msm_mmu.h"
 #include "msm_fence.h"
+<<<<<<< HEAD
 
 #include <generated/utsrelease.h>
 #include <linux/string_helpers.h>
 #include <linux/pm_opp.h>
 #include <linux/devfreq.h>
+=======
+#include "msm_gpu_trace.h"
+#include "adreno/adreno_gpu.h"
+
+#include <generated/utsrelease.h>
+#include <linux/string_helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/devcoredump.h>
 #include <linux/sched/task.h>
 
@@ -31,6 +46,7 @@
  * Power Management:
  */
 
+<<<<<<< HEAD
 static int msm_devfreq_target(struct device *dev, unsigned long *freq,
 		u32 flags)
 {
@@ -108,6 +124,8 @@ static void msm_devfreq_init(struct msm_gpu *gpu)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int enable_pwrrail(struct msm_gpu *gpu)
 {
 	struct drm_device *dev = gpu->dev;
@@ -116,7 +134,11 @@ static int enable_pwrrail(struct msm_gpu *gpu)
 	if (gpu->gpu_reg) {
 		ret = regulator_enable(gpu->gpu_reg);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to enable 'gpu_reg': %d\n", ret);
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to enable 'gpu_reg': %d\n", ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -124,7 +146,11 @@ static int enable_pwrrail(struct msm_gpu *gpu)
 	if (gpu->gpu_cx) {
 		ret = regulator_enable(gpu->gpu_cx);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to enable 'gpu_cx': %d\n", ret);
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to enable 'gpu_cx': %d\n", ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -173,15 +199,23 @@ static int disable_clk(struct msm_gpu *gpu)
 
 static int enable_axi(struct msm_gpu *gpu)
 {
+<<<<<<< HEAD
 	if (gpu->ebi1_clk)
 		clk_prepare_enable(gpu->ebi1_clk);
 	return 0;
+=======
+	return clk_prepare_enable(gpu->ebi1_clk);
+>>>>>>> upstream/android-13
 }
 
 static int disable_axi(struct msm_gpu *gpu)
 {
+<<<<<<< HEAD
 	if (gpu->ebi1_clk)
 		clk_disable_unprepare(gpu->ebi1_clk);
+=======
+	clk_disable_unprepare(gpu->ebi1_clk);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -190,6 +224,10 @@ int msm_gpu_pm_resume(struct msm_gpu *gpu)
 	int ret;
 
 	DBG("%s", gpu->name);
+<<<<<<< HEAD
+=======
+	trace_msm_gpu_resume(0);
+>>>>>>> upstream/android-13
 
 	ret = enable_pwrrail(gpu);
 	if (ret)
@@ -203,12 +241,16 @@ int msm_gpu_pm_resume(struct msm_gpu *gpu)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (gpu->devfreq.devfreq) {
 		gpu->devfreq.busy_cycles = 0;
 		gpu->devfreq.time = ktime_get();
 
 		devfreq_resume_device(gpu->devfreq.devfreq);
 	}
+=======
+	msm_devfreq_resume(gpu);
+>>>>>>> upstream/android-13
 
 	gpu->needs_hw_init = true;
 
@@ -220,9 +262,15 @@ int msm_gpu_pm_suspend(struct msm_gpu *gpu)
 	int ret;
 
 	DBG("%s", gpu->name);
+<<<<<<< HEAD
 
 	if (gpu->devfreq.devfreq)
 		devfreq_suspend_device(gpu->devfreq.devfreq);
+=======
+	trace_msm_gpu_suspend(0);
+
+	msm_devfreq_suspend(gpu);
+>>>>>>> upstream/android-13
 
 	ret = disable_axi(gpu);
 	if (ret)
@@ -236,6 +284,11 @@ int msm_gpu_pm_suspend(struct msm_gpu *gpu)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	gpu->suspend_count++;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -257,6 +310,27 @@ int msm_gpu_hw_init(struct msm_gpu *gpu)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void update_fences(struct msm_gpu *gpu, struct msm_ringbuffer *ring,
+		uint32_t fence)
+{
+	struct msm_gem_submit *submit;
+	unsigned long flags;
+
+	spin_lock_irqsave(&ring->submit_lock, flags);
+	list_for_each_entry(submit, &ring->submits, node) {
+		if (submit->seqno > fence)
+			break;
+
+		msm_update_fence(submit->ring->fctx,
+			submit->hw_fence->seqno);
+		dma_fence_signal(submit->hw_fence);
+	}
+	spin_unlock_irqrestore(&ring->submit_lock, flags);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEV_COREDUMP
 static ssize_t msm_gpu_devcoredump_read(char *buffer, loff_t offset,
 		size_t count, void *data, size_t datalen)
@@ -307,28 +381,52 @@ static void msm_gpu_crashstate_get_bo(struct msm_gpu_state *state,
 	struct msm_gpu_state_bo *state_bo = &state->bos[state->nr_bos];
 
 	/* Don't record write only objects */
+<<<<<<< HEAD
 
 	state_bo->size = obj->base.size;
 	state_bo->iova = iova;
 
 	/* Only store the data for buffer objects marked for read */
 	if ((flags & MSM_SUBMIT_BO_READ)) {
+=======
+	state_bo->size = obj->base.size;
+	state_bo->iova = iova;
+
+	/* Only store data for non imported buffer objects marked for read */
+	if ((flags & MSM_SUBMIT_BO_READ) && !obj->base.import_attach) {
+>>>>>>> upstream/android-13
 		void *ptr;
 
 		state_bo->data = kvmalloc(obj->base.size, GFP_KERNEL);
 		if (!state_bo->data)
+<<<<<<< HEAD
 			return;
 
 		ptr = msm_gem_get_vaddr_active(&obj->base);
 		if (IS_ERR(ptr)) {
 			kvfree(state_bo->data);
 			return;
+=======
+			goto out;
+
+		msm_gem_lock(&obj->base);
+		ptr = msm_gem_get_vaddr_active(&obj->base);
+		msm_gem_unlock(&obj->base);
+		if (IS_ERR(ptr)) {
+			kvfree(state_bo->data);
+			state_bo->data = NULL;
+			goto out;
+>>>>>>> upstream/android-13
 		}
 
 		memcpy(state_bo->data, ptr, obj->base.size);
 		msm_gem_put_vaddr(&obj->base);
 	}
+<<<<<<< HEAD
 
+=======
+out:
+>>>>>>> upstream/android-13
 	state->nr_bos++;
 }
 
@@ -337,6 +435,13 @@ static void msm_gpu_crashstate_capture(struct msm_gpu *gpu,
 {
 	struct msm_gpu_state *state;
 
+<<<<<<< HEAD
+=======
+	/* Check if the target supports capturing crash state */
+	if (!gpu->funcs->gpu_state_get)
+		return;
+
+>>>>>>> upstream/android-13
 	/* Only save one crash state at a time */
 	if (gpu->crashstate)
 		return;
@@ -348,6 +453,7 @@ static void msm_gpu_crashstate_capture(struct msm_gpu *gpu,
 	/* Fill in the additional crash state information */
 	state->comm = kstrdup(comm, GFP_KERNEL);
 	state->cmd = kstrdup(cmd, GFP_KERNEL);
+<<<<<<< HEAD
 
 	if (submit) {
 		int i;
@@ -358,6 +464,40 @@ static void msm_gpu_crashstate_capture(struct msm_gpu *gpu,
 		for (i = 0; state->bos && i < submit->nr_bos; i++)
 			msm_gpu_crashstate_get_bo(state, submit->bos[i].obj,
 				submit->bos[i].iova, submit->bos[i].flags);
+=======
+	state->fault_info = gpu->fault_info;
+
+	if (submit) {
+		int i, nr = 0;
+
+		/* count # of buffers to dump: */
+		for (i = 0; i < submit->nr_bos; i++)
+			if (should_dump(submit, i))
+				nr++;
+		/* always dump cmd bo's, but don't double count them: */
+		for (i = 0; i < submit->nr_cmds; i++)
+			if (!should_dump(submit, submit->cmd[i].idx))
+				nr++;
+
+		state->bos = kcalloc(nr,
+			sizeof(struct msm_gpu_state_bo), GFP_KERNEL);
+
+		for (i = 0; state->bos && i < submit->nr_bos; i++) {
+			if (should_dump(submit, i)) {
+				msm_gpu_crashstate_get_bo(state, submit->bos[i].obj,
+					submit->bos[i].iova, submit->bos[i].flags);
+			}
+		}
+
+		for (i = 0; state->bos && i < submit->nr_cmds; i++) {
+			int idx = submit->cmd[i].idx;
+
+			if (!should_dump(submit, submit->cmd[i].idx)) {
+				msm_gpu_crashstate_get_bo(state, submit->bos[idx].obj,
+					submit->bos[idx].iova, submit->bos[idx].flags);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Set the active crash state to be dumped on failure */
@@ -378,6 +518,7 @@ static void msm_gpu_crashstate_capture(struct msm_gpu *gpu,
  * Hangcheck detection for locked gpu:
  */
 
+<<<<<<< HEAD
 static void update_fences(struct msm_gpu *gpu, struct msm_ringbuffer *ring,
 		uint32_t fence)
 {
@@ -392,23 +533,42 @@ static void update_fences(struct msm_gpu *gpu, struct msm_ringbuffer *ring,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct msm_gem_submit *
 find_submit(struct msm_ringbuffer *ring, uint32_t fence)
 {
 	struct msm_gem_submit *submit;
+<<<<<<< HEAD
 
 	WARN_ON(!mutex_is_locked(&ring->gpu->dev->struct_mutex));
 
 	list_for_each_entry(submit, &ring->submits, node)
 		if (submit->seqno == fence)
 			return submit;
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&ring->submit_lock, flags);
+	list_for_each_entry(submit, &ring->submits, node) {
+		if (submit->seqno == fence) {
+			spin_unlock_irqrestore(&ring->submit_lock, flags);
+			return submit;
+		}
+	}
+	spin_unlock_irqrestore(&ring->submit_lock, flags);
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
 
 static void retire_submits(struct msm_gpu *gpu);
 
+<<<<<<< HEAD
 static void recover_worker(struct work_struct *work)
+=======
+static void recover_worker(struct kthread_work *work)
+>>>>>>> upstream/android-13
 {
 	struct msm_gpu *gpu = container_of(work, struct msm_gpu, recover_work);
 	struct drm_device *dev = gpu->dev;
@@ -420,12 +580,17 @@ static void recover_worker(struct work_struct *work)
 
 	mutex_lock(&dev->struct_mutex);
 
+<<<<<<< HEAD
 	dev_err(dev->dev, "%s: hangcheck recover!\n", gpu->name);
+=======
+	DRM_DEV_ERROR(dev->dev, "%s: hangcheck recover!\n", gpu->name);
+>>>>>>> upstream/android-13
 
 	submit = find_submit(cur_ring, cur_ring->memptrs->fence + 1);
 	if (submit) {
 		struct task_struct *task;
 
+<<<<<<< HEAD
 		task = get_pid_task(submit->pid, PIDTYPE_PID);
 		if (task) {
 			comm = kstrdup(task->comm, GFP_KERNEL);
@@ -448,12 +613,33 @@ static void recover_worker(struct work_struct *work)
 
 		if (comm && cmd) {
 			dev_err(dev->dev, "%s: offending task: %s (%s)\n",
+=======
+		/* Increment the fault counts */
+		gpu->global_faults++;
+		submit->queue->faults++;
+
+		task = get_pid_task(submit->pid, PIDTYPE_PID);
+		if (task) {
+			comm = kstrdup(task->comm, GFP_KERNEL);
+			cmd = kstrdup_quotable_cmdline(task, GFP_KERNEL);
+			put_task_struct(task);
+		}
+
+		if (comm && cmd) {
+			DRM_DEV_ERROR(dev->dev, "%s: offending task: %s (%s)\n",
+>>>>>>> upstream/android-13
 				gpu->name, comm, cmd);
 
 			msm_rd_dump_submit(priv->hangrd, submit,
 				"offending task: %s (%s)", comm, cmd);
+<<<<<<< HEAD
 		} else
 			msm_rd_dump_submit(priv->hangrd, submit, NULL);
+=======
+		} else {
+			msm_rd_dump_submit(priv->hangrd, submit, NULL);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Record the crash state */
@@ -498,9 +684,18 @@ static void recover_worker(struct work_struct *work)
 		 */
 		for (i = 0; i < gpu->nr_rings; i++) {
 			struct msm_ringbuffer *ring = gpu->rb[i];
+<<<<<<< HEAD
 
 			list_for_each_entry(submit, &ring->submits, node)
 				gpu->funcs->submit(gpu, submit, NULL);
+=======
+			unsigned long flags;
+
+			spin_lock_irqsave(&ring->submit_lock, flags);
+			list_for_each_entry(submit, &ring->submits, node)
+				gpu->funcs->submit(gpu, submit);
+			spin_unlock_irqrestore(&ring->submit_lock, flags);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -509,18 +704,75 @@ static void recover_worker(struct work_struct *work)
 	msm_gpu_retire(gpu);
 }
 
+<<<<<<< HEAD
 static void hangcheck_timer_reset(struct msm_gpu *gpu)
 {
 	DBG("%s", gpu->name);
 	mod_timer(&gpu->hangcheck_timer,
 			round_jiffies_up(jiffies + DRM_MSM_HANGCHECK_JIFFIES));
+=======
+static void fault_worker(struct kthread_work *work)
+{
+	struct msm_gpu *gpu = container_of(work, struct msm_gpu, fault_work);
+	struct drm_device *dev = gpu->dev;
+	struct msm_gem_submit *submit;
+	struct msm_ringbuffer *cur_ring = gpu->funcs->active_ring(gpu);
+	char *comm = NULL, *cmd = NULL;
+
+	mutex_lock(&dev->struct_mutex);
+
+	submit = find_submit(cur_ring, cur_ring->memptrs->fence + 1);
+	if (submit && submit->fault_dumped)
+		goto resume_smmu;
+
+	if (submit) {
+		struct task_struct *task;
+
+		task = get_pid_task(submit->pid, PIDTYPE_PID);
+		if (task) {
+			comm = kstrdup(task->comm, GFP_KERNEL);
+			cmd = kstrdup_quotable_cmdline(task, GFP_KERNEL);
+			put_task_struct(task);
+		}
+
+		/*
+		 * When we get GPU iova faults, we can get 1000s of them,
+		 * but we really only want to log the first one.
+		 */
+		submit->fault_dumped = true;
+	}
+
+	/* Record the crash state */
+	pm_runtime_get_sync(&gpu->pdev->dev);
+	msm_gpu_crashstate_capture(gpu, submit, comm, cmd);
+	pm_runtime_put_sync(&gpu->pdev->dev);
+
+	kfree(cmd);
+	kfree(comm);
+
+resume_smmu:
+	memset(&gpu->fault_info, 0, sizeof(gpu->fault_info));
+	gpu->aspace->mmu->funcs->resume_translation(gpu->aspace->mmu);
+
+	mutex_unlock(&dev->struct_mutex);
+}
+
+static void hangcheck_timer_reset(struct msm_gpu *gpu)
+{
+	struct msm_drm_private *priv = gpu->dev->dev_private;
+	mod_timer(&gpu->hangcheck_timer,
+			round_jiffies_up(jiffies + msecs_to_jiffies(priv->hangcheck_period)));
+>>>>>>> upstream/android-13
 }
 
 static void hangcheck_handler(struct timer_list *t)
 {
 	struct msm_gpu *gpu = from_timer(gpu, t, hangcheck_timer);
 	struct drm_device *dev = gpu->dev;
+<<<<<<< HEAD
 	struct msm_drm_private *priv = dev->dev_private;
+=======
+>>>>>>> upstream/android-13
 	struct msm_ringbuffer *ring = gpu->funcs->active_ring(gpu);
 	uint32_t fence = ring->memptrs->fence;
 
@@ -530,6 +782,7 @@ static void hangcheck_handler(struct timer_list *t)
 	} else if (fence < ring->seqno) {
 		/* no progress and not done.. hung! */
 		ring->hangcheck_fence = fence;
+<<<<<<< HEAD
 		dev_err(dev->dev, "%s: hangcheck detected gpu lockup rb %d!\n",
 				gpu->name, ring->id);
 		dev_err(dev->dev, "%s:     completed fence: %u\n",
@@ -538,6 +791,16 @@ static void hangcheck_handler(struct timer_list *t)
 				gpu->name, ring->seqno);
 
 		queue_work(priv->wq, &gpu->recover_work);
+=======
+		DRM_DEV_ERROR(dev->dev, "%s: hangcheck detected gpu lockup rb %d!\n",
+				gpu->name, ring->id);
+		DRM_DEV_ERROR(dev->dev, "%s:     completed fence: %u\n",
+				gpu->name, fence);
+		DRM_DEV_ERROR(dev->dev, "%s:     submitted fence: %u\n",
+				gpu->name, ring->seqno);
+
+		kthread_queue_work(gpu->worker, &gpu->recover_work);
+>>>>>>> upstream/android-13
 	}
 
 	/* if still more pending work, reset the hangcheck timer: */
@@ -545,7 +808,11 @@ static void hangcheck_handler(struct timer_list *t)
 		hangcheck_timer_reset(gpu);
 
 	/* workaround for missing irq: */
+<<<<<<< HEAD
 	queue_work(priv->wq, &gpu->retire_work);
+=======
+	msm_gpu_retire(gpu);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -650,6 +917,7 @@ out:
  * Cmdstream submission/retirement:
  */
 
+<<<<<<< HEAD
 static void retire_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
 {
 	int i;
@@ -665,27 +933,97 @@ static void retire_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
 	pm_runtime_mark_last_busy(&gpu->pdev->dev);
 	pm_runtime_put_autosuspend(&gpu->pdev->dev);
 	msm_gem_submit_free(submit);
+=======
+static void retire_submit(struct msm_gpu *gpu, struct msm_ringbuffer *ring,
+		struct msm_gem_submit *submit)
+{
+	int index = submit->seqno % MSM_GPU_SUBMIT_STATS_COUNT;
+	volatile struct msm_gpu_submit_stats *stats;
+	u64 elapsed, clock = 0;
+	unsigned long flags;
+
+	stats = &ring->memptrs->stats[index];
+	/* Convert 19.2Mhz alwayson ticks to nanoseconds for elapsed time */
+	elapsed = (stats->alwayson_end - stats->alwayson_start) * 10000;
+	do_div(elapsed, 192);
+
+	/* Calculate the clock frequency from the number of CP cycles */
+	if (elapsed) {
+		clock = (stats->cpcycles_end - stats->cpcycles_start) * 1000;
+		do_div(clock, elapsed);
+	}
+
+	trace_msm_gpu_submit_retired(submit, elapsed, clock,
+		stats->alwayson_start, stats->alwayson_end);
+
+	msm_submit_retire(submit);
+
+	pm_runtime_mark_last_busy(&gpu->pdev->dev);
+	pm_runtime_put_autosuspend(&gpu->pdev->dev);
+
+	spin_lock_irqsave(&ring->submit_lock, flags);
+	list_del(&submit->node);
+	spin_unlock_irqrestore(&ring->submit_lock, flags);
+
+	/* Update devfreq on transition from active->idle: */
+	mutex_lock(&gpu->active_lock);
+	gpu->active_submits--;
+	WARN_ON(gpu->active_submits < 0);
+	if (!gpu->active_submits)
+		msm_devfreq_idle(gpu);
+	mutex_unlock(&gpu->active_lock);
+
+	msm_gem_submit_put(submit);
+>>>>>>> upstream/android-13
 }
 
 static void retire_submits(struct msm_gpu *gpu)
 {
+<<<<<<< HEAD
 	struct drm_device *dev = gpu->dev;
 	struct msm_gem_submit *submit, *tmp;
 	int i;
 
 	WARN_ON(!mutex_is_locked(&dev->struct_mutex));
 
+=======
+	int i;
+
+>>>>>>> upstream/android-13
 	/* Retire the commits starting with highest priority */
 	for (i = 0; i < gpu->nr_rings; i++) {
 		struct msm_ringbuffer *ring = gpu->rb[i];
 
+<<<<<<< HEAD
 		list_for_each_entry_safe(submit, tmp, &ring->submits, node) {
 			if (dma_fence_is_signaled(submit->fence))
 				retire_submit(gpu, submit);
+=======
+		while (true) {
+			struct msm_gem_submit *submit = NULL;
+			unsigned long flags;
+
+			spin_lock_irqsave(&ring->submit_lock, flags);
+			submit = list_first_entry_or_null(&ring->submits,
+					struct msm_gem_submit, node);
+			spin_unlock_irqrestore(&ring->submit_lock, flags);
+
+			/*
+			 * If no submit, we are done.  If submit->fence hasn't
+			 * been signalled, then later submits are not signalled
+			 * either, so we are also done.
+			 */
+			if (submit && dma_fence_is_signaled(submit->hw_fence)) {
+				retire_submit(gpu, ring, submit);
+			} else {
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
 static void retire_worker(struct work_struct *work)
 {
 	struct msm_gpu *gpu = container_of(work, struct msm_gpu, retire_work);
@@ -698,24 +1036,48 @@ static void retire_worker(struct work_struct *work)
 	mutex_lock(&dev->struct_mutex);
 	retire_submits(gpu);
 	mutex_unlock(&dev->struct_mutex);
+=======
+static void retire_worker(struct kthread_work *work)
+{
+	struct msm_gpu *gpu = container_of(work, struct msm_gpu, retire_work);
+
+	retire_submits(gpu);
+>>>>>>> upstream/android-13
 }
 
 /* call from irq handler to schedule work to retire bo's */
 void msm_gpu_retire(struct msm_gpu *gpu)
 {
+<<<<<<< HEAD
 	struct msm_drm_private *priv = gpu->dev->dev_private;
 	queue_work(priv->wq, &gpu->retire_work);
+=======
+	int i;
+
+	for (i = 0; i < gpu->nr_rings; i++)
+		update_fences(gpu, gpu->rb[i], gpu->rb[i]->memptrs->fence);
+
+	kthread_queue_work(gpu->worker, &gpu->retire_work);
+>>>>>>> upstream/android-13
 	update_sw_cntrs(gpu);
 }
 
 /* add bo's to gpu's ring, and kick gpu: */
+<<<<<<< HEAD
 void msm_gpu_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit,
 		struct msm_file_private *ctx)
+=======
+void msm_gpu_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev = gpu->dev;
 	struct msm_drm_private *priv = dev->dev_private;
 	struct msm_ringbuffer *ring = submit->ring;
+<<<<<<< HEAD
 	int i;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	WARN_ON(!mutex_is_locked(&dev->struct_mutex));
 
@@ -725,12 +1087,16 @@ void msm_gpu_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit,
 
 	submit->seqno = ++ring->seqno;
 
+<<<<<<< HEAD
 	list_add_tail(&submit->node, &ring->submits);
 
+=======
+>>>>>>> upstream/android-13
 	msm_rd_dump_submit(priv->rd, submit, NULL);
 
 	update_sw_cntrs(gpu);
 
+<<<<<<< HEAD
 	for (i = 0; i < submit->nr_bos; i++) {
 		struct msm_gem_object *msm_obj = submit->bos[i].obj;
 		uint64_t iova;
@@ -753,6 +1119,27 @@ void msm_gpu_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit,
 
 	gpu->funcs->submit(gpu, submit, ctx);
 	priv->lastctx = ctx;
+=======
+	/*
+	 * ring->submits holds a ref to the submit, to deal with the case
+	 * that a submit completes before msm_ioctl_gem_submit() returns.
+	 */
+	msm_gem_submit_get(submit);
+
+	spin_lock_irqsave(&ring->submit_lock, flags);
+	list_add_tail(&submit->node, &ring->submits);
+	spin_unlock_irqrestore(&ring->submit_lock, flags);
+
+	/* Update devfreq on transition from idle->active: */
+	mutex_lock(&gpu->active_lock);
+	if (!gpu->active_submits)
+		msm_devfreq_active(gpu);
+	gpu->active_submits++;
+	mutex_unlock(&gpu->active_lock);
+
+	gpu->funcs->submit(gpu, submit);
+	priv->lastctx = submit->queue->ctx;
+>>>>>>> upstream/android-13
 
 	hangcheck_timer_reset(gpu);
 }
@@ -769,7 +1156,11 @@ static irqreturn_t irq_handler(int irq, void *data)
 
 static int get_clocks(struct platform_device *pdev, struct msm_gpu *gpu)
 {
+<<<<<<< HEAD
 	int ret = msm_clk_bulk_get(&pdev->dev, &gpu->grp_clks);
+=======
+	int ret = devm_clk_bulk_get_all(&pdev->dev, &gpu->grp_clks);
+>>>>>>> upstream/android-13
 
 	if (ret < 1) {
 		gpu->nr_clocks = 0;
@@ -787,6 +1178,7 @@ static int get_clocks(struct platform_device *pdev, struct msm_gpu *gpu)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct msm_gem_address_space *
 msm_gpu_create_address_space(struct msm_gpu *gpu, struct platform_device *pdev,
 		uint64_t va_start, uint64_t va_end)
@@ -822,6 +1214,28 @@ msm_gpu_create_address_space(struct msm_gpu *gpu, struct platform_device *pdev,
 		msm_gem_address_space_put(aspace);
 		return ERR_PTR(ret);
 	}
+=======
+/* Return a new address space for a msm_drm_private instance */
+struct msm_gem_address_space *
+msm_gpu_create_private_address_space(struct msm_gpu *gpu, struct task_struct *task)
+{
+	struct msm_gem_address_space *aspace = NULL;
+	if (!gpu)
+		return NULL;
+
+	/*
+	 * If the target doesn't support private address spaces then return
+	 * the global one
+	 */
+	if (gpu->funcs->create_private_address_space) {
+		aspace = gpu->funcs->create_private_address_space(gpu);
+		if (!IS_ERR(aspace))
+			aspace->pid = get_pid(task_pid(task));
+	}
+
+	if (IS_ERR_OR_NULL(aspace))
+		aspace = msm_gem_address_space_get(gpu->aspace);
+>>>>>>> upstream/android-13
 
 	return aspace;
 }
@@ -841,10 +1255,27 @@ int msm_gpu_init(struct drm_device *drm, struct platform_device *pdev,
 	gpu->funcs = funcs;
 	gpu->name = name;
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&gpu->active_list);
 	INIT_WORK(&gpu->retire_work, retire_worker);
 	INIT_WORK(&gpu->recover_work, recover_worker);
 
+=======
+	gpu->worker = kthread_create_worker(0, "%s-worker", gpu->name);
+	if (IS_ERR(gpu->worker)) {
+		ret = PTR_ERR(gpu->worker);
+		gpu->worker = NULL;
+		goto fail;
+	}
+
+	sched_set_fifo_low(gpu->worker->task);
+
+	INIT_LIST_HEAD(&gpu->active_list);
+	mutex_init(&gpu->active_lock);
+	kthread_init_work(&gpu->retire_work, retire_worker);
+	kthread_init_work(&gpu->recover_work, recover_worker);
+	kthread_init_work(&gpu->fault_work, fault_worker);
+>>>>>>> upstream/android-13
 
 	timer_setup(&gpu->hangcheck_timer, hangcheck_handler, 0);
 
@@ -859,17 +1290,28 @@ int msm_gpu_init(struct drm_device *drm, struct platform_device *pdev,
 	}
 
 	/* Get Interrupt: */
+<<<<<<< HEAD
 	gpu->irq = platform_get_irq_byname(pdev, config->irqname);
 	if (gpu->irq < 0) {
 		ret = gpu->irq;
 		dev_err(drm->dev, "failed to get irq: %d\n", ret);
+=======
+	gpu->irq = platform_get_irq(pdev, 0);
+	if (gpu->irq < 0) {
+		ret = gpu->irq;
+		DRM_DEV_ERROR(drm->dev, "failed to get irq: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
 	ret = devm_request_irq(&pdev->dev, gpu->irq, irq_handler,
 			IRQF_TRIGGER_HIGH, gpu->name, gpu);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(drm->dev, "failed to request IRQ%u: %d\n", gpu->irq, ret);
+=======
+		DRM_DEV_ERROR(drm->dev, "failed to request IRQ%u: %d\n", gpu->irq, ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -894,6 +1336,7 @@ int msm_gpu_init(struct drm_device *drm, struct platform_device *pdev,
 		gpu->gpu_cx = NULL;
 
 	gpu->pdev = pdev;
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, gpu);
 
 	msm_devfreq_init(gpu);
@@ -903,21 +1346,47 @@ int msm_gpu_init(struct drm_device *drm, struct platform_device *pdev,
 
 	if (gpu->aspace == NULL)
 		dev_info(drm->dev, "%s: no IOMMU, fallback to VRAM carveout!\n", name);
+=======
+	platform_set_drvdata(pdev, &gpu->adreno_smmu);
+
+	msm_devfreq_init(gpu);
+
+
+	gpu->aspace = gpu->funcs->create_address_space(gpu, pdev);
+
+	if (gpu->aspace == NULL)
+		DRM_DEV_INFO(drm->dev, "%s: no IOMMU, fallback to VRAM carveout!\n", name);
+>>>>>>> upstream/android-13
 	else if (IS_ERR(gpu->aspace)) {
 		ret = PTR_ERR(gpu->aspace);
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	memptrs = msm_gem_kernel_new(drm, sizeof(*gpu->memptrs_bo),
 		MSM_BO_UNCACHED, gpu->aspace, &gpu->memptrs_bo,
+=======
+	memptrs = msm_gem_kernel_new(drm,
+		sizeof(struct msm_rbmemptrs) * nr_rings,
+		check_apriv(gpu, MSM_BO_UNCACHED), gpu->aspace, &gpu->memptrs_bo,
+>>>>>>> upstream/android-13
 		&memptrs_iova);
 
 	if (IS_ERR(memptrs)) {
 		ret = PTR_ERR(memptrs);
+<<<<<<< HEAD
 		dev_err(drm->dev, "could not allocate memptrs: %d\n", ret);
 		goto fail;
 	}
 
+=======
+		DRM_DEV_ERROR(drm->dev, "could not allocate memptrs: %d\n", ret);
+		goto fail;
+	}
+
+	msm_gem_object_set_name(gpu->memptrs_bo, "memptrs");
+
+>>>>>>> upstream/android-13
 	if (nr_rings > ARRAY_SIZE(gpu->rb)) {
 		DRM_DEV_INFO_ONCE(drm->dev, "Only creating %zu ringbuffers\n",
 			ARRAY_SIZE(gpu->rb));
@@ -930,7 +1399,11 @@ int msm_gpu_init(struct drm_device *drm, struct platform_device *pdev,
 
 		if (IS_ERR(gpu->rb[i])) {
 			ret = PTR_ERR(gpu->rb[i]);
+<<<<<<< HEAD
 			dev_err(drm->dev,
+=======
+			DRM_DEV_ERROR(drm->dev,
+>>>>>>> upstream/android-13
 				"could not create ringbuffer %d: %d\n", i, ret);
 			goto fail;
 		}
@@ -949,11 +1422,15 @@ fail:
 		gpu->rb[i] = NULL;
 	}
 
+<<<<<<< HEAD
 	if (gpu->memptrs_bo) {
 		msm_gem_put_vaddr(gpu->memptrs_bo);
 		msm_gem_put_iova(gpu->memptrs_bo, gpu->aspace);
 		drm_gem_object_put_unlocked(gpu->memptrs_bo);
 	}
+=======
+	msm_gem_kernel_put(gpu->memptrs_bo, gpu->aspace);
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, NULL);
 	return ret;
@@ -972,6 +1449,7 @@ void msm_gpu_cleanup(struct msm_gpu *gpu)
 		gpu->rb[i] = NULL;
 	}
 
+<<<<<<< HEAD
 	if (gpu->memptrs_bo) {
 		msm_gem_put_vaddr(gpu->memptrs_bo);
 		msm_gem_put_iova(gpu->memptrs_bo, gpu->aspace);
@@ -983,4 +1461,18 @@ void msm_gpu_cleanup(struct msm_gpu *gpu)
 			NULL, 0);
 		msm_gem_address_space_put(gpu->aspace);
 	}
+=======
+	msm_gem_kernel_put(gpu->memptrs_bo, gpu->aspace);
+
+	if (!IS_ERR_OR_NULL(gpu->aspace)) {
+		gpu->aspace->mmu->funcs->detach(gpu->aspace->mmu);
+		msm_gem_address_space_put(gpu->aspace);
+	}
+
+	if (gpu->worker) {
+		kthread_destroy_worker(gpu->worker);
+	}
+
+	msm_devfreq_cleanup(gpu);
+>>>>>>> upstream/android-13
 }

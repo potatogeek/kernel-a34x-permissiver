@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  card-als4000.c - driver for Avance Logic ALS4000 based soundcards.
  *  Copyright (C) 2000 by Bart Hartgers <bart@etpmod.phys.tue.nl>,
@@ -6,6 +10,7 @@
  *
  *  Framework borrowed from Massimo Piccioni's card-als100.c.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * NOTES
  *
  *  Since Avance does not provide any meaningful documentation, and I
@@ -82,7 +89,10 @@
 MODULE_AUTHOR("Bart Hartgers <bart@etpmod.phys.tue.nl>, Andreas Mohr");
 MODULE_DESCRIPTION("Avance Logic ALS4000");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Avance Logic,ALS4000}}");
+=======
+>>>>>>> upstream/android-13
 
 #if IS_REACHABLE(CONFIG_GAMEPORT)
 #define SUPPORT_JOYSTICK 1
@@ -368,6 +378,7 @@ CMD_SIGNED|CMD_STEREO,			/* ALS4000_FORMAT_S16L_STEREO */
 };	
 #define capture_cmd(chip) (capture_cmd_vals[(chip)->capture_format])
 
+<<<<<<< HEAD
 static int snd_als4000_hw_params(struct snd_pcm_substream *substream,
 				 struct snd_pcm_hw_params *hw_params)
 {
@@ -380,6 +391,8 @@ static int snd_als4000_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_als4000_capture_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_sb *chip = snd_pcm_substream_chip(substream);
@@ -647,7 +660,10 @@ static int snd_als4000_playback_close(struct snd_pcm_substream *substream)
 	struct snd_sb *chip = snd_pcm_substream_chip(substream);
 
 	chip->playback_substream = NULL;
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -666,7 +682,10 @@ static int snd_als4000_capture_close(struct snd_pcm_substream *substream)
 	struct snd_sb *chip = snd_pcm_substream_chip(substream);
 
 	chip->capture_substream = NULL;
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -675,9 +694,12 @@ static int snd_als4000_capture_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_als4000_playback_ops = {
 	.open =		snd_als4000_playback_open,
 	.close =	snd_als4000_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_als4000_hw_params,
 	.hw_free =	snd_als4000_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_als4000_playback_prepare,
 	.trigger =	snd_als4000_playback_trigger,
 	.pointer =	snd_als4000_playback_pointer
@@ -686,9 +708,12 @@ static const struct snd_pcm_ops snd_als4000_playback_ops = {
 static const struct snd_pcm_ops snd_als4000_capture_ops = {
 	.open =		snd_als4000_capture_open,
 	.close =	snd_als4000_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_als4000_hw_params,
 	.hw_free =	snd_als4000_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_als4000_capture_prepare,
 	.trigger =	snd_als4000_capture_trigger,
 	.pointer =	snd_als4000_capture_pointer
@@ -707,8 +732,13 @@ static int snd_als4000_pcm(struct snd_sb *chip, int device)
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_als4000_playback_ops);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_als4000_capture_ops);
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(chip->pci),
 					      64*1024, 64*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &chip->pci->dev, 64*1024, 64*1024);
+>>>>>>> upstream/android-13
 
 	chip->pcm = pcm;
 
@@ -781,13 +811,23 @@ static int snd_als4000_create_gameport(struct snd_card_als4000 *acard, int dev)
 
 	if (joystick_port[dev] == 1) { /* auto-detect */
 		for (io_port = 0x200; io_port <= 0x218; io_port += 8) {
+<<<<<<< HEAD
 			r = request_region(io_port, 8, "ALS4000 gameport");
+=======
+			r = devm_request_region(&acard->pci->dev, io_port, 8,
+						"ALS4000 gameport");
+>>>>>>> upstream/android-13
 			if (r)
 				break;
 		}
 	} else {
 		io_port = joystick_port[dev];
+<<<<<<< HEAD
 		r = request_region(io_port, 8, "ALS4000 gameport");
+=======
+		r = devm_request_region(&acard->pci->dev, io_port, 8,
+					"ALS4000 gameport");
+>>>>>>> upstream/android-13
 	}
 
 	if (!r) {
@@ -798,7 +838,10 @@ static int snd_als4000_create_gameport(struct snd_card_als4000 *acard, int dev)
 	acard->gameport = gp = gameport_allocate_port();
 	if (!gp) {
 		dev_err(&acard->pci->dev, "cannot allocate memory for gameport\n");
+<<<<<<< HEAD
 		release_and_free_resource(r);
+=======
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -806,7 +849,10 @@ static int snd_als4000_create_gameport(struct snd_card_als4000 *acard, int dev)
 	gameport_set_phys(gp, "pci%s/gameport0", pci_name(acard->pci));
 	gameport_set_dev_parent(gp, &acard->pci->dev);
 	gp->io = io_port;
+<<<<<<< HEAD
 	gameport_set_port_data(gp, r);
+=======
+>>>>>>> upstream/android-13
 
 	/* Enable legacy joystick port */
 	snd_als4000_set_addr(acard->iobase, 0, 0, 0, 1);
@@ -819,15 +865,21 @@ static int snd_als4000_create_gameport(struct snd_card_als4000 *acard, int dev)
 static void snd_als4000_free_gameport(struct snd_card_als4000 *acard)
 {
 	if (acard->gameport) {
+<<<<<<< HEAD
 		struct resource *r = gameport_get_port_data(acard->gameport);
 
+=======
+>>>>>>> upstream/android-13
 		gameport_unregister_port(acard->gameport);
 		acard->gameport = NULL;
 
 		/* disable joystick */
 		snd_als4000_set_addr(acard->iobase, 0, 0, 0, 0);
+<<<<<<< HEAD
 
 		release_and_free_resource(r);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 #else
@@ -843,12 +895,19 @@ static void snd_card_als4000_free( struct snd_card *card )
 	snd_als4k_gcr_write_addr(acard->iobase, ALS4K_GCR8C_MISC_CTRL, 0);
 	/* free resources */
 	snd_als4000_free_gameport(acard);
+<<<<<<< HEAD
 	pci_release_regions(acard->pci);
 	pci_disable_device(acard->pci);
 }
 
 static int snd_card_als4000_probe(struct pci_dev *pci,
 				  const struct pci_device_id *pci_id)
+=======
+}
+
+static int __snd_card_als4000_probe(struct pci_dev *pci,
+				    const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -867,6 +926,7 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 	}
 
 	/* enable PCI device */
+<<<<<<< HEAD
 	if ((err = pci_enable_device(pci)) < 0) {
 		return err;
 	}
@@ -882,12 +942,28 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 		pci_disable_device(pci);
 		return err;
 	}
+=======
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+	/* check, if we can restrict PCI DMA transfers to 24 bits */
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(24))) {
+		dev_err(&pci->dev, "architecture does not support 24bit PCI busmaster DMA\n");
+		return -ENXIO;
+	}
+
+	err = pci_request_regions(pci, "ALS4000");
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	iobase = pci_resource_start(pci, 0);
 
 	pci_read_config_word(pci, PCI_COMMAND, &word);
 	pci_write_config_word(pci, PCI_COMMAND, word | PCI_COMMAND_IO);
 	pci_set_master(pci);
 	
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   sizeof(*acard) /* private_data: acard */,
 			   &card);
@@ -896,6 +972,13 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 		pci_disable_device(pci);
 		return err;
 	}
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*acard) /* private_data: acard */,
+				&card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	acard = card->private_data;
 	acard->pci = pci;
@@ -905,6 +988,7 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 	/* disable all legacy ISA stuff */
 	snd_als4000_set_addr(acard->iobase, 0, 0, 0, 0);
 
+<<<<<<< HEAD
 	if ((err = snd_sbdsp_create(card,
 				    iobase + ALS4K_IOB_10_ADLIB_ADDR0,
 				    pci->irq,
@@ -916,6 +1000,19 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 				    &chip)) < 0) {
 		goto out_err;
 	}
+=======
+	err = snd_sbdsp_create(card,
+			       iobase + ALS4K_IOB_10_ADLIB_ADDR0,
+			       pci->irq,
+		/* internally registered as IRQF_SHARED in case of ALS4000 SB */
+			       snd_als4000_interrupt,
+			       -1,
+			       -1,
+			       SB_HW_ALS4000,
+			       &chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	acard->chip = chip;
 
 	chip->pci = pci;
@@ -928,6 +1025,7 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 	sprintf(card->longname, "%s at 0x%lx, irq %i",
 		card->shortname, chip->alt_port, chip->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_mpu401_uart_new( card, 0, MPU401_HW_ALS4000,
 					iobase + ALS4K_IOB_30_MIDI_DATA,
 					MPU401_INFO_INTEGRATED |
@@ -936,6 +1034,17 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 		dev_err(&pci->dev, "no MPU-401 device at 0x%lx?\n",
 				iobase + ALS4K_IOB_30_MIDI_DATA);
 		goto out_err;
+=======
+	err = snd_mpu401_uart_new(card, 0, MPU401_HW_ALS4000,
+				  iobase + ALS4K_IOB_30_MIDI_DATA,
+				  MPU401_INFO_INTEGRATED |
+				  MPU401_INFO_IRQ_HOOK,
+				  -1, &chip->rmidi);
+	if (err < 0) {
+		dev_err(&pci->dev, "no MPU-401 device at 0x%lx?\n",
+				iobase + ALS4K_IOB_30_MIDI_DATA);
+		return err;
+>>>>>>> upstream/android-13
 	}
 	/* FIXME: ALS4000 has interesting MPU401 configuration features
 	 * at ALS4K_CR1A_MPU401_UART_MODE_CONTROL
@@ -943,12 +1052,22 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 	 * however there doesn't seem to be an ALSA API for this...
 	 * SPECS_PAGE: 21 */
 
+<<<<<<< HEAD
 	if ((err = snd_als4000_pcm(chip, 0)) < 0) {
 		goto out_err;
 	}
 	if ((err = snd_sbmixer_new(chip)) < 0) {
 		goto out_err;
 	}	    
+=======
+	err = snd_als4000_pcm(chip, 0);
+	if (err < 0)
+		return err;
+
+	err = snd_sbmixer_new(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	if (snd_opl3_create(card,
 				iobase + ALS4K_IOB_10_ADLIB_ADDR0,
@@ -958,13 +1077,20 @@ static int snd_card_als4000_probe(struct pci_dev *pci,
 			   iobase + ALS4K_IOB_10_ADLIB_ADDR0,
 			   iobase + ALS4K_IOB_12_ADLIB_ADDR2);
 	} else {
+<<<<<<< HEAD
 		if ((err = snd_opl3_hwdep_new(opl3, 0, 1, NULL)) < 0) {
 			goto out_err;
 		}
+=======
+		err = snd_opl3_hwdep_new(opl3, 0, 1, NULL);
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	snd_als4000_create_gameport(acard, dev);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		goto out_err;
 	}
@@ -983,6 +1109,21 @@ out:
 static void snd_card_als4000_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+
+	pci_set_drvdata(pci, card);
+	dev++;
+	return 0;
+}
+
+static int snd_card_als4000_probe(struct pci_dev *pci,
+				  const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_card_als4000_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -994,7 +1135,10 @@ static int snd_als4000_suspend(struct device *dev)
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
 	
+<<<<<<< HEAD
 	snd_pcm_suspend_all(chip->pcm);
+=======
+>>>>>>> upstream/android-13
 	snd_sbmixer_suspend(chip);
 	return 0;
 }
@@ -1028,7 +1172,10 @@ static struct pci_driver als4000_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_als4000_ids,
 	.probe = snd_card_als4000_probe,
+<<<<<<< HEAD
 	.remove = snd_card_als4000_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = SND_ALS4000_PM_OPS,
 	},

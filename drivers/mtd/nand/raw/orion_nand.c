@@ -22,13 +22,23 @@
 #include <linux/platform_data/mtd-orion_nand.h>
 
 struct orion_nand_info {
+<<<<<<< HEAD
+=======
+	struct nand_controller controller;
+>>>>>>> upstream/android-13
 	struct nand_chip chip;
 	struct clk *clk;
 };
 
+<<<<<<< HEAD
 static void orion_nand_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *nc = mtd_to_nand(mtd);
+=======
+static void orion_nand_cmd_ctrl(struct nand_chip *nc, int cmd,
+				unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	struct orion_nand_data *board = nand_get_controller_data(nc);
 	u32 offs;
 
@@ -45,6 +55,7 @@ static void orion_nand_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl
 	if (nc->options & NAND_BUSWIDTH_16)
 		offs <<= 1;
 
+<<<<<<< HEAD
 	writeb(cmd, nc->IO_ADDR_W + offs);
 }
 
@@ -52,6 +63,14 @@ static void orion_nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	void __iomem *io_base = chip->IO_ADDR_R;
+=======
+	writeb(cmd, nc->legacy.IO_ADDR_W + offs);
+}
+
+static void orion_nand_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+{
+	void __iomem *io_base = chip->legacy.IO_ADDR_R;
+>>>>>>> upstream/android-13
 #if defined(__LINUX_ARM_ARCH__) && __LINUX_ARM_ARCH__ >= 5
 	uint64_t *buf64;
 #endif
@@ -83,6 +102,22 @@ static void orion_nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 		buf[i++] = readb(io_base);
 }
 
+<<<<<<< HEAD
+=======
+static int orion_nand_attach_chip(struct nand_chip *chip)
+{
+	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
+	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+
+	return 0;
+}
+
+static const struct nand_controller_ops orion_nand_ops = {
+	.attach_chip = orion_nand_attach_chip,
+};
+
+>>>>>>> upstream/android-13
 static int __init orion_nand_probe(struct platform_device *pdev)
 {
 	struct orion_nand_info *info;
@@ -102,6 +137,13 @@ static int __init orion_nand_probe(struct platform_device *pdev)
 	nc = &info->chip;
 	mtd = nand_to_mtd(nc);
 
+<<<<<<< HEAD
+=======
+	nand_controller_init(&info->controller);
+	info->controller.ops = &orion_nand_ops;
+	nc->controller = &info->controller;
+
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	io_base = devm_ioremap_resource(&pdev->dev, res);
 
@@ -137,6 +179,7 @@ static int __init orion_nand_probe(struct platform_device *pdev)
 
 	nand_set_controller_data(nc, board);
 	nand_set_flash_node(nc, pdev->dev.of_node);
+<<<<<<< HEAD
 	nc->IO_ADDR_R = nc->IO_ADDR_W = io_base;
 	nc->cmd_ctrl = orion_nand_cmd_ctrl;
 	nc->read_buf = orion_nand_read_buf;
@@ -145,6 +188,14 @@ static int __init orion_nand_probe(struct platform_device *pdev)
 
 	if (board->chip_delay)
 		nc->chip_delay = board->chip_delay;
+=======
+	nc->legacy.IO_ADDR_R = nc->legacy.IO_ADDR_W = io_base;
+	nc->legacy.cmd_ctrl = orion_nand_cmd_ctrl;
+	nc->legacy.read_buf = orion_nand_read_buf;
+
+	if (board->chip_delay)
+		nc->legacy.chip_delay = board->chip_delay;
+>>>>>>> upstream/android-13
 
 	WARN(board->width > 16,
 		"%d bit bus width out of range",
@@ -174,6 +225,16 @@ static int __init orion_nand_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
+	 * Set ->engine_type before registering the NAND devices in order to
+	 * provide a driver specific default value.
+	 */
+	nc->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+
+>>>>>>> upstream/android-13
 	ret = nand_scan(nc, 1);
 	if (ret)
 		goto no_dev;
@@ -196,8 +257,17 @@ static int orion_nand_remove(struct platform_device *pdev)
 {
 	struct orion_nand_info *info = platform_get_drvdata(pdev);
 	struct nand_chip *chip = &info->chip;
+<<<<<<< HEAD
 
 	nand_release(chip);
+=======
+	int ret;
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(info->clk);
 

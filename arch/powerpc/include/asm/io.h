@@ -1,14 +1,26 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_IO_H
 #define _ASM_POWERPC_IO_H
 #ifdef __KERNEL__
 
 #define ARCH_HAS_IOREMAP_WC
+<<<<<<< HEAD
 
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+#ifdef CONFIG_PPC32
+#define ARCH_HAS_IOREMAP_WT
+#endif
+
+/*
+>>>>>>> upstream/android-13
  */
 
 /* Check of existence of legacy devices */
@@ -26,10 +38,15 @@ extern struct pci_dev *isa_bridge_pcidev;
 
 #include <linux/device.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/byteorder.h>
 #include <asm/synch.h>
 #include <asm/delay.h>
+<<<<<<< HEAD
 #include <asm/mmu.h>
 #include <asm/ppc_asm.h>
 
@@ -37,6 +54,12 @@ extern struct pci_dev *isa_bridge_pcidev;
 #include <asm/paca.h>
 #endif
 
+=======
+#include <asm/mmiowb.h>
+#include <asm/mmu.h>
+#include <asm/ppc_asm.h>
+
+>>>>>>> upstream/android-13
 #define SIO_CONFIG_RA	0x398
 #define SIO_CONFIG_RD	0x399
 
@@ -102,6 +125,7 @@ extern bool isa_io_special;
  *
  */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 #define IO_SET_SYNC_FLAG()	do { local_paca->io_sync = 1; } while(0)
 #else
@@ -127,6 +151,8 @@ static inline void name(volatile u##size __iomem *addr, u##size val)	\
 	IO_SET_SYNC_FLAG();						\
 }
 #else /* newer gcc */
+=======
+>>>>>>> upstream/android-13
 #define DEF_MMIO_IN_X(name, size, insn)				\
 static inline u##size name(const volatile u##size __iomem *addr)	\
 {									\
@@ -141,16 +167,25 @@ static inline void name(volatile u##size __iomem *addr, u##size val)	\
 {									\
 	__asm__ __volatile__("sync;"#insn" %1,%y0"			\
 		: "=Z" (*addr) : "r" (val) : "memory");			\
+<<<<<<< HEAD
 	IO_SET_SYNC_FLAG();						\
 }
 #endif
+=======
+	mmiowb_set_pending();						\
+}
+>>>>>>> upstream/android-13
 
 #define DEF_MMIO_IN_D(name, size, insn)				\
 static inline u##size name(const volatile u##size __iomem *addr)	\
 {									\
 	u##size ret;							\
 	__asm__ __volatile__("sync;"#insn"%U1%X1 %0,%1;twi 0,%0,0;isync"\
+<<<<<<< HEAD
 		: "=r" (ret) : "m" (*addr) : "memory");			\
+=======
+		: "=r" (ret) : "m"UPD_CONSTR (*addr) : "memory");	\
+>>>>>>> upstream/android-13
 	return ret;							\
 }
 
@@ -158,8 +193,13 @@ static inline u##size name(const volatile u##size __iomem *addr)	\
 static inline void name(volatile u##size __iomem *addr, u##size val)	\
 {									\
 	__asm__ __volatile__("sync;"#insn"%U0%X0 %1,%0"			\
+<<<<<<< HEAD
 		: "=m" (*addr) : "r" (val) : "memory");			\
 	IO_SET_SYNC_FLAG();						\
+=======
+		: "=m"UPD_CONSTR (*addr) : "r" (val) : "memory");	\
+	mmiowb_set_pending();						\
+>>>>>>> upstream/android-13
 }
 
 DEF_MMIO_IN_D(in_8,     8, lbz);
@@ -330,41 +370,83 @@ static inline unsigned char __raw_readb(const volatile void __iomem *addr)
 {
 	return *(volatile unsigned char __force *)PCI_FIX_ADDR(addr);
 }
+<<<<<<< HEAD
+=======
+#define __raw_readb __raw_readb
+
+>>>>>>> upstream/android-13
 static inline unsigned short __raw_readw(const volatile void __iomem *addr)
 {
 	return *(volatile unsigned short __force *)PCI_FIX_ADDR(addr);
 }
+<<<<<<< HEAD
+=======
+#define __raw_readw __raw_readw
+
+>>>>>>> upstream/android-13
 static inline unsigned int __raw_readl(const volatile void __iomem *addr)
 {
 	return *(volatile unsigned int __force *)PCI_FIX_ADDR(addr);
 }
+<<<<<<< HEAD
+=======
+#define __raw_readl __raw_readl
+
+>>>>>>> upstream/android-13
 static inline void __raw_writeb(unsigned char v, volatile void __iomem *addr)
 {
 	*(volatile unsigned char __force *)PCI_FIX_ADDR(addr) = v;
 }
+<<<<<<< HEAD
+=======
+#define __raw_writeb __raw_writeb
+
+>>>>>>> upstream/android-13
 static inline void __raw_writew(unsigned short v, volatile void __iomem *addr)
 {
 	*(volatile unsigned short __force *)PCI_FIX_ADDR(addr) = v;
 }
+<<<<<<< HEAD
+=======
+#define __raw_writew __raw_writew
+
+>>>>>>> upstream/android-13
 static inline void __raw_writel(unsigned int v, volatile void __iomem *addr)
 {
 	*(volatile unsigned int __force *)PCI_FIX_ADDR(addr) = v;
 }
+<<<<<<< HEAD
+=======
+#define __raw_writel __raw_writel
+>>>>>>> upstream/android-13
 
 #ifdef __powerpc64__
 static inline unsigned long __raw_readq(const volatile void __iomem *addr)
 {
 	return *(volatile unsigned long __force *)PCI_FIX_ADDR(addr);
 }
+<<<<<<< HEAD
+=======
+#define __raw_readq __raw_readq
+
+>>>>>>> upstream/android-13
 static inline void __raw_writeq(unsigned long v, volatile void __iomem *addr)
 {
 	*(volatile unsigned long __force *)PCI_FIX_ADDR(addr) = v;
 }
+<<<<<<< HEAD
+=======
+#define __raw_writeq __raw_writeq
+>>>>>>> upstream/android-13
 
 static inline void __raw_writeq_be(unsigned long v, volatile void __iomem *addr)
 {
 	__raw_writeq((__force unsigned long)cpu_to_be64(v), addr);
 }
+<<<<<<< HEAD
+=======
+#define __raw_writeq_be __raw_writeq_be
+>>>>>>> upstream/android-13
 
 /*
  * Real mode versions of the above. Those instructions are only supposed
@@ -372,25 +454,53 @@ static inline void __raw_writeq_be(unsigned long v, volatile void __iomem *addr)
  */
 static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
 {
+<<<<<<< HEAD
 	__asm__ __volatile__("stbcix %0,0,%1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      stbcix %0,0,%1;  \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 		: : "r" (val), "r" (paddr) : "memory");
 }
 
 static inline void __raw_rm_writew(u16 val, volatile void __iomem *paddr)
 {
+<<<<<<< HEAD
 	__asm__ __volatile__("sthcix %0,0,%1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      sthcix %0,0,%1;  \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 		: : "r" (val), "r" (paddr) : "memory");
 }
 
 static inline void __raw_rm_writel(u32 val, volatile void __iomem *paddr)
 {
+<<<<<<< HEAD
 	__asm__ __volatile__("stwcix %0,0,%1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      stwcix %0,0,%1;  \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 		: : "r" (val), "r" (paddr) : "memory");
 }
 
 static inline void __raw_rm_writeq(u64 val, volatile void __iomem *paddr)
 {
+<<<<<<< HEAD
 	__asm__ __volatile__("stdcix %0,0,%1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      stdcix %0,0,%1;  \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 		: : "r" (val), "r" (paddr) : "memory");
 }
 
@@ -402,7 +512,14 @@ static inline void __raw_rm_writeq_be(u64 val, volatile void __iomem *paddr)
 static inline u8 __raw_rm_readb(volatile void __iomem *paddr)
 {
 	u8 ret;
+<<<<<<< HEAD
 	__asm__ __volatile__("lbzcix %0,0, %1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      lbzcix %0,0, %1; \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 			     : "=r" (ret) : "r" (paddr) : "memory");
 	return ret;
 }
@@ -410,7 +527,14 @@ static inline u8 __raw_rm_readb(volatile void __iomem *paddr)
 static inline u16 __raw_rm_readw(volatile void __iomem *paddr)
 {
 	u16 ret;
+<<<<<<< HEAD
 	__asm__ __volatile__("lhzcix %0,0, %1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      lhzcix %0,0, %1; \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 			     : "=r" (ret) : "r" (paddr) : "memory");
 	return ret;
 }
@@ -418,7 +542,14 @@ static inline u16 __raw_rm_readw(volatile void __iomem *paddr)
 static inline u32 __raw_rm_readl(volatile void __iomem *paddr)
 {
 	u32 ret;
+<<<<<<< HEAD
 	__asm__ __volatile__("lwzcix %0,0, %1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      lwzcix %0,0, %1; \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 			     : "=r" (ret) : "r" (paddr) : "memory");
 	return ret;
 }
@@ -426,7 +557,14 @@ static inline u32 __raw_rm_readl(volatile void __iomem *paddr)
 static inline u64 __raw_rm_readq(volatile void __iomem *paddr)
 {
 	u64 ret;
+<<<<<<< HEAD
 	__asm__ __volatile__("ldcix %0,0, %1"
+=======
+	__asm__ __volatile__(".machine push;   \
+			      .machine power6; \
+			      ldcix %0,0, %1;  \
+			      .machine pop;"
+>>>>>>> upstream/android-13
 			     : "=r" (ret) : "r" (paddr) : "memory");
 	return ret;
 }
@@ -637,10 +775,43 @@ static inline void name at					\
 /* Some drivers check for the presence of readq & writeq with
  * a #ifdef, so we make them happy here.
  */
+<<<<<<< HEAD
+=======
+#define readb readb
+#define readw readw
+#define readl readl
+#define writeb writeb
+#define writew writew
+#define writel writel
+#define readsb readsb
+#define readsw readsw
+#define readsl readsl
+#define writesb writesb
+#define writesw writesw
+#define writesl writesl
+#define inb inb
+#define inw inw
+#define inl inl
+#define outb outb
+#define outw outw
+#define outl outl
+#define insb insb
+#define insw insw
+#define insl insl
+#define outsb outsb
+#define outsw outsw
+#define outsl outsl
+>>>>>>> upstream/android-13
 #ifdef __powerpc64__
 #define readq	readq
 #define writeq	writeq
 #endif
+<<<<<<< HEAD
+=======
+#define memset_io memset_io
+#define memcpy_fromio memcpy_fromio
+#define memcpy_toio memcpy_toio
+>>>>>>> upstream/android-13
 
 /*
  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
@@ -649,11 +820,14 @@ static inline void name at					\
 #define xlate_dev_mem_ptr(p)	__va(p)
 
 /*
+<<<<<<< HEAD
  * Convert a virtual cached pointer to an uncached pointer
  */
 #define xlate_dev_kmem_ptr(p)	p
 
 /*
+=======
+>>>>>>> upstream/android-13
  * We don't do relaxed operations yet, at least not with this semantic
  */
 #define readb_relaxed(addr)	readb(addr)
@@ -665,6 +839,7 @@ static inline void name at					\
 #define writel_relaxed(v, addr)	writel(v, addr)
 #define writeq_relaxed(v, addr)	writeq(v, addr)
 
+<<<<<<< HEAD
 #include <asm-generic/iomap.h>
 
 #ifdef CONFIG_PPC32
@@ -684,6 +859,108 @@ static inline void mmiowb(void)
 	: "memory");
 }
 #endif /* !CONFIG_PPC32 */
+=======
+#ifdef CONFIG_GENERIC_IOMAP
+#include <asm-generic/iomap.h>
+#else
+/*
+ * Here comes the implementation of the IOMAP interfaces.
+ */
+static inline unsigned int ioread16be(const void __iomem *addr)
+{
+	return readw_be(addr);
+}
+#define ioread16be ioread16be
+
+static inline unsigned int ioread32be(const void __iomem *addr)
+{
+	return readl_be(addr);
+}
+#define ioread32be ioread32be
+
+#ifdef __powerpc64__
+static inline u64 ioread64_lo_hi(const void __iomem *addr)
+{
+	return readq(addr);
+}
+#define ioread64_lo_hi ioread64_lo_hi
+
+static inline u64 ioread64_hi_lo(const void __iomem *addr)
+{
+	return readq(addr);
+}
+#define ioread64_hi_lo ioread64_hi_lo
+
+static inline u64 ioread64be(const void __iomem *addr)
+{
+	return readq_be(addr);
+}
+#define ioread64be ioread64be
+
+static inline u64 ioread64be_lo_hi(const void __iomem *addr)
+{
+	return readq_be(addr);
+}
+#define ioread64be_lo_hi ioread64be_lo_hi
+
+static inline u64 ioread64be_hi_lo(const void __iomem *addr)
+{
+	return readq_be(addr);
+}
+#define ioread64be_hi_lo ioread64be_hi_lo
+#endif /* __powerpc64__ */
+
+static inline void iowrite16be(u16 val, void __iomem *addr)
+{
+	writew_be(val, addr);
+}
+#define iowrite16be iowrite16be
+
+static inline void iowrite32be(u32 val, void __iomem *addr)
+{
+	writel_be(val, addr);
+}
+#define iowrite32be iowrite32be
+
+#ifdef __powerpc64__
+static inline void iowrite64_lo_hi(u64 val, void __iomem *addr)
+{
+	writeq(val, addr);
+}
+#define iowrite64_lo_hi iowrite64_lo_hi
+
+static inline void iowrite64_hi_lo(u64 val, void __iomem *addr)
+{
+	writeq(val, addr);
+}
+#define iowrite64_hi_lo iowrite64_hi_lo
+
+static inline void iowrite64be(u64 val, void __iomem *addr)
+{
+	writeq_be(val, addr);
+}
+#define iowrite64be iowrite64be
+
+static inline void iowrite64be_lo_hi(u64 val, void __iomem *addr)
+{
+	writeq_be(val, addr);
+}
+#define iowrite64be_lo_hi iowrite64be_lo_hi
+
+static inline void iowrite64be_hi_lo(u64 val, void __iomem *addr)
+{
+	writeq_be(val, addr);
+}
+#define iowrite64be_hi_lo iowrite64be_hi_lo
+#endif /* __powerpc64__ */
+
+struct pci_dev;
+void pci_iounmap(struct pci_dev *dev, void __iomem *addr);
+#define pci_iounmap pci_iounmap
+void __iomem *ioport_map(unsigned long port, unsigned int len);
+#define ioport_map ioport_map
+#endif
+>>>>>>> upstream/android-13
 
 static inline void iosync(void)
 {
@@ -716,7 +993,10 @@ static inline void iosync(void)
 
 #define IO_SPACE_LIMIT ~(0UL)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ioremap     -   map bus memory into CPU space
  * @address:   bus address of the memory
@@ -736,6 +1016,7 @@ static inline void iosync(void)
  * * ioremap_prot allows to specify the page flags as an argument and can
  *   also be hooked by the platform via ppc_md.
  *
+<<<<<<< HEAD
  * * ioremap_nocache is identical to ioremap
  *
  * * ioremap_wc enables write combining
@@ -756,18 +1037,43 @@ static inline void iosync(void)
  * * __iounmap, is the low level implementation used by iounmap and cannot
  *   be hooked (but can be used by a hook on iounmap)
  *
+=======
+ * * ioremap_wc enables write combining
+ *
+ * * ioremap_wt enables write through
+ *
+ * * ioremap_coherent maps coherent cached memory
+ *
+ * * iounmap undoes such a mapping and can be hooked
+ *
+ * * __ioremap_caller is the same as above but takes an explicit caller
+ *   reference rather than using __builtin_return_address(0)
+ *
+>>>>>>> upstream/android-13
  */
 extern void __iomem *ioremap(phys_addr_t address, unsigned long size);
 extern void __iomem *ioremap_prot(phys_addr_t address, unsigned long size,
 				  unsigned long flags);
 extern void __iomem *ioremap_wc(phys_addr_t address, unsigned long size);
+<<<<<<< HEAD
 #define ioremap_nocache(addr, size)	ioremap((addr), (size))
+=======
+#define ioremap_wc ioremap_wc
+
+#ifdef CONFIG_PPC32
+void __iomem *ioremap_wt(phys_addr_t address, unsigned long size);
+#define ioremap_wt ioremap_wt
+#endif
+
+void __iomem *ioremap_coherent(phys_addr_t address, unsigned long size);
+>>>>>>> upstream/android-13
 #define ioremap_uc(addr, size)		ioremap((addr), (size))
 #define ioremap_cache(addr, size) \
 	ioremap_prot((addr), (size), pgprot_val(PAGE_KERNEL))
 
 extern void iounmap(volatile void __iomem *addr);
 
+<<<<<<< HEAD
 extern void __iomem *__ioremap(phys_addr_t, unsigned long size,
 			       unsigned long flags);
 extern void __iomem *__ioremap_caller(phys_addr_t, unsigned long size,
@@ -778,6 +1084,17 @@ extern void __iounmap(volatile void __iomem *addr);
 extern void __iomem * __ioremap_at(phys_addr_t pa, void *ea,
 				   unsigned long size, unsigned long flags);
 extern void __iounmap_at(void *ea, unsigned long size);
+=======
+void __iomem *ioremap_phb(phys_addr_t paddr, unsigned long size);
+
+int early_ioremap_range(unsigned long ea, phys_addr_t pa,
+			unsigned long size, pgprot_t prot);
+void __iomem *do_ioremap(phys_addr_t pa, phys_addr_t offset, unsigned long size,
+			 pgprot_t prot, void *caller);
+
+extern void __iomem *__ioremap_caller(phys_addr_t, unsigned long size,
+				      pgprot_t prot, void *caller);
+>>>>>>> upstream/android-13
 
 /*
  * When CONFIG_PPC_INDIRECT_PIO is set, we use the generic iomap implementation
@@ -792,8 +1109,15 @@ extern void __iounmap_at(void *ea, unsigned long size);
 
 #define mmio_read16be(addr)		readw_be(addr)
 #define mmio_read32be(addr)		readl_be(addr)
+<<<<<<< HEAD
 #define mmio_write16be(val, addr)	writew_be(val, addr)
 #define mmio_write32be(val, addr)	writel_be(val, addr)
+=======
+#define mmio_read64be(addr)		readq_be(addr)
+#define mmio_write16be(val, addr)	writew_be(val, addr)
+#define mmio_write32be(val, addr)	writel_be(val, addr)
+#define mmio_write64be(val, addr)	writeq_be(val, addr)
+>>>>>>> upstream/android-13
 #define mmio_insb(addr, dst, count)	readsb(addr, dst, count)
 #define mmio_insw(addr, dst, count)	readsw(addr, dst, count)
 #define mmio_insl(addr, dst, count)	readsl(addr, dst, count)
@@ -815,8 +1139,16 @@ extern void __iounmap_at(void *ea, unsigned long size);
  */
 static inline unsigned long virt_to_phys(volatile void * address)
 {
+<<<<<<< HEAD
 	return __pa((unsigned long)address);
 }
+=======
+	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && !virt_addr_valid(address));
+
+	return __pa((unsigned long)address);
+}
+#define virt_to_phys virt_to_phys
+>>>>>>> upstream/android-13
 
 /**
  *	phys_to_virt	-	map physical address to virtual
@@ -834,11 +1166,26 @@ static inline void * phys_to_virt(unsigned long address)
 {
 	return (void *)__va(address);
 }
+<<<<<<< HEAD
+=======
+#define phys_to_virt phys_to_virt
+>>>>>>> upstream/android-13
 
 /*
  * Change "struct page" to physical address.
  */
+<<<<<<< HEAD
 #define page_to_phys(page)	((phys_addr_t)page_to_pfn(page) << PAGE_SHIFT)
+=======
+static inline phys_addr_t page_to_phys(struct page *page)
+{
+	unsigned long pfn = page_to_pfn(page);
+
+	WARN_ON(IS_ENABLED(CONFIG_DEBUG_VIRTUAL) && !pfn_valid(pfn));
+
+	return PFN_PHYS(pfn);
+}
+>>>>>>> upstream/android-13
 
 /*
  * 32 bits still uses virt_to_bus() for it's implementation of DMA
@@ -854,6 +1201,10 @@ static inline unsigned long virt_to_bus(volatile void * address)
 		return 0;
         return __pa(address) + PCI_DRAM_OFFSET;
 }
+<<<<<<< HEAD
+=======
+#define virt_to_bus virt_to_bus
+>>>>>>> upstream/android-13
 
 static inline void * bus_to_virt(unsigned long address)
 {
@@ -861,6 +1212,10 @@ static inline void * bus_to_virt(unsigned long address)
 		return NULL;
         return __va(address - PCI_DRAM_OFFSET);
 }
+<<<<<<< HEAD
+=======
+#define bus_to_virt bus_to_virt
+>>>>>>> upstream/android-13
 
 #define page_to_bus(page)	(page_to_phys(page) + PCI_DRAM_OFFSET)
 
@@ -899,6 +1254,11 @@ static inline void * bus_to_virt(unsigned long address)
 
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
+<<<<<<< HEAD
+=======
+#include <asm-generic/io.h>
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 
 #endif /* _ASM_POWERPC_IO_H */

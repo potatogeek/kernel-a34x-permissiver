@@ -57,6 +57,7 @@ Example with optional PWM specifier for inverse polarity
 2) PWM controller nodes
 -----------------------
 
+<<<<<<< HEAD
 PWM controller nodes must specify the number of cells used for the
 specifier using the '#pwm-cells' property.
 
@@ -67,3 +68,6 @@ An example PWM controller might look like this:
 		reg = <0x7000a000 0x100>;
 		#pwm-cells = <2>;
 	};
+=======
+See pwm.yaml.
+>>>>>>> upstream/android-13

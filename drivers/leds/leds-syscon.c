@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Generic Syscon LEDs Driver
  *
  * Copyright (c) 2014, Linaro Limited
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/init.h>
@@ -69,8 +76,14 @@ static void syscon_led_set(struct led_classdev *led_cdev,
 
 static int syscon_led_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	struct device_node *np = dev->of_node;
+=======
+	struct led_init_data init_data = {};
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev_of_node(dev);
+>>>>>>> upstream/android-13
 	struct device *parent;
 	struct regmap *map;
 	struct syscon_led *sled;
@@ -82,7 +95,11 @@ static int syscon_led_probe(struct platform_device *pdev)
 		dev_err(dev, "no parent for syscon LED\n");
 		return -ENODEV;
 	}
+<<<<<<< HEAD
 	map = syscon_node_to_regmap(parent->of_node);
+=======
+	map = syscon_node_to_regmap(dev_of_node(parent));
+>>>>>>> upstream/android-13
 	if (IS_ERR(map)) {
 		dev_err(dev, "no regmap for syscon LED parent\n");
 		return PTR_ERR(map);
@@ -98,10 +115,13 @@ static int syscon_led_probe(struct platform_device *pdev)
 		return -EINVAL;
 	if (of_property_read_u32(np, "mask", &sled->mask))
 		return -EINVAL;
+<<<<<<< HEAD
 	sled->cdev.name =
 		of_get_property(np, "label", NULL) ? : np->name;
 	sled->cdev.default_trigger =
 		of_get_property(np, "linux,default-trigger", NULL);
+=======
+>>>>>>> upstream/android-13
 
 	state = of_get_property(np, "default-state", NULL);
 	if (state) {
@@ -129,7 +149,13 @@ static int syscon_led_probe(struct platform_device *pdev)
 	}
 	sled->cdev.brightness_set = syscon_led_set;
 
+<<<<<<< HEAD
 	ret = led_classdev_register(dev, &sled->cdev);
+=======
+	init_data.fwnode = of_fwnode_handle(np);
+
+	ret = devm_led_classdev_register_ext(dev, &sled->cdev, &init_data);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 

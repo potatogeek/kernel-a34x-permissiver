@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * support fot the imx6 based aristainetos board
  *
  * Copyright (C) 2014 Heiko Schocher <hs@denx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "imx6dl.dtsi"
@@ -14,9 +21,16 @@
 
 / {
 	model = "aristainetos i.MX6 Dual Lite Board 7";
+<<<<<<< HEAD
 	compatible = "fsl,imx6dl";
 
 	memory@10000000 {
+=======
+	compatible = "abb,aristainetos-imx6dl-7", "fsl,imx6dl";
+
+	memory@10000000 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x40000000>;
 	};
 
@@ -72,5 +86,9 @@
 };
 
 &pwm3 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };

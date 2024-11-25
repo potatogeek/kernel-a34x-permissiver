@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     hexium_gemini.c - v4l2 driver for Hexium Gemini frame grabber cards
 
@@ -6,6 +10,7 @@
 
     Copyright (C) 2003 Michael Hunold <michael@mihu.de>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -296,12 +303,25 @@ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_d
 	hexium_set_input(hexium, 0);
 	hexium->cur_input = 0;
 
+<<<<<<< HEAD
 	saa7146_vv_init(dev, &vv_data);
+=======
+	ret = saa7146_vv_init(dev, &vv_data);
+	if (ret) {
+		i2c_del_adapter(&hexium->i2c_adapter);
+		kfree(hexium);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
 	vv_data.vid_ops.vidioc_s_input = vidioc_s_input;
+<<<<<<< HEAD
 	ret = saa7146_register_device(&hexium->video_dev, dev, "hexium gemini", VFL_TYPE_GRABBER);
+=======
+	ret = saa7146_register_device(&hexium->video_dev, dev, "hexium gemini", VFL_TYPE_VIDEO);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		pr_err("cannot register capture v4l2 device. skipping.\n");
 		saa7146_vv_release(dev);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2015 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_PF2VF_MSG_H
 #define ADF_PF2VF_MSG_H
 
@@ -96,7 +101,11 @@
  * IN_USE_BY pattern as part of a collision control scheme (see adf_iov_putmsg).
  */
 
+<<<<<<< HEAD
 #define ADF_PFVF_COMPATIBILITY_VERSION		0x1	/* PF<->VF compat */
+=======
+#define ADF_PFVF_COMPAT_THIS_VERSION		0x1	/* PF<->VF compat */
+>>>>>>> upstream/android-13
 
 /* PF->VF messages */
 #define ADF_PF2VF_INT				BIT(0)

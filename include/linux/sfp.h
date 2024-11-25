@@ -224,7 +224,11 @@ struct sfp_eeprom_ext {
  *
  * See the SFF-8472 specification and related documents for the definition
  * of these structure members. This can be obtained from
+<<<<<<< HEAD
  * ftp://ftp.seagate.com/sff
+=======
+ * https://www.snia.org/technology-communities/sff/specifications
+>>>>>>> upstream/android-13
  */
 struct sfp_eeprom_id {
 	struct sfp_eeprom_base base;
@@ -275,6 +279,64 @@ struct sfp_diag {
 	__be16 cal_v_offset;
 } __packed;
 
+<<<<<<< HEAD
+=======
+/* SFF8024 defined constants */
+enum {
+	SFF8024_ID_UNK			= 0x00,
+	SFF8024_ID_SFF_8472		= 0x02,
+	SFF8024_ID_SFP			= 0x03,
+	SFF8024_ID_DWDM_SFP		= 0x0b,
+	SFF8024_ID_QSFP_8438		= 0x0c,
+	SFF8024_ID_QSFP_8436_8636	= 0x0d,
+	SFF8024_ID_QSFP28_8636		= 0x11,
+
+	SFF8024_ENCODING_UNSPEC		= 0x00,
+	SFF8024_ENCODING_8B10B		= 0x01,
+	SFF8024_ENCODING_4B5B		= 0x02,
+	SFF8024_ENCODING_NRZ		= 0x03,
+	SFF8024_ENCODING_8472_MANCHESTER= 0x04,
+	SFF8024_ENCODING_8472_SONET	= 0x05,
+	SFF8024_ENCODING_8472_64B66B	= 0x06,
+	SFF8024_ENCODING_8436_MANCHESTER= 0x06,
+	SFF8024_ENCODING_8436_SONET	= 0x04,
+	SFF8024_ENCODING_8436_64B66B	= 0x05,
+	SFF8024_ENCODING_256B257B	= 0x07,
+	SFF8024_ENCODING_PAM4		= 0x08,
+
+	SFF8024_CONNECTOR_UNSPEC	= 0x00,
+	/* codes 01-05 not supportable on SFP, but some modules have single SC */
+	SFF8024_CONNECTOR_SC		= 0x01,
+	SFF8024_CONNECTOR_FIBERJACK	= 0x06,
+	SFF8024_CONNECTOR_LC		= 0x07,
+	SFF8024_CONNECTOR_MT_RJ		= 0x08,
+	SFF8024_CONNECTOR_MU		= 0x09,
+	SFF8024_CONNECTOR_SG		= 0x0a,
+	SFF8024_CONNECTOR_OPTICAL_PIGTAIL= 0x0b,
+	SFF8024_CONNECTOR_MPO_1X12	= 0x0c,
+	SFF8024_CONNECTOR_MPO_2X16	= 0x0d,
+	SFF8024_CONNECTOR_HSSDC_II	= 0x20,
+	SFF8024_CONNECTOR_COPPER_PIGTAIL= 0x21,
+	SFF8024_CONNECTOR_RJ45		= 0x22,
+	SFF8024_CONNECTOR_NOSEPARATE	= 0x23,
+	SFF8024_CONNECTOR_MXC_2X16	= 0x24,
+
+	SFF8024_ECC_UNSPEC		= 0x00,
+	SFF8024_ECC_100G_25GAUI_C2M_AOC	= 0x01,
+	SFF8024_ECC_100GBASE_SR4_25GBASE_SR = 0x02,
+	SFF8024_ECC_100GBASE_LR4_25GBASE_LR = 0x03,
+	SFF8024_ECC_100GBASE_ER4_25GBASE_ER = 0x04,
+	SFF8024_ECC_100GBASE_SR10	= 0x05,
+	SFF8024_ECC_100GBASE_CR4	= 0x0b,
+	SFF8024_ECC_25GBASE_CR_S	= 0x0c,
+	SFF8024_ECC_25GBASE_CR_N	= 0x0d,
+	SFF8024_ECC_10GBASE_T_SFI	= 0x16,
+	SFF8024_ECC_10GBASE_T_SR	= 0x1c,
+	SFF8024_ECC_5GBASE_T		= 0x1d,
+	SFF8024_ECC_2_5GBASE_T		= 0x1e,
+};
+
+>>>>>>> upstream/android-13
 /* SFP EEPROM registers */
 enum {
 	SFP_PHYS_ID			= 0x00,
@@ -309,6 +371,7 @@ enum {
 	SFP_SFF8472_COMPLIANCE		= 0x5e,
 	SFP_CC_EXT			= 0x5f,
 
+<<<<<<< HEAD
 	SFP_PHYS_ID_SFF			= 0x02,
 	SFP_PHYS_ID_SFP			= 0x03,
 	SFP_PHYS_EXT_ID_SFP		= 0x04,
@@ -337,6 +400,9 @@ enum {
 	SFP_ENCODING_8472_64B66B	= 0x06,
 	SFP_ENCODING_256B257B		= 0x07,
 	SFP_ENCODING_PAM4		= 0x08,
+=======
+	SFP_PHYS_EXT_ID_SFP		= 0x04,
+>>>>>>> upstream/android-13
 	SFP_OPTIONS_HIGH_POWER_LEVEL	= BIT(13),
 	SFP_OPTIONS_PAGING_A2		= BIT(12),
 	SFP_OPTIONS_RETIMER		= BIT(11),
@@ -428,6 +494,13 @@ enum {
 	SFP_TEC_CUR			= 0x6c,
 
 	SFP_STATUS			= 0x6e,
+<<<<<<< HEAD
+=======
+	SFP_STATUS_TX_DISABLE		= BIT(7),
+	SFP_STATUS_TX_DISABLE_FORCE	= BIT(6),
+	SFP_STATUS_TX_FAULT		= BIT(2),
+	SFP_STATUS_RX_LOS		= BIT(1),
+>>>>>>> upstream/android-13
 	SFP_ALARM0			= 0x70,
 	SFP_ALARM0_TEMP_HIGH		= BIT(7),
 	SFP_ALARM0_TEMP_LOW		= BIT(6),
@@ -464,14 +537,29 @@ enum {
 struct fwnode_handle;
 struct ethtool_eeprom;
 struct ethtool_modinfo;
+<<<<<<< HEAD
 struct net_device;
+=======
+>>>>>>> upstream/android-13
 struct sfp_bus;
 
 /**
  * struct sfp_upstream_ops - upstream operations structure
+<<<<<<< HEAD
  * @module_insert: called after a module has been detected to determine
  *   whether the module is supported for the upstream device.
  * @module_remove: called after the module has been removed.
+=======
+ * @attach: called when the sfp socket driver is bound to the upstream
+ *   (mandatory).
+ * @detach: called when the sfp socket driver is unbound from the upstream
+ *   (mandatory).
+ * @module_insert: called after a module has been detected to determine
+ *   whether the module is supported for the upstream device.
+ * @module_remove: called after the module has been removed.
+ * @module_start: called after the PHY probe step
+ * @module_stop: called before the PHY is removed
+>>>>>>> upstream/android-13
  * @link_down: called when the link is non-operational for whatever
  *   reason.
  * @link_up: called when the link is operational.
@@ -481,8 +569,17 @@ struct sfp_bus;
  *   been removed.
  */
 struct sfp_upstream_ops {
+<<<<<<< HEAD
 	int (*module_insert)(void *priv, const struct sfp_eeprom_id *id);
 	void (*module_remove)(void *priv);
+=======
+	void (*attach)(void *priv, struct sfp_bus *bus);
+	void (*detach)(void *priv, struct sfp_bus *bus);
+	int (*module_insert)(void *priv, const struct sfp_eeprom_id *id);
+	void (*module_remove)(void *priv);
+	int (*module_start)(void *priv);
+	void (*module_stop)(void *priv);
+>>>>>>> upstream/android-13
 	void (*link_down)(void *priv);
 	void (*link_up)(void *priv);
 	int (*connect_phy)(void *priv, struct phy_device *);
@@ -492,21 +589,41 @@ struct sfp_upstream_ops {
 #if IS_ENABLED(CONFIG_SFP)
 int sfp_parse_port(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 		   unsigned long *support);
+<<<<<<< HEAD
 void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
 		       unsigned long *support);
 phy_interface_t sfp_select_interface(struct sfp_bus *bus,
 				     const struct sfp_eeprom_id *id,
+=======
+bool sfp_may_have_phy(struct sfp_bus *bus, const struct sfp_eeprom_id *id);
+void sfp_parse_support(struct sfp_bus *bus, const struct sfp_eeprom_id *id,
+		       unsigned long *support);
+phy_interface_t sfp_select_interface(struct sfp_bus *bus,
+>>>>>>> upstream/android-13
 				     unsigned long *link_modes);
 
 int sfp_get_module_info(struct sfp_bus *bus, struct ethtool_modinfo *modinfo);
 int sfp_get_module_eeprom(struct sfp_bus *bus, struct ethtool_eeprom *ee,
 			  u8 *data);
+<<<<<<< HEAD
 void sfp_upstream_start(struct sfp_bus *bus);
 void sfp_upstream_stop(struct sfp_bus *bus);
 struct sfp_bus *sfp_register_upstream(struct fwnode_handle *fwnode,
 				      struct net_device *ndev, void *upstream,
 				      const struct sfp_upstream_ops *ops);
 void sfp_unregister_upstream(struct sfp_bus *bus);
+=======
+int sfp_get_module_eeprom_by_page(struct sfp_bus *bus,
+				  const struct ethtool_module_eeprom *page,
+				  struct netlink_ext_ack *extack);
+void sfp_upstream_start(struct sfp_bus *bus);
+void sfp_upstream_stop(struct sfp_bus *bus);
+void sfp_bus_put(struct sfp_bus *bus);
+struct sfp_bus *sfp_bus_find_fwnode(struct fwnode_handle *fwnode);
+int sfp_bus_add_upstream(struct sfp_bus *bus, void *upstream,
+			 const struct sfp_upstream_ops *ops);
+void sfp_bus_del_upstream(struct sfp_bus *bus);
+>>>>>>> upstream/android-13
 #else
 static inline int sfp_parse_port(struct sfp_bus *bus,
 				 const struct sfp_eeprom_id *id,
@@ -515,6 +632,15 @@ static inline int sfp_parse_port(struct sfp_bus *bus,
 	return PORT_OTHER;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool sfp_may_have_phy(struct sfp_bus *bus,
+				    const struct sfp_eeprom_id *id)
+{
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static inline void sfp_parse_support(struct sfp_bus *bus,
 				     const struct sfp_eeprom_id *id,
 				     unsigned long *support)
@@ -522,7 +648,10 @@ static inline void sfp_parse_support(struct sfp_bus *bus,
 }
 
 static inline phy_interface_t sfp_select_interface(struct sfp_bus *bus,
+<<<<<<< HEAD
 						   const struct sfp_eeprom_id *id,
+=======
+>>>>>>> upstream/android-13
 						   unsigned long *link_modes)
 {
 	return PHY_INTERFACE_MODE_NA;
@@ -540,6 +669,16 @@ static inline int sfp_get_module_eeprom(struct sfp_bus *bus,
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sfp_get_module_eeprom_by_page(struct sfp_bus *bus,
+						const struct ethtool_module_eeprom *page,
+						struct netlink_ext_ack *extack)
+{
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static inline void sfp_upstream_start(struct sfp_bus *bus)
 {
 }
@@ -548,6 +687,7 @@ static inline void sfp_upstream_stop(struct sfp_bus *bus)
 {
 }
 
+<<<<<<< HEAD
 static inline struct sfp_bus *sfp_register_upstream(
 	struct fwnode_handle *fwnode,
 	struct net_device *ndev, void *upstream,
@@ -557,6 +697,24 @@ static inline struct sfp_bus *sfp_register_upstream(
 }
 
 static inline void sfp_unregister_upstream(struct sfp_bus *bus)
+=======
+static inline void sfp_bus_put(struct sfp_bus *bus)
+{
+}
+
+static inline struct sfp_bus *sfp_bus_find_fwnode(struct fwnode_handle *fwnode)
+{
+	return NULL;
+}
+
+static inline int sfp_bus_add_upstream(struct sfp_bus *bus, void *upstream,
+				       const struct sfp_upstream_ops *ops)
+{
+	return 0;
+}
+
+static inline void sfp_bus_del_upstream(struct sfp_bus *bus)
+>>>>>>> upstream/android-13
 {
 }
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation. All rights reserved.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
 ****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../pci.h"
@@ -46,7 +51,10 @@
 #define RX_EVM	rx_evm_percentage
 #define RX_SIGQ	rx_mimo_sig_qual
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void rtl92c_read_chip_version(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -114,22 +122,34 @@ void rtl92c_read_chip_version(struct ieee80211_hw *hw)
 		versionid = "UNKNOWN";
 		break;
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "Chip Version ID: %s\n", versionid);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"Chip Version ID: %s\n", versionid);
+>>>>>>> upstream/android-13
 
 	if (IS_92C_SERIAL(rtlhal->version))
 		rtlphy->rf_type =
 			 (IS_92C_1T2R(rtlhal->version)) ? RF_1T2R : RF_2T2R;
 	else
 		rtlphy->rf_type = RF_1T1R;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "Chip RF Type: %s\n",
 		 rtlphy->rf_type == RF_2T2R ? "RF_2T2R" : "RF_1T1R");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"Chip RF Type: %s\n",
+		rtlphy->rf_type == RF_2T2R ? "RF_2T2R" : "RF_1T1R");
+>>>>>>> upstream/android-13
 	if (get_rf_type(rtlphy) == RF_1T1R)
 		rtlpriv->dm.rfpath_rxenable[0] = true;
 	else
 		rtlpriv->dm.rfpath_rxenable[0] =
 		    rtlpriv->dm.rfpath_rxenable[1] = true;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "VersionID = 0x%4x\n",
 		 rtlhal->version);
 }
@@ -137,6 +157,15 @@ void rtl92c_read_chip_version(struct ieee80211_hw *hw)
 /**
  * writeLLT - LLT table write access
  * @io: io callback
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "VersionID = 0x%4x\n",
+		rtlhal->version);
+}
+
+/**
+ * rtl92c_llt_write - LLT table write access
+ * @hw: Pointer to the ieee80211_hw structure.
+>>>>>>> upstream/android-13
  * @address: LLT logical address.
  * @data: LLT data content
  *
@@ -165,6 +194,7 @@ bool rtl92c_llt_write(struct ieee80211_hw *hw, u32 address, u32 data)
 	} while (++count);
 	return status;
 }
+<<<<<<< HEAD
 /**
  * rtl92c_init_LLT_table - Init LLT table
  * @io: io callback
@@ -172,6 +202,15 @@ bool rtl92c_llt_write(struct ieee80211_hw *hw, u32 address, u32 data)
  *
  * Realtek hardware access function.
  *
+=======
+
+/**
+ * rtl92c_init_llt_table - Init LLT table
+ * @hw: Pointer to the ieee80211_hw structure.
+ * @boundary: Page boundary.
+ *
+ * Realtek hardware access function.
+>>>>>>> upstream/android-13
  */
 bool rtl92c_init_llt_table(struct ieee80211_hw *hw, u32 boundary)
 {
@@ -180,14 +219,22 @@ bool rtl92c_init_llt_table(struct ieee80211_hw *hw, u32 boundary)
 
 	for (i = 0; i < (boundary - 1); i++) {
 		rst = rtl92c_llt_write(hw, i , i + 1);
+<<<<<<< HEAD
 		if (true != rst) {
+=======
+		if (!rst) {
+>>>>>>> upstream/android-13
 			pr_err("===> %s #1 fail\n", __func__);
 			return rst;
 		}
 	}
 	/* end of list */
 	rst = rtl92c_llt_write(hw, (boundary - 1), 0xFF);
+<<<<<<< HEAD
 	if (true != rst) {
+=======
+	if (!rst) {
+>>>>>>> upstream/android-13
 		pr_err("===> %s #2 fail\n", __func__);
 		return rst;
 	}
@@ -198,19 +245,31 @@ bool rtl92c_init_llt_table(struct ieee80211_hw *hw, u32 boundary)
 	 */
 	for (i = boundary; i < LLT_LAST_ENTRY_OF_TX_PKT_BUFFER; i++) {
 		rst = rtl92c_llt_write(hw, i, (i + 1));
+<<<<<<< HEAD
 		if (true != rst) {
+=======
+		if (!rst) {
+>>>>>>> upstream/android-13
 			pr_err("===> %s #3 fail\n", __func__);
 			return rst;
 		}
 	}
 	/* Let last entry point to the start entry of ring buffer */
 	rst = rtl92c_llt_write(hw, LLT_LAST_ENTRY_OF_TX_PKT_BUFFER, boundary);
+<<<<<<< HEAD
 	if (true != rst) {
+=======
+	if (!rst) {
+>>>>>>> upstream/android-13
 		pr_err("===> %s #4 fail\n", __func__);
 		return rst;
 	}
 	return rst;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 		     u8 *p_macaddr, bool is_group, u8 enc_algo,
 		     bool is_wepkey, bool clear_all)
@@ -236,7 +295,11 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 		u8 cam_offset = 0;
 		u8 clear_number = 5;
 
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
+=======
+		rtl_dbg(rtlpriv, COMP_SEC, DBG_DMESG, "clear_all\n");
+>>>>>>> upstream/android-13
 		for (idx = 0; idx < clear_number; idx++) {
 			rtl_cam_mark_invalid(hw, cam_offset + idx);
 			rtl_cam_empty_entry(hw, cam_offset + idx);
@@ -290,13 +353,19 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 			}
 		}
 		if (rtlpriv->sec.key_len[key_index] == 0) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 				 "delete one entry\n");
+=======
+			rtl_dbg(rtlpriv, COMP_SEC, DBG_DMESG,
+				"delete one entry\n");
+>>>>>>> upstream/android-13
 			if (mac->opmode == NL80211_IFTYPE_AP ||
 			    mac->opmode == NL80211_IFTYPE_MESH_POINT)
 				rtl_cam_del_entry(hw, p_macaddr);
 			rtl_cam_delete_one_entry(hw, p_macaddr, entry_id);
 		} else {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_LOUD,
 				 "The insert KEY length is %d\n",
 				 rtlpriv->sec.key_len[PAIRWISE_KEYIDX]);
@@ -306,14 +375,30 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 				 rtlpriv->sec.key_buf[0][1]);
 			RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 				 "add one entry\n");
+=======
+			rtl_dbg(rtlpriv, COMP_SEC, DBG_LOUD,
+				"The insert KEY length is %d\n",
+				 rtlpriv->sec.key_len[PAIRWISE_KEYIDX]);
+			rtl_dbg(rtlpriv, COMP_SEC, DBG_LOUD,
+				"The insert KEY is %x %x\n",
+				rtlpriv->sec.key_buf[0][0],
+				rtlpriv->sec.key_buf[0][1]);
+			rtl_dbg(rtlpriv, COMP_SEC, DBG_DMESG,
+				"add one entry\n");
+>>>>>>> upstream/android-13
 			if (is_pairwise) {
 				RT_PRINT_DATA(rtlpriv, COMP_SEC, DBG_LOUD,
 					      "Pairwise Key content",
 					      rtlpriv->sec.pairwise_key,
 					      rtlpriv->sec.
 					      key_len[PAIRWISE_KEYIDX]);
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set Pairwise key\n");
+=======
+				rtl_dbg(rtlpriv, COMP_SEC, DBG_DMESG,
+					"set Pairwise key\n");
+>>>>>>> upstream/android-13
 
 				rtl_cam_add_one_entry(hw, macaddr, key_index,
 						entry_id, enc_algo,
@@ -321,8 +406,13 @@ void rtl92c_set_key(struct ieee80211_hw *hw, u32 key_index,
 						rtlpriv->sec.
 						key_buf[key_index]);
 			} else {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_SEC, DBG_DMESG,
 					 "set group key\n");
+=======
+				rtl_dbg(rtlpriv, COMP_SEC, DBG_DMESG,
+					"set group key\n");
+>>>>>>> upstream/android-13
 				if (mac->opmode == NL80211_IFTYPE_ADHOC) {
 					rtl_cam_add_one_entry(hw,
 						rtlefuse->dev_addr,
@@ -392,6 +482,10 @@ void rtl92c_set_qos(struct ieee80211_hw *hw, int aci)
 void rtl92c_init_driver_info_size(struct ieee80211_hw *hw, u8 size)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	rtl_write_byte(rtlpriv, REG_RX_DRVINFO_SZ, size);
 }
 
@@ -403,6 +497,7 @@ int rtl92c_set_network_type(struct ieee80211_hw *hw, enum nl80211_iftype type)
 	switch (type) {
 	case NL80211_IFTYPE_UNSPECIFIED:
 		value = NT_NO_LINK;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
 			 "Set Network type to NO LINK!\n");
 		break;
@@ -424,6 +519,29 @@ int rtl92c_set_network_type(struct ieee80211_hw *hw, enum nl80211_iftype type)
 	default:
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG,
 			 "Network type %d not supported!\n", type);
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_DMESG,
+			"Set Network type to NO LINK!\n");
+		break;
+	case NL80211_IFTYPE_ADHOC:
+		value = NT_LINK_AD_HOC;
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_DMESG,
+			"Set Network type to Ad Hoc!\n");
+		break;
+	case NL80211_IFTYPE_STATION:
+		value = NT_LINK_AP;
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_DMESG,
+			"Set Network type to STA!\n");
+		break;
+	case NL80211_IFTYPE_AP:
+		value = NT_AS_AP;
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_DMESG,
+			"Set Network type to AP!\n");
+		break;
+	default:
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_DMESG,
+			"Network type %d not supported!\n", type);
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 	}
 	rtl_write_byte(rtlpriv, MSR, value);
@@ -587,6 +705,7 @@ void rtl92c_set_min_space(struct ieee80211_hw *hw, bool is2T)
 
 /*==============================================================*/
 
+<<<<<<< HEAD
 static u8 _rtl92c_query_rxpwrpercentage(s8 antpower)
 {
 	if ((antpower <= -100) || (antpower >= 20))
@@ -641,6 +760,8 @@ static long _rtl92c_signal_scale_mapping(struct ieee80211_hw *hw,
 	return retsig;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 				      struct rtl_stats *pstats,
 				      struct rx_desc_92c *p_desc,
@@ -658,7 +779,11 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 	u32 rssi, total_rssi = 0;
 	bool in_powersavemode = false;
 	bool is_cck_rate;
+<<<<<<< HEAD
 	u8 *pdesc = (u8 *)p_desc;
+=======
+	__le32 *pdesc = (__le32 *)p_desc;
+>>>>>>> upstream/android-13
 
 	is_cck_rate = RX_HAL_IS_CCK_RATE(p_desc->rxmcs);
 	pstats->packet_matchbssid = packet_match_bssid;
@@ -669,6 +794,10 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 	pstats->RX_SIGQ[1] = -1;
 	if (is_cck_rate) {
 		u8 report, cck_highpwr;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		cck_buf = (struct phy_sts_cck_8192s_t *)p_drvinfo;
 		if (!in_powersavemode)
 			cck_highpwr = rtlphy->cck_high_power;
@@ -676,6 +805,10 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 			cck_highpwr = false;
 		if (!cck_highpwr) {
 			u8 cck_agc_rpt = cck_buf->cck_agc_rpt;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			report = cck_buf->cck_agc_rpt & 0xc0;
 			report = report >> 6;
 			switch (report) {
@@ -694,6 +827,10 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 			}
 		} else {
 			u8 cck_agc_rpt = cck_buf->cck_agc_rpt;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			report = p_drvinfo->cfosho[0] & 0x60;
 			report = report >> 5;
 			switch (report) {
@@ -711,11 +848,19 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 				break;
 			}
 		}
+<<<<<<< HEAD
 		pwdb_all = _rtl92c_query_rxpwrpercentage(rx_pwr_all);
+=======
+		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+>>>>>>> upstream/android-13
 		pstats->rx_pwdb_all = pwdb_all;
 		pstats->recvsignalpower = rx_pwr_all;
 		if (packet_match_bssid) {
 			u8 sq;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (pstats->rx_pwdb_all > 40)
 				sq = 100;
 			else {
@@ -739,7 +884,11 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 				rf_rx_num++;
 			rx_pwr[i] =
 			    ((p_drvinfo->gain_trsw[i] & 0x3f) * 2) - 110;
+<<<<<<< HEAD
 			rssi = _rtl92c_query_rxpwrpercentage(rx_pwr[i]);
+=======
+			rssi = rtl_query_rxpwrpercentage(rx_pwr[i]);
+>>>>>>> upstream/android-13
 			total_rssi += rssi;
 			rtlpriv->stats.rx_snr_db[i] =
 			    (long)(p_drvinfo->rxsnr[i] / 2);
@@ -748,6 +897,7 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 				pstats->rx_mimo_signalstrength[i] = (u8) rssi;
 		}
 		rx_pwr_all = ((p_drvinfo->pwdb_all >> 1) & 0x7f) - 110;
+<<<<<<< HEAD
 		pwdb_all = _rtl92c_query_rxpwrpercentage(rx_pwr_all);
 		pstats->rx_pwdb_all = pwdb_all;
 		pstats->rxpower = rx_pwr_all;
@@ -755,11 +905,24 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 		if (GET_RX_DESC_RX_MCS(pdesc) &&
 		    GET_RX_DESC_RX_MCS(pdesc) >= DESC_RATEMCS8 &&
 		    GET_RX_DESC_RX_MCS(pdesc) <= DESC_RATEMCS15)
+=======
+		pwdb_all = rtl_query_rxpwrpercentage(rx_pwr_all);
+		pstats->rx_pwdb_all = pwdb_all;
+		pstats->rxpower = rx_pwr_all;
+		pstats->recvsignalpower = rx_pwr_all;
+		if (get_rx_desc_rx_mcs(pdesc) &&
+		    get_rx_desc_rx_mcs(pdesc) >= DESC_RATEMCS8 &&
+		    get_rx_desc_rx_mcs(pdesc) <= DESC_RATEMCS15)
+>>>>>>> upstream/android-13
 			max_spatial_stream = 2;
 		else
 			max_spatial_stream = 1;
 		for (i = 0; i < max_spatial_stream; i++) {
+<<<<<<< HEAD
 			evm = _rtl92c_evm_db_to_percentage(p_drvinfo->rxevm[i]);
+=======
+			evm = rtl_evm_db_to_percentage(p_drvinfo->rxevm[i]);
+>>>>>>> upstream/android-13
 			if (packet_match_bssid) {
 				if (i == 0)
 					pstats->signalquality =
@@ -771,11 +934,18 @@ static void _rtl92c_query_rxphystatus(struct ieee80211_hw *hw,
 	}
 	if (is_cck_rate)
 		pstats->signalstrength =
+<<<<<<< HEAD
 		    (u8) (_rtl92c_signal_scale_mapping(hw, pwdb_all));
 	else if (rf_rx_num != 0)
 		pstats->signalstrength =
 		    (u8) (_rtl92c_signal_scale_mapping
 			  (hw, total_rssi /= rf_rx_num));
+=======
+		    (u8)(rtl_signal_scale_mapping(hw, pwdb_all));
+	else if (rf_rx_num != 0)
+		pstats->signalstrength =
+		    (u8)(rtl_signal_scale_mapping(hw, total_rssi /= rf_rx_num));
+>>>>>>> upstream/android-13
 }
 
 void rtl92c_translate_rx_signal_stuff(struct ieee80211_hw *hw,

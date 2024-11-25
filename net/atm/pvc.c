@@ -63,7 +63,11 @@ static int pvc_connect(struct socket *sock, struct sockaddr *sockaddr,
 }
 
 static int pvc_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			  char __user *optval, unsigned int optlen)
+=======
+			  sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	int error;
@@ -118,6 +122,10 @@ static const struct proto_ops pvc_proto_ops = {
 #ifdef CONFIG_COMPAT
 	.compat_ioctl = vcc_compat_ioctl,
 #endif
+<<<<<<< HEAD
+=======
+	.gettstamp =	sock_gettstamp,
+>>>>>>> upstream/android-13
 	.listen =	sock_no_listen,
 	.shutdown =	pvc_shutdown,
 	.setsockopt =	pvc_setsockopt,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define PRISM2_PCCARD
 
 #include <linux/module.h>
@@ -25,7 +29,10 @@ static char *dev_info = "hostap_cs";
 MODULE_AUTHOR("Jouni Malinen");
 MODULE_DESCRIPTION("Support for Intersil Prism2-based 802.11 wireless LAN "
 		   "cards (PC Card).");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Intersil Prism2-based WLAN cards (PC Card)");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 

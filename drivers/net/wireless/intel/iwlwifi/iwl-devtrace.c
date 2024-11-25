@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009 - 2014 Intel Corporation. All rights reserved.
@@ -17,6 +18,13 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2009 - 2014 Intel Corporation. All rights reserved.
+ * Copyright (C) 2018 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -30,12 +38,18 @@
 #ifndef __CHECKER__
 #include "iwl-trans.h"
 
+<<<<<<< HEAD
 #include "dvm/commands.h"
+=======
+>>>>>>> upstream/android-13
 #define CREATE_TRACE_POINTS
 #include "iwl-devtrace.h"
 
 EXPORT_TRACEPOINT_SYMBOL(iwlwifi_dev_ucode_event);
+<<<<<<< HEAD
 EXPORT_TRACEPOINT_SYMBOL(iwlwifi_dev_ucode_error);
+=======
+>>>>>>> upstream/android-13
 EXPORT_TRACEPOINT_SYMBOL(iwlwifi_dev_ucode_cont_event);
 EXPORT_TRACEPOINT_SYMBOL(iwlwifi_dev_ucode_wrap_event);
 #endif

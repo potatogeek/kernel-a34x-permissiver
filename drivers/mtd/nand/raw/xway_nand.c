@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  *  Copyright © 2012 John Crispin <john@phrozen.org>
  *  Copyright © 2016 Hauke Mehrtens <hauke@hauke-m.de>
@@ -64,6 +69,10 @@
 #define NAND_CON_NANDM		1
 
 struct xway_nand_data {
+<<<<<<< HEAD
+=======
+	struct nand_controller	controller;
+>>>>>>> upstream/android-13
 	struct nand_chip	chip;
 	unsigned long		csflags;
 	void __iomem		*nandaddr;
@@ -85,9 +94,14 @@ static void xway_writeb(struct mtd_info *mtd, int op, u8 value)
 	writeb(value, data->nandaddr + op);
 }
 
+<<<<<<< HEAD
 static void xway_select_chip(struct mtd_info *mtd, int select)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void xway_select_chip(struct nand_chip *chip, int select)
+{
+>>>>>>> upstream/android-13
 	struct xway_nand_data *data = nand_get_controller_data(chip);
 
 	switch (select) {
@@ -106,8 +120,15 @@ static void xway_select_chip(struct mtd_info *mtd, int select)
 	}
 }
 
+<<<<<<< HEAD
 static void xway_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
+=======
+static void xway_cmd_ctrl(struct nand_chip *chip, int cmd, unsigned int ctrl)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	if (cmd == NAND_CMD_NONE)
 		return;
 
@@ -120,32 +141,71 @@ static void xway_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 		;
 }
 
+<<<<<<< HEAD
 static int xway_dev_ready(struct mtd_info *mtd)
+=======
+static int xway_dev_ready(struct nand_chip *chip)
+>>>>>>> upstream/android-13
 {
 	return ltq_ebu_r32(EBU_NAND_WAIT) & NAND_WAIT_RD;
 }
 
+<<<<<<< HEAD
 static unsigned char xway_read_byte(struct mtd_info *mtd)
 {
 	return xway_readb(mtd, NAND_READ_DATA);
 }
 
 static void xway_read_buf(struct mtd_info *mtd, u_char *buf, int len)
+=======
+static unsigned char xway_read_byte(struct nand_chip *chip)
+{
+	return xway_readb(nand_to_mtd(chip), NAND_READ_DATA);
+}
+
+static void xway_read_buf(struct nand_chip *chip, u_char *buf, int len)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < len; i++)
+<<<<<<< HEAD
 		buf[i] = xway_readb(mtd, NAND_WRITE_DATA);
 }
 
 static void xway_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
+=======
+		buf[i] = xway_readb(nand_to_mtd(chip), NAND_WRITE_DATA);
+}
+
+static void xway_write_buf(struct nand_chip *chip, const u_char *buf, int len)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < len; i++)
+<<<<<<< HEAD
 		xway_writeb(mtd, NAND_WRITE_DATA, buf[i]);
 }
 
+=======
+		xway_writeb(nand_to_mtd(chip), NAND_WRITE_DATA, buf[i]);
+}
+
+static int xway_attach_chip(struct nand_chip *chip)
+{
+	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
+	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+
+	return 0;
+}
+
+static const struct nand_controller_ops xway_nand_ops = {
+	.attach_chip = xway_attach_chip,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Probe for the NAND device.
  */
@@ -173,6 +233,7 @@ static int xway_nand_probe(struct platform_device *pdev)
 	mtd = nand_to_mtd(&data->chip);
 	mtd->dev.parent = &pdev->dev;
 
+<<<<<<< HEAD
 	data->chip.cmd_ctrl = xway_cmd_ctrl;
 	data->chip.dev_ready = xway_dev_ready;
 	data->chip.select_chip = xway_select_chip;
@@ -183,6 +244,19 @@ static int xway_nand_probe(struct platform_device *pdev)
 
 	data->chip.ecc.mode = NAND_ECC_SOFT;
 	data->chip.ecc.algo = NAND_ECC_HAMMING;
+=======
+	data->chip.legacy.cmd_ctrl = xway_cmd_ctrl;
+	data->chip.legacy.dev_ready = xway_dev_ready;
+	data->chip.legacy.select_chip = xway_select_chip;
+	data->chip.legacy.write_buf = xway_write_buf;
+	data->chip.legacy.read_buf = xway_read_buf;
+	data->chip.legacy.read_byte = xway_read_byte;
+	data->chip.legacy.chip_delay = 30;
+
+	nand_controller_init(&data->controller);
+	data->controller.ops = &xway_nand_ops;
+	data->chip.controller = &data->controller;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, data);
 	nand_set_controller_data(&data->chip, data);
@@ -204,6 +278,16 @@ static int xway_nand_probe(struct platform_device *pdev)
 		    | NAND_CON_SE_P | NAND_CON_WP_P | NAND_CON_PRE_P
 		    | cs_flag, EBU_NAND_CON);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
+	 * Set ->engine_type before registering the NAND devices in order to
+	 * provide a driver specific default value.
+	 */
+	data->chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+
+>>>>>>> upstream/android-13
 	/* Scan to find existence of the device */
 	err = nand_scan(&data->chip, 1);
 	if (err)
@@ -222,8 +306,17 @@ static int xway_nand_probe(struct platform_device *pdev)
 static int xway_nand_remove(struct platform_device *pdev)
 {
 	struct xway_nand_data *data = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	nand_release(&data->chip);
+=======
+	struct nand_chip *chip = &data->chip;
+	int ret;
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

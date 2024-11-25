@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * arch/arm/plat-omap/include/plat/l3_3xxx.h - L3 firewall definitions
  *
@@ -9,6 +10,14 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * arch/arm/plat-omap/include/plat/l3_3xxx.h - L3 firewall definitions
+ *
+ * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
+ *	Sumit Semwal
+>>>>>>> upstream/android-13
  */
 #ifndef __ARCH_ARM_PLAT_OMAP_INCLUDE_PLAT_L3_3XXX_H
 #define __ARCH_ARM_PLAT_OMAP_INCLUDE_PLAT_L3_3XXX_H

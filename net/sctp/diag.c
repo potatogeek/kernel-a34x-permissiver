@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright Red Hat Inc. 2017
  *
@@ -5,6 +9,7 @@
  *
  * These functions implement sctp diag support.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email addresched(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -76,10 +83,13 @@ static void inet_diag_msg_sctpasoc_fill(struct inet_diag_msg *r,
 		r->idiag_timer = SCTP_EVENT_TIMEOUT_T3_RTX;
 		r->idiag_retrans = asoc->rtx_data_chunks;
 		r->idiag_expires = jiffies_to_msecs(t3_rtx->expires - jiffies);
+<<<<<<< HEAD
 	} else {
 		r->idiag_timer = 0;
 		r->idiag_retrans = 0;
 		r->idiag_expires = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -159,13 +169,22 @@ static int inet_sctp_diag_fill(struct sock *sk, struct sctp_association *asoc,
 	r = nlmsg_data(nlh);
 	BUG_ON(!sk_fullsock(sk));
 
+<<<<<<< HEAD
+=======
+	r->idiag_timer = 0;
+	r->idiag_retrans = 0;
+	r->idiag_expires = 0;
+>>>>>>> upstream/android-13
 	if (asoc) {
 		inet_diag_msg_sctpasoc_fill(r, sk, asoc);
 	} else {
 		inet_diag_msg_common_fill(r, sk);
 		r->idiag_state = sk->sk_state;
+<<<<<<< HEAD
 		r->idiag_timer = 0;
 		r->idiag_retrans = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (inet_diag_msg_attrs_fill(sk, skb, r, ext, user_ns, net_admin))
@@ -190,7 +209,11 @@ static int inet_sctp_diag_fill(struct sock *sk, struct sctp_association *asoc,
 		mem[SK_MEMINFO_FWD_ALLOC] = sk->sk_forward_alloc;
 		mem[SK_MEMINFO_WMEM_QUEUED] = sk->sk_wmem_queued;
 		mem[SK_MEMINFO_OPTMEM] = atomic_read(&sk->sk_omem_alloc);
+<<<<<<< HEAD
 		mem[SK_MEMINFO_BACKLOG] = sk->sk_backlog.len;
+=======
+		mem[SK_MEMINFO_BACKLOG] = READ_ONCE(sk->sk_backlog.len);
+>>>>>>> upstream/android-13
 		mem[SK_MEMINFO_DROPS] = atomic_read(&sk->sk_drops);
 
 		if (nla_put(skb, INET_DIAG_SKMEMINFO, sizeof(mem), &mem) < 0)
@@ -260,6 +283,7 @@ static size_t inet_assoc_attr_size(struct sctp_association *asoc)
 		+ 64;
 }
 
+<<<<<<< HEAD
 static int sctp_tsp_dump_one(struct sctp_transport *tsp, void *p)
 {
 	struct sctp_association *assoc = tsp->asoc;
@@ -269,11 +293,21 @@ static int sctp_tsp_dump_one(struct sctp_transport *tsp, void *p)
 	const struct inet_diag_req_v2 *req = commp->r;
 	const struct nlmsghdr *nlh = commp->nlh;
 	struct net *net = sock_net(in_skb->sk);
+=======
+static int sctp_sock_dump_one(struct sctp_endpoint *ep, struct sctp_transport *tsp, void *p)
+{
+	struct sctp_association *assoc = tsp->asoc;
+	struct sctp_comm_param *commp = p;
+	struct sock *sk = ep->base.sk;
+	const struct inet_diag_req_v2 *req = commp->r;
+	struct sk_buff *skb = commp->skb;
+>>>>>>> upstream/android-13
 	struct sk_buff *rep;
 	int err;
 
 	err = sock_diag_check_cookie(sk, req->id.idiag_cookie);
 	if (err)
+<<<<<<< HEAD
 		goto out;
 
 	err = -ENOMEM;
@@ -310,6 +344,39 @@ out:
 static int sctp_sock_dump(struct sctp_transport *tsp, void *p)
 {
 	struct sctp_endpoint *ep = tsp->asoc->ep;
+=======
+		return err;
+
+	rep = nlmsg_new(inet_assoc_attr_size(assoc), GFP_KERNEL);
+	if (!rep)
+		return -ENOMEM;
+
+	lock_sock(sk);
+	if (ep != assoc->ep) {
+		err = -EAGAIN;
+		goto out;
+	}
+
+	err = inet_sctp_diag_fill(sk, assoc, rep, req, sk_user_ns(NETLINK_CB(skb).sk),
+				  NETLINK_CB(skb).portid, commp->nlh->nlmsg_seq, 0,
+				  commp->nlh, commp->net_admin);
+	if (err < 0) {
+		WARN_ON(err == -EMSGSIZE);
+		goto out;
+	}
+	release_sock(sk);
+
+	return nlmsg_unicast(sock_net(skb->sk)->diag_nlsk, rep, NETLINK_CB(skb).portid);
+
+out:
+	release_sock(sk);
+	kfree_skb(rep);
+	return err;
+}
+
+static int sctp_sock_dump(struct sctp_endpoint *ep, struct sctp_transport *tsp, void *p)
+{
+>>>>>>> upstream/android-13
 	struct sctp_comm_param *commp = p;
 	struct sock *sk = ep->base.sk;
 	struct sk_buff *skb = commp->skb;
@@ -319,6 +386,11 @@ static int sctp_sock_dump(struct sctp_transport *tsp, void *p)
 	int err = 0;
 
 	lock_sock(sk);
+<<<<<<< HEAD
+=======
+	if (ep != tsp->asoc->ep)
+		goto release;
+>>>>>>> upstream/android-13
 	list_for_each_entry(assoc, &ep->asocs, asocs) {
 		if (cb->args[4] < cb->args[1])
 			goto next;
@@ -361,9 +433,14 @@ release:
 	return err;
 }
 
+<<<<<<< HEAD
 static int sctp_sock_filter(struct sctp_transport *tsp, void *p)
 {
 	struct sctp_endpoint *ep = tsp->asoc->ep;
+=======
+static int sctp_sock_filter(struct sctp_endpoint *ep, struct sctp_transport *tsp, void *p)
+{
+>>>>>>> upstream/android-13
 	struct sctp_comm_param *commp = p;
 	struct sock *sk = ep->base.sk;
 	const struct inet_diag_req_v2 *r = commp->r;
@@ -436,13 +513,19 @@ static void sctp_diag_get_info(struct sock *sk, struct inet_diag_msg *r,
 		r->idiag_rqueue = atomic_read(&infox->asoc->rmem_alloc);
 		r->idiag_wqueue = infox->asoc->sndbuf_used;
 	} else {
+<<<<<<< HEAD
 		r->idiag_rqueue = sk->sk_ack_backlog;
 		r->idiag_wqueue = sk->sk_max_ack_backlog;
+=======
+		r->idiag_rqueue = READ_ONCE(sk->sk_ack_backlog);
+		r->idiag_wqueue = READ_ONCE(sk->sk_max_ack_backlog);
+>>>>>>> upstream/android-13
 	}
 	if (infox->sctpinfo)
 		sctp_get_sctp_info(sk, infox->asoc, infox->sctpinfo);
 }
 
+<<<<<<< HEAD
 static int sctp_diag_dump_one(struct sk_buff *in_skb,
 			      const struct nlmsghdr *nlh,
 			      const struct inet_diag_req_v2 *req)
@@ -454,6 +537,20 @@ static int sctp_diag_dump_one(struct sk_buff *in_skb,
 		.r = req,
 		.nlh = nlh,
 		.net_admin = netlink_net_capable(in_skb, CAP_NET_ADMIN),
+=======
+static int sctp_diag_dump_one(struct netlink_callback *cb,
+			      const struct inet_diag_req_v2 *req)
+{
+	struct sk_buff *skb = cb->skb;
+	struct net *net = sock_net(skb->sk);
+	const struct nlmsghdr *nlh = cb->nlh;
+	union sctp_addr laddr, paddr;
+	struct sctp_comm_param commp = {
+		.skb = skb,
+		.r = req,
+		.nlh = nlh,
+		.net_admin = netlink_net_capable(skb, CAP_NET_ADMIN),
+>>>>>>> upstream/android-13
 	};
 
 	if (req->sdiag_family == AF_INET) {
@@ -476,12 +573,20 @@ static int sctp_diag_dump_one(struct sk_buff *in_skb,
 		paddr.v6.sin6_family = AF_INET6;
 	}
 
+<<<<<<< HEAD
 	return sctp_transport_lookup_process(sctp_tsp_dump_one,
+=======
+	return sctp_transport_lookup_process(sctp_sock_dump_one,
+>>>>>>> upstream/android-13
 					     net, &laddr, &paddr, &commp);
 }
 
 static void sctp_diag_dump(struct sk_buff *skb, struct netlink_callback *cb,
+<<<<<<< HEAD
 			   const struct inet_diag_req_v2 *r, struct nlattr *bc)
+=======
+			   const struct inet_diag_req_v2 *r)
+>>>>>>> upstream/android-13
 {
 	u32 idiag_states = r->idiag_states;
 	struct net *net = sock_net(skb->sk);
@@ -521,8 +626,13 @@ skip:
 	if (!(idiag_states & ~(TCPF_LISTEN | TCPF_CLOSE)))
 		goto done;
 
+<<<<<<< HEAD
 	sctp_for_each_transport(sctp_sock_filter, sctp_sock_dump,
 				net, &pos, &commp);
+=======
+	sctp_transport_traverse_process(sctp_sock_filter, sctp_sock_dump,
+					net, &pos, &commp);
+>>>>>>> upstream/android-13
 	cb->args[2] = pos;
 
 done:

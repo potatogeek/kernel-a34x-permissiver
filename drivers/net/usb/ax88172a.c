@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ASIX AX88172A based USB 2.0 Ethernet Devices
  * Copyright (C) 2012 OMICRON electronics GmbH
@@ -9,6 +13,7 @@
  * Copyright (C) 2005 Phil Chang <pchang23@sbcglobal.net>
  * Copyright (C) 2006 James Painter <jamie.painter@iname.com>
  * Copyright (c) 2002-2003 TiVo Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "asix.h"
@@ -37,6 +44,7 @@ struct ax88172a_private {
 	struct asix_rx_fixup_info rx_fixup_info;
 };
 
+<<<<<<< HEAD
 /* MDIO read and write wrappers for phylib */
 static int asix_mdio_bus_read(struct mii_bus *bus, int phy_id, int regnum)
 {
@@ -62,6 +70,8 @@ static int ax88172a_ioctl(struct net_device *net, struct ifreq *rq, int cmd)
 	return phy_mii_ioctl(net->phydev, rq, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* set MAC link settings according to information from phylib */
 static void ax88172a_adjust_link(struct net_device *netdev)
 {
@@ -143,10 +153,17 @@ static const struct net_device_ops ax88172a_netdev_ops = {
 	.ndo_start_xmit		= usbnet_start_xmit,
 	.ndo_tx_timeout		= usbnet_tx_timeout,
 	.ndo_change_mtu		= usbnet_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64	= usbnet_get_stats64,
 	.ndo_set_mac_address	= asix_set_mac_address,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_do_ioctl		= ax88172a_ioctl,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+	.ndo_set_mac_address	= asix_set_mac_address,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode        = asix_set_multicast,
 };
 
@@ -242,7 +259,16 @@ static int ax88172a_bind(struct usbnet *dev, struct usb_interface *intf)
 		goto free;
 	}
 
+<<<<<<< HEAD
 	priv->phy_addr = asix_read_phy_addr(dev, priv->use_embdphy);
+=======
+	ret = asix_read_phy_addr(dev, priv->use_embdphy);
+	if (ret < 0)
+		goto free;
+
+	priv->phy_addr = ret;
+
+>>>>>>> upstream/android-13
 	ax88172a_reset_phy(dev, priv->use_embdphy);
 
 	/* Asix framing packs multiple eth frames into a 2K usb bulk transfer */

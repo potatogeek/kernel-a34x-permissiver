@@ -59,7 +59,11 @@ struct l2t_data {
 	rwlock_t lock;
 	atomic_t nfree;             /* number of free entries */
 	struct l2t_entry *rover;    /* starting point for next allocation */
+<<<<<<< HEAD
 	struct l2t_entry l2tab[0];  /* MUST BE LAST */
+=======
+	struct l2t_entry l2tab[];  /* MUST BE LAST */
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned int vlan_prio(const struct l2t_entry *e)
@@ -231,7 +235,11 @@ again:
 		if (e->state == L2T_STATE_STALE)
 			e->state = L2T_STATE_VALID;
 		spin_unlock_bh(&e->lock);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case L2T_STATE_VALID:     /* fast-path, send the packet on */
 		return t4_ofld_send(adap, skb);
 	case L2T_STATE_RESOLVING:
@@ -351,15 +359,22 @@ exists:
 static void _t4_l2e_free(struct l2t_entry *e)
 {
 	struct l2t_data *d;
+<<<<<<< HEAD
 	struct sk_buff *skb;
+=======
+>>>>>>> upstream/android-13
 
 	if (atomic_read(&e->refcnt) == 0) {  /* hasn't been recycled */
 		if (e->neigh) {
 			neigh_release(e->neigh);
 			e->neigh = NULL;
 		}
+<<<<<<< HEAD
 		while ((skb = __skb_dequeue(&e->arpq)) != NULL)
 			kfree_skb(skb);
+=======
+		__skb_queue_purge(&e->arpq);
+>>>>>>> upstream/android-13
 	}
 
 	d = container_of(e, struct l2t_data, l2tab[e->idx]);
@@ -370,7 +385,10 @@ static void _t4_l2e_free(struct l2t_entry *e)
 static void t4_l2e_free(struct l2t_entry *e)
 {
 	struct l2t_data *d;
+<<<<<<< HEAD
 	struct sk_buff *skb;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&e->lock);
 	if (atomic_read(&e->refcnt) == 0) {  /* hasn't been recycled */
@@ -378,8 +396,12 @@ static void t4_l2e_free(struct l2t_entry *e)
 			neigh_release(e->neigh);
 			e->neigh = NULL;
 		}
+<<<<<<< HEAD
 		while ((skb = __skb_dequeue(&e->arpq)) != NULL)
 			kfree_skb(skb);
+=======
+		__skb_queue_purge(&e->arpq);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_bh(&e->lock);
 
@@ -433,10 +455,19 @@ struct l2t_entry *cxgb4_l2t_get(struct l2t_data *d, struct neighbour *neigh,
 	else
 		lport = netdev2pinfo(physdev)->lport;
 
+<<<<<<< HEAD
 	if (is_vlan_dev(neigh->dev))
 		vlan = vlan_dev_vlan_id(neigh->dev);
 	else
 		vlan = VLAN_NONE;
+=======
+	if (is_vlan_dev(neigh->dev)) {
+		vlan = vlan_dev_vlan_id(neigh->dev);
+		vlan |= vlan_dev_get_egress_qos_mask(neigh->dev, priority);
+	} else {
+		vlan = VLAN_NONE;
+	}
+>>>>>>> upstream/android-13
 
 	write_lock_bh(&d->lock);
 	for (e = d->l2tab[hash].first; e; e = e->next)
@@ -493,6 +524,7 @@ u64 cxgb4_select_ntuple(struct net_device *dev,
 		ntuple |= (u64)IPPROTO_TCP << tp->protocol_shift;
 
 	if (tp->vnic_shift >= 0 && (tp->ingress_config & VNIC_F)) {
+<<<<<<< HEAD
 		u32 viid = cxgb4_port_viid(dev);
 		u32 vf = FW_VIID_VIN_G(viid);
 		u32 pf = FW_VIID_PFN_G(viid);
@@ -501,6 +533,13 @@ u64 cxgb4_select_ntuple(struct net_device *dev,
 		ntuple |= (u64)(FT_VNID_ID_VF_V(vf) |
 				FT_VNID_ID_PF_V(pf) |
 				FT_VNID_ID_VLD_V(vld)) << tp->vnic_shift;
+=======
+		struct port_info *pi = (struct port_info *)netdev_priv(dev);
+
+		ntuple |= (u64)(FT_VNID_ID_VF_V(pi->vin) |
+				FT_VNID_ID_PF_V(adap->pf) |
+				FT_VNID_ID_VLD_V(pi->vivld)) << tp->vnic_shift;
+>>>>>>> upstream/android-13
 	}
 
 	return ntuple;
@@ -614,6 +653,10 @@ struct l2t_entry *t4_l2t_alloc_switching(struct adapter *adap, u16 vlan,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * cxgb4_l2t_alloc_switching - Allocates an L2T entry for switch filters
+>>>>>>> upstream/android-13
  * @dev: net_device pointer
  * @vlan: VLAN Id
  * @port: Associated port
@@ -643,7 +686,11 @@ struct l2t_data *t4_init_l2t(unsigned int l2t_start, unsigned int l2t_end)
 	if (l2t_size < L2T_MIN_HASH_BUCKETS)
 		return NULL;
 
+<<<<<<< HEAD
 	d = kvzalloc(sizeof(*d) + l2t_size * sizeof(struct l2t_entry), GFP_KERNEL);
+=======
+	d = kvzalloc(struct_size(d, l2tab, l2t_size), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!d)
 		return NULL;
 
@@ -701,6 +748,20 @@ static char l2e_state(const struct l2t_entry *e)
 	}
 }
 
+<<<<<<< HEAD
+=======
+bool cxgb4_check_l2t_valid(struct l2t_entry *e)
+{
+	bool valid;
+
+	spin_lock(&e->lock);
+	valid = (e->state == L2T_STATE_VALID);
+	spin_unlock(&e->lock);
+	return valid;
+}
+EXPORT_SYMBOL(cxgb4_check_l2t_valid);
+
+>>>>>>> upstream/android-13
 static int l2t_seq_show(struct seq_file *seq, void *v)
 {
 	if (v == SEQ_START_TOKEN)

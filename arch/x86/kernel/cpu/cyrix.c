@@ -291,7 +291,11 @@ static void init_cyrix(struct cpuinfo_x86 *c)
 			mark_tsc_unstable("cyrix 5510/5520 detected");
 	}
 #endif
+<<<<<<< HEAD
 		c->x86_cache_size = 16;	/* Yep 16K integrated cache thats it */
+=======
+		c->x86_cache_size = 16;	/* Yep 16K integrated cache that's it */
+>>>>>>> upstream/android-13
 
 		/* GXm supports extended cpuid levels 'ala' AMD */
 		if (c->cpuid_level == 2) {

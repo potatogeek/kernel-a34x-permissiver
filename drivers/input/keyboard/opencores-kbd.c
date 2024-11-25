@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenCores Keyboard Controller Driver
  * http://www.opencores.org/project,keyboardcontroller
  *
  * Copyright 2007-2009 HV Sistemas S.L.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/input.h>
@@ -50,10 +57,15 @@ static int opencores_kbd_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "missing board IRQ resource\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	opencores_kbd = devm_kzalloc(&pdev->dev, sizeof(*opencores_kbd),
 				     GFP_KERNEL);

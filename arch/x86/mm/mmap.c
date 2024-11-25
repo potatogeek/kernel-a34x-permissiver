@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Flexible mmap layout support
  *
@@ -8,6 +12,7 @@
  * All Rights Reserved.
  * Copyright 2005 Andi Kleen, SUSE Labs.
  * Copyright 2007 Jiri Kosina, SUSE Labs.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/personality.h>
@@ -31,7 +38,13 @@
 #include <linux/sched/signal.h>
 #include <linux/sched/mm.h>
 #include <linux/compat.h>
+<<<<<<< HEAD
 #include <asm/elf.h>
+=======
+#include <linux/elf-randomize.h>
+#include <asm/elf.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 
 #include "physaddr.h"
 
@@ -166,7 +179,11 @@ unsigned long get_mmap_base(int is_legacy)
 	struct mm_struct *mm = current->mm;
 
 #ifdef CONFIG_HAVE_ARCH_COMPAT_MMAP_BASES
+<<<<<<< HEAD
 	if (in_compat_syscall()) {
+=======
+	if (in_32bit_syscall()) {
+>>>>>>> upstream/android-13
 		return is_legacy ? mm->mmap_compat_legacy_base
 				 : mm->mmap_compat_base;
 	}
@@ -176,8 +193,11 @@ unsigned long get_mmap_base(int is_legacy)
 
 const char *arch_vma_name(struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	if (vma->vm_flags & VM_MPX)
 		return "[mpx]";
+=======
+>>>>>>> upstream/android-13
 	return NULL;
 }
 

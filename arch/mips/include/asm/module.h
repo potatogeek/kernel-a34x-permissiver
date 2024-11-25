@@ -83,6 +83,7 @@ search_module_dbetables(unsigned long addr)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_BMIPS
 #define MODULE_PROC_FAMILY "BMIPS "
 #elif defined CONFIG_CPU_MIPS32_R1
@@ -150,4 +151,6 @@ search_module_dbetables(unsigned long addr)
 #define MODULE_ARCH_VERMAGIC \
 	MODULE_PROC_FAMILY MODULE_KERNEL_TYPE
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_MODULE_H */

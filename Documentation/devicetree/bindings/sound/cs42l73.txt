@@ -19,4 +19,8 @@ codec: cs42l73@4a {
 	reg = <0x4a>;
 	reset_gpio = <&gpio 10 0>;
 	chgfreq = <0x05>;
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> upstream/android-13

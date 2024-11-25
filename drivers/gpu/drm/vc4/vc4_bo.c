@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *  Copyright © 2015 Broadcom
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright © 2015 Broadcom
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -24,6 +30,11 @@
 #include "vc4_drv.h"
 #include "uapi/drm/vc4_drm.h"
 
+<<<<<<< HEAD
+=======
+static const struct drm_gem_object_funcs vc4_gem_object_funcs;
+
+>>>>>>> upstream/android-13
 static const char * const bo_type_names[] = {
 	"kernel",
 	"V3D",
@@ -40,7 +51,11 @@ static bool is_user_label(int label)
 	return label >= VC4_BO_TYPE_COUNT;
 }
 
+<<<<<<< HEAD
 static void vc4_bo_stats_dump(struct vc4_dev *vc4)
+=======
+static void vc4_bo_stats_print(struct drm_printer *p, struct vc4_dev *vc4)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -48,6 +63,7 @@ static void vc4_bo_stats_dump(struct vc4_dev *vc4)
 		if (!vc4->bo_labels[i].num_allocated)
 			continue;
 
+<<<<<<< HEAD
 		DRM_INFO("%30s: %6dkb BOs (%d)\n",
 			 vc4->bo_labels[i].name,
 			 vc4->bo_labels[i].size_allocated / 1024,
@@ -80,10 +96,14 @@ int vc4_bo_stats_debugfs(struct seq_file *m, void *unused)
 			continue;
 
 		seq_printf(m, "%30s: %6dkb BOs (%d)\n",
+=======
+		drm_printf(p, "%30s: %6dkb BOs (%d)\n",
+>>>>>>> upstream/android-13
 			   vc4->bo_labels[i].name,
 			   vc4->bo_labels[i].size_allocated / 1024,
 			   vc4->bo_labels[i].num_allocated);
 	}
+<<<<<<< HEAD
 	mutex_unlock(&vc4->bo_lock);
 
 	mutex_lock(&vc4->purgeable.lock);
@@ -100,6 +120,32 @@ int vc4_bo_stats_debugfs(struct seq_file *m, void *unused)
 	return 0;
 }
 #endif
+=======
+
+	mutex_lock(&vc4->purgeable.lock);
+	if (vc4->purgeable.num)
+		drm_printf(p, "%30s: %6zdkb BOs (%d)\n", "userspace BO cache",
+			   vc4->purgeable.size / 1024, vc4->purgeable.num);
+
+	if (vc4->purgeable.purged_num)
+		drm_printf(p, "%30s: %6zdkb BOs (%d)\n", "total purged BO",
+			   vc4->purgeable.purged_size / 1024,
+			   vc4->purgeable.purged_num);
+	mutex_unlock(&vc4->purgeable.lock);
+}
+
+static int vc4_bo_stats_debugfs(struct seq_file *m, void *unused)
+{
+	struct drm_info_node *node = (struct drm_info_node *)m->private;
+	struct drm_device *dev = node->minor->dev;
+	struct vc4_dev *vc4 = to_vc4_dev(dev);
+	struct drm_printer p = drm_seq_file_printer(m);
+
+	vc4_bo_stats_print(&p, vc4);
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /* Takes ownership of *name and returns the appropriate slot for it in
  * the bo_labels[] array, extending it as necessary.
@@ -201,8 +247,11 @@ static void vc4_bo_destroy(struct vc4_bo *bo)
 		bo->validated_shader = NULL;
 	}
 
+<<<<<<< HEAD
 	reservation_object_fini(&bo->_resv);
 
+=======
+>>>>>>> upstream/android-13
 	drm_gem_cma_free_object(obj);
 }
 
@@ -403,7 +452,11 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * vc4_gem_create_object - Implementation of driver->gem_create_object.
+=======
+ * vc4_create_object - Implementation of driver->gem_create_object.
+>>>>>>> upstream/android-13
  * @dev: DRM device
  * @size: Size in bytes of the memory the object will reference
  *
@@ -417,7 +470,11 @@ struct drm_gem_object *vc4_create_object(struct drm_device *dev, size_t size)
 
 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
 	if (!bo)
+<<<<<<< HEAD
 		return ERR_PTR(-ENOMEM);
+=======
+		return NULL;
+>>>>>>> upstream/android-13
 
 	bo->madv = VC4_MADV_WILLNEED;
 	refcount_set(&bo->usecnt, 0);
@@ -427,8 +484,13 @@ struct drm_gem_object *vc4_create_object(struct drm_device *dev, size_t size)
 	vc4->bo_labels[VC4_BO_TYPE_KERNEL].num_allocated++;
 	vc4->bo_labels[VC4_BO_TYPE_KERNEL].size_allocated += size;
 	mutex_unlock(&vc4->bo_lock);
+<<<<<<< HEAD
 	bo->resv = &bo->_resv;
 	reservation_object_init(bo->resv);
+=======
+
+	bo->base.base.funcs = &vc4_gem_object_funcs;
+>>>>>>> upstream/android-13
 
 	return &bo->base.base;
 }
@@ -479,8 +541,14 @@ struct vc4_bo *vc4_bo_create(struct drm_device *dev, size_t unaligned_size,
 	}
 
 	if (IS_ERR(cma_obj)) {
+<<<<<<< HEAD
 		DRM_ERROR("Failed to allocate from CMA:\n");
 		vc4_bo_stats_dump(vc4);
+=======
+		struct drm_printer p = drm_info_printer(vc4->base.dev);
+		DRM_ERROR("Failed to allocate from CMA:\n");
+		vc4_bo_stats_print(&p, vc4);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOMEM);
 	}
 	bo = to_vc4_bo(&cma_obj->base);
@@ -519,7 +587,11 @@ int vc4_dumb_create(struct drm_file *file_priv,
 	bo->madv = VC4_MADV_WILLNEED;
 
 	ret = drm_gem_handle_create(file_priv, &bo->base.base, &args->handle);
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&bo->base.base);
+=======
+	drm_gem_object_put(&bo->base.base);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -549,7 +621,11 @@ static void vc4_bo_cache_free_old(struct drm_device *dev)
 /* Called on the last userspace/kernel unreference of the BO.  Returns
  * it to the BO cache if possible, otherwise frees it.
  */
+<<<<<<< HEAD
 void vc4_free_object(struct drm_gem_object *gem_bo)
+=======
+static void vc4_free_object(struct drm_gem_object *gem_bo)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev = gem_bo->dev;
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
@@ -619,7 +695,11 @@ static void vc4_bo_cache_time_work(struct work_struct *work)
 {
 	struct vc4_dev *vc4 =
 		container_of(work, struct vc4_dev, bo_cache.time_work);
+<<<<<<< HEAD
 	struct drm_device *dev = vc4->dev;
+=======
+	struct drm_device *dev = &vc4->base;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vc4->bo_lock);
 	vc4_bo_cache_free_old(dev);
@@ -684,6 +764,7 @@ static void vc4_bo_cache_time_timer(struct timer_list *t)
 	schedule_work(&vc4->bo_cache.time_work);
 }
 
+<<<<<<< HEAD
 struct reservation_object *vc4_prime_res_obj(struct drm_gem_object *obj)
 {
 	struct vc4_bo *bo = to_vc4_bo(obj);
@@ -693,6 +774,9 @@ struct reservation_object *vc4_prime_res_obj(struct drm_gem_object *obj)
 
 struct dma_buf *
 vc4_prime_export(struct drm_device *dev, struct drm_gem_object *obj, int flags)
+=======
+static struct dma_buf *vc4_prime_export(struct drm_gem_object *obj, int flags)
+>>>>>>> upstream/android-13
 {
 	struct vc4_bo *bo = to_vc4_bo(obj);
 	struct dma_buf *dmabuf;
@@ -714,14 +798,22 @@ vc4_prime_export(struct drm_device *dev, struct drm_gem_object *obj, int flags)
 		return ERR_PTR(ret);
 	}
 
+<<<<<<< HEAD
 	dmabuf = drm_gem_prime_export(dev, obj, flags);
+=======
+	dmabuf = drm_gem_prime_export(obj, flags);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dmabuf))
 		vc4_bo_dec_usecnt(bo);
 
 	return dmabuf;
 }
 
+<<<<<<< HEAD
 vm_fault_t vc4_fault(struct vm_fault *vmf)
+=======
+static vm_fault_t vc4_fault(struct vm_fault *vmf)
+>>>>>>> upstream/android-13
 {
 	struct vm_area_struct *vma = vmf->vma;
 	struct drm_gem_object *obj = vma->vm_private_data;
@@ -737,6 +829,7 @@ vm_fault_t vc4_fault(struct vm_fault *vmf)
 	return VM_FAULT_SIGBUS;
 }
 
+<<<<<<< HEAD
 int vc4_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 	struct drm_gem_object *gem_obj;
@@ -750,6 +843,11 @@ int vc4_mmap(struct file *filp, struct vm_area_struct *vma)
 
 	gem_obj = vma->vm_private_data;
 	bo = to_vc4_bo(gem_obj);
+=======
+static int vc4_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+{
+	struct vc4_bo *bo = to_vc4_bo(obj);
+>>>>>>> upstream/android-13
 
 	if (bo->validated_shader && (vma->vm_flags & VM_WRITE)) {
 		DRM_DEBUG("mmaping of shader BOs for writing not allowed.\n");
@@ -763,6 +861,7 @@ int vc4_mmap(struct file *filp, struct vm_area_struct *vma)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Clear the VM_PFNMAP flag that was set by drm_gem_mmap(), and set the
 	 * vm_pgoff (used as a fake buffer offset by DRM) to 0 as we want to map
@@ -832,15 +931,62 @@ vc4_prime_import_sg_table(struct drm_device *dev,
 	bo->resv = attach->dmabuf->resv;
 
 	return obj;
+=======
+	return drm_gem_cma_mmap(obj, vma);
+}
+
+static const struct vm_operations_struct vc4_vm_ops = {
+	.fault = vc4_fault,
+	.open = drm_gem_vm_open,
+	.close = drm_gem_vm_close,
+};
+
+static const struct drm_gem_object_funcs vc4_gem_object_funcs = {
+	.free = vc4_free_object,
+	.export = vc4_prime_export,
+	.get_sg_table = drm_gem_cma_get_sg_table,
+	.vmap = drm_gem_cma_vmap,
+	.mmap = vc4_gem_object_mmap,
+	.vm_ops = &vc4_vm_ops,
+};
+
+static int vc4_grab_bin_bo(struct vc4_dev *vc4, struct vc4_file *vc4file)
+{
+	int ret;
+
+	if (!vc4->v3d)
+		return -ENODEV;
+
+	if (vc4file->bin_bo_used)
+		return 0;
+
+	ret = vc4_v3d_bin_bo_get(vc4, &vc4file->bin_bo_used);
+	if (ret)
+		return ret;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int vc4_create_bo_ioctl(struct drm_device *dev, void *data,
 			struct drm_file *file_priv)
 {
 	struct drm_vc4_create_bo *args = data;
+<<<<<<< HEAD
 	struct vc4_bo *bo = NULL;
 	int ret;
 
+=======
+	struct vc4_file *vc4file = file_priv->driver_priv;
+	struct vc4_dev *vc4 = to_vc4_dev(dev);
+	struct vc4_bo *bo = NULL;
+	int ret;
+
+	ret = vc4_grab_bin_bo(vc4, vc4file);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We can't allocate from the BO cache, because the BOs don't
 	 * get zeroed, and that might leak data between users.
@@ -852,7 +998,11 @@ int vc4_create_bo_ioctl(struct drm_device *dev, void *data,
 	bo->madv = VC4_MADV_WILLNEED;
 
 	ret = drm_gem_handle_create(file_priv, &bo->base.base, &args->handle);
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&bo->base.base);
+=======
+	drm_gem_object_put(&bo->base.base);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -872,7 +1022,11 @@ int vc4_mmap_bo_ioctl(struct drm_device *dev, void *data,
 	/* The mmap offset was set up at BO allocation time. */
 	args->offset = drm_vma_node_offset_addr(&gem_obj->vma_node);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gem_obj);
+=======
+	drm_gem_object_put(gem_obj);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -881,6 +1035,11 @@ vc4_create_shader_bo_ioctl(struct drm_device *dev, void *data,
 			   struct drm_file *file_priv)
 {
 	struct drm_vc4_create_shader_bo *args = data;
+<<<<<<< HEAD
+=======
+	struct vc4_file *vc4file = file_priv->driver_priv;
+	struct vc4_dev *vc4 = to_vc4_dev(dev);
+>>>>>>> upstream/android-13
 	struct vc4_bo *bo = NULL;
 	int ret;
 
@@ -900,6 +1059,13 @@ vc4_create_shader_bo_ioctl(struct drm_device *dev, void *data,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = vc4_grab_bin_bo(vc4, vc4file);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	bo = vc4_bo_create(dev, args->size, true, VC4_BO_TYPE_V3D_SHADER);
 	if (IS_ERR(bo))
 		return PTR_ERR(bo);
@@ -929,8 +1095,13 @@ vc4_create_shader_bo_ioctl(struct drm_device *dev, void *data,
 	 */
 	ret = drm_gem_handle_create(file_priv, &bo->base.base, &args->handle);
 
+<<<<<<< HEAD
  fail:
 	drm_gem_object_put_unlocked(&bo->base.base);
+=======
+fail:
+	drm_gem_object_put(&bo->base.base);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -977,7 +1148,11 @@ int vc4_set_tiling_ioctl(struct drm_device *dev, void *data,
 	bo = to_vc4_bo(gem_obj);
 	bo->t_format = t_format;
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gem_obj);
+=======
+	drm_gem_object_put(gem_obj);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1012,11 +1187,19 @@ int vc4_get_tiling_ioctl(struct drm_device *dev, void *data,
 	else
 		args->modifier = DRM_FORMAT_MOD_NONE;
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gem_obj);
+=======
+	drm_gem_object_put(gem_obj);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void vc4_bo_cache_destroy(struct drm_device *dev, void *unused);
+>>>>>>> upstream/android-13
 int vc4_bo_cache_init(struct drm_device *dev)
 {
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
@@ -1038,15 +1221,27 @@ int vc4_bo_cache_init(struct drm_device *dev)
 
 	mutex_init(&vc4->bo_lock);
 
+<<<<<<< HEAD
+=======
+	vc4_debugfs_add_file(dev, "bo_stats", vc4_bo_stats_debugfs, NULL);
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&vc4->bo_cache.time_list);
 
 	INIT_WORK(&vc4->bo_cache.time_work, vc4_bo_cache_time_work);
 	timer_setup(&vc4->bo_cache.time_timer, vc4_bo_cache_time_timer, 0);
 
+<<<<<<< HEAD
 	return 0;
 }
 
 void vc4_bo_cache_destroy(struct drm_device *dev)
+=======
+	return drmm_add_action_or_reset(dev, vc4_bo_cache_destroy, NULL);
+}
+
+static void vc4_bo_cache_destroy(struct drm_device *dev, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct vc4_dev *vc4 = to_vc4_dev(dev);
 	int i;
@@ -1101,7 +1296,11 @@ int vc4_label_bo_ioctl(struct drm_device *dev, void *data,
 		ret = -ENOMEM;
 	mutex_unlock(&vc4->bo_lock);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gem_obj);
+=======
+	drm_gem_object_put(gem_obj);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  GT641xx clockevent routines.
  *
  *  Copyright (C) 2007	Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clockchips.h>
 #include <linux/init.h>
@@ -133,12 +140,15 @@ static irqreturn_t gt641xx_timer0_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction gt641xx_timer0_irqaction = {
 	.handler	= gt641xx_timer0_interrupt,
 	.flags		= IRQF_PERCPU | IRQF_TIMER,
 	.name		= "gt641xx_timer0",
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init gt641xx_timer0_clockevent_init(void)
 {
 	struct clock_event_device *cd;
@@ -159,6 +169,11 @@ static int __init gt641xx_timer0_clockevent_init(void)
 
 	clockevents_register_device(&gt641xx_timer0_clockevent);
 
+<<<<<<< HEAD
 	return setup_irq(GT641XX_TIMER0_IRQ, &gt641xx_timer0_irqaction);
+=======
+	return request_irq(GT641XX_TIMER0_IRQ, gt641xx_timer0_interrupt,
+			   IRQF_PERCPU | IRQF_TIMER, "gt641xx_timer0", NULL);
+>>>>>>> upstream/android-13
 }
 arch_initcall(gt641xx_timer0_clockevent_init);

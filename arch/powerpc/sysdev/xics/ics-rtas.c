@@ -24,6 +24,7 @@ static int ibm_set_xive;
 static int ibm_int_on;
 static int ibm_int_off;
 
+<<<<<<< HEAD
 static int ics_rtas_map(struct ics *ics, unsigned int virq);
 static void ics_rtas_mask_unknown(struct ics *ics, unsigned long vec);
 static long ics_rtas_get_server(struct ics *ics, unsigned long vec);
@@ -37,6 +38,8 @@ static struct ics ics_rtas = {
 	.host_match	= ics_rtas_host_match,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void ics_rtas_unmask_irq(struct irq_data *d)
 {
 	unsigned int hw_irq = (unsigned int)irqd_to_hwirq(d);
@@ -50,8 +53,13 @@ static void ics_rtas_unmask_irq(struct irq_data *d)
 
 	server = xics_get_irq_server(d->irq, irq_data_get_affinity_mask(d), 0);
 
+<<<<<<< HEAD
 	call_status = rtas_call(ibm_set_xive, 3, 1, NULL, hw_irq, server,
 				DEFAULT_PRIORITY);
+=======
+	call_status = rtas_call_reentrant(ibm_set_xive, 3, 1, NULL, hw_irq,
+					  server, DEFAULT_PRIORITY);
+>>>>>>> upstream/android-13
 	if (call_status != 0) {
 		printk(KERN_ERR
 			"%s: ibm_set_xive irq %u server %x returned %d\n",
@@ -60,7 +68,11 @@ static void ics_rtas_unmask_irq(struct irq_data *d)
 	}
 
 	/* Now unmask the interrupt (often a no-op) */
+<<<<<<< HEAD
 	call_status = rtas_call(ibm_int_on, 1, 1, NULL, hw_irq);
+=======
+	call_status = rtas_call_reentrant(ibm_int_on, 1, 1, NULL, hw_irq);
+>>>>>>> upstream/android-13
 	if (call_status != 0) {
 		printk(KERN_ERR "%s: ibm_int_on irq=%u returned %d\n",
 			__func__, hw_irq, call_status);
@@ -70,6 +82,7 @@ static void ics_rtas_unmask_irq(struct irq_data *d)
 
 static unsigned int ics_rtas_startup(struct irq_data *d)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_MSI
 	/*
 	 * The generic MSI code returns with the interrupt disabled on the
@@ -79,6 +92,8 @@ static unsigned int ics_rtas_startup(struct irq_data *d)
 	if (irq_data_get_msi_desc(d))
 		pci_msi_unmask_irq(d);
 #endif
+=======
+>>>>>>> upstream/android-13
 	/* unmask it */
 	ics_rtas_unmask_irq(d);
 	return 0;
@@ -91,7 +106,11 @@ static void ics_rtas_mask_real_irq(unsigned int hw_irq)
 	if (hw_irq == XICS_IPI)
 		return;
 
+<<<<<<< HEAD
 	call_status = rtas_call(ibm_int_off, 1, 1, NULL, hw_irq);
+=======
+	call_status = rtas_call_reentrant(ibm_int_off, 1, 1, NULL, hw_irq);
+>>>>>>> upstream/android-13
 	if (call_status != 0) {
 		printk(KERN_ERR "%s: ibm_int_off irq=%u returned %d\n",
 			__func__, hw_irq, call_status);
@@ -99,8 +118,13 @@ static void ics_rtas_mask_real_irq(unsigned int hw_irq)
 	}
 
 	/* Have to set XIVE to 0xff to be able to remove a slot */
+<<<<<<< HEAD
 	call_status = rtas_call(ibm_set_xive, 3, 1, NULL, hw_irq,
 				xics_default_server, 0xff);
+=======
+	call_status = rtas_call_reentrant(ibm_set_xive, 3, 1, NULL, hw_irq,
+					  xics_default_server, 0xff);
+>>>>>>> upstream/android-13
 	if (call_status != 0) {
 		printk(KERN_ERR "%s: ibm_set_xive(0xff) irq=%u returned %d\n",
 			__func__, hw_irq, call_status);
@@ -131,7 +155,11 @@ static int ics_rtas_set_affinity(struct irq_data *d,
 	if (hw_irq == XICS_IPI || hw_irq == XICS_IRQ_SPURIOUS)
 		return -1;
 
+<<<<<<< HEAD
 	status = rtas_call(ibm_get_xive, 1, 3, xics_status, hw_irq);
+=======
+	status = rtas_call_reentrant(ibm_get_xive, 1, 3, xics_status, hw_irq);
+>>>>>>> upstream/android-13
 
 	if (status) {
 		printk(KERN_ERR "%s: ibm,get-xive irq=%u returns %d\n",
@@ -146,8 +174,16 @@ static int ics_rtas_set_affinity(struct irq_data *d,
 		return -1;
 	}
 
+<<<<<<< HEAD
 	status = rtas_call(ibm_set_xive, 3, 1, NULL,
 			   hw_irq, irq_server, xics_status[1]);
+=======
+	pr_debug("%s: irq %d [hw 0x%x] server: 0x%x\n", __func__, d->irq,
+		 hw_irq, irq_server);
+
+	status = rtas_call_reentrant(ibm_set_xive, 3, 1, NULL,
+				     hw_irq, irq_server, xics_status[1]);
+>>>>>>> upstream/android-13
 
 	if (status) {
 		printk(KERN_ERR "%s: ibm,set-xive irq=%u returns %d\n",
@@ -169,9 +205,14 @@ static struct irq_chip ics_rtas_irq_chip = {
 	.irq_retrigger = xics_retrigger,
 };
 
+<<<<<<< HEAD
 static int ics_rtas_map(struct ics *ics, unsigned int virq)
 {
 	unsigned int hw_irq = (unsigned int)virq_to_hw(virq);
+=======
+static int ics_rtas_check(struct ics *ics, unsigned int hw_irq)
+{
+>>>>>>> upstream/android-13
 	int status[2];
 	int rc;
 
@@ -179,6 +220,7 @@ static int ics_rtas_map(struct ics *ics, unsigned int virq)
 		return -EINVAL;
 
 	/* Check if RTAS knows about this interrupt */
+<<<<<<< HEAD
 	rc = rtas_call(ibm_get_xive, 1, 3, status, hw_irq);
 	if (rc)
 		return -ENXIO;
@@ -186,6 +228,12 @@ static int ics_rtas_map(struct ics *ics, unsigned int virq)
 	irq_set_chip_and_handler(virq, &ics_rtas_irq_chip, handle_fasteoi_irq);
 	irq_set_chip_data(virq, &ics_rtas);
 
+=======
+	rc = rtas_call_reentrant(ibm_get_xive, 1, 3, status, hw_irq);
+	if (rc)
+		return -ENXIO;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -198,7 +246,11 @@ static long ics_rtas_get_server(struct ics *ics, unsigned long vec)
 {
 	int rc, status[2];
 
+<<<<<<< HEAD
 	rc = rtas_call(ibm_get_xive, 1, 3, status, vec);
+=======
+	rc = rtas_call_reentrant(ibm_get_xive, 1, 3, status, vec);
+>>>>>>> upstream/android-13
 	if (rc)
 		return -1;
 	return status[0];
@@ -213,6 +265,18 @@ static int ics_rtas_host_match(struct ics *ics, struct device_node *node)
 	return !of_device_is_compatible(node, "chrp,iic");
 }
 
+<<<<<<< HEAD
+=======
+/* Only one global & state struct ics */
+static struct ics ics_rtas = {
+	.check		= ics_rtas_check,
+	.mask_unknown	= ics_rtas_mask_unknown,
+	.get_server	= ics_rtas_get_server,
+	.host_match	= ics_rtas_host_match,
+	.chip = &ics_rtas_irq_chip,
+};
+
+>>>>>>> upstream/android-13
 __init int ics_rtas_init(void)
 {
 	ibm_get_xive = rtas_token("ibm,get-xive");

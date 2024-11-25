@@ -43,7 +43,10 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <asm/inst.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 #include <asm/nospec-branch.h>
 
@@ -54,7 +57,11 @@
 .endm
 
 .macro JMPTBL_ENTRY i
+<<<<<<< HEAD
 .word crc_\i - crc_array
+=======
+.quad crc_\i
+>>>>>>> upstream/android-13
 .endm
 
 .macro JNC_LESS_THAN j
@@ -74,8 +81,13 @@
 # unsigned int crc_pcl(u8 *buffer, int len, unsigned int crc_init);
 
 .text
+<<<<<<< HEAD
 ENTRY(crc_pcl)
 #define    bufp		%rdi
+=======
+SYM_FUNC_START(crc_pcl)
+#define    bufp		rdi
+>>>>>>> upstream/android-13
 #define    bufp_dw	%edi
 #define    bufp_w	%di
 #define    bufp_b	%dil
@@ -105,9 +117,15 @@ ENTRY(crc_pcl)
 	## 1) ALIGN:
 	################################################################
 
+<<<<<<< HEAD
 	mov     bufp, bufptmp		# rdi = *buf
 	neg     bufp
 	and     $7, bufp		# calculate the unalignment amount of
+=======
+	mov     %bufp, bufptmp		# rdi = *buf
+	neg     %bufp
+	and     $7, %bufp		# calculate the unalignment amount of
+>>>>>>> upstream/android-13
 					# the address
 	je      proc_block		# Skip if aligned
 
@@ -123,6 +141,7 @@ ENTRY(crc_pcl)
 do_align:
 	#### Calculate CRC of unaligned bytes of the buffer (if any)
 	movq    (bufptmp), tmp		# load a quadward from the buffer
+<<<<<<< HEAD
 	add     bufp, bufptmp		# align buffer pointer for quadword
 					# processing
 	sub     bufp, len		# update buffer length
@@ -130,6 +149,15 @@ align_loop:
 	crc32b  %bl, crc_init_dw 	# compute crc32 of 1-byte
 	shr     $8, tmp			# get next byte
 	dec     bufp
+=======
+	add     %bufp, bufptmp		# align buffer pointer for quadword
+					# processing
+	sub     %bufp, len		# update buffer length
+align_loop:
+	crc32b  %bl, crc_init_dw 	# compute crc32 of 1-byte
+	shr     $8, tmp			# get next byte
+	dec     %bufp
+>>>>>>> upstream/android-13
 	jne     align_loop
 
 proc_block:
@@ -169,10 +197,14 @@ continue_block:
 	xor     crc2, crc2
 
 	## branch into array
+<<<<<<< HEAD
 	lea	jump_table(%rip), bufp
 	movzwq  (bufp, %rax, 2), len
 	lea	crc_array(%rip), bufp
 	lea     (bufp, len, 1), bufp
+=======
+	mov	jump_table(,%rax,8), %bufp
+>>>>>>> upstream/android-13
 	JMP_NOSPEC bufp
 
 	################################################################
@@ -218,17 +250,30 @@ LABEL crc_ %i
 	## 4) Combine three results:
 	################################################################
 
+<<<<<<< HEAD
 	lea	(K_table-8)(%rip), bufp		# first entry is for idx 1
 	shlq    $3, %rax			# rax *= 8
 	pmovzxdq (bufp,%rax), %xmm0		# 2 consts: K1:K2
+=======
+	lea	(K_table-8)(%rip), %bufp		# first entry is for idx 1
+	shlq    $3, %rax			# rax *= 8
+	pmovzxdq (%bufp,%rax), %xmm0		# 2 consts: K1:K2
+>>>>>>> upstream/android-13
 	leal	(%eax,%eax,2), %eax		# rax *= 3 (total *24)
 	subq    %rax, tmp			# tmp -= rax*24
 
 	movq    crc_init, %xmm1			# CRC for block 1
+<<<<<<< HEAD
 	PCLMULQDQ 0x00,%xmm0,%xmm1		# Multiply by K2
 
 	movq    crc1, %xmm2			# CRC for block 2
 	PCLMULQDQ 0x10, %xmm0, %xmm2		# Multiply by K1
+=======
+	pclmulqdq $0x00, %xmm0, %xmm1		# Multiply by K2
+
+	movq    crc1, %xmm2			# CRC for block 2
+	pclmulqdq $0x10, %xmm0, %xmm2		# Multiply by K1
+>>>>>>> upstream/android-13
 
 	pxor    %xmm2,%xmm1
 	movq    %xmm1, %rax
@@ -310,8 +355,13 @@ do_return:
 	popq    %rsi
 	popq    %rdi
 	popq    %rbx
+<<<<<<< HEAD
         ret
 ENDPROC(crc_pcl)
+=======
+        RET
+SYM_FUNC_END(crc_pcl)
+>>>>>>> upstream/android-13
 
 .section	.rodata, "a", @progbits
         ################################################################

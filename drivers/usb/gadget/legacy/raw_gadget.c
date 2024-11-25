@@ -3,7 +3,12 @@
  * USB Raw Gadget driver.
  * See Documentation/usb/raw-gadget.rst for more details.
  *
+<<<<<<< HEAD
  * Andrey Konovalov <andreyknvl@gmail.com>
+=======
+ * Copyright (c) 2020 Google, Inc.
+ * Author: Andrey Konovalov <andreyknvl@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compiler.h>
@@ -564,9 +569,18 @@ static int raw_ioctl_event_fetch(struct raw_dev *dev, unsigned long value)
 		return -ENODEV;
 	}
 	length = min(arg.length, event->length);
+<<<<<<< HEAD
 	if (copy_to_user((void __user *)value, event, sizeof(*event) + length))
 		return -EFAULT;
 
+=======
+	if (copy_to_user((void __user *)value, event, sizeof(*event) + length)) {
+		kfree(event);
+		return -EFAULT;
+	}
+
+	kfree(event);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1000,7 +1014,11 @@ static int raw_process_ep_io(struct raw_dev *dev, struct usb_raw_ep_io *io,
 		ret = -EBUSY;
 		goto out_unlock;
 	}
+<<<<<<< HEAD
 	if ((in && !ep->ep->caps.dir_in) || (!in && ep->ep->caps.dir_in)) {
+=======
+	if (in != usb_endpoint_dir_in(ep->ep->desc)) {
+>>>>>>> upstream/android-13
 		dev_dbg(&dev->gadget->dev, "fail, wrong direction\n");
 		ret = -EINVAL;
 		goto out_unlock;

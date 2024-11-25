@@ -3,7 +3,11 @@
  *
  * Name: hwxfsleep.c - ACPI Hardware Sleep/Wake External Interfaces
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -23,6 +27,7 @@ acpi_hw_set_firmware_waking_vector(struct acpi_table_facs *facs,
 				   acpi_physical_address physical_address64);
 #endif
 
+<<<<<<< HEAD
 static acpi_status acpi_hw_sleep_dispatch(u8 sleep_state, u32 function_id);
 
 /*
@@ -50,6 +55,8 @@ static struct acpi_sleep_functions acpi_sleep_dispatch[] = {
 			  acpi_hw_extended_wake)}
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * These functions are removed for the ACPI_REDUCED_HARDWARE case:
  *      acpi_set_firmware_waking_vector
@@ -189,10 +196,18 @@ acpi_status acpi_enter_sleep_state_s4bios(void)
 		return_ACPI_STATUS(status);
 	}
 
+<<<<<<< HEAD
 	ACPI_FLUSH_CPU_CACHE();
 
 	status = acpi_hw_write_port(acpi_gbl_FADT.smi_command,
 				    (u32)acpi_gbl_FADT.s4_bios_request, 8);
+=======
+	status = acpi_hw_write_port(acpi_gbl_FADT.smi_command,
+				    (u32)acpi_gbl_FADT.s4_bios_request, 8);
+	if (ACPI_FAILURE(status)) {
+		return_ACPI_STATUS(status);
+	}
+>>>>>>> upstream/android-13
 
 	do {
 		acpi_os_stall(ACPI_USEC_PER_MSEC);
@@ -209,6 +224,7 @@ acpi_status acpi_enter_sleep_state_s4bios(void)
 
 ACPI_EXPORT_SYMBOL(acpi_enter_sleep_state_s4bios)
 #endif				/* !ACPI_REDUCED_HARDWARE */
+<<<<<<< HEAD
 /*******************************************************************************
  *
  * FUNCTION:    acpi_hw_sleep_dispatch
@@ -256,6 +272,8 @@ static acpi_status acpi_hw_sleep_dispatch(u8 sleep_state, u32 function_id)
 
 #endif				/* !ACPI_REDUCED_HARDWARE */
 }
+=======
+>>>>>>> upstream/android-13
 
 /*******************************************************************************
  *
@@ -288,6 +306,16 @@ acpi_status acpi_enter_sleep_state_prep(u8 sleep_state)
 		return_ACPI_STATUS(status);
 	}
 
+<<<<<<< HEAD
+=======
+	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
+					  &acpi_gbl_sleep_type_a_s0,
+					  &acpi_gbl_sleep_type_b_s0);
+	if (ACPI_FAILURE(status)) {
+		acpi_gbl_sleep_type_a_s0 = ACPI_SLEEP_TYPE_INVALID;
+	}
+
+>>>>>>> upstream/android-13
 	/* Execute the _PTS method (Prepare To Sleep) */
 
 	arg_list.count = 1;
@@ -362,7 +390,16 @@ acpi_status acpi_enter_sleep_state(u8 sleep_state)
 		return_ACPI_STATUS(AE_AML_OPERAND_VALUE);
 	}
 
+<<<<<<< HEAD
 	status = acpi_hw_sleep_dispatch(sleep_state, ACPI_SLEEP_FUNCTION_ID);
+=======
+#if !ACPI_REDUCED_HARDWARE
+	if (!acpi_gbl_reduced_hardware)
+		status = acpi_hw_legacy_sleep(sleep_state);
+	else
+#endif
+		status = acpi_hw_extended_sleep(sleep_state);
+>>>>>>> upstream/android-13
 	return_ACPI_STATUS(status);
 }
 
@@ -388,8 +425,17 @@ acpi_status acpi_leave_sleep_state_prep(u8 sleep_state)
 
 	ACPI_FUNCTION_TRACE(acpi_leave_sleep_state_prep);
 
+<<<<<<< HEAD
 	status =
 	    acpi_hw_sleep_dispatch(sleep_state, ACPI_WAKE_PREP_FUNCTION_ID);
+=======
+#if !ACPI_REDUCED_HARDWARE
+	if (!acpi_gbl_reduced_hardware)
+		status = acpi_hw_legacy_wake_prep(sleep_state);
+	else
+#endif
+		status = acpi_hw_extended_wake_prep(sleep_state);
+>>>>>>> upstream/android-13
 	return_ACPI_STATUS(status);
 }
 
@@ -413,7 +459,16 @@ acpi_status acpi_leave_sleep_state(u8 sleep_state)
 
 	ACPI_FUNCTION_TRACE(acpi_leave_sleep_state);
 
+<<<<<<< HEAD
 	status = acpi_hw_sleep_dispatch(sleep_state, ACPI_WAKE_FUNCTION_ID);
+=======
+#if !ACPI_REDUCED_HARDWARE
+	if (!acpi_gbl_reduced_hardware)
+		status = acpi_hw_legacy_wake(sleep_state);
+	else
+#endif
+		status = acpi_hw_extended_wake(sleep_state);
+>>>>>>> upstream/android-13
 	return_ACPI_STATUS(status);
 }
 

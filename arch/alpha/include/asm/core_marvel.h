@@ -332,10 +332,17 @@ struct io7 {
 #define vucp	volatile unsigned char __force *
 #define vusp	volatile unsigned short __force *
 
+<<<<<<< HEAD
 extern unsigned int marvel_ioread8(void __iomem *);
 extern void marvel_iowrite8(u8 b, void __iomem *);
 
 __EXTERN_INLINE unsigned int marvel_ioread16(void __iomem *addr)
+=======
+extern unsigned int marvel_ioread8(const void __iomem *);
+extern void marvel_iowrite8(u8 b, void __iomem *);
+
+__EXTERN_INLINE unsigned int marvel_ioread16(const void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	return __kernel_ldwu(*(vusp)addr);
 }

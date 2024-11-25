@@ -1200,7 +1200,11 @@ static void queue_demotion(struct smq_policy *mq)
 	struct policy_work work;
 	struct entry *e;
 
+<<<<<<< HEAD
 	if (unlikely(WARN_ON_ONCE(!mq->migrations_allowed)))
+=======
+	if (WARN_ON_ONCE(!mq->migrations_allowed))
+>>>>>>> upstream/android-13
 		return;
 
 	e = q_peek(&mq->clean, mq->clean.nr_levels / 2, true);

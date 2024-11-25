@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	LED driver for TI lp3952 controller
  *
  *	Copyright (C) 2016, DAQRI, LLC.
  *	Author: Tony Makkiel <tony.makkiel@daqri.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,6 +17,12 @@
 
 #include <linux/delay.h>
 #include <linux/gpio.h>
+=======
+ */
+
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/io.h>
 #include <linux/kernel.h>

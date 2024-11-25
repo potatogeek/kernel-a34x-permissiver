@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2014 Intel Corporation
  *
@@ -29,12 +30,18 @@
  *
  * Within each section, please try to order by generation in ascending order,
  * from top to bottom (ie. gen6 on the top, gen8 on the bottom).
+=======
+/* SPDX-License-Identifier: MIT */
+/*
+ * Copyright © 2020 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef __I915_GEM_GTT_H__
 #define __I915_GEM_GTT_H__
 
 #include <linux/io-mapping.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
 #include <linux/pagevec.h>
 
@@ -647,6 +654,17 @@ void gen6_ppgtt_unpin(struct i915_hw_ppgtt *base);
 void i915_check_and_clear_faults(struct drm_i915_private *dev_priv);
 void i915_gem_suspend_gtt_mappings(struct drm_i915_private *dev_priv);
 void i915_gem_restore_gtt_mappings(struct drm_i915_private *dev_priv);
+=======
+#include <linux/types.h>
+
+#include <drm/drm_mm.h>
+
+#include "gt/intel_gtt.h"
+#include "i915_scatterlist.h"
+
+struct drm_i915_gem_object;
+struct i915_address_space;
+>>>>>>> upstream/android-13
 
 int __must_check i915_gem_gtt_prepare_pages(struct drm_i915_gem_object *obj,
 					    struct sg_table *pages);
@@ -664,6 +682,7 @@ int i915_gem_gtt_insert(struct i915_address_space *vm,
 			u64 start, u64 end, unsigned int flags);
 
 /* Flags used by pin/bind&friends. */
+<<<<<<< HEAD
 #define PIN_NONBLOCK		BIT_ULL(0)
 #define PIN_MAPPABLE		BIT_ULL(1)
 #define PIN_ZONE_4G		BIT_ULL(2)
@@ -679,5 +698,20 @@ int i915_gem_gtt_insert(struct i915_address_space *vm,
 #define PIN_OFFSET_BIAS		BIT_ULL(10)
 #define PIN_OFFSET_FIXED	BIT_ULL(11)
 #define PIN_OFFSET_MASK		(-I915_GTT_PAGE_SIZE)
+=======
+#define PIN_NOEVICT		BIT_ULL(0)
+#define PIN_NOSEARCH		BIT_ULL(1)
+#define PIN_NONBLOCK		BIT_ULL(2)
+#define PIN_MAPPABLE		BIT_ULL(3)
+#define PIN_ZONE_4G		BIT_ULL(4)
+#define PIN_HIGH		BIT_ULL(5)
+#define PIN_OFFSET_BIAS		BIT_ULL(6)
+#define PIN_OFFSET_FIXED	BIT_ULL(7)
+
+#define PIN_GLOBAL		BIT_ULL(10) /* I915_VMA_GLOBAL_BIND */
+#define PIN_USER		BIT_ULL(11) /* I915_VMA_LOCAL_BIND */
+
+#define PIN_OFFSET_MASK		I915_GTT_PAGE_MASK
+>>>>>>> upstream/android-13
 
 #endif

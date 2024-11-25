@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /*
  *  asus-laptop.c - Asus Laptop Support
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  asus-laptop.c - Asus Laptop Support
+ *
+>>>>>>> upstream/android-13
  *  Copyright (C) 2002-2005 Julien Lerouge, 2003-2006 Karol Kozimor
  *  Copyright (C) 2006-2007 Corentin Chary
  *  Copyright (C) 2011 Wind River Systems
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +29,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  The development page for this driver is located at
  *  http://sourceforge.net/projects/acpi4asus/
  *
@@ -49,7 +59,10 @@
 #include <linux/uaccess.h>
 #include <linux/input.h>
 #include <linux/input/sparse-keymap.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/rfkill.h>
 #include <linux/slab.h>
 #include <linux/dmi.h>
@@ -259,7 +272,11 @@ struct asus_laptop {
 
 	struct input_dev *inputdev;
 	struct key_entry *keymap;
+<<<<<<< HEAD
 	struct input_polled_dev *pega_accel_poll;
+=======
+	struct input_dev *pega_accel_poll;
+>>>>>>> upstream/android-13
 
 	struct asus_led wled;
 	struct asus_led bled;
@@ -461,9 +478,15 @@ static int pega_acc_axis(struct asus_laptop *asus, int curr, char *method)
 	return clamp_val((short)val, -PEGA_ACC_CLAMP, PEGA_ACC_CLAMP);
 }
 
+<<<<<<< HEAD
 static void pega_accel_poll(struct input_polled_dev *ipd)
 {
 	struct device *parent = ipd->input->dev.parent;
+=======
+static void pega_accel_poll(struct input_dev *input)
+{
+	struct device *parent = input->dev.parent;
+>>>>>>> upstream/android-13
 	struct asus_laptop *asus = dev_get_drvdata(parent);
 
 	/* In some cases, the very first call to poll causes a
@@ -472,10 +495,17 @@ static void pega_accel_poll(struct input_polled_dev *ipd)
 	 * device, and perhaps a firmware bug. Fake the first report. */
 	if (!asus->pega_acc_live) {
 		asus->pega_acc_live = true;
+<<<<<<< HEAD
 		input_report_abs(ipd->input, ABS_X, 0);
 		input_report_abs(ipd->input, ABS_Y, 0);
 		input_report_abs(ipd->input, ABS_Z, 0);
 		input_sync(ipd->input);
+=======
+		input_report_abs(input, ABS_X, 0);
+		input_report_abs(input, ABS_Y, 0);
+		input_report_abs(input, ABS_Z, 0);
+		input_sync(input);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -486,25 +516,42 @@ static void pega_accel_poll(struct input_polled_dev *ipd)
 	/* Note transform, convert to "right/up/out" in the native
 	 * landscape orientation (i.e. the vector is the direction of
 	 * "real up" in the device's cartiesian coordinates). */
+<<<<<<< HEAD
 	input_report_abs(ipd->input, ABS_X, -asus->pega_acc_x);
 	input_report_abs(ipd->input, ABS_Y, -asus->pega_acc_y);
 	input_report_abs(ipd->input, ABS_Z,  asus->pega_acc_z);
 	input_sync(ipd->input);
+=======
+	input_report_abs(input, ABS_X, -asus->pega_acc_x);
+	input_report_abs(input, ABS_Y, -asus->pega_acc_y);
+	input_report_abs(input, ABS_Z,  asus->pega_acc_z);
+	input_sync(input);
+>>>>>>> upstream/android-13
 }
 
 static void pega_accel_exit(struct asus_laptop *asus)
 {
 	if (asus->pega_accel_poll) {
+<<<<<<< HEAD
 		input_unregister_polled_device(asus->pega_accel_poll);
 		input_free_polled_device(asus->pega_accel_poll);
 	}
 	asus->pega_accel_poll = NULL;
+=======
+		input_unregister_device(asus->pega_accel_poll);
+		asus->pega_accel_poll = NULL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int pega_accel_init(struct asus_laptop *asus)
 {
 	int err;
+<<<<<<< HEAD
 	struct input_polled_dev *ipd;
+=======
+	struct input_dev *input;
+>>>>>>> upstream/android-13
 
 	if (!asus->is_pega_lucid)
 		return -ENODEV;
@@ -514,6 +561,7 @@ static int pega_accel_init(struct asus_laptop *asus)
 	    acpi_check_handle(asus->handle, METHOD_XLRZ, NULL))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	ipd = input_allocate_polled_device();
 	if (!ipd)
 		return -ENOMEM;
@@ -545,6 +593,41 @@ static int pega_accel_init(struct asus_laptop *asus)
 
 exit:
 	input_free_polled_device(ipd);
+=======
+	input = input_allocate_device();
+	if (!input)
+		return -ENOMEM;
+
+	input->name = PEGA_ACCEL_DESC;
+	input->phys = PEGA_ACCEL_NAME "/input0";
+	input->dev.parent = &asus->platform_device->dev;
+	input->id.bustype = BUS_HOST;
+
+	input_set_abs_params(input, ABS_X,
+			     -PEGA_ACC_CLAMP, PEGA_ACC_CLAMP, 0, 0);
+	input_set_abs_params(input, ABS_Y,
+			     -PEGA_ACC_CLAMP, PEGA_ACC_CLAMP, 0, 0);
+	input_set_abs_params(input, ABS_Z,
+			     -PEGA_ACC_CLAMP, PEGA_ACC_CLAMP, 0, 0);
+
+	err = input_setup_polling(input, pega_accel_poll);
+	if (err)
+		goto exit;
+
+	input_set_poll_interval(input, 125);
+	input_set_min_poll_interval(input, 50);
+	input_set_max_poll_interval(input, 2000);
+
+	err = input_register_device(input);
+	if (err)
+		goto exit;
+
+	asus->pega_accel_poll = input;
+	return 0;
+
+exit:
+	input_free_device(input);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -655,6 +738,7 @@ static enum led_brightness asus_kled_cdev_get(struct led_classdev *led_cdev)
 
 static void asus_led_exit(struct asus_laptop *asus)
 {
+<<<<<<< HEAD
 	if (!IS_ERR_OR_NULL(asus->wled.led.dev))
 		led_classdev_unregister(&asus->wled.led);
 	if (!IS_ERR_OR_NULL(asus->bled.led.dev))
@@ -671,6 +755,17 @@ static void asus_led_exit(struct asus_laptop *asus)
 		led_classdev_unregister(&asus->gled.led);
 	if (!IS_ERR_OR_NULL(asus->kled.led.dev))
 		led_classdev_unregister(&asus->kled.led);
+=======
+	led_classdev_unregister(&asus->wled.led);
+	led_classdev_unregister(&asus->bled.led);
+	led_classdev_unregister(&asus->mled.led);
+	led_classdev_unregister(&asus->tled.led);
+	led_classdev_unregister(&asus->pled.led);
+	led_classdev_unregister(&asus->rled.led);
+	led_classdev_unregister(&asus->gled.led);
+	led_classdev_unregister(&asus->kled.led);
+
+>>>>>>> upstream/android-13
 	if (asus->led_workqueue) {
 		destroy_workqueue(asus->led_workqueue);
 		asus->led_workqueue = NULL;
@@ -883,7 +978,11 @@ static ssize_t infos_show(struct device *dev, struct device_attribute *attr,
 	 * The significance of others is yet to be found.
 	 */
 	rv = acpi_evaluate_integer(asus->handle, "SFUN", NULL, &temp);
+<<<<<<< HEAD
 	if (!ACPI_FAILURE(rv))
+=======
+	if (ACPI_SUCCESS(rv))
+>>>>>>> upstream/android-13
 		len += sprintf(page + len, "SFUN value         : %#x\n",
 			       (uint) temp);
 	/*
@@ -895,7 +994,11 @@ static ssize_t infos_show(struct device *dev, struct device_attribute *attr,
 	 * takes several seconds to run on some systems.
 	 */
 	rv = acpi_evaluate_integer(asus->handle, "HWRS", NULL, &temp);
+<<<<<<< HEAD
 	if (!ACPI_FAILURE(rv))
+=======
+	if (ACPI_SUCCESS(rv))
+>>>>>>> upstream/android-13
 		len += sprintf(page + len, "HWRS value         : %#x\n",
 			       (uint) temp);
 	/*
@@ -906,7 +1009,11 @@ static ssize_t infos_show(struct device *dev, struct device_attribute *attr,
 	 * silently ignored.
 	 */
 	rv = acpi_evaluate_integer(asus->handle, "ASYM", NULL, &temp);
+<<<<<<< HEAD
 	if (!ACPI_FAILURE(rv))
+=======
+	if (ACPI_SUCCESS(rv))
+>>>>>>> upstream/android-13
 		len += sprintf(page + len, "ASYM value         : %#x\n",
 			       (uint) temp);
 	if (asus->dsdt_info) {
@@ -1163,7 +1270,11 @@ static void asus_als_switch(struct asus_laptop *asus, int value)
 		ret = write_acpi_int(asus->handle, METHOD_ALS_CONTROL, value);
 	}
 	if (ret)
+<<<<<<< HEAD
 		pr_warning("Error setting light sensor switch\n");
+=======
+		pr_warn("Error setting light sensor switch\n");
+>>>>>>> upstream/android-13
 
 	asus->light_switch = value;
 }
@@ -1565,8 +1676,12 @@ static void asus_acpi_notify(struct acpi_device *device, u32 event)
 
 	/* Accelerometer "coarse orientation change" event */
 	if (asus->pega_accel_poll && event == 0xEA) {
+<<<<<<< HEAD
 		kobject_uevent(&asus->pega_accel_poll->input->dev.kobj,
 			       KOBJ_CHANGE);
+=======
+		kobject_uevent(&asus->pega_accel_poll->dev.kobj, KOBJ_CHANGE);
+>>>>>>> upstream/android-13
 		return ;
 	}
 
@@ -1592,7 +1707,11 @@ static umode_t asus_sysfs_is_visible(struct kobject *kobj,
 				    struct attribute *attr,
 				    int idx)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct asus_laptop *asus = dev_get_drvdata(dev);
 	acpi_handle handle = asus->handle;
 	bool supported;

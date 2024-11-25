@@ -2,8 +2,13 @@
 #include <linux/spinlock.h>
 #include <linux/errno.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/proto.h>
 #include <asm/cpufeature.h>
 

@@ -27,5 +27,9 @@
 #include <asm-generic/bitops/hweight.h>
 
 #include <asm-generic/bitops/atomic.h>
+<<<<<<< HEAD
+=======
+#include <asm-generic/bitops/non-atomic.h>
+>>>>>>> upstream/android-13
 
 #endif /* __TOOLS_ASM_GENERIC_BITOPS_H */

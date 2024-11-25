@@ -28,10 +28,18 @@
 #include <linux/io.h>
 #include <linux/smp.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/cpu_device_id.h>
+>>>>>>> upstream/android-13
 #include <asm/segment.h>
 #include <asm/pci_x86.h>
 #include <asm/hw_irq.h>
 #include <asm/io_apic.h>
+<<<<<<< HEAD
+=======
+#include <asm/intel-family.h>
+>>>>>>> upstream/android-13
 #include <asm/intel-mid.h>
 #include <asm/acpi.h>
 
@@ -140,6 +148,10 @@ static int pci_device_update_fixed(struct pci_bus *bus, unsigned int devfn,
  * type1_access_ok - check whether to use type 1
  * @bus: bus number
  * @devfn: device & function in question
+<<<<<<< HEAD
+=======
+ * @reg: configuration register offset
+>>>>>>> upstream/android-13
  *
  * If the bus is on a Lincroft chip and it exists, or is not on a Lincroft at
  * all, the we can go ahead with any reads & writes.  If it's on a Lincroft,
@@ -212,10 +224,24 @@ static int pci_write(struct pci_bus *bus, unsigned int devfn, int where,
 			       where, size, value);
 }
 
+<<<<<<< HEAD
 static int intel_mid_pci_irq_enable(struct pci_dev *dev)
 {
 	struct irq_alloc_info info;
 	int polarity;
+=======
+static const struct x86_cpu_id intel_mid_cpu_ids[] = {
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT_MID, NULL),
+	{}
+};
+
+static int intel_mid_pci_irq_enable(struct pci_dev *dev)
+{
+	const struct x86_cpu_id *id;
+	struct irq_alloc_info info;
+	bool polarity_low;
+	u16 model = 0;
+>>>>>>> upstream/android-13
 	int ret;
 	u8 gsi;
 
@@ -228,9 +254,19 @@ static int intel_mid_pci_irq_enable(struct pci_dev *dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	switch (intel_mid_identify_cpu()) {
 	case INTEL_MID_CPU_CHIP_TANGIER:
 		polarity = IOAPIC_POL_HIGH;
+=======
+	id = x86_match_cpu(intel_mid_cpu_ids);
+	if (id)
+		model = id->model;
+
+	switch (model) {
+	case INTEL_FAM6_ATOM_SILVERMONT_MID:
+		polarity_low = false;
+>>>>>>> upstream/android-13
 
 		/* Special treatment for IRQ0 */
 		if (gsi == 0) {
@@ -252,11 +288,19 @@ static int intel_mid_pci_irq_enable(struct pci_dev *dev)
 		}
 		break;
 	default:
+<<<<<<< HEAD
 		polarity = IOAPIC_POL_LOW;
 		break;
 	}
 
 	ioapic_set_alloc_attr(&info, dev_to_node(&dev->dev), 1, polarity);
+=======
+		polarity_low = true;
+		break;
+	}
+
+	ioapic_set_alloc_attr(&info, dev_to_node(&dev->dev), 1, polarity_low);
+>>>>>>> upstream/android-13
 
 	/*
 	 * MRST only have IOAPIC, the PCI irq lines are 1:1 mapped to
@@ -323,7 +367,11 @@ static void pci_d3delay_fixup(struct pci_dev *dev)
 	 */
 	if (type1_access_ok(dev->bus->number, dev->devfn, PCI_DEVICE_ID))
 		return;
+<<<<<<< HEAD
 	dev->d3_delay = 0;
+=======
+	dev->d3hot_delay = 0;
+>>>>>>> upstream/android-13
 }
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, PCI_ANY_ID, pci_d3delay_fixup);
 
@@ -383,7 +431,11 @@ static void pci_fixed_bar_fixup(struct pci_dev *dev)
 	    PCI_DEVFN(2, 2) == dev->devfn)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < PCI_ROM_RESOURCE; i++) {
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>>>>>> upstream/android-13
 		pci_read_config_dword(dev, offset + 8 + (i * 4), &size);
 		dev->resource[i].end = dev->resource[i].start + size - 1;
 		dev->resource[i].flags |= IORESOURCE_PCI_FIXED;

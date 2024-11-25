@@ -21,6 +21,7 @@
  *
  * Authors: Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
@@ -29,6 +30,15 @@
 
 u32 cayman_gpu_check_soft_reset(struct radeon_device *rdev);
 
+=======
+
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_trace.h"
+#include "ni.h"
+#include "nid.h"
+
+>>>>>>> upstream/android-13
 /*
  * DMA
  * Starting with R600, the GPU has an asynchronous

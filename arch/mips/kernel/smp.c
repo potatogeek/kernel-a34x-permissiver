@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,6 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2000, 2001 Kanoj Sarcar
  * Copyright (C) 2000, 2001 Ralf Baechle
@@ -39,6 +44,10 @@
 
 #include <linux/atomic.h>
 #include <asm/cpu.h>
+<<<<<<< HEAD
+=======
+#include <asm/ginvt.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/idle.h>
 #include <asm/r4k-timer.h>
@@ -70,7 +79,11 @@ static DECLARE_COMPLETION(cpu_starting);
 static DECLARE_COMPLETION(cpu_running);
 
 /*
+<<<<<<< HEAD
  * A logcal cpu mask containing only one VPE per core to
+=======
+ * A logical cpu mask containing only one VPE per core to
+>>>>>>> upstream/android-13
  * reduce the number of IPIs on large MT systems.
  */
 cpumask_t cpu_foreign_map[NR_CPUS] __read_mostly;
@@ -218,6 +231,7 @@ static irqreturn_t ipi_call_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction irq_resched = {
 	.handler	= ipi_resched_interrupt,
 	.flags		= IRQF_PERCPU,
@@ -232,11 +246,19 @@ static struct irqaction irq_call = {
 
 static void smp_ipi_init_one(unsigned int virq,
 				    struct irqaction *action)
+=======
+static void smp_ipi_init_one(unsigned int virq, const char *name,
+			     irq_handler_t handler)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	irq_set_handler(virq, handle_percpu_irq);
+<<<<<<< HEAD
 	ret = setup_irq(virq, action);
+=======
+	ret = request_irq(virq, handler, IRQF_PERCPU, name, NULL);
+>>>>>>> upstream/android-13
 	BUG_ON(ret);
 }
 
@@ -289,12 +311,24 @@ int mips_smp_ipi_allocate(const struct cpumask *mask)
 		int cpu;
 
 		for_each_cpu(cpu, mask) {
+<<<<<<< HEAD
 			smp_ipi_init_one(call_virq + cpu, &irq_call);
 			smp_ipi_init_one(sched_virq + cpu, &irq_resched);
 		}
 	} else {
 		smp_ipi_init_one(call_virq, &irq_call);
 		smp_ipi_init_one(sched_virq, &irq_resched);
+=======
+			smp_ipi_init_one(call_virq + cpu, "IPI call",
+					 ipi_call_interrupt);
+			smp_ipi_init_one(sched_virq + cpu, "IPI resched",
+					 ipi_resched_interrupt);
+		}
+	} else {
+		smp_ipi_init_one(call_virq, "IPI call", ipi_call_interrupt);
+		smp_ipi_init_one(sched_virq, "IPI resched",
+				 ipi_resched_interrupt);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -322,8 +356,13 @@ int mips_smp_ipi_free(const struct cpumask *mask)
 		int cpu;
 
 		for_each_cpu(cpu, mask) {
+<<<<<<< HEAD
 			remove_irq(call_virq + cpu, &irq_call);
 			remove_irq(sched_virq + cpu, &irq_resched);
+=======
+			free_irq(call_virq + cpu, NULL);
+			free_irq(sched_virq + cpu, NULL);
+>>>>>>> upstream/android-13
 		}
 	}
 	irq_destroy_ipi(call_virq, mask);
@@ -368,10 +407,19 @@ asmlinkage void start_secondary(void)
 	 */
 
 	calibrate_delay();
+<<<<<<< HEAD
 	preempt_disable();
 	cpu = smp_processor_id();
 	cpu_data[cpu].udelay_val = loops_per_jiffy;
 
+=======
+	cpu = smp_processor_id();
+	cpu_data[cpu].udelay_val = loops_per_jiffy;
+
+	set_cpu_sibling_map(cpu);
+	set_cpu_core_map(cpu);
+
+>>>>>>> upstream/android-13
 	cpumask_set_cpu(cpu, &cpu_coherent_mask);
 	notify_cpu_starting(cpu);
 
@@ -383,9 +431,12 @@ asmlinkage void start_secondary(void)
 	/* The CPU is running and counters synchronised, now mark it online */
 	set_cpu_online(cpu, true);
 
+<<<<<<< HEAD
 	set_cpu_sibling_map(cpu);
 	set_cpu_core_map(cpu);
 
+=======
+>>>>>>> upstream/android-13
 	calculate_cpu_foreign_map();
 
 	/*
@@ -443,6 +494,11 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
 /* preload SMP state for boot cpu */
 void smp_prepare_boot_cpu(void)
 {
+<<<<<<< HEAD
+=======
+	if (mp_ops->prepare_boot_cpu)
+		mp_ops->prepare_boot_cpu();
+>>>>>>> upstream/android-13
 	set_cpu_possible(0, true);
 	set_cpu_online(0, true);
 }
@@ -482,12 +538,28 @@ static void flush_tlb_all_ipi(void *info)
 
 void flush_tlb_all(void)
 {
+<<<<<<< HEAD
+=======
+	if (cpu_has_mmid) {
+		htw_stop();
+		ginvt_full();
+		sync_ginv();
+		instruction_hazard();
+		htw_start();
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	on_each_cpu(flush_tlb_all_ipi, NULL, 1);
 }
 
 static void flush_tlb_mm_ipi(void *mm)
 {
+<<<<<<< HEAD
 	local_flush_tlb_mm((struct mm_struct *)mm);
+=======
+	drop_mmu_context((struct mm_struct *)mm);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -519,8 +591,13 @@ static inline void smp_on_each_tlb(void (*func) (void *info), void *info)
  * address spaces, a new context is obtained on the current cpu, and tlb
  * context on other cpus are invalidated to force a new context allocation
  * at switch_mm time, should the mm ever be used on other cpus. For
+<<<<<<< HEAD
  * multithreaded address spaces, intercpu interrupts have to be sent.
  * Another case where intercpu interrupts are required is when the target
+=======
+ * multithreaded address spaces, inter-CPU interrupts have to be sent.
+ * Another case where inter-CPU interrupts are required is when the target
+>>>>>>> upstream/android-13
  * mm might be active on another cpu (eg debuggers doing the flushes on
  * behalf of debugees, kswapd stealing pages from another process etc).
  * Kanoj 07/00.
@@ -530,17 +607,33 @@ void flush_tlb_mm(struct mm_struct *mm)
 {
 	preempt_disable();
 
+<<<<<<< HEAD
 	if ((atomic_read(&mm->mm_users) != 1) || (current->mm != mm)) {
+=======
+	if (cpu_has_mmid) {
+		/*
+		 * No need to worry about other CPUs - the ginvt in
+		 * drop_mmu_context() will be globalized.
+		 */
+	} else if ((atomic_read(&mm->mm_users) != 1) || (current->mm != mm)) {
+>>>>>>> upstream/android-13
 		smp_on_other_tlbs(flush_tlb_mm_ipi, mm);
 	} else {
 		unsigned int cpu;
 
 		for_each_online_cpu(cpu) {
 			if (cpu != smp_processor_id() && cpu_context(cpu, mm))
+<<<<<<< HEAD
 				cpu_context(cpu, mm) = 0;
 		}
 	}
 	local_flush_tlb_mm(mm);
+=======
+				set_cpu_context(cpu, mm, 0);
+		}
+	}
+	drop_mmu_context(mm);
+>>>>>>> upstream/android-13
 
 	preempt_enable();
 }
@@ -561,9 +654,32 @@ static void flush_tlb_range_ipi(void *info)
 void flush_tlb_range(struct vm_area_struct *vma, unsigned long start, unsigned long end)
 {
 	struct mm_struct *mm = vma->vm_mm;
+<<<<<<< HEAD
 
 	preempt_disable();
 	if ((atomic_read(&mm->mm_users) != 1) || (current->mm != mm)) {
+=======
+	unsigned long addr;
+	u32 old_mmid;
+
+	preempt_disable();
+	if (cpu_has_mmid) {
+		htw_stop();
+		old_mmid = read_c0_memorymapid();
+		write_c0_memorymapid(cpu_asid(0, mm));
+		mtc0_tlbw_hazard();
+		addr = round_down(start, PAGE_SIZE * 2);
+		end = round_up(end, PAGE_SIZE * 2);
+		do {
+			ginvt_va_mmid(addr);
+			sync_ginv();
+			addr += PAGE_SIZE * 2;
+		} while (addr < end);
+		write_c0_memorymapid(old_mmid);
+		instruction_hazard();
+		htw_start();
+	} else if ((atomic_read(&mm->mm_users) != 1) || (current->mm != mm)) {
+>>>>>>> upstream/android-13
 		struct flush_tlb_data fd = {
 			.vma = vma,
 			.addr1 = start,
@@ -571,6 +687,10 @@ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start, unsigned l
 		};
 
 		smp_on_other_tlbs(flush_tlb_range_ipi, &fd);
+<<<<<<< HEAD
+=======
+		local_flush_tlb_range(vma, start, end);
+>>>>>>> upstream/android-13
 	} else {
 		unsigned int cpu;
 		int exec = vma->vm_flags & VM_EXEC;
@@ -583,10 +703,17 @@ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start, unsigned l
 			 * mm has been completely unused by that CPU.
 			 */
 			if (cpu != smp_processor_id() && cpu_context(cpu, mm))
+<<<<<<< HEAD
 				cpu_context(cpu, mm) = !exec;
 		}
 	}
 	local_flush_tlb_range(vma, start, end);
+=======
+				set_cpu_context(cpu, mm, !exec);
+		}
+		local_flush_tlb_range(vma, start, end);
+	}
+>>>>>>> upstream/android-13
 	preempt_enable();
 }
 
@@ -616,14 +743,36 @@ static void flush_tlb_page_ipi(void *info)
 
 void flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
 {
+<<<<<<< HEAD
 	preempt_disable();
 	if ((atomic_read(&vma->vm_mm->mm_users) != 1) || (current->mm != vma->vm_mm)) {
+=======
+	u32 old_mmid;
+
+	preempt_disable();
+	if (cpu_has_mmid) {
+		htw_stop();
+		old_mmid = read_c0_memorymapid();
+		write_c0_memorymapid(cpu_asid(0, vma->vm_mm));
+		mtc0_tlbw_hazard();
+		ginvt_va_mmid(page);
+		sync_ginv();
+		write_c0_memorymapid(old_mmid);
+		instruction_hazard();
+		htw_start();
+	} else if ((atomic_read(&vma->vm_mm->mm_users) != 1) ||
+		   (current->mm != vma->vm_mm)) {
+>>>>>>> upstream/android-13
 		struct flush_tlb_data fd = {
 			.vma = vma,
 			.addr1 = page,
 		};
 
 		smp_on_other_tlbs(flush_tlb_page_ipi, &fd);
+<<<<<<< HEAD
+=======
+		local_flush_tlb_page(vma, page);
+>>>>>>> upstream/android-13
 	} else {
 		unsigned int cpu;
 
@@ -635,10 +784,17 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
 			 * by that CPU.
 			 */
 			if (cpu != smp_processor_id() && cpu_context(cpu, vma->vm_mm))
+<<<<<<< HEAD
 				cpu_context(cpu, vma->vm_mm) = 1;
 		}
 	}
 	local_flush_tlb_page(vma, page);
+=======
+				set_cpu_context(cpu, vma->vm_mm, 1);
+		}
+		local_flush_tlb_page(vma, page);
+	}
+>>>>>>> upstream/android-13
 	preempt_enable();
 }
 
@@ -659,16 +815,30 @@ EXPORT_SYMBOL(flush_tlb_one);
 
 #ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
 
+<<<<<<< HEAD
 static DEFINE_PER_CPU(atomic_t, tick_broadcast_count);
 static DEFINE_PER_CPU(call_single_data_t, tick_broadcast_csd);
 
 void tick_broadcast(const struct cpumask *mask)
 {
 	atomic_t *count;
+=======
+static void tick_broadcast_callee(void *info)
+{
+	tick_receive_broadcast();
+}
+
+static DEFINE_PER_CPU(call_single_data_t, tick_broadcast_csd) =
+	CSD_INIT(tick_broadcast_callee, NULL);
+
+void tick_broadcast(const struct cpumask *mask)
+{
+>>>>>>> upstream/android-13
 	call_single_data_t *csd;
 	int cpu;
 
 	for_each_cpu(cpu, mask) {
+<<<<<<< HEAD
 		count = &per_cpu(tick_broadcast_count, cpu);
 		csd = &per_cpu(tick_broadcast_csd, cpu);
 
@@ -698,4 +868,11 @@ static int __init tick_broadcast_init(void)
 }
 early_initcall(tick_broadcast_init);
 
+=======
+		csd = &per_cpu(tick_broadcast_csd, cpu);
+		smp_call_function_single_async(cpu, csd);
+	}
+}
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_GENERIC_CLOCKEVENTS_BROADCAST */

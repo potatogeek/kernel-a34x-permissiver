@@ -24,6 +24,12 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+#include <linux/pci.h>
+
+>>>>>>> upstream/android-13
 #include "amdgpu.h"
 #include "amdgpu_psp.h"
 #include "amdgpu_ucode.h"
@@ -35,6 +41,7 @@
 #include "sdma0/sdma0_4_1_offset.h"
 
 MODULE_FIRMWARE("amdgpu/raven_asd.bin");
+<<<<<<< HEAD
 
 static int
 psp_v10_0_get_fw_type(struct amdgpu_firmware_info *ucode, enum psp_gfx_fw_type *type)
@@ -98,6 +105,13 @@ psp_v10_0_get_fw_type(struct amdgpu_firmware_info *ucode, enum psp_gfx_fw_type *
 
 	return 0;
 }
+=======
+MODULE_FIRMWARE("amdgpu/picasso_asd.bin");
+MODULE_FIRMWARE("amdgpu/raven2_asd.bin");
+MODULE_FIRMWARE("amdgpu/picasso_ta.bin");
+MODULE_FIRMWARE("amdgpu/raven2_ta.bin");
+MODULE_FIRMWARE("amdgpu/raven_ta.bin");
+>>>>>>> upstream/android-13
 
 static int psp_v10_0_init_microcode(struct psp_context *psp)
 {
@@ -105,17 +119,31 @@ static int psp_v10_0_init_microcode(struct psp_context *psp)
 	const char *chip_name;
 	char fw_name[30];
 	int err = 0;
+<<<<<<< HEAD
 	const struct psp_firmware_header_v1_0 *hdr;
 
+=======
+	const struct ta_firmware_header_v1_0 *ta_hdr;
+>>>>>>> upstream/android-13
 	DRM_DEBUG("\n");
 
 	switch (adev->asic_type) {
 	case CHIP_RAVEN:
+<<<<<<< HEAD
 		chip_name = "raven";
+=======
+		if (adev->apu_flags & AMD_APU_IS_RAVEN2)
+			chip_name = "raven2";
+		else if (adev->apu_flags & AMD_APU_IS_PICASSO)
+			chip_name = "picasso";
+		else
+			chip_name = "raven";
+>>>>>>> upstream/android-13
 		break;
 	default: BUG();
 	}
 
+<<<<<<< HEAD
 	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_asd.bin", chip_name);
 	err = request_firmware(&adev->psp.asd_fw, fw_name, adev->dev);
 	if (err)
@@ -133,18 +161,75 @@ static int psp_v10_0_init_microcode(struct psp_context *psp)
 				le32_to_cpu(hdr->header.ucode_array_offset_bytes);
 
 	return 0;
+=======
+	err = psp_init_asd_microcode(psp, chip_name);
+	if (err)
+		goto out;
+
+	snprintf(fw_name, sizeof(fw_name), "amdgpu/%s_ta.bin", chip_name);
+	err = request_firmware(&adev->psp.ta_fw, fw_name, adev->dev);
+	if (err) {
+		release_firmware(adev->psp.ta_fw);
+		adev->psp.ta_fw = NULL;
+		dev_info(adev->dev,
+			 "psp v10.0: Failed to load firmware \"%s\"\n",
+			 fw_name);
+	} else {
+		err = amdgpu_ucode_validate(adev->psp.ta_fw);
+		if (err)
+			goto out2;
+
+		ta_hdr = (const struct ta_firmware_header_v1_0 *)
+				 adev->psp.ta_fw->data;
+		adev->psp.hdcp.feature_version =
+			le32_to_cpu(ta_hdr->hdcp.fw_version);
+		adev->psp.hdcp.size_bytes =
+			le32_to_cpu(ta_hdr->hdcp.size_bytes);
+		adev->psp.hdcp.start_addr =
+			(uint8_t *)ta_hdr +
+			le32_to_cpu(ta_hdr->header.ucode_array_offset_bytes);
+
+		adev->psp.dtm.feature_version =
+			le32_to_cpu(ta_hdr->dtm.fw_version);
+		adev->psp.dtm.size_bytes =
+			le32_to_cpu(ta_hdr->dtm.size_bytes);
+		adev->psp.dtm.start_addr =
+			(uint8_t *)adev->psp.hdcp.start_addr +
+			le32_to_cpu(ta_hdr->dtm.offset_bytes);
+
+		adev->psp.securedisplay.feature_version =
+			le32_to_cpu(ta_hdr->securedisplay.fw_version);
+		adev->psp.securedisplay.size_bytes =
+			le32_to_cpu(ta_hdr->securedisplay.size_bytes);
+		adev->psp.securedisplay.start_addr =
+			(uint8_t *)adev->psp.hdcp.start_addr +
+			le32_to_cpu(ta_hdr->securedisplay.offset_bytes);
+
+		adev->psp.ta_fw_version = le32_to_cpu(ta_hdr->header.ucode_version);
+	}
+
+	return 0;
+
+out2:
+	release_firmware(adev->psp.ta_fw);
+	adev->psp.ta_fw = NULL;
+>>>>>>> upstream/android-13
 out:
 	if (err) {
 		dev_err(adev->dev,
 			"psp v10.0: Failed to load firmware \"%s\"\n",
 			fw_name);
+<<<<<<< HEAD
 		release_firmware(adev->psp.asd_fw);
 		adev->psp.asd_fw = NULL;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static int psp_v10_0_prep_cmd_buf(struct amdgpu_firmware_info *ucode,
 				  struct psp_gfx_cmd_resp *cmd)
 {
@@ -165,6 +250,8 @@ static int psp_v10_0_prep_cmd_buf(struct amdgpu_firmware_info *ucode,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int psp_v10_0_ring_init(struct psp_context *psp,
 			       enum psp_ring_type ring_type)
 {
@@ -227,12 +314,18 @@ static int psp_v10_0_ring_stop(struct psp_context *psp,
 			       enum psp_ring_type ring_type)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct psp_ring *ring;
 	unsigned int psp_ring_reg = 0;
 	struct amdgpu_device *adev = psp->adev;
 
 	ring = &psp->km_ring;
 
+=======
+	unsigned int psp_ring_reg = 0;
+	struct amdgpu_device *adev = psp->adev;
+
+>>>>>>> upstream/android-13
 	/* Write the ring destroy command to C2PMSG_64 */
 	psp_ring_reg = 3 << 16;
 	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64, psp_ring_reg);
@@ -265,6 +358,7 @@ static int psp_v10_0_ring_destroy(struct psp_context *psp,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int psp_v10_0_cmd_submit(struct psp_context *psp,
 				struct amdgpu_firmware_info *ucode,
 				uint64_t cmd_buf_mc_addr, uint64_t fence_mc_addr,
@@ -436,22 +530,49 @@ static bool psp_v10_0_compare_sram_data(struct psp_context *psp,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static int psp_v10_0_mode1_reset(struct psp_context *psp)
 {
 	DRM_INFO("psp mode 1 reset not supported now! \n");
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static const struct psp_funcs psp_v10_0_funcs = {
 	.init_microcode = psp_v10_0_init_microcode,
 	.prep_cmd_buf = psp_v10_0_prep_cmd_buf,
+=======
+static uint32_t psp_v10_0_ring_get_wptr(struct psp_context *psp)
+{
+	struct amdgpu_device *adev = psp->adev;
+
+	return RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
+}
+
+static void psp_v10_0_ring_set_wptr(struct psp_context *psp, uint32_t value)
+{
+	struct amdgpu_device *adev = psp->adev;
+
+	WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
+}
+
+static const struct psp_funcs psp_v10_0_funcs = {
+	.init_microcode = psp_v10_0_init_microcode,
+>>>>>>> upstream/android-13
 	.ring_init = psp_v10_0_ring_init,
 	.ring_create = psp_v10_0_ring_create,
 	.ring_stop = psp_v10_0_ring_stop,
 	.ring_destroy = psp_v10_0_ring_destroy,
+<<<<<<< HEAD
 	.cmd_submit = psp_v10_0_cmd_submit,
 	.compare_sram_data = psp_v10_0_compare_sram_data,
 	.mode1_reset = psp_v10_0_mode1_reset,
+=======
+	.mode1_reset = psp_v10_0_mode1_reset,
+	.ring_get_wptr = psp_v10_0_ring_get_wptr,
+	.ring_set_wptr = psp_v10_0_ring_set_wptr,
+>>>>>>> upstream/android-13
 };
 
 void psp_v10_0_set_psp_funcs(struct psp_context *psp)

@@ -93,7 +93,11 @@
 
 &ir {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&ir_pins_a>;
+=======
+	pinctrl-0 = <&r_ir_rx_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

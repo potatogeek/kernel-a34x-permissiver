@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI/National Semiconductor LP3943 PWM driver
  *
  * Copyright 2013 Texas Instruments
  *
  * Author: Milo Kim <milo.kim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -278,6 +285,7 @@ static int lp3943_pwm_probe(struct platform_device *pdev)
 	lp3943_pwm->chip.dev = &pdev->dev;
 	lp3943_pwm->chip.ops = &lp3943_pwm_ops;
 	lp3943_pwm->chip.npwm = LP3943_NUM_PWMS;
+<<<<<<< HEAD
 	lp3943_pwm->chip.base = -1;
 
 	platform_set_drvdata(pdev, lp3943_pwm);
@@ -290,6 +298,10 @@ static int lp3943_pwm_remove(struct platform_device *pdev)
 	struct lp3943_pwm *lp3943_pwm = platform_get_drvdata(pdev);
 
 	return pwmchip_remove(&lp3943_pwm->chip);
+=======
+
+	return devm_pwmchip_add(&pdev->dev, &lp3943_pwm->chip);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_OF
@@ -302,7 +314,10 @@ MODULE_DEVICE_TABLE(of, lp3943_pwm_of_match);
 
 static struct platform_driver lp3943_pwm_driver = {
 	.probe = lp3943_pwm_probe,
+<<<<<<< HEAD
 	.remove = lp3943_pwm_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "lp3943-pwm",
 		.of_match_table = of_match_ptr(lp3943_pwm_of_match),

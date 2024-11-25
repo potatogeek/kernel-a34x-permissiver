@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 menu "Firmware loader"
 
 config FW_LOADER
@@ -25,6 +29,12 @@ config FW_LOADER
 
 if FW_LOADER
 
+<<<<<<< HEAD
+=======
+config FW_LOADER_PAGED_BUF
+	bool
+
+>>>>>>> upstream/android-13
 config EXTRA_FIRMWARE
 	string "Build named firmware blobs into the kernel binary"
 	help
@@ -66,6 +76,10 @@ config EXTRA_FIRMWARE_DIR
 
 config FW_LOADER_USER_HELPER
 	bool "Enable the firmware sysfs fallback mechanism"
+<<<<<<< HEAD
+=======
+	select FW_LOADER_PAGED_BUF
+>>>>>>> upstream/android-13
 	help
 	  This option enables a sysfs loading facility to enable firmware
 	  loading to the kernel through userspace as a fallback mechanism
@@ -143,13 +157,34 @@ config FW_LOADER_USER_HELPER_FALLBACK
 	  to be used for all firmware requests which explicitly do not disable a
 	  a fallback mechanism. Firmware calls which do prohibit a fallback
 	  mechanism is request_firmware_direct(). This option is kept for
+<<<<<<< HEAD
           backward compatibility purposes given this precise mechanism can also
+=======
+	  backward compatibility purposes given this precise mechanism can also
+>>>>>>> upstream/android-13
 	  be enabled by setting the proc sysctl value to true:
 
 	       /proc/sys/kernel/firmware_config/force_sysfs_fallback
 
 	  If you are unsure about this, say N here.
 
+<<<<<<< HEAD
+=======
+config FW_LOADER_COMPRESS
+	bool "Enable compressed firmware support"
+	select FW_LOADER_PAGED_BUF
+	select XZ_DEC
+	help
+	  This option enables the support for loading compressed firmware
+	  files. The caller of firmware API receives the decompressed file
+	  content. The compressed file is loaded as a fallback, only after
+	  loading the raw file failed at first.
+
+	  Currently only XZ-compressed files are supported, and they have to
+	  be compressed with either none or crc32 integrity check type (pass
+	  "-C crc32" option to xz command).
+
+>>>>>>> upstream/android-13
 config FW_CACHE
 	bool "Enable firmware caching during suspend"
 	depends on PM_SLEEP

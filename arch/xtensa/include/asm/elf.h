@@ -15,10 +15,17 @@
 
 #include <asm/ptrace.h>
 #include <asm/coprocessor.h>
+<<<<<<< HEAD
 
 /* Xtensa processor ELF architecture-magic number */
 
 #define EM_XTENSA	94
+=======
+#include <linux/elf-em.h>
+
+/* Xtensa processor ELF architecture-magic number */
+
+>>>>>>> upstream/android-13
 #define EM_XTENSA_OLD	0xABC7
 
 /* Xtensa relocations defined by the ABIs */
@@ -75,6 +82,7 @@
 
 typedef unsigned long elf_greg_t;
 
+<<<<<<< HEAD
 typedef struct {
 	elf_greg_t pc;
 	elf_greg_t ps;
@@ -88,6 +96,9 @@ typedef struct {
 	elf_greg_t reserved[7+48];
 	elf_greg_t a[64];
 } xtensa_gregset_t;
+=======
+typedef struct user_pt_regs xtensa_gregset_t;
+>>>>>>> upstream/android-13
 
 #define ELF_NGREG	(sizeof(xtensa_gregset_t) / sizeof(elf_greg_t))
 
@@ -98,11 +109,14 @@ typedef elf_greg_t elf_gregset_t[ELF_NGREG];
 typedef unsigned int elf_fpreg_t;
 typedef elf_fpreg_t elf_fpregset_t[ELF_NFPREG];
 
+<<<<<<< HEAD
 #define ELF_CORE_COPY_REGS(_eregs, _pregs) 				\
 	xtensa_elf_core_copy_regs ((xtensa_gregset_t*)&(_eregs), _pregs);
 
 extern void xtensa_elf_core_copy_regs (xtensa_gregset_t *, struct pt_regs *);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This is used to ensure we don't load something for the wrong architecture.
  */
@@ -126,6 +140,10 @@ extern void xtensa_elf_core_copy_regs (xtensa_gregset_t *, struct pt_regs *);
 #define ELF_ARCH	EM_XTENSA
 
 #define ELF_EXEC_PAGESIZE	PAGE_SIZE
+<<<<<<< HEAD
+=======
+#define CORE_DUMP_USE_REGSET
+>>>>>>> upstream/android-13
 
 /*
  * This is the location that an ET_DYN program is loaded if exec'ed.  Typical
@@ -193,6 +211,7 @@ typedef struct {
 #define SET_PERSONALITY(ex) \
 	set_personality(PER_LINUX_32BIT | (current->personality & (~PER_MASK)))
 
+<<<<<<< HEAD
 struct task_struct;
 
 extern void do_copy_regs (xtensa_gregset_t*, struct pt_regs*,
@@ -204,4 +223,6 @@ extern void do_save_fpregs (elf_fpregset_t*, struct pt_regs*,
 extern int do_restore_fpregs (elf_fpregset_t*, struct pt_regs*,
 			      struct task_struct*);
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* _XTENSA_ELF_H */

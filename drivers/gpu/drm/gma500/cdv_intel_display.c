@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2006-2011 Intel Corporation
  *
@@ -14,10 +15,17 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2006-2011 Intel Corporation
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *	Eric Anholt <eric@anholt.net>
  */
 
+<<<<<<< HEAD
 #include <linux/i2c.h>
 
 #include <drm/drmP.h>
@@ -28,6 +36,20 @@
 #include "gma_display.h"
 #include "power.h"
 #include "cdv_device.h"
+=======
+#include <linux/delay.h>
+#include <linux/i2c.h>
+
+#include <drm/drm_crtc.h>
+
+#include "cdv_device.h"
+#include "framebuffer.h"
+#include "gma_display.h"
+#include "power.h"
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+#include "psb_intel_reg.h"
+>>>>>>> upstream/android-13
 
 static bool cdv_intel_find_dp_pll(const struct gma_limit_t *limit,
 				  struct drm_crtc *crtc, int target,
@@ -561,7 +583,11 @@ void cdv_update_wm(struct drm_device *dev, struct drm_crtc *crtc)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Return the pipe currently connected to the panel fitter,
  * or -1 if the panel fitter is not present or not in use
  */
@@ -592,8 +618,13 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
 	struct gma_clock_t clock;
 	u32 dpll = 0, dspcntr, pipeconf;
 	bool ok;
+<<<<<<< HEAD
 	bool is_crt = false, is_lvds = false, is_tv = false;
 	bool is_hdmi = false, is_dp = false;
+=======
+	bool is_lvds = false;
+	bool is_dp = false;
+>>>>>>> upstream/android-13
 	struct drm_mode_config *mode_config = &dev->mode_config;
 	struct drm_connector *connector;
 	const struct gma_limit_t *limit;
@@ -613,6 +644,7 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
 		case INTEL_OUTPUT_LVDS:
 			is_lvds = true;
 			break;
+<<<<<<< HEAD
 		case INTEL_OUTPUT_TVOUT:
 			is_tv = true;
 			break;
@@ -621,6 +653,10 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
 			break;
 		case INTEL_OUTPUT_HDMI:
 			is_hdmi = true;
+=======
+		case INTEL_OUTPUT_ANALOG:
+		case INTEL_OUTPUT_HDMI:
+>>>>>>> upstream/android-13
 			break;
 		case INTEL_OUTPUT_DISPLAYPORT:
 			is_dp = true;
@@ -673,12 +709,15 @@ static int cdv_intel_crtc_mode_set(struct drm_crtc *crtc,
 	}
 
 	dpll = DPLL_VGA_MODE_DIS;
+<<<<<<< HEAD
 	if (is_tv) {
 		/* XXX: just matching BIOS for now */
 /*	dpll |= PLL_REF_INPUT_TVCLKINBC; */
 		dpll |= 3;
 	}
 /*		dpll |= PLL_REF_INPUT_DREFCLK; */
+=======
+>>>>>>> upstream/android-13
 
 	if (is_dp || is_edp) {
 		cdv_intel_dp_set_m_n(crtc, mode, adjusted_mode);
@@ -983,6 +1022,7 @@ const struct drm_crtc_helper_funcs cdv_intel_helper_funcs = {
 	.disable = gma_crtc_disable,
 };
 
+<<<<<<< HEAD
 const struct drm_crtc_funcs cdv_intel_crtc_funcs = {
 	.cursor_set = gma_crtc_cursor_set,
 	.cursor_move = gma_crtc_cursor_move,
@@ -991,6 +1031,8 @@ const struct drm_crtc_funcs cdv_intel_crtc_funcs = {
 	.destroy = gma_crtc_destroy,
 };
 
+=======
+>>>>>>> upstream/android-13
 const struct gma_clock_funcs cdv_clock_funcs = {
 	.clock = cdv_intel_clock,
 	.limit = cdv_intel_limit,

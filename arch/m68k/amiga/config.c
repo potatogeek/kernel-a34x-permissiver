@@ -17,6 +17,10 @@
 #include <linux/mm.h>
 #include <linux/seq_file.h>
 #include <linux/tty.h>
+<<<<<<< HEAD
+=======
+#include <linux/clocksource.h>
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/rtc.h>
 #include <linux/init.h>
@@ -31,7 +35,10 @@
 #include <asm/bootinfo-amiga.h>
 #include <asm/byteorder.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/amigahw.h>
 #include <asm/amigaints.h>
 #include <asm/irq.h>
@@ -92,11 +99,17 @@ static char *amiga_models[] __initdata = {
 
 static char amiga_model_name[13] = "Amiga ";
 
+<<<<<<< HEAD
 static void amiga_sched_init(irq_handler_t handler);
 static void amiga_get_model(char *model);
 static void amiga_get_hardware_list(struct seq_file *m);
 /* amiga specific timer functions */
 static u32 amiga_gettimeoffset(void);
+=======
+static void amiga_sched_init(void);
+static void amiga_get_model(char *model);
+static void amiga_get_hardware_list(struct seq_file *m);
+>>>>>>> upstream/android-13
 extern void amiga_mksound(unsigned int count, unsigned int ticks);
 static void amiga_reset(void);
 extern void amiga_init_sound(void);
@@ -216,44 +229,73 @@ static void __init amiga_identify(void)
 
 	switch (amiga_model) {
 	case AMI_UNKNOWN:
+<<<<<<< HEAD
 		goto Generic;
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	case AMI_600:
 	case AMI_1200:
 		AMIGAHW_SET(A1200_IDE);
 		AMIGAHW_SET(PCMCIA);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case AMI_500:
 	case AMI_500PLUS:
 	case AMI_1000:
 	case AMI_2000:
 	case AMI_2500:
 		AMIGAHW_SET(A2000_CLK);	/* Is this correct for all models? */
+<<<<<<< HEAD
 		goto Generic;
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	case AMI_3000:
 	case AMI_3000T:
 		AMIGAHW_SET(AMBER_FF);
 		AMIGAHW_SET(MAGIC_REKICK);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case AMI_3000PLUS:
 		AMIGAHW_SET(A3000_SCSI);
 		AMIGAHW_SET(A3000_CLK);
 		AMIGAHW_SET(ZORRO3);
+<<<<<<< HEAD
 		goto Generic;
 
 	case AMI_4000T:
 		AMIGAHW_SET(A4000_SCSI);
 		/* fall through */
+=======
+		break;
+
+	case AMI_4000T:
+		AMIGAHW_SET(A4000_SCSI);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case AMI_4000:
 		AMIGAHW_SET(A4000_IDE);
 		AMIGAHW_SET(A3000_CLK);
 		AMIGAHW_SET(ZORRO3);
+<<<<<<< HEAD
 		goto Generic;
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	case AMI_CDTV:
 	case AMI_CD32:
 		AMIGAHW_SET(CD_ROM);
 		AMIGAHW_SET(A2000_CLK);             /* Is this correct? */
+<<<<<<< HEAD
 		goto Generic;
 
 	Generic:
@@ -310,6 +352,8 @@ static void __init amiga_identify(void)
 			break;
 		}
 		AMIGAHW_SET(ZORRO);
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case AMI_DRACO:
@@ -319,6 +363,63 @@ static void __init amiga_identify(void)
 		panic("Unknown Amiga Model");
 	}
 
+<<<<<<< HEAD
+=======
+	AMIGAHW_SET(AMI_VIDEO);
+	AMIGAHW_SET(AMI_BLITTER);
+	AMIGAHW_SET(AMI_AUDIO);
+	AMIGAHW_SET(AMI_FLOPPY);
+	AMIGAHW_SET(AMI_KEYBOARD);
+	AMIGAHW_SET(AMI_MOUSE);
+	AMIGAHW_SET(AMI_SERIAL);
+	AMIGAHW_SET(AMI_PARALLEL);
+	AMIGAHW_SET(CHIP_RAM);
+	AMIGAHW_SET(PAULA);
+
+	switch (amiga_chipset) {
+	case CS_OCS:
+	case CS_ECS:
+	case CS_AGA:
+		switch (amiga_custom.deniseid & 0xf) {
+		case 0x0c:
+			AMIGAHW_SET(DENISE_HR);
+			break;
+		case 0x08:
+			AMIGAHW_SET(LISA);
+			break;
+		default:
+			AMIGAHW_SET(DENISE);
+			break;
+		}
+		break;
+	}
+	switch ((amiga_custom.vposr>>8) & 0x7f) {
+	case 0x00:
+		AMIGAHW_SET(AGNUS_PAL);
+		break;
+	case 0x10:
+		AMIGAHW_SET(AGNUS_NTSC);
+		break;
+	case 0x20:
+	case 0x21:
+		AMIGAHW_SET(AGNUS_HR_PAL);
+		break;
+	case 0x30:
+	case 0x31:
+		AMIGAHW_SET(AGNUS_HR_NTSC);
+		break;
+	case 0x22:
+	case 0x23:
+		AMIGAHW_SET(ALICE_PAL);
+		break;
+	case 0x32:
+	case 0x33:
+		AMIGAHW_SET(ALICE_NTSC);
+		break;
+	}
+	AMIGAHW_SET(ZORRO);
+
+>>>>>>> upstream/android-13
 #define AMIGAHW_ANNOUNCE(name, str)		\
 	if (AMIGAHW_PRESENT(name))		\
 		pr_cont(str)
@@ -386,6 +487,7 @@ void __init config_amiga(void)
 	mach_init_IRQ        = amiga_init_IRQ;
 	mach_get_model       = amiga_get_model;
 	mach_get_hardware_list = amiga_get_hardware_list;
+<<<<<<< HEAD
 	arch_gettimeoffset   = amiga_gettimeoffset;
 
 	/*
@@ -395,6 +497,8 @@ void __init config_amiga(void)
 	 */
 	mach_max_dma_address = 0xffffffff;
 
+=======
+>>>>>>> upstream/android-13
 	mach_reset           = amiga_reset;
 #if IS_ENABLED(CONFIG_INPUT_M68K_BEEP)
 	mach_beep            = amiga_mksound;
@@ -464,9 +568,36 @@ void __init config_amiga(void)
 		*(unsigned char *)ZTWO_VADDR(0xde0002) |= 0x80;
 }
 
+<<<<<<< HEAD
 static unsigned short jiffy_ticks;
 
 static void __init amiga_sched_init(irq_handler_t timer_routine)
+=======
+static u64 amiga_read_clk(struct clocksource *cs);
+
+static struct clocksource amiga_clk = {
+	.name   = "ciab",
+	.rating = 250,
+	.read   = amiga_read_clk,
+	.mask   = CLOCKSOURCE_MASK(32),
+	.flags  = CLOCK_SOURCE_IS_CONTINUOUS,
+};
+
+static unsigned short jiffy_ticks;
+static u32 clk_total, clk_offset;
+
+static irqreturn_t ciab_timer_handler(int irq, void *dev_id)
+{
+	clk_total += jiffy_ticks;
+	clk_offset = 0;
+	legacy_timer_tick(1);
+	timer_heartbeat();
+
+	return IRQ_HANDLED;
+}
+
+static void __init amiga_sched_init(void)
+>>>>>>> upstream/android-13
 {
 	static struct resource sched_res = {
 		.name = "timer", .start = 0x00bfd400, .end = 0x00bfd5ff,
@@ -484,6 +615,7 @@ static void __init amiga_sched_init(irq_handler_t timer_routine)
 	 * Please don't change this to use ciaa, as it interferes with the
 	 * SCSI code. We'll have to take a look at this later
 	 */
+<<<<<<< HEAD
 	if (request_irq(IRQ_AMIGA_CIAB_TA, timer_routine, 0, "timer", NULL))
 		pr_err("Couldn't register timer interrupt\n");
 	/* start timer */
@@ -497,6 +629,24 @@ static u32 amiga_gettimeoffset(void)
 {
 	unsigned short hi, lo, hi2;
 	u32 ticks, offset = 0;
+=======
+	if (request_irq(IRQ_AMIGA_CIAB_TA, ciab_timer_handler, IRQF_TIMER,
+			"timer", NULL))
+		pr_err("Couldn't register timer interrupt\n");
+	/* start timer */
+	ciab.cra |= 0x11;
+
+	clocksource_register_hz(&amiga_clk, amiga_eclock);
+}
+
+static u64 amiga_read_clk(struct clocksource *cs)
+{
+	unsigned short hi, lo, hi2;
+	unsigned long flags;
+	u32 ticks;
+
+	local_irq_save(flags);
+>>>>>>> upstream/android-13
 
 	/* read CIA B timer A current value */
 	hi  = ciab.tahi;
@@ -513,12 +663,23 @@ static u32 amiga_gettimeoffset(void)
 	if (ticks > jiffy_ticks / 2)
 		/* check for pending interrupt */
 		if (cia_set_irq(&ciab_base, 0) & CIA_ICR_TA)
+<<<<<<< HEAD
 			offset = 10000;
 
 	ticks = jiffy_ticks - ticks;
 	ticks = (10000 * ticks) / jiffy_ticks;
 
 	return (ticks + offset) * 1000;
+=======
+			clk_offset = jiffy_ticks;
+
+	ticks = jiffy_ticks - ticks;
+	ticks += clk_offset + clk_total;
+
+	local_irq_restore(flags);
+
+	return ticks;
+>>>>>>> upstream/android-13
 }
 
 static void amiga_reset(void)  __noreturn;
@@ -603,7 +764,11 @@ struct savekmsg {
 	unsigned long magic2;		/* SAVEKMSG_MAGIC2 */
 	unsigned long magicptr;		/* address of magic1 */
 	unsigned long size;
+<<<<<<< HEAD
 	char data[0];
+=======
+	char data[];
+>>>>>>> upstream/android-13
 };
 
 static struct savekmsg *savekmsg;

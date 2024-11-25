@@ -150,17 +150,26 @@ static int superhyway_device_probe(struct device *dev)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static int superhyway_device_remove(struct device *dev)
+=======
+static void superhyway_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct superhyway_device *shyway_dev = to_superhyway_device(dev);
 	struct superhyway_driver *shyway_drv = to_superhyway_driver(dev->driver);
 
+<<<<<<< HEAD
 	if (shyway_drv && shyway_drv->remove) {
 		shyway_drv->remove(shyway_dev);
 		return 0;
 	}
 
 	return -ENODEV;
+=======
+	if (shyway_drv->remove)
+		shyway_drv->remove(shyway_dev);
+>>>>>>> upstream/android-13
 }
 
 /**

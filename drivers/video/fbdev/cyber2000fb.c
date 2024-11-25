@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/video/cyber2000fb.c
  *
@@ -9,10 +13,13 @@
  *  32 bit support, text color and panning fixes for modes != 8 bit
  *  Copyright (C) 2002 Denis Oliver Kropp <dok@directfb.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Integraphics CyberPro 2000, 2010 and 5000 frame buffer device
  *
  * Based on cyberfb.c.
@@ -50,7 +57,10 @@
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #ifdef __arm__
 #include <asm/mach-types.h>
@@ -61,7 +71,10 @@
 struct cfb_info {
 	struct fb_info		fb;
 	struct display_switch	*dispsw;
+<<<<<<< HEAD
 	struct display		*display;
+=======
+>>>>>>> upstream/android-13
 	unsigned char		__iomem *region;
 	unsigned char		__iomem *regs;
 	u_int			id;
@@ -1064,7 +1077,11 @@ static int cyber2000fb_blank(int blank, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops cyber2000fb_ops = {
+=======
+static const struct fb_ops cyber2000fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= cyber2000fb_check_var,
 	.fb_set_par	= cyber2000fb_set_par,
@@ -1164,12 +1181,20 @@ EXPORT_SYMBOL(cyber2000fb_detach);
 #define DDC_SDA_IN	(1 << 6)
 
 static void cyber2000fb_enable_ddc(struct cfb_info *cfb)
+<<<<<<< HEAD
+=======
+	__acquires(&cfb->reg_b0_lock)
+>>>>>>> upstream/android-13
 {
 	spin_lock(&cfb->reg_b0_lock);
 	cyber2000fb_writew(0x1bf, 0x3ce, cfb);
 }
 
 static void cyber2000fb_disable_ddc(struct cfb_info *cfb)
+<<<<<<< HEAD
+=======
+	__releases(&cfb->reg_b0_lock)
+>>>>>>> upstream/android-13
 {
 	cyber2000fb_writew(0x0bf, 0x3ce, cfb);
 	spin_unlock(&cfb->reg_b0_lock);
@@ -1642,10 +1667,13 @@ static void cyberpro_common_resume(struct cfb_info *cfb)
 }
 
 /*
+<<<<<<< HEAD
  * PCI specific support.
  */
 #ifdef CONFIG_PCI
 /*
+=======
+>>>>>>> upstream/android-13
  * We need to wake up the CyberPro, and make sure its in linear memory
  * mode.  Unfortunately, this is specific to the platform and card that
  * we are running on.
@@ -1817,7 +1845,11 @@ static void cyberpro_pci_remove(struct pci_dev *dev)
 	}
 }
 
+<<<<<<< HEAD
 static int cyberpro_pci_suspend(struct pci_dev *dev, pm_message_t state)
+=======
+static int __maybe_unused cyberpro_pci_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -1825,9 +1857,15 @@ static int cyberpro_pci_suspend(struct pci_dev *dev, pm_message_t state)
 /*
  * Re-initialise the CyberPro hardware
  */
+<<<<<<< HEAD
 static int cyberpro_pci_resume(struct pci_dev *dev)
 {
 	struct cfb_info *cfb = pci_get_drvdata(dev);
+=======
+static int __maybe_unused cyberpro_pci_resume(struct device *dev)
+{
+	struct cfb_info *cfb = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (cfb) {
 		cyberpro_pci_enable_mmio(cfb);
@@ -1853,15 +1891,28 @@ static struct pci_device_id cyberpro_pci_table[] = {
 
 MODULE_DEVICE_TABLE(pci, cyberpro_pci_table);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(cyberpro_pci_pm_ops,
+			 cyberpro_pci_suspend,
+			 cyberpro_pci_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver cyberpro_driver = {
 	.name		= "CyberPro",
 	.probe		= cyberpro_pci_probe,
 	.remove		= cyberpro_pci_remove,
+<<<<<<< HEAD
 	.suspend	= cyberpro_pci_suspend,
 	.resume		= cyberpro_pci_resume,
 	.id_table	= cyberpro_pci_table
 };
 #endif
+=======
+	.driver.pm	= &cyberpro_pci_pm_ops,
+	.id_table	= cyberpro_pci_table
+};
+>>>>>>> upstream/android-13
 
 /*
  * I don't think we can use the "module_init" stuff here because

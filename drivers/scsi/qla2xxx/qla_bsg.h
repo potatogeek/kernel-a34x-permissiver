@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef __QLA_BSG_H
 #define __QLA_BSG_H
@@ -31,6 +38,15 @@
 #define QL_VND_GET_PRIV_STATS	0x18
 #define QL_VND_DPORT_DIAGNOSTICS	0x19
 #define QL_VND_GET_PRIV_STATS_EX	0x1A
+<<<<<<< HEAD
+=======
+#define QL_VND_SS_GET_FLASH_IMAGE_STATUS	0x1E
+#define QL_VND_EDIF_MGMT                0X1F
+#define QL_VND_MANAGE_HOST_STATS	0x23
+#define QL_VND_GET_HOST_STATS		0x24
+#define QL_VND_GET_TGT_STATS		0x25
+#define QL_VND_MANAGE_HOST_PORT		0x26
+>>>>>>> upstream/android-13
 
 /* BSG Vendor specific subcode returns */
 #define EXT_STATUS_OK			0
@@ -40,6 +56,10 @@
 #define EXT_STATUS_DATA_OVERRUN		7
 #define EXT_STATUS_DATA_UNDERRUN	8
 #define EXT_STATUS_MAILBOX		11
+<<<<<<< HEAD
+=======
+#define EXT_STATUS_BUFFER_TOO_SMALL	16
+>>>>>>> upstream/android-13
 #define EXT_STATUS_NO_MEMORY		17
 #define EXT_STATUS_DEVICE_OFFLINE	22
 
@@ -279,4 +299,19 @@ struct qla_dport_diag {
 #define QLA_DPORT_RESULT	0x0
 #define QLA_DPORT_START		0x2
 
+<<<<<<< HEAD
+=======
+/* active images in flash */
+struct qla_active_regions {
+	uint8_t global_image;
+	uint8_t board_config;
+	uint8_t vpd_nvram;
+	uint8_t npiv_config_0_1;
+	uint8_t npiv_config_2_3;
+	uint8_t reserved[32];
+} __packed;
+
+#include "qla_edif_bsg.h"
+
+>>>>>>> upstream/android-13
 #endif

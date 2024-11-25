@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0
 // TI LM3692x LED chip family driver
+<<<<<<< HEAD
 // Copyright (C) 2017-18 Texas Instruments Incorporated - http://www.ti.com/
+=======
+// Copyright (C) 2017-18 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
 
 #include <linux/gpio/consumer.h>
 #include <linux/i2c.h>
 #include <linux/init.h>
 #include <linux/leds.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/of.h>
@@ -14,6 +19,15 @@
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
 #include <uapi/linux/uleds.h>
+=======
+#include <linux/log2.h>
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 #define LM36922_MODEL	0
 #define LM36923_MODEL	1
@@ -96,6 +110,7 @@
 #define LM3692X_FAULT_FLAG_OPEN BIT(4)
 
 /**
+<<<<<<< HEAD
  * struct lm3692x_led -
  * @lock - Lock for reading/writing the device
  * @client - Pointer to the I2C client
@@ -106,6 +121,17 @@
  * @label - LED label
  * @led_enable - LED sync to be enabled
  * @model_id - Current device model ID enumerated
+=======
+ * struct lm3692x_led
+ * @lock: Lock for reading/writing the device
+ * @client: Pointer to the I2C client
+ * @led_dev: LED class device pointer
+ * @regmap: Devices register map
+ * @enable_gpio: VDDIO/EN gpio to enable communication interface
+ * @regulator: LED supply regulator pointer
+ * @led_enable: LED sync to be enabled
+ * @model_id: Current device model ID enumerated
+>>>>>>> upstream/android-13
  */
 struct lm3692x_led {
 	struct mutex lock;
@@ -114,9 +140,17 @@ struct lm3692x_led {
 	struct regmap *regmap;
 	struct gpio_desc *enable_gpio;
 	struct regulator *regulator;
+<<<<<<< HEAD
 	char label[LED_MAX_NAME_SIZE];
 	int led_enable;
 	int model_id;
+=======
+	int led_enable;
+	int model_id;
+
+	u8 boost_ctrl, brightness_ctrl;
+	bool enabled;
+>>>>>>> upstream/android-13
 };
 
 static const struct reg_default lm3692x_reg_defs[] = {
@@ -165,6 +199,7 @@ static int lm3692x_fault_check(struct lm3692x_led *led)
 	return read_buf;
 }
 
+<<<<<<< HEAD
 static int lm3692x_brightness_set(struct led_classdev *led_cdev,
 				enum led_brightness brt_val)
 {
@@ -201,12 +236,25 @@ static int lm3692x_init(struct lm3692x_led *led)
 {
 	int enable_state;
 	int ret;
+=======
+static int lm3692x_leds_enable(struct lm3692x_led *led)
+{
+	int enable_state;
+	int ret, reg_ret;
+
+	if (led->enabled)
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (led->regulator) {
 		ret = regulator_enable(led->regulator);
 		if (ret) {
 			dev_err(&led->client->dev,
+<<<<<<< HEAD
 				"Failed to enable regulator\n");
+=======
+				"Failed to enable regulator: %d\n", ret);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -216,7 +264,12 @@ static int lm3692x_init(struct lm3692x_led *led)
 
 	ret = lm3692x_fault_check(led);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&led->client->dev, "Cannot read/clear faults\n");
+=======
+		dev_err(&led->client->dev, "Cannot read/clear faults: %d\n",
+			ret);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -250,10 +303,14 @@ static int lm3692x_init(struct lm3692x_led *led)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	ret = regmap_write(led->regmap, LM3692X_BOOST_CTRL,
 			LM3692X_BRHT_MODE_RAMP_MULTI |
 			LM3692X_BL_ADJ_POL |
 			LM3692X_RAMP_RATE_250us);
+=======
+	ret = regmap_write(led->regmap, LM3692X_BOOST_CTRL, led->boost_ctrl);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -270,7 +327,11 @@ static int lm3692x_init(struct lm3692x_led *led)
 		goto out;
 
 	ret = regmap_write(led->regmap, LM3692X_BRT_CTRL,
+<<<<<<< HEAD
 			LM3692X_BL_ADJ_POL | LM3692X_PWM_HYSTER_4LSB);
+=======
+			LM3692X_BL_ADJ_POL | LM3692X_RAMP_EN);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -306,6 +367,10 @@ static int lm3692x_init(struct lm3692x_led *led)
 	ret = regmap_update_bits(led->regmap, LM3692X_EN, LM3692X_ENABLE_MASK,
 				 enable_state | LM3692X_DEVICE_EN);
 
+<<<<<<< HEAD
+=======
+	led->enabled = true;
+>>>>>>> upstream/android-13
 	return ret;
 out:
 	dev_err(&led->client->dev, "Fail writing initialization values\n");
@@ -314,18 +379,115 @@ out:
 		gpiod_direction_output(led->enable_gpio, 0);
 
 	if (led->regulator) {
+<<<<<<< HEAD
 		ret = regulator_disable(led->regulator);
 		if (ret)
 			dev_err(&led->client->dev,
 				"Failed to disable regulator\n");
+=======
+		reg_ret = regulator_disable(led->regulator);
+		if (reg_ret)
+			dev_err(&led->client->dev,
+				"Failed to disable regulator: %d\n", reg_ret);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
 }
+<<<<<<< HEAD
 static int lm3692x_probe_dt(struct lm3692x_led *led)
 {
 	struct fwnode_handle *child = NULL;
 	const char *name;
+=======
+
+static int lm3692x_leds_disable(struct lm3692x_led *led)
+{
+	int ret;
+
+	if (!led->enabled)
+		return 0;
+
+	ret = regmap_update_bits(led->regmap, LM3692X_EN, LM3692X_DEVICE_EN, 0);
+	if (ret) {
+		dev_err(&led->client->dev, "Failed to disable regulator: %d\n",
+			ret);
+		return ret;
+	}
+
+	if (led->enable_gpio)
+		gpiod_direction_output(led->enable_gpio, 0);
+
+	if (led->regulator) {
+		ret = regulator_disable(led->regulator);
+		if (ret)
+			dev_err(&led->client->dev,
+				"Failed to disable regulator: %d\n", ret);
+	}
+
+	led->enabled = false;
+	return ret;
+}
+
+static int lm3692x_brightness_set(struct led_classdev *led_cdev,
+				enum led_brightness brt_val)
+{
+	struct lm3692x_led *led =
+			container_of(led_cdev, struct lm3692x_led, led_dev);
+	int ret;
+	int led_brightness_lsb = (brt_val >> 5);
+
+	mutex_lock(&led->lock);
+
+	if (brt_val == 0) {
+		ret = lm3692x_leds_disable(led);
+		goto out;
+	} else {
+		lm3692x_leds_enable(led);
+	}
+
+	ret = lm3692x_fault_check(led);
+	if (ret) {
+		dev_err(&led->client->dev, "Cannot read/clear faults: %d\n",
+			ret);
+		goto out;
+	}
+
+	ret = regmap_write(led->regmap, LM3692X_BRT_MSB, brt_val);
+	if (ret) {
+		dev_err(&led->client->dev, "Cannot write MSB: %d\n", ret);
+		goto out;
+	}
+
+	ret = regmap_write(led->regmap, LM3692X_BRT_LSB, led_brightness_lsb);
+	if (ret) {
+		dev_err(&led->client->dev, "Cannot write LSB: %d\n", ret);
+		goto out;
+	}
+out:
+	mutex_unlock(&led->lock);
+	return ret;
+}
+
+static enum led_brightness lm3692x_max_brightness(struct lm3692x_led *led,
+						  u32 max_cur)
+{
+	u32 max_code;
+
+	/* see p.12 of LM36922 data sheet for brightness formula */
+	max_code = ((max_cur * 1000) - 37806) / 12195;
+	if (max_code > 0x7FF)
+		max_code = 0x7FF;
+
+	return max_code >> 3;
+}
+
+static int lm3692x_probe_dt(struct lm3692x_led *led)
+{
+	struct fwnode_handle *child = NULL;
+	struct led_init_data init_data = {};
+	u32 ovp, max_cur;
+>>>>>>> upstream/android-13
 	int ret;
 
 	led->enable_gpio = devm_gpiod_get_optional(&led->client->dev,
@@ -340,6 +502,7 @@ static int lm3692x_probe_dt(struct lm3692x_led *led)
 	led->regulator = devm_regulator_get_optional(&led->client->dev, "vled");
 	if (IS_ERR(led->regulator)) {
 		ret = PTR_ERR(led->regulator);
+<<<<<<< HEAD
 		if (ret != -ENODEV) {
 			if (ret != -EPROBE_DEFER)
 				dev_err(&led->client->dev,
@@ -350,12 +513,48 @@ static int lm3692x_probe_dt(struct lm3692x_led *led)
 		led->regulator = NULL;
 	}
 
+=======
+		if (ret != -ENODEV)
+			return dev_err_probe(&led->client->dev, ret,
+					     "Failed to get vled regulator\n");
+
+		led->regulator = NULL;
+	}
+
+	led->boost_ctrl = LM3692X_BOOST_SW_1MHZ |
+		LM3692X_BOOST_SW_NO_SHIFT |
+		LM3692X_OCP_PROT_1_5A;
+	ret = device_property_read_u32(&led->client->dev,
+				       "ti,ovp-microvolt", &ovp);
+	if (ret) {
+		led->boost_ctrl |= LM3692X_OVP_29V;
+	} else {
+		switch (ovp) {
+		case 17000000:
+			break;
+		case 21000000:
+			led->boost_ctrl |= LM3692X_OVP_21V;
+			break;
+		case 25000000:
+			led->boost_ctrl |= LM3692X_OVP_25V;
+			break;
+		case 29000000:
+			led->boost_ctrl |= LM3692X_OVP_29V;
+			break;
+		default:
+			dev_err(&led->client->dev, "Invalid OVP %d\n", ovp);
+			return -EINVAL;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	child = device_get_next_child_node(&led->client->dev, child);
 	if (!child) {
 		dev_err(&led->client->dev, "No LED Child node\n");
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	fwnode_property_read_string(child, "linux,default-trigger",
 				    &led->led_dev.default_trigger);
 
@@ -369,10 +568,16 @@ static int lm3692x_probe_dt(struct lm3692x_led *led)
 
 	ret = fwnode_property_read_u32(child, "reg", &led->led_enable);
 	if (ret) {
+=======
+	ret = fwnode_property_read_u32(child, "reg", &led->led_enable);
+	if (ret) {
+		fwnode_handle_put(child);
+>>>>>>> upstream/android-13
 		dev_err(&led->client->dev, "reg DT property missing\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	led->led_dev.name = led->label;
 
 	ret = devm_led_classdev_register(&led->client->dev, &led->led_dev);
@@ -384,6 +589,23 @@ static int lm3692x_probe_dt(struct lm3692x_led *led)
 	led->led_dev.dev->of_node = to_of_node(child);
 
 	return 0;
+=======
+	ret = fwnode_property_read_u32(child, "led-max-microamp", &max_cur);
+	led->led_dev.max_brightness = ret ? LED_FULL :
+		lm3692x_max_brightness(led, max_cur);
+
+	init_data.fwnode = child;
+	init_data.devicename = led->client->name;
+	init_data.default_label = ":";
+
+	ret = devm_led_classdev_register_ext(&led->client->dev, &led->led_dev,
+					     &init_data);
+	if (ret)
+		dev_err(&led->client->dev, "led register err: %d\n", ret);
+
+	fwnode_handle_put(init_data.fwnode);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int lm3692x_probe(struct i2c_client *client,
@@ -414,7 +636,11 @@ static int lm3692x_probe(struct i2c_client *client,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = lm3692x_init(led);
+=======
+	ret = lm3692x_leds_enable(led);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -426,6 +652,7 @@ static int lm3692x_remove(struct i2c_client *client)
 	struct lm3692x_led *led = i2c_get_clientdata(client);
 	int ret;
 
+<<<<<<< HEAD
 	ret = regmap_update_bits(led->regmap, LM3692X_EN, LM3692X_DEVICE_EN, 0);
 	if (ret) {
 		dev_err(&led->client->dev, "Failed to disable regulator\n");
@@ -442,6 +669,11 @@ static int lm3692x_remove(struct i2c_client *client)
 				"Failed to disable regulator\n");
 	}
 
+=======
+	ret = lm3692x_leds_disable(led);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	mutex_destroy(&led->lock);
 
 	return 0;

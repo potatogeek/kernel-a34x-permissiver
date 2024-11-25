@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  PowerPC version
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -15,11 +19,14 @@
  *  This file contains the entry point for the 64-bit kernel along
  *  with some early initialization code common to all 64-bit powerpc
  *  variants.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/threads.h>
@@ -45,6 +52,14 @@
 #include <asm/ppc-opcode.h>
 #include <asm/export.h>
 #include <asm/feature-fixups.h>
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_BOOK3S
+#include <asm/exception-64s.h>
+#else
+#include <asm/exception-64e.h>
+#endif
+>>>>>>> upstream/android-13
 
 /* The physical memory is laid out such that the secondary processor
  * spin code sits at 0x0000...0x00ff. On server, the vectors follow
@@ -186,14 +201,25 @@ __secondary_hold:
 	isync
 	bctr
 #else
+<<<<<<< HEAD
 	BUG_OPCODE
+=======
+0:	trap
+	EMIT_BUG_ENTRY 0b, __FILE__, __LINE__, 0
+>>>>>>> upstream/android-13
 #endif
 CLOSE_FIXED_SECTION(first_256B)
 
 /* This value is used to mark exception frames on the stack. */
 	.section ".toc","aw"
+<<<<<<< HEAD
 exception_marker:
 	.tc	ID_72656773_68657265[TC],0x7265677368657265
+=======
+/* This value is used to mark exception frames on the stack. */
+exception_marker:
+	.tc	ID_EXC_MARKER[TC],STACK_FRAME_REGS_MARKER
+>>>>>>> upstream/android-13
 	.previous
 
 /*
@@ -209,6 +235,11 @@ OPEN_TEXT_SECTION(0x100)
 
 USE_TEXT_SECTION()
 
+<<<<<<< HEAD
+=======
+#include "interrupt_64.S"
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_BOOK3E
 /*
  * The booting_thread_hwid holds the thread id we want to boot in cpu
@@ -303,9 +334,12 @@ _GLOBAL(fsl_secondary_thread_init)
 	rlwimi	r3, r3, 30, 2, 30
 	mtspr	SPRN_PIR, r3
 1:
+<<<<<<< HEAD
 #endif
 
 _GLOBAL(generic_secondary_thread_init)
+=======
+>>>>>>> upstream/android-13
 	mr	r24,r3
 
 	/* turn on 64-bit mode */
@@ -315,6 +349,7 @@ _GLOBAL(generic_secondary_thread_init)
 	bl	relative_toc
 	tovirt(r2,r2)
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_BOOK3E
 	/* Book3E initialization */
 	mr	r3,r24
@@ -322,6 +357,15 @@ _GLOBAL(generic_secondary_thread_init)
 #endif
 	b	generic_secondary_common_init
 
+=======
+	/* Book3E initialization */
+	mr	r3,r24
+	bl	book3e_secondary_thread_init
+	b	generic_secondary_common_init
+
+#endif /* CONFIG_PPC_BOOK3E */
+
+>>>>>>> upstream/android-13
 /*
  * On pSeries and most other platforms, secondary processors spin
  * in the following code.
@@ -540,6 +584,10 @@ __start_initialization_multiplatform:
 	b	__after_prom_start
 #endif /* CONFIG_PPC_BOOK3E */
 
+<<<<<<< HEAD
+=======
+__REF
+>>>>>>> upstream/android-13
 __boot_from_prom:
 #ifdef CONFIG_PPC_OF_BOOT_TRAMPOLINE
 	/* Save parameters */
@@ -577,6 +625,10 @@ __boot_from_prom:
 	/* We never return. We also hit that trap if trying to boot
 	 * from OF while CONFIG_PPC_OF_BOOT_TRAMPOLINE isn't selected */
 	trap
+<<<<<<< HEAD
+=======
+	.previous
+>>>>>>> upstream/android-13
 
 __after_prom_start:
 #ifdef CONFIG_RELOCATABLE
@@ -639,7 +691,11 @@ __after_prom_start:
 	sub	r5,r5,r11
 #else
 	/* just copy interrupts */
+<<<<<<< HEAD
 	LOAD_REG_IMMEDIATE(r5, FIXED_SYMBOL_ABS_ADDR(__end_interrupts))
+=======
+	LOAD_REG_IMMEDIATE_SYM(r5, r11, FIXED_SYMBOL_ABS_ADDR(__end_interrupts))
+>>>>>>> upstream/android-13
 #endif
 	b	5f
 3:
@@ -708,6 +764,11 @@ _GLOBAL(copy_and_flush)
 	isync
 	blr
 
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(copy_and_flush); /* Called in real mode */
+
+>>>>>>> upstream/android-13
 .align 8
 copy_to_here:
 
@@ -801,6 +862,7 @@ __secondary_start:
 	/* Set thread priority to MEDIUM */
 	HMT_MEDIUM
 
+<<<<<<< HEAD
 	/* Initialize the kernel stack */
 	LOAD_REG_ADDR(r3, current_set)
 	sldi	r28,r24,3		/* get current_set[cpu#]	 */
@@ -816,6 +878,21 @@ __secondary_start:
 	 * translation is on.
 	 */
 	mr	r1, r14
+=======
+	/*
+	 * Do early setup for this CPU, in particular initialising the MMU so we
+	 * can turn it on below. This is a call to C, which is OK, we're still
+	 * running on the emergency stack.
+	 */
+	bl	early_setup_secondary
+
+	/*
+	 * The primary has initialized our kernel stack for us in the paca, grab
+	 * it and put it in r1. We must *not* use it until we turn on the MMU
+	 * below, because it may not be inside the RMO.
+	 */
+	ld	r1, PACAKSAVE(r13)
+>>>>>>> upstream/android-13
 
 	/* Clear backchain so we get nice backtraces */
 	li	r7,0
@@ -835,7 +912,11 @@ __secondary_start:
 
 	mtspr	SPRN_SRR0,r3
 	mtspr	SPRN_SRR1,r4
+<<<<<<< HEAD
 	RFI
+=======
+	RFI_TO_KERNEL
+>>>>>>> upstream/android-13
 	b	.	/* prevent speculative execution */
 
 /* 
@@ -871,8 +952,12 @@ enable_64b_mode:
 	oris	r11,r11,0x8000		/* CM bit set, we'll set ICM later */
 	mtmsr	r11
 #else /* CONFIG_PPC_BOOK3E */
+<<<<<<< HEAD
 	li	r12,(MSR_64BIT | MSR_ISF)@highest
 	sldi	r12,r12,48
+=======
+	LOAD_REG_IMMEDIATE(r12, MSR_64BIT)
+>>>>>>> upstream/android-13
 	or	r11,r11,r12
 	mtmsrd	r11
 	isync
@@ -972,10 +1057,16 @@ start_here_multiplatform:
 	ld	r4,PACAKMSR(r13)
 	mtspr	SPRN_SRR0,r3
 	mtspr	SPRN_SRR1,r4
+<<<<<<< HEAD
 	RFI
 	b	.	/* prevent speculative execution */
 
 	.previous
+=======
+	RFI_TO_KERNEL
+	b	.	/* prevent speculative execution */
+
+>>>>>>> upstream/android-13
 	/* This is where all platforms converge execution */
 
 start_here_common:
@@ -997,6 +1088,7 @@ start_here_common:
 	bl	start_kernel
 
 	/* Not reached */
+<<<<<<< HEAD
 	BUG_OPCODE
 
 /*
@@ -1018,3 +1110,8 @@ swapper_pg_dir:
 empty_zero_page:
 	.space	PAGE_SIZE
 EXPORT_SYMBOL(empty_zero_page)
+=======
+0:	trap
+	EMIT_BUG_ENTRY 0b, __FILE__, __LINE__, 0
+	.previous
+>>>>>>> upstream/android-13

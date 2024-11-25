@@ -105,11 +105,25 @@
 #define NIXGE_MAX_JUMBO_FRAME_SIZE \
 	(NIXGE_JUMBO_MTU + NIXGE_HDR_SIZE + NIXGE_TRL_SIZE)
 
+<<<<<<< HEAD
 struct nixge_hw_dma_bd {
 	u32 next;
 	u32 reserved1;
 	u32 phys;
 	u32 reserved2;
+=======
+enum nixge_version {
+	NIXGE_V2,
+	NIXGE_V3,
+	NIXGE_VERSION_COUNT
+};
+
+struct nixge_hw_dma_bd {
+	u32 next_lo;
+	u32 next_hi;
+	u32 phys_lo;
+	u32 phys_hi;
+>>>>>>> upstream/android-13
 	u32 reserved3;
 	u32 reserved4;
 	u32 cntrl;
@@ -119,11 +133,47 @@ struct nixge_hw_dma_bd {
 	u32 app2;
 	u32 app3;
 	u32 app4;
+<<<<<<< HEAD
 	u32 sw_id_offset;
 	u32 reserved5;
 	u32 reserved6;
 };
 
+=======
+	u32 sw_id_offset_lo;
+	u32 sw_id_offset_hi;
+	u32 reserved6;
+};
+
+#ifdef CONFIG_PHYS_ADDR_T_64BIT
+#define nixge_hw_dma_bd_set_addr(bd, field, addr) \
+	do { \
+		(bd)->field##_lo = lower_32_bits((addr)); \
+		(bd)->field##_hi = upper_32_bits((addr)); \
+	} while (0)
+#else
+#define nixge_hw_dma_bd_set_addr(bd, field, addr) \
+	((bd)->field##_lo = lower_32_bits((addr)))
+#endif
+
+#define nixge_hw_dma_bd_set_phys(bd, addr) \
+	nixge_hw_dma_bd_set_addr((bd), phys, (addr))
+
+#define nixge_hw_dma_bd_set_next(bd, addr) \
+	nixge_hw_dma_bd_set_addr((bd), next, (addr))
+
+#define nixge_hw_dma_bd_set_offset(bd, addr) \
+	nixge_hw_dma_bd_set_addr((bd), sw_id_offset, (addr))
+
+#ifdef CONFIG_PHYS_ADDR_T_64BIT
+#define nixge_hw_dma_bd_get_addr(bd, field) \
+	(dma_addr_t)((((u64)(bd)->field##_hi) << 32) | ((bd)->field##_lo))
+#else
+#define nixge_hw_dma_bd_get_addr(bd, field) \
+	(dma_addr_t)((bd)->field##_lo)
+#endif
+
+>>>>>>> upstream/android-13
 struct nixge_tx_skb {
 	struct sk_buff *skb;
 	dma_addr_t mapping;
@@ -176,6 +226,18 @@ static void nixge_dma_write_reg(struct nixge_priv *priv, off_t offset, u32 val)
 	writel(val, priv->dma_regs + offset);
 }
 
+<<<<<<< HEAD
+=======
+static void nixge_dma_write_desc_reg(struct nixge_priv *priv, off_t offset,
+				     dma_addr_t addr)
+{
+	writel(lower_32_bits(addr), priv->dma_regs + offset);
+#ifdef CONFIG_PHYS_ADDR_T_64BIT
+	writel(upper_32_bits(addr), priv->dma_regs + offset + 4);
+#endif
+}
+
+>>>>>>> upstream/android-13
 static u32 nixge_dma_read_reg(const struct nixge_priv *priv, off_t offset)
 {
 	return readl(priv->dma_regs + offset);
@@ -202,6 +264,7 @@ static u32 nixge_ctrl_read_reg(struct nixge_priv *priv, off_t offset)
 static void nixge_hw_dma_bd_release(struct net_device *ndev)
 {
 	struct nixge_priv *priv = netdev_priv(ndev);
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < RX_BD_NUM; i++) {
@@ -209,6 +272,24 @@ static void nixge_hw_dma_bd_release(struct net_device *ndev)
 				 NIXGE_MAX_JUMBO_FRAME_SIZE, DMA_FROM_DEVICE);
 		dev_kfree_skb((struct sk_buff *)
 			      (priv->rx_bd_v[i].sw_id_offset));
+=======
+	dma_addr_t phys_addr;
+	struct sk_buff *skb;
+	int i;
+
+	for (i = 0; i < RX_BD_NUM; i++) {
+		phys_addr = nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
+						     phys);
+
+		dma_unmap_single(ndev->dev.parent, phys_addr,
+				 NIXGE_MAX_JUMBO_FRAME_SIZE,
+				 DMA_FROM_DEVICE);
+
+		skb = (struct sk_buff *)(uintptr_t)
+			nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
+						 sw_id_offset);
+		dev_kfree_skb(skb);
+>>>>>>> upstream/android-13
 	}
 
 	if (priv->rx_bd_v)
@@ -231,6 +312,10 @@ static int nixge_hw_dma_bd_init(struct net_device *ndev)
 {
 	struct nixge_priv *priv = netdev_priv(ndev);
 	struct sk_buff *skb;
+<<<<<<< HEAD
+=======
+	dma_addr_t phys;
+>>>>>>> upstream/android-13
 	u32 cr;
 	int i;
 
@@ -240,9 +325,15 @@ static int nixge_hw_dma_bd_init(struct net_device *ndev)
 	priv->rx_bd_ci = 0;
 
 	/* Allocate the Tx and Rx buffer descriptors. */
+<<<<<<< HEAD
 	priv->tx_bd_v = dma_zalloc_coherent(ndev->dev.parent,
 					    sizeof(*priv->tx_bd_v) * TX_BD_NUM,
 					    &priv->tx_bd_p, GFP_KERNEL);
+=======
+	priv->tx_bd_v = dma_alloc_coherent(ndev->dev.parent,
+					   sizeof(*priv->tx_bd_v) * TX_BD_NUM,
+					   &priv->tx_bd_p, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv->tx_bd_v)
 		goto out;
 
@@ -252,13 +343,20 @@ static int nixge_hw_dma_bd_init(struct net_device *ndev)
 	if (!priv->tx_skb)
 		goto out;
 
+<<<<<<< HEAD
 	priv->rx_bd_v = dma_zalloc_coherent(ndev->dev.parent,
 					    sizeof(*priv->rx_bd_v) * RX_BD_NUM,
 					    &priv->rx_bd_p, GFP_KERNEL);
+=======
+	priv->rx_bd_v = dma_alloc_coherent(ndev->dev.parent,
+					   sizeof(*priv->rx_bd_v) * RX_BD_NUM,
+					   &priv->rx_bd_p, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv->rx_bd_v)
 		goto out;
 
 	for (i = 0; i < TX_BD_NUM; i++) {
+<<<<<<< HEAD
 		priv->tx_bd_v[i].next = priv->tx_bd_p +
 				      sizeof(*priv->tx_bd_v) *
 				      ((i + 1) % TX_BD_NUM);
@@ -268,18 +366,41 @@ static int nixge_hw_dma_bd_init(struct net_device *ndev)
 		priv->rx_bd_v[i].next = priv->rx_bd_p +
 				      sizeof(*priv->rx_bd_v) *
 				      ((i + 1) % RX_BD_NUM);
+=======
+		nixge_hw_dma_bd_set_next(&priv->tx_bd_v[i],
+					 priv->tx_bd_p +
+					 sizeof(*priv->tx_bd_v) *
+					 ((i + 1) % TX_BD_NUM));
+	}
+
+	for (i = 0; i < RX_BD_NUM; i++) {
+		nixge_hw_dma_bd_set_next(&priv->rx_bd_v[i],
+					 priv->rx_bd_p
+					 + sizeof(*priv->rx_bd_v) *
+					 ((i + 1) % RX_BD_NUM));
+>>>>>>> upstream/android-13
 
 		skb = netdev_alloc_skb_ip_align(ndev,
 						NIXGE_MAX_JUMBO_FRAME_SIZE);
 		if (!skb)
 			goto out;
 
+<<<<<<< HEAD
 		priv->rx_bd_v[i].sw_id_offset = (u32)skb;
 		priv->rx_bd_v[i].phys =
 			dma_map_single(ndev->dev.parent,
 				       skb->data,
 				       NIXGE_MAX_JUMBO_FRAME_SIZE,
 				       DMA_FROM_DEVICE);
+=======
+		nixge_hw_dma_bd_set_offset(&priv->rx_bd_v[i], (uintptr_t)skb);
+		phys = dma_map_single(ndev->dev.parent, skb->data,
+				      NIXGE_MAX_JUMBO_FRAME_SIZE,
+				      DMA_FROM_DEVICE);
+
+		nixge_hw_dma_bd_set_phys(&priv->rx_bd_v[i], phys);
+
+>>>>>>> upstream/android-13
 		priv->rx_bd_v[i].cntrl = NIXGE_MAX_JUMBO_FRAME_SIZE;
 	}
 
@@ -312,18 +433,30 @@ static int nixge_hw_dma_bd_init(struct net_device *ndev)
 	/* Populate the tail pointer and bring the Rx Axi DMA engine out of
 	 * halted state. This will make the Rx side ready for reception.
 	 */
+<<<<<<< HEAD
 	nixge_dma_write_reg(priv, XAXIDMA_RX_CDESC_OFFSET, priv->rx_bd_p);
 	cr = nixge_dma_read_reg(priv, XAXIDMA_RX_CR_OFFSET);
 	nixge_dma_write_reg(priv, XAXIDMA_RX_CR_OFFSET,
 			    cr | XAXIDMA_CR_RUNSTOP_MASK);
 	nixge_dma_write_reg(priv, XAXIDMA_RX_TDESC_OFFSET, priv->rx_bd_p +
+=======
+	nixge_dma_write_desc_reg(priv, XAXIDMA_RX_CDESC_OFFSET, priv->rx_bd_p);
+	cr = nixge_dma_read_reg(priv, XAXIDMA_RX_CR_OFFSET);
+	nixge_dma_write_reg(priv, XAXIDMA_RX_CR_OFFSET,
+			    cr | XAXIDMA_CR_RUNSTOP_MASK);
+	nixge_dma_write_desc_reg(priv, XAXIDMA_RX_TDESC_OFFSET, priv->rx_bd_p +
+>>>>>>> upstream/android-13
 			    (sizeof(*priv->rx_bd_v) * (RX_BD_NUM - 1)));
 
 	/* Write to the RS (Run-stop) bit in the Tx channel control register.
 	 * Tx channel is now ready to run. But only after we write to the
 	 * tail pointer register that the Tx channel will start transmitting.
 	 */
+<<<<<<< HEAD
 	nixge_dma_write_reg(priv, XAXIDMA_TX_CDESC_OFFSET, priv->tx_bd_p);
+=======
+	nixge_dma_write_desc_reg(priv, XAXIDMA_TX_CDESC_OFFSET, priv->tx_bd_p);
+>>>>>>> upstream/android-13
 	cr = nixge_dma_read_reg(priv, XAXIDMA_TX_CR_OFFSET);
 	nixge_dma_write_reg(priv, XAXIDMA_TX_CR_OFFSET,
 			    cr | XAXIDMA_CR_RUNSTOP_MASK);
@@ -446,12 +579,21 @@ static int nixge_check_tx_bd_space(struct nixge_priv *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nixge_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+=======
+static netdev_tx_t nixge_start_xmit(struct sk_buff *skb,
+				    struct net_device *ndev)
+>>>>>>> upstream/android-13
 {
 	struct nixge_priv *priv = netdev_priv(ndev);
 	struct nixge_hw_dma_bd *cur_p;
 	struct nixge_tx_skb *tx_skb;
+<<<<<<< HEAD
 	dma_addr_t tail_p;
+=======
+	dma_addr_t tail_p, cur_phys;
+>>>>>>> upstream/android-13
 	skb_frag_t *frag;
 	u32 num_frag;
 	u32 ii;
@@ -466,15 +608,27 @@ static int nixge_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 		return NETDEV_TX_OK;
 	}
 
+<<<<<<< HEAD
 	cur_p->phys = dma_map_single(ndev->dev.parent, skb->data,
 				     skb_headlen(skb), DMA_TO_DEVICE);
 	if (dma_mapping_error(ndev->dev.parent, cur_p->phys))
 		goto drop;
+=======
+	cur_phys = dma_map_single(ndev->dev.parent, skb->data,
+				  skb_headlen(skb), DMA_TO_DEVICE);
+	if (dma_mapping_error(ndev->dev.parent, cur_phys))
+		goto drop;
+	nixge_hw_dma_bd_set_phys(cur_p, cur_phys);
+>>>>>>> upstream/android-13
 
 	cur_p->cntrl = skb_headlen(skb) | XAXIDMA_BD_CTRL_TXSOF_MASK;
 
 	tx_skb->skb = NULL;
+<<<<<<< HEAD
 	tx_skb->mapping = cur_p->phys;
+=======
+	tx_skb->mapping = cur_phys;
+>>>>>>> upstream/android-13
 	tx_skb->size = skb_headlen(skb);
 	tx_skb->mapped_as_page = false;
 
@@ -485,16 +639,29 @@ static int nixge_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 		tx_skb = &priv->tx_skb[priv->tx_bd_tail];
 		frag = &skb_shinfo(skb)->frags[ii];
 
+<<<<<<< HEAD
 		cur_p->phys = skb_frag_dma_map(ndev->dev.parent, frag, 0,
 					       skb_frag_size(frag),
 					       DMA_TO_DEVICE);
 		if (dma_mapping_error(ndev->dev.parent, cur_p->phys))
 			goto frag_err;
+=======
+		cur_phys = skb_frag_dma_map(ndev->dev.parent, frag, 0,
+					    skb_frag_size(frag),
+					    DMA_TO_DEVICE);
+		if (dma_mapping_error(ndev->dev.parent, cur_phys))
+			goto frag_err;
+		nixge_hw_dma_bd_set_phys(cur_p, cur_phys);
+>>>>>>> upstream/android-13
 
 		cur_p->cntrl = skb_frag_size(frag);
 
 		tx_skb->skb = NULL;
+<<<<<<< HEAD
 		tx_skb->mapping = cur_p->phys;
+=======
+		tx_skb->mapping = cur_phys;
+>>>>>>> upstream/android-13
 		tx_skb->size = skb_frag_size(frag);
 		tx_skb->mapped_as_page = true;
 	}
@@ -506,7 +673,11 @@ static int nixge_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 
 	tail_p = priv->tx_bd_p + sizeof(*priv->tx_bd_v) * priv->tx_bd_tail;
 	/* Start the transfer */
+<<<<<<< HEAD
 	nixge_dma_write_reg(priv, XAXIDMA_TX_TDESC_OFFSET, tail_p);
+=======
+	nixge_dma_write_desc_reg(priv, XAXIDMA_TX_TDESC_OFFSET, tail_p);
+>>>>>>> upstream/android-13
 	++priv->tx_bd_tail;
 	priv->tx_bd_tail %= TX_BD_NUM;
 
@@ -537,7 +708,11 @@ static int nixge_recv(struct net_device *ndev, int budget)
 	struct nixge_priv *priv = netdev_priv(ndev);
 	struct sk_buff *skb, *new_skb;
 	struct nixge_hw_dma_bd *cur_p;
+<<<<<<< HEAD
 	dma_addr_t tail_p = 0;
+=======
+	dma_addr_t tail_p = 0, cur_phys = 0;
+>>>>>>> upstream/android-13
 	u32 packets = 0;
 	u32 length = 0;
 	u32 size = 0;
@@ -549,13 +724,23 @@ static int nixge_recv(struct net_device *ndev, int budget)
 		tail_p = priv->rx_bd_p + sizeof(*priv->rx_bd_v) *
 			 priv->rx_bd_ci;
 
+<<<<<<< HEAD
 		skb = (struct sk_buff *)(cur_p->sw_id_offset);
+=======
+		skb = (struct sk_buff *)(uintptr_t)
+			nixge_hw_dma_bd_get_addr(cur_p, sw_id_offset);
+>>>>>>> upstream/android-13
 
 		length = cur_p->status & XAXIDMA_BD_STS_ACTUAL_LEN_MASK;
 		if (length > NIXGE_MAX_JUMBO_FRAME_SIZE)
 			length = NIXGE_MAX_JUMBO_FRAME_SIZE;
 
+<<<<<<< HEAD
 		dma_unmap_single(ndev->dev.parent, cur_p->phys,
+=======
+		dma_unmap_single(ndev->dev.parent,
+				 nixge_hw_dma_bd_get_addr(cur_p, phys),
+>>>>>>> upstream/android-13
 				 NIXGE_MAX_JUMBO_FRAME_SIZE,
 				 DMA_FROM_DEVICE);
 
@@ -579,6 +764,7 @@ static int nixge_recv(struct net_device *ndev, int budget)
 		if (!new_skb)
 			return packets;
 
+<<<<<<< HEAD
 		cur_p->phys = dma_map_single(ndev->dev.parent, new_skb->data,
 					     NIXGE_MAX_JUMBO_FRAME_SIZE,
 					     DMA_FROM_DEVICE);
@@ -589,6 +775,19 @@ static int nixge_recv(struct net_device *ndev, int budget)
 		cur_p->cntrl = NIXGE_MAX_JUMBO_FRAME_SIZE;
 		cur_p->status = 0;
 		cur_p->sw_id_offset = (u32)new_skb;
+=======
+		cur_phys = dma_map_single(ndev->dev.parent, new_skb->data,
+					  NIXGE_MAX_JUMBO_FRAME_SIZE,
+					  DMA_FROM_DEVICE);
+		if (dma_mapping_error(ndev->dev.parent, cur_phys)) {
+			/* FIXME: bail out and clean up */
+			netdev_err(ndev, "Failed to map ...\n");
+		}
+		nixge_hw_dma_bd_set_phys(cur_p, cur_phys);
+		cur_p->cntrl = NIXGE_MAX_JUMBO_FRAME_SIZE;
+		cur_p->status = 0;
+		nixge_hw_dma_bd_set_offset(cur_p, (uintptr_t)new_skb);
+>>>>>>> upstream/android-13
 
 		++priv->rx_bd_ci;
 		priv->rx_bd_ci %= RX_BD_NUM;
@@ -599,7 +798,11 @@ static int nixge_recv(struct net_device *ndev, int budget)
 	ndev->stats.rx_bytes += size;
 
 	if (tail_p)
+<<<<<<< HEAD
 		nixge_dma_write_reg(priv, XAXIDMA_RX_TDESC_OFFSET, tail_p);
+=======
+		nixge_dma_write_desc_reg(priv, XAXIDMA_RX_TDESC_OFFSET, tail_p);
+>>>>>>> upstream/android-13
 
 	return packets;
 }
@@ -637,6 +840,10 @@ static irqreturn_t nixge_tx_irq(int irq, void *_ndev)
 	struct nixge_priv *priv = netdev_priv(_ndev);
 	struct net_device *ndev = _ndev;
 	unsigned int status;
+<<<<<<< HEAD
+=======
+	dma_addr_t phys;
+>>>>>>> upstream/android-13
 	u32 cr;
 
 	status = nixge_dma_read_reg(priv, XAXIDMA_TX_SR_OFFSET);
@@ -650,9 +857,17 @@ static irqreturn_t nixge_tx_irq(int irq, void *_ndev)
 		return IRQ_NONE;
 	}
 	if (status & XAXIDMA_IRQ_ERROR_MASK) {
+<<<<<<< HEAD
 		netdev_err(ndev, "DMA Tx error 0x%x\n", status);
 		netdev_err(ndev, "Current BD is at: 0x%x\n",
 			   (priv->tx_bd_v[priv->tx_bd_ci]).phys);
+=======
+		phys = nixge_hw_dma_bd_get_addr(&priv->tx_bd_v[priv->tx_bd_ci],
+						phys);
+
+		netdev_err(ndev, "DMA Tx error 0x%x\n", status);
+		netdev_err(ndev, "Current BD is at: 0x%llx\n", (u64)phys);
+>>>>>>> upstream/android-13
 
 		cr = nixge_dma_read_reg(priv, XAXIDMA_TX_CR_OFFSET);
 		/* Disable coalesce, delay timer and error interrupts */
@@ -678,6 +893,10 @@ static irqreturn_t nixge_rx_irq(int irq, void *_ndev)
 	struct nixge_priv *priv = netdev_priv(_ndev);
 	struct net_device *ndev = _ndev;
 	unsigned int status;
+<<<<<<< HEAD
+=======
+	dma_addr_t phys;
+>>>>>>> upstream/android-13
 	u32 cr;
 
 	status = nixge_dma_read_reg(priv, XAXIDMA_RX_SR_OFFSET);
@@ -697,9 +916,16 @@ static irqreturn_t nixge_rx_irq(int irq, void *_ndev)
 		return IRQ_NONE;
 	}
 	if (status & XAXIDMA_IRQ_ERROR_MASK) {
+<<<<<<< HEAD
 		netdev_err(ndev, "DMA Rx error 0x%x\n", status);
 		netdev_err(ndev, "Current BD is at: 0x%x\n",
 			   (priv->rx_bd_v[priv->rx_bd_ci]).phys);
+=======
+		phys = nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[priv->rx_bd_ci],
+						phys);
+		netdev_err(ndev, "DMA Rx error 0x%x\n", status);
+		netdev_err(ndev, "Current BD is at: 0x%llx\n", (u64)phys);
+>>>>>>> upstream/android-13
 
 		cr = nixge_dma_read_reg(priv, XAXIDMA_TX_CR_OFFSET);
 		/* Disable coalesce, delay timer and error interrupts */
@@ -720,9 +946,15 @@ out:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void nixge_dma_err_handler(unsigned long data)
 {
 	struct nixge_priv *lp = (struct nixge_priv *)data;
+=======
+static void nixge_dma_err_handler(struct tasklet_struct *t)
+{
+	struct nixge_priv *lp = from_tasklet(lp, t, dma_err_tasklet);
+>>>>>>> upstream/android-13
 	struct nixge_hw_dma_bd *cur_p;
 	struct nixge_tx_skb *tx_skb;
 	u32 cr, i;
@@ -735,10 +967,17 @@ static void nixge_dma_err_handler(unsigned long data)
 		tx_skb = &lp->tx_skb[i];
 		nixge_tx_skb_unmap(lp, tx_skb);
 
+<<<<<<< HEAD
 		cur_p->phys = 0;
 		cur_p->cntrl = 0;
 		cur_p->status = 0;
 		cur_p->sw_id_offset = 0;
+=======
+		nixge_hw_dma_bd_set_phys(cur_p, 0);
+		cur_p->cntrl = 0;
+		cur_p->status = 0;
+		nixge_hw_dma_bd_set_offset(cur_p, 0);
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < RX_BD_NUM; i++) {
@@ -779,18 +1018,30 @@ static void nixge_dma_err_handler(unsigned long data)
 	/* Populate the tail pointer and bring the Rx Axi DMA engine out of
 	 * halted state. This will make the Rx side ready for reception.
 	 */
+<<<<<<< HEAD
 	nixge_dma_write_reg(lp, XAXIDMA_RX_CDESC_OFFSET, lp->rx_bd_p);
 	cr = nixge_dma_read_reg(lp, XAXIDMA_RX_CR_OFFSET);
 	nixge_dma_write_reg(lp, XAXIDMA_RX_CR_OFFSET,
 			    cr | XAXIDMA_CR_RUNSTOP_MASK);
 	nixge_dma_write_reg(lp, XAXIDMA_RX_TDESC_OFFSET, lp->rx_bd_p +
+=======
+	nixge_dma_write_desc_reg(lp, XAXIDMA_RX_CDESC_OFFSET, lp->rx_bd_p);
+	cr = nixge_dma_read_reg(lp, XAXIDMA_RX_CR_OFFSET);
+	nixge_dma_write_reg(lp, XAXIDMA_RX_CR_OFFSET,
+			    cr | XAXIDMA_CR_RUNSTOP_MASK);
+	nixge_dma_write_desc_reg(lp, XAXIDMA_RX_TDESC_OFFSET, lp->rx_bd_p +
+>>>>>>> upstream/android-13
 			    (sizeof(*lp->rx_bd_v) * (RX_BD_NUM - 1)));
 
 	/* Write to the RS (Run-stop) bit in the Tx channel control register.
 	 * Tx channel is now ready to run. But only after we write to the
 	 * tail pointer register that the Tx channel will start transmitting
 	 */
+<<<<<<< HEAD
 	nixge_dma_write_reg(lp, XAXIDMA_TX_CDESC_OFFSET, lp->tx_bd_p);
+=======
+	nixge_dma_write_desc_reg(lp, XAXIDMA_TX_CDESC_OFFSET, lp->tx_bd_p);
+>>>>>>> upstream/android-13
 	cr = nixge_dma_read_reg(lp, XAXIDMA_TX_CR_OFFSET);
 	nixge_dma_write_reg(lp, XAXIDMA_TX_CR_OFFSET,
 			    cr | XAXIDMA_CR_RUNSTOP_MASK);
@@ -812,8 +1063,12 @@ static int nixge_open(struct net_device *ndev)
 	phy_start(phy);
 
 	/* Enable tasklets for Axi DMA error handling */
+<<<<<<< HEAD
 	tasklet_init(&priv->dma_err_tasklet, nixge_dma_err_handler,
 		     (unsigned long)priv);
+=======
+	tasklet_setup(&priv->dma_err_tasklet, nixge_dma_err_handler);
+>>>>>>> upstream/android-13
 
 	napi_enable(&priv->napi);
 
@@ -924,11 +1179,22 @@ static void nixge_ethtools_get_drvinfo(struct net_device *ndev,
 				       struct ethtool_drvinfo *ed)
 {
 	strlcpy(ed->driver, "nixge", sizeof(ed->driver));
+<<<<<<< HEAD
 	strlcpy(ed->bus_info, "platform", sizeof(ed->driver));
 }
 
 static int nixge_ethtools_get_coalesce(struct net_device *ndev,
 				       struct ethtool_coalesce *ecoalesce)
+=======
+	strlcpy(ed->bus_info, "platform", sizeof(ed->bus_info));
+}
+
+static int
+nixge_ethtools_get_coalesce(struct net_device *ndev,
+			    struct ethtool_coalesce *ecoalesce,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct nixge_priv *priv = netdev_priv(ndev);
 	u32 regval = 0;
@@ -942,8 +1208,16 @@ static int nixge_ethtools_get_coalesce(struct net_device *ndev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nixge_ethtools_set_coalesce(struct net_device *ndev,
 				       struct ethtool_coalesce *ecoalesce)
+=======
+static int
+nixge_ethtools_set_coalesce(struct net_device *ndev,
+			    struct ethtool_coalesce *ecoalesce,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct nixge_priv *priv = netdev_priv(ndev);
 
@@ -953,6 +1227,7 @@ static int nixge_ethtools_set_coalesce(struct net_device *ndev,
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	if (ecoalesce->rx_coalesce_usecs ||
 	    ecoalesce->rx_coalesce_usecs_irq ||
 	    ecoalesce->rx_max_coalesced_frames_irq ||
@@ -974,6 +1249,8 @@ static int nixge_ethtools_set_coalesce(struct net_device *ndev,
 	    ecoalesce->tx_max_coalesced_frames_high ||
 	    ecoalesce->rate_sample_interval)
 		return -EOPNOTSUPP;
+=======
+>>>>>>> upstream/android-13
 	if (ecoalesce->rx_max_coalesced_frames)
 		priv->coalesce_count_rx = ecoalesce->rx_max_coalesced_frames;
 	if (ecoalesce->tx_max_coalesced_frames)
@@ -1017,6 +1294,10 @@ static int nixge_ethtools_set_phys_id(struct net_device *ndev,
 }
 
 static const struct ethtool_ops nixge_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo    = nixge_ethtools_get_drvinfo,
 	.get_coalesce   = nixge_ethtools_get_coalesce,
 	.set_coalesce   = nixge_ethtools_set_coalesce,
@@ -1165,11 +1446,60 @@ static void *nixge_get_nvmem_address(struct device *dev)
 	return mac;
 }
 
+<<<<<<< HEAD
 static int nixge_probe(struct platform_device *pdev)
 {
 	struct nixge_priv *priv;
 	struct net_device *ndev;
 	struct resource *dmares;
+=======
+/* Match table for of_platform binding */
+static const struct of_device_id nixge_dt_ids[] = {
+	{ .compatible = "ni,xge-enet-2.00", .data = (void *)NIXGE_V2 },
+	{ .compatible = "ni,xge-enet-3.00", .data = (void *)NIXGE_V3 },
+	{},
+};
+MODULE_DEVICE_TABLE(of, nixge_dt_ids);
+
+static int nixge_of_get_resources(struct platform_device *pdev)
+{
+	const struct of_device_id *of_id;
+	enum nixge_version version;
+	struct net_device *ndev;
+	struct nixge_priv *priv;
+
+	ndev = platform_get_drvdata(pdev);
+	priv = netdev_priv(ndev);
+	of_id = of_match_node(nixge_dt_ids, pdev->dev.of_node);
+	if (!of_id)
+		return -ENODEV;
+
+	version = (enum nixge_version)of_id->data;
+	if (version <= NIXGE_V2)
+		priv->dma_regs = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
+	else
+		priv->dma_regs = devm_platform_ioremap_resource_byname(pdev, "dma");
+	if (IS_ERR(priv->dma_regs)) {
+		netdev_err(ndev, "failed to map dma regs\n");
+		return PTR_ERR(priv->dma_regs);
+	}
+	if (version <= NIXGE_V2)
+		priv->ctrl_regs = priv->dma_regs + NIXGE_REG_CTRL_OFFSET;
+	else
+		priv->ctrl_regs = devm_platform_ioremap_resource_byname(pdev, "ctrl");
+	if (IS_ERR(priv->ctrl_regs)) {
+		netdev_err(ndev, "failed to map ctrl regs\n");
+		return PTR_ERR(priv->ctrl_regs);
+	}
+	return 0;
+}
+
+static int nixge_probe(struct platform_device *pdev)
+{
+	struct device_node *mn, *phy_node;
+	struct nixge_priv *priv;
+	struct net_device *ndev;
+>>>>>>> upstream/android-13
 	const u8 *mac_addr;
 	int err;
 
@@ -1201,6 +1531,7 @@ static int nixge_probe(struct platform_device *pdev)
 	priv->dev = &pdev->dev;
 
 	netif_napi_add(ndev, &priv->napi, nixge_poll, NAPI_POLL_WEIGHT);
+<<<<<<< HEAD
 
 	dmares = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->dma_regs = devm_ioremap_resource(&pdev->dev, dmares);
@@ -1209,23 +1540,39 @@ static int nixge_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->dma_regs);
 	}
 	priv->ctrl_regs = priv->dma_regs + NIXGE_REG_CTRL_OFFSET;
+=======
+	err = nixge_of_get_resources(pdev);
+	if (err)
+		goto free_netdev;
+>>>>>>> upstream/android-13
 	__nixge_hw_set_mac_address(ndev);
 
 	priv->tx_irq = platform_get_irq_byname(pdev, "tx");
 	if (priv->tx_irq < 0) {
 		netdev_err(ndev, "could not find 'tx' irq");
+<<<<<<< HEAD
 		return priv->tx_irq;
+=======
+		err = priv->tx_irq;
+		goto free_netdev;
+>>>>>>> upstream/android-13
 	}
 
 	priv->rx_irq = platform_get_irq_byname(pdev, "rx");
 	if (priv->rx_irq < 0) {
 		netdev_err(ndev, "could not find 'rx' irq");
+<<<<<<< HEAD
 		return priv->rx_irq;
+=======
+		err = priv->rx_irq;
+		goto free_netdev;
+>>>>>>> upstream/android-13
 	}
 
 	priv->coalesce_count_rx = XAXIDMA_DFT_RX_THRESHOLD;
 	priv->coalesce_count_tx = XAXIDMA_DFT_TX_THRESHOLD;
 
+<<<<<<< HEAD
 	err = nixge_mdio_setup(priv, pdev->dev.of_node);
 	if (err) {
 		netdev_err(ndev, "error registering mdio bus");
@@ -1245,17 +1592,60 @@ static int nixge_probe(struct platform_device *pdev)
 		err = -EINVAL;
 		goto unregister_mdio;
 	}
+=======
+	mn = of_get_child_by_name(pdev->dev.of_node, "mdio");
+	if (mn) {
+		err = nixge_mdio_setup(priv, mn);
+		of_node_put(mn);
+		if (err) {
+			netdev_err(ndev, "error registering mdio bus");
+			goto free_netdev;
+		}
+	}
+
+	err = of_get_phy_mode(pdev->dev.of_node, &priv->phy_mode);
+	if (err) {
+		netdev_err(ndev, "not find \"phy-mode\" property\n");
+		goto unregister_mdio;
+	}
+
+	phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
+	if (!phy_node && of_phy_is_fixed_link(pdev->dev.of_node)) {
+		err = of_phy_register_fixed_link(pdev->dev.of_node);
+		if (err < 0) {
+			netdev_err(ndev, "broken fixed-link specification\n");
+			goto unregister_mdio;
+		}
+		phy_node = of_node_get(pdev->dev.of_node);
+	}
+	priv->phy_node = phy_node;
+>>>>>>> upstream/android-13
 
 	err = register_netdev(priv->ndev);
 	if (err) {
 		netdev_err(ndev, "register_netdev() error (%i)\n", err);
+<<<<<<< HEAD
 		goto unregister_mdio;
+=======
+		goto free_phy;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
+<<<<<<< HEAD
 unregister_mdio:
 	mdiobus_unregister(priv->mii_bus);
+=======
+free_phy:
+	if (of_phy_is_fixed_link(pdev->dev.of_node))
+		of_phy_deregister_fixed_link(pdev->dev.of_node);
+	of_node_put(phy_node);
+
+unregister_mdio:
+	if (priv->mii_bus)
+		mdiobus_unregister(priv->mii_bus);
+>>>>>>> upstream/android-13
 
 free_netdev:
 	free_netdev(ndev);
@@ -1270,13 +1660,23 @@ static int nixge_remove(struct platform_device *pdev)
 
 	unregister_netdev(ndev);
 
+<<<<<<< HEAD
 	mdiobus_unregister(priv->mii_bus);
+=======
+	if (of_phy_is_fixed_link(pdev->dev.of_node))
+		of_phy_deregister_fixed_link(pdev->dev.of_node);
+	of_node_put(priv->phy_node);
+
+	if (priv->mii_bus)
+		mdiobus_unregister(priv->mii_bus);
+>>>>>>> upstream/android-13
 
 	free_netdev(ndev);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Match table for of_platform binding */
 static const struct of_device_id nixge_dt_ids[] = {
 	{ .compatible = "ni,xge-enet-2.00", },
@@ -1284,6 +1684,8 @@ static const struct of_device_id nixge_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, nixge_dt_ids);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver nixge_driver = {
 	.probe		= nixge_probe,
 	.remove		= nixge_remove,

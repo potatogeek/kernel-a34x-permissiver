@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ROHM 1780GLI Ambient Light Sensor Driver
  *
@@ -12,7 +16,11 @@
 #include <linux/platform_device.h>
 #include <linux/delay.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -145,7 +153,11 @@ static int bh1780_probe(struct i2c_client *client,
 {
 	int ret;
 	struct bh1780_data *bh1780;
+<<<<<<< HEAD
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+=======
+	struct i2c_adapter *adapter = client->adapter;
+>>>>>>> upstream/android-13
 	struct iio_dev *indio_dev;
 
 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE))
@@ -184,7 +196,10 @@ static int bh1780_probe(struct i2c_client *client,
 	pm_runtime_use_autosuspend(&client->dev);
 	pm_runtime_put(&client->dev);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &bh1780_info;
 	indio_dev->name = "bh1780";
 	indio_dev->channels = bh1780_channels;
@@ -272,13 +287,19 @@ static const struct i2c_device_id bh1780_id[] = {
 
 MODULE_DEVICE_TABLE(i2c, bh1780_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id of_bh1780_match[] = {
 	{ .compatible = "rohm,bh1780gli", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, of_bh1780_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver bh1780_driver = {
 	.probe		= bh1780_probe,
@@ -287,7 +308,11 @@ static struct i2c_driver bh1780_driver = {
 	.driver = {
 		.name = "bh1780",
 		.pm = &bh1780_dev_pm_ops,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(of_bh1780_match),
+=======
+		.of_match_table = of_bh1780_match,
+>>>>>>> upstream/android-13
 	},
 };
 

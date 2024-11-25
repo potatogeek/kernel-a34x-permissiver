@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI LP8788 MFD - ADC driver
  *
  * Copyright 2012 Texas Instruments
  *
  * Author: Milo(Woogyom) Kim <milo.kim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -201,14 +208,20 @@ static int lp8788_adc_probe(struct platform_device *pdev)
 	adc->lp = lp;
 	platform_set_drvdata(pdev, indio_dev);
 
+<<<<<<< HEAD
 	indio_dev->dev.of_node = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	ret = lp8788_iio_map_register(indio_dev, lp->pdata, adc);
 	if (ret)
 		return ret;
 
 	mutex_init(&adc->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = pdev->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &lp8788_adc_info;

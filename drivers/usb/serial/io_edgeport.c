@@ -263,6 +263,7 @@ static const struct divisor_table_entry divisor_table[] = {
 static atomic_t CmdUrbs = ATOMIC_INIT(0);
 
 
+<<<<<<< HEAD
 /* local function prototypes */
 
 /* function prototypes for all URB callbacks */
@@ -296,6 +297,11 @@ static int edge_port_probe(struct usb_serial_port *port);
 static int edge_port_remove(struct usb_serial_port *port);
 
 /* function prototypes for all of our local functions */
+=======
+/* function prototypes */
+
+static void edge_close(struct usb_serial_port *port);
+>>>>>>> upstream/android-13
 
 static void  process_rcvd_data(struct edgeport_serial *edge_serial,
 				unsigned char *buffer, __u16 bufferLength);
@@ -309,8 +315,11 @@ static void handle_new_lsr(struct edgeport_port *edge_port, __u8 lsrData,
 static int  send_iosp_ext_cmd(struct edgeport_port *edge_port, __u8 command,
 				__u8 param);
 static int  calc_baud_rate_divisor(struct device *dev, int baud_rate, int *divisor);
+<<<<<<< HEAD
 static int  send_cmd_write_baud_rate(struct edgeport_port *edge_port,
 				int baudRate);
+=======
+>>>>>>> upstream/android-13
 static void change_port_settings(struct tty_struct *tty,
 				struct edgeport_port *edge_port,
 				struct ktermios *old_termios);
@@ -321,6 +330,7 @@ static int  write_cmd_usb(struct edgeport_port *edge_port,
 static void send_more_port_data(struct edgeport_serial *edge_serial,
 				struct edgeport_port *edge_port);
 
+<<<<<<< HEAD
 static int sram_write(struct usb_serial *serial, __u16 extAddr, __u16 addr,
 					__u16 length, const __u8 *data);
 static int rom_read(struct usb_serial *serial, __u16 extAddr, __u16 addr,
@@ -334,6 +344,10 @@ static void load_application_firmware(struct edgeport_serial *edge_serial);
 static void unicode_to_ascii(char *string, int buflen,
 				__le16 *unicode, int unicode_size);
 
+=======
+static int rom_write(struct usb_serial *serial, __u16 extAddr, __u16 addr,
+					__u16 length, const __u8 *data);
+>>>>>>> upstream/android-13
 
 /* ************************************************************************ */
 /* ************************************************************************ */
@@ -432,6 +446,7 @@ static void update_edgeport_E2PROM(struct edgeport_serial *edge_serial)
 	release_firmware(fw);
 }
 
+<<<<<<< HEAD
 #if 0
 /************************************************************************
  *
@@ -465,6 +480,8 @@ static int get_string_desc(struct usb_device *dev, int Id,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void dump_product_info(struct edgeport_serial *edge_serial,
 			      struct edgeport_product_info *product_info)
 {
@@ -1394,6 +1411,7 @@ exit_send:
 /*****************************************************************************
  * edge_write_room
  *	this function is called by the tty driver when it wants to know how
+<<<<<<< HEAD
  *	many bytes of data we can accept for a specific port. If successful,
  *	we return the amount of room that we have for this port	(the txCredits)
  *	otherwise we return a negative error number.
@@ -1415,12 +1433,27 @@ static int edge_write_room(struct tty_struct *tty)
 		return 0;
 	}
 
+=======
+ *	many bytes of data we can accept for a specific port.
+ *****************************************************************************/
+static unsigned int edge_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct edgeport_port *edge_port = usb_get_serial_port_data(port);
+	unsigned int room;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	/* total of both buffers is still txCredit */
 	spin_lock_irqsave(&edge_port->ep_lock, flags);
 	room = edge_port->txCredits - edge_port->txfifo.count;
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, room);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, room);
+>>>>>>> upstream/android-13
 	return room;
 }
 
@@ -1430,6 +1463,7 @@ static int edge_write_room(struct tty_struct *tty)
  *	this function is called by the tty driver when it wants to know how
  *	many bytes of data we currently have outstanding in the port (data that
  *	has been written, but hasn't made it out the port yet)
+<<<<<<< HEAD
  *	If successful, we return the number of bytes left to be written in the
  *	system,
  *	Otherwise we return a negative error number.
@@ -1451,12 +1485,26 @@ static int edge_chars_in_buffer(struct tty_struct *tty)
 		return 0;
 	}
 
+=======
+ *****************************************************************************/
+static unsigned int edge_chars_in_buffer(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct edgeport_port *edge_port = usb_get_serial_port_data(port);
+	unsigned int num_chars;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&edge_port->ep_lock, flags);
 	num_chars = edge_port->maxTxCredits - edge_port->txCredits +
 						edge_port->txfifo.count;
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);
 	if (num_chars) {
+<<<<<<< HEAD
 		dev_dbg(&port->dev, "%s - returns %d\n", __func__, num_chars);
+=======
+		dev_dbg(&port->dev, "%s - returns %u\n", __func__, num_chars);
+>>>>>>> upstream/android-13
 	}
 
 	return num_chars;
@@ -1637,6 +1685,7 @@ static int edge_tiocmget(struct tty_struct *tty)
 	return result;
 }
 
+<<<<<<< HEAD
 static int get_serial_info(struct edgeport_port *edge_port,
 				struct serial_struct __user *retinfo)
 {
@@ -1659,6 +1708,8 @@ static int get_serial_info(struct edgeport_port *edge_port,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*****************************************************************************
  * SerialIoctl
  *	this function handles any ioctl calls to the driver
@@ -1667,17 +1718,23 @@ static int edge_ioctl(struct tty_struct *tty,
 					unsigned int cmd, unsigned long arg)
 {
 	struct usb_serial_port *port = tty->driver_data;
+<<<<<<< HEAD
 	DEFINE_WAIT(wait);
+=======
+>>>>>>> upstream/android-13
 	struct edgeport_port *edge_port = usb_get_serial_port_data(port);
 
 	switch (cmd) {
 	case TIOCSERGETLSR:
 		dev_dbg(&port->dev, "%s TIOCSERGETLSR\n", __func__);
 		return get_lsr_info(edge_port, (unsigned int __user *) arg);
+<<<<<<< HEAD
 
 	case TIOCGSERIAL:
 		dev_dbg(&port->dev, "%s TIOCGSERIAL\n", __func__);
 		return get_serial_info(edge_port, (struct serial_struct __user *) arg);
+=======
+>>>>>>> upstream/android-13
 	}
 	return -ENOIOCTLCMD;
 }
@@ -1761,7 +1818,11 @@ static void process_rcvd_data(struct edgeport_serial *edge_serial,
 				edge_serial->rxState = EXPECT_HDR2;
 				break;
 			}
+<<<<<<< HEAD
 			/* otherwise, drop on through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case EXPECT_HDR2:
 			edge_serial->rxHeader2 = *buffer;
 			++buffer;
@@ -1800,6 +1861,7 @@ static void process_rcvd_data(struct edgeport_serial *edge_serial,
 						edge_serial->rxHeader2, 0);
 				edge_serial->rxState = EXPECT_HDR1;
 				break;
+<<<<<<< HEAD
 			} else {
 				edge_serial->rxPort =
 				    IOSP_GET_HDR_PORT(edge_serial->rxHeader1);
@@ -1823,6 +1885,22 @@ static void process_rcvd_data(struct edgeport_serial *edge_serial,
 				}
 				/* Else, drop through */
 			}
+=======
+			}
+
+			edge_serial->rxPort = IOSP_GET_HDR_PORT(edge_serial->rxHeader1);
+			edge_serial->rxBytesRemaining = IOSP_GET_HDR_DATA_LEN(edge_serial->rxHeader1,
+									      edge_serial->rxHeader2);
+			dev_dbg(dev, "%s - Data for Port %u Len %u\n", __func__,
+				edge_serial->rxPort,
+				edge_serial->rxBytesRemaining);
+
+			if (bufferLength == 0) {
+				edge_serial->rxState = EXPECT_DATA;
+				break;
+			}
+			fallthrough;
+>>>>>>> upstream/android-13
 		case EXPECT_DATA: /* Expect data */
 			if (bufferLength < edge_serial->rxBytesRemaining) {
 				rxLen = bufferLength;
@@ -3102,14 +3180,21 @@ static int edge_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int edge_port_remove(struct usb_serial_port *port)
+=======
+static void edge_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct edgeport_port *edge_port;
 
 	edge_port = usb_get_serial_port_data(port);
 	kfree(edge_port);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct usb_serial_driver edgeport_2port_device = {

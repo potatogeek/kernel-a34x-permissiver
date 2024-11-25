@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * An rtc driver for the Dallas DS1511
  *
  * Copyright (C) 2006 Atsushi Nemoto <anemo@mba.ocn.ne.jp>
  * Copyright (C) 2007 Andrew Sharp <andy.sharp@lsi.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Real time clock driver for the Dallas 1511 chip, which also
  * contains a watchdog timer.  There is a tiny amount of code that
  * platform code could use to mess with the watchdog device a little
@@ -107,12 +114,15 @@ rtc_write(uint8_t val, uint32_t reg)
 	writeb(val, ds1511_base + (reg * reg_spacing));
 }
 
+<<<<<<< HEAD
 static inline void
 rtc_write_alarm(uint8_t val, enum ds1511reg reg)
 {
 	rtc_write((val | 0x80), reg);
 }
 
+=======
+>>>>>>> upstream/android-13
 static noinline uint8_t
 rtc_read(enum ds1511reg reg)
 {
@@ -417,7 +427,10 @@ static int ds1511_nvram_write(void *priv, unsigned int pos, void *buf,
 
 static int ds1511_rtc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct rtc_plat_data *pdata;
 	int ret = 0;
 	struct nvmem_config ds1511_nvmem_cfg = {
@@ -434,8 +447,12 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
 	if (!pdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ds1511_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	ds1511_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ds1511_base))
 		return PTR_ERR(ds1511_base);
 	pdata->ioaddr = ds1511_base;
@@ -471,6 +488,7 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
 
 	pdata->rtc->ops = &ds1511_rtc_ops;
 
+<<<<<<< HEAD
 	pdata->rtc->nvram_old_abi = true;
 
 	ret = rtc_register_device(pdata->rtc);
@@ -478,6 +496,13 @@ static int ds1511_rtc_probe(struct platform_device *pdev)
 		return ret;
 
 	rtc_nvmem_register(pdata->rtc, &ds1511_nvmem_cfg);
+=======
+	ret = devm_rtc_register_device(pdata->rtc);
+	if (ret)
+		return ret;
+
+	devm_rtc_nvmem_register(pdata->rtc, &ds1511_nvmem_cfg);
+>>>>>>> upstream/android-13
 
 	/*
 	 * if the platform has an interrupt in mind for this device,

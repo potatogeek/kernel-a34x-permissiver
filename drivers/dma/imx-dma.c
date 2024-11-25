@@ -162,6 +162,10 @@ struct imxdma_channel {
 	bool				enabled_2d;
 	int				slot_2d;
 	unsigned int			irq;
+<<<<<<< HEAD
+=======
+	struct dma_slave_config		config;
+>>>>>>> upstream/android-13
 };
 
 enum imx_dma_type {
@@ -172,7 +176,10 @@ enum imx_dma_type {
 
 struct imxdma_engine {
 	struct device			*dev;
+<<<<<<< HEAD
 	struct device_dma_parameters	dma_parms;
+=======
+>>>>>>> upstream/android-13
 	struct dma_device		dma_device;
 	void __iomem			*base;
 	struct clk			*dma_ahb;
@@ -191,6 +198,7 @@ struct imxdma_filter_data {
 	int			 request;
 };
 
+<<<<<<< HEAD
 static const struct platform_device_id imx_dma_devtype[] = {
 	{
 		.name = "imx1-dma",
@@ -217,6 +225,15 @@ static const struct of_device_id imx_dma_of_dev_id[] = {
 	}, {
 		.compatible = "fsl,imx27-dma",
 		.data = &imx_dma_devtype[IMX27_DMA],
+=======
+static const struct of_device_id imx_dma_of_dev_id[] = {
+	{
+		.compatible = "fsl,imx1-dma", .data = (const void *)IMX1_DMA,
+	}, {
+		.compatible = "fsl,imx21-dma", .data = (const void *)IMX21_DMA,
+	}, {
+		.compatible = "fsl,imx27-dma", .data = (const void *)IMX27_DMA,
+>>>>>>> upstream/android-13
 	}, {
 		/* sentinel */
 	}
@@ -277,12 +294,20 @@ static int imxdma_hw_chain(struct imxdma_channel *imxdmac)
 /*
  * imxdma_sg_next - prepare next chunk for scatter-gather DMA emulation
  */
+<<<<<<< HEAD
 static inline int imxdma_sg_next(struct imxdma_desc *d)
+=======
+static inline void imxdma_sg_next(struct imxdma_desc *d)
+>>>>>>> upstream/android-13
 {
 	struct imxdma_channel *imxdmac = to_imxdma_chan(d->desc.chan);
 	struct imxdma_engine *imxdma = imxdmac->imxdma;
 	struct scatterlist *sg = d->sg;
+<<<<<<< HEAD
 	unsigned long now;
+=======
+	size_t now;
+>>>>>>> upstream/android-13
 
 	now = min_t(size_t, d->len, sg_dma_len(sg));
 	if (d->len != IMX_DMA_LENGTH_LOOP)
@@ -302,8 +327,11 @@ static inline int imxdma_sg_next(struct imxdma_desc *d)
 		 imx_dmav1_readl(imxdma, DMA_DAR(imxdmac->channel)),
 		 imx_dmav1_readl(imxdma, DMA_SAR(imxdmac->channel)),
 		 imx_dmav1_readl(imxdma, DMA_CNTR(imxdmac->channel)));
+<<<<<<< HEAD
 
 	return now;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void imxdma_enable_hw(struct imxdma_desc *d)
@@ -557,6 +585,10 @@ static int imxdma_xfer_desc(struct imxdma_desc *d)
 		 * We fall-through here intentionally, since a 2D transfer is
 		 * similar to MEMCPY just adding the 2D slot configuration.
 		 */
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IMXDMA_DESC_MEMCPY:
 		imx_dmav1_writel(imxdma, d->src, DMA_SAR(imxdmac->channel));
 		imx_dmav1_writel(imxdma, d->dest, DMA_DAR(imxdmac->channel));
@@ -613,9 +645,15 @@ static int imxdma_xfer_desc(struct imxdma_desc *d)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void imxdma_tasklet(unsigned long data)
 {
 	struct imxdma_channel *imxdmac = (void *)data;
+=======
+static void imxdma_tasklet(struct tasklet_struct *t)
+{
+	struct imxdma_channel *imxdmac = from_tasklet(imxdmac, t, dma_tasklet);
+>>>>>>> upstream/android-13
 	struct imxdma_engine *imxdma = imxdmac->imxdma;
 	struct imxdma_desc *desc, *next_desc;
 	unsigned long flags;
@@ -675,14 +713,24 @@ static int imxdma_terminate_all(struct dma_chan *chan)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int imxdma_config(struct dma_chan *chan,
 			 struct dma_slave_config *dmaengine_cfg)
+=======
+static int imxdma_config_write(struct dma_chan *chan,
+			       struct dma_slave_config *dmaengine_cfg,
+			       enum dma_transfer_direction direction)
+>>>>>>> upstream/android-13
 {
 	struct imxdma_channel *imxdmac = to_imxdma_chan(chan);
 	struct imxdma_engine *imxdma = imxdmac->imxdma;
 	unsigned int mode = 0;
 
+<<<<<<< HEAD
 	if (dmaengine_cfg->direction == DMA_DEV_TO_MEM) {
+=======
+	if (direction == DMA_DEV_TO_MEM) {
+>>>>>>> upstream/android-13
 		imxdmac->per_address = dmaengine_cfg->src_addr;
 		imxdmac->watermark_level = dmaengine_cfg->src_maxburst;
 		imxdmac->word_size = dmaengine_cfg->src_addr_width;
@@ -723,6 +771,19 @@ static int imxdma_config(struct dma_chan *chan,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int imxdma_config(struct dma_chan *chan,
+			 struct dma_slave_config *dmaengine_cfg)
+{
+	struct imxdma_channel *imxdmac = to_imxdma_chan(chan);
+
+	memcpy(&imxdmac->config, dmaengine_cfg, sizeof(*dmaengine_cfg));
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static enum dma_status imxdma_tx_status(struct dma_chan *chan,
 					    dma_cookie_t cookie,
 					    struct dma_tx_state *txstate)
@@ -821,6 +882,11 @@ static struct dma_async_tx_descriptor *imxdma_prep_slave_sg(
 		dma_length += sg_dma_len(sg);
 	}
 
+<<<<<<< HEAD
+=======
+	imxdma_config_write(chan, &imxdmac->config, direction);
+
+>>>>>>> upstream/android-13
 	switch (imxdmac->word_size) {
 	case DMA_SLAVE_BUSWIDTH_4_BYTES:
 		if (sg_dma_len(sgl) & 3 || sgl->dma_address & 3)
@@ -905,6 +971,11 @@ static struct dma_async_tx_descriptor *imxdma_prep_dma_cyclic(
 	desc->desc.callback = NULL;
 	desc->desc.callback_param = NULL;
 
+<<<<<<< HEAD
+=======
+	imxdma_config_write(chan, &imxdmac->config, direction);
+
+>>>>>>> upstream/android-13
 	return &desc->desc;
 }
 
@@ -1044,6 +1115,7 @@ static int __init imxdma_probe(struct platform_device *pdev)
 {
 	struct imxdma_engine *imxdma;
 	struct resource *res;
+<<<<<<< HEAD
 	const struct of_device_id *of_id;
 	int ret, i;
 	int irq, irq_err;
@@ -1052,12 +1124,21 @@ static int __init imxdma_probe(struct platform_device *pdev)
 	if (of_id)
 		pdev->id_entry = of_id->data;
 
+=======
+	int ret, i;
+	int irq, irq_err;
+
+>>>>>>> upstream/android-13
 	imxdma = devm_kzalloc(&pdev->dev, sizeof(*imxdma), GFP_KERNEL);
 	if (!imxdma)
 		return -ENOMEM;
 
 	imxdma->dev = &pdev->dev;
+<<<<<<< HEAD
 	imxdma->devtype = pdev->id_entry->driver_data;
+=======
+	imxdma->devtype = (enum imx_dma_type)of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	imxdma->base = devm_ioremap_resource(&pdev->dev, res);
@@ -1156,8 +1237,12 @@ static int __init imxdma_probe(struct platform_device *pdev)
 		INIT_LIST_HEAD(&imxdmac->ld_free);
 		INIT_LIST_HEAD(&imxdmac->ld_active);
 
+<<<<<<< HEAD
 		tasklet_init(&imxdmac->dma_tasklet, imxdma_tasklet,
 			     (unsigned long)imxdmac);
+=======
+		tasklet_setup(&imxdmac->dma_tasklet, imxdma_tasklet);
+>>>>>>> upstream/android-13
 		imxdmac->chan.device = &imxdma->dma_device;
 		dma_cookie_init(&imxdmac->chan);
 		imxdmac->channel = i;
@@ -1183,7 +1268,10 @@ static int __init imxdma_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, imxdma);
 
 	imxdma->dma_device.copy_align = DMAENGINE_ALIGN_4_BYTES;
+<<<<<<< HEAD
 	imxdma->dma_device.dev->dma_parms = &imxdma->dma_parms;
+=======
+>>>>>>> upstream/android-13
 	dma_set_max_seg_size(imxdma->dma_device.dev, 0xffffff);
 
 	ret = dma_async_device_register(&imxdma->dma_device);
@@ -1253,7 +1341,10 @@ static struct platform_driver imxdma_driver = {
 		.name	= "imx-dma",
 		.of_match_table = imx_dma_of_dev_id,
 	},
+<<<<<<< HEAD
 	.id_table	= imx_dma_devtype,
+=======
+>>>>>>> upstream/android-13
 	.remove		= imxdma_remove,
 };
 

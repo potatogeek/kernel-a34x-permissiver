@@ -133,15 +133,24 @@ And add a line to your rc script executing that file::
 This way, after the next reboot your joystick will remain calibrated. You
 can also add the ``jscal -p`` line to your shutdown script.
 
+<<<<<<< HEAD
 HW specific driver information
 ==============================
+=======
+Hardware-specific driver information
+====================================
+>>>>>>> upstream/android-13
 
 In this section each of the separate hardware specific drivers is described.
 
 Analog joysticks
 ----------------
 
+<<<<<<< HEAD
 The analog.c uses the standard analog inputs of the gameport, and thus
+=======
+The analog.c driver uses the standard analog inputs of the gameport, and thus
+>>>>>>> upstream/android-13
 supports all standard joysticks and gamepads. It uses a very advanced
 routine for this, allowing for data precision that can't be found on any
 other system.
@@ -266,7 +275,11 @@ to:
 * Logitech WingMan Extreme Digital 3D
 
 ADI devices are autodetected, and the driver supports up to two (any
+<<<<<<< HEAD
 combination of) devices on a single gameport, using an Y-cable or chained
+=======
+combination of) devices on a single gameport, using a Y-cable or chained
+>>>>>>> upstream/android-13
 together.
 
 Logitech WingMan Joystick, Logitech WingMan Attack, Logitech WingMan
@@ -288,7 +301,11 @@ supports:
 * Gravis Xterminator DualControl
 
 All these devices are autodetected, and you can even use any combination
+<<<<<<< HEAD
 of up to two of these pads either chained together or using an Y-cable on a
+=======
+of up to two of these pads either chained together or using a Y-cable on a
+>>>>>>> upstream/android-13
 single gameport.
 
 GrIP MultiPort isn't supported yet. Gravis Stinger is a serial device and is
@@ -311,7 +328,11 @@ allow connecting analog joysticks to them, you'll need to load the analog
 driver as well to handle the attached joysticks.
 
 The trackball should work with USB mousedev module as a normal mouse. See
+<<<<<<< HEAD
 the USB documentation for how to setup an USB mouse.
+=======
+the USB documentation for how to setup a USB mouse.
+>>>>>>> upstream/android-13
 
 ThrustMaster DirectConnect (BSP)
 --------------------------------
@@ -332,7 +353,11 @@ If you have one of these, contact me.
 
 TMDC devices are autodetected, and thus no parameters to the module
 are needed. Up to two TMDC devices can be connected to one gameport, using
+<<<<<<< HEAD
 an Y-cable.
+=======
+a Y-cable.
+>>>>>>> upstream/android-13
 
 Creative Labs Blaster
 ---------------------
@@ -342,7 +367,11 @@ the:
 
 * Creative Blaster GamePad Cobra
 
+<<<<<<< HEAD
 Up to two of these can be used on a single gameport, using an Y-cable.
+=======
+Up to two of these can be used on a single gameport, using a Y-cable.
+>>>>>>> upstream/android-13
 
 Genius Digital joysticks
 ------------------------
@@ -381,7 +410,11 @@ card, 16 in case you have two in your system.
 Trident 4DWave / Aureal Vortex
 ------------------------------
 
+<<<<<<< HEAD
 Soundcards with a Trident 4DWave DX/NX or Aureal Vortex/Vortex2 chipsets
+=======
+Soundcards with a Trident 4DWave DX/NX or Aureal Vortex/Vortex2 chipset
+>>>>>>> upstream/android-13
 provide an "Enhanced Game Port" mode where the soundcard handles polling the
 joystick.  This mode is supported by the pcigame.c module. Once loaded the
 analog driver can use the enhanced features of these gameports..
@@ -454,7 +487,11 @@ Devices currently supported by spaceball.c are:
 * SpaceTec SpaceBall 4000 FLX
 
 In addition to having the spaceorb/spaceball and serport modules in the
+<<<<<<< HEAD
 kernel, you also need to attach a serial port to it. to do that, run the
+=======
+kernel, you also need to attach a serial port to it. To do that, run the
+>>>>>>> upstream/android-13
 inputattach program::
 
 	inputattach --spaceorb /dev/tts/x &
@@ -466,7 +503,11 @@ or::
 where /dev/tts/x is the serial port which the device is connected to. After
 doing this, the device will be reported and will start working.
 
+<<<<<<< HEAD
 There is one caveat with the SpaceOrb. The button #6, the on the bottom
+=======
+There is one caveat with the SpaceOrb. The button #6, the one on the bottom
+>>>>>>> upstream/android-13
 side of the orb, although reported as an ordinary button, causes internal
 recentering of the spaceorb, moving the zero point to the position in which
 the ball is at the moment of pressing the button. So, think first before
@@ -500,7 +541,11 @@ joy-magellan module. It currently supports only the:
 * Magellan 3D
 * Space Mouse
 
+<<<<<<< HEAD
 models, the additional buttons on the 'Plus' versions are not supported yet.
+=======
+models; the additional buttons on the 'Plus' versions are not supported yet.
+>>>>>>> upstream/android-13
 
 To use it, you need to attach the serial port to the driver using the::
 
@@ -575,7 +620,11 @@ FAQ
 :A: The device files don't exist. Create them (see section 2.2).
 
 :Q: Is it possible to connect my old Atari/Commodore/Amiga/console joystick
+<<<<<<< HEAD
     or pad that uses a 9-pin D-type cannon connector to the serial port of my
+=======
+    or pad that uses a 9-pin D-type Cannon connector to the serial port of my
+>>>>>>> upstream/android-13
     PC?
 :A: Yes, it is possible, but it'll burn your serial port or the pad. It
     won't work, of course.

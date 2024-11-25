@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 /* AM43x EPOS EVM */
@@ -50,6 +56,7 @@
 
 		backlight = <&lcd_bl>;
 
+<<<<<<< HEAD
 		panel-timing {
 			clock-frequency = <33000000>;
 			hactive = <800>;
@@ -66,6 +73,8 @@
 			pixelclk-active = <1>;
 		};
 
+=======
+>>>>>>> upstream/android-13
 		port {
 			lcd_in: endpoint {
 				remote-endpoint = <&dpi_out>;
@@ -80,6 +89,10 @@
 		pinctrl-names = "default", "sleep";
 		pinctrl-0 = <&matrix_keypad_default>;
 		pinctrl-1 = <&matrix_keypad_sleep>;
+<<<<<<< HEAD
+=======
+		wakeup-source;
+>>>>>>> upstream/android-13
 
 		row-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH		/* Bank0, pin12 */
 			     &gpio0 13 GPIO_ACTIVE_HIGH		/* Bank0, pin13 */
@@ -147,6 +160,15 @@
 			system-clock-frequency = <12000000>;
 		};
 	};
+<<<<<<< HEAD
+=======
+
+	audio_mstrclk: clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <12000000>;
+	};
+>>>>>>> upstream/android-13
 };
 
 &am43xx_pinmux {
@@ -562,11 +584,16 @@
 	cd-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
 };
 
+<<<<<<< HEAD
 &mac {
+=======
+&mac_sw {
+>>>>>>> upstream/android-13
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&cpsw_default>;
 	pinctrl-1 = <&cpsw_sleep>;
 	status = "okay";
+<<<<<<< HEAD
 	slaves = <1>;
 };
 
@@ -584,13 +611,40 @@
 
 &phy_sel {
 	rmii-clock-ext;
+=======
+};
+
+&davinci_mdio_sw {
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&davinci_mdio_default>;
+	pinctrl-1 = <&davinci_mdio_sleep>;
+
+	ethphy0: ethernet-phy@16 {
+		reg = <16>;
+	};
+};
+
+&cpsw_port1 {
+	phy-handle = <&ethphy0>;
+	phy-mode = "rmii";
+	phys = <&phy_gmii_sel 1 1>;
+	ti,dual-emac-pvid = <1>;
+};
+
+&cpsw_port2 {
+	status = "disabled";
+>>>>>>> upstream/android-13
 };
 
 &i2c0 {
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins>;
+<<<<<<< HEAD
 	clock-frequency = <400000>;
+=======
+	clock-frequency = <100000>;
+>>>>>>> upstream/android-13
 
 	tps65218: tps65218@24 {
 		reg = <0x24>;
@@ -619,6 +673,15 @@
 			regulator-name = "vdcdc3";
 			regulator-boot-on;
 			regulator-always-on;
+<<<<<<< HEAD
+=======
+			regulator-state-mem {
+				regulator-on-in-suspend;
+			};
+			regulator-state-disk {
+				regulator-off-in-suspend;
+			};
+>>>>>>> upstream/android-13
 		};
 
 		dcdc4: regulator-dcdc4 {
@@ -633,12 +696,22 @@
 			regulator-name = "v1_0bat";
 			regulator-min-microvolt = <1000000>;
 			regulator-max-microvolt = <1000000>;
+<<<<<<< HEAD
+=======
+			regulator-boot-on;
+			regulator-always-on;
+>>>>>>> upstream/android-13
 		};
 
 		dcdc6: regulator-dcdc6 {
 			regulator-name = "v1_8bat";
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
+<<<<<<< HEAD
+=======
+			regulator-boot-on;
+			regulator-always-on;
+>>>>>>> upstream/android-13
 		};
 
 		ldo1: regulator-ldo1 {
@@ -687,6 +760,24 @@
 		IOVDD-supply = <&dcdc4>; /* V3_3D -> DCDC4 */
 		DVDD-supply = <&ldo1>; /* V1_8AUD -> V1_8D -> LDO1 */
 	};
+<<<<<<< HEAD
+=======
+
+	ov2659@30 {
+		compatible = "ovti,ov2659";
+		reg = <0x30>;
+
+		clocks = <&audio_mstrclk>;
+		clock-names = "xvclk";
+
+		port {
+			ov2659_1: endpoint {
+				remote-endpoint = <&vpfe1_ep>;
+				link-frequencies = /bits/ 64 <70000000>;
+			};
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &i2c2 {
@@ -708,7 +799,11 @@
 	pinctrl-0 = <&display_mux_pins>;
 	status = "okay";
 
+<<<<<<< HEAD
 	p1 {
+=======
+	sel-lcd-hdmi-hog {
+>>>>>>> upstream/android-13
 		/*
 		 * SelLCDorHDMI selects between display and audio paths:
 		 * Low: HDMI display with audio via HDMI
@@ -819,6 +914,13 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&rtc_target {
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &tscadc {
 	status = "okay";
 
@@ -839,7 +941,11 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&spi0_pins_default>;
 	pinctrl-1 = <&spi0_pins_sleep>;
+<<<<<<< HEAD
 	ti,pindir-d0-out-d1-in = <1>;
+=======
+	ti,pindir-d0-out-d1-in;
+>>>>>>> upstream/android-13
 };
 
 &spi1 {
@@ -847,7 +953,11 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&spi1_pins_default>;
 	pinctrl-1 = <&spi1_pins_sleep>;
+<<<<<<< HEAD
 	ti,pindir-d0-out-d1-in = <1>;
+=======
+	ti,pindir-d0-out-d1-in;
+>>>>>>> upstream/android-13
 };
 
 &usb2_phy1 {
@@ -934,7 +1044,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&dss_pins>;
@@ -955,7 +1069,11 @@
 
 	port {
 		vpfe1_ep: endpoint {
+<<<<<<< HEAD
 			/* remote-endpoint = <&sensor>; add once we have it */
+=======
+			remote-endpoint = <&ov2659_1>;
+>>>>>>> upstream/android-13
 			ti,am437x-vpfe-interface = <0>;
 			bus-width = <8>;
 			hsync-active = <0>;
@@ -997,3 +1115,10 @@
 &cpu {
 	cpu0-supply = <&dcdc2>;
 };
+<<<<<<< HEAD
+=======
+
+&pruss1_mdio {
+	status = "disabled";
+};
+>>>>>>> upstream/android-13

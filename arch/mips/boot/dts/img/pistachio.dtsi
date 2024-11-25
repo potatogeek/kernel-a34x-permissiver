@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015, 2016 Imagination Technologies Ltd.
  * Copyright (C) 2015 Google, Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015, 2016 Imagination Technologies Ltd.
+ * Copyright (C) 2015 Google, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/clock/pistachio-clk.h>
@@ -903,6 +910,19 @@
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	cpc: cpc@1bde0000 {
+		compatible = "mti,mips-cpc";
+		reg = <0x1bde0000 0x10000>;
+	};
+
+	cdmm: cdmm@1bdf0000 {
+		compatible = "mti,mips-cdmm";
+		reg = <0x1bdf0000 0x10000>;
+	};
+
+>>>>>>> upstream/android-13
 	usb_phy: usb-phy {
 		compatible = "img,pistachio-usb-phy";
 		clocks = <&clk_core CLK_USB_PHY>;

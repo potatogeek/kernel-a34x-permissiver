@@ -13,9 +13,15 @@
 #ifdef CONFIG_BLOCK
 
 struct writeback_control;
+<<<<<<< HEAD
 
 int mpage_readpages(struct address_space *mapping, struct list_head *pages,
 				unsigned nr_pages, get_block_t get_block);
+=======
+struct readahead_control;
+
+void mpage_readahead(struct readahead_control *, get_block_t get_block);
+>>>>>>> upstream/android-13
 int mpage_readpage(struct page *page, get_block_t get_block);
 int mpage_writepages(struct address_space *mapping,
 		struct writeback_control *wbc, get_block_t get_block);

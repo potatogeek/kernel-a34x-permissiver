@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	sc520_freq.c: cpufreq driver for the AMD Elan sc520
  *
  *	Copyright (C) 2005 Sean Young <sean@mess.org>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Based on elanfreq.c
  *
  *	2005-03-30: - initial revision
@@ -46,6 +53,10 @@ static unsigned int sc520_freq_get_cpu_frequency(unsigned int cpu)
 	default:
 		pr_err("error: cpuctl register has unexpected value %02x\n",
 		       clockspeed_reg);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0x01:
 		return 100000;
 	case 0x02:
@@ -99,7 +110,11 @@ static struct cpufreq_driver sc520_freq_driver = {
 };
 
 static const struct x86_cpu_id sc520_ids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_AMD, 4, 9 },
+=======
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 4, 9, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, sc520_ids);

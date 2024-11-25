@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2013  Realtek Corporation.
@@ -21,6 +22,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2013  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92C__FW__H__
 #define __RTL92C__FW__H__
@@ -190,6 +195,7 @@ enum rtl8188e_h2c_cmd {
 	SET_BITS_TO_LE_1BYTE((__cmd)+2, 0, 8, __value)
 
 
+<<<<<<< HEAD
 #define SET_H2CCMD_PWRMODE_PARM_MODE(__ph2ccmd, __val)			\
 	SET_BITS_TO_LE_1BYTE(__ph2ccmd, 0, 8, __val)
 #define SET_H2CCMD_PWRMODE_PARM_RLBM(__cmd, __value)		\
@@ -266,6 +272,57 @@ enum rtl8188e_h2c_cmd {
 	SET_BITS_TO_LE_1BYTE((__cmd)+3, 0, 8, __value)
 #define SET_88E_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_INFO(__cmd, __value)	\
 	SET_BITS_TO_LE_1BYTE((__cmd)+4, 0, 8, __value)
+=======
+static inline void set_h2ccmd_pwrmode_parm_mode(u8 *__ph2ccmd, u8 __val)
+{
+	*(u8 *)(__ph2ccmd) = __val;
+}
+
+static inline void set_h2ccmd_pwrmode_parm_rlbm(u8 *__cmd, u8 __value)
+{
+	u8p_replace_bits(__cmd + 1, __value, GENMASK(3, 0));
+}
+
+static inline void set_h2ccmd_pwrmode_parm_smart_ps(u8 *__cmd, u8 __value)
+{
+	u8p_replace_bits(__cmd + 1, __value, GENMASK(7, 4));
+}
+
+static inline void set_h2ccmd_pwrmode_parm_awake_interval(u8 *__cmd, u8 __value)
+{
+	*(u8 *)(__cmd + 2) = __value;
+}
+
+static inline void set_h2ccmd_pwrmode_parm_all_queue_uapsd(u8 *__cmd,
+							   u8 __value)
+{
+	*(u8 *)(__cmd + 3) = __value;
+}
+
+static inline void set_h2ccmd_pwrmode_parm_pwr_state(u8 *__cmd, u8 __value)
+{
+	*(u8 *)(__cmd + 4) = __value;
+}
+
+#define SET_H2CCMD_JOINBSSRPT_PARM_OPMODE(__ph2ccmd, __val)		\
+	*(u8 *)(__ph2ccmd) = __val;
+#define SET_H2CCMD_RSVDPAGE_LOC_PROBE_RSP(__ph2ccmd, __val)		\
+	*(u8 *)(__ph2ccmd) = __val;
+#define SET_H2CCMD_RSVDPAGE_LOC_PSPOLL(__ph2ccmd, __val)		\
+	*(u8 *)(__ph2ccmd + 1) = __val;
+#define SET_H2CCMD_RSVDPAGE_LOC_NULL_DATA(__ph2ccmd, __val)		\
+	*(u8 *)(__ph2ccmd + 2) = __val;
+
+/* AP_OFFLOAD */
+#define SET_H2CCMD_AP_OFFLOAD_ON(__cmd, __value)			\
+	*(u8 *)__cmd = __value;
+#define SET_H2CCMD_AP_OFFLOAD_HIDDEN(__cmd, __value)		\
+	*(u8 *)(__cmd + 1) = __value;
+#define SET_H2CCMD_AP_OFFLOAD_DENYANY(__cmd, __value)		\
+	*(u8 *)(__cmd + 2) = __value;
+#define SET_H2CCMD_AP_OFFLOAD_WAKEUP_EVT_RPT(__cmd, __value)	\
+	*(u8 *)(__cmd + 3) = __value;
+>>>>>>> upstream/android-13
 
 int rtl88e_download_fw(struct ieee80211_hw *hw,
 		       bool buse_wake_on_wlan_fw);

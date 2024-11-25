@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP4 SMP source file. It contains platform specific functions
  * needed for the linux smp kernel.
@@ -10,10 +14,13 @@
  * Platform file needed for the OMAP4 SMP. This file is based on arm
  * realview smp platform.
  * * Copyright (c) 2002 ARM Limited.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/device.h>
@@ -69,15 +76,22 @@ static const struct omap_smp_config omap5_cfg __initconst = {
 	.startup_addr = omap5_secondary_startup,
 };
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(boot_lock);
 
+=======
+>>>>>>> upstream/android-13
 void __iomem *omap4_get_scu_base(void)
 {
 	return cfg.scu_base;
 }
 
 #ifdef CONFIG_OMAP5_ERRATA_801819
+<<<<<<< HEAD
 void omap5_erratum_workaround_801819(void)
+=======
+static void omap5_erratum_workaround_801819(void)
+>>>>>>> upstream/android-13
 {
 	u32 acr, revidr;
 	u32 acr_mask;
@@ -173,12 +187,15 @@ static void omap4_secondary_init(unsigned int cpu)
 		/* Enable ACR to allow for ICUALLU workaround */
 		omap5_secondary_harden_predictor();
 	}
+<<<<<<< HEAD
 
 	/*
 	 * Synchronise with the boot thread.
 	 */
 	spin_lock(&boot_lock);
 	spin_unlock(&boot_lock);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int omap4_boot_secondary(unsigned int cpu, struct task_struct *idle)
@@ -188,12 +205,15 @@ static int omap4_boot_secondary(unsigned int cpu, struct task_struct *idle)
 	static struct powerdomain *cpu1_pwrdm;
 
 	/*
+<<<<<<< HEAD
 	 * Set synchronisation state between this boot processor
 	 * and the secondary one
 	 */
 	spin_lock(&boot_lock);
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Update the AuxCoreBoot0 with boot state for secondary core.
 	 * omap4_secondary_startup() routine will hold the secondary core till
 	 * the AuxCoreBoot1 register is updated with cpu state
@@ -266,12 +286,15 @@ static int omap4_boot_secondary(unsigned int cpu, struct task_struct *idle)
 
 	arch_send_wakeup_ipi_mask(cpumask_of(cpu));
 
+<<<<<<< HEAD
 	/*
 	 * Now the secondary core is starting up let it run its
 	 * calibrations, then wait for it to finish
 	 */
 	spin_unlock(&boot_lock);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

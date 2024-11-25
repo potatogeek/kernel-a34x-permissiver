@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2012-2013 Solarflare Communications Inc.
@@ -8,11 +9,30 @@
  */
 
 #include "net_driver.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/****************************************************************************
+ * Driver for Solarflare network controllers and boards
+ * Copyright 2012-2013 Solarflare Communications Inc.
+ */
+
+#include "net_driver.h"
+#include "rx_common.h"
+#include "tx_common.h"
+>>>>>>> upstream/android-13
 #include "ef10_regs.h"
 #include "io.h"
 #include "mcdi.h"
 #include "mcdi_pcol.h"
+<<<<<<< HEAD
 #include "nic.h"
+=======
+#include "mcdi_port.h"
+#include "mcdi_port_common.h"
+#include "mcdi_functions.h"
+#include "nic.h"
+#include "mcdi_filters.h"
+>>>>>>> upstream/android-13
 #include "workarounds.h"
 #include "selftest.h"
 #include "ef10_sriov.h"
@@ -20,6 +40,10 @@
 #include <linux/jhash.h>
 #include <linux/wait.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
+=======
+#include <net/udp_tunnel.h>
+>>>>>>> upstream/android-13
 
 /* Hardware control for EF10 architecture including 'Huntington'. */
 
@@ -28,6 +52,7 @@ enum {
 	EFX_EF10_TEST = 1,
 	EFX_EF10_REFILL,
 };
+<<<<<<< HEAD
 /* The maximum size of a shared RSS context */
 /* TODO: this should really be from the mcdi protocol export */
 #define EFX_EF10_MAX_SHARED_RSS_CONTEXT_SIZE 64UL
@@ -50,6 +75,8 @@ enum {
 
 #define EFX_EF10_FILTER_DEV_UC_MAX	32
 #define EFX_EF10_FILTER_DEV_MC_MAX	256
+=======
+>>>>>>> upstream/android-13
 
 /* VLAN list entry */
 struct efx_ef10_vlan {
@@ -57,6 +84,7 @@ struct efx_ef10_vlan {
 	u16 vid;
 };
 
+<<<<<<< HEAD
 enum efx_ef10_default_filters {
 	EFX_EF10_BCAST,
 	EFX_EF10_UCDEF,
@@ -145,6 +173,10 @@ static u32 efx_ef10_make_filter_id(unsigned int pri, u16 idx)
 {
 	return pri * HUNT_FILTER_TBL_ROWS * 2 + idx;
 }
+=======
+static int efx_ef10_set_udp_tnl_ports(struct efx_nic *efx, bool unloading);
+static const struct udp_tunnel_nic_info efx_ef10_udp_tunnels;
+>>>>>>> upstream/android-13
 
 static int efx_ef10_get_warm_boot_count(struct efx_nic *efx)
 {
@@ -188,6 +220,7 @@ static bool efx_ef10_is_vf(struct efx_nic *efx)
 	return efx->type->is_vf;
 }
 
+<<<<<<< HEAD
 static int efx_ef10_get_pf_index(struct efx_nic *efx)
 {
 	MCDI_DECLARE_BUF(outbuf, MC_CMD_GET_FUNCTION_INFO_OUT_LEN);
@@ -206,6 +239,8 @@ static int efx_ef10_get_pf_index(struct efx_nic *efx)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SFC_SRIOV
 static int efx_ef10_get_vf_index(struct efx_nic *efx)
 {
@@ -276,6 +311,7 @@ static int efx_ef10_init_datapath_caps(struct efx_nic *efx)
 		u8 vi_window_mode = MCDI_BYTE(outbuf,
 				GET_CAPABILITIES_V3_OUT_VI_WINDOW_MODE);
 
+<<<<<<< HEAD
 		switch (vi_window_mode) {
 		case MC_CMD_GET_CAPABILITIES_V3_OUT_VI_WINDOW_MODE_8K:
 			efx->vi_stride = 8192;
@@ -294,6 +330,11 @@ static int efx_ef10_init_datapath_caps(struct efx_nic *efx)
 		}
 		netif_dbg(efx, probe, efx->net_dev, "vi_stride = %u\n",
 			  efx->vi_stride);
+=======
+		rc = efx_mcdi_window_mode_to_stride(efx, vi_window_mode);
+		if (rc)
+			return rc;
+>>>>>>> upstream/android-13
 	} else {
 		/* keep default VI stride */
 		netif_dbg(efx, probe, efx->net_dev,
@@ -507,11 +548,19 @@ static int efx_ef10_get_mac_address_vf(struct efx_nic *efx, u8 *mac_address)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t efx_ef10_show_link_control_flag(struct device *dev,
 					       struct device_attribute *attr,
 					       char *buf)
 {
 	struct efx_nic *efx = pci_get_drvdata(to_pci_dev(dev));
+=======
+static ssize_t link_control_flag_show(struct device *dev,
+				      struct device_attribute *attr,
+				      char *buf)
+{
+	struct efx_nic *efx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%d\n",
 		       ((efx->mcdi->fn_flags) &
@@ -519,11 +568,19 @@ static ssize_t efx_ef10_show_link_control_flag(struct device *dev,
 		       ? 1 : 0);
 }
 
+<<<<<<< HEAD
 static ssize_t efx_ef10_show_primary_flag(struct device *dev,
 					  struct device_attribute *attr,
 					  char *buf)
 {
 	struct efx_nic *efx = pci_get_drvdata(to_pci_dev(dev));
+=======
+static ssize_t primary_flag_show(struct device *dev,
+				 struct device_attribute *attr,
+				 char *buf)
+{
+	struct efx_nic *efx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%d\n",
 		       ((efx->mcdi->fn_flags) &
@@ -579,7 +636,11 @@ static int efx_ef10_add_vlan(struct efx_nic *efx, u16 vid)
 	if (efx->filter_state) {
 		mutex_lock(&efx->mac_lock);
 		down_write(&efx->filter_sem);
+<<<<<<< HEAD
 		rc = efx_ef10_filter_add_vlan(efx, vlan->vid);
+=======
+		rc = efx_mcdi_filter_add_vlan(efx, vlan->vid);
+>>>>>>> upstream/android-13
 		up_write(&efx->filter_sem);
 		mutex_unlock(&efx->mac_lock);
 		if (rc)
@@ -608,7 +669,11 @@ static void efx_ef10_del_vlan_internal(struct efx_nic *efx,
 
 	if (efx->filter_state) {
 		down_write(&efx->filter_sem);
+<<<<<<< HEAD
 		efx_ef10_filter_del_vlan(efx, vlan->vid);
+=======
+		efx_mcdi_filter_del_vlan(efx, vlan->vid);
+>>>>>>> upstream/android-13
 		up_write(&efx->filter_sem);
 	}
 
@@ -656,9 +721,14 @@ static void efx_ef10_cleanup_vlans(struct efx_nic *efx)
 	mutex_unlock(&nic_data->vlan_lock);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(link_control_flag, 0444, efx_ef10_show_link_control_flag,
 		   NULL);
 static DEVICE_ATTR(primary_flag, 0444, efx_ef10_show_primary_flag, NULL);
+=======
+static DEVICE_ATTR_RO(link_control_flag);
+static DEVICE_ATTR_RO(primary_flag);
+>>>>>>> upstream/android-13
 
 static int efx_ef10_probe(struct efx_nic *efx)
 {
@@ -692,10 +762,13 @@ static int efx_ef10_probe(struct efx_nic *efx)
 	}
 	nic_data->warm_boot_count = rc;
 
+<<<<<<< HEAD
 	efx->rss_context.context_id = EFX_EF10_RSS_CONTEXT_INVALID;
 
 	nic_data->vport_id = EVB_PORT_ID_ASSIGNED;
 
+=======
+>>>>>>> upstream/android-13
 	/* In case we're recovering from a crash (kexec), we want to
 	 * cancel any outstanding request by the previous user of this
 	 * function.  We send a special message using the least
@@ -708,6 +781,12 @@ static int efx_ef10_probe(struct efx_nic *efx)
 		goto fail2;
 
 	mutex_init(&nic_data->udp_tunnels_lock);
+<<<<<<< HEAD
+=======
+	for (i = 0; i < ARRAY_SIZE(nic_data->udp_tunnels); ++i)
+		nic_data->udp_tunnels[i].type =
+			TUNNEL_ENCAP_UDP_PORT_ENTRY_INVALID;
+>>>>>>> upstream/android-13
 
 	/* Reset (most) configuration for this function */
 	rc = efx_mcdi_reset(efx, RESET_TYPE_ALL);
@@ -728,7 +807,11 @@ static int efx_ef10_probe(struct efx_nic *efx)
 	if (rc)
 		goto fail4;
 
+<<<<<<< HEAD
 	rc = efx_ef10_get_pf_index(efx);
+=======
+	rc = efx_get_pf_index(efx, &nic_data->pf_index);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto fail5;
 
@@ -739,6 +822,7 @@ static int efx_ef10_probe(struct efx_nic *efx)
 	efx_ef10_read_licensed_features(efx);
 
 	/* We can have one VI for each vi_stride-byte region.
+<<<<<<< HEAD
 	 * However, until we use TX option descriptors we need two TX queues
 	 * per channel.
 	 */
@@ -746,6 +830,24 @@ static int efx_ef10_probe(struct efx_nic *efx)
 				  EFX_MAX_CHANNELS,
 				  efx_ef10_mem_map_size(efx) /
 				  (efx->vi_stride * EFX_TXQ_TYPES));
+=======
+	 * However, until we use TX option descriptors we need up to four
+	 * TX queues per channel for different checksumming combinations.
+	 */
+	if (nic_data->datapath_caps &
+	    (1 << MC_CMD_GET_CAPABILITIES_OUT_VXLAN_NVGRE_LBN))
+		efx->tx_queues_per_channel = 4;
+	else
+		efx->tx_queues_per_channel = 2;
+	efx->max_vis = efx_ef10_mem_map_size(efx) / efx->vi_stride;
+	if (!efx->max_vis) {
+		netif_err(efx, drv, efx->net_dev, "error determining max VIs\n");
+		rc = -EIO;
+		goto fail5;
+	}
+	efx->max_channels = min_t(unsigned int, EFX_MAX_CHANNELS,
+				  efx->max_vis / efx->tx_queues_per_channel);
+>>>>>>> upstream/android-13
 	efx->max_tx_channels = efx->max_channels;
 	if (WARN_ON(efx->max_channels == 0)) {
 		rc = -EIO;
@@ -804,6 +906,15 @@ static int efx_ef10_probe(struct efx_nic *efx)
 	if (rc)
 		goto fail_add_vid_0;
 
+<<<<<<< HEAD
+=======
+	if (nic_data->datapath_caps &
+	    (1 << MC_CMD_GET_CAPABILITIES_OUT_VXLAN_NVGRE_LBN) &&
+	    efx->mcdi->fn_flags &
+	    (1 << MC_CMD_DRV_ATTACH_EXT_OUT_FLAG_TRUSTED))
+		efx->net_dev->udp_tunnel_nic_info = &efx_ef10_udp_tunnels;
+
+>>>>>>> upstream/android-13
 	return 0;
 
 fail_add_vid_0:
@@ -834,6 +945,7 @@ fail1:
 	return rc;
 }
 
+<<<<<<< HEAD
 static int efx_ef10_free_vis(struct efx_nic *efx)
 {
 	MCDI_DECLARE_BUF_ERR(outbuf);
@@ -850,6 +962,8 @@ static int efx_ef10_free_vis(struct efx_nic *efx)
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef EFX_USE_PIO
 
 static void efx_ef10_free_piobufs(struct efx_nic *efx)
@@ -949,8 +1063,15 @@ static int efx_ef10_link_piobufs(struct efx_nic *efx)
 		/* Extra channels, even those with TXQs (PTP), do not require
 		 * PIO resources.
 		 */
+<<<<<<< HEAD
 		if (!channel->type->want_pio)
 			continue;
+=======
+		if (!channel->type->want_pio ||
+		    channel->channel >= efx->xdp_channel_offset)
+			continue;
+
+>>>>>>> upstream/android-13
 		efx_for_each_channel_tx_queue(tx_queue, channel) {
 			/* We assign the PIO buffers to queues in
 			 * reverse order to allow for the following
@@ -1085,12 +1206,20 @@ static void efx_ef10_remove(struct efx_nic *efx)
 
 	efx_mcdi_mon_remove(efx);
 
+<<<<<<< HEAD
 	efx_ef10_rx_free_indir_table(efx);
+=======
+	efx_mcdi_rx_free_indir_table(efx);
+>>>>>>> upstream/android-13
 
 	if (nic_data->wc_membase)
 		iounmap(nic_data->wc_membase);
 
+<<<<<<< HEAD
 	rc = efx_ef10_free_vis(efx);
+=======
+	rc = efx_mcdi_free_vis(efx);
+>>>>>>> upstream/android-13
 	WARN_ON(rc != 0);
 
 	if (!nic_data->must_restore_piobufs)
@@ -1207,7 +1336,12 @@ static int efx_ef10_probe_vf(struct efx_nic *efx)
 
 	/* If the parent PF has no VF data structure, it doesn't know about this
 	 * VF so fail probe.  The VF needs to be re-created.  This can happen
+<<<<<<< HEAD
 	 * if the PF driver is unloaded while the VF is assigned to a guest.
+=======
+	 * if the PF driver was unloaded while any VF was assigned to a guest
+	 * (using Xen, only).
+>>>>>>> upstream/android-13
 	 */
 	pci_dev_pf = efx->pci_dev->physfn;
 	if (pci_dev_pf) {
@@ -1261,6 +1395,7 @@ static int efx_ef10_probe_vf(struct efx_nic *efx __attribute__ ((unused)))
 static int efx_ef10_alloc_vis(struct efx_nic *efx,
 			      unsigned int min_vis, unsigned int max_vis)
 {
+<<<<<<< HEAD
 	MCDI_DECLARE_BUF(inbuf, MC_CMD_ALLOC_VIS_IN_LEN);
 	MCDI_DECLARE_BUF(outbuf, MC_CMD_ALLOC_VIS_OUT_LEN);
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
@@ -1283,6 +1418,12 @@ static int efx_ef10_alloc_vis(struct efx_nic *efx,
 	nic_data->vi_base = MCDI_DWORD(outbuf, ALLOC_VIS_OUT_VI_BASE);
 	nic_data->n_allocated_vis = MCDI_DWORD(outbuf, ALLOC_VIS_OUT_VI_COUNT);
 	return 0;
+=======
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+
+	return efx_mcdi_alloc_vis(efx, min_vis, max_vis, &nic_data->vi_base,
+				  &nic_data->n_allocated_vis);
+>>>>>>> upstream/android-13
 }
 
 /* Note that the failure path of this function does not free
@@ -1290,17 +1431,37 @@ static int efx_ef10_alloc_vis(struct efx_nic *efx,
  */
 static int efx_ef10_dimension_resources(struct efx_nic *efx)
 {
+<<<<<<< HEAD
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
 	unsigned int uc_mem_map_size, wc_mem_map_size;
 	unsigned int min_vis = max(EFX_TXQ_TYPES,
 				   efx_separate_tx_channels ? 2 : 1);
 	unsigned int channel_vis, pio_write_vi_base, max_vis;
+=======
+	unsigned int min_vis = max_t(unsigned int, efx->tx_queues_per_channel,
+				     efx_separate_tx_channels ? 2 : 1);
+	unsigned int channel_vis, pio_write_vi_base, max_vis;
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+	unsigned int uc_mem_map_size, wc_mem_map_size;
+>>>>>>> upstream/android-13
 	void __iomem *membase;
 	int rc;
 
 	channel_vis = max(efx->n_channels,
+<<<<<<< HEAD
 			  (efx->n_tx_channels + efx->n_extra_tx_channels) *
 			  EFX_TXQ_TYPES);
+=======
+			  ((efx->n_tx_channels + efx->n_extra_tx_channels) *
+			   efx->tx_queues_per_channel) +
+			   efx->n_xdp_channels * efx->xdp_tx_per_channel);
+	if (efx->max_vis && efx->max_vis < channel_vis) {
+		netif_dbg(efx, drv, efx->net_dev,
+			  "Reducing channel VIs from %u to %u\n",
+			  channel_vis, efx->max_vis);
+		channel_vis = efx->max_vis;
+	}
+>>>>>>> upstream/android-13
 
 #ifdef EFX_USE_PIO
 	/* Try to allocate PIO buffers if wanted and if the full
@@ -1363,7 +1524,11 @@ static int efx_ef10_dimension_resources(struct efx_nic *efx)
 	}
 
 	/* In case the last attached driver failed to free VIs, do it now */
+<<<<<<< HEAD
 	rc = efx_ef10_free_vis(efx);
+=======
+	rc = efx_mcdi_free_vis(efx);
+>>>>>>> upstream/android-13
 	if (rc != 0)
 		return rc;
 
@@ -1382,9 +1547,15 @@ static int efx_ef10_dimension_resources(struct efx_nic *efx)
 		 */
 		efx->max_channels = nic_data->n_allocated_vis;
 		efx->max_tx_channels =
+<<<<<<< HEAD
 			nic_data->n_allocated_vis / EFX_TXQ_TYPES;
 
 		efx_ef10_free_vis(efx);
+=======
+			nic_data->n_allocated_vis / efx->tx_queues_per_channel;
+
+		efx_mcdi_free_vis(efx);
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 	}
 
@@ -1401,7 +1572,11 @@ static int efx_ef10_dimension_resources(struct efx_nic *efx)
 	}
 
 	/* Shrink the original UC mapping of the memory BAR */
+<<<<<<< HEAD
 	membase = ioremap_nocache(efx->membase_phys, uc_mem_map_size);
+=======
+	membase = ioremap(efx->membase_phys, uc_mem_map_size);
+>>>>>>> upstream/android-13
 	if (!membase) {
 		netif_err(efx, probe, efx->net_dev,
 			  "could not shrink memory BAR to %x\n",
@@ -1441,9 +1616,24 @@ static int efx_ef10_dimension_resources(struct efx_nic *efx)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int efx_ef10_init_nic(struct efx_nic *efx)
 {
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+=======
+static void efx_ef10_fini_nic(struct efx_nic *efx)
+{
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+
+	kfree(nic_data->mc_stats);
+	nic_data->mc_stats = NULL;
+}
+
+static int efx_ef10_init_nic(struct efx_nic *efx)
+{
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+	netdev_features_t hw_enc_features = 0;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (nic_data->must_check_datapath_caps) {
@@ -1453,15 +1643,30 @@ static int efx_ef10_init_nic(struct efx_nic *efx)
 		nic_data->must_check_datapath_caps = false;
 	}
 
+<<<<<<< HEAD
 	if (nic_data->must_realloc_vis) {
+=======
+	if (efx->must_realloc_vis) {
+>>>>>>> upstream/android-13
 		/* We cannot let the number of VIs change now */
 		rc = efx_ef10_alloc_vis(efx, nic_data->n_allocated_vis,
 					nic_data->n_allocated_vis);
 		if (rc)
 			return rc;
+<<<<<<< HEAD
 		nic_data->must_realloc_vis = false;
 	}
 
+=======
+		efx->must_realloc_vis = false;
+	}
+
+	nic_data->mc_stats = kmalloc(efx->num_mac_stats * sizeof(__le64),
+				     GFP_KERNEL);
+	if (!nic_data->mc_stats)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	if (nic_data->must_restore_piobufs && nic_data->n_piobufs) {
 		rc = efx_ef10_alloc_piobufs(efx, nic_data->n_piobufs);
 		if (rc == 0) {
@@ -1483,6 +1688,24 @@ static int efx_ef10_init_nic(struct efx_nic *efx)
 		nic_data->must_restore_piobufs = false;
 	}
 
+<<<<<<< HEAD
+=======
+	/* add encapsulated checksum offload features */
+	if (efx_has_cap(efx, VXLAN_NVGRE) && !efx_ef10_is_vf(efx))
+		hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+	/* add encapsulated TSO features */
+	if (efx_has_cap(efx, TX_TSO_V2_ENCAP)) {
+		netdev_features_t encap_tso_features;
+
+		encap_tso_features = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_GSO_GRE |
+			NETIF_F_GSO_UDP_TUNNEL_CSUM | NETIF_F_GSO_GRE_CSUM;
+
+		hw_enc_features |= encap_tso_features | NETIF_F_TSO;
+		efx->net_dev->features |= encap_tso_features;
+	}
+	efx->net_dev->hw_enc_features = hw_enc_features;
+
+>>>>>>> upstream/android-13
 	/* don't fail init if RSS setup doesn't work */
 	rc = efx->type->rx_push_rss_config(efx, false,
 					   efx->rss_context.rx_indir_table, NULL);
@@ -1490,7 +1713,11 @@ static int efx_ef10_init_nic(struct efx_nic *efx)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void efx_ef10_reset_mc_allocations(struct efx_nic *efx)
+=======
+static void efx_ef10_table_reset_mc_allocations(struct efx_nic *efx)
+>>>>>>> upstream/android-13
 {
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
 #ifdef CONFIG_SFC_SRIOV
@@ -1498,6 +1725,7 @@ static void efx_ef10_reset_mc_allocations(struct efx_nic *efx)
 #endif
 
 	/* All our allocations have been reset */
+<<<<<<< HEAD
 	nic_data->must_realloc_vis = true;
 	nic_data->must_restore_rss_contexts = true;
 	nic_data->must_restore_filters = true;
@@ -1508,6 +1736,17 @@ static void efx_ef10_reset_mc_allocations(struct efx_nic *efx)
 	/* Driver-created vswitches and vports must be re-created */
 	nic_data->must_probe_vswitching = true;
 	nic_data->vport_id = EVB_PORT_ID_ASSIGNED;
+=======
+	efx->must_realloc_vis = true;
+	efx_mcdi_filter_table_reset_mc_allocations(efx);
+	nic_data->must_restore_piobufs = true;
+	efx_ef10_forget_old_piobufs(efx);
+	efx->rss_context.context_id = EFX_MCDI_RSS_CONTEXT_INVALID;
+
+	/* Driver-created vswitches and vports must be re-created */
+	nic_data->must_probe_vswitching = true;
+	efx->vport_id = EVB_PORT_ID_ASSIGNED;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SFC_SRIOV
 	if (nic_data->vf)
 		for (i = 0; i < efx->vf_count; i++)
@@ -1571,7 +1810,11 @@ static int efx_ef10_reset(struct efx_nic *efx, enum reset_type reset_type)
 	 */
 	if ((reset_type == RESET_TYPE_ALL ||
 	     reset_type == RESET_TYPE_MCDI_TIMEOUT) && !rc)
+<<<<<<< HEAD
 		efx_ef10_reset_mc_allocations(efx);
+=======
+		efx_ef10_table_reset_mc_allocations(efx);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1583,8 +1826,11 @@ static int efx_ef10_reset(struct efx_nic *efx, enum reset_type reset_type)
 	{ NULL, 64, 8 * MC_CMD_MAC_ ## mcdi_name }
 #define EF10_OTHER_STAT(ext_name)				\
 	[EF10_STAT_ ## ext_name] = { #ext_name, 0, 0 }
+<<<<<<< HEAD
 #define GENERIC_SW_STAT(ext_name)				\
 	[GENERIC_STAT_ ## ext_name] = { #ext_name, 0, 0 }
+=======
+>>>>>>> upstream/android-13
 
 static const struct efx_hw_stat_desc efx_ef10_stat_desc[EF10_STAT_COUNT] = {
 	EF10_DMA_STAT(port_tx_bytes, TX_BYTES),
@@ -1628,8 +1874,13 @@ static const struct efx_hw_stat_desc efx_ef10_stat_desc[EF10_STAT_COUNT] = {
 	EF10_DMA_STAT(port_rx_align_error, RX_ALIGN_ERROR_PKTS),
 	EF10_DMA_STAT(port_rx_length_error, RX_LENGTH_ERROR_PKTS),
 	EF10_DMA_STAT(port_rx_nodesc_drops, RX_NODESC_DROPS),
+<<<<<<< HEAD
 	GENERIC_SW_STAT(rx_nodesc_trunc),
 	GENERIC_SW_STAT(rx_noskb_drops),
+=======
+	EFX_GENERIC_SW_STAT(rx_nodesc_trunc),
+	EFX_GENERIC_SW_STAT(rx_noskb_drops),
+>>>>>>> upstream/android-13
 	EF10_DMA_STAT(port_rx_pm_trunc_bb_overflow, PM_TRUNC_BB_OVERFLOW),
 	EF10_DMA_STAT(port_rx_pm_discard_bb_overflow, PM_DISCARD_BB_OVERFLOW),
 	EF10_DMA_STAT(port_rx_pm_trunc_vfifo_full, PM_TRUNC_VFIFO_FULL),
@@ -1869,6 +2120,25 @@ static size_t efx_ef10_describe_stats(struct efx_nic *efx, u8 *names)
 				      mask, names);
 }
 
+<<<<<<< HEAD
+=======
+static void efx_ef10_get_fec_stats(struct efx_nic *efx,
+				   struct ethtool_fec_stats *fec_stats)
+{
+	DECLARE_BITMAP(mask, EF10_STAT_COUNT);
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+	u64 *stats = nic_data->stats;
+
+	efx_ef10_get_stat_mask(efx, mask);
+	if (test_bit(EF10_STAT_fec_corrected_errors, mask))
+		fec_stats->corrected_blocks.total =
+			stats[EF10_STAT_fec_corrected_errors];
+	if (test_bit(EF10_STAT_fec_uncorrected_errors, mask))
+		fec_stats->uncorrectable_blocks.total =
+			stats[EF10_STAT_fec_uncorrected_errors];
+}
+
+>>>>>>> upstream/android-13
 static size_t efx_ef10_update_stats_common(struct efx_nic *efx, u64 *full_stats,
 					   struct rtnl_link_stats64 *core_stats)
 {
@@ -1938,6 +2208,7 @@ static size_t efx_ef10_update_stats_common(struct efx_nic *efx, u64 *full_stats,
 	return stats_count;
 }
 
+<<<<<<< HEAD
 static int efx_ef10_try_update_nic_stats_pf(struct efx_nic *efx)
 {
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
@@ -1960,10 +2231,25 @@ static int efx_ef10_try_update_nic_stats_pf(struct efx_nic *efx)
 	generation_start = dma_stats[MC_CMD_MAC_GENERATION_START];
 	if (generation_end != generation_start)
 		return -EAGAIN;
+=======
+static size_t efx_ef10_update_stats_pf(struct efx_nic *efx, u64 *full_stats,
+				       struct rtnl_link_stats64 *core_stats)
+{
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+	DECLARE_BITMAP(mask, EF10_STAT_COUNT);
+	u64 *stats = nic_data->stats;
+
+	efx_ef10_get_stat_mask(efx, mask);
+
+	efx_nic_copy_stats(efx, nic_data->mc_stats);
+	efx_nic_update_stats(efx_ef10_stat_desc, EF10_STAT_COUNT,
+			     mask, stats, nic_data->mc_stats, false);
+>>>>>>> upstream/android-13
 
 	/* Update derived statistics */
 	efx_nic_fix_nodesc_drop_stat(efx,
 				     &stats[EF10_STAT_port_rx_nodesc_drops]);
+<<<<<<< HEAD
 	stats[EF10_STAT_port_rx_good_bytes] =
 		stats[EF10_STAT_port_rx_bytes] -
 		stats[EF10_STAT_port_rx_bytes_minus_good_bytes];
@@ -1987,11 +2273,37 @@ static size_t efx_ef10_update_stats_pf(struct efx_nic *efx, u64 *full_stats,
 			break;
 		udelay(100);
 	}
+=======
+	/* MC Firmware reads RX_BYTES and RX_GOOD_BYTES from the MAC.
+	 * It then calculates RX_BAD_BYTES and DMAs it to us with RX_BYTES.
+	 * We report these as port_rx_ stats. We are not given RX_GOOD_BYTES.
+	 * Here we calculate port_rx_good_bytes.
+	 */
+	stats[EF10_STAT_port_rx_good_bytes] =
+		stats[EF10_STAT_port_rx_bytes] -
+		stats[EF10_STAT_port_rx_bytes_minus_good_bytes];
+
+	/* The asynchronous reads used to calculate RX_BAD_BYTES in
+	 * MC Firmware are done such that we should not see an increase in
+	 * RX_BAD_BYTES when a good packet has arrived. Unfortunately this
+	 * does mean that the stat can decrease at times. Here we do not
+	 * update the stat unless it has increased or has gone to zero
+	 * (In the case of the NIC rebooting).
+	 * Please see Bug 33781 for a discussion of why things work this way.
+	 */
+	efx_update_diff_stat(&stats[EF10_STAT_port_rx_bad_bytes],
+			     stats[EF10_STAT_port_rx_bytes_minus_good_bytes]);
+	efx_update_sw_stats(efx, stats);
+>>>>>>> upstream/android-13
 
 	return efx_ef10_update_stats_common(efx, full_stats, core_stats);
 }
 
 static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
+<<<<<<< HEAD
+=======
+	__must_hold(&efx->stats_lock)
+>>>>>>> upstream/android-13
 {
 	MCDI_DECLARE_BUF(inbuf, MC_CMD_MAC_STATS_IN_LEN);
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
@@ -2005,6 +2317,7 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
 
 	spin_unlock_bh(&efx->stats_lock);
 
+<<<<<<< HEAD
 	if (in_interrupt()) {
 		/* If in atomic context, cannot update stats.  Just update the
 		 * software stats and return so the caller can continue.
@@ -2017,6 +2330,11 @@ static int efx_ef10_try_update_nic_stats_vf(struct efx_nic *efx)
 	efx_ef10_get_stat_mask(efx, mask);
 
 	rc = efx_nic_alloc_buffer(efx, &stats_buf, dma_len, GFP_ATOMIC);
+=======
+	efx_ef10_get_stat_mask(efx, mask);
+
+	rc = efx_nic_alloc_buffer(efx, &stats_buf, dma_len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (rc) {
 		spin_lock_bh(&efx->stats_lock);
 		return rc;
@@ -2072,6 +2390,21 @@ static size_t efx_ef10_update_stats_vf(struct efx_nic *efx, u64 *full_stats,
 	return efx_ef10_update_stats_common(efx, full_stats, core_stats);
 }
 
+<<<<<<< HEAD
+=======
+static size_t efx_ef10_update_stats_atomic_vf(struct efx_nic *efx, u64 *full_stats,
+					      struct rtnl_link_stats64 *core_stats)
+{
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+
+	/* In atomic context, cannot update HW stats.  Just update the
+	 * software stats and return so the caller can continue.
+	 */
+	efx_update_sw_stats(efx, nic_data->stats);
+	return efx_ef10_update_stats_common(efx, full_stats, core_stats);
+}
+
+>>>>>>> upstream/android-13
 static void efx_ef10_push_irq_moderation(struct efx_channel *channel)
 {
 	struct efx_nic *efx = channel->efx;
@@ -2187,7 +2520,11 @@ static void efx_ef10_mcdi_reboot_detected(struct efx_nic *efx)
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
 
 	/* All our allocations have been reset */
+<<<<<<< HEAD
 	efx_ef10_reset_mc_allocations(efx);
+=======
+	efx_ef10_table_reset_mc_allocations(efx);
+>>>>>>> upstream/android-13
 
 	/* The datapath firmware might have been changed */
 	nic_data->must_check_datapath_caps = true;
@@ -2300,6 +2637,12 @@ static int efx_ef10_irq_test_generate(struct efx_nic *efx)
 
 static int efx_ef10_tx_probe(struct efx_tx_queue *tx_queue)
 {
+<<<<<<< HEAD
+=======
+	/* low two bits of label are what we want for type */
+	BUILD_BUG_ON((EFX_TXQ_TYPE_OUTER_CSUM | EFX_TXQ_TYPE_INNER_CSUM) != 3);
+	tx_queue->type = tx_queue->label & 3;
+>>>>>>> upstream/android-13
 	return efx_nic_alloc_buffer(tx_queue->efx, &tx_queue->txd.buf,
 				    (tx_queue->ptr_mask + 1) *
 				    sizeof(efx_qword_t),
@@ -2322,6 +2665,7 @@ static inline void efx_ef10_push_tx_desc(struct efx_tx_queue *tx_queue,
 
 /* Add Firmware-Assisted TSO v2 option descriptors to a queue.
  */
+<<<<<<< HEAD
 static int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue,
 				struct sk_buff *skb,
 				bool *data_mapped)
@@ -2331,6 +2675,17 @@ static int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue,
 	struct iphdr *ip;
 
 	u16 ipv4_id;
+=======
+int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue, struct sk_buff *skb,
+			 bool *data_mapped)
+{
+	struct efx_tx_buffer *buffer;
+	u16 inner_ipv4_id = 0;
+	u16 outer_ipv4_id = 0;
+	struct tcphdr *tcp;
+	struct iphdr *ip;
+	u16 ip_tot_len;
+>>>>>>> upstream/android-13
 	u32 seqnum;
 	u32 mss;
 
@@ -2343,6 +2698,7 @@ static int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ip = ip_hdr(skb);
 	if (ip->version == 4) {
 		/* Modify IPv4 header if needed. */
@@ -2358,6 +2714,45 @@ static int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue,
 	}
 
 	tcp = tcp_hdr(skb);
+=======
+	if (skb->encapsulation) {
+		if (!tx_queue->tso_encap)
+			return -EINVAL;
+		ip = ip_hdr(skb);
+		if (ip->version == 4)
+			outer_ipv4_id = ntohs(ip->id);
+
+		ip = inner_ip_hdr(skb);
+		tcp = inner_tcp_hdr(skb);
+	} else {
+		ip = ip_hdr(skb);
+		tcp = tcp_hdr(skb);
+	}
+
+	/* 8000-series EF10 hardware requires that IP Total Length be
+	 * greater than or equal to the value it will have in each segment
+	 * (which is at most mss + 208 + TCP header length), but also less
+	 * than (0x10000 - inner_network_header).  Otherwise the TCP
+	 * checksum calculation will be broken for encapsulated packets.
+	 * We fill in ip->tot_len with 0xff30, which should satisfy the
+	 * first requirement unless the MSS is ridiculously large (which
+	 * should be impossible as the driver max MTU is 9216); it is
+	 * guaranteed to satisfy the second as we only attempt TSO if
+	 * inner_network_header <= 208.
+	 */
+	ip_tot_len = -EFX_TSO2_MAX_HDRLEN;
+	EFX_WARN_ON_ONCE_PARANOID(mss + EFX_TSO2_MAX_HDRLEN +
+				  (tcp->doff << 2u) > ip_tot_len);
+
+	if (ip->version == 4) {
+		ip->tot_len = htons(ip_tot_len);
+		ip->check = 0;
+		inner_ipv4_id = ntohs(ip->id);
+	} else {
+		((struct ipv6hdr *)ip)->payload_len = htons(ip_tot_len);
+	}
+
+>>>>>>> upstream/android-13
 	seqnum = ntohl(tcp->seq);
 
 	buffer = efx_tx_queue_get_insert_buffer(tx_queue);
@@ -2370,7 +2765,11 @@ static int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue,
 			ESF_DZ_TX_OPTION_TYPE, ESE_DZ_TX_OPTION_DESC_TSO,
 			ESF_DZ_TX_TSO_OPTION_TYPE,
 			ESE_DZ_TX_TSO_OPTION_DESC_FATSO2A,
+<<<<<<< HEAD
 			ESF_DZ_TX_TSO_IP_ID, ipv4_id,
+=======
+			ESF_DZ_TX_TSO_IP_ID, inner_ipv4_id,
+>>>>>>> upstream/android-13
 			ESF_DZ_TX_TSO_TCP_SEQNO, seqnum
 			);
 	++tx_queue->insert_count;
@@ -2380,11 +2779,19 @@ static int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue,
 	buffer->flags = EFX_TX_BUF_OPTION;
 	buffer->len = 0;
 	buffer->unmap_len = 0;
+<<<<<<< HEAD
 	EFX_POPULATE_QWORD_4(buffer->option,
+=======
+	EFX_POPULATE_QWORD_5(buffer->option,
+>>>>>>> upstream/android-13
 			ESF_DZ_TX_DESC_IS_OPT, 1,
 			ESF_DZ_TX_OPTION_TYPE, ESE_DZ_TX_OPTION_DESC_TSO,
 			ESF_DZ_TX_TSO_OPTION_TYPE,
 			ESE_DZ_TX_TSO_OPTION_DESC_FATSO2B,
+<<<<<<< HEAD
+=======
+			ESF_DZ_TX_TSO_OUTER_IPID, outer_ipv4_id,
+>>>>>>> upstream/android-13
 			ESF_DZ_TX_TSO_TCP_MSS, mss
 			);
 	++tx_queue->insert_count;
@@ -2408,6 +2815,7 @@ static u32 efx_ef10_tso_versions(struct efx_nic *efx)
 
 static void efx_ef10_tx_init(struct efx_tx_queue *tx_queue)
 {
+<<<<<<< HEAD
 	MCDI_DECLARE_BUF(inbuf, MC_CMD_INIT_TXQ_IN_LEN(EFX_MAX_DMAQ_SIZE * 8 /
 						       EFX_BUF_SIZE));
 	bool csum_offload = tx_queue->queue & EFX_TXQ_TYPE_OFFLOAD;
@@ -2422,6 +2830,17 @@ static void efx_ef10_tx_init(struct efx_tx_queue *tx_queue)
 	int rc;
 	int i;
 	BUILD_BUG_ON(MC_CMD_INIT_TXQ_OUT_LEN != 0);
+=======
+	bool csum_offload = tx_queue->type & EFX_TXQ_TYPE_OUTER_CSUM;
+	bool inner_csum = tx_queue->type & EFX_TXQ_TYPE_INNER_CSUM;
+	struct efx_channel *channel = tx_queue->channel;
+	struct efx_nic *efx = tx_queue->efx;
+	struct efx_ef10_nic_data *nic_data;
+	efx_qword_t *txd;
+	int rc;
+
+	nic_data = efx->nic_data;
+>>>>>>> upstream/android-13
 
 	/* Only attempt to enable TX timestamping if we have the license for it,
 	 * otherwise TXQ init will fail
@@ -2437,6 +2856,7 @@ static void efx_ef10_tx_init(struct efx_tx_queue *tx_queue)
 	/* TSOv2 is a limited resource that can only be configured on a limited
 	 * number of queues. TSO without checksum offload is not really a thing,
 	 * so we only enable it for those queues.
+<<<<<<< HEAD
 	 * TSOv2 cannot be used with Hardware timestamping.
 	 */
 	if (csum_offload && (nic_data->datapath_caps2 &
@@ -2492,6 +2912,25 @@ static void efx_ef10_tx_init(struct efx_tx_queue *tx_queue)
 			goto fail;
 		}
 	} while (rc);
+=======
+	 * TSOv2 cannot be used with Hardware timestamping, and is never needed
+	 * for XDP tx.
+	 */
+	if (efx_has_cap(efx, TX_TSO_V2)) {
+		if ((csum_offload || inner_csum) &&
+		    !tx_queue->timestamping && !tx_queue->xdp_tx) {
+			tx_queue->tso_version = 2;
+			netif_dbg(efx, hw, efx->net_dev, "Using TSOv2 for channel %u\n",
+				  channel->channel);
+		}
+	} else if (efx_has_cap(efx, TX_TSO)) {
+		tx_queue->tso_version = 1;
+	}
+
+	rc = efx_mcdi_tx_init(tx_queue);
+	if (rc)
+		goto fail;
+>>>>>>> upstream/android-13
 
 	/* A previous user of this TX queue might have set us up the
 	 * bomb by writing a descriptor to the TX push collector but
@@ -2502,11 +2941,16 @@ static void efx_ef10_tx_init(struct efx_tx_queue *tx_queue)
 	tx_queue->buffer[0].flags = EFX_TX_BUF_OPTION;
 	tx_queue->insert_count = 1;
 	txd = efx_tx_desc(tx_queue, 0);
+<<<<<<< HEAD
 	EFX_POPULATE_QWORD_5(*txd,
+=======
+	EFX_POPULATE_QWORD_7(*txd,
+>>>>>>> upstream/android-13
 			     ESF_DZ_TX_DESC_IS_OPT, true,
 			     ESF_DZ_TX_OPTION_TYPE,
 			     ESE_DZ_TX_OPTION_DESC_CRC_CSUM,
 			     ESF_DZ_TX_OPTION_UDP_TCP_CSUM, csum_offload,
+<<<<<<< HEAD
 			     ESF_DZ_TX_OPTION_IP_CSUM, csum_offload,
 			     ESF_DZ_TX_TIMESTAMP, tx_queue->timestamping);
 	tx_queue->write_count = 1;
@@ -2518,6 +2962,16 @@ static void efx_ef10_tx_init(struct efx_tx_queue *tx_queue)
 			(1 << MC_CMD_GET_CAPABILITIES_OUT_TX_TSO_LBN)) {
 		tx_queue->tso_version = 1;
 	}
+=======
+			     ESF_DZ_TX_OPTION_IP_CSUM, csum_offload && tx_queue->tso_version != 2,
+			     ESF_DZ_TX_OPTION_INNER_UDP_TCP_CSUM, inner_csum,
+			     ESF_DZ_TX_OPTION_INNER_IP_CSUM, inner_csum && tx_queue->tso_version != 2,
+			     ESF_DZ_TX_TIMESTAMP, tx_queue->timestamping);
+	tx_queue->write_count = 1;
+
+	if (tx_queue->tso_version == 2 && efx_has_cap(efx, TX_TSO_V2_ENCAP))
+		tx_queue->tso_encap = true;
+>>>>>>> upstream/android-13
 
 	wmb();
 	efx_ef10_push_tx_desc(tx_queue, txd);
@@ -2529,6 +2983,7 @@ fail:
 		    tx_queue->queue);
 }
 
+<<<<<<< HEAD
 static void efx_ef10_tx_fini(struct efx_tx_queue *tx_queue)
 {
 	MCDI_DECLARE_BUF(inbuf, MC_CMD_FINI_TXQ_IN_LEN);
@@ -2558,6 +3013,8 @@ static void efx_ef10_tx_remove(struct efx_tx_queue *tx_queue)
 	efx_nic_free_buffer(tx_queue->efx, &tx_queue->txd.buf);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* This writes to the TX_DESC_WPTR; write pointer for TX descriptor ring */
 static inline void efx_ef10_notify_tx_desc(struct efx_tx_queue *tx_queue)
 {
@@ -2596,7 +3053,11 @@ static void efx_ef10_tx_write(struct efx_tx_queue *tx_queue)
 	unsigned int write_ptr;
 	efx_qword_t *txd;
 
+<<<<<<< HEAD
 	tx_queue->xmit_more_available = false;
+=======
+	tx_queue->xmit_pending = false;
+>>>>>>> upstream/android-13
 	if (unlikely(tx_queue->write_count == tx_queue->insert_count))
 		return;
 
@@ -2636,6 +3097,7 @@ static void efx_ef10_tx_write(struct efx_tx_queue *tx_queue)
 	}
 }
 
+<<<<<<< HEAD
 #define RSS_MODE_HASH_ADDRS	(1 << RSS_MODE_HASH_SRC_ADDR_LBN |\
 				 1 << RSS_MODE_HASH_DST_ADDR_LBN)
 #define RSS_MODE_HASH_PORTS	(1 << RSS_MODE_HASH_SRC_PORT_LBN |\
@@ -3054,11 +3516,64 @@ static int efx_ef10_pf_rx_push_rss_config(struct efx_nic *efx, bool user,
 				netif_info(efx, probe, efx->net_dev,
 					   "Could not allocate an exclusive RSS"
 					   " context; allocated a shared one.\n");
+=======
+static int efx_ef10_probe_multicast_chaining(struct efx_nic *efx)
+{
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+	unsigned int enabled, implemented;
+	bool want_workaround_26807;
+	int rc;
+
+	rc = efx_mcdi_get_workarounds(efx, &implemented, &enabled);
+	if (rc == -ENOSYS) {
+		/* GET_WORKAROUNDS was implemented before this workaround,
+		 * thus it must be unavailable in this firmware.
+		 */
+		nic_data->workaround_26807 = false;
+		return 0;
+	}
+	if (rc)
+		return rc;
+	want_workaround_26807 =
+		implemented & MC_CMD_GET_WORKAROUNDS_OUT_BUG26807;
+	nic_data->workaround_26807 =
+		!!(enabled & MC_CMD_GET_WORKAROUNDS_OUT_BUG26807);
+
+	if (want_workaround_26807 && !nic_data->workaround_26807) {
+		unsigned int flags;
+
+		rc = efx_mcdi_set_workaround(efx,
+					     MC_CMD_WORKAROUND_BUG26807,
+					     true, &flags);
+		if (!rc) {
+			if (flags &
+			    1 << MC_CMD_WORKAROUND_EXT_OUT_FLR_DONE_LBN) {
+				netif_info(efx, drv, efx->net_dev,
+					   "other functions on NIC have been reset\n");
+
+				/* With MCFW v4.6.x and earlier, the
+				 * boot count will have incremented,
+				 * so re-read the warm_boot_count
+				 * value now to ensure this function
+				 * doesn't think it has changed next
+				 * time it checks.
+				 */
+				rc = efx_ef10_get_warm_boot_count(efx);
+				if (rc >= 0) {
+					nic_data->warm_boot_count = rc;
+					rc = 0;
+				}
+			}
+			nic_data->workaround_26807 = true;
+		} else if (rc == -EPERM) {
+			rc = 0;
+>>>>>>> upstream/android-13
 		}
 	}
 	return rc;
 }
 
+<<<<<<< HEAD
 static int efx_ef10_vf_rx_push_rss_config(struct efx_nic *efx, bool user,
 					  const u32 *rx_indir_table
 					  __attribute__ ((unused)),
@@ -3155,6 +3670,31 @@ fail:
 static void efx_ef10_rx_remove(struct efx_rx_queue *rx_queue)
 {
 	efx_nic_free_buffer(rx_queue->efx, &rx_queue->rxd.buf);
+=======
+static int efx_ef10_filter_table_probe(struct efx_nic *efx)
+{
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+	int rc = efx_ef10_probe_multicast_chaining(efx);
+	struct efx_mcdi_filter_vlan *vlan;
+
+	if (rc)
+		return rc;
+	rc = efx_mcdi_filter_table_probe(efx, nic_data->workaround_26807);
+
+	if (rc)
+		return rc;
+
+	list_for_each_entry(vlan, &nic_data->vlan_list, list) {
+		rc = efx_mcdi_filter_add_vlan(efx, vlan->vid);
+		if (rc)
+			goto fail_add_vlan;
+	}
+	return 0;
+
+fail_add_vlan:
+	efx_mcdi_filter_table_remove(efx);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 /* This creates an entry in the RX descriptor queue */
@@ -3228,6 +3768,7 @@ efx_ef10_rx_defer_refill_complete(struct efx_nic *efx, unsigned long cookie,
 	/* nothing to do */
 }
 
+<<<<<<< HEAD
 static int efx_ef10_ev_probe(struct efx_channel *channel)
 {
 	return efx_nic_alloc_buffer(channel->efx, &channel->eventq.buf,
@@ -3392,6 +3933,20 @@ fail:
 static void efx_ef10_ev_remove(struct efx_channel *channel)
 {
 	efx_nic_free_buffer(channel->efx, &channel->eventq.buf);
+=======
+static int efx_ef10_ev_init(struct efx_channel *channel)
+{
+	struct efx_nic *efx = channel->efx;
+	struct efx_ef10_nic_data *nic_data;
+	bool use_v2, cut_thru;
+
+	nic_data = efx->nic_data;
+	use_v2 = nic_data->datapath_caps2 &
+			    1 << MC_CMD_GET_CAPABILITIES_V2_OUT_INIT_EVQ_V2_LBN;
+	cut_thru = !(nic_data->datapath_caps &
+			      1 << MC_CMD_GET_CAPABILITIES_OUT_RX_BATCHING_LBN);
+	return efx_mcdi_ev_init(channel, cut_thru, use_v2);
+>>>>>>> upstream/android-13
 }
 
 static void efx_ef10_handle_rx_wrong_queue(struct efx_rx_queue *rx_queue,
@@ -3701,8 +4256,12 @@ efx_ef10_handle_tx_event(struct efx_channel *channel, efx_qword_t *event)
 
 	/* Get the transmit queue */
 	tx_ev_q_label = EFX_QWORD_FIELD(*event, ESF_DZ_TX_QLABEL);
+<<<<<<< HEAD
 	tx_queue = efx_channel_get_tx_queue(channel,
 					    tx_ev_q_label % EFX_TXQ_TYPES);
+=======
+	tx_queue = channel->tx_queue + (tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
+>>>>>>> upstream/android-13
 
 	if (!tx_queue->timestamping) {
 		/* Transmit completion */
@@ -3712,11 +4271,32 @@ efx_ef10_handle_tx_event(struct efx_channel *channel, efx_qword_t *event)
 	}
 
 	/* Transmit timestamps are only available for 8XXX series. They result
+<<<<<<< HEAD
 	 * in three events per packet. These occur in order, and are:
 	 *  - the normal completion event
 	 *  - the low part of the timestamp
 	 *  - the high part of the timestamp
 	 *
+=======
+	 * in up to three events per packet. These occur in order, and are:
+	 *  - the normal completion event (may be omitted)
+	 *  - the low part of the timestamp
+	 *  - the high part of the timestamp
+	 *
+	 * It's possible for multiple completion events to appear before the
+	 * corresponding timestamps. So we can for example get:
+	 *  COMP N
+	 *  COMP N+1
+	 *  TS_LO N
+	 *  TS_HI N
+	 *  TS_LO N+1
+	 *  TS_HI N+1
+	 *
+	 * In addition it's also possible for the adjacent completions to be
+	 * merged, so we may not see COMP N above. As such, the completion
+	 * events are not very useful here.
+	 *
+>>>>>>> upstream/android-13
 	 * Each part of the timestamp is itself split across two 16 bit
 	 * fields in the event.
 	 */
@@ -3724,6 +4304,7 @@ efx_ef10_handle_tx_event(struct efx_channel *channel, efx_qword_t *event)
 
 	switch (tx_ev_type) {
 	case TX_TIMESTAMP_EVENT_TX_EV_COMPLETION:
+<<<<<<< HEAD
 		/* In case of Queue flush or FLR, we might have received
 		 * the previous TX completion event but not the Timestamp
 		 * events.
@@ -3735,6 +4316,9 @@ efx_ef10_handle_tx_event(struct efx_channel *channel, efx_qword_t *event)
 						 ESF_DZ_TX_DESCR_INDX);
 		tx_queue->completed_desc_ptr =
 					tx_ev_desc_ptr & tx_queue->ptr_mask;
+=======
+		/* Ignore this event - see above. */
+>>>>>>> upstream/android-13
 		break;
 
 	case TX_TIMESTAMP_EVENT_TX_EV_TSTAMP_LO:
@@ -3746,8 +4330,12 @@ efx_ef10_handle_tx_event(struct efx_channel *channel, efx_qword_t *event)
 		ts_part = efx_ef10_extract_event_ts(event);
 		tx_queue->completed_timestamp_major = ts_part;
 
+<<<<<<< HEAD
 		efx_xmit_done(tx_queue, tx_queue->completed_desc_ptr);
 		tx_queue->completed_desc_ptr = tx_queue->ptr_mask;
+=======
+		efx_xmit_done_single(tx_queue);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -3947,6 +4535,7 @@ fail:
 	netif_err(efx, hw, efx->net_dev, "%s: failed rc=%d\n", __func__, rc);
 }
 
+<<<<<<< HEAD
 void efx_ef10_handle_drain_event(struct efx_nic *efx)
 {
 	if (atomic_dec_and_test(&efx->active_queues))
@@ -3994,11 +4583,14 @@ static int efx_ef10_fini_dmaq(struct efx_nic *efx)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void efx_ef10_prepare_flr(struct efx_nic *efx)
 {
 	atomic_set(&efx->active_queues, 0);
 }
 
+<<<<<<< HEAD
 /* Decide whether a filter should be exclusive or else should allow
  * delivery to additional recipients.  Currently we decide that
  * filters for specific local unicast MAC and IP addresses are
@@ -5527,6 +6119,8 @@ static void efx_ef10_filter_remove_old(struct efx_nic *efx)
 			   __func__, remove_noent);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int efx_ef10_vport_set_mac_address(struct efx_nic *efx)
 {
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
@@ -5540,25 +6134,44 @@ static int efx_ef10_vport_set_mac_address(struct efx_nic *efx)
 	efx_device_detach_sync(efx);
 	efx_net_stop(efx->net_dev);
 	down_write(&efx->filter_sem);
+<<<<<<< HEAD
 	efx_ef10_filter_table_remove(efx);
 	up_write(&efx->filter_sem);
 
 	rc = efx_ef10_vadaptor_free(efx, nic_data->vport_id);
+=======
+	efx_mcdi_filter_table_remove(efx);
+	up_write(&efx->filter_sem);
+
+	rc = efx_ef10_vadaptor_free(efx, efx->vport_id);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto restore_filters;
 
 	ether_addr_copy(mac_old, nic_data->vport_mac);
+<<<<<<< HEAD
 	rc = efx_ef10_vport_del_mac(efx, nic_data->vport_id,
+=======
+	rc = efx_ef10_vport_del_mac(efx, efx->vport_id,
+>>>>>>> upstream/android-13
 				    nic_data->vport_mac);
 	if (rc)
 		goto restore_vadaptor;
 
+<<<<<<< HEAD
 	rc = efx_ef10_vport_add_mac(efx, nic_data->vport_id,
+=======
+	rc = efx_ef10_vport_add_mac(efx, efx->vport_id,
+>>>>>>> upstream/android-13
 				    efx->net_dev->dev_addr);
 	if (!rc) {
 		ether_addr_copy(nic_data->vport_mac, efx->net_dev->dev_addr);
 	} else {
+<<<<<<< HEAD
 		rc2 = efx_ef10_vport_add_mac(efx, nic_data->vport_id, mac_old);
+=======
+		rc2 = efx_ef10_vport_add_mac(efx, efx->vport_id, mac_old);
+>>>>>>> upstream/android-13
 		if (rc2) {
 			/* Failed to add original MAC, so clear vport_mac */
 			eth_zero_addr(nic_data->vport_mac);
@@ -5567,7 +6180,11 @@ static int efx_ef10_vport_set_mac_address(struct efx_nic *efx)
 	}
 
 restore_vadaptor:
+<<<<<<< HEAD
 	rc2 = efx_ef10_vadaptor_alloc(efx, nic_data->vport_id);
+=======
+	rc2 = efx_ef10_vadaptor_alloc(efx, efx->vport_id);
+>>>>>>> upstream/android-13
 	if (rc2)
 		goto reset_nic;
 restore_filters:
@@ -5593,6 +6210,7 @@ reset_nic:
 	return rc ? rc : rc2;
 }
 
+<<<<<<< HEAD
 /* Caller must hold efx->filter_sem for read if race against
  * efx_ef10_filter_table_remove() is possible
  */
@@ -5847,6 +6465,11 @@ static int efx_ef10_set_mac_address(struct efx_nic *efx)
 {
 	MCDI_DECLARE_BUF(inbuf, MC_CMD_VADAPTOR_SET_MAC_IN_LEN);
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+=======
+static int efx_ef10_set_mac_address(struct efx_nic *efx)
+{
+	MCDI_DECLARE_BUF(inbuf, MC_CMD_VADAPTOR_SET_MAC_IN_LEN);
+>>>>>>> upstream/android-13
 	bool was_enabled = efx->port_enabled;
 	int rc;
 
@@ -5855,12 +6478,20 @@ static int efx_ef10_set_mac_address(struct efx_nic *efx)
 
 	mutex_lock(&efx->mac_lock);
 	down_write(&efx->filter_sem);
+<<<<<<< HEAD
 	efx_ef10_filter_table_remove(efx);
+=======
+	efx_mcdi_filter_table_remove(efx);
+>>>>>>> upstream/android-13
 
 	ether_addr_copy(MCDI_PTR(inbuf, VADAPTOR_SET_MAC_IN_MACADDR),
 			efx->net_dev->dev_addr);
 	MCDI_SET_DWORD(inbuf, VADAPTOR_SET_MAC_IN_UPSTREAM_PORT_ID,
+<<<<<<< HEAD
 		       nic_data->vport_id);
+=======
+		       efx->vport_id);
+>>>>>>> upstream/android-13
 	rc = efx_mcdi_rpc_quiet(efx, MC_CMD_VADAPTOR_SET_MAC, inbuf,
 				sizeof(inbuf), NULL, 0, NULL);
 
@@ -5874,6 +6505,10 @@ static int efx_ef10_set_mac_address(struct efx_nic *efx)
 
 #ifdef CONFIG_SFC_SRIOV
 	if (efx->pci_dev->is_virtfn && efx->pci_dev->physfn) {
+<<<<<<< HEAD
+=======
+		struct efx_ef10_nic_data *nic_data = efx->nic_data;
+>>>>>>> upstream/android-13
 		struct pci_dev *pci_dev_pf = efx->pci_dev->physfn;
 
 		if (rc == -EPERM) {
@@ -5924,6 +6559,7 @@ static int efx_ef10_set_mac_address(struct efx_nic *efx)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int efx_ef10_mac_reconfigure(struct efx_nic *efx)
 {
 	efx_ef10_filter_sync_rx_mode(efx);
@@ -5938,6 +6574,19 @@ static int efx_ef10_mac_reconfigure_vf(struct efx_nic *efx)
 	return 0;
 }
 
+=======
+static int efx_ef10_mac_reconfigure(struct efx_nic *efx, bool mtu_only)
+{
+	WARN_ON(!mutex_is_locked(&efx->mac_lock));
+
+	efx_mcdi_filter_sync_rx_mode(efx);
+
+	if (mtu_only && efx_has_cap(efx, SET_MAC_ENHANCED))
+		return efx_mcdi_set_mtu(efx);
+	return efx_mcdi_set_mac(efx);
+}
+
+>>>>>>> upstream/android-13
 static int efx_ef10_start_bist(struct efx_nic *efx, u32 bist_type)
 {
 	MCDI_DECLARE_BUF(inbuf, MC_CMD_START_BIST_IN_LEN);
@@ -6041,6 +6690,16 @@ static const struct efx_ef10_nvram_type_info efx_ef10_nvram_types[] = {
 	{ NVRAM_PARTITION_TYPE_EXPROM_CONFIG_PORT3, 0,   3, "sfc_exp_rom_cfg" },
 	{ NVRAM_PARTITION_TYPE_LICENSE,		   0,    0, "sfc_license" },
 	{ NVRAM_PARTITION_TYPE_PHY_MIN,		   0xff, 0, "sfc_phy_fw" },
+<<<<<<< HEAD
+=======
+	{ NVRAM_PARTITION_TYPE_MUM_FIRMWARE,	   0,    0, "sfc_mumfw" },
+	{ NVRAM_PARTITION_TYPE_EXPANSION_UEFI,	   0,    0, "sfc_uefi" },
+	{ NVRAM_PARTITION_TYPE_DYNCONFIG_DEFAULTS, 0,    0, "sfc_dynamic_cfg_dflt" },
+	{ NVRAM_PARTITION_TYPE_ROMCONFIG_DEFAULTS, 0,    0, "sfc_exp_rom_cfg_dflt" },
+	{ NVRAM_PARTITION_TYPE_STATUS,		   0,    0, "sfc_status" },
+	{ NVRAM_PARTITION_TYPE_BUNDLE,		   0,    0, "sfc_bundle" },
+	{ NVRAM_PARTITION_TYPE_BUNDLE_METADATA,	   0,    0, "sfc_bundle_metadata" },
+>>>>>>> upstream/android-13
 };
 #define EF10_NVRAM_PARTITION_COUNT	ARRAY_SIZE(efx_ef10_nvram_types)
 
@@ -6070,8 +6729,20 @@ static int efx_ef10_mtd_probe_partition(struct efx_nic *efx,
 	rc = efx_mcdi_nvram_info(efx, type, &size, &erase_size, &protected);
 	if (rc)
 		return rc;
+<<<<<<< HEAD
 	if (protected)
 		return -ENODEV; /* hide it */
+=======
+	if (protected &&
+	    (type != NVRAM_PARTITION_TYPE_DYNCONFIG_DEFAULTS &&
+	     type != NVRAM_PARTITION_TYPE_ROMCONFIG_DEFAULTS))
+		/* Hide protected partitions that don't provide defaults. */
+		return -ENODEV;
+
+	if (protected)
+		/* Protected partitions are read only. */
+		erase_size = 0;
+>>>>>>> upstream/android-13
 
 	/* If we've already exposed a partition of this type, hide this
 	 * duplicate.  All operations on MTDs are keyed by the type anyway,
@@ -6101,6 +6772,12 @@ static int efx_ef10_mtd_probe_partition(struct efx_nic *efx,
 	part->common.mtd.flags = MTD_CAP_NORFLASH;
 	part->common.mtd.size = size;
 	part->common.mtd.erasesize = erase_size;
+<<<<<<< HEAD
+=======
+	/* sfc_status is read-only */
+	if (!erase_size)
+		part->common.mtd.flags |= MTD_NO_ERASE;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -6146,6 +6823,14 @@ static int efx_ef10_mtd_probe(struct efx_nic *efx)
 		n_parts++;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!n_parts) {
+		kfree(parts);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	rc = efx_mtd_add(efx, &parts[0].common, n_parts, sizeof(*parts));
 fail:
 	if (rc)
@@ -6345,8 +7030,13 @@ static int efx_ef10_set_udp_tnl_ports(struct efx_nic *efx, bool unloading)
 		     MC_CMD_SET_TUNNEL_ENCAP_UDP_PORTS_IN_ENTRIES_MAXNUM);
 
 	for (i = 0; i < ARRAY_SIZE(nic_data->udp_tunnels); ++i) {
+<<<<<<< HEAD
 		if (nic_data->udp_tunnels[i].count &&
 		    nic_data->udp_tunnels[i].port) {
+=======
+		if (nic_data->udp_tunnels[i].type !=
+		    TUNNEL_ENCAP_UDP_PORT_ENTRY_INVALID) {
+>>>>>>> upstream/android-13
 			efx_dword_t entry;
 
 			EFX_POPULATE_DWORD_2(entry,
@@ -6432,6 +7122,7 @@ static int efx_ef10_udp_tnl_push_ports(struct efx_nic *efx)
 	return rc;
 }
 
+<<<<<<< HEAD
 static struct efx_udp_tunnel *__efx_ef10_udp_tnl_lookup_port(struct efx_nic *efx,
 							     __be16 port)
 {
@@ -6463,12 +7154,32 @@ static int efx_ef10_udp_tnl_add_port(struct efx_nic *efx,
 	efx_get_udp_tunnel_type_name(tnl.type, typebuf, sizeof(typebuf));
 	netif_dbg(efx, drv, efx->net_dev, "Adding UDP tunnel (%s) port %d\n",
 		  typebuf, ntohs(tnl.port));
+=======
+static int efx_ef10_udp_tnl_set_port(struct net_device *dev,
+				     unsigned int table, unsigned int entry,
+				     struct udp_tunnel_info *ti)
+{
+	struct efx_nic *efx = netdev_priv(dev);
+	struct efx_ef10_nic_data *nic_data;
+	int efx_tunnel_type, rc;
+
+	if (ti->type == UDP_TUNNEL_TYPE_VXLAN)
+		efx_tunnel_type = TUNNEL_ENCAP_UDP_PORT_ENTRY_VXLAN;
+	else
+		efx_tunnel_type = TUNNEL_ENCAP_UDP_PORT_ENTRY_GENEVE;
+
+	nic_data = efx->nic_data;
+	if (!(nic_data->datapath_caps &
+	      (1 << MC_CMD_GET_CAPABILITIES_OUT_VXLAN_NVGRE_LBN)))
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&nic_data->udp_tunnels_lock);
 	/* Make sure all TX are stopped while we add to the table, else we
 	 * might race against an efx_features_check().
 	 */
 	efx_device_detach_sync(efx);
+<<<<<<< HEAD
 
 	match = __efx_ef10_udp_tnl_lookup_port(efx, tnl.port);
 	if (match != NULL) {
@@ -6505,6 +7216,13 @@ static int efx_ef10_udp_tnl_add_port(struct efx_nic *efx,
 
 unlock_out:
 	mutex_unlock(&nic_data->udp_tunnels_lock);
+=======
+	nic_data->udp_tunnels[entry].type = efx_tunnel_type;
+	nic_data->udp_tunnels[entry].port = ti->port;
+	rc = efx_ef10_set_udp_tnl_ports(efx, false);
+	mutex_unlock(&nic_data->udp_tunnels_lock);
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -6516,6 +7234,10 @@ unlock_out:
 static bool efx_ef10_udp_tnl_has_port(struct efx_nic *efx, __be16 port)
 {
 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+<<<<<<< HEAD
+=======
+	size_t i;
+>>>>>>> upstream/android-13
 
 	if (!(nic_data->datapath_caps &
 	      (1 << MC_CMD_GET_CAPABILITIES_OUT_VXLAN_NVGRE_LBN)))
@@ -6527,6 +7249,7 @@ static bool efx_ef10_udp_tnl_has_port(struct efx_nic *efx, __be16 port)
 		 */
 		return false;
 
+<<<<<<< HEAD
 	return __efx_ef10_udp_tnl_lookup_port(efx, port) != NULL;
 }
 
@@ -6545,12 +7268,33 @@ static int efx_ef10_udp_tnl_del_port(struct efx_nic *efx,
 	efx_get_udp_tunnel_type_name(tnl.type, typebuf, sizeof(typebuf));
 	netif_dbg(efx, drv, efx->net_dev, "Removing UDP tunnel (%s) port %d\n",
 		  typebuf, ntohs(tnl.port));
+=======
+	for (i = 0; i < ARRAY_SIZE(nic_data->udp_tunnels); ++i)
+		if (nic_data->udp_tunnels[i].type !=
+		    TUNNEL_ENCAP_UDP_PORT_ENTRY_INVALID &&
+		    nic_data->udp_tunnels[i].port == port)
+			return true;
+
+	return false;
+}
+
+static int efx_ef10_udp_tnl_unset_port(struct net_device *dev,
+				       unsigned int table, unsigned int entry,
+				       struct udp_tunnel_info *ti)
+{
+	struct efx_nic *efx = netdev_priv(dev);
+	struct efx_ef10_nic_data *nic_data;
+	int rc;
+
+	nic_data = efx->nic_data;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&nic_data->udp_tunnels_lock);
 	/* Make sure all TX are stopped while we remove from the table, else we
 	 * might race against an efx_features_check().
 	 */
 	efx_device_detach_sync(efx);
+<<<<<<< HEAD
 
 	match = __efx_ef10_udp_tnl_lookup_port(efx, tnl.port);
 	if (match != NULL) {
@@ -6579,6 +7323,58 @@ out_unlock:
 	return rc;
 }
 
+=======
+	nic_data->udp_tunnels[entry].type = TUNNEL_ENCAP_UDP_PORT_ENTRY_INVALID;
+	nic_data->udp_tunnels[entry].port = 0;
+	rc = efx_ef10_set_udp_tnl_ports(efx, false);
+	mutex_unlock(&nic_data->udp_tunnels_lock);
+
+	return rc;
+}
+
+static const struct udp_tunnel_nic_info efx_ef10_udp_tunnels = {
+	.set_port	= efx_ef10_udp_tnl_set_port,
+	.unset_port	= efx_ef10_udp_tnl_unset_port,
+	.flags          = UDP_TUNNEL_NIC_INFO_MAY_SLEEP,
+	.tables         = {
+		{
+			.n_entries = 16,
+			.tunnel_types = UDP_TUNNEL_TYPE_VXLAN |
+					UDP_TUNNEL_TYPE_GENEVE,
+		},
+	},
+};
+
+/* EF10 may have multiple datapath firmware variants within a
+ * single version.  Report which variants are running.
+ */
+static size_t efx_ef10_print_additional_fwver(struct efx_nic *efx, char *buf,
+					      size_t len)
+{
+	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+
+	return scnprintf(buf, len, " rx%x tx%x",
+			 nic_data->rx_dpcpu_fw_id,
+			 nic_data->tx_dpcpu_fw_id);
+}
+
+static unsigned int ef10_check_caps(const struct efx_nic *efx,
+				    u8 flag,
+				    u32 offset)
+{
+	const struct efx_ef10_nic_data *nic_data = efx->nic_data;
+
+	switch (offset) {
+	case(MC_CMD_GET_CAPABILITIES_V4_OUT_FLAGS1_OFST):
+		return nic_data->datapath_caps & BIT_ULL(flag);
+	case(MC_CMD_GET_CAPABILITIES_V4_OUT_FLAGS2_OFST):
+		return nic_data->datapath_caps2 & BIT_ULL(flag);
+	default:
+		return 0;
+	}
+}
+
+>>>>>>> upstream/android-13
 #define EF10_OFFLOAD_FEATURES		\
 	(NETIF_F_IP_CSUM |		\
 	 NETIF_F_HW_VLAN_CTAG_FILTER |	\
@@ -6594,23 +7390,40 @@ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
 	.remove = efx_ef10_remove,
 	.dimension_resources = efx_ef10_dimension_resources,
 	.init = efx_ef10_init_nic,
+<<<<<<< HEAD
 	.fini = efx_port_dummy_op_void,
+=======
+	.fini = efx_ef10_fini_nic,
+>>>>>>> upstream/android-13
 	.map_reset_reason = efx_ef10_map_reset_reason,
 	.map_reset_flags = efx_ef10_map_reset_flags,
 	.reset = efx_ef10_reset,
 	.probe_port = efx_mcdi_port_probe,
 	.remove_port = efx_mcdi_port_remove,
+<<<<<<< HEAD
 	.fini_dmaq = efx_ef10_fini_dmaq,
+=======
+	.fini_dmaq = efx_fini_dmaq,
+>>>>>>> upstream/android-13
 	.prepare_flr = efx_ef10_prepare_flr,
 	.finish_flr = efx_port_dummy_op_void,
 	.describe_stats = efx_ef10_describe_stats,
 	.update_stats = efx_ef10_update_stats_vf,
+<<<<<<< HEAD
 	.start_stats = efx_port_dummy_op_void,
 	.pull_stats = efx_port_dummy_op_void,
 	.stop_stats = efx_port_dummy_op_void,
 	.set_id_led = efx_mcdi_set_id_led,
 	.push_irq_moderation = efx_ef10_push_irq_moderation,
 	.reconfigure_mac = efx_ef10_mac_reconfigure_vf,
+=======
+	.update_stats_atomic = efx_ef10_update_stats_atomic_vf,
+	.start_stats = efx_port_dummy_op_void,
+	.pull_stats = efx_port_dummy_op_void,
+	.stop_stats = efx_port_dummy_op_void,
+	.push_irq_moderation = efx_ef10_push_irq_moderation,
+	.reconfigure_mac = efx_ef10_mac_reconfigure,
+>>>>>>> upstream/android-13
 	.check_mac_fault = efx_mcdi_mac_check_fault,
 	.reconfigure_port = efx_mcdi_port_reconfigure,
 	.get_wol = efx_ef10_get_wol_vf,
@@ -6628,6 +7441,7 @@ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
 	.irq_handle_legacy = efx_ef10_legacy_interrupt,
 	.tx_probe = efx_ef10_tx_probe,
 	.tx_init = efx_ef10_tx_init,
+<<<<<<< HEAD
 	.tx_remove = efx_ef10_tx_remove,
 	.tx_write = efx_ef10_tx_write,
 	.tx_limit_len = efx_ef10_tx_limit_len,
@@ -6642,10 +7456,29 @@ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
 	.ev_init = efx_ef10_ev_init,
 	.ev_fini = efx_ef10_ev_fini,
 	.ev_remove = efx_ef10_ev_remove,
+=======
+	.tx_remove = efx_mcdi_tx_remove,
+	.tx_write = efx_ef10_tx_write,
+	.tx_limit_len = efx_ef10_tx_limit_len,
+	.tx_enqueue = __efx_enqueue_skb,
+	.rx_push_rss_config = efx_mcdi_vf_rx_push_rss_config,
+	.rx_pull_rss_config = efx_mcdi_rx_pull_rss_config,
+	.rx_probe = efx_mcdi_rx_probe,
+	.rx_init = efx_mcdi_rx_init,
+	.rx_remove = efx_mcdi_rx_remove,
+	.rx_write = efx_ef10_rx_write,
+	.rx_defer_refill = efx_ef10_rx_defer_refill,
+	.rx_packet = __efx_rx_packet,
+	.ev_probe = efx_mcdi_ev_probe,
+	.ev_init = efx_ef10_ev_init,
+	.ev_fini = efx_mcdi_ev_fini,
+	.ev_remove = efx_mcdi_ev_remove,
+>>>>>>> upstream/android-13
 	.ev_process = efx_ef10_ev_process,
 	.ev_read_ack = efx_ef10_ev_read_ack,
 	.ev_test_generate = efx_ef10_ev_test_generate,
 	.filter_table_probe = efx_ef10_filter_table_probe,
+<<<<<<< HEAD
 	.filter_table_restore = efx_ef10_filter_table_restore,
 	.filter_table_remove = efx_ef10_filter_table_remove,
 	.filter_update_rx_scatter = efx_ef10_filter_update_rx_scatter,
@@ -6658,6 +7491,20 @@ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
 	.filter_get_rx_ids = efx_ef10_filter_get_rx_ids,
 #ifdef CONFIG_RFS_ACCEL
 	.filter_rfs_expire_one = efx_ef10_filter_rfs_expire_one,
+=======
+	.filter_table_restore = efx_mcdi_filter_table_restore,
+	.filter_table_remove = efx_mcdi_filter_table_remove,
+	.filter_update_rx_scatter = efx_mcdi_update_rx_scatter,
+	.filter_insert = efx_mcdi_filter_insert,
+	.filter_remove_safe = efx_mcdi_filter_remove_safe,
+	.filter_get_safe = efx_mcdi_filter_get_safe,
+	.filter_clear_rx = efx_mcdi_filter_clear_rx,
+	.filter_count_rx_used = efx_mcdi_filter_count_rx_used,
+	.filter_get_rx_id_limit = efx_mcdi_filter_get_rx_id_limit,
+	.filter_get_rx_ids = efx_mcdi_filter_get_rx_ids,
+#ifdef CONFIG_RFS_ACCEL
+	.filter_rfs_expire_one = efx_mcdi_filter_rfs_expire_one,
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_SFC_MTD
 	.mtd_probe = efx_port_dummy_op_int,
@@ -6683,6 +7530,7 @@ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
 	.can_rx_scatter = true,
 	.always_rx_scatter = true,
 	.min_interrupt_mode = EFX_INT_MODE_MSIX,
+<<<<<<< HEAD
 	.max_interrupt_mode = EFX_INT_MODE_MSIX,
 	.timer_period_max = 1 << ERF_DD_EVQ_IND_TIMER_VAL_WIDTH,
 	.offload_features = EF10_OFFLOAD_FEATURES,
@@ -6691,6 +7539,18 @@ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
 	.hwtstamp_filters = 1 << HWTSTAMP_FILTER_NONE |
 			    1 << HWTSTAMP_FILTER_ALL,
 	.rx_hash_key_size = 40,
+=======
+	.timer_period_max = 1 << ERF_DD_EVQ_IND_TIMER_VAL_WIDTH,
+	.offload_features = EF10_OFFLOAD_FEATURES,
+	.mcdi_max_ver = 2,
+	.max_rx_ip_filters = EFX_MCDI_FILTER_TBL_ROWS,
+	.hwtstamp_filters = 1 << HWTSTAMP_FILTER_NONE |
+			    1 << HWTSTAMP_FILTER_ALL,
+	.rx_hash_key_size = 40,
+	.check_caps = ef10_check_caps,
+	.print_additional_fwver = efx_ef10_print_additional_fwver,
+	.sensor_event = efx_mcdi_sensor_event,
+>>>>>>> upstream/android-13
 };
 
 const struct efx_nic_type efx_hunt_a0_nic_type = {
@@ -6701,13 +7561,21 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.remove = efx_ef10_remove,
 	.dimension_resources = efx_ef10_dimension_resources,
 	.init = efx_ef10_init_nic,
+<<<<<<< HEAD
 	.fini = efx_port_dummy_op_void,
+=======
+	.fini = efx_ef10_fini_nic,
+>>>>>>> upstream/android-13
 	.map_reset_reason = efx_ef10_map_reset_reason,
 	.map_reset_flags = efx_ef10_map_reset_flags,
 	.reset = efx_ef10_reset,
 	.probe_port = efx_mcdi_port_probe,
 	.remove_port = efx_mcdi_port_remove,
+<<<<<<< HEAD
 	.fini_dmaq = efx_ef10_fini_dmaq,
+=======
+	.fini_dmaq = efx_fini_dmaq,
+>>>>>>> upstream/android-13
 	.prepare_flr = efx_ef10_prepare_flr,
 	.finish_flr = efx_port_dummy_op_void,
 	.describe_stats = efx_ef10_describe_stats,
@@ -6715,7 +7583,10 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.start_stats = efx_mcdi_mac_start_stats,
 	.pull_stats = efx_mcdi_mac_pull_stats,
 	.stop_stats = efx_mcdi_mac_stop_stats,
+<<<<<<< HEAD
 	.set_id_led = efx_mcdi_set_id_led,
+=======
+>>>>>>> upstream/android-13
 	.push_irq_moderation = efx_ef10_push_irq_moderation,
 	.reconfigure_mac = efx_ef10_mac_reconfigure,
 	.check_mac_fault = efx_mcdi_mac_check_fault,
@@ -6723,6 +7594,10 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.get_wol = efx_ef10_get_wol,
 	.set_wol = efx_ef10_set_wol,
 	.resume_wol = efx_port_dummy_op_void,
+<<<<<<< HEAD
+=======
+	.get_fec_stats = efx_ef10_get_fec_stats,
+>>>>>>> upstream/android-13
 	.test_chip = efx_ef10_test_chip,
 	.test_nvram = efx_mcdi_nvram_test_all,
 	.mcdi_request = efx_ef10_mcdi_request,
@@ -6737,6 +7612,7 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.irq_handle_legacy = efx_ef10_legacy_interrupt,
 	.tx_probe = efx_ef10_tx_probe,
 	.tx_init = efx_ef10_tx_init,
+<<<<<<< HEAD
 	.tx_remove = efx_ef10_tx_remove,
 	.tx_write = efx_ef10_tx_write,
 	.tx_limit_len = efx_ef10_tx_limit_len,
@@ -6754,10 +7630,32 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.ev_init = efx_ef10_ev_init,
 	.ev_fini = efx_ef10_ev_fini,
 	.ev_remove = efx_ef10_ev_remove,
+=======
+	.tx_remove = efx_mcdi_tx_remove,
+	.tx_write = efx_ef10_tx_write,
+	.tx_limit_len = efx_ef10_tx_limit_len,
+	.tx_enqueue = __efx_enqueue_skb,
+	.rx_push_rss_config = efx_mcdi_pf_rx_push_rss_config,
+	.rx_pull_rss_config = efx_mcdi_rx_pull_rss_config,
+	.rx_push_rss_context_config = efx_mcdi_rx_push_rss_context_config,
+	.rx_pull_rss_context_config = efx_mcdi_rx_pull_rss_context_config,
+	.rx_restore_rss_contexts = efx_mcdi_rx_restore_rss_contexts,
+	.rx_probe = efx_mcdi_rx_probe,
+	.rx_init = efx_mcdi_rx_init,
+	.rx_remove = efx_mcdi_rx_remove,
+	.rx_write = efx_ef10_rx_write,
+	.rx_defer_refill = efx_ef10_rx_defer_refill,
+	.rx_packet = __efx_rx_packet,
+	.ev_probe = efx_mcdi_ev_probe,
+	.ev_init = efx_ef10_ev_init,
+	.ev_fini = efx_mcdi_ev_fini,
+	.ev_remove = efx_mcdi_ev_remove,
+>>>>>>> upstream/android-13
 	.ev_process = efx_ef10_ev_process,
 	.ev_read_ack = efx_ef10_ev_read_ack,
 	.ev_test_generate = efx_ef10_ev_test_generate,
 	.filter_table_probe = efx_ef10_filter_table_probe,
+<<<<<<< HEAD
 	.filter_table_restore = efx_ef10_filter_table_restore,
 	.filter_table_remove = efx_ef10_filter_table_remove,
 	.filter_update_rx_scatter = efx_ef10_filter_update_rx_scatter,
@@ -6770,6 +7668,20 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.filter_get_rx_ids = efx_ef10_filter_get_rx_ids,
 #ifdef CONFIG_RFS_ACCEL
 	.filter_rfs_expire_one = efx_ef10_filter_rfs_expire_one,
+=======
+	.filter_table_restore = efx_mcdi_filter_table_restore,
+	.filter_table_remove = efx_mcdi_filter_table_remove,
+	.filter_update_rx_scatter = efx_mcdi_update_rx_scatter,
+	.filter_insert = efx_mcdi_filter_insert,
+	.filter_remove_safe = efx_mcdi_filter_remove_safe,
+	.filter_get_safe = efx_mcdi_filter_get_safe,
+	.filter_clear_rx = efx_mcdi_filter_clear_rx,
+	.filter_count_rx_used = efx_mcdi_filter_count_rx_used,
+	.filter_get_rx_id_limit = efx_mcdi_filter_get_rx_id_limit,
+	.filter_get_rx_ids = efx_mcdi_filter_get_rx_ids,
+#ifdef CONFIG_RFS_ACCEL
+	.filter_rfs_expire_one = efx_mcdi_filter_rfs_expire_one,
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_SFC_MTD
 	.mtd_probe = efx_ef10_mtd_probe,
@@ -6785,9 +7697,13 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.vlan_rx_add_vid = efx_ef10_vlan_rx_add_vid,
 	.vlan_rx_kill_vid = efx_ef10_vlan_rx_kill_vid,
 	.udp_tnl_push_ports = efx_ef10_udp_tnl_push_ports,
+<<<<<<< HEAD
 	.udp_tnl_add_port = efx_ef10_udp_tnl_add_port,
 	.udp_tnl_has_port = efx_ef10_udp_tnl_has_port,
 	.udp_tnl_del_port = efx_ef10_udp_tnl_del_port,
+=======
+	.udp_tnl_has_port = efx_ef10_udp_tnl_has_port,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SFC_SRIOV
 	.sriov_configure = efx_ef10_sriov_configure,
 	.sriov_init = efx_ef10_sriov_init,
@@ -6818,6 +7734,7 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.always_rx_scatter = true,
 	.option_descriptors = true,
 	.min_interrupt_mode = EFX_INT_MODE_LEGACY,
+<<<<<<< HEAD
 	.max_interrupt_mode = EFX_INT_MODE_MSIX,
 	.timer_period_max = 1 << ERF_DD_EVQ_IND_TIMER_VAL_WIDTH,
 	.offload_features = EF10_OFFLOAD_FEATURES,
@@ -6826,4 +7743,16 @@ const struct efx_nic_type efx_hunt_a0_nic_type = {
 	.hwtstamp_filters = 1 << HWTSTAMP_FILTER_NONE |
 			    1 << HWTSTAMP_FILTER_ALL,
 	.rx_hash_key_size = 40,
+=======
+	.timer_period_max = 1 << ERF_DD_EVQ_IND_TIMER_VAL_WIDTH,
+	.offload_features = EF10_OFFLOAD_FEATURES,
+	.mcdi_max_ver = 2,
+	.max_rx_ip_filters = EFX_MCDI_FILTER_TBL_ROWS,
+	.hwtstamp_filters = 1 << HWTSTAMP_FILTER_NONE |
+			    1 << HWTSTAMP_FILTER_ALL,
+	.rx_hash_key_size = 40,
+	.check_caps = ef10_check_caps,
+	.print_additional_fwver = efx_ef10_print_additional_fwver,
+	.sensor_event = efx_mcdi_sensor_event,
+>>>>>>> upstream/android-13
 };

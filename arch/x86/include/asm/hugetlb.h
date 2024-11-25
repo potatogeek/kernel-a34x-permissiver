@@ -7,6 +7,7 @@
 
 #define hugepages_supported() boot_cpu_has(X86_FEATURE_PSE)
 
+<<<<<<< HEAD
 static inline int is_hugepage_only_range(struct mm_struct *mm,
 					 unsigned long addr,
 					 unsigned long len) {
@@ -90,4 +91,6 @@ static inline void arch_clear_hugepage_flags(struct page *page)
 static inline bool gigantic_page_supported(void) { return true; }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_HUGETLB_H */

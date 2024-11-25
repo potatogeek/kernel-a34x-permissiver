@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * linux/drivers/pcmcia/pxa/pxa_cm_x255.c
  *
@@ -8,6 +9,14 @@
  * Compulab Ltd., 2003, 2007, 2008
  * Mike Rapoport <mike@compulab.co.il>
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * linux/drivers/pcmcia/pxa/pxa_cm_x255.c
+ *
+ * Compulab Ltd., 2003, 2007, 2008
+ * Mike Rapoport <mike@compulab.co.il>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>

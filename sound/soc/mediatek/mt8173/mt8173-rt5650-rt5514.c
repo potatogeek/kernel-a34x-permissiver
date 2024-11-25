@@ -43,12 +43,20 @@ static const struct snd_kcontrol_new mt8173_rt5650_rt5514_controls[] = {
 static int mt8173_rt5650_rt5514_hw_params(struct snd_pcm_substream *substream,
 					  struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	int i, ret;
 
 	for (i = 0; i < rtd->num_codecs; i++) {
 		struct snd_soc_dai *codec_dai = rtd->codec_dais[i];
 
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai;
+	int i, ret;
+
+	for_each_rtd_codec_dais(rtd, i, codec_dai) {
+>>>>>>> upstream/android-13
 		/* pll from mclk 12.288M */
 		ret = snd_soc_dai_set_pll(codec_dai, 0, 0, MCLK_FOR_CODECS,
 					  params_rate(params) * 512);
@@ -74,7 +82,11 @@ static struct snd_soc_jack mt8173_rt5650_rt5514_jack;
 static int mt8173_rt5650_rt5514_init(struct snd_soc_pcm_runtime *runtime)
 {
 	struct snd_soc_card *card = runtime->card;
+<<<<<<< HEAD
 	struct snd_soc_component *component = runtime->codec_dais[0]->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(runtime, 0)->component;
+>>>>>>> upstream/android-13
 	int ret;
 
 	rt5645_sel_asrc_clk_src(component,
@@ -99,6 +111,7 @@ static int mt8173_rt5650_rt5514_init(struct snd_soc_pcm_runtime *runtime)
 				      &mt8173_rt5650_rt5514_jack);
 }
 
+<<<<<<< HEAD
 static struct snd_soc_dai_link_component mt8173_rt5650_rt5514_codecs[] = {
 	{
 		.dai_name = "rt5645-aif1",
@@ -108,42 +121,81 @@ static struct snd_soc_dai_link_component mt8173_rt5650_rt5514_codecs[] = {
 	},
 };
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	DAI_LINK_PLAYBACK,
 	DAI_LINK_CAPTURE,
 	DAI_LINK_CODEC_I2S,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(playback,
+	DAILINK_COMP_ARRAY(COMP_CPU("DL1")),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(capture,
+	DAILINK_COMP_ARRAY(COMP_CPU("VUL")),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(codec,
+	DAILINK_COMP_ARRAY(COMP_CPU("I2S")),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "rt5645-aif1"),
+			   COMP_CODEC(NULL, "rt5514-aif1")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+>>>>>>> upstream/android-13
 /* Digital audio interface glue - connects codec <---> CPU */
 static struct snd_soc_dai_link mt8173_rt5650_rt5514_dais[] = {
 	/* Front End DAI links */
 	[DAI_LINK_PLAYBACK] = {
 		.name = "rt5650_rt5514 Playback",
 		.stream_name = "rt5650_rt5514 Playback",
+<<<<<<< HEAD
 		.cpu_dai_name = "DL1",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dynamic = 1,
 		.dpcm_playback = 1,
+=======
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dynamic = 1,
+		.dpcm_playback = 1,
+		SND_SOC_DAILINK_REG(playback),
+>>>>>>> upstream/android-13
 	},
 	[DAI_LINK_CAPTURE] = {
 		.name = "rt5650_rt5514 Capture",
 		.stream_name = "rt5650_rt5514 Capture",
+<<<<<<< HEAD
 		.cpu_dai_name = "VUL",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dynamic = 1,
 		.dpcm_capture = 1,
+=======
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dynamic = 1,
+		.dpcm_capture = 1,
+		SND_SOC_DAILINK_REG(capture),
+>>>>>>> upstream/android-13
 	},
 	/* Back End DAI links */
 	[DAI_LINK_CODEC_I2S] = {
 		.name = "Codec",
+<<<<<<< HEAD
 		.cpu_dai_name = "I2S",
 		.no_pcm = 1,
 		.codecs = mt8173_rt5650_rt5514_codecs,
 		.num_codecs = 2,
+=======
+		.no_pcm = 1,
+>>>>>>> upstream/android-13
 		.init = mt8173_rt5650_rt5514_init,
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			   SND_SOC_DAIFMT_CBS_CFS,
@@ -151,6 +203,10 @@ static struct snd_soc_dai_link mt8173_rt5650_rt5514_dais[] = {
 		.ignore_pmdown_time = 1,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(codec),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -179,6 +235,10 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
 {
 	struct snd_soc_card *card = &mt8173_rt5650_rt5514_card;
 	struct device_node *platform_node;
+<<<<<<< HEAD
+=======
+	struct snd_soc_dai_link *dai_link;
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	platform_node = of_parse_phandle(pdev->dev.of_node,
@@ -188,6 +248,7 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < card->num_links; i++) {
 		if (mt8173_rt5650_rt5514_dais[i].platform_name)
 			continue;
@@ -197,19 +258,41 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
 	mt8173_rt5650_rt5514_codecs[0].of_node =
 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 0);
 	if (!mt8173_rt5650_rt5514_codecs[0].of_node) {
+=======
+	for_each_card_prelinks(card, i, dai_link) {
+		if (dai_link->platforms->name)
+			continue;
+		dai_link->platforms->of_node = platform_node;
+	}
+
+	mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node =
+		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 0);
+	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev,
 			"Property 'audio-codec' missing or invalid\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	mt8173_rt5650_rt5514_codecs[1].of_node =
 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
 	if (!mt8173_rt5650_rt5514_codecs[1].of_node) {
+=======
+	mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
+		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+	if (!mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev,
 			"Property 'audio-codec' missing or invalid\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	mt8173_rt5650_rt5514_codec_conf[0].of_node =
 		mt8173_rt5650_rt5514_codecs[1].of_node;
+=======
+	mt8173_rt5650_rt5514_codec_conf[0].dlc.of_node =
+		mt8173_rt5650_rt5514_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node;
+>>>>>>> upstream/android-13
 
 	card->dev = &pdev->dev;
 
@@ -217,6 +300,11 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
 	if (ret)
 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
 			__func__, ret);
+<<<<<<< HEAD
+=======
+
+	of_node_put(platform_node);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

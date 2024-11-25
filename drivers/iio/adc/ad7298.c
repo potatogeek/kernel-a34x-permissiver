@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD7298 SPI ADC driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -14,6 +21,10 @@
 #include <linux/regulator/consumer.h>
 #include <linux/err.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/bitops.h>
@@ -24,8 +35,11 @@
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
 
+<<<<<<< HEAD
 #include <linux/platform_data/ad7298.h>
 
+=======
+>>>>>>> upstream/android-13
 #define AD7298_WRITE	BIT(15) /* write to the control register */
 #define AD7298_REPEAT	BIT(14) /* repeated conversion enable */
 #define AD7298_CH(x)	BIT(13 - (x)) /* channel select */
@@ -99,9 +113,15 @@ static const struct iio_chan_spec ad7298_channels[] = {
 	IIO_CHAN_SOFT_TIMESTAMP(8),
 };
 
+<<<<<<< HEAD
 /**
  * ad7298_update_scan_mode() setup the spi transfer buffer for the new scan mask
  **/
+=======
+/*
+ * ad7298_update_scan_mode() setup the spi transfer buffer for the new scan mask
+ */
+>>>>>>> upstream/android-13
 static int ad7298_update_scan_mode(struct iio_dev *indio_dev,
 	const unsigned long *active_scan_mask)
 {
@@ -145,12 +165,15 @@ static int ad7298_update_scan_mode(struct iio_dev *indio_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * ad7298_trigger_handler() bh of trigger launched polling to ring buffer
  *
  * Currently there is no option in this driver to disable the saving of
  * timestamps within the ring.
  **/
+=======
+>>>>>>> upstream/android-13
 static irqreturn_t ad7298_trigger_handler(int irq, void *p)
 {
 	struct iio_poll_func *pf = p;
@@ -217,7 +240,11 @@ static int ad7298_get_ref_voltage(struct ad7298_state *st)
 {
 	int vref;
 
+<<<<<<< HEAD
 	if (st->ext_ref) {
+=======
+	if (st->reg) {
+>>>>>>> upstream/android-13
 		vref = regulator_get_voltage(st->reg);
 		if (vref < 0)
 			return vref;
@@ -282,9 +309,21 @@ static const struct iio_info ad7298_info = {
 	.update_scan_mode = ad7298_update_scan_mode,
 };
 
+<<<<<<< HEAD
 static int ad7298_probe(struct spi_device *spi)
 {
 	struct ad7298_platform_data *pdata = spi->dev.platform_data;
+=======
+static void ad7298_reg_disable(void *data)
+{
+	struct regulator *reg = data;
+
+	regulator_disable(reg);
+}
+
+static int ad7298_probe(struct spi_device *spi)
+{
+>>>>>>> upstream/android-13
 	struct ad7298_state *st;
 	struct iio_dev *indio_dev;
 	int ret;
@@ -295,6 +334,7 @@ static int ad7298_probe(struct spi_device *spi)
 
 	st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	if (pdata && pdata->ext_ref)
 		st->ext_ref = AD7298_EXTREF;
 
@@ -315,6 +355,33 @@ static int ad7298_probe(struct spi_device *spi)
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->dev.parent = &spi->dev;
 	indio_dev->dev.of_node = spi->dev.of_node;
+=======
+	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
+	if (!IS_ERR(st->reg)) {
+		st->ext_ref = AD7298_EXTREF;
+	} else {
+		ret = PTR_ERR(st->reg);
+		if (ret != -ENODEV)
+			return ret;
+
+		st->reg = NULL;
+	}
+
+	if (st->reg) {
+		ret = regulator_enable(st->reg);
+		if (ret)
+			return ret;
+
+		ret = devm_add_action_or_reset(&spi->dev, ad7298_reg_disable,
+					       st->reg);
+		if (ret)
+			return ret;
+	}
+
+	st->spi = spi;
+
+	indio_dev->name = spi_get_device_id(spi)->name;
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = ad7298_channels;
 	indio_dev->num_channels = ARRAY_SIZE(ad7298_channels);
@@ -336,6 +403,7 @@ static int ad7298_probe(struct spi_device *spi)
 	spi_message_add_tail(&st->scan_single_xfer[1], &st->scan_single_msg);
 	spi_message_add_tail(&st->scan_single_xfer[2], &st->scan_single_msg);
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
 			&ad7298_trigger_handler, NULL);
 	if (ret)
@@ -368,6 +436,21 @@ static int ad7298_remove(struct spi_device *spi)
 
 	return 0;
 }
+=======
+	ret = devm_iio_triggered_buffer_setup(&spi->dev, indio_dev, NULL,
+			&ad7298_trigger_handler, NULL);
+	if (ret)
+		return ret;
+
+	return devm_iio_device_register(&spi->dev, indio_dev);
+}
+
+static const struct acpi_device_id ad7298_acpi_ids[] = {
+	{ "INT3494", 0 },
+	{ }
+};
+MODULE_DEVICE_TABLE(acpi, ad7298_acpi_ids);
+>>>>>>> upstream/android-13
 
 static const struct spi_device_id ad7298_id[] = {
 	{"ad7298", 0},
@@ -378,13 +461,23 @@ MODULE_DEVICE_TABLE(spi, ad7298_id);
 static struct spi_driver ad7298_driver = {
 	.driver = {
 		.name	= "ad7298",
+<<<<<<< HEAD
 	},
 	.probe		= ad7298_probe,
 	.remove		= ad7298_remove,
+=======
+		.acpi_match_table = ad7298_acpi_ids,
+	},
+	.probe		= ad7298_probe,
+>>>>>>> upstream/android-13
 	.id_table	= ad7298_id,
 };
 module_spi_driver(ad7298_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Analog Devices AD7298 ADC");
 MODULE_LICENSE("GPL v2");

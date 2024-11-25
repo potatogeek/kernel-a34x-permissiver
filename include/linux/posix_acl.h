@@ -15,6 +15,11 @@
 #include <linux/refcount.h>
 #include <uapi/linux/posix_acl.h>
 
+<<<<<<< HEAD
+=======
+struct user_namespace;
+
+>>>>>>> upstream/android-13
 struct posix_acl_entry {
 	short			e_tag;
 	unsigned short		e_perm;
@@ -28,7 +33,11 @@ struct posix_acl {
 	refcount_t		a_refcount;
 	struct rcu_head		a_rcu;
 	unsigned int		a_count;
+<<<<<<< HEAD
 	struct posix_acl_entry	a_entries[0];
+=======
+	struct posix_acl_entry	a_entries[];
+>>>>>>> upstream/android-13
 };
 
 #define FOREACH_ACL_ENTRY(pa, acl, pe) \
@@ -61,14 +70,18 @@ posix_acl_release(struct posix_acl *acl)
 
 extern void posix_acl_init(struct posix_acl *, int);
 extern struct posix_acl *posix_acl_alloc(int, gfp_t);
+<<<<<<< HEAD
 extern int posix_acl_valid(struct user_namespace *, const struct posix_acl *);
 extern int posix_acl_permission(struct inode *, const struct posix_acl *, int);
+=======
+>>>>>>> upstream/android-13
 extern struct posix_acl *posix_acl_from_mode(umode_t, gfp_t);
 extern int posix_acl_equiv_mode(const struct posix_acl *, umode_t *);
 extern int __posix_acl_create(struct posix_acl **, gfp_t, umode_t *);
 extern int __posix_acl_chmod(struct posix_acl **, gfp_t, umode_t);
 
 extern struct posix_acl *get_posix_acl(struct inode *, int);
+<<<<<<< HEAD
 extern int set_posix_acl(struct inode *, int, struct posix_acl *);
 
 #ifdef CONFIG_FS_POSIX_ACL
@@ -85,6 +98,31 @@ struct posix_acl *get_cached_acl_rcu(struct inode *inode, int type);
 void set_cached_acl(struct inode *inode, int type, struct posix_acl *acl);
 void forget_cached_acl(struct inode *inode, int type);
 void forget_all_cached_acls(struct inode *inode);
+=======
+extern int set_posix_acl(struct user_namespace *, struct inode *, int,
+			 struct posix_acl *);
+
+struct posix_acl *get_cached_acl_rcu(struct inode *inode, int type);
+
+#ifdef CONFIG_FS_POSIX_ACL
+int posix_acl_chmod(struct user_namespace *, struct inode *, umode_t);
+extern int posix_acl_create(struct inode *, umode_t *, struct posix_acl **,
+		struct posix_acl **);
+int posix_acl_update_mode(struct user_namespace *, struct inode *, umode_t *,
+			  struct posix_acl **);
+
+extern int simple_set_acl(struct user_namespace *, struct inode *,
+			  struct posix_acl *, int);
+extern int simple_acl_create(struct inode *, struct inode *);
+
+struct posix_acl *get_cached_acl(struct inode *inode, int type);
+void set_cached_acl(struct inode *inode, int type, struct posix_acl *acl);
+void forget_cached_acl(struct inode *inode, int type);
+void forget_all_cached_acls(struct inode *inode);
+int posix_acl_valid(struct user_namespace *, const struct posix_acl *);
+int posix_acl_permission(struct user_namespace *, struct inode *,
+			 const struct posix_acl *, int);
+>>>>>>> upstream/android-13
 
 static inline void cache_no_acl(struct inode *inode)
 {
@@ -92,7 +130,12 @@ static inline void cache_no_acl(struct inode *inode)
 	inode->i_default_acl = NULL;
 }
 #else
+<<<<<<< HEAD
 static inline int posix_acl_chmod(struct inode *inode, umode_t mode)
+=======
+static inline int posix_acl_chmod(struct user_namespace *mnt_userns,
+				  struct inode *inode, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }

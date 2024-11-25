@@ -10,7 +10,11 @@
  * Layout is based on skeletonfb.c by James Simmons and Geert Uytterhoeven.
  *
  * This work was made possible by help and equipment support from E-Ink
+<<<<<<< HEAD
  * Corporation. http://www.eink.com/
+=======
+ * Corporation. https://www.eink.com/
+>>>>>>> upstream/android-13
  *
  * This driver is written to be used with the Metronome display controller.
  * It is intended to be architecture independent. A board specific driver
@@ -558,7 +562,11 @@ static ssize_t metronomefb_write(struct fb_info *info, const char __user *buf,
 	return (err) ? err : count;
 }
 
+<<<<<<< HEAD
 static struct fb_ops metronomefb_ops = {
+=======
+static const struct fb_ops metronomefb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_write	= metronomefb_write,
 	.fb_fillrect	= metronomefb_fillrect,

@@ -89,14 +89,24 @@ void sunserial_console_termios(struct console *con, struct device_node *uart_dp)
 	int baud, bits, stop, cflag;
 	char parity;
 
+<<<<<<< HEAD
 	if (!strcmp(uart_dp->name, "rsc") ||
 	    !strcmp(uart_dp->name, "rsc-console") ||
 	    !strcmp(uart_dp->name, "rsc-control")) {
+=======
+	if (of_node_name_eq(uart_dp, "rsc") ||
+	    of_node_name_eq(uart_dp, "rsc-console") ||
+	    of_node_name_eq(uart_dp, "rsc-control")) {
+>>>>>>> upstream/android-13
 		mode = of_get_property(uart_dp,
 				       "ssp-console-modes", NULL);
 		if (!mode)
 			mode = "115200,8,n,1,-";
+<<<<<<< HEAD
 	} else if (!strcmp(uart_dp->name, "lom-console")) {
+=======
+	} else if (of_node_name_eq(uart_dp, "lom-console")) {
+>>>>>>> upstream/android-13
 		mode = "9600,8,n,1,-";
 	} else {
 		struct device_node *dp;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * include/asm-sh/cpu-sh2a/cache.h
  *
@@ -6,6 +7,13 @@
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * include/asm-sh/cpu-sh2a/cache.h
+ *
+ * Copyright (C) 2004 Paul Mundt
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_CPU_SH2A_CACHE_H
 #define __ASM_CPU_SH2A_CACHE_H

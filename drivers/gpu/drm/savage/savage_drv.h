@@ -26,7 +26,15 @@
 #ifndef __SAVAGE_DRV_H__
 #define __SAVAGE_DRV_H__
 
+<<<<<<< HEAD
 #include <drm/drm_legacy.h>
+=======
+#include <linux/io.h>
+
+#include <drm/drm_ioctl.h>
+#include <drm/drm_legacy.h>
+#include <drm/savage_drm.h>
+>>>>>>> upstream/android-13
 
 #define DRIVER_AUTHOR	"Felix Kuehling"
 
@@ -484,8 +492,15 @@ extern void savage_emit_clip_rect_s4(drm_savage_private_t * dev_priv,
 /*
  * access to MMIO
  */
+<<<<<<< HEAD
 #define SAVAGE_READ(reg)	DRM_READ32(  dev_priv->mmio, (reg) )
 #define SAVAGE_WRITE(reg)	DRM_WRITE32( dev_priv->mmio, (reg) )
+=======
+#define SAVAGE_READ(reg) \
+       readl(((void __iomem *)dev_priv->mmio->handle) + (reg))
+#define SAVAGE_WRITE(reg) \
+	writel(val, ((void __iomem *)dev_priv->mmio->handle) + (reg))
+>>>>>>> upstream/android-13
 
 /*
  * access to the burst command interface (BCI)

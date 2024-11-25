@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2003
  *
@@ -14,10 +15,20 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2003
+>>>>>>> upstream/android-13
  */
 #ifndef	_H_JFS_SUPERBLOCK
 #define _H_JFS_SUPERBLOCK
 
+<<<<<<< HEAD
+=======
+#include <linux/uuid.h>
+
+>>>>>>> upstream/android-13
 /*
  * make the magic number something a human could read
  */
@@ -98,11 +109,17 @@ struct jfs_superblock {
 	__le64 s_xsize;		/* 8: extendfs s_size */
 	pxd_t s_xfsckpxd;	/* 8: extendfs fsckpxd */
 	pxd_t s_xlogpxd;	/* 8: extendfs logpxd */
+<<<<<<< HEAD
 	/* - 128 byte boundary - */
 
 	char s_uuid[16];	/* 16: 128-bit uuid for volume */
 	char s_label[16];	/* 16: volume label */
 	char s_loguuid[16];	/* 16: 128-bit uuid for log device */
+=======
+	uuid_t s_uuid;		/* 16: 128-bit uuid for volume */
+	char s_label[16];	/* 16: volume label */
+	uuid_t s_loguuid;	/* 16: 128-bit uuid for log device */
+>>>>>>> upstream/android-13
 
 };
 

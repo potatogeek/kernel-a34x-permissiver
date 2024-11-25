@@ -23,10 +23,16 @@
 #include <linux/nmi.h>
 #include <linux/io.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of.h>
 #include <mach/platform.h>
 #include <mach/hardware.h>
+=======
+#include <linux/of.h>
+#include <linux/sizes.h>
+#include <linux/soc/nxp/lpc32xx-misc.h>
+>>>>>>> upstream/android-13
 
 /*
  * High Speed UART register offsets
@@ -81,6 +87,11 @@
 #define LPC32XX_HSU_TX_TL8B			(0x2 << 0)
 #define LPC32XX_HSU_TX_TL16B			(0x3 << 0)
 
+<<<<<<< HEAD
+=======
+#define LPC32XX_MAIN_OSC_FREQ			13000000
+
+>>>>>>> upstream/android-13
 #define MODNAME "lpc32xx_hsuart"
 
 struct lpc32xx_hsuart_port {
@@ -170,6 +181,11 @@ static int __init lpc32xx_hsuart_console_setup(struct console *co,
 	if (options)
 		uart_parse_options(options, &baud, &parity, &bits, &flow);
 
+<<<<<<< HEAD
+=======
+	lpc32xx_loopback_set(port->mapbase, 0); /* get out of loopback mode */
+
+>>>>>>> upstream/android-13
 	return uart_set_options(port, co, baud, parity, bits, flow);
 }
 
@@ -238,12 +254,19 @@ static unsigned int __serial_get_clock_div(unsigned long uartclk,
 
 static void __serial_uart_flush(struct uart_port *port)
 {
+<<<<<<< HEAD
 	u32 tmp;
+=======
+>>>>>>> upstream/android-13
 	int cnt = 0;
 
 	while ((readl(LPC32XX_HSUART_LEVEL(port->membase)) > 0) &&
 	       (cnt++ < FIFO_READ_LIMIT))
+<<<<<<< HEAD
 		tmp = readl(LPC32XX_HSUART_FIFO(port->membase));
+=======
+		readl(LPC32XX_HSUART_FIFO(port->membase));
+>>>>>>> upstream/android-13
 }
 
 static void __serial_lpc32xx_rx(struct uart_port *port)
@@ -271,9 +294,13 @@ static void __serial_lpc32xx_rx(struct uart_port *port)
 		tmp = readl(LPC32XX_HSUART_FIFO(port->membase));
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
+=======
+	tty_flip_buffer_push(tport);
+>>>>>>> upstream/android-13
 }
 
 static void __serial_lpc32xx_tx(struct uart_port *port)
@@ -435,6 +462,7 @@ static void serial_lpc32xx_break_ctl(struct uart_port *port,
 	spin_unlock_irqrestore(&port->lock, flags);
 }
 
+<<<<<<< HEAD
 /* LPC3250 Errata HSUART.1: Hang workaround via loopback mode on inactivity */
 static void lpc32xx_loopback_set(resource_size_t mapbase, int state)
 {
@@ -464,6 +492,8 @@ static void lpc32xx_loopback_set(resource_size_t mapbase, int state)
 	writel(tmp, LPC32XX_UARTCTL_CLOOP);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* port->lock is not held.  */
 static int serial_lpc32xx_startup(struct uart_port *port)
 {
@@ -683,11 +713,16 @@ static int serial_hs_lpc32xx_probe(struct platform_device *pdev)
 	p->port.membase = NULL;
 
 	ret = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Error getting irq for HS UART port %d\n",
 			uarts_registered);
 		return ret;
 	}
+=======
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 	p->port.irq = ret;
 
 	p->port.iotype = UPIO_MEM32;

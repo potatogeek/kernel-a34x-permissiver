@@ -1,5 +1,15 @@
 # SPDX-License-Identifier: GPL-2.0
 CFLAGS_bootx_init.o  		+= -fPIC
+<<<<<<< HEAD
+=======
+CFLAGS_bootx_init.o		+= -fno-stack-protector
+
+KASAN_SANITIZE_bootx_init.o := n
+
+ifdef CONFIG_KASAN
+CFLAGS_bootx_init.o  		+= -DDISABLE_BRANCH_PROFILING
+endif
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_FUNCTION_TRACER
 # Do not trace early boot code
@@ -14,7 +24,10 @@ obj-$(CONFIG_PMAC_BACKLIGHT)	+= backlight.o
 # need this to be a bool.  Cheat here and pretend CONFIG_NVRAM=m is really
 # CONFIG_NVRAM=y
 obj-$(CONFIG_NVRAM:m=y)		+= nvram.o
+<<<<<<< HEAD
 # ppc64 pmac doesn't define CONFIG_NVRAM but needs nvram stuff
 obj-$(CONFIG_PPC64)		+= nvram.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PPC32)		+= bootx_init.o
 obj-$(CONFIG_SMP)		+= smp.o

@@ -27,7 +27,10 @@
 #include <linux/err.h>
 #include <linux/input.h>
 #include <linux/sysfs.h>
+<<<<<<< HEAD
 #include <linux/notifier.h>
+=======
+>>>>>>> upstream/android-13
 
 struct class *sensors_class;
 EXPORT_SYMBOL_GPL(sensors_class);
@@ -37,6 +40,7 @@ static atomic_t sensor_count;
 static struct device *symlink_dev;
 static struct device *sensor_dev;
 static struct input_dev *meta_input_dev;
+<<<<<<< HEAD
 static struct device *ssc_core_dev;
 
 static BLOCKING_NOTIFIER_HEAD(sensordump_notifier_list);
@@ -72,6 +76,8 @@ static struct device_attribute *ssc_core_attr[] = {
 	&dev_attr_sensor_dump,
 	NULL,
 };
+=======
+>>>>>>> upstream/android-13
 
 static ssize_t set_flush(struct device *dev, struct device_attribute *attr,
 			 const char *buf, size_t size)
@@ -141,11 +147,17 @@ void sensors_remove_symlink(struct input_dev *inputdev)
 }
 EXPORT_SYMBOL_GPL(sensors_remove_symlink);
 
+<<<<<<< HEAD
 int sensors_register(struct device **pdev, void *drvdata,
                      struct device_attribute *attributes[], char *name)
 {
 	struct device* dev;
 
+=======
+int sensors_register(struct device *dev, void *drvdata,
+                     struct device_attribute *attributes[], char *name)
+{
+>>>>>>> upstream/android-13
 	if (!sensors_class) {
 		sensors_class = class_create(THIS_MODULE, "sensors");
 		if (IS_ERR(sensors_class)) {
@@ -156,15 +168,24 @@ int sensors_register(struct device **pdev, void *drvdata,
 	dev = device_create(sensors_class, NULL, 0, drvdata, "%s", name);
 
 	if (IS_ERR(dev)) {
+<<<<<<< HEAD
 		int ret = PTR_ERR(dev);
+=======
+		int ret = 0;
+
+		ret = PTR_ERR(dev);
+>>>>>>> upstream/android-13
 		pr_err("[SENSORS CORE] device_create failed!"\
 		       "[%d]\n", ret);
 		return ret;
 	}
 
 	set_sensor_attr(dev, attributes);
+<<<<<<< HEAD
 	*pdev = dev;
 
+=======
+>>>>>>> upstream/android-13
 	atomic_inc(&sensor_count);
 
 	return 0;
@@ -278,6 +299,7 @@ static int __init sensors_class_init(void)
 			pr_err("[SENSOR CORE] failed flush device_file\n");
 	}
 
+<<<<<<< HEAD
 	ssc_core_dev = device_create(sensors_class, NULL, 0, NULL,
 			"%s", "ssc_core");
 	if (IS_ERR(ssc_core_dev)) {
@@ -288,6 +310,8 @@ static int __init sensors_class_init(void)
 			pr_err("[SENSOR CORE] ssc_core device attr failed\n");
 	}
 
+=======
+>>>>>>> upstream/android-13
 	atomic_set(&sensor_count, 0);
 	sensors_class->dev_uevent = NULL;
 	sensors_meta_input_init();

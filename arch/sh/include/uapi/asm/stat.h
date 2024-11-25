@@ -16,6 +16,7 @@ struct __old_kernel_stat {
 	unsigned long  st_ctime;
 };
 
+<<<<<<< HEAD
 #if defined(__SH5__) || defined(CONFIG_CPU_SH5)
 struct stat {
 	unsigned short st_dev;
@@ -76,6 +77,8 @@ struct stat64 {
 	unsigned long	__unused2;
 };
 #else
+=======
+>>>>>>> upstream/android-13
 struct stat {
 	unsigned long  st_dev;
 	unsigned long  st_ino;
@@ -134,6 +137,9 @@ struct stat64 {
 };
 
 #define STAT_HAVE_NSEC 1
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_SH_STAT_H */

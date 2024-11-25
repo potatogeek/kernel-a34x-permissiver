@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for MT9M032 CMOS Image Sensor from Micron
  *
  * Copyright (C) 2010-2011 Lund Engineering
  * Contact: Gil Lund <gwlund@lundeng.com>
  * Author: Martin Hostettler <martin@neutronstar.dyndns.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,6 +18,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -312,7 +319,11 @@ static int mt9m032_setup_pll(struct mt9m032 *sensor)
  */
 
 static int mt9m032_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index != 0)
@@ -323,7 +334,11 @@ static int mt9m032_enum_mbus_code(struct v4l2_subdev *subdev,
 }
 
 static int mt9m032_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
+=======
+				   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	if (fse->index != 0 || fse->code != MEDIA_BUS_FMT_Y8_1X8)
@@ -340,18 +355,31 @@ static int mt9m032_enum_frame_size(struct v4l2_subdev *subdev,
 /**
  * __mt9m032_get_pad_crop() - get crop rect
  * @sensor: pointer to the sensor struct
+<<<<<<< HEAD
  * @cfg: v4l2_subdev_pad_config for getting the try crop rect from
+=======
+ * @sd_state: v4l2_subdev_state for getting the try crop rect from
+>>>>>>> upstream/android-13
  * @which: select try or active crop rect
  *
  * Returns a pointer the current active or fh relative try crop rect
  */
 static struct v4l2_rect *
+<<<<<<< HEAD
 __mt9m032_get_pad_crop(struct mt9m032 *sensor, struct v4l2_subdev_pad_config *cfg,
+=======
+__mt9m032_get_pad_crop(struct mt9m032 *sensor,
+		       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		       enum v4l2_subdev_format_whence which)
 {
 	switch (which) {
 	case V4L2_SUBDEV_FORMAT_TRY:
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_crop(&sensor->subdev, cfg, 0);
+=======
+		return v4l2_subdev_get_try_crop(&sensor->subdev, sd_state, 0);
+>>>>>>> upstream/android-13
 	case V4L2_SUBDEV_FORMAT_ACTIVE:
 		return &sensor->crop;
 	default:
@@ -362,18 +390,32 @@ __mt9m032_get_pad_crop(struct mt9m032 *sensor, struct v4l2_subdev_pad_config *cf
 /**
  * __mt9m032_get_pad_format() - get format
  * @sensor: pointer to the sensor struct
+<<<<<<< HEAD
  * @cfg: v4l2_subdev_pad_config for getting the try format from
+=======
+ * @sd_state: v4l2_subdev_state for getting the try format from
+>>>>>>> upstream/android-13
  * @which: select try or active format
  *
  * Returns a pointer the current active or fh relative try format
  */
 static struct v4l2_mbus_framefmt *
+<<<<<<< HEAD
 __mt9m032_get_pad_format(struct mt9m032 *sensor, struct v4l2_subdev_pad_config *cfg,
+=======
+__mt9m032_get_pad_format(struct mt9m032 *sensor,
+			 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			 enum v4l2_subdev_format_whence which)
 {
 	switch (which) {
 	case V4L2_SUBDEV_FORMAT_TRY:
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_format(&sensor->subdev, cfg, 0);
+=======
+		return v4l2_subdev_get_try_format(&sensor->subdev, sd_state,
+						  0);
+>>>>>>> upstream/android-13
 	case V4L2_SUBDEV_FORMAT_ACTIVE:
 		return &sensor->format;
 	default:
@@ -382,20 +424,32 @@ __mt9m032_get_pad_format(struct mt9m032 *sensor, struct v4l2_subdev_pad_config *
 }
 
 static int mt9m032_get_pad_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_format *fmt)
 {
 	struct mt9m032 *sensor = to_mt9m032(subdev);
 
 	mutex_lock(&sensor->lock);
+<<<<<<< HEAD
 	fmt->format = *__mt9m032_get_pad_format(sensor, cfg, fmt->which);
+=======
+	fmt->format = *__mt9m032_get_pad_format(sensor, sd_state, fmt->which);
+>>>>>>> upstream/android-13
 	mutex_unlock(&sensor->lock);
 
 	return 0;
 }
 
 static int mt9m032_set_pad_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_format *fmt)
 {
 	struct mt9m032 *sensor = to_mt9m032(subdev);
@@ -409,7 +463,11 @@ static int mt9m032_set_pad_format(struct v4l2_subdev *subdev,
 	}
 
 	/* Scaling is not supported, the format is thus fixed. */
+<<<<<<< HEAD
 	fmt->format = *__mt9m032_get_pad_format(sensor, cfg, fmt->which);
+=======
+	fmt->format = *__mt9m032_get_pad_format(sensor, sd_state, fmt->which);
+>>>>>>> upstream/android-13
 	ret = 0;
 
 done:
@@ -418,7 +476,11 @@ done:
 }
 
 static int mt9m032_get_pad_selection(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				     struct v4l2_subdev_pad_config *cfg,
+=======
+				     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				     struct v4l2_subdev_selection *sel)
 {
 	struct mt9m032 *sensor = to_mt9m032(subdev);
@@ -427,14 +489,22 @@ static int mt9m032_get_pad_selection(struct v4l2_subdev *subdev,
 		return -EINVAL;
 
 	mutex_lock(&sensor->lock);
+<<<<<<< HEAD
 	sel->r = *__mt9m032_get_pad_crop(sensor, cfg, sel->which);
+=======
+	sel->r = *__mt9m032_get_pad_crop(sensor, sd_state, sel->which);
+>>>>>>> upstream/android-13
 	mutex_unlock(&sensor->lock);
 
 	return 0;
 }
 
 static int mt9m032_set_pad_selection(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				     struct v4l2_subdev_pad_config *cfg,
+=======
+				     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				     struct v4l2_subdev_selection *sel)
 {
 	struct mt9m032 *sensor = to_mt9m032(subdev);
@@ -470,13 +540,22 @@ static int mt9m032_set_pad_selection(struct v4l2_subdev *subdev,
 	rect.height = min_t(unsigned int, rect.height,
 			    MT9M032_PIXEL_ARRAY_HEIGHT - rect.top);
 
+<<<<<<< HEAD
 	__crop = __mt9m032_get_pad_crop(sensor, cfg, sel->which);
+=======
+	__crop = __mt9m032_get_pad_crop(sensor, sd_state, sel->which);
+>>>>>>> upstream/android-13
 
 	if (rect.width != __crop->width || rect.height != __crop->height) {
 		/* Reset the output image size if the crop rectangle size has
 		 * been modified.
 		 */
+<<<<<<< HEAD
 		format = __mt9m032_get_pad_format(sensor, cfg, sel->which);
+=======
+		format = __mt9m032_get_pad_format(sensor, sd_state,
+						  sel->which);
+>>>>>>> upstream/android-13
 		format->width = rect.width;
 		format->height = rect.height;
 	}

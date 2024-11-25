@@ -9,6 +9,7 @@
 #define CEPH_MON_PORT    6789  /* default monitor port */
 
 /*
+<<<<<<< HEAD
  * client-side processes will try to bind to ports in this
  * range, simply for the benefit of tools like nmap or wireshark
  * that would like to identify the protocol.
@@ -18,15 +19,53 @@
 #define CEPH_PORT_LAST   6900
 
 /*
+=======
+>>>>>>> upstream/android-13
  * tcp connection banner.  include a protocol version. and adjust
  * whenever the wire protocol changes.  try to keep this string length
  * constant.
  */
 #define CEPH_BANNER "ceph v027"
+<<<<<<< HEAD
+=======
+#define CEPH_BANNER_LEN 9
+>>>>>>> upstream/android-13
 #define CEPH_BANNER_MAX_LEN 30
 
 
 /*
+<<<<<<< HEAD
+=======
+ * messenger V2 connection banner prefix.
+ * The full banner string should have the form: "ceph v2\n<le16>"
+ * the 2 bytes are the length of the remaining banner.
+ */
+#define CEPH_BANNER_V2 "ceph v2\n"
+#define CEPH_BANNER_V2_LEN 8
+#define CEPH_BANNER_V2_PREFIX_LEN (CEPH_BANNER_V2_LEN + sizeof(__le16))
+
+/*
+ * messenger V2 features
+ */
+#define CEPH_MSGR2_INCARNATION_1 (0ull)
+
+#define DEFINE_MSGR2_FEATURE(bit, incarnation, name)               \
+	static const uint64_t __maybe_unused CEPH_MSGR2_FEATURE_##name = (1ULL << bit); \
+	static const uint64_t __maybe_unused CEPH_MSGR2_FEATUREMASK_##name =            \
+			(1ULL << bit | CEPH_MSGR2_INCARNATION_##incarnation);
+
+#define HAVE_MSGR2_FEATURE(x, name) \
+	(((x) & (CEPH_MSGR2_FEATUREMASK_##name)) == (CEPH_MSGR2_FEATUREMASK_##name))
+
+DEFINE_MSGR2_FEATURE( 0, 1, REVISION_1)   // msgr2.1
+
+#define CEPH_MSGR2_SUPPORTED_FEATURES (CEPH_MSGR2_FEATURE_REVISION_1)
+
+#define CEPH_MSGR2_REQUIRED_FEATURES  (CEPH_MSGR2_FEATURE_REVISION_1)
+
+
+/*
+>>>>>>> upstream/android-13
  * Rollover-safe type and comparator for 32-bit sequence numbers.
  * Comparator returns -1, 0, or 1.
  */
@@ -61,11 +100,25 @@ extern const char *ceph_entity_type_name(int type);
  * entity_addr -- network address
  */
 struct ceph_entity_addr {
+<<<<<<< HEAD
 	__le32 type;
+=======
+	__le32 type;  /* CEPH_ENTITY_ADDR_TYPE_* */
+>>>>>>> upstream/android-13
 	__le32 nonce;  /* unique id for process (e.g. pid) */
 	struct sockaddr_storage in_addr;
 } __attribute__ ((packed));
 
+<<<<<<< HEAD
+=======
+static inline bool ceph_addr_equal_no_type(const struct ceph_entity_addr *lhs,
+					   const struct ceph_entity_addr *rhs)
+{
+	return !memcmp(&lhs->in_addr, &rhs->in_addr, sizeof(lhs->in_addr)) &&
+	       lhs->nonce == rhs->nonce;
+}
+
+>>>>>>> upstream/android-13
 struct ceph_entity_inst {
 	struct ceph_entity_name name;
 	struct ceph_entity_addr addr;
@@ -160,6 +213,27 @@ struct ceph_msg_header {
 	__le32 crc;       /* header crc32c */
 } __attribute__ ((packed));
 
+<<<<<<< HEAD
+=======
+struct ceph_msg_header2 {
+	__le64 seq;       /* message seq# for this session */
+	__le64 tid;       /* transaction id */
+	__le16 type;      /* message type */
+	__le16 priority;  /* priority.  higher value == higher priority */
+	__le16 version;   /* version of message encoding */
+
+	__le32 data_pre_padding_len;
+	__le16 data_off;  /* sender: include full offset;
+			     receiver: mask against ~PAGE_MASK */
+
+	__le64 ack_seq;
+	__u8 flags;
+	/* oldest code we think can decode this.  unknown if zero. */
+	__le16 compat_version;
+	__le16 reserved;
+} __attribute__ ((packed));
+
+>>>>>>> upstream/android-13
 #define CEPH_MSG_PRIO_LOW     64
 #define CEPH_MSG_PRIO_DEFAULT 127
 #define CEPH_MSG_PRIO_HIGH    196

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  * Author: Jacek Anaszewski <j.anaszewski@samsung.com>
@@ -28,10 +32,13 @@
  * with any triggers or illuminance events. Enabling/disabling
  * one of the proximity events automatically enables/disables
  * the other one.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -41,8 +48,13 @@
 #include <linux/irq.h>
 #include <linux/irq_work.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/mutex.h>
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
@@ -1423,12 +1435,17 @@ static int gp2ap020a00f_buffer_postenable(struct iio_dev *indio_dev)
 		goto error_unlock;
 
 	data->buffer = kmalloc(indio_dev->scan_bytes, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!data->buffer) {
 		err = -ENOMEM;
 		goto error_unlock;
 	}
 
 	err = iio_triggered_buffer_postenable(indio_dev);
+=======
+	if (!data->buffer)
+		err = -ENOMEM;
+>>>>>>> upstream/android-13
 
 error_unlock:
 	mutex_unlock(&data->lock);
@@ -1439,6 +1456,7 @@ error_unlock:
 static int gp2ap020a00f_buffer_predisable(struct iio_dev *indio_dev)
 {
 	struct gp2ap020a00f_data *data = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int i, err;
 
 	mutex_lock(&data->lock);
@@ -1447,6 +1465,12 @@ static int gp2ap020a00f_buffer_predisable(struct iio_dev *indio_dev)
 	if (err < 0)
 		goto error_unlock;
 
+=======
+	int i, err = 0;
+
+	mutex_lock(&data->lock);
+
+>>>>>>> upstream/android-13
 	for_each_set_bit(i, indio_dev->active_scan_mask,
 		indio_dev->masklength) {
 		switch (i) {
@@ -1468,7 +1492,10 @@ static int gp2ap020a00f_buffer_predisable(struct iio_dev *indio_dev)
 	if (err == 0)
 		kfree(data->buffer);
 
+<<<<<<< HEAD
 error_unlock:
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&data->lock);
 
 	return err;
@@ -1529,7 +1556,10 @@ static int gp2ap020a00f_probe(struct i2c_client *client,
 	init_waitqueue_head(&data->data_ready_queue);
 
 	mutex_init(&data->lock);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = gp2ap020a00f_channels;
 	indio_dev->num_channels = ARRAY_SIZE(gp2ap020a00f_channels);
 	indio_dev->info = &gp2ap020a00f_info;
@@ -1564,7 +1594,10 @@ static int gp2ap020a00f_probe(struct i2c_client *client,
 	}
 
 	data->trig->ops = &gp2ap020a00f_trigger_ops;
+<<<<<<< HEAD
 	data->trig->dev.parent = &data->client->dev;
+=======
+>>>>>>> upstream/android-13
 
 	init_irq_work(&data->work, gp2ap020a00f_iio_trigger_work);
 
@@ -1619,18 +1652,28 @@ static const struct i2c_device_id gp2ap020a00f_id[] = {
 
 MODULE_DEVICE_TABLE(i2c, gp2ap020a00f_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id gp2ap020a00f_of_match[] = {
 	{ .compatible = "sharp,gp2ap020a00f" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, gp2ap020a00f_of_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver gp2ap020a00f_driver = {
 	.driver = {
 		.name	= GP2A_I2C_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(gp2ap020a00f_of_match),
+=======
+		.of_match_table = gp2ap020a00f_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe		= gp2ap020a00f_probe,
 	.remove		= gp2ap020a00f_remove,

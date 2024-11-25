@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/input/keyboard/pxa27x_keypad.c
  *
@@ -9,10 +13,13 @@
  * Based on a previous implementations by Kevin O'Connor
  * <kevin_at_koconnor.net> and Alex Osborne <bobofdoom@gmail.com> and
  * on some suggestions by Nicolas Pitre <nico@fluxnic.net>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -697,7 +704,11 @@ static int pxa27x_keypad_resume(struct device *dev)
 	} else {
 		mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 		if (input_dev->users) {
+=======
+		if (input_device_enabled(input_dev)) {
+>>>>>>> upstream/android-13
 			/* Enable unit clock */
 			ret = clk_prepare_enable(keypad->clk);
 			if (!ret)
@@ -730,10 +741,15 @@ static int pxa27x_keypad_probe(struct platform_device *pdev)
 		return -EINVAL;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "failed to get keypad irq\n");
 		return -ENXIO;
 	}
+=======
+	if (irq < 0)
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (res == NULL) {

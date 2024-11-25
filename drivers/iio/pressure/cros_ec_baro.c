@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * cros_ec_baro - Driver for barometer sensor behind CrosEC.
  *
  * Copyright (C) 2017 Google, Inc
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,6 +19,10 @@
  */
 
 #include <linux/delay.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/iio/buffer.h>
 #include <linux/iio/common/cros_ec_sensors_core.h>
@@ -23,10 +32,17 @@
 #include <linux/iio/triggered_buffer.h>
 #include <linux/iio/trigger_consumer.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/mfd/cros_ec.h>
 #include <linux/mfd/cros_ec_commands.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+=======
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 
 /*
@@ -48,26 +64,47 @@ static int cros_ec_baro_read(struct iio_dev *indio_dev,
 {
 	struct cros_ec_baro_state *st = iio_priv(indio_dev);
 	u16 data = 0;
+<<<<<<< HEAD
 	int ret = IIO_VAL_INT;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	int idx = chan->scan_index;
 
 	mutex_lock(&st->core.cmd_lock);
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
+<<<<<<< HEAD
 		if (cros_ec_sensors_read_cmd(indio_dev, 1 << idx,
 					     (s16 *)&data) < 0)
 			ret = -EIO;
 		*val = data;
+=======
+		ret = cros_ec_sensors_read_cmd(indio_dev, 1 << idx,
+					     (s16 *)&data);
+		if (ret)
+			break;
+
+		*val = data;
+		ret = IIO_VAL_INT;
+>>>>>>> upstream/android-13
 		break;
 	case IIO_CHAN_INFO_SCALE:
 		st->core.param.cmd = MOTIONSENSE_CMD_SENSOR_RANGE;
 		st->core.param.sensor_range.data = EC_MOTION_SENSE_NO_VALUE;
 
+<<<<<<< HEAD
 		if (cros_ec_motion_send_host_cmd(&st->core, 0)) {
 			ret = -EIO;
 			break;
 		}
+=======
+		ret = cros_ec_motion_send_host_cmd(&st->core, 0);
+		if (ret)
+			break;
+
+>>>>>>> upstream/android-13
 		*val = st->core.resp->sensor_range.ret;
 
 		/* scale * in_pressure_raw --> kPa */
@@ -102,8 +139,16 @@ static int cros_ec_baro_write(struct iio_dev *indio_dev,
 		/* Always roundup, so caller gets at least what it asks for. */
 		st->core.param.sensor_range.roundup = 1;
 
+<<<<<<< HEAD
 		if (cros_ec_motion_send_host_cmd(&st->core, 0))
 			ret = -EIO;
+=======
+		ret = cros_ec_motion_send_host_cmd(&st->core, 0);
+		if (ret == 0) {
+			st->core.range_updated = true;
+			st->core.curr_range = val;
+		}
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = cros_ec_sensors_core_write(&st->core, chan, val, val2,
@@ -119,6 +164,10 @@ static int cros_ec_baro_write(struct iio_dev *indio_dev,
 static const struct iio_info cros_ec_baro_info = {
 	.read_raw = &cros_ec_baro_read,
 	.write_raw = &cros_ec_baro_write,
+<<<<<<< HEAD
+=======
+	.read_avail = &cros_ec_sensors_core_read_avail,
+>>>>>>> upstream/android-13
 };
 
 static int cros_ec_baro_probe(struct platform_device *pdev)
@@ -139,7 +188,13 @@ static int cros_ec_baro_probe(struct platform_device *pdev)
 	if (!indio_dev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = cros_ec_sensors_core_init(pdev, indio_dev, true);
+=======
+	ret = cros_ec_sensors_core_init(pdev, indio_dev, true,
+					cros_ec_sensors_capture,
+					cros_ec_sensors_push_data);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -152,8 +207,14 @@ static int cros_ec_baro_probe(struct platform_device *pdev)
 	channel->info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
 	channel->info_mask_shared_by_all =
 		BIT(IIO_CHAN_INFO_SCALE) |
+<<<<<<< HEAD
 		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
 		BIT(IIO_CHAN_INFO_FREQUENCY);
+=======
+		BIT(IIO_CHAN_INFO_SAMP_FREQ);
+	channel->info_mask_shared_by_all_available =
+		BIT(IIO_CHAN_INFO_SAMP_FREQ);
+>>>>>>> upstream/android-13
 	channel->scan_type.realbits = CROS_EC_SENSOR_BITS;
 	channel->scan_type.storagebits = CROS_EC_SENSOR_BITS;
 	channel->scan_type.shift = 0;
@@ -161,8 +222,11 @@ static int cros_ec_baro_probe(struct platform_device *pdev)
 	channel->ext_info = cros_ec_sensors_ext_info;
 	channel->scan_type.sign = 'u';
 
+<<<<<<< HEAD
 	state->core.calib[0] = 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* Sensor specific */
 	switch (state->core.type) {
 	case MOTIONSENSE_TYPE_BARO:
@@ -187,11 +251,14 @@ static int cros_ec_baro_probe(struct platform_device *pdev)
 
 	state->core.read_ec_sensors_data = cros_ec_sensors_read_cmd;
 
+<<<<<<< HEAD
 	ret = devm_iio_triggered_buffer_setup(dev, indio_dev, NULL,
 					      cros_ec_sensors_capture, NULL);
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	return devm_iio_device_register(dev, indio_dev);
 }
 
@@ -206,6 +273,10 @@ MODULE_DEVICE_TABLE(platform, cros_ec_baro_ids);
 static struct platform_driver cros_ec_baro_platform_driver = {
 	.driver = {
 		.name	= "cros-ec-baro",
+<<<<<<< HEAD
+=======
+		.pm	= &cros_ec_sensors_pm_ops,
+>>>>>>> upstream/android-13
 	},
 	.probe		= cros_ec_baro_probe,
 	.id_table	= cros_ec_baro_ids,

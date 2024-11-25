@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * A iio driver for the light sensor ISL 29018/29023/29035.
  *
@@ -5,6 +9,7 @@
  * sensing and infrared sensing.
  *
  * Copyright (c) 2010, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -23,6 +30,10 @@
 #include <linux/mutex.h>
 #include <linux/delay.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/regulator/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -95,6 +106,10 @@ struct isl29018_chip {
 	struct isl29018_scale	scale;
 	int			prox_scheme;
 	bool			suspended;
+<<<<<<< HEAD
+=======
+	struct regulator	*vcc_reg;
+>>>>>>> upstream/android-13
 };
 
 static int isl29018_set_integration_time(struct isl29018_chip *chip,
@@ -708,6 +723,19 @@ static const char *isl29018_match_acpi_device(struct device *dev, int *data)
 	return dev_name(dev);
 }
 
+<<<<<<< HEAD
+=======
+static void isl29018_disable_regulator_action(void *_data)
+{
+	struct isl29018_chip *chip = _data;
+	int err;
+
+	err = regulator_disable(chip->vcc_reg);
+	if (err)
+		pr_err("failed to disable isl29018's VCC regulator!\n");
+}
+
+>>>>>>> upstream/android-13
 static int isl29018_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
 {
@@ -742,6 +770,27 @@ static int isl29018_probe(struct i2c_client *client,
 	chip->scale = isl29018_scales[chip->int_time][0];
 	chip->suspended = false;
 
+<<<<<<< HEAD
+=======
+	chip->vcc_reg = devm_regulator_get(&client->dev, "vcc");
+	if (IS_ERR(chip->vcc_reg))
+		return dev_err_probe(&client->dev, PTR_ERR(chip->vcc_reg),
+				     "failed to get VCC regulator!\n");
+
+	err = regulator_enable(chip->vcc_reg);
+	if (err) {
+		dev_err(&client->dev, "failed to enable VCC regulator!\n");
+		return err;
+	}
+
+	err = devm_add_action_or_reset(&client->dev, isl29018_disable_regulator_action,
+				 chip);
+	if (err) {
+		dev_err(&client->dev, "failed to setup regulator cleanup action!\n");
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	chip->regmap = devm_regmap_init_i2c(client,
 				isl29018_chip_info_tbl[dev_id].regmap_cfg);
 	if (IS_ERR(chip->regmap)) {
@@ -758,7 +807,10 @@ static int isl29018_probe(struct i2c_client *client,
 	indio_dev->channels = isl29018_chip_info_tbl[dev_id].channels;
 	indio_dev->num_channels = isl29018_chip_info_tbl[dev_id].num_channels;
 	indio_dev->name = name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
 	return devm_iio_device_register(&client->dev, indio_dev);
@@ -768,6 +820,10 @@ static int isl29018_probe(struct i2c_client *client,
 static int isl29018_suspend(struct device *dev)
 {
 	struct isl29018_chip *chip = iio_priv(dev_get_drvdata(dev));
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&chip->lock);
 
@@ -777,10 +833,20 @@ static int isl29018_suspend(struct device *dev)
 	 * So we do not have much to do here.
 	 */
 	chip->suspended = true;
+<<<<<<< HEAD
 
 	mutex_unlock(&chip->lock);
 
 	return 0;
+=======
+	ret = regulator_disable(chip->vcc_reg);
+	if (ret)
+		dev_err(dev, "failed to disable VCC regulator\n");
+
+	mutex_unlock(&chip->lock);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int isl29018_resume(struct device *dev)
@@ -790,6 +856,16 @@ static int isl29018_resume(struct device *dev)
 
 	mutex_lock(&chip->lock);
 
+<<<<<<< HEAD
+=======
+	err = regulator_enable(chip->vcc_reg);
+	if (err) {
+		dev_err(dev, "failed to enable VCC regulator\n");
+		mutex_unlock(&chip->lock);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	err = isl29018_chip_init(chip);
 	if (!err)
 		chip->suspended = false;

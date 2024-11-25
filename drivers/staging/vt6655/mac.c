@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: mac.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose:  MAC routines
  *
  * Author: Tevin Chen
@@ -12,7 +15,10 @@
  * Date: May 21, 1996
  *
  * Functions:
+<<<<<<< HEAD
  *      MACbIsRegBitsOn - Test if All test Bits On
+=======
+>>>>>>> upstream/android-13
  *      MACbIsRegBitsOff - Test if All test Bits Off
  *      MACbIsIntDisable - Test if MAC interrupt disable
  *      MACvSetShortRetryLimit - Set 802.11 Short Retry limit
@@ -44,6 +50,7 @@
 
 /*
  * Description:
+<<<<<<< HEAD
  *      Test if all test bits on
  *
  * Parameters:
@@ -67,6 +74,8 @@ bool MACbIsRegBitsOn(struct vnt_private *priv, unsigned char byRegOfs,
 
 /*
  * Description:
+=======
+>>>>>>> upstream/android-13
  *      Test if all test bits off
  *
  * Parameters:
@@ -593,7 +602,10 @@ void MACvSetCurrRx1DescAddr(struct vnt_private *priv, u32 curr_desc_addr)
 	iowrite32(curr_desc_addr, io_base + MAC_REG_RXDMAPTR1);
 	if (org_dma_ctl & DMACTL_RUN)
 		iowrite8(DMACTL_RUN, io_base + MAC_REG_RXDMACTL1);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -800,7 +812,10 @@ void MACvSetKeyEntry(struct vnt_private *priv, unsigned short wKeyCtl,
 	if (byLocalID <= 1)
 		return;
 
+<<<<<<< HEAD
 	pr_debug("%s\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	offset = MISCFIFO_KEYETRY0;
 	offset += (uEntryIdx * MISCFIFO_KEYENTRYSIZE);
 

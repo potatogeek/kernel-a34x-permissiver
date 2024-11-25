@@ -20,6 +20,10 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 #
+<<<<<<< HEAD
 gpu-sched-y := gpu_scheduler.o sched_fence.o
+=======
+gpu-sched-y := sched_main.o sched_fence.o sched_entity.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_DRM_SCHED) += gpu-sched.o

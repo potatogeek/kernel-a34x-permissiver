@@ -75,9 +75,24 @@ int dpio_get_attributes(struct fsl_mc_io	*mc_io,
 			u16		token,
 			struct dpio_attr	*attr);
 
+<<<<<<< HEAD
+=======
+int dpio_set_stashing_destination(struct fsl_mc_io *mc_io,
+				  u32 cmd_flags,
+				  u16 token,
+				  u8 dest);
+
+>>>>>>> upstream/android-13
 int dpio_get_api_version(struct fsl_mc_io *mc_io,
 			 u32 cmd_flags,
 			 u16 *major_ver,
 			 u16 *minor_ver);
 
+<<<<<<< HEAD
+=======
+int dpio_reset(struct fsl_mc_io	*mc_io,
+	       u32 cmd_flags,
+	       u16 token);
+
+>>>>>>> upstream/android-13
 #endif /* __FSL_DPIO_H */

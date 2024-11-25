@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * netdebug.c
  *
  * debug functionality for o2net
  *
  * Copyright (C) 2005, 2008 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifdef CONFIG_DEBUG_FS
@@ -53,10 +61,13 @@
 #define SHOW_SOCK_STATS		1
 
 static struct dentry *o2net_dentry;
+<<<<<<< HEAD
 static struct dentry *sc_dentry;
 static struct dentry *nst_dentry;
 static struct dentry *stats_dentry;
 static struct dentry *nodes_dentry;
+=======
+>>>>>>> upstream/android-13
 
 static DEFINE_SPINLOCK(o2net_debug_lock);
 
@@ -462,8 +473,13 @@ static int o2net_fill_bitmap(char *buf, int len)
 	o2net_fill_node_map(map, sizeof(map));
 
 	while ((i = find_next_bit(map, O2NM_MAX_NODES, i + 1)) < O2NM_MAX_NODES)
+<<<<<<< HEAD
 		out += snprintf(buf + out, PAGE_SIZE - out, "%d ", i);
 	out += snprintf(buf + out, PAGE_SIZE - out, "\n");
+=======
+		out += scnprintf(buf + out, PAGE_SIZE - out, "%d ", i);
+	out += scnprintf(buf + out, PAGE_SIZE - out, "\n");
+>>>>>>> upstream/android-13
 
 	return out;
 }
@@ -505,6 +521,7 @@ static const struct file_operations nodes_fops = {
 
 void o2net_debugfs_exit(void)
 {
+<<<<<<< HEAD
 	debugfs_remove(nodes_dentry);
 	debugfs_remove(stats_dentry);
 	debugfs_remove(sc_dentry);
@@ -513,10 +530,17 @@ void o2net_debugfs_exit(void)
 }
 
 int o2net_debugfs_init(void)
+=======
+	debugfs_remove_recursive(o2net_dentry);
+}
+
+void o2net_debugfs_init(void)
+>>>>>>> upstream/android-13
 {
 	umode_t mode = S_IFREG|S_IRUSR;
 
 	o2net_dentry = debugfs_create_dir(O2NET_DEBUG_DIR, NULL);
+<<<<<<< HEAD
 	if (o2net_dentry)
 		nst_dentry = debugfs_create_file(NST_DEBUG_NAME, mode,
 					o2net_dentry, NULL, &nst_seq_fops);
@@ -535,6 +559,17 @@ int o2net_debugfs_init(void)
 	o2net_debugfs_exit();
 	mlog_errno(-ENOMEM);
 	return -ENOMEM;
+=======
+
+	debugfs_create_file(NST_DEBUG_NAME, mode, o2net_dentry, NULL,
+			    &nst_seq_fops);
+	debugfs_create_file(SC_DEBUG_NAME, mode, o2net_dentry, NULL,
+			    &sc_seq_fops);
+	debugfs_create_file(STATS_DEBUG_NAME, mode, o2net_dentry, NULL,
+			    &stats_seq_fops);
+	debugfs_create_file(NODES_DEBUG_NAME, mode, o2net_dentry, NULL,
+			    &nodes_fops);
+>>>>>>> upstream/android-13
 }
 
 #endif	/* CONFIG_DEBUG_FS */

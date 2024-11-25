@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_sx4.c - Promise SATA
  *
@@ -7,6 +11,7 @@
  *
  *  Copyright 2003-2004 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,11 +28,16 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware documentation available under NDA.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -685,7 +695,11 @@ static unsigned int pdc20621_qc_issue(struct ata_queued_cmd *qc)
 	case ATA_PROT_NODATA:
 		if (qc->tf.flags & ATA_TFLAG_POLLING)
 			break;
+<<<<<<< HEAD
 		/*FALLTHROUGH*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_PROT_DMA:
 		pdc20621_packet_start(qc);
 		return 0;
@@ -1488,10 +1502,14 @@ static int pdc_sata_init_one(struct pci_dev *pdev,
 	}
 
 	/* configure and activate */
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		return rc;
 	rc = dma_set_coherent_mask(&pdev->dev, ATA_DMA_MASK);
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 

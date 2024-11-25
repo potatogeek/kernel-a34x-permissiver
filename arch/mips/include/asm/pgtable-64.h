@@ -17,13 +17,20 @@
 #include <asm/cachectl.h>
 #include <asm/fixmap.h>
 
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
+=======
+>>>>>>> upstream/android-13
 #if CONFIG_PGTABLE_LEVELS == 2
 #include <asm-generic/pgtable-nopmd.h>
 #elif CONFIG_PGTABLE_LEVELS == 3
 #include <asm-generic/pgtable-nopud.h>
 #else
+<<<<<<< HEAD
 #include <asm-generic/5level-fixup.h>
+=======
+#include <asm-generic/pgtable-nop4d.h>
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -138,7 +145,10 @@
 #define PTRS_PER_PTE	((PAGE_SIZE << PTE_ORDER) / sizeof(pte_t))
 
 #define USER_PTRS_PER_PGD       ((TASK_SIZE64 / PGDIR_SIZE)?(TASK_SIZE64 / PGDIR_SIZE):1)
+<<<<<<< HEAD
 #define FIRST_USER_ADDRESS	0UL
+=======
+>>>>>>> upstream/android-13
 
 /*
  * TLB refill handlers also map the vmalloc area into xuseg.  Avoid
@@ -188,6 +198,7 @@ extern pud_t invalid_pud_table[PTRS_PER_PUD];
 /*
  * Empty pgd entries point to the invalid_pud_table.
  */
+<<<<<<< HEAD
 static inline int pgd_none(pgd_t pgd)
 {
 	return pgd_val(pgd) == (unsigned long)invalid_pud_table;
@@ -196,11 +207,22 @@ static inline int pgd_none(pgd_t pgd)
 static inline int pgd_bad(pgd_t pgd)
 {
 	if (unlikely(pgd_val(pgd) & ~PAGE_MASK))
+=======
+static inline int p4d_none(p4d_t p4d)
+{
+	return p4d_val(p4d) == (unsigned long)invalid_pud_table;
+}
+
+static inline int p4d_bad(p4d_t p4d)
+{
+	if (unlikely(p4d_val(p4d) & ~PAGE_MASK))
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int pgd_present(pgd_t pgd)
 {
 	return pgd_val(pgd) != (unsigned long)invalid_pud_table;
@@ -229,6 +251,31 @@ static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
 static inline void set_pgd(pgd_t *pgd, pgd_t pgdval)
 {
 	*pgd = pgdval;
+=======
+static inline int p4d_present(p4d_t p4d)
+{
+	return p4d_val(p4d) != (unsigned long)invalid_pud_table;
+}
+
+static inline void p4d_clear(p4d_t *p4dp)
+{
+	p4d_val(*p4dp) = (unsigned long)invalid_pud_table;
+}
+
+static inline pud_t *p4d_pgtable(p4d_t p4d)
+{
+	return (pud_t *)p4d_val(p4d);
+}
+
+#define p4d_phys(p4d)		virt_to_phys((void *)p4d_val(p4d))
+#define p4d_page(p4d)		(pfn_to_page(p4d_phys(p4d) >> PAGE_SHIFT))
+
+#define p4d_index(address)	(((address) >> P4D_SHIFT) & (PTRS_PER_P4D - 1))
+
+static inline void set_p4d(p4d_t *p4d, p4d_t p4dval)
+{
+	*p4d = p4dval;
+>>>>>>> upstream/android-13
 }
 
 #endif
@@ -319,6 +366,7 @@ static inline void pud_clear(pud_t *pudp)
 #define pfn_pmd(pfn, prot)	__pmd(((pfn) << _PFN_SHIFT) | pgprot_val(prot))
 #endif
 
+<<<<<<< HEAD
 #define __pgd_offset(address)	pgd_index(address)
 #define __pud_offset(address)	(((address) >> PUD_SHIFT) & (PTRS_PER_PUD-1))
 #define __pmd_offset(address)	pmd_index(address)
@@ -336,10 +384,17 @@ static inline void pud_clear(pud_t *pudp)
 static inline unsigned long pud_page_vaddr(pud_t pud)
 {
 	return pud_val(pud);
+=======
+#ifndef __PAGETABLE_PMD_FOLDED
+static inline pmd_t *pud_pgtable(pud_t pud)
+{
+	return (pmd_t *)pud_val(pud);
+>>>>>>> upstream/android-13
 }
 #define pud_phys(pud)		virt_to_phys((void *)pud_val(pud))
 #define pud_page(pud)		(pfn_to_page(pud_phys(pud) >> PAGE_SHIFT))
 
+<<<<<<< HEAD
 /* Find an entry in the second-level page table.. */
 static inline pmd_t *pmd_offset(pud_t * pud, unsigned long address)
 {
@@ -358,6 +413,10 @@ static inline pmd_t *pmd_offset(pud_t * pud, unsigned long address)
 	((pte_t *)page_address(pmd_page(*(dir))) + __pte_offset(address))
 #define pte_unmap(pte) ((void)(pte))
 
+=======
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Initialize a new pgd / pmd table with invalid pointers.
  */

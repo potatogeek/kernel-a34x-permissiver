@@ -7,6 +7,7 @@
 /*
  * unsigned long native_save_fl(void)
  */
+<<<<<<< HEAD
 ENTRY(native_save_fl)
 	pushf
 	pop %_ASM_AX
@@ -24,3 +25,11 @@ ENTRY(native_restore_fl)
 	ret
 ENDPROC(native_restore_fl)
 EXPORT_SYMBOL(native_restore_fl)
+=======
+SYM_FUNC_START(native_save_fl)
+	pushf
+	pop %_ASM_AX
+	RET
+SYM_FUNC_END(native_save_fl)
+EXPORT_SYMBOL(native_save_fl)
+>>>>>>> upstream/android-13

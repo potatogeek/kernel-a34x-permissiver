@@ -50,8 +50,11 @@
 #define TX_ID_CHECK_CNT		3
 #define MISALIGN_TX_TRY_CNT	3
 
+<<<<<<< HEAD
 #define WL_TO_W 99
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_USB_FACTORY_MODE)
 #define FOREACH_BOOT_MODE(GEN_BOOT_MODE) \
 	GEN_BOOT_MODE(NO_MODE) \
@@ -119,6 +122,7 @@ enum sec_battery_voltage_type {
 	SEC_BATTERY_VOLTAGE_MV,
 };
 
+<<<<<<< HEAD
 enum sec_battery_temp_type {
 	/* temp */
 	SEC_BATTERY_TEMP_TEMP = 0,
@@ -126,11 +130,16 @@ enum sec_battery_temp_type {
 	SEC_BATTERY_TEMP_ADC,
 };
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 enum sec_battery_dual_mode {
 	SEC_DUAL_BATTERY_MAIN = 0,
 	SEC_DUAL_BATTERY_SUB,
+<<<<<<< HEAD
 	SEC_DUAL_BATTERY_TOTAL,
+=======
+>>>>>>> upstream/android-13
 };
 #endif
 
@@ -193,6 +202,7 @@ enum sec_wireless_auth_mode {
 };
 
 enum sec_wireless_pad_id {
+<<<<<<< HEAD
 	WC_PAD_UNKNOWN = 0x00,
 
 	/* 0x01~1F : Single Port */
@@ -286,6 +296,37 @@ enum sec_wireless_pad_id {
 	(vendor_id == 0x6E00) || \
 	(vendor_id == 0x0066))
 
+=======
+	WC_PAD_ID_UNKNOWN	= 0x00,
+	/* 0x01~1F : Single Port */
+	WC_PAD_ID_SNGL_NOBLE = 0x10,
+	WC_PAD_ID_SNGL_VEHICLE,
+	WC_PAD_ID_SNGL_MINI,
+	WC_PAD_ID_SNGL_ZERO,
+	WC_PAD_ID_SNGL_DREAM,
+	/* 0x20~2F : Multi Port */
+	/* 0x30~3F : Stand Type */
+	WC_PAD_ID_STAND_HERO = 0x30,
+	WC_PAD_ID_STAND_DREAM,
+	/* 0x40~4F : External Battery Pack */
+	WC_PAD_ID_EXT_BATT_PACK = 0x40,
+	WC_PAD_ID_EXT_BATT_PACK_TA,
+	/* 0x50~6F : Reserved */
+	WC_PAD_ID_UNO_TX = 0x72,
+	WC_PAD_ID_UNO_TX_B0 = 0x80,
+	WC_PAD_ID_UNO_TX_B1,
+	WC_PAD_ID_UNO_TX_B2,
+	WC_PAD_ID_UNO_TX_MAX = 0x9F,
+	WC_PAD_ID_AUTH_PAD = 0xA0,
+	WC_PAD_ID_DAVINCI_PAD_V,
+	WC_PAD_ID_DAVINCI_PAD_H,
+	WC_PAD_ID_AUTH_PAD_ACLASS_END = 0xAF,
+	WC_PAD_ID_AUTH_PAD_END = 0xBF,
+	/* reserved 0xA1 ~ 0xBF for auth pad */
+	WC_PAD_ID_MAX = 0xFF,
+};
+
+>>>>>>> upstream/android-13
 enum sec_battery_adc_channel {
 	SEC_BAT_ADC_CHANNEL_CABLE_CHECK = 0,
 	SEC_BAT_ADC_CHANNEL_BATID_CHECK,
@@ -302,13 +343,19 @@ enum sec_battery_adc_channel {
 	SEC_BAT_ADC_CHANNEL_USB_TEMP,
 	SEC_BAT_ADC_CHANNEL_SUB_BAT_TEMP,
 	SEC_BAT_ADC_CHANNEL_BLKT_TEMP,
+<<<<<<< HEAD
 	SEC_BAT_ADC_CHANNEL_DC_TEMP,
+=======
+>>>>>>> upstream/android-13
 	SEC_BAT_ADC_CHANNEL_NUM,
 };
 
 enum sec_battery_charge_mode {
 	SEC_BAT_CHG_MODE_BUCK_OFF = 0, /* buck, chg off */
+<<<<<<< HEAD
 	SEC_BAT_CHG_MODE_BUCK_OFF_LINEAR_CHARGING, /* buck off, linear chg on */
+=======
+>>>>>>> upstream/android-13
 	SEC_BAT_CHG_MODE_CHARGING_OFF,
 	SEC_BAT_CHG_MODE_PASS_THROUGH,
 	SEC_BAT_CHG_MODE_CHARGING, /* buck, chg on */
@@ -357,6 +404,7 @@ enum sec_battery_direct_charging_source_ctrl {
 	SEC_STORE_MODE = 0x4,
 };
 
+<<<<<<< HEAD
 enum sec_battery_slate_mode {
 	SEC_SLATE_OFF = 0,
 	SEC_SLATE_MODE,
@@ -364,6 +412,8 @@ enum sec_battery_slate_mode {
 	SEC_SMART_SWITCH_SRC,
 };
 
+=======
+>>>>>>> upstream/android-13
 extern const char *sb_rx_type_str(int type);
 extern const char *sb_vout_ctr_mode_str(int vout_mode);
 extern const char *sb_rx_vout_str(int vout);
@@ -464,6 +514,7 @@ enum d2d_mode {
 	HP_D2D_LCD,
 };
 
+<<<<<<< HEAD
 enum {
 	RX_POWER_NONE,
 	RX_POWER_5W,
@@ -480,6 +531,8 @@ enum mfc_phm_state {
 	END_PHM,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* full check condition type (can be used overlapped) */
 #define sec_battery_full_condition_t unsigned int
 
@@ -521,6 +574,7 @@ enum sec_battery_check {
   * (only for driver algorithm, can NOT be set by user)
   */
 #define SEC_FUELGAUGE_CAPACITY_TYPE_RESET	(-1)
+<<<<<<< HEAD
 
 #if IS_ENABLED(CONFIG_DUAL_FUELGAUGE)
  /* SEC_FUELGAUGE_CAPACITY_TYPE_RESET_SUB
@@ -530,6 +584,8 @@ enum sec_battery_check {
 #define SEC_FUELGAUGE_CAPACITY_TYPE_RESET_SUB	(-2)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* SEC_FUELGAUGE_CAPACITY_TYPE_RAW
   * use capacity information from fuel gauge directly
   */
@@ -561,6 +617,10 @@ enum sec_battery_check {
 #define SEC_FUELGAUGE_CAPACITY_TYPE_REPCAP	0x80
 
 /* charger function settings (can be used overlapped) */
+<<<<<<< HEAD
+=======
+#define sec_charger_functions_t unsigned int
+>>>>>>> upstream/android-13
 /* SEC_CHARGER_NO_GRADUAL_CHARGING_CURRENT
  * disable gradual charging current setting
  * SUMMIT:AICL, MAXIM:regulation loop
@@ -572,6 +632,7 @@ enum sec_battery_check {
  */
 #define SEC_CHARGER_MINIMUM_SIOP_CHARGING_CURRENT	2
 
+<<<<<<< HEAD
 #define SEC_BATTERY_CABLE_TYPE_FROM_MTK	1
 
 #if defined(CONFIG_TABLET_MODEL_CONCEPT) && !defined(CONFIG_SEC_FACTORY)
@@ -580,6 +641,9 @@ enum sec_battery_check {
 #define SLOW_CHARGING_CURRENT_STANDARD          400
 #endif
 
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+>>>>>>> upstream/android-13
 typedef struct sec_age_data {
 	unsigned int cycle;
 	unsigned int float_voltage;
@@ -590,12 +654,17 @@ typedef struct sec_age_data {
 	unsigned int max_charging_current;
 #endif
 } sec_age_data_t;
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 typedef struct {
 	unsigned int cycle;
 	unsigned int asoc;
 } battery_health_condition;
 
+<<<<<<< HEAD
 #define is_ppde_wireless_type(cable_type) ( \
 	cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20 || \
 	cable_type == SEC_BATTERY_CABLE_HV_WIRELESS_20_LIMIT || \
@@ -605,14 +674,20 @@ typedef struct {
 	cable_type == SEC_BATTERY_CABLE_HV_WIRELESS_20 || \
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_EPP)
 
+=======
+>>>>>>> upstream/android-13
 #define is_hv_wireless_type(cable_type) ( \
 	cable_type == SEC_BATTERY_CABLE_HV_WIRELESS || \
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_HV_STAND || \
 	cable_type == SEC_BATTERY_CABLE_HV_WIRELESS_20 || \
 	cable_type == SEC_BATTERY_CABLE_HV_WIRELESS_20_LIMIT || \
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_HV_VEHICLE || \
+<<<<<<< HEAD
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_HV_PACK || \
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_EPP)
+=======
+	cable_type == SEC_BATTERY_CABLE_WIRELESS_HV_PACK)
+>>>>>>> upstream/android-13
 
 #define is_nv_wireless_type(cable_type)	( \
 	cable_type == SEC_BATTERY_CABLE_WIRELESS || \
@@ -622,6 +697,7 @@ typedef struct {
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_VEHICLE || \
 	cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_HV || \
 	cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_20 || \
+<<<<<<< HEAD
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_TX || \
 	cable_type == SEC_BATTERY_CABLE_WIRELESS_EPP_NV)
 
@@ -636,6 +712,15 @@ typedef struct {
 #define is_wireless_all_type(cable_type) ( \
 	is_wireless_type(cable_type) || \
 	is_wireless_fake_type(cable_type))
+=======
+	cable_type == SEC_BATTERY_CABLE_WIRELESS_TX)
+
+#define is_wireless_type(cable_type) \
+	(is_hv_wireless_type(cable_type) || is_nv_wireless_type(cable_type))
+
+#define is_wireless_fake_type(cable_type) \
+	(is_wireless_type(cable_type) || (cable_type == SEC_BATTERY_CABLE_WIRELESS_FAKE))
+>>>>>>> upstream/android-13
 
 #define is_not_wireless_type(cable_type) ( \
 	cable_type != SEC_BATTERY_CABLE_WIRELESS && \
@@ -651,9 +736,13 @@ typedef struct {
 	cable_type != SEC_BATTERY_CABLE_PREPARE_WIRELESS_20 && \
 	cable_type != SEC_BATTERY_CABLE_HV_WIRELESS_20 && \
 	cable_type != SEC_BATTERY_CABLE_HV_WIRELESS_20_LIMIT && \
+<<<<<<< HEAD
 	cable_type != SEC_BATTERY_CABLE_WIRELESS_HV_PACK && \
 	cable_type != SEC_BATTERY_CABLE_WIRELESS_EPP && \
 	cable_type != SEC_BATTERY_CABLE_WIRELESS_EPP_NV)
+=======
+	cable_type != SEC_BATTERY_CABLE_WIRELESS_HV_PACK)
+>>>>>>> upstream/android-13
 
 #define is_wired_type(cable_type) \
 	(is_not_wireless_type(cable_type) && (cable_type != SEC_BATTERY_CABLE_NONE) && \
@@ -688,27 +777,39 @@ typedef struct {
 	cable_type == SEC_BATTERY_CABLE_OTG || \
 	cable_type == SEC_BATTERY_CABLE_POWER_SHARING)
 
+<<<<<<< HEAD
 
 #define chg_can_sleep_type(cable_type) ( \
 	!is_wired_type(cable_type) || cable_type == SEC_BATTERY_CABLE_TIMEOUT)
 
+=======
+>>>>>>> upstream/android-13
 #define is_slate_mode(battery) ((battery->current_event & SEC_BAT_CURRENT_EVENT_SLATE) \
 		== SEC_BAT_CURRENT_EVENT_SLATE)
 
 #define can_usb_suspend_type(cable_type) ( \
 	cable_type == SEC_BATTERY_CABLE_PDIC || \
+<<<<<<< HEAD
 	cable_type == SEC_BATTERY_CABLE_FPDO_DC || \
+=======
+>>>>>>> upstream/android-13
 	cable_type == SEC_BATTERY_CABLE_PDIC_APDO || \
 	cable_type == SEC_BATTERY_CABLE_USB || \
 	cable_type == SEC_BATTERY_CABLE_USB_CDP)
 
 #define is_pd_wire_type(cable_type) ( \
 	cable_type == SEC_BATTERY_CABLE_PDIC || \
+<<<<<<< HEAD
 	cable_type == SEC_BATTERY_CABLE_FPDO_DC || \
 	cable_type == SEC_BATTERY_CABLE_PDIC_APDO)
 
 #define is_pd_apdo_wire_type(cable_type) ( \
 	cable_type == SEC_BATTERY_CABLE_FPDO_DC || \
+=======
+	cable_type == SEC_BATTERY_CABLE_PDIC_APDO)
+
+#define is_pd_apdo_wire_type(cable_type) ( \
+>>>>>>> upstream/android-13
 	cable_type == SEC_BATTERY_CABLE_PDIC_APDO)
 
 #define is_pd_fpdo_wire_type(cable_type) ( \
@@ -716,7 +817,10 @@ typedef struct {
 
 #define is_hv_pdo_wire_type(cable_type, hv_pdo) ( \
 	(cable_type == SEC_BATTERY_CABLE_PDIC || \
+<<<<<<< HEAD
 	cable_type == SEC_BATTERY_CABLE_FPDO_DC || \
+=======
+>>>>>>> upstream/android-13
 	cable_type == SEC_BATTERY_CABLE_PDIC_APDO) && \
 	hv_pdo)
 

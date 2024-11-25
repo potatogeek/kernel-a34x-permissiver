@@ -2,6 +2,16 @@
 #ifndef _POWERNV_H
 #define _POWERNV_H
 
+<<<<<<< HEAD
+=======
+/*
+ * There's various hacks scattered throughout the generic powerpc arch code
+ * that needs to call into powernv platform stuff. The prototypes for those
+ * functions are in asm/powernv.h
+ */
+#include <asm/powernv.h>
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SMP
 extern void pnv_smp_init(void);
 #else
@@ -30,4 +40,12 @@ extern void opal_event_shutdown(void);
 
 bool cpu_core_split_required(void);
 
+<<<<<<< HEAD
+=======
+struct memcons;
+ssize_t memcons_copy(struct memcons *mc, char *to, loff_t pos, size_t count);
+u32 memcons_get_size(struct memcons *mc);
+struct memcons *memcons_init(struct device_node *node, const char *mc_prop_name);
+
+>>>>>>> upstream/android-13
 #endif /* _POWERNV_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MIPS idle loop and WAIT instruction support.
  *
@@ -5,11 +9,14 @@
  * Copyright (C) 1994 - 2006 Ralf Baechle
  * Copyright (C) 2003, 2004  Maciej W. Rozycki
  * Copyright (C) 2001, 2004, 2011, 2012	 MIPS Technologies, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/export.h>
@@ -37,19 +44,31 @@ static void __cpuidle r3081_wait(void)
 {
 	unsigned long cfg = read_c0_conf();
 	write_c0_conf(cfg | R30XX_CONF_HALT);
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 static void __cpuidle r39xx_wait(void)
 {
 	if (!need_resched())
 		write_c0_conf(read_c0_conf() | TX39_CONF_HALT);
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 void __cpuidle r4k_wait(void)
 {
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 	__r4k_wait();
 }
 
@@ -68,7 +87,11 @@ void __cpuidle r4k_wait_irqoff(void)
 		"	.set	arch=r4000	\n"
 		"	wait			\n"
 		"	.set	pop		\n");
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -88,7 +111,11 @@ static void __cpuidle rm7k_wait_irqoff(void)
 		"	wait						\n"
 		"	mtc0	$1, $12		# stalls until W stage	\n"
 		"	.set	pop					\n");
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -101,7 +128,12 @@ static void __cpuidle au1k_wait(void)
 	unsigned long c0status = read_c0_status() | 1;	/* irqs on */
 
 	__asm__(
+<<<<<<< HEAD
 	"	.set	arch=r4000			\n"
+=======
+	"	.set	push			\n"
+	"	.set	arch=r4000		\n"
+>>>>>>> upstream/android-13
 	"	cache	0x14, 0(%0)		\n"
 	"	cache	0x14, 32(%0)		\n"
 	"	sync				\n"
@@ -111,7 +143,11 @@ static void __cpuidle au1k_wait(void)
 	"	nop				\n"
 	"	nop				\n"
 	"	nop				\n"
+<<<<<<< HEAD
 	"	.set	mips0			\n"
+=======
+	"	.set	pop			\n"
+>>>>>>> upstream/android-13
 	: : "r" (au1k_wait), "r" (c0status));
 }
 
@@ -176,14 +212,26 @@ void __init check_wait(void)
 	case CPU_CAVIUM_OCTEON_PLUS:
 	case CPU_CAVIUM_OCTEON2:
 	case CPU_CAVIUM_OCTEON3:
+<<<<<<< HEAD
 	case CPU_JZRISC:
 	case CPU_LOONGSON1:
+=======
+	case CPU_XBURST:
+	case CPU_LOONGSON32:
+>>>>>>> upstream/android-13
 	case CPU_XLR:
 	case CPU_XLP:
 		cpu_wait = r4k_wait;
 		break;
+<<<<<<< HEAD
 	case CPU_LOONGSON3:
 		if ((c->processor_id & PRID_REV_MASK) >= PRID_REV_LOONGSON3A_R2)
+=======
+	case CPU_LOONGSON64:
+		if ((c->processor_id & (PRID_IMP_MASK | PRID_REV_MASK)) >=
+				(PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0) ||
+				(c->processor_id & PRID_IMP_MASK) == PRID_IMP_LOONGSON_64R)
+>>>>>>> upstream/android-13
 			cpu_wait = r4k_wait;
 		break;
 
@@ -204,7 +252,11 @@ void __init check_wait(void)
 		 */
 		if (IS_ENABLED(CONFIG_MIPS_EJTAG_FDC_TTY))
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CPU_M14KC:
 	case CPU_M14KEC:
 	case CPU_24K:
@@ -259,7 +311,11 @@ void arch_cpu_idle(void)
 	if (cpu_wait)
 		cpu_wait();
 	else
+<<<<<<< HEAD
 		local_irq_enable();
+=======
+		raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_CPU_IDLE

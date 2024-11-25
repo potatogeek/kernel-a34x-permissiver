@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008, 2009 open80211s Ltd.
  * Author:     Luis Carlos Cobo <luisca@cozybit.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008, 2009 open80211s Ltd.
+ * Author:     Luis Carlos Cobo <luisca@cozybit.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -50,6 +57,7 @@ static void mesh_path_rht_free(void *ptr, void *tblptr)
 	mesh_path_free_rcu(tbl, mpath);
 }
 
+<<<<<<< HEAD
 static struct mesh_table *mesh_table_alloc(void)
 {
 	struct mesh_table *newtbl;
@@ -66,17 +74,37 @@ static struct mesh_table *mesh_table_alloc(void)
 	rhashtable_init(&newtbl->rhead, &mesh_rht_params);
 
 	return newtbl;
+=======
+static void mesh_table_init(struct mesh_table *tbl)
+{
+	INIT_HLIST_HEAD(&tbl->known_gates);
+	INIT_HLIST_HEAD(&tbl->walk_head);
+	atomic_set(&tbl->entries,  0);
+	spin_lock_init(&tbl->gates_lock);
+	spin_lock_init(&tbl->walk_lock);
+
+	/* rhashtable_init() may fail only in case of wrong
+	 * mesh_rht_params
+	 */
+	WARN_ON(rhashtable_init(&tbl->rhead, &mesh_rht_params));
+>>>>>>> upstream/android-13
 }
 
 static void mesh_table_free(struct mesh_table *tbl)
 {
 	rhashtable_free_and_destroy(&tbl->rhead,
 				    mesh_path_rht_free, tbl);
+<<<<<<< HEAD
 	kfree(tbl);
 }
 
 /**
  *
+=======
+}
+
+/**
+>>>>>>> upstream/android-13
  * mesh_path_assign_nexthop - update mesh path next hop
  *
  * @mpath: mesh path to update
@@ -126,7 +154,11 @@ static void prepare_for_gate(struct sk_buff *skb, char *dst_addr,
 		hdr = (struct ieee80211_hdr *) skb->data;
 
 		/* we preserve the previous mesh header and only add
+<<<<<<< HEAD
 		 * the new addreses */
+=======
+		 * the new addresses */
+>>>>>>> upstream/android-13
 		mshdr = (struct ieee80211s_hdr *) (skb->data + hdrlen);
 		mshdr->flags = MESH_FLAGS_AE_A5_A6;
 		memcpy(mshdr->eaddr1, hdr->addr3, ETH_ALEN);
@@ -144,7 +176,10 @@ static void prepare_for_gate(struct sk_buff *skb, char *dst_addr,
 }
 
 /**
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * mesh_path_move_to_queue - Move or copy frames from one mpath queue to another
  *
  * This function is used to transfer or copy frames from an unresolved mpath to
@@ -156,7 +191,11 @@ static void prepare_for_gate(struct sk_buff *skb, char *dst_addr,
  *
  * The gate mpath must be an active mpath with a valid mpath->next_hop.
  *
+<<<<<<< HEAD
  * @mpath: An active mpath the frames will be sent to (i.e. the gate)
+=======
+ * @gate_mpath: An active mpath the frames will be sent to (i.e. the gate)
+>>>>>>> upstream/android-13
  * @from_mpath: The failed mpath
  * @copy: When true, copy all the frames to the new mpath queue.  When false,
  * move them.
@@ -218,7 +257,11 @@ static struct mesh_path *mpath_lookup(struct mesh_table *tbl, const u8 *dst,
 {
 	struct mesh_path *mpath;
 
+<<<<<<< HEAD
 	mpath = rhashtable_lookup_fast(&tbl->rhead, dst, mesh_rht_params);
+=======
+	mpath = rhashtable_lookup(&tbl->rhead, dst, mesh_rht_params);
+>>>>>>> upstream/android-13
 
 	if (mpath && mpath_expired(mpath)) {
 		spin_lock_bh(&mpath->state_lock);
@@ -240,13 +283,21 @@ static struct mesh_path *mpath_lookup(struct mesh_table *tbl, const u8 *dst,
 struct mesh_path *
 mesh_path_lookup(struct ieee80211_sub_if_data *sdata, const u8 *dst)
 {
+<<<<<<< HEAD
 	return mpath_lookup(sdata->u.mesh.mesh_paths, dst, sdata);
+=======
+	return mpath_lookup(&sdata->u.mesh.mesh_paths, dst, sdata);
+>>>>>>> upstream/android-13
 }
 
 struct mesh_path *
 mpp_path_lookup(struct ieee80211_sub_if_data *sdata, const u8 *dst)
 {
+<<<<<<< HEAD
 	return mpath_lookup(sdata->u.mesh.mpp_paths, dst, sdata);
+=======
+	return mpath_lookup(&sdata->u.mesh.mpp_paths, dst, sdata);
+>>>>>>> upstream/android-13
 }
 
 static struct mesh_path *
@@ -283,7 +334,11 @@ __mesh_path_lookup_by_idx(struct mesh_table *tbl, int idx)
 struct mesh_path *
 mesh_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
 {
+<<<<<<< HEAD
 	return __mesh_path_lookup_by_idx(sdata->u.mesh.mesh_paths, idx);
+=======
+	return __mesh_path_lookup_by_idx(&sdata->u.mesh.mesh_paths, idx);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -298,7 +353,11 @@ mesh_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
 struct mesh_path *
 mpp_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
 {
+<<<<<<< HEAD
 	return __mesh_path_lookup_by_idx(sdata->u.mesh.mpp_paths, idx);
+=======
+	return __mesh_path_lookup_by_idx(&sdata->u.mesh.mpp_paths, idx);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -311,7 +370,11 @@ int mesh_path_add_gate(struct mesh_path *mpath)
 	int err;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	tbl = mpath->sdata->u.mesh.mesh_paths;
+=======
+	tbl = &mpath->sdata->u.mesh.mesh_paths;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&mpath->state_lock);
 	if (mpath->is_gate) {
@@ -405,7 +468,10 @@ struct mesh_path *mesh_path_add(struct ieee80211_sub_if_data *sdata,
 {
 	struct mesh_table *tbl;
 	struct mesh_path *mpath, *new_mpath;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (ether_addr_equal(dst, sdata->vif.addr))
 		/* never add ourselves as neighbours */
@@ -421,6 +487,7 @@ struct mesh_path *mesh_path_add(struct ieee80211_sub_if_data *sdata,
 	if (!new_mpath)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	tbl = sdata->u.mesh.mesh_paths;
 	spin_lock_bh(&tbl->walk_lock);
 	do {
@@ -442,6 +509,22 @@ struct mesh_path *mesh_path_add(struct ieee80211_sub_if_data *sdata,
 
 		if (ret != -EEXIST)
 			return ERR_PTR(ret);
+=======
+	tbl = &sdata->u.mesh.mesh_paths;
+	spin_lock_bh(&tbl->walk_lock);
+	mpath = rhashtable_lookup_get_insert_fast(&tbl->rhead,
+						  &new_mpath->rhash,
+						  mesh_rht_params);
+	if (!mpath)
+		hlist_add_head(&new_mpath->walk_list, &tbl->walk_head);
+	spin_unlock_bh(&tbl->walk_lock);
+
+	if (mpath) {
+		kfree(new_mpath);
+
+		if (IS_ERR(mpath))
+			return mpath;
+>>>>>>> upstream/android-13
 
 		new_mpath = mpath;
 	}
@@ -470,7 +553,11 @@ int mpp_path_add(struct ieee80211_sub_if_data *sdata,
 		return -ENOMEM;
 
 	memcpy(new_mpath->mpp, mpp, ETH_ALEN);
+<<<<<<< HEAD
 	tbl = sdata->u.mesh.mpp_paths;
+=======
+	tbl = &sdata->u.mesh.mpp_paths;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&tbl->walk_lock);
 	ret = rhashtable_lookup_insert_fast(&tbl->rhead,
@@ -499,7 +586,11 @@ int mpp_path_add(struct ieee80211_sub_if_data *sdata,
 void mesh_plink_broken(struct sta_info *sta)
 {
 	struct ieee80211_sub_if_data *sdata = sta->sdata;
+<<<<<<< HEAD
 	struct mesh_table *tbl = sdata->u.mesh.mesh_paths;
+=======
+	struct mesh_table *tbl = &sdata->u.mesh.mesh_paths;
+>>>>>>> upstream/android-13
 	static const u8 bcast[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 	struct mesh_path *mpath;
 
@@ -558,7 +649,11 @@ static void __mesh_path_del(struct mesh_table *tbl, struct mesh_path *mpath)
 void mesh_path_flush_by_nexthop(struct sta_info *sta)
 {
 	struct ieee80211_sub_if_data *sdata = sta->sdata;
+<<<<<<< HEAD
 	struct mesh_table *tbl = sdata->u.mesh.mesh_paths;
+=======
+	struct mesh_table *tbl = &sdata->u.mesh.mesh_paths;
+>>>>>>> upstream/android-13
 	struct mesh_path *mpath;
 	struct hlist_node *n;
 
@@ -573,7 +668,11 @@ void mesh_path_flush_by_nexthop(struct sta_info *sta)
 static void mpp_flush_by_proxy(struct ieee80211_sub_if_data *sdata,
 			       const u8 *proxy)
 {
+<<<<<<< HEAD
 	struct mesh_table *tbl = sdata->u.mesh.mpp_paths;
+=======
+	struct mesh_table *tbl = &sdata->u.mesh.mpp_paths;
+>>>>>>> upstream/android-13
 	struct mesh_path *mpath;
 	struct hlist_node *n;
 
@@ -607,8 +706,13 @@ static void table_flush_by_iface(struct mesh_table *tbl)
  */
 void mesh_path_flush_by_iface(struct ieee80211_sub_if_data *sdata)
 {
+<<<<<<< HEAD
 	table_flush_by_iface(sdata->u.mesh.mesh_paths);
 	table_flush_by_iface(sdata->u.mesh.mpp_paths);
+=======
+	table_flush_by_iface(&sdata->u.mesh.mesh_paths);
+	table_flush_by_iface(&sdata->u.mesh.mpp_paths);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -654,7 +758,11 @@ int mesh_path_del(struct ieee80211_sub_if_data *sdata, const u8 *addr)
 	/* flush relevant mpp entries first */
 	mpp_flush_by_proxy(sdata, addr);
 
+<<<<<<< HEAD
 	err = table_path_del(sdata->u.mesh.mesh_paths, sdata, addr);
+=======
+	err = table_path_del(&sdata->u.mesh.mesh_paths, sdata, addr);
+>>>>>>> upstream/android-13
 	sdata->u.mesh.mesh_paths_generation++;
 	return err;
 }
@@ -692,7 +800,11 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
 	struct mesh_path *gate;
 	bool copy = false;
 
+<<<<<<< HEAD
 	tbl = sdata->u.mesh.mesh_paths;
+=======
+	tbl = &sdata->u.mesh.mesh_paths;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	hlist_for_each_entry_rcu(gate, &tbl->known_gates, gate_list) {
@@ -772,6 +884,7 @@ void mesh_path_fix_nexthop(struct mesh_path *mpath, struct sta_info *next_hop)
 	mesh_path_tx_pending(mpath);
 }
 
+<<<<<<< HEAD
 int mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata)
 {
 	struct mesh_table *tbl_path, *tbl_mpp;
@@ -795,6 +908,12 @@ int mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata)
 free_path:
 	mesh_table_free(tbl_path);
 	return ret;
+=======
+void mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata)
+{
+	mesh_table_init(&sdata->u.mesh.mesh_paths);
+	mesh_table_init(&sdata->u.mesh.mpp_paths);
+>>>>>>> upstream/android-13
 }
 
 static
@@ -816,12 +935,22 @@ void mesh_path_tbl_expire(struct ieee80211_sub_if_data *sdata,
 
 void mesh_path_expire(struct ieee80211_sub_if_data *sdata)
 {
+<<<<<<< HEAD
 	mesh_path_tbl_expire(sdata, sdata->u.mesh.mesh_paths);
 	mesh_path_tbl_expire(sdata, sdata->u.mesh.mpp_paths);
+=======
+	mesh_path_tbl_expire(sdata, &sdata->u.mesh.mesh_paths);
+	mesh_path_tbl_expire(sdata, &sdata->u.mesh.mpp_paths);
+>>>>>>> upstream/android-13
 }
 
 void mesh_pathtbl_unregister(struct ieee80211_sub_if_data *sdata)
 {
+<<<<<<< HEAD
 	mesh_table_free(sdata->u.mesh.mesh_paths);
 	mesh_table_free(sdata->u.mesh.mpp_paths);
+=======
+	mesh_table_free(&sdata->u.mesh.mesh_paths);
+	mesh_table_free(&sdata->u.mesh.mpp_paths);
+>>>>>>> upstream/android-13
 }

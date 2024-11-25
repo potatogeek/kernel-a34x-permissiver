@@ -1,14 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * i.MX6 OCOTP fusebox driver
  *
  * Copyright (c) 2015 Pengutronix, Philipp Zabel <p.zabel@pengutronix.de>
  *
+<<<<<<< HEAD
+=======
+ * Copyright 2019 NXP
+ *
+>>>>>>> upstream/android-13
  * Based on the barebox ocotp driver,
  * Copyright (c) 2010 Baruch Siach <baruch@tkos.co.il>,
  *	Orex Computed Radiography
  *
  * Write support based on the fsl_otp driver,
  * Copyright (C) 2010-2013 Freescale Semiconductor, Inc
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -16,6 +26,8 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -45,11 +57,39 @@
 #define IMX_OCOTP_ADDR_DATA2		0x0040
 #define IMX_OCOTP_ADDR_DATA3		0x0050
 
+<<<<<<< HEAD
 #define IMX_OCOTP_BM_CTRL_ADDR		0x0000007F
+=======
+#define IMX_OCOTP_BM_CTRL_ADDR		0x000000FF
+>>>>>>> upstream/android-13
 #define IMX_OCOTP_BM_CTRL_BUSY		0x00000100
 #define IMX_OCOTP_BM_CTRL_ERROR		0x00000200
 #define IMX_OCOTP_BM_CTRL_REL_SHADOWS	0x00000400
 
+<<<<<<< HEAD
+=======
+#define IMX_OCOTP_BM_CTRL_ADDR_8MP		0x000001FF
+#define IMX_OCOTP_BM_CTRL_BUSY_8MP		0x00000200
+#define IMX_OCOTP_BM_CTRL_ERROR_8MP		0x00000400
+#define IMX_OCOTP_BM_CTRL_REL_SHADOWS_8MP	0x00000800
+
+#define IMX_OCOTP_BM_CTRL_DEFAULT				\
+	{							\
+		.bm_addr = IMX_OCOTP_BM_CTRL_ADDR,		\
+		.bm_busy = IMX_OCOTP_BM_CTRL_BUSY,		\
+		.bm_error = IMX_OCOTP_BM_CTRL_ERROR,		\
+		.bm_rel_shadows = IMX_OCOTP_BM_CTRL_REL_SHADOWS,\
+	}
+
+#define IMX_OCOTP_BM_CTRL_8MP					\
+	{							\
+		.bm_addr = IMX_OCOTP_BM_CTRL_ADDR_8MP,		\
+		.bm_busy = IMX_OCOTP_BM_CTRL_BUSY_8MP,		\
+		.bm_error = IMX_OCOTP_BM_CTRL_ERROR_8MP,	\
+		.bm_rel_shadows = IMX_OCOTP_BM_CTRL_REL_SHADOWS_8MP,\
+	}
+
+>>>>>>> upstream/android-13
 #define TIMING_STROBE_PROG_US		10	/* Min time to blow a fuse */
 #define TIMING_STROBE_READ_NS		37	/* Min time before read */
 #define TIMING_RELAX_NS			17
@@ -68,10 +108,21 @@ struct ocotp_priv {
 	struct nvmem_config *config;
 };
 
+<<<<<<< HEAD
+=======
+struct ocotp_ctrl_reg {
+	u32 bm_addr;
+	u32 bm_busy;
+	u32 bm_error;
+	u32 bm_rel_shadows;
+};
+
+>>>>>>> upstream/android-13
 struct ocotp_params {
 	unsigned int nregs;
 	unsigned int bank_address_words;
 	void (*set_timing)(struct ocotp_priv *priv);
+<<<<<<< HEAD
 };
 
 static int imx_ocotp_wait_for_busy(void __iomem *base, u32 flags)
@@ -80,6 +131,22 @@ static int imx_ocotp_wait_for_busy(void __iomem *base, u32 flags)
 	u32 c, mask;
 
 	mask = IMX_OCOTP_BM_CTRL_BUSY | IMX_OCOTP_BM_CTRL_ERROR | flags;
+=======
+	struct ocotp_ctrl_reg ctrl;
+};
+
+static int imx_ocotp_wait_for_busy(struct ocotp_priv *priv, u32 flags)
+{
+	int count;
+	u32 c, mask;
+	u32 bm_ctrl_busy, bm_ctrl_error;
+	void __iomem *base = priv->base;
+
+	bm_ctrl_busy = priv->params->ctrl.bm_busy;
+	bm_ctrl_error = priv->params->ctrl.bm_error;
+
+	mask = bm_ctrl_busy | bm_ctrl_error | flags;
+>>>>>>> upstream/android-13
 
 	for (count = 10000; count >= 0; count--) {
 		c = readl(base + IMX_OCOTP_ADDR_CTRL);
@@ -103,7 +170,11 @@ static int imx_ocotp_wait_for_busy(void __iomem *base, u32 flags)
 		 * - A read is performed to from a fuse word which has been read
 		 *   locked.
 		 */
+<<<<<<< HEAD
 		if (c & IMX_OCOTP_BM_CTRL_ERROR)
+=======
+		if (c & bm_ctrl_error)
+>>>>>>> upstream/android-13
 			return -EPERM;
 		return -ETIMEDOUT;
 	}
@@ -111,6 +182,7 @@ static int imx_ocotp_wait_for_busy(void __iomem *base, u32 flags)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void imx_ocotp_clr_err_if_set(void __iomem *base)
 {
 	u32 c;
@@ -120,6 +192,20 @@ static void imx_ocotp_clr_err_if_set(void __iomem *base)
 		return;
 
 	writel(IMX_OCOTP_BM_CTRL_ERROR, base + IMX_OCOTP_ADDR_CTRL_CLR);
+=======
+static void imx_ocotp_clr_err_if_set(struct ocotp_priv *priv)
+{
+	u32 c, bm_ctrl_error;
+	void __iomem *base = priv->base;
+
+	bm_ctrl_error = priv->params->ctrl.bm_error;
+
+	c = readl(base + IMX_OCOTP_ADDR_CTRL);
+	if (!(c & bm_ctrl_error))
+		return;
+
+	writel(bm_ctrl_error, base + IMX_OCOTP_ADDR_CTRL_CLR);
+>>>>>>> upstream/android-13
 }
 
 static int imx_ocotp_read(void *context, unsigned int offset,
@@ -127,33 +213,66 @@ static int imx_ocotp_read(void *context, unsigned int offset,
 {
 	struct ocotp_priv *priv = context;
 	unsigned int count;
+<<<<<<< HEAD
 	u32 *buf = val;
 	int i, ret;
 	u32 index;
 
 	index = offset >> 2;
 	count = bytes >> 2;
+=======
+	u8 *buf, *p;
+	int i, ret;
+	u32 index, num_bytes;
+
+	index = offset >> 2;
+	num_bytes = round_up((offset % 4) + bytes, 4);
+	count = num_bytes >> 2;
+>>>>>>> upstream/android-13
 
 	if (count > (priv->params->nregs - index))
 		count = priv->params->nregs - index;
 
+<<<<<<< HEAD
 	mutex_lock(&ocotp_mutex);
 
+=======
+	p = kzalloc(num_bytes, GFP_KERNEL);
+	if (!p)
+		return -ENOMEM;
+
+	mutex_lock(&ocotp_mutex);
+
+	buf = p;
+
+>>>>>>> upstream/android-13
 	ret = clk_prepare_enable(priv->clk);
 	if (ret < 0) {
 		mutex_unlock(&ocotp_mutex);
 		dev_err(priv->dev, "failed to prepare/enable ocotp clk\n");
+<<<<<<< HEAD
 		return ret;
 	}
 
 	ret = imx_ocotp_wait_for_busy(priv->base, 0);
+=======
+		kfree(p);
+		return ret;
+	}
+
+	ret = imx_ocotp_wait_for_busy(priv, 0);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(priv->dev, "timeout during read setup\n");
 		goto read_end;
 	}
 
 	for (i = index; i < (index + count); i++) {
+<<<<<<< HEAD
 		*buf++ = readl(priv->base + IMX_OCOTP_OFFSET_B0W0 +
+=======
+		*(u32 *)buf = readl(priv->base + IMX_OCOTP_OFFSET_B0W0 +
+>>>>>>> upstream/android-13
 			       i * IMX_OCOTP_OFFSET_PER_WORD);
 
 		/* 47.3.1.2
@@ -162,22 +281,45 @@ static int imx_ocotp_read(void *context, unsigned int offset,
 		 * software before any new write, read or reload access can be
 		 * issued
 		 */
+<<<<<<< HEAD
 		if (*(buf - 1) == IMX_OCOTP_READ_LOCKED_VAL)
 			imx_ocotp_clr_err_if_set(priv->base);
 	}
 	ret = 0;
+=======
+		if (*((u32 *)buf) == IMX_OCOTP_READ_LOCKED_VAL)
+			imx_ocotp_clr_err_if_set(priv);
+
+		buf += 4;
+	}
+
+	index = offset % 4;
+	memcpy(val, &p[index], bytes);
+>>>>>>> upstream/android-13
 
 read_end:
 	clk_disable_unprepare(priv->clk);
 	mutex_unlock(&ocotp_mutex);
+<<<<<<< HEAD
+=======
+
+	kfree(p);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void imx_ocotp_set_imx6_timing(struct ocotp_priv *priv)
 {
+<<<<<<< HEAD
 	unsigned long clk_rate = 0;
 	unsigned long strobe_read, relax, strobe_prog;
 	u32 timing = 0;
+=======
+	unsigned long clk_rate;
+	unsigned long strobe_read, relax, strobe_prog;
+	u32 timing;
+>>>>>>> upstream/android-13
 
 	/* 47.3.1.3.1
 	 * Program HW_OCOTP_TIMING[STROBE_PROG] and HW_OCOTP_TIMING[RELAX]
@@ -227,9 +369,15 @@ static void imx_ocotp_set_imx6_timing(struct ocotp_priv *priv)
 
 static void imx_ocotp_set_imx7_timing(struct ocotp_priv *priv)
 {
+<<<<<<< HEAD
 	unsigned long clk_rate = 0;
 	u64 fsource, strobe_prog;
 	u32 timing = 0;
+=======
+	unsigned long clk_rate;
+	u64 fsource, strobe_prog;
+	u32 timing;
+>>>>>>> upstream/android-13
 
 	/* i.MX 7Solo Applications Processor Reference Manual, Rev. 0.1
 	 * 6.4.3.3
@@ -280,7 +428,11 @@ static int imx_ocotp_write(void *context, unsigned int offset, void *val,
 	 * write or reload must be completed before a write access can be
 	 * requested.
 	 */
+<<<<<<< HEAD
 	ret = imx_ocotp_wait_for_busy(priv->base, 0);
+=======
+	ret = imx_ocotp_wait_for_busy(priv, 0);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(priv->dev, "timeout during timing setup\n");
 		goto write_end;
@@ -312,8 +464,13 @@ static int imx_ocotp_write(void *context, unsigned int offset, void *val,
 	}
 
 	ctrl = readl(priv->base + IMX_OCOTP_ADDR_CTRL);
+<<<<<<< HEAD
 	ctrl &= ~IMX_OCOTP_BM_CTRL_ADDR;
 	ctrl |= waddr & IMX_OCOTP_BM_CTRL_ADDR;
+=======
+	ctrl &= ~priv->params->ctrl.bm_addr;
+	ctrl |= waddr & priv->params->ctrl.bm_addr;
+>>>>>>> upstream/android-13
 	ctrl |= IMX_OCOTP_WR_UNLOCK;
 
 	writel(ctrl, priv->base + IMX_OCOTP_ADDR_CTRL);
@@ -380,11 +537,19 @@ static int imx_ocotp_write(void *context, unsigned int offset, void *val,
 	 * be set. It must be cleared by software before any new write access
 	 * can be issued.
 	 */
+<<<<<<< HEAD
 	ret = imx_ocotp_wait_for_busy(priv->base, 0);
 	if (ret < 0) {
 		if (ret == -EPERM) {
 			dev_err(priv->dev, "failed write to locked region");
 			imx_ocotp_clr_err_if_set(priv->base);
+=======
+	ret = imx_ocotp_wait_for_busy(priv, 0);
+	if (ret < 0) {
+		if (ret == -EPERM) {
+			dev_err(priv->dev, "failed write to locked region");
+			imx_ocotp_clr_err_if_set(priv);
+>>>>>>> upstream/android-13
 		} else {
 			dev_err(priv->dev, "timeout during data write\n");
 		}
@@ -400,6 +565,7 @@ static int imx_ocotp_write(void *context, unsigned int offset, void *val,
 	udelay(2);
 
 	/* reload all shadow registers */
+<<<<<<< HEAD
 	writel(IMX_OCOTP_BM_CTRL_REL_SHADOWS,
 	       priv->base + IMX_OCOTP_ADDR_CTRL_SET);
 	ret = imx_ocotp_wait_for_busy(priv->base,
@@ -408,20 +574,36 @@ static int imx_ocotp_write(void *context, unsigned int offset, void *val,
 		dev_err(priv->dev, "timeout during shadow register reload\n");
 		goto write_end;
 	}
+=======
+	writel(priv->params->ctrl.bm_rel_shadows,
+	       priv->base + IMX_OCOTP_ADDR_CTRL_SET);
+	ret = imx_ocotp_wait_for_busy(priv,
+				      priv->params->ctrl.bm_rel_shadows);
+	if (ret < 0)
+		dev_err(priv->dev, "timeout during shadow register reload\n");
+>>>>>>> upstream/android-13
 
 write_end:
 	clk_disable_unprepare(priv->clk);
 	mutex_unlock(&ocotp_mutex);
+<<<<<<< HEAD
 	if (ret < 0)
 		return ret;
 	return bytes;
+=======
+	return ret < 0 ? ret : bytes;
+>>>>>>> upstream/android-13
 }
 
 static struct nvmem_config imx_ocotp_nvmem_config = {
 	.name = "imx-ocotp",
 	.read_only = false,
 	.word_size = 4,
+<<<<<<< HEAD
 	.stride = 4,
+=======
+	.stride = 1,
+>>>>>>> upstream/android-13
 	.reg_read = imx_ocotp_read,
 	.reg_write = imx_ocotp_write,
 };
@@ -430,36 +612,101 @@ static const struct ocotp_params imx6q_params = {
 	.nregs = 128,
 	.bank_address_words = 0,
 	.set_timing = imx_ocotp_set_imx6_timing,
+<<<<<<< HEAD
+=======
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+>>>>>>> upstream/android-13
 };
 
 static const struct ocotp_params imx6sl_params = {
 	.nregs = 64,
 	.bank_address_words = 0,
 	.set_timing = imx_ocotp_set_imx6_timing,
+<<<<<<< HEAD
+=======
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+>>>>>>> upstream/android-13
 };
 
 static const struct ocotp_params imx6sll_params = {
 	.nregs = 128,
 	.bank_address_words = 0,
 	.set_timing = imx_ocotp_set_imx6_timing,
+<<<<<<< HEAD
+=======
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+>>>>>>> upstream/android-13
 };
 
 static const struct ocotp_params imx6sx_params = {
 	.nregs = 128,
 	.bank_address_words = 0,
 	.set_timing = imx_ocotp_set_imx6_timing,
+<<<<<<< HEAD
+=======
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+>>>>>>> upstream/android-13
 };
 
 static const struct ocotp_params imx6ul_params = {
 	.nregs = 128,
 	.bank_address_words = 0,
 	.set_timing = imx_ocotp_set_imx6_timing,
+<<<<<<< HEAD
+=======
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+};
+
+static const struct ocotp_params imx6ull_params = {
+	.nregs = 64,
+	.bank_address_words = 0,
+	.set_timing = imx_ocotp_set_imx6_timing,
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+>>>>>>> upstream/android-13
 };
 
 static const struct ocotp_params imx7d_params = {
 	.nregs = 64,
 	.bank_address_words = 4,
 	.set_timing = imx_ocotp_set_imx7_timing,
+<<<<<<< HEAD
+=======
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+};
+
+static const struct ocotp_params imx7ulp_params = {
+	.nregs = 256,
+	.bank_address_words = 0,
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+};
+
+static const struct ocotp_params imx8mq_params = {
+	.nregs = 256,
+	.bank_address_words = 0,
+	.set_timing = imx_ocotp_set_imx6_timing,
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+};
+
+static const struct ocotp_params imx8mm_params = {
+	.nregs = 256,
+	.bank_address_words = 0,
+	.set_timing = imx_ocotp_set_imx6_timing,
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+};
+
+static const struct ocotp_params imx8mn_params = {
+	.nregs = 256,
+	.bank_address_words = 0,
+	.set_timing = imx_ocotp_set_imx6_timing,
+	.ctrl = IMX_OCOTP_BM_CTRL_DEFAULT,
+};
+
+static const struct ocotp_params imx8mp_params = {
+	.nregs = 384,
+	.bank_address_words = 0,
+	.set_timing = imx_ocotp_set_imx6_timing,
+	.ctrl = IMX_OCOTP_BM_CTRL_8MP,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id imx_ocotp_dt_ids[] = {
@@ -467,8 +714,19 @@ static const struct of_device_id imx_ocotp_dt_ids[] = {
 	{ .compatible = "fsl,imx6sl-ocotp", .data = &imx6sl_params },
 	{ .compatible = "fsl,imx6sx-ocotp", .data = &imx6sx_params },
 	{ .compatible = "fsl,imx6ul-ocotp", .data = &imx6ul_params },
+<<<<<<< HEAD
 	{ .compatible = "fsl,imx7d-ocotp",  .data = &imx7d_params },
 	{ .compatible = "fsl,imx6sll-ocotp", .data = &imx6sll_params },
+=======
+	{ .compatible = "fsl,imx6ull-ocotp", .data = &imx6ull_params },
+	{ .compatible = "fsl,imx7d-ocotp",  .data = &imx7d_params },
+	{ .compatible = "fsl,imx6sll-ocotp", .data = &imx6sll_params },
+	{ .compatible = "fsl,imx7ulp-ocotp", .data = &imx7ulp_params },
+	{ .compatible = "fsl,imx8mq-ocotp", .data = &imx8mq_params },
+	{ .compatible = "fsl,imx8mm-ocotp", .data = &imx8mm_params },
+	{ .compatible = "fsl,imx8mn-ocotp", .data = &imx8mn_params },
+	{ .compatible = "fsl,imx8mp-ocotp", .data = &imx8mp_params },
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(of, imx_ocotp_dt_ids);
@@ -476,7 +734,10 @@ MODULE_DEVICE_TABLE(of, imx_ocotp_dt_ids);
 static int imx_ocotp_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct ocotp_priv *priv;
 	struct nvmem_device *nvmem;
 
@@ -486,8 +747,12 @@ static int imx_ocotp_probe(struct platform_device *pdev)
 
 	priv->dev = dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(dev, res);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
@@ -495,17 +760,29 @@ static int imx_ocotp_probe(struct platform_device *pdev)
 	if (IS_ERR(priv->clk))
 		return PTR_ERR(priv->clk);
 
+<<<<<<< HEAD
 	clk_prepare_enable(priv->clk);
 	imx_ocotp_clr_err_if_set(priv->base);
 	clk_disable_unprepare(priv->clk);
 
+=======
+>>>>>>> upstream/android-13
 	priv->params = of_device_get_match_data(&pdev->dev);
 	imx_ocotp_nvmem_config.size = 4 * priv->params->nregs;
 	imx_ocotp_nvmem_config.dev = dev;
 	imx_ocotp_nvmem_config.priv = priv;
 	priv->config = &imx_ocotp_nvmem_config;
+<<<<<<< HEAD
 	nvmem = devm_nvmem_register(dev, &imx_ocotp_nvmem_config);
 
+=======
+
+	clk_prepare_enable(priv->clk);
+	imx_ocotp_clr_err_if_set(priv);
+	clk_disable_unprepare(priv->clk);
+
+	nvmem = devm_nvmem_register(dev, &imx_ocotp_nvmem_config);
+>>>>>>> upstream/android-13
 
 	return PTR_ERR_OR_ZERO(nvmem);
 }

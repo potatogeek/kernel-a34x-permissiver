@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2010 Willow Garage <http://www.willowgarage.com>
 	Copyright (C) 2004 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
 	Copyright (C) 2004 - 2009 Gertjan van Wingerde <gwingerde@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -34,7 +41,10 @@
 #include <linux/leds.h>
 #include <linux/mutex.h>
 #include <linux/etherdevice.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kfifo.h>
 #include <linux/hrtimer.h>
 #include <linux/average.h>
@@ -69,10 +79,17 @@
 	printk(KERN_ERR KBUILD_MODNAME ": %s: Error - " fmt,		\
 	       __func__, ##__VA_ARGS__)
 #define rt2x00_err(dev, fmt, ...)					\
+<<<<<<< HEAD
 	wiphy_err((dev)->hw->wiphy, "%s: Error - " fmt,			\
 		  __func__, ##__VA_ARGS__)
 #define rt2x00_warn(dev, fmt, ...)					\
 	wiphy_warn((dev)->hw->wiphy, "%s: Warning - " fmt,		\
+=======
+	wiphy_err_ratelimited((dev)->hw->wiphy, "%s: Error - " fmt,	\
+		  __func__, ##__VA_ARGS__)
+#define rt2x00_warn(dev, fmt, ...)					\
+	wiphy_warn_ratelimited((dev)->hw->wiphy, "%s: Warning - " fmt,	\
+>>>>>>> upstream/android-13
 		   __func__, ##__VA_ARGS__)
 #define rt2x00_info(dev, fmt, ...)					\
 	wiphy_info((dev)->hw->wiphy, "%s: Info - " fmt,			\
@@ -194,6 +211,18 @@ struct rf_channel {
 };
 
 /*
+<<<<<<< HEAD
+=======
+ * Information structure for channel survey.
+ */
+struct rt2x00_chan_survey {
+	u64 time_idle;
+	u64 time_busy;
+	u64 time_ext_busy;
+};
+
+/*
+>>>>>>> upstream/android-13
  * Channel information structure
  */
 struct channel_info {
@@ -336,6 +365,11 @@ struct link {
 	 * to bring the device/driver back into the desired state.
 	 */
 	struct delayed_work watchdog_work;
+<<<<<<< HEAD
+=======
+	unsigned int watchdog_interval;
+	bool watchdog_disabled;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Work structure for scheduling periodic AGC adjustments.
@@ -528,11 +562,19 @@ struct rt2x00lib_ops {
 	/*
 	 * TX status tasklet handler.
 	 */
+<<<<<<< HEAD
 	void (*txstatus_tasklet) (unsigned long data);
 	void (*pretbtt_tasklet) (unsigned long data);
 	void (*tbtt_tasklet) (unsigned long data);
 	void (*rxdone_tasklet) (unsigned long data);
 	void (*autowake_tasklet) (unsigned long data);
+=======
+	void (*txstatus_tasklet) (struct tasklet_struct *t);
+	void (*pretbtt_tasklet) (struct tasklet_struct *t);
+	void (*tbtt_tasklet) (struct tasklet_struct *t);
+	void (*rxdone_tasklet) (struct tasklet_struct *t);
+	void (*autowake_tasklet) (struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Device init handlers.
@@ -626,6 +668,10 @@ struct rt2x00lib_ops {
 	void (*config) (struct rt2x00_dev *rt2x00dev,
 			struct rt2x00lib_conf *libconf,
 			const unsigned int changed_flags);
+<<<<<<< HEAD
+=======
+	void (*pre_reset_hw) (struct rt2x00_dev *rt2x00dev);
+>>>>>>> upstream/android-13
 	int (*sta_add) (struct rt2x00_dev *rt2x00dev,
 			struct ieee80211_vif *vif,
 			struct ieee80211_sta *sta);
@@ -665,6 +711,11 @@ enum rt2x00_state_flags {
 	DEVICE_STATE_STARTED,
 	DEVICE_STATE_ENABLED_RADIO,
 	DEVICE_STATE_SCANNING,
+<<<<<<< HEAD
+=======
+	DEVICE_STATE_FLUSHING,
+	DEVICE_STATE_RESET,
+>>>>>>> upstream/android-13
 
 	/*
 	 * Driver configuration
@@ -720,6 +771,10 @@ enum rt2x00_capability_flags {
 	CAPABILITY_VCO_RECALIBRATION,
 	CAPABILITY_EXTERNAL_PA_TX0,
 	CAPABILITY_EXTERNAL_PA_TX1,
+<<<<<<< HEAD
+=======
+	CAPABILITY_RESTART_HW,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -758,6 +813,10 @@ struct rt2x00_dev {
 	 */
 	struct ieee80211_hw *hw;
 	struct ieee80211_supported_band bands[NUM_NL80211_BANDS];
+<<<<<<< HEAD
+=======
+	struct rt2x00_chan_survey *chan_survey;
+>>>>>>> upstream/android-13
 	enum nl80211_band curr_band;
 	int curr_freq;
 
@@ -1013,6 +1072,10 @@ struct rt2x00_dev {
 	unsigned int extra_tx_headroom;
 
 	struct usb_anchor *anchor;
+<<<<<<< HEAD
+=======
+	unsigned int num_proto_errs;
+>>>>>>> upstream/android-13
 
 	/* Clock for System On Chip devices. */
 	struct clk *clk;
@@ -1275,6 +1338,15 @@ rt2x00_has_cap_vco_recalibration(struct rt2x00_dev *rt2x00dev)
 	return rt2x00_has_cap_flag(rt2x00dev, CAPABILITY_VCO_RECALIBRATION);
 }
 
+<<<<<<< HEAD
+=======
+static inline bool
+rt2x00_has_cap_restart_hw(struct rt2x00_dev *rt2x00dev)
+{
+	return rt2x00_has_cap_flag(rt2x00dev, CAPABILITY_RESTART_HW);
+}
+
+>>>>>>> upstream/android-13
 /**
  * rt2x00queue_map_txskb - Map a skb into DMA for TX purposes.
  * @entry: Pointer to &struct queue_entry
@@ -1438,6 +1510,11 @@ void rt2x00mac_tx(struct ieee80211_hw *hw,
 		  struct sk_buff *skb);
 int rt2x00mac_start(struct ieee80211_hw *hw);
 void rt2x00mac_stop(struct ieee80211_hw *hw);
+<<<<<<< HEAD
+=======
+void rt2x00mac_reconfig_complete(struct ieee80211_hw *hw,
+				 enum ieee80211_reconfig_type reconfig_type);
+>>>>>>> upstream/android-13
 int rt2x00mac_add_interface(struct ieee80211_hw *hw,
 			    struct ieee80211_vif *vif);
 void rt2x00mac_remove_interface(struct ieee80211_hw *hw,
@@ -1484,9 +1561,15 @@ bool rt2x00mac_tx_frames_pending(struct ieee80211_hw *hw);
  */
 int rt2x00lib_probe_dev(struct rt2x00_dev *rt2x00dev);
 void rt2x00lib_remove_dev(struct rt2x00_dev *rt2x00dev);
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 int rt2x00lib_suspend(struct rt2x00_dev *rt2x00dev, pm_message_t state);
 int rt2x00lib_resume(struct rt2x00_dev *rt2x00dev);
 #endif /* CONFIG_PM */
+=======
+
+int rt2x00lib_suspend(struct rt2x00_dev *rt2x00dev);
+int rt2x00lib_resume(struct rt2x00_dev *rt2x00dev);
+>>>>>>> upstream/android-13
 
 #endif /* RT2X00_H */

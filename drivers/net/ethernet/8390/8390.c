@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* 8390 core for usual drivers */
 
 static const char version[] =
@@ -35,9 +39,15 @@ void ei_set_multicast_list(struct net_device *dev)
 }
 EXPORT_SYMBOL(ei_set_multicast_list);
 
+<<<<<<< HEAD
 void ei_tx_timeout(struct net_device *dev)
 {
 	__ei_tx_timeout(dev);
+=======
+void ei_tx_timeout(struct net_device *dev, unsigned int txqueue)
+{
+	__ei_tx_timeout(dev, txqueue);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ei_tx_timeout);
 

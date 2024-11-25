@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*******************************************************************************
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * Copyright(c) 2004 Intel Corporation. All rights reserved.
  *
  * Portions of this file are based on the WEP enablement code provided by the
@@ -8,6 +13,7 @@
  * <jkmaline@cc.hut.fi>
  * Copyright (c) 2002-2003, Jouni Malinen <jkmaline@cc.hut.fi>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -25,6 +31,12 @@
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
  *
  ******************************************************************************/
+=======
+ * Contact Information:
+ * James P. Ketrenos <ipw2100-admin@linux.intel.com>
+ * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/compiler.h>
 #include <linux/errno.h>
@@ -96,13 +108,20 @@ struct net_device *alloc_rtllib(int sizeof_priv)
 		return NULL;
 	}
 	ieee = (struct rtllib_device *)netdev_priv_rsl(dev);
+<<<<<<< HEAD
 	memset(ieee, 0, sizeof(struct rtllib_device)+sizeof_priv);
+=======
+>>>>>>> upstream/android-13
 	ieee->dev = dev;
 
 	err = rtllib_networks_allocate(ieee);
 	if (err) {
 		pr_err("Unable to allocate beacon storage: %d\n", err);
+<<<<<<< HEAD
 		goto failed;
+=======
+		goto free_netdev;
+>>>>>>> upstream/android-13
 	}
 	rtllib_networks_initialize(ieee);
 
@@ -135,11 +154,21 @@ struct net_device *alloc_rtllib(int sizeof_priv)
 	ieee->hwsec_active = 0;
 
 	memset(ieee->swcamtable, 0, sizeof(struct sw_cam_table) * 32);
+<<<<<<< HEAD
 	rtllib_softmac_init(ieee);
 
 	ieee->pHTInfo = kzalloc(sizeof(struct rt_hi_throughput), GFP_KERNEL);
 	if (!ieee->pHTInfo)
 		return NULL;
+=======
+	err = rtllib_softmac_init(ieee);
+	if (err)
+		goto free_crypt_info;
+
+	ieee->pHTInfo = kzalloc(sizeof(struct rt_hi_throughput), GFP_KERNEL);
+	if (!ieee->pHTInfo)
+		goto free_softmac;
+>>>>>>> upstream/android-13
 
 	HTUpdateDefaultSetting(ieee);
 	HTInitializeHTInfo(ieee);
@@ -155,8 +184,19 @@ struct net_device *alloc_rtllib(int sizeof_priv)
 
 	return dev;
 
+<<<<<<< HEAD
  failed:
 	free_netdev(dev);
+=======
+free_softmac:
+	rtllib_softmac_free(ieee);
+free_crypt_info:
+	lib80211_crypt_info_free(&ieee->crypt_info);
+	rtllib_networks_free(ieee);
+free_netdev:
+	free_netdev(dev);
+
+>>>>>>> upstream/android-13
 	return NULL;
 }
 EXPORT_SYMBOL(alloc_rtllib);

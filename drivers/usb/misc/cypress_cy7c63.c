@@ -183,6 +183,10 @@ static ssize_t port0_show(struct device *dev,
 {
 	return read_port(dev, attr, buf, 0, CYPRESS_READ_PORT_ID0);
 }
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR_RW(port0);
+>>>>>>> upstream/android-13
 
 /* attribute callback handler (read) */
 static ssize_t port1_show(struct device *dev,
@@ -190,11 +194,22 @@ static ssize_t port1_show(struct device *dev,
 {
 	return read_port(dev, attr, buf, 1, CYPRESS_READ_PORT_ID1);
 }
+<<<<<<< HEAD
 
 static DEVICE_ATTR_RW(port0);
 
 static DEVICE_ATTR_RW(port1);
 
+=======
+static DEVICE_ATTR_RW(port1);
+
+static struct attribute *cypress_attrs[] = {
+	&dev_attr_port0.attr,
+	&dev_attr_port1.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(cypress);
+>>>>>>> upstream/android-13
 
 static int cypress_probe(struct usb_interface *interface,
 			 const struct usb_device_id *id)
@@ -212,6 +227,7 @@ static int cypress_probe(struct usb_interface *interface,
 	/* save our data pointer in this interface device */
 	usb_set_intfdata(interface, dev);
 
+<<<<<<< HEAD
 	/* create device attribute files */
 	retval = device_create_file(&interface->dev, &dev_attr_port0);
 	if (retval)
@@ -220,11 +236,14 @@ static int cypress_probe(struct usb_interface *interface,
 	if (retval)
 		goto error;
 
+=======
+>>>>>>> upstream/android-13
 	/* let the user know that the device is now attached */
 	dev_info(&interface->dev,
 		 "Cypress CY7C63xxx device now attached\n");
 	return 0;
 
+<<<<<<< HEAD
 error:
 	device_remove_file(&interface->dev, &dev_attr_port0);
 	device_remove_file(&interface->dev, &dev_attr_port1);
@@ -232,6 +251,8 @@ error:
 	usb_put_dev(dev->udev);
 	kfree(dev);
 
+=======
+>>>>>>> upstream/android-13
 error_mem:
 	return retval;
 }
@@ -242,9 +263,12 @@ static void cypress_disconnect(struct usb_interface *interface)
 
 	dev = usb_get_intfdata(interface);
 
+<<<<<<< HEAD
 	/* remove device attribute files */
 	device_remove_file(&interface->dev, &dev_attr_port0);
 	device_remove_file(&interface->dev, &dev_attr_port1);
+=======
+>>>>>>> upstream/android-13
 	/* the intfdata can be set to NULL only after the
 	 * device files have been removed */
 	usb_set_intfdata(interface, NULL);
@@ -262,6 +286,10 @@ static struct usb_driver cypress_driver = {
 	.probe = cypress_probe,
 	.disconnect = cypress_disconnect,
 	.id_table = cypress_table,
+<<<<<<< HEAD
+=======
+	.dev_groups = cypress_groups,
+>>>>>>> upstream/android-13
 };
 
 module_usb_driver(cypress_driver);

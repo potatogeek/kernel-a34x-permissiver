@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This module is used to copy security markings from packets
  * to connections, and restore security markings from connections
@@ -5,6 +9,7 @@
  * with the SECMARK target and state match.
  *
  * Based somewhat on CONNMARK:
+<<<<<<< HEAD
  *   Copyright (C) 2002,2004 MARA Systems AB <http://www.marasystems.com>
  *    by Henrik Nordstrom <hno@marasystems.com>
  *
@@ -14,6 +19,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+ *   Copyright (C) 2002,2004 MARA Systems AB <https://www.marasystems.com>
+ *    by Henrik Nordstrom <hno@marasystems.com>
+ *
+ * (C) 2006,2008 Red Hat, Inc., James Morris <jmorris@redhat.com>
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>

@@ -17,7 +17,10 @@
  */
 #include <linux/uaccess.h>
 #include <asm/syscall.h>
+<<<<<<< HEAD
 #include <asm/unistd.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 #include <linux/stringify.h>
 #include <linux/errno.h>
@@ -28,6 +31,7 @@
 #include <linux/sched/mm.h>
 #include <linux/shm.h>
 
+<<<<<<< HEAD
 typedef void (*syscall_t)(void);
 
 syscall_t sys_call_table[__NR_syscall_count] /* FIXME __cacheline_aligned */= {
@@ -35,6 +39,11 @@ syscall_t sys_call_table[__NR_syscall_count] /* FIXME __cacheline_aligned */= {
 
 #define __SYSCALL(nr,symbol,nargs) [ nr ] = (syscall_t)symbol,
 #include <uapi/asm/unistd.h>
+=======
+syscall_t sys_call_table[] /* FIXME __cacheline_aligned */= {
+#define __SYSCALL(nr, entry)	(syscall_t)entry,
+#include <asm/syscall_table.h>
+>>>>>>> upstream/android-13
 };
 
 #define COLOUR_ALIGN(addr, pgoff) \

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * wm5102.h  --  WM5102 MFD internals
  *
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _WM5102_H
@@ -53,6 +60,7 @@ int arizona_dev_exit(struct arizona *arizona);
 int arizona_irq_init(struct arizona *arizona);
 int arizona_irq_exit(struct arizona *arizona);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 unsigned long arizona_of_get_type(struct device *dev);
 #else
@@ -62,4 +70,6 @@ static inline unsigned long arizona_of_get_type(struct device *dev)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif

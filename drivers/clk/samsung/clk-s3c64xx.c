@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Tomasz Figa <tomasz.figa at gmail.com>
  *
@@ -5,14 +6,26 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013 Tomasz Figa <tomasz.figa at gmail.com>
+ *
+>>>>>>> upstream/android-13
  * Common Clock Framework support for all S3C64xx SoCs.
 */
 
 #include <linux/slab.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/syscore_ops.h>
+=======
+#include <linux/clk/samsung.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 
 #include <dt-bindings/clock/samsung,s3c64xx-clock.h>
 
@@ -59,10 +72,13 @@
 static void __iomem *reg_base;
 static bool is_s3c6400;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static struct samsung_clk_reg_dump *s3c64xx_save_common;
 static struct samsung_clk_reg_dump *s3c64xx_save_soc;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * List of controller registers to be saved and restored during
  * a suspend/resume cycle.
@@ -89,6 +105,7 @@ static unsigned long s3c6410_clk_regs[] __initdata = {
 	MEM0_GATE,
 };
 
+<<<<<<< HEAD
 static int s3c64xx_clk_suspend(void)
 {
 	samsung_clk_save(reg_base, s3c64xx_save_common,
@@ -143,6 +160,8 @@ err_warn:
 static void __init s3c64xx_clk_sleep_init(void) {}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* List of parent clocks common for all S3C64xx SoCs. */
 PNAME(spi_mmc_p)	= { "mout_epll", "dout_mpll", "fin_pll", "clk27m" };
 PNAME(uart_p)		= { "mout_epll", "dout_mpll" };
@@ -508,7 +527,16 @@ void __init s3c64xx_clk_init(struct device_node *np, unsigned long xtal_f,
 
 	samsung_clk_register_alias(ctx, s3c64xx_clock_aliases,
 					ARRAY_SIZE(s3c64xx_clock_aliases));
+<<<<<<< HEAD
 	s3c64xx_clk_sleep_init();
+=======
+
+	samsung_clk_sleep_init(reg_base, s3c64xx_clk_regs,
+			       ARRAY_SIZE(s3c64xx_clk_regs));
+	if (!is_s3c6400)
+		samsung_clk_sleep_init(reg_base, s3c6410_clk_regs,
+				       ARRAY_SIZE(s3c6410_clk_regs));
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_add_provider(np, ctx);
 

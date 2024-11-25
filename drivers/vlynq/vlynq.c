@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006, 2007 Eugene Konev <ejka@openwrt.org>
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2006, 2007 Eugene Konev <ejka@openwrt.org>
+ *
+>>>>>>> upstream/android-13
  * Parts of the VLYNQ specification can be found here:
  * http://www.ti.com/litv/pdf/sprue36a
  */
@@ -355,14 +362,21 @@ static int vlynq_device_probe(struct device *dev)
 	return result;
 }
 
+<<<<<<< HEAD
 static int vlynq_device_remove(struct device *dev)
+=======
+static void vlynq_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct vlynq_driver *drv = to_vlynq_driver(dev->driver);
 
 	if (drv->remove)
 		drv->remove(to_vlynq_device(dev));
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 int __vlynq_register_driver(struct vlynq_driver *driver, struct module *owner)

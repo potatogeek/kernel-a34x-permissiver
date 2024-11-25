@@ -47,7 +47,11 @@
  * qib_eeprom_read - receives bytes from the eeprom via I2C
  * @dd: the qlogic_ib device
  * @eeprom_offset: address to read from
+<<<<<<< HEAD
  * @buffer: where to store result
+=======
+ * @buff: where to store result
+>>>>>>> upstream/android-13
  * @len: number of bytes to receive
  */
 int qib_eeprom_read(struct qib_devdata *dd, u8 eeprom_offset,
@@ -94,7 +98,11 @@ static int eeprom_write_with_enable(struct qib_devdata *dd, u8 offset,
  * qib_eeprom_write - writes data to the eeprom via I2C
  * @dd: the qlogic_ib device
  * @eeprom_offset: where to place data
+<<<<<<< HEAD
  * @buffer: data to write
+=======
+ * @buff: data to write
+>>>>>>> upstream/android-13
  * @len: number of bytes to write
  */
 int qib_eeprom_write(struct qib_devdata *dd, u8 eeprom_offset,

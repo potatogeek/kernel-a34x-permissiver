@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * zbud.c
  *
@@ -50,7 +54,10 @@
 #include <linux/preempt.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/zbud.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/zpool.h>
 
 /*****************
@@ -72,6 +79,15 @@
 #define ZHDR_SIZE_ALIGNED CHUNK_SIZE
 #define NCHUNKS		((PAGE_SIZE - ZHDR_SIZE_ALIGNED) >> CHUNK_SHIFT)
 
+<<<<<<< HEAD
+=======
+struct zbud_pool;
+
+struct zbud_ops {
+	int (*evict)(struct zbud_pool *pool, unsigned long handle);
+};
+
+>>>>>>> upstream/android-13
 /**
  * struct zbud_pool - stores metadata for each zbud pool
  * @lock:	protects all pool fields and first|last_chunk fields of any
@@ -86,12 +102,18 @@
  * @pages_nr:	number of zbud pages in the pool.
  * @ops:	pointer to a structure of user defined operations specified at
  *		pool creation time.
+<<<<<<< HEAD
+=======
+ * @zpool:	zpool driver
+ * @zpool_ops:	zpool operations structure with an evict callback
+>>>>>>> upstream/android-13
  *
  * This structure is allocated at pool creation time and maintains metadata
  * pertaining to a particular zbud pool.
  */
 struct zbud_pool {
 	spinlock_t lock;
+<<<<<<< HEAD
 	struct list_head unbuddied[NCHUNKS];
 	struct list_head buddied;
 	struct list_head lru;
@@ -101,6 +123,21 @@ struct zbud_pool {
 	struct zpool *zpool;
 	const struct zpool_ops *zpool_ops;
 #endif
+=======
+	union {
+		/*
+		 * Reuse unbuddied[0] as buddied on the ground that
+		 * unbuddied[0] is unused.
+		 */
+		struct list_head buddied;
+		struct list_head unbuddied[NCHUNKS];
+	};
+	struct list_head lru;
+	u64 pages_nr;
+	const struct zbud_ops *ops;
+	struct zpool *zpool;
+	const struct zpool_ops *zpool_ops;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -120,6 +157,7 @@ struct zbud_header {
 };
 
 /*****************
+<<<<<<< HEAD
  * zpool
  ****************/
 
@@ -217,6 +255,8 @@ MODULE_ALIAS("zpool-zbud");
 #endif /* CONFIG_ZPOOL */
 
 /*****************
+=======
+>>>>>>> upstream/android-13
  * Helpers
 *****************/
 /* Just to make the code easier to read */
@@ -242,7 +282,11 @@ static struct zbud_header *init_zbud_page(struct page *page)
 	zhdr->last_chunks = 0;
 	INIT_LIST_HEAD(&zhdr->buddy);
 	INIT_LIST_HEAD(&zhdr->lru);
+<<<<<<< HEAD
 	zhdr->under_reclaim = 0;
+=======
+	zhdr->under_reclaim = false;
+>>>>>>> upstream/android-13
 	return zhdr;
 }
 
@@ -302,7 +346,11 @@ static int num_free_chunks(struct zbud_header *zhdr)
  * Return: pointer to the new zbud pool or NULL if the metadata allocation
  * failed.
  */
+<<<<<<< HEAD
 struct zbud_pool *zbud_create_pool(gfp_t gfp, const struct zbud_ops *ops)
+=======
+static struct zbud_pool *zbud_create_pool(gfp_t gfp, const struct zbud_ops *ops)
+>>>>>>> upstream/android-13
 {
 	struct zbud_pool *pool;
 	int i;
@@ -326,7 +374,11 @@ struct zbud_pool *zbud_create_pool(gfp_t gfp, const struct zbud_ops *ops)
  *
  * The pool should be emptied before this function is called.
  */
+<<<<<<< HEAD
 void zbud_destroy_pool(struct zbud_pool *pool)
+=======
+static void zbud_destroy_pool(struct zbud_pool *pool)
+>>>>>>> upstream/android-13
 {
 	kfree(pool);
 }
@@ -350,7 +402,11 @@ void zbud_destroy_pool(struct zbud_pool *pool)
  * gfp arguments are invalid or -ENOMEM if the pool was unable to allocate
  * a new page.
  */
+<<<<<<< HEAD
 int zbud_alloc(struct zbud_pool *pool, size_t size, gfp_t gfp,
+=======
+static int zbud_alloc(struct zbud_pool *pool, size_t size, gfp_t gfp,
+>>>>>>> upstream/android-13
 			unsigned long *handle)
 {
 	int chunks, i, freechunks;
@@ -366,7 +422,10 @@ int zbud_alloc(struct zbud_pool *pool, size_t size, gfp_t gfp,
 	spin_lock(&pool->lock);
 
 	/* First, try to find an unbuddied zbud page. */
+<<<<<<< HEAD
 	zhdr = NULL;
+=======
+>>>>>>> upstream/android-13
 	for_each_unbuddied_list(i, chunks) {
 		if (!list_empty(&pool->unbuddied[i])) {
 			zhdr = list_first_entry(&pool->unbuddied[i],
@@ -426,7 +485,11 @@ found:
  * only sets the first|last_chunks to 0.  The page is actually freed
  * once both buddies are evicted (see zbud_reclaim_page() below).
  */
+<<<<<<< HEAD
 void zbud_free(struct zbud_pool *pool, unsigned long handle)
+=======
+static void zbud_free(struct zbud_pool *pool, unsigned long handle)
+>>>>>>> upstream/android-13
 {
 	struct zbud_header *zhdr;
 	int freechunks;
@@ -498,7 +561,11 @@ void zbud_free(struct zbud_pool *pool, unsigned long handle)
  * no pages to evict or an eviction handler is not registered, -EAGAIN if
  * the retry limit was hit.
  */
+<<<<<<< HEAD
 int zbud_reclaim_page(struct zbud_pool *pool, unsigned int retries)
+=======
+static int zbud_reclaim_page(struct zbud_pool *pool, unsigned int retries)
+>>>>>>> upstream/android-13
 {
 	int i, ret, freechunks;
 	struct zbud_header *zhdr;
@@ -580,7 +647,11 @@ next:
  *
  * Returns: a pointer to the mapped allocation
  */
+<<<<<<< HEAD
 void *zbud_map(struct zbud_pool *pool, unsigned long handle)
+=======
+static void *zbud_map(struct zbud_pool *pool, unsigned long handle)
+>>>>>>> upstream/android-13
 {
 	return (void *)(handle);
 }
@@ -590,7 +661,11 @@ void *zbud_map(struct zbud_pool *pool, unsigned long handle)
  * @pool:	pool in which the allocation resides
  * @handle:	handle associated with the allocation to be unmapped
  */
+<<<<<<< HEAD
 void zbud_unmap(struct zbud_pool *pool, unsigned long handle)
+=======
+static void zbud_unmap(struct zbud_pool *pool, unsigned long handle)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -601,30 +676,140 @@ void zbud_unmap(struct zbud_pool *pool, unsigned long handle)
  * Returns: size in pages of the given pool.  The pool lock need not be
  * taken to access pages_nr.
  */
+<<<<<<< HEAD
 u64 zbud_get_pool_size(struct zbud_pool *pool)
+=======
+static u64 zbud_get_pool_size(struct zbud_pool *pool)
+>>>>>>> upstream/android-13
 {
 	return pool->pages_nr;
 }
 
+<<<<<<< HEAD
+=======
+/*****************
+ * zpool
+ ****************/
+
+static int zbud_zpool_evict(struct zbud_pool *pool, unsigned long handle)
+{
+	if (pool->zpool && pool->zpool_ops && pool->zpool_ops->evict)
+		return pool->zpool_ops->evict(pool->zpool, handle);
+	else
+		return -ENOENT;
+}
+
+static const struct zbud_ops zbud_zpool_ops = {
+	.evict =	zbud_zpool_evict
+};
+
+static void *zbud_zpool_create(const char *name, gfp_t gfp,
+			       const struct zpool_ops *zpool_ops,
+			       struct zpool *zpool)
+{
+	struct zbud_pool *pool;
+
+	pool = zbud_create_pool(gfp, zpool_ops ? &zbud_zpool_ops : NULL);
+	if (pool) {
+		pool->zpool = zpool;
+		pool->zpool_ops = zpool_ops;
+	}
+	return pool;
+}
+
+static void zbud_zpool_destroy(void *pool)
+{
+	zbud_destroy_pool(pool);
+}
+
+static int zbud_zpool_malloc(void *pool, size_t size, gfp_t gfp,
+			unsigned long *handle)
+{
+	return zbud_alloc(pool, size, gfp, handle);
+}
+static void zbud_zpool_free(void *pool, unsigned long handle)
+{
+	zbud_free(pool, handle);
+}
+
+static int zbud_zpool_shrink(void *pool, unsigned int pages,
+			unsigned int *reclaimed)
+{
+	unsigned int total = 0;
+	int ret = -EINVAL;
+
+	while (total < pages) {
+		ret = zbud_reclaim_page(pool, 8);
+		if (ret < 0)
+			break;
+		total++;
+	}
+
+	if (reclaimed)
+		*reclaimed = total;
+
+	return ret;
+}
+
+static void *zbud_zpool_map(void *pool, unsigned long handle,
+			enum zpool_mapmode mm)
+{
+	return zbud_map(pool, handle);
+}
+static void zbud_zpool_unmap(void *pool, unsigned long handle)
+{
+	zbud_unmap(pool, handle);
+}
+
+static u64 zbud_zpool_total_size(void *pool)
+{
+	return zbud_get_pool_size(pool) * PAGE_SIZE;
+}
+
+static struct zpool_driver zbud_zpool_driver = {
+	.type =		"zbud",
+	.sleep_mapped = true,
+	.owner =	THIS_MODULE,
+	.create =	zbud_zpool_create,
+	.destroy =	zbud_zpool_destroy,
+	.malloc =	zbud_zpool_malloc,
+	.free =		zbud_zpool_free,
+	.shrink =	zbud_zpool_shrink,
+	.map =		zbud_zpool_map,
+	.unmap =	zbud_zpool_unmap,
+	.total_size =	zbud_zpool_total_size,
+};
+
+MODULE_ALIAS("zpool-zbud");
+
+>>>>>>> upstream/android-13
 static int __init init_zbud(void)
 {
 	/* Make sure the zbud header will fit in one chunk */
 	BUILD_BUG_ON(sizeof(struct zbud_header) > ZHDR_SIZE_ALIGNED);
 	pr_info("loaded\n");
 
+<<<<<<< HEAD
 #ifdef CONFIG_ZPOOL
 	zpool_register_driver(&zbud_zpool_driver);
 #endif
+=======
+	zpool_register_driver(&zbud_zpool_driver);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void __exit exit_zbud(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_ZPOOL
 	zpool_unregister_driver(&zbud_zpool_driver);
 #endif
 
+=======
+	zpool_unregister_driver(&zbud_zpool_driver);
+>>>>>>> upstream/android-13
 	pr_info("unloaded\n");
 }
 

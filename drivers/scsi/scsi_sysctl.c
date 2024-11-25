@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2003 Christoph Hellwig.
  *	Released under GPL v2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2003 Christoph Hellwig.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>

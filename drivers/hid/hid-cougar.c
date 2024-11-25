@@ -7,6 +7,10 @@
 
 #include <linux/hid.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/printk.h>
+>>>>>>> upstream/android-13
 
 #include "hid-ids.h"
 
@@ -15,11 +19,17 @@ MODULE_DESCRIPTION("Cougar 500k Gaming Keyboard");
 MODULE_LICENSE("GPL");
 MODULE_INFO(key_mappings, "G1-G6 are mapped to F13-F18");
 
+<<<<<<< HEAD
 static int cougar_g6_is_space = 1;
 module_param_named(g6_is_space, cougar_g6_is_space, int, 0600);
 MODULE_PARM_DESC(g6_is_space,
 	"If set, G6 programmable key sends SPACE instead of F18 (0=off, 1=on) (default=1)");
 
+=======
+static bool g6_is_space = true;
+MODULE_PARM_DESC(g6_is_space,
+	"If true, G6 programmable key sends SPACE instead of F18 (default=true)");
+>>>>>>> upstream/android-13
 
 #define COUGAR_VENDOR_USAGE	0xff00ff00
 
@@ -82,13 +92,21 @@ struct cougar {
 static LIST_HEAD(cougar_udev_list);
 static DEFINE_MUTEX(cougar_udev_list_lock);
 
+<<<<<<< HEAD
 static void cougar_fix_g6_mapping(struct hid_device *hdev)
+=======
+/**
+ * cougar_fix_g6_mapping - configure the mapping for key G6/Spacebar
+ */
+static void cougar_fix_g6_mapping(void)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; cougar_mapping[i][0]; i++) {
 		if (cougar_mapping[i][0] == COUGAR_KEY_G6) {
 			cougar_mapping[i][1] =
+<<<<<<< HEAD
 				cougar_g6_is_space ? KEY_SPACE : KEY_F18;
 			hid_info(hdev, "G6 mapped to %s\n",
 				 cougar_g6_is_space ? "space" : "F18");
@@ -96,6 +114,15 @@ static void cougar_fix_g6_mapping(struct hid_device *hdev)
 		}
 	}
 	hid_warn(hdev, "no mapping defined for G6/spacebar");
+=======
+				g6_is_space ? KEY_SPACE : KEY_F18;
+			pr_info("cougar: G6 mapped to %s\n",
+				g6_is_space ? "space" : "F18");
+			return;
+		}
+	}
+	pr_warn("cougar: no mappings defined for G6/spacebar");
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -154,7 +181,12 @@ static void cougar_remove_shared_data(void *resource)
  * Bind the device group's shared data to this cougar struct.
  * If no shared data exists for this group, create and initialize it.
  */
+<<<<<<< HEAD
 static int cougar_bind_shared_data(struct hid_device *hdev, struct cougar *cougar)
+=======
+static int cougar_bind_shared_data(struct hid_device *hdev,
+				   struct cougar *cougar)
+>>>>>>> upstream/android-13
 {
 	struct cougar_shared *shared;
 	int error = 0;
@@ -204,7 +236,11 @@ static int cougar_probe(struct hid_device *hdev,
 	error = hid_parse(hdev);
 	if (error) {
 		hid_err(hdev, "parse failed\n");
+<<<<<<< HEAD
 		goto fail;
+=======
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	if (hdev->collection->usage == COUGAR_VENDOR_USAGE) {
@@ -216,7 +252,11 @@ static int cougar_probe(struct hid_device *hdev,
 	error = hid_hw_start(hdev, connect_mask);
 	if (error) {
 		hid_err(hdev, "hw start failed\n");
+<<<<<<< HEAD
 		goto fail;
+=======
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	error = cougar_bind_shared_data(hdev, cougar);
@@ -228,7 +268,10 @@ static int cougar_probe(struct hid_device *hdev,
 	 * to it.
 	 */
 	if (hdev->collection->usage == HID_GD_KEYBOARD) {
+<<<<<<< HEAD
 		cougar_fix_g6_mapping(hdev);
+=======
+>>>>>>> upstream/android-13
 		list_for_each_entry_safe(hidinput, next, &hdev->inputs, list) {
 			if (hidinput->registered && hidinput->input != NULL) {
 				cougar->shared->input = hidinput->input;
@@ -237,6 +280,11 @@ static int cougar_probe(struct hid_device *hdev,
 			}
 		}
 	} else if (hdev->collection->usage == COUGAR_VENDOR_USAGE) {
+<<<<<<< HEAD
+=======
+		/* Preinit the mapping table */
+		cougar_fix_g6_mapping();
+>>>>>>> upstream/android-13
 		error = hid_hw_open(hdev);
 		if (error)
 			goto fail_stop_and_cleanup;
@@ -245,8 +293,11 @@ static int cougar_probe(struct hid_device *hdev,
 
 fail_stop_and_cleanup:
 	hid_hw_stop(hdev);
+<<<<<<< HEAD
 fail:
 	hid_set_drvdata(hdev, NULL);
+=======
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -257,18 +308,33 @@ static int cougar_raw_event(struct hid_device *hdev, struct hid_report *report,
 			    u8 *data, int size)
 {
 	struct cougar *cougar;
+<<<<<<< HEAD
+=======
+	struct cougar_shared *shared;
+>>>>>>> upstream/android-13
 	unsigned char code, action;
 	int i;
 
 	cougar = hid_get_drvdata(hdev);
+<<<<<<< HEAD
 	if (!cougar->special_intf || !cougar->shared ||
 	    !cougar->shared->input || !cougar->shared->enabled)
 		return 0;
 
+=======
+	shared = cougar->shared;
+	if (!cougar->special_intf || !shared)
+		return 0;
+
+	if (!shared->enabled || !shared->input)
+		return -EPERM;
+
+>>>>>>> upstream/android-13
 	code = data[COUGAR_FIELD_CODE];
 	action = data[COUGAR_FIELD_ACTION];
 	for (i = 0; cougar_mapping[i][0]; i++) {
 		if (code == cougar_mapping[i][0]) {
+<<<<<<< HEAD
 			input_event(cougar->shared->input, EV_KEY,
 				    cougar_mapping[i][1], action);
 			input_sync(cougar->shared->input);
@@ -277,6 +343,18 @@ static int cougar_raw_event(struct hid_device *hdev, struct hid_report *report,
 	}
 	hid_warn(hdev, "unmapped special key code %x: ignoring\n", code);
 	return 0;
+=======
+			input_event(shared->input, EV_KEY,
+				    cougar_mapping[i][1], action);
+			input_sync(shared->input);
+			return -EPERM;
+		}
+	}
+	/* Avoid warnings on the same unmapped key twice */
+	if (action != 0)
+		hid_warn(hdev, "unmapped special key code %0x: ignoring\n", code);
+	return -EPERM;
+>>>>>>> upstream/android-13
 }
 
 static void cougar_remove(struct hid_device *hdev)
@@ -293,9 +371,37 @@ static void cougar_remove(struct hid_device *hdev)
 	hid_hw_stop(hdev);
 }
 
+<<<<<<< HEAD
 static struct hid_device_id cougar_id_table[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOLID_YEAR,
 			 USB_DEVICE_ID_COUGAR_500K_GAMING_KEYBOARD) },
+=======
+static int cougar_param_set_g6_is_space(const char *val,
+					const struct kernel_param *kp)
+{
+	int ret;
+
+	ret = param_set_bool(val, kp);
+	if (ret)
+		return ret;
+
+	cougar_fix_g6_mapping();
+
+	return 0;
+}
+
+static const struct kernel_param_ops cougar_g6_is_space_ops = {
+	.set	= cougar_param_set_g6_is_space,
+	.get	= param_get_bool,
+};
+module_param_cb(g6_is_space, &cougar_g6_is_space_ops, &g6_is_space, 0644);
+
+static const struct hid_device_id cougar_id_table[] = {
+	{ HID_USB_DEVICE(USB_VENDOR_ID_SOLID_YEAR,
+			 USB_DEVICE_ID_COUGAR_500K_GAMING_KEYBOARD) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_SOLID_YEAR,
+			 USB_DEVICE_ID_COUGAR_700K_GAMING_KEYBOARD) },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(hid, cougar_id_table);

@@ -25,7 +25,11 @@
 #include <core/memory.h>
 #include <subdev/timer.h>
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 nvkm_falcon_v1_load_imem(struct nvkm_falcon *falcon, void *data, u32 start,
 			 u32 size, u16 tag, u8 port, bool secure)
 {
@@ -89,6 +93,7 @@ nvkm_falcon_v1_load_emem(struct nvkm_falcon *falcon, void *data, u32 start,
 	}
 }
 
+<<<<<<< HEAD
 static const u32 EMEM_START_ADDR = 0x1000000;
 
 static void
@@ -101,6 +106,19 @@ nvkm_falcon_v1_load_dmem(struct nvkm_falcon *falcon, void *data, u32 start,
 	if (start >= EMEM_START_ADDR && falcon->has_emem)
 		return nvkm_falcon_v1_load_emem(falcon, data,
 						start - EMEM_START_ADDR, size,
+=======
+void
+nvkm_falcon_v1_load_dmem(struct nvkm_falcon *falcon, void *data, u32 start,
+			 u32 size, u8 port)
+{
+	const struct nvkm_falcon_func *func = falcon->func;
+	u8 rem = size % 4;
+	int i;
+
+	if (func->emem_addr && start >= func->emem_addr)
+		return nvkm_falcon_v1_load_emem(falcon, data,
+						start - func->emem_addr, size,
+>>>>>>> upstream/android-13
 						port);
 
 	size -= rem;
@@ -148,6 +166,7 @@ nvkm_falcon_v1_read_emem(struct nvkm_falcon *falcon, u32 start, u32 size,
 	}
 }
 
+<<<<<<< HEAD
 static void
 nvkm_falcon_v1_read_dmem(struct nvkm_falcon *falcon, u32 start, u32 size,
 			 u8 port, void *data)
@@ -157,6 +176,18 @@ nvkm_falcon_v1_read_dmem(struct nvkm_falcon *falcon, u32 start, u32 size,
 
 	if (start >= EMEM_START_ADDR && falcon->has_emem)
 		return nvkm_falcon_v1_read_emem(falcon, start - EMEM_START_ADDR,
+=======
+void
+nvkm_falcon_v1_read_dmem(struct nvkm_falcon *falcon, u32 start, u32 size,
+			 u8 port, void *data)
+{
+	const struct nvkm_falcon_func *func = falcon->func;
+	u8 rem = size % 4;
+	int i;
+
+	if (func->emem_addr && start >= func->emem_addr)
+		return nvkm_falcon_v1_read_emem(falcon, start - func->emem_addr,
+>>>>>>> upstream/android-13
 						size, port, data);
 
 	size -= rem;
@@ -179,11 +210,19 @@ nvkm_falcon_v1_read_dmem(struct nvkm_falcon *falcon, u32 start, u32 size,
 	}
 }
 
+<<<<<<< HEAD
 static void
 nvkm_falcon_v1_bind_context(struct nvkm_falcon *falcon, struct nvkm_memory *ctx)
 {
 	u32 inst_loc;
 	u32 fbif;
+=======
+void
+nvkm_falcon_v1_bind_context(struct nvkm_falcon *falcon, struct nvkm_memory *ctx)
+{
+	const u32 fbif = falcon->func->fbif;
+	u32 inst_loc;
+>>>>>>> upstream/android-13
 
 	/* disable instance block binding */
 	if (ctx == NULL) {
@@ -191,6 +230,7 @@ nvkm_falcon_v1_bind_context(struct nvkm_falcon *falcon, struct nvkm_memory *ctx)
 		return;
 	}
 
+<<<<<<< HEAD
 	switch (falcon->owner->index) {
 	case NVKM_ENGINE_NVENC0:
 	case NVKM_ENGINE_NVENC1:
@@ -205,6 +245,8 @@ nvkm_falcon_v1_bind_context(struct nvkm_falcon *falcon, struct nvkm_memory *ctx)
 		break;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	nvkm_falcon_wr32(falcon, 0x10c, 0x1);
 
 	/* setup apertures - virtual */
@@ -235,13 +277,21 @@ nvkm_falcon_v1_bind_context(struct nvkm_falcon *falcon, struct nvkm_memory *ctx)
 	nvkm_falcon_mask(falcon, 0x0a4, 0x8, 0x8);
 }
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 nvkm_falcon_v1_set_start_addr(struct nvkm_falcon *falcon, u32 start_addr)
 {
 	nvkm_falcon_wr32(falcon, 0x104, start_addr);
 }
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 nvkm_falcon_v1_start(struct nvkm_falcon *falcon)
 {
 	u32 reg = nvkm_falcon_rd32(falcon, 0x100);
@@ -252,7 +302,11 @@ nvkm_falcon_v1_start(struct nvkm_falcon *falcon)
 		nvkm_falcon_wr32(falcon, 0x100, 0x2);
 }
 
+<<<<<<< HEAD
 static int
+=======
+int
+>>>>>>> upstream/android-13
 nvkm_falcon_v1_wait_for_halt(struct nvkm_falcon *falcon, u32 ms)
 {
 	struct nvkm_device *device = falcon->owner->device;
@@ -265,7 +319,11 @@ nvkm_falcon_v1_wait_for_halt(struct nvkm_falcon *falcon, u32 ms)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
+=======
+int
+>>>>>>> upstream/android-13
 nvkm_falcon_v1_clear_interrupt(struct nvkm_falcon *falcon, u32 mask)
 {
 	struct nvkm_device *device = falcon->owner->device;
@@ -294,7 +352,11 @@ falcon_v1_wait_idle(struct nvkm_falcon *falcon)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
+=======
+int
+>>>>>>> upstream/android-13
 nvkm_falcon_v1_enable(struct nvkm_falcon *falcon)
 {
 	struct nvkm_device *device = falcon->owner->device;
@@ -316,7 +378,11 @@ nvkm_falcon_v1_enable(struct nvkm_falcon *falcon)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void
+=======
+void
+>>>>>>> upstream/android-13
 nvkm_falcon_v1_disable(struct nvkm_falcon *falcon)
 {
 	/* disable IRQs and wait for any previous code to complete */

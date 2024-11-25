@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 /* vim: set ts=8 sw=8 tw=78 ai noexpandtab */
+=======
+>>>>>>> upstream/android-13
 /* qxl_drv.c -- QXL driver -*- linux-c -*-
  *
  * Copyright 2011 Red Hat, Inc.
@@ -28,6 +31,7 @@
  *    Alon Levy <alevy@redhat.com>
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/console.h>
 
@@ -35,6 +39,25 @@
 #include <drm/drm.h>
 #include <drm/drm_crtc_helper.h>
 #include "qxl_drv.h"
+=======
+#include "qxl_drv.h"
+
+#include <linux/console.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/vgaarb.h>
+
+#include <drm/drm.h>
+#include <drm/drm_aperture.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_gem_ttm_helper.h>
+#include <drm/drm_modeset_helper.h>
+#include <drm/drm_prime.h>
+#include <drm/drm_probe_helper.h>
+
+>>>>>>> upstream/android-13
 #include "qxl_object.h"
 
 static const struct pci_device_id pciidlist[] = {
@@ -58,6 +81,14 @@ module_param_named(num_heads, qxl_num_crtc, int, 0400);
 static struct drm_driver qxl_driver;
 static struct pci_driver qxl_pci_driver;
 
+<<<<<<< HEAD
+=======
+static bool is_vga(struct pci_dev *pdev)
+{
+	return pdev->class == PCI_CLASS_DISPLAY_VGA << 8;
+}
+
+>>>>>>> upstream/android-13
 static int
 qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
@@ -70,6 +101,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		return -EINVAL; /* TODO: ENODEV ? */
 	}
 
+<<<<<<< HEAD
 	qdev = kzalloc(sizeof(struct qxl_device), GFP_KERNEL);
 	if (!qdev)
 		return -ENOMEM;
@@ -82,6 +114,35 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (ret)
 		goto disable_pci;
 
+=======
+	qdev = devm_drm_dev_alloc(&pdev->dev, &qxl_driver,
+				  struct qxl_device, ddev);
+	if (IS_ERR(qdev)) {
+		pr_err("Unable to init drm dev");
+		return -ENOMEM;
+	}
+
+	ret = pci_enable_device(pdev);
+	if (ret)
+		return ret;
+
+	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &qxl_driver);
+	if (ret)
+		goto disable_pci;
+
+	if (is_vga(pdev) && pdev->revision < 5) {
+		ret = vga_get_interruptible(pdev, VGA_RSRC_LEGACY_IO);
+		if (ret) {
+			DRM_ERROR("can't get legacy vga ioports\n");
+			goto disable_pci;
+		}
+	}
+
+	ret = qxl_device_init(qdev, pdev);
+	if (ret)
+		goto put_vga;
+
+>>>>>>> upstream/android-13
 	ret = qxl_modeset_init(qdev);
 	if (ret)
 		goto unload;
@@ -93,12 +154,17 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (ret)
 		goto modeset_cleanup;
 
+<<<<<<< HEAD
+=======
+	drm_fbdev_generic_setup(&qdev->ddev, 32);
+>>>>>>> upstream/android-13
 	return 0;
 
 modeset_cleanup:
 	qxl_modeset_fini(qdev);
 unload:
 	qxl_device_fini(qdev);
+<<<<<<< HEAD
 disable_pci:
 	pci_disable_device(pdev);
 free_dev:
@@ -106,10 +172,35 @@ free_dev:
 	return ret;
 }
 
+=======
+put_vga:
+	if (is_vga(pdev) && pdev->revision < 5)
+		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+disable_pci:
+	pci_disable_device(pdev);
+
+	return ret;
+}
+
+static void qxl_drm_release(struct drm_device *dev)
+{
+	struct qxl_device *qdev = to_qxl(dev);
+
+	/*
+	 * TODO: qxl_device_fini() call should be in qxl_pci_remove(),
+	 * reordering qxl_modeset_fini() + qxl_device_fini() calls is
+	 * non-trivial though.
+	 */
+	qxl_modeset_fini(qdev);
+	qxl_device_fini(qdev);
+}
+
+>>>>>>> upstream/android-13
 static void
 qxl_pci_remove(struct pci_dev *pdev)
 {
 	struct drm_device *dev = pci_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
 
 	drm_dev_unregister(dev);
@@ -136,6 +227,21 @@ static int qxl_drm_freeze(struct drm_device *dev)
 {
 	struct pci_dev *pdev = dev->pdev;
 	struct qxl_device *qdev = dev->dev_private;
+=======
+
+	drm_dev_unregister(dev);
+	drm_atomic_helper_shutdown(dev);
+	if (is_vga(pdev) && pdev->revision < 5)
+		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+}
+
+DEFINE_DRM_GEM_FOPS(qxl_fops);
+
+static int qxl_drm_freeze(struct drm_device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = drm_mode_config_helper_suspend(dev);
@@ -157,7 +263,11 @@ static int qxl_drm_freeze(struct drm_device *dev)
 
 static int qxl_drm_resume(struct drm_device *dev, bool thaw)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 
 	qdev->ram_header->int_mask = QXL_INTERRUPT_MASK;
 	if (!thaw) {
@@ -200,16 +310,24 @@ static int qxl_pm_resume(struct device *dev)
 
 static int qxl_pm_thaw(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+=======
+	struct drm_device *drm_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return qxl_drm_resume(drm_dev, true);
 }
 
 static int qxl_pm_freeze(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+=======
+	struct drm_device *drm_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return qxl_drm_freeze(drm_dev);
 }
@@ -218,7 +336,11 @@ static int qxl_pm_restore(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct qxl_device *qdev = drm_dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(drm_dev);
+>>>>>>> upstream/android-13
 
 	qxl_io_reset(qdev);
 	return qxl_drm_resume(drm_dev, false);
@@ -241,17 +363,25 @@ static struct pci_driver qxl_pci_driver = {
 };
 
 static struct drm_driver qxl_driver = {
+<<<<<<< HEAD
 	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
 			   DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED |
 			   DRIVER_ATOMIC,
 
 	.dumb_create = qxl_mode_dumb_create,
 	.dumb_map_offset = qxl_mode_dumb_mmap,
+=======
+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+
+	.dumb_create = qxl_mode_dumb_create,
+	.dumb_map_offset = drm_gem_ttm_dumb_map_offset,
+>>>>>>> upstream/android-13
 #if defined(CONFIG_DEBUG_FS)
 	.debugfs_init = qxl_debugfs_init,
 #endif
 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+<<<<<<< HEAD
 	.gem_prime_export = drm_gem_prime_export,
 	.gem_prime_import = drm_gem_prime_import,
 	.gem_prime_pin = qxl_gem_prime_pin,
@@ -267,12 +397,22 @@ static struct drm_driver qxl_driver = {
 	.fops = &qxl_fops,
 	.ioctls = qxl_ioctls,
 	.irq_handler = qxl_irq_handler,
+=======
+	.gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
+	.fops = &qxl_fops,
+	.ioctls = qxl_ioctls,
+>>>>>>> upstream/android-13
 	.name = DRIVER_NAME,
 	.desc = DRIVER_DESC,
 	.date = DRIVER_DATE,
 	.major = 0,
 	.minor = 1,
 	.patchlevel = 0,
+<<<<<<< HEAD
+=======
+
+	.release = qxl_drm_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init qxl_init(void)

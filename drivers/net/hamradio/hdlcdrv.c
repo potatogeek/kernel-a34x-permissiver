@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*****************************************************************************/
 
 /*
@@ -5,6 +9,7 @@
  *
  *	Copyright (C) 1996-2000  Thomas Sailer (sailer@ife.ee.ethz.ch)
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Please note that the GPL allows you to use the driver, NOT the radio.
  *  In order to use the radio, you need a license from the communications
  *  authority of your country.
@@ -87,7 +94,11 @@
 
 static inline void append_crc_ccitt(unsigned char *buffer, int len)
 {
+<<<<<<< HEAD
  	unsigned int crc = crc_ccitt(0xffff, buffer, len) ^ 0xffff;
+=======
+	unsigned int crc = crc_ccitt(0xffff, buffer, len) ^ 0xffff;
+>>>>>>> upstream/android-13
 	buffer += len;
 	*buffer++ = crc;
 	*buffer++ = crc >> 8;
@@ -488,8 +499,12 @@ static int hdlcdrv_close(struct net_device *dev)
 
 	if (s->ops && s->ops->close)
 		i = s->ops->close(dev);
+<<<<<<< HEAD
 	if (s->skb)
 		dev_kfree_skb(s->skb);
+=======
+	dev_kfree_skb(s->skb);
+>>>>>>> upstream/android-13
 	s->skb = NULL;
 	s->opened = 0;
 	return i;
@@ -497,23 +512,42 @@ static int hdlcdrv_close(struct net_device *dev)
 
 /* --------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static int hdlcdrv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int hdlcdrv_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+				  void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct hdlcdrv_state *s = netdev_priv(dev);
 	struct hdlcdrv_ioctl bi;
 
+<<<<<<< HEAD
 	if (cmd != SIOCDEVPRIVATE) {
 		if (s->ops && s->ops->ioctl)
 			return s->ops->ioctl(dev, ifr, &bi, cmd);
 		return -ENOIOCTLCMD;
 	}
 	if (copy_from_user(&bi, ifr->ifr_data, sizeof(bi)))
+=======
+	if (cmd != SIOCDEVPRIVATE)
+		return -ENOIOCTLCMD;
+
+	if (in_compat_syscall()) /* to be implemented */
+		return -ENOIOCTLCMD;
+
+	if (copy_from_user(&bi, data, sizeof(bi)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	switch (bi.cmd) {
 	default:
 		if (s->ops && s->ops->ioctl)
+<<<<<<< HEAD
 			return s->ops->ioctl(dev, ifr, &bi, cmd);
+=======
+			return s->ops->ioctl(dev, data, &bi, cmd);
+>>>>>>> upstream/android-13
 		return -ENOIOCTLCMD;
 
 	case HDLCDRVCTL_GETCHANNELPAR:
@@ -611,7 +645,11 @@ static int hdlcdrv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 	case HDLCDRVCTL_DRIVERNAME:
 		if (s->ops && s->ops->drvname) {
+<<<<<<< HEAD
 			strncpy(bi.data.drivername, s->ops->drvname, 
+=======
+			strlcpy(bi.data.drivername, s->ops->drvname,
+>>>>>>> upstream/android-13
 				sizeof(bi.data.drivername));
 			break;
 		}
@@ -619,7 +657,11 @@ static int hdlcdrv_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		break;
 		
 	}
+<<<<<<< HEAD
 	if (copy_to_user(ifr->ifr_data, &bi, sizeof(bi)))
+=======
+	if (copy_to_user(data, &bi, sizeof(bi)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return 0;
 
@@ -631,7 +673,11 @@ static const struct net_device_ops hdlcdrv_netdev = {
 	.ndo_open	= hdlcdrv_open,
 	.ndo_stop	= hdlcdrv_close,
 	.ndo_start_xmit = hdlcdrv_send_packet,
+<<<<<<< HEAD
 	.ndo_do_ioctl	= hdlcdrv_ioctl,
+=======
+	.ndo_siocdevprivate  = hdlcdrv_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address = hdlcdrv_set_mac_address,
 };
 
@@ -701,8 +747,11 @@ struct net_device *hdlcdrv_register(const struct hdlcdrv_ops *ops,
 	struct hdlcdrv_state *s;
 	int err;
 
+<<<<<<< HEAD
 	BUG_ON(ops == NULL);
 
+=======
+>>>>>>> upstream/android-13
 	if (privsize < sizeof(struct hdlcdrv_state))
 		privsize = sizeof(struct hdlcdrv_state);
 

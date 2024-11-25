@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2017 Intel Corporation.
  *
@@ -44,6 +45,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2017 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #if !defined(__HFI1_TRACE_MMU_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __HFI1_TRACE_MMU_H
 

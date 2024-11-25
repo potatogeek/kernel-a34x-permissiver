@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ChromeOS EC multi-function device (I2C)
  *
@@ -12,6 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+// I2C interface for ChromeOS Embedded Controller
+//
+// Copyright (C) 2012 Google, Inc
+>>>>>>> upstream/android-13
 
 #include <linux/acpi.h>
 #include <linux/delay.h>
@@ -19,12 +26,23 @@
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/mfd/cros_ec.h>
 #include <linux/mfd/cros_ec_commands.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
 /**
+=======
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+#include <linux/platform_device.h>
+#include <linux/slab.h>
+
+#include "cros_ec.h"
+
+/*
+>>>>>>> upstream/android-13
  * Request format for protocol v3
  * byte 0	0xda (EC_COMMAND_PROTOCOL_3)
  * byte 1-8	struct ec_host_request
@@ -321,9 +339,13 @@ static int cros_ec_i2c_remove(struct i2c_client *client)
 {
 	struct cros_ec_device *ec_dev = i2c_get_clientdata(client);
 
+<<<<<<< HEAD
 	cros_ec_remove(ec_dev);
 
 	return 0;
+=======
+	return cros_ec_unregister(ec_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -382,5 +404,10 @@ static struct i2c_driver cros_ec_driver = {
 
 module_i2c_driver(cros_ec_driver);
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("ChromeOS EC multi function device");
+=======
+MODULE_LICENSE("GPL v2");
+MODULE_DESCRIPTION("I2C interface for ChromeOS Embedded Controller");
+>>>>>>> upstream/android-13

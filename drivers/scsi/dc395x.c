@@ -61,10 +61,17 @@
 #include <asm/io.h>
 
 #include <scsi/scsi.h>
+<<<<<<< HEAD
 #include <scsi/scsicam.h>	/* needed for scsicam_bios_param */
 #include <scsi/scsi_cmnd.h>
 #include <scsi/scsi_device.h>
 #include <scsi/scsi_host.h>
+=======
+#include <scsi/scsi_cmnd.h>
+#include <scsi/scsi_device.h>
+#include <scsi/scsi_host.h>
+#include <scsi/scsi_transport_spi.h>
+>>>>>>> upstream/android-13
 
 #include "dc395x.h"
 
@@ -160,6 +167,7 @@
 #define DC395x_write16(acb,address,value)	outw((value), acb->io_port_base + (address))
 #define DC395x_write32(acb,address,value)	outl((value), acb->io_port_base + (address))
 
+<<<<<<< HEAD
 /* cmd->result */
 #define RES_TARGET		0x000000FF	/* Target State */
 #define RES_TARGET_LNX  STATUS_MASK	/* Only official ... */
@@ -176,6 +184,8 @@
 #define SET_RES_DID(who,did) { who &= ~RES_DID; who |= (int)(did) << 16; }
 #define SET_RES_DRV(who,drv) { who &= ~RES_DRV; who |= (int)(drv) << 24; }
 
+=======
+>>>>>>> upstream/android-13
 #define TAG_NONE 255
 
 /*
@@ -753,6 +763,7 @@ static inline struct ScsiReqBlk *find_cmd(struct scsi_cmnd *cmd,
 	return NULL;
 }
 
+<<<<<<< HEAD
 
 static struct ScsiReqBlk *srb_get_free(struct AdapterCtlBlk *acb)
 {
@@ -852,6 +863,8 @@ static void srb_waiting_to_going_move(struct DeviceCtlBlk *dcb,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /* Sets the timer to wake us up */
 static void waiting_set_timer(struct AdapterCtlBlk *acb, unsigned long to)
 {
@@ -923,7 +936,11 @@ static void waiting_process_next(struct AdapterCtlBlk *acb)
 
 			/* Try to send to the bus */
 			if (!start_scsi(acb, pos, srb))
+<<<<<<< HEAD
 				srb_waiting_to_going_move(pos, srb);
+=======
+				list_move(&srb->list, &pos->srb_going_list);
+>>>>>>> upstream/android-13
 			else
 				waiting_set_timer(acb, HZ/50);
 			break;
@@ -960,15 +977,26 @@ static void send_srb(struct AdapterCtlBlk *acb, struct ScsiReqBlk *srb)
 	if (dcb->max_command <= list_size(&dcb->srb_going_list) ||
 	    acb->active_dcb ||
 	    (acb->acb_flag & (RESET_DETECT + RESET_DONE + RESET_DEV))) {
+<<<<<<< HEAD
 		srb_waiting_append(dcb, srb);
+=======
+		list_add_tail(&srb->list, &dcb->srb_waiting_list);
+>>>>>>> upstream/android-13
 		waiting_process_next(acb);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (!start_scsi(acb, dcb, srb))
 		srb_going_append(dcb, srb);
 	else {
 		srb_waiting_insert(dcb, srb);
+=======
+	if (!start_scsi(acb, dcb, srb)) {
+		list_add_tail(&srb->list, &dcb->srb_going_list);
+	} else {
+		list_add(&srb->list, &dcb->srb_waiting_list);
+>>>>>>> upstream/android-13
 		waiting_set_timer(acb, HZ / 50);
 	}
 }
@@ -1002,7 +1030,11 @@ static void build_srb(struct scsi_cmnd *cmd, struct DeviceCtlBlk *dcb,
 	nseg = scsi_dma_map(cmd);
 	BUG_ON(nseg < 0);
 
+<<<<<<< HEAD
 	if (dir == PCI_DMA_NONE || !nseg) {
+=======
+	if (dir == DMA_NONE || !nseg) {
+>>>>>>> upstream/android-13
 		dprintkdbg(DBG_0,
 			"build_srb: [0] len=%d buf=%p use_sg=%d !MAP=%08x\n",
 			   cmd->bufflen, scsi_sglist(cmd), scsi_sg_count(cmd),
@@ -1045,10 +1077,15 @@ static void build_srb(struct scsi_cmnd *cmd, struct DeviceCtlBlk *dcb,
 			sgp->length++;
 		}
 
+<<<<<<< HEAD
 		srb->sg_bus_addr = pci_map_single(dcb->acb->dev,
 						srb->segment_x,
 				            	SEGMENTX_LEN,
 				            	PCI_DMA_TODEVICE);
+=======
+		srb->sg_bus_addr = dma_map_single(&dcb->acb->dev->dev,
+				srb->segment_x, SEGMENTX_LEN, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		dprintkdbg(DBG_SG, "build_srb: [n] map sg %p->%08x(%05x)\n",
 			srb->segment_x, srb->sg_bus_addr, SEGMENTX_LEN);
@@ -1059,7 +1096,11 @@ static void build_srb(struct scsi_cmnd *cmd, struct DeviceCtlBlk *dcb,
 
 
 /**
+<<<<<<< HEAD
  * dc395x_queue_command - queue scsi command passed from the mid
+=======
+ * dc395x_queue_command_lck - queue scsi command passed from the mid
+>>>>>>> upstream/android-13
  * layer, invoke 'done' on completion
  *
  * @cmd: pointer to scsi command object
@@ -1087,7 +1128,11 @@ static int dc395x_queue_command_lck(struct scsi_cmnd *cmd, void (*done)(struct s
 		cmd, cmd->device->id, (u8)cmd->device->lun, cmd->cmnd[0]);
 
 	/* Assume BAD_TARGET; will be cleared later */
+<<<<<<< HEAD
 	cmd->result = DID_BAD_TARGET << 16;
+=======
+	set_host_byte(cmd, DID_BAD_TARGET);
+>>>>>>> upstream/android-13
 
 	/* ignore invalid targets */
 	if (cmd->device->id >= acb->scsi_host->max_id ||
@@ -1114,11 +1159,20 @@ static int dc395x_queue_command_lck(struct scsi_cmnd *cmd, void (*done)(struct s
 
 	/* set callback and clear result in the command */
 	cmd->scsi_done = done;
+<<<<<<< HEAD
 	cmd->result = 0;
 
 	srb = srb_get_free(acb);
 	if (!srb)
 	{
+=======
+	set_host_byte(cmd, DID_OK);
+	set_status_byte(cmd, SAM_STAT_GOOD);
+
+	srb = list_first_entry_or_null(&acb->srb_free_list,
+			struct ScsiReqBlk, list);
+	if (!srb) {
+>>>>>>> upstream/android-13
 		/*
 		 * Return 1 since we are unable to queue this command at this
 		 * point in time.
@@ -1126,12 +1180,20 @@ static int dc395x_queue_command_lck(struct scsi_cmnd *cmd, void (*done)(struct s
 		dprintkdbg(DBG_0, "queue_command: No free srb's\n");
 		return 1;
 	}
+<<<<<<< HEAD
+=======
+	list_del(&srb->list);
+>>>>>>> upstream/android-13
 
 	build_srb(cmd, dcb, srb);
 
 	if (!list_empty(&dcb->srb_waiting_list)) {
 		/* append to waiting queue */
+<<<<<<< HEAD
 		srb_waiting_append(dcb, srb);
+=======
+		list_add_tail(&srb->list, &dcb->srb_waiting_list);
+>>>>>>> upstream/android-13
 		waiting_process_next(acb);
 	} else {
 		/* process immediately */
@@ -1153,6 +1215,7 @@ complete:
 
 static DEF_SCSI_QCMD(dc395x_queue_command)
 
+<<<<<<< HEAD
 /*
  * Return the disk geometry for the given SCSI device.
  */
@@ -1185,6 +1248,8 @@ static int dc395x_bios_param(struct scsi_device *sdev,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static void dump_register_info(struct AdapterCtlBlk *acb,
 		struct DeviceCtlBlk *dcb, struct ScsiReqBlk *srb)
 {
@@ -1376,6 +1441,7 @@ static int dc395x_eh_abort(struct scsi_cmnd *cmd)
 
 	srb = find_cmd(cmd, &dcb->srb_waiting_list);
 	if (srb) {
+<<<<<<< HEAD
 		srb_waiting_remove(dcb, srb);
 		pci_unmap_srb_sense(acb, srb);
 		pci_unmap_srb(acb, srb);
@@ -1383,6 +1449,15 @@ static int dc395x_eh_abort(struct scsi_cmnd *cmd)
 		srb_free_insert(acb, srb);
 		dprintkl(KERN_DEBUG, "eh_abort: Command was waiting\n");
 		cmd->result = DID_ABORT << 16;
+=======
+		list_del(&srb->list);
+		pci_unmap_srb_sense(acb, srb);
+		pci_unmap_srb(acb, srb);
+		free_tag(dcb, srb);
+		list_add_tail(&srb->list, &acb->srb_free_list);
+		dprintkl(KERN_DEBUG, "eh_abort: Command was waiting\n");
+		set_host_byte(cmd, DID_ABORT);
+>>>>>>> upstream/android-13
 		return SUCCESS;
 	}
 	srb = find_cmd(cmd, &dcb->srb_going_list);
@@ -1414,12 +1489,17 @@ static void build_sdtr(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 	} else if (dcb->sync_offset == 0)
 		dcb->sync_offset = SYNC_NEGO_OFFSET;
 
+<<<<<<< HEAD
 	*ptr++ = MSG_EXTENDED;	/* (01h) */
 	*ptr++ = 3;		/* length */
 	*ptr++ = EXTENDED_SDTR;	/* (01h) */
 	*ptr++ = dcb->min_nego_period;	/* Transfer period (in 4ns) */
 	*ptr++ = dcb->sync_offset;	/* Transfer period (max. REQ/ACK dist) */
 	srb->msg_count += 5;
+=======
+	srb->msg_count += spi_populate_sync_msg(ptr, dcb->min_nego_period,
+						dcb->sync_offset);
+>>>>>>> upstream/android-13
 	srb->state |= SRB_DO_SYNC_NEGO;
 }
 
@@ -1438,11 +1518,15 @@ static void build_wdtr(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 			srb->msgout_buf[1]);
 		return;
 	}
+<<<<<<< HEAD
 	*ptr++ = MSG_EXTENDED;	/* (01h) */
 	*ptr++ = 2;		/* length */
 	*ptr++ = EXTENDED_WDTR;	/* (03h) */
 	*ptr++ = wide;
 	srb->msg_count += 4;
+=======
+	srb->msg_count += spi_populate_width_msg(ptr, wide);
+>>>>>>> upstream/android-13
 	srb->state |= SRB_DO_WIDE_NEGO;
 }
 
@@ -1489,7 +1573,11 @@ void selection_timeout_missed(unsigned long ptr)
 static u8 start_scsi(struct AdapterCtlBlk* acb, struct DeviceCtlBlk* dcb,
 		struct ScsiReqBlk* srb)
 {
+<<<<<<< HEAD
 	u16 s_stat2, return_code;
+=======
+	u16 __maybe_unused s_stat2, return_code;
+>>>>>>> upstream/android-13
 	u8 s_stat, scsicommand, i, identify_message;
 	u8 *ptr;
 	dprintkdbg(DBG_0, "start_scsi: (0x%p) <%02i-%i> srb=%p\n",
@@ -1609,7 +1697,11 @@ static u8 start_scsi(struct AdapterCtlBlk* acb, struct DeviceCtlBlk* dcb,
 			return 1;
 		}
 		/* Send Tag id */
+<<<<<<< HEAD
 		DC395x_write8(acb, TRM_S1040_SCSI_FIFO, MSG_SIMPLE_QTAG);
+=======
+		DC395x_write8(acb, TRM_S1040_SCSI_FIFO, SIMPLE_QUEUE_TAG);
+>>>>>>> upstream/android-13
 		DC395x_write8(acb, TRM_S1040_SCSI_FIFO, tag_number);
 		dcb->tag_mask |= tag_mask;
 		srb->tag_number = tag_number;
@@ -1865,8 +1957,14 @@ static void msgout_phase1(struct AdapterCtlBlk *acb, struct ScsiReqBlk *srb,
 	if (!srb->msg_count) {
 		dprintkdbg(DBG_0, "msgout_phase1: (0x%p) NOP msg\n",
 			srb->cmd);
+<<<<<<< HEAD
 		DC395x_write8(acb, TRM_S1040_SCSI_FIFO, MSG_NOP);
 		DC395x_write16(acb, TRM_S1040_SCSI_CONTROL, DO_DATALATCH);	/* it's important for atn stop */
+=======
+		DC395x_write8(acb, TRM_S1040_SCSI_FIFO, NOP);
+		DC395x_write16(acb, TRM_S1040_SCSI_CONTROL, DO_DATALATCH);
+		/* it's important for atn stop */
+>>>>>>> upstream/android-13
 		DC395x_write8(acb, TRM_S1040_SCSI_COMMAND, SCMD_FIFO_OUT);
 		return;
 	}
@@ -1874,7 +1972,11 @@ static void msgout_phase1(struct AdapterCtlBlk *acb, struct ScsiReqBlk *srb,
 	for (i = 0; i < srb->msg_count; i++)
 		DC395x_write8(acb, TRM_S1040_SCSI_FIFO, *ptr++);
 	srb->msg_count = 0;
+<<<<<<< HEAD
 	if (srb->msgout_buf[0] == MSG_ABORT)
+=======
+	if (srb->msgout_buf[0] == ABORT_TASK_SET)
+>>>>>>> upstream/android-13
 		srb->state = SRB_ABORT_SENT;
 
 	DC395x_write8(acb, TRM_S1040_SCSI_COMMAND, SCMD_FIFO_OUT);
@@ -1969,6 +2071,7 @@ static void sg_update_list(struct ScsiReqBlk *srb, u32 left)
 			xferred -= psge->length;
 		} else {
 			/* Partial SG entry done */
+<<<<<<< HEAD
 			pci_dma_sync_single_for_cpu(srb->dcb->
 					    acb->dev,
 					    srb->sg_bus_addr,
@@ -1982,6 +2085,17 @@ static void sg_update_list(struct ScsiReqBlk *srb, u32 left)
 					    srb->sg_bus_addr,
 					    SEGMENTX_LEN,
 					    PCI_DMA_TODEVICE);
+=======
+			dma_sync_single_for_cpu(&srb->dcb->acb->dev->dev,
+					srb->sg_bus_addr, SEGMENTX_LEN,
+					DMA_TO_DEVICE);
+			psge->length -= xferred;
+			psge->address += xferred;
+			srb->sg_index = idx;
+			dma_sync_single_for_device(&srb->dcb->acb->dev->dev,
+					srb->sg_bus_addr, SEGMENTX_LEN,
+					DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			break;
 		}
 		psge++;
@@ -2534,7 +2648,10 @@ static void data_io_transfer(struct AdapterCtlBlk *acb,
 	}
 #endif				/* DC395x_LASTPIO */
 	else {		/* xfer pad */
+<<<<<<< HEAD
 		u8 data = 0, data2 = 0;
+=======
+>>>>>>> upstream/android-13
 		if (srb->sg_count) {
 			srb->adapter_status = H_OVER_UNDER_RUN;
 			srb->status |= OVER_RUN;
@@ -2549,8 +2666,13 @@ static void data_io_transfer(struct AdapterCtlBlk *acb,
 			DC395x_write8(acb, TRM_S1040_SCSI_CONFIG2,
 				      CFG2_WIDEFIFO);
 			if (io_dir & DMACMD_DIR) {
+<<<<<<< HEAD
 				data = DC395x_read8(acb, TRM_S1040_SCSI_FIFO);
 				data2 = DC395x_read8(acb, TRM_S1040_SCSI_FIFO);
+=======
+				DC395x_read8(acb, TRM_S1040_SCSI_FIFO);
+				DC395x_read8(acb, TRM_S1040_SCSI_FIFO);
+>>>>>>> upstream/android-13
 			} else {
 				/* Danger, Robinson: If you find KGs
 				 * scattered over the wide disk, the driver
@@ -2564,7 +2686,11 @@ static void data_io_transfer(struct AdapterCtlBlk *acb,
 			/* Danger, Robinson: If you find a collection of Ks on your disk
 			 * something broke :-( */
 			if (io_dir & DMACMD_DIR)
+<<<<<<< HEAD
 				data = DC395x_read8(acb, TRM_S1040_SCSI_FIFO);
+=======
+				DC395x_read8(acb, TRM_S1040_SCSI_FIFO);
+>>>>>>> upstream/android-13
 			else
 				DC395x_write8(acb, TRM_S1040_SCSI_FIFO, 'K');
 		}
@@ -2676,7 +2802,11 @@ static struct ScsiReqBlk *msgin_qtag(struct AdapterCtlBlk *acb,
 	srb = acb->tmp_srb;
 	srb->state = SRB_UNEXPECT_RESEL;
 	dcb->active_srb = srb;
+<<<<<<< HEAD
 	srb->msgout_buf[0] = MSG_ABORT_TAG;
+=======
+	srb->msgout_buf[0] = ABORT_TASK;
+>>>>>>> upstream/android-13
 	srb->msg_count = 1;
 	DC395x_ENABLE_MSGOUT;
 	dprintkl(KERN_DEBUG, "msgin_qtag: Unknown tag %i - abort\n", tag);
@@ -2918,7 +3048,11 @@ static void msgin_phase0(struct AdapterCtlBlk *acb, struct ScsiReqBlk *srb,
 			msgin_reject(acb, srb);
 			break;
 
+<<<<<<< HEAD
 		case MSG_IGNOREWIDE:
+=======
+		case IGNORE_WIDE_RESIDUE:
+>>>>>>> upstream/android-13
 			/* Discard  wide residual */
 			dprintkdbg(DBG_0, "msgin_phase0: Ignore Wide Residual!\n");
 			break;
@@ -3062,7 +3196,11 @@ static void disconnect(struct AdapterCtlBlk *acb)
 	} else {
 		if ((srb->state & (SRB_START_ + SRB_MSGOUT))
 		    || !(srb->
+<<<<<<< HEAD
 			 state & (SRB_DISCONNECT + SRB_COMPLETED))) {
+=======
+			 state & (SRB_DISCONNECT | SRB_COMPLETED))) {
+>>>>>>> upstream/android-13
 			/*
 			 * Selection time out 
 			 * SRB_START_ || SRB_MSGOUT || (!SRB_DISCONNECT && !SRB_COMPLETED)
@@ -3088,7 +3226,11 @@ static void disconnect(struct AdapterCtlBlk *acb)
 					goto disc1;
 				}
 				free_tag(dcb, srb);
+<<<<<<< HEAD
 				srb_going_to_waiting_move(dcb, srb);
+=======
+				list_move(&srb->list, &dcb->srb_waiting_list);
+>>>>>>> upstream/android-13
 				dprintkdbg(DBG_KG,
 					"disconnect: (0x%p) Retry\n",
 					srb->cmd);
@@ -3126,7 +3268,10 @@ static void reselect(struct AdapterCtlBlk *acb)
 	struct ScsiReqBlk *srb = NULL;
 	u16 rsel_tar_lun_id;
 	u8 id, lun;
+<<<<<<< HEAD
 	u8 arblostflag = 0;
+=======
+>>>>>>> upstream/android-13
 	dprintkdbg(DBG_0, "reselect: acb=%p\n", acb);
 
 	clear_fifo(acb, "reselect");
@@ -3148,12 +3293,19 @@ static void reselect(struct AdapterCtlBlk *acb)
 				srb->cmd, dcb->target_id,
 				dcb->target_lun, rsel_tar_lun_id,
 				DC395x_read16(acb, TRM_S1040_SCSI_STATUS));
+<<<<<<< HEAD
 			arblostflag = 1;
+=======
+>>>>>>> upstream/android-13
 			/*srb->state |= SRB_DISCONNECT; */
 
 			srb->state = SRB_READY;
 			free_tag(dcb, srb);
+<<<<<<< HEAD
 			srb_going_to_waiting_move(dcb, srb);
+=======
+			list_move(&srb->list, &dcb->srb_waiting_list);
+>>>>>>> upstream/android-13
 			waiting_set_timer(acb, HZ / 20);
 
 			/* return; */
@@ -3179,7 +3331,11 @@ static void reselect(struct AdapterCtlBlk *acb)
 			"disconnection? <%02i-%i>\n",
 			dcb->target_id, dcb->target_lun);
 
+<<<<<<< HEAD
 	if (dcb->sync_mode & EN_TAG_QUEUEING /*&& !arblostflag */) {
+=======
+	if (dcb->sync_mode & EN_TAG_QUEUEING) {
+>>>>>>> upstream/android-13
 		srb = acb->tmp_srb;
 		dcb->active_srb = srb;
 	} else {
@@ -3272,6 +3428,7 @@ static void pci_unmap_srb(struct AdapterCtlBlk *acb, struct ScsiReqBlk *srb)
 	struct scsi_cmnd *cmd = srb->cmd;
 	enum dma_data_direction dir = cmd->sc_data_direction;
 
+<<<<<<< HEAD
 	if (scsi_sg_count(cmd) && dir != PCI_DMA_NONE) {
 		/* unmap DC395x SG list */
 		dprintkdbg(DBG_SG, "pci_unmap_srb: list=%08x(%05x)\n",
@@ -3279,6 +3436,14 @@ static void pci_unmap_srb(struct AdapterCtlBlk *acb, struct ScsiReqBlk *srb)
 		pci_unmap_single(acb->dev, srb->sg_bus_addr,
 				 SEGMENTX_LEN,
 				 PCI_DMA_TODEVICE);
+=======
+	if (scsi_sg_count(cmd) && dir != DMA_NONE) {
+		/* unmap DC395x SG list */
+		dprintkdbg(DBG_SG, "pci_unmap_srb: list=%08x(%05x)\n",
+			srb->sg_bus_addr, SEGMENTX_LEN);
+		dma_unmap_single(&acb->dev->dev, srb->sg_bus_addr, SEGMENTX_LEN,
+				DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		dprintkdbg(DBG_SG, "pci_unmap_srb: segs=%i buffer=%p\n",
 			   scsi_sg_count(cmd), scsi_bufflen(cmd));
 		/* unmap the sg segments */
@@ -3296,8 +3461,13 @@ static void pci_unmap_srb_sense(struct AdapterCtlBlk *acb,
 	/* Unmap sense buffer */
 	dprintkdbg(DBG_SG, "pci_unmap_srb_sense: buffer=%08x\n",
 	       srb->segment_x[0].address);
+<<<<<<< HEAD
 	pci_unmap_single(acb->dev, srb->segment_x[0].address,
 			 srb->segment_x[0].length, PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&acb->dev->dev, srb->segment_x[0].address,
+			 srb->segment_x[0].length, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	/* Restore SG stuff */
 	srb->total_xfer_length = srb->xferred;
 	srb->segment_x[0].address =
@@ -3325,6 +3495,11 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		   srb, scsi_sg_count(cmd), srb->sg_index, srb->sg_count,
 		   scsi_sgtalbe(cmd));
 	status = srb->target_status;
+<<<<<<< HEAD
+=======
+	set_host_byte(cmd, DID_OK);
+	set_status_byte(cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 	if (srb->flag & AUTO_REQSENSE) {
 		dprintkdbg(DBG_0, "srb_done: AUTO_REQSENSE1\n");
 		pci_unmap_srb_sense(acb, srb);
@@ -3333,7 +3508,11 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		 */
 		srb->flag &= ~AUTO_REQSENSE;
 		srb->adapter_status = 0;
+<<<<<<< HEAD
 		srb->target_status = CHECK_CONDITION << 1;
+=======
+		srb->target_status = SAM_STAT_CHECK_CONDITION;
+>>>>>>> upstream/android-13
 		if (debug_enabled(DBG_1)) {
 			switch (cmd->sense_buffer[2] & 0x0f) {
 			case NOT_READY:
@@ -3380,12 +3559,18 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 					*((unsigned int *)(cmd->sense_buffer + 3)));
 		}
 
+<<<<<<< HEAD
 		if (status == (CHECK_CONDITION << 1)) {
 			cmd->result = DID_BAD_TARGET << 16;
+=======
+		if (status == SAM_STAT_CHECK_CONDITION) {
+			set_host_byte(cmd, DID_BAD_TARGET);
+>>>>>>> upstream/android-13
 			goto ckc_e;
 		}
 		dprintkdbg(DBG_0, "srb_done: AUTO_REQSENSE2\n");
 
+<<<<<<< HEAD
 		if (srb->total_xfer_length
 		    && srb->total_xfer_length >= cmd->underflow)
 			cmd->result =
@@ -3396,6 +3581,9 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 			cmd->result =
 			    MK_RES_LNX(DRIVER_SENSE, DID_OK,
 				       srb->end_message, CHECK_CONDITION);
+=======
+		set_status_byte(cmd, SAM_STAT_CHECK_CONDITION);
+>>>>>>> upstream/android-13
 
 		goto ckc_e;
 	}
@@ -3405,10 +3593,17 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		/*
 		 * target status..........................
 		 */
+<<<<<<< HEAD
 		if (status_byte(status) == CHECK_CONDITION) {
 			request_sense(acb, dcb, srb);
 			return;
 		} else if (status_byte(status) == QUEUE_FULL) {
+=======
+		if (status == SAM_STAT_CHECK_CONDITION) {
+			request_sense(acb, dcb, srb);
+			return;
+		} else if (status == SAM_STAT_TASK_SET_FULL) {
+>>>>>>> upstream/android-13
 			tempcnt = (u8)list_size(&dcb->srb_going_list);
 			dprintkl(KERN_INFO, "QUEUE_FULL for dev <%02i-%i> with %i cmnds\n",
 			     dcb->target_id, dcb->target_lun, tempcnt);
@@ -3416,7 +3611,11 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 				tempcnt--;
 			dcb->max_command = tempcnt;
 			free_tag(dcb, srb);
+<<<<<<< HEAD
 			srb_going_to_waiting_move(dcb, srb);
+=======
+			list_move(&srb->list, &dcb->srb_waiting_list);
+>>>>>>> upstream/android-13
 			waiting_set_timer(acb, HZ / 20);
 			srb->adapter_status = 0;
 			srb->target_status = 0;
@@ -3424,6 +3623,7 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		} else if (status == SCSI_STAT_SEL_TIMEOUT) {
 			srb->adapter_status = H_SEL_TIMEOUT;
 			srb->target_status = 0;
+<<<<<<< HEAD
 			cmd->result = DID_NO_CONNECT << 16;
 		} else {
 			srb->adapter_status = 0;
@@ -3431,6 +3631,13 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 			SET_RES_MSG(cmd->result, srb->end_message);
 			SET_RES_TARGET(cmd->result, status);
 
+=======
+			set_host_byte(cmd, DID_NO_CONNECT);
+		} else {
+			srb->adapter_status = 0;
+			set_host_byte(cmd, DID_ERROR);
+			set_status_byte(cmd, status);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/*
@@ -3439,16 +3646,25 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		status = srb->adapter_status;
 		if (status & H_OVER_UNDER_RUN) {
 			srb->target_status = 0;
+<<<<<<< HEAD
 			SET_RES_DID(cmd->result, DID_OK);
 			SET_RES_MSG(cmd->result, srb->end_message);
 		} else if (srb->status & PARITY_ERROR) {
 			SET_RES_DID(cmd->result, DID_PARITY);
 			SET_RES_MSG(cmd->result, srb->end_message);
+=======
+			scsi_msg_to_host_byte(cmd, srb->end_message);
+		} else if (srb->status & PARITY_ERROR) {
+			set_host_byte(cmd, DID_PARITY);
+>>>>>>> upstream/android-13
 		} else {	/* No error */
 
 			srb->adapter_status = 0;
 			srb->target_status = 0;
+<<<<<<< HEAD
 			SET_RES_DID(cmd->result, DID_OK);
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3469,15 +3685,26 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		base = scsi_kmap_atomic_sg(sg, scsi_sg_count(cmd), &offset, &len);
 		ptr = (struct ScsiInqData *)(base + offset);
 
+<<<<<<< HEAD
 		if (!ckc_only && (cmd->result & RES_DID) == 0
 		    && cmd->cmnd[2] == 0 && scsi_bufflen(cmd) >= 8
 		    && dir != PCI_DMA_NONE && ptr && (ptr->Vers & 0x07) >= 2)
+=======
+		if (!ckc_only && get_host_byte(cmd) == DID_OK
+		    && cmd->cmnd[2] == 0 && scsi_bufflen(cmd) >= 8
+		    && dir != DMA_NONE && ptr && (ptr->Vers & 0x07) >= 2)
+>>>>>>> upstream/android-13
 			dcb->inquiry7 = ptr->Flags;
 
 	/*if( srb->cmd->cmnd[0] == INQUIRY && */
 	/*  (host_byte(cmd->result) == DID_OK || status_byte(cmd->result) & CHECK_CONDITION) ) */
+<<<<<<< HEAD
 		if ((cmd->result == (DID_OK << 16) ||
 		     status_byte(cmd->result) == CHECK_CONDITION)) {
+=======
+		if ((get_host_byte(cmd) == DID_OK) ||
+		    (get_status_byte(cmd) == SAM_STAT_CHECK_CONDITION)) {
+>>>>>>> upstream/android-13
 			if (!dcb->init_tcq_flag) {
 				add_dev(acb, dcb, ptr);
 				dcb->init_tcq_flag = 1;
@@ -3501,6 +3728,7 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 				cmd->cmnd[0], srb->total_xfer_length);
 	}
 
+<<<<<<< HEAD
 	srb_going_remove(dcb, srb);
 	/* Add to free list */
 	if (srb == acb->tmp_srb)
@@ -3509,6 +3737,15 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		dprintkdbg(DBG_0, "srb_done: (0x%p) done result=0x%08x\n",
 			cmd, cmd->result);
 		srb_free_insert(acb, srb);
+=======
+	if (srb != acb->tmp_srb) {
+		/* Add to free list */
+		dprintkdbg(DBG_0, "srb_done: (0x%p) done result=0x%08x\n",
+			   cmd, cmd->result);
+		list_move_tail(&srb->list, &acb->srb_free_list);
+	} else {
+		dprintkl(KERN_ERR, "srb_done: ERROR! Completed cmd with tmp_srb\n");
+>>>>>>> upstream/android-13
 	}
 
 	cmd->scsi_done(cmd);
@@ -3529,6 +3766,7 @@ static void doing_srb_done(struct AdapterCtlBlk *acb, u8 did_flag,
 		struct scsi_cmnd *p;
 
 		list_for_each_entry_safe(srb, tmp, &dcb->srb_going_list, list) {
+<<<<<<< HEAD
 			enum dma_data_direction dir;
 			int result;
 
@@ -3541,6 +3779,16 @@ static void doing_srb_done(struct AdapterCtlBlk *acb, u8 did_flag,
 			free_tag(dcb, srb);
 			srb_free_insert(acb, srb);
 			p->result = result;
+=======
+			p = srb->cmd;
+			printk("G:%p(%02i-%i) ", p,
+			       p->device->id, (u8)p->device->lun);
+			list_del(&srb->list);
+			free_tag(dcb, srb);
+			list_add_tail(&srb->list, &acb->srb_free_list);
+			set_host_byte(p, did_flag);
+			set_status_byte(p, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 			pci_unmap_srb_sense(acb, srb);
 			pci_unmap_srb(acb, srb);
 			if (force) {
@@ -3561,6 +3809,7 @@ static void doing_srb_done(struct AdapterCtlBlk *acb, u8 did_flag,
 
 		/* Waiting queue */
 		list_for_each_entry_safe(srb, tmp, &dcb->srb_waiting_list, list) {
+<<<<<<< HEAD
 			int result;
 			p = srb->cmd;
 
@@ -3570,6 +3819,15 @@ static void doing_srb_done(struct AdapterCtlBlk *acb, u8 did_flag,
 			srb_waiting_remove(dcb, srb);
 			srb_free_insert(acb, srb);
 			p->result = result;
+=======
+			p = srb->cmd;
+
+			printk("W:%p<%02i-%i>", p, p->device->id,
+			       (u8)p->device->lun);
+			list_move_tail(&srb->list, &acb->srb_free_list);
+			set_host_byte(p, did_flag);
+			set_status_byte(p, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 			pci_unmap_srb_sense(acb, srb);
 			pci_unmap_srb(acb, srb);
 			if (force) {
@@ -3694,9 +3952,15 @@ static void request_sense(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 	srb->total_xfer_length = SCSI_SENSE_BUFFERSIZE;
 	srb->segment_x[0].length = SCSI_SENSE_BUFFERSIZE;
 	/* Map sense buffer */
+<<<<<<< HEAD
 	srb->segment_x[0].address =
 	    pci_map_single(acb->dev, cmd->sense_buffer,
 			   SCSI_SENSE_BUFFERSIZE, PCI_DMA_FROMDEVICE);
+=======
+	srb->segment_x[0].address = dma_map_single(&acb->dev->dev,
+			cmd->sense_buffer, SCSI_SENSE_BUFFERSIZE,
+			DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	dprintkdbg(DBG_SG, "request_sense: map buffer %p->%08x(%05x)\n",
 	       cmd->sense_buffer, srb->segment_x[0].address,
 	       SCSI_SENSE_BUFFERSIZE);
@@ -3707,7 +3971,11 @@ static void request_sense(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
 		dprintkl(KERN_DEBUG,
 			"request_sense: (0x%p) failed <%02i-%i>\n",
 			srb->cmd, dcb->target_id, dcb->target_lun);
+<<<<<<< HEAD
 		srb_going_to_waiting_move(dcb, srb);
+=======
+		list_move(&srb->list, &dcb->srb_waiting_list);
+>>>>>>> upstream/android-13
 		waiting_set_timer(acb, HZ / 100);
 	}
 }
@@ -4266,7 +4534,11 @@ static int adapter_sg_tables_alloc(struct AdapterCtlBlk *acb)
 	const unsigned srbs_per_page = PAGE_SIZE/SEGMENTX_LEN;
 	int srb_idx = 0;
 	unsigned i = 0;
+<<<<<<< HEAD
 	struct SGentry *uninitialized_var(ptr);
+=======
+	struct SGentry *ptr;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < DC395x_MAX_SRB_CNT; i++)
 		acb->srb_array[i].segment_x = NULL;
@@ -4394,12 +4666,20 @@ static void adapter_init_params(struct AdapterCtlBlk *acb)
 	
 	/* link static array of srbs into the srb free list */
 	for (i = 0; i < acb->srb_count - 1; i++)
+<<<<<<< HEAD
 		srb_free_insert(acb, &acb->srb_array[i]);
+=======
+		list_add_tail(&acb->srb_array[i].list, &acb->srb_free_list);
+>>>>>>> upstream/android-13
 }
 
 
 /**
+<<<<<<< HEAD
  * adapter_init_host - Initialize the scsi host instance based on
+=======
+ * adapter_init_scsi_host - Initialize the scsi host instance based on
+>>>>>>> upstream/android-13
  * values that we have already stored in the adapter instance. There's
  * some mention that a lot of these are deprecated, so we won't use
  * them (we'll use the ones in the adapter instance) but we'll fill
@@ -4487,13 +4767,23 @@ static void adapter_init_chip(struct AdapterCtlBlk *acb)
 
 
 /**
+<<<<<<< HEAD
  * init_adapter - Grab the resource for the card, setup the adapter
+=======
+ * adapter_init - Grab the resource for the card, setup the adapter
+>>>>>>> upstream/android-13
  * information, set the card into a known state, create the various
  * tables etc etc. This basically gets all adapter information all up
  * to date, initialised and gets the chip in sync with it.
  *
+<<<<<<< HEAD
  * @host:	This hosts adapter structure
  * @io_port:	The base I/O port
+=======
+ * @acb:	The adapter which we are to init.
+ * @io_port:	The base I/O port
+ * @io_port_len: The I/O port size
+>>>>>>> upstream/android-13
  * @irq:	IRQ
  *
  * Returns 0 if the initialization succeeds, any other value on
@@ -4644,6 +4934,7 @@ static int dc395x_show_info(struct seq_file *m, struct Scsi_Host *host)
 	/*seq_printf(m, "\n"); */
 
 	seq_printf(m, "Nr of DCBs: %i\n", list_size(&acb->dcb_list));
+<<<<<<< HEAD
 	seq_printf(m, "Map of attached LUNs: %02x %02x %02x %02x %02x %02x %02x %02x\n",
 	     acb->dcb_map[0], acb->dcb_map[1], acb->dcb_map[2],
 	     acb->dcb_map[3], acb->dcb_map[4], acb->dcb_map[5],
@@ -4652,6 +4943,10 @@ static int dc395x_show_info(struct seq_file *m, struct Scsi_Host *host)
 	     acb->dcb_map[8], acb->dcb_map[9], acb->dcb_map[10],
 	     acb->dcb_map[11], acb->dcb_map[12], acb->dcb_map[13],
 	     acb->dcb_map[14], acb->dcb_map[15]);
+=======
+	seq_printf(m, "Map of attached LUNs: %8ph\n", &acb->dcb_map[0]);
+	seq_printf(m, "                      %8ph\n", &acb->dcb_map[8]);
+>>>>>>> upstream/android-13
 
 	seq_puts(m,
 		 "Un ID LUN Prty Sync Wide DsCn SndS TagQ nego_period SyncFreq SyncOffs MaxCmd\n");
@@ -4729,7 +5024,10 @@ static struct scsi_host_template dc395x_driver_template = {
 	.show_info              = dc395x_show_info,
 	.name                   = DC395X_BANNER " " DC395X_VERSION,
 	.queuecommand           = dc395x_queue_command,
+<<<<<<< HEAD
 	.bios_param             = dc395x_bios_param,
+=======
+>>>>>>> upstream/android-13
 	.slave_alloc            = dc395x_slave_alloc,
 	.slave_destroy          = dc395x_slave_destroy,
 	.can_queue              = DC395x_MAX_CAN_QUEUE,
@@ -4738,7 +5036,11 @@ static struct scsi_host_template dc395x_driver_template = {
 	.cmd_per_lun            = DC395x_MAX_CMD_PER_LUN,
 	.eh_abort_handler       = dc395x_eh_abort,
 	.eh_bus_reset_handler   = dc395x_eh_bus_reset,
+<<<<<<< HEAD
 	.use_clustering         = DISABLE_CLUSTERING,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 };
 
 
@@ -4805,6 +5107,10 @@ static int dc395x_init_one(struct pci_dev *dev, const struct pci_device_id *id)
 	/* initialise the adapter and everything we need */
  	if (adapter_init(acb, io_port_base, io_port_len, irq)) {
 		dprintkl(KERN_INFO, "adapter init failed\n");
+<<<<<<< HEAD
+=======
+		acb = NULL;
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -4868,6 +5174,7 @@ static struct pci_driver dc395x_driver = {
 	.probe          = dc395x_init_one,
 	.remove         = dc395x_remove_one,
 };
+<<<<<<< HEAD
 
 
 /**
@@ -4892,6 +5199,9 @@ static void __exit dc395x_module_exit(void)
 
 module_init(dc395x_module_init);
 module_exit(dc395x_module_exit);
+=======
+module_pci_driver(dc395x_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("C.L. Huang / Erich Chen / Kurt Garloff");
 MODULE_DESCRIPTION("SCSI host adapter driver for Tekram TRM-S1040 based adapters: Tekram DC395 and DC315 series");

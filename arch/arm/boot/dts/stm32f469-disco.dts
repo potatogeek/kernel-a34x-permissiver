@@ -60,7 +60,12 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x1000000>;
 	};
 
@@ -88,6 +93,7 @@
 
 	leds {
 		compatible = "gpio-leds";
+<<<<<<< HEAD
 		green {
 			gpios = <&gpiog 6 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "heartbeat";
@@ -99,16 +105,36 @@
 			gpios = <&gpiod 5 GPIO_ACTIVE_LOW>;
 		};
 		blue {
+=======
+		led-green {
+			gpios = <&gpiog 6 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "heartbeat";
+		};
+		led-orange {
+			gpios = <&gpiod 4 GPIO_ACTIVE_LOW>;
+		};
+		led-red {
+			gpios = <&gpiod 5 GPIO_ACTIVE_LOW>;
+		};
+		led-blue {
+>>>>>>> upstream/android-13
 			gpios = <&gpiok 3 GPIO_ACTIVE_LOW>;
 		};
 	};
 
+<<<<<<< HEAD
 	gpio_keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		autorepeat;
 		button@0 {
+=======
+	gpio-keys {
+		compatible = "gpio-keys";
+		autorepeat;
+		button-0 {
+>>>>>>> upstream/android-13
 			label = "User";
 			linux,code = <KEY_WAKEUP>;
 			gpios = <&gpioa 0 GPIO_ACTIVE_HIGH>;
@@ -173,7 +199,10 @@
 };
 
 &ltdc {
+<<<<<<< HEAD
 	dma-ranges;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	port {
@@ -218,8 +247,12 @@
 &sdio {
 	status = "okay";
 	vmmc-supply = <&mmc_vcard>;
+<<<<<<< HEAD
 	cd-gpios = <&gpiog 2 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
+=======
+	cd-gpios = <&gpiog 2 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	broken-cd;
 	pinctrl-names = "default", "opendrain";
 	pinctrl-0 = <&sdio_pins>;

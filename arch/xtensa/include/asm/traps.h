@@ -25,8 +25,11 @@ struct exc_table {
 	void *fixup;
 	/* For passing a parameter to fixup */
 	void *fixup_param;
+<<<<<<< HEAD
 	/* For fast syscall handler */
 	unsigned long syscall_save;
+=======
+>>>>>>> upstream/android-13
 	/* Fast user exception handlers */
 	void *fast_user_handler[EXCCAUSE_N];
 	/* Fast kernel exception handlers */

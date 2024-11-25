@@ -12,6 +12,10 @@
 
 #include <linux/phy/phy.h>
 #include <linux/usb/phy.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct usb_otg {
 	u8			default_a;
@@ -40,6 +44,10 @@ struct usb_otg {
 	/* start or continue HNP role switch */
 	int	(*start_hnp)(struct usb_otg *otg);
 
+<<<<<<< HEAD
+=======
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -118,7 +126,10 @@ enum usb_dr_mode {
 	USB_DR_MODE_HOST,
 	USB_DR_MODE_PERIPHERAL,
 	USB_DR_MODE_OTG,
+<<<<<<< HEAD
 	USB_DR_MODE_DRD,
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -126,8 +137,15 @@ enum usb_dr_mode {
  * @dev: Pointer to the given device
  *
  * The function gets phy interface string from property 'dr_mode',
+<<<<<<< HEAD
  * and returns the correspondig enum usb_dr_mode
  */
 extern enum usb_dr_mode usb_get_dr_mode(struct device *dev);
+=======
+ * and returns the corresponding enum usb_dr_mode
+ */
+extern enum usb_dr_mode usb_get_dr_mode(struct device *dev);
+extern enum usb_dr_mode usb_get_role_switch_default_mode(struct device *dev);
+>>>>>>> upstream/android-13
 
 #endif /* __LINUX_USB_OTG_H */

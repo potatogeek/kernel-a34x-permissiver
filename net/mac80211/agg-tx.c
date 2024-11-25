@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HT handling
  *
@@ -8,11 +12,15 @@
  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
  * Copyright 2007-2010, Intel Corporation
  * Copyright(c) 2015-2017 Intel Deutschland GmbH
+<<<<<<< HEAD
  * Copyright (C) 2018 - 2019 Intel Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Copyright (C) 2018 - 2022 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ieee80211.h>
@@ -98,10 +106,17 @@ static void ieee80211_send_addba_request(struct ieee80211_sub_if_data *sdata,
 	mgmt->u.action.u.addba_req.action_code = WLAN_ACTION_ADDBA_REQ;
 
 	mgmt->u.action.u.addba_req.dialog_token = dialog_token;
+<<<<<<< HEAD
 	capab = (u16)(1 << 0);		/* bit 0 A-MSDU support */
 	capab |= (u16)(1 << 1);		/* bit 1 aggregation policy */
 	capab |= (u16)(tid << 2); 	/* bit 5:2 TID number */
 	capab |= (u16)(agg_size << 6);	/* bit 15:6 max size of aggergation */
+=======
+	capab = IEEE80211_ADDBA_PARAM_AMSDU_MASK;
+	capab |= IEEE80211_ADDBA_PARAM_POLICY_MASK;
+	capab |= u16_encode_bits(tid, IEEE80211_ADDBA_PARAM_TID_MASK);
+	capab |= u16_encode_bits(agg_size, IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK);
+>>>>>>> upstream/android-13
 
 	mgmt->u.action.u.addba_req.capab = cpu_to_le16(capab);
 
@@ -109,7 +124,11 @@ static void ieee80211_send_addba_request(struct ieee80211_sub_if_data *sdata,
 	mgmt->u.action.u.addba_req.start_seq_num =
 					cpu_to_le16(start_seq_num << 4);
 
+<<<<<<< HEAD
 	ieee80211_tx_skb(sdata, skb);
+=======
+	ieee80211_tx_skb_tid(sdata, skb, tid);
+>>>>>>> upstream/android-13
 }
 
 void ieee80211_send_bar(struct ieee80211_vif *vif, u8 *ra, u16 tid, u16 ssn)
@@ -216,6 +235,11 @@ ieee80211_agg_start_txq(struct sta_info *sta, int tid, bool enable)
 	struct ieee80211_txq *txq = sta->sta.txq[tid];
 	struct txq_info *txqi;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&sta->ampdu_mlme.mtx);
+
+>>>>>>> upstream/android-13
 	if (!txq)
 		return;
 
@@ -229,7 +253,11 @@ ieee80211_agg_start_txq(struct sta_info *sta, int tid, bool enable)
 	clear_bit(IEEE80211_TXQ_STOP, &txqi->flags);
 	local_bh_disable();
 	rcu_read_lock();
+<<<<<<< HEAD
 	drv_wake_tx_queue(sta->sdata->local, txqi);
+=======
+	schedule_and_wake_txq(sta->sdata->local, txqi);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	local_bh_enable();
 }
@@ -293,7 +321,10 @@ static void ieee80211_remove_tid_tx(struct sta_info *sta, int tid)
 	ieee80211_assign_tid_tx(sta, tid, NULL);
 
 	ieee80211_agg_splice_finish(sta->sdata, tid);
+<<<<<<< HEAD
 	ieee80211_agg_start_txq(sta, tid, false);
+=======
+>>>>>>> upstream/android-13
 
 	kfree_rcu(tid_tx, rcu_head);
 }
@@ -451,6 +482,7 @@ static void sta_addba_resp_timer_expired(struct timer_list *t)
 	ieee80211_stop_tx_ba_session(&sta->sta, tid);
 }
 
+<<<<<<< HEAD
 void ieee80211_tx_ba_session_handle_start(struct sta_info *sta, int tid)
 {
 	struct tid_ampdu_tx *tid_tx;
@@ -504,6 +536,16 @@ void ieee80211_tx_ba_session_handle_start(struct sta_info *sta, int tid)
 		return;
 	}
 
+=======
+static void ieee80211_send_addba_with_timeout(struct sta_info *sta,
+					      struct tid_ampdu_tx *tid_tx)
+{
+	struct ieee80211_sub_if_data *sdata = sta->sdata;
+	struct ieee80211_local *local = sta->local;
+	u8 tid = tid_tx->tid;
+	u16 buf_size;
+
+>>>>>>> upstream/android-13
 	/* activate the timer for the recipient's addBA response */
 	mod_timer(&tid_tx->addba_resp_timer, jiffies + ADDBA_RESP_INTERVAL);
 	ht_dbg(sdata, "activated addBA response timer on %pM tid %d\n",
@@ -528,8 +570,80 @@ void ieee80211_tx_ba_session_handle_start(struct sta_info *sta, int tid)
 
 	/* send AddBA request */
 	ieee80211_send_addba_request(sdata, sta->sta.addr, tid,
+<<<<<<< HEAD
 				     tid_tx->dialog_token, params.ssn,
 				     buf_size, tid_tx->timeout);
+=======
+				     tid_tx->dialog_token, tid_tx->ssn,
+				     buf_size, tid_tx->timeout);
+
+	WARN_ON(test_and_set_bit(HT_AGG_STATE_SENT_ADDBA, &tid_tx->state));
+}
+
+void ieee80211_tx_ba_session_handle_start(struct sta_info *sta, int tid)
+{
+	struct tid_ampdu_tx *tid_tx;
+	struct ieee80211_local *local = sta->local;
+	struct ieee80211_sub_if_data *sdata = sta->sdata;
+	struct ieee80211_ampdu_params params = {
+		.sta = &sta->sta,
+		.action = IEEE80211_AMPDU_TX_START,
+		.tid = tid,
+		.buf_size = 0,
+		.amsdu = false,
+		.timeout = 0,
+	};
+	int ret;
+
+	tid_tx = rcu_dereference_protected_tid_tx(sta, tid);
+
+	/*
+	 * Start queuing up packets for this aggregation session.
+	 * We're going to release them once the driver is OK with
+	 * that.
+	 */
+	clear_bit(HT_AGG_STATE_WANT_START, &tid_tx->state);
+
+	ieee80211_agg_stop_txq(sta, tid);
+
+	/*
+	 * Make sure no packets are being processed. This ensures that
+	 * we have a valid starting sequence number and that in-flight
+	 * packets have been flushed out and no packets for this TID
+	 * will go into the driver during the ampdu_action call.
+	 */
+	synchronize_net();
+
+	params.ssn = sta->tid_seq[tid] >> 4;
+	ret = drv_ampdu_action(local, sdata, &params);
+	tid_tx->ssn = params.ssn;
+	if (ret == IEEE80211_AMPDU_TX_START_DELAY_ADDBA) {
+		return;
+	} else if (ret == IEEE80211_AMPDU_TX_START_IMMEDIATE) {
+		/*
+		 * We didn't send the request yet, so don't need to check
+		 * here if we already got a response, just mark as driver
+		 * ready immediately.
+		 */
+		set_bit(HT_AGG_STATE_DRV_READY, &tid_tx->state);
+	} else if (ret) {
+		ht_dbg(sdata,
+		       "BA request denied - HW unavailable for %pM tid %d\n",
+		       sta->sta.addr, tid);
+		spin_lock_bh(&sta->lock);
+		ieee80211_agg_splice_packets(sdata, tid_tx, tid);
+		ieee80211_assign_tid_tx(sta, tid, NULL);
+		ieee80211_agg_splice_finish(sdata, tid);
+		spin_unlock_bh(&sta->lock);
+
+		ieee80211_agg_start_txq(sta, tid, false);
+
+		kfree_rcu(tid_tx, rcu_head);
+		return;
+	}
+
+	ieee80211_send_addba_with_timeout(sta, tid_tx);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -574,7 +688,12 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
 		 "Requested to start BA session on reserved tid=%d", tid))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!pubsta->ht_cap.ht_supported)
+=======
+	if (!pubsta->ht_cap.ht_supported &&
+	    sta->sdata->vif.bss_conf.chandef.chan->band != NL80211_BAND_6GHZ)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (WARN_ON_ONCE(!local->ops->ampdu_action))
@@ -605,6 +724,17 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (test_sta_flag(sta, WLAN_STA_MFP) &&
+	    !test_sta_flag(sta, WLAN_STA_AUTHORIZED)) {
+		ht_dbg(sdata,
+		       "MFP STA not authorized - deny BA session request %pM tid %d\n",
+		       sta->sta.addr, tid);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * 802.11n-2009 11.5.1.1: If the initiating STA is an HT STA, is a
 	 * member of an IBSS, and has no other existing Block Ack agreement
@@ -750,6 +880,15 @@ void ieee80211_start_tx_ba_cb(struct sta_info *sta, int tid,
 	if (WARN_ON(test_and_set_bit(HT_AGG_STATE_DRV_READY, &tid_tx->state)))
 		return;
 
+<<<<<<< HEAD
+=======
+	if (!test_bit(HT_AGG_STATE_SENT_ADDBA, &tid_tx->state)) {
+		ieee80211_send_addba_with_timeout(sta, tid_tx);
+		/* RESPONSE_RECEIVED state whould trigger the flow again */
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (test_bit(HT_AGG_STATE_RESPONSE_RECEIVED, &tid_tx->state))
 		ieee80211_agg_tx_operational(local, sta, tid);
 }
@@ -863,6 +1002,10 @@ void ieee80211_stop_tx_ba_cb(struct sta_info *sta, int tid,
 {
 	struct ieee80211_sub_if_data *sdata = sta->sdata;
 	bool send_delba = false;
+<<<<<<< HEAD
+=======
+	bool start_txq = false;
+>>>>>>> upstream/android-13
 
 	ht_dbg(sdata, "Stopping Tx BA session for %pM tid %d\n",
 	       sta->sta.addr, tid);
@@ -880,10 +1023,20 @@ void ieee80211_stop_tx_ba_cb(struct sta_info *sta, int tid,
 		send_delba = true;
 
 	ieee80211_remove_tid_tx(sta, tid);
+<<<<<<< HEAD
+=======
+	start_txq = true;
+>>>>>>> upstream/android-13
 
  unlock_sta:
 	spin_unlock_bh(&sta->lock);
 
+<<<<<<< HEAD
+=======
+	if (start_txq)
+		ieee80211_agg_start_txq(sta, tid, false);
+
+>>>>>>> upstream/android-13
 	if (send_delba)
 		ieee80211_send_delba(sdata, sta->sta.addr, tid,
 			WLAN_BACK_INITIATOR, WLAN_REASON_QSTA_NOT_USE);
@@ -924,8 +1077,13 @@ void ieee80211_process_addba_resp(struct ieee80211_local *local,
 
 	capab = le16_to_cpu(mgmt->u.action.u.addba_resp.capab);
 	amsdu = capab & IEEE80211_ADDBA_PARAM_AMSDU_MASK;
+<<<<<<< HEAD
 	tid = (capab & IEEE80211_ADDBA_PARAM_TID_MASK) >> 2;
 	buf_size = (capab & IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK) >> 6;
+=======
+	tid = u16_get_bits(capab, IEEE80211_ADDBA_PARAM_TID_MASK);
+	buf_size = u16_get_bits(capab, IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK);
+>>>>>>> upstream/android-13
 	buf_size = min(buf_size, local->hw.max_tx_aggregation_subframes);
 
 	txq = sta->sta.txq[tid];

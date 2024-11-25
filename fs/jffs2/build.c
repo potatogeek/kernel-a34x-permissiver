@@ -415,13 +415,22 @@ int jffs2_do_mount_fs(struct jffs2_sb_info *c)
 		jffs2_free_ino_caches(c);
 		jffs2_free_raw_node_refs(c);
 		ret = -EIO;
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out_sum_exit;
+>>>>>>> upstream/android-13
 	}
 
 	jffs2_calc_trigger_levels(c);
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+ out_sum_exit:
+	jffs2_sum_exit(c);
+>>>>>>> upstream/android-13
  out_free:
 	kvfree(c->blocks);
 

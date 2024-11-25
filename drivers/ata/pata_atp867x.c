@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pata_atp867x.c - ARTOP 867X 64bit 4-channel UDMA133 ATA controller driver
  *
@@ -7,6 +11,7 @@
  * Based in part on early ide code from
  *	2003-2004 by Eric Uhrhane, Google, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *   1. RAID features [comparison, XOR, striping, mirroring, etc.]
  */
@@ -171,7 +178,11 @@ static int atp867x_get_active_clocks_shifted(struct ata_port *ap,
 	default:
 		printk(KERN_WARNING "ATP867X: active %dclk is invalid. "
 			"Using 12clk.\n", clk);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 9 ... 12:
 		clocks = 7;	/* 12 clk */
 		break;
@@ -204,7 +215,11 @@ static int atp867x_get_recover_clocks_shifted(unsigned int clk)
 	default:
 		printk(KERN_WARNING "ATP867X: recover %dclk is invalid. "
 			"Using default 12clk.\n", clk);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 12:	/* default 12 clk */
 		clocks = 0;
 		break;
@@ -436,7 +451,11 @@ static int atp867x_ata_pci_sff_init_host(struct ata_host *host)
 #ifdef	ATP867X_DEBUG
 	atp867x_check_res(pdev);
 
+<<<<<<< HEAD
 	for (i = 0; i < PCI_ROM_RESOURCE; i++)
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++)
+>>>>>>> upstream/android-13
 		printk(KERN_DEBUG "ATP867X: iomap[%d]=0x%llx\n", i,
 			(unsigned long long)(host->iomap[i]));
 #endif
@@ -477,12 +496,16 @@ static int atp867x_ata_pci_sff_init_host(struct ata_host *host)
 
 	atp867x_fixup(host);
 
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		return rc;
 
 	rc = dma_set_coherent_mask(&pdev->dev, ATA_DMA_MASK);
 	return rc;
+=======
+	return dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+>>>>>>> upstream/android-13
 }
 
 static int atp867x_init_one(struct pci_dev *pdev,

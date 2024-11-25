@@ -6,7 +6,13 @@ endif
 
 ccflags-y += -I$(srctree)/drivers/misc/tzdev/include
 ccflags-y += -I$(srctree)/drivers/misc/tzdev
+<<<<<<< HEAD
 ccflags-$(CONFIG_TZDEV_DEPLOY_TZAR) += -D"_STR(s)=\#s" -D"KBUILD_SRC=_STR($(KBUILD_SRC))"
+=======
+ccflags-$(CONFIG_SAMSUNG_GKI_KERNEL) += -DANDROID_GKI_VFS_EXPORT_ONLY=VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver
+ccflags-$(CONFIG_TZDEV_DEPLOY_TZAR) += -D"_STR(s)=\#s" -D"KBUILD_SRC=_STR($(KBUILD_SRC))"
+ccflags-$(CONFIG_SAMSUNG_GKI_KERNEL) += -DCONFIG_SAMSUNG_GKI_KERNEL
+>>>>>>> upstream/android-13
 
 # Core
 tzdev-y						+= core/cdev.o
@@ -17,12 +23,16 @@ tzdev-y						+= core/iwservice.o
 tzdev-y						+= core/iwsock.o
 tzdev-y						+= core/kthread_pool.o
 tzdev-y						+= core/log.o
+<<<<<<< HEAD
 tzdev-y						+= core/mem.o
+=======
+>>>>>>> upstream/android-13
 tzdev-y						+= core/notifier.o
 tzdev-y						+= core/ree_time.o
 tzdev-y						+= core/sysdep.o
 tzdev-y						+= core/tzdev.o
 tzdev-y						+= core/uiwsock.o
+<<<<<<< HEAD
 tzdev-y						+= core/umem.o
 tzdev-$(CONFIG_TZLOG)				+= core/iwlog.o
 tzdev-$(CONFIG_TZDEV_DEPLOY_TZAR)		+= core/deploy_tzar.o
@@ -30,6 +40,32 @@ tzdev-$(CONFIG_TZDEV_DEPLOY_TZAR)		+= core/deploy_tzar.o
 ifeq ($(CONFIG_MSM_SCM), y)
 tzdev-y						+= core/qc_platform.o
 tzdev-y						+= core/qc_clocks.o
+=======
+tzdev-y						+= core/smc_channel.o
+tzdev-y						+= core/iw_mem.o
+tzdev-y						+= core/iw_events.o
+tzdev-y						+= core/iw_shmem.o
+tzdev-y						+= core/uiwshmem.o
+tzdev-$(CONFIG_TZLOG)				+= core/iwlog.o
+tzdev-$(CONFIG_TZDEV_DEPLOY_TZAR)		+= core/deploy_tzar.o
+
+ifeq ($(CONFIG_TZDEV_TVM), y)
+tzdev-y					+= core/tvm_shmem.o
+tzdev-y					+= core/iwio_impl_tvm.o
+tzdev-y					+= core/iw_mem_impl_tvm.o
+tzdev-y					+= core/smc_channel_impl_tvm.o
+else
+tzdev-y					+= core/iwio_impl_tz.o
+tzdev-y					+= core/iw_mem_impl_tz.o
+tzdev-y					+= core/smc_channel_impl_tz.o
+endif
+
+ifeq ($(CONFIG_MSM_SCM), y)
+tzdev-y						+= core/qc_platform.o
+tzdev-y						+= core/qc_clocks.o
+else ifeq ($(CONFIG_TZDEV_GUNYAH), y)
+tzdev-y						+= core/gunyah_platform.o
+>>>>>>> upstream/android-13
 else
 tzdev-y						+= core/platform.o
 endif
@@ -43,7 +79,10 @@ tzdev-$(CONFIG_TZDEV_BOOST)			+= extensions/boost.o
 tzdev-$(CONFIG_TZDEV_CPUFREQ_TRANSITION)	+= extensions/cpufreq_trans.o
 tzdev-$(CONFIG_TZDEV_HOTPLUG)			+= extensions/hotplug.o
 tzdev-$(CONFIG_TZIRS)				+= extensions/irs.o
+<<<<<<< HEAD
 tzdev-$(CONFIG_TZ_NWFS)				+= extensions/fsdev.o
+=======
+>>>>>>> upstream/android-13
 tzdev-$(CONFIG_TZ_SCMA)				+= extensions/scma.o
 tzdev-$(CONFIG_ION_FD2PHYS)			+= extensions/ion_fd2phys_v$(CONFIG_ION_FD2PHYS_VARIANT).o
 
@@ -59,3 +98,7 @@ tzdev-$(CONFIG_TZ_BOOT_LOG)			+= debug/iw_boot_log.o
 tzdev-$(CONFIG_TZ_PANIC_DUMP)			+= debug/panic_dump.o
 tzdev-$(CONFIG_TZ_PMF)				+= debug/pmf.o
 tzdev-$(CONFIG_TZDEV_TRACING)			+= debug/trace.o
+<<<<<<< HEAD
+=======
+tzdev-$(CONFIG_TZDEV_DEBUG)			+= debug/kmemleak.o
+>>>>>>> upstream/android-13

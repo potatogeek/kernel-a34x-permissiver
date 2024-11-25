@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* incoming call handling
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -43,8 +50,14 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
 				      unsigned int debug_id)
 {
 	const void *here = __builtin_return_address(0);
+<<<<<<< HEAD
 	struct rxrpc_call *call;
 	struct rxrpc_net *rxnet = rxrpc_net(sock_net(&rx->sk));
+=======
+	struct rxrpc_call *call, *xcall;
+	struct rxrpc_net *rxnet = rxrpc_net(sock_net(&rx->sk));
+	struct rb_node *parent, **pp;
+>>>>>>> upstream/android-13
 	int max, tmp;
 	unsigned int size = RXRPC_BACKLOG_MAX;
 	unsigned int head, tail, call_head, call_tail;
@@ -98,7 +111,11 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
 	}
 
 	/* Now it gets complicated, because calls get registered with the
+<<<<<<< HEAD
 	 * socket here, particularly if a user ID is preassigned by the user.
+=======
+	 * socket here, with a user ID preassigned by the user.
+>>>>>>> upstream/android-13
 	 */
 	call = rxrpc_alloc_call(rx, gfp, debug_id);
 	if (!call)
@@ -106,11 +123,16 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
 	call->flags |= (1 << RXRPC_CALL_IS_SERVICE);
 	call->state = RXRPC_CALL_SERVER_PREALLOC;
 
+<<<<<<< HEAD
 	trace_rxrpc_call(call, rxrpc_call_new_service,
+=======
+	trace_rxrpc_call(call->debug_id, rxrpc_call_new_service,
+>>>>>>> upstream/android-13
 			 atomic_read(&call->usage),
 			 here, (const void *)user_call_ID);
 
 	write_lock(&rx->call_lock);
+<<<<<<< HEAD
 	if (user_attach_call) {
 		struct rxrpc_call *xcall;
 		struct rb_node *parent, **pp;
@@ -139,6 +161,35 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
 		set_bit(RXRPC_CALL_HAS_USERID, &call->flags);
 	}
 
+=======
+
+	/* Check the user ID isn't already in use */
+	pp = &rx->calls.rb_node;
+	parent = NULL;
+	while (*pp) {
+		parent = *pp;
+		xcall = rb_entry(parent, struct rxrpc_call, sock_node);
+		if (user_call_ID < xcall->user_call_ID)
+			pp = &(*pp)->rb_left;
+		else if (user_call_ID > xcall->user_call_ID)
+			pp = &(*pp)->rb_right;
+		else
+			goto id_in_use;
+	}
+
+	call->user_call_ID = user_call_ID;
+	call->notify_rx = notify_rx;
+	if (user_attach_call) {
+		rxrpc_get_call(call, rxrpc_call_got_kernel);
+		user_attach_call(call, user_call_ID);
+	}
+
+	rxrpc_get_call(call, rxrpc_call_got_userid);
+	rb_link_node(&call->sock_node, parent, pp);
+	rb_insert_color(&call->sock_node, &rx->calls);
+	set_bit(RXRPC_CALL_HAS_USERID, &call->flags);
+
+>>>>>>> upstream/android-13
 	list_add(&call->sock_link, &rx->sock_calls);
 
 	write_unlock(&rx->call_lock);
@@ -161,11 +212,16 @@ id_in_use:
 }
 
 /*
+<<<<<<< HEAD
  * Preallocate sufficient service connections, calls and peers to cover the
  * entire backlog of a socket.  When a new call comes in, if we don't have
  * sufficient of each available, the call gets rejected as busy or ignored.
  *
  * The backlog is replenished when a connection is accepted or rejected.
+=======
+ * Allocate the preallocation buffers for incoming service calls.  These must
+ * be charged manually.
+>>>>>>> upstream/android-13
  */
 int rxrpc_service_prealloc(struct rxrpc_sock *rx, gfp_t gfp)
 {
@@ -178,6 +234,7 @@ int rxrpc_service_prealloc(struct rxrpc_sock *rx, gfp_t gfp)
 		rx->backlog = b;
 	}
 
+<<<<<<< HEAD
 	if (rx->discard_new_call)
 		return 0;
 
@@ -185,6 +242,8 @@ int rxrpc_service_prealloc(struct rxrpc_sock *rx, gfp_t gfp)
 					  atomic_inc_return(&rxrpc_debug_id)) == 0)
 		;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -252,6 +311,25 @@ void rxrpc_discard_prealloc(struct rxrpc_sock *rx)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Ping the other end to fill our RTT cache and to retrieve the rwind
+ * and MTU parameters.
+ */
+static void rxrpc_send_ping(struct rxrpc_call *call, struct sk_buff *skb)
+{
+	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
+	ktime_t now = skb->tstamp;
+
+	if (call->peer->rtt_count < 3 ||
+	    ktime_before(ktime_add_ms(call->peer->rtt_last_req, 1000), now))
+		rxrpc_propose_ACK(call, RXRPC_ACK_PING, sp->hdr.serial,
+				  true, true,
+				  rxrpc_propose_ack_ping_for_params);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Allocate a new incoming call from the prealloc pool, along with a connection
  * and a peer as necessary.
  */
@@ -259,6 +337,10 @@ static struct rxrpc_call *rxrpc_alloc_incoming_call(struct rxrpc_sock *rx,
 						    struct rxrpc_local *local,
 						    struct rxrpc_peer *peer,
 						    struct rxrpc_connection *conn,
+<<<<<<< HEAD
+=======
+						    const struct rxrpc_security *sec,
+>>>>>>> upstream/android-13
 						    struct sk_buff *skb)
 {
 	struct rxrpc_backlog *b = rx->backlog;
@@ -288,7 +370,11 @@ static struct rxrpc_call *rxrpc_alloc_incoming_call(struct rxrpc_sock *rx,
 			peer = NULL;
 		if (!peer) {
 			peer = b->peer_backlog[peer_tail];
+<<<<<<< HEAD
 			if (rxrpc_extract_addr_from_skb(local, &peer->srx, skb) < 0)
+=======
+			if (rxrpc_extract_addr_from_skb(&peer->srx, skb) < 0)
+>>>>>>> upstream/android-13
 				return NULL;
 			b->peer_backlog[peer_tail] = NULL;
 			smp_store_release(&b->peer_backlog_tail,
@@ -306,7 +392,11 @@ static struct rxrpc_call *rxrpc_alloc_incoming_call(struct rxrpc_sock *rx,
 		conn->params.local = rxrpc_get_local(local);
 		conn->params.peer = peer;
 		rxrpc_see_connection(conn);
+<<<<<<< HEAD
 		rxrpc_new_incoming_connection(rx, conn, skb);
+=======
+		rxrpc_new_incoming_connection(rx, conn, sec, skb);
+>>>>>>> upstream/android-13
 	} else {
 		rxrpc_get_connection(conn);
 	}
@@ -319,6 +409,11 @@ static struct rxrpc_call *rxrpc_alloc_incoming_call(struct rxrpc_sock *rx,
 
 	rxrpc_see_call(call);
 	call->conn = conn;
+<<<<<<< HEAD
+=======
+	call->security = conn->security;
+	call->security_ix = conn->security_ix;
+>>>>>>> upstream/android-13
 	call->peer = rxrpc_get_peer(conn->params.peer);
 	call->cong_cwnd = call->peer->cong_cwnd;
 	return call;
@@ -344,9 +439,16 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
 					   struct sk_buff *skb)
 {
 	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
+<<<<<<< HEAD
 	struct rxrpc_connection *conn;
 	struct rxrpc_peer *peer = NULL;
 	struct rxrpc_call *call;
+=======
+	const struct rxrpc_security *sec = NULL;
+	struct rxrpc_connection *conn;
+	struct rxrpc_peer *peer = NULL;
+	struct rxrpc_call *call = NULL;
+>>>>>>> upstream/android-13
 
 	_enter("");
 
@@ -357,9 +459,13 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
 				  sp->hdr.seq, RX_INVALID_OPERATION, ESHUTDOWN);
 		skb->mark = RXRPC_SKB_MARK_REJECT_ABORT;
 		skb->priority = RX_INVALID_OPERATION;
+<<<<<<< HEAD
 		_leave(" = NULL [close]");
 		call = NULL;
 		goto out;
+=======
+		goto no_call;
+>>>>>>> upstream/android-13
 	}
 
 	/* The peer, connection and call may all have sprung into existence due
@@ -369,17 +475,31 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
 	 */
 	conn = rxrpc_find_connection_rcu(local, skb, &peer);
 
+<<<<<<< HEAD
 	call = rxrpc_alloc_incoming_call(rx, local, peer, conn, skb);
 	if (!call) {
 		skb->mark = RXRPC_SKB_MARK_REJECT_BUSY;
 		_leave(" = NULL [busy]");
 		call = NULL;
 		goto out;
+=======
+	if (!conn) {
+		sec = rxrpc_get_incoming_security(rx, skb);
+		if (!sec)
+			goto no_call;
+	}
+
+	call = rxrpc_alloc_incoming_call(rx, local, peer, conn, sec, skb);
+	if (!call) {
+		skb->mark = RXRPC_SKB_MARK_REJECT_BUSY;
+		goto no_call;
+>>>>>>> upstream/android-13
 	}
 
 	trace_rxrpc_receive(call, rxrpc_receive_incoming,
 			    sp->hdr.serial, sp->hdr.seq);
 
+<<<<<<< HEAD
 	/* Lock the call to prevent rxrpc_kernel_send/recv_data() and
 	 * sendmsg()/recvmsg() inconveniently stealing the mutex once the
 	 * notification is generated.
@@ -392,14 +512,19 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
 	if (!mutex_trylock(&call->user_mutex))
 		BUG();
 
+=======
+>>>>>>> upstream/android-13
 	/* Make the call live. */
 	rxrpc_incoming_call(rx, call, skb);
 	conn = call->conn;
 
 	if (rx->notify_new_call)
 		rx->notify_new_call(&rx->sk, call, call->user_call_ID);
+<<<<<<< HEAD
 	else
 		sk_acceptq_added(&rx->sk);
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&conn->state_lock);
 	switch (conn->state) {
@@ -411,12 +536,17 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
 
 	case RXRPC_CONN_SERVICE:
 		write_lock(&call->state_lock);
+<<<<<<< HEAD
 		if (call->state < RXRPC_CALL_COMPLETE) {
 			if (rx->discard_new_call)
 				call->state = RXRPC_CALL_SERVER_RECV_REQUEST;
 			else
 				call->state = RXRPC_CALL_SERVER_ACCEPTING;
 		}
+=======
+		if (call->state < RXRPC_CALL_COMPLETE)
+			call->state = RXRPC_CALL_SERVER_RECV_REQUEST;
+>>>>>>> upstream/android-13
 		write_unlock(&call->state_lock);
 		break;
 
@@ -432,9 +562,15 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
 		BUG();
 	}
 	spin_unlock(&conn->state_lock);
+<<<<<<< HEAD
 
 	if (call->state == RXRPC_CALL_SERVER_ACCEPTING)
 		rxrpc_notify_socket(call);
+=======
+	spin_unlock(&rx->incoming_lock);
+
+	rxrpc_send_ping(call, skb);
+>>>>>>> upstream/android-13
 
 	/* We have to discard the prealloc queue's ref here and rely on a
 	 * combination of the RCU read lock and refs held either by the socket
@@ -444,6 +580,7 @@ struct rxrpc_call *rxrpc_new_incoming_call(struct rxrpc_local *local,
 	rxrpc_put_call(call, rxrpc_call_put);
 
 	_leave(" = %p{%d}", call, call->debug_id);
+<<<<<<< HEAD
 out:
 	spin_unlock(&rx->incoming_lock);
 	return call;
@@ -631,6 +768,29 @@ out_discard:
 	rxrpc_service_prealloc(rx, GFP_KERNEL);
 	_leave(" = %d", ret);
 	return ret;
+=======
+	return call;
+
+no_call:
+	spin_unlock(&rx->incoming_lock);
+	_leave(" = NULL [%u]", skb->mark);
+	return NULL;
+}
+
+/*
+ * Charge up socket with preallocated calls, attaching user call IDs.
+ */
+int rxrpc_user_charge_accept(struct rxrpc_sock *rx, unsigned long user_call_ID)
+{
+	struct rxrpc_backlog *b = rx->backlog;
+
+	if (rx->sk.sk_state == RXRPC_CLOSE)
+		return -ESHUTDOWN;
+
+	return rxrpc_service_prealloc_one(rx, b, NULL, NULL, user_call_ID,
+					  GFP_KERNEL,
+					  atomic_inc_return(&rxrpc_debug_id));
+>>>>>>> upstream/android-13
 }
 
 /*

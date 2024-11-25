@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Stream Parser
  *
  * Copyright (c) 2016 Tom Herbert <tom@herbertland.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bpf.h>
@@ -14,7 +21,12 @@
 #include <linux/file.h>
 #include <linux/in.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+#include <linux/export.h>
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/net.h>
 #include <linux/netdevice.h>
 #include <linux/poll.h>
@@ -29,6 +41,7 @@
 
 static struct workqueue_struct *strp_wq;
 
+<<<<<<< HEAD
 struct _strp_msg {
 	/* Internal cb structure. struct strp_msg must be first for passing
 	 * to upper layer.
@@ -41,6 +54,12 @@ static inline struct _strp_msg *_strp_msg(struct sk_buff *skb)
 {
 	return (struct _strp_msg *)((void *)skb->cb +
 		offsetof(struct qdisc_skb_cb, data));
+=======
+static inline struct _strp_msg *_strp_msg(struct sk_buff *skb)
+{
+	return (struct _strp_msg *)((void *)skb->cb +
+		offsetof(struct sk_skb_cb, strp));
+>>>>>>> upstream/android-13
 }
 
 /* Lower lock held */
@@ -60,7 +79,11 @@ static void strp_abort_strp(struct strparser *strp, int err)
 
 		/* Report an error on the lower socket */
 		sk->sk_err = -err;
+<<<<<<< HEAD
 		sk->sk_error_report(sk);
+=======
+		sk_error_report(sk);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -159,18 +182,27 @@ static int __strp_recv(read_descriptor_t *desc, struct sk_buff *orig_skb,
 					return 0;
 				}
 
+<<<<<<< HEAD
 				skb = alloc_skb(0, GFP_ATOMIC);
+=======
+				skb = alloc_skb_for_msg(head);
+>>>>>>> upstream/android-13
 				if (!skb) {
 					STRP_STATS_INCR(strp->stats.mem_fail);
 					desc->error = -ENOMEM;
 					return 0;
 				}
+<<<<<<< HEAD
 				skb->len = head->len;
 				skb->data_len = head->len;
 				skb->truesize = head->truesize;
 				*_strp_msg(skb) = *_strp_msg(head);
 				strp->skb_nextp = &head->next;
 				skb_shinfo(skb)->frag_list = head;
+=======
+
+				strp->skb_nextp = &head->next;
+>>>>>>> upstream/android-13
 				strp->skb_head = skb;
 				head = skb;
 			} else {
@@ -297,7 +329,11 @@ static int __strp_recv(read_descriptor_t *desc, struct sk_buff *orig_skb,
 			break;
 		}
 
+<<<<<<< HEAD
 		/* Positive extra indicates ore bytes than needed for the
+=======
+		/* Positive extra indicates more bytes than needed for the
+>>>>>>> upstream/android-13
 		 * message
 		 */
 
@@ -545,6 +581,7 @@ void strp_check_rcv(struct strparser *strp)
 }
 EXPORT_SYMBOL_GPL(strp_check_rcv);
 
+<<<<<<< HEAD
 static int __init strp_mod_init(void)
 {
 	strp_wq = create_singlethread_workqueue("kstrp");
@@ -559,3 +596,14 @@ static void __exit strp_mod_exit(void)
 module_init(strp_mod_init);
 module_exit(strp_mod_exit);
 MODULE_LICENSE("GPL");
+=======
+static int __init strp_dev_init(void)
+{
+	strp_wq = create_singlethread_workqueue("kstrp");
+	if (unlikely(!strp_wq))
+		return -ENOMEM;
+
+	return 0;
+}
+device_initcall(strp_dev_init);
+>>>>>>> upstream/android-13

@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <net/mac80211.h>
 #include <linux/bcma/bcma_driver_chipcommon.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+#include <linux/gpio/machine.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 #include "mac80211_if.h"
 #include "pub.h"
@@ -19,6 +25,7 @@
 
 static void brcms_radio_led_ctrl(struct brcms_info *wl, bool state)
 {
+<<<<<<< HEAD
 	if (wl->radio_led.gpio == -1)
 		return;
 
@@ -29,6 +36,15 @@ static void brcms_radio_led_ctrl(struct brcms_info *wl, bool state)
 		gpio_set_value(wl->radio_led.gpio, 1);
 	else
 		gpio_set_value(wl->radio_led.gpio, 0);
+=======
+	if (!wl->radio_led.gpiod)
+		return;
+
+	if (state)
+		gpiod_set_value(wl->radio_led.gpiod, 1);
+	else
+		gpiod_set_value(wl->radio_led.gpiod, 0);
+>>>>>>> upstream/android-13
 }
 
 
@@ -45,8 +61,13 @@ void brcms_led_unregister(struct brcms_info *wl)
 {
 	if (wl->led_dev.dev)
 		led_classdev_unregister(&wl->led_dev);
+<<<<<<< HEAD
 	if (wl->radio_led.gpio != -1)
 		gpio_free(wl->radio_led.gpio);
+=======
+	if (wl->radio_led.gpiod)
+		gpiochip_free_own_desc(wl->radio_led.gpiod);
+>>>>>>> upstream/android-13
 }
 
 int brcms_led_register(struct brcms_info *wl)
@@ -61,12 +82,17 @@ int brcms_led_register(struct brcms_info *wl)
 		&sprom->gpio1,
 		&sprom->gpio2,
 		&sprom->gpio3 };
+<<<<<<< HEAD
 	unsigned gpio = -1;
 	bool active_low = false;
 
 	/* none by default */
 	radio_led->gpio = -1;
 	radio_led->active_low = false;
+=======
+	int hwnum = -1;
+	enum gpio_lookup_flags lflags = GPIO_ACTIVE_HIGH;
+>>>>>>> upstream/android-13
 
 	if (!bcma_gpio || !gpio_is_valid(bcma_gpio->base))
 		return -ENODEV;
@@ -75,13 +101,20 @@ int brcms_led_register(struct brcms_info *wl)
 	for (i = 0; i < BRCMS_LED_NO; i++) {
 		u8 led = *leds[i];
 		if ((led & BRCMS_LED_BEH_MASK) == BRCMS_LED_RADIO) {
+<<<<<<< HEAD
 			gpio = bcma_gpio->base + i;
 			if (led & BRCMS_LED_AL_MASK)
 				active_low = true;
+=======
+			hwnum = i;
+			if (led & BRCMS_LED_AL_MASK)
+				lflags = GPIO_ACTIVE_LOW;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	if (gpio == -1 || !gpio_is_valid(gpio))
 		return -ENODEV;
 
@@ -99,6 +132,21 @@ int brcms_led_register(struct brcms_info *wl)
 	if (err) {
 		wiphy_err(wl->wiphy, "cannot set led gpio %d to output (err: %d)\n",
 			  gpio, err);
+=======
+	/* No LED, bail out */
+	if (hwnum == -1)
+		return -ENODEV;
+
+	/* Try to obtain this LED GPIO line */
+	radio_led->gpiod = gpiochip_request_own_desc(bcma_gpio, hwnum,
+						     "radio on", lflags,
+						     GPIOD_OUT_LOW);
+
+	if (IS_ERR(radio_led->gpiod)) {
+		err = PTR_ERR(radio_led->gpiod);
+		wiphy_err(wl->wiphy, "requesting led GPIO failed (err: %d)\n",
+			  err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -117,11 +165,16 @@ int brcms_led_register(struct brcms_info *wl)
 		return err;
 	}
 
+<<<<<<< HEAD
 	wiphy_info(wl->wiphy, "registered radio enabled led device: %s gpio: %d\n",
 		   wl->radio_led.name,
 		   gpio);
 	radio_led->gpio = gpio;
 	radio_led->active_low = active_low;
+=======
+	wiphy_info(wl->wiphy, "registered radio enabled led device: %s\n",
+		   wl->radio_led.name);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

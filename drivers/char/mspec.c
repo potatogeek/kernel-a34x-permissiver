@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001-2006 Silicon Graphics, Inc.  All rights
  * reserved.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2001-2006 Silicon Graphics, Inc.  All rights
+ * reserved.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -12,11 +19,16 @@
  *
  * This driver exports the SN special memory (mspec) facility to user
  * processes.
+<<<<<<< HEAD
  * There are three types of memory made available thru this driver:
  * fetchops, uncached and cached.
  *
  * Fetchops are atomic memory operations that are implemented in the
  * memory controller on SGI SN hardware.
+=======
+ * There are two types of memory made available thru this driver:
+ * uncached and cached.
+>>>>>>> upstream/android-13
  *
  * Uncached are used for memory write combining feature of the ia64
  * cpu.
@@ -45,6 +57,7 @@
 #include <linux/numa.h>
 #include <linux/refcount.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <linux/atomic.h>
 #include <asm/tlbflush.h>
@@ -59,6 +72,13 @@
 
 
 #define FETCHOP_ID	"SGI Fetchop,"
+=======
+#include <linux/atomic.h>
+#include <asm/tlbflush.h>
+#include <asm/uncached.h>
+
+
+>>>>>>> upstream/android-13
 #define CACHED_ID	"Cached,"
 #define UNCACHED_ID	"Uncached"
 #define REVISION	"4.0"
@@ -68,6 +88,7 @@
  * Page types allocated by the device.
  */
 enum mspec_page_type {
+<<<<<<< HEAD
 	MSPEC_FETCHOP = 1,
 	MSPEC_CACHED,
 	MSPEC_UNCACHED
@@ -79,6 +100,12 @@ static int is_sn2;
 #define is_sn2		0
 #endif
 
+=======
+	MSPEC_CACHED = 2,
+	MSPEC_UNCACHED
+};
+
+>>>>>>> upstream/android-13
 /*
  * One of these structures is allocated when an mspec region is mmaped. The
  * structure is pointed to by the vma->vm_private_data field in the vma struct.
@@ -86,7 +113,11 @@ static int is_sn2;
  * This structure is shared by all vma's that are split off from the
  * original vma when split_vma()'s are done.
  *
+<<<<<<< HEAD
  * The refcnt is incremented atomically because mm->mmap_sem does not
+=======
+ * The refcnt is incremented atomically because mm->mmap_lock does not
+>>>>>>> upstream/android-13
  * protect in fork case where multiple tasks share the vma_data.
  */
 struct vma_data {
@@ -96,6 +127,7 @@ struct vma_data {
 	enum mspec_page_type type; /* Type of pages allocated. */
 	unsigned long vm_start;	/* Original (unsplit) base. */
 	unsigned long vm_end;	/* Original (unsplit) end. */
+<<<<<<< HEAD
 	unsigned long maddr[0];	/* Array of MSPEC addresses. */
 };
 
@@ -132,6 +164,11 @@ mspec_zero_block(unsigned long addr, int len)
 	return status;
 }
 
+=======
+	unsigned long maddr[];	/* Array of MSPEC addresses. */
+};
+
+>>>>>>> upstream/android-13
 /*
  * mspec_open
  *
@@ -176,11 +213,16 @@ mspec_close(struct vm_area_struct *vma)
 		 */
 		my_page = vdata->maddr[index];
 		vdata->maddr[index] = 0;
+<<<<<<< HEAD
 		if (!mspec_zero_block(my_page, PAGE_SIZE))
 			uncached_free_page(my_page, 1);
 		else
 			printk(KERN_WARNING "mspec_close(): "
 			       "failed to zero page %ld\n", my_page);
+=======
+		memset((char *)my_page, 0, PAGE_SIZE);
+		uncached_free_page(my_page, 1);
+>>>>>>> upstream/android-13
 	}
 
 	kvfree(vdata);
@@ -216,11 +258,15 @@ mspec_fault(struct vm_fault *vmf)
 		spin_unlock(&vdata->lock);
 	}
 
+<<<<<<< HEAD
 	if (vdata->type == MSPEC_FETCHOP)
 		paddr = TO_AMO(maddr);
 	else
 		paddr = maddr & ~__IA64_UNCACHED_OFFSET;
 
+=======
+	paddr = maddr & ~__IA64_UNCACHED_OFFSET;
+>>>>>>> upstream/android-13
 	pfn = paddr >> PAGE_SHIFT;
 
 	return vmf_insert_pfn(vmf->vma, vmf->address, pfn);
@@ -257,10 +303,14 @@ mspec_mmap(struct file *file, struct vm_area_struct *vma,
 
 	pages = vma_pages(vma);
 	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
+<<<<<<< HEAD
 	if (vdata_size <= PAGE_SIZE)
 		vdata = kzalloc(vdata_size, GFP_KERNEL);
 	else
 		vdata = vzalloc(vdata_size);
+=======
+	vdata = kvzalloc(vdata_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!vdata)
 		return -ENOMEM;
 
@@ -272,7 +322,11 @@ mspec_mmap(struct file *file, struct vm_area_struct *vma,
 	vma->vm_private_data = vdata;
 
 	vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
+<<<<<<< HEAD
 	if (vdata->type == MSPEC_FETCHOP || vdata->type == MSPEC_UNCACHED)
+=======
+	if (vdata->type == MSPEC_UNCACHED)
+>>>>>>> upstream/android-13
 		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 	vma->vm_ops = &mspec_vm_ops;
 
@@ -280,12 +334,15 @@ mspec_mmap(struct file *file, struct vm_area_struct *vma,
 }
 
 static int
+<<<<<<< HEAD
 fetchop_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	return mspec_mmap(file, vma, MSPEC_FETCHOP);
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 cached_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	return mspec_mmap(file, vma, MSPEC_CACHED);
@@ -297,6 +354,7 @@ uncached_mmap(struct file *file, struct vm_area_struct *vma)
 	return mspec_mmap(file, vma, MSPEC_UNCACHED);
 }
 
+<<<<<<< HEAD
 static const struct file_operations fetchop_fops = {
 	.owner = THIS_MODULE,
 	.mmap = fetchop_mmap,
@@ -309,6 +367,8 @@ static struct miscdevice fetchop_miscdev = {
 	.fops = &fetchop_fops
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct file_operations cached_fops = {
 	.owner = THIS_MODULE,
 	.mmap = cached_mmap,
@@ -342,6 +402,7 @@ static int __init
 mspec_init(void)
 {
 	int ret;
+<<<<<<< HEAD
 	int nid;
 
 	/*
@@ -378,19 +439,27 @@ mspec_init(void)
 		}
 	}
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	ret = misc_register(&cached_miscdev);
 	if (ret) {
 		printk(KERN_ERR "%s: failed to register device %i\n",
 		       CACHED_ID, ret);
+<<<<<<< HEAD
 		if (is_sn2)
 			misc_deregister(&fetchop_miscdev);
 		goto free_scratch_pages;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 	ret = misc_register(&uncached_miscdev);
 	if (ret) {
 		printk(KERN_ERR "%s: failed to register device %i\n",
 		       UNCACHED_ID, ret);
 		misc_deregister(&cached_miscdev);
+<<<<<<< HEAD
 		if (is_sn2)
 			misc_deregister(&fetchop_miscdev);
 		goto free_scratch_pages;
@@ -408,11 +477,21 @@ mspec_init(void)
 			uncached_free_page(scratch_page[nid], 1);
 	}
 	return ret;
+=======
+		return ret;
+	}
+
+	printk(KERN_INFO "%s %s initialized devices: %s %s\n",
+	       MSPEC_BASENAME, REVISION, CACHED_ID, UNCACHED_ID);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void __exit
 mspec_exit(void)
 {
+<<<<<<< HEAD
 	int nid;
 
 	misc_deregister(&uncached_miscdev);
@@ -425,6 +504,10 @@ mspec_exit(void)
 				uncached_free_page(scratch_page[nid], 1);
 		}
 	}
+=======
+	misc_deregister(&uncached_miscdev);
+	misc_deregister(&cached_miscdev);
+>>>>>>> upstream/android-13
 }
 
 module_init(mspec_init);

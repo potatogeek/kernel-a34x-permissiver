@@ -11,22 +11,54 @@
 #include <linux/kernel_stat.h>
 #include <linux/module.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
 #include <linux/timer.h>
 #include <linux/reboot.h>
 #include <linux/jiffies.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/suspend.h>
 #include <linux/completion.h>
 #include <linux/platform_device.h>
 #include <asm/types.h>
 #include <asm/irq.h>
+=======
+#include <linux/platform_device.h>
+#include <asm/types.h>
+#include <asm/irq.h>
+#include <asm/debug.h>
+>>>>>>> upstream/android-13
 
 #include "sclp.h"
 
 #define SCLP_HEADER		"sclp: "
 
+<<<<<<< HEAD
+=======
+struct sclp_trace_entry {
+	char id[4] __nonstring;
+	u32 a;
+	u64 b;
+};
+
+#define SCLP_TRACE_ENTRY_SIZE		sizeof(struct sclp_trace_entry)
+#define SCLP_TRACE_MAX_SIZE		128
+#define SCLP_TRACE_EVENT_MAX_SIZE	64
+
+/* Debug trace area intended for all entries in abbreviated form. */
+DEFINE_STATIC_DEBUG_INFO(sclp_debug, "sclp", 8, 1, SCLP_TRACE_ENTRY_SIZE,
+			 &debug_hex_ascii_view);
+
+/* Error trace area intended for full entries relating to failed requests. */
+DEFINE_STATIC_DEBUG_INFO(sclp_debug_err, "sclp_err", 4, 1,
+			 SCLP_TRACE_ENTRY_SIZE, &debug_hex_ascii_view);
+
+>>>>>>> upstream/android-13
 /* Lock to protect internal data consistency. */
 static DEFINE_SPINLOCK(sclp_lock);
 
@@ -37,19 +69,31 @@ static sccb_mask_t sclp_receive_mask;
 static sccb_mask_t sclp_send_mask;
 
 /* List of registered event listeners and senders. */
+<<<<<<< HEAD
 static struct list_head sclp_reg_list;
 
 /* List of queued requests. */
 static struct list_head sclp_req_queue;
+=======
+static LIST_HEAD(sclp_reg_list);
+
+/* List of queued requests. */
+static LIST_HEAD(sclp_req_queue);
+>>>>>>> upstream/android-13
 
 /* Data for read and and init requests. */
 static struct sclp_req sclp_read_req;
 static struct sclp_req sclp_init_req;
+<<<<<<< HEAD
 static char sclp_read_sccb[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
 static char sclp_init_sccb[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
 
 /* Suspend request */
 static DECLARE_COMPLETION(sclp_request_queue_flushed);
+=======
+static void *sclp_read_sccb;
+static struct init_sccb *sclp_init_sccb;
+>>>>>>> upstream/android-13
 
 /* Number of console pages to allocate, used by sclp_con.c and sclp_vt220.c */
 int sclp_console_pages = SCLP_CONSOLE_PAGES;
@@ -58,9 +102,118 @@ int sclp_console_drop = 1;
 /* Number of times the console dropped buffer pages */
 unsigned long sclp_console_full;
 
+<<<<<<< HEAD
 static void sclp_suspend_req_cb(struct sclp_req *req, void *data)
 {
 	complete(&sclp_request_queue_flushed);
+=======
+/* The currently active SCLP command word. */
+static sclp_cmdw_t active_cmd;
+
+static inline void sclp_trace(int prio, char *id, u32 a, u64 b, bool err)
+{
+	struct sclp_trace_entry e;
+
+	memset(&e, 0, sizeof(e));
+	strncpy(e.id, id, sizeof(e.id));
+	e.a = a;
+	e.b = b;
+	debug_event(&sclp_debug, prio, &e, sizeof(e));
+	if (err)
+		debug_event(&sclp_debug_err, 0, &e, sizeof(e));
+}
+
+static inline int no_zeroes_len(void *data, int len)
+{
+	char *d = data;
+
+	/* Minimize trace area usage by not tracing trailing zeroes. */
+	while (len > SCLP_TRACE_ENTRY_SIZE && d[len - 1] == 0)
+		len--;
+
+	return len;
+}
+
+static inline void sclp_trace_bin(int prio, void *d, int len, int errlen)
+{
+	debug_event(&sclp_debug, prio, d, no_zeroes_len(d, len));
+	if (errlen)
+		debug_event(&sclp_debug_err, 0, d, no_zeroes_len(d, errlen));
+}
+
+static inline int abbrev_len(sclp_cmdw_t cmd, struct sccb_header *sccb)
+{
+	struct evbuf_header *evbuf = (struct evbuf_header *)(sccb + 1);
+	int len = sccb->length, limit = SCLP_TRACE_MAX_SIZE;
+
+	/* Full SCCB tracing if debug level is set to max. */
+	if (sclp_debug.level == DEBUG_MAX_LEVEL)
+		return len;
+
+	/* Minimal tracing for console writes. */
+	if (cmd == SCLP_CMDW_WRITE_EVENT_DATA &&
+	    (evbuf->type == EVTYP_MSG  || evbuf->type == EVTYP_VT220MSG))
+		limit = SCLP_TRACE_ENTRY_SIZE;
+
+	return min(len, limit);
+}
+
+static inline void sclp_trace_sccb(int prio, char *id, u32 a, u64 b,
+				   sclp_cmdw_t cmd, struct sccb_header *sccb,
+				   bool err)
+{
+	sclp_trace(prio, id, a, b, err);
+	if (sccb) {
+		sclp_trace_bin(prio + 1, sccb, abbrev_len(cmd, sccb),
+			       err ? sccb->length : 0);
+	}
+}
+
+static inline void sclp_trace_evbuf(int prio, char *id, u32 a, u64 b,
+				    struct evbuf_header *evbuf, bool err)
+{
+	sclp_trace(prio, id, a, b, err);
+	sclp_trace_bin(prio + 1, evbuf,
+		       min((int)evbuf->length, (int)SCLP_TRACE_EVENT_MAX_SIZE),
+		       err ? evbuf->length : 0);
+}
+
+static inline void sclp_trace_req(int prio, char *id, struct sclp_req *req,
+				  bool err)
+{
+	struct sccb_header *sccb = req->sccb;
+	union {
+		struct {
+			u16 status;
+			u16 response;
+			u16 timeout;
+			u16 start_count;
+		};
+		u64 b;
+	} summary;
+
+	summary.status = req->status;
+	summary.response = sccb ? sccb->response_code : 0;
+	summary.timeout = (u16)req->queue_timeout;
+	summary.start_count = (u16)req->start_count;
+
+	sclp_trace(prio, id, (u32)(addr_t)sccb, summary.b, err);
+}
+
+static inline void sclp_trace_register(int prio, char *id, u32 a, u64 b,
+				       struct sclp_register *reg)
+{
+	struct {
+		u64 receive;
+		u64 send;
+	} d;
+
+	d.receive = reg->receive_mask;
+	d.send = reg->send_mask;
+
+	sclp_trace(prio, id, a, b, false);
+	sclp_trace_bin(prio, &d, sizeof(d), 0);
+>>>>>>> upstream/android-13
 }
 
 static int __init sclp_setup_console_pages(char *str)
@@ -87,8 +240,11 @@ static int __init sclp_setup_console_drop(char *str)
 
 __setup("sclp_con_drop=", sclp_setup_console_drop);
 
+<<<<<<< HEAD
 static struct sclp_req sclp_suspend_req;
 
+=======
+>>>>>>> upstream/android-13
 /* Timer for request retries. */
 static struct timer_list sclp_request_timer;
 
@@ -122,12 +278,15 @@ static volatile enum sclp_mask_state_t {
 	sclp_mask_state_initializing
 } sclp_mask_state = sclp_mask_state_idle;
 
+<<<<<<< HEAD
 /* Internal state: is the driver suspended? */
 static enum sclp_suspend_state_t {
 	sclp_suspend_state_running,
 	sclp_suspend_state_suspended,
 } sclp_suspend_state = sclp_suspend_state_running;
 
+=======
+>>>>>>> upstream/android-13
 /* Maximum retry counts */
 #define SCLP_INIT_RETRY		3
 #define SCLP_MASK_RETRY		3
@@ -179,6 +338,12 @@ static void sclp_request_timeout(bool force_restart)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
+=======
+	/* TMO: A timeout occurred (a=force_restart) */
+	sclp_trace(2, "TMO", force_restart, 0, true);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&sclp_lock, flags);
 	if (force_restart) {
 		if (sclp_running_state == sclp_running_state_running) {
@@ -254,6 +419,15 @@ static void sclp_req_queue_timeout(struct timer_list *unused)
 
 	do {
 		req = __sclp_req_queue_remove_expired_req();
+<<<<<<< HEAD
+=======
+
+		if (req) {
+			/* RQTM: Request timed out (a=sccb, b=summary) */
+			sclp_trace_req(2, "RQTM", req, true);
+		}
+
+>>>>>>> upstream/android-13
 		if (req && req->callback)
 			req->callback(req, req->callback_data);
 	} while (req);
@@ -265,6 +439,28 @@ static void sclp_req_queue_timeout(struct timer_list *unused)
 	spin_unlock_irqrestore(&sclp_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static int sclp_service_call_trace(sclp_cmdw_t command, void *sccb)
+{
+	static u64 srvc_count;
+	int rc;
+
+	/* SRV1: Service call about to be issued (a=command, b=sccb address) */
+	sclp_trace_sccb(0, "SRV1", command, (u64)sccb, command, sccb, false);
+
+	rc = sclp_service_call(command, sccb);
+
+	/* SRV2: Service call was issued (a=rc, b=SRVC sequence number) */
+	sclp_trace(0, "SRV2", -rc, ++srvc_count, rc != 0);
+
+	if (rc == 0)
+		active_cmd = command;
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 /* Try to start a request. Return zero if the request was successfully
  * started or if it will be started at a later time. Return non-zero otherwise.
  * Called while sclp_lock is locked. */
@@ -276,7 +472,11 @@ __sclp_start_request(struct sclp_req *req)
 	if (sclp_running_state != sclp_running_state_idle)
 		return 0;
 	del_timer(&sclp_request_timer);
+<<<<<<< HEAD
 	rc = sclp_service_call(req->command, req->sccb);
+=======
+	rc = sclp_service_call_trace(req->command, req->sccb);
+>>>>>>> upstream/android-13
 	req->start_count++;
 
 	if (rc == 0) {
@@ -313,8 +513,11 @@ sclp_process_queue(void)
 	del_timer(&sclp_request_timer);
 	while (!list_empty(&sclp_req_queue)) {
 		req = list_entry(sclp_req_queue.next, struct sclp_req, list);
+<<<<<<< HEAD
 		if (!req->sccb)
 			goto do_post;
+=======
+>>>>>>> upstream/android-13
 		rc = __sclp_start_request(req);
 		if (rc == 0)
 			break;
@@ -326,9 +529,18 @@ sclp_process_queue(void)
 						 sclp_request_timeout_normal);
 			break;
 		}
+<<<<<<< HEAD
 do_post:
 		/* Post-processing for aborted request */
 		list_del(&req->list);
+=======
+		/* Post-processing for aborted request */
+		list_del(&req->list);
+
+		/* RQAB: Request aborted (a=sccb, b=summary) */
+		sclp_trace_req(2, "RQAB", req, true);
+
+>>>>>>> upstream/android-13
 		if (req->callback) {
 			spin_unlock_irqrestore(&sclp_lock, flags);
 			req->callback(req, req->callback_data);
@@ -340,10 +552,15 @@ do_post:
 
 static int __sclp_can_add_request(struct sclp_req *req)
 {
+<<<<<<< HEAD
 	if (req == &sclp_suspend_req || req == &sclp_init_req)
 		return 1;
 	if (sclp_suspend_state != sclp_suspend_state_running)
 		return 0;
+=======
+	if (req == &sclp_init_req)
+		return 1;
+>>>>>>> upstream/android-13
 	if (sclp_init_state != sclp_init_state_initialized)
 		return 0;
 	if (sclp_activation_state != sclp_activation_state_active)
@@ -363,6 +580,13 @@ sclp_add_request(struct sclp_req *req)
 		spin_unlock_irqrestore(&sclp_lock, flags);
 		return -EIO;
 	}
+<<<<<<< HEAD
+=======
+
+	/* RQAD: Request was added (a=sccb, b=caller) */
+	sclp_trace(2, "RQAD", (u32)(addr_t)req->sccb, _RET_IP_, false);
+
+>>>>>>> upstream/android-13
 	req->status = SCLP_REQ_QUEUED;
 	req->start_count = 0;
 	list_add_tail(&req->list, &sclp_req_queue);
@@ -377,16 +601,22 @@ sclp_add_request(struct sclp_req *req)
 	/* Start if request is first in list */
 	if (sclp_running_state == sclp_running_state_idle &&
 	    req->list.prev == &sclp_req_queue) {
+<<<<<<< HEAD
 		if (!req->sccb) {
 			list_del(&req->list);
 			rc = -ENODATA;
 			goto out;
 		}
+=======
+>>>>>>> upstream/android-13
 		rc = __sclp_start_request(req);
 		if (rc)
 			list_del(&req->list);
 	}
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sclp_lock, flags);
 	return rc;
 }
@@ -422,6 +652,14 @@ sclp_dispatch_evbufs(struct sccb_header *sccb)
 			else
 				reg = NULL;
 		}
+<<<<<<< HEAD
+=======
+
+		/* EVNT: Event callback (b=receiver) */
+		sclp_trace_evbuf(2, "EVNT", 0, reg ? (u64)reg->receiver_fn : 0,
+				 evbuf, !reg);
+
+>>>>>>> upstream/android-13
 		if (reg && reg->receiver_fn) {
 			spin_unlock_irqrestore(&sclp_lock, flags);
 			reg->receiver_fn(evbuf);
@@ -483,6 +721,33 @@ __sclp_find_req(u32 sccb)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static bool ok_response(u32 sccb_int, sclp_cmdw_t cmd)
+{
+	struct sccb_header *sccb = (struct sccb_header *)(addr_t)sccb_int;
+	struct evbuf_header *evbuf;
+	u16 response;
+
+	if (!sccb)
+		return true;
+
+	/* Check SCCB response. */
+	response = sccb->response_code & 0xff;
+	if (response != 0x10 && response != 0x20)
+		return false;
+
+	/* Check event-processed flag on outgoing events. */
+	if (cmd == SCLP_CMDW_WRITE_EVENT_DATA) {
+		evbuf = (struct evbuf_header *)(sccb + 1);
+		if (!(evbuf->flags & 0x80))
+			return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /* Handler for external interruption. Perform request post-processing.
  * Prepare read event data request if necessary. Start processing of next
  * request on queue. */
@@ -497,6 +762,15 @@ static void sclp_interrupt_handler(struct ext_code ext_code,
 	spin_lock(&sclp_lock);
 	finished_sccb = param32 & 0xfffffff8;
 	evbuf_pending = param32 & 0x3;
+<<<<<<< HEAD
+=======
+
+	/* INT: Interrupt received (a=intparm, b=cmd) */
+	sclp_trace_sccb(0, "INT", param32, active_cmd, active_cmd,
+			(struct sccb_header *)(addr_t)finished_sccb,
+			!ok_response(finished_sccb, active_cmd));
+
+>>>>>>> upstream/android-13
 	if (finished_sccb) {
 		del_timer(&sclp_request_timer);
 		sclp_running_state = sclp_running_state_reset_pending;
@@ -505,13 +779,29 @@ static void sclp_interrupt_handler(struct ext_code ext_code,
 			/* Request post-processing */
 			list_del(&req->list);
 			req->status = SCLP_REQ_DONE;
+<<<<<<< HEAD
+=======
+
+			/* RQOK: Request success (a=sccb, b=summary) */
+			sclp_trace_req(2, "RQOK", req, false);
+
+>>>>>>> upstream/android-13
 			if (req->callback) {
 				spin_unlock(&sclp_lock);
 				req->callback(req, req->callback_data);
 				spin_lock(&sclp_lock);
 			}
+<<<<<<< HEAD
 		}
 		sclp_running_state = sclp_running_state_idle;
+=======
+		} else {
+			/* UNEX: Unexpected SCCB completion (a=sccb address) */
+			sclp_trace(0, "UNEX", finished_sccb, 0, true);
+		}
+		sclp_running_state = sclp_running_state_idle;
+		active_cmd = 0;
+>>>>>>> upstream/android-13
 	}
 	if (evbuf_pending &&
 	    sclp_activation_state == sclp_activation_state_active)
@@ -535,9 +825,19 @@ sclp_sync_wait(void)
 	unsigned long long old_tick;
 	unsigned long flags;
 	unsigned long cr0, cr0_sync;
+<<<<<<< HEAD
 	u64 timeout;
 	int irq_context;
 
+=======
+	static u64 sync_count;
+	u64 timeout;
+	int irq_context;
+
+	/* SYN1: Synchronous wait start (a=runstate, b=sync count) */
+	sclp_trace(4, "SYN1", sclp_running_state, ++sync_count, false);
+
+>>>>>>> upstream/android-13
 	/* We'll be disabling timer interrupts, so we need a custom timeout
 	 * mechanism */
 	timeout = 0;
@@ -575,6 +875,12 @@ sclp_sync_wait(void)
 		_local_bh_enable();
 	local_tick_enable(old_tick);
 	local_irq_restore(flags);
+<<<<<<< HEAD
+=======
+
+	/* SYN2: Synchronous wait end (a=runstate, b=sync_count) */
+	sclp_trace(4, "SYN2", sclp_running_state, sync_count, false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(sclp_sync_wait);
 
@@ -604,8 +910,18 @@ sclp_dispatch_state_change(void)
 				reg = NULL;
 		}
 		spin_unlock_irqrestore(&sclp_lock, flags);
+<<<<<<< HEAD
 		if (reg && reg->state_change_fn)
 			reg->state_change_fn(reg);
+=======
+		if (reg && reg->state_change_fn) {
+			/* STCG: State-change callback (b=callback) */
+			sclp_trace(2, "STCG", 0, (u64)reg->state_change_fn,
+				   false);
+
+			reg->state_change_fn(reg);
+		}
+>>>>>>> upstream/android-13
 	} while (reg);
 }
 
@@ -679,6 +995,12 @@ sclp_register(struct sclp_register *reg)
 	sccb_mask_t send_mask;
 	int rc;
 
+<<<<<<< HEAD
+=======
+	/* REG: Event listener registered (b=caller) */
+	sclp_trace_register(2, "REG", 0, _RET_IP_, reg);
+
+>>>>>>> upstream/android-13
 	rc = sclp_init();
 	if (rc)
 		return rc;
@@ -692,7 +1014,10 @@ sclp_register(struct sclp_register *reg)
 	/* Trigger initial state change callback */
 	reg->sclp_receive_mask = 0;
 	reg->sclp_send_mask = 0;
+<<<<<<< HEAD
 	reg->pm_event_posted = 0;
+=======
+>>>>>>> upstream/android-13
 	list_add(&reg->list, &sclp_reg_list);
 	spin_unlock_irqrestore(&sclp_lock, flags);
 	rc = sclp_init_mask(1);
@@ -712,6 +1037,12 @@ sclp_unregister(struct sclp_register *reg)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
+=======
+	/* UREG: Event listener unregistered (b=caller) */
+	sclp_trace_register(2, "UREG", 0, _RET_IP_, reg);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&sclp_lock, flags);
 	list_del(&reg->list);
 	spin_unlock_irqrestore(&sclp_lock, flags);
@@ -753,9 +1084,14 @@ EXPORT_SYMBOL(sclp_remove_processed);
 static inline void
 __sclp_make_init_req(sccb_mask_t receive_mask, sccb_mask_t send_mask)
 {
+<<<<<<< HEAD
 	struct init_sccb *sccb;
 
 	sccb = (struct init_sccb *) sclp_init_sccb;
+=======
+	struct init_sccb *sccb = sclp_init_sccb;
+
+>>>>>>> upstream/android-13
 	clear_page(sccb);
 	memset(&sclp_init_req, 0, sizeof(struct sclp_req));
 	sclp_init_req.command = SCLP_CMDW_WRITE_EVENT_MASK;
@@ -782,7 +1118,11 @@ static int
 sclp_init_mask(int calculate)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 	struct init_sccb *sccb = (struct init_sccb *) sclp_init_sccb;
+=======
+	struct init_sccb *sccb = sclp_init_sccb;
+>>>>>>> upstream/android-13
 	sccb_mask_t receive_mask;
 	sccb_mask_t send_mask;
 	int retry;
@@ -962,7 +1302,11 @@ sclp_check_interface(void)
 	for (retry = 0; retry <= SCLP_INIT_RETRY; retry++) {
 		__sclp_make_init_req(0, 0);
 		sccb = (struct init_sccb *) sclp_init_req.sccb;
+<<<<<<< HEAD
 		rc = sclp_service_call(sclp_init_req.command, sccb);
+=======
+		rc = sclp_service_call_trace(sclp_init_req.command, sccb);
+>>>>>>> upstream/android-13
 		if (rc == -EIO)
 			break;
 		sclp_init_req.status = SCLP_REQ_RUNNING;
@@ -1011,6 +1355,7 @@ static struct notifier_block sclp_reboot_notifier = {
 	.notifier_call = sclp_reboot_event
 };
 
+<<<<<<< HEAD
 /*
  * Suspend/resume SCLP notifier implementation
  */
@@ -1117,6 +1462,8 @@ static const struct dev_pm_ops sclp_pm_ops = {
 	.restore	= sclp_restore,
 };
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t con_pages_show(struct device_driver *dev, char *buf)
 {
 	return sprintf(buf, "%i\n", sclp_console_pages);
@@ -1155,13 +1502,19 @@ static const struct attribute_group *sclp_drv_attr_groups[] = {
 static struct platform_driver sclp_pdrv = {
 	.driver = {
 		.name	= "sclp",
+<<<<<<< HEAD
 		.pm	= &sclp_pm_ops,
+=======
+>>>>>>> upstream/android-13
 		.groups = sclp_drv_attr_groups,
 	},
 };
 
+<<<<<<< HEAD
 static struct platform_device *sclp_pdev;
 
+=======
+>>>>>>> upstream/android-13
 /* Initialize SCLP driver. Return zero if driver is operational, non-zero
  * otherwise. */
 static int
@@ -1175,9 +1528,16 @@ sclp_init(void)
 	if (sclp_init_state != sclp_init_state_uninitialized)
 		goto fail_unlock;
 	sclp_init_state = sclp_init_state_initializing;
+<<<<<<< HEAD
 	/* Set up variables */
 	INIT_LIST_HEAD(&sclp_req_queue);
 	INIT_LIST_HEAD(&sclp_reg_list);
+=======
+	sclp_read_sccb = (void *) __get_free_page(GFP_ATOMIC | GFP_DMA);
+	sclp_init_sccb = (void *) __get_free_page(GFP_ATOMIC | GFP_DMA);
+	BUG_ON(!sclp_read_sccb || !sclp_init_sccb);
+	/* Set up variables */
+>>>>>>> upstream/android-13
 	list_add(&sclp_state_change_event.list, &sclp_reg_list);
 	timer_setup(&sclp_request_timer, NULL, 0);
 	timer_setup(&sclp_queue_timer, sclp_req_queue_timeout, 0);
@@ -1207,11 +1567,17 @@ fail_unregister_reboot_notifier:
 	unregister_reboot_notifier(&sclp_reboot_notifier);
 fail_init_state_uninitialized:
 	sclp_init_state = sclp_init_state_uninitialized;
+<<<<<<< HEAD
+=======
+	free_page((unsigned long) sclp_read_sccb);
+	free_page((unsigned long) sclp_init_sccb);
+>>>>>>> upstream/android-13
 fail_unlock:
 	spin_unlock_irqrestore(&sclp_lock, flags);
 	return rc;
 }
 
+<<<<<<< HEAD
 /*
  * SCLP panic notifier: If we are suspended, we thaw SCLP in order to be able
  * to print the panic message.
@@ -1229,6 +1595,8 @@ static struct notifier_block sclp_on_panic_nb = {
 	.priority = SCLP_PANIC_PRIO,
 };
 
+=======
+>>>>>>> upstream/android-13
 static __init int sclp_initcall(void)
 {
 	int rc;
@@ -1237,6 +1605,7 @@ static __init int sclp_initcall(void)
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	sclp_pdev = platform_device_register_simple("sclp", -1, NULL, 0);
 	rc = PTR_ERR_OR_ZERO(sclp_pdev);
 	if (rc)
@@ -1254,6 +1623,9 @@ fail_platform_device_unregister:
 fail_platform_driver_unregister:
 	platform_driver_unregister(&sclp_pdrv);
 	return rc;
+=======
+	return sclp_init();
+>>>>>>> upstream/android-13
 }
 
 arch_initcall(sclp_initcall);

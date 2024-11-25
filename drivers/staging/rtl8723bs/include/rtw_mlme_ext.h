@@ -112,11 +112,18 @@ extern unsigned char WMM_PARA_OUI[];
 /*  Note: */
 /* 	We just add new channel plan when the new channel plan is different from any of the following */
 /* 	channel plan. */
+<<<<<<< HEAD
 /* 	If you just wnat to customize the acitions(scan period or join actions) about one of the channel plan, */
 /* 	customize them in RT_CHANNEL_INFO in the RT_CHANNEL_LIST. */
 /*  */
 typedef enum _RT_CHANNEL_DOMAIN
 {
+=======
+/* 	If you just want to customize the actions(scan period or join actions) about one of the channel plan, */
+/* 	customize them in rt_channel_info in the RT_CHANNEL_LIST. */
+/*  */
+enum {
+>>>>>>> upstream/android-13
 	/*  old channel plan mapping ===== */
 	RT_CHANNEL_DOMAIN_FCC = 0x00,
 	RT_CHANNEL_DOMAIN_IC = 0x01,
@@ -182,10 +189,16 @@ typedef enum _RT_CHANNEL_DOMAIN
 	/*  Add new channel plan above this line =============== */
 	RT_CHANNEL_DOMAIN_MAX,
 	RT_CHANNEL_DOMAIN_REALTEK_DEFINE = 0x7F,
+<<<<<<< HEAD
 }RT_CHANNEL_DOMAIN, *PRT_CHANNEL_DOMAIN;
 
 typedef enum _RT_CHANNEL_DOMAIN_2G
 {
+=======
+};
+
+enum {
+>>>>>>> upstream/android-13
 	RT_CHANNEL_DOMAIN_2G_WORLD = 0x00,		/* Worldwird 13 */
 	RT_CHANNEL_DOMAIN_2G_ETSI1 = 0x01,		/* Europe */
 	RT_CHANNEL_DOMAIN_2G_FCC1 = 0x02,		/* US */
@@ -195,6 +208,7 @@ typedef enum _RT_CHANNEL_DOMAIN_2G
 	RT_CHANNEL_DOMAIN_2G_NULL = 0x06,
 	/*  Add new channel plan above this line =============== */
 	RT_CHANNEL_DOMAIN_2G_MAX,
+<<<<<<< HEAD
 }RT_CHANNEL_DOMAIN_2G, *PRT_CHANNEL_DOMAIN_2G;
 
 typedef enum _RT_CHANNEL_DOMAIN_5G
@@ -280,6 +294,27 @@ enum Associated_AP
 
 typedef enum _HT_IOT_PEER
 {
+=======
+};
+
+#define rtw_is_channel_plan_valid(chplan) (chplan < RT_CHANNEL_DOMAIN_MAX || chplan == RT_CHANNEL_DOMAIN_REALTEK_DEFINE)
+
+struct rt_channel_plan {
+	unsigned char Channel[MAX_CHANNEL_NUM];
+	unsigned char Len;
+};
+
+struct rt_channel_plan_2g {
+	unsigned char Channel[MAX_CHANNEL_NUM_2G];
+	unsigned char Len;
+};
+
+struct rt_channel_plan_map {
+	unsigned char Index2G;
+};
+
+enum {
+>>>>>>> upstream/android-13
 	HT_IOT_PEER_UNKNOWN			= 0,
 	HT_IOT_PEER_REALTEK			= 1,
 	HT_IOT_PEER_REALTEK_92SE		= 2,
@@ -299,11 +334,18 @@ typedef enum _HT_IOT_PEER
 	HT_IOT_PEER_REALTEK_JAGUAR_BCUTAP = 16,
 	HT_IOT_PEER_REALTEK_JAGUAR_CCUTAP = 17,
 	HT_IOT_PEER_MAX					= 18
+<<<<<<< HEAD
 }HT_IOT_PEER_E, *PHTIOT_PEER_E;
 
 
 enum SCAN_STATE
 {
+=======
+};
+
+
+enum {
+>>>>>>> upstream/android-13
 	SCAN_DISABLE = 0,
 	SCAN_START = 1,
 	SCAN_TXNULL = 2,
@@ -314,18 +356,30 @@ enum SCAN_STATE
 
 struct mlme_handler {
 	unsigned int   num;
+<<<<<<< HEAD
 	char* str;
+=======
+	char *str;
+>>>>>>> upstream/android-13
 	unsigned int (*func)(struct adapter *padapter, union recv_frame *precv_frame);
 };
 
 struct action_handler {
 	unsigned int   num;
+<<<<<<< HEAD
 	char* str;
 	unsigned int (*func)(struct adapter *padapter, union recv_frame *precv_frame);
 };
 
 struct	ss_res
 {
+=======
+	char *str;
+	unsigned int (*func)(struct adapter *padapter, union recv_frame *precv_frame);
+};
+
+struct	ss_res {
+>>>>>>> upstream/android-13
 	int	state;
 	int	bss_cnt;
 	int	channel_idx;
@@ -353,10 +407,16 @@ struct	ss_res
 #define	WIFI_FW_ASSOC_STATE			0x00002000
 #define	WIFI_FW_ASSOC_SUCCESS		0x00004000
 
+<<<<<<< HEAD
 #define	WIFI_FW_LINKING_STATE		(WIFI_FW_AUTH_NULL | WIFI_FW_AUTH_STATE | WIFI_FW_AUTH_SUCCESS |WIFI_FW_ASSOC_STATE)
 
 struct FW_Sta_Info
 {
+=======
+#define	WIFI_FW_LINKING_STATE		(WIFI_FW_AUTH_NULL | WIFI_FW_AUTH_STATE | WIFI_FW_AUTH_SUCCESS | WIFI_FW_ASSOC_STATE)
+
+struct FW_Sta_Info {
+>>>>>>> upstream/android-13
 	struct sta_info *psta;
 	u32 status;
 	u32 rx_pkt;
@@ -372,18 +432,30 @@ struct FW_Sta_Info
  * When the driver scanned RTW_SCAN_NUM_OF_CH channels, it would switch back to AP's operating channel for
  * RTW_STAY_AP_CH_MILLISECOND * SURVEY_TO milliseconds.
  * Example:
+<<<<<<< HEAD
  * For chip supports 2.4G + 5GHz and AP mode is operating in channel 1,
+=======
+ * For chip supports 2.4G and AP mode is operating in channel 1,
+>>>>>>> upstream/android-13
  * RTW_SCAN_NUM_OF_CH is 8, RTW_STAY_AP_CH_MILLISECOND is 3 and SURVEY_TO is 100.
  * When it's STA mode gets set_scan command,
  * it would
  * 1. Doing the scan on channel 1.2.3.4.5.6.7.8
  * 2. Back to channel 1 for 300 milliseconds
+<<<<<<< HEAD
  * 3. Go through doing site survey on channel 9.10.11.36.40.44.48.52
  * 4. Back to channel 1 for 300 milliseconds
  * 5. ... and so on, till survey done.
  */
 struct mlme_ext_info
 {
+=======
+ * 3. Go through doing site survey on channel 9.10.11
+ * 4. Back to channel 1 for 300 milliseconds
+ * 5. ... and so on, till survey done.
+ */
+struct mlme_ext_info {
+>>>>>>> upstream/android-13
 	u32 state;
 	u32 reauth_count;
 	u32 reassoc_count;
@@ -430,6 +502,7 @@ struct mlme_ext_info
 };
 
 /*  The channel information about this channel including joining, scanning, and power constraints. */
+<<<<<<< HEAD
 typedef struct _RT_CHANNEL_INFO
 {
 	u8 		ChannelNum;		/*  The channel number. */
@@ -438,6 +511,14 @@ typedef struct _RT_CHANNEL_INFO
 
 int rtw_ch_set_search_ch(RT_CHANNEL_INFO *ch_set, const u32 ch);
 bool rtw_mlme_band_check(struct adapter *adapter, const u32 ch);
+=======
+struct rt_channel_info {
+	u8 		ChannelNum;		/*  The channel number. */
+	enum rt_scan_type	ScanType;		/*  Scan type such as passive or active scan. */
+};
+
+int rtw_ch_set_search_ch(struct rt_channel_info *ch_set, const u32 ch);
+>>>>>>> upstream/android-13
 
 /*  P2P_MAX_REG_CLASSES - Maximum number of regulatory classes */
 #define P2P_MAX_REG_CLASSES 10
@@ -472,8 +553,12 @@ struct p2p_oper_class_map {
 	enum { BW20, BW40PLUS, BW40MINUS } bw;
 };
 
+<<<<<<< HEAD
 struct mlme_ext_priv
 {
+=======
+struct mlme_ext_priv {
+>>>>>>> upstream/android-13
 	struct adapter	*padapter;
 	u8 mlmeext_init;
 	atomic_t		event_seq;
@@ -489,7 +574,11 @@ struct mlme_ext_priv
 	unsigned char cur_wireless_mode;	/*  NETWORK_TYPE */
 
 	unsigned char max_chan_nums;
+<<<<<<< HEAD
 	RT_CHANNEL_INFO		channel_set[MAX_CHANNEL_NUM];
+=======
+	struct rt_channel_info		channel_set[MAX_CHANNEL_NUM];
+>>>>>>> upstream/android-13
 	struct p2p_channels channel_list;
 	unsigned char basicrate[NumRates];
 	unsigned char datarate[NumRates];
@@ -498,10 +587,17 @@ struct mlme_ext_priv
 	struct ss_res		sitesurvey_res;
 	struct mlme_ext_info mlmext_info;/* for sta/adhoc mode, including current scanning/connecting/connected related info. */
                                                      /* for ap mode, network includes ap's cap_info */
+<<<<<<< HEAD
 	_timer		survey_timer;
 	_timer		link_timer;
 	_timer		sa_query_timer;
 	/* _timer		ADDBA_timer; */
+=======
+	struct timer_list		survey_timer;
+	struct timer_list		link_timer;
+	struct timer_list		sa_query_timer;
+	/* struct timer_list		ADDBA_timer; */
+>>>>>>> upstream/android-13
 	u16 		chan_scan_time;
 	unsigned long last_scan_time;
 	u8 scan_abort;
@@ -535,16 +631,26 @@ struct mlme_ext_priv
 };
 
 void init_mlme_default_rate_set(struct adapter *padapter);
+<<<<<<< HEAD
 int init_mlme_ext_priv(struct adapter *padapter);
 int init_hw_mlme_ext(struct adapter *padapter);
 void free_mlme_ext_priv (struct mlme_ext_priv *pmlmeext);
+=======
+void init_mlme_ext_priv(struct adapter *padapter);
+int init_hw_mlme_ext(struct adapter *padapter);
+void free_mlme_ext_priv(struct mlme_ext_priv *pmlmeext);
+>>>>>>> upstream/android-13
 extern void init_mlme_ext_timer(struct adapter *padapter);
 extern void init_addba_retry_timer(struct adapter *padapter, struct sta_info *psta);
 extern struct xmit_frame *alloc_mgtxmitframe(struct xmit_priv *pxmitpriv);
 
 /* void fill_fwpriv(struct adapter *padapter, struct fw_priv *pfwpriv); */
 
+<<<<<<< HEAD
 unsigned char networktype_to_raid_ex(struct adapter *adapter, struct sta_info *psta);
+=======
+u8 networktype_to_raid_ex(struct adapter *adapter, struct sta_info *psta);
+>>>>>>> upstream/android-13
 
 void get_rate_set(struct adapter *padapter, unsigned char *pbssrate, int *bssrate_len);
 void set_mcs_rate_by_mask(u8 *mcs_set, u32 mask);
@@ -571,12 +677,19 @@ void SelectChannel(struct adapter *padapter, unsigned char channel);
 
 unsigned int decide_wait_for_beacon_timeout(unsigned int bcn_interval);
 
+<<<<<<< HEAD
 void read_cam(struct adapter *padapter , u8 entry, u8 *get_key);
+=======
+void read_cam(struct adapter *padapter, u8 entry, u8 *get_key);
+>>>>>>> upstream/android-13
 
 /* modify HW only */
 void _write_cam(struct adapter *padapter, u8 entry, u16 ctrl, u8 *mac, u8 *key);
 void _clear_cam_entry(struct adapter *padapter, u8 entry);
+<<<<<<< HEAD
 void write_cam_from_cache(struct adapter *adapter, u8 id);
+=======
+>>>>>>> upstream/android-13
 
 /* modify both HW and cache */
 void write_cam(struct adapter *padapter, u8 id, u16 ctrl, u8 *mac, u8 *key);
@@ -605,6 +718,7 @@ int is_IBSS_empty(struct adapter *padapter);
 
 unsigned char check_assoc_AP(u8 *pframe, uint len);
 
+<<<<<<< HEAD
 int WMM_param_handler(struct adapter *padapter, struct ndis_80211_var_ie *	pIE);
 void WMMOnAssocRsp(struct adapter *padapter);
 
@@ -613,13 +727,27 @@ void HT_info_handler(struct adapter *padapter, struct ndis_80211_var_ie * pIE);
 void HTOnAssocRsp(struct adapter *padapter);
 
 void ERP_IE_handler(struct adapter *padapter, struct ndis_80211_var_ie * pIE);
+=======
+int WMM_param_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE);
+void WMMOnAssocRsp(struct adapter *padapter);
+
+void HT_caps_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE);
+void HT_info_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE);
+void HTOnAssocRsp(struct adapter *padapter);
+
+void ERP_IE_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE);
+>>>>>>> upstream/android-13
 void VCS_update(struct adapter *padapter, struct sta_info *psta);
 void update_ldpc_stbc_cap(struct sta_info *psta);
 
 void update_beacon_info(struct adapter *padapter, u8 *pframe, uint len, struct sta_info *psta);
 int rtw_check_bcn_info(struct adapter *Adapter, u8 *pframe, u32 packet_len);
 void update_IOT_info(struct adapter *padapter);
+<<<<<<< HEAD
 void update_capinfo(struct adapter * Adapter, u16 updateCap);
+=======
+void update_capinfo(struct adapter *Adapter, u16 updateCap);
+>>>>>>> upstream/android-13
 void update_wireless_mode(struct adapter *padapter);
 void update_sta_basic_rate(struct sta_info *psta, u8 wireless_mode);
 int update_sta_support_rate(struct adapter *padapter, u8 *pvar_ie, uint var_ie_len, int cam_idx);
@@ -646,12 +774,19 @@ extern u8 rtw_search_max_mac_id(struct adapter *padapter);
 void report_join_res(struct adapter *padapter, int res);
 void report_survey_event(struct adapter *padapter, union recv_frame *precv_frame);
 void report_surveydone_event(struct adapter *padapter);
+<<<<<<< HEAD
 void report_del_sta_event(struct adapter *padapter, unsigned char* MacAddr, unsigned short reason);
 void report_add_sta_event(struct adapter *padapter, unsigned char* MacAddr, int cam_idx);
 bool rtw_port_switch_chk(struct adapter *adapter);
 void report_wmm_edca_update(struct adapter *padapter);
 
 void beacon_timing_control(struct adapter *padapter);
+=======
+void report_del_sta_event(struct adapter *padapter, unsigned char *MacAddr, unsigned short reason);
+void report_add_sta_event(struct adapter *padapter, unsigned char *MacAddr, int cam_idx);
+void report_wmm_edca_update(struct adapter *padapter);
+
+>>>>>>> upstream/android-13
 u8 chk_bmc_sleepq_cmd(struct adapter *padapter);
 extern u8 set_tx_beacon_cmd(struct adapter *padapter);
 unsigned int setup_beacon_frame(struct adapter *padapter, unsigned char *beacon_frame);
@@ -711,8 +846,13 @@ void linked_status_chk(struct adapter *padapter);
 
 void _linked_info_dump(struct adapter *padapter);
 
+<<<<<<< HEAD
 void survey_timer_hdl (struct timer_list *t);
 void link_timer_hdl (struct timer_list *t);
+=======
+void survey_timer_hdl(struct timer_list *t);
+void link_timer_hdl(struct timer_list *t);
+>>>>>>> upstream/android-13
 void addba_timer_hdl(struct timer_list *t);
 void sa_query_timer_hdl(struct timer_list *t);
 /* void reauth_timer_hdl(struct adapter *padapter); */
@@ -720,22 +860,33 @@ void sa_query_timer_hdl(struct timer_list *t);
 
 #define set_survey_timer(mlmeext, ms) \
 	do { \
+<<<<<<< HEAD
 		/*DBG_871X("%s set_survey_timer(%p, %d)\n", __func__, (mlmeext), (ms));*/ \
+=======
+>>>>>>> upstream/android-13
 		_set_timer(&(mlmeext)->survey_timer, (ms)); \
 	} while (0)
 
 #define set_link_timer(mlmeext, ms) \
 	do { \
+<<<<<<< HEAD
 		/*DBG_871X("%s set_link_timer(%p, %d)\n", __func__, (mlmeext), (ms));*/ \
+=======
+>>>>>>> upstream/android-13
 		_set_timer(&(mlmeext)->link_timer, (ms)); \
 	} while (0)
 #define set_sa_query_timer(mlmeext, ms) \
 	do { \
+<<<<<<< HEAD
 		DBG_871X("%s set_sa_query_timer(%p, %d)\n", __func__, (mlmeext), (ms)); \
 		_set_timer(&(mlmeext)->sa_query_timer, (ms)); \
 	} while (0)
 extern int cckrates_included(unsigned char *rate, int ratelen);
 extern int cckratesonly_included(unsigned char *rate, int ratelen);
+=======
+		_set_timer(&(mlmeext)->sa_query_timer, (ms)); \
+	} while (0)
+>>>>>>> upstream/android-13
 
 extern void process_addba_req(struct adapter *padapter, u8 *paddba_req, u8 *addr);
 
@@ -780,7 +931,10 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf);
 u8 tx_beacon_hdl(struct adapter *padapter, unsigned char *pbuf);
 u8 set_ch_hdl(struct adapter *padapter, u8 *pbuf);
 u8 set_chplan_hdl(struct adapter *padapter, unsigned char *pbuf);
+<<<<<<< HEAD
 u8 led_blink_hdl(struct adapter *padapter, unsigned char *pbuf);
+=======
+>>>>>>> upstream/android-13
 u8 set_csa_hdl(struct adapter *padapter, unsigned char *pbuf);	/* Kurt: Handling DFS channel switch announcement ie. */
 u8 tdls_hdl(struct adapter *padapter, unsigned char *pbuf);
 u8 run_in_thread_hdl(struct adapter *padapter, u8 *pbuf);
@@ -789,8 +943,12 @@ u8 run_in_thread_hdl(struct adapter *padapter, u8 *pbuf);
 #define GEN_DRV_CMD_HANDLER(size, cmd)	{size, &cmd ## _hdl},
 #define GEN_MLME_EXT_HANDLER(size, cmd)	{size, cmd},
 
+<<<<<<< HEAD
 struct C2HEvent_Header
 {
+=======
+struct C2HEvent_Header {
+>>>>>>> upstream/android-13
 
 #ifdef __LITTLE_ENDIAN
 
@@ -805,11 +963,18 @@ struct C2HEvent_Header
 	unsigned int rsvd;
 };
 
+<<<<<<< HEAD
 void rtw_dummy_event_callback(struct adapter *adapter , u8 *pbuf);
 void rtw_fwdbg_event_callback(struct adapter *adapter , u8 *pbuf);
 
 enum rtw_c2h_event
 {
+=======
+void rtw_dummy_event_callback(struct adapter *adapter, u8 *pbuf);
+void rtw_fwdbg_event_callback(struct adapter *adapter, u8 *pbuf);
+
+enum {
+>>>>>>> upstream/android-13
 	GEN_EVT_CODE(_Read_MACREG) = 0, /*0*/
 	GEN_EVT_CODE(_Read_BBREG),
 	GEN_EVT_CODE(_Read_RFREG),
@@ -821,10 +986,17 @@ enum rtw_c2h_event
 	GEN_EVT_CODE(_Survey),	 /*8*/
 	GEN_EVT_CODE(_SurveyDone),	 /*9*/
 
+<<<<<<< HEAD
 	GEN_EVT_CODE(_JoinBss) , /*10*/
 	GEN_EVT_CODE(_AddSTA),
 	GEN_EVT_CODE(_DelSTA),
 	GEN_EVT_CODE(_AtimDone) ,
+=======
+	GEN_EVT_CODE(_JoinBss), /*10*/
+	GEN_EVT_CODE(_AddSTA),
+	GEN_EVT_CODE(_DelSTA),
+	GEN_EVT_CODE(_AtimDone),
+>>>>>>> upstream/android-13
 	GEN_EVT_CODE(_TX_Report),
 	GEN_EVT_CODE(_CCX_Report),			/*15*/
 	GEN_EVT_CODE(_DTM_Report),
@@ -843,6 +1015,7 @@ enum rtw_c2h_event
 
 #ifdef _RTW_MLME_EXT_C_
 
+<<<<<<< HEAD
 static struct fwevent wlanevents[] =
 {
 	{0, rtw_dummy_event_callback},	/*0*/
@@ -875,6 +1048,8 @@ static struct fwevent wlanevents[] =
 
 };
 
+=======
+>>>>>>> upstream/android-13
 #endif/* _RTL8192C_CMD_C_ */
 
 #endif

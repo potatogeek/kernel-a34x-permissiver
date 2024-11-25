@@ -6,7 +6,11 @@
 
 /dts-v1/;
 #include <dt-bindings/input/input.h>
+<<<<<<< HEAD
 #include "mt7623.dtsi"
+=======
+#include "mt7623n.dtsi"
+>>>>>>> upstream/android-13
 #include "mt6323.dtsi"
 
 / {
@@ -21,6 +25,22 @@
 		stdout-path = "serial2:115200n8";
 	};
 
+<<<<<<< HEAD
+=======
+	connector {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+		type = "d";
+		ddc-i2c-bus = <&hdmiddc0>;
+
+		port {
+			hdmi_connector_in: endpoint {
+				remote-endpoint = <&hdmi0_out>;
+			};
+		};
+	};
+
+>>>>>>> upstream/android-13
 	cpus {
 		cpu@0 {
 			proc-supply = <&mt6323_vproc_reg>;
@@ -66,6 +86,16 @@
 		regulator-always-on;
 	};
 
+<<<<<<< HEAD
+=======
+	reg_vgpu: fixedregulator@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_fixed_vgpu";
+		regulator-min-microvolt = <1150000>;
+		regulator-max-microvolt = <1150000>;
+	};
+
+>>>>>>> upstream/android-13
 	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
@@ -114,10 +144,24 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&bls {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &btif {
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&cec {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &cir {
 	pinctrl-names = "default";
 	pinctrl-0 = <&cir_pins_a>;
@@ -128,6 +172,24 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&dpi0 {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@0 {
+			reg = <0>;
+			dpi0_out: endpoint {
+				remote-endpoint = <&hdmi0_in>;
+			};
+		};
+	};
+};
+
+>>>>>>> upstream/android-13
 &eth {
 	status = "okay";
 
@@ -200,6 +262,45 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&hdmi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmi_pins_a>;
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@0 {
+			reg = <0>;
+			hdmi0_in: endpoint {
+				remote-endpoint = <&dpi0_out>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+			hdmi0_out: endpoint {
+				remote-endpoint = <&hdmi_connector_in>;
+			};
+		};
+	};
+};
+
+&hdmiddc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmi_ddc_pins_a>;
+	status = "okay";
+};
+
+&hdmi_phy {
+	mediatek,ibias = <0xa>;
+	mediatek,ibias_up = <0x1c>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
@@ -212,6 +313,14 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&mali {
+	mali-supply = <&reg_vgpu>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &mmc0 {
 	pinctrl-names = "default", "state_uhs";
 	pinctrl-0 = <&mmc0_pins_default>;
@@ -331,4 +440,7 @@
 &u3phy2 {
 	status = "okay";
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

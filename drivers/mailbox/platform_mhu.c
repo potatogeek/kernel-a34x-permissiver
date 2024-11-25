@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 BayLibre SAS.
  * Author: Neil Armstrong <narmstrong@baylibre.com>
@@ -5,6 +9,7 @@
  * Copyright (C) 2013-2015 Fujitsu Semiconductor Ltd.
  * Copyright (C) 2015 Linaro Ltd.
  * Author: Jassi Brar <jaswinder.singh@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -163,7 +170,11 @@ static int platform_mhu_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, mhu);
 
+<<<<<<< HEAD
 	err = mbox_controller_register(&mhu->mbox);
+=======
+	err = devm_mbox_controller_register(dev, &mhu->mbox);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(dev, "Failed to register mailboxes %d\n", err);
 		return err;
@@ -173,6 +184,7 @@ static int platform_mhu_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int platform_mhu_remove(struct platform_device *pdev)
 {
 	struct platform_mhu *mhu = platform_get_drvdata(pdev);
@@ -182,6 +194,8 @@ static int platform_mhu_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id platform_mhu_dt_ids[] = {
 	{ .compatible = "amlogic,meson-gxbb-mhu", },
 	{ /* sentinel */ },
@@ -190,7 +204,10 @@ MODULE_DEVICE_TABLE(of, platform_mhu_dt_ids);
 
 static struct platform_driver platform_mhu_driver = {
 	.probe	= platform_mhu_probe,
+<<<<<<< HEAD
 	.remove	= platform_mhu_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "platform-mhu",
 		.of_match_table	= platform_mhu_dt_ids,

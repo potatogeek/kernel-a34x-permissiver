@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DSI_CONNECTOR_H__
@@ -17,11 +23,19 @@
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_bridge.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_crtc.h>
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_panel.h>
 
 #include "msm_drv.h"
+<<<<<<< HEAD
+=======
+#include "disp/msm_disp_snapshot.h"
+>>>>>>> upstream/android-13
 
 #define DSI_0	0
 #define DSI_1	1
@@ -30,6 +44,7 @@
 struct msm_dsi_phy_shared_timings;
 struct msm_dsi_phy_clk_request;
 
+<<<<<<< HEAD
 enum msm_dsi_phy_type {
 	MSM_DSI_PHY_28NM_HPM,
 	MSM_DSI_PHY_28NM_LP,
@@ -40,6 +55,8 @@ enum msm_dsi_phy_type {
 	MSM_DSI_PHY_MAX
 };
 
+=======
+>>>>>>> upstream/android-13
 enum msm_dsi_phy_usecase {
 	MSM_DSI_PHY_STANDALONE,
 	MSM_DSI_PHY_MASTER,
@@ -79,7 +96,10 @@ struct msm_dsi {
 	 */
 	struct drm_panel *panel;
 	struct drm_bridge *external_bridge;
+<<<<<<< HEAD
 	unsigned long device_flags;
+=======
+>>>>>>> upstream/android-13
 
 	struct device *phy_dev;
 	bool phy_enabled;
@@ -97,10 +117,16 @@ struct drm_connector *msm_dsi_manager_connector_init(u8 id);
 struct drm_connector *msm_dsi_manager_ext_bridge_init(u8 id);
 int msm_dsi_manager_cmd_xfer(int id, const struct mipi_dsi_msg *msg);
 bool msm_dsi_manager_cmd_xfer_trigger(int id, u32 dma_base, u32 len);
+<<<<<<< HEAD
 void msm_dsi_manager_attach_dsi_device(int id, u32 device_flags);
 int msm_dsi_manager_register(struct msm_dsi *msm_dsi);
 void msm_dsi_manager_unregister(struct msm_dsi *msm_dsi);
 bool msm_dsi_manager_validate_current_config(u8 id);
+=======
+int msm_dsi_manager_register(struct msm_dsi *msm_dsi);
+void msm_dsi_manager_unregister(struct msm_dsi *msm_dsi);
+void msm_dsi_manager_tpg_enable(void);
+>>>>>>> upstream/android-13
 
 /* msm dsi */
 static inline bool msm_dsi_device_connected(struct msm_dsi *msm_dsi)
@@ -110,6 +136,7 @@ static inline bool msm_dsi_device_connected(struct msm_dsi *msm_dsi)
 
 struct drm_encoder *msm_dsi_get_encoder(struct msm_dsi *msm_dsi);
 
+<<<<<<< HEAD
 /* dsi pll */
 struct msm_dsi_pll;
 #ifdef CONFIG_DRM_MSM_DSI_PLL
@@ -149,6 +176,8 @@ static inline int msm_dsi_pll_set_usecase(struct msm_dsi_pll *pll,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* dsi host */
 struct msm_dsi_host;
 int msm_dsi_host_xfer_prepare(struct mipi_dsi_host *host,
@@ -163,6 +192,7 @@ void msm_dsi_host_cmd_xfer_commit(struct mipi_dsi_host *host,
 					u32 dma_base, u32 len);
 int msm_dsi_host_enable(struct mipi_dsi_host *host);
 int msm_dsi_host_disable(struct mipi_dsi_host *host);
+<<<<<<< HEAD
 int msm_dsi_host_power_on(struct mipi_dsi_host *host,
 			struct msm_dsi_phy_shared_timings *phy_shared_timings,
 			bool is_dual_dsi);
@@ -171,21 +201,46 @@ int msm_dsi_host_set_display_mode(struct mipi_dsi_host *host,
 					struct drm_display_mode *mode);
 struct drm_panel *msm_dsi_host_get_panel(struct mipi_dsi_host *host,
 					unsigned long *panel_flags);
+=======
+void msm_dsi_host_enable_irq(struct mipi_dsi_host *host);
+void msm_dsi_host_disable_irq(struct mipi_dsi_host *host);
+int msm_dsi_host_power_on(struct mipi_dsi_host *host,
+			struct msm_dsi_phy_shared_timings *phy_shared_timings,
+			bool is_bonded_dsi, struct msm_dsi_phy *phy);
+int msm_dsi_host_power_off(struct mipi_dsi_host *host);
+int msm_dsi_host_set_display_mode(struct mipi_dsi_host *host,
+				  const struct drm_display_mode *mode);
+struct drm_panel *msm_dsi_host_get_panel(struct mipi_dsi_host *host);
+unsigned long msm_dsi_host_get_mode_flags(struct mipi_dsi_host *host);
+>>>>>>> upstream/android-13
 struct drm_bridge *msm_dsi_host_get_bridge(struct mipi_dsi_host *host);
 int msm_dsi_host_register(struct mipi_dsi_host *host, bool check_defer);
 void msm_dsi_host_unregister(struct mipi_dsi_host *host);
 int msm_dsi_host_set_src_pll(struct mipi_dsi_host *host,
+<<<<<<< HEAD
 			struct msm_dsi_pll *src_pll);
 void msm_dsi_host_reset_phy(struct mipi_dsi_host *host);
 void msm_dsi_host_get_phy_clk_req(struct mipi_dsi_host *host,
 	struct msm_dsi_phy_clk_request *clk_req,
 	bool is_dual_dsi);
+=======
+			struct msm_dsi_phy *src_phy);
+void msm_dsi_host_reset_phy(struct mipi_dsi_host *host);
+void msm_dsi_host_get_phy_clk_req(struct mipi_dsi_host *host,
+	struct msm_dsi_phy_clk_request *clk_req,
+	bool is_bonded_dsi);
+>>>>>>> upstream/android-13
 void msm_dsi_host_destroy(struct mipi_dsi_host *host);
 int msm_dsi_host_modeset_init(struct mipi_dsi_host *host,
 					struct drm_device *dev);
 int msm_dsi_host_init(struct msm_dsi *msm_dsi);
 int msm_dsi_runtime_suspend(struct device *dev);
 int msm_dsi_runtime_resume(struct device *dev);
+<<<<<<< HEAD
+=======
+int dsi_link_clk_set_rate_6g(struct msm_dsi_host *msm_host);
+int dsi_link_clk_set_rate_v2(struct msm_dsi_host *msm_host);
+>>>>>>> upstream/android-13
 int dsi_link_clk_enable_6g(struct msm_dsi_host *msm_host);
 int dsi_link_clk_enable_v2(struct msm_dsi_host *msm_host);
 void dsi_link_clk_disable_6g(struct msm_dsi_host *msm_host);
@@ -199,8 +254,15 @@ int dsi_dma_base_get_6g(struct msm_dsi_host *msm_host, uint64_t *iova);
 int dsi_dma_base_get_v2(struct msm_dsi_host *msm_host, uint64_t *iova);
 int dsi_clk_init_v2(struct msm_dsi_host *msm_host);
 int dsi_clk_init_6g_v2(struct msm_dsi_host *msm_host);
+<<<<<<< HEAD
 int dsi_calc_clk_rate_v2(struct msm_dsi_host *msm_host, bool is_dual_dsi);
 int dsi_calc_clk_rate_6g(struct msm_dsi_host *msm_host, bool is_dual_dsi);
+=======
+int dsi_calc_clk_rate_v2(struct msm_dsi_host *msm_host, bool is_bonded_dsi);
+int dsi_calc_clk_rate_6g(struct msm_dsi_host *msm_host, bool is_bonded_dsi);
+void msm_dsi_host_snapshot(struct msm_disp_state *disp_state, struct mipi_dsi_host *host);
+void msm_dsi_host_test_pattern_en(struct mipi_dsi_host *host);
+>>>>>>> upstream/android-13
 
 /* dsi phy */
 struct msm_dsi_phy;
@@ -217,6 +279,7 @@ struct msm_dsi_phy_clk_request {
 
 void msm_dsi_phy_driver_register(void);
 void msm_dsi_phy_driver_unregister(void);
+<<<<<<< HEAD
 int msm_dsi_phy_enable(struct msm_dsi_phy *phy, int src_pll_id,
 			struct msm_dsi_phy_clk_request *clk_req);
 void msm_dsi_phy_disable(struct msm_dsi_phy *phy);
@@ -225,6 +288,20 @@ void msm_dsi_phy_get_shared_timings(struct msm_dsi_phy *phy,
 struct msm_dsi_pll *msm_dsi_phy_get_pll(struct msm_dsi_phy *phy);
 void msm_dsi_phy_set_usecase(struct msm_dsi_phy *phy,
 			     enum msm_dsi_phy_usecase uc);
+=======
+int msm_dsi_phy_enable(struct msm_dsi_phy *phy,
+			struct msm_dsi_phy_clk_request *clk_req,
+			struct msm_dsi_phy_shared_timings *shared_timings);
+void msm_dsi_phy_disable(struct msm_dsi_phy *phy);
+void msm_dsi_phy_set_usecase(struct msm_dsi_phy *phy,
+			     enum msm_dsi_phy_usecase uc);
+int msm_dsi_phy_get_clk_provider(struct msm_dsi_phy *phy,
+	struct clk **byte_clk_provider, struct clk **pixel_clk_provider);
+void msm_dsi_phy_pll_save_state(struct msm_dsi_phy *phy);
+int msm_dsi_phy_pll_restore_state(struct msm_dsi_phy *phy);
+void msm_dsi_phy_snapshot(struct msm_disp_state *disp_state, struct msm_dsi_phy *phy);
+bool msm_dsi_phy_set_continuous_clock(struct msm_dsi_phy *phy, bool enable);
+>>>>>>> upstream/android-13
 
 #endif /* __DSI_CONNECTOR_H__ */
 

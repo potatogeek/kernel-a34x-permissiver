@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * System Control and Power Interface (SCPI) Message Protocol driver
  *
@@ -11,6 +15,7 @@
  * clocks configuration, thermal sensors and many others.
  *
  * Copyright (C) 2015 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -23,6 +28,8 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -273,12 +280,20 @@ struct scpi_drvinfo {
 struct scpi_shared_mem {
 	__le32 command;
 	__le32 status;
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct legacy_scpi_shared_mem {
 	__le32 status;
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct scp_capabilities {
@@ -563,8 +578,15 @@ static unsigned long scpi_clk_get_val(u16 clk_id)
 
 	ret = scpi_send_message(CMD_GET_CLOCK_VALUE, &le_clk_id,
 				sizeof(le_clk_id), &rate, sizeof(rate));
+<<<<<<< HEAD
 
 	return ret ? ret : le32_to_cpu(rate);
+=======
+	if (ret)
+		return 0;
+
+	return le32_to_cpu(rate);
+>>>>>>> upstream/android-13
 }
 
 static int scpi_clk_set_val(u16 clk_id, unsigned long rate)
@@ -908,6 +930,17 @@ static const struct of_device_id legacy_scpi_of_match[] = {
 	{},
 };
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id shmem_of_match[] __maybe_unused = {
+	{ .compatible = "amlogic,meson-gxbb-scp-shmem", },
+	{ .compatible = "amlogic,meson-axg-scp-shmem", },
+	{ .compatible = "arm,juno-scp-shmem", },
+	{ .compatible = "arm,scp-shmem", },
+	{ }
+};
+
+>>>>>>> upstream/android-13
 static int scpi_probe(struct platform_device *pdev)
 {
 	int count, idx, ret;
@@ -944,6 +977,12 @@ static int scpi_probe(struct platform_device *pdev)
 		struct mbox_client *cl = &pchan->cl;
 		struct device_node *shmem = of_parse_phandle(np, "shmem", idx);
 
+<<<<<<< HEAD
+=======
+		if (!of_match_node(shmem_of_match, shmem))
+			return -ENXIO;
+
+>>>>>>> upstream/android-13
 		ret = of_address_to_resource(shmem, 0, &res);
 		of_node_put(shmem);
 		if (ret) {
@@ -1022,10 +1061,13 @@ static int scpi_probe(struct platform_device *pdev)
 				   scpi_info->firmware_version));
 	scpi_info->scpi_ops = &scpi_ops;
 
+<<<<<<< HEAD
 	ret = devm_device_add_groups(dev, versions_groups);
 	if (ret)
 		dev_err(dev, "unable to create sysfs version group\n");
 
+=======
+>>>>>>> upstream/android-13
 	return devm_of_platform_populate(dev);
 }
 
@@ -1041,6 +1083,10 @@ static struct platform_driver scpi_driver = {
 	.driver = {
 		.name = "scpi_protocol",
 		.of_match_table = scpi_of_match,
+<<<<<<< HEAD
+=======
+		.dev_groups = versions_groups,
+>>>>>>> upstream/android-13
 	},
 	.probe = scpi_probe,
 	.remove = scpi_remove,

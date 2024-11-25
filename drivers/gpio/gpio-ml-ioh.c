@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 OKI SEMICONDUCTOR Co., LTD.
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2010 OKI SEMICONDUCTOR Co., LTD.
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -56,7 +62,11 @@ struct ioh_regs {
 
 /**
  * struct ioh_gpio_reg_data - The register store data.
+<<<<<<< HEAD
  * @ien_reg	To store contents of interrupt enable register.
+=======
+ * @ien_reg:	To store contents of interrupt enable register.
+>>>>>>> upstream/android-13
  * @imask_reg:	To store contents of interrupt mask regist
  * @po_reg:	To store contents of PO register.
  * @pm_reg:	To store contents of PM register.
@@ -167,11 +177,18 @@ static int ioh_gpio_direction_input(struct gpio_chip *gpio, unsigned nr)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /*
  * Save register configuration and disable interrupts.
  */
 static void ioh_gpio_save_reg_conf(struct ioh_gpio *chip)
+=======
+/*
+ * Save register configuration and disable interrupts.
+ */
+static void __maybe_unused ioh_gpio_save_reg_conf(struct ioh_gpio *chip)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -197,7 +214,11 @@ static void ioh_gpio_save_reg_conf(struct ioh_gpio *chip)
 /*
  * This function restores the register configuration of the GPIO device.
  */
+<<<<<<< HEAD
 static void ioh_gpio_restore_reg_conf(struct ioh_gpio *chip)
+=======
+static void __maybe_unused ioh_gpio_restore_reg_conf(struct ioh_gpio *chip)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -219,7 +240,10 @@ static void ioh_gpio_restore_reg_conf(struct ioh_gpio *chip)
 				  &chip->reg->ioh_sel_reg[i]);
 	}
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static int ioh_gpio_to_irq(struct gpio_chip *gpio, unsigned offset)
 {
@@ -534,17 +558,24 @@ static void ioh_gpio_remove(struct pci_dev *pdev)
 	kfree(chip);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int ioh_gpio_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	s32 ret;
 	struct ioh_gpio *chip = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused ioh_gpio_suspend(struct device *dev)
+{
+	struct ioh_gpio *chip = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&chip->spinlock, flags);
 	ioh_gpio_save_reg_conf(chip);
 	spin_unlock_irqrestore(&chip->spinlock, flags);
 
+<<<<<<< HEAD
 	ret = pci_save_state(pdev);
 	if (ret) {
 		dev_err(&pdev->dev, "pci_save_state Failed-%d\n", ret);
@@ -575,6 +606,16 @@ static int ioh_gpio_resume(struct pci_dev *pdev)
 	}
 	pci_restore_state(pdev);
 
+=======
+	return 0;
+}
+
+static int __maybe_unused ioh_gpio_resume(struct device *dev)
+{
+	struct ioh_gpio *chip = dev_get_drvdata(dev);
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&chip->spinlock, flags);
 	iowrite32(0x01, &chip->reg->srst);
 	iowrite32(0x00, &chip->reg->srst);
@@ -583,10 +624,15 @@ static int ioh_gpio_resume(struct pci_dev *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define ioh_gpio_suspend NULL
 #define ioh_gpio_resume NULL
 #endif
+=======
+
+static SIMPLE_DEV_PM_OPS(ioh_gpio_pm_ops, ioh_gpio_suspend, ioh_gpio_resume);
+>>>>>>> upstream/android-13
 
 static const struct pci_device_id ioh_gpio_pcidev_id[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_ROHM, 0x802E) },
@@ -599,8 +645,14 @@ static struct pci_driver ioh_gpio_driver = {
 	.id_table = ioh_gpio_pcidev_id,
 	.probe = ioh_gpio_probe,
 	.remove = ioh_gpio_remove,
+<<<<<<< HEAD
 	.suspend = ioh_gpio_suspend,
 	.resume = ioh_gpio_resume
+=======
+	.driver = {
+		.pm = &ioh_gpio_pm_ops,
+	},
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(ioh_gpio_driver);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2009 Intel Corporation. All rights reserved.
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright(c) 2009 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 

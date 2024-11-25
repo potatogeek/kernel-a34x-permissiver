@@ -74,8 +74,13 @@ int ath6kl_tm_cmd(struct wiphy *wiphy, struct wireless_dev *wdev,
 	int err, buf_len;
 	void *buf;
 
+<<<<<<< HEAD
 	err = nla_parse(tb, ATH6KL_TM_ATTR_MAX, data, len, ath6kl_tm_policy,
 			NULL);
+=======
+	err = nla_parse_deprecated(tb, ATH6KL_TM_ATTR_MAX, data, len,
+				   ath6kl_tm_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -94,7 +99,10 @@ int ath6kl_tm_cmd(struct wiphy *wiphy, struct wireless_dev *wdev,
 
 		return 0;
 
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case ATH6KL_TM_CMD_RX_REPORT:
 	default:
 		return -EOPNOTSUPP;

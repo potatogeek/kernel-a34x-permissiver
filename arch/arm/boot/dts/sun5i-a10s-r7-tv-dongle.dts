@@ -63,7 +63,11 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_r7>;
 
+<<<<<<< HEAD
 		green {
+=======
+		led {
+>>>>>>> upstream/android-13
 			label = "r7-tv-dongle:green:usr";
 			gpios = <&pio 1 2 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
@@ -76,8 +80,11 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_r7>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 6 1 GPIO_ACTIVE_LOW>; /* PG1 */
@@ -85,8 +92,11 @@
 };
 
 &mmc1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	non-removable;
@@ -98,6 +108,7 @@
 };
 
 &pio {
+<<<<<<< HEAD
 	mmc0_cd_pin_r7: mmc0_cd_pin@0 {
 		pins = "PG1";
 		function = "gpio_in";
@@ -105,10 +116,14 @@
 	};
 
 	led_pins_r7: led_pins@0 {
+=======
+	led_pins_r7: led-pin {
+>>>>>>> upstream/android-13
 		pins = "PB2";
 		function = "gpio_out";
 		drive-strength = <20>;
 	};
+<<<<<<< HEAD
 
 	usb1_vbus_pin_r7: usb1_vbus_pin@0 {
 		pins = "PG13";
@@ -118,13 +133,22 @@
 
 &reg_usb1_vbus {
 	pinctrl-0 = <&usb1_vbus_pin_r7>;
+=======
+};
+
+&reg_usb1_vbus {
+>>>>>>> upstream/android-13
 	gpio = <&pio 6 13 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

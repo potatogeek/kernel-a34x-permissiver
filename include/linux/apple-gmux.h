@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * apple-gmux.h - microcontroller built into dual GPU MacBook Pro & Mac Pro
  * Copyright (C) 2015 Lukas Wunner <lukas@wunner.de>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * apple-gmux.h - microcontroller built into dual GPU MacBook Pro & Mac Pro
+ * Copyright (C) 2015 Lukas Wunner <lukas@wunner.de>
+>>>>>>> upstream/android-13
  */
 
 #ifndef LINUX_APPLE_GMUX_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/fs.h>
 #include <linux/fs_stack.h>
@@ -21,11 +25,18 @@ void fsstack_copy_inode_size(struct inode *dst, struct inode *src)
 	i_size = i_size_read(src);
 
 	/*
+<<<<<<< HEAD
 	 * But if CONFIG_LBDAF (on 32-bit), we ought to make an effort to
 	 * keep the two halves of i_blocks in sync despite SMP or PREEMPT -
 	 * though stat's generic_fillattr() doesn't bother, and we won't be
 	 * applying quotas (where i_blocks does become important) at the
 	 * upper level.
+=======
+	 * But on 32-bit, we ought to make an effort to keep the two halves of
+	 * i_blocks in sync despite SMP or PREEMPTION - though stat's
+	 * generic_fillattr() doesn't bother, and we won't be applying quotas
+	 * (where i_blocks does become important) at the upper level.
+>>>>>>> upstream/android-13
 	 *
 	 * We don't actually know what locking is used at the lower level;
 	 * but if it's a filesystem that supports quotas, it will be using
@@ -38,15 +49,25 @@ void fsstack_copy_inode_size(struct inode *dst, struct inode *src)
 		spin_unlock(&src->i_lock);
 
 	/*
+<<<<<<< HEAD
 	 * If CONFIG_SMP or CONFIG_PREEMPT on 32-bit, it's vital for
+=======
+	 * If CONFIG_SMP or CONFIG_PREEMPTION on 32-bit, it's vital for
+>>>>>>> upstream/android-13
 	 * fsstack_copy_inode_size() to hold some lock around
 	 * i_size_write(), otherwise i_size_read() may spin forever (see
 	 * include/linux/fs.h).  We don't necessarily hold i_mutex when this
 	 * is called, so take i_lock for that case.
 	 *
+<<<<<<< HEAD
 	 * And if CONFIG_LBDAF (on 32-bit), continue our effort to keep the
 	 * two halves of i_blocks in sync despite SMP or PREEMPT: use i_lock
 	 * for that case too, and do both at once by combining the tests.
+=======
+	 * And if on 32-bit, continue our effort to keep the two halves of
+	 * i_blocks in sync despite SMP or PREEMPTION: use i_lock for that case
+	 * too, and do both at once by combining the tests.
+>>>>>>> upstream/android-13
 	 *
 	 * There is none of this locking overhead in the 64-bit case.
 	 */

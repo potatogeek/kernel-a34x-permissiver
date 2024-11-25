@@ -108,8 +108,13 @@ lbl_rollback_touch:
 			ret = -EPERM;
 			break;
 		}
+<<<<<<< HEAD
 		stui_close_display();
 		stui_close_touch();
+=======
+		stui_close_touch();
+		stui_close_display();
+>>>>>>> upstream/android-13
 		stui_set_mode(STUI_MODE_OFF);
 		stui_set_tui_version(TUI_NOPE);
 		break;
@@ -231,7 +236,11 @@ void stui_close_display(void)
 	/* Disable STUI driver / Activate linux UI drivers */
 	stui_clear_mask(STUI_MODE_DISPLAY_SEC);
 	stui_finish_tui();
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SOC_S5E8825)
+=======
+#if IS_ENABLED(CONFIG_SOC_S5E8825) || IS_ENABLED(CONFIG_SOC_S5E8535)
+>>>>>>> upstream/android-13
 	if (!g_stui_disp_if)
 		stui_free_video_space();
 #else

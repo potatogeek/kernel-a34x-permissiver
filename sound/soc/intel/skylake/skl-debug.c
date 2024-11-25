@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  skl-debug.c - Debugfs for skl driver
  *
  *  Copyright (C) 2016-17 Intel Corp
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -11,6 +16,8 @@
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -28,7 +35,11 @@
 #define FW_REG_SIZE	0x60
 
 struct skl_debug {
+<<<<<<< HEAD
 	struct skl *skl;
+=======
+	struct skl_dev *skl;
+>>>>>>> upstream/android-13
 	struct device *dev;
 
 	struct dentry *fs;
@@ -76,6 +87,11 @@ static ssize_t module_read(struct file *file, char __user *user_buf,
 			   size_t count, loff_t *ppos)
 {
 	struct skl_module_cfg *mconfig = file->private_data;
+<<<<<<< HEAD
+=======
+	struct skl_module *module = mconfig->module;
+	struct skl_module_res *res = &module->resources[mconfig->res_idx];
+>>>>>>> upstream/android-13
 	char *buf;
 	ssize_t ret;
 
@@ -89,8 +105,13 @@ static ssize_t module_read(struct file *file, char __user *user_buf,
 			mconfig->id.pvt_id);
 
 	ret += scnprintf(buf + ret, MOD_BUF - ret,
+<<<<<<< HEAD
 			"Resources:\n\tMCPS %#x\n\tIBS %#x\n\tOBS %#x\t\n",
 			mconfig->mcps, mconfig->ibs, mconfig->obs);
+=======
+			"Resources:\n\tCPC %#x\n\tIBS %#x\n\tOBS %#x\t\n",
+			res->cpc, res->ibs, res->obs);
+>>>>>>> upstream/android-13
 
 	ret += scnprintf(buf + ret, MOD_BUF - ret,
 			"Module data:\n\tCore %d\n\tIn queue %d\n\t"
@@ -172,17 +193,26 @@ void skl_debug_init_module(struct skl_debug *d,
 			struct snd_soc_dapm_widget *w,
 			struct skl_module_cfg *mconfig)
 {
+<<<<<<< HEAD
 	if (!debugfs_create_file(w->name, 0444,
 				d->modules, mconfig,
 				&mcfg_fops))
 		dev_err(d->dev, "%s: module debugfs init failed\n", w->name);
+=======
+	debugfs_create_file(w->name, 0444, d->modules, mconfig,
+			    &mcfg_fops);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t fw_softreg_read(struct file *file, char __user *user_buf,
 			       size_t count, loff_t *ppos)
 {
 	struct skl_debug *d = file->private_data;
+<<<<<<< HEAD
 	struct sst_dsp *sst = d->skl->skl_sst->dsp;
+=======
+	struct sst_dsp *sst = d->skl->dsp;
+>>>>>>> upstream/android-13
 	size_t w0_stat_sz = sst->addr.w0_stat_sz;
 	void __iomem *in_base = sst->mailbox.in_base;
 	void __iomem *fw_reg_addr;
@@ -223,7 +253,11 @@ static const struct file_operations soft_regs_ctrl_fops = {
 	.llseek = default_llseek,
 };
 
+<<<<<<< HEAD
 struct skl_debug *skl_debugfs_init(struct skl *skl)
+=======
+struct skl_debug *skl_debugfs_init(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct skl_debug *d;
 
@@ -232,18 +266,23 @@ struct skl_debug *skl_debugfs_init(struct skl *skl)
 		return NULL;
 
 	/* create the debugfs dir with platform component's debugfs as parent */
+<<<<<<< HEAD
 	d->fs = debugfs_create_dir("dsp",
 				   skl->component->debugfs_root);
 	if (IS_ERR(d->fs) || !d->fs) {
 		dev_err(&skl->pci->dev, "debugfs root creation failed\n");
 		return NULL;
 	}
+=======
+	d->fs = debugfs_create_dir("dsp", skl->component->debugfs_root);
+>>>>>>> upstream/android-13
 
 	d->skl = skl;
 	d->dev = &skl->pci->dev;
 
 	/* now create the module dir */
 	d->modules = debugfs_create_dir("modules", d->fs);
+<<<<<<< HEAD
 	if (IS_ERR(d->modules) || !d->modules) {
 		dev_err(&skl->pci->dev, "modules debugfs create failed\n");
 		goto err;
@@ -260,4 +299,20 @@ struct skl_debug *skl_debugfs_init(struct skl *skl)
 err:
 	debugfs_remove_recursive(d->fs);
 	return NULL;
+=======
+
+	debugfs_create_file("fw_soft_regs_rd", 0444, d->fs, d,
+			    &soft_regs_ctrl_fops);
+
+	return d;
+}
+
+void skl_debugfs_exit(struct skl_dev *skl)
+{
+	struct skl_debug *d = skl->debugfs;
+
+	debugfs_remove_recursive(d->fs);
+
+	d = NULL;
+>>>>>>> upstream/android-13
 }

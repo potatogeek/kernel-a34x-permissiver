@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	60xx Single Board Computer Watchdog Timer driver for Linux 2.2.x
  *
  *	Based on acquirewdt.c by Alan Cox.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The author does NOT admit liability nor provide warranty for
  *	any of this software. This material is provided "AS-IS" in
  *	the hope that it may be useful for others.
@@ -38,14 +45,20 @@
  *                            added extra printk's for startup problems
  *                            added MODULE_AUTHOR and MODULE_DESCRIPTION info
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  This WDT driver is different from the other Linux WDT
  *  drivers in the following ways:
  *  *)  The driver will ping the watchdog by itself, because this
  *      particular WDT has a very short timeout (one second) and it
  *      would be insane to count on any userspace daemon always
  *      getting scheduled within that time frame.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -152,7 +165,11 @@ static void wdt_startup(void)
 static void wdt_turnoff(void)
 {
 	/* Stop the timer */
+<<<<<<< HEAD
 	del_timer(&timer);
+=======
+	del_timer_sync(&timer);
+>>>>>>> upstream/android-13
 	inb_p(wdt_stop);
 	pr_info("Watchdog timer is now disabled...\n");
 }
@@ -208,7 +225,11 @@ static int fop_open(struct inode *inode, struct file *file)
 
 	/* Good, fire up the show */
 	wdt_startup();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int fop_close(struct inode *inode, struct file *file)
@@ -270,8 +291,13 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 		timeout = new_timeout;
 		wdt_keepalive();
+<<<<<<< HEAD
 		/* Fall through */
 	}
+=======
+	}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WDIOC_GETTIMEOUT:
 		return put_user(timeout, p);
 	default:
@@ -286,6 +312,10 @@ static const struct file_operations wdt_fops = {
 	.open		= fop_open,
 	.release	= fop_close,
 	.unlocked_ioctl	= fop_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static struct miscdevice wdt_miscdev = {

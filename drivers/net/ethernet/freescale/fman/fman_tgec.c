@@ -273,10 +273,13 @@ static int check_init_parameters(struct fman_mac *tgec)
 		pr_err("10G MAC driver only support 10G speed\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	if (tgec->addr == 0) {
 		pr_err("Ethernet 10G MAC Must have valid MAC Address\n");
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (!tgec->exception_cb) {
 		pr_err("uninitialized exception_cb\n");
 		return -EINVAL;
@@ -706,8 +709,15 @@ int tgec_init(struct fman_mac *tgec)
 
 	cfg = tgec->cfg;
 
+<<<<<<< HEAD
 	MAKE_ENET_ADDR_FROM_UINT64(tgec->addr, eth_addr);
 	set_mac_address(tgec->regs, (u8 *)eth_addr);
+=======
+	if (tgec->addr) {
+		MAKE_ENET_ADDR_FROM_UINT64(tgec->addr, eth_addr);
+		set_mac_address(tgec->regs, (u8 *)eth_addr);
+	}
+>>>>>>> upstream/android-13
 
 	/* interrupts */
 	/* FM_10G_REM_N_LCL_FLT_EX_10GMAC_ERRATA_SW005 Errata workaround */

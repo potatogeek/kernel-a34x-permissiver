@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * iSCSI Initiator over TCP/IP Data-Path
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2006 Red Hat, Inc.  All rights reserved.
  * maintained by open-iscsi@googlegroups.com
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * See the file COPYING included with this distribution for more details.
  *
  * Credits:
@@ -44,6 +51,10 @@
 #include <scsi/scsi_host.h>
 #include <scsi/scsi.h>
 #include <scsi/scsi_transport_iscsi.h>
+<<<<<<< HEAD
+=======
+#include <trace/events/iscsi.h>
+>>>>>>> upstream/android-13
 
 #include "iscsi_tcp.h"
 
@@ -72,6 +83,12 @@ MODULE_PARM_DESC(debug_iscsi_tcp, "Turn on debugging for iscsi_tcp module "
 			iscsi_conn_printk(KERN_INFO, _conn,	\
 					     "%s " dbg_fmt,	\
 					     __func__, ##arg);	\
+<<<<<<< HEAD
+=======
+		iscsi_dbg_trace(trace_iscsi_dbg_sw_tcp,		\
+				&(_conn)->cls_conn->dev,	\
+				"%s " dbg_fmt, __func__, ##arg);\
+>>>>>>> upstream/android-13
 	} while (0);
 
 
@@ -185,7 +202,11 @@ static void iscsi_sw_tcp_state_change(struct sock *sk)
 }
 
 /**
+<<<<<<< HEAD
  * iscsi_write_space - Called when more output buffer space is available
+=======
+ * iscsi_sw_tcp_write_space - Called when more output buffer space is available
+>>>>>>> upstream/android-13
  * @sk: socket space is available for
  **/
 static void iscsi_sw_tcp_write_space(struct sock *sk)
@@ -358,7 +379,11 @@ error:
 }
 
 /**
+<<<<<<< HEAD
  * iscsi_tcp_xmit_qlen - return the number of bytes queued for xmit
+=======
+ * iscsi_sw_tcp_xmit_qlen - return the number of bytes queued for xmit
+>>>>>>> upstream/android-13
  * @conn: iscsi connection
  */
 static inline int iscsi_sw_tcp_xmit_qlen(struct iscsi_conn *conn)
@@ -522,7 +547,11 @@ static int iscsi_sw_tcp_pdu_init(struct iscsi_task *task,
 	if (!task->sc)
 		iscsi_sw_tcp_send_linear_data_prep(conn, task->data, count);
 	else {
+<<<<<<< HEAD
 		struct scsi_data_buffer *sdb = scsi_out(task->sc);
+=======
+		struct scsi_data_buffer *sdb = &task->sc->sdb;
+>>>>>>> upstream/android-13
 
 		err = iscsi_sw_tcp_send_data_prep(conn, sdb->table.sgl,
 						  sdb->table.nents, offset,
@@ -605,6 +634,15 @@ static void iscsi_sw_tcp_release_conn(struct iscsi_conn *conn)
 	if (!sock)
 		return;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Make sure we start socket shutdown now in case userspace is up
+	 * but delayed in releasing the socket.
+	 */
+	kernel_sock_shutdown(sock, SHUT_RDWR);
+
+>>>>>>> upstream/android-13
 	sock_hold(sock->sk);
 	iscsi_sw_tcp_conn_restore_callbacks(conn);
 	sock_put(sock->sk);
@@ -694,6 +732,10 @@ iscsi_sw_tcp_conn_bind(struct iscsi_cls_session *cls_session,
 	sk->sk_sndtimeo = 15 * HZ; /* FIXME: make it configurable */
 	sk->sk_allocation = GFP_ATOMIC;
 	sk_set_memalloc(sk);
+<<<<<<< HEAD
+=======
+	sock_no_linger(sk);
+>>>>>>> upstream/android-13
 
 	iscsi_sw_tcp_conn_set_callbacks(conn);
 	tcp_sw_conn->sendpage = tcp_sw_conn->sock->ops->sendpage;
@@ -741,6 +783,10 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
 	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
 	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
 	struct sockaddr_in6 addr;
+<<<<<<< HEAD
+=======
+	struct socket *sock;
+>>>>>>> upstream/android-13
 	int rc;
 
 	switch(param) {
@@ -752,6 +798,7 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
 			spin_unlock_bh(&conn->session->frwd_lock);
 			return -ENOTCONN;
 		}
+<<<<<<< HEAD
 		if (param == ISCSI_PARAM_LOCAL_PORT)
 			rc = kernel_getsockname(tcp_sw_conn->sock,
 						(struct sockaddr *)&addr);
@@ -759,6 +806,19 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
 			rc = kernel_getpeername(tcp_sw_conn->sock,
 						(struct sockaddr *)&addr);
 		spin_unlock_bh(&conn->session->frwd_lock);
+=======
+		sock = tcp_sw_conn->sock;
+		sock_hold(sock->sk);
+		spin_unlock_bh(&conn->session->frwd_lock);
+
+		if (param == ISCSI_PARAM_LOCAL_PORT)
+			rc = kernel_getsockname(sock,
+						(struct sockaddr *)&addr);
+		else
+			rc = kernel_getpeername(sock,
+						(struct sockaddr *)&addr);
+		sock_put(sock->sk);
+>>>>>>> upstream/android-13
 		if (rc < 0)
 			return rc;
 
@@ -780,6 +840,10 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
 	struct iscsi_tcp_conn *tcp_conn;
 	struct iscsi_sw_tcp_conn *tcp_sw_conn;
 	struct sockaddr_in6 addr;
+<<<<<<< HEAD
+=======
+	struct socket *sock;
+>>>>>>> upstream/android-13
 	int rc;
 
 	switch (param) {
@@ -794,6 +858,7 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
 			return -ENOTCONN;
 		}
 		tcp_conn = conn->dd_data;
+<<<<<<< HEAD
 
 		tcp_sw_conn = tcp_conn->dd_data;
 		if (!tcp_sw_conn->sock) {
@@ -804,6 +869,20 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
 		rc = kernel_getsockname(tcp_sw_conn->sock,
 					(struct sockaddr *)&addr);
 		spin_unlock_bh(&session->frwd_lock);
+=======
+		tcp_sw_conn = tcp_conn->dd_data;
+		sock = tcp_sw_conn->sock;
+		if (!sock) {
+			spin_unlock_bh(&session->frwd_lock);
+			return -ENOTCONN;
+		}
+		sock_hold(sock->sk);
+		spin_unlock_bh(&session->frwd_lock);
+
+		rc = kernel_getsockname(sock,
+					(struct sockaddr *)&addr);
+		sock_put(sock->sk);
+>>>>>>> upstream/android-13
 		if (rc < 0)
 			return rc;
 
@@ -844,6 +923,10 @@ iscsi_sw_tcp_session_create(struct iscsi_endpoint *ep, uint16_t cmds_max,
 	struct iscsi_session *session;
 	struct iscsi_sw_tcp_host *tcp_sw_host;
 	struct Scsi_Host *shost;
+<<<<<<< HEAD
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (ep) {
 		printk(KERN_ERR "iscsi_tcp: invalid ep %p.\n", ep);
@@ -861,6 +944,14 @@ iscsi_sw_tcp_session_create(struct iscsi_endpoint *ep, uint16_t cmds_max,
 	shost->max_channel = 0;
 	shost->max_cmd_len = SCSI_MAX_VARLEN_CDB_SIZE;
 
+<<<<<<< HEAD
+=======
+	rc = iscsi_host_get_max_scsi_cmds(shost, cmds_max);
+	if (rc < 0)
+		goto free_host;
+	shost->can_queue = rc;
+
+>>>>>>> upstream/android-13
 	if (iscsi_host_add(shost, NULL))
 		goto free_host;
 
@@ -875,7 +966,10 @@ iscsi_sw_tcp_session_create(struct iscsi_endpoint *ep, uint16_t cmds_max,
 	tcp_sw_host = iscsi_host_priv(shost);
 	tcp_sw_host->session = session;
 
+<<<<<<< HEAD
 	shost->can_queue = session->scsi_cmds_max;
+=======
+>>>>>>> upstream/android-13
 	if (iscsi_tcp_r2tpool_alloc(session))
 		goto remove_session;
 	return cls_session;
@@ -960,12 +1054,15 @@ static umode_t iscsi_sw_tcp_attr_is_visible(int param_type, int param)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int iscsi_sw_tcp_slave_alloc(struct scsi_device *sdev)
 {
 	blk_queue_flag_set(QUEUE_FLAG_BIDI, sdev->request_queue);
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int iscsi_sw_tcp_slave_configure(struct scsi_device *sdev)
 {
 	struct iscsi_sw_tcp_host *tcp_sw_host = iscsi_host_priv(sdev->host);
@@ -973,8 +1070,13 @@ static int iscsi_sw_tcp_slave_configure(struct scsi_device *sdev)
 	struct iscsi_conn *conn = session->leadconn;
 
 	if (conn->datadgst_en)
+<<<<<<< HEAD
 		sdev->request_queue->backing_dev_info->capabilities
 			|= BDI_CAP_STABLE_WRITES;
+=======
+		blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES,
+				   sdev->request_queue);
+>>>>>>> upstream/android-13
 	blk_queue_dma_alignment(sdev->request_queue, 0);
 	return 0;
 }
@@ -984,7 +1086,11 @@ static struct scsi_host_template iscsi_sw_tcp_sht = {
 	.name			= "iSCSI Initiator over TCP/IP",
 	.queuecommand           = iscsi_queuecommand,
 	.change_queue_depth	= scsi_change_queue_depth,
+<<<<<<< HEAD
 	.can_queue		= ISCSI_DEF_XMIT_CMDS_MAX - 1,
+=======
+	.can_queue		= ISCSI_TOTAL_CMDS_MAX,
+>>>>>>> upstream/android-13
 	.sg_tablesize		= 4096,
 	.max_sectors		= 0xFFFF,
 	.cmd_per_lun		= ISCSI_DEF_CMD_PER_LUN,
@@ -992,8 +1098,12 @@ static struct scsi_host_template iscsi_sw_tcp_sht = {
 	.eh_abort_handler       = iscsi_eh_abort,
 	.eh_device_reset_handler= iscsi_eh_device_reset,
 	.eh_target_reset_handler = iscsi_eh_recover_target,
+<<<<<<< HEAD
 	.use_clustering         = DISABLE_CLUSTERING,
 	.slave_alloc            = iscsi_sw_tcp_slave_alloc,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 	.slave_configure        = iscsi_sw_tcp_slave_configure,
 	.target_alloc		= iscsi_target_alloc,
 	.proc_name		= "iscsi_tcp",

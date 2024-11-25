@@ -35,4 +35,9 @@ u64 arch_cpu_idle_time(int cpu);
 
 #define arch_idle_time(cpu) arch_cpu_idle_time(cpu)
 
+<<<<<<< HEAD
+=======
+void account_idle_time_irq(void);
+
+>>>>>>> upstream/android-13
 #endif /* _S390_CPUTIME_H */

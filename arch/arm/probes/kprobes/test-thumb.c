@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/probes/kprobes/test-thumb.c
  *
  * Copyright (C) 2011 Jon Medhurst <tixy@yxit.co.uk>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -444,21 +451,33 @@ void kprobe_thumb32_test_cases(void)
 		"3:	mvn	r0, r0	\n\t"
 		"2:	nop		\n\t")
 
+<<<<<<< HEAD
 	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,"]",
+=======
+	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,", lsl #1]",
+>>>>>>> upstream/android-13
 		"9:			\n\t"
 		".short	(2f-1b-4)>>1	\n\t"
 		".short	(3f-1b-4)>>1	\n\t"
 		"3:	mvn	r0, r0	\n\t"
 		"2:	nop		\n\t")
 
+<<<<<<< HEAD
 	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,"]",
+=======
+	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,", lsl #1]",
+>>>>>>> upstream/android-13
 		"9:			\n\t"
 		".short	(2f-1b-4)>>1	\n\t"
 		".short	(3f-1b-4)>>1	\n\t"
 		"3:	mvn	r0, r0	\n\t"
 		"2:	nop		\n\t")
 
+<<<<<<< HEAD
 	TEST_RRX("tbh	[r",1,9f, ", r",14,1,"]",
+=======
+	TEST_RRX("tbh	[r",1,9f, ", r",14,1,", lsl #1]",
+>>>>>>> upstream/android-13
 		"9:			\n\t"
 		".short	(2f-1b-4)>>1	\n\t"
 		".short	(3f-1b-4)>>1	\n\t"
@@ -471,10 +490,17 @@ void kprobe_thumb32_test_cases(void)
 
 	TEST_UNSUPPORTED("strexb	r0, r1, [r2]")
 	TEST_UNSUPPORTED("strexh	r0, r1, [r2]")
+<<<<<<< HEAD
 	TEST_UNSUPPORTED("strexd	r0, r1, [r2]")
 	TEST_UNSUPPORTED("ldrexb	r0, [r1]")
 	TEST_UNSUPPORTED("ldrexh	r0, [r1]")
 	TEST_UNSUPPORTED("ldrexd	r0, [r1]")
+=======
+	TEST_UNSUPPORTED("strexd	r0, r1, r2, [r2]")
+	TEST_UNSUPPORTED("ldrexb	r0, [r1]")
+	TEST_UNSUPPORTED("ldrexh	r0, [r1]")
+	TEST_UNSUPPORTED("ldrexd	r0, r1, [r1]")
+>>>>>>> upstream/android-13
 
 	TEST_GROUP("Data-processing (shifted register) and (modified immediate)")
 

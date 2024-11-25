@@ -43,9 +43,12 @@
  *   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Intel PCIe NTB Linux driver
+<<<<<<< HEAD
  *
  * Contact Information:
  * Jon Mason <jon.mason@intel.com>
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef NTB_HW_INTEL_H
@@ -53,6 +56,10 @@
 
 #include <linux/ntb.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
+=======
+#include <linux/io-64-nonatomic-lo-hi.h>
+>>>>>>> upstream/android-13
 
 /* PCI device IDs */
 #define PCI_DEVICE_ID_INTEL_NTB_B2B_JSF	0x3725
@@ -71,6 +78,10 @@
 #define PCI_DEVICE_ID_INTEL_NTB_PS_BDX	0x6F0E
 #define PCI_DEVICE_ID_INTEL_NTB_SS_BDX	0x6F0F
 #define PCI_DEVICE_ID_INTEL_NTB_B2B_SKX	0x201C
+<<<<<<< HEAD
+=======
+#define PCI_DEVICE_ID_INTEL_NTB_B2B_ICX	0x347e
+>>>>>>> upstream/android-13
 
 /* Ntb control and link status */
 #define NTB_CTL_CFG_LOCK		BIT(0)
@@ -101,7 +112,11 @@ struct intel_ntb_dev;
 struct intel_ntb_reg {
 	int (*poll_link)(struct intel_ntb_dev *ndev);
 	int (*link_is_up)(struct intel_ntb_dev *ndev);
+<<<<<<< HEAD
 	u64 (*db_ioread)(void __iomem *mmio);
+=======
+	u64 (*db_ioread)(const void __iomem *mmio);
+>>>>>>> upstream/android-13
 	void (*db_iowrite)(u64 db_bits, void __iomem *mmio);
 	unsigned long			ntb_ctl;
 	resource_size_t			db_size;
@@ -119,6 +134,10 @@ struct intel_ntb_xlat_reg {
 	unsigned long			bar0_base;
 	unsigned long			bar2_xlat;
 	unsigned long			bar2_limit;
+<<<<<<< HEAD
+=======
+	unsigned short			bar2_idx;
+>>>>>>> upstream/android-13
 };
 
 struct intel_b2b_addr {
@@ -181,6 +200,12 @@ struct intel_ntb_dev {
 
 	struct dentry			*debugfs_dir;
 	struct dentry			*debugfs_info;
+<<<<<<< HEAD
+=======
+
+	/* gen4 entries */
+	int				dev_up;
+>>>>>>> upstream/android-13
 };
 
 #define ntb_ndev(__ntb) container_of(__ntb, struct intel_ntb_dev, ntb)
@@ -218,6 +243,7 @@ static inline int pdev_is_gen3(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifndef ioread64
 #ifdef readq
 #define ioread64 readq
@@ -248,3 +274,13 @@ static inline void _iowrite64(u64 val, void __iomem *mmio)
 #endif
 
 #endif
+=======
+static inline int pdev_is_gen4(struct pci_dev *pdev)
+{
+	if (pdev->device == PCI_DEVICE_ID_INTEL_NTB_B2B_ICX)
+		return 1;
+
+	return 0;
+}
+#endif
+>>>>>>> upstream/android-13

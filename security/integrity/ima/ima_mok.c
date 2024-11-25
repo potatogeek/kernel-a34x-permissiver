@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Juniper Networks, Inc.
  *
  * Author:
  * Petko Manolov <petko.manolov@konsulko.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -26,7 +33,11 @@ struct key *ima_blacklist_keyring;
 /*
  * Allocate the IMA blacklist keyring
  */
+<<<<<<< HEAD
 __init int ima_mok_init(void)
+=======
+static __init int ima_mok_init(void)
+>>>>>>> upstream/android-13
 {
 	struct key_restriction *restriction;
 

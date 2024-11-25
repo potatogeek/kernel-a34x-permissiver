@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005-2006 Micronas USA Inc.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2005-2006 Micronas USA Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -284,6 +290,7 @@ static int vidioc_querycap(struct file *file, void  *priv,
 {
 	struct go7007 *go = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, "go7007", sizeof(cap->driver));
 	strlcpy(cap->card, go->name, sizeof(cap->card));
 	strlcpy(cap->bus_info, go->bus_info, sizeof(cap->bus_info));
@@ -296,12 +303,18 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	if (go->board_info->flags & GO7007_BOARD_HAS_TUNER)
 		cap->device_caps |= V4L2_CAP_TUNER;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, "go7007", sizeof(cap->driver));
+	strscpy(cap->card, go->name, sizeof(cap->card));
+	strscpy(cap->bus_info, go->bus_info, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 					struct v4l2_fmtdesc *fmt)
 {
+<<<<<<< HEAD
 	char *desc = NULL;
 
 	switch (fmt->index) {
@@ -320,15 +333,32 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 	case 3:
 		fmt->pixelformat = V4L2_PIX_FMT_MPEG4;
 		desc = "MPEG-4 ES";
+=======
+	switch (fmt->index) {
+	case 0:
+		fmt->pixelformat = V4L2_PIX_FMT_MJPEG;
+		break;
+	case 1:
+		fmt->pixelformat = V4L2_PIX_FMT_MPEG1;
+		break;
+	case 2:
+		fmt->pixelformat = V4L2_PIX_FMT_MPEG2;
+		break;
+	case 3:
+		fmt->pixelformat = V4L2_PIX_FMT_MPEG4;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	fmt->flags = V4L2_FMT_FLAG_COMPRESSED;
 
 	strncpy(fmt->description, desc, sizeof(fmt->description));
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -634,8 +664,13 @@ static int vidioc_enum_input(struct file *file, void *priv,
 	if (inp->index >= go->board_info->num_inputs)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(inp->name, go->board_info->inputs[inp->index].name,
 			sizeof(inp->name));
+=======
+	strscpy(inp->name, go->board_info->inputs[inp->index].name,
+		sizeof(inp->name));
+>>>>>>> upstream/android-13
 
 	/* If this board has a tuner, it will be the first input */
 	if ((go->board_info->flags & GO7007_BOARD_HAS_TUNER) &&
@@ -673,7 +708,11 @@ static int vidioc_enumaudio(struct file *file, void *fh, struct v4l2_audio *a)
 
 	if (a->index >= go->board_info->num_aud_inputs)
 		return -EINVAL;
+<<<<<<< HEAD
 	strlcpy(a->name, go->board_info->aud_inputs[a->index].name,
+=======
+	strscpy(a->name, go->board_info->aud_inputs[a->index].name,
+>>>>>>> upstream/android-13
 		sizeof(a->name));
 	a->capability = V4L2_AUDCAP_STEREO;
 	return 0;
@@ -684,7 +723,11 @@ static int vidioc_g_audio(struct file *file, void *fh, struct v4l2_audio *a)
 	struct go7007 *go = video_drvdata(file);
 
 	a->index = go->aud_input;
+<<<<<<< HEAD
 	strlcpy(a->name, go->board_info->aud_inputs[go->aud_input].name,
+=======
+	strscpy(a->name, go->board_info->aud_inputs[go->aud_input].name,
+>>>>>>> upstream/android-13
 		sizeof(a->name));
 	a->capability = V4L2_AUDCAP_STEREO;
 	return 0;
@@ -742,7 +785,11 @@ static int vidioc_g_tuner(struct file *file, void *priv,
 	if (t->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(t->name, "Tuner", sizeof(t->name));
+=======
+	strscpy(t->name, "Tuner", sizeof(t->name));
+>>>>>>> upstream/android-13
 	return call_all(&go->v4l2_dev, tuner, g_tuner, t);
 }
 
@@ -1122,6 +1169,15 @@ int go7007_v4l2_init(struct go7007 *go)
 	*vdev = go7007_template;
 	vdev->lock = &go->serialize_lock;
 	vdev->queue = &go->vidq;
+<<<<<<< HEAD
+=======
+	vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+			    V4L2_CAP_STREAMING;
+	if (go->board_info->num_aud_inputs)
+		vdev->device_caps |= V4L2_CAP_AUDIO;
+	if (go->board_info->flags & GO7007_BOARD_HAS_TUNER)
+		vdev->device_caps |= V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 	video_set_drvdata(vdev, go);
 	vdev->v4l2_dev = &go->v4l2_dev;
 	if (!v4l2_device_has_op(&go->v4l2_dev, 0, video, querystd))
@@ -1160,7 +1216,11 @@ int go7007_v4l2_init(struct go7007 *go)
 	go7007_s_input(go);
 	if (go->board_info->sensor_flags & GO7007_SENSOR_TV)
 		go7007_s_std(go);
+<<<<<<< HEAD
 	rv = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	rv = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (rv < 0)
 		return rv;
 	dev_info(go->dev, "registered device %s [v4l2]\n",

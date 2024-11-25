@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/cls_rsvp.h	Template file for RSVPv[46] classifiers.
  *
@@ -6,12 +7,22 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * net/sched/cls_rsvp.h	Template file for RSVPv[46] classifiers.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  */
 
 /*
    Comparing to general packet classification problem,
+<<<<<<< HEAD
    RSVP needs only sevaral relatively simple rules:
+=======
+   RSVP needs only several relatively simple rules:
+>>>>>>> upstream/android-13
 
    * (dst, protocol) are always specified,
      so that we are able to hash them.
@@ -242,7 +253,11 @@ static void rsvp_replace(struct tcf_proto *tp, struct rsvp_filter *n, u32 h)
 		}
 	}
 
+<<<<<<< HEAD
 	/* Something went wrong if we are trying to replace a non-existant
+=======
+	/* Something went wrong if we are trying to replace a non-existent
+>>>>>>> upstream/android-13
 	 * node. Mind as well halt instead of silently failing.
 	 */
 	BUG_ON(1);
@@ -312,7 +327,12 @@ static void rsvp_delete_filter(struct tcf_proto *tp, struct rsvp_filter *f)
 		__rsvp_delete_filter(f);
 }
 
+<<<<<<< HEAD
 static void rsvp_destroy(struct tcf_proto *tp, struct netlink_ext_ack *extack)
+=======
+static void rsvp_destroy(struct tcf_proto *tp, bool rtnl_held,
+			 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct rsvp_head *data = rtnl_dereference(tp->root);
 	int h1, h2;
@@ -341,7 +361,11 @@ static void rsvp_destroy(struct tcf_proto *tp, struct netlink_ext_ack *extack)
 }
 
 static int rsvp_delete(struct tcf_proto *tp, void *arg, bool *last,
+<<<<<<< HEAD
 		       struct netlink_ext_ack *extack)
+=======
+		       bool rtnl_held, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct rsvp_head *head = rtnl_dereference(tp->root);
 	struct rsvp_filter *nfp, *f = arg;
@@ -473,9 +497,15 @@ static const struct nla_policy rsvp_policy[TCA_RSVP_MAX + 1] = {
 
 static int rsvp_change(struct net *net, struct sk_buff *in_skb,
 		       struct tcf_proto *tp, unsigned long base,
+<<<<<<< HEAD
 		       u32 handle,
 		       struct nlattr **tca,
 		       void **arg, bool ovr, struct netlink_ext_ack *extack)
+=======
+		       u32 handle, struct nlattr **tca,
+		       void **arg, u32 flags,
+		       struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct rsvp_head *data = rtnl_dereference(tp->root);
 	struct rsvp_filter *f, *nfp;
@@ -493,6 +523,7 @@ static int rsvp_change(struct net *net, struct sk_buff *in_skb,
 	if (opt == NULL)
 		return handle ? -EINVAL : 0;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_RSVP_MAX, opt, rsvp_policy, NULL);
 	if (err < 0)
 		return err;
@@ -501,6 +532,18 @@ static int rsvp_change(struct net *net, struct sk_buff *in_skb,
 	if (err < 0)
 		return err;
 	err = tcf_exts_validate(net, tp, tb, tca[TCA_RATE], &e, ovr, extack);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_RSVP_MAX, opt, rsvp_policy,
+					  NULL);
+	if (err < 0)
+		return err;
+
+	err = tcf_exts_init(&e, net, TCA_RSVP_ACT, TCA_RSVP_POLICE);
+	if (err < 0)
+		return err;
+	err = tcf_exts_validate(net, tp, tb, tca[TCA_RATE], &e, flags,
+				extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto errout2;
 
@@ -518,7 +561,12 @@ static int rsvp_change(struct net *net, struct sk_buff *in_skb,
 			goto errout2;
 		}
 
+<<<<<<< HEAD
 		err = tcf_exts_init(&n->exts, TCA_RSVP_ACT, TCA_RSVP_POLICE);
+=======
+		err = tcf_exts_init(&n->exts, net, TCA_RSVP_ACT,
+				    TCA_RSVP_POLICE);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			kfree(n);
 			goto errout2;
@@ -546,7 +594,11 @@ static int rsvp_change(struct net *net, struct sk_buff *in_skb,
 	if (f == NULL)
 		goto errout2;
 
+<<<<<<< HEAD
 	err = tcf_exts_init(&f->exts, TCA_RSVP_ACT, TCA_RSVP_POLICE);
+=======
+	err = tcf_exts_init(&f->exts, net, TCA_RSVP_ACT, TCA_RSVP_POLICE);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto errout;
 	h2 = 16;
@@ -652,7 +704,12 @@ errout2:
 	return err;
 }
 
+<<<<<<< HEAD
 static void rsvp_walk(struct tcf_proto *tp, struct tcf_walker *arg)
+=======
+static void rsvp_walk(struct tcf_proto *tp, struct tcf_walker *arg,
+		      bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct rsvp_head *head = rtnl_dereference(tp->root);
 	unsigned int h, h1;
@@ -686,7 +743,11 @@ static void rsvp_walk(struct tcf_proto *tp, struct tcf_walker *arg)
 }
 
 static int rsvp_dump(struct net *net, struct tcf_proto *tp, void *fh,
+<<<<<<< HEAD
 		     struct sk_buff *skb, struct tcmsg *t)
+=======
+		     struct sk_buff *skb, struct tcmsg *t, bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct rsvp_filter *f = fh;
 	struct rsvp_session *s;
@@ -699,7 +760,11 @@ static int rsvp_dump(struct net *net, struct tcf_proto *tp, void *fh,
 
 	t->tcm_handle = f->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 

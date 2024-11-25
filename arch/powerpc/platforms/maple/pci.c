@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004 Benjamin Herrenschmuidt (benh@kernel.crashing.org),
  *		      IBM Corp.
@@ -6,6 +7,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2004 Benjamin Herrenschmuidt (benh@kernel.crashing.org),
+ *		      IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -38,7 +45,11 @@ static struct pci_controller *u3_agp, *u3_ht, *u4_pcie;
 
 static int __init fixup_one_level_bus_range(struct device_node *node, int higher)
 {
+<<<<<<< HEAD
 	for (; node != 0;node = node->sibling) {
+=======
+	for (; node; node = node->sibling) {
+>>>>>>> upstream/android-13
 		const int *bus_range;
 		const unsigned int *class_code;
 		int len;
@@ -540,6 +551,12 @@ static int __init maple_add_bridge(struct device_node *dev)
 	/* Check for legacy IOs */
 	isa_bridge_find_early(hose);
 
+<<<<<<< HEAD
+=======
+	/* create pci_dn's for DT nodes under this PHB */
+	pci_devs_phb_init_dynamic(hose);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -604,10 +621,15 @@ void __init maple_pci_init(void)
 		printk(KERN_CRIT "maple_find_bridges: can't find root of device tree\n");
 		return;
 	}
+<<<<<<< HEAD
 	for (np = NULL; (np = of_get_next_child(root, np)) != NULL;) {
 		if (!np->type)
 			continue;
 		if (strcmp(np->type, "pci") && strcmp(np->type, "ht"))
+=======
+	for_each_child_of_node(root, np) {
+		if (!of_node_is_type(np, "pci") && !of_node_is_type(np, "ht"))
+>>>>>>> upstream/android-13
 			continue;
 		if ((of_device_is_compatible(np, "u4-pcie") ||
 		     of_device_is_compatible(np, "u3-agp")) &&

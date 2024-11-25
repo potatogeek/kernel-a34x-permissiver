@@ -43,8 +43,15 @@ g98_msppp = {
 };
 
 int
+<<<<<<< HEAD
 g98_msppp_new(struct nvkm_device *device, int index,
 	      struct nvkm_engine **pengine)
 {
 	return nvkm_msppp_new_(&g98_msppp, device, index, pengine);
+=======
+g98_msppp_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_engine **pengine)
+{
+	return nvkm_msppp_new_(&g98_msppp, device, type, inst, pengine);
+>>>>>>> upstream/android-13
 }

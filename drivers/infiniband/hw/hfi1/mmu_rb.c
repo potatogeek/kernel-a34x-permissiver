@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 - 2017 Intel Corporation.
  *
@@ -44,14 +45,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2020 Cornelis Networks, Inc.
+ * Copyright(c) 2016 - 2017 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/rculist.h>
 #include <linux/mmu_notifier.h>
 #include <linux/interval_tree_generic.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+>>>>>>> upstream/android-13
 
 #include "mmu_rb.h"
 #include "trace.h"
 
+<<<<<<< HEAD
 struct mmu_rb_handler {
 	struct mmu_notifier mn;
 	struct rb_root_cached root;
@@ -70,6 +84,12 @@ static unsigned long mmu_node_last(struct mmu_rb_node *);
 static int mmu_notifier_range_start(struct mmu_notifier *,
 				     struct mm_struct *,
 				     unsigned long, unsigned long, bool);
+=======
+static unsigned long mmu_node_start(struct mmu_rb_node *);
+static unsigned long mmu_node_last(struct mmu_rb_node *);
+static int mmu_notifier_range_start(struct mmu_notifier *,
+		const struct mmu_notifier_range *);
+>>>>>>> upstream/android-13
 static struct mmu_rb_node *__mmu_rb_search(struct mmu_rb_handler *,
 					   unsigned long, unsigned long);
 static void do_remove(struct mmu_rb_handler *handler,
@@ -77,7 +97,10 @@ static void do_remove(struct mmu_rb_handler *handler,
 static void handle_remove(struct work_struct *work);
 
 static const struct mmu_notifier_ops mn_opts = {
+<<<<<<< HEAD
 	.flags = MMU_INVALIDATE_DOES_NOT_BLOCK,
+=======
+>>>>>>> upstream/android-13
 	.invalidate_range_start = mmu_notifier_range_start,
 };
 
@@ -94,11 +117,16 @@ static unsigned long mmu_node_last(struct mmu_rb_node *node)
 	return PAGE_ALIGN(node->addr + node->len) - 1;
 }
 
+<<<<<<< HEAD
 int hfi1_mmu_rb_register(void *ops_arg, struct mm_struct *mm,
+=======
+int hfi1_mmu_rb_register(void *ops_arg,
+>>>>>>> upstream/android-13
 			 struct mmu_rb_ops *ops,
 			 struct workqueue_struct *wq,
 			 struct mmu_rb_handler **handler)
 {
+<<<<<<< HEAD
 	struct mmu_rb_handler *handlr;
 	int ret;
 
@@ -125,6 +153,33 @@ int hfi1_mmu_rb_register(void *ops_arg, struct mm_struct *mm,
 	}
 
 	*handler = handlr;
+=======
+	struct mmu_rb_handler *h;
+	int ret;
+
+	h = kzalloc(sizeof(*h), GFP_KERNEL);
+	if (!h)
+		return -ENOMEM;
+
+	h->root = RB_ROOT_CACHED;
+	h->ops = ops;
+	h->ops_arg = ops_arg;
+	INIT_HLIST_NODE(&h->mn.hlist);
+	spin_lock_init(&h->lock);
+	h->mn.ops = &mn_opts;
+	INIT_WORK(&h->del_work, handle_remove);
+	INIT_LIST_HEAD(&h->del_list);
+	INIT_LIST_HEAD(&h->lru_list);
+	h->wq = wq;
+
+	ret = mmu_notifier_register(&h->mn, current->mm);
+	if (ret) {
+		kfree(h);
+		return ret;
+	}
+
+	*handler = h;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -135,8 +190,16 @@ void hfi1_mmu_rb_unregister(struct mmu_rb_handler *handler)
 	unsigned long flags;
 	struct list_head del_list;
 
+<<<<<<< HEAD
 	/* Unregister first so we don't get any more notifications. */
 	mmu_notifier_unregister(&handler->mn, handler->mm);
+=======
+	/* Prevent freeing of mm until we are completely finished. */
+	mmgrab(handler->mn.mm);
+
+	/* Unregister first so we don't get any more notifications. */
+	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure the wq delete handler is finished running.  It will not
@@ -157,6 +220,12 @@ void hfi1_mmu_rb_unregister(struct mmu_rb_handler *handler)
 
 	do_remove(handler, &del_list);
 
+<<<<<<< HEAD
+=======
+	/* Now the mm may be freed. */
+	mmdrop(handler->mn.mm);
+
+>>>>>>> upstream/android-13
 	kfree(handler);
 }
 
@@ -168,6 +237,13 @@ int hfi1_mmu_rb_insert(struct mmu_rb_handler *handler,
 	int ret = 0;
 
 	trace_hfi1_mmu_rb_insert(mnode->addr, mnode->len);
+<<<<<<< HEAD
+=======
+
+	if (current->mm != handler->mn.mm)
+		return -EPERM;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&handler->lock, flags);
 	node = __mmu_rb_search(handler, mnode->addr, mnode->len);
 	if (node) {
@@ -182,6 +258,10 @@ int hfi1_mmu_rb_insert(struct mmu_rb_handler *handler,
 		__mmu_int_rb_remove(mnode, &handler->root);
 		list_del(&mnode->list); /* remove from LRU list */
 	}
+<<<<<<< HEAD
+=======
+	mnode->handler = handler;
+>>>>>>> upstream/android-13
 unlock:
 	spin_unlock_irqrestore(&handler->lock, flags);
 	return ret;
@@ -219,6 +299,12 @@ bool hfi1_mmu_rb_remove_unless_exact(struct mmu_rb_handler *handler,
 	unsigned long flags;
 	bool ret = false;
 
+<<<<<<< HEAD
+=======
+	if (current->mm != handler->mn.mm)
+		return ret;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&handler->lock, flags);
 	node = __mmu_rb_search(handler, addr, len);
 	if (node) {
@@ -241,6 +327,12 @@ void hfi1_mmu_rb_evict(struct mmu_rb_handler *handler, void *evict_arg)
 	unsigned long flags;
 	bool stop = false;
 
+<<<<<<< HEAD
+=======
+	if (current->mm != handler->mn.mm)
+		return;
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&del_list);
 
 	spin_lock_irqsave(&handler->lock, flags);
@@ -274,6 +366,12 @@ void hfi1_mmu_rb_remove(struct mmu_rb_handler *handler,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
+=======
+	if (current->mm != handler->mn.mm)
+		return;
+
+>>>>>>> upstream/android-13
 	/* Validity of handler and node pointers has been checked by caller. */
 	trace_hfi1_mmu_rb_remove(node->addr, node->len);
 	spin_lock_irqsave(&handler->lock, flags);
@@ -285,10 +383,14 @@ void hfi1_mmu_rb_remove(struct mmu_rb_handler *handler,
 }
 
 static int mmu_notifier_range_start(struct mmu_notifier *mn,
+<<<<<<< HEAD
 				     struct mm_struct *mm,
 				     unsigned long start,
 				     unsigned long end,
 				     bool blockable)
+=======
+		const struct mmu_notifier_range *range)
+>>>>>>> upstream/android-13
 {
 	struct mmu_rb_handler *handler =
 		container_of(mn, struct mmu_rb_handler, mn);
@@ -298,10 +400,18 @@ static int mmu_notifier_range_start(struct mmu_notifier *mn,
 	bool added = false;
 
 	spin_lock_irqsave(&handler->lock, flags);
+<<<<<<< HEAD
 	for (node = __mmu_int_rb_iter_first(root, start, end - 1);
 	     node; node = ptr) {
 		/* Guard against node removal. */
 		ptr = __mmu_int_rb_iter_next(node, start, end - 1);
+=======
+	for (node = __mmu_int_rb_iter_first(root, range->start, range->end-1);
+	     node; node = ptr) {
+		/* Guard against node removal. */
+		ptr = __mmu_int_rb_iter_next(node, range->start,
+					     range->end - 1);
+>>>>>>> upstream/android-13
 		trace_hfi1_mmu_mem_invalidate(node->addr, node->len);
 		if (handler->ops->invalidate(handler->ops_arg, node)) {
 			__mmu_int_rb_remove(node, root);
@@ -337,7 +447,11 @@ static void do_remove(struct mmu_rb_handler *handler,
 
 /*
  * Work queue function to remove all nodes that have been queued up to
+<<<<<<< HEAD
  * be removed.  The key feature is that mm->mmap_sem is not being held
+=======
+ * be removed.  The key feature is that mm->mmap_lock is not being held
+>>>>>>> upstream/android-13
  * and the remove callback can sleep while taking it, if needed.
  */
 static void handle_remove(struct work_struct *work)

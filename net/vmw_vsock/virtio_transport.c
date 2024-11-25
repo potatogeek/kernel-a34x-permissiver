@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * virtio transport for vsock
  *
@@ -7,8 +11,11 @@
  *
  * Some of the code is take from Gerd Hoffmann <kraxel@redhat.com>'s
  * early virtio-vsock proof-of-concept bits.
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/spinlock.h>
 #include <linux/module.h>
@@ -23,8 +30,14 @@
 #include <net/af_vsock.h>
 
 static struct workqueue_struct *virtio_vsock_workqueue;
+<<<<<<< HEAD
 static struct virtio_vsock *the_virtio_vsock;
 static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
+=======
+static struct virtio_vsock __rcu *the_virtio_vsock;
+static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
+static struct virtio_transport virtio_transport; /* forward declaration */
+>>>>>>> upstream/android-13
 
 struct virtio_vsock {
 	struct virtio_device *vdev;
@@ -45,10 +58,13 @@ struct virtio_vsock {
 	spinlock_t send_pkt_list_lock;
 	struct list_head send_pkt_list;
 
+<<<<<<< HEAD
 	struct work_struct loopback_work;
 	spinlock_t loopback_list_lock; /* protects loopback_list */
 	struct list_head loopback_list;
 
+=======
+>>>>>>> upstream/android-13
 	atomic_t queued_replies;
 
 	/* The following fields are protected by rx_lock.  vqs[VSOCK_VQ_RX]
@@ -67,6 +83,10 @@ struct virtio_vsock {
 	struct virtio_vsock_event event_list[8];
 
 	u32 guest_cid;
+<<<<<<< HEAD
+=======
+	bool seqpacket_allow;
+>>>>>>> upstream/android-13
 };
 
 static u32 virtio_transport_get_local_cid(void)
@@ -87,6 +107,7 @@ out_rcu:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
 					      struct virtio_vsock_pkt *pkt)
 {
@@ -101,6 +122,8 @@ static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
 	return len;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 virtio_transport_send_pkt_work(struct work_struct *work)
 {
@@ -195,7 +218,12 @@ virtio_transport_send_pkt(struct virtio_vsock_pkt *pkt)
 	}
 
 	if (le64_to_cpu(pkt->hdr.dst_cid) == vsock->guest_cid) {
+<<<<<<< HEAD
 		len = virtio_transport_send_pkt_loopback(vsock, pkt);
+=======
+		virtio_transport_free_pkt(pkt);
+		len = -ENODEV;
+>>>>>>> upstream/android-13
 		goto out_rcu;
 	}
 
@@ -281,6 +309,10 @@ static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		pkt->buf_len = buf_len;
+>>>>>>> upstream/android-13
 		pkt->len = buf_len;
 
 		sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
@@ -373,11 +405,28 @@ static void virtio_vsock_event_fill(struct virtio_vsock *vsock)
 
 static void virtio_vsock_reset_sock(struct sock *sk)
 {
+<<<<<<< HEAD
 	lock_sock(sk);
 	sk->sk_state = TCP_CLOSE;
 	sk->sk_err = ECONNRESET;
 	sk->sk_error_report(sk);
 	release_sock(sk);
+=======
+	struct vsock_sock *vsk = vsock_sk(sk);
+
+	/* vmci_transport.c doesn't take sk_lock here either.  At least we're
+	 * under vsock_table_lock so the sock cannot disappear while we're
+	 * executing.
+	 */
+
+	/* Only handle our own sockets */
+	if (vsk->transport != &virtio_transport.transport)
+		return;
+
+	sk->sk_state = TCP_CLOSE;
+	sk->sk_err = ECONNRESET;
+	sk_error_report(sk);
+>>>>>>> upstream/android-13
 }
 
 static void virtio_vsock_update_guest_cid(struct virtio_vsock *vsock)
@@ -460,8 +509,17 @@ static void virtio_vsock_rx_done(struct virtqueue *vq)
 	queue_work(virtio_vsock_workqueue, &vsock->rx_work);
 }
 
+<<<<<<< HEAD
 static struct virtio_transport virtio_transport = {
 	.transport = {
+=======
+static bool virtio_transport_seqpacket_allow(u32 remote_cid);
+
+static struct virtio_transport virtio_transport = {
+	.transport = {
+		.module                   = THIS_MODULE,
+
+>>>>>>> upstream/android-13
 		.get_local_cid            = virtio_transport_get_local_cid,
 
 		.init                     = virtio_transport_do_socket_init,
@@ -484,6 +542,14 @@ static struct virtio_transport virtio_transport = {
 		.stream_is_active         = virtio_transport_stream_is_active,
 		.stream_allow             = virtio_transport_stream_allow,
 
+<<<<<<< HEAD
+=======
+		.seqpacket_dequeue        = virtio_transport_seqpacket_dequeue,
+		.seqpacket_enqueue        = virtio_transport_seqpacket_enqueue,
+		.seqpacket_allow          = virtio_transport_seqpacket_allow,
+		.seqpacket_has_data       = virtio_transport_seqpacket_has_data,
+
+>>>>>>> upstream/android-13
 		.notify_poll_in           = virtio_transport_notify_poll_in,
 		.notify_poll_out          = virtio_transport_notify_poll_out,
 		.notify_recv_init         = virtio_transport_notify_recv_init,
@@ -494,6 +560,7 @@ static struct virtio_transport virtio_transport = {
 		.notify_send_pre_block    = virtio_transport_notify_send_pre_block,
 		.notify_send_pre_enqueue  = virtio_transport_notify_send_pre_enqueue,
 		.notify_send_post_enqueue = virtio_transport_notify_send_post_enqueue,
+<<<<<<< HEAD
 
 		.set_buffer_size          = virtio_transport_set_buffer_size,
 		.set_min_buffer_size      = virtio_transport_set_min_buffer_size,
@@ -501,11 +568,15 @@ static struct virtio_transport virtio_transport = {
 		.get_buffer_size          = virtio_transport_get_buffer_size,
 		.get_min_buffer_size      = virtio_transport_get_min_buffer_size,
 		.get_max_buffer_size      = virtio_transport_get_max_buffer_size,
+=======
+		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+>>>>>>> upstream/android-13
 	},
 
 	.send_pkt = virtio_transport_send_pkt,
 };
 
+<<<<<<< HEAD
 static void virtio_transport_loopback_work(struct work_struct *work)
 {
 	struct virtio_vsock *vsock =
@@ -531,6 +602,21 @@ static void virtio_transport_loopback_work(struct work_struct *work)
 	}
 out:
 	mutex_unlock(&vsock->rx_lock);
+=======
+static bool virtio_transport_seqpacket_allow(u32 remote_cid)
+{
+	struct virtio_vsock *vsock;
+	bool seqpacket_allow;
+
+	seqpacket_allow = false;
+	rcu_read_lock();
+	vsock = rcu_dereference(the_virtio_vsock);
+	if (vsock)
+		seqpacket_allow = vsock->seqpacket_allow;
+	rcu_read_unlock();
+
+	return seqpacket_allow;
+>>>>>>> upstream/android-13
 }
 
 static void virtio_transport_rx_work(struct work_struct *work)
@@ -637,13 +723,26 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
 	mutex_init(&vsock->event_lock);
 	spin_lock_init(&vsock->send_pkt_list_lock);
 	INIT_LIST_HEAD(&vsock->send_pkt_list);
+<<<<<<< HEAD
 	spin_lock_init(&vsock->loopback_list_lock);
 	INIT_LIST_HEAD(&vsock->loopback_list);
+=======
+>>>>>>> upstream/android-13
 	INIT_WORK(&vsock->rx_work, virtio_transport_rx_work);
 	INIT_WORK(&vsock->tx_work, virtio_transport_tx_work);
 	INIT_WORK(&vsock->event_work, virtio_transport_event_work);
 	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
+<<<<<<< HEAD
 	INIT_WORK(&vsock->loopback_work, virtio_transport_loopback_work);
+=======
+
+	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
+		vsock->seqpacket_allow = true;
+
+	vdev->priv = vsock;
+
+	virtio_device_ready(vdev);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vsock->tx_lock);
 	vsock->tx_run = true;
@@ -659,10 +758,17 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
 	vsock->event_run = true;
 	mutex_unlock(&vsock->event_lock);
 
+<<<<<<< HEAD
 	vdev->priv = vsock;
 	rcu_assign_pointer(the_virtio_vsock, vsock);
 
 	mutex_unlock(&the_virtio_vsock_mutex);
+=======
+	rcu_assign_pointer(the_virtio_vsock, vsock);
+
+	mutex_unlock(&the_virtio_vsock_mutex);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out:
@@ -682,12 +788,15 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
 	rcu_assign_pointer(the_virtio_vsock, NULL);
 	synchronize_rcu();
 
+<<<<<<< HEAD
 	flush_work(&vsock->loopback_work);
 	flush_work(&vsock->rx_work);
 	flush_work(&vsock->tx_work);
 	flush_work(&vsock->event_work);
 	flush_work(&vsock->send_pkt_work);
 
+=======
+>>>>>>> upstream/android-13
 	/* Reset all connected sockets when the device disappear */
 	vsock_for_each_connected_socket(virtio_vsock_reset_sock);
 
@@ -730,6 +839,7 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
 	}
 	spin_unlock_bh(&vsock->send_pkt_list_lock);
 
+<<<<<<< HEAD
 	spin_lock_bh(&vsock->loopback_list_lock);
 	while (!list_empty(&vsock->loopback_list)) {
 		pkt = list_first_entry(&vsock->loopback_list,
@@ -742,6 +852,19 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
 	/* Delete virtqueues and flush outstanding callbacks if any */
 	vdev->config->del_vqs(vdev);
 
+=======
+	/* Delete virtqueues and flush outstanding callbacks if any */
+	vdev->config->del_vqs(vdev);
+
+	/* Other works can be queued before 'config->del_vqs()', so we flush
+	 * all works before to free the vsock object to avoid use after free.
+	 */
+	flush_work(&vsock->rx_work);
+	flush_work(&vsock->tx_work);
+	flush_work(&vsock->event_work);
+	flush_work(&vsock->send_pkt_work);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&the_virtio_vsock_mutex);
 
 	kfree(vsock);
@@ -753,6 +876,10 @@ static struct virtio_device_id id_table[] = {
 };
 
 static unsigned int features[] = {
+<<<<<<< HEAD
+=======
+	VIRTIO_VSOCK_F_SEQPACKET
+>>>>>>> upstream/android-13
 };
 
 static struct virtio_driver virtio_vsock_driver = {
@@ -773,7 +900,12 @@ static int __init virtio_vsock_init(void)
 	if (!virtio_vsock_workqueue)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = vsock_core_init(&virtio_transport.transport);
+=======
+	ret = vsock_core_register(&virtio_transport.transport,
+				  VSOCK_TRANSPORT_F_G2H);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_wq;
 
@@ -784,7 +916,11 @@ static int __init virtio_vsock_init(void)
 	return 0;
 
 out_vci:
+<<<<<<< HEAD
 	vsock_core_exit();
+=======
+	vsock_core_unregister(&virtio_transport.transport);
+>>>>>>> upstream/android-13
 out_wq:
 	destroy_workqueue(virtio_vsock_workqueue);
 	return ret;
@@ -793,7 +929,11 @@ out_wq:
 static void __exit virtio_vsock_exit(void)
 {
 	unregister_virtio_driver(&virtio_vsock_driver);
+<<<<<<< HEAD
 	vsock_core_exit();
+=======
+	vsock_core_unregister(&virtio_transport.transport);
+>>>>>>> upstream/android-13
 	destroy_workqueue(virtio_vsock_workqueue);
 }
 

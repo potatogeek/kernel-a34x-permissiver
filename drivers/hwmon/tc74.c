@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * An hwmon driver for the Microchip TC74
  *
@@ -7,11 +11,14 @@
  *	Copyright 2006 Stefan Roese, DENX Software Engineering
  *	Copyright 2008 Sean MacLennan, PIKA Technologies
  *	Copyright 2008 Frank Edelhaeuser, Spansion Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -86,7 +93,11 @@ ret_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_input(struct device *dev,
+=======
+static ssize_t temp_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *attr, char *buf)
 {
 	struct tc74_data *data = dev_get_drvdata(dev);
@@ -98,7 +109,11 @@ static ssize_t show_temp_input(struct device *dev,
 
 	return sprintf(buf, "%d\n", data->temp_input * 1000);
 }
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp_input, NULL, 0);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp_input, 0);
+>>>>>>> upstream/android-13
 
 static struct attribute *tc74_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -107,8 +122,12 @@ static struct attribute *tc74_attrs[] = {
 
 ATTRIBUTE_GROUPS(tc74);
 
+<<<<<<< HEAD
 static int tc74_probe(struct i2c_client *client,
 		      const struct i2c_device_id *dev_id)
+=======
+static int tc74_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct tc74_data *data;
@@ -165,7 +184,11 @@ static struct i2c_driver tc74_driver = {
 	.driver = {
 		.name	= "tc74",
 	},
+<<<<<<< HEAD
 	.probe	= tc74_probe,
+=======
+	.probe_new = tc74_probe,
+>>>>>>> upstream/android-13
 	.id_table = tc74_id,
 };
 

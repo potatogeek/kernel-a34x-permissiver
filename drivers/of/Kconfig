@@ -43,6 +43,10 @@ config OF_FLATTREE
 
 config OF_EARLY_FLATTREE
 	bool
+<<<<<<< HEAD
+=======
+	select DMA_DECLARE_COHERENT if HAS_DMA
+>>>>>>> upstream/android-13
 	select OF_FLATTREE
 
 config OF_PROMTREE
@@ -69,6 +73,7 @@ config OF_IRQ
 	def_bool y
 	depends on !SPARC && IRQ_DOMAIN
 
+<<<<<<< HEAD
 config OF_NET
 	depends on NETDEVICES
 	def_bool y
@@ -85,6 +90,10 @@ config OF_RESERVED_MEM
 	bool
 	help
 	  Helpers to allow for reservation of memory regions
+=======
+config OF_RESERVED_MEM
+	def_bool OF_EARLY_FLATTREE
+>>>>>>> upstream/android-13
 
 config OF_RESOLVE
 	bool

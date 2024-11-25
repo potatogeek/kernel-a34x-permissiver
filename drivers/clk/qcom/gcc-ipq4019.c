@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -1284,16 +1290,25 @@ static int clk_cpu_div_set_rate(struct clk_hw *hw, unsigned long rate,
 	struct clk_fepll *pll = to_clk_fepll(hw);
 	const struct freq_tbl *f;
 	u32 mask;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	f = qcom_find_freq(pll->freq_tbl, rate);
 	if (!f)
 		return -EINVAL;
 
 	mask = (BIT(pll->cdiv.width) - 1) << pll->cdiv.shift;
+<<<<<<< HEAD
 	ret = regmap_update_bits(pll->cdiv.clkr.regmap,
 				 pll->cdiv.reg, mask,
 				 f->pre_div << pll->cdiv.shift);
+=======
+	regmap_update_bits(pll->cdiv.clkr.regmap,
+			   pll->cdiv.reg, mask,
+			   f->pre_div << pll->cdiv.shift);
+>>>>>>> upstream/android-13
 	/*
 	 * There is no status bit which can be checked for successful CPU
 	 * divider update operation so using delay for the same.

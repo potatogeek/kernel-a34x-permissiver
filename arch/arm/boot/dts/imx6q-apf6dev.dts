@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 Armadeus Systems
  *
@@ -44,6 +45,11 @@
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+//
+// Copyright 2015 Armadeus Systems <support@armadeus.com>
+>>>>>>> upstream/android-13
 
 /dts-v1/;
 #include "imx6q.dtsi"
@@ -55,6 +61,10 @@
 	compatible = "armadeus,imx6q-apf6dev", "armadeus,imx6q-apf6", "fsl,imx6q";
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x40000000>;
 	};
 };

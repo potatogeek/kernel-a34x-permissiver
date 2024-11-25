@@ -3,6 +3,7 @@
  * Renesas USB driver
  *
  * Copyright (C) 2011 Renesas Solutions Corp.
+<<<<<<< HEAD
  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
  */
 #include <linux/err.h>
@@ -12,6 +13,19 @@
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
 #include <linux/pm_runtime.h>
+=======
+ * Copyright (C) 2019 Renesas Electronics Corporation
+ * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+ */
+#include <linux/clk.h>
+#include <linux/err.h>
+#include <linux/gpio/consumer.h>
+#include <linux/io.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/sysfs.h>
 #include "common.h"
@@ -41,6 +55,7 @@
  *			| ....  |	+-----------+
  */
 
+<<<<<<< HEAD
 
 #define USBHSF_RUNTIME_PWCTRL	(1 << 0)
 
@@ -50,6 +65,8 @@
 #define usbhsc_flags_clr(p, b) ((p)->flags &= ~(b))
 #define usbhsc_flags_has(p, b) ((p)->flags &   (b))
 
+=======
+>>>>>>> upstream/android-13
 /*
  * platform call back
  *
@@ -59,8 +76,13 @@
  */
 #define usbhs_platform_call(priv, func, args...)\
 	(!(priv) ? -ENODEV :			\
+<<<<<<< HEAD
 	 !((priv)->pfunc.func) ? 0 :		\
 	 (priv)->pfunc.func(args))
+=======
+	 !((priv)->pfunc->func) ? 0 :		\
+	 (priv)->pfunc->func(args))
+>>>>>>> upstream/android-13
 
 /*
  *		common functions
@@ -90,6 +112,14 @@ struct usbhs_priv *usbhs_pdev_to_priv(struct platform_device *pdev)
 	return dev_get_drvdata(&pdev->dev);
 }
 
+<<<<<<< HEAD
+=======
+int usbhs_get_id_as_gadget(struct platform_device *pdev)
+{
+	return USBHS_GADGET;
+}
+
+>>>>>>> upstream/android-13
 /*
  *		syscfg functions
  */
@@ -102,10 +132,13 @@ void usbhs_sys_host_ctrl(struct usbhs_priv *priv, int enable)
 {
 	u16 mask = DCFM | DRPD | DPRPU | HSE | USBE;
 	u16 val  = DCFM | DRPD | HSE | USBE;
+<<<<<<< HEAD
 	int has_otg = usbhs_get_dparam(priv, has_otg);
 
 	if (has_otg)
 		usbhs_bset(priv, DVSTCTR, (EXTLP | PWEN), (EXTLP | PWEN));
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * if enable
@@ -121,6 +154,15 @@ void usbhs_sys_function_ctrl(struct usbhs_priv *priv, int enable)
 	u16 mask = DCFM | DRPD | DPRPU | HSE | USBE;
 	u16 val  = HSE | USBE;
 
+<<<<<<< HEAD
+=======
+	/* CNEN bit is required for function operation */
+	if (usbhs_get_dparam(priv, has_cnen)) {
+		mask |= CNEN;
+		val  |= CNEN;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * if enable
 	 *
@@ -161,17 +203,29 @@ void usbhs_usbreq_get_val(struct usbhs_priv *priv, struct usb_ctrlrequest *req)
 	req->bRequest		= (val >> 8) & 0xFF;
 	req->bRequestType	= (val >> 0) & 0xFF;
 
+<<<<<<< HEAD
 	req->wValue	= usbhs_read(priv, USBVAL);
 	req->wIndex	= usbhs_read(priv, USBINDX);
 	req->wLength	= usbhs_read(priv, USBLENG);
+=======
+	req->wValue	= cpu_to_le16(usbhs_read(priv, USBVAL));
+	req->wIndex	= cpu_to_le16(usbhs_read(priv, USBINDX));
+	req->wLength	= cpu_to_le16(usbhs_read(priv, USBLENG));
+>>>>>>> upstream/android-13
 }
 
 void usbhs_usbreq_set_val(struct usbhs_priv *priv, struct usb_ctrlrequest *req)
 {
 	usbhs_write(priv, USBREQ,  (req->bRequest << 8) | req->bRequestType);
+<<<<<<< HEAD
 	usbhs_write(priv, USBVAL,  req->wValue);
 	usbhs_write(priv, USBINDX, req->wIndex);
 	usbhs_write(priv, USBLENG, req->wLength);
+=======
+	usbhs_write(priv, USBVAL,  le16_to_cpu(req->wValue));
+	usbhs_write(priv, USBINDX, le16_to_cpu(req->wIndex));
+	usbhs_write(priv, USBLENG, le16_to_cpu(req->wLength));
+>>>>>>> upstream/android-13
 
 	usbhs_bset(priv, DCPCTR, SUREQ, SUREQ);
 }
@@ -290,6 +344,78 @@ static void usbhsc_set_buswait(struct usbhs_priv *priv)
 		usbhs_bset(priv, BUSWAIT, 0x000F, wait);
 }
 
+<<<<<<< HEAD
+=======
+static bool usbhsc_is_multi_clks(struct usbhs_priv *priv)
+{
+	return priv->dparam.multi_clks;
+}
+
+static int usbhsc_clk_get(struct device *dev, struct usbhs_priv *priv)
+{
+	if (!usbhsc_is_multi_clks(priv))
+		return 0;
+
+	/* The first clock should exist */
+	priv->clks[0] = of_clk_get(dev_of_node(dev), 0);
+	if (IS_ERR(priv->clks[0]))
+		return PTR_ERR(priv->clks[0]);
+
+	/*
+	 * To backward compatibility with old DT, this driver checks the return
+	 * value if it's -ENOENT or not.
+	 */
+	priv->clks[1] = of_clk_get(dev_of_node(dev), 1);
+	if (PTR_ERR(priv->clks[1]) == -ENOENT)
+		priv->clks[1] = NULL;
+	else if (IS_ERR(priv->clks[1]))
+		return PTR_ERR(priv->clks[1]);
+
+	return 0;
+}
+
+static void usbhsc_clk_put(struct usbhs_priv *priv)
+{
+	int i;
+
+	if (!usbhsc_is_multi_clks(priv))
+		return;
+
+	for (i = 0; i < ARRAY_SIZE(priv->clks); i++)
+		clk_put(priv->clks[i]);
+}
+
+static int usbhsc_clk_prepare_enable(struct usbhs_priv *priv)
+{
+	int i, ret;
+
+	if (!usbhsc_is_multi_clks(priv))
+		return 0;
+
+	for (i = 0; i < ARRAY_SIZE(priv->clks); i++) {
+		ret = clk_prepare_enable(priv->clks[i]);
+		if (ret) {
+			while (--i >= 0)
+				clk_disable_unprepare(priv->clks[i]);
+			return ret;
+		}
+	}
+
+	return ret;
+}
+
+static void usbhsc_clk_disable_unprepare(struct usbhs_priv *priv)
+{
+	int i;
+
+	if (!usbhsc_is_multi_clks(priv))
+		return;
+
+	for (i = 0; i < ARRAY_SIZE(priv->clks); i++)
+		clk_disable_unprepare(priv->clks[i]);
+}
+
+>>>>>>> upstream/android-13
 /*
  *		platform default param
  */
@@ -340,6 +466,13 @@ static void usbhsc_power_ctrl(struct usbhs_priv *priv, int enable)
 		/* enable PM */
 		pm_runtime_get_sync(dev);
 
+<<<<<<< HEAD
+=======
+		/* enable clks */
+		if (usbhsc_clk_prepare_enable(priv))
+			return;
+
+>>>>>>> upstream/android-13
 		/* enable platform power */
 		usbhs_platform_call(priv, power_ctrl, pdev, priv->base, enable);
 
@@ -352,6 +485,12 @@ static void usbhsc_power_ctrl(struct usbhs_priv *priv, int enable)
 		/* disable platform power */
 		usbhs_platform_call(priv, power_ctrl, pdev, priv->base, enable);
 
+<<<<<<< HEAD
+=======
+		/* disable clks */
+		usbhsc_clk_disable_unprepare(priv);
+
+>>>>>>> upstream/android-13
 		/* disable PM */
 		pm_runtime_put_sync(dev);
 	}
@@ -372,7 +511,11 @@ static void usbhsc_hotplug(struct usbhs_priv *priv)
 	/*
 	 * get vbus status from platform
 	 */
+<<<<<<< HEAD
 	enable = usbhs_platform_call(priv, get_vbus, pdev);
+=======
+	enable = usbhs_mod_info_call(priv, get_vbus, pdev);
+>>>>>>> upstream/android-13
 
 	/*
 	 * get id from platform
@@ -397,7 +540,11 @@ static void usbhsc_hotplug(struct usbhs_priv *priv)
 		dev_dbg(&pdev->dev, "%s enable\n", __func__);
 
 		/* power on */
+<<<<<<< HEAD
 		if (usbhsc_flags_has(priv, USBHSF_RUNTIME_PWCTRL))
+=======
+		if (usbhs_get_dparam(priv, runtime_pwctrl))
+>>>>>>> upstream/android-13
 			usbhsc_power_ctrl(priv, enable);
 
 		/* bus init */
@@ -417,7 +564,11 @@ static void usbhsc_hotplug(struct usbhs_priv *priv)
 		usbhsc_bus_init(priv);
 
 		/* power off */
+<<<<<<< HEAD
 		if (usbhsc_flags_has(priv, USBHSF_RUNTIME_PWCTRL))
+=======
+		if (usbhs_get_dparam(priv, runtime_pwctrl))
+>>>>>>> upstream/android-13
 			usbhsc_power_ctrl(priv, enable);
 
 		usbhs_mod_change(priv, -1);
@@ -438,7 +589,11 @@ static void usbhsc_notify_hotplug(struct work_struct *work)
 	usbhsc_hotplug(priv);
 }
 
+<<<<<<< HEAD
 static int usbhsc_drvcllbck_notify_hotplug(struct platform_device *pdev)
+=======
+int usbhsc_schedule_notify_hotplug(struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	struct usbhs_priv *priv = usbhs_pdev_to_priv(pdev);
 	int delay = usbhs_get_dparam(priv, detection_delay);
@@ -459,6 +614,7 @@ static int usbhsc_drvcllbck_notify_hotplug(struct platform_device *pdev)
 static const struct of_device_id usbhs_of_match[] = {
 	{
 		.compatible = "renesas,usbhs-r8a774c0",
+<<<<<<< HEAD
 		.data = (void *)USBHS_TYPE_RCAR_GEN3_WITH_PLL,
 	},
 	{
@@ -496,11 +652,59 @@ static const struct of_device_id usbhs_of_match[] = {
 	{
 		.compatible = "renesas,rza1-usbhs",
 		.data = (void *)USBHS_TYPE_RZA1,
+=======
+		.data = &usbhs_rcar_gen3_with_pll_plat_info,
+	},
+	{
+		.compatible = "renesas,usbhs-r8a7790",
+		.data = &usbhs_rcar_gen2_plat_info,
+	},
+	{
+		.compatible = "renesas,usbhs-r8a7791",
+		.data = &usbhs_rcar_gen2_plat_info,
+	},
+	{
+		.compatible = "renesas,usbhs-r8a7794",
+		.data = &usbhs_rcar_gen2_plat_info,
+	},
+	{
+		.compatible = "renesas,usbhs-r8a7795",
+		.data = &usbhs_rcar_gen3_plat_info,
+	},
+	{
+		.compatible = "renesas,usbhs-r8a7796",
+		.data = &usbhs_rcar_gen3_plat_info,
+	},
+	{
+		.compatible = "renesas,usbhs-r8a77990",
+		.data = &usbhs_rcar_gen3_with_pll_plat_info,
+	},
+	{
+		.compatible = "renesas,usbhs-r8a77995",
+		.data = &usbhs_rcar_gen3_with_pll_plat_info,
+	},
+	{
+		.compatible = "renesas,rcar-gen2-usbhs",
+		.data = &usbhs_rcar_gen2_plat_info,
+	},
+	{
+		.compatible = "renesas,rcar-gen3-usbhs",
+		.data = &usbhs_rcar_gen3_plat_info,
+	},
+	{
+		.compatible = "renesas,rza1-usbhs",
+		.data = &usbhs_rza1_plat_info,
+	},
+	{
+		.compatible = "renesas,rza2-usbhs",
+		.data = &usbhs_rza2_plat_info,
+>>>>>>> upstream/android-13
 	},
 	{ },
 };
 MODULE_DEVICE_TABLE(of, usbhs_of_match);
 
+<<<<<<< HEAD
 static struct renesas_usbhs_platform_info *usbhs_parse_dt(struct device *dev)
 {
 	struct renesas_usbhs_platform_info *info;
@@ -552,17 +756,43 @@ static int usbhs_probe(struct platform_device *pdev)
 	/* check platform information */
 	if (!info) {
 		dev_err(&pdev->dev, "no platform information\n");
+=======
+static int usbhs_probe(struct platform_device *pdev)
+{
+	const struct renesas_usbhs_platform_info *info;
+	struct usbhs_priv *priv;
+	struct resource *irq_res;
+	struct device *dev = &pdev->dev;
+	struct gpio_desc *gpiod;
+	int ret;
+	u32 tmp;
+
+	/* check device node */
+	if (dev_of_node(dev))
+		info = of_device_get_match_data(dev);
+	else
+		info = renesas_usbhs_get_info(pdev);
+
+	/* check platform information */
+	if (!info) {
+		dev_err(dev, "no platform information\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	/* platform data */
 	irq_res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (!irq_res) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Not enough Renesas USB platform resources.\n");
+=======
+		dev_err(dev, "Not enough Renesas USB platform resources.\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	/* usb private data */
+<<<<<<< HEAD
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
@@ -574,14 +804,34 @@ static int usbhs_probe(struct platform_device *pdev)
 
 	if (of_property_read_bool(pdev->dev.of_node, "extcon")) {
 		priv->edev = extcon_get_edev_by_phandle(&pdev->dev, 0);
+=======
+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(priv->base))
+		return PTR_ERR(priv->base);
+
+	if (of_property_read_bool(dev_of_node(dev), "extcon")) {
+		priv->edev = extcon_get_edev_by_phandle(dev, 0);
+>>>>>>> upstream/android-13
 		if (IS_ERR(priv->edev))
 			return PTR_ERR(priv->edev);
 	}
 
+<<<<<<< HEAD
+=======
+	priv->rsts = devm_reset_control_array_get_optional_shared(dev);
+	if (IS_ERR(priv->rsts))
+		return PTR_ERR(priv->rsts);
+
+>>>>>>> upstream/android-13
 	/*
 	 * care platform info
 	 */
 
+<<<<<<< HEAD
 	memcpy(&priv->dparam,
 	       &info->driver_param,
 	       sizeof(struct renesas_usbhs_driver_param));
@@ -625,16 +875,44 @@ static int usbhs_probe(struct platform_device *pdev)
 
 	/* set default param if platform doesn't have */
 	if (!priv->dparam.pipe_configs) {
+=======
+	priv->dparam = info->driver_param;
+
+	if (!info->platform_callback.get_id) {
+		dev_err(dev, "no platform callbacks\n");
+		return -EINVAL;
+	}
+	priv->pfunc = &info->platform_callback;
+
+	/* set default param if platform doesn't have */
+	if (usbhs_get_dparam(priv, has_new_pipe_configs)) {
+		priv->dparam.pipe_configs = usbhsc_new_pipe;
+		priv->dparam.pipe_size = ARRAY_SIZE(usbhsc_new_pipe);
+	} else if (!priv->dparam.pipe_configs) {
+>>>>>>> upstream/android-13
 		priv->dparam.pipe_configs = usbhsc_default_pipe;
 		priv->dparam.pipe_size = ARRAY_SIZE(usbhsc_default_pipe);
 	}
 	if (!priv->dparam.pio_dma_border)
 		priv->dparam.pio_dma_border = 64; /* 64byte */
+<<<<<<< HEAD
 
 	/* FIXME */
 	/* runtime power control ? */
 	if (priv->pfunc.get_vbus)
 		usbhsc_flags_set(priv, USBHSF_RUNTIME_PWCTRL);
+=======
+	if (!of_property_read_u32(dev_of_node(dev), "renesas,buswait", &tmp))
+		priv->dparam.buswait_bwait = tmp;
+	gpiod = devm_gpiod_get_optional(dev, "renesas,enable", GPIOD_IN);
+	if (IS_ERR(gpiod))
+		return PTR_ERR(gpiod);
+
+	/* FIXME */
+	/* runtime power control ? */
+	if (priv->pfunc->get_vbus)
+		usbhs_get_dparam(priv, runtime_pwctrl) = 1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * priv settings
@@ -662,6 +940,17 @@ static int usbhs_probe(struct platform_device *pdev)
 	/* dev_set_drvdata should be called after usbhs_mod_init */
 	platform_set_drvdata(pdev, priv);
 
+<<<<<<< HEAD
+=======
+	ret = reset_control_deassert(priv->rsts);
+	if (ret)
+		goto probe_fail_rst;
+
+	ret = usbhsc_clk_get(dev, priv);
+	if (ret)
+		goto probe_fail_clks;
+
+>>>>>>> upstream/android-13
 	/*
 	 * deviece reset here because
 	 * USB device might be used in boot loader.
@@ -669,6 +958,7 @@ static int usbhs_probe(struct platform_device *pdev)
 	usbhs_sys_clock_ctrl(priv, 0);
 
 	/* check GPIO determining if USB function should be enabled */
+<<<<<<< HEAD
 	if (priv->dparam.enable_gpio) {
 		gpio_request_one(priv->dparam.enable_gpio, GPIOF_IN, NULL);
 		ret = !gpio_get_value(priv->dparam.enable_gpio);
@@ -677,6 +967,12 @@ static int usbhs_probe(struct platform_device *pdev)
 			dev_warn(&pdev->dev,
 				 "USB function not selected (GPIO %d)\n",
 				 priv->dparam.enable_gpio);
+=======
+	if (gpiod) {
+		ret = !gpiod_get_value(gpiod);
+		if (ret) {
+			dev_warn(dev, "USB function not selected (GPIO)\n");
+>>>>>>> upstream/android-13
 			ret = -ENOTSUPP;
 			goto probe_end_mod_exit;
 		}
@@ -691,7 +987,11 @@ static int usbhs_probe(struct platform_device *pdev)
 	 */
 	ret = usbhs_platform_call(priv, hardware_init, pdev);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "platform init failed.\n");
+=======
+		dev_err(dev, "platform init failed.\n");
+>>>>>>> upstream/android-13
 		goto probe_end_mod_exit;
 	}
 
@@ -699,29 +999,55 @@ static int usbhs_probe(struct platform_device *pdev)
 	usbhs_platform_call(priv, phy_reset, pdev);
 
 	/* power control */
+<<<<<<< HEAD
 	pm_runtime_enable(&pdev->dev);
 	if (!usbhsc_flags_has(priv, USBHSF_RUNTIME_PWCTRL)) {
 		usbhsc_power_ctrl(priv, 1);
 		usbhs_mod_autonomy_mode(priv);
+=======
+	pm_runtime_enable(dev);
+	if (!usbhs_get_dparam(priv, runtime_pwctrl)) {
+		usbhsc_power_ctrl(priv, 1);
+		usbhs_mod_autonomy_mode(priv);
+	} else {
+		usbhs_mod_non_autonomy_mode(priv);
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * manual call notify_hotplug for cold plug
 	 */
+<<<<<<< HEAD
 	usbhsc_drvcllbck_notify_hotplug(pdev);
 
 	dev_info(&pdev->dev, "probed\n");
+=======
+	usbhsc_schedule_notify_hotplug(pdev);
+
+	dev_info(dev, "probed\n");
+>>>>>>> upstream/android-13
 
 	return ret;
 
 probe_end_mod_exit:
+<<<<<<< HEAD
+=======
+	usbhsc_clk_put(priv);
+probe_fail_clks:
+	reset_control_assert(priv->rsts);
+probe_fail_rst:
+>>>>>>> upstream/android-13
 	usbhs_mod_remove(priv);
 probe_end_fifo_exit:
 	usbhs_fifo_remove(priv);
 probe_end_pipe_exit:
 	usbhs_pipe_remove(priv);
 
+<<<<<<< HEAD
 	dev_info(&pdev->dev, "probe failed (%d)\n", ret);
+=======
+	dev_info(dev, "probe failed (%d)\n", ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -729,6 +1055,7 @@ probe_end_pipe_exit:
 static int usbhs_remove(struct platform_device *pdev)
 {
 	struct usbhs_priv *priv = usbhs_pdev_to_priv(pdev);
+<<<<<<< HEAD
 	struct renesas_usbhs_platform_info *info = renesas_usbhs_get_info(pdev);
 	struct renesas_usbhs_driver_callback *dfunc = &info->driver_callback;
 
@@ -738,11 +1065,23 @@ static int usbhs_remove(struct platform_device *pdev)
 
 	/* power off */
 	if (!usbhsc_flags_has(priv, USBHSF_RUNTIME_PWCTRL))
+=======
+
+	dev_dbg(&pdev->dev, "usb remove\n");
+
+	/* power off */
+	if (!usbhs_get_dparam(priv, runtime_pwctrl))
+>>>>>>> upstream/android-13
 		usbhsc_power_ctrl(priv, 0);
 
 	pm_runtime_disable(&pdev->dev);
 
 	usbhs_platform_call(priv, hardware_exit, pdev);
+<<<<<<< HEAD
+=======
+	usbhsc_clk_put(priv);
+	reset_control_assert(priv->rsts);
+>>>>>>> upstream/android-13
 	usbhs_mod_remove(priv);
 	usbhs_fifo_remove(priv);
 	usbhs_pipe_remove(priv);
@@ -750,7 +1089,11 @@ static int usbhs_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int usbhsc_suspend(struct device *dev)
+=======
+static __maybe_unused int usbhsc_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct usbhs_priv *priv = dev_get_drvdata(dev);
 	struct usbhs_mod *mod = usbhs_mod_get_current(priv);
@@ -760,29 +1103,46 @@ static int usbhsc_suspend(struct device *dev)
 		usbhs_mod_change(priv, -1);
 	}
 
+<<<<<<< HEAD
 	if (mod || !usbhsc_flags_has(priv, USBHSF_RUNTIME_PWCTRL))
+=======
+	if (mod || !usbhs_get_dparam(priv, runtime_pwctrl))
+>>>>>>> upstream/android-13
 		usbhsc_power_ctrl(priv, 0);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int usbhsc_resume(struct device *dev)
+=======
+static __maybe_unused int usbhsc_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct usbhs_priv *priv = dev_get_drvdata(dev);
 	struct platform_device *pdev = usbhs_priv_to_pdev(priv);
 
+<<<<<<< HEAD
 	if (!usbhsc_flags_has(priv, USBHSF_RUNTIME_PWCTRL)) {
+=======
+	if (!usbhs_get_dparam(priv, runtime_pwctrl)) {
+>>>>>>> upstream/android-13
 		usbhsc_power_ctrl(priv, 1);
 		usbhs_mod_autonomy_mode(priv);
 	}
 
 	usbhs_platform_call(priv, phy_reset, pdev);
 
+<<<<<<< HEAD
 	usbhsc_drvcllbck_notify_hotplug(pdev);
+=======
+	usbhsc_schedule_notify_hotplug(pdev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int usbhsc_runtime_nop(struct device *dev)
 {
 	/* Runtime PM callback shared between ->runtime_suspend()
@@ -801,6 +1161,9 @@ static const struct dev_pm_ops usbhsc_pm_ops = {
 	.runtime_suspend	= usbhsc_runtime_nop,
 	.runtime_resume		= usbhsc_runtime_nop,
 };
+=======
+static SIMPLE_DEV_PM_OPS(usbhsc_pm_ops, usbhsc_suspend, usbhsc_resume);
+>>>>>>> upstream/android-13
 
 static struct platform_driver renesas_usbhs_driver = {
 	.driver		= {

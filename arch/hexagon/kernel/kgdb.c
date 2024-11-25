@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/hexagon/kernel/kgdb.c - Hexagon KGDB Support
  *
  * Copyright (c) 2011-2012, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>
@@ -83,7 +90,11 @@ struct dbg_reg_def_t dbg_reg_def[DBG_MAX_REG_NUM] = {
 	{ "syscall_nr", GDB_SIZEOF_REG, offsetof(struct pt_regs, syscall_nr)},
 };
 
+<<<<<<< HEAD
 struct kgdb_arch arch_kgdb_ops = {
+=======
+const struct kgdb_arch arch_kgdb_ops = {
+>>>>>>> upstream/android-13
 	/* trap0(#0xDB) 0x0cdb0054 */
 	.gdb_bpt_instr = {0x54, 0x00, 0xdb, 0x0c},
 };
@@ -115,6 +126,7 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long pc)
 	instruction_pointer(regs) = pc;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 
 /**
@@ -147,6 +159,8 @@ void kgdb_roundup_cpus(unsigned long flags)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 
 /*  Not yet working  */
 void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs,

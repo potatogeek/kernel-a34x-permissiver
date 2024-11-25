@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Intel 21285 watchdog driver
  *	Copyright (c) Phil Blundell <pb@nexus.co.uk>, 1998
@@ -8,12 +12,15 @@
  *
  *	(c) Copyright 1996 Alan Cox <alan@lxorguk.ukuu.org.uk>,
  *						All Rights Reserved.
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -101,7 +108,11 @@ static int watchdog_open(struct inode *inode, struct file *file)
 
 	ret = 0;
 #endif
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -173,7 +184,11 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
 		soft_margin = new_margin;
 		reload = soft_margin * (mem_fclk_21285 / 256);
 		watchdog_ping();
+<<<<<<< HEAD
 		/* Fall */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WDIOC_GETTIMEOUT:
 		ret = put_user(soft_margin, int_arg);
 		break;
@@ -186,6 +201,10 @@ static const struct file_operations watchdog_fops = {
 	.llseek		= no_llseek,
 	.write		= watchdog_write,
 	.unlocked_ioctl	= watchdog_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= watchdog_open,
 	.release	= watchdog_release,
 };

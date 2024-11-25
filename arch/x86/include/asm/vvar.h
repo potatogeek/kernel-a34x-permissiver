@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * vvar.h: Shared vDSO/kernel variable declarations
  * Copyright (c) 2011 Andy Lutomirski
  * Subject to the GNU General Public License, version 2
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * vvar.h: Shared vDSO/kernel variable declarations
+ * Copyright (c) 2011 Andy Lutomirski
+>>>>>>> upstream/android-13
  *
  * A handful of variables are accessible (read-only) from userspace
  * code in the vsyscall page and the vdso.  They are declared here.
@@ -19,10 +26,17 @@
 #ifndef _ASM_X86_VVAR_H
 #define _ASM_X86_VVAR_H
 
+<<<<<<< HEAD
 #if defined(__VVAR_KERNEL_LDS)
 
 /* The kernel linker script defines its own magic to put vvars in the
  * right place.
+=======
+#ifdef EMIT_VVAR
+/*
+ * EMIT_VVAR() is used by the kernel linker script to put vvars in the
+ * right place. Also, it's used by kernel code to import offsets values.
+>>>>>>> upstream/android-13
  */
 #define DECLARE_VVAR(offset, type, name) \
 	EMIT_VVAR(name, offset)
@@ -33,9 +47,18 @@ extern char __vvar_page;
 
 #define DECLARE_VVAR(offset, type, name)				\
 	extern type vvar_ ## name[CS_BASES]				\
+<<<<<<< HEAD
 	__attribute__((visibility("hidden")));
 
 #define VVAR(name) (vvar_ ## name)
+=======
+	__attribute__((visibility("hidden")));				\
+	extern type timens_ ## name[CS_BASES]				\
+	__attribute__((visibility("hidden")));				\
+
+#define VVAR(name) (vvar_ ## name)
+#define TIMENS(name) (timens_ ## name)
+>>>>>>> upstream/android-13
 
 #define DEFINE_VVAR(type, name)						\
 	type name[CS_BASES]						\

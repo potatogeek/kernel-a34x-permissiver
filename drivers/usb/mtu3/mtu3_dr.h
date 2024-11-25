@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * mtu3_dr.h - dual role switch and host glue layer header
  *
@@ -16,8 +20,13 @@ int ssusb_host_init(struct ssusb_mtk *ssusb, struct device_node *parent_dn);
 void ssusb_host_exit(struct ssusb_mtk *ssusb);
 int ssusb_wakeup_of_property_parse(struct ssusb_mtk *ssusb,
 				struct device_node *dn);
+<<<<<<< HEAD
 int ssusb_host_enable(struct ssusb_mtk *ssusb);
 int ssusb_host_disable(struct ssusb_mtk *ssusb, bool suspend);
+=======
+int ssusb_host_resume(struct ssusb_mtk *ssusb, bool p0_skipped);
+int ssusb_host_suspend(struct ssusb_mtk *ssusb);
+>>>>>>> upstream/android-13
 void ssusb_wakeup_set(struct ssusb_mtk *ssusb, bool enable);
 
 #else
@@ -38,12 +47,20 @@ static inline int ssusb_wakeup_of_property_parse(
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int ssusb_host_enable(struct ssusb_mtk *ssusb)
+=======
+static inline int ssusb_host_resume(struct ssusb_mtk *ssusb, bool p0_skipped)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int ssusb_host_disable(struct ssusb_mtk *ssusb, bool suspend)
+=======
+static inline int ssusb_host_suspend(struct ssusb_mtk *ssusb)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -57,6 +74,13 @@ static inline void ssusb_wakeup_set(struct ssusb_mtk *ssusb, bool enable)
 #if IS_ENABLED(CONFIG_USB_MTU3_GADGET) || IS_ENABLED(CONFIG_USB_MTU3_DUAL_ROLE)
 int ssusb_gadget_init(struct ssusb_mtk *ssusb);
 void ssusb_gadget_exit(struct ssusb_mtk *ssusb);
+<<<<<<< HEAD
+=======
+int ssusb_gadget_suspend(struct ssusb_mtk *ssusb, pm_message_t msg);
+int ssusb_gadget_resume(struct ssusb_mtk *ssusb, pm_message_t msg);
+bool ssusb_gadget_ip_sleep_check(struct ssusb_mtk *ssusb);
+
+>>>>>>> upstream/android-13
 #else
 static inline int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 {
@@ -65,6 +89,27 @@ static inline int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 
 static inline void ssusb_gadget_exit(struct ssusb_mtk *ssusb)
 {}
+<<<<<<< HEAD
+=======
+
+static inline int
+ssusb_gadget_suspend(struct ssusb_mtk *ssusb, pm_message_t msg)
+{
+	return 0;
+}
+
+static inline int
+ssusb_gadget_resume(struct ssusb_mtk *ssusb, pm_message_t msg)
+{
+	return 0;
+}
+
+static inline bool ssusb_gadget_ip_sleep_check(struct ssusb_mtk *ssusb)
+{
+	return true;
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 

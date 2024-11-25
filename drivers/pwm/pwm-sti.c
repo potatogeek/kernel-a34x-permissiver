@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PWM device driver for ST SoCs
  *
@@ -5,11 +9,14 @@
  *
  * Author: Ajit Pal Singh <ajitpal.singh@st.com>
  *         Lee Jones <lee.jones@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -375,11 +382,18 @@ static int sti_pwm_capture(struct pwm_chip *chip, struct pwm_device *pwm,
 		effective_ticks = clk_get_rate(pc->cpt_clk);
 
 		result->period = (high + low) * NSEC_PER_SEC;
+<<<<<<< HEAD
 		result->period = do_div(result->period, effective_ticks);
 
 		result->duty_cycle = high * NSEC_PER_SEC;
 		result->duty_cycle = do_div(result->duty_cycle,
 			effective_ticks);
+=======
+		result->period /= effective_ticks;
+
+		result->duty_cycle = high * NSEC_PER_SEC;
+		result->duty_cycle /= effective_ticks;
+>>>>>>> upstream/android-13
 
 		break;
 
@@ -510,7 +524,10 @@ static int sti_pwm_probe_dt(struct sti_pwm_chip *pc)
 	if (IS_ERR(pc->prescale_high))
 		return PTR_ERR(pc->prescale_high);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	pc->pwm_out_en = devm_regmap_field_alloc(dev, pc->regmap,
 						 reg_fields[PWM_OUT_EN]);
 	if (IS_ERR(pc->pwm_out_en))
@@ -545,7 +562,10 @@ static int sti_pwm_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct sti_pwm_compat_data *cdata;
 	struct sti_pwm_chip *pc;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int i;
 	int irq, ret;
 
@@ -557,9 +577,13 @@ static int sti_pwm_probe(struct platform_device *pdev)
 	if (!cdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 	pc->mmio = devm_ioremap_resource(dev, res);
+=======
+	pc->mmio = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pc->mmio))
 		return PTR_ERR(pc->mmio);
 
@@ -569,10 +593,15 @@ static int sti_pwm_probe(struct platform_device *pdev)
 		return PTR_ERR(pc->regmap);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "Failed to obtain IRQ\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(&pdev->dev, irq, sti_pwm_interrupt, 0,
 			       pdev->name, pc);
@@ -600,6 +629,7 @@ static int sti_pwm_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (!cdata->pwm_num_devs)
 		goto skip_pwm;
 
@@ -635,6 +665,38 @@ skip_cpt:
 	pc->chip.dev = dev;
 	pc->chip.ops = &sti_pwm_ops;
 	pc->chip.base = -1;
+=======
+	if (cdata->pwm_num_devs) {
+		pc->pwm_clk = of_clk_get_by_name(dev->of_node, "pwm");
+		if (IS_ERR(pc->pwm_clk)) {
+			dev_err(dev, "failed to get PWM clock\n");
+			return PTR_ERR(pc->pwm_clk);
+		}
+
+		ret = clk_prepare(pc->pwm_clk);
+		if (ret) {
+			dev_err(dev, "failed to prepare clock\n");
+			return ret;
+		}
+	}
+
+	if (cdata->cpt_num_devs) {
+		pc->cpt_clk = of_clk_get_by_name(dev->of_node, "capture");
+		if (IS_ERR(pc->cpt_clk)) {
+			dev_err(dev, "failed to get PWM capture clock\n");
+			return PTR_ERR(pc->cpt_clk);
+		}
+
+		ret = clk_prepare(pc->cpt_clk);
+		if (ret) {
+			dev_err(dev, "failed to prepare clock\n");
+			return ret;
+		}
+	}
+
+	pc->chip.dev = dev;
+	pc->chip.ops = &sti_pwm_ops;
+>>>>>>> upstream/android-13
 	pc->chip.npwm = pc->cdata->pwm_num_devs;
 
 	ret = pwmchip_add(&pc->chip);
@@ -665,15 +727,24 @@ skip_cpt:
 static int sti_pwm_remove(struct platform_device *pdev)
 {
 	struct sti_pwm_chip *pc = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	unsigned int i;
 
 	for (i = 0; i < pc->cdata->pwm_num_devs; i++)
 		pwm_disable(&pc->chip.pwms[i]);
+=======
+
+	pwmchip_remove(&pc->chip);
+>>>>>>> upstream/android-13
 
 	clk_unprepare(pc->pwm_clk);
 	clk_unprepare(pc->cpt_clk);
 
+<<<<<<< HEAD
 	return pwmchip_remove(&pc->chip);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id sti_pwm_of_match[] = {

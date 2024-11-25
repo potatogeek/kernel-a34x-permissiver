@@ -1,7 +1,11 @@
 /*
  * Keystone Navigator Queue Management Sub-System header
  *
+<<<<<<< HEAD
  * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com
+=======
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  * Author:	Sandeep Nair <sandeep_n@ti.com>
  *		Cyril Chemparathy <cyril@ti.com>
  *		Santosh Shilimkar <santosh.shilimkar@ti.com>

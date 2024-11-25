@@ -22,9 +22,12 @@
 #include <asm/war.h>
 #include <asm/asm-offsets.h>
 
+<<<<<<< HEAD
 /* Highest syscall used of any syscall flavour */
 #define MAX_SYSCALL_NO	__NR_O32_Linux + __NR_O32_Linux_syscalls
 
+=======
+>>>>>>> upstream/android-13
 	.align	5
 NESTED(handle_sys, PT_SIZE, sp)
 	.set	noat
@@ -51,10 +54,15 @@ NESTED(handle_sys, PT_SIZE, sp)
 	 * We intentionally keep the kernel stack a little below the top of
 	 * userspace so we don't have to do a slower byte accurate check here.
 	 */
+<<<<<<< HEAD
 	lw	t5, TI_ADDR_LIMIT($28)
 	addu	t4, t0, 32
 	and	t5, t4
 	bltz	t5, bad_stack		# -> sp is bad
+=======
+	addu	t4, t0, 32
+	bltz	t4, bad_stack		# -> sp is bad
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ok, copy the args from the luser stack to the kernel stack.
@@ -77,10 +85,17 @@ loads_done:
 	.set	pop
 
 	.section __ex_table,"a"
+<<<<<<< HEAD
 	PTR	load_a4, bad_stack_a4
 	PTR	load_a5, bad_stack_a5
 	PTR	load_a6, bad_stack_a6
 	PTR	load_a7, bad_stack_a7
+=======
+	PTR_WD	load_a4, bad_stack_a4
+	PTR_WD	load_a5, bad_stack_a5
+	PTR_WD	load_a6, bad_stack_a6
+	PTR_WD	load_a7, bad_stack_a7
+>>>>>>> upstream/android-13
 	.previous
 
 	lw	t0, TI_FLAGS($28)	# syscall tracing enabled?
@@ -89,7 +104,11 @@ loads_done:
 	bnez	t0, syscall_trace_entry # -> yes
 syscall_common:
 	subu	v0, v0, __NR_O32_Linux	# check syscall number
+<<<<<<< HEAD
 	sltiu	t0, v0, __NR_O32_Linux_syscalls + 1
+=======
+	sltiu	t0, v0, __NR_O32_Linux_syscalls
+>>>>>>> upstream/android-13
 	beqz	t0, illegal_syscall
 
 	sll	t0, v0, 2
@@ -185,7 +204,11 @@ illegal_syscall:
 
 	LEAF(sys_syscall)
 	subu	t0, a0, __NR_O32_Linux	# check syscall number
+<<<<<<< HEAD
 	sltiu	v0, t0, __NR_O32_Linux_syscalls + 1
+=======
+	sltiu	v0, t0, __NR_O32_Linux_syscalls
+>>>>>>> upstream/android-13
 	beqz	t0, einval		# do not recurse
 	sll	t1, t0, 2
 	beqz	v0, einval
@@ -208,6 +231,7 @@ einval: li	v0, -ENOSYS
 	jr	ra
 	END(sys_syscall)
 
+<<<<<<< HEAD
 	.align	2
 	.type	sys_call_table, @object
 EXPORT(sys_call_table)
@@ -450,6 +474,8 @@ EXPORT(sys_call_table)
 	PTR	sys_tkill
 	PTR	sys_sendfile64
 	PTR	sys_futex
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MIPS_MT_FPAFF
 	/*
 	 * For FPU affinity scheduling on MIPS MT processors, we need to
@@ -458,6 +484,7 @@ EXPORT(sys_call_table)
 	 * these hooks for the 32-bit kernel - there is no MIPS64 MT processor
 	 * atm.
 	 */
+<<<<<<< HEAD
 	PTR	mipsmt_sys_sched_setaffinity
 	PTR	mipsmt_sys_sched_getaffinity
 #else
@@ -592,3 +619,15 @@ EXPORT(sys_call_table)
 	PTR	sys_statx
 	PTR	sys_rseq
 	PTR	sys_io_pgetevents
+=======
+#define sys_sched_setaffinity	mipsmt_sys_sched_setaffinity
+#define sys_sched_getaffinity	mipsmt_sys_sched_getaffinity
+#endif /* CONFIG_MIPS_MT_FPAFF */
+
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
+#define __SYSCALL(nr, entry) 	PTR_WD entry
+	.align	2
+	.type	sys_call_table, @object
+EXPORT(sys_call_table)
+#include <asm/syscall_table_o32.h>
+>>>>>>> upstream/android-13

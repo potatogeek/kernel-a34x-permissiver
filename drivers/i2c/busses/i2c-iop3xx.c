@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------------------- */
 /* i2c-iop3xx.c i2c driver algorithms for Intel XScale IOP3xx & IXP46x       */
 /* ------------------------------------------------------------------------- */
@@ -23,10 +27,13 @@
  *
  * - writing to slave address causes latchup on iop331.
  *	fix: driver refuses to address self.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -38,7 +45,11 @@
 #include <linux/platform_device.h>
 #include <linux/i2c.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 #include "i2c-iop3xx.h"
 
@@ -71,6 +82,7 @@ iop3xx_i2c_enable(struct i2c_algo_iop3xx_data *iop3xx_adap)
 
 	/*
 	 * Every time unit enable is asserted, GPOD needs to be cleared
+<<<<<<< HEAD
 	 * on IOP3XX to avoid data corruption on the bus.
 	 */
 #if defined(CONFIG_ARCH_IOP32X) || defined(CONFIG_ARCH_IOP33X)
@@ -82,6 +94,18 @@ iop3xx_i2c_enable(struct i2c_algo_iop3xx_data *iop3xx_adap)
 		gpio_set_value(4, 0);
 	}
 #endif
+=======
+	 * on IOP3XX to avoid data corruption on the bus. We use the
+	 * gpiod_set_raw_value() to make sure the 0 hits the hardware
+	 * GPOD register. These descriptors are only passed along to
+	 * the device if this is necessary.
+	 */
+	if (iop3xx_adap->gpio_scl)
+		gpiod_set_raw_value(iop3xx_adap->gpio_scl, 0);
+	if (iop3xx_adap->gpio_sda)
+		gpiod_set_raw_value(iop3xx_adap->gpio_sda, 0);
+
+>>>>>>> upstream/android-13
 	/* NB SR bits not same position as CR IE bits :-( */
 	iop3xx_adap->SR_enabled =
 		IOP3XX_ISR_ALD | IOP3XX_ISR_BERRD |
@@ -129,10 +153,19 @@ iop3xx_i2c_error(u32 sr)
 	int rc = 0;
 
 	if ((sr & IOP3XX_ISR_BERRD)) {
+<<<<<<< HEAD
 		if ( !rc ) rc = -I2C_ERR_BERR;
 	}
 	if ((sr & IOP3XX_ISR_ALD)) {
 		if ( !rc ) rc = -I2C_ERR_ALD;
+=======
+		if (!rc)
+			rc = -I2C_ERR_BERR;
+	}
+	if ((sr & IOP3XX_ISR_ALD)) {
+		if (!rc)
+			rc = -I2C_ERR_ALD;
+>>>>>>> upstream/android-13
 	}
 	return rc;
 }
@@ -155,12 +188,20 @@ iop3xx_i2c_get_srstat(struct i2c_algo_iop3xx_data *iop3xx_adap)
  * sleep until interrupted, then recover and analyse the SR
  * saved by handler
  */
+<<<<<<< HEAD
 typedef int (* compare_func)(unsigned test, unsigned mask);
+=======
+typedef int (*compare_func)(unsigned test, unsigned mask);
+>>>>>>> upstream/android-13
 /* returns 1 on correct comparison */
 
 static int
 iop3xx_i2c_wait_event(struct i2c_algo_iop3xx_data *iop3xx_adap,
+<<<<<<< HEAD
 			  unsigned flags, unsigned* status,
+=======
+			  unsigned flags, unsigned *status,
+>>>>>>> upstream/android-13
 			  compare_func compare)
 {
 	unsigned sr = 0;
@@ -171,7 +212,11 @@ iop3xx_i2c_wait_event(struct i2c_algo_iop3xx_data *iop3xx_adap,
 	do {
 		interrupted = wait_event_interruptible_timeout (
 			iop3xx_adap->waitq,
+<<<<<<< HEAD
 			(done = compare( sr = iop3xx_i2c_get_srstat(iop3xx_adap) ,flags )),
+=======
+			(done = compare(sr = iop3xx_i2c_get_srstat(iop3xx_adap), flags)),
+>>>>>>> upstream/android-13
 			1 * HZ
 			);
 		if ((rc = iop3xx_i2c_error(sr)) < 0) {
@@ -181,7 +226,11 @@ iop3xx_i2c_wait_event(struct i2c_algo_iop3xx_data *iop3xx_adap,
 			*status = sr;
 			return -ETIMEDOUT;
 		}
+<<<<<<< HEAD
 	} while(!done);
+=======
+	} while (!done);
+>>>>>>> upstream/android-13
 
 	*status = sr;
 
@@ -208,7 +257,11 @@ iop3xx_i2c_wait_tx_done(struct i2c_algo_iop3xx_data *iop3xx_adap, int *status)
 {
 	return iop3xx_i2c_wait_event(
 		iop3xx_adap,
+<<<<<<< HEAD
 	        IOP3XX_ISR_TXEMPTY | IOP3XX_ISR_ALD | IOP3XX_ISR_BERRD,
+=======
+		IOP3XX_ISR_TXEMPTY | IOP3XX_ISR_ALD | IOP3XX_ISR_BERRD,
+>>>>>>> upstream/android-13
 		status, any_bits_set);
 }
 
@@ -230,7 +283,11 @@ iop3xx_i2c_wait_idle(struct i2c_algo_iop3xx_data *iop3xx_adap, int *status)
 
 static int
 iop3xx_i2c_send_target_addr(struct i2c_algo_iop3xx_data *iop3xx_adap,
+<<<<<<< HEAD
 				struct i2c_msg* msg)
+=======
+				struct i2c_msg *msg)
+>>>>>>> upstream/android-13
 {
 	unsigned long cr = __raw_readl(iop3xx_adap->ioaddr + CR_OFFSET);
 	int status;
@@ -277,7 +334,11 @@ iop3xx_i2c_write_byte(struct i2c_algo_iop3xx_data *iop3xx_adap, char byte,
 }
 
 static int
+<<<<<<< HEAD
 iop3xx_i2c_read_byte(struct i2c_algo_iop3xx_data *iop3xx_adap, char* byte,
+=======
+iop3xx_i2c_read_byte(struct i2c_algo_iop3xx_data *iop3xx_adap, char *byte,
+>>>>>>> upstream/android-13
 				int stop)
 {
 	unsigned long cr = __raw_readl(iop3xx_adap->ioaddr + CR_OFFSET);
@@ -309,7 +370,11 @@ iop3xx_i2c_writebytes(struct i2c_adapter *i2c_adap, const char *buf, int count)
 	int rc = 0;
 
 	for (ii = 0; rc == 0 && ii != count; ++ii)
+<<<<<<< HEAD
 		rc = iop3xx_i2c_write_byte(iop3xx_adap, buf[ii], ii==count-1);
+=======
+		rc = iop3xx_i2c_write_byte(iop3xx_adap, buf[ii], ii == count-1);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -321,7 +386,11 @@ iop3xx_i2c_readbytes(struct i2c_adapter *i2c_adap, char *buf, int count)
 	int rc = 0;
 
 	for (ii = 0; rc == 0 && ii != count; ++ii)
+<<<<<<< HEAD
 		rc = iop3xx_i2c_read_byte(iop3xx_adap, &buf[ii], ii==count-1);
+=======
+		rc = iop3xx_i2c_read_byte(iop3xx_adap, &buf[ii], ii == count-1);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -334,7 +403,11 @@ iop3xx_i2c_readbytes(struct i2c_adapter *i2c_adap, char *buf, int count)
  * condition.
  */
 static int
+<<<<<<< HEAD
 iop3xx_i2c_handle_msg(struct i2c_adapter *i2c_adap, struct i2c_msg* pmsg)
+=======
+iop3xx_i2c_handle_msg(struct i2c_adapter *i2c_adap, struct i2c_msg *pmsg)
+>>>>>>> upstream/android-13
 {
 	struct i2c_algo_iop3xx_data *iop3xx_adap = i2c_adap->algo_data;
 	int rc;
@@ -373,7 +446,11 @@ iop3xx_i2c_master_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
 
 	iop3xx_i2c_transaction_cleanup(iop3xx_adap);
 
+<<<<<<< HEAD
 	if(ret)
+=======
+	if (ret)
+>>>>>>> upstream/android-13
 		return ret;
 
 	return im;
@@ -434,6 +511,24 @@ iop3xx_i2c_probe(struct platform_device *pdev)
 		goto free_adapter;
 	}
 
+<<<<<<< HEAD
+=======
+	adapter_data->gpio_scl = devm_gpiod_get_optional(&pdev->dev,
+							 "scl",
+							 GPIOD_ASIS);
+	if (IS_ERR(adapter_data->gpio_scl)) {
+		ret = PTR_ERR(adapter_data->gpio_scl);
+		goto free_both;
+	}
+	adapter_data->gpio_sda = devm_gpiod_get_optional(&pdev->dev,
+							 "sda",
+							 GPIOD_ASIS);
+	if (IS_ERR(adapter_data->gpio_sda)) {
+		ret = PTR_ERR(adapter_data->gpio_sda);
+		goto free_both;
+	}
+
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		ret = -ENODEV;
@@ -456,21 +551,34 @@ iop3xx_i2c_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		ret = -ENXIO;
+=======
+		ret = irq;
+>>>>>>> upstream/android-13
 		goto unmap;
 	}
 	ret = request_irq(irq, iop3xx_i2c_irq_handler, 0,
 				pdev->name, adapter_data);
 
+<<<<<<< HEAD
 	if (ret) {
 		ret = -EIO;
 		goto unmap;
 	}
+=======
+	if (ret)
+		goto unmap;
+>>>>>>> upstream/android-13
 
 	memcpy(new_adapter->name, pdev->name, strlen(pdev->name));
 	new_adapter->owner = THIS_MODULE;
 	new_adapter->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
 	new_adapter->dev.parent = &pdev->dev;
+<<<<<<< HEAD
+=======
+	new_adapter->dev.of_node = pdev->dev.of_node;
+>>>>>>> upstream/android-13
 	new_adapter->nr = pdev->id;
 
 	/*
@@ -508,12 +616,25 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id i2c_iop3xx_match[] = {
+	{ .compatible = "intel,iop3xx-i2c", },
+	{ .compatible = "intel,ixp4xx-i2c", },
+	{},
+};
+MODULE_DEVICE_TABLE(of, i2c_iop3xx_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver iop3xx_i2c_driver = {
 	.probe		= iop3xx_i2c_probe,
 	.remove		= iop3xx_i2c_remove,
 	.driver		= {
 		.name	= "IOP3xx-I2C",
+<<<<<<< HEAD
+=======
+		.of_match_table = i2c_iop3xx_match,
+>>>>>>> upstream/android-13
 	},
 };
 

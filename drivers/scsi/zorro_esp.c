@@ -9,8 +9,11 @@
  *
  * Copyright (C) 2013 Tuomas Vainikka (tuomas.vainikka@aalto.fi) for
  *               Blizzard 1230 DMA and probe function fixes
+<<<<<<< HEAD
  *
  * Copyright (C) 2017 Finn Thain for PIO code from Mac ESP driver adapted here
+=======
+>>>>>>> upstream/android-13
  */
 /*
  * ZORRO bus code from:
@@ -36,9 +39,15 @@
 #include <linux/delay.h>
 #include <linux/zorro.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/amigahw.h>
 #include <asm/amigaints.h>
@@ -159,7 +168,10 @@ struct fastlane_dma_registers {
 struct zorro_esp_priv {
 	struct esp *esp;		/* our ESP instance - for Scsi_host* */
 	void __iomem *board_base;	/* virtual address (Zorro III board) */
+<<<<<<< HEAD
 	int error;			/* PIO error flag */
+=======
+>>>>>>> upstream/android-13
 	int zorro3;			/* board is Zorro III */
 	unsigned char ctrl_data;	/* shadow copy of ctrl_reg */
 };
@@ -182,6 +194,7 @@ static u8 zorro_esp_read8(struct esp *esp, unsigned long reg)
 	return readb(esp->regs + (reg * 4UL));
 }
 
+<<<<<<< HEAD
 static dma_addr_t zorro_esp_map_single(struct esp *esp, void *buf,
 				      size_t sz, int dir)
 {
@@ -206,6 +219,8 @@ static void zorro_esp_unmap_sg(struct esp *esp, struct scatterlist *sg,
 	dma_unmap_sg(esp->dev, sg, num_sg, dir);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int zorro_esp_irq_pending(struct esp *esp)
 {
 	/* check ESP status register; DMA has no status reg. */
@@ -281,6 +296,7 @@ static void fastlane_esp_dma_invalidate(struct esp *esp)
 	z_writel(0, zep->board_base);
 }
 
+<<<<<<< HEAD
 /*
  * Programmed IO routines follow.
  */
@@ -446,27 +462,47 @@ static void zorro_esp_send_pio_cmd(struct esp *esp, u32 addr, u32 esp_count,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Blizzard 1230/60 SCSI-IV DMA */
 
 static void zorro_esp_send_blz1230_dma_cmd(struct esp *esp, u32 addr,
 			u32 esp_count, u32 dma_count, int write, u8 cmd)
 {
+<<<<<<< HEAD
 	struct zorro_esp_priv *zep = dev_get_drvdata(esp->dev);
 	struct blz1230_dma_registers __iomem *dregs = esp->dma_regs;
 	u8 phase = esp->sreg & ESP_STAT_PMASK;
 
 	zep->error = 0;
+=======
+	struct blz1230_dma_registers __iomem *dregs = esp->dma_regs;
+	u8 phase = esp->sreg & ESP_STAT_PMASK;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Use PIO if transferring message bytes to esp->command_block_dma.
 	 * PIO requires a virtual address, so substitute esp->command_block
 	 * for addr.
 	 */
 	if (phase == ESP_MIP && addr == esp->command_block_dma) {
+<<<<<<< HEAD
 		zorro_esp_send_pio_cmd(esp, (u32) esp->command_block,
 					esp_count, dma_count, write, cmd);
 		return;
 	}
 
+=======
+		esp_send_pio_cmd(esp, (u32)esp->command_block, esp_count,
+				 dma_count, write, cmd);
+		return;
+	}
+
+	/* Clear the results of a possible prior esp->ops->send_dma_cmd() */
+	esp->send_cmd_error = 0;
+	esp->send_cmd_residual = 0;
+
+>>>>>>> upstream/android-13
 	if (write)
 		/* DMA receive */
 		dma_sync_single_for_device(esp->dev, addr, esp_count,
@@ -500,6 +536,7 @@ static void zorro_esp_send_blz1230_dma_cmd(struct esp *esp, u32 addr,
 static void zorro_esp_send_blz1230II_dma_cmd(struct esp *esp, u32 addr,
 			u32 esp_count, u32 dma_count, int write, u8 cmd)
 {
+<<<<<<< HEAD
 	struct zorro_esp_priv *zep = dev_get_drvdata(esp->dev);
 	struct blz1230II_dma_registers __iomem *dregs = esp->dma_regs;
 	u8 phase = esp->sreg & ESP_STAT_PMASK;
@@ -512,6 +549,21 @@ static void zorro_esp_send_blz1230II_dma_cmd(struct esp *esp, u32 addr,
 		return;
 	}
 
+=======
+	struct blz1230II_dma_registers __iomem *dregs = esp->dma_regs;
+	u8 phase = esp->sreg & ESP_STAT_PMASK;
+
+	/* Use PIO if transferring message bytes to esp->command_block_dma */
+	if (phase == ESP_MIP && addr == esp->command_block_dma) {
+		esp_send_pio_cmd(esp, (u32)esp->command_block, esp_count,
+				 dma_count, write, cmd);
+		return;
+	}
+
+	esp->send_cmd_error = 0;
+	esp->send_cmd_residual = 0;
+
+>>>>>>> upstream/android-13
 	if (write)
 		/* DMA receive */
 		dma_sync_single_for_device(esp->dev, addr, esp_count,
@@ -544,6 +596,7 @@ static void zorro_esp_send_blz1230II_dma_cmd(struct esp *esp, u32 addr,
 static void zorro_esp_send_blz2060_dma_cmd(struct esp *esp, u32 addr,
 			u32 esp_count, u32 dma_count, int write, u8 cmd)
 {
+<<<<<<< HEAD
 	struct zorro_esp_priv *zep = dev_get_drvdata(esp->dev);
 	struct blz2060_dma_registers __iomem *dregs = esp->dma_regs;
 	u8 phase = esp->sreg & ESP_STAT_PMASK;
@@ -556,6 +609,21 @@ static void zorro_esp_send_blz2060_dma_cmd(struct esp *esp, u32 addr,
 		return;
 	}
 
+=======
+	struct blz2060_dma_registers __iomem *dregs = esp->dma_regs;
+	u8 phase = esp->sreg & ESP_STAT_PMASK;
+
+	/* Use PIO if transferring message bytes to esp->command_block_dma */
+	if (phase == ESP_MIP && addr == esp->command_block_dma) {
+		esp_send_pio_cmd(esp, (u32)esp->command_block, esp_count,
+				 dma_count, write, cmd);
+		return;
+	}
+
+	esp->send_cmd_error = 0;
+	esp->send_cmd_residual = 0;
+
+>>>>>>> upstream/android-13
 	if (write)
 		/* DMA receive */
 		dma_sync_single_for_device(esp->dev, addr, esp_count,
@@ -593,6 +661,7 @@ static void zorro_esp_send_cyber_dma_cmd(struct esp *esp, u32 addr,
 	u8 phase = esp->sreg & ESP_STAT_PMASK;
 	unsigned char *ctrl_data = &zep->ctrl_data;
 
+<<<<<<< HEAD
 	zep->error = 0;
 	/* Use PIO if transferring message bytes to esp->command_block_dma */
 	if (phase == ESP_MIP && addr == esp->command_block_dma) {
@@ -601,6 +670,18 @@ static void zorro_esp_send_cyber_dma_cmd(struct esp *esp, u32 addr,
 		return;
 	}
 
+=======
+	/* Use PIO if transferring message bytes to esp->command_block_dma */
+	if (phase == ESP_MIP && addr == esp->command_block_dma) {
+		esp_send_pio_cmd(esp, (u32)esp->command_block, esp_count,
+				 dma_count, write, cmd);
+		return;
+	}
+
+	esp->send_cmd_error = 0;
+	esp->send_cmd_residual = 0;
+
+>>>>>>> upstream/android-13
 	zorro_esp_write8(esp, (esp_count >> 0) & 0xff, ESP_TCLOW);
 	zorro_esp_write8(esp, (esp_count >> 8) & 0xff, ESP_TCMED);
 
@@ -638,6 +719,7 @@ static void zorro_esp_send_cyber_dma_cmd(struct esp *esp, u32 addr,
 static void zorro_esp_send_cyberII_dma_cmd(struct esp *esp, u32 addr,
 			u32 esp_count, u32 dma_count, int write, u8 cmd)
 {
+<<<<<<< HEAD
 	struct zorro_esp_priv *zep = dev_get_drvdata(esp->dev);
 	struct cyberII_dma_registers __iomem *dregs = esp->dma_regs;
 	u8 phase = esp->sreg & ESP_STAT_PMASK;
@@ -650,6 +732,21 @@ static void zorro_esp_send_cyberII_dma_cmd(struct esp *esp, u32 addr,
 		return;
 	}
 
+=======
+	struct cyberII_dma_registers __iomem *dregs = esp->dma_regs;
+	u8 phase = esp->sreg & ESP_STAT_PMASK;
+
+	/* Use PIO if transferring message bytes to esp->command_block_dma */
+	if (phase == ESP_MIP && addr == esp->command_block_dma) {
+		esp_send_pio_cmd(esp, (u32)esp->command_block, esp_count,
+				 dma_count, write, cmd);
+		return;
+	}
+
+	esp->send_cmd_error = 0;
+	esp->send_cmd_residual = 0;
+
+>>>>>>> upstream/android-13
 	zorro_esp_write8(esp, (esp_count >> 0) & 0xff, ESP_TCLOW);
 	zorro_esp_write8(esp, (esp_count >> 8) & 0xff, ESP_TCMED);
 
@@ -683,6 +780,7 @@ static void zorro_esp_send_fastlane_dma_cmd(struct esp *esp, u32 addr,
 	u8 phase = esp->sreg & ESP_STAT_PMASK;
 	unsigned char *ctrl_data = &zep->ctrl_data;
 
+<<<<<<< HEAD
 	zep->error = 0;
 	/* Use PIO if transferring message bytes to esp->command_block_dma */
 	if (phase == ESP_MIP && addr == esp->command_block_dma) {
@@ -691,6 +789,18 @@ static void zorro_esp_send_fastlane_dma_cmd(struct esp *esp, u32 addr,
 		return;
 	}
 
+=======
+	/* Use PIO if transferring message bytes to esp->command_block_dma */
+	if (phase == ESP_MIP && addr == esp->command_block_dma) {
+		esp_send_pio_cmd(esp, (u32)esp->command_block, esp_count,
+				 dma_count, write, cmd);
+		return;
+	}
+
+	esp->send_cmd_error = 0;
+	esp->send_cmd_residual = 0;
+
+>>>>>>> upstream/android-13
 	zorro_esp_write8(esp, (esp_count >> 0) & 0xff, ESP_TCLOW);
 	zorro_esp_write8(esp, (esp_count >> 8) & 0xff, ESP_TCMED);
 
@@ -725,6 +835,7 @@ static void zorro_esp_send_fastlane_dma_cmd(struct esp *esp, u32 addr,
 
 static int zorro_esp_dma_error(struct esp *esp)
 {
+<<<<<<< HEAD
 	struct zorro_esp_priv *zep = dev_get_drvdata(esp->dev);
 
 	/* check for error in case we've been doing PIO */
@@ -733,6 +844,9 @@ static int zorro_esp_dma_error(struct esp *esp)
 
 	/* do nothing - there seems to be no way to check for DMA errors */
 	return 0;
+=======
+	return esp->send_cmd_error;
+>>>>>>> upstream/android-13
 }
 
 /* per-board ESP driver ops */
@@ -740,10 +854,13 @@ static int zorro_esp_dma_error(struct esp *esp)
 static const struct esp_driver_ops blz1230_esp_ops = {
 	.esp_write8		= zorro_esp_write8,
 	.esp_read8		= zorro_esp_read8,
+<<<<<<< HEAD
 	.map_single		= zorro_esp_map_single,
 	.map_sg			= zorro_esp_map_sg,
 	.unmap_single		= zorro_esp_unmap_single,
 	.unmap_sg		= zorro_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending		= zorro_esp_irq_pending,
 	.dma_length_limit	= zorro_esp_dma_length_limit,
 	.reset_dma		= zorro_esp_reset_dma,
@@ -756,10 +873,13 @@ static const struct esp_driver_ops blz1230_esp_ops = {
 static const struct esp_driver_ops blz1230II_esp_ops = {
 	.esp_write8		= zorro_esp_write8,
 	.esp_read8		= zorro_esp_read8,
+<<<<<<< HEAD
 	.map_single		= zorro_esp_map_single,
 	.map_sg			= zorro_esp_map_sg,
 	.unmap_single		= zorro_esp_unmap_single,
 	.unmap_sg		= zorro_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending		= zorro_esp_irq_pending,
 	.dma_length_limit	= zorro_esp_dma_length_limit,
 	.reset_dma		= zorro_esp_reset_dma,
@@ -772,10 +892,13 @@ static const struct esp_driver_ops blz1230II_esp_ops = {
 static const struct esp_driver_ops blz2060_esp_ops = {
 	.esp_write8		= zorro_esp_write8,
 	.esp_read8		= zorro_esp_read8,
+<<<<<<< HEAD
 	.map_single		= zorro_esp_map_single,
 	.map_sg			= zorro_esp_map_sg,
 	.unmap_single		= zorro_esp_unmap_single,
 	.unmap_sg		= zorro_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending		= zorro_esp_irq_pending,
 	.dma_length_limit	= zorro_esp_dma_length_limit,
 	.reset_dma		= zorro_esp_reset_dma,
@@ -788,10 +911,13 @@ static const struct esp_driver_ops blz2060_esp_ops = {
 static const struct esp_driver_ops cyber_esp_ops = {
 	.esp_write8		= zorro_esp_write8,
 	.esp_read8		= zorro_esp_read8,
+<<<<<<< HEAD
 	.map_single		= zorro_esp_map_single,
 	.map_sg			= zorro_esp_map_sg,
 	.unmap_single		= zorro_esp_unmap_single,
 	.unmap_sg		= zorro_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending		= cyber_esp_irq_pending,
 	.dma_length_limit	= zorro_esp_dma_length_limit,
 	.reset_dma		= zorro_esp_reset_dma,
@@ -804,10 +930,13 @@ static const struct esp_driver_ops cyber_esp_ops = {
 static const struct esp_driver_ops cyberII_esp_ops = {
 	.esp_write8		= zorro_esp_write8,
 	.esp_read8		= zorro_esp_read8,
+<<<<<<< HEAD
 	.map_single		= zorro_esp_map_single,
 	.map_sg			= zorro_esp_map_sg,
 	.unmap_single		= zorro_esp_unmap_single,
 	.unmap_sg		= zorro_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending		= zorro_esp_irq_pending,
 	.dma_length_limit	= zorro_esp_dma_length_limit,
 	.reset_dma		= zorro_esp_reset_dma,
@@ -820,10 +949,13 @@ static const struct esp_driver_ops cyberII_esp_ops = {
 static const struct esp_driver_ops fastlane_esp_ops = {
 	.esp_write8		= zorro_esp_write8,
 	.esp_read8		= zorro_esp_read8,
+<<<<<<< HEAD
 	.map_single		= zorro_esp_map_single,
 	.map_sg			= zorro_esp_map_sg,
 	.unmap_single		= zorro_esp_unmap_single,
 	.unmap_sg		= zorro_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending		= fastlane_esp_irq_pending,
 	.dma_length_limit	= fastlane_esp_dma_length_limit,
 	.reset_dma		= zorro_esp_reset_dma,
@@ -1015,8 +1147,12 @@ static int zorro_esp_probe(struct zorro_dev *z,
 	/* additional setup required for Fastlane */
 	if (zep->zorro3 && ent->driver_data == ZORRO_BLZ1230II) {
 		/* map full address space up to ESP base for DMA */
+<<<<<<< HEAD
 		zep->board_base = ioremap_nocache(board,
 						FASTLANE_ESP_ADDR-1);
+=======
+		zep->board_base = ioremap(board, FASTLANE_ESP_ADDR - 1);
+>>>>>>> upstream/android-13
 		if (!zep->board_base) {
 			pr_err("Cannot allocate board address space\n");
 			err = -ENOMEM;
@@ -1030,7 +1166,11 @@ static int zorro_esp_probe(struct zorro_dev *z,
 	esp->ops = zdd->esp_ops;
 
 	if (ioaddr > 0xffffff)
+<<<<<<< HEAD
 		esp->regs = ioremap_nocache(ioaddr, 0x20);
+=======
+		esp->regs = ioremap(ioaddr, 0x20);
+>>>>>>> upstream/android-13
 	else
 		/* ZorroII address space remapped nocache by early startup */
 		esp->regs = ZTWO_VADDR(ioaddr);
@@ -1040,6 +1180,11 @@ static int zorro_esp_probe(struct zorro_dev *z,
 		goto fail_unmap_fastlane;
 	}
 
+<<<<<<< HEAD
+=======
+	esp->fifo_reg = esp->regs + ESP_FDATA * 4;
+
+>>>>>>> upstream/android-13
 	/* Check whether a Blizzard 12x0 or CyberstormII really has SCSI */
 	if (zdd->scsi_option) {
 		zorro_esp_write8(esp, (ESP_CONFIG1_PENABLE | 7), ESP_CFG1);
@@ -1054,8 +1199,13 @@ static int zorro_esp_probe(struct zorro_dev *z,
 		 * Only Fastlane Z3 for now - add switch for correct struct
 		 * dma_registers size if adding any more
 		 */
+<<<<<<< HEAD
 		esp->dma_regs = ioremap_nocache(dmaaddr,
 				sizeof(struct fastlane_dma_registers));
+=======
+		esp->dma_regs = ioremap(dmaaddr,
+					sizeof(struct fastlane_dma_registers));
+>>>>>>> upstream/android-13
 	} else
 		/* ZorroII address space remapped nocache by early startup */
 		esp->dma_regs = ZTWO_VADDR(dmaaddr);
@@ -1083,7 +1233,11 @@ static int zorro_esp_probe(struct zorro_dev *z,
 	}
 
 	/* register the chip */
+<<<<<<< HEAD
 	err = scsi_esp_register(esp, &z->dev);
+=======
+	err = scsi_esp_register(esp);
+>>>>>>> upstream/android-13
 
 	if (err) {
 		err = -ENOMEM;

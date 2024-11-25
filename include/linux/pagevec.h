@@ -9,6 +9,11 @@
 #ifndef _LINUX_PAGEVEC_H
 #define _LINUX_PAGEVEC_H
 
+<<<<<<< HEAD
+=======
+#include <linux/xarray.h>
+
+>>>>>>> upstream/android-13
 /* 15 pointers + header align the pagevec structure to a power of two */
 #define PAGEVEC_SIZE	15
 
@@ -23,10 +28,13 @@ struct pagevec {
 
 void __pagevec_release(struct pagevec *pvec);
 void __pagevec_lru_add(struct pagevec *pvec);
+<<<<<<< HEAD
 unsigned pagevec_lookup_entries(struct pagevec *pvec,
 				struct address_space *mapping,
 				pgoff_t start, unsigned nr_entries,
 				pgoff_t *indices);
+=======
+>>>>>>> upstream/android-13
 void pagevec_remove_exceptionals(struct pagevec *pvec);
 unsigned pagevec_lookup_range(struct pagevec *pvec,
 			      struct address_space *mapping,
@@ -40,12 +48,18 @@ static inline unsigned pagevec_lookup(struct pagevec *pvec,
 
 unsigned pagevec_lookup_range_tag(struct pagevec *pvec,
 		struct address_space *mapping, pgoff_t *index, pgoff_t end,
+<<<<<<< HEAD
 		int tag);
 unsigned pagevec_lookup_range_nr_tag(struct pagevec *pvec,
 		struct address_space *mapping, pgoff_t *index, pgoff_t end,
 		int tag, unsigned max_pages);
 static inline unsigned pagevec_lookup_tag(struct pagevec *pvec,
 		struct address_space *mapping, pgoff_t *index, int tag)
+=======
+		xa_mark_t tag);
+static inline unsigned pagevec_lookup_tag(struct pagevec *pvec,
+		struct address_space *mapping, pgoff_t *index, xa_mark_t tag)
+>>>>>>> upstream/android-13
 {
 	return pagevec_lookup_range_tag(pvec, mapping, index, (pgoff_t)-1, tag);
 }

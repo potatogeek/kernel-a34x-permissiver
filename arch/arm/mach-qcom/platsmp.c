@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2002 ARM Ltd.
  *  All Rights Reserved
  *  Copyright (c) 2010, Code Aurora Forum. All rights reserved.
  *  Copyright (c) 2014 The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -46,8 +53,11 @@
 
 extern void secondary_startup_arm(void);
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(boot_lock);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HOTPLUG_CPU
 static void qcom_cpu_die(unsigned int cpu)
 {
@@ -55,6 +65,7 @@ static void qcom_cpu_die(unsigned int cpu)
 }
 #endif
 
+<<<<<<< HEAD
 static void qcom_secondary_init(unsigned int cpu)
 {
 	/*
@@ -64,6 +75,8 @@ static void qcom_secondary_init(unsigned int cpu)
 	spin_unlock(&boot_lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int scss_release_secondary(unsigned int cpu)
 {
 	struct device_node *node;
@@ -281,24 +294,30 @@ static int qcom_boot_secondary(unsigned int cpu, int (*func)(unsigned int))
 	}
 
 	/*
+<<<<<<< HEAD
 	 * set synchronisation state between this boot processor
 	 * and the secondary one
 	 */
 	spin_lock(&boot_lock);
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Send the secondary CPU a soft interrupt, thereby causing
 	 * the boot monitor to read the system wide flags register,
 	 * and branch to the address found there.
 	 */
 	arch_send_wakeup_ipi_mask(cpumask_of(cpu));
 
+<<<<<<< HEAD
 	/*
 	 * now the secondary core is starting up let it run its
 	 * calibrations, then wait for it to finish
 	 */
 	spin_unlock(&boot_lock);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -334,7 +353,10 @@ static void __init qcom_smp_prepare_cpus(unsigned int max_cpus)
 
 static const struct smp_operations smp_msm8660_ops __initconst = {
 	.smp_prepare_cpus	= qcom_smp_prepare_cpus,
+<<<<<<< HEAD
 	.smp_secondary_init	= qcom_secondary_init,
+=======
+>>>>>>> upstream/android-13
 	.smp_boot_secondary	= msm8660_boot_secondary,
 #ifdef CONFIG_HOTPLUG_CPU
 	.cpu_die		= qcom_cpu_die,
@@ -344,7 +366,10 @@ CPU_METHOD_OF_DECLARE(qcom_smp, "qcom,gcc-msm8660", &smp_msm8660_ops);
 
 static const struct smp_operations qcom_smp_kpssv1_ops __initconst = {
 	.smp_prepare_cpus	= qcom_smp_prepare_cpus,
+<<<<<<< HEAD
 	.smp_secondary_init	= qcom_secondary_init,
+=======
+>>>>>>> upstream/android-13
 	.smp_boot_secondary	= kpssv1_boot_secondary,
 #ifdef CONFIG_HOTPLUG_CPU
 	.cpu_die		= qcom_cpu_die,
@@ -354,7 +379,10 @@ CPU_METHOD_OF_DECLARE(qcom_smp_kpssv1, "qcom,kpss-acc-v1", &qcom_smp_kpssv1_ops)
 
 static const struct smp_operations qcom_smp_kpssv2_ops __initconst = {
 	.smp_prepare_cpus	= qcom_smp_prepare_cpus,
+<<<<<<< HEAD
 	.smp_secondary_init	= qcom_secondary_init,
+=======
+>>>>>>> upstream/android-13
 	.smp_boot_secondary	= kpssv2_boot_secondary,
 #ifdef CONFIG_HOTPLUG_CPU
 	.cpu_die		= qcom_cpu_die,

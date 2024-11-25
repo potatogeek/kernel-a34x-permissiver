@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2015 Qualcomm Atheros, Inc.
  *
@@ -13,6 +14,10 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: ISC */
+/* Copyright (c) 2012-2015 Qualcomm Atheros, Inc. */
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 
@@ -25,3 +30,7 @@ void wil_pmc_free(struct wil6210_priv *wil, int send_pmc_cmd);
 int wil_pmc_last_cmd_status(struct wil6210_priv *wil);
 ssize_t wil_pmc_read(struct file *, char __user *, size_t, loff_t *);
 loff_t wil_pmc_llseek(struct file *filp, loff_t off, int whence);
+<<<<<<< HEAD
+=======
+int wil_pmcring_read(struct seq_file *s, void *data);
+>>>>>>> upstream/android-13

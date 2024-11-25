@@ -22,7 +22,10 @@
  * Authors: Alex Deucher
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "cikd.h"
 #include "kv_dpm.h"

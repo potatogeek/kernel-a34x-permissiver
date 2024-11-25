@@ -22,6 +22,7 @@
 #ifndef C_CAN_H
 #define C_CAN_H
 
+<<<<<<< HEAD
 /* message object split */
 #define C_CAN_NO_OF_OBJECTS	32
 #define C_CAN_MSG_OBJ_RX_NUM	16
@@ -39,6 +40,8 @@
 #define C_CAN_MSG_RX_LOW_LAST	(C_CAN_MSG_OBJ_RX_SPLIT - 1)
 #define RECEIVE_OBJECT_BITS	0x0000ffff
 
+=======
+>>>>>>> upstream/android-13
 enum reg {
 	C_CAN_CTRL_REG = 0,
 	C_CAN_CTRL_EX_REG,
@@ -76,12 +79,20 @@ enum reg {
 	C_CAN_NEWDAT2_REG,
 	C_CAN_INTPND1_REG,
 	C_CAN_INTPND2_REG,
+<<<<<<< HEAD
+=======
+	C_CAN_INTPND3_REG,
+>>>>>>> upstream/android-13
 	C_CAN_MSGVAL1_REG,
 	C_CAN_MSGVAL2_REG,
 	C_CAN_FUNCTION_REG,
 };
 
+<<<<<<< HEAD
 static const u16 reg_map_c_can[] = {
+=======
+static const u16 __maybe_unused reg_map_c_can[] = {
+>>>>>>> upstream/android-13
 	[C_CAN_CTRL_REG]	= 0x00,
 	[C_CAN_STS_REG]		= 0x02,
 	[C_CAN_ERR_CNT_REG]	= 0x04,
@@ -121,7 +132,11 @@ static const u16 reg_map_c_can[] = {
 	[C_CAN_MSGVAL2_REG]	= 0xB2,
 };
 
+<<<<<<< HEAD
 static const u16 reg_map_d_can[] = {
+=======
+static const u16 __maybe_unused reg_map_d_can[] = {
+>>>>>>> upstream/android-13
 	[C_CAN_CTRL_REG]	= 0x00,
 	[C_CAN_CTRL_EX_REG]	= 0x02,
 	[C_CAN_STS_REG]		= 0x04,
@@ -137,6 +152,10 @@ static const u16 reg_map_d_can[] = {
 	[C_CAN_NEWDAT2_REG]	= 0x9E,
 	[C_CAN_INTPND1_REG]	= 0xB0,
 	[C_CAN_INTPND2_REG]	= 0xB2,
+<<<<<<< HEAD
+=======
+	[C_CAN_INTPND3_REG]	= 0xB4,
+>>>>>>> upstream/android-13
 	[C_CAN_MSGVAL1_REG]	= 0xC4,
 	[C_CAN_MSGVAL2_REG]	= 0xC6,
 	[C_CAN_IF1_COMREQ_REG]	= 0x100,
@@ -164,7 +183,10 @@ static const u16 reg_map_d_can[] = {
 };
 
 enum c_can_dev_id {
+<<<<<<< HEAD
 	BOSCH_C_CAN_PLATFORM,
+=======
+>>>>>>> upstream/android-13
 	BOSCH_C_CAN,
 	BOSCH_D_CAN,
 };
@@ -176,6 +198,10 @@ struct raminit_bits {
 
 struct c_can_driver_data {
 	enum c_can_dev_id id;
+<<<<<<< HEAD
+=======
+	unsigned int msg_obj_num;
+>>>>>>> upstream/android-13
 
 	/* RAMINIT register description. Optional. */
 	const struct raminit_bits *raminit_bits; /* Array of START/DONE bit positions */
@@ -191,12 +217,23 @@ struct c_can_raminit {
 	bool needs_pulse;
 };
 
+<<<<<<< HEAD
+=======
+/* c_can tx ring structure */
+struct c_can_tx_ring {
+	unsigned int head;
+	unsigned int tail;
+	unsigned int obj_num;
+};
+
+>>>>>>> upstream/android-13
 /* c_can private data structure */
 struct c_can_priv {
 	struct can_priv can;	/* must be the first member */
 	struct napi_struct napi;
 	struct net_device *dev;
 	struct device *device;
+<<<<<<< HEAD
 	atomic_t tx_active;
 	atomic_t sie_pending;
 	unsigned long tx_dir;
@@ -217,6 +254,34 @@ struct c_can_priv {
 };
 
 struct net_device *alloc_c_can_dev(void);
+=======
+	unsigned int msg_obj_num;
+	unsigned int msg_obj_rx_num;
+	unsigned int msg_obj_tx_num;
+	unsigned int msg_obj_rx_first;
+	unsigned int msg_obj_rx_last;
+	unsigned int msg_obj_tx_first;
+	unsigned int msg_obj_tx_last;
+	u32 msg_obj_rx_mask;
+	atomic_t sie_pending;
+	unsigned long tx_dir;
+	int last_status;
+	struct c_can_tx_ring tx;
+	u16 (*read_reg)(const struct c_can_priv *priv, enum reg index);
+	void (*write_reg)(const struct c_can_priv *priv, enum reg index, u16 val);
+	u32 (*read_reg32)(const struct c_can_priv *priv, enum reg index);
+	void (*write_reg32)(const struct c_can_priv *priv, enum reg index, u32 val);
+	void __iomem *base;
+	const u16 *regs;
+	enum c_can_dev_id type;
+	struct c_can_raminit raminit_sys;	/* RAMINIT via syscon regmap */
+	void (*raminit)(const struct c_can_priv *priv, bool enable);
+	u32 comm_rcv_high;
+	u32 dlc[];
+};
+
+struct net_device *alloc_c_can_dev(int msg_obj_num);
+>>>>>>> upstream/android-13
 void free_c_can_dev(struct net_device *dev);
 int register_c_can_dev(struct net_device *dev);
 void unregister_c_can_dev(struct net_device *dev);
@@ -226,4 +291,24 @@ int c_can_power_up(struct net_device *dev);
 int c_can_power_down(struct net_device *dev);
 #endif
 
+<<<<<<< HEAD
+=======
+void c_can_set_ethtool_ops(struct net_device *dev);
+
+static inline u8 c_can_get_tx_head(const struct c_can_tx_ring *ring)
+{
+	return ring->head & (ring->obj_num - 1);
+}
+
+static inline u8 c_can_get_tx_tail(const struct c_can_tx_ring *ring)
+{
+	return ring->tail & (ring->obj_num - 1);
+}
+
+static inline u8 c_can_get_tx_free(const struct c_can_tx_ring *ring)
+{
+	return ring->obj_num - (ring->head - ring->tail);
+}
+
+>>>>>>> upstream/android-13
 #endif /* C_CAN_H */

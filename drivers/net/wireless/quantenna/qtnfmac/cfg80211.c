@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2012 Quantenna Communications, Inc.
  * All rights reserved.
@@ -13,6 +14,10 @@
  * GNU General Public License for more details.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/* Copyright (c) 2015-2016 Quantenna Communications. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/etherdevice.h>
@@ -66,12 +71,24 @@ static const u32 qtnf_cipher_suites[] = {
 static const struct ieee80211_txrx_stypes
 qtnf_mgmt_stypes[NUM_NL80211_IFTYPES] = {
 	[NL80211_IFTYPE_STATION] = {
+<<<<<<< HEAD
 		.tx = BIT(IEEE80211_STYPE_ACTION >> 4),
 		.rx = BIT(IEEE80211_STYPE_ACTION >> 4) |
 		      BIT(IEEE80211_STYPE_PROBE_REQ >> 4),
 	},
 	[NL80211_IFTYPE_AP] = {
 		.tx = BIT(IEEE80211_STYPE_ACTION >> 4),
+=======
+		.tx = BIT(IEEE80211_STYPE_ACTION >> 4) |
+		      BIT(IEEE80211_STYPE_AUTH >> 4),
+		.rx = BIT(IEEE80211_STYPE_ACTION >> 4) |
+		      BIT(IEEE80211_STYPE_PROBE_REQ >> 4) |
+		      BIT(IEEE80211_STYPE_AUTH >> 4),
+	},
+	[NL80211_IFTYPE_AP] = {
+		.tx = BIT(IEEE80211_STYPE_ACTION >> 4) |
+		      BIT(IEEE80211_STYPE_AUTH >> 4),
+>>>>>>> upstream/android-13
 		.rx = BIT(IEEE80211_STYPE_ACTION >> 4) |
 		      BIT(IEEE80211_STYPE_PROBE_REQ >> 4) |
 		      BIT(IEEE80211_STYPE_ASSOC_REQ >> 4) |
@@ -112,6 +129,24 @@ qtnf_validate_iface_combinations(struct wiphy *wiphy,
 
 	ret = cfg80211_check_combinations(wiphy, &params);
 
+<<<<<<< HEAD
+=======
+	if (ret)
+		return ret;
+
+	/* Check repeater interface combination: primary VIF should be STA only.
+	 * STA (primary) + AP (secondary) is OK.
+	 * AP (primary) + STA (secondary) is not supported.
+	 */
+	vif = qtnf_mac_get_base_vif(mac);
+	if (vif && vif->wdev.iftype == NL80211_IFTYPE_AP &&
+	    vif != change_vif && new_type == NL80211_IFTYPE_STATION) {
+		ret = -EINVAL;
+		pr_err("MAC%u invalid combination: AP as primary repeater interface is not supported\n",
+		       mac->macid);
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -122,7 +157,12 @@ qtnf_change_virtual_intf(struct wiphy *wiphy,
 			 struct vif_params *params)
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
+<<<<<<< HEAD
 	u8 *mac_addr;
+=======
+	u8 *mac_addr = NULL;
+	int use4addr = 0;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = qtnf_validate_iface_combinations(wiphy, vif, type);
@@ -132,6 +172,7 @@ qtnf_change_virtual_intf(struct wiphy *wiphy,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (params)
 		mac_addr = params->macaddr;
 	else
@@ -143,6 +184,19 @@ qtnf_change_virtual_intf(struct wiphy *wiphy,
 	if (ret) {
 		pr_err("VIF%u.%u: failed to change VIF type: %d\n",
 		       vif->mac->macid, vif->vifid, ret);
+=======
+	if (params) {
+		mac_addr = params->macaddr;
+		use4addr = params->use_4addr;
+	}
+
+	qtnf_scan_done(vif->mac, true);
+
+	ret = qtnf_cmd_send_change_intf_type(vif, type, use4addr, mac_addr);
+	if (ret) {
+		pr_err("VIF%u.%u: failed to change type to %d\n",
+		       vif->mac->macid, vif->vifid, type);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -154,6 +208,10 @@ int qtnf_del_virtual_intf(struct wiphy *wiphy, struct wireless_dev *wdev)
 {
 	struct net_device *netdev =  wdev->netdev;
 	struct qtnf_vif *vif;
+<<<<<<< HEAD
+=======
+	struct sk_buff *skb;
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(!netdev))
 		return -EFAULT;
@@ -167,8 +225,18 @@ int qtnf_del_virtual_intf(struct wiphy *wiphy, struct wireless_dev *wdev)
 	if (netif_carrier_ok(netdev))
 		netif_carrier_off(netdev);
 
+<<<<<<< HEAD
 	if (netdev->reg_state == NETREG_REGISTERED)
 		unregister_netdevice(netdev);
+=======
+	while ((skb = skb_dequeue(&vif->high_pri_tx_queue)))
+		dev_kfree_skb_any(skb);
+
+	cancel_work_sync(&vif->high_pri_tx_work);
+
+	if (netdev->reg_state == NETREG_REGISTERED)
+		cfg80211_unregister_netdevice(netdev);
+>>>>>>> upstream/android-13
 
 	if (qtnf_cmd_send_del_intf(vif))
 		pr_err("VIF%u.%u: failed to delete VIF\n", vif->mac->macid,
@@ -190,6 +258,10 @@ static struct wireless_dev *qtnf_add_virtual_intf(struct wiphy *wiphy,
 	struct qtnf_wmac *mac;
 	struct qtnf_vif *vif;
 	u8 *mac_addr = NULL;
+<<<<<<< HEAD
+=======
+	int use4addr = 0;
+>>>>>>> upstream/android-13
 	int ret;
 
 	mac = wiphy_priv(wiphy);
@@ -216,7 +288,10 @@ static struct wireless_dev *qtnf_add_virtual_intf(struct wiphy *wiphy,
 		eth_zero_addr(vif->mac_addr);
 		eth_zero_addr(vif->bssid);
 		vif->bss_priority = QTNF_DEF_BSS_PRIORITY;
+<<<<<<< HEAD
 		vif->sta_state = QTNF_STA_DISCONNECTED;
+=======
+>>>>>>> upstream/android-13
 		memset(&vif->wdev, 0, sizeof(vif->wdev));
 		vif->wdev.wiphy = wiphy;
 		vif->wdev.iftype = type;
@@ -226,17 +301,30 @@ static struct wireless_dev *qtnf_add_virtual_intf(struct wiphy *wiphy,
 		return ERR_PTR(-ENOTSUPP);
 	}
 
+<<<<<<< HEAD
 	if (params)
 		mac_addr = params->macaddr;
 
 	if (qtnf_cmd_send_add_intf(vif, type, mac_addr)) {
 		pr_err("VIF%u.%u: failed to add VIF\n", mac->macid, vif->vifid);
+=======
+	if (params) {
+		mac_addr = params->macaddr;
+		use4addr = params->use_4addr;
+	}
+
+	ret = qtnf_cmd_send_add_intf(vif, type, use4addr, mac_addr);
+	if (ret) {
+		pr_err("VIF%u.%u: failed to add VIF %pM\n",
+		       mac->macid, vif->vifid, mac_addr);
+>>>>>>> upstream/android-13
 		goto err_cmd;
 	}
 
 	if (!is_valid_ether_addr(vif->mac_addr)) {
 		pr_err("VIF%u.%u: FW reported bad MAC: %pM\n",
 		       mac->macid, vif->vifid, vif->mac_addr);
+<<<<<<< HEAD
 		goto err_mac;
 	}
 
@@ -244,19 +332,47 @@ static struct wireless_dev *qtnf_add_virtual_intf(struct wiphy *wiphy,
 		pr_err("VIF%u.%u: failed to attach netdev\n", mac->macid,
 		       vif->vifid);
 		goto err_net;
+=======
+		ret = -EINVAL;
+		goto error_del_vif;
+	}
+
+	ret = qtnf_core_net_attach(mac, vif, name, name_assign_t);
+	if (ret) {
+		pr_err("VIF%u.%u: failed to attach netdev\n", mac->macid,
+		       vif->vifid);
+		goto error_del_vif;
+	}
+
+	if (qtnf_hwcap_is_set(&mac->bus->hw_info, QLINK_HW_CAPAB_HW_BRIDGE)) {
+		ret = qtnf_cmd_netdev_changeupper(vif, vif->netdev->ifindex);
+		if (ret) {
+			cfg80211_unregister_netdevice(vif->netdev);
+			vif->netdev = NULL;
+			goto error_del_vif;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	vif->wdev.netdev = vif->netdev;
 	return &vif->wdev;
 
+<<<<<<< HEAD
 err_net:
 	vif->netdev = NULL;
 err_mac:
+=======
+error_del_vif:
+>>>>>>> upstream/android-13
 	qtnf_cmd_send_del_intf(vif);
 err_cmd:
 	vif->wdev.iftype = NL80211_IFTYPE_UNSPECIFIED;
 
+<<<<<<< HEAD
 	return ERR_PTR(-EFAULT);
+=======
+	return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 }
 
 static int qtnf_mgmt_set_appie(struct qtnf_vif *vif,
@@ -327,7 +443,12 @@ static int qtnf_start_ap(struct wiphy *wiphy, struct net_device *dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int qtnf_stop_ap(struct wiphy *wiphy, struct net_device *dev)
+=======
+static int qtnf_stop_ap(struct wiphy *wiphy, struct net_device *dev,
+			unsigned int link_id)
+>>>>>>> upstream/android-13
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
 	int ret;
@@ -335,12 +456,20 @@ static int qtnf_stop_ap(struct wiphy *wiphy, struct net_device *dev)
 	qtnf_scan_done(vif->mac, true);
 
 	ret = qtnf_cmd_send_stop_ap(vif);
+<<<<<<< HEAD
 	if (ret) {
 		pr_err("VIF%u.%u: failed to stop AP operation in FW\n",
 		       vif->mac->macid, vif->vifid);
 
 		netif_carrier_off(vif->netdev);
 	}
+=======
+	if (ret)
+		pr_err("VIF%u.%u: failed to stop AP operation in FW\n",
+		       vif->mac->macid, vif->vifid);
+
+	netif_carrier_off(vif->netdev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -357,11 +486,14 @@ static int qtnf_set_wiphy_params(struct wiphy *wiphy, u32 changed)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	if (changed & (WIPHY_PARAM_RETRY_LONG | WIPHY_PARAM_RETRY_SHORT)) {
 		pr_err("MAC%u: can't modify retry params\n", mac->macid);
 		return -EOPNOTSUPP;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = qtnf_cmd_send_update_phy_params(mac, changed);
 	if (ret)
 		pr_err("MAC%u: failed to update PHY params\n", mac->macid);
@@ -370,6 +502,7 @@ static int qtnf_set_wiphy_params(struct wiphy *wiphy, u32 changed)
 }
 
 static void
+<<<<<<< HEAD
 qtnf_mgmt_frame_register(struct wiphy *wiphy, struct wireless_dev *wdev,
 			 u16 frame_type, bool reg)
 {
@@ -419,6 +552,59 @@ qtnf_mgmt_frame_register(struct wiphy *wiphy, struct wireless_dev *wdev,
 	vif->mgmt_frames_bitmask = new_mask;
 	pr_debug("VIF%u.%u: %sregistered mgmt frame type 0x%x\n",
 		 vif->mac->macid, vif->vifid, reg ? "" : "un", frame_type);
+=======
+qtnf_update_mgmt_frame_registrations(struct wiphy *wiphy,
+				     struct wireless_dev *wdev,
+				     struct mgmt_frame_regs *upd)
+{
+	struct qtnf_vif *vif = qtnf_netdev_get_priv(wdev->netdev);
+	u16 new_mask = upd->interface_stypes;
+	u16 old_mask = vif->mgmt_frames_bitmask;
+	static const struct {
+		u16 mask, qlink_type;
+	} updates[] = {
+		{
+			.mask = BIT(IEEE80211_STYPE_REASSOC_REQ >> 4) |
+				BIT(IEEE80211_STYPE_ASSOC_REQ >> 4),
+			.qlink_type = QLINK_MGMT_FRAME_ASSOC_REQ,
+		},
+		{
+			.mask = BIT(IEEE80211_STYPE_AUTH >> 4),
+			.qlink_type = QLINK_MGMT_FRAME_AUTH,
+		},
+		{
+			.mask = BIT(IEEE80211_STYPE_PROBE_REQ >> 4),
+			.qlink_type = QLINK_MGMT_FRAME_PROBE_REQ,
+		},
+		{
+			.mask = BIT(IEEE80211_STYPE_ACTION >> 4),
+			.qlink_type = QLINK_MGMT_FRAME_ACTION,
+		},
+	};
+	unsigned int i;
+
+	if (new_mask == old_mask)
+		return;
+
+	for (i = 0; i < ARRAY_SIZE(updates); i++) {
+		u16 mask = updates[i].mask;
+		u16 qlink_frame_type = updates[i].qlink_type;
+		bool reg;
+
+		/* the ! are here due to the assoc/reassoc merge */
+		if (!(new_mask & mask) == !(old_mask & mask))
+			continue;
+
+		reg = new_mask & mask;
+
+		if (qtnf_cmd_send_register_mgmt(vif, qlink_frame_type, reg))
+			pr_warn("VIF%u.%u: failed to %sregister qlink frame type 0x%x\n",
+				vif->mac->macid, vif->vifid, reg ? "" : "un",
+				qlink_frame_type);
+	}
+
+	vif->mgmt_frames_bitmask = new_mask;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -434,6 +620,7 @@ qtnf_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 	*cookie = short_cookie;
 
 	if (params->offchan)
+<<<<<<< HEAD
 		flags |= QLINK_MGMT_FRAME_TX_FLAG_OFFCHAN;
 
 	if (params->no_cck)
@@ -441,6 +628,15 @@ qtnf_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 
 	if (params->dont_wait_for_ack)
 		flags |= QLINK_MGMT_FRAME_TX_FLAG_ACK_NOWAIT;
+=======
+		flags |= QLINK_FRAME_TX_FLAG_OFFCHAN;
+
+	if (params->no_cck)
+		flags |= QLINK_FRAME_TX_FLAG_NO_CCK;
+
+	if (params->dont_wait_for_ack)
+		flags |= QLINK_FRAME_TX_FLAG_ACK_NOWAIT;
+>>>>>>> upstream/android-13
 
 	/* If channel is not specified, pass "freq = 0" to tell device
 	 * firmware to use current channel.
@@ -455,9 +651,14 @@ qtnf_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 		 le16_to_cpu(mgmt_frame->frame_control), mgmt_frame->da,
 		 params->len, short_cookie, flags);
 
+<<<<<<< HEAD
 	return qtnf_cmd_send_mgmt_frame(vif, short_cookie, flags,
 					freq,
 					params->buf, params->len);
+=======
+	return qtnf_cmd_send_frame(vif, short_cookie, flags,
+				   freq, params->buf, params->len);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -478,6 +679,7 @@ qtnf_dump_station(struct wiphy *wiphy, struct net_device *dev,
 	const struct qtnf_sta_node *sta_node;
 	int ret;
 
+<<<<<<< HEAD
 	sta_node = qtnf_sta_list_lookup_index(&vif->sta_list, idx);
 
 	if (unlikely(!sta_node))
@@ -491,6 +693,33 @@ qtnf_dump_station(struct wiphy *wiphy, struct net_device *dev,
 		qtnf_sta_list_del(vif, mac);
 		cfg80211_del_sta(vif->netdev, mac, GFP_KERNEL);
 		sinfo->filled = 0;
+=======
+	switch (vif->wdev.iftype) {
+	case NL80211_IFTYPE_STATION:
+		if (idx != 0 || !vif->wdev.connected)
+			return -ENOENT;
+
+		ether_addr_copy(mac, vif->bssid);
+		break;
+	case NL80211_IFTYPE_AP:
+		sta_node = qtnf_sta_list_lookup_index(&vif->sta_list, idx);
+		if (unlikely(!sta_node))
+			return -ENOENT;
+
+		ether_addr_copy(mac, sta_node->mac_addr);
+		break;
+	default:
+		return -ENOTSUPP;
+	}
+
+	ret = qtnf_cmd_get_sta_info(vif, mac, sinfo);
+
+	if (vif->wdev.iftype == NL80211_IFTYPE_AP) {
+		if (ret == -ENOENT) {
+			cfg80211_del_sta(vif->netdev, mac, GFP_KERNEL);
+			sinfo->filled = 0;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	sinfo->generation = vif->generation;
@@ -499,8 +728,13 @@ qtnf_dump_station(struct wiphy *wiphy, struct net_device *dev,
 }
 
 static int qtnf_add_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 			u8 key_index, bool pairwise, const u8 *mac_addr,
 			struct key_params *params)
+=======
+			int link_id, u8 key_index, bool pairwise,
+			const u8 *mac_addr, struct key_params *params)
+>>>>>>> upstream/android-13
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
 	int ret;
@@ -515,7 +749,12 @@ static int qtnf_add_key(struct wiphy *wiphy, struct net_device *dev,
 }
 
 static int qtnf_del_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 			u8 key_index, bool pairwise, const u8 *mac_addr)
+=======
+			int link_id, u8 key_index, bool pairwise,
+			const u8 *mac_addr)
+>>>>>>> upstream/android-13
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
 	int ret;
@@ -536,7 +775,12 @@ static int qtnf_del_key(struct wiphy *wiphy, struct net_device *dev,
 }
 
 static int qtnf_set_default_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 				u8 key_index, bool unicast, bool multicast)
+=======
+				int link_id, u8 key_index, bool unicast,
+				bool multicast)
+>>>>>>> upstream/android-13
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
 	int ret;
@@ -552,7 +796,11 @@ static int qtnf_set_default_key(struct wiphy *wiphy, struct net_device *dev,
 
 static int
 qtnf_set_default_mgmt_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 			  u8 key_index)
+=======
+			  int link_id, u8 key_index)
+>>>>>>> upstream/android-13
 {
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
 	int ret;
@@ -597,6 +845,10 @@ qtnf_del_station(struct wiphy *wiphy, struct net_device *dev,
 	if (ret)
 		pr_err("VIF%u.%u: failed to delete STA %pM\n",
 		       vif->mac->macid, vif->vifid, params->mac);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -604,11 +856,16 @@ static int
 qtnf_scan(struct wiphy *wiphy, struct cfg80211_scan_request *request)
 {
 	struct qtnf_wmac *mac = wiphy_priv(wiphy);
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	cancel_delayed_work_sync(&mac->scan_timeout);
 
 	mac->scan_req = request;
 
+<<<<<<< HEAD
 	if (qtnf_cmd_send_scan(mac)) {
 		pr_err("MAC%u: failed to start scan\n", mac->macid);
 		mac->scan_req = NULL;
@@ -619,6 +876,21 @@ qtnf_scan(struct wiphy *wiphy, struct cfg80211_scan_request *request)
 			   QTNF_SCAN_TIMEOUT_SEC * HZ);
 
 	return 0;
+=======
+	ret = qtnf_cmd_send_scan(mac);
+	if (ret) {
+		pr_err("MAC%u: failed to start scan\n", mac->macid);
+		mac->scan_req = NULL;
+		goto out;
+	}
+
+	pr_debug("MAC%u: scan started\n", mac->macid);
+	queue_delayed_work(mac->bus->workqueue, &mac->scan_timeout,
+			   QTNF_SCAN_TIMEOUT_SEC * HZ);
+
+out:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -631,8 +903,16 @@ qtnf_connect(struct wiphy *wiphy, struct net_device *dev,
 	if (vif->wdev.iftype != NL80211_IFTYPE_STATION)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if (vif->sta_state != QTNF_STA_DISCONNECTED)
 		return -EBUSY;
+=======
+	if (sme->auth_type == NL80211_AUTHTYPE_SAE &&
+	    !(sme->flags & CONNECT_REQ_EXTERNAL_AUTH_SUPPORT)) {
+		pr_err("can not offload authentication to userspace\n");
+		return -EOPNOTSUPP;
+	}
+>>>>>>> upstream/android-13
 
 	if (sme->bssid)
 		ether_addr_copy(vif->bssid, sme->bssid);
@@ -640,6 +920,7 @@ qtnf_connect(struct wiphy *wiphy, struct net_device *dev,
 		eth_zero_addr(vif->bssid);
 
 	ret = qtnf_cmd_send_connect(vif, sme);
+<<<<<<< HEAD
 	if (ret) {
 		pr_err("VIF%u.%u: failed to connect\n", vif->mac->macid,
 		       vif->vifid);
@@ -648,6 +929,32 @@ qtnf_connect(struct wiphy *wiphy, struct net_device *dev,
 
 	vif->sta_state = QTNF_STA_CONNECTING;
 	return 0;
+=======
+	if (ret)
+		pr_err("VIF%u.%u: failed to connect\n",
+		       vif->mac->macid, vif->vifid);
+
+	return ret;
+}
+
+static int
+qtnf_external_auth(struct wiphy *wiphy, struct net_device *dev,
+		   struct cfg80211_external_auth_params *auth)
+{
+	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
+	int ret;
+
+	if (vif->wdev.iftype == NL80211_IFTYPE_STATION &&
+	    !ether_addr_equal(vif->bssid, auth->bssid))
+		pr_warn("unexpected bssid: %pM", auth->bssid);
+
+	ret = qtnf_cmd_send_external_auth(vif, auth);
+	if (ret)
+		pr_err("VIF%u.%u: failed to report external auth\n",
+		       vif->mac->macid, vif->vifid);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -665,6 +972,7 @@ qtnf_disconnect(struct wiphy *wiphy, struct net_device *dev,
 	}
 
 	if (vif->wdev.iftype != NL80211_IFTYPE_STATION) {
+<<<<<<< HEAD
 		ret = -EOPNOTSUPP;
 		goto out;
 	}
@@ -684,6 +992,21 @@ qtnf_disconnect(struct wiphy *wiphy, struct net_device *dev,
 out:
 	if (vif->sta_state == QTNF_STA_CONNECTING)
 		vif->sta_state = QTNF_STA_DISCONNECTED;
+=======
+		return -EOPNOTSUPP;
+	}
+
+	ret = qtnf_cmd_send_disconnect(vif, reason_code);
+	if (ret)
+		pr_err("VIF%u.%u: failed to disconnect\n",
+		       mac->macid, vif->vifid);
+
+	if (vif->wdev.connected) {
+		netif_carrier_off(vif->netdev);
+		cfg80211_disconnected(vif->netdev, reason_code,
+				      NULL, 0, true, GFP_KERNEL);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -695,6 +1018,7 @@ qtnf_dump_survey(struct wiphy *wiphy, struct net_device *dev,
 	struct qtnf_wmac *mac = wiphy_priv(wiphy);
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
 	struct ieee80211_supported_band *sband;
+<<<<<<< HEAD
 	const struct cfg80211_chan_def *chandef = &wdev->chandef;
 	struct ieee80211_channel *chan;
 	struct qtnf_chan_stats stats;
@@ -702,6 +1026,12 @@ qtnf_dump_survey(struct wiphy *wiphy, struct net_device *dev,
 	int ret;
 
 	vif = qtnf_netdev_get_priv(dev);
+=======
+	const struct cfg80211_chan_def *chandef = wdev_chandef(wdev, 0);
+	struct ieee80211_channel *chan;
+	int ret;
+
+>>>>>>> upstream/android-13
 
 	sband = wiphy->bands[NL80211_BAND_2GHZ];
 	if (sband && idx >= sband->n_channels) {
@@ -716,6 +1046,7 @@ qtnf_dump_survey(struct wiphy *wiphy, struct net_device *dev,
 		return -ENOENT;
 
 	chan = &sband->channels[idx];
+<<<<<<< HEAD
 	memset(&stats, 0, sizeof(stats));
 
 	survey->channel = chan;
@@ -760,13 +1091,29 @@ qtnf_dump_survey(struct wiphy *wiphy, struct net_device *dev,
 		ret = -EINVAL;
 		break;
 	}
+=======
+	survey->channel = chan;
+	survey->filled = 0x0;
+
+	if (chandef && chan == chandef->chan)
+		survey->filled = SURVEY_INFO_IN_USE;
+
+	ret = qtnf_cmd_get_chan_stats(mac, chan->center_freq, survey);
+	if (ret)
+		pr_debug("failed to get chan(%d) stats from card\n",
+			 chan->hw_value);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static int
 qtnf_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev,
+<<<<<<< HEAD
 		 struct cfg80211_chan_def *chandef)
+=======
+		 unsigned int link_id, struct cfg80211_chan_def *chandef)
+>>>>>>> upstream/android-13
 {
 	struct net_device *ndev = wdev->netdev;
 	struct qtnf_vif *vif;
@@ -780,6 +1127,10 @@ qtnf_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev,
 	ret = qtnf_cmd_get_channel(vif, chandef);
 	if (ret) {
 		pr_err("%s: failed to get channel: %d\n", ndev->name, ret);
+<<<<<<< HEAD
+=======
+		ret = -ENODATA;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -789,6 +1140,10 @@ qtnf_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev,
 		       chandef->center_freq1, chandef->center_freq2,
 		       chandef->width);
 		ret = -ENODATA;
+<<<<<<< HEAD
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -858,11 +1213,73 @@ static int qtnf_set_power_mgmt(struct wiphy *wiphy, struct net_device *dev,
 
 	ret = qtnf_cmd_send_pm_set(vif, enabled ? QLINK_PM_AUTO_STANDBY :
 				   QLINK_PM_OFF, timeout);
+<<<<<<< HEAD
 	if (ret) {
 		pr_err("%s: failed to set PM mode ret=%d\n", dev->name, ret);
 		return ret;
 	}
 
+=======
+	if (ret)
+		pr_err("%s: failed to set PM mode ret=%d\n", dev->name, ret);
+
+	return ret;
+}
+
+static int qtnf_get_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev,
+			     int *dbm)
+{
+	struct qtnf_vif *vif = qtnf_netdev_get_priv(wdev->netdev);
+	int ret;
+
+	ret = qtnf_cmd_get_tx_power(vif, dbm);
+	if (ret)
+		pr_err("MAC%u: failed to get Tx power\n", vif->mac->macid);
+
+	return ret;
+}
+
+static int qtnf_set_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev,
+			     enum nl80211_tx_power_setting type, int mbm)
+{
+	struct qtnf_vif *vif;
+	int ret;
+
+	if (wdev) {
+		vif = qtnf_netdev_get_priv(wdev->netdev);
+	} else {
+		struct qtnf_wmac *mac = wiphy_priv(wiphy);
+
+		vif = qtnf_mac_get_base_vif(mac);
+		if (!vif) {
+			pr_err("MAC%u: primary VIF is not configured\n",
+			       mac->macid);
+			return -EFAULT;
+		}
+	}
+
+	ret = qtnf_cmd_set_tx_power(vif, type, mbm);
+	if (ret)
+		pr_err("MAC%u: failed to set Tx power\n", vif->mac->macid);
+
+	return ret;
+}
+
+static int qtnf_update_owe_info(struct wiphy *wiphy, struct net_device *dev,
+				struct cfg80211_update_owe_info *owe_info)
+{
+	struct qtnf_vif *vif = qtnf_netdev_get_priv(dev);
+	int ret;
+
+	if (vif->wdev.iftype != NL80211_IFTYPE_AP)
+		return -EOPNOTSUPP;
+
+	ret = qtnf_cmd_send_update_owe(vif, owe_info);
+	if (ret)
+		pr_err("VIF%u.%u: failed to update owe info\n",
+		       vif->mac->macid, vif->vifid);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -908,6 +1325,7 @@ static int qtnf_resume(struct wiphy *wiphy)
 	vif = qtnf_mac_get_base_vif(mac);
 	if (!vif) {
 		pr_err("MAC%u: primary VIF is not configured\n", mac->macid);
+<<<<<<< HEAD
 		ret = -EFAULT;
 		goto exit;
 	}
@@ -920,6 +1338,16 @@ static int qtnf_resume(struct wiphy *wiphy)
 	}
 
 exit:
+=======
+		return -EFAULT;
+	}
+
+	ret = qtnf_cmd_send_wowlan_set(vif, NULL);
+	if (ret)
+		pr_err("MAC%u: failed to reset WoWLAN triggers\n",
+		       mac->macid);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -940,7 +1368,12 @@ static struct cfg80211_ops qtn_cfg80211_ops = {
 	.change_beacon		= qtnf_change_beacon,
 	.stop_ap		= qtnf_stop_ap,
 	.set_wiphy_params	= qtnf_set_wiphy_params,
+<<<<<<< HEAD
 	.mgmt_frame_register	= qtnf_mgmt_frame_register,
+=======
+	.update_mgmt_frame_registrations =
+		qtnf_update_mgmt_frame_registrations,
+>>>>>>> upstream/android-13
 	.mgmt_tx		= qtnf_mgmt_tx,
 	.change_station		= qtnf_change_station,
 	.del_station		= qtnf_del_station,
@@ -952,6 +1385,10 @@ static struct cfg80211_ops qtn_cfg80211_ops = {
 	.set_default_mgmt_key	= qtnf_set_default_mgmt_key,
 	.scan			= qtnf_scan,
 	.connect		= qtnf_connect,
+<<<<<<< HEAD
+=======
+	.external_auth		= qtnf_external_auth,
+>>>>>>> upstream/android-13
 	.disconnect		= qtnf_disconnect,
 	.dump_survey		= qtnf_dump_survey,
 	.get_channel		= qtnf_get_channel,
@@ -959,6 +1396,12 @@ static struct cfg80211_ops qtn_cfg80211_ops = {
 	.start_radar_detection	= qtnf_start_radar_detection,
 	.set_mac_acl		= qtnf_set_mac_acl,
 	.set_power_mgmt		= qtnf_set_power_mgmt,
+<<<<<<< HEAD
+=======
+	.get_tx_power		= qtnf_get_tx_power,
+	.set_tx_power		= qtnf_set_tx_power,
+	.update_owe_info	= qtnf_update_owe_info,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend		= qtnf_suspend,
 	.resume			= qtnf_resume,
@@ -966,6 +1409,7 @@ static struct cfg80211_ops qtn_cfg80211_ops = {
 #endif
 };
 
+<<<<<<< HEAD
 static void qtnf_cfg80211_reg_notifier(struct wiphy *wiphy_in,
 				       struct regulatory_request *req)
 {
@@ -973,12 +1417,19 @@ static void qtnf_cfg80211_reg_notifier(struct wiphy *wiphy_in,
 	struct qtnf_bus *bus = mac->bus;
 	struct wiphy *wiphy;
 	unsigned int mac_idx;
+=======
+static void qtnf_cfg80211_reg_notifier(struct wiphy *wiphy,
+				       struct regulatory_request *req)
+{
+	struct qtnf_wmac *mac = wiphy_priv(wiphy);
+>>>>>>> upstream/android-13
 	enum nl80211_band band;
 	int ret;
 
 	pr_debug("MAC%u: initiator=%d alpha=%c%c\n", mac->macid, req->initiator,
 		 req->alpha2[0], req->alpha2[1]);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_reg_notify(bus, req);
 	if (ret) {
 		if (ret != -EOPNOTSUPP && ret != -EALREADY)
@@ -1017,13 +1468,51 @@ struct wiphy *qtnf_wiphy_allocate(struct qtnf_bus *bus)
 		qtn_cfg80211_ops.start_radar_detection = NULL;
 
 	if (!(bus->hw_info.hw_capab & QLINK_HW_CAPAB_PWR_MGMT))
+=======
+	ret = qtnf_cmd_reg_notify(mac, req, qtnf_slave_radar_get(),
+				  qtnf_dfs_offload_get());
+	if (ret) {
+		pr_err("MAC%u: failed to update region to %c%c: %d\n",
+		       mac->macid, req->alpha2[0], req->alpha2[1], ret);
+		return;
+	}
+
+	for (band = 0; band < NUM_NL80211_BANDS; ++band) {
+		if (!wiphy->bands[band])
+			continue;
+
+		ret = qtnf_cmd_band_info_get(mac, wiphy->bands[band]);
+		if (ret)
+			pr_err("MAC%u: failed to update band %u\n",
+			       mac->macid, band);
+	}
+}
+
+struct wiphy *qtnf_wiphy_allocate(struct qtnf_bus *bus,
+				  struct platform_device *pdev)
+{
+	struct wiphy *wiphy;
+
+	if (qtnf_dfs_offload_get() &&
+	    qtnf_hwcap_is_set(&bus->hw_info, QLINK_HW_CAPAB_DFS_OFFLOAD))
+		qtn_cfg80211_ops.start_radar_detection = NULL;
+
+	if (!qtnf_hwcap_is_set(&bus->hw_info, QLINK_HW_CAPAB_PWR_MGMT))
+>>>>>>> upstream/android-13
 		qtn_cfg80211_ops.set_power_mgmt	= NULL;
 
 	wiphy = wiphy_new(&qtn_cfg80211_ops, sizeof(struct qtnf_wmac));
 	if (!wiphy)
 		return NULL;
 
+<<<<<<< HEAD
 	set_wiphy_dev(wiphy, bus->dev);
+=======
+	if (pdev)
+		set_wiphy_dev(wiphy, &pdev->dev);
+	else
+		set_wiphy_dev(wiphy, bus->dev);
+>>>>>>> upstream/android-13
 
 	return wiphy;
 }
@@ -1061,6 +1550,10 @@ int qtnf_wiphy_register(struct qtnf_hw_info *hw_info, struct qtnf_wmac *mac)
 	struct wiphy *wiphy = priv_to_wiphy(mac);
 	struct qtnf_mac_info *macinfo = &mac->macinfo;
 	int ret;
+<<<<<<< HEAD
+=======
+	bool regdomain_is_known;
+>>>>>>> upstream/android-13
 
 	if (!wiphy) {
 		pr_err("invalid wiphy pointer\n");
@@ -1074,7 +1567,11 @@ int qtnf_wiphy_register(struct qtnf_hw_info *hw_info, struct qtnf_wmac *mac)
 	wiphy->coverage_class = macinfo->coverage_class;
 
 	wiphy->max_scan_ssids =
+<<<<<<< HEAD
 		(hw_info->max_scan_ssids) ? hw_info->max_scan_ssids : 1;
+=======
+		(macinfo->max_scan_ssids) ? macinfo->max_scan_ssids : 1;
+>>>>>>> upstream/android-13
 	wiphy->max_scan_ie_len = QTNF_MAX_VSIE_LEN;
 	wiphy->mgmt_stypes = qtnf_mgmt_stypes;
 	wiphy->max_remain_on_channel_duration = 5000;
@@ -1092,12 +1589,28 @@ int qtnf_wiphy_register(struct qtnf_hw_info *hw_info, struct qtnf_wmac *mac)
 	wiphy->flags |= WIPHY_FLAG_HAVE_AP_SME |
 			WIPHY_FLAG_AP_PROBE_RESP_OFFLOAD |
 			WIPHY_FLAG_AP_UAPSD |
+<<<<<<< HEAD
 			WIPHY_FLAG_HAS_CHANNEL_SWITCH;
 	wiphy->flags &= ~WIPHY_FLAG_PS_ON_BY_DEFAULT;
 
 	if (hw_info->hw_capab & QLINK_HW_CAPAB_DFS_OFFLOAD)
 		wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_DFS_OFFLOAD);
 
+=======
+			WIPHY_FLAG_HAS_CHANNEL_SWITCH |
+			WIPHY_FLAG_4ADDR_STATION |
+			WIPHY_FLAG_NETNS_OK;
+	wiphy->flags &= ~WIPHY_FLAG_PS_ON_BY_DEFAULT;
+
+	if (qtnf_dfs_offload_get() &&
+	    qtnf_hwcap_is_set(hw_info, QLINK_HW_CAPAB_DFS_OFFLOAD))
+		wiphy_ext_feature_set(wiphy, NL80211_EXT_FEATURE_DFS_OFFLOAD);
+
+	if (qtnf_hwcap_is_set(hw_info, QLINK_HW_CAPAB_SCAN_DWELL))
+		wiphy_ext_feature_set(wiphy,
+				      NL80211_EXT_FEATURE_SET_SCAN_DWELL);
+
+>>>>>>> upstream/android-13
 	wiphy->probe_resp_offload = NL80211_PROBE_RESP_OFFLOAD_SUPPORT_WPS |
 				    NL80211_PROBE_RESP_OFFLOAD_SUPPORT_WPS2;
 
@@ -1110,6 +1623,7 @@ int qtnf_wiphy_register(struct qtnf_hw_info *hw_info, struct qtnf_wmac *mac)
 
 	ether_addr_copy(wiphy->perm_addr, mac->macaddr);
 
+<<<<<<< HEAD
 	if (hw_info->hw_capab & QLINK_HW_CAPAB_STA_INACT_TIMEOUT)
 		wiphy->features |= NL80211_FEATURE_INACTIVITY_TIMER;
 
@@ -1119,16 +1633,46 @@ int qtnf_wiphy_register(struct qtnf_hw_info *hw_info, struct qtnf_wmac *mac)
 	if (!(hw_info->hw_capab & QLINK_HW_CAPAB_OBSS_SCAN))
 		wiphy->features |= NL80211_FEATURE_NEED_OBSS_SCAN;
 
+=======
+	if (qtnf_hwcap_is_set(hw_info, QLINK_HW_CAPAB_STA_INACT_TIMEOUT))
+		wiphy->features |= NL80211_FEATURE_INACTIVITY_TIMER;
+
+	if (qtnf_hwcap_is_set(hw_info, QLINK_HW_CAPAB_SCAN_RANDOM_MAC_ADDR))
+		wiphy->features |= NL80211_FEATURE_SCAN_RANDOM_MAC_ADDR;
+
+	if (!qtnf_hwcap_is_set(hw_info, QLINK_HW_CAPAB_OBSS_SCAN))
+		wiphy->features |= NL80211_FEATURE_NEED_OBSS_SCAN;
+
+	if (qtnf_hwcap_is_set(hw_info, QLINK_HW_CAPAB_SAE))
+		wiphy->features |= NL80211_FEATURE_SAE;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	if (macinfo->wowlan)
 		wiphy->wowlan = macinfo->wowlan;
 #endif
 
+<<<<<<< HEAD
 	if (hw_info->hw_capab & QLINK_HW_CAPAB_REG_UPDATE) {
 		wiphy->regulatory_flags |= REGULATORY_STRICT_REG |
 			REGULATORY_CUSTOM_REG;
 		wiphy->reg_notifier = qtnf_cfg80211_reg_notifier;
 		wiphy_apply_custom_regulatory(wiphy, hw_info->rd);
+=======
+	regdomain_is_known = isalpha(mac->rd->alpha2[0]) &&
+				isalpha(mac->rd->alpha2[1]);
+
+	if (qtnf_hwcap_is_set(hw_info, QLINK_HW_CAPAB_REG_UPDATE)) {
+		wiphy->reg_notifier = qtnf_cfg80211_reg_notifier;
+
+		if (mac->rd->alpha2[0] == '9' && mac->rd->alpha2[1] == '9') {
+			wiphy->regulatory_flags |= REGULATORY_CUSTOM_REG |
+				REGULATORY_STRICT_REG;
+			wiphy_apply_custom_regulatory(wiphy, mac->rd);
+		} else if (regdomain_is_known) {
+			wiphy->regulatory_flags |= REGULATORY_STRICT_REG;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		wiphy->regulatory_flags |= REGULATORY_WIPHY_SELF_MANAGED;
 	}
@@ -1151,10 +1695,16 @@ int qtnf_wiphy_register(struct qtnf_hw_info *hw_info, struct qtnf_wmac *mac)
 		goto out;
 
 	if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED)
+<<<<<<< HEAD
 		ret = regulatory_set_wiphy_regd(wiphy, hw_info->rd);
 	else if (isalpha(hw_info->rd->alpha2[0]) &&
 		 isalpha(hw_info->rd->alpha2[1]))
 		ret = regulatory_hint(wiphy, hw_info->rd->alpha2);
+=======
+		ret = regulatory_set_wiphy_regd(wiphy, mac->rd);
+	else if (regdomain_is_known)
+		ret = regulatory_hint(wiphy, mac->rd->alpha2);
+>>>>>>> upstream/android-13
 
 out:
 	return ret;
@@ -1165,7 +1715,12 @@ void qtnf_netdev_updown(struct net_device *ndev, bool up)
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(ndev);
 
 	if (qtnf_cmd_send_updown_intf(vif, up))
+<<<<<<< HEAD
 		pr_err("failed to send up/down command to FW\n");
+=======
+		pr_err("failed to send %s command to VIF%u.%u\n",
+		       up ? "UP" : "DOWN", vif->mac->macid, vif->vifid);
+>>>>>>> upstream/android-13
 }
 
 void qtnf_virtual_intf_cleanup(struct net_device *ndev)
@@ -1173,6 +1728,7 @@ void qtnf_virtual_intf_cleanup(struct net_device *ndev)
 	struct qtnf_vif *vif = qtnf_netdev_get_priv(ndev);
 	struct qtnf_wmac *mac = wiphy_priv(vif->wdev.wiphy);
 
+<<<<<<< HEAD
 	if (vif->wdev.iftype == NL80211_IFTYPE_STATION) {
 		switch (vif->sta_state) {
 		case QTNF_STA_DISCONNECTED:
@@ -1197,12 +1753,18 @@ void qtnf_virtual_intf_cleanup(struct net_device *ndev)
 
 		vif->sta_state = QTNF_STA_DISCONNECTED;
 	}
+=======
+	if (vif->wdev.iftype == NL80211_IFTYPE_STATION)
+		qtnf_disconnect(vif->wdev.wiphy, ndev,
+				WLAN_REASON_DEAUTH_LEAVING);
+>>>>>>> upstream/android-13
 
 	qtnf_scan_done(mac, true);
 }
 
 void qtnf_cfg80211_vif_reset(struct qtnf_vif *vif)
 {
+<<<<<<< HEAD
 	if (vif->wdev.iftype == NL80211_IFTYPE_STATION) {
 		switch (vif->sta_state) {
 		case QTNF_STA_CONNECTING:
@@ -1224,6 +1786,13 @@ void qtnf_cfg80211_vif_reset(struct qtnf_vif *vif)
 
 	cfg80211_shutdown_all_interfaces(vif->wdev.wiphy);
 	vif->sta_state = QTNF_STA_DISCONNECTED;
+=======
+	if (vif->wdev.iftype == NL80211_IFTYPE_STATION)
+		cfg80211_disconnected(vif->netdev, WLAN_REASON_DEAUTH_LEAVING,
+				      NULL, 0, 1, GFP_KERNEL);
+
+	cfg80211_shutdown_all_interfaces(vif->wdev.wiphy);
+>>>>>>> upstream/android-13
 }
 
 void qtnf_band_init_rates(struct ieee80211_supported_band *band)

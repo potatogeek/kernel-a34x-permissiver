@@ -7,7 +7,11 @@ obj-$(CONFIG_ZORRO)	+= zorro.o zorro-driver.o zorro-sysfs.o
 obj-$(CONFIG_PROC_FS)	+= proc.o
 obj-$(CONFIG_ZORRO_NAMES) +=  names.o
 
+<<<<<<< HEAD
 hostprogs-y 		:= gen-devlist
+=======
+hostprogs		:= gen-devlist
+>>>>>>> upstream/android-13
 
 # Files generated that shall be removed upon make clean
 clean-files := devlist.h

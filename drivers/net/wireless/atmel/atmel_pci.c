@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*** -*- linux-c -*- **********************************************************
 
      Driver for Atmel at76c502 at76c504 and at76c506 wireless cards.
 
          Copyright 2004 Simon Kelley.
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
     You should have received a copy of the GNU General Public License
     along with Atmel wireless lan drivers; if not, see
     <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 
 ******************************************************************************/
 #include <linux/pci.h>
@@ -28,7 +35,10 @@
 MODULE_AUTHOR("Simon Kelley");
 MODULE_DESCRIPTION("Support for Atmel at76c50x 802.11 wireless ethernet cards.");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Atmel at76c506 PCI wireless cards");
+=======
+>>>>>>> upstream/android-13
 
 static const struct pci_device_id card_ids[] = {
 	{ 0x1114, 0x0506, PCI_ANY_ID, PCI_ANY_ID },

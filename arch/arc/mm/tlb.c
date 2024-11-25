@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * TLB Management (flush/create/diagnostics) for ARC700
  *
@@ -49,6 +50,14 @@
  *              flush is more than the size of TLB itself.
  *
  * Rahul Trivedi : Codito Technologies 2004
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * TLB Management (flush/create/diagnostics) for MMUv3 and MMUv4
+ *
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+ *
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -60,6 +69,7 @@
 #include <asm/mmu_context.h>
 #include <asm/mmu.h>
 
+<<<<<<< HEAD
 /*			Need for ARC MMU v2
  *
  * ARC700 MMU-v1 had a Joint-TLB for Code and Data and is 2 way set-assoc.
@@ -101,6 +111,8 @@
  */
 
 
+=======
+>>>>>>> upstream/android-13
 /* A copy of the ASID from the PID reg is kept in asid_cache */
 DEFINE_PER_CPU(unsigned int, asid_cache) = MM_CTXT_FIRST_CYCLE;
 
@@ -121,7 +133,16 @@ static inline void __tlb_entry_erase(void)
 	write_aux_reg(ARC_REG_TLBCOMMAND, TLBWrite);
 }
 
+<<<<<<< HEAD
 #if (CONFIG_ARC_MMU_VER < 4)
+=======
+static void utlb_invalidate(void)
+{
+	write_aux_reg(ARC_REG_TLBCOMMAND, TLBIVUTLB);
+}
+
+#ifdef CONFIG_ARC_MMU_V3
+>>>>>>> upstream/android-13
 
 static inline unsigned int tlb_entry_lkup(unsigned long vaddr_n_asid)
 {
@@ -152,6 +173,7 @@ static void tlb_entry_erase(unsigned int vaddr_n_asid)
 	}
 }
 
+<<<<<<< HEAD
 /****************************************************************************
  * ARC700 MMU caches recently used J-TLB entries (RAM) as uTLBs (FLOPs)
  *
@@ -191,6 +213,9 @@ static void utlb_invalidate(void)
 }
 
 static void tlb_entry_insert(unsigned int pd0, pte_t pd1)
+=======
+static void tlb_entry_insert(unsigned int pd0, phys_addr_t pd1)
+>>>>>>> upstream/android-13
 {
 	unsigned int idx;
 
@@ -220,12 +245,16 @@ static void tlb_entry_insert(unsigned int pd0, pte_t pd1)
 	write_aux_reg(ARC_REG_TLBCOMMAND, TLBWrite);
 }
 
+<<<<<<< HEAD
 #else	/* CONFIG_ARC_MMU_VER >= 4) */
 
 static void utlb_invalidate(void)
 {
 	/* No need since uTLB is always in sync with JTLB */
 }
+=======
+#else	/* MMUv4 */
+>>>>>>> upstream/android-13
 
 static void tlb_entry_erase(unsigned int vaddr_n_asid)
 {
@@ -233,6 +262,7 @@ static void tlb_entry_erase(unsigned int vaddr_n_asid)
 	write_aux_reg(ARC_REG_TLBCOMMAND, TLBDeleteEntry);
 }
 
+<<<<<<< HEAD
 static void tlb_entry_insert(unsigned int pd0, pte_t pd1)
 {
 	write_aux_reg(ARC_REG_TLBPD0, pd0);
@@ -240,6 +270,18 @@ static void tlb_entry_insert(unsigned int pd0, pte_t pd1)
 
 	if (is_pae40_enabled())
 		write_aux_reg(ARC_REG_TLBPD1HI, (u64)pd1 >> 32);
+=======
+static void tlb_entry_insert(unsigned int pd0, phys_addr_t pd1)
+{
+	write_aux_reg(ARC_REG_TLBPD0, pd0);
+
+	if (!is_pae40_enabled()) {
+		write_aux_reg(ARC_REG_TLBPD1, pd1);
+	} else {
+		write_aux_reg(ARC_REG_TLBPD1, pd1 & 0xFFFFFFFF);
+		write_aux_reg(ARC_REG_TLBPD1HI, (u64)pd1 >> 32);
+	}
+>>>>>>> upstream/android-13
 
 	write_aux_reg(ARC_REG_TLBCOMMAND, TLBInsertEntry);
 }
@@ -270,7 +312,11 @@ noinline void local_flush_tlb_all(void)
 	for (entry = 0; entry < num_tlb; entry++) {
 		/* write this entry to the TLB */
 		write_aux_reg(ARC_REG_TLBINDEX, entry);
+<<<<<<< HEAD
 		write_aux_reg(ARC_REG_TLBCOMMAND, TLBWrite);
+=======
+		write_aux_reg(ARC_REG_TLBCOMMAND, TLBWriteNI);
+>>>>>>> upstream/android-13
 	}
 
 	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
@@ -281,7 +327,11 @@ noinline void local_flush_tlb_all(void)
 
 		for (entry = stlb_idx; entry < stlb_idx + 16; entry++) {
 			write_aux_reg(ARC_REG_TLBINDEX, entry);
+<<<<<<< HEAD
 			write_aux_reg(ARC_REG_TLBCOMMAND, TLBWrite);
+=======
+			write_aux_reg(ARC_REG_TLBCOMMAND, TLBWriteNI);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -291,7 +341,11 @@ noinline void local_flush_tlb_all(void)
 }
 
 /*
+<<<<<<< HEAD
  * Flush the entrie MM for userland. The fastest way is to move to Next ASID
+=======
+ * Flush the entire MM for userland. The fastest way is to move to Next ASID
+>>>>>>> upstream/android-13
  */
 noinline void local_flush_tlb_mm(struct mm_struct *mm)
 {
@@ -322,7 +376,11 @@ noinline void local_flush_tlb_mm(struct mm_struct *mm)
  * Difference between this and Kernel Range Flush is
  *  -Here the fastest way (if range is too large) is to move to next ASID
  *      without doing any explicit Shootdown
+<<<<<<< HEAD
  *  -In case of kernel Flush, entry has to be shot down explictly
+=======
+ *  -In case of kernel Flush, entry has to be shot down explicitly
+>>>>>>> upstream/android-13
  */
 void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
 			   unsigned long end)
@@ -358,8 +416,11 @@ void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
 		}
 	}
 
+<<<<<<< HEAD
 	utlb_invalidate();
 
+=======
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 }
 
@@ -388,8 +449,11 @@ void local_flush_tlb_kernel_range(unsigned long start, unsigned long end)
 		start += PAGE_SIZE;
 	}
 
+<<<<<<< HEAD
 	utlb_invalidate();
 
+=======
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 }
 
@@ -410,7 +474,10 @@ void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
 
 	if (asid_mm(vma->vm_mm, cpu) != MM_CTXT_NO_ASID) {
 		tlb_entry_erase((page & PAGE_MASK) | hw_pid(vma->vm_mm, cpu));
+<<<<<<< HEAD
 		utlb_invalidate();
+=======
+>>>>>>> upstream/android-13
 	}
 
 	local_irq_restore(flags);
@@ -520,7 +587,11 @@ void create_tlb(struct vm_area_struct *vma, unsigned long vaddr, pte_t *ptep)
 	unsigned long flags;
 	unsigned int asid_or_sasid, rwx;
 	unsigned long pd0;
+<<<<<<< HEAD
 	pte_t pd1;
+=======
+	phys_addr_t pd1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * create_tlb() assumes that current->mm == vma->mm, since
@@ -529,7 +600,10 @@ void create_tlb(struct vm_area_struct *vma, unsigned long vaddr, pte_t *ptep)
 	 *
 	 * Removing the assumption involves
 	 * -Using vma->mm->context{ASID,SASID}, as opposed to MMU reg.
+<<<<<<< HEAD
 	 * -Fix the TLB paranoid debug code to not trigger false negatives.
+=======
+>>>>>>> upstream/android-13
 	 * -More importantly it makes this handler inconsistent with fast-path
 	 *  TLB Refill handler which always deals with "current"
 	 *
@@ -552,8 +626,11 @@ void create_tlb(struct vm_area_struct *vma, unsigned long vaddr, pte_t *ptep)
 
 	local_irq_save(flags);
 
+<<<<<<< HEAD
 	tlb_paranoid_check(asid_mm(vma->vm_mm, smp_processor_id()), vaddr);
 
+=======
+>>>>>>> upstream/android-13
 	vaddr &= PAGE_MASK;
 
 	/* update this PTE credentials */
@@ -600,7 +677,11 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long vaddr_unaligned,
 		      pte_t *ptep)
 {
 	unsigned long vaddr = vaddr_unaligned & PAGE_MASK;
+<<<<<<< HEAD
 	phys_addr_t paddr = pte_val(*ptep) & PAGE_MASK;
+=======
+	phys_addr_t paddr = pte_val(*ptep) & PAGE_MASK_PHYS;
+>>>>>>> upstream/android-13
 	struct page *page = pfn_to_page(pte_pfn(*ptep));
 
 	create_tlb(vma, vaddr, ptep);
@@ -644,7 +725,11 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long vaddr_unaligned,
  * Super Page size is configurable in hardware (4K to 16M), but fixed once
  * RTL builds.
  *
+<<<<<<< HEAD
  * The exact THP size a Linx configuration will support is a function of:
+=======
+ * The exact THP size a Linux configuration will support is a function of:
+>>>>>>> upstream/android-13
  *  - MMU page size (typical 8K, RTL fixed)
  *  - software page walker address split between PGD:PTE:PFN (typical
  *    11:8:13, but can be changed with 1 line)
@@ -663,6 +748,7 @@ void update_mmu_cache_pmd(struct vm_area_struct *vma, unsigned long addr,
 	update_mmu_cache(vma, addr, &pte);
 }
 
+<<<<<<< HEAD
 void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
 				pgtable_t pgtable)
 {
@@ -700,6 +786,8 @@ pgtable_t pgtable_trans_huge_withdraw(struct mm_struct *mm, pmd_t *pmdp)
 	return pgtable;
 }
 
+=======
+>>>>>>> upstream/android-13
 void local_flush_pmd_tlb_range(struct vm_area_struct *vma, unsigned long start,
 			       unsigned long end)
 {
@@ -722,7 +810,11 @@ void local_flush_pmd_tlb_range(struct vm_area_struct *vma, unsigned long start,
 
 #endif
 
+<<<<<<< HEAD
 /* Read the Cache Build Confuration Registers, Decode them and save into
+=======
+/* Read the Cache Build Configuration Registers, Decode them and save into
+>>>>>>> upstream/android-13
  * the cpuinfo structure for later use.
  * No Validation is done here, simply read/convert the BCRs
  */
@@ -730,6 +822,7 @@ void read_decode_mmu_bcr(void)
 {
 	struct cpuinfo_arc_mmu *mmu = &cpuinfo_arc700[smp_processor_id()].mmu;
 	unsigned int tmp;
+<<<<<<< HEAD
 	struct bcr_mmu_1_2 {
 #ifdef CONFIG_CPU_BIG_ENDIAN
 		unsigned int ver:8, ways:4, sets:4, u_itlb:8, u_dtlb:8;
@@ -738,6 +831,8 @@ void read_decode_mmu_bcr(void)
 #endif
 	} *mmu2;
 
+=======
+>>>>>>> upstream/android-13
 	struct bcr_mmu_3 {
 #ifdef CONFIG_CPU_BIG_ENDIAN
 	unsigned int ver:8, ways:4, sets:4, res:3, sasid:1, pg_sz:4,
@@ -762,6 +857,7 @@ void read_decode_mmu_bcr(void)
 	tmp = read_aux_reg(ARC_REG_MMU_BCR);
 	mmu->ver = (tmp >> 24);
 
+<<<<<<< HEAD
 	if (is_isa_arcompact()) {
 		if (mmu->ver <= 2) {
 			mmu2 = (struct bcr_mmu_1_2 *)&tmp;
@@ -779,6 +875,16 @@ void read_decode_mmu_bcr(void)
 			mmu->u_itlb = mmu3->u_itlb;
 			mmu->sasid = mmu3->sasid;
 		}
+=======
+	if (is_isa_arcompact() && mmu->ver == 3) {
+		mmu3 = (struct bcr_mmu_3 *)&tmp;
+		mmu->pg_sz_k = 1 << (mmu3->pg_sz - 1);
+		mmu->sets = 1 << mmu3->sets;
+		mmu->ways = 1 << mmu3->ways;
+		mmu->u_dtlb = mmu3->u_dtlb;
+		mmu->u_itlb = mmu3->u_itlb;
+		mmu->sasid = mmu3->sasid;
+>>>>>>> upstream/android-13
 	} else {
 		mmu4 = (struct bcr_mmu_4 *)&tmp;
 		mmu->pg_sz_k = 1 << (mmu4->sz0 - 1);
@@ -804,8 +910,13 @@ char *arc_mmu_mumbojumbo(int cpu_id, char *buf, int len)
 			  IS_USED_CFG(CONFIG_TRANSPARENT_HUGEPAGE));
 
 	n += scnprintf(buf + n, len - n,
+<<<<<<< HEAD
 		      "MMU [v%x]\t: %dk PAGE, %sJTLB %d (%dx%d), uDTLB %d, uITLB %d%s%s\n",
 		       p_mmu->ver, p_mmu->pg_sz_k, super_pg,
+=======
+		      "MMU [v%x]\t: %dk PAGE, %s, swalk %d lvl, JTLB %d (%dx%d), uDTLB %d, uITLB %d%s%s\n",
+		       p_mmu->ver, p_mmu->pg_sz_k, super_pg,  CONFIG_PGTABLE_LEVELS,
+>>>>>>> upstream/android-13
 		       p_mmu->sets * p_mmu->ways, p_mmu->sets, p_mmu->ways,
 		       p_mmu->u_dtlb, p_mmu->u_itlb,
 		       IS_AVAIL2(p_mmu->pae, ", PAE40 ", CONFIG_ARC_HAS_PAE40));
@@ -827,18 +938,27 @@ void arc_mmu_init(void)
 	pr_info("%s", arc_mmu_mumbojumbo(0, str, sizeof(str)));
 
 	/*
+<<<<<<< HEAD
 	 * Can't be done in processor.h due to header include depenedencies
+=======
+	 * Can't be done in processor.h due to header include dependencies
+>>>>>>> upstream/android-13
 	 */
 	BUILD_BUG_ON(!IS_ALIGNED((CONFIG_ARC_KVADDR_SIZE << 20), PMD_SIZE));
 
 	/*
 	 * stack top size sanity check,
+<<<<<<< HEAD
 	 * Can't be done in processor.h due to header include depenedencies
+=======
+	 * Can't be done in processor.h due to header include dependencies
+>>>>>>> upstream/android-13
 	 */
 	BUILD_BUG_ON(!IS_ALIGNED(STACK_TOP, PMD_SIZE));
 
 	/*
 	 * Ensure that MMU features assumed by kernel exist in hardware.
+<<<<<<< HEAD
 	 * For older ARC700 cpus, it has to be exact match, since the MMU
 	 * revisions were not backwards compatible (MMUv3 TLB layout changed
 	 * so even if kernel for v2 didn't use any new cmds of v3, it would
@@ -855,6 +975,19 @@ void arc_mmu_init(void)
 		panic("MMU ver %d doesn't match kernel built for %d...\n",
 		      mmu->ver, CONFIG_ARC_MMU_VER);
 	}
+=======
+	 *  - For older ARC700 cpus, only v3 supported
+	 *  - For HS cpus, v4 was baseline and v5 is backwards compatible
+	 *    (will run older software).
+	 */
+	if (is_isa_arcompact() && mmu->ver == 3)
+		compat = 1;
+	else if (is_isa_arcv2() && mmu->ver >= 4)
+		compat = 1;
+
+	if (!compat)
+		panic("MMU ver %d doesn't match kernel built for\n", mmu->ver);
+>>>>>>> upstream/android-13
 
 	if (mmu->pg_sz_k != TO_KB(PAGE_SIZE))
 		panic("MMU pg size != PAGE_SIZE (%luk)\n", TO_KB(PAGE_SIZE));
@@ -867,6 +1000,7 @@ void arc_mmu_init(void)
 	if (IS_ENABLED(CONFIG_ARC_HAS_PAE40) && !mmu->pae)
 		panic("Hardware doesn't support PAE40\n");
 
+<<<<<<< HEAD
 	/* Enable the MMU */
 	write_aux_reg(ARC_REG_PID, MMU_ENABLE);
 
@@ -875,6 +1009,13 @@ void arc_mmu_init(void)
 	/* swapper_pg_dir is the pgd for the kernel, used by vmalloc */
 	write_aux_reg(ARC_REG_SCRATCH_DATA0, swapper_pg_dir);
 #endif
+=======
+	/* Enable the MMU with ASID 0 */
+	mmu_setup_asid(NULL, 0);
+
+	/* cache the pgd pointer in MMU SCRATCH reg (ARCv2 only) */
+	mmu_setup_pgd(NULL, swapper_pg_dir);
+>>>>>>> upstream/android-13
 
 	if (pae40_exist_but_not_enab())
 		write_aux_reg(ARC_REG_TLBPD1HI, 0);
@@ -905,7 +1046,11 @@ void arc_mmu_init(void)
  *      the duplicate one.
  * -Knob to be verbose abt it.(TODO: hook them up to debugfs)
  */
+<<<<<<< HEAD
 volatile int dup_pd_silent; /* Be slient abt it or complain (default) */
+=======
+volatile int dup_pd_silent; /* Be silent abt it or complain (default) */
+>>>>>>> upstream/android-13
 
 void do_tlb_overlap_fault(unsigned long cause, unsigned long address,
 			  struct pt_regs *regs)
@@ -969,6 +1114,7 @@ void do_tlb_overlap_fault(unsigned long cause, unsigned long address,
 
 	local_irq_restore(flags);
 }
+<<<<<<< HEAD
 
 /***********************************************************************
  * Diagnostic Routines
@@ -1006,3 +1152,5 @@ void tlb_paranoid_check(unsigned int mm_asid, unsigned long addr)
 		print_asid_mismatch(mm_asid, mmu_asid, 0);
 }
 #endif
+=======
+>>>>>>> upstream/android-13

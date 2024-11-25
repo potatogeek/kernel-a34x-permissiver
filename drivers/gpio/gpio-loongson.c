@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Loongson-2F/3A/3B GPIO Support
  *
@@ -5,11 +9,14 @@
  *  Copyright (c) 2008-2010 Arnaud Patard <apatard@mandriva.com>
  *  Copyright (c) 2013 Hongbing Hu <huhb@lemote.com>
  *  Copyright (c) 2014 Huacai Chen <chenhc@lemote.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -26,7 +33,11 @@
 #define STLS2F_N_GPIO		4
 #define STLS3A_N_GPIO		16
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_LOONGSON3
+=======
+#ifdef CONFIG_CPU_LOONGSON64
+>>>>>>> upstream/android-13
 #define LOONGSON_N_GPIO	STLS3A_N_GPIO
 #else
 #define LOONGSON_N_GPIO	STLS2F_N_GPIO

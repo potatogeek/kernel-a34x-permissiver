@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Atmel ALSA SoC Audio Class D Amplifier (CLASSD) driver
  *
  * Copyright (C) 2015 Atmel
  *
  * Author: Songjun Wu <songjun.wu@atmel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 or later
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of.h>
@@ -51,7 +58,11 @@ static struct atmel_classd_pdata *atmel_classd_dt_init(struct device *dev)
 {
 	struct device_node *np = dev->of_node;
 	struct atmel_classd_pdata *pdata;
+<<<<<<< HEAD
 	const char *pwm_type;
+=======
+	const char *pwm_type_s;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!np) {
@@ -63,8 +74,13 @@ static struct atmel_classd_pdata *atmel_classd_dt_init(struct device *dev)
 	if (!pdata)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	ret = of_property_read_string(np, "atmel,pwm-type", &pwm_type);
 	if ((ret == 0) && (strcmp(pwm_type, "diff") == 0))
+=======
+	ret = of_property_read_string(np, "atmel,pwm-type", &pwm_type_s);
+	if ((ret == 0) && (strcmp(pwm_type_s, "diff") == 0))
+>>>>>>> upstream/android-13
 		pdata->pwm_type = CLASSD_MR_PWMTYP_DIFF;
 	else
 		pdata->pwm_type = CLASSD_MR_PWMTYP_SINGLE;
@@ -121,6 +137,7 @@ static const struct snd_pcm_hardware atmel_classd_hw = {
 static int atmel_classd_cpu_dai_startup(struct snd_pcm_substream *substream,
 					struct snd_soc_dai *cpu_dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct atmel_classd *dd = snd_soc_card_get_drvdata(rtd->card);
 
@@ -156,13 +173,36 @@ static const struct snd_soc_component_driver atmel_classd_cpu_dai_component = {
 	.name = "atmel-classd",
 };
 
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct atmel_classd *dd = snd_soc_card_get_drvdata(rtd->card);
+	int err;
+
+	regmap_write(dd->regmap, CLASSD_THR, 0x0);
+
+	err = clk_prepare_enable(dd->pclk);
+	if (err)
+		return err;
+	err = clk_prepare_enable(dd->gclk);
+	if (err) {
+		clk_disable_unprepare(dd->pclk);
+		return err;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* platform */
 static int
 atmel_classd_platform_configure_dma(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params,
 	struct dma_slave_config *slave_config)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct atmel_classd *dd = snd_soc_card_get_drvdata(rtd->card);
 
 	if (params_physical_width(params) != 16) {
@@ -309,6 +349,7 @@ static int atmel_classd_component_resume(struct snd_soc_component *component)
 	return regcache_sync(dd->regmap);
 }
 
+<<<<<<< HEAD
 static struct snd_soc_component_driver soc_component_dev_classd = {
 	.probe			= atmel_classd_component_probe,
 	.resume			= atmel_classd_component_resume,
@@ -334,6 +375,12 @@ static int atmel_classd_codec_dai_digital_mute(struct snd_soc_dai *codec_dai,
 	int mute)
 {
 	struct snd_soc_component *component = codec_dai->component;
+=======
+static int atmel_classd_cpu_dai_mute_stream(struct snd_soc_dai *cpu_dai,
+					    int mute, int direction)
+{
+	struct snd_soc_component *component = cpu_dai->component;
+>>>>>>> upstream/android-13
 	u32 mask, val;
 
 	mask = CLASSD_MR_LMUTE_MASK | CLASSD_MR_RMUTE_MASK;
@@ -376,6 +423,7 @@ static struct {
 };
 
 static int
+<<<<<<< HEAD
 atmel_classd_codec_dai_hw_params(struct snd_pcm_substream *substream,
 			    struct snd_pcm_hw_params *params,
 			    struct snd_soc_dai *codec_dai)
@@ -383,6 +431,15 @@ atmel_classd_codec_dai_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct atmel_classd *dd = snd_soc_card_get_drvdata(rtd->card);
 	struct snd_soc_component *component = codec_dai->component;
+=======
+atmel_classd_cpu_dai_hw_params(struct snd_pcm_substream *substream,
+			       struct snd_pcm_hw_params *params,
+			       struct snd_soc_dai *cpu_dai)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct atmel_classd *dd = snd_soc_card_get_drvdata(rtd->card);
+	struct snd_soc_component *component = cpu_dai->component;
+>>>>>>> upstream/android-13
 	int fs;
 	int i, best, best_val, cur_val, ret;
 	u32 mask, val;
@@ -420,19 +477,33 @@ atmel_classd_codec_dai_hw_params(struct snd_pcm_substream *substream,
 }
 
 static void
+<<<<<<< HEAD
 atmel_classd_codec_dai_shutdown(struct snd_pcm_substream *substream,
 			    struct snd_soc_dai *codec_dai)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+atmel_classd_cpu_dai_shutdown(struct snd_pcm_substream *substream,
+			      struct snd_soc_dai *cpu_dai)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct atmel_classd *dd = snd_soc_card_get_drvdata(rtd->card);
 
 	clk_disable_unprepare(dd->gclk);
 }
 
+<<<<<<< HEAD
 static int atmel_classd_codec_dai_prepare(struct snd_pcm_substream *substream,
 					struct snd_soc_dai *codec_dai)
 {
 	struct snd_soc_component *component = codec_dai->component;
+=======
+static int atmel_classd_cpu_dai_prepare(struct snd_pcm_substream *substream,
+					struct snd_soc_dai *cpu_dai)
+{
+	struct snd_soc_component *component = cpu_dai->component;
+>>>>>>> upstream/android-13
 
 	snd_soc_component_update_bits(component, CLASSD_MR,
 				CLASSD_MR_LEN_MASK | CLASSD_MR_REN_MASK,
@@ -442,10 +513,17 @@ static int atmel_classd_codec_dai_prepare(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_classd_codec_dai_trigger(struct snd_pcm_substream *substream,
 					int cmd, struct snd_soc_dai *codec_dai)
 {
 	struct snd_soc_component *component = codec_dai->component;
+=======
+static int atmel_classd_cpu_dai_trigger(struct snd_pcm_substream *substream,
+					int cmd, struct snd_soc_dai *cpu_dai)
+{
+	struct snd_soc_component *component = cpu_dai->component;
+>>>>>>> upstream/android-13
 	u32 mask, val;
 
 	mask = CLASSD_MR_LEN_MASK | CLASSD_MR_REN_MASK;
@@ -471,6 +549,7 @@ static int atmel_classd_codec_dai_trigger(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_soc_dai_ops atmel_classd_codec_dai_ops = {
 	.digital_mute	= atmel_classd_codec_dai_digital_mute,
 	.startup	= atmel_classd_codec_dai_startup,
@@ -484,6 +563,19 @@ static const struct snd_soc_dai_ops atmel_classd_codec_dai_ops = {
 
 static struct snd_soc_dai_driver atmel_classd_codec_dai = {
 	.name = ATMEL_CLASSD_CODEC_DAI_NAME,
+=======
+static const struct snd_soc_dai_ops atmel_classd_cpu_dai_ops = {
+	.startup        = atmel_classd_cpu_dai_startup,
+	.shutdown       = atmel_classd_cpu_dai_shutdown,
+	.mute_stream	= atmel_classd_cpu_dai_mute_stream,
+	.hw_params	= atmel_classd_cpu_dai_hw_params,
+	.prepare	= atmel_classd_cpu_dai_prepare,
+	.trigger	= atmel_classd_cpu_dai_trigger,
+	.no_capture_mute = 1,
+};
+
+static struct snd_soc_dai_driver atmel_classd_cpu_dai = {
+>>>>>>> upstream/android-13
 	.playback = {
 		.stream_name	= "Playback",
 		.channels_min	= 1,
@@ -491,7 +583,22 @@ static struct snd_soc_dai_driver atmel_classd_codec_dai = {
 		.rates		= ATMEL_CLASSD_RATES,
 		.formats	= SNDRV_PCM_FMTBIT_S16_LE,
 	},
+<<<<<<< HEAD
 	.ops = &atmel_classd_codec_dai_ops,
+=======
+	.ops = &atmel_classd_cpu_dai_ops,
+};
+
+static const struct snd_soc_component_driver atmel_classd_cpu_dai_component = {
+	.name			= "atmel-classd",
+	.probe			= atmel_classd_component_probe,
+	.resume			= atmel_classd_component_resume,
+	.controls		= atmel_classd_snd_controls,
+	.num_controls		= ARRAY_SIZE(atmel_classd_snd_controls),
+	.idle_bias_on		= 1,
+	.use_pmdown_time	= 1,
+	.endianness		= 1,
+>>>>>>> upstream/android-13
 };
 
 /* ASoC sound card */
@@ -500,17 +607,42 @@ static int atmel_classd_asoc_card_init(struct device *dev,
 {
 	struct snd_soc_dai_link *dai_link;
 	struct atmel_classd *dd = snd_soc_card_get_drvdata(card);
+<<<<<<< HEAD
+=======
+	struct snd_soc_dai_link_component *comp;
+>>>>>>> upstream/android-13
 
 	dai_link = devm_kzalloc(dev, sizeof(*dai_link), GFP_KERNEL);
 	if (!dai_link)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	dai_link->name			= "CLASSD";
 	dai_link->stream_name		= "CLASSD PCM";
 	dai_link->codec_dai_name	= ATMEL_CLASSD_CODEC_DAI_NAME;
 	dai_link->cpu_dai_name		= dev_name(dev);
 	dai_link->codec_name		= dev_name(dev);
 	dai_link->platform_name		= dev_name(dev);
+=======
+	comp = devm_kzalloc(dev, 3 * sizeof(*comp), GFP_KERNEL);
+	if (!comp)
+		return -ENOMEM;
+
+	dai_link->cpus		= &comp[0];
+	dai_link->codecs	= &comp[1];
+	dai_link->platforms	= &comp[2];
+
+	dai_link->num_cpus	= 1;
+	dai_link->num_codecs	= 1;
+	dai_link->num_platforms	= 1;
+
+	dai_link->name			= "CLASSD";
+	dai_link->stream_name		= "CLASSD PCM";
+	dai_link->codecs->dai_name	= "snd-soc-dummy-dai";
+	dai_link->cpus->dai_name	= dev_name(dev);
+	dai_link->codecs->name		= "snd-soc-dummy";
+	dai_link->platforms->name	= dev_name(dev);
+>>>>>>> upstream/android-13
 
 	card->dai_link	= dai_link;
 	card->num_links	= 1;
@@ -561,11 +693,16 @@ static int atmel_classd_probe(struct platform_device *pdev)
 	dd->pdata = pdata;
 
 	dd->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (dd->irq < 0) {
 		ret = dd->irq;
 		dev_err(dev, "failed to could not get irq: %d\n", ret);
 		return ret;
 	}
+=======
+	if (dd->irq < 0)
+		return dd->irq;
+>>>>>>> upstream/android-13
 
 	dd->pclk = devm_clk_get(dev, "pclk");
 	if (IS_ERR(dd->pclk)) {
@@ -581,8 +718,12 @@ static int atmel_classd_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	io_base = devm_ioremap_resource(dev, res);
+=======
+	io_base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(io_base))
 		return PTR_ERR(io_base);
 
@@ -613,6 +754,7 @@ static int atmel_classd_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = devm_snd_soc_register_component(dev, &soc_component_dev_classd,
 					&atmel_classd_codec_dai, 1);
 	if (ret) {
@@ -620,6 +762,8 @@ static int atmel_classd_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* register sound card */
 	card = devm_kzalloc(dev, sizeof(*card), GFP_KERNEL);
 	if (!card) {

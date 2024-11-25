@@ -91,6 +91,14 @@ DEVICE(moto_modem, MOTO_IDS);
 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
 DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
 
+<<<<<<< HEAD
+=======
+/* Nokia mobile phone driver */
+#define NOKIA_IDS()			\
+	{ USB_DEVICE(0x0421, 0x069a) }	/* Nokia 130 (RM-1035) */
+DEVICE(nokia, NOKIA_IDS);
+
+>>>>>>> upstream/android-13
 /* Novatel Wireless GPS driver */
 #define NOVATEL_IDS()			\
 	{ USB_DEVICE(0x09d7, 0x0100) }	/* NovAtel FlexPack GPS */
@@ -123,6 +131,10 @@ static struct usb_serial_driver * const serial_drivers[] = {
 	&vivopay_device,
 	&moto_modem_device,
 	&motorola_tetra_device,
+<<<<<<< HEAD
+=======
+	&nokia_device,
+>>>>>>> upstream/android-13
 	&novatel_gps_device,
 	&hp4x_device,
 	&suunto_device,
@@ -140,6 +152,10 @@ static const struct usb_device_id id_table[] = {
 	VIVOPAY_IDS(),
 	MOTO_IDS(),
 	MOTOROLA_TETRA_IDS(),
+<<<<<<< HEAD
+=======
+	NOKIA_IDS(),
+>>>>>>> upstream/android-13
 	NOVATEL_IDS(),
 	HP4X_IDS(),
 	SUUNTO_IDS(),

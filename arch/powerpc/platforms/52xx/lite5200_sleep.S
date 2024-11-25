@@ -56,7 +56,11 @@ lite5200_low_power:
 	/*
 	 * save stuff BDI overwrites
 	 * 0xf0 (0xe0->0x100 gets overwritten when BDI connected;
+<<<<<<< HEAD
 	 *   even when CONFIG_BDI* is disabled and MMU XLAT commented; heisenbug?))
+=======
+	 *   even when CONFIG_BDI_SWITCH is disabled and MMU XLAT commented; heisenbug?))
+>>>>>>> upstream/android-13
 	 * WARNING: self-refresh doesn't seem to work when BDI2000 is connected,
 	 *   possibly because BDI sets SDRAM registers before wakeup code does
 	 */
@@ -248,6 +252,10 @@ mmu_on:
 
 
 	blr
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(lite5200_wakeup)
+>>>>>>> upstream/android-13
 
 
 /* ---------------------------------------------------------------------- */
@@ -391,6 +399,10 @@ restore_regs:
 	LOAD_SPRN(TBWU,  0x5b);
 
 	blr
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(restore_regs)
+>>>>>>> upstream/android-13
 
 
 

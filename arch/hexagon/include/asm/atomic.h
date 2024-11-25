@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Atomic operations for the Hexagon architecture
  *
  * Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ATOMIC_H
@@ -26,11 +33,17 @@
 #include <asm/cmpxchg.h>
 #include <asm/barrier.h>
 
+<<<<<<< HEAD
 #define ATOMIC_INIT(i)		{ (i) }
 
 /*  Normal writes in our arch don't clear lock reservations  */
 
 static inline void atomic_set(atomic_t *v, int new)
+=======
+/*  Normal writes in our arch don't clear lock reservations  */
+
+static inline void arch_atomic_set(atomic_t *v, int new)
+>>>>>>> upstream/android-13
 {
 	asm volatile(
 		"1:	r6 = memw_locked(%0);\n"
@@ -42,14 +55,22 @@ static inline void atomic_set(atomic_t *v, int new)
 	);
 }
 
+<<<<<<< HEAD
 #define atomic_set_release(v, i)	atomic_set((v), (i))
 
 /**
  * atomic_read - reads a word, atomically
+=======
+#define arch_atomic_set_release(v, i)	arch_atomic_set((v), (i))
+
+/**
+ * arch_atomic_read - reads a word, atomically
+>>>>>>> upstream/android-13
  * @v: pointer to atomic value
  *
  * Assumes all word reads on our architecture are atomic.
  */
+<<<<<<< HEAD
 #define atomic_read(v)		READ_ONCE((v)->counter)
 
 /**
@@ -62,6 +83,20 @@ static inline void atomic_set(atomic_t *v, int new)
 
 /**
  * atomic_cmpxchg - atomic compare-and-exchange values
+=======
+#define arch_atomic_read(v)		READ_ONCE((v)->counter)
+
+/**
+ * arch_atomic_xchg - atomic
+ * @v: pointer to memory to change
+ * @new: new value (technically passed in a register -- see xchg)
+ */
+#define arch_atomic_xchg(v, new)	(arch_xchg(&((v)->counter), (new)))
+
+
+/**
+ * arch_atomic_cmpxchg - atomic compare-and-exchange values
+>>>>>>> upstream/android-13
  * @v: pointer to value to change
  * @old:  desired old value to match
  * @new:  new value to put in
@@ -77,7 +112,11 @@ static inline void atomic_set(atomic_t *v, int new)
  *
  * "old" is "expected" old val, __oldval is actual old value
  */
+<<<<<<< HEAD
 static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
+=======
+static inline int arch_atomic_cmpxchg(atomic_t *v, int old, int new)
+>>>>>>> upstream/android-13
 {
 	int __oldval;
 
@@ -97,7 +136,11 @@ static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
 }
 
 #define ATOMIC_OP(op)							\
+<<<<<<< HEAD
 static inline void atomic_##op(int i, atomic_t *v)			\
+=======
+static inline void arch_atomic_##op(int i, atomic_t *v)			\
+>>>>>>> upstream/android-13
 {									\
 	int output;							\
 									\
@@ -113,7 +156,11 @@ static inline void atomic_##op(int i, atomic_t *v)			\
 }									\
 
 #define ATOMIC_OP_RETURN(op)						\
+<<<<<<< HEAD
 static inline int atomic_##op##_return(int i, atomic_t *v)		\
+=======
+static inline int arch_atomic_##op##_return(int i, atomic_t *v)		\
+>>>>>>> upstream/android-13
 {									\
 	int output;							\
 									\
@@ -130,7 +177,11 @@ static inline int atomic_##op##_return(int i, atomic_t *v)		\
 }
 
 #define ATOMIC_FETCH_OP(op)						\
+<<<<<<< HEAD
 static inline int atomic_fetch_##op(int i, atomic_t *v)			\
+=======
+static inline int arch_atomic_fetch_##op(int i, atomic_t *v)		\
+>>>>>>> upstream/android-13
 {									\
 	int output, val;						\
 									\
@@ -164,7 +215,11 @@ ATOMIC_OPS(xor)
 #undef ATOMIC_OP
 
 /**
+<<<<<<< HEAD
  * atomic_fetch_add_unless - add unless the number is a given value
+=======
+ * arch_atomic_fetch_add_unless - add unless the number is a given value
+>>>>>>> upstream/android-13
  * @v: pointer to value
  * @a: amount to add
  * @u: unless value is equal to u
@@ -173,7 +228,11 @@ ATOMIC_OPS(xor)
  *
  */
 
+<<<<<<< HEAD
 static inline int atomic_fetch_add_unless(atomic_t *v, int a, int u)
+=======
+static inline int arch_atomic_fetch_add_unless(atomic_t *v, int a, int u)
+>>>>>>> upstream/android-13
 {
 	int __oldval;
 	register int tmp;
@@ -196,6 +255,10 @@ static inline int atomic_fetch_add_unless(atomic_t *v, int a, int u)
 	);
 	return __oldval;
 }
+<<<<<<< HEAD
 #define atomic_fetch_add_unless atomic_fetch_add_unless
+=======
+#define arch_atomic_fetch_add_unless arch_atomic_fetch_add_unless
+>>>>>>> upstream/android-13
 
 #endif

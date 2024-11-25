@@ -3,7 +3,11 @@
  *
  * Module Name: psloop - Main AML parse loop
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -32,10 +36,13 @@ static acpi_status
 acpi_ps_get_arguments(struct acpi_walk_state *walk_state,
 		      u8 * aml_op_start, union acpi_parse_object *op);
 
+<<<<<<< HEAD
 static void
 acpi_ps_link_module_code(union acpi_parse_object *parent_op,
 			 u8 *aml_start, u32 aml_length, acpi_owner_id owner_id);
 
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ps_get_arguments
@@ -56,7 +63,10 @@ acpi_ps_get_arguments(struct acpi_walk_state *walk_state,
 {
 	acpi_status status = AE_OK;
 	union acpi_parse_object *arg = NULL;
+<<<<<<< HEAD
 	const struct acpi_opcode_info *op_info;
+=======
+>>>>>>> upstream/android-13
 
 	ACPI_FUNCTION_TRACE_PTR(ps_get_arguments, walk_state);
 
@@ -136,6 +146,7 @@ acpi_ps_get_arguments(struct acpi_walk_state *walk_state,
 				  walk_state->arg_count,
 				  walk_state->pass_number));
 
+<<<<<<< HEAD
 		/*
 		 * This case handles the legacy option that groups all module-level
 		 * code blocks together and defers execution until all of the tables
@@ -226,6 +237,8 @@ acpi_ps_get_arguments(struct acpi_walk_state *walk_state,
 			}
 		}
 
+=======
+>>>>>>> upstream/android-13
 		/* Special processing for certain opcodes */
 
 		switch (op->common.aml_opcode) {
@@ -302,6 +315,7 @@ acpi_ps_get_arguments(struct acpi_walk_state *walk_state,
 
 /*******************************************************************************
  *
+<<<<<<< HEAD
  * FUNCTION:    acpi_ps_link_module_code
  *
  * PARAMETERS:  parent_op           - Parent parser op
@@ -400,6 +414,8 @@ acpi_ps_link_module_code(union acpi_parse_object *parent_op,
 
 /*******************************************************************************
  *
+=======
+>>>>>>> upstream/android-13
  * FUNCTION:    acpi_ps_parse_loop
  *
  * PARAMETERS:  walk_state          - Current state
@@ -428,7 +444,11 @@ acpi_status acpi_ps_parse_loop(struct acpi_walk_state *walk_state)
 	parser_state = &walk_state->parser_state;
 	walk_state->arg_types = 0;
 
+<<<<<<< HEAD
 #if (!defined (ACPI_NO_METHOD_EXECUTION) && !defined (ACPI_CONSTANT_EVAL_ONLY))
+=======
+#ifndef ACPI_CONSTANT_EVAL_ONLY
+>>>>>>> upstream/android-13
 
 	if (walk_state->walk_type & ACPI_WALK_METHOD_RESTART) {
 
@@ -457,8 +477,12 @@ acpi_status acpi_ps_parse_loop(struct acpi_walk_state *walk_state)
 								ACPI_TO_POINTER
 								(TRUE));
 				if (ACPI_FAILURE(status)
+<<<<<<< HEAD
 				    && ((status & AE_CODE_MASK) !=
 					AE_CODE_CONTROL)) {
+=======
+				    && !ACPI_CNTL_EXCEPTION(status)) {
+>>>>>>> upstream/android-13
 					if (status == AE_AML_NO_RETURN_VALUE) {
 						ACPI_EXCEPTION((AE_INFO, status,
 								"Invoked method did not return a value"));
@@ -508,7 +532,12 @@ acpi_status acpi_ps_parse_loop(struct acpi_walk_state *walk_state)
 				 */
 				if ((walk_state->
 				     parse_flags & ACPI_PARSE_MODULE_LEVEL)
+<<<<<<< HEAD
 				    && status == AE_ALREADY_EXISTS) {
+=======
+				    && ((status == AE_ALREADY_EXISTS)
+					|| (status == AE_NOT_FOUND))) {
+>>>>>>> upstream/android-13
 					status = AE_OK;
 				}
 				if (status == AE_CTRL_PARSE_CONTINUE) {
@@ -537,10 +566,14 @@ acpi_status acpi_ps_parse_loop(struct acpi_walk_state *walk_state)
 					 * the scope op because the parse failure indicates that
 					 * the device may not exist.
 					 */
+<<<<<<< HEAD
 					ACPI_ERROR((AE_INFO,
 						    "Skip parsing opcode %s",
 						    acpi_ps_get_opcode_name
 						    (walk_state->opcode)));
+=======
+					ACPI_INFO(("Skipping parse of AML opcode: %s (0x%4.4X)", acpi_ps_get_opcode_name(walk_state->opcode), walk_state->opcode));
+>>>>>>> upstream/android-13
 
 					/*
 					 * Determine the opcode length before skipping the opcode.

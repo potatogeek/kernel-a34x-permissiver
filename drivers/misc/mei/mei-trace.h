@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Intel Management Engine Interface (Intel MEI) Linux driver
@@ -12,6 +13,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (c) 2015-2016, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 
 #if !defined(_MEI_TRACE_H_) || defined(TRACE_HEADER_MULTI_READ)
@@ -36,7 +43,11 @@ TRACE_EVENT(mei_reg_read,
 		__field(u32, val)
 	),
 	TP_fast_assign(
+<<<<<<< HEAD
 		__assign_str(dev, dev_name(dev))
+=======
+		__assign_str(dev, dev_name(dev));
+>>>>>>> upstream/android-13
 		__entry->reg  = reg;
 		__entry->offs = offs;
 		__entry->val = val;
@@ -55,7 +66,11 @@ TRACE_EVENT(mei_reg_write,
 		__field(u32, val)
 	),
 	TP_fast_assign(
+<<<<<<< HEAD
 		__assign_str(dev, dev_name(dev))
+=======
+		__assign_str(dev, dev_name(dev));
+>>>>>>> upstream/android-13
 		__entry->reg = reg;
 		__entry->offs = offs;
 		__entry->val = val;
@@ -74,7 +89,11 @@ TRACE_EVENT(mei_pci_cfg_read,
 		__field(u32, val)
 	),
 	TP_fast_assign(
+<<<<<<< HEAD
 		__assign_str(dev, dev_name(dev))
+=======
+		__assign_str(dev, dev_name(dev));
+>>>>>>> upstream/android-13
 		__entry->reg  = reg;
 		__entry->offs = offs;
 		__entry->val = val;

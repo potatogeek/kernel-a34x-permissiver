@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,6 +8,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2012 ARM Limited
  */
@@ -15,13 +20,20 @@
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/mfd/core.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of_platform.h>
 #include <linux/platform_data/syscon.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/stat.h>
+<<<<<<< HEAD
 #include <linux/vexpress.h>
+=======
+>>>>>>> upstream/android-13
 
 #define SYS_ID			0x000
 #define SYS_SW			0x004
@@ -44,6 +56,7 @@
 #define SYS_CFGCTRL		0x0a4
 #define SYS_CFGSTAT		0x0a8
 
+<<<<<<< HEAD
 #define SYS_HBI_MASK		0xfff
 #define SYS_PROCIDx_HBI_SHIFT	0
 
@@ -73,6 +86,10 @@ static struct syscon_platform_data vexpress_sysreg_sys_id_pdata = {
 	.label = "sys_id",
 };
 
+=======
+/* The sysreg block is just a random collection of various functions... */
+
+>>>>>>> upstream/android-13
 static struct bgpio_pdata vexpress_sysreg_sys_led_pdata = {
 	.label = "sys_led",
 	.base = -1,
@@ -91,6 +108,7 @@ static struct bgpio_pdata vexpress_sysreg_sys_flash_pdata = {
 	.ngpio = 1,
 };
 
+<<<<<<< HEAD
 static struct syscon_platform_data vexpress_sysreg_sys_misc_pdata = {
 	.label = "sys_misc",
 };
@@ -109,6 +127,10 @@ static struct mfd_cell vexpress_sysreg_cells[] = {
 		.platform_data = &vexpress_sysreg_sys_id_pdata,
 		.pdata_size = sizeof(vexpress_sysreg_sys_id_pdata),
 	}, {
+=======
+static struct mfd_cell vexpress_sysreg_cells[] = {
+	{
+>>>>>>> upstream/android-13
 		.name = "basic-mmio-gpio",
 		.of_compatible = "arm,vexpress-sysreg,sys_led",
 		.num_resources = 1,
@@ -136,6 +158,7 @@ static struct mfd_cell vexpress_sysreg_cells[] = {
 		.platform_data = &vexpress_sysreg_sys_flash_pdata,
 		.pdata_size = sizeof(vexpress_sysreg_sys_flash_pdata),
 	}, {
+<<<<<<< HEAD
 		.name = "syscon",
 		.num_resources = 1,
 		.resources = (struct resource []) {
@@ -156,6 +179,12 @@ static struct mfd_cell vexpress_sysreg_cells[] = {
 		.num_resources = 1,
 		.resources = (struct resource []) {
 			DEFINE_RES_MEM(SYS_CFGDATA, 0xc),
+=======
+		.name = "vexpress-syscfg",
+		.num_resources = 1,
+		.resources = (struct resource []) {
+			DEFINE_RES_MEM(SYS_MISC, 0x4c),
+>>>>>>> upstream/android-13
 		},
 	}
 };
@@ -165,8 +194,11 @@ static int vexpress_sysreg_probe(struct platform_device *pdev)
 	struct resource *mem;
 	void __iomem *base;
 	struct gpio_chip *mmc_gpio_chip;
+<<<<<<< HEAD
 	int master;
 	u32 dt_hbi;
+=======
+>>>>>>> upstream/android-13
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!mem)
@@ -176,6 +208,7 @@ static int vexpress_sysreg_probe(struct platform_device *pdev)
 	if (!base)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	master = readl(base + SYS_MISC) & SYS_MISC_MASTERSITE ?
 			VEXPRESS_SITE_DB2 : VEXPRESS_SITE_DB1;
 	vexpress_config_set_master(master);
@@ -191,6 +224,8 @@ static int vexpress_sysreg_probe(struct platform_device *pdev)
 					dt_hbi, hbi);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Duplicated SYS_MCI pseudo-GPIO controller for compatibility with
 	 * older trees using sysreg node for MMC control lines.
@@ -202,9 +237,15 @@ static int vexpress_sysreg_probe(struct platform_device *pdev)
 	bgpio_init(mmc_gpio_chip, &pdev->dev, 0x4, base + SYS_MCI,
 			NULL, NULL, NULL, NULL, 0);
 	mmc_gpio_chip->ngpio = 2;
+<<<<<<< HEAD
 	gpiochip_add_data(mmc_gpio_chip, NULL);
 
 	return mfd_add_devices(&pdev->dev, PLATFORM_DEVID_AUTO,
+=======
+	devm_gpiochip_add_data(&pdev->dev, mmc_gpio_chip, NULL);
+
+	return devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_AUTO,
+>>>>>>> upstream/android-13
 			vexpress_sysreg_cells,
 			ARRAY_SIZE(vexpress_sysreg_cells), mem, 0, NULL);
 }
@@ -213,6 +254,10 @@ static const struct of_device_id vexpress_sysreg_match[] = {
 	{ .compatible = "arm,vexpress-sysreg", },
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, vexpress_sysreg_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver vexpress_sysreg_driver = {
 	.driver = {
@@ -222,6 +267,7 @@ static struct platform_driver vexpress_sysreg_driver = {
 	.probe = vexpress_sysreg_probe,
 };
 
+<<<<<<< HEAD
 static int __init vexpress_sysreg_init(void)
 {
 	struct device_node *node;
@@ -233,3 +279,7 @@ static int __init vexpress_sysreg_init(void)
 	return platform_driver_register(&vexpress_sysreg_driver);
 }
 core_initcall(vexpress_sysreg_init);
+=======
+module_platform_driver(vexpress_sysreg_driver);
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

@@ -7,11 +7,21 @@
  */
 
 #include <linux/component.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/reset.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <drm/drm_device.h>
+#include <drm/drm_print.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "sti_compositor.h"
 #include "sti_crtc.h"
@@ -39,8 +49,13 @@ static const struct sti_compositor_data stih407_compositor_data = {
 	},
 };
 
+<<<<<<< HEAD
 int sti_compositor_debugfs_init(struct sti_compositor *compo,
 				struct drm_minor *minor)
+=======
+void sti_compositor_debugfs_init(struct sti_compositor *compo,
+				 struct drm_minor *minor)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
@@ -51,8 +66,11 @@ int sti_compositor_debugfs_init(struct sti_compositor *compo,
 	for (i = 0; i < STI_MAX_MIXER; i++)
 		if (compo->mixer[i])
 			sti_mixer_debugfs_init(compo->mixer[i], minor);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int sti_compositor_bind(struct device *dev,
@@ -144,8 +162,11 @@ static int sti_compositor_bind(struct device *dev,
 	}
 
 	drm_vblank_init(drm_dev, crtc_id);
+<<<<<<< HEAD
 	/* Allow usage of vblank without having to call drm_irq_install */
 	drm_dev->irq_enabled = 1;
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
   /*
      Driver for Philips tda10086 DVBS Demodulator
 
      (c) 2006 Andrew de Quincey
 
+<<<<<<< HEAD
      This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
      the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
      You should have received a copy of the GNU General Public License
      along with this program; if not, write to the Free Software
      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
    */
 
@@ -30,7 +37,11 @@
 #include <media/dvb_frontend.h>
 #include "tda10086.h"
 
+<<<<<<< HEAD
 #define SACLK 96000000
+=======
+#define SACLK 96000000U
+>>>>>>> upstream/android-13
 
 struct tda10086_state {
 	struct i2c_adapter* i2c;
@@ -310,6 +321,7 @@ static int tda10086_set_symbol_rate(struct tda10086_state *state,
 	dprintk ("%s %i\n", __func__, symbol_rate);
 
 	/* setup the decimation and anti-aliasing filters.. */
+<<<<<<< HEAD
 	if (symbol_rate < (u32) (SACLK * 0.0137)) {
 		dfn=4;
 		afs=1;
@@ -338,6 +350,36 @@ static int tda10086_set_symbol_rate(struct tda10086_state *state,
 		dfn=0;
 		afs=1;
 	} else if (symbol_rate < (u32) (SACLK * 0.3333)) {
+=======
+	if (symbol_rate < SACLK / 10000 * 137) {
+		dfn=4;
+		afs=1;
+	} else if (symbol_rate < SACLK / 10000 * 208) {
+		dfn=4;
+		afs=0;
+	} else if (symbol_rate < SACLK / 10000 * 270) {
+		dfn=3;
+		afs=1;
+	} else if (symbol_rate < SACLK / 10000 * 416) {
+		dfn=3;
+		afs=0;
+	} else if (symbol_rate < SACLK / 10000 * 550) {
+		dfn=2;
+		afs=1;
+	} else if (symbol_rate < SACLK / 10000 * 833) {
+		dfn=2;
+		afs=0;
+	} else if (symbol_rate < SACLK / 10000 * 1100) {
+		dfn=1;
+		afs=1;
+	} else if (symbol_rate < SACLK / 10000 * 1666) {
+		dfn=1;
+		afs=0;
+	} else if (symbol_rate < SACLK / 10000 * 2200) {
+		dfn=0;
+		afs=1;
+	} else if (symbol_rate < SACLK / 10000 * 3333) {
+>>>>>>> upstream/android-13
 		dfn=0;
 		afs=0;
 	} else {
@@ -437,7 +479,11 @@ static int tda10086_set_frontend(struct dvb_frontend *fe)
 			fe->ops.i2c_gate_ctrl(fe, 0);
 	}
 
+<<<<<<< HEAD
 	/* calcluate the frequency offset (in *Hz* not kHz) */
+=======
+	/* calculate the frequency offset (in *Hz* not kHz) */
+>>>>>>> upstream/android-13
 	freqoff = fe_params->frequency - freq;
 	freqoff = ((1<<16) * freqoff) / (SACLK/1000);
 	tda10086_write_byte(state, 0x3d, 0x80 | ((freqoff >> 8) & 0x7f));

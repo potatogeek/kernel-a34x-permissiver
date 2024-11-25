@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Huawei Ltd.
  * Author: Jiang Liu <liuj97@gmail.com>
  *
  * Based on arch/arm/kernel/jump_label.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,20 +20,35 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/jump_label.h>
 #include <asm/insn.h>
+<<<<<<< HEAD
+=======
+#include <asm/patching.h>
+>>>>>>> upstream/android-13
 
 void arch_jump_label_transform(struct jump_entry *entry,
 			       enum jump_label_type type)
 {
+<<<<<<< HEAD
 	void *addr = (void *)entry->code;
 	u32 insn;
 
 	if (type == JUMP_LABEL_JMP) {
 		insn = aarch64_insn_gen_branch_imm(entry->code,
 						   entry->target,
+=======
+	void *addr = (void *)jump_entry_code(entry);
+	u32 insn;
+
+	if (type == JUMP_LABEL_JMP) {
+		insn = aarch64_insn_gen_branch_imm(jump_entry_code(entry),
+						   jump_entry_target(entry),
+>>>>>>> upstream/android-13
 						   AARCH64_INSN_BRANCH_NOLINK);
 	} else {
 		insn = aarch64_insn_gen_nop();

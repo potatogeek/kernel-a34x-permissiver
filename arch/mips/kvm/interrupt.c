@@ -13,7 +13,11 @@
 #include <linux/err.h>
 #include <linux/vmalloc.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/cacheflush.h>
 
@@ -21,6 +25,7 @@
 
 #include "interrupt.h"
 
+<<<<<<< HEAD
 void kvm_mips_queue_irq(struct kvm_vcpu *vcpu, unsigned int priority)
 {
 	set_bit(priority, &vcpu->arch.pending_exceptions);
@@ -201,6 +206,8 @@ int kvm_mips_irq_clear_cb(struct kvm_vcpu *vcpu, unsigned int priority,
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 void kvm_mips_deliver_interrupts(struct kvm_vcpu *vcpu, u32 cause)
 {
 	unsigned long *pending = &vcpu->arch.pending_exceptions;
@@ -212,10 +219,14 @@ void kvm_mips_deliver_interrupts(struct kvm_vcpu *vcpu, u32 cause)
 
 	priority = __ffs(*pending_clr);
 	while (priority <= MIPS_EXC_MAX) {
+<<<<<<< HEAD
 		if (kvm_mips_callbacks->irq_clear(vcpu, priority, cause)) {
 			if (!KVM_MIPS_IRQ_CLEAR_ALL_AT_ONCE)
 				break;
 		}
+=======
+		kvm_mips_callbacks->irq_clear(vcpu, priority, cause);
+>>>>>>> upstream/android-13
 
 		priority = find_next_bit(pending_clr,
 					 BITS_PER_BYTE * sizeof(*pending_clr),
@@ -224,10 +235,14 @@ void kvm_mips_deliver_interrupts(struct kvm_vcpu *vcpu, u32 cause)
 
 	priority = __ffs(*pending);
 	while (priority <= MIPS_EXC_MAX) {
+<<<<<<< HEAD
 		if (kvm_mips_callbacks->irq_deliver(vcpu, priority, cause)) {
 			if (!KVM_MIPS_IRQ_DELIVER_ALL_AT_ONCE)
 				break;
 		}
+=======
+		kvm_mips_callbacks->irq_deliver(vcpu, priority, cause);
+>>>>>>> upstream/android-13
 
 		priority = find_next_bit(pending,
 					 BITS_PER_BYTE * sizeof(*pending),

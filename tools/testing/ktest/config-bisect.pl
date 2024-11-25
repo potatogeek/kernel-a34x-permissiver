@@ -1,10 +1,17 @@
 #!/usr/bin/perl -w
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Copyright 2015 - Steven Rostedt, Red Hat Inc.
 # Copyright 2017 - Steven Rostedt, VMware, Inc.
 #
+<<<<<<< HEAD
 # Licensed under the terms of the GNU GPL License version 2
 #
+=======
+>>>>>>> upstream/android-13
 
 # usage:
 #  config-bisect.pl [options] good-config bad-config [good|bad]
@@ -664,7 +671,11 @@ while ($#ARGV >= 0) {
     }
 
     else {
+<<<<<<< HEAD
 	die "Unknow option $opt\n";
+=======
+	die "Unknown option $opt\n";
+>>>>>>> upstream/android-13
     }
 }
 
@@ -733,7 +744,11 @@ if ($start) {
 	}
     }
     run_command "cp $good_start $good" or die "failed to copy to $good\n";
+<<<<<<< HEAD
     run_command "cp $bad_start $bad" or die "faield to copy to $bad\n";
+=======
+    run_command "cp $bad_start $bad" or die "failed to copy to $bad\n";
+>>>>>>> upstream/android-13
 } else {
     if ( ! -f $good ) {
 	die "Can not find file $good\n";

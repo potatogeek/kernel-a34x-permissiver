@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2006, 2007, 2008, 2009, 2010 QLogic Corporation.
  * All rights reserved.
  * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -33,6 +38,11 @@
  */
 
 #if !defined(IB_PMA_H)
+=======
+ */
+
+#ifndef IB_PMA_H
+>>>>>>> upstream/android-13
 #define IB_PMA_H
 
 #include <rdma/ib_mad.h>

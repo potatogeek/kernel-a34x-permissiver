@@ -327,7 +327,10 @@
 #include <linux/spinlock.h>
 #include <linux/kthread.h>
 #include <linux/percpu.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/fips.h>
 #include <linux/ptrace.h>
 #include <linux/workqueue.h>
@@ -337,6 +340,10 @@
 #include <linux/completion.h>
 #include <linux/uuid.h>
 #include <crypto/chacha.h>
+<<<<<<< HEAD
+=======
+#include <crypto/sha1.h>
+>>>>>>> upstream/android-13
 
 #include <asm/processor.h>
 #include <linux/uaccess.h>
@@ -461,6 +468,10 @@ static struct crng_state primary_crng = {
  * its value (from 0->1->2).
  */
 static int crng_init = 0;
+<<<<<<< HEAD
+=======
+static bool crng_need_final_init = false;
+>>>>>>> upstream/android-13
 #define crng_ready() (likely(crng_init > 1))
 static int crng_init_cnt = 0;
 static unsigned long crng_global_init_time = 0;
@@ -500,7 +511,10 @@ struct entropy_store {
 	unsigned short add_ptr;
 	unsigned short input_rotate;
 	int entropy_count;
+<<<<<<< HEAD
 	unsigned int initialized:1;
+=======
+>>>>>>> upstream/android-13
 	unsigned int last_data_init:1;
 	__u8 last_data[EXTRACT_SIZE];
 };
@@ -660,7 +674,11 @@ static void process_random_ready_list(void)
  */
 static void credit_entropy_bits(struct entropy_store *r, int nbits)
 {
+<<<<<<< HEAD
 	int entropy_count, orig, has_initialized = 0;
+=======
+	int entropy_count, orig;
+>>>>>>> upstream/android-13
 	const int pool_size = r->poolinfo->poolfracbits;
 	int nfrac = nbits << ENTROPY_SHIFT;
 
@@ -717,23 +735,31 @@ retry:
 	if (cmpxchg(&r->entropy_count, orig, entropy_count) != orig)
 		goto retry;
 
+<<<<<<< HEAD
 	if (has_initialized) {
 		r->initialized = 1;
 		kill_fasync(&fasync, SIGIO, POLL_IN);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	trace_credit_entropy_bits(r->name, nbits,
 				  entropy_count >> ENTROPY_SHIFT, _RET_IP_);
 
 	if (r == &input_pool) {
 		int entropy_bits = entropy_count >> ENTROPY_SHIFT;
 
+<<<<<<< HEAD
 		if (crng_init < 2) {
 			if (entropy_bits < 128)
 				return;
 			crng_reseed(&primary_crng, r);
 			entropy_bits = ENTROPY_BITS(r);
 		}
+=======
+		if (crng_init < 2 && entropy_bits >= 128)
+			crng_reseed(&primary_crng, r);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -781,6 +807,7 @@ static int __init parse_trust_cpu(char *arg)
 }
 early_param("random.trust_cpu", parse_trust_cpu);
 
+<<<<<<< HEAD
 static void crng_initialize(struct crng_state *crng)
 {
 	int		i;
@@ -793,15 +820,65 @@ static void crng_initialize(struct crng_state *crng)
 				 sizeof(__u32) * 12, 0);
 	else
 		_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
+=======
+static bool crng_init_try_arch(struct crng_state *crng)
+{
+	int		i;
+	bool		arch_init = true;
+	unsigned long	rv;
+
+>>>>>>> upstream/android-13
 	for (i = 4; i < 16; i++) {
 		if (!arch_get_random_seed_long(&rv) &&
 		    !arch_get_random_long(&rv)) {
 			rv = random_get_entropy();
+<<<<<<< HEAD
 			arch_init = 0;
 		}
 		crng->state[i] ^= rv;
 	}
 	if (trust_cpu && arch_init && crng == &primary_crng) {
+=======
+			arch_init = false;
+		}
+		crng->state[i] ^= rv;
+	}
+
+	return arch_init;
+}
+
+static bool __init crng_init_try_arch_early(struct crng_state *crng)
+{
+	int		i;
+	bool		arch_init = true;
+	unsigned long	rv;
+
+	for (i = 4; i < 16; i++) {
+		if (!arch_get_random_seed_long_early(&rv) &&
+		    !arch_get_random_long_early(&rv)) {
+			rv = random_get_entropy();
+			arch_init = false;
+		}
+		crng->state[i] ^= rv;
+	}
+
+	return arch_init;
+}
+
+static void __maybe_unused crng_initialize_secondary(struct crng_state *crng)
+{
+	chacha_init_consts(crng->state);
+	_get_random_bytes(&crng->state[4], sizeof(__u32) * 12);
+	crng_init_try_arch(crng);
+	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+}
+
+static void __init crng_initialize_primary(struct crng_state *crng)
+{
+	chacha_init_consts(crng->state);
+	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
+	if (crng_init_try_arch_early(crng) && trust_cpu) {
+>>>>>>> upstream/android-13
 		invalidate_batched_entropy();
 		numa_crng_init();
 		crng_init = 2;
@@ -810,6 +887,39 @@ static void crng_initialize(struct crng_state *crng)
 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
 }
 
+<<<<<<< HEAD
+=======
+static void crng_finalize_init(struct crng_state *crng)
+{
+	if (crng != &primary_crng || crng_init >= 2)
+		return;
+	if (!system_wq) {
+		/* We can't call numa_crng_init until we have workqueues,
+		 * so mark this for processing later. */
+		crng_need_final_init = true;
+		return;
+	}
+
+	invalidate_batched_entropy();
+	numa_crng_init();
+	crng_init = 2;
+	process_random_ready_list();
+	wake_up_interruptible(&crng_init_wait);
+	kill_fasync(&fasync, SIGIO, POLL_IN);
+	pr_notice("crng init done\n");
+	if (unseeded_warning.missed) {
+		pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
+			  unseeded_warning.missed);
+		unseeded_warning.missed = 0;
+	}
+	if (urandom_warning.missed) {
+		pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
+			  urandom_warning.missed);
+		urandom_warning.missed = 0;
+	}
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NUMA
 static void do_numa_crng_init(struct work_struct *work)
 {
@@ -822,11 +932,19 @@ static void do_numa_crng_init(struct work_struct *work)
 		crng = kmalloc_node(sizeof(struct crng_state),
 				    GFP_KERNEL | __GFP_NOFAIL, i);
 		spin_lock_init(&crng->lock);
+<<<<<<< HEAD
 		crng_initialize(crng);
 		pool[i] = crng;
 	}
 	mb();
 	if (cmpxchg(&crng_node_pool, NULL, pool)) {
+=======
+		crng_initialize_secondary(crng);
+		pool[i] = crng;
+	}
+	/* pairs with READ_ONCE() in select_crng() */
+	if (cmpxchg_release(&crng_node_pool, NULL, pool) != NULL) {
+>>>>>>> upstream/android-13
 		for_each_node(i)
 			kfree(pool[i]);
 		kfree(pool);
@@ -839,18 +957,52 @@ static void numa_crng_init(void)
 {
 	schedule_work(&numa_crng_init_work);
 }
+<<<<<<< HEAD
 #else
 static void numa_crng_init(void) {}
+=======
+
+static struct crng_state *select_crng(void)
+{
+	struct crng_state **pool;
+	int nid = numa_node_id();
+
+	/* pairs with cmpxchg_release() in do_numa_crng_init() */
+	pool = READ_ONCE(crng_node_pool);
+	if (pool && pool[nid])
+		return pool[nid];
+
+	return &primary_crng;
+}
+#else
+static void numa_crng_init(void) {}
+
+static struct crng_state *select_crng(void)
+{
+	return &primary_crng;
+}
+>>>>>>> upstream/android-13
 #endif
 
 /*
  * crng_fast_load() can be called by code in the interrupt service
+<<<<<<< HEAD
  * path.  So we can't afford to dilly-dally.
  */
 static int crng_fast_load(const char *cp, size_t len)
 {
 	unsigned long flags;
 	char *p;
+=======
+ * path.  So we can't afford to dilly-dally. Returns the number of
+ * bytes processed from cp.
+ */
+static size_t crng_fast_load(const char *cp, size_t len)
+{
+	unsigned long flags;
+	char *p;
+	size_t ret = 0;
+>>>>>>> upstream/android-13
 
 	if (!spin_trylock_irqsave(&primary_crng.lock, flags))
 		return 0;
@@ -861,7 +1013,11 @@ static int crng_fast_load(const char *cp, size_t len)
 	p = (unsigned char *) &primary_crng.state[4];
 	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
 		p[crng_init_cnt % CHACHA_KEY_SIZE] ^= *cp;
+<<<<<<< HEAD
 		cp++; crng_init_cnt++; len--;
+=======
+		cp++; crng_init_cnt++; len--; ret++;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&primary_crng.lock, flags);
 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
@@ -869,7 +1025,11 @@ static int crng_fast_load(const char *cp, size_t len)
 		crng_init = 1;
 		pr_notice("fast init done\n");
 	}
+<<<<<<< HEAD
 	return 1;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -944,6 +1104,7 @@ static void crng_reseed(struct crng_state *crng, struct entropy_store *r)
 		crng->state[i+4] ^= buf.key[i] ^ rv;
 	}
 	memzero_explicit(&buf, sizeof(buf));
+<<<<<<< HEAD
 	crng->init_time = jiffies;
 	spin_unlock_irqrestore(&crng->lock, flags);
 	if (crng == &primary_crng && crng_init < 2) {
@@ -965,17 +1126,34 @@ static void crng_reseed(struct crng_state *crng, struct entropy_store *r)
 			urandom_warning.missed = 0;
 		}
 	}
+=======
+	WRITE_ONCE(crng->init_time, jiffies);
+	spin_unlock_irqrestore(&crng->lock, flags);
+	crng_finalize_init(crng);
+>>>>>>> upstream/android-13
 }
 
 static void _extract_crng(struct crng_state *crng,
 			  __u8 out[CHACHA_BLOCK_SIZE])
 {
+<<<<<<< HEAD
 	unsigned long v, flags;
 
 	if (crng_ready() &&
 	    (time_after(crng_global_init_time, crng->init_time) ||
 	     time_after(jiffies, crng->init_time + CRNG_RESEED_INTERVAL)))
 		crng_reseed(crng, crng == &primary_crng ? &input_pool : NULL);
+=======
+	unsigned long v, flags, init_time;
+
+	if (crng_ready()) {
+		init_time = READ_ONCE(crng->init_time);
+		if (time_after(READ_ONCE(crng_global_init_time), init_time) ||
+		    time_after(jiffies, init_time + CRNG_RESEED_INTERVAL))
+			crng_reseed(crng, crng == &primary_crng ?
+				    &input_pool : NULL);
+	}
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&crng->lock, flags);
 	if (arch_get_random_long(&v))
 		crng->state[14] ^= v;
@@ -987,6 +1165,7 @@ static void _extract_crng(struct crng_state *crng,
 
 static void extract_crng(__u8 out[CHACHA_BLOCK_SIZE])
 {
+<<<<<<< HEAD
 	struct crng_state *crng = NULL;
 
 #ifdef CONFIG_NUMA
@@ -996,6 +1175,9 @@ static void extract_crng(__u8 out[CHACHA_BLOCK_SIZE])
 #endif
 		crng = &primary_crng;
 	_extract_crng(crng, out);
+=======
+	_extract_crng(select_crng(), out);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1024,6 +1206,7 @@ static void _crng_backtrack_protect(struct crng_state *crng,
 
 static void crng_backtrack_protect(__u8 tmp[CHACHA_BLOCK_SIZE], int used)
 {
+<<<<<<< HEAD
 	struct crng_state *crng = NULL;
 
 #ifdef CONFIG_NUMA
@@ -1033,6 +1216,9 @@ static void crng_backtrack_protect(__u8 tmp[CHACHA_BLOCK_SIZE], int used)
 #endif
 		crng = &primary_crng;
 	_crng_backtrack_protect(crng, tmp, used);
+=======
+	_crng_backtrack_protect(select_crng(), tmp, used);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
@@ -1233,8 +1419,11 @@ void add_interrupt_randomness(int irq, int irq_flags)
 	cycles_t		cycles = random_get_entropy();
 	__u32			c_high, j_high;
 	__u64			ip;
+<<<<<<< HEAD
 	unsigned long		seed;
 	int			credit = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (cycles == 0)
 		cycles = get_reg(fast_pool, regs);
@@ -1253,7 +1442,11 @@ void add_interrupt_randomness(int irq, int irq_flags)
 	if (unlikely(crng_init == 0)) {
 		if ((fast_pool->count >= 64) &&
 		    crng_fast_load((char *) fast_pool->pool,
+<<<<<<< HEAD
 				   sizeof(fast_pool->pool))) {
+=======
+				   sizeof(fast_pool->pool)) > 0) {
+>>>>>>> upstream/android-13
 			fast_pool->count = 0;
 			fast_pool->last = now;
 		}
@@ -1270,6 +1463,7 @@ void add_interrupt_randomness(int irq, int irq_flags)
 
 	fast_pool->last = now;
 	__mix_pool_bytes(r, &fast_pool->pool, sizeof(fast_pool->pool));
+<<<<<<< HEAD
 
 	/*
 	 * If we have architectural seed generator, produce a seed and
@@ -1281,12 +1475,18 @@ void add_interrupt_randomness(int irq, int irq_flags)
 		__mix_pool_bytes(r, &seed, sizeof(seed));
 		credit = 1;
 	}
+=======
+>>>>>>> upstream/android-13
 	spin_unlock(&r->lock);
 
 	fast_pool->count = 0;
 
 	/* award one bit for the contents of the fast pool */
+<<<<<<< HEAD
 	credit_entropy_bits(r, credit + 1);
+=======
+	credit_entropy_bits(r, 1);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(add_interrupt_randomness);
 
@@ -1357,8 +1557,12 @@ retry:
 }
 
 /*
+<<<<<<< HEAD
  * This function does the actual extraction for extract_entropy and
  * extract_entropy_user.
+=======
+ * This function does the actual extraction for extract_entropy.
+>>>>>>> upstream/android-13
  *
  * Note: we assume that .poolwords is a multiple of 16 words.
  */
@@ -1369,14 +1573,22 @@ static void extract_buf(struct entropy_store *r, __u8 *out)
 		__u32 w[5];
 		unsigned long l[LONGS(20)];
 	} hash;
+<<<<<<< HEAD
 	__u32 workspace[SHA_WORKSPACE_WORDS];
+=======
+	__u32 workspace[SHA1_WORKSPACE_WORDS];
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	/*
 	 * If we have an architectural hardware random number
 	 * generator, use it for SHA's initial vector
 	 */
+<<<<<<< HEAD
 	sha_init(hash.w);
+=======
+	sha1_init(hash.w);
+>>>>>>> upstream/android-13
 	for (i = 0; i < LONGS(20); i++) {
 		unsigned long v;
 		if (!arch_get_random_long(&v))
@@ -1387,7 +1599,11 @@ static void extract_buf(struct entropy_store *r, __u8 *out)
 	/* Generate a hash across the pool, 16 words (512 bits) at a time */
 	spin_lock_irqsave(&r->lock, flags);
 	for (i = 0; i < r->poolinfo->poolwords; i += 16)
+<<<<<<< HEAD
 		sha_transform(hash.w, (__u8 *)(r->pool + i), workspace);
+=======
+		sha1_transform(hash.w, (__u8 *)(r->pool + i), workspace);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We mix the hash back into the pool to prevent backtracking
@@ -1503,8 +1719,14 @@ static void _warn_unseeded_randomness(const char *func_name, void *caller,
 	print_once = true;
 #endif
 	if (__ratelimit(&unseeded_warning))
+<<<<<<< HEAD
 		pr_notice("random: %s called from %pS with crng_init=%d\n",
 			  func_name, caller, crng_init);
+=======
+		printk_deferred(KERN_NOTICE "random: %s called from %pS "
+				"with crng_init=%d\n", func_name, caller,
+				crng_init);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1770,7 +1992,13 @@ static void __init init_std_data(struct entropy_store *r)
 int __init rand_initialize(void)
 {
 	init_std_data(&input_pool);
+<<<<<<< HEAD
 	crng_initialize(&primary_crng);
+=======
+	if (crng_need_final_init)
+		crng_finalize_init(&primary_crng);
+	crng_initialize_primary(&primary_crng);
+>>>>>>> upstream/android-13
 	crng_global_init_time = jiffies;
 	if (ratelimit_disable) {
 		urandom_warning.interval = 0;
@@ -1936,7 +2164,14 @@ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		 */
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
+<<<<<<< HEAD
 		input_pool.entropy_count = 0;
+=======
+		if (xchg(&input_pool.entropy_count, 0) && random_write_wakeup_bits) {
+			wake_up_interruptible(&random_write_wait);
+			kill_fasync(&fasync, SIGIO, POLL_OUT);
+		}
+>>>>>>> upstream/android-13
 		return 0;
 	case RNDRESEEDCRNG:
 		if (!capable(CAP_SYS_ADMIN))
@@ -1944,7 +2179,11 @@ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		if (crng_init < 2)
 			return -ENODATA;
 		crng_reseed(&primary_crng, &input_pool);
+<<<<<<< HEAD
 		crng_global_init_time = jiffies - 1;
+=======
+		WRITE_ONCE(crng_global_init_time, jiffies - 1);
+>>>>>>> upstream/android-13
 		return 0;
 	default:
 		return -EINVAL;
@@ -1961,6 +2200,10 @@ const struct file_operations random_fops = {
 	.write = random_write,
 	.poll  = random_poll,
 	.unlocked_ioctl = random_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.fasync = random_fasync,
 	.llseek = noop_llseek,
 };
@@ -1969,6 +2212,10 @@ const struct file_operations urandom_fops = {
 	.read  = urandom_read,
 	.write = random_write,
 	.unlocked_ioctl = random_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.fasync = random_fasync,
 	.llseek = noop_llseek,
 };
@@ -2026,7 +2273,11 @@ static char sysctl_bootid[16];
  * sysctl system call, as 16 bytes of binary data.
  */
 static int proc_do_uuid(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+			void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct ctl_table fake_table;
 	unsigned char buf[64], tmp_uuid[16], *uuid;
@@ -2056,7 +2307,11 @@ static int proc_do_uuid(struct ctl_table *table, int write,
  * Return entropy available scaled to integral bits
  */
 static int proc_do_entropy(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			   void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+			   void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct ctl_table fake_table;
 	int entropy_count;
@@ -2268,15 +2523,28 @@ void add_hwgenerator_randomness(const char *buffer, size_t count,
 	struct entropy_store *poolp = &input_pool;
 
 	if (unlikely(crng_init == 0)) {
+<<<<<<< HEAD
 		crng_fast_load(buffer, count);
 		return;
+=======
+		size_t ret = crng_fast_load(buffer, count);
+		count -= ret;
+		buffer += ret;
+		if (!count || crng_init == 0)
+			return;
+>>>>>>> upstream/android-13
 	}
 
 	/* Suspend writing if we're above the trickle threshold.
 	 * We'll be woken up again once below random_write_wakeup_thresh,
 	 * or when the calling thread is about to terminate.
 	 */
+<<<<<<< HEAD
 	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
+=======
+	wait_event_interruptible(random_write_wait,
+			!system_wq || kthread_should_stop() ||
+>>>>>>> upstream/android-13
 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
 	mix_pool_bytes(poolp, buffer, count);
 	credit_entropy_bits(poolp, entropy);
@@ -2295,4 +2563,8 @@ void add_bootloader_randomness(const void *buf, unsigned int size)
 	else
 		add_device_randomness(buf, size);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(add_bootloader_randomness);
+=======
+EXPORT_SYMBOL_GPL(add_bootloader_randomness);
+>>>>>>> upstream/android-13

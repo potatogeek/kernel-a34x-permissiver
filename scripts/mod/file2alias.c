@@ -36,7 +36,20 @@ typedef uint16_t	__u16;
 typedef unsigned char	__u8;
 typedef struct {
 	__u8 b[16];
+<<<<<<< HEAD
 } uuid_le;
+=======
+} guid_t;
+
+/* backwards compatibility, don't use in new code */
+typedef struct {
+	__u8 b[16];
+} uuid_le;
+typedef struct {
+	__u8 b[16];
+} uuid_t;
+#define	UUID_STRING_LEN		36
+>>>>>>> upstream/android-13
 
 /* Big exception to the "don't include kernel headers into userspace, which
  * even potentially has different endianness and word sizes, since
@@ -50,17 +63,38 @@ struct devtable {
 	int (*do_entry)(const char *filename, void *symval, char *alias);
 };
 
+<<<<<<< HEAD
+=======
+/* Size of alias provided to do_entry functions */
+#define ALIAS_SIZE 500
+
+>>>>>>> upstream/android-13
 /* Define a variable f that holds the value of field f of struct devid
  * based at address m.
  */
 #define DEF_FIELD(m, devid, f) \
 	typeof(((struct devid *)0)->f) f = TO_NATIVE(*(typeof(f) *)((m) + OFF_##devid##_##f))
+<<<<<<< HEAD
+=======
+
+/* Define a variable v that holds the address of field f of struct devid
+ * based at address m.  Due to the way typeof works, for a field of type
+ * T[N] the variable has type T(*)[N], _not_ T*.
+ */
+#define DEF_FIELD_ADDR_VAR(m, devid, f, v) \
+	typeof(((struct devid *)0)->f) *v = ((m) + OFF_##devid##_##f)
+
+>>>>>>> upstream/android-13
 /* Define a variable f that holds the address of field f of struct devid
  * based at address m.  Due to the way typeof works, for a field of type
  * T[N] the variable has type T(*)[N], _not_ T*.
  */
 #define DEF_FIELD_ADDR(m, devid, f) \
+<<<<<<< HEAD
 	typeof(((struct devid *)0)->f) *f = ((m) + OFF_##devid##_##f)
+=======
+	DEF_FIELD_ADDR_VAR(m, devid, f, f)
+>>>>>>> upstream/android-13
 
 #define ADD(str, sep, cond, field)                              \
 do {                                                            \
@@ -406,7 +440,11 @@ static int do_ieee1394_entry(const char *filename,
 	return 1;
 }
 
+<<<<<<< HEAD
 /* Looks like: pci:vNdNsvNsdNbcNscNiN. */
+=======
+/* Looks like: pci:vNdNsvNsdNbcNscNiN or <prefix>_pci:vNdNsvNsdNbcNscNiN. */
+>>>>>>> upstream/android-13
 static int do_pci_entry(const char *filename,
 			void *symval, char *alias)
 {
@@ -420,8 +458,26 @@ static int do_pci_entry(const char *filename,
 	DEF_FIELD(symval, pci_device_id, subdevice);
 	DEF_FIELD(symval, pci_device_id, class);
 	DEF_FIELD(symval, pci_device_id, class_mask);
+<<<<<<< HEAD
 
 	strcpy(alias, "pci:");
+=======
+	DEF_FIELD(symval, pci_device_id, override_only);
+
+	switch (override_only) {
+	case 0:
+		strcpy(alias, "pci:");
+		break;
+	case PCI_ID_F_VFIO_DRIVER_OVERRIDE:
+		strcpy(alias, "vfio_pci:");
+		break;
+	default:
+		warn("Unknown PCI driver_override alias %08X\n",
+		     override_only);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	ADD(alias, "v", vendor != PCI_ANY_ID, vendor);
 	ADD(alias, "d", device != PCI_ANY_ID, device);
 	ADD(alias, "sv", subvendor != PCI_ANY_ID, subvendor);
@@ -586,7 +642,11 @@ static void do_pnp_card_entries(void *symval, unsigned long size,
 
 	for (i = 0; i < count; i++) {
 		unsigned int j;
+<<<<<<< HEAD
 		DEF_FIELD_ADDR(symval + i*id_size, pnp_card_device_id, devs);
+=======
+		DEF_FIELD_ADDR(symval + i * id_size, pnp_card_device_id, devs);
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < PNP_MAX_DEVICES; j++) {
 			const char *id = (char *)(*devs)[j].id;
@@ -598,10 +658,20 @@ static void do_pnp_card_entries(void *symval, unsigned long size,
 
 			/* find duplicate, already added value */
 			for (i2 = 0; i2 < i && !dup; i2++) {
+<<<<<<< HEAD
 				DEF_FIELD_ADDR(symval + i2*id_size, pnp_card_device_id, devs);
 
 				for (j2 = 0; j2 < PNP_MAX_DEVICES; j2++) {
 					const char *id2 = (char *)(*devs)[j2].id;
+=======
+				DEF_FIELD_ADDR_VAR(symval + i2 * id_size,
+						   pnp_card_device_id,
+						   devs, devs_dup);
+
+				for (j2 = 0; j2 < PNP_MAX_DEVICES; j2++) {
+					const char *id2 =
+						(char *)(*devs_dup)[j2].id;
+>>>>>>> upstream/android-13
 
 					if (!id2[0])
 						break;
@@ -896,6 +966,27 @@ static int do_i2c_entry(const char *filename, void *symval,
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static int do_i3c_entry(const char *filename, void *symval,
+			char *alias)
+{
+	DEF_FIELD(symval, i3c_device_id, match_flags);
+	DEF_FIELD(symval, i3c_device_id, dcr);
+	DEF_FIELD(symval, i3c_device_id, manuf_id);
+	DEF_FIELD(symval, i3c_device_id, part_id);
+	DEF_FIELD(symval, i3c_device_id, extra_info);
+
+	strcpy(alias, "i3c:");
+	ADD(alias, "dcr", match_flags & I3C_MATCH_DCR, dcr);
+	ADD(alias, "manuf", match_flags & I3C_MATCH_MANUF, manuf_id);
+	ADD(alias, "part", match_flags & I3C_MATCH_PART, part_id);
+	ADD(alias, "ext", match_flags & I3C_MATCH_EXTRA_INFO, extra_info);
+
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 /* Looks like: spi:S */
 static int do_spi_entry(const char *filename, void *symval,
 			char *alias)
@@ -913,6 +1004,11 @@ static const struct dmifield {
 	{ "bvn", DMI_BIOS_VENDOR },
 	{ "bvr", DMI_BIOS_VERSION },
 	{ "bd",  DMI_BIOS_DATE },
+<<<<<<< HEAD
+=======
+	{ "br",  DMI_BIOS_RELEASE },
+	{ "efr", DMI_EC_FIRMWARE_RELEASE },
+>>>>>>> upstream/android-13
 	{ "svn", DMI_SYS_VENDOR },
 	{ "pn",  DMI_PRODUCT_NAME },
 	{ "pvr", DMI_PRODUCT_VERSION },
@@ -1215,15 +1311,29 @@ static int do_hda_entry(const char *filename, void *symval, char *alias)
 	return 1;
 }
 
+<<<<<<< HEAD
 /* Looks like: sdw:mNpN */
+=======
+/* Looks like: sdw:mNpNvNcN */
+>>>>>>> upstream/android-13
 static int do_sdw_entry(const char *filename, void *symval, char *alias)
 {
 	DEF_FIELD(symval, sdw_device_id, mfg_id);
 	DEF_FIELD(symval, sdw_device_id, part_id);
+<<<<<<< HEAD
+=======
+	DEF_FIELD(symval, sdw_device_id, sdw_version);
+	DEF_FIELD(symval, sdw_device_id, class_id);
+>>>>>>> upstream/android-13
 
 	strcpy(alias, "sdw:");
 	ADD(alias, "m", mfg_id != 0, mfg_id);
 	ADD(alias, "p", part_id != 0, part_id);
+<<<<<<< HEAD
+=======
+	ADD(alias, "v", sdw_version != 0, sdw_version);
+	ADD(alias, "c", class_id != 0, class_id);
+>>>>>>> upstream/android-13
 
 	add_wildcard(alias);
 	return 1;
@@ -1276,6 +1386,95 @@ static int do_typec_entry(const char *filename, void *symval, char *alias)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+/* Looks like: tee:uuid */
+static int do_tee_entry(const char *filename, void *symval, char *alias)
+{
+	DEF_FIELD(symval, tee_client_device_id, uuid);
+
+	sprintf(alias, "tee:%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		uuid.b[0], uuid.b[1], uuid.b[2], uuid.b[3], uuid.b[4],
+		uuid.b[5], uuid.b[6], uuid.b[7], uuid.b[8], uuid.b[9],
+		uuid.b[10], uuid.b[11], uuid.b[12], uuid.b[13], uuid.b[14],
+		uuid.b[15]);
+
+	add_wildcard(alias);
+	return 1;
+}
+
+/* Looks like: wmi:guid */
+static int do_wmi_entry(const char *filename, void *symval, char *alias)
+{
+	int len;
+	DEF_FIELD_ADDR(symval, wmi_device_id, guid_string);
+
+	if (strlen(*guid_string) != UUID_STRING_LEN) {
+		warn("Invalid WMI device id 'wmi:%s' in '%s'\n",
+				*guid_string, filename);
+		return 0;
+	}
+
+	len = snprintf(alias, ALIAS_SIZE, WMI_MODULE_PREFIX "%s", *guid_string);
+	if (len < 0 || len >= ALIAS_SIZE) {
+		warn("Could not generate all MODULE_ALIAS's in '%s'\n",
+				filename);
+		return 0;
+	}
+	return 1;
+}
+
+/* Looks like: mhi:S */
+static int do_mhi_entry(const char *filename, void *symval, char *alias)
+{
+	DEF_FIELD_ADDR(symval, mhi_device_id, chan);
+	sprintf(alias, MHI_DEVICE_MODALIAS_FMT, *chan);
+	return 1;
+}
+
+static int do_auxiliary_entry(const char *filename, void *symval, char *alias)
+{
+	DEF_FIELD_ADDR(symval, auxiliary_device_id, name);
+	sprintf(alias, AUXILIARY_MODULE_PREFIX "%s", *name);
+
+	return 1;
+}
+
+/*
+ * Looks like: ssam:dNcNtNiNfN
+ *
+ * N is exactly 2 digits, where each is an upper-case hex digit.
+ */
+static int do_ssam_entry(const char *filename, void *symval, char *alias)
+{
+	DEF_FIELD(symval, ssam_device_id, match_flags);
+	DEF_FIELD(symval, ssam_device_id, domain);
+	DEF_FIELD(symval, ssam_device_id, category);
+	DEF_FIELD(symval, ssam_device_id, target);
+	DEF_FIELD(symval, ssam_device_id, instance);
+	DEF_FIELD(symval, ssam_device_id, function);
+
+	sprintf(alias, "ssam:d%02Xc%02X", domain, category);
+	ADD(alias, "t", match_flags & SSAM_MATCH_TARGET, target);
+	ADD(alias, "i", match_flags & SSAM_MATCH_INSTANCE, instance);
+	ADD(alias, "f", match_flags & SSAM_MATCH_FUNCTION, function);
+
+	return 1;
+}
+
+/* Looks like: dfl:tNfN */
+static int do_dfl_entry(const char *filename, void *symval, char *alias)
+{
+	DEF_FIELD(symval, dfl_device_id, type);
+	DEF_FIELD(symval, dfl_device_id, feature_id);
+
+	sprintf(alias, "dfl:t%04Xf%04X", type, feature_id);
+
+	add_wildcard(alias);
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 /* Does namelen bytes of name exactly match the symbol? */
 static bool sym_is(const char *name, unsigned namelen, const char *symbol)
 {
@@ -1292,7 +1491,11 @@ static void do_table(void *symval, unsigned long size,
 		     struct module *mod)
 {
 	unsigned int i;
+<<<<<<< HEAD
 	char alias[500];
+=======
+	char alias[ALIAS_SIZE];
+>>>>>>> upstream/android-13
 
 	device_id_check(mod->name, device_id, size, id_size, symval);
 	/* Leave last one: it's the terminator. */
@@ -1327,6 +1530,10 @@ static const struct devtable devtable[] = {
 	{"vmbus", SIZE_hv_vmbus_device_id, do_vmbus_entry},
 	{"rpmsg", SIZE_rpmsg_device_id, do_rpmsg_entry},
 	{"i2c", SIZE_i2c_device_id, do_i2c_entry},
+<<<<<<< HEAD
+=======
+	{"i3c", SIZE_i3c_device_id, do_i3c_entry},
+>>>>>>> upstream/android-13
 	{"spi", SIZE_spi_device_id, do_spi_entry},
 	{"dmi", SIZE_dmi_system_id, do_dmi_entry},
 	{"platform", SIZE_platform_device_id, do_platform_entry},
@@ -1346,6 +1553,15 @@ static const struct devtable devtable[] = {
 	{"fslmc", SIZE_fsl_mc_device_id, do_fsl_mc_entry},
 	{"tbsvc", SIZE_tb_service_id, do_tbsvc_entry},
 	{"typec", SIZE_typec_device_id, do_typec_entry},
+<<<<<<< HEAD
+=======
+	{"tee", SIZE_tee_client_device_id, do_tee_entry},
+	{"wmi", SIZE_wmi_device_id, do_wmi_entry},
+	{"mhi", SIZE_mhi_device_id, do_mhi_entry},
+	{"auxiliary", SIZE_auxiliary_device_id, do_auxiliary_entry},
+	{"ssam", SIZE_ssam_device_id, do_ssam_entry},
+	{"dfl", SIZE_dfl_device_id, do_dfl_entry},
+>>>>>>> upstream/android-13
 };
 
 /* Create MODULE_ALIAS() statements.
@@ -1367,11 +1583,18 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
 	if (ELF_ST_TYPE(sym->st_info) != STT_OBJECT)
 		return;
 
+<<<<<<< HEAD
 	/* All our symbols are of form <prefix>__mod_<name>__<identifier>_device_table. */
 	name = strstr(symname, "__mod_");
 	if (!name)
 		return;
 	name += strlen("__mod_");
+=======
+	/* All our symbols are of form __mod_<name>__<identifier>_device_table. */
+	if (strncmp(symname, "__mod_", strlen("__mod_")))
+		return;
+	name = symname + strlen("__mod_");
+>>>>>>> upstream/android-13
 	namelen = strlen(name);
 	if (namelen < strlen("_device_table"))
 		return;

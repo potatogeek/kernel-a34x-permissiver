@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * This is the infamous ld script for the 32 bits vdso
+=======
+ * This is the infamous ld script for the 64 bits vdso
+>>>>>>> upstream/android-13
  * library
  */
 
@@ -13,7 +17,15 @@ ENTRY(_start)
 
 SECTIONS
 {
+<<<<<<< HEAD
 	. = VDSO32_LBASE + SIZEOF_HEADERS;
+=======
+	PROVIDE(_vdso_data = . - __VVAR_PAGES * PAGE_SIZE);
+#ifdef CONFIG_TIME_NS
+	PROVIDE(_timens_data = _vdso_data + PAGE_SIZE);
+#endif
+	. = VDSO_LBASE + SIZEOF_HEADERS;
+>>>>>>> upstream/android-13
 
 	.hash		: { *(.hash) }			:text
 	.gnu.hash	: { *(.gnu.hash) }
@@ -47,6 +59,10 @@ SECTIONS
 
 	.rela.dyn ALIGN(8) : { *(.rela.dyn) }
 	.got ALIGN(8)	: { *(.got .toc) }
+<<<<<<< HEAD
+=======
+	.got.plt ALIGN(8) : { *(.got.plt) }
+>>>>>>> upstream/android-13
 
 	_end = .;
 	PROVIDE(end = .);
@@ -94,9 +110,12 @@ SECTIONS
 	.debug_ranges	0 : { *(.debug_ranges) }
 	.gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
 
+<<<<<<< HEAD
 	. = ALIGN(PAGE_SIZE);
 	PROVIDE(_vdso_data = .);
 
+=======
+>>>>>>> upstream/android-13
 	/DISCARD/	: {
 		*(.note.GNU-stack)
 		*(.branch_lt)
@@ -132,11 +151,17 @@ VERSION
 		/*
 		 * Has to be there for the kernel to find
 		 */
+<<<<<<< HEAD
 		__kernel_gettimeofday;
 		__kernel_clock_gettime;
 		__kernel_clock_getres;
 		__kernel_getcpu;
 
+=======
+		__kernel_compat_restart_syscall;
+		__kernel_compat_rt_sigreturn;
+		__kernel_compat_sigreturn;
+>>>>>>> upstream/android-13
 	local: *;
 	};
 }

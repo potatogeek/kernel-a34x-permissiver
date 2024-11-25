@@ -25,7 +25,15 @@ static inline void *task_stack_page(const struct task_struct *task)
 
 static inline unsigned long *end_of_stack(const struct task_struct *task)
 {
+<<<<<<< HEAD
 	return task->stack;
+=======
+#ifdef CONFIG_STACK_GROWSUP
+	return (unsigned long *)((unsigned long)task->stack + THREAD_SIZE) - 1;
+#else
+	return task->stack;
+#endif
+>>>>>>> upstream/android-13
 }
 
 #elif !defined(__HAVE_THREAD_FUNCTIONS)
@@ -61,7 +69,11 @@ static inline unsigned long *end_of_stack(struct task_struct *p)
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 static inline void *try_get_task_stack(struct task_struct *tsk)
 {
+<<<<<<< HEAD
 	return atomic_inc_not_zero(&tsk->stack_refcount) ?
+=======
+	return refcount_inc_not_zero(&tsk->stack_refcount) ?
+>>>>>>> upstream/android-13
 		task_stack_page(tsk) : NULL;
 }
 

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Point-to-Point Tunneling Protocol for Linux
  *
  *	Authors: Dmitry Kozlov <xeb@mail.ru>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/string.h>
@@ -160,7 +167,11 @@ static int pptp_xmit(struct ppp_channel *chan, struct sk_buff *skb)
 				   opt->dst_addr.sin_addr.s_addr,
 				   opt->src_addr.sin_addr.s_addr,
 				   0, 0, IPPROTO_GRE,
+<<<<<<< HEAD
 				   RT_TOS(0), 0);
+=======
+				   RT_TOS(0), sk->sk_bound_dev_if);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rt))
 		goto tx_error;
 
@@ -243,7 +254,11 @@ static int pptp_xmit(struct ppp_channel *chan, struct sk_buff *skb)
 	skb_dst_drop(skb);
 	skb_dst_set(skb, &rt->dst);
 
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	skb->ip_summed = CHECKSUM_NONE;
 	ip_select_ident(net, skb, NULL);
@@ -283,10 +298,15 @@ static int pptp_rcv_core(struct sock *sk, struct sk_buff *skb)
 		header = (struct pptp_gre_header *)(skb->data);
 
 		/* ack in different place if S = 0 */
+<<<<<<< HEAD
 		ack = GRE_IS_SEQ(header->gre_hd.flags) ? header->ack : header->seq;
 
 		ack = ntohl(ack);
 
+=======
+		ack = GRE_IS_SEQ(header->gre_hd.flags) ? ntohl(header->ack) :
+							 ntohl(header->seq);
+>>>>>>> upstream/android-13
 		if (ack > opt->ack_recv)
 			opt->ack_recv = ack;
 		/* also handle sequence number wrap-around  */
@@ -360,10 +380,17 @@ static int pptp_rcv(struct sk_buff *skb)
 		/* if invalid, discard this packet */
 		goto drop;
 
+<<<<<<< HEAD
 	po = lookup_chan(htons(header->call_id), iph->saddr);
 	if (po) {
 		skb_dst_drop(skb);
 		nf_reset(skb);
+=======
+	po = lookup_chan(ntohs(header->call_id), iph->saddr);
+	if (po) {
+		skb_dst_drop(skb);
+		nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 		return sk_receive_skb(sk_pppox(po), skb, 0);
 	}
 drop:
@@ -449,7 +476,12 @@ static int pptp_connect(struct socket *sock, struct sockaddr *uservaddr,
 				   opt->dst_addr.sin_addr.s_addr,
 				   opt->src_addr.sin_addr.s_addr,
 				   0, 0,
+<<<<<<< HEAD
 				   IPPROTO_GRE, RT_CONN_FLAGS(sk), 0);
+=======
+				   IPPROTO_GRE, RT_CONN_FLAGS(sk),
+				   sk->sk_bound_dev_if);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rt)) {
 		error = -EHOSTUNREACH;
 		goto end;
@@ -622,8 +654,11 @@ static const struct proto_ops pptp_ops = {
 	.getname    = pptp_getname,
 	.listen     = sock_no_listen,
 	.shutdown   = sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt = sock_no_setsockopt,
 	.getsockopt = sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.sendmsg    = sock_no_sendmsg,
 	.recvmsg    = sock_no_recvmsg,
 	.mmap       = sock_no_mmap,

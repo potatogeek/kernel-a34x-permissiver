@@ -90,7 +90,10 @@ typedef struct user_fpu_struct elf_fpregset_t;
 #endif
 #define ELF_ARCH	EM_SH
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+>>>>>>> upstream/android-13
 /*
  * This is used to ensure we don't load something for the wrong architecture.
  */
@@ -133,6 +136,7 @@ typedef struct user_fpu_struct elf_fpregset_t;
 
 #define ELF_PLATFORM	(utsname()->machine)
 
+<<<<<<< HEAD
 #ifdef __SH5__
 #define ELF_PLAT_INIT(_r, load_addr) \
   do { _r->regs[0]=0; _r->regs[1]=0; _r->regs[2]=0; _r->regs[3]=0; \
@@ -155,6 +159,8 @@ typedef struct user_fpu_struct elf_fpregset_t;
        _r->tregs[4]=0; _r->tregs[5]=0; _r->tregs[6]=0; _r->tregs[7]=0; \
        _r->sr = SR_FD | SR_MMU; } while (0)
 #else
+=======
+>>>>>>> upstream/android-13
 #define ELF_PLAT_INIT(_r, load_addr) \
   do { _r->regs[0]=0; _r->regs[1]=0; _r->regs[2]=0; _r->regs[3]=0; \
        _r->regs[4]=0; _r->regs[5]=0; _r->regs[6]=0; _r->regs[7]=0; \
@@ -182,7 +188,10 @@ do {									\
 	_r->regs[14]	= 0;						\
 	_r->sr		= SR_FD;					\
 } while (0)
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #define SET_PERSONALITY(ex) \
 	set_personality(PER_LINUX_32BIT | (current->personality & (~PER_MASK)))
@@ -232,5 +241,8 @@ do {								\
 	NEW_AUX_ENT(AT_L2_CACHESHAPE, l2_cache_shape);		\
 } while (0)
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SH_ELF_H */

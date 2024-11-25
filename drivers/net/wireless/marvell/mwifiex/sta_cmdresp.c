@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: station command response handling
  *
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: station command response handling
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -46,7 +55,10 @@ mwifiex_process_cmdresp_error(struct mwifiex_private *priv,
 {
 	struct mwifiex_adapter *adapter = priv->adapter;
 	struct host_cmd_ds_802_11_ps_mode_enh *pm;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	mwifiex_dbg(adapter, ERROR,
 		    "CMD_RESP: cmd %#x error, result=%#x\n",
@@ -87,9 +99,15 @@ mwifiex_process_cmdresp_error(struct mwifiex_private *priv,
 	/* Handling errors here */
 	mwifiex_recycle_cmd_node(adapter, adapter->curr_cmd);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->mwifiex_cmd_lock, flags);
 	adapter->curr_cmd = NULL;
 	spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, flags);
+=======
+	spin_lock_bh(&adapter->mwifiex_cmd_lock);
+	adapter->curr_cmd = NULL;
+	spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -202,6 +220,10 @@ static int mwifiex_ret_802_11_snmp_mib(struct mwifiex_private *priv,
 			mwifiex_dbg(priv->adapter, INFO,
 				    "info: SNMP_RESP: DTIM period=%u\n",
 				    ul_temp);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
@@ -1033,17 +1055,25 @@ mwifiex_create_custom_regdomain(struct mwifiex_private *priv,
 	struct ieee80211_regdomain *regd;
 	struct ieee80211_reg_rule *rule;
 	bool new_rule;
+<<<<<<< HEAD
 	int regd_size, idx, freq, prev_freq = 0;
+=======
+	int idx, freq, prev_freq = 0;
+>>>>>>> upstream/android-13
 	u32 bw, prev_bw = 0;
 	u8 chflags, prev_chflags = 0, valid_rules = 0;
 
 	if (WARN_ON_ONCE(num_chan > NL80211_MAX_SUPP_REG_RULES))
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	regd_size = sizeof(struct ieee80211_regdomain) +
 		    num_chan * sizeof(struct ieee80211_reg_rule);
 
 	regd = kzalloc(regd_size, GFP_KERNEL);
+=======
+	regd = kzalloc(struct_size(regd, reg_rules, num_chan), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!regd)
 		return ERR_PTR(-ENOMEM);
 
@@ -1397,6 +1427,10 @@ int mwifiex_process_sta_cmdresp(struct mwifiex_private *priv, u16 cmdresp_no,
 		break;
 	case HostCmd_CMD_TDLS_OPER:
 		ret = mwifiex_ret_tdls_oper(priv, resp);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case HostCmd_CMD_MC_POLICY:
 		break;
 	case HostCmd_CMD_CHAN_REPORT_REQUEST:

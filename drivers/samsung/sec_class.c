@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *      http://www.samsung.com
@@ -9,23 +10,41 @@
 
 #include <linux/device.h>
 #include <linux/err.h>
+=======
+#include <linux/device.h>
+#include <linux/err.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 
 /* CAUTION : Do not be declared as external sec_class  */
 static struct class *sec_class;
 static atomic_t sec_dev;
 
+<<<<<<< HEAD
 static int match_name(struct device *dev, const void *data)
+=======
+static int sec_class_match_device_by_name(struct device *dev, const void *data)
+>>>>>>> upstream/android-13
 {
 	const char *name = data;
 
 	return sysfs_streq(name, dev_name(dev));
 }
+<<<<<<< HEAD
 struct device *sec_device_find(const char *name)
 {
 	return class_find_device(sec_class, NULL,
 		(void *)name, match_name);
 }
 EXPORT_SYMBOL(sec_device_find);
+=======
+struct device *sec_dev_get_by_name(const char *name)
+{
+	return class_find_device(sec_class, NULL,
+		(void *)name, sec_class_match_device_by_name);
+}
+EXPORT_SYMBOL(sec_dev_get_by_name);
+>>>>>>> upstream/android-13
 
 struct device *sec_device_create(void *drvdata, const char *fmt)
 {
@@ -71,4 +90,11 @@ static int __init sec_class_create(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 arch_initcall_sync(sec_class_create);
+=======
+arch_initcall(sec_class_create);
+
+MODULE_DESCRIPTION("sec-class");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

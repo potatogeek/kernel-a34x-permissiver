@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2013 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -10,10 +14,13 @@
  * Description:
  * This file is based on arch/powerpc/kvm/44x_tlb.c,
  * by Hollis Blanchard <hollisb@us.ibm.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -536,10 +543,13 @@ gpa_t kvmppc_mmu_xlate(struct kvm_vcpu *vcpu, unsigned int index,
 	return get_tlb_raddr(gtlbe) | (eaddr & pgmask);
 }
 
+<<<<<<< HEAD
 void kvmppc_mmu_destroy_e500(struct kvm_vcpu *vcpu)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 /*****************************************/
 
 static void free_gtlb(struct kvmppc_vcpu_e500 *vcpu_e500)
@@ -783,7 +793,11 @@ int kvm_vcpu_ioctl_config_tlb(struct kvm_vcpu *vcpu,
 	if (!pages)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = get_user_pages_fast(cfg->array, num_pages, 1, pages);
+=======
+	ret = get_user_pages_fast(cfg->array, num_pages, FOLL_WRITE, pages);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto free_pages;
 

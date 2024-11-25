@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * gpio-regulator.c
  *
@@ -12,11 +16,14 @@
  * Copyright (c) 2009 Nokia Corporation
  * Roger Quadros <ext-roger.quadros@nokia.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This is useful for systems with mixed controllable and
  * non-controllable regulators, as well as for allowing testing on
  * systems with no controllable regulators.
@@ -30,6 +37,7 @@
 #include <linux/regulator/machine.h>
 #include <linux/regulator/of_regulator.h>
 #include <linux/regulator/gpio-regulator.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/slab.h>
 #include <linux/of.h>
@@ -40,6 +48,16 @@ struct gpio_regulator_data {
 	struct regulator_dev *dev;
 
 	struct gpio *gpios;
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/slab.h>
+#include <linux/of.h>
+
+struct gpio_regulator_data {
+	struct regulator_desc desc;
+
+	struct gpio_desc **gpiods;
+>>>>>>> upstream/android-13
 	int nr_gpios;
 
 	struct gpio_regulator_state *states;
@@ -82,7 +100,11 @@ static int gpio_regulator_set_voltage(struct regulator_dev *dev,
 
 	for (ptr = 0; ptr < data->nr_gpios; ptr++) {
 		state = (target & (1 << ptr)) >> ptr;
+<<<<<<< HEAD
 		gpio_set_value_cansleep(data->gpios[ptr].gpio, state);
+=======
+		gpiod_set_value_cansleep(data->gpiods[ptr], state);
+>>>>>>> upstream/android-13
 	}
 	data->state = target;
 
@@ -119,14 +141,22 @@ static int gpio_regulator_set_current_limit(struct regulator_dev *dev,
 
 	for (ptr = 0; ptr < data->nr_gpios; ptr++) {
 		state = (target & (1 << ptr)) >> ptr;
+<<<<<<< HEAD
 		gpio_set_value_cansleep(data->gpios[ptr].gpio, state);
+=======
+		gpiod_set_value_cansleep(data->gpiods[ptr], state);
+>>>>>>> upstream/android-13
 	}
 	data->state = target;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops gpio_regulator_voltage_ops = {
+=======
+static const struct regulator_ops gpio_regulator_voltage_ops = {
+>>>>>>> upstream/android-13
 	.get_voltage = gpio_regulator_get_value,
 	.set_voltage = gpio_regulator_set_voltage,
 	.list_voltage = gpio_regulator_list_voltage,
@@ -138,7 +168,12 @@ of_get_gpio_regulator_config(struct device *dev, struct device_node *np,
 {
 	struct gpio_regulator_config *config;
 	const char *regtype;
+<<<<<<< HEAD
 	int proplen, gpio, i;
+=======
+	int proplen, i;
+	int ngpios;
+>>>>>>> upstream/android-13
 	int ret;
 
 	config = devm_kzalloc(dev,
@@ -153,14 +188,25 @@ of_get_gpio_regulator_config(struct device *dev, struct device_node *np,
 
 	config->supply_name = config->init_data->constraints.name;
 
+<<<<<<< HEAD
 	if (of_property_read_bool(np, "enable-active-high"))
 		config->enable_high = true;
 
+=======
+	if (config->init_data->constraints.boot_on)
+		config->enabled_at_boot = true;
+
+	/*
+	 * Do not use: undocumented device tree property.
+	 * This is kept around solely for device tree ABI stability.
+	 */
+>>>>>>> upstream/android-13
 	if (of_property_read_bool(np, "enable-at-boot"))
 		config->enabled_at_boot = true;
 
 	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
 
+<<<<<<< HEAD
 	config->enable_gpio = of_get_named_gpio(np, "enable-gpio", 0);
 	if (config->enable_gpio < 0 && config->enable_gpio != -ENOENT)
 		return ERR_PTR(config->enable_gpio);
@@ -206,6 +252,33 @@ of_get_gpio_regulator_config(struct device *dev, struct device_node *np,
 			}
 		}
 	}
+=======
+	/* Fetch GPIO init levels */
+	ngpios = gpiod_count(dev, NULL);
+	if (ngpios > 0) {
+		config->gflags = devm_kzalloc(dev,
+					      sizeof(enum gpiod_flags)
+					      * ngpios,
+					      GFP_KERNEL);
+		if (!config->gflags)
+			return ERR_PTR(-ENOMEM);
+
+		for (i = 0; i < ngpios; i++) {
+			u32 val;
+
+			ret = of_property_read_u32_index(np, "gpios-states", i,
+							 &val);
+
+			/* Default to high per specification */
+			if (ret)
+				config->gflags[i] = GPIOD_OUT_HIGH;
+			else
+				config->gflags[i] =
+					val ? GPIOD_OUT_HIGH : GPIOD_OUT_LOW;
+		}
+	}
+	config->ngpios = ngpios;
+>>>>>>> upstream/android-13
 
 	/* Fetch states. */
 	proplen = of_property_count_u32_elems(np, "states");
@@ -244,13 +317,18 @@ of_get_gpio_regulator_config(struct device *dev, struct device_node *np,
 	return config;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops gpio_regulator_current_ops = {
+=======
+static const struct regulator_ops gpio_regulator_current_ops = {
+>>>>>>> upstream/android-13
 	.get_current_limit = gpio_regulator_get_value,
 	.set_current_limit = gpio_regulator_set_current_limit,
 };
 
 static int gpio_regulator_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct gpio_regulator_config *config = dev_get_platdata(&pdev->dev);
 	struct device_node *np = pdev->dev.of_node;
 	struct gpio_regulator_data *drvdata;
@@ -258,17 +336,34 @@ static int gpio_regulator_probe(struct platform_device *pdev)
 	int ptr, ret, state;
 
 	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct gpio_regulator_data),
+=======
+	struct device *dev = &pdev->dev;
+	struct gpio_regulator_config *config = dev_get_platdata(dev);
+	struct device_node *np = dev->of_node;
+	struct gpio_regulator_data *drvdata;
+	struct regulator_config cfg = { };
+	struct regulator_dev *rdev;
+	enum gpiod_flags gflags;
+	int ptr, ret, state, i;
+
+	drvdata = devm_kzalloc(dev, sizeof(struct gpio_regulator_data),
+>>>>>>> upstream/android-13
 			       GFP_KERNEL);
 	if (drvdata == NULL)
 		return -ENOMEM;
 
 	if (np) {
+<<<<<<< HEAD
 		config = of_get_gpio_regulator_config(&pdev->dev, np,
+=======
+		config = of_get_gpio_regulator_config(dev, np,
+>>>>>>> upstream/android-13
 						      &drvdata->desc);
 		if (IS_ERR(config))
 			return PTR_ERR(config);
 	}
 
+<<<<<<< HEAD
 	drvdata->desc.name = kstrdup(config->supply_name, GFP_KERNEL);
 	if (drvdata->desc.name == NULL) {
 		dev_err(&pdev->dev, "Failed to allocate supply name\n");
@@ -304,6 +399,38 @@ static int gpio_regulator_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Failed to allocate state data\n");
 		ret = -ENOMEM;
 		goto err_stategpio;
+=======
+	drvdata->desc.name = devm_kstrdup(dev, config->supply_name, GFP_KERNEL);
+	if (drvdata->desc.name == NULL) {
+		dev_err(dev, "Failed to allocate supply name\n");
+		return -ENOMEM;
+	}
+
+	drvdata->gpiods = devm_kzalloc(dev, sizeof(struct gpio_desc *),
+				       GFP_KERNEL);
+	if (!drvdata->gpiods)
+		return -ENOMEM;
+	for (i = 0; i < config->ngpios; i++) {
+		drvdata->gpiods[i] = devm_gpiod_get_index(dev,
+							  NULL,
+							  i,
+							  config->gflags[i]);
+		if (IS_ERR(drvdata->gpiods[i]))
+			return PTR_ERR(drvdata->gpiods[i]);
+		/* This is good to know */
+		gpiod_set_consumer_name(drvdata->gpiods[i], drvdata->desc.name);
+	}
+	drvdata->nr_gpios = config->ngpios;
+
+	drvdata->states = devm_kmemdup(dev,
+				       config->states,
+				       config->nr_states *
+				       sizeof(struct gpio_regulator_state),
+				       GFP_KERNEL);
+	if (drvdata->states == NULL) {
+		dev_err(dev, "Failed to allocate state data\n");
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	drvdata->nr_states = config->nr_states;
 
@@ -322,24 +449,38 @@ static int gpio_regulator_probe(struct platform_device *pdev)
 		drvdata->desc.ops = &gpio_regulator_current_ops;
 		break;
 	default:
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "No regulator type set\n");
 		ret = -EINVAL;
 		goto err_memstate;
+=======
+		dev_err(dev, "No regulator type set\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	/* build initial state from gpio init data. */
 	state = 0;
 	for (ptr = 0; ptr < drvdata->nr_gpios; ptr++) {
+<<<<<<< HEAD
 		if (config->gpios[ptr].flags & GPIOF_OUT_INIT_HIGH)
+=======
+		if (config->gflags[ptr] == GPIOD_OUT_HIGH)
+>>>>>>> upstream/android-13
 			state |= (1 << ptr);
 	}
 	drvdata->state = state;
 
+<<<<<<< HEAD
 	cfg.dev = &pdev->dev;
+=======
+	cfg.dev = dev;
+>>>>>>> upstream/android-13
 	cfg.init_data = config->init_data;
 	cfg.driver_data = drvdata;
 	cfg.of_node = np;
 
+<<<<<<< HEAD
 	if (gpio_is_valid(config->enable_gpio)) {
 		cfg.ena_gpio = config->enable_gpio;
 		cfg.ena_gpio_initialized = true;
@@ -362,11 +503,32 @@ static int gpio_regulator_probe(struct platform_device *pdev)
 		ret = PTR_ERR(drvdata->dev);
 		dev_err(&pdev->dev, "Failed to register regulator: %d\n", ret);
 		goto err_memstate;
+=======
+	/*
+	 * The signal will be inverted by the GPIO core if flagged so in the
+	 * descriptor.
+	 */
+	if (config->enabled_at_boot)
+		gflags = GPIOD_OUT_HIGH | GPIOD_FLAGS_BIT_NONEXCLUSIVE;
+	else
+		gflags = GPIOD_OUT_LOW | GPIOD_FLAGS_BIT_NONEXCLUSIVE;
+
+	cfg.ena_gpiod = gpiod_get_optional(dev, "enable", gflags);
+	if (IS_ERR(cfg.ena_gpiod))
+		return PTR_ERR(cfg.ena_gpiod);
+
+	rdev = devm_regulator_register(dev, &drvdata->desc, &cfg);
+	if (IS_ERR(rdev)) {
+		ret = PTR_ERR(rdev);
+		dev_err(dev, "Failed to register regulator: %d\n", ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, drvdata);
 
 	return 0;
+<<<<<<< HEAD
 
 err_memstate:
 	kfree(drvdata->states);
@@ -393,6 +555,8 @@ static int gpio_regulator_remove(struct platform_device *pdev)
 	kfree(drvdata->desc.name);
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #if defined(CONFIG_OF)
@@ -405,7 +569,10 @@ MODULE_DEVICE_TABLE(of, regulator_gpio_of_match);
 
 static struct platform_driver gpio_regulator_driver = {
 	.probe		= gpio_regulator_probe,
+<<<<<<< HEAD
 	.remove		= gpio_regulator_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name		= "gpio-regulator",
 		.of_match_table = of_match_ptr(regulator_gpio_of_match),

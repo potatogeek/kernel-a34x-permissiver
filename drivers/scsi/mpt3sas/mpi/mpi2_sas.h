@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * Copyright 2000-2015 Avago Technologies.  All rights reserved.
+=======
+ * Copyright 2000-2020 Broadcom Inc. All rights reserved.
+>>>>>>> upstream/android-13
  *
  *
  *          Name:  mpi2_sas.h

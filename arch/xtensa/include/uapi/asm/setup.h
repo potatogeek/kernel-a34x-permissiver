@@ -14,6 +14,9 @@
 
 #define COMMAND_LINE_SIZE	256
 
+<<<<<<< HEAD
 extern void set_except_vector(int n, void *addr);
 
+=======
+>>>>>>> upstream/android-13
 #endif

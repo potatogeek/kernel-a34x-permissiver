@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008, Intel Corporation.
  *
@@ -13,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008, Intel Corporation.
+ *
+>>>>>>> upstream/android-13
  * Author: Alexander Duyck <alexander.h.duyck@intel.com>
  */
 
@@ -26,6 +33,10 @@
 #include <net/ip.h>
 #include <net/ipv6.h>
 #include <net/dsfield.h>
+<<<<<<< HEAD
+=======
+#include <net/pkt_cls.h>
+>>>>>>> upstream/android-13
 
 #include <linux/tc_act/tc_skbedit.h>
 #include <net/tc_act/tc_skbedit.h>
@@ -83,6 +94,20 @@ err:
 	return TC_ACT_SHOT;
 }
 
+<<<<<<< HEAD
+=======
+static void tcf_skbedit_stats_update(struct tc_action *a, u64 bytes,
+				     u64 packets, u64 drops,
+				     u64 lastuse, bool hw)
+{
+	struct tcf_skbedit *d = to_skbedit(a);
+	struct tcf_t *tm = &d->tcf_tm;
+
+	tcf_action_update_stats(a, bytes, packets, drops, hw);
+	tm->lastuse = max_t(u64, tm->lastuse, lastuse);
+}
+
+>>>>>>> upstream/android-13
 static const struct nla_policy skbedit_policy[TCA_SKBEDIT_MAX + 1] = {
 	[TCA_SKBEDIT_PARMS]		= { .len = sizeof(struct tc_skbedit) },
 	[TCA_SKBEDIT_PRIORITY]		= { .len = sizeof(u32) },
@@ -95,12 +120,23 @@ static const struct nla_policy skbedit_policy[TCA_SKBEDIT_MAX + 1] = {
 
 static int tcf_skbedit_init(struct net *net, struct nlattr *nla,
 			    struct nlattr *est, struct tc_action **a,
+<<<<<<< HEAD
 			    int ovr, int bind, bool rtnl_held,
 			    struct netlink_ext_ack *extack)
 {
 	struct tc_action_net *tn = net_generic(net, skbedit_net_id);
 	struct tcf_skbedit_params *params_old, *params_new;
 	struct nlattr *tb[TCA_SKBEDIT_MAX + 1];
+=======
+			    struct tcf_proto *tp, u32 act_flags,
+			    struct netlink_ext_ack *extack)
+{
+	struct tc_action_net *tn = net_generic(net, skbedit_net_id);
+	bool bind = act_flags & TCA_ACT_FLAGS_BIND;
+	struct tcf_skbedit_params *params_new;
+	struct nlattr *tb[TCA_SKBEDIT_MAX + 1];
+	struct tcf_chain *goto_ch = NULL;
+>>>>>>> upstream/android-13
 	struct tc_skbedit *parm;
 	struct tcf_skbedit *d;
 	u32 flags = 0, *priority = NULL, *mark = NULL, *mask = NULL;
@@ -112,7 +148,12 @@ static int tcf_skbedit_init(struct net *net, struct nlattr *nla,
 	if (nla == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_SKBEDIT_MAX, nla, skbedit_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_SKBEDIT_MAX, nla,
+					  skbedit_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -172,7 +213,11 @@ static int tcf_skbedit_init(struct net *net, struct nlattr *nla,
 
 	if (!exists) {
 		ret = tcf_idr_create(tn, index, est, a,
+<<<<<<< HEAD
 				     &act_skbedit_ops, bind, true);
+=======
+				     &act_skbedit_ops, bind, true, 0);
+>>>>>>> upstream/android-13
 		if (ret) {
 			tcf_idr_cleanup(tn, index);
 			return ret;
@@ -182,11 +227,16 @@ static int tcf_skbedit_init(struct net *net, struct nlattr *nla,
 		ret = ACT_P_CREATED;
 	} else {
 		d = to_skbedit(*a);
+<<<<<<< HEAD
 		if (!ovr) {
+=======
+		if (!(act_flags & TCA_ACT_FLAGS_REPLACE)) {
+>>>>>>> upstream/android-13
 			tcf_idr_release(*a, bind);
 			return -EEXIST;
 		}
 	}
+<<<<<<< HEAD
 
 	ASSERT_RTNL();
 
@@ -194,6 +244,16 @@ static int tcf_skbedit_init(struct net *net, struct nlattr *nla,
 	if (unlikely(!params_new)) {
 		tcf_idr_release(*a, bind);
 		return -ENOMEM;
+=======
+	err = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+	if (err < 0)
+		goto release_idr;
+
+	params_new = kzalloc(sizeof(*params_new), GFP_KERNEL);
+	if (unlikely(!params_new)) {
+		err = -ENOMEM;
+		goto put_chain;
+>>>>>>> upstream/android-13
 	}
 
 	params_new->flags = flags;
@@ -210,6 +270,7 @@ static int tcf_skbedit_init(struct net *net, struct nlattr *nla,
 	if (flags & SKBEDIT_F_MASK)
 		params_new->mask = *mask;
 
+<<<<<<< HEAD
 	d->tcf_action = parm->action;
 	params_old = rtnl_dereference(d->params);
 	rcu_assign_pointer(d->params, params_new);
@@ -219,6 +280,25 @@ static int tcf_skbedit_init(struct net *net, struct nlattr *nla,
 	if (ret == ACT_P_CREATED)
 		tcf_idr_insert(tn, *a);
 	return ret;
+=======
+	spin_lock_bh(&d->tcf_lock);
+	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
+	params_new = rcu_replace_pointer(d->params, params_new,
+					 lockdep_is_held(&d->tcf_lock));
+	spin_unlock_bh(&d->tcf_lock);
+	if (params_new)
+		kfree_rcu(params_new, rcu);
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+
+	return ret;
+put_chain:
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+release_idr:
+	tcf_idr_release(*a, bind);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int tcf_skbedit_dump(struct sk_buff *skb, struct tc_action *a,
@@ -231,12 +311,22 @@ static int tcf_skbedit_dump(struct sk_buff *skb, struct tc_action *a,
 		.index   = d->tcf_index,
 		.refcnt  = refcount_read(&d->tcf_refcnt) - ref,
 		.bindcnt = atomic_read(&d->tcf_bindcnt) - bind,
+<<<<<<< HEAD
 		.action  = d->tcf_action,
+=======
+>>>>>>> upstream/android-13
 	};
 	u64 pure_flags = 0;
 	struct tcf_t t;
 
+<<<<<<< HEAD
 	params = rtnl_dereference(d->params);
+=======
+	spin_lock_bh(&d->tcf_lock);
+	params = rcu_dereference_protected(d->params,
+					   lockdep_is_held(&d->tcf_lock));
+	opt.action = d->tcf_action;
+>>>>>>> upstream/android-13
 
 	if (nla_put(skb, TCA_SKBEDIT_PARMS, sizeof(opt), &opt))
 		goto nla_put_failure;
@@ -264,9 +354,18 @@ static int tcf_skbedit_dump(struct sk_buff *skb, struct tc_action *a,
 	tcf_tm_dump(&t, &d->tcf_tm);
 	if (nla_put_64bit(skb, TCA_SKBEDIT_TM, sizeof(t), &t, TCA_SKBEDIT_PAD))
 		goto nla_put_failure;
+<<<<<<< HEAD
 	return skb->len;
 
 nla_put_failure:
+=======
+	spin_unlock_bh(&d->tcf_lock);
+
+	return skb->len;
+
+nla_put_failure:
+	spin_unlock_bh(&d->tcf_lock);
+>>>>>>> upstream/android-13
 	nlmsg_trim(skb, b);
 	return -1;
 }
@@ -291,23 +390,51 @@ static int tcf_skbedit_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_skbedit_search(struct net *net, struct tc_action **a, u32 index,
 			      struct netlink_ext_ack *extack)
+=======
+static int tcf_skbedit_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, skbedit_net_id);
 
 	return tcf_idr_search(tn, a, index);
 }
 
+<<<<<<< HEAD
 static struct tc_action_ops act_skbedit_ops = {
 	.kind		=	"skbedit",
 	.type		=	TCA_ACT_SKBEDIT,
 	.owner		=	THIS_MODULE,
 	.act		=	tcf_skbedit_act,
+=======
+static size_t tcf_skbedit_get_fill_size(const struct tc_action *act)
+{
+	return nla_total_size(sizeof(struct tc_skbedit))
+		+ nla_total_size(sizeof(u32)) /* TCA_SKBEDIT_PRIORITY */
+		+ nla_total_size(sizeof(u16)) /* TCA_SKBEDIT_QUEUE_MAPPING */
+		+ nla_total_size(sizeof(u32)) /* TCA_SKBEDIT_MARK */
+		+ nla_total_size(sizeof(u16)) /* TCA_SKBEDIT_PTYPE */
+		+ nla_total_size(sizeof(u32)) /* TCA_SKBEDIT_MASK */
+		+ nla_total_size_64bit(sizeof(u64)); /* TCA_SKBEDIT_FLAGS */
+}
+
+static struct tc_action_ops act_skbedit_ops = {
+	.kind		=	"skbedit",
+	.id		=	TCA_ID_SKBEDIT,
+	.owner		=	THIS_MODULE,
+	.act		=	tcf_skbedit_act,
+	.stats_update	=	tcf_skbedit_stats_update,
+>>>>>>> upstream/android-13
 	.dump		=	tcf_skbedit_dump,
 	.init		=	tcf_skbedit_init,
 	.cleanup	=	tcf_skbedit_cleanup,
 	.walk		=	tcf_skbedit_walker,
+<<<<<<< HEAD
+=======
+	.get_fill_size	=	tcf_skbedit_get_fill_size,
+>>>>>>> upstream/android-13
 	.lookup		=	tcf_skbedit_search,
 	.size		=	sizeof(struct tcf_skbedit),
 };

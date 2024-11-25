@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2015 Freescale Semiconductor, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014-2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DTS_IMX7D_PINFUNC_H
@@ -596,7 +602,11 @@
 #define MX7D_PAD_UART2_RX_DATA__ECSPI1_SS3                        0x0130 0x03A0 0x0000 0x3 0x0
 #define MX7D_PAD_UART2_RX_DATA__ENET2_1588_EVENT1_IN              0x0130 0x03A0 0x0000 0x4 0x0
 #define MX7D_PAD_UART2_RX_DATA__GPIO4_IO2                         0x0130 0x03A0 0x0000 0x5 0x0
+<<<<<<< HEAD
 #define MX7D_PAD_UART2_RX_DATA__ENET2_MDIO                        0x0130 0x03A0 0x0000 0x6 0x0
+=======
+#define MX7D_PAD_UART2_RX_DATA__ENET2_MDIO                        0x0130 0x03A0 0x0574 0x6 0x1
+>>>>>>> upstream/android-13
 #define MX7D_PAD_UART2_TX_DATA__UART2_DCE_TX                      0x0134 0x03A4 0x0000 0x0 0x0
 #define MX7D_PAD_UART2_TX_DATA__UART2_DTE_RX                      0x0134 0x03A4 0x06FC 0x0 0x3
 #define MX7D_PAD_UART2_TX_DATA__I2C2_SDA                          0x0134 0x03A4 0x05E0 0x1 0x0

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * budget-ci.c: driver for the SAA7146 based Budget DVB cards
  *
@@ -8,6 +12,7 @@
  *
  * CI interface support (c) 2004 Andrew de Quincey <adq_dvb@lidskialf.net>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -23,6 +28,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 
@@ -113,9 +120,16 @@ struct budget_ci {
 	u8 tuner_pll_address; /* used for philips_tdm1316l configs */
 };
 
+<<<<<<< HEAD
 static void msp430_ir_interrupt(unsigned long data)
 {
 	struct budget_ci *budget_ci = (struct budget_ci *) data;
+=======
+static void msp430_ir_interrupt(struct tasklet_struct *t)
+{
+	struct budget_ci_ir *ir = from_tasklet(ir, t, msp430_irq_tasklet);
+	struct budget_ci *budget_ci = container_of(ir, typeof(*budget_ci), ir);
+>>>>>>> upstream/android-13
 	struct rc_dev *dev = budget_ci->ir.dev;
 	u32 command = ttpci_budget_debiread(&budget_ci->budget, DEBINOSWAP, DEBIADDR_IR, 2, 1, 0) >> 8;
 
@@ -243,8 +257,12 @@ static int msp430_ir_init(struct budget_ci *budget_ci)
 
 	budget_ci->ir.dev = dev;
 
+<<<<<<< HEAD
 	tasklet_init(&budget_ci->ir.msp430_irq_tasklet, msp430_ir_interrupt,
 		     (unsigned long) budget_ci);
+=======
+	tasklet_setup(&budget_ci->ir.msp430_irq_tasklet, msp430_ir_interrupt);
+>>>>>>> upstream/android-13
 
 	SAA7146_IER_ENABLE(saa, MASK_06);
 	saa7146_setgpio(saa, 3, SAA7146_GPIO_IRQHI);
@@ -362,9 +380,16 @@ static int ciintf_slot_ts_enable(struct dvb_ca_en50221 *ca, int slot)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ciintf_interrupt(unsigned long data)
 {
 	struct budget_ci *budget_ci = (struct budget_ci *) data;
+=======
+static void ciintf_interrupt(struct tasklet_struct *t)
+{
+	struct budget_ci *budget_ci = from_tasklet(budget_ci, t,
+						   ciintf_irq_tasklet);
+>>>>>>> upstream/android-13
 	struct saa7146_dev *saa = budget_ci->budget.dev;
 	unsigned int flags;
 
@@ -505,7 +530,11 @@ static int ciintf_init(struct budget_ci *budget_ci)
 
 	// Setup CI slot IRQ
 	if (budget_ci->ci_irq) {
+<<<<<<< HEAD
 		tasklet_init(&budget_ci->ciintf_irq_tasklet, ciintf_interrupt, (unsigned long) budget_ci);
+=======
+		tasklet_setup(&budget_ci->ciintf_irq_tasklet, ciintf_interrupt);
+>>>>>>> upstream/android-13
 		if (budget_ci->slot_status != SLOTSTATUS_NONE) {
 			saa7146_setgpio(saa, 0, SAA7146_GPIO_IRQLO);
 		} else {

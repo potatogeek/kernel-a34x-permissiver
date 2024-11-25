@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Cobalt/SEAD3 LCD frame buffer driver.
  *
  *  Copyright (C) 2008  Yoichi Yuasa <yuasa@linux-mips.org>
  *  Copyright (C) 2012  MIPS Technologies, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/fb.h>
@@ -282,7 +289,11 @@ static int cobalt_lcdfb_cursor(struct fb_info *info, struct fb_cursor *cursor)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops cobalt_lcd_fbops = {
+=======
+static const struct fb_ops cobalt_lcd_fbops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_read	= cobalt_lcdfb_read,
 	.fb_write	= cobalt_lcdfb_write,

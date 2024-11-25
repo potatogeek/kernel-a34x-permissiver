@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  (C) 2001-2004  Dave Jones.
  *  (C) 2002  Padraig Brady. <padraig@antefacto.com>
  *
+<<<<<<< HEAD
  *  Licensed under the terms of the GNU GPL License version 2.
+=======
+>>>>>>> upstream/android-13
  *  Based upon datasheets & sample CPUs kindly provided by VIA.
  *
  *  VIA have currently 3 different versions of Longhaul.
@@ -593,7 +600,10 @@ static void longhaul_setup_voltagescaling(void)
 		break;
 	default:
 		return;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 	if (min_vid_speed >= highest_speed)
 		return;
@@ -851,7 +861,11 @@ static int longhaul_cpu_init(struct cpufreq_policy *policy)
 	case TYPE_POWERSAVER:
 		pr_cont("Powersaver supported\n");
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	/* Doesn't hurt */
 	longhaul_setup_southbridge();
@@ -910,7 +924,11 @@ static struct cpufreq_driver longhaul_driver = {
 };
 
 static const struct x86_cpu_id longhaul_id[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_CENTAUR, 6 },
+=======
+	X86_MATCH_VENDOR_FAM(CENTAUR, 6, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, longhaul_id);
@@ -943,8 +961,11 @@ static int __init longhaul_init(void)
 		return cpufreq_register_driver(&longhaul_driver);
 	case 10:
 		pr_err("Use acpi-cpufreq driver for VIA C7\n");
+<<<<<<< HEAD
 	default:
 		;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return -ENODEV;

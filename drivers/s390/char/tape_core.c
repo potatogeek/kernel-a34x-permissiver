@@ -428,6 +428,7 @@ tape_cleanup_device(struct tape_device *device)
 }
 
 /*
+<<<<<<< HEAD
  * Suspend device.
  *
  * Called by the common I/O layer if the drive should be suspended on user
@@ -477,6 +478,8 @@ int tape_generic_pm_suspend(struct ccw_device *cdev)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Set device offline.
  *
  * Called by the common I/O layer if the drive should set offline on user
@@ -677,6 +680,10 @@ tape_generic_remove(struct ccw_device *cdev)
 	switch (device->tape_state) {
 		case TS_INIT:
 			tape_state_set(device, TS_NOT_OPER);
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TS_NOT_OPER:
 			/*
 			 * Nothing to do.
@@ -949,6 +956,10 @@ __tape_start_request(struct tape_device *device, struct tape_request *request)
 				break;
 			if (device->tape_state == TS_UNUSED)
 				break;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			if (device->tape_state == TS_BLKUSE)
 				break;
@@ -1116,6 +1127,10 @@ __tape_do_irq (struct ccw_device *cdev, unsigned long intparm, struct irb *irb)
 			case -ETIMEDOUT:
 				DBF_LH(1, "(%08x): Request timed out\n",
 				       device->cdev_id);
+<<<<<<< HEAD
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case -EIO:
 				__tape_end_request(device, request, -EIO);
 				break;
@@ -1357,7 +1372,10 @@ EXPORT_SYMBOL(tape_generic_remove);
 EXPORT_SYMBOL(tape_generic_probe);
 EXPORT_SYMBOL(tape_generic_online);
 EXPORT_SYMBOL(tape_generic_offline);
+<<<<<<< HEAD
 EXPORT_SYMBOL(tape_generic_pm_suspend);
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(tape_put_device);
 EXPORT_SYMBOL(tape_get_device);
 EXPORT_SYMBOL(tape_state_verbose);

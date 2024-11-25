@@ -1,7 +1,15 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config NFSD
 	tristate "NFS server support"
 	depends on INET
 	depends on FILE_LOCKING
+<<<<<<< HEAD
+=======
+	depends on FSNOTIFY
+>>>>>>> upstream/android-13
 	select LOCKD
 	select SUNRPC
 	select EXPORTFS
@@ -72,7 +80,14 @@ config NFSD_V4
 	select FS_POSIX_ACL
 	select SUNRPC_GSS
 	select CRYPTO
+<<<<<<< HEAD
 	select GRACE_PERIOD
+=======
+	select CRYPTO_MD5
+	select CRYPTO_SHA256
+	select GRACE_PERIOD
+	select NFS_V4_2_SSC_HELPER if NFS_V4_2
+>>>>>>> upstream/android-13
 	help
 	  This option enables support in your system's NFS server for
 	  version 4 of the NFS protocol (RFC 3530).
@@ -94,7 +109,11 @@ config NFSD_BLOCKLAYOUT
 	help
 	  This option enables support for the exporting pNFS block layouts
 	  in the kernel's NFS server. The pNFS block layout enables NFS
+<<<<<<< HEAD
 	  clients to directly perform I/O to block devices accesible to both
+=======
+	  clients to directly perform I/O to block devices accessible to both
+>>>>>>> upstream/android-13
 	  the server and the clients.  See RFC 5663 for more details.
 
 	  If unsure, say N.
@@ -104,11 +123,19 @@ config NFSD_SCSILAYOUT
 	depends on NFSD_V4 && BLOCK
 	select NFSD_PNFS
 	select EXPORTFS_BLOCK_OPS
+<<<<<<< HEAD
 	select BLK_SCSI_REQUEST
 	help
 	  This option enables support for the exporting pNFS SCSI layouts
 	  in the kernel's NFS server. The pNFS SCSI layout enables NFS
 	  clients to directly perform I/O to SCSI devices accesible to both
+=======
+	select SCSI_COMMON
+	help
+	  This option enables support for the exporting pNFS SCSI layouts
+	  in the kernel's NFS server. The pNFS SCSI layout enables NFS
+	  clients to directly perform I/O to SCSI devices accessible to both
+>>>>>>> upstream/android-13
 	  the server and the clients.  See draft-ietf-nfsv4-scsi-layout for
 	  more details.
 
@@ -122,7 +149,11 @@ config NFSD_FLEXFILELAYOUT
 	  This option enables support for the exporting pNFS Flex File
 	  layouts in the kernel's NFS server. The pNFS Flex File  layout
 	  enables NFS clients to directly perform I/O to NFSv3 devices
+<<<<<<< HEAD
 	  accesible to both the server and the clients.  See
+=======
+	  accessible to both the server and the clients.  See
+>>>>>>> upstream/android-13
 	  draft-ietf-nfsv4-flex-files for more details.
 
 	  Warning, this server implements the bare minimum functionality
@@ -131,6 +162,19 @@ config NFSD_FLEXFILELAYOUT
 
 	  If unsure, say N.
 
+<<<<<<< HEAD
+=======
+config NFSD_V4_2_INTER_SSC
+	bool "NFSv4.2 inter server to server COPY"
+	depends on NFSD_V4 && NFS_V4_2
+	help
+	  This option enables support for NFSv4.2 inter server to
+	  server copy where the destination server calls the NFSv4.2
+	  client to read the data to copy from the source server.
+
+	  If unsure, say N.
+
+>>>>>>> upstream/android-13
 config NFSD_V4_SECURITY_LABEL
 	bool "Provide Security Label support for NFSv4 server"
 	depends on NFSD_V4 && SECURITY
@@ -143,6 +187,7 @@ config NFSD_V4_SECURITY_LABEL
 
 	If you do not wish to enable fine-grained security labels SELinux or
 	Smack policies on NFSv4 files, say N.
+<<<<<<< HEAD
 
 config NFSD_FAULT_INJECTION
 	bool "NFS server manual fault injection"
@@ -153,3 +198,5 @@ config NFSD_FAULT_INJECTION
 	  testing error recovery on the NFS client.
 
 	  If unsure, say N.
+=======
+>>>>>>> upstream/android-13

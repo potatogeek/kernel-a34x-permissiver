@@ -75,7 +75,11 @@ FPU_result_1:
 
 
 .text
+<<<<<<< HEAD
 ENTRY(div_Xsig)
+=======
+SYM_FUNC_START(div_Xsig)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 #ifndef NON_REENTRANT_FPU
@@ -341,7 +345,11 @@ L_exit:
 	popl	%esi
 
 	leave
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 
 #ifdef PARANOID
@@ -364,4 +372,8 @@ L_bugged_2:
 	pop	%ebx
 	jmp	L_exit
 #endif /* PARANOID */ 
+<<<<<<< HEAD
 ENDPROC(div_Xsig)
+=======
+SYM_FUNC_END(div_Xsig)
+>>>>>>> upstream/android-13

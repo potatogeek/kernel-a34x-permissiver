@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * w83l786ng.c - Linux kernel driver for hardware monitoring
  * Copyright (c) 2007 Kevin Lo <kevlo@kevlo.org>
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * w83l786ng.c - Linux kernel driver for hardware monitoring
+ * Copyright (c) 2007 Kevin Lo <kevlo@kevlo.org>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -719,7 +726,11 @@ static void w83l786ng_init_client(struct i2c_client *client)
 }
 
 static int
+<<<<<<< HEAD
 w83l786ng_probe(struct i2c_client *client, const struct i2c_device_id *id)
+=======
+w83l786ng_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct w83l786ng_data *data;
@@ -765,7 +776,11 @@ static struct i2c_driver w83l786ng_driver = {
 	.driver = {
 		   .name = "w83l786ng",
 	},
+<<<<<<< HEAD
 	.probe		= w83l786ng_probe,
+=======
+	.probe_new	= w83l786ng_probe,
+>>>>>>> upstream/android-13
 	.id_table	= w83l786ng_id,
 	.detect		= w83l786ng_detect,
 	.address_list	= normal_i2c,

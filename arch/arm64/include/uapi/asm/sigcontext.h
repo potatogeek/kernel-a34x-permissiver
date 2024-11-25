@@ -77,6 +77,18 @@ struct fpsimd_context {
 	__uint128_t vregs[32];
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * Note: similarly to all other integer fields, each V-register is stored in an
+ * endianness-dependent format, with the byte at offset i from the start of the
+ * in-memory representation of the register value containing
+ *
+ *    bits [(7 + 8 * i) : (8 * i)] of the register on little-endian hosts; or
+ *    bits [(127 - 8 * i) : (120 - 8 * i)] on big-endian hosts.
+ */
+
+>>>>>>> upstream/android-13
 /* ESR_EL1 context */
 #define ESR_MAGIC	0x45535201
 
@@ -130,11 +142,17 @@ struct sve_context {
 
 #endif /* !__ASSEMBLY__ */
 
+<<<<<<< HEAD
+=======
+#include <asm/sve_context.h>
+
+>>>>>>> upstream/android-13
 /*
  * The SVE architecture leaves space for future expansion of the
  * vector length beyond its initial architectural limit of 2048 bits
  * (16 quadwords).
  *
+<<<<<<< HEAD
  * See linux/Documentation/arm64/sve.txt for a description of the VL/VQ
  * terminology.
  */
@@ -153,6 +171,25 @@ struct sve_context {
 	((vl) % SVE_VQ_BYTES == 0 && (vl) >= SVE_VL_MIN && (vl) <= SVE_VL_MAX)
 #define sve_vq_from_vl(vl)	((vl) / SVE_VQ_BYTES)
 #define sve_vl_from_vq(vq)	((vq) * SVE_VQ_BYTES)
+=======
+ * See linux/Documentation/arm64/sve.rst for a description of the VL/VQ
+ * terminology.
+ */
+#define SVE_VQ_BYTES		__SVE_VQ_BYTES	/* bytes per quadword */
+
+#define SVE_VQ_MIN		__SVE_VQ_MIN
+#define SVE_VQ_MAX		__SVE_VQ_MAX
+
+#define SVE_VL_MIN		__SVE_VL_MIN
+#define SVE_VL_MAX		__SVE_VL_MAX
+
+#define SVE_NUM_ZREGS		__SVE_NUM_ZREGS
+#define SVE_NUM_PREGS		__SVE_NUM_PREGS
+
+#define sve_vl_valid(vl)	__sve_vl_valid(vl)
+#define sve_vq_from_vl(vl)	__sve_vq_from_vl(vl)
+#define sve_vl_from_vq(vq)	__sve_vl_from_vq(vq)
+>>>>>>> upstream/android-13
 
 /*
  * If the SVE registers are currently live for the thread at signal delivery,
@@ -169,7 +206,11 @@ struct sve_context {
  * The same convention applies when returning from a signal: a caller
  * will need to remove or resize the sve_context block if it wants to
  * make the SVE registers live when they were previously non-live or
+<<<<<<< HEAD
  * vice-versa.  This may require the the caller to allocate fresh
+=======
+ * vice-versa.  This may require the caller to allocate fresh
+>>>>>>> upstream/android-13
  * memory and/or move other context blocks in the signal frame.
  *
  * Changing the vector length during signal return is not permitted:
@@ -203,6 +244,7 @@ struct sve_context {
  *	FFR	uint16_t[vq]			first-fault status register
  *
  * Additional data might be appended in the future.
+<<<<<<< HEAD
  */
 
 #define SVE_SIG_ZREG_SIZE(vq)	((__u32)(vq) * SVE_VQ_BYTES)
@@ -234,5 +276,42 @@ struct sve_context {
 
 #define SVE_SIG_CONTEXT_SIZE(vq) (SVE_SIG_REGS_OFFSET + SVE_SIG_REGS_SIZE(vq))
 
+=======
+ *
+ * Unlike vregs[] in fpsimd_context, each SVE scalable register (Z-, P- or FFR)
+ * is encoded in memory in an endianness-invariant format, with the byte at
+ * offset i from the start of the in-memory representation containing bits
+ * [(7 + 8 * i) : (8 * i)] of the register value.
+ */
+
+#define SVE_SIG_ZREG_SIZE(vq)	__SVE_ZREG_SIZE(vq)
+#define SVE_SIG_PREG_SIZE(vq)	__SVE_PREG_SIZE(vq)
+#define SVE_SIG_FFR_SIZE(vq)	__SVE_FFR_SIZE(vq)
+
+#define SVE_SIG_REGS_OFFSET					\
+	((sizeof(struct sve_context) + (__SVE_VQ_BYTES - 1))	\
+		/ __SVE_VQ_BYTES * __SVE_VQ_BYTES)
+
+#define SVE_SIG_ZREGS_OFFSET \
+		(SVE_SIG_REGS_OFFSET + __SVE_ZREGS_OFFSET)
+#define SVE_SIG_ZREG_OFFSET(vq, n) \
+		(SVE_SIG_REGS_OFFSET + __SVE_ZREG_OFFSET(vq, n))
+#define SVE_SIG_ZREGS_SIZE(vq) __SVE_ZREGS_SIZE(vq)
+
+#define SVE_SIG_PREGS_OFFSET(vq) \
+		(SVE_SIG_REGS_OFFSET + __SVE_PREGS_OFFSET(vq))
+#define SVE_SIG_PREG_OFFSET(vq, n) \
+		(SVE_SIG_REGS_OFFSET + __SVE_PREG_OFFSET(vq, n))
+#define SVE_SIG_PREGS_SIZE(vq) __SVE_PREGS_SIZE(vq)
+
+#define SVE_SIG_FFR_OFFSET(vq) \
+		(SVE_SIG_REGS_OFFSET + __SVE_FFR_OFFSET(vq))
+
+#define SVE_SIG_REGS_SIZE(vq) \
+		(__SVE_FFR_OFFSET(vq) + __SVE_FFR_SIZE(vq))
+
+#define SVE_SIG_CONTEXT_SIZE(vq) \
+		(SVE_SIG_REGS_OFFSET + SVE_SIG_REGS_SIZE(vq))
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI__ASM_SIGCONTEXT_H */

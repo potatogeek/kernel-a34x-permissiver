@@ -1,9 +1,14 @@
 #!/bin/bash
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 #
 # Analyze a given results directory for locktorture progress.
 #
 # Usage: kvm-recheck-lock.sh resdir
 #
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,11 @@
 # Copyright (C) IBM Corporation, 2014
 #
 # Authors: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+# Copyright (C) IBM Corporation, 2014
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
 
 i="$1"
 if test -d "$i" -a -r "$i"
@@ -38,7 +48,11 @@ then
 	echo "$configfile -------"
 else
 	title="$configfile ------- $ncs acquisitions/releases"
+<<<<<<< HEAD
 	dur=`sed -e 's/^.* locktorture.shutdown_secs=//' -e 's/ .*$//' < $i/qemu-cmd 2> /dev/null`
+=======
+	dur=`grep -v '^#' $i/qemu-cmd | sed -e 's/^.* locktorture.shutdown_secs=//' -e 's/ .*$//' 2> /dev/null`
+>>>>>>> upstream/android-13
 	if test -z "$dur"
 	then
 		:

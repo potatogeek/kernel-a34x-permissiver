@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+>>>>>>> upstream/android-13
 /* eBPF instruction mini library */
 #ifndef __BPF_INSN_H
 #define __BPF_INSN_H
@@ -134,6 +138,7 @@ struct bpf_insn;
 		.off   = OFF,					\
 		.imm   = 0 })
 
+<<<<<<< HEAD
 /* Atomic memory add, *(uint *)(dst_reg + off16) += src_reg */
 
 #define BPF_STX_XADD(SIZE, DST, SRC, OFF)			\
@@ -143,6 +148,33 @@ struct bpf_insn;
 		.src_reg = SRC,					\
 		.off   = OFF,					\
 		.imm   = 0 })
+=======
+/*
+ * Atomic operations:
+ *
+ *   BPF_ADD                  *(uint *) (dst_reg + off16) += src_reg
+ *   BPF_AND                  *(uint *) (dst_reg + off16) &= src_reg
+ *   BPF_OR                   *(uint *) (dst_reg + off16) |= src_reg
+ *   BPF_XOR                  *(uint *) (dst_reg + off16) ^= src_reg
+ *   BPF_ADD | BPF_FETCH      src_reg = atomic_fetch_add(dst_reg + off16, src_reg);
+ *   BPF_AND | BPF_FETCH      src_reg = atomic_fetch_and(dst_reg + off16, src_reg);
+ *   BPF_OR | BPF_FETCH       src_reg = atomic_fetch_or(dst_reg + off16, src_reg);
+ *   BPF_XOR | BPF_FETCH      src_reg = atomic_fetch_xor(dst_reg + off16, src_reg);
+ *   BPF_XCHG                 src_reg = atomic_xchg(dst_reg + off16, src_reg)
+ *   BPF_CMPXCHG              r0 = atomic_cmpxchg(dst_reg + off16, r0, src_reg)
+ */
+
+#define BPF_ATOMIC_OP(SIZE, OP, DST, SRC, OFF)			\
+	((struct bpf_insn) {					\
+		.code  = BPF_STX | BPF_SIZE(SIZE) | BPF_ATOMIC,	\
+		.dst_reg = DST,					\
+		.src_reg = SRC,					\
+		.off   = OFF,					\
+		.imm   = OP })
+
+/* Legacy alias */
+#define BPF_STX_XADD(SIZE, DST, SRC, OFF) BPF_ATOMIC_OP(SIZE, BPF_ADD, DST, SRC, OFF)
+>>>>>>> upstream/android-13
 
 /* Memory store, *(uint *) (dst_reg + off16) = imm32 */
 
@@ -164,6 +196,19 @@ struct bpf_insn;
 		.off   = OFF,					\
 		.imm   = 0 })
 
+<<<<<<< HEAD
+=======
+/* Like BPF_JMP_REG, but with 32-bit wide operands for comparison. */
+
+#define BPF_JMP32_REG(OP, DST, SRC, OFF)			\
+	((struct bpf_insn) {					\
+		.code  = BPF_JMP32 | BPF_OP(OP) | BPF_X,	\
+		.dst_reg = DST,					\
+		.src_reg = SRC,					\
+		.off   = OFF,					\
+		.imm   = 0 })
+
+>>>>>>> upstream/android-13
 /* Conditional jumps against immediates, if (dst_reg 'op' imm32) goto pc + off16 */
 
 #define BPF_JMP_IMM(OP, DST, IMM, OFF)				\
@@ -174,6 +219,19 @@ struct bpf_insn;
 		.off   = OFF,					\
 		.imm   = IMM })
 
+<<<<<<< HEAD
+=======
+/* Like BPF_JMP_IMM, but with 32-bit wide operands for comparison. */
+
+#define BPF_JMP32_IMM(OP, DST, IMM, OFF)			\
+	((struct bpf_insn) {					\
+		.code  = BPF_JMP32 | BPF_OP(OP) | BPF_K,	\
+		.dst_reg = DST,					\
+		.src_reg = 0,					\
+		.off   = OFF,					\
+		.imm   = IMM })
+
+>>>>>>> upstream/android-13
 /* Raw code statement block */
 
 #define BPF_RAW_INSN(CODE, DST, SRC, OFF, IMM)			\

@@ -10,6 +10,10 @@
 #include <linux/kmod.h>
 #include <linux/console.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/timer.h>
 #include <linux/jiffies.h>
 #include <linux/termios.h>
@@ -26,23 +30,39 @@
 #define sclp_console_name  "ttyS"
 
 /* Lock to guard over changes to global variables */
+<<<<<<< HEAD
 static spinlock_t sclp_con_lock;
 /* List of free pages that can be used for console output buffering */
 static struct list_head sclp_con_pages;
 /* List of full struct sclp_buffer structures ready for output */
 static struct list_head sclp_con_outqueue;
+=======
+static DEFINE_SPINLOCK(sclp_con_lock);
+/* List of free pages that can be used for console output buffering */
+static LIST_HEAD(sclp_con_pages);
+/* List of full struct sclp_buffer structures ready for output */
+static LIST_HEAD(sclp_con_outqueue);
+>>>>>>> upstream/android-13
 /* Pointer to current console buffer */
 static struct sclp_buffer *sclp_conbuf;
 /* Timer for delayed output of console messages */
 static struct timer_list sclp_con_timer;
+<<<<<<< HEAD
 /* Suspend mode flag */
 static int sclp_con_suspended;
+=======
+>>>>>>> upstream/android-13
 /* Flag that output queue is currently running */
 static int sclp_con_queue_running;
 
 /* Output format for console messages */
+<<<<<<< HEAD
 static unsigned short sclp_con_columns;
 static unsigned short sclp_con_width_htab;
+=======
+#define SCLP_CON_COLUMNS	320
+#define SPACES_PER_TAB		8
+>>>>>>> upstream/android-13
 
 static void
 sclp_conbuf_callback(struct sclp_buffer *buffer, int rc)
@@ -63,7 +83,11 @@ sclp_conbuf_callback(struct sclp_buffer *buffer, int rc)
 		if (!list_empty(&sclp_con_outqueue))
 			buffer = list_first_entry(&sclp_con_outqueue,
 						  struct sclp_buffer, list);
+<<<<<<< HEAD
 		if (!buffer || sclp_con_suspended) {
+=======
+		if (!buffer) {
+>>>>>>> upstream/android-13
 			sclp_con_queue_running = 0;
 			spin_unlock_irqrestore(&sclp_con_lock, flags);
 			break;
@@ -85,7 +109,11 @@ static void sclp_conbuf_emit(void)
 	if (sclp_conbuf)
 		list_add_tail(&sclp_conbuf->list, &sclp_con_outqueue);
 	sclp_conbuf = NULL;
+<<<<<<< HEAD
 	if (sclp_con_queue_running || sclp_con_suspended)
+=======
+	if (sclp_con_queue_running)
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	if (list_empty(&sclp_con_outqueue))
 		goto out_unlock;
@@ -179,8 +207,11 @@ sclp_console_write(struct console *console, const char *message,
 			if (list_empty(&sclp_con_pages))
 				sclp_console_full++;
 			while (list_empty(&sclp_con_pages)) {
+<<<<<<< HEAD
 				if (sclp_con_suspended)
 					goto out;
+=======
+>>>>>>> upstream/android-13
 				if (sclp_console_drop_buffer())
 					break;
 				spin_unlock_irqrestore(&sclp_con_lock, flags);
@@ -189,8 +220,13 @@ sclp_console_write(struct console *console, const char *message,
 			}
 			page = sclp_con_pages.next;
 			list_del((struct list_head *) page);
+<<<<<<< HEAD
 			sclp_conbuf = sclp_make_buffer(page, sclp_con_columns,
 						       sclp_con_width_htab);
+=======
+			sclp_conbuf = sclp_make_buffer(page, SCLP_CON_COLUMNS,
+						       SPACES_PER_TAB);
+>>>>>>> upstream/android-13
 		}
 		/* try to write the string to the current output buffer */
 		written = sclp_write(sclp_conbuf, (const unsigned char *)
@@ -213,7 +249,10 @@ sclp_console_write(struct console *console, const char *message,
 	    !timer_pending(&sclp_con_timer)) {
 		mod_timer(&sclp_con_timer, jiffies + HZ / 10);
 	}
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sclp_con_lock, flags);
 }
 
@@ -234,6 +273,7 @@ sclp_console_flush(void)
 	sclp_console_sync_queue();
 }
 
+<<<<<<< HEAD
 /*
  * Resume console: If there are cached messages, emit them.
  */
@@ -260,6 +300,8 @@ static void sclp_console_suspend(void)
 	sclp_console_flush();
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sclp_console_notify(struct notifier_block *self,
 			       unsigned long event, void *data)
 {
@@ -269,7 +311,11 @@ static int sclp_console_notify(struct notifier_block *self,
 
 static struct notifier_block on_panic_nb = {
 	.notifier_call = sclp_console_notify,
+<<<<<<< HEAD
 	.priority = SCLP_PANIC_PRIO_CLIENT,
+=======
+	.priority = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct notifier_block on_reboot_nb = {
@@ -291,6 +337,7 @@ static struct console sclp_console =
 };
 
 /*
+<<<<<<< HEAD
  * This function is called for SCLP suspend and resume events.
  */
 void sclp_console_pm_event(enum sclp_pm_event sclp_pm_event)
@@ -307,6 +354,8 @@ void sclp_console_pm_event(enum sclp_pm_event sclp_pm_event)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * called by console_init() in drivers/char/tty_io.c at boot-time.
  */
 static int __init
@@ -323,11 +372,15 @@ sclp_console_init(void)
 	if (rc)
 		return rc;
 	/* Allocate pages for output buffering */
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&sclp_con_pages);
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < sclp_console_pages; i++) {
 		page = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
 		list_add_tail(page, &sclp_con_pages);
 	}
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&sclp_con_outqueue);
 	spin_lock_init(&sclp_con_lock);
 	sclp_conbuf = NULL;
@@ -344,6 +397,11 @@ sclp_console_init(void)
 		sclp_con_columns = 80;
 	sclp_con_width_htab = 8;
 
+=======
+	sclp_conbuf = NULL;
+	timer_setup(&sclp_con_timer, sclp_console_timeout, 0);
+
+>>>>>>> upstream/android-13
 	/* enable printk-access to this driver */
 	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
 	register_reboot_notifier(&on_reboot_nb);

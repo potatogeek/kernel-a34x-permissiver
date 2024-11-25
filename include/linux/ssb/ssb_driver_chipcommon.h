@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef LINUX_SSB_CHIPCO_H_
 #define LINUX_SSB_CHIPCO_H_
 
@@ -9,8 +13,11 @@
  *
  * Copyright 2005, Broadcom Corporation
  * Copyright 2006, Michael Buesch <m@bues.ch>
+<<<<<<< HEAD
  *
  * Licensed under the GPL version 2. See COPYING for details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /** ChipCommon core registers. **/

@@ -34,6 +34,10 @@
 #include "aw_monitor.h"
 #include "aw_log.h"
 
+<<<<<<< HEAD
+=======
+static uint32_t g_abox_monitor_ms = AW_MONITOR_ABOX_DEFAULT_TIME_MS;
+>>>>>>> upstream/android-13
 
 /*****************************************************
  * device monitor
@@ -514,6 +518,54 @@ void aw_check_bop_status(struct aw_device *aw_dev)
 	aw_dev_dbg(aw_dev->dev, "check done! bop status is %d", aw_dev->bop_en);
 }
 
+<<<<<<< HEAD
+=======
+static int aw_monitor_abox_work(struct aw_device *aw_dev)
+{
+	int ret = -1;
+	int temp = 0;
+
+	ret = aw_monitor_get_data_form_system(aw_dev, &temp, POWER_SUPPLY_PROP_TEMP);
+	if (ret) {
+		aw_dev_err(aw_dev->dev, "get temperature from system failed!");
+		return ret;
+	}
+	temp = (temp) / 10;
+	aw_dev_info(aw_dev->dev, "get temperature from system %d!", temp);
+
+	if (aw_dev->pre_temp_check) {
+		if (aw_dev->pre_temp == temp) {
+			aw_dev_info(aw_dev->dev, "get temperature no change %d!", temp);
+			return 0;
+		} else {
+			aw_dev->pre_temp = temp;
+		}
+	}
+
+	ret = aw_dsp_write_ambient_temp(aw_dev, &temp);
+	if (ret < 0) {
+		aw_dev_err(aw_dev->dev, "write ambient temperature failed");
+		return ret;
+	}
+	aw_dev_info(aw_dev->dev, "set temperature done!");
+
+	return ret;
+}
+
+static void aw_monitor_abox_work_func(struct work_struct *work)
+{
+	struct aw882xx *aw882xx  = container_of(work,
+		struct aw882xx, abox_work.work);
+	struct aw_device *aw_dev = aw882xx->aw_pa;
+
+	aw_monitor_abox_work(aw_dev);
+
+	if (aw_dev->channel == AW_DEV_CH_PRI_L)
+		queue_delayed_work(aw882xx->work_queue,
+			&aw882xx->abox_work, msecs_to_jiffies(g_abox_monitor_ms));
+}
+
+>>>>>>> upstream/android-13
 void aw_monitor_start(struct aw_monitor_desc *monitor_desc)
 {
 	struct aw_device *aw_dev = container_of(monitor_desc,
@@ -529,6 +581,18 @@ void aw_monitor_start(struct aw_monitor_desc *monitor_desc)
 
 	aw_check_bop_status(aw_dev);
 
+<<<<<<< HEAD
+=======
+#ifdef AW_ABOX_PLATFORM
+
+	if (delayed_work_pending(&aw882xx->abox_work))
+		aw_dev_info(aw_dev->dev, "abox_work is running");
+	else if (aw_dev->channel == AW_DEV_CH_PRI_L)
+		queue_delayed_work(aw882xx->work_queue,
+					&aw882xx->abox_work, 0);
+#endif
+
+>>>>>>> upstream/android-13
 	if (aw_dev->bop_en == AW_BOP_ENABLE) {
 		aw_dev_info(aw_dev->dev, "bop status is enable, monitor can't start");
 		return;
@@ -542,11 +606,21 @@ int aw_monitor_stop(struct aw_monitor_desc *monitor_desc)
 {
 	struct aw_device *aw_dev = container_of(monitor_desc,
 			struct aw_device, monitor_desc);
+<<<<<<< HEAD
+=======
+	struct aw882xx *aw882xx = (struct aw882xx *)aw_dev->private_data;
+>>>>>>> upstream/android-13
 
 	aw_dev_info(aw_dev->dev, "enter");
 	if (delayed_work_pending(&monitor_desc->delay_work))
 		cancel_delayed_work_sync(&monitor_desc->delay_work);
 
+<<<<<<< HEAD
+=======
+	if (delayed_work_pending(&aw882xx->abox_work))
+		cancel_delayed_work_sync(&aw882xx->abox_work);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 }
@@ -1124,6 +1198,7 @@ static ssize_t aw_monitor_store(struct device *dev,
 
 	aw_dev_info(aw_dev->dev, "monitor enable set =%d", enable);
 
+<<<<<<< HEAD
 	if (aw_dev->monitor_desc.monitor_cfg.monitor_switch == enable) {
 		return count;
 	} else {
@@ -1131,6 +1206,14 @@ static ssize_t aw_monitor_store(struct device *dev,
 		if (enable)
 			aw_monitor_start(&aw_dev->monitor_desc);
 	}
+=======
+	aw_dev->monitor_desc.monitor_cfg.monitor_switch = enable;
+
+	if (enable)
+		aw_monitor_start(&aw_dev->monitor_desc);
+	else
+		aw_monitor_stop(&aw_dev->monitor_desc);
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -1178,15 +1261,100 @@ static ssize_t aw_monitor_update_store(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t aw_monitor_abox_time_store(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct aw882xx *aw882xx = dev_get_drvdata(dev);
+	struct aw_device *aw_dev = aw882xx->aw_pa;
+	uint32_t time_val = 0;
+	int ret = -1;
+
+	if (count == 0)
+		return 0;
+
+	ret = kstrtouint(buf, 0, &time_val);
+	if (ret < 0)
+		return ret;
+
+	aw_dev_info(aw_dev->dev, "abox monitor time set =%d ms", time_val);
+
+	g_abox_monitor_ms = time_val;
+
+	return count;
+}
+
+static ssize_t aw_monitor_abox_time_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	ssize_t len = 0;
+
+	len += snprintf(buf+len, PAGE_SIZE-len,
+		"abox monitor time: %d ms\n",
+		g_abox_monitor_ms);
+
+	return len;
+}
+
+static ssize_t aw_monitor_abox_temp_check_store(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct aw882xx *aw882xx = dev_get_drvdata(dev);
+	struct aw_device *aw_dev = aw882xx->aw_pa;
+	uint32_t check_val = 0;
+	int ret = -1;
+
+	if (count == 0)
+		return 0;
+
+	ret = kstrtouint(buf, 0, &check_val);
+	if (ret < 0)
+		return ret;
+
+	aw_dev_info(aw_dev->dev, "abox pre_temp_check =%d ", check_val);
+
+	aw_dev->pre_temp_check = check_val;
+
+	return count;
+}
+
+static ssize_t aw_monitor_abox_temp_check_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	ssize_t len = 0;
+	struct aw882xx *aw882xx = dev_get_drvdata(dev);
+	struct aw_device *aw_dev = aw882xx->aw_pa;
+
+	len += snprintf(buf+len, PAGE_SIZE-len,
+		"abox pre_temp_check : %d \n",
+		aw_dev->pre_temp_check);
+
+	return len;
+}
+
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(monitor, S_IWUSR | S_IRUGO,
 	aw_monitor_show, aw_monitor_store);
 static DEVICE_ATTR(monitor_update, S_IWUSR,
 	NULL, aw_monitor_update_store);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(abox_monitor_ms, S_IWUSR | S_IRUGO,
+	aw_monitor_abox_time_show, aw_monitor_abox_time_store);
+static DEVICE_ATTR(abox_temp_check, S_IWUSR | S_IRUGO,
+	aw_monitor_abox_temp_check_show, aw_monitor_abox_temp_check_store);
+>>>>>>> upstream/android-13
 
 
 static struct attribute *aw_monitor_attr[] = {
 	&dev_attr_monitor.attr,
 	&dev_attr_monitor_update.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_abox_monitor_ms.attr,
+	&dev_attr_abox_temp_check.attr,
+>>>>>>> upstream/android-13
 #ifdef AW_DEBUG
 	&dev_attr_vol.attr,
 	&dev_attr_temp.attr,
@@ -1203,6 +1371,10 @@ void aw_monitor_init(struct aw_monitor_desc *monitor_desc)
 	int ret;
 	struct aw_device *aw_dev = container_of(monitor_desc,
 				struct aw_device, monitor_desc);
+<<<<<<< HEAD
+=======
+	struct aw882xx *aw882xx = (struct aw882xx *)aw_dev->private_data;
+>>>>>>> upstream/android-13
 
 	aw_dev_info(aw_dev->dev, "enter");
 #ifdef AW_DEBUG
@@ -1211,6 +1383,10 @@ void aw_monitor_init(struct aw_monitor_desc *monitor_desc)
 #endif
 
 	INIT_DELAYED_WORK(&monitor_desc->delay_work, aw_monitor_work_func);
+<<<<<<< HEAD
+=======
+	INIT_DELAYED_WORK(&aw882xx->abox_work, aw_monitor_abox_work_func);
+>>>>>>> upstream/android-13
 
 	ret = sysfs_create_group(&aw_dev->dev->kobj,
 				&aw_monitor_attr_group);

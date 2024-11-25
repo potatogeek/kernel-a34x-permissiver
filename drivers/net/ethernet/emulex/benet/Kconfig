@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config BE2NET
 	tristate "ServerEngines' 10Gbps NIC - BladeEngine"
 	depends on PCI
@@ -47,5 +51,10 @@ config BE2NET_SKYHAWK
 	  chipsets. (e.g. OneConnect OCe14xxx)
 
 comment "WARNING: be2net is useless without any enabled chip"
+<<<<<<< HEAD
         depends on BE2NET_BE2=n && BE2NET_BE3=n && BE2NET_LANCER=n && \
 	BE2NET_SKYHAWK=n && BE2NET
+=======
+	depends on BE2NET_BE2=n && BE2NET_BE3=n && BE2NET_LANCER=n && \
+		BE2NET_SKYHAWK=n && BE2NET
+>>>>>>> upstream/android-13

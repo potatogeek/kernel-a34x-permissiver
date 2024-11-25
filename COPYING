@@ -16,3 +16,8 @@ In addition, other licenses may also apply. Please see:
 	Documentation/process/license-rules.rst
 
 for more details.
+<<<<<<< HEAD
+=======
+
+All contributions to the Linux Kernel are subject to this COPYING file.
+>>>>>>> upstream/android-13

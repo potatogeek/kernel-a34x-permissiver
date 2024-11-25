@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Driver for the ADT7411 (I2C/SPI 8 channel 10 bit ADC & temperature-sensor)
  *
  *  Copyright (C) 2008, 2010 Pengutronix
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  TODO: SPI, use power-down mode for suspend?, interrupt handling?
  */
 
@@ -639,6 +646,7 @@ static int adt7411_init_device(struct adt7411_data *data)
 	return i2c_smbus_write_byte_data(data->client, ADT7411_REG_CFG1, val);
 }
 
+<<<<<<< HEAD
 static const u32 adt7411_in_config[] = {
 	HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
 	HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
@@ -673,6 +681,24 @@ static const struct hwmon_channel_info adt7411_temp = {
 static const struct hwmon_channel_info *adt7411_info[] = {
 	&adt7411_in,
 	&adt7411_temp,
+=======
+static const struct hwmon_channel_info *adt7411_info[] = {
+	HWMON_CHANNEL_INFO(in,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM,
+			   HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX | HWMON_I_ALARM),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_MIN | HWMON_T_MIN_ALARM |
+			   HWMON_T_MAX | HWMON_T_MAX_ALARM,
+			   HWMON_T_INPUT | HWMON_T_MIN | HWMON_T_MIN_ALARM |
+			   HWMON_T_MAX | HWMON_T_MAX_ALARM | HWMON_T_FAULT),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -687,8 +713,12 @@ static const struct hwmon_chip_info adt7411_chip_info = {
 	.info = adt7411_info,
 };
 
+<<<<<<< HEAD
 static int adt7411_probe(struct i2c_client *client,
 				   const struct i2c_device_id *id)
+=======
+static int adt7411_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct adt7411_data *data;
@@ -728,7 +758,11 @@ static struct i2c_driver adt7411_driver = {
 	.driver		= {
 		.name		= "adt7411",
 	},
+<<<<<<< HEAD
 	.probe  = adt7411_probe,
+=======
+	.probe_new = adt7411_probe,
+>>>>>>> upstream/android-13
 	.id_table = adt7411_id,
 	.detect = adt7411_detect,
 	.address_list = normal_i2c,
@@ -737,7 +771,11 @@ static struct i2c_driver adt7411_driver = {
 
 module_i2c_driver(adt7411_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de> and "
 	"Wolfram Sang <w.sang@pengutronix.de>");
+=======
+MODULE_AUTHOR("Sascha Hauer, Wolfram Sang <kernel@pengutronix.de>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ADT7411 driver");
 MODULE_LICENSE("GPL v2");

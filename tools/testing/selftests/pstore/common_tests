@@ -1,11 +1,18 @@
 #!/bin/sh
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # common_tests - Shell script commonly used by pstore test scripts
 #
 # Copyright (C) Hitachi Ltd., 2015
 #  Written by Hiraku Toyooka <hiraku.toyooka.gu@hitachi.com>
 #
+<<<<<<< HEAD
 # Released under the terms of the GPL v2.
+=======
+>>>>>>> upstream/android-13
 
 # Utilities
 errexit() { # message

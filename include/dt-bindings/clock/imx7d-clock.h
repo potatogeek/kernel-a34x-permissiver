@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2015 Freescale Semiconductor, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014-2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_CLOCK_IMX7D_H
@@ -455,5 +461,10 @@
 #define IMX7D_SNVS_CLK			442
 #define IMX7D_CAAM_CLK			443
 #define IMX7D_KPP_ROOT_CLK		444
+<<<<<<< HEAD
 #define IMX7D_CLK_END			445
+=======
+#define IMX7D_PXP_CLK			445
+#define IMX7D_CLK_END			446
+>>>>>>> upstream/android-13
 #endif /* __DT_BINDINGS_CLOCK_IMX7D_H */

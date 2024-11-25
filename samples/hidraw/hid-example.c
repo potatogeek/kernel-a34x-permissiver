@@ -119,7 +119,11 @@ int main(int argc, char **argv)
 	if (res < 0)
 		perror("HIDIOCSFEATURE");
 	else
+<<<<<<< HEAD
 		printf("ioctl HIDIOCGFEATURE returned: %d\n", res);
+=======
+		printf("ioctl HIDIOCSFEATURE returned: %d\n", res);
+>>>>>>> upstream/android-13
 
 	/* Get Feature */
 	buf[0] = 0x9; /* Report Number */
@@ -128,7 +132,11 @@ int main(int argc, char **argv)
 		perror("HIDIOCGFEATURE");
 	} else {
 		printf("ioctl HIDIOCGFEATURE returned: %d\n", res);
+<<<<<<< HEAD
 		printf("Report data (not containing the report number):\n\t");
+=======
+		printf("Report data:\n\t");
+>>>>>>> upstream/android-13
 		for (i = 0; i < res; i++)
 			printf("%hhx ", buf[i]);
 		puts("\n");

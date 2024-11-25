@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 - 2012 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
  * Samsung EXYNOS5 SoC series G-Scaler driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 2 of the License,
  * or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -31,21 +38,30 @@
 
 static const struct gsc_fmt gsc_formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "RGB565",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_RGB565X,
 		.depth		= { 16 },
 		.color		= GSC_RGB,
 		.num_planes	= 1,
 		.num_comp	= 1,
 	}, {
+<<<<<<< HEAD
 		.name		= "BGRX-8-8-8-8, 32 bpp",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_BGR32,
 		.depth		= { 32 },
 		.color		= GSC_RGB,
 		.num_planes	= 1,
 		.num_comp	= 1,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCbYCr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YUYV,
 		.depth		= { 16 },
 		.color		= GSC_YUV422,
@@ -55,7 +71,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_comp	= 1,
 		.mbus_code	= MEDIA_BUS_FMT_YUYV8_2X8,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, CbYCrY",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_UYVY,
 		.depth		= { 16 },
 		.color		= GSC_YUV422,
@@ -65,7 +84,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_comp	= 1,
 		.mbus_code	= MEDIA_BUS_FMT_UYVY8_2X8,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, CrYCbY",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_VYUY,
 		.depth		= { 16 },
 		.color		= GSC_YUV422,
@@ -75,7 +97,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_comp	= 1,
 		.mbus_code	= MEDIA_BUS_FMT_VYUY8_2X8,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCrYCb",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YVYU,
 		.depth		= { 16 },
 		.color		= GSC_YUV422,
@@ -85,7 +110,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_comp	= 1,
 		.mbus_code	= MEDIA_BUS_FMT_YVYU8_2X8,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:4:4 planar, YCbYCr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YUV32,
 		.depth		= { 32 },
 		.color		= GSC_YUV444,
@@ -94,7 +122,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 1,
 		.num_comp	= 1,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 planar, Y/Cb/Cr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YUV422P,
 		.depth		= { 16 },
 		.color		= GSC_YUV422,
@@ -103,7 +134,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 1,
 		.num_comp	= 3,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 planar, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV16,
 		.depth		= { 16 },
 		.color		= GSC_YUV422,
@@ -112,7 +146,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 1,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 non-contig, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV16M,
 		.depth		= { 8, 8 },
 		.color		= GSC_YUV422,
@@ -121,7 +158,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 2,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 planar, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV61,
 		.depth		= { 16 },
 		.color		= GSC_YUV422,
@@ -130,7 +170,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 1,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 non-contig, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV61M,
 		.depth		= { 8, 8 },
 		.color		= GSC_YUV422,
@@ -139,7 +182,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 2,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, YCbCr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YUV420,
 		.depth		= { 12 },
 		.color		= GSC_YUV420,
@@ -148,7 +194,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 1,
 		.num_comp	= 3,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, YCrCb",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YVU420,
 		.depth		= { 12 },
 		.color		= GSC_YUV420,
@@ -158,7 +207,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_comp	= 3,
 
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV12,
 		.depth		= { 12 },
 		.color		= GSC_YUV420,
@@ -167,7 +219,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 1,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV21,
 		.depth		= { 12 },
 		.color		= GSC_YUV420,
@@ -176,7 +231,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 1,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 non-contig. 2p, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV21M,
 		.depth		= { 8, 4 },
 		.color		= GSC_YUV420,
@@ -185,7 +243,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 2,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 non-contig. 2p, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV12M,
 		.depth		= { 8, 4 },
 		.color		= GSC_YUV420,
@@ -194,7 +255,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 2,
 		.num_comp	= 2,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 non-contig. 3p, Y/Cb/Cr",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YUV420M,
 		.depth		= { 8, 2, 2 },
 		.color		= GSC_YUV420,
@@ -203,7 +267,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 3,
 		.num_comp	= 3,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 non-contig. 3p, Y/Cr/Cb",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_YVU420M,
 		.depth		= { 8, 2, 2 },
 		.color		= GSC_YUV420,
@@ -212,7 +279,10 @@ static const struct gsc_fmt gsc_formats[] = {
 		.num_planes	= 3,
 		.num_comp	= 3,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 n.c. 2p, Y/CbCr tiled",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_PIX_FMT_NV12MT_16X16,
 		.depth		= { 8, 4 },
 		.color		= GSC_YUV420,
@@ -331,7 +401,11 @@ void gsc_check_src_scale_info(struct gsc_variant *var,
 	}
 }
 
+<<<<<<< HEAD
 int gsc_enum_fmt_mplane(struct v4l2_fmtdesc *f)
+=======
+int gsc_enum_fmt(struct v4l2_fmtdesc *f)
+>>>>>>> upstream/android-13
 {
 	const struct gsc_fmt *fmt;
 
@@ -339,7 +413,10 @@ int gsc_enum_fmt_mplane(struct v4l2_fmtdesc *f)
 	if (!fmt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, fmt->name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = fmt->pixelformat;
 
 	return 0;
@@ -541,6 +618,7 @@ void gsc_check_crop_change(u32 tmp_w, u32 tmp_h, u32 *w, u32 *h)
 	}
 }
 
+<<<<<<< HEAD
 int gsc_g_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 {
 	struct gsc_frame *frame;
@@ -555,6 +633,9 @@ int gsc_g_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 }
 
 int gsc_try_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
+=======
+int gsc_try_selection(struct gsc_ctx *ctx, struct v4l2_selection *s)
+>>>>>>> upstream/android-13
 {
 	struct gsc_frame *f;
 	struct gsc_dev *gsc = ctx->gsc_dev;
@@ -562,6 +643,7 @@ int gsc_try_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 	u32 mod_x = 0, mod_y = 0, tmp_w, tmp_h;
 	u32 min_w, min_h, max_w, max_h;
 
+<<<<<<< HEAD
 	if (cr->c.top < 0 || cr->c.left < 0) {
 		pr_err("doesn't support negative values for top & left\n");
 		return -EINVAL;
@@ -571,16 +653,34 @@ int gsc_try_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 	if (cr->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
 		f = &ctx->d_frame;
 	else if (cr->type == V4L2_BUF_TYPE_VIDEO_OUTPUT)
+=======
+	if (s->r.top < 0 || s->r.left < 0) {
+		pr_err("doesn't support negative values for top & left\n");
+		return -EINVAL;
+	}
+	pr_debug("user put w: %d, h: %d", s->r.width, s->r.height);
+
+	if (s->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		f = &ctx->d_frame;
+	else if (s->type == V4L2_BUF_TYPE_VIDEO_OUTPUT)
+>>>>>>> upstream/android-13
 		f = &ctx->s_frame;
 	else
 		return -EINVAL;
 
 	max_w = f->f_width;
 	max_h = f->f_height;
+<<<<<<< HEAD
 	tmp_w = cr->c.width;
 	tmp_h = cr->c.height;
 
 	if (V4L2_TYPE_IS_OUTPUT(cr->type)) {
+=======
+	tmp_w = s->r.width;
+	tmp_h = s->r.height;
+
+	if (V4L2_TYPE_IS_OUTPUT(s->type)) {
+>>>>>>> upstream/android-13
 		if ((is_yuv422(f->fmt->color) && f->fmt->num_comp == 1) ||
 		    is_rgb(f->fmt->color))
 			min_w = 32;
@@ -602,8 +702,13 @@ int gsc_try_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 			max_h = f->f_width;
 			min_w = variant->pix_min->target_rot_en_w;
 			min_h = variant->pix_min->target_rot_en_h;
+<<<<<<< HEAD
 			tmp_w = cr->c.height;
 			tmp_h = cr->c.width;
+=======
+			tmp_w = s->r.height;
+			tmp_h = s->r.width;
+>>>>>>> upstream/android-13
 		} else {
 			min_w = variant->pix_min->target_rot_dis_w;
 			min_h = variant->pix_min->target_rot_dis_h;
@@ -616,6 +721,7 @@ int gsc_try_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 	v4l_bound_align_image(&tmp_w, min_w, max_w, mod_x,
 			      &tmp_h, min_h, max_h, mod_y, 0);
 
+<<<<<<< HEAD
 	if (!V4L2_TYPE_IS_OUTPUT(cr->type) &&
 		(ctx->gsc_ctrls.rotate->val == 90 ||
 		ctx->gsc_ctrls.rotate->val == 270))
@@ -624,10 +730,21 @@ int gsc_try_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 	else
 		gsc_check_crop_change(tmp_w, tmp_h,
 					&cr->c.width, &cr->c.height);
+=======
+	if (V4L2_TYPE_IS_CAPTURE(s->type) &&
+	    (ctx->gsc_ctrls.rotate->val == 90 ||
+	     ctx->gsc_ctrls.rotate->val == 270))
+		gsc_check_crop_change(tmp_h, tmp_w,
+					&s->r.width, &s->r.height);
+	else
+		gsc_check_crop_change(tmp_w, tmp_h,
+					&s->r.width, &s->r.height);
+>>>>>>> upstream/android-13
 
 
 	/* adjust left/top if cropping rectangle is out of bounds */
 	/* Need to add code to algin left value with 2's multiple */
+<<<<<<< HEAD
 	if (cr->c.left + tmp_w > max_w)
 		cr->c.left = max_w - tmp_w;
 	if (cr->c.top + tmp_h > max_h)
@@ -639,6 +756,19 @@ int gsc_try_crop(struct gsc_ctx *ctx, struct v4l2_crop *cr)
 
 	pr_debug("Aligned l:%d, t:%d, w:%d, h:%d, f_w: %d, f_h: %d",
 	    cr->c.left, cr->c.top, cr->c.width, cr->c.height, max_w, max_h);
+=======
+	if (s->r.left + tmp_w > max_w)
+		s->r.left = max_w - tmp_w;
+	if (s->r.top + tmp_h > max_h)
+		s->r.top = max_h - tmp_h;
+
+	if ((is_yuv420(f->fmt->color) || is_yuv422(f->fmt->color)) &&
+	    s->r.left & 1)
+		s->r.left -= 1;
+
+	pr_debug("Aligned l:%d, t:%d, w:%d, h:%d, f_w: %d, f_h: %d",
+		 s->r.left, s->r.top, s->r.width, s->r.height, max_w, max_h);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1249,18 +1379,33 @@ static int gsc_remove(struct platform_device *pdev)
 	struct gsc_dev *gsc = platform_get_drvdata(pdev);
 	int i;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(&pdev->dev);
 
+=======
+>>>>>>> upstream/android-13
 	gsc_unregister_m2m_device(gsc);
 	v4l2_device_unregister(&gsc->v4l2_dev);
 
 	vb2_dma_contig_clear_max_seg_size(&pdev->dev);
+<<<<<<< HEAD
 	for (i = 0; i < gsc->num_clocks; i++)
 		clk_disable_unprepare(gsc->clock[i]);
 
 	pm_runtime_put_noidle(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
 
+=======
+
+	pm_runtime_disable(&pdev->dev);
+
+	if (!pm_runtime_status_suspended(&pdev->dev))
+		for (i = 0; i < gsc->num_clocks; i++)
+			clk_disable_unprepare(gsc->clock[i]);
+
+	pm_runtime_set_suspended(&pdev->dev);
+
+>>>>>>> upstream/android-13
 	dev_dbg(&pdev->dev, "%s driver unloaded\n", pdev->name);
 	return 0;
 }

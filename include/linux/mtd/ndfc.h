@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) 2006 Thomas Gleixner <tglx@linutronix.de>
  *
@@ -8,6 +9,14 @@
  *  Info:
  *   Contains defines, datastructures for ndfc nand controller
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (c) 2006 Thomas Gleixner <tglx@linutronix.de>
+ *
+ *  Info:
+ *   Contains defines, datastructures for ndfc nand controller
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_MTD_NDFC_H
 #define __LINUX_MTD_NDFC_H

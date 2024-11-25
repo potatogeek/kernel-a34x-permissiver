@@ -39,6 +39,7 @@ static struct notifier_block ib_event_notifier = {
 	 .priority = 1,
 };
 
+<<<<<<< HEAD
 #if defined(CONFIG_SEC_INPUT_BOOSTER_HANDLER)
 struct workqueue_struct *ib_unbound_highwq;
 spinlock_t ib_idx_lock;
@@ -193,6 +194,8 @@ static int init_input_handler(void)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int chk_next_data(const struct input_value *vals, int next_idx, int input_type)
 {
 	int ret_val = 0;
@@ -301,9 +304,12 @@ int get_device_type(int *device_type, unsigned int *keyId,
 			case KEY_VOLUMEUP:
 			case KEY_VOLUMEDOWN:
 			case KEY_POWER:
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SOC_S5E5515) // watch - lower key(back key) Code : 0x244(580)
 			case KEY_APPSELECT:
 #endif
+=======
+>>>>>>> upstream/android-13
 				dev_type = KEY;
 				break;
 			default:
@@ -408,7 +414,11 @@ void input_booster(struct ib_event_data *ib_ev_data)
 		__func__, ib_ev_data->evt_cnt, ib_init_succeed);
 
 	if (!ib_init_succeed || ib_ev_data->evt_cnt == 0) {
+<<<<<<< HEAD
 		pr_err(ITAG"ev_cnt(%d) dev is Null OR dt_infor hasn't mem alloc\n", ib_ev_data->evt_cnt);
+=======
+		pr_err(ITAG"ev_cnt(%d) dev is Null OR dt_infor hasn't mem alloc", ib_ev_data->evt_cnt);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -463,6 +473,7 @@ static int __init ev_boost_init(void)
 	evbst_dev->release = NULL;
 	err = device_register(evbst_dev);
 	if (err)
+<<<<<<< HEAD
 		pr_err(ITAG" evdev device register failed\n");
 
 #if defined(CONFIG_SEC_INPUT_BOOSTER_HANDLER)
@@ -470,6 +481,9 @@ static int __init ev_boost_init(void)
 	if (err) 
 		pr_err(ITAG" input handler fail\n");
 #endif
+=======
+		pr_err(ITAG" evdev device register failed");
+>>>>>>> upstream/android-13
 
 	return 0;
 }

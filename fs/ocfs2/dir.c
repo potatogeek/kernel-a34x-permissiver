@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dir.c
  *
  * Creates, reads, walks and deletes directory-nodes
@@ -19,6 +24,7 @@
  *   linux/fs/minix/dir.c
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -34,6 +40,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -69,10 +77,13 @@
 #define NAMEI_RA_BLOCKS  4
 #define NAMEI_RA_SIZE        (NAMEI_RA_CHUNKS * NAMEI_RA_BLOCKS)
 
+<<<<<<< HEAD
 static unsigned char ocfs2_filetype_table[] = {
 	DT_UNKNOWN, DT_REG, DT_DIR, DT_CHR, DT_BLK, DT_FIFO, DT_SOCK, DT_LNK
 };
 
+=======
+>>>>>>> upstream/android-13
 static int ocfs2_do_extend_dir(struct super_block *sb,
 			       handle_t *handle,
 			       struct inode *dir,
@@ -694,7 +705,11 @@ static struct buffer_head *ocfs2_find_entry_el(const char *name, int namelen,
 	int ra_ptr = 0;		/* Current index into readahead
 				   buffer */
 	int num = 0;
+<<<<<<< HEAD
 	int nblocks, i, err;
+=======
+	int nblocks, i;
+>>>>>>> upstream/android-13
 
 	sb = dir->i_sb;
 
@@ -726,7 +741,11 @@ restart:
 				num++;
 
 				bh = NULL;
+<<<<<<< HEAD
 				err = ocfs2_read_dir_block(dir, b++, &bh,
+=======
+				ocfs2_read_dir_block(dir, b++, &bh,
+>>>>>>> upstream/android-13
 							   OCFS2_BH_READAHEAD);
 				bh_use[ra_max] = bh;
 			}
@@ -866,9 +885,15 @@ static int ocfs2_dx_dir_lookup(struct inode *inode,
 			       u64 *ret_phys_blkno)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	unsigned int cend, uninitialized_var(clen);
 	u32 uninitialized_var(cpos);
 	u64 uninitialized_var(blkno);
+=======
+	unsigned int cend, clen;
+	u32 cpos;
+	u64 blkno;
+>>>>>>> upstream/android-13
 	u32 name_hash = hinfo->major_hash;
 
 	ret = ocfs2_dx_dir_lookup_rec(inode, el, name_hash, &cpos, &blkno,
@@ -912,7 +937,11 @@ static int ocfs2_dx_dir_search(const char *name, int namelen,
 			       struct ocfs2_dir_lookup_result *res)
 {
 	int ret, i, found;
+<<<<<<< HEAD
 	u64 uninitialized_var(phys);
+=======
+	u64 phys;
+>>>>>>> upstream/android-13
 	struct buffer_head *dx_leaf_bh = NULL;
 	struct ocfs2_dx_leaf *dx_leaf;
 	struct ocfs2_dx_entry *dx_entry = NULL;
@@ -1718,7 +1747,11 @@ int __ocfs2_add_entry(handle_t *handle,
 				de->rec_len = cpu_to_le16(OCFS2_DIR_REC_LEN(de->name_len));
 				de = de1;
 			}
+<<<<<<< HEAD
 			de->file_type = OCFS2_FT_UNKNOWN;
+=======
+			de->file_type = FT_UNKNOWN;
+>>>>>>> upstream/android-13
 			if (blkno) {
 				de->inode = cpu_to_le64(blkno);
 				ocfs2_set_de_type(de, inode->i_mode);
@@ -1803,6 +1836,7 @@ static int ocfs2_dir_foreach_blk_id(struct inode *inode,
 		}
 		offset += le16_to_cpu(de->rec_len);
 		if (le64_to_cpu(de->inode)) {
+<<<<<<< HEAD
 			unsigned char d_type = DT_UNKNOWN;
 
 			if (de->file_type < OCFS2_FT_MAX)
@@ -1810,6 +1844,11 @@ static int ocfs2_dir_foreach_blk_id(struct inode *inode,
 
 			if (!dir_emit(ctx, de->name, de->name_len,
 				      le64_to_cpu(de->inode), d_type))
+=======
+			if (!dir_emit(ctx, de->name, de->name_len,
+				      le64_to_cpu(de->inode),
+				      fs_ftype_to_dtype(de->file_type)))
+>>>>>>> upstream/android-13
 				goto out;
 		}
 		ctx->pos += le16_to_cpu(de->rec_len);
@@ -1900,6 +1939,7 @@ static int ocfs2_dir_foreach_blk_el(struct inode *inode,
 				break;
 			}
 			if (le64_to_cpu(de->inode)) {
+<<<<<<< HEAD
 				unsigned char d_type = DT_UNKNOWN;
 
 				if (de->file_type < OCFS2_FT_MAX)
@@ -1908,6 +1948,12 @@ static int ocfs2_dir_foreach_blk_el(struct inode *inode,
 						de->name_len,
 						le64_to_cpu(de->inode),
 						d_type)) {
+=======
+				if (!dir_emit(ctx, de->name,
+						de->name_len,
+						le64_to_cpu(de->inode),
+					fs_ftype_to_dtype(de->file_type))) {
+>>>>>>> upstream/android-13
 					brelse(bh);
 					return 0;
 				}
@@ -3662,7 +3708,11 @@ static void ocfs2_dx_dir_transfer_leaf(struct inode *dir, u32 split_hash,
 	int i, j, num_used;
 	u32 major_hash;
 	struct ocfs2_dx_leaf *orig_dx_leaf, *new_dx_leaf;
+<<<<<<< HEAD
 	struct ocfs2_dx_entry_list *orig_list, *new_list, *tmp_list;
+=======
+	struct ocfs2_dx_entry_list *orig_list, *tmp_list;
+>>>>>>> upstream/android-13
 	struct ocfs2_dx_entry *dx_entry;
 
 	tmp_list = &tmp_dx_leaf->dl_list;
@@ -3671,7 +3721,10 @@ static void ocfs2_dx_dir_transfer_leaf(struct inode *dir, u32 split_hash,
 		orig_dx_leaf = (struct ocfs2_dx_leaf *) orig_dx_leaves[i]->b_data;
 		orig_list = &orig_dx_leaf->dl_list;
 		new_dx_leaf = (struct ocfs2_dx_leaf *) new_dx_leaves[i]->b_data;
+<<<<<<< HEAD
 		new_list = &new_dx_leaf->dl_list;
+=======
+>>>>>>> upstream/android-13
 
 		num_used = le16_to_cpu(orig_list->de_num_used);
 
@@ -4420,9 +4473,15 @@ out:
 int ocfs2_dx_dir_truncate(struct inode *dir, struct buffer_head *di_bh)
 {
 	int ret;
+<<<<<<< HEAD
 	unsigned int uninitialized_var(clen);
 	u32 major_hash = UINT_MAX, p_cpos, uninitialized_var(cpos);
 	u64 uninitialized_var(blkno);
+=======
+	unsigned int clen;
+	u32 major_hash = UINT_MAX, p_cpos, cpos;
+	u64 blkno;
+>>>>>>> upstream/android-13
 	struct ocfs2_super *osb = OCFS2_SB(dir->i_sb);
 	struct buffer_head *dx_root_bh = NULL;
 	struct ocfs2_dx_root_block *dx_root;

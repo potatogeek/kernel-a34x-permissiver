@@ -8,7 +8,11 @@
 
 typedef struct {
 	int lock;
+<<<<<<< HEAD
 } __attribute__ ((aligned (4))) arch_spinlock_t;
+=======
+} arch_spinlock_t;
+>>>>>>> upstream/android-13
 
 #define __ARCH_SPIN_LOCK_UNLOCKED { .lock = 0, }
 

@@ -9,6 +9,15 @@
 #include <linux/list.h>
 #include <uapi/linux/signal.h>
 
+<<<<<<< HEAD
+=======
+typedef struct kernel_siginfo {
+	__SIGINFO;
+} kernel_siginfo_t;
+
+struct ucounts;
+
+>>>>>>> upstream/android-13
 /*
  * Real Time signals may be queued.
  */
@@ -16,8 +25,13 @@
 struct sigqueue {
 	struct list_head list;
 	int flags;
+<<<<<<< HEAD
 	siginfo_t info;
 	struct user_struct *user;
+=======
+	kernel_siginfo_t info;
+	struct ucounts *ucounts;
+>>>>>>> upstream/android-13
 };
 
 /* flags values. */
@@ -60,8 +74,30 @@ struct old_sigaction {
 
 struct ksignal {
 	struct k_sigaction ka;
+<<<<<<< HEAD
 	siginfo_t info;
 	int sig;
 };
 
+=======
+	kernel_siginfo_t info;
+	int sig;
+};
+
+/* Used to kill the race between sigaction and forced signals */
+#define SA_IMMUTABLE		0x00800000
+
+#ifndef __ARCH_UAPI_SA_FLAGS
+#ifdef SA_RESTORER
+#define __ARCH_UAPI_SA_FLAGS	SA_RESTORER
+#else
+#define __ARCH_UAPI_SA_FLAGS	0
+#endif
+#endif
+
+#define UAPI_SA_FLAGS                                                          \
+	(SA_NOCLDSTOP | SA_NOCLDWAIT | SA_SIGINFO | SA_ONSTACK | SA_RESTART |  \
+	 SA_NODEFER | SA_RESETHAND | SA_EXPOSE_TAGBITS | __ARCH_UAPI_SA_FLAGS)
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_SIGNAL_TYPES_H */

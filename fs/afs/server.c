@@ -1,18 +1,26 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* AFS server record management
  *
  * Copyright (C) 2002, 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include "afs_fs.h"
 #include "internal.h"
+<<<<<<< HEAD
 
 static unsigned afs_server_gc_delay = 10;	/* Server record timeout in seconds */
 static unsigned afs_server_update_delay = 30;	/* Time till VLDB recheck in secs */
@@ -27,6 +35,16 @@ static void afs_dec_servers_outstanding(struct afs_net *net)
 	if (atomic_dec_and_test(&net->servers_outstanding))
 		wake_up_var(&net->servers_outstanding);
 }
+=======
+#include "protocol_yfs.h"
+
+static unsigned afs_server_gc_delay = 10;	/* Server record timeout in seconds */
+static atomic_t afs_server_debug_id;
+
+static struct afs_server *afs_maybe_use_server(struct afs_server *,
+					       enum afs_server_trace);
+static void __afs_put_server(struct afs_net *, struct afs_server *);
+>>>>>>> upstream/android-13
 
 /*
  * Find a server by one of its addresses.
@@ -43,7 +61,11 @@ struct afs_server *afs_find_server(struct afs_net *net,
 
 	do {
 		if (server)
+<<<<<<< HEAD
 			afs_put_server(net, server);
+=======
+			afs_unuse_server_notime(net, server, afs_server_trace_put_find_rsq);
+>>>>>>> upstream/android-13
 		server = NULL;
 		read_seqbegin_or_lock(&net->fs_addr_lock, &seq);
 
@@ -81,9 +103,15 @@ struct afs_server *afs_find_server(struct afs_net *net,
 		}
 
 		server = NULL;
+<<<<<<< HEAD
 	found:
 		if (server && !atomic_inc_not_zero(&server->usage))
 			server = NULL;
+=======
+		continue;
+	found:
+		server = afs_maybe_use_server(server, afs_server_trace_get_by_addr);
+>>>>>>> upstream/android-13
 
 	} while (need_seqretry(&net->fs_addr_lock, seq));
 
@@ -94,7 +122,11 @@ struct afs_server *afs_find_server(struct afs_net *net,
 }
 
 /*
+<<<<<<< HEAD
  * Look up a server by its UUID
+=======
+ * Look up a server by its UUID and mark it active.
+>>>>>>> upstream/android-13
  */
 struct afs_server *afs_find_server_by_uuid(struct afs_net *net, const uuid_t *uuid)
 {
@@ -110,7 +142,11 @@ struct afs_server *afs_find_server_by_uuid(struct afs_net *net, const uuid_t *uu
 		 * changes.
 		 */
 		if (server)
+<<<<<<< HEAD
 			afs_put_server(net, server);
+=======
+			afs_unuse_server(net, server, afs_server_trace_put_uuid_rsq);
+>>>>>>> upstream/android-13
 		server = NULL;
 
 		read_seqbegin_or_lock(&net->fs_lock, &seq);
@@ -125,7 +161,11 @@ struct afs_server *afs_find_server_by_uuid(struct afs_net *net, const uuid_t *uu
 			} else if (diff > 0) {
 				p = p->rb_right;
 			} else {
+<<<<<<< HEAD
 				afs_get_server(server);
+=======
+				afs_use_server(server, afs_server_trace_get_by_uuid);
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -140,6 +180,7 @@ struct afs_server *afs_find_server_by_uuid(struct afs_net *net, const uuid_t *uu
 }
 
 /*
+<<<<<<< HEAD
  * Install a server record in the namespace tree
  */
 static struct afs_server *afs_install_server(struct afs_net *net,
@@ -149,6 +190,20 @@ static struct afs_server *afs_install_server(struct afs_net *net,
 	struct afs_server *server;
 	struct rb_node **pp, *p;
 	int ret = -EEXIST, diff;
+=======
+ * Install a server record in the namespace tree.  If there's a clash, we stick
+ * it into a list anchored on whichever afs_server struct is actually in the
+ * tree.
+ */
+static struct afs_server *afs_install_server(struct afs_cell *cell,
+					     struct afs_server *candidate)
+{
+	const struct afs_addr_list *alist;
+	struct afs_server *server, *next;
+	struct afs_net *net = cell->net;
+	struct rb_node **pp, *p;
+	int diff;
+>>>>>>> upstream/android-13
 
 	_enter("%p", candidate);
 
@@ -162,12 +217,39 @@ static struct afs_server *afs_install_server(struct afs_net *net,
 		_debug("- consider %p", p);
 		server = rb_entry(p, struct afs_server, uuid_rb);
 		diff = memcmp(&candidate->uuid, &server->uuid, sizeof(uuid_t));
+<<<<<<< HEAD
 		if (diff < 0)
 			pp = &(*pp)->rb_left;
 		else if (diff > 0)
 			pp = &(*pp)->rb_right;
 		else
 			goto exists;
+=======
+		if (diff < 0) {
+			pp = &(*pp)->rb_left;
+		} else if (diff > 0) {
+			pp = &(*pp)->rb_right;
+		} else {
+			if (server->cell == cell)
+				goto exists;
+
+			/* We have the same UUID representing servers in
+			 * different cells.  Append the new server to the list.
+			 */
+			for (;;) {
+				next = rcu_dereference_protected(
+					server->uuid_next,
+					lockdep_is_held(&net->fs_lock.lock));
+				if (!next)
+					break;
+				server = next;
+			}
+			rcu_assign_pointer(server->uuid_next, candidate);
+			candidate->uuid_prev = server;
+			server = candidate;
+			goto added_dup;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	server = candidate;
@@ -175,6 +257,10 @@ static struct afs_server *afs_install_server(struct afs_net *net,
 	rb_insert_color(&server->uuid_rb, &net->fs_servers);
 	hlist_add_head_rcu(&server->proc_link, &net->fs_proc);
 
+<<<<<<< HEAD
+=======
+added_dup:
+>>>>>>> upstream/android-13
 	write_seqlock(&net->fs_addr_lock);
 	alist = rcu_dereference_protected(server->addresses,
 					  lockdep_is_held(&net->fs_addr_lock.lock));
@@ -193,22 +279,38 @@ static struct afs_server *afs_install_server(struct afs_net *net,
 		hlist_add_head_rcu(&server->addr6_link, &net->fs_addresses6);
 
 	write_sequnlock(&net->fs_addr_lock);
+<<<<<<< HEAD
 	ret = 0;
 
 exists:
 	afs_get_server(server);
+=======
+
+exists:
+	afs_get_server(server, afs_server_trace_get_install);
+>>>>>>> upstream/android-13
 	write_sequnlock(&net->fs_lock);
 	return server;
 }
 
 /*
+<<<<<<< HEAD
  * allocate a new server record
  */
 static struct afs_server *afs_alloc_server(struct afs_net *net,
+=======
+ * Allocate a new server record and mark it active.
+ */
+static struct afs_server *afs_alloc_server(struct afs_cell *cell,
+>>>>>>> upstream/android-13
 					   const uuid_t *uuid,
 					   struct afs_addr_list *alist)
 {
 	struct afs_server *server;
+<<<<<<< HEAD
+=======
+	struct afs_net *net = cell->net;
+>>>>>>> upstream/android-13
 
 	_enter("");
 
@@ -216,6 +318,7 @@ static struct afs_server *afs_alloc_server(struct afs_net *net,
 	if (!server)
 		goto enomem;
 
+<<<<<<< HEAD
 	atomic_set(&server->usage, 1);
 	RCU_INIT_POINTER(server->addresses, alist);
 	server->addr_version = alist->version;
@@ -227,6 +330,24 @@ static struct afs_server *afs_alloc_server(struct afs_net *net,
 	rwlock_init(&server->cb_break_lock);
 
 	afs_inc_servers_outstanding(net);
+=======
+	atomic_set(&server->ref, 1);
+	atomic_set(&server->active, 1);
+	server->debug_id = atomic_inc_return(&afs_server_debug_id);
+	RCU_INIT_POINTER(server->addresses, alist);
+	server->addr_version = alist->version;
+	server->uuid = *uuid;
+	rwlock_init(&server->fs_lock);
+	INIT_WORK(&server->initcb_work, afs_server_init_callback_work);
+	init_waitqueue_head(&server->probe_wq);
+	INIT_LIST_HEAD(&server->probe_link);
+	spin_lock_init(&server->probe_lock);
+	server->cell = cell;
+	server->rtt = UINT_MAX;
+
+	afs_inc_servers_outstanding(net);
+	trace_afs_server(server, 1, 1, afs_server_trace_alloc);
+>>>>>>> upstream/android-13
 	_leave(" = %p", server);
 	return server;
 
@@ -241,6 +362,7 @@ enomem:
 static struct afs_addr_list *afs_vl_lookup_addrs(struct afs_cell *cell,
 						 struct key *key, const uuid_t *uuid)
 {
+<<<<<<< HEAD
 	struct afs_addr_cursor ac;
 	struct afs_addr_list *alist;
 	int ret;
@@ -276,13 +398,36 @@ static struct afs_addr_list *afs_vl_lookup_addrs(struct afs_cell *cell,
 
 error:
 	return ERR_PTR(afs_end_cursor(&ac));
+=======
+	struct afs_vl_cursor vc;
+	struct afs_addr_list *alist = NULL;
+	int ret;
+
+	ret = -ERESTARTSYS;
+	if (afs_begin_vlserver_operation(&vc, cell, key)) {
+		while (afs_select_vlserver(&vc)) {
+			if (test_bit(AFS_VLSERVER_FL_IS_YFS, &vc.server->flags))
+				alist = afs_yfsvl_get_endpoints(&vc, uuid);
+			else
+				alist = afs_vl_get_addrs_u(&vc, uuid);
+		}
+
+		ret = afs_end_vlserver_operation(&vc);
+	}
+
+	return ret < 0 ? ERR_PTR(ret) : alist;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Get or create a fileserver record.
  */
 struct afs_server *afs_lookup_server(struct afs_cell *cell, struct key *key,
+<<<<<<< HEAD
 				     const uuid_t *uuid)
+=======
+				     const uuid_t *uuid, u32 addr_version)
+>>>>>>> upstream/android-13
 {
 	struct afs_addr_list *alist;
 	struct afs_server *server, *candidate;
@@ -290,19 +435,32 @@ struct afs_server *afs_lookup_server(struct afs_cell *cell, struct key *key,
 	_enter("%p,%pU", cell->net, uuid);
 
 	server = afs_find_server_by_uuid(cell->net, uuid);
+<<<<<<< HEAD
 	if (server)
 		return server;
+=======
+	if (server) {
+		if (server->addr_version != addr_version)
+			set_bit(AFS_SERVER_FL_NEEDS_UPDATE, &server->flags);
+		return server;
+	}
+>>>>>>> upstream/android-13
 
 	alist = afs_vl_lookup_addrs(cell, key, uuid);
 	if (IS_ERR(alist))
 		return ERR_CAST(alist);
 
+<<<<<<< HEAD
 	candidate = afs_alloc_server(cell->net, uuid, alist);
+=======
+	candidate = afs_alloc_server(cell, uuid, alist);
+>>>>>>> upstream/android-13
 	if (!candidate) {
 		afs_put_addrlist(alist);
 		return ERR_PTR(-ENOMEM);
 	}
 
+<<<<<<< HEAD
 	server = afs_install_server(cell->net, candidate);
 	if (server != candidate) {
 		afs_put_addrlist(alist);
@@ -310,6 +468,20 @@ struct afs_server *afs_lookup_server(struct afs_cell *cell, struct key *key,
 	}
 
 	_leave(" = %p{%d}", server, atomic_read(&server->usage));
+=======
+	server = afs_install_server(cell, candidate);
+	if (server != candidate) {
+		afs_put_addrlist(alist);
+		kfree(candidate);
+	} else {
+		/* Immediately dispatch an asynchronous probe to each interface
+		 * on the fileserver.  This will make sure the repeat-probing
+		 * service is started.
+		 */
+		afs_fs_probe_fileserver(cell->net, server, key, true);
+	}
+
+>>>>>>> upstream/android-13
 	return server;
 }
 
@@ -340,15 +512,64 @@ void afs_servers_timer(struct timer_list *timer)
 }
 
 /*
+<<<<<<< HEAD
  * Release a reference on a server record.
  */
 void afs_put_server(struct afs_net *net, struct afs_server *server)
+=======
+ * Get a reference on a server object.
+ */
+struct afs_server *afs_get_server(struct afs_server *server,
+				  enum afs_server_trace reason)
+{
+	unsigned int u = atomic_inc_return(&server->ref);
+
+	trace_afs_server(server, u, atomic_read(&server->active), reason);
+	return server;
+}
+
+/*
+ * Try to get a reference on a server object.
+ */
+static struct afs_server *afs_maybe_use_server(struct afs_server *server,
+					       enum afs_server_trace reason)
+{
+	unsigned int r = atomic_fetch_add_unless(&server->ref, 1, 0);
+	unsigned int a;
+
+	if (r == 0)
+		return NULL;
+
+	a = atomic_inc_return(&server->active);
+	trace_afs_server(server, r, a, reason);
+	return server;
+}
+
+/*
+ * Get an active count on a server object.
+ */
+struct afs_server *afs_use_server(struct afs_server *server, enum afs_server_trace reason)
+{
+	unsigned int r = atomic_inc_return(&server->ref);
+	unsigned int a = atomic_inc_return(&server->active);
+
+	trace_afs_server(server, r, a, reason);
+	return server;
+}
+
+/*
+ * Release a reference on a server record.
+ */
+void afs_put_server(struct afs_net *net, struct afs_server *server,
+		    enum afs_server_trace reason)
+>>>>>>> upstream/android-13
 {
 	unsigned int usage;
 
 	if (!server)
 		return;
 
+<<<<<<< HEAD
 	server->put_time = ktime_get_real_seconds();
 
 	usage = atomic_dec_return(&server->usage);
@@ -359,21 +580,82 @@ void afs_put_server(struct afs_net *net, struct afs_server *server)
 		return;
 
 	afs_set_server_timer(net, afs_server_gc_delay);
+=======
+	usage = atomic_dec_return(&server->ref);
+	trace_afs_server(server, usage, atomic_read(&server->active), reason);
+	if (unlikely(usage == 0))
+		__afs_put_server(net, server);
+}
+
+/*
+ * Drop an active count on a server object without updating the last-unused
+ * time.
+ */
+void afs_unuse_server_notime(struct afs_net *net, struct afs_server *server,
+			     enum afs_server_trace reason)
+{
+	if (server) {
+		unsigned int active = atomic_dec_return(&server->active);
+
+		if (active == 0)
+			afs_set_server_timer(net, afs_server_gc_delay);
+		afs_put_server(net, server, reason);
+	}
+}
+
+/*
+ * Drop an active count on a server object.
+ */
+void afs_unuse_server(struct afs_net *net, struct afs_server *server,
+		      enum afs_server_trace reason)
+{
+	if (server) {
+		server->unuse_time = ktime_get_real_seconds();
+		afs_unuse_server_notime(net, server, reason);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void afs_server_rcu(struct rcu_head *rcu)
 {
 	struct afs_server *server = container_of(rcu, struct afs_server, rcu);
 
+<<<<<<< HEAD
+=======
+	trace_afs_server(server, atomic_read(&server->ref),
+			 atomic_read(&server->active), afs_server_trace_free);
+>>>>>>> upstream/android-13
 	afs_put_addrlist(rcu_access_pointer(server->addresses));
 	kfree(server);
 }
 
+<<<<<<< HEAD
+=======
+static void __afs_put_server(struct afs_net *net, struct afs_server *server)
+{
+	call_rcu(&server->rcu, afs_server_rcu);
+	afs_dec_servers_outstanding(net);
+}
+
+static void afs_give_up_callbacks(struct afs_net *net, struct afs_server *server)
+{
+	struct afs_addr_list *alist = rcu_access_pointer(server->addresses);
+	struct afs_addr_cursor ac = {
+		.alist	= alist,
+		.index	= alist->preferred,
+		.error	= 0,
+	};
+
+	afs_fs_give_up_all_callbacks(net, server, &ac, NULL);
+}
+
+>>>>>>> upstream/android-13
 /*
  * destroy a dead server
  */
 static void afs_destroy_server(struct afs_net *net, struct afs_server *server)
 {
+<<<<<<< HEAD
 	struct afs_addr_list *alist = rcu_access_pointer(server->addresses);
 	struct afs_addr_cursor ac = {
 		.alist	= alist,
@@ -389,6 +671,13 @@ static void afs_destroy_server(struct afs_net *net, struct afs_server *server)
 
 	call_rcu(&server->rcu, afs_server_rcu);
 	afs_dec_servers_outstanding(net);
+=======
+	if (test_bit(AFS_SERVER_FL_MAY_HAVE_CB, &server->flags))
+		afs_give_up_callbacks(net, server);
+
+	flush_work(&server->initcb_work);
+	afs_put_server(net, server, afs_server_trace_destroy);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -396,14 +685,20 @@ static void afs_destroy_server(struct afs_net *net, struct afs_server *server)
  */
 static void afs_gc_servers(struct afs_net *net, struct afs_server *gc_list)
 {
+<<<<<<< HEAD
 	struct afs_server *server;
 	bool deleted;
 	int usage;
+=======
+	struct afs_server *server, *next, *prev;
+	int active;
+>>>>>>> upstream/android-13
 
 	while ((server = gc_list)) {
 		gc_list = server->gc_next;
 
 		write_seqlock(&net->fs_lock);
+<<<<<<< HEAD
 		usage = 1;
 		deleted = atomic_try_cmpxchg(&server->usage, &usage, 0);
 		if (deleted) {
@@ -414,13 +709,50 @@ static void afs_gc_servers(struct afs_net *net, struct afs_server *gc_list)
 
 		if (deleted) {
 			write_seqlock(&net->fs_addr_lock);
+=======
+
+		active = atomic_read(&server->active);
+		if (active == 0) {
+			trace_afs_server(server, atomic_read(&server->ref),
+					 active, afs_server_trace_gc);
+			next = rcu_dereference_protected(
+				server->uuid_next, lockdep_is_held(&net->fs_lock.lock));
+			prev = server->uuid_prev;
+			if (!prev) {
+				/* The one at the front is in the tree */
+				if (!next) {
+					rb_erase(&server->uuid_rb, &net->fs_servers);
+				} else {
+					rb_replace_node_rcu(&server->uuid_rb,
+							    &next->uuid_rb,
+							    &net->fs_servers);
+					next->uuid_prev = NULL;
+				}
+			} else {
+				/* This server is not at the front */
+				rcu_assign_pointer(prev->uuid_next, next);
+				if (next)
+					next->uuid_prev = prev;
+			}
+
+			list_del(&server->probe_link);
+			hlist_del_rcu(&server->proc_link);
+>>>>>>> upstream/android-13
 			if (!hlist_unhashed(&server->addr4_link))
 				hlist_del_rcu(&server->addr4_link);
 			if (!hlist_unhashed(&server->addr6_link))
 				hlist_del_rcu(&server->addr6_link);
+<<<<<<< HEAD
 			write_sequnlock(&net->fs_addr_lock);
 			afs_destroy_server(net, server);
 		}
+=======
+		}
+		write_sequnlock(&net->fs_lock);
+
+		if (active == 0)
+			afs_destroy_server(net, server);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -449,6 +781,7 @@ void afs_manage_servers(struct work_struct *work)
 	for (cursor = rb_first(&net->fs_servers); cursor; cursor = rb_next(cursor)) {
 		struct afs_server *server =
 			rb_entry(cursor, struct afs_server, uuid_rb);
+<<<<<<< HEAD
 		int usage = atomic_read(&server->usage);
 
 		_debug("manage %pU %u", &server->uuid, usage);
@@ -458,6 +791,21 @@ void afs_manage_servers(struct work_struct *work)
 
 		if (usage == 1) {
 			time64_t expire_at = server->put_time;
+=======
+		int active = atomic_read(&server->active);
+
+		_debug("manage %pU %u", &server->uuid, active);
+
+		if (purging) {
+			trace_afs_server(server, atomic_read(&server->ref),
+					 active, afs_server_trace_purging);
+			if (active != 0)
+				pr_notice("Can't purge s=%08x\n", server->debug_id);
+		}
+
+		if (active == 0) {
+			time64_t expire_at = server->unuse_time;
+>>>>>>> upstream/android-13
 
 			if (!test_bit(AFS_SERVER_FL_VL_FAIL, &server->flags) &&
 			    !test_bit(AFS_SERVER_FL_NOT_FOUND, &server->flags))
@@ -509,17 +857,26 @@ void afs_purge_servers(struct afs_net *net)
 	_enter("");
 
 	if (del_timer_sync(&net->fs_timer))
+<<<<<<< HEAD
 		atomic_dec(&net->servers_outstanding);
+=======
+		afs_dec_servers_outstanding(net);
+>>>>>>> upstream/android-13
 
 	afs_queue_server_manager(net);
 
 	_debug("wait");
+<<<<<<< HEAD
+=======
+	atomic_dec(&net->servers_outstanding);
+>>>>>>> upstream/android-13
 	wait_var_event(&net->servers_outstanding,
 		       !atomic_read(&net->servers_outstanding));
 	_leave("");
 }
 
 /*
+<<<<<<< HEAD
  * Probe a fileserver to find its capabilities.
  *
  * TODO: Try service upgrade.
@@ -616,16 +973,39 @@ retry:
  * Get an update for a server's address list.
  */
 static noinline bool afs_update_server_record(struct afs_fs_cursor *fc, struct afs_server *server)
+=======
+ * Get an update for a server's address list.
+ */
+static noinline bool afs_update_server_record(struct afs_operation *op,
+					      struct afs_server *server)
+>>>>>>> upstream/android-13
 {
 	struct afs_addr_list *alist, *discard;
 
 	_enter("");
 
+<<<<<<< HEAD
 	alist = afs_vl_lookup_addrs(fc->vnode->volume->cell, fc->key,
 				    &server->uuid);
 	if (IS_ERR(alist)) {
 		fc->ac.error = PTR_ERR(alist);
 		_leave(" = f [%d]", fc->ac.error);
+=======
+	trace_afs_server(server, atomic_read(&server->ref), atomic_read(&server->active),
+			 afs_server_trace_update);
+
+	alist = afs_vl_lookup_addrs(op->volume->cell, op->key, &server->uuid);
+	if (IS_ERR(alist)) {
+		if ((PTR_ERR(alist) == -ERESTARTSYS ||
+		     PTR_ERR(alist) == -EINTR) &&
+		    (op->flags & AFS_OPERATION_UNINTR) &&
+		    server->addresses) {
+			_leave(" = t [intr]");
+			return true;
+		}
+		op->error = PTR_ERR(alist);
+		_leave(" = f [%d]", op->error);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -639,7 +1019,10 @@ static noinline bool afs_update_server_record(struct afs_fs_cursor *fc, struct a
 		write_unlock(&server->fs_lock);
 	}
 
+<<<<<<< HEAD
 	server->update_at = ktime_get_real_seconds() + afs_server_update_delay;
+=======
+>>>>>>> upstream/android-13
 	afs_put_addrlist(discard);
 	_leave(" = t");
 	return true;
@@ -648,10 +1031,15 @@ static noinline bool afs_update_server_record(struct afs_fs_cursor *fc, struct a
 /*
  * See if a server's address list needs updating.
  */
+<<<<<<< HEAD
 bool afs_check_server_record(struct afs_fs_cursor *fc, struct afs_server *server)
 {
 	time64_t now = ktime_get_real_seconds();
 	long diff;
+=======
+bool afs_check_server_record(struct afs_operation *op, struct afs_server *server)
+{
+>>>>>>> upstream/android-13
 	bool success;
 	int ret, retries = 0;
 
@@ -660,6 +1048,7 @@ bool afs_check_server_record(struct afs_fs_cursor *fc, struct afs_server *server
 	ASSERT(server);
 
 retry:
+<<<<<<< HEAD
 	diff = READ_ONCE(server->update_at) - now;
 	if (diff > 0) {
 		_leave(" = t [not now %ld]", diff);
@@ -668,16 +1057,38 @@ retry:
 
 	if (!test_and_set_bit_lock(AFS_SERVER_FL_UPDATING, &server->flags)) {
 		success = afs_update_server_record(fc, server);
+=======
+	if (test_bit(AFS_SERVER_FL_UPDATING, &server->flags))
+		goto wait;
+	if (test_bit(AFS_SERVER_FL_NEEDS_UPDATE, &server->flags))
+		goto update;
+	_leave(" = t [good]");
+	return true;
+
+update:
+	if (!test_and_set_bit_lock(AFS_SERVER_FL_UPDATING, &server->flags)) {
+		clear_bit(AFS_SERVER_FL_NEEDS_UPDATE, &server->flags);
+		success = afs_update_server_record(op, server);
+>>>>>>> upstream/android-13
 		clear_bit_unlock(AFS_SERVER_FL_UPDATING, &server->flags);
 		wake_up_bit(&server->flags, AFS_SERVER_FL_UPDATING);
 		_leave(" = %d", success);
 		return success;
 	}
 
+<<<<<<< HEAD
 	ret = wait_on_bit(&server->flags, AFS_SERVER_FL_UPDATING,
 			  TASK_INTERRUPTIBLE);
 	if (ret == -ERESTARTSYS) {
 		fc->ac.error = ret;
+=======
+wait:
+	ret = wait_on_bit(&server->flags, AFS_SERVER_FL_UPDATING,
+			  (op->flags & AFS_OPERATION_UNINTR) ?
+			  TASK_UNINTERRUPTIBLE : TASK_INTERRUPTIBLE);
+	if (ret == -ERESTARTSYS) {
+		op->error = ret;
+>>>>>>> upstream/android-13
 		_leave(" = f [intr]");
 		return false;
 	}

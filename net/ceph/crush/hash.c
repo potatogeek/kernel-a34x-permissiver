@@ -7,7 +7,11 @@
 
 /*
  * Robert Jenkins' function for mixing 32-bit values
+<<<<<<< HEAD
  * http://burtleburtle.net/bob/hash/evahash.html
+=======
+ * https://burtleburtle.net/bob/hash/evahash.html
+>>>>>>> upstream/android-13
  * a, b = random bits, c = input and output
  */
 #define crush_hashmix(a, b, c) do {			\

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * I2C bus driver for ADT7316/7/8 ADT7516/7/9 digital temperature
  * sensor, ADC and DAC
  *
  * Copyright 2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -43,7 +50,11 @@ static int adt7316_i2c_read(void *client, u8 reg, u8 *data)
 static int adt7316_i2c_write(void *client, u8 reg, u8 data)
 {
 	struct i2c_client *cl = client;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = i2c_smbus_write_byte_data(cl, reg, data);
 	if (ret < 0)
@@ -55,7 +66,11 @@ static int adt7316_i2c_write(void *client, u8 reg, u8 data)
 static int adt7316_i2c_multi_read(void *client, u8 reg, u8 count, u8 *data)
 {
 	struct i2c_client *cl = client;
+<<<<<<< HEAD
 	int i, ret = 0;
+=======
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	if (count > ADT7316_REG_MAX_ADDR)
 		count = ADT7316_REG_MAX_ADDR;
@@ -74,7 +89,11 @@ static int adt7316_i2c_multi_read(void *client, u8 reg, u8 count, u8 *data)
 static int adt7316_i2c_multi_write(void *client, u8 reg, u8 count, u8 *data)
 {
 	struct i2c_client *cl = client;
+<<<<<<< HEAD
 	int i, ret = 0;
+=======
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	if (count > ADT7316_REG_MAX_ADDR)
 		count = ADT7316_REG_MAX_ADDR;
@@ -100,7 +119,10 @@ static int adt7316_i2c_probe(struct i2c_client *client,
 	struct adt7316_bus bus = {
 		.client = client,
 		.irq = client->irq,
+<<<<<<< HEAD
 		.irq_flags = IRQF_TRIGGER_LOW,
+=======
+>>>>>>> upstream/android-13
 		.read = adt7316_i2c_read,
 		.write = adt7316_i2c_write,
 		.multi_read = adt7316_i2c_multi_read,
@@ -122,9 +144,28 @@ static const struct i2c_device_id adt7316_i2c_id[] = {
 
 MODULE_DEVICE_TABLE(i2c, adt7316_i2c_id);
 
+<<<<<<< HEAD
 static struct i2c_driver adt7316_driver = {
 	.driver = {
 		.name = "adt7316",
+=======
+static const struct of_device_id adt7316_of_match[] = {
+	{ .compatible = "adi,adt7316" },
+	{ .compatible = "adi,adt7317" },
+	{ .compatible = "adi,adt7318" },
+	{ .compatible = "adi,adt7516" },
+	{ .compatible = "adi,adt7517" },
+	{ .compatible = "adi,adt7519" },
+	{ },
+};
+
+MODULE_DEVICE_TABLE(of, adt7316_of_match);
+
+static struct i2c_driver adt7316_driver = {
+	.driver = {
+		.name = "adt7316",
+		.of_match_table = adt7316_of_match,
+>>>>>>> upstream/android-13
 		.pm = ADT7316_PM_OPS,
 	},
 	.probe = adt7316_i2c_probe,

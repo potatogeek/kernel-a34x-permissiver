@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	Frontend-driver for TwinHan DST Frontend
 
 	Copyright (C) 2003 Jamie Honan
 	Copyright (C) 2004, 2005 Manu Abraham (manu@kromtek.com)
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef DST_COMMON_H
@@ -138,7 +145,11 @@ struct dst_state {
 	u32 tuner_type;
 	char *tuner_name;
 	struct mutex dst_mutex;
+<<<<<<< HEAD
 	u8 fw_name[8];
+=======
+	char fw_name[8];
+>>>>>>> upstream/android-13
 	struct dvb_device *dst_ca;
 };
 

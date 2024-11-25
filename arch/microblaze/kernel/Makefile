@@ -22,9 +22,17 @@ obj-y += dma.o exceptions.o \
 obj-y += cpu/
 
 obj-$(CONFIG_MODULES)		+= microblaze_ksyms.o module.o
+<<<<<<< HEAD
 obj-$(CONFIG_MMU)		+= misc.o
+=======
+obj-y				+= misc.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
 obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o mcount.o
 obj-$(CONFIG_KGDB)		+= kgdb.o
 
+<<<<<<< HEAD
 obj-y	+= entry$(MMU).o
+=======
+obj-y	+= entry.o
+>>>>>>> upstream/android-13

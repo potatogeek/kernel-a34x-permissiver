@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2009-2010, Lars-Peter Clausen <lars@metafoo.de>
  *  Copyright (C) 2013, Imagination Technologies
  *
  *  JZ4740 SD/MMC controller driver
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
@@ -13,6 +18,8 @@
  *  with this program; if not, write  to the Free Software Foundation, Inc.,
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -21,7 +28,10 @@
 #include <linux/dmaengine.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/irq.h>
@@ -35,9 +45,12 @@
 
 #include <asm/cacheflush.h>
 
+<<<<<<< HEAD
 #include <asm/mach-jz4740/dma.h>
 #include <asm/mach-jz4740/jz4740_mmc.h>
 
+=======
+>>>>>>> upstream/android-13
 #define JZ_REG_MMC_STRPCL	0x00
 #define JZ_REG_MMC_STATUS	0x04
 #define JZ_REG_MMC_CLKRT	0x08
@@ -54,6 +67,10 @@
 #define JZ_REG_MMC_RESP_FIFO	0x34
 #define JZ_REG_MMC_RXFIFO	0x38
 #define JZ_REG_MMC_TXFIFO	0x3C
+<<<<<<< HEAD
+=======
+#define JZ_REG_MMC_LPM		0x40
+>>>>>>> upstream/android-13
 #define JZ_REG_MMC_DMAC		0x44
 
 #define JZ_MMC_STRPCL_EXIT_MULTIPLE BIT(7)
@@ -90,6 +107,11 @@
 
 #define JZ_MMC_CMDAT_IO_ABORT BIT(11)
 #define JZ_MMC_CMDAT_BUS_WIDTH_4BIT BIT(10)
+<<<<<<< HEAD
+=======
+#define JZ_MMC_CMDAT_BUS_WIDTH_8BIT (BIT(10) | BIT(9))
+#define	JZ_MMC_CMDAT_BUS_WIDTH_MASK (BIT(10) | BIT(9))
+>>>>>>> upstream/android-13
 #define JZ_MMC_CMDAT_DMA_EN BIT(8)
 #define JZ_MMC_CMDAT_INIT BIT(7)
 #define JZ_MMC_CMDAT_BUSY BIT(6)
@@ -111,12 +133,30 @@
 #define JZ_MMC_DMAC_DMA_SEL BIT(1)
 #define JZ_MMC_DMAC_DMA_EN BIT(0)
 
+<<<<<<< HEAD
 #define JZ_MMC_CLK_RATE 24000000
 
 enum jz4740_mmc_version {
 	JZ_MMC_JZ4740,
 	JZ_MMC_JZ4750,
 	JZ_MMC_JZ4780,
+=======
+#define	JZ_MMC_LPM_DRV_RISING BIT(31)
+#define	JZ_MMC_LPM_DRV_RISING_QTR_PHASE_DLY BIT(31)
+#define	JZ_MMC_LPM_DRV_RISING_1NS_DLY BIT(30)
+#define	JZ_MMC_LPM_SMP_RISING_QTR_OR_HALF_PHASE_DLY BIT(29)
+#define	JZ_MMC_LPM_LOW_POWER_MODE_EN BIT(0)
+
+#define JZ_MMC_CLK_RATE 24000000
+#define JZ_MMC_REQ_TIMEOUT_MS 5000
+
+enum jz4740_mmc_version {
+	JZ_MMC_JZ4740,
+	JZ_MMC_JZ4725B,
+	JZ_MMC_JZ4760,
+	JZ_MMC_JZ4780,
+	JZ_MMC_X1000,
+>>>>>>> upstream/android-13
 };
 
 enum jz4740_mmc_state {
@@ -126,21 +166,47 @@ enum jz4740_mmc_state {
 	JZ4740_MMC_STATE_DONE,
 };
 
+<<<<<<< HEAD
 struct jz4740_mmc_host_next {
 	int sg_len;
 	s32 cookie;
+=======
+/*
+ * The MMC core allows to prepare a mmc_request while another mmc_request
+ * is in-flight. This is used via the pre_req/post_req hooks.
+ * This driver uses the pre_req/post_req hooks to map/unmap the mmc_request.
+ * Following what other drivers do (sdhci, dw_mmc) we use the following cookie
+ * flags to keep track of the mmc_request mapping state.
+ *
+ * COOKIE_UNMAPPED: the request is not mapped.
+ * COOKIE_PREMAPPED: the request was mapped in pre_req,
+ * and should be unmapped in post_req.
+ * COOKIE_MAPPED: the request was mapped in the irq handler,
+ * and should be unmapped before mmc_request_done is called..
+ */
+enum jz4780_cookie {
+	COOKIE_UNMAPPED = 0,
+	COOKIE_PREMAPPED,
+	COOKIE_MAPPED,
+>>>>>>> upstream/android-13
 };
 
 struct jz4740_mmc_host {
 	struct mmc_host *mmc;
 	struct platform_device *pdev;
+<<<<<<< HEAD
 	struct jz4740_mmc_platform_data *pdata;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	enum jz4740_mmc_version version;
 
 	int irq;
+<<<<<<< HEAD
 	int card_detect_irq;
+=======
+>>>>>>> upstream/android-13
 
 	void __iomem *base;
 	struct resource *mem_res;
@@ -162,9 +228,13 @@ struct jz4740_mmc_host {
 	/* DMA support */
 	struct dma_chan *dma_rx;
 	struct dma_chan *dma_tx;
+<<<<<<< HEAD
 	struct jz4740_mmc_host_next next_data;
 	bool use_dma;
 	int sg_len;
+=======
+	bool use_dma;
+>>>>>>> upstream/android-13
 
 /* The DMA trigger level is 8 words, that is to say, the DMA read
  * trigger is when data words in MSC_RXFIFO is >= 8 and the DMA write
@@ -176,7 +246,11 @@ struct jz4740_mmc_host {
 static void jz4740_mmc_write_irq_mask(struct jz4740_mmc_host *host,
 				      uint32_t val)
 {
+<<<<<<< HEAD
 	if (host->version >= JZ_MMC_JZ4750)
+=======
+	if (host->version >= JZ_MMC_JZ4725B)
+>>>>>>> upstream/android-13
 		return writel(val, host->base + JZ_REG_MMC_IMASK);
 	else
 		return writew(val, host->base + JZ_REG_MMC_IMASK);
@@ -186,9 +260,15 @@ static void jz4740_mmc_write_irq_reg(struct jz4740_mmc_host *host,
 				     uint32_t val)
 {
 	if (host->version >= JZ_MMC_JZ4780)
+<<<<<<< HEAD
 		return writel(val, host->base + JZ_REG_MMC_IREG);
 	else
 		return writew(val, host->base + JZ_REG_MMC_IREG);
+=======
+		writel(val, host->base + JZ_REG_MMC_IREG);
+	else
+		writew(val, host->base + JZ_REG_MMC_IREG);
+>>>>>>> upstream/android-13
 }
 
 static uint32_t jz4740_mmc_read_irq_reg(struct jz4740_mmc_host *host)
@@ -226,9 +306,12 @@ static int jz4740_mmc_acquire_dma_channels(struct jz4740_mmc_host *host)
 		return PTR_ERR(host->dma_rx);
 	}
 
+<<<<<<< HEAD
 	/* Initialize DMA pre request cookie */
 	host->next_data.cookie = 1;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -245,6 +328,7 @@ static void jz4740_mmc_dma_unmap(struct jz4740_mmc_host *host,
 	enum dma_data_direction dir = mmc_get_dma_dir(data);
 
 	dma_unmap_sg(chan->device->dev, data->sg, data->sg_len, dir);
+<<<<<<< HEAD
 }
 
 /* Prepares DMA data for current/next transfer, returns non-zero on failure */
@@ -280,11 +364,37 @@ static int jz4740_mmc_prepare_dma_data(struct jz4740_mmc_host *host,
 	}
 
 	if (sg_len <= 0) {
+=======
+	data->host_cookie = COOKIE_UNMAPPED;
+}
+
+/* Prepares DMA data for current or next transfer.
+ * A request can be in-flight when this is called.
+ */
+static int jz4740_mmc_prepare_dma_data(struct jz4740_mmc_host *host,
+				       struct mmc_data *data,
+				       int cookie)
+{
+	struct dma_chan *chan = jz4740_mmc_get_dma_chan(host, data);
+	enum dma_data_direction dir = mmc_get_dma_dir(data);
+	int sg_count;
+
+	if (data->host_cookie == COOKIE_PREMAPPED)
+		return data->sg_count;
+
+	sg_count = dma_map_sg(chan->device->dev,
+			data->sg,
+			data->sg_len,
+			dir);
+
+	if (sg_count <= 0) {
+>>>>>>> upstream/android-13
 		dev_err(mmc_dev(host->mmc),
 			"Failed to map scatterlist for DMA operation\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (next) {
 		next->sg_len = sg_len;
 		data->host_cookie = ++next->cookie < 0 ? 1 : next->cookie;
@@ -292,13 +402,23 @@ static int jz4740_mmc_prepare_dma_data(struct jz4740_mmc_host *host,
 		host->sg_len = sg_len;
 
 	return 0;
+=======
+	data->sg_count = sg_count;
+	data->host_cookie = cookie;
+
+	return data->sg_count;
+>>>>>>> upstream/android-13
 }
 
 static int jz4740_mmc_start_dma_transfer(struct jz4740_mmc_host *host,
 					 struct mmc_data *data)
 {
+<<<<<<< HEAD
 	int ret;
 	struct dma_chan *chan;
+=======
+	struct dma_chan *chan = jz4740_mmc_get_dma_chan(host, data);
+>>>>>>> upstream/android-13
 	struct dma_async_tx_descriptor *desc;
 	struct dma_slave_config conf = {
 		.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES,
@@ -306,10 +426,15 @@ static int jz4740_mmc_start_dma_transfer(struct jz4740_mmc_host *host,
 		.src_maxburst = JZ4740_MMC_FIFO_HALF_SIZE,
 		.dst_maxburst = JZ4740_MMC_FIFO_HALF_SIZE,
 	};
+<<<<<<< HEAD
+=======
+	int sg_count;
+>>>>>>> upstream/android-13
 
 	if (data->flags & MMC_DATA_WRITE) {
 		conf.direction = DMA_MEM_TO_DEV;
 		conf.dst_addr = host->mem_res->start + JZ_REG_MMC_TXFIFO;
+<<<<<<< HEAD
 		conf.slave_id = JZ4740_DMA_TYPE_MMC_TRANSMIT;
 		chan = host->dma_tx;
 	} else {
@@ -329,6 +454,21 @@ static int jz4740_mmc_start_dma_transfer(struct jz4740_mmc_host *host,
 				       host->sg_len,
 				       conf.direction,
 				       DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+=======
+	} else {
+		conf.direction = DMA_DEV_TO_MEM;
+		conf.src_addr = host->mem_res->start + JZ_REG_MMC_RXFIFO;
+	}
+
+	sg_count = jz4740_mmc_prepare_dma_data(host, data, COOKIE_MAPPED);
+	if (sg_count < 0)
+		return sg_count;
+
+	dmaengine_slave_config(chan, &conf);
+	desc = dmaengine_prep_slave_sg(chan, data->sg, sg_count,
+			conf.direction,
+			DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+>>>>>>> upstream/android-13
 	if (!desc) {
 		dev_err(mmc_dev(host->mmc),
 			"Failed to allocate DMA %s descriptor",
@@ -342,7 +482,12 @@ static int jz4740_mmc_start_dma_transfer(struct jz4740_mmc_host *host,
 	return 0;
 
 dma_unmap:
+<<<<<<< HEAD
 	jz4740_mmc_dma_unmap(host, data);
+=======
+	if (data->host_cookie == COOKIE_MAPPED)
+		jz4740_mmc_dma_unmap(host, data);
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 
@@ -351,6 +496,7 @@ static void jz4740_mmc_pre_request(struct mmc_host *mmc,
 {
 	struct jz4740_mmc_host *host = mmc_priv(mmc);
 	struct mmc_data *data = mrq->data;
+<<<<<<< HEAD
 	struct jz4740_mmc_host_next *next_data = &host->next_data;
 
 	BUG_ON(data->host_cookie);
@@ -361,6 +507,15 @@ static void jz4740_mmc_pre_request(struct mmc_host *mmc,
 		if (jz4740_mmc_prepare_dma_data(host, data, next_data, chan))
 			data->host_cookie = 0;
 	}
+=======
+
+	if (!host->use_dma)
+		return;
+
+	data->host_cookie = COOKIE_UNMAPPED;
+	if (jz4740_mmc_prepare_dma_data(host, data, COOKIE_PREMAPPED) < 0)
+		data->host_cookie = COOKIE_UNMAPPED;
+>>>>>>> upstream/android-13
 }
 
 static void jz4740_mmc_post_request(struct mmc_host *mmc,
@@ -370,10 +525,15 @@ static void jz4740_mmc_post_request(struct mmc_host *mmc,
 	struct jz4740_mmc_host *host = mmc_priv(mmc);
 	struct mmc_data *data = mrq->data;
 
+<<<<<<< HEAD
 	if (host->use_dma && data->host_cookie) {
 		jz4740_mmc_dma_unmap(host, data);
 		data->host_cookie = 0;
 	}
+=======
+	if (data && data->host_cookie != COOKIE_UNMAPPED)
+		jz4740_mmc_dma_unmap(host, data);
+>>>>>>> upstream/android-13
 
 	if (err) {
 		struct dma_chan *chan = jz4740_mmc_get_dma_chan(host, data);
@@ -436,10 +596,21 @@ static void jz4740_mmc_reset(struct jz4740_mmc_host *host)
 static void jz4740_mmc_request_done(struct jz4740_mmc_host *host)
 {
 	struct mmc_request *req;
+<<<<<<< HEAD
 
 	req = host->req;
 	host->req = NULL;
 
+=======
+	struct mmc_data *data;
+
+	req = host->req;
+	data = req->data;
+	host->req = NULL;
+
+	if (data && data->host_cookie == COOKIE_MAPPED)
+		jz4740_mmc_dma_unmap(host, data);
+>>>>>>> upstream/android-13
 	mmc_request_done(host->mmc, req);
 }
 
@@ -455,7 +626,12 @@ static unsigned int jz4740_mmc_poll_irq(struct jz4740_mmc_host *host,
 
 	if (timeout == 0) {
 		set_bit(0, &host->waiting);
+<<<<<<< HEAD
 		mod_timer(&host->timeout_timer, jiffies + 5*HZ);
+=======
+		mod_timer(&host->timeout_timer,
+			  jiffies + msecs_to_jiffies(JZ_MMC_REQ_TIMEOUT_MS));
+>>>>>>> upstream/android-13
 		jz4740_mmc_set_irq_enabled(host, irq, true);
 		return true;
 	}
@@ -592,10 +768,13 @@ static bool jz4740_mmc_read_data(struct jz4740_mmc_host *host,
 			}
 		}
 		data->bytes_xfered += miter->length;
+<<<<<<< HEAD
 
 		/* This can go away once MIPS implements
 		 * flush_kernel_dcache_page */
 		flush_dcache_page(miter->page);
+=======
+>>>>>>> upstream/android-13
 	}
 	sg_miter_stop(miter);
 
@@ -688,7 +867,11 @@ static void jz4740_mmc_send_command(struct jz4740_mmc_host *host,
 			cmdat |= JZ_MMC_CMDAT_WRITE;
 		if (host->use_dma) {
 			/*
+<<<<<<< HEAD
 			 * The 4780's MMC controller has integrated DMA ability
+=======
+			 * The JZ4780's MMC controller has integrated DMA ability
+>>>>>>> upstream/android-13
 			 * in addition to being able to use the external DMA
 			 * controller. It moves DMA control bits to a separate
 			 * register. The DMA_SEL bit chooses the external
@@ -752,6 +935,10 @@ static irqreturn_t jz_mmc_irq_worker(int irq, void *devid)
 			break;
 
 		jz_mmc_prepare_data_transfer(host);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case JZ4740_MMC_STATE_TRANSFER_DATA:
 		if (host->use_dma) {
@@ -786,6 +973,10 @@ static irqreturn_t jz_mmc_irq_worker(int irq, void *devid)
 			break;
 		}
 		jz4740_mmc_write_irq_reg(host, JZ_MMC_IRQ_DATA_TRAN_DONE);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case JZ4740_MMC_STATE_SEND_STOP:
 		if (!req->stop)
@@ -801,6 +992,11 @@ static irqreturn_t jz_mmc_irq_worker(int irq, void *devid)
 				break;
 			}
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+
+>>>>>>> upstream/android-13
 	case JZ4740_MMC_STATE_DONE:
 		break;
 	}
@@ -840,6 +1036,7 @@ static irqreturn_t jz_mmc_irq(int irq, void *devid)
 			del_timer(&host->timeout_timer);
 
 			if (status & JZ_MMC_STATUS_TIMEOUT_RES) {
+<<<<<<< HEAD
 					cmd->error = -ETIMEDOUT;
 			} else if (status & JZ_MMC_STATUS_CRC_RES_ERR) {
 					cmd->error = -EIO;
@@ -848,6 +1045,16 @@ static irqreturn_t jz_mmc_irq(int irq, void *devid)
 					if (cmd->data)
 							cmd->data->error = -EIO;
 					cmd->error = -EIO;
+=======
+				cmd->error = -ETIMEDOUT;
+			} else if (status & JZ_MMC_STATUS_CRC_RES_ERR) {
+				cmd->error = -EIO;
+			} else if (status & (JZ_MMC_STATUS_CRC_READ_ERROR |
+				    JZ_MMC_STATUS_CRC_WRITE_ERROR)) {
+				if (cmd->data)
+					cmd->data->error = -EIO;
+				cmd->error = -EIO;
+>>>>>>> upstream/android-13
 			}
 
 			jz4740_mmc_set_irq_enabled(host, irq_reg, false);
@@ -876,6 +1083,25 @@ static int jz4740_mmc_set_clock_rate(struct jz4740_mmc_host *host, int rate)
 	}
 
 	writew(div, host->base + JZ_REG_MMC_CLKRT);
+<<<<<<< HEAD
+=======
+
+	if (real_rate > 25000000) {
+		if (host->version >= JZ_MMC_JZ4780) {
+			writel(JZ_MMC_LPM_DRV_RISING_QTR_PHASE_DLY |
+				   JZ_MMC_LPM_SMP_RISING_QTR_OR_HALF_PHASE_DLY |
+				   JZ_MMC_LPM_LOW_POWER_MODE_EN,
+				   host->base + JZ_REG_MMC_LPM);
+		} else if (host->version >= JZ_MMC_JZ4760) {
+			writel(JZ_MMC_LPM_DRV_RISING |
+				   JZ_MMC_LPM_LOW_POWER_MODE_EN,
+				   host->base + JZ_REG_MMC_LPM);
+		} else if (host->version >= JZ_MMC_JZ4725B)
+			writel(JZ_MMC_LPM_LOW_POWER_MODE_EN,
+				   host->base + JZ_REG_MMC_LPM);
+	}
+
+>>>>>>> upstream/android-13
 	return real_rate;
 }
 
@@ -890,7 +1116,12 @@ static void jz4740_mmc_request(struct mmc_host *mmc, struct mmc_request *req)
 
 	host->state = JZ4740_MMC_STATE_READ_RESPONSE;
 	set_bit(0, &host->waiting);
+<<<<<<< HEAD
 	mod_timer(&host->timeout_timer, jiffies + 5*HZ);
+=======
+	mod_timer(&host->timeout_timer,
+		  jiffies + msecs_to_jiffies(JZ_MMC_REQ_TIMEOUT_MS));
+>>>>>>> upstream/android-13
 	jz4740_mmc_send_command(host, req->cmd);
 }
 
@@ -903,29 +1134,52 @@ static void jz4740_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	switch (ios->power_mode) {
 	case MMC_POWER_UP:
 		jz4740_mmc_reset(host);
+<<<<<<< HEAD
 		if (host->pdata && gpio_is_valid(host->pdata->gpio_power))
 			gpio_set_value(host->pdata->gpio_power,
 					!host->pdata->power_active_low);
+=======
+		if (!IS_ERR(mmc->supply.vmmc))
+			mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, ios->vdd);
+>>>>>>> upstream/android-13
 		host->cmdat |= JZ_MMC_CMDAT_INIT;
 		clk_prepare_enable(host->clk);
 		break;
 	case MMC_POWER_ON:
 		break;
 	default:
+<<<<<<< HEAD
 		if (host->pdata && gpio_is_valid(host->pdata->gpio_power))
 			gpio_set_value(host->pdata->gpio_power,
 					host->pdata->power_active_low);
+=======
+		if (!IS_ERR(mmc->supply.vmmc))
+			mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, 0);
+>>>>>>> upstream/android-13
 		clk_disable_unprepare(host->clk);
 		break;
 	}
 
 	switch (ios->bus_width) {
 	case MMC_BUS_WIDTH_1:
+<<<<<<< HEAD
 		host->cmdat &= ~JZ_MMC_CMDAT_BUS_WIDTH_4BIT;
 		break;
 	case MMC_BUS_WIDTH_4:
 		host->cmdat |= JZ_MMC_CMDAT_BUS_WIDTH_4BIT;
 		break;
+=======
+		host->cmdat &= ~JZ_MMC_CMDAT_BUS_WIDTH_MASK;
+		break;
+	case MMC_BUS_WIDTH_4:
+		host->cmdat &= ~JZ_MMC_CMDAT_BUS_WIDTH_MASK;
+		host->cmdat |= JZ_MMC_CMDAT_BUS_WIDTH_4BIT;
+		break;
+	case MMC_BUS_WIDTH_8:
+		host->cmdat &= ~JZ_MMC_CMDAT_BUS_WIDTH_MASK;
+		host->cmdat |= JZ_MMC_CMDAT_BUS_WIDTH_8BIT;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -947,6 +1201,7 @@ static const struct mmc_host_ops jz4740_mmc_ops = {
 	.enable_sdio_irq = jz4740_mmc_enable_sdio_irq,
 };
 
+<<<<<<< HEAD
 static int jz4740_mmc_request_gpio(struct device *dev, int gpio,
 	const char *name, bool output, int value)
 {
@@ -1013,6 +1268,15 @@ static void jz4740_mmc_free_gpios(struct platform_device *pdev)
 static const struct of_device_id jz4740_mmc_of_match[] = {
 	{ .compatible = "ingenic,jz4740-mmc", .data = (void *) JZ_MMC_JZ4740 },
 	{ .compatible = "ingenic,jz4780-mmc", .data = (void *) JZ_MMC_JZ4780 },
+=======
+static const struct of_device_id jz4740_mmc_of_match[] = {
+	{ .compatible = "ingenic,jz4740-mmc", .data = (void *) JZ_MMC_JZ4740 },
+	{ .compatible = "ingenic,jz4725b-mmc", .data = (void *)JZ_MMC_JZ4725B },
+	{ .compatible = "ingenic,jz4760-mmc", .data = (void *) JZ_MMC_JZ4760 },
+	{ .compatible = "ingenic,jz4775-mmc", .data = (void *) JZ_MMC_JZ4780 },
+	{ .compatible = "ingenic,jz4780-mmc", .data = (void *) JZ_MMC_JZ4780 },
+	{ .compatible = "ingenic,x1000-mmc", .data = (void *) JZ_MMC_X1000 },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, jz4740_mmc_of_match);
@@ -1023,9 +1287,12 @@ static int jz4740_mmc_probe(struct platform_device* pdev)
 	struct mmc_host *mmc;
 	struct jz4740_mmc_host *host;
 	const struct of_device_id *match;
+<<<<<<< HEAD
 	struct jz4740_mmc_platform_data *pdata;
 
 	pdata = dev_get_platdata(&pdev->dev);
+=======
+>>>>>>> upstream/android-13
 
 	mmc = mmc_alloc_host(sizeof(struct jz4740_mmc_host), &pdev->dev);
 	if (!mmc) {
@@ -1034,11 +1301,15 @@ static int jz4740_mmc_probe(struct platform_device* pdev)
 	}
 
 	host = mmc_priv(mmc);
+<<<<<<< HEAD
 	host->pdata = pdata;
+=======
+>>>>>>> upstream/android-13
 
 	match = of_match_device(jz4740_mmc_of_match, &pdev->dev);
 	if (match) {
 		host->version = (enum jz4740_mmc_version)match->data;
+<<<<<<< HEAD
 		ret = mmc_of_parse(mmc);
 		if (ret) {
 			if (ret != -EPROBE_DEFER)
@@ -1061,6 +1332,24 @@ static int jz4740_mmc_probe(struct platform_device* pdev)
 	if (host->irq < 0) {
 		ret = host->irq;
 		dev_err(&pdev->dev, "Failed to get platform irq: %d\n", ret);
+=======
+	} else {
+		/* JZ4740 should be the only one using legacy probe */
+		host->version = JZ_MMC_JZ4740;
+	}
+
+	ret = mmc_of_parse(mmc);
+	if (ret) {
+		dev_err_probe(&pdev->dev, ret, "could not parse device properties\n");
+		goto err_free_host;
+	}
+
+	mmc_regulator_get_supply(mmc);
+
+	host->irq = platform_get_irq(pdev, 0);
+	if (host->irq < 0) {
+		ret = host->irq;
+>>>>>>> upstream/android-13
 		goto err_free_host;
 	}
 
@@ -1075,7 +1364,10 @@ static int jz4740_mmc_probe(struct platform_device* pdev)
 	host->base = devm_ioremap_resource(&pdev->dev, host->mem_res);
 	if (IS_ERR(host->base)) {
 		ret = PTR_ERR(host->base);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to ioremap base memory\n");
+=======
+>>>>>>> upstream/android-13
 		goto err_free_host;
 	}
 
@@ -1085,6 +1377,15 @@ static int jz4740_mmc_probe(struct platform_device* pdev)
 	mmc->f_min = mmc->f_max / 128;
 	mmc->ocr_avail = MMC_VDD_32_33 | MMC_VDD_33_34;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * We use a fixed timeout of 5s, hence inform the core about it. A
+	 * future improvement should instead respect the cmd->busy_timeout.
+	 */
+	mmc->max_busy_timeout = JZ_MMC_REQ_TIMEOUT_MS;
+
+>>>>>>> upstream/android-13
 	mmc->max_blk_size = (1 << 10) - 1;
 	mmc->max_blk_count = (1 << 15) - 1;
 	mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
@@ -1103,7 +1404,11 @@ static int jz4740_mmc_probe(struct platform_device* pdev)
 			dev_name(&pdev->dev), host);
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to request irq: %d\n", ret);
+<<<<<<< HEAD
 		goto err_free_gpios;
+=======
+		goto err_free_host;
+>>>>>>> upstream/android-13
 	}
 
 	jz4740_mmc_clock_disable(host);
@@ -1121,11 +1426,20 @@ static int jz4740_mmc_probe(struct platform_device* pdev)
 		dev_err(&pdev->dev, "Failed to add mmc host: %d\n", ret);
 		goto err_release_dma;
 	}
+<<<<<<< HEAD
 	dev_info(&pdev->dev, "JZ SD/MMC card driver registered\n");
 
 	dev_info(&pdev->dev, "Using %s, %d-bit mode\n",
 		 host->use_dma ? "DMA" : "PIO",
 		 (mmc->caps & MMC_CAP_4_BIT_DATA) ? 4 : 1);
+=======
+	dev_info(&pdev->dev, "Ingenic SD/MMC card driver registered\n");
+
+	dev_info(&pdev->dev, "Using %s, %d-bit mode\n",
+		 host->use_dma ? "DMA" : "PIO",
+		 (mmc->caps & MMC_CAP_8_BIT_DATA) ? 8 :
+		 ((mmc->caps & MMC_CAP_4_BIT_DATA) ? 4 : 1));
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1134,8 +1448,11 @@ err_release_dma:
 		jz4740_mmc_release_dma_channels(host);
 err_free_irq:
 	free_irq(host->irq, host);
+<<<<<<< HEAD
 err_free_gpios:
 	jz4740_mmc_free_gpios(pdev);
+=======
+>>>>>>> upstream/android-13
 err_free_host:
 	mmc_free_host(mmc);
 
@@ -1154,8 +1471,11 @@ static int jz4740_mmc_remove(struct platform_device *pdev)
 
 	free_irq(host->irq, host);
 
+<<<<<<< HEAD
 	jz4740_mmc_free_gpios(pdev);
 
+=======
+>>>>>>> upstream/android-13
 	if (host->use_dma)
 		jz4740_mmc_release_dma_channels(host);
 
@@ -1164,32 +1484,51 @@ static int jz4740_mmc_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 
 static int jz4740_mmc_suspend(struct device *dev)
+=======
+static int __maybe_unused jz4740_mmc_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	return pinctrl_pm_select_sleep_state(dev);
 }
 
+<<<<<<< HEAD
 static int jz4740_mmc_resume(struct device *dev)
 {
 	return pinctrl_pm_select_default_state(dev);
+=======
+static int __maybe_unused jz4740_mmc_resume(struct device *dev)
+{
+	return pinctrl_select_default_state(dev);
+>>>>>>> upstream/android-13
 }
 
 static SIMPLE_DEV_PM_OPS(jz4740_mmc_pm_ops, jz4740_mmc_suspend,
 	jz4740_mmc_resume);
+<<<<<<< HEAD
 #define JZ4740_MMC_PM_OPS (&jz4740_mmc_pm_ops)
 #else
 #define JZ4740_MMC_PM_OPS NULL
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver jz4740_mmc_driver = {
 	.probe = jz4740_mmc_probe,
 	.remove = jz4740_mmc_remove,
 	.driver = {
 		.name = "jz4740-mmc",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(jz4740_mmc_of_match),
 		.pm = JZ4740_MMC_PM_OPS,
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+		.of_match_table = of_match_ptr(jz4740_mmc_of_match),
+		.pm = pm_ptr(&jz4740_mmc_pm_ops),
+>>>>>>> upstream/android-13
 	},
 };
 

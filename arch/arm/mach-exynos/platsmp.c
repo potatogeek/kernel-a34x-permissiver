@@ -22,12 +22,21 @@
 #include <asm/smp_scu.h>
 #include <asm/firmware.h>
 
+<<<<<<< HEAD
 #include <mach/map.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "common.h"
 
 extern void exynos4_secondary_startup(void);
 
+<<<<<<< HEAD
+=======
+/* XXX exynos_pen_release is cargo culted code - DO NOT COPY XXX */
+volatile int exynos_pen_release = -1;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HOTPLUG_CPU
 static inline void cpu_leave_lowpower(u32 core_id)
 {
@@ -57,7 +66,11 @@ static inline void platform_do_lowpower(unsigned int cpu, int *spurious)
 
 		wfi();
 
+<<<<<<< HEAD
 		if (pen_release == core_id) {
+=======
+		if (exynos_pen_release == core_id) {
+>>>>>>> upstream/android-13
 			/*
 			 * OK, proper wakeup, we're done
 			 */
@@ -77,12 +90,20 @@ static inline void platform_do_lowpower(unsigned int cpu, int *spurious)
 #endif /* CONFIG_HOTPLUG_CPU */
 
 /**
+<<<<<<< HEAD
  * exynos_core_power_down : power down the specified cpu
  * @cpu : the cpu to power down
  *
  * Power down the specified cpu. The sequence must be finished by a
  * call to cpu_do_idle()
  *
+=======
+ * exynos_cpu_power_down() - power down the specified cpu
+ * @cpu: the cpu to power down
+ *
+ * Power down the specified cpu. The sequence must be finished by a
+ * call to cpu_do_idle()
+>>>>>>> upstream/android-13
  */
 void exynos_cpu_power_down(int cpu)
 {
@@ -106,8 +127,13 @@ void exynos_cpu_power_down(int cpu)
 }
 
 /**
+<<<<<<< HEAD
  * exynos_cpu_power_up : power up the specified cpu
  * @cpu : the cpu to power up
+=======
+ * exynos_cpu_power_up() - power up the specified cpu
+ * @cpu: the cpu to power up
+>>>>>>> upstream/android-13
  *
  * Power up the specified cpu
  */
@@ -123,9 +149,14 @@ void exynos_cpu_power_up(int cpu)
 }
 
 /**
+<<<<<<< HEAD
  * exynos_cpu_power_state : returns the power state of the cpu
  * @cpu : the cpu to retrieve the power state from
  *
+=======
+ * exynos_cpu_power_state() - returns the power state of the cpu
+ * @cpu: the cpu to retrieve the power state from
+>>>>>>> upstream/android-13
  */
 int exynos_cpu_power_state(int cpu)
 {
@@ -134,8 +165,13 @@ int exynos_cpu_power_state(int cpu)
 }
 
 /**
+<<<<<<< HEAD
  * exynos_cluster_power_down : power down the specified cluster
  * @cluster : the cluster to power down
+=======
+ * exynos_cluster_power_down() - power down the specified cluster
+ * @cluster: the cluster to power down
+>>>>>>> upstream/android-13
  */
 void exynos_cluster_power_down(int cluster)
 {
@@ -143,8 +179,13 @@ void exynos_cluster_power_down(int cluster)
 }
 
 /**
+<<<<<<< HEAD
  * exynos_cluster_power_up : power up the specified cluster
  * @cluster : the cluster to power up
+=======
+ * exynos_cluster_power_up() - power up the specified cluster
+ * @cluster: the cluster to power up
+>>>>>>> upstream/android-13
  */
 void exynos_cluster_power_up(int cluster)
 {
@@ -153,8 +194,13 @@ void exynos_cluster_power_up(int cluster)
 }
 
 /**
+<<<<<<< HEAD
  * exynos_cluster_power_state : returns the power state of the cluster
  * @cluster : the cluster to retrieve the power state from
+=======
+ * exynos_cluster_power_state() - returns the power state of the cluster
+ * @cluster: the cluster to retrieve the power state from
+>>>>>>> upstream/android-13
  *
  */
 int exynos_cluster_power_state(int cluster)
@@ -164,7 +210,11 @@ int exynos_cluster_power_state(int cluster)
 }
 
 /**
+<<<<<<< HEAD
  * exynos_scu_enable : enables SCU for Cortex-A9 based system
+=======
+ * exynos_scu_enable() - enables SCU for Cortex-A9 based system
+>>>>>>> upstream/android-13
  */
 void exynos_scu_enable(void)
 {
@@ -185,7 +235,11 @@ void exynos_scu_enable(void)
 
 static void __iomem *cpu_boot_reg_base(void)
 {
+<<<<<<< HEAD
 	if (soc_is_exynos4210() && samsung_rev() == EXYNOS4210_REV_1_1)
+=======
+	if (soc_is_exynos4210() && exynos_rev() == EXYNOS4210_REV_1_1)
+>>>>>>> upstream/android-13
 		return pmu_base_addr + S5P_INFORM5;
 	return sysram_base_addr;
 }
@@ -211,6 +265,7 @@ static inline void __iomem *cpu_boot_reg(int cpu)
  */
 void exynos_core_restart(u32 core_id)
 {
+<<<<<<< HEAD
 	u32 val;
 
 	if (!of_machine_is_compatible("samsung,exynos3250"))
@@ -218,6 +273,22 @@ void exynos_core_restart(u32 core_id)
 
 	while (!pmu_raw_readl(S5P_PMU_SPARE2))
 		udelay(10);
+=======
+	unsigned int timeout = 16;
+	u32 val;
+
+	if (!soc_is_exynos3250())
+		return;
+
+	while (timeout && !pmu_raw_readl(S5P_PMU_SPARE2)) {
+		timeout--;
+		udelay(10);
+	}
+	if (timeout == 0) {
+		pr_err("cpu core %u restart failed\n", core_id);
+		return;
+	}
+>>>>>>> upstream/android-13
 	udelay(10);
 
 	val = pmu_raw_readl(EXYNOS_ARM_CORE_STATUS(core_id));
@@ -228,6 +299,7 @@ void exynos_core_restart(u32 core_id)
 }
 
 /*
+<<<<<<< HEAD
  * Write pen_release in a way that is guaranteed to be visible to all
  * observers, irrespective of whether they're taking part in coherency
  * or not.  This is necessary for the hotplug code to work reliably.
@@ -237,6 +309,19 @@ static void write_pen_release(int val)
 	pen_release = val;
 	smp_wmb();
 	sync_cache_w(&pen_release);
+=======
+ * XXX CARGO CULTED CODE - DO NOT COPY XXX
+ *
+ * Write exynos_pen_release in a way that is guaranteed to be visible to
+ * all observers, irrespective of whether they're taking part in coherency
+ * or not.  This is necessary for the hotplug code to work reliably.
+ */
+static void exynos_write_pen_release(int val)
+{
+	exynos_pen_release = val;
+	smp_wmb();
+	sync_cache_w(&exynos_pen_release);
+>>>>>>> upstream/android-13
 }
 
 static DEFINE_SPINLOCK(boot_lock);
@@ -247,7 +332,11 @@ static void exynos_secondary_init(unsigned int cpu)
 	 * let the primary processor know we're out of the
 	 * pen, then head off into the C entry point
 	 */
+<<<<<<< HEAD
 	write_pen_release(-1);
+=======
+	exynos_write_pen_release(-1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Synchronise with the boot thread.
@@ -322,12 +411,21 @@ static int exynos_boot_secondary(unsigned int cpu, struct task_struct *idle)
 	/*
 	 * The secondary processor is waiting to be released from
 	 * the holding pen - release it, then wait for it to flag
+<<<<<<< HEAD
 	 * that it has been released by resetting pen_release.
 	 *
 	 * Note that "pen_release" is the hardware CPU core ID, whereas
 	 * "cpu" is Linux's internal ID.
 	 */
 	write_pen_release(core_id);
+=======
+	 * that it has been released by resetting exynos_pen_release.
+	 *
+	 * Note that "exynos_pen_release" is the hardware CPU core ID, whereas
+	 * "cpu" is Linux's internal ID.
+	 */
+	exynos_write_pen_release(core_id);
+>>>>>>> upstream/android-13
 
 	if (!exynos_cpu_power_state(core_id)) {
 		exynos_cpu_power_up(core_id);
@@ -336,9 +434,15 @@ static int exynos_boot_secondary(unsigned int cpu, struct task_struct *idle)
 		/* wait max 10 ms until cpu1 is on */
 		while (exynos_cpu_power_state(core_id)
 		       != S5P_CORE_LOCAL_PWR_EN) {
+<<<<<<< HEAD
 			if (timeout-- == 0)
 				break;
 
+=======
+			if (timeout == 0)
+				break;
+			timeout--;
+>>>>>>> upstream/android-13
 			mdelay(1);
 		}
 
@@ -376,13 +480,21 @@ static int exynos_boot_secondary(unsigned int cpu, struct task_struct *idle)
 		else
 			arch_send_wakeup_ipi_mask(cpumask_of(cpu));
 
+<<<<<<< HEAD
 		if (pen_release == -1)
+=======
+		if (exynos_pen_release == -1)
+>>>>>>> upstream/android-13
 			break;
 
 		udelay(10);
 	}
 
+<<<<<<< HEAD
 	if (pen_release != -1)
+=======
+	if (exynos_pen_release != -1)
+>>>>>>> upstream/android-13
 		ret = -ETIMEDOUT;
 
 	/*
@@ -392,19 +504,27 @@ static int exynos_boot_secondary(unsigned int cpu, struct task_struct *idle)
 fail:
 	spin_unlock(&boot_lock);
 
+<<<<<<< HEAD
 	return pen_release != -1 ? ret : 0;
+=======
+	return exynos_pen_release != -1 ? ret : 0;
+>>>>>>> upstream/android-13
 }
 
 static void __init exynos_smp_prepare_cpus(unsigned int max_cpus)
 {
+<<<<<<< HEAD
 	int i;
 
+=======
+>>>>>>> upstream/android-13
 	exynos_sysram_init();
 
 	exynos_set_delayed_reset_assertion(true);
 
 	if (read_cpuid_part() == ARM_CPU_PART_CORTEX_A9)
 		exynos_scu_enable();
+<<<<<<< HEAD
 
 	/*
 	 * Write the address of secondary startup into the
@@ -429,6 +549,8 @@ static void __init exynos_smp_prepare_cpus(unsigned int max_cpus)
 		if (ret)
 			break;
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_HOTPLUG_CPU

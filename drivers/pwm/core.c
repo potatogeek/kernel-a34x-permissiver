@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Generic pwmlib implementation
  *
  * Copyright (C) 2011 Sascha Hauer <s.hauer@pengutronix.de>
  * Copyright (C) 2011-2012 Avionic Design GmbH
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +24,11 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+=======
+ */
+
+#include <linux/acpi.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/pwm.h>
 #include <linux/radix-tree.h>
@@ -32,6 +42,12 @@
 
 #include <dt-bindings/pwm/pwm.h>
 
+<<<<<<< HEAD
+=======
+#define CREATE_TRACE_POINTS
+#include <trace/events/pwm.h>
+
+>>>>>>> upstream/android-13
 #define MAX_PWMS 1024
 
 static DEFINE_MUTEX(pwm_lookup_lock);
@@ -46,6 +62,7 @@ static struct pwm_device *pwm_to_device(unsigned int pwm)
 	return radix_tree_lookup(&pwm_tree, pwm);
 }
 
+<<<<<<< HEAD
 static int alloc_pwms(int pwm, unsigned int count)
 {
 	unsigned int from = 0;
@@ -63,6 +80,15 @@ static int alloc_pwms(int pwm, unsigned int count)
 	if (pwm >= 0 && start != pwm)
 		return -EEXIST;
 
+=======
+static int alloc_pwms(unsigned int count)
+{
+	unsigned int start;
+
+	start = bitmap_find_next_zero_area(allocated_pwms, MAX_PWMS, 0,
+					   count, 0);
+
+>>>>>>> upstream/android-13
 	if (start + count > MAX_PWMS)
 		return -ENOSPC;
 
@@ -126,6 +152,17 @@ static int pwm_device_request(struct pwm_device *pwm, const char *label)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (pwm->chip->ops->get_state) {
+		pwm->chip->ops->get_state(pwm->chip, pwm, &pwm->state);
+		trace_pwm_get(pwm, &pwm->state);
+
+		if (IS_ENABLED(CONFIG_PWM_DEBUG))
+			pwm->last = pwm->state;
+	}
+
+>>>>>>> upstream/android-13
 	set_bit(PWMF_REQUESTED, &pwm->flags);
 	pwm->label = label;
 
@@ -137,8 +174,12 @@ of_pwm_xlate_with_flags(struct pwm_chip *pc, const struct of_phandle_args *args)
 {
 	struct pwm_device *pwm;
 
+<<<<<<< HEAD
 	/* check, whether the driver supports a third cell for flags */
 	if (pc->of_pwm_n_cells < 3)
+=======
+	if (pc->of_pwm_n_cells < 2)
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 
 	/* flags in the third cell are optional */
@@ -155,13 +196,21 @@ of_pwm_xlate_with_flags(struct pwm_chip *pc, const struct of_phandle_args *args)
 	pwm->args.period = args->args[1];
 	pwm->args.polarity = PWM_POLARITY_NORMAL;
 
+<<<<<<< HEAD
 	if (args->args_count > 2 && args->args[2] & PWM_POLARITY_INVERTED)
 		pwm->args.polarity = PWM_POLARITY_INVERSED;
+=======
+	if (pc->of_pwm_n_cells >= 3) {
+		if (args->args_count > 2 && args->args[2] & PWM_POLARITY_INVERTED)
+			pwm->args.polarity = PWM_POLARITY_INVERSED;
+	}
+>>>>>>> upstream/android-13
 
 	return pwm;
 }
 EXPORT_SYMBOL_GPL(of_pwm_xlate_with_flags);
 
+<<<<<<< HEAD
 static struct pwm_device *
 of_pwm_simple_xlate(struct pwm_chip *pc, const struct of_phandle_args *args)
 {
@@ -187,14 +236,27 @@ of_pwm_simple_xlate(struct pwm_chip *pc, const struct of_phandle_args *args)
 	return pwm;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void of_pwmchip_add(struct pwm_chip *chip)
 {
 	if (!chip->dev || !chip->dev->of_node)
 		return;
 
 	if (!chip->of_xlate) {
+<<<<<<< HEAD
 		chip->of_xlate = of_pwm_simple_xlate;
 		chip->of_pwm_n_cells = 2;
+=======
+		u32 pwm_cells;
+
+		if (of_property_read_u32(chip->dev->of_node, "#pwm-cells",
+					 &pwm_cells))
+			pwm_cells = 2;
+
+		chip->of_xlate = of_pwm_xlate_with_flags;
+		chip->of_pwm_n_cells = pwm_cells;
+>>>>>>> upstream/android-13
 	}
 
 	of_node_get(chip->dev->of_node);
@@ -236,6 +298,7 @@ void *pwm_get_chip_data(struct pwm_device *pwm)
 }
 EXPORT_SYMBOL_GPL(pwm_get_chip_data);
 
+<<<<<<< HEAD
 static bool pwm_ops_check(const struct pwm_ops *ops)
 {
 	/* driver supports legacy, non-atomic operation */
@@ -262,6 +325,41 @@ static bool pwm_ops_check(const struct pwm_ops *ops)
  */
 int pwmchip_add_with_polarity(struct pwm_chip *chip,
 			      enum pwm_polarity polarity)
+=======
+static bool pwm_ops_check(const struct pwm_chip *chip)
+{
+
+	const struct pwm_ops *ops = chip->ops;
+
+	/* driver supports legacy, non-atomic operation */
+	if (ops->config && ops->enable && ops->disable) {
+		if (IS_ENABLED(CONFIG_PWM_DEBUG))
+			dev_warn(chip->dev,
+				 "Driver needs updating to atomic API\n");
+
+		return true;
+	}
+
+	if (!ops->apply)
+		return false;
+
+	if (IS_ENABLED(CONFIG_PWM_DEBUG) && !ops->get_state)
+		dev_warn(chip->dev,
+			 "Please implement the .get_state() callback\n");
+
+	return true;
+}
+
+/**
+ * pwmchip_add() - register a new PWM chip
+ * @chip: the PWM chip to add
+ *
+ * Register a new PWM chip.
+ *
+ * Returns: 0 on success or a negative error code on failure.
+ */
+int pwmchip_add(struct pwm_chip *chip)
+>>>>>>> upstream/android-13
 {
 	struct pwm_device *pwm;
 	unsigned int i;
@@ -270,34 +368,53 @@ int pwmchip_add_with_polarity(struct pwm_chip *chip,
 	if (!chip || !chip->dev || !chip->ops || !chip->npwm)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!pwm_ops_check(chip->ops))
+=======
+	if (!pwm_ops_check(chip))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	mutex_lock(&pwm_lock);
 
+<<<<<<< HEAD
 	ret = alloc_pwms(chip->base, chip->npwm);
 	if (ret < 0)
 		goto out;
 
+=======
+	ret = alloc_pwms(chip->npwm);
+	if (ret < 0)
+		goto out;
+
+	chip->base = ret;
+
+>>>>>>> upstream/android-13
 	chip->pwms = kcalloc(chip->npwm, sizeof(*pwm), GFP_KERNEL);
 	if (!chip->pwms) {
 		ret = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	chip->base = ret;
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < chip->npwm; i++) {
 		pwm = &chip->pwms[i];
 
 		pwm->chip = chip;
 		pwm->pwm = chip->base + i;
 		pwm->hwpwm = i;
+<<<<<<< HEAD
 		pwm->state.polarity = polarity;
 		pwm->state.output_type = PWM_OUTPUT_FIXED;
 
 		if (chip->ops->get_state)
 			chip->ops->get_state(chip, pwm, &pwm->state);
+=======
+>>>>>>> upstream/android-13
 
 		radix_tree_insert(&pwm_tree, pwm->pwm, pwm);
 	}
@@ -320,6 +437,7 @@ out:
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pwmchip_add_with_polarity);
 
 /**
@@ -335,6 +453,8 @@ int pwmchip_add(struct pwm_chip *chip)
 {
 	return pwmchip_add_with_polarity(chip, PWM_POLARITY_NORMAL);
 }
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(pwmchip_add);
 
 /**
@@ -346,15 +466,21 @@ EXPORT_SYMBOL_GPL(pwmchip_add);
  *
  * Returns: 0 on success or a negative error code on failure.
  */
+<<<<<<< HEAD
 int pwmchip_remove(struct pwm_chip *chip)
 {
 	unsigned int i;
 	int ret = 0;
 
+=======
+void pwmchip_remove(struct pwm_chip *chip)
+{
+>>>>>>> upstream/android-13
 	pwmchip_sysfs_unexport(chip);
 
 	mutex_lock(&pwm_lock);
 
+<<<<<<< HEAD
 	for (i = 0; i < chip->npwm; i++) {
 		struct pwm_device *pwm = &chip->pwms[i];
 
@@ -364,6 +490,8 @@ int pwmchip_remove(struct pwm_chip *chip)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	list_del_init(&chip->list);
 
 	if (IS_ENABLED(CONFIG_OF))
@@ -371,12 +499,38 @@ int pwmchip_remove(struct pwm_chip *chip)
 
 	free_pwms(chip);
 
+<<<<<<< HEAD
 out:
 	mutex_unlock(&pwm_lock);
 	return ret;
 }
 EXPORT_SYMBOL_GPL(pwmchip_remove);
 
+=======
+	mutex_unlock(&pwm_lock);
+}
+EXPORT_SYMBOL_GPL(pwmchip_remove);
+
+static void devm_pwmchip_remove(void *data)
+{
+	struct pwm_chip *chip = data;
+
+	pwmchip_remove(chip);
+}
+
+int devm_pwmchip_add(struct device *dev, struct pwm_chip *chip)
+{
+	int ret;
+
+	ret = pwmchip_add(chip);
+	if (ret)
+		return ret;
+
+	return devm_add_action_or_reset(dev, devm_pwmchip_remove, chip);
+}
+EXPORT_SYMBOL_GPL(devm_pwmchip_add);
+
+>>>>>>> upstream/android-13
 /**
  * pwm_request() - request a PWM device
  * @pwm: global PWM device index
@@ -458,6 +612,7 @@ void pwm_free(struct pwm_device *pwm)
 }
 EXPORT_SYMBOL_GPL(pwm_free);
 
+<<<<<<< HEAD
 /**
  * pwm_apply_state() - atomically apply a new state to a PWM device
  * @pwm: PWM device
@@ -467,12 +622,124 @@ EXPORT_SYMBOL_GPL(pwm_free);
  */
 int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state)
 {
+=======
+static void pwm_apply_state_debug(struct pwm_device *pwm,
+				  const struct pwm_state *state)
+{
+	struct pwm_state *last = &pwm->last;
+	struct pwm_chip *chip = pwm->chip;
+	struct pwm_state s1, s2;
+	int err;
+
+	if (!IS_ENABLED(CONFIG_PWM_DEBUG))
+		return;
+
+	/* No reasonable diagnosis possible without .get_state() */
+	if (!chip->ops->get_state)
+		return;
+
+	/*
+	 * *state was just applied. Read out the hardware state and do some
+	 * checks.
+	 */
+
+	chip->ops->get_state(chip, pwm, &s1);
+	trace_pwm_get(pwm, &s1);
+
+	/*
+	 * The lowlevel driver either ignored .polarity (which is a bug) or as
+	 * best effort inverted .polarity and fixed .duty_cycle respectively.
+	 * Undo this inversion and fixup for further tests.
+	 */
+	if (s1.enabled && s1.polarity != state->polarity) {
+		s2.polarity = state->polarity;
+		s2.duty_cycle = s1.period - s1.duty_cycle;
+		s2.period = s1.period;
+		s2.enabled = s1.enabled;
+	} else {
+		s2 = s1;
+	}
+
+	if (s2.polarity != state->polarity &&
+	    state->duty_cycle < state->period)
+		dev_warn(chip->dev, ".apply ignored .polarity\n");
+
+	if (state->enabled &&
+	    last->polarity == state->polarity &&
+	    last->period > s2.period &&
+	    last->period <= state->period)
+		dev_warn(chip->dev,
+			 ".apply didn't pick the best available period (requested: %llu, applied: %llu, possible: %llu)\n",
+			 state->period, s2.period, last->period);
+
+	if (state->enabled && state->period < s2.period)
+		dev_warn(chip->dev,
+			 ".apply is supposed to round down period (requested: %llu, applied: %llu)\n",
+			 state->period, s2.period);
+
+	if (state->enabled &&
+	    last->polarity == state->polarity &&
+	    last->period == s2.period &&
+	    last->duty_cycle > s2.duty_cycle &&
+	    last->duty_cycle <= state->duty_cycle)
+		dev_warn(chip->dev,
+			 ".apply didn't pick the best available duty cycle (requested: %llu/%llu, applied: %llu/%llu, possible: %llu/%llu)\n",
+			 state->duty_cycle, state->period,
+			 s2.duty_cycle, s2.period,
+			 last->duty_cycle, last->period);
+
+	if (state->enabled && state->duty_cycle < s2.duty_cycle)
+		dev_warn(chip->dev,
+			 ".apply is supposed to round down duty_cycle (requested: %llu/%llu, applied: %llu/%llu)\n",
+			 state->duty_cycle, state->period,
+			 s2.duty_cycle, s2.period);
+
+	if (!state->enabled && s2.enabled && s2.duty_cycle > 0)
+		dev_warn(chip->dev,
+			 "requested disabled, but yielded enabled with duty > 0\n");
+
+	/* reapply the state that the driver reported being configured. */
+	err = chip->ops->apply(chip, pwm, &s1);
+	if (err) {
+		*last = s1;
+		dev_err(chip->dev, "failed to reapply current setting\n");
+		return;
+	}
+
+	trace_pwm_apply(pwm, &s1);
+
+	chip->ops->get_state(chip, pwm, last);
+	trace_pwm_get(pwm, last);
+
+	/* reapplication of the current state should give an exact match */
+	if (s1.enabled != last->enabled ||
+	    s1.polarity != last->polarity ||
+	    (s1.enabled && s1.period != last->period) ||
+	    (s1.enabled && s1.duty_cycle != last->duty_cycle)) {
+		dev_err(chip->dev,
+			".apply is not idempotent (ena=%d pol=%d %llu/%llu) -> (ena=%d pol=%d %llu/%llu)\n",
+			s1.enabled, s1.polarity, s1.duty_cycle, s1.period,
+			last->enabled, last->polarity, last->duty_cycle,
+			last->period);
+	}
+}
+
+/**
+ * pwm_apply_state() - atomically apply a new state to a PWM device
+ * @pwm: PWM device
+ * @state: new state to apply
+ */
+int pwm_apply_state(struct pwm_device *pwm, const struct pwm_state *state)
+{
+	struct pwm_chip *chip;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!pwm || !state || !state->period ||
 	    state->duty_cycle > state->period)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!memcmp(state, &pwm->state, sizeof(*state)))
 		return 0;
 
@@ -482,13 +749,43 @@ int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state)
 			return err;
 
 		pwm->state = *state;
+=======
+	chip = pwm->chip;
+
+	if (state->period == pwm->state.period &&
+	    state->duty_cycle == pwm->state.duty_cycle &&
+	    state->polarity == pwm->state.polarity &&
+	    state->enabled == pwm->state.enabled &&
+	    state->usage_power == pwm->state.usage_power)
+		return 0;
+
+	if (chip->ops->apply) {
+		err = chip->ops->apply(chip, pwm, state);
+		if (err)
+			return err;
+
+		trace_pwm_apply(pwm, state);
+
+		pwm->state = *state;
+
+		/*
+		 * only do this after pwm->state was applied as some
+		 * implementations of .get_state depend on this
+		 */
+		pwm_apply_state_debug(pwm, state);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * FIXME: restore the initial state in case of error.
 		 */
 		if (state->polarity != pwm->state.polarity) {
+<<<<<<< HEAD
 			if (!pwm->chip->ops->set_polarity)
 				return -ENOTSUPP;
+=======
+			if (!chip->ops->set_polarity)
+				return -EINVAL;
+>>>>>>> upstream/android-13
 
 			/*
 			 * Changing the polarity of a running PWM is
@@ -496,18 +793,28 @@ int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state)
 			 * ->apply().
 			 */
 			if (pwm->state.enabled) {
+<<<<<<< HEAD
 				pwm->chip->ops->disable(pwm->chip, pwm);
 				pwm->state.enabled = false;
 			}
 
 			err = pwm->chip->ops->set_polarity(pwm->chip, pwm,
 							   state->polarity);
+=======
+				chip->ops->disable(chip, pwm);
+				pwm->state.enabled = false;
+			}
+
+			err = chip->ops->set_polarity(chip, pwm,
+						      state->polarity);
+>>>>>>> upstream/android-13
 			if (err)
 				return err;
 
 			pwm->state.polarity = state->polarity;
 		}
 
+<<<<<<< HEAD
 		if (state->output_type != pwm->state.output_type) {
 			if (!pwm->chip->ops->set_output_type)
 				return -ENOTSUPP;
@@ -548,6 +855,13 @@ int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state)
 						state->duty_cycle,
 						state->period);
 			}
+=======
+		if (state->period != pwm->state.period ||
+		    state->duty_cycle != pwm->state.duty_cycle) {
+			err = chip->ops->config(pwm->chip, pwm,
+						state->duty_cycle,
+						state->period);
+>>>>>>> upstream/android-13
 			if (err)
 				return err;
 
@@ -557,11 +871,19 @@ int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state)
 
 		if (state->enabled != pwm->state.enabled) {
 			if (state->enabled) {
+<<<<<<< HEAD
 				err = pwm->chip->ops->enable(pwm->chip, pwm);
 				if (err)
 					return err;
 			} else {
 				pwm->chip->ops->disable(pwm->chip, pwm);
+=======
+				err = chip->ops->enable(chip, pwm);
+				if (err)
+					return err;
+			} else {
+				chip->ops->disable(chip, pwm);
+>>>>>>> upstream/android-13
 			}
 
 			pwm->state.enabled = state->enabled;
@@ -655,14 +977,22 @@ int pwm_adjust_config(struct pwm_device *pwm)
 }
 EXPORT_SYMBOL_GPL(pwm_adjust_config);
 
+<<<<<<< HEAD
 static struct pwm_chip *of_node_to_pwmchip(struct device_node *np)
+=======
+static struct pwm_chip *fwnode_to_pwmchip(struct fwnode_handle *fwnode)
+>>>>>>> upstream/android-13
 {
 	struct pwm_chip *chip;
 
 	mutex_lock(&pwm_lock);
 
 	list_for_each_entry(chip, &pwm_chips, list)
+<<<<<<< HEAD
 		if (chip->dev && chip->dev->of_node == np) {
+=======
+		if (chip->dev && dev_fwnode(chip->dev) == fwnode) {
+>>>>>>> upstream/android-13
 			mutex_unlock(&pwm_lock);
 			return chip;
 		}
@@ -672,8 +1002,40 @@ static struct pwm_chip *of_node_to_pwmchip(struct device_node *np)
 	return ERR_PTR(-EPROBE_DEFER);
 }
 
+<<<<<<< HEAD
 /**
  * of_pwm_get() - request a PWM via the PWM framework
+=======
+static struct device_link *pwm_device_link_add(struct device *dev,
+					       struct pwm_device *pwm)
+{
+	struct device_link *dl;
+
+	if (!dev) {
+		/*
+		 * No device for the PWM consumer has been provided. It may
+		 * impact the PM sequence ordering: the PWM supplier may get
+		 * suspended before the consumer.
+		 */
+		dev_warn(pwm->chip->dev,
+			 "No consumer device specified to create a link to\n");
+		return NULL;
+	}
+
+	dl = device_link_add(dev, pwm->chip->dev, DL_FLAG_AUTOREMOVE_CONSUMER);
+	if (!dl) {
+		dev_err(dev, "failed to create device link to %s\n",
+			dev_name(pwm->chip->dev));
+		return ERR_PTR(-EINVAL);
+	}
+
+	return dl;
+}
+
+/**
+ * of_pwm_get() - request a PWM via the PWM framework
+ * @dev: device for PWM consumer
+>>>>>>> upstream/android-13
  * @np: device node to get the PWM from
  * @con_id: consumer name
  *
@@ -691,10 +1053,19 @@ static struct pwm_chip *of_node_to_pwmchip(struct device_node *np)
  * Returns: A pointer to the requested PWM device or an ERR_PTR()-encoded
  * error code on failure.
  */
+<<<<<<< HEAD
 struct pwm_device *of_pwm_get(struct device_node *np, const char *con_id)
 {
 	struct pwm_device *pwm = NULL;
 	struct of_phandle_args args;
+=======
+struct pwm_device *of_pwm_get(struct device *dev, struct device_node *np,
+			      const char *con_id)
+{
+	struct pwm_device *pwm = NULL;
+	struct of_phandle_args args;
+	struct device_link *dl;
+>>>>>>> upstream/android-13
 	struct pwm_chip *pc;
 	int index = 0;
 	int err;
@@ -712,7 +1083,11 @@ struct pwm_device *of_pwm_get(struct device_node *np, const char *con_id)
 		return ERR_PTR(err);
 	}
 
+<<<<<<< HEAD
 	pc = of_node_to_pwmchip(args.np);
+=======
+	pc = fwnode_to_pwmchip(of_fwnode_handle(args.np));
+>>>>>>> upstream/android-13
 	if (IS_ERR(pc)) {
 		if (PTR_ERR(pc) != -EPROBE_DEFER)
 			pr_err("%s(): PWM chip not found\n", __func__);
@@ -725,6 +1100,17 @@ struct pwm_device *of_pwm_get(struct device_node *np, const char *con_id)
 	if (IS_ERR(pwm))
 		goto put;
 
+<<<<<<< HEAD
+=======
+	dl = pwm_device_link_add(dev, pwm);
+	if (IS_ERR(dl)) {
+		/* of_xlate ended up calling pwm_request_from_chip() */
+		pwm_free(pwm);
+		pwm = ERR_CAST(dl);
+		goto put;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * If a consumer name was not given, try to look it up from the
 	 * "pwm-names" property if it exists. Otherwise use the name of
@@ -747,6 +1133,59 @@ put:
 EXPORT_SYMBOL_GPL(of_pwm_get);
 
 /**
+<<<<<<< HEAD
+=======
+ * acpi_pwm_get() - request a PWM via parsing "pwms" property in ACPI
+ * @fwnode: firmware node to get the "pwms" property from
+ *
+ * Returns the PWM device parsed from the fwnode and index specified in the
+ * "pwms" property or a negative error-code on failure.
+ * Values parsed from the device tree are stored in the returned PWM device
+ * object.
+ *
+ * This is analogous to of_pwm_get() except con_id is not yet supported.
+ * ACPI entries must look like
+ * Package () {"pwms", Package ()
+ *     { <PWM device reference>, <PWM index>, <PWM period> [, <PWM flags>]}}
+ *
+ * Returns: A pointer to the requested PWM device or an ERR_PTR()-encoded
+ * error code on failure.
+ */
+static struct pwm_device *acpi_pwm_get(const struct fwnode_handle *fwnode)
+{
+	struct pwm_device *pwm;
+	struct fwnode_reference_args args;
+	struct pwm_chip *chip;
+	int ret;
+
+	memset(&args, 0, sizeof(args));
+
+	ret = __acpi_node_get_property_reference(fwnode, "pwms", 0, 3, &args);
+	if (ret < 0)
+		return ERR_PTR(ret);
+
+	if (args.nargs < 2)
+		return ERR_PTR(-EPROTO);
+
+	chip = fwnode_to_pwmchip(args.fwnode);
+	if (IS_ERR(chip))
+		return ERR_CAST(chip);
+
+	pwm = pwm_request_from_chip(chip, args.args[0], NULL);
+	if (IS_ERR(pwm))
+		return pwm;
+
+	pwm->args.period = args.args[1];
+	pwm->args.polarity = PWM_POLARITY_NORMAL;
+
+	if (args.nargs > 2 && args.args[2] & PWM_POLARITY_INVERTED)
+		pwm->args.polarity = PWM_POLARITY_INVERSED;
+
+	return pwm;
+}
+
+/**
+>>>>>>> upstream/android-13
  * pwm_add_table() - register PWM device consumers
  * @table: array of consumers to register
  * @num: number of consumers in table
@@ -797,17 +1236,37 @@ void pwm_remove_table(struct pwm_lookup *table, size_t num)
  */
 struct pwm_device *pwm_get(struct device *dev, const char *con_id)
 {
+<<<<<<< HEAD
 	const char *dev_id = dev ? dev_name(dev) : NULL;
 	struct pwm_device *pwm;
 	struct pwm_chip *chip;
+=======
+	const struct fwnode_handle *fwnode = dev ? dev_fwnode(dev) : NULL;
+	const char *dev_id = dev ? dev_name(dev) : NULL;
+	struct pwm_device *pwm;
+	struct pwm_chip *chip;
+	struct device_link *dl;
+>>>>>>> upstream/android-13
 	unsigned int best = 0;
 	struct pwm_lookup *p, *chosen = NULL;
 	unsigned int match;
 	int err;
 
 	/* look up via DT first */
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_OF) && dev && dev->of_node)
 		return of_pwm_get(dev->of_node, con_id);
+=======
+	if (is_of_node(fwnode))
+		return of_pwm_get(dev, to_of_node(fwnode), con_id);
+
+	/* then lookup via ACPI */
+	if (is_acpi_node(fwnode)) {
+		pwm = acpi_pwm_get(fwnode);
+		if (!IS_ERR(pwm) || PTR_ERR(pwm) != -ENOENT)
+			return pwm;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * We look up the provider in the static table typically provided by
@@ -884,6 +1343,15 @@ struct pwm_device *pwm_get(struct device *dev, const char *con_id)
 	if (IS_ERR(pwm))
 		return pwm;
 
+<<<<<<< HEAD
+=======
+	dl = pwm_device_link_add(dev, pwm);
+	if (IS_ERR(dl)) {
+		pwm_free(pwm);
+		return ERR_CAST(dl);
+	}
+
+>>>>>>> upstream/android-13
 	pwm->args.period = chosen->period;
 	pwm->args.polarity = chosen->polarity;
 
@@ -919,9 +1387,15 @@ out:
 }
 EXPORT_SYMBOL_GPL(pwm_put);
 
+<<<<<<< HEAD
 static void devm_pwm_release(struct device *dev, void *res)
 {
 	pwm_put(*(struct pwm_device **)res);
+=======
+static void devm_pwm_release(void *pwm)
+{
+	pwm_put(pwm);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -937,6 +1411,7 @@ static void devm_pwm_release(struct device *dev, void *res)
  */
 struct pwm_device *devm_pwm_get(struct device *dev, const char *con_id)
 {
+<<<<<<< HEAD
 	struct pwm_device **ptr, *pwm;
 
 	ptr = devres_alloc(devm_pwm_release, sizeof(*ptr), GFP_KERNEL);
@@ -950,6 +1425,18 @@ struct pwm_device *devm_pwm_get(struct device *dev, const char *con_id)
 	} else {
 		devres_free(ptr);
 	}
+=======
+	struct pwm_device *pwm;
+	int ret;
+
+	pwm = pwm_get(dev, con_id);
+	if (IS_ERR(pwm))
+		return pwm;
+
+	ret = devm_add_action_or_reset(dev, devm_pwm_release, pwm);
+	if (ret)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	return pwm;
 }
@@ -970,6 +1457,7 @@ EXPORT_SYMBOL_GPL(devm_pwm_get);
 struct pwm_device *devm_of_pwm_get(struct device *dev, struct device_node *np,
 				   const char *con_id)
 {
+<<<<<<< HEAD
 	struct pwm_device **ptr, *pwm;
 
 	ptr = devres_alloc(devm_pwm_release, sizeof(*ptr), GFP_KERNEL);
@@ -983,11 +1471,24 @@ struct pwm_device *devm_of_pwm_get(struct device *dev, struct device_node *np,
 	} else {
 		devres_free(ptr);
 	}
+=======
+	struct pwm_device *pwm;
+	int ret;
+
+	pwm = of_pwm_get(dev, np, con_id);
+	if (IS_ERR(pwm))
+		return pwm;
+
+	ret = devm_add_action_or_reset(dev, devm_pwm_release, pwm);
+	if (ret)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	return pwm;
 }
 EXPORT_SYMBOL_GPL(devm_of_pwm_get);
 
+<<<<<<< HEAD
 static int devm_pwm_match(struct device *dev, void *res, void *data)
 {
 	struct pwm_device **p = res;
@@ -1012,6 +1513,41 @@ void devm_pwm_put(struct device *dev, struct pwm_device *pwm)
 	WARN_ON(devres_release(dev, devm_pwm_release, devm_pwm_match, pwm));
 }
 EXPORT_SYMBOL_GPL(devm_pwm_put);
+=======
+/**
+ * devm_fwnode_pwm_get() - request a resource managed PWM from firmware node
+ * @dev: device for PWM consumer
+ * @fwnode: firmware node to get the PWM from
+ * @con_id: consumer name
+ *
+ * Returns the PWM device parsed from the firmware node. See of_pwm_get() and
+ * acpi_pwm_get() for a detailed description.
+ *
+ * Returns: A pointer to the requested PWM device or an ERR_PTR()-encoded
+ * error code on failure.
+ */
+struct pwm_device *devm_fwnode_pwm_get(struct device *dev,
+				       struct fwnode_handle *fwnode,
+				       const char *con_id)
+{
+	struct pwm_device *pwm = ERR_PTR(-ENODEV);
+	int ret;
+
+	if (is_of_node(fwnode))
+		pwm = of_pwm_get(dev, to_of_node(fwnode), con_id);
+	else if (is_acpi_node(fwnode))
+		pwm = acpi_pwm_get(fwnode);
+	if (IS_ERR(pwm))
+		return pwm;
+
+	ret = devm_add_action_or_reset(dev, devm_pwm_release, pwm);
+	if (ret)
+		return ERR_PTR(ret);
+
+	return pwm;
+}
+EXPORT_SYMBOL_GPL(devm_fwnode_pwm_get);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DEBUG_FS
 static void pwm_dbg_show(struct pwm_chip *chip, struct seq_file *s)
@@ -1037,6 +1573,12 @@ static void pwm_dbg_show(struct pwm_chip *chip, struct seq_file *s)
 		seq_printf(s, " polarity: %s",
 			   state.polarity ? "inverse" : "normal");
 
+<<<<<<< HEAD
+=======
+		if (state.usage_power)
+			seq_puts(s, " usage_power");
+
+>>>>>>> upstream/android-13
 		seq_puts(s, "\n");
 	}
 }
@@ -1070,21 +1612,30 @@ static int pwm_seq_show(struct seq_file *s, void *v)
 		   dev_name(chip->dev), chip->npwm,
 		   (chip->npwm != 1) ? "s" : "");
 
+<<<<<<< HEAD
 	if (chip->ops->dbg_show)
 		chip->ops->dbg_show(chip, s);
 	else
 		pwm_dbg_show(chip, s);
+=======
+	pwm_dbg_show(chip, s);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct seq_operations pwm_seq_ops = {
+=======
+static const struct seq_operations pwm_debugfs_sops = {
+>>>>>>> upstream/android-13
 	.start = pwm_seq_start,
 	.next = pwm_seq_next,
 	.stop = pwm_seq_stop,
 	.show = pwm_seq_show,
 };
 
+<<<<<<< HEAD
 static int pwm_seq_open(struct inode *inode, struct file *file)
 {
 	return seq_open(file, &pwm_seq_ops);
@@ -1102,6 +1653,14 @@ static int __init pwm_debugfs_init(void)
 {
 	debugfs_create_file("pwm", S_IFREG | S_IRUGO, NULL, NULL,
 			    &pwm_debugfs_ops);
+=======
+DEFINE_SEQ_ATTRIBUTE(pwm_debugfs);
+
+static int __init pwm_debugfs_init(void)
+{
+	debugfs_create_file("pwm", S_IFREG | 0444, NULL, NULL,
+			    &pwm_debugfs_fops);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

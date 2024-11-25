@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * amdtp-dot.c - a part of driver for Digidesign Digi 002/003 family
  *
  * Copyright (c) 2014-2015 Takashi Sakamoto
  * Copyright (C) 2012 Robin Gareus <robin@gareus.org>
  * Copyright (C) 2012 Damien Zammit <damien@zamaudio.com>
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/pcm.h>
@@ -128,7 +135,11 @@ int amdtp_dot_set_parameters(struct amdtp_stream *s, unsigned int rate,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	s->fdf = AMDTP_FDF_AM824 | s->sfc;
+=======
+	s->ctx_data.rx.fdf = AMDTP_FDF_AM824 | s->sfc;
+>>>>>>> upstream/android-13
 
 	p->pcm_channels = pcm_channels;
 
@@ -144,6 +155,7 @@ int amdtp_dot_set_parameters(struct amdtp_stream *s, unsigned int rate,
 }
 
 static void write_pcm_s32(struct amdtp_stream *s, struct snd_pcm_substream *pcm,
+<<<<<<< HEAD
 			  __be32 *buffer, unsigned int frames)
 {
 	struct amdtp_dot *p = s->protocol;
@@ -155,6 +167,25 @@ static void write_pcm_s32(struct amdtp_stream *s, struct snd_pcm_substream *pcm,
 	src = (void *)runtime->dma_area +
 			frames_to_bytes(runtime, s->pcm_buffer_pointer);
 	remaining_frames = runtime->buffer_size - s->pcm_buffer_pointer;
+=======
+			  __be32 *buffer, unsigned int frames,
+			  unsigned int pcm_frames)
+{
+	struct amdtp_dot *p = s->protocol;
+	unsigned int channels = p->pcm_channels;
+	struct snd_pcm_runtime *runtime = pcm->runtime;
+	unsigned int pcm_buffer_pointer;
+	int remaining_frames;
+	const u32 *src;
+	int i, c;
+
+	pcm_buffer_pointer = s->pcm_buffer_pointer + pcm_frames;
+	pcm_buffer_pointer %= runtime->buffer_size;
+
+	src = (void *)runtime->dma_area +
+				frames_to_bytes(runtime, pcm_buffer_pointer);
+	remaining_frames = runtime->buffer_size - pcm_buffer_pointer;
+>>>>>>> upstream/android-13
 
 	buffer++;
 	for (i = 0; i < frames; ++i) {
@@ -170,6 +201,7 @@ static void write_pcm_s32(struct amdtp_stream *s, struct snd_pcm_substream *pcm,
 }
 
 static void read_pcm_s32(struct amdtp_stream *s, struct snd_pcm_substream *pcm,
+<<<<<<< HEAD
 			 __be32 *buffer, unsigned int frames)
 {
 	struct amdtp_dot *p = s->protocol;
@@ -181,6 +213,25 @@ static void read_pcm_s32(struct amdtp_stream *s, struct snd_pcm_substream *pcm,
 	dst  = (void *)runtime->dma_area +
 			frames_to_bytes(runtime, s->pcm_buffer_pointer);
 	remaining_frames = runtime->buffer_size - s->pcm_buffer_pointer;
+=======
+			 __be32 *buffer, unsigned int frames,
+			 unsigned int pcm_frames)
+{
+	struct amdtp_dot *p = s->protocol;
+	unsigned int channels = p->pcm_channels;
+	struct snd_pcm_runtime *runtime = pcm->runtime;
+	unsigned int pcm_buffer_pointer;
+	int remaining_frames;
+	u32 *dst;
+	int i, c;
+
+	pcm_buffer_pointer = s->pcm_buffer_pointer + pcm_frames;
+	pcm_buffer_pointer %= runtime->buffer_size;
+
+	dst  = (void *)runtime->dma_area +
+				frames_to_bytes(runtime, pcm_buffer_pointer);
+	remaining_frames = runtime->buffer_size - pcm_buffer_pointer;
+>>>>>>> upstream/android-13
 
 	buffer++;
 	for (i = 0; i < frames; ++i) {
@@ -235,7 +286,11 @@ static inline void midi_use_bytes(struct amdtp_stream *s,
 }
 
 static void write_midi_messages(struct amdtp_stream *s, __be32 *buffer,
+<<<<<<< HEAD
 				unsigned int data_blocks)
+=======
+		unsigned int data_blocks, unsigned int data_block_counter)
+>>>>>>> upstream/android-13
 {
 	struct amdtp_dot *p = s->protocol;
 	unsigned int f, port;
@@ -243,7 +298,11 @@ static void write_midi_messages(struct amdtp_stream *s, __be32 *buffer,
 	u8 *b;
 
 	for (f = 0; f < data_blocks; f++) {
+<<<<<<< HEAD
 		port = (s->data_block_counter + f) % 8;
+=======
+		port = (data_block_counter + f) % 8;
+>>>>>>> upstream/android-13
 		b = (u8 *)&buffer[0];
 
 		len = 0;
@@ -330,6 +389,7 @@ void amdtp_dot_midi_trigger(struct amdtp_stream *s, unsigned int port,
 		WRITE_ONCE(p->midi[port], midi);
 }
 
+<<<<<<< HEAD
 static unsigned int process_tx_data_blocks(struct amdtp_stream *s,
 					   __be32 *buffer,
 					   unsigned int data_blocks,
@@ -370,12 +430,63 @@ static unsigned int process_rx_data_blocks(struct amdtp_stream *s,
 
 	write_midi_messages(s, buffer, data_blocks);
 
+=======
+static unsigned int process_ir_ctx_payloads(struct amdtp_stream *s,
+					    const struct pkt_desc *descs,
+					    unsigned int packets,
+					    struct snd_pcm_substream *pcm)
+{
+	unsigned int pcm_frames = 0;
+	int i;
+
+	for (i = 0; i < packets; ++i) {
+		const struct pkt_desc *desc = descs + i;
+		__be32 *buf = desc->ctx_payload;
+		unsigned int data_blocks = desc->data_blocks;
+
+		if (pcm) {
+			read_pcm_s32(s, pcm, buf, data_blocks, pcm_frames);
+			pcm_frames += data_blocks;
+		}
+
+		read_midi_messages(s, buf, data_blocks);
+	}
+
+	return pcm_frames;
+}
+
+static unsigned int process_it_ctx_payloads(struct amdtp_stream *s,
+					    const struct pkt_desc *descs,
+					    unsigned int packets,
+					    struct snd_pcm_substream *pcm)
+{
+	unsigned int pcm_frames = 0;
+	int i;
+
+	for (i = 0; i < packets; ++i) {
+		const struct pkt_desc *desc = descs + i;
+		__be32 *buf = desc->ctx_payload;
+		unsigned int data_blocks = desc->data_blocks;
+
+		if (pcm) {
+			write_pcm_s32(s, pcm, buf, data_blocks, pcm_frames);
+			pcm_frames += data_blocks;
+		} else {
+			write_pcm_silence(s, buf, data_blocks);
+		}
+
+		write_midi_messages(s, buf, data_blocks,
+				    desc->data_block_counter);
+	}
+
+>>>>>>> upstream/android-13
 	return pcm_frames;
 }
 
 int amdtp_dot_init(struct amdtp_stream *s, struct fw_unit *unit,
 		 enum amdtp_stream_direction dir)
 {
+<<<<<<< HEAD
 	amdtp_stream_process_data_blocks_t process_data_blocks;
 	enum cip_flags flags;
 
@@ -390,6 +501,19 @@ int amdtp_dot_init(struct amdtp_stream *s, struct fw_unit *unit,
 
 	return amdtp_stream_init(s, unit, dir, flags, CIP_FMT_AM,
 				 process_data_blocks, sizeof(struct amdtp_dot));
+=======
+	amdtp_stream_process_ctx_payloads_t process_ctx_payloads;
+	unsigned int flags = CIP_NONBLOCKING | CIP_UNAWARE_SYT;
+
+	// Use different mode between incoming/outgoing.
+	if (dir == AMDTP_IN_STREAM)
+		process_ctx_payloads = process_ir_ctx_payloads;
+	else
+		process_ctx_payloads = process_it_ctx_payloads;
+
+	return amdtp_stream_init(s, unit, dir, flags, CIP_FMT_AM,
+				process_ctx_payloads, sizeof(struct amdtp_dot));
+>>>>>>> upstream/android-13
 }
 
 void amdtp_dot_reset(struct amdtp_stream *s)

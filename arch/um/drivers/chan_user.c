@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <stdlib.h>
@@ -256,7 +262,12 @@ static int winch_tramp(int fd, struct tty_port *port, int *fd_out,
 		goto out_close;
 	}
 
+<<<<<<< HEAD
 	if (os_set_fd_block(*fd_out, 0)) {
+=======
+	err = os_set_fd_block(*fd_out, 0);
+	if (err) {
+>>>>>>> upstream/android-13
 		printk(UM_KERN_ERR "winch_tramp: failed to set thread_fd "
 		       "non-blocking.\n");
 		goto out_close;

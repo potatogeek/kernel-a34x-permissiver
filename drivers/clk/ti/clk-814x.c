@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation version 2.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/clk.h>
@@ -29,7 +33,10 @@ static const struct omap_clkctrl_reg_data dm814_alwon_clkctrl_regs[] __initconst
 	{ DM814_WD_TIMER_CLKCTRL, NULL, CLKF_SW_SUP | CLKF_NO_IDLEST, "sysclk18_ck" },
 	{ DM814_MCSPI1_CLKCTRL, NULL, CLKF_SW_SUP, "sysclk10_ck" },
 	{ DM814_GPMC_CLKCTRL, NULL, CLKF_SW_SUP, "sysclk6_ck" },
+<<<<<<< HEAD
 	{ DM814_CPGMAC0_CLKCTRL, NULL, CLKF_SW_SUP, "cpsw_125mhz_gclk" },
+=======
+>>>>>>> upstream/android-13
 	{ DM814_MPU_CLKCTRL, NULL, CLKF_SW_SUP, "mpu_ck" },
 	{ DM814_RTC_CLKCTRL, NULL, CLKF_SW_SUP | CLKF_NO_IDLEST, "sysclk18_ck" },
 	{ DM814_TPCC_CLKCTRL, NULL, CLKF_SW_SUP, "sysclk4_ck" },
@@ -43,9 +50,21 @@ static const struct omap_clkctrl_reg_data dm814_alwon_clkctrl_regs[] __initconst
 	{ 0 },
 };
 
+<<<<<<< HEAD
 const struct omap_clkctrl_data dm814_clkctrl_data[] __initconst = {
 	{ 0x48180500, dm814_default_clkctrl_regs },
 	{ 0x48181400, dm814_alwon_clkctrl_regs },
+=======
+static const struct
+omap_clkctrl_reg_data dm814_alwon_ethernet_clkctrl_regs[] __initconst = {
+	{ 0, NULL, CLKF_SW_SUP, "cpsw_125mhz_gclk" },
+};
+
+const struct omap_clkctrl_data dm814_clkctrl_data[] __initconst = {
+	{ 0x48180500, dm814_default_clkctrl_regs },
+	{ 0x48181400, dm814_alwon_clkctrl_regs },
+	{ 0x481815d4, dm814_alwon_ethernet_clkctrl_regs },
+>>>>>>> upstream/android-13
 	{ 0 },
 };
 
@@ -70,6 +89,10 @@ static int __init dm814x_adpll_early_init(void)
 	}
 
 	of_platform_populate(np, NULL, NULL, NULL);
+<<<<<<< HEAD
+=======
+	of_node_put(np);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

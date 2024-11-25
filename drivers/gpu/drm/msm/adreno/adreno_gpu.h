@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  *
+<<<<<<< HEAD
  * Copyright (c) 2014,2017 The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,18 +20,26 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+ * Copyright (c) 2014,2017, 2019 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ADRENO_GPU_H__
 #define __ADRENO_GPU_H__
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 
 #include "msm_gpu.h"
 
 #include "adreno_common.xml.h"
 #include "adreno_pm4.xml.h"
 
+<<<<<<< HEAD
 #define REG_ADRENO_DEFINE(_offset, _reg) [_offset] = (_reg) + 1
 #define REG_SKIP ~0
 #define REG_ADRENO_SKIP(_offset) [_offset] = REG_SKIP
@@ -47,6 +60,10 @@ enum adreno_regs {
 	REG_ADRENO_CP_RB_CNTL,
 	REG_ADRENO_REGISTER_MAX,
 };
+=======
+extern bool snapshot_debugbus;
+extern bool allow_vram_carveout;
+>>>>>>> upstream/android-13
 
 enum {
 	ADRENO_FW_PM4 = 0,
@@ -60,6 +77,10 @@ enum {
 enum adreno_quirks {
 	ADRENO_QUIRK_TWO_PASS_USE_WFI = 1,
 	ADRENO_QUIRK_FAULT_DETECT_MASK = 2,
+<<<<<<< HEAD
+=======
+	ADRENO_QUIRK_LMLOADKILL_DISABLE = 3,
+>>>>>>> upstream/android-13
 };
 
 struct adreno_rev {
@@ -69,6 +90,11 @@ struct adreno_rev {
 	uint8_t  patchid;
 };
 
+<<<<<<< HEAD
+=======
+#define ANY_ID 0xff
+
+>>>>>>> upstream/android-13
 #define ADRENO_REV(core, major, minor, patchid) \
 	((struct adreno_rev){ core, major, minor, patchid })
 
@@ -77,6 +103,16 @@ struct adreno_gpu_funcs {
 	int (*get_timestamp)(struct msm_gpu *gpu, uint64_t *value);
 };
 
+<<<<<<< HEAD
+=======
+struct adreno_reglist {
+	u32 offset;
+	u32 value;
+};
+
+extern const struct adreno_reglist a630_hwcg[], a640_hwcg[], a650_hwcg[], a660_hwcg[];
+
+>>>>>>> upstream/android-13
 struct adreno_info {
 	struct adreno_rev rev;
 	uint32_t revn;
@@ -87,6 +123,10 @@ struct adreno_info {
 	struct msm_gpu *(*init)(struct drm_device *dev);
 	const char *zapfw;
 	u32 inactive_period;
+<<<<<<< HEAD
+=======
+	const struct adreno_reglist *hwcg;
+>>>>>>> upstream/android-13
 };
 
 const struct adreno_info *adreno_info(struct adreno_rev rev);
@@ -135,6 +175,15 @@ struct adreno_gpu {
 };
 #define to_adreno_gpu(x) container_of(x, struct adreno_gpu, base)
 
+<<<<<<< HEAD
+=======
+struct adreno_ocmem {
+	struct ocmem *ocmem;
+	unsigned long base;
+	void *hdl;
+};
+
+>>>>>>> upstream/android-13
 /* platform config data (ie. from DT, or pdata) */
 struct adreno_platform_config {
 	struct adreno_rev rev;
@@ -154,10 +203,28 @@ struct adreno_platform_config {
 	__ret;                                             \
 })
 
+<<<<<<< HEAD
 
 static inline bool adreno_is_a3xx(struct adreno_gpu *gpu)
 {
 	return (gpu->revn >= 300) && (gpu->revn < 400);
+=======
+bool adreno_cmp_rev(struct adreno_rev rev1, struct adreno_rev rev2);
+
+static inline bool adreno_is_a2xx(struct adreno_gpu *gpu)
+{
+	return (gpu->revn < 300);
+}
+
+static inline bool adreno_is_a20x(struct adreno_gpu *gpu)
+{
+	return (gpu->revn < 210);
+}
+
+static inline bool adreno_is_a225(struct adreno_gpu *gpu)
+{
+	return gpu->revn == 225;
+>>>>>>> upstream/android-13
 }
 
 static inline bool adreno_is_a305(struct adreno_gpu *gpu)
@@ -186,9 +253,15 @@ static inline bool adreno_is_a330v2(struct adreno_gpu *gpu)
 	return adreno_is_a330(gpu) && (gpu->rev.patchid > 0);
 }
 
+<<<<<<< HEAD
 static inline bool adreno_is_a4xx(struct adreno_gpu *gpu)
 {
 	return (gpu->revn >= 400) && (gpu->revn < 500);
+=======
+static inline int adreno_is_a405(struct adreno_gpu *gpu)
+{
+	return gpu->revn == 405;
+>>>>>>> upstream/android-13
 }
 
 static inline int adreno_is_a420(struct adreno_gpu *gpu)
@@ -201,11 +274,85 @@ static inline int adreno_is_a430(struct adreno_gpu *gpu)
        return gpu->revn == 430;
 }
 
+<<<<<<< HEAD
+=======
+static inline int adreno_is_a508(struct adreno_gpu *gpu)
+{
+	return gpu->revn == 508;
+}
+
+static inline int adreno_is_a509(struct adreno_gpu *gpu)
+{
+	return gpu->revn == 509;
+}
+
+static inline int adreno_is_a510(struct adreno_gpu *gpu)
+{
+	return gpu->revn == 510;
+}
+
+static inline int adreno_is_a512(struct adreno_gpu *gpu)
+{
+	return gpu->revn == 512;
+}
+
+>>>>>>> upstream/android-13
 static inline int adreno_is_a530(struct adreno_gpu *gpu)
 {
 	return gpu->revn == 530;
 }
 
+<<<<<<< HEAD
+=======
+static inline int adreno_is_a540(struct adreno_gpu *gpu)
+{
+	return gpu->revn == 540;
+}
+
+static inline int adreno_is_a618(struct adreno_gpu *gpu)
+{
+       return gpu->revn == 618;
+}
+
+static inline int adreno_is_a630(struct adreno_gpu *gpu)
+{
+       return gpu->revn == 630;
+}
+
+static inline int adreno_is_a640_family(struct adreno_gpu *gpu)
+{
+	return (gpu->revn == 640) || (gpu->revn == 680);
+}
+
+static inline int adreno_is_a650(struct adreno_gpu *gpu)
+{
+       return gpu->revn == 650;
+}
+
+static inline int adreno_is_7c3(struct adreno_gpu *gpu)
+{
+	/* The order of args is important here to handle ANY_ID correctly */
+       return adreno_cmp_rev(ADRENO_REV(6, 3, 5, ANY_ID), gpu->rev);
+}
+
+static inline int adreno_is_a660(struct adreno_gpu *gpu)
+{
+       return gpu->revn == 660;
+}
+
+static inline int adreno_is_a660_family(struct adreno_gpu *gpu)
+{
+       return adreno_is_a660(gpu) || adreno_is_7c3(gpu);
+}
+
+/* check for a650, a660, or any derivatives */
+static inline int adreno_is_a650_family(struct adreno_gpu *gpu)
+{
+       return gpu->revn == 650 || gpu->revn == 620 ||
+	       adreno_is_a660_family(gpu);
+}
+
+>>>>>>> upstream/android-13
 int adreno_get_param(struct msm_gpu *gpu, uint32_t param, uint64_t *value);
 const struct firmware *adreno_request_fw(struct adreno_gpu *adreno_gpu,
 		const char *fwname);
@@ -213,9 +360,13 @@ struct drm_gem_object *adreno_fw_create_bo(struct msm_gpu *gpu,
 		const struct firmware *fw, u64 *iova);
 int adreno_hw_init(struct msm_gpu *gpu);
 void adreno_recover(struct msm_gpu *gpu);
+<<<<<<< HEAD
 void adreno_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit,
 		struct msm_file_private *ctx);
 void adreno_flush(struct msm_gpu *gpu, struct msm_ringbuffer *ring);
+=======
+void adreno_flush(struct msm_gpu *gpu, struct msm_ringbuffer *ring, u32 reg);
+>>>>>>> upstream/android-13
 bool adreno_idle(struct msm_gpu *gpu, struct msm_ringbuffer *ring);
 #if defined(CONFIG_DEBUG_FS) || defined(CONFIG_DEV_COREDUMP)
 void adreno_show(struct msm_gpu *gpu, struct msm_gpu_state *state,
@@ -226,6 +377,13 @@ void adreno_dump(struct msm_gpu *gpu);
 void adreno_wait_ring(struct msm_ringbuffer *ring, uint32_t ndwords);
 struct msm_ringbuffer *adreno_active_ring(struct msm_gpu *gpu);
 
+<<<<<<< HEAD
+=======
+int adreno_gpu_ocmem_init(struct device *dev, struct adreno_gpu *adreno_gpu,
+			  struct adreno_ocmem *ocmem);
+void adreno_gpu_ocmem_cleanup(struct adreno_ocmem *ocmem);
+
+>>>>>>> upstream/android-13
 int adreno_gpu_init(struct drm_device *drm, struct platform_device *pdev,
 		struct adreno_gpu *gpu, const struct adreno_gpu_funcs *funcs,
 		int nr_rings);
@@ -237,6 +395,25 @@ void adreno_gpu_state_destroy(struct msm_gpu_state *state);
 int adreno_gpu_state_get(struct msm_gpu *gpu, struct msm_gpu_state *state);
 int adreno_gpu_state_put(struct msm_gpu_state *state);
 
+<<<<<<< HEAD
+=======
+/*
+ * Common helper function to initialize the default address space for arm-smmu
+ * attached targets
+ */
+struct msm_gem_address_space *
+adreno_iommu_create_address_space(struct msm_gpu *gpu,
+		struct platform_device *pdev);
+
+void adreno_set_llc_attributes(struct iommu_domain *iommu);
+
+/*
+ * For a5xx and a6xx targets load the zap shader that is used to pull the GPU
+ * out of secure mode
+ */
+int adreno_zap_shader_load(struct msm_gpu *gpu, u32 pasid);
+
+>>>>>>> upstream/android-13
 /* ringbuffer helpers (the parts that are adreno specific) */
 
 static inline void
@@ -291,6 +468,7 @@ OUT_PKT7(struct msm_ringbuffer *ring, uint8_t opcode, uint16_t cnt)
 		((opcode & 0x7F) << 16) | (PM4_PARITY(opcode) << 23));
 }
 
+<<<<<<< HEAD
 /*
  * adreno_reg_check() - Checks the validity of a register enum
  * @gpu:		Pointer to struct adreno_gpu
@@ -334,11 +512,15 @@ static inline void adreno_gpu_write(struct adreno_gpu *gpu,
 		gpu_write(&gpu->base, reg - 1, data);
 }
 
+=======
+struct msm_gpu *a2xx_gpu_init(struct drm_device *dev);
+>>>>>>> upstream/android-13
 struct msm_gpu *a3xx_gpu_init(struct drm_device *dev);
 struct msm_gpu *a4xx_gpu_init(struct drm_device *dev);
 struct msm_gpu *a5xx_gpu_init(struct drm_device *dev);
 struct msm_gpu *a6xx_gpu_init(struct drm_device *dev);
 
+<<<<<<< HEAD
 static inline void adreno_gpu_write64(struct adreno_gpu *gpu,
 		enum adreno_regs lo, enum adreno_regs hi, u64 data)
 {
@@ -346,6 +528,8 @@ static inline void adreno_gpu_write64(struct adreno_gpu *gpu,
 	adreno_gpu_write(gpu, hi, upper_32_bits(data));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline uint32_t get_wptr(struct msm_ringbuffer *ring)
 {
 	return (ring->cur - ring->start) % (MSM_GPU_RINGBUFFER_SZ >> 2);
@@ -375,4 +559,12 @@ static inline uint32_t get_wptr(struct msm_ringbuffer *ring)
 	((1 << 29) \
 	((ilog2((_len)) & 0x1F) << 24) | (((_reg) << 2) & 0xFFFFF))
 
+<<<<<<< HEAD
+=======
+
+#define gpu_poll_timeout(gpu, addr, val, cond, interval, timeout) \
+	readl_poll_timeout((gpu)->mmio + ((addr) << 2), val, cond, \
+		interval, timeout)
+
+>>>>>>> upstream/android-13
 #endif /* __ADRENO_GPU_H__ */

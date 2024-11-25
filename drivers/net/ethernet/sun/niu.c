@@ -429,7 +429,11 @@ static int serdes_init_niu_1g_serdes(struct niu *np)
 	struct niu_link_config *lp = &np->link_config;
 	u16 pll_cfg, pll_sts;
 	int max_retry = 100;
+<<<<<<< HEAD
 	u64 uninitialized_var(sig), mask, val;
+=======
+	u64 sig, mask, val;
+>>>>>>> upstream/android-13
 	u32 tx_cfg, rx_cfg;
 	unsigned long i;
 	int err;
@@ -526,7 +530,11 @@ static int serdes_init_niu_10g_serdes(struct niu *np)
 	struct niu_link_config *lp = &np->link_config;
 	u32 tx_cfg, rx_cfg, pll_cfg, pll_sts;
 	int max_retry = 100;
+<<<<<<< HEAD
 	u64 uninitialized_var(sig), mask, val;
+=======
+	u64 sig, mask, val;
+>>>>>>> upstream/android-13
 	unsigned long i;
 	int err;
 
@@ -714,7 +722,11 @@ static int esr_write_glue0(struct niu *np, unsigned long chan, u32 val)
 
 static int esr_reset(struct niu *np)
 {
+<<<<<<< HEAD
 	u32 uninitialized_var(reset);
+=======
+	u32 reset;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = mdio_write(np, np->port, NIU_ESR_DEV_ADDR,
@@ -1217,8 +1229,11 @@ static int link_status_1g_rgmii(struct niu *np, int *link_up_p)
 
 	spin_lock_irqsave(&np->lock, flags);
 
+<<<<<<< HEAD
 	err = -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	err = mii_read(np, np->phy_addr, MII_BMSR);
 	if (err < 0)
 		goto out;
@@ -6517,7 +6532,11 @@ static void niu_reset_task(struct work_struct *work)
 	spin_unlock_irqrestore(&np->lock, flags);
 }
 
+<<<<<<< HEAD
 static void niu_tx_timeout(struct net_device *dev)
+=======
+static void niu_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct niu *np = netdev_priv(dev);
 
@@ -6695,7 +6714,11 @@ static netdev_tx_t niu_start_xmit(struct sk_buff *skb,
 
 		len = skb_frag_size(frag);
 		mapping = np->ops->map_page(np->device, skb_frag_page(frag),
+<<<<<<< HEAD
 					    frag->page_offset, len,
+=======
+					    skb_frag_off(frag), len,
+>>>>>>> upstream/android-13
 					    DMA_TO_DEVICE);
 
 		rp->tx_buffs[prod].skb = NULL;
@@ -7462,6 +7485,10 @@ static int niu_add_ethtool_tcam_entry(struct niu *np,
 					class = CLASS_CODE_USER_PROG4;
 					break;
 				default:
+<<<<<<< HEAD
+=======
+					class = CLASS_CODE_UNRECOG;
+>>>>>>> upstream/android-13
 					break;
 				}
 				ret = tcam_user_ip_class_set(np, class, 0,
@@ -8145,10 +8172,17 @@ static int niu_pci_vpd_scan_props(struct niu *np, u32 start, u32 end)
 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
 				     namebuf, prop_len);
 			for (i = 0; i < prop_len; i++) {
+<<<<<<< HEAD
 				err = niu_pci_eeprom_read(np, off + i);
 				if (err >= 0)
 					*prop_buf = err;
 				++prop_buf;
+=======
+				err =  niu_pci_eeprom_read(np, off + i);
+				if (err < 0)
+					return err;
+				*prop_buf++ = err;
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -8159,14 +8193,22 @@ static int niu_pci_vpd_scan_props(struct niu *np, u32 start, u32 end)
 }
 
 /* ESPC_PIO_EN_ENABLE must be set */
+<<<<<<< HEAD
 static void niu_pci_vpd_fetch(struct niu *np, u32 start)
+=======
+static int niu_pci_vpd_fetch(struct niu *np, u32 start)
+>>>>>>> upstream/android-13
 {
 	u32 offset;
 	int err;
 
 	err = niu_pci_eeprom_read16_swp(np, start + 1);
 	if (err < 0)
+<<<<<<< HEAD
 		return;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	offset = err + 3;
 
@@ -8175,12 +8217,23 @@ static void niu_pci_vpd_fetch(struct niu *np, u32 start)
 		u32 end;
 
 		err = niu_pci_eeprom_read(np, here);
+<<<<<<< HEAD
 		if (err != 0x90)
 			return;
 
 		err = niu_pci_eeprom_read16_swp(np, here + 1);
 		if (err < 0)
 			return;
+=======
+		if (err < 0)
+			return err;
+		if (err != 0x90)
+			return -EINVAL;
+
+		err = niu_pci_eeprom_read16_swp(np, here + 1);
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 
 		here = start + offset + 3;
 		end = start + offset + err;
@@ -8188,9 +8241,19 @@ static void niu_pci_vpd_fetch(struct niu *np, u32 start)
 		offset += err;
 
 		err = niu_pci_vpd_scan_props(np, here, end);
+<<<<<<< HEAD
 		if (err < 0 || err == 1)
 			return;
 	}
+=======
+		if (err < 0)
+			return err;
+		/* ret == 1 is not an error */
+		if (err == 1)
+			return 0;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* ESPC_PIO_EN_ENABLE must be set */
@@ -8834,7 +8897,11 @@ static int walk_phys(struct niu *np, struct niu_parent *parent)
 			else
 				goto unknown_vg_1g_port;
 
+<<<<<<< HEAD
 			/* fallthru */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x22:
 			val = (phy_encode(PORT_TYPE_10G, 0) |
 			       phy_encode(PORT_TYPE_10G, 1) |
@@ -8859,7 +8926,11 @@ static int walk_phys(struct niu *np, struct niu_parent *parent)
 			else
 				goto unknown_vg_1g_port;
 
+<<<<<<< HEAD
 			/* fallthru */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x13:
 			if ((lowest_10g & 0x7) == 0)
 				val = (phy_encode(PORT_TYPE_10G, 0) |
@@ -9203,7 +9274,11 @@ static int niu_get_of_props(struct niu *np)
 	else
 		dp = pci_device_to_OF_node(np->pdev);
 
+<<<<<<< HEAD
 	phy_type = of_get_property(dp, "phy-type", &prop_len);
+=======
+	phy_type = of_get_property(dp, "phy-type", NULL);
+>>>>>>> upstream/android-13
 	if (!phy_type) {
 		netdev_err(dev, "%pOF: OF node lacks phy-type property\n", dp);
 		return -EINVAL;
@@ -9237,12 +9312,20 @@ static int niu_get_of_props(struct niu *np)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	model = of_get_property(dp, "model", &prop_len);
+=======
+	model = of_get_property(dp, "model", NULL);
+>>>>>>> upstream/android-13
 
 	if (model)
 		strcpy(np->vpd.model, model);
 
+<<<<<<< HEAD
 	if (of_find_property(dp, "hot-swappable-phy", &prop_len)) {
+=======
+	if (of_find_property(dp, "hot-swappable-phy", NULL)) {
+>>>>>>> upstream/android-13
 		np->flags |= (NIU_FLAGS_10G | NIU_FLAGS_FIBER |
 			NIU_FLAGS_HOTPLUG_PHY);
 	}
@@ -9281,8 +9364,16 @@ static int niu_get_invariants(struct niu *np)
 		offset = niu_pci_vpd_offset(np);
 		netif_printk(np, probe, KERN_DEBUG, np->dev,
 			     "%s() VPD offset [%08x]\n", __func__, offset);
+<<<<<<< HEAD
 		if (offset)
 			niu_pci_vpd_fetch(np, offset);
+=======
+		if (offset) {
+			err = niu_pci_vpd_fetch(np, offset);
+			if (err < 0)
+				return err;
+		}
+>>>>>>> upstream/android-13
 		nw64(ESPC_PIO_EN, 0);
 
 		if (np->flags & NIU_FLAGS_VPD_VALID) {
@@ -9660,7 +9751,11 @@ static const struct net_device_ops niu_netdev_ops = {
 	.ndo_set_rx_mode	= niu_set_rx_mode,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= niu_set_mac_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= niu_ioctl,
+=======
+	.ndo_eth_ioctl		= niu_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= niu_tx_timeout,
 	.ndo_change_mtu		= niu_change_mtu,
 };
@@ -9714,7 +9809,10 @@ static int niu_pci_init_one(struct pci_dev *pdev,
 	struct net_device *dev;
 	struct niu *np;
 	int err;
+<<<<<<< HEAD
 	u64 dma_mask;
+=======
+>>>>>>> upstream/android-13
 
 	niu_driver_version();
 
@@ -9769,6 +9867,7 @@ static int niu_pci_init_one(struct pci_dev *pdev,
 		PCI_EXP_DEVCTL_FERE | PCI_EXP_DEVCTL_URRE |
 		PCI_EXP_DEVCTL_RELAX_EN);
 
+<<<<<<< HEAD
 	dma_mask = DMA_BIT_MASK(44);
 	err = pci_set_dma_mask(pdev, dma_mask);
 	if (!err) {
@@ -9781,6 +9880,13 @@ static int niu_pci_init_one(struct pci_dev *pdev,
 	}
 	if (err) {
 		err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(44));
+	if (!err)
+		dev->features |= NETIF_F_HIGHDMA;
+	if (err) {
+		err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (err) {
 			dev_err(&pdev->dev, "No usable DMA configuration, aborting\n");
 			goto err_out_release_parent;
@@ -9872,9 +9978,15 @@ static void niu_pci_remove_one(struct pci_dev *pdev)
 	}
 }
 
+<<<<<<< HEAD
 static int niu_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused niu_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct niu *np = netdev_priv(dev);
 	unsigned long flags;
 
@@ -9896,6 +10008,7 @@ static int niu_suspend(struct pci_dev *pdev, pm_message_t state)
 	niu_stop_hw(np);
 	spin_unlock_irqrestore(&np->lock, flags);
 
+<<<<<<< HEAD
 	pci_save_state(pdev);
 
 	return 0;
@@ -9904,6 +10017,14 @@ static int niu_suspend(struct pci_dev *pdev, pm_message_t state)
 static int niu_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+	return 0;
+}
+
+static int __maybe_unused niu_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct niu *np = netdev_priv(dev);
 	unsigned long flags;
 	int err;
@@ -9911,8 +10032,11 @@ static int niu_resume(struct pci_dev *pdev)
 	if (!netif_running(dev))
 		return 0;
 
+<<<<<<< HEAD
 	pci_restore_state(pdev);
 
+=======
+>>>>>>> upstream/android-13
 	netif_device_attach(dev);
 
 	spin_lock_irqsave(&np->lock, flags);
@@ -9929,13 +10053,22 @@ static int niu_resume(struct pci_dev *pdev)
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(niu_pm_ops, niu_suspend, niu_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver niu_pci_driver = {
 	.name		= DRV_MODULE_NAME,
 	.id_table	= niu_pci_tbl,
 	.probe		= niu_pci_init_one,
 	.remove		= niu_pci_remove_one,
+<<<<<<< HEAD
 	.suspend	= niu_suspend,
 	.resume		= niu_resume,
+=======
+	.driver.pm	= &niu_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_SPARC64

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * netup_unidvb_core.c
  *
@@ -6,6 +10,7 @@
  * Copyright (C) 2014 NetUP Inc.
  * Copyright (C) 2014 Sergey Kozlov <serjk@netup.ru>
  * Copyright (C) 2014 Abylay Ospan <aospan@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -267,6 +274,7 @@ static irqreturn_t netup_unidvb_isr(int irq, void *dev_id)
 	if ((reg40 & AVL_IRQ_ASSERTED) != 0) {
 		/* IRQ is being signaled */
 		reg_isr = readw(ndev->bmmio0 + REG_ISR);
+<<<<<<< HEAD
 		if (reg_isr & NETUP_UNIDVB_IRQ_I2C0) {
 			iret = netup_i2c_interrupt(&ndev->i2c[0]);
 		} else if (reg_isr & NETUP_UNIDVB_IRQ_I2C1) {
@@ -280,6 +288,26 @@ static irqreturn_t netup_unidvb_isr(int irq, void *dev_id)
 		} else if (reg_isr & NETUP_UNIDVB_IRQ_CI) {
 			iret = netup_ci_interrupt(ndev);
 		} else {
+=======
+		if (reg_isr & NETUP_UNIDVB_IRQ_SPI)
+			iret = netup_spi_interrupt(ndev->spi);
+		else if (!ndev->old_fw) {
+			if (reg_isr & NETUP_UNIDVB_IRQ_I2C0) {
+				iret = netup_i2c_interrupt(&ndev->i2c[0]);
+			} else if (reg_isr & NETUP_UNIDVB_IRQ_I2C1) {
+				iret = netup_i2c_interrupt(&ndev->i2c[1]);
+			} else if (reg_isr & NETUP_UNIDVB_IRQ_DMA1) {
+				iret = netup_dma_interrupt(&ndev->dma[0]);
+			} else if (reg_isr & NETUP_UNIDVB_IRQ_DMA2) {
+				iret = netup_dma_interrupt(&ndev->dma[1]);
+			} else if (reg_isr & NETUP_UNIDVB_IRQ_CI) {
+				iret = netup_ci_interrupt(ndev);
+			} else {
+				goto err;
+			}
+		} else {
+err:
+>>>>>>> upstream/android-13
 			dev_err(&pci_dev->dev,
 				"%s(): unknown interrupt 0x%x\n",
 				__func__, reg_isr);
@@ -1025,8 +1053,11 @@ static struct pci_driver netup_unidvb_pci_driver = {
 	.id_table = netup_unidvb_pci_tbl,
 	.probe    = netup_unidvb_initdev,
 	.remove   = netup_unidvb_finidev,
+<<<<<<< HEAD
 	.suspend  = NULL,
 	.resume   = NULL,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(netup_unidvb_pci_driver);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IIO driver for the Apex Embedded Systems STX104
  * Copyright (C) 2016 William Breathitt Gray
@@ -10,6 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * IIO driver for the Apex Embedded Systems STX104
+ * Copyright (C) 2016 William Breathitt Gray
+>>>>>>> upstream/android-13
  */
 #include <linux/bitops.h>
 #include <linux/device.h>
@@ -327,7 +334,10 @@ static int stx104_probe(struct device *dev, unsigned int id)
 	}
 
 	indio_dev->name = dev_name(dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 
 	priv = iio_priv(indio_dev);
 	priv->base = base[id];

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * max1586.c  --  Voltage and current regulation for the Maxim 1586
  *
  * Copyright (C) 2008 Robert Jarzmik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/err.h>
@@ -214,7 +221,11 @@ static int of_get_max1586_platform_data(struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id max1586_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused max1586_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "maxim,max1586", },
 	{},
 };

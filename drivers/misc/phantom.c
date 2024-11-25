@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2005-2007 Jiri Slaby <jirislaby@gmail.com>
  *
@@ -6,6 +7,12 @@
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2005-2007 Jiri Slaby <jirislaby@gmail.com>
+ *
+>>>>>>> upstream/android-13
  *  You need a userspace library to cooperate with this driver. It (and other
  *  info) may be obtained here:
  *  http://www.fi.muni.cz/~xslaby/phantom.html
@@ -461,31 +468,50 @@ static void phantom_remove(struct pci_dev *pdev)
 	pci_disable_device(pdev);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int phantom_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct phantom_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused phantom_suspend(struct device *dev_d)
+{
+	struct phantom_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 
 	iowrite32(0, dev->caddr + PHN_IRQCTL);
 	ioread32(dev->caddr + PHN_IRQCTL); /* PCI posting */
 
+<<<<<<< HEAD
 	synchronize_irq(pdev->irq);
+=======
+	synchronize_irq(to_pci_dev(dev_d)->irq);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int phantom_resume(struct pci_dev *pdev)
 {
 	struct phantom_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused phantom_resume(struct device *dev_d)
+{
+	struct phantom_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 
 	iowrite32(0, dev->caddr + PHN_IRQCTL);
 
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define phantom_suspend	NULL
 #define phantom_resume	NULL
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct pci_device_id phantom_pci_tbl[] = {
 	{ .vendor = PCI_VENDOR_ID_PLX, .device = PCI_DEVICE_ID_PLX_9050,
@@ -495,13 +521,22 @@ static struct pci_device_id phantom_pci_tbl[] = {
 };
 MODULE_DEVICE_TABLE(pci, phantom_pci_tbl);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(phantom_pm_ops, phantom_suspend, phantom_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver phantom_pci_driver = {
 	.name = "phantom",
 	.id_table = phantom_pci_tbl,
 	.probe = phantom_probe,
 	.remove = phantom_remove,
+<<<<<<< HEAD
 	.suspend = phantom_suspend,
 	.resume = phantom_resume
+=======
+	.driver.pm = &phantom_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static CLASS_ATTR_STRING(version, 0444, PHANTOM_VERSION);

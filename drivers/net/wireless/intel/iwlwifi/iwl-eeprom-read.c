@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -61,6 +62,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2005-2014, 2018-2019 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/slab.h>
 #include <linux/export.h>
@@ -198,6 +205,7 @@ static int iwl_init_otp_access(struct iwl_trans *trans)
 {
 	int ret;
 
+<<<<<<< HEAD
 	/* Enable 40MHz radio clock */
 	iwl_write32(trans, CSR_GP_CNTRL,
 		    iwl_read32(trans, CSR_GP_CNTRL) |
@@ -226,6 +234,27 @@ static int iwl_init_otp_access(struct iwl_trans *trans)
 				    CSR_RESET_LINK_PWR_MGMT_DISABLED);
 	}
 	return ret;
+=======
+	ret = iwl_finish_nic_init(trans, trans->trans_cfg);
+	if (ret)
+		return ret;
+
+	iwl_set_bits_prph(trans, APMG_PS_CTRL_REG,
+			  APMG_PS_CTRL_VAL_RESET_REQ);
+	udelay(5);
+	iwl_clear_bits_prph(trans, APMG_PS_CTRL_REG,
+			    APMG_PS_CTRL_VAL_RESET_REQ);
+
+	/*
+	 * CSR auto clock gate disable bit -
+	 * this is only applicable for HW with OTP shadow RAM
+	 */
+	if (trans->trans_cfg->base_params->shadow_ram_support)
+		iwl_set_bit(trans, CSR_DBG_LINK_PWR_MGMT_REG,
+			    CSR_RESET_LINK_PWR_MGMT_DISABLED);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int iwl_read_otp_word(struct iwl_trans *trans, u16 addr,
@@ -342,14 +371,22 @@ static int iwl_find_otp_image(struct iwl_trans *trans,
 		}
 		/* more in the link list, continue */
 		usedblocks++;
+<<<<<<< HEAD
 	} while (usedblocks <= trans->cfg->base_params->max_ll_items);
+=======
+	} while (usedblocks <= trans->trans_cfg->base_params->max_ll_items);
+>>>>>>> upstream/android-13
 
 	/* OTP has no valid blocks */
 	IWL_DEBUG_EEPROM(trans->dev, "OTP has no valid blocks\n");
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * iwl_read_eeprom - read EEPROM contents
  *
  * Load the EEPROM contents from adapter and return it
@@ -375,7 +412,11 @@ int iwl_read_eeprom(struct iwl_trans *trans, u8 **eeprom, size_t *eeprom_size)
 	if (nvm_is_otp < 0)
 		return nvm_is_otp;
 
+<<<<<<< HEAD
 	sz = trans->cfg->base_params->eeprom_size;
+=======
+	sz = trans->trans_cfg->base_params->eeprom_size;
+>>>>>>> upstream/android-13
 	IWL_DEBUG_EEPROM(trans->dev, "NVM size = %d\n", sz);
 
 	e = kmalloc(sz, GFP_KERNEL);
@@ -410,7 +451,11 @@ int iwl_read_eeprom(struct iwl_trans *trans, u8 **eeprom, size_t *eeprom_size)
 			    CSR_OTP_GP_REG_ECC_CORR_STATUS_MSK |
 			    CSR_OTP_GP_REG_ECC_UNCORR_STATUS_MSK);
 		/* traversing the linked list if no shadow ram supported */
+<<<<<<< HEAD
 		if (!trans->cfg->base_params->shadow_ram_support) {
+=======
+		if (!trans->trans_cfg->base_params->shadow_ram_support) {
+>>>>>>> upstream/android-13
 			ret = iwl_find_otp_image(trans, &validblockaddr);
 			if (ret)
 				goto err_unlock;

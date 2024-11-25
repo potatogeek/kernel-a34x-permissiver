@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * digi00x-proc.c - a part of driver for Digidesign Digi 002/003 family
  *
  * Copyright (c) 2014-2015 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "digi00x.h"
@@ -80,6 +87,7 @@ void snd_dg00x_proc_init(struct snd_dg00x *dg00x)
 		return;
 
 	root->mode = S_IFDIR | 0555;
+<<<<<<< HEAD
 	if (snd_info_register(root) < 0) {
 		snd_info_free_entry(root);
 		return;
@@ -96,4 +104,10 @@ void snd_dg00x_proc_init(struct snd_dg00x *dg00x)
 		snd_info_free_entry(entry);
 		snd_info_free_entry(root);
 	}
+=======
+
+	entry = snd_info_create_card_entry(dg00x->card, "clock", root);
+	if (entry)
+		snd_info_set_text_ops(entry, dg00x, proc_read_clock);
+>>>>>>> upstream/android-13
 }

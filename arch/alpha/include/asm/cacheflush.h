@@ -4,6 +4,7 @@
 
 #include <linux/mm.h>
 
+<<<<<<< HEAD
 /* Caches aren't brain-dead on the Alpha. */
 #define flush_cache_all()			do { } while (0)
 #define flush_cache_mm(mm)			do { } while (0)
@@ -17,6 +18,8 @@
 #define flush_cache_vmap(start, end)		do { } while (0)
 #define flush_cache_vunmap(start, end)		do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* Note that the following two definitions are _highly_ dependent
    on the contexts in which they are used in the kernel.  I personally
    think it is criminal how loosely defined these macros are.  */
@@ -48,7 +51,11 @@ extern void smp_imb(void);
 
 extern void __load_new_mm_context(struct mm_struct *);
 static inline void
+<<<<<<< HEAD
 flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
+=======
+flush_icache_user_page(struct vm_area_struct *vma, struct page *page,
+>>>>>>> upstream/android-13
 			unsigned long addr, int len)
 {
 	if (vma->vm_flags & VM_EXEC) {
@@ -59,6 +66,7 @@ flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
 			mm->context[smp_processor_id()] = 0;
 	}
 }
+<<<<<<< HEAD
 #else
 extern void flush_icache_user_range(struct vm_area_struct *vma,
 		struct page *page, unsigned long addr, int len);
@@ -74,5 +82,19 @@ do { memcpy(dst, src, len); \
 } while (0)
 #define copy_from_user_page(vma, page, vaddr, dst, src, len) \
 	memcpy(dst, src, len)
+=======
+#define flush_icache_user_page flush_icache_user_page
+#else /* CONFIG_SMP */
+extern void flush_icache_user_page(struct vm_area_struct *vma,
+		struct page *page, unsigned long addr, int len);
+#define flush_icache_user_page flush_icache_user_page
+#endif /* CONFIG_SMP */
+
+/* This is used only in __do_fault and do_swap_page.  */
+#define flush_icache_page(vma, page) \
+	flush_icache_user_page((vma), (page), 0, 0)
+
+#include <asm-generic/cacheflush.h>
+>>>>>>> upstream/android-13
 
 #endif /* _ALPHA_CACHEFLUSH_H */

@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 /*
  * exynos_tmu.c - Samsung EXYNOS TMU (Thermal Management Unit)
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * exynos_tmu.c - Samsung Exynos TMU (Thermal Management Unit)
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2014 Samsung Electronics
  *  Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
@@ -8,6 +14,7 @@
  *  Copyright (C) 2011 Samsung Electronics
  *  Donggeun Kim <dg77.kim@samsung.com>
  *  Amit Daniel Kachhap <amit.kachhap@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +30,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -152,7 +161,11 @@ enum soc_type {
 
 /**
  * struct exynos_tmu_data : A structure to hold the private data of the TMU
+<<<<<<< HEAD
 	driver
+=======
+ *			    driver
+>>>>>>> upstream/android-13
  * @id: identifier of the one instance of the TMU controller.
  * @base: base address of the single instance of the TMU controller.
  * @base_second: base address of the common registers of the TMU controller.
@@ -176,8 +189,16 @@ enum soc_type {
  *	0 < reference_voltage <= 31
  * @regulator: pointer to the TMU regulator structure.
  * @reg_conf: pointer to structure to register with core thermal.
+<<<<<<< HEAD
  * @ntrip: number of supported trip points.
  * @enabled: current status of TMU device
+=======
+ * @tzd: pointer to thermal_zone_device structure
+ * @ntrip: number of supported trip points.
+ * @enabled: current status of TMU device
+ * @tmu_set_trip_temp: SoC specific method to set trip (rising threshold)
+ * @tmu_set_trip_hyst: SoC specific to set hysteresis (falling threshold)
+>>>>>>> upstream/android-13
  * @tmu_initialize: SoC specific TMU initialization method
  * @tmu_control: SoC specific TMU control method
  * @tmu_read: SoC specific TMU temperature read method
@@ -1084,6 +1105,10 @@ static int exynos_tmu_probe(struct platform_device *pdev)
 		data->sclk = devm_clk_get(&pdev->dev, "tmu_sclk");
 		if (IS_ERR(data->sclk)) {
 			dev_err(&pdev->dev, "Failed to get sclk\n");
+<<<<<<< HEAD
+=======
+			ret = PTR_ERR(data->sclk);
+>>>>>>> upstream/android-13
 			goto err_clk;
 		} else {
 			ret = clk_prepare_enable(data->sclk);
@@ -1105,7 +1130,13 @@ static int exynos_tmu_probe(struct platform_device *pdev)
 						    &exynos_sensor_ops);
 	if (IS_ERR(data->tzd)) {
 		ret = PTR_ERR(data->tzd);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to register sensor: %d\n", ret);
+=======
+		if (ret != -EPROBE_DEFER)
+			dev_err(&pdev->dev, "Failed to register sensor: %d\n",
+				ret);
+>>>>>>> upstream/android-13
 		goto err_sclk;
 	}
 
@@ -1197,7 +1228,11 @@ static struct platform_driver exynos_tmu_driver = {
 
 module_platform_driver(exynos_tmu_driver);
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("EXYNOS TMU Driver");
+=======
+MODULE_DESCRIPTION("Exynos TMU Driver");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Donggeun Kim <dg77.kim@samsung.com>");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:exynos-tmu");

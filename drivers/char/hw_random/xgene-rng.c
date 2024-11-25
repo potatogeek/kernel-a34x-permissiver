@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * APM X-Gene SoC RNG Driver
  *
@@ -5,6 +9,7 @@
  * Author: Rameshwar Prasad Sahu <rsahu@apm.com>
  *	   Shamal Winchurkar <swinchurkar@apm.com>
  *	   Feng Kan <fkan@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -326,7 +333,10 @@ static struct hwrng xgene_rng_func = {
 
 static int xgene_rng_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct xgene_rng_dev *ctx;
 	int rc = 0;
 
@@ -337,16 +347,25 @@ static int xgene_rng_probe(struct platform_device *pdev)
 	ctx->dev = &pdev->dev;
 	platform_set_drvdata(pdev, ctx);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ctx->csr_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	ctx->csr_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ctx->csr_base))
 		return PTR_ERR(ctx->csr_base);
 
 	rc = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (rc < 0) {
 		dev_err(&pdev->dev, "No IRQ resource\n");
 		return rc;
 	}
+=======
+	if (rc < 0)
+		return rc;
+>>>>>>> upstream/android-13
 	ctx->irq = rc;
 
 	dev_dbg(&pdev->dev, "APM X-Gene RNG BASE %p ALARM IRQ %d",
@@ -374,7 +393,11 @@ static int xgene_rng_probe(struct platform_device *pdev)
 
 	xgene_rng_func.priv = (unsigned long) ctx;
 
+<<<<<<< HEAD
 	rc = hwrng_register(&xgene_rng_func);
+=======
+	rc = devm_hwrng_register(&pdev->dev, &xgene_rng_func);
+>>>>>>> upstream/android-13
 	if (rc) {
 		dev_err(&pdev->dev, "RNG registering failed error %d\n", rc);
 		if (!IS_ERR(ctx->clk))
@@ -388,7 +411,10 @@ static int xgene_rng_probe(struct platform_device *pdev)
 			rc);
 		if (!IS_ERR(ctx->clk))
 			clk_disable_unprepare(ctx->clk);
+<<<<<<< HEAD
 		hwrng_unregister(&xgene_rng_func);
+=======
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -405,7 +431,10 @@ static int xgene_rng_remove(struct platform_device *pdev)
 		dev_err(&pdev->dev, "RNG init wakeup failed error %d\n", rc);
 	if (!IS_ERR(ctx->clk))
 		clk_disable_unprepare(ctx->clk);
+<<<<<<< HEAD
 	hwrng_unregister(&xgene_rng_func);
+=======
+>>>>>>> upstream/android-13
 
 	return rc;
 }

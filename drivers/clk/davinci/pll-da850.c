@@ -11,6 +11,10 @@
 #include <linux/clkdev.h>
 #include <linux/device.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/mfd/da8xx-cfgchip.h>
 #include <linux/mfd/syscon.h>

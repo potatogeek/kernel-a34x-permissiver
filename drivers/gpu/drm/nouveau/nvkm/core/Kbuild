@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 nvkm-y := nvkm/core/client.o
 nvkm-y += nvkm/core/engine.o
 nvkm-y += nvkm/core/enum.o

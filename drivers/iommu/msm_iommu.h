@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -13,6 +14,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef MSM_IOMMU_H

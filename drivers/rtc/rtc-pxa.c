@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Real Time Clock interface for XScale PXA27x and PXA3xx
  *
  * Copyright (C) 2008 Robert Jarzmik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -145,8 +152,12 @@ static void rtsr_set_bits(struct pxa_rtc *pxa_rtc, u32 mask)
 
 static irqreturn_t pxa_rtc_irq(int irq, void *dev_id)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev_id);
 	struct pxa_rtc *pxa_rtc = platform_get_drvdata(pdev);
+=======
+	struct pxa_rtc *pxa_rtc = dev_get_drvdata(dev_id);
+>>>>>>> upstream/android-13
 	u32 rtsr;
 	unsigned long events = 0;
 
@@ -339,6 +350,7 @@ static int __init pxa_rtc_probe(struct platform_device *pdev)
 	}
 
 	sa1100_rtc->irq_1hz = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (sa1100_rtc->irq_1hz < 0) {
 		dev_err(dev, "No 1Hz IRQ resource defined\n");
 		return -ENXIO;
@@ -348,6 +360,17 @@ static int __init pxa_rtc_probe(struct platform_device *pdev)
 		dev_err(dev, "No alarm IRQ resource defined\n");
 		return -ENXIO;
 	}
+=======
+	if (sa1100_rtc->irq_1hz < 0)
+		return -ENXIO;
+	sa1100_rtc->irq_alarm = platform_get_irq(pdev, 1);
+	if (sa1100_rtc->irq_alarm < 0)
+		return -ENXIO;
+
+	sa1100_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(sa1100_rtc->rtc))
+		return PTR_ERR(sa1100_rtc->rtc);
+>>>>>>> upstream/android-13
 
 	pxa_rtc->base = devm_ioremap(dev, pxa_rtc->ress->start,
 				resource_size(pxa_rtc->ress));

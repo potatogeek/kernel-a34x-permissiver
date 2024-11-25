@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 #
 # National Instuments network device configuration
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# National Instruments network device configuration
+>>>>>>> upstream/android-13
 #
 
 config NET_VENDOR_NI
@@ -10,7 +16,11 @@ config NET_VENDOR_NI
 
 	  Note that the answer to this question doesn't directly affect the
 	  kernel: saying N will just cause the configurator to skip all
+<<<<<<< HEAD
 	  the questions about National Instrument devices.
+=======
+	  the questions about National Instruments devices.
+>>>>>>> upstream/android-13
 	  If you say Y, you will be asked for your specific device in the
 	  following questions.
 
@@ -18,8 +28,14 @@ if NET_VENDOR_NI
 
 config NI_XGE_MANAGEMENT_ENET
 	tristate "National Instruments XGE management enet support"
+<<<<<<< HEAD
 	depends on ARCH_ZYNQ
 	select PHYLIB
+=======
+	depends on HAS_IOMEM && HAS_DMA
+	select PHYLIB
+	select OF_MDIO if OF
+>>>>>>> upstream/android-13
 	help
 	  Simple LAN device for debug or management purposes. Can
 	  support either 10G or 1G PHYs via SFP+ ports.

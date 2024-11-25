@@ -56,6 +56,7 @@ static inline struct berlin_pwm_chip *to_berlin_pwm_chip(struct pwm_chip *chip)
 	return container_of(chip, struct berlin_pwm_chip, chip);
 }
 
+<<<<<<< HEAD
 static inline u32 berlin_pwm_readl(struct berlin_pwm_chip *chip,
 				   unsigned int channel, unsigned long offset)
 {
@@ -67,6 +68,19 @@ static inline void berlin_pwm_writel(struct berlin_pwm_chip *chip,
 				     unsigned long offset)
 {
 	writel_relaxed(value, chip->base + channel * 0x10 + offset);
+=======
+static inline u32 berlin_pwm_readl(struct berlin_pwm_chip *bpc,
+				   unsigned int channel, unsigned long offset)
+{
+	return readl_relaxed(bpc->base + channel * 0x10 + offset);
+}
+
+static inline void berlin_pwm_writel(struct berlin_pwm_chip *bpc,
+				     unsigned int channel, u32 value,
+				     unsigned long offset)
+{
+	writel_relaxed(value, bpc->base + channel * 0x10 + offset);
+>>>>>>> upstream/android-13
 }
 
 static int berlin_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
@@ -87,15 +101,26 @@ static void berlin_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
 	kfree(channel);
 }
 
+<<<<<<< HEAD
 static int berlin_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm_dev,
 			     int duty_ns, int period_ns)
 {
 	struct berlin_pwm_chip *pwm = to_berlin_pwm_chip(chip);
+=======
+static int berlin_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+			     u64 duty_ns, u64 period_ns)
+{
+	struct berlin_pwm_chip *bpc = to_berlin_pwm_chip(chip);
+>>>>>>> upstream/android-13
 	bool prescale_4096 = false;
 	u32 value, duty, period;
 	u64 cycles;
 
+<<<<<<< HEAD
 	cycles = clk_get_rate(pwm->clk);
+=======
+	cycles = clk_get_rate(bpc->clk);
+>>>>>>> upstream/android-13
 	cycles *= period_ns;
 	do_div(cycles, NSEC_PER_SEC);
 
@@ -112,20 +137,32 @@ static int berlin_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm_dev,
 	do_div(cycles, period_ns);
 	duty = cycles;
 
+<<<<<<< HEAD
 	value = berlin_pwm_readl(pwm, pwm_dev->hwpwm, BERLIN_PWM_CONTROL);
+=======
+	value = berlin_pwm_readl(bpc, pwm->hwpwm, BERLIN_PWM_CONTROL);
+>>>>>>> upstream/android-13
 	if (prescale_4096)
 		value |= BERLIN_PWM_PRESCALE_4096;
 	else
 		value &= ~BERLIN_PWM_PRESCALE_4096;
+<<<<<<< HEAD
 	berlin_pwm_writel(pwm, pwm_dev->hwpwm, value, BERLIN_PWM_CONTROL);
 
 	berlin_pwm_writel(pwm, pwm_dev->hwpwm, duty, BERLIN_PWM_DUTY);
 	berlin_pwm_writel(pwm, pwm_dev->hwpwm, period, BERLIN_PWM_TCNT);
+=======
+	berlin_pwm_writel(bpc, pwm->hwpwm, value, BERLIN_PWM_CONTROL);
+
+	berlin_pwm_writel(bpc, pwm->hwpwm, duty, BERLIN_PWM_DUTY);
+	berlin_pwm_writel(bpc, pwm->hwpwm, period, BERLIN_PWM_TCNT);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int berlin_pwm_set_polarity(struct pwm_chip *chip,
+<<<<<<< HEAD
 				   struct pwm_device *pwm_dev,
 				   enum pwm_polarity polarity)
 {
@@ -133,17 +170,31 @@ static int berlin_pwm_set_polarity(struct pwm_chip *chip,
 	u32 value;
 
 	value = berlin_pwm_readl(pwm, pwm_dev->hwpwm, BERLIN_PWM_CONTROL);
+=======
+				   struct pwm_device *pwm,
+				   enum pwm_polarity polarity)
+{
+	struct berlin_pwm_chip *bpc = to_berlin_pwm_chip(chip);
+	u32 value;
+
+	value = berlin_pwm_readl(bpc, pwm->hwpwm, BERLIN_PWM_CONTROL);
+>>>>>>> upstream/android-13
 
 	if (polarity == PWM_POLARITY_NORMAL)
 		value &= ~BERLIN_PWM_INVERT_POLARITY;
 	else
 		value |= BERLIN_PWM_INVERT_POLARITY;
 
+<<<<<<< HEAD
 	berlin_pwm_writel(pwm, pwm_dev->hwpwm, value, BERLIN_PWM_CONTROL);
+=======
+	berlin_pwm_writel(bpc, pwm->hwpwm, value, BERLIN_PWM_CONTROL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int berlin_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm_dev)
 {
 	struct berlin_pwm_chip *pwm = to_berlin_pwm_chip(chip);
@@ -152,11 +203,22 @@ static int berlin_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm_dev)
 	value = berlin_pwm_readl(pwm, pwm_dev->hwpwm, BERLIN_PWM_EN);
 	value |= BERLIN_PWM_ENABLE;
 	berlin_pwm_writel(pwm, pwm_dev->hwpwm, value, BERLIN_PWM_EN);
+=======
+static int berlin_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
+{
+	struct berlin_pwm_chip *bpc = to_berlin_pwm_chip(chip);
+	u32 value;
+
+	value = berlin_pwm_readl(bpc, pwm->hwpwm, BERLIN_PWM_EN);
+	value |= BERLIN_PWM_ENABLE;
+	berlin_pwm_writel(bpc, pwm->hwpwm, value, BERLIN_PWM_EN);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void berlin_pwm_disable(struct pwm_chip *chip,
+<<<<<<< HEAD
 			       struct pwm_device *pwm_dev)
 {
 	struct berlin_pwm_chip *pwm = to_berlin_pwm_chip(chip);
@@ -165,15 +227,62 @@ static void berlin_pwm_disable(struct pwm_chip *chip,
 	value = berlin_pwm_readl(pwm, pwm_dev->hwpwm, BERLIN_PWM_EN);
 	value &= ~BERLIN_PWM_ENABLE;
 	berlin_pwm_writel(pwm, pwm_dev->hwpwm, value, BERLIN_PWM_EN);
+=======
+			       struct pwm_device *pwm)
+{
+	struct berlin_pwm_chip *bpc = to_berlin_pwm_chip(chip);
+	u32 value;
+
+	value = berlin_pwm_readl(bpc, pwm->hwpwm, BERLIN_PWM_EN);
+	value &= ~BERLIN_PWM_ENABLE;
+	berlin_pwm_writel(bpc, pwm->hwpwm, value, BERLIN_PWM_EN);
+}
+
+static int berlin_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+			    const struct pwm_state *state)
+{
+	int err;
+	bool enabled = pwm->state.enabled;
+
+	if (state->polarity != pwm->state.polarity) {
+		if (enabled) {
+			berlin_pwm_disable(chip, pwm);
+			enabled = false;
+		}
+
+		err = berlin_pwm_set_polarity(chip, pwm, state->polarity);
+		if (err)
+			return err;
+	}
+
+	if (!state->enabled) {
+		if (enabled)
+			berlin_pwm_disable(chip, pwm);
+		return 0;
+	}
+
+	err = berlin_pwm_config(chip, pwm, state->duty_cycle, state->period);
+	if (err)
+		return err;
+
+	if (!enabled)
+		return berlin_pwm_enable(chip, pwm);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct pwm_ops berlin_pwm_ops = {
 	.request = berlin_pwm_request,
 	.free = berlin_pwm_free,
+<<<<<<< HEAD
 	.config = berlin_pwm_config,
 	.set_polarity = berlin_pwm_set_polarity,
 	.enable = berlin_pwm_enable,
 	.disable = berlin_pwm_disable,
+=======
+	.apply = berlin_pwm_apply,
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 };
 
@@ -185,6 +294,7 @@ MODULE_DEVICE_TABLE(of, berlin_pwm_match);
 
 static int berlin_pwm_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct berlin_pwm_chip *pwm;
 	struct resource *res;
 	int ret;
@@ -221,12 +331,46 @@ static int berlin_pwm_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, pwm);
+=======
+	struct berlin_pwm_chip *bpc;
+	int ret;
+
+	bpc = devm_kzalloc(&pdev->dev, sizeof(*bpc), GFP_KERNEL);
+	if (!bpc)
+		return -ENOMEM;
+
+	bpc->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(bpc->base))
+		return PTR_ERR(bpc->base);
+
+	bpc->clk = devm_clk_get(&pdev->dev, NULL);
+	if (IS_ERR(bpc->clk))
+		return PTR_ERR(bpc->clk);
+
+	ret = clk_prepare_enable(bpc->clk);
+	if (ret)
+		return ret;
+
+	bpc->chip.dev = &pdev->dev;
+	bpc->chip.ops = &berlin_pwm_ops;
+	bpc->chip.npwm = 4;
+
+	ret = pwmchip_add(&bpc->chip);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "failed to add PWM chip: %d\n", ret);
+		clk_disable_unprepare(bpc->clk);
+		return ret;
+	}
+
+	platform_set_drvdata(pdev, bpc);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int berlin_pwm_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct berlin_pwm_chip *pwm = platform_get_drvdata(pdev);
 	int ret;
 
@@ -234,11 +378,21 @@ static int berlin_pwm_remove(struct platform_device *pdev)
 	clk_disable_unprepare(pwm->clk);
 
 	return ret;
+=======
+	struct berlin_pwm_chip *bpc = platform_get_drvdata(pdev);
+
+	pwmchip_remove(&bpc->chip);
+
+	clk_disable_unprepare(bpc->clk);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
 static int berlin_pwm_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct berlin_pwm_chip *pwm = dev_get_drvdata(dev);
 	unsigned int i;
 
@@ -256,12 +410,32 @@ static int berlin_pwm_suspend(struct device *dev)
 	}
 
 	clk_disable_unprepare(pwm->clk);
+=======
+	struct berlin_pwm_chip *bpc = dev_get_drvdata(dev);
+	unsigned int i;
+
+	for (i = 0; i < bpc->chip.npwm; i++) {
+		struct berlin_pwm_channel *channel;
+
+		channel = pwm_get_chip_data(&bpc->chip.pwms[i]);
+		if (!channel)
+			continue;
+
+		channel->enable = berlin_pwm_readl(bpc, i, BERLIN_PWM_ENABLE);
+		channel->ctrl = berlin_pwm_readl(bpc, i, BERLIN_PWM_CONTROL);
+		channel->duty = berlin_pwm_readl(bpc, i, BERLIN_PWM_DUTY);
+		channel->tcnt = berlin_pwm_readl(bpc, i, BERLIN_PWM_TCNT);
+	}
+
+	clk_disable_unprepare(bpc->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int berlin_pwm_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct berlin_pwm_chip *pwm = dev_get_drvdata(dev);
 	unsigned int i;
 	int ret;
@@ -281,6 +455,27 @@ static int berlin_pwm_resume(struct device *dev)
 		berlin_pwm_writel(pwm, i, channel->duty, BERLIN_PWM_DUTY);
 		berlin_pwm_writel(pwm, i, channel->tcnt, BERLIN_PWM_TCNT);
 		berlin_pwm_writel(pwm, i, channel->enable, BERLIN_PWM_ENABLE);
+=======
+	struct berlin_pwm_chip *bpc = dev_get_drvdata(dev);
+	unsigned int i;
+	int ret;
+
+	ret = clk_prepare_enable(bpc->clk);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < bpc->chip.npwm; i++) {
+		struct berlin_pwm_channel *channel;
+
+		channel = pwm_get_chip_data(&bpc->chip.pwms[i]);
+		if (!channel)
+			continue;
+
+		berlin_pwm_writel(bpc, i, channel->ctrl, BERLIN_PWM_CONTROL);
+		berlin_pwm_writel(bpc, i, channel->duty, BERLIN_PWM_DUTY);
+		berlin_pwm_writel(bpc, i, channel->tcnt, BERLIN_PWM_TCNT);
+		berlin_pwm_writel(bpc, i, channel->enable, BERLIN_PWM_ENABLE);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

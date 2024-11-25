@@ -288,7 +288,11 @@ static int icn8505_upload_fw(struct icn8505_data *icn8505)
 	 * we may need it at resume. Having loaded it once will make the
 	 * firmware class code cache it at suspend/resume.
 	 */
+<<<<<<< HEAD
 	error = request_firmware(&fw, icn8505->firmware_name, dev);
+=======
+	error = firmware_request_platform(&fw, icn8505->firmware_name, dev);
+>>>>>>> upstream/android-13
 	if (error) {
 		dev_err(dev, "Firmware request error %d\n", error);
 		return error;

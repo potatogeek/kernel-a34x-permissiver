@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 config LLC
 	tristate
 	depends on NET
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config LLC
+	tristate
+>>>>>>> upstream/android-13
 
 config LLC2
 	tristate "ANSI/IEEE 802.2 LLC type 2 Support"

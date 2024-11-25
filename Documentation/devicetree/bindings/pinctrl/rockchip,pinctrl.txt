@@ -29,9 +29,17 @@ Required properties for iomux controller:
 		"rockchip,rk3188-pinctrl":  for Rockchip RK3188
 		"rockchip,rk3228-pinctrl":  for Rockchip RK3228
 		"rockchip,rk3288-pinctrl":  for Rockchip RK3288
+<<<<<<< HEAD
 		"rockchip,rk3328-pinctrl":  for Rockchip RK3328
 		"rockchip,rk3368-pinctrl":  for Rockchip RK3368
 		"rockchip,rk3399-pinctrl":  for Rockchip RK3399
+=======
+		"rockchip,rk3308-pinctrl":  for Rockchip RK3308
+		"rockchip,rk3328-pinctrl":  for Rockchip RK3328
+		"rockchip,rk3368-pinctrl":  for Rockchip RK3368
+		"rockchip,rk3399-pinctrl":  for Rockchip RK3399
+		"rockchip,rk3568-pinctrl":  for Rockchip RK3568
+>>>>>>> upstream/android-13
 
   - rockchip,grf: phandle referencing a syscon providing the
 	 "general register files"
@@ -49,6 +57,7 @@ Deprecated properties for iomux controller:
 	 Use rockchip,grf and rockchip,pmu described above instead.
 
 Required properties for gpio sub nodes:
+<<<<<<< HEAD
   - compatible: "rockchip,gpio-bank"
   - reg: register of the gpio bank (different than the iomux registerset)
   - interrupts: base interrupt of the gpio bank in the interrupt controller
@@ -66,6 +75,9 @@ Deprecated properties for gpio sub nodes:
   - compatible: "rockchip,rk3188-gpio-bank0"
   - reg: second element: separate pull register for rk3188 bank0, use
 	 rockchip,pmu described above instead
+=======
+See rockchip,gpio-bank.yaml
+>>>>>>> upstream/android-13
 
 Required properties for pin configuration node:
   - rockchip,pins: 3 integers array, represents a group of pins mux and config
@@ -109,8 +121,13 @@ pinctrl@20008000 {
 
 	uart2 {
 		uart2_xfer: uart2-xfer {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO1 8 1 &pcfg_pull_default>,
 					<RK_GPIO1 9 1 &pcfg_pull_default>;
+=======
+			rockchip,pins = <1 RK_PB0 1 &pcfg_pull_default>,
+					<1 RK_PB1 1 &pcfg_pull_default>;
+>>>>>>> upstream/android-13
 		};
 	};
 };
@@ -126,6 +143,7 @@ uart2: serial@20064000 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart2_xfer>;
 };
+<<<<<<< HEAD
 
 Example for rk3188:
 
@@ -166,3 +184,5 @@ Example for rk3188:
 		...
 
 	};
+=======
+>>>>>>> upstream/android-13

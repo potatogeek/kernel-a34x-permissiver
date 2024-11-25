@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 all:
 
 include ../lib.mk
@@ -15,3 +16,10 @@ TEST_PROGS += $(BINARIES)
 EXTRA_CLEAN := $(BINARIES)
 
 all: $(BINARIES)
+=======
+CFLAGS += -Wl,-no-as-needed -Wall -isystem ../../../../usr/include/
+LDFLAGS += -lpthread
+
+TEST_GEN_PROGS := seccomp_bpf seccomp_benchmark
+include ../lib.mk
+>>>>>>> upstream/android-13

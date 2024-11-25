@@ -22,12 +22,15 @@
  */
 #define SY8106A_GO_BIT			BIT(7)
 
+<<<<<<< HEAD
 struct sy8106a {
 	struct regulator_dev *rdev;
 	struct regmap *regmap;
 	u32 fixed_voltage;
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct regmap_config sy8106a_regmap_config = {
 	.reg_bits = 8,
 	.val_bits = 8,
@@ -67,6 +70,7 @@ static const struct regulator_desc sy8106a_reg = {
 /*
  * I2C driver interface functions
  */
+<<<<<<< HEAD
 static int sy8106a_i2c_probe(struct i2c_client *i2c,
 			    const struct i2c_device_id *id)
 {
@@ -93,13 +97,41 @@ static int sy8106a_i2c_probe(struct i2c_client *i2c,
 	chip->regmap = devm_regmap_init_i2c(i2c, &sy8106a_regmap_config);
 	if (IS_ERR(chip->regmap)) {
 		error = PTR_ERR(chip->regmap);
+=======
+static int sy8106a_i2c_probe(struct i2c_client *i2c)
+{
+	struct device *dev = &i2c->dev;
+	struct regulator_dev *rdev;
+	struct regulator_config config = { };
+	struct regmap *regmap;
+	unsigned int reg, vsel;
+	u32 fixed_voltage;
+	int error;
+
+	error = of_property_read_u32(dev->of_node, "silergy,fixed-microvolt",
+				     &fixed_voltage);
+	if (error)
+		return error;
+
+	if (fixed_voltage < SY8106A_MIN_MV * 1000 ||
+	    fixed_voltage > SY8106A_MAX_MV * 1000)
+		return -EINVAL;
+
+	regmap = devm_regmap_init_i2c(i2c, &sy8106a_regmap_config);
+	if (IS_ERR(regmap)) {
+		error = PTR_ERR(regmap);
+>>>>>>> upstream/android-13
 		dev_err(dev, "Failed to allocate register map: %d\n", error);
 		return error;
 	}
 
 	config.dev = &i2c->dev;
+<<<<<<< HEAD
 	config.regmap = chip->regmap;
 	config.driver_data = chip;
+=======
+	config.regmap = regmap;
+>>>>>>> upstream/android-13
 
 	config.of_node = dev->of_node;
 	config.init_data = of_get_regulator_init_data(dev, dev->of_node,
@@ -109,15 +141,26 @@ static int sy8106a_i2c_probe(struct i2c_client *i2c,
 		return -ENOMEM;
 
 	/* Ensure GO_BIT is enabled when probing */
+<<<<<<< HEAD
 	error = regmap_read(chip->regmap, SY8106A_REG_VOUT1_SEL, &reg);
+=======
+	error = regmap_read(regmap, SY8106A_REG_VOUT1_SEL, &reg);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
 	if (!(reg & SY8106A_GO_BIT)) {
+<<<<<<< HEAD
 		vsel = (chip->fixed_voltage / 1000 - SY8106A_MIN_MV) /
 		       SY8106A_STEP_MV;
 
 		error = regmap_write(chip->regmap, SY8106A_REG_VOUT1_SEL,
+=======
+		vsel = (fixed_voltage / 1000 - SY8106A_MIN_MV) /
+		       SY8106A_STEP_MV;
+
+		error = regmap_write(regmap, SY8106A_REG_VOUT1_SEL,
+>>>>>>> upstream/android-13
 				     vsel | SY8106A_GO_BIT);
 		if (error)
 			return error;
@@ -131,6 +174,7 @@ static int sy8106a_i2c_probe(struct i2c_client *i2c,
 		return error;
 	}
 
+<<<<<<< HEAD
 	chip->rdev = rdev;
 
 	i2c_set_clientdata(i2c, chip);
@@ -139,6 +183,12 @@ static int sy8106a_i2c_probe(struct i2c_client *i2c,
 }
 
 static const struct of_device_id sy8106a_i2c_of_match[] = {
+=======
+	return 0;
+}
+
+static const struct of_device_id __maybe_unused sy8106a_i2c_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "silergy,sy8106a" },
 	{ },
 };
@@ -155,7 +205,11 @@ static struct i2c_driver sy8106a_regulator_driver = {
 		.name = "sy8106a",
 		.of_match_table	= of_match_ptr(sy8106a_i2c_of_match),
 	},
+<<<<<<< HEAD
 	.probe = sy8106a_i2c_probe,
+=======
+	.probe_new = sy8106a_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table = sy8106a_i2c_id,
 };
 

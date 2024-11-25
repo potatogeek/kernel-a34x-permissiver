@@ -4,7 +4,11 @@
  *     Version: 0.1.0
  * Description: cfag12864b LCD userspace example program
  *
+<<<<<<< HEAD
  *      Author: Copyright (C) Miguel Ojeda Sandonis
+=======
+ *      Author: Copyright (C) Miguel Ojeda <ojeda@kernel.org>
+>>>>>>> upstream/android-13
  *        Date: 2006-10-31
  */
 
@@ -245,7 +249,11 @@ int main(int argc, char *argv[])
 
 	if (argc != 2) {
 		printf(
+<<<<<<< HEAD
 			"Sintax:  %s fbdev\n"
+=======
+			"Syntax:  %s fbdev\n"
+>>>>>>> upstream/android-13
 			"Usually: /dev/fb0, /dev/fb1...\n", argv[0]);
 		return -1;
 	}

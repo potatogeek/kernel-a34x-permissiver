@@ -33,6 +33,7 @@ static inline mm_segment_t get_fs(void)
 	return USER_DS;
 }
 
+<<<<<<< HEAD
 static inline mm_segment_t get_ds(void)
 {
 	/* return the supervisor data space code */
@@ -40,6 +41,9 @@ static inline mm_segment_t get_ds(void)
 }
 
 #define segment_eq(a, b)	((a).seg == (b).seg)
+=======
+#define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+>>>>>>> upstream/android-13
 
 #endif /* __ASSEMBLY__ */
 

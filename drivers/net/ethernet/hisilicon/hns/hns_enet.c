@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -15,6 +21,10 @@
 #include <linux/io.h>
 #include <linux/ip.h>
 #include <linux/ipv6.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/phy.h>
 #include <linux/platform_device.h>
@@ -249,7 +259,11 @@ static int hns_nic_maybe_stop_tso(
 	int frag_num;
 	struct sk_buff *skb = *out_skb;
 	struct sk_buff *new_skb = NULL;
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 
 	size = skb_headlen(skb);
 	buf_num = (size + BD_MAX_SEND_SIZE - 1) / BD_MAX_SEND_SIZE;
@@ -313,7 +327,11 @@ netdev_tx_t hns_nic_net_xmit_hw(struct net_device *ndev,
 	struct hnae_ring *ring = ring_data->ring;
 	struct device *dev = ring_to_dev(ring);
 	struct netdev_queue *dev_queue;
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 	int buf_num;
 	int seg_num;
 	dma_addr_t dma;
@@ -561,10 +579,14 @@ static int hns_nic_poll_rx_skb(struct hns_nic_ring_data *ring_data,
 	va = (unsigned char *)desc_cb->buf + desc_cb->page_offset;
 
 	/* prefetch first cache line of first page */
+<<<<<<< HEAD
 	prefetch(va);
 #if L1_CACHE_BYTES < 128
 	prefetch(va + L1_CACHE_BYTES);
 #endif
+=======
+	net_prefetch(va);
+>>>>>>> upstream/android-13
 
 	skb = *out_skb = napi_alloc_skb(&ring_data->napi,
 					HNS_RX_HEAD_SIZE);
@@ -597,7 +619,11 @@ static int hns_nic_poll_rx_skb(struct hns_nic_ring_data *ring_data,
 	} else {
 		ring->stats.seg_pkt_cnt++;
 
+<<<<<<< HEAD
 		pull_len = eth_get_headlen(va, HNS_RX_HEAD_SIZE);
+=======
+		pull_len = eth_get_headlen(ndev, va, HNS_RX_HEAD_SIZE);
+>>>>>>> upstream/android-13
 		memcpy(__skb_put(skb, pull_len), va,
 		       ALIGN(pull_len, sizeof(long)));
 
@@ -703,7 +729,11 @@ static void hns_nic_rx_up_pro(struct hns_nic_ring_data *ring_data,
 	struct net_device *ndev = ring_data->napi.dev;
 
 	skb->protocol = eth_type_trans(skb, ndev);
+<<<<<<< HEAD
 	(void)napi_gro_receive(&ring_data->napi, skb);
+=======
+	napi_gro_receive(&ring_data->napi, skb);
+>>>>>>> upstream/android-13
 }
 
 static int hns_desc_unused(struct hnae_ring *ring)
@@ -758,6 +788,11 @@ static void hns_update_rx_rate(struct hnae_ring *ring)
 
 /**
  * smooth_alg - smoothing algrithm for adjusting coalesce parameter
+<<<<<<< HEAD
+=======
+ * @new_param: new value
+ * @old_param: old value
+>>>>>>> upstream/android-13
  **/
 static u32 smooth_alg(u32 new_param, u32 old_param)
 {
@@ -774,7 +809,11 @@ static u32 smooth_alg(u32 new_param, u32 old_param)
 }
 
 /**
+<<<<<<< HEAD
  * hns_nic_adp_coalesce - self adapte coalesce according to rx rate
+=======
+ * hns_nic_adpt_coalesce - self adapte coalesce according to rx rate
+>>>>>>> upstream/android-13
  * @ring_data: pointer to hns_nic_ring_data
  **/
 static void hns_nic_adpt_coalesce(struct hns_nic_ring_data *ring_data)
@@ -876,7 +915,11 @@ out:
 static bool hns_nic_rx_fini_pro(struct hns_nic_ring_data *ring_data)
 {
 	struct hnae_ring *ring = ring_data->ring;
+<<<<<<< HEAD
 	int num = 0;
+=======
+	int num;
+>>>>>>> upstream/android-13
 	bool rx_stopped;
 
 	hns_update_rx_rate(ring);
@@ -1139,14 +1182,24 @@ static void hns_nic_adjust_link(struct net_device *ndev)
  */
 int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
 {
+<<<<<<< HEAD
+=======
+	__ETHTOOL_DECLARE_LINK_MODE_MASK(supported) = { 0, };
+>>>>>>> upstream/android-13
 	struct phy_device *phy_dev = h->phy_dev;
 	int ret;
 
 	if (!h->phy_dev)
 		return 0;
 
+<<<<<<< HEAD
 	phy_dev->supported &= h->if_support;
 	phy_dev->advertising = phy_dev->supported;
+=======
+	ethtool_convert_legacy_u32_to_link_mode(supported, h->if_support);
+	linkmode_and(phy_dev->supported, phy_dev->supported, supported);
+	linkmode_copy(phy_dev->advertising, phy_dev->supported);
+>>>>>>> upstream/android-13
 
 	if (h->phy_if == PHY_INTERFACE_MODE_XGMII)
 		phy_dev->autoneg = false;
@@ -1162,6 +1215,11 @@ int hns_nic_init_phy(struct net_device *ndev, struct hnae_handle *h)
 	if (unlikely(ret))
 		return -ENODEV;
 
+<<<<<<< HEAD
+=======
+	phy_attached_info(phy_dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1235,7 +1293,11 @@ static int hns_nic_init_affinity_mask(int q_num, int ring_idx,
 {
 	int cpu;
 
+<<<<<<< HEAD
 	/* Diffrent irq banlance between 16core and 32core.
+=======
+	/* Different irq balance between 16core and 32core.
+>>>>>>> upstream/android-13
 	 * The cpu mask set by ring index according to the ring flag
 	 * which indicate the ring is tx or rx.
 	 */
@@ -1293,6 +1355,10 @@ static int hns_nic_init_irq(struct hns_nic_priv *priv)
 
 		rd->ring->ring_name[RCB_RING_NAME_LEN - 1] = '\0';
 
+<<<<<<< HEAD
+=======
+		irq_set_status_flags(rd->ring->irq, IRQ_NOAUTOEN);
+>>>>>>> upstream/android-13
 		ret = request_irq(rd->ring->irq,
 				  hns_irq_handle, 0, rd->ring->ring_name, rd);
 		if (ret) {
@@ -1300,7 +1366,10 @@ static int hns_nic_init_irq(struct hns_nic_priv *priv)
 				   rd->ring->irq);
 			goto out_free_irq;
 		}
+<<<<<<< HEAD
 		disable_irq(rd->ring->irq);
+=======
+>>>>>>> upstream/android-13
 
 		cpu = hns_nic_init_affinity_mask(h->q_num, i,
 						 rd->ring, &rd->mask);
@@ -1483,7 +1552,11 @@ static int hns_nic_net_stop(struct net_device *ndev)
 
 static void hns_tx_timeout_reset(struct hns_nic_priv *priv);
 #define HNS_TX_TIMEO_LIMIT (40 * HZ)
+<<<<<<< HEAD
 static void hns_nic_net_timeout(struct net_device *ndev)
+=======
+static void hns_nic_net_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct hns_nic_priv *priv = netdev_priv(ndev);
 
@@ -1497,6 +1570,7 @@ static void hns_nic_net_timeout(struct net_device *ndev)
 	}
 }
 
+<<<<<<< HEAD
 static int hns_nic_do_ioctl(struct net_device *netdev, struct ifreq *ifr,
 			    int cmd)
 {
@@ -1511,12 +1585,18 @@ static int hns_nic_do_ioctl(struct net_device *netdev, struct ifreq *ifr,
 	return phy_mii_ioctl(phy_dev, ifr, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static netdev_tx_t hns_nic_net_xmit(struct sk_buff *skb,
 				    struct net_device *ndev)
 {
 	struct hns_nic_priv *priv = netdev_priv(ndev);
 
+<<<<<<< HEAD
 	assert(skb->queue_mapping < ndev->ae_handle->q_num);
+=======
+	assert(skb->queue_mapping < priv->ae_handle->q_num);
+>>>>>>> upstream/android-13
 
 	return hns_nic_net_xmit_hw(ndev, skb,
 				   &tx_ring_data(priv, skb->queue_mapping));
@@ -1606,7 +1686,11 @@ static void hns_disable_serdes_lb(struct net_device *ndev)
  *       which buffer size is 4096.
  *    2. we set the chip serdes loopback and set rss indirection to the ring.
  *    3. construct 64-bytes ip broadcast packages, wait the associated rx ring
+<<<<<<< HEAD
  *       recieving all packages and it will fetch new descriptions.
+=======
+ *       receiving all packages and it will fetch new descriptions.
+>>>>>>> upstream/android-13
  *    4. recover to the original state.
  *
  *@ndev: net device
@@ -1635,7 +1719,11 @@ static int hns_nic_clear_all_rx_fetch(struct net_device *ndev)
 	if (!org_indir)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/* store the orginal indirection */
+=======
+	/* store the original indirection */
+>>>>>>> upstream/android-13
 	ops->get_rss(h, org_indir, NULL, NULL);
 
 	cur_indir = kzalloc(indir_size, GFP_KERNEL);
@@ -1847,9 +1935,14 @@ static int hns_nic_uc_unsync(struct net_device *netdev,
 }
 
 /**
+<<<<<<< HEAD
  * nic_set_multicast_list - set mutl mac address
  * @netdev: net device
  * @p: mac address
+=======
+ * hns_set_multicast_list - set mutl mac address
+ * @ndev: net device
+>>>>>>> upstream/android-13
  *
  * return void
  */
@@ -1896,7 +1989,11 @@ static void hns_nic_set_rx_mode(struct net_device *ndev)
 static void hns_nic_get_stats64(struct net_device *ndev,
 				struct rtnl_link_stats64 *stats)
 {
+<<<<<<< HEAD
 	int idx = 0;
+=======
+	int idx;
+>>>>>>> upstream/android-13
 	u64 tx_bytes = 0;
 	u64 rx_bytes = 0;
 	u64 tx_pkts = 0;
@@ -1940,8 +2037,12 @@ static void hns_nic_get_stats64(struct net_device *ndev,
 
 static u16
 hns_nic_select_queue(struct net_device *ndev, struct sk_buff *skb,
+<<<<<<< HEAD
 		     struct net_device *sb_dev,
 		     select_queue_fallback_t fallback)
+=======
+		     struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	struct ethhdr *eth_hdr = (struct ethhdr *)skb->data;
 	struct hns_nic_priv *priv = netdev_priv(ndev);
@@ -1951,7 +2052,11 @@ hns_nic_select_queue(struct net_device *ndev, struct sk_buff *skb,
 	    is_multicast_ether_addr(eth_hdr->h_dest))
 		return 0;
 	else
+<<<<<<< HEAD
 		return fallback(ndev, skb, NULL);
+=======
+		return netdev_pick_tx(ndev, skb, NULL);
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops hns_nic_netdev_ops = {
@@ -1961,7 +2066,11 @@ static const struct net_device_ops hns_nic_netdev_ops = {
 	.ndo_tx_timeout = hns_nic_net_timeout,
 	.ndo_set_mac_address = hns_nic_net_set_mac_address,
 	.ndo_change_mtu = hns_nic_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl = hns_nic_do_ioctl,
+=======
+	.ndo_eth_ioctl = phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_set_features = hns_nic_set_features,
 	.ndo_fix_features = hns_nic_fix_features,
 	.ndo_get_stats64 = hns_nic_get_stats64,
@@ -2356,6 +2465,10 @@ static int hns_nic_dev_probe(struct platform_device *pdev)
 		ndev->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 			NETIF_F_RXCSUM | NETIF_F_SG | NETIF_F_GSO |
 			NETIF_F_GRO | NETIF_F_TSO | NETIF_F_TSO6;
+<<<<<<< HEAD
+=======
+		ndev->vlan_features |= NETIF_F_TSO | NETIF_F_TSO6;
+>>>>>>> upstream/android-13
 		ndev->max_mtu = MAC_MAX_MTU_V2 -
 				(ETH_HLEN + ETH_FCS_LEN + VLAN_HLEN);
 		break;

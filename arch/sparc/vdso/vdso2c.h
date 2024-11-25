@@ -17,7 +17,10 @@ static void BITSFUNC(go)(void *raw_addr, size_t raw_len,
 	unsigned long mapping_size;
 	int i;
 	unsigned long j;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	ELF(Shdr) *symtab_hdr = NULL, *strtab_hdr;
 	ELF(Ehdr) *hdr = (ELF(Ehdr) *)raw_addr;
 	ELF(Dyn) *dyn = 0, *dyn_end = 0;

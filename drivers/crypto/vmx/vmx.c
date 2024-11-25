@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Routines supporting VMX instructions on the Power 8
  *
  * Copyright (C) 2015 International Business Machines Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 only.
@@ -16,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Marcelo Henrique Cerri <mhcerri@br.ibm.com>
  */
 
@@ -27,6 +35,7 @@
 #include <linux/crypto.h>
 #include <asm/cputable.h>
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
 
 extern struct shash_alg p8_ghash_alg;
 extern struct crypto_alg p8_aes_alg;
@@ -75,6 +84,56 @@ void __exit p8_exit(void)
 		printk(KERN_INFO "Removing '%s'\n", (*alg_it)->cra_name);
 		crypto_unregister_alg(*alg_it);
 	}
+=======
+#include <crypto/internal/skcipher.h>
+
+#include "aesp8-ppc.h"
+
+static int __init p8_init(void)
+{
+	int ret;
+
+	ret = crypto_register_shash(&p8_ghash_alg);
+	if (ret)
+		goto err;
+
+	ret = crypto_register_alg(&p8_aes_alg);
+	if (ret)
+		goto err_unregister_ghash;
+
+	ret = crypto_register_skcipher(&p8_aes_cbc_alg);
+	if (ret)
+		goto err_unregister_aes;
+
+	ret = crypto_register_skcipher(&p8_aes_ctr_alg);
+	if (ret)
+		goto err_unregister_aes_cbc;
+
+	ret = crypto_register_skcipher(&p8_aes_xts_alg);
+	if (ret)
+		goto err_unregister_aes_ctr;
+
+	return 0;
+
+err_unregister_aes_ctr:
+	crypto_unregister_skcipher(&p8_aes_ctr_alg);
+err_unregister_aes_cbc:
+	crypto_unregister_skcipher(&p8_aes_cbc_alg);
+err_unregister_aes:
+	crypto_unregister_alg(&p8_aes_alg);
+err_unregister_ghash:
+	crypto_unregister_shash(&p8_ghash_alg);
+err:
+	return ret;
+}
+
+static void __exit p8_exit(void)
+{
+	crypto_unregister_skcipher(&p8_aes_xts_alg);
+	crypto_unregister_skcipher(&p8_aes_ctr_alg);
+	crypto_unregister_skcipher(&p8_aes_cbc_alg);
+	crypto_unregister_alg(&p8_aes_alg);
+>>>>>>> upstream/android-13
 	crypto_unregister_shash(&p8_ghash_alg);
 }
 
@@ -86,3 +145,7 @@ MODULE_DESCRIPTION("IBM VMX cryptographic acceleration instructions "
 		   "support on Power 8");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("1.0.0");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

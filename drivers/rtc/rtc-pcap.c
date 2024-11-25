@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  *  pcap rtc code for Motorola EZX phones
  *
@@ -5,11 +9,14 @@
  *  Copyright (c) 2009 Daniel Ribeiro <drwyrm@gmail.com>
  *
  *  Based on Motorola's rtc.c Copyright (c) 2003-2005 Motorola
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -55,7 +62,11 @@ static int pcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	ezx_pcap_read(pcap_rtc->pcap, PCAP_REG_RTC_DAYA, &days);
 	secs += (days & PCAP_RTC_DAY_MASK) * SEC_PER_DAY;
 
+<<<<<<< HEAD
 	rtc_time_to_tm(secs, tm);
+=======
+	rtc_time64_to_tm(secs, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -63,12 +74,18 @@ static int pcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 static int pcap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 {
 	struct pcap_rtc *pcap_rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct rtc_time *tm = &alrm->time;
 	unsigned long secs;
 	u32 tod, days;
 
 	rtc_tm_to_time(tm, &secs);
 
+=======
+	unsigned long secs = rtc_tm_to_time64(&alrm->time);
+	u32 tod, days;
+
+>>>>>>> upstream/android-13
 	tod = secs % SEC_PER_DAY;
 	ezx_pcap_write(pcap_rtc->pcap, PCAP_REG_RTC_TODA, tod);
 
@@ -90,14 +107,25 @@ static int pcap_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	ezx_pcap_read(pcap_rtc->pcap, PCAP_REG_RTC_DAY, &days);
 	secs += (days & PCAP_RTC_DAY_MASK) * SEC_PER_DAY;
 
+<<<<<<< HEAD
 	rtc_time_to_tm(secs, tm);
+=======
+	rtc_time64_to_tm(secs, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pcap_rtc_set_mmss(struct device *dev, unsigned long secs)
 {
 	struct pcap_rtc *pcap_rtc = dev_get_drvdata(dev);
+=======
+static int pcap_rtc_set_time(struct device *dev, struct rtc_time *tm)
+{
+	struct pcap_rtc *pcap_rtc = dev_get_drvdata(dev);
+	unsigned long secs = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 	u32 tod, days;
 
 	tod = secs % SEC_PER_DAY;
@@ -128,9 +156,15 @@ static int pcap_rtc_alarm_irq_enable(struct device *dev, unsigned int en)
 
 static const struct rtc_class_ops pcap_rtc_ops = {
 	.read_time = pcap_rtc_read_time,
+<<<<<<< HEAD
 	.read_alarm = pcap_rtc_read_alarm,
 	.set_alarm = pcap_rtc_set_alarm,
 	.set_mmss = pcap_rtc_set_mmss,
+=======
+	.set_time = pcap_rtc_set_time,
+	.read_alarm = pcap_rtc_read_alarm,
+	.set_alarm = pcap_rtc_set_alarm,
+>>>>>>> upstream/android-13
 	.alarm_irq_enable = pcap_rtc_alarm_irq_enable,
 };
 
@@ -149,11 +183,21 @@ static int __init pcap_rtc_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, pcap_rtc);
 
+<<<<<<< HEAD
 	pcap_rtc->rtc = devm_rtc_device_register(&pdev->dev, "pcap",
 					&pcap_rtc_ops, THIS_MODULE);
 	if (IS_ERR(pcap_rtc->rtc))
 		return PTR_ERR(pcap_rtc->rtc);
 
+=======
+	pcap_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(pcap_rtc->rtc))
+		return PTR_ERR(pcap_rtc->rtc);
+
+	pcap_rtc->rtc->ops = &pcap_rtc_ops;
+	pcap_rtc->rtc->range_max = (1 << 14) * 86400ULL - 1;
+
+>>>>>>> upstream/android-13
 	timer_irq = pcap_to_irq(pcap_rtc->pcap, PCAP_IRQ_1HZ);
 	alarm_irq = pcap_to_irq(pcap_rtc->pcap, PCAP_IRQ_TODA);
 
@@ -167,7 +211,11 @@ static int __init pcap_rtc_probe(struct platform_device *pdev)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return devm_rtc_register_device(pcap_rtc->rtc);
+>>>>>>> upstream/android-13
 }
 
 static int __exit pcap_rtc_remove(struct platform_device *pdev)

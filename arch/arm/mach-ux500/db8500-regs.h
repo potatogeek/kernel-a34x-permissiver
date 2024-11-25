@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MACH_DB8500_REGS_H

@@ -65,6 +65,10 @@ acpi-y +=		\
 	exresnte.o	\
 	exresolv.o	\
 	exresop.o	\
+<<<<<<< HEAD
+=======
+	exserial.o	\
+>>>>>>> upstream/android-13
 	exstore.o	\
 	exstoren.o	\
 	exstorob.o	\
@@ -76,13 +80,20 @@ acpi-y +=		\
 	hwacpi.o	\
 	hwesleep.o	\
 	hwgpe.o		\
+<<<<<<< HEAD
 	hwpci.o		\
+=======
+>>>>>>> upstream/android-13
 	hwregs.o	\
 	hwsleep.o	\
 	hwvalid.o	\
 	hwxface.o	\
 	hwxfsleep.o
 
+<<<<<<< HEAD
+=======
+acpi-$(CONFIG_PCI) += hwpci.o
+>>>>>>> upstream/android-13
 acpi-$(ACPI_FUTURE_USAGE) += hwtimer.o
 
 acpi-y +=		\

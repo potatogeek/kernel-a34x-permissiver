@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -12,6 +13,12 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+>>>>>>> upstream/android-13
  */
 #ifndef __PVRUSB2_DEVATTR_H
 #define __PVRUSB2_DEVATTR_H
@@ -66,6 +73,10 @@ struct pvr2_string_table {
 #define PVR2_ROUTING_SCHEME_GOTVIEW 1
 #define PVR2_ROUTING_SCHEME_ONAIR 2
 #define PVR2_ROUTING_SCHEME_AV400 3
+<<<<<<< HEAD
+=======
+#define PVR2_ROUTING_SCHEME_HAUP160XXX 4
+>>>>>>> upstream/android-13
 
 #define PVR2_DIGITAL_SCHEME_NONE 0
 #define PVR2_DIGITAL_SCHEME_HAUPPAUGE 1

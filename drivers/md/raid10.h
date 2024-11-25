@@ -124,6 +124,10 @@ struct r10bio {
 	sector_t		sector;	/* virtual sector number */
 	int			sectors;
 	unsigned long		state;
+<<<<<<< HEAD
+=======
+	unsigned long		start_time;
+>>>>>>> upstream/android-13
 	struct mddev		*mddev;
 	/*
 	 * original bio going to /dev/mdx
@@ -153,7 +157,11 @@ struct r10bio {
 		};
 		sector_t	addr;
 		int		devnum;
+<<<<<<< HEAD
 	} devs[0];
+=======
+	} devs[];
+>>>>>>> upstream/android-13
 };
 
 /* bits for r10bio.state */
@@ -179,5 +187,9 @@ enum r10bio_state {
 	R10BIO_Previous,
 /* failfast devices did receive failfast requests. */
 	R10BIO_FailFast,
+<<<<<<< HEAD
+=======
+	R10BIO_Discard,
+>>>>>>> upstream/android-13
 };
 #endif

@@ -21,6 +21,7 @@
 #include <asm/bootinfo.h>
 
 VOID __noreturn
+<<<<<<< HEAD
 ArcHalt(VOID)
 {
 	bc_disable();
@@ -62,6 +63,8 @@ ArcReboot(VOID)
 }
 
 VOID __noreturn
+=======
+>>>>>>> upstream/android-13
 ArcEnterInteractiveMode(VOID)
 {
 	bc_disable();
@@ -71,6 +74,7 @@ ArcEnterInteractiveMode(VOID)
 	unreachable();
 }
 
+<<<<<<< HEAD
 LONG
 ArcSaveConfiguration(VOID)
 {
@@ -89,6 +93,8 @@ ArcFlushAllCaches(VOID)
 	ARC_CALL0(cache_flush);
 }
 
+=======
+>>>>>>> upstream/android-13
 DISPLAY_STATUS * __init ArcGetDisplayStatus(ULONG FileID)
 {
 	return (DISPLAY_STATUS *) ARC_CALL1(GetDisplayStatus, FileID);

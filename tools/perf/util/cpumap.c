@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "util.h"
 #include <api/fs/fs.h>
 #include "../perf.h"
 #include "cpumap.h"
+=======
+#include <api/fs/fs.h>
+#include "cpumap.h"
+#include "debug.h"
+#include "event.h"
+>>>>>>> upstream/android-13
 #include <assert.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -10,13 +17,19 @@
 #include <linux/bitmap.h>
 #include "asm/bug.h"
 
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <linux/ctype.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 static int max_cpu_num;
 static int max_present_cpu_num;
 static int max_node_num;
 static int *cpunode_map;
 
+<<<<<<< HEAD
 static struct cpu_map *cpu_map__default_new(void)
 {
 	struct cpu_map *cpus;
@@ -201,6 +214,13 @@ static struct cpu_map *cpu_map__from_entries(struct cpu_map_entries *cpus)
 	struct cpu_map *map;
 
 	map = cpu_map__empty_new(cpus->nr);
+=======
+static struct perf_cpu_map *cpu_map__from_entries(struct cpu_map_entries *cpus)
+{
+	struct perf_cpu_map *map;
+
+	map = perf_cpu_map__empty_new(cpus->nr);
+>>>>>>> upstream/android-13
 	if (map) {
 		unsigned i;
 
@@ -220,14 +240,24 @@ static struct cpu_map *cpu_map__from_entries(struct cpu_map_entries *cpus)
 	return map;
 }
 
+<<<<<<< HEAD
 static struct cpu_map *cpu_map__from_mask(struct cpu_map_mask *mask)
 {
 	struct cpu_map *map;
+=======
+static struct perf_cpu_map *cpu_map__from_mask(struct perf_record_record_cpu_map *mask)
+{
+	struct perf_cpu_map *map;
+>>>>>>> upstream/android-13
 	int nr, nbits = mask->nr * mask->long_size * BITS_PER_BYTE;
 
 	nr = bitmap_weight(mask->mask, nbits);
 
+<<<<<<< HEAD
 	map = cpu_map__empty_new(nr);
+=======
+	map = perf_cpu_map__empty_new(nr);
+>>>>>>> upstream/android-13
 	if (map) {
 		int cpu, i = 0;
 
@@ -238,15 +268,26 @@ static struct cpu_map *cpu_map__from_mask(struct cpu_map_mask *mask)
 
 }
 
+<<<<<<< HEAD
 struct cpu_map *cpu_map__new_data(struct cpu_map_data *data)
+=======
+struct perf_cpu_map *cpu_map__new_data(struct perf_record_cpu_map_data *data)
+>>>>>>> upstream/android-13
 {
 	if (data->type == PERF_CPU_MAP__CPUS)
 		return cpu_map__from_entries((struct cpu_map_entries *)data->data);
 	else
+<<<<<<< HEAD
 		return cpu_map__from_mask((struct cpu_map_mask *)data->data);
 }
 
 size_t cpu_map__fprintf(struct cpu_map *map, FILE *fp)
+=======
+		return cpu_map__from_mask((struct perf_record_record_cpu_map *)data->data);
+}
+
+size_t cpu_map__fprintf(struct perf_cpu_map *map, FILE *fp)
+>>>>>>> upstream/android-13
 {
 #define BUFSIZE 1024
 	char buf[BUFSIZE];
@@ -256,6 +297,7 @@ size_t cpu_map__fprintf(struct cpu_map *map, FILE *fp)
 #undef BUFSIZE
 }
 
+<<<<<<< HEAD
 struct cpu_map *cpu_map__dummy_new(void)
 {
 	struct cpu_map *cpus = malloc(sizeof(*cpus) + sizeof(int));
@@ -272,6 +314,11 @@ struct cpu_map *cpu_map__dummy_new(void)
 struct cpu_map *cpu_map__empty_new(int nr)
 {
 	struct cpu_map *cpus = malloc(sizeof(*cpus) + sizeof(int) * nr);
+=======
+struct perf_cpu_map *perf_cpu_map__empty_new(int nr)
+{
+	struct perf_cpu_map *cpus = malloc(sizeof(*cpus) + sizeof(int) * nr);
+>>>>>>> upstream/android-13
 
 	if (cpus != NULL) {
 		int i;
@@ -286,6 +333,7 @@ struct cpu_map *cpu_map__empty_new(int nr)
 	return cpus;
 }
 
+<<<<<<< HEAD
 static void cpu_map__delete(struct cpu_map *map)
 {
 	if (map) {
@@ -306,6 +354,23 @@ void cpu_map__put(struct cpu_map *map)
 {
 	if (map && refcount_dec_and_test(&map->refcnt))
 		cpu_map__delete(map);
+=======
+struct cpu_aggr_map *cpu_aggr_map__empty_new(int nr)
+{
+	struct cpu_aggr_map *cpus = malloc(sizeof(*cpus) + sizeof(struct aggr_cpu_id) * nr);
+
+	if (cpus != NULL) {
+		int i;
+
+		cpus->nr = nr;
+		for (i = 0; i < nr; i++)
+			cpus->map[i] = cpu_map__empty_aggr_cpu_id();
+
+		refcount_set(&cpus->refcnt, 1);
+	}
+
+	return cpus;
+>>>>>>> upstream/android-13
 }
 
 static int cpu__get_topology_int(int cpu, const char *name, int *value)
@@ -324,6 +389,7 @@ int cpu_map__get_socket_id(int cpu)
 	return ret ?: value;
 }
 
+<<<<<<< HEAD
 int cpu_map__get_socket(struct cpu_map *map, int idx, void *data __maybe_unused)
 {
 	int cpu;
@@ -358,6 +424,59 @@ int cpu_map__build_map(struct cpu_map *cpus, struct cpu_map **res,
 		s1 = f(cpus, cpu, data);
 		for (s2 = 0; s2 < c->nr; s2++) {
 			if (s1 == c->map[s2])
+=======
+struct aggr_cpu_id cpu_map__get_socket(struct perf_cpu_map *map, int idx,
+					void *data __maybe_unused)
+{
+	int cpu;
+	struct aggr_cpu_id id = cpu_map__empty_aggr_cpu_id();
+
+	if (idx > map->nr)
+		return id;
+
+	cpu = map->map[idx];
+
+	id.socket = cpu_map__get_socket_id(cpu);
+	return id;
+}
+
+static int cmp_aggr_cpu_id(const void *a_pointer, const void *b_pointer)
+{
+	struct aggr_cpu_id *a = (struct aggr_cpu_id *)a_pointer;
+	struct aggr_cpu_id *b = (struct aggr_cpu_id *)b_pointer;
+
+	if (a->node != b->node)
+		return a->node - b->node;
+	else if (a->socket != b->socket)
+		return a->socket - b->socket;
+	else if (a->die != b->die)
+		return a->die - b->die;
+	else if (a->core != b->core)
+		return a->core - b->core;
+	else
+		return a->thread - b->thread;
+}
+
+int cpu_map__build_map(struct perf_cpu_map *cpus, struct cpu_aggr_map **res,
+		       struct aggr_cpu_id (*f)(struct perf_cpu_map *map, int cpu, void *data),
+		       void *data)
+{
+	int nr = cpus->nr;
+	struct cpu_aggr_map *c = cpu_aggr_map__empty_new(nr);
+	int cpu, s2;
+	struct aggr_cpu_id s1;
+
+	if (!c)
+		return -1;
+
+	/* Reset size as it may only be partially filled */
+	c->nr = 0;
+
+	for (cpu = 0; cpu < nr; cpu++) {
+		s1 = f(cpus, cpu, data);
+		for (s2 = 0; s2 < c->nr; s2++) {
+			if (cpu_map__compare_aggr_cpu_id(s1, c->map[s2]))
+>>>>>>> upstream/android-13
 				break;
 		}
 		if (s2 == c->nr) {
@@ -366,30 +485,89 @@ int cpu_map__build_map(struct cpu_map *cpus, struct cpu_map **res,
 		}
 	}
 	/* ensure we process id in increasing order */
+<<<<<<< HEAD
 	qsort(c->map, c->nr, sizeof(int), cmp_ids);
 
 	refcount_set(&c->refcnt, 1);
+=======
+	qsort(c->map, c->nr, sizeof(struct aggr_cpu_id), cmp_aggr_cpu_id);
+
+>>>>>>> upstream/android-13
 	*res = c;
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int cpu_map__get_die_id(int cpu)
+{
+	int value, ret = cpu__get_topology_int(cpu, "die_id", &value);
+
+	return ret ?: value;
+}
+
+struct aggr_cpu_id cpu_map__get_die(struct perf_cpu_map *map, int idx, void *data)
+{
+	int cpu, die;
+	struct aggr_cpu_id id = cpu_map__empty_aggr_cpu_id();
+
+	if (idx > map->nr)
+		return id;
+
+	cpu = map->map[idx];
+
+	die = cpu_map__get_die_id(cpu);
+	/* There is no die_id on legacy system. */
+	if (die == -1)
+		die = 0;
+
+	/*
+	 * die_id is relative to socket, so start
+	 * with the socket ID and then add die to
+	 * make a unique ID.
+	 */
+	id = cpu_map__get_socket(map, idx, data);
+	if (cpu_map__aggr_cpu_id_is_empty(id))
+		return id;
+
+	id.die = die;
+	return id;
+}
+
+>>>>>>> upstream/android-13
 int cpu_map__get_core_id(int cpu)
 {
 	int value, ret = cpu__get_topology_int(cpu, "core_id", &value);
 	return ret ?: value;
 }
 
+<<<<<<< HEAD
 int cpu_map__get_core(struct cpu_map *map, int idx, void *data)
 {
 	int cpu, s;
 
 	if (idx > map->nr)
 		return -1;
+=======
+int cpu_map__get_node_id(int cpu)
+{
+	return cpu__get_node(cpu);
+}
+
+struct aggr_cpu_id cpu_map__get_core(struct perf_cpu_map *map, int idx, void *data)
+{
+	int cpu;
+	struct aggr_cpu_id id = cpu_map__empty_aggr_cpu_id();
+
+	if (idx > map->nr)
+		return id;
+>>>>>>> upstream/android-13
 
 	cpu = map->map[idx];
 
 	cpu = cpu_map__get_core_id(cpu);
 
+<<<<<<< HEAD
 	s = cpu_map__get_socket(map, idx, data);
 	if (s == -1)
 		return -1;
@@ -404,15 +582,59 @@ int cpu_map__get_core(struct cpu_map *map, int idx, void *data)
 }
 
 int cpu_map__build_socket_map(struct cpu_map *cpus, struct cpu_map **sockp)
+=======
+	/* cpu_map__get_die returns a struct with socket and die set*/
+	id = cpu_map__get_die(map, idx, data);
+	if (cpu_map__aggr_cpu_id_is_empty(id))
+		return id;
+
+	/*
+	 * core_id is relative to socket and die, we need a global id.
+	 * So we combine the result from cpu_map__get_die with the core id
+	 */
+	id.core = cpu;
+	return id;
+}
+
+struct aggr_cpu_id cpu_map__get_node(struct perf_cpu_map *map, int idx, void *data __maybe_unused)
+{
+	struct aggr_cpu_id id = cpu_map__empty_aggr_cpu_id();
+
+	if (idx < 0 || idx >= map->nr)
+		return id;
+
+	id.node = cpu_map__get_node_id(map->map[idx]);
+	return id;
+}
+
+int cpu_map__build_socket_map(struct perf_cpu_map *cpus, struct cpu_aggr_map **sockp)
+>>>>>>> upstream/android-13
 {
 	return cpu_map__build_map(cpus, sockp, cpu_map__get_socket, NULL);
 }
 
+<<<<<<< HEAD
 int cpu_map__build_core_map(struct cpu_map *cpus, struct cpu_map **corep)
+=======
+int cpu_map__build_die_map(struct perf_cpu_map *cpus, struct cpu_aggr_map **diep)
+{
+	return cpu_map__build_map(cpus, diep, cpu_map__get_die, NULL);
+}
+
+int cpu_map__build_core_map(struct perf_cpu_map *cpus, struct cpu_aggr_map **corep)
+>>>>>>> upstream/android-13
 {
 	return cpu_map__build_map(cpus, corep, cpu_map__get_core, NULL);
 }
 
+<<<<<<< HEAD
+=======
+int cpu_map__build_node_map(struct perf_cpu_map *cpus, struct cpu_aggr_map **numap)
+{
+	return cpu_map__build_map(cpus, numap, cpu_map__get_node, NULL);
+}
+
+>>>>>>> upstream/android-13
 /* setup simple routines to easily access node numbers given a cpu number */
 static int get_max_num(char *path, int *max)
 {
@@ -620,6 +842,7 @@ int cpu__setup_cpunode_map(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 bool cpu_map__has(struct cpu_map *cpus, int cpu)
 {
 	return cpu_map__idx(cpus, cpu) != -1;
@@ -638,11 +861,23 @@ int cpu_map__idx(struct cpu_map *cpus, int cpu)
 }
 
 int cpu_map__cpu(struct cpu_map *cpus, int idx)
+=======
+bool cpu_map__has(struct perf_cpu_map *cpus, int cpu)
+{
+	return perf_cpu_map__idx(cpus, cpu) != -1;
+}
+
+int cpu_map__cpu(struct perf_cpu_map *cpus, int idx)
+>>>>>>> upstream/android-13
 {
 	return cpus->map[idx];
 }
 
+<<<<<<< HEAD
 size_t cpu_map__snprint(struct cpu_map *map, char *buf, size_t size)
+=======
+size_t cpu_map__snprint(struct perf_cpu_map *map, char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	int i, cpu, start = -1;
 	bool first = true;
@@ -681,7 +916,11 @@ size_t cpu_map__snprint(struct cpu_map *map, char *buf, size_t size)
 
 #undef COMMA
 
+<<<<<<< HEAD
 	pr_debug("cpumask list: %s\n", buf);
+=======
+	pr_debug2("cpumask list: %s\n", buf);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -694,7 +933,11 @@ static char hex_char(unsigned char val)
 	return '?';
 }
 
+<<<<<<< HEAD
 size_t cpu_map__snprint_mask(struct cpu_map *map, char *buf, size_t size)
+=======
+size_t cpu_map__snprint_mask(struct perf_cpu_map *map, char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	int i, cpu;
 	char *ptr = buf;
@@ -733,3 +976,46 @@ size_t cpu_map__snprint_mask(struct cpu_map *map, char *buf, size_t size)
 	buf[size - 1] = '\0';
 	return ptr - buf;
 }
+<<<<<<< HEAD
+=======
+
+const struct perf_cpu_map *cpu_map__online(void) /* thread unsafe */
+{
+	static const struct perf_cpu_map *online = NULL;
+
+	if (!online)
+		online = perf_cpu_map__new(NULL); /* from /sys/devices/system/cpu/online */
+
+	return online;
+}
+
+bool cpu_map__compare_aggr_cpu_id(struct aggr_cpu_id a, struct aggr_cpu_id b)
+{
+	return a.thread == b.thread &&
+		a.node == b.node &&
+		a.socket == b.socket &&
+		a.die == b.die &&
+		a.core == b.core;
+}
+
+bool cpu_map__aggr_cpu_id_is_empty(struct aggr_cpu_id a)
+{
+	return a.thread == -1 &&
+		a.node == -1 &&
+		a.socket == -1 &&
+		a.die == -1 &&
+		a.core == -1;
+}
+
+struct aggr_cpu_id cpu_map__empty_aggr_cpu_id(void)
+{
+	struct aggr_cpu_id ret = {
+		.thread = -1,
+		.node = -1,
+		.socket = -1,
+		.die = -1,
+		.core = -1
+	};
+	return ret;
+}
+>>>>>>> upstream/android-13

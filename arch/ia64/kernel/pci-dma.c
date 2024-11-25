@@ -10,16 +10,22 @@
 #include <linux/module.h>
 #include <linux/dmar.h>
 #include <asm/iommu.h>
+<<<<<<< HEAD
 #include <asm/machvec.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/kernel.h>
 #include <asm/page.h>
 
+<<<<<<< HEAD
 dma_addr_t bad_dma_address __read_mostly;
 EXPORT_SYMBOL(bad_dma_address);
 
 static int iommu_sac_force __read_mostly;
 
+=======
+>>>>>>> upstream/android-13
 int no_iommu __read_mostly;
 #ifdef CONFIG_IOMMU_DEBUG
 int force_iommu __read_mostly = 1;
@@ -27,10 +33,13 @@ int force_iommu __read_mostly = 1;
 int force_iommu __read_mostly;
 #endif
 
+<<<<<<< HEAD
 int iommu_pass_through;
 
 extern struct dma_map_ops intel_dma_ops;
 
+=======
+>>>>>>> upstream/android-13
 static int __init pci_iommu_init(void)
 {
 	if (iommu_detected)
@@ -41,6 +50,7 @@ static int __init pci_iommu_init(void)
 
 /* Must execute after PCI subsystem */
 fs_initcall(pci_iommu_init);
+<<<<<<< HEAD
 
 void pci_iommu_shutdown(void)
 {
@@ -110,3 +120,5 @@ void __init pci_iommu_alloc(void)
 	}
 #endif /* CONFIG_SWIOTLB */
 }
+=======
+>>>>>>> upstream/android-13

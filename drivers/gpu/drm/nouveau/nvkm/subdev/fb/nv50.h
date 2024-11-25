@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_FB_NV50_H__
 #define __NVKM_FB_NV50_H__
 #define nv50_fb(p) container_of((p), struct nv50_fb, base)
@@ -17,6 +21,10 @@ struct nv50_fb_func {
 	u32 trap;
 };
 
+<<<<<<< HEAD
 int nv50_fb_new_(const struct nv50_fb_func *, struct nvkm_device *, int index,
+=======
+int nv50_fb_new_(const struct nv50_fb_func *, struct nvkm_device *, enum nvkm_subdev_type, int,
+>>>>>>> upstream/android-13
 		 struct nvkm_fb **pfb);
 #endif

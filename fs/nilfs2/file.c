@@ -141,12 +141,21 @@ const struct file_operations nilfs_file_operations = {
 	/* .release	= nilfs_release_file, */
 	.fsync		= nilfs_sync_file,
 	.splice_read	= generic_file_splice_read,
+<<<<<<< HEAD
+=======
+	.splice_write   = iter_file_splice_write,
+>>>>>>> upstream/android-13
 };
 
 const struct inode_operations nilfs_file_inode_operations = {
 	.setattr	= nilfs_setattr,
 	.permission     = nilfs_permission,
 	.fiemap		= nilfs_fiemap,
+<<<<<<< HEAD
+=======
+	.fileattr_get	= nilfs_fileattr_get,
+	.fileattr_set	= nilfs_fileattr_set,
+>>>>>>> upstream/android-13
 };
 
 /* end of file */

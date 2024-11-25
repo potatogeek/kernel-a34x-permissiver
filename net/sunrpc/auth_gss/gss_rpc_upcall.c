@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *  linux/net/sunrpc/gss_rpc_upcall.c
  *
  *  Copyright (C) 2012 Simo Sorce <simo@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -111,6 +118,10 @@ static int gssp_rpc_create(struct net *net, struct rpc_clnt **_clnt)
 		 * done without the correct namespace:
 		 */
 		.flags		= RPC_CLNT_CREATE_NOPING |
+<<<<<<< HEAD
+=======
+				  RPC_CLNT_CREATE_CONNECTED |
+>>>>>>> upstream/android-13
 				  RPC_CLNT_CREATE_NO_IDLE_TIMEOUT
 	};
 	struct rpc_clnt *clnt;
@@ -173,7 +184,11 @@ static struct rpc_clnt *get_gssp_clnt(struct sunrpc_net *sn)
 	mutex_lock(&sn->gssp_lock);
 	clnt = sn->gssp_clnt;
 	if (clnt)
+<<<<<<< HEAD
 		atomic_inc(&clnt->cl_count);
+=======
+		refcount_inc(&clnt->cl_count);
+>>>>>>> upstream/android-13
 	mutex_unlock(&sn->gssp_lock);
 	return clnt;
 }
@@ -213,7 +228,11 @@ static int gssp_call(struct net *net, struct rpc_message *msg)
 
 static void gssp_free_receive_pages(struct gssx_arg_accept_sec_context *arg)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < arg->npages && arg->pages[i]; i++)
 		__free_page(arg->pages[i]);
@@ -223,6 +242,7 @@ static void gssp_free_receive_pages(struct gssx_arg_accept_sec_context *arg)
 
 static int gssp_alloc_receive_pages(struct gssx_arg_accept_sec_context *arg)
 {
+<<<<<<< HEAD
 	arg->npages = DIV_ROUND_UP(NGROUPS_MAX * 4, PAGE_SIZE);
 	arg->pages = kcalloc(arg->npages, sizeof(struct page *), GFP_KERNEL);
 	/*
@@ -231,12 +251,31 @@ static int gssp_alloc_receive_pages(struct gssx_arg_accept_sec_context *arg)
 	 */
 	if (!arg->pages)
 		return -ENOMEM;
+=======
+	unsigned int i;
+
+	arg->npages = DIV_ROUND_UP(NGROUPS_MAX * 4, PAGE_SIZE);
+	arg->pages = kcalloc(arg->npages, sizeof(struct page *), GFP_KERNEL);
+	if (!arg->pages)
+		return -ENOMEM;
+	for (i = 0; i < arg->npages; i++) {
+		arg->pages[i] = alloc_page(GFP_KERNEL);
+		if (!arg->pages[i]) {
+			gssp_free_receive_pages(arg);
+			return -ENOMEM;
+		}
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static char *gssp_stringify(struct xdr_netobj *netobj)
 {
+<<<<<<< HEAD
 	return kstrndup(netobj->data, netobj->len, GFP_KERNEL);
+=======
+	return kmemdup_nul(netobj->data, netobj->len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static void gssp_hostbased_service(char **principal)

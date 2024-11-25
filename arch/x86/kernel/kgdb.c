@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -9,6 +10,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -26,7 +31,11 @@
  *  Updated by:	     Tom Rini <trini@kernel.crashing.org>
  *  Updated by:	     Jason Wessel <jason.wessel@windriver.com>
  *  Modified for 386 by Jim Kingdon, Cygnus Support.
+<<<<<<< HEAD
  *  Origianl kgdb, compatibility with 2.1.xx kernel by
+=======
+ *  Original kgdb, compatibility with 2.1.xx kernel by
+>>>>>>> upstream/android-13
  *  David Grothe <dave@gcom.com>
  *  Integrated into 2.2.5 kernel by Tigran Aivazian <tigran@sco.com>
  *  X86_64 changes from Andi Kleen's patch merged by Jim Houston
@@ -127,6 +136,7 @@ char *dbg_get_reg(int regno, void *mem, struct pt_regs *regs)
 
 #ifdef CONFIG_X86_32
 	switch (regno) {
+<<<<<<< HEAD
 	case GDB_SS:
 		if (!user_mode(regs))
 			*(unsigned long *)mem = __KERNEL_DS;
@@ -135,6 +145,8 @@ char *dbg_get_reg(int regno, void *mem, struct pt_regs *regs)
 		if (!user_mode(regs))
 			*(unsigned long *)mem = kernel_stack_pointer(regs);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case GDB_GS:
 	case GDB_FS:
 		*(unsigned long *)mem = 0xFFFF;
@@ -422,12 +434,16 @@ static void kgdb_disable_hw_debug(struct pt_regs *regs)
 #ifdef CONFIG_SMP
 /**
  *	kgdb_roundup_cpus - Get other CPUs into a holding pattern
+<<<<<<< HEAD
  *	@flags: Current IRQ state
+=======
+>>>>>>> upstream/android-13
  *
  *	On SMP systems, we need to get the attention of the other CPUs
  *	and get them be in a known state.  This should do what is needed
  *	to get the other CPUs to call kgdb_wait(). Note that on some arches,
  *	the NMI approach is not used for rounding up all the CPUs. For example,
+<<<<<<< HEAD
  *	in case of MIPS, smp_call_function() is used to roundup CPUs. In
  *	this case, we have to make sure that interrupts are enabled before
  *	calling smp_call_function(). The argument to this function is
@@ -439,6 +455,15 @@ static void kgdb_disable_hw_debug(struct pt_regs *regs)
 void kgdb_roundup_cpus(unsigned long flags)
 {
 	apic->send_IPI_allbutself(NMI_VECTOR);
+=======
+ *	in case of MIPS, smp_call_function() is used to roundup CPUs.
+ *
+ *	On non-SMP systems, this is not called.
+ */
+void kgdb_roundup_cpus(void)
+{
+	apic_send_IPI_allbutself(NMI_VECTOR);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -472,6 +497,10 @@ int kgdb_arch_handle_exception(int e_vector, int signo, int err_code,
 		ptr = &remcomInBuffer[1];
 		if (kgdb_hex2long(&ptr, &addr))
 			linux_regs->ip = addr;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 'D':
 	case 'k':
 		/* clear the trace bit */
@@ -560,7 +589,11 @@ static int __kgdb_notify(struct die_args *args, unsigned long cmd)
 			 * a system call which should be ignored
 			 */
 			return NOTIFY_DONE;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		if (user_mode(regs))
 			return NOTIFY_DONE;
@@ -650,9 +683,16 @@ static void kgdb_hw_overflow_handler(struct perf_event *event,
 	struct task_struct *tsk = current;
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < 4; i++)
 		if (breakinfo[i].enabled)
 			tsk->thread.debugreg6 |= (DR_TRAP0 << i);
+=======
+	for (i = 0; i < 4; i++) {
+		if (breakinfo[i].enabled)
+			tsk->thread.virtual_dr6 |= (DR_TRAP0 << i);
+	}
+>>>>>>> upstream/android-13
 }
 
 void kgdb_arch_late(void)
@@ -662,7 +702,11 @@ void kgdb_arch_late(void)
 	struct perf_event **pevent;
 
 	/*
+<<<<<<< HEAD
 	 * Pre-allocate the hw breakpoint structions in the non-atomic
+=======
+	 * Pre-allocate the hw breakpoint instructions in the non-atomic
+>>>>>>> upstream/android-13
 	 * portion of kgdb because this operation requires mutexs to
 	 * complete.
 	 */
@@ -751,6 +795,7 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long ip)
 int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
 {
 	int err;
+<<<<<<< HEAD
 	char opc[BREAK_INSTR_SIZE];
 
 	bpt->type = BP_BREAKPOINT;
@@ -759,15 +804,29 @@ int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
 	if (err)
 		return err;
 	err = probe_kernel_write((char *)bpt->bpt_addr,
+=======
+
+	bpt->type = BP_BREAKPOINT;
+	err = copy_from_kernel_nofault(bpt->saved_instr, (char *)bpt->bpt_addr,
+				BREAK_INSTR_SIZE);
+	if (err)
+		return err;
+	err = copy_to_kernel_nofault((char *)bpt->bpt_addr,
+>>>>>>> upstream/android-13
 				 arch_kgdb_ops.gdb_bpt_instr, BREAK_INSTR_SIZE);
 	if (!err)
 		return err;
 	/*
+<<<<<<< HEAD
 	 * It is safe to call text_poke() because normal kernel execution
+=======
+	 * It is safe to call text_poke_kgdb() because normal kernel execution
+>>>>>>> upstream/android-13
 	 * is stopped on all cores, so long as the text_mutex is not locked.
 	 */
 	if (mutex_is_locked(&text_mutex))
 		return -EBUSY;
+<<<<<<< HEAD
 	text_poke((void *)bpt->bpt_addr, arch_kgdb_ops.gdb_bpt_instr,
 		  BREAK_INSTR_SIZE);
 	err = probe_kernel_read(opc, (char *)bpt->bpt_addr, BREAK_INSTR_SIZE);
@@ -778,10 +837,18 @@ int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
 	bpt->type = BP_POKE_BREAKPOINT;
 
 	return err;
+=======
+	text_poke_kgdb((void *)bpt->bpt_addr, arch_kgdb_ops.gdb_bpt_instr,
+		       BREAK_INSTR_SIZE);
+	bpt->type = BP_POKE_BREAKPOINT;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
 {
+<<<<<<< HEAD
 	int err;
 	char opc[BREAK_INSTR_SIZE];
 
@@ -789,10 +856,17 @@ int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
 		goto knl_write;
 	/*
 	 * It is safe to call text_poke() because normal kernel execution
+=======
+	if (bpt->type != BP_POKE_BREAKPOINT)
+		goto knl_write;
+	/*
+	 * It is safe to call text_poke_kgdb() because normal kernel execution
+>>>>>>> upstream/android-13
 	 * is stopped on all cores, so long as the text_mutex is not locked.
 	 */
 	if (mutex_is_locked(&text_mutex))
 		goto knl_write;
+<<<<<<< HEAD
 	text_poke((void *)bpt->bpt_addr, bpt->saved_instr, BREAK_INSTR_SIZE);
 	err = probe_kernel_read(opc, (char *)bpt->bpt_addr, BREAK_INSTR_SIZE);
 	if (err || memcmp(opc, bpt->saved_instr, BREAK_INSTR_SIZE))
@@ -805,6 +879,18 @@ knl_write:
 }
 
 struct kgdb_arch arch_kgdb_ops = {
+=======
+	text_poke_kgdb((void *)bpt->bpt_addr, bpt->saved_instr,
+		       BREAK_INSTR_SIZE);
+	return 0;
+
+knl_write:
+	return copy_to_kernel_nofault((char *)bpt->bpt_addr,
+				  (char *)bpt->saved_instr, BREAK_INSTR_SIZE);
+}
+
+const struct kgdb_arch arch_kgdb_ops = {
+>>>>>>> upstream/android-13
 	/* Breakpoint instruction: */
 	.gdb_bpt_instr		= { 0xcc },
 	.flags			= KGDB_HW_BREAKPOINT,

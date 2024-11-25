@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Error Location Module
  *
@@ -13,6 +14,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Error Location Module
+ *
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #define DRIVER_NAME	"omap-elm"
@@ -106,6 +114,12 @@ static u32 elm_read_reg(struct elm_info *info, int offset)
  * elm_config - Configure ELM module
  * @dev:	ELM device
  * @bch_type:	Type of BCH ecc
+<<<<<<< HEAD
+=======
+ * @ecc_steps:	ECC steps to assign to config
+ * @ecc_step_size:	ECC step size to assign to config
+ * @ecc_syndrome_size:	ECC syndrome size to assign to config
+>>>>>>> upstream/android-13
  */
 int elm_config(struct device *dev, enum bch_ecc bch_type,
 	int ecc_steps, int ecc_step_size, int ecc_syndrome_size)
@@ -123,7 +137,11 @@ int elm_config(struct device *dev, enum bch_ecc bch_type,
 		return -EINVAL;
 	}
 	/* ELM support 8 error syndrome process */
+<<<<<<< HEAD
 	if (ecc_steps > ERROR_VECTOR_MAX) {
+=======
+	if (ecc_steps > ERROR_VECTOR_MAX && ecc_steps % ERROR_VECTOR_MAX) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "unsupported config ecc-step=%d\n", ecc_steps);
 		return -EINVAL;
 	}
@@ -442,7 +460,11 @@ static int elm_remove(struct platform_device *pdev)
 }
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * elm_context_save
  * saves ELM configurations to preserve them across Hardware powered-down
  */
@@ -466,11 +488,19 @@ static int elm_context_save(struct elm_info *info)
 					ELM_SYNDROME_FRAGMENT_5 + offset);
 			regs->elm_syndrome_fragment_4[i] = elm_read_reg(info,
 					ELM_SYNDROME_FRAGMENT_4 + offset);
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case BCH8_ECC:
 			regs->elm_syndrome_fragment_3[i] = elm_read_reg(info,
 					ELM_SYNDROME_FRAGMENT_3 + offset);
 			regs->elm_syndrome_fragment_2[i] = elm_read_reg(info,
 					ELM_SYNDROME_FRAGMENT_2 + offset);
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case BCH4_ECC:
 			regs->elm_syndrome_fragment_1[i] = elm_read_reg(info,
 					ELM_SYNDROME_FRAGMENT_1 + offset);
@@ -488,7 +518,11 @@ static int elm_context_save(struct elm_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * elm_context_restore
  * writes configurations saved duing power-down back into ELM registers
  */
@@ -512,11 +546,19 @@ static int elm_context_restore(struct elm_info *info)
 					regs->elm_syndrome_fragment_5[i]);
 			elm_write_reg(info, ELM_SYNDROME_FRAGMENT_4 + offset,
 					regs->elm_syndrome_fragment_4[i]);
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case BCH8_ECC:
 			elm_write_reg(info, ELM_SYNDROME_FRAGMENT_3 + offset,
 					regs->elm_syndrome_fragment_3[i]);
 			elm_write_reg(info, ELM_SYNDROME_FRAGMENT_2 + offset,
 					regs->elm_syndrome_fragment_2[i]);
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case BCH4_ECC:
 			elm_write_reg(info, ELM_SYNDROME_FRAGMENT_1 + offset,
 					regs->elm_syndrome_fragment_1[i]);

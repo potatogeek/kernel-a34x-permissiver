@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hitachi (now Renesas) SCA-II HD64572 driver for Linux
  *
  * Copyright (C) 1998-2008 Krzysztof Halasa <khc@pm.waw.pl>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Source of information: HD64572 SCA-II User's Manual
  *
  * We use the following SCA memory map:
@@ -44,6 +51,7 @@
 
 #define NAPI_WEIGHT		16
 
+<<<<<<< HEAD
 #define get_msci(port)	  (port->chan ?   MSCI1_OFFSET :   MSCI0_OFFSET)
 #define get_dmac_rx(port) (port->chan ? DMAC1RX_OFFSET : DMAC0RX_OFFSET)
 #define get_dmac_tx(port) (port->chan ? DMAC1TX_OFFSET : DMAC0TX_OFFSET)
@@ -58,6 +66,22 @@
 static int sca_poll(struct napi_struct *napi, int budget);
 
 static inline port_t* dev_to_port(struct net_device *dev)
+=======
+#define get_msci(port)	  ((port)->chan ?   MSCI1_OFFSET :   MSCI0_OFFSET)
+#define get_dmac_rx(port) ((port)->chan ? DMAC1RX_OFFSET : DMAC0RX_OFFSET)
+#define get_dmac_tx(port) ((port)->chan ? DMAC1TX_OFFSET : DMAC0TX_OFFSET)
+
+#define sca_in(reg, card)	     readb((card)->scabase + (reg))
+#define sca_out(value, reg, card)    writeb(value, (card)->scabase + (reg))
+#define sca_inw(reg, card)	     readw((card)->scabase + (reg))
+#define sca_outw(value, reg, card)   writew(value, (card)->scabase + (reg))
+#define sca_inl(reg, card)	     readl((card)->scabase + (reg))
+#define sca_outl(value, reg, card)   writel(value, (card)->scabase + (reg))
+
+static int sca_poll(struct napi_struct *napi, int budget);
+
+static inline port_t *dev_to_port(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	return dev_to_hdlc(dev)->priv;
 }
@@ -84,14 +108,20 @@ static inline u16 desc_abs_number(port_t *port, u16 desc, int transmit)
 	return port->chan * (rx_buffs + tx_buffs) + transmit * rx_buffs + desc;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline u16 desc_offset(port_t *port, u16 desc, int transmit)
 {
 	/* Descriptor offset always fits in 16 bits */
 	return desc_abs_number(port, desc, transmit) * sizeof(pkt_desc);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline pkt_desc __iomem *desc_address(port_t *port, u16 desc,
 					     int transmit)
 {
@@ -99,14 +129,20 @@ static inline pkt_desc __iomem *desc_address(port_t *port, u16 desc,
 				    desc_offset(port, desc, transmit));
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 buffer_offset(port_t *port, u16 desc, int transmit)
 {
 	return port->card->buff_offset +
 		desc_abs_number(port, desc, transmit) * (u32)HDLC_MAX_MRU;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline void sca_set_carrier(port_t *port)
 {
 	if (!(sca_in(get_msci(port) + ST3, port->card) & ST3_DCD)) {
@@ -124,7 +160,10 @@ static inline void sca_set_carrier(port_t *port)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void sca_init_port(port_t *port)
 {
 	card_t *card = port->card;
@@ -184,12 +223,19 @@ static void sca_init_port(port_t *port)
 	netif_napi_add(port->netdev, &port->napi, sca_poll, NAPI_WEIGHT);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* MSCI interrupt service */
 static inline void sca_msci_intr(port_t *port)
 {
 	u16 msci = get_msci(port);
+<<<<<<< HEAD
 	card_t* card = port->card;
+=======
+	card_t *card = port->card;
+>>>>>>> upstream/android-13
 
 	if (sca_in(msci + ST1, card) & ST1_CDCD) {
 		/* Reset MSCI CDCD status bit */
@@ -198,7 +244,10 @@ static inline void sca_msci_intr(port_t *port)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline void sca_rx(card_t *card, port_t *port, pkt_desc __iomem *desc,
 			  u16 rxin)
 {
@@ -228,7 +277,10 @@ static inline void sca_rx(card_t *card, port_t *port, pkt_desc __iomem *desc,
 	netif_receive_skb(skb);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* Receive DMA service */
 static inline int sca_rx_done(port_t *port, int budget)
 {
@@ -284,12 +336,19 @@ static inline int sca_rx_done(port_t *port, int budget)
 	return received;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* Transmit DMA service */
 static inline void sca_tx_done(port_t *port)
 {
 	struct net_device *dev = port->netdev;
+<<<<<<< HEAD
 	card_t* card = port->card;
+=======
+	card_t *card = port->card;
+>>>>>>> upstream/android-13
 	u8 stat;
 	unsigned count = 0;
 
@@ -324,7 +383,10 @@ static inline void sca_tx_done(port_t *port)
 	spin_unlock(&port->lock);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int sca_poll(struct napi_struct *napi, int budget)
 {
 	port_t *port = container_of(napi, port_t, napi);
@@ -366,15 +428,24 @@ static irqreturn_t sca_intr(int irq, void *dev_id)
 	return IRQ_RETVAL(handled);
 }
 
+<<<<<<< HEAD
 
 static void sca_set_port(port_t *port)
 {
 	card_t* card = port->card;
+=======
+static void sca_set_port(port_t *port)
+{
+	card_t *card = port->card;
+>>>>>>> upstream/android-13
 	u16 msci = get_msci(port);
 	u8 md2 = sca_in(msci + MD2, card);
 	unsigned int tmc, br = 10, brv = 1024;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (port->settings.clock_rate > 0) {
 		/* Try lower br for better accuracy*/
 		do {
@@ -383,14 +454,24 @@ static void sca_set_port(port_t *port)
 
 			/* Baud Rate = CLOCK_BASE / TMC / 2^BR */
 			tmc = CLOCK_BASE / brv / port->settings.clock_rate;
+<<<<<<< HEAD
 		}while (br > 1 && tmc <= 128);
+=======
+		} while (br > 1 && tmc <= 128);
+>>>>>>> upstream/android-13
 
 		if (tmc < 1) {
 			tmc = 1;
 			br = 0;	/* For baud=CLOCK_BASE we use tmc=1 br=0 */
 			brv = 1;
+<<<<<<< HEAD
 		} else if (tmc > 255)
 			tmc = 256; /* tmc=0 means 256 - low baud rates */
+=======
+		} else if (tmc > 255) {
+			tmc = 256; /* tmc=0 means 256 - low baud rates */
+		}
+>>>>>>> upstream/android-13
 
 		port->settings.clock_rate = CLOCK_BASE / brv / tmc;
 	} else {
@@ -417,6 +498,7 @@ static void sca_set_port(port_t *port)
 		md2 &= ~MD2_LOOPBACK;
 
 	sca_out(md2, msci + MD2, card);
+<<<<<<< HEAD
 
 }
 
@@ -434,17 +516,61 @@ static void sca_open(struct net_device *dev)
 	case ENCODING_FM_MARK:	md2 = MD2_FM_MARK;	break;
 	case ENCODING_FM_SPACE:	md2 = MD2_FM_SPACE;	break;
 	default:		md2 = MD2_MANCHESTER;
+=======
+}
+
+static void sca_open(struct net_device *dev)
+{
+	port_t *port = dev_to_port(dev);
+	card_t *card = port->card;
+	u16 msci = get_msci(port);
+	u8 md0, md2;
+
+	switch (port->encoding) {
+	case ENCODING_NRZ:
+		md2 = MD2_NRZ;
+		break;
+	case ENCODING_NRZI:
+		md2 = MD2_NRZI;
+		break;
+	case ENCODING_FM_MARK:
+		md2 = MD2_FM_MARK;
+		break;
+	case ENCODING_FM_SPACE:
+		md2 = MD2_FM_SPACE;
+		break;
+	default:
+		md2 = MD2_MANCHESTER;
+>>>>>>> upstream/android-13
 	}
 
 	if (port->settings.loopback)
 		md2 |= MD2_LOOPBACK;
 
+<<<<<<< HEAD
 	switch(port->parity) {
 	case PARITY_CRC16_PR0:	     md0 = MD0_HDLC | MD0_CRC_16_0;  break;
 	case PARITY_CRC16_PR1:	     md0 = MD0_HDLC | MD0_CRC_16;    break;
 	case PARITY_CRC32_PR1_CCITT: md0 = MD0_HDLC | MD0_CRC_ITU32; break;
 	case PARITY_CRC16_PR1_CCITT: md0 = MD0_HDLC | MD0_CRC_ITU;   break;
 	default:		     md0 = MD0_HDLC | MD0_CRC_NONE;
+=======
+	switch (port->parity) {
+	case PARITY_CRC16_PR0:
+		md0 = MD0_HDLC | MD0_CRC_16_0;
+		break;
+	case PARITY_CRC16_PR1:
+		md0 = MD0_HDLC | MD0_CRC_16;
+		break;
+	case PARITY_CRC32_PR1_CCITT:
+		md0 = MD0_HDLC | MD0_CRC_ITU32;
+		break;
+	case PARITY_CRC16_PR1_CCITT:
+		md0 = MD0_HDLC | MD0_CRC_ITU;
+		break;
+	default:
+		md0 = MD0_HDLC | MD0_CRC_NONE;
+>>>>>>> upstream/android-13
 	}
 
 	sca_out(CMD_RESET, msci + CMD, card);
@@ -479,7 +605,10 @@ static void sca_open(struct net_device *dev)
 	netif_start_queue(dev);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void sca_close(struct net_device *dev)
 {
 	port_t *port = dev_to_port(dev);
@@ -491,7 +620,10 @@ static void sca_close(struct net_device *dev)
 	netif_stop_queue(dev);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int sca_attach(struct net_device *dev, unsigned short encoding,
 		      unsigned short parity)
 {
@@ -514,7 +646,10 @@ static int sca_attach(struct net_device *dev, unsigned short encoding,
 	return 0;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG_RINGS
 static void sca_dump_rings(struct net_device *dev)
 {
@@ -561,7 +696,10 @@ static void sca_dump_rings(struct net_device *dev)
 }
 #endif /* DEBUG_RINGS */
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static netdev_tx_t sca_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	port_t *port = dev_to_port(dev);
@@ -603,7 +741,10 @@ static netdev_tx_t sca_xmit(struct sk_buff *skb, struct net_device *dev)
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static u32 sca_detect_ram(card_t *card, u8 __iomem *rambase, u32 ramsize)
 {
 	/* Round RAM size to 32 bits, fill from end to start */
@@ -622,7 +763,10 @@ static u32 sca_detect_ram(card_t *card, u8 __iomem *rambase, u32 ramsize)
 	return i;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void sca_init(card_t *card, int wait_states)
 {
 	sca_out(wait_states, WCRL, card); /* Wait Control */

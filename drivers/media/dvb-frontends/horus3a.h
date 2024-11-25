@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * horus3a.h
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2014 NetUP Inc.
  * Copyright (C) 2014 Sergey Kozlov <serjk@netup.ru>
  * Copyright (C) 2014 Abylay Ospan <aospan@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
   */
 
 #ifndef __DVB_HORUS3A_H__
@@ -42,7 +49,11 @@ struct horus3a_config {
 
 #if IS_REACHABLE(CONFIG_DVB_HORUS3A)
 /**
+<<<<<<< HEAD
  * Attach a horus3a tuner
+=======
+ * horus3a_attach - Attach a horus3a tuner
+>>>>>>> upstream/android-13
  *
  * @fe: frontend to be attached
  * @config: pointer to &struct helene_config with tuner configuration.

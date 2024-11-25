@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -182,7 +188,11 @@ static ssize_t perst_reloads_same_image_store(struct device *device,
 	if ((rc != 1) || !(val == 1 || val == 0))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	adapter->perst_same_image = (val == 1 ? true : false);
+=======
+	adapter->perst_same_image = (val == 1);
+>>>>>>> upstream/android-13
 	return count;
 }
 

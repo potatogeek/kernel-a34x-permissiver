@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Original code based Host AP (software wireless LAN access point) driver
  * for Intersil Prism2/2.5/3 - hostap.o module, common routines
@@ -6,11 +10,14 @@
  * <j@w1.fi>
  * Copyright (c) 2002-2003, Jouni Malinen <j@w1.fi>
  * Copyright (c) 2004-2005, Intel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. See README and COPYING for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compiler.h>
@@ -931,7 +938,12 @@ static u8 qos_oui[QOS_OUI_LEN] = { 0x00, 0x50, 0xF2 };
 static int libipw_verify_qos_info(struct libipw_qos_information_element
 				     *info_element, int sub_type)
 {
+<<<<<<< HEAD
 
+=======
+	if (info_element->elementID != QOS_ELEMENT_ID)
+		return -1;
+>>>>>>> upstream/android-13
 	if (info_element->qui_subtype != sub_type)
 		return -1;
 	if (memcmp(info_element->qui, qos_oui, QOS_OUI_LEN))
@@ -947,6 +959,7 @@ static int libipw_verify_qos_info(struct libipw_qos_information_element
 /*
  * Parse a QoS parameter element
  */
+<<<<<<< HEAD
 static int libipw_read_qos_param_element(struct libipw_qos_parameter_info
 					    *element_param, struct libipw_info_element
 					    *info_element)
@@ -968,11 +981,26 @@ static int libipw_read_qos_param_element(struct libipw_qos_parameter_info
 		ret = libipw_verify_qos_info(&element_param->info_element,
 						QOS_OUI_PARAM_SUB_TYPE);
 	return ret;
+=======
+static int libipw_read_qos_param_element(
+			struct libipw_qos_parameter_info *element_param,
+			struct libipw_info_element *info_element)
+{
+	size_t size = sizeof(*element_param);
+
+	if (!element_param || !info_element || info_element->len != size - 2)
+		return -1;
+
+	memcpy(element_param, info_element, size);
+	return libipw_verify_qos_info(&element_param->info_element,
+				      QOS_OUI_PARAM_SUB_TYPE);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Parse a QoS information element
  */
+<<<<<<< HEAD
 static int libipw_read_qos_info_element(struct
 					   libipw_qos_information_element
 					   *element_info, struct libipw_info_element
@@ -998,18 +1026,38 @@ static int libipw_read_qos_info_element(struct
 		ret = libipw_verify_qos_info(element_info,
 						QOS_OUI_INFO_SUB_TYPE);
 	return ret;
+=======
+static int libipw_read_qos_info_element(
+			struct libipw_qos_information_element *element_info,
+			struct libipw_info_element *info_element)
+{
+	size_t size = sizeof(struct libipw_qos_information_element) - 2;
+
+	if (!element_info || !info_element || info_element->len != size - 2)
+		return -1;
+
+	memcpy(element_info, info_element, size);
+	return libipw_verify_qos_info(element_info, QOS_OUI_INFO_SUB_TYPE);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Write QoS parameters from the ac parameters.
  */
+<<<<<<< HEAD
 static int libipw_qos_convert_ac_to_parameters(struct
+=======
+static void libipw_qos_convert_ac_to_parameters(struct
+>>>>>>> upstream/android-13
 						  libipw_qos_parameter_info
 						  *param_elm, struct
 						  libipw_qos_parameters
 						  *qos_param)
 {
+<<<<<<< HEAD
 	int rc = 0;
+=======
+>>>>>>> upstream/android-13
 	int i;
 	struct libipw_qos_ac_parameter *ac_params;
 	u32 txop;
@@ -1034,7 +1082,10 @@ static int libipw_qos_convert_ac_to_parameters(struct
 		txop = le16_to_cpu(ac_params->tx_op_limit) * 32;
 		qos_param->tx_op_limit[i] = cpu_to_le16(txop);
 	}
+<<<<<<< HEAD
 	return rc;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1162,7 +1213,11 @@ static int libipw_parse_info_param(struct libipw_info_element
 			for (i = 0; i < network->rates_len; i++) {
 				network->rates[i] = info_element->data[i];
 #ifdef CONFIG_LIBIPW_DEBUG
+<<<<<<< HEAD
 				p += snprintf(p, sizeof(rates_str) -
+=======
+				p += scnprintf(p, sizeof(rates_str) -
+>>>>>>> upstream/android-13
 					      (p - rates_str), "%02X ",
 					      network->rates[i]);
 #endif
@@ -1189,7 +1244,11 @@ static int libipw_parse_info_param(struct libipw_info_element
 			for (i = 0; i < network->rates_ex_len; i++) {
 				network->rates_ex[i] = info_element->data[i];
 #ifdef CONFIG_LIBIPW_DEBUG
+<<<<<<< HEAD
 				p += snprintf(p, sizeof(rates_str) -
+=======
+				p += scnprintf(p, sizeof(rates_str) -
+>>>>>>> upstream/android-13
 					      (p - rates_str), "%02X ",
 					      network->rates_ex[i]);
 #endif

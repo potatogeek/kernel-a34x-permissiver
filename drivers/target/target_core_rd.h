@@ -28,6 +28,10 @@ struct rd_dev_sg_table {
 
 #define RDF_HAS_PAGE_COUNT	0x01
 #define RDF_NULLIO		0x02
+<<<<<<< HEAD
+=======
+#define RDF_DUMMY		0x04
+>>>>>>> upstream/android-13
 
 struct rd_dev {
 	struct se_device dev;

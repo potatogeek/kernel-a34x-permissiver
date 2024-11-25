@@ -21,9 +21,17 @@
  *
  * Authors: Martin Peres
  */
+<<<<<<< HEAD
 #include <nvkm/core/option.h>
 #include "priv.h"
 
+=======
+#include "priv.h"
+
+#include <core/option.h>
+#include <subdev/pmu.h>
+
+>>>>>>> upstream/android-13
 int
 nvkm_therm_temp_get(struct nvkm_therm *therm)
 {
@@ -192,8 +200,12 @@ nvkm_therm_fan_mode(struct nvkm_therm *therm, int mode)
 
 	/* The default PPWR ucode on fermi interferes with fan management */
 	if ((mode >= ARRAY_SIZE(name)) ||
+<<<<<<< HEAD
 	    (mode != NVKM_THERM_CTRL_NONE && device->card_type >= NV_C0 &&
 	     !device->pmu))
+=======
+	    (mode != NVKM_THERM_CTRL_NONE && nvkm_pmu_fan_controlled(device)))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* do not allow automatic fan management if the thermal sensor is
@@ -420,10 +432,17 @@ nvkm_therm = {
 };
 
 void
+<<<<<<< HEAD
 nvkm_therm_ctor(struct nvkm_therm *therm, struct nvkm_device *device,
 		int index, const struct nvkm_therm_func *func)
 {
 	nvkm_subdev_ctor(&nvkm_therm, device, index, &therm->subdev);
+=======
+nvkm_therm_ctor(struct nvkm_therm *therm, struct nvkm_device *device, enum nvkm_subdev_type type,
+		int inst, const struct nvkm_therm_func *func)
+{
+	nvkm_subdev_ctor(&nvkm_therm, device, type, inst, &therm->subdev);
+>>>>>>> upstream/android-13
 	therm->func = func;
 
 	nvkm_alarm_init(&therm->alarm, nvkm_therm_alarm);
@@ -442,13 +461,21 @@ nvkm_therm_ctor(struct nvkm_therm *therm, struct nvkm_device *device,
 
 int
 nvkm_therm_new_(const struct nvkm_therm_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 		int index, struct nvkm_therm **ptherm)
+=======
+		enum nvkm_subdev_type type, int inst, struct nvkm_therm **ptherm)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_therm *therm;
 
 	if (!(therm = *ptherm = kzalloc(sizeof(*therm), GFP_KERNEL)))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	nvkm_therm_ctor(therm, device, index, func);
+=======
+	nvkm_therm_ctor(therm, device, type, inst, func);
+>>>>>>> upstream/android-13
 	return 0;
 }

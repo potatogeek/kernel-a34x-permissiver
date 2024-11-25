@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/nfs/direct.c
  *
@@ -63,6 +67,7 @@
 
 static struct kmem_cache *nfs_direct_cachep;
 
+<<<<<<< HEAD
 /*
  * This represents a set of asynchronous requests that we're waiting on
  */
@@ -70,6 +75,8 @@ struct nfs_direct_mirror {
 	ssize_t count;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct nfs_direct_req {
 	struct kref		kref;		/* release manager */
 
@@ -83,9 +90,12 @@ struct nfs_direct_req {
 	atomic_t		io_count;	/* i/os we're waiting for */
 	spinlock_t		lock;		/* protect completion state */
 
+<<<<<<< HEAD
 	struct nfs_direct_mirror mirrors[NFS_PAGEIO_DESCRIPTOR_MIRROR_MAX];
 	int			mirror_count;
 
+=======
+>>>>>>> upstream/android-13
 	loff_t			io_start;	/* Start offset for I/O */
 	ssize_t			count,		/* bytes actually processed */
 				max_count,	/* max expected count */
@@ -103,7 +113,11 @@ struct nfs_direct_req {
 #define NFS_ODIRECT_RESCHED_WRITES	(2)	/* write verification failed */
 	/* for read */
 #define NFS_ODIRECT_SHOULD_DIRTY	(3)	/* dirty user-space page after read */
+<<<<<<< HEAD
 	struct nfs_writeverf	verf;		/* unstable write verifier */
+=======
+#define NFS_ODIRECT_DONE		INT_MAX	/* write verification failed */
+>>>>>>> upstream/android-13
 };
 
 static const struct nfs_pgio_completion_ops nfs_direct_write_completion_ops;
@@ -126,8 +140,11 @@ nfs_direct_handle_truncated(struct nfs_direct_req *dreq,
 			    const struct nfs_pgio_header *hdr,
 			    ssize_t dreq_len)
 {
+<<<<<<< HEAD
 	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
 
+=======
+>>>>>>> upstream/android-13
 	if (!(test_bit(NFS_IOHDR_ERROR, &hdr->flags) ||
 	      test_bit(NFS_IOHDR_EOF, &hdr->flags)))
 		return;
@@ -141,15 +158,21 @@ nfs_direct_handle_truncated(struct nfs_direct_req *dreq,
 		else /* Clear outstanding error if this is EOF */
 			dreq->error = 0;
 	}
+<<<<<<< HEAD
 	if (mirror->count > dreq_len)
 		mirror->count = dreq_len;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void
 nfs_direct_count_bytes(struct nfs_direct_req *dreq,
 		       const struct nfs_pgio_header *hdr)
 {
+<<<<<<< HEAD
 	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
+=======
+>>>>>>> upstream/android-13
 	loff_t hdr_end = hdr->io_start + hdr->good_bytes;
 	ssize_t dreq_len = 0;
 
@@ -161,12 +184,16 @@ nfs_direct_count_bytes(struct nfs_direct_req *dreq,
 	if (dreq_len > dreq->max_count)
 		dreq_len = dreq->max_count;
 
+<<<<<<< HEAD
 	if (mirror->count < dreq_len)
 		mirror->count = dreq_len;
+=======
+>>>>>>> upstream/android-13
 	if (dreq->count < dreq_len)
 		dreq->count = dreq_len;
 }
 
+<<<<<<< HEAD
 /*
  * nfs_direct_select_verf - select the right verifier
  * @dreq - direct request possibly spanning multiple servers
@@ -267,6 +294,8 @@ static int nfs_direct_cmp_commit_data_verf(struct nfs_direct_req *dreq,
 	return nfs_direct_cmp_verf(verfp, data->res.verf);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * nfs_direct_IO - NFS address space operation for direct I/O
  * @iocb: target I/O control block
@@ -288,8 +317,13 @@ ssize_t nfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
 	VM_BUG_ON(iov_iter_count(iter) != PAGE_SIZE);
 
 	if (iov_iter_rw(iter) == READ)
+<<<<<<< HEAD
 		return nfs_file_direct_read(iocb, iter);
 	return nfs_file_direct_write(iocb, iter);
+=======
+		return nfs_file_direct_read(iocb, iter, true);
+	return nfs_file_direct_write(iocb, iter, true);
+>>>>>>> upstream/android-13
 }
 
 static void nfs_direct_release_pages(struct page **pages, unsigned int npages)
@@ -309,6 +343,7 @@ void nfs_init_cinfo_from_dreq(struct nfs_commit_info *cinfo,
 	cinfo->completion_ops = &nfs_direct_commit_completion_ops;
 }
 
+<<<<<<< HEAD
 static inline void nfs_direct_setup_mirroring(struct nfs_direct_req *dreq,
 					     struct nfs_pageio_descriptor *pgio,
 					     struct nfs_page *req)
@@ -321,6 +356,8 @@ static inline void nfs_direct_setup_mirroring(struct nfs_direct_req *dreq,
 	dreq->mirror_count = mirror_count;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct nfs_direct_req *nfs_direct_req_alloc(void)
 {
 	struct nfs_direct_req *dreq;
@@ -333,9 +370,14 @@ static inline struct nfs_direct_req *nfs_direct_req_alloc(void)
 	kref_get(&dreq->kref);
 	init_completion(&dreq->completion);
 	INIT_LIST_HEAD(&dreq->mds_cinfo.list);
+<<<<<<< HEAD
 	dreq->verf.committed = NFS_INVALID_STABLE_HOW;	/* not set yet */
 	INIT_WORK(&dreq->work, nfs_direct_write_schedule_work);
 	dreq->mirror_count = 1;
+=======
+	pnfs_init_ds_commit_info(&dreq->ds_cinfo);
+	INIT_WORK(&dreq->work, nfs_direct_write_schedule_work);
+>>>>>>> upstream/android-13
 	spin_lock_init(&dreq->lock);
 
 	return dreq;
@@ -345,7 +387,11 @@ static void nfs_direct_req_free(struct kref *kref)
 {
 	struct nfs_direct_req *dreq = container_of(kref, struct nfs_direct_req, kref);
 
+<<<<<<< HEAD
 	nfs_free_pnfs_ds_cinfo(&dreq->ds_cinfo);
+=======
+	pnfs_release_ds_info(&dreq->ds_cinfo, dreq->inode);
+>>>>>>> upstream/android-13
 	if (dreq->l_ctx != NULL)
 		nfs_put_lock_context(dreq->l_ctx);
 	if (dreq->ctx != NULL)
@@ -507,7 +553,11 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
 			struct nfs_page *req;
 			unsigned int req_len = min_t(size_t, bytes, PAGE_SIZE - pgbase);
 			/* XXX do we need to do the eof zeroing found in async_filler? */
+<<<<<<< HEAD
 			req = nfs_create_request(dreq->ctx, pagevec[i], NULL,
+=======
+			req = nfs_create_request(dreq->ctx, pagevec[i],
+>>>>>>> upstream/android-13
 						 pgbase, req_len);
 			if (IS_ERR(req)) {
 				result = PTR_ERR(req);
@@ -553,6 +603,10 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
  * nfs_file_direct_read - file direct read operation for NFS files
  * @iocb: target I/O control block
  * @iter: vector of user buffers into which to read data
+<<<<<<< HEAD
+=======
+ * @swap: flag indicating this is swap IO, not O_DIRECT IO
+>>>>>>> upstream/android-13
  *
  * We use this function for direct reads instead of calling
  * generic_file_aio_read() in order to avoid gfar's check to see if
@@ -568,14 +622,23 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
  * client must read the updated atime from the server back into its
  * cache.
  */
+<<<<<<< HEAD
 ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
+=======
+ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter,
+			     bool swap)
+>>>>>>> upstream/android-13
 {
 	struct file *file = iocb->ki_filp;
 	struct address_space *mapping = file->f_mapping;
 	struct inode *inode = mapping->host;
 	struct nfs_direct_req *dreq;
 	struct nfs_lock_context *l_ctx;
+<<<<<<< HEAD
 	ssize_t result = -EINVAL, requested;
+=======
+	ssize_t result, requested;
+>>>>>>> upstream/android-13
 	size_t count = iov_iter_count(iter);
 	nfs_add_stats(mapping->host, NFSIOS_DIRECTREADBYTES, count);
 
@@ -610,12 +673,22 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
 	if (iter_is_iovec(iter))
 		dreq->flags = NFS_ODIRECT_SHOULD_DIRTY;
 
+<<<<<<< HEAD
 	nfs_start_io_direct(inode);
+=======
+	if (!swap)
+		nfs_start_io_direct(inode);
+>>>>>>> upstream/android-13
 
 	NFS_I(inode)->read_io += count;
 	requested = nfs_direct_read_schedule_iovec(dreq, iter, iocb->ki_pos);
 
+<<<<<<< HEAD
 	nfs_end_io_direct(inode);
+=======
+	if (!swap)
+		nfs_end_io_direct(inode);
+>>>>>>> upstream/android-13
 
 	if (requested > 0) {
 		result = nfs_direct_wait(dreq);
@@ -635,15 +708,40 @@ out:
 }
 
 static void
+<<<<<<< HEAD
+=======
+nfs_direct_join_group(struct list_head *list, struct inode *inode)
+{
+	struct nfs_page *req, *next;
+
+	list_for_each_entry(req, list, wb_list) {
+		if (req->wb_head != req || req->wb_this_page == req)
+			continue;
+		for (next = req->wb_this_page;
+				next != req->wb_head;
+				next = next->wb_this_page) {
+			nfs_list_remove_request(next);
+			nfs_release_request(next);
+		}
+		nfs_join_page_group(req, inode);
+	}
+}
+
+static void
+>>>>>>> upstream/android-13
 nfs_direct_write_scan_commit_list(struct inode *inode,
 				  struct list_head *list,
 				  struct nfs_commit_info *cinfo)
 {
 	mutex_lock(&NFS_I(cinfo->inode)->commit_mutex);
+<<<<<<< HEAD
 #ifdef CONFIG_NFS_V4_1
 	if (cinfo->ds != NULL && cinfo->ds->nwritten != 0)
 		NFS_SERVER(inode)->pnfs_curr_ld->recover_commit_reqs(list, cinfo);
 #endif
+=======
+	pnfs_recover_commit_reqs(list, cinfo);
+>>>>>>> upstream/android-13
 	nfs_scan_commit_list(&cinfo->mds->list, list, cinfo, 0);
 	mutex_unlock(&NFS_I(cinfo->inode)->commit_mutex);
 }
@@ -655,25 +753,38 @@ static void nfs_direct_write_reschedule(struct nfs_direct_req *dreq)
 	LIST_HEAD(reqs);
 	struct nfs_commit_info cinfo;
 	LIST_HEAD(failed);
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
 	nfs_direct_write_scan_commit_list(dreq->inode, &reqs, &cinfo);
 
+<<<<<<< HEAD
+=======
+	nfs_direct_join_group(&reqs, dreq->inode);
+
+>>>>>>> upstream/android-13
 	dreq->count = 0;
 	dreq->max_count = 0;
 	list_for_each_entry(req, &reqs, wb_list)
 		dreq->max_count += req->wb_bytes;
+<<<<<<< HEAD
 	dreq->verf.committed = NFS_INVALID_STABLE_HOW;
 	nfs_clear_pnfs_ds_commit_verifiers(&dreq->ds_cinfo);
 	for (i = 0; i < dreq->mirror_count; i++)
 		dreq->mirrors[i].count = 0;
+=======
+	nfs_clear_pnfs_ds_commit_verifiers(&dreq->ds_cinfo);
+>>>>>>> upstream/android-13
 	get_dreq(dreq);
 
 	nfs_pageio_init_write(&desc, dreq->inode, FLUSH_STABLE, false,
 			      &nfs_direct_write_completion_ops);
 	desc.pg_dreq = dreq;
 
+<<<<<<< HEAD
 	req = nfs_list_entry(reqs.next);
 	nfs_direct_setup_mirroring(dreq, &desc, req);
 	if (desc.pg_error < 0) {
@@ -682,6 +793,11 @@ static void nfs_direct_write_reschedule(struct nfs_direct_req *dreq)
 	}
 
 	list_for_each_entry_safe(req, tmp, &reqs, wb_list) {
+=======
+	list_for_each_entry_safe(req, tmp, &reqs, wb_list) {
+		/* Bump the transmission count */
+		req->wb_nio++;
+>>>>>>> upstream/android-13
 		if (!nfs_pageio_add_request(&desc, req)) {
 			nfs_list_move_request(req, &failed);
 			spin_lock(&cinfo.inode->i_lock);
@@ -696,7 +812,10 @@ static void nfs_direct_write_reschedule(struct nfs_direct_req *dreq)
 	}
 	nfs_pageio_complete(&desc);
 
+<<<<<<< HEAD
 out_failed:
+=======
+>>>>>>> upstream/android-13
 	while (!list_empty(&failed)) {
 		req = nfs_list_entry(failed.next);
 		nfs_list_remove_request(req);
@@ -709,27 +828,60 @@ out_failed:
 
 static void nfs_direct_commit_complete(struct nfs_commit_data *data)
 {
+<<<<<<< HEAD
+=======
+	const struct nfs_writeverf *verf = data->res.verf;
+>>>>>>> upstream/android-13
 	struct nfs_direct_req *dreq = data->dreq;
 	struct nfs_commit_info cinfo;
 	struct nfs_page *req;
 	int status = data->task.tk_status;
 
+<<<<<<< HEAD
 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
 	if (status < 0 || nfs_direct_cmp_commit_data_verf(dreq, data))
 		dreq->flags = NFS_ODIRECT_RESCHED_WRITES;
+=======
+	if (status < 0) {
+		/* Errors in commit are fatal */
+		dreq->error = status;
+		dreq->max_count = 0;
+		dreq->count = 0;
+		dreq->flags = NFS_ODIRECT_DONE;
+	} else if (dreq->flags == NFS_ODIRECT_DONE)
+		status = dreq->error;
+
+	nfs_init_cinfo_from_dreq(&cinfo, dreq);
+>>>>>>> upstream/android-13
 
 	while (!list_empty(&data->pages)) {
 		req = nfs_list_entry(data->pages.next);
 		nfs_list_remove_request(req);
+<<<<<<< HEAD
 		if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES) {
 			/* Note the rewrite will go through mds */
 			nfs_mark_request_commit(req, NULL, &cinfo, 0);
 		} else
+=======
+		if (status >= 0 && !nfs_write_match_verf(verf, req)) {
+			dreq->flags = NFS_ODIRECT_RESCHED_WRITES;
+			/*
+			 * Despite the reboot, the write was successful,
+			 * so reset wb_nio.
+			 */
+			req->wb_nio = 0;
+			nfs_mark_request_commit(req, NULL, &cinfo, 0);
+		} else /* Error or match */
+>>>>>>> upstream/android-13
 			nfs_release_request(req);
 		nfs_unlock_and_release_request(req);
 	}
 
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&cinfo.mds->rpcs_out))
+=======
+	if (nfs_commit_end(cinfo.mds))
+>>>>>>> upstream/android-13
 		nfs_direct_write_complete(dreq);
 }
 
@@ -739,7 +891,12 @@ static void nfs_direct_resched_write(struct nfs_commit_info *cinfo,
 	struct nfs_direct_req *dreq = cinfo->dreq;
 
 	spin_lock(&dreq->lock);
+<<<<<<< HEAD
 	dreq->flags = NFS_ODIRECT_RESCHED_WRITES;
+=======
+	if (dreq->flags != NFS_ODIRECT_DONE)
+		dreq->flags = NFS_ODIRECT_RESCHED_WRITES;
+>>>>>>> upstream/android-13
 	spin_unlock(&dreq->lock);
 	nfs_mark_request_commit(req, NULL, cinfo, 0);
 }
@@ -762,6 +919,26 @@ static void nfs_direct_commit_schedule(struct nfs_direct_req *dreq)
 		nfs_direct_write_reschedule(dreq);
 }
 
+<<<<<<< HEAD
+=======
+static void nfs_direct_write_clear_reqs(struct nfs_direct_req *dreq)
+{
+	struct nfs_commit_info cinfo;
+	struct nfs_page *req;
+	LIST_HEAD(reqs);
+
+	nfs_init_cinfo_from_dreq(&cinfo, dreq);
+	nfs_direct_write_scan_commit_list(dreq->inode, &reqs, &cinfo);
+
+	while (!list_empty(&reqs)) {
+		req = nfs_list_entry(reqs.next);
+		nfs_list_remove_request(req);
+		nfs_release_request(req);
+		nfs_unlock_and_release_request(req);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void nfs_direct_write_schedule_work(struct work_struct *work)
 {
 	struct nfs_direct_req *dreq = container_of(work, struct nfs_direct_req, work);
@@ -776,6 +953,10 @@ static void nfs_direct_write_schedule_work(struct work_struct *work)
 			nfs_direct_write_reschedule(dreq);
 			break;
 		default:
+<<<<<<< HEAD
+=======
+			nfs_direct_write_clear_reqs(dreq);
+>>>>>>> upstream/android-13
 			nfs_zap_mapping(dreq->inode, dreq->inode->i_mapping);
 			nfs_direct_complete(dreq);
 	}
@@ -790,8 +971,13 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
 {
 	struct nfs_direct_req *dreq = hdr->dreq;
 	struct nfs_commit_info cinfo;
+<<<<<<< HEAD
 	bool request_commit = false;
 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
+=======
+	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
+	int flags = NFS_ODIRECT_DONE;
+>>>>>>> upstream/android-13
 
 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
 
@@ -802,6 +988,7 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
 	}
 
 	nfs_direct_count_bytes(dreq, hdr);
+<<<<<<< HEAD
 	if (hdr->good_bytes != 0) {
 		if (nfs_write_need_commit(hdr)) {
 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
@@ -817,6 +1004,12 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
 						NFS_ODIRECT_RESCHED_WRITES;
 			}
 		}
+=======
+	if (hdr->good_bytes != 0 && nfs_write_need_commit(hdr)) {
+		if (!dreq->flags)
+			dreq->flags = NFS_ODIRECT_DO_COMMIT;
+		flags = dreq->flags;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&dreq->lock);
 
@@ -824,10 +1017,22 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
 
 		req = nfs_list_entry(hdr->pages.next);
 		nfs_list_remove_request(req);
+<<<<<<< HEAD
 		if (request_commit) {
 			kref_get(&req->wb_kref);
 			nfs_mark_request_commit(req, hdr->lseg, &cinfo,
 				hdr->ds_commit_idx);
+=======
+		if (flags == NFS_ODIRECT_DO_COMMIT) {
+			kref_get(&req->wb_kref);
+			memcpy(&req->wb_verf, &hdr->verf.verifier,
+			       sizeof(req->wb_verf));
+			nfs_mark_request_commit(req, hdr->lseg, &cinfo,
+				hdr->ds_commit_idx);
+		} else if (flags == NFS_ODIRECT_RESCHED_WRITES) {
+			kref_get(&req->wb_kref);
+			nfs_mark_request_commit(req, NULL, &cinfo, 0);
+>>>>>>> upstream/android-13
 		}
 		nfs_unlock_and_release_request(req);
 	}
@@ -858,7 +1063,12 @@ static void nfs_direct_write_reschedule_io(struct nfs_pgio_header *hdr)
 		dreq->flags = NFS_ODIRECT_RESCHED_WRITES;
 		/* fake unstable write to let common nfs resend pages */
 		hdr->verf.committed = NFS_UNSTABLE;
+<<<<<<< HEAD
 		hdr->good_bytes = hdr->args.count;
+=======
+		hdr->good_bytes = hdr->args.offset + hdr->args.count -
+			hdr->io_start;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&dreq->lock);
 }
@@ -884,7 +1094,11 @@ static const struct nfs_pgio_completion_ops nfs_direct_write_completion_ops = {
  */
 static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
 					       struct iov_iter *iter,
+<<<<<<< HEAD
 					       loff_t pos)
+=======
+					       loff_t pos, int ioflags)
+>>>>>>> upstream/android-13
 {
 	struct nfs_pageio_descriptor desc;
 	struct inode *inode = dreq->inode;
@@ -892,7 +1106,11 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
 	size_t requested_bytes = 0;
 	size_t wsize = max_t(size_t, NFS_SERVER(inode)->wsize, PAGE_SIZE);
 
+<<<<<<< HEAD
 	nfs_pageio_init_write(&desc, inode, FLUSH_COND_STABLE, false,
+=======
+	nfs_pageio_init_write(&desc, inode, ioflags, false,
+>>>>>>> upstream/android-13
 			      &nfs_direct_write_completion_ops);
 	desc.pg_dreq = dreq;
 	get_dreq(dreq);
@@ -917,14 +1135,21 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
 			struct nfs_page *req;
 			unsigned int req_len = min_t(size_t, bytes, PAGE_SIZE - pgbase);
 
+<<<<<<< HEAD
 			req = nfs_create_request(dreq->ctx, pagevec[i], NULL,
+=======
+			req = nfs_create_request(dreq->ctx, pagevec[i],
+>>>>>>> upstream/android-13
 						 pgbase, req_len);
 			if (IS_ERR(req)) {
 				result = PTR_ERR(req);
 				break;
 			}
 
+<<<<<<< HEAD
 			nfs_direct_setup_mirroring(dreq, &desc, req);
+=======
+>>>>>>> upstream/android-13
 			if (desc.pg_error < 0) {
 				nfs_free_request(req);
 				result = desc.pg_error;
@@ -971,6 +1196,10 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
  * nfs_file_direct_write - file direct write operation for NFS files
  * @iocb: target I/O control block
  * @iter: vector of user buffers from which to write data
+<<<<<<< HEAD
+=======
+ * @swap: flag indicating this is swap IO, not O_DIRECT IO
+>>>>>>> upstream/android-13
  *
  * We use this function for direct writes instead of calling
  * generic_file_aio_write() in order to avoid taking the inode
@@ -987,9 +1216,16 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
  * Note that O_APPEND is not supported for NFS direct writes, as there
  * is no atomic O_APPEND write facility in the NFS protocol.
  */
+<<<<<<< HEAD
 ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
 {
 	ssize_t result = -EINVAL, requested;
+=======
+ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter,
+			      bool swap)
+{
+	ssize_t result, requested;
+>>>>>>> upstream/android-13
 	size_t count;
 	struct file *file = iocb->ki_filp;
 	struct address_space *mapping = file->f_mapping;
@@ -1001,7 +1237,15 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
 	dfprintk(FILE, "NFS: direct write(%pD2, %zd@%Ld)\n",
 		file, iov_iter_count(iter), (long long) iocb->ki_pos);
 
+<<<<<<< HEAD
 	result = generic_write_checks(iocb, iter);
+=======
+	if (swap)
+		/* bypass generic checks */
+		result =  iov_iter_count(iter);
+	else
+		result = generic_write_checks(iocb, iter);
+>>>>>>> upstream/android-13
 	if (result <= 0)
 		return result;
 	count = result;
@@ -1030,6 +1274,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
 	dreq->l_ctx = l_ctx;
 	if (!is_sync_kiocb(iocb))
 		dreq->iocb = iocb;
+<<<<<<< HEAD
 
 	nfs_start_io_direct(inode);
 
@@ -1042,6 +1287,27 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
 
 	nfs_end_io_direct(inode);
 
+=======
+	pnfs_init_ds_commit_info_ops(&dreq->ds_cinfo, inode);
+
+	if (swap) {
+		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
+							    FLUSH_STABLE);
+	} else {
+		nfs_start_io_direct(inode);
+
+		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
+							    FLUSH_COND_STABLE);
+
+		if (mapping->nrpages) {
+			invalidate_inode_pages2_range(mapping,
+						      pos >> PAGE_SHIFT, end);
+		}
+
+		nfs_end_io_direct(inode);
+	}
+
+>>>>>>> upstream/android-13
 	if (requested > 0) {
 		result = nfs_direct_wait(dreq);
 		if (result > 0) {

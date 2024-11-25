@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Drm device configuration
 #
@@ -14,6 +18,12 @@ menuconfig DRM
 	select I2C_ALGOBIT
 	select DMA_SHARED_BUFFER
 	select SYNC_FILE
+<<<<<<< HEAD
+=======
+# gallium uses SYS_kcmp for os_same_file_description() to de-duplicate
+# device and dmabuf fd. Let's make sure that is available for our userspace.
+	select KCMP
+>>>>>>> upstream/android-13
 	help
 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
 	  introduced in XFree86 4.0. If you say Y here, you need to select
@@ -23,10 +33,25 @@ menuconfig DRM
 	  details.  You should also select and configure AGP
 	  (/dev/agpgart) support if it is available for your platform.
 
+<<<<<<< HEAD
+=======
+config DRM_MIPI_DBI
+	tristate
+	depends on DRM
+
+>>>>>>> upstream/android-13
 config DRM_MIPI_DSI
 	bool
 	depends on DRM
 
+<<<<<<< HEAD
+=======
+config DRM_DP_AUX_BUS
+	tristate
+	depends on DRM
+	depends on OF
+
+>>>>>>> upstream/android-13
 config DRM_DP_AUX_CHARDEV
 	bool "DRM DP AUX Interface"
 	depends on DRM
@@ -56,6 +81,10 @@ config DRM_DEBUG_SELFTEST
 	select PRIME_NUMBERS
 	select DRM_LIB_RANDOM
 	select DRM_KMS_HELPER
+<<<<<<< HEAD
+=======
+	select DRM_EXPORT_FOR_TESTS if m
+>>>>>>> upstream/android-13
 	default n
 	help
 	  This option provides kernel modules that can be used to run
@@ -71,6 +100,7 @@ config DRM_KMS_HELPER
 	help
 	  CRTC helpers for KMS drivers.
 
+<<<<<<< HEAD
 config DRM_KMS_FB_HELPER
 	bool
 	depends on DRM_KMS_HELPER
@@ -87,12 +117,43 @@ config DRM_KMS_FB_HELPER
 	select FB_DEFERRED_IO
 	help
 	  FBDEV helpers for KMS drivers.
+=======
+config DRM_DEBUG_DP_MST_TOPOLOGY_REFS
+        bool "Enable refcount backtrace history in the DP MST helpers"
+	depends on STACKTRACE_SUPPORT
+        select STACKDEPOT
+        depends on DRM_KMS_HELPER
+        depends on DEBUG_KERNEL
+        depends on EXPERT
+        help
+          Enables debug tracing for topology refs in DRM's DP MST helpers. A
+          history of each topology reference/dereference will be printed to the
+          kernel log once a port or branch device's topology refcount reaches 0.
+
+          This has the potential to use a lot of memory and print some very
+          large kernel messages. If in doubt, say "N".
+>>>>>>> upstream/android-13
 
 config DRM_FBDEV_EMULATION
 	bool "Enable legacy fbdev support for your modesetting driver"
 	depends on DRM
+<<<<<<< HEAD
 	select DRM_KMS_HELPER
 	select DRM_KMS_FB_HELPER
+=======
+	depends on FB
+	select DRM_KMS_HELPER
+	select FB_CFB_FILLRECT
+	select FB_CFB_COPYAREA
+	select FB_CFB_IMAGEBLIT
+	select FB_DEFERRED_IO
+	select FB_SYS_FOPS
+	select FB_SYS_FILLRECT
+	select FB_SYS_COPYAREA
+	select FB_SYS_IMAGEBLIT
+	select FRAMEBUFFER_CONSOLE if !EXPERT
+	select FRAMEBUFFER_CONSOLE_DETECT_PRIMARY if FRAMEBUFFER_CONSOLE
+>>>>>>> upstream/android-13
 	default y
 	help
 	  Choose this option if you have a need for the legacy fbdev
@@ -140,10 +201,18 @@ config DRM_LOAD_EDID_FIRMWARE
 	  monitor are unable to provide appropriate EDID data. Since this
 	  feature is provided as a workaround for broken hardware, the
 	  default case is N. Details and instructions how to build your own
+<<<<<<< HEAD
 	  EDID data are given in Documentation/EDID/HOWTO.txt.
 
 config DRM_DP_CEC
 	bool "Enable DisplayPort CEC-Tunneling-over-AUX HDMI support"
+=======
+	  EDID data are given in Documentation/admin-guide/edid.rst.
+
+config DRM_DP_CEC
+	bool "Enable DisplayPort CEC-Tunneling-over-AUX HDMI support"
+	depends on DRM
+>>>>>>> upstream/android-13
 	select CEC_CORE
 	help
 	  Choose this option if you want to enable HDMI CEC support for
@@ -160,6 +229,22 @@ config DRM_TTM
 	  GPU memory types. Will be enabled automatically if a device driver
 	  uses it.
 
+<<<<<<< HEAD
+=======
+config DRM_VRAM_HELPER
+	tristate
+	depends on DRM
+	help
+	  Helpers for VRAM memory management
+
+config DRM_TTM_HELPER
+	tristate
+	depends on DRM
+	select DRM_TTM
+	help
+	  Helpers for ttm-based gem objects
+
+>>>>>>> upstream/android-13
 config DRM_GEM_CMA_HELPER
 	bool
 	depends on DRM
@@ -170,6 +255,7 @@ config DRM_KMS_CMA_HELPER
 	bool
 	depends on DRM
 	select DRM_GEM_CMA_HELPER
+<<<<<<< HEAD
 	select DRM_KMS_FB_HELPER
 	select FB_SYS_FILLRECT
 	select FB_SYS_COPYAREA
@@ -180,6 +266,16 @@ config DRM_KMS_CMA_HELPER
 config DRM_VM
 	bool
 	depends on DRM && MMU
+=======
+	help
+	  Choose this if you need the KMS CMA helper functions
+
+config DRM_GEM_SHMEM_HELPER
+	bool
+	depends on DRM
+	help
+	  Choose this if you need the GEM shmem helper functions
+>>>>>>> upstream/android-13
 
 config DRM_SCHED
 	tristate
@@ -196,10 +292,17 @@ config DRM_RADEON
 	select FW_LOADER
         select DRM_KMS_HELPER
         select DRM_TTM
+<<<<<<< HEAD
 	select POWER_SUPPLY
 	select HWMON
 	select BACKLIGHT_CLASS_DEVICE
 	select BACKLIGHT_LCD_SUPPORT
+=======
+	select DRM_TTM_HELPER
+	select POWER_SUPPLY
+	select HWMON
+	select BACKLIGHT_CLASS_DEVICE
+>>>>>>> upstream/android-13
 	select INTERVAL_TREE
 	help
 	  Choose this option if you have an ATI Radeon graphics card.  There
@@ -214,6 +317,7 @@ config DRM_AMDGPU
 	tristate "AMD GPU"
 	depends on DRM && PCI && MMU
 	select FW_LOADER
+<<<<<<< HEAD
         select DRM_KMS_HELPER
 	select DRM_SCHED
         select DRM_TTM
@@ -223,6 +327,16 @@ config DRM_AMDGPU
 	select BACKLIGHT_LCD_SUPPORT
 	select INTERVAL_TREE
 	select CHASH
+=======
+	select DRM_KMS_HELPER
+	select DRM_SCHED
+	select DRM_TTM
+	select DRM_TTM_HELPER
+	select POWER_SUPPLY
+	select HWMON
+	select BACKLIGHT_CLASS_DEVICE
+	select INTERVAL_TREE
+>>>>>>> upstream/android-13
 	help
 	  Choose this option if you have a recent AMD Radeon graphics card.
 
@@ -230,12 +344,21 @@ config DRM_AMDGPU
 
 source "drivers/gpu/drm/amd/amdgpu/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/gpu/drm/amd/lib/Kconfig"
+=======
+source "drivers/gpu/drm/samsung/sgpu/Kconfig"
+>>>>>>> upstream/android-13
 
 source "drivers/gpu/drm/nouveau/Kconfig"
 
 source "drivers/gpu/drm/i915/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "drivers/gpu/drm/kmb/Kconfig"
+
+>>>>>>> upstream/android-13
 config DRM_VGEM
 	tristate "Virtual GEM provider"
 	depends on DRM
@@ -248,6 +371,11 @@ config DRM_VKMS
 	tristate "Virtual KMS (EXPERIMENTAL)"
 	depends on DRM
 	select DRM_KMS_HELPER
+<<<<<<< HEAD
+=======
+	select DRM_GEM_SHMEM_HELPER
+	select CRC32
+>>>>>>> upstream/android-13
 	default n
 	help
 	  Virtual Kernel Mode-Setting (VKMS) is used for testing or for
@@ -258,6 +386,11 @@ config DRM_VKMS
 
 source "drivers/gpu/drm/exynos/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "drivers/gpu/drm/samsung/dpu/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/gpu/drm/rockchip/Kconfig"
 
 source "drivers/gpu/drm/vmwgfx/Kconfig"
@@ -270,8 +403,11 @@ source "drivers/gpu/drm/ast/Kconfig"
 
 source "drivers/gpu/drm/mgag200/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/gpu/drm/cirrus/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/gpu/drm/armada/Kconfig"
 
 source "drivers/gpu/drm/atmel-hlcdc/Kconfig"
@@ -288,8 +424,11 @@ source "drivers/gpu/drm/tilcdc/Kconfig"
 
 source "drivers/gpu/drm/qxl/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/gpu/drm/bochs/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/gpu/drm/virtio/Kconfig"
 
 source "drivers/gpu/drm/msm/Kconfig"
@@ -302,24 +441,37 @@ source "drivers/gpu/drm/stm/Kconfig"
 
 source "drivers/gpu/drm/panel/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/gpu/drm/panel/smcdsd_panel/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/gpu/drm/bridge/Kconfig"
 
 source "drivers/gpu/drm/sti/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/gpu/drm/amd/amdkfd/Kconfig"
 
 source "drivers/gpu/drm/imx/Kconfig"
 
+=======
+source "drivers/gpu/drm/imx/Kconfig"
+
+source "drivers/gpu/drm/ingenic/Kconfig"
+
+>>>>>>> upstream/android-13
 source "drivers/gpu/drm/v3d/Kconfig"
 
 source "drivers/gpu/drm/vc4/Kconfig"
 
 source "drivers/gpu/drm/etnaviv/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/gpu/drm/arc/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 source "drivers/gpu/drm/hisilicon/Kconfig"
 
 source "drivers/gpu/drm/mediatek/Kconfig"
@@ -330,7 +482,11 @@ source "drivers/gpu/drm/mxsfb/Kconfig"
 
 source "drivers/gpu/drm/meson/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/gpu/drm/tinydrm/Kconfig"
+=======
+source "drivers/gpu/drm/tiny/Kconfig"
+>>>>>>> upstream/android-13
 
 source "drivers/gpu/drm/pl111/Kconfig"
 
@@ -338,12 +494,47 @@ source "drivers/gpu/drm/tve200/Kconfig"
 
 source "drivers/gpu/drm/xen/Kconfig"
 
+<<<<<<< HEAD
+=======
+source "drivers/gpu/drm/vboxvideo/Kconfig"
+
+source "drivers/gpu/drm/lima/Kconfig"
+
+source "drivers/gpu/drm/panfrost/Kconfig"
+
+source "drivers/gpu/drm/aspeed/Kconfig"
+
+source "drivers/gpu/drm/mcde/Kconfig"
+
+source "drivers/gpu/drm/tidss/Kconfig"
+
+source "drivers/gpu/drm/xlnx/Kconfig"
+
+source "drivers/gpu/drm/gud/Kconfig"
+
+config DRM_HYPERV
+	tristate "DRM Support for Hyper-V synthetic video device"
+	depends on DRM && PCI && MMU && HYPERV
+	select DRM_KMS_HELPER
+	select DRM_GEM_SHMEM_HELPER
+	help
+	 This is a KMS driver for Hyper-V synthetic video device. Choose this
+	 option if you would like to enable drm driver for Hyper-V virtual
+	 machine. Unselect Hyper-V framebuffer driver (CONFIG_FB_HYPERV) so
+	 that DRM driver is used by default.
+
+	 If M is selected the module will be called hyperv_drm.
+
+>>>>>>> upstream/android-13
 # Keep legacy drivers last
 
 menuconfig DRM_LEGACY
 	bool "Enable legacy drivers (DANGEROUS)"
 	depends on DRM && MMU
+<<<<<<< HEAD
 	select DRM_VM
+=======
+>>>>>>> upstream/android-13
 	help
 	  Enable legacy DRI1 drivers. Those drivers expose unsafe and dangerous
 	  APIs to user-space, which can be used to circumvent access
@@ -376,8 +567,13 @@ config DRM_R128
 
 config DRM_I810
 	tristate "Intel I810"
+<<<<<<< HEAD
 	# !PREEMPT because of missing ioctl locking
 	depends on DRM && AGP && AGP_INTEL && (!PREEMPT || BROKEN)
+=======
+	# !PREEMPTION because of missing ioctl locking
+	depends on DRM && AGP && AGP_INTEL && (!PREEMPTION || BROKEN)
+>>>>>>> upstream/android-13
 	help
 	  Choose this option if you have an Intel I810 graphics card.  If M is
 	  selected, the module will be called i810.  AGP support is required
@@ -417,6 +613,12 @@ config DRM_SAVAGE
 
 endif # DRM_LEGACY
 
+<<<<<<< HEAD
+=======
+config DRM_EXPORT_FOR_TESTS
+	bool
+
+>>>>>>> upstream/android-13
 # Separate option because drm_panel_orientation_quirks.c is shared with fbdev
 config DRM_PANEL_ORIENTATION_QUIRKS
 	tristate
@@ -424,3 +626,8 @@ config DRM_PANEL_ORIENTATION_QUIRKS
 config DRM_LIB_RANDOM
 	bool
 	default n
+<<<<<<< HEAD
+=======
+
+MCD_PANEL_PATH := drivers/gpu/drm/samsung/panel
+>>>>>>> upstream/android-13

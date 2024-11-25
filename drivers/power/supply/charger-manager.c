@@ -1,15 +1,25 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 Samsung Electronics Co., Ltd.
  * MyungJoo Ham <myungjoo.ham@samsung.com>
  *
  * This driver enables to monitor battery health and control charger
  * during suspend-to-mem.
+<<<<<<< HEAD
  * Charger manager depends on other devices. register this later than
  * the depending devices.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Charger manager depends on other devices. Register this later than
+ * the depending devices.
+ *
+>>>>>>> upstream/android-13
 **/
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -28,13 +38,42 @@
 #include <linux/of.h>
 #include <linux/thermal.h>
 
+<<<<<<< HEAD
 /*
  * Default termperature threshold for charging.
+=======
+static struct {
+	const char *name;
+	u64 extcon_type;
+} extcon_mapping[] = {
+	/* Current textual representations */
+	{ "USB", EXTCON_USB },
+	{ "USB-HOST", EXTCON_USB_HOST },
+	{ "SDP", EXTCON_CHG_USB_SDP },
+	{ "DCP", EXTCON_CHG_USB_DCP },
+	{ "CDP", EXTCON_CHG_USB_CDP },
+	{ "ACA", EXTCON_CHG_USB_ACA },
+	{ "FAST-CHARGER", EXTCON_CHG_USB_FAST },
+	{ "SLOW-CHARGER", EXTCON_CHG_USB_SLOW },
+	{ "WPT", EXTCON_CHG_WPT },
+	{ "PD", EXTCON_CHG_USB_PD },
+	{ "DOCK", EXTCON_DOCK },
+	{ "JIG", EXTCON_JIG },
+	{ "MECHANICAL", EXTCON_MECHANICAL },
+	/* Deprecated textual representations */
+	{ "TA", EXTCON_CHG_USB_SDP },
+	{ "CHARGE-DOWNSTREAM", EXTCON_CHG_USB_CDP },
+};
+
+/*
+ * Default temperature threshold for charging.
+>>>>>>> upstream/android-13
  * Every temperature units are in tenth of centigrade.
  */
 #define CM_DEFAULT_RECHARGE_TEMP_DIFF	50
 #define CM_DEFAULT_CHARGE_TEMP_MAX	500
 
+<<<<<<< HEAD
 static const char * const default_event_names[] = {
 	[CM_EVENT_UNKNOWN] = "Unknown",
 	[CM_EVENT_BATT_FULL] = "Battery Full",
@@ -47,6 +86,8 @@ static const char * const default_event_names[] = {
 	[CM_EVENT_OTHERS] = "Other battery events"
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Regard CM_JIFFIES_SMALL jiffies is small enough to ignore for
  * delayed works so that we can run delayed works with CM_JIFFIES_SMALL
@@ -63,8 +104,11 @@ static const char * const default_event_names[] = {
  */
 #define CM_RTC_SMALL		(2)
 
+<<<<<<< HEAD
 #define UEVENT_BUF_SIZE		32
 
+=======
+>>>>>>> upstream/android-13
 static LIST_HEAD(cm_list);
 static DEFINE_MUTEX(cm_list_mtx);
 
@@ -287,6 +331,22 @@ static bool is_full_charged(struct charger_manager *cm)
 	if (!fuel_gauge)
 		return false;
 
+<<<<<<< HEAD
+=======
+	/* Full, if it's over the fullbatt voltage */
+	if (desc->fullbatt_uV > 0) {
+		ret = get_batt_uV(cm, &uV);
+		if (!ret) {
+			/* Battery is already full, checks voltage drop. */
+			if (cm->battery_status == POWER_SUPPLY_STATUS_FULL
+					&& desc->fullbatt_vchkdrop_uV)
+				uV += desc->fullbatt_vchkdrop_uV;
+			if (uV >= desc->fullbatt_uV)
+				return true;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (desc->fullbatt_full_capacity > 0) {
 		val.intval = 0;
 
@@ -299,6 +359,7 @@ static bool is_full_charged(struct charger_manager *cm)
 		}
 	}
 
+<<<<<<< HEAD
 	/* Full, if it's over the fullbatt voltage */
 	if (desc->fullbatt_uV > 0) {
 		ret = get_batt_uV(cm, &uV);
@@ -308,6 +369,8 @@ static bool is_full_charged(struct charger_manager *cm)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Full, if the capacity is more than fullbatt_soc */
 	if (desc->fullbatt_soc > 0) {
 		val.intval = 0;
@@ -356,14 +419,22 @@ static bool is_polling_required(struct charger_manager *cm)
  * Note that Charger Manager keeps the charger enabled regardless whether
  * the charger is charging or not (because battery is full or no external
  * power source exists) except when CM needs to disable chargers forcibly
+<<<<<<< HEAD
  * bacause of emergency causes; when the battery is overheated or too cold.
+=======
+ * because of emergency causes; when the battery is overheated or too cold.
+>>>>>>> upstream/android-13
  */
 static int try_charger_enable(struct charger_manager *cm, bool enable)
 {
 	int err = 0, i;
 	struct charger_desc *desc = cm->desc;
 
+<<<<<<< HEAD
 	/* Ignore if it's redundent command */
+=======
+	/* Ignore if it's redundant command */
+>>>>>>> upstream/android-13
 	if (enable == cm->charger_enabled)
 		return 0;
 
@@ -429,6 +500,7 @@ static int try_charger_enable(struct charger_manager *cm, bool enable)
 }
 
 /**
+<<<<<<< HEAD
  * try_charger_restart - Restart charging.
  * @cm: the Charger Manager representing the battery.
  *
@@ -545,6 +617,8 @@ static void fullbatt_vchk(struct work_struct *work)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * check_charging_duration - Monitor charging/discharging duration
  * @cm: the Charger Manager representing the battery.
  *
@@ -571,6 +645,7 @@ static int check_charging_duration(struct charger_manager *cm)
 		if (duration > desc->charging_max_duration_ms) {
 			dev_info(cm->dev, "Charging duration exceed %ums\n",
 				 desc->charging_max_duration_ms);
+<<<<<<< HEAD
 			uevent_notify(cm, "Discharging");
 			try_charger_enable(cm, false);
 			ret = true;
@@ -584,6 +659,16 @@ static int check_charging_duration(struct charger_manager *cm)
 				 desc->discharging_max_duration_ms);
 			uevent_notify(cm, "Recharging");
 			try_charger_enable(cm, true);
+=======
+			ret = true;
+		}
+	} else if (cm->battery_status == POWER_SUPPLY_STATUS_NOT_CHARGING) {
+		duration = curr - cm->charging_end_time;
+
+		if (duration > desc->discharging_max_duration_ms) {
+			dev_info(cm->dev, "Discharging duration exceed %ums\n",
+				 desc->discharging_max_duration_ms);
+>>>>>>> upstream/android-13
 			ret = true;
 		}
 	}
@@ -643,7 +728,11 @@ static int cm_check_thermal_status(struct charger_manager *cm)
 	if (ret) {
 		/* FIXME:
 		 * No information of battery temperature might
+<<<<<<< HEAD
 		 * occur hazadous result. We have to handle it
+=======
+		 * occur hazardous result. We have to handle it
+>>>>>>> upstream/android-13
 		 * depending on battery type.
 		 */
 		dev_err(cm->dev, "Failed to get battery temperature\n");
@@ -659,14 +748,62 @@ static int cm_check_thermal_status(struct charger_manager *cm)
 	}
 
 	if (temp > upper_limit)
+<<<<<<< HEAD
 		ret = CM_EVENT_BATT_OVERHEAT;
 	else if (temp < lower_limit)
 		ret = CM_EVENT_BATT_COLD;
+=======
+		ret = CM_BATT_OVERHEAT;
+	else if (temp < lower_limit)
+		ret = CM_BATT_COLD;
+	else
+		ret = CM_BATT_OK;
+
+	cm->emergency_stop = ret;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * cm_get_target_status - Check current status and get next target status.
+ * @cm: the Charger Manager representing the battery.
+ */
+static int cm_get_target_status(struct charger_manager *cm)
+{
+	if (!is_ext_pwr_online(cm))
+		return POWER_SUPPLY_STATUS_DISCHARGING;
+
+	if (cm_check_thermal_status(cm)) {
+		/* Check if discharging duration exceeds limit. */
+		if (check_charging_duration(cm))
+			goto charging_ok;
+		return POWER_SUPPLY_STATUS_NOT_CHARGING;
+	}
+
+	switch (cm->battery_status) {
+	case POWER_SUPPLY_STATUS_CHARGING:
+		/* Check if charging duration exceeds limit. */
+		if (check_charging_duration(cm))
+			return POWER_SUPPLY_STATUS_FULL;
+		fallthrough;
+	case POWER_SUPPLY_STATUS_FULL:
+		if (is_full_charged(cm))
+			return POWER_SUPPLY_STATUS_FULL;
+		fallthrough;
+	default:
+		break;
+	}
+
+charging_ok:
+	/* Charging is allowed. */
+	return POWER_SUPPLY_STATUS_CHARGING;
+}
+
+/**
+>>>>>>> upstream/android-13
  * _cm_monitor - Monitor the temperature and return true for exceptions.
  * @cm: the Charger Manager representing the battery.
  *
@@ -675,6 +812,7 @@ static int cm_check_thermal_status(struct charger_manager *cm)
  */
 static bool _cm_monitor(struct charger_manager *cm)
 {
+<<<<<<< HEAD
 	int temp_alrt;
 
 	temp_alrt = cm_check_thermal_status(cm);
@@ -729,6 +867,20 @@ static bool _cm_monitor(struct charger_manager *cm)
 	}
 
 	return true;
+=======
+	int target;
+
+	target = cm_get_target_status(cm);
+
+	try_charger_enable(cm, (target == POWER_SUPPLY_STATUS_CHARGING));
+
+	if (cm->battery_status != target) {
+		cm->battery_status = target;
+		power_supply_changed(cm->charger_psy);
+	}
+
+	return (cm->battery_status == POWER_SUPPLY_STATUS_NOT_CHARGING);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -821,6 +973,7 @@ static void cm_monitor_poller(struct work_struct *work)
 	schedule_work(&setup_polling);
 }
 
+<<<<<<< HEAD
 /**
  * fullbatt_handler - Event handler for CM_EVENT_BATT_FULL
  * @cm: the Charger Manager representing the battery.
@@ -881,6 +1034,8 @@ static void misc_event_handler(struct charger_manager *cm,
 	uevent_notify(cm, default_event_names[type]);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int charger_get_property(struct power_supply *psy,
 		enum power_supply_property psp,
 		union power_supply_propval *val)
@@ -893,6 +1048,7 @@ static int charger_get_property(struct power_supply *psy,
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
+<<<<<<< HEAD
 		if (is_charging(cm))
 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
 		else if (is_ext_pwr_online(cm))
@@ -904,6 +1060,14 @@ static int charger_get_property(struct power_supply *psy,
 		if (cm->emergency_stop > 0)
 			val->intval = POWER_SUPPLY_HEALTH_OVERHEAT;
 		else if (cm->emergency_stop < 0)
+=======
+		val->intval = cm->battery_status;
+		break;
+	case POWER_SUPPLY_PROP_HEALTH:
+		if (cm->emergency_stop == CM_BATT_OVERHEAT)
+			val->intval = POWER_SUPPLY_HEALTH_OVERHEAT;
+		else if (cm->emergency_stop == CM_BATT_COLD)
+>>>>>>> upstream/android-13
 			val->intval = POWER_SUPPLY_HEALTH_COLD;
 		else
 			val->intval = POWER_SUPPLY_HEALTH_GOOD;
@@ -927,7 +1091,10 @@ static int charger_get_property(struct power_supply *psy,
 				POWER_SUPPLY_PROP_CURRENT_NOW, val);
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
+<<<<<<< HEAD
 	case POWER_SUPPLY_PROP_TEMP_AMBIENT:
+=======
+>>>>>>> upstream/android-13
 		return cm_get_battery_temperature(cm, &val->intval);
 	case POWER_SUPPLY_PROP_CAPACITY:
 		if (!is_batt_present(cm)) {
@@ -983,6 +1150,7 @@ static int charger_get_property(struct power_supply *psy,
 			val->intval = 0;
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_FULL:
+<<<<<<< HEAD
 		if (is_full_charged(cm))
 			val->intval = 1;
 		else
@@ -1012,6 +1180,15 @@ static int charger_get_property(struct power_supply *psy,
 		} else {
 			val->intval = 0;
 		}
+=======
+	case POWER_SUPPLY_PROP_CHARGE_NOW:
+		fuel_gauge = power_supply_get_by_name(cm->desc->psy_fuel_gauge);
+		if (!fuel_gauge) {
+			ret = -ENODEV;
+			break;
+		}
+		ret = power_supply_get_property(fuel_gauge, psp, val);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -1030,6 +1207,7 @@ static enum power_supply_property default_charger_props[] = {
 	POWER_SUPPLY_PROP_VOLTAGE_NOW,
 	POWER_SUPPLY_PROP_CAPACITY,
 	POWER_SUPPLY_PROP_ONLINE,
+<<<<<<< HEAD
 	POWER_SUPPLY_PROP_CHARGE_FULL,
 	/*
 	 * Optional properties are:
@@ -1037,6 +1215,14 @@ static enum power_supply_property default_charger_props[] = {
 	 * POWER_SUPPLY_PROP_CURRENT_NOW,
 	 * POWER_SUPPLY_PROP_TEMP, and
 	 * POWER_SUPPLY_PROP_TEMP_AMBIENT,
+=======
+	/*
+	 * Optional properties are:
+	 * POWER_SUPPLY_PROP_CHARGE_FULL,
+	 * POWER_SUPPLY_PROP_CHARGE_NOW,
+	 * POWER_SUPPLY_PROP_CURRENT_NOW,
+	 * POWER_SUPPLY_PROP_TEMP,
+>>>>>>> upstream/android-13
 	 */
 };
 
@@ -1071,6 +1257,7 @@ static bool cm_setup_timer(void)
 
 	mutex_lock(&cm_list_mtx);
 	list_for_each_entry(cm, &cm_list, entry) {
+<<<<<<< HEAD
 		unsigned int fbchk_ms = 0;
 
 		/* fullbatt_vchk is required. setup timer for that */
@@ -1086,6 +1273,8 @@ static bool cm_setup_timer(void)
 		}
 		CM_MIN_VALID(wakeup_ms, fbchk_ms);
 
+=======
+>>>>>>> upstream/android-13
 		/* Skip if polling is not required for this CM */
 		if (!is_polling_required(cm) && !cm->emergency_stop)
 			continue;
@@ -1147,7 +1336,12 @@ static void charger_extcon_work(struct work_struct *work)
 			cable->min_uA, cable->max_uA);
 	}
 
+<<<<<<< HEAD
 	try_charger_enable(cable->cm, cable->attached);
+=======
+	cancel_delayed_work(&cm_monitor_work);
+	queue_delayed_work(cm_wq, &cm_monitor_work, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1171,6 +1365,7 @@ static int charger_extcon_notifier(struct notifier_block *self,
 	cable->attached = event;
 
 	/*
+<<<<<<< HEAD
 	 * Setup monitoring to check battery state
 	 * when charger cable is attached.
 	 */
@@ -1180,6 +1375,8 @@ static int charger_extcon_notifier(struct notifier_block *self,
 	}
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Setup work for controlling charger(regulator)
 	 * according to charger cable.
 	 */
@@ -1198,7 +1395,12 @@ static int charger_extcon_notifier(struct notifier_block *self,
 static int charger_extcon_init(struct charger_manager *cm,
 		struct charger_cable *cable)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret, i;
+	u64 extcon_type = EXTCON_NONE;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Charger manager use Extcon framework to identify
@@ -1207,6 +1409,7 @@ static int charger_extcon_init(struct charger_manager *cm,
 	 */
 	INIT_WORK(&cable->wq, charger_extcon_work);
 	cable->nb.notifier_call = charger_extcon_notifier;
+<<<<<<< HEAD
 	ret = extcon_register_interest(&cable->extcon_dev,
 			cable->extcon_name, cable->name, &cable->nb);
 	if (ret < 0) {
@@ -1219,6 +1422,45 @@ static int charger_extcon_init(struct charger_manager *cm,
 
 /**
  * charger_manager_register_extcon - Register extcon device to recevie state
+=======
+
+	cable->extcon_dev = extcon_get_extcon_dev(cable->extcon_name);
+	if (IS_ERR_OR_NULL(cable->extcon_dev)) {
+		pr_err("Cannot find extcon_dev for %s (cable: %s)\n",
+			cable->extcon_name, cable->name);
+		if (cable->extcon_dev == NULL)
+			return -EPROBE_DEFER;
+		else
+			return PTR_ERR(cable->extcon_dev);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(extcon_mapping); i++) {
+		if (!strcmp(cable->name, extcon_mapping[i].name)) {
+			extcon_type = extcon_mapping[i].extcon_type;
+			break;
+		}
+	}
+	if (extcon_type == EXTCON_NONE) {
+		pr_err("Cannot find cable for type %s", cable->name);
+		return -EINVAL;
+	}
+
+	cable->extcon_type = extcon_type;
+
+	ret = devm_extcon_register_notifier(cm->dev, cable->extcon_dev,
+		cable->extcon_type, &cable->nb);
+	if (ret < 0) {
+		pr_err("Cannot register extcon_dev for %s (cable: %s)\n",
+			cable->extcon_name, cable->name);
+		return ret;
+	}
+
+	return 0;
+}
+
+/**
+ * charger_manager_register_extcon - Register extcon device to receive state
+>>>>>>> upstream/android-13
  *				     of charger cable.
  * @cm: the Charger Manager representing the battery.
  *
@@ -1231,6 +1473,10 @@ static int charger_manager_register_extcon(struct charger_manager *cm)
 {
 	struct charger_desc *desc = cm->desc;
 	struct charger_regulator *charger;
+<<<<<<< HEAD
+=======
+	unsigned long event;
+>>>>>>> upstream/android-13
 	int ret;
 	int i;
 	int j;
@@ -1258,6 +1504,14 @@ static int charger_manager_register_extcon(struct charger_manager *cm)
 			}
 			cable->charger = charger;
 			cable->cm = cm;
+<<<<<<< HEAD
+=======
+
+			event = extcon_get_state(cable->extcon_dev,
+				cable->extcon_type);
+			charger_extcon_notifier(&cable->nb,
+				event, NULL);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1351,7 +1605,11 @@ static ssize_t charger_externally_control_store(struct device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * charger_manager_register_sysfs - Register sysfs entry for each charger
+=======
+ * charger_manager_prepare_sysfs - Prepare sysfs entry for each charger
+>>>>>>> upstream/android-13
  * @cm: the Charger Manager representing the battery.
  *
  * This function add sysfs entry for charger(regulator) to control charger from
@@ -1363,20 +1621,29 @@ static ssize_t charger_externally_control_store(struct device *dev,
  * externally_control, this charger isn't controlled from charger-manager and
  * always stay off state of regulator.
  */
+<<<<<<< HEAD
 static int charger_manager_register_sysfs(struct charger_manager *cm)
+=======
+static int charger_manager_prepare_sysfs(struct charger_manager *cm)
+>>>>>>> upstream/android-13
 {
 	struct charger_desc *desc = cm->desc;
 	struct charger_regulator *charger;
 	int chargers_externally_control = 1;
+<<<<<<< HEAD
 	char buf[11];
 	char *str;
 	int ret;
+=======
+	char *name;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* Create sysfs entry to control charger(regulator) */
 	for (i = 0; i < desc->num_charger_regulators; i++) {
 		charger = &desc->charger_regulators[i];
 
+<<<<<<< HEAD
 		snprintf(buf, 10, "charger.%d", i);
 		str = devm_kzalloc(cm->dev,
 				strlen(buf) + 1, GFP_KERNEL);
@@ -1385,12 +1652,25 @@ static int charger_manager_register_sysfs(struct charger_manager *cm)
 
 		strcpy(str, buf);
 
+=======
+		name = devm_kasprintf(cm->dev, GFP_KERNEL, "charger.%d", i);
+		if (!name)
+			return -ENOMEM;
+
+>>>>>>> upstream/android-13
 		charger->attrs[0] = &charger->attr_name.attr;
 		charger->attrs[1] = &charger->attr_state.attr;
 		charger->attrs[2] = &charger->attr_externally_control.attr;
 		charger->attrs[3] = NULL;
+<<<<<<< HEAD
 		charger->attr_g.name = str;
 		charger->attr_g.attrs = charger->attrs;
+=======
+
+		charger->attr_grp.name = name;
+		charger->attr_grp.attrs = charger->attrs;
+		desc->sysfs_groups[i] = &charger->attr_grp;
+>>>>>>> upstream/android-13
 
 		sysfs_attr_init(&charger->attr_name.attr);
 		charger->attr_name.attr.name = "name";
@@ -1417,6 +1697,7 @@ static int charger_manager_register_sysfs(struct charger_manager *cm)
 
 		dev_info(cm->dev, "'%s' regulator's externally_control is %d\n",
 			 charger->regulator_name, charger->externally_control);
+<<<<<<< HEAD
 
 		ret = sysfs_create_group(&cm->charger_psy->dev.kobj,
 					&charger->attr_g);
@@ -1425,6 +1706,8 @@ static int charger_manager_register_sysfs(struct charger_manager *cm)
 				charger->regulator_name);
 			return ret;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (chargers_externally_control) {
@@ -1436,7 +1719,13 @@ static int charger_manager_register_sysfs(struct charger_manager *cm)
 }
 
 static int cm_init_thermal_data(struct charger_manager *cm,
+<<<<<<< HEAD
 		struct power_supply *fuel_gauge)
+=======
+		struct power_supply *fuel_gauge,
+		enum power_supply_property *properties,
+		size_t *num_properties)
+>>>>>>> upstream/android-13
 {
 	struct charger_desc *desc = cm->desc;
 	union power_supply_propval val;
@@ -1447,9 +1736,14 @@ static int cm_init_thermal_data(struct charger_manager *cm,
 					POWER_SUPPLY_PROP_TEMP, &val);
 
 	if (!ret) {
+<<<<<<< HEAD
 		cm->charger_psy_desc.properties[cm->charger_psy_desc.num_properties] =
 				POWER_SUPPLY_PROP_TEMP;
 		cm->charger_psy_desc.num_properties++;
+=======
+		properties[*num_properties] = POWER_SUPPLY_PROP_TEMP;
+		(*num_properties)++;
+>>>>>>> upstream/android-13
 		cm->desc->measure_battery_temp = true;
 	}
 #ifdef CONFIG_THERMAL
@@ -1460,9 +1754,14 @@ static int cm_init_thermal_data(struct charger_manager *cm,
 			return PTR_ERR(cm->tzd_batt);
 
 		/* Use external thermometer */
+<<<<<<< HEAD
 		cm->charger_psy_desc.properties[cm->charger_psy_desc.num_properties] =
 				POWER_SUPPLY_PROP_TEMP_AMBIENT;
 		cm->charger_psy_desc.num_properties++;
+=======
+		properties[*num_properties] = POWER_SUPPLY_PROP_TEMP;
+		(*num_properties)++;
+>>>>>>> upstream/android-13
 		cm->desc->measure_battery_temp = true;
 		ret = 0;
 	}
@@ -1484,6 +1783,10 @@ static const struct of_device_id charger_manager_match[] = {
 	},
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, charger_manager_match);
+>>>>>>> upstream/android-13
 
 static struct charger_desc *of_cm_parse_desc(struct device *dev)
 {
@@ -1505,8 +1808,11 @@ static struct charger_desc *of_cm_parse_desc(struct device *dev)
 	of_property_read_u32(np, "cm-poll-interval",
 				&desc->polling_interval_ms);
 
+<<<<<<< HEAD
 	of_property_read_u32(np, "cm-fullbatt-vchkdrop-ms",
 					&desc->fullbatt_vchkdrop_ms);
+=======
+>>>>>>> upstream/android-13
 	of_property_read_u32(np, "cm-fullbatt-vchkdrop-volt",
 					&desc->fullbatt_vchkdrop_uV);
 	of_property_read_u32(np, "cm-fullbatt-voltage", &desc->fullbatt_uV);
@@ -1518,13 +1824,21 @@ static struct charger_desc *of_cm_parse_desc(struct device *dev)
 	desc->battery_present = battery_stat;
 
 	/* chargers */
+<<<<<<< HEAD
 	of_property_read_u32(np, "cm-num-chargers", &num_chgs);
 	if (num_chgs) {
+=======
+	num_chgs = of_property_count_strings(np, "cm-chargers");
+	if (num_chgs > 0) {
+		int i;
+
+>>>>>>> upstream/android-13
 		/* Allocate empty bin at the tail of array */
 		desc->psy_charger_stat = devm_kcalloc(dev,
 						      num_chgs + 1,
 						      sizeof(char *),
 						      GFP_KERNEL);
+<<<<<<< HEAD
 		if (desc->psy_charger_stat) {
 			int i;
 			for (i = 0; i < num_chgs; i++)
@@ -1533,6 +1847,14 @@ static struct charger_desc *of_cm_parse_desc(struct device *dev)
 		} else {
 			return ERR_PTR(-ENOMEM);
 		}
+=======
+		if (!desc->psy_charger_stat)
+			return ERR_PTR(-ENOMEM);
+
+		for (i = 0; i < num_chgs; i++)
+			of_property_read_string_index(np, "cm-chargers",
+						      i, &desc->psy_charger_stat[i]);
+>>>>>>> upstream/android-13
 	}
 
 	of_property_read_string(np, "cm-fuel-gauge", &desc->psy_fuel_gauge);
@@ -1550,7 +1872,11 @@ static struct charger_desc *of_cm_parse_desc(struct device *dev)
 	of_property_read_u32(np, "cm-discharging-max",
 				&desc->discharging_max_duration_ms);
 
+<<<<<<< HEAD
 	/* battery charger regualtors */
+=======
+	/* battery charger regulators */
+>>>>>>> upstream/android-13
 	desc->num_charger_regulators = of_get_child_count(np);
 	if (desc->num_charger_regulators) {
 		struct charger_regulator *chg_regs;
@@ -1565,6 +1891,16 @@ static struct charger_desc *of_cm_parse_desc(struct device *dev)
 
 		desc->charger_regulators = chg_regs;
 
+<<<<<<< HEAD
+=======
+		desc->sysfs_groups = devm_kcalloc(dev,
+					desc->num_charger_regulators + 1,
+					sizeof(*desc->sysfs_groups),
+					GFP_KERNEL);
+		if (!desc->sysfs_groups)
+			return ERR_PTR(-ENOMEM);
+
+>>>>>>> upstream/android-13
 		for_each_child_of_node(np, child) {
 			struct charger_cable *cables;
 			struct device_node *_child;
@@ -1625,9 +1961,16 @@ static int charger_manager_probe(struct platform_device *pdev)
 	struct charger_desc *desc = cm_get_drv_data(pdev);
 	struct charger_manager *cm;
 	int ret, i = 0;
+<<<<<<< HEAD
 	int j = 0;
 	union power_supply_propval val;
 	struct power_supply *fuel_gauge;
+=======
+	union power_supply_propval val;
+	struct power_supply *fuel_gauge;
+	enum power_supply_property *properties;
+	size_t num_properties;
+>>>>>>> upstream/android-13
 	struct power_supply_config psy_cfg = {};
 
 	if (IS_ERR(desc)) {
@@ -1659,9 +2002,14 @@ static int charger_manager_probe(struct platform_device *pdev)
 	if (desc->fullbatt_uV == 0) {
 		dev_info(&pdev->dev, "Ignoring full-battery voltage threshold as it is not supplied\n");
 	}
+<<<<<<< HEAD
 	if (!desc->fullbatt_vchkdrop_ms || !desc->fullbatt_vchkdrop_uV) {
 		dev_info(&pdev->dev, "Disabling full-battery voltage drop checking mechanism as it is not supplied\n");
 		desc->fullbatt_vchkdrop_ms = 0;
+=======
+	if (!desc->fullbatt_vchkdrop_uV) {
+		dev_info(&pdev->dev, "Disabling full-battery voltage drop checking mechanism as it is not supplied\n");
+>>>>>>> upstream/android-13
 		desc->fullbatt_vchkdrop_uV = 0;
 	}
 	if (desc->fullbatt_soc == 0) {
@@ -1686,10 +2034,13 @@ static int charger_manager_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Counting index only */
 	while (desc->psy_charger_stat[i])
 		i++;
 
+=======
+>>>>>>> upstream/android-13
 	/* Check if charger's supplies are present at probe */
 	for (i = 0; desc->psy_charger_stat[i]; i++) {
 		struct power_supply *psy;
@@ -1728,6 +2079,7 @@ static int charger_manager_probe(struct platform_device *pdev)
 	cm->charger_psy_desc.name = cm->psy_name_buf;
 
 	/* Allocate for psy properties because they may vary */
+<<<<<<< HEAD
 	cm->charger_psy_desc.properties =
 		devm_kcalloc(&pdev->dev,
 			     ARRAY_SIZE(default_charger_props) +
@@ -1740,6 +2092,19 @@ static int charger_manager_probe(struct platform_device *pdev)
 		sizeof(enum power_supply_property) *
 		ARRAY_SIZE(default_charger_props));
 	cm->charger_psy_desc.num_properties = psy_default.num_properties;
+=======
+	properties = devm_kcalloc(&pdev->dev,
+			     ARRAY_SIZE(default_charger_props) +
+				NUM_CHARGER_PSY_OPTIONAL,
+			     sizeof(*properties), GFP_KERNEL);
+	if (!properties)
+		return -ENOMEM;
+
+	memcpy(properties, default_charger_props,
+		sizeof(enum power_supply_property) *
+		ARRAY_SIZE(default_charger_props));
+	num_properties = ARRAY_SIZE(default_charger_props);
+>>>>>>> upstream/android-13
 
 	/* Find which optional psy-properties are available */
 	fuel_gauge = power_supply_get_by_name(desc->psy_fuel_gauge);
@@ -1749,27 +2114,63 @@ static int charger_manager_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 	if (!power_supply_get_property(fuel_gauge,
+<<<<<<< HEAD
 					  POWER_SUPPLY_PROP_CHARGE_NOW, &val)) {
 		cm->charger_psy_desc.properties[cm->charger_psy_desc.num_properties] =
 				POWER_SUPPLY_PROP_CHARGE_NOW;
 		cm->charger_psy_desc.num_properties++;
+=======
+					POWER_SUPPLY_PROP_CHARGE_FULL, &val)) {
+		properties[num_properties] =
+				POWER_SUPPLY_PROP_CHARGE_FULL;
+		num_properties++;
+	}
+	if (!power_supply_get_property(fuel_gauge,
+					  POWER_SUPPLY_PROP_CHARGE_NOW, &val)) {
+		properties[num_properties] =
+				POWER_SUPPLY_PROP_CHARGE_NOW;
+		num_properties++;
+>>>>>>> upstream/android-13
 	}
 	if (!power_supply_get_property(fuel_gauge,
 					  POWER_SUPPLY_PROP_CURRENT_NOW,
 					  &val)) {
+<<<<<<< HEAD
 		cm->charger_psy_desc.properties[cm->charger_psy_desc.num_properties] =
 				POWER_SUPPLY_PROP_CURRENT_NOW;
 		cm->charger_psy_desc.num_properties++;
 	}
 
 	ret = cm_init_thermal_data(cm, fuel_gauge);
+=======
+		properties[num_properties] =
+				POWER_SUPPLY_PROP_CURRENT_NOW;
+		num_properties++;
+	}
+
+	ret = cm_init_thermal_data(cm, fuel_gauge, properties, &num_properties);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to initialize thermal data\n");
 		cm->desc->measure_battery_temp = false;
 	}
 	power_supply_put(fuel_gauge);
 
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&cm->fullbatt_vchk_work, fullbatt_vchk);
+=======
+	cm->charger_psy_desc.properties = properties;
+	cm->charger_psy_desc.num_properties = num_properties;
+
+	/* Register sysfs entry for charger(regulator) */
+	ret = charger_manager_prepare_sysfs(cm);
+	if (ret < 0) {
+		dev_err(&pdev->dev,
+			"Cannot prepare sysfs entry of regulators\n");
+		return ret;
+	}
+	psy_cfg.attr_grp = desc->sysfs_groups;
+>>>>>>> upstream/android-13
 
 	cm->charger_psy = power_supply_register(&pdev->dev,
 						&cm->charger_psy_desc,
@@ -1787,6 +2188,7 @@ static int charger_manager_probe(struct platform_device *pdev)
 		goto err_reg_extcon;
 	}
 
+<<<<<<< HEAD
 	/* Register sysfs entry for charger(regulator) */
 	ret = charger_manager_register_sysfs(cm);
 	if (ret < 0) {
@@ -1795,21 +2197,32 @@ static int charger_manager_probe(struct platform_device *pdev)
 		goto err_reg_sysfs;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Add to the list */
 	mutex_lock(&cm_list_mtx);
 	list_add(&cm->entry, &cm_list);
 	mutex_unlock(&cm_list_mtx);
 
 	/*
+<<<<<<< HEAD
 	 * Charger-manager is capable of waking up the systme from sleep
 	 * when event is happend through cm_notify_event()
+=======
+	 * Charger-manager is capable of waking up the system from sleep
+	 * when event is happened through cm_notify_event()
+>>>>>>> upstream/android-13
 	 */
 	device_init_wakeup(&pdev->dev, true);
 	device_set_wakeup_capable(&pdev->dev, false);
 
 	/*
 	 * Charger-manager have to check the charging state right after
+<<<<<<< HEAD
 	 * tialization of charger-manager and then update current charging
+=======
+	 * initialization of charger-manager and then update current charging
+>>>>>>> upstream/android-13
 	 * state.
 	 */
 	cm_monitor();
@@ -1818,6 +2231,7 @@ static int charger_manager_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
 err_reg_sysfs:
 	for (i = 0; i < desc->num_charger_regulators; i++) {
 		struct charger_regulator *charger;
@@ -1840,6 +2254,11 @@ err_reg_extcon:
 
 		regulator_put(desc->charger_regulators[i].consumer);
 	}
+=======
+err_reg_extcon:
+	for (i = 0; i < desc->num_charger_regulators; i++)
+		regulator_put(desc->charger_regulators[i].consumer);
+>>>>>>> upstream/android-13
 
 	power_supply_unregister(cm->charger_psy);
 
@@ -1851,7 +2270,10 @@ static int charger_manager_remove(struct platform_device *pdev)
 	struct charger_manager *cm = platform_get_drvdata(pdev);
 	struct charger_desc *desc = cm->desc;
 	int i = 0;
+<<<<<<< HEAD
 	int j = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* Remove from the list */
 	mutex_lock(&cm_list_mtx);
@@ -1861,6 +2283,7 @@ static int charger_manager_remove(struct platform_device *pdev)
 	cancel_work_sync(&setup_polling);
 	cancel_delayed_work_sync(&cm_monitor_work);
 
+<<<<<<< HEAD
 	for (i = 0 ; i < desc->num_charger_regulators ; i++) {
 		struct charger_regulator *charger
 				= &desc->charger_regulators[i];
@@ -1870,6 +2293,8 @@ static int charger_manager_remove(struct platform_device *pdev)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0 ; i < desc->num_charger_regulators ; i++)
 		regulator_put(desc->charger_regulators[i].consumer);
 
@@ -1917,8 +2342,11 @@ static bool cm_need_to_awake(void)
 
 static int cm_suspend_prepare(struct device *dev)
 {
+<<<<<<< HEAD
 	struct charger_manager *cm = dev_get_drvdata(dev);
 
+=======
+>>>>>>> upstream/android-13
 	if (cm_need_to_awake())
 		return -EBUSY;
 
@@ -1930,7 +2358,10 @@ static int cm_suspend_prepare(struct device *dev)
 	if (cm_timer_set) {
 		cancel_work_sync(&setup_polling);
 		cancel_delayed_work_sync(&cm_monitor_work);
+<<<<<<< HEAD
 		cancel_delayed_work(&cm->fullbatt_vchk_work);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1955,6 +2386,7 @@ static void cm_suspend_complete(struct device *dev)
 
 	_cm_monitor(cm);
 
+<<<<<<< HEAD
 	/* Re-enqueue delayed work (fullbatt_vchk_work) */
 	if (cm->fullbatt_vchk_jiffies_at) {
 		unsigned long delay = 0;
@@ -1980,6 +2412,8 @@ static void cm_suspend_complete(struct device *dev)
 		queue_delayed_work(cm_wq, &cm->fullbatt_vchk_work,
 				   msecs_to_jiffies(delay));
 	}
+=======
+>>>>>>> upstream/android-13
 	device_set_wakeup_capable(cm->dev, false);
 }
 
@@ -2003,6 +2437,12 @@ static struct platform_driver charger_manager_driver = {
 static int __init charger_manager_init(void)
 {
 	cm_wq = create_freezable_workqueue("charger_manager");
+<<<<<<< HEAD
+=======
+	if (unlikely(!cm_wq))
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&cm_monitor_work, cm_monitor_poller);
 
 	return platform_driver_register(&charger_manager_driver);
@@ -2018,6 +2458,7 @@ static void __exit charger_manager_cleanup(void)
 }
 module_exit(charger_manager_cleanup);
 
+<<<<<<< HEAD
 /**
  * cm_notify_event - charger driver notify Charger Manager of charger event
  * @psy: pointer to instance of charger's power_supply
@@ -2068,6 +2509,8 @@ void cm_notify_event(struct power_supply *psy, enum cm_event_types type,
 }
 EXPORT_SYMBOL_GPL(cm_notify_event);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("MyungJoo Ham <myungjoo.ham@samsung.com>");
 MODULE_DESCRIPTION("Charger Manager");
 MODULE_LICENSE("GPL");

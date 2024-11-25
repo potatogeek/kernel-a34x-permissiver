@@ -2,10 +2,13 @@
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM gpio
 
+<<<<<<< HEAD
 #ifndef CONFIG_TRACING_EVENTS_GPIO
 #define NOTRACE
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #if !defined(_TRACE_GPIO_H) || defined(TRACE_HEADER_MULTI_READ)
 #define _TRACE_GPIO_H
 

@@ -116,10 +116,13 @@ struct pxa25x_udc {
 	struct usb_phy				*transceiver;
 	u64					dma_mask;
 	struct pxa25x_ep			ep [PXA_UDC_NUM_ENDPOINTS];
+<<<<<<< HEAD
 
 #ifdef CONFIG_USB_GADGET_DEBUG_FS
 	struct dentry				*debugfs_udc;
 #endif
+=======
+>>>>>>> upstream/android-13
 	void __iomem				*regs;
 };
 #define to_pxa25x(g)	(container_of((g), struct pxa25x_udc, gadget))

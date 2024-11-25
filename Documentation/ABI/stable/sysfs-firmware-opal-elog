@@ -38,6 +38,10 @@ Description:
 		For each log entry (directory), there are the following
 		files:
 
+<<<<<<< HEAD
+=======
+		==============  ================================================
+>>>>>>> upstream/android-13
 		id:		An ASCII representation of the ID of the
 				error log, in hex - e.g. "0x01".
 
@@ -58,3 +62,7 @@ Description:
 				entry will be removed from sysfs.
 				Reading this file will list the supported
 				operations (currently just acknowledge).
+<<<<<<< HEAD
+=======
+		==============  ================================================
+>>>>>>> upstream/android-13

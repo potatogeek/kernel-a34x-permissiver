@@ -34,7 +34,11 @@ struct savekmsg {
     u_long magic2;	/* SAVEKMSG_MAGIC2 */
     u_long magicptr;	/* address of magic1 */
     u_long size;
+<<<<<<< HEAD
     char data[0];
+=======
+    char data[];
+>>>>>>> upstream/android-13
 };
 
 

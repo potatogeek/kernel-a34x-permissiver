@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/irqchip.h>
 #include <linux/mfd/syscon.h>
@@ -17,6 +23,7 @@
 
 #include "common.h"
 
+<<<<<<< HEAD
 static int ar8031_phy_fixup(struct phy_device *dev)
 {
 	u16 val;
@@ -42,6 +49,8 @@ static int ar8031_phy_fixup(struct phy_device *dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int bcm54220_phy_fixup(struct phy_device *dev)
 {
 	/* enable RXC skew select RGMII copper mode */
@@ -53,14 +62,20 @@ static int bcm54220_phy_fixup(struct phy_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define PHY_ID_AR8031	0x004dd074
+=======
+>>>>>>> upstream/android-13
 #define PHY_ID_BCM54220	0x600d8589
 
 static void __init imx7d_enet_phy_init(void)
 {
 	if (IS_BUILTIN(CONFIG_PHYLIB)) {
+<<<<<<< HEAD
 		phy_register_fixup_for_uid(PHY_ID_AR8031, 0xffffffff,
 					   ar8031_phy_fixup);
+=======
+>>>>>>> upstream/android-13
 		phy_register_fixup_for_uid(PHY_ID_BCM54220, 0xffffffff,
 					   bcm54220_phy_fixup);
 	}
@@ -87,20 +102,36 @@ static inline void imx7d_enet_init(void)
 
 static void __init imx7d_init_machine(void)
 {
+<<<<<<< HEAD
 	struct device *parent;
 
 	parent = imx_soc_device_init();
 	if (parent == NULL)
 		pr_warn("failed to initialize soc device\n");
 
+=======
+>>>>>>> upstream/android-13
 	imx_anatop_init();
 	imx7d_enet_init();
+}
+
+<<<<<<< HEAD
+static void __init imx7d_init_irq(void)
+{
+	imx_init_revision_from_anatop();
+	imx_src_init();
+=======
+static void __init imx7d_init_late(void)
+{
+	if (IS_ENABLED(CONFIG_ARM_IMX_CPUFREQ_DT))
+		platform_device_register_simple("imx-cpufreq-dt", -1, NULL, 0);
 }
 
 static void __init imx7d_init_irq(void)
 {
 	imx_init_revision_from_anatop();
-	imx_src_init();
+	imx7_src_init();
+>>>>>>> upstream/android-13
 	irqchip_init();
 }
 
@@ -111,7 +142,14 @@ static const char *const imx7d_dt_compat[] __initconst = {
 };
 
 DT_MACHINE_START(IMX7D, "Freescale i.MX7 Dual (Device Tree)")
+<<<<<<< HEAD
 	.init_irq	= imx7d_init_irq,
 	.init_machine	= imx7d_init_machine,
+=======
+	.smp            = smp_ops(imx7_smp_ops),
+	.init_irq	= imx7d_init_irq,
+	.init_machine	= imx7d_init_machine,
+	.init_late      = imx7d_init_late,
+>>>>>>> upstream/android-13
 	.dt_compat	= imx7d_dt_compat,
 MACHINE_END

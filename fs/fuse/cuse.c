@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * CUSE: Character device in Userspace
  *
  * Copyright (C) 2008-2009  SUSE Linux Products GmbH
  * Copyright (C) 2008-2009  Tejun Heo <tj@kernel.org>
  *
+<<<<<<< HEAD
  * This file is released under the GPLv2.
  *
+=======
+>>>>>>> upstream/android-13
  * CUSE enables character devices to be implemented from userland much
  * like FUSE allows filesystems.  On initialization /dev/cuse is
  * created.  By opening the file and replying to the CUSE_INIT request
@@ -33,6 +40,11 @@
  * closed.
  */
 
+<<<<<<< HEAD
+=======
+#define pr_fmt(fmt) "CUSE: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/fuse.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
@@ -56,6 +68,10 @@
 
 struct cuse_conn {
 	struct list_head	list;	/* linked on cuse_conntbl */
+<<<<<<< HEAD
+=======
+	struct fuse_mount	fm;	/* Dummy mount referencing fc */
+>>>>>>> upstream/android-13
 	struct fuse_conn	fc;	/* fuse connection */
 	struct cdev		*cdev;	/* associated character device */
 	struct device		*dev;	/* device representing @cdev */
@@ -133,7 +149,11 @@ static int cuse_open(struct inode *inode, struct file *file)
 	 * Generic permission check is already done against the chrdev
 	 * file, proceed to open.
 	 */
+<<<<<<< HEAD
 	rc = fuse_do_open(&cc->fc, 0, file, 0);
+=======
+	rc = fuse_do_open(&cc->fm, 0, file, 0);
+>>>>>>> upstream/android-13
 	if (rc)
 		fuse_conn_put(&cc->fc);
 	return rc;
@@ -142,10 +162,17 @@ static int cuse_open(struct inode *inode, struct file *file)
 static int cuse_release(struct inode *inode, struct file *file)
 {
 	struct fuse_file *ff = file->private_data;
+<<<<<<< HEAD
 	struct fuse_conn *fc = ff->fc;
 
 	fuse_sync_release(ff, file->f_flags);
 	fuse_conn_put(fc);
+=======
+	struct fuse_mount *fm = ff->fm;
+
+	fuse_sync_release(NULL, ff, file->f_flags);
+	fuse_conn_put(fm->fc);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -154,7 +181,11 @@ static long cuse_file_ioctl(struct file *file, unsigned int cmd,
 			    unsigned long arg)
 {
 	struct fuse_file *ff = file->private_data;
+<<<<<<< HEAD
 	struct cuse_conn *cc = fc_to_cc(ff->fc);
+=======
+	struct cuse_conn *cc = fc_to_cc(ff->fm->fc);
+>>>>>>> upstream/android-13
 	unsigned int flags = 0;
 
 	if (cc->unrestricted_ioctl)
@@ -167,7 +198,11 @@ static long cuse_file_compat_ioctl(struct file *file, unsigned int cmd,
 				   unsigned long arg)
 {
 	struct fuse_file *ff = file->private_data;
+<<<<<<< HEAD
 	struct cuse_conn *cc = fc_to_cc(ff->fc);
+=======
+	struct cuse_conn *cc = fc_to_cc(ff->fm->fc);
+>>>>>>> upstream/android-13
 	unsigned int flags = FUSE_IOCTL_COMPAT;
 
 	if (cc->unrestricted_ioctl)
@@ -224,7 +259,11 @@ static int cuse_parse_one(char **pp, char *end, char **keyp, char **valp)
 		return 0;
 
 	if (end[-1] != '\0') {
+<<<<<<< HEAD
 		printk(KERN_ERR "CUSE: info not properly terminated\n");
+=======
+		pr_err("info not properly terminated\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -241,7 +280,11 @@ static int cuse_parse_one(char **pp, char *end, char **keyp, char **valp)
 		key = strstrip(key);
 
 	if (!strlen(key)) {
+<<<<<<< HEAD
 		printk(KERN_ERR "CUSE: zero length info key specified\n");
+=======
+		pr_err("zero length info key specified\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -269,7 +312,11 @@ static int cuse_parse_one(char **pp, char *end, char **keyp, char **valp)
 static int cuse_parse_devinfo(char *p, size_t len, struct cuse_devinfo *devinfo)
 {
 	char *end = p + len;
+<<<<<<< HEAD
 	char *uninitialized_var(key), *uninitialized_var(val);
+=======
+	char *key, *val;
+>>>>>>> upstream/android-13
 	int rc;
 
 	while (true) {
@@ -281,12 +328,20 @@ static int cuse_parse_devinfo(char *p, size_t len, struct cuse_devinfo *devinfo)
 		if (strcmp(key, "DEVNAME") == 0)
 			devinfo->name = val;
 		else
+<<<<<<< HEAD
 			printk(KERN_WARNING "CUSE: unknown device info \"%s\"\n",
 			       key);
 	}
 
 	if (!devinfo->name || !strlen(devinfo->name)) {
 		printk(KERN_ERR "CUSE: DEVNAME unspecified\n");
+=======
+			pr_warn("unknown device info \"%s\"\n", key);
+	}
+
+	if (!devinfo->name || !strlen(devinfo->name)) {
+		pr_err("DEVNAME unspecified\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -298,6 +353,17 @@ static void cuse_gendev_release(struct device *dev)
 	kfree(dev);
 }
 
+<<<<<<< HEAD
+=======
+struct cuse_init_args {
+	struct fuse_args_pages ap;
+	struct cuse_init_in in;
+	struct cuse_init_out out;
+	struct page *page;
+	struct fuse_page_desc desc;
+};
+
+>>>>>>> upstream/android-13
 /**
  * cuse_process_init_reply - finish initializing CUSE channel
  *
@@ -305,21 +371,38 @@ static void cuse_gendev_release(struct device *dev)
  * required data structures for it.  Please read the comment at the
  * top of this file for high level overview.
  */
+<<<<<<< HEAD
 static void cuse_process_init_reply(struct fuse_conn *fc, struct fuse_req *req)
 {
 	struct cuse_conn *cc = fc_to_cc(fc), *pos;
 	struct cuse_init_out *arg = req->out.args[0].value;
 	struct page *page = req->pages[0];
+=======
+static void cuse_process_init_reply(struct fuse_mount *fm,
+				    struct fuse_args *args, int error)
+{
+	struct fuse_conn *fc = fm->fc;
+	struct cuse_init_args *ia = container_of(args, typeof(*ia), ap.args);
+	struct fuse_args_pages *ap = &ia->ap;
+	struct cuse_conn *cc = fc_to_cc(fc), *pos;
+	struct cuse_init_out *arg = &ia->out;
+	struct page *page = ap->pages[0];
+>>>>>>> upstream/android-13
 	struct cuse_devinfo devinfo = { };
 	struct device *dev;
 	struct cdev *cdev;
 	dev_t devt;
 	int rc, i;
 
+<<<<<<< HEAD
 	if (req->out.h.error ||
 	    arg->major != FUSE_KERNEL_VERSION || arg->minor < 11) {
 		goto err;
 	}
+=======
+	if (error || arg->major != FUSE_KERNEL_VERSION || arg->minor < 11)
+		goto err;
+>>>>>>> upstream/android-13
 
 	fc->minor = arg->minor;
 	fc->max_read = max_t(unsigned, arg->max_read, 4096);
@@ -328,7 +411,11 @@ static void cuse_process_init_reply(struct fuse_conn *fc, struct fuse_req *req)
 	/* parse init reply */
 	cc->unrestricted_ioctl = arg->flags & CUSE_UNRESTRICTED_IOCTL;
 
+<<<<<<< HEAD
 	rc = cuse_parse_devinfo(page_address(page), req->out.args[1].size,
+=======
+	rc = cuse_parse_devinfo(page_address(page), ap->args.out_args[1].size,
+>>>>>>> upstream/android-13
 				&devinfo);
 	if (rc)
 		goto err;
@@ -340,7 +427,11 @@ static void cuse_process_init_reply(struct fuse_conn *fc, struct fuse_req *req)
 	else
 		rc = register_chrdev_region(devt, 1, devinfo.name);
 	if (rc) {
+<<<<<<< HEAD
 		printk(KERN_ERR "CUSE: failed to register chrdev region\n");
+=======
+		pr_err("failed to register chrdev region\n");
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -395,7 +486,11 @@ static void cuse_process_init_reply(struct fuse_conn *fc, struct fuse_req *req)
 	dev_set_uevent_suppress(dev, 0);
 	kobject_uevent(&dev->kobj, KOBJ_ADD);
 out:
+<<<<<<< HEAD
 	kfree(arg);
+=======
+	kfree(ia);
+>>>>>>> upstream/android-13
 	__free_page(page);
 	return;
 
@@ -407,13 +502,18 @@ err_unlock:
 err_region:
 	unregister_chrdev_region(devt, 1);
 err:
+<<<<<<< HEAD
 	fuse_abort_conn(fc, false);
+=======
+	fuse_abort_conn(fc);
+>>>>>>> upstream/android-13
 	goto out;
 }
 
 static int cuse_send_init(struct cuse_conn *cc)
 {
 	int rc;
+<<<<<<< HEAD
 	struct fuse_req *req;
 	struct page *page;
 	struct fuse_conn *fc = &cc->fc;
@@ -463,6 +563,51 @@ err_free_page:
 	__free_page(page);
 err_put_req:
 	fuse_put_request(fc, req);
+=======
+	struct page *page;
+	struct fuse_mount *fm = &cc->fm;
+	struct cuse_init_args *ia;
+	struct fuse_args_pages *ap;
+
+	BUILD_BUG_ON(CUSE_INIT_INFO_MAX > PAGE_SIZE);
+
+	rc = -ENOMEM;
+	page = alloc_page(GFP_KERNEL | __GFP_ZERO);
+	if (!page)
+		goto err;
+
+	ia = kzalloc(sizeof(*ia), GFP_KERNEL);
+	if (!ia)
+		goto err_free_page;
+
+	ap = &ia->ap;
+	ia->in.major = FUSE_KERNEL_VERSION;
+	ia->in.minor = FUSE_KERNEL_MINOR_VERSION;
+	ia->in.flags |= CUSE_UNRESTRICTED_IOCTL;
+	ap->args.opcode = CUSE_INIT;
+	ap->args.in_numargs = 1;
+	ap->args.in_args[0].size = sizeof(ia->in);
+	ap->args.in_args[0].value = &ia->in;
+	ap->args.out_numargs = 2;
+	ap->args.out_args[0].size = sizeof(ia->out);
+	ap->args.out_args[0].value = &ia->out;
+	ap->args.out_args[1].size = CUSE_INIT_INFO_MAX;
+	ap->args.out_argvar = true;
+	ap->args.out_pages = true;
+	ap->num_pages = 1;
+	ap->pages = &ia->page;
+	ap->descs = &ia->desc;
+	ia->page = page;
+	ia->desc.length = ap->args.out_args[1].size;
+	ap->args.end = cuse_process_init_reply;
+
+	rc = fuse_simple_background(fm, &ap->args, GFP_KERNEL);
+	if (rc) {
+		kfree(ia);
+err_free_page:
+		__free_page(page);
+	}
+>>>>>>> upstream/android-13
 err:
 	return rc;
 }
@@ -503,6 +648,7 @@ static int cuse_channel_open(struct inode *inode, struct file *file)
 	 * Limit the cuse channel to requests that can
 	 * be represented in file->f_cred->user_ns.
 	 */
+<<<<<<< HEAD
 	fuse_conn_init(&cc->fc, file->f_cred->user_ns);
 
 	fud = fuse_dev_alloc(&cc->fc);
@@ -513,12 +659,27 @@ static int cuse_channel_open(struct inode *inode, struct file *file)
 
 	INIT_LIST_HEAD(&cc->list);
 	cc->fc.release = cuse_fc_release;
+=======
+	fuse_conn_init(&cc->fc, &cc->fm, file->f_cred->user_ns,
+		       &fuse_dev_fiq_ops, NULL);
+
+	cc->fc.release = cuse_fc_release;
+	fud = fuse_dev_alloc_install(&cc->fc);
+	fuse_conn_put(&cc->fc);
+	if (!fud)
+		return -ENOMEM;
+
+	INIT_LIST_HEAD(&cc->list);
+>>>>>>> upstream/android-13
 
 	cc->fc.initialized = 1;
 	rc = cuse_send_init(cc);
 	if (rc) {
 		fuse_dev_free(fud);
+<<<<<<< HEAD
 		fuse_conn_put(&cc->fc);
+=======
+>>>>>>> upstream/android-13
 		return rc;
 	}
 	file->private_data = fud;
@@ -555,8 +716,11 @@ static int cuse_channel_release(struct inode *inode, struct file *file)
 		unregister_chrdev_region(cc->cdev->dev, 1);
 		cdev_del(cc->cdev);
 	}
+<<<<<<< HEAD
 	/* Base reference is now owned by "fud" */
 	fuse_conn_put(&cc->fc);
+=======
+>>>>>>> upstream/android-13
 
 	rc = fuse_dev_release(inode, file);	/* puts the base reference */
 
@@ -587,7 +751,11 @@ static ssize_t cuse_class_abort_store(struct device *dev,
 {
 	struct cuse_conn *cc = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	fuse_abort_conn(&cc->fc, false);
+=======
+	fuse_abort_conn(&cc->fc);
+>>>>>>> upstream/android-13
 	return count;
 }
 static DEVICE_ATTR(abort, 0200, NULL, cuse_class_abort_store);

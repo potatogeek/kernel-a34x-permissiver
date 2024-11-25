@@ -12,6 +12,7 @@ Required properties:
  - interrupts: interrupt number to the cpu.
  - clocks: from common clock binding: handle to usb clock.
  - clock-names: from common clock binding: Shall be "usbhost".
+<<<<<<< HEAD
  - port: if in the SoC there are EHCI phys, they should be listed here.
    One phy per port. Each port should have following entries:
 	- reg: port number on EHCI controller, e.g
@@ -19,6 +20,13 @@ Required properties:
 			      port 1 is HSIC phy0
 			      port 2 is HSIC phy1
 	- phys: from the *Generic PHY* bindings; specifying phy used by port.
+=======
+ - phys: from the *Generic PHY* bindings; array specifying phy(s) used
+   by the root port.
+ - phy-names: from the *Generic PHY* bindings; array of the names for
+   each phy for the root ports, must be a subset of the following:
+   "host", "hsic0", "hsic1".
+>>>>>>> upstream/android-13
 
 Optional properties:
  - samsung,vbus-gpio:  if present, specifies the GPIO that
@@ -35,12 +43,17 @@ Example:
 		clocks = <&clock 285>;
 		clock-names = "usbhost";
 
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
 		port@0 {
 		    reg = <0>;
 		    phys = <&usb2phy 1>;
 		};
+=======
+		phys = <&usb2phy 1>;
+		phy-names = "host";
+>>>>>>> upstream/android-13
 	};
 
 OHCI
@@ -52,6 +65,7 @@ Required properties:
  - interrupts: interrupt number to the cpu.
  - clocks: from common clock binding: handle to usb clock.
  - clock-names: from common clock binding: Shall be "usbhost".
+<<<<<<< HEAD
  - port: if in the SoC there are OHCI phys, they should be listed here.
    One phy per port. Each port should have following entries:
 	- reg: port number on OHCI controller, e.g
@@ -59,6 +73,13 @@ Required properties:
 			      port 1 is HSIC phy0
 			      port 2 is HSIC phy1
 	- phys: from the *Generic PHY* bindings, specifying phy used by port.
+=======
+ - phys: from the *Generic PHY* bindings; array specifying phy(s) used
+   by the root port.
+ - phy-names: from the *Generic PHY* bindings; array of the names for
+   each phy for the root ports, must be a subset of the following:
+   "host", "hsic0", "hsic1".
+>>>>>>> upstream/android-13
 
 Example:
 	usb@12120000 {
@@ -69,6 +90,7 @@ Example:
 		clocks = <&clock 285>;
 		clock-names = "usbhost";
 
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
 		port@0 {
@@ -76,6 +98,10 @@ Example:
 		    phys = <&usb2phy 1>;
 		};
 
+=======
+		phys = <&usb2phy 1>;
+		phy-names = "host";
+>>>>>>> upstream/android-13
 	};
 
 DWC3
@@ -83,13 +109,29 @@ Required properties:
  - compatible: should be one of the following -
 	       "samsung,exynos5250-dwusb3": for USB 3.0 DWC3 controller on
 					    Exynos5250/5420.
+<<<<<<< HEAD
+=======
+	       "samsung,exynos5433-dwusb3": for USB 3.0 DWC3 controller on
+					    Exynos5433.
+>>>>>>> upstream/android-13
 	       "samsung,exynos7-dwusb3": for USB 3.0 DWC3 controller on Exynos7.
  - #address-cells, #size-cells : should be '1' if the device has sub-nodes
 				 with 'reg' property.
  - ranges: allows valid 1:1 translation between child's address space and
 	   parent's address space
  - clocks: Clock IDs array as required by the controller.
+<<<<<<< HEAD
  - clock-names: names of clocks correseponding to IDs in the clock property
+=======
+ - clock-names: Names of clocks corresponding to IDs in the clock property.
+                Following clock names shall be provided for different
+                compatibles:
+                 - samsung,exynos5250-dwusb3: "usbdrd30",
+                 - samsung,exynos5433-dwusb3: "aclk", "susp_clk", "pipe_pclk",
+                                              "phyclk",
+                 - samsung,exynos7-dwusb3: "usbdrd30", "usbdrd30_susp_clk",
+                                           "usbdrd30_axius_clk"
+>>>>>>> upstream/android-13
  - vdd10-supply: 1.0V powr supply
  - vdd33-supply: 3.0V/3.3V power supply
 
@@ -97,7 +139,11 @@ Sub-nodes:
 The dwc3 core should be added as subnode to Exynos dwc3 glue.
 - dwc3 :
    The binding details of dwc3 can be found in:
+<<<<<<< HEAD
    Documentation/devicetree/bindings/usb/dwc3.txt
+=======
+   Documentation/devicetree/bindings/usb/snps,dwc3.yaml
+>>>>>>> upstream/android-13
 
 Example:
 	usb@12000000 {

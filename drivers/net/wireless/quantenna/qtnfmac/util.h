@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Quantenna Communications
  *
@@ -13,6 +14,10 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/* Copyright (c) 2015 Quantenna Communications. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #ifndef QTNFMAC_UTIL_H
 #define QTNFMAC_UTIL_H
@@ -20,6 +25,11 @@
 #include <linux/kernel.h>
 #include "core.h"
 
+<<<<<<< HEAD
+=======
+const char *qtnf_chipid_to_string(unsigned long chip_id);
+
+>>>>>>> upstream/android-13
 void qtnf_sta_list_init(struct qtnf_sta_list *list);
 
 struct qtnf_sta_node *qtnf_sta_list_lookup(struct qtnf_sta_list *list,

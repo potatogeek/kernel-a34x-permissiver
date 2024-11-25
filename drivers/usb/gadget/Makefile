@@ -9,6 +9,9 @@ ccflags-y				+= -I$(srctree)/drivers/usb/gadget/udc
 obj-$(CONFIG_USB_LIBCOMPOSITE)	+= libcomposite.o
 libcomposite-y			:= usbstring.o config.o epautoconf.o
 libcomposite-y			+= composite.o functions.o configfs.o u_f.o
+<<<<<<< HEAD
 libcomposite-$(CONFIG_USB_CONFIGFS_MTK_FASTMETA)	+= meta.o
+=======
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_USB_GADGET)	+= udc/ function/ legacy/

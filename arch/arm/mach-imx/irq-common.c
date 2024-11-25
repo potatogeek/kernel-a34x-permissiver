@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) BitBox Ltd 2010
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) BitBox Ltd 2010
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

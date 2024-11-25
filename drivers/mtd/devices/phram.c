@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) ????		Jochen Schäuble <psionic@psionic.de>
  * Copyright (c) 2003-2004	Joern Engel <joern@wh.fh-wedel.de>
  *
  * Usage:
  *
  * one commend line parameter per device, each in the form:
+<<<<<<< HEAD
  *   phram=<name>,<start>,<len>
  * <name> may be up to 63 characters.
  * <start> and <len> can be octal, decimal or hexadecimal.  If followed
@@ -13,6 +19,16 @@
  *
  * Example:
  *	phram=swap,64Mi,128Mi phram=test,900Mi,1Mi
+=======
+ *   phram=<name>,<start>,<len>[,<erasesize>]
+ * <name> may be up to 63 characters.
+ * <start>, <len>, and <erasesize> can be octal, decimal or hexadecimal.  If followed
+ * by "ki", "Mi" or "Gi", the numbers will be interpreted as kilo, mega or
+ * gigabytes. <erasesize> is optional and defaults to PAGE_SIZE.
+ *
+ * Example:
+ *	phram=swap,64Mi,128Mi phram=test,900Mi,1Mi,64Ki
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -25,6 +41,10 @@
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
+=======
+#include <asm/div64.h>
+>>>>>>> upstream/android-13
 
 struct phram_mtd_list {
 	struct mtd_info mtd;
@@ -87,7 +107,11 @@ static void unregister_devices(void)
 	}
 }
 
+<<<<<<< HEAD
 static int register_device(char *name, phys_addr_t start, size_t len)
+=======
+static int register_device(char *name, phys_addr_t start, size_t len, uint32_t erasesize)
+>>>>>>> upstream/android-13
 {
 	struct phram_mtd_list *new;
 	int ret = -ENOMEM;
@@ -114,7 +138,11 @@ static int register_device(char *name, phys_addr_t start, size_t len)
 	new->mtd._write = phram_write;
 	new->mtd.owner = THIS_MODULE;
 	new->mtd.type = MTD_RAM;
+<<<<<<< HEAD
 	new->mtd.erasesize = PAGE_SIZE;
+=======
+	new->mtd.erasesize = erasesize;
+>>>>>>> upstream/android-13
 	new->mtd.writesize = 1;
 
 	ret = -EAGAIN;
@@ -147,8 +175,15 @@ static int parse_num64(uint64_t *num64, char *token)
 			switch (token[len - 2]) {
 			case 'G':
 				shift += 10;
+<<<<<<< HEAD
 			case 'M':
 				shift += 10;
+=======
+				fallthrough;
+			case 'M':
+				shift += 10;
+				fallthrough;
+>>>>>>> upstream/android-13
 			case 'k':
 				shift += 10;
 				token[len - 2] = 0;
@@ -201,6 +236,7 @@ static inline void kill_final_newline(char *str)
 static int phram_init_called;
 /*
  * This shall contain the module parameter if any. It is of the form:
+<<<<<<< HEAD
  * - phram=<device>,<address>,<size> for module case
  * - phram.phram=<device>,<address>,<size> for built-in case
  * We leave 64 bytes for the device name, 20 for the address and 20 for the
@@ -208,15 +244,34 @@ static int phram_init_called;
  * Example: phram.phram=rootfs,0xa0000000,512Mi
  */
 static char phram_paramline[64 + 20 + 20];
+=======
+ * - phram=<device>,<address>,<size>[,<erasesize>] for module case
+ * - phram.phram=<device>,<address>,<size>[,<erasesize>] for built-in case
+ * We leave 64 bytes for the device name, 20 for the address , 20 for the
+ * size and 20 for the erasesize.
+ * Example: phram.phram=rootfs,0xa0000000,512Mi,65536
+ */
+static char phram_paramline[64 + 20 + 20 + 20];
+>>>>>>> upstream/android-13
 #endif
 
 static int phram_setup(const char *val)
 {
+<<<<<<< HEAD
 	char buf[64 + 20 + 20], *str = buf;
 	char *token[3];
 	char *name;
 	uint64_t start;
 	uint64_t len;
+=======
+	char buf[64 + 20 + 20 + 20], *str = buf;
+	char *token[4];
+	char *name;
+	uint64_t start;
+	uint64_t len;
+	uint64_t erasesize = PAGE_SIZE;
+	uint32_t rem;
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	if (strnlen(val, sizeof(buf)) >= sizeof(buf))
@@ -225,7 +280,11 @@ static int phram_setup(const char *val)
 	strcpy(str, val);
 	kill_final_newline(str);
 
+<<<<<<< HEAD
 	for (i = 0; i < 3; i++)
+=======
+	for (i = 0; i < 4; i++)
+>>>>>>> upstream/android-13
 		token[i] = strsep(&str, ",");
 
 	if (str)
@@ -250,11 +309,41 @@ static int phram_setup(const char *val)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	ret = register_device(name, start, len);
 	if (ret)
 		goto error;
 
 	pr_info("%s device: %#llx at %#llx\n", name, len, start);
+=======
+	if (token[3]) {
+		ret = parse_num64(&erasesize, token[3]);
+		if (ret) {
+			parse_err("illegal erasesize\n");
+			goto error;
+		}
+	}
+
+	if (len == 0 || erasesize == 0 || erasesize > len
+	    || erasesize > UINT_MAX) {
+		parse_err("illegal erasesize or len\n");
+		ret = -EINVAL;
+		goto error;
+	}
+
+	div_u64_rem(len, (uint32_t)erasesize, &rem);
+	if (rem) {
+		parse_err("len is not multiple of erasesize\n");
+		ret = -EINVAL;
+		goto error;
+	}
+
+	ret = register_device(name, start, len, (uint32_t)erasesize);
+	if (ret)
+		goto error;
+
+	pr_info("%s device: %#llx at %#llx for erasesize %#llx\n", name, len, start, erasesize);
+>>>>>>> upstream/android-13
 	return 0;
 
 error:
@@ -294,8 +383,13 @@ static int phram_param_call(const char *val, const struct kernel_param *kp)
 #endif
 }
 
+<<<<<<< HEAD
 module_param_call(phram, phram_param_call, NULL, NULL, 000);
 MODULE_PARM_DESC(phram, "Memory region to map. \"phram=<name>,<start>,<length>\"");
+=======
+module_param_call(phram, phram_param_call, NULL, NULL, 0200);
+MODULE_PARM_DESC(phram, "Memory region to map. \"phram=<name>,<start>,<length>[,<erasesize>]\"");
+>>>>>>> upstream/android-13
 
 
 static int __init init_phram(void)

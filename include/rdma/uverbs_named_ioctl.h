@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2018, Mellanox Technologies inc.  All rights reserved.
  *
@@ -28,6 +29,11 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2018, Mellanox Technologies inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _UVERBS_NAMED_IOCTL_
@@ -43,11 +49,19 @@
 #define _UVERBS_NAME(x, y)	_UVERBS_PASTE(x, y)
 #define UVERBS_METHOD(id)	_UVERBS_NAME(UVERBS_MODULE_NAME, _method_##id)
 #define UVERBS_HANDLER(id)	_UVERBS_NAME(UVERBS_MODULE_NAME, _handler_##id)
+<<<<<<< HEAD
 #define UVERBS_OBJECT(id)	_UVERBS_NAME(UVERBS_MOUDLE_NAME, _object_##id)
 
 /* These are static so they do not need to be qualified */
 #define UVERBS_METHOD_ATTRS(method_id) _method_attrs_##method_id
 #define UVERBS_OBJECT_METHODS(object_id) _object_methods_##object_id
+=======
+#define UVERBS_OBJECT(id)	_UVERBS_NAME(UVERBS_MODULE_NAME, _object_##id)
+
+/* These are static so they do not need to be qualified */
+#define UVERBS_METHOD_ATTRS(method_id) _method_attrs_##method_id
+#define UVERBS_OBJECT_METHODS(object_id) _UVERBS_NAME(_object_methods_##object_id, __LINE__)
+>>>>>>> upstream/android-13
 
 #define DECLARE_UVERBS_NAMED_METHOD(_method_id, ...)                           \
 	static const struct uverbs_attr_def *const UVERBS_METHOD_ATTRS(        \
@@ -76,7 +90,11 @@
 #define DECLARE_UVERBS_NAMED_OBJECT(_object_id, _type_attrs, ...)              \
 	static const struct uverbs_method_def *const UVERBS_OBJECT_METHODS(    \
 		_object_id)[] = { __VA_ARGS__ };                               \
+<<<<<<< HEAD
 	const struct uverbs_object_def UVERBS_OBJECT(_object_id) = {           \
+=======
+	static const struct uverbs_object_def UVERBS_OBJECT(_object_id) = {    \
+>>>>>>> upstream/android-13
 		.id = _object_id,                                              \
 		.type_attrs = &_type_attrs,                                    \
 		.num_methods = ARRAY_SIZE(UVERBS_OBJECT_METHODS(_object_id)),  \
@@ -88,10 +106,17 @@
  * identify all uapi methods with a (object,method) tuple. However, they have
  * no type pointer.
  */
+<<<<<<< HEAD
 #define DECLARE_UVERBS_GLOBAL_METHODS(_object_id, ...)	\
 	static const struct uverbs_method_def *const UVERBS_OBJECT_METHODS(    \
 		_object_id)[] = { __VA_ARGS__ };                               \
 	const struct uverbs_object_def UVERBS_OBJECT(_object_id) = {           \
+=======
+#define DECLARE_UVERBS_GLOBAL_METHODS(_object_id, ...)                         \
+	static const struct uverbs_method_def *const UVERBS_OBJECT_METHODS(    \
+		_object_id)[] = { __VA_ARGS__ };                               \
+	static const struct uverbs_object_def UVERBS_OBJECT(_object_id) = {    \
+>>>>>>> upstream/android-13
 		.id = _object_id,                                              \
 		.num_methods = ARRAY_SIZE(UVERBS_OBJECT_METHODS(_object_id)),  \
 		.methods = &UVERBS_OBJECT_METHODS(_object_id)                  \
@@ -102,6 +127,7 @@
 #define ADD_UVERBS_METHODS(_name, _object_id, ...)                             \
 	static const struct uverbs_method_def *const UVERBS_OBJECT_METHODS(    \
 		_object_id)[] = { __VA_ARGS__ };                               \
+<<<<<<< HEAD
 	static const struct uverbs_object_def _name##_struct = {               \
 		.id = _object_id,                                              \
 		.num_methods = ARRAY_SIZE(UVERBS_OBJECT_METHODS(_object_id)),  \
@@ -114,6 +140,13 @@
 		.num_objects = 1,                                              \
 		.objects = &_name##_ptrs,                                      \
 	}
+=======
+	static const struct uverbs_object_def _name = {                        \
+		.id = _object_id,                                              \
+		.num_methods = ARRAY_SIZE(UVERBS_OBJECT_METHODS(_object_id)),  \
+		.methods = &UVERBS_OBJECT_METHODS(_object_id)                  \
+	};
+>>>>>>> upstream/android-13
 
 /* Used by drivers to declare a complete parsing tree for a single method that
  * differs only in having additional driver specific attributes.

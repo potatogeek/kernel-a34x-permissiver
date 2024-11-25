@@ -62,8 +62,11 @@ MODULE_DESCRIPTION(OCRDMA_ROCE_DRV_DESC " " OCRDMA_ROCE_DRV_VERSION);
 MODULE_AUTHOR("Emulex Corporation");
 MODULE_LICENSE("Dual BSD/GPL");
 
+<<<<<<< HEAD
 static DEFINE_IDR(ocrdma_dev_id);
 
+=======
+>>>>>>> upstream/android-13
 void ocrdma_get_guid(struct ocrdma_dev *dev, u8 *guid)
 {
 	u8 mac_addr[6];
@@ -79,12 +82,20 @@ void ocrdma_get_guid(struct ocrdma_dev *dev, u8 *guid)
 	guid[7] = mac_addr[5];
 }
 static enum rdma_link_layer ocrdma_link_layer(struct ib_device *device,
+<<<<<<< HEAD
 					      u8 port_num)
+=======
+					      u32 port_num)
+>>>>>>> upstream/android-13
 {
 	return IB_LINK_LAYER_ETHERNET;
 }
 
+<<<<<<< HEAD
 static int ocrdma_port_immutable(struct ib_device *ibdev, u8 port_num,
+=======
+static int ocrdma_port_immutable(struct ib_device *ibdev, u32 port_num,
+>>>>>>> upstream/android-13
 			         struct ib_port_immutable *immutable)
 {
 	struct ib_port_attr attr;
@@ -114,13 +125,108 @@ static void get_dev_fw_str(struct ib_device *device, char *str)
 	snprintf(str, IB_FW_VERSION_NAME_MAX, "%s", &dev->attr.fw_ver[0]);
 }
 
+<<<<<<< HEAD
 static int ocrdma_register_device(struct ocrdma_dev *dev)
 {
 	strlcpy(dev->ibdev.name, "ocrdma%d", IB_DEVICE_NAME_MAX);
+=======
+/* OCRDMA sysfs interface */
+static ssize_t hw_rev_show(struct device *device,
+			   struct device_attribute *attr, char *buf)
+{
+	struct ocrdma_dev *dev =
+		rdma_device_to_drv_device(device, struct ocrdma_dev, ibdev);
+
+	return sysfs_emit(buf, "0x%x\n", dev->nic_info.pdev->vendor);
+}
+static DEVICE_ATTR_RO(hw_rev);
+
+static ssize_t hca_type_show(struct device *device,
+			     struct device_attribute *attr, char *buf)
+{
+	struct ocrdma_dev *dev =
+		rdma_device_to_drv_device(device, struct ocrdma_dev, ibdev);
+
+	return sysfs_emit(buf, "%s\n", &dev->model_number[0]);
+}
+static DEVICE_ATTR_RO(hca_type);
+
+static struct attribute *ocrdma_attributes[] = {
+	&dev_attr_hw_rev.attr,
+	&dev_attr_hca_type.attr,
+	NULL
+};
+
+static const struct attribute_group ocrdma_attr_group = {
+	.attrs = ocrdma_attributes,
+};
+
+static const struct ib_device_ops ocrdma_dev_ops = {
+	.owner = THIS_MODULE,
+	.driver_id = RDMA_DRIVER_OCRDMA,
+	.uverbs_abi_ver = OCRDMA_ABI_VERSION,
+
+	.alloc_mr = ocrdma_alloc_mr,
+	.alloc_pd = ocrdma_alloc_pd,
+	.alloc_ucontext = ocrdma_alloc_ucontext,
+	.create_ah = ocrdma_create_ah,
+	.create_cq = ocrdma_create_cq,
+	.create_qp = ocrdma_create_qp,
+	.create_user_ah = ocrdma_create_ah,
+	.dealloc_pd = ocrdma_dealloc_pd,
+	.dealloc_ucontext = ocrdma_dealloc_ucontext,
+	.dereg_mr = ocrdma_dereg_mr,
+	.destroy_ah = ocrdma_destroy_ah,
+	.destroy_cq = ocrdma_destroy_cq,
+	.destroy_qp = ocrdma_destroy_qp,
+	.device_group = &ocrdma_attr_group,
+	.get_dev_fw_str = get_dev_fw_str,
+	.get_dma_mr = ocrdma_get_dma_mr,
+	.get_link_layer = ocrdma_link_layer,
+	.get_port_immutable = ocrdma_port_immutable,
+	.map_mr_sg = ocrdma_map_mr_sg,
+	.mmap = ocrdma_mmap,
+	.modify_qp = ocrdma_modify_qp,
+	.poll_cq = ocrdma_poll_cq,
+	.post_recv = ocrdma_post_recv,
+	.post_send = ocrdma_post_send,
+	.process_mad = ocrdma_process_mad,
+	.query_ah = ocrdma_query_ah,
+	.query_device = ocrdma_query_device,
+	.query_pkey = ocrdma_query_pkey,
+	.query_port = ocrdma_query_port,
+	.query_qp = ocrdma_query_qp,
+	.reg_user_mr = ocrdma_reg_user_mr,
+	.req_notify_cq = ocrdma_arm_cq,
+	.resize_cq = ocrdma_resize_cq,
+
+	INIT_RDMA_OBJ_SIZE(ib_ah, ocrdma_ah, ibah),
+	INIT_RDMA_OBJ_SIZE(ib_cq, ocrdma_cq, ibcq),
+	INIT_RDMA_OBJ_SIZE(ib_pd, ocrdma_pd, ibpd),
+	INIT_RDMA_OBJ_SIZE(ib_qp, ocrdma_qp, ibqp),
+	INIT_RDMA_OBJ_SIZE(ib_ucontext, ocrdma_ucontext, ibucontext),
+};
+
+static const struct ib_device_ops ocrdma_dev_srq_ops = {
+	.create_srq = ocrdma_create_srq,
+	.destroy_srq = ocrdma_destroy_srq,
+	.modify_srq = ocrdma_modify_srq,
+	.post_srq_recv = ocrdma_post_srq_recv,
+	.query_srq = ocrdma_query_srq,
+
+	INIT_RDMA_OBJ_SIZE(ib_srq, ocrdma_srq, ibsrq),
+};
+
+static int ocrdma_register_device(struct ocrdma_dev *dev)
+{
+	int ret;
+
+>>>>>>> upstream/android-13
 	ocrdma_get_guid(dev, (u8 *)&dev->ibdev.node_guid);
 	BUILD_BUG_ON(sizeof(OCRDMA_NODE_DESC) > IB_DEVICE_NODE_DESC_MAX);
 	memcpy(dev->ibdev.node_desc, OCRDMA_NODE_DESC,
 	       sizeof(OCRDMA_NODE_DESC));
+<<<<<<< HEAD
 	dev->ibdev.owner = THIS_MODULE;
 	dev->ibdev.uverbs_abi_ver = OCRDMA_ABI_VERSION;
 	dev->ibdev.uverbs_cmd_mask =
@@ -149,11 +255,14 @@ static int ocrdma_register_device(struct ocrdma_dev *dev)
 	     OCRDMA_UVERBS(MODIFY_AH) |
 	     OCRDMA_UVERBS(QUERY_AH) |
 	     OCRDMA_UVERBS(DESTROY_AH);
+=======
+>>>>>>> upstream/android-13
 
 	dev->ibdev.node_type = RDMA_NODE_IB_CA;
 	dev->ibdev.phys_port_cnt = 1;
 	dev->ibdev.num_comp_vectors = dev->eq_cnt;
 
+<<<<<<< HEAD
 	/* mandatory verbs. */
 	dev->ibdev.query_device = ocrdma_query_device;
 	dev->ibdev.query_port = ocrdma_query_port;
@@ -215,6 +324,23 @@ static int ocrdma_register_device(struct ocrdma_dev *dev)
 	}
 	dev->ibdev.driver_id = RDMA_DRIVER_OCRDMA;
 	return ib_register_device(&dev->ibdev, NULL);
+=======
+	/* mandatory to support user space verbs consumer. */
+	dev->ibdev.dev.parent = &dev->nic_info.pdev->dev;
+
+	ib_set_device_ops(&dev->ibdev, &ocrdma_dev_ops);
+
+	if (ocrdma_get_asic_type(dev) == OCRDMA_ASIC_GEN_SKH_R)
+		ib_set_device_ops(&dev->ibdev, &ocrdma_dev_srq_ops);
+
+	ret = ib_device_set_netdev(&dev->ibdev, dev->nic_info.netdev, 1);
+	if (ret)
+		return ret;
+
+	dma_set_max_seg_size(&dev->nic_info.pdev->dev, UINT_MAX);
+	return ib_register_device(&dev->ibdev, "ocrdma%d",
+				  &dev->nic_info.pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static int ocrdma_alloc_resources(struct ocrdma_dev *dev)
@@ -260,6 +386,7 @@ static void ocrdma_free_resources(struct ocrdma_dev *dev)
 	kfree(dev->cq_tbl);
 }
 
+<<<<<<< HEAD
 /* OCRDMA sysfs interface */
 static ssize_t show_rev(struct device *device, struct device_attribute *attr,
 			char *buf)
@@ -300,10 +427,20 @@ static struct ocrdma_dev *ocrdma_add(struct be_dev_info *dev_info)
 	struct ocrdma_dev *dev;
 
 	dev = (struct ocrdma_dev *)ib_alloc_device(sizeof(struct ocrdma_dev));
+=======
+static struct ocrdma_dev *ocrdma_add(struct be_dev_info *dev_info)
+{
+	int status = 0;
+	u8 lstate = 0;
+	struct ocrdma_dev *dev;
+
+	dev = ib_alloc_device(ocrdma_dev, ibdev);
+>>>>>>> upstream/android-13
 	if (!dev) {
 		pr_err("Unable to allocate ib device\n");
 		return NULL;
 	}
+<<<<<<< HEAD
 	dev->mbx_cmd = kzalloc(sizeof(struct ocrdma_mqe_emb_cmd), GFP_KERNEL);
 	if (!dev->mbx_cmd)
 		goto idr_err;
@@ -313,6 +450,15 @@ static struct ocrdma_dev *ocrdma_add(struct be_dev_info *dev_info)
 	if (dev->id < 0)
 		goto idr_err;
 
+=======
+
+	dev->mbx_cmd = kzalloc(sizeof(struct ocrdma_mqe_emb_cmd), GFP_KERNEL);
+	if (!dev->mbx_cmd)
+		goto init_err;
+
+	memcpy(&dev->nic_info, dev_info, sizeof(*dev_info));
+	dev->id = PCI_FUNC(dev->nic_info.pdev->devfn);
+>>>>>>> upstream/android-13
 	status = ocrdma_init_hw(dev);
 	if (status)
 		goto init_err;
@@ -331,9 +477,12 @@ static struct ocrdma_dev *ocrdma_add(struct be_dev_info *dev_info)
 	if (!status)
 		ocrdma_update_link_state(dev, lstate);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(ocrdma_attributes); i++)
 		if (device_create_file(&dev->ibdev.dev, ocrdma_attributes[i]))
 			goto sysfs_err;
+=======
+>>>>>>> upstream/android-13
 	/* Init stats */
 	ocrdma_add_port_stats(dev);
 	/* Interrupt Moderation */
@@ -348,14 +497,20 @@ static struct ocrdma_dev *ocrdma_add(struct be_dev_info *dev_info)
 		dev_name(&dev->nic_info.pdev->dev), dev->id);
 	return dev;
 
+<<<<<<< HEAD
 sysfs_err:
 	ocrdma_remove_sysfiles(dev);
+=======
+>>>>>>> upstream/android-13
 alloc_err:
 	ocrdma_free_resources(dev);
 	ocrdma_cleanup_hw(dev);
 init_err:
+<<<<<<< HEAD
 	idr_remove(&ocrdma_dev_id, dev->id);
 idr_err:
+=======
+>>>>>>> upstream/android-13
 	kfree(dev->mbx_cmd);
 	ib_dealloc_device(&dev->ibdev);
 	pr_err("%s() leaving. ret=%d\n", __func__, status);
@@ -365,7 +520,10 @@ idr_err:
 static void ocrdma_remove_free(struct ocrdma_dev *dev)
 {
 
+<<<<<<< HEAD
 	idr_remove(&ocrdma_dev_id, dev->id);
+=======
+>>>>>>> upstream/android-13
 	kfree(dev->mbx_cmd);
 	ib_dealloc_device(&dev->ibdev);
 }
@@ -376,7 +534,10 @@ static void ocrdma_remove(struct ocrdma_dev *dev)
 	 * of the registered clients.
 	 */
 	cancel_delayed_work_sync(&dev->eqd_work);
+<<<<<<< HEAD
 	ocrdma_remove_sysfiles(dev);
+=======
+>>>>>>> upstream/android-13
 	ib_unregister_device(&dev->ibdev);
 
 	ocrdma_rem_port_stats(dev);
@@ -471,7 +632,10 @@ static void __exit ocrdma_exit_module(void)
 {
 	be_roce_unregister_driver(&ocrdma_drv);
 	ocrdma_rem_debugfs();
+<<<<<<< HEAD
 	idr_destroy(&ocrdma_dev_id);
+=======
+>>>>>>> upstream/android-13
 }
 
 module_init(ocrdma_init_module);

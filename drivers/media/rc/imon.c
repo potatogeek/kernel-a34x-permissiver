@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   imon.c:	input and display driver for SoundGraph iMON IR/VFD/LCD
  *
@@ -10,6 +14,7 @@
  *   which the support for them wouldn't be nearly as good. Thanks
  *   also to the numerous 0xffdc device owners that tested auto-config
  *   support for me and provided debug dumps from their devices.
+<<<<<<< HEAD
  *
  *   imon is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ":%s: " fmt, __func__
@@ -92,6 +99,10 @@ struct imon_usb_dev_descr {
 	__u16 flags;
 #define IMON_NO_FLAGS 0
 #define IMON_NEED_20MS_PKT_DELAY 1
+<<<<<<< HEAD
+=======
+#define IMON_SUPPRESS_REPEATED_KEYS 2
+>>>>>>> upstream/android-13
 	struct imon_panel_key_table key_table[];
 };
 
@@ -158,8 +169,14 @@ struct imon_context {
 	struct timer_list ttimer;	/* touch screen timer */
 	int touch_x;			/* x coordinate on touchscreen */
 	int touch_y;			/* y coordinate on touchscreen */
+<<<<<<< HEAD
 	struct imon_usb_dev_descr *dev_descr; /* device description with key
 						 table for front panels */
+=======
+	const struct imon_usb_dev_descr *dev_descr;
+					/* device description with key */
+					/* table for front panels */
+>>>>>>> upstream/android-13
 };
 
 #define TOUCH_TIMEOUT	(HZ/30)
@@ -324,6 +341,35 @@ static const struct imon_usb_dev_descr imon_DH102 = {
 	}
 };
 
+<<<<<<< HEAD
+=======
+/* imon ultrabay front panel key table */
+static const struct imon_usb_dev_descr ultrabay_table = {
+	.flags = IMON_SUPPRESS_REPEATED_KEYS,
+	.key_table = {
+		{ 0x0000000f0000ffeell, KEY_MEDIA },      /* Go */
+		{ 0x000000000100ffeell, KEY_UP },
+		{ 0x000000000001ffeell, KEY_DOWN },
+		{ 0x000000160000ffeell, KEY_ENTER },
+		{ 0x0000001f0000ffeell, KEY_AUDIO },      /* Music */
+		{ 0x000000200000ffeell, KEY_VIDEO },      /* Movie */
+		{ 0x000000210000ffeell, KEY_CAMERA },     /* Photo */
+		{ 0x000000270000ffeell, KEY_DVD },        /* DVD */
+		{ 0x000000230000ffeell, KEY_TV },         /* TV */
+		{ 0x000000050000ffeell, KEY_PREVIOUS },   /* Previous */
+		{ 0x000000070000ffeell, KEY_REWIND },
+		{ 0x000000040000ffeell, KEY_STOP },
+		{ 0x000000020000ffeell, KEY_PLAYPAUSE },
+		{ 0x000000080000ffeell, KEY_FASTFORWARD },
+		{ 0x000000060000ffeell, KEY_NEXT },       /* Next */
+		{ 0x000100000000ffeell, KEY_VOLUMEUP },
+		{ 0x010000000000ffeell, KEY_VOLUMEDOWN },
+		{ 0x000000010000ffeell, KEY_MUTE },
+		{ 0, KEY_RESERVED },
+	}
+};
+
+>>>>>>> upstream/android-13
 /*
  * USB Device ID for iMON USB Control Boards
  *
@@ -761,7 +807,11 @@ static int send_set_imon_clock(struct imon_context *ictx,
 /*
  * These are the sysfs functions to handle the association on the iMON 2.4G LT.
  */
+<<<<<<< HEAD
 static ssize_t show_associate_remote(struct device *d,
+=======
+static ssize_t associate_remote_show(struct device *d,
+>>>>>>> upstream/android-13
 				     struct device_attribute *attr,
 				     char *buf)
 {
@@ -772,16 +822,28 @@ static ssize_t show_associate_remote(struct device *d,
 
 	mutex_lock(&ictx->lock);
 	if (ictx->rf_isassociating)
+<<<<<<< HEAD
 		strcpy(buf, "associating\n");
 	else
 		strcpy(buf, "closed\n");
 
 	dev_info(d, "Visit http://www.lirc.org/html/imon-24g.html for instructions on how to associate your iMON 2.4G DT/LT remote\n");
+=======
+		strscpy(buf, "associating\n", PAGE_SIZE);
+	else
+		strscpy(buf, "closed\n", PAGE_SIZE);
+
+	dev_info(d, "Visit https://www.lirc.org/html/imon-24g.html for instructions on how to associate your iMON 2.4G DT/LT remote\n");
+>>>>>>> upstream/android-13
 	mutex_unlock(&ictx->lock);
 	return strlen(buf);
 }
 
+<<<<<<< HEAD
 static ssize_t store_associate_remote(struct device *d,
+=======
+static ssize_t associate_remote_store(struct device *d,
+>>>>>>> upstream/android-13
 				      struct device_attribute *attr,
 				      const char *buf, size_t count)
 {
@@ -803,7 +865,11 @@ static ssize_t store_associate_remote(struct device *d,
 /*
  * sysfs functions to control internal imon clock
  */
+<<<<<<< HEAD
 static ssize_t show_imon_clock(struct device *d,
+=======
+static ssize_t imon_clock_show(struct device *d,
+>>>>>>> upstream/android-13
 			       struct device_attribute *attr, char *buf)
 {
 	struct imon_context *ictx = dev_get_drvdata(d);
@@ -829,7 +895,11 @@ static ssize_t show_imon_clock(struct device *d,
 	return len;
 }
 
+<<<<<<< HEAD
 static ssize_t store_imon_clock(struct device *d,
+=======
+static ssize_t imon_clock_store(struct device *d,
+>>>>>>> upstream/android-13
 				struct device_attribute *attr,
 				const char *buf, size_t count)
 {
@@ -876,11 +946,16 @@ exit:
 }
 
 
+<<<<<<< HEAD
 static DEVICE_ATTR(imon_clock, S_IWUSR | S_IRUGO, show_imon_clock,
 		   store_imon_clock);
 
 static DEVICE_ATTR(associate_remote, S_IWUSR | S_IRUGO, show_associate_remote,
 		   store_associate_remote);
+=======
+static DEVICE_ATTR_RW(imon_clock);
+static DEVICE_ATTR_RW(associate_remote);
+>>>>>>> upstream/android-13
 
 static struct attribute *imon_display_sysfs_entries[] = {
 	&dev_attr_imon_clock.attr,
@@ -1273,9 +1348,17 @@ static u32 imon_mce_key_lookup(struct imon_context *ictx, u32 scancode)
 
 static u32 imon_panel_key_lookup(struct imon_context *ictx, u64 code)
 {
+<<<<<<< HEAD
 	int i;
 	u32 keycode = KEY_RESERVED;
 	struct imon_panel_key_table *key_table = ictx->dev_descr->key_table;
+=======
+	const struct imon_panel_key_table *key_table;
+	u32 keycode = KEY_RESERVED;
+	int i;
+
+	key_table = ictx->dev_descr->key_table;
+>>>>>>> upstream/android-13
 
 	for (i = 0; key_table[i].hw_code != 0; i++) {
 		if (key_table[i].hw_code == (code | 0xffee)) {
@@ -1559,7 +1642,10 @@ static void imon_incoming_packet(struct imon_context *ictx,
 	u32 kc;
 	u64 scancode;
 	int press_type = 0;
+<<<<<<< HEAD
 	long msec;
+=======
+>>>>>>> upstream/android-13
 	ktime_t t;
 	static ktime_t prev_time;
 	u8 ktype;
@@ -1661,14 +1747,26 @@ static void imon_incoming_packet(struct imon_context *ictx,
 	spin_lock_irqsave(&ictx->kc_lock, flags);
 
 	t = ktime_get();
+<<<<<<< HEAD
 	/* KEY_MUTE repeats from knob need to be suppressed */
 	if (ictx->kc == KEY_MUTE && ictx->kc == ictx->last_keycode) {
 		msec = ktime_ms_delta(t, prev_time);
 		if (msec < ictx->idev->rep[REP_DELAY]) {
+=======
+	/* KEY repeats from knob and panel that need to be suppressed */
+	if (ictx->kc == KEY_MUTE ||
+	    ictx->dev_descr->flags & IMON_SUPPRESS_REPEATED_KEYS) {
+		if (ictx->kc == ictx->last_keycode &&
+		    ktime_ms_delta(t, prev_time) < ictx->idev->rep[REP_DELAY]) {
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&ictx->kc_lock, flags);
 			return;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	prev_time = t;
 	kc = ictx->kc;
 
@@ -1856,6 +1954,17 @@ static void imon_get_ffdc_type(struct imon_context *ictx)
 		dev_info(ictx->dev, "0xffdc iMON Inside, iMON IR");
 		ictx->display_supported = false;
 		break;
+<<<<<<< HEAD
+=======
+	/* Soundgraph iMON UltraBay */
+	case 0x98:
+		dev_info(ictx->dev, "0xffdc iMON UltraBay, LCD + IR");
+		detected_display_type = IMON_DISPLAY_TYPE_LCD;
+		allowed_protos = RC_PROTO_BIT_IMON | RC_PROTO_BIT_RC6_MCE;
+		ictx->dev_descr = &ultrabay_table;
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		dev_info(ictx->dev, "Unknown 0xffdc device, defaulting to VFD and iMON IR");
 		detected_display_type = IMON_DISPLAY_TYPE_VFD;
@@ -1987,10 +2096,19 @@ out:
 
 static struct input_dev *imon_init_idev(struct imon_context *ictx)
 {
+<<<<<<< HEAD
 	struct imon_panel_key_table *key_table = ictx->dev_descr->key_table;
 	struct input_dev *idev;
 	int ret, i;
 
+=======
+	const struct imon_panel_key_table *key_table;
+	struct input_dev *idev;
+	int ret, i;
+
+	key_table = ictx->dev_descr->key_table;
+
+>>>>>>> upstream/android-13
 	idev = input_allocate_device();
 	if (!idev)
 		goto out;

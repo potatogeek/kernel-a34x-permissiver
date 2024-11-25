@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef DEF_RDMAVT_INCMR_H
 #define DEF_RDMAVT_INCMR_H
 
@@ -48,6 +49,16 @@
  *
  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright(c) 2016 Intel Corporation.
+ */
+
+#ifndef DEF_RDMAVT_INCMR_H
+#define DEF_RDMAVT_INCMR_H
+
+>>>>>>> upstream/android-13
 /*
  * For Memory Regions. This stuff should probably be moved into rdmavt/mr.h once
  * drivers no longer need access to the MR directly.
@@ -85,7 +96,11 @@ struct rvt_mregion {
 	u8  lkey_published;     /* in global table */
 	struct percpu_ref refcount;
 	struct completion comp; /* complete when refcount goes to zero */
+<<<<<<< HEAD
 	struct rvt_segarray *map[0];    /* the segments */
+=======
+	struct rvt_segarray *map[];    /* the segments */
+>>>>>>> upstream/android-13
 };
 
 #define RVT_MAX_LKEY_TABLE_BITS 23

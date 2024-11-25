@@ -11,13 +11,20 @@
 #include <linux/spinlock.h>
 
 #include <asm/cpu_entry_area.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/fixmap.h>
 #include <asm/e820/api.h>
 #include <asm/tlb.h>
 #include <asm/tlbflush.h>
 #include <asm/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 
 unsigned int __VMALLOC_RESERVE = 128 << 20;
 
@@ -63,7 +70,11 @@ void set_pte_vaddr(unsigned long vaddr, pte_t pteval)
 	 * It's enough to flush this one mapping.
 	 * (PGE mappings get flushed as well)
 	 */
+<<<<<<< HEAD
 	__flush_tlb_one_kernel(vaddr);
+=======
+	flush_tlb_one_kernel(vaddr);
+>>>>>>> upstream/android-13
 }
 
 unsigned long __FIXADDR_TOP = 0xfffff000;

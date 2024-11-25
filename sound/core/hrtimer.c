@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ALSA timer back-end using hrtimer
  * Copyright (C) 2008 Takashi Iwai
@@ -16,6 +17,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * ALSA timer back-end using hrtimer
+ * Copyright (C) 2008 Takashi Iwai
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -128,7 +135,11 @@ static int snd_hrtimer_stop(struct snd_timer *t)
 }
 
 static const struct snd_timer_hardware hrtimer_hw __initconst = {
+<<<<<<< HEAD
 	.flags =	SNDRV_TIMER_HW_AUTO | SNDRV_TIMER_HW_TASKLET,
+=======
+	.flags =	SNDRV_TIMER_HW_AUTO | SNDRV_TIMER_HW_WORK,
+>>>>>>> upstream/android-13
 	.open =		snd_hrtimer_open,
 	.close =	snd_hrtimer_close,
 	.start =	snd_hrtimer_start,

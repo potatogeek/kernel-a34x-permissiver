@@ -6,8 +6,15 @@
 # for more details.
 #
 #
+<<<<<<< HEAD
 KASAN_SANITIZE			:= n
 OBJECT_FILES_NON_STANDARD	:= y
+=======
+
+# Sanitizer runtimes are unavailable and cannot be linked here.
+KASAN_SANITIZE			:= n
+KCSAN_SANITIZE			:= n
+>>>>>>> upstream/android-13
 
 subdir- := rm
 

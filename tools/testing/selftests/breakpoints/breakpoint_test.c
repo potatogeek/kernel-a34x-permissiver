@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Red Hat, Inc., Frederic Weisbecker <fweisbec@redhat.com>
  *
  * Licensed under the terms of the GNU GPL License version 2
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Red Hat, Inc., Frederic Weisbecker <fweisbec@redhat.com>
+ *
+>>>>>>> upstream/android-13
  * Selftests for breakpoints (and more generally the do_debug() path) in x86.
  */
 
@@ -21,6 +28,11 @@
 
 #include "../kselftest.h"
 
+<<<<<<< HEAD
+=======
+#define COUNT_ISN_BPS	4
+#define COUNT_WPS	4
+>>>>>>> upstream/android-13
 
 /* Breakpoint access modes */
 enum {
@@ -220,7 +232,11 @@ static void trigger_tests(void)
 			if (!local && !global)
 				continue;
 
+<<<<<<< HEAD
 			for (i = 0; i < 4; i++) {
+=======
+			for (i = 0; i < COUNT_ISN_BPS; i++) {
+>>>>>>> upstream/android-13
 				dummy_funcs[i]();
 				check_trapped();
 			}
@@ -292,7 +308,11 @@ static void launch_instruction_breakpoints(char *buf, int local, int global)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < 4; i++) {
+=======
+	for (i = 0; i < COUNT_ISN_BPS; i++) {
+>>>>>>> upstream/android-13
 		set_breakpoint_addr(dummy_funcs[i], i);
 		toggle_breakpoint(i, BP_X, 1, local, global, 1);
 		ptrace(PTRACE_CONT, child_pid, NULL, 0);
@@ -314,7 +334,11 @@ static void launch_watchpoints(char *buf, int mode, int len,
 	else
 		mode_str = "read";
 
+<<<<<<< HEAD
 	for (i = 0; i < 4; i++) {
+=======
+	for (i = 0; i < COUNT_WPS; i++) {
+>>>>>>> upstream/android-13
 		set_breakpoint_addr(&dummy_var[i], i);
 		toggle_breakpoint(i, mode, len, local, global, 1);
 		ptrace(PTRACE_CONT, child_pid, NULL, 0);
@@ -330,8 +354,20 @@ static void launch_watchpoints(char *buf, int mode, int len,
 static void launch_tests(void)
 {
 	char buf[1024];
+<<<<<<< HEAD
 	int len, local, global, i;
 
+=======
+	unsigned int tests = 0;
+	int len, local, global, i;
+
+	tests += 3 * COUNT_ISN_BPS;
+	tests += sizeof(long) / 2 * 3 * COUNT_WPS;
+	tests += sizeof(long) / 2 * 3 * COUNT_WPS;
+	tests += 2;
+	ksft_set_plan(tests);
+
+>>>>>>> upstream/android-13
 	/* Instruction breakpoints */
 	for (local = 0; local < 2; local++) {
 		for (global = 0; global < 2; global++) {

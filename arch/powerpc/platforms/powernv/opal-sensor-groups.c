@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PowerNV OPAL Sensor-groups interface
  *
  * Copyright 2017 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)     "opal-sensor-groups: " fmt
@@ -17,7 +24,11 @@
 
 #include <asm/opal.h>
 
+<<<<<<< HEAD
 DEFINE_MUTEX(sg_mutex);
+=======
+static DEFINE_MUTEX(sg_mutex);
+>>>>>>> upstream/android-13
 
 static struct kobject *sg_kobj;
 
@@ -214,9 +225,15 @@ void __init opal_sensor_groups_init(void)
 		}
 
 		if (!of_property_read_u32(node, "ibm,chip-id", &chipid))
+<<<<<<< HEAD
 			sprintf(sgs[i].name, "%s%d", node->name, chipid);
 		else
 			sprintf(sgs[i].name, "%s", node->name);
+=======
+			sprintf(sgs[i].name, "%pOFn%d", node, chipid);
+		else
+			sprintf(sgs[i].name, "%pOFn", node);
+>>>>>>> upstream/android-13
 
 		sgs[i].sg.name = sgs[i].name;
 		if (add_attr_group(ops, len, &sgs[i], sgid)) {

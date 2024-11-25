@@ -17,6 +17,11 @@
 
 #define ARCH_HAS_RELATIVE_EXTABLE
 
+<<<<<<< HEAD
+=======
+#ifndef __ASSEMBLY__
+
+>>>>>>> upstream/android-13
 struct exception_table_entry {
 	int insn;
 	int fixup;
@@ -28,3 +33,18 @@ static inline unsigned long extable_fixup(const struct exception_table_entry *x)
 }
 
 #endif
+<<<<<<< HEAD
+=======
+
+/*
+ * Helper macro for exception table entries
+ */
+#define EX_TABLE(_fault, _target)		\
+	stringify_in_c(.section __ex_table,"a";)\
+	stringify_in_c(.balign 4;)		\
+	stringify_in_c(.long (_fault) - . ;)	\
+	stringify_in_c(.long (_target) - . ;)	\
+	stringify_in_c(.previous)
+
+#endif
+>>>>>>> upstream/android-13

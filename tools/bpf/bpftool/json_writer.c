@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
+>>>>>>> upstream/android-13
 /*
  * Simple streaming JSON writer
  *
  * This takes care of the annoying bits of JSON syntax like the commas
  * after elements
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Authors:	Stephen Hemminger <stephen@networkplumber.org>
  */
 
@@ -123,6 +130,15 @@ void jsonw_pretty(json_writer_t *self, bool on)
 	self->pretty = on;
 }
 
+<<<<<<< HEAD
+=======
+void jsonw_reset(json_writer_t *self)
+{
+	assert(self->depth == 0);
+	self->sep = '\0';
+}
+
+>>>>>>> upstream/android-13
 /* Basic blocks */
 static void jsonw_begin(json_writer_t *self, int c)
 {

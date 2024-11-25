@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/fault-armv.c
  *
  *  Copyright (C) 1995  Linus Torvalds
  *  Modifications for ARM processor (c) 1995-2002 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/sched.h>
 #include <linux/kernel.h>
@@ -20,7 +27,10 @@
 #include <asm/bugs.h>
 #include <asm/cacheflush.h>
 #include <asm/cachetype.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 
 #include "mm.h"
@@ -94,6 +104,10 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address,
 {
 	spinlock_t *ptl;
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
@@ -103,7 +117,15 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address,
 	if (pgd_none_or_clear_bad(pgd))
 		return 0;
 
+<<<<<<< HEAD
 	pud = pud_offset(pgd, address);
+=======
+	p4d = p4d_offset(pgd, address);
+	if (p4d_none_or_clear_bad(p4d))
+		return 0;
+
+	pud = pud_offset(p4d, address);
+>>>>>>> upstream/android-13
 	if (pud_none_or_clear_bad(pud))
 		return 0;
 

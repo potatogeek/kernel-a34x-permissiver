@@ -24,6 +24,10 @@
  */
 
 #include "dm_services.h"
+<<<<<<< HEAD
+=======
+#include "hw_translate_diag.h"
+>>>>>>> upstream/android-13
 #include "include/gpio_types.h"
 
 #include "../hw_translate.h"

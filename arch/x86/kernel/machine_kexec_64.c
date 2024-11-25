@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * handle transition of Linux booting another kernel
  * Copyright (C) 2002-2005 Eric Biederman  <ebiederm@xmission.com>
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * handle transition of Linux booting another kernel
+ * Copyright (C) 2002-2005 Eric Biederman  <ebiederm@xmission.com>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"kexec: " fmt
@@ -18,9 +25,15 @@
 #include <linux/io.h>
 #include <linux/suspend.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 
 #include <asm/init.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/efi.h>
+
+#include <asm/init.h>
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/mmu_context.h>
 #include <asm/io_apic.h>
@@ -29,6 +42,58 @@
 #include <asm/setup.h>
 #include <asm/set_memory.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+/*
+ * Used while adding mapping for ACPI tables.
+ * Can be reused when other iomem regions need be mapped
+ */
+struct init_pgtable_data {
+	struct x86_mapping_info *info;
+	pgd_t *level4p;
+};
+
+static int mem_region_callback(struct resource *res, void *arg)
+{
+	struct init_pgtable_data *data = arg;
+	unsigned long mstart, mend;
+
+	mstart = res->start;
+	mend = mstart + resource_size(res) - 1;
+
+	return kernel_ident_mapping_init(data->info, data->level4p, mstart, mend);
+}
+
+static int
+map_acpi_tables(struct x86_mapping_info *info, pgd_t *level4p)
+{
+	struct init_pgtable_data data;
+	unsigned long flags;
+	int ret;
+
+	data.info = info;
+	data.level4p = level4p;
+	flags = IORESOURCE_MEM | IORESOURCE_BUSY;
+
+	ret = walk_iomem_res_desc(IORES_DESC_ACPI_TABLES, flags, 0, -1,
+				  &data, mem_region_callback);
+	if (ret && ret != -EINVAL)
+		return ret;
+
+	/* ACPI tables could be located in ACPI Non-volatile Storage region */
+	ret = walk_iomem_res_desc(IORES_DESC_ACPI_NV_STORAGE, flags, 0, -1,
+				  &data, mem_region_callback);
+	if (ret && ret != -EINVAL)
+		return ret;
+
+	return 0;
+}
+#else
+static int map_acpi_tables(struct x86_mapping_info *info, pgd_t *level4p) { return 0; }
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KEXEC_FILE
 const struct kexec_file_ops * const kexec_file_loaders[] = {
 		&kexec_bzImage64_ops,
@@ -36,6 +101,34 @@ const struct kexec_file_ops * const kexec_file_loaders[] = {
 };
 #endif
 
+<<<<<<< HEAD
+=======
+static int
+map_efi_systab(struct x86_mapping_info *info, pgd_t *level4p)
+{
+#ifdef CONFIG_EFI
+	unsigned long mstart, mend;
+
+	if (!efi_enabled(EFI_BOOT))
+		return 0;
+
+	mstart = (boot_params.efi_info.efi_systab |
+			((u64)boot_params.efi_info.efi_systab_hi<<32));
+
+	if (efi_enabled(EFI_64BIT))
+		mend = mstart + sizeof(efi_system_table_64_t);
+	else
+		mend = mstart + sizeof(efi_system_table_32_t);
+
+	if (!mstart)
+		return 0;
+
+	return kernel_ident_mapping_init(info, level4p, mstart, mend);
+#endif
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void free_transition_pgtable(struct kimage *image)
 {
 	free_page((unsigned long)image->arch.p4d);
@@ -50,12 +143,21 @@ static void free_transition_pgtable(struct kimage *image)
 
 static int init_transition_pgtable(struct kimage *image, pgd_t *pgd)
 {
+<<<<<<< HEAD
+=======
+	pgprot_t prot = PAGE_KERNEL_EXEC_NOENC;
+	unsigned long vaddr, paddr;
+	int result = -ENOMEM;
+>>>>>>> upstream/android-13
 	p4d_t *p4d;
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
+<<<<<<< HEAD
 	unsigned long vaddr, paddr;
 	int result = -ENOMEM;
+=======
+>>>>>>> upstream/android-13
 
 	vaddr = (unsigned long)relocate_kernel;
 	paddr = __pa(page_address(image->control_code_page)+PAGE_SIZE);
@@ -92,7 +194,15 @@ static int init_transition_pgtable(struct kimage *image, pgd_t *pgd)
 		set_pmd(pmd, __pmd(__pa(pte) | _KERNPG_TABLE));
 	}
 	pte = pte_offset_kernel(pmd, vaddr);
+<<<<<<< HEAD
 	set_pte(pte, pfn_pte(paddr >> PAGE_SHIFT, PAGE_KERNEL_EXEC_NOENC));
+=======
+
+	if (sev_active())
+		prot = PAGE_KERNEL_EXEC;
+
+	set_pte(pte, pfn_pte(paddr >> PAGE_SHIFT, prot));
+>>>>>>> upstream/android-13
 	return 0;
 err:
 	return result;
@@ -129,6 +239,14 @@ static int init_pgtable(struct kimage *image, unsigned long start_pgtable)
 	level4p = (pgd_t *)__va(start_pgtable);
 	clear_page(level4p);
 
+<<<<<<< HEAD
+=======
+	if (sev_active()) {
+		info.page_flag   |= _PAGE_ENC;
+		info.kernpg_flag |= _PAGE_ENC;
+	}
+
+>>>>>>> upstream/android-13
 	if (direct_gbpages)
 		info.direct_gbpages = true;
 
@@ -159,6 +277,7 @@ static int init_pgtable(struct kimage *image, unsigned long start_pgtable)
 			return result;
 	}
 
+<<<<<<< HEAD
 	return init_transition_pgtable(image, level4p);
 }
 
@@ -191,6 +310,23 @@ static void set_gdt(void *newgdt, u16 limit)
 		);
 };
 
+=======
+	/*
+	 * Prepare EFI systab and ACPI tables for kexec kernel since they are
+	 * not covered by pfn_mapped.
+	 */
+	result = map_efi_systab(&info, level4p);
+	if (result)
+		return result;
+
+	result = map_acpi_tables(&info, level4p);
+	if (result)
+		return result;
+
+	return init_transition_pgtable(image, level4p);
+}
+
+>>>>>>> upstream/android-13
 static void load_segments(void)
 {
 	__asm__ __volatile__ (
@@ -203,6 +339,7 @@ static void load_segments(void)
 		);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_KEXEC_FILE
 /* Update purgatory as needed after various image segments have been prepared */
 static int arch_update_purgatory(struct kimage *image)
@@ -245,6 +382,8 @@ static inline int arch_update_purgatory(struct kimage *image)
 }
 #endif /* CONFIG_KEXEC_FILE */
 
+=======
+>>>>>>> upstream/android-13
 int machine_kexec_prepare(struct kimage *image)
 {
 	unsigned long start_pgtable;
@@ -258,11 +397,14 @@ int machine_kexec_prepare(struct kimage *image)
 	if (result)
 		return result;
 
+<<<<<<< HEAD
 	/* update purgatory as needed */
 	result = arch_update_purgatory(image);
 	if (result)
 		return result;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -332,8 +474,13 @@ void machine_kexec(struct kimage *image)
 	 * The gdt & idt are now invalid.
 	 * If you want to load them you must set up your own idt & gdt.
 	 */
+<<<<<<< HEAD
 	set_gdt(phys_to_virt(0), 0);
 	set_idt(phys_to_virt(0), 0);
+=======
+	native_idt_invalidate();
+	native_gdt_invalidate();
+>>>>>>> upstream/android-13
 
 	/* now call it */
 	image->start = relocate_kernel((unsigned long)image->head,
@@ -350,6 +497,7 @@ void machine_kexec(struct kimage *image)
 	__ftrace_enabled_restore(save_ftrace_enabled);
 }
 
+<<<<<<< HEAD
 void arch_crash_save_vmcoreinfo(void)
 {
 	VMCOREINFO_NUMBER(phys_base);
@@ -366,13 +514,20 @@ void arch_crash_save_vmcoreinfo(void)
 	VMCOREINFO_NUMBER(KERNEL_IMAGE_SIZE);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* arch-dependent functionality related to kexec file-based syscall */
 
 #ifdef CONFIG_KEXEC_FILE
 void *arch_kexec_kernel_image_load(struct kimage *image)
 {
+<<<<<<< HEAD
 	vfree(image->arch.elf_headers);
 	image->arch.elf_headers = NULL;
+=======
+	vfree(image->elf_headers);
+	image->elf_headers = NULL;
+>>>>>>> upstream/android-13
 
 	if (!image->fops || !image->fops->load)
 		return ERR_PTR(-ENOEXEC);
@@ -556,8 +711,25 @@ void arch_kexec_unprotect_crashkres(void)
 	kexec_mark_crashkres(false);
 }
 
+<<<<<<< HEAD
 int arch_kexec_post_alloc_pages(void *vaddr, unsigned int pages, gfp_t gfp)
 {
+=======
+/*
+ * During a traditional boot under SME, SME will encrypt the kernel,
+ * so the SME kexec kernel also needs to be un-encrypted in order to
+ * replicate a normal SME boot.
+ *
+ * During a traditional boot under SEV, the kernel has already been
+ * loaded encrypted, so the SEV kexec kernel needs to be encrypted in
+ * order to replicate a normal SEV boot.
+ */
+int arch_kexec_post_alloc_pages(void *vaddr, unsigned int pages, gfp_t gfp)
+{
+	if (sev_active())
+		return 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If SME is active we need to be sure that kexec pages are
 	 * not encrypted because when we boot to the new kernel the
@@ -568,6 +740,12 @@ int arch_kexec_post_alloc_pages(void *vaddr, unsigned int pages, gfp_t gfp)
 
 void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages)
 {
+<<<<<<< HEAD
+=======
+	if (sev_active())
+		return;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If SME is active we need to reset the pages back to being
 	 * an encrypted mapping before freeing them.

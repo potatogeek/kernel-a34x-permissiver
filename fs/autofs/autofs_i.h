@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright 1997-1998 Transmeta Corporation - All Rights Reserved
  *  Copyright 2005-2006 Ian Kent <raven@themaw.net>
@@ -5,6 +6,12 @@
  * This file is part of the Linux kernel and is made available under
  * the terms of the GNU General Public License, version 2, or at your
  * option, any later version, incorporated herein by reference.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Copyright 1997-1998 Transmeta Corporation - All Rights Reserved
+ *  Copyright 2005-2006 Ian Kent <raven@themaw.net>
+>>>>>>> upstream/android-13
  */
 
 /* Internal header file for autofs */
@@ -42,6 +49,11 @@
 #endif
 #define pr_fmt(fmt) KBUILD_MODNAME ":pid:%d:%s: " fmt, current->pid, __func__
 
+<<<<<<< HEAD
+=======
+extern struct file_system_type autofs_fs_type;
+
+>>>>>>> upstream/android-13
 /*
  * Unified info structure.  This is pointed to by both the dentry and
  * inode structures.  Each file in the filesystem has an instance of this
@@ -59,16 +71,27 @@ struct autofs_info {
 	struct completion expire_complete;
 
 	struct list_head active;
+<<<<<<< HEAD
 	int active_count;
+=======
+>>>>>>> upstream/android-13
 
 	struct list_head expiring;
 
 	struct autofs_sb_info *sbi;
 	unsigned long last_used;
+<<<<<<< HEAD
 	atomic_t count;
 
 	kuid_t uid;
 	kgid_t gid;
+=======
+	int count;
+
+	kuid_t uid;
+	kgid_t gid;
+	struct rcu_head rcu;
+>>>>>>> upstream/android-13
 };
 
 #define AUTOFS_INF_EXPIRING	(1<<0) /* dentry in the process of expiring */
@@ -88,6 +111,10 @@ struct autofs_wait_queue {
 	autofs_wqt_t wait_queue_token;
 	/* We use the following to see what we are waiting for */
 	struct qstr name;
+<<<<<<< HEAD
+=======
+	u32 offset;
+>>>>>>> upstream/android-13
 	u32 dev;
 	u64 ino;
 	kuid_t uid;
@@ -101,16 +128,30 @@ struct autofs_wait_queue {
 
 #define AUTOFS_SBI_MAGIC 0x6d4a556d
 
+<<<<<<< HEAD
+=======
+#define AUTOFS_SBI_CATATONIC	0x0001
+#define AUTOFS_SBI_STRICTEXPIRE 0x0002
+#define AUTOFS_SBI_IGNORE	0x0004
+
+>>>>>>> upstream/android-13
 struct autofs_sb_info {
 	u32 magic;
 	int pipefd;
 	struct file *pipe;
 	struct pid *oz_pgrp;
+<<<<<<< HEAD
 	int catatonic;
+=======
+>>>>>>> upstream/android-13
 	int version;
 	int sub_version;
 	int min_proto;
 	int max_proto;
+<<<<<<< HEAD
+=======
+	unsigned int flags;
+>>>>>>> upstream/android-13
 	unsigned long exp_timeout;
 	unsigned int type;
 	struct super_block *sb;
@@ -126,8 +167,12 @@ struct autofs_sb_info {
 
 static inline struct autofs_sb_info *autofs_sbi(struct super_block *sb)
 {
+<<<<<<< HEAD
 	return sb->s_magic != AUTOFS_SUPER_MAGIC ?
 		NULL : (struct autofs_sb_info *)(sb->s_fs_info);
+=======
+	return (struct autofs_sb_info *)(sb->s_fs_info);
+>>>>>>> upstream/android-13
 }
 
 static inline struct autofs_info *autofs_dentry_ino(struct dentry *dentry)
@@ -141,7 +186,12 @@ static inline struct autofs_info *autofs_dentry_ino(struct dentry *dentry)
  */
 static inline int autofs_oz_mode(struct autofs_sb_info *sbi)
 {
+<<<<<<< HEAD
 	return sbi->catatonic || task_pgrp(current) == sbi->oz_pgrp;
+=======
+	return ((sbi->flags & AUTOFS_SBI_CATATONIC) ||
+		 task_pgrp(current) == sbi->oz_pgrp);
+>>>>>>> upstream/android-13
 }
 
 struct inode *autofs_get_inode(struct super_block *, umode_t);
@@ -210,6 +260,11 @@ static inline int autofs_prepare_pipe(struct file *pipe)
 		return -EINVAL;
 	/* We want a packet pipe */
 	pipe->f_flags |= O_DIRECT;
+<<<<<<< HEAD
+=======
+	/* We don't expect -EAGAIN */
+	pipe->f_flags &= ~O_NONBLOCK;
+>>>>>>> upstream/android-13
 	return 0;
 }
 

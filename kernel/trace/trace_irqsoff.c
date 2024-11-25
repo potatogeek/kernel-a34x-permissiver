@@ -14,6 +14,10 @@
 #include <linux/uaccess.h>
 #include <linux/module.h>
 #include <linux/ftrace.h>
+<<<<<<< HEAD
+=======
+#include <linux/kprobes.h>
+>>>>>>> upstream/android-13
 
 #include "trace.h"
 
@@ -121,7 +125,11 @@ static int func_prolog_dec(struct trace_array *tr,
 	if (!irqs_disabled_flags(*flags) && !preempt_count())
 		return 0;
 
+<<<<<<< HEAD
 	*data = per_cpu_ptr(tr->trace_buffer.data, cpu);
+=======
+	*data = per_cpu_ptr(tr->array_buffer.data, cpu);
+>>>>>>> upstream/android-13
 	disabled = atomic_inc_return(&(*data)->disabled);
 
 	if (likely(disabled == 1))
@@ -137,16 +145,30 @@ static int func_prolog_dec(struct trace_array *tr,
  */
 static void
 irqsoff_tracer_call(unsigned long ip, unsigned long parent_ip,
+<<<<<<< HEAD
 		    struct ftrace_ops *op, struct pt_regs *pt_regs)
+=======
+		    struct ftrace_ops *op, struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	struct trace_array *tr = irqsoff_trace;
 	struct trace_array_cpu *data;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	unsigned int trace_ctx;
+>>>>>>> upstream/android-13
 
 	if (!func_prolog_dec(tr, &data, &flags))
 		return;
 
+<<<<<<< HEAD
 	trace_function(tr, ip, parent_ip, flags, preempt_count());
+=======
+	trace_ctx = tracing_gen_ctx_flags(flags);
+
+	trace_function(tr, ip, parent_ip, trace_ctx);
+>>>>>>> upstream/android-13
 
 	atomic_dec(&data->disabled);
 }
@@ -166,7 +188,11 @@ static int irqsoff_display_graph(struct trace_array *tr, int set)
 		per_cpu(tracing_cpu, cpu) = 0;
 
 	tr->max_latency = 0;
+<<<<<<< HEAD
 	tracing_reset_online_cpus(&irqsoff_trace->trace_buffer);
+=======
+	tracing_reset_online_cpus(&irqsoff_trace->array_buffer);
+>>>>>>> upstream/android-13
 
 	return start_irqsoff_tracer(irqsoff_trace, set);
 }
@@ -176,8 +202,13 @@ static int irqsoff_graph_entry(struct ftrace_graph_ent *trace)
 	struct trace_array *tr = irqsoff_trace;
 	struct trace_array_cpu *data;
 	unsigned long flags;
+<<<<<<< HEAD
 	int ret;
 	int pc;
+=======
+	unsigned int trace_ctx;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (ftrace_graph_ignore_func(trace))
 		return 0;
@@ -194,8 +225,13 @@ static int irqsoff_graph_entry(struct ftrace_graph_ent *trace)
 	if (!func_prolog_dec(tr, &data, &flags))
 		return 0;
 
+<<<<<<< HEAD
 	pc = preempt_count();
 	ret = __trace_graph_entry(tr, trace, flags, pc);
+=======
+	trace_ctx = tracing_gen_ctx_flags(flags);
+	ret = __trace_graph_entry(tr, trace, trace_ctx);
+>>>>>>> upstream/android-13
 	atomic_dec(&data->disabled);
 
 	return ret;
@@ -206,18 +242,35 @@ static void irqsoff_graph_return(struct ftrace_graph_ret *trace)
 	struct trace_array *tr = irqsoff_trace;
 	struct trace_array_cpu *data;
 	unsigned long flags;
+<<<<<<< HEAD
 	int pc;
+=======
+	unsigned int trace_ctx;
+>>>>>>> upstream/android-13
 
 	ftrace_graph_addr_finish(trace);
 
 	if (!func_prolog_dec(tr, &data, &flags))
 		return;
 
+<<<<<<< HEAD
 	pc = preempt_count();
 	__trace_graph_return(tr, trace, flags, pc);
 	atomic_dec(&data->disabled);
 }
 
+=======
+	trace_ctx = tracing_gen_ctx_flags(flags);
+	__trace_graph_return(tr, trace, trace_ctx);
+	atomic_dec(&data->disabled);
+}
+
+static struct fgraph_ops fgraph_ops = {
+	.entryfunc		= &irqsoff_graph_entry,
+	.retfunc		= &irqsoff_graph_return,
+};
+
+>>>>>>> upstream/android-13
 static void irqsoff_trace_open(struct trace_iterator *iter)
 {
 	if (is_graph(iter->tr))
@@ -233,7 +286,11 @@ static void irqsoff_trace_close(struct trace_iterator *iter)
 
 #define GRAPH_TRACER_FLAGS (TRACE_GRAPH_PRINT_CPU | \
 			    TRACE_GRAPH_PRINT_PROC | \
+<<<<<<< HEAD
 			    TRACE_GRAPH_PRINT_ABS_TIME | \
+=======
+			    TRACE_GRAPH_PRINT_REL_TIME | \
+>>>>>>> upstream/android-13
 			    TRACE_GRAPH_PRINT_DURATION)
 
 static enum print_line_t irqsoff_print_line(struct trace_iterator *iter)
@@ -261,17 +318,27 @@ static void irqsoff_print_header(struct seq_file *s)
 static void
 __trace_function(struct trace_array *tr,
 		 unsigned long ip, unsigned long parent_ip,
+<<<<<<< HEAD
 		 unsigned long flags, int pc)
 {
 	if (is_graph(tr))
 		trace_graph_function(tr, ip, parent_ip, flags, pc);
 	else
 		trace_function(tr, ip, parent_ip, flags, pc);
+=======
+		 unsigned int trace_ctx)
+{
+	if (is_graph(tr))
+		trace_graph_function(tr, ip, parent_ip, trace_ctx);
+	else
+		trace_function(tr, ip, parent_ip, trace_ctx);
+>>>>>>> upstream/android-13
 }
 
 #else
 #define __trace_function trace_function
 
+<<<<<<< HEAD
 #ifdef CONFIG_FUNCTION_TRACER
 static int irqsoff_graph_entry(struct ftrace_graph_ent *trace)
 {
@@ -279,6 +346,8 @@ static int irqsoff_graph_entry(struct ftrace_graph_ent *trace)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static enum print_line_t irqsoff_print_line(struct trace_iterator *iter)
 {
 	return TRACE_TYPE_UNHANDLED;
@@ -288,7 +357,10 @@ static void irqsoff_trace_open(struct trace_iterator *iter) { }
 static void irqsoff_trace_close(struct trace_iterator *iter) { }
 
 #ifdef CONFIG_FUNCTION_TRACER
+<<<<<<< HEAD
 static void irqsoff_graph_return(struct ftrace_graph_ret *trace) { }
+=======
+>>>>>>> upstream/android-13
 static void irqsoff_print_header(struct seq_file *s)
 {
 	trace_default_header(s);
@@ -324,15 +396,23 @@ check_critical_timing(struct trace_array *tr,
 {
 	u64 T0, T1, delta;
 	unsigned long flags;
+<<<<<<< HEAD
 	int pc;
+=======
+	unsigned int trace_ctx;
+>>>>>>> upstream/android-13
 
 	T0 = data->preempt_timestamp;
 	T1 = ftrace_now(cpu);
 	delta = T1-T0;
 
+<<<<<<< HEAD
 	local_save_flags(flags);
 
 	pc = preempt_count();
+=======
+	trace_ctx = tracing_gen_ctx();
+>>>>>>> upstream/android-13
 
 	if (!report_latency(tr, delta))
 		goto out;
@@ -343,9 +423,15 @@ check_critical_timing(struct trace_array *tr,
 	if (!report_latency(tr, delta))
 		goto out_unlock;
 
+<<<<<<< HEAD
 	__trace_function(tr, CALLER_ADDR0, parent_ip, flags, pc);
 	/* Skip 5 functions to get to the irq/preempt enable function */
 	__trace_stack(tr, flags, 5, pc);
+=======
+	__trace_function(tr, CALLER_ADDR0, parent_ip, trace_ctx);
+	/* Skip 5 functions to get to the irq/preempt enable function */
+	__trace_stack(tr, trace_ctx, 5);
+>>>>>>> upstream/android-13
 
 	if (data->critical_sequence != max_sequence)
 		goto out_unlock;
@@ -365,16 +451,27 @@ out_unlock:
 out:
 	data->critical_sequence = max_sequence;
 	data->preempt_timestamp = ftrace_now(cpu);
+<<<<<<< HEAD
 	__trace_function(tr, CALLER_ADDR0, parent_ip, flags, pc);
 }
 
 static inline void
 start_critical_timing(unsigned long ip, unsigned long parent_ip, int pc)
+=======
+	__trace_function(tr, CALLER_ADDR0, parent_ip, trace_ctx);
+}
+
+static nokprobe_inline void
+start_critical_timing(unsigned long ip, unsigned long parent_ip)
+>>>>>>> upstream/android-13
 {
 	int cpu;
 	struct trace_array *tr = irqsoff_trace;
 	struct trace_array_cpu *data;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!tracer_enabled || !tracing_is_enabled())
 		return;
@@ -384,7 +481,11 @@ start_critical_timing(unsigned long ip, unsigned long parent_ip, int pc)
 	if (per_cpu(tracing_cpu, cpu))
 		return;
 
+<<<<<<< HEAD
 	data = per_cpu_ptr(tr->trace_buffer.data, cpu);
+=======
+	data = per_cpu_ptr(tr->array_buffer.data, cpu);
+>>>>>>> upstream/android-13
 
 	if (unlikely(!data) || atomic_read(&data->disabled))
 		return;
@@ -395,22 +496,35 @@ start_critical_timing(unsigned long ip, unsigned long parent_ip, int pc)
 	data->preempt_timestamp = ftrace_now(cpu);
 	data->critical_start = parent_ip ? : ip;
 
+<<<<<<< HEAD
 	local_save_flags(flags);
 
 	__trace_function(tr, ip, parent_ip, flags, pc);
+=======
+	__trace_function(tr, ip, parent_ip, tracing_gen_ctx());
+>>>>>>> upstream/android-13
 
 	per_cpu(tracing_cpu, cpu) = 1;
 
 	atomic_dec(&data->disabled);
 }
 
+<<<<<<< HEAD
 static inline void
 stop_critical_timing(unsigned long ip, unsigned long parent_ip, int pc)
+=======
+static nokprobe_inline void
+stop_critical_timing(unsigned long ip, unsigned long parent_ip)
+>>>>>>> upstream/android-13
 {
 	int cpu;
 	struct trace_array *tr = irqsoff_trace;
 	struct trace_array_cpu *data;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+	unsigned int trace_ctx;
+>>>>>>> upstream/android-13
 
 	cpu = raw_smp_processor_id();
 	/* Always clear the tracing cpu on stopping the trace */
@@ -422,7 +536,11 @@ stop_critical_timing(unsigned long ip, unsigned long parent_ip, int pc)
 	if (!tracer_enabled || !tracing_is_enabled())
 		return;
 
+<<<<<<< HEAD
 	data = per_cpu_ptr(tr->trace_buffer.data, cpu);
+=======
+	data = per_cpu_ptr(tr->array_buffer.data, cpu);
+>>>>>>> upstream/android-13
 
 	if (unlikely(!data) ||
 	    !data->critical_start || atomic_read(&data->disabled))
@@ -430,8 +548,13 @@ stop_critical_timing(unsigned long ip, unsigned long parent_ip, int pc)
 
 	atomic_inc(&data->disabled);
 
+<<<<<<< HEAD
 	local_save_flags(flags);
 	__trace_function(tr, ip, parent_ip, flags, pc);
+=======
+	trace_ctx = tracing_gen_ctx();
+	__trace_function(tr, ip, parent_ip, trace_ctx);
+>>>>>>> upstream/android-13
 	check_critical_timing(tr, data, parent_ip ? : ip, cpu);
 	data->critical_start = 0;
 	atomic_dec(&data->disabled);
@@ -440,6 +563,7 @@ stop_critical_timing(unsigned long ip, unsigned long parent_ip, int pc)
 /* start and stop critical timings used to for stoppage (in idle) */
 void start_critical_timings(void)
 {
+<<<<<<< HEAD
 	int pc = preempt_count();
 
 	if (preempt_trace(pc) || irq_trace())
@@ -455,6 +579,21 @@ void stop_critical_timings(void)
 		stop_critical_timing(CALLER_ADDR0, CALLER_ADDR1, pc);
 }
 EXPORT_SYMBOL_GPL(stop_critical_timings);
+=======
+	if (preempt_trace(preempt_count()) || irq_trace())
+		start_critical_timing(CALLER_ADDR0, CALLER_ADDR1);
+}
+EXPORT_SYMBOL_GPL(start_critical_timings);
+NOKPROBE_SYMBOL(start_critical_timings);
+
+void stop_critical_timings(void)
+{
+	if (preempt_trace(preempt_count()) || irq_trace())
+		stop_critical_timing(CALLER_ADDR0, CALLER_ADDR1);
+}
+EXPORT_SYMBOL_GPL(stop_critical_timings);
+NOKPROBE_SYMBOL(stop_critical_timings);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FUNCTION_TRACER
 static bool function_enabled;
@@ -468,8 +607,12 @@ static int register_irqsoff_function(struct trace_array *tr, int graph, int set)
 		return 0;
 
 	if (graph)
+<<<<<<< HEAD
 		ret = register_ftrace_graph(&irqsoff_graph_return,
 					    &irqsoff_graph_entry);
+=======
+		ret = register_ftrace_graph(&fgraph_ops);
+>>>>>>> upstream/android-13
 	else
 		ret = register_ftrace_function(tr->ops);
 
@@ -485,7 +628,11 @@ static void unregister_irqsoff_function(struct trace_array *tr, int graph)
 		return;
 
 	if (graph)
+<<<<<<< HEAD
 		unregister_ftrace_graph();
+=======
+		unregister_ftrace_graph(&fgraph_ops);
+>>>>>>> upstream/android-13
 	else
 		unregister_ftrace_function(tr->ops);
 
@@ -563,6 +710,11 @@ static int __irqsoff_tracer_init(struct trace_array *tr)
 	/* non overwrite screws up the latency tracers */
 	set_tracer_flag(tr, TRACE_ITER_OVERWRITE, 1);
 	set_tracer_flag(tr, TRACE_ITER_LATENCY_FMT, 1);
+<<<<<<< HEAD
+=======
+	/* without pause, we will produce garbage if another latency occurs */
+	set_tracer_flag(tr, TRACE_ITER_PAUSE_ON_TRACE, 1);
+>>>>>>> upstream/android-13
 
 	tr->max_latency = 0;
 	irqsoff_trace = tr;
@@ -584,11 +736,19 @@ static void __irqsoff_tracer_reset(struct trace_array *tr)
 {
 	int lat_flag = save_flags & TRACE_ITER_LATENCY_FMT;
 	int overwrite_flag = save_flags & TRACE_ITER_OVERWRITE;
+<<<<<<< HEAD
+=======
+	int pause_flag = save_flags & TRACE_ITER_PAUSE_ON_TRACE;
+>>>>>>> upstream/android-13
 
 	stop_irqsoff_tracer(tr, is_graph(tr));
 
 	set_tracer_flag(tr, TRACE_ITER_LATENCY_FMT, lat_flag);
 	set_tracer_flag(tr, TRACE_ITER_OVERWRITE, overwrite_flag);
+<<<<<<< HEAD
+=======
+	set_tracer_flag(tr, TRACE_ITER_PAUSE_ON_TRACE, pause_flag);
+>>>>>>> upstream/android-13
 	ftrace_reset_array_ops(tr);
 
 	irqsoff_busy = false;
@@ -610,6 +770,7 @@ static void irqsoff_tracer_stop(struct trace_array *tr)
  */
 void tracer_hardirqs_on(unsigned long a0, unsigned long a1)
 {
+<<<<<<< HEAD
 	unsigned int pc = preempt_count();
 
 	if (!preempt_trace(pc) && irq_trace())
@@ -623,6 +784,19 @@ void tracer_hardirqs_off(unsigned long a0, unsigned long a1)
 	if (!preempt_trace(pc) && irq_trace())
 		start_critical_timing(a0, a1, pc);
 }
+=======
+	if (!preempt_trace(preempt_count()) && irq_trace())
+		stop_critical_timing(a0, a1);
+}
+NOKPROBE_SYMBOL(tracer_hardirqs_on);
+
+void tracer_hardirqs_off(unsigned long a0, unsigned long a1)
+{
+	if (!preempt_trace(preempt_count()) && irq_trace())
+		start_critical_timing(a0, a1);
+}
+NOKPROBE_SYMBOL(tracer_hardirqs_off);
+>>>>>>> upstream/android-13
 
 static int irqsoff_tracer_init(struct trace_array *tr)
 {
@@ -660,18 +834,28 @@ static struct tracer irqsoff_tracer __read_mostly =
 #ifdef CONFIG_PREEMPT_TRACER
 void tracer_preempt_on(unsigned long a0, unsigned long a1)
 {
+<<<<<<< HEAD
 	int pc = preempt_count();
 
 	if (preempt_trace(pc) && !irq_trace())
 		stop_critical_timing(a0, a1, pc);
+=======
+	if (preempt_trace(preempt_count()) && !irq_trace())
+		stop_critical_timing(a0, a1);
+>>>>>>> upstream/android-13
 }
 
 void tracer_preempt_off(unsigned long a0, unsigned long a1)
 {
+<<<<<<< HEAD
 	int pc = preempt_count();
 
 	if (preempt_trace(pc) && !irq_trace())
 		start_critical_timing(a0, a1, pc);
+=======
+	if (preempt_trace(preempt_count()) && !irq_trace())
+		start_critical_timing(a0, a1);
+>>>>>>> upstream/android-13
 }
 
 static int preemptoff_tracer_init(struct trace_array *tr)

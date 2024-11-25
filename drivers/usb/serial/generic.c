@@ -106,12 +106,17 @@ void usb_serial_generic_deregister(void)
 int usb_serial_generic_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
 	int result = 0;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&port->lock, flags);
 	port->throttled = 0;
 	port->throttle_req = 0;
 	spin_unlock_irqrestore(&port->lock, flags);
+=======
+
+	clear_bit(USB_SERIAL_THROTTLED, &port->flags);
+>>>>>>> upstream/android-13
 
 	if (port->bulk_in_size)
 		result = usb_serial_generic_submit_read_urbs(port, GFP_KERNEL);
@@ -234,11 +239,19 @@ int usb_serial_generic_write(struct tty_struct *tty,
 }
 EXPORT_SYMBOL_GPL(usb_serial_generic_write);
 
+<<<<<<< HEAD
 int usb_serial_generic_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	unsigned long flags;
 	int room;
+=======
+unsigned int usb_serial_generic_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	unsigned long flags;
+	unsigned int room;
+>>>>>>> upstream/android-13
 
 	if (!port->bulk_out_size)
 		return 0;
@@ -247,6 +260,7 @@ int usb_serial_generic_write_room(struct tty_struct *tty)
 	room = kfifo_avail(&port->write_fifo);
 	spin_unlock_irqrestore(&port->lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, room);
 	return room;
 }
@@ -256,6 +270,17 @@ int usb_serial_generic_chars_in_buffer(struct tty_struct *tty)
 	struct usb_serial_port *port = tty->driver_data;
 	unsigned long flags;
 	int chars;
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, room);
+	return room;
+}
+
+unsigned int usb_serial_generic_chars_in_buffer(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	unsigned long flags;
+	unsigned int chars;
+>>>>>>> upstream/android-13
 
 	if (!port->bulk_out_size)
 		return 0;
@@ -264,7 +289,11 @@ int usb_serial_generic_chars_in_buffer(struct tty_struct *tty)
 	chars = kfifo_len(&port->write_fifo) + port->tx_bytes;
 	spin_unlock_irqrestore(&port->lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, chars);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, chars);
+>>>>>>> upstream/android-13
 	return chars;
 }
 EXPORT_SYMBOL_GPL(usb_serial_generic_chars_in_buffer);
@@ -349,7 +378,11 @@ EXPORT_SYMBOL_GPL(usb_serial_generic_submit_read_urbs);
 void usb_serial_generic_process_read_urb(struct urb *urb)
 {
 	struct usb_serial_port *port = urb->context;
+<<<<<<< HEAD
 	char *ch = (char *)urb->transfer_buffer;
+=======
+	char *ch = urb->transfer_buffer;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!urb->actual_length)
@@ -359,13 +392,22 @@ void usb_serial_generic_process_read_urb(struct urb *urb)
 	 * stuff like 3G modems, so shortcircuit it in the 99.9999999% of
 	 * cases where the USB serial is not a console anyway.
 	 */
+<<<<<<< HEAD
 	if (!port->port.console || !port->sysrq) {
 		tty_insert_flip_string(&port->port, ch, urb->actual_length);
 	} else {
+=======
+	if (port->sysrq) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < urb->actual_length; i++, ch++) {
 			if (!usb_serial_handle_sysrq_char(port, *ch))
 				tty_insert_flip_char(&port->port, *ch, TTY_NORMAL);
 		}
+<<<<<<< HEAD
+=======
+	} else {
+		tty_insert_flip_string(&port->port, ch, urb->actual_length);
+>>>>>>> upstream/android-13
 	}
 	tty_flip_buffer_push(&port->port);
 }
@@ -375,7 +417,10 @@ void usb_serial_generic_read_bulk_callback(struct urb *urb)
 {
 	struct usb_serial_port *port = urb->context;
 	unsigned char *data = urb->transfer_buffer;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	bool stopped = false;
 	int status = urb->status;
 	int i;
@@ -422,13 +467,18 @@ void usb_serial_generic_read_bulk_callback(struct urb *urb)
 	/*
 	 * Make sure URB is marked as free before checking the throttled flag
 	 * to avoid racing with unthrottle() on another CPU. Matches the
+<<<<<<< HEAD
 	 * smp_mb() in unthrottle().
+=======
+	 * smp_mb__after_atomic() in unthrottle().
+>>>>>>> upstream/android-13
 	 */
 	smp_mb__after_atomic();
 
 	if (stopped)
 		return;
 
+<<<<<<< HEAD
 	/* Throttle the device if requested by tty */
 	spin_lock_irqsave(&port->lock, flags);
 	port->throttled = port->throttle_req;
@@ -438,6 +488,12 @@ void usb_serial_generic_read_bulk_callback(struct urb *urb)
 	} else {
 		spin_unlock_irqrestore(&port->lock, flags);
 	}
+=======
+	if (test_bit(USB_SERIAL_THROTTLED, &port->flags))
+		return;
+
+	usb_serial_generic_submit_read_urb(port, i, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(usb_serial_generic_read_bulk_callback);
 
@@ -473,10 +529,16 @@ void usb_serial_generic_write_bulk_callback(struct urb *urb)
 	default:
 		dev_err_console(port, "%s - nonzero urb status: %d\n",
 							__func__, status);
+<<<<<<< HEAD
 		goto resubmit;
 	}
 
 resubmit:
+=======
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	usb_serial_generic_write_start(port, GFP_ATOMIC);
 	usb_serial_port_softint(port);
 }
@@ -485,32 +547,48 @@ EXPORT_SYMBOL_GPL(usb_serial_generic_write_bulk_callback);
 void usb_serial_generic_throttle(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&port->lock, flags);
 	port->throttle_req = 1;
 	spin_unlock_irqrestore(&port->lock, flags);
+=======
+
+	set_bit(USB_SERIAL_THROTTLED, &port->flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(usb_serial_generic_throttle);
 
 void usb_serial_generic_unthrottle(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
+<<<<<<< HEAD
 	int was_throttled;
 
 	spin_lock_irq(&port->lock);
 	was_throttled = port->throttled;
 	port->throttled = port->throttle_req = 0;
 	spin_unlock_irq(&port->lock);
+=======
+
+	clear_bit(USB_SERIAL_THROTTLED, &port->flags);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Matches the smp_mb__after_atomic() in
 	 * usb_serial_generic_read_bulk_callback().
 	 */
+<<<<<<< HEAD
 	smp_mb();
 
 	if (was_throttled)
 		usb_serial_generic_submit_read_urbs(port, GFP_KERNEL);
+=======
+	smp_mb__after_atomic();
+
+	usb_serial_generic_submit_read_urbs(port, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(usb_serial_generic_unthrottle);
 
@@ -590,10 +668,17 @@ int usb_serial_generic_get_icount(struct tty_struct *tty,
 }
 EXPORT_SYMBOL_GPL(usb_serial_generic_get_icount);
 
+<<<<<<< HEAD
 #ifdef CONFIG_MAGIC_SYSRQ
 int usb_serial_handle_sysrq_char(struct usb_serial_port *port, unsigned int ch)
 {
 	if (port->sysrq && port->port.console) {
+=======
+#if defined(CONFIG_USB_SERIAL_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
+int usb_serial_handle_sysrq_char(struct usb_serial_port *port, unsigned int ch)
+{
+	if (port->sysrq) {
+>>>>>>> upstream/android-13
 		if (ch && time_before(jiffies, port->sysrq)) {
 			handle_sysrq(ch);
 			port->sysrq = 0;
@@ -603,16 +688,25 @@ int usb_serial_handle_sysrq_char(struct usb_serial_port *port, unsigned int ch)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 #else
 int usb_serial_handle_sysrq_char(struct usb_serial_port *port, unsigned int ch)
 {
 	return 0;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(usb_serial_handle_sysrq_char);
 
 int usb_serial_handle_break(struct usb_serial_port *port)
 {
+<<<<<<< HEAD
+=======
+	if (!port->port.console)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (!port->sysrq) {
 		port->sysrq = jiffies + HZ*5;
 		return 1;
@@ -621,6 +715,10 @@ int usb_serial_handle_break(struct usb_serial_port *port)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(usb_serial_handle_break);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 /**
  * usb_serial_handle_dcd_change - handle a change of carrier detect state
@@ -628,12 +726,19 @@ EXPORT_SYMBOL_GPL(usb_serial_handle_break);
  * @tty: tty for the port
  * @status: new carrier detect status, nonzero if active
  */
+<<<<<<< HEAD
 void usb_serial_handle_dcd_change(struct usb_serial_port *usb_port,
 				struct tty_struct *tty, unsigned int status)
 {
 	struct tty_port *port = &usb_port->port;
 
 	dev_dbg(&usb_port->dev, "%s - status %d\n", __func__, status);
+=======
+void usb_serial_handle_dcd_change(struct usb_serial_port *port,
+				struct tty_struct *tty, unsigned int status)
+{
+	dev_dbg(&port->dev, "%s - status %d\n", __func__, status);
+>>>>>>> upstream/android-13
 
 	if (tty) {
 		struct tty_ldisc *ld = tty_ldisc_ref(tty);
@@ -646,7 +751,11 @@ void usb_serial_handle_dcd_change(struct usb_serial_port *usb_port,
 	}
 
 	if (status)
+<<<<<<< HEAD
 		wake_up_interruptible(&port->open_wait);
+=======
+		wake_up_interruptible(&port->port.open_wait);
+>>>>>>> upstream/android-13
 	else if (tty && !C_CLOCAL(tty))
 		tty_hangup(tty);
 }

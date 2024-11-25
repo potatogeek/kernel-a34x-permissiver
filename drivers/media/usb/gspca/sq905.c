@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SQ905 subdriver
  *
  * Copyright (C) 2008, 2009 Adam Baker and Theodore Kilgore
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +17,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * History and Acknowledgments
  *
  * The original Linux driver for SQ905 based cameras was written by
+<<<<<<< HEAD
  * Marcell Lengyel and furter developed by many other contributors
+=======
+ * Marcell Lengyel and further developed by many other contributors
+>>>>>>> upstream/android-13
  * and is available from http://sourceforge.net/projects/sqcam/
  *
  * This driver takes advantage of the reverse engineering work done for
@@ -125,7 +136,11 @@ static int sq905_command(struct gspca_dev *gspca_dev, u16 index)
 	}
 
 	ret = usb_control_msg(gspca_dev->dev,
+<<<<<<< HEAD
 			      usb_sndctrlpipe(gspca_dev->dev, 0),
+=======
+			      usb_rcvctrlpipe(gspca_dev->dev, 0),
+>>>>>>> upstream/android-13
 			      USB_REQ_SYNCH_FRAME,                /* request */
 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 			      SQ905_PING, 0, gspca_dev->usb_buf, 1,
@@ -387,6 +402,12 @@ static int sd_start(struct gspca_dev *gspca_dev)
 	}
 	/* Start the workqueue function to do the streaming */
 	dev->work_thread = create_singlethread_workqueue(MODULE_NAME);
+<<<<<<< HEAD
+=======
+	if (!dev->work_thread)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	queue_work(dev->work_thread, &dev->work_struct);
 
 	return 0;

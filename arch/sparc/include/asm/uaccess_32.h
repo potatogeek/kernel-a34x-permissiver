@@ -13,9 +13,12 @@
 
 #include <asm/processor.h>
 
+<<<<<<< HEAD
 #define ARCH_HAS_SORT_EXTABLE
 #define ARCH_HAS_SEARCH_EXTABLE
 
+=======
+>>>>>>> upstream/android-13
 /* Sparc is not segmented, however we need to be able to fool access_ok()
  * when doing system calls from kernel mode legitimately.
  *
@@ -25,11 +28,18 @@
 #define KERNEL_DS   ((mm_segment_t) { 0 })
 #define USER_DS     ((mm_segment_t) { -1 })
 
+<<<<<<< HEAD
 #define get_ds()	(KERNEL_DS)
 #define get_fs()	(current->thread.current_ds)
 #define set_fs(val)	((current->thread.current_ds) = (val))
 
 #define segment_eq(a, b) ((a).seg == (b).seg)
+=======
+#define get_fs()	(current->thread.current_ds)
+#define set_fs(val)	((current->thread.current_ds) = (val))
+
+#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
+>>>>>>> upstream/android-13
 
 /* We have there a nice not-mapped page at PAGE_OFFSET - PAGE_SIZE, so that this test
  * can be fairly lightweight.
@@ -39,6 +49,7 @@
 #define __user_ok(addr, size) ({ (void)(size); (addr) < STACK_TOP; })
 #define __kernel_ok (uaccess_kernel())
 #define __access_ok(addr, size) (__user_ok((addr) & get_fs().seg, (size)))
+<<<<<<< HEAD
 #define access_ok(type, addr, size) \
 	({ (void)(type); __access_ok((unsigned long)(addr), size); })
 
@@ -71,6 +82,9 @@ struct exception_table_entry
 
 /* Returns 0 if exception not found and fixup otherwise.  */
 unsigned long search_extables_range(unsigned long addr, unsigned long *g2);
+=======
+#define access_ok(addr, size) __access_ok((unsigned long)(addr), size)
+>>>>>>> upstream/android-13
 
 /* Uh, these should become the main single-value transfer routines..
  * They automatically use the right size if we just have the right
@@ -254,12 +268,16 @@ static inline unsigned long __clear_user(void __user *addr, unsigned long size)
 	unsigned long ret;
 
 	__asm__ __volatile__ (
+<<<<<<< HEAD
 		".section __ex_table,#alloc\n\t"
 		".align 4\n\t"
 		".word 1f,3\n\t"
 		".previous\n\t"
 		"mov %2, %%o1\n"
 		"1:\n\t"
+=======
+		"mov %2, %%o1\n"
+>>>>>>> upstream/android-13
 		"call __bzero\n\t"
 		" mov %1, %%o0\n\t"
 		"mov %%o0, %0\n"

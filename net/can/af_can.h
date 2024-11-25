@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2002-2007 Volkswagen Group Electronic Research
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
+/* Copyright (c) 2002-2007 Volkswagen Group Electronic Research
+>>>>>>> upstream/android-13
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,13 +58,18 @@ struct receiver {
 	canid_t can_id;
 	canid_t mask;
 	unsigned long matches;
+<<<<<<< HEAD
 	void (*func)(struct sk_buff *, void *);
+=======
+	void (*func)(struct sk_buff *skb, void *data);
+>>>>>>> upstream/android-13
 	void *data;
 	char *ident;
 	struct sock *sk;
 	struct rcu_head rcu;
 };
 
+<<<<<<< HEAD
 #define CAN_SFF_RCV_ARRAY_SZ (1 << CAN_SFF_ID_BITS)
 #define CAN_EFF_RCV_HASH_BITS 10
 #define CAN_EFF_RCV_ARRAY_SZ (1 << CAN_EFF_RCV_HASH_BITS)
@@ -79,6 +89,12 @@ struct can_dev_rcv_lists {
 
 /* can be reset e.g. by can_init_stats() */
 struct s_stats {
+=======
+/* statistic structures */
+
+/* can be reset e.g. by can_init_stats() */
+struct can_pkg_stats {
+>>>>>>> upstream/android-13
 	unsigned long jiffies_init;
 
 	unsigned long rx_frames;
@@ -103,7 +119,11 @@ struct s_stats {
 };
 
 /* persistent statistics */
+<<<<<<< HEAD
 struct s_pstats {
+=======
+struct can_rcv_lists_stats {
+>>>>>>> upstream/android-13
 	unsigned long stats_reset;
 	unsigned long user_reset;
 	unsigned long rcv_entries;

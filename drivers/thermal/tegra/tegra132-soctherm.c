@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2016, NVIDIA CORPORATION.  All rights reserved.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2014-2018, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -55,6 +61,10 @@ static const struct tegra_tsensor_group tegra132_tsensor_group_cpu = {
 	.thermtrip_any_en_mask = TEGRA132_THERMTRIP_ANY_EN_MASK,
 	.thermtrip_enable_mask = TEGRA132_THERMTRIP_CPU_EN_MASK,
 	.thermtrip_threshold_mask = TEGRA132_THERMTRIP_CPU_THRESH_MASK,
+<<<<<<< HEAD
+=======
+	.thermctl_isr_mask = THERM_IRQ_CPU_MASK,
+>>>>>>> upstream/android-13
 	.thermctl_lvl0_offset = THERMCTL_LEVEL0_GROUP_CPU,
 	.thermctl_lvl0_up_thresh_mask = TEGRA132_THERMCTL_LVL0_UP_THRESH_MASK,
 	.thermctl_lvl0_dn_thresh_mask = TEGRA132_THERMCTL_LVL0_DN_THRESH_MASK,
@@ -73,6 +83,10 @@ static const struct tegra_tsensor_group tegra132_tsensor_group_gpu = {
 	.thermtrip_any_en_mask = TEGRA132_THERMTRIP_ANY_EN_MASK,
 	.thermtrip_enable_mask = TEGRA132_THERMTRIP_GPU_EN_MASK,
 	.thermtrip_threshold_mask = TEGRA132_THERMTRIP_GPUMEM_THRESH_MASK,
+<<<<<<< HEAD
+=======
+	.thermctl_isr_mask = THERM_IRQ_GPU_MASK,
+>>>>>>> upstream/android-13
 	.thermctl_lvl0_offset = THERMCTL_LEVEL0_GROUP_GPU,
 	.thermctl_lvl0_up_thresh_mask = TEGRA132_THERMCTL_LVL0_UP_THRESH_MASK,
 	.thermctl_lvl0_dn_thresh_mask = TEGRA132_THERMCTL_LVL0_DN_THRESH_MASK,
@@ -89,6 +103,10 @@ static const struct tegra_tsensor_group tegra132_tsensor_group_pll = {
 	.thermtrip_any_en_mask = TEGRA132_THERMTRIP_ANY_EN_MASK,
 	.thermtrip_enable_mask = TEGRA132_THERMTRIP_TSENSE_EN_MASK,
 	.thermtrip_threshold_mask = TEGRA132_THERMTRIP_TSENSE_THRESH_MASK,
+<<<<<<< HEAD
+=======
+	.thermctl_isr_mask = THERM_IRQ_TSENSE_MASK,
+>>>>>>> upstream/android-13
 	.thermctl_lvl0_offset = THERMCTL_LEVEL0_GROUP_TSENSE,
 	.thermctl_lvl0_up_thresh_mask = TEGRA132_THERMCTL_LVL0_UP_THRESH_MASK,
 	.thermctl_lvl0_dn_thresh_mask = TEGRA132_THERMCTL_LVL0_DN_THRESH_MASK,
@@ -107,6 +125,10 @@ static const struct tegra_tsensor_group tegra132_tsensor_group_mem = {
 	.thermtrip_any_en_mask = TEGRA132_THERMTRIP_ANY_EN_MASK,
 	.thermtrip_enable_mask = TEGRA132_THERMTRIP_MEM_EN_MASK,
 	.thermtrip_threshold_mask = TEGRA132_THERMTRIP_GPUMEM_THRESH_MASK,
+<<<<<<< HEAD
+=======
+	.thermctl_isr_mask = THERM_IRQ_MEM_MASK,
+>>>>>>> upstream/android-13
 	.thermctl_lvl0_offset = THERMCTL_LEVEL0_GROUP_MEM,
 	.thermctl_lvl0_up_thresh_mask = TEGRA132_THERMCTL_LVL0_UP_THRESH_MASK,
 	.thermctl_lvl0_dn_thresh_mask = TEGRA132_THERMCTL_LVL0_DN_THRESH_MASK,

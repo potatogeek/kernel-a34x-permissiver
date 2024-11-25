@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * GPR board platform device registration (Au1550)
  *
  * Copyright (C) 2010 Wolfgang Grandegger <wg@denx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -44,6 +51,7 @@ const char *get_system_type(void)
 	return "GPR";
 }
 
+<<<<<<< HEAD
 void __init prom_init(void)
 {
 	unsigned char *memsize_str;
@@ -61,6 +69,8 @@ void __init prom_init(void)
 	add_memory_region(0, memsize, BOOT_MEM_RAM);
 }
 
+=======
+>>>>>>> upstream/android-13
 void prom_putchar(char c)
 {
 	alchemy_uart_putchar(AU1000_UART0_PHYS_ADDR, c);

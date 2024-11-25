@@ -6,8 +6,13 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/mfd/cros_ec.h>
 #include <linux/mfd/cros_ec_commands.h>
+=======
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pwm.h>
 #include <linux/slab.h>
@@ -25,11 +30,45 @@ struct cros_ec_pwm_device {
 	struct pwm_chip chip;
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * struct cros_ec_pwm - per-PWM driver data
+ * @duty_cycle: cached duty cycle
+ */
+struct cros_ec_pwm {
+	u16 duty_cycle;
+};
+
+>>>>>>> upstream/android-13
 static inline struct cros_ec_pwm_device *pwm_to_cros_ec_pwm(struct pwm_chip *c)
 {
 	return container_of(c, struct cros_ec_pwm_device, chip);
 }
 
+<<<<<<< HEAD
+=======
+static int cros_ec_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+{
+	struct cros_ec_pwm *channel;
+
+	channel = kzalloc(sizeof(*channel), GFP_KERNEL);
+	if (!channel)
+		return -ENOMEM;
+
+	pwm_set_chip_data(pwm, channel);
+
+	return 0;
+}
+
+static void cros_ec_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
+{
+	struct cros_ec_pwm *channel = pwm_get_chip_data(pwm);
+
+	kfree(channel);
+}
+
+>>>>>>> upstream/android-13
 static int cros_ec_pwm_set_duty(struct cros_ec_device *ec, u8 index, u16 duty)
 {
 	struct {
@@ -53,8 +92,12 @@ static int cros_ec_pwm_set_duty(struct cros_ec_device *ec, u8 index, u16 duty)
 	return cros_ec_cmd_xfer_status(ec, msg);
 }
 
+<<<<<<< HEAD
 static int __cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index,
 				  u32 *result)
+=======
+static int cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index)
+>>>>>>> upstream/android-13
 {
 	struct {
 		struct cros_ec_command msg;
@@ -79,14 +122,18 @@ static int __cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index,
 	params->index = index;
 
 	ret = cros_ec_cmd_xfer_status(ec, msg);
+<<<<<<< HEAD
 	if (result)
 		*result = msg->result;
+=======
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	return resp->duty;
 }
 
+<<<<<<< HEAD
 static int cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index)
 {
 	return __cros_ec_pwm_get_duty(ec, index, NULL);
@@ -97,24 +144,53 @@ static int cros_ec_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 {
 	struct cros_ec_pwm_device *ec_pwm = pwm_to_cros_ec_pwm(chip);
 	int duty_cycle;
+=======
+static int cros_ec_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+			     const struct pwm_state *state)
+{
+	struct cros_ec_pwm_device *ec_pwm = pwm_to_cros_ec_pwm(chip);
+	struct cros_ec_pwm *channel = pwm_get_chip_data(pwm);
+	u16 duty_cycle;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* The EC won't let us change the period */
 	if (state->period != EC_PWM_MAX_DUTY)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (state->polarity != PWM_POLARITY_NORMAL)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/*
 	 * EC doesn't separate the concept of duty cycle and enabled, but
 	 * kernel does. Translate.
 	 */
 	duty_cycle = state->enabled ? state->duty_cycle : 0;
 
+<<<<<<< HEAD
 	return cros_ec_pwm_set_duty(ec_pwm->ec, pwm->hwpwm, duty_cycle);
+=======
+	ret = cros_ec_pwm_set_duty(ec_pwm->ec, pwm->hwpwm, duty_cycle);
+	if (ret < 0)
+		return ret;
+
+	channel->duty_cycle = state->duty_cycle;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void cros_ec_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
 				  struct pwm_state *state)
 {
 	struct cros_ec_pwm_device *ec_pwm = pwm_to_cros_ec_pwm(chip);
+<<<<<<< HEAD
+=======
+	struct cros_ec_pwm *channel = pwm_get_chip_data(pwm);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = cros_ec_pwm_get_duty(ec_pwm->ec, pwm->hwpwm);
@@ -126,8 +202,24 @@ static void cros_ec_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
 	state->enabled = (ret > 0);
 	state->period = EC_PWM_MAX_DUTY;
 
+<<<<<<< HEAD
 	/* Note that "disabled" and "duty cycle == 0" are treated the same */
 	state->duty_cycle = ret;
+=======
+	/*
+	 * Note that "disabled" and "duty cycle == 0" are treated the same. If
+	 * the cached duty cycle is not zero, used the cached duty cycle. This
+	 * ensures that the configured duty cycle is kept across a disable and
+	 * enable operation and avoids potentially confusing consumers.
+	 *
+	 * For the case of the initial hardware readout, channel->duty_cycle
+	 * will be 0 and the actual duty cycle read from the EC is used.
+	 */
+	if (ret == 0 && channel->duty_cycle > 0)
+		state->duty_cycle = channel->duty_cycle;
+	else
+		state->duty_cycle = ret;
+>>>>>>> upstream/android-13
 }
 
 static struct pwm_device *
@@ -149,17 +241,31 @@ cros_ec_pwm_xlate(struct pwm_chip *pc, const struct of_phandle_args *args)
 }
 
 static const struct pwm_ops cros_ec_pwm_ops = {
+<<<<<<< HEAD
+=======
+	.request = cros_ec_pwm_request,
+	.free = cros_ec_pwm_free,
+>>>>>>> upstream/android-13
 	.get_state	= cros_ec_pwm_get_state,
 	.apply		= cros_ec_pwm_apply,
 	.owner		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * Determine the number of supported PWMs. The EC does not return the number
+ * of PWMs it supports directly, so we have to read the pwm duty cycle for
+ * subsequent channels until we get an error.
+ */
+>>>>>>> upstream/android-13
 static int cros_ec_num_pwms(struct cros_ec_device *ec)
 {
 	int i, ret;
 
 	/* The index field is only 8 bits */
 	for (i = 0; i <= U8_MAX; i++) {
+<<<<<<< HEAD
 		u32 result = 0;
 
 		ret = __cros_ec_pwm_get_duty(ec, i, &result);
@@ -177,6 +283,25 @@ static int cros_ec_num_pwms(struct cros_ec_device *ec)
 			return i;
 		else if (result)
 			return -EPROTO;
+=======
+		ret = cros_ec_pwm_get_duty(ec, i);
+		/*
+		 * We look for SUCCESS, INVALID_COMMAND, or INVALID_PARAM
+		 * responses; everything else is treated as an error.
+		 * The EC error codes map to -EOPNOTSUPP and -EINVAL,
+		 * so check for those.
+		 */
+		switch (ret) {
+		case -EOPNOTSUPP:	/* invalid command */
+			return -ENODEV;
+		case -EINVAL:		/* invalid parameter */
+			return i;
+		default:
+			if (ret < 0)
+				return ret;
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return U8_MAX;
@@ -206,7 +331,10 @@ static int cros_ec_pwm_probe(struct platform_device *pdev)
 	chip->ops = &cros_ec_pwm_ops;
 	chip->of_xlate = cros_ec_pwm_xlate;
 	chip->of_pwm_n_cells = 1;
+<<<<<<< HEAD
 	chip->base = -1;
+=======
+>>>>>>> upstream/android-13
 	ret = cros_ec_num_pwms(ec);
 	if (ret < 0) {
 		dev_err(dev, "Couldn't find PWMs: %d\n", ret);
@@ -231,7 +359,13 @@ static int cros_ec_pwm_remove(struct platform_device *dev)
 	struct cros_ec_pwm_device *ec_pwm = platform_get_drvdata(dev);
 	struct pwm_chip *chip = &ec_pwm->chip;
 
+<<<<<<< HEAD
 	return pwmchip_remove(chip);
+=======
+	pwmchip_remove(chip);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_OF

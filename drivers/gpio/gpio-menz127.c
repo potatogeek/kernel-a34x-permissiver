@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MEN 16Z127 GPIO driver
  *
  * Copyright (C) 2016 MEN Mikroelektronik GmbH (www.men.de)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -214,3 +221,7 @@ MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
 MODULE_DESCRIPTION("MEN 16z127 GPIO Controller");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("mcb:16z127");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(MCB);
+>>>>>>> upstream/android-13

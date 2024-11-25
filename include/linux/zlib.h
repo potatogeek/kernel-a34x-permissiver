@@ -23,7 +23,11 @@
 
 
   The data format used by the zlib library is described by RFCs (Request for
+<<<<<<< HEAD
   Comments) 1950 to 1952 in the files http://www.ietf.org/rfc/rfc1950.txt
+=======
+  Comments) 1950 to 1952 in the files https://www.ietf.org/rfc/rfc1950.txt
+>>>>>>> upstream/android-13
   (zlib format), rfc1951.txt (deflate format) and rfc1952.txt (gzip format).
 */
 
@@ -191,6 +195,15 @@ extern int zlib_deflate_workspacesize (int windowBits, int memLevel);
    exceed those passed here.
 */
 
+<<<<<<< HEAD
+=======
+extern int zlib_deflate_dfltcc_enabled (void);
+/*
+   Returns 1 if Deflate-Conversion facility is installed and enabled,
+   otherwise 0.
+*/
+
+>>>>>>> upstream/android-13
 /* 
 extern int deflateInit (z_streamp strm, int level);
 

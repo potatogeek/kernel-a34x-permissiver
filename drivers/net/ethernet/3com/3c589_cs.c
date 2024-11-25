@@ -23,7 +23,10 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #define DRV_NAME	"3c589_cs"
+<<<<<<< HEAD
 #define DRV_VERSION	"1.162-ac"
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -173,7 +176,11 @@ static void update_stats(struct net_device *dev);
 static struct net_device_stats *el3_get_stats(struct net_device *dev);
 static int el3_rx(struct net_device *dev);
 static int el3_close(struct net_device *dev);
+<<<<<<< HEAD
 static void el3_tx_timeout(struct net_device *dev);
+=======
+static void el3_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void set_rx_mode(struct net_device *dev);
 static void set_multicast_list(struct net_device *dev);
 static const struct ethtool_ops netdev_ethtool_ops;
@@ -482,7 +489,10 @@ static void netdev_get_drvinfo(struct net_device *dev,
 			       struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	snprintf(info->bus_info, sizeof(info->bus_info),
 		"PCMCIA 0x%lx", dev->base_addr);
 }
@@ -526,7 +536,11 @@ static int el3_open(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void el3_tx_timeout(struct net_device *dev)
+=======
+static void el3_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	unsigned int ioaddr = dev->base_addr;
 

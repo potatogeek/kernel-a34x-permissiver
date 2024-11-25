@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+=======
+/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
+>>>>>>> upstream/android-13
 /*
  * General structure definitions for universal mode switching modules
  *

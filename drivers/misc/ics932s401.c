@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * A driver for the Integrated Circuits ICS932S401
  * Copyright (C) 2008 IBM
  *
  * Author: Darrick J. Wong <darrick.wong@oracle.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -146,6 +153,11 @@ static struct ics932s401_data *ics932s401_update_device(struct device *dev)
 	 */
 	for (i = 0; i < NUM_MIRRORED_REGS; i++) {
 		temp = i2c_smbus_read_word_data(client, regs_to_copy[i]);
+<<<<<<< HEAD
+=======
+		if (temp < 0)
+			temp = 0;
+>>>>>>> upstream/android-13
 		data->regs[regs_to_copy[i]] = temp >> 8;
 	}
 

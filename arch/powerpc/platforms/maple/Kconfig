@@ -2,7 +2,11 @@
 config PPC_MAPLE
 	depends on PPC64 && PPC_BOOK3S && CPU_BIG_ENDIAN
 	bool "Maple 970FX Evaluation Board"
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select MPIC
 	select U3_DART
 	select MPIC_U3_HT_IRQS
@@ -13,7 +17,12 @@ config PPC_MAPLE
 	select PPC_RTAS
 	select MMIO_NVRAM
 	select ATA_NONSTANDARD if ATA
+<<<<<<< HEAD
 	default n
 	help
           This option enables support for the Maple 970FX Evaluation Board.
+=======
+	help
+	  This option enables support for the Maple 970FX Evaluation Board.
+>>>>>>> upstream/android-13
 	  For more information, refer to <http://www.970eval.com>

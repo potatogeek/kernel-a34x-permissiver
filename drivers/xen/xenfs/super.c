@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  xenfs.c - a filesystem for passing info between the a domain and
  *  the hypervisor.
@@ -13,6 +17,10 @@
 #include <linux/errno.h>
 #include <linux/module.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/magic.h>
 
 #include <xen/xen.h>
@@ -42,7 +50,11 @@ static const struct file_operations capabilities_file_ops = {
 	.llseek = default_llseek,
 };
 
+<<<<<<< HEAD
 static int xenfs_fill_super(struct super_block *sb, void *data, int silent)
+=======
+static int xenfs_fill_super(struct super_block *sb, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	static const struct tree_descr xenfs_files[] = {
 		[2] = { "xenbus", &xen_xenbus_fops, S_IRUSR|S_IWUSR },
@@ -67,17 +79,37 @@ static int xenfs_fill_super(struct super_block *sb, void *data, int silent)
 			xen_initial_domain() ? xenfs_init_files : xenfs_files);
 }
 
+<<<<<<< HEAD
 static struct dentry *xenfs_mount(struct file_system_type *fs_type,
 				  int flags, const char *dev_name,
 				  void *data)
 {
 	return mount_single(fs_type, flags, data, xenfs_fill_super);
+=======
+static int xenfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, xenfs_fill_super);
+}
+
+static const struct fs_context_operations xenfs_context_ops = {
+	.get_tree	= xenfs_get_tree,
+};
+
+static int xenfs_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &xenfs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type xenfs_type = {
 	.owner =	THIS_MODULE,
 	.name =		"xenfs",
+<<<<<<< HEAD
 	.mount =	xenfs_mount,
+=======
+	.init_fs_context = xenfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb =	kill_litter_super,
 };
 MODULE_ALIAS_FS("xenfs");

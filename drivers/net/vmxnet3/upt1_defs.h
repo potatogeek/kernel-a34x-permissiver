@@ -1,7 +1,11 @@
 /*
  * Linux driver for VMware's vmxnet3 ethernet NIC.
  *
+<<<<<<< HEAD
  * Copyright (C) 2008-2016, VMware, Inc. All Rights Reserved.
+=======
+ * Copyright (C) 2008-2021, VMware, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,5 +96,11 @@ enum {
 	UPT1_F_RSS		= cpu_to_le64(0x0002),
 	UPT1_F_RXVLAN		= cpu_to_le64(0x0004),   /* VLAN tag stripping */
 	UPT1_F_LRO		= cpu_to_le64(0x0008),
+<<<<<<< HEAD
+=======
+	UPT1_F_RXINNEROFLD      = cpu_to_le64(0x00010),  /* Geneve/Vxlan rx csum
+							  * offloading
+							  */
+>>>>>>> upstream/android-13
 };
 #endif

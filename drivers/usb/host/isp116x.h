@@ -260,7 +260,10 @@ struct isp116x {
 
 	struct isp116x_platform_data *board;
 
+<<<<<<< HEAD
 	struct dentry *dentry;
+=======
+>>>>>>> upstream/android-13
 	unsigned long stat1, stat2, stat4, stat8, stat16;
 
 	/* HC registers */

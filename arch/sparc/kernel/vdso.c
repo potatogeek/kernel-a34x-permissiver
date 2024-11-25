@@ -7,7 +7,10 @@
  *  a different vsyscall implementation for Linux/IA32 and for the name.
  */
 
+<<<<<<< HEAD
 #include <linux/seqlock.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/time.h>
 #include <linux/timekeeper_internal.h>
 

@@ -5,6 +5,10 @@
 #include <sysdep/archsetjmp.h>
 #include <os.h>
 
+<<<<<<< HEAD
+=======
+extern int signals_enabled;
+>>>>>>> upstream/android-13
 extern int setjmp(jmp_buf);
 extern void longjmp(jmp_buf, int);
 
@@ -12,6 +16,7 @@ extern void longjmp(jmp_buf, int);
 	longjmp(*buf, val);	\
 } while(0)
 
+<<<<<<< HEAD
 #define UML_SETJMP(buf) ({ \
 	int n;	   \
 	volatile int enable;	\
@@ -19,6 +24,14 @@ extern void longjmp(jmp_buf, int);
 	n = setjmp(*buf); \
 	if(n != 0) \
 		set_signals(enable); \
+=======
+#define UML_SETJMP(buf) ({				\
+	int n, enable;					\
+	enable = *(volatile int *)&signals_enabled;	\
+	n = setjmp(*buf);				\
+	if(n != 0)					\
+		um_set_signals_trace(enable);		\
+>>>>>>> upstream/android-13
 	n; })
 
 #endif

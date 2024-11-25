@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 /*
  * da9063-core.c: Device access for Dialog DA9063 modules
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Device access for Dialog DA9063 modules
+>>>>>>> upstream/android-13
  *
  * Copyright 2012 Dialog Semiconductors Ltd.
  * Copyright 2013 Philipp Zabel, Pengutronix
@@ -7,11 +13,14 @@
  * Author: Krystian Garbaciak, Dialog Semiconductor
  * Author: Michal Hajduk, Dialog Semiconductor
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -26,7 +35,10 @@
 #include <linux/regmap.h>
 
 #include <linux/mfd/da9063/core.h>
+<<<<<<< HEAD
 #include <linux/mfd/da9063/pdata.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mfd/da9063/registers.h>
 
 #include <linux/proc_fs.h>
@@ -34,7 +46,11 @@
 #include <linux/uaccess.h>
 
 
+<<<<<<< HEAD
 static struct resource da9063_regulators_resources[] = {
+=======
+static const struct resource da9063_regulators_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.name	= "LDO_LIM",
 		.start	= DA9063_IRQ_LDO_LIM,
@@ -43,7 +59,11 @@ static struct resource da9063_regulators_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource da9063_rtc_resources[] = {
+=======
+static const struct resource da9063_rtc_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.name	= "ALARM",
 		.start	= DA9063_IRQ_ALARM,
@@ -58,7 +78,11 @@ static struct resource da9063_rtc_resources[] = {
 	}
 };
 
+<<<<<<< HEAD
 static struct resource da9063_onkey_resources[] = {
+=======
+static const struct resource da9063_onkey_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.name	= "ONKEY",
 		.start	= DA9063_IRQ_ONKEY,
@@ -67,7 +91,11 @@ static struct resource da9063_onkey_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource da9063_hwmon_resources[] = {
+=======
+static const struct resource da9063_hwmon_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start	= DA9063_IRQ_ADC_RDY,
 		.end	= DA9063_IRQ_ADC_RDY,
@@ -165,14 +193,18 @@ static int da9063_clear_fault_log(struct da9063 *da9063)
 
 int da9063_device_init(struct da9063 *da9063, unsigned int irq)
 {
+<<<<<<< HEAD
 	struct da9063_pdata *pdata = da9063->dev->platform_data;
 	int model, variant_id, variant_code;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = da9063_clear_fault_log(da9063);
 	if (ret < 0)
 		dev_err(da9063->dev, "Cannot clear fault log\n");
 
+<<<<<<< HEAD
 	if (pdata) {
 		da9063->flags = pdata->flags;
 		da9063->irq_base = pdata->irq_base;
@@ -221,6 +253,12 @@ int da9063_device_init(struct da9063 *da9063, unsigned int irq)
 
 	da9063->variant_code = variant_code;
 
+=======
+	da9063->flags = 0;
+	da9063->irq_base = -1;
+	da9063->chip_irq = irq;
+
+>>>>>>> upstream/android-13
 	ret = da9063_irq_init(da9063);
 	if (ret) {
 		dev_err(da9063->dev, "Cannot initialize interrupts.\n");

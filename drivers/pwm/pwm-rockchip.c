@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PWM driver for Rockchip SoCs
  *
  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
  * Copyright (C) 2014 ROCKCHIP, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -75,6 +82,13 @@ static void rockchip_pwm_get_state(struct pwm_chip *chip,
 	if (ret)
 		return;
 
+<<<<<<< HEAD
+=======
+	ret = clk_enable(pc->clk);
+	if (ret)
+		return;
+
+>>>>>>> upstream/android-13
 	clk_rate = clk_get_rate(pc->clk);
 
 	tmp = readl_relaxed(pc->base + pc->data->regs.period);
@@ -86,6 +100,7 @@ static void rockchip_pwm_get_state(struct pwm_chip *chip,
 	state->duty_cycle =  DIV_ROUND_CLOSEST_ULL(tmp, clk_rate);
 
 	val = readl_relaxed(pc->base + pc->data->regs.ctrl);
+<<<<<<< HEAD
 	if (pc->data->supports_polarity)
 		state->enabled = ((val & enable_conf) != enable_conf) ?
 				 false : true;
@@ -98,11 +113,25 @@ static void rockchip_pwm_get_state(struct pwm_chip *chip,
 			state->polarity = PWM_POLARITY_INVERSED;
 	}
 
+=======
+	state->enabled = (val & enable_conf) == enable_conf;
+
+	if (pc->data->supports_polarity && !(val & PWM_DUTY_POSITIVE))
+		state->polarity = PWM_POLARITY_INVERSED;
+	else
+		state->polarity = PWM_POLARITY_NORMAL;
+
+	clk_disable(pc->clk);
+>>>>>>> upstream/android-13
 	clk_disable(pc->pclk);
 }
 
 static void rockchip_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+<<<<<<< HEAD
 			       struct pwm_state *state)
+=======
+			       const struct pwm_state *state)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
 	unsigned long period, duty;
@@ -186,7 +215,11 @@ static int rockchip_pwm_enable(struct pwm_chip *chip,
 }
 
 static int rockchip_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+<<<<<<< HEAD
 			      struct pwm_state *state)
+=======
+			      const struct pwm_state *state)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_pwm_chip *pc = to_rockchip_pwm_chip(chip);
 	struct pwm_state curstate;
@@ -197,6 +230,13 @@ static int rockchip_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	ret = clk_enable(pc->clk);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	pwm_get_state(pwm, &curstate);
 	enabled = curstate.enabled;
 
@@ -215,6 +255,7 @@ static int rockchip_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 			goto out;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Update the state with the real hardware, which can differ a bit
 	 * because of period/duty_cycle approximation.
@@ -222,6 +263,10 @@ static int rockchip_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 	rockchip_pwm_get_state(chip, pwm, state);
 
 out:
+=======
+out:
+	clk_disable(pc->clk);
+>>>>>>> upstream/android-13
 	clk_disable(pc->pclk);
 
 	return ret;
@@ -301,7 +346,12 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 {
 	const struct of_device_id *id;
 	struct rockchip_pwm_chip *pc;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+	u32 enable_conf, ctrl;
+	bool enabled;
+>>>>>>> upstream/android-13
 	int ret, count;
 
 	id = of_match_device(rockchip_pwm_dt_ids, &pdev->dev);
@@ -312,14 +362,19 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 	if (!pc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pc->base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	pc->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pc->base))
 		return PTR_ERR(pc->base);
 
 	pc->clk = devm_clk_get(&pdev->dev, "pwm");
 	if (IS_ERR(pc->clk)) {
 		pc->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 		if (IS_ERR(pc->clk)) {
 			ret = PTR_ERR(pc->clk);
 			if (ret != -EPROBE_DEFER)
@@ -327,6 +382,11 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 					ret);
 			return ret;
 		}
+=======
+		if (IS_ERR(pc->clk))
+			return dev_err_probe(&pdev->dev, PTR_ERR(pc->clk),
+					     "Can't get PWM clk\n");
+>>>>>>> upstream/android-13
 	}
 
 	count = of_count_phandle_with_args(pdev->dev.of_node,
@@ -345,6 +405,7 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 
 	ret = clk_prepare_enable(pc->clk);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Can't prepare enable bus clk: %d\n", ret);
 		return ret;
 	}
@@ -352,6 +413,15 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 	ret = clk_prepare(pc->pclk);
 	if (ret) {
 		dev_err(&pdev->dev, "Can't prepare APB clk: %d\n", ret);
+=======
+		dev_err(&pdev->dev, "Can't prepare enable PWM clk: %d\n", ret);
+		return ret;
+	}
+
+	ret = clk_prepare_enable(pc->pclk);
+	if (ret) {
+		dev_err(&pdev->dev, "Can't prepare enable APB clk: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto err_clk;
 	}
 
@@ -360,6 +430,7 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 	pc->data = id->data;
 	pc->chip.dev = &pdev->dev;
 	pc->chip.ops = &rockchip_pwm_ops;
+<<<<<<< HEAD
 	pc->chip.base = -1;
 	pc->chip.npwm = 1;
 
@@ -367,6 +438,13 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 		pc->chip.of_xlate = of_pwm_xlate_with_flags;
 		pc->chip.of_pwm_n_cells = 3;
 	}
+=======
+	pc->chip.npwm = 1;
+
+	enable_conf = pc->data->enable_conf;
+	ctrl = readl_relaxed(pc->base + pc->data->regs.ctrl);
+	enabled = (ctrl & enable_conf) == enable_conf;
+>>>>>>> upstream/android-13
 
 	ret = pwmchip_add(&pc->chip);
 	if (ret < 0) {
@@ -375,6 +453,7 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 	}
 
 	/* Keep the PWM clk enabled if the PWM appears to be up and running. */
+<<<<<<< HEAD
 	if (!pwm_is_enabled(pc->chip.pwms))
 		clk_disable(pc->clk);
 
@@ -382,6 +461,17 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
 
 err_pclk:
 	clk_unprepare(pc->pclk);
+=======
+	if (!enabled)
+		clk_disable(pc->clk);
+
+	clk_disable(pc->pclk);
+
+	return 0;
+
+err_pclk:
+	clk_disable_unprepare(pc->pclk);
+>>>>>>> upstream/android-13
 err_clk:
 	clk_disable_unprepare(pc->clk);
 
@@ -392,6 +482,7 @@ static int rockchip_pwm_remove(struct platform_device *pdev)
 {
 	struct rockchip_pwm_chip *pc = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	/*
 	 * Disable the PWM clk before unpreparing it if the PWM device is still
 	 * running. This should only happen when the last PWM user left it
@@ -405,11 +496,18 @@ static int rockchip_pwm_remove(struct platform_device *pdev)
 	 */
 	if (pwm_is_enabled(pc->chip.pwms))
 		clk_disable(pc->clk);
+=======
+	pwmchip_remove(&pc->chip);
+>>>>>>> upstream/android-13
 
 	clk_unprepare(pc->pclk);
 	clk_unprepare(pc->clk);
 
+<<<<<<< HEAD
 	return pwmchip_remove(&pc->chip);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver rockchip_pwm_driver = {

@@ -55,6 +55,11 @@ enum ctattr_type {
 	CTA_LABELS,
 	CTA_LABELS_MASK,
 	CTA_SYNPROXY,
+<<<<<<< HEAD
+=======
+	CTA_FILTER,
+	CTA_STATUS_MASK,
+>>>>>>> upstream/android-13
 	__CTA_MAX
 };
 #define CTA_MAX (__CTA_MAX - 1)
@@ -246,7 +251,11 @@ enum ctattr_stats_cpu {
 	CTA_STATS_FOUND,
 	CTA_STATS_NEW,		/* no longer used */
 	CTA_STATS_INVALID,
+<<<<<<< HEAD
 	CTA_STATS_IGNORE,
+=======
+	CTA_STATS_IGNORE,	/* no longer used */
+>>>>>>> upstream/android-13
 	CTA_STATS_DELETE,	/* no longer used */
 	CTA_STATS_DELETE_LIST,	/* no longer used */
 	CTA_STATS_INSERT,
@@ -255,6 +264,11 @@ enum ctattr_stats_cpu {
 	CTA_STATS_EARLY_DROP,
 	CTA_STATS_ERROR,
 	CTA_STATS_SEARCH_RESTART,
+<<<<<<< HEAD
+=======
+	CTA_STATS_CLASH_RESOLVE,
+	CTA_STATS_CHAIN_TOOLONG,
+>>>>>>> upstream/android-13
 	__CTA_STATS_MAX,
 };
 #define CTA_STATS_MAX (__CTA_STATS_MAX - 1)
@@ -276,4 +290,15 @@ enum ctattr_expect_stats {
 };
 #define CTA_STATS_EXP_MAX (__CTA_STATS_EXP_MAX - 1)
 
+<<<<<<< HEAD
+=======
+enum ctattr_filter {
+	CTA_FILTER_UNSPEC,
+	CTA_FILTER_ORIG_FLAGS,
+	CTA_FILTER_REPLY_FLAGS,
+	__CTA_FILTER_MAX
+};
+#define CTA_FILTER_MAX (__CTA_FILTER_MAX - 1)
+
+>>>>>>> upstream/android-13
 #endif /* _IPCONNTRACK_NETLINK_H */

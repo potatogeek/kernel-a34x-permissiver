@@ -14,16 +14,27 @@
 #include <linux/module.h>
 #include <linux/mm.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/proc_fs.h>
 #include <asm/fixmap.h>
 #include <asm/page.h>
 #include <asm/pgalloc.h>
+=======
+#include <linux/memblock.h>
+#include <linux/proc_fs.h>
+#include <asm/fixmap.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/addrspace.h>
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
 #include <asm/mmu.h>
 #include <asm/mmu_context.h>
+<<<<<<< HEAD
+=======
+#include "ioremap.h"
+>>>>>>> upstream/android-13
 
 struct ioremap_map {
 	void __iomem *addr;

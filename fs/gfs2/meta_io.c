@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -92,11 +99,19 @@ static int gfs2_aspace_writepage(struct page *page, struct writeback_control *wb
 }
 
 const struct address_space_operations gfs2_meta_aops = {
+<<<<<<< HEAD
+=======
+	.set_page_dirty	= __set_page_dirty_buffers,
+>>>>>>> upstream/android-13
 	.writepage = gfs2_aspace_writepage,
 	.releasepage = gfs2_releasepage,
 };
 
 const struct address_space_operations gfs2_rgrp_aops = {
+<<<<<<< HEAD
+=======
+	.set_page_dirty	= __set_page_dirty_buffers,
+>>>>>>> upstream/android-13
 	.writepage = gfs2_aspace_writepage,
 	.releasepage = gfs2_releasepage,
 };
@@ -134,16 +149,30 @@ struct buffer_head *gfs2_getbuf(struct gfs2_glock *gl, u64 blkno, int create)
 				break;
 			yield();
 		}
+<<<<<<< HEAD
+=======
+		if (!page_has_buffers(page))
+			create_empty_buffers(page, sdp->sd_sb.sb_bsize, 0);
+>>>>>>> upstream/android-13
 	} else {
 		page = find_get_page_flags(mapping, index,
 						FGP_LOCK|FGP_ACCESSED);
 		if (!page)
 			return NULL;
+<<<<<<< HEAD
 	}
 
 	if (!page_has_buffers(page))
 		create_empty_buffers(page, sdp->sd_sb.sb_bsize, 0);
 
+=======
+		if (!page_has_buffers(page)) {
+			bh = NULL;
+			goto out_unlock;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/* Locate header for our buffer within our page */
 	for (bh = page_buffers(page); bufnum--; bh = bh->b_this_page)
 		/* Do nothing */;
@@ -152,6 +181,10 @@ struct buffer_head *gfs2_getbuf(struct gfs2_glock *gl, u64 blkno, int create)
 	if (!buffer_mapped(bh))
 		map_bh(bh, sdp->sd_vfs, blkno);
 
+<<<<<<< HEAD
+=======
+out_unlock:
+>>>>>>> upstream/android-13
 	unlock_page(page);
 	put_page(page);
 
@@ -189,9 +222,15 @@ struct buffer_head *gfs2_meta_new(struct gfs2_glock *gl, u64 blkno)
 static void gfs2_meta_read_endio(struct bio *bio)
 {
 	struct bio_vec *bvec;
+<<<<<<< HEAD
 	int i;
 
 	bio_for_each_segment_all(bvec, bio, i) {
+=======
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bvec, bio, iter_all) {
+>>>>>>> upstream/android-13
 		struct page *page = bvec->bv_page;
 		struct buffer_head *bh = page_buffers(page);
 		unsigned int len = bvec->bv_len;
@@ -242,6 +281,10 @@ static void gfs2_submit_bhs(int op, int op_flags, struct buffer_head *bhs[],
  * @gl: The glock covering the block
  * @blkno: The block number
  * @flags: flags
+<<<<<<< HEAD
+=======
+ * @rahead: Do read-ahead
+>>>>>>> upstream/android-13
  * @bhp: the place where the buffer is returned (NULL on failure)
  *
  * Returns: errno
@@ -254,7 +297,11 @@ int gfs2_meta_read(struct gfs2_glock *gl, u64 blkno, int flags,
 	struct buffer_head *bh, *bhs[2];
 	int num = 0;
 
+<<<<<<< HEAD
 	if (unlikely(test_bit(SDF_SHUTDOWN, &sdp->sd_flags))) {
+=======
+	if (unlikely(gfs2_withdrawn(sdp)) && !gfs2_withdraw_in_prog(sdp)) {
+>>>>>>> upstream/android-13
 		*bhp = NULL;
 		return -EIO;
 	}
@@ -312,7 +359,11 @@ int gfs2_meta_read(struct gfs2_glock *gl, u64 blkno, int flags,
 
 int gfs2_meta_wait(struct gfs2_sbd *sdp, struct buffer_head *bh)
 {
+<<<<<<< HEAD
 	if (unlikely(test_bit(SDF_SHUTDOWN, &sdp->sd_flags)))
+=======
+	if (unlikely(gfs2_withdrawn(sdp)) && !gfs2_withdraw_in_prog(sdp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	wait_on_buffer(bh);
@@ -323,7 +374,11 @@ int gfs2_meta_wait(struct gfs2_sbd *sdp, struct buffer_head *bh)
 			gfs2_io_error_bh_wd(sdp, bh);
 		return -EIO;
 	}
+<<<<<<< HEAD
 	if (unlikely(test_bit(SDF_SHUTDOWN, &sdp->sd_flags)))
+=======
+	if (unlikely(gfs2_withdrawn(sdp)) && !gfs2_withdraw_in_prog(sdp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	return 0;
@@ -350,27 +405,103 @@ void gfs2_remove_from_journal(struct buffer_head *bh, int meta)
 		brelse(bh);
 	}
 	if (bd) {
+<<<<<<< HEAD
 		spin_lock(&sdp->sd_ail_lock);
+=======
+>>>>>>> upstream/android-13
 		if (bd->bd_tr) {
 			gfs2_trans_add_revoke(sdp, bd);
 		} else if (was_pinned) {
 			bh->b_private = NULL;
 			kmem_cache_free(gfs2_bufdata_cachep, bd);
+<<<<<<< HEAD
 		}
 		spin_unlock(&sdp->sd_ail_lock);
+=======
+		} else if (!list_empty(&bd->bd_ail_st_list) &&
+					!list_empty(&bd->bd_ail_gl_list)) {
+			gfs2_remove_from_ail(bd);
+		}
+>>>>>>> upstream/android-13
 	}
 	clear_buffer_dirty(bh);
 	clear_buffer_uptodate(bh);
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_meta_wipe - make inode's buffers so they aren't dirty/pinned anymore
+=======
+ * gfs2_ail1_wipe - remove deleted/freed buffers from the ail1 list
+ * @sdp: superblock
+ * @bstart: starting block address of buffers to remove
+ * @blen: length of buffers to be removed
+ *
+ * This function is called from gfs2_journal wipe, whose job is to remove
+ * buffers, corresponding to deleted blocks, from the journal. If we find any
+ * bufdata elements on the system ail1 list, they haven't been written to
+ * the journal yet. So we remove them.
+ */
+static void gfs2_ail1_wipe(struct gfs2_sbd *sdp, u64 bstart, u32 blen)
+{
+	struct gfs2_trans *tr, *s;
+	struct gfs2_bufdata *bd, *bs;
+	struct buffer_head *bh;
+	u64 end = bstart + blen;
+
+	gfs2_log_lock(sdp);
+	spin_lock(&sdp->sd_ail_lock);
+	list_for_each_entry_safe(tr, s, &sdp->sd_ail1_list, tr_list) {
+		list_for_each_entry_safe(bd, bs, &tr->tr_ail1_list,
+					 bd_ail_st_list) {
+			bh = bd->bd_bh;
+			if (bh->b_blocknr < bstart || bh->b_blocknr >= end)
+				continue;
+
+			gfs2_remove_from_journal(bh, REMOVE_JDATA);
+		}
+	}
+	spin_unlock(&sdp->sd_ail_lock);
+	gfs2_log_unlock(sdp);
+}
+
+static struct buffer_head *gfs2_getjdatabuf(struct gfs2_inode *ip, u64 blkno)
+{
+	struct address_space *mapping = ip->i_inode.i_mapping;
+	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
+	struct page *page;
+	struct buffer_head *bh;
+	unsigned int shift = PAGE_SHIFT - sdp->sd_sb.sb_bsize_shift;
+	unsigned long index = blkno >> shift; /* convert block to page */
+	unsigned int bufnum = blkno - (index << shift);
+
+	page = find_get_page_flags(mapping, index, FGP_LOCK|FGP_ACCESSED);
+	if (!page)
+		return NULL;
+	if (!page_has_buffers(page)) {
+		unlock_page(page);
+		put_page(page);
+		return NULL;
+	}
+	/* Locate header for our buffer within our page */
+	for (bh = page_buffers(page); bufnum--; bh = bh->b_this_page)
+		/* Do nothing */;
+	get_bh(bh);
+	unlock_page(page);
+	put_page(page);
+	return bh;
+}
+
+/**
+ * gfs2_journal_wipe - make inode's buffers so they aren't dirty/pinned anymore
+>>>>>>> upstream/android-13
  * @ip: the inode who owns the buffers
  * @bstart: the first buffer in the run
  * @blen: the number of buffers in the run
  *
  */
 
+<<<<<<< HEAD
 void gfs2_meta_wipe(struct gfs2_inode *ip, u64 bstart, u32 blen)
 {
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
@@ -382,6 +513,28 @@ void gfs2_meta_wipe(struct gfs2_inode *ip, u64 bstart, u32 blen)
 			lock_buffer(bh);
 			gfs2_log_lock(sdp);
 			gfs2_remove_from_journal(bh, REMOVE_META);
+=======
+void gfs2_journal_wipe(struct gfs2_inode *ip, u64 bstart, u32 blen)
+{
+	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
+	struct buffer_head *bh;
+	int ty;
+
+	gfs2_ail1_wipe(sdp, bstart, blen);
+	while (blen) {
+		ty = REMOVE_META;
+		bh = gfs2_getbuf(ip->i_gl, bstart, NO_CREATE);
+		if (!bh && gfs2_is_jdata(ip)) {
+			bh = gfs2_getjdatabuf(ip, bstart);
+			ty = REMOVE_JDATA;
+		}
+		if (bh) {
+			lock_buffer(bh);
+			gfs2_log_lock(sdp);
+			spin_lock(&sdp->sd_ail_lock);
+			gfs2_remove_from_journal(bh, ty);
+			spin_unlock(&sdp->sd_ail_lock);
+>>>>>>> upstream/android-13
 			gfs2_log_unlock(sdp);
 			unlock_buffer(bh);
 			brelse(bh);
@@ -393,23 +546,37 @@ void gfs2_meta_wipe(struct gfs2_inode *ip, u64 bstart, u32 blen)
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_meta_indirect_buffer - Get a metadata buffer
  * @ip: The GFS2 inode
  * @height: The level of this buf in the metadata (indir addr) tree (if any)
+=======
+ * gfs2_meta_buffer - Get a metadata buffer
+ * @ip: The GFS2 inode
+ * @mtype: The block type (GFS2_METATYPE_*)
+>>>>>>> upstream/android-13
  * @num: The block number (device relative) of the buffer
  * @bhp: the buffer is returned here
  *
  * Returns: errno
  */
 
+<<<<<<< HEAD
 int gfs2_meta_indirect_buffer(struct gfs2_inode *ip, int height, u64 num,
 			      struct buffer_head **bhp)
+=======
+int gfs2_meta_buffer(struct gfs2_inode *ip, u32 mtype, u64 num,
+		     struct buffer_head **bhp)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
 	struct gfs2_glock *gl = ip->i_gl;
 	struct buffer_head *bh;
 	int ret = 0;
+<<<<<<< HEAD
 	u32 mtype = height ? GFS2_METATYPE_IN : GFS2_METATYPE_DI;
+=======
+>>>>>>> upstream/android-13
 	int rahead = 0;
 
 	if (num == ip->i_no_addr)

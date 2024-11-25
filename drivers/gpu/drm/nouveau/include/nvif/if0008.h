@@ -35,7 +35,11 @@ struct nvif_mmu_type_v0 {
 
 struct nvif_mmu_kind_v0 {
 	__u8  version;
+<<<<<<< HEAD
 	__u8  pad01[1];
+=======
+	__u8  kind_inv;
+>>>>>>> upstream/android-13
 	__u16 count;
 	__u8  data[];
 };

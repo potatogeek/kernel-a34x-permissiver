@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * drivers/media/i2c/tvp514x_regs.h
  *
@@ -10,6 +14,7 @@
  *     Hardik Shah <hardik.shah@ti.com>
  *     Manjunath Hadli <mrh@ti.com>
  *     Karicheri Muralidharan <m-karicheri2@ti.com>
+<<<<<<< HEAD
  *
  * This package is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +25,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _TVP514X_REGS_H
@@ -270,9 +277,15 @@
 #define TOK_SKIP                        (3)     /* token to skip a register */
 /**
  * struct tvp514x_reg - Structure for TVP5146/47 register initialization values
+<<<<<<< HEAD
  * @token - Token: TOK_WRITE, TOK_TERM etc..
  * @reg - Register offset
  * @val - Register Value for TOK_WRITE or delay in ms for TOK_DELAY
+=======
+ * @token: Token: TOK_WRITE, TOK_TERM etc..
+ * @reg: Register offset
+ * @val: Register Value for TOK_WRITE or delay in ms for TOK_DELAY
+>>>>>>> upstream/android-13
  */
 struct tvp514x_reg {
 	u8 token;

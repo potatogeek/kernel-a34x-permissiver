@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Hardware specific definitions for Sharp SL-C6000x series of PDAs
  *
  * Copyright (c) 2005 Dirk Opfer
  *
  * Based on Sharp's 2.4 kernel patches
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_ARCH_TOSA_H_
 #define _ASM_ARCH_TOSA_H_ 1
@@ -77,6 +84,7 @@
 #define TOSA_GPIO_BAT1_TH_ON		(TOSA_TC6393XB_GPIO_BASE + 15)
 
 /*
+<<<<<<< HEAD
  * Timing Generator
  */
 #define TG_PNLCTL 			0x00
@@ -89,6 +97,8 @@
 #define TG_HPOSCTL 			0x07
 
 /*
+=======
+>>>>>>> upstream/android-13
  * PXA GPIOs
  */
 #define TOSA_GPIO_POWERON		(0)
@@ -196,7 +206,10 @@
 #define TOSA_KEY_MAIL		KEY_MAIL
 #endif
 
+<<<<<<< HEAD
 struct spi_device;
 extern int tosa_bl_enable(struct spi_device *spi, int enable);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_ARCH_TOSA_H_ */

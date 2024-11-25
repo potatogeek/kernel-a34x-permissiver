@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
  * Copyright (c) 2014- QLogic Corporation.
@@ -5,6 +9,7 @@
  * www.qlogic.com
  *
  * Linux driver for QLogic BR-series Fibre Channel Host Bus Adapter.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (GPL) Version 2 as
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "bfad_drv.h"
@@ -395,7 +402,11 @@ bfa_ioc_sm_getattr(struct bfa_ioc_s *ioc, enum ioc_event event)
 	case IOC_E_PFFAILED:
 	case IOC_E_HWERROR:
 		bfa_ioc_timer_stop(ioc);
+<<<<<<< HEAD
 		/* !!! fall through !!! */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IOC_E_TIMEOUT:
 		ioc->cbfn->enable_cbfn(ioc->bfa, BFA_STATUS_IOC_FAILURE);
 		bfa_fsm_set_state(ioc, bfa_ioc_sm_fail);
@@ -445,7 +456,11 @@ bfa_ioc_sm_op(struct bfa_ioc_s *ioc, enum ioc_event event)
 	case IOC_E_PFFAILED:
 	case IOC_E_HWERROR:
 		bfa_hb_timer_stop(ioc);
+<<<<<<< HEAD
 		/* !!! fall through !!! */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IOC_E_HBFAIL:
 		if (ioc->iocpf.auto_recover)
 			bfa_fsm_set_state(ioc, bfa_ioc_sm_fail_retry);
@@ -709,7 +724,11 @@ static void
 bfa_iocpf_sm_fwcheck_entry(struct bfa_iocpf_s *iocpf)
 {
 	struct bfi_ioc_image_hdr_s	fwhdr;
+<<<<<<< HEAD
 	u32	r32, fwstate, pgnum, pgoff, loff = 0;
+=======
+	u32	r32, fwstate, pgnum, loff = 0;
+>>>>>>> upstream/android-13
 	int	i;
 
 	/*
@@ -739,7 +758,10 @@ bfa_iocpf_sm_fwcheck_entry(struct bfa_iocpf_s *iocpf)
 	 * Clear fwver hdr
 	 */
 	pgnum = PSS_SMEM_PGNUM(iocpf->ioc->ioc_regs.smem_pg0, loff);
+<<<<<<< HEAD
 	pgoff = PSS_SMEM_PGOFF(loff);
+=======
+>>>>>>> upstream/android-13
 	writel(pgnum, iocpf->ioc->ioc_regs.host_page_num_fn);
 
 	for (i = 0; i < sizeof(struct bfi_ioc_image_hdr_s) / sizeof(u32); i++) {
@@ -978,9 +1000,13 @@ bfa_iocpf_sm_enabling(struct bfa_iocpf_s *iocpf, enum iocpf_event event)
 
 	case IOCPF_E_INITFAIL:
 		bfa_iocpf_timer_stop(ioc);
+<<<<<<< HEAD
 		/*
 		 * !!! fall through !!!
 		 */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case IOCPF_E_TIMEOUT:
 		writel(1, ioc->ioc_regs.ioc_sem_reg);
@@ -1056,9 +1082,13 @@ bfa_iocpf_sm_disabling(struct bfa_iocpf_s *iocpf, enum iocpf_event event)
 
 	case IOCPF_E_FAIL:
 		bfa_iocpf_timer_stop(ioc);
+<<<<<<< HEAD
 		/*
 		 * !!! fall through !!!
 		 */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case IOCPF_E_TIMEOUT:
 		bfa_ioc_set_cur_ioc_fwstate(ioc, BFI_IOC_FAIL);
@@ -1452,13 +1482,20 @@ bfa_ioc_lpu_stop(struct bfa_ioc_s *ioc)
 void
 bfa_ioc_fwver_get(struct bfa_ioc_s *ioc, struct bfi_ioc_image_hdr_s *fwhdr)
 {
+<<<<<<< HEAD
 	u32	pgnum, pgoff;
+=======
+	u32	pgnum;
+>>>>>>> upstream/android-13
 	u32	loff = 0;
 	int		i;
 	u32	*fwsig = (u32 *) fwhdr;
 
 	pgnum = PSS_SMEM_PGNUM(ioc->ioc_regs.smem_pg0, loff);
+<<<<<<< HEAD
 	pgoff = PSS_SMEM_PGOFF(loff);
+=======
+>>>>>>> upstream/android-13
 	writel(pgnum, ioc->ioc_regs.host_page_num_fn);
 
 	for (i = 0; i < (sizeof(struct bfi_ioc_image_hdr_s) / sizeof(u32));
@@ -1674,7 +1711,11 @@ bfa_status_t
 bfa_ioc_fwsig_invalidate(struct bfa_ioc_s *ioc)
 {
 
+<<<<<<< HEAD
 	u32	pgnum, pgoff;
+=======
+	u32	pgnum;
+>>>>>>> upstream/android-13
 	u32	loff = 0;
 	enum bfi_ioc_state ioc_fwstate;
 
@@ -1683,7 +1724,10 @@ bfa_ioc_fwsig_invalidate(struct bfa_ioc_s *ioc)
 		return BFA_STATUS_ADAPTER_ENABLED;
 
 	pgnum = PSS_SMEM_PGNUM(ioc->ioc_regs.smem_pg0, loff);
+<<<<<<< HEAD
 	pgoff = PSS_SMEM_PGOFF(loff);
+=======
+>>>>>>> upstream/android-13
 	writel(pgnum, ioc->ioc_regs.host_page_num_fn);
 	bfa_mem_write(ioc->ioc_regs.smem_page_start, loff, BFA_IOC_FW_INV_SIGN);
 
@@ -1875,7 +1919,11 @@ bfa_ioc_download_fw(struct bfa_ioc_s *ioc, u32 boot_type,
 		    u32 boot_env)
 {
 	u32 *fwimg;
+<<<<<<< HEAD
 	u32 pgnum, pgoff;
+=======
+	u32 pgnum;
+>>>>>>> upstream/android-13
 	u32 loff = 0;
 	u32 chunkno = 0;
 	u32 i;
@@ -1904,8 +1952,11 @@ bfa_ioc_download_fw(struct bfa_ioc_s *ioc, u32 boot_type,
 
 
 	pgnum = PSS_SMEM_PGNUM(ioc->ioc_regs.smem_pg0, loff);
+<<<<<<< HEAD
 	pgoff = PSS_SMEM_PGOFF(loff);
 
+=======
+>>>>>>> upstream/android-13
 	writel(pgnum, ioc->ioc_regs.host_page_num_fn);
 
 	for (i = 0; i < fwimg_size; i++) {
@@ -3316,6 +3367,10 @@ bfa_ablk_isr(void *cbarg, struct bfi_mbmsg_s *msg)
 	case BFI_ABLK_I2H_PORT_CONFIG:
 		/* update config port mode */
 		ablk->ioc->port_mode_cfg = rsp->port_mode;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	case BFI_ABLK_I2H_PF_DELETE:
 	case BFI_ABLK_I2H_PF_UPDATE:
@@ -3819,7 +3874,11 @@ bfa_sfp_scn(struct bfa_sfp_s *sfp, struct bfi_mbmsg_s *msg)
 		sfp->state = BFA_SFP_STATE_REMOVED;
 		sfp->data_valid = 0;
 		bfa_sfp_scn_aen_post(sfp, rsp);
+<<<<<<< HEAD
 		 break;
+=======
+		break;
+>>>>>>> upstream/android-13
 	case BFA_SFP_SCN_FAILED:
 		sfp->state = BFA_SFP_STATE_FAILED;
 		sfp->data_valid = 0;
@@ -4775,11 +4834,17 @@ bfa_diag_memtest_done(void *cbarg)
 	struct bfa_ioc_s  *ioc = diag->ioc;
 	struct bfa_diag_memtest_result *res = diag->result;
 	u32	loff = BFI_BOOT_MEMTEST_RES_ADDR;
+<<<<<<< HEAD
 	u32	pgnum, pgoff, i;
 
 	pgnum = PSS_SMEM_PGNUM(ioc->ioc_regs.smem_pg0, loff);
 	pgoff = PSS_SMEM_PGOFF(loff);
 
+=======
+	u32	pgnum, i;
+
+	pgnum = PSS_SMEM_PGNUM(ioc->ioc_regs.smem_pg0, loff);
+>>>>>>> upstream/android-13
 	writel(pgnum, ioc->ioc_regs.host_page_num_fn);
 
 	for (i = 0; i < (sizeof(struct bfa_diag_memtest_result) /
@@ -5038,7 +5103,11 @@ diag_portbeacon_comp(struct bfa_diag_s *diag)
 /*
  *	Diag hmbox handler
  */
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 bfa_diag_intr(void *diagarg, struct bfi_mbmsg_s *msg)
 {
 	struct bfa_diag_s *diag = diagarg;
@@ -5763,7 +5832,11 @@ bfa_phy_intr(void *phyarg, struct bfi_mbmsg_s *msg)
 				(struct bfa_phy_stats_s *) phy->ubuf;
 			bfa_phy_ntoh32((u32 *)stats, (u32 *)phy->dbuf_kva,
 				sizeof(struct bfa_phy_stats_s));
+<<<<<<< HEAD
 				bfa_trc(phy, stats->status);
+=======
+			bfa_trc(phy, stats->status);
+>>>>>>> upstream/android-13
 		}
 
 		phy->status = status;
@@ -5890,6 +5963,10 @@ bfa_dconf_sm_uninit(struct bfa_dconf_mod_s *dconf, enum bfa_dconf_event event)
 		break;
 	case BFA_DCONF_SM_EXIT:
 		bfa_fsm_send_event(&dconf->bfa->iocfc, IOCFC_E_DCONF_DONE);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case BFA_DCONF_SM_IOCDISABLE:
 	case BFA_DCONF_SM_WR:
 	case BFA_DCONF_SM_FLASH_COMP:
@@ -6007,6 +6084,10 @@ bfa_dconf_sm_final_sync(struct bfa_dconf_mod_s *dconf,
 	case BFA_DCONF_SM_IOCDISABLE:
 	case BFA_DCONF_SM_FLASH_COMP:
 		bfa_timer_stop(&dconf->timer);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case BFA_DCONF_SM_TIMEOUT:
 		bfa_sm_set_state(dconf, bfa_dconf_sm_uninit);
 		bfa_fsm_send_event(&dconf->bfa->iocfc, IOCFC_E_DCONF_DONE);
@@ -6660,8 +6741,13 @@ enum bfa_flash_cmd {
 	BFA_FLASH_READ_STATUS	= 0x05,	/* read status */
 };
 
+<<<<<<< HEAD
 /**
  * @brief hardware error definition
+=======
+/*
+ * Hardware error definition
+>>>>>>> upstream/android-13
  */
 enum bfa_flash_err {
 	BFA_FLASH_NOT_PRESENT	= -1,	/*!< flash not present */
@@ -6675,8 +6761,13 @@ enum bfa_flash_err {
 	BFA_FLASH_ERR_LEN	= -9,	/*!< invalid length */
 };
 
+<<<<<<< HEAD
 /**
  * @brief flash command register data structure
+=======
+/*
+ * Flash command register data structure
+>>>>>>> upstream/android-13
  */
 union bfa_flash_cmd_reg_u {
 	struct {
@@ -6699,8 +6790,13 @@ union bfa_flash_cmd_reg_u {
 	u32	i;
 };
 
+<<<<<<< HEAD
 /**
  * @brief flash device status register data structure
+=======
+/*
+ * Flash device status register data structure
+>>>>>>> upstream/android-13
  */
 union bfa_flash_dev_status_reg_u {
 	struct {
@@ -6725,8 +6821,13 @@ union bfa_flash_dev_status_reg_u {
 	u32	i;
 };
 
+<<<<<<< HEAD
 /**
  * @brief flash address register data structure
+=======
+/*
+ * Flash address register data structure
+>>>>>>> upstream/android-13
  */
 union bfa_flash_addr_reg_u {
 	struct {
@@ -6741,7 +6842,11 @@ union bfa_flash_addr_reg_u {
 	u32	i;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * dg flash_raw_private Flash raw private functions
  */
 static void
@@ -6782,7 +6887,11 @@ bfa_flash_cmd_act_check(void __iomem *pci_bar)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * @brief
  * Flush FLI data fifo.
  *
@@ -6795,7 +6904,10 @@ static u32
 bfa_flash_fifo_flush(void __iomem *pci_bar)
 {
 	u32 i;
+<<<<<<< HEAD
 	u32 t;
+=======
+>>>>>>> upstream/android-13
 	union bfa_flash_dev_status_reg_u dev_status;
 
 	dev_status.i = readl(pci_bar + FLI_DEV_STATUS_REG);
@@ -6805,7 +6917,11 @@ bfa_flash_fifo_flush(void __iomem *pci_bar)
 
 	/* fifo counter in terms of words */
 	for (i = 0; i < dev_status.r.fifo_cnt; i++)
+<<<<<<< HEAD
 		t = readl(pci_bar + FLI_RDDATA_REG);
+=======
+		readl(pci_bar + FLI_RDDATA_REG);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check the device status. It may take some time.
@@ -6822,7 +6938,11 @@ bfa_flash_fifo_flush(void __iomem *pci_bar)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * @brief
  * Read flash status.
  *
@@ -6867,7 +6987,11 @@ bfa_flash_status_read(void __iomem *pci_bar)
 	return ret_status;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * @brief
  * Start flash read operation.
  *
@@ -6913,7 +7037,11 @@ bfa_flash_read_start(void __iomem *pci_bar, u32 offset, u32 len,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * @brief
  * Check flash read operation.
  *
@@ -6929,7 +7057,12 @@ bfa_flash_read_check(void __iomem *pci_bar)
 
 	return 0;
 }
+<<<<<<< HEAD
 /**
+=======
+
+/*
+>>>>>>> upstream/android-13
  * @brief
  * End flash read operation.
  *
@@ -6955,7 +7088,11 @@ bfa_flash_read_end(void __iomem *pci_bar, u32 len, char *buf)
 	bfa_flash_fifo_flush(pci_bar);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * @brief
  * Perform flash raw read.
  *
@@ -6981,7 +7118,11 @@ bfa_raw_sem_get(void __iomem *bar)
 
 }
 
+<<<<<<< HEAD
 bfa_status_t
+=======
+static bfa_status_t
+>>>>>>> upstream/android-13
 bfa_flash_sem_get(void __iomem *bar)
 {
 	u32 n = FLASH_BLOCKING_OP_MAX;
@@ -6994,7 +7135,11 @@ bfa_flash_sem_get(void __iomem *bar)
 	return BFA_STATUS_OK;
 }
 
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 bfa_flash_sem_put(void __iomem *bar)
 {
 	writel(0, (bar + FLASH_SEM_LOCK_REG));

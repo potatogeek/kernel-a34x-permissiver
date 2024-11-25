@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI LP8788 MFD - battery charger driver
  *
  * Copyright 2012 Texas Instruments
  *
  * Author: Milo(Woogyom) Kim <milo.kim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -410,6 +417,7 @@ static const struct power_supply_desc lp8788_psy_battery_desc = {
 	.get_property	= lp8788_battery_get_property,
 };
 
+<<<<<<< HEAD
 static int lp8788_psy_register(struct platform_device *pdev,
 				struct lp8788_charger *pchg)
 {
@@ -434,6 +442,8 @@ static int lp8788_psy_register(struct platform_device *pdev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void lp8788_psy_unregister(struct lp8788_charger *pchg)
 {
 	power_supply_unregister(pchg->battery);
@@ -677,16 +687,49 @@ static DEVICE_ATTR(charger_status, S_IRUSR, lp8788_show_charger_status, NULL);
 static DEVICE_ATTR(eoc_time, S_IRUSR, lp8788_show_eoc_time, NULL);
 static DEVICE_ATTR(eoc_level, S_IRUSR, lp8788_show_eoc_level, NULL);
 
+<<<<<<< HEAD
 static struct attribute *lp8788_charger_attr[] = {
+=======
+static struct attribute *lp8788_charger_sysfs_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_charger_status.attr,
 	&dev_attr_eoc_time.attr,
 	&dev_attr_eoc_level.attr,
 	NULL,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group lp8788_attr_group = {
 	.attrs = lp8788_charger_attr,
 };
+=======
+ATTRIBUTE_GROUPS(lp8788_charger_sysfs);
+
+static int lp8788_psy_register(struct platform_device *pdev,
+				struct lp8788_charger *pchg)
+{
+	struct power_supply_config charger_cfg = {};
+
+	charger_cfg.attr_grp = lp8788_charger_sysfs_groups;
+	charger_cfg.supplied_to = battery_supplied_to;
+	charger_cfg.num_supplicants = ARRAY_SIZE(battery_supplied_to);
+
+	pchg->charger = power_supply_register(&pdev->dev,
+					      &lp8788_psy_charger_desc,
+					      &charger_cfg);
+	if (IS_ERR(pchg->charger))
+		return -EPERM;
+
+	pchg->battery = power_supply_register(&pdev->dev,
+					      &lp8788_psy_battery_desc, NULL);
+	if (IS_ERR(pchg->battery)) {
+		power_supply_unregister(pchg->charger);
+		return -EPERM;
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int lp8788_charger_probe(struct platform_device *pdev)
 {
@@ -713,12 +756,15 @@ static int lp8788_charger_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = sysfs_create_group(&pdev->dev.kobj, &lp8788_attr_group);
 	if (ret) {
 		lp8788_psy_unregister(pchg);
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = lp8788_irq_register(pdev, pchg);
 	if (ret)
 		dev_warn(dev, "failed to register charger irq: %d\n", ret);
@@ -732,7 +778,10 @@ static int lp8788_charger_remove(struct platform_device *pdev)
 
 	flush_work(&pchg->charger_work);
 	lp8788_irq_unregister(pdev, pchg);
+<<<<<<< HEAD
 	sysfs_remove_group(&pdev->dev.kobj, &lp8788_attr_group);
+=======
+>>>>>>> upstream/android-13
 	lp8788_psy_unregister(pchg);
 
 	return 0;

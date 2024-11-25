@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * cs35l34.h -- CS35L34 ALSA SoC audio driver
  *
  * Copyright 2016 Cirrus Logic, Inc.
  *
  * Author: Paul Handrigan <Paul.Handrigan@cirrus.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CS35L34_H__

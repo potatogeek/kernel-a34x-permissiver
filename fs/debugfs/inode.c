@@ -2,13 +2,24 @@
 /*
  *  inode.c - part of debugfs, a tiny little debug file system
  *
+<<<<<<< HEAD
  *  Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
  *  Copyright (C) 2004 IBM Inc.
+=======
+ *  Copyright (C) 2004,2019 Greg Kroah-Hartman <greg@kroah.com>
+ *  Copyright (C) 2004 IBM Inc.
+ *  Copyright (C) 2019 Linux Foundation <gregkh@linuxfoundation.org>
+>>>>>>> upstream/android-13
  *
  *  debugfs is for people to use instead of /proc or /sys.
  *  See ./Documentation/core-api/kernel-api.rst for more details.
  */
 
+<<<<<<< HEAD
+=======
+#define pr_fmt(fmt)	"debugfs: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/mount.h>
@@ -23,6 +34,10 @@
 #include <linux/parser.h>
 #include <linux/magic.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
@@ -31,6 +46,40 @@
 static struct vfsmount *debugfs_mount;
 static int debugfs_mount_count;
 static bool debugfs_registered;
+<<<<<<< HEAD
+=======
+static unsigned int debugfs_allow __ro_after_init = DEFAULT_DEBUGFS_ALLOW_BITS;
+
+/*
+ * Don't allow access attributes to be changed whilst the kernel is locked down
+ * so that we can use the file mode as part of a heuristic to determine whether
+ * to lock down individual files.
+ */
+static int debugfs_setattr(struct user_namespace *mnt_userns,
+			   struct dentry *dentry, struct iattr *ia)
+{
+	int ret;
+
+	if (ia->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID)) {
+		ret = security_locked_down(LOCKDOWN_DEBUGFS);
+		if (ret)
+			return ret;
+	}
+	return simple_setattr(&init_user_ns, dentry, ia);
+}
+
+static const struct inode_operations debugfs_file_inode_operations = {
+	.setattr	= debugfs_setattr,
+};
+static const struct inode_operations debugfs_dir_inode_operations = {
+	.lookup		= simple_lookup,
+	.setattr	= debugfs_setattr,
+};
+static const struct inode_operations debugfs_symlink_inode_operations = {
+	.get_link	= simple_get_link,
+	.setattr	= debugfs_setattr,
+};
+>>>>>>> upstream/android-13
 
 static struct inode *debugfs_get_inode(struct super_block *sb)
 {
@@ -163,24 +212,36 @@ static int debugfs_show_options(struct seq_file *m, struct dentry *root)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void debugfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
+=======
+static void debugfs_free_inode(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	if (S_ISLNK(inode->i_mode))
 		kfree(inode->i_link);
 	free_inode_nonrcu(inode);
 }
 
+<<<<<<< HEAD
 static void debugfs_destroy_inode(struct inode *inode)
 {
 	call_rcu(&inode->i_rcu, debugfs_i_callback);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct super_operations debugfs_super_operations = {
 	.statfs		= simple_statfs,
 	.remount_fs	= debugfs_remount,
 	.show_options	= debugfs_show_options,
+<<<<<<< HEAD
 	.destroy_inode	= debugfs_destroy_inode,
+=======
+	.free_inode	= debugfs_free_inode,
+>>>>>>> upstream/android-13
 };
 
 static void debugfs_release_dentry(struct dentry *dentry)
@@ -242,6 +303,12 @@ static struct dentry *debug_mount(struct file_system_type *fs_type,
 			int flags, const char *dev_name,
 			void *data)
 {
+<<<<<<< HEAD
+=======
+	if (!(debugfs_allow & DEBUGFS_ALLOW_API))
+		return ERR_PTR(-EPERM);
+
+>>>>>>> upstream/android-13
 	return mount_single(fs_type, flags, data, debug_fill_super);
 }
 
@@ -269,12 +336,17 @@ struct dentry *debugfs_lookup(const char *name, struct dentry *parent)
 {
 	struct dentry *dentry;
 
+<<<<<<< HEAD
 	if (IS_ERR(parent))
+=======
+	if (!debugfs_initialized() || IS_ERR_OR_NULL(name) || IS_ERR(parent))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	if (!parent)
 		parent = debugfs_mount->mnt_root;
 
+<<<<<<< HEAD
 	dentry = lookup_one_len_unlocked(name, parent, strlen(name));
 	if (IS_ERR(dentry))
 		return NULL;
@@ -282,6 +354,11 @@ struct dentry *debugfs_lookup(const char *name, struct dentry *parent)
 		dput(dentry);
 		return NULL;
 	}
+=======
+	dentry = lookup_positive_unlocked(name, parent, strlen(name));
+	if (IS_ERR(dentry))
+		return NULL;
+>>>>>>> upstream/android-13
 	return dentry;
 }
 EXPORT_SYMBOL_GPL(debugfs_lookup);
@@ -291,15 +368,32 @@ static struct dentry *start_creating(const char *name, struct dentry *parent)
 	struct dentry *dentry;
 	int error;
 
+<<<<<<< HEAD
 	pr_debug("debugfs: creating file '%s'\n",name);
+=======
+	if (!(debugfs_allow & DEBUGFS_ALLOW_API))
+		return ERR_PTR(-EPERM);
+
+	if (!debugfs_initialized())
+		return ERR_PTR(-ENOENT);
+
+	pr_debug("creating file '%s'\n", name);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(parent))
 		return parent;
 
 	error = simple_pin_fs(&debug_fs_type, &debugfs_mount,
 			      &debugfs_mount_count);
+<<<<<<< HEAD
 	if (error)
 		return ERR_PTR(error);
+=======
+	if (error) {
+		pr_err("Unable to pin filesystem for file '%s'\n", name);
+		return ERR_PTR(error);
+	}
+>>>>>>> upstream/android-13
 
 	/* If the parent is not specified, we create it in the root.
 	 * We need the root dentry to do this, which is in the super
@@ -310,8 +404,22 @@ static struct dentry *start_creating(const char *name, struct dentry *parent)
 		parent = debugfs_mount->mnt_root;
 
 	inode_lock(d_inode(parent));
+<<<<<<< HEAD
 	dentry = lookup_one_len(name, parent, strlen(name));
 	if (!IS_ERR(dentry) && d_really_is_positive(dentry)) {
+=======
+	if (unlikely(IS_DEADDIR(d_inode(parent))))
+		dentry = ERR_PTR(-ENOENT);
+	else
+		dentry = lookup_one_len(name, parent, strlen(name));
+	if (!IS_ERR(dentry) && d_really_is_positive(dentry)) {
+		if (d_is_dir(dentry))
+			pr_err("Directory '%s' with parent '%s' already present!\n",
+			       name, parent->d_name.name);
+		else
+			pr_err("File '%s' in directory '%s' already present!\n",
+			       name, parent->d_name.name);
+>>>>>>> upstream/android-13
 		dput(dentry);
 		dentry = ERR_PTR(-EEXIST);
 	}
@@ -329,7 +437,11 @@ static struct dentry *failed_creating(struct dentry *dentry)
 	inode_unlock(d_inode(dentry->d_parent));
 	dput(dentry);
 	simple_release_fs(&debugfs_mount, &debugfs_mount_count);
+<<<<<<< HEAD
 	return NULL;
+=======
+	return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 }
 
 static struct dentry *end_creating(struct dentry *dentry)
@@ -352,15 +464,35 @@ static struct dentry *__debugfs_create_file(const char *name, umode_t mode,
 	dentry = start_creating(name, parent);
 
 	if (IS_ERR(dentry))
+<<<<<<< HEAD
 		return NULL;
 
 	inode = debugfs_get_inode(dentry->d_sb);
 	if (unlikely(!inode))
 		return failed_creating(dentry);
+=======
+		return dentry;
+
+	if (!(debugfs_allow & DEBUGFS_ALLOW_API)) {
+		failed_creating(dentry);
+		return ERR_PTR(-EPERM);
+	}
+
+	inode = debugfs_get_inode(dentry->d_sb);
+	if (unlikely(!inode)) {
+		pr_err("out of free dentries, can not create file '%s'\n",
+		       name);
+		return failed_creating(dentry);
+	}
+>>>>>>> upstream/android-13
 
 	inode->i_mode = mode;
 	inode->i_private = data;
 
+<<<<<<< HEAD
+=======
+	inode->i_op = &debugfs_file_inode_operations;
+>>>>>>> upstream/android-13
 	inode->i_fop = proxy_fops;
 	dentry->d_fsdata = (void *)((unsigned long)real_fops |
 				DEBUGFS_FSDATA_IS_REAL_FOPS_BIT);
@@ -391,7 +523,12 @@ static struct dentry *__debugfs_create_file(const char *name, umode_t mode,
  * This function will return a pointer to a dentry if it succeeds.  This
  * pointer must be passed to the debugfs_remove() function when the file is
  * to be removed (no automatic cleanup happens if your module is unloaded,
+<<<<<<< HEAD
  * you are responsible here.)  If an error occurs, %NULL will be returned.
+=======
+ * you are responsible here.)  If an error occurs, ERR_PTR(-ERROR) will be
+ * returned.
+>>>>>>> upstream/android-13
  *
  * If debugfs is not enabled in the kernel, the value -%ENODEV will be
  * returned.
@@ -427,8 +564,13 @@ EXPORT_SYMBOL_GPL(debugfs_create_file);
  * debugfs core.
  *
  * It is your responsibility to protect your struct file_operation
+<<<<<<< HEAD
  * methods against file removals by means of debugfs_use_file_start()
  * and debugfs_use_file_finish(). ->open() is still protected by
+=======
+ * methods against file removals by means of debugfs_file_get()
+ * and debugfs_file_put(). ->open() is still protected by
+>>>>>>> upstream/android-13
  * debugfs though.
  *
  * Any struct file_operations defined by means of
@@ -465,6 +607,7 @@ EXPORT_SYMBOL_GPL(debugfs_create_file_unsafe);
  * wide range of flexibility in creating a file, or a directory (if you want
  * to create a directory, the debugfs_create_dir() function is
  * recommended to be used instead.)
+<<<<<<< HEAD
  *
  * This function will return a pointer to a dentry if it succeeds.  This
  * pointer must be passed to the debugfs_remove() function when the file is
@@ -484,6 +627,18 @@ struct dentry *debugfs_create_file_size(const char *name, umode_t mode,
 	if (de)
 		d_inode(de)->i_size = file_size;
 	return de;
+=======
+ */
+void debugfs_create_file_size(const char *name, umode_t mode,
+			      struct dentry *parent, void *data,
+			      const struct file_operations *fops,
+			      loff_t file_size)
+{
+	struct dentry *de = debugfs_create_file(name, mode, parent, data, fops);
+
+	if (!IS_ERR(de))
+		d_inode(de)->i_size = file_size;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(debugfs_create_file_size);
 
@@ -500,7 +655,12 @@ EXPORT_SYMBOL_GPL(debugfs_create_file_size);
  * This function will return a pointer to a dentry if it succeeds.  This
  * pointer must be passed to the debugfs_remove() function when the file is
  * to be removed (no automatic cleanup happens if your module is unloaded,
+<<<<<<< HEAD
  * you are responsible here.)  If an error occurs, %NULL will be returned.
+=======
+ * you are responsible here.)  If an error occurs, ERR_PTR(-ERROR) will be
+ * returned.
+>>>>>>> upstream/android-13
  *
  * If debugfs is not enabled in the kernel, the value -%ENODEV will be
  * returned.
@@ -511,6 +671,7 @@ struct dentry *debugfs_create_dir(const char *name, struct dentry *parent)
 	struct inode *inode;
 
 	if (IS_ERR(dentry))
+<<<<<<< HEAD
 		return NULL;
 
 	inode = debugfs_get_inode(dentry->d_sb);
@@ -519,6 +680,24 @@ struct dentry *debugfs_create_dir(const char *name, struct dentry *parent)
 
 	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
 	inode->i_op = &simple_dir_inode_operations;
+=======
+		return dentry;
+
+	if (!(debugfs_allow & DEBUGFS_ALLOW_API)) {
+		failed_creating(dentry);
+		return ERR_PTR(-EPERM);
+	}
+
+	inode = debugfs_get_inode(dentry->d_sb);
+	if (unlikely(!inode)) {
+		pr_err("out of free dentries, can not create directory '%s'\n",
+		       name);
+		return failed_creating(dentry);
+	}
+
+	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
+	inode->i_op = &debugfs_dir_inode_operations;
+>>>>>>> upstream/android-13
 	inode->i_fop = &simple_dir_operations;
 
 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
@@ -550,11 +729,27 @@ struct dentry *debugfs_create_automount(const char *name,
 	struct inode *inode;
 
 	if (IS_ERR(dentry))
+<<<<<<< HEAD
 		return NULL;
 
 	inode = debugfs_get_inode(dentry->d_sb);
 	if (unlikely(!inode))
 		return failed_creating(dentry);
+=======
+		return dentry;
+
+	if (!(debugfs_allow & DEBUGFS_ALLOW_API)) {
+		failed_creating(dentry);
+		return ERR_PTR(-EPERM);
+	}
+
+	inode = debugfs_get_inode(dentry->d_sb);
+	if (unlikely(!inode)) {
+		pr_err("out of free dentries, can not create automount '%s'\n",
+		       name);
+		return failed_creating(dentry);
+	}
+>>>>>>> upstream/android-13
 
 	make_empty_dir_inode(inode);
 	inode->i_flags |= S_AUTOMOUNT;
@@ -586,8 +781,13 @@ EXPORT_SYMBOL(debugfs_create_automount);
  * This function will return a pointer to a dentry if it succeeds.  This
  * pointer must be passed to the debugfs_remove() function when the symbolic
  * link is to be removed (no automatic cleanup happens if your module is
+<<<<<<< HEAD
  * unloaded, you are responsible here.)  If an error occurs, %NULL will be
  * returned.
+=======
+ * unloaded, you are responsible here.)  If an error occurs, ERR_PTR(-ERROR)
+ * will be returned.
+>>>>>>> upstream/android-13
  *
  * If debugfs is not enabled in the kernel, the value -%ENODEV will be
  * returned.
@@ -599,27 +799,45 @@ struct dentry *debugfs_create_symlink(const char *name, struct dentry *parent,
 	struct inode *inode;
 	char *link = kstrdup(target, GFP_KERNEL);
 	if (!link)
+<<<<<<< HEAD
 		return NULL;
+=======
+		return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 
 	dentry = start_creating(name, parent);
 	if (IS_ERR(dentry)) {
 		kfree(link);
+<<<<<<< HEAD
 		return NULL;
+=======
+		return dentry;
+>>>>>>> upstream/android-13
 	}
 
 	inode = debugfs_get_inode(dentry->d_sb);
 	if (unlikely(!inode)) {
+<<<<<<< HEAD
+=======
+		pr_err("out of free dentries, can not create symlink '%s'\n",
+		       name);
+>>>>>>> upstream/android-13
 		kfree(link);
 		return failed_creating(dentry);
 	}
 	inode->i_mode = S_IFLNK | S_IRWXUGO;
+<<<<<<< HEAD
 	inode->i_op = &simple_symlink_inode_operations;
+=======
+	inode->i_op = &debugfs_symlink_inode_operations;
+>>>>>>> upstream/android-13
 	inode->i_link = link;
 	d_instantiate(dentry, inode);
 	return end_creating(dentry);
 }
 EXPORT_SYMBOL_GPL(debugfs_create_symlink);
 
+<<<<<<< HEAD
 static void __debugfs_remove_file(struct dentry *dentry, struct dentry *parent)
 {
 	struct debugfs_fsdata *fsd;
@@ -627,6 +845,12 @@ static void __debugfs_remove_file(struct dentry *dentry, struct dentry *parent)
 	simple_unlink(d_inode(parent), dentry);
 	d_delete(dentry);
 
+=======
+static void __debugfs_file_removed(struct dentry *dentry)
+{
+	struct debugfs_fsdata *fsd;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Paired with the closing smp_mb() implied by a successful
 	 * cmpxchg() in debugfs_file_get(): either
@@ -641,6 +865,7 @@ static void __debugfs_remove_file(struct dentry *dentry, struct dentry *parent)
 		wait_for_completion(&fsd->active_users_drained);
 }
 
+<<<<<<< HEAD
 static int __debugfs_remove(struct dentry *dentry, struct dentry *parent)
 {
 	int ret = 0;
@@ -695,6 +920,17 @@ EXPORT_SYMBOL_GPL(debugfs_remove);
 
 /**
  * debugfs_remove_recursive - recursively removes a directory
+=======
+static void remove_one(struct dentry *victim)
+{
+        if (d_is_reg(victim))
+		__debugfs_file_removed(victim);
+	simple_release_fs(&debugfs_mount, &debugfs_mount_count);
+}
+
+/**
+ * debugfs_remove - recursively removes a directory
+>>>>>>> upstream/android-13
  * @dentry: a pointer to a the dentry of the directory to be removed.  If this
  *          parameter is NULL or an error value, nothing will be done.
  *
@@ -706,6 +942,7 @@ EXPORT_SYMBOL_GPL(debugfs_remove);
  * removed, no automatic cleanup of files will happen when a module is
  * removed, you are responsible here.
  */
+<<<<<<< HEAD
 void debugfs_remove_recursive(struct dentry *dentry)
 {
 	struct dentry *child, *parent;
@@ -765,6 +1002,18 @@ void debugfs_remove_recursive(struct dentry *dentry)
 	inode_unlock(d_inode(parent));
 }
 EXPORT_SYMBOL_GPL(debugfs_remove_recursive);
+=======
+void debugfs_remove(struct dentry *dentry)
+{
+	if (IS_ERR_OR_NULL(dentry))
+		return;
+
+	simple_pin_fs(&debug_fs_type, &debugfs_mount, &debugfs_mount_count);
+	simple_recursive_removal(dentry, remove_one);
+	simple_release_fs(&debugfs_mount, &debugfs_mount_count);
+}
+EXPORT_SYMBOL_GPL(debugfs_remove);
+>>>>>>> upstream/android-13
 
 /**
  * debugfs_rename - rename a file/directory in the debugfs filesystem
@@ -814,14 +1063,23 @@ struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
 
 	take_dentry_name_snapshot(&old_name, old_dentry);
 
+<<<<<<< HEAD
 	error = simple_rename(d_inode(old_dir), old_dentry, d_inode(new_dir),
 			      dentry, 0);
+=======
+	error = simple_rename(&init_user_ns, d_inode(old_dir), old_dentry,
+			      d_inode(new_dir), dentry, 0);
+>>>>>>> upstream/android-13
 	if (error) {
 		release_dentry_name_snapshot(&old_name);
 		goto exit;
 	}
 	d_move(old_dentry, dentry);
+<<<<<<< HEAD
 	fsnotify_move(d_inode(old_dir), d_inode(new_dir), old_name.name,
+=======
+	fsnotify_move(d_inode(old_dir), d_inode(new_dir), &old_name.name,
+>>>>>>> upstream/android-13
 		d_is_dir(old_dentry),
 		NULL, old_dentry);
 	release_dentry_name_snapshot(&old_name);
@@ -832,7 +1090,13 @@ exit:
 	if (dentry && !IS_ERR(dentry))
 		dput(dentry);
 	unlock_rename(new_dir, old_dir);
+<<<<<<< HEAD
 	return NULL;
+=======
+	if (IS_ERR(dentry))
+		return dentry;
+	return ERR_PTR(-EINVAL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(debugfs_rename);
 
@@ -845,10 +1109,33 @@ bool debugfs_initialized(void)
 }
 EXPORT_SYMBOL_GPL(debugfs_initialized);
 
+<<<<<<< HEAD
+=======
+static int __init debugfs_kernel(char *str)
+{
+	if (str) {
+		if (!strcmp(str, "on"))
+			debugfs_allow = DEBUGFS_ALLOW_API | DEBUGFS_ALLOW_MOUNT;
+		else if (!strcmp(str, "no-mount"))
+			debugfs_allow = DEBUGFS_ALLOW_API;
+		else if (!strcmp(str, "off"))
+			debugfs_allow = 0;
+	}
+
+	return 0;
+}
+early_param("debugfs", debugfs_kernel);
+>>>>>>> upstream/android-13
 static int __init debugfs_init(void)
 {
 	int retval;
 
+<<<<<<< HEAD
+=======
+	if (!(debugfs_allow & DEBUGFS_ALLOW_MOUNT))
+		return -EPERM;
+
+>>>>>>> upstream/android-13
 	retval = sysfs_create_mount_point(kernel_kobj, "debug");
 	if (retval)
 		return retval;
@@ -862,4 +1149,7 @@ static int __init debugfs_init(void)
 	return retval;
 }
 core_initcall(debugfs_init);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

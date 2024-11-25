@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016-2017 Qualcomm Atheros, Inc. All rights reserved.
  * Copyright (c) 2015 The Linux Foundation. All rights reserved.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2016-2017 Qualcomm Atheros, Inc. All rights reserved.
+ * Copyright (c) 2015 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/of.h>
@@ -453,6 +460,7 @@ static int ath10k_ahb_resource_init(struct ath10k *ar)
 
 	pdev = ar_ahb->pdev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		ath10k_err(ar, "failed to get memory resource\n");
@@ -461,6 +469,9 @@ static int ath10k_ahb_resource_init(struct ath10k *ar)
 	}
 
 	ar_ahb->mem = devm_ioremap_resource(&pdev->dev, res);
+=======
+	ar_ahb->mem = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ar_ahb->mem)) {
 		ath10k_err(ar, "mem ioremap error\n");
 		ret = PTR_ERR(ar_ahb->mem);
@@ -469,16 +480,26 @@ static int ath10k_ahb_resource_init(struct ath10k *ar)
 
 	ar_ahb->mem_len = resource_size(res);
 
+<<<<<<< HEAD
 	ar_ahb->gcc_mem = ioremap_nocache(ATH10K_GCC_REG_BASE,
 					  ATH10K_GCC_REG_SIZE);
+=======
+	ar_ahb->gcc_mem = ioremap(ATH10K_GCC_REG_BASE,
+				  ATH10K_GCC_REG_SIZE);
+>>>>>>> upstream/android-13
 	if (!ar_ahb->gcc_mem) {
 		ath10k_err(ar, "gcc mem ioremap error\n");
 		ret = -ENOMEM;
 		goto err_mem_unmap;
 	}
 
+<<<<<<< HEAD
 	ar_ahb->tcsr_mem = ioremap_nocache(ATH10K_TCSR_REG_BASE,
 					   ATH10K_TCSR_REG_SIZE);
+=======
+	ar_ahb->tcsr_mem = ioremap(ATH10K_TCSR_REG_BASE,
+				   ATH10K_TCSR_REG_SIZE);
+>>>>>>> upstream/android-13
 	if (!ar_ahb->tcsr_mem) {
 		ath10k_err(ar, "tcsr mem ioremap error\n");
 		ret = -ENOMEM;
@@ -637,7 +658,11 @@ static int ath10k_ahb_hif_start(struct ath10k *ar)
 {
 	ath10k_dbg(ar, ATH10K_DBG_BOOT, "boot ahb hif start\n");
 
+<<<<<<< HEAD
 	napi_enable(&ar->napi);
+=======
+	ath10k_core_napi_enable(ar);
+>>>>>>> upstream/android-13
 	ath10k_ce_enable_interrupts(ar);
 	ath10k_pci_enable_legacy_irq(ar);
 
@@ -655,13 +680,22 @@ static void ath10k_ahb_hif_stop(struct ath10k *ar)
 	ath10k_ahb_irq_disable(ar);
 	synchronize_irq(ar_ahb->irq);
 
+<<<<<<< HEAD
 	napi_synchronize(&ar->napi);
 	napi_disable(&ar->napi);
+=======
+	ath10k_core_napi_sync_disable(ar);
+>>>>>>> upstream/android-13
 
 	ath10k_pci_flush(ar);
 }
 
+<<<<<<< HEAD
 static int ath10k_ahb_hif_power_up(struct ath10k *ar)
+=======
+static int ath10k_ahb_hif_power_up(struct ath10k *ar,
+				   enum ath10k_firmware_mode fw_mode)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -750,7 +784,11 @@ static int ath10k_ahb_probe(struct platform_device *pdev)
 	enum ath10k_hw_rev hw_rev;
 	size_t size;
 	int ret;
+<<<<<<< HEAD
 	u32 chip_id;
+=======
+	struct ath10k_bus_params bus_params = {};
+>>>>>>> upstream/android-13
 
 	of_id = of_match_device(ath10k_ahb_of_match, &pdev->dev);
 	if (!of_id) {
@@ -806,14 +844,24 @@ static int ath10k_ahb_probe(struct platform_device *pdev)
 
 	ath10k_pci_ce_deinit(ar);
 
+<<<<<<< HEAD
 	chip_id = ath10k_ahb_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
 	if (chip_id == 0xffffffff) {
+=======
+	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
+	bus_params.chip_id = ath10k_ahb_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+	if (bus_params.chip_id == 0xffffffff) {
+>>>>>>> upstream/android-13
 		ath10k_err(ar, "failed to get chip id\n");
 		ret = -ENODEV;
 		goto err_halt_device;
 	}
 
+<<<<<<< HEAD
 	ret = ath10k_core_register(ar, chip_id);
+=======
+	ret = ath10k_core_register(ar, &bus_params);
+>>>>>>> upstream/android-13
 	if (ret) {
 		ath10k_err(ar, "failed to register driver core: %d\n", ret);
 		goto err_halt_device;
@@ -829,7 +877,11 @@ err_free_irq:
 	ath10k_ahb_release_irq_legacy(ar);
 
 err_free_pipes:
+<<<<<<< HEAD
 	ath10k_pci_free_pipes(ar);
+=======
+	ath10k_pci_release_resource(ar);
+>>>>>>> upstream/android-13
 
 err_resource_deinit:
 	ath10k_ahb_resource_deinit(ar);

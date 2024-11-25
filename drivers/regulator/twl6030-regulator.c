@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Split TWL6030 logic from twl-regulator.c:
  * Copyright (C) 2008 David Brownell
  *
  * Copyright (C) 2016 Nicolae Rosia <nicolae.rosia@gmail.com>
+<<<<<<< HEAD
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -31,9 +38,12 @@ struct twlreg_info {
 	/* twl resource ID, for resource control state machine */
 	u8			id;
 
+<<<<<<< HEAD
 	/* chip constraints on regulator behavior */
 	u16			min_mV;
 
+=======
+>>>>>>> upstream/android-13
 	u8			flags;
 
 	/* used by regulator core */
@@ -64,6 +74,12 @@ struct twlreg_info {
 #define VREG_BC_PROC		3
 #define VREG_BC_CLK_RST		4
 
+<<<<<<< HEAD
+=======
+/* TWL6030 LDO register values for VREG_VOLTAGE */
+#define TWL6030_VREG_VOLTAGE_WR_S   BIT(7)
+
+>>>>>>> upstream/android-13
 /* TWL6030 LDO register values for CFG_STATE */
 #define TWL6030_CFG_STATE_OFF	0x00
 #define TWL6030_CFG_STATE_ON	0x01
@@ -75,9 +91,16 @@ struct twlreg_info {
 #define TWL6030_CFG_STATE_APP(v)	(((v) & TWL6030_CFG_STATE_APP_MASK) >>\
 						TWL6030_CFG_STATE_APP_SHIFT)
 
+<<<<<<< HEAD
 /* Flags for SMPS Voltage reading */
 #define SMPS_OFFSET_EN		BIT(0)
 #define SMPS_EXTENDED_EN	BIT(1)
+=======
+/* Flags for SMPS Voltage reading and LDO reading*/
+#define SMPS_OFFSET_EN		BIT(0)
+#define SMPS_EXTENDED_EN	BIT(1)
+#define TWL_6030_WARM_RESET	BIT(3)
+>>>>>>> upstream/android-13
 
 /* twl6032 SMPS EPROM values */
 #define TWL6030_SMPS_OFFSET		0xB0
@@ -247,11 +270,16 @@ static int twl6030coresmps_get_voltage(struct regulator_dev *rdev)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops twl6030coresmps_ops = {
+=======
+static const struct regulator_ops twl6030coresmps_ops = {
+>>>>>>> upstream/android-13
 	.set_voltage	= twl6030coresmps_set_voltage,
 	.get_voltage	= twl6030coresmps_get_voltage,
 };
 
+<<<<<<< HEAD
 static int twl6030ldo_list_voltage(struct regulator_dev *rdev, unsigned sel)
 {
 	struct twlreg_info *info = rdev_get_drvdata(rdev);
@@ -273,11 +301,19 @@ static int twl6030ldo_list_voltage(struct regulator_dev *rdev, unsigned sel)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 twl6030ldo_set_voltage_sel(struct regulator_dev *rdev, unsigned selector)
 {
 	struct twlreg_info	*info = rdev_get_drvdata(rdev);
 
+<<<<<<< HEAD
+=======
+	if (info->flags & TWL_6030_WARM_RESET)
+		selector |= TWL6030_VREG_VOLTAGE_WR_S;
+
+>>>>>>> upstream/android-13
 	return twlreg_write(info, TWL_MODULE_PM_RECEIVER, VREG_VOLTAGE,
 			    selector);
 }
@@ -287,11 +323,22 @@ static int twl6030ldo_get_voltage_sel(struct regulator_dev *rdev)
 	struct twlreg_info	*info = rdev_get_drvdata(rdev);
 	int vsel = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_VOLTAGE);
 
+<<<<<<< HEAD
 	return vsel;
 }
 
 static struct regulator_ops twl6030ldo_ops = {
 	.list_voltage	= twl6030ldo_list_voltage,
+=======
+	if (info->flags & TWL_6030_WARM_RESET)
+		vsel &= ~TWL6030_VREG_VOLTAGE_WR_S;
+
+	return vsel;
+}
+
+static const struct regulator_ops twl6030ldo_ops = {
+	.list_voltage	= regulator_list_voltage_linear_range,
+>>>>>>> upstream/android-13
 
 	.set_voltage_sel = twl6030ldo_set_voltage_sel,
 	.get_voltage_sel = twl6030ldo_get_voltage_sel,
@@ -305,7 +352,11 @@ static struct regulator_ops twl6030ldo_ops = {
 	.get_status	= twl6030reg_get_status,
 };
 
+<<<<<<< HEAD
 static struct regulator_ops twl6030fixed_ops = {
+=======
+static const struct regulator_ops twl6030fixed_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage	= regulator_list_voltage_linear,
 
 	.enable		= twl6030reg_enable,
@@ -330,7 +381,11 @@ static int twl6030smps_list_voltage(struct regulator_dev *rdev, unsigned index)
 	switch (info->flags) {
 	case SMPS_OFFSET_EN:
 		voltage = 100000;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		switch (index) {
 		case 0:
@@ -496,7 +551,11 @@ static int twl6030smps_get_voltage_sel(struct regulator_dev *rdev)
 	return twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_VOLTAGE_SMPS);
 }
 
+<<<<<<< HEAD
 static struct regulator_ops twlsmps_ops = {
+=======
+static const struct regulator_ops twlsmps_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage		= twl6030smps_list_voltage,
 	.map_voltage		= twl6030smps_map_voltage,
 
@@ -513,6 +572,14 @@ static struct regulator_ops twlsmps_ops = {
 };
 
 /*----------------------------------------------------------------------*/
+<<<<<<< HEAD
+=======
+static const struct linear_range twl6030ldo_linear_range[] = {
+	REGULATOR_LINEAR_RANGE(0, 0, 0, 0),
+	REGULATOR_LINEAR_RANGE(1000000, 1, 24, 100000),
+	REGULATOR_LINEAR_RANGE(2750000, 31, 31, 0),
+};
+>>>>>>> upstream/android-13
 
 #define TWL6030_ADJUSTABLE_SMPS(label) \
 static const struct twlreg_info TWL6030_INFO_##label = { \
@@ -525,28 +592,50 @@ static const struct twlreg_info TWL6030_INFO_##label = { \
 		}, \
 	}
 
+<<<<<<< HEAD
 #define TWL6030_ADJUSTABLE_LDO(label, offset, min_mVolts) \
 static const struct twlreg_info TWL6030_INFO_##label = { \
 	.base = offset, \
 	.min_mV = min_mVolts, \
+=======
+#define TWL6030_ADJUSTABLE_LDO(label, offset) \
+static const struct twlreg_info TWL6030_INFO_##label = { \
+	.base = offset, \
+>>>>>>> upstream/android-13
 	.desc = { \
 		.name = #label, \
 		.id = TWL6030_REG_##label, \
 		.n_voltages = 32, \
+<<<<<<< HEAD
+=======
+		.linear_ranges = twl6030ldo_linear_range, \
+		.n_linear_ranges = ARRAY_SIZE(twl6030ldo_linear_range), \
+>>>>>>> upstream/android-13
 		.ops = &twl6030ldo_ops, \
 		.type = REGULATOR_VOLTAGE, \
 		.owner = THIS_MODULE, \
 		}, \
 	}
 
+<<<<<<< HEAD
 #define TWL6032_ADJUSTABLE_LDO(label, offset, min_mVolts) \
 static const struct twlreg_info TWL6032_INFO_##label = { \
 	.base = offset, \
 	.min_mV = min_mVolts, \
+=======
+#define TWL6032_ADJUSTABLE_LDO(label, offset) \
+static const struct twlreg_info TWL6032_INFO_##label = { \
+	.base = offset, \
+>>>>>>> upstream/android-13
 	.desc = { \
 		.name = #label, \
 		.id = TWL6032_REG_##label, \
 		.n_voltages = 32, \
+<<<<<<< HEAD
+=======
+		.linear_ranges = twl6030ldo_linear_range, \
+		.n_linear_ranges = ARRAY_SIZE(twl6030ldo_linear_range), \
+>>>>>>> upstream/android-13
 		.ops = &twl6030ldo_ops, \
 		.type = REGULATOR_VOLTAGE, \
 		.owner = THIS_MODULE, \
@@ -557,7 +646,10 @@ static const struct twlreg_info TWL6032_INFO_##label = { \
 static const struct twlreg_info TWLFIXED_INFO_##label = { \
 	.base = offset, \
 	.id = 0, \
+<<<<<<< HEAD
 	.min_mV = mVolts, \
+=======
+>>>>>>> upstream/android-13
 	.desc = { \
 		.name = #label, \
 		.id = TWL6030##_REG_##label, \
@@ -574,7 +666,10 @@ static const struct twlreg_info TWLFIXED_INFO_##label = { \
 #define TWL6032_ADJUSTABLE_SMPS(label, offset) \
 static const struct twlreg_info TWLSMPS_INFO_##label = { \
 	.base = offset, \
+<<<<<<< HEAD
 	.min_mV = 600, \
+=======
+>>>>>>> upstream/android-13
 	.desc = { \
 		.name = #label, \
 		.id = TWL6032_REG_##label, \
@@ -592,6 +687,7 @@ static const struct twlreg_info TWLSMPS_INFO_##label = { \
 TWL6030_ADJUSTABLE_SMPS(VDD1);
 TWL6030_ADJUSTABLE_SMPS(VDD2);
 TWL6030_ADJUSTABLE_SMPS(VDD3);
+<<<<<<< HEAD
 TWL6030_ADJUSTABLE_LDO(VAUX1_6030, 0x54, 1000);
 TWL6030_ADJUSTABLE_LDO(VAUX2_6030, 0x58, 1000);
 TWL6030_ADJUSTABLE_LDO(VAUX3_6030, 0x5c, 1000);
@@ -608,6 +704,24 @@ TWL6032_ADJUSTABLE_LDO(LDO7, 0x74, 1000);
 TWL6032_ADJUSTABLE_LDO(LDO6, 0x60, 1000);
 TWL6032_ADJUSTABLE_LDO(LDOLN, 0x64, 1000);
 TWL6032_ADJUSTABLE_LDO(LDOUSB, 0x70, 1000);
+=======
+TWL6030_ADJUSTABLE_LDO(VAUX1_6030, 0x54);
+TWL6030_ADJUSTABLE_LDO(VAUX2_6030, 0x58);
+TWL6030_ADJUSTABLE_LDO(VAUX3_6030, 0x5c);
+TWL6030_ADJUSTABLE_LDO(VMMC, 0x68);
+TWL6030_ADJUSTABLE_LDO(VPP, 0x6c);
+TWL6030_ADJUSTABLE_LDO(VUSIM, 0x74);
+/* 6025 are renamed compared to 6030 versions */
+TWL6032_ADJUSTABLE_LDO(LDO2, 0x54);
+TWL6032_ADJUSTABLE_LDO(LDO4, 0x58);
+TWL6032_ADJUSTABLE_LDO(LDO3, 0x5c);
+TWL6032_ADJUSTABLE_LDO(LDO5, 0x68);
+TWL6032_ADJUSTABLE_LDO(LDO1, 0x6c);
+TWL6032_ADJUSTABLE_LDO(LDO7, 0x74);
+TWL6032_ADJUSTABLE_LDO(LDO6, 0x60);
+TWL6032_ADJUSTABLE_LDO(LDOLN, 0x64);
+TWL6032_ADJUSTABLE_LDO(LDOUSB, 0x70);
+>>>>>>> upstream/android-13
 TWL6030_FIXED_LDO(VANA, 0x50, 2100, 0);
 TWL6030_FIXED_LDO(VCXIO, 0x60, 1800, 0);
 TWL6030_FIXED_LDO(VDAC, 0x64, 1800, 0);
@@ -687,6 +801,7 @@ static int twlreg_probe(struct platform_device *pdev)
 	struct regulator_init_data	*initdata;
 	struct regulation_constraints	*c;
 	struct regulator_dev		*rdev;
+<<<<<<< HEAD
 	const struct of_device_id	*match;
 	struct regulator_config		config = { };
 
@@ -695,12 +810,22 @@ static int twlreg_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	template = match->data;
+=======
+	struct regulator_config		config = { };
+	struct device_node		*np = pdev->dev.of_node;
+
+	template = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (!template)
 		return -ENODEV;
 
 	id = template->desc.id;
+<<<<<<< HEAD
 	initdata = of_get_regulator_init_data(&pdev->dev, pdev->dev.of_node,
 						&template->desc);
+=======
+	initdata = of_get_regulator_init_data(&pdev->dev, np, &template->desc);
+>>>>>>> upstream/android-13
 	if (!initdata)
 		return -EINVAL;
 
@@ -738,10 +863,20 @@ static int twlreg_probe(struct platform_device *pdev)
 		break;
 	}
 
+<<<<<<< HEAD
 	config.dev = &pdev->dev;
 	config.init_data = initdata;
 	config.driver_data = info;
 	config.of_node = pdev->dev.of_node;
+=======
+	if (of_get_property(np, "ti,retain-on-reset", NULL))
+		info->flags |= TWL_6030_WARM_RESET;
+
+	config.dev = &pdev->dev;
+	config.init_data = initdata;
+	config.driver_data = info;
+	config.of_node = np;
+>>>>>>> upstream/android-13
 
 	rdev = devm_regulator_register(&pdev->dev, &info->desc, &config);
 	if (IS_ERR(rdev)) {

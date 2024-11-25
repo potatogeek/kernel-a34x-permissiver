@@ -18,7 +18,11 @@
 #include <linux/clk.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 #include <linux/jiffies.h>
 #include <linux/kernel.h>
@@ -40,6 +44,7 @@
 #include <mach/usb.h>
 
 
+<<<<<<< HEAD
 /* OMAP-1510 OHCI has its own MMU for DMA */
 #define OMAP1510_LB_MEMSIZE	32	/* Should be same as SDRAM size */
 #define OMAP1510_LB_CLOCK_DIV	0xfffec10c
@@ -71,10 +76,21 @@ static inline int tps65010_set_gpio_out_value(unsigned gpio, unsigned value)
 
 static struct clk *usb_host_ck;
 static struct clk *usb_dc_ck;
+=======
+#define DRIVER_DESC "OHCI OMAP driver"
+
+struct ohci_omap_priv {
+	struct clk *usb_host_ck;
+	struct clk *usb_dc_ck;
+	struct gpio_desc *power;
+	struct gpio_desc *overcurrent;
+};
+>>>>>>> upstream/android-13
 
 static const char hcd_name[] = "ohci-omap";
 static struct hc_driver __read_mostly ohci_omap_hc_driver;
 
+<<<<<<< HEAD
 static void omap_ohci_clock_power(int on)
 {
 	if (on) {
@@ -85,6 +101,21 @@ static void omap_ohci_clock_power(int on)
 	} else {
 		clk_disable(usb_host_ck);
 		clk_disable(usb_dc_ck);
+=======
+#define hcd_to_ohci_omap_priv(h) \
+	((struct ohci_omap_priv *)hcd_to_ohci(h)->priv)
+
+static void omap_ohci_clock_power(struct ohci_omap_priv *priv, int on)
+{
+	if (on) {
+		clk_enable(priv->usb_dc_ck);
+		clk_enable(priv->usb_host_ck);
+		/* guesstimate for T5 == 1x 32K clock + APLL lock time */
+		udelay(100);
+	} else {
+		clk_disable(priv->usb_host_ck);
+		clk_disable(priv->usb_dc_ck);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -92,27 +123,42 @@ static void omap_ohci_clock_power(int on)
  * Board specific gang-switched transceiver power on/off.
  * NOTE:  OSK supplies power from DC, not battery.
  */
+<<<<<<< HEAD
 static int omap_ohci_transceiver_power(int on)
+=======
+static int omap_ohci_transceiver_power(struct ohci_omap_priv *priv, int on)
+>>>>>>> upstream/android-13
 {
 	if (on) {
 		if (machine_is_omap_innovator() && cpu_is_omap1510())
 			__raw_writeb(__raw_readb(INNOVATOR_FPGA_CAM_USB_CONTROL)
 				| ((1 << 5/*usb1*/) | (1 << 3/*usb2*/)),
 			       INNOVATOR_FPGA_CAM_USB_CONTROL);
+<<<<<<< HEAD
 		else if (machine_is_omap_osk())
 			tps65010_set_gpio_out_value(GPIO1, LOW);
+=======
+		else if (priv->power)
+			gpiod_set_value_cansleep(priv->power, 0);
+>>>>>>> upstream/android-13
 	} else {
 		if (machine_is_omap_innovator() && cpu_is_omap1510())
 			__raw_writeb(__raw_readb(INNOVATOR_FPGA_CAM_USB_CONTROL)
 				& ~((1 << 5/*usb1*/) | (1 << 3/*usb2*/)),
 			       INNOVATOR_FPGA_CAM_USB_CONTROL);
+<<<<<<< HEAD
 		else if (machine_is_omap_osk())
 			tps65010_set_gpio_out_value(GPIO1, HIGH);
+=======
+		else if (priv->power)
+			gpiod_set_value_cansleep(priv->power, 1);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_OMAP15XX
 /*
  * OMAP-1510 specific Local Bus clock on/off
@@ -168,6 +214,8 @@ static int omap_1510_local_bus_init(void)
 #define omap_1510_local_bus_init()	{}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef	CONFIG_USB_OTG
 
 static void start_hnp(struct ohci_hcd *ohci)
@@ -196,6 +244,10 @@ static int ohci_omap_reset(struct usb_hcd *hcd)
 {
 	struct ohci_hcd		*ohci = hcd_to_ohci(hcd);
 	struct omap_usb_config	*config = dev_get_platdata(hcd->self.controller);
+<<<<<<< HEAD
+=======
+	struct ohci_omap_priv	*priv = hcd_to_ohci_omap_priv(hcd);
+>>>>>>> upstream/android-13
 	int			need_transceiver = (config->otg != 0);
 	int			ret;
 
@@ -235,12 +287,19 @@ static int ohci_omap_reset(struct usb_hcd *hcd)
 	}
 #endif
 
+<<<<<<< HEAD
 	omap_ohci_clock_power(1);
 
 	if (cpu_is_omap15xx()) {
 		omap_1510_local_bus_power(1);
 		omap_1510_local_bus_init();
 	}
+=======
+	omap_ohci_clock_power(priv, 1);
+
+	if (config->lb_reset)
+		config->lb_reset();
+>>>>>>> upstream/android-13
 
 	ret = ohci_setup(hcd);
 	if (ret < 0)
@@ -266,8 +325,11 @@ static int ohci_omap_reset(struct usb_hcd *hcd)
 
 			/* gpio9 for overcurrent detction */
 			omap_cfg_reg(W8_1610_GPIO9);
+<<<<<<< HEAD
 			gpio_request(9, "OHCI overcurrent");
 			gpio_direction_input(9);
+=======
+>>>>>>> upstream/android-13
 
 			/* for paranoia's sake:  disable USB.PUEN */
 			omap_cfg_reg(W4_USB_HIGHZ);
@@ -281,7 +343,11 @@ static int ohci_omap_reset(struct usb_hcd *hcd)
 	}
 
 	/* FIXME hub_wq hub requests should manage power switching */
+<<<<<<< HEAD
 	omap_ohci_transceiver_power(1);
+=======
+	omap_ohci_transceiver_power(priv, 1);
+>>>>>>> upstream/android-13
 
 	/* board init will have already handled HMC and mux setup.
 	 * any external transceiver should already be initialized
@@ -295,7 +361,13 @@ static int ohci_omap_reset(struct usb_hcd *hcd)
 
 /**
  * ohci_hcd_omap_probe - initialize OMAP-based HCDs
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ * @pdev:	USB controller to probe
+ *
+ * Context: task context, might sleep
+>>>>>>> upstream/android-13
  *
  * Allocates basic resources for this USB host controller, and
  * then invokes the start() method for the HCD associated with it
@@ -305,6 +377,10 @@ static int ohci_hcd_omap_probe(struct platform_device *pdev)
 {
 	int retval, irq;
 	struct usb_hcd *hcd = 0;
+<<<<<<< HEAD
+=======
+	struct ohci_omap_priv *priv;
+>>>>>>> upstream/android-13
 
 	if (pdev->num_resources != 2) {
 		dev_err(&pdev->dev, "invalid num_resources: %i\n",
@@ -318,6 +394,7 @@ static int ohci_hcd_omap_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	usb_host_ck = clk_get(&pdev->dev, "usb_hhc_ck");
 	if (IS_ERR(usb_host_ck))
 		return PTR_ERR(usb_host_ck);
@@ -341,11 +418,64 @@ static int ohci_hcd_omap_probe(struct platform_device *pdev)
 	}
 	hcd->rsrc_start = pdev->resource[0].start;
 	hcd->rsrc_len = pdev->resource[0].end - pdev->resource[0].start + 1;
+=======
+	hcd = usb_create_hcd(&ohci_omap_hc_driver, &pdev->dev,
+			dev_name(&pdev->dev));
+	if (!hcd)
+		return -ENOMEM;
+
+	hcd->rsrc_start = pdev->resource[0].start;
+	hcd->rsrc_len = pdev->resource[0].end - pdev->resource[0].start + 1;
+	priv = hcd_to_ohci_omap_priv(hcd);
+
+	/* Obtain two optional GPIO lines */
+	priv->power = devm_gpiod_get_optional(&pdev->dev, "power", GPIOD_ASIS);
+	if (IS_ERR(priv->power)) {
+		retval = PTR_ERR(priv->power);
+		goto err_put_hcd;
+	}
+	if (priv->power)
+		gpiod_set_consumer_name(priv->power, "OHCI power");
+
+	/*
+	 * This "overcurrent" GPIO line isn't really used in the code,
+	 * but has a designated hardware function.
+	 * TODO: implement proper overcurrent handling.
+	 */
+	priv->overcurrent = devm_gpiod_get_optional(&pdev->dev, "overcurrent",
+						    GPIOD_IN);
+	if (IS_ERR(priv->overcurrent)) {
+		retval = PTR_ERR(priv->overcurrent);
+		goto err_put_hcd;
+	}
+	if (priv->overcurrent)
+		gpiod_set_consumer_name(priv->overcurrent, "OHCI overcurrent");
+
+	priv->usb_host_ck = clk_get(&pdev->dev, "usb_hhc_ck");
+	if (IS_ERR(priv->usb_host_ck)) {
+		retval = PTR_ERR(priv->usb_host_ck);
+		goto err_put_hcd;
+	}
+
+	if (!cpu_is_omap15xx())
+		priv->usb_dc_ck = clk_get(&pdev->dev, "usb_dc_ck");
+	else
+		priv->usb_dc_ck = clk_get(&pdev->dev, "lb_ck");
+
+	if (IS_ERR(priv->usb_dc_ck)) {
+		retval = PTR_ERR(priv->usb_dc_ck);
+		goto err_put_host_ck;
+	}
+>>>>>>> upstream/android-13
 
 	if (!request_mem_region(hcd->rsrc_start, hcd->rsrc_len, hcd_name)) {
 		dev_dbg(&pdev->dev, "request_mem_region failed\n");
 		retval = -EBUSY;
+<<<<<<< HEAD
 		goto err1;
+=======
+		goto err_put_dc_ck;
+>>>>>>> upstream/android-13
 	}
 
 	hcd->regs = ioremap(hcd->rsrc_start, hcd->rsrc_len);
@@ -370,11 +500,20 @@ err3:
 	iounmap(hcd->regs);
 err2:
 	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
+<<<<<<< HEAD
 err1:
 	usb_put_hcd(hcd);
 err0:
 	clk_put(usb_dc_ck);
 	clk_put(usb_host_ck);
+=======
+err_put_dc_ck:
+	clk_put(priv->usb_dc_ck);
+err_put_host_ck:
+	clk_put(priv->usb_host_ck);
+err_put_hcd:
+	usb_put_hcd(hcd);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -383,8 +522,14 @@ err0:
 
 /**
  * ohci_hcd_omap_remove - shutdown processing for OMAP-based HCDs
+<<<<<<< HEAD
  * @dev: USB Host Controller being removed
  * Context: !in_interrupt()
+=======
+ * @pdev: USB Host Controller being removed
+ *
+ * Context: task context, might sleep
+>>>>>>> upstream/android-13
  *
  * Reverses the effect of ohci_hcd_omap_probe(), first invoking
  * the HCD's stop() method.  It is always called from a thread
@@ -393,14 +538,23 @@ err0:
 static int ohci_hcd_omap_remove(struct platform_device *pdev)
 {
 	struct usb_hcd	*hcd = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	dev_dbg(hcd->self.controller, "stopping USB Controller\n");
 	usb_remove_hcd(hcd);
 	omap_ohci_clock_power(0);
+=======
+	struct ohci_omap_priv *priv = hcd_to_ohci_omap_priv(hcd);
+
+	dev_dbg(hcd->self.controller, "stopping USB Controller\n");
+	usb_remove_hcd(hcd);
+	omap_ohci_clock_power(priv, 0);
+>>>>>>> upstream/android-13
 	if (!IS_ERR_OR_NULL(hcd->usb_phy)) {
 		(void) otg_set_host(hcd->usb_phy->otg, 0);
 		usb_put_phy(hcd->usb_phy);
 	}
+<<<<<<< HEAD
 	if (machine_is_omap_osk())
 		gpio_free(9);
 	iounmap(hcd->regs);
@@ -408,6 +562,13 @@ static int ohci_hcd_omap_remove(struct platform_device *pdev)
 	usb_put_hcd(hcd);
 	clk_put(usb_dc_ck);
 	clk_put(usb_host_ck);
+=======
+	iounmap(hcd->regs);
+	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
+	clk_put(priv->usb_dc_ck);
+	clk_put(priv->usb_host_ck);
+	usb_put_hcd(hcd);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -419,6 +580,10 @@ static int ohci_omap_suspend(struct platform_device *pdev, pm_message_t message)
 {
 	struct usb_hcd *hcd = platform_get_drvdata(pdev);
 	struct ohci_hcd *ohci = hcd_to_ohci(hcd);
+<<<<<<< HEAD
+=======
+	struct ohci_omap_priv *priv = hcd_to_ohci_omap_priv(hcd);
+>>>>>>> upstream/android-13
 	bool do_wakeup = device_may_wakeup(&pdev->dev);
 	int ret;
 
@@ -430,7 +595,11 @@ static int ohci_omap_suspend(struct platform_device *pdev, pm_message_t message)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	omap_ohci_clock_power(0);
+=======
+	omap_ohci_clock_power(priv, 0);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -438,12 +607,20 @@ static int ohci_omap_resume(struct platform_device *dev)
 {
 	struct usb_hcd	*hcd = platform_get_drvdata(dev);
 	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
+<<<<<<< HEAD
+=======
+	struct ohci_omap_priv *priv = hcd_to_ohci_omap_priv(hcd);
+>>>>>>> upstream/android-13
 
 	if (time_before(jiffies, ohci->next_statechange))
 		msleep(5);
 	ohci->next_statechange = jiffies;
 
+<<<<<<< HEAD
 	omap_ohci_clock_power(1);
+=======
+	omap_ohci_clock_power(priv, 1);
+>>>>>>> upstream/android-13
 	ohci_resume(hcd, false);
 	return 0;
 }
@@ -470,7 +647,12 @@ static struct platform_driver ohci_hcd_omap_driver = {
 
 static const struct ohci_driver_overrides omap_overrides __initconst = {
 	.product_desc	= "OMAP OHCI",
+<<<<<<< HEAD
 	.reset		= ohci_omap_reset
+=======
+	.reset		= ohci_omap_reset,
+	.extra_priv_size = sizeof(struct ohci_omap_priv),
+>>>>>>> upstream/android-13
 };
 
 static int __init ohci_omap_init(void)

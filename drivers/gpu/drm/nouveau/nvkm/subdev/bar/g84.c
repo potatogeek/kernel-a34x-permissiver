@@ -56,7 +56,14 @@ g84_bar_func = {
 };
 
 int
+<<<<<<< HEAD
 g84_bar_new(struct nvkm_device *device, int index, struct nvkm_bar **pbar)
 {
 	return nv50_bar_new_(&g84_bar_func, device, index, 0x200, pbar);
+=======
+g84_bar_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	    struct nvkm_bar **pbar)
+{
+	return nv50_bar_new_(&g84_bar_func, device, type, inst, 0x200, pbar);
+>>>>>>> upstream/android-13
 }

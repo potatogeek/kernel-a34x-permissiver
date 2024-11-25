@@ -284,12 +284,20 @@ badsys:
 	mov.l	er0,@(LER0:16,sp)
 	bra	resume_userspace
 
+<<<<<<< HEAD
 #if !defined(CONFIG_PREEMPT)
+=======
+#if !defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 #define resume_kernel restore_all
 #endif
 
 ret_from_exception:
+<<<<<<< HEAD
 #if defined(CONFIG_PREEMPT)
+=======
+#if defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 	orc	#0xc0,ccr
 #endif
 ret_from_interrupt:
@@ -319,7 +327,11 @@ work_resched:
 restore_all:
 	RESTORE_ALL			/* Does RTE */
 
+<<<<<<< HEAD
 #if defined(CONFIG_PREEMPT)
+=======
+#if defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 resume_kernel:
 	mov.l	@(TI_PRE_COUNT:16,er4),er0
 	bne	restore_all:8

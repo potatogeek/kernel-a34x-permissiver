@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Heiko Stuebner <heiko@sntech.de>
  *
@@ -5,13 +6,26 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013 Heiko Stuebner <heiko@sntech.de>
+ *
+>>>>>>> upstream/android-13
  * Common Clock Framework support for S3C2412 and S3C2413.
  */
 
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/syscore_ops.h>
+=======
+#include <linux/clk/samsung.h>
+#include <linux/io.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 
 #include <dt-bindings/clock/s3c2412.h>
@@ -29,9 +43,12 @@
 
 static void __iomem *reg_base;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static struct samsung_clk_reg_dump *s3c2412_save;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * list of controller registers to be saved and restored during a
  * suspend/resume cycle.
@@ -45,6 +62,7 @@ static unsigned long s3c2412_clk_regs[] __initdata = {
 	CLKSRC,
 };
 
+<<<<<<< HEAD
 static int s3c2412_clk_suspend(void)
 {
 	samsung_clk_save(reg_base, s3c2412_save,
@@ -81,6 +99,8 @@ static void __init s3c2412_clk_sleep_init(void)
 static void __init s3c2412_clk_sleep_init(void) {}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static struct clk_div_table divxti_d[] = {
 	{ .val = 0, .div = 1 },
 	{ .val = 1, .div = 2 },
@@ -278,7 +298,12 @@ void __init s3c2412_common_clk_init(struct device_node *np, unsigned long xti_f,
 	samsung_clk_register_alias(ctx, s3c2412_aliases,
 				   ARRAY_SIZE(s3c2412_aliases));
 
+<<<<<<< HEAD
 	s3c2412_clk_sleep_init();
+=======
+	samsung_clk_sleep_init(reg_base, s3c2412_clk_regs,
+			       ARRAY_SIZE(s3c2412_clk_regs));
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_add_provider(np, ctx);
 

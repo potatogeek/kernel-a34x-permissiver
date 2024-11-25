@@ -793,7 +793,11 @@ static int spear_smi_probe_config_dt(struct platform_device *pdev,
 				     struct device_node *np)
 {
 	struct spear_smi_plat_data *pdata = dev_get_platdata(&pdev->dev);
+<<<<<<< HEAD
 	struct device_node *pp = NULL;
+=======
+	struct device_node *pp;
+>>>>>>> upstream/android-13
 	const __be32 *addr;
 	u32 val;
 	int len;
@@ -812,10 +816,14 @@ static int spear_smi_probe_config_dt(struct platform_device *pdev,
 		return -ENOMEM;
 
 	/* Fill structs for each subnode (flash device) */
+<<<<<<< HEAD
 	while ((pp = of_get_next_child(np, pp))) {
 		struct spear_smi_flash_info *flash_info;
 
 		flash_info = &pdata->board_flash_info[i];
+=======
+	for_each_child_of_node(np, pp) {
+>>>>>>> upstream/android-13
 		pdata->np[i] = pp;
 
 		/* Read base-addr and size from DT */
@@ -969,7 +977,10 @@ static int spear_smi_probe(struct platform_device *pdev)
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
 		ret = -ENODEV;
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "invalid smi irq\n");
+=======
+>>>>>>> upstream/android-13
 		goto err;
 	}
 

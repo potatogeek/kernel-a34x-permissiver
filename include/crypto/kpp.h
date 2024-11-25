@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Key-agreement Protocol Primitives (KPP)
  *
  * Copyright (c) 2016, Intel Corporation
  * Authors: Salvatore Benedetto <salvatore.benedetto@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYPTO_KPP_
@@ -194,7 +201,11 @@ static inline struct kpp_request *kpp_request_alloc(struct crypto_kpp *tfm,
  */
 static inline void kpp_request_free(struct kpp_request *req)
 {
+<<<<<<< HEAD
 	kzfree(req);
+=======
+	kfree_sensitive(req);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -289,8 +300,18 @@ static inline int crypto_kpp_set_secret(struct crypto_kpp *tfm,
 					const void *buffer, unsigned int len)
 {
 	struct kpp_alg *alg = crypto_kpp_alg(tfm);
+<<<<<<< HEAD
 
 	return alg->set_secret(tfm, buffer, len);
+=======
+	struct crypto_alg *calg = tfm->base.__crt_alg;
+	int ret;
+
+	crypto_stats_get(calg);
+	ret = alg->set_secret(tfm, buffer, len);
+	crypto_stats_kpp_set_secret(calg, ret);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -310,8 +331,18 @@ static inline int crypto_kpp_generate_public_key(struct kpp_request *req)
 {
 	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
 	struct kpp_alg *alg = crypto_kpp_alg(tfm);
+<<<<<<< HEAD
 
 	return alg->generate_public_key(req);
+=======
+	struct crypto_alg *calg = tfm->base.__crt_alg;
+	int ret;
+
+	crypto_stats_get(calg);
+	ret = alg->generate_public_key(req);
+	crypto_stats_kpp_generate_public_key(calg, ret);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -328,8 +359,18 @@ static inline int crypto_kpp_compute_shared_secret(struct kpp_request *req)
 {
 	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
 	struct kpp_alg *alg = crypto_kpp_alg(tfm);
+<<<<<<< HEAD
 
 	return alg->compute_shared_secret(req);
+=======
+	struct crypto_alg *calg = tfm->base.__crt_alg;
+	int ret;
+
+	crypto_stats_get(calg);
+	ret = alg->compute_shared_secret(req);
+	crypto_stats_kpp_compute_shared_secret(calg, ret);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**

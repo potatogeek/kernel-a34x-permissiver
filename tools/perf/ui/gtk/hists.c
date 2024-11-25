@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "../evlist.h"
+<<<<<<< HEAD
 #include "../cache.h"
+=======
+#include "../callchain.h"
+>>>>>>> upstream/android-13
 #include "../evsel.h"
 #include "../sort.h"
 #include "../hist.h"
@@ -8,6 +12,11 @@
 #include "../string2.h"
 #include "gtk.h"
 #include <signal.h>
+<<<<<<< HEAD
+=======
+#include <stdlib.h>
+#include <linux/string.h>
+>>>>>>> upstream/android-13
 
 #define MAX_COLUMNS			32
 
@@ -353,7 +362,11 @@ static void perf_gtk__show_hists(GtkWidget *window, struct hists *hists,
 
 	g_object_unref(GTK_TREE_MODEL(store));
 
+<<<<<<< HEAD
 	for (nd = rb_first(&hists->entries); nd; nd = rb_next(nd)) {
+=======
+	for (nd = rb_first_cached(&hists->entries); nd; nd = rb_next(nd)) {
+>>>>>>> upstream/android-13
 		struct hist_entry *h = rb_entry(nd, struct hist_entry, rb_node);
 		GtkTreeIter iter;
 		u64 total = hists__total_period(h->hists);
@@ -401,7 +414,11 @@ static void perf_gtk__show_hists(GtkWidget *window, struct hists *hists,
 }
 
 static void perf_gtk__add_hierarchy_entries(struct hists *hists,
+<<<<<<< HEAD
 					    struct rb_root *root,
+=======
+					    struct rb_root_cached *root,
+>>>>>>> upstream/android-13
 					    GtkTreeStore *store,
 					    GtkTreeIter *parent,
 					    struct perf_hpp *hpp,
@@ -415,7 +432,11 @@ static void perf_gtk__add_hierarchy_entries(struct hists *hists,
 	u64 total = hists__total_period(hists);
 	int size;
 
+<<<<<<< HEAD
 	for (node = rb_first(root); node; node = rb_next(node)) {
+=======
+	for (node = rb_first_cached(root); node; node = rb_next(node)) {
+>>>>>>> upstream/android-13
 		GtkTreeIter iter;
 		float percent;
 		char *bf;
@@ -458,7 +479,11 @@ static void perf_gtk__add_hierarchy_entries(struct hists *hists,
 			advance_hpp(hpp, ret + 2);
 		}
 
+<<<<<<< HEAD
 		gtk_tree_store_set(store, &iter, col_idx, ltrim(rtrim(bf)), -1);
+=======
+		gtk_tree_store_set(store, &iter, col_idx, strim(bf), -1);
+>>>>>>> upstream/android-13
 
 		if (!he->leaf) {
 			hpp->buf = bf;
@@ -554,7 +579,11 @@ static void perf_gtk__show_hierarchy(GtkWidget *window, struct hists *hists,
 			first_col = false;
 
 			fmt->header(fmt, &hpp, hists, 0, NULL);
+<<<<<<< HEAD
 			strcat(buf, ltrim(rtrim(hpp.buf)));
+=======
+			strcat(buf, strim(hpp.buf));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -588,12 +617,19 @@ static void perf_gtk__show_hierarchy(GtkWidget *window, struct hists *hists,
 	gtk_container_add(GTK_CONTAINER(window), view);
 }
 
+<<<<<<< HEAD
 int perf_evlist__gtk_browse_hists(struct perf_evlist *evlist,
 				  const char *help,
 				  struct hist_browser_timer *hbt __maybe_unused,
 				  float min_pcnt)
 {
 	struct perf_evsel *pos;
+=======
+int evlist__gtk_browse_hists(struct evlist *evlist, const char *help,
+			     struct hist_browser_timer *hbt __maybe_unused, float min_pcnt)
+{
+	struct evsel *pos;
+>>>>>>> upstream/android-13
 	GtkWidget *vbox;
 	GtkWidget *notebook;
 	GtkWidget *info_bar;
@@ -633,18 +669,30 @@ int perf_evlist__gtk_browse_hists(struct perf_evlist *evlist,
 
 	evlist__for_each_entry(evlist, pos) {
 		struct hists *hists = evsel__hists(pos);
+<<<<<<< HEAD
 		const char *evname = perf_evsel__name(pos);
+=======
+		const char *evname = evsel__name(pos);
+>>>>>>> upstream/android-13
 		GtkWidget *scrolled_window;
 		GtkWidget *tab_label;
 		char buf[512];
 		size_t size = sizeof(buf);
 
 		if (symbol_conf.event_group) {
+<<<<<<< HEAD
 			if (!perf_evsel__is_group_leader(pos))
 				continue;
 
 			if (pos->nr_members > 1) {
 				perf_evsel__group_desc(pos, buf, size);
+=======
+			if (!evsel__is_group_leader(pos))
+				continue;
+
+			if (pos->core.nr_members > 1) {
+				evsel__group_desc(pos, buf, size);
+>>>>>>> upstream/android-13
 				evname = buf;
 			}
 		}

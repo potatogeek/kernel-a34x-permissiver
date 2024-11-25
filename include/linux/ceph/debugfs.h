@@ -2,6 +2,7 @@
 #ifndef _FS_CEPH_DEBUGFS_H
 #define _FS_CEPH_DEBUGFS_H
 
+<<<<<<< HEAD
 #include <linux/ceph/ceph_debug.h>
 #include <linux/ceph/types.h>
 
@@ -22,6 +23,14 @@ static const struct file_operations name##_fops = {			\
 extern int ceph_debugfs_init(void);
 extern void ceph_debugfs_cleanup(void);
 extern int ceph_debugfs_client_init(struct ceph_client *client);
+=======
+#include <linux/ceph/types.h>
+
+/* debugfs.c */
+extern void ceph_debugfs_init(void);
+extern void ceph_debugfs_cleanup(void);
+extern void ceph_debugfs_client_init(struct ceph_client *client);
+>>>>>>> upstream/android-13
 extern void ceph_debugfs_client_cleanup(struct ceph_client *client);
 
 #endif

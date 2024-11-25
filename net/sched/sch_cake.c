@@ -138,8 +138,13 @@ struct cake_flow {
 struct cake_host {
 	u32 srchost_tag;
 	u32 dsthost_tag;
+<<<<<<< HEAD
 	u16 srchost_refcnt;
 	u16 dsthost_refcnt;
+=======
+	u16 srchost_bulk_flow_count;
+	u16 dsthost_bulk_flow_count;
+>>>>>>> upstream/android-13
 };
 
 struct cake_heap_entry {
@@ -173,8 +178,12 @@ struct cake_tin_data {
 	u64	tin_rate_bps;
 	u16	tin_rate_shft;
 
+<<<<<<< HEAD
 	u16	tin_quantum_prio;
 	u16	tin_quantum_band;
+=======
+	u16	tin_quantum;
+>>>>>>> upstream/android-13
 	s32	tin_deficit;
 	u32	tin_backlog;
 	u32	tin_dropped;
@@ -211,6 +220,12 @@ struct cake_sched_data {
 	u8		ack_filter;
 	u8		atm_mode;
 
+<<<<<<< HEAD
+=======
+	u32		fwmark_mask;
+	u16		fwmark_shft;
+
+>>>>>>> upstream/android-13
 	/* time_next = time_this + ((len * rate_ns) >> rate_shft) */
 	u16		rate_shft;
 	ktime_t		time_next_packet;
@@ -310,8 +325,13 @@ static const u8 precedence[] = {
 };
 
 static const u8 diffserv8[] = {
+<<<<<<< HEAD
 	2, 5, 1, 2, 4, 2, 2, 2,
 	0, 2, 1, 2, 1, 2, 1, 2,
+=======
+	2, 0, 1, 2, 4, 2, 2, 2,
+	1, 2, 1, 2, 1, 2, 1, 2,
+>>>>>>> upstream/android-13
 	5, 2, 4, 2, 4, 2, 4, 2,
 	3, 2, 3, 2, 3, 2, 3, 2,
 	6, 2, 3, 2, 3, 2, 3, 2,
@@ -321,7 +341,11 @@ static const u8 diffserv8[] = {
 };
 
 static const u8 diffserv4[] = {
+<<<<<<< HEAD
 	0, 2, 0, 0, 2, 0, 0, 0,
+=======
+	0, 1, 0, 0, 2, 0, 0, 0,
+>>>>>>> upstream/android-13
 	1, 0, 0, 0, 0, 0, 0, 0,
 	2, 0, 2, 0, 2, 0, 2, 0,
 	2, 0, 2, 0, 2, 0, 2, 0,
@@ -332,7 +356,11 @@ static const u8 diffserv4[] = {
 };
 
 static const u8 diffserv3[] = {
+<<<<<<< HEAD
 	0, 0, 0, 0, 2, 0, 0, 0,
+=======
+	0, 1, 0, 0, 2, 0, 0, 0,
+>>>>>>> upstream/android-13
 	1, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0,
@@ -582,11 +610,16 @@ static bool cobalt_should_drop(struct cobalt_vars *vars,
 	return drop;
 }
 
+<<<<<<< HEAD
 static void cake_update_flowkeys(struct flow_keys *keys,
+=======
+static bool cake_update_flowkeys(struct flow_keys *keys,
+>>>>>>> upstream/android-13
 				 const struct sk_buff *skb)
 {
 #if IS_ENABLED(CONFIG_NF_CONNTRACK)
 	struct nf_conntrack_tuple tuple = {};
+<<<<<<< HEAD
 	bool rev = !skb->_nfct;
 
 	if (skb_protocol(skb, true) != htons(ETH_P_IP))
@@ -602,6 +635,45 @@ static void cake_update_flowkeys(struct flow_keys *keys,
 		keys->ports.src = rev ? tuple.dst.u.all : tuple.src.u.all;
 		keys->ports.dst = rev ? tuple.src.u.all : tuple.dst.u.all;
 	}
+=======
+	bool rev = !skb->_nfct, upd = false;
+	__be32 ip;
+
+	if (skb_protocol(skb, true) != htons(ETH_P_IP))
+		return false;
+
+	if (!nf_ct_get_tuple_skb(&tuple, skb))
+		return false;
+
+	ip = rev ? tuple.dst.u3.ip : tuple.src.u3.ip;
+	if (ip != keys->addrs.v4addrs.src) {
+		keys->addrs.v4addrs.src = ip;
+		upd = true;
+	}
+	ip = rev ? tuple.src.u3.ip : tuple.dst.u3.ip;
+	if (ip != keys->addrs.v4addrs.dst) {
+		keys->addrs.v4addrs.dst = ip;
+		upd = true;
+	}
+
+	if (keys->ports.ports) {
+		__be16 port;
+
+		port = rev ? tuple.dst.u.all : tuple.src.u.all;
+		if (port != keys->ports.src) {
+			keys->ports.src = port;
+			upd = true;
+		}
+		port = rev ? tuple.src.u.all : tuple.dst.u.all;
+		if (port != keys->ports.dst) {
+			port = keys->ports.dst;
+			upd = true;
+		}
+	}
+	return upd;
+#else
+	return false;
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -622,23 +694,53 @@ static bool cake_ddst(int flow_mode)
 static u32 cake_hash(struct cake_tin_data *q, const struct sk_buff *skb,
 		     int flow_mode, u16 flow_override, u16 host_override)
 {
+<<<<<<< HEAD
 	u32 flow_hash = 0, srchost_hash = 0, dsthost_hash = 0;
 	u16 reduced_hash, srchost_idx, dsthost_idx;
 	struct flow_keys keys, host_keys;
+=======
+	bool hash_flows = (!flow_override && !!(flow_mode & CAKE_FLOW_FLOWS));
+	bool hash_hosts = (!host_override && !!(flow_mode & CAKE_FLOW_HOSTS));
+	bool nat_enabled = !!(flow_mode & CAKE_FLOW_NAT_FLAG);
+	u32 flow_hash = 0, srchost_hash = 0, dsthost_hash = 0;
+	u16 reduced_hash, srchost_idx, dsthost_idx;
+	struct flow_keys keys, host_keys;
+	bool use_skbhash = skb->l4_hash;
+>>>>>>> upstream/android-13
 
 	if (unlikely(flow_mode == CAKE_FLOW_NONE))
 		return 0;
 
+<<<<<<< HEAD
 	/* If both overrides are set we can skip packet dissection entirely */
 	if ((flow_override || !(flow_mode & CAKE_FLOW_FLOWS)) &&
 	    (host_override || !(flow_mode & CAKE_FLOW_HOSTS)))
+=======
+	/* If both overrides are set, or we can use the SKB hash and nat mode is
+	 * disabled, we can skip packet dissection entirely. If nat mode is
+	 * enabled there's another check below after doing the conntrack lookup.
+	 */
+	if ((!hash_flows || (use_skbhash && !nat_enabled)) && !hash_hosts)
+>>>>>>> upstream/android-13
 		goto skip_hash;
 
 	skb_flow_dissect_flow_keys(skb, &keys,
 				   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
 
+<<<<<<< HEAD
 	if (flow_mode & CAKE_FLOW_NAT_FLAG)
 		cake_update_flowkeys(&keys, skb);
+=======
+	/* Don't use the SKB hash if we change the lookup keys from conntrack */
+	if (nat_enabled && cake_update_flowkeys(&keys, skb))
+		use_skbhash = false;
+
+	/* If we can still use the SKB hash and don't need the host hash, we can
+	 * skip the rest of the hashing procedure
+	 */
+	if (use_skbhash && !hash_hosts)
+		goto skip_hash;
+>>>>>>> upstream/android-13
 
 	/* flow_hash_from_keys() sorts the addresses by value, so we have
 	 * to preserve their order in a separate data structure to treat
@@ -677,12 +779,21 @@ static u32 cake_hash(struct cake_tin_data *q, const struct sk_buff *skb,
 	/* This *must* be after the above switch, since as a
 	 * side-effect it sorts the src and dst addresses.
 	 */
+<<<<<<< HEAD
 	if (flow_mode & CAKE_FLOW_FLOWS)
+=======
+	if (hash_flows && !use_skbhash)
+>>>>>>> upstream/android-13
 		flow_hash = flow_hash_from_keys(&keys);
 
 skip_hash:
 	if (flow_override)
 		flow_hash = flow_override - 1;
+<<<<<<< HEAD
+=======
+	else if (use_skbhash && (flow_mode & CAKE_FLOW_FLOWS))
+		flow_hash = skb->hash;
+>>>>>>> upstream/android-13
 	if (host_override) {
 		dsthost_hash = host_override - 1;
 		srchost_hash = host_override - 1;
@@ -746,8 +857,15 @@ skip_hash:
 		 * queue, accept the collision, update the host tags.
 		 */
 		q->way_collisions++;
+<<<<<<< HEAD
 		q->hosts[q->flows[reduced_hash].srchost].srchost_refcnt--;
 		q->hosts[q->flows[reduced_hash].dsthost].dsthost_refcnt--;
+=======
+		if (q->flows[outer_hash + k].set == CAKE_SET_BULK) {
+			q->hosts[q->flows[reduced_hash].srchost].srchost_bulk_flow_count--;
+			q->hosts[q->flows[reduced_hash].dsthost].dsthost_bulk_flow_count--;
+		}
+>>>>>>> upstream/android-13
 		allocate_src = cake_dsrc(flow_mode);
 		allocate_dst = cake_ddst(flow_mode);
 found:
@@ -767,13 +885,22 @@ found:
 			}
 			for (i = 0; i < CAKE_SET_WAYS;
 				i++, k = (k + 1) % CAKE_SET_WAYS) {
+<<<<<<< HEAD
 				if (!q->hosts[outer_hash + k].srchost_refcnt)
+=======
+				if (!q->hosts[outer_hash + k].srchost_bulk_flow_count)
+>>>>>>> upstream/android-13
 					break;
 			}
 			q->hosts[outer_hash + k].srchost_tag = srchost_hash;
 found_src:
 			srchost_idx = outer_hash + k;
+<<<<<<< HEAD
 			q->hosts[srchost_idx].srchost_refcnt++;
+=======
+			if (q->flows[reduced_hash].set == CAKE_SET_BULK)
+				q->hosts[srchost_idx].srchost_bulk_flow_count++;
+>>>>>>> upstream/android-13
 			q->flows[reduced_hash].srchost = srchost_idx;
 		}
 
@@ -789,13 +916,22 @@ found_src:
 			}
 			for (i = 0; i < CAKE_SET_WAYS;
 			     i++, k = (k + 1) % CAKE_SET_WAYS) {
+<<<<<<< HEAD
 				if (!q->hosts[outer_hash + k].dsthost_refcnt)
+=======
+				if (!q->hosts[outer_hash + k].dsthost_bulk_flow_count)
+>>>>>>> upstream/android-13
 					break;
 			}
 			q->hosts[outer_hash + k].dsthost_tag = dsthost_hash;
 found_dst:
 			dsthost_idx = outer_hash + k;
+<<<<<<< HEAD
 			q->hosts[dsthost_idx].dsthost_refcnt++;
+=======
+			if (q->flows[reduced_hash].set == CAKE_SET_BULK)
+				q->hosts[dsthost_idx].dsthost_bulk_flow_count++;
+>>>>>>> upstream/android-13
 			q->flows[reduced_hash].dsthost = dsthost_idx;
 		}
 	}
@@ -812,7 +948,11 @@ static struct sk_buff *dequeue_head(struct cake_flow *flow)
 
 	if (skb) {
 		flow->head = skb->next;
+<<<<<<< HEAD
 		skb->next = NULL;
+=======
+		skb_mark_not_on_list(skb);
+>>>>>>> upstream/android-13
 	}
 
 	return skb;
@@ -900,7 +1040,11 @@ static struct tcphdr *cake_get_tcphdr(const struct sk_buff *skb,
 	}
 
 	tcph = skb_header_pointer(skb, offset, sizeof(_tcph), &_tcph);
+<<<<<<< HEAD
 	if (!tcph)
+=======
+	if (!tcph || tcph->doff < 5)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	return skb_header_pointer(skb, offset,
@@ -924,6 +1068,11 @@ static const void *cake_get_tcpopt(const struct tcphdr *tcph,
 			length--;
 			continue;
 		}
+<<<<<<< HEAD
+=======
+		if (length < 2)
+			break;
+>>>>>>> upstream/android-13
 		opsize = *ptr++;
 		if (opsize < 2 || opsize > length)
 			break;
@@ -1061,6 +1210,11 @@ static bool cake_tcph_may_drop(const struct tcphdr *tcph,
 			length--;
 			continue;
 		}
+<<<<<<< HEAD
+=======
+		if (length < 2)
+			break;
+>>>>>>> upstream/android-13
 		opsize = *ptr++;
 		if (opsize < 2 || opsize > length)
 			break;
@@ -1252,7 +1406,11 @@ found:
 	else
 		flow->head = elig_ack->next;
 
+<<<<<<< HEAD
 	elig_ack->next = NULL;
+=======
+	skb_mark_not_on_list(elig_ack);
+>>>>>>> upstream/android-13
 
 	return elig_ack;
 }
@@ -1568,7 +1726,11 @@ static struct cake_tin_data *cake_select_tin(struct Qdisc *sch,
 					     struct sk_buff *skb)
 {
 	struct cake_sched_data *q = qdisc_priv(sch);
+<<<<<<< HEAD
 	u32 tin;
+=======
+	u32 tin, mark;
+>>>>>>> upstream/android-13
 	bool wash;
 	u8 dscp;
 
@@ -1576,6 +1738,10 @@ static struct cake_tin_data *cake_select_tin(struct Qdisc *sch,
 	 * using firewall marks or skb->priority. Call DSCP parsing early if
 	 * wash is enabled, otherwise defer to below to skip unneeded parsing.
 	 */
+<<<<<<< HEAD
+=======
+	mark = (skb->mark & q->fwmark_mask) >> q->fwmark_shft;
+>>>>>>> upstream/android-13
 	wash = !!(q->rate_flags & CAKE_FLAG_WASH);
 	if (wash)
 		dscp = cake_handle_diffserv(skb, wash);
@@ -1583,6 +1749,12 @@ static struct cake_tin_data *cake_select_tin(struct Qdisc *sch,
 	if (q->tin_mode == CAKE_DIFFSERV_BESTEFFORT)
 		tin = 0;
 
+<<<<<<< HEAD
+=======
+	else if (mark && mark <= q->tin_cnt)
+		tin = q->tin_order[mark - 1];
+
+>>>>>>> upstream/android-13
 	else if (TC_H_MAJ(skb->priority) == sch->handle &&
 		 TC_H_MIN(skb->priority) > 0 &&
 		 TC_H_MIN(skb->priority) <= q->tin_cnt)
@@ -1614,7 +1786,11 @@ static u32 cake_classify(struct Qdisc *sch, struct cake_tin_data **t,
 		goto hash;
 
 	*qerr = NET_XMIT_SUCCESS | __NET_XMIT_BYPASS;
+<<<<<<< HEAD
 	result = tcf_classify(skb, filter, &res, false);
+=======
+	result = tcf_classify(skb, NULL, filter, &res, false);
+>>>>>>> upstream/android-13
 
 	if (result >= 0) {
 #ifdef CONFIG_NET_CLS_ACT
@@ -1623,7 +1799,11 @@ static u32 cake_classify(struct Qdisc *sch, struct cake_tin_data **t,
 		case TC_ACT_QUEUED:
 		case TC_ACT_TRAP:
 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_ACT_SHOT:
 			return 0;
 		}
@@ -1645,7 +1825,11 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 {
 	struct cake_sched_data *q = qdisc_priv(sch);
 	int len = qdisc_pkt_len(skb);
+<<<<<<< HEAD
 	int uninitialized_var(ret);
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct sk_buff *ack = NULL;
 	ktime_t now = ktime_get();
 	struct cake_tin_data *b;
@@ -1696,9 +1880,14 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 		if (IS_ERR_OR_NULL(segs))
 			return qdisc_drop(skb, sch, to_free);
 
+<<<<<<< HEAD
 		while (segs) {
 			nskb = segs->next;
 			segs->next = NULL;
+=======
+		skb_list_walk_safe(segs, segs, nskb) {
+			skb_mark_not_on_list(segs);
+>>>>>>> upstream/android-13
 			qdisc_skb_cb(segs)->pkt_len = segs->len;
 			cobalt_set_enqueue_time(segs, now);
 			get_cobalt_cb(segs)->adjusted_len = cake_overhead(q,
@@ -1710,7 +1899,10 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 			slen += segs->len;
 			q->buffer_used += segs->truesize;
 			b->packets++;
+<<<<<<< HEAD
 			segs = nskb;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		/* stats */
@@ -1817,20 +2009,43 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 		b->sparse_flow_count++;
 
 		if (cake_dsrc(q->flow_mode))
+<<<<<<< HEAD
 			host_load = max(host_load, srchost->srchost_refcnt);
 
 		if (cake_ddst(q->flow_mode))
 			host_load = max(host_load, dsthost->dsthost_refcnt);
+=======
+			host_load = max(host_load, srchost->srchost_bulk_flow_count);
+
+		if (cake_ddst(q->flow_mode))
+			host_load = max(host_load, dsthost->dsthost_bulk_flow_count);
+>>>>>>> upstream/android-13
 
 		flow->deficit = (b->flow_quantum *
 				 quantum_div[host_load]) >> 16;
 	} else if (flow->set == CAKE_SET_SPARSE_WAIT) {
+<<<<<<< HEAD
+=======
+		struct cake_host *srchost = &b->hosts[flow->srchost];
+		struct cake_host *dsthost = &b->hosts[flow->dsthost];
+
+>>>>>>> upstream/android-13
 		/* this flow was empty, accounted as a sparse flow, but actually
 		 * in the bulk rotation.
 		 */
 		flow->set = CAKE_SET_BULK;
 		b->sparse_flow_count--;
 		b->bulk_flow_count++;
+<<<<<<< HEAD
+=======
+
+		if (cake_dsrc(q->flow_mode))
+			srchost->srchost_bulk_flow_count++;
+
+		if (cake_ddst(q->flow_mode))
+			dsthost->dsthost_bulk_flow_count++;
+
+>>>>>>> upstream/android-13
 	}
 
 	if (q->buffer_used > q->buffer_max_used)
@@ -1922,7 +2137,11 @@ begin:
 		while (b->tin_deficit < 0 ||
 		       !(b->sparse_flow_count + b->bulk_flow_count)) {
 			if (b->tin_deficit <= 0)
+<<<<<<< HEAD
 				b->tin_deficit += b->tin_quantum_band;
+=======
+				b->tin_deficit += b->tin_quantum;
+>>>>>>> upstream/android-13
 			if (b->sparse_flow_count + b->bulk_flow_count)
 				empty = false;
 
@@ -1998,6 +2217,7 @@ retry:
 	dsthost = &b->hosts[flow->dsthost];
 	host_load = 1;
 
+<<<<<<< HEAD
 	if (cake_dsrc(q->flow_mode))
 		host_load = max(host_load, srchost->srchost_refcnt);
 
@@ -2015,6 +2235,10 @@ retry:
 				  (prandom_u32() >> 16)) >> 16;
 		list_move_tail(&flow->flowchain, &b->old_flows);
 
+=======
+	/* flow isolation (DRR++) */
+	if (flow->deficit <= 0) {
+>>>>>>> upstream/android-13
 		/* Keep all flows with deficits out of the sparse and decaying
 		 * rotations.  No non-empty flow can go into the decaying
 		 * rotation, so they can't get deficits
@@ -2023,6 +2247,16 @@ retry:
 			if (flow->head) {
 				b->sparse_flow_count--;
 				b->bulk_flow_count++;
+<<<<<<< HEAD
+=======
+
+				if (cake_dsrc(q->flow_mode))
+					srchost->srchost_bulk_flow_count++;
+
+				if (cake_ddst(q->flow_mode))
+					dsthost->dsthost_bulk_flow_count++;
+
+>>>>>>> upstream/android-13
 				flow->set = CAKE_SET_BULK;
 			} else {
 				/* we've moved it to the bulk rotation for
@@ -2032,6 +2266,25 @@ retry:
 				flow->set = CAKE_SET_SPARSE_WAIT;
 			}
 		}
+<<<<<<< HEAD
+=======
+
+		if (cake_dsrc(q->flow_mode))
+			host_load = max(host_load, srchost->srchost_bulk_flow_count);
+
+		if (cake_ddst(q->flow_mode))
+			host_load = max(host_load, dsthost->dsthost_bulk_flow_count);
+
+		WARN_ON(host_load > CAKE_QUEUES);
+
+		/* The shifted prandom_u32() is a way to apply dithering to
+		 * avoid accumulating roundoff errors
+		 */
+		flow->deficit += (b->flow_quantum * quantum_div[host_load] +
+				  (prandom_u32() >> 16)) >> 16;
+		list_move_tail(&flow->flowchain, &b->old_flows);
+
+>>>>>>> upstream/android-13
 		goto retry;
 	}
 
@@ -2052,6 +2305,16 @@ retry:
 					       &b->decaying_flows);
 				if (flow->set == CAKE_SET_BULK) {
 					b->bulk_flow_count--;
+<<<<<<< HEAD
+=======
+
+					if (cake_dsrc(q->flow_mode))
+						srchost->srchost_bulk_flow_count--;
+
+					if (cake_ddst(q->flow_mode))
+						dsthost->dsthost_bulk_flow_count--;
+
+>>>>>>> upstream/android-13
 					b->decaying_flow_count++;
 				} else if (flow->set == CAKE_SET_SPARSE ||
 					   flow->set == CAKE_SET_SPARSE_WAIT) {
@@ -2065,6 +2328,7 @@ retry:
 				if (flow->set == CAKE_SET_SPARSE ||
 				    flow->set == CAKE_SET_SPARSE_WAIT)
 					b->sparse_flow_count--;
+<<<<<<< HEAD
 				else if (flow->set == CAKE_SET_BULK)
 					b->bulk_flow_count--;
 				else
@@ -2073,6 +2337,21 @@ retry:
 				flow->set = CAKE_SET_NONE;
 				srchost->srchost_refcnt--;
 				dsthost->dsthost_refcnt--;
+=======
+				else if (flow->set == CAKE_SET_BULK) {
+					b->bulk_flow_count--;
+
+					if (cake_dsrc(q->flow_mode))
+						srchost->srchost_bulk_flow_count--;
+
+					if (cake_ddst(q->flow_mode))
+						dsthost->dsthost_bulk_flow_count--;
+
+				} else
+					b->decaying_flow_count--;
+
+				flow->set = CAKE_SET_NONE;
+>>>>>>> upstream/android-13
 			}
 			goto begin;
 		}
@@ -2167,6 +2446,11 @@ static const struct nla_policy cake_policy[TCA_CAKE_MAX + 1] = {
 	[TCA_CAKE_MPU]		 = { .type = NLA_U32 },
 	[TCA_CAKE_INGRESS]	 = { .type = NLA_U32 },
 	[TCA_CAKE_ACK_FILTER]	 = { .type = NLA_U32 },
+<<<<<<< HEAD
+=======
+	[TCA_CAKE_SPLIT_GSO]	 = { .type = NLA_U32 },
+	[TCA_CAKE_FWMARK]	 = { .type = NLA_U32 },
+>>>>>>> upstream/android-13
 };
 
 static void cake_set_rate(struct cake_tin_data *b, u64 rate, u32 mtu,
@@ -2222,8 +2506,12 @@ static int cake_config_besteffort(struct Qdisc *sch)
 
 	cake_set_rate(b, rate, mtu,
 		      us_to_ns(q->target), us_to_ns(q->interval));
+<<<<<<< HEAD
 	b->tin_quantum_band = 65535;
 	b->tin_quantum_prio = 65535;
+=======
+	b->tin_quantum = 65535;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2234,8 +2522,12 @@ static int cake_config_precedence(struct Qdisc *sch)
 	struct cake_sched_data *q = qdisc_priv(sch);
 	u32 mtu = psched_mtu(qdisc_dev(sch));
 	u64 rate = q->rate_bps;
+<<<<<<< HEAD
 	u32 quantum1 = 256;
 	u32 quantum2 = 256;
+=======
+	u32 quantum = 256;
+>>>>>>> upstream/android-13
 	u32 i;
 
 	q->tin_cnt = 8;
@@ -2248,18 +2540,27 @@ static int cake_config_precedence(struct Qdisc *sch)
 		cake_set_rate(b, rate, mtu, us_to_ns(q->target),
 			      us_to_ns(q->interval));
 
+<<<<<<< HEAD
 		b->tin_quantum_prio = max_t(u16, 1U, quantum1);
 		b->tin_quantum_band = max_t(u16, 1U, quantum2);
+=======
+		b->tin_quantum = max_t(u16, 1U, quantum);
+>>>>>>> upstream/android-13
 
 		/* calculate next class's parameters */
 		rate  *= 7;
 		rate >>= 3;
 
+<<<<<<< HEAD
 		quantum1  *= 3;
 		quantum1 >>= 1;
 
 		quantum2  *= 7;
 		quantum2 >>= 3;
+=======
+		quantum  *= 7;
+		quantum >>= 3;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2267,7 +2568,11 @@ static int cake_config_precedence(struct Qdisc *sch)
 
 /*	List of known Diffserv codepoints:
  *
+<<<<<<< HEAD
  *	Least Effort (CS1)
+=======
+ *	Least Effort (CS1, LE)
+>>>>>>> upstream/android-13
  *	Best Effort (CS0)
  *	Max Reliability & LLT "Lo" (TOS1)
  *	Max Throughput (TOS2)
@@ -2289,7 +2594,11 @@ static int cake_config_precedence(struct Qdisc *sch)
  *	Total 25 codepoints.
  */
 
+<<<<<<< HEAD
 /*	List of traffic classes in RFC 4594:
+=======
+/*	List of traffic classes in RFC 4594, updated by RFC 8622:
+>>>>>>> upstream/android-13
  *		(roughly descending order of contended priority)
  *		(roughly ascending order of uncontended throughput)
  *
@@ -2304,7 +2613,11 @@ static int cake_config_precedence(struct Qdisc *sch)
  *	Ops, Admin, Management (CS2,TOS1) - eg. ssh
  *	Standard Service (CS0 & unrecognised codepoints)
  *	High Throughput Data (AF1x,TOS2)  - eg. web traffic
+<<<<<<< HEAD
  *	Low Priority Data (CS1)           - eg. BitTorrent
+=======
+ *	Low Priority Data (CS1,LE)        - eg. BitTorrent
+>>>>>>> upstream/android-13
 
  *	Total 12 traffic classes.
  */
@@ -2320,7 +2633,11 @@ static int cake_config_diffserv8(struct Qdisc *sch)
  *		Video Streaming          (AF4x, AF3x, CS3)
  *		Bog Standard             (CS0 etc.)
  *		High Throughput          (AF1x, TOS2)
+<<<<<<< HEAD
  *		Background Traffic       (CS1)
+=======
+ *		Background Traffic       (CS1, LE)
+>>>>>>> upstream/android-13
  *
  *		Total 8 traffic classes.
  */
@@ -2328,8 +2645,12 @@ static int cake_config_diffserv8(struct Qdisc *sch)
 	struct cake_sched_data *q = qdisc_priv(sch);
 	u32 mtu = psched_mtu(qdisc_dev(sch));
 	u64 rate = q->rate_bps;
+<<<<<<< HEAD
 	u32 quantum1 = 256;
 	u32 quantum2 = 256;
+=======
+	u32 quantum = 256;
+>>>>>>> upstream/android-13
 	u32 i;
 
 	q->tin_cnt = 8;
@@ -2345,18 +2666,27 @@ static int cake_config_diffserv8(struct Qdisc *sch)
 		cake_set_rate(b, rate, mtu, us_to_ns(q->target),
 			      us_to_ns(q->interval));
 
+<<<<<<< HEAD
 		b->tin_quantum_prio = max_t(u16, 1U, quantum1);
 		b->tin_quantum_band = max_t(u16, 1U, quantum2);
+=======
+		b->tin_quantum = max_t(u16, 1U, quantum);
+>>>>>>> upstream/android-13
 
 		/* calculate next class's parameters */
 		rate  *= 7;
 		rate >>= 3;
 
+<<<<<<< HEAD
 		quantum1  *= 3;
 		quantum1 >>= 1;
 
 		quantum2  *= 7;
 		quantum2 >>= 3;
+=======
+		quantum  *= 7;
+		quantum >>= 3;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2369,7 +2699,11 @@ static int cake_config_diffserv4(struct Qdisc *sch)
  *	    Latency Sensitive  (CS7, CS6, EF, VA, CS5, CS4)
  *	    Streaming Media    (AF4x, AF3x, CS3, AF2x, TOS4, CS2, TOS1)
  *	    Best Effort        (CS0, AF1x, TOS2, and those not specified)
+<<<<<<< HEAD
  *	    Background Traffic (CS1)
+=======
+ *	    Background Traffic (CS1, LE)
+>>>>>>> upstream/android-13
  *
  *		Total 4 traffic classes.
  */
@@ -2395,6 +2729,7 @@ static int cake_config_diffserv4(struct Qdisc *sch)
 	cake_set_rate(&q->tins[3], rate >> 2, mtu,
 		      us_to_ns(q->target), us_to_ns(q->interval));
 
+<<<<<<< HEAD
 	/* priority weights */
 	q->tins[0].tin_quantum_prio = quantum;
 	q->tins[1].tin_quantum_prio = quantum >> 4;
@@ -2406,6 +2741,13 @@ static int cake_config_diffserv4(struct Qdisc *sch)
 	q->tins[1].tin_quantum_band = quantum >> 4;
 	q->tins[2].tin_quantum_band = quantum >> 1;
 	q->tins[3].tin_quantum_band = quantum >> 2;
+=======
+	/* bandwidth-sharing weights */
+	q->tins[0].tin_quantum = quantum;
+	q->tins[1].tin_quantum = quantum >> 4;
+	q->tins[2].tin_quantum = quantum >> 1;
+	q->tins[3].tin_quantum = quantum >> 2;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2413,7 +2755,11 @@ static int cake_config_diffserv4(struct Qdisc *sch)
 static int cake_config_diffserv3(struct Qdisc *sch)
 {
 /*  Simplified Diffserv structure with 3 tins.
+<<<<<<< HEAD
  *		Low Priority		(CS1)
+=======
+ *		Low Priority		(CS1, LE)
+>>>>>>> upstream/android-13
  *		Best Effort
  *		Latency Sensitive	(TOS4, VA, EF, CS6, CS7)
  */
@@ -2436,6 +2782,7 @@ static int cake_config_diffserv3(struct Qdisc *sch)
 	cake_set_rate(&q->tins[2], rate >> 2, mtu,
 		      us_to_ns(q->target), us_to_ns(q->interval));
 
+<<<<<<< HEAD
 	/* priority weights */
 	q->tins[0].tin_quantum_prio = quantum;
 	q->tins[1].tin_quantum_prio = quantum >> 4;
@@ -2445,6 +2792,12 @@ static int cake_config_diffserv3(struct Qdisc *sch)
 	q->tins[0].tin_quantum_band = quantum;
 	q->tins[1].tin_quantum_band = quantum >> 4;
 	q->tins[2].tin_quantum_band = quantum >> 2;
+=======
+	/* bandwidth-sharing weights */
+	q->tins[0].tin_quantum = quantum;
+	q->tins[1].tin_quantum = quantum >> 4;
+	q->tins[2].tin_quantum = quantum >> 2;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2513,7 +2866,12 @@ static int cake_change(struct Qdisc *sch, struct nlattr *opt,
 	if (!opt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_CAKE_MAX, opt, cake_policy, extack);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_CAKE_MAX, opt, cake_policy,
+					  extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -2613,6 +2971,14 @@ static int cake_change(struct Qdisc *sch, struct nlattr *opt,
 			q->rate_flags &= ~CAKE_FLAG_SPLIT_GSO;
 	}
 
+<<<<<<< HEAD
+=======
+	if (tb[TCA_CAKE_FWMARK]) {
+		q->fwmark_mask = nla_get_u32(tb[TCA_CAKE_FWMARK]);
+		q->fwmark_shft = q->fwmark_mask ? __ffs(q->fwmark_mask) : 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (q->tins) {
 		sch_tree_lock(sch);
 		cake_reconfigure(sch);
@@ -2671,7 +3037,11 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
 	q->tins = kvcalloc(CAKE_MAX_TINS, sizeof(struct cake_tin_data),
 			   GFP_KERNEL);
 	if (!q->tins)
+<<<<<<< HEAD
 		goto nomem;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < CAKE_MAX_TINS; i++) {
 		struct cake_tin_data *b = q->tins + i;
@@ -2701,10 +3071,13 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
 	q->min_netlen = ~0;
 	q->min_adjlen = ~0;
 	return 0;
+<<<<<<< HEAD
 
 nomem:
 	cake_destroy(sch);
 	return -ENOMEM;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int cake_dump(struct Qdisc *sch, struct sk_buff *skb)
@@ -2712,7 +3085,11 @@ static int cake_dump(struct Qdisc *sch, struct sk_buff *skb)
 	struct cake_sched_data *q = qdisc_priv(sch);
 	struct nlattr *opts;
 
+<<<<<<< HEAD
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (!opts)
 		goto nla_put_failure;
 
@@ -2772,6 +3149,12 @@ static int cake_dump(struct Qdisc *sch, struct sk_buff *skb)
 			!!(q->rate_flags & CAKE_FLAG_SPLIT_GSO)))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
+=======
+	if (nla_put_u32(skb, TCA_CAKE_FWMARK, q->fwmark_mask))
+		goto nla_put_failure;
+
+>>>>>>> upstream/android-13
 	return nla_nest_end(skb, opts);
 
 nla_put_failure:
@@ -2780,7 +3163,11 @@ nla_put_failure:
 
 static int cake_dump_stats(struct Qdisc *sch, struct gnet_dump *d)
 {
+<<<<<<< HEAD
 	struct nlattr *stats = nla_nest_start(d->skb, TCA_STATS_APP);
+=======
+	struct nlattr *stats = nla_nest_start_noflag(d->skb, TCA_STATS_APP);
+>>>>>>> upstream/android-13
 	struct cake_sched_data *q = qdisc_priv(sch);
 	struct nlattr *tstats, *ts;
 	int i;
@@ -2810,7 +3197,11 @@ static int cake_dump_stats(struct Qdisc *sch, struct gnet_dump *d)
 #undef PUT_STAT_U32
 #undef PUT_STAT_U64
 
+<<<<<<< HEAD
 	tstats = nla_nest_start(d->skb, TCA_CAKE_STATS_TIN_STATS);
+=======
+	tstats = nla_nest_start_noflag(d->skb, TCA_CAKE_STATS_TIN_STATS);
+>>>>>>> upstream/android-13
 	if (!tstats)
 		goto nla_put_failure;
 
@@ -2827,7 +3218,11 @@ static int cake_dump_stats(struct Qdisc *sch, struct gnet_dump *d)
 	for (i = 0; i < q->tin_cnt; i++) {
 		struct cake_tin_data *b = &q->tins[q->tin_order[i]];
 
+<<<<<<< HEAD
 		ts = nla_nest_start(d->skb, i + 1);
+=======
+		ts = nla_nest_start_noflag(d->skb, i + 1);
+>>>>>>> upstream/android-13
 		if (!ts)
 			goto nla_put_failure;
 
@@ -2947,7 +3342,11 @@ static int cake_dump_class_stats(struct Qdisc *sch, unsigned long cl,
 	if (flow) {
 		ktime_t now = ktime_get();
 
+<<<<<<< HEAD
 		stats = nla_nest_start(d->skb, TCA_STATS_APP);
+=======
+		stats = nla_nest_start_noflag(d->skb, TCA_STATS_APP);
+>>>>>>> upstream/android-13
 		if (!stats)
 			return -1;
 

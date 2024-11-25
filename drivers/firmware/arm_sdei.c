@@ -2,6 +2,10 @@
 // Copyright (C) 2017 Arm Ltd.
 #define pr_fmt(fmt) "sdei: " fmt
 
+<<<<<<< HEAD
+=======
+#include <acpi/ghes.h>
+>>>>>>> upstream/android-13
 #include <linux/acpi.h>
 #include <linux/arm_sdei.h>
 #include <linux/arm-smccc.h>
@@ -30,7 +34,10 @@
 #include <linux/slab.h>
 #include <linux/smp.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/uaccess.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  * The call to use to reach the firmware.
@@ -77,11 +84,34 @@ struct sdei_crosscall_args {
 	int first_error;
 };
 
+<<<<<<< HEAD
 #define CROSSCALL_INIT(arg, event)	(arg.event = event, \
 					 arg.first_error = 0, \
 					 atomic_set(&arg.errors, 0))
 
 static inline int sdei_do_cross_call(void *fn, struct sdei_event * event)
+=======
+#define CROSSCALL_INIT(arg, event)		\
+	do {					\
+		arg.event = event;		\
+		arg.first_error = 0;		\
+		atomic_set(&arg.errors, 0);	\
+	} while (0)
+
+static inline int sdei_do_local_call(smp_call_func_t fn,
+				     struct sdei_event *event)
+{
+	struct sdei_crosscall_args arg;
+
+	CROSSCALL_INIT(arg, event);
+	fn(&arg);
+
+	return arg.first_error;
+}
+
+static inline int sdei_do_cross_call(smp_call_func_t fn,
+				     struct sdei_event *event)
+>>>>>>> upstream/android-13
 {
 	struct sdei_crosscall_args arg;
 
@@ -113,6 +143,7 @@ static int sdei_to_linux_errno(unsigned long sdei_err)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	/* Not an error value ... */
 	return sdei_err;
 }
@@ -133,6 +164,9 @@ static int sdei_is_err(struct arm_smccc_res *res)
 	}
 
 	return false;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int invoke_sdei_fn(unsigned long function_id, unsigned long arg0,
@@ -140,14 +174,22 @@ static int invoke_sdei_fn(unsigned long function_id, unsigned long arg0,
 			  unsigned long arg3, unsigned long arg4,
 			  u64 *result)
 {
+<<<<<<< HEAD
 	int err = 0;
+=======
+	int err;
+>>>>>>> upstream/android-13
 	struct arm_smccc_res res;
 
 	if (sdei_firmware_call) {
 		sdei_firmware_call(function_id, arg0, arg1, arg2, arg3, arg4,
 				   &res);
+<<<<<<< HEAD
 		if (sdei_is_err(&res))
 			err = sdei_to_linux_errno(res.a0);
+=======
+		err = sdei_to_linux_errno(res.a0);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * !sdei_firmware_call means we failed to probe or called
@@ -164,6 +206,10 @@ static int invoke_sdei_fn(unsigned long function_id, unsigned long arg0,
 
 	return err;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(invoke_sdei_fn);
+>>>>>>> upstream/android-13
 
 static struct sdei_event *sdei_event_find(u32 event_num)
 {
@@ -208,36 +254,61 @@ static struct sdei_event *sdei_event_create(u32 event_num,
 	lockdep_assert_held(&sdei_events_lock);
 
 	event = kzalloc(sizeof(*event), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!event)
 		return ERR_PTR(-ENOMEM);
+=======
+	if (!event) {
+		err = -ENOMEM;
+		goto fail;
+	}
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&event->list);
 	event->event_num = event_num;
 
 	err = sdei_api_event_get_info(event_num, SDEI_EVENT_INFO_EV_PRIORITY,
 				      &result);
+<<<<<<< HEAD
 	if (err) {
 		kfree(event);
 		return ERR_PTR(err);
 	}
+=======
+	if (err)
+		goto fail;
+>>>>>>> upstream/android-13
 	event->priority = result;
 
 	err = sdei_api_event_get_info(event_num, SDEI_EVENT_INFO_EV_TYPE,
 				      &result);
+<<<<<<< HEAD
 	if (err) {
 		kfree(event);
 		return ERR_PTR(err);
 	}
+=======
+	if (err)
+		goto fail;
+>>>>>>> upstream/android-13
 	event->type = result;
 
 	if (event->type == SDEI_EVENT_TYPE_SHARED) {
 		reg = kzalloc(sizeof(*reg), GFP_KERNEL);
 		if (!reg) {
+<<<<<<< HEAD
 			kfree(event);
 			return ERR_PTR(-ENOMEM);
 		}
 
 		reg->event_num = event_num;
+=======
+			err = -ENOMEM;
+			goto fail;
+		}
+
+		reg->event_num = event->event_num;
+>>>>>>> upstream/android-13
 		reg->priority = event->priority;
 
 		reg->callback = cb;
@@ -249,8 +320,13 @@ static struct sdei_event *sdei_event_create(u32 event_num,
 
 		regs = alloc_percpu(struct sdei_registered_event);
 		if (!regs) {
+<<<<<<< HEAD
 			kfree(event);
 			return ERR_PTR(-ENOMEM);
+=======
+			err = -ENOMEM;
+			goto fail;
+>>>>>>> upstream/android-13
 		}
 
 		for_each_possible_cpu(cpu) {
@@ -265,6 +341,7 @@ static struct sdei_event *sdei_event_create(u32 event_num,
 		event->private_registered = regs;
 	}
 
+<<<<<<< HEAD
 	if (sdei_event_find(event_num)) {
 		kfree(event->registered);
 		kfree(event);
@@ -285,6 +362,25 @@ static void sdei_event_destroy(struct sdei_event *event)
 	spin_lock(&sdei_list_lock);
 	list_del(&event->list);
 	spin_unlock(&sdei_list_lock);
+=======
+	spin_lock(&sdei_list_lock);
+	list_add(&event->list, &sdei_list);
+	spin_unlock(&sdei_list_lock);
+
+	return event;
+
+fail:
+	kfree(event);
+	return ERR_PTR(err);
+}
+
+static void sdei_event_destroy_llocked(struct sdei_event *event)
+{
+	lockdep_assert_held(&sdei_events_lock);
+	lockdep_assert_held(&sdei_list_lock);
+
+	list_del(&event->list);
+>>>>>>> upstream/android-13
 
 	if (event->type == SDEI_EVENT_TYPE_SHARED)
 		kfree(event->registered);
@@ -294,6 +390,16 @@ static void sdei_event_destroy(struct sdei_event *event)
 	kfree(event);
 }
 
+<<<<<<< HEAD
+=======
+static void sdei_event_destroy(struct sdei_event *event)
+{
+	spin_lock(&sdei_list_lock);
+	sdei_event_destroy_llocked(event);
+	spin_unlock(&sdei_list_lock);
+}
+
+>>>>>>> upstream/android-13
 static int sdei_api_get_version(u64 *version)
 {
 	return invoke_sdei_fn(SDEI_1_0_FN_SDEI_VERSION, 0, 0, 0, 0, 0, version);
@@ -427,7 +533,10 @@ int sdei_event_enable(u32 event_num)
 
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(sdei_event_enable);
+=======
+>>>>>>> upstream/android-13
 
 static int sdei_api_event_disable(u32 event_num)
 {
@@ -469,7 +578,10 @@ int sdei_event_disable(u32 event_num)
 
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(sdei_event_disable);
+=======
+>>>>>>> upstream/android-13
 
 static int sdei_api_event_unregister(u32 event_num)
 {
@@ -490,6 +602,7 @@ static void _local_event_unregister(void *data)
 	sdei_cross_call_return(arg, err);
 }
 
+<<<<<<< HEAD
 static int _sdei_event_unregister(struct sdei_event *event)
 {
 	lockdep_assert_held(&sdei_events_lock);
@@ -500,6 +613,8 @@ static int _sdei_event_unregister(struct sdei_event *event)
 	return sdei_do_cross_call(_local_event_unregister, event);
 }
 
+=======
+>>>>>>> upstream/android-13
 int sdei_event_unregister(u32 event_num)
 {
 	int err;
@@ -509,6 +624,7 @@ int sdei_event_unregister(u32 event_num)
 
 	mutex_lock(&sdei_events_lock);
 	event = sdei_event_find(event_num);
+<<<<<<< HEAD
 	do {
 		if (!event) {
 			pr_warn("Event %u not registered\n", event_num);
@@ -527,11 +643,37 @@ int sdei_event_unregister(u32 event_num)
 
 		sdei_event_destroy(event);
 	} while (0);
+=======
+	if (!event) {
+		pr_warn("Event %u not registered\n", event_num);
+		err = -ENOENT;
+		goto unlock;
+	}
+
+	spin_lock(&sdei_list_lock);
+	event->reregister = false;
+	event->reenable = false;
+	spin_unlock(&sdei_list_lock);
+
+	if (event->type == SDEI_EVENT_TYPE_SHARED)
+		err = sdei_api_event_unregister(event->event_num);
+	else
+		err = sdei_do_cross_call(_local_event_unregister, event);
+
+	if (err)
+		goto unlock;
+
+	sdei_event_destroy(event);
+unlock:
+>>>>>>> upstream/android-13
 	mutex_unlock(&sdei_events_lock);
 
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(sdei_event_unregister);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * unregister events, but don't destroy them as they are re-registered by
@@ -548,7 +690,11 @@ static int sdei_unregister_shared(void)
 		if (event->type != SDEI_EVENT_TYPE_SHARED)
 			continue;
 
+<<<<<<< HEAD
 		err = _sdei_event_unregister(event);
+=======
+		err = sdei_api_event_unregister(event->event_num);
+>>>>>>> upstream/android-13
 		if (err)
 			break;
 	}
@@ -582,6 +728,7 @@ static void _local_event_register(void *data)
 	sdei_cross_call_return(arg, err);
 }
 
+<<<<<<< HEAD
 static int _sdei_event_register(struct sdei_event *event)
 {
 	int err;
@@ -601,6 +748,8 @@ static int _sdei_event_register(struct sdei_event *event)
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
 {
 	int err;
@@ -609,6 +758,7 @@ int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
 	WARN_ON(in_nmi());
 
 	mutex_lock(&sdei_events_lock);
+<<<<<<< HEAD
 	do {
 		if (sdei_event_find(event_num)) {
 			pr_warn("Event %u already registered\n", event_num);
@@ -666,6 +816,46 @@ static int sdei_reregister_event(struct sdei_event *event)
 	if (err)
 		pr_err("Failed to re-enable event %u\n", event->event_num);
 
+=======
+	if (sdei_event_find(event_num)) {
+		pr_warn("Event %u already registered\n", event_num);
+		err = -EBUSY;
+		goto unlock;
+	}
+
+	event = sdei_event_create(event_num, cb, arg);
+	if (IS_ERR(event)) {
+		err = PTR_ERR(event);
+		pr_warn("Failed to create event %u: %d\n", event_num, err);
+		goto unlock;
+	}
+
+	cpus_read_lock();
+	if (event->type == SDEI_EVENT_TYPE_SHARED) {
+		err = sdei_api_event_register(event->event_num,
+					      sdei_entry_point,
+					      event->registered,
+					      SDEI_EVENT_REGISTER_RM_ANY, 0);
+	} else {
+		err = sdei_do_cross_call(_local_event_register, event);
+		if (err)
+			sdei_do_cross_call(_local_event_unregister, event);
+	}
+
+	if (err) {
+		sdei_event_destroy(event);
+		pr_warn("Failed to register event %u: %d\n", event_num, err);
+		goto cpu_unlock;
+	}
+
+	spin_lock(&sdei_list_lock);
+	event->reregister = true;
+	spin_unlock(&sdei_list_lock);
+cpu_unlock:
+	cpus_read_unlock();
+unlock:
+	mutex_unlock(&sdei_events_lock);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -681,9 +871,30 @@ static int sdei_reregister_shared(void)
 			continue;
 
 		if (event->reregister) {
+<<<<<<< HEAD
 			err = sdei_reregister_event(event);
 			if (err)
 				break;
+=======
+			err = sdei_api_event_register(event->event_num,
+					sdei_entry_point, event->registered,
+					SDEI_EVENT_REGISTER_RM_ANY, 0);
+			if (err) {
+				pr_err("Failed to re-register event %u\n",
+				       event->event_num);
+				sdei_event_destroy_llocked(event);
+				break;
+			}
+		}
+
+		if (event->reenable) {
+			err = sdei_api_event_enable(event->event_num);
+			if (err) {
+				pr_err("Failed to re-enable event %u\n",
+				       event->event_num);
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock(&sdei_list_lock);
@@ -695,7 +906,11 @@ static int sdei_reregister_shared(void)
 static int sdei_cpuhp_down(unsigned int cpu)
 {
 	struct sdei_event *event;
+<<<<<<< HEAD
 	struct sdei_crosscall_args arg;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* un-register private events */
 	spin_lock(&sdei_list_lock);
@@ -703,12 +918,20 @@ static int sdei_cpuhp_down(unsigned int cpu)
 		if (event->type == SDEI_EVENT_TYPE_SHARED)
 			continue;
 
+<<<<<<< HEAD
 		CROSSCALL_INIT(arg, event);
 		/* call the cross-call function locally... */
 		_local_event_unregister(&arg);
 		if (arg.first_error)
 			pr_err("Failed to unregister event %u: %d\n",
 			       event->event_num, arg.first_error);
+=======
+		err = sdei_do_local_call(_local_event_unregister, event);
+		if (err) {
+			pr_err("Failed to unregister event %u: %d\n",
+			       event->event_num, err);
+		}
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&sdei_list_lock);
 
@@ -718,7 +941,11 @@ static int sdei_cpuhp_down(unsigned int cpu)
 static int sdei_cpuhp_up(unsigned int cpu)
 {
 	struct sdei_event *event;
+<<<<<<< HEAD
 	struct sdei_crosscall_args arg;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* re-register/enable private events */
 	spin_lock(&sdei_list_lock);
@@ -727,6 +954,7 @@ static int sdei_cpuhp_up(unsigned int cpu)
 			continue;
 
 		if (event->reregister) {
+<<<<<<< HEAD
 			CROSSCALL_INIT(arg, event);
 			/* call the cross-call function locally... */
 			_local_event_register(&arg);
@@ -741,6 +969,21 @@ static int sdei_cpuhp_up(unsigned int cpu)
 			if (arg.first_error)
 				pr_err("Failed to re-enable event %u: %d\n",
 				       event->event_num, arg.first_error);
+=======
+			err = sdei_do_local_call(_local_event_register, event);
+			if (err) {
+				pr_err("Failed to re-register event %u: %d\n",
+				       event->event_num, err);
+			}
+		}
+
+		if (event->reenable) {
+			err = sdei_do_local_call(_local_event_enable, event);
+			if (err) {
+				pr_err("Failed to re-enable event %u: %d\n",
+				       event->event_num, err);
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock(&sdei_list_lock);
@@ -878,6 +1121,10 @@ static void sdei_smccc_smc(unsigned long function_id,
 {
 	arm_smccc_smc(function_id, arg0, arg1, arg2, arg3, arg4, 0, 0, res);
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(sdei_smccc_smc);
+>>>>>>> upstream/android-13
 
 static void sdei_smccc_hvc(unsigned long function_id,
 			   unsigned long arg0, unsigned long arg1,
@@ -886,6 +1133,77 @@ static void sdei_smccc_hvc(unsigned long function_id,
 {
 	arm_smccc_hvc(function_id, arg0, arg1, arg2, arg3, arg4, 0, 0, res);
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(sdei_smccc_hvc);
+
+int sdei_register_ghes(struct ghes *ghes, sdei_event_callback *normal_cb,
+		       sdei_event_callback *critical_cb)
+{
+	int err;
+	u64 result;
+	u32 event_num;
+	sdei_event_callback *cb;
+
+	if (!IS_ENABLED(CONFIG_ACPI_APEI_GHES))
+		return -EOPNOTSUPP;
+
+	event_num = ghes->generic->notify.vector;
+	if (event_num == 0) {
+		/*
+		 * Event 0 is reserved by the specification for
+		 * SDEI_EVENT_SIGNAL.
+		 */
+		return -EINVAL;
+	}
+
+	err = sdei_api_event_get_info(event_num, SDEI_EVENT_INFO_EV_PRIORITY,
+				      &result);
+	if (err)
+		return err;
+
+	if (result == SDEI_EVENT_PRIORITY_CRITICAL)
+		cb = critical_cb;
+	else
+		cb = normal_cb;
+
+	err = sdei_event_register(event_num, cb, ghes);
+	if (!err)
+		err = sdei_event_enable(event_num);
+
+	return err;
+}
+
+int sdei_unregister_ghes(struct ghes *ghes)
+{
+	int i;
+	int err;
+	u32 event_num = ghes->generic->notify.vector;
+
+	might_sleep();
+
+	if (!IS_ENABLED(CONFIG_ACPI_APEI_GHES))
+		return -EOPNOTSUPP;
+
+	/*
+	 * The event may be running on another CPU. Disable it
+	 * to stop new events, then try to unregister a few times.
+	 */
+	err = sdei_event_disable(event_num);
+	if (err)
+		return err;
+
+	for (i = 0; i < 3; i++) {
+		err = sdei_event_unregister(event_num);
+		if (err != -EINPROGRESS)
+			break;
+
+		schedule();
+	}
+
+	return err;
+}
+>>>>>>> upstream/android-13
 
 static int sdei_get_conduit(struct platform_device *pdev)
 {
@@ -896,11 +1214,16 @@ static int sdei_get_conduit(struct platform_device *pdev)
 	if (np) {
 		if (of_property_read_string(np, "method", &method)) {
 			pr_warn("missing \"method\" property\n");
+<<<<<<< HEAD
 			return CONDUIT_INVALID;
+=======
+			return SMCCC_CONDUIT_NONE;
+>>>>>>> upstream/android-13
 		}
 
 		if (!strcmp("hvc", method)) {
 			sdei_firmware_call = &sdei_smccc_hvc;
+<<<<<<< HEAD
 			return CONDUIT_HVC;
 		} else if (!strcmp("smc", method)) {
 			sdei_firmware_call = &sdei_smccc_smc;
@@ -919,6 +1242,26 @@ static int sdei_get_conduit(struct platform_device *pdev)
 	}
 
 	return CONDUIT_INVALID;
+=======
+			return SMCCC_CONDUIT_HVC;
+		} else if (!strcmp("smc", method)) {
+			sdei_firmware_call = &sdei_smccc_smc;
+			return SMCCC_CONDUIT_SMC;
+		}
+
+		pr_warn("invalid \"method\" property: %s\n", method);
+	} else if (!acpi_disabled) {
+		if (acpi_psci_use_hvc()) {
+			sdei_firmware_call = &sdei_smccc_hvc;
+			return SMCCC_CONDUIT_HVC;
+		} else {
+			sdei_firmware_call = &sdei_smccc_smc;
+			return SMCCC_CONDUIT_SMC;
+		}
+	}
+
+	return SMCCC_CONDUIT_NONE;
+>>>>>>> upstream/android-13
 }
 
 static int sdei_probe(struct platform_device *pdev)
@@ -932,8 +1275,11 @@ static int sdei_probe(struct platform_device *pdev)
 		return 0;
 
 	err = sdei_api_get_version(&ver);
+<<<<<<< HEAD
 	if (err == -EOPNOTSUPP)
 		pr_err("advertised but not implemented in platform firmware\n");
+=======
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("Failed to get SDEI version: %d\n", err);
 		sdei_mark_interface_broken();
@@ -1007,6 +1353,7 @@ static struct platform_driver sdei_driver = {
 	.probe		= sdei_probe,
 };
 
+<<<<<<< HEAD
 static bool __init sdei_present_dt(void)
 {
 	struct device_node *np, *fw_np;
@@ -1027,6 +1374,11 @@ static bool __init sdei_present_acpi(void)
 {
 	acpi_status status;
 	struct platform_device *pdev;
+=======
+static bool __init sdei_present_acpi(void)
+{
+	acpi_status status;
+>>>>>>> upstream/android-13
 	struct acpi_table_header *sdei_table_header;
 
 	if (acpi_disabled)
@@ -1041,20 +1393,44 @@ static bool __init sdei_present_acpi(void)
 	if (ACPI_FAILURE(status))
 		return false;
 
+<<<<<<< HEAD
 	pdev = platform_device_register_simple(sdei_driver.driver.name, 0, NULL,
 					       0);
 	if (IS_ERR(pdev))
 		return false;
+=======
+	acpi_put_table(sdei_table_header);
+>>>>>>> upstream/android-13
 
 	return true;
 }
 
 static int __init sdei_init(void)
 {
+<<<<<<< HEAD
 	if (sdei_present_dt() || sdei_present_acpi())
 		platform_driver_register(&sdei_driver);
 
 	return 0;
+=======
+	struct platform_device *pdev;
+	int ret;
+
+	ret = platform_driver_register(&sdei_driver);
+	if (ret || !sdei_present_acpi())
+		return ret;
+
+	pdev = platform_device_register_simple(sdei_driver.driver.name,
+					       0, NULL, 0);
+	if (IS_ERR(pdev)) {
+		ret = PTR_ERR(pdev);
+		platform_driver_unregister(&sdei_driver);
+		pr_info("Failed to register ACPI:SDEI platform device %d\n",
+			ret);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1068,19 +1444,27 @@ int sdei_event_handler(struct pt_regs *regs,
 		       struct sdei_registered_event *arg)
 {
 	int err;
+<<<<<<< HEAD
 	mm_segment_t orig_addr_limit;
 	u32 event_num = arg->event_num;
 
 	orig_addr_limit = get_fs();
 	set_fs(USER_DS);
 
+=======
+	u32 event_num = arg->event_num;
+
+>>>>>>> upstream/android-13
 	err = arg->callback(event_num, regs, arg->callback_arg);
 	if (err)
 		pr_err_ratelimited("event %u on CPU %u failed with error: %d\n",
 				   event_num, smp_processor_id(), err);
 
+<<<<<<< HEAD
 	set_fs(orig_addr_limit);
 
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 NOKPROBE_SYMBOL(sdei_event_handler);

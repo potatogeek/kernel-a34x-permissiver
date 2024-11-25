@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Texas Instruments TMP102 SMBus temperature sensor driver
  *
  * Copyright (C) 2010 Steven King <sfking@fdwdc.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Texas Instruments TMP102 SMBus temperature sensor driver
+ *
+ * Copyright (C) 2010 Steven King <sfking@fdwdc.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -141,15 +148,23 @@ static umode_t tmp102_is_visible(const void *data, enum hwmon_sensor_types type,
 
 	switch (attr) {
 	case hwmon_temp_input:
+<<<<<<< HEAD
 		return S_IRUGO;
 	case hwmon_temp_max_hyst:
 	case hwmon_temp_max:
 		return S_IRUGO | S_IWUSR;
+=======
+		return 0444;
+	case hwmon_temp_max_hyst:
+	case hwmon_temp_max:
+		return 0644;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
 }
 
+<<<<<<< HEAD
 static u32 tmp102_chip_config[] = {
 	HWMON_C_REGISTER_TZ,
 	0
@@ -173,6 +188,13 @@ static const struct hwmon_channel_info tmp102_temp = {
 static const struct hwmon_channel_info *tmp102_info[] = {
 	&tmp102_chip,
 	&tmp102_temp,
+=======
+static const struct hwmon_channel_info *tmp102_info[] = {
+	HWMON_CHANNEL_INFO(chip,
+			   HWMON_C_REGISTER_TZ),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_MAX_HYST),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -212,11 +234,19 @@ static const struct regmap_config tmp102_regmap_config = {
 	.volatile_reg = tmp102_is_volatile_reg,
 	.val_format_endian = REGMAP_ENDIAN_BIG,
 	.cache_type = REGCACHE_RBTREE,
+<<<<<<< HEAD
 	.use_single_rw = true,
 };
 
 static int tmp102_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+};
+
+static int tmp102_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -320,7 +350,11 @@ static const struct i2c_device_id tmp102_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, tmp102_id);
 
+<<<<<<< HEAD
 static const struct of_device_id tmp102_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused tmp102_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "ti,tmp102" },
 	{ },
 };
@@ -330,7 +364,11 @@ static struct i2c_driver tmp102_driver = {
 	.driver.name	= DRIVER_NAME,
 	.driver.of_match_table = of_match_ptr(tmp102_of_match),
 	.driver.pm	= &tmp102_dev_pm_ops,
+<<<<<<< HEAD
 	.probe		= tmp102_probe,
+=======
+	.probe_new	= tmp102_probe,
+>>>>>>> upstream/android-13
 	.id_table	= tmp102_id,
 };
 

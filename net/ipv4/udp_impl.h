@@ -7,6 +7,7 @@
 #include <net/inet_common.h>
 
 int __udp4_lib_rcv(struct sk_buff *, struct udp_table *, int);
+<<<<<<< HEAD
 void __udp4_lib_err(struct sk_buff *, u32, struct udp_table *);
 
 int udp_v4_get_port(struct sock *sk, unsigned short snum);
@@ -22,6 +23,18 @@ int compat_udp_setsockopt(struct sock *sk, int level, int optname,
 int compat_udp_getsockopt(struct sock *sk, int level, int optname,
 			  char __user *optval, int __user *optlen);
 #endif
+=======
+int __udp4_lib_err(struct sk_buff *, u32, struct udp_table *);
+
+int udp_v4_get_port(struct sock *sk, unsigned short snum);
+void udp_v4_rehash(struct sock *sk);
+
+int udp_setsockopt(struct sock *sk, int level, int optname, sockptr_t optval,
+		   unsigned int optlen);
+int udp_getsockopt(struct sock *sk, int level, int optname,
+		   char __user *optval, int __user *optlen);
+
+>>>>>>> upstream/android-13
 int udp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int noblock,
 		int flags, int *addr_len);
 int udp_sendpage(struct sock *sk, struct page *page, int offset, size_t size,

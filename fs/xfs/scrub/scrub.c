@@ -9,6 +9,7 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_btree.h"
 #include "xfs_bit.h"
@@ -28,10 +29,16 @@
 #include "xfs_refcount_btree.h"
 #include "xfs_rmap.h"
 #include "xfs_rmap_btree.h"
+=======
+#include "xfs_log_format.h"
+#include "xfs_trans.h"
+#include "xfs_inode.h"
+>>>>>>> upstream/android-13
 #include "xfs_quota.h"
 #include "xfs_qm.h"
 #include "xfs_errortag.h"
 #include "xfs_error.h"
+<<<<<<< HEAD
 #include "xfs_log.h"
 #include "xfs_trans_priv.h"
 #include "scrub/xfs_scrub.h"
@@ -40,6 +47,14 @@
 #include "scrub/trace.h"
 #include "scrub/btree.h"
 #include "scrub/repair.h"
+=======
+#include "xfs_scrub.h"
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+#include "scrub/trace.h"
+#include "scrub/repair.h"
+#include "scrub/health.h"
+>>>>>>> upstream/android-13
 
 /*
  * Online Scrub and Repair
@@ -167,9 +182,16 @@ xchk_probe(
 STATIC int
 xchk_teardown(
 	struct xfs_scrub	*sc,
+<<<<<<< HEAD
 	struct xfs_inode	*ip_in,
 	int			error)
 {
+=======
+	int			error)
+{
+	struct xfs_inode	*ip_in = XFS_I(file_inode(sc->file));
+
+>>>>>>> upstream/android-13
 	xchk_ag_free(sc, &sc->sa);
 	if (sc->tp) {
 		if (error == 0 && (sc->sm->sm_flags & XFS_SCRUB_IFLAG_REPAIR))
@@ -186,8 +208,19 @@ xchk_teardown(
 			xfs_irele(sc->ip);
 		sc->ip = NULL;
 	}
+<<<<<<< HEAD
 	if (sc->has_quotaofflock)
 		mutex_unlock(&sc->mp->m_quotainfo->qi_quotaofflock);
+=======
+	if (sc->sm->sm_flags & XFS_SCRUB_IFLAG_REPAIR)
+		mnt_drop_write_file(sc->file);
+	if (sc->flags & XCHK_REAPING_DISABLED)
+		xchk_start_reaping(sc);
+	if (sc->flags & XCHK_HAS_QUOTAOFFLOCK) {
+		mutex_unlock(&sc->mp->m_quotainfo->qi_quotaofflock);
+		sc->flags &= ~XCHK_HAS_QUOTAOFFLOCK;
+	}
+>>>>>>> upstream/android-13
 	if (sc->buf) {
 		kmem_free(sc->buf);
 		sc->buf = NULL;
@@ -250,21 +283,33 @@ static const struct xchk_meta_ops meta_scrub_ops[] = {
 		.type	= ST_PERAG,
 		.setup	= xchk_setup_ag_iallocbt,
 		.scrub	= xchk_finobt,
+<<<<<<< HEAD
 		.has	= xfs_sb_version_hasfinobt,
+=======
+		.has	= xfs_has_finobt,
+>>>>>>> upstream/android-13
 		.repair	= xrep_notsupported,
 	},
 	[XFS_SCRUB_TYPE_RMAPBT] = {	/* rmapbt */
 		.type	= ST_PERAG,
 		.setup	= xchk_setup_ag_rmapbt,
 		.scrub	= xchk_rmapbt,
+<<<<<<< HEAD
 		.has	= xfs_sb_version_hasrmapbt,
+=======
+		.has	= xfs_has_rmapbt,
+>>>>>>> upstream/android-13
 		.repair	= xrep_notsupported,
 	},
 	[XFS_SCRUB_TYPE_REFCNTBT] = {	/* refcountbt */
 		.type	= ST_PERAG,
 		.setup	= xchk_setup_ag_refcountbt,
 		.scrub	= xchk_refcountbt,
+<<<<<<< HEAD
 		.has	= xfs_sb_version_hasreflink,
+=======
+		.has	= xfs_has_reflink,
+>>>>>>> upstream/android-13
 		.repair	= xrep_notsupported,
 	},
 	[XFS_SCRUB_TYPE_INODE] = {	/* inode record */
@@ -319,14 +364,22 @@ static const struct xchk_meta_ops meta_scrub_ops[] = {
 		.type	= ST_FS,
 		.setup	= xchk_setup_rt,
 		.scrub	= xchk_rtbitmap,
+<<<<<<< HEAD
 		.has	= xfs_sb_version_hasrealtime,
+=======
+		.has	= xfs_has_realtime,
+>>>>>>> upstream/android-13
 		.repair	= xrep_notsupported,
 	},
 	[XFS_SCRUB_TYPE_RTSUM] = {	/* realtime summary */
 		.type	= ST_FS,
 		.setup	= xchk_setup_rt,
 		.scrub	= xchk_rtsummary,
+<<<<<<< HEAD
 		.has	= xfs_sb_version_hasrealtime,
+=======
+		.has	= xfs_has_realtime,
+>>>>>>> upstream/android-13
 		.repair	= xrep_notsupported,
 	},
 	[XFS_SCRUB_TYPE_UQUOTA] = {	/* user quota */
@@ -347,6 +400,15 @@ static const struct xchk_meta_ops meta_scrub_ops[] = {
 		.scrub	= xchk_quota,
 		.repair	= xrep_notsupported,
 	},
+<<<<<<< HEAD
+=======
+	[XFS_SCRUB_TYPE_FSCOUNTERS] = {	/* fs summary counters */
+		.type	= ST_FS,
+		.setup	= xchk_setup_fscounters,
+		.scrub	= xchk_fscounters,
+		.repair	= xrep_notsupported,
+	},
+>>>>>>> upstream/android-13
 };
 
 /* This isn't a stable feature, warn once per day. */
@@ -388,7 +450,11 @@ xchk_validate_inputs(
 	if (ops->setup == NULL || ops->scrub == NULL)
 		goto out;
 	/* Does this fs even support this type of metadata? */
+<<<<<<< HEAD
 	if (ops->has && !ops->has(&mp->m_sb))
+=======
+	if (ops->has && !ops->has(mp))
+>>>>>>> upstream/android-13
 		goto out;
 
 	error = -EINVAL;
@@ -412,6 +478,7 @@ xchk_validate_inputs(
 		goto out;
 	}
 
+<<<<<<< HEAD
 	error = -EOPNOTSUPP;
 	/*
 	 * We won't scrub any filesystem that doesn't have the ability
@@ -425,6 +492,8 @@ xchk_validate_inputs(
 	if (!xfs_sb_version_hasextflgbit(&mp->m_sb))
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * We only want to repair read-write v5+ filesystems.  Defer the check
 	 * for ops->repair until after our scrub confirms that we need to
@@ -433,11 +502,19 @@ xchk_validate_inputs(
 	 */
 	if (sm->sm_flags & XFS_SCRUB_IFLAG_REPAIR) {
 		error = -EOPNOTSUPP;
+<<<<<<< HEAD
 		if (!xfs_sb_version_hascrc(&mp->m_sb))
 			goto out;
 
 		error = -EROFS;
 		if (mp->m_flags & XFS_MOUNT_RDONLY)
+=======
+		if (!xfs_has_crc(mp))
+			goto out;
+
+		error = -EROFS;
+		if (xfs_is_readonly(mp))
+>>>>>>> upstream/android-13
 			goto out;
 	}
 
@@ -476,6 +553,7 @@ static inline void xchk_postmortem(struct xfs_scrub *sc)
 /* Dispatch metadata scrubbing. */
 int
 xfs_scrub_metadata(
+<<<<<<< HEAD
 	struct xfs_inode		*ip,
 	struct xfs_scrub_metadata	*sm)
 {
@@ -496,6 +574,31 @@ xfs_scrub_metadata(
 		goto out;
 	error = -ENOTRECOVERABLE;
 	if (mp->m_flags & XFS_MOUNT_NORECOVERY)
+=======
+	struct file			*file,
+	struct xfs_scrub_metadata	*sm)
+{
+	struct xfs_scrub		sc = {
+		.file			= file,
+		.sm			= sm,
+	};
+	struct xfs_mount		*mp = XFS_I(file_inode(file))->i_mount;
+	int				error = 0;
+
+	sc.mp = mp;
+
+	BUILD_BUG_ON(sizeof(meta_scrub_ops) !=
+		(sizeof(struct xchk_meta_ops) * XFS_SCRUB_TYPE_NR));
+
+	trace_xchk_start(XFS_I(file_inode(file)), sm, error);
+
+	/* Forbidden if we are shut down or mounted norecovery. */
+	error = -ESHUTDOWN;
+	if (xfs_is_shutdown(mp))
+		goto out;
+	error = -ENOTRECOVERABLE;
+	if (xfs_has_norecovery(mp))
+>>>>>>> upstream/android-13
 		goto out;
 
 	error = xchk_validate_inputs(mp, sm);
@@ -504,6 +607,7 @@ xfs_scrub_metadata(
 
 	xchk_experimental_warning(mp);
 
+<<<<<<< HEAD
 retry_op:
 	/* Set up for the operation. */
 	memset(&sc, 0, sizeof(sc));
@@ -513,17 +617,39 @@ retry_op:
 	sc.try_harder = try_harder;
 	sc.sa.agno = NULLAGNUMBER;
 	error = sc.ops->setup(&sc, ip);
+=======
+	sc.ops = &meta_scrub_ops[sm->sm_type];
+	sc.sick_mask = xchk_health_mask_for_scrub_type(sm->sm_type);
+retry_op:
+	/*
+	 * When repairs are allowed, prevent freezing or readonly remount while
+	 * scrub is running with a real transaction.
+	 */
+	if (sm->sm_flags & XFS_SCRUB_IFLAG_REPAIR) {
+		error = mnt_want_write_file(sc.file);
+		if (error)
+			goto out;
+	}
+
+	/* Set up for the operation. */
+	error = sc.ops->setup(&sc);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_teardown;
 
 	/* Scrub for errors. */
 	error = sc.ops->scrub(&sc);
+<<<<<<< HEAD
 	if (!try_harder && error == -EDEADLOCK) {
+=======
+	if (!(sc.flags & XCHK_TRY_HARDER) && error == -EDEADLOCK) {
+>>>>>>> upstream/android-13
 		/*
 		 * Scrubbers return -EDEADLOCK to mean 'try harder'.
 		 * Tear down everything we hold, then set up again with
 		 * preparation for worst-case scenarios.
 		 */
+<<<<<<< HEAD
 		error = xchk_teardown(&sc, ip, 0);
 		if (error)
 			goto out;
@@ -533,6 +659,20 @@ retry_op:
 		goto out_teardown;
 
 	if ((sc.sm->sm_flags & XFS_SCRUB_IFLAG_REPAIR) && !already_fixed) {
+=======
+		error = xchk_teardown(&sc, 0);
+		if (error)
+			goto out;
+		sc.flags |= XCHK_TRY_HARDER;
+		goto retry_op;
+	} else if (error || (sm->sm_flags & XFS_SCRUB_OFLAG_INCOMPLETE))
+		goto out_teardown;
+
+	xchk_update_health(&sc);
+
+	if ((sc.sm->sm_flags & XFS_SCRUB_IFLAG_REPAIR) &&
+	    !(sc.flags & XREP_ALREADY_FIXED)) {
+>>>>>>> upstream/android-13
 		bool needs_fix;
 
 		/* Let debug users force us into the repair routines. */
@@ -555,11 +695,22 @@ retry_op:
 		 * If it's broken, userspace wants us to fix it, and we haven't
 		 * already tried to fix it, then attempt a repair.
 		 */
+<<<<<<< HEAD
 		error = xrep_attempt(ip, &sc, &already_fixed);
 		if (error == -EAGAIN) {
 			if (sc.try_harder)
 				try_harder = true;
 			error = xchk_teardown(&sc, ip, 0);
+=======
+		error = xrep_attempt(&sc);
+		if (error == -EAGAIN) {
+			/*
+			 * Either the repair function succeeded or it couldn't
+			 * get all the resources it needs; either way, we go
+			 * back to the beginning and call the scrub function.
+			 */
+			error = xchk_teardown(&sc, 0);
+>>>>>>> upstream/android-13
 			if (error) {
 				xrep_failure(mp);
 				goto out;
@@ -571,9 +722,15 @@ retry_op:
 out_nofix:
 	xchk_postmortem(&sc);
 out_teardown:
+<<<<<<< HEAD
 	error = xchk_teardown(&sc, ip, error);
 out:
 	trace_xchk_done(ip, sm, error);
+=======
+	error = xchk_teardown(&sc, error);
+out:
+	trace_xchk_done(XFS_I(file_inode(file)), sm, error);
+>>>>>>> upstream/android-13
 	if (error == -EFSCORRUPTED || error == -EFSBADCRC) {
 		sm->sm_flags |= XFS_SCRUB_OFLAG_CORRUPT;
 		error = 0;

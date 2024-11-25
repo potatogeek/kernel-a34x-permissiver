@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register map access API - AC'97 support
  *
@@ -15,6 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register map access API - AC'97 support
+//
+// Copyright 2013 Linaro Ltd.  All rights reserved.
+>>>>>>> upstream/android-13
 
 #include <linux/clk.h>
 #include <linux/err.h>

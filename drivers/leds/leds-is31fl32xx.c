@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for ISSI IS31FL32xx family of I2C LED controllers
  *
  * Copyright 2015 Allworx Corp.
  *
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheets:
  *   http://www.issi.com/US/product-analog-fxled-driver.shtml
  *   http://www.si-en.com/product.asp?parentid=890
@@ -48,7 +55,11 @@ struct is31fl32xx_priv {
 	const struct is31fl32xx_chipdef *cdef;
 	struct i2c_client *client;
 	unsigned int num_leds;
+<<<<<<< HEAD
 	struct is31fl32xx_led_data leds[0];
+=======
+	struct is31fl32xx_led_data leds[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -62,7 +73,12 @@ struct is31fl32xx_priv {
  * @pwm_registers_reversed: : true if PWM registers count down instead of up
  * @led_control_register_base : address of first LED control register (optional)
  * @enable_bits_per_led_control_register: number of LEDs enable bits in each
+<<<<<<< HEAD
  * @reset_func:         : pointer to reset function
+=======
+ * @reset_func          : pointer to reset function
+ * @sw_shutdown_func    : pointer to software shutdown function
+>>>>>>> upstream/android-13
  *
  * For all optional register addresses, the sentinel value %IS31FL32XX_REG_NONE
  * indicates that this chip has no such register.
@@ -328,12 +344,15 @@ static int is31fl32xx_init_regs(struct is31fl32xx_priv *priv)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline size_t sizeof_is31fl32xx_priv(int num_leds)
 {
 	return sizeof(struct is31fl32xx_priv) +
 		      (sizeof(struct is31fl32xx_led_data) * num_leds);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int is31fl32xx_parse_child_dt(const struct device *dev,
 				     const struct device_node *child,
 				     struct is31fl32xx_led_data *led_data)
@@ -342,9 +361,12 @@ static int is31fl32xx_parse_child_dt(const struct device *dev,
 	int ret = 0;
 	u32 reg;
 
+<<<<<<< HEAD
 	if (of_property_read_string(child, "label", &cdev->name))
 		cdev->name = child->name;
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(child, "reg", &reg);
 	if (ret || reg < 1 || reg > led_data->priv->cdef->channels) {
 		dev_err(dev,
@@ -354,9 +376,12 @@ static int is31fl32xx_parse_child_dt(const struct device *dev,
 	}
 	led_data->channel = reg;
 
+<<<<<<< HEAD
 	of_property_read_string(child, "linux,default-trigger",
 				&cdev->default_trigger);
 
+=======
+>>>>>>> upstream/android-13
 	cdev->brightness_set_blocking = is31fl32xx_brightness_set;
 
 	return 0;
@@ -382,7 +407,12 @@ static int is31fl32xx_parse_dt(struct device *dev,
 	struct device_node *child;
 	int ret = 0;
 
+<<<<<<< HEAD
 	for_each_child_of_node(dev->of_node, child) {
+=======
+	for_each_available_child_of_node(dev_of_node(dev), child) {
+		struct led_init_data init_data = {};
+>>>>>>> upstream/android-13
 		struct is31fl32xx_led_data *led_data =
 			&priv->leds[priv->num_leds];
 		const struct is31fl32xx_led_data *other_led_data;
@@ -398,6 +428,7 @@ static int is31fl32xx_parse_dt(struct device *dev,
 							  led_data->channel);
 		if (other_led_data) {
 			dev_err(dev,
+<<<<<<< HEAD
 				"%s and %s both attempting to use channel %d\n",
 				led_data->cdev.name,
 				other_led_data->cdev.name,
@@ -409,6 +440,21 @@ static int is31fl32xx_parse_dt(struct device *dev,
 		if (ret) {
 			dev_err(dev, "failed to register PWM led for %s: %d\n",
 				led_data->cdev.name, ret);
+=======
+				"Node %pOF 'reg' conflicts with another LED\n",
+				child);
+			ret = -EINVAL;
+			goto err;
+		}
+
+		init_data.fwnode = of_fwnode_handle(child);
+
+		ret = devm_led_classdev_register_ext(dev, &led_data->cdev,
+						     &init_data);
+		if (ret) {
+			dev_err(dev, "Failed to register LED for %pOF: %d\n",
+				child, ret);
+>>>>>>> upstream/android-13
 			goto err;
 		}
 
@@ -438,12 +484,16 @@ static int is31fl32xx_probe(struct i2c_client *client,
 			    const struct i2c_device_id *id)
 {
 	const struct is31fl32xx_chipdef *cdef;
+<<<<<<< HEAD
 	const struct of_device_id *of_dev_id;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = &client->dev;
 	struct is31fl32xx_priv *priv;
 	int count;
 	int ret = 0;
 
+<<<<<<< HEAD
 	of_dev_id = of_match_device(of_is31fl32xx_match, dev);
 	if (!of_dev_id)
 		return -EINVAL;
@@ -455,6 +505,15 @@ static int is31fl32xx_probe(struct i2c_client *client,
 		return -EINVAL;
 
 	priv = devm_kzalloc(dev, sizeof_is31fl32xx_priv(count),
+=======
+	cdef = device_get_match_data(dev);
+
+	count = of_get_available_child_count(dev_of_node(dev));
+	if (!count)
+		return -EINVAL;
+
+	priv = devm_kzalloc(dev, struct_size(priv, leds, count),
+>>>>>>> upstream/android-13
 			    GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;

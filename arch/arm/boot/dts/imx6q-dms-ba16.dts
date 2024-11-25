@@ -42,7 +42,11 @@
 };
 
 &ecspi5 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio1 17 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi5>;
 	status = "okay";

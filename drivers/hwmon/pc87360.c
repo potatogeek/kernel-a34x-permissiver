@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  pc87360.c - Part of lm_sensors, Linux kernel modules
  *              for hardware monitoring
@@ -6,6 +10,7 @@
  *  Copied from smsc47m1.c:
  *  Copyright (C) 2002 Mark D. Studebaker <mdsxyz123@yahoo.com>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Supports the following chips:
  *
  *  Chip        #vin    #fan    #pwm    #temp   devid
@@ -254,7 +261,11 @@ static struct platform_driver pc87360_driver = {
  * Sysfs stuff
  */
 
+<<<<<<< HEAD
 static ssize_t show_fan_input(struct device *dev,
+=======
+static ssize_t fan_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -262,7 +273,11 @@ static ssize_t show_fan_input(struct device *dev,
 	return sprintf(buf, "%u\n", FAN_FROM_REG(data->fan[attr->index],
 		       FAN_DIV_FROM_REG(data->fan_status[attr->index])));
 }
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev,
+=======
+static ssize_t fan_min_show(struct device *dev,
+>>>>>>> upstream/android-13
 			    struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -270,7 +285,11 @@ static ssize_t show_fan_min(struct device *dev,
 	return sprintf(buf, "%u\n", FAN_FROM_REG(data->fan_min[attr->index],
 		       FAN_DIV_FROM_REG(data->fan_status[attr->index])));
 }
+<<<<<<< HEAD
 static ssize_t show_fan_div(struct device *dev,
+=======
+static ssize_t fan_div_show(struct device *dev,
+>>>>>>> upstream/android-13
 			    struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -278,7 +297,11 @@ static ssize_t show_fan_div(struct device *dev,
 	return sprintf(buf, "%u\n",
 		       FAN_DIV_FROM_REG(data->fan_status[attr->index]));
 }
+<<<<<<< HEAD
 static ssize_t show_fan_status(struct device *dev,
+=======
+static ssize_t fan_status_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -286,9 +309,15 @@ static ssize_t show_fan_status(struct device *dev,
 	return sprintf(buf, "%u\n",
 		       FAN_STATUS_FROM_REG(data->fan_status[attr->index]));
 }
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev,
 			   struct device_attribute *devattr, const char *buf,
 	size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -325,6 +354,7 @@ static ssize_t set_fan_min(struct device *dev,
 }
 
 static struct sensor_device_attribute fan_input[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(fan1_input, S_IRUGO, show_fan_input, NULL, 0),
 	SENSOR_ATTR(fan2_input, S_IRUGO, show_fan_input, NULL, 1),
 	SENSOR_ATTR(fan3_input, S_IRUGO, show_fan_input, NULL, 2),
@@ -343,6 +373,26 @@ static struct sensor_device_attribute fan_min[] = {
 	SENSOR_ATTR(fan1_min, S_IWUSR | S_IRUGO, show_fan_min, set_fan_min, 0),
 	SENSOR_ATTR(fan2_min, S_IWUSR | S_IRUGO, show_fan_min, set_fan_min, 1),
 	SENSOR_ATTR(fan3_min, S_IWUSR | S_IRUGO, show_fan_min, set_fan_min, 2),
+=======
+	SENSOR_ATTR_RO(fan1_input, fan_input, 0),
+	SENSOR_ATTR_RO(fan2_input, fan_input, 1),
+	SENSOR_ATTR_RO(fan3_input, fan_input, 2),
+};
+static struct sensor_device_attribute fan_status[] = {
+	SENSOR_ATTR_RO(fan1_status, fan_status, 0),
+	SENSOR_ATTR_RO(fan2_status, fan_status, 1),
+	SENSOR_ATTR_RO(fan3_status, fan_status, 2),
+};
+static struct sensor_device_attribute fan_div[] = {
+	SENSOR_ATTR_RO(fan1_div, fan_div, 0),
+	SENSOR_ATTR_RO(fan2_div, fan_div, 1),
+	SENSOR_ATTR_RO(fan3_div, fan_div, 2),
+};
+static struct sensor_device_attribute fan_min[] = {
+	SENSOR_ATTR_RW(fan1_min, fan_min, 0),
+	SENSOR_ATTR_RW(fan2_min, fan_min, 1),
+	SENSOR_ATTR_RW(fan3_min, fan_min, 2),
+>>>>>>> upstream/android-13
 };
 
 #define FAN_UNIT_ATTRS(X)		\
@@ -353,7 +403,11 @@ static struct sensor_device_attribute fan_min[] = {
 	NULL				\
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t pwm_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -363,8 +417,13 @@ static ssize_t show_pwm(struct device *dev, struct device_attribute *devattr,
 				    FAN_CONFIG_INVERT(data->fan_conf,
 						      attr->index)));
 }
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev, struct device_attribute *devattr,
 		       const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev, struct device_attribute *devattr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -385,9 +444,15 @@ static ssize_t set_pwm(struct device *dev, struct device_attribute *devattr,
 }
 
 static struct sensor_device_attribute pwm[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(pwm1, S_IWUSR | S_IRUGO, show_pwm, set_pwm, 0),
 	SENSOR_ATTR(pwm2, S_IWUSR | S_IRUGO, show_pwm, set_pwm, 1),
 	SENSOR_ATTR(pwm3, S_IWUSR | S_IRUGO, show_pwm, set_pwm, 2),
+=======
+	SENSOR_ATTR_RW(pwm1, pwm, 0),
+	SENSOR_ATTR_RW(pwm2, pwm, 1),
+	SENSOR_ATTR_RW(pwm3, pwm, 2),
+>>>>>>> upstream/android-13
 };
 
 static struct attribute *pc8736x_fan_attr[][5] = {
@@ -402,7 +467,11 @@ static const struct attribute_group pc8736x_fan_attr_group[] = {
 	{ .attrs = pc8736x_fan_attr[2], },
 };
 
+<<<<<<< HEAD
 static ssize_t show_in_input(struct device *dev,
+=======
+static ssize_t in_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -410,7 +479,11 @@ static ssize_t show_in_input(struct device *dev,
 	return sprintf(buf, "%u\n", IN_FROM_REG(data->in[attr->index],
 		       data->in_vref));
 }
+<<<<<<< HEAD
 static ssize_t show_in_min(struct device *dev,
+=======
+static ssize_t in_min_show(struct device *dev,
+>>>>>>> upstream/android-13
 			   struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -418,7 +491,11 @@ static ssize_t show_in_min(struct device *dev,
 	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_min[attr->index],
 		       data->in_vref));
 }
+<<<<<<< HEAD
 static ssize_t show_in_max(struct device *dev,
+=======
+static ssize_t in_max_show(struct device *dev,
+>>>>>>> upstream/android-13
 			   struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -426,15 +503,25 @@ static ssize_t show_in_max(struct device *dev,
 	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_max[attr->index],
 		       data->in_vref));
 }
+<<<<<<< HEAD
 static ssize_t show_in_status(struct device *dev,
+=======
+static ssize_t in_status_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = pc87360_update_device(dev);
 	return sprintf(buf, "%u\n", data->in_status[attr->index]);
 }
+<<<<<<< HEAD
 static ssize_t set_in_min(struct device *dev, struct device_attribute *devattr,
 			  const char *buf, size_t count)
+=======
+static ssize_t in_min_store(struct device *dev,
+			    struct device_attribute *devattr, const char *buf,
+			    size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -452,8 +539,14 @@ static ssize_t set_in_min(struct device *dev, struct device_attribute *devattr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t set_in_max(struct device *dev, struct device_attribute *devattr,
 			  const char *buf, size_t count)
+=======
+static ssize_t in_max_store(struct device *dev,
+			    struct device_attribute *devattr, const char *buf,
+			    size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -474,6 +567,7 @@ static ssize_t set_in_max(struct device *dev, struct device_attribute *devattr,
 }
 
 static struct sensor_device_attribute in_input[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(in0_input, S_IRUGO, show_in_input, NULL, 0),
 	SENSOR_ATTR(in1_input, S_IRUGO, show_in_input, NULL, 1),
 	SENSOR_ATTR(in2_input, S_IRUGO, show_in_input, NULL, 2),
@@ -524,6 +618,58 @@ static struct sensor_device_attribute in_max[] = {
 	SENSOR_ATTR(in8_max, S_IWUSR | S_IRUGO, show_in_max, set_in_max, 8),
 	SENSOR_ATTR(in9_max, S_IWUSR | S_IRUGO, show_in_max, set_in_max, 9),
 	SENSOR_ATTR(in10_max, S_IWUSR | S_IRUGO, show_in_max, set_in_max, 10),
+=======
+	SENSOR_ATTR_RO(in0_input, in_input, 0),
+	SENSOR_ATTR_RO(in1_input, in_input, 1),
+	SENSOR_ATTR_RO(in2_input, in_input, 2),
+	SENSOR_ATTR_RO(in3_input, in_input, 3),
+	SENSOR_ATTR_RO(in4_input, in_input, 4),
+	SENSOR_ATTR_RO(in5_input, in_input, 5),
+	SENSOR_ATTR_RO(in6_input, in_input, 6),
+	SENSOR_ATTR_RO(in7_input, in_input, 7),
+	SENSOR_ATTR_RO(in8_input, in_input, 8),
+	SENSOR_ATTR_RO(in9_input, in_input, 9),
+	SENSOR_ATTR_RO(in10_input, in_input, 10),
+};
+static struct sensor_device_attribute in_status[] = {
+	SENSOR_ATTR_RO(in0_status, in_status, 0),
+	SENSOR_ATTR_RO(in1_status, in_status, 1),
+	SENSOR_ATTR_RO(in2_status, in_status, 2),
+	SENSOR_ATTR_RO(in3_status, in_status, 3),
+	SENSOR_ATTR_RO(in4_status, in_status, 4),
+	SENSOR_ATTR_RO(in5_status, in_status, 5),
+	SENSOR_ATTR_RO(in6_status, in_status, 6),
+	SENSOR_ATTR_RO(in7_status, in_status, 7),
+	SENSOR_ATTR_RO(in8_status, in_status, 8),
+	SENSOR_ATTR_RO(in9_status, in_status, 9),
+	SENSOR_ATTR_RO(in10_status, in_status, 10),
+};
+static struct sensor_device_attribute in_min[] = {
+	SENSOR_ATTR_RW(in0_min, in_min, 0),
+	SENSOR_ATTR_RW(in1_min, in_min, 1),
+	SENSOR_ATTR_RW(in2_min, in_min, 2),
+	SENSOR_ATTR_RW(in3_min, in_min, 3),
+	SENSOR_ATTR_RW(in4_min, in_min, 4),
+	SENSOR_ATTR_RW(in5_min, in_min, 5),
+	SENSOR_ATTR_RW(in6_min, in_min, 6),
+	SENSOR_ATTR_RW(in7_min, in_min, 7),
+	SENSOR_ATTR_RW(in8_min, in_min, 8),
+	SENSOR_ATTR_RW(in9_min, in_min, 9),
+	SENSOR_ATTR_RW(in10_min, in_min, 10),
+};
+static struct sensor_device_attribute in_max[] = {
+	SENSOR_ATTR_RW(in0_max, in_max, 0),
+	SENSOR_ATTR_RW(in1_max, in_max, 1),
+	SENSOR_ATTR_RW(in2_max, in_max, 2),
+	SENSOR_ATTR_RW(in3_max, in_max, 3),
+	SENSOR_ATTR_RW(in4_max, in_max, 4),
+	SENSOR_ATTR_RW(in5_max, in_max, 5),
+	SENSOR_ATTR_RW(in6_max, in_max, 6),
+	SENSOR_ATTR_RW(in7_max, in_max, 7),
+	SENSOR_ATTR_RW(in8_max, in_max, 8),
+	SENSOR_ATTR_RW(in9_max, in_max, 9),
+	SENSOR_ATTR_RW(in10_max, in_max, 10),
+>>>>>>> upstream/android-13
 };
 
 /* (temp & vin) channel status register alarm bits (pdf sec.11.5.12) */
@@ -537,16 +683,26 @@ static struct sensor_device_attribute in_max[] = {
  * 11.5.2) that (legacy) show_in_alarm() resds (via data->in_alarms)
  */
 
+<<<<<<< HEAD
 static ssize_t show_in_min_alarm(struct device *dev,
 			struct device_attribute *devattr, char *buf)
+=======
+static ssize_t in_min_alarm_show(struct device *dev,
+				 struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
 
 	return sprintf(buf, "%u\n", !!(data->in_status[nr] & CHAN_ALM_MIN));
 }
+<<<<<<< HEAD
 static ssize_t show_in_max_alarm(struct device *dev,
 			struct device_attribute *devattr, char *buf)
+=======
+static ssize_t in_max_alarm_show(struct device *dev,
+				 struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
@@ -555,6 +711,7 @@ static ssize_t show_in_max_alarm(struct device *dev,
 }
 
 static struct sensor_device_attribute in_min_alarm[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(in0_min_alarm, S_IRUGO, show_in_min_alarm, NULL, 0),
 	SENSOR_ATTR(in1_min_alarm, S_IRUGO, show_in_min_alarm, NULL, 1),
 	SENSOR_ATTR(in2_min_alarm, S_IRUGO, show_in_min_alarm, NULL, 2),
@@ -579,6 +736,32 @@ static struct sensor_device_attribute in_max_alarm[] = {
 	SENSOR_ATTR(in8_max_alarm, S_IRUGO, show_in_max_alarm, NULL, 8),
 	SENSOR_ATTR(in9_max_alarm, S_IRUGO, show_in_max_alarm, NULL, 9),
 	SENSOR_ATTR(in10_max_alarm, S_IRUGO, show_in_max_alarm, NULL, 10),
+=======
+	SENSOR_ATTR_RO(in0_min_alarm, in_min_alarm, 0),
+	SENSOR_ATTR_RO(in1_min_alarm, in_min_alarm, 1),
+	SENSOR_ATTR_RO(in2_min_alarm, in_min_alarm, 2),
+	SENSOR_ATTR_RO(in3_min_alarm, in_min_alarm, 3),
+	SENSOR_ATTR_RO(in4_min_alarm, in_min_alarm, 4),
+	SENSOR_ATTR_RO(in5_min_alarm, in_min_alarm, 5),
+	SENSOR_ATTR_RO(in6_min_alarm, in_min_alarm, 6),
+	SENSOR_ATTR_RO(in7_min_alarm, in_min_alarm, 7),
+	SENSOR_ATTR_RO(in8_min_alarm, in_min_alarm, 8),
+	SENSOR_ATTR_RO(in9_min_alarm, in_min_alarm, 9),
+	SENSOR_ATTR_RO(in10_min_alarm, in_min_alarm, 10),
+};
+static struct sensor_device_attribute in_max_alarm[] = {
+	SENSOR_ATTR_RO(in0_max_alarm, in_max_alarm, 0),
+	SENSOR_ATTR_RO(in1_max_alarm, in_max_alarm, 1),
+	SENSOR_ATTR_RO(in2_max_alarm, in_max_alarm, 2),
+	SENSOR_ATTR_RO(in3_max_alarm, in_max_alarm, 3),
+	SENSOR_ATTR_RO(in4_max_alarm, in_max_alarm, 4),
+	SENSOR_ATTR_RO(in5_max_alarm, in_max_alarm, 5),
+	SENSOR_ATTR_RO(in6_max_alarm, in_max_alarm, 6),
+	SENSOR_ATTR_RO(in7_max_alarm, in_max_alarm, 7),
+	SENSOR_ATTR_RO(in8_max_alarm, in_max_alarm, 8),
+	SENSOR_ATTR_RO(in9_max_alarm, in_max_alarm, 9),
+	SENSOR_ATTR_RO(in10_max_alarm, in_max_alarm, 10),
+>>>>>>> upstream/android-13
 };
 
 #define VIN_UNIT_ATTRS(X) \
@@ -651,7 +834,11 @@ static const struct attribute_group pc8736x_vin_group = {
 	.attrs = pc8736x_vin_attr_array,
 };
 
+<<<<<<< HEAD
 static ssize_t show_therm_input(struct device *dev,
+=======
+static ssize_t therm_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 				struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -659,7 +846,11 @@ static ssize_t show_therm_input(struct device *dev,
 	return sprintf(buf, "%u\n", IN_FROM_REG(data->in[attr->index],
 		       data->in_vref));
 }
+<<<<<<< HEAD
 static ssize_t show_therm_min(struct device *dev,
+=======
+static ssize_t therm_min_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -667,7 +858,11 @@ static ssize_t show_therm_min(struct device *dev,
 	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_min[attr->index],
 		       data->in_vref));
 }
+<<<<<<< HEAD
 static ssize_t show_therm_max(struct device *dev,
+=======
+static ssize_t therm_max_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -675,7 +870,11 @@ static ssize_t show_therm_max(struct device *dev,
 	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_max[attr->index],
 		       data->in_vref));
 }
+<<<<<<< HEAD
 static ssize_t show_therm_crit(struct device *dev,
+=======
+static ssize_t therm_crit_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -683,7 +882,11 @@ static ssize_t show_therm_crit(struct device *dev,
 	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_crit[attr->index-11],
 		       data->in_vref));
 }
+<<<<<<< HEAD
 static ssize_t show_therm_status(struct device *dev,
+=======
+static ssize_t therm_status_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -691,9 +894,15 @@ static ssize_t show_therm_status(struct device *dev,
 	return sprintf(buf, "%u\n", data->in_status[attr->index]);
 }
 
+<<<<<<< HEAD
 static ssize_t set_therm_min(struct device *dev,
 			     struct device_attribute *devattr,
 			     const char *buf, size_t count)
+=======
+static ssize_t therm_min_store(struct device *dev,
+			       struct device_attribute *devattr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -712,9 +921,15 @@ static ssize_t set_therm_min(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_therm_max(struct device *dev,
 			     struct device_attribute *devattr,
 			     const char *buf, size_t count)
+=======
+static ssize_t therm_max_store(struct device *dev,
+			       struct device_attribute *devattr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -732,9 +947,15 @@ static ssize_t set_therm_max(struct device *dev,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t set_therm_crit(struct device *dev,
 			      struct device_attribute *devattr,
 			      const char *buf, size_t count)
+=======
+static ssize_t therm_crit_store(struct device *dev,
+				struct device_attribute *devattr,
+				const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -758,6 +979,7 @@ static ssize_t set_therm_crit(struct device *dev,
  * used in the chip to measure voltage across the thermistors
  */
 static struct sensor_device_attribute therm_input[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(temp4_input, S_IRUGO, show_therm_input, NULL, 0 + 11),
 	SENSOR_ATTR(temp5_input, S_IRUGO, show_therm_input, NULL, 1 + 11),
 	SENSOR_ATTR(temp6_input, S_IRUGO, show_therm_input, NULL, 2 + 11),
@@ -790,6 +1012,31 @@ static struct sensor_device_attribute therm_crit[] = {
 		    show_therm_crit, set_therm_crit, 1 + 11),
 	SENSOR_ATTR(temp6_crit, S_IRUGO | S_IWUSR,
 		    show_therm_crit, set_therm_crit, 2 + 11),
+=======
+	SENSOR_ATTR_RO(temp4_input, therm_input, 0 + 11),
+	SENSOR_ATTR_RO(temp5_input, therm_input, 1 + 11),
+	SENSOR_ATTR_RO(temp6_input, therm_input, 2 + 11),
+};
+static struct sensor_device_attribute therm_status[] = {
+	SENSOR_ATTR_RO(temp4_status, therm_status, 0 + 11),
+	SENSOR_ATTR_RO(temp5_status, therm_status, 1 + 11),
+	SENSOR_ATTR_RO(temp6_status, therm_status, 2 + 11),
+};
+static struct sensor_device_attribute therm_min[] = {
+	SENSOR_ATTR_RW(temp4_min, therm_min, 0 + 11),
+	SENSOR_ATTR_RW(temp5_min, therm_min, 1 + 11),
+	SENSOR_ATTR_RW(temp6_min, therm_min, 2 + 11),
+};
+static struct sensor_device_attribute therm_max[] = {
+	SENSOR_ATTR_RW(temp4_max, therm_max, 0 + 11),
+	SENSOR_ATTR_RW(temp5_max, therm_max, 1 + 11),
+	SENSOR_ATTR_RW(temp6_max, therm_max, 2 + 11),
+};
+static struct sensor_device_attribute therm_crit[] = {
+	SENSOR_ATTR_RW(temp4_crit, therm_crit, 0 + 11),
+	SENSOR_ATTR_RW(temp5_crit, therm_crit, 1 + 11),
+	SENSOR_ATTR_RW(temp6_crit, therm_crit, 2 + 11),
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -797,24 +1044,42 @@ static struct sensor_device_attribute therm_crit[] = {
  * status register (sec 11.5.12)
  */
 
+<<<<<<< HEAD
 static ssize_t show_therm_min_alarm(struct device *dev,
 				struct device_attribute *devattr, char *buf)
+=======
+static ssize_t therm_min_alarm_show(struct device *dev,
+				    struct device_attribute *devattr,
+				    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
 
 	return sprintf(buf, "%u\n", !!(data->in_status[nr] & CHAN_ALM_MIN));
 }
+<<<<<<< HEAD
 static ssize_t show_therm_max_alarm(struct device *dev,
 				struct device_attribute *devattr, char *buf)
+=======
+static ssize_t therm_max_alarm_show(struct device *dev,
+				    struct device_attribute *devattr,
+				    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
 
 	return sprintf(buf, "%u\n", !!(data->in_status[nr] & CHAN_ALM_MAX));
 }
+<<<<<<< HEAD
 static ssize_t show_therm_crit_alarm(struct device *dev,
 				struct device_attribute *devattr, char *buf)
+=======
+static ssize_t therm_crit_alarm_show(struct device *dev,
+				     struct device_attribute *devattr,
+				     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
@@ -823,6 +1088,7 @@ static ssize_t show_therm_crit_alarm(struct device *dev,
 }
 
 static struct sensor_device_attribute therm_min_alarm[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(temp4_min_alarm, S_IRUGO,
 		    show_therm_min_alarm, NULL, 0 + 11),
 	SENSOR_ATTR(temp5_min_alarm, S_IRUGO,
@@ -845,6 +1111,21 @@ static struct sensor_device_attribute therm_crit_alarm[] = {
 		    show_therm_crit_alarm, NULL, 1 + 11),
 	SENSOR_ATTR(temp6_crit_alarm, S_IRUGO,
 		    show_therm_crit_alarm, NULL, 2 + 11),
+=======
+	SENSOR_ATTR_RO(temp4_min_alarm, therm_min_alarm, 0 + 11),
+	SENSOR_ATTR_RO(temp5_min_alarm, therm_min_alarm, 1 + 11),
+	SENSOR_ATTR_RO(temp6_min_alarm, therm_min_alarm, 2 + 11),
+};
+static struct sensor_device_attribute therm_max_alarm[] = {
+	SENSOR_ATTR_RO(temp4_max_alarm, therm_max_alarm, 0 + 11),
+	SENSOR_ATTR_RO(temp5_max_alarm, therm_max_alarm, 1 + 11),
+	SENSOR_ATTR_RO(temp6_max_alarm, therm_max_alarm, 2 + 11),
+};
+static struct sensor_device_attribute therm_crit_alarm[] = {
+	SENSOR_ATTR_RO(temp4_crit_alarm, therm_crit_alarm, 0 + 11),
+	SENSOR_ATTR_RO(temp5_crit_alarm, therm_crit_alarm, 1 + 11),
+	SENSOR_ATTR_RO(temp6_crit_alarm, therm_crit_alarm, 2 + 11),
+>>>>>>> upstream/android-13
 };
 
 #define THERM_UNIT_ATTRS(X) \
@@ -867,7 +1148,11 @@ static const struct attribute_group pc8736x_therm_group = {
 	.attrs = pc8736x_therm_attr_array,
 };
 
+<<<<<<< HEAD
 static ssize_t show_temp_input(struct device *dev,
+=======
+static ssize_t temp_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -875,7 +1160,11 @@ static ssize_t show_temp_input(struct device *dev,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_min(struct device *dev,
+=======
+static ssize_t temp_min_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -883,7 +1172,11 @@ static ssize_t show_temp_min(struct device *dev,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_min[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev,
+=======
+static ssize_t temp_max_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -891,7 +1184,11 @@ static ssize_t show_temp_max(struct device *dev,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_max[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_crit(struct device *dev,
+=======
+static ssize_t temp_crit_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -900,7 +1197,11 @@ static ssize_t show_temp_crit(struct device *dev,
 		       TEMP_FROM_REG(data->temp_crit[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_status(struct device *dev,
+=======
+static ssize_t temp_status_show(struct device *dev,
+>>>>>>> upstream/android-13
 				struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -908,9 +1209,15 @@ static ssize_t show_temp_status(struct device *dev,
 	return sprintf(buf, "%d\n", data->temp_status[attr->index]);
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_min(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf, size_t count)
+=======
+static ssize_t temp_min_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -929,9 +1236,15 @@ static ssize_t set_temp_min(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_max(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf, size_t count)
+=======
+static ssize_t temp_max_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -950,9 +1263,15 @@ static ssize_t set_temp_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_crit(struct device *dev,
 			     struct device_attribute *devattr, const char *buf,
 			     size_t count)
+=======
+static ssize_t temp_crit_store(struct device *dev,
+			       struct device_attribute *devattr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct pc87360_data *data = dev_get_drvdata(dev);
@@ -972,6 +1291,7 @@ static ssize_t set_temp_crit(struct device *dev,
 }
 
 static struct sensor_device_attribute temp_input[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(temp1_input, S_IRUGO, show_temp_input, NULL, 0),
 	SENSOR_ATTR(temp2_input, S_IRUGO, show_temp_input, NULL, 1),
 	SENSOR_ATTR(temp3_input, S_IRUGO, show_temp_input, NULL, 2),
@@ -1004,6 +1324,31 @@ static struct sensor_device_attribute temp_crit[] = {
 		    show_temp_crit, set_temp_crit, 1),
 	SENSOR_ATTR(temp3_crit, S_IRUGO | S_IWUSR,
 		    show_temp_crit, set_temp_crit, 2),
+=======
+	SENSOR_ATTR_RO(temp1_input, temp_input, 0),
+	SENSOR_ATTR_RO(temp2_input, temp_input, 1),
+	SENSOR_ATTR_RO(temp3_input, temp_input, 2),
+};
+static struct sensor_device_attribute temp_status[] = {
+	SENSOR_ATTR_RO(temp1_status, temp_status, 0),
+	SENSOR_ATTR_RO(temp2_status, temp_status, 1),
+	SENSOR_ATTR_RO(temp3_status, temp_status, 2),
+};
+static struct sensor_device_attribute temp_min[] = {
+	SENSOR_ATTR_RW(temp1_min, temp_min, 0),
+	SENSOR_ATTR_RW(temp2_min, temp_min, 1),
+	SENSOR_ATTR_RW(temp3_min, temp_min, 2),
+};
+static struct sensor_device_attribute temp_max[] = {
+	SENSOR_ATTR_RW(temp1_max, temp_max, 0),
+	SENSOR_ATTR_RW(temp2_max, temp_max, 1),
+	SENSOR_ATTR_RW(temp3_max, temp_max, 2),
+};
+static struct sensor_device_attribute temp_crit[] = {
+	SENSOR_ATTR_RW(temp1_crit, temp_crit, 0),
+	SENSOR_ATTR_RW(temp2_crit, temp_crit, 1),
+	SENSOR_ATTR_RW(temp3_crit, temp_crit, 2),
+>>>>>>> upstream/android-13
 };
 
 static ssize_t alarms_temp_show(struct device *dev,
@@ -1021,8 +1366,14 @@ static DEVICE_ATTR_RO(alarms_temp);
  * 12.3.2) that show_temp_alarm() reads (via data->temp_alarms)
  */
 
+<<<<<<< HEAD
 static ssize_t show_temp_min_alarm(struct device *dev,
 			struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_min_alarm_show(struct device *dev,
+				   struct device_attribute *devattr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
@@ -1030,8 +1381,14 @@ static ssize_t show_temp_min_alarm(struct device *dev,
 	return sprintf(buf, "%u\n", !!(data->temp_status[nr] & CHAN_ALM_MIN));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max_alarm(struct device *dev,
 			struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_max_alarm_show(struct device *dev,
+				   struct device_attribute *devattr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
@@ -1039,8 +1396,14 @@ static ssize_t show_temp_max_alarm(struct device *dev,
 	return sprintf(buf, "%u\n", !!(data->temp_status[nr] & CHAN_ALM_MAX));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_crit_alarm(struct device *dev,
 			struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_crit_alarm_show(struct device *dev,
+				    struct device_attribute *devattr,
+				    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
@@ -1049,6 +1412,7 @@ static ssize_t show_temp_crit_alarm(struct device *dev,
 }
 
 static struct sensor_device_attribute temp_min_alarm[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(temp1_min_alarm, S_IRUGO, show_temp_min_alarm, NULL, 0),
 	SENSOR_ATTR(temp2_min_alarm, S_IRUGO, show_temp_min_alarm, NULL, 1),
 	SENSOR_ATTR(temp3_min_alarm, S_IRUGO, show_temp_min_alarm, NULL, 2),
@@ -1069,6 +1433,28 @@ static struct sensor_device_attribute temp_crit_alarm[] = {
 #define TEMP_FAULT	0x40	/* open diode */
 static ssize_t show_temp_fault(struct device *dev,
 			struct device_attribute *devattr, char *buf)
+=======
+	SENSOR_ATTR_RO(temp1_min_alarm, temp_min_alarm, 0),
+	SENSOR_ATTR_RO(temp2_min_alarm, temp_min_alarm, 1),
+	SENSOR_ATTR_RO(temp3_min_alarm, temp_min_alarm, 2),
+};
+
+static struct sensor_device_attribute temp_max_alarm[] = {
+	SENSOR_ATTR_RO(temp1_max_alarm, temp_max_alarm, 0),
+	SENSOR_ATTR_RO(temp2_max_alarm, temp_max_alarm, 1),
+	SENSOR_ATTR_RO(temp3_max_alarm, temp_max_alarm, 2),
+};
+
+static struct sensor_device_attribute temp_crit_alarm[] = {
+	SENSOR_ATTR_RO(temp1_crit_alarm, temp_crit_alarm, 0),
+	SENSOR_ATTR_RO(temp2_crit_alarm, temp_crit_alarm, 1),
+	SENSOR_ATTR_RO(temp3_crit_alarm, temp_crit_alarm, 2),
+};
+
+#define TEMP_FAULT	0x40	/* open diode */
+static ssize_t temp_fault_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pc87360_data *data = pc87360_update_device(dev);
 	unsigned nr = to_sensor_dev_attr(devattr)->index;
@@ -1076,9 +1462,15 @@ static ssize_t show_temp_fault(struct device *dev,
 	return sprintf(buf, "%u\n", !!(data->temp_status[nr] & TEMP_FAULT));
 }
 static struct sensor_device_attribute temp_fault[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(temp1_fault, S_IRUGO, show_temp_fault, NULL, 0),
 	SENSOR_ATTR(temp2_fault, S_IRUGO, show_temp_fault, NULL, 1),
 	SENSOR_ATTR(temp3_fault, S_IRUGO, show_temp_fault, NULL, 2),
+=======
+	SENSOR_ATTR_RO(temp1_fault, temp_fault, 0),
+	SENSOR_ATTR_RO(temp2_fault, temp_fault, 1),
+	SENSOR_ATTR_RO(temp3_fault, temp_fault, 2),
+>>>>>>> upstream/android-13
 };
 
 #define TEMP_UNIT_ATTRS(X)			\
@@ -1732,8 +2124,13 @@ static int __init pc87360_device_add(unsigned short address)
 			continue;
 		res[res_count].start = extra_isa[i];
 		res[res_count].end = extra_isa[i] + PC87360_EXTENT - 1;
+<<<<<<< HEAD
 		res[res_count].name = "pc87360",
 		res[res_count].flags = IORESOURCE_IO,
+=======
+		res[res_count].name = "pc87360";
+		res[res_count].flags = IORESOURCE_IO;
+>>>>>>> upstream/android-13
 
 		err = acpi_check_resource_conflict(&res[res_count]);
 		if (err)

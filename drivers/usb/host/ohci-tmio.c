@@ -97,10 +97,20 @@ static void tmio_stop_hc(struct platform_device *dev)
 	switch (ohci->num_ports) {
 		default:
 			dev_err(&dev->dev, "Unsupported amount of ports: %d\n", ohci->num_ports);
+<<<<<<< HEAD
 		case 3:
 			pm |= CCR_PM_USBPW3;
 		case 2:
 			pm |= CCR_PM_USBPW2;
+=======
+			fallthrough;
+		case 3:
+			pm |= CCR_PM_USBPW3;
+			fallthrough;
+		case 2:
+			pm |= CCR_PM_USBPW2;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 1:
 			pm |= CCR_PM_USBPW1;
 	}
@@ -153,7 +163,11 @@ static const struct hc_driver ohci_tmio_hc_driver = {
 
 	/* generic hardware linkage */
 	.irq =			ohci_irq,
+<<<<<<< HEAD
 	.flags =		HCD_USB11 | HCD_MEMORY | HCD_LOCAL_MEM,
+=======
+	.flags =		HCD_USB11 | HCD_MEMORY,
+>>>>>>> upstream/android-13
 
 	/* basic lifecycle operations */
 	.start =		ohci_tmio_start,
@@ -196,9 +210,18 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
 	if (usb_disabled())
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (!cell)
 		return -EINVAL;
 
+=======
+	if (!cell || !regs || !config || !sram)
+		return -EINVAL;
+
+	if (irq < 0)
+		return irq;
+
+>>>>>>> upstream/android-13
 	hcd = usb_create_hcd(&ohci_tmio_hc_driver, &dev->dev, dev_name(&dev->dev));
 	if (!hcd) {
 		ret = -ENOMEM;
@@ -224,11 +247,14 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
 		goto err_ioremap_regs;
 	}
 
+<<<<<<< HEAD
 	ret = dma_declare_coherent_memory(&dev->dev, sram->start, sram->start,
 				resource_size(sram), DMA_MEMORY_EXCLUSIVE);
 	if (ret)
 		goto err_dma_declare;
 
+=======
+>>>>>>> upstream/android-13
 	if (cell->enable) {
 		ret = cell->enable(dev);
 		if (ret)
@@ -239,6 +265,14 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
 	ohci = hcd_to_ohci(hcd);
 	ohci_hcd_init(ohci);
 
+<<<<<<< HEAD
+=======
+	ret = usb_hcd_setup_local_mem(hcd, sram->start, sram->start,
+				      resource_size(sram));
+	if (ret < 0)
+		goto err_enable;
+
+>>>>>>> upstream/android-13
 	ret = usb_add_hcd(hcd, irq, 0);
 	if (ret)
 		goto err_add_hcd;
@@ -254,8 +288,11 @@ err_add_hcd:
 	if (cell->disable)
 		cell->disable(dev);
 err_enable:
+<<<<<<< HEAD
 	dma_release_declared_memory(&dev->dev);
 err_dma_declare:
+=======
+>>>>>>> upstream/android-13
 	iounmap(hcd->regs);
 err_ioremap_regs:
 	iounmap(tmio->ccr);
@@ -276,7 +313,10 @@ static int ohci_hcd_tmio_drv_remove(struct platform_device *dev)
 	tmio_stop_hc(dev);
 	if (cell->disable)
 		cell->disable(dev);
+<<<<<<< HEAD
 	dma_release_declared_memory(&dev->dev);
+=======
+>>>>>>> upstream/android-13
 	iounmap(hcd->regs);
 	iounmap(tmio->ccr);
 	usb_put_hcd(hcd);

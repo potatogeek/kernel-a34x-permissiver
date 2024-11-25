@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_EXP_RCV_H
 #define _HFI1_EXP_RCV_H
 /*
@@ -47,6 +48,15 @@
  *
  */
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2017 Intel Corporation.
+ */
+
+#ifndef _HFI1_EXP_RCV_H
+#define _HFI1_EXP_RCV_H
+>>>>>>> upstream/android-13
 #include "hfi.h"
 
 #define EXP_TID_SET_EMPTY(set) (set.count == 0 && list_empty(&set.list))

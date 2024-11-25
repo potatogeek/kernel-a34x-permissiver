@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/vfp/vfpmodule.c
  *
  *  Copyright (C) 2004 ARM Limited.
  *  Written by Deep Blue Solutions Limited.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/cpu.h>
@@ -26,6 +33,10 @@
 #include <asm/cputype.h>
 #include <asm/system_info.h>
 #include <asm/thread_notify.h>
+<<<<<<< HEAD
+=======
+#include <asm/traps.h>
+>>>>>>> upstream/android-13
 #include <asm/vfp.h>
 
 #include "vfpinstr.h"
@@ -34,7 +45,10 @@
 /*
  * Our undef handlers (in entry.S)
  */
+<<<<<<< HEAD
 asmlinkage void vfp_testing_entry(void);
+=======
+>>>>>>> upstream/android-13
 asmlinkage void vfp_support_entry(void);
 asmlinkage void vfp_null_entry(void);
 
@@ -45,7 +59,11 @@ asmlinkage void (*vfp_vector)(void) = vfp_null_entry;
  * Used in startup: set to non-zero if VFP checks fail
  * After startup, holds VFP architecture
  */
+<<<<<<< HEAD
 unsigned int VFP_arch;
+=======
+static unsigned int __initdata VFP_arch;
+>>>>>>> upstream/android-13
 
 /*
  * The pointer to the vfpstate structure of the thread which currently
@@ -216,6 +234,7 @@ static struct notifier_block vfp_notifier_block = {
  */
 static void vfp_raise_sigfpe(unsigned int sicode, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 
 	clear_siginfo(&info);
@@ -223,6 +242,8 @@ static void vfp_raise_sigfpe(unsigned int sicode, struct pt_regs *regs)
 	info.si_code = sicode;
 	info.si_addr = (void __user *)(instruction_pointer(regs) - 4);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * This is the same as NWFPE, because it's not clear what
 	 * this is used for
@@ -230,7 +251,13 @@ static void vfp_raise_sigfpe(unsigned int sicode, struct pt_regs *regs)
 	current->thread.error_code = 0;
 	current->thread.trap_no = 6;
 
+<<<<<<< HEAD
 	send_sig_info(SIGFPE, &info, current);
+=======
+	send_sig_fault(SIGFPE, sicode,
+		       (void __user *)(instruction_pointer(regs) - 4),
+		       current);
+>>>>>>> upstream/android-13
 }
 
 static void vfp_panic(char *reason, u32 inst)
@@ -444,7 +471,11 @@ static void vfp_enable(void *unused)
  * present on all CPUs within a SMP complex. Needs to be called prior to
  * vfp_init().
  */
+<<<<<<< HEAD
 void vfp_disable(void)
+=======
+void __init vfp_disable(void)
+>>>>>>> upstream/android-13
 {
 	if (VFP_arch) {
 		pr_debug("%s: should be called prior to vfp_init\n", __func__);
@@ -650,7 +681,13 @@ static int vfp_starting_cpu(unsigned int unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 void vfp_kmode_exception(void)
+=======
+#ifdef CONFIG_KERNEL_MODE_NEON
+
+static int vfp_kmode_exception(struct pt_regs *regs, unsigned int instr)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * If we reach this point, a floating point exception has been raised
@@ -668,9 +705,57 @@ void vfp_kmode_exception(void)
 		pr_crit("BUG: unsupported FP instruction in kernel mode\n");
 	else
 		pr_crit("BUG: FP instruction issued in kernel mode with FP unit disabled\n");
+<<<<<<< HEAD
 }
 
 #ifdef CONFIG_KERNEL_MODE_NEON
+=======
+	pr_crit("FPEXC == 0x%08x\n", fmrx(FPEXC));
+	return 1;
+}
+
+static struct undef_hook vfp_kmode_exception_hook[] = {{
+	.instr_mask	= 0xfe000000,
+	.instr_val	= 0xf2000000,
+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
+	.cpsr_val	= SVC_MODE,
+	.fn		= vfp_kmode_exception,
+}, {
+	.instr_mask	= 0xff100000,
+	.instr_val	= 0xf4000000,
+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
+	.cpsr_val	= SVC_MODE,
+	.fn		= vfp_kmode_exception,
+}, {
+	.instr_mask	= 0xef000000,
+	.instr_val	= 0xef000000,
+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
+	.cpsr_val	= SVC_MODE | PSR_T_BIT,
+	.fn		= vfp_kmode_exception,
+}, {
+	.instr_mask	= 0xff100000,
+	.instr_val	= 0xf9000000,
+	.cpsr_mask	= MODE_MASK | PSR_T_BIT,
+	.cpsr_val	= SVC_MODE | PSR_T_BIT,
+	.fn		= vfp_kmode_exception,
+}, {
+	.instr_mask	= 0x0c000e00,
+	.instr_val	= 0x0c000a00,
+	.cpsr_mask	= MODE_MASK,
+	.cpsr_val	= SVC_MODE,
+	.fn		= vfp_kmode_exception,
+}};
+
+static int __init vfp_kmode_exception_hook_init(void)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(vfp_kmode_exception_hook); i++)
+		register_undef_hook(&vfp_kmode_exception_hook[i]);
+	return 0;
+}
+subsys_initcall(vfp_kmode_exception_hook_init);
+>>>>>>> upstream/android-13
 
 /*
  * Kernel-side NEON support functions
@@ -716,6 +801,24 @@ EXPORT_SYMBOL(kernel_neon_end);
 
 #endif /* CONFIG_KERNEL_MODE_NEON */
 
+<<<<<<< HEAD
+=======
+static int __init vfp_detect(struct pt_regs *regs, unsigned int instr)
+{
+	VFP_arch = UINT_MAX;	/* mark as not present */
+	regs->ARM_pc += 4;
+	return 0;
+}
+
+static struct undef_hook vfp_detect_hook __initdata = {
+	.instr_mask	= 0x0c000e00,
+	.instr_val	= 0x0c000a00,
+	.cpsr_mask	= MODE_MASK,
+	.cpsr_val	= SVC_MODE,
+	.fn		= vfp_detect,
+};
+
+>>>>>>> upstream/android-13
 /*
  * VFP support code initialisation.
  */
@@ -736,10 +839,18 @@ static int __init vfp_init(void)
 	 * The handler is already setup to just log calls, so
 	 * we just need to read the VFPSID register.
 	 */
+<<<<<<< HEAD
 	vfp_vector = vfp_testing_entry;
 	barrier();
 	vfpsid = fmrx(FPSID);
 	barrier();
+=======
+	register_undef_hook(&vfp_detect_hook);
+	barrier();
+	vfpsid = fmrx(FPSID);
+	barrier();
+	unregister_undef_hook(&vfp_detect_hook);
+>>>>>>> upstream/android-13
 	vfp_vector = vfp_null_entry;
 
 	pr_info("VFP support v0.3: ");

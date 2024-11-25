@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * drivers/char/watchdog/pnx4008_wdt.c
  *
@@ -11,10 +15,13 @@
  * 2005-2006 (c) MontaVista Software, Inc.
  *
  * (C) 2012 Wolfram Sang, Pengutronix
+<<<<<<< HEAD
  *
  * This file is licensed under the terms of the GNU General Public License
  * version 2. This program is licensed "as is" without any warranty of any
  * kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -33,7 +40,10 @@
 #include <linux/of.h>
 #include <linux/delay.h>
 #include <linux/reboot.h>
+<<<<<<< HEAD
 #include <mach/hardware.h>
+=======
+>>>>>>> upstream/android-13
 
 /* WatchDog Timer - Chapter 23 Page 207 */
 
@@ -183,6 +193,7 @@ static struct watchdog_device pnx4008_wdd = {
 	.max_timeout = MAX_HEARTBEAT,
 };
 
+<<<<<<< HEAD
 static int pnx4008_wdt_probe(struct platform_device *pdev)
 {
 	struct resource *r;
@@ -196,12 +207,32 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
 		return PTR_ERR(wdt_base);
 
 	wdt_clk = devm_clk_get(&pdev->dev, NULL);
+=======
+static void pnx4008_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static int pnx4008_wdt_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	int ret = 0;
+
+	watchdog_init_timeout(&pnx4008_wdd, heartbeat, dev);
+
+	wdt_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(wdt_base))
+		return PTR_ERR(wdt_base);
+
+	wdt_clk = devm_clk_get(dev, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(wdt_clk))
 		return PTR_ERR(wdt_clk);
 
 	ret = clk_prepare_enable(wdt_clk);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 
 	pnx4008_wdd.bootstatus = (readl(WDTIM_RES(wdt_base)) & WDOG_RESET) ?
 			WDIOF_CARDRESET : 0;
@@ -231,6 +262,27 @@ static int pnx4008_wdt_remove(struct platform_device *pdev)
 	watchdog_unregister_device(&pnx4008_wdd);
 
 	clk_disable_unprepare(wdt_clk);
+=======
+	ret = devm_add_action_or_reset(dev, pnx4008_clk_disable_unprepare,
+				       wdt_clk);
+	if (ret)
+		return ret;
+
+	pnx4008_wdd.bootstatus = (readl(WDTIM_RES(wdt_base)) & WDOG_RESET) ?
+			WDIOF_CARDRESET : 0;
+	pnx4008_wdd.parent = dev;
+	watchdog_set_nowayout(&pnx4008_wdd, nowayout);
+	watchdog_set_restart_priority(&pnx4008_wdd, 128);
+
+	if (readl(WDTIM_CTRL(wdt_base)) & COUNT_ENAB)
+		set_bit(WDOG_HW_RUNNING, &pnx4008_wdd.status);
+
+	ret = devm_watchdog_register_device(dev, &pnx4008_wdd);
+	if (ret < 0)
+		return ret;
+
+	dev_info(dev, "heartbeat %d sec\n", pnx4008_wdd.timeout);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -249,7 +301,10 @@ static struct platform_driver platform_wdt_driver = {
 		.of_match_table = of_match_ptr(pnx4008_wdt_match),
 	},
 	.probe = pnx4008_wdt_probe,
+<<<<<<< HEAD
 	.remove = pnx4008_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(platform_wdt_driver);

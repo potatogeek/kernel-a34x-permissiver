@@ -23,9 +23,15 @@
 #include <linux/interrupt.h>
 #include <linux/kdebug.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/extable.h>
+
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/openprom.h>
 #include <asm/oplib.h>
 #include <asm/setup.h>
@@ -55,6 +61,7 @@ static void __noreturn unhandled_fault(unsigned long address,
 	die_if_kernel("Oops", regs);
 }
 
+<<<<<<< HEAD
 asmlinkage int lookup_fault(unsigned long pc, unsigned long ret_pc,
 			    unsigned long address)
 {
@@ -103,6 +110,8 @@ asmlinkage int lookup_fault(unsigned long pc, unsigned long ret_pc,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void
 show_signal_msg(struct pt_regs *regs, int sig, int code,
 		unsigned long address, struct task_struct *tsk)
@@ -131,7 +140,11 @@ static void __do_fault_siginfo(int code, int sig, struct pt_regs *regs,
 		show_signal_msg(regs, sig, code,
 				addr, current);
 
+<<<<<<< HEAD
 	force_sig_fault(sig, code, (void __user *) addr, 0, current);
+=======
+	force_sig_fault(sig, code, (void __user *) addr);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long compute_si_addr(struct pt_regs *regs, int text_fault)
@@ -163,12 +176,19 @@ asmlinkage void do_sparc_fault(struct pt_regs *regs, int text_fault, int write,
 	struct vm_area_struct *vma;
 	struct task_struct *tsk = current;
 	struct mm_struct *mm = tsk->mm;
+<<<<<<< HEAD
 	unsigned int fixup;
 	unsigned long g2;
 	int from_user = !(regs->psr & PSR_PS);
 	int code;
 	vm_fault_t fault;
 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+=======
+	int from_user = !(regs->psr & PSR_PS);
+	int code;
+	vm_fault_t fault;
+	unsigned int flags = FAULT_FLAG_DEFAULT;
+>>>>>>> upstream/android-13
 
 	if (text_fault)
 		address = regs->pc;
@@ -196,7 +216,11 @@ asmlinkage void do_sparc_fault(struct pt_regs *regs, int text_fault, int write,
 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
 
 retry:
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 
 	if (!from_user && address >= PAGE_OFFSET)
 		goto bad_area;
@@ -235,9 +259,15 @@ good_area:
 	 * make sure we exit gracefully rather than endlessly redo
 	 * the fault.
 	 */
+<<<<<<< HEAD
 	fault = handle_mm_fault(vma, address, flags);
 
 	if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current))
+=======
+	fault = handle_mm_fault(vma, address, flags, regs);
+
+	if (fault_signal_pending(fault, regs))
+>>>>>>> upstream/android-13
 		return;
 
 	if (unlikely(fault & VM_FAULT_ERROR)) {
@@ -251,6 +281,7 @@ good_area:
 	}
 
 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+<<<<<<< HEAD
 		if (fault & VM_FAULT_MAJOR) {
 			current->maj_flt++;
 			perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS_MAJ,
@@ -265,6 +296,12 @@ good_area:
 			flags |= FAULT_FLAG_TRIED;
 
 			/* No need to up_read(&mm->mmap_sem) as we would
+=======
+		if (fault & VM_FAULT_RETRY) {
+			flags |= FAULT_FLAG_TRIED;
+
+			/* No need to mmap_read_unlock(mm) as we would
+>>>>>>> upstream/android-13
 			 * have already released it in __lock_page_or_retry
 			 * in mm/filemap.c.
 			 */
@@ -273,7 +310,11 @@ good_area:
 		}
 	}
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return;
 
 	/*
@@ -281,7 +322,11 @@ good_area:
 	 * Fix it, but check if it's kernel or user first..
 	 */
 bad_area:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 bad_area_nosemaphore:
 	/* User mode accesses just cause a SIGSEGV */
@@ -292,6 +337,7 @@ bad_area_nosemaphore:
 
 	/* Is this in ex_table? */
 no_context:
+<<<<<<< HEAD
 	g2 = regs->u_regs[UREG_G2];
 	if (!from_user) {
 		fixup = search_extables_range(regs->pc, &g2);
@@ -320,6 +366,21 @@ no_context:
 			regs->npc = regs->pc + 4;
 			return;
 		}
+=======
+	if (!from_user) {
+		const struct exception_table_entry *entry;
+
+		entry = search_exception_tables(regs->pc);
+#ifdef DEBUG_EXCEPTIONS
+		printk("Exception: PC<%08lx> faddr<%08lx>\n",
+		       regs->pc, address);
+		printk("EX_TABLE: insn<%08lx> fixup<%08x>\n",
+			regs->pc, entry->fixup);
+#endif
+		regs->pc = entry->fixup;
+		regs->npc = regs->pc + 4;
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	unhandled_fault(address, tsk, regs);
@@ -330,7 +391,11 @@ no_context:
  * us unable to handle the page fault gracefully.
  */
 out_of_memory:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	if (from_user) {
 		pagefault_out_of_memory();
 		return;
@@ -338,7 +403,11 @@ out_of_memory:
 	goto no_context;
 
 do_sigbus:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	do_fault_siginfo(BUS_ADRERR, SIGBUS, regs, text_fault);
 	if (!from_user)
 		goto no_context;
@@ -351,6 +420,11 @@ vmalloc_fault:
 		 */
 		int offset = pgd_index(address);
 		pgd_t *pgd, *pgd_k;
+<<<<<<< HEAD
+=======
+		p4d_t *p4d, *p4d_k;
+		pud_t *pud, *pud_k;
+>>>>>>> upstream/android-13
 		pmd_t *pmd, *pmd_k;
 
 		pgd = tsk->active_mm->pgd + offset;
@@ -363,8 +437,18 @@ vmalloc_fault:
 			return;
 		}
 
+<<<<<<< HEAD
 		pmd = pmd_offset(pgd, address);
 		pmd_k = pmd_offset(pgd_k, address);
+=======
+		p4d = p4d_offset(pgd, address);
+		pud = pud_offset(p4d, address);
+		pmd = pmd_offset(pud, address);
+
+		p4d_k = p4d_offset(pgd_k, address);
+		pud_k = pud_offset(p4d_k, address);
+		pmd_k = pmd_offset(pud_k, address);
+>>>>>>> upstream/android-13
 
 		if (pmd_present(*pmd) || !pmd_present(*pmd_k))
 			goto bad_area_nosemaphore;
@@ -385,7 +469,11 @@ static void force_user_fault(unsigned long address, int write)
 
 	code = SEGV_MAPERR;
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	vma = find_vma(mm, address);
 	if (!vma)
 		goto bad_area;
@@ -405,27 +493,46 @@ good_area:
 		if (!(vma->vm_flags & (VM_READ | VM_EXEC)))
 			goto bad_area;
 	}
+<<<<<<< HEAD
 	switch (handle_mm_fault(vma, address, flags)) {
+=======
+	switch (handle_mm_fault(vma, address, flags, NULL)) {
+>>>>>>> upstream/android-13
 	case VM_FAULT_SIGBUS:
 	case VM_FAULT_OOM:
 		goto do_sigbus;
 	}
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
 	return;
 bad_area:
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+	return;
+bad_area:
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	__do_fault_siginfo(code, SIGSEGV, tsk->thread.kregs, address);
 	return;
 
 do_sigbus:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	__do_fault_siginfo(BUS_ADRERR, SIGBUS, tsk->thread.kregs, address);
 }
 
 static void check_stack_aligned(unsigned long sp)
 {
 	if (sp & 0x7UL)
+<<<<<<< HEAD
 		force_sig(SIGILL, current);
+=======
+		force_sig(SIGILL);
+>>>>>>> upstream/android-13
 }
 
 void window_overflow_fault(void)

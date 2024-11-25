@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/sound/soc/pxa/brownstone.c
  *
  * Copyright (C) 2011 Marvell International Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -48,9 +55,15 @@ static const struct snd_soc_dapm_route brownstone_audio_map[] = {
 static int brownstone_wm8994_hw_params(struct snd_pcm_substream *substream,
 				       struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	int freq_out, sspa_mclk, sysclk;
 
 	if (params_rate(params) > 11025) {
@@ -78,10 +91,19 @@ static const struct snd_soc_ops brownstone_ops = {
 	.hw_params = brownstone_wm8994_hw_params,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(wm8994,
+	DAILINK_COMP_ARRAY(COMP_CPU("mmp-sspa-dai.0")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm8994-codec", "wm8994-aif1")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("mmp-pcm-audio")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link brownstone_wm8994_dai[] = {
 {
 	.name		= "WM8994",
 	.stream_name	= "WM8994 HiFi",
+<<<<<<< HEAD
 	.cpu_dai_name	= "mmp-sspa-dai.0",
 	.codec_dai_name	= "wm8994-aif1",
 	.platform_name	= "mmp-pcm-audio",
@@ -89,6 +111,12 @@ static struct snd_soc_dai_link brownstone_wm8994_dai[] = {
 	.dai_fmt	= SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 				SND_SOC_DAIFMT_CBS_CFS,
 	.ops		= &brownstone_ops,
+=======
+	.dai_fmt	= SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+				SND_SOC_DAIFMT_CBS_CFS,
+	.ops		= &brownstone_ops,
+	SND_SOC_DAILINK_REG(wm8994),
+>>>>>>> upstream/android-13
 },
 };
 

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata_cs5536.c	- CS5536 PATA for new ATA layer
  *			  (C) 2007 Martin K. Petersen <mkp@mkp.net>
  *			  (C) 2011 Bartlomiej Zolnierkiewicz
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307	 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Documentation:
  *	Available from AMD web site.
  *

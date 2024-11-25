@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ngene-dvb.c: nGene PCIe bridge driver - DVB functions
  *
@@ -7,6 +11,7 @@
  *                         Modifications for new nGene firmware,
  *                         support for EEPROM-copying,
  *                         support for new dual DVB-S2 card prototype
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +26,8 @@
  *
  * To obtain the license, point your browser to
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

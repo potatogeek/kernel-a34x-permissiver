@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/w100fb.c
  *
@@ -17,11 +21,14 @@
  *
  * Hardware acceleration support by Alberto Mardegan
  * <mardy@users.sourceforge.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -65,9 +72,15 @@ struct w100_pll_info *w100_get_xtal_table(unsigned int freq);
 #define BITS_PER_PIXEL    16
 
 /* Remapped addresses for base cfg, memmapped regs and the frame buffer itself */
+<<<<<<< HEAD
 static void *remapped_base;
 static void *remapped_regs;
 static void *remapped_fbuf;
+=======
+static void __iomem *remapped_base;
+static void __iomem *remapped_regs;
+static void __iomem *remapped_fbuf;
+>>>>>>> upstream/android-13
 
 #define REMAPPED_FB_LEN   0x15ffff
 
@@ -168,6 +181,18 @@ static ssize_t fastpllclk_store(struct device *dev, struct device_attribute *att
 
 static DEVICE_ATTR_RW(fastpllclk);
 
+<<<<<<< HEAD
+=======
+static struct attribute *w100fb_attrs[] = {
+	&dev_attr_fastpllclk.attr,
+	&dev_attr_reg_read.attr,
+	&dev_attr_reg_write.attr,
+	&dev_attr_flip.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(w100fb);
+
+>>>>>>> upstream/android-13
 /*
  * Some touchscreens need hsync information from the video driver to
  * function correctly. We export it here.
@@ -544,7 +569,11 @@ static int w100fb_set_par(struct fb_info *info)
 /*
  *  Frame buffer operations
  */
+<<<<<<< HEAD
 static struct fb_ops w100fb_ops = {
+=======
+static const struct fb_ops w100fb_ops = {
+>>>>>>> upstream/android-13
 	.owner        = THIS_MODULE,
 	.fb_check_var = w100fb_check_var,
 	.fb_set_par   = w100fb_set_par,
@@ -632,7 +661,11 @@ static int w100fb_resume(struct platform_device *dev)
 #endif
 
 
+<<<<<<< HEAD
 int w100fb_probe(struct platform_device *pdev)
+=======
+static int w100fb_probe(struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	int err = -EIO;
 	struct w100fb_mach_info *inf;
@@ -645,12 +678,20 @@ int w100fb_probe(struct platform_device *pdev)
 		return -EINVAL;
 
 	/* Remap the chip base address */
+<<<<<<< HEAD
 	remapped_base = ioremap_nocache(mem->start+W100_CFG_BASE, W100_CFG_LEN);
+=======
+	remapped_base = ioremap(mem->start+W100_CFG_BASE, W100_CFG_LEN);
+>>>>>>> upstream/android-13
 	if (remapped_base == NULL)
 		goto out;
 
 	/* Map the register space */
+<<<<<<< HEAD
 	remapped_regs = ioremap_nocache(mem->start+W100_REG_BASE, W100_REG_LEN);
+=======
+	remapped_regs = ioremap(mem->start+W100_REG_BASE, W100_REG_LEN);
+>>>>>>> upstream/android-13
 	if (remapped_regs == NULL)
 		goto out;
 
@@ -669,7 +710,11 @@ int w100fb_probe(struct platform_device *pdev)
 	printk(" at 0x%08lx.\n", (unsigned long) mem->start+W100_CFG_BASE);
 
 	/* Remap the framebuffer */
+<<<<<<< HEAD
 	remapped_fbuf = ioremap_nocache(mem->start+MEM_WINDOW_BASE, MEM_WINDOW_SIZE);
+=======
+	remapped_fbuf = ioremap(mem->start+MEM_WINDOW_BASE, MEM_WINDOW_SIZE);
+>>>>>>> upstream/android-13
 	if (remapped_fbuf == NULL)
 		goto out;
 
@@ -758,6 +803,7 @@ int w100fb_probe(struct platform_device *pdev)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	err = device_create_file(&pdev->dev, &dev_attr_fastpllclk);
 	err |= device_create_file(&pdev->dev, &dev_attr_reg_read);
 	err |= device_create_file(&pdev->dev, &dev_attr_reg_write);
@@ -766,6 +812,8 @@ int w100fb_probe(struct platform_device *pdev)
 	if (err != 0)
 		fb_warn(info, "failed to register attributes (%d)\n", err);
 
+=======
+>>>>>>> upstream/android-13
 	fb_info(info, "%s frame buffer device\n", info->fix.id);
 	return 0;
 out:
@@ -773,12 +821,27 @@ out:
 		fb_dealloc_cmap(&info->cmap);
 		kfree(info->pseudo_palette);
 	}
+<<<<<<< HEAD
 	if (remapped_fbuf != NULL)
 		iounmap(remapped_fbuf);
 	if (remapped_regs != NULL)
 		iounmap(remapped_regs);
 	if (remapped_base != NULL)
 		iounmap(remapped_base);
+=======
+	if (remapped_fbuf != NULL) {
+		iounmap(remapped_fbuf);
+		remapped_fbuf = NULL;
+	}
+	if (remapped_regs != NULL) {
+		iounmap(remapped_regs);
+		remapped_regs = NULL;
+	}
+	if (remapped_base != NULL) {
+		iounmap(remapped_base);
+		remapped_base = NULL;
+	}
+>>>>>>> upstream/android-13
 	if (info)
 		framebuffer_release(info);
 	return err;
@@ -790,11 +853,14 @@ static int w100fb_remove(struct platform_device *pdev)
 	struct fb_info *info = platform_get_drvdata(pdev);
 	struct w100fb_par *par=info->par;
 
+<<<<<<< HEAD
 	device_remove_file(&pdev->dev, &dev_attr_fastpllclk);
 	device_remove_file(&pdev->dev, &dev_attr_reg_read);
 	device_remove_file(&pdev->dev, &dev_attr_reg_write);
 	device_remove_file(&pdev->dev, &dev_attr_flip);
 
+=======
+>>>>>>> upstream/android-13
 	unregister_framebuffer(info);
 
 	vfree(par->saved_intmem);
@@ -803,8 +869,16 @@ static int w100fb_remove(struct platform_device *pdev)
 	fb_dealloc_cmap(&info->cmap);
 
 	iounmap(remapped_base);
+<<<<<<< HEAD
 	iounmap(remapped_regs);
 	iounmap(remapped_fbuf);
+=======
+	remapped_base = NULL;
+	iounmap(remapped_regs);
+	remapped_regs = NULL;
+	iounmap(remapped_fbuf);
+	remapped_fbuf = NULL;
+>>>>>>> upstream/android-13
 
 	framebuffer_release(info);
 
@@ -817,10 +891,18 @@ static int w100fb_remove(struct platform_device *pdev)
 
 static void w100_soft_reset(void)
 {
+<<<<<<< HEAD
 	u16 val = readw((u16 *) remapped_base + cfgSTATUS);
 	writew(val | 0x08, (u16 *) remapped_base + cfgSTATUS);
 	udelay(100);
 	writew(0x00, (u16 *) remapped_base + cfgSTATUS);
+=======
+	u16 val = readw((u16 __iomem *)remapped_base + cfgSTATUS);
+
+	writew(val | 0x08, (u16 __iomem *)remapped_base + cfgSTATUS);
+	udelay(100);
+	writew(0x00, (u16 __iomem *)remapped_base + cfgSTATUS);
+>>>>>>> upstream/android-13
 	udelay(100);
 }
 
@@ -1032,7 +1114,12 @@ struct w100_pll_info *w100_get_xtal_table(unsigned int freq)
 			return pll_entry->pll_table;
 		pll_entry++;
 	} while (pll_entry->xtal_freq);
+<<<<<<< HEAD
 	return 0;
+=======
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 
@@ -1631,6 +1718,10 @@ static struct platform_driver w100fb_driver = {
 	.resume		= w100fb_resume,
 	.driver		= {
 		.name	= "w100fb",
+<<<<<<< HEAD
+=======
+		.dev_groups	= w100fb_groups,
+>>>>>>> upstream/android-13
 	},
 };
 

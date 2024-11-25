@@ -22,6 +22,10 @@ enum gnss_type {
 	GNSS_TYPE_NMEA = 0,
 	GNSS_TYPE_SIRF,
 	GNSS_TYPE_UBX,
+<<<<<<< HEAD
+=======
+	GNSS_TYPE_MTK,
+>>>>>>> upstream/android-13
 
 	GNSS_TYPE_COUNT
 };

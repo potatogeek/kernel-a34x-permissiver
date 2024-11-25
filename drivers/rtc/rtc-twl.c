@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * rtc-twl.c -- TWL Real Time Clock interface
  *
@@ -11,11 +15,14 @@
  *   Copyright (C) 2003 MontaVista Software, Inc.
  *   Author: George G. Davis <gdavis@mvista.com> or <source@mvista.com>
  *   Copyright (C) 2006 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt

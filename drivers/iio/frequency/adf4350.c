@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADF4350/ADF4351 SPI Wideband Synthesizer driver
  *
  * Copyright 2012-2013 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -15,11 +22,18 @@
 #include <linux/err.h>
 #include <linux/module.h>
 #include <linux/gcd.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <asm/div64.h>
 #include <linux/clk.h>
 #include <linux/of.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <asm/div64.h>
+#include <linux/clk.h>
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -35,6 +49,10 @@ enum {
 struct adf4350_state {
 	struct spi_device		*spi;
 	struct regulator		*reg;
+<<<<<<< HEAD
+=======
+	struct gpio_desc		*lock_detect_gpiod;
+>>>>>>> upstream/android-13
 	struct adf4350_platform_data	*pdata;
 	struct clk			*clk;
 	unsigned long			clkin;
@@ -49,6 +67,16 @@ struct adf4350_state {
 	unsigned long			regs_hw[6];
 	unsigned long long		freq_req;
 	/*
+<<<<<<< HEAD
+=======
+	 * Lock to protect the state of the device from potential concurrent
+	 * writes. The device is configured via a sequence of SPI writes,
+	 * and this lock is meant to prevent the start of another sequence
+	 * before another one has finished.
+	 */
+	struct mutex			lock;
+	/*
+>>>>>>> upstream/android-13
 	 * DMA (thus cache coherency maintenance) requires the
 	 * transfer buffers to live in their own cache lines.
 	 */
@@ -62,7 +90,10 @@ static struct adf4350_platform_data default_pdata = {
 	.r3_user_settings = ADF4350_REG3_12BIT_CLKDIV_MODE(0),
 	.r4_user_settings = ADF4350_REG4_OUTPUT_PWR(3) |
 			    ADF4350_REG4_MUTE_TILL_LOCK_EN,
+<<<<<<< HEAD
 	.gpio_lock_detect = -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int adf4350_sync_config(struct adf4350_state *st)
@@ -101,7 +132,11 @@ static int adf4350_reg_access(struct iio_dev *indio_dev,
 	if (reg > ADF4350_REG5)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 	if (readval == NULL) {
 		st->regs[reg] = writeval & ~(BIT(0) | BIT(1) | BIT(2));
 		ret = adf4350_sync_config(st);
@@ -109,7 +144,11 @@ static int adf4350_reg_access(struct iio_dev *indio_dev,
 		*readval =  st->regs_hw[reg];
 		ret = 0;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -256,7 +295,11 @@ static ssize_t adf4350_write(struct iio_dev *indio_dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 	switch ((u32)private) {
 	case ADF4350_FREQ:
 		ret = adf4350_set_freq(st, readin);
@@ -297,7 +340,11 @@ static ssize_t adf4350_write(struct iio_dev *indio_dev,
 	default:
 		ret = -EINVAL;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret ? ret : len;
 }
@@ -311,15 +358,24 @@ static ssize_t adf4350_read(struct iio_dev *indio_dev,
 	unsigned long long val;
 	int ret = 0;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 	switch ((u32)private) {
 	case ADF4350_FREQ:
 		val = (u64)((st->r0_int * st->r1_mod) + st->r0_fract) *
 			(u64)st->fpfd;
 		do_div(val, st->r1_mod * (1 << st->r4_rf_div_sel));
 		/* PLL unlocked? return error */
+<<<<<<< HEAD
 		if (gpio_is_valid(st->pdata->gpio_lock_detect))
 			if (!gpio_get_value(st->pdata->gpio_lock_detect)) {
+=======
+		if (st->lock_detect_gpiod)
+			if (!gpiod_get_value(st->lock_detect_gpiod)) {
+>>>>>>> upstream/android-13
 				dev_dbg(&st->spi->dev, "PLL un-locked\n");
 				ret = -EBUSY;
 			}
@@ -340,7 +396,11 @@ static ssize_t adf4350_read(struct iio_dev *indio_dev,
 		ret = -EINVAL;
 		val = 0;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret < 0 ? ret : sprintf(buf, "%llu\n", val);
 }
@@ -382,13 +442,20 @@ static struct adf4350_platform_data *adf4350_parse_dt(struct device *dev)
 	struct device_node *np = dev->of_node;
 	struct adf4350_platform_data *pdata;
 	unsigned int tmp;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return NULL;
 
+<<<<<<< HEAD
 	strncpy(&pdata->name[0], np->name, SPI_NAME_SIZE - 1);
+=======
+	snprintf(&pdata->name[0], SPI_NAME_SIZE - 1, "%pOFn", np);
+>>>>>>> upstream/android-13
 
 	tmp = 10000;
 	of_property_read_u32(np, "adi,channel-spacing", &tmp);
@@ -402,12 +469,15 @@ static struct adf4350_platform_data *adf4350_parse_dt(struct device *dev)
 	of_property_read_u32(np, "adi,reference-div-factor", &tmp);
 	pdata->ref_div_factor = tmp;
 
+<<<<<<< HEAD
 	ret = of_get_gpio(np, 0);
 	if (ret < 0)
 		pdata->gpio_lock_detect = -1;
 	else
 		pdata->gpio_lock_detect = ret;
 
+=======
+>>>>>>> upstream/android-13
 	pdata->ref_doubler_en = of_property_read_bool(np,
 			"adi,reference-doubler-enable");
 	pdata->ref_div2_en = of_property_read_bool(np,
@@ -540,7 +610,10 @@ static int adf4350_probe(struct spi_device *spi)
 	st->spi = spi;
 	st->pdata = pdata;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = (pdata->name[0] != 0) ? pdata->name :
 		spi_get_device_id(spi)->name;
 
@@ -549,6 +622,11 @@ static int adf4350_probe(struct spi_device *spi)
 	indio_dev->channels = &adf4350_chan;
 	indio_dev->num_channels = 1;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	st->chspc = pdata->channel_spacing;
 	if (clk) {
 		st->clk = clk;
@@ -562,6 +640,7 @@ static int adf4350_probe(struct spi_device *spi)
 
 	memset(st->regs_hw, 0xFF, sizeof(st->regs_hw));
 
+<<<<<<< HEAD
 	if (gpio_is_valid(pdata->gpio_lock_detect)) {
 		ret = devm_gpio_request(&spi->dev, pdata->gpio_lock_detect,
 					indio_dev->name);
@@ -571,6 +650,13 @@ static int adf4350_probe(struct spi_device *spi)
 			goto error_disable_reg;
 		}
 		gpio_direction_input(pdata->gpio_lock_detect);
+=======
+	st->lock_detect_gpiod = devm_gpiod_get_optional(&spi->dev, NULL,
+							GPIOD_IN);
+	if (IS_ERR(st->lock_detect_gpiod)) {
+		ret = PTR_ERR(st->lock_detect_gpiod);
+		goto error_disable_reg;
+>>>>>>> upstream/android-13
 	}
 
 	if (pdata->power_up_frequency) {
@@ -589,8 +675,12 @@ error_disable_reg:
 	if (!IS_ERR(st->reg))
 		regulator_disable(st->reg);
 error_disable_clk:
+<<<<<<< HEAD
 	if (clk)
 		clk_disable_unprepare(clk);
+=======
+	clk_disable_unprepare(clk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -606,8 +696,12 @@ static int adf4350_remove(struct spi_device *spi)
 
 	iio_device_unregister(indio_dev);
 
+<<<<<<< HEAD
 	if (st->clk)
 		clk_disable_unprepare(st->clk);
+=======
+	clk_disable_unprepare(st->clk);
+>>>>>>> upstream/android-13
 
 	if (!IS_ERR(reg))
 		regulator_disable(reg);

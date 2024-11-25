@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Cryptographic API.
  *
@@ -5,24 +6,36 @@
  * http://csrc.nist.gov/groups/STM/cavp/documents/shs/sha256-384-512.pdf
  *
  * SHA-256 code by Jean-Luc Cooke <jlcooke@certainkey.com>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Crypto API wrapper for the generic SHA256 code from lib/crypto/sha256.c
+>>>>>>> upstream/android-13
  *
  * Copyright (c) Jean-Luc Cooke <jlcooke@certainkey.com>
  * Copyright (c) Andrew McDonald <andrew@mcdonald.org.uk>
  * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
  * SHA224 Support Copyright 2007 Intel Corporation <jonathan.lynch@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option) 
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <crypto/internal/hash.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/mm.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <crypto/sha256_base.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -43,6 +56,7 @@ const u8 sha256_zero_message_hash[SHA256_DIGEST_SIZE] = {
 };
 EXPORT_SYMBOL_GPL(sha256_zero_message_hash);
 
+<<<<<<< HEAD
 static inline u32 Ch(u32 x, u32 y, u32 z)
 {
 	return z ^ (x & (y ^ z));
@@ -238,11 +252,24 @@ static void sha256_generic_block_fn(struct sha256_state *sst, u8 const *src,
 		sha256_transform(sst->state, src);
 		src += SHA256_BLOCK_SIZE;
 	}
+=======
+static int crypto_sha256_init(struct shash_desc *desc)
+{
+	sha256_init(shash_desc_ctx(desc));
+	return 0;
+}
+
+static int crypto_sha224_init(struct shash_desc *desc)
+{
+	sha224_init(shash_desc_ctx(desc));
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int crypto_sha256_update(struct shash_desc *desc, const u8 *data,
 			  unsigned int len)
 {
+<<<<<<< HEAD
 	return sha256_base_do_update(desc, data, len, sha256_generic_block_fn);
 }
 EXPORT_SYMBOL(crypto_sha256_update);
@@ -251,21 +278,46 @@ static int sha256_final(struct shash_desc *desc, u8 *out)
 {
 	sha256_base_do_finalize(desc, sha256_generic_block_fn);
 	return sha256_base_finish(desc, out);
+=======
+	sha256_update(shash_desc_ctx(desc), data, len);
+	return 0;
+}
+EXPORT_SYMBOL(crypto_sha256_update);
+
+static int crypto_sha256_final(struct shash_desc *desc, u8 *out)
+{
+	if (crypto_shash_digestsize(desc->tfm) == SHA224_DIGEST_SIZE)
+		sha224_final(shash_desc_ctx(desc), out);
+	else
+		sha256_final(shash_desc_ctx(desc), out);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int crypto_sha256_finup(struct shash_desc *desc, const u8 *data,
 			unsigned int len, u8 *hash)
 {
+<<<<<<< HEAD
 	sha256_base_do_update(desc, data, len, sha256_generic_block_fn);
 	return sha256_final(desc, hash);
+=======
+	sha256_update(shash_desc_ctx(desc), data, len);
+	return crypto_sha256_final(desc, hash);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(crypto_sha256_finup);
 
 static struct shash_alg sha256_algs[2] = { {
 	.digestsize	=	SHA256_DIGEST_SIZE,
+<<<<<<< HEAD
 	.init		=	sha256_base_init,
 	.update		=	crypto_sha256_update,
 	.final		=	sha256_final,
+=======
+	.init		=	crypto_sha256_init,
+	.update		=	crypto_sha256_update,
+	.final		=	crypto_sha256_final,
+>>>>>>> upstream/android-13
 	.finup		=	crypto_sha256_finup,
 	.descsize	=	sizeof(struct sha256_state),
 	.base		=	{
@@ -277,9 +329,15 @@ static struct shash_alg sha256_algs[2] = { {
 	}
 }, {
 	.digestsize	=	SHA224_DIGEST_SIZE,
+<<<<<<< HEAD
 	.init		=	sha224_base_init,
 	.update		=	crypto_sha256_update,
 	.final		=	sha256_final,
+=======
+	.init		=	crypto_sha224_init,
+	.update		=	crypto_sha256_update,
+	.final		=	crypto_sha256_final,
+>>>>>>> upstream/android-13
 	.finup		=	crypto_sha256_finup,
 	.descsize	=	sizeof(struct sha256_state),
 	.base		=	{
@@ -301,7 +359,11 @@ static void __exit sha256_generic_mod_fini(void)
 	crypto_unregister_shashes(sha256_algs, ARRAY_SIZE(sha256_algs));
 }
 
+<<<<<<< HEAD
 module_init(sha256_generic_mod_init);
+=======
+subsys_initcall(sha256_generic_mod_init);
+>>>>>>> upstream/android-13
 module_exit(sha256_generic_mod_fini);
 
 MODULE_LICENSE("GPL");

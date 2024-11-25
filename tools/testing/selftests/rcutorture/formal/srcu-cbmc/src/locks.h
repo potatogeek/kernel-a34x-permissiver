@@ -174,7 +174,11 @@ static inline bool spin_trylock(spinlock_t *lock)
 }
 
 struct completion {
+<<<<<<< HEAD
 	/* Hopefuly this won't overflow. */
+=======
+	/* Hopefully this won't overflow. */
+>>>>>>> upstream/android-13
 	unsigned int count;
 };
 

@@ -52,7 +52,11 @@
 })
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 # define __lock_aligned __attribute__((__section__(".data..lock_aligned")))
+=======
+# define __lock_aligned __section(".data..lock_aligned")
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* __PARISC_LDCW_H */

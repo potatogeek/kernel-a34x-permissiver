@@ -1,13 +1,27 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
 */
 
 #include <linux/backlight.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Red Hat
+ * Copyright (C) 2015 Sony Mobile Communications Inc.
+ * Author: Werner Johansson <werner.johansson@sonymobile.com>
+ *
+ * Based on AUO panel driver by Rob Clark <robdclark@gmail.com>
+ */
+
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_mipi_dsi.h>
@@ -15,6 +29,15 @@
 
 #include <video/mipi_display.h>
 
+=======
+#include <video/mipi_display.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_device.h>
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 /*
  * When power is turned off to this panel a minimum off time of 500ms has to be
  * observed before powering back on as there's no external reset pin. Keep
@@ -26,7 +49,10 @@ struct wuxga_nt_panel {
 	struct drm_panel base;
 	struct mipi_dsi_device *dsi;
 
+<<<<<<< HEAD
 	struct backlight_device *backlight;
+=======
+>>>>>>> upstream/android-13
 	struct regulator *supply;
 
 	bool prepared;
@@ -44,6 +70,7 @@ static inline struct wuxga_nt_panel *to_wuxga_nt_panel(struct drm_panel *panel)
 
 static int wuxga_nt_panel_on(struct wuxga_nt_panel *wuxga_nt)
 {
+<<<<<<< HEAD
 	struct mipi_dsi_device *dsi = wuxga_nt->dsi;
 	int ret;
 
@@ -52,15 +79,23 @@ static int wuxga_nt_panel_on(struct wuxga_nt_panel *wuxga_nt)
 		return ret;
 
 	return 0;
+=======
+	return mipi_dsi_turn_on_peripheral(wuxga_nt->dsi);
+>>>>>>> upstream/android-13
 }
 
 static int wuxga_nt_panel_disable(struct drm_panel *panel)
 {
 	struct wuxga_nt_panel *wuxga_nt = to_wuxga_nt_panel(panel);
+<<<<<<< HEAD
+=======
+	int mipi_ret, bl_ret = 0;
+>>>>>>> upstream/android-13
 
 	if (!wuxga_nt->enabled)
 		return 0;
 
+<<<<<<< HEAD
 	mipi_dsi_shutdown_peripheral(wuxga_nt->dsi);
 
 	if (wuxga_nt->backlight) {
@@ -72,6 +107,13 @@ static int wuxga_nt_panel_disable(struct drm_panel *panel)
 	wuxga_nt->enabled = false;
 
 	return 0;
+=======
+	mipi_ret = mipi_dsi_shutdown_peripheral(wuxga_nt->dsi);
+
+	wuxga_nt->enabled = false;
+
+	return mipi_ret ? mipi_ret : bl_ret;
+>>>>>>> upstream/android-13
 }
 
 static int wuxga_nt_panel_unprepare(struct drm_panel *panel)
@@ -143,12 +185,15 @@ static int wuxga_nt_panel_enable(struct drm_panel *panel)
 	if (wuxga_nt->enabled)
 		return 0;
 
+<<<<<<< HEAD
 	if (wuxga_nt->backlight) {
 		wuxga_nt->backlight->props.power = FB_BLANK_UNBLANK;
 		wuxga_nt->backlight->props.state &= ~BL_CORE_FBBLANK;
 		backlight_update_status(wuxga_nt->backlight);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	wuxga_nt->enabled = true;
 
 	return 0;
@@ -164,6 +209,7 @@ static const struct drm_display_mode default_mode = {
 	.vsync_start = 1200 + 24,
 	.vsync_end = 1200 + 24 + 6,
 	.vtotal = 1200 + 24 + 6 + 48,
+<<<<<<< HEAD
 	.vrefresh = 60,
 };
 
@@ -176,15 +222,36 @@ static int wuxga_nt_panel_get_modes(struct drm_panel *panel)
 		dev_err(panel->drm->dev, "failed to add mode %ux%ux@%u\n",
 				default_mode.hdisplay, default_mode.vdisplay,
 				default_mode.vrefresh);
+=======
+};
+
+static int wuxga_nt_panel_get_modes(struct drm_panel *panel,
+				    struct drm_connector *connector)
+{
+	struct drm_display_mode *mode;
+
+	mode = drm_mode_duplicate(connector->dev, &default_mode);
+	if (!mode) {
+		dev_err(panel->dev, "failed to add mode %ux%u@%u\n",
+			default_mode.hdisplay, default_mode.vdisplay,
+			drm_mode_vrefresh(&default_mode));
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	drm_mode_set_name(mode);
 
+<<<<<<< HEAD
 	drm_mode_probed_add(panel->connector, mode);
 
 	panel->connector->display_info.width_mm = 217;
 	panel->connector->display_info.height_mm = 136;
+=======
+	drm_mode_probed_add(connector, mode);
+
+	connector->display_info.width_mm = 217;
+	connector->display_info.height_mm = 136;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -206,7 +273,10 @@ MODULE_DEVICE_TABLE(of, wuxga_nt_of_match);
 static int wuxga_nt_panel_add(struct wuxga_nt_panel *wuxga_nt)
 {
 	struct device *dev = &wuxga_nt->dsi->dev;
+<<<<<<< HEAD
 	struct device_node *np;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	wuxga_nt->mode = &default_mode;
@@ -215,6 +285,7 @@ static int wuxga_nt_panel_add(struct wuxga_nt_panel *wuxga_nt)
 	if (IS_ERR(wuxga_nt->supply))
 		return PTR_ERR(wuxga_nt->supply);
 
+<<<<<<< HEAD
 	np = of_parse_phandle(dev->of_node, "backlight", 0);
 	if (np) {
 		wuxga_nt->backlight = of_find_backlight_by_node(np);
@@ -239,15 +310,30 @@ put_backlight:
 		put_device(&wuxga_nt->backlight->dev);
 
 	return ret;
+=======
+	drm_panel_init(&wuxga_nt->base, &wuxga_nt->dsi->dev,
+		       &wuxga_nt_panel_funcs, DRM_MODE_CONNECTOR_DSI);
+
+	ret = drm_panel_of_backlight(&wuxga_nt->base);
+	if (ret)
+		return ret;
+
+	drm_panel_add(&wuxga_nt->base);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void wuxga_nt_panel_del(struct wuxga_nt_panel *wuxga_nt)
 {
 	if (wuxga_nt->base.dev)
 		drm_panel_remove(&wuxga_nt->base);
+<<<<<<< HEAD
 
 	if (wuxga_nt->backlight)
 		put_device(&wuxga_nt->backlight->dev);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int wuxga_nt_panel_probe(struct mipi_dsi_device *dsi)
@@ -274,7 +360,17 @@ static int wuxga_nt_panel_probe(struct mipi_dsi_device *dsi)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	return mipi_dsi_attach(dsi);
+=======
+	ret = mipi_dsi_attach(dsi);
+	if (ret < 0) {
+		wuxga_nt_panel_del(wuxga_nt);
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int wuxga_nt_panel_remove(struct mipi_dsi_device *dsi)
@@ -282,7 +378,11 @@ static int wuxga_nt_panel_remove(struct mipi_dsi_device *dsi)
 	struct wuxga_nt_panel *wuxga_nt = mipi_dsi_get_drvdata(dsi);
 	int ret;
 
+<<<<<<< HEAD
 	ret = wuxga_nt_panel_disable(&wuxga_nt->base);
+=======
+	ret = drm_panel_disable(&wuxga_nt->base);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(&dsi->dev, "failed to disable panel: %d\n", ret);
 
@@ -290,7 +390,10 @@ static int wuxga_nt_panel_remove(struct mipi_dsi_device *dsi)
 	if (ret < 0)
 		dev_err(&dsi->dev, "failed to detach from DSI host: %d\n", ret);
 
+<<<<<<< HEAD
 	drm_panel_detach(&wuxga_nt->base);
+=======
+>>>>>>> upstream/android-13
 	wuxga_nt_panel_del(wuxga_nt);
 
 	return 0;
@@ -300,7 +403,11 @@ static void wuxga_nt_panel_shutdown(struct mipi_dsi_device *dsi)
 {
 	struct wuxga_nt_panel *wuxga_nt = mipi_dsi_get_drvdata(dsi);
 
+<<<<<<< HEAD
 	wuxga_nt_panel_disable(&wuxga_nt->base);
+=======
+	drm_panel_disable(&wuxga_nt->base);
+>>>>>>> upstream/android-13
 }
 
 static struct mipi_dsi_driver wuxga_nt_panel_driver = {

@@ -21,7 +21,11 @@
  * |                                                               |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *
+<<<<<<< HEAD
  * C bit indicates contol message when set, data message when unset.
+=======
+ * C bit indicates control message when set, data message when unset.
+>>>>>>> upstream/android-13
  * For a control message, proto/ctype is interpreted as a type of
  * control message. For data messages, proto/ctype is the IP protocol
  * of the next header.
@@ -60,7 +64,11 @@ struct guehdr {
 
 /* Private flags in the private option extension */
 
+<<<<<<< HEAD
 #define GUE_PFLAG_REMCSUM	htonl(1 << 31)
+=======
+#define GUE_PFLAG_REMCSUM	htonl(1U << 31)
+>>>>>>> upstream/android-13
 #define GUE_PLEN_REMCSUM	4
 
 #define GUE_PFLAGS_ALL	(GUE_PFLAG_REMCSUM)

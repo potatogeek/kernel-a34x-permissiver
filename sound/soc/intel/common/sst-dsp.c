@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel Smart Sound Technology (SST) DSP Core Driver
  *
  * Copyright (C) 2013, Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -19,7 +26,11 @@
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/io.h>
+=======
+#include <linux/io-64-nonatomic-lo-hi.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 
 #include "sst-dsp.h"
@@ -43,12 +54,17 @@ EXPORT_SYMBOL_GPL(sst_shim32_read);
 
 void sst_shim32_write64(void __iomem *addr, u32 offset, u64 value)
 {
+<<<<<<< HEAD
 	memcpy_toio(addr + offset, &value, sizeof(value));
+=======
+	writeq(value, addr + offset);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sst_shim32_write64);
 
 u64 sst_shim32_read64(void __iomem *addr, u32 offset)
 {
+<<<<<<< HEAD
 	u64 val;
 
 	memcpy_fromio(&val, addr + offset, sizeof(val));
@@ -88,6 +104,12 @@ void sst_memcpy_fromio_32(struct sst_dsp *sst, void *dest,
 }
 EXPORT_SYMBOL_GPL(sst_memcpy_fromio_32);
 
+=======
+	return readq(addr + offset);
+}
+EXPORT_SYMBOL_GPL(sst_shim32_read64);
+
+>>>>>>> upstream/android-13
 /* Public API */
 void sst_dsp_shim_write(struct sst_dsp *sst, u32 offset, u32 value)
 {
@@ -112,6 +134,7 @@ u32 sst_dsp_shim_read(struct sst_dsp *sst, u32 offset)
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_read);
 
+<<<<<<< HEAD
 void sst_dsp_shim_write64(struct sst_dsp *sst, u32 offset, u64 value)
 {
 	unsigned long flags;
@@ -135,6 +158,8 @@ u64 sst_dsp_shim_read64(struct sst_dsp *sst, u32 offset)
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_read64);
 
+=======
+>>>>>>> upstream/android-13
 void sst_dsp_shim_write_unlocked(struct sst_dsp *sst, u32 offset, u32 value)
 {
 	sst->ops->write(sst->addr.shim, offset, value);
@@ -147,6 +172,7 @@ u32 sst_dsp_shim_read_unlocked(struct sst_dsp *sst, u32 offset)
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_read_unlocked);
 
+<<<<<<< HEAD
 void sst_dsp_shim_write64_unlocked(struct sst_dsp *sst, u32 offset, u64 value)
 {
 	sst->ops->write64(sst->addr.shim, offset, value);
@@ -159,6 +185,8 @@ u64 sst_dsp_shim_read64_unlocked(struct sst_dsp *sst, u32 offset)
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_read64_unlocked);
 
+=======
+>>>>>>> upstream/android-13
 int sst_dsp_shim_update_bits_unlocked(struct sst_dsp *sst, u32 offset,
 				u32 mask, u32 value)
 {
@@ -179,6 +207,7 @@ int sst_dsp_shim_update_bits_unlocked(struct sst_dsp *sst, u32 offset,
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_update_bits_unlocked);
 
+<<<<<<< HEAD
 int sst_dsp_shim_update_bits64_unlocked(struct sst_dsp *sst, u32 offset,
 				u64 mask, u64 value)
 {
@@ -197,6 +226,8 @@ int sst_dsp_shim_update_bits64_unlocked(struct sst_dsp *sst, u32 offset,
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_update_bits64_unlocked);
 
+=======
+>>>>>>> upstream/android-13
 /* This is for registers bits with attribute RWC */
 void sst_dsp_shim_update_bits_forced_unlocked(struct sst_dsp *sst, u32 offset,
 				u32 mask, u32 value)
@@ -226,6 +257,7 @@ int sst_dsp_shim_update_bits(struct sst_dsp *sst, u32 offset,
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_update_bits);
 
+<<<<<<< HEAD
 int sst_dsp_shim_update_bits64(struct sst_dsp *sst, u32 offset,
 				u64 mask, u64 value)
 {
@@ -239,6 +271,8 @@ int sst_dsp_shim_update_bits64(struct sst_dsp *sst, u32 offset,
 }
 EXPORT_SYMBOL_GPL(sst_dsp_shim_update_bits64);
 
+=======
+>>>>>>> upstream/android-13
 /* This is for registers bits with attribute RWC */
 void sst_dsp_shim_update_bits_forced(struct sst_dsp *sst, u32 offset,
 				u32 mask, u32 value)
@@ -291,6 +325,7 @@ int sst_dsp_register_poll(struct sst_dsp *ctx, u32 offset, u32 mask,
 }
 EXPORT_SYMBOL_GPL(sst_dsp_register_poll);
 
+<<<<<<< HEAD
 void sst_dsp_dump(struct sst_dsp *sst)
 {
 	if (sst->ops->dump)
@@ -355,6 +390,8 @@ u32 sst_dsp_ipc_msg_rx(struct sst_dsp *dsp)
 }
 EXPORT_SYMBOL_GPL(sst_dsp_ipc_msg_rx);
 
+=======
+>>>>>>> upstream/android-13
 int sst_dsp_mailbox_init(struct sst_dsp *sst, u32 inbox_offset, size_t inbox_size,
 	u32 outbox_offset, size_t outbox_size)
 {

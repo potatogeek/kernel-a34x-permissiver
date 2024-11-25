@@ -195,7 +195,10 @@ struct rp2_card {
 	void __iomem			*bar0;
 	void __iomem			*bar1;
 	spinlock_t			card_lock;
+<<<<<<< HEAD
 	struct completion		fw_loaded;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define RP_ID(prod) PCI_VDEVICE(RP, (prod))
@@ -424,9 +427,13 @@ static void rp2_rx_chars(struct rp2_uart_port *up)
 		up->port.icount.rx++;
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&up->port.lock);
 	tty_flip_buffer_push(port);
 	spin_lock(&up->port.lock);
+=======
+	tty_flip_buffer_push(port);
+>>>>>>> upstream/android-13
 }
 
 static void rp2_tx_chars(struct rp2_uart_port *up)
@@ -664,6 +671,7 @@ static void rp2_remove_ports(struct rp2_card *card)
 	card->initialized_ports = 0;
 }
 
+<<<<<<< HEAD
 static void rp2_fw_cb(const struct firmware *fw, void *context)
 {
 	struct rp2_card *card = context;
@@ -675,6 +683,12 @@ static void rp2_fw_cb(const struct firmware *fw, void *context)
 			RP2_FW_NAME);
 		goto no_fw;
 	}
+=======
+static int rp2_load_firmware(struct rp2_card *card, const struct firmware *fw)
+{
+	resource_size_t phys_base;
+	int i, rc = 0;
+>>>>>>> upstream/android-13
 
 	phys_base = pci_resource_start(card->pdev, 1);
 
@@ -720,6 +734,7 @@ static void rp2_fw_cb(const struct firmware *fw, void *context)
 		card->initialized_ports++;
 	}
 
+<<<<<<< HEAD
 	release_firmware(fw);
 no_fw:
 	/*
@@ -732,11 +747,18 @@ no_fw:
 		dev_warn(&card->pdev->dev, "driver initialization failed\n");
 
 	complete(&card->fw_loaded);
+=======
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int rp2_probe(struct pci_dev *pdev,
 				   const struct pci_device_id *id)
 {
+<<<<<<< HEAD
+=======
+	const struct firmware *fw;
+>>>>>>> upstream/android-13
 	struct rp2_card *card;
 	struct rp2_uart_port *ports;
 	void __iomem * const *bars;
@@ -747,7 +769,10 @@ static int rp2_probe(struct pci_dev *pdev,
 		return -ENOMEM;
 	pci_set_drvdata(pdev, card);
 	spin_lock_init(&card->card_lock);
+<<<<<<< HEAD
 	init_completion(&card->fw_loaded);
+=======
+>>>>>>> upstream/android-13
 
 	rc = pcim_enable_device(pdev);
 	if (rc)
@@ -780,11 +805,28 @@ static int rp2_probe(struct pci_dev *pdev,
 		return -ENOMEM;
 	card->ports = ports;
 
+<<<<<<< HEAD
+=======
+	rc = request_firmware(&fw, RP2_FW_NAME, &pdev->dev);
+	if (rc < 0) {
+		dev_err(&pdev->dev, "cannot find '%s' firmware image\n",
+			RP2_FW_NAME);
+		return rc;
+	}
+
+	rc = rp2_load_firmware(card, fw);
+
+	release_firmware(fw);
+	if (rc < 0)
+		return rc;
+
+>>>>>>> upstream/android-13
 	rc = devm_request_irq(&pdev->dev, pdev->irq, rp2_uart_interrupt,
 			      IRQF_SHARED, DRV_NAME, card);
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	/*
 	 * Only catastrophic errors (e.g. ENOMEM) are reported here.
 	 * If the FW image is missing, we'll find out in rp2_fw_cb()
@@ -796,6 +838,8 @@ static int rp2_probe(struct pci_dev *pdev,
 		return rc;
 	dev_dbg(&pdev->dev, "waiting for firmware blob...\n");
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -803,7 +847,10 @@ static void rp2_remove(struct pci_dev *pdev)
 {
 	struct rp2_card *card = pci_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	wait_for_completion(&card->fw_loaded);
+=======
+>>>>>>> upstream/android-13
 	rp2_remove_ports(card);
 }
 

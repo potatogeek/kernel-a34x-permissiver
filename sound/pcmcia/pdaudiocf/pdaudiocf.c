@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Sound Core PDAudioCF soundcard
  *
  * Copyright (c) 2003 by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/core.h>
@@ -35,7 +42,10 @@
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("Sound Core " CARD_NAME);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Sound Core," CARD_NAME "}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -95,7 +105,11 @@ static int snd_pdacf_probe(struct pcmcia_device *link)
 	int i, err;
 	struct snd_pdacf *pdacf;
 	struct snd_card *card;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free =	snd_pdacf_dev_free,
 	};
 
@@ -152,6 +166,10 @@ static int snd_pdacf_probe(struct pcmcia_device *link)
 
 /**
  * snd_pdacf_assign_resources - initialize the hardware and card instance.
+<<<<<<< HEAD
+=======
+ * @pdacf: context
+>>>>>>> upstream/android-13
  * @port: i/o port for the card
  * @irq: irq number for the card
  *
@@ -183,7 +201,12 @@ static int snd_pdacf_assign_resources(struct snd_pdacf *pdacf, int port, int irq
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0)
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	return 0;
@@ -237,6 +260,10 @@ static int pdacf_config(struct pcmcia_device *link)
 					link->irq) < 0)
 		goto failed;
 
+<<<<<<< HEAD
+=======
+	pdacf->card->sync_irq = link->irq;
+>>>>>>> upstream/android-13
 	return 0;
 
  failed:

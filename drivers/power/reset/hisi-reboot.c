@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Hisilicon SoC reset code
  *
@@ -9,6 +10,16 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HiSilicon SoC reset code
+ *
+ * Copyright (c) 2014 HiSilicon Ltd.
+ * Copyright (c) 2014 Linaro Ltd.
+ *
+ * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -71,6 +82,10 @@ static const struct of_device_id hisi_reboot_of_match[] = {
 	{ .compatible = "hisilicon,sysctrl" },
 	{}
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, hisi_reboot_of_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver hisi_reboot_driver = {
 	.probe = hisi_reboot_probe,

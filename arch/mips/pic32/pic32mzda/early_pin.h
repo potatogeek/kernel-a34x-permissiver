@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Joshua Henderson <joshua.henderson@microchip.com>
  * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
@@ -10,6 +11,12 @@
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  *  for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Joshua Henderson <joshua.henderson@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef _PIC32MZDA_EARLY_PIN_H
 #define _PIC32MZDA_EARLY_PIN_H

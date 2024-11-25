@@ -15,6 +15,7 @@ enum logical_chip_type sm750_get_chip_type(void)
 	return chip;
 }
 
+<<<<<<< HEAD
 void sm750_set_chip_type(unsigned short devId, u8 revId)
 {
 	if (devId == 0x718) {
@@ -23,6 +24,16 @@ void sm750_set_chip_type(unsigned short devId, u8 revId)
 		chip = SM750;
 		/* SM750 and SM750LE are different in their revision ID only. */
 		if (revId == SM750LE_REVISION_ID) {
+=======
+void sm750_set_chip_type(unsigned short dev_id, u8 rev_id)
+{
+	if (dev_id == 0x718) {
+		chip = SM718;
+	} else if (dev_id == 0x750) {
+		chip = SM750;
+		/* SM750 and SM750LE are different in their revision ID only. */
+		if (rev_id == SM750LE_REVISION_ID) {
+>>>>>>> upstream/android-13
 			chip = SM750LE;
 			pr_info("found sm750le\n");
 		}
@@ -45,7 +56,11 @@ static unsigned int get_mxclk_freq(void)
 	OD = (pll_reg & PLL_CTRL_OD_MASK) >> PLL_CTRL_OD_SHIFT;
 	POD = (pll_reg & PLL_CTRL_POD_MASK) >> PLL_CTRL_POD_SHIFT;
 
+<<<<<<< HEAD
 	return DEFAULT_INPUT_CLOCK * M / N / (1 << OD) / (1 << POD);
+=======
+	return DEFAULT_INPUT_CLOCK * M / N / BIT(OD) / BIT(POD);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -56,7 +71,10 @@ static unsigned int get_mxclk_freq(void)
 static void set_chip_clock(unsigned int frequency)
 {
 	struct pll_value pll;
+<<<<<<< HEAD
 	unsigned int ulActualMxClk;
+=======
+>>>>>>> upstream/android-13
 
 	/* Cheok_0509: For SM750LE, the chip clock is fixed. Nothing to set. */
 	if (sm750_get_chip_type() == SM750LE)
@@ -66,8 +84,13 @@ static void set_chip_clock(unsigned int frequency)
 		/*
 		 * Set up PLL structure to hold the value to be set in clocks.
 		 */
+<<<<<<< HEAD
 		pll.inputFreq = DEFAULT_INPUT_CLOCK; /* Defined in CLOCK.H */
 		pll.clockType = MXCLK_PLL;
+=======
+		pll.input_freq = DEFAULT_INPUT_CLOCK; /* Defined in CLOCK.H */
+		pll.clock_type = MXCLK_PLL;
+>>>>>>> upstream/android-13
 
 		/*
 		 * Call sm750_calc_pll_value() to fill the other fields
@@ -76,7 +99,11 @@ static void set_chip_clock(unsigned int frequency)
 		 * Return value of sm750_calc_pll_value gives the actual
 		 * possible clock.
 		 */
+<<<<<<< HEAD
 		ulActualMxClk = sm750_calc_pll_value(frequency, &pll);
+=======
+		sm750_calc_pll_value(frequency, &pll);
+>>>>>>> upstream/android-13
 
 		/* Master Clock Control: MXCLK_PLL */
 		poke32(MXCLK_PLL_CTRL, sm750_format_pll_reg(&pll));
@@ -211,6 +238,7 @@ unsigned int ddk750_get_vm_size(void)
 	return data;
 }
 
+<<<<<<< HEAD
 int ddk750_init_hw(struct initchip_param *pInitParam)
 {
 	unsigned int reg;
@@ -218,6 +246,15 @@ int ddk750_init_hw(struct initchip_param *pInitParam)
 	if (pInitParam->powerMode != 0)
 		pInitParam->powerMode = 0;
 	sm750_set_power_mode(pInitParam->powerMode);
+=======
+int ddk750_init_hw(struct initchip_param *p_init_param)
+{
+	unsigned int reg;
+
+	if (p_init_param->power_mode != 0)
+		p_init_param->power_mode = 0;
+	sm750_set_power_mode(p_init_param->power_mode);
+>>>>>>> upstream/android-13
 
 	/* Enable display power gate & LOCALMEM power gate*/
 	reg = peek32(CURRENT_GATE);
@@ -238,6 +275,7 @@ int ddk750_init_hw(struct initchip_param *pInitParam)
 	}
 
 	/* Set the Main Chip Clock */
+<<<<<<< HEAD
 	set_chip_clock(MHz((unsigned int)pInitParam->chipClock));
 
 	/* Set up memory clock. */
@@ -245,6 +283,15 @@ int ddk750_init_hw(struct initchip_param *pInitParam)
 
 	/* Set up master clock */
 	set_master_clock(MHz(pInitParam->masterClock));
+=======
+	set_chip_clock(MHz((unsigned int)p_init_param->chip_clock));
+
+	/* Set up memory clock. */
+	set_memory_clock(MHz(p_init_param->mem_clock));
+
+	/* Set up master clock */
+	set_master_clock(MHz(p_init_param->master_clock));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Reset the memory controller.
@@ -252,7 +299,11 @@ int ddk750_init_hw(struct initchip_param *pInitParam)
 	 * the system might hang when sw accesses the memory.
 	 * The memory should be resetted after changing the MXCLK.
 	 */
+<<<<<<< HEAD
 	if (pInitParam->resetMemory == 1) {
+=======
+	if (p_init_param->reset_memory == 1) {
+>>>>>>> upstream/android-13
 		reg = peek32(MISC_CTRL);
 		reg &= ~MISC_CTRL_LOCALMEM_RESET;
 		poke32(MISC_CTRL, reg);
@@ -261,7 +312,11 @@ int ddk750_init_hw(struct initchip_param *pInitParam)
 		poke32(MISC_CTRL, reg);
 	}
 
+<<<<<<< HEAD
 	if (pInitParam->setAllEngOff == 1) {
+=======
+	if (p_init_param->set_all_eng_off == 1) {
+>>>>>>> upstream/android-13
 		sm750_enable_2d_engine(0);
 
 		/* Disable Overlay, if a former application left it on */
@@ -321,7 +376,11 @@ unsigned int sm750_calc_pll_value(unsigned int request_orig,
 	int mini_diff;
 	unsigned int RN, quo, rem, fl_quo;
 	unsigned int input, request;
+<<<<<<< HEAD
 	unsigned int tmpClock, ret;
+=======
+	unsigned int tmp_clock, ret;
+>>>>>>> upstream/android-13
 	const int max_OD = 3;
 	int max_d = 6;
 
@@ -337,13 +396,21 @@ unsigned int sm750_calc_pll_value(unsigned int request_orig,
 	ret = 0;
 	mini_diff = ~0;
 	request = request_orig / 1000;
+<<<<<<< HEAD
 	input = pll->inputFreq / 1000;
+=======
+	input = pll->input_freq / 1000;
+>>>>>>> upstream/android-13
 
 	/*
 	 * for MXCLK register,
 	 * no POD provided, so need be treated differently
 	 */
+<<<<<<< HEAD
 	if (pll->clockType == MXCLK_PLL)
+=======
+	if (pll->clock_type == MXCLK_PLL)
+>>>>>>> upstream/android-13
 		max_d = 3;
 
 	for (N = 15; N > 1; N--) {
@@ -365,8 +432,13 @@ unsigned int sm750_calc_pll_value(unsigned int request_orig,
 			if (M < 256 && M > 0) {
 				unsigned int diff;
 
+<<<<<<< HEAD
 				tmpClock = pll->inputFreq * M / N / X;
 				diff = abs(tmpClock - request_orig);
+=======
+				tmp_clock = pll->input_freq * M / N / X;
+				diff = abs(tmp_clock - request_orig);
+>>>>>>> upstream/android-13
 				if (diff < mini_diff) {
 					pll->M = M;
 					pll->N = N;
@@ -375,7 +447,11 @@ unsigned int sm750_calc_pll_value(unsigned int request_orig,
 						pll->POD = d - max_OD;
 					pll->OD = d - pll->POD;
 					mini_diff = diff;
+<<<<<<< HEAD
 					ret = tmpClock;
+=======
+					ret = tmp_clock;
+>>>>>>> upstream/android-13
 				}
 			}
 		}
@@ -383,6 +459,7 @@ unsigned int sm750_calc_pll_value(unsigned int request_orig,
 	return ret;
 }
 
+<<<<<<< HEAD
 unsigned int sm750_format_pll_reg(struct pll_value *pPLL)
 {
 #ifndef VALIDATION_CHIP
@@ -392,6 +469,16 @@ unsigned int sm750_format_pll_reg(struct pll_value *pPLL)
 	unsigned int M = pPLL->M;
 	unsigned int N = pPLL->N;
 	unsigned int reg = 0;
+=======
+unsigned int sm750_format_pll_reg(struct pll_value *p_PLL)
+{
+#ifndef VALIDATION_CHIP
+	unsigned int POD = p_PLL->POD;
+#endif
+	unsigned int OD = p_PLL->OD;
+	unsigned int M = p_PLL->M;
+	unsigned int N = p_PLL->N;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note that all PLL's have the same format. Here, we just use
@@ -399,13 +486,20 @@ unsigned int sm750_format_pll_reg(struct pll_value *pPLL)
 	 * register. On returning a 32 bit number, the value can be
 	 * applied to any PLL in the calling function.
 	 */
+<<<<<<< HEAD
 	reg = PLL_CTRL_POWER |
+=======
+	return PLL_CTRL_POWER |
+>>>>>>> upstream/android-13
 #ifndef VALIDATION_CHIP
 		((POD << PLL_CTRL_POD_SHIFT) & PLL_CTRL_POD_MASK) |
 #endif
 		((OD << PLL_CTRL_OD_SHIFT) & PLL_CTRL_OD_MASK) |
 		((N << PLL_CTRL_N_SHIFT) & PLL_CTRL_N_MASK) |
 		((M << PLL_CTRL_M_SHIFT) & PLL_CTRL_M_MASK);
+<<<<<<< HEAD
 
 	return reg;
+=======
+>>>>>>> upstream/android-13
 }

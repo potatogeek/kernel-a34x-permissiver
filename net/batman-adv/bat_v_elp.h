@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2013-2018  B.A.T.M.A.N. contributors:
  *
  * Linus Lüssing, Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Linus Lüssing, Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_BAT_V_ELP_H_
@@ -21,8 +27,13 @@
 
 #include "main.h"
 
+<<<<<<< HEAD
 struct sk_buff;
 struct work_struct;
+=======
+#include <linux/skbuff.h>
+#include <linux/workqueue.h>
+>>>>>>> upstream/android-13
 
 int batadv_v_elp_iface_enable(struct batadv_hard_iface *hard_iface);
 void batadv_v_elp_iface_disable(struct batadv_hard_iface *hard_iface);

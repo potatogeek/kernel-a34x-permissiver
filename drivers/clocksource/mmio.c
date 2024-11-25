@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Generic MMIO clocksource support
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Generic MMIO clocksource support
+>>>>>>> upstream/android-13
  */
 #include <linux/clocksource.h>
 #include <linux/errno.h>
@@ -24,6 +30,10 @@ u64 clocksource_mmio_readl_up(struct clocksource *c)
 {
 	return (u64)readl_relaxed(to_mmio_clksrc(c)->reg);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(clocksource_mmio_readl_up);
+>>>>>>> upstream/android-13
 
 u64 clocksource_mmio_readl_down(struct clocksource *c)
 {
@@ -49,7 +59,11 @@ u64 clocksource_mmio_readw_down(struct clocksource *c)
  * @bits:	Number of valid bits
  * @read:	One of clocksource_mmio_read*() above
  */
+<<<<<<< HEAD
 int __init clocksource_mmio_init(void __iomem *base, const char *name,
+=======
+int clocksource_mmio_init(void __iomem *base, const char *name,
+>>>>>>> upstream/android-13
 	unsigned long hz, int rating, unsigned bits,
 	u64 (*read)(struct clocksource *))
 {
@@ -71,3 +85,7 @@ int __init clocksource_mmio_init(void __iomem *base, const char *name,
 
 	return clocksource_register_hz(&cs->clksrc, hz);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(clocksource_mmio_init);
+>>>>>>> upstream/android-13

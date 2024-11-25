@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ZyDAS ZD1301 driver (USB interface)
  *
  * Copyright (C) 2015 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "dvb_usb.h"
@@ -159,7 +166,11 @@ static int zd1301_frontend_attach(struct dvb_usb_adapter *adap)
 	}
 	if (!pdev->dev.driver) {
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto err;
+=======
+		goto err_platform_device_unregister;
+>>>>>>> upstream/android-13
 	}
 	if (!try_module_get(pdev->dev.driver->owner)) {
 		ret = -ENODEV;
@@ -177,12 +188,21 @@ static int zd1301_frontend_attach(struct dvb_usb_adapter *adap)
 	dev->mt2060_pdata.i2c_write_max = 9;
 	dev->mt2060_pdata.dvb_frontend = frontend;
 	memset(&board_info, 0, sizeof(board_info));
+<<<<<<< HEAD
 	strlcpy(board_info.type, "mt2060", I2C_NAME_SIZE);
 	board_info.addr = 0x60;
 	board_info.platform_data = &dev->mt2060_pdata;
 	request_module("%s", "mt2060");
 	client = i2c_new_device(adapter, &board_info);
 	if (!client || !client->dev.driver) {
+=======
+	strscpy(board_info.type, "mt2060", I2C_NAME_SIZE);
+	board_info.addr = 0x60;
+	board_info.platform_data = &dev->mt2060_pdata;
+	request_module("%s", "mt2060");
+	client = i2c_new_client_device(adapter, &board_info);
+	if (!i2c_client_has_driver(client)) {
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto err_module_put_demod;
 	}

@@ -16,7 +16,11 @@
  * was written by Roman Weissgaerber <weissg@vienna.at>, Dag Brattli
  * <dag@brattli.net>, and Jean Tourrilhes <jt@hpl.hp.com>
  *
+<<<<<<< HEAD
  * See Documentation/usb/usb-serial.txt for more information on using this
+=======
+ * See Documentation/usb/usb-serial.rst for more information on using this
+>>>>>>> upstream/android-13
  * driver
  */
 
@@ -47,7 +51,11 @@ static int xbof = -1;
 static int  ir_startup (struct usb_serial *serial);
 static int ir_write(struct tty_struct *tty, struct usb_serial_port *port,
 		const unsigned char *buf, int count);
+<<<<<<< HEAD
 static int ir_write_room(struct tty_struct *tty);
+=======
+static unsigned int ir_write_room(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 static void ir_write_bulk_callback(struct urb *urb);
 static void ir_process_read_urb(struct urb *urb);
 static void ir_set_termios(struct tty_struct *tty,
@@ -76,6 +84,11 @@ static struct usb_serial_driver ir_device = {
 	.description		= "IR Dongle",
 	.id_table		= ir_id_table,
 	.num_ports		= 1,
+<<<<<<< HEAD
+=======
+	.num_bulk_in		= 1,
+	.num_bulk_out		= 1,
+>>>>>>> upstream/android-13
 	.set_termios		= ir_set_termios,
 	.attach			= ir_startup,
 	.write			= ir_write,
@@ -197,9 +210,12 @@ static int ir_startup(struct usb_serial *serial)
 	struct usb_irda_cs_descriptor *irda_desc;
 	int rates;
 
+<<<<<<< HEAD
 	if (serial->num_bulk_in < 1 || serial->num_bulk_out < 1)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	irda_desc = irda_usb_find_class_desc(serial, 0);
 	if (!irda_desc) {
 		dev_err(&serial->dev->dev,
@@ -340,10 +356,17 @@ static void ir_write_bulk_callback(struct urb *urb)
 	usb_serial_port_softint(port);
 }
 
+<<<<<<< HEAD
 static int ir_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	int count = 0;
+=======
+static unsigned int ir_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	unsigned int count = 0;
+>>>>>>> upstream/android-13
 
 	if (port->bulk_out_size == 0)
 		return 0;
@@ -376,6 +399,7 @@ static void ir_process_read_urb(struct urb *urb)
 	tty_flip_buffer_push(&port->port);
 }
 
+<<<<<<< HEAD
 static void ir_set_termios_callback(struct urb *urb)
 {
 	kfree(urb->transfer_buffer);
@@ -393,6 +417,17 @@ static void ir_set_termios(struct tty_struct *tty,
 	int result;
 	speed_t baud;
 	int ir_baud;
+=======
+static void ir_set_termios(struct tty_struct *tty,
+		struct usb_serial_port *port, struct ktermios *old_termios)
+{
+	struct usb_device *udev = port->serial->dev;
+	unsigned char *transfer_buffer;
+	int actual_length;
+	speed_t baud;
+	int ir_baud;
+	int ret;
+>>>>>>> upstream/android-13
 
 	baud = tty_get_baud_rate(tty);
 
@@ -447,6 +482,7 @@ static void ir_set_termios(struct tty_struct *tty,
 	/*
 	 * send the baud change out on an "empty" data packet
 	 */
+<<<<<<< HEAD
 	urb = usb_alloc_urb(0, GFP_KERNEL);
 	if (!urb)
 		return;
@@ -483,6 +519,24 @@ err_subm:
 	kfree(transfer_buffer);
 err_buf:
 	usb_free_urb(urb);
+=======
+	transfer_buffer = kmalloc(1, GFP_KERNEL);
+	if (!transfer_buffer)
+		return;
+
+	*transfer_buffer = ir_xbof | ir_baud;
+
+	ret = usb_bulk_msg(udev,
+			usb_sndbulkpipe(udev, port->bulk_out_endpointAddress),
+			transfer_buffer, 1, &actual_length, 5000);
+	if (ret || actual_length != 1) {
+		if (!ret)
+			ret = -EIO;
+		dev_err(&port->dev, "failed to change line speed: %d\n", ret);
+	}
+
+	kfree(transfer_buffer);
+>>>>>>> upstream/android-13
 }
 
 static int __init ir_init(void)

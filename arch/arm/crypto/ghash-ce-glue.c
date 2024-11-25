@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Accelerated GHASH implementation with ARMv8 vmull.p64 instructions.
  *
@@ -6,12 +7,20 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Accelerated GHASH implementation with ARMv8 vmull.p64 instructions.
+ *
+ * Copyright (C) 2015 - 2018 Linaro Ltd. <ard.biesheuvel@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #include <asm/hwcap.h>
 #include <asm/neon.h>
 #include <asm/simd.h>
 #include <asm/unaligned.h>
+<<<<<<< HEAD
 #include <crypto/cryptd.h>
 #include <crypto/internal/hash.h>
 #include <crypto/gf128mul.h>
@@ -20,6 +29,19 @@
 #include <linux/module.h>
 
 MODULE_DESCRIPTION("GHASH secure hash using ARMv8 Crypto Extensions");
+=======
+#include <crypto/b128ops.h>
+#include <crypto/cryptd.h>
+#include <crypto/internal/hash.h>
+#include <crypto/internal/simd.h>
+#include <crypto/gf128mul.h>
+#include <linux/cpufeature.h>
+#include <linux/crypto.h>
+#include <linux/jump_label.h>
+#include <linux/module.h>
+
+MODULE_DESCRIPTION("GHASH hash function using ARMv8 Crypto Extensions");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS_CRYPTO("ghash");
@@ -28,8 +50,13 @@ MODULE_ALIAS_CRYPTO("ghash");
 #define GHASH_DIGEST_SIZE	16
 
 struct ghash_key {
+<<<<<<< HEAD
 	u64	a;
 	u64	b;
+=======
+	be128	k;
+	u64	h[][2];
+>>>>>>> upstream/android-13
 };
 
 struct ghash_desc_ctx {
@@ -43,6 +70,7 @@ struct ghash_async_ctx {
 };
 
 asmlinkage void pmull_ghash_update_p64(int blocks, u64 dg[], const char *src,
+<<<<<<< HEAD
 				       struct ghash_key const *k,
 				       const char *head);
 
@@ -53,6 +81,14 @@ asmlinkage void pmull_ghash_update_p8(int blocks, u64 dg[], const char *src,
 static void (*pmull_ghash_update)(int blocks, u64 dg[], const char *src,
 				  struct ghash_key const *k,
 				  const char *head);
+=======
+				       u64 const h[][2], const char *head);
+
+asmlinkage void pmull_ghash_update_p8(int blocks, u64 dg[], const char *src,
+				      u64 const h[][2], const char *head);
+
+static __ro_after_init DEFINE_STATIC_KEY_FALSE(use_p64);
+>>>>>>> upstream/android-13
 
 static int ghash_init(struct shash_desc *desc)
 {
@@ -62,6 +98,42 @@ static int ghash_init(struct shash_desc *desc)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void ghash_do_update(int blocks, u64 dg[], const char *src,
+			    struct ghash_key *key, const char *head)
+{
+	if (likely(crypto_simd_usable())) {
+		kernel_neon_begin();
+		if (static_branch_likely(&use_p64))
+			pmull_ghash_update_p64(blocks, dg, src, key->h, head);
+		else
+			pmull_ghash_update_p8(blocks, dg, src, key->h, head);
+		kernel_neon_end();
+	} else {
+		be128 dst = { cpu_to_be64(dg[1]), cpu_to_be64(dg[0]) };
+
+		do {
+			const u8 *in = src;
+
+			if (head) {
+				in = head;
+				blocks++;
+				head = NULL;
+			} else {
+				src += GHASH_BLOCK_SIZE;
+			}
+
+			crypto_xor((u8 *)&dst, in, GHASH_BLOCK_SIZE);
+			gf128mul_lle(&dst, &key->k);
+		} while (--blocks);
+
+		dg[0] = be64_to_cpu(dst.b);
+		dg[1] = be64_to_cpu(dst.a);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int ghash_update(struct shash_desc *desc, const u8 *src,
 			unsigned int len)
 {
@@ -85,10 +157,15 @@ static int ghash_update(struct shash_desc *desc, const u8 *src,
 		blocks = len / GHASH_BLOCK_SIZE;
 		len %= GHASH_BLOCK_SIZE;
 
+<<<<<<< HEAD
 		kernel_neon_begin();
 		pmull_ghash_update(blocks, ctx->digest, src, key,
 				   partial ? ctx->buf : NULL);
 		kernel_neon_end();
+=======
+		ghash_do_update(blocks, ctx->digest, src, key,
+				partial ? ctx->buf : NULL);
+>>>>>>> upstream/android-13
 		src += blocks * GHASH_BLOCK_SIZE;
 		partial = 0;
 	}
@@ -106,9 +183,13 @@ static int ghash_final(struct shash_desc *desc, u8 *dst)
 		struct ghash_key *key = crypto_shash_ctx(desc->tfm);
 
 		memset(ctx->buf + partial, 0, GHASH_BLOCK_SIZE - partial);
+<<<<<<< HEAD
 		kernel_neon_begin();
 		pmull_ghash_update(1, ctx->digest, ctx->buf, key, NULL);
 		kernel_neon_end();
+=======
+		ghash_do_update(1, ctx->digest, ctx->buf, key, NULL);
+>>>>>>> upstream/android-13
 	}
 	put_unaligned_be64(ctx->digest[1], dst);
 	put_unaligned_be64(ctx->digest[0], dst + 8);
@@ -117,10 +198,25 @@ static int ghash_final(struct shash_desc *desc, u8 *dst)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void ghash_reflect(u64 h[], const be128 *k)
+{
+	u64 carry = be64_to_cpu(k->a) >> 63;
+
+	h[0] = (be64_to_cpu(k->b) << 1) | carry;
+	h[1] = (be64_to_cpu(k->a) << 1) | (be64_to_cpu(k->b) >> 63);
+
+	if (carry)
+		h[1] ^= 0xc200000000000000UL;
+}
+
+>>>>>>> upstream/android-13
 static int ghash_setkey(struct crypto_shash *tfm,
 			const u8 *inkey, unsigned int keylen)
 {
 	struct ghash_key *key = crypto_shash_ctx(tfm);
+<<<<<<< HEAD
 	u64 a, b;
 
 	if (keylen != GHASH_BLOCK_SIZE) {
@@ -138,6 +234,28 @@ static int ghash_setkey(struct crypto_shash *tfm,
 	if (b >> 63)
 		key->b ^= 0xc200000000000000UL;
 
+=======
+
+	if (keylen != GHASH_BLOCK_SIZE)
+		return -EINVAL;
+
+	/* needed for the fallback */
+	memcpy(&key->k, inkey, GHASH_BLOCK_SIZE);
+	ghash_reflect(key->h[0], &key->k);
+
+	if (static_branch_likely(&use_p64)) {
+		be128 h = key->k;
+
+		gf128mul_lle(&h, &key->k);
+		ghash_reflect(key->h[1], &h);
+
+		gf128mul_lle(&h, &key->k);
+		ghash_reflect(key->h[2], &h);
+
+		gf128mul_lle(&h, &key->k);
+		ghash_reflect(key->h[3], &h);
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -148,6 +266,7 @@ static struct shash_alg ghash_alg = {
 	.final			= ghash_final,
 	.setkey			= ghash_setkey,
 	.descsize		= sizeof(struct ghash_desc_ctx),
+<<<<<<< HEAD
 	.base			= {
 		.cra_name	= "__ghash",
 		.cra_driver_name = "__driver-ghash-ce",
@@ -157,6 +276,15 @@ static struct shash_alg ghash_alg = {
 		.cra_ctxsize	= sizeof(struct ghash_key),
 		.cra_module	= THIS_MODULE,
 	},
+=======
+
+	.base.cra_name		= "ghash",
+	.base.cra_driver_name	= "ghash-ce-sync",
+	.base.cra_priority	= 300 - 1,
+	.base.cra_blocksize	= GHASH_BLOCK_SIZE,
+	.base.cra_ctxsize	= sizeof(struct ghash_key) + sizeof(u64[2]),
+	.base.cra_module	= THIS_MODULE,
+>>>>>>> upstream/android-13
 };
 
 static int ghash_async_init(struct ahash_request *req)
@@ -169,7 +297,10 @@ static int ghash_async_init(struct ahash_request *req)
 	struct crypto_shash *child = cryptd_ahash_child(cryptd_tfm);
 
 	desc->tfm = child;
+<<<<<<< HEAD
 	desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 	return crypto_shash_init(desc);
 }
 
@@ -180,7 +311,11 @@ static int ghash_async_update(struct ahash_request *req)
 	struct ghash_async_ctx *ctx = crypto_ahash_ctx(tfm);
 	struct cryptd_ahash *cryptd_tfm = ctx->cryptd_tfm;
 
+<<<<<<< HEAD
 	if (!may_use_simd() ||
+=======
+	if (!crypto_simd_usable() ||
+>>>>>>> upstream/android-13
 	    (in_atomic() && cryptd_ahash_queued(cryptd_tfm))) {
 		memcpy(cryptd_req, req, sizeof(*req));
 		ahash_request_set_tfm(cryptd_req, &cryptd_tfm->base);
@@ -198,7 +333,11 @@ static int ghash_async_final(struct ahash_request *req)
 	struct ghash_async_ctx *ctx = crypto_ahash_ctx(tfm);
 	struct cryptd_ahash *cryptd_tfm = ctx->cryptd_tfm;
 
+<<<<<<< HEAD
 	if (!may_use_simd() ||
+=======
+	if (!crypto_simd_usable() ||
+>>>>>>> upstream/android-13
 	    (in_atomic() && cryptd_ahash_queued(cryptd_tfm))) {
 		memcpy(cryptd_req, req, sizeof(*req));
 		ahash_request_set_tfm(cryptd_req, &cryptd_tfm->base);
@@ -216,7 +355,11 @@ static int ghash_async_digest(struct ahash_request *req)
 	struct ahash_request *cryptd_req = ahash_request_ctx(req);
 	struct cryptd_ahash *cryptd_tfm = ctx->cryptd_tfm;
 
+<<<<<<< HEAD
 	if (!may_use_simd() ||
+=======
+	if (!crypto_simd_usable() ||
+>>>>>>> upstream/android-13
 	    (in_atomic() && cryptd_ahash_queued(cryptd_tfm))) {
 		memcpy(cryptd_req, req, sizeof(*req));
 		ahash_request_set_tfm(cryptd_req, &cryptd_tfm->base);
@@ -226,7 +369,10 @@ static int ghash_async_digest(struct ahash_request *req)
 		struct crypto_shash *child = cryptd_ahash_child(cryptd_tfm);
 
 		desc->tfm = child;
+<<<<<<< HEAD
 		desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 		return shash_ahash_digest(req, desc);
 	}
 }
@@ -239,7 +385,10 @@ static int ghash_async_import(struct ahash_request *req, const void *in)
 	struct shash_desc *desc = cryptd_shash_desc(cryptd_req);
 
 	desc->tfm = cryptd_ahash_child(ctx->cryptd_tfm);
+<<<<<<< HEAD
 	desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 
 	return crypto_shash_import(desc, in);
 }
@@ -257,16 +406,23 @@ static int ghash_async_setkey(struct crypto_ahash *tfm, const u8 *key,
 {
 	struct ghash_async_ctx *ctx = crypto_ahash_ctx(tfm);
 	struct crypto_ahash *child = &ctx->cryptd_tfm->base;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	crypto_ahash_clear_flags(child, CRYPTO_TFM_REQ_MASK);
 	crypto_ahash_set_flags(child, crypto_ahash_get_flags(tfm)
 			       & CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_ahash_setkey(child, key, keylen);
 	crypto_ahash_set_flags(tfm, crypto_ahash_get_flags(child)
 			       & CRYPTO_TFM_RES_MASK);
 
 	return err;
+=======
+	return crypto_ahash_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int ghash_async_init_tfm(struct crypto_tfm *tfm)
@@ -274,9 +430,13 @@ static int ghash_async_init_tfm(struct crypto_tfm *tfm)
 	struct cryptd_ahash *cryptd_tfm;
 	struct ghash_async_ctx *ctx = crypto_tfm_ctx(tfm);
 
+<<<<<<< HEAD
 	cryptd_tfm = cryptd_alloc_ahash("__driver-ghash-ce",
 					CRYPTO_ALG_INTERNAL,
 					CRYPTO_ALG_INTERNAL);
+=======
+	cryptd_tfm = cryptd_alloc_ahash("ghash-ce-sync", 0, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cryptd_tfm))
 		return PTR_ERR(cryptd_tfm);
 	ctx->cryptd_tfm = cryptd_tfm;
@@ -324,10 +484,17 @@ static int __init ghash_ce_mod_init(void)
 	if (!(elf_hwcap & HWCAP_NEON))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (elf_hwcap2 & HWCAP2_PMULL)
 		pmull_ghash_update = pmull_ghash_update_p64;
 	else
 		pmull_ghash_update = pmull_ghash_update_p8;
+=======
+	if (elf_hwcap2 & HWCAP2_PMULL) {
+		ghash_alg.base.cra_ctxsize += 3 * sizeof(u64[2]);
+		static_branch_enable(&use_p64);
+	}
+>>>>>>> upstream/android-13
 
 	err = crypto_register_shash(&ghash_alg);
 	if (err)

@@ -38,9 +38,12 @@ int lio_cn6xxx_soft_reset(struct octeon_device *oct)
 	lio_pci_readq(oct, CN6XXX_CIU_SOFT_RST);
 	lio_pci_writeq(oct, 1, CN6XXX_CIU_SOFT_RST);
 
+<<<<<<< HEAD
 	/* make sure that the reset is written before starting timer */
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	/* Wait for 10ms as Octeon resets. */
 	mdelay(100);
 
@@ -487,9 +490,12 @@ void lio_cn6xxx_disable_interrupt(struct octeon_device *oct,
 
 	/* Disable Interrupts */
 	writeq(0, cn6xxx->intr_enb_reg64);
+<<<<<<< HEAD
 
 	/* make sure interrupts are really disabled */
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static void lio_cn6xxx_get_pcie_qlmport(struct octeon_device *oct)
@@ -555,10 +561,13 @@ static int lio_cn6xxx_process_droq_intr_regs(struct octeon_device *oct)
 				value &= ~(1 << oq_no);
 				octeon_write_csr(oct, reg, value);
 
+<<<<<<< HEAD
 				/* Ensure that the enable register is written.
 				 */
 				mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 				spin_unlock(&cn6xxx->lock_for_droq_int_enb_reg);
 			}
 		}

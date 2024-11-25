@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *                   Creative Labs, Inc.
@@ -9,6 +13,7 @@
  *
  *  TODO:
  *    --
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -39,7 +46,12 @@ static void snd_emu10k1_pcm_interrupt(struct snd_emu10k1 *emu,
 {
 	struct snd_emu10k1_pcm *epcm;
 
+<<<<<<< HEAD
 	if ((epcm = voice->epcm) == NULL)
+=======
+	epcm = voice->epcm;
+	if (!epcm)
+>>>>>>> upstream/android-13
 		return;
 	if (epcm->substream == NULL)
 		return;
@@ -413,7 +425,12 @@ static int snd_emu10k1_playback_hw_params(struct snd_pcm_substream *substream,
 	size_t alloc_size;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_emu10k1_pcm_channel_alloc(epcm, params_channels(hw_params))) < 0)
+=======
+	err = snd_emu10k1_pcm_channel_alloc(epcm, params_channels(hw_params));
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	alloc_size = params_buffer_bytes(hw_params);
@@ -583,6 +600,7 @@ static const struct snd_pcm_hardware snd_emu10k1_efx_playback =
 	.fifo_size =		0,
 };
 
+<<<<<<< HEAD
 static int snd_emu10k1_capture_hw_params(struct snd_pcm_substream *substream,
 					 struct snd_pcm_hw_params *hw_params)
 {
@@ -594,6 +612,8 @@ static int snd_emu10k1_capture_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_emu10k1_capture_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
@@ -778,7 +798,11 @@ static int snd_emu10k1_playback_trigger(struct snd_pcm_substream *substream,
 	case SNDRV_PCM_TRIGGER_START:
 		snd_emu10k1_playback_invalidate_cache(emu, 1, epcm->extra);	/* do we need this? */
 		snd_emu10k1_playback_invalidate_cache(emu, 0, epcm->voices[0]);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
 	case SNDRV_PCM_TRIGGER_RESUME:
 		if (cmd == SNDRV_PCM_TRIGGER_PAUSE_RELEASE)
@@ -927,8 +951,12 @@ static int snd_emu10k1_efx_playback_trigger(struct snd_pcm_substream *substream,
 			snd_emu10k1_playback_invalidate_cache(emu, 0, epcm->voices[i]);
 		}
 		snd_emu10k1_playback_invalidate_cache(emu, 1, epcm->extra);
+<<<<<<< HEAD
 
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
 	case SNDRV_PCM_TRIGGER_RESUME:
 		snd_emu10k1_playback_prepare_voice(emu, epcm->extra, 1, 1, NULL);
@@ -1150,11 +1178,21 @@ static int snd_emu10k1_playback_open(struct snd_pcm_substream *substream)
 	runtime->private_data = epcm;
 	runtime->private_free = snd_emu10k1_pcm_free_substream;
 	runtime->hw = snd_emu10k1_playback;
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0) {
 		kfree(epcm);
 		return err;
 	}
 	if ((err = snd_pcm_hw_constraint_minmax(runtime, SNDRV_PCM_HW_PARAM_BUFFER_BYTES, 256, UINT_MAX)) < 0) {
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0) {
+		kfree(epcm);
+		return err;
+	}
+	err = snd_pcm_hw_constraint_minmax(runtime, SNDRV_PCM_HW_PARAM_BUFFER_BYTES, 256, UINT_MAX);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		kfree(epcm);
 		return err;
 	}
@@ -1374,21 +1412,30 @@ static int snd_emu10k1_capture_efx_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_emu10k1_playback_ops = {
 	.open =			snd_emu10k1_playback_open,
 	.close =		snd_emu10k1_playback_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =		snd_emu10k1_playback_hw_params,
 	.hw_free =		snd_emu10k1_playback_hw_free,
 	.prepare =		snd_emu10k1_playback_prepare,
 	.trigger =		snd_emu10k1_playback_trigger,
 	.pointer =		snd_emu10k1_playback_pointer,
+<<<<<<< HEAD
 	.page =			snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_pcm_ops snd_emu10k1_capture_ops = {
 	.open =			snd_emu10k1_capture_open,
 	.close =		snd_emu10k1_capture_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
 	.hw_params =		snd_emu10k1_capture_hw_params,
 	.hw_free =		snd_emu10k1_capture_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =		snd_emu10k1_capture_prepare,
 	.trigger =		snd_emu10k1_capture_trigger,
 	.pointer =		snd_emu10k1_capture_pointer,
@@ -1398,13 +1445,19 @@ static const struct snd_pcm_ops snd_emu10k1_capture_ops = {
 static const struct snd_pcm_ops snd_emu10k1_efx_playback_ops = {
 	.open =			snd_emu10k1_efx_playback_open,
 	.close =		snd_emu10k1_efx_playback_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =		snd_emu10k1_playback_hw_params,
 	.hw_free =		snd_emu10k1_efx_playback_hw_free,
 	.prepare =		snd_emu10k1_efx_playback_prepare,
 	.trigger =		snd_emu10k1_efx_playback_trigger,
 	.pointer =		snd_emu10k1_efx_playback_pointer,
+<<<<<<< HEAD
 	.page =			snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 int snd_emu10k1_pcm(struct snd_emu10k1 *emu, int device)
@@ -1413,7 +1466,12 @@ int snd_emu10k1_pcm(struct snd_emu10k1 *emu, int device)
 	struct snd_pcm_substream *substream;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(emu->card, "emu10k1", device, 32, 1, &pcm)) < 0)
+=======
+	err = snd_pcm_new(emu->card, "emu10k1", device, 32, 1, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	pcm->private_data = emu;
@@ -1426,12 +1484,24 @@ int snd_emu10k1_pcm(struct snd_emu10k1 *emu, int device)
 	strcpy(pcm->name, "ADC Capture/Standard PCM Playback");
 	emu->pcm = pcm;
 
+<<<<<<< HEAD
 	for (substream = pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream; substream; substream = substream->next)
 		if ((err = snd_pcm_lib_preallocate_pages(substream, SNDRV_DMA_TYPE_DEV_SG, snd_dma_pci_data(emu->pci), 64*1024, 64*1024)) < 0)
 			return err;
 
 	for (substream = pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream; substream; substream = substream->next)
 		snd_pcm_lib_preallocate_pages(substream, SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(emu->pci), 64*1024, 64*1024);
+=======
+	/* playback substream can't use managed buffers due to alignment */
+	for (substream = pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream; substream; substream = substream->next)
+		snd_pcm_lib_preallocate_pages(substream, SNDRV_DMA_TYPE_DEV_SG,
+					      &emu->pci->dev,
+					      64*1024, 64*1024);
+
+	for (substream = pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream; substream; substream = substream->next)
+		snd_pcm_set_managed_buffer(substream, SNDRV_DMA_TYPE_DEV,
+					   &emu->pci->dev, 64*1024, 64*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1442,7 +1512,12 @@ int snd_emu10k1_pcm_multi(struct snd_emu10k1 *emu, int device)
 	struct snd_pcm_substream *substream;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(emu->card, "emu10k1", device, 1, 0, &pcm)) < 0)
+=======
+	err = snd_pcm_new(emu->card, "emu10k1", device, 1, 0, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	pcm->private_data = emu;
@@ -1455,8 +1530,14 @@ int snd_emu10k1_pcm_multi(struct snd_emu10k1 *emu, int device)
 	emu->pcm_multi = pcm;
 
 	for (substream = pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream; substream; substream = substream->next)
+<<<<<<< HEAD
 		if ((err = snd_pcm_lib_preallocate_pages(substream, SNDRV_DMA_TYPE_DEV_SG, snd_dma_pci_data(emu->pci), 64*1024, 64*1024)) < 0)
 			return err;
+=======
+		snd_pcm_lib_preallocate_pages(substream, SNDRV_DMA_TYPE_DEV_SG,
+					      &emu->pci->dev,
+					      64*1024, 64*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1465,9 +1546,12 @@ int snd_emu10k1_pcm_multi(struct snd_emu10k1 *emu, int device)
 static const struct snd_pcm_ops snd_emu10k1_capture_mic_ops = {
 	.open =			snd_emu10k1_capture_mic_open,
 	.close =		snd_emu10k1_capture_mic_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
 	.hw_params =		snd_emu10k1_capture_hw_params,
 	.hw_free =		snd_emu10k1_capture_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =		snd_emu10k1_capture_prepare,
 	.trigger =		snd_emu10k1_capture_trigger,
 	.pointer =		snd_emu10k1_capture_pointer,
@@ -1478,7 +1562,12 @@ int snd_emu10k1_pcm_mic(struct snd_emu10k1 *emu, int device)
 	struct snd_pcm *pcm;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(emu->card, "emu10k1 mic", device, 0, 1, &pcm)) < 0)
+=======
+	err = snd_pcm_new(emu->card, "emu10k1 mic", device, 0, 1, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	pcm->private_data = emu;
@@ -1489,7 +1578,12 @@ int snd_emu10k1_pcm_mic(struct snd_emu10k1 *emu, int device)
 	strcpy(pcm->name, "Mic Capture");
 	emu->pcm_mic = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(emu->pci), 64*1024, 64*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV, &emu->pci->dev,
+				       64*1024, 64*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1560,9 +1654,12 @@ static const struct snd_kcontrol_new snd_emu10k1_pcm_efx_voices_mask = {
 static const struct snd_pcm_ops snd_emu10k1_capture_efx_ops = {
 	.open =			snd_emu10k1_capture_efx_open,
 	.close =		snd_emu10k1_capture_efx_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
 	.hw_params =		snd_emu10k1_capture_hw_params,
 	.hw_free =		snd_emu10k1_capture_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =		snd_emu10k1_capture_prepare,
 	.trigger =		snd_emu10k1_capture_trigger,
 	.pointer =		snd_emu10k1_capture_pointer,
@@ -1643,12 +1740,15 @@ static int snd_emu10k1_fx8010_playback_transfer(struct snd_pcm_substream *substr
 						  fx8010_pb_trans_copy);
 }
 
+<<<<<<< HEAD
 static int snd_emu10k1_fx8010_playback_hw_params(struct snd_pcm_substream *substream,
 						 struct snd_pcm_hw_params *hw_params)
 {
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_emu10k1_fx8010_playback_hw_free(struct snd_pcm_substream *substream)
 {
 	struct snd_emu10k1 *emu = snd_pcm_substream_chip(substream);
@@ -1657,7 +1757,10 @@ static int snd_emu10k1_fx8010_playback_hw_free(struct snd_pcm_substream *substre
 
 	for (i = 0; i < pcm->channels; i++)
 		snd_emu10k1_ptr_write(emu, TANKMEMADDRREGBASE + 0x80 + pcm->etram[i], 0, 0);
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1753,7 +1856,12 @@ static const struct snd_pcm_hardware snd_emu10k1_fx8010_playback =
 {
 	.info =			(SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_INTERLEAVED |
 				 SNDRV_PCM_INFO_RESUME |
+<<<<<<< HEAD
 				 /* SNDRV_PCM_INFO_MMAP_VALID | */ SNDRV_PCM_INFO_PAUSE),
+=======
+				 /* SNDRV_PCM_INFO_MMAP_VALID | */ SNDRV_PCM_INFO_PAUSE |
+				 SNDRV_PCM_INFO_SYNC_APPLPTR),
+>>>>>>> upstream/android-13
 	.formats =		SNDRV_PCM_FMTBIT_U8 | SNDRV_PCM_FMTBIT_S16_LE,
 	.rates =		SNDRV_PCM_RATE_48000,
 	.rate_min =		48000,
@@ -1801,8 +1909,11 @@ static int snd_emu10k1_fx8010_playback_close(struct snd_pcm_substream *substream
 static const struct snd_pcm_ops snd_emu10k1_fx8010_playback_ops = {
 	.open =			snd_emu10k1_fx8010_playback_open,
 	.close =		snd_emu10k1_fx8010_playback_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
 	.hw_params =		snd_emu10k1_fx8010_playback_hw_params,
+=======
+>>>>>>> upstream/android-13
 	.hw_free =		snd_emu10k1_fx8010_playback_hw_free,
 	.prepare =		snd_emu10k1_fx8010_playback_prepare,
 	.trigger =		snd_emu10k1_fx8010_playback_trigger,
@@ -1816,7 +1927,12 @@ int snd_emu10k1_pcm_efx(struct snd_emu10k1 *emu, int device)
 	struct snd_kcontrol *kctl;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(emu->card, "emu10k1 efx", device, 8, 1, &pcm)) < 0)
+=======
+	err = snd_pcm_new(emu->card, "emu10k1 efx", device, 8, 1, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	pcm->private_data = emu;
@@ -1861,7 +1977,12 @@ int snd_emu10k1_pcm_efx(struct snd_emu10k1 *emu, int device)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(emu->pci), 64*1024, 64*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV, &emu->pci->dev,
+				       64*1024, 64*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

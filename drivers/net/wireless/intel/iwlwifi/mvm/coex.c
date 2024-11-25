@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,13 @@
  *
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2013-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/ieee80211.h>
 #include <linux/etherdevice.h>
 #include <net/mac80211.h>
@@ -221,8 +229,12 @@ int iwl_mvm_send_bt_init_conf(struct iwl_mvm *mvm)
 		goto send_cmd;
 	}
 
+<<<<<<< HEAD
 	mode = iwlwifi_mod_params.bt_coex_active ? BT_COEX_NW : BT_COEX_DISABLE;
 	bt_cmd.mode = cpu_to_le32(mode);
+=======
+	bt_cmd.mode = cpu_to_le32(BT_COEX_NW);
+>>>>>>> upstream/android-13
 
 	if (IWL_MVM_BT_COEX_SYNC2SCO)
 		bt_cmd.enabled_modules |=
@@ -246,7 +258,10 @@ static int iwl_mvm_bt_coex_reduced_txp(struct iwl_mvm *mvm, u8 sta_id,
 	struct iwl_bt_coex_reduced_txp_update_cmd cmd = {};
 	struct iwl_mvm_sta *mvmsta;
 	u32 value;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	mvmsta = iwl_mvm_sta_from_staid_protected(mvm, sta_id);
 	if (!mvmsta)
@@ -267,10 +282,15 @@ static int iwl_mvm_bt_coex_reduced_txp(struct iwl_mvm *mvm, u8 sta_id,
 	cmd.reduced_txp = cpu_to_le32(value);
 	mvmsta->bt_reduced_txpower = enable;
 
+<<<<<<< HEAD
 	ret = iwl_mvm_send_cmd_pdu(mvm, BT_COEX_UPDATE_REDUCED_TXP, CMD_ASYNC,
 				   sizeof(cmd), &cmd);
 
 	return ret;
+=======
+	return iwl_mvm_send_cmd_pdu(mvm, BT_COEX_UPDATE_REDUCED_TXP,
+				    CMD_ASYNC, sizeof(cmd), &cmd);
+>>>>>>> upstream/android-13
 }
 
 struct iwl_bt_iterator_data {
@@ -331,7 +351,11 @@ static void iwl_mvm_bt_notif_iterator(void *_data, u8 *mac,
 	struct ieee80211_chanctx_conf *chanctx_conf;
 	/* default smps_mode is AUTOMATIC - only used for client modes */
 	enum ieee80211_smps_mode smps_mode = IEEE80211_SMPS_AUTOMATIC;
+<<<<<<< HEAD
 	u32 bt_activity_grading;
+=======
+	u32 bt_activity_grading, min_ag_for_static_smps;
+>>>>>>> upstream/android-13
 	int ave_rssi;
 
 	lockdep_assert_held(&mvm->mutex);
@@ -363,8 +387,18 @@ static void iwl_mvm_bt_notif_iterator(void *_data, u8 *mac,
 		return;
 	}
 
+<<<<<<< HEAD
 	bt_activity_grading = le32_to_cpu(data->notif->bt_activity_grading);
 	if (bt_activity_grading >= BT_HIGH_TRAFFIC)
+=======
+	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_COEX_SCHEMA_2))
+		min_ag_for_static_smps = BT_VERY_HIGH_TRAFFIC;
+	else
+		min_ag_for_static_smps = BT_HIGH_TRAFFIC;
+
+	bt_activity_grading = le32_to_cpu(data->notif->bt_activity_grading);
+	if (bt_activity_grading >= min_ag_for_static_smps)
+>>>>>>> upstream/android-13
 		smps_mode = IEEE80211_SMPS_STATIC;
 	else if (bt_activity_grading >= BT_LOW_TRAFFIC)
 		smps_mode = IEEE80211_SMPS_DYNAMIC;
@@ -691,6 +725,18 @@ bool iwl_mvm_bt_coex_is_tpc_allowed(struct iwl_mvm *mvm,
 	return bt_activity >= BT_LOW_TRAFFIC;
 }
 
+<<<<<<< HEAD
+=======
+u8 iwl_mvm_bt_coex_get_single_ant_msk(struct iwl_mvm *mvm, u8 enabled_ants)
+{
+	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_COEX_SCHEMA_2) &&
+	    (mvm->cfg->non_shared_ant & enabled_ants))
+		return mvm->cfg->non_shared_ant;
+
+	return first_antenna(enabled_ants);
+}
+
+>>>>>>> upstream/android-13
 u8 iwl_mvm_bt_coex_tx_prio(struct iwl_mvm *mvm, struct ieee80211_hdr *hdr,
 			   struct ieee80211_tx_info *info, u8 ac)
 {

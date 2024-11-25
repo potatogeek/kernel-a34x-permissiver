@@ -12,6 +12,7 @@
 #define _ASM_SN_SN0_ARCH_H
 
 
+<<<<<<< HEAD
 #ifndef SN0XXL	/* 128 cpu SMP max */
 /*
  * This is the maximum number of nodes that can be part of a kernel.
@@ -19,10 +20,13 @@
  */
 #define MAX_COMPACT_NODES	64
 
+=======
+>>>>>>> upstream/android-13
 /*
  * MAXCPUS refers to the maximum number of CPUs in a single kernel.
  * This is not necessarily the same as MAXNODES * CPUS_PER_NODE
  */
+<<<<<<< HEAD
 #define MAXCPUS			128
 
 #else /* SN0XXL system */
@@ -31,6 +35,9 @@
 #define MAXCPUS			256
 
 #endif /* SN0XXL */
+=======
+#define MAXCPUS			(MAX_NUMNODES * CPUS_PER_NODE)
+>>>>>>> upstream/android-13
 
 /*
  * This is the maximum number of NASIDS that can be present in a system.
@@ -66,7 +73,10 @@
 #define SLOT_MIN_MEM_SIZE	(32*1024*1024)
 
 #define CPUS_PER_NODE		2	/* CPUs on a single hub */
+<<<<<<< HEAD
 #define CPUS_PER_NODE_SHFT	1	/* Bits to shift in the node number */
 #define CPUS_PER_SUBNODE	2	/* CPUs on a single hub PI */
+=======
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_SN_SN0_ARCH_H */

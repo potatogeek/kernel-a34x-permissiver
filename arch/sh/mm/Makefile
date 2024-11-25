@@ -10,15 +10,23 @@ cacheops-$(CONFIG_CPU_SUBTYPE_SH7619)	:= cache-sh2.o
 cacheops-$(CONFIG_CPU_SH2A)		:= cache-sh2a.o
 cacheops-$(CONFIG_CPU_SH3)		:= cache-sh3.o
 cacheops-$(CONFIG_CPU_SH4)		:= cache-sh4.o flush-sh4.o
+<<<<<<< HEAD
 cacheops-$(CONFIG_CPU_SH5)		:= cache-sh5.o flush-sh4.o
+=======
+>>>>>>> upstream/android-13
 cacheops-$(CONFIG_SH7705_CACHE_32KB)	+= cache-sh7705.o
 cacheops-$(CONFIG_CPU_SHX3)		+= cache-shx3.o
 
 obj-y			+= $(cacheops-y)
 
 mmu-y			:= nommu.o extable_32.o
+<<<<<<< HEAD
 mmu-$(CONFIG_MMU)	:= extable_$(BITS).o fault.o gup.o ioremap.o kmap.o \
 			   pgtable.o tlbex_$(BITS).o tlbflush_$(BITS).o
+=======
+mmu-$(CONFIG_MMU)	:= extable_32.o fault.o ioremap.o kmap.o \
+			   pgtable.o tlbex_32.o tlbflush_32.o
+>>>>>>> upstream/android-13
 
 obj-y			+= $(mmu-y)
 
@@ -31,7 +39,10 @@ ifdef CONFIG_MMU
 debugfs-$(CONFIG_CPU_SH4)	+= tlb-debugfs.o
 tlb-$(CONFIG_CPU_SH3)		:= tlb-sh3.o
 tlb-$(CONFIG_CPU_SH4)		:= tlb-sh4.o tlb-urb.o
+<<<<<<< HEAD
 tlb-$(CONFIG_CPU_SH5)		:= tlb-sh5.o
+=======
+>>>>>>> upstream/android-13
 tlb-$(CONFIG_CPU_HAS_PTEAEX)	:= tlb-pteaex.o tlb-urb.o
 obj-y				+= $(tlb-y)
 endif
@@ -45,6 +56,7 @@ obj-$(CONFIG_UNCACHED_MAPPING)	+= uncached.o
 obj-$(CONFIG_HAVE_SRAM_POOL)	+= sram.o
 
 GCOV_PROFILE_pmb.o := n
+<<<<<<< HEAD
 
 # Special flags for tlbex_64.o.  This puts restrictions on the number of
 # caller-save registers that the compiler can target when building this file.
@@ -72,3 +84,5 @@ CFLAGS_tlbex_64.o += -ffixed-r7 \
 	-fomit-frame-pointer
 
 ccflags-y := -Werror
+=======
+>>>>>>> upstream/android-13

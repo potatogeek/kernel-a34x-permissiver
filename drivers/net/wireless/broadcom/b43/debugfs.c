@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43 wireless driver
@@ -6,6 +10,7 @@
 
   Copyright (c) 2005-2007 Michael Buesch <m@bues.ch>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -64,7 +71,11 @@ struct b43_dfs_file *fops_to_dfs_file(struct b43_wldev *dev,
 #define fappend(fmt, x...)	\
 	do {							\
 		if (bufsize - count)				\
+<<<<<<< HEAD
 			count += snprintf(buf + count,		\
+=======
+			count += scnprintf(buf + count,		\
+>>>>>>> upstream/android-13
 					  bufsize - count,	\
 					  fmt , ##x);		\
 		else						\
@@ -506,7 +517,11 @@ static ssize_t b43_debugfs_read(struct file *file, char __user *userbuf,
 	struct b43_wldev *dev;
 	struct b43_debugfs_fops *dfops;
 	struct b43_dfs_file *dfile;
+<<<<<<< HEAD
 	ssize_t uninitialized_var(ret);
+=======
+	ssize_t ret;
+>>>>>>> upstream/android-13
 	char *buf;
 	const size_t bufsize = 1024 * 16; /* 16 kiB buffer */
 	const size_t buforder = get_order(bufsize);
@@ -656,6 +671,7 @@ bool b43_debug(struct b43_wldev *dev, enum b43_dyndbg feature)
 	return enabled;
 }
 
+<<<<<<< HEAD
 static void b43_remove_dynamic_debug(struct b43_wldev *dev)
 {
 	struct b43_dfsentry *e = dev->dfsentry;
@@ -677,6 +693,17 @@ static void b43_add_dynamic_debug(struct b43_wldev *dev)
 	if (!IS_ERR(d))					\
 		e->dyn_debug_dentries[id] = d;		\
 				} while (0)
+=======
+static void b43_add_dynamic_debug(struct b43_wldev *dev)
+{
+	struct b43_dfsentry *e = dev->dfsentry;
+
+#define add_dyn_dbg(name, id, initstate) do {			\
+	e->dyn_debug[id] = (initstate);				\
+	debugfs_create_bool(name, 0600, e->subdir,		\
+			    &(e->dyn_debug[id]));		\
+	} while (0)
+>>>>>>> upstream/android-13
 
 	add_dyn_dbg("debug_xmitpower", B43_DBG_XMITPOWER, false);
 	add_dyn_dbg("debug_dmaoverflow", B43_DBG_DMAOVERFLOW, false);
@@ -718,6 +745,7 @@ void b43_debugfs_add_device(struct b43_wldev *dev)
 
 	snprintf(devdir, sizeof(devdir), "%s", wiphy_name(dev->wl->hw->wiphy));
 	e->subdir = debugfs_create_dir(devdir, rootdir);
+<<<<<<< HEAD
 	if (!e->subdir || IS_ERR(e->subdir)) {
 		if (e->subdir == ERR_PTR(-ENODEV)) {
 			b43dbg(dev->wl, "DebugFS (CONFIG_DEBUG_FS) not "
@@ -731,6 +759,8 @@ void b43_debugfs_add_device(struct b43_wldev *dev)
 		kfree(e);
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	e->mmio16read_next = 0xFFFF; /* invalid address */
 	e->mmio32read_next = 0xFFFF; /* invalid address */
@@ -741,6 +771,7 @@ void b43_debugfs_add_device(struct b43_wldev *dev)
 
 #define ADD_FILE(name, mode)	\
 	do {							\
+<<<<<<< HEAD
 		struct dentry *d;				\
 		d = debugfs_create_file(__stringify(name),	\
 					mode, e->subdir, dev,	\
@@ -748,6 +779,11 @@ void b43_debugfs_add_device(struct b43_wldev *dev)
 		e->file_##name.dentry = NULL;			\
 		if (!IS_ERR(d))					\
 			e->file_##name.dentry = d;		\
+=======
+		debugfs_create_file(__stringify(name),		\
+				mode, e->subdir, dev,		\
+				&fops_##name.fops);		\
+>>>>>>> upstream/android-13
 	} while (0)
 
 
@@ -777,6 +813,7 @@ void b43_debugfs_remove_device(struct b43_wldev *dev)
 	e = dev->dfsentry;
 	if (!e)
 		return;
+<<<<<<< HEAD
 	b43_remove_dynamic_debug(dev);
 
 	debugfs_remove(e->file_shm16read.dentry);
@@ -790,6 +827,8 @@ void b43_debugfs_remove_device(struct b43_wldev *dev)
 	debugfs_remove(e->file_txstat.dentry);
 	debugfs_remove(e->file_restart.dentry);
 	debugfs_remove(e->file_loctls.dentry);
+=======
+>>>>>>> upstream/android-13
 
 	debugfs_remove(e->subdir);
 	kfree(e->txstatlog.log);
@@ -818,8 +857,11 @@ void b43_debugfs_log_txstat(struct b43_wldev *dev,
 void b43_debugfs_init(void)
 {
 	rootdir = debugfs_create_dir(KBUILD_MODNAME, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(rootdir))
 		rootdir = NULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 void b43_debugfs_exit(void)

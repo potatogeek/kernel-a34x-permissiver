@@ -1,12 +1,20 @@
 /*
+<<<<<<< HEAD
  * Copyright 2012-2015 Avago Technologies.  All rights reserved.
+=======
+ * Copyright 2000-2020 Broadcom Inc. All rights reserved.
+>>>>>>> upstream/android-13
  *
  *
  *          Name:  mpi2_pci.h
  *         Title:  MPI PCIe Attached Devices structures and definitions.
  * Creation Date:  October 9, 2012
  *
+<<<<<<< HEAD
  * mpi2_pci.h Version:  02.00.02
+=======
+ * mpi2_pci.h Version:  02.00.04
+>>>>>>> upstream/android-13
  *
  * NOTE: Names (typedefs, defines, etc.) beginning with an MPI25 or Mpi25
  *       prefix are for use only on MPI v2.5 products, and must not be used
@@ -23,6 +31,12 @@
  *                     Removed SOP support.
  * 07-01-16  02.00.02  Added MPI26_NVME_FLAGS_FORCE_ADMIN_ERR_RESP to
  *                     NVME Encapsulated Request.
+<<<<<<< HEAD
+=======
+ * 07-22-18  02.00.03  Updted flags field for NVME Encapsulated req
+ * 12-17-18  02.00.04  Added MPI26_PCIE_DEVINFO_SCSI
+ *			Shortten some defines to be compatible with DOS
+>>>>>>> upstream/android-13
  * --------------------------------------------------------------------------
  */
 
@@ -40,7 +54,11 @@
 #define MPI26_PCIE_DEVINFO_NO_DEVICE            (0x00000000)
 #define MPI26_PCIE_DEVINFO_PCI_SWITCH           (0x00000001)
 #define MPI26_PCIE_DEVINFO_NVME                 (0x00000003)
+<<<<<<< HEAD
 
+=======
+#define MPI26_PCIE_DEVINFO_SCSI                 (0x00000004)
+>>>>>>> upstream/android-13
 
 /****************************************************************************
 *  NVMe Encapsulated message
@@ -74,11 +92,18 @@ typedef struct _MPI26_NVME_ENCAPSULATED_REQUEST {
 #define MPI26_NVME_FLAGS_SUBMISSIONQ_IO             (0x0000)
 #define MPI26_NVME_FLAGS_SUBMISSIONQ_ADMIN          (0x0010)
 /*Error Response Address Space */
+<<<<<<< HEAD
 #define MPI26_NVME_FLAGS_MASK_ERROR_RSP_ADDR        (0x000C)
 #define MPI26_NVME_FLAGS_SYSTEM_RSP_ADDR            (0x0000)
 #define MPI26_NVME_FLAGS_IOCPLB_RSP_ADDR            (0x0008)
 #define MPI26_NVME_FLAGS_IOCPLBNTA_RSP_ADDR         (0x000C)
 /*Data Direction*/
+=======
+#define MPI26_NVME_FLAGS_ERR_RSP_ADDR_MASK          (0x000C)
+#define MPI26_NVME_FLAGS_ERR_RSP_ADDR_SYSTEM        (0x0000)
+#define MPI26_NVME_FLAGS_ERR_RSP_ADDR_IOCTL         (0x0008)
+/* Data Direction*/
+>>>>>>> upstream/android-13
 #define MPI26_NVME_FLAGS_DATADIRECTION_MASK         (0x0003)
 #define MPI26_NVME_FLAGS_NODATATRANSFER             (0x0000)
 #define MPI26_NVME_FLAGS_WRITE                      (0x0001)

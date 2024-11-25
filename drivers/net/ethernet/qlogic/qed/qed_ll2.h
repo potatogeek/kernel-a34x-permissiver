@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_LL2_H
@@ -46,6 +53,21 @@
 #include "qed_sp.h"
 
 #define QED_MAX_NUM_OF_LL2_CONNECTIONS                    (4)
+<<<<<<< HEAD
+=======
+/* LL2 queues handles will be split as follows:
+ * first will be legacy queues, and then the ctx based queues.
+ */
+#define QED_MAX_NUM_OF_LL2_CONNS_PF            (4)
+#define QED_MAX_NUM_OF_LEGACY_LL2_CONNS_PF   (3)
+
+#define QED_MAX_NUM_OF_CTX_LL2_CONNS_PF	\
+	(QED_MAX_NUM_OF_LL2_CONNS_PF - QED_MAX_NUM_OF_LEGACY_LL2_CONNS_PF)
+
+#define QED_LL2_LEGACY_CONN_BASE_PF     0
+#define QED_LL2_CTX_CONN_BASE_PF        QED_MAX_NUM_OF_LEGACY_LL2_CONNS_PF
+
+>>>>>>> upstream/android-13
 
 struct qed_ll2_rx_packet {
 	struct list_head list_entry;
@@ -70,7 +92,11 @@ struct qed_ll2_tx_packet {
 		struct core_tx_bd *txq_bd;
 		dma_addr_t tx_frag;
 		u16 frag_len;
+<<<<<<< HEAD
 	} bds_set[1];
+=======
+	} bds_set[];
+>>>>>>> upstream/android-13
 };
 
 struct qed_ll2_rx_queue {
@@ -79,13 +105,22 @@ struct qed_ll2_rx_queue {
 	struct qed_chain rxq_chain;
 	struct qed_chain rcq_chain;
 	u8 rx_sb_index;
+<<<<<<< HEAD
 	bool b_cb_registred;
+=======
+	u8 ctx_based;
+	bool b_cb_registered;
+>>>>>>> upstream/android-13
 	__le16 *p_fw_cons;
 	struct list_head active_descq;
 	struct list_head free_descq;
 	struct list_head posting_descq;
 	struct qed_ll2_rx_packet *descq_array;
 	void __iomem *set_prod_addr;
+<<<<<<< HEAD
+=======
+	struct core_pwm_prod_update_data db_data;
+>>>>>>> upstream/android-13
 };
 
 struct qed_ll2_tx_queue {
@@ -93,20 +128,36 @@ struct qed_ll2_tx_queue {
 	spinlock_t lock;
 	struct qed_chain txq_chain;
 	u8 tx_sb_index;
+<<<<<<< HEAD
 	bool b_cb_registred;
+=======
+	bool b_cb_registered;
+>>>>>>> upstream/android-13
 	__le16 *p_fw_cons;
 	struct list_head active_descq;
 	struct list_head free_descq;
 	struct list_head sending_descq;
+<<<<<<< HEAD
 	void *descq_mem; /* memory for variable sized qed_ll2_tx_packet*/
 	struct qed_ll2_tx_packet *cur_send_packet;
 	struct qed_ll2_tx_packet cur_completing_packet;
 	u16 cur_completing_bd_idx;
 	void __iomem *doorbell_addr;
+=======
+	u16 cur_completing_bd_idx;
+	void __iomem *doorbell_addr;
+	struct core_db_data db_msg;
+>>>>>>> upstream/android-13
 	u16 bds_idx;
 	u16 cur_send_frag_num;
 	u16 cur_completing_frag_num;
 	bool b_completing_packet;
+<<<<<<< HEAD
+=======
+	void *descq_mem; /* memory for variable sized qed_ll2_tx_packet*/
+	struct qed_ll2_tx_packet *cur_send_packet;
+	struct qed_ll2_tx_packet cur_completing_packet;
+>>>>>>> upstream/android-13
 };
 
 struct qed_ll2_info {
@@ -127,6 +178,11 @@ struct qed_ll2_info {
 	struct qed_ll2_cbs cbs;
 };
 
+<<<<<<< HEAD
+=======
+extern const struct qed_ll2_ops qed_ll2_ops_pass;
+
+>>>>>>> upstream/android-13
 /**
  * @brief qed_ll2_acquire_connection - allocate resources,
  *        starts rx & tx (if relevant) queues pair. Provides

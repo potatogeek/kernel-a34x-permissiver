@@ -16,24 +16,38 @@
 #include <linux/list.h>
 #include <linux/slab.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/ctype.h>
 #include <linux/ioport.h>
 #include <asm/diag.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/memblock.h>
+#include <linux/ctype.h>
+#include <linux/ioport.h>
+#include <linux/refcount.h>
+#include <linux/pgtable.h>
+#include <asm/diag.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/ebcdic.h>
 #include <asm/errno.h>
 #include <asm/extmem.h>
 #include <asm/cpcmd.h>
 #include <asm/setup.h>
 
+<<<<<<< HEAD
 #define DCSS_LOADSHR    0x00
 #define DCSS_LOADNSR    0x04
 #define DCSS_PURGESEG   0x08
 #define DCSS_FINDSEG    0x0c
 #define DCSS_LOADNOLY   0x10
 #define DCSS_SEGEXT     0x18
+=======
+#define DCSS_PURGESEG   0x08
+>>>>>>> upstream/android-13
 #define DCSS_LOADSHRX	0x20
 #define DCSS_LOADNSRX	0x24
 #define DCSS_FINDSEGX	0x2c
@@ -53,6 +67,7 @@ struct qout64 {
 	struct qrange range[6];
 };
 
+<<<<<<< HEAD
 struct qrange_old {
 	unsigned int start; /* last byte type */
 	unsigned int end;   /* last byte reserved */
@@ -67,6 +82,8 @@ struct qout64_old {
 	struct qrange_old range[6];
 };
 
+=======
+>>>>>>> upstream/android-13
 struct qin64 {
 	char qopcode;
 	char rsrv1[3];
@@ -83,7 +100,11 @@ struct dcss_segment {
 	char res_name[16];
 	unsigned long start_addr;
 	unsigned long end;
+<<<<<<< HEAD
 	atomic_t ref_count;
+=======
+	refcount_t ref_count;
+>>>>>>> upstream/android-13
 	int do_nonshared;
 	unsigned int vm_segtype;
 	struct qrange range[6];
@@ -95,6 +116,7 @@ static DEFINE_MUTEX(dcss_lock);
 static LIST_HEAD(dcss_list);
 static char *segtype_string[] = { "SW", "EW", "SR", "ER", "SN", "EN", "SC",
 					"EW/EN-MIXED" };
+<<<<<<< HEAD
 static int loadshr_scode, loadnsr_scode;
 static int segext_scode, purgeseg_scode;
 static int scode_set;
@@ -141,6 +163,12 @@ dcss_set_subcodes(void)
 	segext_scode = DCSS_SEGEXT;
 	return 0;
 }
+=======
+static int loadshr_scode = DCSS_LOADSHRX;
+static int loadnsr_scode = DCSS_LOADNSRX;
+static int purgeseg_scode = DCSS_PURGESEG;
+static int segext_scode = DCSS_SEGEXTX;
+>>>>>>> upstream/android-13
 
 /*
  * Create the 8 bytes, ebcdic VM segment name from
@@ -196,6 +224,7 @@ dcss_diag(int *func, void *parameter,
 	unsigned long rx, ry;
 	int rc;
 
+<<<<<<< HEAD
 	if (scode_set == 0) {
 		rc = dcss_set_subcodes();
 		if (rc < 0)
@@ -222,6 +251,17 @@ dcss_diag(int *func, void *parameter,
 			"	ipm	%2\n"
 			"	srl	%2,28\n"
 			: "+d" (rx), "+d" (ry), "=d" (rc) : : "cc");
+=======
+	rx = (unsigned long) parameter;
+	ry = (unsigned long) *func;
+
+	diag_stat_inc(DIAG_STAT_X064);
+	asm volatile(
+		"	diag	%0,%1,0x64\n"
+		"	ipm	%2\n"
+		"	srl	%2,28\n"
+		: "+d" (rx), "+d" (ry), "=d" (rc) : : "cc");
+>>>>>>> upstream/android-13
 	*ret1 = rx;
 	*ret2 = ry;
 	return rc;
@@ -271,6 +311,7 @@ query_segment_type (struct dcss_segment *seg)
 		goto out_free;
 	}
 
+<<<<<<< HEAD
 	/* Only old format of output area of Diagnose x'64' is supported,
 	   copy data for the new format. */
 	if (segext_scode == DCSS_SEGEXT) {
@@ -296,6 +337,8 @@ query_segment_type (struct dcss_segment *seg)
 		}
 		kfree(qout_old);
 	}
+=======
+>>>>>>> upstream/android-13
 	if (qout->segcnt > 6) {
 		rc = -EOPNOTSUPP;
 		goto out_free;
@@ -410,6 +453,7 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
 	if (rc < 0)
 		goto out_free;
 
+<<<<<<< HEAD
 	if (loadshr_scode == DCSS_LOADSHRX) {
 		if (segment_overlaps_others(seg)) {
 			rc = -EBUSY;
@@ -421,11 +465,21 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
 
 	if (rc)
 		goto out_free;
+=======
+	if (segment_overlaps_others(seg)) {
+		rc = -EBUSY;
+		goto out_free;
+	}
+>>>>>>> upstream/android-13
 
 	seg->res = kzalloc(sizeof(struct resource), GFP_KERNEL);
 	if (seg->res == NULL) {
 		rc = -ENOMEM;
+<<<<<<< HEAD
 		goto out_shared;
+=======
+		goto out_free;
+>>>>>>> upstream/android-13
 	}
 	seg->res->flags = IORESOURCE_BUSY | IORESOURCE_MEM;
 	seg->res->start = seg->start_addr;
@@ -439,12 +493,26 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
 	if (rc == SEG_TYPE_SC ||
 	    ((rc == SEG_TYPE_SR || rc == SEG_TYPE_ER) && !do_nonshared))
 		seg->res->flags |= IORESOURCE_READONLY;
+<<<<<<< HEAD
 	if (request_resource(&iomem_resource, seg->res)) {
 		rc = -EBUSY;
 		kfree(seg->res);
 		goto out_shared;
 	}
 
+=======
+
+	/* Check for overlapping resources before adding the mapping. */
+	if (request_resource(&iomem_resource, seg->res)) {
+		rc = -EBUSY;
+		goto out_free_resource;
+	}
+
+	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+	if (rc)
+		goto out_resource;
+
+>>>>>>> upstream/android-13
 	if (do_nonshared)
 		diag_cc = dcss_diag(&loadnsr_scode, seg->dcss_name,
 				&start_addr, &end_addr);
@@ -455,37 +523,66 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
 		dcss_diag(&purgeseg_scode, seg->dcss_name,
 				&dummy, &dummy);
 		rc = diag_cc;
+<<<<<<< HEAD
 		goto out_resource;
+=======
+		goto out_mapping;
+>>>>>>> upstream/android-13
 	}
 	if (diag_cc > 1) {
 		pr_warn("Loading DCSS %s failed with rc=%ld\n", name, end_addr);
 		rc = dcss_diag_translate_rc(end_addr);
 		dcss_diag(&purgeseg_scode, seg->dcss_name,
 				&dummy, &dummy);
+<<<<<<< HEAD
 		goto out_resource;
+=======
+		goto out_mapping;
+>>>>>>> upstream/android-13
 	}
 	seg->start_addr = start_addr;
 	seg->end = end_addr;
 	seg->do_nonshared = do_nonshared;
+<<<<<<< HEAD
 	atomic_set(&seg->ref_count, 1);
+=======
+	refcount_set(&seg->ref_count, 1);
+>>>>>>> upstream/android-13
 	list_add(&seg->list, &dcss_list);
 	*addr = seg->start_addr;
 	*end  = seg->end;
 	if (do_nonshared)
+<<<<<<< HEAD
 		pr_info("DCSS %s of range %p to %p and type %s loaded as "
 			"exclusive-writable\n", name, (void*) seg->start_addr,
 			(void*) seg->end, segtype_string[seg->vm_segtype]);
 	else {
 		pr_info("DCSS %s of range %p to %p and type %s loaded in "
+=======
+		pr_info("DCSS %s of range %px to %px and type %s loaded as "
+			"exclusive-writable\n", name, (void*) seg->start_addr,
+			(void*) seg->end, segtype_string[seg->vm_segtype]);
+	else {
+		pr_info("DCSS %s of range %px to %px and type %s loaded in "
+>>>>>>> upstream/android-13
 			"shared access mode\n", name, (void*) seg->start_addr,
 			(void*) seg->end, segtype_string[seg->vm_segtype]);
 	}
 	goto out;
+<<<<<<< HEAD
  out_resource:
 	release_resource(seg->res);
 	kfree(seg->res);
  out_shared:
 	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+=======
+ out_mapping:
+	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+ out_resource:
+	release_resource(seg->res);
+ out_free_resource:
+	kfree(seg->res);
+>>>>>>> upstream/android-13
  out_free:
 	kfree(seg);
  out:
@@ -504,8 +601,12 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
  * -EIO     : could not perform query or load diagnose
  * -ENOENT  : no such segment
  * -EOPNOTSUPP: multi-part segment cannot be used with linux
+<<<<<<< HEAD
  * -ENOSPC  : segment cannot be used (overlaps with storage)
  * -EBUSY   : segment can temporarily not be used (overlaps with dcss)
+=======
+ * -EBUSY   : segment cannot be used (overlaps with dcss or storage)
+>>>>>>> upstream/android-13
  * -ERANGE  : segment cannot be used (exceeds kernel mapping range)
  * -EPERM   : segment is currently loaded with incompatible permissions
  * -ENOMEM  : out of memory
@@ -527,7 +628,11 @@ segment_load (char *name, int do_nonshared, unsigned long *addr,
 		rc = __segment_load (name, do_nonshared, addr, end);
 	else {
 		if (do_nonshared == seg->do_nonshared) {
+<<<<<<< HEAD
 			atomic_inc(&seg->ref_count);
+=======
+			refcount_inc(&seg->ref_count);
+>>>>>>> upstream/android-13
 			*addr = seg->start_addr;
 			*end  = seg->end;
 			rc    = seg->vm_segtype;
@@ -573,7 +678,11 @@ segment_modify_shared (char *name, int do_nonshared)
 		rc = 0;
 		goto out_unlock;
 	}
+<<<<<<< HEAD
 	if (atomic_read (&seg->ref_count) != 1) {
+=======
+	if (refcount_read(&seg->ref_count) != 1) {
+>>>>>>> upstream/android-13
 		pr_warn("DCSS %s is in use and cannot be reloaded\n", name);
 		rc = -EAGAIN;
 		goto out_unlock;
@@ -649,7 +758,11 @@ segment_unload(char *name)
 		pr_err("Unloading unknown DCSS %s failed\n", name);
 		goto out_unlock;
 	}
+<<<<<<< HEAD
 	if (atomic_dec_return(&seg->ref_count) != 0)
+=======
+	if (!refcount_dec_and_test(&seg->ref_count))
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	release_resource(seg->res);
 	kfree(seg->res);
@@ -730,10 +843,13 @@ void segment_warning(int rc, char *seg_name)
 		pr_err("DCSS %s has multiple page ranges and cannot be "
 		       "loaded or queried\n", seg_name);
 		break;
+<<<<<<< HEAD
 	case -ENOSPC:
 		pr_err("DCSS %s overlaps with used storage and cannot "
 		       "be loaded\n", seg_name);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case -EBUSY:
 		pr_err("%s needs used memory resources and cannot be "
 		       "loaded or queried\n", seg_name);

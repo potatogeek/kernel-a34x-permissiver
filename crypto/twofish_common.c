@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Common Twofish algorithm parts shared between the c and assembler
  * implementations
@@ -13,6 +17,7 @@
  * code and thus put it in the public domain. The subsequent authors
  * have put this under the GNU General Public License.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -27,6 +32,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This code is a "clean room" implementation, written from the paper
  * _Twofish: A 128-Bit Block Cipher_ by Bruce Schneier, John Kelsey,
  * Doug Whiting, David Wagner, Chris Hall, and Niels Ferguson, available
@@ -580,7 +587,11 @@ static const u8 calc_sb_tbl[512] = {
 
 /* Perform the key setup. */
 int __twofish_setkey(struct twofish_ctx *ctx, const u8 *key,
+<<<<<<< HEAD
 		     unsigned int key_len, u32 *flags)
+=======
+		     unsigned int key_len)
+>>>>>>> upstream/android-13
 {
 	int i, j, k;
 
@@ -597,10 +608,14 @@ int __twofish_setkey(struct twofish_ctx *ctx, const u8 *key,
 
 	/* Check key length. */
 	if (key_len % 8)
+<<<<<<< HEAD
 	{
 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 		return -EINVAL; /* unsupported key length */
 	}
+=======
+		return -EINVAL; /* unsupported key length */
+>>>>>>> upstream/android-13
 
 	/* Compute the first two words of the S vector.  The magic numbers are
 	 * the entries of the RS matrix, preprocessed through poly_to_exp. The
@@ -701,8 +716,12 @@ EXPORT_SYMBOL_GPL(__twofish_setkey);
 
 int twofish_setkey(struct crypto_tfm *tfm, const u8 *key, unsigned int key_len)
 {
+<<<<<<< HEAD
 	return __twofish_setkey(crypto_tfm_ctx(tfm), key, key_len,
 				&tfm->crt_flags);
+=======
+	return __twofish_setkey(crypto_tfm_ctx(tfm), key, key_len);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(twofish_setkey);
 

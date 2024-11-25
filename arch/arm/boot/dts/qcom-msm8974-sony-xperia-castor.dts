@@ -11,6 +11,10 @@
 
 	aliases {
 		serial0 = &blsp1_uart2;
+<<<<<<< HEAD
+=======
+		serial1 = &blsp2_uart7;
+>>>>>>> upstream/android-13
 	};
 
 	chosen {
@@ -279,7 +283,11 @@
 
 &soc {
 	sdhci@f9824900 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		vmmc-supply = <&pm8941_l20>;
 		vqmmc-supply = <&pm8941_s3>;
@@ -292,7 +300,11 @@
 	};
 
 	sdhci@f9864900 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		max-frequency = <100000000>;
 		non-removable;
@@ -316,7 +328,11 @@
 	};
 
 	sdhci@f98a4900 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		bus-width = <4>;
 
@@ -330,15 +346,46 @@
 	};
 
 	serial@f991e000 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&blsp1_uart2_pin_a>;
 	};
 
+<<<<<<< HEAD
 	usb@f9a55000 {
 		status = "ok";
 
+=======
+	serial@f995d000 {
+		status = "ok";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&blsp2_uart7_pin_a>;
+
+		bluetooth {
+			compatible = "brcm,bcm43438-bt";
+			max-speed = <3000000>;
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&bt_host_wake_pin>,
+				    <&bt_dev_wake_pin>,
+				    <&bt_reg_on_pin>;
+
+			host-wakeup-gpios = <&msmgpio 95 GPIO_ACTIVE_HIGH>;
+			device-wakeup-gpios = <&msmgpio 96 GPIO_ACTIVE_HIGH>;
+			shutdown-gpios = <&pm8941_gpios 16 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	usb@f9a55000 {
+		status = "okay";
+
+>>>>>>> upstream/android-13
 		phys = <&usb_hs1_phy>;
 		phy-select = <&tcsr 0xb000 0>;
 		extcon = <&smbb>, <&usb_id>;
@@ -350,7 +397,11 @@
 
 		ulpi {
 			phy@a {
+<<<<<<< HEAD
 				status = "ok";
+=======
+				status = "okay";
+>>>>>>> upstream/android-13
 
 				v1p8-supply = <&pm8941_l6>;
 				v3p3-supply = <&pm8941_l24>;
@@ -380,6 +431,43 @@
 			};
 		};
 
+<<<<<<< HEAD
+=======
+		blsp2_uart7_pin_a: blsp2-uart7-pin-active {
+			tx {
+				pins = "gpio41";
+				function = "blsp_uart7";
+
+				drive-strength = <2>;
+				bias-disable;
+			};
+
+			rx {
+				pins = "gpio42";
+				function = "blsp_uart7";
+
+				drive-strength = <2>;
+				bias-pull-up;
+			};
+
+			cts {
+				pins = "gpio43";
+				function = "blsp_uart7";
+
+				drive-strength = <2>;
+				bias-pull-up;
+			};
+
+			rts {
+				pins = "gpio44";
+				function = "blsp_uart7";
+
+				drive-strength = <2>;
+				bias-disable;
+			};
+		};
+
+>>>>>>> upstream/android-13
 		i2c8_pins: i2c8 {
 			mux {
 				pins = "gpio47", "gpio48";
@@ -479,10 +567,34 @@
 				input-enable;
 			};
 		};
+<<<<<<< HEAD
 	};
 
 	i2c@f9964000 {
 		status = "ok";
+=======
+
+		bt_host_wake_pin: bt-host-wake {
+			pins = "gpio95";
+			function = "gpio";
+
+			drive-strength = <2>;
+			bias-disable;
+			output-low;
+		};
+
+		bt_dev_wake_pin: bt-dev-wake {
+			pins = "gpio96";
+			function = "gpio";
+
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	i2c@f9964000 {
+		status = "okay";
+>>>>>>> upstream/android-13
 
 		clock-frequency = <355000>;
 		qcom,src-freq = <50000000>;
@@ -522,7 +634,11 @@
 	};
 
 	i2c@f9967000 {
+<<<<<<< HEAD
 		status = "ok";
+=======
+		status = "okay";
+>>>>>>> upstream/android-13
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c11_pins>;
 		clock-frequency = <355000>;
@@ -606,6 +722,17 @@
 				power-source = <PM8941_GPIO_S3>;
 			};
 
+<<<<<<< HEAD
+=======
+			bt_reg_on_pin: bt-reg-on {
+				pins = "gpio16";
+				function = "normal";
+
+				output-low;
+				power-source = <PM8941_GPIO_S3>;
+			};
+
+>>>>>>> upstream/android-13
 			wlan_sleep_clk_pin: wl-sleep-clk {
 				pins = "gpio17";
 				function = "func2";
@@ -635,7 +762,11 @@
 		};
 
 		coincell@2800 {
+<<<<<<< HEAD
 			status = "ok";
+=======
+			status = "okay";
+>>>>>>> upstream/android-13
 			qcom,rset-ohms = <2100>;
 			qcom,vset-millivolts = <3000>;
 		};

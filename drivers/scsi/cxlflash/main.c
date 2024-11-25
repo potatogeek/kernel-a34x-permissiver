@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CXL Flash Device Driver
  *
@@ -5,11 +9,14 @@
  *             Matthew R. Ochs <mrochs@linux.vnet.ibm.com>, IBM Corporation
  *
  * Copyright (C) 2015 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -48,6 +55,7 @@ static void process_cmd_err(struct afu_cmd *cmd, struct scsi_cmnd *scp)
 	struct afu *afu = cmd->parent;
 	struct cxlflash_cfg *cfg = afu->parent;
 	struct device *dev = &cfg->dev->dev;
+<<<<<<< HEAD
 	struct sisl_ioarcb *ioarcb;
 	struct sisl_ioasa *ioasa;
 	u32 resid;
@@ -56,6 +64,11 @@ static void process_cmd_err(struct afu_cmd *cmd, struct scsi_cmnd *scp)
 		return;
 
 	ioarcb = &(cmd->rcb);
+=======
+	struct sisl_ioasa *ioasa;
+	u32 resid;
+
+>>>>>>> upstream/android-13
 	ioasa = &(cmd->sa);
 
 	if (ioasa->rc.flags & SISL_RC_FLAGS_UNDERRUN) {
@@ -442,7 +455,11 @@ static u32 cmd_to_target_hwq(struct Scsi_Host *host, struct scsi_cmnd *scp,
 		hwq = afu->hwq_rr_count++ % afu->num_hwqs;
 		break;
 	case HWQ_MODE_TAG:
+<<<<<<< HEAD
 		tag = blk_mq_unique_tag(scp->request);
+=======
+		tag = blk_mq_unique_tag(scsi_cmd_to_rq(scp));
+>>>>>>> upstream/android-13
 		hwq = blk_mq_unique_tag_to_hwq(tag);
 		break;
 	case HWQ_MODE_CPU:
@@ -757,6 +774,7 @@ static void term_intr(struct cxlflash_cfg *cfg, enum undo_level level,
 		/* SISL_MSI_ASYNC_ERROR is setup only for the primary HWQ */
 		if (index == PRIMARY_HWQ)
 			cfg->ops->unmap_afu_irq(hwq->ctx_cookie, 3, hwq);
+<<<<<<< HEAD
 	case UNMAP_TWO:
 		cfg->ops->unmap_afu_irq(hwq->ctx_cookie, 2, hwq);
 	case UNMAP_ONE:
@@ -764,6 +782,18 @@ static void term_intr(struct cxlflash_cfg *cfg, enum undo_level level,
 	case FREE_IRQ:
 		cfg->ops->free_afu_irqs(hwq->ctx_cookie);
 		/* fall through */
+=======
+		fallthrough;
+	case UNMAP_TWO:
+		cfg->ops->unmap_afu_irq(hwq->ctx_cookie, 2, hwq);
+		fallthrough;
+	case UNMAP_ONE:
+		cfg->ops->unmap_afu_irq(hwq->ctx_cookie, 1, hwq);
+		fallthrough;
+	case FREE_IRQ:
+		cfg->ops->free_afu_irqs(hwq->ctx_cookie);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case UNDO_NOOP:
 		/* No action required */
 		break;
@@ -977,6 +1007,7 @@ static void cxlflash_remove(struct pci_dev *pdev)
 	switch (cfg->init_state) {
 	case INIT_STATE_CDEV:
 		cxlflash_release_chrdev(cfg);
+<<<<<<< HEAD
 	case INIT_STATE_SCSI:
 		cxlflash_term_local_luns(cfg);
 		scsi_remove_host(cfg->host);
@@ -985,6 +1016,20 @@ static void cxlflash_remove(struct pci_dev *pdev)
 	case INIT_STATE_PCI:
 		cfg->ops->destroy_afu(cfg->afu_cookie);
 		pci_disable_device(pdev);
+=======
+		fallthrough;
+	case INIT_STATE_SCSI:
+		cxlflash_term_local_luns(cfg);
+		scsi_remove_host(cfg->host);
+		fallthrough;
+	case INIT_STATE_AFU:
+		term_afu(cfg);
+		fallthrough;
+	case INIT_STATE_PCI:
+		cfg->ops->destroy_afu(cfg->afu_cookie);
+		pci_disable_device(pdev);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case INIT_STATE_NONE:
 		free_mem(cfg);
 		scsi_host_put(cfg->host);
@@ -1359,7 +1404,11 @@ cxlflash_sync_err_irq_exit:
 
 /**
  * process_hrrq() - process the read-response queue
+<<<<<<< HEAD
  * @afu:	AFU associated with the host.
+=======
+ * @hwq:	HWQ associated with the host.
+>>>>>>> upstream/android-13
  * @doneq:	Queue of commands harvested from the RRQ.
  * @budget:	Threshold of RRQ entries to process.
  *
@@ -1631,8 +1680,13 @@ static int read_vpd(struct cxlflash_cfg *cfg, u64 wwpn[])
 {
 	struct device *dev = &cfg->dev->dev;
 	struct pci_dev *pdev = cfg->dev;
+<<<<<<< HEAD
 	int rc = 0;
 	int ro_start, ro_size, i, j, k;
+=======
+	int i, k, rc = 0;
+	unsigned int kw_size;
+>>>>>>> upstream/android-13
 	ssize_t vpd_size;
 	char vpd_data[CXLFLASH_VPD_LEN];
 	char tmp_buf[WWPN_BUF_LEN] = { 0 };
@@ -1650,6 +1704,7 @@ static int read_vpd(struct cxlflash_cfg *cfg, u64 wwpn[])
 		goto out;
 	}
 
+<<<<<<< HEAD
 	/* Get the read only section offset */
 	ro_start = pci_vpd_find_tag(vpd_data, 0, vpd_size,
 				    PCI_VPD_LRDT_RO_DATA);
@@ -1669,6 +1724,8 @@ static int read_vpd(struct cxlflash_cfg *cfg, u64 wwpn[])
 		ro_size = vpd_size - i;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Find the offset of the WWPN tag within the read only
 	 * VPD data and validate the found field (partials are
@@ -1684,11 +1741,17 @@ static int read_vpd(struct cxlflash_cfg *cfg, u64 wwpn[])
 	 * ports programmed and operate in an undefined state.
 	 */
 	for (k = 0; k < cfg->num_fc_ports; k++) {
+<<<<<<< HEAD
 		j = ro_size;
 		i = ro_start + PCI_VPD_LRDT_TAG_SIZE;
 
 		i = pci_vpd_find_info_keyword(vpd_data, i, j, wwpn_vpd_tags[k]);
 		if (i < 0) {
+=======
+		i = pci_vpd_find_ro_info_keyword(vpd_data, vpd_size,
+						 wwpn_vpd_tags[k], &kw_size);
+		if (i == -ENOENT) {
+>>>>>>> upstream/android-13
 			if (wwpn_vpd_required)
 				dev_err(dev, "%s: Port %d WWPN not found\n",
 					__func__, k);
@@ -1696,9 +1759,13 @@ static int read_vpd(struct cxlflash_cfg *cfg, u64 wwpn[])
 			continue;
 		}
 
+<<<<<<< HEAD
 		j = pci_vpd_info_field_size(&vpd_data[i]);
 		i += PCI_VPD_INFO_FLD_HDR_SIZE;
 		if (unlikely((i + j > vpd_size) || (j != WWPN_LEN))) {
+=======
+		if (i < 0 || kw_size != WWPN_LEN) {
+>>>>>>> upstream/android-13
 			dev_err(dev, "%s: Port %d WWPN incomplete or bad VPD\n",
 				__func__, k);
 			rc = -ENODEV;
@@ -1999,7 +2066,11 @@ out:
 /**
  * init_mc() - create and register as the master context
  * @cfg:	Internal structure associated with the host.
+<<<<<<< HEAD
  * index:	HWQ Index of the master context.
+=======
+ * @index:	HWQ Index of the master context.
+>>>>>>> upstream/android-13
  *
  * Return: 0 on success, -errno on failure
  */
@@ -2357,11 +2428,19 @@ retry:
 			cxlflash_schedule_async_reset(cfg);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through to retry */
 	case -EAGAIN:
 		if (++nretry < 2)
 			goto retry;
 		/* fall through to exit */
+=======
+		fallthrough;	/* to retry */
+	case -EAGAIN:
+		if (++nretry < 2)
+			goto retry;
+		fallthrough;	/* to exit */
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -2535,12 +2614,20 @@ static int cxlflash_eh_host_reset_handler(struct scsi_cmnd *scp)
 			cfg->state = STATE_NORMAL;
 		wake_up_all(&cfg->reset_waitq);
 		ssleep(1);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case STATE_RESET:
 		wait_event(cfg->reset_waitq, cfg->state != STATE_RESET);
 		if (cfg->state == STATE_NORMAL)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		rc = FAILED;
 		break;
@@ -3021,6 +3108,10 @@ retry:
 		wait_event(cfg->reset_waitq, cfg->state != STATE_RESET);
 		if (cfg->state == STATE_NORMAL)
 			goto retry;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* Ideally should not happen */
 		dev_err(dev, "%s: Device is not ready, state=%d\n",
@@ -3088,12 +3179,15 @@ static ssize_t hwq_mode_store(struct device *dev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if ((mode == HWQ_MODE_TAG) && !shost_use_blk_mq(shost)) {
 		dev_info(cfgdev, "SCSI-MQ is not enabled, use a different "
 			 "HWQ steering mode.\n");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	afu->hwq_mode = mode;
 
 	return count;
@@ -3180,7 +3274,10 @@ static struct scsi_host_template driver_template = {
 	.this_id = -1,
 	.sg_tablesize = 1,	/* No scatter gather support */
 	.max_sectors = CXLFLASH_MAX_SECTORS,
+<<<<<<< HEAD
 	.use_clustering = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.shost_attrs = cxlflash_host_attrs,
 	.sdev_attrs = cxlflash_dev_attrs,
 };
@@ -3289,7 +3386,11 @@ static int cxlflash_chr_open(struct inode *inode, struct file *file)
  *
  * Return: A string identifying the decoded host ioctl.
  */
+<<<<<<< HEAD
 static char *decode_hioctl(int cmd)
+=======
+static char *decode_hioctl(unsigned int cmd)
+>>>>>>> upstream/android-13
 {
 	switch (cmd) {
 	case HT_CXLFLASH_LUN_PROVISION:
@@ -3302,7 +3403,11 @@ static char *decode_hioctl(int cmd)
 /**
  * cxlflash_lun_provision() - host LUN provisioning handler
  * @cfg:	Internal structure associated with the host.
+<<<<<<< HEAD
  * @arg:	Kernel copy of userspace ioctl data structure.
+=======
+ * @lunprov:	Kernel copy of userspace ioctl data structure.
+>>>>>>> upstream/android-13
  *
  * Return: 0 on success, -errno on failure
  */
@@ -3393,7 +3498,11 @@ out:
 /**
  * cxlflash_afu_debug() - host AFU debug handler
  * @cfg:	Internal structure associated with the host.
+<<<<<<< HEAD
  * @arg:	Kernel copy of userspace ioctl data structure.
+=======
+ * @afu_dbg:	Kernel copy of userspace ioctl data structure.
+>>>>>>> upstream/android-13
  *
  * For debug requests requiring a data buffer, always provide an aligned
  * (cache line) buffer to the AFU to appease any alignment requirements.
@@ -3539,7 +3648,11 @@ static long cxlflash_chr_ioctl(struct file *file, unsigned int cmd,
 		if (likely(do_ioctl))
 			break;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		rc = -EINVAL;
 		goto out;
@@ -3596,7 +3709,11 @@ static const struct file_operations cxlflash_chr_fops = {
 	.owner          = THIS_MODULE,
 	.open           = cxlflash_chr_open,
 	.unlocked_ioctl	= cxlflash_chr_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl	= cxlflash_chr_ioctl,
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 /**

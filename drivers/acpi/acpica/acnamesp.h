@@ -3,7 +3,11 @@
  *
  * Name: acnamesp.h - Namespace subcomponent prototypes and defines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -34,6 +38,10 @@
 #define ACPI_NS_TEMPORARY           0x0040
 #define ACPI_NS_OVERRIDE_IF_FOUND   0x0080
 #define ACPI_NS_EARLY_INIT          0x0100
+<<<<<<< HEAD
+=======
+#define ACPI_NS_PREFIX_MUST_EXIST   0x0200
+>>>>>>> upstream/android-13
 
 /* Flags for acpi_ns_walk_namespace */
 
@@ -206,8 +214,11 @@ acpi_ns_dump_object_paths(acpi_object_type type,
  */
 acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info);
 
+<<<<<<< HEAD
 void acpi_ns_exec_module_code_list(void);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * nsarguments - Argument count/type checking for predefined/reserved names
  */
@@ -257,6 +268,11 @@ u32
 acpi_ns_build_normalized_path(struct acpi_namespace_node *node,
 			      char *full_path, u32 path_size, u8 no_trailing);
 
+<<<<<<< HEAD
+=======
+void acpi_ns_normalize_pathname(char *original_path);
+
+>>>>>>> upstream/android-13
 char *acpi_ns_get_normalized_pathname(struct acpi_namespace_node *node,
 				      u8 no_trailing);
 

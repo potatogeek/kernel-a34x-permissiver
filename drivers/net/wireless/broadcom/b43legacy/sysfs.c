@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43legacy wireless driver
@@ -6,6 +10,7 @@
 
   Copyright (c) 2006 Michael Buesch <m@bues.ch>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -38,13 +45,23 @@
 static int get_integer(const char *buf, size_t count)
 {
 	char tmp[10 + 1] = { 0 };
+<<<<<<< HEAD
 	int ret = -EINVAL;
+=======
+	int ret = -EINVAL, res;
+>>>>>>> upstream/android-13
 
 	if (count == 0)
 		goto out;
 	count = min_t(size_t, count, 10);
 	memcpy(tmp, buf, count);
+<<<<<<< HEAD
 	ret = simple_strtol(tmp, NULL, 10);
+=======
+	ret = kstrtoint(tmp, 10, &res);
+	if (!ret)
+		return res;
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
@@ -143,7 +160,10 @@ static ssize_t b43legacy_attr_interfmode_store(struct device *dev,
 	if (err)
 		b43legacyerr(wldev->wl, "Interference Mitigation not "
 		       "supported by device\n");
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&wldev->wl->irq_lock, flags);
 	mutex_unlock(&wldev->wl->mutex);
 

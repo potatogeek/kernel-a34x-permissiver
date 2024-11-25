@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- --------------------------------------------------------- *
  *
  * linux/include/linux/devpts_fs.h
  *
  *  Copyright 1998-2004 H. Peter Anvin -- All Rights Reserved
  *
+<<<<<<< HEAD
  * This file is part of the Linux kernel and is made available under
  * the terms of the GNU General Public License, version 2, or at your
  * option, any later version, incorporated herein by reference.
  *
+=======
+>>>>>>> upstream/android-13
  * ------------------------------------------------------------------------- */
 
 #ifndef _LINUX_DEVPTS_FS_H

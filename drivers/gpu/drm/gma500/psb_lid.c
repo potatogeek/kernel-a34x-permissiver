@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**************************************************************************
  * Copyright (c) 2007, Intel Corporation.
  *
@@ -23,6 +24,21 @@
 #include "psb_intel_reg.h"
 #include <linux/spinlock.h>
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/**************************************************************************
+ * Copyright (c) 2007, Intel Corporation.
+ *
+ * Authors: Thomas Hellstrom <thomas-at-tungstengraphics-dot-com>
+ **************************************************************************/
+
+#include <linux/spinlock.h>
+
+#include "psb_drv.h"
+#include "psb_intel_reg.h"
+#include "psb_reg.h"
+
+>>>>>>> upstream/android-13
 static void psb_lid_timer_func(struct timer_list *t)
 {
 	struct drm_psb_private *dev_priv = from_timer(dev_priv, t, lid_timer);

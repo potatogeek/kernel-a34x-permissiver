@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2008, cozybit Inc.
  *  Copyright (C) 2003-2006, Marvell International Ltd.
@@ -6,6 +7,12 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or (at
  *  your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2008, cozybit Inc.
+ *  Copyright (C) 2003-2006, Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -19,7 +26,10 @@
 /* thinfirm version: 5.132.X.pX */
 #define LBTF_FW_VER_MIN		0x05840300
 #define LBTF_FW_VER_MAX		0x0584ffff
+<<<<<<< HEAD
 #define QOS_CONTROL_LEN		2
+=======
+>>>>>>> upstream/android-13
 
 /* Module parameters */
 unsigned int lbtf_debug;
@@ -118,11 +128,14 @@ static void lbtf_cmd_work(struct work_struct *work)
 	priv->cmd_timed_out = 0;
 	spin_unlock_irq(&priv->driver_lock);
 
+<<<<<<< HEAD
 	if (!priv->fw_ready) {
 		lbtf_deb_leave_args(LBTF_DEB_CMD, "fw not ready");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Execute the next command */
 	if (!priv->cur_cmd)
 		lbtf_execute_next_command(priv);
@@ -130,6 +143,7 @@ static void lbtf_cmd_work(struct work_struct *work)
 	lbtf_deb_leave(LBTF_DEB_CMD);
 }
 
+<<<<<<< HEAD
 /**
  *  lbtf_setup_firmware: initialize firmware.
  *
@@ -162,6 +176,9 @@ done:
 }
 
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *  This function handles the timeout of command sending.
  *  It will re-send the same command again.
  */
@@ -281,7 +298,11 @@ static void lbtf_tx_work(struct work_struct *work)
 	BUG_ON(priv->tx_skb);
 	spin_lock_irq(&priv->driver_lock);
 	priv->tx_skb = skb;
+<<<<<<< HEAD
 	err = priv->hw_host_to_card(priv, MVMS_DAT, skb->data, skb->len);
+=======
+	err = priv->ops->hw_host_to_card(priv, MVMS_DAT, skb->data, skb->len);
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&priv->driver_lock);
 	if (err) {
 		dev_kfree_skb_any(skb);
@@ -294,6 +315,7 @@ static void lbtf_tx_work(struct work_struct *work)
 static int lbtf_op_start(struct ieee80211_hw *hw)
 {
 	struct lbtf_private *priv = hw->priv;
+<<<<<<< HEAD
 	void *card = priv->card;
 	int ret = -1;
 
@@ -326,6 +348,19 @@ err_prog_firmware:
 	priv->hw_reset_device(card);
 	lbtf_deb_leave_args(LBTF_DEB_MACOPS, "error programming fw; ret=%d", ret);
 	return ret;
+=======
+
+	lbtf_deb_enter(LBTF_DEB_MACOPS);
+
+	priv->capability = WLAN_CAPABILITY_SHORT_PREAMBLE;
+	priv->radioon = RADIO_ON;
+	priv->mac_control = CMD_ACT_MAC_RX_ON | CMD_ACT_MAC_TX_ON;
+	lbtf_set_mac_control(priv);
+	lbtf_set_radio_control(priv);
+
+	lbtf_deb_leave(LBTF_DEB_MACOPS);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void lbtf_op_stop(struct ieee80211_hw *hw)
@@ -551,11 +586,22 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
 	struct ieee80211_rx_status stats;
 	struct rxpd *prxpd;
 	int need_padding;
+<<<<<<< HEAD
 	unsigned int flags;
+=======
+>>>>>>> upstream/android-13
 	struct ieee80211_hdr *hdr;
 
 	lbtf_deb_enter(LBTF_DEB_RX);
 
+<<<<<<< HEAD
+=======
+	if (priv->radioon != RADIO_ON) {
+		lbtf_deb_rx("rx before we turned on the radio");
+		goto done;
+	}
+
+>>>>>>> upstream/android-13
 	prxpd = (struct rxpd *) skb->data;
 
 	memset(&stats, 0, sizeof(stats));
@@ -563,7 +609,11 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
 		stats.flag |= RX_FLAG_FAILED_FCS_CRC;
 	stats.freq = priv->cur_freq;
 	stats.band = NL80211_BAND_2GHZ;
+<<<<<<< HEAD
 	stats.signal = prxpd->snr;
+=======
+	stats.signal = prxpd->snr - prxpd->nf;
+>>>>>>> upstream/android-13
 	priv->noise = prxpd->nf;
 	/* Marvell rate index has a hole at value 4 */
 	if (prxpd->rx_rate > 4)
@@ -572,7 +622,10 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
 	skb_pull(skb, sizeof(struct rxpd));
 
 	hdr = (struct ieee80211_hdr *)skb->data;
+<<<<<<< HEAD
 	flags = le32_to_cpu(*(__le32 *)(skb->data + 4));
+=======
+>>>>>>> upstream/android-13
 
 	need_padding = ieee80211_is_data_qos(hdr->frame_control);
 	need_padding ^= ieee80211_has_a4(hdr->frame_control);
@@ -594,11 +647,16 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
 
 	ieee80211_rx_irqsafe(priv->hw, skb);
 
+<<<<<<< HEAD
+=======
+done:
+>>>>>>> upstream/android-13
 	lbtf_deb_leave(LBTF_DEB_RX);
 	return 0;
 }
 EXPORT_SYMBOL_GPL(lbtf_rx);
 
+<<<<<<< HEAD
 /**
  * lbtf_add_card: Add and initialize the card, no fw upload yet.
  *
@@ -607,6 +665,15 @@ EXPORT_SYMBOL_GPL(lbtf_rx);
  *  Returns: pointer to struct lbtf_priv.
  */
 struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
+=======
+/*
+ * lbtf_add_card: Add and initialize the card.
+ *
+ *  Returns: pointer to struct lbtf_priv.
+ */
+struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev,
+				   const struct lbtf_ops *ops)
+>>>>>>> upstream/android-13
 {
 	struct ieee80211_hw *hw;
 	struct lbtf_private *priv = NULL;
@@ -623,10 +690,20 @@ struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
 
 	priv->hw = hw;
 	priv->card = card;
+<<<<<<< HEAD
 	priv->tx_skb = NULL;
 
 	hw->queues = 1;
 	ieee80211_hw_set(hw, HOST_BROADCAST_PS_BUFFERING);
+=======
+	priv->ops = ops;
+	priv->tx_skb = NULL;
+	priv->radioon = RADIO_OFF;
+
+	hw->queues = 1;
+	ieee80211_hw_set(hw, HOST_BROADCAST_PS_BUFFERING);
+	ieee80211_hw_set(hw, SIGNAL_DBM);
+>>>>>>> upstream/android-13
 	hw->extra_tx_headroom = sizeof(struct txpd);
 	memcpy(priv->channels, lbtf_channels, sizeof(lbtf_channels));
 	memcpy(priv->rates, lbtf_rates, sizeof(lbtf_rates));
@@ -646,9 +723,37 @@ struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
 
 	INIT_WORK(&priv->cmd_work, lbtf_cmd_work);
 	INIT_WORK(&priv->tx_work, lbtf_tx_work);
+<<<<<<< HEAD
 	if (ieee80211_register_hw(hw))
 		goto err_init_adapter;
 
+=======
+
+	if (priv->ops->hw_prog_firmware(priv)) {
+		lbtf_deb_usbd(dmdev, "Error programming the firmware\n");
+		priv->ops->hw_reset_device(priv);
+		goto err_init_adapter;
+	}
+
+	eth_broadcast_addr(priv->current_addr);
+	if (lbtf_update_hw_spec(priv))
+		goto err_init_adapter;
+
+	if (priv->fwrelease < LBTF_FW_VER_MIN ||
+	    priv->fwrelease > LBTF_FW_VER_MAX) {
+		goto err_init_adapter;
+	}
+
+	/* The firmware seems to start with the radio enabled. Turn it
+	 * off before an actual mac80211 start callback is invoked.
+	 */
+	lbtf_set_radio_control(priv);
+
+	if (ieee80211_register_hw(hw))
+		goto err_init_adapter;
+
+	dev_info(dmdev, "libertastf: Marvell WLAN 802.11 thinfirm adapter\n");
+>>>>>>> upstream/android-13
 	goto done;
 
 err_init_adapter:
@@ -676,7 +781,11 @@ int lbtf_remove_card(struct lbtf_private *priv)
 	ieee80211_unregister_hw(hw);
 	ieee80211_free_hw(hw);
 
+<<<<<<< HEAD
     lbtf_deb_leave(LBTF_DEB_MAIN);
+=======
+	lbtf_deb_leave(LBTF_DEB_MAIN);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(lbtf_remove_card);

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
  * Copyright (c) 2013 Red Hat, Inc.
@@ -15,8 +19,13 @@
  */
 #define XFS_DA_NODE_MAGIC	0xfebe	/* magic number: non-leaf blocks */
 #define XFS_ATTR_LEAF_MAGIC	0xfbee	/* magic number: attribute leaf blks */
+<<<<<<< HEAD
 #define	XFS_DIR2_LEAF1_MAGIC	0xd2f1	/* magic number: v2 dirlf single blks */
 #define	XFS_DIR2_LEAFN_MAGIC	0xd2ff	/* magic number: v2 dirlf multi blks */
+=======
+#define XFS_DIR2_LEAF1_MAGIC	0xd2f1	/* magic number: v2 dirlf single blks */
+#define XFS_DIR2_LEAFN_MAGIC	0xd2ff	/* magic number: v2 dirlf multi blks */
+>>>>>>> upstream/android-13
 
 typedef struct xfs_da_blkinfo {
 	__be32		forw;			/* previous block in list */
@@ -35,8 +44,13 @@ typedef struct xfs_da_blkinfo {
  */
 #define XFS_DA3_NODE_MAGIC	0x3ebe	/* magic number: non-leaf blocks */
 #define XFS_ATTR3_LEAF_MAGIC	0x3bee	/* magic number: attribute leaf blks */
+<<<<<<< HEAD
 #define	XFS_DIR3_LEAF1_MAGIC	0x3df1	/* magic number: v2 dirlf single blks */
 #define	XFS_DIR3_LEAFN_MAGIC	0x3dff	/* magic number: v2 dirlf multi blks */
+=======
+#define XFS_DIR3_LEAF1_MAGIC	0x3df1	/* magic number: v3 dirlf single blks */
+#define XFS_DIR3_LEAFN_MAGIC	0x3dff	/* magic number: v3 dirlf multi blks */
+>>>>>>> upstream/android-13
 
 struct xfs_da3_blkinfo {
 	/*
@@ -61,7 +75,11 @@ struct xfs_da3_blkinfo {
  * Since we have duplicate keys, use a binary search but always follow
  * all match in the block, not just the first match found.
  */
+<<<<<<< HEAD
 #define	XFS_DA_NODE_MAXDEPTH	5	/* max depth of Btree */
+=======
+#define XFS_DA_NODE_MAXDEPTH	5	/* max depth of Btree */
+>>>>>>> upstream/android-13
 
 typedef struct xfs_da_node_hdr {
 	struct xfs_da_blkinfo	info;	/* block type, links, etc. */
@@ -94,6 +112,7 @@ struct xfs_da3_intnode {
 };
 
 /*
+<<<<<<< HEAD
  * In-core version of the node header to abstract the differences in the v2 and
  * v3 disk format of the headers. Callers need to convert to/from disk format as
  * appropriate.
@@ -107,6 +126,8 @@ struct xfs_da3_icnode_hdr {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Directory version 2.
  *
  * There are 4 possible formats:
@@ -230,7 +251,11 @@ typedef struct xfs_dir2_sf_entry {
 	 * A 64-bit or 32-bit inode number follows here, at a variable offset
 	 * after the name.
 	 */
+<<<<<<< HEAD
 } xfs_dir2_sf_entry_t;
+=======
+} __packed xfs_dir2_sf_entry_t;
+>>>>>>> upstream/android-13
 
 static inline int xfs_dir2_sf_hdr_size(int i8count)
 {
@@ -434,6 +459,7 @@ struct xfs_dir3_leaf_hdr {
 	__be32			pad;		/* 64 bit alignment */
 };
 
+<<<<<<< HEAD
 struct xfs_dir3_icleaf_hdr {
 	uint32_t		forw;
 	uint32_t		back;
@@ -442,6 +468,8 @@ struct xfs_dir3_icleaf_hdr {
 	uint16_t		stale;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Leaf block entry.
  */
@@ -482,7 +510,11 @@ xfs_dir2_leaf_bests_p(struct xfs_dir2_leaf_tail *ltp)
 }
 
 /*
+<<<<<<< HEAD
  * Free space block defintions for the node format.
+=======
+ * Free space block definitions for the node format.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -521,6 +553,7 @@ struct xfs_dir3_free {
 #define XFS_DIR3_FREE_CRC_OFF  offsetof(struct xfs_dir3_free, hdr.hdr.crc)
 
 /*
+<<<<<<< HEAD
  * In core version of the free block header, abstracted away from on-disk format
  * differences. Use this in the code, and convert to/from the disk version using
  * xfs_dir3_free_hdr_from_disk/xfs_dir3_free_hdr_to_disk.
@@ -534,6 +567,8 @@ struct xfs_dir3_icfree_hdr {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Single block format.
  *
  * The single block format looks like the following drawing on disk:
@@ -613,7 +648,11 @@ xfs_dir2_block_leaf_p(struct xfs_dir2_block_tail *btp)
 /*
  * Entries are packed toward the top as tight as possible.
  */
+<<<<<<< HEAD
 typedef struct xfs_attr_shortform {
+=======
+struct xfs_attr_shortform {
+>>>>>>> upstream/android-13
 	struct xfs_attr_sf_hdr {	/* constant-structure header block */
 		__be16	totsize;	/* total bytes in shortform list */
 		__u8	count;	/* count of active entries */
@@ -623,9 +662,15 @@ typedef struct xfs_attr_shortform {
 		uint8_t namelen;	/* actual length of name (no NULL) */
 		uint8_t valuelen;	/* actual length of value (no NULL) */
 		uint8_t flags;	/* flags bits (see xfs_attr_leaf.h) */
+<<<<<<< HEAD
 		uint8_t nameval[1];	/* name & value bytes concatenated */
 	} list[1];			/* variable sized array */
 } xfs_attr_shortform_t;
+=======
+		uint8_t nameval[];	/* name & value bytes concatenated */
+	} list[1];			/* variable sized array */
+};
+>>>>>>> upstream/android-13
 
 typedef struct xfs_attr_leaf_map {	/* RLE map of free bytes */
 	__be16	base;			  /* base of free region */
@@ -710,6 +755,7 @@ struct xfs_attr3_leafblock {
 };
 
 /*
+<<<<<<< HEAD
  * incore, neutral version of the attribute leaf header
  */
 struct xfs_attr3_icleaf_hdr {
@@ -733,6 +779,8 @@ struct xfs_attr3_icleaf_hdr {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Special value to represent fs block size in the leaf header firstused field.
  * Only used when block size overflows the 2-bytes available on disk.
  */
@@ -740,8 +788,11 @@ struct xfs_attr3_icleaf_hdr {
 
 /*
  * Flags used in the leaf_entry[i].flags field.
+<<<<<<< HEAD
  * NOTE: the INCOMPLETE bit must not collide with the flags bits specified
  * on the system call, they are "or"ed together for various operations.
+=======
+>>>>>>> upstream/android-13
  */
 #define	XFS_ATTR_LOCAL_BIT	0	/* attr is stored locally */
 #define	XFS_ATTR_ROOT_BIT	1	/* limit access to trusted attrs */
@@ -751,6 +802,7 @@ struct xfs_attr3_icleaf_hdr {
 #define XFS_ATTR_ROOT		(1 << XFS_ATTR_ROOT_BIT)
 #define XFS_ATTR_SECURE		(1 << XFS_ATTR_SECURE_BIT)
 #define XFS_ATTR_INCOMPLETE	(1 << XFS_ATTR_INCOMPLETE_BIT)
+<<<<<<< HEAD
 
 /*
  * Conversion macros for converting namespace bits from argument flags
@@ -764,6 +816,9 @@ struct xfs_attr3_icleaf_hdr {
 					 ((x) & ATTR_SECURE ? XFS_ATTR_SECURE : 0))
 #define XFS_ATTR_NSP_ONDISK_TO_ARGS(x)	(((x) & XFS_ATTR_ROOT ? ATTR_ROOT : 0) |\
 					 ((x) & XFS_ATTR_SECURE ? ATTR_SECURE : 0))
+=======
+#define XFS_ATTR_NSP_ONDISK_MASK	(XFS_ATTR_ROOT | XFS_ATTR_SECURE)
+>>>>>>> upstream/android-13
 
 /*
  * Alignment for namelist and valuelist entries (since they are mixed
@@ -817,14 +872,24 @@ xfs_attr3_leaf_name_local(xfs_attr_leafblock_t *leafp, int idx)
  */
 static inline int xfs_attr_leaf_entsize_remote(int nlen)
 {
+<<<<<<< HEAD
 	return ((uint)sizeof(xfs_attr_leaf_name_remote_t) - 1 + (nlen) + \
 		XFS_ATTR_LEAF_NAME_ALIGN - 1) & ~(XFS_ATTR_LEAF_NAME_ALIGN - 1);
+=======
+	return round_up(sizeof(struct xfs_attr_leaf_name_remote) - 1 +
+			nlen, XFS_ATTR_LEAF_NAME_ALIGN);
+>>>>>>> upstream/android-13
 }
 
 static inline int xfs_attr_leaf_entsize_local(int nlen, int vlen)
 {
+<<<<<<< HEAD
 	return ((uint)sizeof(xfs_attr_leaf_name_local_t) - 1 + (nlen) + (vlen) +
 		XFS_ATTR_LEAF_NAME_ALIGN - 1) & ~(XFS_ATTR_LEAF_NAME_ALIGN - 1);
+=======
+	return round_up(sizeof(struct xfs_attr_leaf_name_local) - 1 +
+			nlen + vlen, XFS_ATTR_LEAF_NAME_ALIGN);
+>>>>>>> upstream/android-13
 }
 
 static inline int xfs_attr_leaf_entsize_local_max(int bsize)
@@ -860,7 +925,11 @@ struct xfs_attr3_rmt_hdr {
 #define XFS_ATTR3_RMT_CRC_OFF	offsetof(struct xfs_attr3_rmt_hdr, rm_crc)
 
 #define XFS_ATTR3_RMT_BUF_SPACE(mp, bufsize)	\
+<<<<<<< HEAD
 	((bufsize) - (xfs_sb_version_hascrc(&(mp)->m_sb) ? \
+=======
+	((bufsize) - (xfs_has_crc((mp)) ? \
+>>>>>>> upstream/android-13
 			sizeof(struct xfs_attr3_rmt_hdr) : 0))
 
 /* Number of bytes in a directory block. */
@@ -869,4 +938,10 @@ static inline unsigned int xfs_dir2_dirblock_bytes(struct xfs_sb *sbp)
 	return 1 << (sbp->sb_blocklog + sbp->sb_dirblklog);
 }
 
+<<<<<<< HEAD
+=======
+xfs_failaddr_t xfs_da3_blkinfo_verify(struct xfs_buf *bp,
+				      struct xfs_da3_blkinfo *hdr3);
+
+>>>>>>> upstream/android-13
 #endif /* __XFS_DA_FORMAT_H__ */

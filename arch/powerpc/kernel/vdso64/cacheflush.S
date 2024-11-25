@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * vDSO provided cache flush routines
  *
  * Copyright (C) 2004 Benjamin Herrenschmuidt (benh@kernel.crashing.org),
  *                    IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <asm/processor.h>
 #include <asm/ppc_asm.h>
 #include <asm/vdso.h>
+<<<<<<< HEAD
+=======
+#include <asm/vdso_datapage.h>
+>>>>>>> upstream/android-13
 #include <asm/asm-offsets.h>
 
 	.text
@@ -26,6 +37,7 @@
  */
 V_FUNCTION_BEGIN(__kernel_sync_dicache)
   .cfi_startproc
+<<<<<<< HEAD
 	mflr	r12
   .cfi_register lr,r12
 	mr	r11,r3
@@ -36,6 +48,20 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
 	lwz	r7,CFG_DCACHE_BLOCKSZ(r10)
 	addi	r5,r7,-1
 	andc	r6,r11,r5		/* round low to line bdy */
+=======
+BEGIN_FTR_SECTION
+	b	3f
+END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+	mflr	r12
+  .cfi_register lr,r12
+	get_datapage	r10
+	mtlr	r12
+  .cfi_restore lr
+
+	lwz	r7,CFG_DCACHE_BLOCKSZ(r10)
+	addi	r5,r7,-1
+	andc	r6,r3,r5		/* round low to line bdy */
+>>>>>>> upstream/android-13
 	subf	r8,r6,r4		/* compute length */
 	add	r8,r8,r5		/* ensure we get enough */
 	lwz	r9,CFG_DCACHE_LOGBLOCKSZ(r10)
@@ -52,7 +78,11 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
 
 	lwz	r7,CFG_ICACHE_BLOCKSZ(r10)
 	addi	r5,r7,-1
+<<<<<<< HEAD
 	andc	r6,r11,r5		/* round low to line bdy */
+=======
+	andc	r6,r3,r5		/* round low to line bdy */
+>>>>>>> upstream/android-13
 	subf	r8,r6,r4		/* compute length */
 	add	r8,r8,r5
 	lwz	r9,CFG_ICACHE_LOGBLOCKSZ(r10)
@@ -66,6 +96,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
 	isync
 	li	r3,0
 	blr
+<<<<<<< HEAD
   .cfi_endproc
 V_FUNCTION_END(__kernel_sync_dicache)
 
@@ -75,10 +106,17 @@ V_FUNCTION_END(__kernel_sync_dicache)
  */
 V_FUNCTION_BEGIN(__kernel_sync_dicache_p5)
   .cfi_startproc
+=======
+3:
+>>>>>>> upstream/android-13
 	crclr	cr0*4+so
 	sync
 	isync
 	li	r3,0
 	blr
   .cfi_endproc
+<<<<<<< HEAD
 V_FUNCTION_END(__kernel_sync_dicache_p5)
+=======
+V_FUNCTION_END(__kernel_sync_dicache)
+>>>>>>> upstream/android-13

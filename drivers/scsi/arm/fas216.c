@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/acorn/scsi/fas216.c
  *
  *  Copyright (C) 1997-2003 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on information in qlogicfas.c by Tom Zerucha, Michael Griffith, and
  * other sources, including:
  *   the AMD Am53CF94 data sheet
@@ -80,7 +87,10 @@
  *  I was thinking that this was a good chip until I found this restriction ;(
  */
 #define SCSI2_SYNC
+<<<<<<< HEAD
 #undef  SCSI2_TAG
+=======
+>>>>>>> upstream/android-13
 
 #undef DEBUG_CONNECT
 #undef DEBUG_MESSAGES
@@ -606,6 +616,10 @@ static void fas216_handlesync(FAS216_Info *info, char *msg)
 		msgqueue_flush(&info->scsi.msgs);
 		msgqueue_addmsg(&info->scsi.msgs, 1, MESSAGE_REJECT);
 		info->scsi.phase = PHASE_MSGOUT_EXPECT;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case async:
 		dev->period = info->ifcfg.asyncperiod / 4;
@@ -918,6 +932,10 @@ static void fas216_disconnect_intr(FAS216_Info *info)
 			fas216_done(info, DID_ABORT);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:				/* huh?					*/
 		printk(KERN_ERR "scsi%d.%c: unexpected disconnect in phase %s\n",
@@ -991,7 +1009,11 @@ fas216_reselected_intr(FAS216_Info *info)
 		info->scsi.disconnectable = 0;
 		if (info->SCpnt->device->id  == target &&
 		    info->SCpnt->device->lun == lun &&
+<<<<<<< HEAD
 		    info->SCpnt->tag         == tag) {
+=======
+		    scsi_cmd_to_rq(info->SCpnt)->tag == tag) {
+>>>>>>> upstream/android-13
 			fas216_log(info, LOG_CONNECT, "reconnected previously executing command");
 		} else {
 			queue_add_cmd_tail(&info->queues.disconnected, info->SCpnt);
@@ -1376,6 +1398,10 @@ static void fas216_busservice_intr(FAS216_Info *info, unsigned int stat, unsigne
 		case IS_COMPLETE:
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	default:
 		break;
@@ -1414,6 +1440,11 @@ static void fas216_busservice_intr(FAS216_Info *info, unsigned int stat, unsigne
 	case STATE(STAT_STATUS, PHASE_DATAOUT): /* Data Out     -> Status       */
 	case STATE(STAT_STATUS, PHASE_DATAIN):  /* Data In      -> Status       */
 		fas216_stoptransfer(info);
+<<<<<<< HEAD
+=======
+		fallthrough;
+
+>>>>>>> upstream/android-13
 	case STATE(STAT_STATUS, PHASE_SELSTEPS):/* Sel w/ steps -> Status       */
 	case STATE(STAT_STATUS, PHASE_MSGOUT):  /* Message Out  -> Status       */
 	case STATE(STAT_STATUS, PHASE_COMMAND): /* Command      -> Status       */
@@ -1425,6 +1456,11 @@ static void fas216_busservice_intr(FAS216_Info *info, unsigned int stat, unsigne
 	case STATE(STAT_MESGIN, PHASE_DATAOUT): /* Data Out     -> Message In   */
 	case STATE(STAT_MESGIN, PHASE_DATAIN):  /* Data In      -> Message In   */
 		fas216_stoptransfer(info);
+<<<<<<< HEAD
+=======
+		fallthrough;
+
+>>>>>>> upstream/android-13
 	case STATE(STAT_MESGIN, PHASE_COMMAND):	/* Command	-> Message In	*/
 	case STATE(STAT_MESGIN, PHASE_SELSTEPS):/* Sel w/ steps -> Message In   */
 	case STATE(STAT_MESGIN, PHASE_MSGOUT):  /* Message Out  -> Message In   */
@@ -1476,7 +1512,11 @@ static void fas216_busservice_intr(FAS216_Info *info, unsigned int stat, unsigne
 
 		if (msgqueue_msglength(&info->scsi.msgs) > 1)
 			fas216_cmd(info, CMD_SETATN);
+<<<<<<< HEAD
 		/*FALLTHROUGH*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Any          -> Message Out
@@ -1578,6 +1618,10 @@ static void fas216_funcdone_intr(FAS216_Info *info, unsigned int stat, unsigned 
 			fas216_message(info);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		fas216_log(info, 0, "internal phase %s for function done?"
@@ -1786,8 +1830,14 @@ static void fas216_start_command(FAS216_Info *info, struct scsi_cmnd *SCpnt)
 	/*
 	 * add tag message if required
 	 */
+<<<<<<< HEAD
 	if (SCpnt->tag)
 		msgqueue_addmsg(&info->scsi.msgs, 2, SIMPLE_QUEUE_TAG, SCpnt->tag);
+=======
+	if (SCpnt->device->simple_tags)
+		msgqueue_addmsg(&info->scsi.msgs, 2, SIMPLE_QUEUE_TAG,
+				scsi_cmd_to_rq(SCpnt)->tag);
+>>>>>>> upstream/android-13
 
 	do {
 #ifdef SCSI2_SYNC
@@ -1810,6 +1860,7 @@ static void fas216_start_command(FAS216_Info *info, struct scsi_cmnd *SCpnt)
 
 static void fas216_allocate_tag(FAS216_Info *info, struct scsi_cmnd *SCpnt)
 {
+<<<<<<< HEAD
 #ifdef SCSI2_TAG
 	/*
 	 * tagged queuing - allocate a new tag to this command
@@ -1824,6 +1875,10 @@ static void fas216_allocate_tag(FAS216_Info *info, struct scsi_cmnd *SCpnt)
 #endif
 		set_bit(SCpnt->device->id * 8 +
 			(u8)(SCpnt->device->lun & 0x7), info->busyluns);
+=======
+	set_bit(SCpnt->device->id * 8 +
+		(u8)(SCpnt->device->lun & 0x7), info->busyluns);
+>>>>>>> upstream/android-13
 
 	info->stats.removes += 1;
 	switch (SCpnt->cmnd[0]) {
@@ -1960,6 +2015,10 @@ static void fas216_kick(FAS216_Info *info)
 	switch (where_from) {
 	case TYPE_QUEUE:
 		fas216_allocate_tag(info, SCpnt);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TYPE_OTHER:
 		fas216_start_command(info, SCpnt);
 		break;
@@ -2005,7 +2064,11 @@ static void fas216_rq_sns_done(FAS216_Info *info, struct scsi_cmnd *SCpnt,
 		   "request sense complete, result=0x%04x%02x%02x",
 		   result, SCpnt->SCp.Message, SCpnt->SCp.Status);
 
+<<<<<<< HEAD
 	if (result != DID_OK || SCpnt->SCp.Status != GOOD)
+=======
+	if (result != DID_OK || SCpnt->SCp.Status != SAM_STAT_GOOD)
+>>>>>>> upstream/android-13
 		/*
 		 * Something went wrong.  Make sure that we don't
 		 * have valid data in the sense buffer that could
@@ -2037,8 +2100,15 @@ fas216_std_done(FAS216_Info *info, struct scsi_cmnd *SCpnt, unsigned int result)
 {
 	info->stats.fins += 1;
 
+<<<<<<< HEAD
 	SCpnt->result = result << 16 | info->scsi.SCp.Message << 8 |
 			info->scsi.SCp.Status;
+=======
+	set_host_byte(SCpnt, result);
+	if (result == DID_OK)
+		scsi_msg_to_host_byte(SCpnt, info->scsi.SCp.Message);
+	set_status_byte(SCpnt, info->scsi.SCp.Status);
+>>>>>>> upstream/android-13
 
 	fas216_log_command(info, LOG_CONNECT, SCpnt,
 		"command complete, result=0x%08x", SCpnt->result);
@@ -2046,23 +2116,36 @@ fas216_std_done(FAS216_Info *info, struct scsi_cmnd *SCpnt, unsigned int result)
 	/*
 	 * If the driver detected an error, we're all done.
 	 */
+<<<<<<< HEAD
 	if (host_byte(SCpnt->result) != DID_OK ||
 	    msg_byte(SCpnt->result) != COMMAND_COMPLETE)
+=======
+	if (get_host_byte(SCpnt) != DID_OK)
+>>>>>>> upstream/android-13
 		goto done;
 
 	/*
 	 * If the command returned CHECK_CONDITION or COMMAND_TERMINATED
 	 * status, request the sense information.
 	 */
+<<<<<<< HEAD
 	if (status_byte(SCpnt->result) == CHECK_CONDITION ||
 	    status_byte(SCpnt->result) == COMMAND_TERMINATED)
+=======
+	if (get_status_byte(SCpnt) == SAM_STAT_CHECK_CONDITION ||
+	    get_status_byte(SCpnt) == SAM_STAT_COMMAND_TERMINATED)
+>>>>>>> upstream/android-13
 		goto request_sense;
 
 	/*
 	 * If the command did not complete with GOOD status,
 	 * we are all done here.
 	 */
+<<<<<<< HEAD
 	if (status_byte(SCpnt->result) != GOOD)
+=======
+	if (get_status_byte(SCpnt) != SAM_STAT_GOOD)
+>>>>>>> upstream/android-13
 		goto done;
 
 	/*
@@ -2110,7 +2193,10 @@ request_sense:
 	init_SCp(SCpnt);
 	SCpnt->SCp.Message = 0;
 	SCpnt->SCp.Status = 0;
+<<<<<<< HEAD
 	SCpnt->tag = 0;
+=======
+>>>>>>> upstream/android-13
 	SCpnt->host_scribble = (void *)fas216_rq_sns_done;
 
 	/*
@@ -2216,7 +2302,10 @@ static int fas216_queue_command_lck(struct scsi_cmnd *SCpnt,
 	init_SCp(SCpnt);
 
 	info->stats.queues += 1;
+<<<<<<< HEAD
 	SCpnt->tag = 0;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&info->host_lock);
 
@@ -2996,9 +3085,14 @@ void fas216_print_devices(FAS216_Info *info, struct seq_file *m)
 		dev = &info->device[scd->id];
 		seq_printf(m, "     %d/%llu   ", scd->id, scd->lun);
 		if (scd->tagged_supported)
+<<<<<<< HEAD
 			seq_printf(m, "%3sabled(%3d) ",
 				     scd->simple_tags ? "en" : "dis",
 				     scd->current_tag);
+=======
+			seq_printf(m, "%3sabled ",
+				     scd->simple_tags ? "en" : "dis");
+>>>>>>> upstream/android-13
 		else
 			seq_puts(m, "unsupported   ");
 

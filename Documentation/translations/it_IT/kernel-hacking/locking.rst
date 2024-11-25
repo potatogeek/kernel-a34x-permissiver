@@ -1,5 +1,10 @@
 .. include:: ../disclaimer-ita.rst
 
+<<<<<<< HEAD
+=======
+.. c:namespace:: it_IT
+
+>>>>>>> upstream/android-13
 :Original: :ref:`Documentation/kernel-hacking/locking.rst <kernel_hacking_lock>`
 :Translator: Federico Vaga <federico.vaga@vaga.pv.it>
 
@@ -125,11 +130,19 @@ il vostro processo si auto-sospenderà; verrà riattivato quando il mutex
 verrà rilasciato. Questo significa che il processore potrà occuparsi d'altro
 mentre il vostro processo è in attesa. Esistono molti casi in cui non potete
 permettervi di sospendere un processo (vedere
+<<<<<<< HEAD
 :ref:`Quali funzioni possono essere chiamate in modo sicuro dalle interruzioni? <it_sleeping-things>`)
 e quindi dovrete utilizzare gli spinlock.
 
 Nessuno di questi *lock* è ricorsivo: vedere
 :ref:`Stallo: semplice ed avanzato <it_deadlock>`
+=======
+`Quali funzioni possono essere chiamate in modo sicuro dalle interruzioni?`_)
+e quindi dovrete utilizzare gli spinlock.
+
+Nessuno di questi *lock* è ricorsivo: vedere
+`Stallo: semplice ed avanzato`_
+>>>>>>> upstream/android-13
 
 I *lock* e i kernel per sistemi monoprocessore
 ----------------------------------------------
@@ -159,6 +172,7 @@ Sincronizzazione in contesto utente
 Se avete una struttura dati che verrà utilizzata solo dal contesto utente,
 allora, per proteggerla, potete utilizzare un semplice mutex
 (``include/linux/mutex.h``). Questo è il caso più semplice: inizializzate il
+<<<<<<< HEAD
 mutex; invocate :c:func:`mutex_lock_interruptible()` per trattenerlo e
 :c:func:`mutex_unlock()` per rilasciarlo. C'è anche :c:func:`mutex_lock()`
 ma questa dovrebbe essere evitata perché non ritorna in caso di segnali.
@@ -170,6 +184,19 @@ la rimozione vengono eseguite solamente quando il modulo viene caricato
 o scaricato (e durante l'avvio del sistema, qui non abbiamo concorrenza),
 e la lista delle funzioni registrate viene consultata solamente quando
 :c:func:`setsockopt()` o :c:func:`getsockopt()` sono sconosciute al sistema.
+=======
+mutex; invocate mutex_lock_interruptible() per trattenerlo e
+mutex_unlock() per rilasciarlo. C'è anche mutex_lock()
+ma questa dovrebbe essere evitata perché non ritorna in caso di segnali.
+
+Per esempio: ``net/netfilter/nf_sockopt.c`` permette la registrazione
+di nuove chiamate per setsockopt() e getsockopt()
+usando la funzione nf_register_sockopt(). La registrazione e
+la rimozione vengono eseguite solamente quando il modulo viene caricato
+o scaricato (e durante l'avvio del sistema, qui non abbiamo concorrenza),
+e la lista delle funzioni registrate viene consultata solamente quando
+setsockopt() o getsockopt() sono sconosciute al sistema.
+>>>>>>> upstream/android-13
 In questo caso ``nf_sockopt_mutex`` è perfetto allo scopo, in particolar modo
 visto che setsockopt e getsockopt potrebbero dormire.
 
@@ -179,19 +206,34 @@ Sincronizzazione fra il contesto utente e i softirq
 Se un softirq condivide dati col contesto utente, avete due problemi.
 Primo, il contesto utente corrente potrebbe essere interroto da un softirq,
 e secondo, la sezione critica potrebbe essere eseguita da un altro
+<<<<<<< HEAD
 processore. Questo è quando :c:func:`spin_lock_bh()`
 (``include/linux/spinlock.h``) viene utilizzato. Questo disabilita i softirq
 sul processore e trattiene il *lock*. Invece, :c:func:`spin_unlock_bh()` fa
+=======
+processore. Questo è quando spin_lock_bh()
+(``include/linux/spinlock.h``) viene utilizzato. Questo disabilita i softirq
+sul processore e trattiene il *lock*. Invece, spin_unlock_bh() fa
+>>>>>>> upstream/android-13
 l'opposto. (Il suffisso '_bh' è un residuo storico che fa riferimento al
 "Bottom Halves", il vecchio nome delle interruzioni software. In un mondo
 perfetto questa funzione si chiamerebbe 'spin_lock_softirq()').
 
+<<<<<<< HEAD
 Da notare che in questo caso potete utilizzare anche :c:func:`spin_lock_irq()`
 o :c:func:`spin_lock_irqsave()`, queste fermano anche le interruzioni hardware:
 vedere :ref:`Contesto di interruzione hardware <it_hardirq-context>`.
 
 Questo funziona alla perfezione anche sui sistemi monoprocessore: gli spinlock
 svaniscono e questa macro diventa semplicemente :c:func:`local_bh_disable()`
+=======
+Da notare che in questo caso potete utilizzare anche spin_lock_irq()
+o spin_lock_irqsave(), queste fermano anche le interruzioni hardware:
+vedere `Contesto di interruzione hardware`_.
+
+Questo funziona alla perfezione anche sui sistemi monoprocessore: gli spinlock
+svaniscono e questa macro diventa semplicemente local_bh_disable()
+>>>>>>> upstream/android-13
 (``include/linux/interrupt.h``), la quale impedisce ai softirq d'essere
 eseguiti.
 
@@ -224,8 +266,13 @@ Differenti tasklet/timer
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Se un altro tasklet/timer vuole condividere dati col vostro tasklet o timer,
+<<<<<<< HEAD
 allora avrete bisogno entrambe di :c:func:`spin_lock()` e
 :c:func:`spin_unlock()`. Qui :c:func:`spin_lock_bh()` è inutile, siete già
+=======
+allora avrete bisogno entrambe di spin_lock() e
+spin_unlock(). Qui spin_lock_bh() è inutile, siete già
+>>>>>>> upstream/android-13
 in un tasklet ed avete la garanzia che nessun altro verrà eseguito sullo
 stesso processore.
 
@@ -239,17 +286,29 @@ Lo stesso softirq
 
 Lo stesso softirq può essere eseguito su un diverso processore: allo scopo
 di migliorare le prestazioni potete utilizzare dati riservati ad ogni
+<<<<<<< HEAD
 processore (vedere :ref:`Dati per processore <it_per-cpu>`). Se siete arrivati
 fino a questo punto nell'uso dei softirq, probabilmente tenete alla scalabilità
 delle prestazioni abbastanza da giustificarne la complessità aggiuntiva.
 
 Dovete utilizzare :c:func:`spin_lock()` e :c:func:`spin_unlock()` per
+=======
+processore (vedere `Dati per processore`_). Se siete arrivati
+fino a questo punto nell'uso dei softirq, probabilmente tenete alla scalabilità
+delle prestazioni abbastanza da giustificarne la complessità aggiuntiva.
+
+Dovete utilizzare spin_lock() e spin_unlock() per
+>>>>>>> upstream/android-13
 proteggere i dati condivisi.
 
 Diversi Softirqs
 ~~~~~~~~~~~~~~~~
 
+<<<<<<< HEAD
 Dovete utilizzare :c:func:`spin_lock()` e :c:func:`spin_unlock()` per
+=======
+Dovete utilizzare spin_lock() e spin_unlock() per
+>>>>>>> upstream/android-13
 proteggere i dati condivisi, che siano timer, tasklet, diversi softirq o
 lo stesso o altri softirq: uno qualsiasi di essi potrebbe essere in esecuzione
 su un diverso processore.
@@ -270,6 +329,7 @@ Se un gestore di interruzioni hardware condivide dati con un softirq, allora
 avrete due preoccupazioni. Primo, il softirq può essere interrotto da
 un'interruzione hardware, e secondo, la sezione critica potrebbe essere
 eseguita da un'interruzione hardware su un processore diverso. Questo è il caso
+<<<<<<< HEAD
 dove :c:func:`spin_lock_irq()` viene utilizzato. Disabilita le interruzioni
 sul processore che l'esegue, poi trattiene il lock. :c:func:`spin_unlock_irq()`
 fa l'opposto.
@@ -289,21 +349,52 @@ eseguiti.
 :c:func:`spin_lock_irqsave()` (``include/linux/spinlock.h``) è una variante che
 salva lo stato delle interruzioni in una variabile, questa verrà poi passata
 a :c:func:`spin_unlock_irqrestore()`. Questo significa che lo stesso codice
+=======
+dove spin_lock_irq() viene utilizzato. Disabilita le interruzioni
+sul processore che l'esegue, poi trattiene il lock. spin_unlock_irq()
+fa l'opposto.
+
+Il gestore d'interruzione hardware non ha bisogno di usare spin_lock_irq()
+perché i softirq non possono essere eseguiti quando il gestore d'interruzione
+hardware è in esecuzione: per questo si può usare spin_lock(), che è un po'
+più veloce. L'unica eccezione è quando un altro gestore d'interruzioni
+hardware utilizza lo stesso *lock*: spin_lock_irq() impedirà a questo
+secondo gestore di interrompere quello in esecuzione.
+
+Questo funziona alla perfezione anche sui sistemi monoprocessore: gli spinlock
+svaniscono e questa macro diventa semplicemente local_irq_disable()
+(``include/asm/smp.h``), la quale impedisce a softirq/tasklet/BH d'essere
+eseguiti.
+
+spin_lock_irqsave() (``include/linux/spinlock.h``) è una variante che
+salva lo stato delle interruzioni in una variabile, questa verrà poi passata
+a spin_unlock_irqrestore(). Questo significa che lo stesso codice
+>>>>>>> upstream/android-13
 potrà essere utilizzato in un'interruzione hardware (dove le interruzioni sono
 già disabilitate) e in un softirq (dove la disabilitazione delle interruzioni
 è richiesta).
 
 Da notare che i softirq (e quindi tasklet e timer) sono eseguiti al ritorno
+<<<<<<< HEAD
 da un'interruzione hardware, quindi :c:func:`spin_lock_irq()` interrompe
 anche questi. Tenuto conto di questo si può dire che
 :c:func:`spin_lock_irqsave()` è la funzione di sincronizzazione più generica
+=======
+da un'interruzione hardware, quindi spin_lock_irq() interrompe
+anche questi. Tenuto conto di questo si può dire che
+spin_lock_irqsave() è la funzione di sincronizzazione più generica
+>>>>>>> upstream/android-13
 e potente.
 
 Sincronizzazione fra due gestori d'interruzioni hardware
 --------------------------------------------------------
 
 Condividere dati fra due gestori di interruzione hardware è molto raro, ma se
+<<<<<<< HEAD
 succede, dovreste usare :c:func:`spin_lock_irqsave()`: è una specificità
+=======
+succede, dovreste usare spin_lock_irqsave(): è una specificità
+>>>>>>> upstream/android-13
 dell'architettura il fatto che tutte le interruzioni vengano interrotte
 quando si eseguono di gestori di interruzioni.
 
@@ -317,11 +408,19 @@ Pete Zaitcev ci offre il seguente riassunto:
    il mutex e dormire (``copy_from_user*(`` o ``kmalloc(x,GFP_KERNEL)``).
 
 -  Altrimenti (== i dati possono essere manipolati da un'interruzione) usate
+<<<<<<< HEAD
    :c:func:`spin_lock_irqsave()` e :c:func:`spin_unlock_irqrestore()`.
 
 -  Evitate di trattenere uno spinlock per più di 5 righe di codice incluse
    le chiamate a funzione (ad eccezione di quell per l'accesso come
    :c:func:`readb()`).
+=======
+   spin_lock_irqsave() e spin_unlock_irqrestore().
+
+-  Evitate di trattenere uno spinlock per più di 5 righe di codice incluse
+   le chiamate a funzione (ad eccezione di quell per l'accesso come
+   readb()).
+>>>>>>> upstream/android-13
 
 Tabella dei requisiti minimi
 ----------------------------
@@ -334,7 +433,11 @@ processore alla volta, ma se deve condividere dati con un altro thread, allora
 la sincronizzazione è necessaria).
 
 Ricordatevi il suggerimento qui sopra: potete sempre usare
+<<<<<<< HEAD
 :c:func:`spin_lock_irqsave()`, che è un sovrainsieme di tutte le altre funzioni
+=======
+spin_lock_irqsave(), che è un sovrainsieme di tutte le altre funzioni
+>>>>>>> upstream/android-13
 per spinlock.
 
 ============== ============= ============= ========= ========= ========= ========= ======= ======= ============== ==============
@@ -378,6 +481,7 @@ protetti dal *lock* quando qualche altro thread lo sta già facendo
 trattenendo il *lock*. Potrete acquisire il *lock* più tardi se vi
 serve accedere ai dati protetti da questo *lock*.
 
+<<<<<<< HEAD
 La funzione :c:func:`spin_trylock()` non ritenta di acquisire il *lock*,
 se ci riesce al primo colpo ritorna un valore diverso da zero, altrimenti
 se fallisce ritorna 0. Questa funzione può essere utilizzata in un qualunque
@@ -385,6 +489,15 @@ contesto, ma come :c:func:`spin_lock()`: dovete disabilitare i contesti che
 potrebbero interrompervi e quindi trattenere lo spinlock.
 
 La funzione :c:func:`mutex_trylock()` invece di sospendere il vostro processo
+=======
+La funzione spin_trylock() non ritenta di acquisire il *lock*,
+se ci riesce al primo colpo ritorna un valore diverso da zero, altrimenti
+se fallisce ritorna 0. Questa funzione può essere utilizzata in un qualunque
+contesto, ma come spin_lock(): dovete disabilitare i contesti che
+potrebbero interrompervi e quindi trattenere lo spinlock.
+
+La funzione mutex_trylock() invece di sospendere il vostro processo
+>>>>>>> upstream/android-13
 ritorna un valore diverso da zero se è possibile trattenere il lock al primo
 colpo, altrimenti se fallisce ritorna 0. Nonostante non dorma, questa funzione
 non può essere usata in modo sicuro in contesti di interruzione hardware o
@@ -468,7 +581,11 @@ e tutti gli oggetti che contiene. Ecco il codice::
             if ((obj = kmalloc(sizeof(*obj), GFP_KERNEL)) == NULL)
                     return -ENOMEM;
 
+<<<<<<< HEAD
             strlcpy(obj->name, name, sizeof(obj->name));
+=======
+            strscpy(obj->name, name, sizeof(obj->name));
+>>>>>>> upstream/android-13
             obj->id = id;
             obj->popularity = 0;
 
@@ -506,7 +623,11 @@ della memoria che il suo contenuto sono protetti dal *lock*. Questo
 caso è semplice dato che copiamo i dati dall'utente e non permettiamo
 mai loro di accedere direttamente agli oggetti.
 
+<<<<<<< HEAD
 C'è una piccola ottimizzazione qui: nella funzione :c:func:`cache_add()`
+=======
+C'è una piccola ottimizzazione qui: nella funzione cache_add()
+>>>>>>> upstream/android-13
 impostiamo i campi dell'oggetto prima di acquisire il *lock*. Questo è
 sicuro perché nessun altro potrà accedervi finché non lo inseriremo
 nella memoria.
@@ -514,7 +635,11 @@ nella memoria.
 Accesso dal contesto utente
 ---------------------------
 
+<<<<<<< HEAD
 Ora consideriamo il caso in cui :c:func:`cache_find()` può essere invocata
+=======
+Ora consideriamo il caso in cui cache_find() può essere invocata
+>>>>>>> upstream/android-13
 dal contesto d'interruzione: sia hardware che software. Un esempio potrebbe
 essere un timer che elimina oggetti dalla memoria.
 
@@ -583,11 +708,16 @@ sono quelle rimosse, mentre quelle ``+`` sono quelle aggiunte.
              return ret;
      }
 
+<<<<<<< HEAD
 Da notare che :c:func:`spin_lock_irqsave()` disabiliterà le interruzioni
+=======
+Da notare che spin_lock_irqsave() disabiliterà le interruzioni
+>>>>>>> upstream/android-13
 se erano attive, altrimenti non farà niente (quando siamo già in un contesto
 d'interruzione); dunque queste funzioni possono essere chiamante in
 sicurezza da qualsiasi contesto.
 
+<<<<<<< HEAD
 Sfortunatamente, :c:func:`cache_add()` invoca :c:func:`kmalloc()` con
 l'opzione ``GFP_KERNEL`` che è permessa solo in contesto utente. Ho supposto
 che :c:func:`cache_add()` venga chiamata dal contesto utente, altrimenti
@@ -595,6 +725,15 @@ questa opzione deve diventare un parametro di :c:func:`cache_add()`.
 
 Exposing Objects Outside This File
 ----------------------------------
+=======
+Sfortunatamente, cache_add() invoca kmalloc() con
+l'opzione ``GFP_KERNEL`` che è permessa solo in contesto utente. Ho supposto
+che cache_add() venga chiamata dal contesto utente, altrimenti
+questa opzione deve diventare un parametro di cache_add().
+
+Esporre gli oggetti al di fuori del file
+----------------------------------------
+>>>>>>> upstream/android-13
 
 Se i vostri oggetti contengono più informazioni, potrebbe non essere
 sufficiente copiare i dati avanti e indietro: per esempio, altre parti del
@@ -610,7 +749,11 @@ Il secondo problema è il problema del ciclo di vita: se un'altra struttura
 mantiene un puntatore ad un oggetto, presumibilmente si aspetta che questo
 puntatore rimanga valido. Sfortunatamente, questo è garantito solo mentre
 si trattiene il *lock*, altrimenti qualcuno potrebbe chiamare
+<<<<<<< HEAD
 :c:func:`cache_delete()` o peggio, aggiungere un oggetto che riutilizza lo
+=======
+cache_delete() o peggio, aggiungere un oggetto che riutilizza lo
+>>>>>>> upstream/android-13
 stesso indirizzo.
 
 Dato che c'è un solo *lock*, non potete trattenerlo a vita: altrimenti
@@ -678,7 +821,11 @@ Ecco il codice::
      }
 
     @@ -63,6 +94,7 @@
+<<<<<<< HEAD
              strlcpy(obj->name, name, sizeof(obj->name));
+=======
+             strscpy(obj->name, name, sizeof(obj->name));
+>>>>>>> upstream/android-13
              obj->id = id;
              obj->popularity = 0;
     +        obj->refcnt = 1; /* The cache holds a reference */
@@ -710,9 +857,15 @@ Ecco il codice::
      }
 
 Abbiamo incapsulato il contatore di riferimenti nelle tipiche funzioni
+<<<<<<< HEAD
 di 'get' e 'put'. Ora possiamo ritornare l'oggetto da :c:func:`cache_find()`
 col vantaggio che l'utente può dormire trattenendo l'oggetto (per esempio,
 :c:func:`copy_to_user()` per copiare il nome verso lo spazio utente).
+=======
+di 'get' e 'put'. Ora possiamo ritornare l'oggetto da cache_find()
+col vantaggio che l'utente può dormire trattenendo l'oggetto (per esempio,
+copy_to_user() per copiare il nome verso lo spazio utente).
+>>>>>>> upstream/android-13
 
 Un altro punto da notare è che ho detto che il contatore dovrebbe incrementarsi
 per ogni puntatore ad un oggetto: quindi il contatore di riferimenti è 1
@@ -727,8 +880,13 @@ Ci sono un certo numbero di operazioni atomiche definite
 in ``include/asm/atomic.h``: queste sono garantite come atomiche su qualsiasi
 processore del sistema, quindi non sono necessari i *lock*. In questo caso è
 più semplice rispetto all'uso degli spinlock, benché l'uso degli spinlock
+<<<<<<< HEAD
 sia più elegante per casi non banali. Le funzioni :c:func:`atomic_inc()` e
 :c:func:`atomic_dec_and_test()` vengono usate al posto dei tipici operatori di
+=======
+sia più elegante per casi non banali. Le funzioni atomic_inc() e
+atomic_dec_and_test() vengono usate al posto dei tipici operatori di
+>>>>>>> upstream/android-13
 incremento e decremento, e i *lock* non sono più necessari per proteggere il
 contatore stesso.
 
@@ -792,7 +950,11 @@ contatore stesso.
      }
 
     @@ -94,7 +76,7 @@
+<<<<<<< HEAD
              strlcpy(obj->name, name, sizeof(obj->name));
+=======
+             strscpy(obj->name, name, sizeof(obj->name));
+>>>>>>> upstream/android-13
              obj->id = id;
              obj->popularity = 0;
     -        obj->refcnt = 1; /* The cache holds a reference */
@@ -820,7 +982,11 @@ al nome di cambiare abbiamo tre possibilità:
 -  Si può togliere static da ``cache_lock`` e dire agli utenti che devono
    trattenere il *lock* prima di modificare il nome di un oggetto.
 
+<<<<<<< HEAD
 -  Si può fornire una funzione :c:func:`cache_obj_rename()` che prende il
+=======
+-  Si può fornire una funzione cache_obj_rename() che prende il
+>>>>>>> upstream/android-13
    *lock* e cambia il nome per conto del chiamante; si dirà poi agli utenti
    di usare questa funzione.
 
@@ -878,11 +1044,19 @@ Da notare che ho deciso che il contatore di popolarità dovesse essere
 protetto da ``cache_lock`` piuttosto che dal *lock* dell'oggetto; questo
 perché è logicamente parte dell'infrastruttura (come
 :c:type:`struct list_head <list_head>` nell'oggetto). In questo modo,
+<<<<<<< HEAD
 in :c:func:`__cache_add()`, non ho bisogno di trattenere il *lock* di ogni
 oggetto mentre si cerca il meno popolare.
 
 Ho anche deciso che il campo id è immutabile, quindi non ho bisogno di
 trattenere il lock dell'oggetto quando si usa :c:func:`__cache_find()`
+=======
+in __cache_add(), non ho bisogno di trattenere il *lock* di ogni
+oggetto mentre si cerca il meno popolare.
+
+Ho anche deciso che il campo id è immutabile, quindi non ho bisogno di
+trattenere il lock dell'oggetto quando si usa __cache_find()
+>>>>>>> upstream/android-13
 per leggere questo campo; il *lock* dell'oggetto è usato solo dal chiamante
 che vuole leggere o scrivere il campo name.
 
@@ -894,8 +1068,11 @@ leggendo solamente il codice. E come dice Alan Cox: “Lock data, not code”.
 Problemi comuni
 ===============
 
+<<<<<<< HEAD
 .. _`it_deadlock`:
 
+=======
+>>>>>>> upstream/android-13
 Stallo: semplice ed avanzato
 ----------------------------
 
@@ -907,7 +1084,11 @@ Questo è facile da diagnosticare: non è uno di quei problemi che ti tengono
 sveglio 5 notti a parlare da solo.
 
 Un caso un pochino più complesso; immaginate d'avere una spazio condiviso
+<<<<<<< HEAD
 fra un softirq ed il contesto utente. Se usate :c:func:`spin_lock()` per
+=======
+fra un softirq ed il contesto utente. Se usate spin_lock() per
+>>>>>>> upstream/android-13
 proteggerlo, il contesto utente potrebbe essere interrotto da un softirq
 mentre trattiene il lock, da qui il softirq rimarrà in attesa attiva provando
 ad acquisire il *lock* già trattenuto nel contesto utente.
@@ -1006,12 +1187,21 @@ potreste fare come segue::
             spin_unlock_bh(&list_lock);
 
 Primo o poi, questo esploderà su un sistema multiprocessore perché un
+<<<<<<< HEAD
 temporizzatore potrebbe essere già partiro prima di :c:func:`spin_lock_bh()`,
 e prenderà il *lock* solo dopo :c:func:`spin_unlock_bh()`, e cercherà
 di eliminare il suo oggetto (che però è già stato eliminato).
 
 Questo può essere evitato controllando il valore di ritorno di
 :c:func:`del_timer()`: se ritorna 1, il temporizzatore è stato già
+=======
+temporizzatore potrebbe essere già partiro prima di spin_lock_bh(),
+e prenderà il *lock* solo dopo spin_unlock_bh(), e cercherà
+di eliminare il suo oggetto (che però è già stato eliminato).
+
+Questo può essere evitato controllando il valore di ritorno di
+del_timer(): se ritorna 1, il temporizzatore è stato già
+>>>>>>> upstream/android-13
 rimosso. Se 0, significa (in questo caso) che il temporizzatore è in
 esecuzione, quindi possiamo fare come segue::
 
@@ -1032,9 +1222,15 @@ esecuzione, quindi possiamo fare come segue::
                     spin_unlock_bh(&list_lock);
 
 Un altro problema è l'eliminazione dei temporizzatori che si riavviano
+<<<<<<< HEAD
 da soli (chiamando :c:func:`add_timer()` alla fine della loro esecuzione).
 Dato che questo è un problema abbastanza comune con una propensione
 alle corse critiche, dovreste usare :c:func:`del_timer_sync()`
+=======
+da soli (chiamando add_timer() alla fine della loro esecuzione).
+Dato che questo è un problema abbastanza comune con una propensione
+alle corse critiche, dovreste usare del_timer_sync()
+>>>>>>> upstream/android-13
 (``include/linux/timer.h``) per gestire questo caso. Questa ritorna il
 numero di volte che il temporizzatore è stato interrotto prima che
 fosse in grado di fermarlo senza che si riavviasse.
@@ -1116,7 +1312,11 @@ chiamata ``list``::
             wmb();
             list->next = new;
 
+<<<<<<< HEAD
 La funzione :c:func:`wmb()` è una barriera di sincronizzazione delle
+=======
+La funzione wmb() è una barriera di sincronizzazione delle
+>>>>>>> upstream/android-13
 scritture. Questa garantisce che la prima operazione (impostare l'elemento
 ``next`` del nuovo elemento) venga completata e vista da tutti i processori
 prima che venga eseguita la seconda operazione (che sarebbe quella di mettere
@@ -1127,7 +1327,11 @@ completamente il nuovo elemento; oppure che lo vedano correttamente e quindi
 il puntatore ``next`` deve puntare al resto della lista.
 
 Fortunatamente, c'è una funzione che fa questa operazione sulle liste
+<<<<<<< HEAD
 :c:type:`struct list_head <list_head>`: :c:func:`list_add_rcu()`
+=======
+:c:type:`struct list_head <list_head>`: list_add_rcu()
+>>>>>>> upstream/android-13
 (``include/linux/list.h``).
 
 Rimuovere un elemento dalla lista è anche più facile: sostituiamo il puntatore
@@ -1138,7 +1342,11 @@ l'elemento o lo salteranno.
 
             list->next = old->next;
 
+<<<<<<< HEAD
 La funzione :c:func:`list_del_rcu()` (``include/linux/list.h``) fa esattamente
+=======
+La funzione list_del_rcu() (``include/linux/list.h``) fa esattamente
+>>>>>>> upstream/android-13
 questo (la versione normale corrompe il vecchio oggetto, e non vogliamo che
 accada).
 
@@ -1146,9 +1354,15 @@ Anche i lettori devono stare attenti: alcuni processori potrebbero leggere
 attraverso il puntatore ``next`` il contenuto dell'elemento successivo
 troppo presto, ma non accorgersi che il contenuto caricato è sbagliato quando
 il puntatore ``next`` viene modificato alla loro spalle. Ancora una volta
+<<<<<<< HEAD
 c'è una funzione che viene in vostro aiuto :c:func:`list_for_each_entry_rcu()`
 (``include/linux/list.h``). Ovviamente, gli scrittori possono usare
 :c:func:`list_for_each_entry()` dato che non ci possono essere due scrittori
+=======
+c'è una funzione che viene in vostro aiuto list_for_each_entry_rcu()
+(``include/linux/list.h``). Ovviamente, gli scrittori possono usare
+list_for_each_entry() dato che non ci possono essere due scrittori
+>>>>>>> upstream/android-13
 in contemporanea.
 
 Il nostro ultimo dilemma è il seguente: quando possiamo realmente distruggere
@@ -1156,15 +1370,26 @@ l'elemento rimosso? Ricordate, un lettore potrebbe aver avuto accesso a questo
 elemento proprio ora: se eliminiamo questo elemento ed il puntatore ``next``
 cambia, il lettore salterà direttamente nella spazzatura e scoppierà. Dobbiamo
 aspettare finché tutti i lettori che stanno attraversando la lista abbiano
+<<<<<<< HEAD
 finito. Utilizziamo :c:func:`call_rcu()` per registrare una funzione di
 richiamo che distrugga l'oggetto quando tutti i lettori correnti hanno
 terminato. In alternative, potrebbe essere usata la funzione
 :c:func:`synchronize_rcu()` che blocca l'esecuzione finché tutti i lettori
+=======
+finito. Utilizziamo call_rcu() per registrare una funzione di
+richiamo che distrugga l'oggetto quando tutti i lettori correnti hanno
+terminato. In alternative, potrebbe essere usata la funzione
+synchronize_rcu() che blocca l'esecuzione finché tutti i lettori
+>>>>>>> upstream/android-13
 non terminano di ispezionare la lista.
 
 Ma come fa l'RCU a sapere quando i lettori sono finiti? Il meccanismo è
 il seguente: innanzi tutto i lettori accedono alla lista solo fra la coppia
+<<<<<<< HEAD
 :c:func:`rcu_read_lock()`/:c:func:`rcu_read_unlock()` che disabilita la
+=======
+rcu_read_lock()/rcu_read_unlock() che disabilita la
+>>>>>>> upstream/android-13
 prelazione così che i lettori non vengano sospesi mentre stanno leggendo
 la lista.
 
@@ -1253,12 +1478,20 @@ codice RCU è un po' più ottimizzato di così, ma questa è l'idea di fondo.
      }
 
 Da notare che i lettori modificano il campo popularity nella funzione
+<<<<<<< HEAD
 :c:func:`__cache_find()`, e ora non trattiene alcun *lock*. Una soluzione
+=======
+__cache_find(), e ora non trattiene alcun *lock*. Una soluzione
+>>>>>>> upstream/android-13
 potrebbe essere quella di rendere la variabile ``atomic_t``, ma per l'uso
 che ne abbiamo fatto qui, non ci interessano queste corse critiche perché un
 risultato approssimativo è comunque accettabile, quindi non l'ho cambiato.
 
+<<<<<<< HEAD
 Il risultato è che la funzione :c:func:`cache_find()` non ha bisogno di alcuna
+=======
+Il risultato è che la funzione cache_find() non ha bisogno di alcuna
+>>>>>>> upstream/android-13
 sincronizzazione con le altre funzioni, quindi è veloce su un sistema
 multi-processore tanto quanto lo sarebbe su un sistema mono-processore.
 
@@ -1271,16 +1504,25 @@ riferimenti.
 
 Ora, dato che il '*lock* di lettura' di un RCU non fa altro che disabilitare
 la prelazione, un chiamante che ha sempre la prelazione disabilitata fra le
+<<<<<<< HEAD
 chiamate :c:func:`cache_find()` e :c:func:`object_put()` non necessita
 di incrementare e decrementare il contatore di riferimenti. Potremmo
 esporre la funzione :c:func:`__cache_find()` dichiarandola non-static,
+=======
+chiamate cache_find() e object_put() non necessita
+di incrementare e decrementare il contatore di riferimenti. Potremmo
+esporre la funzione __cache_find() dichiarandola non-static,
+>>>>>>> upstream/android-13
 e quel chiamante potrebbe usare direttamente questa funzione.
 
 Il beneficio qui sta nel fatto che il contatore di riferimenti no
 viene scritto: l'oggetto non viene alterato in alcun modo e quindi diventa
 molto più veloce su sistemi molti-processore grazie alla loro memoria cache.
 
+<<<<<<< HEAD
 .. _`it_per-cpu`:
+=======
+>>>>>>> upstream/android-13
 
 Dati per processore
 -------------------
@@ -1293,10 +1535,17 @@ singolo contatore. Facile e pulito.
 Se questo dovesse essere troppo lento (solitamente non lo è, ma se avete
 dimostrato che lo è devvero), potreste usare un contatore per ogni processore
 e quindi non sarebbe più necessaria la mutua esclusione. Vedere
+<<<<<<< HEAD
 :c:func:`DEFINE_PER_CPU()`, :c:func:`get_cpu_var()` e :c:func:`put_cpu_var()`
 (``include/linux/percpu.h``).
 
 Il tipo di dato ``local_t``, la funzione :c:func:`cpu_local_inc()` e tutte
+=======
+DEFINE_PER_CPU(), get_cpu_var() e put_cpu_var()
+(``include/linux/percpu.h``).
+
+Il tipo di dato ``local_t``, la funzione cpu_local_inc() e tutte
+>>>>>>> upstream/android-13
 le altre funzioni associate, sono di particolare utilità per semplici contatori
 per-processore; su alcune architetture sono anche più efficienti
 (``include/asm/local.h``).
@@ -1324,6 +1573,7 @@ da un'interruzione software. Il gestore d'interruzione non utilizza alcun
         enable_irq(irq);
         spin_unlock(&lock);
 
+<<<<<<< HEAD
 La funzione :c:func:`disable_irq()` impedisce al gestore d'interruzioni
 d'essere eseguito (e aspetta che finisca nel caso fosse in esecuzione su
 un altro processore). Lo spinlock, invece, previene accessi simultanei.
@@ -1332,11 +1582,24 @@ Naturalmente, questo è più lento della semplice chiamata
 è estremamente raro.
 
 .. _`it_sleeping-things`:
+=======
+La funzione disable_irq() impedisce al gestore d'interruzioni
+d'essere eseguito (e aspetta che finisca nel caso fosse in esecuzione su
+un altro processore). Lo spinlock, invece, previene accessi simultanei.
+Naturalmente, questo è più lento della semplice chiamata
+spin_lock_irq(), quindi ha senso solo se questo genere di accesso
+è estremamente raro.
+
+>>>>>>> upstream/android-13
 
 Quali funzioni possono essere chiamate in modo sicuro dalle interruzioni?
 =========================================================================
 
+<<<<<<< HEAD
 Molte funzioni del kernel dormono (in sostanza, chiamano ``schedule()``)
+=======
+Molte funzioni del kernel dormono (in sostanza, chiamano schedule())
+>>>>>>> upstream/android-13
 direttamente od indirettamente: non potete chiamarle se trattenere uno
 spinlock o avete la prelazione disabilitata, mai. Questo significa che
 dovete necessariamente essere nel contesto utente: chiamarle da un
@@ -1354,6 +1617,7 @@ dormire.
 
 -  Accessi allo spazio utente:
 
+<<<<<<< HEAD
    -  :c:func:`copy_from_user()`
 
    -  :c:func:`copy_to_user()`
@@ -1371,6 +1635,25 @@ dormire.
    Comunque, non deve essere usata in un contesto d'interruzione dato
    che la sua implementazione non è sicura in quel contesto.
    Anche :c:func:`mutex_unlock()` non dorme mai. Non può comunque essere
+=======
+   -  copy_from_user()
+
+   -  copy_to_user()
+
+   -  get_user()
+
+   -  put_user()
+
+-  kmalloc(GFP_KERNEL) <kmalloc>`
+
+-  mutex_lock_interruptible() and
+   mutex_lock()
+
+   C'è anche mutex_trylock() che però non dorme.
+   Comunque, non deve essere usata in un contesto d'interruzione dato
+   che la sua implementazione non è sicura in quel contesto.
+   Anche mutex_unlock() non dorme mai. Non può comunque essere
+>>>>>>> upstream/android-13
    usata in un contesto d'interruzione perché un mutex deve essere rilasciato
    dallo stesso processo che l'ha acquisito.
 
@@ -1380,11 +1663,19 @@ Alcune funzioni che non dormono
 Alcune funzioni possono essere chiamate tranquillamente da qualsiasi
 contesto, o trattenendo un qualsiasi *lock*.
 
+<<<<<<< HEAD
 -  :c:func:`printk()`
 
 -  :c:func:`kfree()`
 
 -  :c:func:`add_timer()` e :c:func:`del_timer()`
+=======
+-  printk()
+
+-  kfree()
+
+-  add_timer() e del_timer()
+>>>>>>> upstream/android-13
 
 Riferimento per l'API dei Mutex
 ===============================
@@ -1404,7 +1695,11 @@ Riferimento per l'API dei Futex
 Approfondimenti
 ===============
 
+<<<<<<< HEAD
 -  ``Documentation/locking/spinlocks.txt``: la guida di Linus Torvalds agli
+=======
+-  ``Documentation/locking/spinlocks.rst``: la guida di Linus Torvalds agli
+>>>>>>> upstream/android-13
    spinlock del kernel.
 
 -  Unix Systems for Modern Architectures: Symmetric Multiprocessing and
@@ -1444,14 +1739,22 @@ prelazione
 bh
   Bottom Half: per ragioni storiche, le funzioni che contengono '_bh' nel
   loro nome ora si riferiscono a qualsiasi interruzione software; per esempio,
+<<<<<<< HEAD
   :c:func:`spin_lock_bh()` blocca qualsiasi interuzione software sul processore
+=======
+  spin_lock_bh() blocca qualsiasi interuzione software sul processore
+>>>>>>> upstream/android-13
   corrente. I *Bottom Halves* sono deprecati, e probabilmente verranno
   sostituiti dai tasklet. In un dato momento potrà esserci solo un
   *bottom half* in esecuzione.
 
 contesto d'interruzione
   Non è il contesto utente: qui si processano le interruzioni hardware e
+<<<<<<< HEAD
   software. La macro :c:func:`in_interrupt()` ritorna vero.
+=======
+  software. La macro in_interrupt() ritorna vero.
+>>>>>>> upstream/android-13
 
 contesto utente
   Il kernel che esegue qualcosa per conto di un particolare processo (per
@@ -1461,12 +1764,21 @@ contesto utente
   che hardware.
 
 interruzione hardware
+<<<<<<< HEAD
   Richiesta di interruzione hardware. :c:func:`in_irq()` ritorna vero in un
   gestore d'interruzioni hardware.
 
 interruzione software / softirq
   Gestore di interruzioni software: :c:func:`in_irq()` ritorna falso;
   :c:func:`in_softirq()` ritorna vero. I tasklet e le softirq sono entrambi
+=======
+  Richiesta di interruzione hardware. in_hardirq() ritorna vero in un
+  gestore d'interruzioni hardware.
+
+interruzione software / softirq
+  Gestore di interruzioni software: in_hardirq() ritorna falso;
+  in_softirq() ritorna vero. I tasklet e le softirq sono entrambi
+>>>>>>> upstream/android-13
   considerati 'interruzioni software'.
 
   In soldoni, un softirq è uno delle 32 interruzioni software che possono

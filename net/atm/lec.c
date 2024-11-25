@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lec.c: Lan Emulation driver
  *
@@ -193,7 +197,11 @@ lec_send(struct atm_vcc *vcc, struct sk_buff *skb)
 	dev->stats.tx_bytes += skb->len;
 }
 
+<<<<<<< HEAD
 static void lec_tx_timeout(struct net_device *dev)
+=======
+static void lec_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	pr_info("%s\n", dev->name);
 	netif_trans_update(dev);
@@ -379,7 +387,11 @@ static int lec_atm_send(struct atm_vcc *vcc, struct sk_buff *skb)
 
 		if (mesg->content.normal.no_source_le_narp)
 			break;
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case l_arp_update:
 		lec_arp_update(priv, mesg->content.normal.mac_addr,
 			       mesg->content.normal.atm_addr,
@@ -726,9 +738,13 @@ static int lecd_attach(struct atm_vcc *vcc, int arg)
 	struct lec_priv *priv;
 
 	if (arg < 0)
+<<<<<<< HEAD
 		i = 0;
 	else
 		i = arg;
+=======
+		arg = 0;
+>>>>>>> upstream/android-13
 	if (arg >= MAX_LEC_ITF)
 		return -EINVAL;
 	i = array_index_nospec(arg, MAX_LEC_ITF);
@@ -800,6 +816,7 @@ static const char *lec_arp_get_status_string(unsigned char status)
 
 static void lec_info(struct seq_file *seq, struct lec_arp_table *entry)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < ETH_ALEN; i++)
@@ -808,6 +825,11 @@ static void lec_info(struct seq_file *seq, struct lec_arp_table *entry)
 	for (i = 0; i < ATM_ESA_LEN; i++)
 		seq_printf(seq, "%2.2x", entry->atm_addr[i] & 0xff);
 	seq_printf(seq, " %s %4.4x", lec_arp_get_status_string(entry->status),
+=======
+	seq_printf(seq, "%pM ", entry->mac_addr);
+	seq_printf(seq, "%*phN ", ATM_ESA_LEN, entry->atm_addr);
+	seq_printf(seq, "%s %4.4x", lec_arp_get_status_string(entry->status),
+>>>>>>> upstream/android-13
 		   entry->flags & 0xffff);
 	if (entry->vcc)
 		seq_printf(seq, "%3d %3d ", entry->vcc->vpi, entry->vcc->vci);
@@ -960,9 +982,14 @@ static void *lec_seq_next(struct seq_file *seq, void *v, loff_t *pos)
 {
 	struct lec_state *state = seq->private;
 
+<<<<<<< HEAD
 	v = lec_get_idx(state, 1);
 	*pos += !!PTR_ERR(v);
 	return v;
+=======
+	++*pos;
+	return lec_get_idx(state, 1);
+>>>>>>> upstream/android-13
 }
 
 static int lec_seq_show(struct seq_file *seq, void *v)
@@ -1076,7 +1103,11 @@ module_exit(lane_module_cleanup);
 /*
  * LANE2: 3.1.3, LE_RESOLVE.request
  * Non force allocates memory and fills in *tlvs, fills in *sizeoftlvs.
+<<<<<<< HEAD
  * If sizeoftlvs == NULL the default TLVs associated with with this
+=======
+ * If sizeoftlvs == NULL the default TLVs associated with this
+>>>>>>> upstream/android-13
  * lec will be used.
  * If dst_mac == NULL, targetless LE_ARP will be sent
  */
@@ -1361,7 +1392,11 @@ static void dump_arp_table(struct lec_priv *priv)
 {
 	struct lec_arp_table *rulla;
 	char buf[256];
+<<<<<<< HEAD
 	int i, j, offset;
+=======
+	int i, offset;
+>>>>>>> upstream/android-13
 
 	pr_info("Dump %p:\n", priv);
 	for (i = 0; i < LEC_ARP_TABLE_SIZE; i++) {
@@ -1369,6 +1404,7 @@ static void dump_arp_table(struct lec_priv *priv)
 				     &priv->lec_arp_tables[i], next) {
 			offset = 0;
 			offset += sprintf(buf, "%d: %p\n", i, rulla);
+<<<<<<< HEAD
 			offset += sprintf(buf + offset, "Mac: %pM",
 					  rulla->mac_addr);
 			offset += sprintf(buf + offset, " Atm:");
@@ -1377,6 +1413,12 @@ static void dump_arp_table(struct lec_priv *priv)
 						  "%2.2x ",
 						  rulla->atm_addr[j] & 0xff);
 			}
+=======
+			offset += sprintf(buf + offset, "Mac: %pM ",
+					  rulla->mac_addr);
+			offset += sprintf(buf + offset, "Atm: %*ph ", ATM_ESA_LEN,
+					  rulla->atm_addr);
+>>>>>>> upstream/android-13
 			offset += sprintf(buf + offset,
 					  "Vcc vpi:%d vci:%d, Recv_vcc vpi:%d vci:%d Last_used:%lx, Timestamp:%lx, No_tries:%d ",
 					  rulla->vcc ? rulla->vcc->vpi : 0,
@@ -1399,12 +1441,18 @@ static void dump_arp_table(struct lec_priv *priv)
 		pr_info("No forward\n");
 	hlist_for_each_entry(rulla, &priv->lec_no_forward, next) {
 		offset = 0;
+<<<<<<< HEAD
 		offset += sprintf(buf + offset, "Mac: %pM", rulla->mac_addr);
 		offset += sprintf(buf + offset, " Atm:");
 		for (j = 0; j < ATM_ESA_LEN; j++) {
 			offset += sprintf(buf + offset, "%2.2x ",
 					  rulla->atm_addr[j] & 0xff);
 		}
+=======
+		offset += sprintf(buf + offset, "Mac: %pM ", rulla->mac_addr);
+		offset += sprintf(buf + offset, "Atm: %*ph ", ATM_ESA_LEN,
+				  rulla->atm_addr);
+>>>>>>> upstream/android-13
 		offset += sprintf(buf + offset,
 				  "Vcc vpi:%d vci:%d, Recv_vcc vpi:%d vci:%d Last_used:%lx, Timestamp:%lx, No_tries:%d ",
 				  rulla->vcc ? rulla->vcc->vpi : 0,
@@ -1424,12 +1472,18 @@ static void dump_arp_table(struct lec_priv *priv)
 		pr_info("Empty ones\n");
 	hlist_for_each_entry(rulla, &priv->lec_arp_empty_ones, next) {
 		offset = 0;
+<<<<<<< HEAD
 		offset += sprintf(buf + offset, "Mac: %pM", rulla->mac_addr);
 		offset += sprintf(buf + offset, " Atm:");
 		for (j = 0; j < ATM_ESA_LEN; j++) {
 			offset += sprintf(buf + offset, "%2.2x ",
 					  rulla->atm_addr[j] & 0xff);
 		}
+=======
+		offset += sprintf(buf + offset, "Mac: %pM ", rulla->mac_addr);
+		offset += sprintf(buf + offset, "Atm: %*ph ", ATM_ESA_LEN,
+				  rulla->atm_addr);
+>>>>>>> upstream/android-13
 		offset += sprintf(buf + offset,
 				  "Vcc vpi:%d vci:%d, Recv_vcc vpi:%d vci:%d Last_used:%lx, Timestamp:%lx, No_tries:%d ",
 				  rulla->vcc ? rulla->vcc->vpi : 0,
@@ -1449,12 +1503,18 @@ static void dump_arp_table(struct lec_priv *priv)
 		pr_info("Multicast Forward VCCs\n");
 	hlist_for_each_entry(rulla, &priv->mcast_fwds, next) {
 		offset = 0;
+<<<<<<< HEAD
 		offset += sprintf(buf + offset, "Mac: %pM", rulla->mac_addr);
 		offset += sprintf(buf + offset, " Atm:");
 		for (j = 0; j < ATM_ESA_LEN; j++) {
 			offset += sprintf(buf + offset, "%2.2x ",
 					  rulla->atm_addr[j] & 0xff);
 		}
+=======
+		offset += sprintf(buf + offset, "Mac: %pM ", rulla->mac_addr);
+		offset += sprintf(buf + offset, "Atm: %*ph ", ATM_ESA_LEN,
+				  rulla->atm_addr);
+>>>>>>> upstream/android-13
 		offset += sprintf(buf + offset,
 				  "Vcc vpi:%d vci:%d, Recv_vcc vpi:%d vci:%d Last_used:%lx, Timestamp:%lx, No_tries:%d ",
 				  rulla->vcc ? rulla->vcc->vpi : 0,
@@ -1555,10 +1615,15 @@ static struct lec_arp_table *make_entry(struct lec_priv *priv,
 	struct lec_arp_table *to_return;
 
 	to_return = kzalloc(sizeof(struct lec_arp_table), GFP_ATOMIC);
+<<<<<<< HEAD
 	if (!to_return) {
 		pr_info("LEC: Arp entry kmalloc failed\n");
 		return NULL;
 	}
+=======
+	if (!to_return)
+		return NULL;
+>>>>>>> upstream/android-13
 	ether_addr_copy(to_return->mac_addr, mac_addr);
 	INIT_HLIST_NODE(&to_return->next);
 	timer_setup(&to_return->timer, lec_arp_expire_arp, 0);
@@ -1980,6 +2045,7 @@ lec_vcc_added(struct lec_priv *priv, const struct atmlec_ioc *ioc_data,
 		 * Vcc which we don't want to make default vcc,
 		 * attach it anyway.
 		 */
+<<<<<<< HEAD
 		pr_debug("LEC_ARP:Attaching data direct, not default: %2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x\n",
 			 ioc_data->atm_addr[0], ioc_data->atm_addr[1],
 			 ioc_data->atm_addr[2], ioc_data->atm_addr[3],
@@ -1991,6 +2057,10 @@ lec_vcc_added(struct lec_priv *priv, const struct atmlec_ioc *ioc_data,
 			 ioc_data->atm_addr[14], ioc_data->atm_addr[15],
 			 ioc_data->atm_addr[16], ioc_data->atm_addr[17],
 			 ioc_data->atm_addr[18], ioc_data->atm_addr[19]);
+=======
+		pr_debug("LEC_ARP:Attaching data direct, not default: %*phN\n",
+			 ATM_ESA_LEN, ioc_data->atm_addr);
+>>>>>>> upstream/android-13
 		entry = make_entry(priv, bus_mac);
 		if (entry == NULL)
 			goto out;
@@ -2006,6 +2076,7 @@ lec_vcc_added(struct lec_priv *priv, const struct atmlec_ioc *ioc_data,
 		dump_arp_table(priv);
 		goto out;
 	}
+<<<<<<< HEAD
 	pr_debug("LEC_ARP:Attaching data direct, default: %2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x\n",
 		 ioc_data->atm_addr[0], ioc_data->atm_addr[1],
 		 ioc_data->atm_addr[2], ioc_data->atm_addr[3],
@@ -2017,6 +2088,10 @@ lec_vcc_added(struct lec_priv *priv, const struct atmlec_ioc *ioc_data,
 		 ioc_data->atm_addr[14], ioc_data->atm_addr[15],
 		 ioc_data->atm_addr[16], ioc_data->atm_addr[17],
 		 ioc_data->atm_addr[18], ioc_data->atm_addr[19]);
+=======
+	pr_debug("LEC_ARP:Attaching data direct, default: %*phN\n",
+		 ATM_ESA_LEN, ioc_data->atm_addr);
+>>>>>>> upstream/android-13
 	for (i = 0; i < LEC_ARP_TABLE_SIZE; i++) {
 		hlist_for_each_entry(entry,
 				     &priv->lec_arp_tables[i], next) {

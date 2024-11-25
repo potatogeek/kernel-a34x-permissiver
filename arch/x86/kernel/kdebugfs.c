@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Architecture specific debugfs files
  *
  * Copyright (C) 2007, Intel Corp.
  *	Huang Ying <ying.huang@intel.com>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>
@@ -45,7 +52,16 @@ static ssize_t setup_data_read(struct file *file, char __user *user_buf,
 	if (count > node->len - pos)
 		count = node->len - pos;
 
+<<<<<<< HEAD
 	pa = node->paddr + sizeof(struct setup_data) + pos;
+=======
+	pa = node->paddr + pos;
+
+	/* Is it direct data or invalid indirect one? */
+	if (!(node->type & SETUP_INDIRECT) || node->type == SETUP_INDIRECT)
+		pa += sizeof(struct setup_data);
+
+>>>>>>> upstream/android-13
 	p = memremap(pa, count, MEMREMAP_WB);
 	if (!p)
 		return -ENOMEM;
@@ -68,15 +84,24 @@ static const struct file_operations fops_setup_data = {
 	.llseek		= default_llseek,
 };
 
+<<<<<<< HEAD
 static int __init
 create_setup_data_node(struct dentry *parent, int no,
 		       struct setup_data_node *node)
 {
 	struct dentry *d, *type, *data;
+=======
+static void __init
+create_setup_data_node(struct dentry *parent, int no,
+		       struct setup_data_node *node)
+{
+	struct dentry *d;
+>>>>>>> upstream/android-13
 	char buf[16];
 
 	sprintf(buf, "%d", no);
 	d = debugfs_create_dir(buf, parent);
+<<<<<<< HEAD
 	if (!d)
 		return -ENOMEM;
 
@@ -95,10 +120,16 @@ err_type:
 err_dir:
 	debugfs_remove(d);
 	return -ENOMEM;
+=======
+
+	debugfs_create_x32("type", S_IRUGO, d, &node->type);
+	debugfs_create_file("data", S_IRUGO, d, node, &fops_setup_data);
+>>>>>>> upstream/android-13
 }
 
 static int __init create_setup_data_nodes(struct dentry *parent)
 {
+<<<<<<< HEAD
 	struct setup_data_node *node;
 	struct setup_data *data;
 	int error;
@@ -109,6 +140,18 @@ static int __init create_setup_data_nodes(struct dentry *parent)
 	d = debugfs_create_dir("setup_data", parent);
 	if (!d)
 		return -ENOMEM;
+=======
+	struct setup_indirect *indirect;
+	struct setup_data_node *node;
+	struct setup_data *data;
+	u64 pa_data, pa_next;
+	struct dentry *d;
+	int error;
+	u32 len;
+	int no = 0;
+
+	d = debugfs_create_dir("setup_data", parent);
+>>>>>>> upstream/android-13
 
 	pa_data = boot_params.hdr.setup_data;
 
@@ -125,6 +168,7 @@ static int __init create_setup_data_nodes(struct dentry *parent)
 			error = -ENOMEM;
 			goto err_dir;
 		}
+<<<<<<< HEAD
 
 		node->paddr = pa_data;
 		node->type = data->type;
@@ -135,13 +179,52 @@ static int __init create_setup_data_nodes(struct dentry *parent)
 		memunmap(data);
 		if (error)
 			goto err_dir;
+=======
+		pa_next = data->next;
+
+		if (data->type == SETUP_INDIRECT) {
+			len = sizeof(*data) + data->len;
+			memunmap(data);
+			data = memremap(pa_data, len, MEMREMAP_WB);
+			if (!data) {
+				kfree(node);
+				error = -ENOMEM;
+				goto err_dir;
+			}
+
+			indirect = (struct setup_indirect *)data->data;
+
+			if (indirect->type != SETUP_INDIRECT) {
+				node->paddr = indirect->addr;
+				node->type  = indirect->type;
+				node->len   = indirect->len;
+			} else {
+				node->paddr = pa_data;
+				node->type  = data->type;
+				node->len   = data->len;
+			}
+		} else {
+			node->paddr = pa_data;
+			node->type  = data->type;
+			node->len   = data->len;
+		}
+
+		create_setup_data_node(d, no, node);
+		pa_data = pa_next;
+
+		memunmap(data);
+>>>>>>> upstream/android-13
 		no++;
 	}
 
 	return 0;
 
 err_dir:
+<<<<<<< HEAD
 	debugfs_remove(d);
+=======
+	debugfs_remove_recursive(d);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -152,6 +235,7 @@ static struct debugfs_blob_wrapper boot_params_blob = {
 
 static int __init boot_params_kdebugfs_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *dbp, *version, *data;
 	int error = -ENOMEM;
 
@@ -181,6 +265,20 @@ err_version:
 	debugfs_remove(version);
 err_dir:
 	debugfs_remove(dbp);
+=======
+	struct dentry *dbp;
+	int error;
+
+	dbp = debugfs_create_dir("boot_params", arch_debugfs_dir);
+
+	debugfs_create_x16("version", S_IRUGO, dbp, &boot_params.hdr.version);
+	debugfs_create_blob("data", S_IRUGO, dbp, &boot_params_blob);
+
+	error = create_setup_data_nodes(dbp);
+	if (error)
+		debugfs_remove_recursive(dbp);
+
+>>>>>>> upstream/android-13
 	return error;
 }
 #endif /* CONFIG_DEBUG_BOOT_PARAMS */
@@ -190,8 +288,11 @@ static int __init arch_kdebugfs_init(void)
 	int error = 0;
 
 	arch_debugfs_dir = debugfs_create_dir("x86", NULL);
+<<<<<<< HEAD
 	if (!arch_debugfs_dir)
 		return -ENOMEM;
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DEBUG_BOOT_PARAMS
 	error = boot_params_kdebugfs_init();

@@ -131,12 +131,15 @@ static inline void validate_st_entry(unsigned long *entry)
 	*entry |= ZPCI_TABLE_VALID;
 }
 
+<<<<<<< HEAD
 static inline void invalidate_table_entry(unsigned long *entry)
 {
 	*entry &= ~ZPCI_TABLE_VALID_MASK;
 	*entry |= ZPCI_TABLE_INVALID;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void invalidate_pt_entry(unsigned long *entry)
 {
 	WARN_ON_ONCE((*entry & ZPCI_PTE_VALID_MASK) == ZPCI_PTE_INVALID);
@@ -173,11 +176,14 @@ static inline int pt_entry_isvalid(unsigned long entry)
 	return (entry & ZPCI_PTE_VALID_MASK) == ZPCI_PTE_VALID;
 }
 
+<<<<<<< HEAD
 static inline int entry_isprotected(unsigned long entry)
 {
 	return (entry & ZPCI_TABLE_PROT_MASK) == ZPCI_TABLE_PROTECTED;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline unsigned long *get_rt_sto(unsigned long entry)
 {
 	return ((entry & ZPCI_TABLE_TYPE_MASK) == ZPCI_TABLE_TYPE_RTX)
@@ -193,8 +199,11 @@ static inline unsigned long *get_st_pto(unsigned long entry)
 }
 
 /* Prototypes */
+<<<<<<< HEAD
 int zpci_dma_init_device(struct zpci_dev *);
 void zpci_dma_exit_device(struct zpci_dev *);
+=======
+>>>>>>> upstream/android-13
 void dma_free_seg_table(unsigned long);
 unsigned long *dma_alloc_cpu_table(void);
 void dma_cleanup_tables(unsigned long *);

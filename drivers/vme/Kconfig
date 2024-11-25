@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # VME configuration.
 #
@@ -5,7 +9,11 @@
 menuconfig VME_BUS
 	bool "VME bridge support"
 	depends on PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here you get support for the VME bridge Framework.
 
 if VME_BUS

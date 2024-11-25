@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wlcore
  *
  * Copyright (C) 2014 Texas Instruments. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pm_runtime.h>
@@ -41,8 +48,13 @@ wlcore_vendor_cmd_smart_config_start(struct wiphy *wiphy,
 	if (!data)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = nla_parse(tb, MAX_WLCORE_VENDOR_ATTR, data, data_len,
 			wlcore_vendor_attr_policy, NULL);
+=======
+	ret = nla_parse_deprecated(tb, MAX_WLCORE_VENDOR_ATTR, data, data_len,
+				   wlcore_vendor_attr_policy, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -122,8 +134,13 @@ wlcore_vendor_cmd_smart_config_set_group_key(struct wiphy *wiphy,
 	if (!data)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = nla_parse(tb, MAX_WLCORE_VENDOR_ATTR, data, data_len,
 			wlcore_vendor_attr_policy, NULL);
+=======
+	ret = nla_parse_deprecated(tb, MAX_WLCORE_VENDOR_ATTR, data, data_len,
+				   wlcore_vendor_attr_policy, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -166,6 +183,10 @@ static const struct wiphy_vendor_command wlcore_vendor_commands[] = {
 		.flags = WIPHY_VENDOR_CMD_NEED_NETDEV |
 			 WIPHY_VENDOR_CMD_NEED_RUNNING,
 		.doit = wlcore_vendor_cmd_smart_config_start,
+<<<<<<< HEAD
+=======
+		.policy = wlcore_vendor_attr_policy,
+>>>>>>> upstream/android-13
 	},
 	{
 		.info = {
@@ -175,6 +196,10 @@ static const struct wiphy_vendor_command wlcore_vendor_commands[] = {
 		.flags = WIPHY_VENDOR_CMD_NEED_NETDEV |
 			 WIPHY_VENDOR_CMD_NEED_RUNNING,
 		.doit = wlcore_vendor_cmd_smart_config_stop,
+<<<<<<< HEAD
+=======
+		.policy = wlcore_vendor_attr_policy,
+>>>>>>> upstream/android-13
 	},
 	{
 		.info = {
@@ -184,6 +209,10 @@ static const struct wiphy_vendor_command wlcore_vendor_commands[] = {
 		.flags = WIPHY_VENDOR_CMD_NEED_NETDEV |
 			 WIPHY_VENDOR_CMD_NEED_RUNNING,
 		.doit = wlcore_vendor_cmd_smart_config_set_group_key,
+<<<<<<< HEAD
+=======
+		.policy = wlcore_vendor_attr_policy,
+>>>>>>> upstream/android-13
 	},
 };
 

@@ -24,7 +24,10 @@
  *
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include <drm/drm_crtc_helper.h>
 #include "nouveau_drv.h"
 #include "nouveau_encoder.h"

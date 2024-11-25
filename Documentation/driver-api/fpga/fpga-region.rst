@@ -34,6 +34,7 @@ fpga_image_info including:
  * flags indicating specifics such as whether the image is for partial
    reconfiguration.
 
+<<<<<<< HEAD
 How to program an FPGA using a region
 -------------------------------------
 
@@ -69,6 +70,8 @@ fpga_image_info (region->info).  This function will attempt to:
 
 Then you will want to enumerate whatever hardware has appeared in the FPGA.
 
+=======
+>>>>>>> upstream/android-13
 How to add a new FPGA region
 ----------------------------
 
@@ -77,6 +80,7 @@ An example of usage can be seen in the probe function of [#f2]_.
 .. [#f1] ../devicetree/bindings/fpga/fpga-region.txt
 .. [#f2] ../../drivers/fpga/of-fpga-region.c
 
+<<<<<<< HEAD
 API to program an FPGA
 ----------------------
 
@@ -86,17 +90,74 @@ API to program an FPGA
 API to add a new FPGA region
 ----------------------------
 
+=======
+API to add a new FPGA region
+----------------------------
+
+* struct fpga_region - The FPGA region struct
+* devm_fpga_region_create() - Allocate and init a region struct
+* fpga_region_register() -  Register an FPGA region
+* fpga_region_unregister() -  Unregister an FPGA region
+
+The FPGA region's probe function will need to get a reference to the FPGA
+Manager it will be using to do the programming.  This usually would happen
+during the region's probe function.
+
+* fpga_mgr_get() - Get a reference to an FPGA manager, raise ref count
+* of_fpga_mgr_get() -  Get a reference to an FPGA manager, raise ref count,
+  given a device node.
+* fpga_mgr_put() - Put an FPGA manager
+
+The FPGA region will need to specify which bridges to control while programming
+the FPGA.  The region driver can build a list of bridges during probe time
+(:c:expr:`fpga_region->bridge_list`) or it can have a function that creates
+the list of bridges to program just before programming
+(:c:expr:`fpga_region->get_bridges`).  The FPGA bridge framework supplies the
+following APIs to handle building or tearing down that list.
+
+* fpga_bridge_get_to_list() - Get a ref of an FPGA bridge, add it to a
+  list
+* of_fpga_bridge_get_to_list() - Get a ref of an FPGA bridge, add it to a
+  list, given a device node
+* fpga_bridges_put() - Given a list of bridges, put them
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: include/linux/fpga/fpga-region.h
    :functions: fpga_region
 
 .. kernel-doc:: drivers/fpga/fpga-region.c
+<<<<<<< HEAD
    :functions: fpga_region_create
 
 .. kernel-doc:: drivers/fpga/fpga-region.c
    :functions: fpga_region_free
+=======
+   :functions: devm_fpga_region_create
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: drivers/fpga/fpga-region.c
    :functions: fpga_region_register
 
 .. kernel-doc:: drivers/fpga/fpga-region.c
    :functions: fpga_region_unregister
+<<<<<<< HEAD
+=======
+
+.. kernel-doc:: drivers/fpga/fpga-mgr.c
+   :functions: fpga_mgr_get
+
+.. kernel-doc:: drivers/fpga/fpga-mgr.c
+   :functions: of_fpga_mgr_get
+
+.. kernel-doc:: drivers/fpga/fpga-mgr.c
+   :functions: fpga_mgr_put
+
+.. kernel-doc:: drivers/fpga/fpga-bridge.c
+   :functions: fpga_bridge_get_to_list
+
+.. kernel-doc:: drivers/fpga/fpga-bridge.c
+   :functions: of_fpga_bridge_get_to_list
+
+.. kernel-doc:: drivers/fpga/fpga-bridge.c
+   :functions: fpga_bridges_put
+>>>>>>> upstream/android-13

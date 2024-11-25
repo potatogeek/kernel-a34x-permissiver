@@ -321,7 +321,10 @@ static int berlin2_adc_probe(struct platform_device *pdev)
 	init_waitqueue_head(&priv->wq);
 	mutex_init(&priv->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&pdev->dev);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &berlin2_adc_info;

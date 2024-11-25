@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * sky81452-regulator.c	SKY81452 regulator driver
  *
@@ -16,6 +17,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// sky81452-regulator.c	SKY81452 regulator driver
+//
+// Copyright 2014 Skyworks Solutions Inc.
+// Author : Gyungoh Yoo <jack.yoo@skyworksinc.com>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -34,7 +43,11 @@
 #define SKY81452_LEN	0x40
 #define SKY81452_LOUT	0x1F
 
+<<<<<<< HEAD
 static struct regulator_ops sky81452_reg_ops = {
+=======
+static const struct regulator_ops sky81452_reg_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage = regulator_list_voltage_linear_range,
 	.map_voltage = regulator_map_voltage_linear_range,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
@@ -44,7 +57,11 @@ static struct regulator_ops sky81452_reg_ops = {
 	.is_enabled = regulator_is_enabled_regmap,
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range sky81452_reg_ranges[] = {
+=======
+static const struct linear_range sky81452_reg_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(4500000, 0, 14, 250000),
 	REGULATOR_LINEAR_RANGE(9000000, 15, 31, 1000000),
 };

@@ -36,10 +36,17 @@ account_scheduler_latency(struct task_struct *task, int usecs, int inter)
 		__account_scheduler_latency(task, usecs, inter);
 }
 
+<<<<<<< HEAD
 void clear_all_latency_tracing(struct task_struct *p);
 
 extern int sysctl_latencytop(struct ctl_table *table, int write,
 			void __user *buffer, size_t *lenp, loff_t *ppos);
+=======
+void clear_tsk_latency_tracing(struct task_struct *p);
+
+int sysctl_latencytop(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos);
+>>>>>>> upstream/android-13
 
 #else
 
@@ -48,7 +55,11 @@ account_scheduler_latency(struct task_struct *task, int usecs, int inter)
 {
 }
 
+<<<<<<< HEAD
 static inline void clear_all_latency_tracing(struct task_struct *p)
+=======
+static inline void clear_tsk_latency_tracing(struct task_struct *p)
+>>>>>>> upstream/android-13
 {
 }
 

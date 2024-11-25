@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * lib/ts_kmp.c		Knuth-Morris-Pratt text search implementation
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * lib/ts_kmp.c		Knuth-Morris-Pratt text search implementation
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  *
  * ==========================================================================
@@ -40,7 +47,11 @@ struct ts_kmp
 {
 	u8 *		pattern;
 	unsigned int	pattern_len;
+<<<<<<< HEAD
 	unsigned int 	prefix_tbl[0];
+=======
+	unsigned int	prefix_tbl[];
+>>>>>>> upstream/android-13
 };
 
 static unsigned int kmp_find(struct ts_config *conf, struct ts_state *state)

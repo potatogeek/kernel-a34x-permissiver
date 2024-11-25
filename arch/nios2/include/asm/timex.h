@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright Altera Corporation (C) 2014. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -12,6 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright Altera Corporation (C) 2014. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_NIOS2_TIMEX_H

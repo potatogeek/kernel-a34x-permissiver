@@ -39,7 +39,11 @@ static int tpic2810_get_direction(struct gpio_chip *chip,
 				  unsigned offset)
 {
 	/* This device always output */
+<<<<<<< HEAD
 	return 0;
+=======
+	return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int tpic2810_direction_input(struct gpio_chip *chip,

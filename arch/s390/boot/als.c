@@ -7,6 +7,10 @@
 #include <asm/facility.h>
 #include <asm/lowcore.h>
 #include <asm/sclp.h>
+<<<<<<< HEAD
+=======
+#include "boot.h"
+>>>>>>> upstream/android-13
 
 /*
  * The code within this file will be called very early. It may _not_
@@ -58,7 +62,11 @@ static void u16_to_decimal(char *str, u16 val)
 	*str = '\0';
 }
 
+<<<<<<< HEAD
 static void print_missing_facilities(void)
+=======
+void print_missing_facilities(void)
+>>>>>>> upstream/android-13
 {
 	static char als_str[80] = "Missing facilities: ";
 	unsigned long val;
@@ -67,7 +75,11 @@ static void print_missing_facilities(void)
 
 	first = 1;
 	for (i = 0; i < ARRAY_SIZE(als); i++) {
+<<<<<<< HEAD
 		val = ~S390_lowcore.stfle_fac_list[i] & als[i];
+=======
+		val = ~stfle_fac_list[i] & als[i];
+>>>>>>> upstream/android-13
 		for (j = 0; j < BITS_PER_LONG; j++) {
 			if (!(val & (1UL << (BITS_PER_LONG - 1 - j))))
 				continue;
@@ -90,7 +102,10 @@ static void print_missing_facilities(void)
 	}
 	strcat(als_str, "\n");
 	sclp_early_printk(als_str);
+<<<<<<< HEAD
 	sclp_early_printk("See Principles of Operations for facility bits\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 static void facility_mismatch(void)
@@ -98,13 +113,19 @@ static void facility_mismatch(void)
 	sclp_early_printk("The Linux kernel requires more recent processor hardware\n");
 	print_machine_type();
 	print_missing_facilities();
+<<<<<<< HEAD
 	disabled_wait(0x8badcccc);
+=======
+	sclp_early_printk("See Principles of Operations for facility bits\n");
+	disabled_wait();
+>>>>>>> upstream/android-13
 }
 
 void verify_facilities(void)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(S390_lowcore.stfle_fac_list); i++)
 		S390_lowcore.stfle_fac_list[i] = 0;
 	asm volatile(
@@ -121,6 +142,11 @@ void verify_facilities(void)
 	}
 	for (i = 0; i < ARRAY_SIZE(als); i++) {
 		if ((S390_lowcore.stfle_fac_list[i] & als[i]) != als[i])
+=======
+	__stfle(stfle_fac_list, ARRAY_SIZE(stfle_fac_list));
+	for (i = 0; i < ARRAY_SIZE(als); i++) {
+		if ((stfle_fac_list[i] & als[i]) != als[i])
+>>>>>>> upstream/android-13
 			facility_mismatch();
 	}
 }

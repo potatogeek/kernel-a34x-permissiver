@@ -25,6 +25,7 @@ static inline struct hlist_bl_node *hlist_bl_first_rcu(struct hlist_bl_head *h)
 }
 
 /**
+<<<<<<< HEAD
  * hlist_bl_del_init_rcu - deletes entry from hash list with re-initialization
  * @n: the element to delete from the hash list.
  *
@@ -53,6 +54,8 @@ static inline void hlist_bl_del_init_rcu(struct hlist_bl_node *n)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * hlist_bl_del_rcu - deletes entry from hash list without re-initialization
  * @n: the element to delete from the hash list.
  *

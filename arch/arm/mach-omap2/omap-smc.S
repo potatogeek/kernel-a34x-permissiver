@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP34xx and OMAP44xx secure APIs file.
  *
@@ -5,11 +9,15 @@
  * Written by Santosh Shilimkar <santosh.shilimkar@ti.com>
  *
  * Copyright (C) 2012 Ivaylo Dimitrov <freemangordon@abv.bg>
+<<<<<<< HEAD
  * Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
  *
  * This program is free software,you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Copyright (C) 2013 Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -21,17 +29,29 @@
  * the monitor API number. It uses few CPU registers
  * internally and hence they need be backed up including
  * link register "lr".
+<<<<<<< HEAD
  * Function signature : void omap_smc1(u32 fn, u32 arg)
  */
 
 ENTRY(omap_smc1)
+=======
+ * Function signature : void _omap_smc1(u32 fn, u32 arg)
+ */
+	.arch armv7-a
+	.arch_extension sec
+ENTRY(_omap_smc1)
+>>>>>>> upstream/android-13
 	stmfd   sp!, {r2-r12, lr}
 	mov	r12, r0
 	mov 	r0, r1
 	dsb
 	smc	#0
 	ldmfd   sp!, {r2-r12, pc}
+<<<<<<< HEAD
 ENDPROC(omap_smc1)
+=======
+ENDPROC(_omap_smc1)
+>>>>>>> upstream/android-13
 
 /**
  * u32 omap_smc2(u32 id, u32 falg, u32 pargs)

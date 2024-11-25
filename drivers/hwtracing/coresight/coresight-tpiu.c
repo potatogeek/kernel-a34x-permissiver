@@ -47,19 +47,30 @@
 #define FFCR_FON_MAN		BIT(6)
 #define FFCR_STOP_FI		BIT(12)
 
+<<<<<<< HEAD
 /**
  * @base:	memory mapped base address for this component.
  * @dev:	the device entity associated to this component.
+=======
+DEFINE_CORESIGHT_DEVLIST(tpiu_devs, "tpiu");
+
+/*
+ * @base:	memory mapped base address for this component.
+>>>>>>> upstream/android-13
  * @atclk:	optional clock for the core parts of the TPIU.
  * @csdev:	component vitals needed by the framework.
  */
 struct tpiu_drvdata {
 	void __iomem		*base;
+<<<<<<< HEAD
 	struct device		*dev;
+=======
+>>>>>>> upstream/android-13
 	struct clk		*atclk;
 	struct coresight_device	*csdev;
 };
 
+<<<<<<< HEAD
 static void tpiu_enable_hw(struct tpiu_drvdata *drvdata)
 {
 	CS_UNLOCK(drvdata->base);
@@ -67,10 +78,20 @@ static void tpiu_enable_hw(struct tpiu_drvdata *drvdata)
 	/* TODO: fill this up */
 
 	CS_LOCK(drvdata->base);
+=======
+static void tpiu_enable_hw(struct csdev_access *csa)
+{
+	CS_UNLOCK(csa->base);
+
+	/* TODO: fill this up */
+
+	CS_LOCK(csa->base);
+>>>>>>> upstream/android-13
 }
 
 static int tpiu_enable(struct coresight_device *csdev, u32 mode, void *__unused)
 {
+<<<<<<< HEAD
 	struct tpiu_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
 
 	tpiu_enable_hw(drvdata);
@@ -93,10 +114,33 @@ static void tpiu_disable_hw(struct tpiu_drvdata *drvdata)
 	coresight_timeout(drvdata->base, TPIU_FFSR, FFSR_FT_STOPPED_BIT, 1);
 
 	CS_LOCK(drvdata->base);
+=======
+	tpiu_enable_hw(&csdev->access);
+	atomic_inc(csdev->refcnt);
+	dev_dbg(&csdev->dev, "TPIU enabled\n");
+	return 0;
+}
+
+static void tpiu_disable_hw(struct csdev_access *csa)
+{
+	CS_UNLOCK(csa->base);
+
+	/* Clear formatter and stop on flush */
+	csdev_access_relaxed_write32(csa, FFCR_STOP_FI, TPIU_FFCR);
+	/* Generate manual flush */
+	csdev_access_relaxed_write32(csa, FFCR_STOP_FI | FFCR_FON_MAN, TPIU_FFCR);
+	/* Wait for flush to complete */
+	coresight_timeout(csa, TPIU_FFCR, FFCR_FON_MAN_BIT, 0);
+	/* Wait for formatter to stop */
+	coresight_timeout(csa, TPIU_FFSR, FFSR_FT_STOPPED_BIT, 1);
+
+	CS_LOCK(csa->base);
+>>>>>>> upstream/android-13
 }
 
 static int tpiu_disable(struct coresight_device *csdev)
 {
+<<<<<<< HEAD
 	struct tpiu_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
 
 	if (atomic_dec_return(csdev->refcnt))
@@ -105,6 +149,14 @@ static int tpiu_disable(struct coresight_device *csdev)
 	tpiu_disable_hw(drvdata);
 
 	dev_dbg(drvdata->dev, "TPIU disabled\n");
+=======
+	if (atomic_dec_return(csdev->refcnt))
+		return -EBUSY;
+
+	tpiu_disable_hw(&csdev->access);
+
+	dev_dbg(&csdev->dev, "TPIU disabled\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -126,6 +178,7 @@ static int tpiu_probe(struct amba_device *adev, const struct amba_id *id)
 	struct tpiu_drvdata *drvdata;
 	struct resource *res = &adev->res;
 	struct coresight_desc desc = { 0 };
+<<<<<<< HEAD
 	struct device_node *np = adev->dev.of_node;
 
 	if (np) {
@@ -134,12 +187,21 @@ static int tpiu_probe(struct amba_device *adev, const struct amba_id *id)
 			return PTR_ERR(pdata);
 		adev->dev.platform_data = pdata;
 	}
+=======
+
+	desc.name = coresight_alloc_device_name(&tpiu_devs, dev);
+	if (!desc.name)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
 	if (!drvdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	drvdata->dev = &adev->dev;
+=======
+>>>>>>> upstream/android-13
 	drvdata->atclk = devm_clk_get(&adev->dev, "atclk"); /* optional */
 	if (!IS_ERR(drvdata->atclk)) {
 		ret = clk_prepare_enable(drvdata->atclk);
@@ -154,11 +216,23 @@ static int tpiu_probe(struct amba_device *adev, const struct amba_id *id)
 		return PTR_ERR(base);
 
 	drvdata->base = base;
+<<<<<<< HEAD
 
 	/* Disable tpiu to support older devices */
 	tpiu_disable_hw(drvdata);
 
 	pm_runtime_put(&adev->dev);
+=======
+	desc.access = CSDEV_ACCESS_IOMEM(base);
+
+	/* Disable tpiu to support older devices */
+	tpiu_disable_hw(&desc.access);
+
+	pdata = coresight_get_platform_data(dev);
+	if (IS_ERR(pdata))
+		return PTR_ERR(pdata);
+	dev->platform_data = pdata;
+>>>>>>> upstream/android-13
 
 	desc.type = CORESIGHT_DEV_TYPE_SINK;
 	desc.subtype.sink_subtype = CORESIGHT_DEV_SUBTYPE_SINK_PORT;
@@ -167,7 +241,23 @@ static int tpiu_probe(struct amba_device *adev, const struct amba_id *id)
 	desc.dev = dev;
 	drvdata->csdev = coresight_register(&desc);
 
+<<<<<<< HEAD
 	return PTR_ERR_OR_ZERO(drvdata->csdev);
+=======
+	if (!IS_ERR(drvdata->csdev)) {
+		pm_runtime_put(&adev->dev);
+		return 0;
+	}
+
+	return PTR_ERR(drvdata->csdev);
+}
+
+static void tpiu_remove(struct amba_device *adev)
+{
+	struct tpiu_drvdata *drvdata = dev_get_drvdata(&adev->dev);
+
+	coresight_unregister(drvdata->csdev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM
@@ -213,6 +303,11 @@ static const struct amba_id tpiu_ids[] = {
 	{ 0, 0},
 };
 
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(amba, tpiu_ids);
+
+>>>>>>> upstream/android-13
 static struct amba_driver tpiu_driver = {
 	.drv = {
 		.name	= "coresight-tpiu",
@@ -221,6 +316,19 @@ static struct amba_driver tpiu_driver = {
 		.suppress_bind_attrs = true,
 	},
 	.probe		= tpiu_probe,
+<<<<<<< HEAD
 	.id_table	= tpiu_ids,
 };
 builtin_amba_driver(tpiu_driver);
+=======
+	.remove         = tpiu_remove,
+	.id_table	= tpiu_ids,
+};
+
+module_amba_driver(tpiu_driver);
+
+MODULE_AUTHOR("Pratik Patel <pratikp@codeaurora.org>");
+MODULE_AUTHOR("Mathieu Poirier <mathieu.poirier@linaro.org>");
+MODULE_DESCRIPTION("Arm CoreSight TPIU (Trace Port Interface Unit) driver");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

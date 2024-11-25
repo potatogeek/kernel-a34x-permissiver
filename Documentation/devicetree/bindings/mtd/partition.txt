@@ -24,6 +24,7 @@ another partitioning method.
 Available bindings are listed in the "partitions" subdirectory.
 
 
+<<<<<<< HEAD
 Fixed Partitions
 ================
 
@@ -36,11 +37,16 @@ The partition table should be a subnode of the flash node and should be named
 'partitions'. This node should have the following property:
 - compatible : (required) must be "fixed-partitions"
 Partitions are then defined in subnodes of the partitions node.
+=======
+Deprecated: partitions defined in flash node
+============================================
+>>>>>>> upstream/android-13
 
 For backwards compatibility partitions as direct subnodes of the flash device are
 supported. This use is discouraged.
 NOTE: also for backwards compatibility, direct subnodes that have a compatible
 string are not considered partitions, as they may be used for other bindings.
+<<<<<<< HEAD
 
 #address-cells & #size-cells must both be present in the partitions subnode of the
 flash device. There are two valid values for both:
@@ -155,3 +161,5 @@ flash@3 {
 		};
 	};
 };
+=======
+>>>>>>> upstream/android-13

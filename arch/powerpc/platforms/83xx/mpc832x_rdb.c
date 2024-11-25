@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/platforms/83xx/mpc832x_rdb.c
  *
@@ -7,11 +11,14 @@
  * MPC832x RDB board specific routines.
  * This file is based on mpc832x_mds.c and mpc8313_rdb.c
  * Author: Michael Barkowski <michael.barkowski@freescale.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -26,7 +33,10 @@
 #include <asm/ipic.h>
 #include <asm/udbg.h>
 #include <soc/fsl/qe/qe.h>
+<<<<<<< HEAD
 #include <soc/fsl/qe/qe_ic.h>
+=======
+>>>>>>> upstream/android-13
 #include <sysdev/fsl_soc.h>
 #include <sysdev/fsl_pci.h>
 
@@ -224,7 +234,12 @@ define_machine(mpc832x_rdb) {
 	.name		= "MPC832x RDB",
 	.probe		= mpc832x_rdb_probe,
 	.setup_arch	= mpc832x_rdb_setup_arch,
+<<<<<<< HEAD
 	.init_IRQ	= mpc83xx_ipic_and_qe_init_IRQ,
+=======
+	.discover_phbs  = mpc83xx_setup_pci,
+	.init_IRQ	= mpc83xx_ipic_init_IRQ,
+>>>>>>> upstream/android-13
 	.get_irq	= ipic_get_irq,
 	.restart	= mpc83xx_restart,
 	.time_init	= mpc83xx_time_init,

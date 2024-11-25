@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines  Corp., 2000-2004
  *   Copyright (C) Christoph Hellwig, 2002
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines  Corp., 2000-2004
+ *   Copyright (C) Christoph Hellwig, 2002
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -945,6 +952,10 @@ static int jfs_xattr_get(const struct xattr_handler *handler,
 }
 
 static int jfs_xattr_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+			 struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 			 struct dentry *unused, struct inode *inode,
 			 const char *name, const void *value,
 			 size_t size, int flags)
@@ -963,6 +974,10 @@ static int jfs_xattr_get_os2(const struct xattr_handler *handler,
 }
 
 static int jfs_xattr_set_os2(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+			     struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 			     struct dentry *unused, struct inode *inode,
 			     const char *name, const void *value,
 			     size_t size, int flags)

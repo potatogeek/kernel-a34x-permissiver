@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * NXP LPC18xx/LPC43xx EEPROM memory NVMEM driver
  *
  * Copyright (c) 2015 Ariel D'Alessandro <ariel@vanguardiasur.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -236,7 +243,11 @@ static int lpc18xx_eeprom_probe(struct platform_device *pdev)
 	lpc18xx_nvmem_config.dev = dev;
 	lpc18xx_nvmem_config.priv = eeprom;
 
+<<<<<<< HEAD
 	eeprom->nvmem = nvmem_register(&lpc18xx_nvmem_config);
+=======
+	eeprom->nvmem = devm_nvmem_register(dev, &lpc18xx_nvmem_config);
+>>>>>>> upstream/android-13
 	if (IS_ERR(eeprom->nvmem)) {
 		ret = PTR_ERR(eeprom->nvmem);
 		goto err_clk;
@@ -255,11 +266,14 @@ err_clk:
 static int lpc18xx_eeprom_remove(struct platform_device *pdev)
 {
 	struct lpc18xx_eeprom_dev *eeprom = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	int ret;
 
 	ret = nvmem_unregister(eeprom->nvmem);
 	if (ret < 0)
 		return ret;
+=======
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(eeprom->clk);
 

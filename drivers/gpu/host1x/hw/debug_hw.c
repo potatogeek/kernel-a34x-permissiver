@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 Google, Inc.
  * Author: Erik Gilling <konkers@android.com>
  *
  * Copyright (C) 2011-2013 NVIDIA Corporation
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "../dev.h"
@@ -165,9 +172,15 @@ static unsigned int show_channel_command(struct output *o, u32 val,
 	}
 }
 
+<<<<<<< HEAD
 static void show_gather(struct output *o, phys_addr_t phys_addr,
 			unsigned int words, struct host1x_cdma *cdma,
 			phys_addr_t pin_addr, u32 *map_addr)
+=======
+static void show_gather(struct output *o, dma_addr_t phys_addr,
+			unsigned int words, struct host1x_cdma *cdma,
+			dma_addr_t pin_addr, u32 *map_addr)
+>>>>>>> upstream/android-13
 {
 	/* Map dmaget cursor to corresponding mem handle */
 	u32 offset = phys_addr - pin_addr;
@@ -185,11 +198,19 @@ static void show_gather(struct output *o, phys_addr_t phys_addr,
 	}
 
 	for (i = 0; i < words; i++) {
+<<<<<<< HEAD
 		u32 addr = phys_addr + i * 4;
 		u32 val = *(map_addr + offset / 4 + i);
 
 		if (!data_count) {
 			host1x_debug_output(o, "%08x: %08x: ", addr, val);
+=======
+		dma_addr_t addr = phys_addr + i * 4;
+		u32 val = *(map_addr + offset / 4 + i);
+
+		if (!data_count) {
+			host1x_debug_output(o, "    %pad: %08x: ", &addr, val);
+>>>>>>> upstream/android-13
 			data_count = show_channel_command(o, val, &payload);
 		} else {
 			host1x_debug_cont(o, "%08x%s", val,
@@ -201,11 +222,16 @@ static void show_gather(struct output *o, phys_addr_t phys_addr,
 
 static void show_channel_gathers(struct output *o, struct host1x_cdma *cdma)
 {
+<<<<<<< HEAD
+=======
+	struct push_buffer *pb = &cdma->push_buffer;
+>>>>>>> upstream/android-13
 	struct host1x_job *job;
 
 	list_for_each_entry(job, &cdma->sync_queue, list) {
 		unsigned int i;
 
+<<<<<<< HEAD
 		host1x_debug_output(o, "\n%p: JOB, syncpt_id=%d, syncpt_val=%d, first_get=%08x, timeout=%d num_slots=%d, num_handles=%d\n",
 				    job, job->syncpt_id, job->syncpt_end,
 				    job->first_get, job->timeout,
@@ -215,6 +241,24 @@ static void show_channel_gathers(struct output *o, struct host1x_cdma *cdma)
 			struct host1x_job_gather *g = &job->gathers[i];
 			u32 *mapped;
 
+=======
+		host1x_debug_output(o, "JOB, syncpt %u: %u timeout: %u num_slots: %u num_handles: %u\n",
+				    job->syncpt->id, job->syncpt_end, job->timeout,
+				    job->num_slots, job->num_unpins);
+
+		show_gather(o, pb->dma + job->first_get, job->num_slots * 2, cdma,
+			    pb->dma + job->first_get, pb->mapped + job->first_get);
+
+		for (i = 0; i < job->num_cmds; i++) {
+			struct host1x_job_gather *g;
+			u32 *mapped;
+
+			if (job->cmds[i].is_wait)
+				continue;
+
+			g = &job->cmds[i].gather;
+
+>>>>>>> upstream/android-13
 			if (job->gather_copy_mapped)
 				mapped = (u32 *)job->gather_copy_mapped;
 			else
@@ -225,7 +269,11 @@ static void show_channel_gathers(struct output *o, struct host1x_cdma *cdma)
 				continue;
 			}
 
+<<<<<<< HEAD
 			host1x_debug_output(o, "    GATHER at %pad+%#x, %d words\n",
+=======
+			host1x_debug_output(o, "  GATHER at %pad+%#x, %d words\n",
+>>>>>>> upstream/android-13
 					    &g->base, g->offset, g->words);
 
 			show_gather(o, g->base + g->offset, g->words, cdma,

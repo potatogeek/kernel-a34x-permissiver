@@ -1,9 +1,14 @@
 #!/bin/bash
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 #
 # Get an estimate of how CPU-hoggy to be.
 #
 # Usage: cpus2use.sh
 #
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -25,6 +30,26 @@
 ncpus=`grep '^processor' /proc/cpuinfo | wc -l`
 idlecpus=`mpstat | tail -1 | \
 	awk -v ncpus=$ncpus '{ print ncpus * ($7 + $NF) / 100 }'`
+=======
+# Copyright (C) IBM Corporation, 2013
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+
+if test -n "$TORTURE_ALLOTED_CPUS"
+then
+	echo $TORTURE_ALLOTED_CPUS
+	exit 0
+fi
+ncpus=`grep '^processor' /proc/cpuinfo | wc -l`
+if mpstat -V > /dev/null 2>&1
+then
+	idlecpus=`mpstat | tail -1 | \
+		awk -v ncpus=$ncpus '{ print ncpus * ($7 + $NF) / 100 }'`
+else
+	# No mpstat command, so use all available CPUs.
+	idlecpus=$ncpus
+fi
+>>>>>>> upstream/android-13
 awk -v ncpus=$ncpus -v idlecpus=$idlecpus < /dev/null '
 BEGIN {
 	cpus2use = idlecpus;

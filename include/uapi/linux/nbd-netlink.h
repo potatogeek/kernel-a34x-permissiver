@@ -35,6 +35,10 @@ enum {
 	NBD_ATTR_SOCKETS,
 	NBD_ATTR_DEAD_CONN_TIMEOUT,
 	NBD_ATTR_DEVICE_LIST,
+<<<<<<< HEAD
+=======
+	NBD_ATTR_BACKEND_IDENTIFIER,
+>>>>>>> upstream/android-13
 	__NBD_ATTR_MAX,
 };
 #define NBD_ATTR_MAX (__NBD_ATTR_MAX - 1)

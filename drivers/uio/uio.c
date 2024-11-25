@@ -274,7 +274,11 @@ static struct class uio_class = {
 	.dev_groups = uio_groups,
 };
 
+<<<<<<< HEAD
 bool uio_class_registered;
+=======
+static bool uio_class_registered;
+>>>>>>> upstream/android-13
 
 /*
  * device functions
@@ -398,7 +402,11 @@ static void uio_dev_del_attributes(struct uio_device *idev)
 
 static int uio_get_minor(struct uio_device *idev)
 {
+<<<<<<< HEAD
 	int retval = -ENOMEM;
+=======
+	int retval;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&minor_lock);
 	retval = idr_alloc(&uio_idr, idev, 0, UIO_MAX_DEVICES, GFP_KERNEL);
@@ -491,10 +499,17 @@ static int uio_open(struct inode *inode, struct file *filep)
 	if (!idev->info) {
 		mutex_unlock(&idev->info_lock);
 		ret = -EINVAL;
+<<<<<<< HEAD
 		goto err_alloc_listener;
 	}
 
 	if (idev->info && idev->info->open)
+=======
+		goto err_infoopen;
+	}
+
+	if (idev->info->open)
+>>>>>>> upstream/android-13
 		ret = idev->info->open(idev->info, inode);
 	mutex_unlock(&idev->info_lock);
 	if (ret)
@@ -569,6 +584,7 @@ static ssize_t uio_read(struct file *filep, char __user *buf,
 	ssize_t retval = 0;
 	s32 event_count;
 
+<<<<<<< HEAD
 	mutex_lock(&idev->info_lock);
 	if (!idev->info || !idev->info->irq)
 		retval = -EIO;
@@ -577,12 +593,25 @@ static ssize_t uio_read(struct file *filep, char __user *buf,
 	if (retval)
 		return retval;
 
+=======
+>>>>>>> upstream/android-13
 	if (count != sizeof(s32))
 		return -EINVAL;
 
 	add_wait_queue(&idev->wait, &wait);
 
 	do {
+<<<<<<< HEAD
+=======
+		mutex_lock(&idev->info_lock);
+		if (!idev->info || !idev->info->irq) {
+			retval = -EIO;
+			mutex_unlock(&idev->info_lock);
+			break;
+		}
+		mutex_unlock(&idev->info_lock);
+
+>>>>>>> upstream/android-13
 		set_current_state(TASK_INTERRUPTIBLE);
 
 		event_count = atomic_read(&idev->event);
@@ -635,7 +664,11 @@ static ssize_t uio_write(struct file *filep, const char __user *buf,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (!idev->info || !idev->info->irq) {
+=======
+	if (!idev->info->irq) {
+>>>>>>> upstream/android-13
 		retval = -EIO;
 		goto out;
 	}
@@ -670,7 +703,11 @@ static vm_fault_t uio_vma_fault(struct vm_fault *vmf)
 	struct page *page;
 	unsigned long offset;
 	void *addr;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	vm_fault_t ret = 0;
+>>>>>>> upstream/android-13
 	int mi;
 
 	mutex_lock(&idev->info_lock);
@@ -738,7 +775,12 @@ static int uio_mmap_physical(struct vm_area_struct *vma)
 		return -EINVAL;
 
 	vma->vm_ops = &uio_physical_vm_ops;
+<<<<<<< HEAD
 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+=======
+	if (idev->info->mem[mi].memtype == UIO_MEM_PHYS)
+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We cannot use the vm_iomap_memory() helper here,
@@ -795,6 +837,7 @@ static int uio_mmap(struct file *filep, struct vm_area_struct *vma)
 	}
 
 	switch (idev->info->mem[mi].memtype) {
+<<<<<<< HEAD
 		case UIO_MEM_PHYS:
 			ret = uio_mmap_physical(vma);
 			break;
@@ -807,6 +850,21 @@ static int uio_mmap(struct file *filep, struct vm_area_struct *vma)
 	}
 
 out:
+=======
+	case UIO_MEM_IOVA:
+	case UIO_MEM_PHYS:
+		ret = uio_mmap_physical(vma);
+		break;
+	case UIO_MEM_LOGICAL:
+	case UIO_MEM_VIRTUAL:
+		ret = uio_mmap_logical(vma);
+		break;
+	default:
+		ret = -EINVAL;
+	}
+
+ out:
+>>>>>>> upstream/android-13
 	mutex_unlock(&idev->info_lock);
 	return ret;
 }
@@ -904,7 +962,11 @@ static void uio_device_release(struct device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * uio_register_device - register a new userspace IO device
+=======
+ * __uio_register_device - register a new userspace IO device
+>>>>>>> upstream/android-13
  * @owner:	module that creates the new device
  * @parent:	parent device
  * @info:	UIO device capabilities
@@ -994,6 +1056,47 @@ err_device_create:
 }
 EXPORT_SYMBOL_GPL(__uio_register_device);
 
+<<<<<<< HEAD
+=======
+static void devm_uio_unregister_device(struct device *dev, void *res)
+{
+	uio_unregister_device(*(struct uio_info **)res);
+}
+
+/**
+ * __devm_uio_register_device - Resource managed uio_register_device()
+ * @owner:	module that creates the new device
+ * @parent:	parent device
+ * @info:	UIO device capabilities
+ *
+ * returns zero on success or a negative error code.
+ */
+int __devm_uio_register_device(struct module *owner,
+			       struct device *parent,
+			       struct uio_info *info)
+{
+	struct uio_info **ptr;
+	int ret;
+
+	ptr = devres_alloc(devm_uio_unregister_device, sizeof(*ptr),
+			   GFP_KERNEL);
+	if (!ptr)
+		return -ENOMEM;
+
+	*ptr = info;
+	ret = __uio_register_device(owner, parent, info);
+	if (ret) {
+		devres_free(ptr);
+		return ret;
+	}
+
+	devres_add(parent, ptr);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(__devm_uio_register_device);
+
+>>>>>>> upstream/android-13
 /**
  * uio_unregister_device - unregister a industrial IO device
  * @info:	UIO device capabilities
@@ -1019,6 +1122,12 @@ void uio_unregister_device(struct uio_info *info)
 	idev->info = NULL;
 	mutex_unlock(&idev->info_lock);
 
+<<<<<<< HEAD
+=======
+	wake_up_interruptible(&idev->wait);
+	kill_fasync(&idev->async_queue, SIGIO, POLL_HUP);
+
+>>>>>>> upstream/android-13
 	device_unregister(&idev->dev);
 
 	uio_free_minor(minor);

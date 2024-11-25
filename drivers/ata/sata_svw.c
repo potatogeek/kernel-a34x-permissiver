@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_svw.c - ServerWorks / Apple K2 SATA
  *
@@ -13,6 +17,7 @@
  *  This driver probably works with non-Apple versions of the
  *  Broadcom chipset...
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,11 +34,16 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware documentation available under NDA.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -487,10 +497,14 @@ static int k2_sata_init_one(struct pci_dev *pdev, const struct pci_device_id *en
 		ata_port_pbar_desc(ap, 5, offset, "port");
 	}
 
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		return rc;
 	rc = dma_set_coherent_mask(&pdev->dev, ATA_DMA_MASK);
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 

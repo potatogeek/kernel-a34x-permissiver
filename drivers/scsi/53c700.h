@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8 -*- */
+=======
+>>>>>>> upstream/android-13
 
 /* Driver for 53c700 and 53c700-66 chips from NCR and Symbios
  *
@@ -90,7 +93,11 @@ struct NCR_700_Device_Parameters {
 /* The SYNC negotiation sequence looks like:
  * 
  * If DEV_NEGOTIATED_SYNC not set, tack and SDTR message on to the
+<<<<<<< HEAD
  * initial identify for the device and set DEV_BEGIN_SYNC_NEGOTATION
+=======
+ * initial identify for the device and set DEV_BEGIN_SYNC_NEGOTIATION
+>>>>>>> upstream/android-13
  * If we get an SDTR reply, work out the SXFER parameters, squirrel
  * them away here, clear DEV_BEGIN_SYNC_NEGOTIATION and set
  * DEV_NEGOTIATED_SYNC.  If we get a REJECT msg, squirrel
@@ -209,6 +216,10 @@ struct NCR_700_Host_Parameters {
 #endif
 	__u32	chip710:1;	/* set if really a 710 not 700 */
 	__u32	burst_length:4;	/* set to 0 to disable 710 bursting */
+<<<<<<< HEAD
+=======
+	__u32	noncoherent:1;	/* needs to use non-coherent DMA */
+>>>>>>> upstream/android-13
 
 	/* NOTHING BELOW HERE NEEDS ALTERING */
 	__u32	fast:1;		/* if we can alter the SCSI bus clock
@@ -422,33 +433,53 @@ struct NCR_700_Host_Parameters {
 #define NCR_710_MIN_XFERP	0
 #define NCR_700_MIN_PERIOD	25 /* for SDTR message, 100ns */
 
+<<<<<<< HEAD
 #define script_patch_32(dev, script, symbol, value) \
+=======
+#define script_patch_32(h, script, symbol, value) \
+>>>>>>> upstream/android-13
 { \
 	int i; \
 	dma_addr_t da = value; \
 	for(i=0; i< (sizeof(A_##symbol##_used) / sizeof(__u32)); i++) { \
 		__u32 val = bS_to_cpu((script)[A_##symbol##_used[i]]) + da; \
 		(script)[A_##symbol##_used[i]] = bS_to_host(val); \
+<<<<<<< HEAD
 		dma_cache_sync((dev), &(script)[A_##symbol##_used[i]], 4, DMA_TO_DEVICE); \
+=======
+		dma_sync_to_dev((h), &(script)[A_##symbol##_used[i]], 4); \
+>>>>>>> upstream/android-13
 		DEBUG((" script, patching %s at %d to %pad\n", \
 		       #symbol, A_##symbol##_used[i], &da)); \
 	} \
 }
 
+<<<<<<< HEAD
 #define script_patch_32_abs(dev, script, symbol, value) \
+=======
+#define script_patch_32_abs(h, script, symbol, value) \
+>>>>>>> upstream/android-13
 { \
 	int i; \
 	dma_addr_t da = value; \
 	for(i=0; i< (sizeof(A_##symbol##_used) / sizeof(__u32)); i++) { \
 		(script)[A_##symbol##_used[i]] = bS_to_host(da); \
+<<<<<<< HEAD
 		dma_cache_sync((dev), &(script)[A_##symbol##_used[i]], 4, DMA_TO_DEVICE); \
+=======
+		dma_sync_to_dev((h), &(script)[A_##symbol##_used[i]], 4); \
+>>>>>>> upstream/android-13
 		DEBUG((" script, patching %s at %d to %pad\n", \
 		       #symbol, A_##symbol##_used[i], &da)); \
 	} \
 }
 
 /* Used for patching the SCSI ID in the SELECT instruction */
+<<<<<<< HEAD
 #define script_patch_ID(dev, script, symbol, value) \
+=======
+#define script_patch_ID(h, script, symbol, value) \
+>>>>>>> upstream/android-13
 { \
 	int i; \
 	for(i=0; i< (sizeof(A_##symbol##_used) / sizeof(__u32)); i++) { \
@@ -456,13 +487,21 @@ struct NCR_700_Host_Parameters {
 		val &= 0xff00ffff; \
 		val |= ((value) & 0xff) << 16; \
 		(script)[A_##symbol##_used[i]] = bS_to_host(val); \
+<<<<<<< HEAD
 		dma_cache_sync((dev), &(script)[A_##symbol##_used[i]], 4, DMA_TO_DEVICE); \
+=======
+		dma_sync_to_dev((h), &(script)[A_##symbol##_used[i]], 4); \
+>>>>>>> upstream/android-13
 		DEBUG((" script, patching ID field %s at %d to 0x%x\n", \
 		       #symbol, A_##symbol##_used[i], val)); \
 	} \
 }
 
+<<<<<<< HEAD
 #define script_patch_16(dev, script, symbol, value) \
+=======
+#define script_patch_16(h, script, symbol, value) \
+>>>>>>> upstream/android-13
 { \
 	int i; \
 	for(i=0; i< (sizeof(A_##symbol##_used) / sizeof(__u32)); i++) { \
@@ -470,7 +509,11 @@ struct NCR_700_Host_Parameters {
 		val &= 0xffff0000; \
 		val |= ((value) & 0xffff); \
 		(script)[A_##symbol##_used[i]] = bS_to_host(val); \
+<<<<<<< HEAD
 		dma_cache_sync((dev), &(script)[A_##symbol##_used[i]], 4, DMA_TO_DEVICE); \
+=======
+		dma_sync_to_dev((h), &(script)[A_##symbol##_used[i]], 4); \
+>>>>>>> upstream/android-13
 		DEBUG((" script, patching short field %s at %d to 0x%x\n", \
 		       #symbol, A_##symbol##_used[i], val)); \
 	} \

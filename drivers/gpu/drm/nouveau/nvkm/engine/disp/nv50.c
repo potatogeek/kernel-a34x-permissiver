@@ -28,7 +28,10 @@
 #include "rootnv50.h"
 
 #include <core/client.h>
+<<<<<<< HEAD
 #include <core/enum.h>
+=======
+>>>>>>> upstream/android-13
 #include <core/ramht.h>
 #include <subdev/bios.h>
 #include <subdev/bios/disp.h>
@@ -155,7 +158,11 @@ nv50_disp_ = {
 
 int
 nv50_disp_new_(const struct nv50_disp_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	       int index, struct nvkm_disp **pdisp)
+=======
+	       enum nvkm_subdev_type type, int inst, struct nvkm_disp **pdisp)
+>>>>>>> upstream/android-13
 {
 	struct nv50_disp *disp;
 	int ret;
@@ -165,7 +172,11 @@ nv50_disp_new_(const struct nv50_disp_func *func, struct nvkm_device *device,
 	disp->func = func;
 	*pdisp = &disp->base;
 
+<<<<<<< HEAD
 	ret = nvkm_disp_ctor(&nv50_disp_, device, index, &disp->base);
+=======
+	ret = nvkm_disp_ctor(&nv50_disp_, device, type, inst, &disp->base);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -593,12 +604,24 @@ nv50_disp_super(struct work_struct *work)
 	nvkm_wr32(device, 0x610030, 0x80000000);
 }
 
+<<<<<<< HEAD
 static const struct nvkm_enum
 nv50_disp_intr_error_type[] = {
 	{ 3, "ILLEGAL_MTHD" },
 	{ 4, "INVALID_VALUE" },
 	{ 5, "INVALID_STATE" },
 	{ 7, "INVALID_HANDLE" },
+=======
+const struct nvkm_enum
+nv50_disp_intr_error_type[] = {
+	{ 0, "NONE" },
+	{ 1, "PUSHBUFFER_ERR" },
+	{ 2, "TRAP" },
+	{ 3, "RESERVED_METHOD" },
+	{ 4, "INVALID_ARG" },
+	{ 5, "INVALID_STATE" },
+	{ 7, "UNRESOLVABLE_HANDLE" },
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -767,7 +790,14 @@ nv50_disp = {
 };
 
 int
+<<<<<<< HEAD
 nv50_disp_new(struct nvkm_device *device, int index, struct nvkm_disp **pdisp)
 {
 	return nv50_disp_new_(&nv50_disp, device, index, pdisp);
+=======
+nv50_disp_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_disp **pdisp)
+{
+	return nv50_disp_new_(&nv50_disp, device, type, inst, pdisp);
+>>>>>>> upstream/android-13
 }

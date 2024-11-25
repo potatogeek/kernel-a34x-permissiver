@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   This file is provided under a GPLv2 license.  When using or
  *   redistributing this file, you may do so under that license.
@@ -33,6 +34,12 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  *   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *   Copyright (C) 2016 T-Platforms. All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * IDT PCIe-switch NTB Linux driver
  *
  * Contact Information:
@@ -115,7 +122,10 @@ static struct dentry *csr_dbgdir;
  * @client:	i2c client used to perform IO operations
  *
  * @ee_file:	EEPROM read/write sysfs-file
+<<<<<<< HEAD
  * @csr_file:	CSR read/write debugfs-node
+=======
+>>>>>>> upstream/android-13
  */
 struct idt_smb_seq;
 struct idt_89hpesx_dev {
@@ -137,7 +147,10 @@ struct idt_89hpesx_dev {
 
 	struct bin_attribute *ee_file;
 	struct dentry *csr_dir;
+<<<<<<< HEAD
 	struct dentry *csr_file;
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1128,11 +1141,18 @@ static void idt_get_fw_data(struct idt_89hpesx_dev *pdev)
 
 	device_for_each_child_node(dev, fwnode) {
 		ee_id = idt_ee_match_id(fwnode);
+<<<<<<< HEAD
 		if (!ee_id) {
 			dev_warn(dev, "Skip unsupported EEPROM device");
 			continue;
 		} else
 			break;
+=======
+		if (ee_id)
+			break;
+
+		dev_warn(dev, "Skip unsupported EEPROM device %pfw\n", fwnode);
+>>>>>>> upstream/android-13
 	}
 
 	/* If there is no fwnode EEPROM device, then set zero size */
@@ -1163,6 +1183,10 @@ static void idt_get_fw_data(struct idt_89hpesx_dev *pdev)
 	else /* if (!fwnode_property_read_bool(node, "read-only")) */
 		pdev->eero = false;
 
+<<<<<<< HEAD
+=======
+	fwnode_handle_put(fwnode);
+>>>>>>> upstream/android-13
 	dev_info(dev, "EEPROM of %d bytes found by 0x%x",
 		pdev->eesize, pdev->eeaddr);
 }
@@ -1378,8 +1402,13 @@ static void idt_create_dbgfs_files(struct idt_89hpesx_dev *pdev)
 	pdev->csr_dir = debugfs_create_dir(fname, csr_dbgdir);
 
 	/* Create Debugfs file for CSR read/write operations */
+<<<<<<< HEAD
 	pdev->csr_file = debugfs_create_file(cli->name, 0600,
 		pdev->csr_dir, pdev, &csr_dbgfs_ops);
+=======
+	debugfs_create_file(cli->name, 0600, pdev->csr_dir, pdev,
+			    &csr_dbgfs_ops);
+>>>>>>> upstream/android-13
 }
 
 /*

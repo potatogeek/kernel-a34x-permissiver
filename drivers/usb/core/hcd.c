@@ -29,6 +29,12 @@
 #include <linux/workqueue.h>
 #include <linux/pm_runtime.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <linux/genalloc.h>
+#include <linux/io.h>
+#include <linux/kcov.h>
+>>>>>>> upstream/android-13
 
 #include <linux/phy/phy.h>
 #include <linux/usb.h>
@@ -38,6 +44,10 @@
 #include "usb.h"
 #include "phy.h"
 
+<<<<<<< HEAD
+=======
+#include "../host/xhci-exynos-audio.h"
+>>>>>>> upstream/android-13
 
 /*-------------------------------------------------------------------------*/
 
@@ -74,6 +84,11 @@
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
+=======
+extern struct xhci_exynos_audio *g_xhci_exynos_audio;
+
+>>>>>>> upstream/android-13
 /* Keep track of which host controller drivers are loaded */
 unsigned long usb_hcds_loaded;
 EXPORT_SYMBOL_GPL(usb_hcds_loaded);
@@ -101,11 +116,14 @@ static DEFINE_SPINLOCK(hcd_urb_unlink_lock);
 /* wait queue for synchronous unlinks */
 DECLARE_WAIT_QUEUE_HEAD(usb_kill_urb_queue);
 
+<<<<<<< HEAD
 static inline int is_root_hub(struct usb_device *udev)
 {
 	return (udev->parent == NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 /*
@@ -113,8 +131,13 @@ static inline int is_root_hub(struct usb_device *udev)
  */
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 #define KERNEL_REL	bin2bcd(((LINUX_VERSION_CODE >> 16) & 0x0ff))
 #define KERNEL_VER	bin2bcd(((LINUX_VERSION_CODE >> 8) & 0x0ff))
+=======
+#define KERNEL_REL	bin2bcd(LINUX_VERSION_MAJOR)
+#define KERNEL_VER	bin2bcd(LINUX_VERSION_PATCHLEVEL)
+>>>>>>> upstream/android-13
 
 /* usb 3.1 root hub device descriptor */
 static const u8 usb31_rh_dev_descriptor[18] = {
@@ -373,6 +396,7 @@ static const u8 ss_rh_config_descriptor[] = {
  * -1 is authorized for all devices except wireless (old behaviour)
  * 0 is unauthorized for all devices
  * 1 is authorized for all devices
+<<<<<<< HEAD
  */
 static int authorized_default = -1;
 module_param(authorized_default, int, S_IRUGO|S_IWUSR);
@@ -380,6 +404,21 @@ MODULE_PARM_DESC(authorized_default,
 		"Default USB device authorization: 0 is not authorized, 1 is "
 		"authorized, -1 is authorized except for wireless USB (default, "
 		"old behaviour");
+=======
+ * 2 is authorized for internal devices
+ */
+#define USB_AUTHORIZE_WIRED	-1
+#define USB_AUTHORIZE_NONE	0
+#define USB_AUTHORIZE_ALL	1
+#define USB_AUTHORIZE_INTERNAL	2
+
+static int authorized_default = USB_AUTHORIZE_WIRED;
+module_param(authorized_default, int, S_IRUGO|S_IWUSR);
+MODULE_PARM_DESC(authorized_default,
+		"Default USB device authorization: 0 is not authorized, 1 is "
+		"authorized, 2 is authorized for internal devices, -1 is "
+		"authorized except for wireless USB (default, old behaviour)");
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -560,7 +599,11 @@ static int rh_call_control (struct usb_hcd *hcd, struct urb *urb)
 	case DeviceRequest | USB_REQ_GET_CONFIGURATION:
 		tbuf[0] = 1;
 		len = 1;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DeviceOutRequest | USB_REQ_SET_CONFIGURATION:
 		break;
 	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
@@ -629,7 +672,11 @@ static int rh_call_control (struct usb_hcd *hcd, struct urb *urb)
 	case DeviceRequest | USB_REQ_GET_INTERFACE:
 		tbuf[0] = 0;
 		len = 1;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DeviceOutRequest | USB_REQ_SET_INTERFACE:
 		break;
 	case DeviceOutRequest | USB_REQ_SET_ADDRESS:
@@ -647,7 +694,11 @@ static int rh_call_control (struct usb_hcd *hcd, struct urb *urb)
 		tbuf[0] = 0;
 		tbuf[1] = 0;
 		len = 2;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EndpointOutRequest | USB_REQ_CLEAR_FEATURE:
 	case EndpointOutRequest | USB_REQ_SET_FEATURE:
 		dev_dbg (hcd->self.controller, "no endpoint features yet\n");
@@ -743,13 +794,21 @@ error:
  * driver requests it; otherwise the driver is responsible for
  * calling usb_hcd_poll_rh_status() when an event occurs.
  *
+<<<<<<< HEAD
  * Completions are called in_interrupt(), but they may or may not
  * be in_irq().
+=======
+ * Completion handler may not sleep. See usb_hcd_giveback_urb() for details.
+>>>>>>> upstream/android-13
  */
 void usb_hcd_poll_rh_status(struct usb_hcd *hcd)
 {
 	struct urb	*urb;
 	int		length;
+<<<<<<< HEAD
+=======
+	int		status;
+>>>>>>> upstream/android-13
 	unsigned long	flags;
 	char		buffer[6];	/* Any root hubs with > 31 ports? */
 
@@ -767,11 +826,24 @@ void usb_hcd_poll_rh_status(struct usb_hcd *hcd)
 		if (urb) {
 			clear_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
 			hcd->status_urb = NULL;
+<<<<<<< HEAD
+=======
+			if (urb->transfer_buffer_length >= length) {
+				status = 0;
+			} else {
+				status = -EOVERFLOW;
+				length = urb->transfer_buffer_length;
+			}
+>>>>>>> upstream/android-13
 			urb->actual_length = length;
 			memcpy(urb->transfer_buffer, buffer, length);
 
 			usb_hcd_unlink_urb_from_ep(hcd, urb);
+<<<<<<< HEAD
 			usb_hcd_giveback_urb(hcd, urb, 0);
+=======
+			usb_hcd_giveback_urb(hcd, urb, status);
+>>>>>>> upstream/android-13
 		} else {
 			length = 0;
 			set_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
@@ -872,6 +944,7 @@ static int usb_rh_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 }
 
 
+<<<<<<< HEAD
 
 /*
  * Show & store the current value of authorized_default
@@ -970,6 +1043,8 @@ static const struct attribute_group usb_bus_attr_group = {
 
 
 
+=======
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -998,7 +1073,12 @@ static void usb_bus_init (struct usb_bus *bus)
 /**
  * usb_register_bus - registers the USB host controller with the usb core
  * @bus: pointer to the bus to register
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Assigns a bus number, and links the controller into usbcore data
  * structures so that it can be seen by scanning the bus list.
@@ -1033,7 +1113,12 @@ error_find_busnum:
 /**
  * usb_deregister_bus - deregisters the USB host controller
  * @bus: pointer to the bus to deregister
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Recycles the bus number, and unlinks the controller from usbcore data
  * structures so that it won't be seen by scanning the bus list.
@@ -1074,8 +1159,11 @@ static int register_root_hub(struct usb_hcd *hcd)
 
 	usb_dev->devnum = devnum;
 	usb_dev->bus->devnum_next = devnum + 1;
+<<<<<<< HEAD
 	memset (&usb_dev->bus->devmap.devicemap, 0,
 			sizeof usb_dev->bus->devmap.devicemap);
+=======
+>>>>>>> upstream/android-13
 	set_bit (devnum, usb_dev->bus->devmap.devicemap);
 	usb_set_device_state(usb_dev, USB_STATE_ADDRESS);
 
@@ -1344,6 +1432,7 @@ EXPORT_SYMBOL_GPL(usb_hcd_unlink_urb_from_ep);
  * using regular system memory - like pci devices doing bus mastering.
  *
  * To support host controllers with limited dma capabilities we provide dma
+<<<<<<< HEAD
  * bounce buffers. This feature can be enabled using the HCD_LOCAL_MEM flag.
  * For this to work properly the host controller code must first use the
  * function dma_declare_coherent_memory() to point out which memory area
@@ -1352,6 +1441,13 @@ EXPORT_SYMBOL_GPL(usb_hcd_unlink_urb_from_ep);
  * The HCD_LOCAL_MEM flag then tells the usb code to allocate all data for
  * dma using dma_alloc_coherent() which in turn allocates from the memory
  * area pointed out with dma_declare_coherent_memory().
+=======
+ * bounce buffers. This feature can be enabled by initializing
+ * hcd->localmem_pool using usb_hcd_setup_local_mem().
+ *
+ * The initialized hcd->localmem_pool then tells the usb code to allocate all
+ * data for dma using the genalloc API.
+>>>>>>> upstream/android-13
  *
  * So, to summarize...
  *
@@ -1361,9 +1457,12 @@ EXPORT_SYMBOL_GPL(usb_hcd_unlink_urb_from_ep);
  *   (a) "normal" kernel memory is no good, and
  *   (b) there's not enough to share
  *
+<<<<<<< HEAD
  * - The only *portable* hook for such stuff in the
  *   DMA framework is dma_declare_coherent_memory()
  *
+=======
+>>>>>>> upstream/android-13
  * - So we use that, even though the primary requirement
  *   is that the memory be "local" (hence addressable
  *   by that device), not "coherent".
@@ -1512,11 +1611,26 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
 	if (usb_endpoint_xfer_control(&urb->ep->desc)) {
 		if (hcd->self.uses_pio_for_control)
 			return ret;
+<<<<<<< HEAD
 		if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
 			if (is_vmalloc_addr(urb->setup_packet)) {
 				WARN_ONCE(1, "setup packet is not dma capable\n");
 				return -EAGAIN;
 			} else if (object_is_on_stack(urb->setup_packet)) {
+=======
+		if (hcd->localmem_pool) {
+			ret = hcd_alloc_coherent(
+					urb->dev->bus, mem_flags,
+					&urb->setup_dma,
+					(void **)&urb->setup_packet,
+					sizeof(struct usb_ctrlrequest),
+					DMA_TO_DEVICE);
+			if (ret)
+				return ret;
+			urb->transfer_flags |= URB_SETUP_MAP_LOCAL;
+		} else if (hcd_uses_dma(hcd)) {
+			if (object_is_on_stack(urb->setup_packet)) {
+>>>>>>> upstream/android-13
 				WARN_ONCE(1, "setup packet is on stack\n");
 				return -EAGAIN;
 			}
@@ -1530,6 +1644,7 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
 						urb->setup_dma))
 				return -EAGAIN;
 			urb->transfer_flags |= URB_SETUP_MAP_SINGLE;
+<<<<<<< HEAD
 		} else if (hcd->driver->flags & HCD_LOCAL_MEM) {
 			ret = hcd_alloc_coherent(
 					urb->dev->bus, mem_flags,
@@ -1540,13 +1655,28 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
 			if (ret)
 				return ret;
 			urb->transfer_flags |= URB_SETUP_MAP_LOCAL;
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
 	dir = usb_urb_dir_in(urb) ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
 	if (urb->transfer_buffer_length != 0
 	    && !(urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP)) {
+<<<<<<< HEAD
 		if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
+=======
+		if (hcd->localmem_pool) {
+			ret = hcd_alloc_coherent(
+					urb->dev->bus, mem_flags,
+					&urb->transfer_dma,
+					&urb->transfer_buffer,
+					urb->transfer_buffer_length,
+					dir);
+			if (ret == 0)
+				urb->transfer_flags |= URB_MAP_LOCAL;
+		} else if (hcd_uses_dma(hcd)) {
+>>>>>>> upstream/android-13
 			if (urb->num_sgs) {
 				int n;
 
@@ -1582,9 +1712,12 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
 					ret = -EAGAIN;
 				else
 					urb->transfer_flags |= URB_DMA_MAP_PAGE;
+<<<<<<< HEAD
 			} else if (is_vmalloc_addr(urb->transfer_buffer)) {
 				WARN_ONCE(1, "transfer buffer not dma capable\n");
 				ret = -EAGAIN;
+=======
+>>>>>>> upstream/android-13
 			} else if (object_is_on_stack(urb->transfer_buffer)) {
 				WARN_ONCE(1, "transfer buffer is on stack\n");
 				ret = -EAGAIN;
@@ -1600,6 +1733,7 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
 				else
 					urb->transfer_flags |= URB_DMA_MAP_SINGLE;
 			}
+<<<<<<< HEAD
 		} else if (hcd->driver->flags & HCD_LOCAL_MEM) {
 			ret = hcd_alloc_coherent(
 					urb->dev->bus, mem_flags,
@@ -1609,6 +1743,8 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
 					dir);
 			if (ret == 0)
 				urb->transfer_flags |= URB_MAP_LOCAL;
+=======
+>>>>>>> upstream/android-13
 		}
 		if (ret && (urb->transfer_flags & (URB_SETUP_MAP_SINGLE |
 				URB_SETUP_MAP_LOCAL)))
@@ -1663,6 +1799,16 @@ int usb_hcd_submit_urb (struct urb *urb, gfp_t mem_flags)
 		urb->hcpriv = NULL;
 		INIT_LIST_HEAD(&urb->urb_list);
 		atomic_dec(&urb->use_count);
+<<<<<<< HEAD
+=======
+		/*
+		 * Order the write of urb->use_count above before the read
+		 * of urb->reject below.  Pairs with the memory barriers in
+		 * usb_kill_urb() and usb_poison_urb().
+		 */
+		smp_mb__after_atomic();
+
+>>>>>>> upstream/android-13
 		atomic_dec(&urb->dev->urbnum);
 		if (atomic_read(&urb->reject))
 			wake_up(&usb_kill_urb_queue);
@@ -1738,7 +1884,10 @@ static void __usb_hcd_giveback_urb(struct urb *urb)
 	struct usb_hcd *hcd = bus_to_hcd(urb->dev->bus);
 	struct usb_anchor *anchor = urb->anchor;
 	int status = urb->unlinked;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	urb->hcpriv = NULL;
 	if (unlikely((urb->transfer_flags & URB_SHORT_NOT_OK) &&
@@ -1755,6 +1904,7 @@ static void __usb_hcd_giveback_urb(struct urb *urb)
 
 	/* pass ownership to the completion handler */
 	urb->status = status;
+<<<<<<< HEAD
 
 	/*
 	 * We disable local IRQs here avoid possible deadlock because
@@ -1772,14 +1922,40 @@ static void __usb_hcd_giveback_urb(struct urb *urb)
 
 	usb_anchor_resume_wakeups(anchor);
 	atomic_dec(&urb->use_count);
+=======
+	/*
+	 * This function can be called in task context inside another remote
+	 * coverage collection section, but kcov doesn't support that kind of
+	 * recursion yet. Only collect coverage in softirq context for now.
+	 */
+	kcov_remote_start_usb_softirq((u64)urb->dev->bus->busnum);
+	urb->complete(urb);
+	kcov_remote_stop_softirq();
+
+	usb_anchor_resume_wakeups(anchor);
+	atomic_dec(&urb->use_count);
+	/*
+	 * Order the write of urb->use_count above before the read
+	 * of urb->reject below.  Pairs with the memory barriers in
+	 * usb_kill_urb() and usb_poison_urb().
+	 */
+	smp_mb__after_atomic();
+
+>>>>>>> upstream/android-13
 	if (unlikely(atomic_read(&urb->reject)))
 		wake_up(&usb_kill_urb_queue);
 	usb_put_urb(urb);
 }
 
+<<<<<<< HEAD
 static void usb_giveback_urb_bh(unsigned long param)
 {
 	struct giveback_urb_bh *bh = (struct giveback_urb_bh *)param;
+=======
+static void usb_giveback_urb_bh(struct tasklet_struct *t)
+{
+	struct giveback_urb_bh *bh = from_tasklet(bh, t, bh);
+>>>>>>> upstream/android-13
 	struct list_head local_list;
 
 	spin_lock_irq(&bh->lock);
@@ -1811,7 +1987,15 @@ static void usb_giveback_urb_bh(unsigned long param)
  * @hcd: host controller returning the URB
  * @urb: urb being returned to the USB device driver.
  * @status: completion status code for the URB.
+<<<<<<< HEAD
  * Context: in_interrupt()
+=======
+ *
+ * Context: atomic. The completion callback is invoked in caller's context.
+ * For HCDs with HCD_BH flag set, the completion callback is invoked in tasklet
+ * context (except for URBs submitted to the root hub which always complete in
+ * caller's context).
+>>>>>>> upstream/android-13
  *
  * This hands the URB from HCD to its USB device driver, using its
  * completion function.  The HCD has freed all per-urb resources
@@ -1891,6 +2075,7 @@ rescan:
 		/* kick hcd */
 		unlink1(hcd, urb, -ESHUTDOWN);
 		dev_dbg (hcd->self.controller,
+<<<<<<< HEAD
 			"shutdown urb %pK ep%d%s%s\n",
 			urb, usb_endpoint_num(&ep->desc),
 			is_in ? "in" : "out",
@@ -1908,6 +2093,12 @@ rescan:
 				};
 				s;
 			}));
+=======
+			"shutdown urb %pK ep%d%s-%s\n",
+			urb, usb_endpoint_num(&ep->desc),
+			is_in ? "in" : "out",
+			usb_ep_type_string(usb_endpoint_type(&ep->desc)));
+>>>>>>> upstream/android-13
 		usb_put_urb (urb);
 
 		/* list contents may have changed */
@@ -2233,6 +2424,7 @@ int usb_hcd_get_frame_number (struct usb_device *udev)
 	return hcd->driver->get_frame_number (hcd);
 }
 
+<<<<<<< HEAD
 int usb_hcd_sec_event_ring_setup(struct usb_device *udev,
 	unsigned int intr_num)
 {
@@ -2299,6 +2491,140 @@ int usb_hcd_stop_endpoint(struct usb_device *udev,
 	return hcd->driver->stop_endpoint(hcd, udev, ep);
 }
 
+=======
+/*-------------------------------------------------------------------------*/
+#ifdef CONFIG_USB_HCD_TEST_MODE
+
+static void usb_ehset_completion(struct urb *urb)
+{
+	struct completion  *done = urb->context;
+
+	complete(done);
+}
+/*
+ * Allocate and initialize a control URB. This request will be used by the
+ * EHSET SINGLE_STEP_SET_FEATURE test in which the DATA and STATUS stages
+ * of the GetDescriptor request are sent 15 seconds after the SETUP stage.
+ * Return NULL if failed.
+ */
+static struct urb *request_single_step_set_feature_urb(
+	struct usb_device	*udev,
+	void			*dr,
+	void			*buf,
+	struct completion	*done)
+{
+	struct urb *urb;
+	struct usb_hcd *hcd = bus_to_hcd(udev->bus);
+	struct usb_host_endpoint *ep;
+
+	urb = usb_alloc_urb(0, GFP_KERNEL);
+	if (!urb)
+		return NULL;
+
+	urb->pipe = usb_rcvctrlpipe(udev, 0);
+	ep = (usb_pipein(urb->pipe) ? udev->ep_in : udev->ep_out)
+				[usb_pipeendpoint(urb->pipe)];
+	if (!ep) {
+		usb_free_urb(urb);
+		return NULL;
+	}
+
+	urb->ep = ep;
+	urb->dev = udev;
+	urb->setup_packet = (void *)dr;
+	urb->transfer_buffer = buf;
+	urb->transfer_buffer_length = USB_DT_DEVICE_SIZE;
+	urb->complete = usb_ehset_completion;
+	urb->status = -EINPROGRESS;
+	urb->actual_length = 0;
+	urb->transfer_flags = URB_DIR_IN;
+	usb_get_urb(urb);
+	atomic_inc(&urb->use_count);
+	atomic_inc(&urb->dev->urbnum);
+	if (map_urb_for_dma(hcd, urb, GFP_KERNEL)) {
+		usb_put_urb(urb);
+		usb_free_urb(urb);
+		return NULL;
+	}
+
+	urb->context = done;
+	return urb;
+}
+
+int ehset_single_step_set_feature(struct usb_hcd *hcd, int port)
+{
+	int retval = -ENOMEM;
+	struct usb_ctrlrequest *dr;
+	struct urb *urb;
+	struct usb_device *udev;
+	struct usb_device_descriptor *buf;
+	DECLARE_COMPLETION_ONSTACK(done);
+
+	/* Obtain udev of the rhub's child port */
+	udev = usb_hub_find_child(hcd->self.root_hub, port);
+	if (!udev) {
+		dev_err(hcd->self.controller, "No device attached to the RootHub\n");
+		return -ENODEV;
+	}
+	buf = kmalloc(USB_DT_DEVICE_SIZE, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	dr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_KERNEL);
+	if (!dr) {
+		kfree(buf);
+		return -ENOMEM;
+	}
+
+	/* Fill Setup packet for GetDescriptor */
+	dr->bRequestType = USB_DIR_IN;
+	dr->bRequest = USB_REQ_GET_DESCRIPTOR;
+	dr->wValue = cpu_to_le16(USB_DT_DEVICE << 8);
+	dr->wIndex = 0;
+	dr->wLength = cpu_to_le16(USB_DT_DEVICE_SIZE);
+	urb = request_single_step_set_feature_urb(udev, dr, buf, &done);
+	if (!urb)
+		goto cleanup;
+
+	/* Submit just the SETUP stage */
+	retval = hcd->driver->submit_single_step_set_feature(hcd, urb, 1);
+	if (retval)
+		goto out1;
+	if (!wait_for_completion_timeout(&done, msecs_to_jiffies(2000))) {
+		usb_kill_urb(urb);
+		retval = -ETIMEDOUT;
+		dev_err(hcd->self.controller,
+			"%s SETUP stage timed out on ep0\n", __func__);
+		goto out1;
+	}
+	msleep(15 * 1000);
+
+	/* Complete remaining DATA and STATUS stages using the same URB */
+	urb->status = -EINPROGRESS;
+	usb_get_urb(urb);
+	atomic_inc(&urb->use_count);
+	atomic_inc(&urb->dev->urbnum);
+	retval = hcd->driver->submit_single_step_set_feature(hcd, urb, 0);
+	if (!retval && !wait_for_completion_timeout(&done,
+						msecs_to_jiffies(2000))) {
+		usb_kill_urb(urb);
+		retval = -ETIMEDOUT;
+		dev_err(hcd->self.controller,
+			"%s IN stage timed out on ep0\n", __func__);
+	}
+out1:
+	usb_free_urb(urb);
+cleanup:
+	kfree(dr);
+	kfree(buf);
+	return retval;
+}
+EXPORT_SYMBOL_GPL(ehset_single_step_set_feature);
+#endif /* CONFIG_USB_HCD_TEST_MODE */
+
+/*-------------------------------------------------------------------------*/
+
+>>>>>>> upstream/android-13
 #ifdef	CONFIG_PM
 
 int hcd_bus_suspend(struct usb_device *rhdev, pm_message_t msg)
@@ -2382,6 +2708,12 @@ int hcd_bus_resume(struct usb_device *rhdev, pm_message_t msg)
 	hcd->state = HC_STATE_RESUMING;
 	status = hcd->driver->bus_resume(hcd);
 	clear_bit(HCD_FLAG_WAKEUP_PENDING, &hcd->flags);
+<<<<<<< HEAD
+=======
+	if (status == 0)
+		status = usb_phy_roothub_calibrate(hcd->phy_roothub);
+
+>>>>>>> upstream/android-13
 	if (status == 0) {
 		struct usb_device *udev;
 		int port1;
@@ -2462,7 +2794,11 @@ EXPORT_SYMBOL_GPL(usb_hcd_resume_root_hub);
  * usb_bus_start_enum - start immediate enumeration (for OTG)
  * @bus: the bus (must use hcd framework)
  * @port_num: 1-based number of port; usually bus->otg_port
+<<<<<<< HEAD
  * Context: in_interrupt()
+=======
+ * Context: atomic
+>>>>>>> upstream/android-13
  *
  * Starts enumeration, with an immediate reset followed later by
  * hub_wq identifying and possibly configuring the device.
@@ -2525,6 +2861,22 @@ EXPORT_SYMBOL_GPL(usb_hcd_irq);
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
+=======
+/* Workqueue routine for when the root-hub has died. */
+static void hcd_died_work(struct work_struct *work)
+{
+	struct usb_hcd *hcd = container_of(work, struct usb_hcd, died_work);
+	static char *env[] = {
+		"ERROR=DEAD",
+		NULL
+	};
+
+	/* Notify user space that the host controller has died */
+	kobject_uevent_env(&hcd->self.root_hub->dev.kobj, KOBJ_OFFLINE, env);
+}
+
+>>>>>>> upstream/android-13
 /**
  * usb_hc_died - report abnormal shutdown of a host controller (bus glue)
  * @hcd: pointer to the HCD representing the controller
@@ -2565,9 +2917,21 @@ void usb_hc_died (struct usb_hcd *hcd)
 			usb_kick_hub_wq(hcd->self.root_hub);
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore (&hcd_root_hub_lock, flags);
 	/* Make sure that the other roothub is also deallocated. */
 	usb_atomic_notify_dead_bus(&hcd->self);
+=======
+
+	/* Handle the case where this function gets called with a shared HCD */
+	if (usb_hcd_is_primary_hcd(hcd))
+		schedule_work(&hcd->died_work);
+	else
+		schedule_work(&hcd->primary_hcd->died_work);
+
+	spin_unlock_irqrestore (&hcd_root_hub_lock, flags);
+	/* Make sure that the other roothub is also deallocated. */
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL (usb_hc_died);
 
@@ -2578,7 +2942,11 @@ static void init_giveback_urb_bh(struct giveback_urb_bh *bh)
 
 	spin_lock_init(&bh->lock);
 	INIT_LIST_HEAD(&bh->head);
+<<<<<<< HEAD
 	tasklet_init(&bh->bh, usb_giveback_urb_bh, (unsigned long)bh);
+=======
+	tasklet_setup(&bh->bh, usb_giveback_urb_bh);
+>>>>>>> upstream/android-13
 }
 
 struct usb_hcd *__usb_create_hcd(const struct hc_driver *driver,
@@ -2586,6 +2954,10 @@ struct usb_hcd *__usb_create_hcd(const struct hc_driver *driver,
 		struct usb_hcd *primary_hcd)
 {
 	struct usb_hcd *hcd;
+<<<<<<< HEAD
+=======
+	struct platform_device *pdev = to_platform_device(dev);
+>>>>>>> upstream/android-13
 
 	hcd = kzalloc(sizeof(*hcd) + driver->hcd_priv_size, GFP_KERNEL);
 	if (!hcd)
@@ -2609,6 +2981,14 @@ struct usb_hcd *__usb_create_hcd(const struct hc_driver *driver,
 		}
 		mutex_init(hcd->bandwidth_mutex);
 		dev_set_drvdata(dev, hcd);
+<<<<<<< HEAD
+=======
+
+		if (!strcmp("xhci-hcd", driver->description)) {
+			dev_info(dev, "xhci-hcd detected\n");
+			g_xhci_exynos_audio->hcd = hcd;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		mutex_lock(&usb_port_peer_mutex);
 		hcd->address0_mutex = primary_hcd->address0_mutex;
@@ -2618,6 +2998,22 @@ struct usb_hcd *__usb_create_hcd(const struct hc_driver *driver,
 		hcd->shared_hcd = primary_hcd;
 		primary_hcd->shared_hcd = hcd;
 		mutex_unlock(&usb_port_peer_mutex);
+<<<<<<< HEAD
+=======
+
+		/* Get USB2.0 PHY for main hcd */
+		if (dev->parent) {
+			/* pdev describes dwc3->xhci */
+			xhci_exynos_audio_init(dev->parent, pdev);
+
+			/* Get USB2.0 PHY for main hcd */
+			g_xhci_exynos_audio->phy = devm_phy_get(dev->parent, "usb2-phy");
+			if (IS_ERR_OR_NULL(g_xhci_exynos_audio->phy)) {
+				g_xhci_exynos_audio->phy = NULL;
+				dev_err(dev, "%s: failed to get phy\n", __func__);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 
 	kref_init(&hcd->kref);
@@ -2626,13 +3022,21 @@ struct usb_hcd *__usb_create_hcd(const struct hc_driver *driver,
 	hcd->self.controller = dev;
 	hcd->self.sysdev = sysdev;
 	hcd->self.bus_name = bus_name;
+<<<<<<< HEAD
 	hcd->self.uses_dma = (sysdev->dma_mask != NULL);
+=======
+>>>>>>> upstream/android-13
 
 	timer_setup(&hcd->rh_timer, rh_timer_func, 0);
 #ifdef CONFIG_PM
 	INIT_WORK(&hcd->wakeup_work, hcd_resume_work);
 #endif
 
+<<<<<<< HEAD
+=======
+	INIT_WORK(&hcd->died_work, hcd_died_work);
+
+>>>>>>> upstream/android-13
 	hcd->driver = driver;
 	hcd->speed = driver->flags & HCD_MASK;
 	hcd->product_desc = (driver->product_desc) ? driver->product_desc :
@@ -2648,7 +3052,12 @@ EXPORT_SYMBOL_GPL(__usb_create_hcd);
  * @bus_name: value to store in hcd->self.bus_name
  * @primary_hcd: a pointer to the usb_hcd structure that is sharing the
  *              PCI device.  Only allocate certain resources for the primary HCD
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Allocate a struct usb_hcd, with extra space at the end for the
  * HC driver's private data.  Initialize the generic members of the
@@ -2670,7 +3079,12 @@ EXPORT_SYMBOL_GPL(usb_create_shared_hcd);
  * @driver: HC driver that will use this hcd
  * @dev: device for this HC, stored in hcd->self.controller
  * @bus_name: value to store in hcd->self.bus_name
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Allocate a struct usb_hcd, with extra space at the end for the
  * HC driver's private data.  Initialize the generic members of the
@@ -2793,6 +3207,29 @@ static void usb_put_invalidate_rhdev(struct usb_hcd *hcd)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * usb_stop_hcd - Halt the HCD
+ * @hcd: the usb_hcd that has to be halted
+ *
+ * Stop the root-hub polling timer and invoke the HCD's ->stop callback.
+ */
+static void usb_stop_hcd(struct usb_hcd *hcd)
+{
+	hcd->rh_pollable = 0;
+	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+	del_timer_sync(&hcd->rh_timer);
+
+	hcd->driver->stop(hcd);
+	hcd->state = HC_STATE_HALT;
+
+	/* In case the HCD restarted the timer, stop it again. */
+	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+	del_timer_sync(&hcd->rh_timer);
+}
+
+/**
+>>>>>>> upstream/android-13
  * usb_add_hcd - finish generic HCD structure initialization and register
  * @hcd: the usb_hcd structure to initialize
  * @irqnum: Interrupt line to allocate
@@ -2817,6 +3254,17 @@ int usb_add_hcd(struct usb_hcd *hcd,
 		if (retval)
 			return retval;
 
+<<<<<<< HEAD
+=======
+		retval = usb_phy_roothub_set_mode(hcd->phy_roothub,
+						  PHY_MODE_USB_HOST_SS);
+		if (retval)
+			retval = usb_phy_roothub_set_mode(hcd->phy_roothub,
+							  PHY_MODE_USB_HOST);
+		if (retval)
+			goto err_usb_phy_roothub_power_on;
+
+>>>>>>> upstream/android-13
 		retval = usb_phy_roothub_power_on(hcd->phy_roothub);
 		if (retval)
 			goto err_usb_phy_roothub_power_on;
@@ -2824,6 +3272,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
 
 	dev_info(hcd->self.controller, "%s\n", hcd->product_desc);
 
+<<<<<<< HEAD
 	/* Keep old behaviour if authorized_default is not in [0, 1]. */
 	if (authorized_default < 0 || authorized_default > 1) {
 		if (hcd->wireless)
@@ -2836,6 +3285,28 @@ int usb_add_hcd(struct usb_hcd *hcd,
 		else
 			clear_bit(HCD_FLAG_DEV_AUTHORIZED, &hcd->flags);
 	}
+=======
+	switch (authorized_default) {
+	case USB_AUTHORIZE_NONE:
+		hcd->dev_policy = USB_DEVICE_AUTHORIZE_NONE;
+		break;
+
+	case USB_AUTHORIZE_ALL:
+		hcd->dev_policy = USB_DEVICE_AUTHORIZE_ALL;
+		break;
+
+	case USB_AUTHORIZE_INTERNAL:
+		hcd->dev_policy = USB_DEVICE_AUTHORIZE_INTERNAL;
+		break;
+
+	case USB_AUTHORIZE_WIRED:
+	default:
+		hcd->dev_policy = hcd->wireless ?
+			USB_DEVICE_AUTHORIZE_NONE : USB_DEVICE_AUTHORIZE_ALL;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
 
 	/* per default all interfaces are authorized */
@@ -2867,6 +3338,10 @@ int usb_add_hcd(struct usb_hcd *hcd,
 
 	rhdev->rx_lanes = 1;
 	rhdev->tx_lanes = 1;
+<<<<<<< HEAD
+=======
+	rhdev->ssp_rate = USB_SSP_GEN_UNKNOWN;
+>>>>>>> upstream/android-13
 
 	switch (hcd->speed) {
 	case HCD_USB11:
@@ -2884,8 +3359,16 @@ int usb_add_hcd(struct usb_hcd *hcd,
 	case HCD_USB32:
 		rhdev->rx_lanes = 2;
 		rhdev->tx_lanes = 2;
+<<<<<<< HEAD
 		/* fall through */
 	case HCD_USB31:
+=======
+		rhdev->ssp_rate = USB_SSP_GEN_2x2;
+		rhdev->speed = USB_SPEED_SUPER_PLUS;
+		break;
+	case HCD_USB31:
+		rhdev->ssp_rate = USB_SSP_GEN_2x1;
+>>>>>>> upstream/android-13
 		rhdev->speed = USB_SPEED_SUPER_PLUS;
 		break;
 	default:
@@ -2918,6 +3401,13 @@ int usb_add_hcd(struct usb_hcd *hcd,
 	}
 	hcd->rh_pollable = 1;
 
+<<<<<<< HEAD
+=======
+	retval = usb_phy_roothub_calibrate(hcd->phy_roothub);
+	if (retval)
+		goto err_hcd_driver_setup;
+
+>>>>>>> upstream/android-13
 	/* NOTE: root hub and controller capabilities may not be the same */
 	if (device_can_wakeup(hcd->self.controller)
 			&& device_can_wakeup(&hcd->self.root_hub->dev))
@@ -2948,17 +3438,21 @@ int usb_add_hcd(struct usb_hcd *hcd,
 	if (retval != 0)
 		goto err_register_root_hub;
 
+<<<<<<< HEAD
 	retval = sysfs_create_group(&rhdev->dev.kobj, &usb_bus_attr_group);
 	if (retval < 0) {
 		printk(KERN_ERR "Cannot register USB bus sysfs attributes: %d\n",
 		       retval);
 		goto error_create_attr_group;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
 		usb_hcd_poll_rh_status(hcd);
 
 	return retval;
 
+<<<<<<< HEAD
 error_create_attr_group:
 	clear_bit(HCD_FLAG_RH_RUNNING, &hcd->flags);
 	if (HC_IS_RUNNING(hcd->state))
@@ -2981,6 +3475,10 @@ err_register_root_hub:
 	hcd->state = HC_STATE_HALT;
 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
 	del_timer_sync(&hcd->rh_timer);
+=======
+err_register_root_hub:
+	usb_stop_hcd(hcd);
+>>>>>>> upstream/android-13
 err_hcd_driver_start:
 	if (usb_hcd_is_primary_hcd(hcd) && hcd->irq > 0)
 		free_irq(irqnum, hcd);
@@ -3004,7 +3502,12 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
 /**
  * usb_remove_hcd - shutdown processing for generic HCDs
  * @hcd: the usb_hcd structure to remove
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Disconnects the root hub, then reverses the effects of usb_add_hcd(),
  * invoking the HCD's stop() method.
@@ -3016,8 +3519,11 @@ void usb_remove_hcd(struct usb_hcd *hcd)
 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
 
 	usb_get_dev(rhdev);
+<<<<<<< HEAD
 	sysfs_remove_group(&rhdev->dev.kobj, &usb_bus_attr_group);
 
+=======
+>>>>>>> upstream/android-13
 	clear_bit(HCD_FLAG_RH_RUNNING, &hcd->flags);
 	if (HC_IS_RUNNING (hcd->state))
 		hcd->state = HC_STATE_QUIESCING;
@@ -3030,6 +3536,10 @@ void usb_remove_hcd(struct usb_hcd *hcd)
 #ifdef CONFIG_PM
 	cancel_work_sync(&hcd->wakeup_work);
 #endif
+<<<<<<< HEAD
+=======
+	cancel_work_sync(&hcd->died_work);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&usb_bus_idr_lock);
 	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
@@ -3050,6 +3560,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
 	 * interrupt occurs), but usb_hcd_poll_rh_status() won't invoke
 	 * the hub_status_data() callback.
 	 */
+<<<<<<< HEAD
 	hcd->rh_pollable = 0;
 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
 	del_timer_sync(&hcd->rh_timer);
@@ -3060,6 +3571,9 @@ void usb_remove_hcd(struct usb_hcd *hcd)
 	/* In case the HCD restarted the timer, stop it again. */
 	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
 	del_timer_sync(&hcd->rh_timer);
+=======
+	usb_stop_hcd(hcd);
+>>>>>>> upstream/android-13
 
 	if (usb_hcd_is_primary_hcd(hcd)) {
 		if (hcd->irq > 0)
@@ -3090,9 +3604,47 @@ usb_hcd_platform_shutdown(struct platform_device *dev)
 }
 EXPORT_SYMBOL_GPL(usb_hcd_platform_shutdown);
 
+<<<<<<< HEAD
 /*-------------------------------------------------------------------------*/
 
 #if IS_ENABLED(CONFIG_USB_MON)
+=======
+int usb_hcd_setup_local_mem(struct usb_hcd *hcd, phys_addr_t phys_addr,
+			    dma_addr_t dma, size_t size)
+{
+	int err;
+	void *local_mem;
+
+	hcd->localmem_pool = devm_gen_pool_create(hcd->self.sysdev, 4,
+						  dev_to_node(hcd->self.sysdev),
+						  dev_name(hcd->self.sysdev));
+	if (IS_ERR(hcd->localmem_pool))
+		return PTR_ERR(hcd->localmem_pool);
+
+	local_mem = devm_memremap(hcd->self.sysdev, phys_addr,
+				  size, MEMREMAP_WC);
+	if (IS_ERR(local_mem))
+		return PTR_ERR(local_mem);
+
+	/*
+	 * Here we pass a dma_addr_t but the arg type is a phys_addr_t.
+	 * It's not backed by system memory and thus there's no kernel mapping
+	 * for it.
+	 */
+	err = gen_pool_add_virt(hcd->localmem_pool, (unsigned long)local_mem,
+				dma, size, dev_to_node(hcd->self.sysdev));
+	if (err < 0) {
+		dev_err(hcd->self.sysdev, "gen_pool_add_virt failed with %d\n",
+			err);
+		return err;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(usb_hcd_setup_local_mem);
+
+/*-------------------------------------------------------------------------*/
+>>>>>>> upstream/android-13
 
 const struct usb_mon_operations *mon_ops;
 
@@ -3127,5 +3679,8 @@ void usb_mon_deregister (void)
 	mb();
 }
 EXPORT_SYMBOL_GPL (usb_mon_deregister);
+<<<<<<< HEAD
 
 #endif /* CONFIG_USB_MON || CONFIG_USB_MON_MODULE */
+=======
+>>>>>>> upstream/android-13

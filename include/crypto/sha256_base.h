@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * sha256_base.h - core logic for SHA-256 implementations
  *
  * Copyright (C) 2015 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,6 +17,18 @@
 #include <crypto/sha.h>
 #include <linux/crypto.h>
 #include <linux/module.h>
+=======
+ */
+
+#ifndef _CRYPTO_SHA256_BASE_H
+#define _CRYPTO_SHA256_BASE_H
+
+#include <crypto/internal/hash.h>
+#include <crypto/sha2.h>
+#include <linux/crypto.h>
+#include <linux/module.h>
+#include <linux/string.h>
+>>>>>>> upstream/android-13
 
 #include <asm/unaligned.h>
 
@@ -22,6 +39,7 @@ static inline int sha224_base_init(struct shash_desc *desc)
 {
 	struct sha256_state *sctx = shash_desc_ctx(desc);
 
+<<<<<<< HEAD
 	sctx->state[0] = SHA224_H0;
 	sctx->state[1] = SHA224_H1;
 	sctx->state[2] = SHA224_H2;
@@ -32,6 +50,9 @@ static inline int sha224_base_init(struct shash_desc *desc)
 	sctx->state[7] = SHA224_H7;
 	sctx->count = 0;
 
+=======
+	sha224_init(sctx);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -39,6 +60,7 @@ static inline int sha256_base_init(struct shash_desc *desc)
 {
 	struct sha256_state *sctx = shash_desc_ctx(desc);
 
+<<<<<<< HEAD
 	sctx->state[0] = SHA256_H0;
 	sctx->state[1] = SHA256_H1;
 	sctx->state[2] = SHA256_H2;
@@ -49,6 +71,9 @@ static inline int sha256_base_init(struct shash_desc *desc)
 	sctx->state[7] = SHA256_H7;
 	sctx->count = 0;
 
+=======
+	sha256_init(sctx);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -123,6 +148,14 @@ static inline int sha256_base_finish(struct shash_desc *desc, u8 *out)
 	for (i = 0; digest_size > 0; i++, digest_size -= sizeof(__be32))
 		put_unaligned_be32(sctx->state[i], digest++);
 
+<<<<<<< HEAD
 	*sctx = (struct sha256_state){};
 	return 0;
 }
+=======
+	memzero_explicit(sctx, sizeof(*sctx));
+	return 0;
+}
+
+#endif /* _CRYPTO_SHA256_BASE_H */
+>>>>>>> upstream/android-13

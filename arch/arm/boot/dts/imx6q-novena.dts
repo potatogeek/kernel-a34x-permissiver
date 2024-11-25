@@ -57,6 +57,10 @@
 
 	/* Will be filled by the bootloader */
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0>;
 	};
 
@@ -106,7 +110,11 @@
 	};
 
 	panel: panel {
+<<<<<<< HEAD
 		compatible = "innolux,n133hse-ea1", "simple-panel";
+=======
+		compatible = "innolux,n133hse-ea1";
+>>>>>>> upstream/android-13
 		backlight = <&backlight>;
 	};
 
@@ -221,6 +229,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet_novena>;
 	phy-mode = "rgmii";
+<<<<<<< HEAD
 	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
 	rxc-skew-ps = <3000>;
 	rxdv-skew-ps = <0>;
@@ -235,6 +244,32 @@
 	txd2-skew-ps = <3000>;
 	txd3-skew-ps = <3000>;
 	status = "okay";
+=======
+	phy-handle = <&ethphy>;
+	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			rxc-skew-ps = <3000>;
+			rxdv-skew-ps = <0>;
+			txc-skew-ps = <3000>;
+			txen-skew-ps = <0>;
+			rxd0-skew-ps = <0>;
+			rxd1-skew-ps = <0>;
+			rxd2-skew-ps = <0>;
+			rxd3-skew-ps = <0>;
+			txd0-skew-ps = <3000>;
+			txd1-skew-ps = <3000>;
+			txd2-skew-ps = <3000>;
+			txd3-skew-ps = <3000>;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -454,6 +489,10 @@
 };
 
 &pwm1 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

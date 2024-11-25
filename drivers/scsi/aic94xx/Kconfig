@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Kernel configuration file for aic94xx SAS/SATA driver.
 #
 # Copyright (c) 2005 Adaptec, Inc.  All rights reserved.
 # Copyright (c) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
 #
+<<<<<<< HEAD
 # This file is licensed under GPLv2.
 #
 # This file is part of the aic94xx driver.
@@ -23,6 +28,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
+=======
+>>>>>>> upstream/android-13
 
 config SCSI_AIC94XX
 	tristate "Adaptec AIC94xx SAS/SATA support"

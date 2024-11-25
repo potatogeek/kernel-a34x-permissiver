@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 comment "Supported MMC/SDIO adapters"
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 source "drivers/media/mmc/siano/Kconfig"

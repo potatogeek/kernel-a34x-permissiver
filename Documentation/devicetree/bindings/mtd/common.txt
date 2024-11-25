@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 * Common properties of all MTD devices
 
 Optional properties:
@@ -13,3 +14,6 @@ Example:
 
 		/* flash type specific properties */
 	};
+=======
+This file has been moved to mtd.yaml.
+>>>>>>> upstream/android-13

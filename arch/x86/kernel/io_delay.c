@@ -13,7 +13,26 @@
 #include <linux/dmi.h>
 #include <linux/io.h>
 
+<<<<<<< HEAD
 int io_delay_type __read_mostly = CONFIG_DEFAULT_IO_DELAY_TYPE;
+=======
+#define IO_DELAY_TYPE_0X80	0
+#define IO_DELAY_TYPE_0XED	1
+#define IO_DELAY_TYPE_UDELAY	2
+#define IO_DELAY_TYPE_NONE	3
+
+#if defined(CONFIG_IO_DELAY_0X80)
+#define DEFAULT_IO_DELAY_TYPE	IO_DELAY_TYPE_0X80
+#elif defined(CONFIG_IO_DELAY_0XED)
+#define DEFAULT_IO_DELAY_TYPE	IO_DELAY_TYPE_0XED
+#elif defined(CONFIG_IO_DELAY_UDELAY)
+#define DEFAULT_IO_DELAY_TYPE	IO_DELAY_TYPE_UDELAY
+#elif defined(CONFIG_IO_DELAY_NONE)
+#define DEFAULT_IO_DELAY_TYPE	IO_DELAY_TYPE_NONE
+#endif
+
+int io_delay_type __read_mostly = DEFAULT_IO_DELAY_TYPE;
+>>>>>>> upstream/android-13
 
 static int __initdata io_delay_override;
 
@@ -24,6 +43,7 @@ void native_io_delay(void)
 {
 	switch (io_delay_type) {
 	default:
+<<<<<<< HEAD
 	case CONFIG_IO_DELAY_TYPE_0X80:
 		asm volatile ("outb %al, $0x80");
 		break;
@@ -31,6 +51,15 @@ void native_io_delay(void)
 		asm volatile ("outb %al, $0xed");
 		break;
 	case CONFIG_IO_DELAY_TYPE_UDELAY:
+=======
+	case IO_DELAY_TYPE_0X80:
+		asm volatile ("outb %al, $0x80");
+		break;
+	case IO_DELAY_TYPE_0XED:
+		asm volatile ("outb %al, $0xed");
+		break;
+	case IO_DELAY_TYPE_UDELAY:
+>>>>>>> upstream/android-13
 		/*
 		 * 2 usecs is an upper-bound for the outb delay but
 		 * note that udelay doesn't have the bus-level
@@ -39,7 +68,12 @@ void native_io_delay(void)
 		 * are shorter until calibrated):
 		 */
 		udelay(2);
+<<<<<<< HEAD
 	case CONFIG_IO_DELAY_TYPE_NONE:
+=======
+		break;
+	case IO_DELAY_TYPE_NONE:
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -47,9 +81,15 @@ EXPORT_SYMBOL(native_io_delay);
 
 static int __init dmi_io_delay_0xed_port(const struct dmi_system_id *id)
 {
+<<<<<<< HEAD
 	if (io_delay_type == CONFIG_IO_DELAY_TYPE_0X80) {
 		pr_notice("%s: using 0xed I/O delay port\n", id->ident);
 		io_delay_type = CONFIG_IO_DELAY_TYPE_0XED;
+=======
+	if (io_delay_type == IO_DELAY_TYPE_0X80) {
+		pr_notice("%s: using 0xed I/O delay port\n", id->ident);
+		io_delay_type = IO_DELAY_TYPE_0XED;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -115,6 +155,7 @@ static int __init io_delay_param(char *s)
 		return -EINVAL;
 
 	if (!strcmp(s, "0x80"))
+<<<<<<< HEAD
 		io_delay_type = CONFIG_IO_DELAY_TYPE_0X80;
 	else if (!strcmp(s, "0xed"))
 		io_delay_type = CONFIG_IO_DELAY_TYPE_0XED;
@@ -122,6 +163,15 @@ static int __init io_delay_param(char *s)
 		io_delay_type = CONFIG_IO_DELAY_TYPE_UDELAY;
 	else if (!strcmp(s, "none"))
 		io_delay_type = CONFIG_IO_DELAY_TYPE_NONE;
+=======
+		io_delay_type = IO_DELAY_TYPE_0X80;
+	else if (!strcmp(s, "0xed"))
+		io_delay_type = IO_DELAY_TYPE_0XED;
+	else if (!strcmp(s, "udelay"))
+		io_delay_type = IO_DELAY_TYPE_UDELAY;
+	else if (!strcmp(s, "none"))
+		io_delay_type = IO_DELAY_TYPE_NONE;
+>>>>>>> upstream/android-13
 	else
 		return -EINVAL;
 

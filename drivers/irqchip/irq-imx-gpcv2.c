@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_address.h>
@@ -17,6 +23,12 @@
 
 #define GPC_IMR1_CORE0		0x30
 #define GPC_IMR1_CORE1		0x40
+<<<<<<< HEAD
+=======
+#define GPC_IMR1_CORE2		0x1c0
+#define GPC_IMR1_CORE3		0x1d0
+
+>>>>>>> upstream/android-13
 
 struct gpcv2_irqchip_data {
 	struct raw_spinlock	rlock;
@@ -28,6 +40,14 @@ struct gpcv2_irqchip_data {
 
 static struct gpcv2_irqchip_data *imx_gpcv2_instance;
 
+<<<<<<< HEAD
+=======
+static void __iomem *gpcv2_idx_to_reg(struct gpcv2_irqchip_data *cd, int i)
+{
+	return cd->gpc_base + cd->cpu2wakeup + i * 4;
+}
+
+>>>>>>> upstream/android-13
 static int gpcv2_wakeup_source_save(void)
 {
 	struct gpcv2_irqchip_data *cd;
@@ -39,7 +59,11 @@ static int gpcv2_wakeup_source_save(void)
 		return 0;
 
 	for (i = 0; i < IMR_NUM; i++) {
+<<<<<<< HEAD
 		reg = cd->gpc_base + cd->cpu2wakeup + i * 4;
+=======
+		reg = gpcv2_idx_to_reg(cd, i);
+>>>>>>> upstream/android-13
 		cd->saved_irq_mask[i] = readl_relaxed(reg);
 		writel_relaxed(cd->wakeup_sources[i], reg);
 	}
@@ -50,17 +74,25 @@ static int gpcv2_wakeup_source_save(void)
 static void gpcv2_wakeup_source_restore(void)
 {
 	struct gpcv2_irqchip_data *cd;
+<<<<<<< HEAD
 	void __iomem *reg;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	cd = imx_gpcv2_instance;
 	if (!cd)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < IMR_NUM; i++) {
 		reg = cd->gpc_base + cd->cpu2wakeup + i * 4;
 		writel_relaxed(cd->saved_irq_mask[i], reg);
 	}
+=======
+	for (i = 0; i < IMR_NUM; i++)
+		writel_relaxed(cd->saved_irq_mask[i], gpcv2_idx_to_reg(cd, i));
+>>>>>>> upstream/android-13
 }
 
 static struct syscore_ops imx_gpcv2_syscore_ops = {
@@ -73,12 +105,19 @@ static int imx_gpcv2_irq_set_wake(struct irq_data *d, unsigned int on)
 	struct gpcv2_irqchip_data *cd = d->chip_data;
 	unsigned int idx = d->hwirq / 32;
 	unsigned long flags;
+<<<<<<< HEAD
 	void __iomem *reg;
 	u32 mask, val;
 
 	raw_spin_lock_irqsave(&cd->rlock, flags);
 	reg = cd->gpc_base + cd->cpu2wakeup + idx * 4;
 	mask = 1 << d->hwirq % 32;
+=======
+	u32 mask, val;
+
+	raw_spin_lock_irqsave(&cd->rlock, flags);
+	mask = BIT(d->hwirq % 32);
+>>>>>>> upstream/android-13
 	val = cd->wakeup_sources[idx];
 
 	cd->wakeup_sources[idx] = on ? (val & ~mask) : (val | mask);
@@ -99,9 +138,15 @@ static void imx_gpcv2_irq_unmask(struct irq_data *d)
 	u32 val;
 
 	raw_spin_lock(&cd->rlock);
+<<<<<<< HEAD
 	reg = cd->gpc_base + cd->cpu2wakeup + d->hwirq / 32 * 4;
 	val = readl_relaxed(reg);
 	val &= ~(1 << d->hwirq % 32);
+=======
+	reg = gpcv2_idx_to_reg(cd, d->hwirq / 32);
+	val = readl_relaxed(reg);
+	val &= ~BIT(d->hwirq % 32);
+>>>>>>> upstream/android-13
 	writel_relaxed(val, reg);
 	raw_spin_unlock(&cd->rlock);
 
@@ -115,9 +160,15 @@ static void imx_gpcv2_irq_mask(struct irq_data *d)
 	u32 val;
 
 	raw_spin_lock(&cd->rlock);
+<<<<<<< HEAD
 	reg = cd->gpc_base + cd->cpu2wakeup + d->hwirq / 32 * 4;
 	val = readl_relaxed(reg);
 	val |= 1 << (d->hwirq % 32);
+=======
+	reg = gpcv2_idx_to_reg(cd, d->hwirq / 32);
+	val = readl_relaxed(reg);
+	val |= BIT(d->hwirq % 32);
+>>>>>>> upstream/android-13
 	writel_relaxed(val, reg);
 	raw_spin_unlock(&cd->rlock);
 
@@ -193,11 +244,25 @@ static const struct irq_domain_ops gpcv2_irqchip_data_domain_ops = {
 	.free		= irq_domain_free_irqs_common,
 };
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id gpcv2_of_match[] = {
+	{ .compatible = "fsl,imx7d-gpc",  .data = (const void *) 2 },
+	{ .compatible = "fsl,imx8mq-gpc", .data = (const void *) 4 },
+	{ /* END */ }
+};
+
+>>>>>>> upstream/android-13
 static int __init imx_gpcv2_irqchip_init(struct device_node *node,
 			       struct device_node *parent)
 {
 	struct irq_domain *parent_domain, *domain;
 	struct gpcv2_irqchip_data *cd;
+<<<<<<< HEAD
+=======
+	const struct of_device_id *id;
+	unsigned long core_num;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!parent) {
@@ -205,6 +270,17 @@ static int __init imx_gpcv2_irqchip_init(struct device_node *node,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	id = of_match_node(gpcv2_of_match, node);
+	if (!id) {
+		pr_err("%pOF: unknown compatibility string\n", node);
+		return -ENODEV;
+	}
+
+	core_num = (unsigned long)id->data;
+
+>>>>>>> upstream/android-13
 	parent_domain = irq_find_host(parent);
 	if (!parent_domain) {
 		pr_err("%pOF: unable to get parent domain\n", node);
@@ -212,16 +288,25 @@ static int __init imx_gpcv2_irqchip_init(struct device_node *node,
 	}
 
 	cd = kzalloc(sizeof(struct gpcv2_irqchip_data), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!cd) {
 		pr_err("kzalloc failed!\n");
 		return -ENOMEM;
 	}
+=======
+	if (!cd)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	raw_spin_lock_init(&cd->rlock);
 
 	cd->gpc_base = of_iomap(node, 0);
 	if (!cd->gpc_base) {
+<<<<<<< HEAD
 		pr_err("fsl-gpcv2: unable to map gpc registers\n");
+=======
+		pr_err("%pOF: unable to map gpc registers\n", node);
+>>>>>>> upstream/android-13
 		kfree(cd);
 		return -ENOMEM;
 	}
@@ -237,8 +322,22 @@ static int __init imx_gpcv2_irqchip_init(struct device_node *node,
 
 	/* Initially mask all interrupts */
 	for (i = 0; i < IMR_NUM; i++) {
+<<<<<<< HEAD
 		writel_relaxed(~0, cd->gpc_base + GPC_IMR1_CORE0 + i * 4);
 		writel_relaxed(~0, cd->gpc_base + GPC_IMR1_CORE1 + i * 4);
+=======
+		void __iomem *reg = cd->gpc_base + i * 4;
+
+		switch (core_num) {
+		case 4:
+			writel_relaxed(~0, reg + GPC_IMR1_CORE2);
+			writel_relaxed(~0, reg + GPC_IMR1_CORE3);
+			fallthrough;
+		case 2:
+			writel_relaxed(~0, reg + GPC_IMR1_CORE0);
+			writel_relaxed(~0, reg + GPC_IMR1_CORE1);
+		}
+>>>>>>> upstream/android-13
 		cd->wakeup_sources[i] = ~0;
 	}
 
@@ -263,4 +362,9 @@ static int __init imx_gpcv2_irqchip_init(struct device_node *node,
 	return 0;
 }
 
+<<<<<<< HEAD
 IRQCHIP_DECLARE(imx_gpcv2, "fsl,imx7d-gpc", imx_gpcv2_irqchip_init);
+=======
+IRQCHIP_DECLARE(imx_gpcv2_imx7d, "fsl,imx7d-gpc", imx_gpcv2_irqchip_init);
+IRQCHIP_DECLARE(imx_gpcv2_imx8mq, "fsl,imx8mq-gpc", imx_gpcv2_irqchip_init);
+>>>>>>> upstream/android-13

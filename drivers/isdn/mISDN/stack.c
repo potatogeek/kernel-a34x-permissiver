@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Author	Karsten Keil <kkeil@novell.com>
  *
  * Copyright 2008  by Karsten Keil <kkeil@novell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -84,8 +91,12 @@ send_socklist(struct mISDN_sock_list *sl, struct sk_buff *skb)
 			cskb = NULL;
 	}
 	read_unlock(&sl->lock);
+<<<<<<< HEAD
 	if (cskb)
 		dev_kfree_skb(cskb);
+=======
+	dev_kfree_skb(cskb);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -143,8 +154,12 @@ send_layer2(struct mISDNstack *st, struct sk_buff *skb)
 	}
 out:
 	mutex_unlock(&st->lmutex);
+<<<<<<< HEAD
 	if (skb)
 		dev_kfree_skb(skb);
+=======
+	dev_kfree_skb(skb);
+>>>>>>> upstream/android-13
 }
 
 static inline int
@@ -539,7 +554,11 @@ create_l2entity(struct mISDNdevice *dev, struct mISDNchannel *ch,
 		rq.protocol = ISDN_P_NT_S0;
 		if (dev->Dprotocols & (1 << ISDN_P_NT_E1))
 			rq.protocol = ISDN_P_NT_E1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ISDN_P_LAPD_TE:
 		ch->recv = mISDN_queue_message;
 		ch->peer = &dev->D.st->own;

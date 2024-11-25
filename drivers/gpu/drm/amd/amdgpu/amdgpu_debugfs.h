@@ -26,6 +26,7 @@
 /*
  * Debugfs
  */
+<<<<<<< HEAD
 struct amdgpu_debugfs {
 	const struct drm_info_list	*files;
 	unsigned		num_files;
@@ -40,3 +41,12 @@ int amdgpu_debugfs_add_files(struct amdgpu_device *adev,
 int amdgpu_debugfs_fence_init(struct amdgpu_device *adev);
 int amdgpu_debugfs_firmware_init(struct amdgpu_device *adev);
 int amdgpu_debugfs_gem_init(struct amdgpu_device *adev);
+=======
+
+int amdgpu_debugfs_regs_init(struct amdgpu_device *adev);
+int amdgpu_debugfs_init(struct amdgpu_device *adev);
+void amdgpu_debugfs_fini(struct amdgpu_device *adev);
+void amdgpu_debugfs_fence_init(struct amdgpu_device *adev);
+void amdgpu_debugfs_firmware_init(struct amdgpu_device *adev);
+void amdgpu_debugfs_gem_init(struct amdgpu_device *adev);
+>>>>>>> upstream/android-13

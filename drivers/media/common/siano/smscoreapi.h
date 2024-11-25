@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /****************************************************************
 
 Siano Mobile Silicon, Inc.
 MDTV receiver kernel modules.
 Copyright (C) 2006-2008, Uri Shkolnik, Anatoly Greenblat
 
+<<<<<<< HEAD
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
@@ -16,6 +21,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 
 ****************************************************************/
 
@@ -39,11 +46,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "smsir.h"
 
+<<<<<<< HEAD
 #define kmutex_init(_p_) mutex_init(_p_)
 #define kmutex_lock(_p_) mutex_lock(_p_)
 #define kmutex_trylock(_p_) mutex_trylock(_p_)
 #define kmutex_unlock(_p_) mutex_unlock(_p_)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Define the firmware names used by the driver.
  * Those should match what's used at smscoreapi.c and sms-cards.c
@@ -445,8 +455,13 @@ enum msg_types {
 	MSG_SMS_FLASH_DL_REQ = 732,
 	MSG_SMS_EXEC_TEST_1_REQ = 734,
 	MSG_SMS_EXEC_TEST_1_RES = 735,
+<<<<<<< HEAD
 	MSG_SMS_ENBALE_TS_INTERFACE_REQ = 736,
 	MSG_SMS_ENBALE_TS_INTERFACE_RES = 737,
+=======
+	MSG_SMS_ENABLE_TS_INTERFACE_REQ = 736,
+	MSG_SMS_ENABLE_TS_INTERFACE_RES = 737,
+>>>>>>> upstream/android-13
 	MSG_SMS_SPI_SET_BUS_WIDTH_REQ = 738,
 	MSG_SMS_SPI_SET_BUS_WIDTH_RES = 739,
 	MSG_SMS_SEND_EMM_REQ = 740,
@@ -640,9 +655,15 @@ struct sms_msg_data2 {
 	u32 msg_data[2];
 };
 
+<<<<<<< HEAD
 struct sms_msg_data4 {
 	struct sms_msg_hdr x_msg_header;
 	u32 msg_data[4];
+=======
+struct sms_msg_data5 {
+	struct sms_msg_hdr x_msg_header;
+	u32 msg_data[5];
+>>>>>>> upstream/android-13
 };
 
 struct sms_data_download {
@@ -750,7 +771,11 @@ struct sms_stats {
 	u32 num_of_corrected_mpe_tlbs;/* Number of MPE tables which were
 	corrected by MPE RS decoding */
 	/* Common params */
+<<<<<<< HEAD
 	u32 ber_error_count;	/* Number of errornous SYNC bits. */
+=======
+	u32 ber_error_count;	/* Number of erroneous SYNC bits. */
+>>>>>>> upstream/android-13
 	u32 ber_bit_count;	/* Total number of SYNC bits. */
 
 	/* Interface information */

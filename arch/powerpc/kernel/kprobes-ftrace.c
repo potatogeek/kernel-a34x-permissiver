@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Dynamic Ftrace based Kprobes Optimization
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Dynamic Ftrace based Kprobes Optimization
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) Hitachi Ltd., 2012
  * Copyright 2016 Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
  *		  IBM Corporation
@@ -27,6 +34,7 @@
 
 /* Ftrace callback handler for kprobes */
 void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+<<<<<<< HEAD
 			   struct ftrace_ops *ops, struct pt_regs *regs)
 {
 	struct kprobe *p;
@@ -35,6 +43,24 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
 	p = get_kprobe((kprobe_opcode_t *)nip);
 	if (unlikely(!p) || kprobe_disabled(p))
 		return;
+=======
+			   struct ftrace_ops *ops, struct ftrace_regs *fregs)
+{
+	struct kprobe *p;
+	struct kprobe_ctlblk *kcb;
+	struct pt_regs *regs;
+	int bit;
+
+	bit = ftrace_test_recursion_trylock(nip, parent_nip);
+	if (bit < 0)
+		return;
+
+	regs = ftrace_get_regs(fregs);
+	preempt_disable_notrace();
+	p = get_kprobe((kprobe_opcode_t *)nip);
+	if (unlikely(!p) || kprobe_disabled(p))
+		goto out;
+>>>>>>> upstream/android-13
 
 	kcb = get_kprobe_ctlblk();
 	if (kprobe_running()) {
@@ -44,7 +70,11 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
 		 * On powerpc, NIP is *before* this instruction for the
 		 * pre handler
 		 */
+<<<<<<< HEAD
 		regs->nip -= MCOUNT_INSN_SIZE;
+=======
+		regs_add_return_ip(regs, -MCOUNT_INSN_SIZE);
+>>>>>>> upstream/android-13
 
 		__this_cpu_write(current_kprobe, p);
 		kcb->kprobe_status = KPROBE_HIT_ACTIVE;
@@ -53,7 +83,11 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
 			 * Emulate singlestep (and also recover regs->nip)
 			 * as if there is a nop
 			 */
+<<<<<<< HEAD
 			regs->nip += MCOUNT_INSN_SIZE;
+=======
+			regs_add_return_ip(regs, MCOUNT_INSN_SIZE);
+>>>>>>> upstream/android-13
 			if (unlikely(p->post_handler)) {
 				kcb->kprobe_status = KPROBE_HIT_SSDONE;
 				p->post_handler(p, regs, 0);
@@ -65,6 +99,12 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
 		 */
 		__this_cpu_write(current_kprobe, NULL);
 	}
+<<<<<<< HEAD
+=======
+out:
+	preempt_enable_notrace();
+	ftrace_test_recursion_unlock(bit);
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(kprobe_ftrace_handler);
 

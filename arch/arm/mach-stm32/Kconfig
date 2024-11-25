@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_STM32
 	bool "STMicroelectronics STM32 family"
 	depends on ARM_SINGLE_ARMV7M || ARCH_MULTI_V7
@@ -5,6 +9,10 @@ menuconfig ARCH_STM32
 	select HAVE_ARM_ARCH_TIMER if ARCH_MULTI_V7
 	select ARM_GIC if ARCH_MULTI_V7
 	select ARM_PSCI if ARCH_MULTI_V7
+<<<<<<< HEAD
+=======
+	select ARM_AMBA
+>>>>>>> upstream/android-13
 	select ARCH_HAS_RESET_CONTROLLER
 	select CLKSRC_STM32
 	select PINCTRL
@@ -19,22 +27,34 @@ if ARM_SINGLE_ARMV7M
 
 config MACH_STM32F429
 	bool "STMicroelectronics STM32F429"
+<<<<<<< HEAD
 	select ARM_AMBA
+=======
+>>>>>>> upstream/android-13
 	default y
 
 config MACH_STM32F469
 	bool "STMicroelectronics STM32F469"
+<<<<<<< HEAD
 	select ARM_AMBA
+=======
+>>>>>>> upstream/android-13
 	default y
 
 config MACH_STM32F746
 	bool "STMicroelectronics STM32F746"
+<<<<<<< HEAD
 	select ARM_AMBA
+=======
+>>>>>>> upstream/android-13
 	default y
 
 config MACH_STM32F769
 	bool "STMicroelectronics STM32F769"
+<<<<<<< HEAD
 	select ARM_AMBA
+=======
+>>>>>>> upstream/android-13
 	default y
 
 config MACH_STM32H743
@@ -47,6 +67,10 @@ if ARCH_MULTI_V7
 
 config MACH_STM32MP157
 	bool "STMicroelectronics STM32MP157"
+<<<<<<< HEAD
+=======
+	select ARM_ERRATA_814220
+>>>>>>> upstream/android-13
 	default y
 
 endif # ARMv7-A

@@ -10,7 +10,11 @@ SoundWire Documentation
    error_handling
    locking
 
+<<<<<<< HEAD
 .. only::  subproject
+=======
+.. only::  subproject and html
+>>>>>>> upstream/android-13
 
    Indices
    =======

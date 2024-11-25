@@ -46,19 +46,30 @@ struct snic_trc {
 	u32	rd_idx;
 	u32	wr_idx;
 	bool	enable;			/* Control Variable for Tracing */
+<<<<<<< HEAD
 
 	struct dentry *trc_enable;	/* debugfs file object */
 	struct dentry *trc_file;
+=======
+>>>>>>> upstream/android-13
 };
 
 int snic_trc_init(void);
 void snic_trc_free(void);
+<<<<<<< HEAD
 int snic_trc_debugfs_init(void);
+=======
+void snic_trc_debugfs_init(void);
+>>>>>>> upstream/android-13
 void snic_trc_debugfs_term(void);
 struct snic_trc_data *snic_get_trc_buf(void);
 int snic_get_trc_data(char *buf, int buf_sz);
 
+<<<<<<< HEAD
 int snic_debugfs_init(void);
+=======
+void snic_debugfs_init(void);
+>>>>>>> upstream/android-13
 void snic_debugfs_term(void);
 
 static inline void

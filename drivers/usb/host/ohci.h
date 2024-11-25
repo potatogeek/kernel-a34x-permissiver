@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-1.0+
+=======
+/* SPDX-License-Identifier: GPL-1.0+ */
+>>>>>>> upstream/android-13
 /*
  * OHCI HCD (Host Controller Driver) for USB.
  *
@@ -162,7 +166,11 @@ struct td {
 
 
 /* map OHCI TD status codes (CC) to errno values */
+<<<<<<< HEAD
 static const int cc_to_error [16] = {
+=======
+static const int __maybe_unused cc_to_error [16] = {
+>>>>>>> upstream/android-13
 	/* No  Error  */               0,
 	/* CRC Error  */               -EILSEQ,
 	/* Bit Stuff  */               -EPROTO,
@@ -337,7 +345,11 @@ typedef struct urb_priv {
 	u16			length;		// # tds in this request
 	u16			td_cnt;		// tds already serviced
 	struct list_head	pending;
+<<<<<<< HEAD
 	struct td		*td [0];	// all TDs in this request
+=======
+	struct td		*td[];		// all TDs in this request
+>>>>>>> upstream/android-13
 
 } urb_priv_t;
 
@@ -385,6 +397,11 @@ struct ohci_hcd {
 
 	/*
 	 * memory management for queue data structures
+<<<<<<< HEAD
+=======
+	 *
+	 * @td_cache and @ed_cache are %NULL if &usb_hcd.localmem_pool is used.
+>>>>>>> upstream/android-13
 	 */
 	struct dma_pool		*td_cache;
 	struct dma_pool		*ed_cache;
@@ -433,7 +450,11 @@ struct ohci_hcd {
 	struct dentry		*debug_dir;
 
 	/* platform-specific data -- must come last */
+<<<<<<< HEAD
 	unsigned long           priv[0] __aligned(sizeof(s64));
+=======
+	unsigned long           priv[] __aligned(sizeof(s64));
+>>>>>>> upstream/android-13
 
 };
 

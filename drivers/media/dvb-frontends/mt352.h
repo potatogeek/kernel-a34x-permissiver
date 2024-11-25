@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Driver for Zarlink DVB-T MT352 demodulator
  *
@@ -13,6 +17,7 @@
  *
  *  DVICO FusionHDTV DVB-T1 and DVICO FusionHDTV DVB-T Lite support by
  *       Christopher Pascoe <c.pascoe@itee.uq.edu.au>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef MT352_H

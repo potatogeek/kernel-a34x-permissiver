@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Core driver for ams AS3722 PMICs
  *
@@ -6,6 +10,7 @@
  *
  * Author: Florian Lobmaier <florian.lobmaier@ams.com>
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -37,6 +44,7 @@
 #define AS3722_DEVICE_ID	0x0C
 
 static const struct resource as3722_rtc_resource[] = {
+<<<<<<< HEAD
 	{
 		.name = "as3722-rtc-alarm",
 		.start = AS3722_IRQ_RTC_ALARM,
@@ -52,6 +60,13 @@ static const struct resource as3722_adc_resource[] = {
 		.end = AS3722_IRQ_ADC,
 		.flags = IORESOURCE_IRQ,
 	},
+=======
+	DEFINE_RES_IRQ_NAMED(AS3722_IRQ_RTC_ALARM, "as3722-rtc-alarm"),
+};
+
+static const struct resource as3722_adc_resource[] = {
+	DEFINE_RES_IRQ_NAMED(AS3722_IRQ_ADC, "as3722-adc"),
+>>>>>>> upstream/android-13
 };
 
 static const struct mfd_cell as3722_devs[] = {

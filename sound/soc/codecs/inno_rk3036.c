@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver of Inno codec for rk3036 by Rockchip Inc.
  *
@@ -47,11 +51,17 @@ static int rk3036_codec_antipop_get(struct snd_kcontrol *kcontrol,
 				    struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+<<<<<<< HEAD
 	int val, ret, regval;
 
 	ret = snd_soc_component_read(component, INNO_R09, &regval);
 	if (ret)
 		return ret;
+=======
+	int val, regval;
+
+	regval = snd_soc_component_read(component, INNO_R09);
+>>>>>>> upstream/android-13
 	val = ((regval >> INNO_R09_HPL_ANITPOP_SHIFT) &
 	       INNO_R09_HP_ANTIPOP_MSK) == INNO_R09_HP_ANTIPOP_ON;
 	ucontrol->value.integer.value[0] = val;
@@ -326,7 +336,11 @@ static struct snd_soc_dai_driver rk3036_codec_dai_driver[] = {
 			.formats = RK3036_CODEC_FMTS,
 		},
 		.ops = &rk3036_codec_dai_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -404,7 +418,10 @@ static int rk3036_codec_platform_probe(struct platform_device *pdev)
 {
 	struct rk3036_codec_priv *priv;
 	struct device_node *of_node = pdev->dev.of_node;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	struct regmap *grf;
 	int ret;
@@ -413,8 +430,12 @@ static int rk3036_codec_platform_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -470,7 +491,11 @@ static int rk3036_codec_platform_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id rk3036_codec_of_match[] = {
+=======
+static const struct of_device_id rk3036_codec_of_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "rockchip,rk3036-codec", },
 	{}
 };

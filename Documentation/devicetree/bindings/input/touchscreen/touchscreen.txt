@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 General Touchscreen Properties:
 
 Optional properties for Touchscreens:
@@ -35,3 +36,6 @@ Deprecated properties for Touchscreens:
  - contact-threshold		: deprecated name for touchscreen-fuzz-pressure
  - x-invert			: deprecated name for touchscreen-inverted-x
  - y-invert			: deprecated name for touchscreen-inverted-y
+=======
+See touchscreen.yaml
+>>>>>>> upstream/android-13

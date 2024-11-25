@@ -8,9 +8,16 @@
  */
 
 #include "check.h"
+<<<<<<< HEAD
 #include "karma.h"
 #include <linux/compiler.h>
 
+=======
+#include <linux/compiler.h>
+
+#define KARMA_LABEL_MAGIC		0xAB56
+
+>>>>>>> upstream/android-13
 int karma_partition(struct parsed_partitions *state)
 {
 	int i;

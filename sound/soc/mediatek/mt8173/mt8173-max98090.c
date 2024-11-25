@@ -52,8 +52,13 @@ static const struct snd_kcontrol_new mt8173_max98090_controls[] = {
 static int mt8173_max98090_hw_params(struct snd_pcm_substream *substream,
 				     struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 
 	return snd_soc_dai_set_sysclk(codec_dai, 0, params_rate(params) * 256,
 				      SND_SOC_CLOCK_IN);
@@ -67,7 +72,11 @@ static int mt8173_max98090_init(struct snd_soc_pcm_runtime *runtime)
 {
 	int ret;
 	struct snd_soc_card *card = runtime->card;
+<<<<<<< HEAD
 	struct snd_soc_component *component = runtime->codec_dai->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(runtime, 0)->component;
+>>>>>>> upstream/android-13
 
 	/* enable jack detection */
 	ret = snd_soc_card_jack_new(card, "Headphone", SND_JACK_HEADPHONE,
@@ -82,41 +91,81 @@ static int mt8173_max98090_init(struct snd_soc_pcm_runtime *runtime)
 	return max98090_mic_detect(component, &mt8173_max98090_jack);
 }
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(playback,
+	DAILINK_COMP_ARRAY(COMP_CPU("DL1")),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(capture,
+	DAILINK_COMP_ARRAY(COMP_CPU("VUL")),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(hifi,
+	DAILINK_COMP_ARRAY(COMP_CPU("I2S")),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "HiFi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+>>>>>>> upstream/android-13
 /* Digital audio interface glue - connects codec <---> CPU */
 static struct snd_soc_dai_link mt8173_max98090_dais[] = {
 	/* Front End DAI links */
 	{
 		.name = "MAX98090 Playback",
 		.stream_name = "MAX98090 Playback",
+<<<<<<< HEAD
 		.cpu_dai_name = "DL1",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dynamic = 1,
 		.dpcm_playback = 1,
+=======
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dynamic = 1,
+		.dpcm_playback = 1,
+		SND_SOC_DAILINK_REG(playback),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "MAX98090 Capture",
 		.stream_name = "MAX98090 Capture",
+<<<<<<< HEAD
 		.cpu_dai_name = "VUL",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dynamic = 1,
 		.dpcm_capture = 1,
+=======
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dynamic = 1,
+		.dpcm_capture = 1,
+		SND_SOC_DAILINK_REG(capture),
+>>>>>>> upstream/android-13
 	},
 	/* Back End DAI links */
 	{
 		.name = "Codec",
+<<<<<<< HEAD
 		.cpu_dai_name = "I2S",
 		.no_pcm = 1,
 		.codec_dai_name = "HiFi",
+=======
+		.no_pcm = 1,
+>>>>>>> upstream/android-13
 		.init = mt8173_max98090_init,
 		.ops = &mt8173_max98090_ops,
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			   SND_SOC_DAIFMT_CBS_CFS,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(hifi),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -137,6 +186,10 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
 {
 	struct snd_soc_card *card = &mt8173_max98090_card;
 	struct device_node *codec_node, *platform_node;
+<<<<<<< HEAD
+=======
+	struct snd_soc_dai_link *dai_link;
+>>>>>>> upstream/android-13
 	int ret, i;
 
 	platform_node = of_parse_phandle(pdev->dev.of_node,
@@ -145,10 +198,17 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Property 'platform' missing or invalid\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < card->num_links; i++) {
 		if (mt8173_max98090_dais[i].platform_name)
 			continue;
 		mt8173_max98090_dais[i].platform_of_node = platform_node;
+=======
+	for_each_card_prelinks(card, i, dai_link) {
+		if (dai_link->platforms->name)
+			continue;
+		dai_link->platforms->of_node = platform_node;
+>>>>>>> upstream/android-13
 	}
 
 	codec_node = of_parse_phandle(pdev->dev.of_node,
@@ -158,10 +218,17 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
 			"Property 'audio-codec' missing or invalid\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < card->num_links; i++) {
 		if (mt8173_max98090_dais[i].codec_name)
 			continue;
 		mt8173_max98090_dais[i].codec_of_node = codec_node;
+=======
+	for_each_card_prelinks(card, i, dai_link) {
+		if (dai_link->codecs->name)
+			continue;
+		dai_link->codecs->of_node = codec_node;
+>>>>>>> upstream/android-13
 	}
 	card->dev = &pdev->dev;
 
@@ -169,6 +236,12 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
 	if (ret)
 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
 			__func__, ret);
+<<<<<<< HEAD
+=======
+
+	of_node_put(codec_node);
+	of_node_put(platform_node);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

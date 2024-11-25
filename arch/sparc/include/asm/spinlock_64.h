@@ -11,8 +11,13 @@
 
 #include <asm/processor.h>
 #include <asm/barrier.h>
+<<<<<<< HEAD
 #include <asm/qrwlock.h>
 #include <asm/qspinlock.h>
+=======
+#include <asm/qspinlock.h>
+#include <asm/qrwlock.h>
+>>>>>>> upstream/android-13
 
 #endif /* !(__ASSEMBLY__) */
 

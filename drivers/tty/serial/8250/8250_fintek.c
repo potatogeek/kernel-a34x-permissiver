@@ -19,6 +19,10 @@
 #define CHIP_ID2  0x21
 #define CHIP_ID_F81865 0x0407
 #define CHIP_ID_F81866 0x1010
+<<<<<<< HEAD
+=======
+#define CHIP_ID_F81966 0x0215
+>>>>>>> upstream/android-13
 #define CHIP_ID_F81216AD 0x1602
 #define CHIP_ID_F81216H 0x0501
 #define CHIP_ID_F81216 0x0802
@@ -62,9 +66,15 @@
 #define F81216_LDN_HIGH	0x4
 
 /*
+<<<<<<< HEAD
  * F81866 registers
  *
  * The IRQ setting mode of F81866 is not the same with F81216 series.
+=======
+ * F81866/966 registers
+ *
+ * The IRQ setting mode of F81866/966 is not the same with F81216 series.
+>>>>>>> upstream/android-13
  *	Level/Low: IRQ_MODE0:0, IRQ_MODE1:0
  *	Edge/High: IRQ_MODE0:1, IRQ_MODE1:0
  *
@@ -155,6 +165,10 @@ static int fintek_8250_check_id(struct fintek_8250 *pdata)
 	switch (chip) {
 	case CHIP_ID_F81865:
 	case CHIP_ID_F81866:
+<<<<<<< HEAD
+=======
+	case CHIP_ID_F81966:
+>>>>>>> upstream/android-13
 	case CHIP_ID_F81216AD:
 	case CHIP_ID_F81216H:
 	case CHIP_ID_F81216:
@@ -171,6 +185,10 @@ static int fintek_8250_get_ldn_range(struct fintek_8250 *pdata, int *min,
 				     int *max)
 {
 	switch (pdata->pid) {
+<<<<<<< HEAD
+=======
+	case CHIP_ID_F81966:
+>>>>>>> upstream/android-13
 	case CHIP_ID_F81865:
 	case CHIP_ID_F81866:
 		*min = F81866_LDN_LOW;
@@ -248,10 +266,18 @@ static void fintek_8250_set_irq_mode(struct fintek_8250 *pdata, bool is_level)
 	sio_write_reg(pdata, LDN, pdata->index);
 
 	switch (pdata->pid) {
+<<<<<<< HEAD
 	case CHIP_ID_F81866:
 		sio_write_mask_reg(pdata, F81866_FIFO_CTRL, F81866_IRQ_MODE1,
 				   0);
 		/* fall through */
+=======
+	case CHIP_ID_F81966:
+	case CHIP_ID_F81866:
+		sio_write_mask_reg(pdata, F81866_FIFO_CTRL, F81866_IRQ_MODE1,
+				   0);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CHIP_ID_F81865:
 		sio_write_mask_reg(pdata, F81866_IRQ_MODE, F81866_IRQ_SHARE,
 				   F81866_IRQ_SHARE);
@@ -274,6 +300,10 @@ static void fintek_8250_set_max_fifo(struct fintek_8250 *pdata)
 {
 	switch (pdata->pid) {
 	case CHIP_ID_F81216H: /* 128Bytes FIFO */
+<<<<<<< HEAD
+=======
+	case CHIP_ID_F81966:
+>>>>>>> upstream/android-13
 	case CHIP_ID_F81866:
 		sio_write_mask_reg(pdata, FIFO_CTRL,
 				   FIFO_MODE_MASK | RXFTHR_MODE_MASK,
@@ -285,6 +315,7 @@ static void fintek_8250_set_max_fifo(struct fintek_8250 *pdata)
 	}
 }
 
+<<<<<<< HEAD
 static void fintek_8250_goto_highspeed(struct uart_8250_port *uart,
 			      struct fintek_8250 *pdata)
 {
@@ -305,6 +336,11 @@ static void fintek_8250_goto_highspeed(struct uart_8250_port *uart,
 
 void fintek_8250_set_termios(struct uart_port *port, struct ktermios *termios,
 			struct ktermios *old)
+=======
+static void fintek_8250_set_termios(struct uart_port *port,
+				    struct ktermios *termios,
+				    struct ktermios *old)
+>>>>>>> upstream/android-13
 {
 	struct fintek_8250 *pdata = port->private_data;
 	unsigned int baud = tty_termios_baud_rate(termios);
@@ -326,6 +362,10 @@ void fintek_8250_set_termios(struct uart_port *port, struct ktermios *termios,
 	case CHIP_ID_F81216H:
 		reg = RS485;
 		break;
+<<<<<<< HEAD
+=======
+	case CHIP_ID_F81966:
+>>>>>>> upstream/android-13
 	case CHIP_ID_F81866:
 		reg = F81866_UART_CLK;
 		break;
@@ -372,6 +412,10 @@ static void fintek_8250_set_termios_handler(struct uart_8250_port *uart)
 
 	switch (pdata->pid) {
 	case CHIP_ID_F81216H:
+<<<<<<< HEAD
+=======
+	case CHIP_ID_F81966:
+>>>>>>> upstream/android-13
 	case CHIP_ID_F81866:
 		uart->port.set_termios = fintek_8250_set_termios;
 		break;
@@ -421,7 +465,10 @@ static int probe_setup_port(struct fintek_8250 *pdata,
 
 				fintek_8250_set_irq_mode(pdata, level_mode);
 				fintek_8250_set_max_fifo(pdata);
+<<<<<<< HEAD
 				fintek_8250_goto_highspeed(uart, pdata);
+=======
+>>>>>>> upstream/android-13
 
 				fintek_8250_exit_key(addr[i]);
 
@@ -442,6 +489,10 @@ static void fintek_8250_set_rs485_handler(struct uart_8250_port *uart)
 	switch (pdata->pid) {
 	case CHIP_ID_F81216AD:
 	case CHIP_ID_F81216H:
+<<<<<<< HEAD
+=======
+	case CHIP_ID_F81966:
+>>>>>>> upstream/android-13
 	case CHIP_ID_F81866:
 	case CHIP_ID_F81865:
 		uart->port.rs485_config = fintek_8250_rs485_config;

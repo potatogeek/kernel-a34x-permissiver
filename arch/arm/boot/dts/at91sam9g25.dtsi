@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * at91sam9g25.dtsi - Device Tree Include file for AT91SAM9G25 SoC
  *
  * Copyright (C) 2012 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "at91sam9x5.dtsi"
@@ -26,6 +33,13 @@
 				       0x003fffff 0x003f8000 0x00000000  /* pioD */
 				      >;
 			};
+<<<<<<< HEAD
+=======
+
+			pmc: pmc@fffffc00 {
+				compatible = "atmel,at91sam9g25-pmc", "atmel,at91sam9x5-pmc", "syscon";
+			};
+>>>>>>> upstream/android-13
 		};
 	};
 };

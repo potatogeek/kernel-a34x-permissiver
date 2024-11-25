@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Exception handling for Microblaze
  *
@@ -30,10 +34,13 @@
  *
  * Original code
  * Copyright (C) 2004 Xilinx, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -71,9 +78,15 @@
 #include <asm/entry.h>
 #include <asm/current.h>
 #include <linux/linkage.h>
+<<<<<<< HEAD
 
 #include <asm/mmu.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include <asm/signal.h>
 #include <asm/registers.h>
 #include <asm/asm-offsets.h>
@@ -83,7 +96,10 @@
 /* Helpful Macros */
 #define NUM_TO_REG(num)		r ## num
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
+=======
+>>>>>>> upstream/android-13
 	#define RESTORE_STATE			\
 		lwi	r5, r1, 0;		\
 		mts	rmsr, r5;		\
@@ -95,7 +111,10 @@
 		lwi	r11, r1, PT_R11;	\
 		lwi	r31, r1, PT_R31;	\
 		lwi	r1, r1, PT_R1;
+<<<<<<< HEAD
 #endif /* CONFIG_MMU */
+=======
+>>>>>>> upstream/android-13
 
 #define LWREG_NOP			\
 	bri	ex_handler_unhandled;	\
@@ -105,10 +124,13 @@
 	bri	ex_handler_unhandled;	\
 	nop;
 
+<<<<<<< HEAD
 /* FIXME this is weird - for noMMU kernel is not possible to use brid
  * instruction which can shorten executed time
  */
 
+=======
+>>>>>>> upstream/android-13
 /* r3 is the source */
 #define R3_TO_LWREG_V(regnum)				\
 	swi	r3, r1, 4 * regnum;				\
@@ -129,7 +151,10 @@
 	or	r3, r0, NUM_TO_REG (regnum);		\
 	bri	ex_sw_tail;
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
+=======
+>>>>>>> upstream/android-13
 	#define R3_TO_LWREG_VM_V(regnum)		\
 		brid	ex_lw_end_vm;			\
 		swi	r3, r7, 4 * regnum;
@@ -196,7 +221,10 @@
 	.endm
 	#endif
 
+<<<<<<< HEAD
 #endif /* CONFIG_MMU */
+=======
+>>>>>>> upstream/android-13
 
 .extern other_exception_handler /* Defined in exception.c */
 
@@ -254,7 +282,10 @@
  */
 
 /* wrappers to restore state before coming to entry.S */
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
+=======
+>>>>>>> upstream/android-13
 .section .data
 .align 4
 pt_pool_space:
@@ -319,31 +350,46 @@ _MB_HW_ExceptionVectorTable:
 	.long	TOPHYS(ex_handler_unhandled)
 	.long	TOPHYS(ex_handler_unhandled)
 	.long	TOPHYS(ex_handler_unhandled)
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 .global _hw_exception_handler
 .section .text
 .align 4
 .ent _hw_exception_handler
 _hw_exception_handler:
+<<<<<<< HEAD
 #ifndef CONFIG_MMU
 	addik	r1, r1, -(EX_HANDLER_STACK_SIZ); /* Create stack frame */
 #else
+=======
+>>>>>>> upstream/android-13
 	swi	r1, r0, TOPHYS(pt_pool_space + PT_R1); /* GET_SP */
 	/* Save date to kernel memory. Here is the problem
 	 * when you came from user space */
 	ori	r1, r0, TOPHYS(pt_pool_space);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 	swi	r3, r1, PT_R3
 	swi	r4, r1, PT_R4
 	swi	r5, r1, PT_R5
 	swi	r6, r1, PT_R6
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
 	swi	r11, r1, PT_R11
 	swi	r31, r1, PT_R31
 	lwi	r31, r0, TOPHYS(PER_CPU(CURRENT_SAVE)) /* get saved current */
 #endif
+=======
+	swi	r11, r1, PT_R11
+	swi	r31, r1, PT_R31
+	lwi	r31, r0, TOPHYS(PER_CPU(CURRENT_SAVE)) /* get saved current */
+>>>>>>> upstream/android-13
 
 	mfs	r5, rmsr;
 	nop
@@ -353,6 +399,7 @@ _hw_exception_handler:
 	mfs	r3, rear;
 	nop
 
+<<<<<<< HEAD
 #ifndef CONFIG_MMU
 	andi	r5, r4, 0x1000;		/* Check ESR[DS] */
 	beqi	r5, not_in_delay_slot;	/* Branch if ESR[DS] not set */
@@ -365,6 +412,10 @@ not_in_delay_slot:
 	andi	r5, r4, 0x1F;		/* Extract ESR[EXC] */
 
 #ifdef CONFIG_MMU
+=======
+	andi	r5, r4, 0x1F;		/* Extract ESR[EXC] */
+
+>>>>>>> upstream/android-13
 	/* Calculate exception vector offset = r5 << 2 */
 	addk	r6, r5, r5; /* << 1 */
 	addk	r6, r6, r6; /* << 2 */
@@ -386,6 +437,7 @@ not_in_delay_slot:
 full_exception_trapw:
 	RESTORE_STATE
 	bri	full_exception_trap
+<<<<<<< HEAD
 #else
 	/* Exceptions enabled here. This will allow nested exceptions */
 	mfs	r6, rmsr;
@@ -453,6 +505,8 @@ handle_other_ex: /* Handle Other exceptions here */
 
 	bri	ex_handler_done; /* Complete exception handling */
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /* 0x01 - Unaligned data access exception
  * This occurs when a word access is not aligned on a word boundary,
@@ -466,7 +520,10 @@ handle_unaligned_ex:
 	 *  R4 = ESR
 	 *  R3 = EAR
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
+=======
+>>>>>>> upstream/android-13
 	andi	r6, r4, 0x1000			/* Check ESR[DS] */
 	beqi	r6, _no_delayslot		/* Branch if ESR[DS] not set */
 	mfs	r17, rbtr;	/* ESR[DS] set - return address in BTR */
@@ -475,7 +532,11 @@ _no_delayslot:
 	/* jump to high level unaligned handler */
 	RESTORE_STATE;
 	bri	unaligned_data_trap
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	andi	r6, r4, 0x3E0; /* Mask and extract the register operand */
 	srl	r6, r6; /* r6 >> 5 */
 	srl	r6, r6;
@@ -561,6 +622,7 @@ ex_shw:
 ex_sw_end: /* Exception handling of store word, ends. */
 
 ex_handler_done:
+<<<<<<< HEAD
 #ifndef CONFIG_MMU
 	lwi	r5, r1, 0 /* RMSR */
 	mts	rmsr, r5
@@ -580,6 +642,12 @@ ex_handler_done:
 #endif
 
 #ifdef CONFIG_MMU
+=======
+	RESTORE_STATE;
+	rted	r17, 0
+	nop
+
+>>>>>>> upstream/android-13
 	/* Exception vector entry code. This code runs with address translation
 	 * turned off (i.e. using physical addresses). */
 
@@ -885,6 +953,7 @@ ex_handler_done:
 		 * bits 20 and 21 are zero.
 		 */
 		andi	r3, r3, PAGE_MASK
+<<<<<<< HEAD
 #ifdef CONFIG_MICROBLAZE_64K_PAGES
 		ori	r3, r3, TLB_VALID | TLB_PAGESZ(PAGESZ_64K)
 #elif CONFIG_MICROBLAZE_16K_PAGES
@@ -892,6 +961,9 @@ ex_handler_done:
 #else
 		ori	r3, r3, TLB_VALID | TLB_PAGESZ(PAGESZ_4K)
 #endif
+=======
+		ori	r3, r3, TLB_VALID | TLB_PAGESZ(PAGESZ_4K)
+>>>>>>> upstream/android-13
 		mts	rtlbhi,	r3		/* Load TLB HI */
 		nop
 
@@ -929,10 +1001,15 @@ ex_handler_done:
 		rtsd	r15,8
 		nop
 
+<<<<<<< HEAD
 #endif
 .end _hw_exception_handler
 
 #ifdef CONFIG_MMU
+=======
+.end _hw_exception_handler
+
+>>>>>>> upstream/android-13
 /* Unaligned data access exception last on a 4k page for MMU.
  * When this is called, we are in virtual mode with exceptions enabled
  * and registers 1-13,15,17,18 saved.
@@ -1047,7 +1124,10 @@ ex_unaligned_fixup:
 	.word	store6,ex_unaligned_fixup;
 .previous;
 .end _unaligned_data_exception
+<<<<<<< HEAD
 #endif /* CONFIG_MMU */
+=======
+>>>>>>> upstream/android-13
 
 .global ex_handler_unhandled
 ex_handler_unhandled:
@@ -1096,11 +1176,15 @@ lw_r27:		R3_TO_LWREG	(27);
 lw_r28:		R3_TO_LWREG	(28);
 lw_r29:		R3_TO_LWREG	(29);
 lw_r30:		R3_TO_LWREG	(30);
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
 lw_r31: 	R3_TO_LWREG_V	(31);
 #else
 lw_r31:		R3_TO_LWREG	(31);
 #endif
+=======
+lw_r31: 	R3_TO_LWREG_V	(31);
+>>>>>>> upstream/android-13
 
 sw_table:
 sw_r0:		SWREG_TO_R3	(0);
@@ -1134,6 +1218,7 @@ sw_r27:		SWREG_TO_R3	(27);
 sw_r28:		SWREG_TO_R3	(28);
 sw_r29:		SWREG_TO_R3	(29);
 sw_r30:		SWREG_TO_R3	(30);
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
 sw_r31:		SWREG_TO_R3_V	(31);
 #else
@@ -1141,6 +1226,10 @@ sw_r31:		SWREG_TO_R3	(31);
 #endif
 
 #ifdef CONFIG_MMU
+=======
+sw_r31:		SWREG_TO_R3_V	(31);
+
+>>>>>>> upstream/android-13
 lw_table_vm:
 lw_r0_vm:	R3_TO_LWREG_VM		(0);
 lw_r1_vm:	R3_TO_LWREG_VM_V	(1);
@@ -1208,7 +1297,10 @@ sw_r28_vm:	SWREG_TO_R3_VM_V	(28);
 sw_r29_vm:	SWREG_TO_R3_VM_V	(29);
 sw_r30_vm:	SWREG_TO_R3_VM_V	(30);
 sw_r31_vm:	SWREG_TO_R3_VM_V	(31);
+<<<<<<< HEAD
 #endif /* CONFIG_MMU */
+=======
+>>>>>>> upstream/android-13
 
 /* Temporary data structures used in the handler */
 .section .data

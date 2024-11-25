@@ -25,8 +25,14 @@
  *          Rafał Miłecki
  */
 #include <linux/hdmi.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/radeon_drm.h>
+=======
+
+#include <drm/radeon_drm.h>
+#include "evergreen_hdmi.h"
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "radeon_audio.h"

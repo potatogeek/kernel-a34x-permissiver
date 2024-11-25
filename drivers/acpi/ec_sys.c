@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ec_sys.c
  *
  * Copyright (C) 2010 SUSE Products GmbH/Novell
  * Author:
  *      Thomas Renninger <trenn@suse.de>
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -108,12 +115,17 @@ static const struct file_operations acpi_ec_io_ops = {
 	.llseek = default_llseek,
 };
 
+<<<<<<< HEAD
 static int acpi_ec_add_debugfs(struct acpi_ec *ec, unsigned int ec_device_count)
+=======
+static void acpi_ec_add_debugfs(struct acpi_ec *ec, unsigned int ec_device_count)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dev_dir;
 	char name[64];
 	umode_t mode = 0400;
 
+<<<<<<< HEAD
 	if (ec_device_count == 0) {
 		acpi_ec_debugfs_dir = debugfs_create_dir("ec", NULL);
 		if (!acpi_ec_debugfs_dir)
@@ -144,16 +156,37 @@ static int acpi_ec_add_debugfs(struct acpi_ec *ec, unsigned int ec_device_count)
 error:
 	debugfs_remove_recursive(acpi_ec_debugfs_dir);
 	return -ENOMEM;
+=======
+	if (ec_device_count == 0)
+		acpi_ec_debugfs_dir = debugfs_create_dir("ec", NULL);
+
+	sprintf(name, "ec%u", ec_device_count);
+	dev_dir = debugfs_create_dir(name, acpi_ec_debugfs_dir);
+
+	debugfs_create_x32("gpe", 0444, dev_dir, &first_ec->gpe);
+	debugfs_create_bool("use_global_lock", 0444, dev_dir,
+			    &first_ec->global_lock);
+
+	if (write_support)
+		mode = 0600;
+	debugfs_create_file("io", mode, dev_dir, ec, &acpi_ec_io_ops);
+>>>>>>> upstream/android-13
 }
 
 static int __init acpi_ec_sys_init(void)
 {
+<<<<<<< HEAD
 	int err = 0;
 	if (first_ec)
 		err = acpi_ec_add_debugfs(first_ec, 0);
 	else
 		err = -ENODEV;
 	return err;
+=======
+	if (first_ec)
+		acpi_ec_add_debugfs(first_ec, 0);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void __exit acpi_ec_sys_exit(void)

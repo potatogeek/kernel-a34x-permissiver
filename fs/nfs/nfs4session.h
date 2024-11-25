@@ -10,7 +10,11 @@
 
 /* maximum number of slots to use */
 #define NFS4_DEF_SLOT_TABLE_SIZE (64U)
+<<<<<<< HEAD
 #define NFS4_DEF_CB_SLOT_TABLE_SIZE (1U)
+=======
+#define NFS4_DEF_CB_SLOT_TABLE_SIZE (16U)
+>>>>>>> upstream/android-13
 #define NFS4_MAX_SLOT_TABLE (1024U)
 #define NFS4_NO_SLOT ((u32)-1)
 
@@ -23,8 +27,14 @@ struct nfs4_slot {
 	unsigned long		generation;
 	u32			slot_nr;
 	u32		 	seq_nr;
+<<<<<<< HEAD
 	unsigned int		interrupted : 1,
 				privileged : 1,
+=======
+	u32		 	seq_nr_last_acked;
+	u32		 	seq_nr_highest_sent;
+	unsigned int		privileged : 1,
+>>>>>>> upstream/android-13
 				seq_done : 1;
 };
 
@@ -33,7 +43,11 @@ enum nfs4_slot_tbl_state {
 	NFS4_SLOT_TBL_DRAINING,
 };
 
+<<<<<<< HEAD
 #define SLOT_TABLE_SZ DIV_ROUND_UP(NFS4_MAX_SLOT_TABLE, 8*sizeof(long))
+=======
+#define SLOT_TABLE_SZ DIV_ROUND_UP(NFS4_MAX_SLOT_TABLE, BITS_PER_LONG)
+>>>>>>> upstream/android-13
 struct nfs4_slot_table {
 	struct nfs4_session *session;		/* Parent session */
 	struct nfs4_slot *slots;		/* seqid per slot */

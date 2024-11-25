@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 * Generic DMA Controller and DMA request bindings
 
 Generic binding to provide a way for a driver using DMA Engine to retrieve the
@@ -107,3 +108,6 @@ Examples:
 		&dma2 0			/* error read */
 		&dma3 0>;		/* alternative error read */
 	dma-names = "rx", "tx", "error", "error";
+=======
+This file has been moved to dma-controller.yaml.
+>>>>>>> upstream/android-13

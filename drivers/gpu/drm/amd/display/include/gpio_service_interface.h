@@ -42,8 +42,13 @@ void dal_gpio_destroy(
 	struct gpio **ptr);
 
 struct gpio_service *dal_gpio_service_create(
+<<<<<<< HEAD
 	enum dce_version dce_version_major,
 	enum dce_version dce_version_minor,
+=======
+	enum dce_version dce_version,
+	enum dce_environment dce_environment,
+>>>>>>> upstream/android-13
 	struct dc_context *ctx);
 
 struct gpio *dal_gpio_service_create_irq(
@@ -51,13 +56,36 @@ struct gpio *dal_gpio_service_create_irq(
 	uint32_t offset,
 	uint32_t mask);
 
+<<<<<<< HEAD
+=======
+struct gpio *dal_gpio_service_create_generic_mux(
+	struct gpio_service *service,
+	uint32_t offset,
+	uint32_t mask);
+
+void dal_gpio_destroy_generic_mux(
+	struct gpio **mux);
+
+enum gpio_result dal_mux_setup_config(
+	struct gpio *mux,
+	struct gpio_generic_mux_config *config);
+
+struct gpio_pin_info dal_gpio_get_generic_pin_info(
+	struct gpio_service *service,
+	enum gpio_id id,
+	uint32_t en);
+
+>>>>>>> upstream/android-13
 struct ddc *dal_gpio_create_ddc(
 	struct gpio_service *service,
 	uint32_t offset,
 	uint32_t mask,
 	struct gpio_ddc_hw_info *info);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void dal_gpio_destroy_ddc(
 	struct ddc **ddc);
 

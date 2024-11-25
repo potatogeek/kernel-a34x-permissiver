@@ -71,11 +71,27 @@
 #define MBOCHS_NAME		  "mbochs"
 #define MBOCHS_CLASS_NAME	  "mbochs"
 
+<<<<<<< HEAD
 #define MBOCHS_CONFIG_SPACE_SIZE  0xff
 #define MBOCHS_MMIO_BAR_OFFSET	  PAGE_SIZE
 #define MBOCHS_MMIO_BAR_SIZE	  PAGE_SIZE
 #define MBOCHS_MEMORY_BAR_OFFSET  (MBOCHS_MMIO_BAR_OFFSET + \
 				   MBOCHS_MMIO_BAR_SIZE)
+=======
+#define MBOCHS_EDID_REGION_INDEX  VFIO_PCI_NUM_REGIONS
+#define MBOCHS_NUM_REGIONS        (MBOCHS_EDID_REGION_INDEX+1)
+
+#define MBOCHS_CONFIG_SPACE_SIZE  0xff
+#define MBOCHS_MMIO_BAR_OFFSET	  PAGE_SIZE
+#define MBOCHS_MMIO_BAR_SIZE	  PAGE_SIZE
+#define MBOCHS_EDID_OFFSET	  (MBOCHS_MMIO_BAR_OFFSET +	\
+				   MBOCHS_MMIO_BAR_SIZE)
+#define MBOCHS_EDID_SIZE	  PAGE_SIZE
+#define MBOCHS_MEMORY_BAR_OFFSET  (MBOCHS_EDID_OFFSET + \
+				   MBOCHS_EDID_SIZE)
+
+#define MBOCHS_EDID_BLOB_OFFSET   (MBOCHS_EDID_SIZE/2)
+>>>>>>> upstream/android-13
 
 #define STORE_LE16(addr, val)	(*(u16 *)addr = val)
 #define STORE_LE32(addr, val)	(*(u32 *)addr = val)
@@ -95,16 +111,36 @@ MODULE_PARM_DESC(mem, "megabytes available to " MBOCHS_NAME " devices");
 static const struct mbochs_type {
 	const char *name;
 	u32 mbytes;
+<<<<<<< HEAD
+=======
+	u32 max_x;
+	u32 max_y;
+>>>>>>> upstream/android-13
 } mbochs_types[] = {
 	{
 		.name	= MBOCHS_CLASS_NAME "-" MBOCHS_TYPE_1,
 		.mbytes = 4,
+<<<<<<< HEAD
 	}, {
 		.name	= MBOCHS_CLASS_NAME "-" MBOCHS_TYPE_2,
 		.mbytes = 16,
 	}, {
 		.name	= MBOCHS_CLASS_NAME "-" MBOCHS_TYPE_3,
 		.mbytes = 64,
+=======
+		.max_x  = 800,
+		.max_y  = 600,
+	}, {
+		.name	= MBOCHS_CLASS_NAME "-" MBOCHS_TYPE_2,
+		.mbytes = 16,
+		.max_x  = 1920,
+		.max_y  = 1440,
+	}, {
+		.name	= MBOCHS_CLASS_NAME "-" MBOCHS_TYPE_3,
+		.mbytes = 64,
+		.max_x  = 0,
+		.max_y  = 0,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -113,7 +149,17 @@ static dev_t		mbochs_devt;
 static struct class	*mbochs_class;
 static struct cdev	mbochs_cdev;
 static struct device	mbochs_dev;
+<<<<<<< HEAD
 static int		mbochs_used_mbytes;
+=======
+static atomic_t mbochs_avail_mbytes;
+static const struct vfio_device_ops mbochs_dev_ops;
+
+struct vfio_region_info_ext {
+	struct vfio_region_info          base;
+	struct vfio_region_info_cap_type type;
+};
+>>>>>>> upstream/android-13
 
 struct mbochs_mode {
 	u32 drm_format;
@@ -139,18 +185,30 @@ struct mbochs_dmabuf {
 
 /* State of each mdev device */
 struct mdev_state {
+<<<<<<< HEAD
+=======
+	struct vfio_device vdev;
+>>>>>>> upstream/android-13
 	u8 *vconfig;
 	u64 bar_mask[3];
 	u32 memory_bar_mask;
 	struct mutex ops_lock;
 	struct mdev_device *mdev;
+<<<<<<< HEAD
 	struct vfio_device_info dev_info;
+=======
+>>>>>>> upstream/android-13
 
 	const struct mbochs_type *type;
 	u16 vbe[VBE_DISPI_INDEX_COUNT];
 	u64 memsize;
 	struct page **pages;
 	pgoff_t pagecount;
+<<<<<<< HEAD
+=======
+	struct vfio_region_gfx_edid edid_regs;
+	u8 edid_blob[0x400];
+>>>>>>> upstream/android-13
 
 	struct list_head dmabufs;
 	u32 active_id;
@@ -183,6 +241,7 @@ static struct page *__mbochs_get_page(struct mdev_state *mdev_state,
 static struct page *mbochs_get_page(struct mdev_state *mdev_state,
 				    pgoff_t pgoff);
 
+<<<<<<< HEAD
 static const struct mbochs_type *mbochs_find_type(struct kobject *kobj)
 {
 	int i;
@@ -193,6 +252,8 @@ static const struct mbochs_type *mbochs_find_type(struct kobject *kobj)
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void mbochs_create_config_space(struct mdev_state *mdev_state)
 {
 	STORE_LE16((u16 *) &mdev_state->vconfig[PCI_VENDOR_ID],
@@ -342,10 +403,26 @@ static void handle_mmio_read(struct mdev_state *mdev_state, u16 offset,
 			     char *buf, u32 count)
 {
 	struct device *dev = mdev_dev(mdev_state->mdev);
+<<<<<<< HEAD
+=======
+	struct vfio_region_gfx_edid *edid;
+>>>>>>> upstream/android-13
 	u16 reg16 = 0;
 	int index;
 
 	switch (offset) {
+<<<<<<< HEAD
+=======
+	case 0x000 ... 0x3ff: /* edid block */
+		edid = &mdev_state->edid_regs;
+		if (edid->link_state != VFIO_DEVICE_GFX_LINK_STATE_UP ||
+		    offset >= edid->edid_size) {
+			memset(buf, 0, count);
+			break;
+		}
+		memcpy(buf, mdev_state->edid_blob + offset, count);
+		break;
+>>>>>>> upstream/android-13
 	case 0x500 ... 0x515: /* bochs dispi interface */
 		if (count != 2)
 			goto unhandled;
@@ -365,11 +442,55 @@ unhandled:
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
 			   loff_t pos, bool is_write)
 {
 	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
 	struct device *dev = mdev_dev(mdev);
+=======
+static void handle_edid_regs(struct mdev_state *mdev_state, u16 offset,
+			     char *buf, u32 count, bool is_write)
+{
+	char *regs = (void *)&mdev_state->edid_regs;
+
+	if (offset + count > sizeof(mdev_state->edid_regs))
+		return;
+	if (count != 4)
+		return;
+	if (offset % 4)
+		return;
+
+	if (is_write) {
+		switch (offset) {
+		case offsetof(struct vfio_region_gfx_edid, link_state):
+		case offsetof(struct vfio_region_gfx_edid, edid_size):
+			memcpy(regs + offset, buf, count);
+			break;
+		default:
+			/* read-only regs */
+			break;
+		}
+	} else {
+		memcpy(buf, regs + offset, count);
+	}
+}
+
+static void handle_edid_blob(struct mdev_state *mdev_state, u16 offset,
+			     char *buf, u32 count, bool is_write)
+{
+	if (offset + count > mdev_state->edid_regs.edid_max_size)
+		return;
+	if (is_write)
+		memcpy(mdev_state->edid_blob + offset, buf, count);
+	else
+		memcpy(buf, mdev_state->edid_blob + offset, count);
+}
+
+static ssize_t mdev_access(struct mdev_state *mdev_state, char *buf,
+			   size_t count, loff_t pos, bool is_write)
+{
+>>>>>>> upstream/android-13
 	struct page *pg;
 	loff_t poff;
 	char *map;
@@ -384,13 +505,32 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
 			memcpy(buf, (mdev_state->vconfig + pos), count);
 
 	} else if (pos >= MBOCHS_MMIO_BAR_OFFSET &&
+<<<<<<< HEAD
 		   pos + count <= MBOCHS_MEMORY_BAR_OFFSET) {
+=======
+		   pos + count <= (MBOCHS_MMIO_BAR_OFFSET +
+				   MBOCHS_MMIO_BAR_SIZE)) {
+>>>>>>> upstream/android-13
 		pos -= MBOCHS_MMIO_BAR_OFFSET;
 		if (is_write)
 			handle_mmio_write(mdev_state, pos, buf, count);
 		else
 			handle_mmio_read(mdev_state, pos, buf, count);
 
+<<<<<<< HEAD
+=======
+	} else if (pos >= MBOCHS_EDID_OFFSET &&
+		   pos + count <= (MBOCHS_EDID_OFFSET +
+				   MBOCHS_EDID_SIZE)) {
+		pos -= MBOCHS_EDID_OFFSET;
+		if (pos < MBOCHS_EDID_BLOB_OFFSET) {
+			handle_edid_regs(mdev_state, pos, buf, count, is_write);
+		} else {
+			pos -= MBOCHS_EDID_BLOB_OFFSET;
+			handle_edid_blob(mdev_state, pos, buf, count, is_write);
+		}
+
+>>>>>>> upstream/android-13
 	} else if (pos >= MBOCHS_MEMORY_BAR_OFFSET &&
 		   pos + count <=
 		   MBOCHS_MEMORY_BAR_OFFSET + mdev_state->memsize) {
@@ -406,7 +546,11 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
 		put_page(pg);
 
 	} else {
+<<<<<<< HEAD
 		dev_dbg(dev, "%s: %s @0x%llx (unhandled)\n",
+=======
+		dev_dbg(mdev_state->vdev.dev, "%s: %s @0x%llx (unhandled)\n",
+>>>>>>> upstream/android-13
 			__func__, is_write ? "WR" : "RD", pos);
 		ret = -1;
 		goto accessfailed;
@@ -421,9 +565,14 @@ accessfailed:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mbochs_reset(struct mdev_device *mdev)
 {
 	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
+=======
+static int mbochs_reset(struct mdev_state *mdev_state)
+{
+>>>>>>> upstream/android-13
 	u32 size64k = mdev_state->memsize / (64 * 1024);
 	int i;
 
@@ -434,6 +583,7 @@ static int mbochs_reset(struct mdev_device *mdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mbochs_create(struct kobject *kobj, struct mdev_device *mdev)
 {
 	const struct mbochs_type *type = mbochs_find_type(kobj);
@@ -448,6 +598,27 @@ static int mbochs_create(struct kobject *kobj, struct mdev_device *mdev)
 	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
 	if (mdev_state == NULL)
 		return -ENOMEM;
+=======
+static int mbochs_probe(struct mdev_device *mdev)
+{
+	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
+	const struct mbochs_type *type =
+		&mbochs_types[mdev_get_type_group_id(mdev)];
+	struct device *dev = mdev_dev(mdev);
+	struct mdev_state *mdev_state;
+	int ret = -ENOMEM;
+
+	do {
+		if (avail_mbytes < type->mbytes)
+			return -ENOSPC;
+	} while (!atomic_try_cmpxchg(&mbochs_avail_mbytes, &avail_mbytes,
+				     avail_mbytes - type->mbytes));
+
+	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
+	if (mdev_state == NULL)
+		goto err_avail;
+	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mbochs_dev_ops);
+>>>>>>> upstream/android-13
 
 	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
 	if (mdev_state->vconfig == NULL)
@@ -462,15 +633,23 @@ static int mbochs_create(struct kobject *kobj, struct mdev_device *mdev)
 		goto err_mem;
 
 	dev_info(dev, "%s: %s, %d MB, %ld pages\n", __func__,
+<<<<<<< HEAD
 		 kobj->name, type->mbytes, mdev_state->pagecount);
 
 	mutex_init(&mdev_state->ops_lock);
 	mdev_state->mdev = mdev;
 	mdev_set_drvdata(mdev, mdev_state);
+=======
+		 type->name, type->mbytes, mdev_state->pagecount);
+
+	mutex_init(&mdev_state->ops_lock);
+	mdev_state->mdev = mdev;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&mdev_state->dmabufs);
 	mdev_state->next_id = 1;
 
 	mdev_state->type = type;
+<<<<<<< HEAD
 	mbochs_create_config_space(mdev_state);
 	mbochs_reset(mdev);
 
@@ -498,6 +677,47 @@ static int mbochs_remove(struct mdev_device *mdev)
 static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
 			   size_t count, loff_t *ppos)
 {
+=======
+	mdev_state->edid_regs.max_xres = type->max_x;
+	mdev_state->edid_regs.max_yres = type->max_y;
+	mdev_state->edid_regs.edid_offset = MBOCHS_EDID_BLOB_OFFSET;
+	mdev_state->edid_regs.edid_max_size = sizeof(mdev_state->edid_blob);
+	mbochs_create_config_space(mdev_state);
+	mbochs_reset(mdev_state);
+
+	ret = vfio_register_group_dev(&mdev_state->vdev);
+	if (ret)
+		goto err_mem;
+	dev_set_drvdata(&mdev->dev, mdev_state);
+	return 0;
+err_mem:
+	vfio_uninit_group_dev(&mdev_state->vdev);
+	kfree(mdev_state->pages);
+	kfree(mdev_state->vconfig);
+	kfree(mdev_state);
+err_avail:
+	atomic_add(type->mbytes, &mbochs_avail_mbytes);
+	return ret;
+}
+
+static void mbochs_remove(struct mdev_device *mdev)
+{
+	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
+
+	vfio_unregister_group_dev(&mdev_state->vdev);
+	vfio_uninit_group_dev(&mdev_state->vdev);
+	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
+	kfree(mdev_state->pages);
+	kfree(mdev_state->vconfig);
+	kfree(mdev_state);
+}
+
+static ssize_t mbochs_read(struct vfio_device *vdev, char __user *buf,
+			   size_t count, loff_t *ppos)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+>>>>>>> upstream/android-13
 	unsigned int done = 0;
 	int ret;
 
@@ -507,7 +727,11 @@ static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
 		if (count >= 4 && !(*ppos % 4)) {
 			u32 val;
 
+<<<<<<< HEAD
 			ret =  mdev_access(mdev, (char *)&val, sizeof(val),
+=======
+			ret =  mdev_access(mdev_state, (char *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					   *ppos, false);
 			if (ret <= 0)
 				goto read_err;
@@ -519,7 +743,11 @@ static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
 		} else if (count >= 2 && !(*ppos % 2)) {
 			u16 val;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (char *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, false);
 			if (ret <= 0)
 				goto read_err;
@@ -531,7 +759,11 @@ static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
 		} else {
 			u8 val;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (char *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, false);
 			if (ret <= 0)
 				goto read_err;
@@ -554,9 +786,17 @@ read_err:
 	return -EFAULT;
 }
 
+<<<<<<< HEAD
 static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
 			    size_t count, loff_t *ppos)
 {
+=======
+static ssize_t mbochs_write(struct vfio_device *vdev, const char __user *buf,
+			    size_t count, loff_t *ppos)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+>>>>>>> upstream/android-13
 	unsigned int done = 0;
 	int ret;
 
@@ -569,7 +809,11 @@ static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
 			if (copy_from_user(&val, buf, sizeof(val)))
 				goto write_err;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (char *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, true);
 			if (ret <= 0)
 				goto write_err;
@@ -581,7 +825,11 @@ static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
 			if (copy_from_user(&val, buf, sizeof(val)))
 				goto write_err;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (char *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, true);
 			if (ret <= 0)
 				goto write_err;
@@ -593,7 +841,11 @@ static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
 			if (copy_from_user(&val, buf, sizeof(val)))
 				goto write_err;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (char *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, true);
 			if (ret <= 0)
 				goto write_err;
@@ -679,9 +931,16 @@ static const struct vm_operations_struct mbochs_region_vm_ops = {
 	.fault = mbochs_region_vm_fault,
 };
 
+<<<<<<< HEAD
 static int mbochs_mmap(struct mdev_device *mdev, struct vm_area_struct *vma)
 {
 	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
+=======
+static int mbochs_mmap(struct vfio_device *vdev, struct vm_area_struct *vma)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+>>>>>>> upstream/android-13
 
 	if (vma->vm_pgoff != MBOCHS_MEMORY_BAR_OFFSET >> PAGE_SHIFT)
 		return -EINVAL;
@@ -760,7 +1019,11 @@ static struct sg_table *mbochs_map_dmabuf(struct dma_buf_attachment *at,
 	if (sg_alloc_table_from_pages(sg, dmabuf->pages, dmabuf->pagecount,
 				      0, dmabuf->mode.size, GFP_KERNEL) < 0)
 		goto err2;
+<<<<<<< HEAD
 	if (!dma_map_sg(at->dev, sg->sgl, sg->nents, direction))
+=======
+	if (dma_map_sgtable(at->dev, sg, direction, 0))
+>>>>>>> upstream/android-13
 		goto err3;
 
 	return sg;
@@ -782,6 +1045,10 @@ static void mbochs_unmap_dmabuf(struct dma_buf_attachment *at,
 
 	dev_dbg(dev, "%s: %d\n", __func__, dmabuf->id);
 
+<<<<<<< HEAD
+=======
+	dma_unmap_sgtable(at->dev, sg, direction, 0);
+>>>>>>> upstream/android-13
 	sg_free_table(sg);
 	kfree(sg);
 }
@@ -805,6 +1072,7 @@ static void mbochs_release_dmabuf(struct dma_buf *buf)
 	mutex_unlock(&mdev_state->ops_lock);
 }
 
+<<<<<<< HEAD
 static void *mbochs_kmap_dmabuf(struct dma_buf *buf, unsigned long page_num)
 {
 	struct mbochs_dmabuf *dmabuf = buf->priv;
@@ -819,12 +1087,17 @@ static void mbochs_kunmap_dmabuf(struct dma_buf *buf, unsigned long page_num,
 	kunmap(vaddr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct dma_buf_ops mbochs_dmabuf_ops = {
 	.map_dma_buf	  = mbochs_map_dmabuf,
 	.unmap_dma_buf	  = mbochs_unmap_dmabuf,
 	.release	  = mbochs_release_dmabuf,
+<<<<<<< HEAD
 	.map		  = mbochs_kmap_dmabuf,
 	.unmap		  = mbochs_kunmap_dmabuf,
+=======
+>>>>>>> upstream/android-13
 	.mmap		  = mbochs_mmap_dmabuf,
 };
 
@@ -903,7 +1176,11 @@ mbochs_dmabuf_find_by_id(struct mdev_state *mdev_state, u32 id)
 static int mbochs_dmabuf_export(struct mbochs_dmabuf *dmabuf)
 {
 	struct mdev_state *mdev_state = dmabuf->mdev_state;
+<<<<<<< HEAD
 	struct device *dev = mdev_dev(mdev_state->mdev);
+=======
+	struct device *dev = mdev_state->vdev.dev;
+>>>>>>> upstream/android-13
 	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
 	struct dma_buf *buf;
 
@@ -931,6 +1208,7 @@ static int mbochs_dmabuf_export(struct mbochs_dmabuf *dmabuf)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mbochs_get_region_info(struct mdev_device *mdev,
 				  struct vfio_region_info *region_info,
 				  u16 *cap_type_id, void **cap_type)
@@ -942,6 +1220,14 @@ static int mbochs_get_region_info(struct mdev_device *mdev,
 		return -EINVAL;
 
 	if (region_info->index >= VFIO_PCI_NUM_REGIONS)
+=======
+static int mbochs_get_region_info(struct mdev_state *mdev_state,
+				  struct vfio_region_info_ext *ext)
+{
+	struct vfio_region_info *region_info = &ext->base;
+
+	if (region_info->index >= MBOCHS_NUM_REGIONS)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	switch (region_info->index) {
@@ -964,6 +1250,23 @@ static int mbochs_get_region_info(struct mdev_device *mdev,
 		region_info->flags  = (VFIO_REGION_INFO_FLAG_READ  |
 				       VFIO_REGION_INFO_FLAG_WRITE);
 		break;
+<<<<<<< HEAD
+=======
+	case MBOCHS_EDID_REGION_INDEX:
+		ext->base.argsz = sizeof(*ext);
+		ext->base.offset = MBOCHS_EDID_OFFSET;
+		ext->base.size = MBOCHS_EDID_SIZE;
+		ext->base.flags = (VFIO_REGION_INFO_FLAG_READ  |
+				   VFIO_REGION_INFO_FLAG_WRITE |
+				   VFIO_REGION_INFO_FLAG_CAPS);
+		ext->base.cap_offset = offsetof(typeof(*ext), type);
+		ext->type.header.id = VFIO_REGION_INFO_CAP_TYPE;
+		ext->type.header.version = 1;
+		ext->type.header.next = 0;
+		ext->type.type = VFIO_REGION_TYPE_GFX;
+		ext->type.subtype = VFIO_REGION_SUBTYPE_GFX_EDID;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		region_info->size   = 0;
 		region_info->offset = 0;
@@ -973,27 +1276,44 @@ static int mbochs_get_region_info(struct mdev_device *mdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mbochs_get_irq_info(struct mdev_device *mdev,
 			       struct vfio_irq_info *irq_info)
+=======
+static int mbochs_get_irq_info(struct vfio_irq_info *irq_info)
+>>>>>>> upstream/android-13
 {
 	irq_info->count = 0;
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mbochs_get_device_info(struct mdev_device *mdev,
 				  struct vfio_device_info *dev_info)
 {
 	dev_info->flags = VFIO_DEVICE_FLAGS_PCI;
 	dev_info->num_regions = VFIO_PCI_NUM_REGIONS;
+=======
+static int mbochs_get_device_info(struct vfio_device_info *dev_info)
+{
+	dev_info->flags = VFIO_DEVICE_FLAGS_PCI;
+	dev_info->num_regions = MBOCHS_NUM_REGIONS;
+>>>>>>> upstream/android-13
 	dev_info->num_irqs = VFIO_PCI_NUM_IRQS;
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mbochs_query_gfx_plane(struct mdev_device *mdev,
 				  struct vfio_device_gfx_plane_info *plane)
 {
 	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
 	struct device *dev = mdev_dev(mdev);
+=======
+static int mbochs_query_gfx_plane(struct mdev_state *mdev_state,
+				  struct vfio_device_gfx_plane_info *plane)
+{
+>>>>>>> upstream/android-13
 	struct mbochs_dmabuf *dmabuf;
 	struct mbochs_mode mode;
 	int ret;
@@ -1047,18 +1367,28 @@ static int mbochs_query_gfx_plane(struct mdev_device *mdev,
 done:
 	if (plane->drm_plane_type == DRM_PLANE_TYPE_PRIMARY &&
 	    mdev_state->active_id != plane->dmabuf_id) {
+<<<<<<< HEAD
 		dev_dbg(dev, "%s: primary: %d => %d\n", __func__,
 			mdev_state->active_id, plane->dmabuf_id);
+=======
+		dev_dbg(mdev_state->vdev.dev, "%s: primary: %d => %d\n",
+			__func__, mdev_state->active_id, plane->dmabuf_id);
+>>>>>>> upstream/android-13
 		mdev_state->active_id = plane->dmabuf_id;
 	}
 	mutex_unlock(&mdev_state->ops_lock);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mbochs_get_gfx_dmabuf(struct mdev_device *mdev,
 				 u32 id)
 {
 	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
+=======
+static int mbochs_get_gfx_dmabuf(struct mdev_state *mdev_state, u32 id)
+{
+>>>>>>> upstream/android-13
 	struct mbochs_dmabuf *dmabuf;
 
 	mutex_lock(&mdev_state->ops_lock);
@@ -1080,6 +1410,7 @@ static int mbochs_get_gfx_dmabuf(struct mdev_device *mdev,
 	return dma_buf_fd(dmabuf->buf, 0);
 }
 
+<<<<<<< HEAD
 static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 			unsigned long arg)
 {
@@ -1088,6 +1419,15 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 	struct mdev_state *mdev_state;
 
 	mdev_state = mdev_get_drvdata(mdev);
+=======
+static long mbochs_ioctl(struct vfio_device *vdev, unsigned int cmd,
+			 unsigned long arg)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+	int ret = 0;
+	unsigned long minsz, outsz;
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case VFIO_DEVICE_GET_INFO:
@@ -1102,12 +1442,19 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		if (info.argsz < minsz)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		ret = mbochs_get_device_info(mdev, &info);
 		if (ret)
 			return ret;
 
 		memcpy(&mdev_state->dev_info, &info, sizeof(info));
 
+=======
+		ret = mbochs_get_device_info(&info);
+		if (ret)
+			return ret;
+
+>>>>>>> upstream/android-13
 		if (copy_to_user((void __user *)arg, &info, minsz))
 			return -EFAULT;
 
@@ -1115,15 +1462,22 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 	}
 	case VFIO_DEVICE_GET_REGION_INFO:
 	{
+<<<<<<< HEAD
 		struct vfio_region_info info;
 		u16 cap_type_id = 0;
 		void *cap_type = NULL;
 
 		minsz = offsetofend(struct vfio_region_info, offset);
+=======
+		struct vfio_region_info_ext info;
+
+		minsz = offsetofend(typeof(info), base.offset);
+>>>>>>> upstream/android-13
 
 		if (copy_from_user(&info, (void __user *)arg, minsz))
 			return -EFAULT;
 
+<<<<<<< HEAD
 		if (info.argsz < minsz)
 			return -EINVAL;
 
@@ -1133,6 +1487,19 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 			return ret;
 
 		if (copy_to_user((void __user *)arg, &info, minsz))
+=======
+		outsz = info.base.argsz;
+		if (outsz < minsz)
+			return -EINVAL;
+		if (outsz > sizeof(info))
+			return -EINVAL;
+
+		ret = mbochs_get_region_info(mdev_state, &info);
+		if (ret)
+			return ret;
+
+		if (copy_to_user((void __user *)arg, &info, outsz))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 
 		return 0;
@@ -1148,10 +1515,17 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 			return -EFAULT;
 
 		if ((info.argsz < minsz) ||
+<<<<<<< HEAD
 		    (info.index >= mdev_state->dev_info.num_irqs))
 			return -EINVAL;
 
 		ret = mbochs_get_irq_info(mdev, &info);
+=======
+		    (info.index >= VFIO_PCI_NUM_IRQS))
+			return -EINVAL;
+
+		ret = mbochs_get_irq_info(&info);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -1174,7 +1548,11 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		if (plane.argsz < minsz)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		ret = mbochs_query_gfx_plane(mdev, &plane);
+=======
+		ret = mbochs_query_gfx_plane(mdev_state, &plane);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -1191,18 +1569,27 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		if (get_user(dmabuf_id, (__u32 __user *)arg))
 			return -EFAULT;
 
+<<<<<<< HEAD
 		return mbochs_get_gfx_dmabuf(mdev, dmabuf_id);
+=======
+		return mbochs_get_gfx_dmabuf(mdev_state, dmabuf_id);
+>>>>>>> upstream/android-13
 	}
 
 	case VFIO_DEVICE_SET_IRQS:
 		return -EINVAL;
 
 	case VFIO_DEVICE_RESET:
+<<<<<<< HEAD
 		return mbochs_reset(mdev);
+=======
+		return mbochs_reset(mdev_state);
+>>>>>>> upstream/android-13
 	}
 	return -ENOTTY;
 }
 
+<<<<<<< HEAD
 static int mbochs_open(struct mdev_device *mdev)
 {
 	if (!try_module_get(THIS_MODULE))
@@ -1214,6 +1601,12 @@ static int mbochs_open(struct mdev_device *mdev)
 static void mbochs_close(struct mdev_device *mdev)
 {
 	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
+=======
+static void mbochs_close_device(struct vfio_device *vdev)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+>>>>>>> upstream/android-13
 	struct mbochs_dmabuf *dmabuf, *tmp;
 
 	mutex_lock(&mdev_state->ops_lock);
@@ -1230,15 +1623,22 @@ static void mbochs_close(struct mdev_device *mdev)
 	mbochs_put_pages(mdev_state);
 
 	mutex_unlock(&mdev_state->ops_lock);
+<<<<<<< HEAD
 	module_put(THIS_MODULE);
+=======
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
 memory_show(struct device *dev, struct device_attribute *attr,
 	    char *buf)
 {
+<<<<<<< HEAD
 	struct mdev_device *mdev = mdev_from_dev(dev);
 	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
+=======
+	struct mdev_state *mdev_state = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "%d MB\n", mdev_state->type->mbytes);
 }
@@ -1254,11 +1654,16 @@ static const struct attribute_group mdev_dev_group = {
 	.attrs = mdev_dev_attrs,
 };
 
+<<<<<<< HEAD
 const struct attribute_group *mdev_dev_groups[] = {
+=======
+static const struct attribute_group *mdev_dev_groups[] = {
+>>>>>>> upstream/android-13
 	&mdev_dev_group,
 	NULL,
 };
 
+<<<<<<< HEAD
 static ssize_t
 name_show(struct kobject *kobj, struct device *dev, char *buf)
 {
@@ -1270,10 +1675,28 @@ static ssize_t
 description_show(struct kobject *kobj, struct device *dev, char *buf)
 {
 	const struct mbochs_type *type = mbochs_find_type(kobj);
+=======
+static ssize_t name_show(struct mdev_type *mtype,
+			 struct mdev_type_attribute *attr, char *buf)
+{
+	const struct mbochs_type *type =
+		&mbochs_types[mtype_get_type_group_id(mtype)];
+
+	return sprintf(buf, "%s\n", type->name);
+}
+static MDEV_TYPE_ATTR_RO(name);
+
+static ssize_t description_show(struct mdev_type *mtype,
+				struct mdev_type_attribute *attr, char *buf)
+{
+	const struct mbochs_type *type =
+		&mbochs_types[mtype_get_type_group_id(mtype)];
+>>>>>>> upstream/android-13
 
 	return sprintf(buf, "virtual display, %d MB video memory\n",
 		       type ? type->mbytes  : 0);
 }
+<<<<<<< HEAD
 MDEV_TYPE_ATTR_RO(description);
 
 static ssize_t
@@ -1292,6 +1715,28 @@ static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
 	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
 }
 MDEV_TYPE_ATTR_RO(device_api);
+=======
+static MDEV_TYPE_ATTR_RO(description);
+
+static ssize_t available_instances_show(struct mdev_type *mtype,
+					struct mdev_type_attribute *attr,
+					char *buf)
+{
+	const struct mbochs_type *type =
+		&mbochs_types[mtype_get_type_group_id(mtype)];
+	int count = atomic_read(&mbochs_avail_mbytes) / type->mbytes;
+
+	return sprintf(buf, "%d\n", count);
+}
+static MDEV_TYPE_ATTR_RO(available_instances);
+
+static ssize_t device_api_show(struct mdev_type *mtype,
+			       struct mdev_type_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
+}
+static MDEV_TYPE_ATTR_RO(device_api);
+>>>>>>> upstream/android-13
 
 static struct attribute *mdev_types_attrs[] = {
 	&mdev_type_attr_name.attr,
@@ -1323,6 +1768,7 @@ static struct attribute_group *mdev_type_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static const struct mdev_parent_ops mdev_fops = {
 	.owner			= THIS_MODULE,
 	.mdev_attr_groups	= mdev_dev_groups,
@@ -1335,6 +1781,31 @@ static const struct mdev_parent_ops mdev_fops = {
 	.write			= mbochs_write,
 	.ioctl			= mbochs_ioctl,
 	.mmap			= mbochs_mmap,
+=======
+static const struct vfio_device_ops mbochs_dev_ops = {
+	.close_device = mbochs_close_device,
+	.read = mbochs_read,
+	.write = mbochs_write,
+	.ioctl = mbochs_ioctl,
+	.mmap = mbochs_mmap,
+};
+
+static struct mdev_driver mbochs_driver = {
+	.driver = {
+		.name = "mbochs",
+		.owner = THIS_MODULE,
+		.mod_name = KBUILD_MODNAME,
+		.dev_groups = mdev_dev_groups,
+	},
+	.probe = mbochs_probe,
+	.remove	= mbochs_remove,
+};
+
+static const struct mdev_parent_ops mdev_fops = {
+	.owner			= THIS_MODULE,
+	.device_driver		= &mbochs_driver,
+	.supported_type_groups	= mdev_type_groups,
+>>>>>>> upstream/android-13
 };
 
 static const struct file_operations vd_fops = {
@@ -1350,20 +1821,40 @@ static int __init mbochs_dev_init(void)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	ret = alloc_chrdev_region(&mbochs_devt, 0, MINORMASK, MBOCHS_NAME);
+=======
+	atomic_set(&mbochs_avail_mbytes, max_mbytes);
+
+	ret = alloc_chrdev_region(&mbochs_devt, 0, MINORMASK + 1, MBOCHS_NAME);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		pr_err("Error: failed to register mbochs_dev, err: %d\n", ret);
 		return ret;
 	}
 	cdev_init(&mbochs_cdev, &vd_fops);
+<<<<<<< HEAD
 	cdev_add(&mbochs_cdev, mbochs_devt, MINORMASK);
 	pr_info("%s: major %d\n", __func__, MAJOR(mbochs_devt));
 
+=======
+	cdev_add(&mbochs_cdev, mbochs_devt, MINORMASK + 1);
+	pr_info("%s: major %d\n", __func__, MAJOR(mbochs_devt));
+
+	ret = mdev_register_driver(&mbochs_driver);
+	if (ret)
+		goto err_cdev;
+
+>>>>>>> upstream/android-13
 	mbochs_class = class_create(THIS_MODULE, MBOCHS_CLASS_NAME);
 	if (IS_ERR(mbochs_class)) {
 		pr_err("Error: failed to register mbochs_dev class\n");
 		ret = PTR_ERR(mbochs_class);
+<<<<<<< HEAD
 		goto failed1;
+=======
+		goto err_driver;
+>>>>>>> upstream/android-13
 	}
 	mbochs_dev.class = mbochs_class;
 	mbochs_dev.release = mbochs_device_release;
@@ -1371,6 +1862,7 @@ static int __init mbochs_dev_init(void)
 
 	ret = device_register(&mbochs_dev);
 	if (ret)
+<<<<<<< HEAD
 		goto failed2;
 
 	ret = mdev_register_device(&mbochs_dev, &mdev_fops);
@@ -1386,6 +1878,25 @@ failed2:
 failed1:
 	cdev_del(&mbochs_cdev);
 	unregister_chrdev_region(mbochs_devt, MINORMASK);
+=======
+		goto err_class;
+
+	ret = mdev_register_device(&mbochs_dev, &mdev_fops);
+	if (ret)
+		goto err_device;
+
+	return 0;
+
+err_device:
+	device_unregister(&mbochs_dev);
+err_class:
+	class_destroy(mbochs_class);
+err_driver:
+	mdev_unregister_driver(&mbochs_driver);
+err_cdev:
+	cdev_del(&mbochs_cdev);
+	unregister_chrdev_region(mbochs_devt, MINORMASK + 1);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1395,8 +1906,14 @@ static void __exit mbochs_dev_exit(void)
 	mdev_unregister_device(&mbochs_dev);
 
 	device_unregister(&mbochs_dev);
+<<<<<<< HEAD
 	cdev_del(&mbochs_cdev);
 	unregister_chrdev_region(mbochs_devt, MINORMASK);
+=======
+	mdev_unregister_driver(&mbochs_driver);
+	cdev_del(&mbochs_cdev);
+	unregister_chrdev_region(mbochs_devt, MINORMASK + 1);
+>>>>>>> upstream/android-13
 	class_destroy(mbochs_class);
 	mbochs_class = NULL;
 }

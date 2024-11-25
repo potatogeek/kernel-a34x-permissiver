@@ -15,7 +15,11 @@
  * hex while segment addresses are written as segment:offset.
  *
  */
+<<<<<<< HEAD
 
+=======
+#include <linux/pe.h>
+>>>>>>> upstream/android-13
 #include <asm/segment.h>
 #include <asm/boot.h>
 #include <asm/page_types.h>
@@ -43,8 +47,12 @@ SYSSEG		= 0x1000		/* historical load address >> 4 */
 bootsect_start:
 #ifdef CONFIG_EFI_STUB
 	# "MZ", MS-DOS header
+<<<<<<< HEAD
 	.byte 0x4d
 	.byte 0x5a
+=======
+	.word	MZ_MAGIC
+>>>>>>> upstream/android-13
 #endif
 
 	# Normalize the start address
@@ -97,6 +105,7 @@ bugger_off_msg:
 
 #ifdef CONFIG_EFI_STUB
 pe_header:
+<<<<<<< HEAD
 	.ascii	"PE"
 	.word 	0
 
@@ -107,10 +116,26 @@ coff_header:
 	.word	0x8664				# x86-64
 #endif
 	.word	4				# nr_sections
+=======
+	.long	PE_MAGIC
+
+coff_header:
+#ifdef CONFIG_X86_32
+	.set	image_file_add_flags, IMAGE_FILE_32BIT_MACHINE
+	.set	pe_opt_magic, PE_OPT_MAGIC_PE32
+	.word	IMAGE_FILE_MACHINE_I386
+#else
+	.set	image_file_add_flags, 0
+	.set	pe_opt_magic, PE_OPT_MAGIC_PE32PLUS
+	.word	IMAGE_FILE_MACHINE_AMD64
+#endif
+	.word	section_count			# nr_sections
+>>>>>>> upstream/android-13
 	.long	0 				# TimeDateStamp
 	.long	0				# PointerToSymbolTable
 	.long	1				# NumberOfSymbols
 	.word	section_table - optional_header	# SizeOfOptionalHeader
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	.word	0x306				# Characteristics.
 						# IMAGE_FILE_32BIT_MACHINE |
@@ -130,6 +155,15 @@ optional_header:
 #else
 	.word	0x20b 				# PE32+ format
 #endif
+=======
+	.word	IMAGE_FILE_EXECUTABLE_IMAGE	| \
+		image_file_add_flags		| \
+		IMAGE_FILE_DEBUG_STRIPPED	| \
+		IMAGE_FILE_LINE_NUMS_STRIPPED	# Characteristics
+
+optional_header:
+	.word	pe_opt_magic
+>>>>>>> upstream/android-13
 	.byte	0x02				# MajorLinkerVersion
 	.byte	0x14				# MinorLinkerVersion
 
@@ -148,17 +182,31 @@ optional_header:
 #endif
 
 extra_header_fields:
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	.long	0				# ImageBase
 #else
 	.quad	0				# ImageBase
+=======
+	# PE specification requires ImageBase to be 64k aligned
+	.set	image_base, (LOAD_PHYSICAL_ADDR + 0xffff) & ~0xffff
+#ifdef CONFIG_X86_32
+	.long	image_base			# ImageBase
+#else
+	.quad	image_base			# ImageBase
+>>>>>>> upstream/android-13
 #endif
 	.long	0x20				# SectionAlignment
 	.long	0x20				# FileAlignment
 	.word	0				# MajorOperatingSystemVersion
 	.word	0				# MinorOperatingSystemVersion
+<<<<<<< HEAD
 	.word	0				# MajorImageVersion
 	.word	0				# MinorImageVersion
+=======
+	.word	LINUX_EFISTUB_MAJOR_VERSION	# MajorImageVersion
+	.word	LINUX_EFISTUB_MINOR_VERSION	# MinorImageVersion
+>>>>>>> upstream/android-13
 	.word	0				# MajorSubsystemVersion
 	.word	0				# MinorSubsystemVersion
 	.long	0				# Win32VersionValue
@@ -170,7 +218,11 @@ extra_header_fields:
 
 	.long	0x200				# SizeOfHeaders
 	.long	0				# CheckSum
+<<<<<<< HEAD
 	.word	0xa				# Subsystem (EFI application)
+=======
+	.word	IMAGE_SUBSYSTEM_EFI_APPLICATION	# Subsystem (EFI application)
+>>>>>>> upstream/android-13
 	.word	0				# DllCharacteristics
 #ifdef CONFIG_X86_32
 	.long	0				# SizeOfStackReserve
@@ -184,7 +236,11 @@ extra_header_fields:
 	.quad	0				# SizeOfHeapCommit
 #endif
 	.long	0				# LoaderFlags
+<<<<<<< HEAD
 	.long	0x6				# NumberOfRvaAndSizes
+=======
+	.long	(section_table - .) / 8		# NumberOfRvaAndSizes
+>>>>>>> upstream/android-13
 
 	.quad	0				# ExportTable
 	.quad	0				# ImportTable
@@ -210,7 +266,14 @@ section_table:
 	.long	0				# PointerToLineNumbers
 	.word	0				# NumberOfRelocations
 	.word	0				# NumberOfLineNumbers
+<<<<<<< HEAD
 	.long	0x60500020			# Characteristics (section flags)
+=======
+	.long	IMAGE_SCN_CNT_CODE		| \
+		IMAGE_SCN_MEM_READ		| \
+		IMAGE_SCN_MEM_EXECUTE		| \
+		IMAGE_SCN_ALIGN_16BYTES		# Characteristics
+>>>>>>> upstream/android-13
 
 	#
 	# The EFI application loader requires a relocation section
@@ -228,7 +291,34 @@ section_table:
 	.long	0				# PointerToLineNumbers
 	.word	0				# NumberOfRelocations
 	.word	0				# NumberOfLineNumbers
+<<<<<<< HEAD
 	.long	0x42100040			# Characteristics (section flags)
+=======
+	.long	IMAGE_SCN_CNT_INITIALIZED_DATA	| \
+		IMAGE_SCN_MEM_READ		| \
+		IMAGE_SCN_MEM_DISCARDABLE	| \
+		IMAGE_SCN_ALIGN_1BYTES		# Characteristics
+
+#ifdef CONFIG_EFI_MIXED
+	#
+	# The offset & size fields are filled in by build.c.
+	#
+	.asciz	".compat"
+	.long	0
+	.long	0x0
+	.long	0				# Size of initialized data
+						# on disk
+	.long	0x0
+	.long	0				# PointerToRelocations
+	.long	0				# PointerToLineNumbers
+	.word	0				# NumberOfRelocations
+	.word	0				# NumberOfLineNumbers
+	.long	IMAGE_SCN_CNT_INITIALIZED_DATA	| \
+		IMAGE_SCN_MEM_READ		| \
+		IMAGE_SCN_MEM_DISCARDABLE	| \
+		IMAGE_SCN_ALIGN_1BYTES		# Characteristics
+#endif
+>>>>>>> upstream/android-13
 
 	#
 	# The offset & size fields are filled in by build.c.
@@ -246,6 +336,7 @@ section_table:
 	.long	0				# PointerToLineNumbers
 	.word	0				# NumberOfRelocations
 	.word	0				# NumberOfLineNumbers
+<<<<<<< HEAD
 	.long	0x60500020			# Characteristics (section flags)
 
 	#
@@ -267,6 +358,14 @@ section_table:
 	.word	0				# NumberOfLineNumbers
 	.long	0xc8000080			# Characteristics (section flags)
 
+=======
+	.long	IMAGE_SCN_CNT_CODE		| \
+		IMAGE_SCN_MEM_READ		| \
+		IMAGE_SCN_MEM_EXECUTE		| \
+		IMAGE_SCN_ALIGN_16BYTES		# Characteristics
+
+	.set	section_count, (. - section_table) / 40
+>>>>>>> upstream/android-13
 #endif /* CONFIG_EFI_STUB */
 
 	# Kernel attributes; used by setup.  This is part 1 of the
@@ -300,7 +399,11 @@ _start:
 	# Part 2 of the header, from the old setup.S
 
 		.ascii	"HdrS"		# header signature
+<<<<<<< HEAD
 		.word	0x020d		# header version number (>= 0x0105)
+=======
+		.word	0x020f		# header version number (>= 0x0105)
+>>>>>>> upstream/android-13
 					# or else old loadlin-1.5 will fail)
 		.globl realmode_swtch
 realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
@@ -313,7 +416,11 @@ start_sys_seg:	.word	SYSSEG		# obsolete and meaningless, but just
 
 type_of_loader:	.byte	0		# 0 means ancient bootloader, newer
 					# bootloaders know to change this.
+<<<<<<< HEAD
 					# See Documentation/x86/boot.txt for
+=======
+					# See Documentation/x86/boot.rst for
+>>>>>>> upstream/android-13
 					# assigned ids
 
 # flags, unused bits must be zero (RFU) bit within loadflags
@@ -419,7 +526,21 @@ xloadflags:
 # define XLF4 0
 #endif
 
+<<<<<<< HEAD
 			.word XLF0 | XLF1 | XLF23 | XLF4
+=======
+#ifdef CONFIG_X86_64
+#ifdef CONFIG_X86_5LEVEL
+#define XLF56 (XLF_5LEVEL|XLF_5LEVEL_ENABLED)
+#else
+#define XLF56 XLF_5LEVEL
+#endif
+#else
+#define XLF56 0
+#endif
+
+			.word XLF0 | XLF1 | XLF23 | XLF4 | XLF56
+>>>>>>> upstream/android-13
 
 cmdline_size:   .long   COMMAND_LINE_SIZE-1     #length of the command line,
                                                 #added with boot protocol
@@ -526,8 +647,19 @@ pref_address:		.quad LOAD_PHYSICAL_ADDR	# preferred load addr
 # the size-dependent part now grows so fast.
 #
 # extra_bytes = (uncompressed_size >> 8) + 65536
+<<<<<<< HEAD
 
 #define ZO_z_extra_bytes	((ZO_z_output_len >> 8) + 65536)
+=======
+#
+# ZSTD compressed data grows by at most 3 bytes per 128K, and only has a 22
+# byte fixed overhead but has a maximum block size of 128K, so it needs a
+# larger margin.
+#
+# extra_bytes = (uncompressed_size >> 8) + 131072
+
+#define ZO_z_extra_bytes	((ZO_z_output_len >> 8) + 131072)
+>>>>>>> upstream/android-13
 #if ZO_z_output_len > ZO_z_input_len
 # define ZO_z_extract_offset	(ZO_z_output_len + ZO_z_extra_bytes - \
 				 ZO_z_input_len)
@@ -557,6 +689,10 @@ pref_address:		.quad LOAD_PHYSICAL_ADDR	# preferred load addr
 
 init_size:		.long INIT_SIZE		# kernel initialization size
 handover_offset:	.long 0			# Filled in by build.c
+<<<<<<< HEAD
+=======
+kernel_info_offset:	.long 0			# Filled in by build.c
+>>>>>>> upstream/android-13
 
 # End of setup header #####################################################
 

@@ -11,7 +11,10 @@
 
 #include <linux/linkage.h>
 #include <linux/smp.h>
+<<<<<<< HEAD
 #include <linux/irqdomain.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/mipsmtregs.h>
 
@@ -20,6 +23,10 @@
 #define IRQ_STACK_SIZE			THREAD_SIZE
 #define IRQ_STACK_START			(IRQ_STACK_SIZE - 16)
 
+<<<<<<< HEAD
+=======
+extern void __init init_IRQ(void);
+>>>>>>> upstream/android-13
 extern void *irq_stack[NR_CPUS];
 
 /*
@@ -57,6 +64,12 @@ asmlinkage void plat_irq_dispatch(void);
 
 extern void do_IRQ(unsigned int irq);
 
+<<<<<<< HEAD
+=======
+struct irq_domain;
+extern void do_domain_IRQ(struct irq_domain *domain, unsigned int irq);
+
+>>>>>>> upstream/android-13
 extern void arch_init_irq(void);
 extern void spurious_interrupt(void);
 

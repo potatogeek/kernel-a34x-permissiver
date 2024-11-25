@@ -64,7 +64,11 @@ struct client_debug_mask {
 	__u64 mask2;
 };
 
+<<<<<<< HEAD
 static int orangefs_kernel_debug_init(void);
+=======
+static void orangefs_kernel_debug_init(void);
+>>>>>>> upstream/android-13
 
 static int orangefs_debug_help_open(struct inode *, struct file *);
 static void *help_start(struct seq_file *, loff_t *);
@@ -99,7 +103,10 @@ static char *debug_help_string;
 static char client_debug_string[ORANGEFS_MAX_DEBUG_STRING_LEN];
 static char client_debug_array_string[ORANGEFS_MAX_DEBUG_STRING_LEN];
 
+<<<<<<< HEAD
 static struct dentry *help_file_dentry;
+=======
+>>>>>>> upstream/android-13
 static struct dentry *client_debug_dentry;
 static struct dentry *debug_dir;
 
@@ -151,10 +158,15 @@ static DEFINE_MUTEX(orangefs_help_file_lock);
  * initialize kmod debug operations, create orangefs debugfs dir and
  * ORANGEFS_KMOD_DEBUG_HELP_FILE.
  */
+<<<<<<< HEAD
 int orangefs_debugfs_init(int debug_mask)
 {
 	int rc = -ENOMEM;
 
+=======
+void orangefs_debugfs_init(int debug_mask)
+{
+>>>>>>> upstream/android-13
 	/* convert input debug mask to a 64-bit unsigned integer */
         orangefs_gossip_debug_mask = (unsigned long long)debug_mask;
 
@@ -183,6 +195,7 @@ int orangefs_debugfs_init(int debug_mask)
 		(unsigned long long)orangefs_gossip_debug_mask);
 
 	debug_dir = debugfs_create_dir("orangefs", NULL);
+<<<<<<< HEAD
 	if (!debug_dir) {
 		pr_info("%s: debugfs_create_dir failed.\n", __func__);
 		goto out;
@@ -205,15 +218,30 @@ int orangefs_debugfs_init(int debug_mask)
 out:
 
 	return rc;
+=======
+
+	debugfs_create_file(ORANGEFS_KMOD_DEBUG_HELP_FILE, 0444, debug_dir,
+			    debug_help_string, &debug_help_fops);
+
+	orangefs_debug_disabled = 0;
+
+	orangefs_kernel_debug_init();
+>>>>>>> upstream/android-13
 }
 
 /*
  * initialize the kernel-debug file.
  */
+<<<<<<< HEAD
 static int orangefs_kernel_debug_init(void)
 {
 	int rc = -ENOMEM;
 	struct dentry *ret;
+=======
+static void orangefs_kernel_debug_init(void)
+{
+	int rc = -ENOMEM;
+>>>>>>> upstream/android-13
 	char *k_buffer = NULL;
 
 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
@@ -230,6 +258,7 @@ static int orangefs_kernel_debug_init(void)
 		pr_info("%s: overflow 1!\n", __func__);
 	}
 
+<<<<<<< HEAD
 	ret = debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE,
 				  0444,
 				  debug_dir,
@@ -248,6 +277,13 @@ out:
 
 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
 	return rc;
+=======
+	debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE, 0444, debug_dir, k_buffer,
+			    &kernel_debug_fops);
+
+out:
+	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
+>>>>>>> upstream/android-13
 }
 
 
@@ -354,12 +390,15 @@ static int orangefs_client_debug_init(void)
 						  debug_dir,
 						  c_buffer,
 						  &kernel_debug_fops);
+<<<<<<< HEAD
 	if (!client_debug_dentry) {
 		pr_info("%s: failed to create updated %s.\n",
 			__func__,
 			ORANGEFS_CLIENT_DEBUG_FILE);
 		goto out;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	rc = 0;
 
@@ -964,7 +1003,11 @@ int orangefs_debugfs_new_client_mask(void __user *arg)
 	return ret;
 }
 
+<<<<<<< HEAD
 int orangefs_debugfs_new_client_string(void __user *arg) 
+=======
+int orangefs_debugfs_new_client_string(void __user *arg)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -1017,7 +1060,11 @@ int orangefs_debugfs_new_client_string(void __user *arg)
 	return 0;
 }
 
+<<<<<<< HEAD
 int orangefs_debugfs_new_debug(void __user *arg) 
+=======
+int orangefs_debugfs_new_debug(void __user *arg)
+>>>>>>> upstream/android-13
 {
 	struct dev_mask_info_s mask_info = {0};
 	int ret;

@@ -70,6 +70,7 @@ struct if_cb_manager *register_usbpd(struct usbpd_dev *usbpd)
 }
 EXPORT_SYMBOL(register_usbpd);
 
+<<<<<<< HEAD
 struct if_cb_manager *register_lvs(struct lvs_dev *lvs)
 {
 	struct if_cb_manager *man_core;
@@ -81,6 +82,8 @@ struct if_cb_manager *register_lvs(struct lvs_dev *lvs)
 }
 EXPORT_SYMBOL(register_lvs);
 
+=======
+>>>>>>> upstream/android-13
 void usb_set_vbus_current(struct if_cb_manager *man_core, int state)
 {
 	if (man_core == NULL || man_core->usb_d == NULL ||
@@ -100,7 +103,11 @@ int usb_restart_host_mode(struct if_cb_manager *man_core, int lanes)
 	if (man_core == NULL || man_core->usb_d == NULL ||
 			man_core->usb_d->ops == NULL ||
 			man_core->usb_d->ops->usb_restart_host_mode == NULL) {
+<<<<<<< HEAD
 		pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+=======
+			pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 
@@ -114,7 +121,11 @@ int muic_check_usb_killer(struct if_cb_manager *man_core)
 	if (man_core == NULL || man_core->muic_d == NULL ||
 			man_core->muic_d->ops == NULL ||
 			man_core->muic_d->ops->muic_check_usb_killer == NULL) {
+<<<<<<< HEAD
 		pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+=======
+			pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -142,7 +153,11 @@ int usbpd_sbu_test_read(struct if_cb_manager *man_core)
 	if (man_core == NULL || man_core->usbpd_d == NULL ||
 			man_core->usbpd_d->ops == NULL ||
 			man_core->usbpd_d->ops->usbpd_sbu_test_read == NULL) {
+<<<<<<< HEAD
 		pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+=======
+			pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 
@@ -156,7 +171,11 @@ void usbpd_set_host_on(struct if_cb_manager *man_core, int mode)
 	if (man_core == NULL || man_core->usbpd_d == NULL ||
 			man_core->usbpd_d->ops == NULL ||
 			man_core->usbpd_d->ops->usbpd_set_host_on == NULL) {
+<<<<<<< HEAD
 		pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+=======
+			pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -170,7 +189,11 @@ void usbpd_cc_control_command(struct if_cb_manager *man_core, int is_off)
 	if (man_core == NULL || man_core->usbpd_d == NULL ||
 			man_core->usbpd_d->ops == NULL ||
 			man_core->usbpd_d->ops->usbpd_cc_control_command == NULL) {
+<<<<<<< HEAD
 		pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+=======
+			pr_err("%s : Member of if_cb_manager is NULL\n", __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -179,6 +202,7 @@ void usbpd_cc_control_command(struct if_cb_manager *man_core, int is_off)
 }
 EXPORT_SYMBOL(usbpd_cc_control_command);
 
+<<<<<<< HEAD
 void usbpd_wait_entermode(struct if_cb_manager *man_core, int on)
 {
 	if (man_core == NULL || man_core->usbpd_d == NULL ||
@@ -192,6 +216,8 @@ void usbpd_wait_entermode(struct if_cb_manager *man_core, int on)
 }
 EXPORT_SYMBOL(usbpd_wait_entermode);
 
+=======
+>>>>>>> upstream/android-13
 static int __init if_cb_manager_init(void)
 {
 	if (!man_core)

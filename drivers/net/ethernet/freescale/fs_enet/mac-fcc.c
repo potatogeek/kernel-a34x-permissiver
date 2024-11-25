@@ -35,12 +35,19 @@
 #include <linux/of_device.h>
 #include <linux/of_irq.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/immap_cpm2.h>
 #include <asm/mpc8260.h>
 #include <asm/cpm2.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <linux/uaccess.h>
 

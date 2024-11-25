@@ -24,11 +24,14 @@
 #include <linux/notifier.h>
 #include <linux/version.h>
 
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
 #include "../../misc/mediatek/scp/rv/scp_helper.h"
 #include "../../misc/mediatek/scp/rv/scp_scpctl.h"
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define IPI_SHUB	    IPI_SENSOR
 #define IPI_DMA_LEN 8
 
@@ -90,6 +93,7 @@ static struct notifier_block scp_state_notifier = {
 	.notifier_call = notify_scp_state,
 };
 
+<<<<<<< HEAD
 void shub_dump_write_file(void *dump_data, int dump_size)
 {
 	struct shub_data_t *data = get_shub_data();
@@ -128,13 +132,19 @@ struct notifier_block shub_dump_nb = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int sensorhub_probe(void)
 {
 	scp_ipi_registration(IPI_SHUB, sensorhub_IPI_handler, "shub_sensorhub");
 	scp_A_register_notify(&scp_state_notifier);
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0))
 	shub_dump_notifier_register(&shub_dump_nb);
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -198,6 +208,7 @@ bool sensorhub_is_working(void)
 
 int sensorhub_reset(void)
 {
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
 	int ret;
 	struct scpctl_cmd_s cmd;
@@ -212,6 +223,8 @@ int sensorhub_reset(void)
 
 	mdelay(10);
 #endif
+=======
+>>>>>>> upstream/android-13
 	scp_wdt_reset(SCP_A_ID);
 	return 0;
 }
@@ -224,6 +237,30 @@ void sensorhub_save_ram_dump(void)
 {
 }
 
+<<<<<<< HEAD
+=======
+void shub_dump_write_file(void *dump_data, int dump_size)
+{
+	struct shub_data_t *data = get_shub_data();
+	int dump_type;
+
+	if (!data) {
+		shub_infof("shub is not probed yet !");
+		return;
+	}
+
+	if (data->reset_type < RESET_TYPE_MAX)
+		dump_type = DUMP_TYPE_BASE + data->reset_type;
+	else {
+		shub_errf("hub crash");
+		dump_type = 1;
+		data->hub_crash_timestamp = get_current_timestamp();
+	}
+
+	write_shub_dump_file((char *)dump_data, dump_size, dump_type, 4);
+}
+
+>>>>>>> upstream/android-13
 int sensorhub_get_dump_size(void)
 {
 	int dump_size = get_scp_dump_size();

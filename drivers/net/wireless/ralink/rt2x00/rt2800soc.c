@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*	Copyright (C) 2009 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
  *	Copyright (C) 2009 Alban Browaeys <prahal@yahoo.com>
  *	Copyright (C) 2009 Felix Fietkau <nbd@openwrt.org>
@@ -7,6 +11,7 @@
  *	Copyright (C) 2009 Xose Vazquez Perez <xose.vazquez@gmail.com>
  *	Copyright (C) 2009 Bart Zolnierkiewicz <bzolnier@gmail.com>
  *	<http://rt2x00.serialmonkey.com>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*	Module: rt2800soc
@@ -51,9 +58,22 @@ static bool rt2800soc_hwcrypt_disabled(struct rt2x00_dev *rt2x00dev)
 
 static void rt2800soc_disable_radio(struct rt2x00_dev *rt2x00dev)
 {
+<<<<<<< HEAD
 	rt2800_disable_radio(rt2x00dev);
 	rt2x00mmio_register_write(rt2x00dev, PWR_PIN_CFG, 0);
 	rt2x00mmio_register_write(rt2x00dev, TX_PIN_CFG, 0);
+=======
+	u32 reg;
+
+	rt2800_disable_radio(rt2x00dev);
+	rt2x00mmio_register_write(rt2x00dev, PWR_PIN_CFG, 0);
+
+	reg = 0;
+	if (rt2x00_rt(rt2x00dev, RT3883))
+		rt2x00_set_field32(&reg, TX_PIN_CFG_RFTR_EN, 1);
+
+	rt2x00mmio_register_write(rt2x00dev, TX_PIN_CFG, reg);
+>>>>>>> upstream/android-13
 }
 
 static int rt2800soc_set_device_state(struct rt2x00_dev *rt2x00dev,
@@ -161,6 +181,10 @@ static const struct ieee80211_ops rt2800soc_mac80211_ops = {
 	.get_survey		= rt2800_get_survey,
 	.get_ringparam		= rt2x00mac_get_ringparam,
 	.tx_frames_pending	= rt2x00mac_tx_frames_pending,
+<<<<<<< HEAD
+=======
+	.reconfig_complete	= rt2x00mac_reconfig_complete,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2800_ops rt2800soc_rt2800_ops = {
@@ -176,6 +200,10 @@ static const struct rt2800_ops rt2800soc_rt2800_ops = {
 	.drv_write_firmware	= rt2800soc_write_firmware,
 	.drv_init_registers	= rt2800mmio_init_registers,
 	.drv_get_txwi		= rt2800mmio_get_txwi,
+<<<<<<< HEAD
+=======
+	.drv_get_dma_done	= rt2800mmio_get_dma_done,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2x00lib_ops rt2800soc_rt2x00_ops = {
@@ -185,7 +213,11 @@ static const struct rt2x00lib_ops rt2800soc_rt2x00_ops = {
 	.tbtt_tasklet		= rt2800mmio_tbtt_tasklet,
 	.rxdone_tasklet		= rt2800mmio_rxdone_tasklet,
 	.autowake_tasklet	= rt2800mmio_autowake_tasklet,
+<<<<<<< HEAD
 	.probe_hw		= rt2800_probe_hw,
+=======
+	.probe_hw		= rt2800mmio_probe_hw,
+>>>>>>> upstream/android-13
 	.get_firmware_name	= rt2800soc_get_firmware_name,
 	.check_firmware		= rt2800soc_check_firmware,
 	.load_firmware		= rt2800soc_load_firmware,
@@ -200,10 +232,18 @@ static const struct rt2x00lib_ops rt2800soc_rt2x00_ops = {
 	.link_tuner		= rt2800_link_tuner,
 	.gain_calibration	= rt2800_gain_calibration,
 	.vco_calibration	= rt2800_vco_calibration,
+<<<<<<< HEAD
 	.start_queue		= rt2800mmio_start_queue,
 	.kick_queue		= rt2800mmio_kick_queue,
 	.stop_queue		= rt2800mmio_stop_queue,
 	.flush_queue		= rt2x00mmio_flush_queue,
+=======
+	.watchdog		= rt2800_watchdog,
+	.start_queue		= rt2800mmio_start_queue,
+	.kick_queue		= rt2800mmio_kick_queue,
+	.stop_queue		= rt2800mmio_stop_queue,
+	.flush_queue		= rt2800mmio_flush_queue,
+>>>>>>> upstream/android-13
 	.write_tx_desc		= rt2800mmio_write_tx_desc,
 	.write_tx_data		= rt2800_write_tx_data,
 	.write_beacon		= rt2800_write_beacon,
@@ -216,6 +256,10 @@ static const struct rt2x00lib_ops rt2800soc_rt2x00_ops = {
 	.config_erp		= rt2800_config_erp,
 	.config_ant		= rt2800_config_ant,
 	.config			= rt2800_config,
+<<<<<<< HEAD
+=======
+	.pre_reset_hw		= rt2800_pre_reset_hw,
+>>>>>>> upstream/android-13
 };
 
 static const struct rt2x00_ops rt2800soc_ops = {

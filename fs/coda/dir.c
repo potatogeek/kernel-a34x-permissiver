@@ -23,7 +23,11 @@
 #include <linux/uaccess.h>
 
 #include <linux/coda.h>
+<<<<<<< HEAD
 #include <linux/coda_psdev.h>
+=======
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 #include "coda_cache.h"
 
@@ -47,8 +51,13 @@ static struct dentry *coda_lookup(struct inode *dir, struct dentry *entry, unsig
 	int type = 0;
 
 	if (length > CODA_MAXNAMLEN) {
+<<<<<<< HEAD
 		pr_err("name too long: lookup, %s (%*s)\n",
 		       coda_i2s(dir), (int)length, name);
+=======
+		pr_err("name too long: lookup, %s %zu\n",
+		       coda_i2s(dir), length);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENAMETOOLONG);
 	}
 
@@ -73,7 +82,12 @@ static struct dentry *coda_lookup(struct inode *dir, struct dentry *entry, unsig
 }
 
 
+<<<<<<< HEAD
 int coda_permission(struct inode *inode, int mask)
+=======
+int coda_permission(struct user_namespace *mnt_userns, struct inode *inode,
+		    int mask)
+>>>>>>> upstream/android-13
 {
 	int error;
 
@@ -132,7 +146,12 @@ static inline void coda_dir_drop_nlink(struct inode *dir)
 }
 
 /* creation routines: create, mknod, mkdir, link, symlink */
+<<<<<<< HEAD
 static int coda_create(struct inode *dir, struct dentry *de, umode_t mode, bool excl)
+=======
+static int coda_create(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *de, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	int error;
 	const char *name=de->d_name.name;
@@ -164,7 +183,12 @@ err_out:
 	return error;
 }
 
+<<<<<<< HEAD
 static int coda_mkdir(struct inode *dir, struct dentry *de, umode_t mode)
+=======
+static int coda_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *de, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct coda_vattr attrs;
@@ -225,7 +249,12 @@ static int coda_link(struct dentry *source_de, struct inode *dir_inode,
 }
 
 
+<<<<<<< HEAD
 static int coda_symlink(struct inode *dir_inode, struct dentry *de,
+=======
+static int coda_symlink(struct user_namespace *mnt_userns,
+			struct inode *dir_inode, struct dentry *de,
+>>>>>>> upstream/android-13
 			const char *symname)
 {
 	const char *name = de->d_name.name;
@@ -291,9 +320,15 @@ static int coda_rmdir(struct inode *dir, struct dentry *de)
 }
 
 /* rename */
+<<<<<<< HEAD
 static int coda_rename(struct inode *old_dir, struct dentry *old_dentry,
 		       struct inode *new_dir, struct dentry *new_dentry,
 		       unsigned int flags)
+=======
+static int coda_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		       struct dentry *old_dentry, struct inode *new_dir,
+		       struct dentry *new_dentry, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	const char *old_name = old_dentry->d_name.name;
 	const char *new_name = new_dentry->d_name.name;
@@ -356,8 +391,12 @@ static int coda_venus_readdir(struct file *coda_file, struct dir_context *ctx)
 	ino_t ino;
 	int ret;
 
+<<<<<<< HEAD
 	cfi = CODA_FTOC(coda_file);
 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
+=======
+	cfi = coda_ftoc(coda_file);
+>>>>>>> upstream/android-13
 	host_file = cfi->cfi_container;
 
 	cii = ITOC(file_inode(coda_file));
@@ -426,8 +465,12 @@ static int coda_readdir(struct file *coda_file, struct dir_context *ctx)
 	struct file *host_file;
 	int ret;
 
+<<<<<<< HEAD
 	cfi = CODA_FTOC(coda_file);
 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
+=======
+	cfi = coda_ftoc(coda_file);
+>>>>>>> upstream/android-13
 	host_file = cfi->cfi_container;
 
 	if (host_file->f_op->iterate || host_file->f_op->iterate_shared) {

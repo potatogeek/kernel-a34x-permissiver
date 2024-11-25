@@ -73,30 +73,44 @@ int sun3x_hwclk(int set, struct rtc_time *t)
 
 	return 0;
 }
+<<<<<<< HEAD
 /* Not much we can do here */
 u32 sun3x_gettimeoffset(void)
 {
     return 0L;
 }
+=======
+>>>>>>> upstream/android-13
 
 #if 0
 static irqreturn_t sun3x_timer_tick(int irq, void *dev_id)
 {
+<<<<<<< HEAD
 	irq_handler_t timer_routine = dev_id;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	local_irq_save(flags);
 	/* Clear the pending interrupt - pulse the enable line low */
 	disable_irq(5);
 	enable_irq(5);
+<<<<<<< HEAD
 	timer_routine(0, NULL);
+=======
+	legacy_timer_tick(1);
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 
 	return IRQ_HANDLED;
 }
 #endif
 
+<<<<<<< HEAD
 void __init sun3x_sched_init(irq_handler_t vector)
+=======
+void __init sun3x_sched_init(void)
+>>>>>>> upstream/android-13
 {
 
 	sun3_disable_interrupts();

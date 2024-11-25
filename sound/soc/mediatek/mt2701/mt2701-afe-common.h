@@ -63,6 +63,7 @@ enum audio_base_clock {
 	MT2701_BASE_CLK_NUM,
 };
 
+<<<<<<< HEAD
 static const unsigned int mt2701_afe_backup_list[] = {
 	AUDIO_TOP_CON0,
 	AUDIO_TOP_CON4,
@@ -84,6 +85,8 @@ static const unsigned int mt2701_afe_backup_list[] = {
 	AFE_MEMIF_PBUF_SIZE,
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mt2701_i2s_data {
 	int i2s_ctrl_reg;
 	int i2s_asrc_fs_shift;

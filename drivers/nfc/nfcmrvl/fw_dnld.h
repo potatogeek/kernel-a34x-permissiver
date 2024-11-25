@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Marvell NFC driver: Firmware downloader
  *
@@ -15,6 +16,14 @@
  * ARE EXPRESSLY DISCLAIMED.  The License provides additional details about
  * this warranty disclaimer.
  **/
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Marvell NFC driver: Firmware downloader
+ *
+ * Copyright (C) 2015, Marvell International Ltd.
+ */
+>>>>>>> upstream/android-13
 
 #ifndef __NFCMRVL_FW_DNLD_H__
 #define __NFCMRVL_FW_DNLD_H__

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -23,6 +24,24 @@
 
 extern int msm_gem_mmap_obj(struct drm_gem_object *obj,
 					struct vm_area_struct *vma);
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <drm/drm_aperture.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_prime.h>
+
+#include "msm_drv.h"
+#include "msm_gem.h"
+#include "msm_kms.h"
+
+>>>>>>> upstream/android-13
 static int msm_fbdev_mmap(struct fb_info *info, struct vm_area_struct *vma);
 
 /*
@@ -36,7 +55,11 @@ struct msm_fbdev {
 	struct drm_framebuffer *fb;
 };
 
+<<<<<<< HEAD
 static struct fb_ops msm_fb_ops = {
+=======
+static const struct fb_ops msm_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 
@@ -56,6 +79,7 @@ static int msm_fbdev_mmap(struct fb_info *info, struct vm_area_struct *vma)
 	struct drm_fb_helper *helper = (struct drm_fb_helper *)info->par;
 	struct msm_fbdev *fbdev = to_msm_fbdev(helper);
 	struct drm_gem_object *bo = msm_framebuffer_bo(fbdev->fb, 0);
+<<<<<<< HEAD
 	int ret = 0;
 
 	ret = drm_gem_mmap_obj(bo, bo->size, vma);
@@ -65,6 +89,10 @@ static int msm_fbdev_mmap(struct fb_info *info, struct vm_area_struct *vma)
 	}
 
 	return msm_gem_mmap_obj(bo, vma);
+=======
+
+	return drm_gem_prime_mmap(bo, vma);
+>>>>>>> upstream/android-13
 }
 
 static int msm_fbdev_create(struct drm_fb_helper *helper,
@@ -91,7 +119,11 @@ static int msm_fbdev_create(struct drm_fb_helper *helper,
 			sizes->surface_height, pitch, format);
 
 	if (IS_ERR(fb)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to allocate fb\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to allocate fb\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(fb);
 	}
 
@@ -104,15 +136,25 @@ static int msm_fbdev_create(struct drm_fb_helper *helper,
 	 * in panic (ie. lock-safe, etc) we could avoid pinning the
 	 * buffer now:
 	 */
+<<<<<<< HEAD
 	ret = msm_gem_get_iova(bo, priv->kms->aspace, &paddr);
 	if (ret) {
 		dev_err(dev->dev, "failed to get buffer obj iova: %d\n", ret);
+=======
+	ret = msm_gem_get_and_pin_iova(bo, priv->kms->aspace, &paddr);
+	if (ret) {
+		DRM_DEV_ERROR(dev->dev, "failed to get buffer obj iova: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail_unlock;
 	}
 
 	fbi = drm_fb_helper_alloc_fbi(helper);
 	if (IS_ERR(fbi)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to allocate fb info\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to allocate fb info\n");
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(fbi);
 		goto fail_unlock;
 	}
@@ -122,6 +164,7 @@ static int msm_fbdev_create(struct drm_fb_helper *helper,
 	fbdev->fb = fb;
 	helper->fb = fb;
 
+<<<<<<< HEAD
 	fbi->par = helper;
 	fbi->fbops = &msm_fb_ops;
 
@@ -129,6 +172,11 @@ static int msm_fbdev_create(struct drm_fb_helper *helper,
 
 	drm_fb_helper_fill_fix(fbi, fb->pitches[0], fb->format->depth);
 	drm_fb_helper_fill_var(fbi, helper, sizes->fb_width, sizes->fb_height);
+=======
+	fbi->fbops = &msm_fb_ops;
+
+	drm_fb_helper_fill_info(fbi, helper, sizes);
+>>>>>>> upstream/android-13
 
 	dev->mode_config.fb_base = paddr;
 
@@ -174,6 +222,7 @@ struct drm_fb_helper *msm_fbdev_init(struct drm_device *dev)
 
 	drm_fb_helper_prepare(dev, helper, &msm_fb_helper_funcs);
 
+<<<<<<< HEAD
 	ret = drm_fb_helper_init(dev, helper, priv->num_connectors);
 	if (ret) {
 		dev_err(dev->dev, "could not init fbdev: ret=%d\n", ret);
@@ -181,6 +230,16 @@ struct drm_fb_helper *msm_fbdev_init(struct drm_device *dev)
 	}
 
 	ret = drm_fb_helper_single_add_all_connectors(helper);
+=======
+	ret = drm_fb_helper_init(dev, helper);
+	if (ret) {
+		DRM_DEV_ERROR(dev->dev, "could not init fbdev: ret=%d\n", ret);
+		goto fail;
+	}
+
+	/* the fw fb could be anywhere in memory */
+	ret = drm_aperture_remove_framebuffers(false, dev->driver);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fini;
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -21,6 +22,13 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * slot_map.c
+ *
+ * Copyright (C) 2002, 2004 Oracle.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -55,7 +63,11 @@ struct ocfs2_slot_info {
 	unsigned int si_blocks;
 	struct buffer_head **si_bh;
 	unsigned int si_num_slots;
+<<<<<<< HEAD
 	struct ocfs2_slot *si_slots;
+=======
+	struct ocfs2_slot si_slots[];
+>>>>>>> upstream/android-13
 };
 
 
@@ -270,14 +282,24 @@ static int __ocfs2_find_empty_slot(struct ocfs2_slot_info *si,
 	int i, ret = -ENOSPC;
 
 	if ((preferred >= 0) && (preferred < si->si_num_slots)) {
+<<<<<<< HEAD
 		if (!si->si_slots[preferred].sl_valid) {
+=======
+		if (!si->si_slots[preferred].sl_valid ||
+		    !si->si_slots[preferred].sl_node_num) {
+>>>>>>> upstream/android-13
 			ret = preferred;
 			goto out;
 		}
 	}
 
 	for(i = 0; i < si->si_num_slots; i++) {
+<<<<<<< HEAD
 		if (!si->si_slots[i].sl_valid) {
+=======
+		if (!si->si_slots[i].sl_valid ||
+		    !si->si_slots[i].sl_node_num) {
+>>>>>>> upstream/android-13
 			ret = i;
 			break;
 		}
@@ -420,9 +442,13 @@ int ocfs2_init_slot_info(struct ocfs2_super *osb)
 	struct inode *inode = NULL;
 	struct ocfs2_slot_info *si;
 
+<<<<<<< HEAD
 	si = kzalloc(sizeof(struct ocfs2_slot_info) +
 		     (sizeof(struct ocfs2_slot) * osb->max_slots),
 		     GFP_KERNEL);
+=======
+	si = kzalloc(struct_size(si, si_slots, osb->max_slots), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!si) {
 		status = -ENOMEM;
 		mlog_errno(status);
@@ -431,8 +457,11 @@ int ocfs2_init_slot_info(struct ocfs2_super *osb)
 
 	si->si_extended = ocfs2_uses_extended_slot_map(osb);
 	si->si_num_slots = osb->max_slots;
+<<<<<<< HEAD
 	si->si_slots = (struct ocfs2_slot *)((char *)si +
 					     sizeof(struct ocfs2_slot_info));
+=======
+>>>>>>> upstream/android-13
 
 	inode = ocfs2_get_system_file_inode(osb, SLOT_MAP_SYSTEM_INODE,
 					    OCFS2_INVALID_SLOT);
@@ -476,6 +505,7 @@ int ocfs2_find_slot(struct ocfs2_super *osb)
 	spin_lock(&osb->osb_lock);
 	ocfs2_update_slot_info(si);
 
+<<<<<<< HEAD
 	/* search for ourselves first and take the slot if it already
 	 * exists. Perhaps we need to mark this in a variable for our
 	 * own journal recovery? Possibly not, though we certainly
@@ -494,6 +524,32 @@ int ocfs2_find_slot(struct ocfs2_super *osb)
 	} else
 		printk(KERN_INFO "ocfs2: Slot %d on device (%s) was already "
 		       "allocated to this node!\n", slot, osb->dev_str);
+=======
+	if (ocfs2_mount_local(osb))
+		/* use slot 0 directly in local mode */
+		slot = 0;
+	else {
+		/* search for ourselves first and take the slot if it already
+		 * exists. Perhaps we need to mark this in a variable for our
+		 * own journal recovery? Possibly not, though we certainly
+		 * need to warn to the user */
+		slot = __ocfs2_node_num_to_slot(si, osb->node_num);
+		if (slot < 0) {
+			/* if no slot yet, then just take 1st available
+			 * one. */
+			slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
+			if (slot < 0) {
+				spin_unlock(&osb->osb_lock);
+				mlog(ML_ERROR, "no free slots available!\n");
+				status = -EINVAL;
+				goto bail;
+			}
+		} else
+			printk(KERN_INFO "ocfs2: Slot %d on device (%s) was "
+			       "already allocated to this node!\n",
+			       slot, osb->dev_str);
+	}
+>>>>>>> upstream/android-13
 
 	ocfs2_set_slot(si, slot, osb->node_num);
 	osb->slot_num = slot;

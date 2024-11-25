@@ -109,14 +109,22 @@ static u32 __init allocate_aperture(void)
 	 * memory. Unfortunately we cannot move it up because that would
 	 * make the IOMMU useless.
 	 */
+<<<<<<< HEAD
 	addr = memblock_find_in_range(GART_MIN_ADDR, GART_MAX_ADDR,
 				      aper_size, aper_size);
+=======
+	addr = memblock_phys_alloc_range(aper_size, aper_size,
+					 GART_MIN_ADDR, GART_MAX_ADDR);
+>>>>>>> upstream/android-13
 	if (!addr) {
 		pr_err("Cannot allocate aperture memory hole [mem %#010lx-%#010lx] (%uKB)\n",
 		       addr, addr + aper_size - 1, aper_size >> 10);
 		return 0;
 	}
+<<<<<<< HEAD
 	memblock_reserve(addr, aper_size);
+=======
+>>>>>>> upstream/android-13
 	pr_info("Mapping aperture over RAM [mem %#010lx-%#010lx] (%uKB)\n",
 		addr, addr + aper_size - 1, aper_size >> 10);
 	register_nosave_region(addr >> PAGE_SHIFT,
@@ -270,6 +278,7 @@ static int __init parse_gart_mem(char *p)
 }
 early_param("gart_fix_e820", parse_gart_mem);
 
+<<<<<<< HEAD
 void __init early_gart_iommu_check(void)
 {
 	/*
@@ -282,6 +291,25 @@ void __init early_gart_iommu_check(void)
 	 * or BIOS forget to put that in reserved.
 	 * try to update e820 to make that region as reserved.
 	 */
+=======
+/*
+ * With kexec/kdump, if the first kernel doesn't shut down the GART and the
+ * second kernel allocates a different GART region, there might be two
+ * overlapping GART regions present:
+ *
+ * - the first still used by the GART initialized in the first kernel.
+ * - (sub-)set of it used as normal RAM by the second kernel.
+ *
+ * which leads to memory corruptions and a kernel panic eventually.
+ *
+ * This can also happen if the BIOS has forgotten to mark the GART region
+ * as reserved.
+ *
+ * Try to update the e820 map to mark that new region as reserved.
+ */
+void __init early_gart_iommu_check(void)
+{
+>>>>>>> upstream/android-13
 	u32 agp_aper_order = 0;
 	int i, fix, slot, valid_agp = 0;
 	u32 ctl;

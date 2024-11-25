@@ -408,12 +408,16 @@ open_err:
 	return -EIO;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id imx_keypad_of_match[] = {
 	{ .compatible = "fsl,imx21-kpp", },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, imx_keypad_of_match);
+<<<<<<< HEAD
 #endif
 
 static int imx_keypad_probe(struct platform_device *pdev)
@@ -435,6 +439,18 @@ static int imx_keypad_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "no irq defined in platform data\n");
 		return irq;
 	}
+=======
+
+static int imx_keypad_probe(struct platform_device *pdev)
+{
+	struct imx_keypad *keypad;
+	struct input_dev *input_dev;
+	int irq, error, i, row, col;
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	input_dev = devm_input_allocate_device(&pdev->dev);
 	if (!input_dev) {
@@ -455,8 +471,12 @@ static int imx_keypad_probe(struct platform_device *pdev)
 	timer_setup(&keypad->check_matrix_timer,
 		    imx_keypad_check_for_events, 0);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	keypad->mmio_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	keypad->mmio_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(keypad->mmio_base))
 		return PTR_ERR(keypad->mmio_base);
 
@@ -473,7 +493,11 @@ static int imx_keypad_probe(struct platform_device *pdev)
 	input_dev->open = imx_keypad_open;
 	input_dev->close = imx_keypad_close;
 
+<<<<<<< HEAD
 	error = matrix_keypad_build_keymap(keymap_data, NULL,
+=======
+	error = matrix_keypad_build_keymap(NULL, NULL,
+>>>>>>> upstream/android-13
 					   MAX_MATRIX_KEY_ROWS,
 					   MAX_MATRIX_KEY_COLS,
 					   keypad->keycodes, input_dev);
@@ -536,7 +560,11 @@ static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
 	/* imx kbd can wake up system even clock is disabled */
 	mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 	if (input_dev->users)
+=======
+	if (input_device_enabled(input_dev))
+>>>>>>> upstream/android-13
 		clk_disable_unprepare(kbd->clk);
 
 	mutex_unlock(&input_dev->mutex);
@@ -566,7 +594,11 @@ static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
 
 	mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 	if (input_dev->users) {
+=======
+	if (input_device_enabled(input_dev)) {
+>>>>>>> upstream/android-13
 		ret = clk_prepare_enable(kbd->clk);
 		if (ret)
 			goto err_clk;
@@ -586,7 +618,11 @@ static struct platform_driver imx_keypad_driver = {
 	.driver		= {
 		.name	= "imx-keypad",
 		.pm	= &imx_kbd_pm_ops,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(imx_keypad_of_match),
+=======
+		.of_match_table = imx_keypad_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe		= imx_keypad_probe,
 };

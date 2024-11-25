@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmdomain.c
  *
  * defines domain join / leave apis
  *
  * Copyright (C) 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -35,9 +43,15 @@
 #include <linux/debugfs.h>
 #include <linux/sched/signal.h>
 
+<<<<<<< HEAD
 #include "cluster/heartbeat.h"
 #include "cluster/nodemanager.h"
 #include "cluster/tcp.h"
+=======
+#include "../cluster/heartbeat.h"
+#include "../cluster/nodemanager.h"
+#include "../cluster/tcp.h"
+>>>>>>> upstream/android-13
 
 #include "dlmapi.h"
 #include "dlmcommon.h"
@@ -45,7 +59,11 @@
 #include "dlmdebug.h"
 
 #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_DOMAIN)
+<<<<<<< HEAD
 #include "cluster/masklog.h"
+=======
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 /*
  * ocfs2 node maps are array of long int, which limits to send them freely
@@ -402,7 +420,10 @@ static void dlm_destroy_dlm_worker(struct dlm_ctxt *dlm)
 static void dlm_complete_dlm_shutdown(struct dlm_ctxt *dlm)
 {
 	dlm_unregister_domain_handlers(dlm);
+<<<<<<< HEAD
 	dlm_debug_shutdown(dlm);
+=======
+>>>>>>> upstream/android-13
 	dlm_complete_thread(dlm);
 	dlm_complete_recovery_thread(dlm);
 	dlm_destroy_dlm_worker(dlm);
@@ -1896,11 +1917,15 @@ static int dlm_join_domain(struct dlm_ctxt *dlm)
 		goto bail;
 	}
 
+<<<<<<< HEAD
 	status = dlm_debug_init(dlm);
 	if (status < 0) {
 		mlog_errno(status);
 		goto bail;
 	}
+=======
+	dlm_debug_init(dlm);
+>>>>>>> upstream/android-13
 
 	snprintf(wq_name, O2NM_MAX_NAME_LEN, "dlm_wq-%s", dlm->name);
 	dlm->dlm_worker = alloc_workqueue(wq_name, WQ_MEM_RECLAIM, 0);
@@ -1957,7 +1982,10 @@ bail:
 
 	if (status) {
 		dlm_unregister_domain_handlers(dlm);
+<<<<<<< HEAD
 		dlm_debug_shutdown(dlm);
+=======
+>>>>>>> upstream/android-13
 		dlm_complete_thread(dlm);
 		dlm_complete_recovery_thread(dlm);
 		dlm_destroy_dlm_worker(dlm);
@@ -2011,9 +2039,13 @@ static struct dlm_ctxt *dlm_alloc_ctxt(const char *domain,
 	dlm->key = key;
 	dlm->node_num = o2nm_this_node();
 
+<<<<<<< HEAD
 	ret = dlm_create_debugfs_subroot(dlm);
 	if (ret < 0)
 		goto leave;
+=======
+	dlm_create_debugfs_subroot(dlm);
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&dlm->spinlock);
 	spin_lock_init(&dlm->master_lock);
@@ -2075,6 +2107,10 @@ static struct dlm_ctxt *dlm_alloc_ctxt(const char *domain,
 	mlog(0, "context init: refcount %u\n",
 		  kref_read(&dlm->dlm_refs));
 
+<<<<<<< HEAD
+=======
+	ret = 0;
+>>>>>>> upstream/android-13
 leave:
 	if (ret < 0 && dlm) {
 		if (dlm->master_hash)
@@ -2361,9 +2397,13 @@ static int __init dlm_init(void)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	status = dlm_create_debugfs_root();
 	if (status)
 		goto error;
+=======
+	dlm_create_debugfs_root();
+>>>>>>> upstream/android-13
 
 	return 0;
 error:

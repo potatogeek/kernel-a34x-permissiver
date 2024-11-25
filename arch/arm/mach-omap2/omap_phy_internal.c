@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
   * This file configures the internal USB PHY in OMAP4430. Used
   * with TWL6030 transceiver and MUSB on OMAP4430.
   *
+<<<<<<< HEAD
   * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,10 @@
   * along with this program; if not, write to the Free Software
   * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
   *
+=======
+  * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com
+  * Author: Hema HK <hemahk@ti.com>
+>>>>>>> upstream/android-13
   */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt

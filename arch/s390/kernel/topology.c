@@ -8,7 +8,11 @@
 #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/sysctl.h>
 #include <linux/cpuset.h>
@@ -26,7 +30,10 @@
 #include <linux/nodemask.h>
 #include <linux/node.h>
 #include <asm/sysinfo.h>
+<<<<<<< HEAD
 #include <asm/numa.h>
+=======
+>>>>>>> upstream/android-13
 
 #define PTF_HORIZONTAL	(0UL)
 #define PTF_VERTICAL	(1UL)
@@ -63,6 +70,7 @@ static struct mask_info drawer_info;
 struct cpu_topology_s390 cpu_topology[NR_CPUS];
 EXPORT_SYMBOL_GPL(cpu_topology);
 
+<<<<<<< HEAD
 cpumask_t cpus_with_topology;
 
 static cpumask_t cpu_group_map(struct mask_info *info, unsigned int cpu)
@@ -70,22 +78,40 @@ static cpumask_t cpu_group_map(struct mask_info *info, unsigned int cpu)
 	cpumask_t mask;
 
 	cpumask_copy(&mask, cpumask_of(cpu));
+=======
+static void cpu_group_map(cpumask_t *dst, struct mask_info *info, unsigned int cpu)
+{
+	static cpumask_t mask;
+
+	cpumask_clear(&mask);
+	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
+		goto out;
+	cpumask_set_cpu(cpu, &mask);
+>>>>>>> upstream/android-13
 	switch (topology_mode) {
 	case TOPOLOGY_MODE_HW:
 		while (info) {
 			if (cpumask_test_cpu(cpu, &info->mask)) {
+<<<<<<< HEAD
 				mask = info->mask;
+=======
+				cpumask_copy(&mask, &info->mask);
+>>>>>>> upstream/android-13
 				break;
 			}
 			info = info->next;
 		}
+<<<<<<< HEAD
 		if (cpumask_empty(&mask))
 			cpumask_copy(&mask, cpumask_of(cpu));
+=======
+>>>>>>> upstream/android-13
 		break;
 	case TOPOLOGY_MODE_PACKAGE:
 		cpumask_copy(&mask, cpu_present_mask);
 		break;
 	default:
+<<<<<<< HEAD
 		/* fallthrough */
 	case TOPOLOGY_MODE_SINGLE:
 		cpumask_copy(&mask, cpumask_of(cpu));
@@ -107,6 +133,35 @@ static cpumask_t cpu_thread_map(unsigned int cpu)
 		if (cpu_present(cpu + i))
 			cpumask_set_cpu(cpu + i, &mask);
 	return mask;
+=======
+		fallthrough;
+	case TOPOLOGY_MODE_SINGLE:
+		break;
+	}
+	cpumask_and(&mask, &mask, &cpu_setup_mask);
+out:
+	cpumask_copy(dst, &mask);
+}
+
+static void cpu_thread_map(cpumask_t *dst, unsigned int cpu)
+{
+	static cpumask_t mask;
+	int i;
+
+	cpumask_clear(&mask);
+	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
+		goto out;
+	cpumask_set_cpu(cpu, &mask);
+	if (topology_mode != TOPOLOGY_MODE_HW)
+		goto out;
+	cpu -= cpu % (smp_cpu_mtid + 1);
+	for (i = 0; i <= smp_cpu_mtid; i++) {
+		if (cpumask_test_cpu(cpu + i, &cpu_setup_mask))
+			cpumask_set_cpu(cpu + i, &mask);
+	}
+out:
+	cpumask_copy(dst, &mask);
+>>>>>>> upstream/android-13
 }
 
 #define TOPOLOGY_CORE_BITS	64
@@ -138,7 +193,10 @@ static void add_cpus_to_mask(struct topology_core *tl_core,
 			cpumask_set_cpu(lcpu + i, &drawer->mask);
 			cpumask_set_cpu(lcpu + i, &book->mask);
 			cpumask_set_cpu(lcpu + i, &socket->mask);
+<<<<<<< HEAD
 			cpumask_set_cpu(lcpu + i, &cpus_with_topology);
+=======
+>>>>>>> upstream/android-13
 			smp_cpu_set_polarization(lcpu + i, tl_core->pp);
 		}
 	}
@@ -245,6 +303,7 @@ int topology_set_cpu_management(int fc)
 	return rc;
 }
 
+<<<<<<< HEAD
 static void update_cpu_masks(void)
 {
 	struct cpu_topology_s390 *topo;
@@ -256,6 +315,20 @@ static void update_cpu_masks(void)
 		topo->core_mask = cpu_group_map(&socket_info, cpu);
 		topo->book_mask = cpu_group_map(&book_info, cpu);
 		topo->drawer_mask = cpu_group_map(&drawer_info, cpu);
+=======
+void update_cpu_masks(void)
+{
+	struct cpu_topology_s390 *topo, *topo_package, *topo_sibling;
+	int cpu, sibling, pkg_first, smt_first, id;
+
+	for_each_possible_cpu(cpu) {
+		topo = &cpu_topology[cpu];
+		cpu_thread_map(&topo->thread_mask, cpu);
+		cpu_group_map(&topo->core_mask, &socket_info, cpu);
+		cpu_group_map(&topo->book_mask, &book_info, cpu);
+		cpu_group_map(&topo->drawer_mask, &drawer_info, cpu);
+		topo->booted_cores = 0;
+>>>>>>> upstream/android-13
 		if (topology_mode != TOPOLOGY_MODE_HW) {
 			id = topology_mode == TOPOLOGY_MODE_PACKAGE ? 0 : cpu;
 			topo->thread_id = cpu;
@@ -263,11 +336,31 @@ static void update_cpu_masks(void)
 			topo->socket_id = id;
 			topo->book_id = id;
 			topo->drawer_id = id;
+<<<<<<< HEAD
 			if (cpu_present(cpu))
 				cpumask_set_cpu(cpu, &cpus_with_topology);
 		}
 	}
 	numa_update_cpu_topology();
+=======
+		}
+	}
+	for_each_online_cpu(cpu) {
+		topo = &cpu_topology[cpu];
+		pkg_first = cpumask_first(&topo->core_mask);
+		topo_package = &cpu_topology[pkg_first];
+		if (cpu == pkg_first) {
+			for_each_cpu(sibling, &topo->core_mask) {
+				topo_sibling = &cpu_topology[sibling];
+				smt_first = cpumask_first(&topo_sibling->thread_mask);
+				if (sibling == smt_first)
+					topo_package->booted_cores++;
+			}
+		} else {
+			topo->booted_cores = topo_package->booted_cores;
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 void store_topology(struct sysinfo_15_1_x *info)
@@ -289,7 +382,10 @@ static int __arch_update_cpu_topology(void)
 	int rc = 0;
 
 	mutex_lock(&smp_cpu_state_mutex);
+<<<<<<< HEAD
 	cpumask_clear(&cpus_with_topology);
+=======
+>>>>>>> upstream/android-13
 	if (MACHINE_HAS_TOPOLOGY) {
 		rc = 1;
 		store_topology(info);
@@ -346,9 +442,15 @@ static atomic_t topology_poll = ATOMIC_INIT(0);
 static void set_topology_timer(void)
 {
 	if (atomic_add_unless(&topology_poll, -1, 0))
+<<<<<<< HEAD
 		mod_timer(&topology_timer, jiffies + HZ / 10);
 	else
 		mod_timer(&topology_timer, jiffies + HZ * 60);
+=======
+		mod_timer(&topology_timer, jiffies + msecs_to_jiffies(100));
+	else
+		mod_timer(&topology_timer, jiffies + msecs_to_jiffies(60 * MSEC_PER_SEC));
+>>>>>>> upstream/android-13
 }
 
 void topology_expect_change(void)
@@ -391,7 +493,11 @@ static ssize_t dispatching_store(struct device *dev,
 	if (val != 0 && val != 1)
 		return -EINVAL;
 	rc = 0;
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	mutex_lock(&smp_cpu_state_mutex);
 	if (cpu_management == val)
 		goto out;
@@ -402,7 +508,11 @@ static ssize_t dispatching_store(struct device *dev,
 	topology_expect_change();
 out:
 	mutex_unlock(&smp_cpu_state_mutex);
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	return rc ? rc : count;
 }
 static DEVICE_ATTR_RW(dispatching);
@@ -520,7 +630,14 @@ static void __init alloc_masks(struct sysinfo_15_1_x *info,
 		nr_masks *= info->mag[TOPOLOGY_NR_MAG - offset - 1 - i];
 	nr_masks = max(nr_masks, 1);
 	for (i = 0; i < nr_masks; i++) {
+<<<<<<< HEAD
 		mask->next = memblock_virt_alloc(sizeof(*mask->next), 8);
+=======
+		mask->next = memblock_alloc(sizeof(*mask->next), 8);
+		if (!mask->next)
+			panic("%s: Failed to allocate %zu bytes align=0x%x\n",
+			      __func__, sizeof(*mask->next), 8);
+>>>>>>> upstream/android-13
 		mask = mask->next;
 	}
 }
@@ -538,7 +655,14 @@ void __init topology_init_early(void)
 	}
 	if (!MACHINE_HAS_TOPOLOGY)
 		goto out;
+<<<<<<< HEAD
 	tl_info = memblock_virt_alloc(PAGE_SIZE, PAGE_SIZE);
+=======
+	tl_info = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+	if (!tl_info)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, PAGE_SIZE, PAGE_SIZE);
+>>>>>>> upstream/android-13
 	info = tl_info;
 	store_topology(info);
 	pr_info("The CPU configuration topology of the machine is: %d %d %d %d %d %d / %d\n",
@@ -548,6 +672,10 @@ void __init topology_init_early(void)
 	alloc_masks(info, &book_info, 2);
 	alloc_masks(info, &drawer_info, 3);
 out:
+<<<<<<< HEAD
+=======
+	cpumask_set_cpu(0, &cpu_setup_mask);
+>>>>>>> upstream/android-13
 	__arch_update_cpu_topology();
 	__arch_update_dedicated_flag(NULL);
 }
@@ -578,19 +706,31 @@ static int __init topology_setup(char *str)
 early_param("topology", topology_setup);
 
 static int topology_ctl_handler(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 				void __user *buffer, size_t *lenp, loff_t *ppos)
 {
 	int enabled = topology_is_enabled();
 	int new_mode;
 	int zero = 0;
 	int one = 1;
+=======
+				void *buffer, size_t *lenp, loff_t *ppos)
+{
+	int enabled = topology_is_enabled();
+	int new_mode;
+>>>>>>> upstream/android-13
 	int rc;
 	struct ctl_table ctl_entry = {
 		.procname	= ctl->procname,
 		.data		= &enabled,
 		.maxlen		= sizeof(int),
+<<<<<<< HEAD
 		.extra1		= &zero,
 		.extra2		= &one,
+=======
+		.extra1		= SYSCTL_ZERO,
+		.extra2		= SYSCTL_ONE,
+>>>>>>> upstream/android-13
 	};
 
 	rc = proc_douintvec_minmax(&ctl_entry, write, buffer, lenp, ppos);

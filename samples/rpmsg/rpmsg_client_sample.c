@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Remote processor messaging - sample client driver
  *
@@ -6,6 +10,7 @@
  *
  * Ohad Ben-Cohen <ohad@wizery.com>
  * Brian Swetland <swetland@google.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -22,7 +29,13 @@
 #include <linux/rpmsg.h>
 
 #define MSG		"hello world!"
+<<<<<<< HEAD
 #define MSG_LIMIT	100
+=======
+
+static int count = 100;
+module_param(count, int, 0644);
+>>>>>>> upstream/android-13
 
 struct instance_data {
 	int rx_count;
@@ -37,11 +50,19 @@ static int rpmsg_sample_cb(struct rpmsg_device *rpdev, void *data, int len,
 	dev_info(&rpdev->dev, "incoming msg %d (src: 0x%x)\n",
 		 ++idata->rx_count, src);
 
+<<<<<<< HEAD
 	print_hex_dump(KERN_DEBUG, __func__, DUMP_PREFIX_NONE, 16, 1,
 		       data, len,  true);
 
 	/* samples should not live forever */
 	if (idata->rx_count >= MSG_LIMIT) {
+=======
+	print_hex_dump_debug(__func__, DUMP_PREFIX_NONE, 16, 1, data, len,
+			     true);
+
+	/* samples should not live forever */
+	if (idata->rx_count >= count) {
+>>>>>>> upstream/android-13
 		dev_info(&rpdev->dev, "goodbye!\n");
 		return 0;
 	}

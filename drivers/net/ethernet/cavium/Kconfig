@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Cavium ethernet device configuration
 #
@@ -5,7 +9,11 @@
 config NET_VENDOR_CAVIUM
 	bool "Cavium ethernet drivers"
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Select this option if you want enable Cavium network support.
 
 	  If you have a Cavium SoC or network adapter, say Y.
@@ -16,7 +24,11 @@ config THUNDER_NIC_PF
 	tristate "Thunder Physical function driver"
 	depends on 64BIT && PCI
 	select THUNDER_NIC_BGX
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports Thunder's NIC physical function.
 	  The NIC provides the controller and DMA engines to
 	  move network traffic to/from the memory. The NIC
@@ -28,7 +40,11 @@ config THUNDER_NIC_VF
 	tristate "Thunder Virtual function driver"
 	imply CAVIUM_PTP
 	depends on 64BIT && PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports Thunder's NIC virtual function
 
 config	THUNDER_NIC_BGX
@@ -37,7 +53,11 @@ config	THUNDER_NIC_BGX
 	select PHYLIB
 	select MDIO_THUNDER if PCI
 	select THUNDER_NIC_RGX
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports programming and controlling of MAC
 	  interface from NIC physical function driver.
 
@@ -46,16 +66,25 @@ config	THUNDER_NIC_RGX
 	depends on 64BIT && PCI
 	select PHYLIB
 	select MDIO_THUNDER if PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports configuring XCV block of RGX interface
 	  present on CN81XX chip.
 
 config CAVIUM_PTP
 	tristate "Cavium PTP coprocessor as PTP clock"
 	depends on 64BIT && PCI
+<<<<<<< HEAD
 	imply PTP_1588_CLOCK
 	default y
 	---help---
+=======
+	depends on PTP_1588_CLOCK
+	help
+>>>>>>> upstream/android-13
 	  This driver adds support for the Precision Time Protocol Clocks and
 	  Timestamping coprocessor (PTP) found on Cavium processors.
 	  PTP provides timestamping mechanism that is suitable for use in IEEE 1588
@@ -65,12 +94,21 @@ config CAVIUM_PTP
 config LIQUIDIO
 	tristate "Cavium LiquidIO support"
 	depends on 64BIT && PCI
+<<<<<<< HEAD
 	depends on MAY_USE_DEVLINK
 	depends on PCI
 	imply PTP_1588_CLOCK
 	select FW_LOADER
 	select LIBCRC32C
 	---help---
+=======
+	depends on PCI
+	depends on PTP_1588_CLOCK_OPTIONAL
+	select FW_LOADER
+	select LIBCRC32C
+	select NET_DEVLINK
+	help
+>>>>>>> upstream/android-13
 	  This driver supports Cavium LiquidIO Intelligent Server Adapters
 	  based on CN66XX, CN68XX and CN23XX chips.
 
@@ -91,8 +129,13 @@ config OCTEON_MGMT_ETHERNET
 config LIQUIDIO_VF
 	tristate "Cavium LiquidIO VF support"
 	depends on 64BIT && PCI_MSI
+<<<<<<< HEAD
 	imply PTP_1588_CLOCK
 	---help---
+=======
+	depends on PTP_1588_CLOCK_OPTIONAL
+	help
+>>>>>>> upstream/android-13
 	  This driver supports Cavium LiquidIO Intelligent Server Adapter
 	  based on CN23XX chips.
 

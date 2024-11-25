@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+
+>>>>>>> upstream/android-13
 #include "dc_bios_types.h"
 #include "dce_stream_encoder.h"
 #include "reg_helper.h"
@@ -65,7 +70,10 @@ static void dce110_update_generic_info_packet(
 	uint32_t packet_index,
 	const struct dc_info_packet *info_packet)
 {
+<<<<<<< HEAD
 	uint32_t regval;
+=======
+>>>>>>> upstream/android-13
 	/* TODOFPGA Figure out a proper number for max_retries polling for lock
 	 * use 50 for now.
 	 */
@@ -97,7 +105,11 @@ static void dce110_update_generic_info_packet(
 	}
 	/* choose which generic packet to use */
 	{
+<<<<<<< HEAD
 		regval = REG_READ(AFMT_VBI_PACKET_CONTROL);
+=======
+		REG_READ(AFMT_VBI_PACKET_CONTROL);
+>>>>>>> upstream/android-13
 		REG_UPDATE(AFMT_VBI_PACKET_CONTROL,
 				AFMT_GENERIC_INDEX, packet_index);
 	}
@@ -135,7 +147,11 @@ static void dce110_update_generic_info_packet(
 			AFMT_GENERIC0_UPDATE, (packet_index == 0),
 			AFMT_GENERIC2_UPDATE, (packet_index == 2));
 	}
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 	if (REG(AFMT_VBI_PACKET_CONTROL1)) {
 		switch (packet_index) {
 		case 0:
@@ -229,7 +245,11 @@ static void dce110_update_hdmi_info_packet(
 				HDMI_GENERIC1_SEND, send,
 				HDMI_GENERIC1_LINE, line);
 		break;
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 	case 4:
 		if (REG(HDMI_GENERIC_PACKET_CONTROL2))
 			REG_UPDATE_3(HDMI_GENERIC_PACKET_CONTROL2,
@@ -272,9 +292,17 @@ static void dce110_update_hdmi_info_packet(
 static void dce110_stream_encoder_dp_set_stream_attribute(
 	struct stream_encoder *enc,
 	struct dc_crtc_timing *crtc_timing,
+<<<<<<< HEAD
 	enum dc_color_space output_color_space)
 {
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+	enum dc_color_space output_color_space,
+	bool use_vsc_sdp_for_colorimetry,
+	uint32_t enable_sdp_splitting)
+{
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 	uint32_t h_active_start;
 	uint32_t v_active_start;
 	uint32_t misc0 = 0;
@@ -288,9 +316,24 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 #endif
 
 	struct dce110_stream_encoder *enc110 = DCE110STRENC_FROM_STRENC(enc);
+<<<<<<< HEAD
 
 	/* set pixel encoding */
 	switch (crtc_timing->pixel_encoding) {
+=======
+	struct dc_crtc_timing hw_crtc_timing = *crtc_timing;
+	if (hw_crtc_timing.flags.INTERLACE) {
+		/*the input timing is in VESA spec format with Interlace flag =1*/
+		hw_crtc_timing.v_total /= 2;
+		hw_crtc_timing.v_border_top /= 2;
+		hw_crtc_timing.v_addressable /= 2;
+		hw_crtc_timing.v_border_bottom /= 2;
+		hw_crtc_timing.v_front_porch /= 2;
+		hw_crtc_timing.v_sync_width /= 2;
+	}
+	/* set pixel encoding */
+	switch (hw_crtc_timing.pixel_encoding) {
+>>>>>>> upstream/android-13
 	case PIXEL_ENCODING_YCBCR422:
 		REG_UPDATE(DP_PIXEL_FORMAT, DP_PIXEL_ENCODING,
 				DP_PIXEL_ENCODING_TYPE_YCBCR422);
@@ -299,8 +342,13 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 		REG_UPDATE(DP_PIXEL_FORMAT, DP_PIXEL_ENCODING,
 				DP_PIXEL_ENCODING_TYPE_YCBCR444);
 
+<<<<<<< HEAD
 		if (crtc_timing->flags.Y_ONLY)
 			if (crtc_timing->display_color_depth != COLOR_DEPTH_666)
+=======
+		if (hw_crtc_timing.flags.Y_ONLY)
+			if (hw_crtc_timing.display_color_depth != COLOR_DEPTH_666)
+>>>>>>> upstream/android-13
 				/* HW testing only, no use case yet.
 				 * Color depth of Y-only could be
 				 * 8, 10, 12, 16 bits */
@@ -317,7 +365,11 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 		if (enc110->se_mask->DP_VID_M_DOUBLE_VALUE_EN)
 			REG_UPDATE(DP_VID_TIMING, DP_VID_M_DOUBLE_VALUE_EN, 1);
 
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 		if (enc110->se_mask->DP_VID_N_MUL)
 			REG_UPDATE(DP_VID_TIMING, DP_VID_N_MUL, 1);
 #endif
@@ -328,14 +380,22 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 		break;
 	}
 
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 	if (REG(DP_MSA_MISC))
 		misc1 = REG_READ(DP_MSA_MISC);
 #endif
 
 	/* set color depth */
 
+<<<<<<< HEAD
 	switch (crtc_timing->display_color_depth) {
+=======
+	switch (hw_crtc_timing.display_color_depth) {
+>>>>>>> upstream/android-13
 	case COLOR_DEPTH_666:
 		REG_UPDATE(DP_PIXEL_FORMAT, DP_COMPONENT_DEPTH,
 				0);
@@ -362,8 +422,13 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 	/* set dynamic range and YCbCr range */
 
 
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
 	switch (crtc_timing->display_color_depth) {
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+	switch (hw_crtc_timing.display_color_depth) {
+>>>>>>> upstream/android-13
 	case COLOR_DEPTH_666:
 		colorimetry_bpc = 0;
 		break;
@@ -401,19 +466,35 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 			misc0 = misc0 | 0x8; /* bit3=1, bit4=0 */
 			misc1 = misc1 & ~0x80; /* bit7 = 0*/
 			dynamic_range_ycbcr = 0; /*bt601*/
+<<<<<<< HEAD
 			if (crtc_timing->pixel_encoding == PIXEL_ENCODING_YCBCR422)
 				misc0 = misc0 | 0x2; /* bit2=0, bit1=1 */
 			else if (crtc_timing->pixel_encoding == PIXEL_ENCODING_YCBCR444)
+=======
+			if (hw_crtc_timing.pixel_encoding == PIXEL_ENCODING_YCBCR422)
+				misc0 = misc0 | 0x2; /* bit2=0, bit1=1 */
+			else if (hw_crtc_timing.pixel_encoding == PIXEL_ENCODING_YCBCR444)
+>>>>>>> upstream/android-13
 				misc0 = misc0 | 0x4; /* bit2=1, bit1=0 */
 			break;
 		case COLOR_SPACE_YCBCR709:
 		case COLOR_SPACE_YCBCR709_LIMITED:
+<<<<<<< HEAD
 			misc0 = misc0 | 0x18; /* bit3=1, bit4=1 */
 			misc1 = misc1 & ~0x80; /* bit7 = 0*/
 			dynamic_range_ycbcr = 1; /*bt709*/
 			if (crtc_timing->pixel_encoding == PIXEL_ENCODING_YCBCR422)
 				misc0 = misc0 | 0x2; /* bit2=0, bit1=1 */
 			else if (crtc_timing->pixel_encoding == PIXEL_ENCODING_YCBCR444)
+=======
+		case COLOR_SPACE_YCBCR709_BLACK:
+			misc0 = misc0 | 0x18; /* bit3=1, bit4=1 */
+			misc1 = misc1 & ~0x80; /* bit7 = 0*/
+			dynamic_range_ycbcr = 1; /*bt709*/
+			if (hw_crtc_timing.pixel_encoding == PIXEL_ENCODING_YCBCR422)
+				misc0 = misc0 | 0x2; /* bit2=0, bit1=1 */
+			else if (hw_crtc_timing.pixel_encoding == PIXEL_ENCODING_YCBCR444)
+>>>>>>> upstream/android-13
 				misc0 = misc0 | 0x4; /* bit2=1, bit1=0 */
 			break;
 		case COLOR_SPACE_2020_RGB_LIMITEDRANGE:
@@ -441,7 +522,11 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 				DP_DYN_RANGE, dynamic_range_rgb,
 				DP_YCBCR_RANGE, dynamic_range_ycbcr);
 
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 		if (REG(DP_MSA_COLORIMETRY))
 			REG_SET(DP_MSA_COLORIMETRY, 0, DP_MSA_MISC0, misc0);
 
@@ -453,14 +538,20 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 	 */
 		if (REG(DP_MSA_TIMING_PARAM1))
 			REG_SET_2(DP_MSA_TIMING_PARAM1, 0,
+<<<<<<< HEAD
 					DP_MSA_HTOTAL, crtc_timing->h_total,
 					DP_MSA_VTOTAL, crtc_timing->v_total);
+=======
+					DP_MSA_HTOTAL, hw_crtc_timing.h_total,
+					DP_MSA_VTOTAL, hw_crtc_timing.v_total);
+>>>>>>> upstream/android-13
 #endif
 
 		/* calcuate from vesa timing parameters
 		 * h_active_start related to leading edge of sync
 		 */
 
+<<<<<<< HEAD
 		h_blank = crtc_timing->h_total - crtc_timing->h_border_left -
 				crtc_timing->h_addressable - crtc_timing->h_border_right;
 
@@ -477,6 +568,24 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 
 
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+		h_blank = hw_crtc_timing.h_total - hw_crtc_timing.h_border_left -
+				hw_crtc_timing.h_addressable - hw_crtc_timing.h_border_right;
+
+		h_back_porch = h_blank - hw_crtc_timing.h_front_porch -
+				hw_crtc_timing.h_sync_width;
+
+		/* start at begining of left border */
+		h_active_start = hw_crtc_timing.h_sync_width + h_back_porch;
+
+
+		v_active_start = hw_crtc_timing.v_total - hw_crtc_timing.v_border_top -
+				hw_crtc_timing.v_addressable - hw_crtc_timing.v_border_bottom -
+				hw_crtc_timing.v_front_porch;
+
+
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 		/* start at begining of left border */
 		if (REG(DP_MSA_TIMING_PARAM2))
 			REG_SET_2(DP_MSA_TIMING_PARAM2, 0,
@@ -486,6 +595,7 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 		if (REG(DP_MSA_TIMING_PARAM3))
 			REG_SET_4(DP_MSA_TIMING_PARAM3, 0,
 					DP_MSA_HSYNCWIDTH,
+<<<<<<< HEAD
 					crtc_timing->h_sync_width,
 					DP_MSA_HSYNCPOLARITY,
 					!crtc_timing->flags.HSYNC_POSITIVE_POLARITY,
@@ -493,14 +603,30 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 					crtc_timing->v_sync_width,
 					DP_MSA_VSYNCPOLARITY,
 					!crtc_timing->flags.VSYNC_POSITIVE_POLARITY);
+=======
+					hw_crtc_timing.h_sync_width,
+					DP_MSA_HSYNCPOLARITY,
+					!hw_crtc_timing.flags.HSYNC_POSITIVE_POLARITY,
+					DP_MSA_VSYNCWIDTH,
+					hw_crtc_timing.v_sync_width,
+					DP_MSA_VSYNCPOLARITY,
+					!hw_crtc_timing.flags.VSYNC_POSITIVE_POLARITY);
+>>>>>>> upstream/android-13
 
 		/* HWDITH include border or overscan */
 		if (REG(DP_MSA_TIMING_PARAM4))
 			REG_SET_2(DP_MSA_TIMING_PARAM4, 0,
+<<<<<<< HEAD
 				DP_MSA_HWIDTH, crtc_timing->h_border_left +
 				crtc_timing->h_addressable + crtc_timing->h_border_right,
 				DP_MSA_VHEIGHT, crtc_timing->v_border_top +
 				crtc_timing->v_addressable + crtc_timing->v_border_bottom);
+=======
+				DP_MSA_HWIDTH, hw_crtc_timing.h_border_left +
+				hw_crtc_timing.h_addressable + hw_crtc_timing.h_border_right,
+				DP_MSA_VHEIGHT, hw_crtc_timing.v_border_top +
+				hw_crtc_timing.v_addressable + hw_crtc_timing.v_border_bottom);
+>>>>>>> upstream/android-13
 #endif
 	}
 #endif
@@ -550,6 +676,10 @@ static void dce110_stream_encoder_hdmi_set_stream_attribute(
 	cntl.enable_dp_audio = enable_audio;
 	cntl.pixel_clock = actual_pix_clk_khz;
 	cntl.lanes_number = LANE_COUNT_FOUR;
+<<<<<<< HEAD
+=======
+	cntl.color_depth = crtc_timing->display_color_depth;
+>>>>>>> upstream/android-13
 
 	if (enc110->base.bp->funcs->encoder_control(
 			enc110->base.bp, &cntl) != BP_RESULT_OK)
@@ -662,7 +792,11 @@ static void dce110_stream_encoder_dvi_set_stream_attribute(
 	cntl.signal = is_dual_link ?
 			SIGNAL_TYPE_DVI_DUAL_LINK : SIGNAL_TYPE_DVI_SINGLE_LINK;
 	cntl.enable_dp_audio = false;
+<<<<<<< HEAD
 	cntl.pixel_clock = crtc_timing->pix_clk_khz;
+=======
+	cntl.pixel_clock = crtc_timing->pix_clk_100hz / 10;
+>>>>>>> upstream/android-13
 	cntl.lanes_number = (is_dual_link) ? LANE_COUNT_EIGHT : LANE_COUNT_FOUR;
 
 	if (enc110->base.bp->funcs->encoder_control(
@@ -674,7 +808,33 @@ static void dce110_stream_encoder_dvi_set_stream_attribute(
 	dce110_stream_encoder_set_stream_attribute_helper(enc110, crtc_timing);
 }
 
+<<<<<<< HEAD
 static void dce110_stream_encoder_set_mst_bandwidth(
+=======
+/* setup stream encoder in LVDS mode */
+static void dce110_stream_encoder_lvds_set_stream_attribute(
+	struct stream_encoder *enc,
+	struct dc_crtc_timing *crtc_timing)
+{
+	struct dce110_stream_encoder *enc110 = DCE110STRENC_FROM_STRENC(enc);
+	struct bp_encoder_control cntl = {0};
+
+	cntl.action = ENCODER_CONTROL_SETUP;
+	cntl.engine_id = enc110->base.id;
+	cntl.signal = SIGNAL_TYPE_LVDS;
+	cntl.enable_dp_audio = false;
+	cntl.pixel_clock = crtc_timing->pix_clk_100hz / 10;
+	cntl.lanes_number = LANE_COUNT_FOUR;
+
+	if (enc110->base.bp->funcs->encoder_control(
+			enc110->base.bp, &cntl) != BP_RESULT_OK)
+		return;
+
+	ASSERT(crtc_timing->pixel_encoding == PIXEL_ENCODING_RGB);
+}
+
+static void dce110_stream_encoder_set_throttled_vcp_size(
+>>>>>>> upstream/android-13
 	struct stream_encoder *enc,
 	struct fixed31_32 avg_time_slots_per_mtp)
 {
@@ -751,7 +911,11 @@ static void dce110_stream_encoder_update_hdmi_info_packets(
 		dce110_update_hdmi_info_packet(enc110, 3, &info_frame->hdrsmd);
 	}
 
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 	if (enc110->se_mask->HDMI_DB_DISABLE) {
 		/* for bring up, disable dp double  TODO */
 		if (REG(HDMI_DB_CONTROL))
@@ -789,7 +953,11 @@ static void dce110_stream_encoder_stop_hdmi_info_packets(
 		HDMI_GENERIC1_LINE, 0,
 		HDMI_GENERIC1_SEND, 0);
 
+<<<<<<< HEAD
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
+=======
+#if defined(CONFIG_DRM_AMD_DC_DCN)
+>>>>>>> upstream/android-13
 	/* stop generic packets 2 & 3 on HDMI */
 	if (REG(HDMI_GENERIC_PACKET_CONTROL2))
 		REG_SET_6(HDMI_GENERIC_PACKET_CONTROL2, 0,
@@ -886,7 +1054,10 @@ static void dce110_stream_encoder_dp_blank(
 	struct stream_encoder *enc)
 {
 	struct dce110_stream_encoder *enc110 = DCE110STRENC_FROM_STRENC(enc);
+<<<<<<< HEAD
 	uint32_t retries = 0;
+=======
+>>>>>>> upstream/android-13
 	uint32_t  reg1 = 0;
 	uint32_t max_retries = DP_BLANK_MAX_RETRY * 10;
 
@@ -904,23 +1075,36 @@ static void dce110_stream_encoder_dp_blank(
 	 * (2 = start of the next vertical blank) */
 	REG_UPDATE(DP_VID_STREAM_CNTL, DP_VID_STREAM_DIS_DEFER, 2);
 	/* Larger delay to wait until VBLANK - use max retry of
+<<<<<<< HEAD
 	* 10us*3000=30ms. This covers 16.6ms of typical 60 Hz mode +
 	* a little more because we may not trust delay accuracy.
 	*/
+=======
+	 * 10us*3000=30ms. This covers 16.6ms of typical 60 Hz mode +
+	 * a little more because we may not trust delay accuracy.
+	 */
+>>>>>>> upstream/android-13
 	max_retries = DP_BLANK_MAX_RETRY * 150;
 
 	/* disable DP stream */
 	REG_UPDATE(DP_VID_STREAM_CNTL, DP_VID_STREAM_ENABLE, 0);
 
 	/* the encoder stops sending the video stream
+<<<<<<< HEAD
 	* at the start of the vertical blanking.
 	* Poll for DP_VID_STREAM_STATUS == 0
 	*/
+=======
+	 * at the start of the vertical blanking.
+	 * Poll for DP_VID_STREAM_STATUS == 0
+	 */
+>>>>>>> upstream/android-13
 
 	REG_WAIT(DP_VID_STREAM_CNTL, DP_VID_STREAM_STATUS,
 			0,
 			10, max_retries);
 
+<<<<<<< HEAD
 	ASSERT(retries <= max_retries);
 
 	/* Tell the DP encoder to ignore timing from CRTC, must be done after
@@ -928,6 +1112,13 @@ static void dce110_stream_encoder_dp_blank(
 	* complete, stream status will be stuck in video stream enabled state,
 	* i.e. DP_VID_STREAM_STATUS stuck at 1.
 	*/
+=======
+	/* Tell the DP encoder to ignore timing from CRTC, must be done after
+	 * the polling. If we set DP_STEER_FIFO_RESET before DP stream blank is
+	 * complete, stream status will be stuck in video stream enabled state,
+	 * i.e. DP_VID_STREAM_STATUS stuck at 1.
+	 */
+>>>>>>> upstream/android-13
 
 	REG_UPDATE(DP_STEER_FIFO, DP_STEER_FIFO_RESET, true);
 }
@@ -949,7 +1140,11 @@ static void dce110_stream_encoder_dp_unblank(
 
 		uint64_t m_vid_l = n_vid;
 
+<<<<<<< HEAD
 		m_vid_l *= param->pixel_clk_khz;
+=======
+		m_vid_l *= param->timing.pix_clk_100hz / 10;
+>>>>>>> upstream/android-13
 		m_vid_l = div_u64(m_vid_l,
 			param->link_settings.link_rate
 				* LINK_RATE_REF_FREQ_IN_KHZ);
@@ -1006,11 +1201,33 @@ static void dce110_stream_encoder_set_avmute(
 }
 
 
+<<<<<<< HEAD
+=======
+static void dce110_reset_hdmi_stream_attribute(
+	struct stream_encoder *enc)
+{
+	struct dce110_stream_encoder *enc110 = DCE110STRENC_FROM_STRENC(enc);
+	if (enc110->se_mask->HDMI_DATA_SCRAMBLE_EN)
+		REG_UPDATE_5(HDMI_CONTROL,
+			HDMI_PACKET_GEN_VERSION, 1,
+			HDMI_KEEPOUT_MODE, 1,
+			HDMI_DEEP_COLOR_ENABLE, 0,
+			HDMI_DATA_SCRAMBLE_EN, 0,
+			HDMI_CLOCK_CHANNEL_RATE, 0);
+	else
+		REG_UPDATE_3(HDMI_CONTROL,
+			HDMI_PACKET_GEN_VERSION, 1,
+			HDMI_KEEPOUT_MODE, 1,
+			HDMI_DEEP_COLOR_ENABLE, 0);
+}
+
+>>>>>>> upstream/android-13
 #define DP_SEC_AUD_N__DP_SEC_AUD_N__DEFAULT 0x8000
 #define DP_SEC_TIMESTAMP__DP_SEC_TIMESTAMP_MODE__AUTO_CALC 1
 
 #include "include/audio_types.h"
 
+<<<<<<< HEAD
 /**
 * speakersToChannels
 *
@@ -1106,6 +1323,8 @@ struct audio_clock_info {
 	uint32_t n_48khz;
 	uint32_t cts_48khz;
 };
+=======
+>>>>>>> upstream/android-13
 
 /* 25.2MHz/1.001*/
 /* 25.2MHz/1.001*/
@@ -1232,13 +1451,22 @@ static uint32_t calc_max_audio_packets_per_line(
 
 static void get_audio_clock_info(
 	enum dc_color_depth color_depth,
+<<<<<<< HEAD
 	uint32_t crtc_pixel_clock_in_khz,
 	uint32_t actual_pixel_clock_in_khz,
+=======
+	uint32_t crtc_pixel_clock_100Hz,
+	uint32_t actual_pixel_clock_100Hz,
+>>>>>>> upstream/android-13
 	struct audio_clock_info *audio_clock_info)
 {
 	const struct audio_clock_info *clock_info;
 	uint32_t index;
+<<<<<<< HEAD
 	uint32_t crtc_pixel_clock_in_10khz = crtc_pixel_clock_in_khz / 10;
+=======
+	uint32_t crtc_pixel_clock_in_10khz = crtc_pixel_clock_100Hz / 100;
+>>>>>>> upstream/android-13
 	uint32_t audio_array_size;
 
 	switch (color_depth) {
@@ -1275,16 +1503,28 @@ static void get_audio_clock_info(
 	}
 
 	/* not found */
+<<<<<<< HEAD
 	if (actual_pixel_clock_in_khz == 0)
 		actual_pixel_clock_in_khz = crtc_pixel_clock_in_khz;
+=======
+	if (actual_pixel_clock_100Hz == 0)
+		actual_pixel_clock_100Hz = crtc_pixel_clock_100Hz;
+>>>>>>> upstream/android-13
 
 	/* See HDMI spec  the table entry under
 	 *  pixel clock of "Other". */
 	audio_clock_info->pixel_clock_in_10khz =
+<<<<<<< HEAD
 			actual_pixel_clock_in_khz / 10;
 	audio_clock_info->cts_32khz = actual_pixel_clock_in_khz;
 	audio_clock_info->cts_44khz = actual_pixel_clock_in_khz;
 	audio_clock_info->cts_48khz = actual_pixel_clock_in_khz;
+=======
+			actual_pixel_clock_100Hz / 100;
+	audio_clock_info->cts_32khz = actual_pixel_clock_100Hz / 10;
+	audio_clock_info->cts_44khz = actual_pixel_clock_100Hz / 10;
+	audio_clock_info->cts_48khz = actual_pixel_clock_100Hz / 10;
+>>>>>>> upstream/android-13
 
 	audio_clock_info->n_32khz = 4096;
 	audio_clock_info->n_44khz = 6272;
@@ -1298,7 +1538,10 @@ static void dce110_se_audio_setup(
 {
 	struct dce110_stream_encoder *enc110 = DCE110STRENC_FROM_STRENC(enc);
 
+<<<<<<< HEAD
 	uint32_t speakers = 0;
+=======
+>>>>>>> upstream/android-13
 	uint32_t channels = 0;
 
 	ASSERT(audio_info);
@@ -1306,7 +1549,10 @@ static void dce110_se_audio_setup(
 		/* This should not happen.it does so we don't get BSOD*/
 		return;
 
+<<<<<<< HEAD
 	speakers = audio_info->flags.info.ALLSPEAKERS;
+=======
+>>>>>>> upstream/android-13
 	channels = speakers_to_channels(audio_info->flags.speaker_flags).all;
 
 	/* setup the audio stream source select (audio -> dig mapping) */
@@ -1350,6 +1596,7 @@ static void dce110_se_setup_hdmi_audio(
 
 	/* Program audio clock sample/regeneration parameters */
 	get_audio_clock_info(crtc_info->color_depth,
+<<<<<<< HEAD
 			     crtc_info->requested_pixel_clock,
 			     crtc_info->calculated_pixel_clock,
 			     &audio_clock_info);
@@ -1358,6 +1605,16 @@ static void dce110_se_setup_hdmi_audio(
 			"calculated_pixel_clock = %d \n", __func__,	\
 			crtc_info->requested_pixel_clock,		\
 			crtc_info->calculated_pixel_clock);
+=======
+			     crtc_info->requested_pixel_clock_100Hz,
+			     crtc_info->calculated_pixel_clock_100Hz,
+			     &audio_clock_info);
+	DC_LOG_HW_AUDIO(
+			"\n%s:Input::requested_pixel_clock_100Hz = %d"	\
+			"calculated_pixel_clock_100Hz = %d \n", __func__,	\
+			crtc_info->requested_pixel_clock_100Hz,		\
+			crtc_info->calculated_pixel_clock_100Hz);
+>>>>>>> upstream/android-13
 
 	/* HDMI_ACR_32_0__HDMI_ACR_CTS_32_MASK */
 	REG_UPDATE(HDMI_ACR_32_0, HDMI_ACR_CTS_32, audio_clock_info.cts_32khz);
@@ -1556,6 +1813,28 @@ static void setup_stereo_sync(
 	REG_UPDATE(DIG_FE_CNTL, DIG_STEREOSYNC_GATE_EN, !enable);
 }
 
+<<<<<<< HEAD
+=======
+static void dig_connect_to_otg(
+	struct stream_encoder *enc,
+	int tg_inst)
+{
+	struct dce110_stream_encoder *enc110 = DCE110STRENC_FROM_STRENC(enc);
+
+	REG_UPDATE(DIG_FE_CNTL, DIG_SOURCE_SELECT, tg_inst);
+}
+
+static unsigned int dig_source_otg(
+	struct stream_encoder *enc)
+{
+	uint32_t tg_inst = 0;
+	struct dce110_stream_encoder *enc110 = DCE110STRENC_FROM_STRENC(enc);
+
+	REG_GET(DIG_FE_CNTL, DIG_SOURCE_SELECT, &tg_inst);
+
+	return tg_inst;
+}
+>>>>>>> upstream/android-13
 
 static const struct stream_encoder_funcs dce110_str_enc_funcs = {
 	.dp_set_stream_attribute =
@@ -1564,8 +1843,15 @@ static const struct stream_encoder_funcs dce110_str_enc_funcs = {
 		dce110_stream_encoder_hdmi_set_stream_attribute,
 	.dvi_set_stream_attribute =
 		dce110_stream_encoder_dvi_set_stream_attribute,
+<<<<<<< HEAD
 	.set_mst_bandwidth =
 		dce110_stream_encoder_set_mst_bandwidth,
+=======
+	.lvds_set_stream_attribute =
+		dce110_stream_encoder_lvds_set_stream_attribute,
+	.set_throttled_vcp_size =
+		dce110_stream_encoder_set_throttled_vcp_size,
+>>>>>>> upstream/android-13
 	.update_hdmi_info_packets =
 		dce110_stream_encoder_update_hdmi_info_packets,
 	.stop_hdmi_info_packets =
@@ -1588,7 +1874,13 @@ static const struct stream_encoder_funcs dce110_str_enc_funcs = {
 	.hdmi_audio_disable = dce110_se_hdmi_audio_disable,
 	.setup_stereo_sync  = setup_stereo_sync,
 	.set_avmute = dce110_stream_encoder_set_avmute,
+<<<<<<< HEAD
 
+=======
+	.dig_connect_to_otg  = dig_connect_to_otg,
+	.hdmi_reset_stream_attribute = dce110_reset_hdmi_stream_attribute,
+	.dig_source_otg = dig_source_otg,
+>>>>>>> upstream/android-13
 };
 
 void dce110_stream_encoder_construct(

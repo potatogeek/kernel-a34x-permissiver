@@ -10,7 +10,11 @@
  *	Copyright (C) 2002
  *	    Kuba Ober (kuba@mareimbrium.org)
  *
+<<<<<<< HEAD
  * See Documentation/usb/usb-serial.txt for more information on using this
+=======
+ * See Documentation/usb/usb-serial.rst for more information on using this
+>>>>>>> upstream/android-13
  * driver
  *
  * See http://ftdi-usb-sio.sourceforge.net for up to date testing info
@@ -39,6 +43,10 @@
 #include <linux/uaccess.h>
 #include <linux/usb.h>
 #include <linux/serial.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/usb/serial.h>
 #include "ftdi_sio.h"
 #include "ftdi_sio_ids.h"
@@ -72,6 +80,18 @@ struct ftdi_private {
 	unsigned int latency;		/* latency setting in use */
 	unsigned short max_packet_size;
 	struct mutex cfg_lock; /* Avoid mess by parallel calls of config ioctl() and change_speed() */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_GPIOLIB
+	struct gpio_chip gc;
+	struct mutex gpio_lock;	/* protects GPIO state */
+	bool gpio_registered;	/* is the gpiochip in kernel registered */
+	bool gpio_used;		/* true if the user requested a gpio */
+	u8 gpio_altfunc;	/* which pins are in gpio mode */
+	u8 gpio_output;		/* pin directions cache */
+	u8 gpio_value;		/* pin value for outputs */
+#endif
+>>>>>>> upstream/android-13
 };
 
 /* struct ftdi_sio_quirk is used by devices requiring special attention. */
@@ -209,6 +229,10 @@ static const struct usb_device_id id_table_combined[] = {
 	{ USB_DEVICE(FTDI_VID, FTDI_MTXORB_6_PID) },
 	{ USB_DEVICE(FTDI_VID, FTDI_R2000KU_TRUE_RNG) },
 	{ USB_DEVICE(FTDI_VID, FTDI_VARDAAN_PID) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(FTDI_VID, FTDI_AUTO_M3_OP_COM_V2_PID) },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0100_PID) },
 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0101_PID) },
 	{ USB_DEVICE(MTXORB_VID, MTXORB_FTDI_RANGE_0102_PID) },
@@ -601,6 +625,10 @@ static const struct usb_device_id id_table_combined[] = {
 		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONLX_PLUS_PID) },
 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORION_IO_PID) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONMX_PID) },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(FTDI_VID, FTDI_SYNAPSE_SS200_PID) },
 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX_PID) },
 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX2_PID) },
@@ -957,6 +985,10 @@ static const struct usb_device_id id_table_combined[] = {
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_VX_023_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_VX_034_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_101_PID) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_159_PID) },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_1_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_2_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_3_PID) },
@@ -965,12 +997,20 @@ static const struct usb_device_id id_table_combined[] = {
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_6_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_7_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_8_PID) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_235_PID) },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_257_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_1_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_2_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_3_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_4_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_313_PID) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_320_PID) },
+>>>>>>> upstream/android-13
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_324_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_346_1_PID) },
 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_346_2_PID) },
@@ -1024,6 +1064,12 @@ static const struct usb_device_id id_table_combined[] = {
 	/* Sienna devices */
 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
+<<<<<<< HEAD
+=======
+	/* IDS GmbH devices */
+	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
+	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
+>>>>>>> upstream/android-13
 	/* U-Blox devices */
 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
@@ -1059,7 +1105,11 @@ static const char *ftdi_chip_name[] = {
 static int  ftdi_sio_probe(struct usb_serial *serial,
 					const struct usb_device_id *id);
 static int  ftdi_sio_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int  ftdi_sio_port_remove(struct usb_serial_port *port);
+=======
+static void ftdi_sio_port_remove(struct usb_serial_port *port);
+>>>>>>> upstream/android-13
 static int  ftdi_open(struct tty_struct *tty, struct usb_serial_port *port);
 static void ftdi_dtr_rts(struct usb_serial_port *port, int on);
 static void ftdi_process_read_urb(struct urb *urb);
@@ -1072,6 +1122,12 @@ static int  ftdi_tiocmset(struct tty_struct *tty,
 			unsigned int set, unsigned int clear);
 static int  ftdi_ioctl(struct tty_struct *tty,
 			unsigned int cmd, unsigned long arg);
+<<<<<<< HEAD
+=======
+static void get_serial_info(struct tty_struct *tty, struct serial_struct *ss);
+static int set_serial_info(struct tty_struct *tty,
+				struct serial_struct *ss);
+>>>>>>> upstream/android-13
 static void ftdi_break_ctl(struct tty_struct *tty, int break_state);
 static bool ftdi_tx_empty(struct usb_serial_port *port);
 static int ftdi_get_modem_status(struct usb_serial_port *port,
@@ -1108,6 +1164,11 @@ static struct usb_serial_driver ftdi_sio_device = {
 	.tiocmiwait =		usb_serial_generic_tiocmiwait,
 	.get_icount =           usb_serial_generic_get_icount,
 	.ioctl =		ftdi_ioctl,
+<<<<<<< HEAD
+=======
+	.get_serial =		get_serial_info,
+	.set_serial =		set_serial_info,
+>>>>>>> upstream/android-13
 	.set_termios =		ftdi_set_termios,
 	.break_ctl =		ftdi_break_ctl,
 	.tx_empty =		ftdi_tx_empty,
@@ -1131,12 +1192,17 @@ static unsigned short int ftdi_232am_baud_base_to_divisor(int baud, int base)
 {
 	unsigned short int divisor;
 	/* divisor shifted 3 bits to the left */
+<<<<<<< HEAD
 	int divisor3 = base / 2 / baud;
+=======
+	int divisor3 = DIV_ROUND_CLOSEST(base, 2 * baud);
+>>>>>>> upstream/android-13
 	if ((divisor3 & 0x7) == 7)
 		divisor3++; /* round x.7/8 up to x+1 */
 	divisor = divisor3 >> 3;
 	divisor3 &= 0x7;
 	if (divisor3 == 1)
+<<<<<<< HEAD
 		divisor |= 0xc000;
 	else if (divisor3 >= 4)
 		divisor |= 0x4000;
@@ -1144,6 +1210,15 @@ static unsigned short int ftdi_232am_baud_base_to_divisor(int baud, int base)
 		divisor |= 0x8000;
 	else if (divisor == 1)
 		divisor = 0;	/* special case for maximum baud rate */
+=======
+		divisor |= 0xc000;	/* +0.125 */
+	else if (divisor3 >= 4)
+		divisor |= 0x4000;	/* +0.5 */
+	else if (divisor3 != 0)
+		divisor |= 0x8000;	/* +0.25 */
+	else if (divisor == 1)
+		divisor = 0;		/* special case for maximum baud rate */
+>>>>>>> upstream/android-13
 	return divisor;
 }
 
@@ -1157,6 +1232,7 @@ static u32 ftdi_232bm_baud_base_to_divisor(int baud, int base)
 	static const unsigned char divfrac[8] = { 0, 3, 2, 4, 1, 5, 6, 7 };
 	u32 divisor;
 	/* divisor shifted 3 bits to the left */
+<<<<<<< HEAD
 	int divisor3 = base / 2 / baud;
 	divisor = divisor3 >> 3;
 	divisor |= (u32)divfrac[divisor3 & 0x7] << 14;
@@ -1164,6 +1240,15 @@ static u32 ftdi_232bm_baud_base_to_divisor(int baud, int base)
 	if (divisor == 1)
 		divisor = 0;
 	else if (divisor == 0x4001)
+=======
+	int divisor3 = DIV_ROUND_CLOSEST(base, 2 * baud);
+	divisor = divisor3 >> 3;
+	divisor |= (u32)divfrac[divisor3 & 0x7] << 14;
+	/* Deal with special cases for highest baud rates. */
+	if (divisor == 1)		/* 1.0 */
+		divisor = 0;
+	else if (divisor == 0x4001)	/* 1.5 */
+>>>>>>> upstream/android-13
 		divisor = 1;
 	return divisor;
 }
@@ -1180,14 +1265,24 @@ static u32 ftdi_2232h_baud_base_to_divisor(int baud, int base)
 	int divisor3;
 
 	/* hi-speed baud rate is 10-bit sampling instead of 16-bit */
+<<<<<<< HEAD
 	divisor3 = base * 8 / (baud * 10);
+=======
+	divisor3 = DIV_ROUND_CLOSEST(8 * base, 10 * baud);
+>>>>>>> upstream/android-13
 
 	divisor = divisor3 >> 3;
 	divisor |= (u32)divfrac[divisor3 & 0x7] << 14;
 	/* Deal with special cases for highest baud rates. */
+<<<<<<< HEAD
 	if (divisor == 1)
 		divisor = 0;
 	else if (divisor == 0x4001)
+=======
+	if (divisor == 1)		/* 1.0 */
+		divisor = 0;
+	else if (divisor == 0x4001)	/* 1.5 */
+>>>>>>> upstream/android-13
 		divisor = 1;
 	/*
 	 * Set this bit to turn off a divide by 2.5 on baud rate generator
@@ -1461,6 +1556,7 @@ static int read_latency_timer(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int get_serial_info(struct usb_serial_port *port,
 				struct serial_struct __user *retinfo)
 {
@@ -1519,16 +1615,59 @@ check_and_exit:
 	if ((priv->flags ^ old_priv.flags) & ASYNC_SPD_MASK ||
 			((priv->flags & ASYNC_SPD_MASK) == ASYNC_SPD_CUST &&
 			 priv->custom_divisor != old_priv.custom_divisor)) {
+=======
+static void get_serial_info(struct tty_struct *tty, struct serial_struct *ss)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+
+	ss->flags = priv->flags;
+	ss->baud_base = priv->baud_base;
+	ss->custom_divisor = priv->custom_divisor;
+}
+
+static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	int old_flags, old_divisor;
+
+	mutex_lock(&priv->cfg_lock);
+
+	if (!capable(CAP_SYS_ADMIN)) {
+		if ((ss->flags ^ priv->flags) & ~ASYNC_USR_MASK) {
+			mutex_unlock(&priv->cfg_lock);
+			return -EPERM;
+		}
+	}
+
+	old_flags = priv->flags;
+	old_divisor = priv->custom_divisor;
+
+	priv->flags = ss->flags & ASYNC_FLAGS;
+	priv->custom_divisor = ss->custom_divisor;
+
+	write_latency_timer(port);
+
+	if ((priv->flags ^ old_flags) & ASYNC_SPD_MASK ||
+			((priv->flags & ASYNC_SPD_MASK) == ASYNC_SPD_CUST &&
+			 priv->custom_divisor != old_divisor)) {
+>>>>>>> upstream/android-13
 
 		/* warn about deprecation unless clearing */
 		if (priv->flags & ASYNC_SPD_MASK)
 			dev_warn_ratelimited(&port->dev, "use of SPD flags is deprecated\n");
 
 		change_speed(tty, port);
+<<<<<<< HEAD
 		mutex_unlock(&priv->cfg_lock);
 	}
 	else
 		mutex_unlock(&priv->cfg_lock);
+=======
+	}
+	mutex_unlock(&priv->cfg_lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1564,7 +1703,12 @@ static void ftdi_determine_type(struct usb_serial_port *port)
 	dev_dbg(&port->dev, "%s: bcdDevice = 0x%x, bNumInterfaces = %u\n", __func__,
 		version, interfaces);
 	if (interfaces > 1) {
+<<<<<<< HEAD
 		int inter;
+=======
+		struct usb_interface *intf = serial->interface;
+		int ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+>>>>>>> upstream/android-13
 
 		/* Multiple interfaces.*/
 		if (version == 0x0800) {
@@ -1579,6 +1723,7 @@ static void ftdi_determine_type(struct usb_serial_port *port)
 			priv->chip_type = FT2232C;
 
 		/* Determine interface code. */
+<<<<<<< HEAD
 		inter = serial->interface->altsetting->desc.bInterfaceNumber;
 		if (inter == 0) {
 			priv->interface = INTERFACE_A;
@@ -1589,6 +1734,17 @@ static void ftdi_determine_type(struct usb_serial_port *port)
 		} else  if (inter == 3) {
 			priv->interface = INTERFACE_D;
 		}
+=======
+		if (ifnum == 0)
+			priv->interface = INTERFACE_A;
+		else if (ifnum == 1)
+			priv->interface = INTERFACE_B;
+		else if (ifnum == 2)
+			priv->interface = INTERFACE_C;
+		else if (ifnum == 3)
+			priv->interface = INTERFACE_D;
+
+>>>>>>> upstream/android-13
 		/* BM-type devices have a bug where bcdDevice gets set
 		 * to 0x200 when iSerialNumber is 0.  */
 		if (version < 0x500) {
@@ -1784,6 +1940,451 @@ static void remove_sysfs_attrs(struct usb_serial_port *port)
 
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_GPIOLIB
+
+static int ftdi_set_bitmode(struct usb_serial_port *port, u8 mode)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	struct usb_serial *serial = port->serial;
+	int result;
+	u16 val;
+
+	result = usb_autopm_get_interface(serial->interface);
+	if (result)
+		return result;
+
+	val = (mode << 8) | (priv->gpio_output << 4) | priv->gpio_value;
+	result = usb_control_msg(serial->dev,
+				 usb_sndctrlpipe(serial->dev, 0),
+				 FTDI_SIO_SET_BITMODE_REQUEST,
+				 FTDI_SIO_SET_BITMODE_REQUEST_TYPE, val,
+				 priv->interface, NULL, 0, WDR_TIMEOUT);
+	if (result < 0) {
+		dev_err(&serial->interface->dev,
+			"bitmode request failed for value 0x%04x: %d\n",
+			val, result);
+	}
+
+	usb_autopm_put_interface(serial->interface);
+
+	return result;
+}
+
+static int ftdi_set_cbus_pins(struct usb_serial_port *port)
+{
+	return ftdi_set_bitmode(port, FTDI_SIO_BITMODE_CBUS);
+}
+
+static int ftdi_exit_cbus_mode(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+
+	priv->gpio_output = 0;
+	priv->gpio_value = 0;
+	return ftdi_set_bitmode(port, FTDI_SIO_BITMODE_RESET);
+}
+
+static int ftdi_gpio_request(struct gpio_chip *gc, unsigned int offset)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	int result;
+
+	mutex_lock(&priv->gpio_lock);
+	if (!priv->gpio_used) {
+		/* Set default pin states, as we cannot get them from device */
+		priv->gpio_output = 0x00;
+		priv->gpio_value = 0x00;
+		result = ftdi_set_cbus_pins(port);
+		if (result) {
+			mutex_unlock(&priv->gpio_lock);
+			return result;
+		}
+
+		priv->gpio_used = true;
+	}
+	mutex_unlock(&priv->gpio_lock);
+
+	return 0;
+}
+
+static int ftdi_read_cbus_pins(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	struct usb_serial *serial = port->serial;
+	unsigned char *buf;
+	int result;
+
+	result = usb_autopm_get_interface(serial->interface);
+	if (result)
+		return result;
+
+	buf = kmalloc(1, GFP_KERNEL);
+	if (!buf) {
+		usb_autopm_put_interface(serial->interface);
+		return -ENOMEM;
+	}
+
+	result = usb_control_msg(serial->dev,
+				 usb_rcvctrlpipe(serial->dev, 0),
+				 FTDI_SIO_READ_PINS_REQUEST,
+				 FTDI_SIO_READ_PINS_REQUEST_TYPE, 0,
+				 priv->interface, buf, 1, WDR_TIMEOUT);
+	if (result < 1) {
+		if (result >= 0)
+			result = -EIO;
+	} else {
+		result = buf[0];
+	}
+
+	kfree(buf);
+	usb_autopm_put_interface(serial->interface);
+
+	return result;
+}
+
+static int ftdi_gpio_get(struct gpio_chip *gc, unsigned int gpio)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	int result;
+
+	result = ftdi_read_cbus_pins(port);
+	if (result < 0)
+		return result;
+
+	return !!(result & BIT(gpio));
+}
+
+static void ftdi_gpio_set(struct gpio_chip *gc, unsigned int gpio, int value)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+
+	mutex_lock(&priv->gpio_lock);
+
+	if (value)
+		priv->gpio_value |= BIT(gpio);
+	else
+		priv->gpio_value &= ~BIT(gpio);
+
+	ftdi_set_cbus_pins(port);
+
+	mutex_unlock(&priv->gpio_lock);
+}
+
+static int ftdi_gpio_get_multiple(struct gpio_chip *gc, unsigned long *mask,
+					unsigned long *bits)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	int result;
+
+	result = ftdi_read_cbus_pins(port);
+	if (result < 0)
+		return result;
+
+	*bits = result & *mask;
+
+	return 0;
+}
+
+static void ftdi_gpio_set_multiple(struct gpio_chip *gc, unsigned long *mask,
+					unsigned long *bits)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+
+	mutex_lock(&priv->gpio_lock);
+
+	priv->gpio_value &= ~(*mask);
+	priv->gpio_value |= *bits & *mask;
+	ftdi_set_cbus_pins(port);
+
+	mutex_unlock(&priv->gpio_lock);
+}
+
+static int ftdi_gpio_direction_get(struct gpio_chip *gc, unsigned int gpio)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+
+	return !(priv->gpio_output & BIT(gpio));
+}
+
+static int ftdi_gpio_direction_input(struct gpio_chip *gc, unsigned int gpio)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	int result;
+
+	mutex_lock(&priv->gpio_lock);
+
+	priv->gpio_output &= ~BIT(gpio);
+	result = ftdi_set_cbus_pins(port);
+
+	mutex_unlock(&priv->gpio_lock);
+
+	return result;
+}
+
+static int ftdi_gpio_direction_output(struct gpio_chip *gc, unsigned int gpio,
+					int value)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	int result;
+
+	mutex_lock(&priv->gpio_lock);
+
+	priv->gpio_output |= BIT(gpio);
+	if (value)
+		priv->gpio_value |= BIT(gpio);
+	else
+		priv->gpio_value &= ~BIT(gpio);
+
+	result = ftdi_set_cbus_pins(port);
+
+	mutex_unlock(&priv->gpio_lock);
+
+	return result;
+}
+
+static int ftdi_gpio_init_valid_mask(struct gpio_chip *gc,
+				     unsigned long *valid_mask,
+				     unsigned int ngpios)
+{
+	struct usb_serial_port *port = gpiochip_get_data(gc);
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	unsigned long map = priv->gpio_altfunc;
+
+	bitmap_complement(valid_mask, &map, ngpios);
+
+	if (bitmap_empty(valid_mask, ngpios))
+		dev_dbg(&port->dev, "no CBUS pin configured for GPIO\n");
+	else
+		dev_dbg(&port->dev, "CBUS%*pbl configured for GPIO\n", ngpios,
+			valid_mask);
+
+	return 0;
+}
+
+static int ftdi_read_eeprom(struct usb_serial *serial, void *dst, u16 addr,
+				u16 nbytes)
+{
+	int read = 0;
+
+	if (addr % 2 != 0)
+		return -EINVAL;
+	if (nbytes % 2 != 0)
+		return -EINVAL;
+
+	/* Read EEPROM two bytes at a time */
+	while (read < nbytes) {
+		int rv;
+
+		rv = usb_control_msg(serial->dev,
+				     usb_rcvctrlpipe(serial->dev, 0),
+				     FTDI_SIO_READ_EEPROM_REQUEST,
+				     FTDI_SIO_READ_EEPROM_REQUEST_TYPE,
+				     0, (addr + read) / 2, dst + read, 2,
+				     WDR_TIMEOUT);
+		if (rv < 2) {
+			if (rv >= 0)
+				return -EIO;
+			else
+				return rv;
+		}
+
+		read += rv;
+	}
+
+	return 0;
+}
+
+static int ftdi_gpio_init_ft232h(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	u16 cbus_config;
+	u8 *buf;
+	int ret;
+	int i;
+
+	buf = kmalloc(4, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	ret = ftdi_read_eeprom(port->serial, buf, 0x1a, 4);
+	if (ret < 0)
+		goto out_free;
+
+	/*
+	 * FT232H CBUS Memory Map
+	 *
+	 * 0x1a: X- (upper nibble -> AC5)
+	 * 0x1b: -X (lower nibble -> AC6)
+	 * 0x1c: XX (upper nibble -> AC9 | lower nibble -> AC8)
+	 */
+	cbus_config = buf[2] << 8 | (buf[1] & 0xf) << 4 | (buf[0] & 0xf0) >> 4;
+
+	priv->gc.ngpio = 4;
+	priv->gpio_altfunc = 0xff;
+
+	for (i = 0; i < priv->gc.ngpio; ++i) {
+		if ((cbus_config & 0xf) == FTDI_FTX_CBUS_MUX_GPIO)
+			priv->gpio_altfunc &= ~BIT(i);
+		cbus_config >>= 4;
+	}
+
+out_free:
+	kfree(buf);
+
+	return ret;
+}
+
+static int ftdi_gpio_init_ft232r(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	u16 cbus_config;
+	u8 *buf;
+	int ret;
+	int i;
+
+	buf = kmalloc(2, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	ret = ftdi_read_eeprom(port->serial, buf, 0x14, 2);
+	if (ret < 0)
+		goto out_free;
+
+	cbus_config = le16_to_cpup((__le16 *)buf);
+	dev_dbg(&port->dev, "cbus_config = 0x%04x\n", cbus_config);
+
+	priv->gc.ngpio = 4;
+
+	priv->gpio_altfunc = 0xff;
+	for (i = 0; i < priv->gc.ngpio; ++i) {
+		if ((cbus_config & 0xf) == FTDI_FT232R_CBUS_MUX_GPIO)
+			priv->gpio_altfunc &= ~BIT(i);
+		cbus_config >>= 4;
+	}
+out_free:
+	kfree(buf);
+
+	return ret;
+}
+
+static int ftdi_gpio_init_ftx(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	struct usb_serial *serial = port->serial;
+	const u16 cbus_cfg_addr = 0x1a;
+	const u16 cbus_cfg_size = 4;
+	u8 *cbus_cfg_buf;
+	int result;
+	u8 i;
+
+	cbus_cfg_buf = kmalloc(cbus_cfg_size, GFP_KERNEL);
+	if (!cbus_cfg_buf)
+		return -ENOMEM;
+
+	result = ftdi_read_eeprom(serial, cbus_cfg_buf,
+				  cbus_cfg_addr, cbus_cfg_size);
+	if (result < 0)
+		goto out_free;
+
+	/* FIXME: FT234XD alone has 1 GPIO, but how to recognize this IC? */
+	priv->gc.ngpio = 4;
+
+	/* Determine which pins are configured for CBUS bitbanging */
+	priv->gpio_altfunc = 0xff;
+	for (i = 0; i < priv->gc.ngpio; ++i) {
+		if (cbus_cfg_buf[i] == FTDI_FTX_CBUS_MUX_GPIO)
+			priv->gpio_altfunc &= ~BIT(i);
+	}
+
+out_free:
+	kfree(cbus_cfg_buf);
+
+	return result;
+}
+
+static int ftdi_gpio_init(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+	struct usb_serial *serial = port->serial;
+	int result;
+
+	switch (priv->chip_type) {
+	case FT232H:
+		result = ftdi_gpio_init_ft232h(port);
+		break;
+	case FT232RL:
+		result = ftdi_gpio_init_ft232r(port);
+		break;
+	case FTX:
+		result = ftdi_gpio_init_ftx(port);
+		break;
+	default:
+		return 0;
+	}
+
+	if (result < 0)
+		return result;
+
+	mutex_init(&priv->gpio_lock);
+
+	priv->gc.label = "ftdi-cbus";
+	priv->gc.request = ftdi_gpio_request;
+	priv->gc.get_direction = ftdi_gpio_direction_get;
+	priv->gc.direction_input = ftdi_gpio_direction_input;
+	priv->gc.direction_output = ftdi_gpio_direction_output;
+	priv->gc.init_valid_mask = ftdi_gpio_init_valid_mask;
+	priv->gc.get = ftdi_gpio_get;
+	priv->gc.set = ftdi_gpio_set;
+	priv->gc.get_multiple = ftdi_gpio_get_multiple;
+	priv->gc.set_multiple = ftdi_gpio_set_multiple;
+	priv->gc.owner = THIS_MODULE;
+	priv->gc.parent = &serial->interface->dev;
+	priv->gc.base = -1;
+	priv->gc.can_sleep = true;
+
+	result = gpiochip_add_data(&priv->gc, port);
+	if (!result)
+		priv->gpio_registered = true;
+
+	return result;
+}
+
+static void ftdi_gpio_remove(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+
+	if (priv->gpio_registered) {
+		gpiochip_remove(&priv->gc);
+		priv->gpio_registered = false;
+	}
+
+	if (priv->gpio_used) {
+		/* Exiting CBUS-mode does not reset pin states. */
+		ftdi_exit_cbus_mode(port);
+		priv->gpio_used = false;
+	}
+}
+
+#else
+
+static int ftdi_gpio_init(struct usb_serial_port *port)
+{
+	return 0;
+}
+
+static void ftdi_gpio_remove(struct usb_serial_port *port) { }
+
+#endif	/* CONFIG_GPIOLIB */
+
+>>>>>>> upstream/android-13
 /*
  * ***************************************************************************
  * FTDI driver specific functions
@@ -1812,7 +2413,11 @@ static int ftdi_sio_port_probe(struct usb_serial_port *port)
 {
 	struct ftdi_private *priv;
 	const struct ftdi_sio_quirk *quirk = usb_get_serial_data(port->serial);
+<<<<<<< HEAD
 
+=======
+	int result;
+>>>>>>> upstream/android-13
 
 	priv = kzalloc(sizeof(struct ftdi_private), GFP_KERNEL);
 	if (!priv)
@@ -1831,6 +2436,17 @@ static int ftdi_sio_port_probe(struct usb_serial_port *port)
 		priv->latency = 16;
 	write_latency_timer(port);
 	create_sysfs_attrs(port);
+<<<<<<< HEAD
+=======
+
+	result = ftdi_gpio_init(port);
+	if (result < 0) {
+		dev_err(&port->serial->interface->dev,
+			"GPIO initialisation failed: %d\n",
+			result);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1895,12 +2511,20 @@ static int ftdi_NDI_device_setup(struct usb_serial *serial)
  */
 static int ftdi_jtag_probe(struct usb_serial *serial)
 {
+<<<<<<< HEAD
 	struct usb_device *udev = serial->dev;
 	struct usb_interface *interface = serial->interface;
 
 	if (interface == udev->actconfig->interface[0]) {
 		dev_info(&udev->dev,
 			 "Ignoring serial port reserved for JTAG\n");
+=======
+	struct usb_interface *intf = serial->interface;
+	int ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+
+	if (ifnum == 0) {
+		dev_info(&intf->dev, "Ignoring interface reserved for JTAG\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -1932,18 +2556,27 @@ static int ftdi_8u2232c_probe(struct usb_serial *serial)
  */
 static int ftdi_stmclite_probe(struct usb_serial *serial)
 {
+<<<<<<< HEAD
 	struct usb_device *udev = serial->dev;
 	struct usb_interface *interface = serial->interface;
 
 	if (interface == udev->actconfig->interface[0] ||
 	    interface == udev->actconfig->interface[1]) {
 		dev_info(&udev->dev, "Ignoring serial port reserved for JTAG\n");
+=======
+	struct usb_interface *intf = serial->interface;
+	int ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+
+	if (ifnum < 2) {
+		dev_info(&intf->dev, "Ignoring interface reserved for JTAG\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ftdi_sio_port_remove(struct usb_serial_port *port)
 {
 	struct ftdi_private *priv = usb_get_serial_port_data(port);
@@ -1953,6 +2586,17 @@ static int ftdi_sio_port_remove(struct usb_serial_port *port)
 	kfree(priv);
 
 	return 0;
+=======
+static void ftdi_sio_port_remove(struct usb_serial_port *port)
+{
+	struct ftdi_private *priv = usb_get_serial_port_data(port);
+
+	ftdi_gpio_remove(port);
+
+	remove_sysfs_attrs(port);
+
+	kfree(priv);
+>>>>>>> upstream/android-13
 }
 
 static int ftdi_open(struct tty_struct *tty, struct usb_serial_port *port)
@@ -2047,6 +2691,10 @@ static int ftdi_process_packet(struct usb_serial_port *port,
 		struct ftdi_private *priv, unsigned char *buf, int len)
 {
 	unsigned char status;
+<<<<<<< HEAD
+=======
+	bool brkint = false;
+>>>>>>> upstream/android-13
 	int i;
 	char flag;
 
@@ -2098,6 +2746,7 @@ static int ftdi_process_packet(struct usb_serial_port *port,
 	 */
 	flag = TTY_NORMAL;
 	if (buf[1] & FTDI_RS_ERR_MASK) {
+<<<<<<< HEAD
 		/* Break takes precedence over parity, which takes precedence
 		 * over framing errors */
 		if (buf[1] & FTDI_RS_BI) {
@@ -2105,6 +2754,19 @@ static int ftdi_process_packet(struct usb_serial_port *port,
 			port->icount.brk++;
 			usb_serial_handle_break(port);
 		} else if (buf[1] & FTDI_RS_PE) {
+=======
+		/*
+		 * Break takes precedence over parity, which takes precedence
+		 * over framing errors. Note that break is only associated
+		 * with the last character in the buffer and only when it's a
+		 * NUL.
+		 */
+		if (buf[1] & FTDI_RS_BI && buf[len - 1] == '\0') {
+			port->icount.brk++;
+			brkint = true;
+		}
+		if (buf[1] & FTDI_RS_PE) {
+>>>>>>> upstream/android-13
 			flag = TTY_PARITY;
 			port->icount.parity++;
 		} else if (buf[1] & FTDI_RS_FE) {
@@ -2120,8 +2782,18 @@ static int ftdi_process_packet(struct usb_serial_port *port,
 
 	port->icount.rx += len - 2;
 
+<<<<<<< HEAD
 	if (port->port.console && port->sysrq) {
 		for (i = 2; i < len; i++) {
+=======
+	if (brkint || port->sysrq) {
+		for (i = 2; i < len; i++) {
+			if (brkint && i == len - 1) {
+				if (usb_serial_handle_break(port))
+					return len - 3;
+				flag = TTY_BREAK;
+			}
+>>>>>>> upstream/android-13
 			if (usb_serial_handle_sysrq_char(port, buf[i]))
 				continue;
 			tty_insert_flip_char(&port->port, buf[i], flag);
@@ -2138,7 +2810,11 @@ static void ftdi_process_read_urb(struct urb *urb)
 {
 	struct usb_serial_port *port = urb->context;
 	struct ftdi_private *priv = usb_get_serial_port_data(port);
+<<<<<<< HEAD
 	char *data = (char *)urb->transfer_buffer;
+=======
+	char *data = urb->transfer_buffer;
+>>>>>>> upstream/android-13
 	int i;
 	int len;
 	int count = 0;
@@ -2469,10 +3145,13 @@ static int ftdi_ioctl(struct tty_struct *tty,
 	void __user *argp = (void __user *)arg;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case TIOCGSERIAL:
 		return get_serial_info(port, argp);
 	case TIOCSSERIAL:
 		return set_serial_info(tty, port, argp);
+=======
+>>>>>>> upstream/android-13
 	case TIOCSERGETLSR:
 		return get_lsr_info(port, argp);
 	default:
@@ -2488,5 +3167,9 @@ MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 module_param(ndi_latency_timer, int, S_IRUGO | S_IWUSR);
+=======
+module_param(ndi_latency_timer, int, 0644);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(ndi_latency_timer, "NDI device latency timer override");

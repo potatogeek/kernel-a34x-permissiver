@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2017 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2017 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/libnvdimm.h>
 #include <linux/badblocks.h>
@@ -219,7 +225,11 @@ static void __add_badblock_range(struct badblocks *bb, u64 ns_offset, u64 len)
 }
 
 static void badblocks_populate(struct badrange *badrange,
+<<<<<<< HEAD
 		struct badblocks *bb, const struct resource *res)
+=======
+		struct badblocks *bb, const struct range *range)
+>>>>>>> upstream/android-13
 {
 	struct badrange_entry *bre;
 
@@ -230,6 +240,7 @@ static void badblocks_populate(struct badrange *badrange,
 		u64 bre_end = bre->start + bre->length - 1;
 
 		/* Discard intervals with no intersection */
+<<<<<<< HEAD
 		if (bre_end < res->start)
 			continue;
 		if (bre->start >  res->end)
@@ -245,12 +256,30 @@ static void badblocks_populate(struct badrange *badrange,
 				len = res->start + resource_size(res)
 					- bre->start;
 			__add_badblock_range(bb, start - res->start, len);
+=======
+		if (bre_end < range->start)
+			continue;
+		if (bre->start > range->end)
+			continue;
+		/* Deal with any overlap after start of the namespace */
+		if (bre->start >= range->start) {
+			u64 start = bre->start;
+			u64 len;
+
+			if (bre_end <= range->end)
+				len = bre->length;
+			else
+				len = range->start + range_len(range)
+					- bre->start;
+			__add_badblock_range(bb, start - range->start, len);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		/*
 		 * Deal with overlap for badrange starting before
 		 * the namespace.
 		 */
+<<<<<<< HEAD
 		if (bre->start < res->start) {
 			u64 len;
 
@@ -258,6 +287,15 @@ static void badblocks_populate(struct badrange *badrange,
 				len = bre->start + bre->length - res->start;
 			else
 				len = resource_size(res);
+=======
+		if (bre->start < range->start) {
+			u64 len;
+
+			if (bre_end < range->end)
+				len = bre->start + bre->length - range->start;
+			else
+				len = range_len(range);
+>>>>>>> upstream/android-13
 			__add_badblock_range(bb, 0, len);
 		}
 	}
@@ -275,7 +313,11 @@ static void badblocks_populate(struct badrange *badrange,
  * and add badblocks entries for all matching sub-ranges
  */
 void nvdimm_badblocks_populate(struct nd_region *nd_region,
+<<<<<<< HEAD
 		struct badblocks *bb, const struct resource *res)
+=======
+		struct badblocks *bb, const struct range *range)
+>>>>>>> upstream/android-13
 {
 	struct nvdimm_bus *nvdimm_bus;
 
@@ -287,7 +329,11 @@ void nvdimm_badblocks_populate(struct nd_region *nd_region,
 	nvdimm_bus = walk_to_nvdimm_bus(&nd_region->dev);
 
 	nvdimm_bus_lock(&nvdimm_bus->dev);
+<<<<<<< HEAD
 	badblocks_populate(&nvdimm_bus->badrange, bb, res);
+=======
+	badblocks_populate(&nvdimm_bus->badrange, bb, range);
+>>>>>>> upstream/android-13
 	nvdimm_bus_unlock(&nvdimm_bus->dev);
 }
 EXPORT_SYMBOL_GPL(nvdimm_badblocks_populate);

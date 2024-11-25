@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Nokia Corporation
  *
@@ -14,6 +15,12 @@
  * this program; see the file COPYING. If not, write to the Free Software
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007 Nokia Corporation
+ *
+>>>>>>> upstream/android-13
  * Test read and write speed of a MTD device.
  *
  * Author: Adrian Hunter <adrian.hunter@nokia.com>

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Enter and leave deep sleep state on MPC83xx
  *
  * Copyright (c) 2006-2008 Freescale Semiconductor, Inc.
  * Author: Scott Wood <scottwood@freescale.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/page.h>
@@ -551,3 +558,7 @@ mpc83xx_deep_resume:
 	mtdec	r0
 
 	rfi
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(mpc83xx_deep_resume)
+>>>>>>> upstream/android-13

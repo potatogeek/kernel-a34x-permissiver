@@ -4,6 +4,7 @@
  * All Rights Reserved.
  */
 #include "xfs.h"
+<<<<<<< HEAD
 #include <linux/stddef.h>
 #include <linux/errno.h>
 #include <linux/gfp.h>
@@ -37,6 +38,26 @@ static kmem_zone_t *xfs_buf_zone;
 #define xb_to_gfp(flags) \
 	((((flags) & XBF_READ_AHEAD) ? __GFP_NORETRY : GFP_NOFS) | __GFP_NOWARN)
 
+=======
+#include <linux/backing-dev.h>
+
+#include "xfs_shared.h"
+#include "xfs_format.h"
+#include "xfs_log_format.h"
+#include "xfs_trans_resv.h"
+#include "xfs_mount.h"
+#include "xfs_trace.h"
+#include "xfs_log.h"
+#include "xfs_log_recover.h"
+#include "xfs_trans.h"
+#include "xfs_buf_item.h"
+#include "xfs_errortag.h"
+#include "xfs_error.h"
+#include "xfs_ag.h"
+
+static kmem_zone_t *xfs_buf_zone;
+
+>>>>>>> upstream/android-13
 /*
  * Locking orders
  *
@@ -55,7 +76,11 @@ static kmem_zone_t *xfs_buf_zone;
  *	  pag_buf_lock
  *	    lru_lock
  *
+<<<<<<< HEAD
  * xfs_buftarg_wait_rele
+=======
+ * xfs_buftarg_drain_rele
+>>>>>>> upstream/android-13
  *	lru_lock
  *	  b_lock (trylock due to inversion)
  *
@@ -64,6 +89,18 @@ static kmem_zone_t *xfs_buf_zone;
  *	  b_lock (trylock due to inversion)
  */
 
+<<<<<<< HEAD
+=======
+static int __xfs_buf_submit(struct xfs_buf *bp, bool wait);
+
+static inline int
+xfs_buf_submit(
+	struct xfs_buf		*bp)
+{
+	return __xfs_buf_submit(bp, !(bp->b_flags & XBF_ASYNC));
+}
+
+>>>>>>> upstream/android-13
 static inline int
 xfs_buf_is_vmapped(
 	struct xfs_buf	*bp)
@@ -82,7 +119,11 @@ static inline int
 xfs_buf_vmap_len(
 	struct xfs_buf	*bp)
 {
+<<<<<<< HEAD
 	return (bp->b_page_count * PAGE_SIZE) - bp->b_offset;
+=======
+	return (bp->b_page_count * PAGE_SIZE);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -91,7 +132,11 @@ xfs_buf_vmap_len(
  * because the corresponding decrement is deferred to buffer release. Buffers
  * can undergo I/O multiple times in a hold-release cycle and per buffer I/O
  * tracking adds unnecessary overhead. This is used for sychronization purposes
+<<<<<<< HEAD
  * with unmount (see xfs_wait_buftarg()), so all we really need is a count of
+=======
+ * with unmount (see xfs_buftarg_drain()), so all we really need is a count of
+>>>>>>> upstream/android-13
  * in-flight buffers.
  *
  * Buffers that are never released (e.g., superblock, iclog buffers) must set
@@ -213,20 +258,34 @@ xfs_buf_free_maps(
 	}
 }
 
+<<<<<<< HEAD
 struct xfs_buf *
+=======
+static int
+>>>>>>> upstream/android-13
 _xfs_buf_alloc(
 	struct xfs_buftarg	*target,
 	struct xfs_buf_map	*map,
 	int			nmaps,
+<<<<<<< HEAD
 	xfs_buf_flags_t		flags)
+=======
+	xfs_buf_flags_t		flags,
+	struct xfs_buf		**bpp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf		*bp;
 	int			error;
 	int			i;
 
+<<<<<<< HEAD
 	bp = kmem_zone_zalloc(xfs_buf_zone, KM_NOFS);
 	if (unlikely(!bp))
 		return NULL;
+=======
+	*bpp = NULL;
+	bp = kmem_cache_zalloc(xfs_buf_zone, GFP_NOFS | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We don't want certain flags to appear in b_flags unless they are
@@ -243,6 +302,10 @@ _xfs_buf_alloc(
 	sema_init(&bp->b_sema, 0); /* held, no waiters */
 	spin_lock_init(&bp->b_lock);
 	bp->b_target = target;
+<<<<<<< HEAD
+=======
+	bp->b_mount = target->bt_mount;
+>>>>>>> upstream/android-13
 	bp->b_flags = flags;
 
 	/*
@@ -252,22 +315,34 @@ _xfs_buf_alloc(
 	 */
 	error = xfs_buf_get_maps(bp, nmaps);
 	if (error)  {
+<<<<<<< HEAD
 		kmem_zone_free(xfs_buf_zone, bp);
 		return NULL;
 	}
 
 	bp->b_bn = map[0].bm_bn;
+=======
+		kmem_cache_free(xfs_buf_zone, bp);
+		return error;
+	}
+
+	bp->b_rhash_key = map[0].bm_bn;
+>>>>>>> upstream/android-13
 	bp->b_length = 0;
 	for (i = 0; i < nmaps; i++) {
 		bp->b_maps[i].bm_bn = map[i].bm_bn;
 		bp->b_maps[i].bm_len = map[i].bm_len;
 		bp->b_length += map[i].bm_len;
 	}
+<<<<<<< HEAD
 	bp->b_io_length = bp->b_length;
+=======
+>>>>>>> upstream/android-13
 
 	atomic_set(&bp->b_pin_count, 0);
 	init_waitqueue_head(&bp->b_waiters);
 
+<<<<<<< HEAD
 	XFS_STATS_INC(target->bt_mount, xb_create);
 	trace_xfs_buf_init(bp, _RET_IP_);
 
@@ -322,11 +397,48 @@ _xfs_buf_free_pages(
 void
 xfs_buf_free(
 	xfs_buf_t		*bp)
+=======
+	XFS_STATS_INC(bp->b_mount, xb_create);
+	trace_xfs_buf_init(bp, _RET_IP_);
+
+	*bpp = bp;
+	return 0;
+}
+
+static void
+xfs_buf_free_pages(
+	struct xfs_buf	*bp)
+{
+	uint		i;
+
+	ASSERT(bp->b_flags & _XBF_PAGES);
+
+	if (xfs_buf_is_vmapped(bp))
+		vm_unmap_ram(bp->b_addr, bp->b_page_count);
+
+	for (i = 0; i < bp->b_page_count; i++) {
+		if (bp->b_pages[i])
+			__free_page(bp->b_pages[i]);
+	}
+	if (current->reclaim_state)
+		current->reclaim_state->reclaimed_slab += bp->b_page_count;
+
+	if (bp->b_pages != bp->b_page_array)
+		kmem_free(bp->b_pages);
+	bp->b_pages = NULL;
+	bp->b_flags &= ~_XBF_PAGES;
+}
+
+static void
+xfs_buf_free(
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	trace_xfs_buf_free(bp, _RET_IP_);
 
 	ASSERT(list_empty(&bp->b_lru));
 
+<<<<<<< HEAD
 	if (bp->b_flags & _XBF_PAGES) {
 		uint		i;
 
@@ -444,6 +556,104 @@ out_free_pages:
 		__free_page(bp->b_pages[i]);
 	bp->b_flags &= ~_XBF_PAGES;
 	return error;
+=======
+	if (bp->b_flags & _XBF_PAGES)
+		xfs_buf_free_pages(bp);
+	else if (bp->b_flags & _XBF_KMEM)
+		kmem_free(bp->b_addr);
+
+	xfs_buf_free_maps(bp);
+	kmem_cache_free(xfs_buf_zone, bp);
+}
+
+static int
+xfs_buf_alloc_kmem(
+	struct xfs_buf	*bp,
+	xfs_buf_flags_t	flags)
+{
+	xfs_km_flags_t	kmflag_mask = KM_NOFS;
+	size_t		size = BBTOB(bp->b_length);
+
+	/* Assure zeroed buffer for non-read cases. */
+	if (!(flags & XBF_READ))
+		kmflag_mask |= KM_ZERO;
+
+	bp->b_addr = kmem_alloc(size, kmflag_mask);
+	if (!bp->b_addr)
+		return -ENOMEM;
+
+	if (((unsigned long)(bp->b_addr + size - 1) & PAGE_MASK) !=
+	    ((unsigned long)bp->b_addr & PAGE_MASK)) {
+		/* b_addr spans two pages - use alloc_page instead */
+		kmem_free(bp->b_addr);
+		bp->b_addr = NULL;
+		return -ENOMEM;
+	}
+	bp->b_offset = offset_in_page(bp->b_addr);
+	bp->b_pages = bp->b_page_array;
+	bp->b_pages[0] = kmem_to_page(bp->b_addr);
+	bp->b_page_count = 1;
+	bp->b_flags |= _XBF_KMEM;
+	return 0;
+}
+
+static int
+xfs_buf_alloc_pages(
+	struct xfs_buf	*bp,
+	xfs_buf_flags_t	flags)
+{
+	gfp_t		gfp_mask = __GFP_NOWARN;
+	long		filled = 0;
+
+	if (flags & XBF_READ_AHEAD)
+		gfp_mask |= __GFP_NORETRY;
+	else
+		gfp_mask |= GFP_NOFS;
+
+	/* Make sure that we have a page list */
+	bp->b_page_count = DIV_ROUND_UP(BBTOB(bp->b_length), PAGE_SIZE);
+	if (bp->b_page_count <= XB_PAGES) {
+		bp->b_pages = bp->b_page_array;
+	} else {
+		bp->b_pages = kzalloc(sizeof(struct page *) * bp->b_page_count,
+					gfp_mask);
+		if (!bp->b_pages)
+			return -ENOMEM;
+	}
+	bp->b_flags |= _XBF_PAGES;
+
+	/* Assure zeroed buffer for non-read cases. */
+	if (!(flags & XBF_READ))
+		gfp_mask |= __GFP_ZERO;
+
+	/*
+	 * Bulk filling of pages can take multiple calls. Not filling the entire
+	 * array is not an allocation failure, so don't back off if we get at
+	 * least one extra page.
+	 */
+	for (;;) {
+		long	last = filled;
+
+		filled = alloc_pages_bulk_array(gfp_mask, bp->b_page_count,
+						bp->b_pages);
+		if (filled == bp->b_page_count) {
+			XFS_STATS_INC(bp->b_mount, xb_page_found);
+			break;
+		}
+
+		if (filled != last)
+			continue;
+
+		if (flags & XBF_READ_AHEAD) {
+			xfs_buf_free_pages(bp);
+			return -ENOMEM;
+		}
+
+		XFS_STATS_INC(bp->b_mount, xb_page_retries);
+		congestion_wait(BLK_RW_ASYNC, HZ / 50);
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -451,13 +661,21 @@ out_free_pages:
  */
 STATIC int
 _xfs_buf_map_pages(
+<<<<<<< HEAD
 	xfs_buf_t		*bp,
+=======
+	struct xfs_buf		*bp,
+>>>>>>> upstream/android-13
 	uint			flags)
 {
 	ASSERT(bp->b_flags & _XBF_PAGES);
 	if (bp->b_page_count == 1) {
 		/* A single page buffer is always mappable */
+<<<<<<< HEAD
 		bp->b_addr = page_address(bp->b_pages[0]) + bp->b_offset;
+=======
+		bp->b_addr = page_address(bp->b_pages[0]);
+>>>>>>> upstream/android-13
 	} else if (flags & XBF_UNMAPPED) {
 		bp->b_addr = NULL;
 	} else {
@@ -465,7 +683,11 @@ _xfs_buf_map_pages(
 		unsigned nofs_flag;
 
 		/*
+<<<<<<< HEAD
 		 * vm_map_ram() will allocate auxillary structures (e.g.
+=======
+		 * vm_map_ram() will allocate auxiliary structures (e.g.
+>>>>>>> upstream/android-13
 		 * pagetables) with GFP_KERNEL, yet we are likely to be under
 		 * GFP_NOFS context here. Hence we need to tell memory reclaim
 		 * that we are in such a context via PF_MEMALLOC_NOFS to prevent
@@ -475,7 +697,11 @@ _xfs_buf_map_pages(
 		nofs_flag = memalloc_nofs_save();
 		do {
 			bp->b_addr = vm_map_ram(bp->b_pages, bp->b_page_count,
+<<<<<<< HEAD
 						-1, PAGE_KERNEL);
+=======
+						-1);
+>>>>>>> upstream/android-13
 			if (bp->b_addr)
 				break;
 			vm_unmap_aliases();
@@ -484,7 +710,10 @@ _xfs_buf_map_pages(
 
 		if (!bp->b_addr)
 			return -ENOMEM;
+<<<<<<< HEAD
 		bp->b_addr += bp->b_offset;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -507,7 +736,11 @@ _xfs_buf_obj_cmp(
 	 */
 	BUILD_BUG_ON(offsetof(struct xfs_buf_map, bm_bn) != 0);
 
+<<<<<<< HEAD
 	if (bp->b_bn != map->bm_bn)
+=======
+	if (bp->b_rhash_key != map->bm_bn)
+>>>>>>> upstream/android-13
 		return 1;
 
 	if (unlikely(bp->b_length != map->bm_len)) {
@@ -529,7 +762,11 @@ static const struct rhashtable_params xfs_buf_hash_params = {
 	.min_size		= 32,	/* empty AGs have minimal footprint */
 	.nelem_hint		= 16,
 	.key_len		= sizeof(xfs_daddr_t),
+<<<<<<< HEAD
 	.key_offset		= offsetof(struct xfs_buf, b_bn),
+=======
+	.key_offset		= offsetof(struct xfs_buf, b_rhash_key),
+>>>>>>> upstream/android-13
 	.head_offset		= offsetof(struct xfs_buf, b_rhash_head),
 	.automatic_shrinking	= true,
 	.obj_cmpfn		= _xfs_buf_obj_cmp,
@@ -578,7 +815,11 @@ xfs_buf_find(
 	struct xfs_buf		**found_bp)
 {
 	struct xfs_perag	*pag;
+<<<<<<< HEAD
 	xfs_buf_t		*bp;
+=======
+	struct xfs_buf		*bp;
+>>>>>>> upstream/android-13
 	struct xfs_buf_map	cmap = { .bm_bn = map[0].bm_bn };
 	xfs_daddr_t		eofs;
 	int			i;
@@ -653,7 +894,10 @@ found:
 	 */
 	if (bp->b_flags & XBF_STALE) {
 		ASSERT((bp->b_flags & _XBF_DELWRI_Q) == 0);
+<<<<<<< HEAD
 		ASSERT(bp->b_iodone == NULL);
+=======
+>>>>>>> upstream/android-13
 		bp->b_flags &= _XBF_KMEM | _XBF_PAGES;
 		bp->b_ops = NULL;
 	}
@@ -686,11 +930,16 @@ xfs_buf_incore(
  * cache hits, as metadata intensive workloads will see 3 orders of magnitude
  * more hits than misses.
  */
+<<<<<<< HEAD
 struct xfs_buf *
+=======
+int
+>>>>>>> upstream/android-13
 xfs_buf_get_map(
 	struct xfs_buftarg	*target,
 	struct xfs_buf_map	*map,
 	int			nmaps,
+<<<<<<< HEAD
 	xfs_buf_flags_t		flags)
 {
 	struct xfs_buf		*bp;
@@ -734,6 +983,42 @@ xfs_buf_get_map(
 		xfs_buf_free(new_bp);
 		return NULL;
 	}
+=======
+	xfs_buf_flags_t		flags,
+	struct xfs_buf		**bpp)
+{
+	struct xfs_buf		*bp;
+	struct xfs_buf		*new_bp;
+	int			error;
+
+	*bpp = NULL;
+	error = xfs_buf_find(target, map, nmaps, flags, NULL, &bp);
+	if (!error)
+		goto found;
+	if (error != -ENOENT)
+		return error;
+
+	error = _xfs_buf_alloc(target, map, nmaps, flags, &new_bp);
+	if (error)
+		return error;
+
+	/*
+	 * For buffers that fit entirely within a single page, first attempt to
+	 * allocate the memory from the heap to minimise memory usage. If we
+	 * can't get heap memory for these small buffers, we fall back to using
+	 * the page allocator.
+	 */
+	if (BBTOB(new_bp->b_length) >= PAGE_SIZE ||
+	    xfs_buf_alloc_kmem(new_bp, flags) < 0) {
+		error = xfs_buf_alloc_pages(new_bp, flags);
+		if (error)
+			goto out_free_buf;
+	}
+
+	error = xfs_buf_find(target, map, nmaps, flags, new_bp, &bp);
+	if (error)
+		goto out_free_buf;
+>>>>>>> upstream/android-13
 
 	if (bp != new_bp)
 		xfs_buf_free(new_bp);
@@ -742,10 +1027,18 @@ found:
 	if (!bp->b_addr) {
 		error = _xfs_buf_map_pages(bp, flags);
 		if (unlikely(error)) {
+<<<<<<< HEAD
 			xfs_warn(target->bt_mount,
 				"%s: failed to map pagesn", __func__);
 			xfs_buf_relse(bp);
 			return NULL;
+=======
+			xfs_warn_ratelimited(target->bt_mount,
+				"%s: failed to map %u pages", __func__,
+				bp->b_page_count);
+			xfs_buf_relse(bp);
+			return error;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -758,29 +1051,86 @@ found:
 
 	XFS_STATS_INC(target->bt_mount, xb_get);
 	trace_xfs_buf_get(bp, flags, _RET_IP_);
+<<<<<<< HEAD
 	return bp;
 }
 
 STATIC int
 _xfs_buf_read(
 	xfs_buf_t		*bp,
+=======
+	*bpp = bp;
+	return 0;
+out_free_buf:
+	xfs_buf_free(new_bp);
+	return error;
+}
+
+int
+_xfs_buf_read(
+	struct xfs_buf		*bp,
+>>>>>>> upstream/android-13
 	xfs_buf_flags_t		flags)
 {
 	ASSERT(!(flags & XBF_WRITE));
 	ASSERT(bp->b_maps[0].bm_bn != XFS_BUF_DADDR_NULL);
 
+<<<<<<< HEAD
 	bp->b_flags &= ~(XBF_WRITE | XBF_ASYNC | XBF_READ_AHEAD);
+=======
+	bp->b_flags &= ~(XBF_WRITE | XBF_ASYNC | XBF_READ_AHEAD | XBF_DONE);
+>>>>>>> upstream/android-13
 	bp->b_flags |= flags & (XBF_READ | XBF_ASYNC | XBF_READ_AHEAD);
 
 	return xfs_buf_submit(bp);
 }
 
+<<<<<<< HEAD
 xfs_buf_t *
+=======
+/*
+ * Reverify a buffer found in cache without an attached ->b_ops.
+ *
+ * If the caller passed an ops structure and the buffer doesn't have ops
+ * assigned, set the ops and use it to verify the contents. If verification
+ * fails, clear XBF_DONE. We assume the buffer has no recorded errors and is
+ * already in XBF_DONE state on entry.
+ *
+ * Under normal operations, every in-core buffer is verified on read I/O
+ * completion. There are two scenarios that can lead to in-core buffers without
+ * an assigned ->b_ops. The first is during log recovery of buffers on a V4
+ * filesystem, though these buffers are purged at the end of recovery. The
+ * other is online repair, which intentionally reads with a NULL buffer ops to
+ * run several verifiers across an in-core buffer in order to establish buffer
+ * type.  If repair can't establish that, the buffer will be left in memory
+ * with NULL buffer ops.
+ */
+int
+xfs_buf_reverify(
+	struct xfs_buf		*bp,
+	const struct xfs_buf_ops *ops)
+{
+	ASSERT(bp->b_flags & XBF_DONE);
+	ASSERT(bp->b_error == 0);
+
+	if (!ops || bp->b_ops)
+		return 0;
+
+	bp->b_ops = ops;
+	bp->b_ops->verify_read(bp);
+	if (bp->b_error)
+		bp->b_flags &= ~XBF_DONE;
+	return bp->b_error;
+}
+
+int
+>>>>>>> upstream/android-13
 xfs_buf_read_map(
 	struct xfs_buftarg	*target,
 	struct xfs_buf_map	*map,
 	int			nmaps,
 	xfs_buf_flags_t		flags,
+<<<<<<< HEAD
 	const struct xfs_buf_ops *ops)
 {
 	struct xfs_buf		*bp;
@@ -809,6 +1159,73 @@ xfs_buf_read_map(
 	}
 
 	return bp;
+=======
+	struct xfs_buf		**bpp,
+	const struct xfs_buf_ops *ops,
+	xfs_failaddr_t		fa)
+{
+	struct xfs_buf		*bp;
+	int			error;
+
+	flags |= XBF_READ;
+	*bpp = NULL;
+
+	error = xfs_buf_get_map(target, map, nmaps, flags, &bp);
+	if (error)
+		return error;
+
+	trace_xfs_buf_read(bp, flags, _RET_IP_);
+
+	if (!(bp->b_flags & XBF_DONE)) {
+		/* Initiate the buffer read and wait. */
+		XFS_STATS_INC(target->bt_mount, xb_get_read);
+		bp->b_ops = ops;
+		error = _xfs_buf_read(bp, flags);
+
+		/* Readahead iodone already dropped the buffer, so exit. */
+		if (flags & XBF_ASYNC)
+			return 0;
+	} else {
+		/* Buffer already read; all we need to do is check it. */
+		error = xfs_buf_reverify(bp, ops);
+
+		/* Readahead already finished; drop the buffer and exit. */
+		if (flags & XBF_ASYNC) {
+			xfs_buf_relse(bp);
+			return 0;
+		}
+
+		/* We do not want read in the flags */
+		bp->b_flags &= ~XBF_READ;
+		ASSERT(bp->b_ops != NULL || ops == NULL);
+	}
+
+	/*
+	 * If we've had a read error, then the contents of the buffer are
+	 * invalid and should not be used. To ensure that a followup read tries
+	 * to pull the buffer from disk again, we clear the XBF_DONE flag and
+	 * mark the buffer stale. This ensures that anyone who has a current
+	 * reference to the buffer will interpret it's contents correctly and
+	 * future cache lookups will also treat it as an empty, uninitialised
+	 * buffer.
+	 */
+	if (error) {
+		if (!xfs_is_shutdown(target->bt_mount))
+			xfs_buf_ioerror_alert(bp, fa);
+
+		bp->b_flags &= ~XBF_DONE;
+		xfs_buf_stale(bp);
+		xfs_buf_relse(bp);
+
+		/* bad CRC means corrupted metadata */
+		if (error == -EFSBADCRC)
+			error = -EFSCORRUPTED;
+		return error;
+	}
+
+	*bpp = bp;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -822,16 +1239,33 @@ xfs_buf_readahead_map(
 	int			nmaps,
 	const struct xfs_buf_ops *ops)
 {
+<<<<<<< HEAD
 	if (bdi_read_congested(target->bt_bdev->bd_bdi))
 		return;
 
 	xfs_buf_read_map(target, map, nmaps,
 		     XBF_TRYLOCK|XBF_ASYNC|XBF_READ_AHEAD, ops);
+=======
+	struct xfs_buf		*bp;
+
+	if (bdi_read_congested(target->bt_bdev->bd_disk->bdi))
+		return;
+
+	xfs_buf_read_map(target, map, nmaps,
+		     XBF_TRYLOCK | XBF_ASYNC | XBF_READ_AHEAD, &bp, ops,
+		     __this_address);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Read an uncached buffer from disk. Allocates and returns a locked
+<<<<<<< HEAD
  * buffer containing the disk contents or nothing.
+=======
+ * buffer containing the disk contents or nothing. Uncached buffers always have
+ * a cache index of XFS_BUF_DADDR_NULL so we can easily determine if the buffer
+ * is cached or uncached during fault diagnosis.
+>>>>>>> upstream/android-13
  */
 int
 xfs_buf_read_uncached(
@@ -843,6 +1277,7 @@ xfs_buf_read_uncached(
 	const struct xfs_buf_ops *ops)
 {
 	struct xfs_buf		*bp;
+<<<<<<< HEAD
 
 	*bpp = NULL;
 
@@ -853,13 +1288,30 @@ xfs_buf_read_uncached(
 	/* set up the buffer for a read IO */
 	ASSERT(bp->b_map_count == 1);
 	bp->b_bn = XFS_BUF_DADDR_NULL;  /* always null for uncached buffers */
+=======
+	int			error;
+
+	*bpp = NULL;
+
+	error = xfs_buf_get_uncached(target, numblks, flags, &bp);
+	if (error)
+		return error;
+
+	/* set up the buffer for a read IO */
+	ASSERT(bp->b_map_count == 1);
+	bp->b_rhash_key = XFS_BUF_DADDR_NULL;
+>>>>>>> upstream/android-13
 	bp->b_maps[0].bm_bn = daddr;
 	bp->b_flags |= XBF_READ;
 	bp->b_ops = ops;
 
 	xfs_buf_submit(bp);
 	if (bp->b_error) {
+<<<<<<< HEAD
 		int	error = bp->b_error;
+=======
+		error = bp->b_error;
+>>>>>>> upstream/android-13
 		xfs_buf_relse(bp);
 		return error;
 	}
@@ -868,6 +1320,7 @@ xfs_buf_read_uncached(
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Return a buffer allocated as an empty buffer and associated to external
  * memory via xfs_buf_associate_memory() back to it's empty state.
@@ -973,10 +1426,35 @@ xfs_buf_get_uncached(
 	}
 	bp->b_flags |= _XBF_PAGES;
 
+=======
+int
+xfs_buf_get_uncached(
+	struct xfs_buftarg	*target,
+	size_t			numblks,
+	int			flags,
+	struct xfs_buf		**bpp)
+{
+	int			error;
+	struct xfs_buf		*bp;
+	DEFINE_SINGLE_BUF_MAP(map, XFS_BUF_DADDR_NULL, numblks);
+
+	*bpp = NULL;
+
+	/* flags might contain irrelevant bits, pass only what we care about */
+	error = _xfs_buf_alloc(target, &map, 1, flags & XBF_NO_IOACCT, &bp);
+	if (error)
+		return error;
+
+	error = xfs_buf_alloc_pages(bp, flags);
+	if (error)
+		goto fail_free_buf;
+
+>>>>>>> upstream/android-13
 	error = _xfs_buf_map_pages(bp, 0);
 	if (unlikely(error)) {
 		xfs_warn(target->bt_mount,
 			"%s: failed to map pages", __func__);
+<<<<<<< HEAD
 		goto fail_free_mem;
 	}
 
@@ -992,6 +1470,18 @@ xfs_buf_get_uncached(
 	kmem_zone_free(xfs_buf_zone, bp);
  fail:
 	return NULL;
+=======
+		goto fail_free_buf;
+	}
+
+	trace_xfs_buf_get_uncached(bp, _RET_IP_);
+	*bpp = bp;
+	return 0;
+
+fail_free_buf:
+	xfs_buf_free(bp);
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1001,7 +1491,11 @@ xfs_buf_get_uncached(
  */
 void
 xfs_buf_hold(
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	trace_xfs_buf_hold(bp, _RET_IP_);
 	atomic_inc(&bp->b_hold);
@@ -1013,7 +1507,11 @@ xfs_buf_hold(
  */
 void
 xfs_buf_rele(
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	struct xfs_perag	*pag = bp->b_pag;
 	bool			release;
@@ -1139,7 +1637,11 @@ xfs_buf_lock(
 	trace_xfs_buf_lock(bp, _RET_IP_);
 
 	if (atomic_read(&bp->b_pin_count) && (bp->b_flags & XBF_STALE))
+<<<<<<< HEAD
 		xfs_log_force(bp->b_target->bt_mount, 0);
+=======
+		xfs_log_force(bp->b_mount, 0);
+>>>>>>> upstream/android-13
 	down(&bp->b_sema);
 
 	trace_xfs_buf_lock_done(bp, _RET_IP_);
@@ -1157,7 +1659,11 @@ xfs_buf_unlock(
 
 STATIC void
 xfs_buf_wait_unpin(
+<<<<<<< HEAD
 	xfs_buf_t		*bp)
+=======
+	struct xfs_buf		*bp)
+>>>>>>> upstream/android-13
 {
 	DECLARE_WAITQUEUE	(wait, current);
 
@@ -1175,6 +1681,7 @@ xfs_buf_wait_unpin(
 	set_current_state(TASK_RUNNING);
 }
 
+<<<<<<< HEAD
 /*
  *	Buffer Utility Routines
  */
@@ -1189,6 +1696,147 @@ xfs_buf_ioend(
 
 	bp->b_flags &= ~(XBF_READ | XBF_WRITE | XBF_READ_AHEAD);
 
+=======
+static void
+xfs_buf_ioerror_alert_ratelimited(
+	struct xfs_buf		*bp)
+{
+	static unsigned long	lasttime;
+	static struct xfs_buftarg *lasttarg;
+
+	if (bp->b_target != lasttarg ||
+	    time_after(jiffies, (lasttime + 5*HZ))) {
+		lasttime = jiffies;
+		xfs_buf_ioerror_alert(bp, __this_address);
+	}
+	lasttarg = bp->b_target;
+}
+
+/*
+ * Account for this latest trip around the retry handler, and decide if
+ * we've failed enough times to constitute a permanent failure.
+ */
+static bool
+xfs_buf_ioerror_permanent(
+	struct xfs_buf		*bp,
+	struct xfs_error_cfg	*cfg)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+
+	if (cfg->max_retries != XFS_ERR_RETRY_FOREVER &&
+	    ++bp->b_retries > cfg->max_retries)
+		return true;
+	if (cfg->retry_timeout != XFS_ERR_RETRY_FOREVER &&
+	    time_after(jiffies, cfg->retry_timeout + bp->b_first_retry_time))
+		return true;
+
+	/* At unmount we may treat errors differently */
+	if (xfs_is_unmounting(mp) && mp->m_fail_unmount)
+		return true;
+
+	return false;
+}
+
+/*
+ * On a sync write or shutdown we just want to stale the buffer and let the
+ * caller handle the error in bp->b_error appropriately.
+ *
+ * If the write was asynchronous then no one will be looking for the error.  If
+ * this is the first failure of this type, clear the error state and write the
+ * buffer out again. This means we always retry an async write failure at least
+ * once, but we also need to set the buffer up to behave correctly now for
+ * repeated failures.
+ *
+ * If we get repeated async write failures, then we take action according to the
+ * error configuration we have been set up to use.
+ *
+ * Returns true if this function took care of error handling and the caller must
+ * not touch the buffer again.  Return false if the caller should proceed with
+ * normal I/O completion handling.
+ */
+static bool
+xfs_buf_ioend_handle_error(
+	struct xfs_buf		*bp)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+	struct xfs_error_cfg	*cfg;
+
+	/*
+	 * If we've already decided to shutdown the filesystem because of I/O
+	 * errors, there's no point in giving this a retry.
+	 */
+	if (xfs_is_shutdown(mp))
+		goto out_stale;
+
+	xfs_buf_ioerror_alert_ratelimited(bp);
+
+	/*
+	 * We're not going to bother about retrying this during recovery.
+	 * One strike!
+	 */
+	if (bp->b_flags & _XBF_LOGRECOVERY) {
+		xfs_force_shutdown(mp, SHUTDOWN_META_IO_ERROR);
+		return false;
+	}
+
+	/*
+	 * Synchronous writes will have callers process the error.
+	 */
+	if (!(bp->b_flags & XBF_ASYNC))
+		goto out_stale;
+
+	trace_xfs_buf_iodone_async(bp, _RET_IP_);
+
+	cfg = xfs_error_get_cfg(mp, XFS_ERR_METADATA, bp->b_error);
+	if (bp->b_last_error != bp->b_error ||
+	    !(bp->b_flags & (XBF_STALE | XBF_WRITE_FAIL))) {
+		bp->b_last_error = bp->b_error;
+		if (cfg->retry_timeout != XFS_ERR_RETRY_FOREVER &&
+		    !bp->b_first_retry_time)
+			bp->b_first_retry_time = jiffies;
+		goto resubmit;
+	}
+
+	/*
+	 * Permanent error - we need to trigger a shutdown if we haven't already
+	 * to indicate that inconsistency will result from this action.
+	 */
+	if (xfs_buf_ioerror_permanent(bp, cfg)) {
+		xfs_force_shutdown(mp, SHUTDOWN_META_IO_ERROR);
+		goto out_stale;
+	}
+
+	/* Still considered a transient error. Caller will schedule retries. */
+	if (bp->b_flags & _XBF_INODES)
+		xfs_buf_inode_io_fail(bp);
+	else if (bp->b_flags & _XBF_DQUOTS)
+		xfs_buf_dquot_io_fail(bp);
+	else
+		ASSERT(list_empty(&bp->b_li_list));
+	xfs_buf_ioerror(bp, 0);
+	xfs_buf_relse(bp);
+	return true;
+
+resubmit:
+	xfs_buf_ioerror(bp, 0);
+	bp->b_flags |= (XBF_DONE | XBF_WRITE_FAIL);
+	xfs_buf_submit(bp);
+	return true;
+out_stale:
+	xfs_buf_stale(bp);
+	bp->b_flags |= XBF_DONE;
+	bp->b_flags &= ~XBF_WRITE;
+	trace_xfs_buf_error_relse(bp, _RET_IP_);
+	return false;
+}
+
+static void
+xfs_buf_ioend(
+	struct xfs_buf	*bp)
+{
+	trace_xfs_buf_iodone(bp, _RET_IP_);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Pull in IO completion errors now. We are guaranteed to be running
 	 * single threaded, so we don't need the lock to read b_io_error.
@@ -1196,6 +1844,7 @@ xfs_buf_ioend(
 	if (!bp->b_error && bp->b_io_error)
 		xfs_buf_ioerror(bp, bp->b_io_error);
 
+<<<<<<< HEAD
 	/* Only validate buffers that were read without errors */
 	if (read && !bp->b_error && bp->b_ops) {
 		ASSERT(!bp->b_iodone);
@@ -1210,6 +1859,46 @@ xfs_buf_ioend(
 	if (bp->b_iodone)
 		(*(bp->b_iodone))(bp);
 	else if (bp->b_flags & XBF_ASYNC)
+=======
+	if (bp->b_flags & XBF_READ) {
+		if (!bp->b_error && bp->b_ops)
+			bp->b_ops->verify_read(bp);
+		if (!bp->b_error)
+			bp->b_flags |= XBF_DONE;
+	} else {
+		if (!bp->b_error) {
+			bp->b_flags &= ~XBF_WRITE_FAIL;
+			bp->b_flags |= XBF_DONE;
+		}
+
+		if (unlikely(bp->b_error) && xfs_buf_ioend_handle_error(bp))
+			return;
+
+		/* clear the retry state */
+		bp->b_last_error = 0;
+		bp->b_retries = 0;
+		bp->b_first_retry_time = 0;
+
+		/*
+		 * Note that for things like remote attribute buffers, there may
+		 * not be a buffer log item here, so processing the buffer log
+		 * item must remain optional.
+		 */
+		if (bp->b_log_item)
+			xfs_buf_item_done(bp);
+
+		if (bp->b_flags & _XBF_INODES)
+			xfs_buf_inode_iodone(bp);
+		else if (bp->b_flags & _XBF_DQUOTS)
+			xfs_buf_dquot_iodone(bp);
+
+	}
+
+	bp->b_flags &= ~(XBF_READ | XBF_WRITE | XBF_READ_AHEAD |
+			 _XBF_LOGRECOVERY);
+
+	if (bp->b_flags & XBF_ASYNC)
+>>>>>>> upstream/android-13
 		xfs_buf_relse(bp);
 	else
 		complete(&bp->b_iowait);
@@ -1220,7 +1909,11 @@ xfs_buf_ioend_work(
 	struct work_struct	*work)
 {
 	struct xfs_buf		*bp =
+<<<<<<< HEAD
 		container_of(work, xfs_buf_t, b_ioend_work);
+=======
+		container_of(work, struct xfs_buf, b_ioend_work);
+>>>>>>> upstream/android-13
 
 	xfs_buf_ioend(bp);
 }
@@ -1230,12 +1923,20 @@ xfs_buf_ioend_async(
 	struct xfs_buf	*bp)
 {
 	INIT_WORK(&bp->b_ioend_work, xfs_buf_ioend_work);
+<<<<<<< HEAD
 	queue_work(bp->b_ioend_wq, &bp->b_ioend_work);
+=======
+	queue_work(bp->b_mount->m_buf_workqueue, &bp->b_ioend_work);
+>>>>>>> upstream/android-13
 }
 
 void
 __xfs_buf_ioerror(
+<<<<<<< HEAD
 	xfs_buf_t		*bp,
+=======
+	struct xfs_buf		*bp,
+>>>>>>> upstream/android-13
 	int			error,
 	xfs_failaddr_t		failaddr)
 {
@@ -1247,12 +1948,37 @@ __xfs_buf_ioerror(
 void
 xfs_buf_ioerror_alert(
 	struct xfs_buf		*bp,
+<<<<<<< HEAD
 	const char		*func)
 {
 	xfs_alert(bp->b_target->bt_mount,
 "metadata I/O error in \"%s\" at daddr 0x%llx len %d error %d",
 			func, (uint64_t)XFS_BUF_ADDR(bp), bp->b_length,
 			-bp->b_error);
+=======
+	xfs_failaddr_t		func)
+{
+	xfs_buf_alert_ratelimited(bp, "XFS: metadata IO error",
+		"metadata I/O error in \"%pS\" at daddr 0x%llx len %d error %d",
+				  func, (uint64_t)xfs_buf_daddr(bp),
+				  bp->b_length, -bp->b_error);
+}
+
+/*
+ * To simulate an I/O failure, the buffer must be locked and held with at least
+ * three references. The LRU reference is dropped by the stale call. The buf
+ * item reference is dropped via ioend processing. The third reference is owned
+ * by the caller and is dropped on I/O completion if the buffer is XBF_ASYNC.
+ */
+void
+xfs_buf_ioend_fail(
+	struct xfs_buf	*bp)
+{
+	bp->b_flags &= ~XBF_DONE;
+	xfs_buf_stale(bp);
+	xfs_buf_ioerror(bp, -EIO);
+	xfs_buf_ioend(bp);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -1268,10 +1994,15 @@ xfs_bwrite(
 			 XBF_DONE);
 
 	error = xfs_buf_submit(bp);
+<<<<<<< HEAD
 	if (error) {
 		xfs_force_shutdown(bp->b_target->bt_mount,
 				   SHUTDOWN_META_IO_ERROR);
 	}
+=======
+	if (error)
+		xfs_force_shutdown(bp->b_mount, SHUTDOWN_META_IO_ERROR);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1281,6 +2012,14 @@ xfs_buf_bio_end_io(
 {
 	struct xfs_buf		*bp = (struct xfs_buf *)bio->bi_private;
 
+<<<<<<< HEAD
+=======
+	if (!bio->bi_status &&
+	    (bp->b_flags & XBF_WRITE) && (bp->b_flags & XBF_ASYNC) &&
+	    XFS_TEST_ERROR(false, bp->b_mount, XFS_ERRTAG_BUF_IOERROR))
+		bio->bi_status = BLK_STS_IOERR;
+
+>>>>>>> upstream/android-13
 	/*
 	 * don't overwrite existing errors - otherwise we can lose errors on
 	 * buffers that require multiple bios to complete.
@@ -1305,11 +2044,18 @@ xfs_buf_ioapply_map(
 	int		map,
 	int		*buf_offset,
 	int		*count,
+<<<<<<< HEAD
 	int		op,
 	int		op_flags)
 {
 	int		page_index;
 	int		total_nr_pages = bp->b_page_count;
+=======
+	int		op)
+{
+	int		page_index;
+	unsigned int	total_nr_pages = bp->b_page_count;
+>>>>>>> upstream/android-13
 	int		nr_pages;
 	struct bio	*bio;
 	sector_t	sector =  bp->b_maps[map].bm_bn;
@@ -1334,14 +2080,22 @@ xfs_buf_ioapply_map(
 
 next_chunk:
 	atomic_inc(&bp->b_io_remaining);
+<<<<<<< HEAD
 	nr_pages = min(total_nr_pages, BIO_MAX_PAGES);
+=======
+	nr_pages = bio_max_segs(total_nr_pages);
+>>>>>>> upstream/android-13
 
 	bio = bio_alloc(GFP_NOIO, nr_pages);
 	bio_set_dev(bio, bp->b_target->bt_bdev);
 	bio->bi_iter.bi_sector = sector;
 	bio->bi_end_io = xfs_buf_bio_end_io;
 	bio->bi_private = bp;
+<<<<<<< HEAD
 	bio_set_op_attrs(bio, op, op_flags);
+=======
+	bio->bi_opf = op;
+>>>>>>> upstream/android-13
 
 	for (; size && nr_pages; nr_pages--, page_index++) {
 		int	rbytes, nbytes = PAGE_SIZE - offset;
@@ -1386,7 +2140,10 @@ _xfs_buf_ioapply(
 {
 	struct blk_plug	plug;
 	int		op;
+<<<<<<< HEAD
 	int		op_flags = 0;
+=======
+>>>>>>> upstream/android-13
 	int		offset;
 	int		size;
 	int		i;
@@ -1397,6 +2154,7 @@ _xfs_buf_ioapply(
 	 */
 	bp->b_error = 0;
 
+<<<<<<< HEAD
 	/*
 	 * Initialize the I/O completion workqueue if we haven't yet or the
 	 * submitter has not opted to specify a custom one.
@@ -1412,6 +2170,10 @@ _xfs_buf_ioapply(
 			op_flags |= REQ_FUA;
 		if (bp->b_flags & XBF_FLUSH)
 			op_flags |= REQ_PREFLUSH;
+=======
+	if (bp->b_flags & XBF_WRITE) {
+		op = REQ_OP_WRITE;
+>>>>>>> upstream/android-13
 
 		/*
 		 * Run the write verifier callback function if it exists. If
@@ -1421,26 +2183,44 @@ _xfs_buf_ioapply(
 		if (bp->b_ops) {
 			bp->b_ops->verify_write(bp);
 			if (bp->b_error) {
+<<<<<<< HEAD
 				xfs_force_shutdown(bp->b_target->bt_mount,
 						   SHUTDOWN_CORRUPT_INCORE);
 				return;
 			}
 		} else if (bp->b_bn != XFS_BUF_DADDR_NULL) {
 			struct xfs_mount *mp = bp->b_target->bt_mount;
+=======
+				xfs_force_shutdown(bp->b_mount,
+						   SHUTDOWN_CORRUPT_INCORE);
+				return;
+			}
+		} else if (bp->b_rhash_key != XFS_BUF_DADDR_NULL) {
+			struct xfs_mount *mp = bp->b_mount;
+>>>>>>> upstream/android-13
 
 			/*
 			 * non-crc filesystems don't attach verifiers during
 			 * log recovery, so don't warn for such filesystems.
 			 */
+<<<<<<< HEAD
 			if (xfs_sb_version_hascrc(&mp->m_sb)) {
 				xfs_warn(mp,
 					"%s: no buf ops on daddr 0x%llx len %d",
 					__func__, bp->b_bn, bp->b_length);
+=======
+			if (xfs_has_crc(mp)) {
+				xfs_warn(mp,
+					"%s: no buf ops on daddr 0x%llx len %d",
+					__func__, xfs_buf_daddr(bp),
+					bp->b_length);
+>>>>>>> upstream/android-13
 				xfs_hex_dump(bp->b_addr,
 						XFS_CORRUPTION_DUMP_LEN);
 				dump_stack();
 			}
 		}
+<<<<<<< HEAD
 	} else if (bp->b_flags & XBF_READ_AHEAD) {
 		op = REQ_OP_READ;
 		op_flags = REQ_RAHEAD;
@@ -1450,6 +2230,16 @@ _xfs_buf_ioapply(
 
 	/* we only use the buffer cache for meta-data */
 	op_flags |= REQ_META;
+=======
+	} else {
+		op = REQ_OP_READ;
+		if (bp->b_flags & XBF_READ_AHEAD)
+			op |= REQ_RAHEAD;
+	}
+
+	/* we only use the buffer cache for meta-data */
+	op |= REQ_META;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Walk all the vectors issuing IO on them. Set up the initial offset
@@ -1458,10 +2248,17 @@ _xfs_buf_ioapply(
 	 * subsequent call.
 	 */
 	offset = bp->b_offset;
+<<<<<<< HEAD
 	size = BBTOB(bp->b_io_length);
 	blk_start_plug(&plug);
 	for (i = 0; i < bp->b_map_count; i++) {
 		xfs_buf_ioapply_map(bp, i, &offset, &size, op, op_flags);
+=======
+	size = BBTOB(bp->b_length);
+	blk_start_plug(&plug);
+	for (i = 0; i < bp->b_map_count; i++) {
+		xfs_buf_ioapply_map(bp, i, &offset, &size, op);
+>>>>>>> upstream/android-13
 		if (bp->b_error)
 			break;
 		if (size <= 0)
@@ -1492,7 +2289,11 @@ xfs_buf_iowait(
  * safe to reference the buffer after a call to this function unless the caller
  * holds an additional reference itself.
  */
+<<<<<<< HEAD
 int
+=======
+static int
+>>>>>>> upstream/android-13
 __xfs_buf_submit(
 	struct xfs_buf	*bp,
 	bool		wait)
@@ -1504,11 +2305,16 @@ __xfs_buf_submit(
 	ASSERT(!(bp->b_flags & _XBF_DELWRI_Q));
 
 	/* on shutdown we stale and complete the buffer immediately */
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(bp->b_target->bt_mount)) {
 		xfs_buf_ioerror(bp, -EIO);
 		bp->b_flags &= ~XBF_DONE;
 		xfs_buf_stale(bp);
 		xfs_buf_ioend(bp);
+=======
+	if (xfs_is_shutdown(bp->b_mount)) {
+		xfs_buf_ioend_fail(bp);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -1569,11 +2375,15 @@ xfs_buf_offset(
 	if (bp->b_addr)
 		return bp->b_addr + offset;
 
+<<<<<<< HEAD
 	offset += bp->b_offset;
+=======
+>>>>>>> upstream/android-13
 	page = bp->b_pages[offset >> PAGE_SHIFT];
 	return page_address(page) + (offset & (PAGE_SIZE-1));
 }
 
+<<<<<<< HEAD
 /*
  *	Move data into or out of a buffer.
  */
@@ -1584,6 +2394,13 @@ xfs_buf_iomove(
 	size_t			bsize,	/* length to copy		*/
 	void			*data,	/* data address			*/
 	xfs_buf_rw_t		mode)	/* read/write/zero flag		*/
+=======
+void
+xfs_buf_zero(
+	struct xfs_buf		*bp,
+	size_t			boff,
+	size_t			bsize)
+>>>>>>> upstream/android-13
 {
 	size_t			bend;
 
@@ -1596,6 +2413,7 @@ xfs_buf_iomove(
 		page_offset = (boff + bp->b_offset) & ~PAGE_MASK;
 		page = bp->b_pages[page_index];
 		csize = min_t(size_t, PAGE_SIZE - page_offset,
+<<<<<<< HEAD
 				      BBTOB(bp->b_io_length) - boff);
 
 		ASSERT((csize + page_offset) <= PAGE_SIZE);
@@ -1613,10 +2431,44 @@ xfs_buf_iomove(
 
 		boff += csize;
 		data += csize;
+=======
+				      BBTOB(bp->b_length) - boff);
+
+		ASSERT((csize + page_offset) <= PAGE_SIZE);
+
+		memset(page_address(page) + page_offset, 0, csize);
+
+		boff += csize;
+>>>>>>> upstream/android-13
 	}
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Log a message about and stale a buffer that a caller has decided is corrupt.
+ *
+ * This function should be called for the kinds of metadata corruption that
+ * cannot be detect from a verifier, such as incorrect inter-block relationship
+ * data.  Do /not/ call this function from a verifier function.
+ *
+ * The buffer must be XBF_DONE prior to the call.  Afterwards, the buffer will
+ * be marked stale, but b_error will not be set.  The caller is responsible for
+ * releasing the buffer or fixing it.
+ */
+void
+__xfs_buf_mark_corrupt(
+	struct xfs_buf		*bp,
+	xfs_failaddr_t		fa)
+{
+	ASSERT(bp->b_flags & XBF_DONE);
+
+	xfs_buf_corruption_error(bp, fa);
+	xfs_buf_stale(bp);
+}
+
+/*
+>>>>>>> upstream/android-13
  *	Handling of buffer targets (buftargs).
  */
 
@@ -1626,7 +2478,11 @@ xfs_buf_iomove(
  * while freeing all the buffers only held by the LRU.
  */
 static enum lru_status
+<<<<<<< HEAD
 xfs_buftarg_wait_rele(
+=======
+xfs_buftarg_drain_rele(
+>>>>>>> upstream/android-13
 	struct list_head	*item,
 	struct list_lru_one	*lru,
 	spinlock_t		*lru_lock,
@@ -1638,7 +2494,11 @@ xfs_buftarg_wait_rele(
 
 	if (atomic_read(&bp->b_hold) > 1) {
 		/* need to wait, so skip it this pass */
+<<<<<<< HEAD
 		trace_xfs_buf_wait_buftarg(bp, _RET_IP_);
+=======
+		trace_xfs_buf_drain_buftarg(bp, _RET_IP_);
+>>>>>>> upstream/android-13
 		return LRU_SKIP;
 	}
 	if (!spin_trylock(&bp->b_lock))
@@ -1655,6 +2515,7 @@ xfs_buftarg_wait_rele(
 	return LRU_REMOVED;
 }
 
+<<<<<<< HEAD
 void
 xfs_wait_buftarg(
 	struct xfs_buftarg	*btp)
@@ -1662,6 +2523,15 @@ xfs_wait_buftarg(
 	LIST_HEAD(dispose);
 	int loop = 0;
 
+=======
+/*
+ * Wait for outstanding I/O on the buftarg to complete.
+ */
+void
+xfs_buftarg_wait(
+	struct xfs_buftarg	*btp)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * First wait on the buftarg I/O count for all in-flight buffers to be
 	 * released. This is critical as new buffers do not make the LRU until
@@ -1677,10 +2547,28 @@ xfs_wait_buftarg(
 	while (percpu_counter_sum(&btp->bt_io_count))
 		delay(100);
 	flush_workqueue(btp->bt_mount->m_buf_workqueue);
+<<<<<<< HEAD
 
 	/* loop until there is nothing left on the lru list. */
 	while (list_lru_count(&btp->bt_lru)) {
 		list_lru_walk(&btp->bt_lru, xfs_buftarg_wait_rele,
+=======
+}
+
+void
+xfs_buftarg_drain(
+	struct xfs_buftarg	*btp)
+{
+	LIST_HEAD(dispose);
+	int			loop = 0;
+	bool			write_fail = false;
+
+	xfs_buftarg_wait(btp);
+
+	/* loop until there is nothing left on the lru list. */
+	while (list_lru_count(&btp->bt_lru)) {
+		list_lru_walk(&btp->bt_lru, xfs_buftarg_drain_rele,
+>>>>>>> upstream/android-13
 			      &dispose, LONG_MAX);
 
 		while (!list_empty(&dispose)) {
@@ -1688,17 +2576,40 @@ xfs_wait_buftarg(
 			bp = list_first_entry(&dispose, struct xfs_buf, b_lru);
 			list_del_init(&bp->b_lru);
 			if (bp->b_flags & XBF_WRITE_FAIL) {
+<<<<<<< HEAD
 				xfs_alert(btp->bt_mount,
 "Corruption Alert: Buffer at daddr 0x%llx had permanent write failures!",
 					(long long)bp->b_bn);
 				xfs_alert(btp->bt_mount,
 "Please run xfs_repair to determine the extent of the problem.");
+=======
+				write_fail = true;
+				xfs_buf_alert_ratelimited(bp,
+					"XFS: Corruption Alert",
+"Corruption Alert: Buffer at daddr 0x%llx had permanent write failures!",
+					(long long)xfs_buf_daddr(bp));
+>>>>>>> upstream/android-13
 			}
 			xfs_buf_rele(bp);
 		}
 		if (loop++ != 0)
 			delay(100);
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * If one or more failed buffers were freed, that means dirty metadata
+	 * was thrown away. This should only ever happen after I/O completion
+	 * handling has elevated I/O error(s) to permanent failures and shuts
+	 * down the fs.
+	 */
+	if (write_fail) {
+		ASSERT(xfs_is_shutdown(btp->bt_mount));
+		xfs_alert(btp->bt_mount,
+	      "Please run xfs_repair to determine the extent of the problem.");
+	}
+>>>>>>> upstream/android-13
 }
 
 static enum lru_status
@@ -1775,7 +2686,11 @@ xfs_free_buftarg(
 	percpu_counter_destroy(&btp->bt_io_count);
 	list_lru_destroy(&btp->bt_lru);
 
+<<<<<<< HEAD
 	xfs_blkdev_issue_flush(btp);
+=======
+	blkdev_issue_flush(btp->bt_bdev);
+>>>>>>> upstream/android-13
 
 	kmem_free(btp);
 }
@@ -1824,13 +2739,27 @@ xfs_alloc_buftarg(
 {
 	xfs_buftarg_t		*btp;
 
+<<<<<<< HEAD
 	btp = kmem_zalloc(sizeof(*btp), KM_SLEEP | KM_NOFS);
+=======
+	btp = kmem_zalloc(sizeof(*btp), KM_NOFS);
+>>>>>>> upstream/android-13
 
 	btp->bt_mount = mp;
 	btp->bt_dev =  bdev->bd_dev;
 	btp->bt_bdev = bdev;
 	btp->bt_daxdev = dax_dev;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Buffer IO error rate limiting. Limit it to no more than 10 messages
+	 * per 30 seconds so as to not spam logs too much on repeated errors.
+	 */
+	ratelimit_state_init(&btp->bt_ioerror_rl, 30 * HZ,
+			     DEFAULT_RATELIMIT_BURST);
+
+>>>>>>> upstream/android-13
 	if (xfs_setsize_buftarg_early(btp, bdev))
 		goto error_free;
 
@@ -1934,9 +2863,15 @@ xfs_buf_delwri_queue(
  */
 static int
 xfs_buf_cmp(
+<<<<<<< HEAD
 	void		*priv,
 	struct list_head *a,
 	struct list_head *b)
+=======
+	void			*priv,
+	const struct list_head	*a,
+	const struct list_head	*b)
+>>>>>>> upstream/android-13
 {
 	struct xfs_buf	*ap = container_of(a, struct xfs_buf, b_list);
 	struct xfs_buf	*bp = container_of(b, struct xfs_buf, b_list);
@@ -1963,7 +2898,10 @@ xfs_buf_delwri_submit_buffers(
 	struct list_head	*wait_list)
 {
 	struct xfs_buf		*bp, *n;
+<<<<<<< HEAD
 	LIST_HEAD		(submit_list);
+=======
+>>>>>>> upstream/android-13
 	int			pinned = 0;
 	struct blk_plug		plug;
 
@@ -2136,8 +3074,16 @@ xfs_buf_delwri_pushbuf(
 int __init
 xfs_buf_init(void)
 {
+<<<<<<< HEAD
 	xfs_buf_zone = kmem_zone_init_flags(sizeof(xfs_buf_t), "xfs_buf",
 						KM_ZONE_HWALIGN, NULL);
+=======
+	xfs_buf_zone = kmem_cache_create("xfs_buf", sizeof(struct xfs_buf), 0,
+					 SLAB_HWCACHE_ALIGN |
+					 SLAB_RECLAIM_ACCOUNT |
+					 SLAB_MEM_SPREAD,
+					 NULL);
+>>>>>>> upstream/android-13
 	if (!xfs_buf_zone)
 		goto out;
 
@@ -2150,7 +3096,11 @@ xfs_buf_init(void)
 void
 xfs_buf_terminate(void)
 {
+<<<<<<< HEAD
 	kmem_zone_destroy(xfs_buf_zone);
+=======
+	kmem_cache_destroy(xfs_buf_zone);
+>>>>>>> upstream/android-13
 }
 
 void xfs_buf_set_ref(struct xfs_buf *bp, int lru_ref)
@@ -2160,9 +3110,53 @@ void xfs_buf_set_ref(struct xfs_buf *bp, int lru_ref)
 	 * This allows userspace to disrupt buffer caching for debug/testing
 	 * purposes.
 	 */
+<<<<<<< HEAD
 	if (XFS_TEST_ERROR(false, bp->b_target->bt_mount,
 			   XFS_ERRTAG_BUF_LRU_REF))
+=======
+	if (XFS_TEST_ERROR(false, bp->b_mount, XFS_ERRTAG_BUF_LRU_REF))
+>>>>>>> upstream/android-13
 		lru_ref = 0;
 
 	atomic_set(&bp->b_lru_ref, lru_ref);
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Verify an on-disk magic value against the magic value specified in the
+ * verifier structure. The verifier magic is in disk byte order so the caller is
+ * expected to pass the value directly from disk.
+ */
+bool
+xfs_verify_magic(
+	struct xfs_buf		*bp,
+	__be32			dmagic)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+	int			idx;
+
+	idx = xfs_has_crc(mp);
+	if (WARN_ON(!bp->b_ops || !bp->b_ops->magic[idx]))
+		return false;
+	return dmagic == bp->b_ops->magic[idx];
+}
+/*
+ * Verify an on-disk magic value against the magic value specified in the
+ * verifier structure. The verifier magic is in disk byte order so the caller is
+ * expected to pass the value directly from disk.
+ */
+bool
+xfs_verify_magic16(
+	struct xfs_buf		*bp,
+	__be16			dmagic)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+	int			idx;
+
+	idx = xfs_has_crc(mp);
+	if (WARN_ON(!bp->b_ops || !bp->b_ops->magic16[idx]))
+		return false;
+	return dmagic == bp->b_ops->magic16[idx];
+}
+>>>>>>> upstream/android-13

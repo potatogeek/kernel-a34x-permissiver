@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This file is part of wlcore
  *
  * Copyright (C) 2011 Texas Instruments Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __WLCORE_H__
@@ -199,8 +206,15 @@ struct wl1271 {
 	struct wl1271_if_operations *if_ops;
 
 	int irq;
+<<<<<<< HEAD
 
 	int irq_flags;
+=======
+	int wakeirq;
+
+	int irq_flags;
+	int wakeirq_flags;
+>>>>>>> upstream/android-13
 
 	spinlock_t wl_lock;
 
@@ -318,9 +332,15 @@ struct wl1271 {
 	bool watchdog_recovery;
 
 	/* Reg domain last configuration */
+<<<<<<< HEAD
 	u32 reg_ch_conf_last[2]  __aligned(8);
 	/* Reg domain pending configuration */
 	u32 reg_ch_conf_pending[2];
+=======
+	DECLARE_BITMAP(reg_ch_conf_last, 64);
+	/* Reg domain pending configuration */
+	DECLARE_BITMAP(reg_ch_conf_pending, 64);
+>>>>>>> upstream/android-13
 
 	/* Pointer that holds DMA-friendly block for the mailbox */
 	void *mbox;

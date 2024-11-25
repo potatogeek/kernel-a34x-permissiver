@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Maintained by Jaroslav Kysela <perex@perex.cz>
  *  Originated by audio@tridentmicro.com
@@ -9,6 +13,7 @@
  *  TODO:
  *    ---
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  SiS7018 S/PDIF support by Thomas Winischhofer <thomas@winischhofer.net>
  */
 
@@ -56,7 +63,11 @@ static int snd_trident_sis_reset(struct snd_trident *trident);
 
 static void snd_trident_clear_voices(struct snd_trident * trident,
 				     unsigned short v_min, unsigned short v_max);
+<<<<<<< HEAD
 static int snd_trident_free(struct snd_trident *trident);
+=======
+static void snd_trident_free(struct snd_card *card);
+>>>>>>> upstream/android-13
 
 /*
  *  common I/O routines
@@ -692,7 +703,11 @@ static unsigned int snd_trident_convert_rate(unsigned int rate)
 	else if (rate == 48000)
 		delta = 0x1000;
 	else
+<<<<<<< HEAD
 		delta = (((rate << 12) + 24000) / 48000) & 0x0000ffff;
+=======
+		delta = DIV_ROUND_CLOSEST(rate << 12, 48000) & 0x0000ffff;
+>>>>>>> upstream/android-13
 	return delta;
 }
 
@@ -782,6 +797,7 @@ static unsigned int snd_trident_control_mode(struct snd_pcm_substream *substream
  */
 
 /*---------------------------------------------------------------------------
+<<<<<<< HEAD
    snd_trident_ioctl
   
    Description: Device I/O control handler for playback/capture parameters.
@@ -805,6 +821,8 @@ static int snd_trident_ioctl(struct snd_pcm_substream *substream,
 }
 
 /*---------------------------------------------------------------------------
+=======
+>>>>>>> upstream/android-13
    snd_trident_allocate_pcm_mem
   
    Description: Allocate PCM ring buffer for given substream
@@ -822,12 +840,18 @@ static int snd_trident_allocate_pcm_mem(struct snd_pcm_substream *substream,
 	struct snd_trident *trident = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_trident_voice *voice = runtime->private_data;
+<<<<<<< HEAD
 	int err;
 
 	if ((err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params))) < 0)
 		return err;
 	if (trident->tlb.entries) {
 		if (err > 0) { /* change */
+=======
+
+	if (trident->tlb.entries) {
+		if (runtime->buffer_changed) {
+>>>>>>> upstream/android-13
 			if (voice->memblk)
 				snd_trident_free_pages(trident, voice->memblk);
 			voice->memblk = snd_trident_alloc_pages(trident, substream);
@@ -925,7 +949,10 @@ static int snd_trident_hw_free(struct snd_pcm_substream *substream)
 			voice->memblk = NULL;
 		}
 	}
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	if (evoice != NULL) {
 		snd_trident_free_voice(trident, evoice);
 		voice->extra = NULL;
@@ -1075,7 +1102,11 @@ static int snd_trident_capture_prepare(struct snd_pcm_substream *substream)
 	ESO_bytes++;
 
 	// Set channel sample rate, 4.12 format
+<<<<<<< HEAD
 	val = (((unsigned int) 48000L << 12) + (runtime->rate/2)) / runtime->rate;
+=======
+	val = DIV_ROUND_CLOSEST(48000U << 12, runtime->rate);
+>>>>>>> upstream/android-13
 	outw(val, TRID_REG(trident, T4D_SBDELTA_DELTA_R));
 
 	// Set channel interrupt blk length
@@ -1142,11 +1173,14 @@ static int snd_trident_capture_prepare(struct snd_pcm_substream *substream)
 static int snd_trident_si7018_capture_hw_params(struct snd_pcm_substream *substream,
 						struct snd_pcm_hw_params *hw_params)
 {
+<<<<<<< HEAD
 	int err;
 
 	if ((err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params))) < 0)
 		return err;
 
+=======
+>>>>>>> upstream/android-13
 	return snd_trident_allocate_evoice(substream, hw_params);
 }
 
@@ -1168,7 +1202,10 @@ static int snd_trident_si7018_capture_hw_free(struct snd_pcm_substream *substrea
 	struct snd_trident_voice *voice = runtime->private_data;
 	struct snd_trident_voice *evoice = voice ? voice->extra : NULL;
 
+<<<<<<< HEAD
 	snd_pcm_lib_free_pages(substream);
+=======
+>>>>>>> upstream/android-13
 	if (evoice != NULL) {
 		snd_trident_free_voice(trident, evoice);
 		voice->extra = NULL;
@@ -2073,7 +2110,10 @@ static int snd_trident_foldback_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_trident_playback_ops = {
 	.open =		snd_trident_playback_open,
 	.close =	snd_trident_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_hw_params,
 	.hw_free =	snd_trident_hw_free,
 	.prepare =	snd_trident_playback_prepare,
@@ -2084,19 +2124,28 @@ static const struct snd_pcm_ops snd_trident_playback_ops = {
 static const struct snd_pcm_ops snd_trident_nx_playback_ops = {
 	.open =		snd_trident_playback_open,
 	.close =	snd_trident_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_hw_params,
 	.hw_free =	snd_trident_hw_free,
 	.prepare =	snd_trident_playback_prepare,
 	.trigger =	snd_trident_trigger,
 	.pointer =	snd_trident_playback_pointer,
+<<<<<<< HEAD
 	.page =		snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_pcm_ops snd_trident_capture_ops = {
 	.open =		snd_trident_capture_open,
 	.close =	snd_trident_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_capture_hw_params,
 	.hw_free =	snd_trident_hw_free,
 	.prepare =	snd_trident_capture_prepare,
@@ -2107,7 +2156,10 @@ static const struct snd_pcm_ops snd_trident_capture_ops = {
 static const struct snd_pcm_ops snd_trident_si7018_capture_ops = {
 	.open =		snd_trident_capture_open,
 	.close =	snd_trident_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_si7018_capture_hw_params,
 	.hw_free =	snd_trident_si7018_capture_hw_free,
 	.prepare =	snd_trident_si7018_capture_prepare,
@@ -2118,7 +2170,10 @@ static const struct snd_pcm_ops snd_trident_si7018_capture_ops = {
 static const struct snd_pcm_ops snd_trident_foldback_ops = {
 	.open =		snd_trident_foldback_open,
 	.close =	snd_trident_foldback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_hw_params,
 	.hw_free =	snd_trident_hw_free,
 	.prepare =	snd_trident_foldback_prepare,
@@ -2129,19 +2184,28 @@ static const struct snd_pcm_ops snd_trident_foldback_ops = {
 static const struct snd_pcm_ops snd_trident_nx_foldback_ops = {
 	.open =		snd_trident_foldback_open,
 	.close =	snd_trident_foldback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_hw_params,
 	.hw_free =	snd_trident_hw_free,
 	.prepare =	snd_trident_foldback_prepare,
 	.trigger =	snd_trident_trigger,
 	.pointer =	snd_trident_playback_pointer,
+<<<<<<< HEAD
 	.page =		snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_pcm_ops snd_trident_spdif_ops = {
 	.open =		snd_trident_spdif_open,
 	.close =	snd_trident_spdif_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_spdif_hw_params,
 	.hw_free =	snd_trident_hw_free,
 	.prepare =	snd_trident_spdif_prepare,
@@ -2152,7 +2216,10 @@ static const struct snd_pcm_ops snd_trident_spdif_ops = {
 static const struct snd_pcm_ops snd_trident_spdif_7018_ops = {
 	.open =		snd_trident_spdif_open,
 	.close =	snd_trident_spdif_close,
+<<<<<<< HEAD
 	.ioctl =	snd_trident_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_trident_spdif_hw_params,
 	.hw_free =	snd_trident_hw_free,
 	.prepare =	snd_trident_spdif_prepare,
@@ -2176,7 +2243,12 @@ int snd_trident_pcm(struct snd_trident *trident, int device)
 	struct snd_pcm *pcm;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(trident->card, "trident_dx_nx", device, trident->ChanPCM, 1, &pcm)) < 0)
+=======
+	err = snd_pcm_new(trident->card, "trident_dx_nx", device, trident->ChanPCM, 1, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	pcm->private_data = trident;
@@ -2199,6 +2271,7 @@ int snd_trident_pcm(struct snd_trident *trident, int device)
 	if (trident->tlb.entries) {
 		struct snd_pcm_substream *substream;
 		for (substream = pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream; substream; substream = substream->next)
+<<<<<<< HEAD
 			snd_pcm_lib_preallocate_pages(substream, SNDRV_DMA_TYPE_DEV_SG,
 						      snd_dma_pci_data(trident->pci),
 						      64*1024, 128*1024);
@@ -2208,6 +2281,19 @@ int snd_trident_pcm(struct snd_trident *trident, int device)
 	} else {
 		snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 						      snd_dma_pci_data(trident->pci), 64*1024, 128*1024);
+=======
+			snd_pcm_set_managed_buffer(substream, SNDRV_DMA_TYPE_DEV_SG,
+						   &trident->pci->dev,
+						   64*1024, 128*1024);
+		snd_pcm_set_managed_buffer(pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream,
+					   SNDRV_DMA_TYPE_DEV,
+					   &trident->pci->dev,
+					   64*1024, 128*1024);
+	} else {
+		snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+					       &trident->pci->dev,
+					       64*1024, 128*1024);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2233,7 +2319,12 @@ int snd_trident_foldback_pcm(struct snd_trident *trident, int device)
 
 	if (trident->device == TRIDENT_DEVICE_ID_NX)
 		num_chan = 4;
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(trident->card, "trident_dx_nx", device, 0, num_chan, &foldback)) < 0)
+=======
+	err = snd_pcm_new(trident->card, "trident_dx_nx", device, 0, num_chan, &foldback);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	foldback->private_data = trident;
@@ -2256,11 +2347,21 @@ int snd_trident_foldback_pcm(struct snd_trident *trident, int device)
 	trident->foldback = foldback;
 
 	if (trident->tlb.entries)
+<<<<<<< HEAD
 		snd_pcm_lib_preallocate_pages_for_all(foldback, SNDRV_DMA_TYPE_DEV_SG,
 						      snd_dma_pci_data(trident->pci), 0, 128*1024);
 	else
 		snd_pcm_lib_preallocate_pages_for_all(foldback, SNDRV_DMA_TYPE_DEV,
 						      snd_dma_pci_data(trident->pci), 64*1024, 128*1024);
+=======
+		snd_pcm_set_managed_buffer_all(foldback, SNDRV_DMA_TYPE_DEV_SG,
+					       &trident->pci->dev,
+					       0, 128*1024);
+	else
+		snd_pcm_set_managed_buffer_all(foldback, SNDRV_DMA_TYPE_DEV,
+					       &trident->pci->dev,
+					       64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2281,7 +2382,12 @@ int snd_trident_spdif_pcm(struct snd_trident *trident, int device)
 	struct snd_pcm *spdif;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(trident->card, "trident_dx_nx IEC958", device, 1, 0, &spdif)) < 0)
+=======
+	err = snd_pcm_new(trident->card, "trident_dx_nx IEC958", device, 1, 0, &spdif);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	spdif->private_data = trident;
@@ -2294,7 +2400,12 @@ int snd_trident_spdif_pcm(struct snd_trident *trident, int device)
 	strcpy(spdif->name, "Trident 4DWave IEC958");
 	trident->spdif = spdif;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(spdif, SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(trident->pci), 64*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(spdif, SNDRV_DMA_TYPE_DEV,
+				       &trident->pci->dev, 64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2964,7 +3075,11 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 	struct snd_kcontrol *kctl;
 	struct snd_ctl_elem_value *uctl;
 	int idx, err, retries = 2;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_trident_codec_write,
 		.read = snd_trident_codec_read,
 	};
@@ -2973,7 +3088,12 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 	if (!uctl)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(trident->card, 0, &ops, NULL, &trident->ac97_bus)) < 0)
+=======
+	err = snd_ac97_bus(trident->card, 0, &ops, NULL, &trident->ac97_bus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __out;
 
 	memset(&_ac97, 0, sizeof(_ac97));
@@ -2981,9 +3101,17 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 	trident->ac97_detect = 1;
 
       __again:
+<<<<<<< HEAD
 	if ((err = snd_ac97_mixer(trident->ac97_bus, &_ac97, &trident->ac97)) < 0) {
 		if (trident->device == TRIDENT_DEVICE_ID_SI7018) {
 			if ((err = snd_trident_sis_reset(trident)) < 0)
+=======
+	err = snd_ac97_mixer(trident->ac97_bus, &_ac97, &trident->ac97);
+	if (err < 0) {
+		if (trident->device == TRIDENT_DEVICE_ID_SI7018) {
+			err = snd_trident_sis_reset(trident);
+			if (err < 0)
+>>>>>>> upstream/android-13
 				goto __out;
 			if (retries-- > 0)
 				goto __again;
@@ -3014,10 +3142,21 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 	trident->ac97_detect = 0;
 
 	if (trident->device != TRIDENT_DEVICE_ID_SI7018) {
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, kctl = snd_ctl_new1(&snd_trident_vol_wave_control, trident))) < 0)
 			goto __out;
 		kctl->put(kctl, uctl);
 		if ((err = snd_ctl_add(card, kctl = snd_ctl_new1(&snd_trident_vol_music_control, trident))) < 0)
+=======
+		kctl = snd_ctl_new1(&snd_trident_vol_wave_control, trident);
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+			goto __out;
+		kctl->put(kctl, uctl);
+		kctl = snd_ctl_new1(&snd_trident_vol_music_control, trident);
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __out;
 		kctl->put(kctl, uctl);
 		outl(trident->musicvol_wavevol = 0x00000000, TRID_REG(trident, T4D_MUSICVOL_WAVEVOL));
@@ -3031,6 +3170,7 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 		tmix = &trident->pcm_mixer[idx];
 		tmix->voice = NULL;
 	}
+<<<<<<< HEAD
 	if ((trident->ctl_vol = snd_ctl_new1(&snd_trident_pcm_vol_control, trident)) == NULL)
 		goto __nomem;
 	if ((err = snd_ctl_add(card, trident->ctl_vol)))
@@ -3053,6 +3193,40 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 
 	if (trident->device == TRIDENT_DEVICE_ID_NX) {
 		if ((err = snd_ctl_add(card, kctl = snd_ctl_new1(&snd_trident_ac97_rear_control, trident))) < 0)
+=======
+	trident->ctl_vol = snd_ctl_new1(&snd_trident_pcm_vol_control, trident);
+	if (!trident->ctl_vol)
+		goto __nomem;
+	err = snd_ctl_add(card, trident->ctl_vol);
+	if (err)
+		goto __out;
+		
+	trident->ctl_pan = snd_ctl_new1(&snd_trident_pcm_pan_control, trident);
+	if (!trident->ctl_pan)
+		goto __nomem;
+	err = snd_ctl_add(card, trident->ctl_pan);
+	if (err)
+		goto __out;
+
+	trident->ctl_rvol = snd_ctl_new1(&snd_trident_pcm_rvol_control, trident);
+	if (!trident->ctl_rvol)
+		goto __nomem;
+	err = snd_ctl_add(card, trident->ctl_rvol);
+	if (err)
+		goto __out;
+
+	trident->ctl_cvol = snd_ctl_new1(&snd_trident_pcm_cvol_control, trident);
+	if (!trident->ctl_cvol)
+		goto __nomem;
+	err = snd_ctl_add(card, trident->ctl_cvol);
+	if (err)
+		goto __out;
+
+	if (trident->device == TRIDENT_DEVICE_ID_NX) {
+		kctl = snd_ctl_new1(&snd_trident_ac97_rear_control, trident);
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __out;
 		kctl->put(kctl, uctl);
 	}
@@ -3068,7 +3242,12 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 		if (trident->ac97_sec && (trident->ac97_sec->ext_id & AC97_EI_SPDIF))
 			kctl->id.index++;
 		idx = kctl->id.index;
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, kctl)) < 0)
+=======
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __out;
 		kctl->put(kctl, uctl);
 
@@ -3079,7 +3258,12 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 		}
 		kctl->id.index = idx;
 		kctl->id.device = pcm_spdif_device;
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, kctl)) < 0)
+=======
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __out;
 
 		kctl = snd_ctl_new1(&snd_trident_spdif_mask, trident);
@@ -3089,7 +3273,12 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 		}
 		kctl->id.index = idx;
 		kctl->id.device = pcm_spdif_device;
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, kctl)) < 0)
+=======
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __out;
 
 		kctl = snd_ctl_new1(&snd_trident_spdif_stream, trident);
@@ -3099,7 +3288,12 @@ static int snd_trident_mixer(struct snd_trident *trident, int pcm_spdif_device)
 		}
 		kctl->id.index = idx;
 		kctl->id.device = pcm_spdif_device;
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, kctl)) < 0)
+=======
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto __out;
 		trident->spdif_pcm_ctl = kctl;
 	}
@@ -3320,11 +3514,15 @@ static void snd_trident_proc_read(struct snd_info_entry *entry,
 
 static void snd_trident_proc_init(struct snd_trident *trident)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
+=======
+>>>>>>> upstream/android-13
 	const char *s = "trident";
 	
 	if (trident->device == TRIDENT_DEVICE_ID_SI7018)
 		s = "sis7018";
+<<<<<<< HEAD
 	if (! snd_card_proc_new(trident->card, s, &entry))
 		snd_info_set_text_ops(entry, trident, snd_trident_proc_read);
 }
@@ -3333,6 +3531,9 @@ static int snd_trident_dev_free(struct snd_device *device)
 {
 	struct snd_trident *trident = device->device_data;
 	return snd_trident_free(trident);
+=======
+	snd_card_ro_proc_new(trident->card, s, trident, snd_trident_proc_read);
+>>>>>>> upstream/android-13
 }
 
 /*---------------------------------------------------------------------------
@@ -3354,6 +3555,7 @@ static int snd_trident_tlb_alloc(struct snd_trident *trident)
 	/* TLB array must be aligned to 16kB !!! so we allocate
 	   32kB region and correct offset when necessary */
 
+<<<<<<< HEAD
 	if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(trident->pci),
 				2 * SNDRV_TRIDENT_MAX_PAGES * 4, &trident->tlb.buffer) < 0) {
 		dev_err(trident->card->dev, "unable to allocate TLB buffer\n");
@@ -3379,6 +3581,29 @@ static int snd_trident_tlb_alloc(struct snd_trident *trident)
 		trident->tlb.entries[i] = cpu_to_le32(trident->tlb.silent_page.addr & ~(SNDRV_TRIDENT_PAGE_SIZE-1));
 		trident->tlb.shadow_entries[i] = (unsigned long)trident->tlb.silent_page.area;
 	}
+=======
+	trident->tlb.buffer =
+		snd_devm_alloc_pages(&trident->pci->dev, SNDRV_DMA_TYPE_DEV,
+				     2 * SNDRV_TRIDENT_MAX_PAGES * 4);
+	if (!trident->tlb.buffer) {
+		dev_err(trident->card->dev, "unable to allocate TLB buffer\n");
+		return -ENOMEM;
+	}
+	trident->tlb.entries = (__le32 *)ALIGN((unsigned long)trident->tlb.buffer->area, SNDRV_TRIDENT_MAX_PAGES * 4);
+	trident->tlb.entries_dmaaddr = ALIGN(trident->tlb.buffer->addr, SNDRV_TRIDENT_MAX_PAGES * 4);
+
+	/* allocate and setup silent page and initialise TLB entries */
+	trident->tlb.silent_page =
+		snd_devm_alloc_pages(&trident->pci->dev, SNDRV_DMA_TYPE_DEV,
+				     SNDRV_TRIDENT_PAGE_SIZE);
+	if (!trident->tlb.silent_page) {
+		dev_err(trident->card->dev, "unable to allocate silent page\n");
+		return -ENOMEM;
+	}
+	memset(trident->tlb.silent_page->area, 0, SNDRV_TRIDENT_PAGE_SIZE);
+	for (i = 0; i < SNDRV_TRIDENT_MAX_PAGES; i++)
+		trident->tlb.entries[i] = cpu_to_le32(trident->tlb.silent_page->addr & ~(SNDRV_TRIDENT_PAGE_SIZE-1));
+>>>>>>> upstream/android-13
 
 	/* use emu memory block manager code to manage tlb page allocation */
 	trident->tlb.memhdr = snd_util_memhdr_new(SNDRV_TRIDENT_PAGE_SIZE * SNDRV_TRIDENT_MAX_PAGES);
@@ -3503,7 +3728,12 @@ static int snd_trident_sis_init(struct snd_trident *trident)
 {
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_trident_sis_reset(trident)) < 0)
+=======
+	err = snd_trident_sis_reset(trident);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	snd_trident_stop_all_voices(trident);
@@ -3534,6 +3764,7 @@ int snd_trident_create(struct snd_card *card,
 		       struct pci_dev *pci,
 		       int pcm_streams,
 		       int pcm_spdif_device,
+<<<<<<< HEAD
 		       int max_wavetable_size,
 		       struct snd_trident ** rtrident)
 {
@@ -3564,6 +3795,26 @@ int snd_trident_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+		       int max_wavetable_size)
+{
+	struct snd_trident *trident = card->private_data;
+	int i, err;
+	struct snd_trident_voice *voice;
+	struct snd_trident_pcm_mixer *tmix;
+
+	/* enable PCI device */
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+	/* check, if we can restrict PCI DMA transfers to 30 bits */
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(30))) {
+		dev_err(card->dev,
+			"architecture does not support 30bit PCI busmaster DMA\n");
+		return -ENXIO;
+	}
+	
+>>>>>>> upstream/android-13
 	trident->device = (pci->vendor << 16) | pci->device;
 	trident->card = card;
 	trident->pci = pci;
@@ -3579,10 +3830,15 @@ int snd_trident_create(struct snd_card *card,
 		max_wavetable_size = 0;
 	trident->synth.max_size = max_wavetable_size * 1024;
 	trident->irq = -1;
+<<<<<<< HEAD
+=======
+	card->private_free = snd_trident_free;
+>>>>>>> upstream/android-13
 
 	trident->midi_port = TRID_REG(trident, T4D_MPU401_BASE);
 	pci_set_master(pci);
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, "Trident Audio")) < 0) {
 		kfree(trident);
 		pci_disable_device(pci);
@@ -3606,6 +3862,27 @@ int snd_trident_create(struct snd_card *card,
 			snd_trident_free(trident);
 			return err;
 		}
+=======
+	err = pci_request_regions(pci, "Trident Audio");
+	if (err < 0)
+		return err;
+	trident->port = pci_resource_start(pci, 0);
+
+	if (devm_request_irq(&pci->dev, pci->irq, snd_trident_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, trident)) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return -EBUSY;
+	}
+	trident->irq = pci->irq;
+	card->sync_irq = trident->irq;
+
+	/* allocate 16k-aligned TLB for NX cards */
+	trident->tlb.entries = NULL;
+	if (trident->device == TRIDENT_DEVICE_ID_NX) {
+		err = snd_trident_tlb_alloc(trident);
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	trident->spdif_bits = trident->spdif_pcm_bits = SNDRV_PCM_DEFAULT_CON_SPDIF;
@@ -3625,6 +3902,7 @@ int snd_trident_create(struct snd_card *card,
 		snd_BUG();
 		break;
 	}
+<<<<<<< HEAD
 	if (err < 0) {
 		snd_trident_free(trident);
 		return err;
@@ -3636,6 +3914,13 @@ int snd_trident_create(struct snd_card *card,
 	}
 
 	if ((err = snd_trident_mixer(trident, pcm_spdif_device)) < 0)
+=======
+	if (err < 0)
+		return err;
+
+	err = snd_trident_mixer(trident, pcm_spdif_device);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	
 	/* initialise synth voices */
@@ -3656,7 +3941,10 @@ int snd_trident_create(struct snd_card *card,
 	snd_trident_enable_eso(trident);
 
 	snd_trident_proc_init(trident);
+<<<<<<< HEAD
 	*rtrident = trident;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3666,14 +3954,25 @@ int snd_trident_create(struct snd_card *card,
    Description: This routine will free the device specific class for
                 the 4DWave card. 
                 
+<<<<<<< HEAD
    Parameters:  trident  - device specific private data for 4DWave card
+=======
+   Parameters:  card - card to release
+>>>>>>> upstream/android-13
 
    Returns:     None.
   
   ---------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static int snd_trident_free(struct snd_trident *trident)
 {
+=======
+static void snd_trident_free(struct snd_card *card)
+{
+	struct snd_trident *trident = card->private_data;
+
+>>>>>>> upstream/android-13
 	snd_trident_free_gameport(trident);
 	snd_trident_disable_eso(trident);
 	// Disable S/PDIF out
@@ -3682,6 +3981,7 @@ static int snd_trident_free(struct snd_trident *trident)
 	else if (trident->device == TRIDENT_DEVICE_ID_SI7018) {
 		outl(0, TRID_REG(trident, SI_SERIAL_INTF_CTRL));
 	}
+<<<<<<< HEAD
 	if (trident->irq >= 0)
 		free_irq(trident->irq, trident);
 	if (trident->tlb.buffer.area) {
@@ -3696,6 +3996,12 @@ static int snd_trident_free(struct snd_trident *trident)
 	pci_disable_device(trident->pci);
 	kfree(trident);
 	return 0;
+=======
+	if (trident->tlb.buffer) {
+		outl(0, TRID_REG(trident, NX_TLBC));
+		snd_util_memhdr_free(trident->tlb.memhdr);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*---------------------------------------------------------------------------
@@ -3915,10 +4221,13 @@ static int snd_trident_suspend(struct device *dev)
 
 	trident->in_suspend = 1;
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(trident->pcm);
 	snd_pcm_suspend_all(trident->foldback);
 	snd_pcm_suspend_all(trident->spdif);
 
+=======
+>>>>>>> upstream/android-13
 	snd_ac97_suspend(trident->ac97);
 	snd_ac97_suspend(trident->ac97_sec);
 	return 0;

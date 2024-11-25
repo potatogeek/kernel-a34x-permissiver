@@ -21,6 +21,10 @@
 
 #include <crypto/algapi.h>
 #include <crypto/internal/chacha.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <linux/jump_label.h>
 #include <linux/kernel.h>
@@ -63,7 +67,11 @@ static void chacha_doneon(u32 *state, u8 *dst, const u8 *src,
 
 void hchacha_block_arch(const u32 *state, u32 *stream, int nrounds)
 {
+<<<<<<< HEAD
 	if (!static_branch_likely(&have_neon) || !may_use_simd()) {
+=======
+	if (!static_branch_likely(&have_neon) || !crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		hchacha_block_generic(state, stream, nrounds);
 	} else {
 		kernel_neon_begin();
@@ -83,7 +91,11 @@ void chacha_crypt_arch(u32 *state, u8 *dst, const u8 *src, unsigned int bytes,
 		       int nrounds)
 {
 	if (!static_branch_likely(&have_neon) || bytes <= CHACHA_BLOCK_SIZE ||
+<<<<<<< HEAD
 	    !may_use_simd())
+=======
+	    !crypto_simd_usable())
+>>>>>>> upstream/android-13
 		return chacha_crypt_generic(state, dst, src, bytes, nrounds);
 
 	do {
@@ -118,7 +130,11 @@ static int chacha_neon_stream_xor(struct skcipher_request *req,
 			nbytes = rounddown(nbytes, walk.stride);
 
 		if (!static_branch_likely(&have_neon) ||
+<<<<<<< HEAD
 		    !may_use_simd()) {
+=======
+		    !crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 			chacha_crypt_generic(state, walk.dst.virt.addr,
 					     walk.src.virt.addr, nbytes,
 					     ctx->nrounds);
@@ -213,18 +229,30 @@ static struct skcipher_alg algs[] = {
 
 static int __init chacha_simd_mod_init(void)
 {
+<<<<<<< HEAD
 	if (!(elf_hwcap & HWCAP_ASIMD))
+=======
+	if (!cpu_have_named_feature(ASIMD))
+>>>>>>> upstream/android-13
 		return 0;
 
 	static_branch_enable(&have_neon);
 
+<<<<<<< HEAD
 	return IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER) ?
+=======
+	return IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER) ?
+>>>>>>> upstream/android-13
 		crypto_register_skciphers(algs, ARRAY_SIZE(algs)) : 0;
 }
 
 static void __exit chacha_simd_mod_fini(void)
 {
+<<<<<<< HEAD
 	if (IS_REACHABLE(CONFIG_CRYPTO_BLKCIPHER) && (elf_hwcap & HWCAP_ASIMD))
+=======
+	if (IS_REACHABLE(CONFIG_CRYPTO_SKCIPHER) && cpu_have_named_feature(ASIMD))
+>>>>>>> upstream/android-13
 		crypto_unregister_skciphers(algs, ARRAY_SIZE(algs));
 }
 

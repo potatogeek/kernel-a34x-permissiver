@@ -75,6 +75,10 @@
 #include <linux/tcp.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/io-64-nonatomic-lo-hi.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/prefetch.h>
 #include <net/tcp.h>
@@ -491,7 +495,11 @@ static struct pci_driver s2io_driver = {
 };
 
 /* A simplifier macro used both by init and free shared_mem Fns(). */
+<<<<<<< HEAD
 #define TXD_MEM_PAGE_CNT(len, per_each) ((len+per_each - 1) / per_each)
+=======
+#define TXD_MEM_PAGE_CNT(len, per_each) DIV_ROUND_UP(len, per_each)
+>>>>>>> upstream/android-13
 
 /* netqueue manipulation helper functions */
 static inline void s2io_stop_all_tx_queue(struct s2io_nic *sp)
@@ -639,11 +647,19 @@ static int init_shared_mem(struct s2io_nic *nic)
 			int k = 0;
 			dma_addr_t tmp_p;
 			void *tmp_v;
+<<<<<<< HEAD
 			tmp_v = pci_alloc_consistent(nic->pdev,
 						     PAGE_SIZE, &tmp_p);
 			if (!tmp_v) {
 				DBG_PRINT(INFO_DBG,
 					  "pci_alloc_consistent failed for TxDL\n");
+=======
+			tmp_v = dma_alloc_coherent(&nic->pdev->dev, PAGE_SIZE,
+						   &tmp_p, GFP_KERNEL);
+			if (!tmp_v) {
+				DBG_PRINT(INFO_DBG,
+					  "dma_alloc_coherent failed for TxDL\n");
+>>>>>>> upstream/android-13
 				return -ENOMEM;
 			}
 			/* If we got a zero DMA address(can happen on
@@ -657,11 +673,20 @@ static int init_shared_mem(struct s2io_nic *nic)
 					  "%s: Zero DMA address for TxDL. "
 					  "Virtual address %p\n",
 					  dev->name, tmp_v);
+<<<<<<< HEAD
 				tmp_v = pci_alloc_consistent(nic->pdev,
 							     PAGE_SIZE, &tmp_p);
 				if (!tmp_v) {
 					DBG_PRINT(INFO_DBG,
 						  "pci_alloc_consistent failed for TxDL\n");
+=======
+				tmp_v = dma_alloc_coherent(&nic->pdev->dev,
+							   PAGE_SIZE, &tmp_p,
+							   GFP_KERNEL);
+				if (!tmp_v) {
+					DBG_PRINT(INFO_DBG,
+						  "dma_alloc_coherent failed for TxDL\n");
+>>>>>>> upstream/android-13
 					return -ENOMEM;
 				}
 				mem_allocated += PAGE_SIZE;
@@ -733,8 +758,13 @@ static int init_shared_mem(struct s2io_nic *nic)
 
 			rx_blocks = &ring->rx_blocks[j];
 			size = SIZE_OF_BLOCK;	/* size is always page size */
+<<<<<<< HEAD
 			tmp_v_addr = pci_alloc_consistent(nic->pdev, size,
 							  &tmp_p_addr);
+=======
+			tmp_v_addr = dma_alloc_coherent(&nic->pdev->dev, size,
+							&tmp_p_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 			if (tmp_v_addr == NULL) {
 				/*
 				 * In case of failure, free_shared_mem()
@@ -746,7 +776,10 @@ static int init_shared_mem(struct s2io_nic *nic)
 				return -ENOMEM;
 			}
 			mem_allocated += size;
+<<<<<<< HEAD
 			memset(tmp_v_addr, 0, size);
+=======
+>>>>>>> upstream/android-13
 
 			size = sizeof(struct rxd_info) *
 				rxd_count[nic->rxd_mode];
@@ -835,8 +868,13 @@ static int init_shared_mem(struct s2io_nic *nic)
 	/* Allocation and initialization of Statistics block */
 	size = sizeof(struct stat_block);
 	mac_control->stats_mem =
+<<<<<<< HEAD
 		pci_alloc_consistent(nic->pdev, size,
 				     &mac_control->stats_mem_phy);
+=======
+		dma_alloc_coherent(&nic->pdev->dev, size,
+				   &mac_control->stats_mem_phy, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!mac_control->stats_mem) {
 		/*
@@ -906,18 +944,30 @@ static void free_shared_mem(struct s2io_nic *nic)
 			fli = &fifo->list_info[mem_blks];
 			if (!fli->list_virt_addr)
 				break;
+<<<<<<< HEAD
 			pci_free_consistent(nic->pdev, PAGE_SIZE,
 					    fli->list_virt_addr,
 					    fli->list_phy_addr);
+=======
+			dma_free_coherent(&nic->pdev->dev, PAGE_SIZE,
+					  fli->list_virt_addr,
+					  fli->list_phy_addr);
+>>>>>>> upstream/android-13
 			swstats->mem_freed += PAGE_SIZE;
 		}
 		/* If we got a zero DMA address during allocation,
 		 * free the page now
 		 */
 		if (mac_control->zerodma_virt_addr) {
+<<<<<<< HEAD
 			pci_free_consistent(nic->pdev, PAGE_SIZE,
 					    mac_control->zerodma_virt_addr,
 					    (dma_addr_t)0);
+=======
+			dma_free_coherent(&nic->pdev->dev, PAGE_SIZE,
+					  mac_control->zerodma_virt_addr,
+					  (dma_addr_t)0);
+>>>>>>> upstream/android-13
 			DBG_PRINT(INIT_DBG,
 				  "%s: Freeing TxDL with zero DMA address. "
 				  "Virtual address %p\n",
@@ -939,8 +989,13 @@ static void free_shared_mem(struct s2io_nic *nic)
 			tmp_p_addr = ring->rx_blocks[j].block_dma_addr;
 			if (tmp_v_addr == NULL)
 				break;
+<<<<<<< HEAD
 			pci_free_consistent(nic->pdev, size,
 					    tmp_v_addr, tmp_p_addr);
+=======
+			dma_free_coherent(&nic->pdev->dev, size, tmp_v_addr,
+					  tmp_p_addr);
+>>>>>>> upstream/android-13
 			swstats->mem_freed += size;
 			kfree(ring->rx_blocks[j].rxds);
 			swstats->mem_freed += sizeof(struct rxd_info) *
@@ -993,6 +1048,7 @@ static void free_shared_mem(struct s2io_nic *nic)
 
 	if (mac_control->stats_mem) {
 		swstats->mem_freed += mac_control->stats_mem_sz;
+<<<<<<< HEAD
 		pci_free_consistent(nic->pdev,
 				    mac_control->stats_mem_sz,
 				    mac_control->stats_mem,
@@ -1001,6 +1057,15 @@ static void free_shared_mem(struct s2io_nic *nic)
 }
 
 /**
+=======
+		dma_free_coherent(&nic->pdev->dev, mac_control->stats_mem_sz,
+				  mac_control->stats_mem,
+				  mac_control->stats_mem_phy);
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * s2io_verify_pci_mode -
  */
 
@@ -1035,7 +1100,11 @@ static int s2io_on_nec_bridge(struct pci_dev *s2io_pdev)
 }
 
 static int bus_speed[8] = {33, 133, 133, 200, 266, 133, 200, 266};
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * s2io_print_pci_mode -
  */
 static int s2io_print_pci_mode(struct s2io_nic *nic)
@@ -1101,12 +1170,21 @@ static int s2io_print_pci_mode(struct s2io_nic *nic)
  *  @nic: device private variable
  *  @link: link status (UP/DOWN) used to enable/disable continuous
  *  transmit interrupts
+<<<<<<< HEAD
+=======
+ *  @may_sleep: parameter indicates if sleeping when waiting for
+ *  command complete
+>>>>>>> upstream/android-13
  *  Description: The function configures transmit traffic interrupts
  *  Return Value:  SUCCESS on success and
  *  '-1' on failure
  */
 
+<<<<<<< HEAD
 static int init_tti(struct s2io_nic *nic, int link)
+=======
+static int init_tti(struct s2io_nic *nic, int link, bool may_sleep)
+>>>>>>> upstream/android-13
 {
 	struct XENA_dev_config __iomem *bar0 = nic->bar0;
 	register u64 val64 = 0;
@@ -1166,7 +1244,11 @@ static int init_tti(struct s2io_nic *nic, int link)
 
 		if (wait_for_cmd_complete(&bar0->tti_command_mem,
 					  TTI_CMD_MEM_STROBE_NEW_CMD,
+<<<<<<< HEAD
 					  S2IO_BIT_RESET) != SUCCESS)
+=======
+					  S2IO_BIT_RESET, may_sleep) != SUCCESS)
+>>>>>>> upstream/android-13
 			return FAILURE;
 	}
 
@@ -1659,7 +1741,11 @@ static int init_nic(struct s2io_nic *nic)
 	 */
 
 	/* Initialize TTI */
+<<<<<<< HEAD
 	if (SUCCESS != init_tti(nic, nic->last_link_state))
+=======
+	if (SUCCESS != init_tti(nic, nic->last_link_state, true))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	/* RTI Initialization */
@@ -2064,6 +2150,12 @@ static void en_dis_able_nic_intrs(struct s2io_nic *nic, u16 mask, int flag)
 
 /**
  *  verify_pcc_quiescent- Checks for PCC quiescent state
+<<<<<<< HEAD
+=======
+ *  @sp : private member of the device structure, which is a pointer to the
+ *  s2io_nic structure.
+ *  @flag: boolean controlling function path
+>>>>>>> upstream/android-13
  *  Return: 1 If PCC is quiescence
  *          0 If PCC is not quiescence
  */
@@ -2099,6 +2191,11 @@ static int verify_pcc_quiescent(struct s2io_nic *sp, int flag)
 }
 /**
  *  verify_xena_quiescence - Checks whether the H/W is ready
+<<<<<<< HEAD
+=======
+ *  @sp : private member of the device structure, which is a pointer to the
+ *  s2io_nic structure.
+>>>>>>> upstream/android-13
  *  Description: Returns whether the H/W is ready to go or not. Depending
  *  on whether adapter enable bit was written or not the comparison
  *  differs and the calling function passes the input argument flag to
@@ -2305,6 +2402,12 @@ static int start_nic(struct s2io_nic *nic)
 }
 /**
  * s2io_txdl_getskb - Get the skb from txdl, unmap and return skb
+<<<<<<< HEAD
+=======
+ * @fifo_data: fifo data pointer
+ * @txdlp: descriptor
+ * @get_off: unused
+>>>>>>> upstream/android-13
  */
 static struct sk_buff *s2io_txdl_getskb(struct fifo_info *fifo_data,
 					struct TxD *txdlp, int get_off)
@@ -2316,8 +2419,14 @@ static struct sk_buff *s2io_txdl_getskb(struct fifo_info *fifo_data,
 
 	txds = txdlp;
 	if (txds->Host_Control == (u64)(long)fifo_data->ufo_in_band_v) {
+<<<<<<< HEAD
 		pci_unmap_single(nic->pdev, (dma_addr_t)txds->Buffer_Pointer,
 				 sizeof(u64), PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&nic->pdev->dev,
+				 (dma_addr_t)txds->Buffer_Pointer,
+				 sizeof(u64), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		txds++;
 	}
 
@@ -2326,8 +2435,13 @@ static struct sk_buff *s2io_txdl_getskb(struct fifo_info *fifo_data,
 		memset(txdlp, 0, (sizeof(struct TxD) * fifo_data->max_txds));
 		return NULL;
 	}
+<<<<<<< HEAD
 	pci_unmap_single(nic->pdev, (dma_addr_t)txds->Buffer_Pointer,
 			 skb_headlen(skb), PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&nic->pdev->dev, (dma_addr_t)txds->Buffer_Pointer,
+			 skb_headlen(skb), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	frg_cnt = skb_shinfo(skb)->nr_frags;
 	if (frg_cnt) {
 		txds++;
@@ -2335,9 +2449,15 @@ static struct sk_buff *s2io_txdl_getskb(struct fifo_info *fifo_data,
 			const skb_frag_t *frag = &skb_shinfo(skb)->frags[j];
 			if (!txds->Buffer_Pointer)
 				break;
+<<<<<<< HEAD
 			pci_unmap_page(nic->pdev,
 				       (dma_addr_t)txds->Buffer_Pointer,
 				       skb_frag_size(frag), PCI_DMA_TODEVICE);
+=======
+			dma_unmap_page(&nic->pdev->dev,
+				       (dma_addr_t)txds->Buffer_Pointer,
+				       skb_frag_size(frag), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		}
 	}
 	memset(txdlp, 0, (sizeof(struct TxD) * fifo_data->max_txds));
@@ -2390,7 +2510,11 @@ static void free_tx_buffers(struct s2io_nic *nic)
 
 /**
  *   stop_nic -  To stop the nic
+<<<<<<< HEAD
  *   @nic ; device private variable.
+=======
+ *   @nic : device private variable.
+>>>>>>> upstream/android-13
  *   Description:
  *   This function does exactly the opposite of what the start_nic()
  *   function does. This function is called to stop the device.
@@ -2418,7 +2542,12 @@ static void stop_nic(struct s2io_nic *nic)
 
 /**
  *  fill_rx_buffers - Allocates the Rx side skbs
+<<<<<<< HEAD
  *  @ring_info: per ring structure
+=======
+ *  @nic : device private variable.
+ *  @ring: per ring structure
+>>>>>>> upstream/android-13
  *  @from_card_up: If this is true, we will map the buffer to get
  *     the dma address for buf0 and buf1 to give it to the card.
  *     Else we will sync the already mapped buffer to give it to the card.
@@ -2521,11 +2650,18 @@ static int fill_rx_buffers(struct s2io_nic *nic, struct ring_info *ring,
 			memset(rxdp, 0, sizeof(struct RxD1));
 			skb_reserve(skb, NET_IP_ALIGN);
 			rxdp1->Buffer0_ptr =
+<<<<<<< HEAD
 				pci_map_single(ring->pdev, skb->data,
 					       size - NET_IP_ALIGN,
 					       PCI_DMA_FROMDEVICE);
 			if (pci_dma_mapping_error(nic->pdev,
 						  rxdp1->Buffer0_ptr))
+=======
+				dma_map_single(&ring->pdev->dev, skb->data,
+					       size - NET_IP_ALIGN,
+					       DMA_FROM_DEVICE);
+			if (dma_mapping_error(&nic->pdev->dev, rxdp1->Buffer0_ptr))
+>>>>>>> upstream/android-13
 				goto pci_map_failed;
 
 			rxdp->Control_2 =
@@ -2557,6 +2693,7 @@ static int fill_rx_buffers(struct s2io_nic *nic, struct ring_info *ring,
 
 			if (from_card_up) {
 				rxdp3->Buffer0_ptr =
+<<<<<<< HEAD
 					pci_map_single(ring->pdev, ba->ba_0,
 						       BUF0_LEN,
 						       PCI_DMA_FROMDEVICE);
@@ -2568,6 +2705,18 @@ static int fill_rx_buffers(struct s2io_nic *nic, struct ring_info *ring,
 							       (dma_addr_t)rxdp3->Buffer0_ptr,
 							       BUF0_LEN,
 							       PCI_DMA_FROMDEVICE);
+=======
+					dma_map_single(&ring->pdev->dev,
+						       ba->ba_0, BUF0_LEN,
+						       DMA_FROM_DEVICE);
+				if (dma_mapping_error(&nic->pdev->dev, rxdp3->Buffer0_ptr))
+					goto pci_map_failed;
+			} else
+				dma_sync_single_for_device(&ring->pdev->dev,
+							   (dma_addr_t)rxdp3->Buffer0_ptr,
+							   BUF0_LEN,
+							   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 			rxdp->Control_2 = SET_BUFFER0_SIZE_3(BUF0_LEN);
 			if (ring->rxd_mode == RXD_MODE_3B) {
@@ -2577,6 +2726,7 @@ static int fill_rx_buffers(struct s2io_nic *nic, struct ring_info *ring,
 				 * Buffer2 will have L3/L4 header plus
 				 * L4 payload
 				 */
+<<<<<<< HEAD
 				rxdp3->Buffer2_ptr = pci_map_single(ring->pdev,
 								    skb->data,
 								    ring->mtu + 4,
@@ -2584,10 +2734,19 @@ static int fill_rx_buffers(struct s2io_nic *nic, struct ring_info *ring,
 
 				if (pci_dma_mapping_error(nic->pdev,
 							  rxdp3->Buffer2_ptr))
+=======
+				rxdp3->Buffer2_ptr = dma_map_single(&ring->pdev->dev,
+								    skb->data,
+								    ring->mtu + 4,
+								    DMA_FROM_DEVICE);
+
+				if (dma_mapping_error(&nic->pdev->dev, rxdp3->Buffer2_ptr))
+>>>>>>> upstream/android-13
 					goto pci_map_failed;
 
 				if (from_card_up) {
 					rxdp3->Buffer1_ptr =
+<<<<<<< HEAD
 						pci_map_single(ring->pdev,
 							       ba->ba_1,
 							       BUF1_LEN,
@@ -2600,6 +2759,20 @@ static int fill_rx_buffers(struct s2io_nic *nic, struct ring_info *ring,
 								 skb->data,
 								 ring->mtu + 4,
 								 PCI_DMA_FROMDEVICE);
+=======
+						dma_map_single(&ring->pdev->dev,
+							       ba->ba_1,
+							       BUF1_LEN,
+							       DMA_FROM_DEVICE);
+
+					if (dma_mapping_error(&nic->pdev->dev,
+							      rxdp3->Buffer1_ptr)) {
+						dma_unmap_single(&ring->pdev->dev,
+								 (dma_addr_t)(unsigned long)
+								 skb->data,
+								 ring->mtu + 4,
+								 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 						goto pci_map_failed;
 					}
 				}
@@ -2668,11 +2841,16 @@ static void free_rxd_blk(struct s2io_nic *sp, int ring_no, int blk)
 			continue;
 		if (sp->rxd_mode == RXD_MODE_1) {
 			rxdp1 = (struct RxD1 *)rxdp;
+<<<<<<< HEAD
 			pci_unmap_single(sp->pdev,
+=======
+			dma_unmap_single(&sp->pdev->dev,
+>>>>>>> upstream/android-13
 					 (dma_addr_t)rxdp1->Buffer0_ptr,
 					 dev->mtu +
 					 HEADER_ETHERNET_II_802_3_SIZE +
 					 HEADER_802_2_SIZE + HEADER_SNAP_SIZE,
+<<<<<<< HEAD
 					 PCI_DMA_FROMDEVICE);
 			memset(rxdp, 0, sizeof(struct RxD1));
 		} else if (sp->rxd_mode == RXD_MODE_3B) {
@@ -2689,6 +2867,21 @@ static void free_rxd_blk(struct s2io_nic *sp, int ring_no, int blk)
 					 (dma_addr_t)rxdp3->Buffer2_ptr,
 					 dev->mtu + 4,
 					 PCI_DMA_FROMDEVICE);
+=======
+					 DMA_FROM_DEVICE);
+			memset(rxdp, 0, sizeof(struct RxD1));
+		} else if (sp->rxd_mode == RXD_MODE_3B) {
+			rxdp3 = (struct RxD3 *)rxdp;
+			dma_unmap_single(&sp->pdev->dev,
+					 (dma_addr_t)rxdp3->Buffer0_ptr,
+					 BUF0_LEN, DMA_FROM_DEVICE);
+			dma_unmap_single(&sp->pdev->dev,
+					 (dma_addr_t)rxdp3->Buffer1_ptr,
+					 BUF1_LEN, DMA_FROM_DEVICE);
+			dma_unmap_single(&sp->pdev->dev,
+					 (dma_addr_t)rxdp3->Buffer2_ptr,
+					 dev->mtu + 4, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			memset(rxdp, 0, sizeof(struct RxD3));
 		}
 		swstats->mem_freed += skb->truesize;
@@ -2739,7 +2932,11 @@ static int s2io_chk_rx_buffers(struct s2io_nic *nic, struct ring_info *ring)
 }
 
 /**
+<<<<<<< HEAD
  * s2io_poll - Rx interrupt handler for NAPI support
+=======
+ * s2io_poll_msix - Rx interrupt handler for NAPI support
+>>>>>>> upstream/android-13
  * @napi : pointer to the napi structure.
  * @budget : The number of packets that were budgeted to be processed
  * during  one pass through the 'Poll" function.
@@ -2869,7 +3066,11 @@ static void s2io_netpoll(struct net_device *dev)
 
 /**
  *  rx_intr_handler - Rx interrupt handler
+<<<<<<< HEAD
  *  @ring_info: per ring structure.
+=======
+ *  @ring_data: per ring structure.
+>>>>>>> upstream/android-13
  *  @budget: budget for napi processing.
  *  Description:
  *  If the interrupt is because of a received frame or if the
@@ -2919,12 +3120,18 @@ static int rx_intr_handler(struct ring_info *ring_data, int budget)
 		}
 		if (ring_data->rxd_mode == RXD_MODE_1) {
 			rxdp1 = (struct RxD1 *)rxdp;
+<<<<<<< HEAD
 			pci_unmap_single(ring_data->pdev, (dma_addr_t)
 					 rxdp1->Buffer0_ptr,
+=======
+			dma_unmap_single(&ring_data->pdev->dev,
+					 (dma_addr_t)rxdp1->Buffer0_ptr,
+>>>>>>> upstream/android-13
 					 ring_data->mtu +
 					 HEADER_ETHERNET_II_802_3_SIZE +
 					 HEADER_802_2_SIZE +
 					 HEADER_SNAP_SIZE,
+<<<<<<< HEAD
 					 PCI_DMA_FROMDEVICE);
 		} else if (ring_data->rxd_mode == RXD_MODE_3B) {
 			rxdp3 = (struct RxD3 *)rxdp;
@@ -2936,6 +3143,17 @@ static int rx_intr_handler(struct ring_info *ring_data, int budget)
 					 (dma_addr_t)rxdp3->Buffer2_ptr,
 					 ring_data->mtu + 4,
 					 PCI_DMA_FROMDEVICE);
+=======
+					 DMA_FROM_DEVICE);
+		} else if (ring_data->rxd_mode == RXD_MODE_3B) {
+			rxdp3 = (struct RxD3 *)rxdp;
+			dma_sync_single_for_cpu(&ring_data->pdev->dev,
+						(dma_addr_t)rxdp3->Buffer0_ptr,
+						BUF0_LEN, DMA_FROM_DEVICE);
+			dma_unmap_single(&ring_data->pdev->dev,
+					 (dma_addr_t)rxdp3->Buffer2_ptr,
+					 ring_data->mtu + 4, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		}
 		prefetch(skb->data);
 		rx_osm_handler(ring_data, rxdp);
@@ -2979,7 +3197,11 @@ static int rx_intr_handler(struct ring_info *ring_data, int budget)
 
 /**
  *  tx_intr_handler - Transmit interrupt handler
+<<<<<<< HEAD
  *  @nic : device private variable
+=======
+ *  @fifo_data : fifo data pointer
+>>>>>>> upstream/android-13
  *  Description:
  *  If an interrupt was raised to indicate DMA complete of the
  *  Tx packet, this function is called. It identifies the last TxD
@@ -3054,7 +3276,11 @@ static void tx_intr_handler(struct fifo_info *fifo_data)
 
 		/* Updating the statistics block */
 		swstats->mem_freed += skb->truesize;
+<<<<<<< HEAD
 		dev_kfree_skb_irq(skb);
+=======
+		dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 
 		get_info.offset++;
 		if (get_info.offset == get_info.fifo_len + 1)
@@ -3160,6 +3386,11 @@ static u64 s2io_mdio_read(u32 mmd_type, u64 addr, struct net_device *dev)
 /**
  *  s2io_chk_xpak_counter - Function to check the status of the xpak counters
  *  @counter      : counter value to be updated
+<<<<<<< HEAD
+=======
+ *  @regs_stat    : registers status
+ *  @index        : index
+>>>>>>> upstream/android-13
  *  @flag         : flag to indicate the status
  *  @type         : counter type
  *  Description:
@@ -3316,8 +3547,16 @@ static void s2io_updt_xpak_counter(struct net_device *dev)
 
 /**
  *  wait_for_cmd_complete - waits for a command to complete.
+<<<<<<< HEAD
  *  @sp : private member of the device structure, which is a pointer to the
  *  s2io_nic structure.
+=======
+ *  @addr: address
+ *  @busy_bit: bit to check for busy
+ *  @bit_state: state to check
+ *  @may_sleep: parameter indicates if sleeping when waiting for
+ *  command complete
+>>>>>>> upstream/android-13
  *  Description: Function that waits for a command to Write into RMAC
  *  ADDR DATA registers to be completed and returns either success or
  *  error depending on whether the command was complete or not.
@@ -3326,7 +3565,11 @@ static void s2io_updt_xpak_counter(struct net_device *dev)
  */
 
 static int wait_for_cmd_complete(void __iomem *addr, u64 busy_bit,
+<<<<<<< HEAD
 				 int bit_state)
+=======
+				 int bit_state, bool may_sleep)
+>>>>>>> upstream/android-13
 {
 	int ret = FAILURE, cnt = 0, delay = 1;
 	u64 val64;
@@ -3348,7 +3591,11 @@ static int wait_for_cmd_complete(void __iomem *addr, u64 busy_bit,
 			}
 		}
 
+<<<<<<< HEAD
 		if (in_interrupt())
+=======
+		if (!may_sleep)
+>>>>>>> upstream/android-13
 			mdelay(delay);
 		else
 			msleep(delay);
@@ -3679,11 +3926,17 @@ static void restore_xmsi_data(struct s2io_nic *nic)
 		writeq(nic->msix_info[i].data, &bar0->xmsi_data);
 		val64 = (s2BIT(7) | s2BIT(15) | vBIT(msix_index, 26, 6));
 		writeq(val64, &bar0->xmsi_access);
+<<<<<<< HEAD
 		if (wait_for_msix_trans(nic, msix_index)) {
 			DBG_PRINT(ERR_DBG, "%s: index: %d failed\n",
 				  __func__, msix_index);
 			continue;
 		}
+=======
+		if (wait_for_msix_trans(nic, msix_index))
+			DBG_PRINT(ERR_DBG, "%s: index: %d failed\n",
+				  __func__, msix_index);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -4119,9 +4372,15 @@ static netdev_tx_t s2io_xmit(struct sk_buff *skb, struct net_device *dev)
 	}
 
 	frg_len = skb_headlen(skb);
+<<<<<<< HEAD
 	txdp->Buffer_Pointer = pci_map_single(sp->pdev, skb->data,
 					      frg_len, PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(sp->pdev, txdp->Buffer_Pointer))
+=======
+	txdp->Buffer_Pointer = dma_map_single(&sp->pdev->dev, skb->data,
+					      frg_len, DMA_TO_DEVICE);
+	if (dma_mapping_error(&sp->pdev->dev, txdp->Buffer_Pointer))
+>>>>>>> upstream/android-13
 		goto pci_map_failed;
 
 	txdp->Host_Control = (unsigned long)skb;
@@ -4154,8 +4413,11 @@ static netdev_tx_t s2io_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	writeq(val64, &tx_fifo->List_Control);
 
+<<<<<<< HEAD
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	put_off++;
 	if (put_off == fifo->tx_curr_put_info.fifo_len + 1)
 		put_off = 0;
@@ -4346,7 +4608,11 @@ static int do_s2io_chk_alarm_bit(u64 value, void __iomem *addr,
 
 /**
  *  s2io_handle_errors - Xframe error indication handler
+<<<<<<< HEAD
  *  @nic: device private variable
+=======
+ *  @dev_id: opaque handle to dev
+>>>>>>> upstream/android-13
  *  Description: Handle alarms such as loss of link, single or
  *  double ECC errors, critical and serious errors.
  *  Return Value:
@@ -4750,7 +5016,11 @@ static irqreturn_t s2io_isr(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * s2io_updt_stats -
  */
 static void s2io_updt_stats(struct s2io_nic *sp)
@@ -4867,6 +5137,11 @@ static struct net_device_stats *s2io_get_stats(struct net_device *dev)
 /**
  *  s2io_set_multicast - entry point for multicast address enable/disable.
  *  @dev : pointer to the device structure
+<<<<<<< HEAD
+=======
+ *  @may_sleep: parameter indicates if sleeping when waiting for command
+ *  complete
+>>>>>>> upstream/android-13
  *  Description:
  *  This function is a driver entry point which gets called by the kernel
  *  whenever multicast addresses must be enabled/disabled. This also gets
@@ -4876,8 +5151,12 @@ static struct net_device_stats *s2io_get_stats(struct net_device *dev)
  *  Return value:
  *  void.
  */
+<<<<<<< HEAD
 
 static void s2io_set_multicast(struct net_device *dev)
+=======
+static void s2io_set_multicast(struct net_device *dev, bool may_sleep)
+>>>>>>> upstream/android-13
 {
 	int i, j, prev_cnt;
 	struct netdev_hw_addr *ha;
@@ -4902,7 +5181,11 @@ static void s2io_set_multicast(struct net_device *dev)
 		/* Wait till command completes */
 		wait_for_cmd_complete(&bar0->rmac_addr_cmd_mem,
 				      RMAC_ADDR_CMD_MEM_STROBE_CMD_EXECUTING,
+<<<<<<< HEAD
 				      S2IO_BIT_RESET);
+=======
+				      S2IO_BIT_RESET, may_sleep);
+>>>>>>> upstream/android-13
 
 		sp->m_cast_flg = 1;
 		sp->all_multi_pos = config->max_mc_addr - 1;
@@ -4919,7 +5202,11 @@ static void s2io_set_multicast(struct net_device *dev)
 		/* Wait till command completes */
 		wait_for_cmd_complete(&bar0->rmac_addr_cmd_mem,
 				      RMAC_ADDR_CMD_MEM_STROBE_CMD_EXECUTING,
+<<<<<<< HEAD
 				      S2IO_BIT_RESET);
+=======
+				      S2IO_BIT_RESET, may_sleep);
+>>>>>>> upstream/android-13
 
 		sp->m_cast_flg = 0;
 		sp->all_multi_pos = 0;
@@ -4999,7 +5286,11 @@ static void s2io_set_multicast(struct net_device *dev)
 			/* Wait for command completes */
 			if (wait_for_cmd_complete(&bar0->rmac_addr_cmd_mem,
 						  RMAC_ADDR_CMD_MEM_STROBE_CMD_EXECUTING,
+<<<<<<< HEAD
 						  S2IO_BIT_RESET)) {
+=======
+						  S2IO_BIT_RESET, may_sleep)) {
+>>>>>>> upstream/android-13
 				DBG_PRINT(ERR_DBG,
 					  "%s: Adding Multicasts failed\n",
 					  dev->name);
@@ -5029,7 +5320,11 @@ static void s2io_set_multicast(struct net_device *dev)
 			/* Wait for command completes */
 			if (wait_for_cmd_complete(&bar0->rmac_addr_cmd_mem,
 						  RMAC_ADDR_CMD_MEM_STROBE_CMD_EXECUTING,
+<<<<<<< HEAD
 						  S2IO_BIT_RESET)) {
+=======
+						  S2IO_BIT_RESET, may_sleep)) {
+>>>>>>> upstream/android-13
 				DBG_PRINT(ERR_DBG,
 					  "%s: Adding Multicasts failed\n",
 					  dev->name);
@@ -5040,6 +5335,15 @@ static void s2io_set_multicast(struct net_device *dev)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* NDO wrapper for s2io_set_multicast */
+static void s2io_ndo_set_multicast(struct net_device *dev)
+{
+	s2io_set_multicast(dev, false);
+}
+
+>>>>>>> upstream/android-13
 /* read from CAM unicast & multicast addresses and store it in
  * def_mac_addr structure
  */
@@ -5126,7 +5430,11 @@ static int do_s2io_add_mac(struct s2io_nic *sp, u64 addr, int off)
 	/* Wait till command completes */
 	if (wait_for_cmd_complete(&bar0->rmac_addr_cmd_mem,
 				  RMAC_ADDR_CMD_MEM_STROBE_CMD_EXECUTING,
+<<<<<<< HEAD
 				  S2IO_BIT_RESET)) {
+=======
+				  S2IO_BIT_RESET, true)) {
+>>>>>>> upstream/android-13
 		DBG_PRINT(INFO_DBG, "do_s2io_add_mac failed\n");
 		return FAILURE;
 	}
@@ -5159,7 +5467,11 @@ static int do_s2io_delete_unicast_mc(struct s2io_nic *sp, u64 addr)
 /* read mac entries from CAM */
 static u64 do_s2io_read_unicast_mc(struct s2io_nic *sp, int offset)
 {
+<<<<<<< HEAD
 	u64 tmp64 = 0xffffffffffff0000ULL, val64;
+=======
+	u64 tmp64, val64;
+>>>>>>> upstream/android-13
 	struct XENA_dev_config __iomem *bar0 = sp->bar0;
 
 	/* read mac addr */
@@ -5170,7 +5482,11 @@ static u64 do_s2io_read_unicast_mc(struct s2io_nic *sp, int offset)
 	/* Wait till command completes */
 	if (wait_for_cmd_complete(&bar0->rmac_addr_cmd_mem,
 				  RMAC_ADDR_CMD_MEM_STROBE_CMD_EXECUTING,
+<<<<<<< HEAD
 				  S2IO_BIT_RESET)) {
+=======
+				  S2IO_BIT_RESET, true)) {
+>>>>>>> upstream/android-13
 		DBG_PRINT(INFO_DBG, "do_s2io_read_unicast_mc failed\n");
 		return FAILURE;
 	}
@@ -5179,7 +5495,11 @@ static u64 do_s2io_read_unicast_mc(struct s2io_nic *sp, int offset)
 	return tmp64 >> 16;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * s2io_set_mac_addr - driver entry point
  */
 
@@ -5254,8 +5574,12 @@ static int do_s2io_prog_unicast(struct net_device *dev, u8 *addr)
 
 /**
  * s2io_ethtool_set_link_ksettings - Sets different link parameters.
+<<<<<<< HEAD
  * @sp : private member of the device structure, which is a pointer to the
  * s2io_nic structure.
+=======
+ * @dev : pointer to netdev
+>>>>>>> upstream/android-13
  * @cmd: pointer to the structure with parameters given by ethtool to set
  * link information.
  * Description:
@@ -5283,9 +5607,14 @@ s2io_ethtool_set_link_ksettings(struct net_device *dev,
 }
 
 /**
+<<<<<<< HEAD
  * s2io_ethtol_get_link_ksettings - Return link specific information.
  * @sp : private member of the device structure, pointer to the
  *      s2io_nic structure.
+=======
+ * s2io_ethtool_get_link_ksettings - Return link specific information.
+ * @dev: pointer to netdev
+>>>>>>> upstream/android-13
  * @cmd : pointer to the structure with parameters given by ethtool
  * to return link information.
  * Description:
@@ -5324,8 +5653,12 @@ s2io_ethtool_get_link_ksettings(struct net_device *dev,
 
 /**
  * s2io_ethtool_gdrvinfo - Returns driver specific information.
+<<<<<<< HEAD
  * @sp : private member of the device structure, which is a pointer to the
  * s2io_nic structure.
+=======
+ * @dev: pointer to netdev
+>>>>>>> upstream/android-13
  * @info : pointer to the structure with parameters given by ethtool to
  * return driver information.
  * Description:
@@ -5346,11 +5679,18 @@ static void s2io_ethtool_gdrvinfo(struct net_device *dev,
 
 /**
  *  s2io_ethtool_gregs - dumps the entire space of Xfame into the buffer.
+<<<<<<< HEAD
  *  @sp: private member of the device structure, which is a pointer to the
  *  s2io_nic structure.
  *  @regs : pointer to the structure with parameters given by ethtool for
  *  dumping the registers.
  *  @reg_space: The input argument into which all the registers are dumped.
+=======
+ *  @dev: pointer to netdev
+ *  @regs : pointer to the structure with parameters given by ethtool for
+ *          dumping the registers.
+ *  @space: The input argument into which all the registers are dumped.
+>>>>>>> upstream/android-13
  *  Description:
  *  Dumps the entire register space of xFrame NIC into the user given
  *  buffer area.
@@ -5482,8 +5822,12 @@ static void s2io_ethtool_gringparam(struct net_device *dev,
 
 /**
  * s2io_ethtool_getpause_data -Pause frame frame generation and reception.
+<<<<<<< HEAD
  * @sp : private member of the device structure, which is a pointer to the
  *	s2io_nic structure.
+=======
+ * @dev: pointer to netdev
+>>>>>>> upstream/android-13
  * @ep : pointer to the structure with pause parameters given by ethtool.
  * Description:
  * Returns the Pause frame generation and reception capability of the NIC.
@@ -5507,8 +5851,12 @@ static void s2io_ethtool_getpause_data(struct net_device *dev,
 
 /**
  * s2io_ethtool_setpause_data -  set/reset pause frame generation.
+<<<<<<< HEAD
  * @sp : private member of the device structure, which is a pointer to the
  *      s2io_nic structure.
+=======
+ * @dev: pointer to netdev
+>>>>>>> upstream/android-13
  * @ep : pointer to the structure with pause parameters given by ethtool.
  * Description:
  * It can be used to set or reset Pause frame generation or reception
@@ -5537,6 +5885,10 @@ static int s2io_ethtool_setpause_data(struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#define S2IO_DEV_ID		5
+>>>>>>> upstream/android-13
 /**
  * read_eeprom - reads 4 bytes of data from user given offset.
  * @sp : private member of the device structure, which is a pointer to the
@@ -5552,8 +5904,11 @@ static int s2io_ethtool_setpause_data(struct net_device *dev,
  * Return value:
  *  -1 on failure and 0 on success.
  */
+<<<<<<< HEAD
 
 #define S2IO_DEV_ID		5
+=======
+>>>>>>> upstream/android-13
 static int read_eeprom(struct s2io_nic *sp, int off, u64 *data)
 {
 	int ret = -1;
@@ -5745,8 +6100,12 @@ static void s2io_vpd_read(struct s2io_nic *nic)
 
 /**
  *  s2io_ethtool_geeprom  - reads the value stored in the Eeprom.
+<<<<<<< HEAD
  *  @sp : private member of the device structure, which is a pointer to the
  *  s2io_nic structure.
+=======
+ *  @dev: pointer to netdev
+>>>>>>> upstream/android-13
  *  @eeprom : pointer to the user level structure provided by ethtool,
  *  containing all relevant information.
  *  @data_buf : user defined value to be written into Eeprom.
@@ -5782,11 +6141,18 @@ static int s2io_ethtool_geeprom(struct net_device *dev,
 
 /**
  *  s2io_ethtool_seeprom - tries to write the user provided value in Eeprom
+<<<<<<< HEAD
  *  @sp : private member of the device structure, which is a pointer to the
  *  s2io_nic structure.
  *  @eeprom : pointer to the user level structure provided by ethtool,
  *  containing all relevant information.
  *  @data_buf ; user defined value to be written into Eeprom.
+=======
+ *  @dev: pointer to netdev
+ *  @eeprom : pointer to the user level structure provided by ethtool,
+ *  containing all relevant information.
+ *  @data_buf : user defined value to be written into Eeprom.
+>>>>>>> upstream/android-13
  *  Description:
  *  Tries to write the user provided value in the Eeprom, at the offset
  *  given by the user.
@@ -6038,7 +6404,11 @@ static int s2io_bist_test(struct s2io_nic *sp, uint64_t *data)
 
 /**
  * s2io_link_test - verifies the link state of the nic
+<<<<<<< HEAD
  * @sp ; private member of the device structure, which is a pointer to the
+=======
+ * @sp: private member of the device structure, which is a pointer to the
+>>>>>>> upstream/android-13
  * s2io_nic structure.
  * @data: variable that returns the result of each of the test conducted by
  * the driver.
@@ -6161,8 +6531,12 @@ static int s2io_rldram_test(struct s2io_nic *sp, uint64_t *data)
 
 /**
  *  s2io_ethtool_test - conducts 6 tsets to determine the health of card.
+<<<<<<< HEAD
  *  @sp : private member of the device structure, which is a pointer to the
  *  s2io_nic structure.
+=======
+ *  @dev: pointer to netdev
+>>>>>>> upstream/android-13
  *  @ethtest : pointer to a ethtool command specific structure that will be
  *  returned to the user.
  *  @data : variable that returns the result of each of the test
@@ -6608,7 +6982,11 @@ static const struct ethtool_ops netdev_ethtool_ops = {
 /**
  *  s2io_ioctl - Entry point for the Ioctl
  *  @dev :  Device pointer.
+<<<<<<< HEAD
  *  @ifr :  An IOCTL specefic structure, that can contain a pointer to
+=======
+ *  @rq :  An IOCTL specefic structure, that can contain a pointer to
+>>>>>>> upstream/android-13
  *  a proprietary structure used to pass information to the driver.
  *  @cmd :  This is used to distinguish between the different commands that
  *  can be passed to the IOCTL functions.
@@ -6661,7 +7039,11 @@ static int s2io_change_mtu(struct net_device *dev, int new_mtu)
 
 /**
  * s2io_set_link - Set the LInk status
+<<<<<<< HEAD
  * @data: long pointer to device private structue
+=======
+ * @work: work struct containing a pointer to device private structure
+>>>>>>> upstream/android-13
  * Description: Sets the link status for the adapter
  */
 
@@ -6776,10 +7158,17 @@ static int set_rxd_buffer_pointer(struct s2io_nic *sp, struct RxD_t *rxdp,
 			 * Host Control is NULL
 			 */
 			rxdp1->Buffer0_ptr = *temp0 =
+<<<<<<< HEAD
 				pci_map_single(sp->pdev, (*skb)->data,
 					       size - NET_IP_ALIGN,
 					       PCI_DMA_FROMDEVICE);
 			if (pci_dma_mapping_error(sp->pdev, rxdp1->Buffer0_ptr))
+=======
+				dma_map_single(&sp->pdev->dev, (*skb)->data,
+					       size - NET_IP_ALIGN,
+					       DMA_FROM_DEVICE);
+			if (dma_mapping_error(&sp->pdev->dev, rxdp1->Buffer0_ptr))
+>>>>>>> upstream/android-13
 				goto memalloc_failed;
 			rxdp->Host_Control = (unsigned long) (*skb);
 		}
@@ -6802,6 +7191,7 @@ static int set_rxd_buffer_pointer(struct s2io_nic *sp, struct RxD_t *rxdp,
 			}
 			stats->mem_allocated += (*skb)->truesize;
 			rxdp3->Buffer2_ptr = *temp2 =
+<<<<<<< HEAD
 				pci_map_single(sp->pdev, (*skb)->data,
 					       dev->mtu + 4,
 					       PCI_DMA_FROMDEVICE);
@@ -6816,12 +7206,27 @@ static int set_rxd_buffer_pointer(struct s2io_nic *sp, struct RxD_t *rxdp,
 						 (dma_addr_t)rxdp3->Buffer2_ptr,
 						 dev->mtu + 4,
 						 PCI_DMA_FROMDEVICE);
+=======
+				dma_map_single(&sp->pdev->dev, (*skb)->data,
+					       dev->mtu + 4, DMA_FROM_DEVICE);
+			if (dma_mapping_error(&sp->pdev->dev, rxdp3->Buffer2_ptr))
+				goto memalloc_failed;
+			rxdp3->Buffer0_ptr = *temp0 =
+				dma_map_single(&sp->pdev->dev, ba->ba_0,
+					       BUF0_LEN, DMA_FROM_DEVICE);
+			if (dma_mapping_error(&sp->pdev->dev, rxdp3->Buffer0_ptr)) {
+				dma_unmap_single(&sp->pdev->dev,
+						 (dma_addr_t)rxdp3->Buffer2_ptr,
+						 dev->mtu + 4,
+						 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				goto memalloc_failed;
 			}
 			rxdp->Host_Control = (unsigned long) (*skb);
 
 			/* Buffer-1 will be dummy buffer not used */
 			rxdp3->Buffer1_ptr = *temp1 =
+<<<<<<< HEAD
 				pci_map_single(sp->pdev, ba->ba_1, BUF1_LEN,
 					       PCI_DMA_FROMDEVICE);
 			if (pci_dma_mapping_error(sp->pdev,
@@ -6833,6 +7238,18 @@ static int set_rxd_buffer_pointer(struct s2io_nic *sp, struct RxD_t *rxdp,
 						 (dma_addr_t)rxdp3->Buffer2_ptr,
 						 dev->mtu + 4,
 						 PCI_DMA_FROMDEVICE);
+=======
+				dma_map_single(&sp->pdev->dev, ba->ba_1,
+					       BUF1_LEN, DMA_FROM_DEVICE);
+			if (dma_mapping_error(&sp->pdev->dev, rxdp3->Buffer1_ptr)) {
+				dma_unmap_single(&sp->pdev->dev,
+						 (dma_addr_t)rxdp3->Buffer0_ptr,
+						 BUF0_LEN, DMA_FROM_DEVICE);
+				dma_unmap_single(&sp->pdev->dev,
+						 (dma_addr_t)rxdp3->Buffer2_ptr,
+						 dev->mtu + 4,
+						 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				goto memalloc_failed;
 			}
 		}
@@ -7153,7 +7570,11 @@ static int s2io_card_up(struct s2io_nic *sp)
 	}
 
 	/* Setting its receive mode */
+<<<<<<< HEAD
 	s2io_set_multicast(dev);
+=======
+	s2io_set_multicast(dev, true);
+>>>>>>> upstream/android-13
 
 	if (dev->features & NETIF_F_LRO) {
 		/* Initialize max aggregatable pkts per session based on MTU */
@@ -7201,7 +7622,11 @@ static int s2io_card_up(struct s2io_nic *sp)
 
 /**
  * s2io_restart_nic - Resets the NIC.
+<<<<<<< HEAD
  * @data : long pointer to the device private structure
+=======
+ * @work : work struct containing a pointer to the device private structure
+>>>>>>> upstream/android-13
  * Description:
  * This function is scheduled to be run by the s2io_tx_watchdog
  * function after 0.5 secs to reset the NIC. The idea is to reduce
@@ -7232,6 +7657,10 @@ out_unlock:
 /**
  *  s2io_tx_watchdog - Watchdog for transmit side.
  *  @dev : Pointer to net device structure
+<<<<<<< HEAD
+=======
+ *  @txqueue: index of the hanging queue
+>>>>>>> upstream/android-13
  *  Description:
  *  This function is triggered if the Tx Queue is stopped
  *  for a pre-defined amount of time when the Interface is still up.
@@ -7242,7 +7671,11 @@ out_unlock:
  *  void
  */
 
+<<<<<<< HEAD
 static void s2io_tx_watchdog(struct net_device *dev)
+=======
+static void s2io_tx_watchdog(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct s2io_nic *sp = netdev_priv(dev);
 	struct swStat *swstats = &sp->mac_control.stats_info->sw_stat;
@@ -7256,11 +7689,16 @@ static void s2io_tx_watchdog(struct net_device *dev)
 
 /**
  *   rx_osm_handler - To perform some OS related operations on SKB.
+<<<<<<< HEAD
  *   @sp: private member of the device structure,pointer to s2io_nic structure.
  *   @skb : the socket buffer pointer.
  *   @len : length of the packet
  *   @cksum : FCS checksum of the frame.
  *   @ring_no : the ring from which this RxD was extracted.
+=======
+ *   @ring_data : the ring from which this RxD was extracted.
+ *   @rxdp: descriptor
+>>>>>>> upstream/android-13
  *   Description:
  *   This function is called by the Rx interrupt serivce routine to perform
  *   some OS related operations on the SKB before passing it to the upper
@@ -7280,7 +7718,11 @@ static int rx_osm_handler(struct ring_info *ring_data, struct RxD_t * rxdp)
 	int ring_no = ring_data->ring_no;
 	u16 l3_csum, l4_csum;
 	unsigned long long err = rxdp->Control_1 & RXD_T_CODE;
+<<<<<<< HEAD
 	struct lro *uninitialized_var(lro);
+=======
+	struct lro *lro;
+>>>>>>> upstream/android-13
 	u8 err_mask;
 	struct swStat *swstats = &sp->mac_control.stats_info->sw_stat;
 
@@ -7461,7 +7903,11 @@ static void s2io_link(struct s2io_nic *sp, int link)
 	struct swStat *swstats = &sp->mac_control.stats_info->sw_stat;
 
 	if (link != sp->last_link_state) {
+<<<<<<< HEAD
 		init_tti(sp, link);
+=======
+		init_tti(sp, link, false);
+>>>>>>> upstream/android-13
 		if (link == LINK_DOWN) {
 			DBG_PRINT(ERR_DBG, "%s: Link down\n", dev->name);
 			s2io_stop_all_tx_queue(sp);
@@ -7590,9 +8036,16 @@ static int s2io_verify_parm(struct pci_dev *pdev, u8 *dev_intr_type,
 }
 
 /**
+<<<<<<< HEAD
  * rts_ds_steer - Receive traffic steering based on IPv4 or IPv6 TOS
  * or Traffic class respectively.
  * @nic: device private variable
+=======
+ * rts_ds_steer - Receive traffic steering based on IPv4 or IPv6 TOS or Traffic class respectively.
+ * @nic: device private variable
+ * @ds_codepoint: data
+ * @ring: ring index
+>>>>>>> upstream/android-13
  * Description: The function configures the receive steering to
  * desired receive ring.
  * Return Value:  SUCCESS on success and
@@ -7617,7 +8070,11 @@ static int rts_ds_steer(struct s2io_nic *nic, u8 ds_codepoint, u8 ring)
 
 	return wait_for_cmd_complete(&bar0->rts_ds_mem_ctrl,
 				     RTS_DS_MEM_CTRL_STROBE_CMD_BEING_EXECUTED,
+<<<<<<< HEAD
 				     S2IO_BIT_RESET);
+=======
+				     S2IO_BIT_RESET, true);
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops s2io_netdev_ops = {
@@ -7626,8 +8083,13 @@ static const struct net_device_ops s2io_netdev_ops = {
 	.ndo_get_stats	        = s2io_get_stats,
 	.ndo_start_xmit    	= s2io_xmit,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_set_rx_mode	= s2io_set_multicast,
 	.ndo_do_ioctl	   	= s2io_ioctl,
+=======
+	.ndo_set_rx_mode	= s2io_ndo_set_multicast,
+	.ndo_eth_ioctl		= s2io_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address    = s2io_set_mac_addr,
 	.ndo_change_mtu	   	= s2io_change_mtu,
 	.ndo_set_features	= s2io_set_features,
@@ -7679,6 +8141,7 @@ s2io_init_nic(struct pci_dev *pdev, const struct pci_device_id *pre)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		DBG_PRINT(INIT_DBG, "%s: Using 64bit DMA\n", __func__);
 		dma_flag = true;
@@ -7690,6 +8153,18 @@ s2io_init_nic(struct pci_dev *pdev, const struct pci_device_id *pre)
 			return -ENOMEM;
 		}
 	} else if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+		DBG_PRINT(INIT_DBG, "%s: Using 64bit DMA\n", __func__);
+		dma_flag = true;
+		if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+			DBG_PRINT(ERR_DBG,
+				  "Unable to obtain 64bit DMA for coherent allocations\n");
+			pci_disable_device(pdev);
+			return -ENOMEM;
+		}
+	} else if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		DBG_PRINT(INIT_DBG, "%s: Using 32bit DMA\n", __func__);
 	} else {
 		pci_disable_device(pdev);
@@ -7943,7 +8418,11 @@ s2io_init_nic(struct pci_dev *pdev, const struct pci_device_id *pre)
 	writeq(val64, &bar0->rmac_addr_cmd_mem);
 	wait_for_cmd_complete(&bar0->rmac_addr_cmd_mem,
 			      RMAC_ADDR_CMD_MEM_STROBE_CMD_EXECUTING,
+<<<<<<< HEAD
 			      S2IO_BIT_RESET);
+=======
+			      S2IO_BIT_RESET, true);
+>>>>>>> upstream/android-13
 	tmp64 = readq(&bar0->rmac_addr_data0_mem);
 	mac_down = (u32)tmp64;
 	mac_up = (u32) (tmp64 >> 32);
@@ -8569,7 +9048,11 @@ static void s2io_io_resume(struct pci_dev *pdev)
 			return;
 		}
 
+<<<<<<< HEAD
 		if (s2io_set_mac_addr(netdev, netdev->dev_addr) == FAILURE) {
+=======
+		if (do_s2io_prog_unicast(netdev, netdev->dev_addr) == FAILURE) {
+>>>>>>> upstream/android-13
 			s2io_card_down(sp);
 			pr_err("Can't restore mac addr after reset.\n");
 			return;

@@ -2,15 +2,34 @@
 #include <sys/time.h>
 #include <sys/prctl.h>
 #include <errno.h>
+<<<<<<< HEAD
 #include <time.h>
 #include <stdlib.h>
 
+=======
+#include <limits.h>
+#include <time.h>
+#include <stdlib.h>
+#include <linux/zalloc.h>
+#include <perf/cpumap.h>
+#include <perf/evlist.h>
+#include <perf/mmap.h>
+
+#include "debug.h"
+>>>>>>> upstream/android-13
 #include "parse-events.h"
 #include "evlist.h"
 #include "evsel.h"
 #include "thread_map.h"
+<<<<<<< HEAD
 #include "cpumap.h"
 #include "tests.h"
+=======
+#include "record.h"
+#include "tests.h"
+#include "util/mmap.h"
+#include "pmu.h"
+>>>>>>> upstream/android-13
 
 static int spin_sleep(void)
 {
@@ -51,8 +70,13 @@ static int spin_sleep(void)
 }
 
 struct switch_tracking {
+<<<<<<< HEAD
 	struct perf_evsel *switch_evsel;
 	struct perf_evsel *cycles_evsel;
+=======
+	struct evsel *switch_evsel;
+	struct evsel *cycles_evsel;
+>>>>>>> upstream/android-13
 	pid_t *tids;
 	int nr_tids;
 	int comm_seen[4];
@@ -112,11 +136,16 @@ static int check_cpu(struct switch_tracking *switch_tracking, int cpu)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int process_sample_event(struct perf_evlist *evlist,
+=======
+static int process_sample_event(struct evlist *evlist,
+>>>>>>> upstream/android-13
 				union perf_event *event,
 				struct switch_tracking *switch_tracking)
 {
 	struct perf_sample sample;
+<<<<<<< HEAD
 	struct perf_evsel *evsel;
 	pid_t next_tid, prev_tid;
 	int cpu, err;
@@ -130,6 +159,21 @@ static int process_sample_event(struct perf_evlist *evlist,
 	if (evsel == switch_tracking->switch_evsel) {
 		next_tid = perf_evsel__intval(evsel, &sample, "next_pid");
 		prev_tid = perf_evsel__intval(evsel, &sample, "prev_pid");
+=======
+	struct evsel *evsel;
+	pid_t next_tid, prev_tid;
+	int cpu, err;
+
+	if (evlist__parse_sample(evlist, event, &sample)) {
+		pr_debug("evlist__parse_sample failed\n");
+		return -1;
+	}
+
+	evsel = evlist__id2evsel(evlist, sample.id);
+	if (evsel == switch_tracking->switch_evsel) {
+		next_tid = evsel__intval(evsel, &sample, "next_pid");
+		prev_tid = evsel__intval(evsel, &sample, "prev_pid");
+>>>>>>> upstream/android-13
 		cpu = sample.cpu;
 		pr_debug3("sched_switch: cpu: %d prev_tid %d next_tid %d\n",
 			  cpu, prev_tid, next_tid);
@@ -138,7 +182,11 @@ static int process_sample_event(struct perf_evlist *evlist,
 			return err;
 		/*
 		 * Check for no missing sched_switch events i.e. that the
+<<<<<<< HEAD
 		 * evsel->system_wide flag has worked.
+=======
+		 * evsel->core.system_wide flag has worked.
+>>>>>>> upstream/android-13
 		 */
 		if (switch_tracking->tids[cpu] != -1 &&
 		    switch_tracking->tids[cpu] != prev_tid) {
@@ -162,7 +210,11 @@ static int process_sample_event(struct perf_evlist *evlist,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int process_event(struct perf_evlist *evlist, union perf_event *event,
+=======
+static int process_event(struct evlist *evlist, union perf_event *event,
+>>>>>>> upstream/android-13
 			 struct switch_tracking *switch_tracking)
 {
 	if (event->header.type == PERF_RECORD_SAMPLE)
@@ -202,7 +254,11 @@ struct event_node {
 	u64 event_time;
 };
 
+<<<<<<< HEAD
 static int add_event(struct perf_evlist *evlist, struct list_head *events,
+=======
+static int add_event(struct evlist *evlist, struct list_head *events,
+>>>>>>> upstream/android-13
 		     union perf_event *event)
 {
 	struct perf_sample sample;
@@ -216,8 +272,13 @@ static int add_event(struct perf_evlist *evlist, struct list_head *events,
 	node->event = event;
 	list_add(&node->list, events);
 
+<<<<<<< HEAD
 	if (perf_evlist__parse_sample(evlist, event, &sample)) {
 		pr_debug("perf_evlist__parse_sample failed\n");
+=======
+	if (evlist__parse_sample(evlist, event, &sample)) {
+		pr_debug("evlist__parse_sample failed\n");
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -237,7 +298,11 @@ static void free_event_nodes(struct list_head *events)
 
 	while (!list_empty(events)) {
 		node = list_entry(events->next, struct event_node, list);
+<<<<<<< HEAD
 		list_del(&node->list);
+=======
+		list_del_init(&node->list);
+>>>>>>> upstream/android-13
 		free(node);
 	}
 }
@@ -251,13 +316,18 @@ static int compar(const void *a, const void *b)
 	return cmp;
 }
 
+<<<<<<< HEAD
 static int process_events(struct perf_evlist *evlist,
+=======
+static int process_events(struct evlist *evlist,
+>>>>>>> upstream/android-13
 			  struct switch_tracking *switch_tracking)
 {
 	union perf_event *event;
 	unsigned pos, cnt = 0;
 	LIST_HEAD(events);
 	struct event_node *events_array, *node;
+<<<<<<< HEAD
 	struct perf_mmap *md;
 	int i, ret;
 
@@ -274,6 +344,24 @@ static int process_events(struct perf_evlist *evlist,
 				goto out_free_nodes;
 		}
 		perf_mmap__read_done(md);
+=======
+	struct mmap *md;
+	int i, ret;
+
+	for (i = 0; i < evlist->core.nr_mmaps; i++) {
+		md = &evlist->mmap[i];
+		if (perf_mmap__read_init(&md->core) < 0)
+			continue;
+
+		while ((event = perf_mmap__read_event(&md->core)) != NULL) {
+			cnt += 1;
+			ret = add_event(evlist, &events, event);
+			 perf_mmap__consume(&md->core);
+			if (ret < 0)
+				goto out_free_nodes;
+		}
+		perf_mmap__read_done(&md->core);
+>>>>>>> upstream/android-13
 	}
 
 	events_array = calloc(cnt, sizeof(struct event_node));
@@ -310,7 +398,11 @@ out_free_nodes:
  *
  * This function implements a test that checks that sched_switch events and
  * tracking events can be recorded for a workload (current process) using the
+<<<<<<< HEAD
  * evsel->system_wide and evsel->tracking flags (respectively) with other events
+=======
+ * evsel->core.system_wide and evsel->tracking flags (respectively) with other events
+>>>>>>> upstream/android-13
  * sometimes enabled or disabled.
  */
 int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_unused)
@@ -326,11 +418,19 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 			.uses_mmap   = true,
 		},
 	};
+<<<<<<< HEAD
 	struct thread_map *threads = NULL;
 	struct cpu_map *cpus = NULL;
 	struct perf_evlist *evlist = NULL;
 	struct perf_evsel *evsel, *cpu_clocks_evsel, *cycles_evsel;
 	struct perf_evsel *switch_evsel, *tracking_evsel;
+=======
+	struct perf_thread_map *threads = NULL;
+	struct perf_cpu_map *cpus = NULL;
+	struct evlist *evlist = NULL;
+	struct evsel *evsel, *cpu_clocks_evsel, *cycles_evsel;
+	struct evsel *switch_evsel, *tracking_evsel;
+>>>>>>> upstream/android-13
 	const char *comm;
 	int err = -1;
 
@@ -340,6 +440,7 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	cpus = cpu_map__new(NULL);
 	if (!cpus) {
 		pr_debug("cpu_map__new failed!\n");
@@ -353,6 +454,21 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 	}
 
 	perf_evlist__set_maps(evlist, cpus, threads);
+=======
+	cpus = perf_cpu_map__new(NULL);
+	if (!cpus) {
+		pr_debug("perf_cpu_map__new failed!\n");
+		goto out_err;
+	}
+
+	evlist = evlist__new();
+	if (!evlist) {
+		pr_debug("evlist__new failed!\n");
+		goto out_err;
+	}
+
+	perf_evlist__set_maps(&evlist->core, cpus, threads);
+>>>>>>> upstream/android-13
 
 	/* First event */
 	err = parse_events(evlist, "cpu-clock:u", NULL);
@@ -361,19 +477,36 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	cpu_clocks_evsel = perf_evlist__last(evlist);
 
 	/* Second event */
 	err = parse_events(evlist, "cycles:u", NULL);
+=======
+	cpu_clocks_evsel = evlist__last(evlist);
+
+	/* Second event */
+	if (perf_pmu__has_hybrid())
+		err = parse_events(evlist, "cpu_core/cycles/u", NULL);
+	else
+		err = parse_events(evlist, "cycles:u", NULL);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_debug("Failed to parse event cycles:u\n");
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	cycles_evsel = perf_evlist__last(evlist);
 
 	/* Third event */
 	if (!perf_evlist__can_select_event(evlist, sched_switch)) {
+=======
+	cycles_evsel = evlist__last(evlist);
+
+	/* Third event */
+	if (!evlist__can_select_event(evlist, sched_switch)) {
+>>>>>>> upstream/android-13
 		pr_debug("No sched_switch\n");
 		err = 0;
 		goto out;
@@ -385,28 +518,51 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	switch_evsel = perf_evlist__last(evlist);
 
 	perf_evsel__set_sample_bit(switch_evsel, CPU);
 	perf_evsel__set_sample_bit(switch_evsel, TIME);
 
 	switch_evsel->system_wide = true;
+=======
+	switch_evsel = evlist__last(evlist);
+
+	evsel__set_sample_bit(switch_evsel, CPU);
+	evsel__set_sample_bit(switch_evsel, TIME);
+
+	switch_evsel->core.system_wide = true;
+>>>>>>> upstream/android-13
 	switch_evsel->no_aux_samples = true;
 	switch_evsel->immediate = true;
 
 	/* Test moving an event to the front */
+<<<<<<< HEAD
 	if (cycles_evsel == perf_evlist__first(evlist)) {
 		pr_debug("cycles event already at front");
 		goto out_err;
 	}
 	perf_evlist__to_front(evlist, cycles_evsel);
 	if (cycles_evsel != perf_evlist__first(evlist)) {
+=======
+	if (cycles_evsel == evlist__first(evlist)) {
+		pr_debug("cycles event already at front");
+		goto out_err;
+	}
+	evlist__to_front(evlist, cycles_evsel);
+	if (cycles_evsel != evlist__first(evlist)) {
+>>>>>>> upstream/android-13
 		pr_debug("Failed to move cycles event to front");
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	perf_evsel__set_sample_bit(cycles_evsel, CPU);
 	perf_evsel__set_sample_bit(cycles_evsel, TIME);
+=======
+	evsel__set_sample_bit(cycles_evsel, CPU);
+	evsel__set_sample_bit(cycles_evsel, TIME);
+>>>>>>> upstream/android-13
 
 	/* Fourth event */
 	err = parse_events(evlist, "dummy:u", NULL);
@@ -415,6 +571,7 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	tracking_evsel = perf_evlist__last(evlist);
 
 	perf_evlist__set_tracking_event(evlist, tracking_evsel);
@@ -429,12 +586,32 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 
 	/* Check moved event is still at the front */
 	if (cycles_evsel != perf_evlist__first(evlist)) {
+=======
+	tracking_evsel = evlist__last(evlist);
+
+	evlist__set_tracking_event(evlist, tracking_evsel);
+
+	tracking_evsel->core.attr.freq = 0;
+	tracking_evsel->core.attr.sample_period = 1;
+
+	evsel__set_sample_bit(tracking_evsel, TIME);
+
+	/* Config events */
+	evlist__config(evlist, &opts, NULL);
+
+	/* Check moved event is still at the front */
+	if (cycles_evsel != evlist__first(evlist)) {
+>>>>>>> upstream/android-13
 		pr_debug("Front event no longer at front");
 		goto out_err;
 	}
 
 	/* Check tracking event is tracking */
+<<<<<<< HEAD
 	if (!tracking_evsel->attr.mmap || !tracking_evsel->attr.comm) {
+=======
+	if (!tracking_evsel->core.attr.mmap || !tracking_evsel->core.attr.comm) {
+>>>>>>> upstream/android-13
 		pr_debug("Tracking event not tracking\n");
 		goto out_err;
 	}
@@ -442,19 +619,28 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 	/* Check non-tracking events are not tracking */
 	evlist__for_each_entry(evlist, evsel) {
 		if (evsel != tracking_evsel) {
+<<<<<<< HEAD
 			if (evsel->attr.mmap || evsel->attr.comm) {
+=======
+			if (evsel->core.attr.mmap || evsel->core.attr.comm) {
+>>>>>>> upstream/android-13
 				pr_debug("Non-tracking event is tracking\n");
 				goto out_err;
 			}
 		}
 	}
 
+<<<<<<< HEAD
 	if (perf_evlist__open(evlist) < 0) {
+=======
+	if (evlist__open(evlist) < 0) {
+>>>>>>> upstream/android-13
 		pr_debug("Not supported\n");
 		err = 0;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	err = perf_evlist__mmap(evlist, UINT_MAX);
 	if (err) {
 		pr_debug("perf_evlist__mmap failed!\n");
@@ -464,6 +650,17 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 	perf_evlist__enable(evlist);
 
 	err = perf_evsel__disable(cpu_clocks_evsel);
+=======
+	err = evlist__mmap(evlist, UINT_MAX);
+	if (err) {
+		pr_debug("evlist__mmap failed!\n");
+		goto out_err;
+	}
+
+	evlist__enable(evlist);
+
+	err = evsel__disable(cpu_clocks_evsel);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_debug("perf_evlist__disable_event failed!\n");
 		goto out_err;
@@ -482,7 +679,11 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	err = perf_evsel__disable(cycles_evsel);
+=======
+	err = evsel__disable(cycles_evsel);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_debug("perf_evlist__disable_event failed!\n");
 		goto out_err;
@@ -508,7 +709,11 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	err = perf_evsel__enable(cycles_evsel);
+=======
+	err = evsel__enable(cycles_evsel);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_debug("perf_evlist__disable_event failed!\n");
 		goto out_err;
@@ -527,7 +732,11 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	perf_evlist__disable(evlist);
+=======
+	evlist__disable(evlist);
+>>>>>>> upstream/android-13
 
 	switch_tracking.switch_evsel = switch_evsel;
 	switch_tracking.cycles_evsel = cycles_evsel;
@@ -565,12 +774,20 @@ int test__switch_tracking(struct test *test __maybe_unused, int subtest __maybe_
 	}
 out:
 	if (evlist) {
+<<<<<<< HEAD
 		perf_evlist__disable(evlist);
 		perf_evlist__delete(evlist);
 	} else {
 		cpu_map__put(cpus);
 		thread_map__put(threads);
 	}
+=======
+		evlist__disable(evlist);
+		evlist__delete(evlist);
+	}
+	perf_cpu_map__put(cpus);
+	perf_thread_map__put(threads);
+>>>>>>> upstream/android-13
 
 	return err;
 

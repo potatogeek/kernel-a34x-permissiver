@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * cpu-sa1100.c: clock scaling for the SA1100
  *
@@ -26,6 +30,7 @@
  *  2600 GA Delft
  *  The Netherlands
  *
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +47,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * Theory of operations
  * ====================
  *
@@ -80,7 +87,10 @@
  * sa1100_update_dram_timings(), you'll have to read sections 8.2,
  * 9.5.7.3, and 10.2 from the "Intel StrongARM SA-1100 Microprocessor
  * Developers Manual" (available for free from Intel).
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -197,11 +207,20 @@ static int sa1100_target(struct cpufreq_policy *policy, unsigned int ppcr)
 
 static int __init sa1100_cpu_init(struct cpufreq_policy *policy)
 {
+<<<<<<< HEAD
 	return cpufreq_generic_init(policy, sa11x0_freq_table, 0);
 }
 
 static struct cpufreq_driver sa1100_driver __refdata = {
 	.flags		= CPUFREQ_STICKY | CPUFREQ_NEED_INITIAL_FREQ_CHECK |
+=======
+	cpufreq_generic_init(policy, sa11x0_freq_table, 0);
+	return 0;
+}
+
+static struct cpufreq_driver sa1100_driver __refdata = {
+	.flags		= CPUFREQ_NEED_INITIAL_FREQ_CHECK |
+>>>>>>> upstream/android-13
 			  CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING,
 	.verify		= cpufreq_generic_frequency_table_verify,
 	.target_index	= sa1100_target,

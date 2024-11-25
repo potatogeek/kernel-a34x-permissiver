@@ -17,6 +17,7 @@
 /* Number of contexts is implementation-dependent; 64k is the most we support */
 #define SRMMU_MAX_CONTEXTS	65536
 
+<<<<<<< HEAD
 /* PMD_SHIFT determines the size of the area a second-level page table entry can map */
 #define SRMMU_REAL_PMD_SHIFT		18
 #define SRMMU_REAL_PMD_SIZE		(1UL << SRMMU_REAL_PMD_SHIFT)
@@ -50,6 +51,11 @@
  * found in pgtable.h.
  */
 #define SRMMU_PTRS_PER_PMD	4
+=======
+#define SRMMU_PTE_TABLE_SIZE		(PTRS_PER_PTE*4)
+#define SRMMU_PMD_TABLE_SIZE		(PTRS_PER_PMD*4)
+#define SRMMU_PGD_TABLE_SIZE		(PTRS_PER_PGD*4)
+>>>>>>> upstream/android-13
 
 /* Definition of the values in the ET field of PTD's and PTE's */
 #define SRMMU_ET_MASK         0x3
@@ -143,7 +149,11 @@ extern unsigned long last_valid_pfn;
 extern void *srmmu_nocache_pool;
 #define __nocache_pa(VADDR) (((unsigned long)VADDR) - SRMMU_NOCACHE_VADDR + __pa((unsigned long)srmmu_nocache_pool))
 #define __nocache_va(PADDR) (__va((unsigned long)PADDR) - (unsigned long)srmmu_nocache_pool + SRMMU_NOCACHE_VADDR)
+<<<<<<< HEAD
 #define __nocache_fix(VADDR) __va(__nocache_pa(VADDR))
+=======
+#define __nocache_fix(VADDR) ((__typeof__(VADDR))__va(__nocache_pa(VADDR)))
+>>>>>>> upstream/android-13
 
 /* Accessing the MMU control register. */
 unsigned int srmmu_get_mmureg(void);

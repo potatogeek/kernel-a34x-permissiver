@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Hypervisor Maintenance Interrupt (HMI) handling.
  *
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Hypervisor Maintenance Interrupt (HMI) handling.
+ *
+>>>>>>> upstream/android-13
  * Copyright 2015 IBM Corporation
  * Author: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
  */
@@ -24,6 +31,10 @@
 #include <linux/compiler.h>
 #include <asm/paca.h>
 #include <asm/hmi.h>
+<<<<<<< HEAD
+=======
+#include <asm/processor.h>
+>>>>>>> upstream/android-13
 
 void wait_for_subcore_guest_exit(void)
 {

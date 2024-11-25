@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /* 
  * Copyright (C) 2000, 2002 Jeff Dike (jdike@karaya.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* 
+ * Copyright (C) 2000, 2002 Jeff Dike (jdike@karaya.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -12,7 +18,10 @@
 #include <linux/console.h>
 #include <asm/termbits.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include "ssl.h"
+=======
+>>>>>>> upstream/android-13
 #include "chan.h"
 #include <init.h>
 #include <irq_user.h>
@@ -96,12 +105,18 @@ static const struct tty_operations ssl_ops = {
 	.open 	 		= line_open,
 	.close 	 		= line_close,
 	.write 	 		= line_write,
+<<<<<<< HEAD
 	.put_char 		= line_put_char,
+=======
+>>>>>>> upstream/android-13
 	.write_room		= line_write_room,
 	.chars_in_buffer 	= line_chars_in_buffer,
 	.flush_buffer 		= line_flush_buffer,
 	.flush_chars 		= line_flush_chars,
+<<<<<<< HEAD
 	.set_termios 		= line_set_termios,
+=======
+>>>>>>> upstream/android-13
 	.throttle 		= line_throttle,
 	.unthrottle 		= line_unthrottle,
 	.install		= ssl_install,
@@ -197,3 +212,14 @@ static int ssl_chan_setup(char *str)
 
 __setup("ssl", ssl_chan_setup);
 __channel_help(ssl_chan_setup, "ssl");
+<<<<<<< HEAD
+=======
+
+static int ssl_non_raw_setup(char *str)
+{
+	opts.raw = 0;
+	return 1;
+}
+__setup("ssl-non-raw", ssl_non_raw_setup);
+__channel_help(ssl_non_raw_setup, "set serial lines to non-raw mode");
+>>>>>>> upstream/android-13

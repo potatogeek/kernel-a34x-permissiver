@@ -4,6 +4,11 @@
  * library
  */
 #include <asm/vdso.h>
+<<<<<<< HEAD
+=======
+#include <asm/page.h>
+#include <asm-generic/vmlinux.lds.h>
+>>>>>>> upstream/android-13
 
 #ifdef __LITTLE_ENDIAN__
 OUTPUT_FORMAT("elf32-powerpcle", "elf32-powerpcle", "elf32-powerpcle")
@@ -15,7 +20,12 @@ ENTRY(_start)
 
 SECTIONS
 {
+<<<<<<< HEAD
 	. = VDSO32_LBASE + SIZEOF_HEADERS;
+=======
+	PROVIDE(_vdso_datapage = . - 2 * PAGE_SIZE);
+	. = SIZEOF_HEADERS;
+>>>>>>> upstream/android-13
 
 	.hash          	: { *(.hash) }			:text
 	.gnu.hash      	: { *(.gnu.hash) }
@@ -36,6 +46,7 @@ SECTIONS
 	PROVIDE(etext = .);
 
 	. = ALIGN(8);
+<<<<<<< HEAD
 	__ftr_fixup	: { *(__ftr_fixup) }
 
 	. = ALIGN(8);
@@ -47,6 +58,27 @@ SECTIONS
 #ifdef CONFIG_PPC64
 	. = ALIGN(8);
 	__fw_ftr_fixup	: { *(__fw_ftr_fixup) }
+=======
+	VDSO_ftr_fixup_start = .;
+	__ftr_fixup	: { *(__ftr_fixup) }
+	VDSO_ftr_fixup_end = .;
+
+	. = ALIGN(8);
+	VDSO_mmu_ftr_fixup_start = .;
+	__mmu_ftr_fixup	: { *(__mmu_ftr_fixup) }
+	VDSO_mmu_ftr_fixup_end = .;
+
+	. = ALIGN(8);
+	VDSO_lwsync_fixup_start = .;
+	__lwsync_fixup	: { *(__lwsync_fixup) }
+	VDSO_lwsync_fixup_end = .;
+
+#ifdef CONFIG_PPC64
+	. = ALIGN(8);
+	VDSO_fw_ftr_fixup_start = .;
+	__fw_ftr_fixup	: { *(__fw_ftr_fixup) }
+	VDSO_fw_ftr_fixup_end = .;
+>>>>>>> upstream/android-13
 #endif
 
 	/*
@@ -68,6 +100,7 @@ SECTIONS
 	__end = .;
 	PROVIDE(end = .);
 
+<<<<<<< HEAD
 	/*
 	 * Stabs debugging sections are here too.
 	 */
@@ -106,11 +139,20 @@ SECTIONS
 	.debug_funcnames 0 : { *(.debug_funcnames) }
 	.debug_typenames 0 : { *(.debug_typenames) }
 	.debug_varnames  0 : { *(.debug_varnames) }
+=======
+	STABS_DEBUG
+	DWARF_DEBUG
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	/DISCARD/	: {
 		*(.note.GNU-stack)
 		*(.data .data.* .gnu.linkonce.d.* .sdata*)
 		*(.bss .sbss .dynbss .dynsbss)
+<<<<<<< HEAD
+=======
+		*(.got1)
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -138,6 +180,7 @@ VERSION
 {
 	VDSO_VERSION_STRING {
 	global:
+<<<<<<< HEAD
 		/*
 		 * Has to be there for the kernel to find
 		 */
@@ -156,7 +199,31 @@ VERSION
 		__kernel_getcpu;
 #endif
 		__kernel_time;
+=======
+		__kernel_get_syscall_map;
+		__kernel_gettimeofday;
+		__kernel_clock_gettime;
+		__kernel_clock_gettime64;
+		__kernel_clock_getres;
+		__kernel_time;
+		__kernel_get_tbfreq;
+		__kernel_sync_dicache;
+		__kernel_sigtramp32;
+		__kernel_sigtramp_rt32;
+#if defined(CONFIG_PPC64) || !defined(CONFIG_SMP)
+		__kernel_getcpu;
+#endif
+>>>>>>> upstream/android-13
 
 	local: *;
 	};
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Make the sigreturn code visible to the kernel.
+ */
+VDSO_sigtramp32		= __kernel_sigtramp32;
+VDSO_sigtramp_rt32	= __kernel_sigtramp_rt32;
+>>>>>>> upstream/android-13

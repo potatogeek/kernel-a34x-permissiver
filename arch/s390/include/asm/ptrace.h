@@ -7,6 +7,7 @@
 #ifndef _S390_PTRACE_H
 #define _S390_PTRACE_H
 
+<<<<<<< HEAD
 #include <linux/const.h>
 #include <uapi/asm/ptrace.h>
 
@@ -19,6 +20,21 @@
 #define _PIF_PER_TRAP		_BITUL(PIF_PER_TRAP)
 #define _PIF_SYSCALL_RESTART	_BITUL(PIF_SYSCALL_RESTART)
 #define _PIF_GUEST_FAULT	_BITUL(PIF_GUEST_FAULT)
+=======
+#include <linux/bits.h>
+#include <uapi/asm/ptrace.h>
+#include <asm/tpi.h>
+
+#define PIF_SYSCALL			0	/* inside a system call */
+#define PIF_EXECVE_PGSTE_RESTART	1	/* restart execve for PGSTE binaries */
+#define PIF_SYSCALL_RET_SET		2	/* return value was set via ptrace */
+#define PIF_GUEST_FAULT			3	/* indicates program check in sie64a */
+
+#define _PIF_SYSCALL			BIT(PIF_SYSCALL)
+#define _PIF_EXECVE_PGSTE_RESTART	BIT(PIF_EXECVE_PGSTE_RESTART)
+#define _PIF_SYSCALL_RET_SET		BIT(PIF_SYSCALL_RET_SET)
+#define _PIF_GUEST_FAULT		BIT(PIF_GUEST_FAULT)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 
@@ -68,6 +84,12 @@ enum {
 	&(*(struct psw_bits *)(&(__psw)));	\
 }))
 
+<<<<<<< HEAD
+=======
+#define PGM_INT_CODE_MASK	0x7f
+#define PGM_INT_CODE_PER	0x80
+
+>>>>>>> upstream/android-13
 /*
  * The pt_regs struct defines the way the registers are stored on
  * the stack during a system call.
@@ -83,10 +105,23 @@ struct pt_regs
 		};
 	};
 	unsigned long orig_gpr2;
+<<<<<<< HEAD
 	unsigned int int_code;
 	unsigned int int_parm;
 	unsigned long int_parm_long;
 	unsigned long flags;
+=======
+	union {
+		struct {
+			unsigned int int_code;
+			unsigned int int_parm;
+			unsigned long int_parm_long;
+		};
+		struct tpi_info tpi_info;
+	};
+	unsigned long flags;
+	unsigned long cr1;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -152,6 +187,17 @@ static inline int test_pt_regs_flag(struct pt_regs *regs, int flag)
 	return !!(regs->flags & (1UL << flag));
 }
 
+<<<<<<< HEAD
+=======
+static inline int test_and_clear_pt_regs_flag(struct pt_regs *regs, int flag)
+{
+	int ret = test_pt_regs_flag(regs, flag);
+
+	clear_pt_regs_flag(regs, flag);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /*
  * These are defined as per linux/ptrace.h, which see.
  */
@@ -184,5 +230,13 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
 	return regs->gprs[15];
 }
 
+<<<<<<< HEAD
+=======
+static inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
+{
+	regs->gprs[2] = rc;
+}
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 #endif /* _S390_PTRACE_H */

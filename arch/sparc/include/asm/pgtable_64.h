@@ -13,7 +13,11 @@
  * the SpitFire page tables.
  */
 
+<<<<<<< HEAD
 #include <asm-generic/5level-fixup.h>
+=======
+#include <asm-generic/pgtable-nop4d.h>
+>>>>>>> upstream/android-13
 #include <linux/compiler.h>
 #include <linux/const.h>
 #include <asm/types.h>
@@ -95,9 +99,12 @@ bool kern_addr_valid(unsigned long addr);
 #define PTRS_PER_PUD	(1UL << PUD_BITS)
 #define PTRS_PER_PGD	(1UL << PGDIR_BITS)
 
+<<<<<<< HEAD
 /* Kernel has a separate 44bit address space. */
 #define FIRST_USER_ADDRESS	0UL
 
+=======
+>>>>>>> upstream/android-13
 #define pmd_ERROR(e)							\
 	pr_err("%s:%d: bad pmd %p(%016lx) seen at (%pS)\n",		\
 	       __FILE__, __LINE__, &(e), pmd_val(e), __builtin_return_address(0))
@@ -231,6 +238,7 @@ extern unsigned long _PAGE_ALL_SZ_BITS;
 extern struct page *mem_map_zero;
 #define ZERO_PAGE(vaddr)	(mem_map_zero)
 
+<<<<<<< HEAD
 /* This macro must be updated when the size of struct page grows above 80
  * or reduces below 64.
  * The idea that compiler optimizes out switch() statement, and only
@@ -261,6 +269,8 @@ extern struct page *mem_map_zero;
 	}								\
 } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* PFNs are real physical page numbers.  However, mem_map only begins to record
  * per-page information starting at pfn_base.  This is to handle systems where
  * the first physical page in the machine is at some huge physical address,
@@ -407,8 +417,12 @@ static inline pgprot_t pgprot_noncached(pgprot_t prot)
 #define pgprot_noncached pgprot_noncached
 
 #if defined(CONFIG_HUGETLB_PAGE) || defined(CONFIG_TRANSPARENT_HUGEPAGE)
+<<<<<<< HEAD
 extern pte_t arch_make_huge_pte(pte_t entry, struct vm_area_struct *vma,
 				struct page *page, int writable);
+=======
+pte_t arch_make_huge_pte(pte_t entry, unsigned int shift, vm_flags_t flags);
+>>>>>>> upstream/android-13
 #define arch_make_huge_pte arch_make_huge_pte
 static inline unsigned long __pte_default_huge_mask(void)
 {
@@ -713,6 +727,10 @@ static inline unsigned long pte_special(pte_t pte)
 	return pte_val(pte) & _PAGE_SPECIAL;
 }
 
+<<<<<<< HEAD
+=======
+#define pmd_leaf	pmd_large
+>>>>>>> upstream/android-13
 static inline unsigned long pmd_large(pmd_t pmd)
 {
 	pte_t pte = __pte(pmd_val(pmd));
@@ -840,9 +858,15 @@ static inline int pmd_present(pmd_t pmd)
 
 #define pud_bad(pud)			(pud_val(pud) & ~PAGE_MASK)
 
+<<<<<<< HEAD
 #define pgd_none(pgd)			(!pgd_val(pgd))
 
 #define pgd_bad(pgd)			(pgd_val(pgd) & ~PAGE_MASK)
+=======
+#define p4d_none(p4d)			(!p4d_val(p4d))
+
+#define p4d_bad(p4d)			(p4d_val(p4d) & ~PAGE_MASK)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 void set_pmd_at(struct mm_struct *mm, unsigned long addr,
@@ -864,7 +888,11 @@ static inline void pmd_set(struct mm_struct *mm, pmd_t *pmdp, pte_t *ptep)
 
 #define pud_set(pudp, pmdp)	\
 	(pud_val(*(pudp)) = (__pa((unsigned long) (pmdp))))
+<<<<<<< HEAD
 static inline unsigned long __pmd_page(pmd_t pmd)
+=======
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+>>>>>>> upstream/android-13
 {
 	pte_t pte = __pte(pmd_val(pmd));
 	unsigned long pfn;
@@ -874,13 +902,18 @@ static inline unsigned long __pmd_page(pmd_t pmd)
 	return ((unsigned long) __va(pfn << PAGE_SHIFT));
 }
 
+<<<<<<< HEAD
 static inline unsigned long pud_page_vaddr(pud_t pud)
+=======
+static inline pmd_t *pud_pgtable(pud_t pud)
+>>>>>>> upstream/android-13
 {
 	pte_t pte = __pte(pud_val(pud));
 	unsigned long pfn;
 
 	pfn = pte_pfn(pte);
 
+<<<<<<< HEAD
 	return ((unsigned long) __va(pfn << PAGE_SHIFT));
 }
 
@@ -894,6 +927,25 @@ static inline unsigned long pud_page_vaddr(pud_t pud)
 #define pgd_present(pgd)		(pgd_val(pgd) != 0U)
 #define pgd_clear(pgdp)			(pgd_val(*(pgdp)) = 0UL)
 
+=======
+	return ((pmd_t *) __va(pfn << PAGE_SHIFT));
+}
+
+#define pmd_page(pmd) 			virt_to_page((void *)pmd_page_vaddr(pmd))
+#define pud_page(pud)			virt_to_page((void *)pud_pgtable(pud))
+#define pmd_clear(pmdp)			(pmd_val(*(pmdp)) = 0UL)
+#define pud_present(pud)		(pud_val(pud) != 0U)
+#define pud_clear(pudp)			(pud_val(*(pudp)) = 0UL)
+#define p4d_pgtable(p4d)		\
+	((pud_t *) __va(p4d_val(p4d)))
+#define p4d_present(p4d)		(p4d_val(p4d) != 0U)
+#define p4d_clear(p4dp)			(p4d_val(*(p4dp)) = 0UL)
+
+/* only used by the stubbed out hugetlb gup code, should never be called */
+#define p4d_page(p4d)			NULL
+
+#define pud_leaf	pud_large
+>>>>>>> upstream/android-13
 static inline unsigned long pud_large(pud_t pud)
 {
 	pte_t pte = __pte(pud_val(pud));
@@ -911,6 +963,7 @@ static inline unsigned long pud_pfn(pud_t pud)
 /* Same in both SUN4V and SUN4U.  */
 #define pte_none(pte) 			(!pte_val(pte))
 
+<<<<<<< HEAD
 #define pgd_set(pgdp, pudp)	\
 	(pgd_val(*(pgdp)) = (__pa((unsigned long) (pudp))))
 
@@ -938,6 +991,10 @@ static inline unsigned long pud_pfn(pud_t pud)
 #define pte_offset_kernel		pte_index
 #define pte_offset_map			pte_index
 #define pte_unmap(pte)			do { } while (0)
+=======
+#define p4d_set(p4dp, pudp)	\
+	(p4d_val(*(p4dp)) = (__pa((unsigned long) (pudp))))
+>>>>>>> upstream/android-13
 
 /* We cannot include <linux/mm_types.h> at this point yet: */
 extern struct mm_struct init_mm;
@@ -1103,10 +1160,57 @@ static inline int io_remap_pfn_range(struct vm_area_struct *vma,
 
 	return remap_pfn_range(vma, from, phys_base >> PAGE_SHIFT, size, prot);
 }
+<<<<<<< HEAD
 #define io_remap_pfn_range io_remap_pfn_range 
 
 #include <asm/tlbflush.h>
 #include <asm-generic/pgtable.h>
+=======
+#define io_remap_pfn_range io_remap_pfn_range
+
+static inline unsigned long __untagged_addr(unsigned long start)
+{
+	if (adi_capable()) {
+		long addr = start;
+
+		/* If userspace has passed a versioned address, kernel
+		 * will not find it in the VMAs since it does not store
+		 * the version tags in the list of VMAs. Storing version
+		 * tags in list of VMAs is impractical since they can be
+		 * changed any time from userspace without dropping into
+		 * kernel. Any address search in VMAs will be done with
+		 * non-versioned addresses. Ensure the ADI version bits
+		 * are dropped here by sign extending the last bit before
+		 * ADI bits. IOMMU does not implement version tags.
+		 */
+		return (addr << (long)adi_nbits()) >> (long)adi_nbits();
+	}
+
+	return start;
+}
+#define untagged_addr(addr) \
+	((__typeof__(addr))(__untagged_addr((unsigned long)(addr))))
+
+static inline bool pte_access_permitted(pte_t pte, bool write)
+{
+	u64 prot;
+
+	if (tlb_type == hypervisor) {
+		prot = _PAGE_PRESENT_4V | _PAGE_P_4V;
+		if (write)
+			prot |= _PAGE_WRITE_4V;
+	} else {
+		prot = _PAGE_PRESENT_4U | _PAGE_P_4U;
+		if (write)
+			prot |= _PAGE_WRITE_4U;
+	}
+
+	return (pte_val(pte) & (prot | _PAGE_SPECIAL)) == prot;
+}
+#define pte_access_permitted pte_access_permitted
+
+#include <asm/tlbflush.h>
+>>>>>>> upstream/android-13
 
 /* We provide our own get_unmapped_area to cope with VA holes and
  * SHM area cache aliasing for userland.
@@ -1122,7 +1226,10 @@ unsigned long get_fb_unmapped_area(struct file *filp, unsigned long,
 				   unsigned long);
 #define HAVE_ARCH_FB_UNMAPPED_AREA
 
+<<<<<<< HEAD
 void pgtable_cache_init(void);
+=======
+>>>>>>> upstream/android-13
 void sun4v_register_fault_status(void);
 void sun4v_ktsb_register(void);
 void __init cheetah_ecache_flush_init(void);
@@ -1132,6 +1239,24 @@ extern unsigned long cmdline_memory_size;
 
 asmlinkage void do_sparc64_fault(struct pt_regs *regs);
 
+<<<<<<< HEAD
+=======
+#define pmd_pgtable(PMD)	((pte_t *)pmd_page_vaddr(PMD))
+
+#ifdef CONFIG_HUGETLB_PAGE
+
+#define pud_leaf_size pud_leaf_size
+extern unsigned long pud_leaf_size(pud_t pud);
+
+#define pmd_leaf_size pmd_leaf_size
+extern unsigned long pmd_leaf_size(pmd_t pmd);
+
+#define pte_leaf_size pte_leaf_size
+extern unsigned long pte_leaf_size(pte_t pte);
+
+#endif /* CONFIG_HUGETLB_PAGE */
+
+>>>>>>> upstream/android-13
 #endif /* !(__ASSEMBLY__) */
 
 #endif /* !(_SPARC64_PGTABLE_H) */

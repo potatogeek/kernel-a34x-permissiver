@@ -1,11 +1,19 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Spreadtrum pin control drivers
 #
 
 config PINCTRL_SPRD
+<<<<<<< HEAD
 	bool "Spreadtrum pinctrl driver"
 	depends on OF
 	depends on ARCH_SPRD || COMPILE_TEST
+=======
+	tristate
+>>>>>>> upstream/android-13
 	select PINMUX
 	select PINCONF
 	select GENERIC_PINCONF
@@ -14,7 +22,14 @@ config PINCTRL_SPRD
 	  Say Y here to enable Spreadtrum pinctrl driver
 
 config PINCTRL_SPRD_SC9860
+<<<<<<< HEAD
 	bool "Spreadtrum SC9860 pinctrl driver"
 	depends on PINCTRL_SPRD
+=======
+	tristate "Spreadtrum SC9860 pinctrl driver"
+	depends on OF
+	depends on ARCH_SPRD || COMPILE_TEST
+	select PINCTRL_SPRD
+>>>>>>> upstream/android-13
 	help
 	  Say Y here to enable Spreadtrum SC9860 pinctrl driver

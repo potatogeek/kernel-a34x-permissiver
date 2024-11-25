@@ -2,9 +2,14 @@
 #include <linux/export.h>
 #include <linux/power_supply.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/mfd/abx500.h>
 #include <linux/mfd/abx500/ab8500.h>
 #include <linux/mfd/abx500/ab8500-bm.h>
+=======
+
+#include "ab8500-bm.h"
+>>>>>>> upstream/android-13
 
 /*
  * These are the defined batteries that uses a NTC and ID resistor placed
@@ -12,7 +17,11 @@
  * Note that the res_to_temp table must be strictly sorted by falling resistance
  * values to work.
  */
+<<<<<<< HEAD
 const struct abx500_res_to_temp ab8500_temp_tbl_a_thermistor[] = {
+=======
+const struct ab8500_res_to_temp ab8500_temp_tbl_a_thermistor[] = {
+>>>>>>> upstream/android-13
 	{-5, 53407},
 	{ 0, 48594},
 	{ 5, 43804},
@@ -34,7 +43,11 @@ EXPORT_SYMBOL(ab8500_temp_tbl_a_thermistor);
 const int ab8500_temp_tbl_a_size = ARRAY_SIZE(ab8500_temp_tbl_a_thermistor);
 EXPORT_SYMBOL(ab8500_temp_tbl_a_size);
 
+<<<<<<< HEAD
 const struct abx500_res_to_temp ab8500_temp_tbl_b_thermistor[] = {
+=======
+const struct ab8500_res_to_temp ab8500_temp_tbl_b_thermistor[] = {
+>>>>>>> upstream/android-13
 	{-5, 200000},
 	{ 0, 159024},
 	{ 5, 151921},
@@ -56,7 +69,11 @@ EXPORT_SYMBOL(ab8500_temp_tbl_b_thermistor);
 const int ab8500_temp_tbl_b_size = ARRAY_SIZE(ab8500_temp_tbl_b_thermistor);
 EXPORT_SYMBOL(ab8500_temp_tbl_b_size);
 
+<<<<<<< HEAD
 static const struct abx500_v_to_cap cap_tbl_a_thermistor[] = {
+=======
+static const struct ab8500_v_to_cap cap_tbl_a_thermistor[] = {
+>>>>>>> upstream/android-13
 	{4171,	100},
 	{4114,	 95},
 	{4009,	 83},
@@ -79,7 +96,11 @@ static const struct abx500_v_to_cap cap_tbl_a_thermistor[] = {
 	{3247,	  0},
 };
 
+<<<<<<< HEAD
 static const struct abx500_v_to_cap cap_tbl_b_thermistor[] = {
+=======
+static const struct ab8500_v_to_cap cap_tbl_b_thermistor[] = {
+>>>>>>> upstream/android-13
 	{4161,	100},
 	{4124,	 98},
 	{4044,	 90},
@@ -102,7 +123,11 @@ static const struct abx500_v_to_cap cap_tbl_b_thermistor[] = {
 	{3250,	  0},
 };
 
+<<<<<<< HEAD
 static const struct abx500_v_to_cap cap_tbl[] = {
+=======
+static const struct ab8500_v_to_cap cap_tbl[] = {
+>>>>>>> upstream/android-13
 	{4186,	100},
 	{4163,	 99},
 	{4114,	 95},
@@ -133,7 +158,11 @@ static const struct abx500_v_to_cap cap_tbl[] = {
  * Note that the res_to_temp table must be strictly sorted by falling
  * resistance values to work.
  */
+<<<<<<< HEAD
 static const struct abx500_res_to_temp temp_tbl[] = {
+=======
+static const struct ab8500_res_to_temp temp_tbl[] = {
+>>>>>>> upstream/android-13
 	{-5, 214834},
 	{ 0, 162943},
 	{ 5, 124820},
@@ -190,7 +219,11 @@ static const struct batres_vs_temp temp_to_batres_tbl_9100[] = {
 	{-20, 180},
 };
 
+<<<<<<< HEAD
 static struct abx500_battery_type bat_type_thermistor[] = {
+=======
+static struct ab8500_battery_type bat_type_thermistor[] = {
+>>>>>>> upstream/android-13
 	[BATTERY_UNKNOWN] = {
 		/* First element always represent the UNKNOWN battery */
 		.name = POWER_SUPPLY_TECHNOLOGY_UNKNOWN,
@@ -276,7 +309,11 @@ static struct abx500_battery_type bat_type_thermistor[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct abx500_battery_type bat_type_ext_thermistor[] = {
+=======
+static struct ab8500_battery_type bat_type_ext_thermistor[] = {
+>>>>>>> upstream/android-13
 	[BATTERY_UNKNOWN] = {
 		/* First element always represent the UNKNOWN battery */
 		.name = POWER_SUPPLY_TECHNOLOGY_UNKNOWN,
@@ -393,7 +430,11 @@ static struct abx500_battery_type bat_type_ext_thermistor[] = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct abx500_bm_capacity_levels cap_levels = {
+=======
+static const struct ab8500_bm_capacity_levels cap_levels = {
+>>>>>>> upstream/android-13
 	.critical	= 2,
 	.low		= 10,
 	.normal		= 70,
@@ -401,7 +442,11 @@ static const struct abx500_bm_capacity_levels cap_levels = {
 	.full		= 100,
 };
 
+<<<<<<< HEAD
 static const struct abx500_fg_parameters fg = {
+=======
+static const struct ab8500_fg_parameters fg = {
+>>>>>>> upstream/android-13
 	.recovery_sleep_timer = 10,
 	.recovery_total_time = 100,
 	.init_timer = 1,
@@ -423,14 +468,22 @@ static const struct abx500_fg_parameters fg = {
 	.pcut_debounce_time = 2,
 };
 
+<<<<<<< HEAD
 static const struct abx500_maxim_parameters ab8500_maxi_params = {
+=======
+static const struct ab8500_maxim_parameters ab8500_maxi_params = {
+>>>>>>> upstream/android-13
 	.ena_maxi = true,
 	.chg_curr = 910,
 	.wait_cycles = 10,
 	.charger_curr_step = 100,
 };
 
+<<<<<<< HEAD
 static const struct abx500_bm_charger_parameters chg = {
+=======
+static const struct ab8500_bm_charger_parameters chg = {
+>>>>>>> upstream/android-13
 	.usb_volt_max		= 5500,
 	.usb_curr_max		= 1500,
 	.ac_volt_max		= 7500,
@@ -455,7 +508,11 @@ static int ab8500_charge_input_curr_map[] = {
         700,    800,    900,    1000,   1100,   1300,   1400,   1500,
 };
 
+<<<<<<< HEAD
 struct abx500_bm_data ab8500_bm_data = {
+=======
+struct ab8500_bm_data ab8500_bm_data = {
+>>>>>>> upstream/android-13
 	.temp_under             = 3,
 	.temp_low               = 8,
 	.temp_high              = 43,
@@ -468,7 +525,11 @@ struct abx500_bm_data ab8500_bm_data = {
 	.bkup_bat_i             = BUP_ICH_SEL_150UA,
 	.no_maintenance         = false,
 	.capacity_scaling       = false,
+<<<<<<< HEAD
 	.adc_therm              = ABx500_ADC_THERM_BATCTRL,
+=======
+	.adc_therm              = AB8500_ADC_THERM_BATCTRL,
+>>>>>>> upstream/android-13
 	.chg_unknown_bat        = false,
 	.enable_overshoot       = false,
 	.fg_res                 = 100,
@@ -491,7 +552,11 @@ struct abx500_bm_data ab8500_bm_data = {
 
 int ab8500_bm_of_probe(struct device *dev,
 		       struct device_node *np,
+<<<<<<< HEAD
 		       struct abx500_bm_data *bm)
+=======
+		       struct ab8500_bm_data *bm)
+>>>>>>> upstream/android-13
 {
 	const struct batres_vs_temp *tmp_batres_tbl;
 	struct device_node *battery_node;
@@ -508,6 +573,10 @@ int ab8500_bm_of_probe(struct device *dev,
 	btech = of_get_property(battery_node, "stericsson,battery-type", NULL);
 	if (!btech) {
 		dev_warn(dev, "missing property battery-name/type\n");
+<<<<<<< HEAD
+=======
+		of_node_put(battery_node);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -529,7 +598,11 @@ int ab8500_bm_of_probe(struct device *dev,
 	} else {
 		bm->n_btypes   = 4;
 		bm->bat_type   = bat_type_ext_thermistor;
+<<<<<<< HEAD
 		bm->adc_therm  = ABx500_ADC_THERM_BATTEMP;
+=======
+		bm->adc_therm  = AB8500_ADC_THERM_BATTEMP;
+>>>>>>> upstream/android-13
 		tmp_batres_tbl = temp_to_batres_tbl_ext_thermistor;
 	}
 

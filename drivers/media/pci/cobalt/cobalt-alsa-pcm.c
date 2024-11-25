@@ -9,7 +9,10 @@
 
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 
 #include <media/v4l2-device.h>
@@ -238,6 +241,7 @@ static int snd_cobalt_pcm_capture_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_cobalt_pcm_ioctl(struct snd_pcm_substream *substream,
 		     unsigned int cmd, void *arg)
 {
@@ -286,6 +290,8 @@ static int snd_cobalt_pcm_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_cobalt_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_cobalt_card *cobsc = snd_pcm_substream_chip(substream);
@@ -490,6 +496,7 @@ snd_pcm_uframes_t snd_cobalt_pcm_pb_pointer(struct snd_pcm_substream *substream)
 	       substream->runtime->buffer_size;
 }
 
+<<<<<<< HEAD
 static struct page *snd_pcm_get_vmalloc_page(struct snd_pcm_substream *subs,
 					     unsigned long offset)
 {
@@ -508,11 +515,20 @@ static const struct snd_pcm_ops snd_cobalt_pcm_capture_ops = {
 	.trigger	= snd_cobalt_pcm_trigger,
 	.pointer	= snd_cobalt_pcm_pointer,
 	.page		= snd_pcm_get_vmalloc_page,
+=======
+static const struct snd_pcm_ops snd_cobalt_pcm_capture_ops = {
+	.open		= snd_cobalt_pcm_capture_open,
+	.close		= snd_cobalt_pcm_capture_close,
+	.prepare	= snd_cobalt_pcm_prepare,
+	.trigger	= snd_cobalt_pcm_trigger,
+	.pointer	= snd_cobalt_pcm_pointer,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_pcm_ops snd_cobalt_pcm_playback_ops = {
 	.open		= snd_cobalt_pcm_playback_open,
 	.close		= snd_cobalt_pcm_playback_close,
+<<<<<<< HEAD
 	.ioctl		= snd_cobalt_pcm_ioctl,
 	.hw_params	= snd_cobalt_pcm_hw_params,
 	.hw_free	= snd_cobalt_pcm_hw_free,
@@ -520,6 +536,11 @@ static const struct snd_pcm_ops snd_cobalt_pcm_playback_ops = {
 	.trigger	= snd_cobalt_pcm_pb_trigger,
 	.pointer	= snd_cobalt_pcm_pb_pointer,
 	.page		= snd_pcm_get_vmalloc_page,
+=======
+	.prepare	= snd_cobalt_pcm_pb_prepare,
+	.trigger	= snd_cobalt_pcm_pb_trigger,
+	.pointer	= snd_cobalt_pcm_pb_pointer,
+>>>>>>> upstream/android-13
 };
 
 int snd_cobalt_pcm_create(struct snd_cobalt_card *cobsc)
@@ -555,9 +576,17 @@ int snd_cobalt_pcm_create(struct snd_cobalt_card *cobsc)
 
 		snd_pcm_set_ops(sp, SNDRV_PCM_STREAM_CAPTURE,
 				&snd_cobalt_pcm_capture_ops);
+<<<<<<< HEAD
 		sp->info_flags = 0;
 		sp->private_data = cobsc;
 		strlcpy(sp->name, "cobalt", sizeof(sp->name));
+=======
+		snd_pcm_set_managed_buffer_all(sp, SNDRV_DMA_TYPE_VMALLOC,
+					       NULL, 0, 0);
+		sp->info_flags = 0;
+		sp->private_data = cobsc;
+		strscpy(sp->name, "cobalt", sizeof(sp->name));
+>>>>>>> upstream/android-13
 	} else {
 		cobalt_s_bit_sysctrl(cobalt,
 			COBALT_SYS_CTRL_AUDIO_OPP_RESETN_BIT, 0);
@@ -579,9 +608,17 @@ int snd_cobalt_pcm_create(struct snd_cobalt_card *cobsc)
 
 		snd_pcm_set_ops(sp, SNDRV_PCM_STREAM_PLAYBACK,
 				&snd_cobalt_pcm_playback_ops);
+<<<<<<< HEAD
 		sp->info_flags = 0;
 		sp->private_data = cobsc;
 		strlcpy(sp->name, "cobalt", sizeof(sp->name));
+=======
+		snd_pcm_set_managed_buffer_all(sp, SNDRV_DMA_TYPE_VMALLOC,
+					       NULL, 0, 0);
+		sp->info_flags = 0;
+		sp->private_data = cobsc;
+		strscpy(sp->name, "cobalt", sizeof(sp->name));
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

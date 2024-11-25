@@ -23,7 +23,11 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "rv770d.h"
@@ -109,7 +113,11 @@ int uvd_v2_2_resume(struct radeon_device *rdev)
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	/* programm the VCPU memory controller bits 0-27 */
+=======
+	/* program the VCPU memory controller bits 0-27 */
+>>>>>>> upstream/android-13
 	addr = rdev->uvd.gpu_addr >> 3;
 	size = RADEON_GPU_PAGE_ALIGN(rdev->uvd_fw->size + 4) >> 3;
 	WREG32(UVD_VCPU_CACHE_OFFSET0, addr);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -15,6 +16,16 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <linux/delay.h>
+
+>>>>>>> upstream/android-13
 #include "hdmi.h"
 
 static void hdmi_phy_8x60_powerup(struct hdmi_phy *phy,

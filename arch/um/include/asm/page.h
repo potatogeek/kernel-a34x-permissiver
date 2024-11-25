@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000 - 2003 Jeff Dike (jdike@addtoit.com)
  * Copyright 2003 PathScale, Inc.
  * Licensed under the GPL
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2000 - 2003 Jeff Dike (jdike@addtoit.com)
+ * Copyright 2003 PathScale, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __UM_PAGE_H

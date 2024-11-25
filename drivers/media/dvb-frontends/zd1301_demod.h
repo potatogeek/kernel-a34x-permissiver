@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * ZyDAS ZD1301 driver (demodulator)
  *
  * Copyright (C) 2015 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ZD1301_DEMOD_H
@@ -52,12 +59,15 @@ struct i2c_adapter *zd1301_demod_get_i2c_adapter(struct platform_device *pdev);
 
 #else
 
+<<<<<<< HEAD
 /**
  * zd1301_demod_get_dvb_frontend() - Attach a zd1301 frontend
  * @dev: Pointer to platform device
  *
  * Return: Pointer to %struct dvb_frontend or NULL if attach fails.
  */
+=======
+>>>>>>> upstream/android-13
 static inline struct dvb_frontend *zd1301_demod_get_dvb_frontend(struct platform_device *dev)
 {
 	printk(KERN_WARNING "%s: driver disabled by Kconfig\n", __func__);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 HGST, a Western Digital Company.
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 HGST, a Western Digital Company.
+>>>>>>> upstream/android-13
  */
 #include <rdma/ib_verbs.h>
 #include <rdma/mr_pool.h>
@@ -42,14 +48,26 @@ void ib_mr_pool_put(struct ib_qp *qp, struct list_head *list, struct ib_mr *mr)
 EXPORT_SYMBOL(ib_mr_pool_put);
 
 int ib_mr_pool_init(struct ib_qp *qp, struct list_head *list, int nr,
+<<<<<<< HEAD
 		enum ib_mr_type type, u32 max_num_sg)
+=======
+		enum ib_mr_type type, u32 max_num_sg, u32 max_num_meta_sg)
+>>>>>>> upstream/android-13
 {
 	struct ib_mr *mr;
 	unsigned long flags;
 	int ret, i;
 
 	for (i = 0; i < nr; i++) {
+<<<<<<< HEAD
 		mr = ib_alloc_mr(qp->pd, type, max_num_sg);
+=======
+		if (type == IB_MR_TYPE_INTEGRITY)
+			mr = ib_alloc_mr_integrity(qp->pd, max_num_sg,
+						   max_num_meta_sg);
+		else
+			mr = ib_alloc_mr(qp->pd, type, max_num_sg);
+>>>>>>> upstream/android-13
 		if (IS_ERR(mr)) {
 			ret = PTR_ERR(mr);
 			goto out;

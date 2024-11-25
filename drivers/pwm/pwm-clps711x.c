@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Cirrus Logic CLPS711X PWM driver
  *
@@ -7,6 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Cirrus Logic CLPS711X PWM driver
+ * Author: Alexander Shiyan <shc_work@mail.ru>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -48,9 +55,13 @@ static void clps711x_pwm_update_val(struct clps711x_chip *priv, u32 n, u32 v)
 static unsigned int clps711x_get_duty(struct pwm_device *pwm, unsigned int v)
 {
 	/* Duty cycle 0..15 max */
+<<<<<<< HEAD
 	/* DIV_ROUND_CLOSEST(v * 0xf, pwm->args.period) with u64 divisor */
 	unsigned long long tmp = (v * 0xf) + do_div(pwm->args.period, 2);
 	return div64_u64(tmp, pwm->args.period);
+=======
+	return DIV64_U64_ROUND_CLOSEST(v * 0xf, pwm->args.period);
+>>>>>>> upstream/android-13
 }
 
 static int clps711x_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
@@ -120,14 +131,21 @@ static struct pwm_device *clps711x_pwm_xlate(struct pwm_chip *chip,
 static int clps711x_pwm_probe(struct platform_device *pdev)
 {
 	struct clps711x_chip *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->pmpcon = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->pmpcon = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->pmpcon))
 		return PTR_ERR(priv->pmpcon);
 
@@ -137,13 +155,17 @@ static int clps711x_pwm_probe(struct platform_device *pdev)
 
 	priv->chip.ops = &clps711x_pwm_ops;
 	priv->chip.dev = &pdev->dev;
+<<<<<<< HEAD
 	priv->chip.base = -1;
+=======
+>>>>>>> upstream/android-13
 	priv->chip.npwm = 2;
 	priv->chip.of_xlate = clps711x_pwm_xlate;
 	priv->chip.of_pwm_n_cells = 1;
 
 	spin_lock_init(&priv->lock);
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, priv);
 
 	return pwmchip_add(&priv->chip);
@@ -154,6 +176,9 @@ static int clps711x_pwm_remove(struct platform_device *pdev)
 	struct clps711x_chip *priv = platform_get_drvdata(pdev);
 
 	return pwmchip_remove(&priv->chip);
+=======
+	return devm_pwmchip_add(&pdev->dev, &priv->chip);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id __maybe_unused clps711x_pwm_dt_ids[] = {
@@ -168,7 +193,10 @@ static struct platform_driver clps711x_pwm_driver = {
 		.of_match_table = of_match_ptr(clps711x_pwm_dt_ids),
 	},
 	.probe = clps711x_pwm_probe,
+<<<<<<< HEAD
 	.remove = clps711x_pwm_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(clps711x_pwm_driver);
 

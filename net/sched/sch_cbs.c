@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/sch_cbs.c	Credit Based Shaper
  *
@@ -8,6 +9,13 @@
  *
  * Authors:	Vinicius Costa Gomes <vinicius.gomes@intel.com>
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/sch_cbs.c	Credit Based Shaper
+ *
+ * Authors:	Vinicius Costa Gomes <vinicius.gomes@intel.com>
+>>>>>>> upstream/android-13
  */
 
 /* Credit Based Shaper (CBS)
@@ -55,6 +63,10 @@
  *	locredit = max_frame_size * (sendslope / port_transmit_rate)
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -93,13 +105,21 @@ static int cbs_child_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 			     struct Qdisc *child,
 			     struct sk_buff **to_free)
 {
+<<<<<<< HEAD
+=======
+	unsigned int len = qdisc_pkt_len(skb);
+>>>>>>> upstream/android-13
 	int err;
 
 	err = child->ops->enqueue(skb, child, to_free);
 	if (err != NET_XMIT_SUCCESS)
 		return err;
 
+<<<<<<< HEAD
 	qdisc_qstats_backlog_inc(sch, skb);
+=======
+	sch->qstats.backlog += len;
+>>>>>>> upstream/android-13
 	sch->q.qlen++;
 
 	return NET_XMIT_SUCCESS;
@@ -313,7 +333,11 @@ static void cbs_set_port_rate(struct net_device *dev, struct cbs_sched_data *q)
 {
 	struct ethtool_link_ksettings ecmd;
 	int speed = SPEED_10;
+<<<<<<< HEAD
 	int port_rate = -1;
+=======
+	int port_rate;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = __ethtool_get_link_ksettings(dev, &ecmd);
@@ -370,7 +394,12 @@ static int cbs_change(struct Qdisc *sch, struct nlattr *opt,
 	struct tc_cbs_qopt *qopt;
 	int err;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_CBS_MAX, opt, cbs_policy, extack);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_CBS_MAX, opt, cbs_policy,
+					  extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -405,7 +434,10 @@ static int cbs_init(struct Qdisc *sch, struct nlattr *opt,
 {
 	struct cbs_sched_data *q = qdisc_priv(sch);
 	struct net_device *dev = qdisc_dev(sch);
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (!opt) {
 		NL_SET_ERR_MSG(extack, "Missing CBS qdisc options  which are mandatory");
@@ -417,6 +449,13 @@ static int cbs_init(struct Qdisc *sch, struct nlattr *opt,
 	if (!q->qdisc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	spin_lock(&cbs_list_lock);
+	list_add(&q->cbs_list, &cbs_list);
+	spin_unlock(&cbs_list_lock);
+
+>>>>>>> upstream/android-13
 	qdisc_hash_add(q->qdisc, false);
 
 	q->queue = sch->dev_queue - netdev_get_tx_queue(dev, 0);
@@ -426,6 +465,7 @@ static int cbs_init(struct Qdisc *sch, struct nlattr *opt,
 
 	qdisc_watchdog_init(&q->watchdog, sch);
 
+<<<<<<< HEAD
 	err = cbs_change(sch, opt, extack);
 	if (err)
 		return err;
@@ -437,6 +477,9 @@ static int cbs_init(struct Qdisc *sch, struct nlattr *opt,
 	}
 
 	return 0;
+=======
+	return cbs_change(sch, opt, extack);
+>>>>>>> upstream/android-13
 }
 
 static void cbs_destroy(struct Qdisc *sch)
@@ -444,15 +487,29 @@ static void cbs_destroy(struct Qdisc *sch)
 	struct cbs_sched_data *q = qdisc_priv(sch);
 	struct net_device *dev = qdisc_dev(sch);
 
+<<<<<<< HEAD
 	spin_lock(&cbs_list_lock);
 	list_del(&q->cbs_list);
 	spin_unlock(&cbs_list_lock);
+=======
+	/* Nothing to do if we couldn't create the underlying qdisc */
+	if (!q->qdisc)
+		return;
+>>>>>>> upstream/android-13
 
 	qdisc_watchdog_cancel(&q->watchdog);
 	cbs_disable_offload(dev, q);
 
+<<<<<<< HEAD
 	if (q->qdisc)
 		qdisc_destroy(q->qdisc);
+=======
+	spin_lock(&cbs_list_lock);
+	list_del(&q->cbs_list);
+	spin_unlock(&cbs_list_lock);
+
+	qdisc_put(q->qdisc);
+>>>>>>> upstream/android-13
 }
 
 static int cbs_dump(struct Qdisc *sch, struct sk_buff *skb)
@@ -461,7 +518,11 @@ static int cbs_dump(struct Qdisc *sch, struct sk_buff *skb)
 	struct tc_cbs_qopt opt = { };
 	struct nlattr *nest;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (!nest)
 		goto nla_put_failure;
 

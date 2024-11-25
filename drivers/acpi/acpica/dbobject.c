@@ -47,7 +47,11 @@ acpi_db_dump_method_info(acpi_status status, struct acpi_walk_state *walk_state)
 
 	/* Ignore control codes, they are not errors */
 
+<<<<<<< HEAD
 	if ((status & AE_CODE_MASK) == AE_CODE_CONTROL) {
+=======
+	if (ACPI_CNTL_EXCEPTION(status)) {
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -243,7 +247,11 @@ acpi_db_display_internal_object(union acpi_operand_object *obj_desc,
 			acpi_os_printf("[%s] ",
 				       acpi_ut_get_reference_name(obj_desc));
 
+<<<<<<< HEAD
 			/* Decode the refererence */
+=======
+			/* Decode the reference */
+>>>>>>> upstream/android-13
 
 			switch (obj_desc->reference.class) {
 			case ACPI_REFCLASS_LOCAL:
@@ -394,7 +402,10 @@ void acpi_db_decode_locals(struct acpi_walk_state *walk_state)
 	u8 display_locals = FALSE;
 
 	node = walk_state->method_node;
+<<<<<<< HEAD
 	obj_desc = walk_state->method_desc;
+=======
+>>>>>>> upstream/android-13
 
 	/* There are no locals for the module-level code case */
 
@@ -465,7 +476,10 @@ void acpi_db_decode_arguments(struct acpi_walk_state *walk_state)
 	u8 display_args = FALSE;
 
 	node = walk_state->method_node;
+<<<<<<< HEAD
 	obj_desc = walk_state->method_desc;
+=======
+>>>>>>> upstream/android-13
 
 	/* There are no arguments for the module-level code case */
 

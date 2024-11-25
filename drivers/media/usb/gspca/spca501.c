@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SPCA501 chip based cameras initialization data
  *
  * V4L2 by Jean-Francois Moine <http://moinejf.free.fr>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -574,7 +581,11 @@ static const __u16 spca501_3com_open_data[][3] = {
 	{0x0, 0x0001, 0x0010},	/* TG Start Clock */
 
 /*	{0x2, 0x006a, 0x0001},	 * C/S Enable ISOSYNCH Packet Engine */
+<<<<<<< HEAD
 	{0x2, 0x0068, 0x0001},	/* C/S Diable ISOSYNCH Packet Engine */
+=======
+	{0x2, 0x0068, 0x0001},	/* C/S Disable ISOSYNCH Packet Engine */
+>>>>>>> upstream/android-13
 	{0x2, 0x0000, 0x0005},
 	{0x2, 0x0043, 0x0000},	/* C/S Set Timing Mode, Disable TG soft reset */
 	{0x2, 0x0043, 0x0000},	/* C/S Set Timing Mode, Disable TG soft reset */

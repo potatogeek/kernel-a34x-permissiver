@@ -40,14 +40,19 @@ static inline void syscall_set_return_value(struct task_struct *task,
 					    struct pt_regs *regs,
 					    int error, long val)
 {
+<<<<<<< HEAD
 	if (error)
 		regs->regs[0] = -error;
 	else
 		regs->regs[0] = val;
+=======
+	regs->regs[0] = (long) error ?: val;
+>>>>>>> upstream/android-13
 }
 
 static inline void syscall_get_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 unsigned long *args)
 {
@@ -72,10 +77,23 @@ static inline void syscall_get_arguments(struct task_struct *task,
 	default:
 		BUG();
 	}
+=======
+					 unsigned long *args)
+{
+
+	/* Argument pattern is: R4, R5, R6, R7, R0, R1 */
+	args[5] = regs->regs[1];
+	args[4] = regs->regs[0];
+	args[3] = regs->regs[7];
+	args[2] = regs->regs[6];
+	args[1] = regs->regs[5];
+	args[0] = regs->regs[4];
+>>>>>>> upstream/android-13
 }
 
 static inline void syscall_set_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 const unsigned long *args)
 {
@@ -96,6 +114,19 @@ static inline void syscall_set_arguments(struct task_struct *task,
 }
 
 static inline int syscall_get_arch(void)
+=======
+					 const unsigned long *args)
+{
+	regs->regs[1] = args[5];
+	regs->regs[0] = args[4];
+	regs->regs[7] = args[3];
+	regs->regs[6] = args[2];
+	regs->regs[5] = args[1];
+	regs->regs[4] = args[0];
+}
+
+static inline int syscall_get_arch(struct task_struct *task)
+>>>>>>> upstream/android-13
 {
 	int arch = AUDIT_ARCH_SH;
 

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     V4L2 device support.
 
     Copyright (C) 2008  Hans Verkuil <hverkuil@xs4all.nl>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,16 +21,22 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
 #include <linux/ioctl.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/i2c.h>
 #include <linux/slab.h>
 #if defined(CONFIG_SPI)
 #include <linux/spi/spi.h>
 #endif
+=======
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 #include <linux/videodev2.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-ctrls.h>
@@ -114,6 +125,7 @@ void v4l2_device_unregister(struct v4l2_device *v4l2_dev)
 	/* Unregister subdevs */
 	list_for_each_entry_safe(sd, next, &v4l2_dev->subdevs, list) {
 		v4l2_device_unregister_subdev(sd);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_I2C)
 		if (sd->flags & V4L2_SUBDEV_FL_IS_I2C) {
 			struct i2c_client *client = v4l2_get_subdevdata(sd);
@@ -145,6 +157,12 @@ void v4l2_device_unregister(struct v4l2_device *v4l2_dev)
 			continue;
 		}
 #endif
+=======
+		if (sd->flags & V4L2_SUBDEV_FL_IS_I2C)
+			v4l2_i2c_subdev_unregister(sd);
+		else if (sd->flags & V4L2_SUBDEV_FL_IS_SPI)
+			v4l2_spi_subdev_unregister(sd);
+>>>>>>> upstream/android-13
 	}
 	/* Mark as unregistered, thus preventing duplicate unregistrations */
 	v4l2_dev->name[0] = '\0';
@@ -154,9 +172,12 @@ EXPORT_SYMBOL_GPL(v4l2_device_unregister);
 int v4l2_device_register_subdev(struct v4l2_device *v4l2_dev,
 				struct v4l2_subdev *sd)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	struct media_entity *entity = &sd->entity;
 #endif
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	/* Check for valid input */
@@ -186,7 +207,11 @@ int v4l2_device_register_subdev(struct v4l2_device *v4l2_dev,
 #if defined(CONFIG_MEDIA_CONTROLLER)
 	/* Register the entity. */
 	if (v4l2_dev->mdev) {
+<<<<<<< HEAD
 		err = media_device_register_entity(v4l2_dev->mdev, entity);
+=======
+		err = media_device_register_entity(v4l2_dev->mdev, &sd->entity);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto error_module;
 	}
@@ -206,7 +231,11 @@ int v4l2_device_register_subdev(struct v4l2_device *v4l2_dev,
 
 error_unregister:
 #if defined(CONFIG_MEDIA_CONTROLLER)
+<<<<<<< HEAD
 	media_device_unregister_entity(entity);
+=======
+	media_device_unregister_entity(&sd->entity);
+>>>>>>> upstream/android-13
 #endif
 error_module:
 	if (!sd->owner_v4l2_dev)
@@ -216,6 +245,7 @@ error_module:
 }
 EXPORT_SYMBOL_GPL(v4l2_device_register_subdev);
 
+<<<<<<< HEAD
 static void v4l2_device_release_subdev_node(struct video_device *vdev)
 {
 	struct v4l2_subdev *sd = video_get_drvdata(vdev);
@@ -224,6 +254,26 @@ static void v4l2_device_release_subdev_node(struct video_device *vdev)
 }
 
 int v4l2_device_register_subdev_nodes(struct v4l2_device *v4l2_dev)
+=======
+static void v4l2_subdev_release(struct v4l2_subdev *sd)
+{
+	struct module *owner = !sd->owner_v4l2_dev ? sd->owner : NULL;
+
+	if (sd->internal_ops && sd->internal_ops->release)
+		sd->internal_ops->release(sd);
+	sd->devnode = NULL;
+	module_put(owner);
+}
+
+static void v4l2_device_release_subdev_node(struct video_device *vdev)
+{
+	v4l2_subdev_release(video_get_drvdata(vdev));
+	kfree(vdev);
+}
+
+int __v4l2_device_register_subdev_nodes(struct v4l2_device *v4l2_dev,
+					bool read_only)
+>>>>>>> upstream/android-13
 {
 	struct video_device *vdev;
 	struct v4l2_subdev *sd;
@@ -246,11 +296,17 @@ int v4l2_device_register_subdev_nodes(struct v4l2_device *v4l2_dev)
 		}
 
 		video_set_drvdata(vdev, sd);
+<<<<<<< HEAD
 		strlcpy(vdev->name, sd->name, sizeof(vdev->name));
+=======
+		strscpy(vdev->name, sd->name, sizeof(vdev->name));
+		vdev->dev_parent = sd->dev;
+>>>>>>> upstream/android-13
 		vdev->v4l2_dev = v4l2_dev;
 		vdev->fops = &v4l2_subdev_fops;
 		vdev->release = v4l2_device_release_subdev_node;
 		vdev->ctrl_handler = sd->ctrl_handler;
+<<<<<<< HEAD
 		err = __video_register_device(vdev, VFL_TYPE_SUBDEV, -1, 1,
 					      sd->owner);
 		if (err < 0) {
@@ -258,6 +314,18 @@ int v4l2_device_register_subdev_nodes(struct v4l2_device *v4l2_dev)
 			goto clean_up;
 		}
 		sd->devnode = vdev;
+=======
+		if (read_only)
+			set_bit(V4L2_FL_SUBDEV_RO_DEVNODE, &vdev->flags);
+		sd->devnode = vdev;
+		err = __video_register_device(vdev, VFL_TYPE_SUBDEV, -1, 1,
+					      sd->owner);
+		if (err < 0) {
+			sd->devnode = NULL;
+			kfree(vdev);
+			goto clean_up;
+		}
+>>>>>>> upstream/android-13
 #if defined(CONFIG_MEDIA_CONTROLLER)
 		sd->entity.info.dev.major = VIDEO_MAJOR;
 		sd->entity.info.dev.minor = vdev->minor;
@@ -288,7 +356,11 @@ clean_up:
 
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(v4l2_device_register_subdev_nodes);
+=======
+EXPORT_SYMBOL_GPL(__v4l2_device_register_subdev_nodes);
+>>>>>>> upstream/android-13
 
 void v4l2_device_unregister_subdev(struct v4l2_subdev *sd)
 {
@@ -317,8 +389,15 @@ void v4l2_device_unregister_subdev(struct v4l2_subdev *sd)
 		media_device_unregister_entity(&sd->entity);
 	}
 #endif
+<<<<<<< HEAD
 	video_unregister_device(sd->devnode);
 	if (!sd->owner_v4l2_dev)
 		module_put(sd->owner);
+=======
+	if (sd->devnode)
+		video_unregister_device(sd->devnode);
+	else
+		v4l2_subdev_release(sd);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(v4l2_device_unregister_subdev);

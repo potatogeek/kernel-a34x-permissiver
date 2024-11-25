@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Driver for generic Bluetooth SCO link
  * Copyright 2011 Lars-Peter Clausen <lars@metafoo.de>
@@ -7,6 +8,12 @@
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Driver for generic Bluetooth SCO link
+ * Copyright 2011 Lars-Peter Clausen <lars@metafoo.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

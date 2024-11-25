@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*  Architecture specific parts of HP's STI (framebuffer) driver.
  *  Structures are HP-UX compatible for XFree86 usage.
  * 
  *    Linux/PA-RISC Project (http://www.parisc-linux.org/)
  *    Copyright (C) 2001 Helge Deller (deller a parisc-linux org)
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_PARISC_GRFIOCTL_H

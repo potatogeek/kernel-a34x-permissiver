@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic waiting primitives.
  *
  * (C) 2004 Nadia Yvette Chambers, Oracle
  */
 #include "sched.h"
+<<<<<<< HEAD
+=======
+#include <trace/hooks/sched.h>
+>>>>>>> upstream/android-13
 
 void __init_waitqueue_head(struct wait_queue_head *wq_head, const char *name, struct lock_class_key *key)
 {
@@ -36,6 +44,20 @@ void add_wait_queue_exclusive(struct wait_queue_head *wq_head, struct wait_queue
 }
 EXPORT_SYMBOL(add_wait_queue_exclusive);
 
+<<<<<<< HEAD
+=======
+void add_wait_queue_priority(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)
+{
+	unsigned long flags;
+
+	wq_entry->flags |= WQ_FLAG_EXCLUSIVE | WQ_FLAG_PRIORITY;
+	spin_lock_irqsave(&wq_head->lock, flags);
+	__add_wait_queue(wq_head, wq_entry);
+	spin_unlock_irqrestore(&wq_head->lock, flags);
+}
+EXPORT_SYMBOL_GPL(add_wait_queue_priority);
+
+>>>>>>> upstream/android-13
 void remove_wait_queue(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)
 {
 	unsigned long flags;
@@ -56,7 +78,15 @@ EXPORT_SYMBOL(remove_wait_queue);
 /*
  * The core wakeup function. Non-exclusive wakeups (nr_exclusive == 0) just
  * wake everything up. If it's an exclusive wakeup (nr_exclusive == small +ve
+<<<<<<< HEAD
  * number) then we wake all the non-exclusive tasks and one exclusive task.
+=======
+ * number) then we wake that number of exclusive tasks, and potentially all
+ * the non-exclusive tasks. Normally, exclusive tasks will be at the end of
+ * the list and any non-exclusive tasks will be woken first. A priority task
+ * may be at the head of the list, and can consume the event without any other
+ * tasks being woken.
+>>>>>>> upstream/android-13
  *
  * There are circumstances in which we can try to wake a task which has already
  * started to run but is not in state TASK_RUNNING. try_to_wake_up() returns
@@ -117,16 +147,24 @@ static void __wake_up_common_lock(struct wait_queue_head *wq_head, unsigned int 
 	bookmark.func = NULL;
 	INIT_LIST_HEAD(&bookmark.entry);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&wq_head->lock, flags);
 	nr_exclusive = __wake_up_common(wq_head, mode, nr_exclusive, wake_flags, key, &bookmark);
 	spin_unlock_irqrestore(&wq_head->lock, flags);
 
 	while (bookmark.flags & WQ_FLAG_BOOKMARK) {
+=======
+	do {
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&wq_head->lock, flags);
 		nr_exclusive = __wake_up_common(wq_head, mode, nr_exclusive,
 						wake_flags, key, &bookmark);
 		spin_unlock_irqrestore(&wq_head->lock, flags);
+<<<<<<< HEAD
 	}
+=======
+	} while (bookmark.flags & WQ_FLAG_BOOKMARK);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -172,7 +210,10 @@ EXPORT_SYMBOL_GPL(__wake_up_locked_key_bookmark);
  * __wake_up_sync_key - wake up threads blocked on a waitqueue.
  * @wq_head: the waitqueue
  * @mode: which threads
+<<<<<<< HEAD
  * @nr_exclusive: how many wake-one or wake-many threads to wake up
+=======
+>>>>>>> upstream/android-13
  * @key: opaque value to be passed to wakeup targets
  *
  * The sync wakeup differs that the waker knows that it will schedule
@@ -186,13 +227,20 @@ EXPORT_SYMBOL_GPL(__wake_up_locked_key_bookmark);
  * accessing the task state.
  */
 void __wake_up_sync_key(struct wait_queue_head *wq_head, unsigned int mode,
+<<<<<<< HEAD
 			int nr_exclusive, void *key)
 {
 	int wake_flags = 1; /* XXX WF_SYNC */
+=======
+			void *key)
+{
+	int wake_flags = WF_SYNC;
+>>>>>>> upstream/android-13
 
 	if (unlikely(!wq_head))
 		return;
 
+<<<<<<< HEAD
 	if (unlikely(nr_exclusive != 1))
 		wake_flags = 0;
 
@@ -206,6 +254,42 @@ EXPORT_SYMBOL_GPL(__wake_up_sync_key);
 void __wake_up_sync(struct wait_queue_head *wq_head, unsigned int mode, int nr_exclusive)
 {
 	__wake_up_sync_key(wq_head, mode, nr_exclusive, NULL);
+=======
+	trace_android_vh_set_wake_flags(&wake_flags, &mode);
+	__wake_up_common_lock(wq_head, mode, 1, wake_flags, key);
+}
+EXPORT_SYMBOL_GPL(__wake_up_sync_key);
+
+/**
+ * __wake_up_locked_sync_key - wake up a thread blocked on a locked waitqueue.
+ * @wq_head: the waitqueue
+ * @mode: which threads
+ * @key: opaque value to be passed to wakeup targets
+ *
+ * The sync wakeup differs in that the waker knows that it will schedule
+ * away soon, so while the target thread will be woken up, it will not
+ * be migrated to another CPU - ie. the two threads are 'synchronized'
+ * with each other. This can prevent needless bouncing between CPUs.
+ *
+ * On UP it can prevent extra preemption.
+ *
+ * If this function wakes up a task, it executes a full memory barrier before
+ * accessing the task state.
+ */
+void __wake_up_locked_sync_key(struct wait_queue_head *wq_head,
+			       unsigned int mode, void *key)
+{
+        __wake_up_common(wq_head, mode, 1, WF_SYNC, key, NULL);
+}
+EXPORT_SYMBOL_GPL(__wake_up_locked_sync_key);
+
+/*
+ * __wake_up_sync - see __wake_up_sync_key()
+ */
+void __wake_up_sync(struct wait_queue_head *wq_head, unsigned int mode)
+{
+	__wake_up_sync_key(wq_head, mode, NULL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
 
@@ -242,6 +326,7 @@ prepare_to_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_ent
 }
 EXPORT_SYMBOL(prepare_to_wait);
 
+<<<<<<< HEAD
 void
 prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state)
 {
@@ -253,6 +338,24 @@ prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_ent
 		__add_wait_queue_entry_tail(wq_head, wq_entry);
 	set_current_state(state);
 	spin_unlock_irqrestore(&wq_head->lock, flags);
+=======
+/* Returns true if we are the first waiter in the queue, false otherwise. */
+bool
+prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state)
+{
+	unsigned long flags;
+	bool was_empty = false;
+
+	wq_entry->flags |= WQ_FLAG_EXCLUSIVE;
+	spin_lock_irqsave(&wq_head->lock, flags);
+	if (list_empty(&wq_entry->entry)) {
+		was_empty = list_empty(&wq_head->head);
+		__add_wait_queue_entry_tail(wq_head, wq_entry);
+	}
+	set_current_state(state);
+	spin_unlock_irqrestore(&wq_head->lock, flags);
+	return was_empty;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(prepare_to_wait_exclusive);
 
@@ -271,7 +374,11 @@ long prepare_to_wait_event(struct wait_queue_head *wq_head, struct wait_queue_en
 	long ret = 0;
 
 	spin_lock_irqsave(&wq_head->lock, flags);
+<<<<<<< HEAD
 	if (unlikely(signal_pending_state(state, current))) {
+=======
+	if (signal_pending_state(state, current)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Exclusive waiter must not fail if it was selected by wakeup,
 		 * it should "consume" the condition we were waiting for.
@@ -377,13 +484,22 @@ void finish_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_en
 }
 EXPORT_SYMBOL(finish_wait);
 
+<<<<<<< HEAD
 int __sched autoremove_wake_function(struct wait_queue_entry *wq_entry,
 				     unsigned int mode, int sync, void *key)
+=======
+__sched int autoremove_wake_function(struct wait_queue_entry *wq_entry, unsigned int mode,
+				     int sync, void *key)
+>>>>>>> upstream/android-13
 {
 	int ret = default_wake_function(wq_entry, mode, sync, key);
 
 	if (ret)
+<<<<<<< HEAD
 		list_del_init(&wq_entry->entry);
+=======
+		list_del_init_careful(&wq_entry->entry);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -414,8 +530,12 @@ static inline bool is_kthread_should_stop(void)
  * }						smp_mb(); // C
  * remove_wait_queue(&wq_head, &wait);		wq_entry->flags |= WQ_FLAG_WOKEN;
  */
+<<<<<<< HEAD
 long __sched wait_woken(struct wait_queue_entry *wq_entry, unsigned int mode,
 			long timeout)
+=======
+__sched long wait_woken(struct wait_queue_entry *wq_entry, unsigned int mode, long timeout)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * The below executes an smp_mb(), which matches with the full barrier
@@ -440,8 +560,13 @@ long __sched wait_woken(struct wait_queue_entry *wq_entry, unsigned int mode,
 }
 EXPORT_SYMBOL(wait_woken);
 
+<<<<<<< HEAD
 int __sched woken_wake_function(struct wait_queue_entry *wq_entry,
 				unsigned int mode, int sync, void *key)
+=======
+__sched int woken_wake_function(struct wait_queue_entry *wq_entry, unsigned int mode,
+				int sync, void *key)
+>>>>>>> upstream/android-13
 {
 	/* Pairs with the smp_store_mb() in wait_woken(). */
 	smp_mb(); /* C */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	AARP:		An implementation of the AppleTalk AARP protocol for
  *			Ethernet 'ELAP'.
@@ -13,12 +17,15 @@
  *		Use neighbour discovery code.
  *		Token Ring Support.
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *	References:
  *		Inside AppleTalk (2nd Ed).
  *	Fixes:
@@ -26,7 +33,10 @@
  *		Rob Newberry	-	Added proxy AARP and AARP proc fs,
  *					moved probing from DDP module.
  *		Arnaldo C. Melo -	don't mangle rx packets
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/if_arp.h>
@@ -50,6 +60,7 @@ int sysctl_aarp_resolve_time = AARP_RESOLVE_TIME;
 /* Lists of aarp entries */
 /**
  *	struct aarp_entry - AARP entry
+<<<<<<< HEAD
  *	@last_sent - Last time we xmitted the aarp request
  *	@packet_queue - Queue of frames wait for resolution
  *	@status - Used for proxy AARP
@@ -59,6 +70,17 @@ int sysctl_aarp_resolve_time = AARP_RESOLVE_TIME;
  *	hwaddr - Physical i/f address of target/router
  *	xmit_count - When this hits 10 we give up
  *	next - Next entry in chain
+=======
+ *	@last_sent: Last time we xmitted the aarp request
+ *	@packet_queue: Queue of frames wait for resolution
+ *	@status: Used for proxy AARP
+ *	@expires_at: Entry expiry time
+ *	@target_addr: DDP Address
+ *	@dev:  Device to use
+ *	@hwaddr:  Physical i/f address of target/router
+ *	@xmit_count:  When this hits 10 we give up
+ *	@next: Next entry in chain
+>>>>>>> upstream/android-13
  */
 struct aarp_entry {
 	/* These first two are only used for unresolved entries */
@@ -774,7 +796,11 @@ static int aarp_rcv(struct sk_buff *skb, struct net_device *dev,
 	if (a && a->status & ATIF_PROBE) {
 		a->status |= ATIF_PROBE_FAIL;
 		/*
+<<<<<<< HEAD
 		 * we do not respond to probe or request packets for
+=======
+		 * we do not respond to probe or request packets of
+>>>>>>> upstream/android-13
 		 * this address while we are probing this address
 		 */
 		goto unlock;

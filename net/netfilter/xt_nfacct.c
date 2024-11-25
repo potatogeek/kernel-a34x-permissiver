@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (C) 2011 Pablo Neira Ayuso <pablo@netfilter.org>
  * (C) 2011 Intra2net AG <http://www.intra2net.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 (or any
  * later at your option) as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (C) 2011 Pablo Neira Ayuso <pablo@netfilter.org>
+ * (C) 2011 Intra2net AG <https://www.intra2net.com>
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -30,7 +37,11 @@ static bool nfacct_mt(const struct sk_buff *skb, struct xt_action_param *par)
 
 	overquota = nfnl_acct_overquota(xt_net(par), info->nfacct);
 
+<<<<<<< HEAD
 	return overquota == NFACCT_UNDERQUOTA ? false : true;
+=======
+	return overquota != NFACCT_UNDERQUOTA;
+>>>>>>> upstream/android-13
 }
 
 static int

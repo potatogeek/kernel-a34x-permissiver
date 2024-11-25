@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005-2009 Texas Instruments Inc
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2005-2009 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 #ifndef _DM355_CCDC_REGS_H
 #define _DM355_CCDC_REGS_H

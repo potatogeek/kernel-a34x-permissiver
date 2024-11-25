@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -6,6 +7,12 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2008 Freescale Semiconductor, Inc. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Prototypes for ADS5121 specific code
  */
 

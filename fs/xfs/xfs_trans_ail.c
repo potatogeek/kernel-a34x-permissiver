@@ -6,6 +6,10 @@
  */
 #include "xfs.h"
 #include "xfs_fs.h"
+<<<<<<< HEAD
+=======
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
@@ -16,6 +20,10 @@
 #include "xfs_errortag.h"
 #include "xfs_error.h"
 #include "xfs_log.h"
+<<<<<<< HEAD
+=======
+#include "xfs_log_priv.h"
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 /*
@@ -31,6 +39,10 @@ STATIC void
 xfs_ail_check(
 	struct xfs_ail		*ailp,
 	struct xfs_log_item	*lip)
+<<<<<<< HEAD
+=======
+	__must_hold(&ailp->ail_lock)
+>>>>>>> upstream/android-13
 {
 	struct xfs_log_item	*prev_lip;
 	struct xfs_log_item	*next_lip;
@@ -74,29 +86,48 @@ xfs_ail_check(
  * Return a pointer to the last item in the AIL.  If the AIL is empty, then
  * return NULL.
  */
+<<<<<<< HEAD
 static xfs_log_item_t *
+=======
+static struct xfs_log_item *
+>>>>>>> upstream/android-13
 xfs_ail_max(
 	struct xfs_ail  *ailp)
 {
 	if (list_empty(&ailp->ail_head))
 		return NULL;
 
+<<<<<<< HEAD
 	return list_entry(ailp->ail_head.prev, xfs_log_item_t, li_ail);
+=======
+	return list_entry(ailp->ail_head.prev, struct xfs_log_item, li_ail);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Return a pointer to the item which follows the given item in the AIL.  If
  * the given item is the last item in the list, then return NULL.
  */
+<<<<<<< HEAD
 static xfs_log_item_t *
 xfs_ail_next(
 	struct xfs_ail  *ailp,
 	xfs_log_item_t  *lip)
+=======
+static struct xfs_log_item *
+xfs_ail_next(
+	struct xfs_ail		*ailp,
+	struct xfs_log_item	*lip)
+>>>>>>> upstream/android-13
 {
 	if (lip->li_ail.next == &ailp->ail_head)
 		return NULL;
 
+<<<<<<< HEAD
 	return list_first_entry(&lip->li_ail, xfs_log_item_t, li_ail);
+=======
+	return list_first_entry(&lip->li_ail, struct xfs_log_item, li_ail);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -107,6 +138,7 @@ xfs_ail_next(
  * We need the AIL lock in order to get a coherent read of the lsn of the last
  * item in the AIL.
  */
+<<<<<<< HEAD
 xfs_lsn_t
 xfs_ail_min_lsn(
 	struct xfs_ail	*ailp)
@@ -118,6 +150,27 @@ xfs_ail_min_lsn(
 	lip = xfs_ail_min(ailp);
 	if (lip)
 		lsn = lip->li_lsn;
+=======
+static xfs_lsn_t
+__xfs_ail_min_lsn(
+	struct xfs_ail		*ailp)
+{
+	struct xfs_log_item	*lip = xfs_ail_min(ailp);
+
+	if (lip)
+		return lip->li_lsn;
+	return 0;
+}
+
+xfs_lsn_t
+xfs_ail_min_lsn(
+	struct xfs_ail		*ailp)
+{
+	xfs_lsn_t		lsn;
+
+	spin_lock(&ailp->ail_lock);
+	lsn = __xfs_ail_min_lsn(ailp);
+>>>>>>> upstream/android-13
 	spin_unlock(&ailp->ail_lock);
 
 	return lsn;
@@ -128,10 +181,17 @@ xfs_ail_min_lsn(
  */
 static xfs_lsn_t
 xfs_ail_max_lsn(
+<<<<<<< HEAD
 	struct xfs_ail  *ailp)
 {
 	xfs_lsn_t       lsn = 0;
 	xfs_log_item_t  *lip;
+=======
+	struct xfs_ail		*ailp)
+{
+	xfs_lsn_t       	lsn = 0;
+	struct xfs_log_item	*lip;
+>>>>>>> upstream/android-13
 
 	spin_lock(&ailp->ail_lock);
 	lip = xfs_ail_max(ailp);
@@ -216,13 +276,21 @@ xfs_trans_ail_cursor_clear(
  * ascending traversal.  Pass a @lsn of zero to initialise the cursor to the
  * first item in the AIL. Returns NULL if the list is empty.
  */
+<<<<<<< HEAD
 xfs_log_item_t *
+=======
+struct xfs_log_item *
+>>>>>>> upstream/android-13
 xfs_trans_ail_cursor_first(
 	struct xfs_ail		*ailp,
 	struct xfs_ail_cursor	*cur,
 	xfs_lsn_t		lsn)
 {
+<<<<<<< HEAD
 	xfs_log_item_t		*lip;
+=======
+	struct xfs_log_item	*lip;
+>>>>>>> upstream/android-13
 
 	xfs_trans_ail_cursor_init(ailp, cur);
 
@@ -248,7 +316,11 @@ __xfs_trans_ail_cursor_last(
 	struct xfs_ail		*ailp,
 	xfs_lsn_t		lsn)
 {
+<<<<<<< HEAD
 	xfs_log_item_t		*lip;
+=======
+	struct xfs_log_item	*lip;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry_reverse(lip, &ailp->ail_head, li_ail) {
 		if (XFS_LSN_CMP(lip->li_lsn, lsn) <= 0)
@@ -327,14 +399,65 @@ xfs_ail_splice(
  */
 static void
 xfs_ail_delete(
+<<<<<<< HEAD
 	struct xfs_ail  *ailp,
 	xfs_log_item_t  *lip)
+=======
+	struct xfs_ail		*ailp,
+	struct xfs_log_item	*lip)
+>>>>>>> upstream/android-13
 {
 	xfs_ail_check(ailp, lip);
 	list_del(&lip->li_ail);
 	xfs_trans_ail_cursor_clear(ailp, lip);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Requeue a failed buffer for writeback.
+ *
+ * We clear the log item failed state here as well, but we have to be careful
+ * about reference counts because the only active reference counts on the buffer
+ * may be the failed log items. Hence if we clear the log item failed state
+ * before queuing the buffer for IO we can release all active references to
+ * the buffer and free it, leading to use after free problems in
+ * xfs_buf_delwri_queue. It makes no difference to the buffer or log items which
+ * order we process them in - the buffer is locked, and we own the buffer list
+ * so nothing on them is going to change while we are performing this action.
+ *
+ * Hence we can safely queue the buffer for IO before we clear the failed log
+ * item state, therefore  always having an active reference to the buffer and
+ * avoiding the transient zero-reference state that leads to use-after-free.
+ */
+static inline int
+xfsaild_resubmit_item(
+	struct xfs_log_item	*lip,
+	struct list_head	*buffer_list)
+{
+	struct xfs_buf		*bp = lip->li_buf;
+
+	if (!xfs_buf_trylock(bp))
+		return XFS_ITEM_LOCKED;
+
+	if (!xfs_buf_delwri_queue(bp, buffer_list)) {
+		xfs_buf_unlock(bp);
+		return XFS_ITEM_FLUSHING;
+	}
+
+	/* protected by ail_lock */
+	list_for_each_entry(lip, &bp->b_li_list, li_bio_list) {
+		if (bp->b_flags & _XBF_INODES)
+			clear_bit(XFS_LI_FAILED, &lip->li_flags);
+		else
+			xfs_clear_li_failed(lip);
+	}
+
+	xfs_buf_unlock(bp);
+	return XFS_ITEM_SUCCESS;
+}
+
+>>>>>>> upstream/android-13
 static inline uint
 xfsaild_push_item(
 	struct xfs_ail		*ailp,
@@ -347,6 +470,19 @@ xfsaild_push_item(
 	if (XFS_TEST_ERROR(false, ailp->ail_mount, XFS_ERRTAG_LOG_ITEM_PIN))
 		return XFS_ITEM_PINNED;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Consider the item pinned if a push callback is not defined so the
+	 * caller will force the log. This should only happen for intent items
+	 * as they are unpinned once the associated done item is committed to
+	 * the on-disk log.
+	 */
+	if (!lip->li_ops->iop_push)
+		return XFS_ITEM_PINNED;
+	if (test_bit(XFS_LI_FAILED, &lip->li_flags))
+		return xfsaild_resubmit_item(lip, &ailp->ail_buf_list);
+>>>>>>> upstream/android-13
 	return lip->li_ops->iop_push(lip, &ailp->ail_buf_list);
 }
 
@@ -356,7 +492,11 @@ xfsaild_push(
 {
 	xfs_mount_t		*mp = ailp->ail_mount;
 	struct xfs_ail_cursor	cur;
+<<<<<<< HEAD
 	xfs_log_item_t		*lip;
+=======
+	struct xfs_log_item	*lip;
+>>>>>>> upstream/android-13
 	xfs_lsn_t		lsn;
 	xfs_lsn_t		target;
 	long			tout;
@@ -366,8 +506,17 @@ xfsaild_push(
 
 	/*
 	 * If we encountered pinned items or did not finish writing out all
+<<<<<<< HEAD
 	 * buffers the last time we ran, force the log first and wait for it
 	 * before pushing again.
+=======
+	 * buffers the last time we ran, force a background CIL push to get the
+	 * items unpinned in the near future. We do not wait on the CIL push as
+	 * that could stall us for seconds if there is enough background IO
+	 * load. Stalling for that long when the tail of the log is pinned and
+	 * needs flushing will hard stop the transaction subsystem when log
+	 * space runs out.
+>>>>>>> upstream/android-13
 	 */
 	if (ailp->ail_log_flush && ailp->ail_last_pushed_lsn == 0 &&
 	    (!list_empty_careful(&ailp->ail_buf_list) ||
@@ -375,7 +524,11 @@ xfsaild_push(
 		ailp->ail_log_flush = 0;
 
 		XFS_STATS_INC(mp, xs_push_ail_flush);
+<<<<<<< HEAD
 		xfs_log_force(mp, XFS_LOG_SYNC);
+=======
+		xlog_cil_flush(mp->m_log);
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock(&ailp->ail_lock);
@@ -385,6 +538,7 @@ xfsaild_push(
 	target = ailp->ail_target;
 	ailp->ail_target_prev = target;
 
+<<<<<<< HEAD
 	lip = xfs_trans_ail_cursor_first(ailp, &cur, ailp->ail_last_pushed_lsn);
 	if (!lip) {
 		/*
@@ -395,6 +549,12 @@ xfsaild_push(
 		spin_unlock(&ailp->ail_lock);
 		goto out_done;
 	}
+=======
+	/* we're done if the AIL is empty or our push has reached the end */
+	lip = xfs_trans_ail_cursor_first(ailp, &cur, ailp->ail_last_pushed_lsn);
+	if (!lip)
+		goto out_done;
+>>>>>>> upstream/android-13
 
 	XFS_STATS_INC(mp, xs_push_ail);
 
@@ -418,15 +578,26 @@ xfsaild_push(
 
 		case XFS_ITEM_FLUSHING:
 			/*
+<<<<<<< HEAD
 			 * The item or its backing buffer is already beeing
+=======
+			 * The item or its backing buffer is already being
+>>>>>>> upstream/android-13
 			 * flushed.  The typical reason for that is that an
 			 * inode buffer is locked because we already pushed the
 			 * updates to it as part of inode clustering.
 			 *
+<<<<<<< HEAD
 			 * We do not want to to stop flushing just because lots
 			 * of items are already beeing flushed, but we need to
 			 * re-try the flushing relatively soon if most of the
 			 * AIL is beeing flushed.
+=======
+			 * We do not want to stop flushing just because lots
+			 * of items are already being flushed, but we need to
+			 * re-try the flushing relatively soon if most of the
+			 * AIL is being flushed.
+>>>>>>> upstream/android-13
 			 */
 			XFS_STATS_INC(mp, xs_push_ail_flushing);
 			trace_xfs_ail_flushing(lip);
@@ -458,7 +629,11 @@ xfsaild_push(
 		/*
 		 * Are there too many items we can't do anything with?
 		 *
+<<<<<<< HEAD
 		 * If we we are skipping too many items because we can't flush
+=======
+		 * If we are skipping too many items because we can't flush
+>>>>>>> upstream/android-13
 		 * them or they are already being flushed, we back off and
 		 * given them time to complete whatever operation is being
 		 * done. i.e. remove pressure from the AIL while we can't make
@@ -476,6 +651,11 @@ xfsaild_push(
 			break;
 		lsn = lip->li_lsn;
 	}
+<<<<<<< HEAD
+=======
+
+out_done:
+>>>>>>> upstream/android-13
 	xfs_trans_ail_cursor_done(&cur);
 	spin_unlock(&ailp->ail_lock);
 
@@ -483,7 +663,10 @@ xfsaild_push(
 		ailp->ail_log_flush++;
 
 	if (!count || XFS_LSN_CMP(lsn, target) >= 0) {
+<<<<<<< HEAD
 out_done:
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * We reached the target or the AIL is empty, so wait a bit
 		 * longer for I/O to complete and remove pushed items from the
@@ -557,7 +740,11 @@ xfsaild(
 			 * opportunity to release such buffers from the queue.
 			 */
 			ASSERT(list_empty(&ailp->ail_buf_list) ||
+<<<<<<< HEAD
 			       XFS_FORCED_SHUTDOWN(ailp->ail_mount));
+=======
+			       xfs_is_shutdown(ailp->ail_mount));
+>>>>>>> upstream/android-13
 			xfs_buf_delwri_cancel(&ailp->ail_buf_list);
 			break;
 		}
@@ -575,7 +762,12 @@ xfsaild(
 		 */
 		smp_rmb();
 		if (!xfs_ail_min(ailp) &&
+<<<<<<< HEAD
 		    ailp->ail_target == ailp->ail_target_prev) {
+=======
+		    ailp->ail_target == ailp->ail_target_prev &&
+		    list_empty(&ailp->ail_buf_list)) {
+>>>>>>> upstream/android-13
 			spin_unlock(&ailp->ail_lock);
 			freezable_schedule();
 			tout = 0;
@@ -605,7 +797,11 @@ xfsaild(
  * The push is run asynchronously in a workqueue, which means the caller needs
  * to handle waiting on the async flush for space to become available.
  * We don't want to interrupt any push that is in progress, hence we only queue
+<<<<<<< HEAD
  * work if we set the pushing bit approriately.
+=======
+ * work if we set the pushing bit appropriately.
+>>>>>>> upstream/android-13
  *
  * We do this unlocked - we only need to know whether there is anything in the
  * AIL at the time we are called. We don't need to access the contents of
@@ -613,6 +809,7 @@ xfsaild(
  */
 void
 xfs_ail_push(
+<<<<<<< HEAD
 	struct xfs_ail	*ailp,
 	xfs_lsn_t	threshold_lsn)
 {
@@ -620,6 +817,15 @@ xfs_ail_push(
 
 	lip = xfs_ail_min(ailp);
 	if (!lip || XFS_FORCED_SHUTDOWN(ailp->ail_mount) ||
+=======
+	struct xfs_ail		*ailp,
+	xfs_lsn_t		threshold_lsn)
+{
+	struct xfs_log_item	*lip;
+
+	lip = xfs_ail_min(ailp);
+	if (!lip || xfs_is_shutdown(ailp->ail_mount) ||
+>>>>>>> upstream/android-13
 	    XFS_LSN_CMP(threshold_lsn, ailp->ail_target) <= 0)
 		return;
 
@@ -671,6 +877,31 @@ xfs_ail_push_all_sync(
 	finish_wait(&ailp->ail_empty, &wait);
 }
 
+<<<<<<< HEAD
+=======
+void
+xfs_ail_update_finish(
+	struct xfs_ail		*ailp,
+	xfs_lsn_t		old_lsn) __releases(ailp->ail_lock)
+{
+	struct xfs_mount	*mp = ailp->ail_mount;
+
+	/* if the tail lsn hasn't changed, don't do updates or wakeups. */
+	if (!old_lsn || old_lsn == __xfs_ail_min_lsn(ailp)) {
+		spin_unlock(&ailp->ail_lock);
+		return;
+	}
+
+	if (!xfs_is_shutdown(mp))
+		xlog_assign_tail_lsn_locked(mp);
+
+	if (list_empty(&ailp->ail_head))
+		wake_up_all(&ailp->ail_empty);
+	spin_unlock(&ailp->ail_lock);
+	xfs_log_space_wake(mp);
+}
+
+>>>>>>> upstream/android-13
 /*
  * xfs_trans_ail_update - bulk AIL insertion operation.
  *
@@ -701,8 +932,13 @@ xfs_trans_ail_update_bulk(
 	int			nr_items,
 	xfs_lsn_t		lsn) __releases(ailp->ail_lock)
 {
+<<<<<<< HEAD
 	xfs_log_item_t		*mlip;
 	int			mlip_changed = 0;
+=======
+	struct xfs_log_item	*mlip;
+	xfs_lsn_t		tail_lsn = 0;
+>>>>>>> upstream/android-13
 	int			i;
 	LIST_HEAD(tmp);
 
@@ -717,9 +953,16 @@ xfs_trans_ail_update_bulk(
 				continue;
 
 			trace_xfs_ail_move(lip, lip->li_lsn, lsn);
+<<<<<<< HEAD
 			xfs_ail_delete(ailp, lip);
 			if (mlip == lip)
 				mlip_changed = 1;
+=======
+			if (mlip == lip && !tail_lsn)
+				tail_lsn = lip->li_lsn;
+
+			xfs_ail_delete(ailp, lip);
+>>>>>>> upstream/android-13
 		} else {
 			trace_xfs_ail_insert(lip, 0, lsn);
 		}
@@ -730,6 +973,7 @@ xfs_trans_ail_update_bulk(
 	if (!list_empty(&tmp))
 		xfs_ail_splice(ailp, cur, &tmp, lsn);
 
+<<<<<<< HEAD
 	if (mlip_changed) {
 		if (!XFS_FORCED_SHUTDOWN(ailp->ail_mount))
 			xlog_assign_tail_lsn_locked(ailp->ail_mount);
@@ -742,11 +986,36 @@ xfs_trans_ail_update_bulk(
 }
 
 bool
+=======
+	xfs_ail_update_finish(ailp, tail_lsn);
+}
+
+/* Insert a log item into the AIL. */
+void
+xfs_trans_ail_insert(
+	struct xfs_ail		*ailp,
+	struct xfs_log_item	*lip,
+	xfs_lsn_t		lsn)
+{
+	spin_lock(&ailp->ail_lock);
+	xfs_trans_ail_update_bulk(ailp, NULL, &lip, 1, lsn);
+}
+
+/*
+ * Delete one log item from the AIL.
+ *
+ * If this item was at the tail of the AIL, return the LSN of the log item so
+ * that we can use it to check if the LSN of the tail of the log has moved
+ * when finishing up the AIL delete process in xfs_ail_update_finish().
+ */
+xfs_lsn_t
+>>>>>>> upstream/android-13
 xfs_ail_delete_one(
 	struct xfs_ail		*ailp,
 	struct xfs_log_item	*lip)
 {
 	struct xfs_log_item	*mlip = xfs_ail_min(ailp);
+<<<<<<< HEAD
 
 	trace_xfs_ail_delete(lip, mlip->li_lsn, lip->li_lsn);
 	xfs_ail_delete(ailp, lip);
@@ -790,6 +1059,33 @@ xfs_trans_ail_delete(
 	if (!test_bit(XFS_LI_IN_AIL, &lip->li_flags)) {
 		spin_unlock(&ailp->ail_lock);
 		if (!XFS_FORCED_SHUTDOWN(mp)) {
+=======
+	xfs_lsn_t		lsn = lip->li_lsn;
+
+	trace_xfs_ail_delete(lip, mlip->li_lsn, lip->li_lsn);
+	xfs_ail_delete(ailp, lip);
+	clear_bit(XFS_LI_IN_AIL, &lip->li_flags);
+	lip->li_lsn = 0;
+
+	if (mlip == lip)
+		return lsn;
+	return 0;
+}
+
+void
+xfs_trans_ail_delete(
+	struct xfs_log_item	*lip,
+	int			shutdown_type)
+{
+	struct xfs_ail		*ailp = lip->li_ailp;
+	struct xfs_mount	*mp = ailp->ail_mount;
+	xfs_lsn_t		tail_lsn;
+
+	spin_lock(&ailp->ail_lock);
+	if (!test_bit(XFS_LI_IN_AIL, &lip->li_flags)) {
+		spin_unlock(&ailp->ail_lock);
+		if (shutdown_type && !xfs_is_shutdown(mp)) {
+>>>>>>> upstream/android-13
 			xfs_alert_tag(mp, XFS_PTAG_AILDELETE,
 	"%s: attempting to delete a log item that is not in the AIL",
 					__func__);
@@ -798,6 +1094,7 @@ xfs_trans_ail_delete(
 		return;
 	}
 
+<<<<<<< HEAD
 	mlip_changed = xfs_ail_delete_one(ailp, lip);
 	if (mlip_changed) {
 		if (!XFS_FORCED_SHUTDOWN(mp))
@@ -809,6 +1106,12 @@ xfs_trans_ail_delete(
 	spin_unlock(&ailp->ail_lock);
 	if (mlip_changed)
 		xfs_log_space_wake(ailp->ail_mount);
+=======
+	/* xfs_ail_update_finish() drops the AIL lock */
+	xfs_clear_li_failed(lip);
+	tail_lsn = xfs_ail_delete_one(ailp, lip);
+	xfs_ail_update_finish(ailp, tail_lsn);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -829,7 +1132,11 @@ xfs_trans_ail_init(
 	init_waitqueue_head(&ailp->ail_empty);
 
 	ailp->ail_task = kthread_run(xfsaild, ailp, "xfsaild/%s",
+<<<<<<< HEAD
 			ailp->ail_mount->m_fsname);
+=======
+			ailp->ail_mount->m_super->s_id);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ailp->ail_task))
 		goto out_free_ailp;
 

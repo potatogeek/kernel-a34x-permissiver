@@ -12,7 +12,11 @@
  * Fix bug in inverse translation. Stanislav Voronyi <stas@cnti.uanet.kharkov.ua>, Dec 1998
  *
  * In order to prevent the following circular lock dependency:
+<<<<<<< HEAD
  *   &mm->mmap_sem --> cpu_hotplug.lock --> console_lock --> &mm->mmap_sem
+=======
+ *   &mm->mmap_lock --> cpu_hotplug.lock --> console_lock --> &mm->mmap_lock
+>>>>>>> upstream/android-13
  *
  * We cannot allow page fault to happen while holding the console_lock.
  * Therefore, all the userspace copy operations have to be done outside
@@ -268,7 +272,11 @@ unsigned short *set_translate(int m, struct vc_data *vc)
  *    was active.
  * Still, it is now possible to a certain extent to cut and paste non-ASCII.
  */
+<<<<<<< HEAD
 u16 inverse_translate(struct vc_data *conp, int glyph, int use_unicode)
+=======
+u16 inverse_translate(const struct vc_data *conp, int glyph, int use_unicode)
+>>>>>>> upstream/android-13
 {
 	struct uni_pagedir *p;
 	int m;
@@ -542,7 +550,11 @@ int con_set_unimap(struct vc_data *vc, ushort ct, struct unipair __user *list)
 	if (!ct)
 		return 0;
 
+<<<<<<< HEAD
 	unilist = memdup_user(list, ct * sizeof(struct unipair));
+=======
+	unilist = vmemdup_user(list, array_size(sizeof(struct unipair), ct));
+>>>>>>> upstream/android-13
 	if (IS_ERR(unilist))
 		return PTR_ERR(unilist);
 
@@ -641,7 +653,11 @@ int con_set_unimap(struct vc_data *vc, ushort ct, struct unipair __user *list)
 
 out_unlock:
 	console_unlock();
+<<<<<<< HEAD
 	kfree(unilist);
+=======
+	kvfree(unilist);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -708,7 +724,11 @@ EXPORT_SYMBOL(con_set_default_unimap);
 /**
  *	con_copy_unimap		-	copy unimap between two vts
  *	@dst_vc: target
+<<<<<<< HEAD
  *	@src_vt: source
+=======
+ *	@src_vc: source
+>>>>>>> upstream/android-13
  *
  *	The caller must hold the console lock when invoking this method
  */
@@ -728,9 +748,14 @@ int con_copy_unimap(struct vc_data *dst_vc, struct vc_data *src_vc)
 }
 EXPORT_SYMBOL(con_copy_unimap);
 
+<<<<<<< HEAD
 /**
  *	con_get_unimap		-	get the unicode map
  *	@vc: the console to read from
+=======
+/*
+ *	con_get_unimap		-	get the unicode map
+>>>>>>> upstream/android-13
  *
  *	Read the console unicode data for this console. Called from the ioctl
  *	handlers.
@@ -743,7 +768,11 @@ int con_get_unimap(struct vc_data *vc, ushort ct, ushort __user *uct, struct uni
 	struct uni_pagedir *p;
 	struct unipair *unilist;
 
+<<<<<<< HEAD
 	unilist = kmalloc_array(ct, sizeof(struct unipair), GFP_KERNEL);
+=======
+	unilist = kvmalloc_array(ct, sizeof(struct unipair), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!unilist)
 		return -ENOMEM;
 
@@ -775,7 +804,11 @@ int con_get_unimap(struct vc_data *vc, ushort ct, ushort __user *uct, struct uni
 	if (copy_to_user(list, unilist, min(ect, ct) * sizeof(struct unipair)))
 		ret = -EFAULT;
 	put_user(ect, uct);
+<<<<<<< HEAD
 	kfree(unilist);
+=======
+	kvfree(unilist);
+>>>>>>> upstream/android-13
 	return ret ? ret : (ect <= ct) ? 0 : -ENOMEM;
 }
 

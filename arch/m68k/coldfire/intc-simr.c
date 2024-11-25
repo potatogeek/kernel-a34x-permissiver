@@ -68,9 +68,15 @@ static void intc_irq_mask(struct irq_data *d)
 {
 	unsigned int irq = d->irq - MCFINT_VECBASE;
 
+<<<<<<< HEAD
 	if (MCFINTC2_SIMR && (irq > 128))
 		__raw_writeb(irq - 128, MCFINTC2_SIMR);
 	else if (MCFINTC1_SIMR && (irq > 64))
+=======
+	if (MCFINTC2_SIMR && (irq > 127))
+		__raw_writeb(irq - 128, MCFINTC2_SIMR);
+	else if (MCFINTC1_SIMR && (irq > 63))
+>>>>>>> upstream/android-13
 		__raw_writeb(irq - 64, MCFINTC1_SIMR);
 	else
 		__raw_writeb(irq, MCFINTC0_SIMR);
@@ -80,9 +86,15 @@ static void intc_irq_unmask(struct irq_data *d)
 {
 	unsigned int irq = d->irq - MCFINT_VECBASE;
 
+<<<<<<< HEAD
 	if (MCFINTC2_CIMR && (irq > 128))
 		__raw_writeb(irq - 128, MCFINTC2_CIMR);
 	else if (MCFINTC1_CIMR && (irq > 64))
+=======
+	if (MCFINTC2_CIMR && (irq > 127))
+		__raw_writeb(irq - 128, MCFINTC2_CIMR);
+	else if (MCFINTC1_CIMR && (irq > 63))
+>>>>>>> upstream/android-13
 		__raw_writeb(irq - 64, MCFINTC1_CIMR);
 	else
 		__raw_writeb(irq, MCFINTC0_CIMR);
@@ -115,9 +127,15 @@ static unsigned int intc_irq_startup(struct irq_data *d)
 	}
 
 	irq -= MCFINT_VECBASE;
+<<<<<<< HEAD
 	if (MCFINTC2_ICR0 && (irq > 128))
 		__raw_writeb(5, MCFINTC2_ICR0 + irq - 128);
 	else if (MCFINTC1_ICR0 && (irq > 64))
+=======
+	if (MCFINTC2_ICR0 && (irq > 127))
+		__raw_writeb(5, MCFINTC2_ICR0 + irq - 128);
+	else if (MCFINTC1_ICR0 && (irq > 63))
+>>>>>>> upstream/android-13
 		__raw_writeb(5, MCFINTC1_ICR0 + irq - 64);
 	else
 		__raw_writeb(5, MCFINTC0_ICR0 + irq);

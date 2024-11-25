@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2014  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2014  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../base.h"
@@ -247,9 +252,15 @@ static void rtl8723be_dm_init_txpower_tracking(struct ieee80211_hw *hw)
 	rtlpriv->dm.delta_power_index_last[RF90_PATH_A] = 0;
 	rtlpriv->dm.power_index_offset[RF90_PATH_A] = 0;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "  rtlpriv->dm.txpower_tracking = %d\n",
 		  rtlpriv->dm.txpower_tracking);
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"rtlpriv->dm.txpower_tracking = %d\n",
+		rtlpriv->dm.txpower_tracking);
+>>>>>>> upstream/android-13
 }
 
 static void rtl8723be_dm_init_dynamic_atc_switch(struct ieee80211_hw *hw)
@@ -287,14 +298,20 @@ static void rtl8723be_dm_find_minimum_rssi(struct ieee80211_hw *hw)
 	if ((mac->link_state < MAC80211_LINKED) &&
 	    (rtlpriv->dm.entry_min_undec_sm_pwdb == 0)) {
 		rtl_dm_dig->min_undec_pwdb_for_dm = 0;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
 			 "Not connected to any\n");
+=======
+		rtl_dbg(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+			"Not connected to any\n");
+>>>>>>> upstream/android-13
 	}
 	if (mac->link_state >= MAC80211_LINKED) {
 		if (mac->opmode == NL80211_IFTYPE_AP ||
 		    mac->opmode == NL80211_IFTYPE_ADHOC) {
 			rtl_dm_dig->min_undec_pwdb_for_dm =
 			    rtlpriv->dm.entry_min_undec_sm_pwdb;
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
 				 "AP Client PWDB = 0x%lx\n",
 			       rtlpriv->dm.entry_min_undec_sm_pwdb);
@@ -304,16 +321,36 @@ static void rtl8723be_dm_find_minimum_rssi(struct ieee80211_hw *hw)
 			RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
 				 "STA Default Port PWDB = 0x%x\n",
 				  rtl_dm_dig->min_undec_pwdb_for_dm);
+=======
+			rtl_dbg(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+				"AP Client PWDB = 0x%lx\n",
+				rtlpriv->dm.entry_min_undec_sm_pwdb);
+		} else {
+			rtl_dm_dig->min_undec_pwdb_for_dm =
+			    rtlpriv->dm.undec_sm_pwdb;
+			rtl_dbg(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+				"STA Default Port PWDB = 0x%x\n",
+				rtl_dm_dig->min_undec_pwdb_for_dm);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		rtl_dm_dig->min_undec_pwdb_for_dm =
 				rtlpriv->dm.entry_min_undec_sm_pwdb;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
 			 "AP Ext Port or disconnect PWDB = 0x%x\n",
 			  rtl_dm_dig->min_undec_pwdb_for_dm);
 	}
 	RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD, "MinUndecoratedPWDBForDM =%d\n",
 		 rtl_dm_dig->min_undec_pwdb_for_dm);
+=======
+		rtl_dbg(rtlpriv, COMP_BB_POWERSAVING, DBG_LOUD,
+			"AP Ext Port or disconnect PWDB = 0x%x\n",
+			rtl_dm_dig->min_undec_pwdb_for_dm);
+	}
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_LOUD, "MinUndecoratedPWDBForDM =%d\n",
+		rtl_dm_dig->min_undec_pwdb_for_dm);
+>>>>>>> upstream/android-13
 }
 
 static void rtl8723be_dm_check_rssi_monitor(struct ieee80211_hw *hw)
@@ -443,7 +480,11 @@ static void rtl8723be_dm_dig(struct ieee80211_hw *hw)
 	} else {
 		dm_digtable->rx_gain_max = dm_dig_max;
 		dig_min_0 = dm_dig_min;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD, "no link\n");
+=======
+		rtl_dbg(rtlpriv, COMP_DIG, DBG_LOUD, "no link\n");
+>>>>>>> upstream/android-13
 	}
 
 	if (rtlpriv->falsealm_cnt.cnt_all > 10000) {
@@ -598,6 +639,7 @@ static void rtl8723be_dm_false_alarm_counter_statistics(
 	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(15) | BIT(14), 0);
 	rtl_set_bbreg(hw, DM_REG_CCK_FA_RST_11N, BIT(15) | BIT(14), 2);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_DIG, DBG_TRACE,
 		 "cnt_parity_fail = %d, cnt_rate_illegal = %d, cnt_crc8_fail = %d, cnt_mcs_fail = %d\n",
 		 falsealm_cnt->cnt_parity_fail,
@@ -610,6 +652,20 @@ static void rtl8723be_dm_false_alarm_counter_statistics(
 		 falsealm_cnt->cnt_ofdm_fail,
 		 falsealm_cnt->cnt_cck_fail,
 		 falsealm_cnt->cnt_all);
+=======
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_TRACE,
+		"cnt_parity_fail = %d, cnt_rate_illegal = %d, cnt_crc8_fail = %d, cnt_mcs_fail = %d\n",
+		falsealm_cnt->cnt_parity_fail,
+		falsealm_cnt->cnt_rate_illegal,
+		falsealm_cnt->cnt_crc8_fail,
+		falsealm_cnt->cnt_mcs_fail);
+
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_TRACE,
+		"cnt_ofdm_fail = %x, cnt_cck_fail = %x, cnt_all = %x\n",
+		falsealm_cnt->cnt_ofdm_fail,
+		falsealm_cnt->cnt_cck_fail,
+		falsealm_cnt->cnt_all);
+>>>>>>> upstream/android-13
 }
 
 static void rtl8723be_dm_dynamic_txpower(struct ieee80211_hw *hw)
@@ -758,29 +814,49 @@ static void rtl8723be_dm_txpower_tracking_callback_thermalmeter(
 	u8 ofdm_min_index = 6;
 	u8 index_for_channel = 0;
 
+<<<<<<< HEAD
 	s8 delta_swing_table_idx_tup_a[TXSCALE_TABLE_SIZE] = {
 		0, 0, 1, 2, 2, 2, 3, 3, 3, 4,  5,
 		5, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10,
 		10, 11, 11, 12, 12, 13, 14, 15};
 	s8 delta_swing_table_idx_tdown_a[TXSCALE_TABLE_SIZE] = {
+=======
+	static const s8 delta_swing_table_idx_tup_a[TXSCALE_TABLE_SIZE] = {
+		0, 0, 1, 2, 2, 2, 3, 3, 3, 4,  5,
+		5, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10,
+		10, 11, 11, 12, 12, 13, 14, 15};
+	static const s8 delta_swing_table_idx_tdown_a[TXSCALE_TABLE_SIZE] = {
+>>>>>>> upstream/android-13
 		0, 0, 1, 2, 2, 2, 3, 3, 3, 4,  5,
 		5, 6, 6, 6, 6, 7, 7, 7, 8, 8,  9,
 		9, 10, 10, 11, 12, 13, 14, 15};
 
 	/*Initilization ( 7 steps in total )*/
 	rtlpriv->dm.txpower_trackinginit = true;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "rtl8723be_dm_txpower_tracking_callback_thermalmeter\n");
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"%s\n", __func__);
+>>>>>>> upstream/android-13
 
 	thermalvalue = (u8)rtl_get_rfreg(hw,
 		RF90_PATH_A, RF_T_METER, 0xfc00);
 	if (!rtlpriv->dm.txpower_track_control || thermalvalue == 0 ||
 	    rtlefuse->eeprom_thermalmeter == 0xFF)
 		return;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x\n",
 		 thermalvalue, rtldm->thermalvalue,
 		 rtlefuse->eeprom_thermalmeter);
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x\n",
+		thermalvalue, rtldm->thermalvalue,
+		rtlefuse->eeprom_thermalmeter);
+>>>>>>> upstream/android-13
 	/*3 Initialize ThermalValues of RFCalibrateInfo*/
 	if (!rtldm->thermalvalue) {
 		rtlpriv->dm.thermalvalue_lck = thermalvalue;
@@ -814,10 +890,17 @@ static void rtl8723be_dm_txpower_tracking_callback_thermalmeter(
 		    (thermalvalue - rtlpriv->dm.thermalvalue_iqk) :
 		    (rtlpriv->dm.thermalvalue_iqk - thermalvalue);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x delta 0x%x delta_lck 0x%x delta_iqk 0x%x\n",
 		 thermalvalue, rtlpriv->dm.thermalvalue,
 		 rtlefuse->eeprom_thermalmeter, delta, delta_lck, delta_iqk);
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x delta 0x%x delta_lck 0x%x delta_iqk 0x%x\n",
+		thermalvalue, rtlpriv->dm.thermalvalue,
+		rtlefuse->eeprom_thermalmeter, delta, delta_lck, delta_iqk);
+>>>>>>> upstream/android-13
 	/* 6 If necessary, do LCK.*/
 	if (delta_lck >= IQK_THRESHOLD) {
 		rtlpriv->dm.thermalvalue_lck = thermalvalue;
@@ -898,7 +981,11 @@ static void rtl8723be_dm_txpower_tracking_callback_thermalmeter(
 	}
 
 	rtldm->txpowercount = 0;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD, "end\n");
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD, "end\n");
+>>>>>>> upstream/android-13
 
 }
 
@@ -912,6 +999,7 @@ void rtl8723be_dm_check_txpower_tracking(struct ieee80211_hw *hw)
 	if (!rtlpriv->dm.tm_trigger) {
 		rtl_set_rfreg(hw, RF90_PATH_A, RF_T_METER, BIT(17) | BIT(16),
 			      0x03);
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 			 "Trigger 8723be Thermal Meter!!\n");
 		rtlpriv->dm.tm_trigger = 1;
@@ -919,6 +1007,15 @@ void rtl8723be_dm_check_txpower_tracking(struct ieee80211_hw *hw)
 	} else {
 		RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 			 "Schedule TxPowerTracking !!\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+			"Trigger 8723be Thermal Meter!!\n");
+		rtlpriv->dm.tm_trigger = 1;
+		return;
+	} else {
+		rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+			"Schedule TxPowerTracking !!\n");
+>>>>>>> upstream/android-13
 		rtl8723be_dm_txpower_tracking_callback_thermalmeter(hw);
 		rtlpriv->dm.tm_trigger = 0;
 	}
@@ -936,14 +1033,24 @@ static void rtl8723be_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 	struct ieee80211_sta *sta = NULL;
 
 	if (is_hal_stop(rtlhal)) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 			 "driver is going to unload\n");
+=======
+		rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+			"driver is going to unload\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (!rtlpriv->dm.useramask) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 			 "driver does not control rate adaptive mask\n");
+=======
+		rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+			"driver does not control rate adaptive mask\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -971,6 +1078,7 @@ static void rtl8723be_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 			p_ra->ratr_state = DM_RATR_STA_LOW;
 
 		if (p_ra->pre_ratr_state != p_ra->ratr_state) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 				 "RSSI = %ld\n",
 				 rtlpriv->dm.undec_sm_pwdb);
@@ -979,6 +1087,16 @@ static void rtl8723be_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 			RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 				 "PreState = %d, CurState = %d\n",
 				  p_ra->pre_ratr_state, p_ra->ratr_state);
+=======
+			rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+				"RSSI = %ld\n",
+				 rtlpriv->dm.undec_sm_pwdb);
+			rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+				"RSSI_LEVEL = %d\n", p_ra->ratr_state);
+			rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+				"PreState = %d, CurState = %d\n",
+				p_ra->pre_ratr_state, p_ra->ratr_state);
+>>>>>>> upstream/android-13
 
 			rcu_read_lock();
 			sta = rtl_find_sta(hw, mac->bssid);
@@ -1017,12 +1135,18 @@ static void rtl8723be_dm_check_edca_turbo(struct ieee80211_hw *hw)
 	u32 edca_be = 0x5ea42b;
 	u32 iot_peer = 0;
 	bool b_is_cur_rdlstate;
+<<<<<<< HEAD
 	bool b_last_is_cur_rdlstate = false;
 	bool b_bias_on_rx = false;
 	bool b_edca_turbo_on = false;
 
 	b_last_is_cur_rdlstate = rtlpriv->dm.is_cur_rdlstate;
 
+=======
+	bool b_bias_on_rx = false;
+	bool b_edca_turbo_on = false;
+
+>>>>>>> upstream/android-13
 	cur_txok_cnt = rtlpriv->stats.txbytesunicast - last_txok_cnt;
 	cur_rxok_cnt = rtlpriv->stats.rxbytesunicast - last_rxok_cnt;
 
@@ -1098,8 +1222,13 @@ static void rtl8723be_dm_cck_packet_detection_thresh(struct ieee80211_hw *hw)
 
 	dm_digtable->pre_cck_cca_thres = dm_digtable->cur_cck_cca_thres;
 	dm_digtable->cur_cck_cca_thres = cur_cck_cca_thresh;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_DIG, DBG_TRACE,
 		 "CCK cca thresh hold =%x\n", dm_digtable->cur_cck_cca_thres);
+=======
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_TRACE,
+		"CCK cca thresh hold =%x\n", dm_digtable->cur_cck_cca_thres);
+>>>>>>> upstream/android-13
 }
 
 static void rtl8723be_dm_dynamic_edcca(struct ieee80211_hw *hw)
@@ -1146,8 +1275,13 @@ static void rtl8723be_dm_dynamic_atc_switch(struct ieee80211_hw *hw)
 		}
 		if (rtlpriv->cfg->ops->get_btc_status()) {
 			if (!rtlpriv->btcoexist.btc_ops->btc_is_bt_disabled(rtlpriv)) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
 					 "odm_DynamicATCSwitch(): Disable CFO tracking for BT!!\n");
+=======
+				rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
+					"odm_DynamicATCSwitch(): Disable CFO tracking for BT!!\n");
+>>>>>>> upstream/android-13
 				return;
 			}
 		}
@@ -1177,11 +1311,19 @@ static void rtl8723be_dm_dynamic_atc_switch(struct ieee80211_hw *hw)
 			       (rtldm->cfo_ave_pre - cfo_ave) :
 			       (cfo_ave - rtldm->cfo_ave_pre);
 
+<<<<<<< HEAD
 		if (cfo_ave_diff > 20 && rtldm->large_cfo_hit == 0) {
 			rtldm->large_cfo_hit = 1;
 			return;
 		} else
 			rtldm->large_cfo_hit = 0;
+=======
+		if (cfo_ave_diff > 20 && !rtldm->large_cfo_hit) {
+			rtldm->large_cfo_hit = true;
+			return;
+		} else
+			rtldm->large_cfo_hit = false;
+>>>>>>> upstream/android-13
 
 		rtldm->cfo_ave_pre = cfo_ave;
 

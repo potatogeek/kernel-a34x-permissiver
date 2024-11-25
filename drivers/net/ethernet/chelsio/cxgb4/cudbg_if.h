@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
  *
@@ -13,6 +14,11 @@
  *  The full GNU General Public License is included in this distribution in
  *  the file called "COPYING".
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CUDBG_IF_H__
@@ -81,7 +87,13 @@ enum cudbg_dbg_entity_type {
 	CUDBG_MBOX_LOG = 66,
 	CUDBG_HMA_INDIRECT = 67,
 	CUDBG_HMA = 68,
+<<<<<<< HEAD
 	CUDBG_MAX_ENTITY = 70,
+=======
+	CUDBG_QDESC = 70,
+	CUDBG_FLASH = 71,
+	CUDBG_MAX_ENTITY = 72,
+>>>>>>> upstream/android-13
 };
 
 struct cudbg_init {

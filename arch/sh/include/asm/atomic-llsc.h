@@ -17,7 +17,11 @@
  */
 
 #define ATOMIC_OP(op)							\
+<<<<<<< HEAD
 static inline void atomic_##op(int i, atomic_t *v)			\
+=======
+static inline void arch_atomic_##op(int i, atomic_t *v)			\
+>>>>>>> upstream/android-13
 {									\
 	unsigned long tmp;						\
 									\
@@ -32,7 +36,11 @@ static inline void atomic_##op(int i, atomic_t *v)			\
 }
 
 #define ATOMIC_OP_RETURN(op)						\
+<<<<<<< HEAD
 static inline int atomic_##op##_return(int i, atomic_t *v)		\
+=======
+static inline int arch_atomic_##op##_return(int i, atomic_t *v)		\
+>>>>>>> upstream/android-13
 {									\
 	unsigned long temp;						\
 									\
@@ -50,7 +58,11 @@ static inline int atomic_##op##_return(int i, atomic_t *v)		\
 }
 
 #define ATOMIC_FETCH_OP(op)						\
+<<<<<<< HEAD
 static inline int atomic_fetch_##op(int i, atomic_t *v)			\
+=======
+static inline int arch_atomic_fetch_##op(int i, atomic_t *v)		\
+>>>>>>> upstream/android-13
 {									\
 	unsigned long res, temp;					\
 									\

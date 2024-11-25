@@ -1,9 +1,20 @@
+<<<<<<< HEAD
 This document describes one way to create the initrd directory hierarchy
 in order to allow an initrd to be built into your kernel.  The trick
 here is to steal the initrd file used on your Linux laptop, Ubuntu in
 this case.  There are probably much better ways of doing this.
 
 That said, here are the commands:
+=======
+The rcutorture scripting tools automatically create an initrd containing
+a single statically linked binary named "init" that loops over a
+very long sleep() call.  In both cases, this creation is done by
+tools/testing/selftests/rcutorture/bin/mkinitrd.sh.
+
+However, if you don't like the notion of statically linked bare-bones
+userspace environments, you might wish to press an existing initrd
+into service:
+>>>>>>> upstream/android-13
 
 ------------------------------------------------------------------------
 cd tools/testing/selftests/rcutorture
@@ -11,6 +22,7 @@ zcat /initrd.img > /tmp/initrd.img.zcat
 mkdir initrd
 cd initrd
 cpio -id < /tmp/initrd.img.zcat
+<<<<<<< HEAD
 ------------------------------------------------------------------------
 
 Another way to create an initramfs image is using "dracut"[1], which is
@@ -111,3 +123,6 @@ References:
 [1]: https://dracut.wiki.kernel.org/index.php/Main_Page
 [2]: http://blog.elastocloud.org/2015/06/rapid-linux-kernel-devtest-with-qemu.html
 [3]: https://www.centos.org/forums/viewtopic.php?t=51621
+=======
+# Manually verify that initrd contains needed binaries and libraries.
+>>>>>>> upstream/android-13

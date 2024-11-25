@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
@@ -38,6 +39,12 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR X11
+/*
+ * Copyright (C) 2016 Amarula Solutions B.V.
+ * Copyright (C) 2016 Engicam S.r.l.
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -134,6 +141,16 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&gpmi {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_gpmi_nand>;
+	nand-on-flash-bbt;
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &i2c1 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
@@ -177,7 +194,11 @@
 };
 
 &i2c2 {
+<<<<<<< HEAD
 	clock_frequency = <100000>;
+=======
+	clock-frequency = <100000>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
@@ -190,7 +211,11 @@
 	display = <&display0>;
 	status = "okay";
 
+<<<<<<< HEAD
 	display0: display {
+=======
+	display0: display0 {
+>>>>>>> upstream/android-13
 		bits-per-pixel = <16>;
 		bus-width = <18>;
 
@@ -216,6 +241,10 @@
 };
 
 &pwm8 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm8>;
 	status = "okay";
@@ -244,6 +273,18 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&usdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2>;
+	cd-gpios = <&gpio4 5 GPIO_ACTIVE_LOW>;
+	bus-width = <8>;
+	no-1-8-v;
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &iomuxc {
 	pinctrl_enet1: enet1grp {
 		fsl,pins = <
@@ -260,6 +301,29 @@
 		>;
 	};
 
+<<<<<<< HEAD
+=======
+	pinctrl_gpmi_nand: gpminandgrp {
+		fsl,pins = <
+			MX6UL_PAD_NAND_CLE__RAWNAND_CLE         0xb0b1
+			MX6UL_PAD_NAND_ALE__RAWNAND_ALE         0xb0b1
+			MX6UL_PAD_NAND_WP_B__RAWNAND_WP_B       0xb0b1
+			MX6UL_PAD_NAND_READY_B__RAWNAND_READY_B 0xb000
+			MX6UL_PAD_NAND_CE0_B__RAWNAND_CE0_B     0xb0b1
+			MX6UL_PAD_NAND_RE_B__RAWNAND_RE_B       0xb0b1
+			MX6UL_PAD_NAND_WE_B__RAWNAND_WE_B       0xb0b1
+			MX6UL_PAD_NAND_DATA00__RAWNAND_DATA00   0xb0b1
+			MX6UL_PAD_NAND_DATA01__RAWNAND_DATA01   0xb0b1
+			MX6UL_PAD_NAND_DATA02__RAWNAND_DATA02   0xb0b1
+			MX6UL_PAD_NAND_DATA03__RAWNAND_DATA03   0xb0b1
+			MX6UL_PAD_NAND_DATA04__RAWNAND_DATA04   0xb0b1
+			MX6UL_PAD_NAND_DATA05__RAWNAND_DATA05   0xb0b1
+			MX6UL_PAD_NAND_DATA06__RAWNAND_DATA06   0xb0b1
+			MX6UL_PAD_NAND_DATA07__RAWNAND_DATA07   0xb0b1
+		>;
+	};
+
+>>>>>>> upstream/android-13
 	pinctrl_i2c1: i2c1grp {
 		fsl,pins = <
 			MX6UL_PAD_UART4_TX_DATA__I2C1_SCL 0x4001b8b0
@@ -367,4 +431,23 @@
 			MX6UL_PAD_SD1_DATA3__USDHC1_DATA3 0x170f9
 		>;
 	};
+<<<<<<< HEAD
+=======
+
+	pinctrl_usdhc2: usdhc2grp {
+		fsl,pins = <
+			MX6UL_PAD_NAND_RE_B__USDHC2_CLK      0x17070
+			MX6UL_PAD_NAND_WE_B__USDHC2_CMD      0x10070
+			MX6UL_PAD_NAND_DATA00__USDHC2_DATA0  0x17070
+			MX6UL_PAD_NAND_DATA01__USDHC2_DATA1  0x17070
+			MX6UL_PAD_NAND_DATA02__USDHC2_DATA2  0x17070
+			MX6UL_PAD_NAND_DATA03__USDHC2_DATA3  0x17070
+			MX6UL_PAD_NAND_DATA04__USDHC2_DATA4  0x17070
+			MX6UL_PAD_NAND_DATA05__USDHC2_DATA5  0x17070
+			MX6UL_PAD_NAND_DATA06__USDHC2_DATA6  0x17070
+			MX6UL_PAD_NAND_DATA07__USDHC2_DATA7  0x17070
+			MX6UL_PAD_NAND_ALE__USDHC2_RESET_B   0x17070
+		>;
+	};
+>>>>>>> upstream/android-13
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*****************************************************************************
  * Linux PPP over L2TP (PPPoX/PPPoL2TP) Sockets
  *
@@ -11,11 +15,14 @@
  * Based on original work by Martijn van Oosterhout <kleptog@svana.org>
  *
  * License:
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* This driver handles only L2TP data frames; control frames are handled by a
@@ -121,8 +128,12 @@ struct pppol2tp_session {
 	int			owner;		/* pid that opened the socket */
 
 	struct mutex		sk_lock;	/* Protects .sk */
+<<<<<<< HEAD
 	struct sock __rcu	*sk;		/* Pointer to the session
 						 * PPPoX socket */
+=======
+	struct sock __rcu	*sk;		/* Pointer to the session PPPoX socket */
+>>>>>>> upstream/android-13
 	struct sock		*__sk;		/* Copy of .sk, for cleanup */
 	struct rcu_head		rcu;		/* For asynchronous release */
 };
@@ -159,17 +170,33 @@ static inline struct l2tp_session *pppol2tp_sock_to_session(struct sock *sk)
 {
 	struct l2tp_session *session;
 
+<<<<<<< HEAD
 	if (sk == NULL)
+=======
+	if (!sk)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	sock_hold(sk);
 	session = (struct l2tp_session *)(sk->sk_user_data);
+<<<<<<< HEAD
 	if (session == NULL) {
 		sock_put(sk);
 		goto out;
 	}
 
 	BUG_ON(session->magic != L2TP_SESSION_MAGIC);
+=======
+	if (!session) {
+		sock_put(sk);
+		goto out;
+	}
+	if (WARN_ON(session->magic != L2TP_SESSION_MAGIC)) {
+		session = NULL;
+		sock_put(sk);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 out:
 	return session;
@@ -222,13 +249,21 @@ static void pppol2tp_recv(struct l2tp_session *session, struct sk_buff *skb, int
 	 */
 	rcu_read_lock();
 	sk = rcu_dereference(ps->sk);
+<<<<<<< HEAD
 	if (sk == NULL)
+=======
+	if (!sk)
+>>>>>>> upstream/android-13
 		goto no_sock;
 
 	/* If the first two bytes are 0xFF03, consider that it is the PPP's
 	 * Address and Control fields and skip them. The L2TP module has always
 	 * worked this way, although, in theory, the use of these fields should
+<<<<<<< HEAD
 	 * be negociated and handled at the PPP layer. These fields are
+=======
+	 * be negotiated and handled at the PPP layer. These fields are
+>>>>>>> upstream/android-13
 	 * constant: 0xFF is the All-Stations Address and 0x03 the Unnumbered
 	 * Information command with Poll/Final bit set to zero (RFC 1662).
 	 */
@@ -239,6 +274,7 @@ static void pppol2tp_recv(struct l2tp_session *session, struct sk_buff *skb, int
 	if (sk->sk_state & PPPOX_BOUND) {
 		struct pppox_sock *po;
 
+<<<<<<< HEAD
 		l2tp_dbg(session, L2TP_MSG_DATA,
 			 "%s: recv %d byte data frame, passing to ppp\n",
 			 session->name, data_len);
@@ -250,6 +286,11 @@ static void pppol2tp_recv(struct l2tp_session *session, struct sk_buff *skb, int
 			 "%s: recv %d byte data frame, passing to L2TP socket\n",
 			 session->name, data_len);
 
+=======
+		po = pppox_sk(sk);
+		ppp_input(&po->chan, skb);
+	} else {
+>>>>>>> upstream/android-13
 		if (sock_queue_rcv_skb(sk, skb) < 0) {
 			atomic_long_inc(&session->stats.rx_errors);
 			kfree_skb(skb);
@@ -261,7 +302,11 @@ static void pppol2tp_recv(struct l2tp_session *session, struct sk_buff *skb, int
 
 no_sock:
 	rcu_read_unlock();
+<<<<<<< HEAD
 	l2tp_info(session, L2TP_MSG_DATA, "%s: no socket\n", session->name);
+=======
+	pr_warn_ratelimited("%s: no socket in recv\n", session->name);
+>>>>>>> upstream/android-13
 	kfree_skb(skb);
 }
 
@@ -290,7 +335,11 @@ static int pppol2tp_sendmsg(struct socket *sock, struct msghdr *m,
 	/* Get session and tunnel contexts */
 	error = -EBADF;
 	session = pppol2tp_sock_to_session(sk);
+<<<<<<< HEAD
 	if (session == NULL)
+=======
+	if (!session)
+>>>>>>> upstream/android-13
 		goto error;
 
 	tunnel = session->tunnel;
@@ -326,7 +375,11 @@ static int pppol2tp_sendmsg(struct socket *sock, struct msghdr *m,
 	}
 
 	local_bh_disable();
+<<<<<<< HEAD
 	l2tp_xmit_skb(session, skb, session->hdr_len);
+=======
+	l2tp_xmit_skb(session, skb);
+>>>>>>> upstream/android-13
 	local_bh_enable();
 
 	sock_put(sk);
@@ -355,7 +408,11 @@ error:
  */
 static int pppol2tp_xmit(struct ppp_channel *chan, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct sock *sk = (struct sock *) chan->private;
+=======
+	struct sock *sk = (struct sock *)chan->private;
+>>>>>>> upstream/android-13
 	struct l2tp_session *session;
 	struct l2tp_tunnel *tunnel;
 	int uhlen, headroom;
@@ -365,7 +422,11 @@ static int pppol2tp_xmit(struct ppp_channel *chan, struct sk_buff *skb)
 
 	/* Get session and tunnel contexts from the socket */
 	session = pppol2tp_sock_to_session(sk);
+<<<<<<< HEAD
 	if (session == NULL)
+=======
+	if (!session)
+>>>>>>> upstream/android-13
 		goto abort;
 
 	tunnel = session->tunnel;
@@ -385,7 +446,11 @@ static int pppol2tp_xmit(struct ppp_channel *chan, struct sk_buff *skb)
 	skb->data[1] = PPP_UI;
 
 	local_bh_disable();
+<<<<<<< HEAD
 	l2tp_xmit_skb(session, skb, session->hdr_len);
+=======
+	l2tp_xmit_skb(session, skb);
+>>>>>>> upstream/android-13
 	local_bh_enable();
 
 	sock_put(sk);
@@ -424,7 +489,12 @@ static void pppol2tp_session_destruct(struct sock *sk)
 
 	if (session) {
 		sk->sk_user_data = NULL;
+<<<<<<< HEAD
 		BUG_ON(session->magic != L2TP_SESSION_MAGIC);
+=======
+		if (WARN_ON(session->magic != L2TP_SESSION_MAGIC))
+			return;
+>>>>>>> upstream/android-13
 		l2tp_session_dec_refcount(session);
 	}
 }
@@ -708,10 +778,16 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
 	 * tunnel id.
 	 */
 	if (!info.session_id && !info.peer_session_id) {
+<<<<<<< HEAD
 		if (tunnel == NULL) {
 			struct l2tp_tunnel_cfg tcfg = {
 				.encap = L2TP_ENCAPTYPE_UDP,
 				.debug = 0,
+=======
+		if (!tunnel) {
+			struct l2tp_tunnel_cfg tcfg = {
+				.encap = L2TP_ENCAPTYPE_UDP,
+>>>>>>> upstream/android-13
 			};
 
 			/* Prevent l2tp_tunnel_register() from trying to set up
@@ -722,7 +798,11 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
 				goto end;
 			}
 
+<<<<<<< HEAD
 			error = l2tp_tunnel_create(sock_net(sk), info.fd,
+=======
+			error = l2tp_tunnel_create(info.fd,
+>>>>>>> upstream/android-13
 						   info.version,
 						   info.tunnel_id,
 						   info.peer_tunnel_id, &tcfg,
@@ -743,11 +823,19 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
 	} else {
 		/* Error if we can't find the tunnel */
 		error = -ENOENT;
+<<<<<<< HEAD
 		if (tunnel == NULL)
 			goto end;
 
 		/* Error if socket is not prepped */
 		if (tunnel->sock == NULL)
+=======
+		if (!tunnel)
+			goto end;
+
+		/* Error if socket is not prepped */
+		if (!tunnel->sock)
+>>>>>>> upstream/android-13
 			goto end;
 	}
 
@@ -807,8 +895,12 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
 	 * the internal context for use by ioctl() and sockopt()
 	 * handlers.
 	 */
+<<<<<<< HEAD
 	if ((session->session_id == 0) &&
 	    (session->peer_session_id == 0)) {
+=======
+	if (session->session_id == 0 && session->peer_session_id == 0) {
+>>>>>>> upstream/android-13
 		error = 0;
 		goto out_no_ppp;
 	}
@@ -842,8 +934,11 @@ out_no_ppp:
 	drop_refcnt = false;
 
 	sk->sk_state = PPPOX_CONNECTED;
+<<<<<<< HEAD
 	l2tp_info(session, L2TP_MSG_CONTROL, "%s: created\n",
 		  session->name);
+=======
+>>>>>>> upstream/android-13
 
 end:
 	if (error) {
@@ -916,22 +1011,36 @@ static int pppol2tp_getname(struct socket *sock, struct sockaddr *uaddr,
 	struct pppol2tp_session *pls;
 
 	error = -ENOTCONN;
+<<<<<<< HEAD
 	if (sk == NULL)
+=======
+	if (!sk)
+>>>>>>> upstream/android-13
 		goto end;
 	if (!(sk->sk_state & PPPOX_CONNECTED))
 		goto end;
 
 	error = -EBADF;
 	session = pppol2tp_sock_to_session(sk);
+<<<<<<< HEAD
 	if (session == NULL)
+=======
+	if (!session)
+>>>>>>> upstream/android-13
 		goto end;
 
 	pls = l2tp_session_priv(session);
 	tunnel = session->tunnel;
 
 	inet = inet_sk(tunnel->sock);
+<<<<<<< HEAD
 	if ((tunnel->version == 2) && (tunnel->sock->sk_family == AF_INET)) {
 		struct sockaddr_pppol2tp sp;
+=======
+	if (tunnel->version == 2 && tunnel->sock->sk_family == AF_INET) {
+		struct sockaddr_pppol2tp sp;
+
+>>>>>>> upstream/android-13
 		len = sizeof(sp);
 		memset(&sp, 0, len);
 		sp.sa_family	= AF_PPPOX;
@@ -947,8 +1056,12 @@ static int pppol2tp_getname(struct socket *sock, struct sockaddr *uaddr,
 		sp.pppol2tp.addr.sin_addr.s_addr = inet->inet_daddr;
 		memcpy(uaddr, &sp, len);
 #if IS_ENABLED(CONFIG_IPV6)
+<<<<<<< HEAD
 	} else if ((tunnel->version == 2) &&
 		   (tunnel->sock->sk_family == AF_INET6)) {
+=======
+	} else if (tunnel->version == 2 && tunnel->sock->sk_family == AF_INET6) {
+>>>>>>> upstream/android-13
 		struct sockaddr_pppol2tpin6 sp;
 
 		len = sizeof(sp);
@@ -966,8 +1079,12 @@ static int pppol2tp_getname(struct socket *sock, struct sockaddr *uaddr,
 		memcpy(&sp.pppol2tp.addr.sin6_addr, &tunnel->sock->sk_v6_daddr,
 		       sizeof(tunnel->sock->sk_v6_daddr));
 		memcpy(uaddr, &sp, len);
+<<<<<<< HEAD
 	} else if ((tunnel->version == 3) &&
 		   (tunnel->sock->sk_family == AF_INET6)) {
+=======
+	} else if (tunnel->version == 3 && tunnel->sock->sk_family == AF_INET6) {
+>>>>>>> upstream/android-13
 		struct sockaddr_pppol2tpv3in6 sp;
 
 		len = sizeof(sp);
@@ -988,6 +1105,10 @@ static int pppol2tp_getname(struct socket *sock, struct sockaddr *uaddr,
 #endif
 	} else if (tunnel->version == 3) {
 		struct sockaddr_pppol2tpv3 sp;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		len = sizeof(sp);
 		memset(&sp, 0, len);
 		sp.sa_family	= AF_PPPOX;
@@ -1070,7 +1191,10 @@ static int pppol2tp_ioctl(struct socket *sock, unsigned int cmd,
 {
 	struct pppol2tp_ioc_stats stats;
 	struct l2tp_session *session;
+<<<<<<< HEAD
 	int val;
+=======
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case PPPIOCGMRU:
@@ -1079,6 +1203,12 @@ static int pppol2tp_ioctl(struct socket *sock, unsigned int cmd,
 		if (!session)
 			return -ENOTCONN;
 
+<<<<<<< HEAD
+=======
+		if (WARN_ON(session->magic != L2TP_SESSION_MAGIC))
+			return -EBADF;
+
+>>>>>>> upstream/android-13
 		/* Not defined for tunnels */
 		if (!session->session_id && !session->peer_session_id)
 			return -ENOSYS;
@@ -1093,11 +1223,21 @@ static int pppol2tp_ioctl(struct socket *sock, unsigned int cmd,
 		if (!session)
 			return -ENOTCONN;
 
+<<<<<<< HEAD
+=======
+		if (WARN_ON(session->magic != L2TP_SESSION_MAGIC))
+			return -EBADF;
+
+>>>>>>> upstream/android-13
 		/* Not defined for tunnels */
 		if (!session->session_id && !session->peer_session_id)
 			return -ENOSYS;
 
+<<<<<<< HEAD
 		if (get_user(val, (int __user *)arg))
+=======
+		if (!access_ok((int __user *)arg, sizeof(int)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		break;
 
@@ -1106,6 +1246,12 @@ static int pppol2tp_ioctl(struct socket *sock, unsigned int cmd,
 		if (!session)
 			return -ENOTCONN;
 
+<<<<<<< HEAD
+=======
+		if (WARN_ON(session->magic != L2TP_SESSION_MAGIC))
+			return -EBADF;
+
+>>>>>>> upstream/android-13
 		/* Session 0 represents the parent tunnel */
 		if (!session->session_id && !session->peer_session_id) {
 			u32 session_id;
@@ -1160,9 +1306,13 @@ static int pppol2tp_tunnel_setsockopt(struct sock *sk,
 
 	switch (optname) {
 	case PPPOL2TP_SO_DEBUG:
+<<<<<<< HEAD
 		tunnel->debug = val;
 		l2tp_info(tunnel, L2TP_MSG_CONTROL, "%s: set debug=%x\n",
 			  tunnel->name, tunnel->debug);
+=======
+		/* Tunnel debug flags option is deprecated */
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -1183,11 +1333,16 @@ static int pppol2tp_session_setsockopt(struct sock *sk,
 
 	switch (optname) {
 	case PPPOL2TP_SO_RECVSEQ:
+<<<<<<< HEAD
 		if ((val != 0) && (val != 1)) {
+=======
+		if (val != 0 && val != 1) {
+>>>>>>> upstream/android-13
 			err = -EINVAL;
 			break;
 		}
 		session->recv_seq = !!val;
+<<<<<<< HEAD
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: set recv_seq=%d\n",
 			  session->name, session->recv_seq);
@@ -1195,6 +1350,12 @@ static int pppol2tp_session_setsockopt(struct sock *sk,
 
 	case PPPOL2TP_SO_SENDSEQ:
 		if ((val != 0) && (val != 1)) {
+=======
+		break;
+
+	case PPPOL2TP_SO_SENDSEQ:
+		if (val != 0 && val != 1) {
+>>>>>>> upstream/android-13
 			err = -EINVAL;
 			break;
 		}
@@ -1206,6 +1367,7 @@ static int pppol2tp_session_setsockopt(struct sock *sk,
 				PPPOL2TP_L2TP_HDR_SIZE_NOSEQ;
 		}
 		l2tp_session_set_header_len(session, session->tunnel->version);
+<<<<<<< HEAD
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: set send_seq=%d\n",
 			  session->name, session->send_seq);
@@ -1213,10 +1375,17 @@ static int pppol2tp_session_setsockopt(struct sock *sk,
 
 	case PPPOL2TP_SO_LNSMODE:
 		if ((val != 0) && (val != 1)) {
+=======
+		break;
+
+	case PPPOL2TP_SO_LNSMODE:
+		if (val != 0 && val != 1) {
+>>>>>>> upstream/android-13
 			err = -EINVAL;
 			break;
 		}
 		session->lns_mode = !!val;
+<<<<<<< HEAD
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: set lns_mode=%d\n",
 			  session->name, session->lns_mode);
@@ -1226,13 +1395,22 @@ static int pppol2tp_session_setsockopt(struct sock *sk,
 		session->debug = val;
 		l2tp_info(session, L2TP_MSG_CONTROL, "%s: set debug=%x\n",
 			  session->name, session->debug);
+=======
+		break;
+
+	case PPPOL2TP_SO_DEBUG:
+		/* Session debug flags option is deprecated */
+>>>>>>> upstream/android-13
 		break;
 
 	case PPPOL2TP_SO_REORDERTO:
 		session->reorder_timeout = msecs_to_jiffies(val);
+<<<<<<< HEAD
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: set reorder_timeout=%d\n",
 			  session->name, session->reorder_timeout);
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -1249,7 +1427,11 @@ static int pppol2tp_session_setsockopt(struct sock *sk,
  * session or the special tunnel type.
  */
 static int pppol2tp_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			       char __user *optval, unsigned int optlen)
+=======
+			       sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	struct l2tp_session *session;
@@ -1263,23 +1445,39 @@ static int pppol2tp_setsockopt(struct socket *sock, int level, int optname,
 	if (optlen < sizeof(int))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (get_user(val, (int __user *)optval))
 		return -EFAULT;
 
 	err = -ENOTCONN;
 	if (sk->sk_user_data == NULL)
+=======
+	if (copy_from_sockptr(&val, optval, sizeof(int)))
+		return -EFAULT;
+
+	err = -ENOTCONN;
+	if (!sk->sk_user_data)
+>>>>>>> upstream/android-13
 		goto end;
 
 	/* Get session context from the socket */
 	err = -EBADF;
 	session = pppol2tp_sock_to_session(sk);
+<<<<<<< HEAD
 	if (session == NULL)
+=======
+	if (!session)
+>>>>>>> upstream/android-13
 		goto end;
 
 	/* Special case: if session_id == 0x0000, treat as operation on tunnel
 	 */
+<<<<<<< HEAD
 	if ((session->session_id == 0) &&
 	    (session->peer_session_id == 0)) {
+=======
+	if (session->session_id == 0 && session->peer_session_id == 0) {
+>>>>>>> upstream/android-13
 		tunnel = session->tunnel;
 		err = pppol2tp_tunnel_setsockopt(sk, tunnel, optname, val);
 	} else {
@@ -1301,9 +1499,14 @@ static int pppol2tp_tunnel_getsockopt(struct sock *sk,
 
 	switch (optname) {
 	case PPPOL2TP_SO_DEBUG:
+<<<<<<< HEAD
 		*val = tunnel->debug;
 		l2tp_info(tunnel, L2TP_MSG_CONTROL, "%s: get debug=%x\n",
 			  tunnel->name, tunnel->debug);
+=======
+		/* Tunnel debug flags option is deprecated */
+		*val = 0;
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -1325,18 +1528,25 @@ static int pppol2tp_session_getsockopt(struct sock *sk,
 	switch (optname) {
 	case PPPOL2TP_SO_RECVSEQ:
 		*val = session->recv_seq;
+<<<<<<< HEAD
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: get recv_seq=%d\n", session->name, *val);
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case PPPOL2TP_SO_SENDSEQ:
 		*val = session->send_seq;
+<<<<<<< HEAD
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: get send_seq=%d\n", session->name, *val);
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case PPPOL2TP_SO_LNSMODE:
 		*val = session->lns_mode;
+<<<<<<< HEAD
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: get lns_mode=%d\n", session->name, *val);
 		break;
@@ -1351,6 +1561,17 @@ static int pppol2tp_session_getsockopt(struct sock *sk,
 		*val = (int) jiffies_to_msecs(session->reorder_timeout);
 		l2tp_info(session, L2TP_MSG_CONTROL,
 			  "%s: get reorder_timeout=%d\n", session->name, *val);
+=======
+		break;
+
+	case PPPOL2TP_SO_DEBUG:
+		/* Session debug flags option is deprecated */
+		*val = 0;
+		break;
+
+	case PPPOL2TP_SO_REORDERTO:
+		*val = (int)jiffies_to_msecs(session->reorder_timeout);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -1386,18 +1607,30 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
 		return -EINVAL;
 
 	err = -ENOTCONN;
+<<<<<<< HEAD
 	if (sk->sk_user_data == NULL)
+=======
+	if (!sk->sk_user_data)
+>>>>>>> upstream/android-13
 		goto end;
 
 	/* Get the session context */
 	err = -EBADF;
 	session = pppol2tp_sock_to_session(sk);
+<<<<<<< HEAD
 	if (session == NULL)
 		goto end;
 
 	/* Special case: if session_id == 0x0000, treat as operation on tunnel */
 	if ((session->session_id == 0) &&
 	    (session->peer_session_id == 0)) {
+=======
+	if (!session)
+		goto end;
+
+	/* Special case: if session_id == 0x0000, treat as operation on tunnel */
+	if (session->session_id == 0 && session->peer_session_id == 0) {
+>>>>>>> upstream/android-13
 		tunnel = session->tunnel;
 		err = pppol2tp_tunnel_getsockopt(sk, tunnel, optname, &val);
 		if (err)
@@ -1412,7 +1645,11 @@ static int pppol2tp_getsockopt(struct socket *sock, int level, int optname,
 	if (put_user(len, optlen))
 		goto end_put_sess;
 
+<<<<<<< HEAD
 	if (copy_to_user((void __user *) optval, &val, len))
+=======
+	if (copy_to_user((void __user *)optval, &val, len))
+>>>>>>> upstream/android-13
 		goto end_put_sess;
 
 	err = 0;
@@ -1468,7 +1705,11 @@ static void pppol2tp_next_session(struct net *net, struct pppol2tp_seq_data *pd)
 	pd->session = l2tp_session_get_nth(pd->tunnel, pd->session_idx);
 	pd->session_idx++;
 
+<<<<<<< HEAD
 	if (pd->session == NULL) {
+=======
+	if (!pd->session) {
+>>>>>>> upstream/android-13
 		pd->session_idx = 0;
 		pppol2tp_next_tunnel(net, pd);
 	}
@@ -1483,17 +1724,33 @@ static void *pppol2tp_seq_start(struct seq_file *m, loff_t *offs)
 	if (!pos)
 		goto out;
 
+<<<<<<< HEAD
 	BUG_ON(m->private == NULL);
 	pd = m->private;
 	net = seq_file_net(m);
 
 	if (pd->tunnel == NULL)
+=======
+	if (WARN_ON(!m->private)) {
+		pd = NULL;
+		goto out;
+	}
+
+	pd = m->private;
+	net = seq_file_net(m);
+
+	if (!pd->tunnel)
+>>>>>>> upstream/android-13
 		pppol2tp_next_tunnel(net, pd);
 	else
 		pppol2tp_next_session(net, pd);
 
 	/* NULL tunnel and session indicates end of list */
+<<<<<<< HEAD
 	if ((pd->tunnel == NULL) && (pd->session == NULL))
+=======
+	if (!pd->tunnel && !pd->session)
+>>>>>>> upstream/android-13
 		pd = NULL;
 
 out:
@@ -1535,7 +1792,11 @@ static void pppol2tp_seq_tunnel_show(struct seq_file *m, void *v)
 		   (tunnel == tunnel->sock->sk_user_data) ? 'Y' : 'N',
 		   refcount_read(&tunnel->ref_count) - 1);
 	seq_printf(m, " %08x %ld/%ld/%ld %ld/%ld/%ld\n",
+<<<<<<< HEAD
 		   tunnel->debug,
+=======
+		   0,
+>>>>>>> upstream/android-13
 		   atomic_long_read(&tunnel->stats.tx_packets),
 		   atomic_long_read(&tunnel->stats.tx_bytes),
 		   atomic_long_read(&tunnel->stats.tx_errors),
@@ -1556,6 +1817,10 @@ static void pppol2tp_seq_session_show(struct seq_file *m, void *v)
 
 	if (tunnel->sock) {
 		struct inet_sock *inet = inet_sk(tunnel->sock);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		ip = ntohl(inet->inet_saddr);
 		port = ntohs(inet->inet_sport);
 	}
@@ -1569,8 +1834,12 @@ static void pppol2tp_seq_session_show(struct seq_file *m, void *v)
 		user_data_ok = 'N';
 	}
 
+<<<<<<< HEAD
 	seq_printf(m, "  SESSION '%s' %08X/%d %04X/%04X -> "
 		   "%04X/%04X %d %c\n",
+=======
+	seq_printf(m, "  SESSION '%s' %08X/%d %04X/%04X -> %04X/%04X %d %c\n",
+>>>>>>> upstream/android-13
 		   session->name, ip, port,
 		   tunnel->tunnel_id,
 		   session->session_id,
@@ -1581,7 +1850,11 @@ static void pppol2tp_seq_session_show(struct seq_file *m, void *v)
 		   session->recv_seq ? 'R' : '-',
 		   session->send_seq ? 'S' : '-',
 		   session->lns_mode ? "LNS" : "LAC",
+<<<<<<< HEAD
 		   session->debug,
+=======
+		   0,
+>>>>>>> upstream/android-13
 		   jiffies_to_msecs(session->reorder_timeout));
 	seq_printf(m, "   %hu/%hu %ld/%ld/%ld %ld/%ld/%ld\n",
 		   session->nr, session->ns,
@@ -1609,8 +1882,12 @@ static int pppol2tp_seq_show(struct seq_file *m, void *v)
 		seq_puts(m, "PPPoL2TP driver info, " PPPOL2TP_DRV_VERSION "\n");
 		seq_puts(m, "TUNNEL name, user-data-ok session-count\n");
 		seq_puts(m, " debug tx-pkts/bytes/errs rx-pkts/bytes/errs\n");
+<<<<<<< HEAD
 		seq_puts(m, "  SESSION name, addr/port src-tid/sid "
 			 "dest-tid/sid state user-data-ok\n");
+=======
+		seq_puts(m, "  SESSION name, addr/port src-tid/sid dest-tid/sid state user-data-ok\n");
+>>>>>>> upstream/android-13
 		seq_puts(m, "   mtu/mru/rcvseq/sendseq/lns debug reorderto\n");
 		seq_puts(m, "   nr/ns tx-pkts/bytes/errs rx-pkts/bytes/errs\n");
 		goto out;
@@ -1643,7 +1920,11 @@ static __net_init int pppol2tp_init_net(struct net *net)
 	int err = 0;
 
 	pde = proc_create_net("pppol2tp", 0444, net->proc_net,
+<<<<<<< HEAD
 			&pppol2tp_seq_ops, sizeof(struct pppol2tp_seq_data));
+=======
+			      &pppol2tp_seq_ops, sizeof(struct pppol2tp_seq_data));
+>>>>>>> upstream/android-13
 	if (!pde) {
 		err = -ENOMEM;
 		goto out;

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fireworks.c - a part of driver for Fireworks based devices
  *
  * Copyright (c) 2009-2010 Clemens Ladisch
  * Copyright (c) 2013-2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -184,6 +191,7 @@ end:
 	return err;
 }
 
+<<<<<<< HEAD
 static void efw_free(struct snd_efw *efw)
 {
 	snd_efw_stream_destroy_duplex(efw);
@@ -202,11 +210,14 @@ static void efw_free(struct snd_efw *efw)
  * transactions safely. Thus at returning from .remove(), this module still keep
  * references for the unit.
  */
+=======
+>>>>>>> upstream/android-13
 static void
 efw_card_free(struct snd_card *card)
 {
 	struct snd_efw *efw = card->private_data;
 
+<<<<<<< HEAD
 	if (efw->card_index >= 0) {
 		mutex_lock(&devices_mutex);
 		clear_bit(efw->card_index, devices_used);
@@ -229,12 +240,35 @@ do_registration(struct work_struct *work)
 	mutex_lock(&devices_mutex);
 
 	/* check registered cards */
+=======
+	mutex_lock(&devices_mutex);
+	clear_bit(efw->card_index, devices_used);
+	mutex_unlock(&devices_mutex);
+
+	snd_efw_stream_destroy_duplex(efw);
+	snd_efw_transaction_remove_instance(efw);
+
+	mutex_destroy(&efw->mutex);
+	fw_unit_put(efw->unit);
+}
+
+static int efw_probe(struct fw_unit *unit, const struct ieee1394_device_id *entry)
+{
+	unsigned int card_index;
+	struct snd_card *card;
+	struct snd_efw *efw;
+	int err;
+
+	// check registered cards.
+	mutex_lock(&devices_mutex);
+>>>>>>> upstream/android-13
 	for (card_index = 0; card_index < SNDRV_CARDS; ++card_index) {
 		if (!test_bit(card_index, devices_used) && enable[card_index])
 			break;
 	}
 	if (card_index >= SNDRV_CARDS) {
 		mutex_unlock(&devices_mutex);
+<<<<<<< HEAD
 		return;
 	}
 
@@ -250,6 +284,35 @@ do_registration(struct work_struct *work)
 				      SND_EFW_RESPONSE_MAXIMUM_BYTES, 4096U);
 	efw->resp_buf = kzalloc(snd_efw_resp_buf_size, GFP_KERNEL);
 	if (efw->resp_buf == NULL) {
+=======
+		return -ENOENT;
+	}
+
+	err = snd_card_new(&unit->device, index[card_index], id[card_index], THIS_MODULE,
+			   sizeof(*efw), &card);
+	if (err < 0) {
+		mutex_unlock(&devices_mutex);
+		return err;
+	}
+	card->private_free = efw_card_free;
+	set_bit(card_index, devices_used);
+	mutex_unlock(&devices_mutex);
+
+	efw = card->private_data;
+	efw->unit = fw_unit_get(unit);
+	dev_set_drvdata(&unit->device, efw);
+	efw->card = card;
+	efw->card_index = card_index;
+
+	mutex_init(&efw->mutex);
+	spin_lock_init(&efw->lock);
+	init_waitqueue_head(&efw->hwdep_wait);
+
+	// prepare response buffer.
+	snd_efw_resp_buf_size = clamp(snd_efw_resp_buf_size, SND_EFW_RESPONSE_MAXIMUM_BYTES, 4096U);
+	efw->resp_buf = devm_kzalloc(&card->card_dev, snd_efw_resp_buf_size, GFP_KERNEL);
+	if (!efw->resp_buf) {
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto error;
 	}
@@ -280,6 +343,7 @@ do_registration(struct work_struct *work)
 	if (err < 0)
 		goto error;
 
+<<<<<<< HEAD
 	err = snd_card_register(efw->card);
 	if (err < 0)
 		goto error;
@@ -328,12 +392,23 @@ efw_probe(struct fw_unit *unit, const struct ieee1394_device_id *entry)
 	snd_fw_schedule_registration(unit, &efw->dwork);
 
 	return 0;
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		goto error;
+
+	return 0;
+error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void efw_update(struct fw_unit *unit)
 {
 	struct snd_efw *efw = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/* Postpone a workqueue for deferred registration. */
 	if (!efw->registered)
 		snd_fw_schedule_registration(unit, &efw->dwork);
@@ -349,12 +424,20 @@ static void efw_update(struct fw_unit *unit)
 		snd_efw_stream_update_duplex(efw);
 		mutex_unlock(&efw->mutex);
 	}
+=======
+	snd_efw_transaction_bus_reset(efw->unit);
+
+	mutex_lock(&efw->mutex);
+	snd_efw_stream_update_duplex(efw);
+	mutex_unlock(&efw->mutex);
+>>>>>>> upstream/android-13
 }
 
 static void efw_remove(struct fw_unit *unit)
 {
 	struct snd_efw *efw = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/*
 	 * Confirm to stop the work for registration before the sound card is
 	 * going to be released. The work is not scheduled again because bus
@@ -369,6 +452,25 @@ static void efw_remove(struct fw_unit *unit)
 		/* Don't forget this case. */
 		efw_free(efw);
 	}
+=======
+	// Block till all of ALSA character devices are released.
+	snd_card_free(efw->card);
+}
+
+#define SPECIFIER_1394TA	0x00a02d
+#define VERSION_EFW		0x010000
+
+#define SND_EFW_DEV_ENTRY(vendor, model) \
+{ \
+	.match_flags	= IEEE1394_MATCH_VENDOR_ID | \
+			  IEEE1394_MATCH_MODEL_ID | \
+			  IEEE1394_MATCH_SPECIFIER_ID | \
+			  IEEE1394_MATCH_VERSION, \
+	.vendor_id	= vendor,\
+	.model_id	= model, \
+	.specifier_id	= SPECIFIER_1394TA, \
+	.version	= VERSION_EFW, \
+>>>>>>> upstream/android-13
 }
 
 static const struct ieee1394_device_id efw_id_table[] = {
@@ -392,7 +494,11 @@ MODULE_DEVICE_TABLE(ieee1394, efw_id_table);
 static struct fw_driver efw_driver = {
 	.driver = {
 		.owner = THIS_MODULE,
+<<<<<<< HEAD
 		.name = "snd-fireworks",
+=======
+		.name = KBUILD_MODNAME,
+>>>>>>> upstream/android-13
 		.bus = &fw_bus_type,
 	},
 	.probe    = efw_probe,

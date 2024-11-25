@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 2018-04-15
 
 All affected drivers:
@@ -10,6 +11,10 @@ use <linux/gpio/machine.h>.
 ADI Drivers:
 CC the device-drivers-devel@blackfin.uclinux.org mailing list when
 e-mailing the normal IIO list (see below).
+=======
+2020-02-25
+
+>>>>>>> upstream/android-13
 
 Contact: Jonathan Cameron <jic23@kernel.org>.
 Mailing list: linux-iio@vger.kernel.org

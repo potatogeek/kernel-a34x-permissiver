@@ -110,23 +110,37 @@
 };
 
 &ecspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH
 		    &gpio4 10 GPIO_ACTIVE_HIGH
 		    &gpio4 11 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio4 9 GPIO_ACTIVE_LOW
+		    &gpio4 10 GPIO_ACTIVE_LOW
+		    &gpio4 11 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "okay";
 };
 
 &ecspi2 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio2 26 GPIO_ACTIVE_HIGH &gpio2 27 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio2 26 GPIO_ACTIVE_LOW &gpio2 27 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi2>;
 	status = "okay";
 };
 
 &ecspi4 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio3 29 GPIO_ACTIVE_HIGH &gpio5 2 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio3 29 GPIO_ACTIVE_LOW &gpio5 2 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi4>;
 	status = "okay";
@@ -316,12 +330,31 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
 	phy-mode = "rgmii";
+<<<<<<< HEAD
 	phy-reset-gpios = <&gpio7 18 GPIO_ACTIVE_LOW>;
 	txd0-skew-ps = <0>;
 	txd1-skew-ps = <0>;
 	txd2-skew-ps = <0>;
 	txd3-skew-ps = <0>;
 	status = "okay";
+=======
+	phy-handle = <&ethphy>;
+	phy-reset-gpios = <&gpio7 18 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			txd0-skew-ps = <0>;
+			txd1-skew-ps = <0>;
+			txd2-skew-ps = <0>;
+			txd3-skew-ps = <0>;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &gpmi {
@@ -336,6 +369,10 @@
 };
 
 &pwm1 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
 	status = "okay";

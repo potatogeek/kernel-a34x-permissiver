@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -134,6 +140,7 @@ static void hns_gmac_get_tx_auto_pause_frames(void *mac_drv, u16 *newval)
 				     GMAC_FC_TX_TIMER_M, GMAC_FC_TX_TIMER_S);
 }
 
+<<<<<<< HEAD
 static void hns_gmac_set_rx_auto_pause_frames(void *mac_drv, u32 newval)
 {
 	struct mac_driver *drv = (struct mac_driver *)mac_drv;
@@ -142,6 +149,8 @@ static void hns_gmac_set_rx_auto_pause_frames(void *mac_drv, u32 newval)
 			 GMAC_PAUSE_EN_RX_FDFC_B, !!newval);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void hns_gmac_config_max_frame_length(void *mac_drv, u16 newval)
 {
 	struct mac_driver *drv = (struct mac_driver *)mac_drv;
@@ -183,6 +192,7 @@ static void hns_gmac_tx_loop_pkt_dis(void *mac_drv)
 	dsaf_write_dev(drv, GMAC_TX_LOOP_PKT_PRI_REG, tx_loop_pkt_pri);
 }
 
+<<<<<<< HEAD
 static void hns_gmac_set_duplex_type(void *mac_drv, u8 newval)
 {
 	struct mac_driver *drv = (struct mac_driver *)mac_drv;
@@ -191,6 +201,8 @@ static void hns_gmac_set_duplex_type(void *mac_drv, u8 newval)
 			 GMAC_DUPLEX_TYPE_B, !!newval);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void hns_gmac_get_duplex_type(void *mac_drv,
 				     enum hns_gmac_duplex_mdoe *duplex_mode)
 {
@@ -325,7 +337,11 @@ static void hns_gmac_set_promisc(void *mac_drv, u8 en)
 		hns_gmac_set_uc_match(mac_drv, en);
 }
 
+<<<<<<< HEAD
 int hns_gmac_wait_fifo_clean(void *mac_drv)
+=======
+static int hns_gmac_wait_fifo_clean(void *mac_drv)
+>>>>>>> upstream/android-13
 {
 	struct mac_driver *drv = (struct mac_driver *)mac_drv;
 	int wait_cnt;
@@ -691,17 +707,26 @@ static void hns_gmac_get_stats(void *mac_drv, u64 *data)
 
 static void hns_gmac_get_strings(u32 stringset, u8 *data)
 {
+<<<<<<< HEAD
 	char *buff = (char *)data;
+=======
+	u8 *buff = data;
+>>>>>>> upstream/android-13
 	u32 i;
 
 	if (stringset != ETH_SS_STATS)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(g_gmac_stats_string); i++) {
 		snprintf(buff, ETH_GSTRING_LEN, "%s",
 			 g_gmac_stats_string[i].desc);
 		buff = buff + ETH_GSTRING_LEN;
 	}
+=======
+	for (i = 0; i < ARRAY_SIZE(g_gmac_stats_string); i++)
+		ethtool_sprintf(&buff, g_gmac_stats_string[i].desc);
+>>>>>>> upstream/android-13
 }
 
 static int hns_gmac_get_sset_count(int stringset)
@@ -745,8 +770,11 @@ void *hns_gmac_config(struct hns_mac_cb *mac_cb, struct mac_params *mac_param)
 	mac_drv->set_an_mode = hns_gmac_config_an_mode;
 	mac_drv->config_loopback = hns_gmac_config_loopback;
 	mac_drv->config_pad_and_crc = hns_gmac_config_pad_and_crc;
+<<<<<<< HEAD
 	mac_drv->config_half_duplex = hns_gmac_set_duplex_type;
 	mac_drv->set_rx_ignore_pause_frames = hns_gmac_set_rx_auto_pause_frames;
+=======
+>>>>>>> upstream/android-13
 	mac_drv->get_info = hns_gmac_get_info;
 	mac_drv->autoneg_stat = hns_gmac_autoneg_stat;
 	mac_drv->get_pause_enable = hns_gmac_get_pausefrm_cfg;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Kernel Probes (KProbes)
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Kernel Probes (KProbes)
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2002, 2004
  *
  * 2002-Oct	Created by Vamsi Krishna S <vamsi_krishna@in.ibm.com> Kernel
@@ -46,18 +53,33 @@
 #include <linux/hardirq.h>
 #include <linux/preempt.h>
 #include <linux/sched/debug.h>
+<<<<<<< HEAD
+=======
+#include <linux/perf_event.h>
+>>>>>>> upstream/android-13
 #include <linux/extable.h>
 #include <linux/kdebug.h>
 #include <linux/kallsyms.h>
 #include <linux/ftrace.h>
+<<<<<<< HEAD
 #include <linux/frame.h>
 #include <linux/kasan.h>
 #include <linux/moduleloader.h>
+=======
+#include <linux/kasan.h>
+#include <linux/moduleloader.h>
+#include <linux/objtool.h>
+#include <linux/vmalloc.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/text-patching.h>
 #include <asm/cacheflush.h>
 #include <asm/desc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <asm/alternative.h>
 #include <asm/insn.h>
@@ -69,7 +91,11 @@
 DEFINE_PER_CPU(struct kprobe *, current_kprobe) = NULL;
 DEFINE_PER_CPU(struct kprobe_ctlblk, kprobe_ctlblk);
 
+<<<<<<< HEAD
 #define stack_addr(regs) ((unsigned long *)kernel_stack_pointer(regs))
+=======
+#define stack_addr(regs) ((unsigned long *)regs->sp)
+>>>>>>> upstream/android-13
 
 #define W(row, b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, ba, bb, bc, bd, be, bf)\
 	(((b0##UL << 0x0)|(b1##UL << 0x1)|(b2##UL << 0x2)|(b3##UL << 0x3) |   \
@@ -132,18 +158,27 @@ __synthesize_relative_insn(void *dest, void *from, void *to, u8 op)
 /* Insert a jump instruction at address 'from', which jumps to address 'to'.*/
 void synthesize_reljump(void *dest, void *from, void *to)
 {
+<<<<<<< HEAD
 	__synthesize_relative_insn(dest, from, to, RELATIVEJUMP_OPCODE);
+=======
+	__synthesize_relative_insn(dest, from, to, JMP32_INSN_OPCODE);
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(synthesize_reljump);
 
 /* Insert a call instruction at address 'from', which calls address 'to'.*/
 void synthesize_relcall(void *dest, void *from, void *to)
 {
+<<<<<<< HEAD
 	__synthesize_relative_insn(dest, from, to, RELATIVECALL_OPCODE);
+=======
+	__synthesize_relative_insn(dest, from, to, CALL_INSN_OPCODE);
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(synthesize_relcall);
 
 /*
+<<<<<<< HEAD
  * Skip the prefixes of the instruction.
  */
 static kprobe_opcode_t *skip_prefixes(kprobe_opcode_t *insn)
@@ -164,6 +199,8 @@ static kprobe_opcode_t *skip_prefixes(kprobe_opcode_t *insn)
 NOKPROBE_SYMBOL(skip_prefixes);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Returns non-zero if INSN is boostable.
  * RIP relative instructions are adjusted at copying time in 64 bits mode
  */
@@ -195,6 +232,7 @@ int can_boost(struct insn *insn, void *addr)
 
 	opcode = insn->opcode.bytes[0];
 
+<<<<<<< HEAD
 	switch (opcode & 0xf0) {
 	case 0x60:
 		/* can't boost "bound" */
@@ -218,6 +256,30 @@ int can_boost(struct insn *insn, void *addr)
 	default:
 		/* call is not boostable */
 		return opcode != 0x9a;
+=======
+	switch (opcode) {
+	case 0x62:		/* bound */
+	case 0x70 ... 0x7f:	/* Conditional jumps */
+	case 0x9a:		/* Call far */
+	case 0xc0 ... 0xc1:	/* Grp2 */
+	case 0xcc ... 0xce:	/* software exceptions */
+	case 0xd0 ... 0xd3:	/* Grp2 */
+	case 0xd6:		/* (UD) */
+	case 0xd8 ... 0xdf:	/* ESC */
+	case 0xe0 ... 0xe3:	/* LOOP*, JCXZ */
+	case 0xe8 ... 0xe9:	/* near Call, JMP */
+	case 0xeb:		/* Short JMP */
+	case 0xf0 ... 0xf4:	/* LOCK/REP, HLT */
+	case 0xf6 ... 0xf7:	/* Grp3 */
+	case 0xfe:		/* Grp4 */
+		/* ... are not boostable */
+		return 0;
+	case 0xff:		/* Grp5 */
+		/* Only indirect jmp is boostable */
+		return X86_MODRM_REG(insn->modrm.bytes[0]) == 4;
+	default:
+		return 1;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -262,12 +324,20 @@ __recover_probed_insn(kprobe_opcode_t *buf, unsigned long addr)
 	 * Fortunately, we know that the original code is the ideal 5-byte
 	 * long NOP.
 	 */
+<<<<<<< HEAD
 	if (probe_kernel_read(buf, (void *)addr,
+=======
+	if (copy_from_kernel_nofault(buf, (void *)addr,
+>>>>>>> upstream/android-13
 		MAX_INSN_SIZE * sizeof(kprobe_opcode_t)))
 		return 0UL;
 
 	if (faddr)
+<<<<<<< HEAD
 		memcpy(buf, ideal_nops[NOP_ATOMIC5], 5);
+=======
+		memcpy(buf, x86_nops[5], 5);
+>>>>>>> upstream/android-13
 	else
 		buf[0] = kp->opcode;
 	return (unsigned long)buf;
@@ -303,6 +373,11 @@ static int can_probe(unsigned long paddr)
 	/* Decode instructions */
 	addr = paddr - offset;
 	while (addr < paddr) {
+<<<<<<< HEAD
+=======
+		int ret;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Check if the instruction has been modified by another
 		 * kprobe, in which case we replace the breakpoint by the
@@ -314,14 +389,25 @@ static int can_probe(unsigned long paddr)
 		__addr = recover_probed_instruction(buf, addr);
 		if (!__addr)
 			return 0;
+<<<<<<< HEAD
 		kernel_insn_init(&insn, (void *)__addr, MAX_INSN_SIZE);
 		insn_get_length(&insn);
+=======
+
+		ret = insn_decode_kernel(&insn, (void *)__addr);
+		if (ret < 0)
+			return 0;
+>>>>>>> upstream/android-13
 
 		/*
 		 * Another debugging subsystem might insert this breakpoint.
 		 * In that case, we can't recover it.
 		 */
+<<<<<<< HEAD
 		if (insn.opcode.bytes[0] == BREAKPOINT_INSTRUCTION)
+=======
+		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE)
+>>>>>>> upstream/android-13
 			return 0;
 		addr += insn.length;
 	}
@@ -330,6 +416,7 @@ static int can_probe(unsigned long paddr)
 }
 
 /*
+<<<<<<< HEAD
  * Returns non-zero if opcode modifies the interrupt flag.
  */
 static int is_IF_modifier(kprobe_opcode_t *insn)
@@ -349,6 +436,8 @@ static int is_IF_modifier(kprobe_opcode_t *insn)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Copy an instruction with recovering modified instruction by kprobes
  * and adjust the displacement if the instruction uses the %rip-relative
  * addressing mode. Note that since @real will be the final place of copied
@@ -358,13 +447,19 @@ static int is_IF_modifier(kprobe_opcode_t *insn)
 int __copy_instruction(u8 *dest, u8 *src, u8 *real, struct insn *insn)
 {
 	kprobe_opcode_t buf[MAX_INSN_SIZE];
+<<<<<<< HEAD
 	unsigned long recovered_insn =
 		recover_probed_instruction(buf, (unsigned long)src);
+=======
+	unsigned long recovered_insn = recover_probed_instruction(buf, (unsigned long)src);
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!recovered_insn || !insn)
 		return 0;
 
 	/* This can access kernel text if given address is not recovered */
+<<<<<<< HEAD
 	if (probe_kernel_read(dest, (void *)recovered_insn, MAX_INSN_SIZE))
 		return 0;
 
@@ -373,6 +468,22 @@ int __copy_instruction(u8 *dest, u8 *src, u8 *real, struct insn *insn)
 
 	/* Another subsystem puts a breakpoint, failed to recover */
 	if (insn->opcode.bytes[0] == BREAKPOINT_INSTRUCTION)
+=======
+	if (copy_from_kernel_nofault(dest, (void *)recovered_insn,
+			MAX_INSN_SIZE))
+		return 0;
+
+	ret = insn_decode_kernel(insn, dest);
+	if (ret < 0)
+		return 0;
+
+	/* We can not probe force emulate prefixed instruction */
+	if (insn_has_emulate_prefix(insn))
+		return 0;
+
+	/* Another subsystem puts a breakpoint, failed to recover */
+	if (insn->opcode.bytes[0] == INT3_INSN_OPCODE)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* We should not singlestep on the exception masking instructions */
@@ -409,6 +520,7 @@ int __copy_instruction(u8 *dest, u8 *src, u8 *real, struct insn *insn)
 	return insn->length;
 }
 
+<<<<<<< HEAD
 /* Prepare reljump right after instruction to boost */
 static int prepare_boost(kprobe_opcode_t *buf, struct kprobe *p,
 			  struct insn *insn)
@@ -417,16 +529,39 @@ static int prepare_boost(kprobe_opcode_t *buf, struct kprobe *p,
 
 	if (can_boost(insn, p->addr) &&
 	    MAX_INSN_SIZE - len >= RELATIVEJUMP_SIZE) {
+=======
+/* Prepare reljump or int3 right after instruction */
+static int prepare_singlestep(kprobe_opcode_t *buf, struct kprobe *p,
+			      struct insn *insn)
+{
+	int len = insn->length;
+
+	if (!IS_ENABLED(CONFIG_PREEMPTION) &&
+	    !p->post_handler && can_boost(insn, p->addr) &&
+	    MAX_INSN_SIZE - len >= JMP32_INSN_SIZE) {
+>>>>>>> upstream/android-13
 		/*
 		 * These instructions can be executed directly if it
 		 * jumps back to correct address.
 		 */
 		synthesize_reljump(buf + len, p->ainsn.insn + len,
 				   p->addr + insn->length);
+<<<<<<< HEAD
 		len += RELATIVEJUMP_SIZE;
 		p->ainsn.boostable = true;
 	} else {
 		p->ainsn.boostable = false;
+=======
+		len += JMP32_INSN_SIZE;
+		p->ainsn.boostable = 1;
+	} else {
+		/* Otherwise, put an int3 for trapping singlestep */
+		if (MAX_INSN_SIZE - len < INT3_INSN_SIZE)
+			return -ENOSPC;
+
+		buf[len] = INT3_INSN_OPCODE;
+		len += INT3_INSN_SIZE;
+>>>>>>> upstream/android-13
 	}
 
 	return len;
@@ -441,6 +576,10 @@ void *alloc_insn_page(void)
 	if (!page)
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	set_vm_flush_reset_perms(page);
+>>>>>>> upstream/android-13
 	/*
 	 * First make the page read-only, and only then make it executable to
 	 * prevent it from being W+X in between.
@@ -456,6 +595,7 @@ void *alloc_insn_page(void)
 	return page;
 }
 
+<<<<<<< HEAD
 /* Recover page to RW mode before releasing it */
 void free_insn_page(void *page)
 {
@@ -466,19 +606,288 @@ void free_insn_page(void *page)
 	set_memory_nx((unsigned long)page, 1);
 	set_memory_rw((unsigned long)page, 1);
 	module_memfree(page);
+=======
+/* Kprobe x86 instruction emulation - only regs->ip or IF flag modifiers */
+
+static void kprobe_emulate_ifmodifiers(struct kprobe *p, struct pt_regs *regs)
+{
+	switch (p->ainsn.opcode) {
+	case 0xfa:	/* cli */
+		regs->flags &= ~(X86_EFLAGS_IF);
+		break;
+	case 0xfb:	/* sti */
+		regs->flags |= X86_EFLAGS_IF;
+		break;
+	case 0x9c:	/* pushf */
+		int3_emulate_push(regs, regs->flags);
+		break;
+	case 0x9d:	/* popf */
+		regs->flags = int3_emulate_pop(regs);
+		break;
+	}
+	regs->ip = regs->ip - INT3_INSN_SIZE + p->ainsn.size;
+}
+NOKPROBE_SYMBOL(kprobe_emulate_ifmodifiers);
+
+static void kprobe_emulate_ret(struct kprobe *p, struct pt_regs *regs)
+{
+	int3_emulate_ret(regs);
+}
+NOKPROBE_SYMBOL(kprobe_emulate_ret);
+
+static void kprobe_emulate_call(struct kprobe *p, struct pt_regs *regs)
+{
+	unsigned long func = regs->ip - INT3_INSN_SIZE + p->ainsn.size;
+
+	func += p->ainsn.rel32;
+	int3_emulate_call(regs, func);
+}
+NOKPROBE_SYMBOL(kprobe_emulate_call);
+
+static nokprobe_inline
+void __kprobe_emulate_jmp(struct kprobe *p, struct pt_regs *regs, bool cond)
+{
+	unsigned long ip = regs->ip - INT3_INSN_SIZE + p->ainsn.size;
+
+	if (cond)
+		ip += p->ainsn.rel32;
+	int3_emulate_jmp(regs, ip);
+}
+
+static void kprobe_emulate_jmp(struct kprobe *p, struct pt_regs *regs)
+{
+	__kprobe_emulate_jmp(p, regs, true);
+}
+NOKPROBE_SYMBOL(kprobe_emulate_jmp);
+
+static const unsigned long jcc_mask[6] = {
+	[0] = X86_EFLAGS_OF,
+	[1] = X86_EFLAGS_CF,
+	[2] = X86_EFLAGS_ZF,
+	[3] = X86_EFLAGS_CF | X86_EFLAGS_ZF,
+	[4] = X86_EFLAGS_SF,
+	[5] = X86_EFLAGS_PF,
+};
+
+static void kprobe_emulate_jcc(struct kprobe *p, struct pt_regs *regs)
+{
+	bool invert = p->ainsn.jcc.type & 1;
+	bool match;
+
+	if (p->ainsn.jcc.type < 0xc) {
+		match = regs->flags & jcc_mask[p->ainsn.jcc.type >> 1];
+	} else {
+		match = ((regs->flags & X86_EFLAGS_SF) >> X86_EFLAGS_SF_BIT) ^
+			((regs->flags & X86_EFLAGS_OF) >> X86_EFLAGS_OF_BIT);
+		if (p->ainsn.jcc.type >= 0xe)
+			match = match && (regs->flags & X86_EFLAGS_ZF);
+	}
+	__kprobe_emulate_jmp(p, regs, (match && !invert) || (!match && invert));
+}
+NOKPROBE_SYMBOL(kprobe_emulate_jcc);
+
+static void kprobe_emulate_loop(struct kprobe *p, struct pt_regs *regs)
+{
+	bool match;
+
+	if (p->ainsn.loop.type != 3) {	/* LOOP* */
+		if (p->ainsn.loop.asize == 32)
+			match = ((*(u32 *)&regs->cx)--) != 0;
+#ifdef CONFIG_X86_64
+		else if (p->ainsn.loop.asize == 64)
+			match = ((*(u64 *)&regs->cx)--) != 0;
+#endif
+		else
+			match = ((*(u16 *)&regs->cx)--) != 0;
+	} else {			/* JCXZ */
+		if (p->ainsn.loop.asize == 32)
+			match = *(u32 *)(&regs->cx) == 0;
+#ifdef CONFIG_X86_64
+		else if (p->ainsn.loop.asize == 64)
+			match = *(u64 *)(&regs->cx) == 0;
+#endif
+		else
+			match = *(u16 *)(&regs->cx) == 0;
+	}
+
+	if (p->ainsn.loop.type == 0)	/* LOOPNE */
+		match = match && !(regs->flags & X86_EFLAGS_ZF);
+	else if (p->ainsn.loop.type == 1)	/* LOOPE */
+		match = match && (regs->flags & X86_EFLAGS_ZF);
+
+	__kprobe_emulate_jmp(p, regs, match);
+}
+NOKPROBE_SYMBOL(kprobe_emulate_loop);
+
+static const int addrmode_regoffs[] = {
+	offsetof(struct pt_regs, ax),
+	offsetof(struct pt_regs, cx),
+	offsetof(struct pt_regs, dx),
+	offsetof(struct pt_regs, bx),
+	offsetof(struct pt_regs, sp),
+	offsetof(struct pt_regs, bp),
+	offsetof(struct pt_regs, si),
+	offsetof(struct pt_regs, di),
+#ifdef CONFIG_X86_64
+	offsetof(struct pt_regs, r8),
+	offsetof(struct pt_regs, r9),
+	offsetof(struct pt_regs, r10),
+	offsetof(struct pt_regs, r11),
+	offsetof(struct pt_regs, r12),
+	offsetof(struct pt_regs, r13),
+	offsetof(struct pt_regs, r14),
+	offsetof(struct pt_regs, r15),
+#endif
+};
+
+static void kprobe_emulate_call_indirect(struct kprobe *p, struct pt_regs *regs)
+{
+	unsigned long offs = addrmode_regoffs[p->ainsn.indirect.reg];
+
+	int3_emulate_call(regs, regs_get_register(regs, offs));
+}
+NOKPROBE_SYMBOL(kprobe_emulate_call_indirect);
+
+static void kprobe_emulate_jmp_indirect(struct kprobe *p, struct pt_regs *regs)
+{
+	unsigned long offs = addrmode_regoffs[p->ainsn.indirect.reg];
+
+	int3_emulate_jmp(regs, regs_get_register(regs, offs));
+}
+NOKPROBE_SYMBOL(kprobe_emulate_jmp_indirect);
+
+static int prepare_emulation(struct kprobe *p, struct insn *insn)
+{
+	insn_byte_t opcode = insn->opcode.bytes[0];
+
+	switch (opcode) {
+	case 0xfa:		/* cli */
+	case 0xfb:		/* sti */
+	case 0x9c:		/* pushfl */
+	case 0x9d:		/* popf/popfd */
+		/*
+		 * IF modifiers must be emulated since it will enable interrupt while
+		 * int3 single stepping.
+		 */
+		p->ainsn.emulate_op = kprobe_emulate_ifmodifiers;
+		p->ainsn.opcode = opcode;
+		break;
+	case 0xc2:	/* ret/lret */
+	case 0xc3:
+	case 0xca:
+	case 0xcb:
+		p->ainsn.emulate_op = kprobe_emulate_ret;
+		break;
+	case 0x9a:	/* far call absolute -- segment is not supported */
+	case 0xea:	/* far jmp absolute -- segment is not supported */
+	case 0xcc:	/* int3 */
+	case 0xcf:	/* iret -- in-kernel IRET is not supported */
+		return -EOPNOTSUPP;
+		break;
+	case 0xe8:	/* near call relative */
+		p->ainsn.emulate_op = kprobe_emulate_call;
+		if (insn->immediate.nbytes == 2)
+			p->ainsn.rel32 = *(s16 *)&insn->immediate.value;
+		else
+			p->ainsn.rel32 = *(s32 *)&insn->immediate.value;
+		break;
+	case 0xeb:	/* short jump relative */
+	case 0xe9:	/* near jump relative */
+		p->ainsn.emulate_op = kprobe_emulate_jmp;
+		if (insn->immediate.nbytes == 1)
+			p->ainsn.rel32 = *(s8 *)&insn->immediate.value;
+		else if (insn->immediate.nbytes == 2)
+			p->ainsn.rel32 = *(s16 *)&insn->immediate.value;
+		else
+			p->ainsn.rel32 = *(s32 *)&insn->immediate.value;
+		break;
+	case 0x70 ... 0x7f:
+		/* 1 byte conditional jump */
+		p->ainsn.emulate_op = kprobe_emulate_jcc;
+		p->ainsn.jcc.type = opcode & 0xf;
+		p->ainsn.rel32 = *(char *)insn->immediate.bytes;
+		break;
+	case 0x0f:
+		opcode = insn->opcode.bytes[1];
+		if ((opcode & 0xf0) == 0x80) {
+			/* 2 bytes Conditional Jump */
+			p->ainsn.emulate_op = kprobe_emulate_jcc;
+			p->ainsn.jcc.type = opcode & 0xf;
+			if (insn->immediate.nbytes == 2)
+				p->ainsn.rel32 = *(s16 *)&insn->immediate.value;
+			else
+				p->ainsn.rel32 = *(s32 *)&insn->immediate.value;
+		} else if (opcode == 0x01 &&
+			   X86_MODRM_REG(insn->modrm.bytes[0]) == 0 &&
+			   X86_MODRM_MOD(insn->modrm.bytes[0]) == 3) {
+			/* VM extensions - not supported */
+			return -EOPNOTSUPP;
+		}
+		break;
+	case 0xe0:	/* Loop NZ */
+	case 0xe1:	/* Loop */
+	case 0xe2:	/* Loop */
+	case 0xe3:	/* J*CXZ */
+		p->ainsn.emulate_op = kprobe_emulate_loop;
+		p->ainsn.loop.type = opcode & 0x3;
+		p->ainsn.loop.asize = insn->addr_bytes * 8;
+		p->ainsn.rel32 = *(s8 *)&insn->immediate.value;
+		break;
+	case 0xff:
+		/*
+		 * Since the 0xff is an extended group opcode, the instruction
+		 * is determined by the MOD/RM byte.
+		 */
+		opcode = insn->modrm.bytes[0];
+		if ((opcode & 0x30) == 0x10) {
+			if ((opcode & 0x8) == 0x8)
+				return -EOPNOTSUPP;	/* far call */
+			/* call absolute, indirect */
+			p->ainsn.emulate_op = kprobe_emulate_call_indirect;
+		} else if ((opcode & 0x30) == 0x20) {
+			if ((opcode & 0x8) == 0x8)
+				return -EOPNOTSUPP;	/* far jmp */
+			/* jmp near absolute indirect */
+			p->ainsn.emulate_op = kprobe_emulate_jmp_indirect;
+		} else
+			break;
+
+		if (insn->addr_bytes != sizeof(unsigned long))
+			return -EOPNOTSUPP;	/* Don't support different size */
+		if (X86_MODRM_MOD(opcode) != 3)
+			return -EOPNOTSUPP;	/* TODO: support memory addressing */
+
+		p->ainsn.indirect.reg = X86_MODRM_RM(opcode);
+#ifdef CONFIG_X86_64
+		if (X86_REX_B(insn->rex_prefix.value))
+			p->ainsn.indirect.reg += 8;
+#endif
+		break;
+	default:
+		break;
+	}
+	p->ainsn.size = insn->length;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int arch_copy_kprobe(struct kprobe *p)
 {
 	struct insn insn;
 	kprobe_opcode_t buf[MAX_INSN_SIZE];
+<<<<<<< HEAD
 	int len;
+=======
+	int ret, len;
+>>>>>>> upstream/android-13
 
 	/* Copy an instruction with recovering if other optprobe modifies it.*/
 	len = __copy_instruction(buf, p->addr, p->ainsn.insn, &insn);
 	if (!len)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/*
 	 * __copy_instruction can modify the displacement of the instruction,
 	 * but it doesn't affect boostable check.
@@ -487,10 +896,27 @@ static int arch_copy_kprobe(struct kprobe *p)
 
 	/* Check whether the instruction modifies Interrupt Flag or not */
 	p->ainsn.if_modifier = is_IF_modifier(buf);
+=======
+	/* Analyze the opcode and setup emulate functions */
+	ret = prepare_emulation(p, &insn);
+	if (ret < 0)
+		return ret;
+
+	/* Add int3 for single-step or booster jmp */
+	len = prepare_singlestep(buf, p, &insn);
+	if (len < 0)
+		return len;
+>>>>>>> upstream/android-13
 
 	/* Also, displacement change doesn't affect the first byte */
 	p->opcode = buf[0];
 
+<<<<<<< HEAD
+=======
+	p->ainsn.tp_len = len;
+	perf_event_text_poke(p->ainsn.insn, NULL, 0, buf, len);
+
+>>>>>>> upstream/android-13
 	/* OK, write back the instruction(s) into ROX insn buffer */
 	text_poke(p->ainsn.insn, buf, len);
 
@@ -506,6 +932,12 @@ int arch_prepare_kprobe(struct kprobe *p)
 
 	if (!can_probe((unsigned long)p->addr))
 		return -EILSEQ;
+<<<<<<< HEAD
+=======
+
+	memset(&p->ainsn, 0, sizeof(p->ainsn));
+
+>>>>>>> upstream/android-13
 	/* insn: must be on special executable page on x86. */
 	p->ainsn.insn = get_insn_slot();
 	if (!p->ainsn.insn)
@@ -522,17 +954,39 @@ int arch_prepare_kprobe(struct kprobe *p)
 
 void arch_arm_kprobe(struct kprobe *p)
 {
+<<<<<<< HEAD
 	text_poke(p->addr, ((unsigned char []){BREAKPOINT_INSTRUCTION}), 1);
+=======
+	u8 int3 = INT3_INSN_OPCODE;
+
+	text_poke(p->addr, &int3, 1);
+	text_poke_sync();
+	perf_event_text_poke(p->addr, &p->opcode, 1, &int3, 1);
+>>>>>>> upstream/android-13
 }
 
 void arch_disarm_kprobe(struct kprobe *p)
 {
+<<<<<<< HEAD
 	text_poke(p->addr, &p->opcode, 1);
+=======
+	u8 int3 = INT3_INSN_OPCODE;
+
+	perf_event_text_poke(p->addr, &int3, 1, &p->opcode, 1);
+	text_poke(p->addr, &p->opcode, 1);
+	text_poke_sync();
+>>>>>>> upstream/android-13
 }
 
 void arch_remove_kprobe(struct kprobe *p)
 {
 	if (p->ainsn.insn) {
+<<<<<<< HEAD
+=======
+		/* Record the perf event before freeing the slot */
+		perf_event_text_poke(p->ainsn.insn, p->ainsn.insn,
+				     p->ainsn.tp_len, NULL, 0);
+>>>>>>> upstream/android-13
 		free_insn_slot(p->ainsn.insn, p->ainsn.boostable);
 		p->ainsn.insn = NULL;
 	}
@@ -562,6 +1016,7 @@ set_current_kprobe(struct kprobe *p, struct pt_regs *regs,
 {
 	__this_cpu_write(current_kprobe, p);
 	kcb->kprobe_saved_flags = kcb->kprobe_old_flags
+<<<<<<< HEAD
 		= (regs->flags & (X86_EFLAGS_TF | X86_EFLAGS_IF));
 	if (p->ainsn.if_modifier)
 		kcb->kprobe_saved_flags &= ~X86_EFLAGS_IF;
@@ -585,6 +1040,9 @@ static nokprobe_inline void restore_btf(void)
 		debugctl |= DEBUGCTLMSR_BTF;
 		update_debugctlmsr(debugctl);
 	}
+=======
+		= (regs->flags & X86_EFLAGS_IF);
+>>>>>>> upstream/android-13
 }
 
 void arch_prepare_kretprobe(struct kretprobe_instance *ri, struct pt_regs *regs)
@@ -599,14 +1057,38 @@ void arch_prepare_kretprobe(struct kretprobe_instance *ri, struct pt_regs *regs)
 }
 NOKPROBE_SYMBOL(arch_prepare_kretprobe);
 
+<<<<<<< HEAD
+=======
+static void kprobe_post_process(struct kprobe *cur, struct pt_regs *regs,
+			       struct kprobe_ctlblk *kcb)
+{
+	if ((kcb->kprobe_status != KPROBE_REENTER) && cur->post_handler) {
+		kcb->kprobe_status = KPROBE_HIT_SSDONE;
+		cur->post_handler(cur, regs, 0);
+	}
+
+	/* Restore back the original saved kprobes variables and continue. */
+	if (kcb->kprobe_status == KPROBE_REENTER)
+		restore_previous_kprobe(kcb);
+	else
+		reset_current_kprobe();
+}
+NOKPROBE_SYMBOL(kprobe_post_process);
+
+>>>>>>> upstream/android-13
 static void setup_singlestep(struct kprobe *p, struct pt_regs *regs,
 			     struct kprobe_ctlblk *kcb, int reenter)
 {
 	if (setup_detour_execution(p, regs, reenter))
 		return;
 
+<<<<<<< HEAD
 #if !defined(CONFIG_PREEMPT)
 	if (p->ainsn.boostable && !p->post_handler) {
+=======
+#if !defined(CONFIG_PREEMPTION)
+	if (p->ainsn.boostable) {
+>>>>>>> upstream/android-13
 		/* Boost up -- we can execute copied instructions directly */
 		if (!reenter)
 			reset_current_kprobe();
@@ -625,6 +1107,7 @@ static void setup_singlestep(struct kprobe *p, struct pt_regs *regs,
 		kcb->kprobe_status = KPROBE_REENTER;
 	} else
 		kcb->kprobe_status = KPROBE_HIT_SS;
+<<<<<<< HEAD
 	/* Prepare real single stepping */
 	clear_btf();
 	regs->flags |= X86_EFLAGS_TF;
@@ -634,10 +1117,56 @@ static void setup_singlestep(struct kprobe *p, struct pt_regs *regs,
 		regs->ip = (unsigned long)p->addr;
 	else
 		regs->ip = (unsigned long)p->ainsn.insn;
+=======
+
+	if (p->ainsn.emulate_op) {
+		p->ainsn.emulate_op(p, regs);
+		kprobe_post_process(p, regs, kcb);
+		return;
+	}
+
+	/* Disable interrupt, and set ip register on trampoline */
+	regs->flags &= ~X86_EFLAGS_IF;
+	regs->ip = (unsigned long)p->ainsn.insn;
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(setup_singlestep);
 
 /*
+<<<<<<< HEAD
+=======
+ * Called after single-stepping.  p->addr is the address of the
+ * instruction whose first byte has been replaced by the "int3"
+ * instruction.  To avoid the SMP problems that can occur when we
+ * temporarily put back the original opcode to single-step, we
+ * single-stepped a copy of the instruction.  The address of this
+ * copy is p->ainsn.insn. We also doesn't use trap, but "int3" again
+ * right after the copied instruction.
+ * Different from the trap single-step, "int3" single-step can not
+ * handle the instruction which changes the ip register, e.g. jmp,
+ * call, conditional jmp, and the instructions which changes the IF
+ * flags because interrupt must be disabled around the single-stepping.
+ * Such instructions are software emulated, but others are single-stepped
+ * using "int3".
+ *
+ * When the 2nd "int3" handled, the regs->ip and regs->flags needs to
+ * be adjusted, so that we can resume execution on correct code.
+ */
+static void resume_singlestep(struct kprobe *p, struct pt_regs *regs,
+			      struct kprobe_ctlblk *kcb)
+{
+	unsigned long copy_ip = (unsigned long)p->ainsn.insn;
+	unsigned long orig_ip = (unsigned long)p->addr;
+
+	/* Restore saved interrupt flag and ip register */
+	regs->flags |= kcb->kprobe_saved_flags;
+	/* Note that regs->ip is executed int3 so must be a step back */
+	regs->ip += (orig_ip - copy_ip) - INT3_INSN_SIZE;
+}
+NOKPROBE_SYMBOL(resume_singlestep);
+
+/*
+>>>>>>> upstream/android-13
  * We have reentered the kprobe_handler(), since another probe was hit while
  * within the handler. We save the original kprobes variables and just single
  * step on the instruction of the new probe without calling any user handlers.
@@ -672,6 +1201,15 @@ static int reenter_kprobe(struct kprobe *p, struct pt_regs *regs,
 }
 NOKPROBE_SYMBOL(reenter_kprobe);
 
+<<<<<<< HEAD
+=======
+static nokprobe_inline int kprobe_is_ss(struct kprobe_ctlblk *kcb)
+{
+	return (kcb->kprobe_status == KPROBE_HIT_SS ||
+		kcb->kprobe_status == KPROBE_REENTER);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Interrupts are disabled on entry as trap3 is an interrupt gate and they
  * remain disabled throughout this function.
@@ -716,7 +1254,22 @@ int kprobe_int3_handler(struct pt_regs *regs)
 				reset_current_kprobe();
 			return 1;
 		}
+<<<<<<< HEAD
 	} else if (*addr != BREAKPOINT_INSTRUCTION) {
+=======
+	} else if (kprobe_is_ss(kcb)) {
+		p = kprobe_running();
+		if ((unsigned long)p->ainsn.insn < regs->ip &&
+		    (unsigned long)p->ainsn.insn + MAX_INSN_SIZE > regs->ip) {
+			/* Most provably this is the second int3 for singlestep */
+			resume_singlestep(p, regs, kcb);
+			kprobe_post_process(p, regs, kcb);
+			return 1;
+		}
+	}
+
+	if (*addr != INT3_INSN_OPCODE) {
+>>>>>>> upstream/android-13
 		/*
 		 * The breakpoint instruction was removed right
 		 * after we hit it.  Another cpu has removed
@@ -739,17 +1292,27 @@ NOKPROBE_SYMBOL(kprobe_int3_handler);
  * calls trampoline_handler() runs, which calls the kretprobe's handler.
  */
 asm(
+<<<<<<< HEAD
 	".global kretprobe_trampoline\n"
 	".type kretprobe_trampoline, @function\n"
 	"kretprobe_trampoline:\n"
 #ifdef CONFIG_X86_64
 	/* We don't bother saving the ss register */
+=======
+	".text\n"
+	".global kretprobe_trampoline\n"
+	".type kretprobe_trampoline, @function\n"
+	"kretprobe_trampoline:\n"
+	/* We don't bother saving the ss register */
+#ifdef CONFIG_X86_64
+>>>>>>> upstream/android-13
 	"	pushq %rsp\n"
 	"	pushfq\n"
 	SAVE_REGS_STRING
 	"	movq %rsp, %rdi\n"
 	"	call trampoline_handler\n"
 	/* Replace saved sp with true return address. */
+<<<<<<< HEAD
 	"	movq %rax, 152(%rsp)\n"
 	RESTORE_REGS_STRING
 	"	popfq\n"
@@ -767,11 +1330,29 @@ asm(
 	"	popf\n"
 #endif
 	"	ret\n"
+=======
+	"	movq %rax, 19*8(%rsp)\n"
+	RESTORE_REGS_STRING
+	"	popfq\n"
+#else
+	"	pushl %esp\n"
+	"	pushfl\n"
+	SAVE_REGS_STRING
+	"	movl %esp, %eax\n"
+	"	call trampoline_handler\n"
+	/* Replace saved sp with true return address. */
+	"	movl %eax, 15*4(%esp)\n"
+	RESTORE_REGS_STRING
+	"	popfl\n"
+#endif
+	ASM_RET
+>>>>>>> upstream/android-13
 	".size kretprobe_trampoline, .-kretprobe_trampoline\n"
 );
 NOKPROBE_SYMBOL(kretprobe_trampoline);
 STACK_FRAME_NON_STANDARD(kretprobe_trampoline);
 
+<<<<<<< HEAD
 /*
  * Called from kretprobe_trampoline
  */
@@ -1025,6 +1606,26 @@ out:
 }
 NOKPROBE_SYMBOL(kprobe_debug_handler);
 
+=======
+
+/*
+ * Called from kretprobe_trampoline
+ */
+__used __visible void *trampoline_handler(struct pt_regs *regs)
+{
+	/* fixup registers */
+	regs->cs = __KERNEL_CS;
+#ifdef CONFIG_X86_32
+	regs->gs = 0;
+#endif
+	regs->ip = (unsigned long)&kretprobe_trampoline;
+	regs->orig_ax = ~0UL;
+
+	return (void *)kretprobe_trampoline_handler(regs, &kretprobe_trampoline, &regs->sp);
+}
+NOKPROBE_SYMBOL(trampoline_handler);
+
+>>>>>>> upstream/android-13
 int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 {
 	struct kprobe *cur = kprobe_running();
@@ -1042,6 +1643,7 @@ int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 		 * normal page fault.
 		 */
 		regs->ip = (unsigned long)cur->addr;
+<<<<<<< HEAD
 		/*
 		 * Trap flag (TF) has been set here because this fault
 		 * happened where the single stepping will be done.
@@ -1056,6 +1658,11 @@ int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 
 		/*
 		 * If the TF flag was set before the kprobe hit,
+=======
+
+		/*
+		 * If the IF flag was set before the kprobe hit,
+>>>>>>> upstream/android-13
 		 * don't touch it:
 		 */
 		regs->flags |= kcb->kprobe_old_flags;
@@ -1064,6 +1671,7 @@ int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 			restore_previous_kprobe(kcb);
 		else
 			reset_current_kprobe();
+<<<<<<< HEAD
 	} else if (kcb->kprobe_status == KPROBE_HIT_ACTIVE ||
 		   kcb->kprobe_status == KPROBE_HIT_SSDONE) {
 		/*
@@ -1094,12 +1702,15 @@ int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 		 * fixup routine could not handle it,
 		 * Let do_page_fault() fix it.
 		 */
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 NOKPROBE_SYMBOL(kprobe_fault_handler);
 
+<<<<<<< HEAD
 /*
  * Wrapper routine for handling exceptions.
  */
@@ -1142,6 +1753,8 @@ bool arch_within_kprobe_blacklist(unsigned long addr)
 		is_in_entry_trampoline_section;
 }
 
+=======
+>>>>>>> upstream/android-13
 int __init arch_populate_kprobe_blacklist(void)
 {
 	return kprobe_add_area_blacklist((unsigned long)__entry_text_start,

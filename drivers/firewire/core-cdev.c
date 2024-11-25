@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Char device for device raw access
  *
  * Copyright (C) 2005-2007  Kristian Hoegsberg <krh@bitplanet.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -130,7 +137,11 @@ struct inbound_transaction_resource {
 struct descriptor_resource {
 	struct client_resource resource;
 	struct fw_descriptor descriptor;
+<<<<<<< HEAD
 	u32 data[0];
+=======
+	u32 data[];
+>>>>>>> upstream/android-13
 };
 
 struct iso_resource {
@@ -1094,8 +1105,11 @@ static int ioctl_queue_iso(struct client *client, union ioctl_arg *arg)
 		return -EINVAL;
 
 	p = (struct fw_cdev_iso_packet __user *)u64_to_uptr(a->packets);
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, p, a->size))
 		return -EFAULT;
+=======
+>>>>>>> upstream/android-13
 
 	end = (void __user *)p + a->size;
 	count = 0;
@@ -1133,7 +1147,11 @@ static int ioctl_queue_iso(struct client *client, union ioctl_arg *arg)
 			&p->header[transmit_header_bytes / 4];
 		if (next > end)
 			return -EINVAL;
+<<<<<<< HEAD
 		if (__copy_from_user
+=======
+		if (copy_from_user
+>>>>>>> upstream/android-13
 		    (u.packet.header, p->header, transmit_header_bytes))
 			return -EFAULT;
 		if (u.packet.skip && ctx->type == FW_ISO_CONTEXT_TRANSMIT &&
@@ -1495,6 +1513,10 @@ static void outbound_phy_packet_callback(struct fw_packet *packet,
 {
 	struct outbound_phy_packet_event *e =
 		container_of(packet, struct outbound_phy_packet_event, p);
+<<<<<<< HEAD
+=======
+	struct client *e_client;
+>>>>>>> upstream/android-13
 
 	switch (status) {
 	/* expected: */
@@ -1511,9 +1533,16 @@ static void outbound_phy_packet_callback(struct fw_packet *packet,
 	}
 	e->phy_packet.data[0] = packet->timestamp;
 
+<<<<<<< HEAD
 	queue_event(e->client, &e->event, &e->phy_packet,
 		    sizeof(e->phy_packet) + e->phy_packet.length, NULL, 0);
 	client_put(e->client);
+=======
+	e_client = e->client;
+	queue_event(e->client, &e->event, &e->phy_packet,
+		    sizeof(e->phy_packet) + e->phy_packet.length, NULL, 0);
+	client_put(e_client);
+>>>>>>> upstream/android-13
 }
 
 static int ioctl_send_phy_packet(struct client *client, union ioctl_arg *arg)
@@ -1659,6 +1688,7 @@ static long fw_device_op_ioctl(struct file *file,
 	return dispatch_ioctl(file->private_data, cmd, (void __user *)arg);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long fw_device_op_compat_ioctl(struct file *file,
 				      unsigned int cmd, unsigned long arg)
@@ -1667,6 +1697,8 @@ static long fw_device_op_compat_ioctl(struct file *file,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int fw_device_op_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct client *client = file->private_data;
@@ -1707,7 +1739,12 @@ static int fw_device_op_mmap(struct file *file, struct vm_area_struct *vma)
 	if (ret < 0)
 		goto fail;
 
+<<<<<<< HEAD
 	ret = fw_iso_buffer_map_vma(&client->buffer, vma);
+=======
+	ret = vm_map_pages_zero(vma, client->buffer.pages,
+				client->buffer.page_count);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto fail;
 
@@ -1808,7 +1845,11 @@ const struct file_operations fw_device_ops = {
 	.mmap		= fw_device_op_mmap,
 	.release	= fw_device_op_release,
 	.poll		= fw_device_op_poll,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= fw_device_op_compat_ioctl,
 #endif
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };

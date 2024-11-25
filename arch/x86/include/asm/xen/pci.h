@@ -14,16 +14,30 @@ static inline int pci_xen_hvm_init(void)
 	return -1;
 }
 #endif
+<<<<<<< HEAD
 #if defined(CONFIG_XEN_DOM0)
 int __init pci_xen_initial_domain(void);
 int xen_find_device_domain_owner(struct pci_dev *dev);
 int xen_register_device_domain_owner(struct pci_dev *dev, uint16_t domain);
 int xen_unregister_device_domain_owner(struct pci_dev *dev);
+=======
+#ifdef CONFIG_XEN_PV_DOM0
+int __init pci_xen_initial_domain(void);
+>>>>>>> upstream/android-13
 #else
 static inline int __init pci_xen_initial_domain(void)
 {
 	return -1;
 }
+<<<<<<< HEAD
+=======
+#endif
+#ifdef CONFIG_XEN_DOM0
+int xen_find_device_domain_owner(struct pci_dev *dev);
+int xen_register_device_domain_owner(struct pci_dev *dev, uint16_t domain);
+int xen_unregister_device_domain_owner(struct pci_dev *dev);
+#else
+>>>>>>> upstream/android-13
 static inline int xen_find_device_domain_owner(struct pci_dev *dev)
 {
 	return -1;

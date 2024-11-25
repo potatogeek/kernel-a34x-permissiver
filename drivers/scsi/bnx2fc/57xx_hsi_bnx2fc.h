@@ -813,7 +813,11 @@ struct fcoe_confqe {
 
 
 /*
+<<<<<<< HEAD
  * FCoE conection data base
+=======
+ * FCoE connection data base
+>>>>>>> upstream/android-13
  */
 struct fcoe_conn_db {
 #if defined(__BIG_ENDIAN)

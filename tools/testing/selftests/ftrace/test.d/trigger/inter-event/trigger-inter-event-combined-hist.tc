@@ -1,4 +1,5 @@
 #!/bin/sh
+<<<<<<< HEAD
 # description: event trigger - test inter-event combined histogram trigger
 
 do_reset() {
@@ -9,10 +10,18 @@ do_reset() {
 
 fail() { #msg
     do_reset
+=======
+# SPDX-License-Identifier: GPL-2.0
+# description: event trigger - test inter-event combined histogram trigger
+# requires: set_event synthetic_events events/sched/sched_process_fork/hist
+
+fail() { #msg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -27,6 +36,8 @@ reset_tracer
 do_reset
 clear_synthetic_events
 
+=======
+>>>>>>> upstream/android-13
 echo "Test create synthetic event"
 
 echo 'waking_latency  u64 lat pid_t pid' > synthetic_events
@@ -44,6 +55,7 @@ echo 'wakeup_latency u64 lat pid_t pid' >> synthetic_events
 echo 'hist:keys=pid:ts1=common_timestamp.usecs if comm=="ping"' >> events/sched/sched_wakeup/trigger
 echo 'hist:keys=next_pid:wakeup_lat=common_timestamp.usecs-$ts1:onmatch(sched.sched_wakeup).wakeup_latency($wakeup_lat,next_pid) if next_comm=="ping"' > events/sched/sched_switch/trigger
 
+<<<<<<< HEAD
 echo 'waking+wakeup_latency u64 lat; pid_t pid' >> synthetic_events
 echo 'hist:keys=pid,lat:sort=pid,lat:ww_lat=$waking_lat+$wakeup_lat:onmatch(synthetic.wakeup_latency).waking+wakeup_latency($ww_lat,pid)' >> events/synthetic/wakeup_latency/trigger
 echo 'hist:keys=pid,lat:sort=pid,lat' >> events/synthetic/waking+wakeup_latency/trigger
@@ -55,4 +67,15 @@ fi
 
 do_reset
 
+=======
+echo 'waking_plus_wakeup_latency u64 lat; pid_t pid' >> synthetic_events
+echo 'hist:keys=pid,lat:sort=pid,lat:ww_lat=$waking_lat+$wakeup_lat:onmatch(synthetic.wakeup_latency).waking_plus_wakeup_latency($ww_lat,pid)' >> events/synthetic/wakeup_latency/trigger
+echo 'hist:keys=pid,lat:sort=pid,lat' >> events/synthetic/waking_plus_wakeup_latency/trigger
+
+ping $LOCALHOST -c 3
+if ! grep -q "pid:" events/synthetic/waking_plus_wakeup_latency/hist; then
+    fail "Failed to create combined histogram"
+fi
+
+>>>>>>> upstream/android-13
 exit 0

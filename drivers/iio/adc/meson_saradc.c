@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Amlogic Meson Successive Approximation Register (SAR) A/D Converter
  *
  * Copyright (C) 2017 Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -9,6 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitfield.h>
@@ -18,6 +25,10 @@
 #include <linux/io.h>
 #include <linux/iio/iio.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/nvmem-consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/of.h>
 #include <linux/of_irq.h>
@@ -25,6 +36,10 @@
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
+=======
+#include <linux/mfd/syscon.h>
+>>>>>>> upstream/android-13
 
 #define MESON_SAR_ADC_REG0					0x00
 	#define MESON_SAR_ADC_REG0_PANEL_DETECT			BIT(31)
@@ -148,7 +163,10 @@
 	#define MESON_SAR_ADC_DELTA_10_TS_REVE1			BIT(26)
 	#define MESON_SAR_ADC_DELTA_10_CHAN1_DELTA_VALUE_MASK	GENMASK(25, 16)
 	#define MESON_SAR_ADC_DELTA_10_TS_REVE0			BIT(15)
+<<<<<<< HEAD
 	#define MESON_SAR_ADC_DELTA_10_TS_C_SHIFT		11
+=======
+>>>>>>> upstream/android-13
 	#define MESON_SAR_ADC_DELTA_10_TS_C_MASK		GENMASK(14, 11)
 	#define MESON_SAR_ADC_DELTA_10_TS_VBG_EN		BIT(10)
 	#define MESON_SAR_ADC_DELTA_10_CHAN0_DELTA_VALUE_MASK	GENMASK(9, 0)
@@ -166,6 +184,20 @@
 
 #define MESON_SAR_ADC_MAX_FIFO_SIZE				32
 #define MESON_SAR_ADC_TIMEOUT					100 /* ms */
+<<<<<<< HEAD
+=======
+#define MESON_SAR_ADC_VOLTAGE_AND_TEMP_CHANNEL			6
+#define MESON_SAR_ADC_TEMP_OFFSET				27
+
+/* temperature sensor calibration information in eFuse */
+#define MESON_SAR_ADC_EFUSE_BYTES				4
+#define MESON_SAR_ADC_EFUSE_BYTE3_UPPER_ADC_VAL			GENMASK(6, 0)
+#define MESON_SAR_ADC_EFUSE_BYTE3_IS_CALIBRATED			BIT(7)
+
+#define MESON_HHI_DPLL_TOP_0					0x318
+#define MESON_HHI_DPLL_TOP_0_TSC_BIT4				BIT(9)
+
+>>>>>>> upstream/android-13
 /* for use with IIO_VAL_INT_PLUS_MICRO */
 #define MILLION							1000000
 
@@ -173,18 +205,42 @@
 	.type = IIO_VOLTAGE,						\
 	.indexed = 1,							\
 	.channel = _chan,						\
+<<<<<<< HEAD
 	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |			\
 				BIT(IIO_CHAN_INFO_AVERAGE_RAW),		\
 	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE) |		\
 				BIT(IIO_CHAN_INFO_CALIBBIAS) |		\
+=======
+	.address = _chan,						\
+	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |			\
+				BIT(IIO_CHAN_INFO_AVERAGE_RAW),		\
+	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE),		\
+	.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_CALIBBIAS) |	\
+>>>>>>> upstream/android-13
 				BIT(IIO_CHAN_INFO_CALIBSCALE),		\
 	.datasheet_name = "SAR_ADC_CH"#_chan,				\
 }
 
+<<<<<<< HEAD
 /*
  * TODO: the hardware supports IIO_TEMP for channel 6 as well which is
  * currently not supported by this driver.
  */
+=======
+#define MESON_SAR_ADC_TEMP_CHAN(_chan) {				\
+	.type = IIO_TEMP,						\
+	.channel = _chan,						\
+	.address = MESON_SAR_ADC_VOLTAGE_AND_TEMP_CHANNEL,		\
+	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |			\
+				BIT(IIO_CHAN_INFO_AVERAGE_RAW),		\
+	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |		\
+					BIT(IIO_CHAN_INFO_SCALE),	\
+	.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_CALIBBIAS) |	\
+				BIT(IIO_CHAN_INFO_CALIBSCALE),		\
+	.datasheet_name = "TEMP_SENSOR",				\
+}
+
+>>>>>>> upstream/android-13
 static const struct iio_chan_spec meson_sar_adc_iio_channels[] = {
 	MESON_SAR_ADC_CHAN(0),
 	MESON_SAR_ADC_CHAN(1),
@@ -197,6 +253,22 @@ static const struct iio_chan_spec meson_sar_adc_iio_channels[] = {
 	IIO_CHAN_SOFT_TIMESTAMP(8),
 };
 
+<<<<<<< HEAD
+=======
+static const struct iio_chan_spec meson_sar_adc_and_temp_iio_channels[] = {
+	MESON_SAR_ADC_CHAN(0),
+	MESON_SAR_ADC_CHAN(1),
+	MESON_SAR_ADC_CHAN(2),
+	MESON_SAR_ADC_CHAN(3),
+	MESON_SAR_ADC_CHAN(4),
+	MESON_SAR_ADC_CHAN(5),
+	MESON_SAR_ADC_CHAN(6),
+	MESON_SAR_ADC_CHAN(7),
+	MESON_SAR_ADC_TEMP_CHAN(8),
+	IIO_CHAN_SOFT_TIMESTAMP(9),
+};
+
+>>>>>>> upstream/android-13
 enum meson_sar_adc_avg_mode {
 	NO_AVERAGING = 0x0,
 	MEAN_AVERAGING = 0x1,
@@ -225,6 +297,12 @@ struct meson_sar_adc_param {
 	u32					bandgap_reg;
 	unsigned int				resolution;
 	const struct regmap_config		*regmap_config;
+<<<<<<< HEAD
+=======
+	u8					temperature_trimming_bits;
+	unsigned int				temperature_multiplier;
+	unsigned int				temperature_divider;
+>>>>>>> upstream/android-13
 };
 
 struct meson_sar_adc_data {
@@ -235,7 +313,11 @@ struct meson_sar_adc_data {
 struct meson_sar_adc_priv {
 	struct regmap				*regmap;
 	struct regulator			*vref;
+<<<<<<< HEAD
 	const struct meson_sar_adc_data		*data;
+=======
+	const struct meson_sar_adc_param	*param;
+>>>>>>> upstream/android-13
 	struct clk				*clkin;
 	struct clk				*core_clk;
 	struct clk				*adc_sel_clk;
@@ -246,6 +328,13 @@ struct meson_sar_adc_priv {
 	struct completion			done;
 	int					calibbias;
 	int					calibscale;
+<<<<<<< HEAD
+=======
+	struct regmap				*tsc_regmap;
+	bool					temperature_sensor_calibrated;
+	u8					temperature_sensor_coefficient;
+	u16					temperature_sensor_adc_val;
+>>>>>>> upstream/android-13
 };
 
 static const struct regmap_config meson_sar_adc_regmap_config_gxbb = {
@@ -280,7 +369,11 @@ static int meson_sar_adc_calib_val(struct iio_dev *indio_dev, int val)
 	/* use val_calib = scale * val_raw + offset calibration function */
 	tmp = div_s64((s64)val * priv->calibscale, MILLION) + priv->calibbias;
 
+<<<<<<< HEAD
 	return clamp(tmp, 0, (1 << priv->data->param->resolution) - 1);
+=======
+	return clamp(tmp, 0, (1 << priv->param->resolution) - 1);
+>>>>>>> upstream/android-13
 }
 
 static int meson_sar_adc_wait_busy_clear(struct iio_dev *indio_dev)
@@ -311,7 +404,11 @@ static int meson_sar_adc_read_raw_sample(struct iio_dev *indio_dev,
 	struct meson_sar_adc_priv *priv = iio_priv(indio_dev);
 	int regval, fifo_chan, fifo_val, count;
 
+<<<<<<< HEAD
 	if(!wait_for_completion_timeout(&priv->done,
+=======
+	if (!wait_for_completion_timeout(&priv->done,
+>>>>>>> upstream/android-13
 				msecs_to_jiffies(MESON_SAR_ADC_TIMEOUT)))
 		return -ETIMEDOUT;
 
@@ -324,15 +421,26 @@ static int meson_sar_adc_read_raw_sample(struct iio_dev *indio_dev,
 
 	regmap_read(priv->regmap, MESON_SAR_ADC_FIFO_RD, &regval);
 	fifo_chan = FIELD_GET(MESON_SAR_ADC_FIFO_RD_CHAN_ID_MASK, regval);
+<<<<<<< HEAD
 	if (fifo_chan != chan->channel) {
 		dev_err(&indio_dev->dev,
 			"ADC FIFO entry belongs to channel %d instead of %d\n",
 			fifo_chan, chan->channel);
+=======
+	if (fifo_chan != chan->address) {
+		dev_err(&indio_dev->dev,
+			"ADC FIFO entry belongs to channel %d instead of %lu\n",
+			fifo_chan, chan->address);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	fifo_val = FIELD_GET(MESON_SAR_ADC_FIFO_RD_SAMPLE_VALUE_MASK, regval);
+<<<<<<< HEAD
 	fifo_val &= GENMASK(priv->data->param->resolution - 1, 0);
+=======
+	fifo_val &= GENMASK(priv->param->resolution - 1, 0);
+>>>>>>> upstream/android-13
 	*val = meson_sar_adc_calib_val(indio_dev, fifo_val);
 
 	return 0;
@@ -344,6 +452,7 @@ static void meson_sar_adc_set_averaging(struct iio_dev *indio_dev,
 					enum meson_sar_adc_num_samples samples)
 {
 	struct meson_sar_adc_priv *priv = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int val, channel = chan->channel;
 
 	val = samples << MESON_SAR_ADC_AVG_CNTL_NUM_SAMPLES_SHIFT(channel);
@@ -354,6 +463,18 @@ static void meson_sar_adc_set_averaging(struct iio_dev *indio_dev,
 	val = mode << MESON_SAR_ADC_AVG_CNTL_AVG_MODE_SHIFT(channel);
 	regmap_update_bits(priv->regmap, MESON_SAR_ADC_AVG_CNTL,
 			   MESON_SAR_ADC_AVG_CNTL_AVG_MODE_MASK(channel), val);
+=======
+	int val, address = chan->address;
+
+	val = samples << MESON_SAR_ADC_AVG_CNTL_NUM_SAMPLES_SHIFT(address);
+	regmap_update_bits(priv->regmap, MESON_SAR_ADC_AVG_CNTL,
+			   MESON_SAR_ADC_AVG_CNTL_NUM_SAMPLES_MASK(address),
+			   val);
+
+	val = mode << MESON_SAR_ADC_AVG_CNTL_AVG_MODE_SHIFT(address);
+	regmap_update_bits(priv->regmap, MESON_SAR_ADC_AVG_CNTL,
+			   MESON_SAR_ADC_AVG_CNTL_AVG_MODE_MASK(address), val);
+>>>>>>> upstream/android-13
 }
 
 static void meson_sar_adc_enable_channel(struct iio_dev *indio_dev,
@@ -373,25 +494,50 @@ static void meson_sar_adc_enable_channel(struct iio_dev *indio_dev,
 
 	/* map channel index 0 to the channel which we want to read */
 	regval = FIELD_PREP(MESON_SAR_ADC_CHAN_LIST_ENTRY_MASK(0),
+<<<<<<< HEAD
 			    chan->channel);
+=======
+			    chan->address);
+>>>>>>> upstream/android-13
 	regmap_update_bits(priv->regmap, MESON_SAR_ADC_CHAN_LIST,
 			   MESON_SAR_ADC_CHAN_LIST_ENTRY_MASK(0), regval);
 
 	regval = FIELD_PREP(MESON_SAR_ADC_DETECT_IDLE_SW_DETECT_MUX_MASK,
+<<<<<<< HEAD
 			    chan->channel);
+=======
+			    chan->address);
+>>>>>>> upstream/android-13
 	regmap_update_bits(priv->regmap, MESON_SAR_ADC_DETECT_IDLE_SW,
 			   MESON_SAR_ADC_DETECT_IDLE_SW_DETECT_MUX_MASK,
 			   regval);
 
 	regval = FIELD_PREP(MESON_SAR_ADC_DETECT_IDLE_SW_IDLE_MUX_SEL_MASK,
+<<<<<<< HEAD
 			    chan->channel);
+=======
+			    chan->address);
+>>>>>>> upstream/android-13
 	regmap_update_bits(priv->regmap, MESON_SAR_ADC_DETECT_IDLE_SW,
 			   MESON_SAR_ADC_DETECT_IDLE_SW_IDLE_MUX_SEL_MASK,
 			   regval);
 
+<<<<<<< HEAD
 	if (chan->channel == 6)
 		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELTA_10,
 				   MESON_SAR_ADC_DELTA_10_TEMP_SEL, 0);
+=======
+	if (chan->address == MESON_SAR_ADC_VOLTAGE_AND_TEMP_CHANNEL) {
+		if (chan->type == IIO_TEMP)
+			regval = MESON_SAR_ADC_DELTA_10_TEMP_SEL;
+		else
+			regval = 0;
+
+		regmap_update_bits(priv->regmap,
+				   MESON_SAR_ADC_DELTA_10,
+				   MESON_SAR_ADC_DELTA_10_TEMP_SEL, regval);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void meson_sar_adc_set_chan7_mux(struct iio_dev *indio_dev,
@@ -451,11 +597,19 @@ static int meson_sar_adc_lock(struct iio_dev *indio_dev)
 
 	mutex_lock(&indio_dev->mlock);
 
+<<<<<<< HEAD
 	if (priv->data->param->has_bl30_integration) {
 		/* prevent BL30 from using the SAR ADC while we are using it */
 		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELAY,
 				MESON_SAR_ADC_DELAY_KERNEL_BUSY,
 				MESON_SAR_ADC_DELAY_KERNEL_BUSY);
+=======
+	if (priv->param->has_bl30_integration) {
+		/* prevent BL30 from using the SAR ADC while we are using it */
+		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELAY,
+				   MESON_SAR_ADC_DELAY_KERNEL_BUSY,
+				   MESON_SAR_ADC_DELAY_KERNEL_BUSY);
+>>>>>>> upstream/android-13
 
 		/*
 		 * wait until BL30 releases it's lock (so we can use the SAR
@@ -479,10 +633,17 @@ static void meson_sar_adc_unlock(struct iio_dev *indio_dev)
 {
 	struct meson_sar_adc_priv *priv = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	if (priv->data->param->has_bl30_integration)
 		/* allow BL30 to use the SAR ADC again */
 		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELAY,
 				MESON_SAR_ADC_DELAY_KERNEL_BUSY, 0);
+=======
+	if (priv->param->has_bl30_integration)
+		/* allow BL30 to use the SAR ADC again */
+		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELAY,
+				   MESON_SAR_ADC_DELAY_KERNEL_BUSY, 0);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&indio_dev->mlock);
 }
@@ -506,8 +667,17 @@ static int meson_sar_adc_get_sample(struct iio_dev *indio_dev,
 				    enum meson_sar_adc_num_samples avg_samples,
 				    int *val)
 {
+<<<<<<< HEAD
 	int ret;
 
+=======
+	struct meson_sar_adc_priv *priv = iio_priv(indio_dev);
+	int ret;
+
+	if (chan->type == IIO_TEMP && !priv->temperature_sensor_calibrated)
+		return -ENOTSUPP;
+
+>>>>>>> upstream/android-13
 	ret = meson_sar_adc_lock(indio_dev);
 	if (ret)
 		return ret;
@@ -527,8 +697,13 @@ static int meson_sar_adc_get_sample(struct iio_dev *indio_dev,
 
 	if (ret) {
 		dev_warn(indio_dev->dev.parent,
+<<<<<<< HEAD
 			 "failed to read sample for channel %d: %d\n",
 			 chan->channel, ret);
+=======
+			 "failed to read sample for channel %lu: %d\n",
+			 chan->address, ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -546,12 +721,16 @@ static int meson_sar_adc_iio_info_read_raw(struct iio_dev *indio_dev,
 	case IIO_CHAN_INFO_RAW:
 		return meson_sar_adc_get_sample(indio_dev, chan, NO_AVERAGING,
 						ONE_SAMPLE, val);
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 
 	case IIO_CHAN_INFO_AVERAGE_RAW:
 		return meson_sar_adc_get_sample(indio_dev, chan,
 						MEAN_AVERAGING, EIGHT_SAMPLES,
 						val);
+<<<<<<< HEAD
 		break;
 
 	case IIO_CHAN_INFO_SCALE:
@@ -565,6 +744,34 @@ static int meson_sar_adc_iio_info_read_raw(struct iio_dev *indio_dev,
 		*val = ret / 1000;
 		*val2 = priv->data->param->resolution;
 		return IIO_VAL_FRACTIONAL_LOG2;
+=======
+
+	case IIO_CHAN_INFO_SCALE:
+		if (chan->type == IIO_VOLTAGE) {
+			ret = regulator_get_voltage(priv->vref);
+			if (ret < 0) {
+				dev_err(indio_dev->dev.parent,
+					"failed to get vref voltage: %d\n",
+					ret);
+				return ret;
+			}
+
+			*val = ret / 1000;
+			*val2 = priv->param->resolution;
+			return IIO_VAL_FRACTIONAL_LOG2;
+		} else if (chan->type == IIO_TEMP) {
+			/* SoC specific multiplier and divider */
+			*val = priv->param->temperature_multiplier;
+			*val2 = priv->param->temperature_divider;
+
+			/* celsius to millicelsius */
+			*val *= 1000;
+
+			return IIO_VAL_FRACTIONAL;
+		} else {
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 
 	case IIO_CHAN_INFO_CALIBBIAS:
 		*val = priv->calibbias;
@@ -575,6 +782,16 @@ static int meson_sar_adc_iio_info_read_raw(struct iio_dev *indio_dev,
 		*val2 = priv->calibscale % MILLION;
 		return IIO_VAL_INT_PLUS_MICRO;
 
+<<<<<<< HEAD
+=======
+	case IIO_CHAN_INFO_OFFSET:
+		*val = DIV_ROUND_CLOSEST(MESON_SAR_ADC_TEMP_OFFSET *
+					 priv->param->temperature_divider,
+					 priv->param->temperature_multiplier);
+		*val -= priv->temperature_sensor_adc_val;
+		return IIO_VAL_INT;
+
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -631,6 +848,74 @@ static int meson_sar_adc_clk_init(struct iio_dev *indio_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int meson_sar_adc_temp_sensor_init(struct iio_dev *indio_dev)
+{
+	struct meson_sar_adc_priv *priv = iio_priv(indio_dev);
+	u8 *buf, trimming_bits, trimming_mask, upper_adc_val;
+	struct nvmem_cell *temperature_calib;
+	size_t read_len;
+	int ret;
+
+	temperature_calib = devm_nvmem_cell_get(indio_dev->dev.parent,
+						"temperature_calib");
+	if (IS_ERR(temperature_calib)) {
+		ret = PTR_ERR(temperature_calib);
+
+		/*
+		 * leave the temperature sensor disabled if no calibration data
+		 * was passed via nvmem-cells.
+		 */
+		if (ret == -ENODEV)
+			return 0;
+
+		return dev_err_probe(indio_dev->dev.parent, ret,
+				     "failed to get temperature_calib cell\n");
+	}
+
+	priv->tsc_regmap =
+		syscon_regmap_lookup_by_phandle(indio_dev->dev.parent->of_node,
+						"amlogic,hhi-sysctrl");
+	if (IS_ERR(priv->tsc_regmap)) {
+		dev_err(indio_dev->dev.parent,
+			"failed to get amlogic,hhi-sysctrl regmap\n");
+		return PTR_ERR(priv->tsc_regmap);
+	}
+
+	read_len = MESON_SAR_ADC_EFUSE_BYTES;
+	buf = nvmem_cell_read(temperature_calib, &read_len);
+	if (IS_ERR(buf)) {
+		dev_err(indio_dev->dev.parent,
+			"failed to read temperature_calib cell\n");
+		return PTR_ERR(buf);
+	} else if (read_len != MESON_SAR_ADC_EFUSE_BYTES) {
+		kfree(buf);
+		dev_err(indio_dev->dev.parent,
+			"invalid read size of temperature_calib cell\n");
+		return -EINVAL;
+	}
+
+	trimming_bits = priv->param->temperature_trimming_bits;
+	trimming_mask = BIT(trimming_bits) - 1;
+
+	priv->temperature_sensor_calibrated =
+		buf[3] & MESON_SAR_ADC_EFUSE_BYTE3_IS_CALIBRATED;
+	priv->temperature_sensor_coefficient = buf[2] & trimming_mask;
+
+	upper_adc_val = FIELD_GET(MESON_SAR_ADC_EFUSE_BYTE3_UPPER_ADC_VAL,
+				  buf[3]);
+
+	priv->temperature_sensor_adc_val = buf[2];
+	priv->temperature_sensor_adc_val |= upper_adc_val << BITS_PER_BYTE;
+	priv->temperature_sensor_adc_val >>= trimming_bits;
+
+	kfree(buf);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int meson_sar_adc_init(struct iio_dev *indio_dev)
 {
 	struct meson_sar_adc_priv *priv = iio_priv(indio_dev);
@@ -642,7 +927,11 @@ static int meson_sar_adc_init(struct iio_dev *indio_dev)
 	 */
 	meson_sar_adc_set_chan7_mux(indio_dev, CHAN7_MUX_CH7_INPUT);
 
+<<<<<<< HEAD
 	if (priv->data->param->has_bl30_integration) {
+=======
+	if (priv->param->has_bl30_integration) {
+>>>>>>> upstream/android-13
 		/*
 		 * leave sampling delay and the input clocks as configured by
 		 * BL30 to make sure BL30 gets the values it expects when
@@ -655,10 +944,19 @@ static int meson_sar_adc_init(struct iio_dev *indio_dev)
 
 	meson_sar_adc_stop_sample_engine(indio_dev);
 
+<<<<<<< HEAD
 	/* update the channel 6 MUX to select the temperature sensor */
 	regmap_update_bits(priv->regmap, MESON_SAR_ADC_REG0,
 			MESON_SAR_ADC_REG0_ADC_TEMP_SEN_SEL,
 			MESON_SAR_ADC_REG0_ADC_TEMP_SEN_SEL);
+=======
+	/*
+	 * disable this bit as seems to be only relevant for Meson6 (based
+	 * on the vendor driver), which we don't support at the moment.
+	 */
+	regmap_update_bits(priv->regmap, MESON_SAR_ADC_REG0,
+			   MESON_SAR_ADC_REG0_ADC_TEMP_SEN_SEL, 0);
+>>>>>>> upstream/android-13
 
 	/* disable all channels by default */
 	regmap_write(priv->regmap, MESON_SAR_ADC_CHAN_LIST, 0x0);
@@ -715,6 +1013,48 @@ static int meson_sar_adc_init(struct iio_dev *indio_dev)
 	regval |= MESON_SAR_ADC_AUX_SW_XP_DRIVE_SW;
 	regmap_write(priv->regmap, MESON_SAR_ADC_AUX_SW, regval);
 
+<<<<<<< HEAD
+=======
+	if (priv->temperature_sensor_calibrated) {
+		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELTA_10,
+				   MESON_SAR_ADC_DELTA_10_TS_REVE1,
+				   MESON_SAR_ADC_DELTA_10_TS_REVE1);
+		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELTA_10,
+				   MESON_SAR_ADC_DELTA_10_TS_REVE0,
+				   MESON_SAR_ADC_DELTA_10_TS_REVE0);
+
+		/*
+		 * set bits [3:0] of the TSC (temperature sensor coefficient)
+		 * to get the correct values when reading the temperature.
+		 */
+		regval = FIELD_PREP(MESON_SAR_ADC_DELTA_10_TS_C_MASK,
+				    priv->temperature_sensor_coefficient);
+		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELTA_10,
+				   MESON_SAR_ADC_DELTA_10_TS_C_MASK, regval);
+
+		if (priv->param->temperature_trimming_bits == 5) {
+			if (priv->temperature_sensor_coefficient & BIT(4))
+				regval = MESON_HHI_DPLL_TOP_0_TSC_BIT4;
+			else
+				regval = 0;
+
+			/*
+			 * bit [4] (the 5th bit when starting to count at 1)
+			 * of the TSC is located in the HHI register area.
+			 */
+			regmap_update_bits(priv->tsc_regmap,
+					   MESON_HHI_DPLL_TOP_0,
+					   MESON_HHI_DPLL_TOP_0_TSC_BIT4,
+					   regval);
+		}
+	} else {
+		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELTA_10,
+				   MESON_SAR_ADC_DELTA_10_TS_REVE1, 0);
+		regmap_update_bits(priv->regmap, MESON_SAR_ADC_DELTA_10,
+				   MESON_SAR_ADC_DELTA_10_TS_REVE0, 0);
+	}
+
+>>>>>>> upstream/android-13
 	ret = clk_set_parent(priv->adc_sel_clk, priv->clkin);
 	if (ret) {
 		dev_err(indio_dev->dev.parent,
@@ -722,7 +1062,11 @@ static int meson_sar_adc_init(struct iio_dev *indio_dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = clk_set_rate(priv->adc_clk, priv->data->param->clock_rate);
+=======
+	ret = clk_set_rate(priv->adc_clk, priv->param->clock_rate);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(indio_dev->dev.parent,
 			"failed to set adc clock rate\n");
@@ -735,7 +1079,11 @@ static int meson_sar_adc_init(struct iio_dev *indio_dev)
 static void meson_sar_adc_set_bandgap(struct iio_dev *indio_dev, bool on_off)
 {
 	struct meson_sar_adc_priv *priv = iio_priv(indio_dev);
+<<<<<<< HEAD
 	const struct meson_sar_adc_param *param = priv->data->param;
+=======
+	const struct meson_sar_adc_param *param = priv->param;
+>>>>>>> upstream/android-13
 	u32 enable_mask;
 
 	if (param->bandgap_reg == MESON_SAR_ADC_REG11)
@@ -855,13 +1203,22 @@ static int meson_sar_adc_calib(struct iio_dev *indio_dev)
 	int ret, nominal0, nominal1, value0, value1;
 
 	/* use points 25% and 75% for calibration */
+<<<<<<< HEAD
 	nominal0 = (1 << priv->data->param->resolution) / 4;
 	nominal1 = (1 << priv->data->param->resolution) * 3 / 4;
+=======
+	nominal0 = (1 << priv->param->resolution) / 4;
+	nominal1 = (1 << priv->param->resolution) * 3 / 4;
+>>>>>>> upstream/android-13
 
 	meson_sar_adc_set_chan7_mux(indio_dev, CHAN7_MUX_VDD_DIV4);
 	usleep_range(10, 20);
 	ret = meson_sar_adc_get_sample(indio_dev,
+<<<<<<< HEAD
 				       &meson_sar_adc_iio_channels[7],
+=======
+				       &indio_dev->channels[7],
+>>>>>>> upstream/android-13
 				       MEAN_AVERAGING, EIGHT_SAMPLES, &value0);
 	if (ret < 0)
 		goto out;
@@ -869,7 +1226,11 @@ static int meson_sar_adc_calib(struct iio_dev *indio_dev)
 	meson_sar_adc_set_chan7_mux(indio_dev, CHAN7_MUX_VDD_MUL3_DIV4);
 	usleep_range(10, 20);
 	ret = meson_sar_adc_get_sample(indio_dev,
+<<<<<<< HEAD
 				       &meson_sar_adc_iio_channels[7],
+=======
+				       &indio_dev->channels[7],
+>>>>>>> upstream/android-13
 				       MEAN_AVERAGING, EIGHT_SAMPLES, &value1);
 	if (ret < 0)
 		goto out;
@@ -900,6 +1261,23 @@ static const struct meson_sar_adc_param meson_sar_adc_meson8_param = {
 	.bandgap_reg = MESON_SAR_ADC_DELTA_10,
 	.regmap_config = &meson_sar_adc_regmap_config_meson8,
 	.resolution = 10,
+<<<<<<< HEAD
+=======
+	.temperature_trimming_bits = 4,
+	.temperature_multiplier = 18 * 10000,
+	.temperature_divider = 1024 * 10 * 85,
+};
+
+static const struct meson_sar_adc_param meson_sar_adc_meson8b_param = {
+	.has_bl30_integration = false,
+	.clock_rate = 1150000,
+	.bandgap_reg = MESON_SAR_ADC_DELTA_10,
+	.regmap_config = &meson_sar_adc_regmap_config_meson8,
+	.resolution = 10,
+	.temperature_trimming_bits = 5,
+	.temperature_multiplier = 10,
+	.temperature_divider = 32,
+>>>>>>> upstream/android-13
 };
 
 static const struct meson_sar_adc_param meson_sar_adc_gxbb_param = {
@@ -918,18 +1296,37 @@ static const struct meson_sar_adc_param meson_sar_adc_gxl_param = {
 	.resolution = 12,
 };
 
+<<<<<<< HEAD
+=======
+static const struct meson_sar_adc_param meson_sar_adc_g12a_param = {
+	.has_bl30_integration = false,
+	.clock_rate = 1200000,
+	.bandgap_reg = MESON_SAR_ADC_REG11,
+	.regmap_config = &meson_sar_adc_regmap_config_gxbb,
+	.resolution = 12,
+};
+
+>>>>>>> upstream/android-13
 static const struct meson_sar_adc_data meson_sar_adc_meson8_data = {
 	.param = &meson_sar_adc_meson8_param,
 	.name = "meson-meson8-saradc",
 };
 
 static const struct meson_sar_adc_data meson_sar_adc_meson8b_data = {
+<<<<<<< HEAD
 	.param = &meson_sar_adc_meson8_param,
+=======
+	.param = &meson_sar_adc_meson8b_param,
+>>>>>>> upstream/android-13
 	.name = "meson-meson8b-saradc",
 };
 
 static const struct meson_sar_adc_data meson_sar_adc_meson8m2_data = {
+<<<<<<< HEAD
 	.param = &meson_sar_adc_meson8_param,
+=======
+	.param = &meson_sar_adc_meson8b_param,
+>>>>>>> upstream/android-13
 	.name = "meson-meson8m2-saradc",
 };
 
@@ -953,10 +1350,19 @@ static const struct meson_sar_adc_data meson_sar_adc_axg_data = {
 	.name = "meson-axg-saradc",
 };
 
+<<<<<<< HEAD
+=======
+static const struct meson_sar_adc_data meson_sar_adc_g12a_data = {
+	.param = &meson_sar_adc_g12a_param,
+	.name = "meson-g12a-saradc",
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id meson_sar_adc_of_match[] = {
 	{
 		.compatible = "amlogic,meson8-saradc",
 		.data = &meson_sar_adc_meson8_data,
+<<<<<<< HEAD
 	},
 	{
 		.compatible = "amlogic,meson8b-saradc",
@@ -967,6 +1373,15 @@ static const struct of_device_id meson_sar_adc_of_match[] = {
 		.data = &meson_sar_adc_meson8m2_data,
 	},
 	{
+=======
+	}, {
+		.compatible = "amlogic,meson8b-saradc",
+		.data = &meson_sar_adc_meson8b_data,
+	}, {
+		.compatible = "amlogic,meson8m2-saradc",
+		.data = &meson_sar_adc_meson8m2_data,
+	}, {
+>>>>>>> upstream/android-13
 		.compatible = "amlogic,meson-gxbb-saradc",
 		.data = &meson_sar_adc_gxbb_data,
 	}, {
@@ -978,18 +1393,33 @@ static const struct of_device_id meson_sar_adc_of_match[] = {
 	}, {
 		.compatible = "amlogic,meson-axg-saradc",
 		.data = &meson_sar_adc_axg_data,
+<<<<<<< HEAD
 	},
 	{},
+=======
+	}, {
+		.compatible = "amlogic,meson-g12a-saradc",
+		.data = &meson_sar_adc_g12a_data,
+	},
+	{ /* sentinel */ }
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(of, meson_sar_adc_of_match);
 
 static int meson_sar_adc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct meson_sar_adc_priv *priv;
 	struct iio_dev *indio_dev;
 	struct resource *res;
 	void __iomem *base;
 	const struct of_device_id *match;
+=======
+	const struct meson_sar_adc_data *match_data;
+	struct meson_sar_adc_priv *priv;
+	struct iio_dev *indio_dev;
+	void __iomem *base;
+>>>>>>> upstream/android-13
 	int irq, ret;
 
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
@@ -1001,6 +1431,7 @@ static int meson_sar_adc_probe(struct platform_device *pdev)
 	priv = iio_priv(indio_dev);
 	init_completion(&priv->done);
 
+<<<<<<< HEAD
 	match = of_match_device(meson_sar_adc_of_match, &pdev->dev);
 	if (!match) {
 		dev_err(&pdev->dev, "failed to match device\n");
@@ -1020,11 +1451,30 @@ static int meson_sar_adc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	match_data = of_device_get_match_data(&pdev->dev);
+	if (!match_data) {
+		dev_err(&pdev->dev, "failed to get match data\n");
+		return -ENODEV;
+	}
+
+	priv->param = match_data->param;
+
+	indio_dev->name = match_data->name;
+	indio_dev->modes = INDIO_DIRECT_MODE;
+	indio_dev->info = &meson_sar_adc_iio_info;
+
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
 	priv->regmap = devm_regmap_init_mmio(&pdev->dev, base,
+<<<<<<< HEAD
 					     priv->data->param->regmap_config);
+=======
+					     priv->param->regmap_config);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->regmap))
 		return PTR_ERR(priv->regmap);
 
@@ -1084,6 +1534,25 @@ static int meson_sar_adc_probe(struct platform_device *pdev)
 
 	priv->calibscale = MILLION;
 
+<<<<<<< HEAD
+=======
+	if (priv->param->temperature_trimming_bits) {
+		ret = meson_sar_adc_temp_sensor_init(indio_dev);
+		if (ret)
+			return ret;
+	}
+
+	if (priv->temperature_sensor_calibrated) {
+		indio_dev->channels = meson_sar_adc_and_temp_iio_channels;
+		indio_dev->num_channels =
+			ARRAY_SIZE(meson_sar_adc_and_temp_iio_channels);
+	} else {
+		indio_dev->channels = meson_sar_adc_iio_channels;
+		indio_dev->num_channels =
+			ARRAY_SIZE(meson_sar_adc_iio_channels);
+	}
+
+>>>>>>> upstream/android-13
 	ret = meson_sar_adc_init(indio_dev);
 	if (ret)
 		goto err;

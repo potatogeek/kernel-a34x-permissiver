@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -6,11 +10,14 @@
  *		IPv4 Forwarding Information Base: semantics.
  *
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/uaccess.h>
@@ -33,6 +40,10 @@
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/netlink.h>
+<<<<<<< HEAD
+=======
+#include <linux/hash.h>
+>>>>>>> upstream/android-13
 
 #include <net/arp.h>
 #include <net/ip.h>
@@ -41,10 +52,20 @@
 #include <net/tcp.h>
 #include <net/sock.h>
 #include <net/ip_fib.h>
+<<<<<<< HEAD
 #include <net/netlink.h>
 #include <net/nexthop.h>
 #include <net/lwtunnel.h>
 #include <net/fib_notifier.h>
+=======
+#include <net/ip6_fib.h>
+#include <net/nexthop.h>
+#include <net/netlink.h>
+#include <net/rtnh.h>
+#include <net/lwtunnel.h>
+#include <net/fib_notifier.h>
+#include <net/addrconf.h>
+>>>>>>> upstream/android-13
 
 #include "fib_lookup.h"
 
@@ -58,18 +79,32 @@ static unsigned int fib_info_cnt;
 #define DEVINDEX_HASHSIZE (1U << DEVINDEX_HASHBITS)
 static struct hlist_head fib_info_devhash[DEVINDEX_HASHSIZE];
 
+<<<<<<< HEAD
+=======
+/* for_nexthops and change_nexthops only used when nexthop object
+ * is not set in a fib_info. The logic within can reference fib_nh.
+ */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
 
 #define for_nexthops(fi) {						\
 	int nhsel; const struct fib_nh *nh;				\
 	for (nhsel = 0, nh = (fi)->fib_nh;				\
+<<<<<<< HEAD
 	     nhsel < (fi)->fib_nhs;					\
+=======
+	     nhsel < fib_info_num_path((fi));				\
+>>>>>>> upstream/android-13
 	     nh++, nhsel++)
 
 #define change_nexthops(fi) {						\
 	int nhsel; struct fib_nh *nexthop_nh;				\
 	for (nhsel = 0,	nexthop_nh = (struct fib_nh *)((fi)->fib_nh);	\
+<<<<<<< HEAD
 	     nhsel < (fi)->fib_nhs;					\
+=======
+	     nhsel < fib_info_num_path((fi));				\
+>>>>>>> upstream/android-13
 	     nexthop_nh++, nhsel++)
 
 #else /* CONFIG_IP_ROUTE_MULTIPATH */
@@ -157,12 +192,20 @@ static void rt_fibinfo_free(struct rtable __rcu **rtp)
 	dst_release_immediate(&rt->dst);
 }
 
+<<<<<<< HEAD
 static void free_nh_exceptions(struct fib_nh *nh)
+=======
+static void free_nh_exceptions(struct fib_nh_common *nhc)
+>>>>>>> upstream/android-13
 {
 	struct fnhe_hash_bucket *hash;
 	int i;
 
+<<<<<<< HEAD
 	hash = rcu_dereference_protected(nh->nh_exceptions, 1);
+=======
+	hash = rcu_dereference_protected(nhc->nhc_exceptions, 1);
+>>>>>>> upstream/android-13
 	if (!hash)
 		return;
 	for (i = 0; i < FNHE_HASH_SIZE; i++) {
@@ -204,10 +247,33 @@ static void rt_fibinfo_free_cpus(struct rtable __rcu * __percpu *rtp)
 	free_percpu(rtp);
 }
 
+<<<<<<< HEAD
+=======
+void fib_nh_common_release(struct fib_nh_common *nhc)
+{
+	dev_put(nhc->nhc_dev);
+	lwtstate_put(nhc->nhc_lwtstate);
+	rt_fibinfo_free_cpus(nhc->nhc_pcpu_rth_output);
+	rt_fibinfo_free(&nhc->nhc_rth_input);
+	free_nh_exceptions(nhc);
+}
+EXPORT_SYMBOL_GPL(fib_nh_common_release);
+
+void fib_nh_release(struct net *net, struct fib_nh *fib_nh)
+{
+#ifdef CONFIG_IP_ROUTE_CLASSID
+	if (fib_nh->nh_tclassid)
+		atomic_dec(&net->ipv4.fib_num_tclassid_users);
+#endif
+	fib_nh_common_release(&fib_nh->nh_common);
+}
+
+>>>>>>> upstream/android-13
 /* Release a nexthop info record */
 static void free_fib_info_rcu(struct rcu_head *head)
 {
 	struct fib_info *fi = container_of(head, struct fib_info, rcu);
+<<<<<<< HEAD
 	struct dst_metrics *m;
 
 	change_nexthops(fi) {
@@ -222,6 +288,19 @@ static void free_fib_info_rcu(struct rcu_head *head)
 	m = fi->fib_metrics;
 	if (m != &dst_default_metrics && refcount_dec_and_test(&m->refcnt))
 		kfree(m);
+=======
+
+	if (fi->nh) {
+		nexthop_put(fi->nh);
+	} else {
+		change_nexthops(fi) {
+			fib_nh_release(fi->fib_net, nexthop_nh);
+		} endfor_nexthops(fi);
+	}
+
+	ip_fib_metrics_put(fi->fib_metrics);
+
+>>>>>>> upstream/android-13
 	kfree(fi);
 }
 
@@ -231,6 +310,7 @@ void free_fib_info(struct fib_info *fi)
 		pr_warn("Freeing alive fib_info %p\n", fi);
 		return;
 	}
+<<<<<<< HEAD
 	fib_info_cnt--;
 #ifdef CONFIG_IP_ROUTE_CLASSID
 	change_nexthops(fi) {
@@ -238,6 +318,9 @@ void free_fib_info(struct fib_info *fi)
 			fi->fib_net->ipv4.fib_num_tclassid_users--;
 	} endfor_nexthops(fi);
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	call_rcu(&fi->rcu, free_fib_info_rcu);
 }
 EXPORT_SYMBOL_GPL(free_fib_info);
@@ -245,6 +328,7 @@ EXPORT_SYMBOL_GPL(free_fib_info);
 void fib_release_info(struct fib_info *fi)
 {
 	spin_lock_bh(&fib_info_lock);
+<<<<<<< HEAD
 	if (fi && --fi->fib_treeref == 0) {
 		hlist_del(&fi->fib_hash);
 		if (fi->fib_prefsrc)
@@ -254,12 +338,32 @@ void fib_release_info(struct fib_info *fi)
 				continue;
 			hlist_del(&nexthop_nh->nh_hash);
 		} endfor_nexthops(fi)
+=======
+	if (fi && refcount_dec_and_test(&fi->fib_treeref)) {
+		hlist_del(&fi->fib_hash);
+
+		/* Paired with READ_ONCE() in fib_create_info(). */
+		WRITE_ONCE(fib_info_cnt, fib_info_cnt - 1);
+
+		if (fi->fib_prefsrc)
+			hlist_del(&fi->fib_lhash);
+		if (fi->nh) {
+			list_del(&fi->nh_list);
+		} else {
+			change_nexthops(fi) {
+				if (!nexthop_nh->fib_nh_dev)
+					continue;
+				hlist_del(&nexthop_nh->nh_hash);
+			} endfor_nexthops(fi)
+		}
+>>>>>>> upstream/android-13
 		fi->fib_dead = 1;
 		fib_info_put(fi);
 	}
 	spin_unlock_bh(&fib_info_lock);
 }
 
+<<<<<<< HEAD
 static inline int nh_comp(const struct fib_info *fi, const struct fib_info *ofi)
 {
 	const struct fib_nh *onh = ofi->fib_nh;
@@ -270,20 +374,55 @@ static inline int nh_comp(const struct fib_info *fi, const struct fib_info *ofi)
 		    nh->nh_scope != onh->nh_scope ||
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
 		    nh->nh_weight != onh->nh_weight ||
+=======
+static inline int nh_comp(struct fib_info *fi, struct fib_info *ofi)
+{
+	const struct fib_nh *onh;
+
+	if (fi->nh || ofi->nh)
+		return nexthop_cmp(fi->nh, ofi->nh) ? 0 : -1;
+
+	if (ofi->fib_nhs == 0)
+		return 0;
+
+	for_nexthops(fi) {
+		onh = fib_info_nh(ofi, nhsel);
+
+		if (nh->fib_nh_oif != onh->fib_nh_oif ||
+		    nh->fib_nh_gw_family != onh->fib_nh_gw_family ||
+		    nh->fib_nh_scope != onh->fib_nh_scope ||
+#ifdef CONFIG_IP_ROUTE_MULTIPATH
+		    nh->fib_nh_weight != onh->fib_nh_weight ||
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_IP_ROUTE_CLASSID
 		    nh->nh_tclassid != onh->nh_tclassid ||
 #endif
+<<<<<<< HEAD
 		    lwtunnel_cmp_encap(nh->nh_lwtstate, onh->nh_lwtstate) ||
 		    ((nh->nh_flags ^ onh->nh_flags) & ~RTNH_COMPARE_MASK))
 			return -1;
 		onh++;
+=======
+		    lwtunnel_cmp_encap(nh->fib_nh_lws, onh->fib_nh_lws) ||
+		    ((nh->fib_nh_flags ^ onh->fib_nh_flags) & ~RTNH_COMPARE_MASK))
+			return -1;
+
+		if (nh->fib_nh_gw_family == AF_INET &&
+		    nh->fib_nh_gw4 != onh->fib_nh_gw4)
+			return -1;
+
+		if (nh->fib_nh_gw_family == AF_INET6 &&
+		    ipv6_addr_cmp(&nh->fib_nh_gw6, &onh->fib_nh_gw6))
+			return -1;
+>>>>>>> upstream/android-13
 	} endfor_nexthops(fi);
 	return 0;
 }
 
 static inline unsigned int fib_devindex_hashfn(unsigned int val)
 {
+<<<<<<< HEAD
 	unsigned int mask = DEVINDEX_HASHSIZE - 1;
 
 	return (val ^
@@ -302,11 +441,95 @@ static inline unsigned int fib_info_hashfn(const struct fib_info *fi)
 	for_nexthops(fi) {
 		val ^= fib_devindex_hashfn(nh->nh_oif);
 	} endfor_nexthops(fi)
+=======
+	return hash_32(val, DEVINDEX_HASHBITS);
+}
+
+static struct hlist_head *
+fib_info_devhash_bucket(const struct net_device *dev)
+{
+	u32 val = net_hash_mix(dev_net(dev)) ^ dev->ifindex;
+
+	return &fib_info_devhash[fib_devindex_hashfn(val)];
+}
+
+static unsigned int fib_info_hashfn_1(int init_val, u8 protocol, u8 scope,
+				      u32 prefsrc, u32 priority)
+{
+	unsigned int val = init_val;
+
+	val ^= (protocol << 8) | scope;
+	val ^= prefsrc;
+	val ^= priority;
+
+	return val;
+}
+
+static unsigned int fib_info_hashfn_result(unsigned int val)
+{
+	unsigned int mask = (fib_info_hash_size - 1);
+>>>>>>> upstream/android-13
 
 	return (val ^ (val >> 7) ^ (val >> 12)) & mask;
 }
 
+<<<<<<< HEAD
 static struct fib_info *fib_find_info(const struct fib_info *nfi)
+=======
+static inline unsigned int fib_info_hashfn(struct fib_info *fi)
+{
+	unsigned int val;
+
+	val = fib_info_hashfn_1(fi->fib_nhs, fi->fib_protocol,
+				fi->fib_scope, (__force u32)fi->fib_prefsrc,
+				fi->fib_priority);
+
+	if (fi->nh) {
+		val ^= fib_devindex_hashfn(fi->nh->id);
+	} else {
+		for_nexthops(fi) {
+			val ^= fib_devindex_hashfn(nh->fib_nh_oif);
+		} endfor_nexthops(fi)
+	}
+
+	return fib_info_hashfn_result(val);
+}
+
+/* no metrics, only nexthop id */
+static struct fib_info *fib_find_info_nh(struct net *net,
+					 const struct fib_config *cfg)
+{
+	struct hlist_head *head;
+	struct fib_info *fi;
+	unsigned int hash;
+
+	hash = fib_info_hashfn_1(fib_devindex_hashfn(cfg->fc_nh_id),
+				 cfg->fc_protocol, cfg->fc_scope,
+				 (__force u32)cfg->fc_prefsrc,
+				 cfg->fc_priority);
+	hash = fib_info_hashfn_result(hash);
+	head = &fib_info_hash[hash];
+
+	hlist_for_each_entry(fi, head, fib_hash) {
+		if (!net_eq(fi->fib_net, net))
+			continue;
+		if (!fi->nh || fi->nh->id != cfg->fc_nh_id)
+			continue;
+		if (cfg->fc_protocol == fi->fib_protocol &&
+		    cfg->fc_scope == fi->fib_scope &&
+		    cfg->fc_prefsrc == fi->fib_prefsrc &&
+		    cfg->fc_priority == fi->fib_priority &&
+		    cfg->fc_type == fi->fib_type &&
+		    cfg->fc_table == fi->fib_tb_id &&
+		    !((cfg->fc_flags ^ fi->fib_flags) & ~RTNH_COMPARE_MASK))
+			return fi;
+	}
+
+	return NULL;
+}
+
+static struct fib_info *fib_find_info(struct fib_info *nfi)
+>>>>>>> upstream/android-13
 {
 	struct hlist_head *head;
 	struct fib_info *fi;
@@ -328,7 +551,11 @@ static struct fib_info *fib_find_info(const struct fib_info *nfi)
 		    memcmp(nfi->fib_metrics, fi->fib_metrics,
 			   sizeof(u32) * RTAX_MAX) == 0 &&
 		    !((nfi->fib_flags ^ fi->fib_flags) & ~RTNH_COMPARE_MASK) &&
+<<<<<<< HEAD
 		    (nfi->fib_nhs == 0 || nh_comp(fi, nfi) == 0))
+=======
+		    nh_comp(fi, nfi) == 0)
+>>>>>>> upstream/android-13
 			return fi;
 	}
 
@@ -342,6 +569,7 @@ int ip_fib_check_default(__be32 gw, struct net_device *dev)
 {
 	struct hlist_head *head;
 	struct fib_nh *nh;
+<<<<<<< HEAD
 	unsigned int hash;
 
 	spin_lock(&fib_info_lock);
@@ -352,6 +580,17 @@ int ip_fib_check_default(__be32 gw, struct net_device *dev)
 		if (nh->nh_dev == dev &&
 		    nh->nh_gw == gw &&
 		    !(nh->nh_flags & RTNH_F_DEAD)) {
+=======
+
+	spin_lock(&fib_info_lock);
+
+	head = fib_info_devhash_bucket(dev);
+
+	hlist_for_each_entry(nh, head, nh_hash) {
+		if (nh->fib_nh_dev == dev &&
+		    nh->fib_nh_gw4 == gw &&
+		    !(nh->fib_nh_flags & RTNH_F_DEAD)) {
+>>>>>>> upstream/android-13
 			spin_unlock(&fib_info_lock);
 			return 0;
 		}
@@ -362,7 +601,11 @@ int ip_fib_check_default(__be32 gw, struct net_device *dev)
 	return -1;
 }
 
+<<<<<<< HEAD
 static inline size_t fib_nlmsg_size(struct fib_info *fi)
+=======
+size_t fib_nlmsg_size(struct fib_info *fi)
+>>>>>>> upstream/android-13
 {
 	size_t payload = NLMSG_ALIGN(sizeof(struct rtmsg))
 			 + nla_total_size(4) /* RTA_TABLE */
@@ -370,21 +613,39 @@ static inline size_t fib_nlmsg_size(struct fib_info *fi)
 			 + nla_total_size(4) /* RTA_PRIORITY */
 			 + nla_total_size(4) /* RTA_PREFSRC */
 			 + nla_total_size(TCP_CA_NAME_MAX); /* RTAX_CC_ALGO */
+<<<<<<< HEAD
+=======
+	unsigned int nhs = fib_info_num_path(fi);
+>>>>>>> upstream/android-13
 
 	/* space for nested metrics */
 	payload += nla_total_size((RTAX_MAX * nla_total_size(4)));
 
+<<<<<<< HEAD
 	if (fi->fib_nhs) {
 		size_t nh_encapsize = 0;
 		/* Also handles the special case fib_nhs == 1 */
 
 		/* each nexthop is packed in an attribute */
 		size_t nhsize = nla_total_size(sizeof(struct rtnexthop));
+=======
+	if (fi->nh)
+		payload += nla_total_size(4); /* RTA_NH_ID */
+
+	if (nhs) {
+		size_t nh_encapsize = 0;
+		/* Also handles the special case nhs == 1 */
+
+		/* each nexthop is packed in an attribute */
+		size_t nhsize = nla_total_size(sizeof(struct rtnexthop));
+		unsigned int i;
+>>>>>>> upstream/android-13
 
 		/* may contain flow and gateway attribute */
 		nhsize += 2 * nla_total_size(4);
 
 		/* grab encap info */
+<<<<<<< HEAD
 		for_nexthops(fi) {
 			if (nh->nh_lwtstate) {
 				/* RTA_ENCAP_TYPE */
@@ -398,6 +659,22 @@ static inline size_t fib_nlmsg_size(struct fib_info *fi)
 		/* all nexthops are packed in a nested attribute */
 		payload += nla_total_size((fi->fib_nhs * nhsize) +
 					  nh_encapsize);
+=======
+		for (i = 0; i < fib_info_num_path(fi); i++) {
+			struct fib_nh_common *nhc = fib_info_nhc(fi, i);
+
+			if (nhc->nhc_lwtstate) {
+				/* RTA_ENCAP_TYPE */
+				nh_encapsize += lwtunnel_get_encap_size(
+						nhc->nhc_lwtstate);
+				/* RTA_ENCAP */
+				nh_encapsize +=  nla_total_size(2);
+			}
+		}
+
+		/* all nexthops are packed in a nested attribute */
+		payload += nla_total_size((nhs * nhsize) + nh_encapsize);
+>>>>>>> upstream/android-13
 
 	}
 
@@ -408,6 +685,10 @@ void rtmsg_fib(int event, __be32 key, struct fib_alias *fa,
 	       int dst_len, u32 tb_id, const struct nl_info *info,
 	       unsigned int nlm_flags)
 {
+<<<<<<< HEAD
+=======
+	struct fib_rt_info fri;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	u32 seq = info->nlh ? info->nlh->nlmsg_seq : 0;
 	int err = -ENOBUFS;
@@ -416,9 +697,22 @@ void rtmsg_fib(int event, __be32 key, struct fib_alias *fa,
 	if (!skb)
 		goto errout;
 
+<<<<<<< HEAD
 	err = fib_dump_info(skb, info->portid, seq, event, tb_id,
 			    fa->fa_type, key, dst_len,
 			    fa->fa_tos, fa->fa_info, nlm_flags);
+=======
+	fri.fi = fa->fa_info;
+	fri.tb_id = tb_id;
+	fri.dst = key;
+	fri.dst_len = dst_len;
+	fri.tos = fa->fa_tos;
+	fri.type = fa->fa_type;
+	fri.offload = READ_ONCE(fa->offload);
+	fri.trap = READ_ONCE(fa->trap);
+	fri.offload_failed = READ_ONCE(fa->offload_failed);
+	err = fib_dump_info(skb, info->portid, seq, event, &fri, nlm_flags);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		/* -EMSGSIZE implies BUG in fib_nlmsg_size() */
 		WARN_ON(err == -EMSGSIZE);
@@ -437,10 +731,25 @@ static int fib_detect_death(struct fib_info *fi, int order,
 			    struct fib_info **last_resort, int *last_idx,
 			    int dflt)
 {
+<<<<<<< HEAD
 	struct neighbour *n;
 	int state = NUD_NONE;
 
 	n = neigh_lookup(&arp_tbl, &fi->fib_nh[0].nh_gw, fi->fib_dev);
+=======
+	const struct fib_nh_common *nhc = fib_info_nhc(fi, 0);
+	struct neighbour *n;
+	int state = NUD_NONE;
+
+	if (likely(nhc->nhc_gw_family == AF_INET))
+		n = neigh_lookup(&arp_tbl, &nhc->nhc_gw.ipv4, nhc->nhc_dev);
+	else if (nhc->nhc_gw_family == AF_INET6)
+		n = neigh_lookup(ipv6_stub->nd_tbl, &nhc->nhc_gw.ipv6,
+				 nhc->nhc_dev);
+	else
+		n = NULL;
+
+>>>>>>> upstream/android-13
 	if (n) {
 		state = n->nud_state;
 		neigh_release(n);
@@ -459,6 +768,80 @@ static int fib_detect_death(struct fib_info *fi, int order,
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+int fib_nh_common_init(struct net *net, struct fib_nh_common *nhc,
+		       struct nlattr *encap, u16 encap_type,
+		       void *cfg, gfp_t gfp_flags,
+		       struct netlink_ext_ack *extack)
+{
+	int err;
+
+	nhc->nhc_pcpu_rth_output = alloc_percpu_gfp(struct rtable __rcu *,
+						    gfp_flags);
+	if (!nhc->nhc_pcpu_rth_output)
+		return -ENOMEM;
+
+	if (encap) {
+		struct lwtunnel_state *lwtstate;
+
+		if (encap_type == LWTUNNEL_ENCAP_NONE) {
+			NL_SET_ERR_MSG(extack, "LWT encap type not specified");
+			err = -EINVAL;
+			goto lwt_failure;
+		}
+		err = lwtunnel_build_state(net, encap_type, encap,
+					   nhc->nhc_family, cfg, &lwtstate,
+					   extack);
+		if (err)
+			goto lwt_failure;
+
+		nhc->nhc_lwtstate = lwtstate_get(lwtstate);
+	}
+
+	return 0;
+
+lwt_failure:
+	rt_fibinfo_free_cpus(nhc->nhc_pcpu_rth_output);
+	nhc->nhc_pcpu_rth_output = NULL;
+	return err;
+}
+EXPORT_SYMBOL_GPL(fib_nh_common_init);
+
+int fib_nh_init(struct net *net, struct fib_nh *nh,
+		struct fib_config *cfg, int nh_weight,
+		struct netlink_ext_ack *extack)
+{
+	int err;
+
+	nh->fib_nh_family = AF_INET;
+
+	err = fib_nh_common_init(net, &nh->nh_common, cfg->fc_encap,
+				 cfg->fc_encap_type, cfg, GFP_KERNEL, extack);
+	if (err)
+		return err;
+
+	nh->fib_nh_oif = cfg->fc_oif;
+	nh->fib_nh_gw_family = cfg->fc_gw_family;
+	if (cfg->fc_gw_family == AF_INET)
+		nh->fib_nh_gw4 = cfg->fc_gw4;
+	else if (cfg->fc_gw_family == AF_INET6)
+		nh->fib_nh_gw6 = cfg->fc_gw6;
+
+	nh->fib_nh_flags = cfg->fc_flags;
+
+#ifdef CONFIG_IP_ROUTE_CLASSID
+	nh->nh_tclassid = cfg->fc_flow;
+	if (nh->nh_tclassid)
+		atomic_inc(&net->ipv4.fib_num_tclassid_users);
+#endif
+#ifdef CONFIG_IP_ROUTE_MULTIPATH
+	nh->fib_nh_weight = nh_weight;
+#endif
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
 
 static int fib_count_nexthops(struct rtnexthop *rtnh, int remaining,
@@ -481,15 +864,43 @@ static int fib_count_nexthops(struct rtnexthop *rtnh, int remaining,
 	return nhs;
 }
 
+<<<<<<< HEAD
+=======
+static int fib_gw_from_attr(__be32 *gw, struct nlattr *nla,
+			    struct netlink_ext_ack *extack)
+{
+	if (nla_len(nla) < sizeof(*gw)) {
+		NL_SET_ERR_MSG(extack, "Invalid IPv4 address in RTA_GATEWAY");
+		return -EINVAL;
+	}
+
+	*gw = nla_get_in_addr(nla);
+
+	return 0;
+}
+
+/* only called when fib_nh is integrated into fib_info */
+>>>>>>> upstream/android-13
 static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
 		       int remaining, struct fib_config *cfg,
 		       struct netlink_ext_ack *extack)
 {
+<<<<<<< HEAD
+=======
+	struct net *net = fi->fib_net;
+	struct fib_config fib_cfg;
+	struct fib_nh *nh;
+>>>>>>> upstream/android-13
 	int ret;
 
 	change_nexthops(fi) {
 		int attrlen;
 
+<<<<<<< HEAD
+=======
+		memset(&fib_cfg, 0, sizeof(fib_cfg));
+
+>>>>>>> upstream/android-13
 		if (!rtnh_ok(rtnh, remaining)) {
 			NL_SET_ERR_MSG(extack,
 				       "Invalid nexthop configuration - extra data after nexthop");
@@ -502,6 +913,7 @@ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		nexthop_nh->nh_flags =
 			(cfg->fc_flags & ~0xFF) | rtnh->rtnh_flags;
 		nexthop_nh->nh_oif = rtnh->rtnh_ifindex;
@@ -552,21 +964,113 @@ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
 err_inval:
 	ret = -EINVAL;
 
+=======
+		fib_cfg.fc_flags = (cfg->fc_flags & ~0xFF) | rtnh->rtnh_flags;
+		fib_cfg.fc_oif = rtnh->rtnh_ifindex;
+
+		attrlen = rtnh_attrlen(rtnh);
+		if (attrlen > 0) {
+			struct nlattr *nla, *nlav, *attrs = rtnh_attrs(rtnh);
+
+			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+			nlav = nla_find(attrs, attrlen, RTA_VIA);
+			if (nla && nlav) {
+				NL_SET_ERR_MSG(extack,
+					       "Nexthop configuration can not contain both GATEWAY and VIA");
+				return -EINVAL;
+			}
+			if (nla) {
+				ret = fib_gw_from_attr(&fib_cfg.fc_gw4, nla,
+						       extack);
+				if (ret)
+					goto errout;
+
+				if (fib_cfg.fc_gw4)
+					fib_cfg.fc_gw_family = AF_INET;
+			} else if (nlav) {
+				ret = fib_gw_from_via(&fib_cfg, nlav, extack);
+				if (ret)
+					goto errout;
+			}
+
+			nla = nla_find(attrs, attrlen, RTA_FLOW);
+			if (nla) {
+				if (nla_len(nla) < sizeof(u32)) {
+					NL_SET_ERR_MSG(extack, "Invalid RTA_FLOW");
+					return -EINVAL;
+				}
+				fib_cfg.fc_flow = nla_get_u32(nla);
+			}
+
+			fib_cfg.fc_encap = nla_find(attrs, attrlen, RTA_ENCAP);
+			/* RTA_ENCAP_TYPE length checked in
+			 * lwtunnel_valid_encap_type_attr
+			 */
+			nla = nla_find(attrs, attrlen, RTA_ENCAP_TYPE);
+			if (nla)
+				fib_cfg.fc_encap_type = nla_get_u16(nla);
+		}
+
+		ret = fib_nh_init(net, nexthop_nh, &fib_cfg,
+				  rtnh->rtnh_hops + 1, extack);
+		if (ret)
+			goto errout;
+
+		rtnh = rtnh_next(rtnh, &remaining);
+	} endfor_nexthops(fi);
+
+	ret = -EINVAL;
+	nh = fib_info_nh(fi, 0);
+	if (cfg->fc_oif && nh->fib_nh_oif != cfg->fc_oif) {
+		NL_SET_ERR_MSG(extack,
+			       "Nexthop device index does not match RTA_OIF");
+		goto errout;
+	}
+	if (cfg->fc_gw_family) {
+		if (cfg->fc_gw_family != nh->fib_nh_gw_family ||
+		    (cfg->fc_gw_family == AF_INET &&
+		     nh->fib_nh_gw4 != cfg->fc_gw4) ||
+		    (cfg->fc_gw_family == AF_INET6 &&
+		     ipv6_addr_cmp(&nh->fib_nh_gw6, &cfg->fc_gw6))) {
+			NL_SET_ERR_MSG(extack,
+				       "Nexthop gateway does not match RTA_GATEWAY or RTA_VIA");
+			goto errout;
+		}
+	}
+#ifdef CONFIG_IP_ROUTE_CLASSID
+	if (cfg->fc_flow && nh->nh_tclassid != cfg->fc_flow) {
+		NL_SET_ERR_MSG(extack,
+			       "Nexthop class id does not match RTA_FLOW");
+		goto errout;
+	}
+#endif
+	ret = 0;
+>>>>>>> upstream/android-13
 errout:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/* only called when fib_nh is integrated into fib_info */
+>>>>>>> upstream/android-13
 static void fib_rebalance(struct fib_info *fi)
 {
 	int total;
 	int w;
+<<<<<<< HEAD
 	struct in_device *in_dev;
 
 	if (fi->fib_nhs < 2)
+=======
+
+	if (fib_info_num_path(fi) < 2)
+>>>>>>> upstream/android-13
 		return;
 
 	total = 0;
 	for_nexthops(fi) {
+<<<<<<< HEAD
 		if (nh->nh_flags & RTNH_F_DEAD)
 			continue;
 
@@ -578,12 +1082,23 @@ static void fib_rebalance(struct fib_info *fi)
 			continue;
 
 		total += nh->nh_weight;
+=======
+		if (nh->fib_nh_flags & RTNH_F_DEAD)
+			continue;
+
+		if (ip_ignore_linkdown(nh->fib_nh_dev) &&
+		    nh->fib_nh_flags & RTNH_F_LINKDOWN)
+			continue;
+
+		total += nh->fib_nh_weight;
+>>>>>>> upstream/android-13
 	} endfor_nexthops(fi);
 
 	w = 0;
 	change_nexthops(fi) {
 		int upper_bound;
 
+<<<<<<< HEAD
 		in_dev = __in_dev_get_rtnl(nexthop_nh->nh_dev);
 
 		if (nexthop_nh->nh_flags & RTNH_F_DEAD) {
@@ -594,20 +1109,49 @@ static void fib_rebalance(struct fib_info *fi)
 			upper_bound = -1;
 		} else {
 			w += nexthop_nh->nh_weight;
+=======
+		if (nexthop_nh->fib_nh_flags & RTNH_F_DEAD) {
+			upper_bound = -1;
+		} else if (ip_ignore_linkdown(nexthop_nh->fib_nh_dev) &&
+			   nexthop_nh->fib_nh_flags & RTNH_F_LINKDOWN) {
+			upper_bound = -1;
+		} else {
+			w += nexthop_nh->fib_nh_weight;
+>>>>>>> upstream/android-13
 			upper_bound = DIV_ROUND_CLOSEST_ULL((u64)w << 31,
 							    total) - 1;
 		}
 
+<<<<<<< HEAD
 		atomic_set(&nexthop_nh->nh_upper_bound, upper_bound);
+=======
+		atomic_set(&nexthop_nh->fib_nh_upper_bound, upper_bound);
+>>>>>>> upstream/android-13
 	} endfor_nexthops(fi);
 }
 #else /* CONFIG_IP_ROUTE_MULTIPATH */
 
+<<<<<<< HEAD
+=======
+static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
+		       int remaining, struct fib_config *cfg,
+		       struct netlink_ext_ack *extack)
+{
+	NL_SET_ERR_MSG(extack, "Multipath support not enabled in kernel");
+
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 #define fib_rebalance(fi) do { } while (0)
 
 #endif /* CONFIG_IP_ROUTE_MULTIPATH */
 
+<<<<<<< HEAD
 static int fib_encap_match(u16 encap_type,
+=======
+static int fib_encap_match(struct net *net, u16 encap_type,
+>>>>>>> upstream/android-13
 			   struct nlattr *encap,
 			   const struct fib_nh *nh,
 			   const struct fib_config *cfg,
@@ -619,17 +1163,28 @@ static int fib_encap_match(u16 encap_type,
 	if (encap_type == LWTUNNEL_ENCAP_NONE)
 		return 0;
 
+<<<<<<< HEAD
 	ret = lwtunnel_build_state(encap_type, encap, AF_INET,
 				   cfg, &lwtstate, extack);
 	if (!ret) {
 		result = lwtunnel_cmp_encap(lwtstate, nh->nh_lwtstate);
+=======
+	ret = lwtunnel_build_state(net, encap_type, encap, AF_INET,
+				   cfg, &lwtstate, extack);
+	if (!ret) {
+		result = lwtunnel_cmp_encap(lwtstate, nh->fib_nh_lws);
+>>>>>>> upstream/android-13
 		lwtstate_free(lwtstate);
 	}
 
 	return result;
 }
 
+<<<<<<< HEAD
 int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
+=======
+int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
+>>>>>>> upstream/android-13
 		 struct netlink_ext_ack *extack)
 {
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
@@ -640,14 +1195,35 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
 	if (cfg->fc_priority && cfg->fc_priority != fi->fib_priority)
 		return 1;
 
+<<<<<<< HEAD
 	if (cfg->fc_oif || cfg->fc_gw) {
 		if (cfg->fc_encap) {
 			if (fib_encap_match(cfg->fc_encap_type, cfg->fc_encap,
 					    fi->fib_nh, cfg, extack))
+=======
+	if (cfg->fc_nh_id) {
+		if (fi->nh && cfg->fc_nh_id == fi->nh->id)
+			return 0;
+		return 1;
+	}
+
+	if (cfg->fc_oif || cfg->fc_gw_family) {
+		struct fib_nh *nh;
+
+		/* cannot match on nexthop object attributes */
+		if (fi->nh)
+			return 1;
+
+		nh = fib_info_nh(fi, 0);
+		if (cfg->fc_encap) {
+			if (fib_encap_match(net, cfg->fc_encap_type,
+					    cfg->fc_encap, nh, cfg, extack))
+>>>>>>> upstream/android-13
 				return 1;
 		}
 #ifdef CONFIG_IP_ROUTE_CLASSID
 		if (cfg->fc_flow &&
+<<<<<<< HEAD
 		    cfg->fc_flow != fi->fib_nh->nh_tclassid)
 			return 1;
 #endif
@@ -655,6 +1231,25 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
 		    (!cfg->fc_gw  || cfg->fc_gw == fi->fib_nh->nh_gw))
 			return 0;
 		return 1;
+=======
+		    cfg->fc_flow != nh->nh_tclassid)
+			return 1;
+#endif
+		if ((cfg->fc_oif && cfg->fc_oif != nh->fib_nh_oif) ||
+		    (cfg->fc_gw_family &&
+		     cfg->fc_gw_family != nh->fib_nh_gw_family))
+			return 1;
+
+		if (cfg->fc_gw_family == AF_INET &&
+		    cfg->fc_gw4 != nh->fib_nh_gw4)
+			return 1;
+
+		if (cfg->fc_gw_family == AF_INET6 &&
+		    ipv6_addr_cmp(&cfg->fc_gw6, &nh->fib_nh_gw6))
+			return 1;
+
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
@@ -670,11 +1265,16 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
 		if (!rtnh_ok(rtnh, remaining))
 			return -EINVAL;
 
+<<<<<<< HEAD
 		if (rtnh->rtnh_ifindex && rtnh->rtnh_ifindex != nh->nh_oif)
+=======
+		if (rtnh->rtnh_ifindex && rtnh->rtnh_ifindex != nh->fib_nh_oif)
+>>>>>>> upstream/android-13
 			return 1;
 
 		attrlen = rtnh_attrlen(rtnh);
 		if (attrlen > 0) {
+<<<<<<< HEAD
 			struct nlattr *nla, *attrs = rtnh_attrs(rtnh);
 
 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
@@ -684,6 +1284,61 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
 			nla = nla_find(attrs, attrlen, RTA_FLOW);
 			if (nla && nla_get_u32(nla) != nh->nh_tclassid)
 				return 1;
+=======
+			struct nlattr *nla, *nlav, *attrs = rtnh_attrs(rtnh);
+			int err;
+
+			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+			nlav = nla_find(attrs, attrlen, RTA_VIA);
+			if (nla && nlav) {
+				NL_SET_ERR_MSG(extack,
+					       "Nexthop configuration can not contain both GATEWAY and VIA");
+				return -EINVAL;
+			}
+
+			if (nla) {
+				__be32 gw;
+
+				err = fib_gw_from_attr(&gw, nla, extack);
+				if (err)
+					return err;
+
+				if (nh->fib_nh_gw_family != AF_INET ||
+				    gw != nh->fib_nh_gw4)
+					return 1;
+			} else if (nlav) {
+				struct fib_config cfg2;
+
+				err = fib_gw_from_via(&cfg2, nlav, extack);
+				if (err)
+					return err;
+
+				switch (nh->fib_nh_gw_family) {
+				case AF_INET:
+					if (cfg2.fc_gw_family != AF_INET ||
+					    cfg2.fc_gw4 != nh->fib_nh_gw4)
+						return 1;
+					break;
+				case AF_INET6:
+					if (cfg2.fc_gw_family != AF_INET6 ||
+					    ipv6_addr_cmp(&cfg2.fc_gw6,
+							  &nh->fib_nh_gw6))
+						return 1;
+					break;
+				}
+			}
+
+#ifdef CONFIG_IP_ROUTE_CLASSID
+			nla = nla_find(attrs, attrlen, RTA_FLOW);
+			if (nla) {
+				if (nla_len(nla) < sizeof(u32)) {
+					NL_SET_ERR_MSG(extack, "Invalid RTA_FLOW");
+					return -EINVAL;
+				}
+				if (nla_get_u32(nla) != nh->nh_tclassid)
+					return 1;
+			}
+>>>>>>> upstream/android-13
 #endif
 		}
 
@@ -714,7 +1369,11 @@ bool fib_metrics_match(struct fib_config *cfg, struct fib_info *fi)
 			char tmp[TCP_CA_NAME_MAX];
 			bool ecn_ca = false;
 
+<<<<<<< HEAD
 			nla_strlcpy(tmp, nla, sizeof(tmp));
+=======
+			nla_strscpy(tmp, nla, sizeof(tmp));
+>>>>>>> upstream/android-13
 			val = tcp_ca_get_key_by_name(fi->fib_net, tmp, &ecn_ca);
 		} else {
 			if (nla_len(nla) != sizeof(u32))
@@ -733,6 +1392,33 @@ bool fib_metrics_match(struct fib_config *cfg, struct fib_info *fi)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static int fib_check_nh_v6_gw(struct net *net, struct fib_nh *nh,
+			      u32 table, struct netlink_ext_ack *extack)
+{
+	struct fib6_config cfg = {
+		.fc_table = table,
+		.fc_flags = nh->fib_nh_flags | RTF_GATEWAY,
+		.fc_ifindex = nh->fib_nh_oif,
+		.fc_gateway = nh->fib_nh_gw6,
+	};
+	struct fib6_nh fib6_nh = {};
+	int err;
+
+	err = ipv6_stub->fib6_nh_init(net, &fib6_nh, &cfg, GFP_KERNEL, extack);
+	if (!err) {
+		nh->fib_nh_dev = fib6_nh.fib_nh_dev;
+		dev_hold(nh->fib_nh_dev);
+		nh->fib_nh_oif = nh->fib_nh_dev->ifindex;
+		nh->fib_nh_scope = RT_SCOPE_LINK;
+
+		ipv6_stub->fib6_nh_release(&fib6_nh);
+	}
+
+	return err;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Picture
@@ -777,6 +1463,7 @@ bool fib_metrics_match(struct fib_config *cfg, struct fib_info *fi)
  *					|
  *					|-> {local prefix} (terminal node)
  */
+<<<<<<< HEAD
 static int fib_check_nh(struct fib_config *cfg, struct fib_nh *nh,
 			struct netlink_ext_ack *extack)
 {
@@ -897,11 +1584,155 @@ static int fib_check_nh(struct fib_config *cfg, struct fib_nh *nh,
 			nh->nh_flags |= RTNH_F_LINKDOWN;
 		err = 0;
 	}
+=======
+static int fib_check_nh_v4_gw(struct net *net, struct fib_nh *nh, u32 table,
+			      u8 scope, struct netlink_ext_ack *extack)
+{
+	struct net_device *dev;
+	struct fib_result res;
+	int err = 0;
+
+	if (nh->fib_nh_flags & RTNH_F_ONLINK) {
+		unsigned int addr_type;
+
+		if (scope >= RT_SCOPE_LINK) {
+			NL_SET_ERR_MSG(extack, "Nexthop has invalid scope");
+			return -EINVAL;
+		}
+		dev = __dev_get_by_index(net, nh->fib_nh_oif);
+		if (!dev) {
+			NL_SET_ERR_MSG(extack, "Nexthop device required for onlink");
+			return -ENODEV;
+		}
+		if (!(dev->flags & IFF_UP)) {
+			NL_SET_ERR_MSG(extack, "Nexthop device is not up");
+			return -ENETDOWN;
+		}
+		addr_type = inet_addr_type_dev_table(net, dev, nh->fib_nh_gw4);
+		if (addr_type != RTN_UNICAST) {
+			NL_SET_ERR_MSG(extack, "Nexthop has invalid gateway");
+			return -EINVAL;
+		}
+		if (!netif_carrier_ok(dev))
+			nh->fib_nh_flags |= RTNH_F_LINKDOWN;
+		nh->fib_nh_dev = dev;
+		dev_hold(dev);
+		nh->fib_nh_scope = RT_SCOPE_LINK;
+		return 0;
+	}
+	rcu_read_lock();
+	{
+		struct fib_table *tbl = NULL;
+		struct flowi4 fl4 = {
+			.daddr = nh->fib_nh_gw4,
+			.flowi4_scope = scope + 1,
+			.flowi4_oif = nh->fib_nh_oif,
+			.flowi4_iif = LOOPBACK_IFINDEX,
+		};
+
+		/* It is not necessary, but requires a bit of thinking */
+		if (fl4.flowi4_scope < RT_SCOPE_LINK)
+			fl4.flowi4_scope = RT_SCOPE_LINK;
+
+		if (table && table != RT_TABLE_MAIN)
+			tbl = fib_get_table(net, table);
+
+		if (tbl)
+			err = fib_table_lookup(tbl, &fl4, &res,
+					       FIB_LOOKUP_IGNORE_LINKSTATE |
+					       FIB_LOOKUP_NOREF);
+
+		/* on error or if no table given do full lookup. This
+		 * is needed for example when nexthops are in the local
+		 * table rather than the given table
+		 */
+		if (!tbl || err) {
+			err = fib_lookup(net, &fl4, &res,
+					 FIB_LOOKUP_IGNORE_LINKSTATE);
+		}
+
+		if (err) {
+			NL_SET_ERR_MSG(extack, "Nexthop has invalid gateway");
+			goto out;
+		}
+	}
+
+	err = -EINVAL;
+	if (res.type != RTN_UNICAST && res.type != RTN_LOCAL) {
+		NL_SET_ERR_MSG(extack, "Nexthop has invalid gateway");
+		goto out;
+	}
+	nh->fib_nh_scope = res.scope;
+	nh->fib_nh_oif = FIB_RES_OIF(res);
+	nh->fib_nh_dev = dev = FIB_RES_DEV(res);
+	if (!dev) {
+		NL_SET_ERR_MSG(extack,
+			       "No egress device for nexthop gateway");
+		goto out;
+	}
+	dev_hold(dev);
+	if (!netif_carrier_ok(dev))
+		nh->fib_nh_flags |= RTNH_F_LINKDOWN;
+	err = (dev->flags & IFF_UP) ? 0 : -ENETDOWN;
+>>>>>>> upstream/android-13
 out:
 	rcu_read_unlock();
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int fib_check_nh_nongw(struct net *net, struct fib_nh *nh,
+			      struct netlink_ext_ack *extack)
+{
+	struct in_device *in_dev;
+	int err;
+
+	if (nh->fib_nh_flags & (RTNH_F_PERVASIVE | RTNH_F_ONLINK)) {
+		NL_SET_ERR_MSG(extack,
+			       "Invalid flags for nexthop - PERVASIVE and ONLINK can not be set");
+		return -EINVAL;
+	}
+
+	rcu_read_lock();
+
+	err = -ENODEV;
+	in_dev = inetdev_by_index(net, nh->fib_nh_oif);
+	if (!in_dev)
+		goto out;
+	err = -ENETDOWN;
+	if (!(in_dev->dev->flags & IFF_UP)) {
+		NL_SET_ERR_MSG(extack, "Device for nexthop is not up");
+		goto out;
+	}
+
+	nh->fib_nh_dev = in_dev->dev;
+	dev_hold(nh->fib_nh_dev);
+	nh->fib_nh_scope = RT_SCOPE_HOST;
+	if (!netif_carrier_ok(nh->fib_nh_dev))
+		nh->fib_nh_flags |= RTNH_F_LINKDOWN;
+	err = 0;
+out:
+	rcu_read_unlock();
+	return err;
+}
+
+int fib_check_nh(struct net *net, struct fib_nh *nh, u32 table, u8 scope,
+		 struct netlink_ext_ack *extack)
+{
+	int err;
+
+	if (nh->fib_nh_gw_family == AF_INET)
+		err = fib_check_nh_v4_gw(net, nh, table, scope, extack);
+	else if (nh->fib_nh_gw_family == AF_INET6)
+		err = fib_check_nh_v6_gw(net, nh, table, extack);
+	else
+		err = fib_check_nh_nongw(net, nh, extack);
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int fib_laddr_hashfn(__be32 val)
 {
 	unsigned int mask = (fib_info_hash_size - 1);
@@ -984,16 +1815,50 @@ static void fib_info_hash_move(struct hlist_head *new_info_hash,
 	fib_info_hash_free(old_laddrhash, bytes);
 }
 
+<<<<<<< HEAD
 __be32 fib_info_update_nh_saddr(struct net *net, struct fib_nh *nh)
 {
 	nh->nh_saddr = inet_select_addr(nh->nh_dev,
 					nh->nh_gw,
 					nh->nh_parent->fib_scope);
+=======
+__be32 fib_info_update_nhc_saddr(struct net *net, struct fib_nh_common *nhc,
+				 unsigned char scope)
+{
+	struct fib_nh *nh;
+
+	if (nhc->nhc_family != AF_INET)
+		return inet_select_addr(nhc->nhc_dev, 0, scope);
+
+	nh = container_of(nhc, struct fib_nh, nh_common);
+	nh->nh_saddr = inet_select_addr(nh->fib_nh_dev, nh->fib_nh_gw4, scope);
+>>>>>>> upstream/android-13
 	nh->nh_saddr_genid = atomic_read(&net->ipv4.dev_addr_genid);
 
 	return nh->nh_saddr;
 }
 
+<<<<<<< HEAD
+=======
+__be32 fib_result_prefsrc(struct net *net, struct fib_result *res)
+{
+	struct fib_nh_common *nhc = res->nhc;
+
+	if (res->fi->fib_prefsrc)
+		return res->fi->fib_prefsrc;
+
+	if (nhc->nhc_family == AF_INET) {
+		struct fib_nh *nh;
+
+		nh = container_of(nhc, struct fib_nh, nh_common);
+		if (nh->nh_saddr_genid == atomic_read(&net->ipv4.dev_addr_genid))
+			return nh->nh_saddr;
+	}
+
+	return fib_info_update_nhc_saddr(net, nhc, res->fi->fib_scope);
+}
+
+>>>>>>> upstream/android-13
 static bool fib_valid_prefsrc(struct fib_config *cfg, __be32 fib_prefsrc)
 {
 	if (cfg->fc_type != RTN_LOCAL || !cfg->fc_dst ||
@@ -1018,6 +1883,7 @@ static bool fib_valid_prefsrc(struct fib_config *cfg, __be32 fib_prefsrc)
 	return true;
 }
 
+<<<<<<< HEAD
 static int
 fib_convert_metrics(struct fib_info *fi, const struct fib_config *cfg)
 {
@@ -1025,11 +1891,17 @@ fib_convert_metrics(struct fib_info *fi, const struct fib_config *cfg)
 				  fi->fib_metrics->metrics);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct fib_info *fib_create_info(struct fib_config *cfg,
 				 struct netlink_ext_ack *extack)
 {
 	int err;
 	struct fib_info *fi = NULL;
+<<<<<<< HEAD
+=======
+	struct nexthop *nh = NULL;
+>>>>>>> upstream/android-13
 	struct fib_info *ofi;
 	int nhs = 1;
 	struct net *net = cfg->fc_nlinfo.nl_net;
@@ -1049,6 +1921,26 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 		goto err_inval;
 	}
 
+<<<<<<< HEAD
+=======
+	if (cfg->fc_nh_id) {
+		if (!cfg->fc_mx) {
+			fi = fib_find_info_nh(net, cfg);
+			if (fi) {
+				refcount_inc(&fi->fib_treeref);
+				return fi;
+			}
+		}
+
+		nh = nexthop_find_by_id(net, cfg->fc_nh_id);
+		if (!nh) {
+			NL_SET_ERR_MSG(extack, "Nexthop id does not exist");
+			goto err_inval;
+		}
+		nhs = 0;
+	}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
 	if (cfg->fc_mp) {
 		nhs = fib_count_nexthops(cfg->fc_mp, cfg->fc_mp_len, extack);
@@ -1058,7 +1950,13 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 #endif
 
 	err = -ENOBUFS;
+<<<<<<< HEAD
 	if (fib_info_cnt >= fib_info_hash_size) {
+=======
+
+	/* Paired with WRITE_ONCE() in fib_release_info() */
+	if (READ_ONCE(fib_info_cnt) >= fib_info_hash_size) {
+>>>>>>> upstream/android-13
 		unsigned int new_size = fib_info_hash_size << 1;
 		struct hlist_head *new_info_hash;
 		struct hlist_head *new_laddrhash;
@@ -1079,6 +1977,7 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 			goto failure;
 	}
 
+<<<<<<< HEAD
 	fi = kzalloc(sizeof(*fi)+nhs*sizeof(struct fib_nh), GFP_KERNEL);
 	if (!fi)
 		goto failure;
@@ -1093,6 +1992,19 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 		fi->fib_metrics = (struct dst_metrics *)&dst_default_metrics;
 	}
 	fib_info_cnt++;
+=======
+	fi = kzalloc(struct_size(fi, fib_nh, nhs), GFP_KERNEL);
+	if (!fi)
+		goto failure;
+	fi->fib_metrics = ip_fib_metrics_init(fi->fib_net, cfg->fc_mx,
+					      cfg->fc_mx_len, extack);
+	if (IS_ERR(fi->fib_metrics)) {
+		err = PTR_ERR(fi->fib_metrics);
+		kfree(fi);
+		return ERR_PTR(err);
+	}
+
+>>>>>>> upstream/android-13
 	fi->fib_net = net;
 	fi->fib_protocol = cfg->fc_protocol;
 	fi->fib_scope = cfg->fc_scope;
@@ -1103,6 +2015,7 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 	fi->fib_tb_id = cfg->fc_table;
 
 	fi->fib_nhs = nhs;
+<<<<<<< HEAD
 	change_nexthops(fi) {
 		nexthop_nh->nh_parent = fi;
 		nexthop_nh->nh_pcpu_rth_output = alloc_percpu(struct rtable __rcu *);
@@ -1175,6 +2088,33 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 
 	if (fib_props[cfg->fc_type].error) {
 		if (cfg->fc_gw || cfg->fc_oif || cfg->fc_mp) {
+=======
+	if (nh) {
+		if (!nexthop_get(nh)) {
+			NL_SET_ERR_MSG(extack, "Nexthop has been deleted");
+			err = -EINVAL;
+		} else {
+			err = 0;
+			fi->nh = nh;
+		}
+	} else {
+		change_nexthops(fi) {
+			nexthop_nh->nh_parent = fi;
+		} endfor_nexthops(fi)
+
+		if (cfg->fc_mp)
+			err = fib_get_nhs(fi, cfg->fc_mp, cfg->fc_mp_len, cfg,
+					  extack);
+		else
+			err = fib_nh_init(net, fi->fib_nh, cfg, 1, extack);
+	}
+
+	if (err != 0)
+		goto failure;
+
+	if (fib_props[cfg->fc_type].error) {
+		if (cfg->fc_gw_family || cfg->fc_oif || cfg->fc_mp) {
+>>>>>>> upstream/android-13
 			NL_SET_ERR_MSG(extack,
 				       "Gateway, device and multipath can not be specified for this route type");
 			goto err_inval;
@@ -1199,7 +2139,15 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 		goto err_inval;
 	}
 
+<<<<<<< HEAD
 	if (cfg->fc_scope == RT_SCOPE_HOST) {
+=======
+	if (fi->nh) {
+		err = fib_check_nexthop(fi->nh, cfg->fc_scope, extack);
+		if (err)
+			goto failure;
+	} else if (cfg->fc_scope == RT_SCOPE_HOST) {
+>>>>>>> upstream/android-13
 		struct fib_nh *nh = fi->fib_nh;
 
 		/* Local address is added. */
@@ -1208,24 +2156,44 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 				       "Route with host scope can not have multiple nexthops");
 			goto err_inval;
 		}
+<<<<<<< HEAD
 		if (nh->nh_gw) {
+=======
+		if (nh->fib_nh_gw_family) {
+>>>>>>> upstream/android-13
 			NL_SET_ERR_MSG(extack,
 				       "Route with host scope can not have a gateway");
 			goto err_inval;
 		}
+<<<<<<< HEAD
 		nh->nh_scope = RT_SCOPE_NOWHERE;
 		nh->nh_dev = dev_get_by_index(net, fi->fib_nh->nh_oif);
 		err = -ENODEV;
 		if (!nh->nh_dev)
+=======
+		nh->fib_nh_scope = RT_SCOPE_NOWHERE;
+		nh->fib_nh_dev = dev_get_by_index(net, nh->fib_nh_oif);
+		err = -ENODEV;
+		if (!nh->fib_nh_dev)
+>>>>>>> upstream/android-13
 			goto failure;
 	} else {
 		int linkdown = 0;
 
 		change_nexthops(fi) {
+<<<<<<< HEAD
 			err = fib_check_nh(cfg, nexthop_nh, extack);
 			if (err != 0)
 				goto failure;
 			if (nexthop_nh->nh_flags & RTNH_F_LINKDOWN)
+=======
+			err = fib_check_nh(cfg->fc_nlinfo.nl_net, nexthop_nh,
+					   cfg->fc_table, cfg->fc_scope,
+					   extack);
+			if (err != 0)
+				goto failure;
+			if (nexthop_nh->fib_nh_flags & RTNH_F_LINKDOWN)
+>>>>>>> upstream/android-13
 				linkdown++;
 		} endfor_nexthops(fi)
 		if (linkdown == fi->fib_nhs)
@@ -1237,17 +2205,31 @@ struct fib_info *fib_create_info(struct fib_config *cfg,
 		goto err_inval;
 	}
 
+<<<<<<< HEAD
 	change_nexthops(fi) {
 		fib_info_update_nh_saddr(net, nexthop_nh);
 	} endfor_nexthops(fi)
 
 	fib_rebalance(fi);
+=======
+	if (!fi->nh) {
+		change_nexthops(fi) {
+			fib_info_update_nhc_saddr(net, &nexthop_nh->nh_common,
+						  fi->fib_scope);
+			if (nexthop_nh->fib_nh_gw_family == AF_INET6)
+				fi->fib_nh_is_v6 = true;
+		} endfor_nexthops(fi)
+
+		fib_rebalance(fi);
+	}
+>>>>>>> upstream/android-13
 
 link_it:
 	ofi = fib_find_info(fi);
 	if (ofi) {
 		fi->fib_dead = 1;
 		free_fib_info(fi);
+<<<<<<< HEAD
 		ofi->fib_treeref++;
 		return ofi;
 	}
@@ -1255,6 +2237,16 @@ link_it:
 	fi->fib_treeref++;
 	refcount_set(&fi->fib_clntref, 1);
 	spin_lock_bh(&fib_info_lock);
+=======
+		refcount_inc(&ofi->fib_treeref);
+		return ofi;
+	}
+
+	refcount_set(&fi->fib_treeref, 1);
+	refcount_set(&fi->fib_clntref, 1);
+	spin_lock_bh(&fib_info_lock);
+	fib_info_cnt++;
+>>>>>>> upstream/android-13
 	hlist_add_head(&fi->fib_hash,
 		       &fib_info_hash[fib_info_hashfn(fi)]);
 	if (fi->fib_prefsrc) {
@@ -1263,6 +2255,7 @@ link_it:
 		head = &fib_info_laddrhash[fib_laddr_hashfn(fi->fib_prefsrc)];
 		hlist_add_head(&fi->fib_lhash, head);
 	}
+<<<<<<< HEAD
 	change_nexthops(fi) {
 		struct hlist_head *head;
 		unsigned int hash;
@@ -1273,6 +2266,20 @@ link_it:
 		head = &fib_info_devhash[hash];
 		hlist_add_head(&nexthop_nh->nh_hash, head);
 	} endfor_nexthops(fi)
+=======
+	if (fi->nh) {
+		list_add(&fi->nh_list, &nh->fi_list);
+	} else {
+		change_nexthops(fi) {
+			struct hlist_head *head;
+
+			if (!nexthop_nh->fib_nh_dev)
+				continue;
+			head = fib_info_devhash_bucket(nexthop_nh->fib_nh_dev);
+			hlist_add_head(&nexthop_nh->nh_hash, head);
+		} endfor_nexthops(fi)
+	}
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&fib_info_lock);
 	return fi;
 
@@ -1288,10 +2295,163 @@ failure:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 int fib_dump_info(struct sk_buff *skb, u32 portid, u32 seq, int event,
 		  u32 tb_id, u8 type, __be32 dst, int dst_len, u8 tos,
 		  struct fib_info *fi, unsigned int flags)
 {
+=======
+int fib_nexthop_info(struct sk_buff *skb, const struct fib_nh_common *nhc,
+		     u8 rt_family, unsigned char *flags, bool skip_oif)
+{
+	if (nhc->nhc_flags & RTNH_F_DEAD)
+		*flags |= RTNH_F_DEAD;
+
+	if (nhc->nhc_flags & RTNH_F_LINKDOWN) {
+		*flags |= RTNH_F_LINKDOWN;
+
+		rcu_read_lock();
+		switch (nhc->nhc_family) {
+		case AF_INET:
+			if (ip_ignore_linkdown(nhc->nhc_dev))
+				*flags |= RTNH_F_DEAD;
+			break;
+		case AF_INET6:
+			if (ip6_ignore_linkdown(nhc->nhc_dev))
+				*flags |= RTNH_F_DEAD;
+			break;
+		}
+		rcu_read_unlock();
+	}
+
+	switch (nhc->nhc_gw_family) {
+	case AF_INET:
+		if (nla_put_in_addr(skb, RTA_GATEWAY, nhc->nhc_gw.ipv4))
+			goto nla_put_failure;
+		break;
+	case AF_INET6:
+		/* if gateway family does not match nexthop family
+		 * gateway is encoded as RTA_VIA
+		 */
+		if (rt_family != nhc->nhc_gw_family) {
+			int alen = sizeof(struct in6_addr);
+			struct nlattr *nla;
+			struct rtvia *via;
+
+			nla = nla_reserve(skb, RTA_VIA, alen + 2);
+			if (!nla)
+				goto nla_put_failure;
+
+			via = nla_data(nla);
+			via->rtvia_family = AF_INET6;
+			memcpy(via->rtvia_addr, &nhc->nhc_gw.ipv6, alen);
+		} else if (nla_put_in6_addr(skb, RTA_GATEWAY,
+					    &nhc->nhc_gw.ipv6) < 0) {
+			goto nla_put_failure;
+		}
+		break;
+	}
+
+	*flags |= (nhc->nhc_flags &
+		   (RTNH_F_ONLINK | RTNH_F_OFFLOAD | RTNH_F_TRAP));
+
+	if (!skip_oif && nhc->nhc_dev &&
+	    nla_put_u32(skb, RTA_OIF, nhc->nhc_dev->ifindex))
+		goto nla_put_failure;
+
+	if (nhc->nhc_lwtstate &&
+	    lwtunnel_fill_encap(skb, nhc->nhc_lwtstate,
+				RTA_ENCAP, RTA_ENCAP_TYPE) < 0)
+		goto nla_put_failure;
+
+	return 0;
+
+nla_put_failure:
+	return -EMSGSIZE;
+}
+EXPORT_SYMBOL_GPL(fib_nexthop_info);
+
+#if IS_ENABLED(CONFIG_IP_ROUTE_MULTIPATH) || IS_ENABLED(CONFIG_IPV6)
+int fib_add_nexthop(struct sk_buff *skb, const struct fib_nh_common *nhc,
+		    int nh_weight, u8 rt_family, u32 nh_tclassid)
+{
+	const struct net_device *dev = nhc->nhc_dev;
+	struct rtnexthop *rtnh;
+	unsigned char flags = 0;
+
+	rtnh = nla_reserve_nohdr(skb, sizeof(*rtnh));
+	if (!rtnh)
+		goto nla_put_failure;
+
+	rtnh->rtnh_hops = nh_weight - 1;
+	rtnh->rtnh_ifindex = dev ? dev->ifindex : 0;
+
+	if (fib_nexthop_info(skb, nhc, rt_family, &flags, true) < 0)
+		goto nla_put_failure;
+
+	rtnh->rtnh_flags = flags;
+
+	if (nh_tclassid && nla_put_u32(skb, RTA_FLOW, nh_tclassid))
+		goto nla_put_failure;
+
+	/* length of rtnetlink header + attributes */
+	rtnh->rtnh_len = nlmsg_get_pos(skb) - (void *)rtnh;
+
+	return 0;
+
+nla_put_failure:
+	return -EMSGSIZE;
+}
+EXPORT_SYMBOL_GPL(fib_add_nexthop);
+#endif
+
+#ifdef CONFIG_IP_ROUTE_MULTIPATH
+static int fib_add_multipath(struct sk_buff *skb, struct fib_info *fi)
+{
+	struct nlattr *mp;
+
+	mp = nla_nest_start_noflag(skb, RTA_MULTIPATH);
+	if (!mp)
+		goto nla_put_failure;
+
+	if (unlikely(fi->nh)) {
+		if (nexthop_mpath_fill_node(skb, fi->nh, AF_INET) < 0)
+			goto nla_put_failure;
+		goto mp_end;
+	}
+
+	for_nexthops(fi) {
+		u32 nh_tclassid = 0;
+#ifdef CONFIG_IP_ROUTE_CLASSID
+		nh_tclassid = nh->nh_tclassid;
+#endif
+		if (fib_add_nexthop(skb, &nh->nh_common, nh->fib_nh_weight,
+				    AF_INET, nh_tclassid) < 0)
+			goto nla_put_failure;
+	} endfor_nexthops(fi);
+
+mp_end:
+	nla_nest_end(skb, mp);
+
+	return 0;
+
+nla_put_failure:
+	return -EMSGSIZE;
+}
+#else
+static int fib_add_multipath(struct sk_buff *skb, struct fib_info *fi)
+{
+	return 0;
+}
+#endif
+
+int fib_dump_info(struct sk_buff *skb, u32 portid, u32 seq, int event,
+		  const struct fib_rt_info *fri, unsigned int flags)
+{
+	unsigned int nhs = fib_info_num_path(fri->fi);
+	struct fib_info *fi = fri->fi;
+	u32 tb_id = fri->tb_id;
+>>>>>>> upstream/android-13
 	struct nlmsghdr *nlh;
 	struct rtmsg *rtm;
 
@@ -1301,22 +2461,36 @@ int fib_dump_info(struct sk_buff *skb, u32 portid, u32 seq, int event,
 
 	rtm = nlmsg_data(nlh);
 	rtm->rtm_family = AF_INET;
+<<<<<<< HEAD
 	rtm->rtm_dst_len = dst_len;
 	rtm->rtm_src_len = 0;
 	rtm->rtm_tos = tos;
+=======
+	rtm->rtm_dst_len = fri->dst_len;
+	rtm->rtm_src_len = 0;
+	rtm->rtm_tos = fri->tos;
+>>>>>>> upstream/android-13
 	if (tb_id < 256)
 		rtm->rtm_table = tb_id;
 	else
 		rtm->rtm_table = RT_TABLE_COMPAT;
 	if (nla_put_u32(skb, RTA_TABLE, tb_id))
 		goto nla_put_failure;
+<<<<<<< HEAD
 	rtm->rtm_type = type;
+=======
+	rtm->rtm_type = fri->type;
+>>>>>>> upstream/android-13
 	rtm->rtm_flags = fi->fib_flags;
 	rtm->rtm_scope = fi->fib_scope;
 	rtm->rtm_protocol = fi->fib_protocol;
 
 	if (rtm->rtm_dst_len &&
+<<<<<<< HEAD
 	    nla_put_in_addr(skb, RTA_DST, dst))
+=======
+	    nla_put_in_addr(skb, RTA_DST, fri->dst))
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 	if (fi->fib_priority &&
 	    nla_put_u32(skb, RTA_PRIORITY, fi->fib_priority))
@@ -1327,6 +2501,7 @@ int fib_dump_info(struct sk_buff *skb, u32 portid, u32 seq, int event,
 	if (fi->fib_prefsrc &&
 	    nla_put_in_addr(skb, RTA_PREFSRC, fi->fib_prefsrc))
 		goto nla_put_failure;
+<<<<<<< HEAD
 	if (fi->fib_nhs == 1) {
 		if (fi->fib_nh->nh_gw &&
 		    nla_put_in_addr(skb, RTA_GATEWAY, fi->fib_nh->nh_gw))
@@ -1402,6 +2577,49 @@ int fib_dump_info(struct sk_buff *skb, u32 portid, u32 seq, int event,
 		nla_nest_end(skb, mp);
 	}
 #endif
+=======
+
+	if (fi->nh) {
+		if (nla_put_u32(skb, RTA_NH_ID, fi->nh->id))
+			goto nla_put_failure;
+		if (nexthop_is_blackhole(fi->nh))
+			rtm->rtm_type = RTN_BLACKHOLE;
+		if (!fi->fib_net->ipv4.sysctl_nexthop_compat_mode)
+			goto offload;
+	}
+
+	if (nhs == 1) {
+		const struct fib_nh_common *nhc = fib_info_nhc(fi, 0);
+		unsigned char flags = 0;
+
+		if (fib_nexthop_info(skb, nhc, AF_INET, &flags, false) < 0)
+			goto nla_put_failure;
+
+		rtm->rtm_flags = flags;
+#ifdef CONFIG_IP_ROUTE_CLASSID
+		if (nhc->nhc_family == AF_INET) {
+			struct fib_nh *nh;
+
+			nh = container_of(nhc, struct fib_nh, nh_common);
+			if (nh->nh_tclassid &&
+			    nla_put_u32(skb, RTA_FLOW, nh->nh_tclassid))
+				goto nla_put_failure;
+		}
+#endif
+	} else {
+		if (fib_add_multipath(skb, fi) < 0)
+			goto nla_put_failure;
+	}
+
+offload:
+	if (fri->offload)
+		rtm->rtm_flags |= RTM_F_OFFLOAD;
+	if (fri->trap)
+		rtm->rtm_flags |= RTM_F_TRAP;
+	if (fri->offload_failed)
+		rtm->rtm_flags |= RTM_F_OFFLOAD_FAILED;
+
+>>>>>>> upstream/android-13
 	nlmsg_end(skb, nlh);
 	return 0;
 
@@ -1440,16 +2658,26 @@ int fib_sync_down_addr(struct net_device *dev, __be32 local)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int call_fib_nh_notifiers(struct fib_nh *fib_nh,
 				 enum fib_event_type event_type)
 {
 	struct in_device *in_dev = __in_dev_get_rtnl(fib_nh->nh_dev);
 	struct fib_nh_notifier_info info = {
 		.fib_nh = fib_nh,
+=======
+static int call_fib_nh_notifiers(struct fib_nh *nh,
+				 enum fib_event_type event_type)
+{
+	bool ignore_link_down = ip_ignore_linkdown(nh->fib_nh_dev);
+	struct fib_nh_notifier_info info = {
+		.fib_nh = nh,
+>>>>>>> upstream/android-13
 	};
 
 	switch (event_type) {
 	case FIB_EVENT_NH_ADD:
+<<<<<<< HEAD
 		if (fib_nh->nh_flags & RTNH_F_DEAD)
 			break;
 		if (IN_DEV_IGNORE_ROUTES_WITH_LINKDOWN(in_dev) &&
@@ -1463,6 +2691,20 @@ static int call_fib_nh_notifiers(struct fib_nh *fib_nh,
 		    (fib_nh->nh_flags & RTNH_F_DEAD))
 			return call_fib4_notifiers(dev_net(fib_nh->nh_dev),
 						   event_type, &info.info);
+=======
+		if (nh->fib_nh_flags & RTNH_F_DEAD)
+			break;
+		if (ignore_link_down && nh->fib_nh_flags & RTNH_F_LINKDOWN)
+			break;
+		return call_fib4_notifiers(dev_net(nh->fib_nh_dev), event_type,
+					   &info.info);
+	case FIB_EVENT_NH_DEL:
+		if ((ignore_link_down && nh->fib_nh_flags & RTNH_F_LINKDOWN) ||
+		    (nh->fib_nh_flags & RTNH_F_DEAD))
+			return call_fib4_notifiers(dev_net(nh->fib_nh_dev),
+						   event_type, &info.info);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1480,12 +2722,20 @@ static int call_fib_nh_notifiers(struct fib_nh *fib_nh,
  * - if the new MTU is greater than the PMTU, don't make any change
  * - otherwise, unlock and set PMTU
  */
+<<<<<<< HEAD
 static void nh_update_mtu(struct fib_nh *nh, u32 new, u32 orig)
+=======
+void fib_nhc_update_mtu(struct fib_nh_common *nhc, u32 new, u32 orig)
+>>>>>>> upstream/android-13
 {
 	struct fnhe_hash_bucket *bucket;
 	int i;
 
+<<<<<<< HEAD
 	bucket = rcu_dereference_protected(nh->nh_exceptions, 1);
+=======
+	bucket = rcu_dereference_protected(nhc->nhc_exceptions, 1);
+>>>>>>> upstream/android-13
 	if (!bucket)
 		return;
 
@@ -1510,6 +2760,7 @@ static void nh_update_mtu(struct fib_nh *nh, u32 new, u32 orig)
 
 void fib_sync_mtu(struct net_device *dev, u32 orig_mtu)
 {
+<<<<<<< HEAD
 	unsigned int hash = fib_devindex_hashfn(dev->ifindex);
 	struct hlist_head *head = &fib_info_devhash[hash];
 	struct fib_nh *nh;
@@ -1517,6 +2768,14 @@ void fib_sync_mtu(struct net_device *dev, u32 orig_mtu)
 	hlist_for_each_entry(nh, head, nh_hash) {
 		if (nh->nh_dev == dev)
 			nh_update_mtu(nh, dev->mtu, orig_mtu);
+=======
+	struct hlist_head *head = fib_info_devhash_bucket(dev);
+	struct fib_nh *nh;
+
+	hlist_for_each_entry(nh, head, nh_hash) {
+		if (nh->fib_nh_dev == dev)
+			fib_nhc_update_mtu(&nh->nh_common, dev->mtu, orig_mtu);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1525,6 +2784,7 @@ void fib_sync_mtu(struct net_device *dev, u32 orig_mtu)
  * NETDEV_DOWN        0     LINKDOWN|DEAD   Link down, not for scope host
  * NETDEV_DOWN        1     LINKDOWN|DEAD   Last address removed
  * NETDEV_UNREGISTER  1     LINKDOWN|DEAD   Device removed
+<<<<<<< HEAD
  */
 int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
 {
@@ -1534,6 +2794,18 @@ int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
 	unsigned int hash = fib_devindex_hashfn(dev->ifindex);
 	struct hlist_head *head = &fib_info_devhash[hash];
 	struct fib_nh *nh;
+=======
+ *
+ * only used when fib_nh is built into fib_info
+ */
+int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
+{
+	struct hlist_head *head = fib_info_devhash_bucket(dev);
+	struct fib_info *prev_fi = NULL;
+	int scope = RT_SCOPE_NOWHERE;
+	struct fib_nh *nh;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (force)
 		scope = -1;
@@ -1543,11 +2815,16 @@ int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
 		int dead;
 
 		BUG_ON(!fi->fib_nhs);
+<<<<<<< HEAD
 		if (nh->nh_dev != dev || fi == prev_fi)
+=======
+		if (nh->fib_nh_dev != dev || fi == prev_fi)
+>>>>>>> upstream/android-13
 			continue;
 		prev_fi = fi;
 		dead = 0;
 		change_nexthops(fi) {
+<<<<<<< HEAD
 			if (nexthop_nh->nh_flags & RTNH_F_DEAD)
 				dead++;
 			else if (nexthop_nh->nh_dev == dev &&
@@ -1559,6 +2836,19 @@ int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
 					/* fall through */
 				case NETDEV_CHANGE:
 					nexthop_nh->nh_flags |= RTNH_F_LINKDOWN;
+=======
+			if (nexthop_nh->fib_nh_flags & RTNH_F_DEAD)
+				dead++;
+			else if (nexthop_nh->fib_nh_dev == dev &&
+				 nexthop_nh->fib_nh_scope != scope) {
+				switch (event) {
+				case NETDEV_DOWN:
+				case NETDEV_UNREGISTER:
+					nexthop_nh->fib_nh_flags |= RTNH_F_DEAD;
+					fallthrough;
+				case NETDEV_CHANGE:
+					nexthop_nh->fib_nh_flags |= RTNH_F_LINKDOWN;
+>>>>>>> upstream/android-13
 					break;
 				}
 				call_fib_nh_notifiers(nexthop_nh,
@@ -1567,7 +2857,11 @@ int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
 			}
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
 			if (event == NETDEV_UNREGISTER &&
+<<<<<<< HEAD
 			    nexthop_nh->nh_dev == dev) {
+=======
+			    nexthop_nh->fib_nh_dev == dev) {
+>>>>>>> upstream/android-13
 				dead = fi->fib_nhs;
 				break;
 			}
@@ -1578,7 +2872,11 @@ int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
 			case NETDEV_DOWN:
 			case NETDEV_UNREGISTER:
 				fi->fib_flags |= RTNH_F_DEAD;
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case NETDEV_CHANGE:
 				fi->fib_flags |= RTNH_F_LINKDOWN;
 				break;
@@ -1606,6 +2904,10 @@ static void fib_select_default(const struct flowi4 *flp, struct fib_result *res)
 
 	hlist_for_each_entry_rcu(fa, fa_head, fa_list) {
 		struct fib_info *next_fi = fa->fa_info;
+<<<<<<< HEAD
+=======
+		struct fib_nh_common *nhc;
+>>>>>>> upstream/android-13
 
 		if (fa->fa_slen != slen)
 			continue;
@@ -1627,8 +2929,14 @@ static void fib_select_default(const struct flowi4 *flp, struct fib_result *res)
 		if (next_fi->fib_scope != res->scope ||
 		    fa->fa_type != RTN_UNICAST)
 			continue;
+<<<<<<< HEAD
 		if (!next_fi->fib_nh[0].nh_gw ||
 		    next_fi->fib_nh[0].nh_scope != RT_SCOPE_LINK)
+=======
+
+		nhc = fib_info_nhc(next_fi, 0);
+		if (!nhc->nhc_gw_family || nhc->nhc_scope != RT_SCOPE_LINK)
+>>>>>>> upstream/android-13
 			continue;
 
 		fib_alias_accessed(fa);
@@ -1670,11 +2978,20 @@ out:
 /*
  * Dead device goes up. We wake up dead nexthops.
  * It takes sense only on multipath routes.
+<<<<<<< HEAD
  */
 int fib_sync_up(struct net_device *dev, unsigned int nh_flags)
 {
 	struct fib_info *prev_fi;
 	unsigned int hash;
+=======
+ *
+ * only used when fib_nh is built into fib_info
+ */
+int fib_sync_up(struct net_device *dev, unsigned char nh_flags)
+{
+	struct fib_info *prev_fi;
+>>>>>>> upstream/android-13
 	struct hlist_head *head;
 	struct fib_nh *nh;
 	int ret;
@@ -1690,8 +3007,12 @@ int fib_sync_up(struct net_device *dev, unsigned int nh_flags)
 	}
 
 	prev_fi = NULL;
+<<<<<<< HEAD
 	hash = fib_devindex_hashfn(dev->ifindex);
 	head = &fib_info_devhash[hash];
+=======
+	head = fib_info_devhash_bucket(dev);
+>>>>>>> upstream/android-13
 	ret = 0;
 
 	hlist_for_each_entry(nh, head, nh_hash) {
@@ -1699,12 +3020,17 @@ int fib_sync_up(struct net_device *dev, unsigned int nh_flags)
 		int alive;
 
 		BUG_ON(!fi->fib_nhs);
+<<<<<<< HEAD
 		if (nh->nh_dev != dev || fi == prev_fi)
+=======
+		if (nh->fib_nh_dev != dev || fi == prev_fi)
+>>>>>>> upstream/android-13
 			continue;
 
 		prev_fi = fi;
 		alive = 0;
 		change_nexthops(fi) {
+<<<<<<< HEAD
 			if (!(nexthop_nh->nh_flags & nh_flags)) {
 				alive++;
 				continue;
@@ -1717,6 +3043,20 @@ int fib_sync_up(struct net_device *dev, unsigned int nh_flags)
 				continue;
 			alive++;
 			nexthop_nh->nh_flags &= ~nh_flags;
+=======
+			if (!(nexthop_nh->fib_nh_flags & nh_flags)) {
+				alive++;
+				continue;
+			}
+			if (!nexthop_nh->fib_nh_dev ||
+			    !(nexthop_nh->fib_nh_dev->flags & IFF_UP))
+				continue;
+			if (nexthop_nh->fib_nh_dev != dev ||
+			    !__in_dev_get_rtnl(dev))
+				continue;
+			alive++;
+			nexthop_nh->fib_nh_flags &= ~nh_flags;
+>>>>>>> upstream/android-13
 			call_fib_nh_notifiers(nexthop_nh, FIB_EVENT_NH_ADD);
 		} endfor_nexthops(fi)
 
@@ -1736,13 +3076,28 @@ static bool fib_good_nh(const struct fib_nh *nh)
 {
 	int state = NUD_REACHABLE;
 
+<<<<<<< HEAD
 	if (nh->nh_scope == RT_SCOPE_LINK) {
+=======
+	if (nh->fib_nh_scope == RT_SCOPE_LINK) {
+>>>>>>> upstream/android-13
 		struct neighbour *n;
 
 		rcu_read_lock_bh();
 
+<<<<<<< HEAD
 		n = __ipv4_neigh_lookup_noref(nh->nh_dev,
 					      (__force u32)nh->nh_gw);
+=======
+		if (likely(nh->fib_nh_gw_family == AF_INET))
+			n = __ipv4_neigh_lookup_noref(nh->fib_nh_dev,
+						   (__force u32)nh->fib_nh_gw4);
+		else if (nh->fib_nh_gw_family == AF_INET6)
+			n = __ipv6_neigh_lookup_noref_stub(nh->fib_nh_dev,
+							   &nh->fib_nh_gw6);
+		else
+			n = NULL;
+>>>>>>> upstream/android-13
 		if (n)
 			state = n->nud_state;
 
@@ -1758,20 +3113,43 @@ void fib_select_multipath(struct fib_result *res, int hash)
 	struct net *net = fi->fib_net;
 	bool first = false;
 
+<<<<<<< HEAD
 	for_nexthops(fi) {
 		if (net->ipv4.sysctl_fib_multipath_use_neigh) {
 			if (!fib_good_nh(nh))
 				continue;
 			if (!first) {
 				res->nh_sel = nhsel;
+=======
+	if (unlikely(res->fi->nh)) {
+		nexthop_path_fib_result(res, hash);
+		return;
+	}
+
+	change_nexthops(fi) {
+		if (net->ipv4.sysctl_fib_multipath_use_neigh) {
+			if (!fib_good_nh(nexthop_nh))
+				continue;
+			if (!first) {
+				res->nh_sel = nhsel;
+				res->nhc = &nexthop_nh->nh_common;
+>>>>>>> upstream/android-13
 				first = true;
 			}
 		}
 
+<<<<<<< HEAD
 		if (hash > atomic_read(&nh->nh_upper_bound))
 			continue;
 
 		res->nh_sel = nhsel;
+=======
+		if (hash > atomic_read(&nexthop_nh->fib_nh_upper_bound))
+			continue;
+
+		res->nh_sel = nhsel;
+		res->nhc = &nexthop_nh->nh_common;
+>>>>>>> upstream/android-13
 		return;
 	} endfor_nexthops(fi);
 }
@@ -1784,7 +3162,11 @@ void fib_select_path(struct net *net, struct fib_result *res,
 		goto check_saddr;
 
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
+<<<<<<< HEAD
 	if (res->fi->fib_nhs > 1) {
+=======
+	if (fib_info_num_path(res->fi) > 1) {
+>>>>>>> upstream/android-13
 		int h = fib_multipath_hash(net, fl4, skb, NULL);
 
 		fib_select_multipath(res, h);
@@ -1798,5 +3180,9 @@ void fib_select_path(struct net *net, struct fib_result *res,
 
 check_saddr:
 	if (!fl4->saddr)
+<<<<<<< HEAD
 		fl4->saddr = FIB_RES_PREFSRC(net, *res);
+=======
+		fl4->saddr = fib_result_prefsrc(net, res);
+>>>>>>> upstream/android-13
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Sensirion AG, Switzerland
  * Author: Johannes Winkelmann <johannes.winkelmann@sensirion.com>
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014 Sensirion AG, Switzerland
+ * Author: Johannes Winkelmann <johannes.winkelmann@sensirion.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SHTC1_H_

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004-2013 Synopsys, Inc. (www.synopsys.com)
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2004-2013 Synopsys, Inc. (www.synopsys.com)
+ *
+>>>>>>> upstream/android-13
  * Driver for the ARC EMAC 10100 (hardware revision 5)
  *
  * Contributors:
@@ -95,7 +102,10 @@ static void arc_emac_get_drvinfo(struct net_device *ndev,
 	struct arc_emac_priv *priv = netdev_priv(ndev);
 
 	strlcpy(info->driver, priv->drv_name, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, priv->drv_version, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct ethtool_ops arc_emac_ethtool_ops = {
@@ -148,7 +158,11 @@ static void arc_emac_tx_clean(struct net_device *ndev)
 				 dma_unmap_len(tx_buff, len), DMA_TO_DEVICE);
 
 		/* return the sk_buff to system */
+<<<<<<< HEAD
 		dev_kfree_skb_irq(skb);
+=======
+		dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 
 		txbd->data = 0;
 		txbd->info = 0;
@@ -432,7 +446,12 @@ static int arc_emac_open(struct net_device *ndev)
 	phy_dev->autoneg = AUTONEG_ENABLE;
 	phy_dev->speed = 0;
 	phy_dev->duplex = 0;
+<<<<<<< HEAD
 	phy_dev->advertising &= phy_dev->supported;
+=======
+	linkmode_and(phy_dev->advertising, phy_dev->advertising,
+		     phy_dev->supported);
+>>>>>>> upstream/android-13
 
 	priv->last_rx_bd = 0;
 
@@ -676,7 +695,11 @@ static struct net_device_stats *arc_emac_stats(struct net_device *ndev)
  *
  * This function is invoked from upper layers to initiate transmission.
  */
+<<<<<<< HEAD
 static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
+=======
+static netdev_tx_t arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
+>>>>>>> upstream/android-13
 {
 	struct arc_emac_priv *priv = netdev_priv(ndev);
 	unsigned int len, *txbd_curr = &priv->txbd_curr;
@@ -783,6 +806,7 @@ static int arc_emac_set_address(struct net_device *ndev, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int arc_emac_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	if (!netif_running(dev))
@@ -795,6 +819,8 @@ static int arc_emac_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /**
  * arc_emac_restart - Restart EMAC
  * @ndev:	Pointer to net_device structure.
@@ -859,7 +885,11 @@ static const struct net_device_ops arc_emac_netdev_ops = {
 	.ndo_set_mac_address	= arc_emac_set_address,
 	.ndo_get_stats		= arc_emac_stats,
 	.ndo_set_rx_mode	= arc_emac_set_rx_mode,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= arc_emac_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	= arc_emac_poll_controller,
 #endif
@@ -872,7 +902,10 @@ int arc_emac_probe(struct net_device *ndev, int interface)
 	struct device_node *phy_node;
 	struct phy_device *phydev = NULL;
 	struct arc_emac_priv *priv;
+<<<<<<< HEAD
 	const char *mac_addr;
+=======
+>>>>>>> upstream/android-13
 	unsigned int id, clock_frequency, irq;
 	int err;
 
@@ -957,11 +990,16 @@ int arc_emac_probe(struct net_device *ndev, int interface)
 	}
 
 	/* Get MAC address from device tree */
+<<<<<<< HEAD
 	mac_addr = of_get_mac_address(dev->of_node);
 
 	if (mac_addr)
 		memcpy(ndev->dev_addr, mac_addr, ETH_ALEN);
 	else
+=======
+	err = of_get_mac_address(dev->of_node, ndev->dev_addr);
+	if (err)
+>>>>>>> upstream/android-13
 		eth_hw_addr_random(ndev);
 
 	arc_emac_set_address_internal(ndev);

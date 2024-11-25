@@ -3,7 +3,11 @@
  *
  * Name: actypes.h - Common data types for the entire ACPI subsystem
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -375,7 +379,11 @@ typedef u64 acpi_physical_address;
 
 /* Names within the namespace are 4 bytes long */
 
+<<<<<<< HEAD
 #define ACPI_NAME_SIZE                  4
+=======
+#define ACPI_NAMESEG_SIZE               4	/* Fixed by ACPI spec */
+>>>>>>> upstream/android-13
 #define ACPI_PATH_SEGMENT_LENGTH        5	/* 4 chars for name + 1 char for separator */
 #define ACPI_PATH_SEPARATOR             '.'
 
@@ -442,8 +450,13 @@ typedef void *acpi_handle;	/* Actually a ptr to a NS Node */
 
 /* Owner IDs are used to track namespace nodes for selective deletion */
 
+<<<<<<< HEAD
 typedef u8 acpi_owner_id;
 #define ACPI_OWNER_ID_MAX               0xFF
+=======
+typedef u16 acpi_owner_id;
+#define ACPI_OWNER_ID_MAX               0xFFF	/* 4095 possible owner IDs */
+>>>>>>> upstream/android-13
 
 #define ACPI_INTEGER_BIT_SIZE           64
 #define ACPI_MAX_DECIMAL_DIGITS         20	/* 2^64 = 18,446,744,073,709,551,616 */
@@ -506,7 +519,11 @@ typedef u64 acpi_integer;
 
 /* Pointer/Integer type conversions */
 
+<<<<<<< HEAD
 #define ACPI_TO_POINTER(i)              ACPI_ADD_PTR (void, (void *) 0, (acpi_size) (i))
+=======
+#define ACPI_TO_POINTER(i)              ACPI_CAST_PTR (void, (acpi_size) (i))
+>>>>>>> upstream/android-13
 #define ACPI_TO_INTEGER(p)              ACPI_PTR_DIFF (p, (void *) 0)
 #define ACPI_OFFSET(d, f)               ACPI_PTR_DIFF (&(((d *) 0)->f), (void *) 0)
 #define ACPI_PHYSADDR_TO_PTR(i)         ACPI_TO_POINTER(i)
@@ -515,11 +532,19 @@ typedef u64 acpi_integer;
 /* Optimizations for 4-character (32-bit) acpi_name manipulation */
 
 #ifndef ACPI_MISALIGNMENT_NOT_SUPPORTED
+<<<<<<< HEAD
 #define ACPI_COMPARE_NAME(a,b)          (*ACPI_CAST_PTR (u32, (a)) == *ACPI_CAST_PTR (u32, (b)))
 #define ACPI_MOVE_NAME(dest,src)        (*ACPI_CAST_PTR (u32, (dest)) = *ACPI_CAST_PTR (u32, (src)))
 #else
 #define ACPI_COMPARE_NAME(a,b)          (!strncmp (ACPI_CAST_PTR (char, (a)), ACPI_CAST_PTR (char, (b)), ACPI_NAME_SIZE))
 #define ACPI_MOVE_NAME(dest,src)        (strncpy (ACPI_CAST_PTR (char, (dest)), ACPI_CAST_PTR (char, (src)), ACPI_NAME_SIZE))
+=======
+#define ACPI_COMPARE_NAMESEG(a,b)       (*ACPI_CAST_PTR (u32, (a)) == *ACPI_CAST_PTR (u32, (b)))
+#define ACPI_COPY_NAMESEG(dest,src)     (*ACPI_CAST_PTR (u32, (dest)) = *ACPI_CAST_PTR (u32, (src)))
+#else
+#define ACPI_COMPARE_NAMESEG(a,b)       (!strncmp (ACPI_CAST_PTR (char, (a)), ACPI_CAST_PTR (char, (b)), ACPI_NAMESEG_SIZE))
+#define ACPI_COPY_NAMESEG(dest,src)     (strncpy (ACPI_CAST_PTR (char, (dest)), ACPI_CAST_PTR (char, (src)), ACPI_NAMESEG_SIZE))
+>>>>>>> upstream/android-13
 #endif
 
 /* Support for the special RSDP signature (8 characters) */
@@ -527,13 +552,31 @@ typedef u64 acpi_integer;
 #define ACPI_VALIDATE_RSDP_SIG(a)       (!strncmp (ACPI_CAST_PTR (char, (a)), ACPI_SIG_RSDP, 8))
 #define ACPI_MAKE_RSDP_SIG(dest)        (memcpy (ACPI_CAST_PTR (char, (dest)), ACPI_SIG_RSDP, 8))
 
+<<<<<<< HEAD
+=======
+/* Support for OEMx signature (x can be any character) */
+#define ACPI_IS_OEM_SIG(a)        (!strncmp (ACPI_CAST_PTR (char, (a)), ACPI_OEM_NAME, 3) &&\
+	 strnlen (a, ACPI_NAMESEG_SIZE) == ACPI_NAMESEG_SIZE)
+
+>>>>>>> upstream/android-13
 /*
  * Algorithm to obtain access bit or byte width.
  * Can be used with access_width of struct acpi_generic_address and access_size of
  * struct acpi_resource_generic_register.
  */
+<<<<<<< HEAD
 #define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
 #define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
+=======
+#define ACPI_ACCESS_BIT_SHIFT		2
+#define ACPI_ACCESS_BYTE_SHIFT		-1
+#define ACPI_ACCESS_BIT_MAX		(31 - ACPI_ACCESS_BIT_SHIFT)
+#define ACPI_ACCESS_BYTE_MAX		(31 - ACPI_ACCESS_BYTE_SHIFT)
+#define ACPI_ACCESS_BIT_DEFAULT		(8 - ACPI_ACCESS_BIT_SHIFT)
+#define ACPI_ACCESS_BYTE_DEFAULT	(8 - ACPI_ACCESS_BYTE_SHIFT)
+#define ACPI_ACCESS_BIT_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BIT_SHIFT))
+#define ACPI_ACCESS_BYTE_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BYTE_SHIFT))
+>>>>>>> upstream/android-13
 
 /*******************************************************************************
  *
@@ -614,8 +657,14 @@ typedef u64 acpi_integer;
 #define ACPI_NOTIFY_SHUTDOWN_REQUEST    (u8) 0x0C
 #define ACPI_NOTIFY_AFFINITY_UPDATE     (u8) 0x0D
 #define ACPI_NOTIFY_MEMORY_UPDATE       (u8) 0x0E
+<<<<<<< HEAD
 
 #define ACPI_GENERIC_NOTIFY_MAX         0x0E
+=======
+#define ACPI_NOTIFY_DISCONNECT_RECOVER  (u8) 0x0F
+
+#define ACPI_GENERIC_NOTIFY_MAX         0x0F
+>>>>>>> upstream/android-13
 #define ACPI_SPECIFIC_NOTIFY_MAX        0x84
 
 /*
@@ -810,15 +859,25 @@ typedef u8 acpi_adr_space_type;
 #define ACPI_ADR_SPACE_GPIO             (acpi_adr_space_type) 8
 #define ACPI_ADR_SPACE_GSBUS            (acpi_adr_space_type) 9
 #define ACPI_ADR_SPACE_PLATFORM_COMM    (acpi_adr_space_type) 10
+<<<<<<< HEAD
 
 #define ACPI_NUM_PREDEFINED_REGIONS     11
+=======
+#define ACPI_ADR_SPACE_PLATFORM_RT      (acpi_adr_space_type) 11
+
+#define ACPI_NUM_PREDEFINED_REGIONS     12
+>>>>>>> upstream/android-13
 
 /*
  * Special Address Spaces
  *
  * Note: A Data Table region is a special type of operation region
  * that has its own AML opcode. However, internally, the AML
+<<<<<<< HEAD
  * interpreter simply creates an operation region with an an address
+=======
+ * interpreter simply creates an operation region with an address
+>>>>>>> upstream/android-13
  * space type of ACPI_ADR_SPACE_DATA_TABLE.
  */
 #define ACPI_ADR_SPACE_DATA_TABLE       (acpi_adr_space_type) 0x7E	/* Internal to ACPICA only */
@@ -882,6 +941,7 @@ typedef u8 acpi_adr_space_type;
 #define ACPI_ENABLE_EVENT                       1
 #define ACPI_DISABLE_EVENT                      0
 
+<<<<<<< HEAD
 /* Sleep function dispatch */
 
 typedef acpi_status (*acpi_sleep_function) (u8 sleep_state);
@@ -891,6 +951,8 @@ struct acpi_sleep_functions {
 	acpi_sleep_function extended_function;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * External ACPI object definition
  */
@@ -1149,7 +1211,11 @@ struct acpi_pnp_device_id {
 struct acpi_pnp_device_id_list {
 	u32 count;		/* Number of IDs in Ids array */
 	u32 list_size;		/* Size of list, including ID strings */
+<<<<<<< HEAD
 	struct acpi_pnp_device_id ids[1];	/* ID array */
+=======
+	struct acpi_pnp_device_id ids[];	/* ID array */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1204,12 +1270,27 @@ struct acpi_pci_id {
 	u16 function;
 };
 
+<<<<<<< HEAD
 struct acpi_mem_space_context {
 	u32 length;
 	acpi_physical_address address;
 	acpi_physical_address mapped_physical_address;
 	u8 *mapped_logical_address;
 	acpi_size mapped_length;
+=======
+struct acpi_mem_mapping {
+	acpi_physical_address physical_address;
+	u8 *logical_address;
+	acpi_size length;
+	struct acpi_mem_mapping *next_mm;
+};
+
+struct acpi_mem_space_context {
+	u32 length;
+	acpi_physical_address address;
+	struct acpi_mem_mapping *cur_mm;
+	struct acpi_mem_mapping *first_mm;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1270,13 +1351,33 @@ typedef enum {
 #define ACPI_OSI_WIN_VISTA_SP2          0x0A
 #define ACPI_OSI_WIN_7                  0x0B
 #define ACPI_OSI_WIN_8                  0x0C
+<<<<<<< HEAD
 #define ACPI_OSI_WIN_10                 0x0D
 #define ACPI_OSI_WIN_10_RS1             0x0E
 #define ACPI_OSI_WIN_10_RS2             0x0F
 #define ACPI_OSI_WIN_10_RS3             0x10
+=======
+#define ACPI_OSI_WIN_8_1                0x0D
+#define ACPI_OSI_WIN_10                 0x0E
+#define ACPI_OSI_WIN_10_RS1             0x0F
+#define ACPI_OSI_WIN_10_RS2             0x10
+#define ACPI_OSI_WIN_10_RS3             0x11
+#define ACPI_OSI_WIN_10_RS4             0x12
+#define ACPI_OSI_WIN_10_RS5             0x13
+#define ACPI_OSI_WIN_10_19H1            0x14
+>>>>>>> upstream/android-13
 
 /* Definitions of getopt */
 
 #define ACPI_OPT_END                    -1
 
+<<<<<<< HEAD
+=======
+/* Definitions for explicit fallthrough */
+
+#ifndef ACPI_FALLTHROUGH
+#define ACPI_FALLTHROUGH do {} while(0)
+#endif
+
+>>>>>>> upstream/android-13
 #endif				/* __ACTYPES_H__ */

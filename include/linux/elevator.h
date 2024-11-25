@@ -24,6 +24,7 @@ enum elv_merge {
 	ELEVATOR_DISCARD_MERGE	= 3,
 };
 
+<<<<<<< HEAD
 typedef enum elv_merge (elevator_merge_fn) (struct request_queue *, struct request **,
 				 struct bio *);
 
@@ -92,6 +93,8 @@ struct elevator_ops
 	elevator_registered_fn *elevator_registered_fn;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct blk_mq_alloc_data;
 struct blk_mq_hw_ctx;
 
@@ -103,24 +106,39 @@ struct elevator_mq_ops {
 	void (*depth_updated)(struct blk_mq_hw_ctx *);
 
 	bool (*allow_merge)(struct request_queue *, struct request *, struct bio *);
+<<<<<<< HEAD
 	bool (*bio_merge)(struct blk_mq_hw_ctx *, struct bio *);
+=======
+	bool (*bio_merge)(struct request_queue *, struct bio *, unsigned int);
+>>>>>>> upstream/android-13
 	int (*request_merge)(struct request_queue *q, struct request **, struct bio *);
 	void (*request_merged)(struct request_queue *, struct request *, enum elv_merge);
 	void (*requests_merged)(struct request_queue *, struct request *, struct request *);
 	void (*limit_depth)(unsigned int, struct blk_mq_alloc_data *);
+<<<<<<< HEAD
 	void (*prepare_request)(struct request *, struct bio *bio);
+=======
+	void (*prepare_request)(struct request *);
+>>>>>>> upstream/android-13
 	void (*finish_request)(struct request *);
 	void (*insert_requests)(struct blk_mq_hw_ctx *, struct list_head *, bool);
 	struct request *(*dispatch_request)(struct blk_mq_hw_ctx *);
 	bool (*has_work)(struct blk_mq_hw_ctx *);
+<<<<<<< HEAD
 	void (*completed_request)(struct request *);
 	void (*started_request)(struct request *);
+=======
+	void (*completed_request)(struct request *, u64);
+>>>>>>> upstream/android-13
 	void (*requeue_request)(struct request *);
 	struct request *(*former_request)(struct request_queue *, struct request *);
 	struct request *(*next_request)(struct request_queue *, struct request *);
 	void (*init_icq)(struct io_cq *);
 	void (*exit_icq)(struct io_cq *);
+<<<<<<< HEAD
 	void (*elevator_registered_fn)(struct request_queue *q);
+=======
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -145,6 +163,7 @@ struct elevator_type
 	struct kmem_cache *icq_cache;
 
 	/* fields provided by elevator implementation */
+<<<<<<< HEAD
 	union {
 		struct elevator_ops sq;
 		struct elevator_mq_ops mq;
@@ -156,6 +175,17 @@ struct elevator_type
 	const char *elevator_alias;
 	struct module *elevator_owner;
 	bool uses_mq;
+=======
+	struct elevator_mq_ops ops;
+
+	size_t icq_size;	/* see iocontext.h */
+	size_t icq_align;	/* ditto */
+	struct elv_fs_entry *elevator_attrs;
+	const char *elevator_name;
+	const char *elevator_alias;
+	const unsigned int elevator_features;
+	struct module *elevator_owner;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BLK_DEBUG_FS
 	const struct blk_mq_debugfs_attr *queue_debugfs_attrs;
 	const struct blk_mq_debugfs_attr *hctx_debugfs_attrs;
@@ -186,23 +216,30 @@ struct elevator_queue
 	struct kobject kobj;
 	struct mutex sysfs_lock;
 	unsigned int registered:1;
+<<<<<<< HEAD
 	unsigned int uses_mq:1;
+=======
+>>>>>>> upstream/android-13
 	DECLARE_HASHTABLE(hash, ELV_HASH_BITS);
 };
 
 /*
  * block elevator interface
  */
+<<<<<<< HEAD
 extern void elv_dispatch_sort(struct request_queue *, struct request *);
 extern void elv_dispatch_add_tail(struct request_queue *, struct request *);
 extern void elv_add_request(struct request_queue *, struct request *, int);
 extern void __elv_add_request(struct request_queue *, struct request *, int);
+=======
+>>>>>>> upstream/android-13
 extern enum elv_merge elv_merge(struct request_queue *, struct request **,
 		struct bio *);
 extern void elv_merge_requests(struct request_queue *, struct request *,
 			       struct request *);
 extern void elv_merged_request(struct request_queue *, struct request *,
 		enum elv_merge);
+<<<<<<< HEAD
 extern void elv_bio_merged(struct request_queue *q, struct request *,
 				struct bio *);
 extern bool elv_attempt_insert_merge(struct request_queue *, struct request *);
@@ -215,11 +252,21 @@ extern int elv_set_request(struct request_queue *q, struct request *rq,
 			   struct bio *bio, gfp_t gfp_mask);
 extern void elv_put_request(struct request_queue *, struct request *);
 extern void elv_drain_elevator(struct request_queue *);
+=======
+extern bool elv_attempt_insert_merge(struct request_queue *, struct request *,
+				     struct list_head *);
+extern struct request *elv_former_request(struct request_queue *, struct request *);
+extern struct request *elv_latter_request(struct request_queue *, struct request *);
+void elevator_init_mq(struct request_queue *q);
+>>>>>>> upstream/android-13
 
 /*
  * io scheduler registration
  */
+<<<<<<< HEAD
 extern void __init load_default_elevator_module(void);
+=======
+>>>>>>> upstream/android-13
 extern int elv_register(struct elevator_type *);
 extern void elv_unregister(struct elevator_type *);
 
@@ -256,6 +303,7 @@ extern struct request *elv_rb_find(struct rb_root *, sector_t);
 #define ELEVATOR_INSERT_FLUSH	5
 #define ELEVATOR_INSERT_SORT_MERGE	6
 
+<<<<<<< HEAD
 /*
  * return values from elevator_may_queue_fn
  */
@@ -265,15 +313,28 @@ enum {
 	ELV_MQUEUE_MUST,
 };
 
+=======
+>>>>>>> upstream/android-13
 #define rq_end_sector(rq)	(blk_rq_pos(rq) + blk_rq_sectors(rq))
 #define rb_entry_rq(node)	rb_entry((node), struct request, rb_node)
 
 #define rq_entry_fifo(ptr)	list_entry((ptr), struct request, queuelist)
 #define rq_fifo_clear(rq)	list_del_init(&(rq)->queuelist)
 
+<<<<<<< HEAD
 #else /* CONFIG_BLOCK */
 
 static inline void load_default_elevator_module(void) { }
+=======
+/*
+ * Elevator features.
+ */
+
+/* Supports zoned block devices sequential write constraint */
+#define ELEVATOR_F_ZBD_SEQ_WRITE	(1U << 0)
+/* Supports scheduling on multiple hardware queues */
+#define ELEVATOR_F_MQ_AWARE		(1U << 1)
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_BLOCK */
 #endif

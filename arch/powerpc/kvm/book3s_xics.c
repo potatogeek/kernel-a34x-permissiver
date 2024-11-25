@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Michael Ellerman, IBM Corporation.
  * Copyright 2012 Benjamin Herrenschmidt, IBM Corporation.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2012 Michael Ellerman, IBM Corporation.
+ * Copyright 2012 Benjamin Herrenschmidt, IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -13,13 +20,22 @@
 #include <linux/gfp.h>
 #include <linux/anon_inodes.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
+=======
+#include <linux/debugfs.h>
+#include <linux/uaccess.h>
+
+>>>>>>> upstream/android-13
 #include <asm/kvm_book3s.h>
 #include <asm/kvm_ppc.h>
 #include <asm/hvcall.h>
 #include <asm/xics.h>
+<<<<<<< HEAD
 #include <asm/debugfs.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/time.h>
 
 #include <linux/seq_file.h>
@@ -310,7 +326,11 @@ static inline bool icp_try_update(struct kvmppc_icp *icp,
 	 */
 	if (new.out_ee) {
 		kvmppc_book3s_queue_irqprio(icp->vcpu,
+<<<<<<< HEAD
 					    BOOK3S_INTERRUPT_EXTERNAL_LEVEL);
+=======
+					    BOOK3S_INTERRUPT_EXTERNAL);
+>>>>>>> upstream/android-13
 		if (!change_self)
 			kvmppc_fast_vcpu_kick(icp->vcpu);
 	}
@@ -476,7 +496,11 @@ static void icp_deliver_irq(struct kvmppc_xics *xics, struct kvmppc_icp *icp,
 			arch_spin_unlock(&ics->lock);
 			local_irq_restore(flags);
 			new_irq = reject;
+<<<<<<< HEAD
 			check_resend = 0;
+=======
+			check_resend = false;
+>>>>>>> upstream/android-13
 			goto again;
 		}
 	} else {
@@ -504,7 +528,11 @@ static void icp_deliver_irq(struct kvmppc_xics *xics, struct kvmppc_icp *icp,
 			state->resend = 0;
 			arch_spin_unlock(&ics->lock);
 			local_irq_restore(flags);
+<<<<<<< HEAD
 			check_resend = 0;
+=======
+			check_resend = false;
+>>>>>>> upstream/android-13
 			goto again;
 		}
 	}
@@ -593,8 +621,12 @@ static noinline unsigned long kvmppc_h_xirr(struct kvm_vcpu *vcpu)
 	u32 xirr;
 
 	/* First, remove EE from the processor */
+<<<<<<< HEAD
 	kvmppc_book3s_dequeue_irqprio(icp->vcpu,
 				      BOOK3S_INTERRUPT_EXTERNAL_LEVEL);
+=======
+	kvmppc_book3s_dequeue_irqprio(icp->vcpu, BOOK3S_INTERRUPT_EXTERNAL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * ICP State: Accept_Interrupt
@@ -754,8 +786,12 @@ static noinline void kvmppc_h_cppr(struct kvm_vcpu *vcpu, unsigned long cppr)
 	 * We can remove EE from the current processor, the update
 	 * transaction will set it again if needed
 	 */
+<<<<<<< HEAD
 	kvmppc_book3s_dequeue_irqprio(icp->vcpu,
 				      BOOK3S_INTERRUPT_EXTERNAL_LEVEL);
+=======
+	kvmppc_book3s_dequeue_irqprio(icp->vcpu, BOOK3S_INTERRUPT_EXTERNAL);
+>>>>>>> upstream/android-13
 
 	do {
 		old_state = new_state = READ_ONCE(icp->state);
@@ -832,7 +868,11 @@ static noinline int kvmppc_h_eoi(struct kvm_vcpu *vcpu, unsigned long xirr)
 	 *
 	 * Note: If EOI is incorrectly used by SW to lower the CPPR
 	 * value (ie more favored), we do not check for rejection of
+<<<<<<< HEAD
 	 * a pending interrupt, this is a SW error and PAPR sepcifies
+=======
+	 * a pending interrupt, this is a SW error and PAPR specifies
+>>>>>>> upstream/android-13
 	 * that we don't have to deal with it.
 	 *
 	 * The sending of an EOI to the ICS is handled after the
@@ -1017,6 +1057,7 @@ static int xics_debug_show(struct seq_file *m, void *private)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xics_debug_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, xics_debug_show, inode->i_private);
@@ -1028,6 +1069,9 @@ static const struct file_operations xics_debug_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(xics_debug);
+>>>>>>> upstream/android-13
 
 static void xics_debugfs_init(struct kvmppc_xics *xics)
 {
@@ -1039,7 +1083,11 @@ static void xics_debugfs_init(struct kvmppc_xics *xics)
 		return;
 	}
 
+<<<<<<< HEAD
 	xics->dentry = debugfs_create_file(name, 0444, powerpc_debugfs_root,
+=======
+	xics->dentry = debugfs_create_file(name, 0444, arch_debugfs_dir,
+>>>>>>> upstream/android-13
 					   xics, &xics_debug_fops);
 
 	pr_debug("%s: created %s\n", __func__, name);
@@ -1167,8 +1215,12 @@ int kvmppc_xics_set_icp(struct kvm_vcpu *vcpu, u64 icpval)
 	 * Deassert the CPU interrupt request.
 	 * icp_try_update will reassert it if necessary.
 	 */
+<<<<<<< HEAD
 	kvmppc_book3s_dequeue_irqprio(icp->vcpu,
 				      BOOK3S_INTERRUPT_EXTERNAL_LEVEL);
+=======
+	kvmppc_book3s_dequeue_irqprio(icp->vcpu, BOOK3S_INTERRUPT_EXTERNAL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note that if we displace an interrupt from old_state.xisr,
@@ -1350,11 +1402,19 @@ static int xics_has_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
 	return -ENXIO;
 }
 
+<<<<<<< HEAD
 static void kvmppc_xics_free(struct kvm_device *dev)
+=======
+/*
+ * Called when device fd is closed. kvm->lock is held.
+ */
+static void kvmppc_xics_release(struct kvm_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct kvmppc_xics *xics = dev->private;
 	int i;
 	struct kvm *kvm = xics->kvm;
+<<<<<<< HEAD
 
 	debugfs_remove(xics->dentry);
 
@@ -1367,19 +1427,97 @@ static void kvmppc_xics_free(struct kvm_device *dev)
 	kfree(dev);
 }
 
+=======
+	struct kvm_vcpu *vcpu;
+
+	pr_devel("Releasing xics device\n");
+
+	/*
+	 * Since this is the device release function, we know that
+	 * userspace does not have any open fd referring to the
+	 * device.  Therefore there can not be any of the device
+	 * attribute set/get functions being executed concurrently,
+	 * and similarly, the connect_vcpu and set/clr_mapped
+	 * functions also cannot be being executed.
+	 */
+
+	debugfs_remove(xics->dentry);
+
+	/*
+	 * We should clean up the vCPU interrupt presenters first.
+	 */
+	kvm_for_each_vcpu(i, vcpu, kvm) {
+		/*
+		 * Take vcpu->mutex to ensure that no one_reg get/set ioctl
+		 * (i.e. kvmppc_xics_[gs]et_icp) can be done concurrently.
+		 * Holding the vcpu->mutex also means that execution is
+		 * excluded for the vcpu until the ICP was freed. When the vcpu
+		 * can execute again, vcpu->arch.icp and vcpu->arch.irq_type
+		 * have been cleared and the vcpu will not be going into the
+		 * XICS code anymore.
+		 */
+		mutex_lock(&vcpu->mutex);
+		kvmppc_xics_free_icp(vcpu);
+		mutex_unlock(&vcpu->mutex);
+	}
+
+	if (kvm)
+		kvm->arch.xics = NULL;
+
+	for (i = 0; i <= xics->max_icsid; i++) {
+		kfree(xics->ics[i]);
+		xics->ics[i] = NULL;
+	}
+	/*
+	 * A reference of the kvmppc_xics pointer is now kept under
+	 * the xics_device pointer of the machine for reuse. It is
+	 * freed when the VM is destroyed for now until we fix all the
+	 * execution paths.
+	 */
+	kfree(dev);
+}
+
+static struct kvmppc_xics *kvmppc_xics_get_device(struct kvm *kvm)
+{
+	struct kvmppc_xics **kvm_xics_device = &kvm->arch.xics_device;
+	struct kvmppc_xics *xics = *kvm_xics_device;
+
+	if (!xics) {
+		xics = kzalloc(sizeof(*xics), GFP_KERNEL);
+		*kvm_xics_device = xics;
+	} else {
+		memset(xics, 0, sizeof(*xics));
+	}
+
+	return xics;
+}
+
+>>>>>>> upstream/android-13
 static int kvmppc_xics_create(struct kvm_device *dev, u32 type)
 {
 	struct kvmppc_xics *xics;
 	struct kvm *kvm = dev->kvm;
+<<<<<<< HEAD
 	int ret = 0;
 
 	xics = kzalloc(sizeof(*xics), GFP_KERNEL);
+=======
+
+	pr_devel("Creating xics for partition\n");
+
+	/* Already there ? */
+	if (kvm->arch.xics)
+		return -EEXIST;
+
+	xics = kvmppc_xics_get_device(kvm);
+>>>>>>> upstream/android-13
 	if (!xics)
 		return -ENOMEM;
 
 	dev->private = xics;
 	xics->dev = dev;
 	xics->kvm = kvm;
+<<<<<<< HEAD
 
 	/* Already there ? */
 	if (kvm->arch.xics)
@@ -1394,6 +1532,13 @@ static int kvmppc_xics_create(struct kvm_device *dev, u32 type)
 
 #ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
 	if (cpu_has_feature(CPU_FTR_ARCH_206)) {
+=======
+	kvm->arch.xics = xics;
+
+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
+	if (cpu_has_feature(CPU_FTR_ARCH_206) &&
+	    cpu_has_feature(CPU_FTR_HVMODE)) {
+>>>>>>> upstream/android-13
 		/* Enable real mode support */
 		xics->real_mode = ENABLE_REALMODE;
 		xics->real_mode_dbg = DEBUG_REALMODE;
@@ -1414,7 +1559,11 @@ struct kvm_device_ops kvm_xics_ops = {
 	.name = "kvm-xics",
 	.create = kvmppc_xics_create,
 	.init = kvmppc_xics_init,
+<<<<<<< HEAD
 	.destroy = kvmppc_xics_free,
+=======
+	.release = kvmppc_xics_release,
+>>>>>>> upstream/android-13
 	.set_attr = xics_set_attr,
 	.get_attr = xics_get_attr,
 	.has_attr = xics_has_attr,
@@ -1430,7 +1579,11 @@ int kvmppc_xics_connect_vcpu(struct kvm_device *dev, struct kvm_vcpu *vcpu,
 		return -EPERM;
 	if (xics->kvm != vcpu->kvm)
 		return -EPERM;
+<<<<<<< HEAD
 	if (vcpu->arch.irq_type)
+=======
+	if (vcpu->arch.irq_type != KVMPPC_IRQ_DEFAULT)
+>>>>>>> upstream/android-13
 		return -EBUSY;
 
 	r = kvmppc_xics_create_icp(vcpu, xcpu);

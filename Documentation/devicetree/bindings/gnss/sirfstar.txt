@@ -12,6 +12,10 @@ Required properties:
 
 			"fastrax,uc430"
 			"linx,r4"
+<<<<<<< HEAD
+=======
+			"wi2wi,w2sg0004"
+>>>>>>> upstream/android-13
 			"wi2wi,w2sg0008i"
 			"wi2wi,w2sg0084i"
 

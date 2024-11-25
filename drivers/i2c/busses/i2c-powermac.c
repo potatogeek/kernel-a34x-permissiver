@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     i2c Support for Apple SMU Controller
 
     Copyright (c) 2005 Benjamin Herrenschmidt, IBM Corp.
                        <benh@kernel.crashing.org>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -13,6 +18,8 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -84,11 +91,14 @@ static s32 i2c_powermac_smbus_xfer(	struct i2c_adapter*	adap,
 	 * but I think the current API makes no sense and I don't want
 	 * any driver that I haven't verified for correctness to go
 	 * anywhere near a pmac i2c bus anyway ...
+<<<<<<< HEAD
 	 *
 	 * I'm also not completely sure what kind of phases to do between
 	 * the actual command and the data (what I am _supposed_ to do that
 	 * is). For now, I assume writes are a single stream and reads have
 	 * a repeat start/addr phase (but not stop in between)
+=======
+>>>>>>> upstream/android-13
 	 */
         case I2C_SMBUS_BLOCK_DATA:
 		buf = data->block;
@@ -215,6 +225,7 @@ static u32 i2c_powermac_get_addr(struct i2c_adapter *adap,
 					   struct pmac_i2c_bus *bus,
 					   struct device_node *node)
 {
+<<<<<<< HEAD
 	const __be32 *prop;
 	int len;
 
@@ -232,6 +243,25 @@ static u32 i2c_powermac_get_addr(struct i2c_adapter *adap,
 	if (!strcmp(node->name, "cereal"))
 		return 0x60;
 	else if (!strcmp(node->name, "deq"))
+=======
+	u32 prop;
+	int ret;
+
+	/* First check for valid "reg" */
+	ret = of_property_read_u32(node, "reg", &prop);
+	if (ret == 0)
+		return (prop & 0xff) >> 1;
+
+	/* Then check old-style "i2c-address" */
+	ret = of_property_read_u32(node, "i2c-address", &prop);
+	if (ret == 0)
+		return (prop & 0xff) >> 1;
+
+	/* Now handle some devices with missing "reg" properties */
+	if (of_node_name_eq(node, "cereal"))
+		return 0x60;
+	else if (of_node_name_eq(node, "deq"))
+>>>>>>> upstream/android-13
 		return 0x34;
 
 	dev_warn(&adap->dev, "No i2c address for %pOF\n", node);
@@ -248,8 +278,13 @@ static void i2c_powermac_create_one(struct i2c_adapter *adap,
 
 	strncpy(info.type, type, sizeof(info.type));
 	info.addr = addr;
+<<<<<<< HEAD
 	newdev = i2c_new_device(adap, &info);
 	if (!newdev)
+=======
+	newdev = i2c_new_client_device(adap, &info);
+	if (IS_ERR(newdev))
+>>>>>>> upstream/android-13
 		dev_err(&adap->dev,
 			"i2c-powermac: Failure to register missing %s\n",
 			type);
@@ -287,6 +322,7 @@ static bool i2c_powermac_get_type(struct i2c_adapter *adap,
 {
 	char tmp[16];
 
+<<<<<<< HEAD
 	/* Note: we to _NOT_ want the standard
 	 * i2c drivers to match with any of our powermac stuff
 	 * unless they have been specifically modified to handle
@@ -295,6 +331,15 @@ static bool i2c_powermac_get_type(struct i2c_adapter *adap,
 	 * corresponding windfarm drivers, _NOT_ the generic ones,
 	 * so we force a prefix of AAPL, onto the modalias to
 	 * make that happen
+=======
+	/*
+	 * Note: we do _NOT_ want the standard i2c drivers to match with any of
+	 * our powermac stuff unless they have been specifically modified to
+	 * handle it on a case by case basis. For example, for thermal control,
+	 * things like lm75 etc... shall match with their corresponding
+	 * windfarm drivers, _NOT_ the generic ones, so we force a prefix of
+	 * 'MAC', onto the modalias to make that happen
+>>>>>>> upstream/android-13
 	 */
 
 	/* First try proper modalias */
@@ -304,7 +349,11 @@ static bool i2c_powermac_get_type(struct i2c_adapter *adap,
 	}
 
 	/* Now look for known workarounds */
+<<<<<<< HEAD
 	if (!strcmp(node->name, "deq")) {
+=======
+	if (of_node_name_eq(node, "deq")) {
+>>>>>>> upstream/android-13
 		/* Apple uses address 0x34 for TAS3001 and 0x35 for TAS3004 */
 		if (addr == 0x34) {
 			snprintf(type, type_size, "MAC,tas3001");
@@ -324,14 +373,22 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
 {
 	struct i2c_client *newdev;
 	struct device_node *node;
+<<<<<<< HEAD
 	bool found_onyx = 0;
+=======
+	bool found_onyx = false;
+>>>>>>> upstream/android-13
 
 	/*
 	 * In some cases we end up with the via-pmu node itself, in this
 	 * case we skip this function completely as the device-tree will
 	 * not contain anything useful.
 	 */
+<<<<<<< HEAD
 	if (!strcmp(adap->dev.of_node->name, "via-pmu"))
+=======
+	if (of_node_name_eq(adap->dev.of_node, "via-pmu"))
+>>>>>>> upstream/android-13
 		return;
 
 	for_each_child_of_node(adap->dev.of_node, node) {
@@ -367,8 +424,13 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
 		info.irq = irq_of_parse_and_map(node, 0);
 		info.of_node = of_node_get(node);
 
+<<<<<<< HEAD
 		newdev = i2c_new_device(adap, &info);
 		if (!newdev) {
+=======
+		newdev = i2c_new_client_device(adap, &info);
+		if (IS_ERR(newdev)) {
+>>>>>>> upstream/android-13
 			dev_err(&adap->dev, "i2c-powermac: Failure to register"
 				" %pOF\n", node);
 			of_node_put(node);
@@ -388,9 +450,14 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
 static int i2c_powermac_probe(struct platform_device *dev)
 {
 	struct pmac_i2c_bus *bus = dev_get_platdata(&dev->dev);
+<<<<<<< HEAD
 	struct device_node *parent = NULL;
 	struct i2c_adapter *adapter;
 	const char *basename;
+=======
+	struct device_node *parent;
+	struct i2c_adapter *adapter;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (bus == NULL)
@@ -407,23 +474,42 @@ static int i2c_powermac_probe(struct platform_device *dev)
 		parent = of_get_parent(pmac_i2c_get_controller(bus));
 		if (parent == NULL)
 			return -EINVAL;
+<<<<<<< HEAD
 		basename = parent->name;
 		break;
 	case pmac_i2c_bus_pmu:
 		basename = "pmu";
+=======
+		snprintf(adapter->name, sizeof(adapter->name), "%pOFn %d",
+			 parent,
+			 pmac_i2c_get_channel(bus));
+		of_node_put(parent);
+		break;
+	case pmac_i2c_bus_pmu:
+		snprintf(adapter->name, sizeof(adapter->name), "pmu %d",
+			 pmac_i2c_get_channel(bus));
+>>>>>>> upstream/android-13
 		break;
 	case pmac_i2c_bus_smu:
 		/* This is not what we used to do but I'm fixing drivers at
 		 * the same time as this change
 		 */
+<<<<<<< HEAD
 		basename = "smu";
+=======
+		snprintf(adapter->name, sizeof(adapter->name), "smu %d",
+			 pmac_i2c_get_channel(bus));
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	snprintf(adapter->name, sizeof(adapter->name), "%s %d", basename,
 		 pmac_i2c_get_channel(bus));
 	of_node_put(parent);
+=======
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(dev, adapter);
 	adapter->algo = &i2c_powermac_algorithm;

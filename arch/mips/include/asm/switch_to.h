@@ -42,7 +42,11 @@ extern struct task_struct *ll_task;
  * inline to try to keep the overhead down. If we have been forced to run on
  * a "CPU" with an FPU because of a previous high level of FP computation,
  * but did not actually use the FPU during the most recent time-slice (CU1
+<<<<<<< HEAD
  * isn't set), we undo the restriction on cpus_allowed.
+=======
+ * isn't set), we undo the restriction on cpus_mask.
+>>>>>>> upstream/android-13
  *
  * We're not calling set_cpus_allowed() here, because we have no need to
  * force prompt migration - we're already switching the current CPU to a
@@ -57,7 +61,11 @@ do {									\
 	    test_ti_thread_flag(__prev_ti, TIF_FPUBOUND) &&		\
 	    (!(KSTK_STATUS(prev) & ST0_CU1))) {				\
 		clear_ti_thread_flag(__prev_ti, TIF_FPUBOUND);		\
+<<<<<<< HEAD
 		prev->cpus_allowed = prev->thread.user_cpus_allowed;	\
+=======
+		prev->cpus_mask = prev->thread.user_cpus_allowed;	\
+>>>>>>> upstream/android-13
 	}								\
 	next->thread.emulated_fp = 0;					\
 } while(0)
@@ -67,11 +75,19 @@ do {									\
 #endif
 
 /*
+<<<<<<< HEAD
  * Clear LLBit during context switches on MIPSr6 such that eretnc can be used
  * unconditionally when returning to userland in entry.S.
  */
 #define __clear_r6_hw_ll_bit() do {					\
 	if (cpu_has_mips_r6)						\
+=======
+ * Clear LLBit during context switches on MIPSr5+ such that eretnc can be used
+ * unconditionally when returning to userland in entry.S.
+ */
+#define __clear_r5_hw_ll_bit() do {					\
+	if (cpu_has_mips_r5 || cpu_has_mips_r6)				\
+>>>>>>> upstream/android-13
 		write_c0_lladdr(0);					\
 } while (0)
 
@@ -84,7 +100,12 @@ do {									\
  * Check FCSR for any unmasked exceptions pending set with `ptrace',
  * clear them and send a signal.
  */
+<<<<<<< HEAD
 #define __sanitize_fcr31(next)						\
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+# define __sanitize_fcr31(next)						\
+>>>>>>> upstream/android-13
 do {									\
 	unsigned long fcr31 = mask_fcr31_x(next->thread.fpu.fcr31);	\
 	void __user *pc;						\
@@ -95,6 +116,12 @@ do {									\
 		force_fcr31_sig(fcr31, pc, next);			\
 	}								\
 } while (0)
+<<<<<<< HEAD
+=======
+#else
+# define __sanitize_fcr31(next)
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * For newly created kernel threads switch_to() will return to
@@ -113,6 +140,11 @@ do {									\
 		__restore_dsp(next);					\
 	}								\
 	if (cop2_present) {						\
+<<<<<<< HEAD
+=======
+		u32 status = read_c0_status();				\
+									\
+>>>>>>> upstream/android-13
 		set_c0_status(ST0_CU2);					\
 		if ((KSTK_STATUS(prev) & ST0_CU2)) {			\
 			if (cop2_lazy_restore)				\
@@ -123,9 +155,15 @@ do {									\
 		    !cop2_lazy_restore) {				\
 			cop2_restore(next);				\
 		}							\
+<<<<<<< HEAD
 		clear_c0_status(ST0_CU2);				\
 	}								\
 	__clear_r6_hw_ll_bit();						\
+=======
+		write_c0_status(status);				\
+	}								\
+	__clear_r5_hw_ll_bit();						\
+>>>>>>> upstream/android-13
 	__clear_software_ll_bit();					\
 	if (cpu_has_userlocal)						\
 		write_c0_userlocal(task_thread_info(next)->tp_value);	\

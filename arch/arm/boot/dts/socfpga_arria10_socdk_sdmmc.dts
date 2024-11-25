@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2015 Altera Corporation <www.altera.com>
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2014-2015 Altera Corporation <www.altera.com>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -21,6 +27,10 @@
 &mmc {
 	status = "okay";
 	cap-sd-highspeed;
+<<<<<<< HEAD
+=======
+	cap-mmc-highspeed;
+>>>>>>> upstream/android-13
 	broken-cd;
 	bus-width = <4>;
 };

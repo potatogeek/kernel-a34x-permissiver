@@ -37,10 +37,23 @@ struct axi_dma_chan {
 	struct axi_dma_chip		*chip;
 	void __iomem			*chan_regs;
 	u8				id;
+<<<<<<< HEAD
 	atomic_t			descs_allocated;
 
 	struct virt_dma_chan		vc;
 
+=======
+	u8				hw_handshake_num;
+	atomic_t			descs_allocated;
+
+	struct dma_pool			*desc_pool;
+	struct virt_dma_chan		vc;
+
+	struct axi_dma_desc		*desc;
+	struct dma_slave_config		config;
+	enum dma_transfer_direction	direction;
+	bool				cyclic;
+>>>>>>> upstream/android-13
 	/* these other elements are all protected by vc.lock */
 	bool				is_paused;
 };
@@ -48,7 +61,11 @@ struct axi_dma_chan {
 struct dw_axi_dma {
 	struct dma_device	dma;
 	struct dw_axi_dma_hcfg	*hdata;
+<<<<<<< HEAD
 	struct dma_pool		*desc_pool;
+=======
+	struct device_dma_parameters	dma_parms;
+>>>>>>> upstream/android-13
 
 	/* channels */
 	struct axi_dma_chan	*chan;
@@ -58,6 +75,10 @@ struct axi_dma_chip {
 	struct device		*dev;
 	int			irq;
 	void __iomem		*regs;
+<<<<<<< HEAD
+=======
+	void __iomem		*apb_regs;
+>>>>>>> upstream/android-13
 	struct clk		*core_clk;
 	struct clk		*cfgr_clk;
 	struct dw_axi_dma	*dw;
@@ -75,17 +96,38 @@ struct __packed axi_dma_lli {
 	__le32		sstat;
 	__le32		dstat;
 	__le32		status_lo;
+<<<<<<< HEAD
 	__le32		ststus_hi;
+=======
+	__le32		status_hi;
+>>>>>>> upstream/android-13
 	__le32		reserved_lo;
 	__le32		reserved_hi;
 };
 
+<<<<<<< HEAD
 struct axi_dma_desc {
 	struct axi_dma_lli		lli;
 
 	struct virt_dma_desc		vd;
 	struct axi_dma_chan		*chan;
 	struct list_head		xfer_list;
+=======
+struct axi_dma_hw_desc {
+	struct axi_dma_lli	*lli;
+	dma_addr_t		llp;
+	u32			len;
+};
+
+struct axi_dma_desc {
+	struct axi_dma_hw_desc	*hw_desc;
+
+	struct virt_dma_desc		vd;
+	struct axi_dma_chan		*chan;
+	u32				completed_blocks;
+	u32				length;
+	u32				period_len;
+>>>>>>> upstream/android-13
 };
 
 static inline struct device *dchan2dev(struct dma_chan *dchan)
@@ -157,6 +199,24 @@ static inline struct axi_dma_chan *dchan_to_axi_dma_chan(struct dma_chan *dchan)
 #define CH_INTSIGNAL_ENA	0x090 /* R/W Chan Interrupt Signal Enable */
 #define CH_INTCLEAR		0x098 /* W Chan Interrupt Clear */
 
+<<<<<<< HEAD
+=======
+/* These Apb registers are used by Intel KeemBay SoC */
+#define DMAC_APB_CFG		0x000 /* DMAC Apb Configuration Register */
+#define DMAC_APB_STAT		0x004 /* DMAC Apb Status Register */
+#define DMAC_APB_DEBUG_STAT_0	0x008 /* DMAC Apb Debug Status Register 0 */
+#define DMAC_APB_DEBUG_STAT_1	0x00C /* DMAC Apb Debug Status Register 1 */
+#define DMAC_APB_HW_HS_SEL_0	0x010 /* DMAC Apb HW HS register 0 */
+#define DMAC_APB_HW_HS_SEL_1	0x014 /* DMAC Apb HW HS register 1 */
+#define DMAC_APB_LPI		0x018 /* DMAC Apb Low Power Interface Reg */
+#define DMAC_APB_BYTE_WR_CH_EN	0x01C /* DMAC Apb Byte Write Enable */
+#define DMAC_APB_HALFWORD_WR_CH_EN	0x020 /* DMAC Halfword write enables */
+
+#define UNUSED_CHANNEL		0x3F /* Set unused DMA channel to 0x3F */
+#define DMA_APB_HS_SEL_BIT_SIZE	0x08 /* HW handshake bits per channel */
+#define DMA_APB_HS_SEL_MASK	0xFF /* HW handshake select masks */
+#define MAX_BLOCK_SIZE		0x1000 /* 1024 blocks * 4 bytes data width */
+>>>>>>> upstream/android-13
 
 /* DMAC_CFG */
 #define DMAC_EN_POS			0
@@ -228,6 +288,11 @@ enum {
 
 /* CH_CFG_H */
 #define CH_CFG_H_PRIORITY_POS		17
+<<<<<<< HEAD
+=======
+#define CH_CFG_H_DST_PER_POS		12
+#define CH_CFG_H_SRC_PER_POS		7
+>>>>>>> upstream/android-13
 #define CH_CFG_H_HS_SEL_DST_POS		4
 #define CH_CFG_H_HS_SEL_SRC_POS		3
 enum {

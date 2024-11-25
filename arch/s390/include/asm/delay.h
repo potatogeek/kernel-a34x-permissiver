@@ -13,6 +13,7 @@
 #ifndef _S390_DELAY_H
 #define _S390_DELAY_H
 
+<<<<<<< HEAD
 void __ndelay(unsigned long long nsecs);
 void __udelay(unsigned long long usecs);
 void udelay_simple(unsigned long long usecs);
@@ -21,5 +22,14 @@ void __delay(unsigned long loops);
 #define ndelay(n) __ndelay((unsigned long long) (n))
 #define udelay(n) __udelay((unsigned long long) (n))
 #define mdelay(n) __udelay((unsigned long long) (n) * 1000)
+=======
+void __ndelay(unsigned long nsecs);
+void __udelay(unsigned long usecs);
+void __delay(unsigned long loops);
+
+#define ndelay(n) __ndelay((unsigned long)(n))
+#define udelay(n) __udelay((unsigned long)(n))
+#define mdelay(n) __udelay((unsigned long)(n) * 1000)
+>>>>>>> upstream/android-13
 
 #endif /* defined(_S390_DELAY_H) */

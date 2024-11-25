@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+>>>>>>> upstream/android-13
 /*
  * Simple streaming JSON writer
  *
  * This takes care of the annoying bits of JSON syntax like the commas
  * after elements
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Authors:	Stephen Hemminger <stephen@networkplumber.org>
  */
 
@@ -18,6 +25,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdarg.h>
+<<<<<<< HEAD
+=======
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 
 /* Opaque class structure */
 typedef struct json_writer json_writer_t;
@@ -30,12 +41,24 @@ void jsonw_destroy(json_writer_t **self_p);
 /* Cause output to have pretty whitespace */
 void jsonw_pretty(json_writer_t *self, bool on);
 
+<<<<<<< HEAD
+=======
+/* Reset separator to create new JSON */
+void jsonw_reset(json_writer_t *self);
+
+>>>>>>> upstream/android-13
 /* Add property name */
 void jsonw_name(json_writer_t *self, const char *name);
 
 /* Add value  */
+<<<<<<< HEAD
 void jsonw_vprintf_enquote(json_writer_t *self, const char *fmt, va_list ap);
 void jsonw_printf(json_writer_t *self, const char *fmt, ...);
+=======
+void __printf(2, 0) jsonw_vprintf_enquote(json_writer_t *self, const char *fmt,
+					  va_list ap);
+void __printf(2, 3) jsonw_printf(json_writer_t *self, const char *fmt, ...);
+>>>>>>> upstream/android-13
 void jsonw_string(json_writer_t *self, const char *value);
 void jsonw_bool(json_writer_t *self, bool value);
 void jsonw_float(json_writer_t *self, double number);

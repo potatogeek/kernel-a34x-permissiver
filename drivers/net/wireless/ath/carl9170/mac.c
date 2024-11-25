@@ -329,10 +329,13 @@ int carl9170_set_operating_mode(struct ar9170 *ar)
 			/* iwlagn 802.11n STA Workaround */
 			rx_ctrl |= AR9170_MAC_RX_CTRL_PASS_TO_HOST;
 			break;
+<<<<<<< HEAD
 		case NL80211_IFTYPE_WDS:
 			cam_mode |= AR9170_MAC_CAM_AP_WDS;
 			rx_ctrl |= AR9170_MAC_RX_CTRL_PASS_TO_HOST;
 			break;
+=======
+>>>>>>> upstream/android-13
 		case NL80211_IFTYPE_STATION:
 			cam_mode |= AR9170_MAC_CAM_STA;
 			rx_ctrl |= AR9170_MAC_RX_CTRL_PASS_TO_HOST;
@@ -519,7 +522,11 @@ int carl9170_set_mac_tpc(struct ar9170 *ar, struct ieee80211_channel *channel)
 		power = ar->power_5G_leg[0] & 0x3f;
 		break;
 	default:
+<<<<<<< HEAD
 		BUG_ON(1);
+=======
+		BUG();
+>>>>>>> upstream/android-13
 	}
 
 	power = min_t(unsigned int, power, ar->hw->conf.power_level * 2);

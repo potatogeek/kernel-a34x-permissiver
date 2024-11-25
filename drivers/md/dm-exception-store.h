@@ -11,6 +11,10 @@
 #define _LINUX_DM_EXCEPTION_STORE
 
 #include <linux/blkdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/list_bl.h>
+>>>>>>> upstream/android-13
 #include <linux/device-mapper.h>
 
 /*
@@ -27,7 +31,11 @@ typedef sector_t chunk_t;
  * chunk within the device.
  */
 struct dm_exception {
+<<<<<<< HEAD
 	struct list_head hash_list;
+=======
+	struct hlist_bl_node hash_list;
+>>>>>>> upstream/android-13
 
 	chunk_t old_chunk;
 	chunk_t new_chunk;
@@ -135,9 +143,14 @@ struct dm_dev *dm_snap_cow(struct dm_snapshot *snap);
 /*
  * Funtions to manipulate consecutive chunks
  */
+<<<<<<< HEAD
 #  if defined(CONFIG_LBDAF) || (BITS_PER_LONG == 64)
 #    define DM_CHUNK_CONSECUTIVE_BITS 8
 #    define DM_CHUNK_NUMBER_BITS 56
+=======
+#define DM_CHUNK_CONSECUTIVE_BITS 8
+#define DM_CHUNK_NUMBER_BITS 56
+>>>>>>> upstream/android-13
 
 static inline chunk_t dm_chunk_number(chunk_t chunk)
 {
@@ -163,6 +176,7 @@ static inline void dm_consecutive_chunk_count_dec(struct dm_exception *e)
 	e->new_chunk -= (1ULL << DM_CHUNK_NUMBER_BITS);
 }
 
+<<<<<<< HEAD
 #  else
 #    define DM_CHUNK_CONSECUTIVE_BITS 0
 
@@ -186,6 +200,8 @@ static inline void dm_consecutive_chunk_count_dec(struct dm_exception *e)
 
 #  endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Return the number of sectors in the device.
  */

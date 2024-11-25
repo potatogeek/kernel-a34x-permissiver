@@ -22,7 +22,11 @@ u"""
 
     * *auto span* rightmost cell of a table row over the missing cells on the
       right side of that table-row.  With Option ``:fill-cells:`` this behavior
+<<<<<<< HEAD
       can changed from *auto span* to *auto fill*, which automaticly inserts
+=======
+      can be changed from *auto span* to *auto fill*, which automatically inserts
+>>>>>>> upstream/android-13
       (empty) cells instead of spanning the last cell.
 
     Options:
@@ -42,8 +46,11 @@ u"""
 # imports
 # ==============================================================================
 
+<<<<<<< HEAD
 import sys
 
+=======
+>>>>>>> upstream/android-13
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 from docutils.parsers.rst.directives.tables import Table
@@ -55,6 +62,7 @@ from docutils.utils import SystemMessagePropagation
 
 __version__  = '1.0'
 
+<<<<<<< HEAD
 PY3 = sys.version_info[0] == 3
 PY2 = sys.version_info[0] == 2
 
@@ -63,6 +71,8 @@ if PY3:
     unicode     = str
     basestring  = str
 
+=======
+>>>>>>> upstream/android-13
 # ==============================================================================
 def setup(app):
 # ==============================================================================
@@ -171,7 +181,11 @@ class ListTableBuilder(object):
         for colwidth in colwidths:
             colspec = nodes.colspec(colwidth=colwidth)
             # FIXME: It seems, that the stub method only works well in the
+<<<<<<< HEAD
             # absence of rowspan (observed by the html buidler, the docutils-xml
+=======
+            # absence of rowspan (observed by the html builder, the docutils-xml
+>>>>>>> upstream/android-13
             # build seems OK).  This is not extraordinary, because there exists
             # no table directive (except *this* flat-table) which allows to
             # define coexistent of rowspan and stubs (there was no use-case

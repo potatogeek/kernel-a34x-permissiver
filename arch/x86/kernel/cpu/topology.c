@@ -7,6 +7,7 @@
 
 #include <linux/cpu.h>
 #include <asm/apic.h>
+<<<<<<< HEAD
 #include <asm/pat.h>
 #include <asm/processor.h>
 
@@ -17,15 +18,71 @@
 #define INVALID_TYPE	0
 #define SMT_TYPE	1
 #define CORE_TYPE	2
+=======
+#include <asm/memtype.h>
+#include <asm/processor.h>
+
+#include "cpu.h"
+
+/* leaf 0xb SMT level */
+#define SMT_LEVEL	0
+
+/* extended topology sub-leaf types */
+#define INVALID_TYPE	0
+#define SMT_TYPE	1
+#define CORE_TYPE	2
+#define DIE_TYPE	5
+>>>>>>> upstream/android-13
 
 #define LEAFB_SUBTYPE(ecx)		(((ecx) >> 8) & 0xff)
 #define BITS_SHIFT_NEXT_LEVEL(eax)	((eax) & 0x1f)
 #define LEVEL_MAX_SIBLINGS(ebx)		((ebx) & 0xffff)
 
+<<<<<<< HEAD
+=======
+unsigned int __max_die_per_package __read_mostly = 1;
+EXPORT_SYMBOL(__max_die_per_package);
+
+#ifdef CONFIG_SMP
+/*
+ * Check if given CPUID extended topology "leaf" is implemented
+ */
+static int check_extended_topology_leaf(int leaf)
+{
+	unsigned int eax, ebx, ecx, edx;
+
+	cpuid_count(leaf, SMT_LEVEL, &eax, &ebx, &ecx, &edx);
+
+	if (ebx == 0 || (LEAFB_SUBTYPE(ecx) != SMT_TYPE))
+		return -1;
+
+	return 0;
+}
+/*
+ * Return best CPUID Extended Topology Leaf supported
+ */
+static int detect_extended_topology_leaf(struct cpuinfo_x86 *c)
+{
+	if (c->cpuid_level >= 0x1f) {
+		if (check_extended_topology_leaf(0x1f) == 0)
+			return 0x1f;
+	}
+
+	if (c->cpuid_level >= 0xb) {
+		if (check_extended_topology_leaf(0xb) == 0)
+			return 0xb;
+	}
+
+	return -1;
+}
+#endif
+
+>>>>>>> upstream/android-13
 int detect_extended_topology_early(struct cpuinfo_x86 *c)
 {
 #ifdef CONFIG_SMP
 	unsigned int eax, ebx, ecx, edx;
+<<<<<<< HEAD
 
 	if (c->cpuid_level < 0xb)
 		return -1;
@@ -36,10 +93,20 @@ int detect_extended_topology_early(struct cpuinfo_x86 *c)
 	 * check if the cpuid leaf 0xb is actually implemented.
 	 */
 	if (ebx == 0 || (LEAFB_SUBTYPE(ecx) != SMT_TYPE))
+=======
+	int leaf;
+
+	leaf = detect_extended_topology_leaf(c);
+	if (leaf < 0)
+>>>>>>> upstream/android-13
 		return -1;
 
 	set_cpu_cap(c, X86_FEATURE_XTOPOLOGY);
 
+<<<<<<< HEAD
+=======
+	cpuid_count(leaf, SMT_LEVEL, &eax, &ebx, &ecx, &edx);
+>>>>>>> upstream/android-13
 	/*
 	 * initial apic id, which also represents 32-bit extended x2apic id.
 	 */
@@ -50,7 +117,11 @@ int detect_extended_topology_early(struct cpuinfo_x86 *c)
 }
 
 /*
+<<<<<<< HEAD
  * Check for extended topology enumeration cpuid leaf 0xb and if it
+=======
+ * Check for extended topology enumeration cpuid leaf, and if it
+>>>>>>> upstream/android-13
  * exists, use it for populating initial_apicid and cpu topology
  * detection.
  */
@@ -58,15 +129,27 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
 {
 #ifdef CONFIG_SMP
 	unsigned int eax, ebx, ecx, edx, sub_index;
+<<<<<<< HEAD
 	unsigned int ht_mask_width, core_plus_mask_width;
 	unsigned int core_select_mask, core_level_siblings;
 
 	if (detect_extended_topology_early(c) < 0)
+=======
+	unsigned int ht_mask_width, core_plus_mask_width, die_plus_mask_width;
+	unsigned int core_select_mask, core_level_siblings;
+	unsigned int die_select_mask, die_level_siblings;
+	bool die_level_present = false;
+	int leaf;
+
+	leaf = detect_extended_topology_leaf(c);
+	if (leaf < 0)
+>>>>>>> upstream/android-13
 		return -1;
 
 	/*
 	 * Populate HT related information from sub-leaf level 0.
 	 */
+<<<<<<< HEAD
 	cpuid_count(0xb, SMT_LEVEL, &eax, &ebx, &ecx, &edx);
 	core_level_siblings = smp_num_siblings = LEVEL_MAX_SIBLINGS(ebx);
 	core_plus_mask_width = ht_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
@@ -74,6 +157,18 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
 	sub_index = 1;
 	do {
 		cpuid_count(0xb, sub_index, &eax, &ebx, &ecx, &edx);
+=======
+	cpuid_count(leaf, SMT_LEVEL, &eax, &ebx, &ecx, &edx);
+	c->initial_apicid = edx;
+	core_level_siblings = smp_num_siblings = LEVEL_MAX_SIBLINGS(ebx);
+	core_plus_mask_width = ht_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+	die_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
+	die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+
+	sub_index = 1;
+	do {
+		cpuid_count(leaf, sub_index, &eax, &ebx, &ecx, &edx);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Check for the Core type in the implemented sub leaves.
@@ -81,23 +176,53 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
 		if (LEAFB_SUBTYPE(ecx) == CORE_TYPE) {
 			core_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
 			core_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+<<<<<<< HEAD
 			break;
+=======
+			die_level_siblings = core_level_siblings;
+			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+		}
+		if (LEAFB_SUBTYPE(ecx) == DIE_TYPE) {
+			die_level_present = true;
+			die_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
+			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+>>>>>>> upstream/android-13
 		}
 
 		sub_index++;
 	} while (LEAFB_SUBTYPE(ecx) != INVALID_TYPE);
 
 	core_select_mask = (~(-1 << core_plus_mask_width)) >> ht_mask_width;
+<<<<<<< HEAD
 
 	c->cpu_core_id = apic->phys_pkg_id(c->initial_apicid, ht_mask_width)
 						 & core_select_mask;
 	c->phys_proc_id = apic->phys_pkg_id(c->initial_apicid, core_plus_mask_width);
+=======
+	die_select_mask = (~(-1 << die_plus_mask_width)) >>
+				core_plus_mask_width;
+
+	c->cpu_core_id = apic->phys_pkg_id(c->initial_apicid,
+				ht_mask_width) & core_select_mask;
+
+	if (die_level_present) {
+		c->cpu_die_id = apic->phys_pkg_id(c->initial_apicid,
+					core_plus_mask_width) & die_select_mask;
+	}
+
+	c->phys_proc_id = apic->phys_pkg_id(c->initial_apicid,
+				die_plus_mask_width);
+>>>>>>> upstream/android-13
 	/*
 	 * Reinit the apicid, now that we have extended initial_apicid.
 	 */
 	c->apicid = apic->phys_pkg_id(c->initial_apicid, 0);
 
 	c->x86_max_cores = (core_level_siblings / smp_num_siblings);
+<<<<<<< HEAD
+=======
+	__max_die_per_package = (die_level_siblings / core_level_siblings);
+>>>>>>> upstream/android-13
 #endif
 	return 0;
 }

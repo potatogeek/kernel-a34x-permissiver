@@ -76,7 +76,11 @@ static inline bool ssb_gige_have_roboswitch(struct pci_dev *pdev)
 	if (dev)
 		return !!(dev->dev->bus->sprom.boardflags_lo &
 			  SSB_GIGE_BFL_ROBOSWITCH);
+<<<<<<< HEAD
 	return 0;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /* Returns whether we can only do one DMA at once. */
@@ -86,7 +90,11 @@ static inline bool ssb_gige_one_dma_at_once(struct pci_dev *pdev)
 	if (dev)
 		return ((dev->dev->bus->chip_id == 0x4785) &&
 			(dev->dev->bus->chip_rev < 2));
+<<<<<<< HEAD
 	return 0;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /* Returns whether we must flush posted writes. */
@@ -159,7 +167,11 @@ static inline void ssb_gige_exit(void)
 
 static inline bool pdev_is_ssb_gige_core(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	return 0;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 static inline struct ssb_gige * pdev_to_ssb_gige(struct pci_dev *pdev)
 {
@@ -167,6 +179,7 @@ static inline struct ssb_gige * pdev_to_ssb_gige(struct pci_dev *pdev)
 }
 static inline bool ssb_gige_is_rgmii(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	return 0;
 }
 static inline bool ssb_gige_have_roboswitch(struct pci_dev *pdev)
@@ -180,6 +193,21 @@ static inline bool ssb_gige_one_dma_at_once(struct pci_dev *pdev)
 static inline bool ssb_gige_must_flush_posted_writes(struct pci_dev *pdev)
 {
 	return 0;
+=======
+	return false;
+}
+static inline bool ssb_gige_have_roboswitch(struct pci_dev *pdev)
+{
+	return false;
+}
+static inline bool ssb_gige_one_dma_at_once(struct pci_dev *pdev)
+{
+	return false;
+}
+static inline bool ssb_gige_must_flush_posted_writes(struct pci_dev *pdev)
+{
+	return false;
+>>>>>>> upstream/android-13
 }
 static inline int ssb_gige_get_macaddr(struct pci_dev *pdev, u8 *macaddr)
 {

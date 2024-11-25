@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Routines for tracking a legacy ISA bridge
  *
@@ -6,11 +10,14 @@
  * Some bits and pieces moved over from pci_64.c
  *
  * Copyrigh 2003 Anton Blanchard <anton@au.ibm.com>, IBM Corp.
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DEBUG
@@ -22,6 +29,10 @@
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
+=======
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -42,6 +53,25 @@ EXPORT_SYMBOL_GPL(isa_bridge_pcidev);
 #define ISA_SPACE_MASK 0x1
 #define ISA_SPACE_IO 0x1
 
+<<<<<<< HEAD
+=======
+static void remap_isa_base(phys_addr_t pa, unsigned long size)
+{
+	WARN_ON_ONCE(ISA_IO_BASE & ~PAGE_MASK);
+	WARN_ON_ONCE(pa & ~PAGE_MASK);
+	WARN_ON_ONCE(size & ~PAGE_MASK);
+
+	if (slab_is_available()) {
+		if (ioremap_page_range(ISA_IO_BASE, ISA_IO_BASE + size, pa,
+				pgprot_noncached(PAGE_KERNEL)))
+			vunmap_range(ISA_IO_BASE, ISA_IO_BASE + size);
+	} else {
+		early_ioremap_range(ISA_IO_BASE, pa, size,
+				pgprot_noncached(PAGE_KERNEL));
+	}
+}
+
+>>>>>>> upstream/android-13
 static void pci_process_ISA_OF_ranges(struct device_node *isa_node,
 				      unsigned long phb_io_base_phys)
 {
@@ -109,15 +139,23 @@ static void pci_process_ISA_OF_ranges(struct device_node *isa_node,
 	if (size > 0x10000)
 		size = 0x10000;
 
+<<<<<<< HEAD
 	__ioremap_at(phb_io_base_phys, (void *)ISA_IO_BASE,
 		     size, pgprot_val(pgprot_noncached(__pgprot(0))));
+=======
+	remap_isa_base(phb_io_base_phys, size);
+>>>>>>> upstream/android-13
 	return;
 
 inval_range:
 	printk(KERN_ERR "no ISA IO ranges or unexpected isa range, "
 	       "mapping 64k\n");
+<<<<<<< HEAD
 	__ioremap_at(phb_io_base_phys, (void *)ISA_IO_BASE,
 		     0x10000, pgprot_val(pgprot_noncached(__pgprot(0))));
+=======
+	remap_isa_base(phb_io_base_phys, 0x10000);
+>>>>>>> upstream/android-13
 }
 
 
@@ -252,8 +290,12 @@ void __init isa_bridge_init_non_pci(struct device_node *np)
 	 * and map it
 	 */
 	isa_io_base = ISA_IO_BASE;
+<<<<<<< HEAD
 	__ioremap_at(pbase, (void *)ISA_IO_BASE,
 		     size, pgprot_val(pgprot_noncached(__pgprot(0))));
+=======
+	remap_isa_base(pbase, size);
+>>>>>>> upstream/android-13
 
 	pr_debug("ISA: Non-PCI bridge is %pOF\n", np);
 }
@@ -301,7 +343,11 @@ static void isa_bridge_remove(void)
 	isa_bridge_pcidev = NULL;
 
 	/* Unmap the ISA area */
+<<<<<<< HEAD
 	__iounmap_at((void *)ISA_IO_BASE, 0x10000);
+=======
+	vunmap_range(ISA_IO_BASE, ISA_IO_BASE + 0x10000);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -327,8 +373,12 @@ static int isa_bridge_notify(struct notifier_block *nb, unsigned long action,
 		/* Check if we have no ISA device, and this happens to be one,
 		 * register it as such if it has an OF device
 		 */
+<<<<<<< HEAD
 		if (!isa_bridge_devnode && devnode && devnode->type &&
 		    !strcmp(devnode->type, "isa"))
+=======
+		if (!isa_bridge_devnode && of_node_is_type(devnode, "isa"))
+>>>>>>> upstream/android-13
 			isa_bridge_find_late(pdev, devnode);
 
 		return 0;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* drivers/input/touchscreen/zforce.c
  *
  * Copyright (C) 2012-2013 MundoReader S.L.
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* drivers/input/touchscreen/zforce.c
+ *
+ * Copyright (C) 2012-2013 MundoReader S.L.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_INPUT_ZFORCE_TS_H

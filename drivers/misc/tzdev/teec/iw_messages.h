@@ -1,5 +1,9 @@
 /**
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -147,11 +151,23 @@ struct cmd_reply_set_shared_memory_rights {
     struct cmd_reply base;
 } IW_STRUCTURE;
 
+<<<<<<< HEAD
+=======
+enum iw_prepare_session_ta_src {
+    IW_TA_SRC_DEFAULT,
+    IW_TA_SRC_TMF
+};
+
+>>>>>>> upstream/android-13
 struct cmd_prepare_session {
     struct cmd_request base;
     struct tz_uuid ta_uuid;
     uint32_t ctx_id;
     struct shared_buffer_description buf_desc;
+<<<<<<< HEAD
+=======
+    uint32_t ta_src;
+>>>>>>> upstream/android-13
 } IW_STRUCTURE;
 
 struct cmd_prepare_session_reply {
@@ -163,6 +179,10 @@ struct cmd_open_session {
     uint32_t conn_meth;
     char conn_data[PROFILE_STR_LEN];
     uint32_t fips_enabled;
+<<<<<<< HEAD
+=======
+    uint32_t endianness;
+>>>>>>> upstream/android-13
     struct tee_operation op;
     uint64_t cancel_time; /* < Number of nanoseconds since Epoch. */
 } IW_STRUCTURE;
@@ -254,6 +274,7 @@ struct cmd_reply_sync_tee_state {
     struct cmd_reply base;
 } IW_STRUCTURE;
 
+<<<<<<< HEAD
 struct cmd_request_tmf_parent_sd_uuid {
     struct cmd_request base;
     struct tz_uuid uuid;
@@ -265,6 +286,8 @@ struct cmd_reply_tmf_parent_sd_uuid {
     uint32_t error_code;
 } IW_STRUCTURE;
 
+=======
+>>>>>>> upstream/android-13
 struct cmd_init_pmf {
     struct cmd_request base;
     int32_t pmf_shmem_id;

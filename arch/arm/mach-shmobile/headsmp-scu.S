@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Shared SCU setup for mach-shmobile
  *
@@ -12,6 +13,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0+
+ *
+ * Shared SCU setup for mach-shmobile
+ *
+ * Copyright (C) 2012 Bastian Hecht
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>

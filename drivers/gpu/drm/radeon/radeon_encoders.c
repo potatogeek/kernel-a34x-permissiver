@@ -23,6 +23,7 @@
  * Authors: Dave Airlie
  *          Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/radeon_drm.h>
@@ -37,6 +38,20 @@ radeon_atom_backlight_init(struct radeon_encoder *radeon_encoder,
 			   struct drm_connector *drm_connector);
 
 
+=======
+
+#include <linux/pci.h>
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_device.h>
+#include <drm/radeon_drm.h>
+
+#include "radeon.h"
+#include "radeon_atombios.h"
+#include "radeon_legacy_encoders.h"
+#include "atom.h"
+
+>>>>>>> upstream/android-13
 static uint32_t radeon_encoder_clones(struct drm_encoder *encoder)
 {
 	struct drm_device *dev = encoder->dev;

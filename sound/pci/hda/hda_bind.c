@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HD-audio codec driver binding
  * Copyright (c) Takashi Iwai <tiwai@suse.de>
@@ -11,7 +15,11 @@
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <sound/core.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 
 /*
@@ -89,6 +97,15 @@ static int hda_codec_driver_probe(struct device *dev)
 	hda_codec_patch_t patch;
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (codec->bus->core.ext_ops) {
+		if (WARN_ON(!codec->bus->core.ext_ops->hdev_attach))
+			return -EINVAL;
+		return codec->bus->core.ext_ops->hdev_attach(&codec->core);
+	}
+
+>>>>>>> upstream/android-13
 	if (WARN_ON(!codec->preset))
 		return -EINVAL;
 
@@ -143,6 +160,20 @@ static int hda_codec_driver_remove(struct device *dev)
 {
 	struct hda_codec *codec = dev_to_hda_codec(dev);
 
+<<<<<<< HEAD
+=======
+	if (codec->bus->core.ext_ops) {
+		if (WARN_ON(!codec->bus->core.ext_ops->hdev_detach))
+			return -EINVAL;
+		return codec->bus->core.ext_ops->hdev_detach(&codec->core);
+	}
+
+	refcount_dec(&codec->pcm_ref);
+	snd_hda_codec_disconnect_pcms(codec);
+	wait_event(codec->remove_sleep, !refcount_read(&codec->pcm_ref));
+	snd_power_sync_ref(codec->bus->card);
+
+>>>>>>> upstream/android-13
 	if (codec->patch_ops.free)
 		codec->patch_ops.free(codec);
 	snd_hda_codec_cleanup_for_unbind(codec);
@@ -152,10 +183,14 @@ static int hda_codec_driver_remove(struct device *dev)
 
 static void hda_codec_driver_shutdown(struct device *dev)
 {
+<<<<<<< HEAD
 	struct hda_codec *codec = dev_to_hda_codec(dev);
 
 	if (!pm_runtime_suspended(dev) && codec->patch_ops.reboot_notify)
 		codec->patch_ops.reboot_notify(codec);
+=======
+	snd_hda_codec_shutdown(dev_to_hda_codec(dev));
+>>>>>>> upstream/android-13
 }
 
 int __hda_codec_driver_register(struct hda_codec_driver *drv, const char *name,
@@ -288,20 +323,35 @@ int snd_hda_codec_configure(struct hda_codec *codec)
 {
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (codec->configured)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (is_generic_config(codec))
 		codec->probe_id = HDA_CODEC_ID_GENERIC;
 	else
 		codec->probe_id = 0;
 
+<<<<<<< HEAD
 	err = snd_hdac_device_register(&codec->core);
 	if (err < 0)
 		return err;
+=======
+	if (!device_is_registered(&codec->core.dev)) {
+		err = snd_hdac_device_register(&codec->core);
+		if (err < 0)
+			return err;
+	}
+>>>>>>> upstream/android-13
 
 	if (!codec->preset)
 		codec_bind_module(codec);
 	if (!codec->preset) {
 		err = codec_bind_generic(codec);
 		if (err < 0) {
+<<<<<<< HEAD
 			codec_err(codec, "Unable to bind the codec\n");
 			goto error;
 		}
@@ -312,5 +362,14 @@ int snd_hda_codec_configure(struct hda_codec *codec)
  error:
 	snd_hdac_device_unregister(&codec->core);
 	return err;
+=======
+			codec_dbg(codec, "Unable to bind the codec\n");
+			return err;
+		}
+	}
+
+	codec->configured = 1;
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hda_codec_configure);

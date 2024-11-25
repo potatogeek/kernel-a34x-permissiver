@@ -2,6 +2,11 @@
 #ifndef __SPARC_IPCBUF_H
 #define __SPARC_IPCBUF_H
 
+<<<<<<< HEAD
+=======
+#include <linux/posix_types.h>
+
+>>>>>>> upstream/android-13
 /*
  * The ipc64_perm structure for sparc/sparc64 architecture.
  * Note extra padding because this structure is passed back and forth

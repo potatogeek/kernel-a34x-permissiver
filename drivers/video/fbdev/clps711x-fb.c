@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cirrus Logic CLPS711X FB driver
  *
  * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
  * Based on driver by Russell King <rmk@arm.linux.org.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -157,7 +164,11 @@ static int clps711x_fb_blank(int blank, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops clps711x_fb_ops = {
+=======
+static const struct fb_ops clps711x_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_setcolreg	= clps711x_fb_setcolreg,
 	.fb_check_var	= clps711x_fb_check_var,

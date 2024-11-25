@@ -10,6 +10,10 @@
 #include <linux/init.h>
 #include <linux/leds.h>
 #include <linux/usb.h>
+<<<<<<< HEAD
+=======
+#include "common.h"
+>>>>>>> upstream/android-13
 
 #define BLINK_DELAY 30
 
@@ -36,6 +40,7 @@ void usb_led_activity(enum usb_led_event ev)
 EXPORT_SYMBOL_GPL(usb_led_activity);
 
 
+<<<<<<< HEAD
 static int __init ledtrig_usb_init(void)
 {
 	led_trigger_register_simple("usb-gadget", &ledtrig_usb_gadget);
@@ -44,10 +49,22 @@ static int __init ledtrig_usb_init(void)
 }
 
 static void __exit ledtrig_usb_exit(void)
+=======
+void __init ledtrig_usb_init(void)
+{
+	led_trigger_register_simple("usb-gadget", &ledtrig_usb_gadget);
+	led_trigger_register_simple("usb-host", &ledtrig_usb_host);
+}
+
+void __exit ledtrig_usb_exit(void)
+>>>>>>> upstream/android-13
 {
 	led_trigger_unregister_simple(ledtrig_usb_gadget);
 	led_trigger_unregister_simple(ledtrig_usb_host);
 }
+<<<<<<< HEAD
 
 module_init(ledtrig_usb_init);
 module_exit(ledtrig_usb_exit);
+=======
+>>>>>>> upstream/android-13

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * devfreq: Generic Dynamic Voltage and Frequency Scaling (DVFS) Framework
  *	    for Non-CPU Devices.
  *
  * Copyright (C) 2011 Samsung Electronics
  *	MyungJoo Ham <myungjoo.ham@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_DEVFREQ_H__
@@ -16,8 +23,12 @@
 #include <linux/device.h>
 #include <linux/notifier.h>
 #include <linux/pm_opp.h>
+<<<<<<< HEAD
 
 #define DEVFREQ_NAME_LEN 16
+=======
+#include <linux/pm_qos.h>
+>>>>>>> upstream/android-13
 
 /* DEVFREQ governor name */
 #define DEVFREQ_GOV_SIMPLE_ONDEMAND	"simple_ondemand"
@@ -33,8 +44,21 @@
 #define	DEVFREQ_PRECHANGE		(0)
 #define DEVFREQ_POSTCHANGE		(1)
 
+<<<<<<< HEAD
 struct devfreq;
 struct devfreq_governor;
+=======
+/* DEVFREQ work timers */
+enum devfreq_timer {
+	DEVFREQ_TIMER_DEFERRABLE = 0,
+	DEVFREQ_TIMER_DELAYED,
+	DEVFREQ_TIMER_NUM,
+};
+
+struct devfreq;
+struct devfreq_governor;
+struct thermal_cooling_device;
+>>>>>>> upstream/android-13
 
 /**
  * struct devfreq_dev_status - Data given from devfreq user device to
@@ -72,6 +96,10 @@ struct devfreq_dev_status {
  * @initial_freq:	The operating frequency when devfreq_add_device() is
  *			called.
  * @polling_ms:		The polling interval in ms. 0 disables polling.
+<<<<<<< HEAD
+=======
+ * @timer:		Timer type is either deferrable or delayed timer.
+>>>>>>> upstream/android-13
  * @target:		The device should set its operating frequency at
  *			freq or lowest-upper-than-freq value. If freq is
  *			higher than any operable frequency, set maximum.
@@ -94,10 +122,21 @@ struct devfreq_dev_status {
  * @freq_table:		Optional list of frequencies to support statistics
  *			and freq_table must be generated in ascending order.
  * @max_state:		The size of freq_table.
+<<<<<<< HEAD
+=======
+ *
+ * @is_cooling_device: A self-explanatory boolean giving the device a
+ *                     cooling effect property.
+>>>>>>> upstream/android-13
  */
 struct devfreq_dev_profile {
 	unsigned long initial_freq;
 	unsigned int polling_ms;
+<<<<<<< HEAD
+=======
+	enum devfreq_timer timer;
+	bool is_cooling_device;
+>>>>>>> upstream/android-13
 
 	int (*target)(struct device *dev, unsigned long *freq, u32 flags);
 	int (*get_dev_status)(struct device *dev,
@@ -110,6 +149,23 @@ struct devfreq_dev_profile {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * struct devfreq_stats - Statistics of devfreq device behavior
+ * @total_trans:	Number of devfreq transitions.
+ * @trans_table:	Statistics of devfreq transitions.
+ * @time_in_state:	Statistics of devfreq states.
+ * @last_update:	The last time stats were updated.
+ */
+struct devfreq_stats {
+	unsigned int total_trans;
+	unsigned int *trans_table;
+	u64 *time_in_state;
+	u64 last_update;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct devfreq - Device devfreq structure
  * @node:	list node - contains the devices with devfreq that have been
  *		registered.
@@ -118,12 +174,17 @@ struct devfreq_dev_profile {
  *		using devfreq.
  * @profile:	device-specific devfreq profile
  * @governor:	method how to choose frequency based on the usage.
+<<<<<<< HEAD
  * @governor_name:	devfreq governor name for use with this devfreq
+=======
+ * @opp_table:	Reference to OPP table of dev.parent, if one exists.
+>>>>>>> upstream/android-13
  * @nb:		notifier block used to notify devfreq object that it should
  *		reevaluate operable frequencies. Devfreq users may use
  *		devfreq.nb to the corresponding register notifier call chain.
  * @work:	delayed work for load monitoring.
  * @previous_freq:	previously configured frequency value.
+<<<<<<< HEAD
  * @data:	Private data of the governor. The devfreq framework does not
  *		touch this.
  * @min_freq:	Limit minimum frequency requested by user (0: none)
@@ -138,22 +199,53 @@ struct devfreq_dev_profile {
  * @transition_notifier_list: list head of DEVFREQ_TRANSITION_NOTIFIER notifier
  *
  * This structure stores the devfreq information for a give device.
+=======
+ * @last_status:	devfreq user device info, performance statistics
+ * @data:	Private data of the governor. The devfreq framework does not
+ *		touch this.
+ * @user_min_freq_req:	PM QoS minimum frequency request from user (via sysfs)
+ * @user_max_freq_req:	PM QoS maximum frequency request from user (via sysfs)
+ * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
+ * @scaling_max_freq:	Limit maximum frequency requested by OPP interface
+ * @stop_polling:	 devfreq polling status of a device.
+ * @suspend_freq:	 frequency of a device set during suspend phase.
+ * @resume_freq:	 frequency of a device set in resume phase.
+ * @suspend_count:	 suspend requests counter for a device.
+ * @stats:	Statistics of devfreq device behavior
+ * @transition_notifier_list: list head of DEVFREQ_TRANSITION_NOTIFIER notifier
+ * @cdev:	Cooling device pointer if the devfreq has cooling property
+ * @nb_min:		Notifier block for DEV_PM_QOS_MIN_FREQUENCY
+ * @nb_max:		Notifier block for DEV_PM_QOS_MAX_FREQUENCY
+ *
+ * This structure stores the devfreq information for a given device.
+>>>>>>> upstream/android-13
  *
  * Note that when a governor accesses entries in struct devfreq in its
  * functions except for the context of callbacks defined in struct
  * devfreq_governor, the governor should protect its access with the
  * struct mutex lock in struct devfreq. A governor may use this mutex
+<<<<<<< HEAD
  * to protect its own private data in void *data as well.
+=======
+ * to protect its own private data in ``void *data`` as well.
+>>>>>>> upstream/android-13
  */
 struct devfreq {
 	struct list_head node;
 
 	struct mutex lock;
+<<<<<<< HEAD
 	struct mutex event_lock;
 	struct device dev;
 	struct devfreq_dev_profile *profile;
 	const struct devfreq_governor *governor;
 	char governor_name[DEVFREQ_NAME_LEN];
+=======
+	struct device dev;
+	struct devfreq_dev_profile *profile;
+	const struct devfreq_governor *governor;
+	struct opp_table *opp_table;
+>>>>>>> upstream/android-13
 	struct notifier_block nb;
 	struct delayed_work work;
 
@@ -162,12 +254,18 @@ struct devfreq {
 
 	void *data; /* private data for governors */
 
+<<<<<<< HEAD
 	unsigned long min_freq;
 	unsigned long max_freq;
+=======
+	struct dev_pm_qos_request user_min_freq_req;
+	struct dev_pm_qos_request user_max_freq_req;
+>>>>>>> upstream/android-13
 	unsigned long scaling_min_freq;
 	unsigned long scaling_max_freq;
 	bool stop_polling;
 
+<<<<<<< HEAD
 	/* information for device frequency transition */
 	unsigned int total_trans;
 	unsigned int *trans_table;
@@ -176,6 +274,22 @@ struct devfreq {
 
 	struct srcu_notifier_head transition_notifier_list;
 	bool dev_suspended;
+=======
+	unsigned long suspend_freq;
+	unsigned long resume_freq;
+	atomic_t suspend_count;
+
+	/* information for device frequency transitions */
+	struct devfreq_stats stats;
+
+	struct srcu_notifier_head transition_notifier_list;
+
+	/* Pointer to the cooling device if used for thermal mitigation */
+	struct thermal_cooling_device *cdev;
+
+	struct notifier_block nb_min;
+	struct notifier_block nb_max;
+>>>>>>> upstream/android-13
 };
 
 struct devfreq_freqs {
@@ -184,6 +298,7 @@ struct devfreq_freqs {
 };
 
 #if defined(CONFIG_PM_DEVFREQ)
+<<<<<<< HEAD
 extern struct devfreq *devfreq_add_device(struct device *dev,
 				  struct devfreq_dev_profile *profile,
 				  const char *governor_name,
@@ -231,6 +346,61 @@ extern struct devfreq *devfreq_get_devfreq_by_phandle(struct device *dev,
 #if IS_ENABLED(CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND)
 /**
  * struct devfreq_simple_ondemand_data - void *data fed to struct devfreq
+=======
+struct devfreq *devfreq_add_device(struct device *dev,
+				struct devfreq_dev_profile *profile,
+				const char *governor_name,
+				void *data);
+int devfreq_remove_device(struct devfreq *devfreq);
+struct devfreq *devm_devfreq_add_device(struct device *dev,
+				struct devfreq_dev_profile *profile,
+				const char *governor_name,
+				void *data);
+void devm_devfreq_remove_device(struct device *dev, struct devfreq *devfreq);
+
+/* Supposed to be called by PM callbacks */
+int devfreq_suspend_device(struct devfreq *devfreq);
+int devfreq_resume_device(struct devfreq *devfreq);
+
+void devfreq_suspend(void);
+void devfreq_resume(void);
+
+/* update_devfreq() - Reevaluate the device and configure frequency */
+int update_devfreq(struct devfreq *devfreq);
+
+/* Helper functions for devfreq user device driver with OPP. */
+struct dev_pm_opp *devfreq_recommended_opp(struct device *dev,
+				unsigned long *freq, u32 flags);
+int devfreq_register_opp_notifier(struct device *dev,
+				struct devfreq *devfreq);
+int devfreq_unregister_opp_notifier(struct device *dev,
+				struct devfreq *devfreq);
+int devm_devfreq_register_opp_notifier(struct device *dev,
+				struct devfreq *devfreq);
+void devm_devfreq_unregister_opp_notifier(struct device *dev,
+				struct devfreq *devfreq);
+int devfreq_register_notifier(struct devfreq *devfreq,
+				struct notifier_block *nb,
+				unsigned int list);
+int devfreq_unregister_notifier(struct devfreq *devfreq,
+				struct notifier_block *nb,
+				unsigned int list);
+int devm_devfreq_register_notifier(struct device *dev,
+				struct devfreq *devfreq,
+				struct notifier_block *nb,
+				unsigned int list);
+void devm_devfreq_unregister_notifier(struct device *dev,
+				struct devfreq *devfreq,
+				struct notifier_block *nb,
+				unsigned int list);
+struct devfreq *devfreq_get_devfreq_by_node(struct device_node *node);
+struct devfreq *devfreq_get_devfreq_by_phandle(struct device *dev,
+				const char *phandle_name, int index);
+
+#if IS_ENABLED(CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND)
+/**
+ * struct devfreq_simple_ondemand_data - ``void *data`` fed to struct devfreq
+>>>>>>> upstream/android-13
  *	and devfreq_add_device
  * @upthreshold:	If the load is over this value, the frequency jumps.
  *			Specify 0 to use the default. Valid value = 0 to 100.
@@ -238,9 +408,12 @@ extern struct devfreq *devfreq_get_devfreq_by_phandle(struct device *dev,
  *			the governor may consider slowing the frequency down.
  *			Specify 0 to use the default. Valid value = 0 to 100.
  *			downdifferential < upthreshold must hold.
+<<<<<<< HEAD
  * @simple_scaling:	Setting this flag will scale the clocks up only if the
  *			load is above @upthreshold and will scale the clocks
  *			down only if the load is below @downdifferential.
+=======
+>>>>>>> upstream/android-13
  *
  * If the fed devfreq_simple_ondemand_data pointer is NULL to the governor,
  * the governor uses the default values.
@@ -248,13 +421,20 @@ extern struct devfreq *devfreq_get_devfreq_by_phandle(struct device *dev,
 struct devfreq_simple_ondemand_data {
 	unsigned int upthreshold;
 	unsigned int downdifferential;
+<<<<<<< HEAD
 	unsigned int simple_scaling;
+=======
+>>>>>>> upstream/android-13
 };
 #endif
 
 #if IS_ENABLED(CONFIG_DEVFREQ_GOV_PASSIVE)
 /**
+<<<<<<< HEAD
  * struct devfreq_passive_data - void *data fed to struct devfreq
+=======
+ * struct devfreq_passive_data - ``void *data`` fed to struct devfreq
+>>>>>>> upstream/android-13
  *	and devfreq_add_device
  * @parent:	the devfreq instance of parent device.
  * @get_target_freq:	Optional callback, Returns desired operating frequency
@@ -287,9 +467,15 @@ struct devfreq_passive_data {
 
 #else /* !CONFIG_PM_DEVFREQ */
 static inline struct devfreq *devfreq_add_device(struct device *dev,
+<<<<<<< HEAD
 					  struct devfreq_dev_profile *profile,
 					  const char *governor_name,
 					  void *data)
+=======
+					struct devfreq_dev_profile *profile,
+					const char *governor_name,
+					void *data)
+>>>>>>> upstream/android-13
 {
 	return ERR_PTR(-ENOSYS);
 }
@@ -322,32 +508,56 @@ static inline int devfreq_resume_device(struct devfreq *devfreq)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline struct dev_pm_opp *devfreq_recommended_opp(struct device *dev,
 					   unsigned long *freq, u32 flags)
+=======
+static inline void devfreq_suspend(void) {}
+static inline void devfreq_resume(void) {}
+
+static inline struct dev_pm_opp *devfreq_recommended_opp(struct device *dev,
+					unsigned long *freq, u32 flags)
+>>>>>>> upstream/android-13
 {
 	return ERR_PTR(-EINVAL);
 }
 
 static inline int devfreq_register_opp_notifier(struct device *dev,
+<<<<<<< HEAD
 					 struct devfreq *devfreq)
+=======
+					struct devfreq *devfreq)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
 
 static inline int devfreq_unregister_opp_notifier(struct device *dev,
+<<<<<<< HEAD
 					   struct devfreq *devfreq)
+=======
+					struct devfreq *devfreq)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
 
 static inline int devm_devfreq_register_opp_notifier(struct device *dev,
+<<<<<<< HEAD
 						     struct devfreq *devfreq)
+=======
+					struct devfreq *devfreq)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
 
 static inline void devm_devfreq_unregister_opp_notifier(struct device *dev,
+<<<<<<< HEAD
 							struct devfreq *devfreq)
+=======
+					struct devfreq *devfreq)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -366,14 +576,21 @@ static inline int devfreq_unregister_notifier(struct devfreq *devfreq,
 }
 
 static inline int devm_devfreq_register_notifier(struct device *dev,
+<<<<<<< HEAD
 				struct devfreq *devfreq,
 				struct notifier_block *nb,
 				unsigned int list)
+=======
+					struct devfreq *devfreq,
+					struct notifier_block *nb,
+					unsigned int list)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
 static inline void devm_devfreq_unregister_notifier(struct device *dev,
+<<<<<<< HEAD
 				struct devfreq *devfreq,
 				struct notifier_block *nb,
 				unsigned int list)
@@ -382,6 +599,21 @@ static inline void devm_devfreq_unregister_notifier(struct device *dev,
 
 static inline struct devfreq *devfreq_get_devfreq_by_phandle(struct device *dev,
 							int index)
+=======
+					struct devfreq *devfreq,
+					struct notifier_block *nb,
+					unsigned int list)
+{
+}
+
+static inline struct devfreq *devfreq_get_devfreq_by_node(struct device_node *node)
+{
+	return ERR_PTR(-ENODEV);
+}
+
+static inline struct devfreq *devfreq_get_devfreq_by_phandle(struct device *dev,
+					const char *phandle_name, int index)
+>>>>>>> upstream/android-13
 {
 	return ERR_PTR(-ENODEV);
 }

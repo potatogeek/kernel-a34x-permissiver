@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2010  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2010  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL8821AE_PHY_H__
 #define __RTL8821AE_PHY_H__
@@ -59,9 +64,15 @@
 
 #define LOOP_LIMIT				5
 #define MAX_STALL_TIME				50
+<<<<<<< HEAD
 #define AntennaDiversityValue			0x80
 #define MAX_TXPWR_IDX_NMODE_92S			63
 #define Reset_Cnt_Limit				3
+=======
+#define ANTENNADIVERSITYVALUE			0x80
+#define MAX_TXPWR_IDX_NMODE_92S			63
+#define RESET_CNT_LIMIT				3
+>>>>>>> upstream/android-13
 
 #define IQK_ADDA_REG_NUM			16
 #define IQK_MAC_REG_NUM				4

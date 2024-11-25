@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2005
  *   Portions Copyright (C) Christoph Hellwig, 2001-2002
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2005
+ *   Portions Copyright (C) Christoph Hellwig, 2001-2002
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -486,7 +493,11 @@ static int metapage_readpage(struct file *fp, struct page *page)
 	struct inode *inode = page->mapping->host;
 	struct bio *bio = NULL;
 	int block_offset;
+<<<<<<< HEAD
 	int blocks_per_page = PAGE_SIZE >> inode->i_blkbits;
+=======
+	int blocks_per_page = i_blocks_per_page(inode, page);
+>>>>>>> upstream/android-13
 	sector_t page_start;	/* address of page in fs blocks */
 	sector_t pblock;
 	int xlen;

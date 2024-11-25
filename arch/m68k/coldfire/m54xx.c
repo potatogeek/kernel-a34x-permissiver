@@ -9,6 +9,10 @@
 
 /***************************************************************************/
 
+<<<<<<< HEAD
+=======
+#include <linux/clkdev.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/param.h>
 #include <linux/init.h>
@@ -16,7 +20,11 @@
 #include <linux/io.h>
 #include <linux/mm.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <asm/pgalloc.h>
 #include <asm/machdep.h>
 #include <asm/coldfire.h>
@@ -32,6 +40,7 @@
 
 DEFINE_CLK(pll, "pll.0", MCF_CLK);
 DEFINE_CLK(sys, "sys.0", MCF_BUSCLK);
+<<<<<<< HEAD
 DEFINE_CLK(mcfslt0, "mcfslt.0", MCF_BUSCLK);
 DEFINE_CLK(mcfslt1, "mcfslt.1", MCF_BUSCLK);
 DEFINE_CLK(mcfuart0, "mcfuart.0", MCF_BUSCLK);
@@ -51,6 +60,19 @@ struct clk *mcf_clks[] = {
 	&clk_mcfuart3,
 	&clk_mcfi2c0,
 	NULL
+=======
+
+static struct clk_lookup m54xx_clk_lookup[] = {
+	CLKDEV_INIT(NULL, "pll.0", &clk_pll),
+	CLKDEV_INIT(NULL, "sys.0", &clk_sys),
+	CLKDEV_INIT("mcfslt.0", NULL, &clk_sys),
+	CLKDEV_INIT("mcfslt.1", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.0", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.1", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.2", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.3", NULL, &clk_sys),
+	CLKDEV_INIT("imx1-i2c.0", NULL, &clk_sys),
+>>>>>>> upstream/android-13
 };
 
 /***************************************************************************/
@@ -100,6 +122,11 @@ void __init config_BSP(char *commandp, int size)
 	mach_sched_init = hw_timer_init;
 	m54xx_uarts_init();
 	m54xx_i2c_init();
+<<<<<<< HEAD
+=======
+
+	clkdev_add_table(m54xx_clk_lookup, ARRAY_SIZE(m54xx_clk_lookup));
+>>>>>>> upstream/android-13
 }
 
 /***************************************************************************/

@@ -27,11 +27,49 @@ config CRYPTO_FIPS
 	depends on (CRYPTO_ANSI_CPRNG || CRYPTO_DRBG) && !CRYPTO_MANAGER_DISABLE_TESTS
 	depends on (MODULE_SIG || !MODULES)
 	help
+<<<<<<< HEAD
 	  This options enables the fips boot option which is
 	  required if you want to system to operate in a FIPS 200
 	  certification.  You should say no unless you know what
 	  this is.
 
+=======
+	  This option enables the fips boot option which is
+	  required if you want the system to operate in a FIPS 200
+	  certification.  You should say no unless you know what
+	  this is.
+
+# CRYPTO_FIPS140 just enables the support in the kernel for loading fips140.ko.
+# The module still needs to be built and loaded if you need FIPS 140 compliance.
+config CRYPTO_FIPS140
+	def_bool y
+	depends on MODULES && ARM64 && ARM64_MODULE_PLTS
+
+config CRYPTO_FIPS140_MOD
+	bool "Enable FIPS 140 cryptographic module"
+	depends on LTO_CLANG && CRYPTO_FIPS140
+	help
+	  This option enables building a loadable module fips140.ko, which
+	  contains various crypto algorithms that are also built into vmlinux.
+	  At load time, this module overrides the built-in implementations of
+	  these algorithms with its implementations.  It also runs self-tests on
+	  these algorithms and verifies the integrity of its code and data.  If
+	  either of these steps fails, the kernel will panic.
+
+	  This module is intended to be loaded at early boot time in order to
+	  meet FIPS 140 and NIAP FPT_TST_EXT.1 requirements.  It shouldn't be
+	  used if you don't need to meet these requirements.
+
+config CRYPTO_FIPS140_MOD_EVAL_TESTING
+	bool "Enable evaluation testing features in FIPS 140 module"
+	depends on CRYPTO_FIPS140_MOD
+	help
+	  This option adds some features to the FIPS 140 module which are needed
+	  for lab evaluation testing of the module, e.g. support for injecting
+	  errors and support for a userspace interface to some of the module's
+	  services.  This option should not be enabled in production builds.
+
+>>>>>>> upstream/android-13
 config CRYPTO_ALGAPI
 	tristate
 	select CRYPTO_ALGAPI2
@@ -52,6 +90,7 @@ config CRYPTO_AEAD2
 	select CRYPTO_NULL2
 	select CRYPTO_RNG2
 
+<<<<<<< HEAD
 config CRYPTO_BLKCIPHER
 	tristate
 	select CRYPTO_BLKCIPHER2
@@ -62,6 +101,17 @@ config CRYPTO_BLKCIPHER2
 	select CRYPTO_ALGAPI2
 	select CRYPTO_RNG2
 	select CRYPTO_WORKQUEUE
+=======
+config CRYPTO_SKCIPHER
+	tristate
+	select CRYPTO_SKCIPHER2
+	select CRYPTO_ALGAPI
+
+config CRYPTO_SKCIPHER2
+	tristate
+	select CRYPTO_ALGAPI2
+	select CRYPTO_RNG2
+>>>>>>> upstream/android-13
 
 config CRYPTO_HASH
 	tristate
@@ -113,6 +163,7 @@ config CRYPTO_ACOMP
 	select CRYPTO_ALGAPI
 	select CRYPTO_ACOMP2
 
+<<<<<<< HEAD
 config CRYPTO_RSA
 	tristate "RSA algorithm"
 	select CRYPTO_AKCIPHER
@@ -136,6 +187,8 @@ config CRYPTO_ECDH
 	help
 	  Generic implementation of the ECDH algorithm
 
+=======
+>>>>>>> upstream/android-13
 config CRYPTO_MANAGER
 	tristate "Cryptographic algorithm manager"
 	select CRYPTO_MANAGER2
@@ -147,7 +200,11 @@ config CRYPTO_MANAGER2
 	def_tristate CRYPTO_MANAGER || (CRYPTO_MANAGER!=n && CRYPTO_ALGAPI=y)
 	select CRYPTO_AEAD2
 	select CRYPTO_HASH2
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER2
+=======
+	select CRYPTO_SKCIPHER2
+>>>>>>> upstream/android-13
 	select CRYPTO_AKCIPHER2
 	select CRYPTO_KPP2
 	select CRYPTO_ACOMP2
@@ -167,6 +224,7 @@ config CRYPTO_MANAGER_DISABLE_TESTS
 	  Disable run-time self tests that normally take place at
 	  algorithm registration.
 
+<<<<<<< HEAD
 config CRYPTO_GF128MUL
 	tristate "GF(2^128) multiplication functions"
 	help
@@ -175,6 +233,20 @@ config CRYPTO_GF128MUL
 	  option will be selected automatically if you select such a
 	  cipher mode.  Only select this option by hand if you expect to load
 	  an external module that requires these functions.
+=======
+config CRYPTO_MANAGER_EXTRA_TESTS
+	bool "Enable extra run-time crypto self tests"
+	depends on DEBUG_KERNEL && !CRYPTO_MANAGER_DISABLE_TESTS && CRYPTO_MANAGER
+	help
+	  Enable extra run-time self tests of registered crypto algorithms,
+	  including randomized fuzz tests.
+
+	  This is intended for developer use only, as these tests take much
+	  longer to run than the normal self tests.
+
+config CRYPTO_GF128MUL
+	tristate
+>>>>>>> upstream/android-13
 
 config CRYPTO_NULL
 	tristate "Null algorithms"
@@ -185,7 +257,11 @@ config CRYPTO_NULL
 config CRYPTO_NULL2
 	tristate
 	select CRYPTO_ALGAPI2
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER2
+=======
+	select CRYPTO_SKCIPHER2
+>>>>>>> upstream/android-13
 	select CRYPTO_HASH2
 
 config CRYPTO_PCRYPT
@@ -198,6 +274,7 @@ config CRYPTO_PCRYPT
 	  This converts an arbitrary crypto algorithm into a parallel
 	  algorithm that executes in kernel threads.
 
+<<<<<<< HEAD
 config CRYPTO_WORKQUEUE
        tristate
 
@@ -207,11 +284,19 @@ config CRYPTO_CRYPTD
 	select CRYPTO_HASH
 	select CRYPTO_MANAGER
 	select CRYPTO_WORKQUEUE
+=======
+config CRYPTO_CRYPTD
+	tristate "Software async crypto daemon"
+	select CRYPTO_SKCIPHER
+	select CRYPTO_HASH
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  This is a generic software asynchronous crypto daemon that
 	  converts an arbitrary synchronous software crypto algorithm
 	  into an asynchronous algorithm that executes in a kernel thread.
 
+<<<<<<< HEAD
 config CRYPTO_MCRYPTD
 	tristate "Software async multi-buffer crypto daemon"
 	select CRYPTO_BLKCIPHER
@@ -230,6 +315,12 @@ config CRYPTO_AUTHENC
 	tristate "Authenc support"
 	select CRYPTO_AEAD
 	select CRYPTO_BLKCIPHER
+=======
+config CRYPTO_AUTHENC
+	tristate "Authenc support"
+	select CRYPTO_AEAD
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	select CRYPTO_HASH
 	select CRYPTO_NULL
@@ -239,7 +330,11 @@ config CRYPTO_AUTHENC
 
 config CRYPTO_TEST
 	tristate "Testing module"
+<<<<<<< HEAD
 	depends on m
+=======
+	depends on m || EXPERT
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	help
 	  Quick & dirty crypto test module.
@@ -248,6 +343,7 @@ config CRYPTO_SIMD
 	tristate
 	select CRYPTO_CRYPTD
 
+<<<<<<< HEAD
 config CRYPTO_GLUE_HELPER_X86
 	tristate
 	depends on X86
@@ -256,6 +352,80 @@ config CRYPTO_GLUE_HELPER_X86
 config CRYPTO_ENGINE
 	tristate
 
+=======
+config CRYPTO_ENGINE
+	tristate
+
+comment "Public-key cryptography"
+
+config CRYPTO_RSA
+	tristate "RSA algorithm"
+	select CRYPTO_AKCIPHER
+	select CRYPTO_MANAGER
+	select MPILIB
+	select ASN1
+	help
+	  Generic implementation of the RSA public key algorithm.
+
+config CRYPTO_DH
+	tristate "Diffie-Hellman algorithm"
+	select CRYPTO_KPP
+	select MPILIB
+	help
+	  Generic implementation of the Diffie-Hellman algorithm.
+
+config CRYPTO_ECC
+	tristate
+	select CRYPTO_RNG_DEFAULT
+
+config CRYPTO_ECDH
+	tristate "ECDH algorithm"
+	select CRYPTO_ECC
+	select CRYPTO_KPP
+	help
+	  Generic implementation of the ECDH algorithm
+
+config CRYPTO_ECDSA
+	tristate "ECDSA (NIST P192, P256 etc.) algorithm"
+	select CRYPTO_ECC
+	select CRYPTO_AKCIPHER
+	select ASN1
+	help
+	  Elliptic Curve Digital Signature Algorithm (NIST P192, P256 etc.)
+	  is A NIST cryptographic standard algorithm. Only signature verification
+	  is implemented.
+
+config CRYPTO_ECRDSA
+	tristate "EC-RDSA (GOST 34.10) algorithm"
+	select CRYPTO_ECC
+	select CRYPTO_AKCIPHER
+	select CRYPTO_STREEBOG
+	select OID_REGISTRY
+	select ASN1
+	help
+	  Elliptic Curve Russian Digital Signature Algorithm (GOST R 34.10-2012,
+	  RFC 7091, ISO/IEC 14888-3:2018) is one of the Russian cryptographic
+	  standard algorithms (called GOST algorithms). Only signature verification
+	  is implemented.
+
+config CRYPTO_SM2
+	tristate "SM2 algorithm"
+	select CRYPTO_SM3
+	select CRYPTO_AKCIPHER
+	select CRYPTO_MANAGER
+	select MPILIB
+	select ASN1
+	help
+	  Generic implementation of the SM2 public key algorithm. It was
+	  published by State Encryption Management Bureau, China.
+	  as specified by OSCCA GM/T 0003.1-2012 -- 0003.5-2012.
+
+	  References:
+	  https://tools.ietf.org/html/draft-shen-sm2-ecdsa-02
+	  http://www.oscca.gov.cn/sca/xxgk/2010-12/17/content_1002386.shtml
+	  http://www.gmbz.org.cn/main/bzlb.html
+
+>>>>>>> upstream/android-13
 config CRYPTO_CURVE25519
 	tristate "Curve25519 algorithm"
 	select CRYPTO_KPP
@@ -274,6 +444,10 @@ config CRYPTO_CCM
 	select CRYPTO_CTR
 	select CRYPTO_HASH
 	select CRYPTO_AEAD
+<<<<<<< HEAD
+=======
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  Support for Counter with CBC MAC. Required for IPsec.
 
@@ -283,6 +457,10 @@ config CRYPTO_GCM
 	select CRYPTO_AEAD
 	select CRYPTO_GHASH
 	select CRYPTO_NULL
+<<<<<<< HEAD
+=======
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  Support for Galois/Counter Mode (GCM) and Galois Message
 	  Authentication Code (GMAC). Required for IPSec.
@@ -292,6 +470,10 @@ config CRYPTO_CHACHA20POLY1305
 	select CRYPTO_CHACHA20
 	select CRYPTO_POLY1305
 	select CRYPTO_AEAD
+<<<<<<< HEAD
+=======
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  ChaCha20-Poly1305 AEAD support, RFC7539.
 
@@ -306,6 +488,7 @@ config CRYPTO_AEGIS128
 	help
 	 Support for the AEGIS-128 dedicated AEAD algorithm.
 
+<<<<<<< HEAD
 config CRYPTO_AEGIS128L
 	tristate "AEGIS-128L AEAD algorithm"
 	select CRYPTO_AEAD
@@ -319,11 +502,18 @@ config CRYPTO_AEGIS256
 	select CRYPTO_AES  # for AES S-box tables
 	help
 	 Support for the AEGIS-256 dedicated AEAD algorithm.
+=======
+config CRYPTO_AEGIS128_SIMD
+	bool "Support SIMD acceleration for AEGIS-128"
+	depends on CRYPTO_AEGIS128 && ((ARM || ARM64) && KERNEL_MODE_NEON)
+	default y
+>>>>>>> upstream/android-13
 
 config CRYPTO_AEGIS128_AESNI_SSE2
 	tristate "AEGIS-128 AEAD algorithm (x86_64 AESNI+SSE2 implementation)"
 	depends on X86 && 64BIT
 	select CRYPTO_AEAD
+<<<<<<< HEAD
 	select CRYPTO_CRYPTD
 	help
 	 AESNI+SSE2 implementation of the AEGSI-128 dedicated AEAD algorithm.
@@ -399,13 +589,25 @@ config CRYPTO_MORUS1280_AVX2
 	help
 	  AVX2 optimized implementation of the MORUS-1280 dedicated AEAD
 	  algorithm.
+=======
+	select CRYPTO_SIMD
+	help
+	 AESNI+SSE2 implementation of the AEGIS-128 dedicated AEAD algorithm.
+>>>>>>> upstream/android-13
 
 config CRYPTO_SEQIV
 	tristate "Sequence Number IV Generator"
 	select CRYPTO_AEAD
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_NULL
 	select CRYPTO_RNG_DEFAULT
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_NULL
+	select CRYPTO_RNG_DEFAULT
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  This IV generator generates an IV based on a sequence number by
 	  xoring it with a salt.  This algorithm is mainly useful for CTR
@@ -415,7 +617,11 @@ config CRYPTO_ECHAINIV
 	select CRYPTO_AEAD
 	select CRYPTO_NULL
 	select CRYPTO_RNG_DEFAULT
+<<<<<<< HEAD
 	default m
+=======
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  This IV generator generates an IV based on the encryption of
 	  a sequence number xored with a salt.  This is the default
@@ -425,7 +631,11 @@ comment "Block modes"
 
 config CRYPTO_CBC
 	tristate "CBC support"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	help
 	  CBC: Cipher Block Chaining mode
@@ -433,7 +643,11 @@ config CRYPTO_CBC
 
 config CRYPTO_CFB
 	tristate "CFB support"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	help
 	  CFB: Cipher FeedBack mode
@@ -441,8 +655,12 @@ config CRYPTO_CFB
 
 config CRYPTO_CTR
 	tristate "CTR support"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_SEQIV
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	help
 	  CTR: Counter mode
@@ -450,6 +668,7 @@ config CRYPTO_CTR
 
 config CRYPTO_CTS
 	tristate "CTS support"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	help
 	  CTS: Cipher Text Stealing
@@ -462,6 +681,24 @@ config CRYPTO_CTS
 config CRYPTO_ECB
 	tristate "ECB support"
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_MANAGER
+	help
+	  CTS: Cipher Text Stealing
+	  This is the Cipher Text Stealing mode as described by
+	  Section 8 of rfc2040 and referenced by rfc3962
+	  (rfc3962 includes errata information in its Appendix A) or
+	  CBC-CS3 as defined by NIST in Sp800-38A addendum from Oct 2010.
+	  This mode is required for Kerberos gss mechanism support
+	  for AES encryption.
+
+	  See: https://csrc.nist.gov/publications/detail/sp/800-38a/addendum/final
+
+config CRYPTO_ECB
+	tristate "ECB support"
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	help
 	  ECB: Electronic CodeBook mode
@@ -470,7 +707,11 @@ config CRYPTO_ECB
 
 config CRYPTO_LRW
 	tristate "LRW support"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	select CRYPTO_GF128MUL
 	help
@@ -480,9 +721,27 @@ config CRYPTO_LRW
 	  The first 128, 192 or 256 bits in the key are used for AES and the
 	  rest is used to tie each cipher block to its logical position.
 
+<<<<<<< HEAD
 config CRYPTO_PCBC
 	tristate "PCBC support"
 	select CRYPTO_BLKCIPHER
+=======
+config CRYPTO_OFB
+	tristate "OFB support"
+	select CRYPTO_SKCIPHER
+	select CRYPTO_MANAGER
+	help
+	  OFB: the Output Feedback mode makes a block cipher into a synchronous
+	  stream cipher. It generates keystream blocks, which are then XORed
+	  with the plaintext blocks to get the ciphertext. Flipping a bit in the
+	  ciphertext produces a flipped bit in the plaintext at the same
+	  location. This property allows many error correcting codes to function
+	  normally even when applied before encryption.
+
+config CRYPTO_PCBC
+	tristate "PCBC support"
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	help
 	  PCBC: Propagating Cipher Block Chaining mode
@@ -490,7 +749,11 @@ config CRYPTO_PCBC
 
 config CRYPTO_XTS
 	tristate "XTS support"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_MANAGER
 	select CRYPTO_ECB
 	help
@@ -500,7 +763,12 @@ config CRYPTO_XTS
 
 config CRYPTO_KEYWRAP
 	tristate "Key wrapping support"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  Support for key wrapping (NIST SP800-38F / RFC3394) without
 	  padding.
@@ -510,11 +778,34 @@ config CRYPTO_NHPOLY1305
 	select CRYPTO_HASH
 	select CRYPTO_LIB_POLY1305_GENERIC
 
+<<<<<<< HEAD
+=======
+config CRYPTO_NHPOLY1305_SSE2
+	tristate "NHPoly1305 hash function (x86_64 SSE2 implementation)"
+	depends on X86 && 64BIT
+	select CRYPTO_NHPOLY1305
+	help
+	  SSE2 optimized implementation of the hash function used by the
+	  Adiantum encryption mode.
+
+config CRYPTO_NHPOLY1305_AVX2
+	tristate "NHPoly1305 hash function (x86_64 AVX2 implementation)"
+	depends on X86 && 64BIT
+	select CRYPTO_NHPOLY1305
+	help
+	  AVX2 optimized implementation of the hash function used by the
+	  Adiantum encryption mode.
+
+>>>>>>> upstream/android-13
 config CRYPTO_ADIANTUM
 	tristate "Adiantum support"
 	select CRYPTO_CHACHA20
 	select CRYPTO_LIB_POLY1305_GENERIC
 	select CRYPTO_NHPOLY1305
+<<<<<<< HEAD
+=======
+	select CRYPTO_MANAGER
+>>>>>>> upstream/android-13
 	help
 	  Adiantum is a tweakable, length-preserving encryption mode
 	  designed for fast and secure disk encryption, especially on
@@ -533,6 +824,37 @@ config CRYPTO_ADIANTUM
 
 	  If unsure, say N.
 
+<<<<<<< HEAD
+=======
+config CRYPTO_ESSIV
+	tristate "ESSIV support for block encryption"
+	select CRYPTO_AUTHENC
+	help
+	  Encrypted salt-sector initialization vector (ESSIV) is an IV
+	  generation method that is used in some cases by fscrypt and/or
+	  dm-crypt. It uses the hash of the block encryption key as the
+	  symmetric key for a block encryption pass applied to the input
+	  IV, making low entropy IV sources more suitable for block
+	  encryption.
+
+	  This driver implements a crypto API template that can be
+	  instantiated either as an skcipher or as an AEAD (depending on the
+	  type of the first template argument), and which defers encryption
+	  and decryption requests to the encapsulated cipher after applying
+	  ESSIV to the input IV. Note that in the AEAD case, it is assumed
+	  that the keys are presented in the same format used by the authenc
+	  template, and that the IV appears at the end of the authenticated
+	  associated data (AAD) region (which is how dm-crypt uses it.)
+
+	  Note that the use of ESSIV is not recommended for new deployments,
+	  and so this only needs to be enabled when interoperability with
+	  existing encrypted volumes of filesystems is required, or when
+	  building for a particular system that requires it (e.g., when
+	  the SoC in question has accelerated CBC but not XTS, making CBC
+	  combined with ESSIV the only feasible mode for h/w accelerated
+	  block encryption)
+
+>>>>>>> upstream/android-13
 comment "Hash modes"
 
 config CRYPTO_CMAC
@@ -560,7 +882,11 @@ config CRYPTO_XCBC
 	select CRYPTO_MANAGER
 	help
 	  XCBC: Keyed-Hashing with encryption algorithm
+<<<<<<< HEAD
 		http://www.ietf.org/rfc/rfc3566.txt
+=======
+		https://www.ietf.org/rfc/rfc3566.txt
+>>>>>>> upstream/android-13
 		http://csrc.nist.gov/encryption/modes/proposedmodes/
 		 xcbc-mac/xcbc-mac-spec.pdf
 
@@ -573,7 +899,11 @@ config CRYPTO_VMAC
 	  very high speed on 64-bit architectures.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://fastcrypto.org/vmac>
+=======
+	  <https://fastcrypto.org/vmac>
+>>>>>>> upstream/android-13
 
 comment "Digest"
 
@@ -635,7 +965,11 @@ config CRYPTO_CRC32_PCLMUL
 	  From Intel Westmere and AMD Bulldozer processor with SSE4.2
 	  and PCLMULQDQ supported, the processor will support
 	  CRC32 PCLMULQDQ implementation using hardware accelerated PCLMULQDQ
+<<<<<<< HEAD
 	  instruction. This option will create 'crc32-plcmul' module,
+=======
+	  instruction. This option will create 'crc32-pclmul' module,
+>>>>>>> upstream/android-13
 	  which will enable any routine to use the CRC-32-IEEE 802.3 checksum
 	  and gain better performance as compared with the table implementation.
 
@@ -648,6 +982,34 @@ config CRYPTO_CRC32_MIPS
 	  instructions, when available.
 
 
+<<<<<<< HEAD
+=======
+config CRYPTO_XXHASH
+	tristate "xxHash hash algorithm"
+	select CRYPTO_HASH
+	select XXHASH
+	help
+	  xxHash non-cryptographic hash algorithm. Extremely fast, working at
+	  speeds close to RAM limits.
+
+config CRYPTO_BLAKE2B
+	tristate "BLAKE2b digest algorithm"
+	select CRYPTO_HASH
+	help
+	  Implementation of cryptographic hash function BLAKE2b (or just BLAKE2),
+	  optimized for 64bit platforms and can produce digests of any size
+	  between 1 to 64.  The keyed hash is also implemented.
+
+	  This module provides the following algorithms:
+
+	  - blake2b-160
+	  - blake2b-256
+	  - blake2b-384
+	  - blake2b-512
+
+	  See https://blake2.net for further information.
+
+>>>>>>> upstream/android-13
 config CRYPTO_BLAKE2S
 	tristate "BLAKE2s digest algorithm"
 	select CRYPTO_LIB_BLAKE2S_GENERIC
@@ -688,7 +1050,11 @@ config CRYPTO_CRCT10DIF_PCLMUL
 	  For x86_64 processors with SSE4.2 and PCLMULQDQ supported,
 	  CRC T10 DIF PCLMULQDQ computation can be hardware
 	  accelerated PCLMULQDQ instruction. This option will create
+<<<<<<< HEAD
 	  'crct10dif-plcmul' module, which is faster when computing the
+=======
+	  'crct10dif-pclmul' module, which is faster when computing the
+>>>>>>> upstream/android-13
 	  crct10dif checksum as compared with the generic table implementation.
 
 config CRYPTO_CRCT10DIF_VPMSUM
@@ -709,11 +1075,20 @@ config CRYPTO_VPMSUM_TESTER
 	  Unless you are testing these algorithms, you don't need this.
 
 config CRYPTO_GHASH
+<<<<<<< HEAD
 	tristate "GHASH digest algorithm"
 	select CRYPTO_GF128MUL
 	select CRYPTO_HASH
 	help
 	  GHASH is message digest algorithm for GCM (Galois/Counter Mode).
+=======
+	tristate "GHASH hash function"
+	select CRYPTO_GF128MUL
+	select CRYPTO_HASH
+	help
+	  GHASH is the hash function used in GCM (Galois/Counter Mode).
+	  It is not a general-purpose cryptographic hash function.
+>>>>>>> upstream/android-13
 
 config CRYPTO_POLY1305
 	tristate "Poly1305 authenticator algorithm"
@@ -741,7 +1116,11 @@ config CRYPTO_POLY1305_X86_64
 
 config CRYPTO_POLY1305_MIPS
 	tristate "Poly1305 authenticator algorithm (MIPS optimized)"
+<<<<<<< HEAD
 	depends on CPU_MIPS32 || (CPU_MIPS64 && 64BIT)
+=======
+	depends on MIPS
+>>>>>>> upstream/android-13
 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
 
 config CRYPTO_MD4
@@ -791,6 +1170,7 @@ config CRYPTO_MICHAEL_MIC
 	  should not be used for other purposes because of the weakness
 	  of the algorithm.
 
+<<<<<<< HEAD
 config CRYPTO_RMD128
 	tristate "RIPEMD-128 digest algorithm"
 	select CRYPTO_HASH
@@ -804,6 +1184,8 @@ config CRYPTO_RMD128
 	  Developed by Hans Dobbertin, Antoon Bosselaers and Bart Preneel.
 	  See <http://homes.esat.kuleuven.be/~bosselae/ripemd160.html>
 
+=======
+>>>>>>> upstream/android-13
 config CRYPTO_RMD160
 	tristate "RIPEMD-160 digest algorithm"
 	select CRYPTO_HASH
@@ -819,6 +1201,7 @@ config CRYPTO_RMD160
 	  against RIPEMD-160.
 
 	  Developed by Hans Dobbertin, Antoon Bosselaers and Bart Preneel.
+<<<<<<< HEAD
 	  See <http://homes.esat.kuleuven.be/~bosselae/ripemd160.html>
 
 config CRYPTO_RMD256
@@ -844,6 +1227,9 @@ config CRYPTO_RMD320
 
 	  Developed by Hans Dobbertin, Antoon Bosselaers and Bart Preneel.
 	  See <http://homes.esat.kuleuven.be/~bosselae/ripemd160.html>
+=======
+	  See <https://homes.esat.kuleuven.be/~bosselae/ripemd160.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_SHA1
 	tristate "SHA1 digest algorithm"
@@ -917,6 +1303,7 @@ config CRYPTO_SHA1_PPC_SPE
 	  SHA-1 secure hash standard (DFIPS 180-4) implemented
 	  using powerpc SPE SIMD instruction set.
 
+<<<<<<< HEAD
 config CRYPTO_SHA1_MB
 	tristate "SHA1 digest algorithm (x86_64 Multi-Buffer, Experimental)"
 	depends on X86 && 64BIT
@@ -968,6 +1355,12 @@ config CRYPTO_SHA512_MB
 config CRYPTO_SHA256
 	tristate "SHA224 and SHA256 digest algorithm"
 	select CRYPTO_HASH
+=======
+config CRYPTO_SHA256
+	tristate "SHA224 and SHA256 digest algorithm"
+	select CRYPTO_HASH
+	select CRYPTO_LIB_SHA256
+>>>>>>> upstream/android-13
 	help
 	  SHA256 secure hash standard (DFIPS 180-2).
 
@@ -1055,6 +1448,7 @@ config CRYPTO_SM3
 	  http://www.oscca.gov.cn/UpFile/20101222141857786.pdf
 	  https://datatracker.ietf.org/doc/html/draft-shen-sm3-hash
 
+<<<<<<< HEAD
 config CRYPTO_TGR192
 	tristate "Tiger digest algorithms"
 	select CRYPTO_HASH
@@ -1067,6 +1461,19 @@ config CRYPTO_TGR192
 
 	  See also:
 	  <http://www.cs.technion.ac.il/~biham/Reports/Tiger/>.
+=======
+config CRYPTO_STREEBOG
+	tristate "Streebog Hash Function"
+	select CRYPTO_HASH
+	help
+	  Streebog Hash Function (GOST R 34.11-2012, RFC 6986) is one of the Russian
+	  cryptographic standard algorithms (called GOST algorithms).
+	  This setting enables two hash algorithms with 256 and 512 bits output.
+
+	  References:
+	  https://tc26.ru/upload/iblock/fed/feddbb4d26b685903faa2ba11aea43f6.pdf
+	  https://tools.ietf.org/html/rfc6986
+>>>>>>> upstream/android-13
 
 config CRYPTO_WP512
 	tristate "Whirlpool digest algorithms"
@@ -1081,18 +1488,31 @@ config CRYPTO_WP512
 	  <http://www.larc.usp.br/~pbarreto/WhirlpoolPage.html>
 
 config CRYPTO_GHASH_CLMUL_NI_INTEL
+<<<<<<< HEAD
 	tristate "GHASH digest algorithm (CLMUL-NI accelerated)"
 	depends on X86 && 64BIT
 	select CRYPTO_CRYPTD
 	help
 	  GHASH is message digest algorithm for GCM (Galois/Counter Mode).
 	  The implementation is accelerated by CLMUL-NI of Intel.
+=======
+	tristate "GHASH hash function (CLMUL-NI accelerated)"
+	depends on X86 && 64BIT
+	select CRYPTO_CRYPTD
+	help
+	  This is the x86_64 CLMUL-NI accelerated implementation of
+	  GHASH, the hash function used in GCM (Galois/Counter mode).
+>>>>>>> upstream/android-13
 
 comment "Ciphers"
 
 config CRYPTO_AES
 	tristate "AES cipher algorithms"
 	select CRYPTO_ALGAPI
+<<<<<<< HEAD
+=======
+	select CRYPTO_LIB_AES
+>>>>>>> upstream/android-13
 	help
 	  AES cipher algorithms (FIPS-197). AES uses the Rijndael
 	  algorithm.
@@ -1113,6 +1533,10 @@ config CRYPTO_AES
 config CRYPTO_AES_TI
 	tristate "Fixed time AES cipher"
 	select CRYPTO_ALGAPI
+<<<<<<< HEAD
+=======
+	select CRYPTO_LIB_AES
+>>>>>>> upstream/android-13
 	help
 	  This is a generic implementation of AES that attempts to eliminate
 	  data dependent latencies as much as possible without affecting
@@ -1128,6 +1552,7 @@ config CRYPTO_AES_TI
 	  block. Interrupts are also disabled to avoid races where cachelines
 	  are evicted when the CPU is interrupted to do something else.
 
+<<<<<<< HEAD
 config CRYPTO_AES_586
 	tristate "AES cipher algorithms (i586)"
 	depends on (X86 || UML_X86) && !64BIT
@@ -1172,15 +1597,23 @@ config CRYPTO_AES_X86_64
 
 	  See <http://csrc.nist.gov/encryption/aes/> for more information.
 
+=======
+>>>>>>> upstream/android-13
 config CRYPTO_AES_NI_INTEL
 	tristate "AES cipher algorithms (AES-NI)"
 	depends on X86
 	select CRYPTO_AEAD
+<<<<<<< HEAD
 	select CRYPTO_AES_X86_64 if 64BIT
 	select CRYPTO_AES_586 if !64BIT
 	select CRYPTO_ALGAPI
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_GLUE_HELPER_X86 if 64BIT
+=======
+	select CRYPTO_LIB_AES
+	select CRYPTO_ALGAPI
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_SIMD
 	help
 	  Use Intel AES-NI instructions for AES algorithm.
@@ -1203,14 +1636,22 @@ config CRYPTO_AES_NI_INTEL
 
 	  In addition to AES cipher algorithm support, the acceleration
 	  for some popular block cipher mode is supported too, including
+<<<<<<< HEAD
 	  ECB, CBC, LRW, PCBC, XTS. The 64 bit version has additional
+=======
+	  ECB, CBC, LRW, XTS. The 64 bit version has additional
+>>>>>>> upstream/android-13
 	  acceleration for CTR.
 
 config CRYPTO_AES_SPARC64
 	tristate "AES cipher algorithms (SPARC64)"
 	depends on SPARC64
+<<<<<<< HEAD
 	select CRYPTO_CRYPTD
 	select CRYPTO_ALGAPI
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	help
 	  Use SPARC64 crypto opcodes for AES algorithm.
 
@@ -1237,6 +1678,10 @@ config CRYPTO_AES_SPARC64
 config CRYPTO_AES_PPC_SPE
 	tristate "AES cipher algorithms (PPC SPE)"
 	depends on PPC && SPE
+<<<<<<< HEAD
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	help
 	  AES cipher algorithms (FIPS-197). Additionally the acceleration
 	  for popular block cipher modes ECB, CBC, CTR and XTS is supported.
@@ -1249,6 +1694,10 @@ config CRYPTO_AES_PPC_SPE
 
 config CRYPTO_ANUBIS
 	tristate "Anubis cipher algorithm"
+<<<<<<< HEAD
+=======
+	depends on CRYPTO_USER_API_ENABLE_OBSOLETE
+>>>>>>> upstream/android-13
 	select CRYPTO_ALGAPI
 	help
 	  Anubis cipher algorithm.
@@ -1263,7 +1712,13 @@ config CRYPTO_ANUBIS
 
 config CRYPTO_ARC4
 	tristate "ARC4 cipher algorithm"
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	depends on CRYPTO_USER_API_ENABLE_OBSOLETE
+	select CRYPTO_SKCIPHER
+	select CRYPTO_LIB_ARC4
+>>>>>>> upstream/android-13
 	help
 	  ARC4 cipher algorithm.
 
@@ -1284,7 +1739,11 @@ config CRYPTO_BLOWFISH
 	  designed for use on "large microprocessors".
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/blowfish.html>
+=======
+	  <https://www.schneier.com/blowfish.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_BLOWFISH_COMMON
 	tristate
@@ -1293,13 +1752,23 @@ config CRYPTO_BLOWFISH_COMMON
 	  generic c and the assembler implementations.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/blowfish.html>
+=======
+	  <https://www.schneier.com/blowfish.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_BLOWFISH_X86_64
 	tristate "Blowfish cipher algorithm (x86_64)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_BLOWFISH_COMMON
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_BLOWFISH_COMMON
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Blowfish cipher algorithm (x86_64), by Bruce Schneier.
 
@@ -1308,11 +1777,18 @@ config CRYPTO_BLOWFISH_X86_64
 	  designed for use on "large microprocessors".
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/blowfish.html>
 
 config CRYPTO_CAMELLIA
 	tristate "Camellia cipher algorithms"
 	depends on CRYPTO
+=======
+	  <https://www.schneier.com/blowfish.html>
+
+config CRYPTO_CAMELLIA
+	tristate "Camellia cipher algorithms"
+>>>>>>> upstream/android-13
 	select CRYPTO_ALGAPI
 	help
 	  Camellia cipher algorithms module.
@@ -1328,9 +1804,14 @@ config CRYPTO_CAMELLIA
 config CRYPTO_CAMELLIA_X86_64
 	tristate "Camellia cipher algorithm (x86_64)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	depends on CRYPTO
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_GLUE_HELPER_X86
+=======
+	select CRYPTO_SKCIPHER
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Camellia cipher algorithm module (x86_64).
 
@@ -1345,12 +1826,19 @@ config CRYPTO_CAMELLIA_X86_64
 config CRYPTO_CAMELLIA_AESNI_AVX_X86_64
 	tristate "Camellia cipher algorithm (x86_64/AES-NI/AVX)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	depends on CRYPTO
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_CAMELLIA_X86_64
 	select CRYPTO_GLUE_HELPER_X86
 	select CRYPTO_SIMD
 	select CRYPTO_XTS
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_CAMELLIA_X86_64
+	select CRYPTO_SIMD
+	imply CRYPTO_XTS
+>>>>>>> upstream/android-13
 	help
 	  Camellia cipher algorithm module (x86_64/AES-NI/AVX).
 
@@ -1365,7 +1853,10 @@ config CRYPTO_CAMELLIA_AESNI_AVX_X86_64
 config CRYPTO_CAMELLIA_AESNI_AVX2_X86_64
 	tristate "Camellia cipher algorithm (x86_64/AES-NI/AVX2)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	depends on CRYPTO
+=======
+>>>>>>> upstream/android-13
 	select CRYPTO_CAMELLIA_AESNI_AVX_X86_64
 	help
 	  Camellia cipher algorithm module (x86_64/AES-NI/AVX2).
@@ -1381,8 +1872,13 @@ config CRYPTO_CAMELLIA_AESNI_AVX2_X86_64
 config CRYPTO_CAMELLIA_SPARC64
 	tristate "Camellia cipher algorithm (SPARC64)"
 	depends on SPARC64
+<<<<<<< HEAD
 	depends on CRYPTO
 	select CRYPTO_ALGAPI
+=======
+	select CRYPTO_ALGAPI
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	help
 	  Camellia cipher algorithm module (SPARC64).
 
@@ -1411,10 +1907,18 @@ config CRYPTO_CAST5
 config CRYPTO_CAST5_AVX_X86_64
 	tristate "CAST5 (CAST-128) cipher algorithm (x86_64/AVX)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_CAST5
 	select CRYPTO_CAST_COMMON
 	select CRYPTO_SIMD
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_CAST5
+	select CRYPTO_CAST_COMMON
+	select CRYPTO_SIMD
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  The CAST5 encryption algorithm (synonymous with CAST-128) is
 	  described in RFC2144.
@@ -1433,12 +1937,21 @@ config CRYPTO_CAST6
 config CRYPTO_CAST6_AVX_X86_64
 	tristate "CAST6 (CAST-256) cipher algorithm (x86_64/AVX)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_CAST6
 	select CRYPTO_CAST_COMMON
 	select CRYPTO_GLUE_HELPER_X86
 	select CRYPTO_SIMD
 	select CRYPTO_XTS
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_CAST6
+	select CRYPTO_CAST_COMMON
+	select CRYPTO_SIMD
+	imply CRYPTO_XTS
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  The CAST6 encryption algorithm (synonymous with CAST-256) is
 	  described in RFC2612.
@@ -1449,6 +1962,10 @@ config CRYPTO_CAST6_AVX_X86_64
 config CRYPTO_DES
 	tristate "DES and Triple DES EDE cipher algorithms"
 	select CRYPTO_ALGAPI
+<<<<<<< HEAD
+=======
+	select CRYPTO_LIB_DES
+>>>>>>> upstream/android-13
 	help
 	  DES cipher algorithm (FIPS 46-2), and Triple DES EDE (FIPS 46-3).
 
@@ -1456,7 +1973,12 @@ config CRYPTO_DES_SPARC64
 	tristate "DES and Triple DES EDE cipher algorithms (SPARC64)"
 	depends on SPARC64
 	select CRYPTO_ALGAPI
+<<<<<<< HEAD
 	select CRYPTO_DES
+=======
+	select CRYPTO_LIB_DES
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	help
 	  DES cipher algorithm (FIPS 46-2), and Triple DES EDE (FIPS 46-3),
 	  optimized using SPARC64 crypto opcodes.
@@ -1464,8 +1986,14 @@ config CRYPTO_DES_SPARC64
 config CRYPTO_DES3_EDE_X86_64
 	tristate "Triple DES EDE cipher algorithm (x86-64)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_DES
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_LIB_DES
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Triple DES EDE (FIPS 46-3) algorithm.
 
@@ -1477,12 +2005,20 @@ config CRYPTO_DES3_EDE_X86_64
 config CRYPTO_FCRYPT
 	tristate "FCrypt cipher algorithm"
 	select CRYPTO_ALGAPI
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	help
 	  FCrypt algorithm used by RxRPC.
 
 config CRYPTO_KHAZAD
 	tristate "Khazad cipher algorithm"
+<<<<<<< HEAD
+=======
+	depends on CRYPTO_USER_API_ENABLE_OBSOLETE
+>>>>>>> upstream/android-13
 	select CRYPTO_ALGAPI
 	help
 	  Khazad cipher algorithm.
@@ -1494,6 +2030,7 @@ config CRYPTO_KHAZAD
 	  See also:
 	  <http://www.larc.usp.br/~pbarreto/KhazadPage.html>
 
+<<<<<<< HEAD
 config CRYPTO_SALSA20
 	tristate "Salsa20 stream cipher algorithm"
 	select CRYPTO_BLKCIPHER
@@ -1510,13 +2047,23 @@ config CRYPTO_CHACHA20
 	tristate "ChaCha stream cipher algorithms"
 	select CRYPTO_LIB_CHACHA_GENERIC
 	select CRYPTO_BLKCIPHER
+=======
+config CRYPTO_CHACHA20
+	tristate "ChaCha stream cipher algorithms"
+	select CRYPTO_LIB_CHACHA_GENERIC
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	help
 	  The ChaCha20, XChaCha20, and XChaCha12 stream cipher algorithms.
 
 	  ChaCha20 is a 256-bit high-speed stream cipher designed by Daniel J.
 	  Bernstein and further specified in RFC7539 for use in IETF protocols.
 	  This is the portable C implementation of ChaCha20.  See also:
+<<<<<<< HEAD
 	  <http://cr.yp.to/chacha/chacha-20080128.pdf>
+=======
+	  <https://cr.yp.to/chacha/chacha-20080128.pdf>
+>>>>>>> upstream/android-13
 
 	  XChaCha20 is the application of the XSalsa20 construction to ChaCha20
 	  rather than to Salsa20.  XChaCha20 extends ChaCha20's nonce length
@@ -1531,7 +2078,11 @@ config CRYPTO_CHACHA20
 config CRYPTO_CHACHA20_X86_64
 	tristate "ChaCha stream cipher algorithms (x86_64/SSSE3/AVX2/AVX-512VL)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_LIB_CHACHA_GENERIC
 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
 	help
@@ -1541,11 +2092,19 @@ config CRYPTO_CHACHA20_X86_64
 config CRYPTO_CHACHA_MIPS
 	tristate "ChaCha stream cipher algorithms (MIPS 32r2 optimized)"
 	depends on CPU_MIPS32_R2
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
 
 config CRYPTO_SEED
 	tristate "SEED cipher algorithm"
+<<<<<<< HEAD
+=======
+	depends on CRYPTO_USER_API_ENABLE_OBSOLETE
+>>>>>>> upstream/android-13
 	select CRYPTO_ALGAPI
 	help
 	  SEED cipher algorithm (RFC4269).
@@ -1565,19 +2124,33 @@ config CRYPTO_SERPENT
 	  Serpent cipher algorithm, by Anderson, Biham & Knudsen.
 
 	  Keys are allowed to be from 0 to 256 bits in length, in steps
+<<<<<<< HEAD
 	  of 8 bits.  Also includes the 'Tnepres' algorithm, a reversed
 	  variant of Serpent for compatibility with old kerneli.org code.
 
 	  See also:
 	  <http://www.cl.cam.ac.uk/~rja14/serpent.html>
+=======
+	  of 8 bits.
+
+	  See also:
+	  <https://www.cl.cam.ac.uk/~rja14/serpent.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_SERPENT_SSE2_X86_64
 	tristate "Serpent cipher algorithm (x86_64/SSE2)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_GLUE_HELPER_X86
 	select CRYPTO_SERPENT
 	select CRYPTO_SIMD
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_SERPENT
+	select CRYPTO_SIMD
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Serpent cipher algorithm, by Anderson, Biham & Knudsen.
 
@@ -1588,15 +2161,26 @@ config CRYPTO_SERPENT_SSE2_X86_64
 	  blocks parallel using SSE2 instruction set.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.cl.cam.ac.uk/~rja14/serpent.html>
+=======
+	  <https://www.cl.cam.ac.uk/~rja14/serpent.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_SERPENT_SSE2_586
 	tristate "Serpent cipher algorithm (i586/SSE2)"
 	depends on X86 && !64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_GLUE_HELPER_X86
 	select CRYPTO_SERPENT
 	select CRYPTO_SIMD
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_SERPENT
+	select CRYPTO_SIMD
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Serpent cipher algorithm, by Anderson, Biham & Knudsen.
 
@@ -1607,16 +2191,28 @@ config CRYPTO_SERPENT_SSE2_586
 	  blocks parallel using SSE2 instruction set.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.cl.cam.ac.uk/~rja14/serpent.html>
+=======
+	  <https://www.cl.cam.ac.uk/~rja14/serpent.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_SERPENT_AVX_X86_64
 	tristate "Serpent cipher algorithm (x86_64/AVX)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_GLUE_HELPER_X86
 	select CRYPTO_SERPENT
 	select CRYPTO_SIMD
 	select CRYPTO_XTS
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_SERPENT
+	select CRYPTO_SIMD
+	imply CRYPTO_XTS
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Serpent cipher algorithm, by Anderson, Biham & Knudsen.
 
@@ -1627,7 +2223,11 @@ config CRYPTO_SERPENT_AVX_X86_64
 	  eight blocks parallel using the AVX instruction set.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.cl.cam.ac.uk/~rja14/serpent.html>
+=======
+	  <https://www.cl.cam.ac.uk/~rja14/serpent.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_SERPENT_AVX2_X86_64
 	tristate "Serpent cipher algorithm (x86_64/AVX2)"
@@ -1643,11 +2243,19 @@ config CRYPTO_SERPENT_AVX2_X86_64
 	  blocks parallel using AVX2 instruction set.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.cl.cam.ac.uk/~rja14/serpent.html>
+=======
+	  <https://www.cl.cam.ac.uk/~rja14/serpent.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_SM4
 	tristate "SM4 cipher algorithm"
 	select CRYPTO_ALGAPI
+<<<<<<< HEAD
+=======
+	select CRYPTO_LIB_SM4
+>>>>>>> upstream/android-13
 	help
 	  SM4 cipher algorithms (OSCCA GB/T 32907-2016).
 
@@ -1670,8 +2278,57 @@ config CRYPTO_SM4
 
 	  If unsure, say N.
 
+<<<<<<< HEAD
 config CRYPTO_TEA
 	tristate "TEA, XTEA and XETA cipher algorithms"
+=======
+config CRYPTO_SM4_AESNI_AVX_X86_64
+	tristate "SM4 cipher algorithm (x86_64/AES-NI/AVX)"
+	depends on X86 && 64BIT
+	select CRYPTO_SKCIPHER
+	select CRYPTO_SIMD
+	select CRYPTO_ALGAPI
+	select CRYPTO_LIB_SM4
+	help
+	  SM4 cipher algorithms (OSCCA GB/T 32907-2016) (x86_64/AES-NI/AVX).
+
+	  SM4 (GBT.32907-2016) is a cryptographic standard issued by the
+	  Organization of State Commercial Administration of China (OSCCA)
+	  as an authorized cryptographic algorithms for the use within China.
+
+	  This is SM4 optimized implementation using AES-NI/AVX/x86_64
+	  instruction set for block cipher. Through two affine transforms,
+	  we can use the AES S-Box to simulate the SM4 S-Box to achieve the
+	  effect of instruction acceleration.
+
+	  If unsure, say N.
+
+config CRYPTO_SM4_AESNI_AVX2_X86_64
+	tristate "SM4 cipher algorithm (x86_64/AES-NI/AVX2)"
+	depends on X86 && 64BIT
+	select CRYPTO_SKCIPHER
+	select CRYPTO_SIMD
+	select CRYPTO_ALGAPI
+	select CRYPTO_LIB_SM4
+	select CRYPTO_SM4_AESNI_AVX_X86_64
+	help
+	  SM4 cipher algorithms (OSCCA GB/T 32907-2016) (x86_64/AES-NI/AVX2).
+
+	  SM4 (GBT.32907-2016) is a cryptographic standard issued by the
+	  Organization of State Commercial Administration of China (OSCCA)
+	  as an authorized cryptographic algorithms for the use within China.
+
+	  This is SM4 optimized implementation using AES-NI/AVX2/x86_64
+	  instruction set for block cipher. Through two affine transforms,
+	  we can use the AES S-Box to simulate the SM4 S-Box to achieve the
+	  effect of instruction acceleration.
+
+	  If unsure, say N.
+
+config CRYPTO_TEA
+	tristate "TEA, XTEA and XETA cipher algorithms"
+	depends on CRYPTO_USER_API_ENABLE_OBSOLETE
+>>>>>>> upstream/android-13
 	select CRYPTO_ALGAPI
 	help
 	  TEA cipher algorithm.
@@ -1700,7 +2357,11 @@ config CRYPTO_TWOFISH
 	  bits.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/twofish.html>
+=======
+	  <https://www.schneier.com/twofish.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_TWOFISH_COMMON
 	tristate
@@ -1713,6 +2374,10 @@ config CRYPTO_TWOFISH_586
 	depends on (X86 || UML_X86) && !64BIT
 	select CRYPTO_ALGAPI
 	select CRYPTO_TWOFISH_COMMON
+<<<<<<< HEAD
+=======
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Twofish cipher algorithm.
 
@@ -1722,13 +2387,21 @@ config CRYPTO_TWOFISH_586
 	  bits.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/twofish.html>
+=======
+	  <https://www.schneier.com/twofish.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_TWOFISH_X86_64
 	tristate "Twofish cipher algorithm (x86_64)"
 	depends on (X86 || UML_X86) && 64BIT
 	select CRYPTO_ALGAPI
 	select CRYPTO_TWOFISH_COMMON
+<<<<<<< HEAD
+=======
+	imply CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Twofish cipher algorithm (x86_64).
 
@@ -1738,15 +2411,25 @@ config CRYPTO_TWOFISH_X86_64
 	  bits.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/twofish.html>
+=======
+	  <https://www.schneier.com/twofish.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_TWOFISH_X86_64_3WAY
 	tristate "Twofish cipher algorithm (x86_64, 3-way parallel)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_TWOFISH_COMMON
 	select CRYPTO_TWOFISH_X86_64
 	select CRYPTO_GLUE_HELPER_X86
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_TWOFISH_COMMON
+	select CRYPTO_TWOFISH_X86_64
+>>>>>>> upstream/android-13
 	help
 	  Twofish cipher algorithm (x86_64, 3-way parallel).
 
@@ -1759,17 +2442,29 @@ config CRYPTO_TWOFISH_X86_64_3WAY
 	  blocks parallel, utilizing resources of out-of-order CPUs better.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/twofish.html>
+=======
+	  <https://www.schneier.com/twofish.html>
+>>>>>>> upstream/android-13
 
 config CRYPTO_TWOFISH_AVX_X86_64
 	tristate "Twofish cipher algorithm (x86_64/AVX)"
 	depends on X86 && 64BIT
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_GLUE_HELPER_X86
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_SIMD
 	select CRYPTO_TWOFISH_COMMON
 	select CRYPTO_TWOFISH_X86_64
 	select CRYPTO_TWOFISH_X86_64_3WAY
+<<<<<<< HEAD
+=======
+	imply CRYPTO_XTS
+>>>>>>> upstream/android-13
 	help
 	  Twofish cipher algorithm (x86_64/AVX).
 
@@ -1782,7 +2477,11 @@ config CRYPTO_TWOFISH_AVX_X86_64
 	  eight blocks parallel using the AVX Instruction Set.
 
 	  See also:
+<<<<<<< HEAD
 	  <http://www.schneier.com/twofish.html>
+=======
+	  <https://www.schneier.com/twofish.html>
+>>>>>>> upstream/android-13
 
 comment "Compression"
 
@@ -1867,7 +2566,11 @@ config CRYPTO_DRBG_HMAC
 	bool
 	default y
 	select CRYPTO_HMAC
+<<<<<<< HEAD
 	select CRYPTO_SHA256
+=======
+	select CRYPTO_SHA512
+>>>>>>> upstream/android-13
 
 config CRYPTO_DRBG_HASH
 	bool "Enable Hash DRBG"
@@ -1878,7 +2581,11 @@ config CRYPTO_DRBG_HASH
 config CRYPTO_DRBG_CTR
 	bool "Enable CTR DRBG"
 	select CRYPTO_AES
+<<<<<<< HEAD
 	depends on CRYPTO_CTR
+=======
+	select CRYPTO_CTR
+>>>>>>> upstream/android-13
 	help
 	  Enable the CTR DRBG variant as defined in NIST SP800-90A.
 
@@ -1915,7 +2622,11 @@ config CRYPTO_USER_API_HASH
 config CRYPTO_USER_API_SKCIPHER
 	tristate "User-space interface for symmetric key cipher algorithms"
 	depends on NET
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_USER_API
 	help
 	  This option enables the user-spaces interface for symmetric
@@ -1930,23 +2641,68 @@ config CRYPTO_USER_API_RNG
 	  This option enables the user-spaces interface for random
 	  number generator algorithms.
 
+<<<<<<< HEAD
+=======
+config CRYPTO_USER_API_RNG_CAVP
+	bool "Enable CAVP testing of DRBG"
+	depends on CRYPTO_USER_API_RNG && CRYPTO_DRBG
+	help
+	  This option enables extra API for CAVP testing via the user-space
+	  interface: resetting of DRBG entropy, and providing Additional Data.
+	  This should only be enabled for CAVP testing. You should say
+	  no unless you know what this is.
+
+>>>>>>> upstream/android-13
 config CRYPTO_USER_API_AEAD
 	tristate "User-space interface for AEAD cipher algorithms"
 	depends on NET
 	select CRYPTO_AEAD
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_NULL
 	select CRYPTO_USER_API
 	help
 	  This option enables the user-spaces interface for AEAD
 	  cipher algorithms.
 
+<<<<<<< HEAD
+=======
+config CRYPTO_USER_API_ENABLE_OBSOLETE
+	bool "Enable obsolete cryptographic algorithms for userspace"
+	depends on CRYPTO_USER_API
+	default y
+	help
+	  Allow obsolete cryptographic algorithms to be selected that have
+	  already been phased out from internal use by the kernel, and are
+	  only useful for userspace clients that still rely on them.
+
+config CRYPTO_STATS
+	bool "Crypto usage statistics for User-space"
+	depends on CRYPTO_USER
+	help
+	  This option enables the gathering of crypto stats.
+	  This will collect:
+	  - encrypt/decrypt size and numbers of symmeric operations
+	  - compress/decompress size and numbers of compress operations
+	  - size and numbers of hash operations
+	  - encrypt/decrypt/sign/verify numbers for asymmetric operations
+	  - generate/seed numbers for rng operations
+
+>>>>>>> upstream/android-13
 config CRYPTO_HASH_INFO
 	bool
 
 source "lib/crypto/Kconfig"
 source "drivers/crypto/Kconfig"
+<<<<<<< HEAD
 source crypto/asymmetric_keys/Kconfig
 source certs/Kconfig
+=======
+source "crypto/asymmetric_keys/Kconfig"
+source "certs/Kconfig"
+>>>>>>> upstream/android-13
 
 endif	# if CRYPTO

@@ -3,8 +3,14 @@
 #define _ASM_POWERPC_SYNCH_H 
 #ifdef __KERNEL__
 
+<<<<<<< HEAD
 #include <asm/feature-fixups.h>
 #include <asm/asm-const.h>
+=======
+#include <asm/cputable.h>
+#include <asm/feature-fixups.h>
+#include <asm/ppc-opcode.h>
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 extern unsigned int __start___lwsync_fixup, __stop___lwsync_fixup;
@@ -20,6 +26,25 @@ static inline void isync(void)
 {
 	__asm__ __volatile__ ("isync" : : : "memory");
 }
+<<<<<<< HEAD
+=======
+
+static inline void ppc_after_tlbiel_barrier(void)
+{
+	asm volatile("ptesync": : :"memory");
+	/*
+	 * POWER9, POWER10 need a cp_abort after tlbiel to ensure the copy is
+	 * invalidated correctly. If this is not done, the paste can take data
+	 * from the physical address that was translated at copy time.
+	 *
+	 * POWER9 in practice does not need this, because address spaces with
+	 * accelerators mapped will use tlbie (which does invalidate the copy)
+	 * to invalidate translations. It's not possible to limit POWER10 this
+	 * way due to local copy-paste.
+	 */
+	asm volatile(ASM_FTR_IFSET(PPC_CP_ABORT, "", %0) : : "i" (CPU_FTR_ARCH_31) : "memory");
+}
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #if defined(__powerpc64__)

@@ -17,6 +17,10 @@
 #include <linux/cred.h>
 #include <linux/uio.h>
 #include <linux/xattr.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 
 #include "hfs_fs.h"
 #include "btree.h"
@@ -158,6 +162,10 @@ static int hfs_writepages(struct address_space *mapping,
 }
 
 const struct address_space_operations hfs_btree_aops = {
+<<<<<<< HEAD
+=======
+	.set_page_dirty	= __set_page_dirty_buffers,
+>>>>>>> upstream/android-13
 	.readpage	= hfs_readpage,
 	.writepage	= hfs_writepage,
 	.write_begin	= hfs_write_begin,
@@ -167,6 +175,10 @@ const struct address_space_operations hfs_btree_aops = {
 };
 
 const struct address_space_operations hfs_aops = {
+<<<<<<< HEAD
+=======
+	.set_page_dirty	= __set_page_dirty_buffers,
+>>>>>>> upstream/android-13
 	.readpage	= hfs_readpage,
 	.writepage	= hfs_writepage,
 	.write_begin	= hfs_write_begin,
@@ -351,7 +363,11 @@ static int hfs_read_inode(struct inode *inode, void *data)
 		inode->i_mode &= ~hsb->s_file_umask;
 		inode->i_mode |= S_IFREG;
 		inode->i_ctime = inode->i_atime = inode->i_mtime =
+<<<<<<< HEAD
 				timespec_to_timespec64(hfs_m_to_utime(rec->file.MdDat));
+=======
+				hfs_m_to_utime(rec->file.MdDat);
+>>>>>>> upstream/android-13
 		inode->i_op = &hfs_file_inode_operations;
 		inode->i_fop = &hfs_file_operations;
 		inode->i_mapping->a_ops = &hfs_aops;
@@ -362,7 +378,11 @@ static int hfs_read_inode(struct inode *inode, void *data)
 		HFS_I(inode)->fs_blocks = 0;
 		inode->i_mode = S_IFDIR | (S_IRWXUGO & ~hsb->s_dir_umask);
 		inode->i_ctime = inode->i_atime = inode->i_mtime =
+<<<<<<< HEAD
 				timespec_to_timespec64(hfs_m_to_utime(rec->dir.MdDat));
+=======
+				hfs_m_to_utime(rec->dir.MdDat);
+>>>>>>> upstream/android-13
 		inode->i_op = &hfs_dir_inode_operations;
 		inode->i_fop = &hfs_dir_operations;
 		break;
@@ -601,13 +621,23 @@ static int hfs_file_release(struct inode *inode, struct file *file)
  *     correspond to the same HFS file.
  */
 
+<<<<<<< HEAD
 int hfs_inode_setattr(struct dentry *dentry, struct iattr * attr)
+=======
+int hfs_inode_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		      struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	struct hfs_sb_info *hsb = HFS_SB(inode->i_sb);
 	int error;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr); /* basic permission checks */
+=======
+	error = setattr_prepare(&init_user_ns, dentry,
+				attr); /* basic permission checks */
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -646,7 +676,11 @@ int hfs_inode_setattr(struct dentry *dentry, struct iattr * attr)
 						  current_time(inode);
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, attr);
+=======
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }

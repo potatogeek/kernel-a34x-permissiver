@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Hauppauge HD PVR USB driver
  *
  * Copyright (C) 2008      Janne Grunau (j@jannau.net)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/usb.h>
@@ -215,7 +222,11 @@ enum {
 	 */
 
 	/* :0 s 38 01 1700 0003 0001 1 = 00
+<<<<<<< HEAD
 	 * VIDEO STANDARD or FREQUNCY 0 = 60hz, 1 = 50hz
+=======
+	 * VIDEO STANDARD or FREQUENCY 0 = 60hz, 1 = 50hz
+>>>>>>> upstream/android-13
 	 */
 
 	/* :0 s 38 01 3100 0003 0004 4 = 03030000

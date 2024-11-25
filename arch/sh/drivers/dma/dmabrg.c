@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7760 DMABRG IRQ handling
  *
  * (c) 2007 MSC Vertriebsges.m.b.H, Manuel Lauss <mlau@msc-ge.com>
+<<<<<<< HEAD
  *  licensed under the GPLv2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>

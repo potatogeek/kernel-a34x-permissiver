@@ -47,6 +47,7 @@ Example (LS2080A-RDB):
                 reg = <0x3 0 0x10000>;
         };
 
+<<<<<<< HEAD
 * Freescale BCSR GPIO banks
 
 Some BCSR registers act as simple GPIO controllers, each such
@@ -77,6 +78,8 @@ Example:
 		};
 	};
 
+=======
+>>>>>>> upstream/android-13
 * Freescale on-board FPGA connected on I2C bus
 
 Some Freescale boards like BSC9132QDS have on board FPGA connected on

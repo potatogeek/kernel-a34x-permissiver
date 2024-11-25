@@ -37,10 +37,15 @@
  * DAMAGE.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/fips.h>
 #include <linux/time.h>
+<<<<<<< HEAD
 #include <linux/crypto.h>
 #include <crypto/internal/rng.h>
 
@@ -51,16 +56,24 @@ int jent_entropy_init(void);
 struct rand_data *jent_entropy_collector_alloc(unsigned int osr,
 					       unsigned int flags);
 void jent_entropy_collector_free(struct rand_data *entropy_collector);
+=======
+#include <crypto/internal/rng.h>
+
+#include "jitterentropy.h"
+>>>>>>> upstream/android-13
 
 /***************************************************************************
  * Helper function
  ***************************************************************************/
 
+<<<<<<< HEAD
 __u64 jent_rol64(__u64 word, unsigned int shift)
 {
 	return rol64(word, shift);
 }
 
+=======
+>>>>>>> upstream/android-13
 void *jent_zalloc(unsigned int len)
 {
 	return kzalloc(len, GFP_KERNEL);
@@ -68,7 +81,11 @@ void *jent_zalloc(unsigned int len)
 
 void jent_zfree(void *ptr)
 {
+<<<<<<< HEAD
 	kzfree(ptr);
+=======
+	kfree_sensitive(ptr);
+>>>>>>> upstream/android-13
 }
 
 int jent_fips_enabled(void)
@@ -119,6 +136,10 @@ void jent_get_nstime(__u64 *out)
 struct jitterentropy {
 	spinlock_t jent_lock;
 	struct rand_data *entropy_collector;
+<<<<<<< HEAD
+=======
+	unsigned int reset_cnt;
+>>>>>>> upstream/android-13
 };
 
 static int jent_kcapi_init(struct crypto_tfm *tfm)
@@ -153,7 +174,37 @@ static int jent_kcapi_random(struct crypto_rng *tfm,
 	int ret = 0;
 
 	spin_lock(&rng->jent_lock);
+<<<<<<< HEAD
 	ret = jent_read_entropy(rng->entropy_collector, rdata, dlen);
+=======
+
+	/* Return a permanent error in case we had too many resets in a row. */
+	if (rng->reset_cnt > (1<<10)) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	ret = jent_read_entropy(rng->entropy_collector, rdata, dlen);
+
+	/* Reset RNG in case of health failures */
+	if (ret < -1) {
+		pr_warn_ratelimited("Reset Jitter RNG due to health test failure: %s failure\n",
+				    (ret == -2) ? "Repetition Count Test" :
+						  "Adaptive Proportion Test");
+
+		rng->reset_cnt++;
+
+		ret = -EAGAIN;
+	} else {
+		rng->reset_cnt = 0;
+
+		/* Convert the Jitter RNG error into a usable error code */
+		if (ret == -1)
+			ret = -EINVAL;
+	}
+
+out:
+>>>>>>> upstream/android-13
 	spin_unlock(&rng->jent_lock);
 
 	return ret;

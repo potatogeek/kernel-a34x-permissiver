@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef	__RTL92C_DM_H__
 #define __RTL92C_DM_H__
@@ -44,7 +49,11 @@
 #define DM_DIG_FA_TH1				0x100
 #define DM_DIG_FA_TH2				0x200
 
+<<<<<<< HEAD
 #define RXPATHSELECTION_SS_TH_lOW		30
+=======
+#define RXPATHSELECTION_SS_TH_LOW		30
+>>>>>>> upstream/android-13
 #define RXPATHSELECTION_DIFF_TH			18
 
 #define DM_RATR_STA_INIT			0
@@ -55,7 +64,11 @@
 #define CTS2SELF_THVAL				30
 #define REGC38_TH				20
 
+<<<<<<< HEAD
 #define WAIOTTHVal				25
+=======
+#define WAIOTTHVAL				25
+>>>>>>> upstream/android-13
 
 #define TXHIGHPWRLEVEL_NORMAL			0
 #define TXHIGHPWRLEVEL_LEVEL1			1

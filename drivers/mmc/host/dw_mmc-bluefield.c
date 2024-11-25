@@ -47,6 +47,7 @@ MODULE_DEVICE_TABLE(of, dw_mci_bluefield_match);
 
 static int dw_mci_bluefield_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct dw_mci_drv_data *drv_data = NULL;
 	const struct of_device_id *match;
 
@@ -57,6 +58,9 @@ static int dw_mci_bluefield_probe(struct platform_device *pdev)
 	}
 
 	return dw_mci_pltfm_register(pdev, drv_data);
+=======
+	return dw_mci_pltfm_register(pdev, &bluefield_drv_data);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver dw_mci_bluefield_pltfm_driver = {
@@ -64,6 +68,10 @@ static struct platform_driver dw_mci_bluefield_pltfm_driver = {
 	.remove		= dw_mci_pltfm_remove,
 	.driver		= {
 		.name		= "dwmmc_bluefield",
+<<<<<<< HEAD
+=======
+		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table	= dw_mci_bluefield_match,
 		.pm		= &dw_mci_pltfm_pmops,
 	},

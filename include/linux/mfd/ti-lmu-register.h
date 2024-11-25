@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * TI LMU (Lighting Management Unit) Device Register Map
  *
  * Copyright 2017 Texas Instruments
  *
  * Author: Milo Kim <milo.kim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MFD_TI_LMU_REGISTER_H__
@@ -15,6 +22,7 @@
 
 #include <linux/bitops.h>
 
+<<<<<<< HEAD
 /* LM3532 */
 #define LM3532_REG_OUTPUT_CFG			0x10
 #define LM3532_ILED1_CFG_MASK			0x03
@@ -59,6 +67,8 @@
 
 #define LM3532_MAX_REG				0x7E
 
+=======
+>>>>>>> upstream/android-13
 /* LM3631 */
 #define LM3631_REG_DEVCTRL			0x00
 #define LM3631_LCD_EN_MASK			BIT(1)
@@ -234,6 +244,7 @@
 
 #define LM3695_MAX_REG				0x14
 
+<<<<<<< HEAD
 /* LM3697 */
 #define LM3697_REG_HVLED_OUTPUT_CFG		0x10
 #define LM3697_HVLED1_CFG_MASK			BIT(0)
@@ -277,4 +288,28 @@
 #define LM3697_REG_MONITOR_ENABLE		0xB4
 
 #define LM3697_MAX_REG				0xB4
+=======
+/* LM36274 */
+#define LM36274_REG_REV				0x01
+#define LM36274_REG_BL_CFG_1			0x02
+#define LM36274_REG_BL_CFG_2			0x03
+#define LM36274_REG_BRT_LSB			0x04
+#define LM36274_REG_BRT_MSB			0x05
+#define LM36274_REG_BL_EN			0x08
+
+#define LM36274_REG_BIAS_CONFIG_1		0x09
+#define LM36274_EXT_EN_MASK			BIT(0)
+#define LM36274_EN_VNEG_MASK			BIT(1)
+#define LM36274_EN_VPOS_MASK			BIT(2)
+
+#define LM36274_REG_BIAS_CONFIG_2		0x0a
+#define LM36274_REG_BIAS_CONFIG_3		0x0b
+#define LM36274_REG_VOUT_BOOST			0x0c
+#define LM36274_REG_VOUT_POS			0x0d
+#define LM36274_REG_VOUT_NEG			0x0e
+#define LM36274_VOUT_MASK			0x3F
+
+#define LM36274_MAX_REG				0x13
+
+>>>>>>> upstream/android-13
 #endif

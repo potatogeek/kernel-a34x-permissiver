@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* us2e_cpufreq.c: UltraSPARC-IIe cpu frequency support
  *
  * Copyright (C) 2003 David S. Miller (davem@redhat.com)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 cx25840-objs    := cx25840-core.o cx25840-audio.o cx25840-firmware.o \
 		   cx25840-vbi.o cx25840-ir.o
 

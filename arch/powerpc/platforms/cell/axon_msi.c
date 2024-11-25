@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2007, Michael Ellerman, IBM Corporation.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2007, Michael Ellerman, IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 
@@ -16,8 +22,13 @@
 #include <linux/export.h>
 #include <linux/of_platform.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <asm/debugfs.h>
+=======
+#include <linux/debugfs.h>
+
+>>>>>>> upstream/android-13
 #include <asm/dcr.h>
 #include <asm/machdep.h>
 #include <asm/prom.h>
@@ -484,10 +495,14 @@ void axon_msi_debug_setup(struct device_node *dn, struct axon_msic *msic)
 
 	snprintf(name, sizeof(name), "msic_%d", of_node_to_nid(dn));
 
+<<<<<<< HEAD
 	if (!debugfs_create_file(name, 0600, powerpc_debugfs_root,
 				 msic, &fops_msic)) {
 		pr_devel("axon_msi: debugfs_create_file failed!\n");
 		return;
 	}
+=======
+	debugfs_create_file(name, 0600, arch_debugfs_dir, msic, &fops_msic);
+>>>>>>> upstream/android-13
 }
 #endif /* DEBUG */

@@ -131,6 +131,7 @@ static int bmips_cpufreq_exit(struct cpufreq_policy *policy)
 static int bmips_cpufreq_init(struct cpufreq_policy *policy)
 {
 	struct cpufreq_frequency_table *freq_table;
+<<<<<<< HEAD
 	int ret;
 
 	freq_table = bmips_cpufreq_get_freq_table(policy);
@@ -148,6 +149,20 @@ static int bmips_cpufreq_init(struct cpufreq_policy *policy)
 		pr_info("%s: registered\n", BMIPS_CPUFREQ_NAME);
 
 	return ret;
+=======
+
+	freq_table = bmips_cpufreq_get_freq_table(policy);
+	if (IS_ERR(freq_table)) {
+		pr_err("%s: couldn't determine frequency table (%ld).\n",
+			BMIPS_CPUFREQ_NAME, PTR_ERR(freq_table));
+		return PTR_ERR(freq_table);
+	}
+
+	cpufreq_generic_init(policy, freq_table, TRANSITION_LATENCY);
+	pr_info("%s: registered\n", BMIPS_CPUFREQ_NAME);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct cpufreq_driver bmips_cpufreq_driver = {

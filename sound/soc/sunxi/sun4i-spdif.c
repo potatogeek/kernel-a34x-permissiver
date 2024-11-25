@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ALSA SoC SPDIF Audio Layer
  *
@@ -5,6 +9,7 @@
  * Copyright 2015 Marcus Cooper <codekipper@gmail.com>
  *
  * Based on the Allwinner SDK driver, released under the GPL.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -75,6 +82,21 @@
 	#define SUN4I_SPDIF_FCTL_RXOM(v)		((v) << 0)
 	#define SUN4I_SPDIF_FCTL_RXOM_MASK		GENMASK(1, 0)
 
+<<<<<<< HEAD
+=======
+#define SUN50I_H6_SPDIF_FCTL (0x14)
+	#define SUN50I_H6_SPDIF_FCTL_HUB_EN		BIT(31)
+	#define SUN50I_H6_SPDIF_FCTL_FTX		BIT(30)
+	#define SUN50I_H6_SPDIF_FCTL_FRX		BIT(29)
+	#define SUN50I_H6_SPDIF_FCTL_TXTL(v)		((v) << 12)
+	#define SUN50I_H6_SPDIF_FCTL_TXTL_MASK		GENMASK(19, 12)
+	#define SUN50I_H6_SPDIF_FCTL_RXTL(v)		((v) << 4)
+	#define SUN50I_H6_SPDIF_FCTL_RXTL_MASK		GENMASK(10, 4)
+	#define SUN50I_H6_SPDIF_FCTL_TXIM		BIT(2)
+	#define SUN50I_H6_SPDIF_FCTL_RXOM(v)		((v) << 0)
+	#define SUN50I_H6_SPDIF_FCTL_RXOM_MASK		GENMASK(1, 0)
+
+>>>>>>> upstream/android-13
 #define SUN4I_SPDIF_FSTA	(0x18)
 	#define SUN4I_SPDIF_FSTA_TXE			BIT(14)
 	#define SUN4I_SPDIF_FSTA_TXECNTSHT		(8)
@@ -161,6 +183,22 @@
 #define SUN4I_SPDIF_SAMFREQ_176_4KHZ		0xc
 #define SUN4I_SPDIF_SAMFREQ_192KHZ		0xe
 
+<<<<<<< HEAD
+=======
+/**
+ * struct sun4i_spdif_quirks - Differences between SoC variants.
+ *
+ * @reg_dac_txdata: TX FIFO offset for DMA config.
+ * @has_reset: SoC needs reset deasserted.
+ * @val_fctl_ftx: TX FIFO flush bitmask.
+ */
+struct sun4i_spdif_quirks {
+	unsigned int reg_dac_txdata;
+	bool has_reset;
+	unsigned int val_fctl_ftx;
+};
+
+>>>>>>> upstream/android-13
 struct sun4i_spdif_dev {
 	struct platform_device *pdev;
 	struct clk *spdif_clk;
@@ -169,16 +207,29 @@ struct sun4i_spdif_dev {
 	struct snd_soc_dai_driver cpu_dai_drv;
 	struct regmap *regmap;
 	struct snd_dmaengine_dai_dma_data dma_params_tx;
+<<<<<<< HEAD
+=======
+	const struct sun4i_spdif_quirks *quirks;
+>>>>>>> upstream/android-13
 };
 
 static void sun4i_spdif_configure(struct sun4i_spdif_dev *host)
 {
+<<<<<<< HEAD
+=======
+	const struct sun4i_spdif_quirks *quirks = host->quirks;
+
+>>>>>>> upstream/android-13
 	/* soft reset SPDIF */
 	regmap_write(host->regmap, SUN4I_SPDIF_CTL, SUN4I_SPDIF_CTL_RESET);
 
 	/* flush TX FIFO */
 	regmap_update_bits(host->regmap, SUN4I_SPDIF_FCTL,
+<<<<<<< HEAD
 			   SUN4I_SPDIF_FCTL_FTX, SUN4I_SPDIF_FCTL_FTX);
+=======
+			   quirks->val_fctl_ftx, quirks->val_fctl_ftx);
+>>>>>>> upstream/android-13
 
 	/* clear TX counter */
 	regmap_write(host->regmap, SUN4I_SPDIF_TXCNT, 0);
@@ -224,8 +275,13 @@ static void sun4i_snd_txctrl_off(struct snd_pcm_substream *substream,
 static int sun4i_spdif_startup(struct snd_pcm_substream *substream,
 			       struct snd_soc_dai *cpu_dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct sun4i_spdif_dev *host = snd_soc_dai_get_drvdata(rtd->cpu_dai);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct sun4i_spdif_dev *host = snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 
 	if (substream->stream != SNDRV_PCM_STREAM_PLAYBACK)
 		return -EINVAL;
@@ -405,6 +461,7 @@ static struct snd_soc_dai_driver sun4i_spdif_dai = {
 	.name = "spdif",
 };
 
+<<<<<<< HEAD
 struct sun4i_spdif_quirks {
 	unsigned int reg_dac_txdata;	/* TX FIFO offset for DMA config */
 	bool has_reset;
@@ -412,18 +469,40 @@ struct sun4i_spdif_quirks {
 
 static const struct sun4i_spdif_quirks sun4i_a10_spdif_quirks = {
 	.reg_dac_txdata	= SUN4I_SPDIF_TXFIFO,
+=======
+static const struct sun4i_spdif_quirks sun4i_a10_spdif_quirks = {
+	.reg_dac_txdata	= SUN4I_SPDIF_TXFIFO,
+	.val_fctl_ftx   = SUN4I_SPDIF_FCTL_FTX,
+>>>>>>> upstream/android-13
 };
 
 static const struct sun4i_spdif_quirks sun6i_a31_spdif_quirks = {
 	.reg_dac_txdata	= SUN4I_SPDIF_TXFIFO,
+<<<<<<< HEAD
+=======
+	.val_fctl_ftx   = SUN4I_SPDIF_FCTL_FTX,
+>>>>>>> upstream/android-13
 	.has_reset	= true,
 };
 
 static const struct sun4i_spdif_quirks sun8i_h3_spdif_quirks = {
 	.reg_dac_txdata	= SUN8I_SPDIF_TXFIFO,
+<<<<<<< HEAD
 	.has_reset	= true,
 };
 
+=======
+	.val_fctl_ftx   = SUN4I_SPDIF_FCTL_FTX,
+	.has_reset	= true,
+};
+
+static const struct sun4i_spdif_quirks sun50i_h6_spdif_quirks = {
+	.reg_dac_txdata = SUN8I_SPDIF_TXFIFO,
+	.val_fctl_ftx   = SUN50I_H6_SPDIF_FCTL_FTX,
+	.has_reset      = true,
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id sun4i_spdif_of_match[] = {
 	{
 		.compatible = "allwinner,sun4i-a10-spdif",
@@ -437,6 +516,13 @@ static const struct of_device_id sun4i_spdif_of_match[] = {
 		.compatible = "allwinner,sun8i-h3-spdif",
 		.data = &sun8i_h3_spdif_quirks,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible = "allwinner,sun50i-h6-spdif",
+		.data = &sun50i_h6_spdif_quirks,
+	},
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, sun4i_spdif_of_match);
@@ -491,8 +577,12 @@ static int sun4i_spdif_probe(struct platform_device *pdev)
 	host->cpu_dai_drv.name = dev_name(&pdev->dev);
 
 	/* Get the addresses */
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
@@ -501,6 +591,10 @@ static int sun4i_spdif_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Failed to determine the quirks to use\n");
 		return -ENODEV;
 	}
+<<<<<<< HEAD
+=======
+	host->quirks = quirks;
+>>>>>>> upstream/android-13
 
 	host->regmap = devm_regmap_init_mmio(&pdev->dev, base,
 						&sun4i_spdif_regmap_config);
@@ -527,7 +621,11 @@ static int sun4i_spdif_probe(struct platform_device *pdev)
 	if (quirks->has_reset) {
 		host->rst = devm_reset_control_get_optional_exclusive(&pdev->dev,
 								      NULL);
+<<<<<<< HEAD
 		if (IS_ERR(host->rst) && PTR_ERR(host->rst) == -EPROBE_DEFER) {
+=======
+		if (PTR_ERR(host->rst) == -EPROBE_DEFER) {
+>>>>>>> upstream/android-13
 			ret = -EPROBE_DEFER;
 			dev_err(&pdev->dev, "Failed to get reset: %d\n", ret);
 			return ret;

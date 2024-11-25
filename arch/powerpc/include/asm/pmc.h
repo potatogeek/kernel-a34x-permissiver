@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * pmc.h
  * Copyright (C) 2004  David Gibson, IBM Corporation
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * pmc.h
+ * Copyright (C) 2004  David Gibson, IBM Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef _POWERPC_PMC_H
 #define _POWERPC_PMC_H
@@ -40,6 +47,7 @@ static inline void ppc_set_pmu_inuse(int inuse)
 #ifdef CONFIG_PPC_PSERIES
 		get_lppaca()->pmcregs_in_use = inuse;
 #endif
+<<<<<<< HEAD
 	} else {
 #ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
 		get_paca()->pmcregs_in_use = inuse;
@@ -48,6 +56,22 @@ static inline void ppc_set_pmu_inuse(int inuse)
 #endif
 }
 
+=======
+	}
+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
+	get_paca()->pmcregs_in_use = inuse;
+#endif
+#endif
+}
+
+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
+static inline int ppc_get_pmu_inuse(void)
+{
+	return get_paca()->pmcregs_in_use;
+}
+#endif
+
+>>>>>>> upstream/android-13
 extern void power4_enable_pmcs(void);
 
 #else /* CONFIG_PPC64 */

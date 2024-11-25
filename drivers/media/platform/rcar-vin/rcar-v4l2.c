@@ -31,6 +31,13 @@
 
 static const struct rvin_video_format rvin_formats[] = {
 	{
+<<<<<<< HEAD
+=======
+		.fourcc			= V4L2_PIX_FMT_NV12,
+		.bpp			= 1,
+	},
+	{
+>>>>>>> upstream/android-13
 		.fourcc			= V4L2_PIX_FMT_NV16,
 		.bpp			= 1,
 	},
@@ -54,12 +61,63 @@ static const struct rvin_video_format rvin_formats[] = {
 		.fourcc			= V4L2_PIX_FMT_XBGR32,
 		.bpp			= 4,
 	},
+<<<<<<< HEAD
 };
 
 const struct rvin_video_format *rvin_format_from_pixel(u32 pixelformat)
 {
 	int i;
 
+=======
+	{
+		.fourcc			= V4L2_PIX_FMT_ARGB555,
+		.bpp			= 2,
+	},
+	{
+		.fourcc			= V4L2_PIX_FMT_ABGR32,
+		.bpp			= 4,
+	},
+	{
+		.fourcc			= V4L2_PIX_FMT_SBGGR8,
+		.bpp			= 1,
+	},
+	{
+		.fourcc			= V4L2_PIX_FMT_SGBRG8,
+		.bpp			= 1,
+	},
+	{
+		.fourcc			= V4L2_PIX_FMT_SGRBG8,
+		.bpp			= 1,
+	},
+	{
+		.fourcc			= V4L2_PIX_FMT_SRGGB8,
+		.bpp			= 1,
+	},
+};
+
+const struct rvin_video_format *rvin_format_from_pixel(struct rvin_dev *vin,
+						       u32 pixelformat)
+{
+	int i;
+
+	switch (pixelformat) {
+	case V4L2_PIX_FMT_XBGR32:
+		if (vin->info->model == RCAR_M1)
+			return NULL;
+		break;
+	case V4L2_PIX_FMT_NV12:
+		/*
+		 * If NV12 is supported it's only supported on channels 0, 1, 4,
+		 * 5, 8, 9, 12 and 13.
+		 */
+		if (!vin->info->nv12 || !(BIT(vin->id) & 0x3333))
+			return NULL;
+		break;
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(rvin_formats); i++)
 		if (rvin_formats[i].fourcc == pixelformat)
 			return rvin_formats + i;
@@ -67,33 +125,75 @@ const struct rvin_video_format *rvin_format_from_pixel(u32 pixelformat)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static u32 rvin_format_bytesperline(struct v4l2_pix_format *pix)
 {
 	const struct rvin_video_format *fmt;
 
 	fmt = rvin_format_from_pixel(pix->pixelformat);
+=======
+static u32 rvin_format_bytesperline(struct rvin_dev *vin,
+				    struct v4l2_pix_format *pix)
+{
+	const struct rvin_video_format *fmt;
+	u32 align;
+
+	fmt = rvin_format_from_pixel(vin, pix->pixelformat);
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(!fmt))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return pix->width * fmt->bpp;
+=======
+	switch (pix->pixelformat) {
+	case V4L2_PIX_FMT_NV12:
+	case V4L2_PIX_FMT_NV16:
+		align = 0x20;
+		break;
+	default:
+		align = 0x10;
+		break;
+	}
+
+	if (V4L2_FIELD_IS_SEQUENTIAL(pix->field))
+		align = 0x80;
+
+	return ALIGN(pix->width, align) * fmt->bpp;
+>>>>>>> upstream/android-13
 }
 
 static u32 rvin_format_sizeimage(struct v4l2_pix_format *pix)
 {
+<<<<<<< HEAD
 	if (pix->pixelformat == V4L2_PIX_FMT_NV16)
 		return pix->bytesperline * pix->height * 2;
 
 	return pix->bytesperline * pix->height;
+=======
+	switch (pix->pixelformat) {
+	case V4L2_PIX_FMT_NV12:
+		return pix->bytesperline * pix->height * 3 / 2;
+	case V4L2_PIX_FMT_NV16:
+		return pix->bytesperline * pix->height * 2;
+	default:
+		return pix->bytesperline * pix->height;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void rvin_format_align(struct rvin_dev *vin, struct v4l2_pix_format *pix)
 {
 	u32 walign;
 
+<<<<<<< HEAD
 	if (!rvin_format_from_pixel(pix->pixelformat) ||
 	    (vin->info->model == RCAR_M1 &&
 	     pix->pixelformat == V4L2_PIX_FMT_XBGR32))
+=======
+	if (!rvin_format_from_pixel(vin, pix->pixelformat))
+>>>>>>> upstream/android-13
 		pix->pixelformat = RVIN_DEFAULT_FORMAT;
 
 	switch (pix->field) {
@@ -103,6 +203,7 @@ static void rvin_format_align(struct rvin_dev *vin, struct v4l2_pix_format *pix)
 	case V4L2_FIELD_INTERLACED_TB:
 	case V4L2_FIELD_INTERLACED_BT:
 	case V4L2_FIELD_INTERLACED:
+<<<<<<< HEAD
 		break;
 	case V4L2_FIELD_ALTERNATE:
 		/*
@@ -112,12 +213,18 @@ static void rvin_format_align(struct rvin_dev *vin, struct v4l2_pix_format *pix)
 		 */
 		pix->field = V4L2_FIELD_INTERLACED;
 		pix->height *= 2;
+=======
+	case V4L2_FIELD_ALTERNATE:
+	case V4L2_FIELD_SEQ_TB:
+	case V4L2_FIELD_SEQ_BT:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		pix->field = RVIN_DEFAULT_FIELD;
 		break;
 	}
 
+<<<<<<< HEAD
 	/* HW limit width to a multiple of 32 (2^5) for NV16 else 2 (2^1) */
 	walign = vin->format.pixelformat == V4L2_PIX_FMT_NV16 ? 5 : 1;
 
@@ -126,6 +233,31 @@ static void rvin_format_align(struct rvin_dev *vin, struct v4l2_pix_format *pix)
 			      &pix->height, 4, vin->info->max_height, 2, 0);
 
 	pix->bytesperline = rvin_format_bytesperline(pix);
+=======
+	/* Hardware limits width alignment based on format. */
+	switch (pix->pixelformat) {
+	/* Multiple of 32 (2^5) for NV12/16. */
+	case V4L2_PIX_FMT_NV12:
+	case V4L2_PIX_FMT_NV16:
+		walign = 5;
+		break;
+	/* Multiple of 2 (2^1) for YUV. */
+	case V4L2_PIX_FMT_YUYV:
+	case V4L2_PIX_FMT_UYVY:
+		walign = 1;
+		break;
+	/* No multiple for RGB. */
+	default:
+		walign = 0;
+		break;
+	}
+
+	/* Limit to VIN capabilities */
+	v4l_bound_align_image(&pix->width, 5, vin->info->max_width, walign,
+			      &pix->height, 2, vin->info->max_height, 0, 0);
+
+	pix->bytesperline = rvin_format_bytesperline(vin, pix);
+>>>>>>> upstream/android-13
 	pix->sizeimage = rvin_format_sizeimage(pix);
 
 	vin_dbg(vin, "Format %ux%u bpl: %u size: %u\n",
@@ -140,7 +272,11 @@ static int rvin_reset_format(struct rvin_dev *vin)
 {
 	struct v4l2_subdev_format fmt = {
 		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+<<<<<<< HEAD
 		.pad = vin->parallel->source_pad,
+=======
+		.pad = vin->parallel.source_pad,
+>>>>>>> upstream/android-13
 	};
 	int ret;
 
@@ -150,6 +286,7 @@ static int rvin_reset_format(struct rvin_dev *vin)
 
 	v4l2_fill_pix_format(&vin->format, &fmt.format);
 
+<<<<<<< HEAD
 	rvin_format_align(vin, &vin->format);
 
 	vin->source.top = 0;
@@ -159,12 +296,34 @@ static int rvin_reset_format(struct rvin_dev *vin)
 
 	vin->crop = vin->source;
 	vin->compose = vin->source;
+=======
+	vin->src_rect.top = 0;
+	vin->src_rect.left = 0;
+	vin->src_rect.width = vin->format.width;
+	vin->src_rect.height = vin->format.height;
+
+	/*  Make use of the hardware interlacer by default. */
+	if (vin->format.field == V4L2_FIELD_ALTERNATE) {
+		vin->format.field = V4L2_FIELD_INTERLACED;
+		vin->format.height *= 2;
+	}
+
+	rvin_format_align(vin, &vin->format);
+
+	vin->crop = vin->src_rect;
+
+	vin->compose.top = 0;
+	vin->compose.left = 0;
+	vin->compose.width = vin->format.width;
+	vin->compose.height = vin->format.height;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int rvin_try_format(struct rvin_dev *vin, u32 which,
 			   struct v4l2_pix_format *pix,
+<<<<<<< HEAD
 			   struct v4l2_rect *crop, struct v4l2_rect *compose)
 {
 	struct v4l2_subdev *sd = vin_to_source(vin);
@@ -172,11 +331,21 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
 	struct v4l2_subdev_format format = {
 		.which = which,
 		.pad = vin->parallel->source_pad,
+=======
+			   struct v4l2_rect *src_rect)
+{
+	struct v4l2_subdev *sd = vin_to_source(vin);
+	struct v4l2_subdev_state *sd_state;
+	struct v4l2_subdev_format format = {
+		.which = which,
+		.pad = vin->parallel.source_pad,
+>>>>>>> upstream/android-13
 	};
 	enum v4l2_field field;
 	u32 width, height;
 	int ret;
 
+<<<<<<< HEAD
 	pad_cfg = v4l2_subdev_alloc_pad_config(sd);
 	if (pad_cfg == NULL)
 		return -ENOMEM;
@@ -184,6 +353,13 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
 	if (!rvin_format_from_pixel(pix->pixelformat) ||
 	    (vin->info->model == RCAR_M1 &&
 	     pix->pixelformat == V4L2_PIX_FMT_XBGR32))
+=======
+	sd_state = v4l2_subdev_alloc_state(sd);
+	if (IS_ERR(sd_state))
+		return PTR_ERR(sd_state);
+
+	if (!rvin_format_from_pixel(vin, pix->pixelformat))
+>>>>>>> upstream/android-13
 		pix->pixelformat = RVIN_DEFAULT_FORMAT;
 
 	v4l2_fill_mbus_format(&format.format, pix, vin->mbus_code);
@@ -193,13 +369,18 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
 	width = pix->width;
 	height = pix->height;
 
+<<<<<<< HEAD
 	ret = v4l2_subdev_call(sd, pad, set_fmt, pad_cfg, &format);
+=======
+	ret = v4l2_subdev_call(sd, pad, set_fmt, sd_state, &format);
+>>>>>>> upstream/android-13
 	if (ret < 0 && ret != -ENOIOCTLCMD)
 		goto done;
 	ret = 0;
 
 	v4l2_fill_pix_format(pix, &format.format);
 
+<<<<<<< HEAD
 	if (crop) {
 		crop->top = 0;
 		crop->left = 0;
@@ -212,6 +393,13 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
 		 */
 		if (pix->field == V4L2_FIELD_ALTERNATE)
 			crop->height *= 2;
+=======
+	if (src_rect) {
+		src_rect->top = 0;
+		src_rect->left = 0;
+		src_rect->width = pix->width;
+		src_rect->height = pix->height;
+>>>>>>> upstream/android-13
 	}
 
 	if (field != V4L2_FIELD_ANY)
@@ -221,6 +409,7 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
 	pix->height = height;
 
 	rvin_format_align(vin, pix);
+<<<<<<< HEAD
 
 	if (compose) {
 		compose->top = 0;
@@ -230,6 +419,10 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
 	}
 done:
 	v4l2_subdev_free_pad_config(pad_cfg);
+=======
+done:
+	v4l2_subdev_free_state(sd_state);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -239,8 +432,13 @@ static int rvin_querycap(struct file *file, void *priv,
 {
 	struct rvin_dev *vin = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
 	strlcpy(cap->card, "R_Car_VIN", sizeof(cap->card));
+=======
+	strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
+	strscpy(cap->card, "R_Car_VIN", sizeof(cap->card));
+>>>>>>> upstream/android-13
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 dev_name(vin->dev));
 	return 0;
@@ -251,29 +449,53 @@ static int rvin_try_fmt_vid_cap(struct file *file, void *priv,
 {
 	struct rvin_dev *vin = video_drvdata(file);
 
+<<<<<<< HEAD
 	return rvin_try_format(vin, V4L2_SUBDEV_FORMAT_TRY, &f->fmt.pix, NULL,
 			       NULL);
+=======
+	return rvin_try_format(vin, V4L2_SUBDEV_FORMAT_TRY, &f->fmt.pix, NULL);
+>>>>>>> upstream/android-13
 }
 
 static int rvin_s_fmt_vid_cap(struct file *file, void *priv,
 			      struct v4l2_format *f)
 {
 	struct rvin_dev *vin = video_drvdata(file);
+<<<<<<< HEAD
 	struct v4l2_rect crop, compose;
+=======
+	struct v4l2_rect fmt_rect, src_rect;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (vb2_is_busy(&vin->queue))
 		return -EBUSY;
 
 	ret = rvin_try_format(vin, V4L2_SUBDEV_FORMAT_ACTIVE, &f->fmt.pix,
+<<<<<<< HEAD
 			      &crop, &compose);
+=======
+			      &src_rect);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	vin->format = f->fmt.pix;
+<<<<<<< HEAD
 	vin->crop = crop;
 	vin->compose = compose;
 	vin->source = crop;
+=======
+
+	fmt_rect.top = 0;
+	fmt_rect.left = 0;
+	fmt_rect.width = vin->format.width;
+	fmt_rect.height = vin->format.height;
+
+	v4l2_rect_map_inside(&vin->crop, &src_rect);
+	v4l2_rect_map_inside(&vin->compose, &fmt_rect);
+	vin->src_rect = src_rect;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -291,12 +513,74 @@ static int rvin_g_fmt_vid_cap(struct file *file, void *priv,
 static int rvin_enum_fmt_vid_cap(struct file *file, void *priv,
 				 struct v4l2_fmtdesc *f)
 {
+<<<<<<< HEAD
 	if (f->index >= ARRAY_SIZE(rvin_formats))
 		return -EINVAL;
 
 	f->pixelformat = rvin_formats[f->index].fourcc;
 
 	return 0;
+=======
+	struct rvin_dev *vin = video_drvdata(file);
+	unsigned int i;
+	int matched;
+
+	/*
+	 * If mbus_code is set only enumerate supported pixel formats for that
+	 * bus code. Converting from YCbCr to RGB and RGB to YCbCr is possible
+	 * with VIN, so all supported YCbCr and RGB media bus codes can produce
+	 * all of the related pixel formats. If mbus_code is not set enumerate
+	 * all possible pixelformats.
+	 *
+	 * TODO: Once raw MEDIA_BUS_FMT_SRGGB12_1X12 format is added to the
+	 * driver this needs to be extended so raw media bus code only result in
+	 * raw pixel format.
+	 */
+	switch (f->mbus_code) {
+	case 0:
+	case MEDIA_BUS_FMT_YUYV8_1X16:
+	case MEDIA_BUS_FMT_UYVY8_1X16:
+	case MEDIA_BUS_FMT_UYVY8_2X8:
+	case MEDIA_BUS_FMT_UYVY10_2X10:
+	case MEDIA_BUS_FMT_RGB888_1X24:
+		break;
+	case MEDIA_BUS_FMT_SBGGR8_1X8:
+		if (f->index)
+			return -EINVAL;
+		f->pixelformat = V4L2_PIX_FMT_SBGGR8;
+		return 0;
+	case MEDIA_BUS_FMT_SGBRG8_1X8:
+		if (f->index)
+			return -EINVAL;
+		f->pixelformat = V4L2_PIX_FMT_SGBRG8;
+		return 0;
+	case MEDIA_BUS_FMT_SGRBG8_1X8:
+		if (f->index)
+			return -EINVAL;
+		f->pixelformat = V4L2_PIX_FMT_SGRBG8;
+		return 0;
+	case MEDIA_BUS_FMT_SRGGB8_1X8:
+		if (f->index)
+			return -EINVAL;
+		f->pixelformat = V4L2_PIX_FMT_SRGGB8;
+		return 0;
+	default:
+		return -EINVAL;
+	}
+
+	matched = -1;
+	for (i = 0; i < ARRAY_SIZE(rvin_formats); i++) {
+		if (rvin_format_from_pixel(vin, rvin_formats[i].fourcc))
+			matched++;
+
+		if (matched == f->index) {
+			f->pixelformat = rvin_formats[i].fourcc;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static int rvin_g_selection(struct file *file, void *fh,
@@ -311,8 +595,13 @@ static int rvin_g_selection(struct file *file, void *fh,
 	case V4L2_SEL_TGT_CROP_BOUNDS:
 	case V4L2_SEL_TGT_CROP_DEFAULT:
 		s->r.left = s->r.top = 0;
+<<<<<<< HEAD
 		s->r.width = vin->source.width;
 		s->r.height = vin->source.height;
+=======
+		s->r.width = vin->src_rect.width;
+		s->r.height = vin->src_rect.height;
+>>>>>>> upstream/android-13
 		break;
 	case V4L2_SEL_TGT_CROP:
 		s->r = vin->crop;
@@ -354,6 +643,7 @@ static int rvin_s_selection(struct file *file, void *fh,
 	case V4L2_SEL_TGT_CROP:
 		/* Can't crop outside of source input */
 		max_rect.top = max_rect.left = 0;
+<<<<<<< HEAD
 		max_rect.width = vin->source.width;
 		max_rect.height = vin->source.height;
 		v4l2_rect_map_inside(&r, &max_rect);
@@ -363,12 +653,28 @@ static int rvin_s_selection(struct file *file, void *fh,
 
 		r.top  = clamp_t(s32, r.top, 0, vin->source.height - r.height);
 		r.left = clamp_t(s32, r.left, 0, vin->source.width - r.width);
+=======
+		max_rect.width = vin->src_rect.width;
+		max_rect.height = vin->src_rect.height;
+		v4l2_rect_map_inside(&r, &max_rect);
+
+		v4l_bound_align_image(&r.width, 6, vin->src_rect.width, 0,
+				      &r.height, 2, vin->src_rect.height, 0, 0);
+
+		r.top  = clamp_t(s32, r.top, 0,
+				 vin->src_rect.height - r.height);
+		r.left = clamp_t(s32, r.left, 0, vin->src_rect.width - r.width);
+>>>>>>> upstream/android-13
 
 		vin->crop = s->r = r;
 
 		vin_dbg(vin, "Cropped %dx%d@%d:%d of %dx%d\n",
 			r.width, r.height, r.left, r.top,
+<<<<<<< HEAD
 			vin->source.width, vin->source.height);
+=======
+			vin->src_rect.width, vin->src_rect.height);
+>>>>>>> upstream/android-13
 		break;
 	case V4L2_SEL_TGT_COMPOSE:
 		/* Make sure compose rect fits inside output format */
@@ -385,7 +691,11 @@ static int rvin_s_selection(struct file *file, void *fh,
 		while ((r.top * vin->format.bytesperline) & HW_BUFFER_MASK)
 			r.top--;
 
+<<<<<<< HEAD
 		fmt = rvin_format_from_pixel(vin->format.pixelformat);
+=======
+		fmt = rvin_format_from_pixel(vin, vin->format.pixelformat);
+>>>>>>> upstream/android-13
 		while ((r.left * fmt->bpp) & HW_BUFFER_MASK)
 			r.left--;
 
@@ -405,16 +715,28 @@ static int rvin_s_selection(struct file *file, void *fh,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rvin_cropcap(struct file *file, void *priv,
 			struct v4l2_cropcap *crop)
+=======
+static int rvin_g_pixelaspect(struct file *file, void *priv,
+			      int type, struct v4l2_fract *f)
+>>>>>>> upstream/android-13
 {
 	struct rvin_dev *vin = video_drvdata(file);
 	struct v4l2_subdev *sd = vin_to_source(vin);
 
+<<<<<<< HEAD
 	if (crop->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
 		return -EINVAL;
 
 	return v4l2_subdev_call(sd, video, g_pixelaspect, &crop->pixelaspect);
+=======
+	if (type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	return v4l2_subdev_call(sd, video, g_pixelaspect, f);
+>>>>>>> upstream/android-13
 }
 
 static int rvin_enum_input(struct file *file, void *priv,
@@ -441,7 +763,11 @@ static int rvin_enum_input(struct file *file, void *priv,
 		i->std = vin->vdev.tvnorms;
 	}
 
+<<<<<<< HEAD
 	strlcpy(i->name, "Camera", sizeof(i->name));
+=======
+	strscpy(i->name, "Camera", sizeof(i->name));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -514,7 +840,11 @@ static int rvin_enum_dv_timings(struct file *file, void *priv_fh,
 	if (timings->pad)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	timings->pad = vin->parallel->sink_pad;
+=======
+	timings->pad = vin->parallel.sink_pad;
+>>>>>>> upstream/android-13
 
 	ret = v4l2_subdev_call(sd, pad, enum_dv_timings, timings);
 
@@ -566,7 +896,11 @@ static int rvin_dv_timings_cap(struct file *file, void *priv_fh,
 	if (cap->pad)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	cap->pad = vin->parallel->sink_pad;
+=======
+	cap->pad = vin->parallel.sink_pad;
+>>>>>>> upstream/android-13
 
 	ret = v4l2_subdev_call(sd, pad, dv_timings_cap, cap);
 
@@ -584,7 +918,11 @@ static int rvin_g_edid(struct file *file, void *fh, struct v4l2_edid *edid)
 	if (edid->pad)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	edid->pad = vin->parallel->sink_pad;
+=======
+	edid->pad = vin->parallel.sink_pad;
+>>>>>>> upstream/android-13
 
 	ret = v4l2_subdev_call(sd, pad, get_edid, edid);
 
@@ -602,7 +940,11 @@ static int rvin_s_edid(struct file *file, void *fh, struct v4l2_edid *edid)
 	if (edid->pad)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	edid->pad = vin->parallel->sink_pad;
+=======
+	edid->pad = vin->parallel.sink_pad;
+>>>>>>> upstream/android-13
 
 	ret = v4l2_subdev_call(sd, pad, set_edid, edid);
 
@@ -621,7 +963,11 @@ static const struct v4l2_ioctl_ops rvin_ioctl_ops = {
 	.vidioc_g_selection		= rvin_g_selection,
 	.vidioc_s_selection		= rvin_s_selection,
 
+<<<<<<< HEAD
 	.vidioc_cropcap			= rvin_cropcap,
+=======
+	.vidioc_g_pixelaspect		= rvin_g_pixelaspect,
+>>>>>>> upstream/android-13
 
 	.vidioc_enum_input		= rvin_enum_input,
 	.vidioc_g_input			= rvin_g_input,
@@ -666,7 +1012,11 @@ static void rvin_mc_try_format(struct rvin_dev *vin,
 	 * The V4L2 specification clearly documents the colorspace fields
 	 * as being set by drivers for capture devices. Using the values
 	 * supplied by userspace thus wouldn't comply with the API. Until
+<<<<<<< HEAD
 	 * the API is updated force fixed vaules.
+=======
+	 * the API is updated force fixed values.
+>>>>>>> upstream/android-13
 	 */
 	pix->colorspace = RVIN_DEFAULT_COLORSPACE;
 	pix->xfer_func = V4L2_MAP_XFER_FUNC_DEFAULT(pix->colorspace);
@@ -708,6 +1058,7 @@ static int rvin_mc_s_fmt_vid_cap(struct file *file, void *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rvin_mc_enum_input(struct file *file, void *priv,
 			      struct v4l2_input *i)
 {
@@ -720,6 +1071,8 @@ static int rvin_mc_enum_input(struct file *file, void *priv,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct v4l2_ioctl_ops rvin_mc_ioctl_ops = {
 	.vidioc_querycap		= rvin_querycap,
 	.vidioc_try_fmt_vid_cap		= rvin_mc_try_fmt_vid_cap,
@@ -727,10 +1080,13 @@ static const struct v4l2_ioctl_ops rvin_mc_ioctl_ops = {
 	.vidioc_s_fmt_vid_cap		= rvin_mc_s_fmt_vid_cap,
 	.vidioc_enum_fmt_vid_cap	= rvin_enum_fmt_vid_cap,
 
+<<<<<<< HEAD
 	.vidioc_enum_input		= rvin_mc_enum_input,
 	.vidioc_g_input			= rvin_g_input,
 	.vidioc_s_input			= rvin_s_input,
 
+=======
+>>>>>>> upstream/android-13
 	.vidioc_reqbufs			= vb2_ioctl_reqbufs,
 	.vidioc_create_bufs		= vb2_ioctl_create_bufs,
 	.vidioc_querybuf		= vb2_ioctl_querybuf,
@@ -750,6 +1106,7 @@ static const struct v4l2_ioctl_ops rvin_mc_ioctl_ops = {
  * File Operations
  */
 
+<<<<<<< HEAD
 static int rvin_power_on(struct rvin_dev *vin)
 {
 	int ret;
@@ -772,12 +1129,22 @@ static int rvin_power_off(struct rvin_dev *vin)
 
 	pm_runtime_put(vin->v4l2_dev.dev);
 
+=======
+static int rvin_power_parallel(struct rvin_dev *vin, bool on)
+{
+	struct v4l2_subdev *sd = vin_to_source(vin);
+	int power = on ? 1 : 0;
+	int ret;
+
+	ret = v4l2_subdev_call(sd, core, s_power, power);
+>>>>>>> upstream/android-13
 	if (ret < 0 && ret != -ENOIOCTLCMD && ret != -ENODEV)
 		return ret;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rvin_initialize_device(struct file *file)
 {
 	struct rvin_dev *vin = video_drvdata(file);
@@ -824,17 +1191,30 @@ eresume:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int rvin_open(struct file *file)
 {
 	struct rvin_dev *vin = video_drvdata(file);
 	int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&vin->lock);
+=======
+	ret = pm_runtime_resume_and_get(vin->dev);
+	if (ret < 0)
+		return ret;
+
+	ret = mutex_lock_interruptible(&vin->lock);
+	if (ret)
+		goto err_pm;
+>>>>>>> upstream/android-13
 
 	file->private_data = vin;
 
 	ret = v4l2_fh_open(file);
 	if (ret)
+<<<<<<< HEAD
 		goto unlock;
 
 	if (!v4l2_fh_is_singular_file(file))
@@ -847,6 +1227,37 @@ static int rvin_open(struct file *file)
 
 unlock:
 	mutex_unlock(&vin->lock);
+=======
+		goto err_unlock;
+
+	if (vin->info->use_mc)
+		ret = v4l2_pipeline_pm_get(&vin->vdev.entity);
+	else if (v4l2_fh_is_singular_file(file))
+		ret = rvin_power_parallel(vin, true);
+
+	if (ret < 0)
+		goto err_open;
+
+	ret = v4l2_ctrl_handler_setup(&vin->ctrl_handler);
+	if (ret)
+		goto err_power;
+
+	mutex_unlock(&vin->lock);
+
+	return 0;
+err_power:
+	if (vin->info->use_mc)
+		v4l2_pipeline_pm_put(&vin->vdev.entity);
+	else if (v4l2_fh_is_singular_file(file))
+		rvin_power_parallel(vin, false);
+err_open:
+	v4l2_fh_release(file);
+err_unlock:
+	mutex_unlock(&vin->lock);
+err_pm:
+	pm_runtime_put(vin->dev);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -864,6 +1275,7 @@ static int rvin_release(struct file *file)
 	/* the release helper will cleanup any on-going streaming */
 	ret = _vb2_fop_release(file, NULL);
 
+<<<<<<< HEAD
 	/*
 	 * If this was the last open file.
 	 * Then de-initialize hw module.
@@ -872,10 +1284,22 @@ static int rvin_release(struct file *file)
 		pm_runtime_suspend(&vin->vdev.dev);
 		pm_runtime_disable(&vin->vdev.dev);
 		rvin_power_off(vin);
+=======
+	if (vin->info->use_mc) {
+		v4l2_pipeline_pm_put(&vin->vdev.entity);
+	} else {
+		if (fh_singular)
+			rvin_power_parallel(vin, false);
+>>>>>>> upstream/android-13
 	}
 
 	mutex_unlock(&vin->lock);
 
+<<<<<<< HEAD
+=======
+	pm_runtime_put(vin->dev);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -889,6 +1313,7 @@ static const struct v4l2_file_operations rvin_fops = {
 	.read		= vb2_fop_read,
 };
 
+<<<<<<< HEAD
 /* -----------------------------------------------------------------------------
  * Media controller file operations
  */
@@ -957,6 +1382,8 @@ static const struct v4l2_file_operations rvin_mc_fops = {
 	.read		= vb2_fop_read,
 };
 
+=======
+>>>>>>> upstream/android-13
 void rvin_v4l2_unregister(struct rvin_dev *vin)
 {
 	if (!video_is_registered(&vin->vdev))
@@ -965,6 +1392,7 @@ void rvin_v4l2_unregister(struct rvin_dev *vin)
 	v4l2_info(&vin->v4l2_dev, "Removing %s\n",
 		  video_device_node_name(&vin->vdev));
 
+<<<<<<< HEAD
 	/* Checks internaly if vdev have been init or not */
 	video_unregister_device(&vin->vdev);
 }
@@ -975,6 +1403,15 @@ static void rvin_notify(struct v4l2_subdev *sd,
 	struct rvin_dev *vin =
 		container_of(sd->v4l2_dev, struct rvin_dev, v4l2_dev);
 
+=======
+	/* Checks internally if vdev have been init or not */
+	video_unregister_device(&vin->vdev);
+}
+
+static void rvin_notify_video_device(struct rvin_dev *vin,
+				     unsigned int notification, void *arg)
+{
+>>>>>>> upstream/android-13
 	switch (notification) {
 	case V4L2_DEVICE_NOTIFY_EVENT:
 		v4l2_event_queue(&vin->vdev, arg);
@@ -984,6 +1421,44 @@ static void rvin_notify(struct v4l2_subdev *sd,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void rvin_notify(struct v4l2_subdev *sd,
+			unsigned int notification, void *arg)
+{
+	struct v4l2_subdev *remote;
+	struct rvin_group *group;
+	struct media_pad *pad;
+	struct rvin_dev *vin =
+		container_of(sd->v4l2_dev, struct rvin_dev, v4l2_dev);
+	unsigned int i;
+
+	/* If no media controller, no need to route the event. */
+	if (!vin->info->use_mc) {
+		rvin_notify_video_device(vin, notification, arg);
+		return;
+	}
+
+	group = vin->group;
+
+	for (i = 0; i < RCAR_VIN_NUM; i++) {
+		vin = group->vin[i];
+		if (!vin)
+			continue;
+
+		pad = media_entity_remote_pad(&vin->pad);
+		if (!pad)
+			continue;
+
+		remote = media_entity_to_v4l2_subdev(pad->entity);
+		if (remote != sd)
+			continue;
+
+		rvin_notify_video_device(vin, notification, arg);
+	}
+}
+
+>>>>>>> upstream/android-13
 int rvin_v4l2_register(struct rvin_dev *vin)
 {
 	struct video_device *vdev = &vin->vdev;
@@ -997,6 +1472,10 @@ int rvin_v4l2_register(struct rvin_dev *vin)
 	snprintf(vdev->name, sizeof(vdev->name), "VIN%u output", vin->id);
 	vdev->release = video_device_release_empty;
 	vdev->lock = &vin->lock;
+<<<<<<< HEAD
+=======
+	vdev->fops = &rvin_fops;
+>>>>>>> upstream/android-13
 	vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING |
 		V4L2_CAP_READWRITE;
 
@@ -1008,17 +1487,27 @@ int rvin_v4l2_register(struct rvin_dev *vin)
 	vin->format.colorspace = RVIN_DEFAULT_COLORSPACE;
 
 	if (vin->info->use_mc) {
+<<<<<<< HEAD
 		vdev->fops = &rvin_mc_fops;
 		vdev->ioctl_ops = &rvin_mc_ioctl_ops;
 	} else {
 		vdev->fops = &rvin_fops;
+=======
+		vdev->device_caps |= V4L2_CAP_IO_MC;
+		vdev->ioctl_ops = &rvin_mc_ioctl_ops;
+	} else {
+>>>>>>> upstream/android-13
 		vdev->ioctl_ops = &rvin_ioctl_ops;
 		rvin_reset_format(vin);
 	}
 
 	rvin_format_align(vin, &vin->format);
 
+<<<<<<< HEAD
 	ret = video_register_device(&vin->vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(&vin->vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		vin_err(vin, "Failed to register video device\n");
 		return ret;

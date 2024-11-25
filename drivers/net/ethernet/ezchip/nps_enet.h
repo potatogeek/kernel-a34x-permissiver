@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 EZchip Technologies.
  *
@@ -12,6 +13,11 @@
  *
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright(c) 2015 EZchip Technologies.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NPS_ENET_H
@@ -178,7 +184,11 @@ struct nps_enet_priv {
 };
 
 /**
+<<<<<<< HEAD
  * nps_reg_set - Sets ENET register with provided value.
+=======
+ * nps_enet_reg_set - Sets ENET register with provided value.
+>>>>>>> upstream/android-13
  * @priv:       Pointer to EZchip ENET private data structure.
  * @reg:        Register offset from base address.
  * @value:      Value to set in register.
@@ -190,7 +200,11 @@ static inline void nps_enet_reg_set(struct nps_enet_priv *priv,
 }
 
 /**
+<<<<<<< HEAD
  * nps_reg_get - Gets value of specified ENET register.
+=======
+ * nps_enet_reg_get - Gets value of specified ENET register.
+>>>>>>> upstream/android-13
  * @priv:       Pointer to EZchip ENET private data structure.
  * @reg:        Register offset from base address.
  *

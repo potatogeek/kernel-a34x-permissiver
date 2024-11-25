@@ -21,6 +21,11 @@
 
 #include "nf_internals.h"
 
+<<<<<<< HEAD
+=======
+static const struct nf_queue_handler __rcu *nf_queue_handler;
+
+>>>>>>> upstream/android-13
 /*
  * Hook for nfnetlink_queue to register its queue handler.
  * We do this so that most of the NFQUEUE code can be modular.
@@ -29,6 +34,7 @@
  * receives, no matter what.
  */
 
+<<<<<<< HEAD
 /* return EBUSY when somebody else is registered, return EEXIST if the
  * same handler is registered, return 0 in case of success. */
 void nf_register_queue_handler(struct net *net, const struct nf_queue_handler *qh)
@@ -36,10 +42,18 @@ void nf_register_queue_handler(struct net *net, const struct nf_queue_handler *q
 	/* should never happen, we only have one queueing backend in kernel */
 	WARN_ON(rcu_access_pointer(net->nf.queue_handler));
 	rcu_assign_pointer(net->nf.queue_handler, qh);
+=======
+void nf_register_queue_handler(const struct nf_queue_handler *qh)
+{
+	/* should never happen, we only have one queueing backend in kernel */
+	WARN_ON(rcu_access_pointer(nf_queue_handler));
+	rcu_assign_pointer(nf_queue_handler, qh);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(nf_register_queue_handler);
 
 /* The caller must flush their queue before this */
+<<<<<<< HEAD
 void nf_unregister_queue_handler(struct net *net)
 {
 	RCU_INIT_POINTER(net->nf.queue_handler, NULL);
@@ -47,10 +61,29 @@ void nf_unregister_queue_handler(struct net *net)
 EXPORT_SYMBOL(nf_unregister_queue_handler);
 
 void nf_queue_entry_release_refs(struct nf_queue_entry *entry)
+=======
+void nf_unregister_queue_handler(void)
+{
+	RCU_INIT_POINTER(nf_queue_handler, NULL);
+}
+EXPORT_SYMBOL(nf_unregister_queue_handler);
+
+static void nf_queue_sock_put(struct sock *sk)
+{
+#ifdef CONFIG_INET
+	sock_gen_put(sk);
+#else
+	sock_put(sk);
+#endif
+}
+
+static void nf_queue_entry_release_refs(struct nf_queue_entry *entry)
+>>>>>>> upstream/android-13
 {
 	struct nf_hook_state *state = &entry->state;
 
 	/* Release those devices we held, or Alexey will kill me. */
+<<<<<<< HEAD
 	if (state->in)
 		dev_put(state->in);
 	if (state->out)
@@ -95,6 +128,59 @@ void nf_queue_entry_get_refs(struct nf_queue_entry *entry)
 			dev_hold(physdev);
 	}
 #endif
+=======
+	dev_put(state->in);
+	dev_put(state->out);
+	if (state->sk)
+		nf_queue_sock_put(state->sk);
+
+#if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+	dev_put(entry->physin);
+	dev_put(entry->physout);
+#endif
+}
+
+void nf_queue_entry_free(struct nf_queue_entry *entry)
+{
+	nf_queue_entry_release_refs(entry);
+	kfree(entry);
+}
+EXPORT_SYMBOL_GPL(nf_queue_entry_free);
+
+static void __nf_queue_entry_init_physdevs(struct nf_queue_entry *entry)
+{
+#if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+	const struct sk_buff *skb = entry->skb;
+	struct nf_bridge_info *nf_bridge;
+
+	nf_bridge = nf_bridge_info_get(skb);
+	if (nf_bridge) {
+		entry->physin = nf_bridge_get_physindev(skb);
+		entry->physout = nf_bridge_get_physoutdev(skb);
+	} else {
+		entry->physin = NULL;
+		entry->physout = NULL;
+	}
+#endif
+}
+
+/* Bump dev refs so they don't vanish while packet is out */
+bool nf_queue_entry_get_refs(struct nf_queue_entry *entry)
+{
+	struct nf_hook_state *state = &entry->state;
+
+	if (state->sk && !refcount_inc_not_zero(&state->sk->sk_refcnt))
+		return false;
+
+	dev_hold(state->in);
+	dev_hold(state->out);
+
+#if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+	dev_hold(entry->physin);
+	dev_hold(entry->physout);
+#endif
+	return true;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nf_queue_entry_get_refs);
 
@@ -103,7 +189,11 @@ void nf_queue_nf_hook_drop(struct net *net)
 	const struct nf_queue_handler *qh;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	qh = rcu_dereference(net->nf.queue_handler);
+=======
+	qh = rcu_dereference(nf_queue_handler);
+>>>>>>> upstream/android-13
 	if (qh)
 		qh->nf_hook_drop(net);
 	rcu_read_unlock();
@@ -140,6 +230,7 @@ static void nf_ip6_saveroute(const struct sk_buff *skb,
 }
 
 static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
+<<<<<<< HEAD
 		      const struct nf_hook_entries *entries,
 		      unsigned int index, unsigned int queuenum)
 {
@@ -155,6 +246,19 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
 		status = -ESRCH;
 		goto err;
 	}
+=======
+		      unsigned int index, unsigned int queuenum)
+{
+	struct nf_queue_entry *entry = NULL;
+	const struct nf_queue_handler *qh;
+	unsigned int route_key_size;
+	int status;
+
+	/* QUEUE == DROP if no one is waiting, to be safe. */
+	qh = rcu_dereference(nf_queue_handler);
+	if (!qh)
+		return -ESRCH;
+>>>>>>> upstream/android-13
 
 	switch (state->pf) {
 	case AF_INET:
@@ -168,6 +272,7 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
 		break;
 	}
 
+<<<<<<< HEAD
 	entry = kmalloc(sizeof(*entry) + route_key_size, GFP_ATOMIC);
 	if (!entry) {
 		status = -ENOMEM;
@@ -177,6 +282,27 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
 	if (skb_dst(skb) && !skb_dst_force(skb)) {
 		status = -ENETDOWN;
 		goto err;
+=======
+	if (skb_sk_is_prefetched(skb)) {
+		struct sock *sk = skb->sk;
+
+		if (!sk_is_refcounted(sk)) {
+			if (!refcount_inc_not_zero(&sk->sk_refcnt))
+				return -ENOTCONN;
+
+			/* drop refcount on skb_orphan */
+			skb->destructor = sock_edemux;
+		}
+	}
+
+	entry = kmalloc(sizeof(*entry) + route_key_size, GFP_ATOMIC);
+	if (!entry)
+		return -ENOMEM;
+
+	if (skb_dst(skb) && !skb_dst_force(skb)) {
+		kfree(entry);
+		return -ENETDOWN;
+>>>>>>> upstream/android-13
 	}
 
 	*entry = (struct nf_queue_entry) {
@@ -186,7 +312,16 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
 		.size	= sizeof(*entry) + route_key_size,
 	};
 
+<<<<<<< HEAD
 	nf_queue_entry_get_refs(entry);
+=======
+	__nf_queue_entry_init_physdevs(entry);
+
+	if (!nf_queue_entry_get_refs(entry)) {
+		kfree(entry);
+		return -ENOTCONN;
+	}
+>>>>>>> upstream/android-13
 
 	switch (entry->state.pf) {
 	case AF_INET:
@@ -198,6 +333,7 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
 	}
 
 	status = qh->outfn(entry, queuenum);
+<<<<<<< HEAD
 
 	if (status < 0) {
 		nf_queue_entry_release_refs(entry);
@@ -209,16 +345,32 @@ static int __nf_queue(struct sk_buff *skb, const struct nf_hook_state *state,
 err:
 	kfree(entry);
 	return status;
+=======
+	if (status < 0) {
+		nf_queue_entry_free(entry);
+		return status;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Packets leaving via this function must come back through nf_reinject(). */
 int nf_queue(struct sk_buff *skb, struct nf_hook_state *state,
+<<<<<<< HEAD
 	     const struct nf_hook_entries *entries, unsigned int index,
 	     unsigned int verdict)
 {
 	int ret;
 
 	ret = __nf_queue(skb, state, entries, index, verdict >> NF_VERDICT_QBITS);
+=======
+	     unsigned int index, unsigned int verdict)
+{
+	int ret;
+
+	ret = __nf_queue(skb, state, index, verdict >> NF_VERDICT_QBITS);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		if (ret == -ESRCH &&
 		    (verdict & NF_VERDICT_FLAG_QUEUE_BYPASS))
@@ -228,6 +380,10 @@ int nf_queue(struct sk_buff *skb, struct nf_hook_state *state,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(nf_queue);
+>>>>>>> upstream/android-13
 
 static unsigned int nf_iterate(struct sk_buff *skb,
 			       struct nf_hook_state *state,
@@ -284,13 +440,17 @@ void nf_reinject(struct nf_queue_entry *entry, unsigned int verdict)
 	int err;
 	u8 pf;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 
+=======
+>>>>>>> upstream/android-13
 	net = entry->state.net;
 	pf = entry->state.pf;
 
 	hooks = nf_hook_entries_head(net, pf, entry->state.hook);
 
+<<<<<<< HEAD
 	nf_queue_entry_release_refs(entry);
 
 	i = entry->hook_index;
@@ -298,6 +458,12 @@ void nf_reinject(struct nf_queue_entry *entry, unsigned int verdict)
 		rcu_read_unlock();
 		kfree_skb(skb);
 		kfree(entry);
+=======
+	i = entry->hook_index;
+	if (WARN_ON_ONCE(!hooks || i >= hooks->num_hook_entries)) {
+		kfree_skb(skb);
+		nf_queue_entry_free(entry);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -326,7 +492,11 @@ next_hook:
 		local_bh_enable();
 		break;
 	case NF_QUEUE:
+<<<<<<< HEAD
 		err = nf_queue(skb, &entry->state, hooks, i, verdict);
+=======
+		err = nf_queue(skb, &entry->state, i, verdict);
+>>>>>>> upstream/android-13
 		if (err == 1)
 			goto next_hook;
 		break;
@@ -336,7 +506,11 @@ next_hook:
 		kfree_skb(skb);
 	}
 
+<<<<<<< HEAD
 	rcu_read_unlock();
 	kfree(entry);
+=======
+	nf_queue_entry_free(entry);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(nf_reinject);

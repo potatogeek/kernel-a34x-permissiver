@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #include <asm/nds32.h>
@@ -34,3 +38,11 @@ static inline int arch_irqs_disabled_flags(unsigned long flags)
 {
 	return !flags;
 }
+<<<<<<< HEAD
+=======
+
+static inline int arch_irqs_disabled(void)
+{
+	return arch_irqs_disabled_flags(arch_local_save_flags());
+}
+>>>>>>> upstream/android-13

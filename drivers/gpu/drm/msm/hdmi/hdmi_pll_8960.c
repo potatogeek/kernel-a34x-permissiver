@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2016, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -17,6 +22,13 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/delay.h>
+
+>>>>>>> upstream/android-13
 #include "hdmi.h"
 
 struct hdmi_pll_8960 {
@@ -445,7 +457,11 @@ int msm_hdmi_pll_8960_init(struct platform_device *pdev)
 
 	pll->mmio = msm_ioremap(pdev, "hdmi_pll", "HDMI_PLL");
 	if (IS_ERR(pll->mmio)) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to map pll base\n");
+=======
+		DRM_DEV_ERROR(dev, "failed to map pll base\n");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -454,7 +470,11 @@ int msm_hdmi_pll_8960_init(struct platform_device *pdev)
 
 	clk = devm_clk_register(dev, &pll->clk_hw);
 	if (IS_ERR(clk)) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to register pll clock\n");
+=======
+		DRM_DEV_ERROR(dev, "failed to register pll clock\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 

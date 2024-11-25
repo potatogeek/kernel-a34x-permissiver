@@ -102,7 +102,11 @@ Conexant codecs
 ---------------
 
 Auto-Mute Mode
+<<<<<<< HEAD
   See Reatek codecs.
+=======
+  See Realtek codecs.
+>>>>>>> upstream/android-13
 
 
 Analog codecs

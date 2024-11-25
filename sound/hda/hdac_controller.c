@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HD-audio controller helpers
  */
@@ -8,6 +12,10 @@
 #include <sound/core.h>
 #include <sound/hdaudio.h>
 #include <sound/hda_register.h>
+<<<<<<< HEAD
+=======
+#include "local.h"
+>>>>>>> upstream/android-13
 
 /* clear CORB read pointer properly */
 static void azx_clear_corbrp(struct hdac_bus *bus)
@@ -78,6 +86,11 @@ void snd_hdac_bus_init_cmd_io(struct hdac_bus *bus)
 	snd_hdac_chip_writew(bus, RINTCNT, 1);
 	/* enable rirb dma and response irq */
 	snd_hdac_chip_writeb(bus, RIRBCTL, AZX_RBCTL_DMA_EN | AZX_RBCTL_IRQ_EN);
+<<<<<<< HEAD
+=======
+	/* Accept unsolicited responses */
+	snd_hdac_chip_updatel(bus, GCTL, AZX_GCTL_UNSOL, AZX_GCTL_UNSOL);
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&bus->reg_lock);
 }
 EXPORT_SYMBOL_GPL(snd_hdac_bus_init_cmd_io);
@@ -178,6 +191,10 @@ EXPORT_SYMBOL_GPL(snd_hdac_bus_send_cmd);
  * @bus: HD-audio core bus
  *
  * Usually called from interrupt handler.
+<<<<<<< HEAD
+=======
+ * The caller needs bus->reg_lock spinlock before calling this.
+>>>>>>> upstream/android-13
  */
 void snd_hdac_bus_update_rirb(struct hdac_bus *bus)
 {
@@ -213,6 +230,12 @@ void snd_hdac_bus_update_rirb(struct hdac_bus *bus)
 		else if (bus->rirb.cmds[addr]) {
 			bus->rirb.res[addr] = res;
 			bus->rirb.cmds[addr]--;
+<<<<<<< HEAD
+=======
+			if (!bus->rirb.cmds[addr] &&
+			    waitqueue_active(&bus->rirb_wq))
+				wake_up(&bus->rirb_wq);
+>>>>>>> upstream/android-13
 		} else {
 			dev_err_ratelimited(bus->dev,
 				"spurious response %#x:%#x, last cmd=%#08x\n",
@@ -235,28 +258,70 @@ int snd_hdac_bus_get_response(struct hdac_bus *bus, unsigned int addr,
 {
 	unsigned long timeout;
 	unsigned long loopcounter;
+<<<<<<< HEAD
 
+=======
+	wait_queue_entry_t wait;
+	bool warned = false;
+
+	init_wait_entry(&wait, 0);
+>>>>>>> upstream/android-13
 	timeout = jiffies + msecs_to_jiffies(1000);
 
 	for (loopcounter = 0;; loopcounter++) {
 		spin_lock_irq(&bus->reg_lock);
+<<<<<<< HEAD
 		if (!bus->rirb.cmds[addr]) {
 			if (res)
 				*res = bus->rirb.res[addr]; /* the last value */
+=======
+		if (!bus->polling_mode)
+			prepare_to_wait(&bus->rirb_wq, &wait,
+					TASK_UNINTERRUPTIBLE);
+		if (bus->polling_mode)
+			snd_hdac_bus_update_rirb(bus);
+		if (!bus->rirb.cmds[addr]) {
+			if (res)
+				*res = bus->rirb.res[addr]; /* the last value */
+			if (!bus->polling_mode)
+				finish_wait(&bus->rirb_wq, &wait);
+>>>>>>> upstream/android-13
 			spin_unlock_irq(&bus->reg_lock);
 			return 0;
 		}
 		spin_unlock_irq(&bus->reg_lock);
 		if (time_after(jiffies, timeout))
 			break;
+<<<<<<< HEAD
 		if (loopcounter > 3000)
 			msleep(2); /* temporary workaround */
 		else {
+=======
+#define LOOP_COUNT_MAX	3000
+		if (!bus->polling_mode) {
+			schedule_timeout(msecs_to_jiffies(2));
+		} else if (bus->needs_damn_long_delay ||
+			   loopcounter > LOOP_COUNT_MAX) {
+			if (loopcounter > LOOP_COUNT_MAX && !warned) {
+				dev_dbg_ratelimited(bus->dev,
+						    "too slow response, last cmd=%#08x\n",
+						    bus->last_cmd[addr]);
+				warned = true;
+			}
+			msleep(2); /* temporary workaround */
+		} else {
+>>>>>>> upstream/android-13
 			udelay(10);
 			cond_resched();
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (!bus->polling_mode)
+		finish_wait(&bus->rirb_wq, &wait);
+
+>>>>>>> upstream/android-13
 	return -EIO;
 }
 EXPORT_SYMBOL_GPL(snd_hdac_bus_get_response);
@@ -376,7 +441,11 @@ void snd_hdac_bus_exit_link_reset(struct hdac_bus *bus)
 {
 	unsigned long timeout;
 
+<<<<<<< HEAD
 	snd_hdac_chip_updateb(bus, GCTL, 0, AZX_GCTL_RESET);
+=======
+	snd_hdac_chip_updateb(bus, GCTL, AZX_GCTL_RESET, AZX_GCTL_RESET);
+>>>>>>> upstream/android-13
 
 	timeout = jiffies + msecs_to_jiffies(100);
 	while (!snd_hdac_chip_readb(bus, GCTL) && time_before(jiffies, timeout))
@@ -390,8 +459,14 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
 	if (!full_reset)
 		goto skip_reset;
 
+<<<<<<< HEAD
 	/* clear STATESTS */
 	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+=======
+	/* clear STATESTS if not in reset */
+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+>>>>>>> upstream/android-13
 
 	/* reset controller */
 	snd_hdac_bus_enter_link_reset(bus);
@@ -414,9 +489,12 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	/* Accept unsolicited responses */
 	snd_hdac_chip_updatel(bus, GCTL, 0, AZX_GCTL_UNSOL);
 
+=======
+>>>>>>> upstream/android-13
 	/* detect codecs */
 	if (!bus->codec_mask) {
 		bus->codec_mask = snd_hdac_chip_readw(bus, STATESTS);
@@ -431,7 +509,13 @@ EXPORT_SYMBOL_GPL(snd_hdac_bus_reset_link);
 static void azx_int_enable(struct hdac_bus *bus)
 {
 	/* enable controller CIE and GIE */
+<<<<<<< HEAD
 	snd_hdac_chip_updatel(bus, INTCTL, 0, AZX_INT_CTRL_EN | AZX_INT_GLOBAL_EN);
+=======
+	snd_hdac_chip_updatel(bus, INTCTL,
+			      AZX_INT_CTRL_EN | AZX_INT_GLOBAL_EN,
+			      AZX_INT_CTRL_EN | AZX_INT_GLOBAL_EN);
+>>>>>>> upstream/android-13
 }
 
 /* disable interrupts */
@@ -498,6 +582,10 @@ bool snd_hdac_bus_init_chip(struct hdac_bus *bus, bool full_reset)
 	}
 
 	bus->chip_init = true;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return true;
 }
 EXPORT_SYMBOL_GPL(snd_hdac_bus_init_chip);
@@ -532,7 +620,11 @@ EXPORT_SYMBOL_GPL(snd_hdac_bus_stop_chip);
  * snd_hdac_bus_handle_stream_irq - interrupt handler for streams
  * @bus: HD-audio core bus
  * @status: INTSTS register value
+<<<<<<< HEAD
  * @ask: callback to be called for woken streams
+=======
+ * @ack: callback to be called for woken streams
+>>>>>>> upstream/android-13
  *
  * Returns the bits of handled streams, or zero if no stream is handled.
  */
@@ -571,12 +663,21 @@ int snd_hdac_bus_alloc_stream_pages(struct hdac_bus *bus)
 {
 	struct hdac_stream *s;
 	int num_streams = 0;
+<<<<<<< HEAD
+=======
+	int dma_type = bus->dma_type ? bus->dma_type : SNDRV_DMA_TYPE_DEV;
+>>>>>>> upstream/android-13
 	int err;
 
 	list_for_each_entry(s, &bus->stream_list, list) {
 		/* allocate memory for the BDL for each stream */
+<<<<<<< HEAD
 		err = bus->io_ops->dma_alloc_pages(bus, SNDRV_DMA_TYPE_DEV,
 						   BDL_SIZE, &s->bdl);
+=======
+		err = snd_dma_alloc_pages(dma_type, bus->dev,
+					  BDL_SIZE, &s->bdl);
+>>>>>>> upstream/android-13
 		num_streams++;
 		if (err < 0)
 			return -ENOMEM;
@@ -585,16 +686,25 @@ int snd_hdac_bus_alloc_stream_pages(struct hdac_bus *bus)
 	if (WARN_ON(!num_streams))
 		return -EINVAL;
 	/* allocate memory for the position buffer */
+<<<<<<< HEAD
 	err = bus->io_ops->dma_alloc_pages(bus, SNDRV_DMA_TYPE_DEV,
 					   num_streams * 8, &bus->posbuf);
+=======
+	err = snd_dma_alloc_pages(dma_type, bus->dev,
+				  num_streams * 8, &bus->posbuf);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return -ENOMEM;
 	list_for_each_entry(s, &bus->stream_list, list)
 		s->posbuf = (__le32 *)(bus->posbuf.area + s->index * 8);
 
 	/* single page (at least 4096 bytes) must suffice for both ringbuffes */
+<<<<<<< HEAD
 	return bus->io_ops->dma_alloc_pages(bus, SNDRV_DMA_TYPE_DEV,
 					    PAGE_SIZE, &bus->rb);
+=======
+	return snd_dma_alloc_pages(dma_type, bus->dev, PAGE_SIZE, &bus->rb);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hdac_bus_alloc_stream_pages);
 
@@ -608,6 +718,7 @@ void snd_hdac_bus_free_stream_pages(struct hdac_bus *bus)
 
 	list_for_each_entry(s, &bus->stream_list, list) {
 		if (s->bdl.area)
+<<<<<<< HEAD
 			bus->io_ops->dma_free_pages(bus, &s->bdl);
 	}
 
@@ -617,3 +728,28 @@ void snd_hdac_bus_free_stream_pages(struct hdac_bus *bus)
 		bus->io_ops->dma_free_pages(bus, &bus->posbuf);
 }
 EXPORT_SYMBOL_GPL(snd_hdac_bus_free_stream_pages);
+=======
+			snd_dma_free_pages(&s->bdl);
+	}
+
+	if (bus->rb.area)
+		snd_dma_free_pages(&bus->rb);
+	if (bus->posbuf.area)
+		snd_dma_free_pages(&bus->posbuf);
+}
+EXPORT_SYMBOL_GPL(snd_hdac_bus_free_stream_pages);
+
+/**
+ * snd_hdac_bus_link_power - power up/down codec link
+ * @codec: HD-audio device
+ * @enable: whether to power-up the link
+ */
+void snd_hdac_bus_link_power(struct hdac_device *codec, bool enable)
+{
+	if (enable)
+		set_bit(codec->addr, &codec->bus->codec_powered);
+	else
+		clear_bit(codec->addr, &codec->bus->codec_powered);
+}
+EXPORT_SYMBOL_GPL(snd_hdac_bus_link_power);
+>>>>>>> upstream/android-13

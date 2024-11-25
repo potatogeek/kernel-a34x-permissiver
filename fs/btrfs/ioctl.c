@@ -26,14 +26,25 @@
 #include <linux/btrfs.h>
 #include <linux/uaccess.h>
 #include <linux/iversion.h>
+<<<<<<< HEAD
 #include "ctree.h"
 #include "disk-io.h"
+=======
+#include <linux/fileattr.h>
+#include <linux/fsverity.h>
+#include "ctree.h"
+#include "disk-io.h"
+#include "export.h"
+>>>>>>> upstream/android-13
 #include "transaction.h"
 #include "btrfs_inode.h"
 #include "print-tree.h"
 #include "volumes.h"
 #include "locking.h"
+<<<<<<< HEAD
 #include "inode-map.h"
+=======
+>>>>>>> upstream/android-13
 #include "backref.h"
 #include "rcu-string.h"
 #include "send.h"
@@ -43,6 +54,12 @@
 #include "qgroup.h"
 #include "tree-log.h"
 #include "compression.h"
+<<<<<<< HEAD
+=======
+#include "space-info.h"
+#include "delalloc-space.h"
+#include "block-group.h"
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_64BIT
 /* If we have a 32-bit userspace and 64-bit kernel, then the UAPI
@@ -83,10 +100,13 @@ struct btrfs_ioctl_send_args_32 {
 			       struct btrfs_ioctl_send_args_32)
 #endif
 
+<<<<<<< HEAD
 static int btrfs_clone(struct inode *src, struct inode *inode,
 		       u64 off, u64 olen, u64 olen_aligned, u64 destoff,
 		       int no_time_update);
 
+=======
+>>>>>>> upstream/android-13
 /* Mask out flags that are inappropriate for the given type of inode. */
 static unsigned int btrfs_mask_fsflags_for_type(struct inode *inode,
 		unsigned int flags)
@@ -103,9 +123,17 @@ static unsigned int btrfs_mask_fsflags_for_type(struct inode *inode,
  * Export internal inode flags to the format expected by the FS_IOC_GETFLAGS
  * ioctl.
  */
+<<<<<<< HEAD
 static unsigned int btrfs_inode_flags_to_fsflags(unsigned int flags)
 {
 	unsigned int iflags = 0;
+=======
+static unsigned int btrfs_inode_flags_to_fsflags(struct btrfs_inode *binode)
+{
+	unsigned int iflags = 0;
+	u32 flags = binode->flags;
+	u32 ro_flags = binode->ro_flags;
+>>>>>>> upstream/android-13
 
 	if (flags & BTRFS_INODE_SYNC)
 		iflags |= FS_SYNC_FL;
@@ -121,6 +149,11 @@ static unsigned int btrfs_inode_flags_to_fsflags(unsigned int flags)
 		iflags |= FS_DIRSYNC_FL;
 	if (flags & BTRFS_INODE_NODATACOW)
 		iflags |= FS_NOCOW_FL;
+<<<<<<< HEAD
+=======
+	if (ro_flags & BTRFS_INODE_RO_VERITY)
+		iflags |= FS_VERITY_FL;
+>>>>>>> upstream/android-13
 
 	if (flags & BTRFS_INODE_NOCOMPRESS)
 		iflags |= FS_NOCOMP_FL;
@@ -148,6 +181,7 @@ void btrfs_sync_inode_flags_to_i_flags(struct inode *inode)
 		new_fl |= S_NOATIME;
 	if (binode->flags & BTRFS_INODE_DIRSYNC)
 		new_fl |= S_DIRSYNC;
+<<<<<<< HEAD
 
 	set_mask_bits(&inode->i_flags,
 		      S_SYNC | S_APPEND | S_IMMUTABLE | S_NOATIME | S_DIRSYNC,
@@ -166,6 +200,21 @@ static int btrfs_ioctl_getflags(struct file *file, void __user *arg)
 
 /* Check if @flags are a supported and valid set of FS_*_FL flags */
 static int check_fsflags(unsigned int flags)
+=======
+	if (binode->ro_flags & BTRFS_INODE_RO_VERITY)
+		new_fl |= S_VERITY;
+
+	set_mask_bits(&inode->i_flags,
+		      S_SYNC | S_APPEND | S_IMMUTABLE | S_NOATIME | S_DIRSYNC |
+		      S_VERITY, new_fl);
+}
+
+/*
+ * Check if @flags are a supported and valid set of FS_*_FL flags and that
+ * the old and new flags are not conflicting
+ */
+static int check_fsflags(unsigned int old_flags, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	if (flags & ~(FS_IMMUTABLE_FL | FS_APPEND_FL | \
 		      FS_NOATIME_FL | FS_NODUMP_FL | \
@@ -174,6 +223,7 @@ static int check_fsflags(unsigned int flags)
 		      FS_NOCOW_FL))
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if ((flags & FS_NOCOMP_FL) && (flags & FS_COMPR_FL))
 		return -EINVAL;
 
@@ -183,22 +233,71 @@ static int check_fsflags(unsigned int flags)
 static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
 {
 	struct inode *inode = file_inode(file);
+=======
+	/* COMPR and NOCOMP on new/old are valid */
+	if ((flags & FS_NOCOMP_FL) && (flags & FS_COMPR_FL))
+		return -EINVAL;
+
+	if ((flags & FS_COMPR_FL) && (flags & FS_NOCOW_FL))
+		return -EINVAL;
+
+	/* NOCOW and compression options are mutually exclusive */
+	if ((old_flags & FS_NOCOW_FL) && (flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
+		return -EINVAL;
+	if ((flags & FS_NOCOW_FL) && (old_flags & (FS_COMPR_FL | FS_NOCOMP_FL)))
+		return -EINVAL;
+
+	return 0;
+}
+
+static int check_fsflags_compatible(struct btrfs_fs_info *fs_info,
+				    unsigned int flags)
+{
+	if (btrfs_is_zoned(fs_info) && (flags & FS_NOCOW_FL))
+		return -EPERM;
+
+	return 0;
+}
+
+/*
+ * Set flags/xflags from the internal inode flags. The remaining items of
+ * fsxattr are zeroed.
+ */
+int btrfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+{
+	struct btrfs_inode *binode = BTRFS_I(d_inode(dentry));
+
+	fileattr_fill_flags(fa, btrfs_inode_flags_to_fsflags(binode));
+	return 0;
+}
+
+int btrfs_fileattr_set(struct user_namespace *mnt_userns,
+		       struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+>>>>>>> upstream/android-13
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	struct btrfs_inode *binode = BTRFS_I(inode);
 	struct btrfs_root *root = binode->root;
 	struct btrfs_trans_handle *trans;
 	unsigned int fsflags, old_fsflags;
 	int ret;
+<<<<<<< HEAD
 	u64 old_flags;
 	unsigned int old_i_flags;
 	umode_t mode;
 
 	if (!inode_owner_or_capable(inode))
 		return -EPERM;
+=======
+	const char *comp = NULL;
+	u32 binode_flags;
+>>>>>>> upstream/android-13
 
 	if (btrfs_root_readonly(root))
 		return -EROFS;
 
+<<<<<<< HEAD
 	if (copy_from_user(&fsflags, arg, sizeof(fsflags)))
 		return -EFAULT;
 
@@ -251,27 +350,95 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
 		binode->flags &= ~BTRFS_INODE_DIRSYNC;
 	if (fsflags & FS_NOCOW_FL) {
 		if (S_ISREG(mode)) {
+=======
+	if (fileattr_has_fsx(fa))
+		return -EOPNOTSUPP;
+
+	fsflags = btrfs_mask_fsflags_for_type(inode, fa->flags);
+	old_fsflags = btrfs_inode_flags_to_fsflags(binode);
+	ret = check_fsflags(old_fsflags, fsflags);
+	if (ret)
+		return ret;
+
+	ret = check_fsflags_compatible(fs_info, fsflags);
+	if (ret)
+		return ret;
+
+	binode_flags = binode->flags;
+	if (fsflags & FS_SYNC_FL)
+		binode_flags |= BTRFS_INODE_SYNC;
+	else
+		binode_flags &= ~BTRFS_INODE_SYNC;
+	if (fsflags & FS_IMMUTABLE_FL)
+		binode_flags |= BTRFS_INODE_IMMUTABLE;
+	else
+		binode_flags &= ~BTRFS_INODE_IMMUTABLE;
+	if (fsflags & FS_APPEND_FL)
+		binode_flags |= BTRFS_INODE_APPEND;
+	else
+		binode_flags &= ~BTRFS_INODE_APPEND;
+	if (fsflags & FS_NODUMP_FL)
+		binode_flags |= BTRFS_INODE_NODUMP;
+	else
+		binode_flags &= ~BTRFS_INODE_NODUMP;
+	if (fsflags & FS_NOATIME_FL)
+		binode_flags |= BTRFS_INODE_NOATIME;
+	else
+		binode_flags &= ~BTRFS_INODE_NOATIME;
+
+	/* If coming from FS_IOC_FSSETXATTR then skip unconverted flags */
+	if (!fa->flags_valid) {
+		/* 1 item for the inode */
+		trans = btrfs_start_transaction(root, 1);
+		if (IS_ERR(trans))
+			return PTR_ERR(trans);
+		goto update_flags;
+	}
+
+	if (fsflags & FS_DIRSYNC_FL)
+		binode_flags |= BTRFS_INODE_DIRSYNC;
+	else
+		binode_flags &= ~BTRFS_INODE_DIRSYNC;
+	if (fsflags & FS_NOCOW_FL) {
+		if (S_ISREG(inode->i_mode)) {
+>>>>>>> upstream/android-13
 			/*
 			 * It's safe to turn csums off here, no extents exist.
 			 * Otherwise we want the flag to reflect the real COW
 			 * status of the file and will not set it.
 			 */
 			if (inode->i_size == 0)
+<<<<<<< HEAD
 				binode->flags |= BTRFS_INODE_NODATACOW
 					      | BTRFS_INODE_NODATASUM;
 		} else {
 			binode->flags |= BTRFS_INODE_NODATACOW;
+=======
+				binode_flags |= BTRFS_INODE_NODATACOW |
+						BTRFS_INODE_NODATASUM;
+		} else {
+			binode_flags |= BTRFS_INODE_NODATACOW;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/*
 		 * Revert back under same assumptions as above
 		 */
+<<<<<<< HEAD
 		if (S_ISREG(mode)) {
 			if (inode->i_size == 0)
 				binode->flags &= ~(BTRFS_INODE_NODATACOW
 				             | BTRFS_INODE_NODATASUM);
 		} else {
 			binode->flags &= ~BTRFS_INODE_NODATACOW;
+=======
+		if (S_ISREG(inode->i_mode)) {
+			if (inode->i_size == 0)
+				binode_flags &= ~(BTRFS_INODE_NODATACOW |
+						  BTRFS_INODE_NODATASUM);
+		} else {
+			binode_flags &= ~BTRFS_INODE_NODATACOW;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -281,6 +448,7 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
 	 * things smaller.
 	 */
 	if (fsflags & FS_NOCOMP_FL) {
+<<<<<<< HEAD
 		binode->flags &= ~BTRFS_INODE_COMPRESS;
 		binode->flags |= BTRFS_INODE_NOCOMPRESS;
 
@@ -292,10 +460,22 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
 
 		binode->flags |= BTRFS_INODE_COMPRESS;
 		binode->flags &= ~BTRFS_INODE_NOCOMPRESS;
+=======
+		binode_flags &= ~BTRFS_INODE_COMPRESS;
+		binode_flags |= BTRFS_INODE_NOCOMPRESS;
+	} else if (fsflags & FS_COMPR_FL) {
+
+		if (IS_SWAPFILE(inode))
+			return -ETXTBSY;
+
+		binode_flags |= BTRFS_INODE_COMPRESS;
+		binode_flags &= ~BTRFS_INODE_NOCOMPRESS;
+>>>>>>> upstream/android-13
 
 		comp = btrfs_compress_type2str(fs_info->compress_type);
 		if (!comp || comp[0] == 0)
 			comp = btrfs_compress_type2str(BTRFS_COMPRESS_ZLIB);
+<<<<<<< HEAD
 
 		ret = btrfs_set_prop(inode, "btrfs.compression",
 				     comp, strlen(comp), 0);
@@ -330,10 +510,50 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
  out_unlock:
 	inode_unlock(inode);
 	mnt_drop_write_file(file);
+=======
+	} else {
+		binode_flags &= ~(BTRFS_INODE_COMPRESS | BTRFS_INODE_NOCOMPRESS);
+	}
+
+	/*
+	 * 1 for inode item
+	 * 2 for properties
+	 */
+	trans = btrfs_start_transaction(root, 3);
+	if (IS_ERR(trans))
+		return PTR_ERR(trans);
+
+	if (comp) {
+		ret = btrfs_set_prop(trans, inode, "btrfs.compression", comp,
+				     strlen(comp), 0);
+		if (ret) {
+			btrfs_abort_transaction(trans, ret);
+			goto out_end_trans;
+		}
+	} else {
+		ret = btrfs_set_prop(trans, inode, "btrfs.compression", NULL,
+				     0, 0);
+		if (ret && ret != -ENODATA) {
+			btrfs_abort_transaction(trans, ret);
+			goto out_end_trans;
+		}
+	}
+
+update_flags:
+	binode->flags = binode_flags;
+	btrfs_sync_inode_flags_to_i_flags(inode);
+	inode_inc_iversion(inode);
+	inode->i_ctime = current_time(inode);
+	ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+
+ out_end_trans:
+	btrfs_end_transaction(trans);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /*
+<<<<<<< HEAD
  * Translate btrfs internal inode flags to xflags as expected by the
  * FS_IOC_FSGETXATT ioctl. Filter only the supported ones, unknown flags are
  * silently dropped.
@@ -473,6 +693,57 @@ out_unlock:
 	mnt_drop_write_file(file);
 
 	return ret;
+=======
+ * Start exclusive operation @type, return true on success
+ */
+bool btrfs_exclop_start(struct btrfs_fs_info *fs_info,
+			enum btrfs_exclusive_operation type)
+{
+	bool ret = false;
+
+	spin_lock(&fs_info->super_lock);
+	if (fs_info->exclusive_operation == BTRFS_EXCLOP_NONE) {
+		fs_info->exclusive_operation = type;
+		ret = true;
+	}
+	spin_unlock(&fs_info->super_lock);
+
+	return ret;
+}
+
+/*
+ * Conditionally allow to enter the exclusive operation in case it's compatible
+ * with the running one.  This must be paired with btrfs_exclop_start_unlock and
+ * btrfs_exclop_finish.
+ *
+ * Compatibility:
+ * - the same type is already running
+ * - not BTRFS_EXCLOP_NONE - this is intentionally incompatible and the caller
+ *   must check the condition first that would allow none -> @type
+ */
+bool btrfs_exclop_start_try_lock(struct btrfs_fs_info *fs_info,
+				 enum btrfs_exclusive_operation type)
+{
+	spin_lock(&fs_info->super_lock);
+	if (fs_info->exclusive_operation == type)
+		return true;
+
+	spin_unlock(&fs_info->super_lock);
+	return false;
+}
+
+void btrfs_exclop_start_unlock(struct btrfs_fs_info *fs_info)
+{
+	spin_unlock(&fs_info->super_lock);
+}
+
+void btrfs_exclop_finish(struct btrfs_fs_info *fs_info)
+{
+	spin_lock(&fs_info->super_lock);
+	WRITE_ONCE(fs_info->exclusive_operation, BTRFS_EXCLOP_NONE);
+	spin_unlock(&fs_info->super_lock);
+	sysfs_notify(&fs_info->fs_devices->fsid_kobj, NULL, "exclusive_operation");
+>>>>>>> upstream/android-13
 }
 
 static int btrfs_ioctl_getversion(struct file *file, int __user *arg)
@@ -482,10 +753,16 @@ static int btrfs_ioctl_getversion(struct file *file, int __user *arg)
 	return put_user(inode->i_generation, arg);
 }
 
+<<<<<<< HEAD
 static noinline int btrfs_ioctl_fitrim(struct file *file, void __user *arg)
 {
 	struct inode *inode = file_inode(file);
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+=======
+static noinline int btrfs_ioctl_fitrim(struct btrfs_fs_info *fs_info,
+					void __user *arg)
+{
+>>>>>>> upstream/android-13
 	struct btrfs_device *device;
 	struct request_queue *q;
 	struct fstrim_range range;
@@ -497,6 +774,17 @@ static noinline int btrfs_ioctl_fitrim(struct file *file, void __user *arg)
 		return -EPERM;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * btrfs_trim_block_group() depends on space cache, which is not
+	 * available in zoned filesystem. So, disallow fitrim on a zoned
+	 * filesystem for now.
+	 */
+	if (btrfs_is_zoned(fs_info))
+		return -EOPNOTSUPP;
+
+	/*
+>>>>>>> upstream/android-13
 	 * If the fs is mounted with nologreplay, which requires it to be
 	 * mounted in RO mode as well, we can not allow discard on free space
 	 * inside block groups, because log trees refer to extents that are not
@@ -544,7 +832,11 @@ static noinline int btrfs_ioctl_fitrim(struct file *file, void __user *arg)
 	return 0;
 }
 
+<<<<<<< HEAD
 int btrfs_is_empty_uuid(u8 *uuid)
+=======
+int __pure btrfs_is_empty_uuid(u8 *uuid)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -555,10 +847,16 @@ int btrfs_is_empty_uuid(u8 *uuid)
 	return 1;
 }
 
+<<<<<<< HEAD
 static noinline int create_subvol(struct inode *dir,
 				  struct dentry *dentry,
 				  const char *name, int namelen,
 				  u64 *async_transid,
+=======
+static noinline int create_subvol(struct user_namespace *mnt_userns,
+				  struct inode *dir, struct dentry *dentry,
+				  const char *name, int namelen,
+>>>>>>> upstream/android-13
 				  struct btrfs_qgroup_inherit *inherit)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(dir->i_sb);
@@ -574,19 +872,36 @@ static noinline int create_subvol(struct inode *dir,
 	struct inode *inode;
 	int ret;
 	int err;
+<<<<<<< HEAD
 	u64 objectid;
 	u64 new_dirid = BTRFS_FIRST_FREE_OBJECTID;
 	u64 index = 0;
 	uuid_le new_uuid;
+=======
+	dev_t anon_dev = 0;
+	u64 objectid;
+	u64 index = 0;
+>>>>>>> upstream/android-13
 
 	root_item = kzalloc(sizeof(*root_item), GFP_KERNEL);
 	if (!root_item)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = btrfs_find_free_objectid(fs_info->tree_root, &objectid);
 	if (ret)
 		goto fail_free;
 
+=======
+	ret = btrfs_get_free_objectid(fs_info->tree_root, &objectid);
+	if (ret)
+		goto fail_free;
+
+	ret = get_anon_bdev(&anon_dev);
+	if (ret < 0)
+		goto fail_free;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Don't create subvolume whose level is not zero. Or qgroup will be
 	 * screwed up since it assumes subvolume qgroup's level to be 0.
@@ -608,7 +923,11 @@ static noinline int create_subvol(struct inode *dir,
 	trans = btrfs_start_transaction(root, 0);
 	if (IS_ERR(trans)) {
 		ret = PTR_ERR(trans);
+<<<<<<< HEAD
 		btrfs_subvolume_release_metadata(fs_info, &block_rsv);
+=======
+		btrfs_subvolume_release_metadata(root, &block_rsv);
+>>>>>>> upstream/android-13
 		goto fail_free;
 	}
 	trans->block_rsv = &block_rsv;
@@ -618,7 +937,12 @@ static noinline int create_subvol(struct inode *dir,
 	if (ret)
 		goto fail;
 
+<<<<<<< HEAD
 	leaf = btrfs_alloc_tree_block(trans, root, 0, objectid, NULL, 0, 0, 0);
+=======
+	leaf = btrfs_alloc_tree_block(trans, root, 0, objectid, NULL, 0, 0, 0,
+				      BTRFS_NESTING_NORMAL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(leaf)) {
 		ret = PTR_ERR(leaf);
 		goto fail;
@@ -647,8 +971,12 @@ static noinline int create_subvol(struct inode *dir,
 
 	btrfs_set_root_generation_v2(root_item,
 			btrfs_root_generation(root_item));
+<<<<<<< HEAD
 	uuid_le_gen(&new_uuid);
 	memcpy(root_item->uuid, new_uuid.b, BTRFS_UUID_SIZE);
+=======
+	generate_random_guid(root_item->uuid);
+>>>>>>> upstream/android-13
 	btrfs_set_stack_timespec_sec(&root_item->otime, cur_time.tv_sec);
 	btrfs_set_stack_timespec_nsec(&root_item->otime, cur_time.tv_nsec);
 	root_item->ctime = root_item->otime;
@@ -657,7 +985,11 @@ static noinline int create_subvol(struct inode *dir,
 
 	btrfs_tree_unlock(leaf);
 
+<<<<<<< HEAD
 	btrfs_set_root_dirid(root_item, new_dirid);
+=======
+	btrfs_set_root_dirid(root_item, BTRFS_FIRST_FREE_OBJECTID);
+>>>>>>> upstream/android-13
 
 	key.objectid = objectid;
 	key.offset = 0;
@@ -682,26 +1014,50 @@ static noinline int create_subvol(struct inode *dir,
 	leaf = NULL;
 
 	key.offset = (u64)-1;
+<<<<<<< HEAD
 	new_root = btrfs_read_fs_root_no_name(fs_info, &key);
 	if (IS_ERR(new_root)) {
+=======
+	new_root = btrfs_get_new_fs_root(fs_info, objectid, anon_dev);
+	if (IS_ERR(new_root)) {
+		free_anon_bdev(anon_dev);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(new_root);
 		btrfs_abort_transaction(trans, ret);
 		goto fail;
 	}
+<<<<<<< HEAD
 
 	btrfs_record_root_in_trans(trans, new_root);
 
 	ret = btrfs_create_subvol_root(trans, new_root, root, new_dirid);
+=======
+	/* Freeing will be done in btrfs_put_root() of new_root */
+	anon_dev = 0;
+
+	ret = btrfs_record_root_in_trans(trans, new_root);
+	if (ret) {
+		btrfs_put_root(new_root);
+		btrfs_abort_transaction(trans, ret);
+		goto fail;
+	}
+
+	ret = btrfs_create_subvol_root(trans, new_root, root, mnt_userns);
+	btrfs_put_root(new_root);
+>>>>>>> upstream/android-13
 	if (ret) {
 		/* We potentially lose an unused inode item here */
 		btrfs_abort_transaction(trans, ret);
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&new_root->objectid_mutex);
 	new_root->highest_objectid = new_dirid;
 	mutex_unlock(&new_root->objectid_mutex);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * insert the directory item
 	 */
@@ -711,8 +1067,12 @@ static noinline int create_subvol(struct inode *dir,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	ret = btrfs_insert_dir_item(trans, root,
 				    name, namelen, BTRFS_I(dir), &key,
+=======
+	ret = btrfs_insert_dir_item(trans, name, namelen, BTRFS_I(dir), &key,
+>>>>>>> upstream/android-13
 				    BTRFS_FT_DIR, index);
 	if (ret) {
 		btrfs_abort_transaction(trans, ret);
@@ -720,7 +1080,11 @@ static noinline int create_subvol(struct inode *dir,
 	}
 
 	btrfs_i_size_write(BTRFS_I(dir), dir->i_size + namelen * 2);
+<<<<<<< HEAD
 	ret = btrfs_update_inode(trans, root, dir);
+=======
+	ret = btrfs_update_inode(trans, root, BTRFS_I(dir));
+>>>>>>> upstream/android-13
 	if (ret) {
 		btrfs_abort_transaction(trans, ret);
 		goto fail;
@@ -742,6 +1106,7 @@ fail:
 	kfree(root_item);
 	trans->block_rsv = NULL;
 	trans->bytes_reserved = 0;
+<<<<<<< HEAD
 	btrfs_subvolume_release_metadata(fs_info, &block_rsv);
 
 	if (async_transid) {
@@ -752,6 +1117,11 @@ fail:
 	} else {
 		err = btrfs_commit_transaction(trans);
 	}
+=======
+	btrfs_subvolume_release_metadata(root, &block_rsv);
+
+	err = btrfs_commit_transaction(trans);
+>>>>>>> upstream/android-13
 	if (err && !ret)
 		ret = err;
 
@@ -764,13 +1134,22 @@ fail:
 	return ret;
 
 fail_free:
+<<<<<<< HEAD
+=======
+	if (anon_dev)
+		free_anon_bdev(anon_dev);
+>>>>>>> upstream/android-13
 	kfree(root_item);
 	return ret;
 }
 
 static int create_snapshot(struct btrfs_root *root, struct inode *dir,
+<<<<<<< HEAD
 			   struct dentry *dentry,
 			   u64 *async_transid, bool readonly,
+=======
+			   struct dentry *dentry, bool readonly,
+>>>>>>> upstream/android-13
 			   struct btrfs_qgroup_inherit *inherit)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(dir->i_sb);
@@ -778,15 +1157,34 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
 	struct btrfs_pending_snapshot *pending_snapshot;
 	struct btrfs_trans_handle *trans;
 	int ret;
+<<<<<<< HEAD
 	bool snapshot_force_cow = false;
 
 	if (!test_bit(BTRFS_ROOT_REF_COWS, &root->state))
 		return -EINVAL;
 
+=======
+
+	if (!test_bit(BTRFS_ROOT_SHAREABLE, &root->state))
+		return -EINVAL;
+
+	if (atomic_read(&root->nr_swapfiles)) {
+		btrfs_warn(fs_info,
+			   "cannot snapshot subvolume with active swapfile");
+		return -ETXTBSY;
+	}
+
+>>>>>>> upstream/android-13
 	pending_snapshot = kzalloc(sizeof(*pending_snapshot), GFP_KERNEL);
 	if (!pending_snapshot)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	ret = get_anon_bdev(&pending_snapshot->anon_dev);
+	if (ret < 0)
+		goto free_pending;
+>>>>>>> upstream/android-13
 	pending_snapshot->root_item = kzalloc(sizeof(struct btrfs_root_item),
 			GFP_KERNEL);
 	pending_snapshot->path = btrfs_alloc_path();
@@ -795,6 +1193,7 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
 		goto free_pending;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Force new buffered writes to reserve space even when NOCOW is
 	 * possible. This is to avoid later writeback (running dealloc) to
@@ -820,6 +1219,8 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
 
 	btrfs_wait_ordered_extents(root, U64_MAX, 0, (u64)-1);
 
+=======
+>>>>>>> upstream/android-13
 	btrfs_init_block_rsv(&pending_snapshot->block_rsv,
 			     BTRFS_BLOCK_RSV_TEMP);
 	/*
@@ -834,7 +1235,11 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
 					&pending_snapshot->block_rsv, 8,
 					false);
 	if (ret)
+<<<<<<< HEAD
 		goto dec_and_free;
+=======
+		goto free_pending;
+>>>>>>> upstream/android-13
 
 	pending_snapshot->dentry = dentry;
 	pending_snapshot->root = root;
@@ -848,6 +1253,7 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	spin_lock(&fs_info->trans_lock);
 	list_add(&pending_snapshot->list,
 		 &trans->transaction->pending_snapshots);
@@ -860,6 +1266,11 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
 	} else {
 		ret = btrfs_commit_transaction(trans);
 	}
+=======
+	trans->pending_snapshot = pending_snapshot;
+
+	ret = btrfs_commit_transaction(trans);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fail;
 
@@ -879,6 +1290,7 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
 
 	d_instantiate(dentry, inode);
 	ret = 0;
+<<<<<<< HEAD
 fail:
 	btrfs_subvolume_release_metadata(fs_info, &pending_snapshot->block_rsv);
 dec_and_free:
@@ -887,6 +1299,18 @@ dec_and_free:
 	if (atomic_dec_and_test(&root->will_be_snapshotted))
 		wake_up_var(&root->will_be_snapshotted);
 free_pending:
+=======
+	pending_snapshot->anon_dev = 0;
+fail:
+	/* Prevent double freeing of anon_dev */
+	if (ret && pending_snapshot->snap)
+		pending_snapshot->snap->anon_dev = 0;
+	btrfs_put_root(pending_snapshot->snap);
+	btrfs_subvolume_release_metadata(root, &pending_snapshot->block_rsv);
+free_pending:
+	if (pending_snapshot->anon_dev)
+		free_anon_bdev(pending_snapshot->anon_dev);
+>>>>>>> upstream/android-13
 	kfree(pending_snapshot->root_item);
 	btrfs_free_path(pending_snapshot->path);
 	kfree(pending_snapshot);
@@ -914,7 +1338,12 @@ free_pending:
  *     nfs_async_unlink().
  */
 
+<<<<<<< HEAD
 static int btrfs_may_delete(struct inode *dir, struct dentry *victim, int isdir)
+=======
+static int btrfs_may_delete(struct user_namespace *mnt_userns,
+			    struct inode *dir, struct dentry *victim, int isdir)
+>>>>>>> upstream/android-13
 {
 	int error;
 
@@ -924,13 +1353,23 @@ static int btrfs_may_delete(struct inode *dir, struct dentry *victim, int isdir)
 	BUG_ON(d_inode(victim->d_parent) != dir);
 	audit_inode_child(dir, victim, AUDIT_TYPE_CHILD_DELETE);
 
+<<<<<<< HEAD
 	error = inode_permission(dir, MAY_WRITE | MAY_EXEC);
+=======
+	error = inode_permission(mnt_userns, dir, MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	if (IS_APPEND(dir))
 		return -EPERM;
+<<<<<<< HEAD
 	if (check_sticky(dir, d_inode(victim)) || IS_APPEND(d_inode(victim)) ||
 	    IS_IMMUTABLE(d_inode(victim)) || IS_SWAPFILE(d_inode(victim)))
+=======
+	if (check_sticky(mnt_userns, dir, d_inode(victim)) ||
+	    IS_APPEND(d_inode(victim)) || IS_IMMUTABLE(d_inode(victim)) ||
+	    IS_SWAPFILE(d_inode(victim)))
+>>>>>>> upstream/android-13
 		return -EPERM;
 	if (isdir) {
 		if (!d_is_dir(victim))
@@ -947,13 +1386,24 @@ static int btrfs_may_delete(struct inode *dir, struct dentry *victim, int isdir)
 }
 
 /* copy of may_create in fs/namei.c() */
+<<<<<<< HEAD
 static inline int btrfs_may_create(struct inode *dir, struct dentry *child)
+=======
+static inline int btrfs_may_create(struct user_namespace *mnt_userns,
+				   struct inode *dir, struct dentry *child)
+>>>>>>> upstream/android-13
 {
 	if (d_really_is_positive(child))
 		return -EEXIST;
 	if (IS_DEADDIR(dir))
 		return -ENOENT;
+<<<<<<< HEAD
 	return inode_permission(dir, MAY_WRITE | MAY_EXEC);
+=======
+	if (!fsuidgid_has_mapping(dir->i_sb, mnt_userns))
+		return -EOVERFLOW;
+	return inode_permission(mnt_userns, dir, MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -962,9 +1412,16 @@ static inline int btrfs_may_create(struct inode *dir, struct dentry *child)
  * inside this filesystem so it's quite a bit simpler.
  */
 static noinline int btrfs_mksubvol(const struct path *parent,
+<<<<<<< HEAD
 				   const char *name, int namelen,
 				   struct btrfs_root *snap_src,
 				   u64 *async_transid, bool readonly,
+=======
+				   struct user_namespace *mnt_userns,
+				   const char *name, int namelen,
+				   struct btrfs_root *snap_src,
+				   bool readonly,
+>>>>>>> upstream/android-13
 				   struct btrfs_qgroup_inherit *inherit)
 {
 	struct inode *dir = d_inode(parent->dentry);
@@ -976,12 +1433,20 @@ static noinline int btrfs_mksubvol(const struct path *parent,
 	if (error == -EINTR)
 		return error;
 
+<<<<<<< HEAD
 	dentry = lookup_one_len(name, parent->dentry, namelen);
+=======
+	dentry = lookup_one(mnt_userns, name, parent->dentry, namelen);
+>>>>>>> upstream/android-13
 	error = PTR_ERR(dentry);
 	if (IS_ERR(dentry))
 		goto out_unlock;
 
+<<<<<<< HEAD
 	error = btrfs_may_create(dir, dentry);
+=======
+	error = btrfs_may_create(mnt_userns, dir, dentry);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_dput;
 
@@ -1000,6 +1465,7 @@ static noinline int btrfs_mksubvol(const struct path *parent,
 	if (btrfs_root_refs(&BTRFS_I(dir)->root->root_item) == 0)
 		goto out_up_read;
 
+<<<<<<< HEAD
 	if (snap_src) {
 		error = create_snapshot(snap_src, dir, dentry,
 					async_transid, readonly, inherit);
@@ -1007,6 +1473,13 @@ static noinline int btrfs_mksubvol(const struct path *parent,
 		error = create_subvol(dir, dentry, name, namelen,
 				      async_transid, inherit);
 	}
+=======
+	if (snap_src)
+		error = create_snapshot(snap_src, dir, dentry, readonly, inherit);
+	else
+		error = create_subvol(mnt_userns, dir, dentry, name, namelen, inherit);
+
+>>>>>>> upstream/android-13
 	if (!error)
 		fsnotify_mkdir(dir, dentry);
 out_up_read:
@@ -1014,10 +1487,57 @@ out_up_read:
 out_dput:
 	dput(dentry);
 out_unlock:
+<<<<<<< HEAD
 	inode_unlock(dir);
 	return error;
 }
 
+=======
+	btrfs_inode_unlock(dir, 0);
+	return error;
+}
+
+static noinline int btrfs_mksnapshot(const struct path *parent,
+				   struct user_namespace *mnt_userns,
+				   const char *name, int namelen,
+				   struct btrfs_root *root,
+				   bool readonly,
+				   struct btrfs_qgroup_inherit *inherit)
+{
+	int ret;
+	bool snapshot_force_cow = false;
+
+	/*
+	 * Force new buffered writes to reserve space even when NOCOW is
+	 * possible. This is to avoid later writeback (running dealloc) to
+	 * fallback to COW mode and unexpectedly fail with ENOSPC.
+	 */
+	btrfs_drew_read_lock(&root->snapshot_lock);
+
+	ret = btrfs_start_delalloc_snapshot(root, false);
+	if (ret)
+		goto out;
+
+	/*
+	 * All previous writes have started writeback in NOCOW mode, so now
+	 * we force future writes to fallback to COW mode during snapshot
+	 * creation.
+	 */
+	atomic_inc(&root->snapshot_force_cow);
+	snapshot_force_cow = true;
+
+	btrfs_wait_ordered_extents(root, U64_MAX, 0, (u64)-1);
+
+	ret = btrfs_mksubvol(parent, mnt_userns, name, namelen,
+			     root, readonly, inherit);
+out:
+	if (snapshot_force_cow)
+		atomic_dec(&root->snapshot_force_cow);
+	btrfs_drew_read_unlock(&root->snapshot_lock);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /*
  * When we're defragging a range, we don't want to kick it off again
  * if it is really just waiting for delalloc to send it down.
@@ -1139,7 +1659,11 @@ static struct extent_map *defrag_lookup_extent(struct inode *inode, u64 start)
 
 		/* get the big lock and read metadata off disk */
 		lock_extent_bits(io_tree, start, end, &cached);
+<<<<<<< HEAD
 		em = btrfs_get_extent(BTRFS_I(inode), NULL, 0, start, len, 0);
+=======
+		em = btrfs_get_extent(BTRFS_I(inode), NULL, 0, start, len);
+>>>>>>> upstream/android-13
 		unlock_extent_cached(io_tree, start, end, &cached);
 
 		if (IS_ERR(em))
@@ -1252,6 +1776,10 @@ static int cluster_pages_for_defrag(struct inode *inode,
 	u64 page_end;
 	u64 page_cnt;
 	u64 start = (u64)start_index << PAGE_SHIFT;
+<<<<<<< HEAD
+=======
+	u64 search_start;
+>>>>>>> upstream/android-13
 	int ret;
 	int i;
 	int i_done;
@@ -1267,7 +1795,11 @@ static int cluster_pages_for_defrag(struct inode *inode,
 
 	page_cnt = min_t(u64, (u64)num_pages, (u64)file_end - start_index + 1);
 
+<<<<<<< HEAD
 	ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
+=======
+	ret = btrfs_delalloc_reserve_space(BTRFS_I(inode), &data_reserved,
+>>>>>>> upstream/android-13
 			start, page_cnt << PAGE_SHIFT);
 	if (ret)
 		return ret;
@@ -1283,12 +1815,26 @@ again:
 		if (!page)
 			break;
 
+<<<<<<< HEAD
+=======
+		ret = set_page_extent_mapped(page);
+		if (ret < 0) {
+			unlock_page(page);
+			put_page(page);
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		page_start = page_offset(page);
 		page_end = page_start + PAGE_SIZE - 1;
 		while (1) {
 			lock_extent_bits(tree, page_start, page_end,
 					 &cached_state);
+<<<<<<< HEAD
 			ordered = btrfs_lookup_ordered_extent(inode,
+=======
+			ordered = btrfs_lookup_ordered_extent(BTRFS_I(inode),
+>>>>>>> upstream/android-13
 							      page_start);
 			unlock_extent_cached(tree, page_start, page_end,
 					     &cached_state);
@@ -1296,7 +1842,11 @@ again:
 				break;
 
 			unlock_page(page);
+<<<<<<< HEAD
 			btrfs_start_ordered_extent(inode, ordered, 1);
+=======
+			btrfs_start_ordered_extent(ordered, 1);
+>>>>>>> upstream/android-13
 			btrfs_put_ordered_extent(ordered);
 			lock_page(page);
 			/*
@@ -1348,16 +1898,60 @@ again:
 
 	lock_extent_bits(&BTRFS_I(inode)->io_tree,
 			 page_start, page_end - 1, &cached_state);
+<<<<<<< HEAD
 	clear_extent_bit(&BTRFS_I(inode)->io_tree, page_start,
 			  page_end - 1, EXTENT_DIRTY | EXTENT_DELALLOC |
 			  EXTENT_DO_ACCOUNTING | EXTENT_DEFRAG, 0, 0,
 			  &cached_state);
+=======
+
+	/*
+	 * When defragmenting we skip ranges that have holes or inline extents,
+	 * (check should_defrag_range()), to avoid unnecessary IO and wasting
+	 * space. At btrfs_defrag_file(), we check if a range should be defragged
+	 * before locking the inode and then, if it should, we trigger a sync
+	 * page cache readahead - we lock the inode only after that to avoid
+	 * blocking for too long other tasks that possibly want to operate on
+	 * other file ranges. But before we were able to get the inode lock,
+	 * some other task may have punched a hole in the range, or we may have
+	 * now an inline extent, in which case we should not defrag. So check
+	 * for that here, where we have the inode and the range locked, and bail
+	 * out if that happened.
+	 */
+	search_start = page_start;
+	while (search_start < page_end) {
+		struct extent_map *em;
+
+		em = btrfs_get_extent(BTRFS_I(inode), NULL, 0, search_start,
+				      page_end - search_start);
+		if (IS_ERR(em)) {
+			ret = PTR_ERR(em);
+			goto out_unlock_range;
+		}
+		if (em->block_start >= EXTENT_MAP_LAST_BYTE) {
+			free_extent_map(em);
+			/* Ok, 0 means we did not defrag anything */
+			ret = 0;
+			goto out_unlock_range;
+		}
+		search_start = extent_map_end(em);
+		free_extent_map(em);
+	}
+
+	clear_extent_bit(&BTRFS_I(inode)->io_tree, page_start,
+			  page_end - 1, EXTENT_DELALLOC | EXTENT_DO_ACCOUNTING |
+			  EXTENT_DEFRAG, 0, 0, &cached_state);
+>>>>>>> upstream/android-13
 
 	if (i_done != page_cnt) {
 		spin_lock(&BTRFS_I(inode)->lock);
 		btrfs_mod_outstanding_extents(BTRFS_I(inode), 1);
 		spin_unlock(&BTRFS_I(inode)->lock);
+<<<<<<< HEAD
 		btrfs_delalloc_release_space(inode, data_reserved,
+=======
+		btrfs_delalloc_release_space(BTRFS_I(inode), data_reserved,
+>>>>>>> upstream/android-13
 				start, (page_cnt - i_done) << PAGE_SHIFT, true);
 	}
 
@@ -1371,7 +1965,10 @@ again:
 	for (i = 0; i < i_done; i++) {
 		clear_page_dirty_for_io(pages[i]);
 		ClearPageChecked(pages[i]);
+<<<<<<< HEAD
 		set_page_extent_mapped(pages[i]);
+=======
+>>>>>>> upstream/android-13
 		set_page_dirty(pages[i]);
 		unlock_page(pages[i]);
 		put_page(pages[i]);
@@ -1379,12 +1976,23 @@ again:
 	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT);
 	extent_changeset_free(data_reserved);
 	return i_done;
+<<<<<<< HEAD
+=======
+
+out_unlock_range:
+	unlock_extent_cached(&BTRFS_I(inode)->io_tree,
+			     page_start, page_end - 1, &cached_state);
+>>>>>>> upstream/android-13
 out:
 	for (i = 0; i < i_done; i++) {
 		unlock_page(pages[i]);
 		put_page(pages[i]);
 	}
+<<<<<<< HEAD
 	btrfs_delalloc_release_space(inode, data_reserved,
+=======
+	btrfs_delalloc_release_space(BTRFS_I(inode), data_reserved,
+>>>>>>> upstream/android-13
 			start, page_cnt << PAGE_SHIFT, true);
 	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT);
 	extent_changeset_free(data_reserved);
@@ -1424,7 +2032,11 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
 		return -EINVAL;
 
 	if (do_compress) {
+<<<<<<< HEAD
 		if (range->compress_type > BTRFS_COMPRESS_TYPES)
+=======
+		if (range->compress_type >= BTRFS_NR_COMPRESS_TYPES)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		if (range->compress_type)
 			compress_type = range->compress_type;
@@ -1497,7 +2109,11 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
 		if (btrfs_defrag_cancelled(fs_info)) {
 			btrfs_debug(fs_info, "defrag_file cancelled");
 			ret = -EAGAIN;
+<<<<<<< HEAD
 			break;
+=======
+			goto error;
+>>>>>>> upstream/android-13
 		}
 
 		if (!should_defrag_range(inode, (u64)i << PAGE_SHIFT,
@@ -1529,18 +2145,35 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
 			ra_index += cluster;
 		}
 
+<<<<<<< HEAD
 		inode_lock(inode);
 		if (do_compress)
 			BTRFS_I(inode)->defrag_compress = compress_type;
 		ret = cluster_pages_for_defrag(inode, pages, i, cluster);
 		if (ret < 0) {
 			inode_unlock(inode);
+=======
+		btrfs_inode_lock(inode, 0);
+		if (IS_SWAPFILE(inode)) {
+			ret = -ETXTBSY;
+		} else {
+			if (do_compress)
+				BTRFS_I(inode)->defrag_compress = compress_type;
+			ret = cluster_pages_for_defrag(inode, pages, i, cluster);
+		}
+		if (ret < 0) {
+			btrfs_inode_unlock(inode, 0);
+>>>>>>> upstream/android-13
 			goto out_ra;
 		}
 
 		defrag_count += ret;
 		balance_dirty_pages_ratelimited(inode->i_mapping);
+<<<<<<< HEAD
 		inode_unlock(inode);
+=======
+		btrfs_inode_unlock(inode, 0);
+>>>>>>> upstream/android-13
 
 		if (newer_than) {
 			if (newer_off == (u64)-1)
@@ -1571,6 +2204,11 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	ret = defrag_count;
+error:
+>>>>>>> upstream/android-13
 	if ((range->flags & BTRFS_DEFRAG_RANGE_START_IO)) {
 		filemap_flush(inode->i_mapping);
 		if (test_bit(BTRFS_INODE_HAS_ASYNC_EXTENT,
@@ -1584,6 +2222,7 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
 		btrfs_set_fs_incompat(fs_info, COMPRESS_ZSTD);
 	}
 
+<<<<<<< HEAD
 	ret = defrag_count;
 
 out_ra:
@@ -1591,6 +2230,13 @@ out_ra:
 		inode_lock(inode);
 		BTRFS_I(inode)->defrag_compress = BTRFS_COMPRESS_NONE;
 		inode_unlock(inode);
+=======
+out_ra:
+	if (do_compress) {
+		btrfs_inode_lock(inode, 0);
+		BTRFS_I(inode)->defrag_compress = BTRFS_COMPRESS_NONE;
+		btrfs_inode_unlock(inode, 0);
+>>>>>>> upstream/android-13
 	}
 	if (!file)
 		kfree(ra);
@@ -1598,6 +2244,51 @@ out_ra:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Try to start exclusive operation @type or cancel it if it's running.
+ *
+ * Return:
+ *   0        - normal mode, newly claimed op started
+ *  >0        - normal mode, something else is running,
+ *              return BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS to user space
+ * ECANCELED  - cancel mode, successful cancel
+ * ENOTCONN   - cancel mode, operation not running anymore
+ */
+static int exclop_start_or_cancel_reloc(struct btrfs_fs_info *fs_info,
+			enum btrfs_exclusive_operation type, bool cancel)
+{
+	if (!cancel) {
+		/* Start normal op */
+		if (!btrfs_exclop_start(fs_info, type))
+			return BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS;
+		/* Exclusive operation is now claimed */
+		return 0;
+	}
+
+	/* Cancel running op */
+	if (btrfs_exclop_start_try_lock(fs_info, type)) {
+		/*
+		 * This blocks any exclop finish from setting it to NONE, so we
+		 * request cancellation. Either it runs and we will wait for it,
+		 * or it has finished and no waiting will happen.
+		 */
+		atomic_inc(&fs_info->reloc_cancel_req);
+		btrfs_exclop_start_unlock(fs_info);
+
+		if (test_bit(BTRFS_FS_RELOC_RUNNING, &fs_info->flags))
+			wait_on_bit(&fs_info->flags, BTRFS_FS_RELOC_RUNNING,
+				    TASK_INTERRUPTIBLE);
+
+		return -ECANCELED;
+	}
+
+	/* Something else is running or none */
+	return -ENOTCONN;
+}
+
+>>>>>>> upstream/android-13
 static noinline int btrfs_ioctl_resize(struct file *file,
 					void __user *arg)
 {
@@ -1615,6 +2306,10 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 	char *devstr = NULL;
 	int ret = 0;
 	int mod = 0;
+<<<<<<< HEAD
+=======
+	bool cancel;
+>>>>>>> upstream/android-13
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
@@ -1623,6 +2318,7 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (test_and_set_bit(BTRFS_FS_EXCL_OP, &fs_info->flags)) {
 		mnt_drop_write_file(file);
 		return BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS;
@@ -1637,6 +2333,25 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 	vol_args->name[BTRFS_PATH_NAME_MAX] = '\0';
 
 	sizestr = vol_args->name;
+=======
+	/*
+	 * Read the arguments before checking exclusivity to be able to
+	 * distinguish regular resize and cancel
+	 */
+	vol_args = memdup_user(arg, sizeof(*vol_args));
+	if (IS_ERR(vol_args)) {
+		ret = PTR_ERR(vol_args);
+		goto out_drop;
+	}
+	vol_args->name[BTRFS_PATH_NAME_MAX] = '\0';
+	sizestr = vol_args->name;
+	cancel = (strcmp("cancel", sizestr) == 0);
+	ret = exclop_start_or_cancel_reloc(fs_info, BTRFS_EXCLOP_RESIZE, cancel);
+	if (ret)
+		goto out_free;
+	/* Exclusive operation is now claimed */
+
+>>>>>>> upstream/android-13
 	devstr = strchr(sizestr, ':');
 	if (devstr) {
 		sizestr = devstr + 1;
@@ -1644,20 +2359,35 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 		devstr = vol_args->name;
 		ret = kstrtoull(devstr, 10, &devid);
 		if (ret)
+<<<<<<< HEAD
 			goto out_free;
 		if (!devid) {
 			ret = -EINVAL;
 			goto out_free;
+=======
+			goto out_finish;
+		if (!devid) {
+			ret = -EINVAL;
+			goto out_finish;
+>>>>>>> upstream/android-13
 		}
 		btrfs_info(fs_info, "resizing devid %llu", devid);
 	}
 
+<<<<<<< HEAD
 	device = btrfs_find_device(fs_info->fs_devices, devid, NULL, NULL, true);
+=======
+	device = btrfs_find_device(fs_info->fs_devices, devid, NULL, NULL);
+>>>>>>> upstream/android-13
 	if (!device) {
 		btrfs_info(fs_info, "resizer unable to find device %llu",
 			   devid);
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out_finish;
+>>>>>>> upstream/android-13
 	}
 
 	if (!test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state)) {
@@ -1665,7 +2395,11 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 			   "resizer unable to apply on readonly device %llu",
 		       devid);
 		ret = -EPERM;
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out_finish;
+>>>>>>> upstream/android-13
 	}
 
 	if (!strcmp(sizestr, "max"))
@@ -1681,13 +2415,21 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 		new_size = memparse(sizestr, &retptr);
 		if (*retptr != '\0' || new_size == 0) {
 			ret = -EINVAL;
+<<<<<<< HEAD
 			goto out_free;
+=======
+			goto out_finish;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state)) {
 		ret = -EPERM;
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out_finish;
+>>>>>>> upstream/android-13
 	}
 
 	old_size = btrfs_device_get_total_bytes(device);
@@ -1695,36 +2437,59 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 	if (mod < 0) {
 		if (new_size > old_size) {
 			ret = -EINVAL;
+<<<<<<< HEAD
 			goto out_free;
+=======
+			goto out_finish;
+>>>>>>> upstream/android-13
 		}
 		new_size = old_size - new_size;
 	} else if (mod > 0) {
 		if (new_size > ULLONG_MAX - old_size) {
 			ret = -ERANGE;
+<<<<<<< HEAD
 			goto out_free;
+=======
+			goto out_finish;
+>>>>>>> upstream/android-13
 		}
 		new_size = old_size + new_size;
 	}
 
 	if (new_size < SZ_256M) {
 		ret = -EINVAL;
+<<<<<<< HEAD
 		goto out_free;
 	}
 	if (new_size > device->bdev->bd_inode->i_size) {
 		ret = -EFBIG;
 		goto out_free;
+=======
+		goto out_finish;
+	}
+	if (new_size > device->bdev->bd_inode->i_size) {
+		ret = -EFBIG;
+		goto out_finish;
+>>>>>>> upstream/android-13
 	}
 
 	new_size = round_down(new_size, fs_info->sectorsize);
 
+<<<<<<< HEAD
 	btrfs_info_in_rcu(fs_info, "new size for %s is %llu",
 			  rcu_str_deref(device->name), new_size);
 
+=======
+>>>>>>> upstream/android-13
 	if (new_size > old_size) {
 		trans = btrfs_start_transaction(root, 0);
 		if (IS_ERR(trans)) {
 			ret = PTR_ERR(trans);
+<<<<<<< HEAD
 			goto out_free;
+=======
+			goto out_finish;
+>>>>>>> upstream/android-13
 		}
 		ret = btrfs_grow_device(trans, device, new_size);
 		btrfs_commit_transaction(trans);
@@ -1732,17 +2497,37 @@ static noinline int btrfs_ioctl_resize(struct file *file,
 		ret = btrfs_shrink_device(device, new_size);
 	} /* equal, nothing need to do */
 
+<<<<<<< HEAD
 out_free:
 	kfree(vol_args);
 out:
 	clear_bit(BTRFS_FS_EXCL_OP, &fs_info->flags);
+=======
+	if (ret == 0 && new_size != old_size)
+		btrfs_info_in_rcu(fs_info,
+			"resize device %s (devid %llu) from %llu to %llu",
+			rcu_str_deref(device->name), device->devid,
+			old_size, new_size);
+out_finish:
+	btrfs_exclop_finish(fs_info);
+out_free:
+	kfree(vol_args);
+out_drop:
+>>>>>>> upstream/android-13
 	mnt_drop_write_file(file);
 	return ret;
 }
 
+<<<<<<< HEAD
 static noinline int btrfs_ioctl_snap_create_transid(struct file *file,
 				const char *name, unsigned long fd, int subvol,
 				u64 *transid, bool readonly,
+=======
+static noinline int __btrfs_ioctl_snap_create(struct file *file,
+				struct user_namespace *mnt_userns,
+				const char *name, unsigned long fd, int subvol,
+				bool readonly,
+>>>>>>> upstream/android-13
 				struct btrfs_qgroup_inherit *inherit)
 {
 	int namelen;
@@ -1768,8 +2553,13 @@ static noinline int btrfs_ioctl_snap_create_transid(struct file *file,
 	}
 
 	if (subvol) {
+<<<<<<< HEAD
 		ret = btrfs_mksubvol(&file->f_path, name, namelen,
 				     NULL, transid, readonly, inherit);
+=======
+		ret = btrfs_mksubvol(&file->f_path, mnt_userns, name,
+				     namelen, NULL, readonly, inherit);
+>>>>>>> upstream/android-13
 	} else {
 		struct fd src = fdget(fd);
 		struct inode *src_inode;
@@ -1783,16 +2573,27 @@ static noinline int btrfs_ioctl_snap_create_transid(struct file *file,
 			btrfs_info(BTRFS_I(file_inode(file))->root->fs_info,
 				   "Snapshot src from another FS");
 			ret = -EXDEV;
+<<<<<<< HEAD
 		} else if (!inode_owner_or_capable(src_inode)) {
+=======
+		} else if (!inode_owner_or_capable(mnt_userns, src_inode)) {
+>>>>>>> upstream/android-13
 			/*
 			 * Subvolume creation is not restricted, but snapshots
 			 * are limited to own subvolumes only
 			 */
 			ret = -EPERM;
 		} else {
+<<<<<<< HEAD
 			ret = btrfs_mksubvol(&file->f_path, name, namelen,
 					     BTRFS_I(src_inode)->root,
 					     transid, readonly, inherit);
+=======
+			ret = btrfs_mksnapshot(&file->f_path, mnt_userns,
+					       name, namelen,
+					       BTRFS_I(src_inode)->root,
+					       readonly, inherit);
+>>>>>>> upstream/android-13
 		}
 		fdput(src);
 	}
@@ -1816,9 +2617,15 @@ static noinline int btrfs_ioctl_snap_create(struct file *file,
 		return PTR_ERR(vol_args);
 	vol_args->name[BTRFS_PATH_NAME_MAX] = '\0';
 
+<<<<<<< HEAD
 	ret = btrfs_ioctl_snap_create_transid(file, vol_args->name,
 					      vol_args->fd, subvol,
 					      NULL, false, NULL);
+=======
+	ret = __btrfs_ioctl_snap_create(file, file_mnt_user_ns(file),
+					vol_args->name, vol_args->fd, subvol,
+					false, NULL);
+>>>>>>> upstream/android-13
 
 	kfree(vol_args);
 	return ret;
@@ -1829,8 +2636,11 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
 {
 	struct btrfs_ioctl_vol_args_v2 *vol_args;
 	int ret;
+<<<<<<< HEAD
 	u64 transid = 0;
 	u64 *ptr = NULL;
+=======
+>>>>>>> upstream/android-13
 	bool readonly = false;
 	struct btrfs_qgroup_inherit *inherit = NULL;
 
@@ -1842,15 +2652,22 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
 		return PTR_ERR(vol_args);
 	vol_args->name[BTRFS_SUBVOL_NAME_MAX] = '\0';
 
+<<<<<<< HEAD
 	if (vol_args->flags &
 	    ~(BTRFS_SUBVOL_CREATE_ASYNC | BTRFS_SUBVOL_RDONLY |
 	      BTRFS_SUBVOL_QGROUP_INHERIT)) {
+=======
+	if (vol_args->flags & ~BTRFS_SUBVOL_CREATE_ARGS_MASK) {
+>>>>>>> upstream/android-13
 		ret = -EOPNOTSUPP;
 		goto free_args;
 	}
 
+<<<<<<< HEAD
 	if (vol_args->flags & BTRFS_SUBVOL_CREATE_ASYNC)
 		ptr = &transid;
+=======
+>>>>>>> upstream/android-13
 	if (vol_args->flags & BTRFS_SUBVOL_RDONLY)
 		readonly = true;
 	if (vol_args->flags & BTRFS_SUBVOL_QGROUP_INHERIT) {
@@ -1882,6 +2699,7 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
 		}
 	}
 
+<<<<<<< HEAD
 	ret = btrfs_ioctl_snap_create_transid(file, vol_args->name,
 					      vol_args->fd, subvol, ptr,
 					      readonly, inherit);
@@ -1894,6 +2712,13 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
 				ptr, sizeof(*ptr)))
 		ret = -EFAULT;
 
+=======
+	ret = __btrfs_ioctl_snap_create(file, file_mnt_user_ns(file),
+					vol_args->name, vol_args->fd, subvol,
+					readonly, inherit);
+	if (ret)
+		goto free_inherit;
+>>>>>>> upstream/android-13
 free_inherit:
 	kfree(inherit);
 free_args:
@@ -1935,7 +2760,11 @@ static noinline int btrfs_ioctl_subvol_setflags(struct file *file,
 	u64 flags;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!inode_owner_or_capable(inode))
+=======
+	if (!inode_owner_or_capable(file_mnt_user_ns(file), inode))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	ret = mnt_want_write_file(file);
@@ -1952,11 +2781,14 @@ static noinline int btrfs_ioctl_subvol_setflags(struct file *file,
 		goto out_drop_write;
 	}
 
+<<<<<<< HEAD
 	if (flags & BTRFS_SUBVOL_CREATE_ASYNC) {
 		ret = -EINVAL;
 		goto out_drop_write;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (flags & ~BTRFS_SUBVOL_RDONLY) {
 		ret = -EOPNOTSUPP;
 		goto out_drop_write;
@@ -2112,7 +2944,11 @@ static noinline int copy_to_sk(struct btrfs_path *path,
 		 * problem. Otherwise we'll fault and then copy the buffer in
 		 * properly this next time through
 		 */
+<<<<<<< HEAD
 		if (probe_user_write(ubuf + *sk_offset, &sh, sizeof(sh))) {
+=======
+		if (copy_to_user_nofault(ubuf + *sk_offset, &sh, sizeof(sh))) {
+>>>>>>> upstream/android-13
 			ret = 0;
 			goto out;
 		}
@@ -2199,12 +3035,18 @@ static noinline int search_ioctl(struct inode *inode,
 
 	if (sk->tree_id == 0) {
 		/* search the root of the inode that was passed */
+<<<<<<< HEAD
 		root = BTRFS_I(inode)->root;
 	} else {
 		key.objectid = sk->tree_id;
 		key.type = BTRFS_ROOT_ITEM_KEY;
 		key.offset = (u64)-1;
 		root = btrfs_read_fs_root_no_name(info, &key);
+=======
+		root = btrfs_grab_root(BTRFS_I(inode)->root);
+	} else {
+		root = btrfs_get_fs_root(info, sk->tree_id, true);
+>>>>>>> upstream/android-13
 		if (IS_ERR(root)) {
 			btrfs_free_path(path);
 			return PTR_ERR(root);
@@ -2216,9 +3058,14 @@ static noinline int search_ioctl(struct inode *inode,
 	key.offset = sk->min_offset;
 
 	while (1) {
+<<<<<<< HEAD
 		ret = fault_in_pages_writeable(ubuf + sk_offset,
 					       *buf_size - sk_offset);
 		if (ret)
+=======
+		ret = -EFAULT;
+		if (fault_in_writeable(ubuf + sk_offset, *buf_size - sk_offset))
+>>>>>>> upstream/android-13
 			break;
 
 		ret = btrfs_search_forward(root, &key, path, sk->min_transid);
@@ -2238,6 +3085,10 @@ static noinline int search_ioctl(struct inode *inode,
 		ret = 0;
 err:
 	sk->nr_items = num_found;
+<<<<<<< HEAD
+=======
+	btrfs_put_root(root);
+>>>>>>> upstream/android-13
 	btrfs_free_path(path);
 	return ret;
 }
@@ -2341,12 +3192,19 @@ static noinline int btrfs_search_path_in_tree(struct btrfs_fs_info *info,
 
 	ptr = &name[BTRFS_INO_LOOKUP_PATH_MAX - 1];
 
+<<<<<<< HEAD
 	key.objectid = tree_id;
 	key.type = BTRFS_ROOT_ITEM_KEY;
 	key.offset = (u64)-1;
 	root = btrfs_read_fs_root_no_name(info, &key);
 	if (IS_ERR(root)) {
 		ret = PTR_ERR(root);
+=======
+	root = btrfs_get_fs_root(info, tree_id, true);
+	if (IS_ERR(root)) {
+		ret = PTR_ERR(root);
+		root = NULL;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -2355,6 +3213,7 @@ static noinline int btrfs_search_path_in_tree(struct btrfs_fs_info *info,
 	key.offset = (u64)-1;
 
 	while (1) {
+<<<<<<< HEAD
 		ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
 		if (ret < 0)
 			goto out;
@@ -2367,11 +3226,22 @@ static noinline int btrfs_search_path_in_tree(struct btrfs_fs_info *info,
 				ret = -ENOENT;
 				goto out;
 			}
+=======
+		ret = btrfs_search_backwards(root, &key, path);
+		if (ret < 0)
+			goto out;
+		else if (ret > 0) {
+			ret = -ENOENT;
+			goto out;
+>>>>>>> upstream/android-13
 		}
 
 		l = path->nodes[0];
 		slot = path->slots[0];
+<<<<<<< HEAD
 		btrfs_item_key_to_cpu(l, &key, slot);
+=======
+>>>>>>> upstream/android-13
 
 		iref = btrfs_item_ptr(l, slot, struct btrfs_inode_ref);
 		len = btrfs_inode_ref_name_len(l, iref);
@@ -2397,11 +3267,20 @@ static noinline int btrfs_search_path_in_tree(struct btrfs_fs_info *info,
 	name[total_len] = '\0';
 	ret = 0;
 out:
+<<<<<<< HEAD
+=======
+	btrfs_put_root(root);
+>>>>>>> upstream/android-13
 	btrfs_free_path(path);
 	return ret;
 }
 
+<<<<<<< HEAD
 static int btrfs_search_path_in_tree_user(struct inode *inode,
+=======
+static int btrfs_search_path_in_tree_user(struct user_namespace *mnt_userns,
+				struct inode *inode,
+>>>>>>> upstream/android-13
 				struct btrfs_ioctl_ino_lookup_user_args *args)
 {
 	struct btrfs_fs_info *fs_info = BTRFS_I(inode)->root->fs_info;
@@ -2413,7 +3292,11 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 	unsigned long item_len;
 	struct btrfs_inode_ref *iref;
 	struct btrfs_root_ref *rref;
+<<<<<<< HEAD
 	struct btrfs_root *root;
+=======
+	struct btrfs_root *root = NULL;
+>>>>>>> upstream/android-13
 	struct btrfs_path *path;
 	struct btrfs_key key, key2;
 	struct extent_buffer *leaf;
@@ -2435,10 +3318,14 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 	if (dirid != upper_limit.objectid) {
 		ptr = &args->path[BTRFS_INO_LOOKUP_USER_PATH_MAX - 1];
 
+<<<<<<< HEAD
 		key.objectid = treeid;
 		key.type = BTRFS_ROOT_ITEM_KEY;
 		key.offset = (u64)-1;
 		root = btrfs_read_fs_root_no_name(fs_info, &key);
+=======
+		root = btrfs_get_fs_root(fs_info, treeid, true);
+>>>>>>> upstream/android-13
 		if (IS_ERR(root)) {
 			ret = PTR_ERR(root);
 			goto out;
@@ -2448,6 +3335,7 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 		key.type = BTRFS_INODE_REF_KEY;
 		key.offset = (u64)-1;
 		while (1) {
+<<<<<<< HEAD
 			ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
 			if (ret < 0) {
 				goto out;
@@ -2460,11 +3348,22 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 					ret = -ENOENT;
 					goto out;
 				}
+=======
+			ret = btrfs_search_backwards(root, &key, path);
+			if (ret < 0)
+				goto out_put;
+			else if (ret > 0) {
+				ret = -ENOENT;
+				goto out_put;
+>>>>>>> upstream/android-13
 			}
 
 			leaf = path->nodes[0];
 			slot = path->slots[0];
+<<<<<<< HEAD
 			btrfs_item_key_to_cpu(leaf, &key, slot);
+=======
+>>>>>>> upstream/android-13
 
 			iref = btrfs_item_ptr(leaf, slot, struct btrfs_inode_ref);
 			len = btrfs_inode_ref_name_len(leaf, iref);
@@ -2472,7 +3371,11 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 			total_len += len + 1;
 			if (ptr < args->path) {
 				ret = -ENAMETOOLONG;
+<<<<<<< HEAD
 				goto out;
+=======
+				goto out_put;
+>>>>>>> upstream/android-13
 			}
 
 			*(ptr + len) = '/';
@@ -2483,10 +3386,17 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 			ret = btrfs_previous_item(root, path, dirid,
 						  BTRFS_INODE_ITEM_KEY);
 			if (ret < 0) {
+<<<<<<< HEAD
 				goto out;
 			} else if (ret > 0) {
 				ret = -ENOENT;
 				goto out;
+=======
+				goto out_put;
+			} else if (ret > 0) {
+				ret = -ENOENT;
+				goto out_put;
+>>>>>>> upstream/android-13
 			}
 
 			leaf = path->nodes[0];
@@ -2494,6 +3404,7 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 			btrfs_item_key_to_cpu(leaf, &key2, slot);
 			if (key2.objectid != dirid) {
 				ret = -ENOENT;
+<<<<<<< HEAD
 				goto out;
 			}
 
@@ -2507,13 +3418,33 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 			if (ret) {
 				ret = -EACCES;
 				goto out;
+=======
+				goto out_put;
+			}
+
+			temp_inode = btrfs_iget(sb, key2.objectid, root);
+			if (IS_ERR(temp_inode)) {
+				ret = PTR_ERR(temp_inode);
+				goto out_put;
+			}
+			ret = inode_permission(mnt_userns, temp_inode,
+					       MAY_READ | MAY_EXEC);
+			iput(temp_inode);
+			if (ret) {
+				ret = -EACCES;
+				goto out_put;
+>>>>>>> upstream/android-13
 			}
 
 			if (key.offset == upper_limit.objectid)
 				break;
 			if (key.objectid == BTRFS_FIRST_FREE_OBJECTID) {
 				ret = -EACCES;
+<<<<<<< HEAD
 				goto out;
+=======
+				goto out_put;
+>>>>>>> upstream/android-13
 			}
 
 			btrfs_release_path(path);
@@ -2524,15 +3455,27 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 
 		memmove(args->path, ptr, total_len);
 		args->path[total_len] = '\0';
+<<<<<<< HEAD
+=======
+		btrfs_put_root(root);
+		root = NULL;
+>>>>>>> upstream/android-13
 		btrfs_release_path(path);
 	}
 
 	/* Get the bottom subvolume's name from ROOT_REF */
+<<<<<<< HEAD
 	root = fs_info->tree_root;
 	key.objectid = treeid;
 	key.type = BTRFS_ROOT_REF_KEY;
 	key.offset = args->treeid;
 	ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
+=======
+	key.objectid = treeid;
+	key.type = BTRFS_ROOT_REF_KEY;
+	key.offset = args->treeid;
+	ret = btrfs_search_slot(NULL, fs_info->tree_root, &key, path, 0, 0);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		goto out;
 	} else if (ret > 0) {
@@ -2559,6 +3502,11 @@ static int btrfs_search_path_in_tree_user(struct inode *inode,
 	read_extent_buffer(leaf, args->name, item_off, item_len);
 	args->name[item_len] = 0;
 
+<<<<<<< HEAD
+=======
+out_put:
+	btrfs_put_root(root);
+>>>>>>> upstream/android-13
 out:
 	btrfs_free_path(path);
 	return ret;
@@ -2640,7 +3588,11 @@ static int btrfs_ioctl_ino_lookup_user(struct file *file, void __user *argp)
 		return -EACCES;
 	}
 
+<<<<<<< HEAD
 	ret = btrfs_search_path_in_tree_user(inode, args);
+=======
+	ret = btrfs_search_path_in_tree_user(file_mnt_user_ns(file), inode, args);
+>>>>>>> upstream/android-13
 
 	if (ret == 0 && copy_to_user(argp, args, sizeof(*args)))
 		ret = -EFAULT;
@@ -2681,12 +3633,19 @@ static int btrfs_ioctl_get_subvol_info(struct file *file, void __user *argp)
 
 	/* Get root_item of inode's subvolume */
 	key.objectid = BTRFS_I(inode)->root->root_key.objectid;
+<<<<<<< HEAD
 	key.type = BTRFS_ROOT_ITEM_KEY;
 	key.offset = (u64)-1;
 	root = btrfs_read_fs_root_no_name(fs_info, &key);
 	if (IS_ERR(root)) {
 		ret = PTR_ERR(root);
 		goto out;
+=======
+	root = btrfs_get_fs_root(fs_info, key.objectid, true);
+	if (IS_ERR(root)) {
+		ret = PTR_ERR(root);
+		goto out_free;
+>>>>>>> upstream/android-13
 	}
 	root_item = &root->root_item;
 
@@ -2719,16 +3678,26 @@ static int btrfs_ioctl_get_subvol_info(struct file *file, void __user *argp)
 
 	if (key.objectid != BTRFS_FS_TREE_OBJECTID) {
 		/* Search root tree for ROOT_BACKREF of this subvolume */
+<<<<<<< HEAD
 		root = fs_info->tree_root;
 
 		key.type = BTRFS_ROOT_BACKREF_KEY;
 		key.offset = 0;
 		ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
+=======
+		key.type = BTRFS_ROOT_BACKREF_KEY;
+		key.offset = 0;
+		ret = btrfs_search_slot(NULL, fs_info->tree_root, &key, path, 0, 0);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			goto out;
 		} else if (path->slots[0] >=
 			   btrfs_header_nritems(path->nodes[0])) {
+<<<<<<< HEAD
 			ret = btrfs_next_leaf(root, path);
+=======
+			ret = btrfs_next_leaf(fs_info->tree_root, path);
+>>>>>>> upstream/android-13
 			if (ret < 0) {
 				goto out;
 			} else if (ret > 0) {
@@ -2763,8 +3732,15 @@ static int btrfs_ioctl_get_subvol_info(struct file *file, void __user *argp)
 		ret = -EFAULT;
 
 out:
+<<<<<<< HEAD
 	btrfs_free_path(path);
 	kzfree(subvol_info);
+=======
+	btrfs_put_root(root);
+out_free:
+	btrfs_free_path(path);
+	kfree(subvol_info);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2866,7 +3842,12 @@ out:
 }
 
 static noinline int btrfs_ioctl_snap_destroy(struct file *file,
+<<<<<<< HEAD
 					     void __user *arg)
+=======
+					     void __user *arg,
+					     bool destroy_v2)
+>>>>>>> upstream/android-13
 {
 	struct dentry *parent = file->f_path.dentry;
 	struct btrfs_fs_info *fs_info = btrfs_sb(parent->d_sb);
@@ -2875,6 +3856,7 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
 	struct inode *inode;
 	struct btrfs_root *root = BTRFS_I(dir)->root;
 	struct btrfs_root *dest = NULL;
+<<<<<<< HEAD
 	struct btrfs_ioctl_vol_args *vol_args;
 	int namelen;
 	int err = 0;
@@ -2903,6 +3885,140 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
 	if (err == -EINTR)
 		goto out_drop_write;
 	dentry = lookup_one_len(vol_args->name, parent, namelen);
+=======
+	struct btrfs_ioctl_vol_args *vol_args = NULL;
+	struct btrfs_ioctl_vol_args_v2 *vol_args2 = NULL;
+	struct user_namespace *mnt_userns = file_mnt_user_ns(file);
+	char *subvol_name, *subvol_name_ptr = NULL;
+	int subvol_namelen;
+	int err = 0;
+	bool destroy_parent = false;
+
+	if (destroy_v2) {
+		vol_args2 = memdup_user(arg, sizeof(*vol_args2));
+		if (IS_ERR(vol_args2))
+			return PTR_ERR(vol_args2);
+
+		if (vol_args2->flags & ~BTRFS_SUBVOL_DELETE_ARGS_MASK) {
+			err = -EOPNOTSUPP;
+			goto out;
+		}
+
+		/*
+		 * If SPEC_BY_ID is not set, we are looking for the subvolume by
+		 * name, same as v1 currently does.
+		 */
+		if (!(vol_args2->flags & BTRFS_SUBVOL_SPEC_BY_ID)) {
+			vol_args2->name[BTRFS_SUBVOL_NAME_MAX] = 0;
+			subvol_name = vol_args2->name;
+
+			err = mnt_want_write_file(file);
+			if (err)
+				goto out;
+		} else {
+			struct inode *old_dir;
+
+			if (vol_args2->subvolid < BTRFS_FIRST_FREE_OBJECTID) {
+				err = -EINVAL;
+				goto out;
+			}
+
+			err = mnt_want_write_file(file);
+			if (err)
+				goto out;
+
+			dentry = btrfs_get_dentry(fs_info->sb,
+					BTRFS_FIRST_FREE_OBJECTID,
+					vol_args2->subvolid, 0, 0);
+			if (IS_ERR(dentry)) {
+				err = PTR_ERR(dentry);
+				goto out_drop_write;
+			}
+
+			/*
+			 * Change the default parent since the subvolume being
+			 * deleted can be outside of the current mount point.
+			 */
+			parent = btrfs_get_parent(dentry);
+
+			/*
+			 * At this point dentry->d_name can point to '/' if the
+			 * subvolume we want to destroy is outsite of the
+			 * current mount point, so we need to release the
+			 * current dentry and execute the lookup to return a new
+			 * one with ->d_name pointing to the
+			 * <mount point>/subvol_name.
+			 */
+			dput(dentry);
+			if (IS_ERR(parent)) {
+				err = PTR_ERR(parent);
+				goto out_drop_write;
+			}
+			old_dir = dir;
+			dir = d_inode(parent);
+
+			/*
+			 * If v2 was used with SPEC_BY_ID, a new parent was
+			 * allocated since the subvolume can be outside of the
+			 * current mount point. Later on we need to release this
+			 * new parent dentry.
+			 */
+			destroy_parent = true;
+
+			/*
+			 * On idmapped mounts, deletion via subvolid is
+			 * restricted to subvolumes that are immediate
+			 * ancestors of the inode referenced by the file
+			 * descriptor in the ioctl. Otherwise the idmapping
+			 * could potentially be abused to delete subvolumes
+			 * anywhere in the filesystem the user wouldn't be able
+			 * to delete without an idmapped mount.
+			 */
+			if (old_dir != dir && mnt_userns != &init_user_ns) {
+				err = -EOPNOTSUPP;
+				goto free_parent;
+			}
+
+			subvol_name_ptr = btrfs_get_subvol_name_from_objectid(
+						fs_info, vol_args2->subvolid);
+			if (IS_ERR(subvol_name_ptr)) {
+				err = PTR_ERR(subvol_name_ptr);
+				goto free_parent;
+			}
+			/* subvol_name_ptr is already nul terminated */
+			subvol_name = (char *)kbasename(subvol_name_ptr);
+		}
+	} else {
+		vol_args = memdup_user(arg, sizeof(*vol_args));
+		if (IS_ERR(vol_args))
+			return PTR_ERR(vol_args);
+
+		vol_args->name[BTRFS_PATH_NAME_MAX] = 0;
+		subvol_name = vol_args->name;
+
+		err = mnt_want_write_file(file);
+		if (err)
+			goto out;
+	}
+
+	subvol_namelen = strlen(subvol_name);
+
+	if (strchr(subvol_name, '/') ||
+	    strncmp(subvol_name, "..", subvol_namelen) == 0) {
+		err = -EINVAL;
+		goto free_subvol_name;
+	}
+
+	if (!S_ISDIR(dir->i_mode)) {
+		err = -ENOTDIR;
+		goto free_subvol_name;
+	}
+
+	err = down_write_killable_nested(&dir->i_rwsem, I_MUTEX_PARENT);
+	if (err == -EINTR)
+		goto free_subvol_name;
+	dentry = lookup_one(mnt_userns, subvol_name, parent, subvol_namelen);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dentry)) {
 		err = PTR_ERR(dentry);
 		goto out_unlock_dir;
@@ -2944,13 +4060,21 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
 		if (root == dest)
 			goto out_dput;
 
+<<<<<<< HEAD
 		err = inode_permission(inode, MAY_WRITE | MAY_EXEC);
+=======
+		err = inode_permission(mnt_userns, inode, MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 		if (err)
 			goto out_dput;
 	}
 
 	/* check if subvolume may be deleted by a user */
+<<<<<<< HEAD
 	err = btrfs_may_delete(dir, dentry, 1);
+=======
+	err = btrfs_may_delete(mnt_userns, dir, dentry, 1);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_dput;
 
@@ -2959,19 +4083,40 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
 		goto out_dput;
 	}
 
+<<<<<<< HEAD
 	inode_lock(inode);
 	err = btrfs_delete_subvolume(dir, dentry);
 	inode_unlock(inode);
 	if (!err)
 		d_delete(dentry);
+=======
+	btrfs_inode_lock(inode, 0);
+	err = btrfs_delete_subvolume(dir, dentry);
+	btrfs_inode_unlock(inode, 0);
+	if (!err)
+		d_delete_notify(dir, dentry);
+>>>>>>> upstream/android-13
 
 out_dput:
 	dput(dentry);
 out_unlock_dir:
+<<<<<<< HEAD
 	inode_unlock(dir);
 out_drop_write:
 	mnt_drop_write_file(file);
 out:
+=======
+	btrfs_inode_unlock(dir, 0);
+free_subvol_name:
+	kfree(subvol_name_ptr);
+free_parent:
+	if (destroy_parent)
+		dput(parent);
+out_drop_write:
+	mnt_drop_write_file(file);
+out:
+	kfree(vol_args2);
+>>>>>>> upstream/android-13
 	kfree(vol_args);
 	return err;
 }
@@ -2980,7 +4125,11 @@ static int btrfs_ioctl_defrag(struct file *file, void __user *argp)
 {
 	struct inode *inode = file_inode(file);
 	struct btrfs_root *root = BTRFS_I(inode)->root;
+<<<<<<< HEAD
 	struct btrfs_ioctl_defrag_range_args *range;
+=======
+	struct btrfs_ioctl_defrag_range_args range = {0};
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = mnt_want_write_file(file);
@@ -2992,6 +4141,15 @@ static int btrfs_ioctl_defrag(struct file *file, void __user *argp)
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Subpage defrag will be supported in later commits */
+	if (root->fs_info->sectorsize < PAGE_SIZE) {
+		ret = -ENOTTY;
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	switch (inode->i_mode & S_IFMT) {
 	case S_IFDIR:
 		if (!capable(CAP_SYS_ADMIN)) {
@@ -3007,11 +4165,16 @@ static int btrfs_ioctl_defrag(struct file *file, void __user *argp)
 		 * running and allows defrag on files open in read-only mode.
 		 */
 		if (!capable(CAP_SYS_ADMIN) &&
+<<<<<<< HEAD
 		    inode_permission(inode, MAY_WRITE)) {
+=======
+		    inode_permission(&init_user_ns, inode, MAY_WRITE)) {
+>>>>>>> upstream/android-13
 			ret = -EPERM;
 			goto out;
 		}
 
+<<<<<<< HEAD
 		range = kzalloc(sizeof(*range), GFP_KERNEL);
 		if (!range) {
 			ret = -ENOMEM;
@@ -3039,6 +4202,26 @@ static int btrfs_ioctl_defrag(struct file *file, void __user *argp)
 		if (ret > 0)
 			ret = 0;
 		kfree(range);
+=======
+		if (argp) {
+			if (copy_from_user(&range, argp, sizeof(range))) {
+				ret = -EFAULT;
+				goto out;
+			}
+			/* compression requires us to start the IO */
+			if ((range.flags & BTRFS_DEFRAG_RANGE_COMPRESS)) {
+				range.flags |= BTRFS_DEFRAG_RANGE_START_IO;
+				range.extent_thresh = (u32)-1;
+			}
+		} else {
+			/* the rest are all set to zero by kzalloc */
+			range.len = (u64)-1;
+		}
+		ret = btrfs_defrag_file(file_inode(file), file,
+					&range, BTRFS_OLDEST_GENERATION, 0);
+		if (ret > 0)
+			ret = 0;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -3056,7 +4239,11 @@ static long btrfs_ioctl_add_dev(struct btrfs_fs_info *fs_info, void __user *arg)
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
 
+<<<<<<< HEAD
 	if (test_and_set_bit(BTRFS_FS_EXCL_OP, &fs_info->flags))
+=======
+	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_ADD))
+>>>>>>> upstream/android-13
 		return BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS;
 
 	vol_args = memdup_user(arg, sizeof(*vol_args));
@@ -3073,7 +4260,11 @@ static long btrfs_ioctl_add_dev(struct btrfs_fs_info *fs_info, void __user *arg)
 
 	kfree(vol_args);
 out:
+<<<<<<< HEAD
 	clear_bit(BTRFS_FS_EXCL_OP, &fs_info->flags);
+=======
+	btrfs_exclop_finish(fs_info);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -3082,7 +4273,14 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
 	struct inode *inode = file_inode(file);
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	struct btrfs_ioctl_vol_args_v2 *vol_args;
+<<<<<<< HEAD
 	int ret;
+=======
+	struct block_device *bdev = NULL;
+	fmode_t mode;
+	int ret;
+	bool cancel = false;
+>>>>>>> upstream/android-13
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
@@ -3097,6 +4295,7 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
 		goto err_drop;
 	}
 
+<<<<<<< HEAD
 	/* Check for compatibility reject unknown flags */
 	if (vol_args->flags & ~BTRFS_VOL_ARG_V2_FLAGS_SUPPORTED) {
 		ret = -EOPNOTSUPP;
@@ -3115,6 +4314,29 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
 		ret = btrfs_rm_device(fs_info, vol_args->name, 0);
 	}
 	clear_bit(BTRFS_FS_EXCL_OP, &fs_info->flags);
+=======
+	if (vol_args->flags & ~BTRFS_DEVICE_REMOVE_ARGS_MASK) {
+		ret = -EOPNOTSUPP;
+		goto out;
+	}
+	vol_args->name[BTRFS_SUBVOL_NAME_MAX] = '\0';
+	if (!(vol_args->flags & BTRFS_DEVICE_SPEC_BY_ID) &&
+	    strcmp("cancel", vol_args->name) == 0)
+		cancel = true;
+
+	ret = exclop_start_or_cancel_reloc(fs_info, BTRFS_EXCLOP_DEV_REMOVE,
+					   cancel);
+	if (ret)
+		goto out;
+	/* Exclusive operation is now claimed */
+
+	if (vol_args->flags & BTRFS_DEVICE_SPEC_BY_ID)
+		ret = btrfs_rm_device(fs_info, NULL, vol_args->devid, &bdev, &mode);
+	else
+		ret = btrfs_rm_device(fs_info, vol_args->name, 0, &bdev, &mode);
+
+	btrfs_exclop_finish(fs_info);
+>>>>>>> upstream/android-13
 
 	if (!ret) {
 		if (vol_args->flags & BTRFS_DEVICE_SPEC_BY_ID)
@@ -3128,6 +4350,11 @@ out:
 	kfree(vol_args);
 err_drop:
 	mnt_drop_write_file(file);
+<<<<<<< HEAD
+=======
+	if (bdev)
+		blkdev_put(bdev, mode);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -3136,7 +4363,14 @@ static long btrfs_ioctl_rm_dev(struct file *file, void __user *arg)
 	struct inode *inode = file_inode(file);
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	struct btrfs_ioctl_vol_args *vol_args;
+<<<<<<< HEAD
 	int ret;
+=======
+	struct block_device *bdev = NULL;
+	fmode_t mode;
+	int ret;
+	bool cancel;
+>>>>>>> upstream/android-13
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
@@ -3145,6 +4379,7 @@ static long btrfs_ioctl_rm_dev(struct file *file, void __user *arg)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (test_and_set_bit(BTRFS_FS_EXCL_OP, &fs_info->flags)) {
 		ret = BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS;
 		goto out_drop_write;
@@ -3167,6 +4402,30 @@ out:
 out_drop_write:
 	mnt_drop_write_file(file);
 
+=======
+	vol_args = memdup_user(arg, sizeof(*vol_args));
+	if (IS_ERR(vol_args)) {
+		ret = PTR_ERR(vol_args);
+		goto out_drop_write;
+	}
+	vol_args->name[BTRFS_PATH_NAME_MAX] = '\0';
+	cancel = (strcmp("cancel", vol_args->name) == 0);
+
+	ret = exclop_start_or_cancel_reloc(fs_info, BTRFS_EXCLOP_DEV_REMOVE,
+					   cancel);
+	if (ret == 0) {
+		ret = btrfs_rm_device(fs_info, vol_args->name, 0, &bdev, &mode);
+		if (!ret)
+			btrfs_info(fs_info, "disk deleted %s", vol_args->name);
+		btrfs_exclop_finish(fs_info);
+	}
+
+	kfree(vol_args);
+out_drop_write:
+	mnt_drop_write_file(file);
+	if (bdev)
+		blkdev_put(bdev, mode);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -3176,11 +4435,23 @@ static long btrfs_ioctl_fs_info(struct btrfs_fs_info *fs_info,
 	struct btrfs_ioctl_fs_info_args *fi_args;
 	struct btrfs_device *device;
 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
+<<<<<<< HEAD
 	int ret = 0;
 
 	fi_args = kzalloc(sizeof(*fi_args), GFP_KERNEL);
 	if (!fi_args)
 		return -ENOMEM;
+=======
+	u64 flags_in;
+	int ret = 0;
+
+	fi_args = memdup_user(arg, sizeof(*fi_args));
+	if (IS_ERR(fi_args))
+		return PTR_ERR(fi_args);
+
+	flags_in = fi_args->flags;
+	memset(fi_args, 0, sizeof(*fi_args));
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	fi_args->num_devices = fs_devices->num_devices;
@@ -3191,11 +4462,35 @@ static long btrfs_ioctl_fs_info(struct btrfs_fs_info *fs_info,
 	}
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	memcpy(&fi_args->fsid, fs_info->fsid, sizeof(fi_args->fsid));
+=======
+	memcpy(&fi_args->fsid, fs_devices->fsid, sizeof(fi_args->fsid));
+>>>>>>> upstream/android-13
 	fi_args->nodesize = fs_info->nodesize;
 	fi_args->sectorsize = fs_info->sectorsize;
 	fi_args->clone_alignment = fs_info->sectorsize;
 
+<<<<<<< HEAD
+=======
+	if (flags_in & BTRFS_FS_INFO_FLAG_CSUM_INFO) {
+		fi_args->csum_type = btrfs_super_csum_type(fs_info->super_copy);
+		fi_args->csum_size = btrfs_super_csum_size(fs_info->super_copy);
+		fi_args->flags |= BTRFS_FS_INFO_FLAG_CSUM_INFO;
+	}
+
+	if (flags_in & BTRFS_FS_INFO_FLAG_GENERATION) {
+		fi_args->generation = fs_info->generation;
+		fi_args->flags |= BTRFS_FS_INFO_FLAG_GENERATION;
+	}
+
+	if (flags_in & BTRFS_FS_INFO_FLAG_METADATA_UUID) {
+		memcpy(&fi_args->metadata_uuid, fs_devices->metadata_uuid,
+		       sizeof(fi_args->metadata_uuid));
+		fi_args->flags |= BTRFS_FS_INFO_FLAG_METADATA_UUID;
+	}
+
+>>>>>>> upstream/android-13
 	if (copy_to_user(arg, fi_args, sizeof(*fi_args)))
 		ret = -EFAULT;
 
@@ -3220,7 +4515,11 @@ static long btrfs_ioctl_dev_info(struct btrfs_fs_info *fs_info,
 
 	rcu_read_lock();
 	dev = btrfs_find_device(fs_info->fs_devices, di_args->devid, s_uuid,
+<<<<<<< HEAD
 				NULL, true);
+=======
+				NULL);
+>>>>>>> upstream/android-13
 
 	if (!dev) {
 		ret = -ENODEV;
@@ -3248,6 +4547,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct page *extent_same_get_page(struct inode *inode, pgoff_t index)
 {
 	struct page *page;
@@ -4425,6 +5725,8 @@ int btrfs_clone_file_range(struct file *src_file, loff_t off,
 	return btrfs_clone_files(dst_file, src_file, off, len, destoff);
 }
 
+=======
+>>>>>>> upstream/android-13
 static long btrfs_ioctl_default_subvol(struct file *file, void __user *argp)
 {
 	struct inode *inode = file_inode(file);
@@ -4433,8 +5735,12 @@ static long btrfs_ioctl_default_subvol(struct file *file, void __user *argp)
 	struct btrfs_root *new_root;
 	struct btrfs_dir_item *di;
 	struct btrfs_trans_handle *trans;
+<<<<<<< HEAD
 	struct btrfs_path *path;
 	struct btrfs_key location;
+=======
+	struct btrfs_path *path = NULL;
+>>>>>>> upstream/android-13
 	struct btrfs_disk_key disk_key;
 	u64 objectid = 0;
 	u64 dir_id;
@@ -4455,23 +5761,34 @@ static long btrfs_ioctl_default_subvol(struct file *file, void __user *argp)
 	if (!objectid)
 		objectid = BTRFS_FS_TREE_OBJECTID;
 
+<<<<<<< HEAD
 	location.objectid = objectid;
 	location.type = BTRFS_ROOT_ITEM_KEY;
 	location.offset = (u64)-1;
 
 	new_root = btrfs_read_fs_root_no_name(fs_info, &location);
+=======
+	new_root = btrfs_get_fs_root(fs_info, objectid, true);
+>>>>>>> upstream/android-13
 	if (IS_ERR(new_root)) {
 		ret = PTR_ERR(new_root);
 		goto out;
 	}
+<<<<<<< HEAD
 	if (!is_fstree(new_root->objectid)) {
 		ret = -ENOENT;
 		goto out;
+=======
+	if (!is_fstree(new_root->root_key.objectid)) {
+		ret = -ENOENT;
+		goto out_free;
+>>>>>>> upstream/android-13
 	}
 
 	path = btrfs_alloc_path();
 	if (!path) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto out;
 	}
 	path->leave_spinning = 1;
@@ -4481,27 +5798,54 @@ static long btrfs_ioctl_default_subvol(struct file *file, void __user *argp)
 		btrfs_free_path(path);
 		ret = PTR_ERR(trans);
 		goto out;
+=======
+		goto out_free;
+	}
+
+	trans = btrfs_start_transaction(root, 1);
+	if (IS_ERR(trans)) {
+		ret = PTR_ERR(trans);
+		goto out_free;
+>>>>>>> upstream/android-13
 	}
 
 	dir_id = btrfs_super_root_dir(fs_info->super_copy);
 	di = btrfs_lookup_dir_item(trans, fs_info->tree_root, path,
 				   dir_id, "default", 7, 1);
 	if (IS_ERR_OR_NULL(di)) {
+<<<<<<< HEAD
 		btrfs_free_path(path);
+=======
+		btrfs_release_path(path);
+>>>>>>> upstream/android-13
 		btrfs_end_transaction(trans);
 		btrfs_err(fs_info,
 			  "Umm, you don't have the default diritem, this isn't going to work");
 		ret = -ENOENT;
+<<<<<<< HEAD
 		goto out;
+=======
+		goto out_free;
+>>>>>>> upstream/android-13
 	}
 
 	btrfs_cpu_key_to_disk(&disk_key, &new_root->root_key);
 	btrfs_set_dir_item_key(path->nodes[0], di, &disk_key);
 	btrfs_mark_buffer_dirty(path->nodes[0]);
+<<<<<<< HEAD
 	btrfs_free_path(path);
 
 	btrfs_set_fs_incompat(fs_info, DEFAULT_SUBVOL);
 	btrfs_end_transaction(trans);
+=======
+	btrfs_release_path(path);
+
+	btrfs_set_fs_incompat(fs_info, DEFAULT_SUBVOL);
+	btrfs_end_transaction(trans);
+out_free:
+	btrfs_put_root(new_root);
+	btrfs_free_path(path);
+>>>>>>> upstream/android-13
 out:
 	mnt_drop_write_file(file);
 	return ret;
@@ -4510,16 +5854,25 @@ out:
 static void get_block_group_info(struct list_head *groups_list,
 				 struct btrfs_ioctl_space_info *space)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *block_group;
+=======
+	struct btrfs_block_group *block_group;
+>>>>>>> upstream/android-13
 
 	space->total_bytes = 0;
 	space->used_bytes = 0;
 	space->flags = 0;
 	list_for_each_entry(block_group, groups_list, list) {
 		space->flags = block_group->flags;
+<<<<<<< HEAD
 		space->total_bytes += block_group->key.offset;
 		space->used_bytes +=
 			btrfs_block_group_used(&block_group->item);
+=======
+		space->total_bytes += block_group->length;
+		space->used_bytes += block_group->used;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -4553,15 +5906,22 @@ static long btrfs_ioctl_space_info(struct btrfs_fs_info *fs_info,
 		struct btrfs_space_info *tmp;
 
 		info = NULL;
+<<<<<<< HEAD
 		rcu_read_lock();
 		list_for_each_entry_rcu(tmp, &fs_info->space_info,
 					list) {
+=======
+		list_for_each_entry(tmp, &fs_info->space_info, list) {
+>>>>>>> upstream/android-13
 			if (tmp->flags == types[i]) {
 				info = tmp;
 				break;
 			}
 		}
+<<<<<<< HEAD
 		rcu_read_unlock();
+=======
+>>>>>>> upstream/android-13
 
 		if (!info)
 			continue;
@@ -4609,15 +5969,22 @@ static long btrfs_ioctl_space_info(struct btrfs_fs_info *fs_info,
 			break;
 
 		info = NULL;
+<<<<<<< HEAD
 		rcu_read_lock();
 		list_for_each_entry_rcu(tmp, &fs_info->space_info,
 					list) {
+=======
+		list_for_each_entry(tmp, &fs_info->space_info, list) {
+>>>>>>> upstream/android-13
 			if (tmp->flags == types[i]) {
 				info = tmp;
 				break;
 			}
 		}
+<<<<<<< HEAD
 		rcu_read_unlock();
+=======
+>>>>>>> upstream/android-13
 
 		if (!info)
 			continue;
@@ -4683,7 +6050,11 @@ static noinline long btrfs_ioctl_start_sync(struct btrfs_root *root,
 		goto out;
 	}
 	transid = trans->transid;
+<<<<<<< HEAD
 	ret = btrfs_commit_transaction_async(trans, 0);
+=======
+	ret = btrfs_commit_transaction_async(trans);
+>>>>>>> upstream/android-13
 	if (ret) {
 		btrfs_end_transaction(trans);
 		return ret;
@@ -4732,6 +6103,21 @@ static long btrfs_ioctl_scrub(struct file *file, void __user *arg)
 			      &sa->progress, sa->flags & BTRFS_SCRUB_READONLY,
 			      0);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Copy scrub args to user space even if btrfs_scrub_dev() returned an
+	 * error. This is important as it allows user space to know how much
+	 * progress scrub has done. For example, if scrub is canceled we get
+	 * -ECANCELED from btrfs_scrub_dev() and return that error back to user
+	 * space. Later user space can inspect the progress from the structure
+	 * btrfs_ioctl_scrub_args and resume scrub from where it left off
+	 * previously (btrfs-progs does this).
+	 * If we fail to copy the btrfs_ioctl_scrub_args structure to user space
+	 * then return -EFAULT to signal the structure was not copied or it may
+	 * be corrupt and unreliable due to a partial copy.
+	 */
+>>>>>>> upstream/android-13
 	if (copy_to_user(arg, sa, sizeof(*sa)))
 		ret = -EFAULT;
 
@@ -4765,7 +6151,11 @@ static long btrfs_ioctl_scrub_progress(struct btrfs_fs_info *fs_info,
 
 	ret = btrfs_scrub_progress(fs_info, sa->devid, &sa->progress);
 
+<<<<<<< HEAD
 	if (copy_to_user(arg, sa, sizeof(*sa)))
+=======
+	if (ret == 0 && copy_to_user(arg, sa, sizeof(*sa)))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 
 	kfree(sa);
@@ -4789,7 +6179,11 @@ static long btrfs_ioctl_get_dev_stats(struct btrfs_fs_info *fs_info,
 
 	ret = btrfs_get_dev_stats(fs_info, sa);
 
+<<<<<<< HEAD
 	if (copy_to_user(arg, sa, sizeof(*sa)))
+=======
+	if (ret == 0 && copy_to_user(arg, sa, sizeof(*sa)))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 
 	kfree(sa);
@@ -4815,11 +6209,19 @@ static long btrfs_ioctl_dev_replace(struct btrfs_fs_info *fs_info,
 			ret = -EROFS;
 			goto out;
 		}
+<<<<<<< HEAD
 		if (test_and_set_bit(BTRFS_FS_EXCL_OP, &fs_info->flags)) {
 			ret = BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS;
 		} else {
 			ret = btrfs_dev_replace_by_ioctl(fs_info, p);
 			clear_bit(BTRFS_FS_EXCL_OP, &fs_info->flags);
+=======
+		if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_DEV_REPLACE)) {
+			ret = BTRFS_ERROR_DEV_EXCL_RUN_IN_PROGRESS;
+		} else {
+			ret = btrfs_dev_replace_by_ioctl(fs_info, p);
+			btrfs_exclop_finish(fs_info);
+>>>>>>> upstream/android-13
 		}
 		break;
 	case BTRFS_IOCTL_DEV_REPLACE_CMD_STATUS:
@@ -4835,7 +6237,11 @@ static long btrfs_ioctl_dev_replace(struct btrfs_fs_info *fs_info,
 		break;
 	}
 
+<<<<<<< HEAD
 	if (copy_to_user(arg, p, sizeof(*p)))
+=======
+	if ((ret == 0 || ret == -ECANCELED) && copy_to_user(arg, p, sizeof(*p)))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 out:
 	kfree(p);
@@ -5030,7 +6436,11 @@ static long btrfs_ioctl_balance(struct file *file, void __user *arg)
 		return ret;
 
 again:
+<<<<<<< HEAD
 	if (!test_and_set_bit(BTRFS_FS_EXCL_OP, &fs_info->flags)) {
+=======
+	if (btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
+>>>>>>> upstream/android-13
 		mutex_lock(&fs_info->balance_mutex);
 		need_unlock = true;
 		goto locked;
@@ -5076,7 +6486,10 @@ again:
 	}
 
 locked:
+<<<<<<< HEAD
 	BUG_ON(!test_bit(BTRFS_FS_EXCL_OP, &fs_info->flags));
+=======
+>>>>>>> upstream/android-13
 
 	if (arg) {
 		bargs = memdup_user(arg, sizeof(*bargs));
@@ -5131,17 +6544,28 @@ locked:
 
 do_balance:
 	/*
+<<<<<<< HEAD
 	 * Ownership of bctl and filesystem flag BTRFS_FS_EXCL_OP goes to
 	 * btrfs_balance.  bctl is freed in reset_balance_state, or, if
 	 * restriper was paused all the way until unmount, in free_fs_info.
 	 * The flag should be cleared after reset_balance_state.
+=======
+	 * Ownership of bctl and exclusive operation goes to btrfs_balance.
+	 * bctl is freed in reset_balance_state, or, if restriper was paused
+	 * all the way until unmount, in free_fs_info.  The flag should be
+	 * cleared after reset_balance_state.
+>>>>>>> upstream/android-13
 	 */
 	need_unlock = false;
 
 	ret = btrfs_balance(fs_info, bctl, bargs);
 	bctl = NULL;
 
+<<<<<<< HEAD
 	if (arg) {
+=======
+	if ((ret == 0 || ret == -ECANCELED) && arg) {
+>>>>>>> upstream/android-13
 		if (copy_to_user(arg, bargs, sizeof(*bargs)))
 			ret = -EFAULT;
 	}
@@ -5153,7 +6577,11 @@ out_bargs:
 out_unlock:
 	mutex_unlock(&fs_info->balance_mutex);
 	if (need_unlock)
+<<<<<<< HEAD
 		clear_bit(BTRFS_FS_EXCL_OP, &fs_info->flags);
+=======
+		btrfs_exclop_finish(fs_info);
+>>>>>>> upstream/android-13
 out:
 	mnt_drop_write_file(file);
 	return ret;
@@ -5430,16 +6858,24 @@ drop_write:
 	return ret;
 }
 
+<<<<<<< HEAD
 static long btrfs_ioctl_quota_rescan_status(struct file *file, void __user *arg)
 {
 	struct inode *inode = file_inode(file);
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 	struct btrfs_ioctl_quota_rescan_args *qsa;
+=======
+static long btrfs_ioctl_quota_rescan_status(struct btrfs_fs_info *fs_info,
+						void __user *arg)
+{
+	struct btrfs_ioctl_quota_rescan_args qsa = {0};
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
 
+<<<<<<< HEAD
 	qsa = kzalloc(sizeof(*qsa), GFP_KERNEL);
 	if (!qsa)
 		return -ENOMEM;
@@ -5461,6 +6897,22 @@ static long btrfs_ioctl_quota_rescan_wait(struct file *file, void __user *arg)
 	struct inode *inode = file_inode(file);
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
 
+=======
+	if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN) {
+		qsa.flags = 1;
+		qsa.progress = fs_info->qgroup_rescan_progress.objectid;
+	}
+
+	if (copy_to_user(arg, &qsa, sizeof(qsa)))
+		ret = -EFAULT;
+
+	return ret;
+}
+
+static long btrfs_ioctl_quota_rescan_wait(struct btrfs_fs_info *fs_info,
+						void __user *arg)
+{
+>>>>>>> upstream/android-13
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
 
@@ -5468,6 +6920,10 @@ static long btrfs_ioctl_quota_rescan_wait(struct file *file, void __user *arg)
 }
 
 static long _btrfs_ioctl_set_received_subvol(struct file *file,
+<<<<<<< HEAD
+=======
+					    struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 					    struct btrfs_ioctl_received_subvol_args *sa)
 {
 	struct inode *inode = file_inode(file);
@@ -5479,7 +6935,11 @@ static long _btrfs_ioctl_set_received_subvol(struct file *file,
 	int ret = 0;
 	int received_uuid_changed;
 
+<<<<<<< HEAD
 	if (!inode_owner_or_capable(inode))
+=======
+	if (!inode_owner_or_capable(mnt_userns, inode))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	ret = mnt_want_write_file(file);
@@ -5584,7 +7044,11 @@ static long btrfs_ioctl_set_received_subvol_32(struct file *file,
 	args64->rtime.nsec = args32->rtime.nsec;
 	args64->flags = args32->flags;
 
+<<<<<<< HEAD
 	ret = _btrfs_ioctl_set_received_subvol(file, args64);
+=======
+	ret = _btrfs_ioctl_set_received_subvol(file, file_mnt_user_ns(file), args64);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -5618,7 +7082,11 @@ static long btrfs_ioctl_set_received_subvol(struct file *file,
 	if (IS_ERR(sa))
 		return PTR_ERR(sa);
 
+<<<<<<< HEAD
 	ret = _btrfs_ioctl_set_received_subvol(file, sa);
+=======
+	ret = _btrfs_ioctl_set_received_subvol(file, file_mnt_user_ns(file), sa);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		goto out;
@@ -5632,10 +7100,16 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int btrfs_ioctl_get_fslabel(struct file *file, void __user *arg)
 {
 	struct inode *inode = file_inode(file);
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+=======
+static int btrfs_ioctl_get_fslabel(struct btrfs_fs_info *fs_info,
+					void __user *arg)
+{
+>>>>>>> upstream/android-13
 	size_t len;
 	int ret;
 	char label[BTRFS_LABEL_SIZE];
@@ -5719,10 +7193,16 @@ int btrfs_ioctl_get_supported_features(void __user *arg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int btrfs_ioctl_get_features(struct file *file, void __user *arg)
 {
 	struct inode *inode = file_inode(file);
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+=======
+static int btrfs_ioctl_get_features(struct btrfs_fs_info *fs_info,
+					void __user *arg)
+{
+>>>>>>> upstream/android-13
 	struct btrfs_super_block *super_block = fs_info->super_copy;
 	struct btrfs_ioctl_feature_flags features;
 
@@ -5741,7 +7221,11 @@ static int check_feature_bits(struct btrfs_fs_info *fs_info,
 			      u64 change_mask, u64 flags, u64 supported_flags,
 			      u64 safe_set, u64 safe_clear)
 {
+<<<<<<< HEAD
 	const char *type = btrfs_feature_set_names[set];
+=======
+	const char *type = btrfs_feature_set_name(set);
+>>>>>>> upstream/android-13
 	char *names;
 	u64 disallowed, unsupported;
 	u64 set_mask = flags & change_mask;
@@ -5916,6 +7400,7 @@ long btrfs_ioctl(struct file *file, unsigned int
 	void __user *argp = (void __user *)arg;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case FS_IOC_GETFLAGS:
 		return btrfs_ioctl_getflags(file, argp);
 	case FS_IOC_SETFLAGS:
@@ -5924,6 +7409,16 @@ long btrfs_ioctl(struct file *file, unsigned int
 		return btrfs_ioctl_getversion(file, argp);
 	case FITRIM:
 		return btrfs_ioctl_fitrim(file, argp);
+=======
+	case FS_IOC_GETVERSION:
+		return btrfs_ioctl_getversion(file, argp);
+	case FS_IOC_GETFSLABEL:
+		return btrfs_ioctl_get_fslabel(fs_info, argp);
+	case FS_IOC_SETFSLABEL:
+		return btrfs_ioctl_set_fslabel(file, argp);
+	case FITRIM:
+		return btrfs_ioctl_fitrim(fs_info, argp);
+>>>>>>> upstream/android-13
 	case BTRFS_IOC_SNAP_CREATE:
 		return btrfs_ioctl_snap_create(file, argp, 0);
 	case BTRFS_IOC_SNAP_CREATE_V2:
@@ -5933,7 +7428,13 @@ long btrfs_ioctl(struct file *file, unsigned int
 	case BTRFS_IOC_SUBVOL_CREATE_V2:
 		return btrfs_ioctl_snap_create_v2(file, argp, 1);
 	case BTRFS_IOC_SNAP_DESTROY:
+<<<<<<< HEAD
 		return btrfs_ioctl_snap_destroy(file, argp);
+=======
+		return btrfs_ioctl_snap_destroy(file, argp, false);
+	case BTRFS_IOC_SNAP_DESTROY_V2:
+		return btrfs_ioctl_snap_destroy(file, argp, true);
+>>>>>>> upstream/android-13
 	case BTRFS_IOC_SUBVOL_GETFLAGS:
 		return btrfs_ioctl_subvol_getflags(file, argp);
 	case BTRFS_IOC_SUBVOL_SETFLAGS:
@@ -5975,7 +7476,11 @@ long btrfs_ioctl(struct file *file, unsigned int
 	case BTRFS_IOC_SYNC: {
 		int ret;
 
+<<<<<<< HEAD
 		ret = btrfs_start_delalloc_roots(fs_info, -1);
+=======
+		ret = btrfs_start_delalloc_roots(fs_info, LONG_MAX, false);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 		ret = btrfs_sync_fs(inode->i_sb, 1);
@@ -6028,6 +7533,7 @@ long btrfs_ioctl(struct file *file, unsigned int
 	case BTRFS_IOC_QUOTA_RESCAN:
 		return btrfs_ioctl_quota_rescan(file, argp);
 	case BTRFS_IOC_QUOTA_RESCAN_STATUS:
+<<<<<<< HEAD
 		return btrfs_ioctl_quota_rescan_status(file, argp);
 	case BTRFS_IOC_QUOTA_RESCAN_WAIT:
 		return btrfs_ioctl_quota_rescan_wait(file, argp);
@@ -6047,12 +7553,32 @@ long btrfs_ioctl(struct file *file, unsigned int
 		return btrfs_ioctl_fsgetxattr(file, argp);
 	case FS_IOC_FSSETXATTR:
 		return btrfs_ioctl_fssetxattr(file, argp);
+=======
+		return btrfs_ioctl_quota_rescan_status(fs_info, argp);
+	case BTRFS_IOC_QUOTA_RESCAN_WAIT:
+		return btrfs_ioctl_quota_rescan_wait(fs_info, argp);
+	case BTRFS_IOC_DEV_REPLACE:
+		return btrfs_ioctl_dev_replace(fs_info, argp);
+	case BTRFS_IOC_GET_SUPPORTED_FEATURES:
+		return btrfs_ioctl_get_supported_features(argp);
+	case BTRFS_IOC_GET_FEATURES:
+		return btrfs_ioctl_get_features(fs_info, argp);
+	case BTRFS_IOC_SET_FEATURES:
+		return btrfs_ioctl_set_features(file, argp);
+>>>>>>> upstream/android-13
 	case BTRFS_IOC_GET_SUBVOL_INFO:
 		return btrfs_ioctl_get_subvol_info(file, argp);
 	case BTRFS_IOC_GET_SUBVOL_ROOTREF:
 		return btrfs_ioctl_get_subvol_rootref(file, argp);
 	case BTRFS_IOC_INO_LOOKUP_USER:
 		return btrfs_ioctl_ino_lookup_user(file, argp);
+<<<<<<< HEAD
+=======
+	case FS_IOC_ENABLE_VERITY:
+		return fsverity_ioctl_enable(file, (const void __user *)argp);
+	case FS_IOC_MEASURE_VERITY:
+		return fsverity_ioctl_measure(file, argp);
+>>>>>>> upstream/android-13
 	}
 
 	return -ENOTTY;
@@ -6066,12 +7592,15 @@ long btrfs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	 * handling is necessary.
 	 */
 	switch (cmd) {
+<<<<<<< HEAD
 	case FS_IOC32_GETFLAGS:
 		cmd = FS_IOC_GETFLAGS;
 		break;
 	case FS_IOC32_SETFLAGS:
 		cmd = FS_IOC_SETFLAGS;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case FS_IOC32_GETVERSION:
 		cmd = FS_IOC_GETVERSION;
 		break;

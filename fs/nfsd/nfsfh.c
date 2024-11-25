@@ -14,6 +14,10 @@
 #include "nfsd.h"
 #include "vfs.h"
 #include "auth.h"
+<<<<<<< HEAD
+=======
+#include "trace.h"
+>>>>>>> upstream/android-13
 
 #define NFSDDBG_FACILITY		NFSDDBG_FH
 
@@ -39,7 +43,12 @@ static int nfsd_acceptable(void *expv, struct dentry *dentry)
 		/* make sure parents give x permission to user */
 		int err;
 		parent = dget_parent(tdentry);
+<<<<<<< HEAD
 		err = inode_permission(d_inode(parent), MAY_EXEC);
+=======
+		err = inode_permission(&init_user_ns,
+				       d_inode(parent), MAY_EXEC);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			dput(parent);
 			break;
@@ -209,11 +218,22 @@ static __be32 nfsd_set_fh_dentry(struct svc_rqst *rqstp, struct svc_fh *fhp)
 	}
 
 	error = nfserr_stale;
+<<<<<<< HEAD
 	if (PTR_ERR(exp) == -ENOENT)
 		return error;
 
 	if (IS_ERR(exp))
 		return nfserrno(PTR_ERR(exp));
+=======
+	if (IS_ERR(exp)) {
+		trace_nfsd_set_fh_dentry_badexport(rqstp, fhp, PTR_ERR(exp));
+
+		if (PTR_ERR(exp) == -ENOENT)
+			return error;
+
+		return nfserrno(PTR_ERR(exp));
+	}
+>>>>>>> upstream/android-13
 
 	if (exp->ex_flags & NFSEXP_NOSUBTREECHECK) {
 		/* Elevate privileges so that the lack of 'r' or 'x'
@@ -264,9 +284,26 @@ static __be32 nfsd_set_fh_dentry(struct svc_rqst *rqstp, struct svc_fh *fhp)
 	if (fileid_type == FILEID_ROOT)
 		dentry = dget(exp->ex_path.dentry);
 	else {
+<<<<<<< HEAD
 		dentry = exportfs_decode_fh(exp->ex_path.mnt, fid,
 				data_left, fileid_type,
 				nfsd_acceptable, exp);
+=======
+		dentry = exportfs_decode_fh_raw(exp->ex_path.mnt, fid,
+						data_left, fileid_type,
+						nfsd_acceptable, exp);
+		if (IS_ERR_OR_NULL(dentry)) {
+			trace_nfsd_set_fh_dentry_badhandle(rqstp, fhp,
+					dentry ?  PTR_ERR(dentry) : -ESTALE);
+			switch (PTR_ERR(dentry)) {
+			case -ENOMEM:
+			case -ETIMEDOUT:
+				break;
+			default:
+				dentry = ERR_PTR(-ESTALE);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 	if (dentry == NULL)
 		goto out;
@@ -284,6 +321,23 @@ static __be32 nfsd_set_fh_dentry(struct svc_rqst *rqstp, struct svc_fh *fhp)
 
 	fhp->fh_dentry = dentry;
 	fhp->fh_export = exp;
+<<<<<<< HEAD
+=======
+
+	switch (rqstp->rq_vers) {
+	case 4:
+		if (dentry->d_sb->s_export_op->flags & EXPORT_OP_NOATOMIC_ATTR)
+			fhp->fh_no_atomic_attr = true;
+		break;
+	case 3:
+		if (dentry->d_sb->s_export_op->flags & EXPORT_OP_NOWCC)
+			fhp->fh_no_wcc = true;
+		break;
+	case 2:
+		fhp->fh_no_wcc = true;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 out:
 	exp_put(exp);
@@ -320,7 +374,11 @@ out:
 __be32
 fh_verify(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type, int access)
 {
+<<<<<<< HEAD
 	struct svc_export *exp;
+=======
+	struct svc_export *exp = NULL;
+>>>>>>> upstream/android-13
 	struct dentry	*dentry;
 	__be32		error;
 
@@ -393,7 +451,11 @@ skip_pseudoflavor_check:
 	}
 out:
 	if (error == nfserr_stale)
+<<<<<<< HEAD
 		nfsdstats.fh_stale++;
+=======
+		nfsd_stats_fh_stale_inc(exp);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -452,7 +514,11 @@ static bool fsid_type_ok_for_exp(u8 fsid_type, struct svc_export *exp)
 	case FSID_DEV:
 		if (!old_valid_dev(exp_sb(exp)->s_dev))
 			return false;
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FSID_MAJOR_MINOR:
 	case FSID_ENCODE_DEV:
 		return exp_sb(exp)->s_type->fs_flags & FS_REQUIRES_DEV;
@@ -462,7 +528,11 @@ static bool fsid_type_ok_for_exp(u8 fsid_type, struct svc_export *exp)
 	case FSID_UUID16:
 		if (!is_root_export(exp))
 			return false;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FSID_UUID4_INUM:
 	case FSID_UUID16_INUM:
 		return exp->ex_uuid != NULL;
@@ -552,6 +622,12 @@ fh_compose(struct svc_fh *fhp, struct svc_export *exp, struct dentry *dentry,
 	 */
 	set_version_and_fsid_type(fhp, exp, ref_fh);
 
+<<<<<<< HEAD
+=======
+	/* If we have a ref_fh, then copy the fh_no_wcc setting from it. */
+	fhp->fh_no_wcc = ref_fh ? ref_fh->fh_no_wcc : false;
+
+>>>>>>> upstream/android-13
 	if (ref_fh == fhp)
 		fh_put(ref_fh);
 
@@ -655,6 +731,10 @@ fh_put(struct svc_fh *fhp)
 		exp_put(exp);
 		fhp->fh_export = NULL;
 	}
+<<<<<<< HEAD
+=======
+	fhp->fh_no_wcc = false;
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -677,7 +757,11 @@ char * SVCFH_fmt(struct svc_fh *fhp)
 	return buf;
 }
 
+<<<<<<< HEAD
 enum fsid_source fsid_source(struct svc_fh *fhp)
+=======
+enum fsid_source fsid_source(const struct svc_fh *fhp)
+>>>>>>> upstream/android-13
 {
 	if (fhp->fh_handle.fh_version != 1)
 		return FSIDSOURCE_DEV;

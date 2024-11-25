@@ -81,7 +81,11 @@ static int vmw_simple_resource_init(struct vmw_private *dev_priv,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	vmw_resource_activate(&simple->res, simple->func->hw_destroy);
+=======
+	simple->res.hw_destroy = simple->func->hw_destroy;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -159,6 +163,7 @@ vmw_simple_resource_create_ioctl(struct drm_device *dev, void *data,
 
 	alloc_size = offsetof(struct vmw_user_simple_resource, simple) +
 	  func->size;
+<<<<<<< HEAD
 	account_size = ttm_round_pot(alloc_size) + VMW_IDA_ACC_SIZE;
 
 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
@@ -168,6 +173,13 @@ vmw_simple_resource_create_ioctl(struct drm_device *dev, void *data,
 	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv), account_size,
 				   &ctx);
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+	account_size = ttm_round_pot(alloc_size) + VMW_IDA_ACC_SIZE +
+		TTM_OBJ_EXTRA_SIZE;
+
+	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv), account_size,
+				   &ctx);
+>>>>>>> upstream/android-13
 	if (ret) {
 		if (ret != -ERESTARTSYS)
 			DRM_ERROR("Out of graphics memory for %s"
@@ -208,7 +220,11 @@ vmw_simple_resource_create_ioctl(struct drm_device *dev, void *data,
 		goto out_err;
 	}
 
+<<<<<<< HEAD
 	func->set_arg_handle(data, usimple->base.hash.key);
+=======
+	func->set_arg_handle(data, usimple->base.handle);
+>>>>>>> upstream/android-13
 out_err:
 	vmw_resource_unreference(&res);
 out_ret:
@@ -238,17 +254,29 @@ vmw_simple_resource_lookup(struct ttm_object_file *tfile,
 
 	base = ttm_base_object_lookup(tfile, handle);
 	if (!base) {
+<<<<<<< HEAD
 		DRM_ERROR("Invalid %s handle 0x%08lx.\n",
 			  func->res_func.type_name,
 			  (unsigned long) handle);
+=======
+		VMW_DEBUG_USER("Invalid %s handle 0x%08lx.\n",
+			       func->res_func.type_name,
+			       (unsigned long) handle);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ESRCH);
 	}
 
 	if (ttm_base_object_type(base) != func->ttm_res_type) {
 		ttm_base_object_unref(&base);
+<<<<<<< HEAD
 		DRM_ERROR("Invalid type of %s handle 0x%08lx.\n",
 			  func->res_func.type_name,
 			  (unsigned long) handle);
+=======
+		VMW_DEBUG_USER("Invalid type of %s handle 0x%08lx.\n",
+			       func->res_func.type_name,
+			       (unsigned long) handle);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 

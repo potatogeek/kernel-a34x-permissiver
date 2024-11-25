@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for SMM665 Power Controller / Monitor
  *
  * Copyright (C) 2010 Ericsson AB.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver should also work for SMM465, SMM764, and SMM766, but is untested
  * for those chips. Only monitoring functionality is implemented.
  *
@@ -200,7 +207,11 @@ static int smm665_read_adc(struct smm665_data *data, int adc)
 	if (rv != -ENXIO) {
 		/*
 		 * We expect ENXIO to reflect NACK
+<<<<<<< HEAD
 		 * (per Documentation/i2c/fault-codes).
+=======
+		 * (per Documentation/i2c/fault-codes.rst).
+>>>>>>> upstream/android-13
 		 * Everything else is an error.
 		 */
 		dev_dbg(&client->dev,
@@ -354,7 +365,11 @@ static ssize_t smm665_show_crit_alarm(struct device *dev,
 	if (data->faults & (1 << attr->index))
 		val = 1;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
+=======
+	return sysfs_emit(buf, "%d\n", val);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t smm665_show_input(struct device *dev,
@@ -369,7 +384,11 @@ static ssize_t smm665_show_input(struct device *dev,
 		return PTR_ERR(data);
 
 	val = smm665_convert(data->adc[adc], adc);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
+=======
+	return sysfs_emit(buf, "%d\n", val);
+>>>>>>> upstream/android-13
 }
 
 #define SMM665_SHOW(what) \
@@ -565,8 +584,14 @@ static struct attribute *smm665_attrs[] = {
 
 ATTRIBUTE_GROUPS(smm665);
 
+<<<<<<< HEAD
 static int smm665_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id smm665_id[];
+
+static int smm665_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct smm665_data *data;
@@ -588,11 +613,19 @@ static int smm665_probe(struct i2c_client *client,
 	mutex_init(&data->update_lock);
 
 	data->client = client;
+<<<<<<< HEAD
 	data->type = id->driver_data;
 	data->cmdreg = i2c_new_dummy(adapter, (client->addr & ~SMM665_REGMASK)
 				     | SMM665_CMDREG_BASE);
 	if (!data->cmdreg)
 		return -ENOMEM;
+=======
+	data->type = i2c_match_id(smm665_id, client)->driver_data;
+	data->cmdreg = i2c_new_dummy_device(adapter, (client->addr & ~SMM665_REGMASK)
+				     | SMM665_CMDREG_BASE);
+	if (IS_ERR(data->cmdreg))
+		return PTR_ERR(data->cmdreg);
+>>>>>>> upstream/android-13
 
 	switch (data->type) {
 	case smm465:
@@ -697,7 +730,11 @@ static struct i2c_driver smm665_driver = {
 	.driver = {
 		   .name = "smm665",
 		   },
+<<<<<<< HEAD
 	.probe = smm665_probe,
+=======
+	.probe_new = smm665_probe,
+>>>>>>> upstream/android-13
 	.remove = smm665_remove,
 	.id_table = smm665_id,
 };

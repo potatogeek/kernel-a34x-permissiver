@@ -44,7 +44,10 @@
 #include "regression.h"
 
 static RADIX_TREE(mt_tree, GFP_KERNEL);
+<<<<<<< HEAD
 static pthread_mutex_t mt_lock = PTHREAD_MUTEX_INITIALIZER;
+=======
+>>>>>>> upstream/android-13
 
 struct page {
 	pthread_mutex_t lock;
@@ -53,12 +56,20 @@ struct page {
 	unsigned long index;
 };
 
+<<<<<<< HEAD
 static struct page *page_alloc(void)
+=======
+static struct page *page_alloc(int index)
+>>>>>>> upstream/android-13
 {
 	struct page *p;
 	p = malloc(sizeof(struct page));
 	p->count = 1;
+<<<<<<< HEAD
 	p->index = 1;
+=======
+	p->index = index;
+>>>>>>> upstream/android-13
 	pthread_mutex_init(&p->lock, NULL);
 
 	return p;
@@ -80,6 +91,7 @@ static void page_free(struct page *p)
 static unsigned find_get_pages(unsigned long start,
 			    unsigned int nr_pages, struct page **pages)
 {
+<<<<<<< HEAD
 	unsigned int i;
 	unsigned int ret;
 	unsigned int nr_found;
@@ -117,16 +129,44 @@ repeat:
 			pthread_mutex_unlock(&page->lock);
 			goto repeat;
 		}
+=======
+	XA_STATE(xas, &mt_tree, start);
+	struct page *page;
+	unsigned int ret = 0;
+
+	rcu_read_lock();
+	xas_for_each(&xas, page, ULONG_MAX) {
+		if (xas_retry(&xas, page))
+			continue;
+
+		pthread_mutex_lock(&page->lock);
+		if (!page->count)
+			goto unlock;
+
+>>>>>>> upstream/android-13
 		/* don't actually update page refcount */
 		pthread_mutex_unlock(&page->lock);
 
 		/* Has the page moved? */
+<<<<<<< HEAD
 		if (unlikely(page != *((void **)pages[i]))) {
 			goto repeat;
 		}
 
 		pages[ret] = page;
 		ret++;
+=======
+		if (unlikely(page != xas_reload(&xas)))
+			goto put_page;
+
+		pages[ret] = page;
+		ret++;
+		continue;
+unlock:
+		pthread_mutex_unlock(&page->lock);
+put_page:
+		xas_reset(&xas);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 	return ret;
@@ -145,6 +185,7 @@ static void *regression1_fn(void *arg)
 		for (j = 0; j < 1000000; j++) {
 			struct page *p;
 
+<<<<<<< HEAD
 			p = page_alloc();
 			pthread_mutex_lock(&mt_lock);
 			radix_tree_insert(&mt_tree, 0, p);
@@ -156,19 +197,43 @@ static void *regression1_fn(void *arg)
 			pthread_mutex_unlock(&mt_lock);
 
 			pthread_mutex_lock(&mt_lock);
+=======
+			p = page_alloc(0);
+			xa_lock(&mt_tree);
+			radix_tree_insert(&mt_tree, 0, p);
+			xa_unlock(&mt_tree);
+
+			p = page_alloc(1);
+			xa_lock(&mt_tree);
+			radix_tree_insert(&mt_tree, 1, p);
+			xa_unlock(&mt_tree);
+
+			xa_lock(&mt_tree);
+>>>>>>> upstream/android-13
 			p = radix_tree_delete(&mt_tree, 1);
 			pthread_mutex_lock(&p->lock);
 			p->count--;
 			pthread_mutex_unlock(&p->lock);
+<<<<<<< HEAD
 			pthread_mutex_unlock(&mt_lock);
 			page_free(p);
 
 			pthread_mutex_lock(&mt_lock);
+=======
+			xa_unlock(&mt_tree);
+			page_free(p);
+
+			xa_lock(&mt_tree);
+>>>>>>> upstream/android-13
 			p = radix_tree_delete(&mt_tree, 0);
 			pthread_mutex_lock(&p->lock);
 			p->count--;
 			pthread_mutex_unlock(&p->lock);
+<<<<<<< HEAD
 			pthread_mutex_unlock(&mt_lock);
+=======
+			xa_unlock(&mt_tree);
+>>>>>>> upstream/android-13
 			page_free(p);
 		}
 	} else {

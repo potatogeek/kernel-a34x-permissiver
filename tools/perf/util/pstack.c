@@ -5,16 +5,29 @@
  * (c) 2010 Arnaldo Carvalho de Melo <acme@redhat.com>
  */
 
+<<<<<<< HEAD
 #include "util.h"
 #include "pstack.h"
 #include "debug.h"
 #include <linux/kernel.h>
 #include <stdlib.h>
+=======
+#include "pstack.h"
+#include "debug.h"
+#include <linux/kernel.h>
+#include <linux/zalloc.h>
+#include <stdlib.h>
+#include <string.h>
+>>>>>>> upstream/android-13
 
 struct pstack {
 	unsigned short	top;
 	unsigned short	max_nr_entries;
+<<<<<<< HEAD
 	void		*entries[0];
+=======
+	void		*entries[];
+>>>>>>> upstream/android-13
 };
 
 struct pstack *pstack__new(unsigned short max_nr_entries)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Event cache for netfilter. */
 
 /*
@@ -5,10 +9,13 @@
  * (C) 2005 Patrick McHardy <kaber@trash.net>
  * (C) 2005-2006 Netfilter Core Team <coreteam@netfilter.org>
  * (C) 2005 USAGI/WIDE Project <http://www.linux-ipv6.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -27,11 +34,19 @@
 
 #include <net/netfilter/nf_conntrack.h>
 #include <net/netfilter/nf_conntrack_core.h>
+<<<<<<< HEAD
+=======
+#include <net/netfilter/nf_conntrack_ecache.h>
+>>>>>>> upstream/android-13
 #include <net/netfilter/nf_conntrack_extend.h>
 
 static DEFINE_MUTEX(nf_ct_ecache_mutex);
 
 #define ECACHE_RETRY_WAIT (HZ/10)
+<<<<<<< HEAD
+=======
+#define ECACHE_STACK_ALLOC (256 / sizeof(void *))
+>>>>>>> upstream/android-13
 
 enum retry_state {
 	STATE_CONGESTED,
@@ -41,11 +56,19 @@ enum retry_state {
 
 static enum retry_state ecache_work_evict_list(struct ct_pcpu *pcpu)
 {
+<<<<<<< HEAD
 	struct nf_conn *refs[16];
 	struct nf_conntrack_tuple_hash *h;
 	struct hlist_nulls_node *n;
 	unsigned int evicted = 0;
 	enum retry_state ret = STATE_DONE;
+=======
+	struct nf_conn *refs[ECACHE_STACK_ALLOC];
+	enum retry_state ret = STATE_DONE;
+	struct nf_conntrack_tuple_hash *h;
+	struct hlist_nulls_node *n;
+	unsigned int evicted = 0;
+>>>>>>> upstream/android-13
 
 	spin_lock(&pcpu->lock);
 
@@ -56,10 +79,28 @@ static enum retry_state ecache_work_evict_list(struct ct_pcpu *pcpu)
 		if (!nf_ct_is_confirmed(ct))
 			continue;
 
+<<<<<<< HEAD
+=======
+		/* This ecache access is safe because the ct is on the
+		 * pcpu dying list and we hold the spinlock -- the entry
+		 * cannot be free'd until after the lock is released.
+		 *
+		 * This is true even if ct has a refcount of 0: the
+		 * cpu that is about to free the entry must remove it
+		 * from the dying list and needs the lock to do so.
+		 */
+>>>>>>> upstream/android-13
 		e = nf_ct_ecache_find(ct);
 		if (!e || e->state != NFCT_ECACHE_DESTROY_FAIL)
 			continue;
 
+<<<<<<< HEAD
+=======
+		/* ct is in NFCT_ECACHE_DESTROY_FAIL state, this means
+		 * the worker owns this entry: the ct will remain valid
+		 * until the worker puts its ct reference.
+		 */
+>>>>>>> upstream/android-13
 		if (nf_conntrack_event(IPCT_DESTROY, ct)) {
 			ret = STATE_CONGESTED;
 			break;
@@ -85,8 +126,13 @@ static enum retry_state ecache_work_evict_list(struct ct_pcpu *pcpu)
 
 static void ecache_work(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct netns_ct *ctnet =
 		container_of(work, struct netns_ct, ecache_dwork.work);
+=======
+	struct nf_conntrack_net *cnet = container_of(work, struct nf_conntrack_net, ecache_dwork.work);
+	struct netns_ct *ctnet = cnet->ct_net;
+>>>>>>> upstream/android-13
 	int cpu, delay = -1;
 	struct ct_pcpu *pcpu;
 
@@ -116,6 +162,7 @@ static void ecache_work(struct work_struct *work)
 
 	ctnet->ecache_dwork_pending = delay > 0;
 	if (delay >= 0)
+<<<<<<< HEAD
 		schedule_delayed_work(&ctnet->ecache_dwork, delay);
 }
 
@@ -216,6 +263,37 @@ void nf_ct_deliver_cached_events(struct nf_conn *ct)
 
 	if (likely(ret == 0 && !missed))
 		goto out_unlock;
+=======
+		schedule_delayed_work(&cnet->ecache_dwork, delay);
+}
+
+static int __nf_conntrack_eventmask_report(struct nf_conntrack_ecache *e,
+					   const unsigned int events,
+					   const unsigned long missed,
+					   const struct nf_ct_event *item)
+{
+	struct nf_conn *ct = item->ct;
+	struct net *net = nf_ct_net(item->ct);
+	struct nf_ct_event_notifier *notify;
+	int ret;
+
+	if (!((events | missed) & e->ctmask))
+		return 0;
+
+	rcu_read_lock();
+
+	notify = rcu_dereference(net->ct.nf_conntrack_event_cb);
+	if (!notify) {
+		rcu_read_unlock();
+		return 0;
+	}
+
+	ret = notify->ct_event(events | missed, item);
+	rcu_read_unlock();
+
+	if (likely(ret >= 0 && missed == 0))
+		return 0;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&ct->lock);
 	if (ret < 0)
@@ -224,8 +302,78 @@ void nf_ct_deliver_cached_events(struct nf_conn *ct)
 		e->missed &= ~missed;
 	spin_unlock_bh(&ct->lock);
 
+<<<<<<< HEAD
 out_unlock:
 	rcu_read_unlock();
+=======
+	return ret;
+}
+
+int nf_conntrack_eventmask_report(unsigned int events, struct nf_conn *ct,
+				  u32 portid, int report)
+{
+	struct nf_conntrack_ecache *e;
+	struct nf_ct_event item;
+	unsigned long missed;
+	int ret;
+
+	if (!nf_ct_is_confirmed(ct))
+		return 0;
+
+	e = nf_ct_ecache_find(ct);
+	if (!e)
+		return 0;
+
+	memset(&item, 0, sizeof(item));
+
+	item.ct = ct;
+	item.portid = e->portid ? e->portid : portid;
+	item.report = report;
+
+	/* This is a resent of a destroy event? If so, skip missed */
+	missed = e->portid ? 0 : e->missed;
+
+	ret = __nf_conntrack_eventmask_report(e, events, missed, &item);
+	if (unlikely(ret < 0 && (events & (1 << IPCT_DESTROY)))) {
+		/* This is a destroy event that has been triggered by a process,
+		 * we store the PORTID to include it in the retransmission.
+		 */
+		if (e->portid == 0 && portid != 0)
+			e->portid = portid;
+		e->state = NFCT_ECACHE_DESTROY_FAIL;
+	}
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(nf_conntrack_eventmask_report);
+
+/* deliver cached events and clear cache entry - must be called with locally
+ * disabled softirqs */
+void nf_ct_deliver_cached_events(struct nf_conn *ct)
+{
+	struct nf_conntrack_ecache *e;
+	struct nf_ct_event item;
+	unsigned long events;
+
+	if (!nf_ct_is_confirmed(ct) || nf_ct_is_dying(ct))
+		return;
+
+	e = nf_ct_ecache_find(ct);
+	if (e == NULL)
+		return;
+
+	events = xchg(&e->cache, 0);
+
+	item.ct = ct;
+	item.portid = 0;
+	item.report = 0;
+
+	/* We make a copy of the missed event cache without taking
+	 * the lock, thus we may send missed events twice. However,
+	 * this does not harm and it happens very rarely.
+	 */
+	__nf_conntrack_eventmask_report(e, events, e->missed, &item);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nf_ct_deliver_cached_events);
 
@@ -235,11 +383,19 @@ void nf_ct_expect_event_report(enum ip_conntrack_expect_events event,
 
 {
 	struct net *net = nf_ct_exp_net(exp);
+<<<<<<< HEAD
 	struct nf_exp_event_notifier *notify;
 	struct nf_conntrack_ecache *e;
 
 	rcu_read_lock();
 	notify = rcu_dereference(net->ct.nf_expect_event_cb);
+=======
+	struct nf_ct_event_notifier *notify;
+	struct nf_conntrack_ecache *e;
+
+	rcu_read_lock();
+	notify = rcu_dereference(net->ct.nf_conntrack_event_cb);
+>>>>>>> upstream/android-13
 	if (!notify)
 		goto out_unlock;
 
@@ -253,21 +409,32 @@ void nf_ct_expect_event_report(enum ip_conntrack_expect_events event,
 			.portid	= portid,
 			.report = report
 		};
+<<<<<<< HEAD
 		notify->fcn(1 << event, &item);
+=======
+		notify->exp_event(1 << event, &item);
+>>>>>>> upstream/android-13
 	}
 out_unlock:
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 int nf_conntrack_register_notifier(struct net *net,
 				   struct nf_ct_event_notifier *new)
 {
 	int ret;
+=======
+void nf_conntrack_register_notifier(struct net *net,
+				    const struct nf_ct_event_notifier *new)
+{
+>>>>>>> upstream/android-13
 	struct nf_ct_event_notifier *notify;
 
 	mutex_lock(&nf_ct_ecache_mutex);
 	notify = rcu_dereference_protected(net->ct.nf_conntrack_event_cb,
 					   lockdep_is_held(&nf_ct_ecache_mutex));
+<<<<<<< HEAD
 	if (notify != NULL) {
 		ret = -EBUSY;
 		goto out_unlock;
@@ -332,10 +499,41 @@ void nf_ct_expect_unregister_notifier(struct net *net,
 	/* synchronize_rcu() is called from ctnetlink_exit. */
 }
 EXPORT_SYMBOL_GPL(nf_ct_expect_unregister_notifier);
+=======
+	WARN_ON_ONCE(notify);
+	rcu_assign_pointer(net->ct.nf_conntrack_event_cb, new);
+	mutex_unlock(&nf_ct_ecache_mutex);
+}
+EXPORT_SYMBOL_GPL(nf_conntrack_register_notifier);
+
+void nf_conntrack_unregister_notifier(struct net *net)
+{
+	mutex_lock(&nf_ct_ecache_mutex);
+	RCU_INIT_POINTER(net->ct.nf_conntrack_event_cb, NULL);
+	mutex_unlock(&nf_ct_ecache_mutex);
+	/* synchronize_rcu() is called after netns pre_exit */
+}
+EXPORT_SYMBOL_GPL(nf_conntrack_unregister_notifier);
+
+void nf_conntrack_ecache_work(struct net *net, enum nf_ct_ecache_state state)
+{
+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+
+	if (state == NFCT_ECACHE_DESTROY_FAIL &&
+	    !delayed_work_pending(&cnet->ecache_dwork)) {
+		schedule_delayed_work(&cnet->ecache_dwork, HZ);
+		net->ct.ecache_dwork_pending = true;
+	} else if (state == NFCT_ECACHE_DESTROY_SENT) {
+		net->ct.ecache_dwork_pending = false;
+		mod_delayed_work(system_wq, &cnet->ecache_dwork, 0);
+	}
+}
+>>>>>>> upstream/android-13
 
 #define NF_CT_EVENTS_DEFAULT 1
 static int nf_ct_events __read_mostly = NF_CT_EVENTS_DEFAULT;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
 static struct ctl_table event_sysctl_table[] = {
 	{
@@ -349,12 +547,15 @@ static struct ctl_table event_sysctl_table[] = {
 };
 #endif /* CONFIG_SYSCTL */
 
+=======
+>>>>>>> upstream/android-13
 static const struct nf_ct_ext_type event_extend = {
 	.len	= sizeof(struct nf_conntrack_ecache),
 	.align	= __alignof__(struct nf_conntrack_ecache),
 	.id	= NF_CT_EXT_ECACHE,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
 static int nf_conntrack_event_init_sysctl(struct net *net)
 {
@@ -409,12 +610,27 @@ int nf_conntrack_ecache_pernet_init(struct net *net)
 	net->ct.sysctl_events = nf_ct_events;
 	INIT_DELAYED_WORK(&net->ct.ecache_dwork, ecache_work);
 	return nf_conntrack_event_init_sysctl(net);
+=======
+void nf_conntrack_ecache_pernet_init(struct net *net)
+{
+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+
+	net->ct.sysctl_events = nf_ct_events;
+	cnet->ct_net = &net->ct;
+	INIT_DELAYED_WORK(&cnet->ecache_dwork, ecache_work);
+>>>>>>> upstream/android-13
 }
 
 void nf_conntrack_ecache_pernet_fini(struct net *net)
 {
+<<<<<<< HEAD
 	cancel_delayed_work_sync(&net->ct.ecache_dwork);
 	nf_conntrack_event_fini_sysctl(net);
+=======
+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+
+	cancel_delayed_work_sync(&cnet->ecache_dwork);
+>>>>>>> upstream/android-13
 }
 
 int nf_conntrack_ecache_init(void)

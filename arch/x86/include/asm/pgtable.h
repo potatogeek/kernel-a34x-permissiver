@@ -23,12 +23,25 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/x86_init.h>
+<<<<<<< HEAD
 
 extern pgd_t early_top_pgt[PTRS_PER_PGD];
 int __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
 
 void ptdump_walk_pgd_level(struct seq_file *m, pgd_t *pgd);
 void ptdump_walk_pgd_level_debugfs(struct seq_file *m, pgd_t *pgd, bool user);
+=======
+#include <asm/pkru.h>
+#include <asm/fpu/api.h>
+#include <asm-generic/pgtable_uffd.h>
+
+extern pgd_t early_top_pgt[PTRS_PER_PGD];
+bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
+
+void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm);
+void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
+				   bool user);
+>>>>>>> upstream/android-13
 void ptdump_walk_pgd_level_checkwx(void);
 void ptdump_walk_user_pgd_level_checkwx(void);
 
@@ -46,7 +59,11 @@ void ptdump_walk_user_pgd_level_checkwx(void);
  */
 extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)]
 	__visible;
+<<<<<<< HEAD
 #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
+=======
+#define ZERO_PAGE(vaddr) ((void)(vaddr),virt_to_page(empty_zero_page))
+>>>>>>> upstream/android-13
 
 extern spinlock_t pgd_lock;
 extern struct list_head pgd_list;
@@ -55,11 +72,18 @@ extern struct mm_struct *pgd_page_get_mm(struct page *page);
 
 extern pmdval_t early_pmd_flags;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
 #include <asm/paravirt.h>
 #else  /* !CONFIG_PARAVIRT */
 #define set_pte(ptep, pte)		native_set_pte(ptep, pte)
 #define set_pte_at(mm, addr, ptep, pte)	native_set_pte_at(mm, addr, ptep, pte)
+=======
+#ifdef CONFIG_PARAVIRT_XXL
+#include <asm/paravirt.h>
+#else  /* !CONFIG_PARAVIRT_XXL */
+#define set_pte(ptep, pte)		native_set_pte(ptep, pte)
+>>>>>>> upstream/android-13
 
 #define set_pte_atomic(ptep, pte)					\
 	native_set_pte_atomic(ptep, pte)
@@ -112,8 +136,12 @@ extern pmdval_t early_pmd_flags;
 #define __pte(x)	native_make_pte(x)
 
 #define arch_end_context_switch(prev)	do {} while(0)
+<<<<<<< HEAD
 
 #endif	/* CONFIG_PARAVIRT */
+=======
+#endif	/* CONFIG_PARAVIRT_XXL */
+>>>>>>> upstream/android-13
 
 /*
  * The following only work if pte_present() is true.
@@ -124,6 +152,7 @@ static inline int pte_dirty(pte_t pte)
 	return pte_flags(pte) & _PAGE_DIRTY;
 }
 
+<<<<<<< HEAD
 
 static inline u32 read_pkru(void)
 {
@@ -138,6 +167,8 @@ static inline void write_pkru(u32 pkru)
 		__write_pkru(pkru);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int pte_young(pte_t pte)
 {
 	return pte_flags(pte) & _PAGE_ACCESSED;
@@ -223,6 +254,10 @@ static inline unsigned long pgd_pfn(pgd_t pgd)
 	return (pgd_val(pgd) & PTE_PFN_MASK) >> PAGE_SHIFT;
 }
 
+<<<<<<< HEAD
+=======
+#define p4d_leaf	p4d_large
+>>>>>>> upstream/android-13
 static inline int p4d_large(p4d_t p4d)
 {
 	/* No 512 GiB pages yet */
@@ -231,6 +266,10 @@ static inline int p4d_large(p4d_t p4d)
 
 #define pte_page(pte)	pfn_to_page(pte_pfn(pte))
 
+<<<<<<< HEAD
+=======
+#define pmd_leaf	pmd_large
+>>>>>>> upstream/android-13
 static inline int pmd_large(pmd_t pte)
 {
 	return pmd_flags(pte) & _PAGE_PSE;
@@ -256,7 +295,11 @@ static inline int has_transparent_hugepage(void)
 	return boot_cpu_has(X86_FEATURE_PSE);
 }
 
+<<<<<<< HEAD
 #ifdef __HAVE_ARCH_PTE_DEVMAP
+=======
+#ifdef CONFIG_ARCH_HAS_PTE_DEVMAP
+>>>>>>> upstream/android-13
 static inline int pmd_devmap(pmd_t pmd)
 {
 	return !!(pmd_val(pmd) & _PAGE_DEVMAP);
@@ -295,6 +338,26 @@ static inline pte_t pte_clear_flags(pte_t pte, pteval_t clear)
 	return native_make_pte(v & ~clear);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAVE_ARCH_USERFAULTFD_WP
+static inline int pte_uffd_wp(pte_t pte)
+{
+	return pte_flags(pte) & _PAGE_UFFD_WP;
+}
+
+static inline pte_t pte_mkuffd_wp(pte_t pte)
+{
+	return pte_set_flags(pte, _PAGE_UFFD_WP);
+}
+
+static inline pte_t pte_clear_uffd_wp(pte_t pte)
+{
+	return pte_clear_flags(pte, _PAGE_UFFD_WP);
+}
+#endif /* CONFIG_HAVE_ARCH_USERFAULTFD_WP */
+
+>>>>>>> upstream/android-13
 static inline pte_t pte_mkclean(pte_t pte)
 {
 	return pte_clear_flags(pte, _PAGE_DIRTY);
@@ -374,6 +437,26 @@ static inline pmd_t pmd_clear_flags(pmd_t pmd, pmdval_t clear)
 	return native_make_pmd(v & ~clear);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAVE_ARCH_USERFAULTFD_WP
+static inline int pmd_uffd_wp(pmd_t pmd)
+{
+	return pmd_flags(pmd) & _PAGE_UFFD_WP;
+}
+
+static inline pmd_t pmd_mkuffd_wp(pmd_t pmd)
+{
+	return pmd_set_flags(pmd, _PAGE_UFFD_WP);
+}
+
+static inline pmd_t pmd_clear_uffd_wp(pmd_t pmd)
+{
+	return pmd_clear_flags(pmd, _PAGE_UFFD_WP);
+}
+#endif /* CONFIG_HAVE_ARCH_USERFAULTFD_WP */
+
+>>>>>>> upstream/android-13
 static inline pmd_t pmd_mkold(pmd_t pmd)
 {
 	return pmd_clear_flags(pmd, _PAGE_ACCESSED);
@@ -571,18 +654,25 @@ static inline pud_t pfn_pud(unsigned long page_nr, pgprot_t pgprot)
 	return __pud(pfn | check_pgprot(pgprot));
 }
 
+<<<<<<< HEAD
 static inline pmd_t pmd_mknotpresent(pmd_t pmd)
+=======
+static inline pmd_t pmd_mkinvalid(pmd_t pmd)
+>>>>>>> upstream/android-13
 {
 	return pfn_pmd(pmd_pfn(pmd),
 		      __pgprot(pmd_flags(pmd) & ~(_PAGE_PRESENT|_PAGE_PROTNONE)));
 }
 
+<<<<<<< HEAD
 static inline pud_t pud_mknotpresent(pud_t pud)
 {
 	return pfn_pud(pud_pfn(pud),
 	      __pgprot(pud_flags(pud) & ~(_PAGE_PRESENT|_PAGE_PROTNONE)));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u64 flip_protnone_guard(u64 oldval, u64 val, u64 mask);
 
 static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
@@ -720,7 +810,11 @@ static inline int pte_present(pte_t a)
 	return pte_flags(a) & (_PAGE_PRESENT | _PAGE_PROTNONE);
 }
 
+<<<<<<< HEAD
 #ifdef __HAVE_ARCH_PTE_DEVMAP
+=======
+#ifdef CONFIG_ARCH_HAS_PTE_DEVMAP
+>>>>>>> upstream/android-13
 static inline int pte_devmap(pte_t a)
 {
 	return (pte_flags(a) & _PAGE_DEVMAP) == _PAGE_DEVMAP;
@@ -754,7 +848,11 @@ static inline int pmd_present(pmd_t pmd)
 #ifdef CONFIG_NUMA_BALANCING
 /*
  * These work without NUMA balancing but the kernel does not care. See the
+<<<<<<< HEAD
  * comment in include/asm-generic/pgtable.h
+=======
+ * comment in include/linux/pgtable.h
+>>>>>>> upstream/android-13
  */
 static inline int pte_protnone(pte_t pte)
 {
@@ -789,6 +887,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
 #define pmd_page(pmd)	pfn_to_page(pmd_pfn(pmd))
 
 /*
+<<<<<<< HEAD
  * the pmd page can be thought of an array like this: pmd_t[PTRS_PER_PMD]
  *
  * this macro returns the index of the entry in the pmd page which would
@@ -800,6 +899,8 @@ static inline unsigned long pmd_index(unsigned long address)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Conversion functions: convert a page and protection to a page entry,
  * and a page entry and page directory to the page they refer to.
  *
@@ -808,6 +909,7 @@ static inline unsigned long pmd_index(unsigned long address)
  */
 #define mk_pte(page, pgprot)   pfn_pte(page_to_pfn(page), (pgprot))
 
+<<<<<<< HEAD
 /*
  * the pte page can be thought of an array like this: pte_t[PTRS_PER_PTE]
  *
@@ -827,6 +929,12 @@ static inline pte_t *pte_offset_kernel(pmd_t *pmd, unsigned long address)
 static inline int pmd_bad(pmd_t pmd)
 {
 	return (pmd_flags(pmd) & ~_PAGE_USER) != _KERNPG_TABLE;
+=======
+static inline int pmd_bad(pmd_t pmd)
+{
+	return (pmd_flags(pmd) & ~(_PAGE_USER | _PAGE_ACCESSED)) !=
+	       (_KERNPG_TABLE & ~_PAGE_ACCESSED);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned long pages_to_mb(unsigned long npg)
@@ -845,9 +953,15 @@ static inline int pud_present(pud_t pud)
 	return pud_flags(pud) & _PAGE_PRESENT;
 }
 
+<<<<<<< HEAD
 static inline unsigned long pud_page_vaddr(pud_t pud)
 {
 	return (unsigned long)__va(pud_val(pud) & pud_pfn_mask(pud));
+=======
+static inline pmd_t *pud_pgtable(pud_t pud)
+{
+	return (pmd_t *)__va(pud_val(pud) & pud_pfn_mask(pud));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -856,12 +970,16 @@ static inline unsigned long pud_page_vaddr(pud_t pud)
  */
 #define pud_page(pud)	pfn_to_page(pud_pfn(pud))
 
+<<<<<<< HEAD
 /* Find an entry in the second-level page table.. */
 static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
 {
 	return (pmd_t *)pud_page_vaddr(*pud) + pmd_index(address);
 }
 
+=======
+#define pud_leaf	pud_large
+>>>>>>> upstream/android-13
 static inline int pud_large(pud_t pud)
 {
 	return (pud_val(pud) & (_PAGE_PSE | _PAGE_PRESENT)) ==
@@ -873,17 +991,24 @@ static inline int pud_bad(pud_t pud)
 	return (pud_flags(pud) & ~(_KERNPG_TABLE | _PAGE_USER)) != 0;
 }
 #else
+<<<<<<< HEAD
+=======
+#define pud_leaf	pud_large
+>>>>>>> upstream/android-13
 static inline int pud_large(pud_t pud)
 {
 	return 0;
 }
 #endif	/* CONFIG_PGTABLE_LEVELS > 2 */
 
+<<<<<<< HEAD
 static inline unsigned long pud_index(unsigned long address)
 {
 	return (address >> PUD_SHIFT) & (PTRS_PER_PUD - 1);
 }
 
+=======
+>>>>>>> upstream/android-13
 #if CONFIG_PGTABLE_LEVELS > 3
 static inline int p4d_none(p4d_t p4d)
 {
@@ -895,9 +1020,15 @@ static inline int p4d_present(p4d_t p4d)
 	return p4d_flags(p4d) & _PAGE_PRESENT;
 }
 
+<<<<<<< HEAD
 static inline unsigned long p4d_page_vaddr(p4d_t p4d)
 {
 	return (unsigned long)__va(p4d_val(p4d) & p4d_pfn_mask(p4d));
+=======
+static inline pud_t *p4d_pgtable(p4d_t p4d)
+{
+	return (pud_t *)__va(p4d_val(p4d) & p4d_pfn_mask(p4d));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -906,12 +1037,15 @@ static inline unsigned long p4d_page_vaddr(p4d_t p4d)
  */
 #define p4d_page(p4d)	pfn_to_page(p4d_pfn(p4d))
 
+<<<<<<< HEAD
 /* Find an entry in the third-level page table.. */
 static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
 {
 	return (pud_t *)p4d_page_vaddr(*p4d) + pud_index(address);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int p4d_bad(p4d_t p4d)
 {
 	unsigned long ignore_flags = _KERNPG_TABLE | _PAGE_USER;
@@ -984,6 +1118,7 @@ static inline int pgd_none(pgd_t pgd)
 
 #endif	/* __ASSEMBLY__ */
 
+<<<<<<< HEAD
 /*
  * the pgd page can be thought of an array like this: pgd_t[PTRS_PER_PGD]
  *
@@ -1008,6 +1143,8 @@ static inline int pgd_none(pgd_t pgd)
 #define pgd_offset_k(address) pgd_offset(&init_mm, (address))
 
 
+=======
+>>>>>>> upstream/android-13
 #define KERNEL_PGD_BOUNDARY	pgd_index(PAGE_OFFSET)
 #define KERNEL_PGD_PTRS		(PTRS_PER_PGD - KERNEL_PGD_BOUNDARY)
 
@@ -1017,6 +1154,7 @@ extern int direct_gbpages;
 void init_mem_mapping(void);
 void early_alloc_pgt_buf(void);
 extern void memblock_find_dma_reserve(void);
+<<<<<<< HEAD
 
 #ifdef CONFIG_X86_64
 /* Realmode trampoline initialization. */
@@ -1033,6 +1171,14 @@ void __meminit init_trampoline(void);
 # endif
 #else
 static inline void init_trampoline(void) { }
+=======
+void __init poking_init(void);
+unsigned long init_memory_mapping(unsigned long start,
+				  unsigned long end, pgprot_t prot);
+
+#ifdef CONFIG_X86_64
+extern pgd_t trampoline_pgd_entry;
+>>>>>>> upstream/android-13
 #endif
 
 /* local pte updates need not use xchg for locking */
@@ -1061,16 +1207,27 @@ static inline pud_t native_local_pudp_get_and_clear(pud_t *pudp)
 	return res;
 }
 
+<<<<<<< HEAD
 static inline void native_set_pte_at(struct mm_struct *mm, unsigned long addr,
 				     pte_t *ptep , pte_t pte)
 {
 	native_set_pte(ptep, pte);
+=======
+static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+			      pte_t *ptep, pte_t pte)
+{
+	set_pte(ptep, pte);
+>>>>>>> upstream/android-13
 }
 
 static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
 			      pmd_t *pmdp, pmd_t pmd)
 {
+<<<<<<< HEAD
 	native_set_pmd(pmdp, pmd);
+=======
+	set_pmd(pmdp, pmd);
+>>>>>>> upstream/android-13
 }
 
 static inline void set_pud_at(struct mm_struct *mm, unsigned long addr,
@@ -1218,6 +1375,10 @@ static inline bool pgdp_maps_userspace(void *__ptr)
 	return (((ptr & ~PAGE_MASK) / sizeof(pgd_t)) < PGD_KERNEL_START);
 }
 
+<<<<<<< HEAD
+=======
+#define pgd_leaf	pgd_large
+>>>>>>> upstream/android-13
 static inline int pgd_large(pgd_t pgd) { return 0; }
 
 #ifdef CONFIG_PAGE_TABLE_ISOLATION
@@ -1272,7 +1433,11 @@ static inline p4d_t *user_to_kernel_p4dp(p4d_t *p4dp)
 /*
  * clone_pgd_range(pgd_t *dst, pgd_t *src, int count);
  *
+<<<<<<< HEAD
  *  dst - pointer to pgd range anwhere on a pgd page
+=======
+ *  dst - pointer to pgd range anywhere on a pgd page
+>>>>>>> upstream/android-13
  *  src - ""
  *  count - the number of pgds to copy.
  *
@@ -1356,6 +1521,7 @@ static inline pmd_t pmd_swp_clear_soft_dirty(pmd_t pmd)
 #endif
 #endif
 
+<<<<<<< HEAD
 #define PKRU_AD_BIT 0x1
 #define PKRU_WD_BIT 0x2
 #define PKRU_BITS_PER_PKEY 2
@@ -1376,6 +1542,40 @@ static inline bool __pkru_allows_write(u32 pkru, u16 pkey)
 	return !(pkru & ((PKRU_AD_BIT|PKRU_WD_BIT) << pkru_pkey_bits));
 }
 
+=======
+#ifdef CONFIG_HAVE_ARCH_USERFAULTFD_WP
+static inline pte_t pte_swp_mkuffd_wp(pte_t pte)
+{
+	return pte_set_flags(pte, _PAGE_SWP_UFFD_WP);
+}
+
+static inline int pte_swp_uffd_wp(pte_t pte)
+{
+	return pte_flags(pte) & _PAGE_SWP_UFFD_WP;
+}
+
+static inline pte_t pte_swp_clear_uffd_wp(pte_t pte)
+{
+	return pte_clear_flags(pte, _PAGE_SWP_UFFD_WP);
+}
+
+static inline pmd_t pmd_swp_mkuffd_wp(pmd_t pmd)
+{
+	return pmd_set_flags(pmd, _PAGE_SWP_UFFD_WP);
+}
+
+static inline int pmd_swp_uffd_wp(pmd_t pmd)
+{
+	return pmd_flags(pmd) & _PAGE_SWP_UFFD_WP;
+}
+
+static inline pmd_t pmd_swp_clear_uffd_wp(pmd_t pmd)
+{
+	return pmd_clear_flags(pmd, _PAGE_SWP_UFFD_WP);
+}
+#endif /* CONFIG_HAVE_ARCH_USERFAULTFD_WP */
+
+>>>>>>> upstream/android-13
 static inline u16 pte_flags_pkey(unsigned long pte_flags)
 {
 #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
@@ -1442,7 +1642,16 @@ static inline bool arch_has_pfn_modify_check(void)
 	return boot_cpu_has_bug(X86_BUG_L1TF);
 }
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
+=======
+#define arch_has_hw_pte_young arch_has_hw_pte_young
+static inline bool arch_has_hw_pte_young(void)
+{
+	return true;
+}
+
+>>>>>>> upstream/android-13
 #endif	/* __ASSEMBLY__ */
 
 #endif /* _ASM_X86_PGTABLE_H */

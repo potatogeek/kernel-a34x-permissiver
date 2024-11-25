@@ -39,7 +39,11 @@
 
 #define PROX_SUBCMD_CALIBRATION_START		128
 #define PROX_SUBCMD_TRIM_CHECK				131
+<<<<<<< HEAD
 #define PROX_SUBCMD_DEBUG_DATA				132
+=======
+
+>>>>>>> upstream/android-13
 enum {
 	PROX_RAW_MIN = 0,
 	PROX_RAW_AVG,
@@ -83,7 +87,10 @@ struct proximity_data {
 struct proximity_chipset_funcs {
 	u8 (*get_proximity_threshold_mode)(void);
 	void (*set_proximity_threshold_mode)(u8 mode);
+<<<<<<< HEAD
 	void (*set_proximity_threshold)(void);
+=======
+>>>>>>> upstream/android-13
 	void (*sync_proximity_state)(struct proximity_data *data);
 	void (*pre_enable_proximity)(struct proximity_data *data);
 	void (*pre_report_event_proximity)(void);
@@ -105,10 +112,13 @@ struct proximity_stk3328_data {
 	u16 prox_thresh_default[PROX_THRESH_SIZE];
 };
 
+<<<<<<< HEAD
 struct proximity_tmd3725_data {
 	u16 prox_thresh_detect[PROX_THRESH_SIZE];
 };
 
+=======
+>>>>>>> upstream/android-13
 int open_default_proximity_calibration(void);
 
 void set_proximity_threshold(void);
@@ -122,9 +132,14 @@ int set_proximity_setting_mode(void);
 struct sensor_chipset_init_funcs *get_proximity_stk3x6x_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_proximity_gp2ap110s_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_proximity_stk3328_function_pointer(char *name);
+<<<<<<< HEAD
 struct sensor_chipset_init_funcs *get_proximity_stk3391x_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_proximity_stk33512_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_proximity_stk3afx_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_proximity_tmd3725_function_pointer(char *name);
+=======
+struct sensor_chipset_init_funcs *get_proximity_stk33910_function_pointer(char *name);
+struct sensor_chipset_init_funcs *get_proximity_stk33512_function_pointer(char *name);
+>>>>>>> upstream/android-13
 
 u16 get_prox_raw_data(void);

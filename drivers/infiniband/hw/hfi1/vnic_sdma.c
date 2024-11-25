@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2017 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2017 - 2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -102,13 +108,21 @@ static noinline int build_vnic_ulp_payload(struct sdma_engine *sde,
 		goto bail_txadd;
 
 	for (i = 0; i < skb_shinfo(tx->skb)->nr_frags; i++) {
+<<<<<<< HEAD
 		struct skb_frag_struct *frag = &skb_shinfo(tx->skb)->frags[i];
+=======
+		skb_frag_t *frag = &skb_shinfo(tx->skb)->frags[i];
+>>>>>>> upstream/android-13
 
 		/* combine physically continuous fragments later? */
 		ret = sdma_txadd_page(sde->dd,
 				      &tx->txreq,
 				      skb_frag_page(frag),
+<<<<<<< HEAD
 				      frag->page_offset,
+=======
+				      skb_frag_off(frag),
+>>>>>>> upstream/android-13
 				      skb_frag_size(frag));
 		if (unlikely(ret))
 			goto bail_txadd;
@@ -193,8 +207,13 @@ int hfi1_vnic_send_dma(struct hfi1_devdata *dd, u8 q_idx,
 	if (unlikely(ret))
 		goto free_desc;
 
+<<<<<<< HEAD
 	ret = sdma_send_txreq(sde, &vnic_sdma->wait, &tx->txreq,
 			      vnic_sdma->pkts_sent);
+=======
+	ret = sdma_send_txreq(sde, iowait_get_ib_work(&vnic_sdma->wait),
+			      &tx->txreq, vnic_sdma->pkts_sent);
+>>>>>>> upstream/android-13
 	/* When -ECOMM, sdma callback will be called with ABORT status */
 	if (unlikely(ret && unlikely(ret != -ECOMM)))
 		goto free_desc;
@@ -225,25 +244,45 @@ tx_err:
  * become available.
  */
 static int hfi1_vnic_sdma_sleep(struct sdma_engine *sde,
+<<<<<<< HEAD
 				struct iowait *wait,
+=======
+				struct iowait_work *wait,
+>>>>>>> upstream/android-13
 				struct sdma_txreq *txreq,
 				uint seq,
 				bool pkts_sent)
 {
 	struct hfi1_vnic_sdma *vnic_sdma =
+<<<<<<< HEAD
 		container_of(wait, struct hfi1_vnic_sdma, wait);
 	struct hfi1_ibdev *dev = &vnic_sdma->dd->verbs_dev;
 
 	write_seqlock(&dev->iowait_lock);
 	if (sdma_progress(sde, seq, txreq)) {
 		write_sequnlock(&dev->iowait_lock);
+=======
+		container_of(wait->iow, struct hfi1_vnic_sdma, wait);
+
+	write_seqlock(&sde->waitlock);
+	if (sdma_progress(sde, seq, txreq)) {
+		write_sequnlock(&sde->waitlock);
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 	}
 
 	vnic_sdma->state = HFI1_VNIC_SDMA_Q_DEFERRED;
+<<<<<<< HEAD
 	if (list_empty(&vnic_sdma->wait.list))
 		iowait_queue(pkts_sent, wait, &sde->dmawait);
 	write_sequnlock(&dev->iowait_lock);
+=======
+	if (list_empty(&vnic_sdma->wait.list)) {
+		iowait_get_priority(wait->iow);
+		iowait_queue(pkts_sent, wait->iow, &sde->dmawait);
+	}
+	write_sequnlock(&sde->waitlock);
+>>>>>>> upstream/android-13
 	return -EBUSY;
 }
 
@@ -280,8 +319,14 @@ void hfi1_vnic_sdma_init(struct hfi1_vnic_vport_info *vinfo)
 	for (i = 0; i < vinfo->num_tx_q; i++) {
 		struct hfi1_vnic_sdma *vnic_sdma = &vinfo->sdma[i];
 
+<<<<<<< HEAD
 		iowait_init(&vnic_sdma->wait, 0, NULL, hfi1_vnic_sdma_sleep,
 			    hfi1_vnic_sdma_wakeup, NULL);
+=======
+		iowait_init(&vnic_sdma->wait, 0, NULL, NULL,
+			    hfi1_vnic_sdma_sleep,
+			    hfi1_vnic_sdma_wakeup, NULL, NULL);
+>>>>>>> upstream/android-13
 		vnic_sdma->sde = &vinfo->dd->per_sdma[i];
 		vnic_sdma->dd = vinfo->dd;
 		vnic_sdma->vinfo = vinfo;
@@ -290,10 +335,19 @@ void hfi1_vnic_sdma_init(struct hfi1_vnic_vport_info *vinfo)
 
 		/* Add a free descriptor watermark for wakeups */
 		if (vnic_sdma->sde->descq_cnt > HFI1_VNIC_SDMA_DESC_WTRMRK) {
+<<<<<<< HEAD
 			INIT_LIST_HEAD(&vnic_sdma->stx.list);
 			vnic_sdma->stx.num_desc = HFI1_VNIC_SDMA_DESC_WTRMRK;
 			list_add_tail(&vnic_sdma->stx.list,
 				      &vnic_sdma->wait.tx_head);
+=======
+			struct iowait_work *work;
+
+			INIT_LIST_HEAD(&vnic_sdma->stx.list);
+			vnic_sdma->stx.num_desc = HFI1_VNIC_SDMA_DESC_WTRMRK;
+			work = iowait_get_ib_work(&vnic_sdma->wait);
+			list_add_tail(&vnic_sdma->stx.list, &work->tx_head);
+>>>>>>> upstream/android-13
 		}
 	}
 }

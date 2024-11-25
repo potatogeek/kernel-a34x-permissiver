@@ -7,14 +7,22 @@
  *          Mika Westerberg <mika.westerberg@linux.intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/acpi.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/pm.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinctrl.h>
 
 #include "pinctrl-intel.h"
 
+<<<<<<< HEAD
 #define SPT_PAD_OWN	0x020
 #define SPT_PADCFGLOCK	0x0a0
 #define SPT_HOSTSW_OWN	0x0d0
@@ -34,6 +42,35 @@
 	}
 
 #define SPTH_GPP(r, s, e, g)				\
+=======
+#define SPT_PAD_OWN		0x020
+#define SPT_H_PADCFGLOCK	0x090
+#define SPT_LP_PADCFGLOCK	0x0a0
+#define SPT_HOSTSW_OWN		0x0d0
+#define SPT_GPI_IS		0x100
+#define SPT_GPI_IE		0x120
+
+#define SPT_COMMUNITY(b, s, e, pl, gs, gn, g, n)	\
+	{						\
+		.barno = (b),				\
+		.padown_offset = SPT_PAD_OWN,		\
+		.padcfglock_offset = (pl),		\
+		.hostown_offset = SPT_HOSTSW_OWN,	\
+		.is_offset = SPT_GPI_IS,		\
+		.ie_offset = SPT_GPI_IE,		\
+		.gpp_size = (gs),			\
+		.gpp_num_padown_regs = (gn),		\
+		.pin_base = (s),			\
+		.npins = ((e) - (s) + 1),		\
+		.gpps = (g),				\
+		.ngpps = (n),				\
+	}
+
+#define SPT_LP_COMMUNITY(b, s, e)			\
+	SPT_COMMUNITY(b, s, e, SPT_LP_PADCFGLOCK, 24, 4, NULL, 0)
+
+#define SPT_H_GPP(r, s, e, g)				\
+>>>>>>> upstream/android-13
 	{						\
 		.reg_num = (r),				\
 		.base = (s),				\
@@ -41,6 +78,7 @@
 		.gpio_base = (g),			\
 	}
 
+<<<<<<< HEAD
 #define SPTH_COMMUNITY(b, s, e, g)			\
 	{						\
 		.barno = (b),				\
@@ -53,6 +91,10 @@
 		.gpps = (g),				\
 		.ngpps = ARRAY_SIZE(g),			\
 	}
+=======
+#define SPT_H_COMMUNITY(b, s, e, g)			\
+	SPT_COMMUNITY(b, s, e, SPT_H_PADCFGLOCK, 0, 0, g, ARRAY_SIZE(g))
+>>>>>>> upstream/android-13
 
 /* Sunrisepoint-LP */
 static const struct pinctrl_pin_desc sptlp_pins[] = {
@@ -288,9 +330,15 @@ static const struct intel_function sptlp_functions[] = {
 };
 
 static const struct intel_community sptlp_communities[] = {
+<<<<<<< HEAD
 	SPT_COMMUNITY(0, 0, 47),
 	SPT_COMMUNITY(1, 48, 119),
 	SPT_COMMUNITY(2, 120, 151),
+=======
+	SPT_LP_COMMUNITY(0, 0, 47),
+	SPT_LP_COMMUNITY(1, 48, 119),
+	SPT_LP_COMMUNITY(2, 120, 151),
+>>>>>>> upstream/android-13
 };
 
 static const struct intel_pinctrl_soc_data sptlp_soc_data = {
@@ -550,6 +598,7 @@ static const struct intel_function spth_functions[] = {
 };
 
 static const struct intel_padgroup spth_community0_gpps[] = {
+<<<<<<< HEAD
 	SPTH_GPP(0, 0, 23, 0),		/* GPP_A */
 	SPTH_GPP(1, 24, 47, 24),	/* GPP_B */
 };
@@ -571,6 +620,29 @@ static const struct intel_community spth_communities[] = {
 	SPTH_COMMUNITY(0, 0, 47, spth_community0_gpps),
 	SPTH_COMMUNITY(1, 48, 180, spth_community1_gpps),
 	SPTH_COMMUNITY(2, 181, 191, spth_community3_gpps),
+=======
+	SPT_H_GPP(0, 0, 23, 0),		/* GPP_A */
+	SPT_H_GPP(1, 24, 47, 24),	/* GPP_B */
+};
+
+static const struct intel_padgroup spth_community1_gpps[] = {
+	SPT_H_GPP(0, 48, 71, 48),	/* GPP_C */
+	SPT_H_GPP(1, 72, 95, 72),	/* GPP_D */
+	SPT_H_GPP(2, 96, 108, 96),	/* GPP_E */
+	SPT_H_GPP(3, 109, 132, 120),	/* GPP_F */
+	SPT_H_GPP(4, 133, 156, 144),	/* GPP_G */
+	SPT_H_GPP(5, 157, 180, 168),	/* GPP_H */
+};
+
+static const struct intel_padgroup spth_community3_gpps[] = {
+	SPT_H_GPP(0, 181, 191, 192),	/* GPP_I */
+};
+
+static const struct intel_community spth_communities[] = {
+	SPT_H_COMMUNITY(0, 0, 47, spth_community0_gpps),
+	SPT_H_COMMUNITY(1, 48, 180, spth_community1_gpps),
+	SPT_H_COMMUNITY(2, 181, 191, spth_community3_gpps),
+>>>>>>> upstream/android-13
 };
 
 static const struct intel_pinctrl_soc_data spth_soc_data = {
@@ -586,11 +658,16 @@ static const struct intel_pinctrl_soc_data spth_soc_data = {
 
 static const struct acpi_device_id spt_pinctrl_acpi_match[] = {
 	{ "INT344B", (kernel_ulong_t)&sptlp_soc_data },
+<<<<<<< HEAD
+=======
+	{ "INT3451", (kernel_ulong_t)&spth_soc_data },
+>>>>>>> upstream/android-13
 	{ "INT345D", (kernel_ulong_t)&spth_soc_data },
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, spt_pinctrl_acpi_match);
 
+<<<<<<< HEAD
 static int spt_pinctrl_probe(struct platform_device *pdev)
 {
 	const struct intel_pinctrl_soc_data *soc_data;
@@ -611,6 +688,12 @@ static const struct dev_pm_ops spt_pinctrl_pm_ops = {
 
 static struct platform_driver spt_pinctrl_driver = {
 	.probe = spt_pinctrl_probe,
+=======
+static INTEL_PINCTRL_PM_OPS(spt_pinctrl_pm_ops);
+
+static struct platform_driver spt_pinctrl_driver = {
+	.probe = intel_pinctrl_probe_by_hid,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "sunrisepoint-pinctrl",
 		.acpi_match_table = spt_pinctrl_acpi_match,

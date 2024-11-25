@@ -56,11 +56,18 @@ static const struct usb_device_id idmouse_table[] = {
 #define FTIP_SCROLL  0x24
 
 #define ftip_command(dev, command, value, index) \
+<<<<<<< HEAD
 	usb_control_msg (dev->udev, usb_sndctrlpipe (dev->udev, 0), command, \
 	USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_OUT, value, index, NULL, 0, 1000)
 
 MODULE_DEVICE_TABLE(usb, idmouse_table);
 static DEFINE_MUTEX(open_disc_mutex);
+=======
+	usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0), command, \
+	USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_OUT, value, index, NULL, 0, 1000)
+
+MODULE_DEVICE_TABLE(usb, idmouse_table);
+>>>>>>> upstream/android-13
 
 /* structure to hold all of our device specific stuff */
 struct usb_idmouse {
@@ -158,8 +165,13 @@ static int idmouse_create_image(struct usb_idmouse *dev)
 
 	/* loop over a blocking bulk read to get data from the device */
 	while (bytes_read < IMGSIZE) {
+<<<<<<< HEAD
 		result = usb_bulk_msg (dev->udev,
 				usb_rcvbulkpipe (dev->udev, dev->bulk_in_endpointAddr),
+=======
+		result = usb_bulk_msg(dev->udev,
+				usb_rcvbulkpipe(dev->udev, dev->bulk_in_endpointAddr),
+>>>>>>> upstream/android-13
 				dev->bulk_in_buffer + bytes_read,
 				dev->bulk_in_size, &bulk_read, 5000);
 		if (result < 0) {
@@ -223,6 +235,7 @@ static int idmouse_open(struct inode *inode, struct file *file)
 	int result;
 
 	/* get the interface from minor number and driver information */
+<<<<<<< HEAD
 	interface = usb_find_interface (&idmouse_driver, iminor (inode));
 	if (!interface)
 		return -ENODEV;
@@ -238,6 +251,19 @@ static int idmouse_open(struct inode *inode, struct file *file)
 	/* lock this device */
 	mutex_lock(&dev->lock);
 	mutex_unlock(&open_disc_mutex);
+=======
+	interface = usb_find_interface(&idmouse_driver, iminor(inode));
+	if (!interface)
+		return -ENODEV;
+
+	/* get the device information block from the interface */
+	dev = usb_get_intfdata(interface);
+	if (!dev)
+		return -ENODEV;
+
+	/* lock this device */
+	mutex_lock(&dev->lock);
+>>>>>>> upstream/android-13
 
 	/* check if already open */
 	if (dev->open) {
@@ -251,7 +277,11 @@ static int idmouse_open(struct inode *inode, struct file *file)
 		result = usb_autopm_get_interface(interface);
 		if (result)
 			goto error;
+<<<<<<< HEAD
 		result = idmouse_create_image (dev);
+=======
+		result = idmouse_create_image(dev);
+>>>>>>> upstream/android-13
 		usb_autopm_put_interface(interface);
 		if (result)
 			goto error;
@@ -280,6 +310,7 @@ static int idmouse_release(struct inode *inode, struct file *file)
 	if (dev == NULL)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	mutex_lock(&open_disc_mutex);
 	/* lock our device */
 	mutex_lock(&dev->lock);
@@ -291,16 +322,27 @@ static int idmouse_release(struct inode *inode, struct file *file)
 		return -ENODEV;
 	}
 
+=======
+	/* lock our device */
+	mutex_lock(&dev->lock);
+
+>>>>>>> upstream/android-13
 	--dev->open;
 
 	if (!dev->present) {
 		/* the device was unplugged before the file was released */
 		mutex_unlock(&dev->lock);
+<<<<<<< HEAD
 		mutex_unlock(&open_disc_mutex);
 		idmouse_delete(dev);
 	} else {
 		mutex_unlock(&dev->lock);
 		mutex_unlock(&open_disc_mutex);
+=======
+		idmouse_delete(dev);
+	} else {
+		mutex_unlock(&dev->lock);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -379,7 +421,10 @@ static int idmouse_probe(struct usb_interface *interface,
 	if (result) {
 		/* something prevented us from registering this device */
 		dev_err(&interface->dev, "Unable to allocate minor number.\n");
+<<<<<<< HEAD
 		usb_set_intfdata(interface, NULL);
+=======
+>>>>>>> upstream/android-13
 		idmouse_delete(dev);
 		return result;
 	}
@@ -392,19 +437,28 @@ static int idmouse_probe(struct usb_interface *interface,
 
 static void idmouse_disconnect(struct usb_interface *interface)
 {
+<<<<<<< HEAD
 	struct usb_idmouse *dev;
 
 	/* get device structure */
 	dev = usb_get_intfdata(interface);
+=======
+	struct usb_idmouse *dev = usb_get_intfdata(interface);
+>>>>>>> upstream/android-13
 
 	/* give back our minor */
 	usb_deregister_dev(interface, &idmouse_class);
 
+<<<<<<< HEAD
 	mutex_lock(&open_disc_mutex);
 	usb_set_intfdata(interface, NULL);
 	/* lock the device */
 	mutex_lock(&dev->lock);
 	mutex_unlock(&open_disc_mutex);
+=======
+	/* lock the device */
+	mutex_lock(&dev->lock);
+>>>>>>> upstream/android-13
 
 	/* prevent device read, write and ioctl */
 	dev->present = 0;

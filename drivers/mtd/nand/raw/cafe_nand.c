@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for One Laptop Per Child ‘CAFÉ’ controller, aka Marvell 88ALP01
  *
@@ -100,9 +104,14 @@ static const char *part_probes[] = { "cmdlinepart", "RedBoot", NULL };
 #define cafe_readl(cafe, addr)			readl((cafe)->mmio + CAFE_##addr)
 #define cafe_writel(cafe, datum, addr)		writel(datum, (cafe)->mmio + CAFE_##addr)
 
+<<<<<<< HEAD
 static int cafe_device_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int cafe_device_ready(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct cafe_priv *cafe = nand_get_controller_data(chip);
 	int result = !!(cafe_readl(cafe, NAND_STATUS) & 0x40000000);
 	uint32_t irqs = cafe_readl(cafe, NAND_IRQ);
@@ -117,9 +126,14 @@ static int cafe_device_ready(struct mtd_info *mtd)
 }
 
 
+<<<<<<< HEAD
 static void cafe_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void cafe_write_buf(struct nand_chip *chip, const uint8_t *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct cafe_priv *cafe = nand_get_controller_data(chip);
 
 	if (cafe->usedma)
@@ -133,9 +147,14 @@ static void cafe_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 		len, cafe->datalen);
 }
 
+<<<<<<< HEAD
 static void cafe_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void cafe_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct cafe_priv *cafe = nand_get_controller_data(chip);
 
 	if (cafe->usedma)
@@ -148,6 +167,7 @@ static void cafe_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 	cafe->datalen += len;
 }
 
+<<<<<<< HEAD
 static uint8_t cafe_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
@@ -155,15 +175,30 @@ static uint8_t cafe_read_byte(struct mtd_info *mtd)
 	uint8_t d;
 
 	cafe_read_buf(mtd, &d, 1);
+=======
+static uint8_t cafe_read_byte(struct nand_chip *chip)
+{
+	struct cafe_priv *cafe = nand_get_controller_data(chip);
+	uint8_t d;
+
+	cafe_read_buf(chip, &d, 1);
+>>>>>>> upstream/android-13
 	cafe_dev_dbg(&cafe->pdev->dev, "Read %02x\n", d);
 
 	return d;
 }
 
+<<<<<<< HEAD
 static void cafe_nand_cmdfunc(struct mtd_info *mtd, unsigned command,
 			      int column, int page_addr)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void cafe_nand_cmdfunc(struct nand_chip *chip, unsigned command,
+			      int column, int page_addr)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct cafe_priv *cafe = nand_get_controller_data(chip);
 	int adrbytes = 0;
 	uint32_t ctl1;
@@ -313,6 +348,7 @@ static void cafe_nand_cmdfunc(struct mtd_info *mtd, unsigned command,
 		cafe_writel(cafe, cafe->ctl2, NAND_CTRL2);
 		return;
 	}
+<<<<<<< HEAD
 	nand_wait_ready(mtd);
 	cafe_writel(cafe, cafe->ctl2, NAND_CTRL2);
 }
@@ -320,6 +356,14 @@ static void cafe_nand_cmdfunc(struct mtd_info *mtd, unsigned command,
 static void cafe_select_chip(struct mtd_info *mtd, int chipnr)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+	nand_wait_ready(chip);
+	cafe_writel(cafe, cafe->ctl2, NAND_CTRL2);
+}
+
+static void cafe_select_chip(struct nand_chip *chip, int chipnr)
+{
+>>>>>>> upstream/android-13
 	struct cafe_priv *cafe = nand_get_controller_data(chip);
 
 	cafe_dev_dbg(&cafe->pdev->dev, "select_chip %d\n", chipnr);
@@ -346,32 +390,60 @@ static irqreturn_t cafe_nand_interrupt(int irq, void *id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int cafe_nand_write_oob(struct mtd_info *mtd,
 			       struct nand_chip *chip, int page)
 {
+=======
+static int cafe_nand_write_oob(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	return nand_prog_page_op(chip, page, mtd->writesize, chip->oob_poi,
 				 mtd->oobsize);
 }
 
 /* Don't use -- use nand_read_oob_std for now */
+<<<<<<< HEAD
 static int cafe_nand_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			      int page)
 {
+=======
+static int cafe_nand_read_oob(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	return nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
 }
 /**
  * cafe_nand_read_page_syndrome - [REPLACEABLE] hardware ecc syndrome based page read
+<<<<<<< HEAD
  * @mtd:	mtd info structure
  * @chip:	nand chip info structure
  * @buf:	buffer to store read data
  * @oob_required:	caller expects OOB data read to chip->oob_poi
+=======
+ * @chip:	nand chip info structure
+ * @buf:	buffer to store read data
+ * @oob_required:	caller expects OOB data read to chip->oob_poi
+ * @page:	page number to read
+>>>>>>> upstream/android-13
  *
  * The hw generator calculates the error syndrome automatically. Therefore
  * we need a special oob layout and handling.
  */
+<<<<<<< HEAD
 static int cafe_nand_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 			       uint8_t *buf, int oob_required, int page)
 {
+=======
+static int cafe_nand_read_page(struct nand_chip *chip, uint8_t *buf,
+			       int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct cafe_priv *cafe = nand_get_controller_data(chip);
 	unsigned int max_bitflips = 0;
 
@@ -380,7 +452,11 @@ static int cafe_nand_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 		     cafe_readl(cafe, NAND_ECC_SYN01));
 
 	nand_read_page_op(chip, page, 0, buf, mtd->writesize);
+<<<<<<< HEAD
 	chip->read_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+	chip->legacy.read_buf(chip, chip->oob_poi, mtd->oobsize);
+>>>>>>> upstream/android-13
 
 	if (checkecc && cafe_readl(cafe, NAND_ECC_RESULT) & (1<<18)) {
 		unsigned short syn[8], pat[4];
@@ -531,6 +607,7 @@ static struct nand_bbt_descr cafe_bbt_mirror_descr_512 = {
 };
 
 
+<<<<<<< HEAD
 static int cafe_nand_write_page_lowlevel(struct mtd_info *mtd,
 					  struct nand_chip *chip,
 					  const uint8_t *buf, int oob_required,
@@ -540,6 +617,17 @@ static int cafe_nand_write_page_lowlevel(struct mtd_info *mtd,
 
 	nand_prog_page_begin_op(chip, page, 0, buf, mtd->writesize);
 	chip->write_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+static int cafe_nand_write_page_lowlevel(struct nand_chip *chip,
+					 const uint8_t *buf, int oob_required,
+					 int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+	struct cafe_priv *cafe = nand_get_controller_data(chip);
+
+	nand_prog_page_begin_op(chip, page, 0, buf, mtd->writesize);
+	chip->legacy.write_buf(chip, chip->oob_poi, mtd->oobsize);
+>>>>>>> upstream/android-13
 
 	/* Set up ECC autogeneration */
 	cafe->ctl2 |= (1<<30);
@@ -547,11 +635,14 @@ static int cafe_nand_write_page_lowlevel(struct mtd_info *mtd,
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int cafe_nand_block_bad(struct mtd_info *mtd, loff_t ofs)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* F_2[X]/(X**6+X+1)  */
 static unsigned short gf64_mul(u8 a, u8 b)
 {
@@ -635,7 +726,12 @@ static int cafe_nand_attach_chip(struct nand_chip *chip)
 		goto out_free_dma;
 	}
 
+<<<<<<< HEAD
 	cafe->nand.ecc.mode = NAND_ECC_HW_SYNDROME;
+=======
+	cafe->nand.ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+	cafe->nand.ecc.placement = NAND_ECC_PLACEMENT_INTERLEAVED;
+>>>>>>> upstream/android-13
 	cafe->nand.ecc.size = mtd->writesize;
 	cafe->nand.ecc.bytes = 14;
 	cafe->nand.ecc.strength = 4;
@@ -705,6 +801,7 @@ static int cafe_nand_probe(struct pci_dev *pdev,
 		goto out_ior;
 	}
 
+<<<<<<< HEAD
 	cafe->nand.cmdfunc = cafe_nand_cmdfunc;
 	cafe->nand.dev_ready = cafe_device_ready;
 	cafe->nand.read_byte = cafe_read_byte;
@@ -715,14 +812,31 @@ static int cafe_nand_probe(struct pci_dev *pdev,
 	cafe->nand.get_features = nand_get_set_features_notsupp;
 
 	cafe->nand.chip_delay = 0;
+=======
+	cafe->nand.legacy.cmdfunc = cafe_nand_cmdfunc;
+	cafe->nand.legacy.dev_ready = cafe_device_ready;
+	cafe->nand.legacy.read_byte = cafe_read_byte;
+	cafe->nand.legacy.read_buf = cafe_read_buf;
+	cafe->nand.legacy.write_buf = cafe_write_buf;
+	cafe->nand.legacy.select_chip = cafe_select_chip;
+	cafe->nand.legacy.set_features = nand_get_set_features_notsupp;
+	cafe->nand.legacy.get_features = nand_get_set_features_notsupp;
+
+	cafe->nand.legacy.chip_delay = 0;
+>>>>>>> upstream/android-13
 
 	/* Enable the following for a flash based bad block table */
 	cafe->nand.bbt_options = NAND_BBT_USE_FLASH;
 
+<<<<<<< HEAD
 	if (skipbbt) {
 		cafe->nand.options |= NAND_SKIP_BBTSCAN;
 		cafe->nand.block_bad = cafe_nand_block_bad;
 	}
+=======
+	if (skipbbt)
+		cafe->nand.options |= NAND_SKIP_BBTSCAN | NAND_NO_BBM_QUIRK;
+>>>>>>> upstream/android-13
 
 	if (numtimings && numtimings != 3) {
 		dev_warn(&cafe->pdev->dev, "%d timing register values ignored; precisely three are required\n", numtimings);
@@ -758,7 +872,11 @@ static int cafe_nand_probe(struct pci_dev *pdev,
 			  "CAFE NAND", mtd);
 	if (err) {
 		dev_warn(&pdev->dev, "Could not register IRQ %d\n", pdev->irq);
+<<<<<<< HEAD
 		goto out_ior;
+=======
+		goto out_free_rs;
+>>>>>>> upstream/android-13
 	}
 
 	/* Disable master reset, enable NAND clock */
@@ -782,7 +900,11 @@ static int cafe_nand_probe(struct pci_dev *pdev,
 	cafe->usedma = 0;
 
 	/* Scan to find existence of the device */
+<<<<<<< HEAD
 	cafe->nand.dummy_controller.ops = &cafe_nand_controller_ops;
+=======
+	cafe->nand.legacy.dummy_controller.ops = &cafe_nand_controller_ops;
+>>>>>>> upstream/android-13
 	err = nand_scan(&cafe->nand, 2);
 	if (err)
 		goto out_irq;
@@ -802,6 +924,11 @@ static int cafe_nand_probe(struct pci_dev *pdev,
 	/* Disable NAND IRQ in global IRQ mask register */
 	cafe_writel(cafe, ~1 & cafe_readl(cafe, GLOBAL_IRQ_MASK), GLOBAL_IRQ_MASK);
 	free_irq(pdev->irq, mtd);
+<<<<<<< HEAD
+=======
+ out_free_rs:
+	free_rs(cafe->rs);
+>>>>>>> upstream/android-13
  out_ior:
 	pci_iounmap(pdev, cafe->mmio);
  out_free_mtd:
@@ -815,11 +942,21 @@ static void cafe_nand_remove(struct pci_dev *pdev)
 	struct mtd_info *mtd = pci_get_drvdata(pdev);
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct cafe_priv *cafe = nand_get_controller_data(chip);
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Disable NAND IRQ in global IRQ mask register */
 	cafe_writel(cafe, ~1 & cafe_readl(cafe, GLOBAL_IRQ_MASK), GLOBAL_IRQ_MASK);
 	free_irq(pdev->irq, mtd);
+<<<<<<< HEAD
 	nand_release(chip);
+=======
+	ret = mtd_device_unregister(mtd);
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 	free_rs(cafe->rs);
 	pci_iounmap(pdev, cafe->mmio);
 	dma_free_coherent(&cafe->pdev->dev, 2112, cafe->dmabuf, cafe->dmaaddr);

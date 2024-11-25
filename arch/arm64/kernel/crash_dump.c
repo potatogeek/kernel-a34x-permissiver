@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Routines for doing kexec-based kdump
  *
  * Copyright (C) 2017 Linaro Limited
  * Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crash_dump.h>
@@ -58,7 +65,11 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
 /**
  * elfcorehdr_read - read from ELF core header
  * @buf: buffer where the data is placed
+<<<<<<< HEAD
  * @csize: number of bytes to read
+=======
+ * @count: number of bytes to read
+>>>>>>> upstream/android-13
  * @ppos: address in the memory
  *
  * This function reads @count bytes from elf core header which exists

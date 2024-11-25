@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * MFD internals for Cirrus Logic Madera codecs
  *
  * Copyright 2015-2018 Cirrus Logic
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef MADERA_MFD_H
@@ -24,6 +31,15 @@ int madera_dev_exit(struct madera *madera);
 
 const char *madera_name_from_type(enum madera_type type);
 
+<<<<<<< HEAD
+=======
+extern const struct regmap_config cs47l15_16bit_spi_regmap;
+extern const struct regmap_config cs47l15_32bit_spi_regmap;
+extern const struct regmap_config cs47l15_16bit_i2c_regmap;
+extern const struct regmap_config cs47l15_32bit_i2c_regmap;
+int cs47l15_patch(struct madera *madera);
+
+>>>>>>> upstream/android-13
 extern const struct regmap_config cs47l35_16bit_spi_regmap;
 extern const struct regmap_config cs47l35_32bit_spi_regmap;
 extern const struct regmap_config cs47l35_16bit_i2c_regmap;
@@ -41,4 +57,14 @@ extern const struct regmap_config cs47l90_32bit_spi_regmap;
 extern const struct regmap_config cs47l90_16bit_i2c_regmap;
 extern const struct regmap_config cs47l90_32bit_i2c_regmap;
 int cs47l90_patch(struct madera *madera);
+<<<<<<< HEAD
+=======
+
+extern const struct regmap_config cs47l92_16bit_spi_regmap;
+extern const struct regmap_config cs47l92_32bit_spi_regmap;
+extern const struct regmap_config cs47l92_16bit_i2c_regmap;
+extern const struct regmap_config cs47l92_32bit_i2c_regmap;
+int cs47l92_patch(struct madera *madera);
+
+>>>>>>> upstream/android-13
 #endif

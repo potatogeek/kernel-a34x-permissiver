@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/dreamcast/setup.c
  *
@@ -8,8 +12,11 @@
  *
  * This file is part of the LinuxDC project (www.linuxdc.org)
  *
+<<<<<<< HEAD
  * Released under the terms of the GNU GPL v2.0.
  *
+=======
+>>>>>>> upstream/android-13
  * This file originally bore the message (with enclosed-$):
  *	Id: setup_dc.c,v 1.5 2001/05/24 05:09:16 mrbrown Exp
  *	SEGA Dreamcast support
@@ -30,7 +37,10 @@
 
 static void __init dreamcast_setup(char **cmdline_p)
 {
+<<<<<<< HEAD
 	board_time_init = aica_time_init;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct sh_machine_vector mv_dreamcast __initmv = {

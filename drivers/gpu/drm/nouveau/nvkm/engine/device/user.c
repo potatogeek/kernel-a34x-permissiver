@@ -43,15 +43,26 @@ static int
 nvkm_udevice_info_subdev(struct nvkm_device *device, u64 mthd, u64 *data)
 {
 	struct nvkm_subdev *subdev;
+<<<<<<< HEAD
 	enum nvkm_devidx subidx;
 
 	switch (mthd & NV_DEVICE_INFO_UNIT) {
 	case NV_DEVICE_FIFO(0): subidx = NVKM_ENGINE_FIFO; break;
+=======
+	enum nvkm_subdev_type type;
+
+	switch (mthd & NV_DEVICE_INFO_UNIT) {
+	case NV_DEVICE_HOST(0): type = NVKM_ENGINE_FIFO; break;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	subdev = nvkm_device_subdev(device, subidx);
+=======
+	subdev = nvkm_device_subdev(device, type, 0);
+>>>>>>> upstream/android-13
 	if (subdev)
 		return nvkm_subdev_info(subdev, mthd, data);
 	return -ENODEV;
@@ -66,6 +77,7 @@ nvkm_udevice_info_v1(struct nvkm_device *device,
 			args->mthd = NV_DEVICE_INFO_INVALID;
 		return;
 	}
+<<<<<<< HEAD
 
 	switch (args->mthd) {
 #define ENGINE__(A,B,C) NV_DEVICE_INFO_ENGINE_##A: { int _i;                   \
@@ -97,6 +109,9 @@ nvkm_udevice_info_v1(struct nvkm_device *device,
 		args->mthd = NV_DEVICE_INFO_INVALID;
 		break;
 	}
+=======
+	args->mthd = NV_DEVICE_INFO_INVALID;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -175,6 +190,11 @@ nvkm_udevice_info(struct nvkm_udevice *udev, void *data, u32 size)
 	case GM100: args->v0.family = NV_DEVICE_INFO_V0_MAXWELL; break;
 	case GP100: args->v0.family = NV_DEVICE_INFO_V0_PASCAL; break;
 	case GV100: args->v0.family = NV_DEVICE_INFO_V0_VOLTA; break;
+<<<<<<< HEAD
+=======
+	case TU100: args->v0.family = NV_DEVICE_INFO_V0_TURING; break;
+	case GA100: args->v0.family = NV_DEVICE_INFO_V0_AMPERE; break;
+>>>>>>> upstream/android-13
 	default:
 		args->v0.family = 0;
 		break;
@@ -355,7 +375,11 @@ nvkm_udevice_child_get(struct nvkm_object *object, int index,
 	int i;
 
 	for (; i = __ffs64(mask), mask && !sclass; mask &= ~(1ULL << i)) {
+<<<<<<< HEAD
 		if (!(engine = nvkm_device_engine(device, i)) ||
+=======
+		if (!(engine = nvkm_device_engine(device, i, 0)) ||
+>>>>>>> upstream/android-13
 		    !(engine->func->base.sclass))
 			continue;
 		oclass->engine = engine;
@@ -364,6 +388,7 @@ nvkm_udevice_child_get(struct nvkm_object *object, int index,
 	}
 
 	if (!sclass) {
+<<<<<<< HEAD
 		switch (index) {
 		case 0: sclass = &nvkm_control_oclass; break;
 		case 1:
@@ -374,6 +399,17 @@ nvkm_udevice_child_get(struct nvkm_object *object, int index,
 		default:
 			return -EINVAL;
 		}
+=======
+		if (index-- == 0)
+			sclass = &nvkm_control_oclass;
+		else if (device->mmu && index-- == 0)
+			sclass = &device->mmu->user;
+		else if (device->fault && index-- == 0)
+			sclass = &device->fault->user;
+		else
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		oclass->base = sclass->base;
 	}
 
@@ -426,7 +462,11 @@ nvkm_udevice_new(const struct nvkm_oclass *oclass, void *data, u32 size,
 		return ret;
 
 	/* give priviledged clients register access */
+<<<<<<< HEAD
 	if (client->super)
+=======
+	if (args->v0.priv)
+>>>>>>> upstream/android-13
 		func = &nvkm_udevice_super;
 	else
 		func = &nvkm_udevice;

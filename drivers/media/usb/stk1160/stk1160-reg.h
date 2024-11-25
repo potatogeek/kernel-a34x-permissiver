@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * STK1160 driver
  *
@@ -7,6 +11,7 @@
  * Based on Easycap driver by R.M. Thomas
  *	Copyright (C) 2010 R.M. Thomas
  *	<rmthomas--a.t--sciolus.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +23,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* GPIO Control */
 #define STK1160_GCTRL			0x000
 
+<<<<<<< HEAD
 /* Remote Wakup Control */
+=======
+/* Remote Wakeup Control */
+>>>>>>> upstream/android-13
 #define STK1160_RMCTL			0x00c
 
 /* Power-on Strapping Data */
@@ -104,7 +115,11 @@
 #define STK1160_SBUSR_RA		0x208
 #define STK1160_SBUSR_RD		0x209
 
+<<<<<<< HEAD
 /* Alternate Serial Inteface Control */
+=======
+/* Alternate Serial Interface Control */
+>>>>>>> upstream/android-13
 #define STK1160_ASIC			0x2fc
 
 /* PLL Select Options */

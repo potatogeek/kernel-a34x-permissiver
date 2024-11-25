@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Imagination Technologies Ltd
  *
@@ -6,6 +7,12 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2014 Imagination Technologies Ltd
+ *
+>>>>>>> upstream/android-13
  * PM helper macros for CPU power off (e.g. Suspend-to-RAM).
  */
 

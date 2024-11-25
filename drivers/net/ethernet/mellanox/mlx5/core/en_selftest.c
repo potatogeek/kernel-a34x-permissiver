@@ -30,7 +30,10 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <linux/prefetch.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <net/udp.h>
@@ -65,7 +68,11 @@ static int mlx5e_test_health_info(struct mlx5e_priv *priv)
 {
 	struct mlx5_core_health *health = &priv->mdev->priv.health;
 
+<<<<<<< HEAD
 	return health->sick ? 1 : 0;
+=======
+	return health->fatal_error ? 1 : 0;
+>>>>>>> upstream/android-13
 }
 
 static int mlx5e_test_link_state(struct mlx5e_priv *priv)
@@ -115,7 +122,11 @@ static struct sk_buff *mlx5e_test_get_udp_skb(struct mlx5e_priv *priv)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	prefetchw(skb->data);
+=======
+	net_prefetchw(skb->data);
+>>>>>>> upstream/android-13
 	skb_reserve(skb, NET_IP_ALIGN);
 
 	/*  Reserve for ethernet and IP header  */
@@ -234,7 +245,11 @@ static int mlx5e_test_loopback_setup(struct mlx5e_priv *priv,
 			return err;
 	}
 
+<<<<<<< HEAD
 	err = mlx5e_refresh_tirs(priv, true);
+=======
+	err = mlx5e_refresh_tirs(priv, true, false);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
@@ -263,7 +278,11 @@ static void mlx5e_test_loopback_cleanup(struct mlx5e_priv *priv,
 		mlx5_nic_vport_update_local_lb(priv->mdev, false);
 
 	dev_remove_pack(&lbtp->pt);
+<<<<<<< HEAD
 	mlx5e_refresh_tirs(priv, false);
+=======
+	mlx5e_refresh_tirs(priv, false, false);
+>>>>>>> upstream/android-13
 }
 
 #define MLX5E_LB_VERIFY_TIMEOUT (msecs_to_jiffies(200))

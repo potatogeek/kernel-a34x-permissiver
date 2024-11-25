@@ -1,21 +1,34 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Module signature checker
  *
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+#include <linux/module_signature.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/verification.h>
 #include <crypto/public_key.h>
 #include "module-internal.h"
 
+<<<<<<< HEAD
 enum pkey_id_type {
 	PKEY_ID_PGP,		/* OpenPGP generated key ID */
 	PKEY_ID_X509,		/* X.509 arbitrary subjectKeyIdentifier */
@@ -42,6 +55,8 @@ struct module_signature {
 	__be32	sig_len;	/* Length of signature data */
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Verify the signature on a module.
  */
@@ -49,6 +64,10 @@ int mod_verify_sig(const void *mod, struct load_info *info)
 {
 	struct module_signature ms;
 	size_t sig_len, modlen = info->len;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	pr_devel("==>%s(,%zu)\n", __func__, modlen);
 
@@ -56,6 +75,7 @@ int mod_verify_sig(const void *mod, struct load_info *info)
 		return -EBADMSG;
 
 	memcpy(&ms, mod + (modlen - sizeof(ms)), sizeof(ms));
+<<<<<<< HEAD
 	modlen -= sizeof(ms);
 
 	sig_len = be32_to_cpu(ms.sig_len);
@@ -84,5 +104,19 @@ int mod_verify_sig(const void *mod, struct load_info *info)
 
 	return verify_pkcs7_signature(mod, modlen, mod + modlen, sig_len,
 				      NULL, VERIFYING_MODULE_SIGNATURE,
+=======
+
+	ret = mod_check_sig(&ms, modlen, "module");
+	if (ret)
+		return ret;
+
+	sig_len = be32_to_cpu(ms.sig_len);
+	modlen -= sig_len + sizeof(ms);
+	info->len = modlen;
+
+	return verify_pkcs7_signature(mod, modlen, mod + modlen, sig_len,
+				      VERIFY_USE_SECONDARY_KEYRING,
+				      VERIFYING_MODULE_SIGNATURE,
+>>>>>>> upstream/android-13
 				      NULL, NULL);
 }

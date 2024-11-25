@@ -36,6 +36,10 @@ acpi_status acpi_ns_root_initialize(void)
 	acpi_status status;
 	const struct acpi_predefined_names *init_val = NULL;
 	struct acpi_namespace_node *new_node;
+<<<<<<< HEAD
+=======
+	struct acpi_namespace_node *prev_node = NULL;
+>>>>>>> upstream/android-13
 	union acpi_operand_object *obj_desc;
 	acpi_string val = NULL;
 
@@ -61,12 +65,36 @@ acpi_status acpi_ns_root_initialize(void)
 	 */
 	acpi_gbl_root_node = &acpi_gbl_root_node_struct;
 
+<<<<<<< HEAD
 	/* Enter the pre-defined names in the name table */
+=======
+	/* Enter the predefined names in the name table */
+>>>>>>> upstream/android-13
 
 	ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 			  "Entering predefined entries into namespace\n"));
 
+<<<<<<< HEAD
 	for (init_val = acpi_gbl_pre_defined_names; init_val->name; init_val++) {
+=======
+	/*
+	 * Create the initial (default) namespace.
+	 * This namespace looks like something similar to this:
+	 *
+	 *   ACPI Namespace (from Namespace Root):
+	 *    0  _GPE Scope        00203160 00
+	 *    0  _PR_ Scope        002031D0 00
+	 *    0  _SB_ Device       00203240 00 Notify Object: 0020ADD8
+	 *    0  _SI_ Scope        002032B0 00
+	 *    0  _TZ_ Device       00203320 00
+	 *    0  _REV Integer      00203390 00 = 0000000000000002
+	 *    0  _OS_ String       00203488 00 Len 14 "Microsoft Windows NT"
+	 *    0  _GL_ Mutex        00203580 00 Object 002035F0
+	 *    0  _OSI Method       00203678 00 Args 1 Len 0000 Aml 00000000
+	 */
+	for (init_val = acpi_gbl_pre_defined_names; init_val->name; init_val++) {
+		status = AE_OK;
+>>>>>>> upstream/android-13
 
 		/* _OSI is optional for now, will be permanent later */
 
@@ -75,6 +103,7 @@ acpi_status acpi_ns_root_initialize(void)
 			continue;
 		}
 
+<<<<<<< HEAD
 		status =
 		    acpi_ns_lookup(NULL, ACPI_CAST_PTR(char, init_val->name),
 				   init_val->type, ACPI_IMODE_LOAD_PASS2,
@@ -86,6 +115,33 @@ acpi_status acpi_ns_root_initialize(void)
 			continue;
 		}
 
+=======
+		/*
+		 * Create, init, and link the new predefined name
+		 * Note: No need to use acpi_ns_lookup here because all the
+		 * predefined names are at the root level. It is much easier to
+		 * just create and link the new node(s) here.
+		 */
+		new_node =
+		    acpi_ns_create_node(*ACPI_CAST_PTR(u32, init_val->name));
+		if (!new_node) {
+			status = AE_NO_MEMORY;
+			goto unlock_and_exit;
+		}
+
+		new_node->descriptor_type = ACPI_DESC_TYPE_NAMED;
+		new_node->type = init_val->type;
+
+		if (!prev_node) {
+			acpi_gbl_root_node_struct.child = new_node;
+		} else {
+			prev_node->peer = new_node;
+		}
+
+		new_node->parent = &acpi_gbl_root_node_struct;
+		prev_node = new_node;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Name entered successfully. If entry in pre_defined_names[] specifies
 		 * an initial value, create the initial value.
@@ -131,7 +187,11 @@ acpi_status acpi_ns_root_initialize(void)
 
 				new_node->value = obj_desc->method.param_count;
 #else
+<<<<<<< HEAD
 				/* Mark this as a very SPECIAL method */
+=======
+				/* Mark this as a very SPECIAL method (_OSI) */
+>>>>>>> upstream/android-13
 
 				obj_desc->method.info_flags =
 				    ACPI_METHOD_INTERNAL_ONLY;
@@ -267,6 +327,10 @@ acpi_ns_lookup(union acpi_generic_state *scope_info,
 	acpi_object_type this_search_type;
 	u32 search_parent_flag = ACPI_NS_SEARCH_PARENT;
 	u32 local_flags;
+<<<<<<< HEAD
+=======
+	acpi_interpreter_mode local_interpreter_mode;
+>>>>>>> upstream/android-13
 
 	ACPI_FUNCTION_TRACE(ns_lookup);
 
@@ -506,6 +570,10 @@ acpi_ns_lookup(union acpi_generic_state *scope_info,
 	 */
 	this_search_type = ACPI_TYPE_ANY;
 	current_node = this_node;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	while (num_segments && current_node) {
 		num_segments--;
 		if (!num_segments) {
@@ -536,6 +604,19 @@ acpi_ns_lookup(union acpi_generic_state *scope_info,
 			}
 		}
 
+<<<<<<< HEAD
+=======
+		/* Handle opcodes that create a new name_seg via a full name_path */
+
+		local_interpreter_mode = interpreter_mode;
+		if ((flags & ACPI_NS_PREFIX_MUST_EXIST) && (num_segments > 0)) {
+
+			/* Every element of the path must exist (except for the final name_seg) */
+
+			local_interpreter_mode = ACPI_IMODE_EXECUTE;
+		}
+
+>>>>>>> upstream/android-13
 		/* Extract one ACPI name from the front of the pathname */
 
 		ACPI_MOVE_32_TO_32(&simple_name, path);
@@ -544,12 +625,27 @@ acpi_ns_lookup(union acpi_generic_state *scope_info,
 
 		status =
 		    acpi_ns_search_and_enter(simple_name, walk_state,
+<<<<<<< HEAD
 					     current_node, interpreter_mode,
+=======
+					     current_node,
+					     local_interpreter_mode,
+>>>>>>> upstream/android-13
 					     this_search_type, local_flags,
 					     &this_node);
 		if (ACPI_FAILURE(status)) {
 			if (status == AE_NOT_FOUND) {
+<<<<<<< HEAD
 
+=======
+#if !defined ACPI_ASL_COMPILER	/* Note: iASL reports this error by itself, not needed here */
+				if (flags & ACPI_NS_PREFIX_MUST_EXIST) {
+					acpi_os_printf(ACPI_MSG_BIOS_ERROR
+						       "Object does not exist: %4.4s\n",
+						       (char *)&simple_name);
+				}
+#endif
+>>>>>>> upstream/android-13
 				/* Name not found in ACPI namespace */
 
 				ACPI_DEBUG_PRINT((ACPI_DB_NAMES,
@@ -664,7 +760,11 @@ acpi_ns_lookup(union acpi_generic_state *scope_info,
 
 		/* Point to next name segment and make this node current */
 
+<<<<<<< HEAD
 		path += ACPI_NAME_SIZE;
+=======
+		path += ACPI_NAMESEG_SIZE;
+>>>>>>> upstream/android-13
 		current_node = this_node;
 	}
 

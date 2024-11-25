@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -61,6 +62,16 @@
 
 #ifndef __iwl_fw_api_tx_h__
 #define __iwl_fw_api_tx_h__
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+#ifndef __iwl_fw_api_tx_h__
+#define __iwl_fw_api_tx_h__
+#include <linux/ieee80211.h>
+>>>>>>> upstream/android-13
 
 /**
  * enum iwl_tx_flags - bitmasks for tx_flags in TX command
@@ -75,6 +86,10 @@
  * @TX_CMD_FLG_VHT_NDPA: mark frame is NDPA for VHT beamformer sequence
  * @TX_CMD_FLG_HT_NDPA: mark frame is NDPA for HT beamformer sequence
  * @TX_CMD_FLG_CSI_FDBK2HOST: mark to send feedback to host (only if good CRC)
+<<<<<<< HEAD
+=======
+ * @TX_CMD_FLG_BT_PRIO_MASK: BT priority value
+>>>>>>> upstream/android-13
  * @TX_CMD_FLG_BT_PRIO_POS: the position of the BT priority (bit 11 is ignored
  *	on old firmwares).
  * @TX_CMD_FLG_BT_DIS: disable BT priority for this frame
@@ -106,6 +121,10 @@ enum iwl_tx_flags {
 	TX_CMD_FLG_HT_NDPA		= BIT(9),
 	TX_CMD_FLG_CSI_FDBK2HOST	= BIT(10),
 	TX_CMD_FLG_BT_PRIO_POS		= 11,
+<<<<<<< HEAD
+=======
+	TX_CMD_FLG_BT_PRIO_MASK		= BIT(11) | BIT(12),
+>>>>>>> upstream/android-13
 	TX_CMD_FLG_BT_DIS		= BIT(12),
 	TX_CMD_FLG_SEQ_CTL		= BIT(13),
 	TX_CMD_FLG_MORE_FRAG		= BIT(14),
@@ -186,7 +205,11 @@ enum iwl_tx_cmd_sec_ctrl {
 /*
  * TID for non QoS frames - to be written in tid_tspec
  */
+<<<<<<< HEAD
 #define IWL_TID_NON_QOS	IWL_MAX_TID_COUNT
+=======
+#define IWL_TID_NON_QOS	0
+>>>>>>> upstream/android-13
 
 /*
  * Limits on the retransmissions - to be written in {data,rts}_retry_limit
@@ -232,7 +255,11 @@ enum iwl_tx_offload_assist_flags_pos {
  * ( TX_CMD = 0x1c )
  * @len: in bytes of the payload, see below for details
  * @offload_assist: TX offload configuration
+<<<<<<< HEAD
  * @tx_flags: combination of TX_CMD_FLG_*
+=======
+ * @tx_flags: combination of TX_CMD_FLG_*, see &enum iwl_tx_flags
+>>>>>>> upstream/android-13
  * @scratch: scratch buffer used by the device
  * @rate_n_flags: rate for *all* Tx attempts, if TX_CMD_FLG_STA_RATE_MSK is
  *	cleared. Combination of RATE_MCS_*
@@ -319,11 +346,19 @@ struct iwl_tx_cmd_gen2 {
 	__le32 flags;
 	struct iwl_dram_sec_info dram_info;
 	__le32 rate_n_flags;
+<<<<<<< HEAD
 	struct ieee80211_hdr hdr[0];
 } __packed; /* TX_CMD_API_S_VER_7 */
 
 /**
  * struct iwl_tx_cmd_gen3 - TX command struct to FW for 22560 devices
+=======
+	struct ieee80211_hdr hdr[];
+} __packed; /* TX_CMD_API_S_VER_7 */
+
+/**
+ * struct iwl_tx_cmd_gen3 - TX command struct to FW for AX210+ devices
+>>>>>>> upstream/android-13
  * ( TX_CMD = 0x1c )
  * @len: in bytes of the payload, see below for details
  * @flags: combination of &enum iwl_tx_cmd_flags
@@ -342,7 +377,11 @@ struct iwl_tx_cmd_gen3 {
 	struct iwl_dram_sec_info dram_info;
 	__le32 rate_n_flags;
 	__le64 ttl;
+<<<<<<< HEAD
 	struct ieee80211_hdr hdr[0];
+=======
+	struct ieee80211_hdr hdr[];
+>>>>>>> upstream/android-13
 } __packed; /* TX_CMD_API_S_VER_8 */
 
 /*
@@ -766,8 +805,13 @@ struct iwl_mvm_compressed_ba_notif {
 	__le32 tx_rate;
 	__le16 tfd_cnt;
 	__le16 ra_tid_cnt;
+<<<<<<< HEAD
 	struct iwl_mvm_compressed_ba_tfd tfd[0];
 	struct iwl_mvm_compressed_ba_ratid ra_tid[0];
+=======
+	struct iwl_mvm_compressed_ba_ratid ra_tid[0];
+	struct iwl_mvm_compressed_ba_tfd tfd[];
+>>>>>>> upstream/android-13
 } __packed; /* COMPRESSED_BA_RES_API_S_VER_4 */
 
 /**
@@ -784,7 +828,11 @@ struct iwl_mac_beacon_cmd_v6 {
 	__le32 template_id;
 	__le32 tim_idx;
 	__le32 tim_size;
+<<<<<<< HEAD
 	struct ieee80211_hdr frame[0];
+=======
+	struct ieee80211_hdr frame[];
+>>>>>>> upstream/android-13
 } __packed; /* BEACON_TEMPLATE_CMD_API_S_VER_6 */
 
 /**
@@ -805,7 +853,11 @@ struct iwl_mac_beacon_cmd_v7 {
 	__le32 tim_size;
 	__le32 ecsa_offset;
 	__le32 csa_offset;
+<<<<<<< HEAD
 	struct ieee80211_hdr frame[0];
+=======
+	struct ieee80211_hdr frame[];
+>>>>>>> upstream/android-13
 } __packed; /* BEACON_TEMPLATE_CMD_API_S_VER_7 */
 
 enum iwl_mac_beacon_flags {
@@ -813,6 +865,10 @@ enum iwl_mac_beacon_flags {
 	IWL_MAC_BEACON_ANT_A	= BIT(9),
 	IWL_MAC_BEACON_ANT_B	= BIT(10),
 	IWL_MAC_BEACON_ANT_C	= BIT(11),
+<<<<<<< HEAD
+=======
+	IWL_MAC_BEACON_FILS	= BIT(12),
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -820,6 +876,10 @@ enum iwl_mac_beacon_flags {
  * @byte_cnt: byte count of the beacon frame.
  * @flags: least significant byte for rate code. The most significant byte
  *	is &enum iwl_mac_beacon_flags.
+<<<<<<< HEAD
+=======
+ * @short_ssid: Short SSID
+>>>>>>> upstream/android-13
  * @reserved: reserved
  * @template_id: currently equal to the mac context id of the coresponding mac.
  * @tim_idx: the offset of the tim IE in the beacon
@@ -831,14 +891,24 @@ enum iwl_mac_beacon_flags {
 struct iwl_mac_beacon_cmd {
 	__le16 byte_cnt;
 	__le16 flags;
+<<<<<<< HEAD
 	__le64 reserved;
+=======
+	__le32 short_ssid;
+	__le32 reserved;
+>>>>>>> upstream/android-13
 	__le32 template_id;
 	__le32 tim_idx;
 	__le32 tim_size;
 	__le32 ecsa_offset;
 	__le32 csa_offset;
+<<<<<<< HEAD
 	struct ieee80211_hdr frame[0];
 } __packed; /* BEACON_TEMPLATE_CMD_API_S_VER_9 */
+=======
+	struct ieee80211_hdr frame[];
+} __packed; /* BEACON_TEMPLATE_CMD_API_S_VER_10 */
+>>>>>>> upstream/android-13
 
 struct iwl_beacon_notif {
 	struct iwl_mvm_tx_resp beacon_notify_hdr;
@@ -847,13 +917,21 @@ struct iwl_beacon_notif {
 } __packed;
 
 /**
+<<<<<<< HEAD
  * struct iwl_extended_beacon_notif - notifies about beacon transmission
+=======
+ * struct iwl_extended_beacon_notif_v5 - notifies about beacon transmission
+>>>>>>> upstream/android-13
  * @beacon_notify_hdr: tx response command associated with the beacon
  * @tsf: last beacon tsf
  * @ibss_mgr_status: whether IBSS is manager
  * @gp2: last beacon time in gp2
  */
+<<<<<<< HEAD
 struct iwl_extended_beacon_notif {
+=======
+struct iwl_extended_beacon_notif_v5 {
+>>>>>>> upstream/android-13
 	struct iwl_mvm_tx_resp beacon_notify_hdr;
 	__le64 tsf;
 	__le32 ibss_mgr_status;
@@ -861,6 +939,23 @@ struct iwl_extended_beacon_notif {
 } __packed; /* BEACON_NTFY_API_S_VER_5 */
 
 /**
+<<<<<<< HEAD
+=======
+ * struct iwl_extended_beacon_notif - notifies about beacon transmission
+ * @status: the status of the Tx response of the beacon
+ * @tsf: last beacon tsf
+ * @ibss_mgr_status: whether IBSS is manager
+ * @gp2: last beacon time in gp2
+ */
+struct iwl_extended_beacon_notif {
+	__le32 status;
+	__le64 tsf;
+	__le32 ibss_mgr_status;
+	__le32 gp2;
+} __packed; /* BEACON_NTFY_API_S_VER_6_ */
+
+/**
+>>>>>>> upstream/android-13
  * enum iwl_dump_control - dump (flush) control flags
  * @DUMP_TX_FIFO_FLUSH: Dump MSDUs until the the FIFO is empty
  *	and the TFD queues are empty.
@@ -893,6 +988,35 @@ struct iwl_tx_path_flush_cmd {
 	__le16 reserved;
 } __packed; /* TX_PATH_FLUSH_CMD_API_S_VER_2 */
 
+<<<<<<< HEAD
+=======
+#define IWL_TX_FLUSH_QUEUE_RSP 16
+
+/**
+ * struct iwl_flush_queue_info - virtual flush queue info
+ * @queue_num: virtual queue id
+ * @read_before_flush: read pointer before flush
+ * @read_after_flush: read pointer after flush
+ */
+struct iwl_flush_queue_info {
+	__le16 tid;
+	__le16 queue_num;
+	__le16 read_before_flush;
+	__le16 read_after_flush;
+} __packed; /* TFDQ_FLUSH_INFO_API_S_VER_1 */
+
+/**
+ * struct iwl_tx_path_flush_cmd_rsp -- queue/FIFO flush command response
+ * @num_flushed_queues: number of queues in queues array
+ * @queues: all flushed queues
+ */
+struct iwl_tx_path_flush_cmd_rsp {
+	__le16 sta_id;
+	__le16 num_flushed_queues;
+	struct iwl_flush_queue_info queues[IWL_TX_FLUSH_QUEUE_RSP];
+} __packed; /* TX_PATH_FLUSH_CMD_RSP_API_S_VER_1 */
+
+>>>>>>> upstream/android-13
 /* Available options for the SCD_QUEUE_CFG HCMD */
 enum iwl_scd_cfg_actions {
 	SCD_CFG_DISABLE_QUEUE		= 0x0,

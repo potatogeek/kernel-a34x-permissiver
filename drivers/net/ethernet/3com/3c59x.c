@@ -776,7 +776,11 @@ static void set_rx_mode(struct net_device *dev);
 #ifdef CONFIG_PCI
 static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
 #endif
+<<<<<<< HEAD
 static void vortex_tx_timeout(struct net_device *dev);
+=======
+static void vortex_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void acpi_set_WOL(struct net_device *dev);
 static const struct ethtool_ops vortex_ethtool_ops;
 static void set_8021q_mode(struct net_device *dev, int enable);
@@ -847,8 +851,12 @@ static void poll_vortex(struct net_device *dev)
 
 static int vortex_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct net_device *ndev = pci_get_drvdata(pdev);
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (!ndev || !netif_running(ndev))
 		return 0;
@@ -861,8 +869,12 @@ static int vortex_suspend(struct device *dev)
 
 static int vortex_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct net_device *ndev = pci_get_drvdata(pdev);
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!ndev || !netif_running(ndev))
@@ -1054,7 +1066,11 @@ static const struct net_device_ops boomrang_netdev_ops = {
 	.ndo_tx_timeout		= vortex_tx_timeout,
 	.ndo_get_stats		= vortex_get_stats,
 #ifdef CONFIG_PCI
+<<<<<<< HEAD
 	.ndo_do_ioctl 		= vortex_ioctl,
+=======
+	.ndo_eth_ioctl		= vortex_ioctl,
+>>>>>>> upstream/android-13
 #endif
 	.ndo_set_rx_mode	= set_rx_mode,
 	.ndo_set_mac_address 	= eth_mac_addr,
@@ -1071,7 +1087,11 @@ static const struct net_device_ops vortex_netdev_ops = {
 	.ndo_tx_timeout		= vortex_tx_timeout,
 	.ndo_get_stats		= vortex_get_stats,
 #ifdef CONFIG_PCI
+<<<<<<< HEAD
 	.ndo_do_ioctl 		= vortex_ioctl,
+=======
+	.ndo_eth_ioctl		= vortex_ioctl,
+>>>>>>> upstream/android-13
 #endif
 	.ndo_set_rx_mode	= set_rx_mode,
 	.ndo_set_mac_address 	= eth_mac_addr,
@@ -1151,7 +1171,11 @@ static int vortex_probe1(struct device *gendev, void __iomem *ioaddr, int irq,
 
 	print_info = (vortex_debug > 1);
 	if (print_info)
+<<<<<<< HEAD
 		pr_info("See Documentation/networking/vortex.txt\n");
+=======
+		pr_info("See Documentation/networking/device_drivers/ethernet/3com/vortex.rst\n");
+>>>>>>> upstream/android-13
 
 	pr_info("%s: 3Com %s %s at %p.\n",
 	       print_name,
@@ -1466,7 +1490,11 @@ static int vortex_probe1(struct device *gendev, void __iomem *ioaddr, int irq,
 	if (pdev) {
 		vp->pm_state_valid = 1;
 		pci_save_state(pdev);
+<<<<<<< HEAD
  		acpi_set_WOL(dev);
+=======
+		acpi_set_WOL(dev);
+>>>>>>> upstream/android-13
 	}
 	retval = register_netdev(dev);
 	if (retval == 0)
@@ -1550,7 +1578,11 @@ vortex_up(struct net_device *dev)
 	struct vortex_private *vp = netdev_priv(dev);
 	void __iomem *ioaddr = vp->ioaddr;
 	unsigned int config;
+<<<<<<< HEAD
 	int i, mii_reg1, mii_reg5, err = 0;
+=======
+	int i, mii_reg5, err = 0;
+>>>>>>> upstream/android-13
 
 	if (VORTEX_PCI(vp)) {
 		pci_set_power_state(VORTEX_PCI(vp), PCI_D0);	/* Go active */
@@ -1607,7 +1639,11 @@ vortex_up(struct net_device *dev)
 	window_write32(vp, config, 3, Wn3_Config);
 
 	if (dev->if_port == XCVR_MII || dev->if_port == XCVR_NWAY) {
+<<<<<<< HEAD
 		mii_reg1 = mdio_read(dev, vp->phys[0], MII_BMSR);
+=======
+		mdio_read(dev, vp->phys[0], MII_BMSR);
+>>>>>>> upstream/android-13
 		mii_reg5 = mdio_read(dev, vp->phys[0], MII_LPA);
 		vp->partner_flow_ctrl = ((mii_reg5 & 0x0400) != 0);
 		vp->mii.full_duplex = vp->full_duplex;
@@ -1879,7 +1915,11 @@ leave_media_alone:
 		iowrite16(FakeIntr, ioaddr + EL3_CMD);
 }
 
+<<<<<<< HEAD
 static void vortex_tx_timeout(struct net_device *dev)
+=======
+static void vortex_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct vortex_private *vp = netdev_priv(dev);
 	void __iomem *ioaddr = vp->ioaddr;
@@ -1956,7 +1996,11 @@ vortex_error(struct net_device *dev, int status)
 				   dev->name, tx_status);
 			if (tx_status == 0x82) {
 				pr_err("Probably a duplex mismatch.  See "
+<<<<<<< HEAD
 						"Documentation/networking/vortex.txt\n");
+=======
+						"Documentation/networking/device_drivers/ethernet/3com/vortex.rst\n");
+>>>>>>> upstream/android-13
 			}
 			dump_tx_ring(dev);
 		}
@@ -2175,7 +2219,11 @@ boomerang_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 			dma_addr = skb_frag_dma_map(vp->gendev, frag,
 						    0,
+<<<<<<< HEAD
 						    frag->size,
+=======
+						    skb_frag_size(frag),
+>>>>>>> upstream/android-13
 						    DMA_TO_DEVICE);
 			if (dma_mapping_error(vp->gendev, dma_addr)) {
 				for(i = i-1; i >= 0; i--)
@@ -2307,7 +2355,11 @@ _vortex_interrupt(int irq, struct net_device *dev)
 				dma_unmap_single(vp->gendev, vp->tx_skb_dma, (vp->tx_skb->len + 3) & ~3, DMA_TO_DEVICE);
 				pkts_compl++;
 				bytes_compl += vp->tx_skb->len;
+<<<<<<< HEAD
 				dev_kfree_skb_irq(vp->tx_skb); /* Release the transferred buffer */
+=======
+				dev_consume_skb_irq(vp->tx_skb); /* Release the transferred buffer */
+>>>>>>> upstream/android-13
 				if (ioread16(ioaddr + TxFree) > 1536) {
 					/*
 					 * AKPM: FIXME: I don't think we need this.  If the queue was stopped due to
@@ -2449,7 +2501,11 @@ _boomerang_interrupt(int irq, struct net_device *dev)
 #endif
 					pkts_compl++;
 					bytes_compl += skb->len;
+<<<<<<< HEAD
 					dev_kfree_skb_irq(skb);
+=======
+					dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 					vp->tx_skbuff[entry] = NULL;
 				} else {
 					pr_debug("boomerang_interrupt: no skb!\n");
@@ -2788,7 +2844,11 @@ static void
 dump_tx_ring(struct net_device *dev)
 {
 	if (vortex_debug > 0) {
+<<<<<<< HEAD
 	struct vortex_private *vp = netdev_priv(dev);
+=======
+		struct vortex_private *vp = netdev_priv(dev);
+>>>>>>> upstream/android-13
 		void __iomem *ioaddr = vp->ioaddr;
 
 		if (vp->full_bus_master_tx) {

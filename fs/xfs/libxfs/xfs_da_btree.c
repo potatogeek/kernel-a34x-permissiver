@@ -12,6 +12,7 @@
 #include "xfs_trans_resv.h"
 #include "xfs_bit.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
 #include "xfs_dir2.h"
@@ -26,6 +27,16 @@
 #include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_cksum.h"
+=======
+#include "xfs_inode.h"
+#include "xfs_dir2.h"
+#include "xfs_dir2_priv.h"
+#include "xfs_trans.h"
+#include "xfs_bmap.h"
+#include "xfs_attr_leaf.h"
+#include "xfs_error.h"
+#include "xfs_trace.h"
+>>>>>>> upstream/android-13
 #include "xfs_buf_item.h"
 #include "xfs_log.h"
 
@@ -84,10 +95,23 @@ kmem_zone_t *xfs_da_state_zone;	/* anchor for state struct zone */
  * Allocate a dir-state structure.
  * We don't put them on the stack since they're large.
  */
+<<<<<<< HEAD
 xfs_da_state_t *
 xfs_da_state_alloc(void)
 {
 	return kmem_zone_zalloc(xfs_da_state_zone, KM_NOFS);
+=======
+struct xfs_da_state *
+xfs_da_state_alloc(
+	struct xfs_da_args	*args)
+{
+	struct xfs_da_state	*state;
+
+	state = kmem_cache_zalloc(xfs_da_state_zone, GFP_NOFS | __GFP_NOFAIL);
+	state->args = args;
+	state->mp = args->dp->i_mount;
+	return state;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -113,13 +137,105 @@ xfs_da_state_free(xfs_da_state_t *state)
 #ifdef DEBUG
 	memset((char *)state, 0, sizeof(*state));
 #endif /* DEBUG */
+<<<<<<< HEAD
 	kmem_zone_free(xfs_da_state_zone, state);
+=======
+	kmem_cache_free(xfs_da_state_zone, state);
+}
+
+static inline int xfs_dabuf_nfsb(struct xfs_mount *mp, int whichfork)
+{
+	if (whichfork == XFS_DATA_FORK)
+		return mp->m_dir_geo->fsbcount;
+	return mp->m_attr_geo->fsbcount;
+}
+
+void
+xfs_da3_node_hdr_from_disk(
+	struct xfs_mount		*mp,
+	struct xfs_da3_icnode_hdr	*to,
+	struct xfs_da_intnode		*from)
+{
+	if (xfs_has_crc(mp)) {
+		struct xfs_da3_intnode	*from3 = (struct xfs_da3_intnode *)from;
+
+		to->forw = be32_to_cpu(from3->hdr.info.hdr.forw);
+		to->back = be32_to_cpu(from3->hdr.info.hdr.back);
+		to->magic = be16_to_cpu(from3->hdr.info.hdr.magic);
+		to->count = be16_to_cpu(from3->hdr.__count);
+		to->level = be16_to_cpu(from3->hdr.__level);
+		to->btree = from3->__btree;
+		ASSERT(to->magic == XFS_DA3_NODE_MAGIC);
+	} else {
+		to->forw = be32_to_cpu(from->hdr.info.forw);
+		to->back = be32_to_cpu(from->hdr.info.back);
+		to->magic = be16_to_cpu(from->hdr.info.magic);
+		to->count = be16_to_cpu(from->hdr.__count);
+		to->level = be16_to_cpu(from->hdr.__level);
+		to->btree = from->__btree;
+		ASSERT(to->magic == XFS_DA_NODE_MAGIC);
+	}
+}
+
+void
+xfs_da3_node_hdr_to_disk(
+	struct xfs_mount		*mp,
+	struct xfs_da_intnode		*to,
+	struct xfs_da3_icnode_hdr	*from)
+{
+	if (xfs_has_crc(mp)) {
+		struct xfs_da3_intnode	*to3 = (struct xfs_da3_intnode *)to;
+
+		ASSERT(from->magic == XFS_DA3_NODE_MAGIC);
+		to3->hdr.info.hdr.forw = cpu_to_be32(from->forw);
+		to3->hdr.info.hdr.back = cpu_to_be32(from->back);
+		to3->hdr.info.hdr.magic = cpu_to_be16(from->magic);
+		to3->hdr.__count = cpu_to_be16(from->count);
+		to3->hdr.__level = cpu_to_be16(from->level);
+	} else {
+		ASSERT(from->magic == XFS_DA_NODE_MAGIC);
+		to->hdr.info.forw = cpu_to_be32(from->forw);
+		to->hdr.info.back = cpu_to_be32(from->back);
+		to->hdr.info.magic = cpu_to_be16(from->magic);
+		to->hdr.__count = cpu_to_be16(from->count);
+		to->hdr.__level = cpu_to_be16(from->level);
+	}
+}
+
+/*
+ * Verify an xfs_da3_blkinfo structure. Note that the da3 fields are only
+ * accessible on v5 filesystems. This header format is common across da node,
+ * attr leaf and dir leaf blocks.
+ */
+xfs_failaddr_t
+xfs_da3_blkinfo_verify(
+	struct xfs_buf		*bp,
+	struct xfs_da3_blkinfo	*hdr3)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+	struct xfs_da_blkinfo	*hdr = &hdr3->hdr;
+
+	if (!xfs_verify_magic16(bp, hdr->magic))
+		return __this_address;
+
+	if (xfs_has_crc(mp)) {
+		if (!uuid_equal(&hdr3->uuid, &mp->m_sb.sb_meta_uuid))
+			return __this_address;
+		if (be64_to_cpu(hdr3->blkno) != xfs_buf_daddr(bp))
+			return __this_address;
+		if (!xfs_log_check_lsn(mp, be64_to_cpu(hdr3->lsn)))
+			return __this_address;
+	}
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static xfs_failaddr_t
 xfs_da3_node_verify(
 	struct xfs_buf		*bp)
 {
+<<<<<<< HEAD
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
 	struct xfs_da_intnode	*hdr = bp->b_addr;
 	struct xfs_da3_icnode_hdr ichdr;
@@ -145,6 +261,19 @@ xfs_da3_node_verify(
 		if (ichdr.magic != XFS_DA_NODE_MAGIC)
 			return __this_address;
 	}
+=======
+	struct xfs_mount	*mp = bp->b_mount;
+	struct xfs_da_intnode	*hdr = bp->b_addr;
+	struct xfs_da3_icnode_hdr ichdr;
+	xfs_failaddr_t		fa;
+
+	xfs_da3_node_hdr_from_disk(mp, &ichdr, hdr);
+
+	fa = xfs_da3_blkinfo_verify(bp, bp->b_addr);
+	if (fa)
+		return fa;
+
+>>>>>>> upstream/android-13
 	if (ichdr.level == 0)
 		return __this_address;
 	if (ichdr.level > XFS_DA_NODE_MAXDEPTH)
@@ -169,7 +298,11 @@ static void
 xfs_da3_node_write_verify(
 	struct xfs_buf	*bp)
 {
+<<<<<<< HEAD
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
+=======
+	struct xfs_mount	*mp = bp->b_mount;
+>>>>>>> upstream/android-13
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 	struct xfs_da3_node_hdr *hdr3 = bp->b_addr;
 	xfs_failaddr_t		fa;
@@ -180,7 +313,11 @@ xfs_da3_node_write_verify(
 		return;
 	}
 
+<<<<<<< HEAD
 	if (!xfs_sb_version_hascrc(&mp->m_sb))
+=======
+	if (!xfs_has_crc(mp))
+>>>>>>> upstream/android-13
 		return;
 
 	if (bip)
@@ -209,7 +346,11 @@ xfs_da3_node_read_verify(
 						__this_address);
 				break;
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case XFS_DA_NODE_MAGIC:
 			fa = xfs_da3_node_verify(bp);
 			if (fa)
@@ -257,16 +398,53 @@ xfs_da3_node_verify_struct(
 
 const struct xfs_buf_ops xfs_da3_node_buf_ops = {
 	.name = "xfs_da3_node",
+<<<<<<< HEAD
+=======
+	.magic16 = { cpu_to_be16(XFS_DA_NODE_MAGIC),
+		     cpu_to_be16(XFS_DA3_NODE_MAGIC) },
+>>>>>>> upstream/android-13
 	.verify_read = xfs_da3_node_read_verify,
 	.verify_write = xfs_da3_node_write_verify,
 	.verify_struct = xfs_da3_node_verify_struct,
 };
 
+<<<<<<< HEAD
+=======
+static int
+xfs_da3_node_set_type(
+	struct xfs_trans	*tp,
+	struct xfs_buf		*bp)
+{
+	struct xfs_da_blkinfo	*info = bp->b_addr;
+
+	switch (be16_to_cpu(info->magic)) {
+	case XFS_DA_NODE_MAGIC:
+	case XFS_DA3_NODE_MAGIC:
+		xfs_trans_buf_set_type(tp, bp, XFS_BLFT_DA_NODE_BUF);
+		return 0;
+	case XFS_ATTR_LEAF_MAGIC:
+	case XFS_ATTR3_LEAF_MAGIC:
+		xfs_trans_buf_set_type(tp, bp, XFS_BLFT_ATTR_LEAF_BUF);
+		return 0;
+	case XFS_DIR2_LEAFN_MAGIC:
+	case XFS_DIR3_LEAFN_MAGIC:
+		xfs_trans_buf_set_type(tp, bp, XFS_BLFT_DIR_LEAFN_BUF);
+		return 0;
+	default:
+		XFS_CORRUPTION_ERROR(__func__, XFS_ERRLEVEL_LOW, tp->t_mountp,
+				info, sizeof(*info));
+		xfs_trans_brelse(tp, bp);
+		return -EFSCORRUPTED;
+	}
+}
+
+>>>>>>> upstream/android-13
 int
 xfs_da3_node_read(
 	struct xfs_trans	*tp,
 	struct xfs_inode	*dp,
 	xfs_dablk_t		bno,
+<<<<<<< HEAD
 	xfs_daddr_t		mappedbno,
 	struct xfs_buf		**bpp,
 	int			which_fork)
@@ -302,6 +480,45 @@ xfs_da3_node_read(
 		xfs_trans_buf_set_type(tp, *bpp, type);
 	}
 	return err;
+=======
+	struct xfs_buf		**bpp,
+	int			whichfork)
+{
+	int			error;
+
+	error = xfs_da_read_buf(tp, dp, bno, 0, bpp, whichfork,
+			&xfs_da3_node_buf_ops);
+	if (error || !*bpp || !tp)
+		return error;
+	return xfs_da3_node_set_type(tp, *bpp);
+}
+
+int
+xfs_da3_node_read_mapped(
+	struct xfs_trans	*tp,
+	struct xfs_inode	*dp,
+	xfs_daddr_t		mappedbno,
+	struct xfs_buf		**bpp,
+	int			whichfork)
+{
+	struct xfs_mount	*mp = dp->i_mount;
+	int			error;
+
+	error = xfs_trans_read_buf(mp, tp, mp->m_ddev_targp, mappedbno,
+			XFS_FSB_TO_BB(mp, xfs_dabuf_nfsb(mp, whichfork)), 0,
+			bpp, &xfs_da3_node_buf_ops);
+	if (error || !*bpp)
+		return error;
+
+	if (whichfork == XFS_ATTR_FORK)
+		xfs_buf_set_ref(*bpp, XFS_ATTR_BTREE_REF);
+	else
+		xfs_buf_set_ref(*bpp, XFS_DIR_BTREE_REF);
+
+	if (!tp)
+		return 0;
+	return xfs_da3_node_set_type(tp, *bpp);
+>>>>>>> upstream/android-13
 }
 
 /*========================================================================
@@ -330,19 +547,31 @@ xfs_da3_node_create(
 	trace_xfs_da_node_create(args);
 	ASSERT(level <= XFS_DA_NODE_MAXDEPTH);
 
+<<<<<<< HEAD
 	error = xfs_da_get_buf(tp, dp, blkno, -1, &bp, whichfork);
+=======
+	error = xfs_da_get_buf(tp, dp, blkno, &bp, whichfork);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	bp->b_ops = &xfs_da3_node_buf_ops;
 	xfs_trans_buf_set_type(tp, bp, XFS_BLFT_DA_NODE_BUF);
 	node = bp->b_addr;
 
+<<<<<<< HEAD
 	if (xfs_sb_version_hascrc(&mp->m_sb)) {
+=======
+	if (xfs_has_crc(mp)) {
+>>>>>>> upstream/android-13
 		struct xfs_da3_node_hdr *hdr3 = bp->b_addr;
 
 		memset(hdr3, 0, sizeof(struct xfs_da3_node_hdr));
 		ichdr.magic = XFS_DA3_NODE_MAGIC;
+<<<<<<< HEAD
 		hdr3->info.blkno = cpu_to_be64(bp->b_bn);
+=======
+		hdr3->info.blkno = cpu_to_be64(xfs_buf_daddr(bp));
+>>>>>>> upstream/android-13
 		hdr3->info.owner = cpu_to_be64(args->dp->i_ino);
 		uuid_copy(&hdr3->info.uuid, &mp->m_sb.sb_meta_uuid);
 	} else {
@@ -350,9 +579,15 @@ xfs_da3_node_create(
 	}
 	ichdr.level = level;
 
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_to_disk(node, &ichdr);
 	xfs_trans_log_buf(tp, bp,
 		XFS_DA_LOGRANGE(node, &node->hdr, dp->d_ops->node_hdr_size));
+=======
+	xfs_da3_node_hdr_to_disk(dp->i_mount, node, &ichdr);
+	xfs_trans_log_buf(tp, bp,
+		XFS_DA_LOGRANGE(node, &node->hdr, args->geo->node_hdr_size));
+>>>>>>> upstream/android-13
 
 	*bpp = bp;
 	return 0;
@@ -474,10 +709,15 @@ xfs_da3_split(
 	ASSERT(state->path.active == 0);
 	oldblk = &state->path.blk[0];
 	error = xfs_da3_root_split(state, oldblk, addblk);
+<<<<<<< HEAD
 	if (error) {
 		addblk->bp = NULL;
 		return error;	/* GROT: dir is inconsistent */
 	}
+=======
+	if (error)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Update pointers to the node which used to be block 0 and just got
@@ -492,7 +732,15 @@ xfs_da3_split(
 	 */
 	node = oldblk->bp->b_addr;
 	if (node->hdr.info.forw) {
+<<<<<<< HEAD
 		ASSERT(be32_to_cpu(node->hdr.info.forw) == addblk->blkno);
+=======
+		if (be32_to_cpu(node->hdr.info.forw) != addblk->blkno) {
+			xfs_buf_mark_corrupt(oldblk->bp);
+			error = -EFSCORRUPTED;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 		node = addblk->bp->b_addr;
 		node->hdr.info.back = cpu_to_be32(oldblk->blkno);
 		xfs_trans_log_buf(state->args->trans, addblk->bp,
@@ -501,15 +749,29 @@ xfs_da3_split(
 	}
 	node = oldblk->bp->b_addr;
 	if (node->hdr.info.back) {
+<<<<<<< HEAD
 		ASSERT(be32_to_cpu(node->hdr.info.back) == addblk->blkno);
+=======
+		if (be32_to_cpu(node->hdr.info.back) != addblk->blkno) {
+			xfs_buf_mark_corrupt(oldblk->bp);
+			error = -EFSCORRUPTED;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 		node = addblk->bp->b_addr;
 		node->hdr.info.forw = cpu_to_be32(oldblk->blkno);
 		xfs_trans_log_buf(state->args->trans, addblk->bp,
 				  XFS_DA_LOGRANGE(node, &node->hdr.info,
 				  sizeof(node->hdr.info)));
 	}
+<<<<<<< HEAD
 	addblk->bp = NULL;
 	return 0;
+=======
+out:
+	addblk->bp = NULL;
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -550,7 +812,11 @@ xfs_da3_root_split(
 
 	dp = args->dp;
 	tp = args->trans;
+<<<<<<< HEAD
 	error = xfs_da_get_buf(tp, dp, blkno, -1, &bp, args->whichfork);
+=======
+	error = xfs_da_get_buf(tp, dp, blkno, &bp, args->whichfork);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	node = bp->b_addr;
@@ -559,8 +825,13 @@ xfs_da3_root_split(
 	    oldroot->hdr.info.magic == cpu_to_be16(XFS_DA3_NODE_MAGIC)) {
 		struct xfs_da3_icnode_hdr icnodehdr;
 
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&icnodehdr, oldroot);
 		btree = dp->d_ops->node_tree_p(oldroot);
+=======
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &icnodehdr, oldroot);
+		btree = icnodehdr.btree;
+>>>>>>> upstream/android-13
 		size = (int)((char *)&btree[icnodehdr.count] - (char *)oldroot);
 		level = icnodehdr.level;
 
@@ -571,6 +842,7 @@ xfs_da3_root_split(
 		xfs_trans_buf_set_type(tp, bp, XFS_BLFT_DA_NODE_BUF);
 	} else {
 		struct xfs_dir3_icleaf_hdr leafhdr;
+<<<<<<< HEAD
 		struct xfs_dir2_leaf_entry *ents;
 
 		leaf = (xfs_dir2_leaf_t *)oldroot;
@@ -580,6 +852,16 @@ xfs_da3_root_split(
 		ASSERT(leafhdr.magic == XFS_DIR2_LEAFN_MAGIC ||
 		       leafhdr.magic == XFS_DIR3_LEAFN_MAGIC);
 		size = (int)((char *)&ents[leafhdr.count] - (char *)leaf);
+=======
+
+		leaf = (xfs_dir2_leaf_t *)oldroot;
+		xfs_dir2_leaf_hdr_from_disk(dp->i_mount, &leafhdr, leaf);
+
+		ASSERT(leafhdr.magic == XFS_DIR2_LEAFN_MAGIC ||
+		       leafhdr.magic == XFS_DIR3_LEAFN_MAGIC);
+		size = (int)((char *)&leafhdr.ents[leafhdr.count] -
+			(char *)leaf);
+>>>>>>> upstream/android-13
 		level = 0;
 
 		/*
@@ -600,7 +882,11 @@ xfs_da3_root_split(
 	    oldroot->hdr.info.magic == cpu_to_be16(XFS_DIR3_LEAFN_MAGIC)) {
 		struct xfs_da3_intnode *node3 = (struct xfs_da3_intnode *)node;
 
+<<<<<<< HEAD
 		node3->hdr.info.blkno = cpu_to_be64(bp->b_bn);
+=======
+		node3->hdr.info.blkno = cpu_to_be64(xfs_buf_daddr(bp));
+>>>>>>> upstream/android-13
 	}
 	xfs_trans_log_buf(tp, bp, 0, size - 1);
 
@@ -619,14 +905,23 @@ xfs_da3_root_split(
 		return error;
 
 	node = bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&nodehdr, node);
 	btree = dp->d_ops->node_tree_p(node);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+	btree = nodehdr.btree;
+>>>>>>> upstream/android-13
 	btree[0].hashval = cpu_to_be32(blk1->hashval);
 	btree[0].before = cpu_to_be32(blk1->blkno);
 	btree[1].hashval = cpu_to_be32(blk2->hashval);
 	btree[1].before = cpu_to_be32(blk2->blkno);
 	nodehdr.count = 2;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_to_disk(node, &nodehdr);
+=======
+	xfs_da3_node_hdr_to_disk(dp->i_mount, node, &nodehdr);
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 	if (oldroot->hdr.info.magic == cpu_to_be16(XFS_DIR2_LEAFN_MAGIC) ||
@@ -668,7 +963,11 @@ xfs_da3_node_split(
 	trace_xfs_da_node_split(state->args);
 
 	node = oldblk->bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&nodehdr, node);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+>>>>>>> upstream/android-13
 
 	/*
 	 * With V2 dirs the extra block is data or freespace.
@@ -715,7 +1014,11 @@ xfs_da3_node_split(
 	 * If we had double-split op below us, then add the extra block too.
 	 */
 	node = oldblk->bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&nodehdr, node);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+>>>>>>> upstream/android-13
 	if (oldblk->index <= nodehdr.count) {
 		oldblk->index++;
 		xfs_da3_node_add(state, oldblk, addblk);
@@ -770,10 +1073,17 @@ xfs_da3_node_rebalance(
 
 	node1 = blk1->bp->b_addr;
 	node2 = blk2->bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&nodehdr1, node1);
 	dp->d_ops->node_hdr_from_disk(&nodehdr2, node2);
 	btree1 = dp->d_ops->node_tree_p(node1);
 	btree2 = dp->d_ops->node_tree_p(node2);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr1, node1);
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr2, node2);
+	btree1 = nodehdr1.btree;
+	btree2 = nodehdr2.btree;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Figure out how many entries need to move, and in which direction.
@@ -786,10 +1096,17 @@ xfs_da3_node_rebalance(
 		tmpnode = node1;
 		node1 = node2;
 		node2 = tmpnode;
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&nodehdr1, node1);
 		dp->d_ops->node_hdr_from_disk(&nodehdr2, node2);
 		btree1 = dp->d_ops->node_tree_p(node1);
 		btree2 = dp->d_ops->node_tree_p(node2);
+=======
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr1, node1);
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr2, node2);
+		btree1 = nodehdr1.btree;
+		btree2 = nodehdr2.btree;
+>>>>>>> upstream/android-13
 		swap = 1;
 	}
 
@@ -851,6 +1168,7 @@ xfs_da3_node_rebalance(
 	/*
 	 * Log header of node 1 and all current bits of node 2.
 	 */
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_to_disk(node1, &nodehdr1);
 	xfs_trans_log_buf(tp, blk1->bp,
 		XFS_DA_LOGRANGE(node1, &node1->hdr, dp->d_ops->node_hdr_size));
@@ -859,6 +1177,17 @@ xfs_da3_node_rebalance(
 	xfs_trans_log_buf(tp, blk2->bp,
 		XFS_DA_LOGRANGE(node2, &node2->hdr,
 				dp->d_ops->node_hdr_size +
+=======
+	xfs_da3_node_hdr_to_disk(dp->i_mount, node1, &nodehdr1);
+	xfs_trans_log_buf(tp, blk1->bp,
+		XFS_DA_LOGRANGE(node1, &node1->hdr,
+				state->args->geo->node_hdr_size));
+
+	xfs_da3_node_hdr_to_disk(dp->i_mount, node2, &nodehdr2);
+	xfs_trans_log_buf(tp, blk2->bp,
+		XFS_DA_LOGRANGE(node2, &node2->hdr,
+				state->args->geo->node_hdr_size +
+>>>>>>> upstream/android-13
 				(sizeof(btree2[0]) * nodehdr2.count)));
 
 	/*
@@ -868,10 +1197,17 @@ xfs_da3_node_rebalance(
 	if (swap) {
 		node1 = blk1->bp->b_addr;
 		node2 = blk2->bp->b_addr;
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&nodehdr1, node1);
 		dp->d_ops->node_hdr_from_disk(&nodehdr2, node2);
 		btree1 = dp->d_ops->node_tree_p(node1);
 		btree2 = dp->d_ops->node_tree_p(node2);
+=======
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr1, node1);
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr2, node2);
+		btree1 = nodehdr1.btree;
+		btree2 = nodehdr2.btree;
+>>>>>>> upstream/android-13
 	}
 	blk1->hashval = be32_to_cpu(btree1[nodehdr1.count - 1].hashval);
 	blk2->hashval = be32_to_cpu(btree2[nodehdr2.count - 1].hashval);
@@ -903,8 +1239,13 @@ xfs_da3_node_add(
 	trace_xfs_da_node_add(state->args);
 
 	node = oldblk->bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&nodehdr, node);
 	btree = dp->d_ops->node_tree_p(node);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+	btree = nodehdr.btree;
+>>>>>>> upstream/android-13
 
 	ASSERT(oldblk->index >= 0 && oldblk->index <= nodehdr.count);
 	ASSERT(newblk->blkno != 0);
@@ -927,9 +1268,16 @@ xfs_da3_node_add(
 				tmp + sizeof(*btree)));
 
 	nodehdr.count += 1;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_to_disk(node, &nodehdr);
 	xfs_trans_log_buf(state->args->trans, oldblk->bp,
 		XFS_DA_LOGRANGE(node, &node->hdr, dp->d_ops->node_hdr_size));
+=======
+	xfs_da3_node_hdr_to_disk(dp->i_mount, node, &nodehdr);
+	xfs_trans_log_buf(state->args->trans, oldblk->bp,
+		XFS_DA_LOGRANGE(node, &node->hdr,
+				state->args->geo->node_hdr_size));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Copy the last hash value from the oldblk to propagate upwards.
@@ -1064,7 +1412,10 @@ xfs_da3_root_join(
 	xfs_dablk_t		child;
 	struct xfs_buf		*bp;
 	struct xfs_da3_icnode_hdr oldroothdr;
+<<<<<<< HEAD
 	struct xfs_da_node_entry *btree;
+=======
+>>>>>>> upstream/android-13
 	int			error;
 	struct xfs_inode	*dp = state->args->dp;
 
@@ -1074,7 +1425,11 @@ xfs_da3_root_join(
 
 	args = state->args;
 	oldroot = root_blk->bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&oldroothdr, oldroot);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &oldroothdr, oldroot);
+>>>>>>> upstream/android-13
 	ASSERT(oldroothdr.forw == 0);
 	ASSERT(oldroothdr.back == 0);
 
@@ -1088,11 +1443,17 @@ xfs_da3_root_join(
 	 * Read in the (only) child block, then copy those bytes into
 	 * the root block's buffer and free the original child block.
 	 */
+<<<<<<< HEAD
 	btree = dp->d_ops->node_tree_p(oldroot);
 	child = be32_to_cpu(btree[0].before);
 	ASSERT(child != 0);
 	error = xfs_da3_node_read(args->trans, dp, child, -1, &bp,
 					     args->whichfork);
+=======
+	child = be32_to_cpu(oldroothdr.btree[0].before);
+	ASSERT(child != 0);
+	error = xfs_da3_node_read(args->trans, dp, child, &bp, args->whichfork);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	xfs_da_blkinfo_onlychild_validate(bp->b_addr, oldroothdr.level);
@@ -1109,7 +1470,11 @@ xfs_da3_root_join(
 	xfs_trans_buf_copy_type(root_blk->bp, bp);
 	if (oldroothdr.magic == XFS_DA3_NODE_MAGIC) {
 		struct xfs_da3_blkinfo *da3 = root_blk->bp->b_addr;
+<<<<<<< HEAD
 		da3->blkno = cpu_to_be64(root_blk->bp->b_bn);
+=======
+		da3->blkno = cpu_to_be64(xfs_buf_daddr(root_blk->bp));
+>>>>>>> upstream/android-13
 	}
 	xfs_trans_log_buf(args->trans, root_blk->bp, 0,
 			  args->geo->blksize - 1);
@@ -1154,7 +1519,11 @@ xfs_da3_node_toosmall(
 	blk = &state->path.blk[ state->path.active-1 ];
 	info = blk->bp->b_addr;
 	node = (xfs_da_intnode_t *)info;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&nodehdr, node);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+>>>>>>> upstream/android-13
 	if (nodehdr.count > (state->args->geo->node_ents >> 1)) {
 		*action = 0;	/* blk over 50%, don't try to join */
 		return 0;	/* blk over 50%, don't try to join */
@@ -1206,13 +1575,22 @@ xfs_da3_node_toosmall(
 			blkno = nodehdr.back;
 		if (blkno == 0)
 			continue;
+<<<<<<< HEAD
 		error = xfs_da3_node_read(state->args->trans, dp,
 					blkno, -1, &bp, state->args->whichfork);
+=======
+		error = xfs_da3_node_read(state->args->trans, dp, blkno, &bp,
+				state->args->whichfork);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 
 		node = bp->b_addr;
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&thdr, node);
+=======
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &thdr, node);
+>>>>>>> upstream/android-13
 		xfs_trans_brelse(state->args->trans, bp);
 
 		if (count - thdr.count >= 0)
@@ -1254,18 +1632,28 @@ xfs_da3_node_lasthash(
 	struct xfs_buf		*bp,
 	int			*count)
 {
+<<<<<<< HEAD
 	struct xfs_da_intnode	 *node;
 	struct xfs_da_node_entry *btree;
 	struct xfs_da3_icnode_hdr nodehdr;
 
 	node = bp->b_addr;
 	dp->d_ops->node_hdr_from_disk(&nodehdr, node);
+=======
+	struct xfs_da3_icnode_hdr nodehdr;
+
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, bp->b_addr);
+>>>>>>> upstream/android-13
 	if (count)
 		*count = nodehdr.count;
 	if (!nodehdr.count)
 		return 0;
+<<<<<<< HEAD
 	btree = dp->d_ops->node_tree_p(node);
 	return be32_to_cpu(btree[nodehdr.count - 1].hashval);
+=======
+	return be32_to_cpu(nodehdr.btree[nodehdr.count - 1].hashval);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1310,8 +1698,13 @@ xfs_da3_fixhashpath(
 		struct xfs_da3_icnode_hdr nodehdr;
 
 		node = blk->bp->b_addr;
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&nodehdr, node);
 		btree = dp->d_ops->node_tree_p(node);
+=======
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+		btree = nodehdr.btree;
+>>>>>>> upstream/android-13
 		if (be32_to_cpu(btree[blk->index].hashval) == lasthash)
 			break;
 		blk->hashval = lasthash;
@@ -1342,7 +1735,11 @@ xfs_da3_node_remove(
 	trace_xfs_da_node_remove(state->args);
 
 	node = drop_blk->bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&nodehdr, node);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+>>>>>>> upstream/android-13
 	ASSERT(drop_blk->index < nodehdr.count);
 	ASSERT(drop_blk->index >= 0);
 
@@ -1350,7 +1747,11 @@ xfs_da3_node_remove(
 	 * Copy over the offending entry, or just zero it out.
 	 */
 	index = drop_blk->index;
+<<<<<<< HEAD
 	btree = dp->d_ops->node_tree_p(node);
+=======
+	btree = nodehdr.btree;
+>>>>>>> upstream/android-13
 	if (index < nodehdr.count - 1) {
 		tmp  = nodehdr.count - index - 1;
 		tmp *= (uint)sizeof(xfs_da_node_entry_t);
@@ -1363,9 +1764,15 @@ xfs_da3_node_remove(
 	xfs_trans_log_buf(state->args->trans, drop_blk->bp,
 	    XFS_DA_LOGRANGE(node, &btree[index], sizeof(btree[index])));
 	nodehdr.count -= 1;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_to_disk(node, &nodehdr);
 	xfs_trans_log_buf(state->args->trans, drop_blk->bp,
 	    XFS_DA_LOGRANGE(node, &node->hdr, dp->d_ops->node_hdr_size));
+=======
+	xfs_da3_node_hdr_to_disk(dp->i_mount, node, &nodehdr);
+	xfs_trans_log_buf(state->args->trans, drop_blk->bp,
+	    XFS_DA_LOGRANGE(node, &node->hdr, state->args->geo->node_hdr_size));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Copy the last hash value from the block to propagate upwards.
@@ -1398,10 +1805,17 @@ xfs_da3_node_unbalance(
 
 	drop_node = drop_blk->bp->b_addr;
 	save_node = save_blk->bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&drop_hdr, drop_node);
 	dp->d_ops->node_hdr_from_disk(&save_hdr, save_node);
 	drop_btree = dp->d_ops->node_tree_p(drop_node);
 	save_btree = dp->d_ops->node_tree_p(save_node);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &drop_hdr, drop_node);
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &save_hdr, save_node);
+	drop_btree = drop_hdr.btree;
+	save_btree = save_hdr.btree;
+>>>>>>> upstream/android-13
 	tp = state->args->trans;
 
 	/*
@@ -1435,10 +1849,17 @@ xfs_da3_node_unbalance(
 	memcpy(&save_btree[sindex], &drop_btree[0], tmp);
 	save_hdr.count += drop_hdr.count;
 
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_to_disk(save_node, &save_hdr);
 	xfs_trans_log_buf(tp, save_blk->bp,
 		XFS_DA_LOGRANGE(save_node, &save_node->hdr,
 				dp->d_ops->node_hdr_size));
+=======
+	xfs_da3_node_hdr_to_disk(dp->i_mount, save_node, &save_hdr);
+	xfs_trans_log_buf(tp, save_blk->bp,
+		XFS_DA_LOGRANGE(save_node, &save_node->hdr,
+				state->args->geo->node_hdr_size));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Save the last hashval in the remaining block for upward propagation.
@@ -1499,7 +1920,11 @@ xfs_da3_node_lookup_int(
 		 */
 		blk->blkno = blkno;
 		error = xfs_da3_node_read(args->trans, args->dp, blkno,
+<<<<<<< HEAD
 					-1, &blk->bp, args->whichfork);
+=======
+					&blk->bp, args->whichfork);
+>>>>>>> upstream/android-13
 		if (error) {
 			blk->blkno = 0;
 			state->path.active--;
@@ -1523,8 +1948,15 @@ xfs_da3_node_lookup_int(
 			break;
 		}
 
+<<<<<<< HEAD
 		if (magic != XFS_DA_NODE_MAGIC && magic != XFS_DA3_NODE_MAGIC)
 			return -EFSCORRUPTED;
+=======
+		if (magic != XFS_DA_NODE_MAGIC && magic != XFS_DA3_NODE_MAGIC) {
+			xfs_buf_mark_corrupt(blk->bp);
+			return -EFSCORRUPTED;
+		}
+>>>>>>> upstream/android-13
 
 		blk->magic = XFS_DA_NODE_MAGIC;
 
@@ -1532,19 +1964,37 @@ xfs_da3_node_lookup_int(
 		 * Search an intermediate node for a match.
 		 */
 		node = blk->bp->b_addr;
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&nodehdr, node);
 		btree = dp->d_ops->node_tree_p(node);
 
 		/* Tree taller than we can handle; bail out! */
 		if (nodehdr.level >= XFS_DA_NODE_MAXDEPTH)
 			return -EFSCORRUPTED;
+=======
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr, node);
+		btree = nodehdr.btree;
+
+		/* Tree taller than we can handle; bail out! */
+		if (nodehdr.level >= XFS_DA_NODE_MAXDEPTH) {
+			xfs_buf_mark_corrupt(blk->bp);
+			return -EFSCORRUPTED;
+		}
+>>>>>>> upstream/android-13
 
 		/* Check the level from the root. */
 		if (blkno == args->geo->leafblk)
 			expected_level = nodehdr.level - 1;
+<<<<<<< HEAD
 		else if (expected_level != nodehdr.level)
 			return -EFSCORRUPTED;
 		else
+=======
+		else if (expected_level != nodehdr.level) {
+			xfs_buf_mark_corrupt(blk->bp);
+			return -EFSCORRUPTED;
+		} else
+>>>>>>> upstream/android-13
 			expected_level--;
 
 		max = nodehdr.count;
@@ -1594,11 +2044,19 @@ xfs_da3_node_lookup_int(
 		}
 
 		/* We can't point back to the root. */
+<<<<<<< HEAD
 		if (blkno == args->geo->leafblk)
 			return -EFSCORRUPTED;
 	}
 
 	if (expected_level != 0)
+=======
+		if (XFS_IS_CORRUPT(dp->i_mount, blkno == args->geo->leafblk))
+			return -EFSCORRUPTED;
+	}
+
+	if (XFS_IS_CORRUPT(dp->i_mount, expected_level != 0))
+>>>>>>> upstream/android-13
 		return -EFSCORRUPTED;
 
 	/*
@@ -1660,10 +2118,17 @@ xfs_da3_node_order(
 
 	node1 = node1_bp->b_addr;
 	node2 = node2_bp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&node1hdr, node1);
 	dp->d_ops->node_hdr_from_disk(&node2hdr, node2);
 	btree1 = dp->d_ops->node_tree_p(node1);
 	btree2 = dp->d_ops->node_tree_p(node2);
+=======
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &node1hdr, node1);
+	xfs_da3_node_hdr_from_disk(dp->i_mount, &node2hdr, node2);
+	btree1 = node1hdr.btree;
+	btree2 = node2hdr.btree;
+>>>>>>> upstream/android-13
 
 	if (node1hdr.count > 0 && node2hdr.count > 0 &&
 	    ((be32_to_cpu(btree2[0].hashval) < be32_to_cpu(btree1[0].hashval)) ||
@@ -1728,7 +2193,11 @@ xfs_da3_blk_link(
 		if (old_info->back) {
 			error = xfs_da3_node_read(args->trans, dp,
 						be32_to_cpu(old_info->back),
+<<<<<<< HEAD
 						-1, &bp, args->whichfork);
+=======
+						&bp, args->whichfork);
+>>>>>>> upstream/android-13
 			if (error)
 				return error;
 			ASSERT(bp != NULL);
@@ -1749,7 +2218,11 @@ xfs_da3_blk_link(
 		if (old_info->forw) {
 			error = xfs_da3_node_read(args->trans, dp,
 						be32_to_cpu(old_info->forw),
+<<<<<<< HEAD
 						-1, &bp, args->whichfork);
+=======
+						&bp, args->whichfork);
+>>>>>>> upstream/android-13
 			if (error)
 				return error;
 			ASSERT(bp != NULL);
@@ -1808,7 +2281,11 @@ xfs_da3_blk_unlink(
 		if (drop_info->back) {
 			error = xfs_da3_node_read(args->trans, args->dp,
 						be32_to_cpu(drop_info->back),
+<<<<<<< HEAD
 						-1, &bp, args->whichfork);
+=======
+						&bp, args->whichfork);
+>>>>>>> upstream/android-13
 			if (error)
 				return error;
 			ASSERT(bp != NULL);
@@ -1825,7 +2302,11 @@ xfs_da3_blk_unlink(
 		if (drop_info->forw) {
 			error = xfs_da3_node_read(args->trans, args->dp,
 						be32_to_cpu(drop_info->forw),
+<<<<<<< HEAD
 						-1, &bp, args->whichfork);
+=======
+						&bp, args->whichfork);
+>>>>>>> upstream/android-13
 			if (error)
 				return error;
 			ASSERT(bp != NULL);
@@ -1860,7 +2341,10 @@ xfs_da3_path_shift(
 {
 	struct xfs_da_state_blk	*blk;
 	struct xfs_da_blkinfo	*info;
+<<<<<<< HEAD
 	struct xfs_da_intnode	*node;
+=======
+>>>>>>> upstream/android-13
 	struct xfs_da_args	*args;
 	struct xfs_da_node_entry *btree;
 	struct xfs_da3_icnode_hdr nodehdr;
@@ -1882,6 +2366,7 @@ xfs_da3_path_shift(
 	ASSERT(path != NULL);
 	ASSERT((path->active > 0) && (path->active < XFS_DA_NODE_MAXDEPTH));
 	level = (path->active-1) - 1;	/* skip bottom layer in path */
+<<<<<<< HEAD
 	for (blk = &path->blk[level]; level >= 0; blk--, level--) {
 		node = blk->bp->b_addr;
 		dp->d_ops->node_hdr_from_disk(&nodehdr, node);
@@ -1894,6 +2379,20 @@ xfs_da3_path_shift(
 		} else if (!forward && (blk->index > 0)) {
 			blk->index--;
 			blkno = be32_to_cpu(btree[blk->index].before);
+=======
+	for (; level >= 0; level--) {
+		blk = &path->blk[level];
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr,
+					   blk->bp->b_addr);
+
+		if (forward && (blk->index < nodehdr.count - 1)) {
+			blk->index++;
+			blkno = be32_to_cpu(nodehdr.btree[blk->index].before);
+			break;
+		} else if (!forward && (blk->index > 0)) {
+			blk->index--;
+			blkno = be32_to_cpu(nodehdr.btree[blk->index].before);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -1911,7 +2410,11 @@ xfs_da3_path_shift(
 		/*
 		 * Read the next child block into a local buffer.
 		 */
+<<<<<<< HEAD
 		error = xfs_da3_node_read(args->trans, dp, blkno, -1, &bp,
+=======
+		error = xfs_da3_node_read(args->trans, dp, blkno, &bp,
+>>>>>>> upstream/android-13
 					  args->whichfork);
 		if (error)
 			return error;
@@ -1944,9 +2447,15 @@ xfs_da3_path_shift(
 		case XFS_DA_NODE_MAGIC:
 		case XFS_DA3_NODE_MAGIC:
 			blk->magic = XFS_DA_NODE_MAGIC;
+<<<<<<< HEAD
 			node = (xfs_da_intnode_t *)info;
 			dp->d_ops->node_hdr_from_disk(&nodehdr, node);
 			btree = dp->d_ops->node_tree_p(node);
+=======
+			xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr,
+						   bp->b_addr);
+			btree = nodehdr.btree;
+>>>>>>> upstream/android-13
 			blk->hashval = be32_to_cpu(btree[nodehdr.count - 1].hashval);
 			if (forward)
 				blk->index = 0;
@@ -2026,6 +2535,7 @@ xfs_da_compname(
 					XFS_CMP_EXACT : XFS_CMP_DIFFERENT;
 }
 
+<<<<<<< HEAD
 static xfs_dahash_t
 xfs_default_hashname(
 	struct xfs_name	*name)
@@ -2038,6 +2548,8 @@ const struct xfs_nameops xfs_default_nameops = {
 	.compname	= xfs_da_compname
 };
 
+=======
+>>>>>>> upstream/android-13
 int
 xfs_da_grow_inode_int(
 	struct xfs_da_args	*args,
@@ -2047,7 +2559,11 @@ xfs_da_grow_inode_int(
 	struct xfs_trans	*tp = args->trans;
 	struct xfs_inode	*dp = args->dp;
 	int			w = args->whichfork;
+<<<<<<< HEAD
 	xfs_rfsblock_t		nblks = dp->i_d.di_nblocks;
+=======
+	xfs_rfsblock_t		nblks = dp->i_nblocks;
+>>>>>>> upstream/android-13
 	struct xfs_bmbt_irec	map, *mapp;
 	int			nmap, error, got, i, mapi;
 
@@ -2080,7 +2596,11 @@ xfs_da_grow_inode_int(
 		 * If we didn't get it and the block might work if fragmented,
 		 * try without the CONTIG flag.  Loop until we get it all.
 		 */
+<<<<<<< HEAD
 		mapp = kmem_alloc(sizeof(*mapp) * count, KM_SLEEP);
+=======
+		mapp = kmem_alloc(sizeof(*mapp) * count, 0);
+>>>>>>> upstream/android-13
 		for (b = *bno, mapi = 0; b < *bno + count; ) {
 			nmap = min(XFS_BMAP_MAX_NMAP, count);
 			c = (int)(*bno + count - b);
@@ -2113,7 +2633,11 @@ xfs_da_grow_inode_int(
 	}
 
 	/* account for newly allocated blocks in reserved blocks total */
+<<<<<<< HEAD
 	args->total -= dp->i_d.di_nblocks - nblks;
+=======
+	args->total -= dp->i_nblocks - nblks;
+>>>>>>> upstream/android-13
 
 out_free_map:
 	if (mapp != &map)
@@ -2195,16 +2719,25 @@ xfs_da3_swap_lastblock(
 	error = xfs_bmap_last_before(tp, dp, &lastoff, w);
 	if (error)
 		return error;
+<<<<<<< HEAD
 	if (unlikely(lastoff == 0)) {
 		XFS_ERROR_REPORT("xfs_da_swap_lastblock(1)", XFS_ERRLEVEL_LOW,
 				 mp);
 		return -EFSCORRUPTED;
 	}
+=======
+	if (XFS_IS_CORRUPT(mp, lastoff == 0))
+		return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 	/*
 	 * Read the last block in the btree space.
 	 */
 	last_blkno = (xfs_dablk_t)lastoff - args->geo->fsbcount;
+<<<<<<< HEAD
 	error = xfs_da3_node_read(tp, dp, last_blkno, -1, &last_buf, w);
+=======
+	error = xfs_da3_node_read(tp, dp, last_blkno, &last_buf, w);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	/*
@@ -2222,16 +2755,27 @@ xfs_da3_swap_lastblock(
 		struct xfs_dir2_leaf_entry *ents;
 
 		dead_leaf2 = (xfs_dir2_leaf_t *)dead_info;
+<<<<<<< HEAD
 		dp->d_ops->leaf_hdr_from_disk(&leafhdr, dead_leaf2);
 		ents = dp->d_ops->leaf_ents_p(dead_leaf2);
+=======
+		xfs_dir2_leaf_hdr_from_disk(dp->i_mount, &leafhdr,
+					    dead_leaf2);
+		ents = leafhdr.ents;
+>>>>>>> upstream/android-13
 		dead_level = 0;
 		dead_hash = be32_to_cpu(ents[leafhdr.count - 1].hashval);
 	} else {
 		struct xfs_da3_icnode_hdr deadhdr;
 
 		dead_node = (xfs_da_intnode_t *)dead_info;
+<<<<<<< HEAD
 		dp->d_ops->node_hdr_from_disk(&deadhdr, dead_node);
 		btree = dp->d_ops->node_tree_p(dead_node);
+=======
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &deadhdr, dead_node);
+		btree = deadhdr.btree;
+>>>>>>> upstream/android-13
 		dead_level = deadhdr.level;
 		dead_hash = be32_to_cpu(btree[deadhdr.count - 1].hashval);
 	}
@@ -2240,6 +2784,7 @@ xfs_da3_swap_lastblock(
 	 * If the moved block has a left sibling, fix up the pointers.
 	 */
 	if ((sib_blkno = be32_to_cpu(dead_info->back))) {
+<<<<<<< HEAD
 		error = xfs_da3_node_read(tp, dp, sib_blkno, -1, &sib_buf, w);
 		if (error)
 			goto done;
@@ -2249,6 +2794,15 @@ xfs_da3_swap_lastblock(
 		    sib_info->magic != dead_info->magic)) {
 			XFS_ERROR_REPORT("xfs_da_swap_lastblock(2)",
 					 XFS_ERRLEVEL_LOW, mp);
+=======
+		error = xfs_da3_node_read(tp, dp, sib_blkno, &sib_buf, w);
+		if (error)
+			goto done;
+		sib_info = sib_buf->b_addr;
+		if (XFS_IS_CORRUPT(mp,
+				   be32_to_cpu(sib_info->forw) != last_blkno ||
+				   sib_info->magic != dead_info->magic)) {
+>>>>>>> upstream/android-13
 			error = -EFSCORRUPTED;
 			goto done;
 		}
@@ -2262,6 +2816,7 @@ xfs_da3_swap_lastblock(
 	 * If the moved block has a right sibling, fix up the pointers.
 	 */
 	if ((sib_blkno = be32_to_cpu(dead_info->forw))) {
+<<<<<<< HEAD
 		error = xfs_da3_node_read(tp, dp, sib_blkno, -1, &sib_buf, w);
 		if (error)
 			goto done;
@@ -2271,6 +2826,15 @@ xfs_da3_swap_lastblock(
 		       sib_info->magic != dead_info->magic)) {
 			XFS_ERROR_REPORT("xfs_da_swap_lastblock(3)",
 					 XFS_ERRLEVEL_LOW, mp);
+=======
+		error = xfs_da3_node_read(tp, dp, sib_blkno, &sib_buf, w);
+		if (error)
+			goto done;
+		sib_info = sib_buf->b_addr;
+		if (XFS_IS_CORRUPT(mp,
+				   be32_to_cpu(sib_info->back) != last_blkno ||
+				   sib_info->magic != dead_info->magic)) {
+>>>>>>> upstream/android-13
 			error = -EFSCORRUPTED;
 			goto done;
 		}
@@ -2286,6 +2850,7 @@ xfs_da3_swap_lastblock(
 	 * Walk down the tree looking for the parent of the moved block.
 	 */
 	for (;;) {
+<<<<<<< HEAD
 		error = xfs_da3_node_read(tp, dp, par_blkno, -1, &par_buf, w);
 		if (error)
 			goto done;
@@ -2294,19 +2859,36 @@ xfs_da3_swap_lastblock(
 		if (level >= 0 && level != par_hdr.level + 1) {
 			XFS_ERROR_REPORT("xfs_da_swap_lastblock(4)",
 					 XFS_ERRLEVEL_LOW, mp);
+=======
+		error = xfs_da3_node_read(tp, dp, par_blkno, &par_buf, w);
+		if (error)
+			goto done;
+		par_node = par_buf->b_addr;
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &par_hdr, par_node);
+		if (XFS_IS_CORRUPT(mp,
+				   level >= 0 && level != par_hdr.level + 1)) {
+>>>>>>> upstream/android-13
 			error = -EFSCORRUPTED;
 			goto done;
 		}
 		level = par_hdr.level;
+<<<<<<< HEAD
 		btree = dp->d_ops->node_tree_p(par_node);
+=======
+		btree = par_hdr.btree;
+>>>>>>> upstream/android-13
 		for (entno = 0;
 		     entno < par_hdr.count &&
 		     be32_to_cpu(btree[entno].hashval) < dead_hash;
 		     entno++)
 			continue;
+<<<<<<< HEAD
 		if (entno == par_hdr.count) {
 			XFS_ERROR_REPORT("xfs_da_swap_lastblock(5)",
 					 XFS_ERRLEVEL_LOW, mp);
+=======
+		if (XFS_IS_CORRUPT(mp, entno == par_hdr.count)) {
+>>>>>>> upstream/android-13
 			error = -EFSCORRUPTED;
 			goto done;
 		}
@@ -2331,6 +2913,7 @@ xfs_da3_swap_lastblock(
 		par_blkno = par_hdr.forw;
 		xfs_trans_brelse(tp, par_buf);
 		par_buf = NULL;
+<<<<<<< HEAD
 		if (unlikely(par_blkno == 0)) {
 			XFS_ERROR_REPORT("xfs_da_swap_lastblock(6)",
 					 XFS_ERRLEVEL_LOW, mp);
@@ -2349,6 +2932,22 @@ xfs_da3_swap_lastblock(
 			goto done;
 		}
 		btree = dp->d_ops->node_tree_p(par_node);
+=======
+		if (XFS_IS_CORRUPT(mp, par_blkno == 0)) {
+			error = -EFSCORRUPTED;
+			goto done;
+		}
+		error = xfs_da3_node_read(tp, dp, par_blkno, &par_buf, w);
+		if (error)
+			goto done;
+		par_node = par_buf->b_addr;
+		xfs_da3_node_hdr_from_disk(dp->i_mount, &par_hdr, par_node);
+		if (XFS_IS_CORRUPT(mp, par_hdr.level != level)) {
+			error = -EFSCORRUPTED;
+			goto done;
+		}
+		btree = par_hdr.btree;
+>>>>>>> upstream/android-13
 		entno = 0;
 	}
 	/*
@@ -2411,6 +3010,7 @@ xfs_da_shrink_inode(
 	return error;
 }
 
+<<<<<<< HEAD
 /*
  * See if the mapping(s) for this btree block are valid, i.e.
  * don't contain holes, are logically contiguous, and cover the whole range.
@@ -2487,10 +3087,13 @@ xfs_buf_map_from_irec(
  *	 0 - if we mapped the block successfully
  *	>0 - positive error number if there was an error.
  */
+=======
+>>>>>>> upstream/android-13
 static int
 xfs_dabuf_map(
 	struct xfs_inode	*dp,
 	xfs_dablk_t		bno,
+<<<<<<< HEAD
 	xfs_daddr_t		mappedbno,
 	int			whichfork,
 	struct xfs_buf_map	**map,
@@ -2564,6 +3167,84 @@ out:
 	if (irecs != &irec)
 		kmem_free(irecs);
 	return error;
+=======
+	unsigned int		flags,
+	int			whichfork,
+	struct xfs_buf_map	**mapp,
+	int			*nmaps)
+{
+	struct xfs_mount	*mp = dp->i_mount;
+	int			nfsb = xfs_dabuf_nfsb(mp, whichfork);
+	struct xfs_bmbt_irec	irec, *irecs = &irec;
+	struct xfs_buf_map	*map = *mapp;
+	xfs_fileoff_t		off = bno;
+	int			error = 0, nirecs, i;
+
+	if (nfsb > 1)
+		irecs = kmem_zalloc(sizeof(irec) * nfsb, KM_NOFS);
+
+	nirecs = nfsb;
+	error = xfs_bmapi_read(dp, bno, nfsb, irecs, &nirecs,
+			xfs_bmapi_aflag(whichfork));
+	if (error)
+		goto out_free_irecs;
+
+	/*
+	 * Use the caller provided map for the single map case, else allocate a
+	 * larger one that needs to be free by the caller.
+	 */
+	if (nirecs > 1) {
+		map = kmem_zalloc(nirecs * sizeof(struct xfs_buf_map), KM_NOFS);
+		if (!map) {
+			error = -ENOMEM;
+			goto out_free_irecs;
+		}
+		*mapp = map;
+	}
+
+	for (i = 0; i < nirecs; i++) {
+		if (irecs[i].br_startblock == HOLESTARTBLOCK ||
+		    irecs[i].br_startblock == DELAYSTARTBLOCK)
+			goto invalid_mapping;
+		if (off != irecs[i].br_startoff)
+			goto invalid_mapping;
+
+		map[i].bm_bn = XFS_FSB_TO_DADDR(mp, irecs[i].br_startblock);
+		map[i].bm_len = XFS_FSB_TO_BB(mp, irecs[i].br_blockcount);
+		off += irecs[i].br_blockcount;
+	}
+
+	if (off != bno + nfsb)
+		goto invalid_mapping;
+
+	*nmaps = nirecs;
+out_free_irecs:
+	if (irecs != &irec)
+		kmem_free(irecs);
+	return error;
+
+invalid_mapping:
+	/* Caller ok with no mapping. */
+	if (XFS_IS_CORRUPT(mp, !(flags & XFS_DABUF_MAP_HOLE_OK))) {
+		error = -EFSCORRUPTED;
+		if (xfs_error_level >= XFS_ERRLEVEL_LOW) {
+			xfs_alert(mp, "%s: bno %u inode %llu",
+					__func__, bno, dp->i_ino);
+
+			for (i = 0; i < nirecs; i++) {
+				xfs_alert(mp,
+"[%02d] br_startoff %lld br_startblock %lld br_blockcount %lld br_state %d",
+					i, irecs[i].br_startoff,
+					irecs[i].br_startblock,
+					irecs[i].br_blockcount,
+					irecs[i].br_state);
+			}
+		}
+	} else {
+		*nmaps = 0;
+	}
+	goto out_free_irecs;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2571,6 +3252,7 @@ out:
  */
 int
 xfs_da_get_buf(
+<<<<<<< HEAD
 	struct xfs_trans	*trans,
 	struct xfs_inode	*dp,
 	xfs_dablk_t		bno,
@@ -2604,6 +3286,28 @@ xfs_da_get_buf(
 			xfs_trans_brelse(trans, bp);
 		goto out_free;
 	}
+=======
+	struct xfs_trans	*tp,
+	struct xfs_inode	*dp,
+	xfs_dablk_t		bno,
+	struct xfs_buf		**bpp,
+	int			whichfork)
+{
+	struct xfs_mount	*mp = dp->i_mount;
+	struct xfs_buf		*bp;
+	struct xfs_buf_map	map, *mapp = &map;
+	int			nmap = 1;
+	int			error;
+
+	*bpp = NULL;
+	error = xfs_dabuf_map(dp, bno, 0, whichfork, &mapp, &nmap);
+	if (error || nmap == 0)
+		goto out_free;
+
+	error = xfs_trans_get_buf_map(tp, mp->m_ddev_targp, mapp, nmap, 0, &bp);
+	if (error)
+		goto out_free;
+>>>>>>> upstream/android-13
 
 	*bpp = bp;
 
@@ -2619,14 +3323,22 @@ out_free:
  */
 int
 xfs_da_read_buf(
+<<<<<<< HEAD
 	struct xfs_trans	*trans,
 	struct xfs_inode	*dp,
 	xfs_dablk_t		bno,
 	xfs_daddr_t		mappedbno,
+=======
+	struct xfs_trans	*tp,
+	struct xfs_inode	*dp,
+	xfs_dablk_t		bno,
+	unsigned int		flags,
+>>>>>>> upstream/android-13
 	struct xfs_buf		**bpp,
 	int			whichfork,
 	const struct xfs_buf_ops *ops)
 {
+<<<<<<< HEAD
 	struct xfs_buf		*bp;
 	struct xfs_buf_map	map;
 	struct xfs_buf_map	*mapp;
@@ -2648,6 +3360,21 @@ xfs_da_read_buf(
 	error = xfs_trans_read_buf_map(dp->i_mount, trans,
 					dp->i_mount->m_ddev_targp,
 					mapp, nmap, 0, &bp, ops);
+=======
+	struct xfs_mount	*mp = dp->i_mount;
+	struct xfs_buf		*bp;
+	struct xfs_buf_map	map, *mapp = &map;
+	int			nmap = 1;
+	int			error;
+
+	*bpp = NULL;
+	error = xfs_dabuf_map(dp, bno, flags, whichfork, &mapp, &nmap);
+	if (error || !nmap)
+		goto out_free;
+
+	error = xfs_trans_read_buf_map(mp, tp, mp->m_ddev_targp, mapp, nmap, 0,
+			&bp, ops);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_free;
 
@@ -2670,7 +3397,11 @@ int
 xfs_da_reada_buf(
 	struct xfs_inode	*dp,
 	xfs_dablk_t		bno,
+<<<<<<< HEAD
 	xfs_daddr_t		mappedbno,
+=======
+	unsigned int		flags,
+>>>>>>> upstream/android-13
 	int			whichfork,
 	const struct xfs_buf_ops *ops)
 {
@@ -2681,6 +3412,7 @@ xfs_da_reada_buf(
 
 	mapp = &map;
 	nmap = 1;
+<<<<<<< HEAD
 	error = xfs_dabuf_map(dp, bno, mappedbno, whichfork,
 				&mapp, &nmap);
 	if (error) {
@@ -2691,6 +3423,12 @@ xfs_da_reada_buf(
 	}
 
 	mappedbno = mapp[0].bm_bn;
+=======
+	error = xfs_dabuf_map(dp, bno, flags, whichfork, &mapp, &nmap);
+	if (error || !nmap)
+		goto out_free;
+
+>>>>>>> upstream/android-13
 	xfs_buf_readahead_map(dp->i_mount->m_ddev_targp, mapp, nmap, ops);
 
 out_free:

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -------------------------------------------------------------------------
  * i2c-algo-bit.c i2c driver algorithms for bit-shift adapters
  * -------------------------------------------------------------------------
@@ -16,6 +17,17 @@
 
 /* With some changes from Frodo Looijaard <frodol@dds.nl>, Kyösti Mälkki
    <kmalkki@cc.hut.fi> and Jean Delvare <jdelvare@suse.de> */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * i2c-algo-bit.c: i2c driver algorithms for bit-shift adapters
+ *
+ *   Copyright (C) 1995-2000 Simon G. Vogl
+ *
+ * With some changes from Frodo Looijaard <frodol@dds.nl>, Kyösti Mälkki
+ * <kmalkki@cc.hut.fi> and Jean Delvare <jdelvare@suse.de>
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -612,11 +624,34 @@ bailout:
 	return ret;
 }
 
+<<<<<<< HEAD
 static u32 bit_func(struct i2c_adapter *adap)
 {
 	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
 	       I2C_FUNC_SMBUS_READ_BLOCK_DATA |
 	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
+=======
+/*
+ * We print a warning when we are not flagged to support atomic transfers but
+ * will try anyhow. That's what the I2C core would do as well. Sadly, we can't
+ * modify the algorithm struct at probe time because this struct is exported
+ * 'const'.
+ */
+static int bit_xfer_atomic(struct i2c_adapter *i2c_adap, struct i2c_msg msgs[],
+			   int num)
+{
+	struct i2c_algo_bit_data *adap = i2c_adap->algo_data;
+
+	if (!adap->can_do_atomic)
+		dev_warn(&i2c_adap->dev, "not flagged for atomic transfers\n");
+
+	return bit_xfer(i2c_adap, msgs, num);
+}
+
+static u32 bit_func(struct i2c_adapter *adap)
+{
+	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL_ALL |
+>>>>>>> upstream/android-13
 	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
 }
 
@@ -624,8 +659,14 @@ static u32 bit_func(struct i2c_adapter *adap)
 /* -----exported algorithm data: -------------------------------------	*/
 
 const struct i2c_algorithm i2c_bit_algo = {
+<<<<<<< HEAD
 	.master_xfer	= bit_xfer,
 	.functionality	= bit_func,
+=======
+	.master_xfer = bit_xfer,
+	.master_xfer_atomic = bit_xfer_atomic,
+	.functionality = bit_func,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL(i2c_bit_algo);
 

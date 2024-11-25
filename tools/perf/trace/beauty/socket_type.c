@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: LGPL-2.1
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -20,6 +24,11 @@
 
 static size_t syscall_arg__scnprintf_socket_type(char *bf, size_t size, struct syscall_arg *arg)
 {
+<<<<<<< HEAD
+=======
+	bool show_prefix = arg->show_string_prefix;
+	const char *prefix = "SOCK_";
+>>>>>>> upstream/android-13
 	size_t printed;
 	int type = arg->val,
 	    flags = type & ~SOCK_TYPE_MASK;
@@ -29,7 +38,11 @@ static size_t syscall_arg__scnprintf_socket_type(char *bf, size_t size, struct s
 	 * Can't use a strarray, MIPS may override for ABI reasons.
 	 */
 	switch (type) {
+<<<<<<< HEAD
 #define	P_SK_TYPE(n) case SOCK_##n: printed = scnprintf(bf, size, #n); break;
+=======
+#define	P_SK_TYPE(n) case SOCK_##n: printed = scnprintf(bf, size, "%s%s", show_prefix ? prefix : "", #n); break;
+>>>>>>> upstream/android-13
 	P_SK_TYPE(STREAM);
 	P_SK_TYPE(DGRAM);
 	P_SK_TYPE(RAW);

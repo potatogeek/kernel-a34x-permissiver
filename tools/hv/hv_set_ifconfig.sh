@@ -12,7 +12,11 @@
 # be used to configure the interface.
 #
 # Each Distro is expected to implement this script in a distro specific
+<<<<<<< HEAD
 # fashion. For instance on Distros that ship with Network Manager enabled,
+=======
+# fashion. For instance, on Distros that ship with Network Manager enabled,
+>>>>>>> upstream/android-13
 # this script can be based on the Network Manager APIs for configuring the
 # interface.
 #

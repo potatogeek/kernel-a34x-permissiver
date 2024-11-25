@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000,2001,2004 Broadcom Corporation
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2000,2001,2004 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/clockchips.h>
 #include <linux/interrupt.h>
@@ -104,16 +110,25 @@ static irqreturn_t sibyte_counter_handler(int irq, void *dev_id)
 }
 
 static DEFINE_PER_CPU(struct clock_event_device, sibyte_hpt_clockevent);
+<<<<<<< HEAD
 static DEFINE_PER_CPU(struct irqaction, sibyte_hpt_irqaction);
+=======
+>>>>>>> upstream/android-13
 static DEFINE_PER_CPU(char [18], sibyte_hpt_name);
 
 void sb1480_clockevent_init(void)
 {
 	unsigned int cpu = smp_processor_id();
 	unsigned int irq = K_BCM1480_INT_TIMER_0 + cpu;
+<<<<<<< HEAD
 	struct irqaction *action = &per_cpu(sibyte_hpt_irqaction, cpu);
 	struct clock_event_device *cd = &per_cpu(sibyte_hpt_clockevent, cpu);
 	unsigned char *name = per_cpu(sibyte_hpt_name, cpu);
+=======
+	struct clock_event_device *cd = &per_cpu(sibyte_hpt_clockevent, cpu);
+	unsigned char *name = per_cpu(sibyte_hpt_name, cpu);
+	unsigned long flags =  IRQF_PERCPU | IRQF_TIMER;
+>>>>>>> upstream/android-13
 
 	BUG_ON(cpu > 3);	/* Only have 4 general purpose timers */
 
@@ -146,6 +161,7 @@ void sb1480_clockevent_init(void)
 
 	bcm1480_unmask_irq(cpu, irq);
 
+<<<<<<< HEAD
 	action->handler = sibyte_counter_handler;
 	action->flags	= IRQF_PERCPU | IRQF_TIMER;
 	action->name	= name;
@@ -153,4 +169,9 @@ void sb1480_clockevent_init(void)
 
 	irq_set_affinity(irq, cpumask_of(cpu));
 	setup_irq(irq, action);
+=======
+	irq_set_affinity(irq, cpumask_of(cpu));
+	if (request_irq(irq, sibyte_counter_handler, flags, name, cd))
+		pr_err("Failed to request irq %d (%s)\n", irq, name);
+>>>>>>> upstream/android-13
 }

@@ -58,11 +58,17 @@ ia64_emulate_brl (struct pt_regs *regs, unsigned long ar_ec)
 	unsigned long bundle[2];
 	unsigned long opcode, btype, qp, offset, cpl;
 	unsigned long next_ip;
+<<<<<<< HEAD
 	struct siginfo siginfo;
 	struct illegal_op_return rv;
 	long tmp_taken, unimplemented_address;
 
 	clear_siginfo(&siginfo);
+=======
+	struct illegal_op_return rv;
+	long tmp_taken, unimplemented_address;
+
+>>>>>>> upstream/android-13
 	rv.fkt = (unsigned long) -1;
 
 	/*
@@ -198,6 +204,7 @@ ia64_emulate_brl (struct pt_regs *regs, unsigned long ar_ec)
 		 *  The target address contains unimplemented bits.
 		 */
 		printk(KERN_DEBUG "Woah! Unimplemented Instruction Address Trap!\n");
+<<<<<<< HEAD
 		siginfo.si_signo = SIGILL;
 		siginfo.si_errno = 0;
 		siginfo.si_flags = 0;
@@ -205,11 +212,16 @@ ia64_emulate_brl (struct pt_regs *regs, unsigned long ar_ec)
 		siginfo.si_imm = 0;
 		siginfo.si_code = ILL_BADIADDR;
 		force_sig_info(SIGILL, &siginfo, current);
+=======
+		force_sig_fault(SIGILL, ILL_BADIADDR, (void __user *)NULL,
+				0, 0, 0);
+>>>>>>> upstream/android-13
 	} else if (ia64_psr(regs)->tb) {
 		/*
 		 *  Branch Tracing is enabled.
 		 *  Force a taken branch signal.
 		 */
+<<<<<<< HEAD
 		siginfo.si_signo = SIGTRAP;
 		siginfo.si_errno = 0;
 		siginfo.si_code = TRAP_BRANCH;
@@ -218,11 +230,16 @@ ia64_emulate_brl (struct pt_regs *regs, unsigned long ar_ec)
 		siginfo.si_addr = 0;
 		siginfo.si_imm = 0;
 		force_sig_info(SIGTRAP, &siginfo, current);
+=======
+		force_sig_fault(SIGTRAP, TRAP_BRANCH, (void __user *)NULL,
+				0, 0, 0);
+>>>>>>> upstream/android-13
 	} else if (ia64_psr(regs)->ss) {
 		/*
 		 *  Single Step is enabled.
 		 *  Force a trace signal.
 		 */
+<<<<<<< HEAD
 		siginfo.si_signo = SIGTRAP;
 		siginfo.si_errno = 0;
 		siginfo.si_code = TRAP_TRACE;
@@ -231,6 +248,10 @@ ia64_emulate_brl (struct pt_regs *regs, unsigned long ar_ec)
 		siginfo.si_addr = 0;
 		siginfo.si_imm = 0;
 		force_sig_info(SIGTRAP, &siginfo, current);
+=======
+		force_sig_fault(SIGTRAP, TRAP_TRACE, (void __user *)NULL,
+				0, 0, 0);
+>>>>>>> upstream/android-13
 	}
 	return rv;
 }

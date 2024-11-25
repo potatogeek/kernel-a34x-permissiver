@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * udc.h - ChipIdea UDC structures
  *
@@ -61,16 +65,24 @@ struct td_node {
 	struct list_head	td;
 	dma_addr_t		dma;
 	struct ci_hw_td		*ptr;
+<<<<<<< HEAD
+=======
+	int			td_remaining_size;
+>>>>>>> upstream/android-13
 };
 
 /**
  * struct ci_hw_req - usb request representation
  * @req: request structure for gadget drivers
  * @queue: link to QH list
+<<<<<<< HEAD
  * @ptr: transfer descriptor for this request
  * @dma: dma address for the transfer descriptor
  * @zptr: transfer descriptor for the zero packet
  * @zdma: dma address of the zero packet's transfer descriptor
+=======
+ * @tds: link to TD list
+>>>>>>> upstream/android-13
  */
 struct ci_hw_req {
 	struct usb_request	req;

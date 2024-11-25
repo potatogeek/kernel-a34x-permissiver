@@ -1,4 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
+=======
+
+#include "dt-bindings/clock/bcm3368-clock.h"
+
+>>>>>>> upstream/android-13
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
@@ -51,16 +57,32 @@
 		compatible = "simple-bus";
 		ranges;
 
+<<<<<<< HEAD
 		periph_cntl: syscon@fff8c000 {
 			compatible = "syscon";
 			reg = <0xfff8c000 0xc>;
+=======
+		clkctl: clock-controller@fff8c004 {
+			compatible = "brcm,bcm3368-clocks";
+			reg = <0xfff8c004 0x4>;
+			#clock-cells = <1>;
+		};
+
+		periph_cntl: syscon@fff8c008 {
+			compatible = "syscon";
+			reg = <0xfff8c008 0x4>;
+>>>>>>> upstream/android-13
 			native-endian;
 		};
 
 		reboot: syscon-reboot@fff8c008 {
 			compatible = "syscon-reboot";
 			regmap = <&periph_cntl>;
+<<<<<<< HEAD
 			offset = <0x8>;
+=======
+			offset = <0x0>;
+>>>>>>> upstream/android-13
 			mask = <0x1>;
 		};
 

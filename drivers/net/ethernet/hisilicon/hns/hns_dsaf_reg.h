@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DSAF_REG_H_
@@ -1018,7 +1024,11 @@
 #define XGMAC_PAUSE_CTL_RSP_MODE_B	2
 #define XGMAC_PAUSE_CTL_TX_XOFF_B	3
 
+<<<<<<< HEAD
 static inline void dsaf_write_reg(void __iomem *base, u32 reg, u32 value)
+=======
+static inline void dsaf_write_reg(u8 __iomem *base, u32 reg, u32 value)
+>>>>>>> upstream/android-13
 {
 	writel(value, base + reg);
 }
@@ -1053,7 +1063,11 @@ static inline int dsaf_read_syscon(struct regmap *base, u32 reg, u32 *val)
 #define dsaf_set_bit(origin, shift, val) \
 	dsaf_set_field((origin), (1ull << (shift)), (shift), (val))
 
+<<<<<<< HEAD
 static inline void dsaf_set_reg_field(void __iomem *base, u32 reg, u32 mask,
+=======
+static inline void dsaf_set_reg_field(u8 __iomem *base, u32 reg, u32 mask,
+>>>>>>> upstream/android-13
 				      u32 shift, u32 val)
 {
 	u32 origin = dsaf_read_reg(base, reg);
@@ -1073,7 +1087,11 @@ static inline void dsaf_set_reg_field(void __iomem *base, u32 reg, u32 mask,
 #define dsaf_get_bit(origin, shift) \
 	dsaf_get_field((origin), (1ull << (shift)), (shift))
 
+<<<<<<< HEAD
 static inline u32 dsaf_get_reg_field(void __iomem *base, u32 reg, u32 mask,
+=======
+static inline u32 dsaf_get_reg_field(u8 __iomem *base, u32 reg, u32 mask,
+>>>>>>> upstream/android-13
 				     u32 shift)
 {
 	u32 origin;
@@ -1089,11 +1107,20 @@ static inline u32 dsaf_get_reg_field(void __iomem *base, u32 reg, u32 mask,
 	dsaf_get_reg_field((dev)->io_base, (reg), (1ull << (bit)), (bit))
 
 #define dsaf_write_b(addr, data)\
+<<<<<<< HEAD
 	writeb((data), (__iomem unsigned char *)(addr))
 #define dsaf_read_b(addr)\
 	readb((__iomem unsigned char *)(addr))
 
 #define hns_mac_reg_read64(drv, offset) \
 	readq((__iomem void *)(((u8 *)(drv)->io_base + 0xc00 + (offset))))
+=======
+	writeb((data), (__iomem u8 *)(addr))
+#define dsaf_read_b(addr)\
+	readb((__iomem u8 *)(addr))
+
+#define hns_mac_reg_read64(drv, offset) \
+	readq((__iomem void *)(((drv)->io_base + 0xc00 + (offset))))
+>>>>>>> upstream/android-13
 
 #endif	/* _DSAF_REG_H */

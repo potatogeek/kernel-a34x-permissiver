@@ -535,6 +535,7 @@
 /include/ "qoriq-clockgen2.dtsi"
 	global-utilities@e1000 {
 		compatible = "fsl,t2080-clockgen", "fsl,qoriq-clockgen-2.0";
+<<<<<<< HEAD
 
 		mux0: mux0@0 {
 			#clock-cells = <0>;
@@ -557,6 +558,8 @@
 				"pll1", "pll1-div2", "pll1-div4";
 			clock-output-names = "cmux1";
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	rcpm: global-utilities@e2000 {

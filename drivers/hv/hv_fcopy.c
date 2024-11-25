@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * An implementation of file copy service.
  *
  * Copyright (C) 2014, Microsoft, Inc.
  *
  * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -15,6 +20,8 @@
  * NON INFRINGEMENT.  See the GNU General Public License for more
  * details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -23,6 +30,10 @@
 #include <linux/workqueue.h>
 #include <linux/hyperv.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
+=======
+#include <asm/hyperv-tlfs.h>
+>>>>>>> upstream/android-13
 
 #include "hyperv_vmbus.h"
 #include "hv_utils_transport.h"
@@ -80,7 +91,11 @@ static void fcopy_poll_wrapper(void *channel)
 {
 	/* Transaction is finished, reset the state here to avoid races. */
 	fcopy_transaction.state = HVUTIL_READY;
+<<<<<<< HEAD
 	hv_fcopy_onchannelcallback(channel);
+=======
+	tasklet_schedule(&((struct vmbus_channel *)channel)->callback_event);
+>>>>>>> upstream/android-13
 }
 
 static void fcopy_timeout_func(struct work_struct *dummy)
@@ -244,6 +259,7 @@ void hv_fcopy_onchannelcallback(void *context)
 	if (fcopy_transaction.state > HVUTIL_READY)
 		return;
 
+<<<<<<< HEAD
 	vmbus_recvpacket(channel, recv_buffer, PAGE_SIZE * 2, &recvlen,
 			 &requestid);
 	if (recvlen <= 0)
@@ -253,6 +269,29 @@ void hv_fcopy_onchannelcallback(void *context)
 			sizeof(struct vmbuspipe_hdr)];
 	if (icmsghdr->icmsgtype == ICMSGTYPE_NEGOTIATE) {
 		if (vmbus_prep_negotiate_resp(icmsghdr, recv_buffer,
+=======
+	if (vmbus_recvpacket(channel, recv_buffer, HV_HYP_PAGE_SIZE * 2, &recvlen, &requestid)) {
+		pr_err_ratelimited("Fcopy request received. Could not read into recv buf\n");
+		return;
+	}
+
+	if (!recvlen)
+		return;
+
+	/* Ensure recvlen is big enough to read header data */
+	if (recvlen < ICMSG_HDR) {
+		pr_err_ratelimited("Fcopy request received. Packet length too small: %d\n",
+				   recvlen);
+		return;
+	}
+
+	icmsghdr = (struct icmsg_hdr *)&recv_buffer[
+			sizeof(struct vmbuspipe_hdr)];
+
+	if (icmsghdr->icmsgtype == ICMSGTYPE_NEGOTIATE) {
+		if (vmbus_prep_negotiate_resp(icmsghdr,
+				recv_buffer, recvlen,
+>>>>>>> upstream/android-13
 				fw_versions, FW_VER_COUNT,
 				fcopy_versions, FCOPY_VER_COUNT,
 				NULL, &fcopy_srv_version)) {
@@ -261,10 +300,21 @@ void hv_fcopy_onchannelcallback(void *context)
 				fcopy_srv_version >> 16,
 				fcopy_srv_version & 0xFFFF);
 		}
+<<<<<<< HEAD
 	} else {
 		fcopy_msg = (struct hv_fcopy_hdr *)&recv_buffer[
 				sizeof(struct vmbuspipe_hdr) +
 				sizeof(struct icmsg_hdr)];
+=======
+	} else if (icmsghdr->icmsgtype == ICMSGTYPE_FCOPY) {
+		/* Ensure recvlen is big enough to contain hv_fcopy_hdr */
+		if (recvlen < ICMSG_HDR + sizeof(struct hv_fcopy_hdr)) {
+			pr_err_ratelimited("Invalid Fcopy hdr. Packet length too small: %u\n",
+					   recvlen);
+			return;
+		}
+		fcopy_msg = (struct hv_fcopy_hdr *)&recv_buffer[ICMSG_HDR];
+>>>>>>> upstream/android-13
 
 		/*
 		 * Stash away this global state for completing the
@@ -289,6 +339,13 @@ void hv_fcopy_onchannelcallback(void *context)
 		schedule_delayed_work(&fcopy_timeout_work,
 				      HV_UTIL_TIMEOUT * HZ);
 		return;
+<<<<<<< HEAD
+=======
+	} else {
+		pr_err_ratelimited("Fcopy request received. Invalid msg type: %d\n",
+				   icmsghdr->icmsgtype);
+		return;
+>>>>>>> upstream/android-13
 	}
 	icmsghdr->icflags = ICMSGHDRFLAG_TRANSACTION | ICMSGHDRFLAG_RESPONSE;
 	vmbus_sendpacket(channel, recv_buffer, recvlen, requestid,
@@ -338,6 +395,10 @@ int hv_fcopy_init(struct hv_util_service *srv)
 {
 	recv_buffer = srv->recv_buffer;
 	fcopy_transaction.recv_channel = srv->channel;
+<<<<<<< HEAD
+=======
+	fcopy_transaction.recv_channel->max_pkt_size = HV_HYP_PAGE_SIZE * 2;
+>>>>>>> upstream/android-13
 
 	/*
 	 * When this driver loads, the user level daemon that
@@ -355,9 +416,68 @@ int hv_fcopy_init(struct hv_util_service *srv)
 	return 0;
 }
 
+<<<<<<< HEAD
 void hv_fcopy_deinit(void)
 {
 	fcopy_transaction.state = HVUTIL_DEVICE_DYING;
 	cancel_delayed_work_sync(&fcopy_timeout_work);
+=======
+static void hv_fcopy_cancel_work(void)
+{
+	cancel_delayed_work_sync(&fcopy_timeout_work);
+	cancel_work_sync(&fcopy_send_work);
+}
+
+int hv_fcopy_pre_suspend(void)
+{
+	struct vmbus_channel *channel = fcopy_transaction.recv_channel;
+	struct hv_fcopy_hdr *fcopy_msg;
+
+	/*
+	 * Fake a CANCEL_FCOPY message for the user space daemon in case the
+	 * daemon is in the middle of copying some file. It doesn't matter if
+	 * there is already a message pending to be delivered to the user
+	 * space since we force fcopy_transaction.state to be HVUTIL_READY, so
+	 * the user space daemon's write() will fail with EINVAL (see
+	 * fcopy_on_msg()), and the daemon will reset the device by closing
+	 * and re-opening it.
+	 */
+	fcopy_msg = kzalloc(sizeof(*fcopy_msg), GFP_KERNEL);
+	if (!fcopy_msg)
+		return -ENOMEM;
+
+	tasklet_disable(&channel->callback_event);
+
+	fcopy_msg->operation = CANCEL_FCOPY;
+
+	hv_fcopy_cancel_work();
+
+	/* We don't care about the return value. */
+	hvutil_transport_send(hvt, fcopy_msg, sizeof(*fcopy_msg), NULL);
+
+	kfree(fcopy_msg);
+
+	fcopy_transaction.state = HVUTIL_READY;
+
+	/* tasklet_enable() will be called in hv_fcopy_pre_resume(). */
+	return 0;
+}
+
+int hv_fcopy_pre_resume(void)
+{
+	struct vmbus_channel *channel = fcopy_transaction.recv_channel;
+
+	tasklet_enable(&channel->callback_event);
+
+	return 0;
+}
+
+void hv_fcopy_deinit(void)
+{
+	fcopy_transaction.state = HVUTIL_DEVICE_DYING;
+
+	hv_fcopy_cancel_work();
+
+>>>>>>> upstream/android-13
 	hvutil_transport_destroy(hvt);
 }

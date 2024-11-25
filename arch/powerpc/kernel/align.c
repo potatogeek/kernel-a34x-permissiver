@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* align.c - handle alignment exceptions for the Power PC.
  *
  * Copyright (c) 1996 Paul Mackerras <paulus@cs.anu.edu.au>
@@ -10,11 +14,14 @@
  * Copyright (c) 2005 Benjamin Herrenschmidt, IBM Corp
  *                    <benh@kernel.crashing.org>
  *   Merge ppc32 and ppc64 implementations
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -28,6 +35,10 @@
 #include <asm/disassemble.h>
 #include <asm/cpu_has_feature.h>
 #include <asm/sstep.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 struct aligninfo {
 	unsigned char len;
@@ -108,9 +119,14 @@ static struct aligninfo spe_aligninfo[32] = {
  * so we don't need the address swizzling.
  */
 static int emulate_spe(struct pt_regs *regs, unsigned int reg,
+<<<<<<< HEAD
 		       unsigned int instr)
 {
 	int ret;
+=======
+		       struct ppc_inst ppc_instr)
+{
+>>>>>>> upstream/android-13
 	union {
 		u64 ll;
 		u32 w[2];
@@ -119,8 +135,14 @@ static int emulate_spe(struct pt_regs *regs, unsigned int reg,
 	} data, temp;
 	unsigned char __user *p, *addr;
 	unsigned long *evr = &current->thread.evr[reg];
+<<<<<<< HEAD
 	unsigned int nb, flags;
 
+=======
+	unsigned int nb, flags, instr;
+
+	instr = ppc_inst_val(ppc_instr);
+>>>>>>> upstream/android-13
 	instr = (instr >> 1) & 0x1f;
 
 	/* DAR has the operand effective address */
@@ -129,12 +151,15 @@ static int emulate_spe(struct pt_regs *regs, unsigned int reg,
 	nb = spe_aligninfo[instr].len;
 	flags = spe_aligninfo[instr].flags;
 
+<<<<<<< HEAD
 	/* Verify the address of the operand */
 	if (unlikely(user_mode(regs) &&
 		     !access_ok((flags & ST ? VERIFY_WRITE : VERIFY_READ),
 				addr, nb)))
 		return -EFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	/* userland only */
 	if (unlikely(!user_mode(regs)))
 		return 0;
@@ -172,6 +197,7 @@ static int emulate_spe(struct pt_regs *regs, unsigned int reg,
 		}
 	} else {
 		temp.ll = data.ll = 0;
+<<<<<<< HEAD
 		ret = 0;
 		p = addr;
 
@@ -190,6 +216,29 @@ static int emulate_spe(struct pt_regs *regs, unsigned int reg,
 			if (unlikely(ret))
 				return -EFAULT;
 		}
+=======
+		p = addr;
+
+		if (!user_read_access_begin(addr, nb))
+			return -EFAULT;
+
+		switch (nb) {
+		case 8:
+			unsafe_get_user(temp.v[0], p++, Efault_read);
+			unsafe_get_user(temp.v[1], p++, Efault_read);
+			unsafe_get_user(temp.v[2], p++, Efault_read);
+			unsafe_get_user(temp.v[3], p++, Efault_read);
+			fallthrough;
+		case 4:
+			unsafe_get_user(temp.v[4], p++, Efault_read);
+			unsafe_get_user(temp.v[5], p++, Efault_read);
+			fallthrough;
+		case 2:
+			unsafe_get_user(temp.v[6], p++, Efault_read);
+			unsafe_get_user(temp.v[7], p++, Efault_read);
+		}
+		user_read_access_end();
+>>>>>>> upstream/android-13
 
 		switch (instr) {
 		case EVLDD:
@@ -256,6 +305,7 @@ static int emulate_spe(struct pt_regs *regs, unsigned int reg,
 
 	/* Store result to memory or update registers */
 	if (flags & ST) {
+<<<<<<< HEAD
 		ret = 0;
 		p = addr;
 		switch (nb) {
@@ -273,12 +323,46 @@ static int emulate_spe(struct pt_regs *regs, unsigned int reg,
 		}
 		if (unlikely(ret))
 			return -EFAULT;
+=======
+		p = addr;
+
+		if (!user_write_access_begin(addr, nb))
+			return -EFAULT;
+
+		switch (nb) {
+		case 8:
+			unsafe_put_user(data.v[0], p++, Efault_write);
+			unsafe_put_user(data.v[1], p++, Efault_write);
+			unsafe_put_user(data.v[2], p++, Efault_write);
+			unsafe_put_user(data.v[3], p++, Efault_write);
+			fallthrough;
+		case 4:
+			unsafe_put_user(data.v[4], p++, Efault_write);
+			unsafe_put_user(data.v[5], p++, Efault_write);
+			fallthrough;
+		case 2:
+			unsafe_put_user(data.v[6], p++, Efault_write);
+			unsafe_put_user(data.v[7], p++, Efault_write);
+		}
+		user_write_access_end();
+>>>>>>> upstream/android-13
 	} else {
 		*evr = data.w[0];
 		regs->gpr[reg] = data.w[1];
 	}
 
 	return 1;
+<<<<<<< HEAD
+=======
+
+Efault_read:
+	user_read_access_end();
+	return -EFAULT;
+
+Efault_write:
+	user_write_access_end();
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_SPE */
 
@@ -294,6 +378,7 @@ static int emulate_spe(struct pt_regs *regs, unsigned int reg,
 
 int fix_alignment(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	unsigned int instr;
 	struct instruction_op op;
 	int r, type;
@@ -305,17 +390,38 @@ int fix_alignment(struct pt_regs *regs)
 	CHECK_FULL_REGS(regs);
 
 	if (unlikely(__get_user(instr, (unsigned int __user *)regs->nip)))
+=======
+	struct ppc_inst instr;
+	struct instruction_op op;
+	int r, type;
+
+	if (is_kernel_addr(regs->nip))
+		r = copy_inst_from_kernel_nofault(&instr, (void *)regs->nip);
+	else
+		r = __get_user_instr(instr, (void __user *)regs->nip);
+
+	if (unlikely(r))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	if ((regs->msr & MSR_LE) != (MSR_KERNEL & MSR_LE)) {
 		/* We don't handle PPC little-endian any more... */
 		if (cpu_has_feature(CPU_FTR_PPC_LE))
 			return -EIO;
+<<<<<<< HEAD
 		instr = swab32(instr);
 	}
 
 #ifdef CONFIG_SPE
 	if ((instr >> 26) == 0x4) {
 		int reg = (instr >> 21) & 0x1f;
+=======
+		instr = ppc_inst_swab(instr);
+	}
+
+#ifdef CONFIG_SPE
+	if (ppc_inst_primary_opcode(instr) == 0x4) {
+		int reg = (ppc_inst_val(instr) >> 21) & 0x1f;
+>>>>>>> upstream/android-13
 		PPC_WARN_ALIGNMENT(spe, regs);
 		return emulate_spe(regs, reg, instr);
 	}
@@ -332,7 +438,11 @@ int fix_alignment(struct pt_regs *regs)
 	 * when pasting to a co-processor. Furthermore, paste_last is the
 	 * synchronisation point for preceding copy/paste sequences.
 	 */
+<<<<<<< HEAD
 	if ((instr & 0xfc0006fe) == (PPC_INST_COPY & 0xfc0006fe))
+=======
+	if ((ppc_inst_val(instr) & 0xfc0006fe) == (PPC_INST_COPY & 0xfc0006fe))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	r = analyse_instr(&op, regs, instr);

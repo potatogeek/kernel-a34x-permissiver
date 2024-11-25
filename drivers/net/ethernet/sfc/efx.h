@@ -1,23 +1,38 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef EFX_EFX_H
 #define EFX_EFX_H
 
+<<<<<<< HEAD
 #include "net_driver.h"
+=======
+#include <linux/indirect_call_wrapper.h>
+#include "net_driver.h"
+#include "ef100_rx.h"
+#include "ef100_tx.h"
+>>>>>>> upstream/android-13
 #include "filter.h"
 
 int efx_net_open(struct net_device *net_dev);
 int efx_net_stop(struct net_device *net_dev);
 
 /* TX */
+<<<<<<< HEAD
 int efx_probe_tx_queue(struct efx_tx_queue *tx_queue);
 void efx_remove_tx_queue(struct efx_tx_queue *tx_queue);
 void efx_init_tx_queue(struct efx_tx_queue *tx_queue);
@@ -43,12 +58,32 @@ void efx_init_rx_queue(struct efx_rx_queue *rx_queue);
 void efx_fini_rx_queue(struct efx_rx_queue *rx_queue);
 void efx_fast_push_rx_descriptors(struct efx_rx_queue *rx_queue, bool atomic);
 void efx_rx_slow_fill(struct timer_list *t);
+=======
+void efx_init_tx_queue_core_txq(struct efx_tx_queue *tx_queue);
+netdev_tx_t efx_hard_start_xmit(struct sk_buff *skb,
+				struct net_device *net_dev);
+netdev_tx_t __efx_enqueue_skb(struct efx_tx_queue *tx_queue, struct sk_buff *skb);
+static inline netdev_tx_t efx_enqueue_skb(struct efx_tx_queue *tx_queue, struct sk_buff *skb)
+{
+	return INDIRECT_CALL_2(tx_queue->efx->type->tx_enqueue,
+			       ef100_enqueue_skb, __efx_enqueue_skb,
+			       tx_queue, skb);
+}
+void efx_xmit_done(struct efx_tx_queue *tx_queue, unsigned int index);
+void efx_xmit_done_single(struct efx_tx_queue *tx_queue);
+int efx_setup_tc(struct net_device *net_dev, enum tc_setup_type type,
+		 void *type_data);
+extern unsigned int efx_piobuf_size;
+
+/* RX */
+>>>>>>> upstream/android-13
 void __efx_rx_packet(struct efx_channel *channel);
 void efx_rx_packet(struct efx_rx_queue *rx_queue, unsigned int index,
 		   unsigned int n_frags, unsigned int len, u16 flags);
 static inline void efx_rx_flush_packet(struct efx_channel *channel)
 {
 	if (channel->rx_pkt_n_frags)
+<<<<<<< HEAD
 		__efx_rx_packet(channel);
 }
 void efx_schedule_slow_fill(struct efx_rx_queue *rx_queue);
@@ -59,6 +94,20 @@ void efx_schedule_slow_fill(struct efx_rx_queue *rx_queue);
 
 #define EFX_MAX_EVQ_SIZE 16384UL
 #define EFX_MIN_EVQ_SIZE 512UL
+=======
+		INDIRECT_CALL_2(channel->efx->type->rx_packet,
+				__ef100_rx_packet, __efx_rx_packet,
+				channel);
+}
+static inline bool efx_rx_buf_hash_valid(struct efx_nic *efx, const u8 *prefix)
+{
+	if (efx->type->rx_buf_hash_valid)
+		return INDIRECT_CALL_1(efx->type->rx_buf_hash_valid,
+				       ef100_rx_buf_hash_valid,
+				       prefix);
+	return true;
+}
+>>>>>>> upstream/android-13
 
 /* Maximum number of TCP segments we support for soft-TSO */
 #define EFX_TSO_MAX_SEGS	100
@@ -83,8 +132,11 @@ static inline bool efx_rss_enabled(struct efx_nic *efx)
 
 /* Filters */
 
+<<<<<<< HEAD
 void efx_mac_reconfigure(struct efx_nic *efx);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * efx_filter_insert_filter - add or replace a filter
  * @efx: NIC in which to insert the filter
@@ -166,6 +218,7 @@ static inline s32 efx_filter_get_rx_ids(struct efx_nic *efx,
 {
 	return efx->type->filter_get_rx_ids(efx, priority, buf, size);
 }
+<<<<<<< HEAD
 #ifdef CONFIG_RFS_ACCEL
 int efx_filter_rfs(struct net_device *net_dev, const struct sk_buff *skb,
 		   u16 rxq_index, u32 flow_id);
@@ -236,6 +289,19 @@ int efx_try_recovery(struct efx_nic *efx);
 
 /* Global */
 void efx_schedule_reset(struct efx_nic *efx, enum reset_type type);
+=======
+
+/* RSS contexts */
+static inline bool efx_rss_active(struct efx_rss_context *ctx)
+{
+	return ctx->context_id != EFX_MCDI_RSS_CONTEXT_INVALID;
+}
+
+/* Ethtool support */
+extern const struct ethtool_ops efx_ethtool_ops;
+
+/* Global */
+>>>>>>> upstream/android-13
 unsigned int efx_usecs_to_ticks(struct efx_nic *efx, unsigned int usecs);
 unsigned int efx_ticks_to_usecs(struct efx_nic *efx, unsigned int ticks);
 int efx_init_irq_moderation(struct efx_nic *efx, unsigned int tx_usecs,
@@ -243,12 +309,15 @@ int efx_init_irq_moderation(struct efx_nic *efx, unsigned int tx_usecs,
 			    bool rx_may_override_tx);
 void efx_get_irq_moderation(struct efx_nic *efx, unsigned int *tx_usecs,
 			    unsigned int *rx_usecs, bool *rx_adaptive);
+<<<<<<< HEAD
 void efx_stop_eventq(struct efx_channel *channel);
 void efx_start_eventq(struct efx_channel *channel);
 
 /* Dummy PHY ops for PHY drivers */
 int efx_port_dummy_op_int(struct efx_nic *efx);
 void efx_port_dummy_op_void(struct efx_nic *efx);
+=======
+>>>>>>> upstream/android-13
 
 /* Update the generic software stats in the passed stats array */
 void efx_update_sw_stats(struct efx_nic *efx, u64 *stats);
@@ -276,6 +345,7 @@ static inline unsigned int efx_vf_size(struct efx_nic *efx)
 }
 #endif
 
+<<<<<<< HEAD
 static inline void efx_schedule_channel(struct efx_channel *channel)
 {
 	netif_vdbg(channel->efx, intr, channel->efx->net_dev,
@@ -297,6 +367,8 @@ void efx_link_set_advertising(struct efx_nic *efx,
 void efx_link_clear_advertising(struct efx_nic *efx);
 void efx_link_set_wanted_fc(struct efx_nic *efx, u8);
 
+=======
+>>>>>>> upstream/android-13
 static inline void efx_device_detach_sync(struct efx_nic *efx)
 {
 	struct net_device *dev = efx->net_dev;
@@ -325,4 +397,10 @@ static inline bool efx_rwsem_assert_write_locked(struct rw_semaphore *sem)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+int efx_xdp_tx_buffers(struct efx_nic *efx, int n, struct xdp_frame **xdpfs,
+		       bool flush);
+
+>>>>>>> upstream/android-13
 #endif /* EFX_EFX_H */

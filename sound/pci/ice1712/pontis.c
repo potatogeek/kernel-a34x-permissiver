@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble VT1724 (Envy24HT)
  *
  *   Lowlevel functions for Pontis MS300
  *
  *	Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -543,7 +550,11 @@ static const DECLARE_TLV_DB_SCALE(db_scale_volume, -6400, 50, 1);
  * mixers
  */
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new pontis_controls[] = {
+=======
+static const struct snd_kcontrol_new pontis_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.access = (SNDRV_CTL_ELEM_ACCESS_READWRITE |
@@ -659,12 +670,17 @@ static void wm_proc_regs_read(struct snd_info_entry *entry, struct snd_info_buff
 
 static void wm_proc_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	if (! snd_card_proc_new(ice->card, "wm_codec", &entry)) {
 		snd_info_set_text_ops(entry, ice, wm_proc_regs_read);
 		entry->mode |= 0200;
 		entry->c.text.write = wm_proc_regs_write;
 	}
+=======
+	snd_card_rw_proc_new(ice->card, "wm_codec", ice, wm_proc_regs_read,
+			     wm_proc_regs_write);
+>>>>>>> upstream/android-13
 }
 
 static void cs_proc_regs_read(struct snd_info_entry *entry, struct snd_info_buffer *buffer)
@@ -684,9 +700,13 @@ static void cs_proc_regs_read(struct snd_info_entry *entry, struct snd_info_buff
 
 static void cs_proc_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	if (! snd_card_proc_new(ice->card, "cs_codec", &entry))
 		snd_info_set_text_ops(entry, ice, cs_proc_regs_read);
+=======
+	snd_card_ro_proc_new(ice->card, "cs_codec", ice, cs_proc_regs_read);
+>>>>>>> upstream/android-13
 }
 
 
@@ -798,7 +818,11 @@ static int pontis_init(struct snd_ice1712 *ice)
  * hence the driver needs to sets up it properly.
  */
 
+<<<<<<< HEAD
 static unsigned char pontis_eeprom[] = {
+=======
+static const unsigned char pontis_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x08,	/* clock 256, mpu401, spdif-in/ADC, 1DAC */
 	[ICE_EEP2_ACLINK]      = 0x80,	/* I2S */
 	[ICE_EEP2_I2S]         = 0xf8,	/* vol, 96k, 24bit, 192k */

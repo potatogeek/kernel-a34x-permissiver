@@ -2,6 +2,11 @@
 /*
  * (C) Copyright David Gibson <dwg@au1.ibm.com>, IBM Corporation.  2005.
  */
+<<<<<<< HEAD
+=======
+%locations
+
+>>>>>>> upstream/android-13
 %{
 #include <stdio.h>
 #include <inttypes.h>
@@ -17,6 +22,11 @@ extern void yyerror(char const *s);
 		treesource_error = true; \
 	} while (0)
 
+<<<<<<< HEAD
+=======
+#define YYERROR_CALL(msg) yyerror(msg)
+
+>>>>>>> upstream/android-13
 extern struct dt_info *parser_output;
 extern bool treesource_error;
 %}
@@ -472,8 +482,13 @@ integer_rela:
 	;
 
 integer_shift:
+<<<<<<< HEAD
 	  integer_shift DT_LSHIFT integer_add { $$ = $1 << $3; }
 	| integer_shift DT_RSHIFT integer_add { $$ = $1 >> $3; }
+=======
+	  integer_shift DT_LSHIFT integer_add { $$ = ($3 < 64) ? ($1 << $3) : 0; }
+	| integer_shift DT_RSHIFT integer_add { $$ = ($3 < 64) ? ($1 >> $3) : 0; }
+>>>>>>> upstream/android-13
 	| integer_add
 	;
 

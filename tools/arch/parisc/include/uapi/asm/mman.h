@@ -27,8 +27,11 @@
 #define MAP_NONBLOCK	0x20000
 #define MAP_NORESERVE	0x4000
 #define MAP_POPULATE	0x10000
+<<<<<<< HEAD
 #define MAP_PRIVATE	0x02
 #define MAP_SHARED	0x01
+=======
+>>>>>>> upstream/android-13
 #define MAP_STACK	0x40000
 #define PROT_EXEC	0x4
 #define PROT_GROWSDOWN	0x01000000
@@ -41,6 +44,9 @@
 #define MADV_SOFT_OFFLINE 101
 /* MAP_32BIT is undefined on parisc, fix it for perf */
 #define MAP_32BIT	0
+<<<<<<< HEAD
 /* MAP_UNINITIALIZED is undefined on parisc, fix it for perf */
+=======
+>>>>>>> upstream/android-13
 #define MAP_UNINITIALIZED	0
 #endif

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright 2011-2012 Calxeda, Inc.
  *  Copyright (C) 2012-2013 Altera Corporation <www.altera.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,9 @@
  *
  * Based from clk-highbank.c
  *
+=======
+ * Based from clk-highbank.c
+>>>>>>> upstream/android-13
  */
 #include <linux/slab.h>
 #include <linux/clk-provider.h>
@@ -75,11 +83,16 @@ static u8 clk_pll_get_parent(struct clk_hw *hwclk)
 			CLK_MGR_PLL_CLK_SRC_MASK;
 }
 
+<<<<<<< HEAD
 static struct clk_ops clk_pll_ops = {
+=======
+static const struct clk_ops clk_pll_ops = {
+>>>>>>> upstream/android-13
 	.recalc_rate = clk_pll_recalc_rate,
 	.get_parent = clk_pll_get_parent,
 };
 
+<<<<<<< HEAD
 static __init struct clk *__socfpga_pll_init(struct device_node *node,
 	const struct clk_ops *ops)
 {
@@ -91,6 +104,19 @@ static __init struct clk *__socfpga_pll_init(struct device_node *node,
 	struct clk_init_data init = {};
 	struct device_node *clkmgr_np;
 	int rc;
+=======
+static __init struct clk_hw *__socfpga_pll_init(struct device_node *node,
+	const struct clk_ops *ops)
+{
+	u32 reg;
+	struct clk_hw *hw_clk;
+	struct socfpga_pll *pll_clk;
+	const char *clk_name = node->name;
+	const char *parent_name[SOCFPGA_MAX_PARENTS];
+	struct clk_init_data init;
+	struct device_node *clkmgr_np;
+	int err;
+>>>>>>> upstream/android-13
 
 	of_property_read_u32(node, "reg", &reg);
 
@@ -115,6 +141,7 @@ static __init struct clk *__socfpga_pll_init(struct device_node *node,
 	pll_clk->hw.hw.init = &init;
 
 	pll_clk->hw.bit_idx = SOCFPGA_PLL_EXT_ENA;
+<<<<<<< HEAD
 	clk_pll_ops.enable = clk_gate_ops.enable;
 	clk_pll_ops.disable = clk_gate_ops.disable;
 
@@ -125,6 +152,18 @@ static __init struct clk *__socfpga_pll_init(struct device_node *node,
 	}
 	rc = of_clk_add_provider(node, of_clk_src_simple_get, clk);
 	return clk;
+=======
+
+	hw_clk = &pll_clk->hw.hw;
+
+	err = clk_hw_register(NULL, hw_clk);
+	if (err) {
+		kfree(pll_clk);
+		return ERR_PTR(err);
+	}
+	of_clk_add_provider(node, of_clk_src_simple_get, hw_clk);
+	return hw_clk;
+>>>>>>> upstream/android-13
 }
 
 void __init socfpga_pll_init(struct device_node *node)

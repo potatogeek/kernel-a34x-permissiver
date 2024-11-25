@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * tegra20_i2s.h - Definitions for Tegra20 I2S driver
  *
@@ -11,6 +15,7 @@
  *
  * Copyright (C) 2010 Google, Inc.
  * Iliyan Malchev <malchev@google.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +31,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TEGRA20_I2S_H__
@@ -158,6 +165,10 @@ struct tegra20_i2s {
 	struct snd_dmaengine_dai_dma_data capture_dma_data;
 	struct snd_dmaengine_dai_dma_data playback_dma_data;
 	struct regmap *regmap;
+<<<<<<< HEAD
+=======
+	struct reset_control *reset;
+>>>>>>> upstream/android-13
 };
 
 #endif

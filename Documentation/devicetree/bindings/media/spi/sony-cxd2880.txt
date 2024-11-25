@@ -5,6 +5,13 @@ Required properties:
 - reg: SPI chip select number for the device.
 - spi-max-frequency: Maximum bus speed, should be set to <55000000> (55MHz).
 
+<<<<<<< HEAD
+=======
+Optional properties:
+- vcc-supply: Optional phandle to the vcc regulator to power the adapter,
+  as described in the file ../regulator/regulator.txt
+
+>>>>>>> upstream/android-13
 Example:
 
 cxd2880@0 {

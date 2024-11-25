@@ -84,7 +84,11 @@ static struct rds_connection *rds_conn_lookup(struct net *net,
 					      const struct in6_addr *laddr,
 					      const struct in6_addr *faddr,
 					      struct rds_transport *trans,
+<<<<<<< HEAD
 					      int dev_if)
+=======
+					      u8 tos, int dev_if)
+>>>>>>> upstream/android-13
 {
 	struct rds_connection *conn, *ret = NULL;
 
@@ -92,6 +96,10 @@ static struct rds_connection *rds_conn_lookup(struct net *net,
 		if (ipv6_addr_equal(&conn->c_faddr, faddr) &&
 		    ipv6_addr_equal(&conn->c_laddr, laddr) &&
 		    conn->c_trans == trans &&
+<<<<<<< HEAD
+=======
+		    conn->c_tos == tos &&
+>>>>>>> upstream/android-13
 		    net == rds_conn_net(conn) &&
 		    conn->c_dev_if == dev_if) {
 			ret = conn;
@@ -139,6 +147,10 @@ static void __rds_conn_path_init(struct rds_connection *conn,
 	atomic_set(&cp->cp_state, RDS_CONN_DOWN);
 	cp->cp_send_gen = 0;
 	cp->cp_reconnect_jiffies = 0;
+<<<<<<< HEAD
+=======
+	cp->cp_conn->c_proposed_version = RDS_PROTOCOL_VERSION;
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&cp->cp_send_w, rds_send_worker);
 	INIT_DELAYED_WORK(&cp->cp_recv_w, rds_recv_worker);
 	INIT_DELAYED_WORK(&cp->cp_conn_w, rds_connect_worker);
@@ -159,7 +171,11 @@ static struct rds_connection *__rds_conn_create(struct net *net,
 						const struct in6_addr *laddr,
 						const struct in6_addr *faddr,
 						struct rds_transport *trans,
+<<<<<<< HEAD
 						gfp_t gfp,
+=======
+						gfp_t gfp, u8 tos,
+>>>>>>> upstream/android-13
 						int is_outgoing,
 						int dev_if)
 {
@@ -171,7 +187,11 @@ static struct rds_connection *__rds_conn_create(struct net *net,
 	int npaths = (trans->t_mp_capable ? RDS_MPATH_WORKERS : 1);
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	conn = rds_conn_lookup(net, head, laddr, faddr, trans, dev_if);
+=======
+	conn = rds_conn_lookup(net, head, laddr, faddr, trans, tos, dev_if);
+>>>>>>> upstream/android-13
 	if (conn &&
 	    conn->c_loopback &&
 	    conn->c_trans != &rds_loop_transport &&
@@ -205,6 +225,10 @@ static struct rds_connection *__rds_conn_create(struct net *net,
 	conn->c_isv6 = !ipv6_addr_v4mapped(laddr);
 	conn->c_faddr = *faddr;
 	conn->c_dev_if = dev_if;
+<<<<<<< HEAD
+=======
+	conn->c_tos = tos;
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_IPV6)
 	/* If the local address is link local, set c_bound_if to be the
@@ -237,12 +261,33 @@ static struct rds_connection *__rds_conn_create(struct net *net,
 	if (loop_trans) {
 		rds_trans_put(loop_trans);
 		conn->c_loopback = 1;
+<<<<<<< HEAD
 		if (is_outgoing && trans->t_prefer_loopback) {
 			/* "outgoing" connection - and the transport
 			 * says it wants the connection handled by the
 			 * loopback transport. This is what TCP does.
 			 */
 			trans = &rds_loop_transport;
+=======
+		if (trans->t_prefer_loopback) {
+			if (likely(is_outgoing)) {
+				/* "outgoing" connection to local address.
+				 * Protocol says it wants the connection
+				 * handled by the loopback transport.
+				 * This is what TCP does.
+				 */
+				trans = &rds_loop_transport;
+			} else {
+				/* No transport currently in use
+				 * should end up here, but if it
+				 * does, reset/destroy the connection.
+				 */
+				kfree(conn->c_path);
+				kmem_cache_free(rds_conn_slab, conn);
+				conn = ERR_PTR(-EOPNOTSUPP);
+				goto out;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -297,7 +342,11 @@ static struct rds_connection *__rds_conn_create(struct net *net,
 		struct rds_connection *found;
 
 		found = rds_conn_lookup(net, head, laddr, faddr, trans,
+<<<<<<< HEAD
 					dev_if);
+=======
+					tos, dev_if);
+>>>>>>> upstream/android-13
 		if (found) {
 			struct rds_conn_path *cp;
 			int i;
@@ -332,10 +381,17 @@ out:
 struct rds_connection *rds_conn_create(struct net *net,
 				       const struct in6_addr *laddr,
 				       const struct in6_addr *faddr,
+<<<<<<< HEAD
 				       struct rds_transport *trans, gfp_t gfp,
 				       int dev_if)
 {
 	return __rds_conn_create(net, laddr, faddr, trans, gfp, 0, dev_if);
+=======
+				       struct rds_transport *trans, u8 tos,
+				       gfp_t gfp, int dev_if)
+{
+	return __rds_conn_create(net, laddr, faddr, trans, gfp, tos, 0, dev_if);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rds_conn_create);
 
@@ -343,9 +399,15 @@ struct rds_connection *rds_conn_create_outgoing(struct net *net,
 						const struct in6_addr *laddr,
 						const struct in6_addr *faddr,
 						struct rds_transport *trans,
+<<<<<<< HEAD
 						gfp_t gfp, int dev_if)
 {
 	return __rds_conn_create(net, laddr, faddr, trans, gfp, 1, dev_if);
+=======
+						u8 tos, gfp_t gfp, int dev_if)
+{
+	return __rds_conn_create(net, laddr, faddr, trans, gfp, tos, 1, dev_if);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rds_conn_create_outgoing);
 
@@ -733,6 +795,10 @@ static int rds_conn_info_visitor(struct rds_conn_path *cp, void *buffer)
 	cinfo->next_rx_seq = cp->cp_next_rx_seq;
 	cinfo->laddr = conn->c_laddr.s6_addr32[3];
 	cinfo->faddr = conn->c_faddr.s6_addr32[3];
+<<<<<<< HEAD
+=======
+	cinfo->tos = conn->c_tos;
+>>>>>>> upstream/android-13
 	strncpy(cinfo->transport, conn->c_trans->t_name,
 		sizeof(cinfo->transport));
 	cinfo->flags = 0;
@@ -901,6 +967,20 @@ void rds_conn_path_connect_if_down(struct rds_conn_path *cp)
 }
 EXPORT_SYMBOL_GPL(rds_conn_path_connect_if_down);
 
+<<<<<<< HEAD
+=======
+/* Check connectivity of all paths
+ */
+void rds_check_all_paths(struct rds_connection *conn)
+{
+	int i = 0;
+
+	do {
+		rds_conn_path_connect_if_down(&conn->c_path[i]);
+	} while (++i < conn->c_npaths);
+}
+
+>>>>>>> upstream/android-13
 void rds_conn_connect_if_down(struct rds_connection *conn)
 {
 	WARN_ON(conn->c_trans->t_mp_capable);

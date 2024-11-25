@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * e800-wm9712.c  --  SoC audio for e800
  *
  * Copyright 2007 (c) Ian Molton <spyro@f2s.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation; version 2 ONLY.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -68,22 +75,44 @@ static const struct snd_soc_dapm_route audio_map[] = {
 	{"MIC2", NULL, "Mic (Internal2)"},
 };
 
+<<<<<<< HEAD
+=======
+
+SND_SOC_DAILINK_DEFS(ac97,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9712-codec", "wm9712-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+SND_SOC_DAILINK_DEFS(ac97_aux,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97-aux")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9712-codec", "wm9712-aux")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link e800_dai[] = {
 	{
 		.name = "AC97",
 		.stream_name = "AC97 HiFi",
+<<<<<<< HEAD
 		.cpu_dai_name = "pxa2xx-ac97",
 		.codec_dai_name = "wm9712-hifi",
 		.platform_name = "pxa-pcm-audio",
 		.codec_name = "wm9712-codec",
+=======
+		SND_SOC_DAILINK_REG(ac97),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "AC97 Aux",
 		.stream_name = "AC97 Aux",
+<<<<<<< HEAD
 		.cpu_dai_name = "pxa2xx-ac97-aux",
 		.codec_dai_name = "wm9712-aux",
 		.platform_name = "pxa-pcm-audio",
 		.codec_name = "wm9712-codec",
+=======
+		SND_SOC_DAILINK_REG(ac97_aux),
+>>>>>>> upstream/android-13
 	},
 };
 

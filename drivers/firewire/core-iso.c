@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Isochronous I/O functionality:
  *   - Isochronous DMA context management
  *   - Isochronous bus resource management (channels, bandwidth), client side
  *
  * Copyright (C) 2006 Kristian Hoegsberg <krh@bitplanet.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dma-mapping.h>
@@ -104,6 +111,7 @@ int fw_iso_buffer_init(struct fw_iso_buffer *buffer, struct fw_card *card,
 }
 EXPORT_SYMBOL(fw_iso_buffer_init);
 
+<<<<<<< HEAD
 int fw_iso_buffer_map_vma(struct fw_iso_buffer *buffer,
 			  struct vm_area_struct *vma)
 {
@@ -122,6 +130,8 @@ int fw_iso_buffer_map_vma(struct fw_iso_buffer *buffer,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 void fw_iso_buffer_destroy(struct fw_iso_buffer *buffer,
 			   struct fw_card *card)
 {
@@ -308,7 +318,11 @@ static int manage_channel(struct fw_card *card, int irm_id, int generation,
 			if ((data[0] & bit) == (data[1] & bit))
 				continue;
 
+<<<<<<< HEAD
 			/* 1394-1995 IRM, fall through to retry. */
+=======
+			fallthrough;	/* It's a 1394-1995 IRM, retry */
+>>>>>>> upstream/android-13
 		default:
 			if (retry) {
 				retry--;
@@ -337,9 +351,22 @@ static void deallocate_channel(struct fw_card *card, int irm_id,
 
 /**
  * fw_iso_resource_manage() - Allocate or deallocate a channel and/or bandwidth
+<<<<<<< HEAD
  *
  * In parameters: card, generation, channels_mask, bandwidth, allocate
  * Out parameters: channel, bandwidth
+=======
+ * @card: card interface for this action
+ * @generation: bus generation
+ * @channels_mask: bitmask for channel allocation
+ * @channel: pointer for returning channel allocation result
+ * @bandwidth: pointer for returning bandwidth allocation result
+ * @allocate: whether to allocate (true) or deallocate (false)
+ *
+ * In parameters: card, generation, channels_mask, bandwidth, allocate
+ * Out parameters: channel, bandwidth
+ *
+>>>>>>> upstream/android-13
  * This function blocks (sleeps) during communication with the IRM.
  *
  * Allocates or deallocates at most one channel out of channels_mask.

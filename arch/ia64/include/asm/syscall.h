@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Access to user system call parameters and results
  *
  * Copyright (C) 2008 Intel Corp.  Shaohua Li <shaohua.li@intel.com>
  *
+<<<<<<< HEAD
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2.
  *
+=======
+>>>>>>> upstream/android-13
  * See asm-generic/syscall.h for descriptions of what we must do here.
  */
 
@@ -59,6 +66,7 @@ static inline void syscall_set_return_value(struct task_struct *task,
 }
 
 extern void ia64_syscall_get_set_arguments(struct task_struct *task,
+<<<<<<< HEAD
 	struct pt_regs *regs, unsigned int i, unsigned int n,
 	unsigned long *args, int rw);
 static inline void syscall_get_arguments(struct task_struct *task,
@@ -69,10 +77,19 @@ static inline void syscall_get_arguments(struct task_struct *task,
 	BUG_ON(i + n > 6);
 
 	ia64_syscall_get_set_arguments(task, regs, i, n, args, 0);
+=======
+	struct pt_regs *regs, unsigned long *args, int rw);
+static inline void syscall_get_arguments(struct task_struct *task,
+					 struct pt_regs *regs,
+					 unsigned long *args)
+{
+	ia64_syscall_get_set_arguments(task, regs, args, 0);
+>>>>>>> upstream/android-13
 }
 
 static inline void syscall_set_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 unsigned long *args)
 {
@@ -82,6 +99,14 @@ static inline void syscall_set_arguments(struct task_struct *task,
 }
 
 static inline int syscall_get_arch(void)
+=======
+					 unsigned long *args)
+{
+	ia64_syscall_get_set_arguments(task, regs, args, 1);
+}
+
+static inline int syscall_get_arch(struct task_struct *task)
+>>>>>>> upstream/android-13
 {
 	return AUDIT_ARCH_IA64;
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _PPP_CHANNEL_H_
 #define _PPP_CHANNEL_H_
 /*
@@ -11,11 +15,14 @@
  *
  * Copyright 1999 Paul Mackerras.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * ==FILEVERSION 20000322==
  */
 
@@ -32,6 +39,12 @@ struct ppp_channel_ops {
 	int	(*start_xmit)(struct ppp_channel *, struct sk_buff *);
 	/* Handle an ioctl call that has come in via /dev/ppp. */
 	int	(*ioctl)(struct ppp_channel *, unsigned int, unsigned long);
+<<<<<<< HEAD
+=======
+	int	(*fill_forward_path)(struct net_device_path_ctx *,
+				     struct net_device_path *,
+				     const struct ppp_channel *);
+>>>>>>> upstream/android-13
 };
 
 struct ppp_channel {

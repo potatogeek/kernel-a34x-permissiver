@@ -1,14 +1,22 @@
+<<<<<<< HEAD
 /*
  * linux/kernel/time/clockevents.c
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * This file contains functions which manage clock event devices.
  *
  * Copyright(C) 2005-2006, Thomas Gleixner <tglx@linutronix.de>
  * Copyright(C) 2005-2007, Red Hat, Inc., Ingo Molnar
  * Copyright(C) 2006-2007, Timesys Corp., Thomas Gleixner
+<<<<<<< HEAD
  *
  * This code is licenced under the GPL version 2. For details see
  * kernel-base/COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clockchips.h>
@@ -39,10 +47,15 @@ static u64 cev_delta2ns(unsigned long latch, struct clock_event_device *evt,
 	u64 clc = (u64) latch << evt->shift;
 	u64 rnd;
 
+<<<<<<< HEAD
 	if (unlikely(!evt->mult)) {
 		evt->mult = 1;
 		WARN_ON(1);
 	}
+=======
+	if (WARN_ON(!evt->mult))
+		evt->mult = 1;
+>>>>>>> upstream/android-13
 	rnd = (u64) evt->mult - 1;
 
 	/*
@@ -164,10 +177,15 @@ void clockevents_switch_state(struct clock_event_device *dev,
 		 * on it, so fix it up and emit a warning:
 		 */
 		if (clockevent_state_oneshot(dev)) {
+<<<<<<< HEAD
 			if (unlikely(!dev->mult)) {
 				dev->mult = 1;
 				WARN_ON(1);
 			}
+=======
+			if (WARN_ON(!dev->mult))
+				dev->mult = 1;
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -315,10 +333,15 @@ int clockevents_program_event(struct clock_event_device *dev, ktime_t expires,
 	int64_t delta;
 	int rc;
 
+<<<<<<< HEAD
 	if (unlikely(expires < 0)) {
 		WARN_ON_ONCE(1);
 		return -ETIME;
 	}
+=======
+	if (WARN_ON_ONCE(expires < 0))
+		return -ETIME;
+>>>>>>> upstream/android-13
 
 	dev->next_event = expires;
 
@@ -357,8 +380,12 @@ static void clockevents_notify_released(void)
 	while (!list_empty(&clockevents_released)) {
 		dev = list_entry(clockevents_released.next,
 				 struct clock_event_device, list);
+<<<<<<< HEAD
 		list_del(&dev->list);
 		list_add(&dev->list, &clockevent_devices);
+=======
+		list_move(&dev->list, &clockevent_devices);
+>>>>>>> upstream/android-13
 		tick_check_new_device(dev);
 	}
 }
@@ -586,8 +613,12 @@ void clockevents_exchange_device(struct clock_event_device *old,
 	if (old) {
 		module_put(old->owner);
 		clockevents_switch_state(old, CLOCK_EVT_STATE_DETACHED);
+<<<<<<< HEAD
 		list_del(&old->list);
 		list_add(&old->list, &clockevents_released);
+=======
+		list_move(&old->list, &clockevents_released);
+>>>>>>> upstream/android-13
 	}
 
 	if (new) {
@@ -621,8 +652,30 @@ void clockevents_resume(void)
 }
 
 #ifdef CONFIG_HOTPLUG_CPU
+<<<<<<< HEAD
 /**
  * tick_cleanup_dead_cpu - Cleanup the tick and clockevents of a dead cpu
+=======
+
+# ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
+/**
+ * tick_offline_cpu - Take CPU out of the broadcast mechanism
+ * @cpu:	The outgoing CPU
+ *
+ * Called on the outgoing CPU after it took itself offline.
+ */
+void tick_offline_cpu(unsigned int cpu)
+{
+	raw_spin_lock(&clockevents_lock);
+	tick_broadcast_offline(cpu);
+	raw_spin_unlock(&clockevents_lock);
+}
+# endif
+
+/**
+ * tick_cleanup_dead_cpu - Cleanup the tick and clockevents of a dead cpu
+ * @cpu:	The dead CPU
+>>>>>>> upstream/android-13
  */
 void tick_cleanup_dead_cpu(int cpu)
 {
@@ -631,8 +684,11 @@ void tick_cleanup_dead_cpu(int cpu)
 
 	raw_spin_lock_irqsave(&clockevents_lock, flags);
 
+<<<<<<< HEAD
 	tick_shutdown_broadcast_oneshot(cpu);
 	tick_shutdown_broadcast(cpu);
+=======
+>>>>>>> upstream/android-13
 	tick_shutdown(cpu);
 	/*
 	 * Unregister the clock event devices which were
@@ -664,9 +720,15 @@ static struct bus_type clockevents_subsys = {
 static DEFINE_PER_CPU(struct device, tick_percpu_dev);
 static struct tick_device *tick_get_tick_dev(struct device *dev);
 
+<<<<<<< HEAD
 static ssize_t sysfs_show_current_tick_dev(struct device *dev,
 					   struct device_attribute *attr,
 					   char *buf)
+=======
+static ssize_t current_device_show(struct device *dev,
+				   struct device_attribute *attr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct tick_device *td;
 	ssize_t count = 0;
@@ -678,12 +740,21 @@ static ssize_t sysfs_show_current_tick_dev(struct device *dev,
 	raw_spin_unlock_irq(&clockevents_lock);
 	return count;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(current_device, 0444, sysfs_show_current_tick_dev, NULL);
 
 /* We don't support the abomination of removable broadcast devices */
 static ssize_t sysfs_unbind_tick_dev(struct device *dev,
 				     struct device_attribute *attr,
 				     const char *buf, size_t count)
+=======
+static DEVICE_ATTR_RO(current_device);
+
+/* We don't support the abomination of removable broadcast devices */
+static ssize_t unbind_device_store(struct device *dev,
+				   struct device_attribute *attr,
+				   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	char name[CS_NAME_LEN];
 	ssize_t ret = sysfs_get_uname(buf, name, count);
@@ -710,7 +781,11 @@ static ssize_t sysfs_unbind_tick_dev(struct device *dev,
 	mutex_unlock(&clockevents_mutex);
 	return ret ? ret : count;
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(unbind_device, 0200, NULL, sysfs_unbind_tick_dev);
+=======
+static DEVICE_ATTR_WO(unbind_device);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
 static struct device tick_bc_dev = {

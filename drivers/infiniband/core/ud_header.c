@@ -41,7 +41,11 @@
 
 #define STRUCT_FIELD(header, field) \
 	.struct_offset_bytes = offsetof(struct ib_unpacked_ ## header, field),      \
+<<<<<<< HEAD
 	.struct_size_bytes   = sizeof ((struct ib_unpacked_ ## header *) 0)->field, \
+=======
+	.struct_size_bytes   = sizeof_field(struct ib_unpacked_ ## header, field), \
+>>>>>>> upstream/android-13
 	.field_name          = #header ":" #field
 
 static const struct ib_field lrh_table[]  = {
@@ -479,7 +483,11 @@ int ib_ud_header_unpack(void                *buf,
 	buf += IB_LRH_BYTES;
 
 	if (header->lrh.link_version != 0) {
+<<<<<<< HEAD
 		pr_warn("Invalid LRH.link_version %d\n",
+=======
+		pr_warn("Invalid LRH.link_version %u\n",
+>>>>>>> upstream/android-13
 			header->lrh.link_version);
 		return -EINVAL;
 	}
@@ -496,7 +504,11 @@ int ib_ud_header_unpack(void                *buf,
 		buf += IB_GRH_BYTES;
 
 		if (header->grh.ip_version != 6) {
+<<<<<<< HEAD
 			pr_warn("Invalid GRH.ip_version %d\n",
+=======
+			pr_warn("Invalid GRH.ip_version %u\n",
+>>>>>>> upstream/android-13
 				header->grh.ip_version);
 			return -EINVAL;
 		}
@@ -508,7 +520,11 @@ int ib_ud_header_unpack(void                *buf,
 		break;
 
 	default:
+<<<<<<< HEAD
 		pr_warn("Invalid LRH.link_next_header %d\n",
+=======
+		pr_warn("Invalid LRH.link_next_header %u\n",
+>>>>>>> upstream/android-13
 			header->lrh.link_next_header);
 		return -EINVAL;
 	}
@@ -530,7 +546,11 @@ int ib_ud_header_unpack(void                *buf,
 	}
 
 	if (header->bth.transport_header_version != 0) {
+<<<<<<< HEAD
 		pr_warn("Invalid BTH.transport_header_version %d\n",
+=======
+		pr_warn("Invalid BTH.transport_header_version %u\n",
+>>>>>>> upstream/android-13
 			header->bth.transport_header_version);
 		return -EINVAL;
 	}

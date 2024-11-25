@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * cros_ec_dev - expose the Chrome OS Embedded Controller to user-space
  *
  * Copyright (C) 2014 Google, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,6 +266,128 @@ static const struct file_operations fops = {
 #ifdef CONFIG_COMPAT
 	.compat_ioctl = ec_device_ioctl,
 #endif
+=======
+ */
+
+#include <linux/dmi.h>
+#include <linux/kconfig.h>
+#include <linux/mfd/core.h>
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+#include <linux/of_platform.h>
+#include <linux/platform_device.h>
+#include <linux/platform_data/cros_ec_chardev.h>
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+#include <linux/slab.h>
+
+#define DRV_NAME "cros-ec-dev"
+
+static struct class cros_class = {
+	.owner          = THIS_MODULE,
+	.name           = "chromeos",
+};
+
+/**
+ * struct cros_feature_to_name - CrOS feature id to name/short description.
+ * @id: The feature identifier.
+ * @name: Device name associated with the feature id.
+ * @desc: Short name that will be displayed.
+ */
+struct cros_feature_to_name {
+	unsigned int id;
+	const char *name;
+	const char *desc;
+};
+
+/**
+ * struct cros_feature_to_cells - CrOS feature id to mfd cells association.
+ * @id: The feature identifier.
+ * @mfd_cells: Pointer to the array of mfd cells that needs to be added.
+ * @num_cells: Number of mfd cells into the array.
+ */
+struct cros_feature_to_cells {
+	unsigned int id;
+	const struct mfd_cell *mfd_cells;
+	unsigned int num_cells;
+};
+
+static const struct cros_feature_to_name cros_mcu_devices[] = {
+	{
+		.id	= EC_FEATURE_FINGERPRINT,
+		.name	= CROS_EC_DEV_FP_NAME,
+		.desc	= "Fingerprint",
+	},
+	{
+		.id	= EC_FEATURE_ISH,
+		.name	= CROS_EC_DEV_ISH_NAME,
+		.desc	= "Integrated Sensor Hub",
+	},
+	{
+		.id	= EC_FEATURE_SCP,
+		.name	= CROS_EC_DEV_SCP_NAME,
+		.desc	= "System Control Processor",
+	},
+	{
+		.id	= EC_FEATURE_TOUCHPAD,
+		.name	= CROS_EC_DEV_TP_NAME,
+		.desc	= "Touchpad",
+	},
+};
+
+static const struct mfd_cell cros_ec_cec_cells[] = {
+	{ .name = "cros-ec-cec", },
+};
+
+static const struct mfd_cell cros_ec_rtc_cells[] = {
+	{ .name = "cros-ec-rtc", },
+};
+
+static const struct mfd_cell cros_ec_sensorhub_cells[] = {
+	{ .name = "cros-ec-sensorhub", },
+};
+
+static const struct mfd_cell cros_usbpd_charger_cells[] = {
+	{ .name = "cros-usbpd-charger", },
+	{ .name = "cros-usbpd-logger", },
+};
+
+static const struct mfd_cell cros_usbpd_notify_cells[] = {
+	{ .name = "cros-usbpd-notify", },
+};
+
+static const struct cros_feature_to_cells cros_subdevices[] = {
+	{
+		.id		= EC_FEATURE_CEC,
+		.mfd_cells	= cros_ec_cec_cells,
+		.num_cells	= ARRAY_SIZE(cros_ec_cec_cells),
+	},
+	{
+		.id		= EC_FEATURE_RTC,
+		.mfd_cells	= cros_ec_rtc_cells,
+		.num_cells	= ARRAY_SIZE(cros_ec_rtc_cells),
+	},
+	{
+		.id		= EC_FEATURE_USB_PD,
+		.mfd_cells	= cros_usbpd_charger_cells,
+		.num_cells	= ARRAY_SIZE(cros_usbpd_charger_cells),
+	},
+};
+
+static const struct mfd_cell cros_ec_platform_cells[] = {
+	{ .name = "cros-ec-chardev", },
+	{ .name = "cros-ec-debugfs", },
+	{ .name = "cros-ec-sysfs", },
+	{ .name = "cros-ec-pchg", },
+};
+
+static const struct mfd_cell cros_ec_lightbar_cells[] = {
+	{ .name = "cros-ec-lightbar", }
+};
+
+static const struct mfd_cell cros_ec_vbc_cells[] = {
+	{ .name = "cros-ec-vbc", }
+>>>>>>> upstream/android-13
 };
 
 static void cros_ec_class_release(struct device *dev)
@@ -268,6 +395,7 @@ static void cros_ec_class_release(struct device *dev)
 	kfree(to_cros_ec_dev(dev));
 }
 
+<<<<<<< HEAD
 static void cros_ec_sensors_register(struct cros_ec_dev *ec)
 {
 	/*
@@ -401,6 +529,16 @@ static int ec_device_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct cros_ec_platform *ec_platform = dev_get_platdata(dev);
 	struct cros_ec_dev *ec = kzalloc(sizeof(*ec), GFP_KERNEL);
+=======
+static int ec_device_probe(struct platform_device *pdev)
+{
+	int retval = -ENOMEM;
+	struct device_node *node;
+	struct device *dev = &pdev->dev;
+	struct cros_ec_platform *ec_platform = dev_get_platdata(dev);
+	struct cros_ec_dev *ec = kzalloc(sizeof(*ec), GFP_KERNEL);
+	int i;
+>>>>>>> upstream/android-13
 
 	if (!ec)
 		return retval;
@@ -412,6 +550,7 @@ static int ec_device_probe(struct platform_device *pdev)
 	ec->features[0] = -1U; /* Not cached yet */
 	ec->features[1] = -1U; /* Not cached yet */
 	device_initialize(&ec->class_dev);
+<<<<<<< HEAD
 	cdev_init(&ec->cdev, &fops);
 
 	/*
@@ -420,6 +559,29 @@ static int ec_device_probe(struct platform_device *pdev)
 	 * in devtmpfs.
 	 */
 	ec->class_dev.devt = MKDEV(ec_major, pdev->id);
+=======
+
+	for (i = 0; i < ARRAY_SIZE(cros_mcu_devices); i++) {
+		/*
+		 * Check whether this is actually a dedicated MCU rather
+		 * than an standard EC.
+		 */
+		if (cros_ec_check_features(ec, cros_mcu_devices[i].id)) {
+			dev_info(dev, "CrOS %s MCU detected\n",
+				 cros_mcu_devices[i].desc);
+			/*
+			 * Help userspace differentiating ECs from other MCU,
+			 * regardless of the probing order.
+			 */
+			ec_platform->ec_name = cros_mcu_devices[i].name;
+			break;
+		}
+	}
+
+	/*
+	 * Add the class device
+	 */
+>>>>>>> upstream/android-13
 	ec->class_dev.class = &cros_class;
 	ec->class_dev.parent = dev;
 	ec->class_dev.release = cros_ec_class_release;
@@ -430,6 +592,7 @@ static int ec_device_probe(struct platform_device *pdev)
 		goto failed;
 	}
 
+<<<<<<< HEAD
 	/* check whether this EC is a sensor hub. */
 	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE))
 		cros_ec_sensors_register(ec);
@@ -482,6 +645,90 @@ static int ec_device_probe(struct platform_device *pdev)
 
 	if (cros_ec_debugfs_init(ec))
 		dev_warn(dev, "failed to create debugfs directory\n");
+=======
+	retval = device_add(&ec->class_dev);
+	if (retval)
+		goto failed;
+
+	/* check whether this EC is a sensor hub. */
+	if (cros_ec_get_sensor_count(ec) > 0) {
+		retval = mfd_add_hotplug_devices(ec->dev,
+				cros_ec_sensorhub_cells,
+				ARRAY_SIZE(cros_ec_sensorhub_cells));
+		if (retval)
+			dev_err(ec->dev, "failed to add %s subdevice: %d\n",
+				cros_ec_sensorhub_cells->name, retval);
+	}
+
+	/*
+	 * The following subdevices can be detected by sending the
+	 * EC_FEATURE_GET_CMD Embedded Controller device.
+	 */
+	for (i = 0; i < ARRAY_SIZE(cros_subdevices); i++) {
+		if (cros_ec_check_features(ec, cros_subdevices[i].id)) {
+			retval = mfd_add_hotplug_devices(ec->dev,
+						cros_subdevices[i].mfd_cells,
+						cros_subdevices[i].num_cells);
+			if (retval)
+				dev_err(ec->dev,
+					"failed to add %s subdevice: %d\n",
+					cros_subdevices[i].mfd_cells->name,
+					retval);
+		}
+	}
+
+	/*
+	 * Lightbar is a special case. Newer devices support autodetection,
+	 * but older ones do not.
+	 */
+	if (cros_ec_check_features(ec, EC_FEATURE_LIGHTBAR) ||
+	    dmi_match(DMI_PRODUCT_NAME, "Link")) {
+		retval = mfd_add_hotplug_devices(ec->dev,
+					cros_ec_lightbar_cells,
+					ARRAY_SIZE(cros_ec_lightbar_cells));
+		if (retval)
+			dev_warn(ec->dev, "failed to add lightbar: %d\n",
+				 retval);
+	}
+
+	/*
+	 * The PD notifier driver cell is separate since it only needs to be
+	 * explicitly added on platforms that don't have the PD notifier ACPI
+	 * device entry defined.
+	 */
+	if (IS_ENABLED(CONFIG_OF) && ec->ec_dev->dev->of_node) {
+		if (cros_ec_check_features(ec, EC_FEATURE_USB_PD)) {
+			retval = mfd_add_hotplug_devices(ec->dev,
+					cros_usbpd_notify_cells,
+					ARRAY_SIZE(cros_usbpd_notify_cells));
+			if (retval)
+				dev_err(ec->dev,
+					"failed to add PD notify devices: %d\n",
+					retval);
+		}
+	}
+
+	/*
+	 * The following subdevices cannot be detected by sending the
+	 * EC_FEATURE_GET_CMD to the Embedded Controller device.
+	 */
+	retval = mfd_add_hotplug_devices(ec->dev, cros_ec_platform_cells,
+					 ARRAY_SIZE(cros_ec_platform_cells));
+	if (retval)
+		dev_warn(ec->dev,
+			 "failed to add cros-ec platform devices: %d\n",
+			 retval);
+
+	/* Check whether this EC instance has a VBC NVRAM */
+	node = ec->ec_dev->dev->of_node;
+	if (of_property_read_bool(node, "google,has-vbc-nvram")) {
+		retval = mfd_add_hotplug_devices(ec->dev, cros_ec_vbc_cells,
+						ARRAY_SIZE(cros_ec_vbc_cells));
+		if (retval)
+			dev_warn(ec->dev, "failed to add VBC devices: %d\n",
+				 retval);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -494,6 +741,7 @@ static int ec_device_remove(struct platform_device *pdev)
 {
 	struct cros_ec_dev *ec = dev_get_drvdata(&pdev->dev);
 
+<<<<<<< HEAD
 	/* Let the EC take over the lightbar again. */
 	lb_manual_suspend_ctrl(ec, 0);
 
@@ -501,10 +749,14 @@ static int ec_device_remove(struct platform_device *pdev)
 
 	mfd_remove_devices(ec->dev);
 	cdev_del(&ec->cdev);
+=======
+	mfd_remove_devices(ec->dev);
+>>>>>>> upstream/android-13
 	device_unregister(&ec->class_dev);
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ec_device_shutdown(struct platform_device *pdev)
 {
 	struct cros_ec_dev *ec = dev_get_drvdata(&pdev->dev);
@@ -513,12 +765,15 @@ static void ec_device_shutdown(struct platform_device *pdev)
 	cros_ec_debugfs_remove(ec);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct platform_device_id cros_ec_id[] = {
 	{ DRV_NAME, 0 },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(platform, cros_ec_id);
 
+<<<<<<< HEAD
 static __maybe_unused int ec_device_suspend(struct device *dev)
 {
 	struct cros_ec_dev *ec = dev_get_drvdata(dev);
@@ -556,12 +811,24 @@ static struct platform_driver cros_ec_dev_driver = {
 	.probe = ec_device_probe,
 	.remove = ec_device_remove,
 	.shutdown = ec_device_shutdown,
+=======
+static struct platform_driver cros_ec_dev_driver = {
+	.driver = {
+		.name = DRV_NAME,
+	},
+	.id_table = cros_ec_id,
+	.probe = ec_device_probe,
+	.remove = ec_device_remove,
+>>>>>>> upstream/android-13
 };
 
 static int __init cros_ec_dev_init(void)
 {
 	int ret;
+<<<<<<< HEAD
 	dev_t dev = 0;
+=======
+>>>>>>> upstream/android-13
 
 	ret  = class_register(&cros_class);
 	if (ret) {
@@ -569,6 +836,7 @@ static int __init cros_ec_dev_init(void)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* Get a range of minor numbers (starting with 0) to work with */
 	ret = alloc_chrdev_region(&dev, 0, CROS_MAX_DEV, CROS_EC_DEV_NAME);
 	if (ret < 0) {
@@ -577,6 +845,8 @@ static int __init cros_ec_dev_init(void)
 	}
 	ec_major = MAJOR(dev);
 
+=======
+>>>>>>> upstream/android-13
 	/* Register the driver */
 	ret = platform_driver_register(&cros_ec_dev_driver);
 	if (ret < 0) {
@@ -586,8 +856,11 @@ static int __init cros_ec_dev_init(void)
 	return 0;
 
 failed_devreg:
+<<<<<<< HEAD
 	unregister_chrdev_region(MKDEV(ec_major, 0), CROS_MAX_DEV);
 failed_chrdevreg:
+=======
+>>>>>>> upstream/android-13
 	class_unregister(&cros_class);
 	return ret;
 }
@@ -595,7 +868,10 @@ failed_chrdevreg:
 static void __exit cros_ec_dev_exit(void)
 {
 	platform_driver_unregister(&cros_ec_dev_driver);
+<<<<<<< HEAD
 	unregister_chrdev(ec_major, CROS_EC_DEV_NAME);
+=======
+>>>>>>> upstream/android-13
 	class_unregister(&cros_class);
 }
 

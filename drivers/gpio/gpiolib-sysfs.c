@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #include <linux/idr.h>
 #include <linux/mutex.h>
 #include <linux/device.h>
 #include <linux/sysfs.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/gpio/driver.h>
 #include <linux/interrupt.h>
@@ -11,6 +18,10 @@
 #include <linux/ctype.h>
 
 #include "gpiolib.h"
+<<<<<<< HEAD
+=======
+#include "gpiolib-sysfs.h"
+>>>>>>> upstream/android-13
 
 #define GPIO_IRQF_TRIGGER_FALLING	BIT(0)
 #define GPIO_IRQF_TRIGGER_RISING	BIT(1)
@@ -65,9 +76,14 @@ static ssize_t direction_show(struct device *dev,
 	mutex_lock(&data->mutex);
 
 	gpiod_get_direction(desc);
+<<<<<<< HEAD
 	status = sprintf(buf, "%s\n",
 			test_bit(FLAG_IS_OUT, &desc->flags)
 				? "out" : "in");
+=======
+	status = sysfs_emit(buf, "%s\n",
+			    test_bit(FLAG_IS_OUT, &desc->flags) ? "out" : "in");
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&data->mutex);
 
@@ -108,6 +124,7 @@ static ssize_t value_show(struct device *dev,
 	mutex_lock(&data->mutex);
 
 	status = gpiod_get_value_cansleep(desc);
+<<<<<<< HEAD
 	if (status < 0)
 		goto err;
 
@@ -115,6 +132,11 @@ static ssize_t value_show(struct device *dev,
 	buf[1] = '\n';
 	status = 2;
 err:
+=======
+	if (status >= 0)
+		status = sysfs_emit(buf, "%zd\n", status);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&data->mutex);
 
 	return status;
@@ -248,11 +270,19 @@ static ssize_t edge_show(struct device *dev,
 	mutex_lock(&data->mutex);
 
 	for (i = 0; i < ARRAY_SIZE(trigger_types); i++) {
+<<<<<<< HEAD
 		if (data->irq_flags == trigger_types[i].flags) {
 			status = sprintf(buf, "%s\n", trigger_types[i].name);
 			break;
 		}
 	}
+=======
+		if (data->irq_flags == trigger_types[i].flags)
+			break;
+	}
+	if (i < ARRAY_SIZE(trigger_types))
+		status = sysfs_emit(buf, "%s\n", trigger_types[i].name);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&data->mutex);
 
@@ -311,10 +341,14 @@ static int gpio_sysfs_set_active_low(struct device *dev, int value)
 	if (!!test_bit(FLAG_ACTIVE_LOW, &desc->flags) == !!value)
 		return 0;
 
+<<<<<<< HEAD
 	if (value)
 		set_bit(FLAG_ACTIVE_LOW, &desc->flags);
 	else
 		clear_bit(FLAG_ACTIVE_LOW, &desc->flags);
+=======
+	assign_bit(FLAG_ACTIVE_LOW, &desc->flags, value);
+>>>>>>> upstream/android-13
 
 	/* reconfigure poll(2) support if enabled on one edge only */
 	if (flags == GPIO_IRQF_TRIGGER_FALLING ||
@@ -335,8 +369,13 @@ static ssize_t active_low_show(struct device *dev,
 
 	mutex_lock(&data->mutex);
 
+<<<<<<< HEAD
 	status = sprintf(buf, "%d\n",
 				!!test_bit(FLAG_ACTIVE_LOW, &desc->flags));
+=======
+	status = sysfs_emit(buf, "%d\n",
+			    !!test_bit(FLAG_ACTIVE_LOW, &desc->flags));
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&data->mutex);
 
@@ -365,7 +404,11 @@ static DEVICE_ATTR_RW(active_low);
 static umode_t gpio_is_visible(struct kobject *kobj, struct attribute *attr,
 			       int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct gpiod_data *data = dev_get_drvdata(dev);
 	struct gpio_desc *desc = data->desc;
 	umode_t mode = attr->mode;
@@ -414,7 +457,11 @@ static ssize_t base_show(struct device *dev,
 {
 	const struct gpio_chip	*chip = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", chip->base);
+=======
+	return sysfs_emit(buf, "%d\n", chip->base);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(base);
 
@@ -423,7 +470,11 @@ static ssize_t label_show(struct device *dev,
 {
 	const struct gpio_chip	*chip = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", chip->label ? : "");
+=======
+	return sysfs_emit(buf, "%s\n", chip->label ?: "");
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(label);
 
@@ -432,7 +483,11 @@ static ssize_t ngpio_show(struct device *dev,
 {
 	const struct gpio_chip	*chip = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%u\n", chip->ngpio);
+=======
+	return sysfs_emit(buf, "%u\n", chip->ngpio);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(ngpio);
 
@@ -444,11 +499,14 @@ static struct attribute *gpiochip_attrs[] = {
 };
 ATTRIBUTE_GROUPS(gpiochip);
 
+<<<<<<< HEAD
 static struct gpio_desc *gpio_to_valid_desc(int gpio)
 {
 	return gpio_is_valid(gpio) ? gpio_to_desc(gpio) : NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * /sys/class/gpio/export ... write-only
  *	integer N ... number of GPIO to export (full access)
@@ -469,7 +527,11 @@ static ssize_t export_store(struct class *class,
 	if (status < 0)
 		goto done;
 
+<<<<<<< HEAD
 	desc = gpio_to_valid_desc(gpio);
+=======
+	desc = gpio_to_desc(gpio);
+>>>>>>> upstream/android-13
 	/* reject invalid GPIOs */
 	if (!desc) {
 		pr_warn("%s: invalid GPIO %ld\n", __func__, gpio);
@@ -487,12 +549,18 @@ static ssize_t export_store(struct class *class,
 	 * they may be undone on its behalf too.
 	 */
 
+<<<<<<< HEAD
 	status = gpiod_request(desc, "sysfs");
 	if (status < 0) {
 		if (status == -EPROBE_DEFER)
 			status = -ENODEV;
 		goto done;
 	}
+=======
+	status = gpiod_request_user(desc, "sysfs");
+	if (status)
+		goto done;
+>>>>>>> upstream/android-13
 
 	status = gpiod_set_transitory(desc, false);
 	if (!status) {
@@ -522,7 +590,11 @@ static ssize_t unexport_store(struct class *class,
 	if (status < 0)
 		goto done;
 
+<<<<<<< HEAD
 	desc = gpio_to_valid_desc(gpio);
+=======
+	desc = gpio_to_desc(gpio);
+>>>>>>> upstream/android-13
 	/* reject bogus commands (gpio_unexport ignores them) */
 	if (!desc) {
 		pr_warn("%s: invalid GPIO %ld\n", __func__, gpio);
@@ -775,10 +847,16 @@ int gpiochip_sysfs_register(struct gpio_device *gdev)
 		parent = &gdev->dev;
 
 	/* use chip->base for the ID; it's already known to be unique */
+<<<<<<< HEAD
 	dev = device_create_with_groups(&gpio_class, parent,
 					MKDEV(0, 0),
 					chip, gpiochip_groups,
 					"gpiochip%d", chip->base);
+=======
+	dev = device_create_with_groups(&gpio_class, parent, MKDEV(0, 0), chip,
+					gpiochip_groups, GPIOCHIP_NAME "%d",
+					chip->base);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dev))
 		return PTR_ERR(dev);
 

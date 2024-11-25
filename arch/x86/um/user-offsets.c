@@ -2,13 +2,18 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <signal.h>
+<<<<<<< HEAD
 #include <sys/poll.h>
+=======
+#include <poll.h>
+>>>>>>> upstream/android-13
 #include <sys/mman.h>
 #include <sys/user.h>
 #define __FRAME_OFFSETS
 #include <linux/ptrace.h>
 #include <asm/types.h>
 
+<<<<<<< HEAD
 #ifdef __i386__
 #define __SYSCALL_I386(nr, sym, qual) [nr] = 1,
 static char syscalls[] = {
@@ -21,6 +26,8 @@ static char syscalls[] = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define DEFINE(sym, val) \
 	asm volatile("\n->" #sym " %0 " #val : : "i" (val))
 
@@ -94,7 +101,10 @@ void foo(void)
 	DEFINE(UM_PROT_READ, PROT_READ);
 	DEFINE(UM_PROT_WRITE, PROT_WRITE);
 	DEFINE(UM_PROT_EXEC, PROT_EXEC);
+<<<<<<< HEAD
 
 	DEFINE(__NR_syscall_max, sizeof(syscalls) - 1);
 	DEFINE(NR_syscalls, sizeof(syscalls));
+=======
+>>>>>>> upstream/android-13
 }

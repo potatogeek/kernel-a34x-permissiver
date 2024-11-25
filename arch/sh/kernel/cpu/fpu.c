@@ -62,6 +62,7 @@ void fpu_state_restore(struct pt_regs *regs)
 	}
 
 	if (!tsk_used_math(tsk)) {
+<<<<<<< HEAD
 		local_irq_enable();
 		/*
 		 * does a slab alloc which can sleep
@@ -74,6 +75,22 @@ void fpu_state_restore(struct pt_regs *regs)
 			return;
 		}
 		local_irq_disable();
+=======
+		int ret;
+		/*
+		 * does a slab alloc which can sleep
+		 */
+		local_irq_enable();
+		ret = init_fpu(tsk);
+		local_irq_disable();
+		if (ret) {
+			/*
+			 * ran out of memory!
+			 */
+			force_sig(SIGKILL);
+			return;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	grab_fpu(regs);

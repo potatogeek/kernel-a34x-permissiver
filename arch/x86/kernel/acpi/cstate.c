@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005 Intel Corporation
  * 	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
@@ -51,6 +55,36 @@ void acpi_processor_power_init_bm_check(struct acpi_processor_flags *flags,
 	if (c->x86_vendor == X86_VENDOR_INTEL &&
 	    (c->x86 > 0xf || (c->x86 == 6 && c->x86_model >= 0x0f)))
 			flags->bm_control = 0;
+<<<<<<< HEAD
+=======
+	/*
+	 * For all recent Centaur CPUs, the ucode will make sure that each
+	 * core can keep cache coherence with each other while entering C3
+	 * type state. So, set bm_check to 1 to indicate that the kernel
+	 * doesn't need to execute a cache flush operation (WBINVD) when
+	 * entering C3 type state.
+	 */
+	if (c->x86_vendor == X86_VENDOR_CENTAUR) {
+		if (c->x86 > 6 || (c->x86 == 6 && c->x86_model == 0x0f &&
+		    c->x86_stepping >= 0x0e))
+			flags->bm_check = 1;
+	}
+
+	if (c->x86_vendor == X86_VENDOR_ZHAOXIN) {
+		/*
+		 * All Zhaoxin CPUs that support C3 share cache.
+		 * And caches should not be flushed by software while
+		 * entering C3 type state.
+		 */
+		flags->bm_check = 1;
+		/*
+		 * On all recent Zhaoxin platforms, ARB_DISABLE is a nop.
+		 * So, set bm_control to zero to indicate that ARB_DISABLE
+		 * is not required while entering C3 type state.
+		 */
+		flags->bm_control = 0;
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(acpi_processor_power_init_bm_check);
 
@@ -169,7 +203,12 @@ static int __init ffh_cstate_init(void)
 	struct cpuinfo_x86 *c = &boot_cpu_data;
 
 	if (c->x86_vendor != X86_VENDOR_INTEL &&
+<<<<<<< HEAD
 	    c->x86_vendor != X86_VENDOR_AMD)
+=======
+	    c->x86_vendor != X86_VENDOR_AMD &&
+	    c->x86_vendor != X86_VENDOR_HYGON)
+>>>>>>> upstream/android-13
 		return -1;
 
 	cpu_cstate_entry = alloc_percpu(struct cstate_entry);

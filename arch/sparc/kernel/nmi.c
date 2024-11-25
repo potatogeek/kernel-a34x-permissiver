@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Pseudo NMI support on sparc64 systems.
  *
  * Copyright (C) 2009 David S. Miller <davem@davemloft.net>

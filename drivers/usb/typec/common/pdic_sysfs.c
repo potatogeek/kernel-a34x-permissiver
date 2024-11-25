@@ -65,7 +65,10 @@ static struct device_attribute pdic_attributes[] = {
 	PDIC_SYSFS_ATTR(cc_pin_status),
 	PDIC_SYSFS_ATTR(ram_test),
 	PDIC_SYSFS_ATTR(sbu_adc),
+<<<<<<< HEAD
 	PDIC_SYSFS_ATTR(cc_adc),
+=======
+>>>>>>> upstream/android-13
 	PDIC_SYSFS_ATTR(vsafe0v_status),
 	PDIC_SYSFS_ATTR(ovp_ic_shutdown),
 	PDIC_SYSFS_ATTR(hmd_power),

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Hardware accelerated Matrox Millennium I, II, Mystique, G100, G200 and G400
@@ -111,12 +115,19 @@
 #include "matroxfb_g450.h"
 #include <linux/matroxfb.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/nvram.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 
 #ifdef CONFIG_PPC_PMAC
 #include <asm/machdep.h>
+<<<<<<< HEAD
 unsigned char nvram_read_byte(int);
+=======
+>>>>>>> upstream/android-13
 static int default_vmode = VMODE_NVRAM;
 static int default_cmode = CMODE_NVRAM;
 #endif
@@ -1375,6 +1386,15 @@ static struct video_board vbG200 = {
 	.accelID = FB_ACCEL_MATROX_MGAG200,
 	.lowlevel = &matrox_G100
 };
+<<<<<<< HEAD
+=======
+static struct video_board vbG200eW = {
+	.maxvram = 0x100000,
+	.maxdisplayable = 0x800000,
+	.accelID = FB_ACCEL_MATROX_MGAG200,
+	.lowlevel = &matrox_G100
+};
+>>>>>>> upstream/android-13
 /* from doc it looks like that accelerator can draw only to low 16MB :-( Direct accesses & displaying are OK for
    whole 32MB */
 static struct video_board vbG400 = {
@@ -1493,6 +1513,16 @@ static struct board {
 		MGA_G200,
 		&vbG200,
 		"MGA-G200 (PCI)"},
+<<<<<<< HEAD
+=======
+	{PCI_VENDOR_ID_MATROX,	0x0532,	0xFF,
+		0,			0,
+		DEVF_G200,
+		250000,
+		MGA_G200,
+		&vbG200eW,
+		"MGA-G200eW (PCI)"},
+>>>>>>> upstream/android-13
 	{PCI_VENDOR_ID_MATROX,	PCI_DEVICE_ID_MATROX_G200_AGP,	0xFF,
 		PCI_SS_VENDOR_ID_MATROX,	PCI_SS_ID_MATROX_GENERIC,
 		DEVF_G200,
@@ -1709,7 +1739,11 @@ static int initMatrox2(struct matrox_fb_info *minfo, struct board *b)
 		memsize = mem;
 	err = -ENOMEM;
 
+<<<<<<< HEAD
 	minfo->mmio.vbase.vaddr = ioremap_nocache(ctrlptr_phys, 16384);
+=======
+	minfo->mmio.vbase.vaddr = ioremap(ctrlptr_phys, 16384);
+>>>>>>> upstream/android-13
 	if (!minfo->mmio.vbase.vaddr) {
 		printk(KERN_ERR "matroxfb: cannot ioremap(%lX, 16384), matroxfb disabled\n", ctrlptr_phys);
 		goto failVideoMR;
@@ -1872,10 +1906,18 @@ static int initMatrox2(struct matrox_fb_info *minfo, struct board *b)
 #ifndef MODULE
 	if (machine_is(powermac)) {
 		struct fb_var_screeninfo var;
+<<<<<<< HEAD
 		if (default_vmode <= 0 || default_vmode > VMODE_MAX)
 			default_vmode = VMODE_640_480_60;
 #ifdef CONFIG_NVRAM
 		if (default_cmode == CMODE_NVRAM)
+=======
+
+		if (default_vmode <= 0 || default_vmode > VMODE_MAX)
+			default_vmode = VMODE_640_480_60;
+#if defined(CONFIG_PPC32)
+		if (IS_REACHABLE(CONFIG_NVRAM) && default_cmode == CMODE_NVRAM)
+>>>>>>> upstream/android-13
 			default_cmode = nvram_read_byte(NV_CMODE);
 #endif
 		if (default_cmode < CMODE_8 || default_cmode > CMODE_32)
@@ -1955,9 +1997,13 @@ int matroxfb_register_driver(struct matroxfb_driver* drv) {
 	struct matrox_fb_info* minfo;
 
 	list_add(&drv->node, &matroxfb_driver_list);
+<<<<<<< HEAD
 	for (minfo = matroxfb_l(matroxfb_list.next);
 	     minfo != matroxfb_l(&matroxfb_list);
 	     minfo = matroxfb_l(minfo->next_fb.next)) {
+=======
+	list_for_each_entry(minfo, &matroxfb_list, next_fb) {
+>>>>>>> upstream/android-13
 		void* p;
 
 		if (minfo->drivers_count == MATROXFB_MAX_FB_DRIVERS)
@@ -1975,9 +2021,13 @@ void matroxfb_unregister_driver(struct matroxfb_driver* drv) {
 	struct matrox_fb_info* minfo;
 
 	list_del(&drv->node);
+<<<<<<< HEAD
 	for (minfo = matroxfb_l(matroxfb_list.next);
 	     minfo != matroxfb_l(&matroxfb_list);
 	     minfo = matroxfb_l(minfo->next_fb.next)) {
+=======
+	list_for_each_entry(minfo, &matroxfb_list, next_fb) {
+>>>>>>> upstream/android-13
 		int i;
 
 		for (i = 0; i < minfo->drivers_count; ) {
@@ -2134,6 +2184,11 @@ static const struct pci_device_id matroxfb_devices[] = {
 		PCI_ANY_ID,	PCI_ANY_ID,	0, 0, 0},
 	{PCI_VENDOR_ID_MATROX,	PCI_DEVICE_ID_MATROX_G200_PCI,
 		PCI_ANY_ID,	PCI_ANY_ID,	0, 0, 0},
+<<<<<<< HEAD
+=======
+	{PCI_VENDOR_ID_MATROX,	0x0532,
+		PCI_ANY_ID,	PCI_ANY_ID,	0, 0, 0},
+>>>>>>> upstream/android-13
 	{PCI_VENDOR_ID_MATROX,	PCI_DEVICE_ID_MATROX_G200_AGP,
 		PCI_ANY_ID,	PCI_ANY_ID,	0, 0, 0},
 	{PCI_VENDOR_ID_MATROX,	PCI_DEVICE_ID_MATROX_G400,
@@ -2473,8 +2528,11 @@ static int __init matroxfb_init(void)
 	return err;
 }
 
+<<<<<<< HEAD
 module_init(matroxfb_init);
 
+=======
+>>>>>>> upstream/android-13
 #else
 
 /* *************************** init module code **************************** */
@@ -2500,7 +2558,11 @@ MODULE_PARM_DESC(nobios, "Disables ROM BIOS (0 or 1=disabled) (default=do not ch
 module_param(noinit, int, 0);
 MODULE_PARM_DESC(noinit, "Disables W/SG/SD-RAM and bus interface initialization (0 or 1=do not initialize) (default=0)");
 module_param(memtype, int, 0);
+<<<<<<< HEAD
 MODULE_PARM_DESC(memtype, "Memory type for G200/G400 (see Documentation/fb/matroxfb.txt for explanation) (default=3 for G200, 0 for G400)");
+=======
+MODULE_PARM_DESC(memtype, "Memory type for G200/G400 (see Documentation/fb/matroxfb.rst for explanation) (default=3 for G200, 0 for G400)");
+>>>>>>> upstream/android-13
 module_param(mtrr, int, 0);
 MODULE_PARM_DESC(mtrr, "This speeds up video memory accesses (0=disabled or 1) (default=1)");
 module_param(sgram, int, 0);
@@ -2559,7 +2621,11 @@ module_param_named(cmode, default_cmode, int, 0);
 MODULE_PARM_DESC(cmode, "Specify the video depth that should be used (8bit default)");
 #endif
 
+<<<<<<< HEAD
 int __init init_module(void){
+=======
+static int __init matroxfb_init(void){
+>>>>>>> upstream/android-13
 
 	DBG(__func__)
 
@@ -2590,11 +2656,16 @@ int __init init_module(void){
 }
 #endif	/* MODULE */
 
+<<<<<<< HEAD
+=======
+module_init(matroxfb_init);
+>>>>>>> upstream/android-13
 module_exit(matrox_done);
 EXPORT_SYMBOL(matroxfb_register_driver);
 EXPORT_SYMBOL(matroxfb_unregister_driver);
 EXPORT_SYMBOL(matroxfb_wait_for_sync);
 EXPORT_SYMBOL(matroxfb_enable_irq);
+<<<<<<< HEAD
 
 /*
  * Overrides for Emacs so that we follow Linus's tabbing style.
@@ -2604,3 +2675,5 @@ EXPORT_SYMBOL(matroxfb_enable_irq);
  * End:
  */
 
+=======
+>>>>>>> upstream/android-13

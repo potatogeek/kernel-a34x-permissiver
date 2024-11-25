@@ -26,7 +26,11 @@
  * struct hmcdrv_ftp_ops - HMC drive FTP operations
  * @startup: startup function
  * @shutdown: shutdown function
+<<<<<<< HEAD
  * @cmd: FTP transfer function
+=======
+ * @transfer: FTP transfer function
+>>>>>>> upstream/android-13
  */
 struct hmcdrv_ftp_ops {
 	int (*startup)(void);
@@ -137,7 +141,11 @@ static int hmcdrv_ftp_parse(char *cmd, struct hmcdrv_ftp_cmdspec *ftp)
 			while ((*cmd != '\0') && !iscntrl(*cmd))
 				++cmd;
 			ftp->fname = start;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			*cmd = '\0';
 			break;

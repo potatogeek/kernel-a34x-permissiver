@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  ebt_limit
  *
@@ -86,7 +90,11 @@ static int ebt_limit_mt_check(const struct xt_mtchk_param *par)
 }
 
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 /*
  * no conversion function needed --
  * only avg/burst have meaningful values in userspace.
@@ -106,7 +114,11 @@ static struct xt_match ebt_limit_mt_reg __read_mostly = {
 	.checkentry	= ebt_limit_mt_check,
 	.matchsize	= sizeof(struct ebt_limit_info),
 	.usersize	= offsetof(struct ebt_limit_info, prev),
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 	.compatsize	= sizeof(struct ebt_compat_limit_info),
 #endif
 	.me		= THIS_MODULE,

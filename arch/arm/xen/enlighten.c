@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <xen/xen.h>
 #include <xen/events.h>
 #include <xen/grant_table.h>
@@ -14,7 +18,10 @@
 #include <xen/xen-ops.h>
 #include <asm/xen/hypervisor.h>
 #include <asm/xen/hypercall.h>
+<<<<<<< HEAD
 #include <asm/xen/xen-ops.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/system_misc.h>
 #include <asm/efi.h>
 #include <linux/interrupt.h>
@@ -29,6 +36,10 @@
 #include <linux/cpu.h>
 #include <linux/console.h>
 #include <linux/pvclock_gtod.h>
+<<<<<<< HEAD
+=======
+#include <linux/reboot.h>
+>>>>>>> upstream/android-13
 #include <linux/time64.h>
 #include <linux/timekeeping.h>
 #include <linux/timekeeper_internal.h>
@@ -36,7 +47,11 @@
 
 #include <linux/mm.h>
 
+<<<<<<< HEAD
 struct start_info _xen_start_info;
+=======
+static struct start_info _xen_start_info;
+>>>>>>> upstream/android-13
 struct start_info *xen_start_info = &_xen_start_info;
 EXPORT_SYMBOL(xen_start_info);
 
@@ -62,6 +77,7 @@ static __read_mostly unsigned int xen_events_irq;
 uint32_t xen_start_flags;
 EXPORT_SYMBOL(xen_start_flags);
 
+<<<<<<< HEAD
 int xen_remap_domain_gfn_array(struct vm_area_struct *vma,
 			       unsigned long addr,
 			       xen_pfn_t *gfn, int nr,
@@ -85,6 +101,8 @@ int xen_remap_domain_gfn_range(struct vm_area_struct *vma,
 }
 EXPORT_SYMBOL_GPL(xen_remap_domain_gfn_range);
 
+=======
+>>>>>>> upstream/android-13
 int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
 			       int nr, struct page **pages)
 {
@@ -92,6 +110,7 @@ int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
 }
 EXPORT_SYMBOL_GPL(xen_unmap_domain_gfn_range);
 
+<<<<<<< HEAD
 /* Not used by XENFEAT_auto_translated guests. */
 int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
 			       unsigned long addr,
@@ -103,6 +122,8 @@ int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
 }
 EXPORT_SYMBOL_GPL(xen_remap_domain_mfn_array);
 
+=======
+>>>>>>> upstream/android-13
 static void xen_read_wallclock(struct timespec64 *ts)
 {
 	u32 version;
@@ -184,7 +205,11 @@ static int xen_starting_cpu(unsigned int cpu)
 	pr_info("Xen: initializing cpu%d\n", cpu);
 	vcpup = per_cpu_ptr(xen_vcpu_info, cpu);
 
+<<<<<<< HEAD
 	info.mfn = virt_to_gfn(vcpup);
+=======
+	info.mfn = percpu_to_gfn(vcpup);
+>>>>>>> upstream/android-13
 	info.offset = xen_offset_in_page(vcpup);
 
 	err = HYPERVISOR_vcpu_op(VCPUOP_register_vcpu_info, xen_vcpu_nr(cpu),
@@ -192,7 +217,12 @@ static int xen_starting_cpu(unsigned int cpu)
 	BUG_ON(err);
 	per_cpu(xen_vcpu, cpu) = vcpup;
 
+<<<<<<< HEAD
 	xen_setup_runstate_info(cpu);
+=======
+	if (!xen_kernel_unmapped_at_usr())
+		xen_setup_runstate_info(cpu);
+>>>>>>> upstream/android-13
 
 after_register_vcpu_info:
 	enable_percpu_irq(xen_events_irq, 0);
@@ -214,11 +244,26 @@ void xen_reboot(int reason)
 	BUG_ON(rc);
 }
 
+<<<<<<< HEAD
 static void xen_restart(enum reboot_mode reboot_mode, const char *cmd)
 {
 	xen_reboot(SHUTDOWN_reboot);
 }
 
+=======
+static int xen_restart(struct notifier_block *nb, unsigned long action,
+		       void *data)
+{
+	xen_reboot(SHUTDOWN_reboot);
+
+	return NOTIFY_DONE;
+}
+
+static struct notifier_block xen_restart_nb = {
+	.notifier_call = xen_restart,
+	.priority = 192,
+};
+>>>>>>> upstream/android-13
 
 static void xen_power_off(void)
 {
@@ -275,7 +320,10 @@ static int __init fdt_find_hyper_node(unsigned long node, const char *uname,
  * see Documentation/devicetree/bindings/arm/xen.txt for the
  * documentation of the Xen Device Tree format.
  */
+<<<<<<< HEAD
 #define GRANT_TABLE_PHYSADDR 0
+=======
+>>>>>>> upstream/android-13
 void __init xen_early_init(void)
 {
 	of_scan_flat_dt(fdt_find_hyper_node, NULL);
@@ -420,7 +468,12 @@ static int __init xen_guest_init(void)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	xen_time_setup_guest();
+=======
+	if (!xen_kernel_unmapped_at_usr())
+		xen_time_setup_guest();
+>>>>>>> upstream/android-13
 
 	if (xen_initial_domain())
 		pvclock_gtod_register_notifier(&xen_pvclock_gtod_notifier);
@@ -437,7 +490,11 @@ static int __init xen_pm_init(void)
 		return -ENODEV;
 
 	pm_power_off = xen_power_off;
+<<<<<<< HEAD
 	arm_pm_restart = xen_restart;
+=======
+	register_restart_handler(&xen_restart_nb);
+>>>>>>> upstream/android-13
 	if (!xen_initial_domain()) {
 		struct timespec64 ts;
 		xen_read_wallclock(&ts);
@@ -468,7 +525,11 @@ EXPORT_SYMBOL_GPL(HYPERVISOR_memory_op);
 EXPORT_SYMBOL_GPL(HYPERVISOR_physdev_op);
 EXPORT_SYMBOL_GPL(HYPERVISOR_vcpu_op);
 EXPORT_SYMBOL_GPL(HYPERVISOR_tmem_op);
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(HYPERVISOR_platform_op);
+=======
+EXPORT_SYMBOL_GPL(HYPERVISOR_platform_op_raw);
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(HYPERVISOR_multicall);
 EXPORT_SYMBOL_GPL(HYPERVISOR_vm_assist);
 EXPORT_SYMBOL_GPL(HYPERVISOR_dm_op);

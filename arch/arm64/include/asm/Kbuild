@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 generic-y += bugs.h
 generic-y += delay.h
 generic-y += div64.h
@@ -28,3 +29,13 @@ generic-y += unaligned.h
 generic-y += user.h
 generic-y += vga.h
 generic-y += xor.h
+=======
+# SPDX-License-Identifier: GPL-2.0
+generic-y += early_ioremap.h
+generic-y += mcs_spinlock.h
+generic-y += qrwlock.h
+generic-y += qspinlock.h
+generic-y += user.h
+
+generated-y += cpucaps.h
+>>>>>>> upstream/android-13

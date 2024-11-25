@@ -1,10 +1,21 @@
+<<<<<<< HEAD
 #include <linux/crc32.h>
 #include <crypto/internal/hash.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+#include <linux/crc32.h>
+#include <crypto/internal/hash.h>
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/string.h>
 #include <linux/kernel.h>
 #include <linux/cpufeature.h>
+<<<<<<< HEAD
+=======
+#include <asm/simd.h>
+>>>>>>> upstream/android-13
 #include <asm/switch_to.h>
 
 #define CHKSUM_BLOCK_SIZE	1
@@ -22,7 +33,11 @@ static u32 crc32c_vpmsum(u32 crc, unsigned char const *p, size_t len)
 	unsigned int prealign;
 	unsigned int tail;
 
+<<<<<<< HEAD
 	if (len < (VECTOR_BREAKPOINT + VMX_ALIGN) || in_interrupt())
+=======
+	if (len < (VECTOR_BREAKPOINT + VMX_ALIGN) || !crypto_simd_usable())
+>>>>>>> upstream/android-13
 		return __crc32c_le(crc, p, len);
 
 	if ((unsigned long)p & VMX_ALIGN_MASK) {
@@ -70,10 +85,15 @@ static int crc32c_vpmsum_setkey(struct crypto_shash *hash, const u8 *key,
 {
 	u32 *mctx = crypto_shash_ctx(hash);
 
+<<<<<<< HEAD
 	if (keylen != sizeof(u32)) {
 		crypto_shash_set_flags(hash, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (keylen != sizeof(u32))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	*mctx = le32_to_cpup((__le32 *)key);
 	return 0;
 }

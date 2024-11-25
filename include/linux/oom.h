@@ -15,6 +15,16 @@ struct notifier_block;
 struct mem_cgroup;
 struct task_struct;
 
+<<<<<<< HEAD
+=======
+enum oom_constraint {
+	CONSTRAINT_NONE,
+	CONSTRAINT_CPUSET,
+	CONSTRAINT_MEMORY_POLICY,
+	CONSTRAINT_MEMCG,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Details of the page allocation that triggered the oom killer that are used to
  * determine what should be killed.
@@ -41,7 +51,14 @@ struct oom_control {
 	/* Used by oom implementation, do not set */
 	unsigned long totalpages;
 	struct task_struct *chosen;
+<<<<<<< HEAD
 	unsigned long chosen_points;
+=======
+	long chosen_points;
+
+	/* Used to print the constraint info. */
+	enum oom_constraint constraint;
+>>>>>>> upstream/android-13
 };
 
 extern struct mutex oom_lock;
@@ -98,8 +115,12 @@ static inline vm_fault_t check_stable_address_space(struct mm_struct *mm)
 
 bool __oom_reap_task_mm(struct mm_struct *mm);
 
+<<<<<<< HEAD
 extern unsigned long oom_badness(struct task_struct *p,
 		struct mem_cgroup *memcg, const nodemask_t *nodemask,
+=======
+long oom_badness(struct task_struct *p,
+>>>>>>> upstream/android-13
 		unsigned long totalpages);
 
 extern bool out_of_memory(struct oom_control *oc);
@@ -113,10 +134,20 @@ extern bool oom_killer_disable(signed long timeout);
 extern void oom_killer_enable(void);
 
 extern struct task_struct *find_lock_task_mm(struct task_struct *p);
+<<<<<<< HEAD
 extern void dump_tasks(struct mem_cgroup *memcg, const nodemask_t *nodemask);
+=======
+extern void dump_tasks(struct oom_control *oc);
+>>>>>>> upstream/android-13
 
 /* sysctls */
 extern int sysctl_oom_dump_tasks;
 extern int sysctl_oom_kill_allocating_task;
 extern int sysctl_panic_on_oom;
+<<<<<<< HEAD
+=======
+
+/* call for adding killed process to reaper. */
+extern void add_to_oom_reaper(struct task_struct *p);
+>>>>>>> upstream/android-13
 #endif /* _INCLUDE_LINUX_OOM_H */

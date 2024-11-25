@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ltr501.c - Support for Lite-On LTR501 ambient light and proximity sensor
  *
  * Copyright 2014 Peter Meerwald <pmeerw@pmeerw.net>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * 7-bit I2C slave address 0x23
  *
  * TODO: IR LED characteristics
@@ -35,9 +42,18 @@
 #define LTR501_PART_ID 0x86
 #define LTR501_MANUFAC_ID 0x87
 #define LTR501_ALS_DATA1 0x88 /* 16-bit, little endian */
+<<<<<<< HEAD
 #define LTR501_ALS_DATA0 0x8a /* 16-bit, little endian */
 #define LTR501_ALS_PS_STATUS 0x8c
 #define LTR501_PS_DATA 0x8d /* 16-bit, little endian */
+=======
+#define LTR501_ALS_DATA1_UPPER 0x89 /* upper 8 bits of LTR501_ALS_DATA1 */
+#define LTR501_ALS_DATA0 0x8a /* 16-bit, little endian */
+#define LTR501_ALS_DATA0_UPPER 0x8b /* upper 8 bits of LTR501_ALS_DATA0 */
+#define LTR501_ALS_PS_STATUS 0x8c
+#define LTR501_PS_DATA 0x8d /* 16-bit, little endian */
+#define LTR501_PS_DATA_UPPER 0x8e /* upper 8 bits of LTR501_PS_DATA */
+>>>>>>> upstream/android-13
 #define LTR501_INTR 0x8f /* output mode, polarity, mode */
 #define LTR501_PS_THRESH_UP 0x90 /* 11 bit, ps upper threshold */
 #define LTR501_PS_THRESH_LOW 0x92 /* 11 bit, ps lower threshold */
@@ -104,12 +120,20 @@ struct ltr501_gain {
 	int uscale;
 };
 
+<<<<<<< HEAD
 static struct ltr501_gain ltr501_als_gain_tbl[] = {
+=======
+static const struct ltr501_gain ltr501_als_gain_tbl[] = {
+>>>>>>> upstream/android-13
 	{1, 0},
 	{0, 5000},
 };
 
+<<<<<<< HEAD
 static struct ltr501_gain ltr559_als_gain_tbl[] = {
+=======
+static const struct ltr501_gain ltr559_als_gain_tbl[] = {
+>>>>>>> upstream/android-13
 	{1, 0},
 	{0, 500000},
 	{0, 250000},
@@ -120,14 +144,22 @@ static struct ltr501_gain ltr559_als_gain_tbl[] = {
 	{0, 10000},
 };
 
+<<<<<<< HEAD
 static struct ltr501_gain ltr501_ps_gain_tbl[] = {
+=======
+static const struct ltr501_gain ltr501_ps_gain_tbl[] = {
+>>>>>>> upstream/android-13
 	{1, 0},
 	{0, 250000},
 	{0, 125000},
 	{0, 62500},
 };
 
+<<<<<<< HEAD
 static struct ltr501_gain ltr559_ps_gain_tbl[] = {
+=======
+static const struct ltr501_gain ltr559_ps_gain_tbl[] = {
+>>>>>>> upstream/android-13
 	{0, 62500}, /* x16 gain */
 	{0, 31250}, /* x32 gain */
 	{0, 15625}, /* bits X1 are for x64 gain */
@@ -136,9 +168,15 @@ static struct ltr501_gain ltr559_ps_gain_tbl[] = {
 
 struct ltr501_chip_info {
 	u8 partid;
+<<<<<<< HEAD
 	struct ltr501_gain *als_gain;
 	int als_gain_tbl_size;
 	struct ltr501_gain *ps_gain;
+=======
+	const struct ltr501_gain *als_gain;
+	int als_gain_tbl_size;
+	const struct ltr501_gain *ps_gain;
+>>>>>>> upstream/android-13
 	int ps_gain_tbl_size;
 	u8 als_mode_active;
 	u8 als_gain_mask;
@@ -152,7 +190,11 @@ struct ltr501_chip_info {
 struct ltr501_data {
 	struct i2c_client *client;
 	struct mutex lock_als, lock_ps;
+<<<<<<< HEAD
 	struct ltr501_chip_info *chip_info;
+=======
+	const struct ltr501_chip_info *chip_info;
+>>>>>>> upstream/android-13
 	u8 als_contr, ps_contr;
 	int als_period, ps_period; /* period in micro seconds */
 	struct regmap *regmap;
@@ -195,7 +237,11 @@ static int ltr501_match_samp_freq(const struct ltr501_samp_table *tab,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int ltr501_als_read_samp_freq(struct ltr501_data *data,
+=======
+static int ltr501_als_read_samp_freq(const struct ltr501_data *data,
+>>>>>>> upstream/android-13
 				     int *val, int *val2)
 {
 	int ret, i;
@@ -213,7 +259,11 @@ static int ltr501_als_read_samp_freq(struct ltr501_data *data,
 	return IIO_VAL_INT_PLUS_MICRO;
 }
 
+<<<<<<< HEAD
 static int ltr501_ps_read_samp_freq(struct ltr501_data *data,
+=======
+static int ltr501_ps_read_samp_freq(const struct ltr501_data *data,
+>>>>>>> upstream/android-13
 				    int *val, int *val2)
 {
 	int ret, i;
@@ -269,7 +319,11 @@ static int ltr501_ps_write_samp_freq(struct ltr501_data *data,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ltr501_als_read_samp_period(struct ltr501_data *data, int *val)
+=======
+static int ltr501_als_read_samp_period(const struct ltr501_data *data, int *val)
+>>>>>>> upstream/android-13
 {
 	int ret, i;
 
@@ -285,7 +339,11 @@ static int ltr501_als_read_samp_period(struct ltr501_data *data, int *val)
 	return IIO_VAL_INT;
 }
 
+<<<<<<< HEAD
 static int ltr501_ps_read_samp_period(struct ltr501_data *data, int *val)
+=======
+static int ltr501_ps_read_samp_period(const struct ltr501_data *data, int *val)
+>>>>>>> upstream/android-13
 {
 	int ret, i;
 
@@ -324,7 +382,11 @@ static unsigned long ltr501_calculate_lux(u16 vis_data, u16 ir_data)
 	return lux / 1000;
 }
 
+<<<<<<< HEAD
 static int ltr501_drdy(struct ltr501_data *data, u8 drdy_mask)
+=======
+static int ltr501_drdy(const struct ltr501_data *data, u8 drdy_mask)
+>>>>>>> upstream/android-13
 {
 	int tries = 100;
 	int ret, status;
@@ -376,7 +438,12 @@ static int ltr501_set_it_time(struct ltr501_data *data, int it)
 }
 
 /* read int time in micro seconds */
+<<<<<<< HEAD
 static int ltr501_read_it_time(struct ltr501_data *data, int *val, int *val2)
+=======
+static int ltr501_read_it_time(const struct ltr501_data *data,
+			       int *val, int *val2)
+>>>>>>> upstream/android-13
 {
 	int ret, index;
 
@@ -394,7 +461,11 @@ static int ltr501_read_it_time(struct ltr501_data *data, int *val, int *val2)
 	return IIO_VAL_INT_PLUS_MICRO;
 }
 
+<<<<<<< HEAD
 static int ltr501_read_als(struct ltr501_data *data, __le16 buf[2])
+=======
+static int ltr501_read_als(const struct ltr501_data *data, __le16 buf[2])
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -406,15 +477,23 @@ static int ltr501_read_als(struct ltr501_data *data, __le16 buf[2])
 				buf, 2 * sizeof(__le16));
 }
 
+<<<<<<< HEAD
 static int ltr501_read_ps(struct ltr501_data *data)
 {
 	int ret, status;
+=======
+static int ltr501_read_ps(const struct ltr501_data *data)
+{
+	__le16 status;
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = ltr501_drdy(data, LTR501_STATUS_PS_RDY);
 	if (ret < 0)
 		return ret;
 
 	ret = regmap_bulk_read(data->regmap, LTR501_PS_DATA,
+<<<<<<< HEAD
 			       &status, 2);
 	if (ret < 0)
 		return ret;
@@ -423,6 +502,16 @@ static int ltr501_read_ps(struct ltr501_data *data)
 }
 
 static int ltr501_read_intr_prst(struct ltr501_data *data,
+=======
+			       &status, sizeof(status));
+	if (ret < 0)
+		return ret;
+
+	return le16_to_cpu(status);
+}
+
+static int ltr501_read_intr_prst(const struct ltr501_data *data,
+>>>>>>> upstream/android-13
 				 enum iio_chan_type type,
 				 int *val2)
 {
@@ -719,7 +808,11 @@ static int ltr501_read_raw(struct iio_dev *indio_dev,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int ltr501_get_gain_index(struct ltr501_gain *gain, int size,
+=======
+static int ltr501_get_gain_index(const struct ltr501_gain *gain, int size,
+>>>>>>> upstream/android-13
 				 int val, int val2)
 {
 	int i;
@@ -737,7 +830,11 @@ static int ltr501_write_raw(struct iio_dev *indio_dev,
 {
 	struct ltr501_data *data = iio_priv(indio_dev);
 	int i, ret, freq_val, freq_val2;
+<<<<<<< HEAD
 	struct ltr501_chip_info *info = data->chip_info;
+=======
+	const struct ltr501_chip_info *info = data->chip_info;
+>>>>>>> upstream/android-13
 
 	ret = iio_device_claim_direct_mode(indio_dev);
 	if (ret)
@@ -851,14 +948,22 @@ static int ltr501_write_raw(struct iio_dev *indio_dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ltr501_read_thresh(struct iio_dev *indio_dev,
+=======
+static int ltr501_read_thresh(const struct iio_dev *indio_dev,
+>>>>>>> upstream/android-13
 			      const struct iio_chan_spec *chan,
 			      enum iio_event_type type,
 			      enum iio_event_direction dir,
 			      enum iio_event_info info,
 			      int *val, int *val2)
 {
+<<<<<<< HEAD
 	struct ltr501_data *data = iio_priv(indio_dev);
+=======
+	const struct ltr501_data *data = iio_priv(indio_dev);
+>>>>>>> upstream/android-13
 	int ret, thresh_data;
 
 	switch (chan->type) {
@@ -1084,7 +1189,11 @@ static ssize_t ltr501_show_proximity_scale_avail(struct device *dev,
 						 char *buf)
 {
 	struct ltr501_data *data = iio_priv(dev_to_iio_dev(dev));
+<<<<<<< HEAD
 	struct ltr501_chip_info *info = data->chip_info;
+=======
+	const struct ltr501_chip_info *info = data->chip_info;
+>>>>>>> upstream/android-13
 	ssize_t len = 0;
 	int i;
 
@@ -1106,7 +1215,11 @@ static ssize_t ltr501_show_intensity_scale_avail(struct device *dev,
 						 char *buf)
 {
 	struct ltr501_data *data = iio_priv(dev_to_iio_dev(dev));
+<<<<<<< HEAD
 	struct ltr501_chip_info *info = data->chip_info;
+=======
+	const struct ltr501_chip_info *info = data->chip_info;
+>>>>>>> upstream/android-13
 	ssize_t len = 0;
 	int i;
 
@@ -1186,7 +1299,11 @@ static const struct iio_info ltr301_info = {
 	.write_event_config	= &ltr501_write_event_config,
 };
 
+<<<<<<< HEAD
 static struct ltr501_chip_info ltr501_chip_info_tbl[] = {
+=======
+static const struct ltr501_chip_info ltr501_chip_info_tbl[] = {
+>>>>>>> upstream/android-13
 	[ltr501] = {
 		.partid = 0x08,
 		.als_gain = ltr501_als_gain_tbl,
@@ -1207,7 +1324,11 @@ static struct ltr501_chip_info ltr501_chip_info_tbl[] = {
 		.als_gain_tbl_size = ARRAY_SIZE(ltr559_als_gain_tbl),
 		.ps_gain = ltr559_ps_gain_tbl,
 		.ps_gain_tbl_size = ARRAY_SIZE(ltr559_ps_gain_tbl),
+<<<<<<< HEAD
 		.als_mode_active = BIT(1),
+=======
+		.als_mode_active = BIT(0),
+>>>>>>> upstream/android-13
 		.als_gain_mask = BIT(2) | BIT(3) | BIT(4),
 		.als_gain_shift = 2,
 		.info = &ltr501_info,
@@ -1269,9 +1390,15 @@ static irqreturn_t ltr501_trigger_handler(int irq, void *p)
 
 	if (mask & LTR501_STATUS_ALS_RDY) {
 		ret = regmap_bulk_read(data->regmap, LTR501_ALS_DATA1,
+<<<<<<< HEAD
 				       (u8 *)als_buf, sizeof(als_buf));
 		if (ret < 0)
 			return ret;
+=======
+				       als_buf, sizeof(als_buf));
+		if (ret < 0)
+			goto done;
+>>>>>>> upstream/android-13
 		if (test_bit(0, indio_dev->active_scan_mask))
 			scan.channels[j++] = le16_to_cpu(als_buf[1]);
 		if (test_bit(1, indio_dev->active_scan_mask))
@@ -1356,16 +1483,29 @@ static bool ltr501_is_volatile_reg(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
 	case LTR501_ALS_DATA1:
+<<<<<<< HEAD
 	case LTR501_ALS_DATA0:
 	case LTR501_ALS_PS_STATUS:
 	case LTR501_PS_DATA:
+=======
+	case LTR501_ALS_DATA1_UPPER:
+	case LTR501_ALS_DATA0:
+	case LTR501_ALS_DATA0_UPPER:
+	case LTR501_ALS_PS_STATUS:
+	case LTR501_PS_DATA:
+	case LTR501_PS_DATA_UPPER:
+>>>>>>> upstream/android-13
 		return true;
 	default:
 		return false;
 	}
 }
 
+<<<<<<< HEAD
 static struct regmap_config ltr501_regmap_config = {
+=======
+static const struct regmap_config ltr501_regmap_config = {
+>>>>>>> upstream/android-13
 	.name =  LTR501_REGMAP_NAME,
 	.reg_bits = 8,
 	.val_bits = 8,
@@ -1485,7 +1625,10 @@ static int ltr501_probe(struct i2c_client *client,
 	if ((partid >> 4) != data->chip_info->partid)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = data->chip_info->info;
 	indio_dev->channels = data->chip_info->channels;
 	indio_dev->num_channels = data->chip_info->no_channels;

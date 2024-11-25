@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2007-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #include "soft-interface.h"
@@ -36,12 +42,20 @@
 #include <linux/list.h>
 #include <linux/lockdep.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
 #include <linux/percpu.h>
 #include <linux/printk.h>
 #include <linux/random.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
 #include <linux/rtnetlink.h>
+=======
+#include <linux/netlink.h>
+#include <linux/percpu.h>
+#include <linux/random.h>
+#include <linux/rculist.h>
+#include <linux/rcupdate.h>
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <linux/slab.h>
 #include <linux/socket.h>
@@ -49,6 +63,7 @@
 #include <linux/stddef.h>
 #include <linux/string.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <uapi/linux/batadv_packet.h>
 
 #include "bat_algo.h"
@@ -57,12 +72,26 @@
 #include "distributed-arp-table.h"
 #include "gateway_client.h"
 #include "gateway_common.h"
+=======
+#include <net/net_namespace.h>
+#include <net/netlink.h>
+#include <uapi/linux/batadv_packet.h>
+#include <uapi/linux/batman_adv.h>
+
+#include "bat_algo.h"
+#include "bridge_loop_avoidance.h"
+#include "distributed-arp-table.h"
+#include "gateway_client.h"
+>>>>>>> upstream/android-13
 #include "hard-interface.h"
 #include "multicast.h"
 #include "network-coding.h"
 #include "originator.h"
 #include "send.h"
+<<<<<<< HEAD
 #include "sysfs.h"
+=======
+>>>>>>> upstream/android-13
 #include "translation-table.h"
 
 /**
@@ -204,14 +233,26 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
 	struct vlan_ethhdr *vhdr;
 	unsigned int header_len = 0;
 	int data_len = skb->len, ret;
+<<<<<<< HEAD
 	unsigned long brd_delay = 1;
+=======
+	unsigned long brd_delay = 0;
+>>>>>>> upstream/android-13
 	bool do_bcast = false, client_added;
 	unsigned short vid;
 	u32 seqno;
 	int gw_mode;
+<<<<<<< HEAD
 	enum batadv_forw_mode forw_mode;
 	struct batadv_orig_node *mcast_single_orig = NULL;
 	int network_offset = ETH_HLEN;
+=======
+	enum batadv_forw_mode forw_mode = BATADV_FORW_SINGLE;
+	struct batadv_orig_node *mcast_single_orig = NULL;
+	int mcast_is_routable = 0;
+	int network_offset = ETH_HLEN;
+	__be16 proto;
+>>>>>>> upstream/android-13
 
 	if (atomic_read(&bat_priv->mesh_state) != BATADV_MESH_ACTIVE)
 		goto dropped;
@@ -225,19 +266,36 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
 	skb_reset_mac_header(skb);
 	ethhdr = eth_hdr(skb);
 
+<<<<<<< HEAD
 	switch (ntohs(ethhdr->h_proto)) {
+=======
+	proto = ethhdr->h_proto;
+
+	switch (ntohs(proto)) {
+>>>>>>> upstream/android-13
 	case ETH_P_8021Q:
 		if (!pskb_may_pull(skb, sizeof(*vhdr)))
 			goto dropped;
 		vhdr = vlan_eth_hdr(skb);
+<<<<<<< HEAD
 
 		/* drop batman-in-batman packets to prevent loops */
 		if (vhdr->h_vlan_encapsulated_proto != htons(ETH_P_BATMAN)) {
+=======
+		proto = vhdr->h_vlan_encapsulated_proto;
+
+		/* drop batman-in-batman packets to prevent loops */
+		if (proto != htons(ETH_P_BATMAN)) {
+>>>>>>> upstream/android-13
 			network_offset += VLAN_HLEN;
 			break;
 		}
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ETH_P_BATMAN:
 		goto dropped;
 	}
@@ -260,6 +318,12 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
 			goto dropped;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Snoop address candidates from DHCPACKs for early DAT filling */
+	batadv_dat_snoop_outgoing_dhcp_ack(bat_priv, skb, proto, vid);
+
+>>>>>>> upstream/android-13
 	/* don't accept stp packets. STP does not help in meshes.
 	 * better use the bridge loop avoidance ...
 	 *
@@ -306,11 +370,21 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
 send:
 		if (do_bcast && !is_broadcast_ether_addr(ethhdr->h_dest)) {
 			forw_mode = batadv_mcast_forw_mode(bat_priv, skb,
+<<<<<<< HEAD
 							   &mcast_single_orig);
 			if (forw_mode == BATADV_FORW_NONE)
 				goto dropped;
 
 			if (forw_mode == BATADV_FORW_SINGLE)
+=======
+							   &mcast_single_orig,
+							   &mcast_is_routable);
+			if (forw_mode == BATADV_FORW_NONE)
+				goto dropped;
+
+			if (forw_mode == BATADV_FORW_SINGLE ||
+			    forw_mode == BATADV_FORW_SOME)
+>>>>>>> upstream/android-13
 				do_bcast = false;
 		}
 	}
@@ -335,7 +409,11 @@ send:
 
 		bcast_packet = (struct batadv_bcast_packet *)skb->data;
 		bcast_packet->version = BATADV_COMPAT_VERSION;
+<<<<<<< HEAD
 		bcast_packet->ttl = BATADV_TTL;
+=======
+		bcast_packet->ttl = BATADV_TTL - 1;
+>>>>>>> upstream/android-13
 
 		/* batman packet type: broadcast */
 		bcast_packet->packet_type = BATADV_BCAST;
@@ -351,6 +429,7 @@ send:
 		seqno = atomic_inc_return(&bat_priv->bcast_seqno);
 		bcast_packet->seqno = htonl(seqno);
 
+<<<<<<< HEAD
 		batadv_add_bcast_packet_to_list(bat_priv, skb, brd_delay, true);
 
 		/* a copy is stored in the bcast list, therefore removing
@@ -358,6 +437,9 @@ send:
 		 */
 		consume_skb(skb);
 
+=======
+		batadv_send_bcast_packet(bat_priv, skb, brd_delay, true);
+>>>>>>> upstream/android-13
 	/* unicast packet */
 	} else {
 		/* DHCP packets going to a server will use the GW feature */
@@ -367,9 +449,17 @@ send:
 				goto dropped;
 			ret = batadv_send_skb_via_gw(bat_priv, skb, vid);
 		} else if (mcast_single_orig) {
+<<<<<<< HEAD
 			ret = batadv_send_skb_unicast(bat_priv, skb,
 						      BATADV_UNICAST, 0,
 						      mcast_single_orig, vid);
+=======
+			ret = batadv_mcast_forw_send_orig(bat_priv, skb, vid,
+							  mcast_single_orig);
+		} else if (forw_mode == BATADV_FORW_SOME) {
+			ret = batadv_mcast_forw_send(bat_priv, skb, vid,
+						     mcast_is_routable);
+>>>>>>> upstream/android-13
 		} else {
 			if (batadv_dat_snoop_outgoing_arp_request(bat_priv,
 								  skb))
@@ -393,10 +483,15 @@ dropped:
 dropped_freed:
 	batadv_inc_counter(bat_priv, BATADV_CNT_TX_DROPPED);
 end:
+<<<<<<< HEAD
 	if (mcast_single_orig)
 		batadv_orig_node_put(mcast_single_orig);
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_orig_node_put(mcast_single_orig);
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 	return NETDEV_TX_OK;
 }
 
@@ -407,7 +502,11 @@ end:
  * @hdr_size: size of already parsed batman-adv header
  * @orig_node: originator from which the batman-adv packet was sent
  *
+<<<<<<< HEAD
  * Sends a ethernet frame to the receive path of the local @soft_iface.
+=======
+ * Sends an ethernet frame to the receive path of the local @soft_iface.
+>>>>>>> upstream/android-13
  * skb->data has still point to the batman-adv header with the size @hdr_size.
  * The caller has to have parsed this header already and made sure that at least
  * @hdr_size bytes are still available for pull in @skb.
@@ -437,7 +536,11 @@ void batadv_interface_rx(struct net_device *soft_iface,
 	/* clean the netfilter state now that the batman-adv header has been
 	 * removed
 	 */
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	if (unlikely(!pskb_may_pull(skb, ETH_HLEN)))
 		goto dropped;
@@ -456,7 +559,11 @@ void batadv_interface_rx(struct net_device *soft_iface,
 		if (vhdr->h_vlan_encapsulated_proto != htons(ETH_P_BATMAN))
 			break;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ETH_P_BATMAN:
 		goto dropped;
 	}
@@ -511,7 +618,11 @@ out:
  *  after rcu grace period
  * @ref: kref pointer of the vlan object
  */
+<<<<<<< HEAD
 static void batadv_softif_vlan_release(struct kref *ref)
+=======
+void batadv_softif_vlan_release(struct kref *ref)
+>>>>>>> upstream/android-13
 {
 	struct batadv_softif_vlan *vlan;
 
@@ -525,6 +636,7 @@ static void batadv_softif_vlan_release(struct kref *ref)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_softif_vlan_put() - decrease the vlan object refcounter and
  *  possibly release it
  * @vlan: the vlan object to release
@@ -538,6 +650,8 @@ void batadv_softif_vlan_put(struct batadv_softif_vlan *vlan)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_softif_vlan_get() - get the vlan object for a specific vid
  * @bat_priv: the bat priv with all the soft interface information
  * @vid: the identifier of the vlan object to retrieve
@@ -576,7 +690,10 @@ struct batadv_softif_vlan *batadv_softif_vlan_get(struct batadv_priv *bat_priv,
 int batadv_softif_create_vlan(struct batadv_priv *bat_priv, unsigned short vid)
 {
 	struct batadv_softif_vlan *vlan;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
 
@@ -603,6 +720,7 @@ int batadv_softif_create_vlan(struct batadv_priv *bat_priv, unsigned short vid)
 	hlist_add_head_rcu(&vlan->list, &bat_priv->softif_vlan_list);
 	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
 
+<<<<<<< HEAD
 	/* batadv_sysfs_add_vlan cannot be in the spinlock section due to the
 	 * sleeping behavior of the sysfs functions and the fs_reclaim lock
 	 */
@@ -616,6 +734,8 @@ int batadv_softif_create_vlan(struct batadv_priv *bat_priv, unsigned short vid)
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* add a new TT local entry. This one will be marked with the NOPURGE
 	 * flag
 	 */
@@ -643,14 +763,21 @@ static void batadv_softif_destroy_vlan(struct batadv_priv *bat_priv,
 	batadv_tt_local_remove(bat_priv, bat_priv->soft_iface->dev_addr,
 			       vlan->vid, "vlan interface destroyed", false);
 
+<<<<<<< HEAD
 	batadv_sysfs_del_vlan(bat_priv, vlan);
+=======
+>>>>>>> upstream/android-13
 	batadv_softif_vlan_put(vlan);
 }
 
 /**
  * batadv_interface_add_vid() - ndo_add_vid API implementation
  * @dev: the netdev of the mesh interface
+<<<<<<< HEAD
  * @proto: protocol of the the vlan id
+=======
+ * @proto: protocol of the vlan id
+>>>>>>> upstream/android-13
  * @vid: identifier of the new vlan
  *
  * Set up all the internal structures for handling the new vlan on top of the
@@ -663,7 +790,10 @@ static int batadv_interface_add_vid(struct net_device *dev, __be16 proto,
 {
 	struct batadv_priv *bat_priv = netdev_priv(dev);
 	struct batadv_softif_vlan *vlan;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	/* only 802.1Q vlans are supported.
 	 * batman-adv does not know how to handle other types
@@ -683,6 +813,7 @@ static int batadv_interface_add_vid(struct net_device *dev, __be16 proto,
 	if (!vlan)
 		return batadv_softif_create_vlan(bat_priv, vid);
 
+<<<<<<< HEAD
 	/* recreate the sysfs object if it was already destroyed (and it should
 	 * be since we received a kill_vid() for this vlan
 	 */
@@ -694,6 +825,8 @@ static int batadv_interface_add_vid(struct net_device *dev, __be16 proto,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* add a new TT local entry. This one will be marked with the NOPURGE
 	 * flag. This must be added again, even if the vlan object already
 	 * exists, because the entry was deleted by kill_vid()
@@ -708,7 +841,11 @@ static int batadv_interface_add_vid(struct net_device *dev, __be16 proto,
 /**
  * batadv_interface_kill_vid() - ndo_kill_vid API implementation
  * @dev: the netdev of the mesh interface
+<<<<<<< HEAD
  * @proto: protocol of the the vlan id
+=======
+ * @proto: protocol of the vlan id
+>>>>>>> upstream/android-13
  * @vid: identifier of the deleted vlan
  *
  * Destroy all the internal structures used to handle the vlan identified by vid
@@ -805,12 +942,17 @@ static int batadv_softif_init_late(struct net_device *dev)
 	atomic_set(&bat_priv->distributed_arp_table, 1);
 #endif
 #ifdef CONFIG_BATMAN_ADV_MCAST
+<<<<<<< HEAD
 	bat_priv->mcast.querier_ipv4.exists = false;
 	bat_priv->mcast.querier_ipv4.shadowing = false;
 	bat_priv->mcast.querier_ipv6.exists = false;
 	bat_priv->mcast.querier_ipv6.shadowing = false;
 	bat_priv->mcast.flags = BATADV_NO_FLAGS;
 	atomic_set(&bat_priv->multicast_mode, 1);
+=======
+	atomic_set(&bat_priv->multicast_mode, 1);
+	atomic_set(&bat_priv->multicast_fanout, 16);
+>>>>>>> upstream/android-13
 	atomic_set(&bat_priv->mcast.num_want_all_unsnoopables, 0);
 	atomic_set(&bat_priv->mcast.num_want_all_ipv4, 0);
 	atomic_set(&bat_priv->mcast.num_want_all_ipv6, 0);
@@ -848,6 +990,7 @@ static int batadv_softif_init_late(struct net_device *dev)
 	atomic_set(&bat_priv->frag_seqno, random_seqno);
 
 	bat_priv->primary_if = NULL;
+<<<<<<< HEAD
 	bat_priv->num_ifaces = 0;
 
 	batadv_nc_init_bat_priv(bat_priv);
@@ -868,6 +1011,23 @@ static int batadv_softif_init_late(struct net_device *dev)
 
 unreg_debugfs:
 	batadv_debugfs_del_meshif(dev);
+=======
+
+	batadv_nc_init_bat_priv(bat_priv);
+
+	if (!bat_priv->algo_ops) {
+		ret = batadv_algo_select(bat_priv, batadv_routing_algo);
+		if (ret < 0)
+			goto free_bat_counters;
+	}
+
+	ret = batadv_mesh_init(dev);
+	if (ret < 0)
+		goto free_bat_counters;
+
+	return 0;
+
+>>>>>>> upstream/android-13
 free_bat_counters:
 	free_percpu(bat_priv->bat_counters);
 	bat_priv->bat_counters = NULL;
@@ -888,18 +1048,28 @@ static int batadv_softif_slave_add(struct net_device *dev,
 				   struct netlink_ext_ack *extack)
 {
 	struct batadv_hard_iface *hard_iface;
+<<<<<<< HEAD
 	struct net *net = dev_net(dev);
+=======
+>>>>>>> upstream/android-13
 	int ret = -EINVAL;
 
 	hard_iface = batadv_hardif_get_by_netdev(slave_dev);
 	if (!hard_iface || hard_iface->soft_iface)
 		goto out;
 
+<<<<<<< HEAD
 	ret = batadv_hardif_enable_interface(hard_iface, net, dev->name);
 
 out:
 	if (hard_iface)
 		batadv_hardif_put(hard_iface);
+=======
+	ret = batadv_hardif_enable_interface(hard_iface, dev);
+
+out:
+	batadv_hardif_put(hard_iface);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -921,12 +1091,20 @@ static int batadv_softif_slave_del(struct net_device *dev,
 	if (!hard_iface || hard_iface->soft_iface != dev)
 		goto out;
 
+<<<<<<< HEAD
 	batadv_hardif_disable_interface(hard_iface, BATADV_IF_CLEANUP_KEEP);
 	ret = 0;
 
 out:
 	if (hard_iface)
 		batadv_hardif_put(hard_iface);
+=======
+	batadv_hardif_disable_interface(hard_iface);
+	ret = 0;
+
+out:
+	batadv_hardif_put(hard_iface);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -949,10 +1127,17 @@ static const struct net_device_ops batadv_netdev_ops = {
 static void batadv_get_drvinfo(struct net_device *dev,
 			       struct ethtool_drvinfo *info)
 {
+<<<<<<< HEAD
 	strlcpy(info->driver, "B.A.T.M.A.N. advanced", sizeof(info->driver));
 	strlcpy(info->version, BATADV_SOURCE_VERSION, sizeof(info->version));
 	strlcpy(info->fw_version, "N/A", sizeof(info->fw_version));
 	strlcpy(info->bus_info, "batman", sizeof(info->bus_info));
+=======
+	strscpy(info->driver, "B.A.T.M.A.N. advanced", sizeof(info->driver));
+	strscpy(info->version, BATADV_SOURCE_VERSION, sizeof(info->version));
+	strscpy(info->fw_version, "N/A", sizeof(info->fw_version));
+	strscpy(info->bus_info, "batman", sizeof(info->bus_info));
+>>>>>>> upstream/android-13
 }
 
 /* Inspired by drivers/net/ethernet/dlink/sundance.c:1702
@@ -1044,7 +1229,10 @@ static const struct ethtool_ops batadv_ethtool_ops = {
  */
 static void batadv_softif_free(struct net_device *dev)
 {
+<<<<<<< HEAD
 	batadv_debugfs_del_meshif(dev);
+=======
+>>>>>>> upstream/android-13
 	batadv_mesh_free(dev);
 
 	/* some scheduled RCU callbacks need the bat_priv struct to accomplish
@@ -1066,6 +1254,10 @@ static void batadv_softif_init_early(struct net_device *dev)
 	dev->needs_free_netdev = true;
 	dev->priv_destructor = batadv_softif_free;
 	dev->features |= NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_NETNS_LOCAL;
+<<<<<<< HEAD
+=======
+	dev->features |= NETIF_F_LLTX;
+>>>>>>> upstream/android-13
 	dev->priv_flags |= IFF_NO_QUEUE;
 
 	/* can't call min_mtu, because the needed variables
@@ -1080,6 +1272,7 @@ static void batadv_softif_init_early(struct net_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_softif_create() - Create and register soft interface
  * @net: the applicable net namespace
  * @name: name of the new soft interface
@@ -1131,6 +1324,58 @@ void batadv_softif_destroy_sysfs(struct net_device *soft_iface)
 
 	batadv_sysfs_del_meshif(soft_iface);
 	unregister_netdevice(soft_iface);
+=======
+ * batadv_softif_validate() - validate configuration of new batadv link
+ * @tb: IFLA_INFO_DATA netlink attributes
+ * @data: enum batadv_ifla_attrs attributes
+ * @extack: extended ACK report struct
+ *
+ * Return: 0 if successful or error otherwise.
+ */
+static int batadv_softif_validate(struct nlattr *tb[], struct nlattr *data[],
+				  struct netlink_ext_ack *extack)
+{
+	struct batadv_algo_ops *algo_ops;
+
+	if (!data)
+		return 0;
+
+	if (data[IFLA_BATADV_ALGO_NAME]) {
+		algo_ops = batadv_algo_get(nla_data(data[IFLA_BATADV_ALGO_NAME]));
+		if (!algo_ops)
+			return -EINVAL;
+	}
+
+	return 0;
+}
+
+/**
+ * batadv_softif_newlink() - pre-initialize and register new batadv link
+ * @src_net: the applicable net namespace
+ * @dev: network device to register
+ * @tb: IFLA_INFO_DATA netlink attributes
+ * @data: enum batadv_ifla_attrs attributes
+ * @extack: extended ACK report struct
+ *
+ * Return: 0 if successful or error otherwise.
+ */
+static int batadv_softif_newlink(struct net *src_net, struct net_device *dev,
+				 struct nlattr *tb[], struct nlattr *data[],
+				 struct netlink_ext_ack *extack)
+{
+	struct batadv_priv *bat_priv = netdev_priv(dev);
+	const char *algo_name;
+	int err;
+
+	if (data && data[IFLA_BATADV_ALGO_NAME]) {
+		algo_name = nla_data(data[IFLA_BATADV_ALGO_NAME]);
+		err = batadv_algo_select(bat_priv, algo_name);
+		if (err)
+			return -EINVAL;
+	}
+
+	return register_netdevice(dev);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1148,8 +1393,12 @@ static void batadv_softif_destroy_netlink(struct net_device *soft_iface,
 
 	list_for_each_entry(hard_iface, &batadv_hardif_list, list) {
 		if (hard_iface->soft_iface == soft_iface)
+<<<<<<< HEAD
 			batadv_hardif_disable_interface(hard_iface,
 							BATADV_IF_CLEANUP_KEEP);
+=======
+			batadv_hardif_disable_interface(hard_iface);
+>>>>>>> upstream/android-13
 	}
 
 	/* destroy the "untagged" VLAN */
@@ -1159,7 +1408,10 @@ static void batadv_softif_destroy_netlink(struct net_device *soft_iface,
 		batadv_softif_vlan_put(vlan);
 	}
 
+<<<<<<< HEAD
 	batadv_sysfs_del_meshif(soft_iface);
+=======
+>>>>>>> upstream/android-13
 	unregister_netdevice_queue(soft_iface, head);
 }
 
@@ -1177,9 +1429,23 @@ bool batadv_softif_is_valid(const struct net_device *net_dev)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static const struct nla_policy batadv_ifla_policy[IFLA_BATADV_MAX + 1] = {
+	[IFLA_BATADV_ALGO_NAME]	= { .type = NLA_NUL_STRING },
+};
+
+>>>>>>> upstream/android-13
 struct rtnl_link_ops batadv_link_ops __read_mostly = {
 	.kind		= "batadv",
 	.priv_size	= sizeof(struct batadv_priv),
 	.setup		= batadv_softif_init_early,
+<<<<<<< HEAD
+=======
+	.maxtype	= IFLA_BATADV_MAX,
+	.policy		= batadv_ifla_policy,
+	.validate	= batadv_softif_validate,
+	.newlink	= batadv_softif_newlink,
+>>>>>>> upstream/android-13
 	.dellink	= batadv_softif_destroy_netlink,
 };

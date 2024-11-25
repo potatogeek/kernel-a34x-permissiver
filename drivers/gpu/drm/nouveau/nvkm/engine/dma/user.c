@@ -26,7 +26,10 @@
 #include <core/client.h>
 #include <core/gpuobj.h>
 #include <subdev/fb.h>
+<<<<<<< HEAD
 #include <subdev/instmem.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <nvif/cl0002.h>
 #include <nvif/unpack.h>
@@ -72,11 +75,15 @@ nvkm_dmaobj_ctor(const struct nvkm_dmaobj_func *func, struct nvkm_dma *dma,
 	union {
 		struct nv_dma_v0 v0;
 	} *args = *pdata;
+<<<<<<< HEAD
 	struct nvkm_device *device = dma->engine.subdev.device;
 	struct nvkm_client *client = oclass->client;
 	struct nvkm_object *parent = oclass->parent;
 	struct nvkm_instmem *instmem = device->imem;
 	struct nvkm_fb *fb = device->fb;
+=======
+	struct nvkm_object *parent = oclass->parent;
+>>>>>>> upstream/android-13
 	void *data = *pdata;
 	u32 size = *psize;
 	int ret = -ENOSYS;
@@ -109,6 +116,7 @@ nvkm_dmaobj_ctor(const struct nvkm_dmaobj_func *func, struct nvkm_dma *dma,
 		dmaobj->target = NV_MEM_TARGET_VM;
 		break;
 	case NV_DMA_V0_TARGET_VRAM:
+<<<<<<< HEAD
 		if (!client->super) {
 			if (dmaobj->limit >= fb->ram->size - instmem->reserved)
 				return -EACCES;
@@ -120,12 +128,20 @@ nvkm_dmaobj_ctor(const struct nvkm_dmaobj_func *func, struct nvkm_dma *dma,
 	case NV_DMA_V0_TARGET_PCI:
 		if (!client->super)
 			return -EACCES;
+=======
+		dmaobj->target = NV_MEM_TARGET_VRAM;
+		break;
+	case NV_DMA_V0_TARGET_PCI:
+>>>>>>> upstream/android-13
 		dmaobj->target = NV_MEM_TARGET_PCI;
 		break;
 	case NV_DMA_V0_TARGET_PCI_US:
 	case NV_DMA_V0_TARGET_AGP:
+<<<<<<< HEAD
 		if (!client->super)
 			return -EACCES;
+=======
+>>>>>>> upstream/android-13
 		dmaobj->target = NV_MEM_TARGET_PCI_NOSNOOP;
 		break;
 	default:

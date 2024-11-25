@@ -4,16 +4,37 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+<<<<<<< HEAD
 #include <linux/types.h>
 #include "symbol.h"
 #include "hist.h"
 #include "sort.h"
+=======
+#include <stdio.h>
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/rbtree.h>
 #include <pthread.h>
 #include <asm/bug.h>
+<<<<<<< HEAD
 
 struct ins_ops;
+=======
+#include "symbol_conf.h"
+#include "spark.h"
+
+struct hist_browser_timer;
+struct hist_entry;
+struct ins_ops;
+struct map;
+struct map_symbol;
+struct addr_map_symbol;
+struct option;
+struct perf_sample;
+struct evsel;
+struct symbol;
+>>>>>>> upstream/android-13
 
 struct ins {
 	const char     *name;
@@ -23,6 +44,10 @@ struct ins {
 struct ins_operands {
 	char	*raw;
 	char	*raw_comment;
+<<<<<<< HEAD
+=======
+	char	*raw_func_start;
+>>>>>>> upstream/android-13
 	struct {
 		char	*raw;
 		char	*name;
@@ -51,19 +76,32 @@ struct ins_ops {
 	void (*free)(struct ins_operands *ops);
 	int (*parse)(struct arch *arch, struct ins_operands *ops, struct map_symbol *ms);
 	int (*scnprintf)(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			 struct ins_operands *ops);
+=======
+			 struct ins_operands *ops, int max_ins_name);
+>>>>>>> upstream/android-13
 };
 
 bool ins__is_jump(const struct ins *ins);
 bool ins__is_call(const struct ins *ins);
 bool ins__is_ret(const struct ins *ins);
 bool ins__is_lock(const struct ins *ins);
+<<<<<<< HEAD
 int ins__scnprintf(struct ins *ins, char *bf, size_t size, struct ins_operands *ops);
+=======
+int ins__scnprintf(struct ins *ins, char *bf, size_t size, struct ins_operands *ops, int max_ins_name);
+>>>>>>> upstream/android-13
 bool ins__is_fused(struct arch *arch, const char *ins1, const char *ins2);
 
 #define ANNOTATION__IPC_WIDTH 6
 #define ANNOTATION__CYCLES_WIDTH 6
 #define ANNOTATION__MINMAX_CYCLES_WIDTH 19
+<<<<<<< HEAD
+=======
+#define ANNOTATION__AVG_IPC_WIDTH 36
+#define ANNOTATION_DUMMY_LEN	256
+>>>>>>> upstream/android-13
 
 struct annotation_options {
 	bool hide_src_code,
@@ -72,9 +110,14 @@ struct annotation_options {
 	     print_lines,
 	     full_path,
 	     show_linenr,
+<<<<<<< HEAD
 	     show_nr_jumps,
 	     show_nr_samples,
 	     show_total_period,
+=======
+	     show_fileloc,
+	     show_nr_jumps,
+>>>>>>> upstream/android-13
 	     show_minmax_cycle,
 	     show_asm_raw,
 	     annotate_src;
@@ -84,6 +127,11 @@ struct annotation_options {
 	int  context;
 	const char *objdump_path;
 	const char *disassembler_style;
+<<<<<<< HEAD
+=======
+	const char *prefix;
+	const char *prefix_strip;
+>>>>>>> upstream/android-13
 	unsigned int percent_type;
 };
 
@@ -124,17 +172,28 @@ struct annotation_line {
 	s64			 offset;
 	char			*line;
 	int			 line_nr;
+<<<<<<< HEAD
+=======
+	char			*fileloc;
+>>>>>>> upstream/android-13
 	int			 jump_sources;
 	float			 ipc;
 	u64			 cycles;
 	u64			 cycles_max;
 	u64			 cycles_min;
+<<<<<<< HEAD
 	size_t			 privsize;
+=======
+>>>>>>> upstream/android-13
 	char			*path;
 	u32			 idx;
 	int			 idx_asm;
 	int			 data_nr;
+<<<<<<< HEAD
 	struct annotation_data	 data[0];
+=======
+	struct annotation_data	 data[];
+>>>>>>> upstream/android-13
 };
 
 struct disasm_line {
@@ -207,17 +266,30 @@ void annotation_line__write(struct annotation_line *al, struct annotation *notes
 
 int __annotation__scnprintf_samples_period(struct annotation *notes,
 					   char *bf, size_t size,
+<<<<<<< HEAD
 					   struct perf_evsel *evsel,
 					   bool show_freq);
 
 int disasm_line__scnprintf(struct disasm_line *dl, char *bf, size_t size, bool raw);
 size_t disasm__fprintf(struct list_head *head, FILE *fp);
 void symbol__calc_percent(struct symbol *sym, struct perf_evsel *evsel);
+=======
+					   struct evsel *evsel,
+					   bool show_freq);
+
+int disasm_line__scnprintf(struct disasm_line *dl, char *bf, size_t size, bool raw, int max_ins_name);
+size_t disasm__fprintf(struct list_head *head, FILE *fp);
+void symbol__calc_percent(struct symbol *sym, struct evsel *evsel);
+>>>>>>> upstream/android-13
 
 struct sym_hist {
 	u64		      nr_samples;
 	u64		      period;
+<<<<<<< HEAD
 	struct sym_hist_entry addr[0];
+=======
+	struct sym_hist_entry addr[];
+>>>>>>> upstream/android-13
 };
 
 struct cyc_hist {
@@ -226,6 +298,10 @@ struct cyc_hist {
 	u64	cycles_aggr;
 	u64	cycles_max;
 	u64	cycles_min;
+<<<<<<< HEAD
+=======
+	s64	cycles_spark[NUM_SPARKS];
+>>>>>>> upstream/android-13
 	u32	num;
 	u32	num_aggr;
 	u8	have_start;
@@ -236,7 +312,11 @@ struct cyc_hist {
 /** struct annotated_source - symbols with hits have this attached as in sannotation
  *
  * @histograms: Array of addr hit histograms per event being monitored
+<<<<<<< HEAD
  * nr_histograms: This may not be the same as evsel->evlist->nr_entries if
+=======
+ * nr_histograms: This may not be the same as evsel->evlist->core.nr_entries if
+>>>>>>> upstream/android-13
  * 		  we have more than a group in a evlist, where we will want
  * 		  to see each group separately, that is why symbol__annotate2()
  * 		  sets src->nr_histograms to evsel->nr_members.
@@ -262,10 +342,20 @@ struct annotation {
 	pthread_mutex_t		lock;
 	u64			max_coverage;
 	u64			start;
+<<<<<<< HEAD
 	struct annotation_options *options;
 	struct annotation_line	**offsets;
 	int			nr_events;
 	int			nr_jumps;
+=======
+	u64			hit_cycles;
+	u64			hit_insn;
+	unsigned int		total_insn;
+	unsigned int		cover_insn;
+	struct annotation_options *options;
+	struct annotation_line	**offsets;
+	int			nr_events;
+>>>>>>> upstream/android-13
 	int			max_jump_sources;
 	int			nr_entries;
 	int			nr_asm_entries;
@@ -276,6 +366,10 @@ struct annotation {
 		u8		target;
 		u8		min_addr;
 		u8		max_addr;
+<<<<<<< HEAD
+=======
+		u8		max_ins_name;
+>>>>>>> upstream/android-13
 	} widths;
 	bool			have_cycles;
 	struct annotated_source *src;
@@ -291,7 +385,11 @@ static inline int annotation__cycles_width(struct annotation *notes)
 
 static inline int annotation__pcnt_width(struct annotation *notes)
 {
+<<<<<<< HEAD
 	return (notes->options->show_total_period ? 12 : 7) * notes->nr_events;
+=======
+	return (symbol_conf.show_total_period ? 12 : 7) * notes->nr_events;
+>>>>>>> upstream/android-13
 }
 
 static inline bool annotation_line__filter(struct annotation_line *al, struct annotation *notes)
@@ -321,24 +419,41 @@ static inline struct annotation *symbol__annotation(struct symbol *sym)
 }
 
 int addr_map_symbol__inc_samples(struct addr_map_symbol *ams, struct perf_sample *sample,
+<<<<<<< HEAD
 				 struct perf_evsel *evsel);
+=======
+				 struct evsel *evsel);
+>>>>>>> upstream/android-13
 
 int addr_map_symbol__account_cycles(struct addr_map_symbol *ams,
 				    struct addr_map_symbol *start,
 				    unsigned cycles);
 
 int hist_entry__inc_addr_samples(struct hist_entry *he, struct perf_sample *sample,
+<<<<<<< HEAD
 				 struct perf_evsel *evsel, u64 addr);
+=======
+				 struct evsel *evsel, u64 addr);
+>>>>>>> upstream/android-13
 
 struct annotated_source *symbol__hists(struct symbol *sym, int nr_hists);
 void symbol__annotate_zero_histograms(struct symbol *sym);
 
+<<<<<<< HEAD
 int symbol__annotate(struct symbol *sym, struct map *map,
 		     struct perf_evsel *evsel, size_t privsize,
 		     struct annotation_options *options,
 		     struct arch **parch);
 int symbol__annotate2(struct symbol *sym, struct map *map,
 		      struct perf_evsel *evsel,
+=======
+int symbol__annotate(struct map_symbol *ms,
+		     struct evsel *evsel,
+		     struct annotation_options *options,
+		     struct arch **parch);
+int symbol__annotate2(struct map_symbol *ms,
+		      struct evsel *evsel,
+>>>>>>> upstream/android-13
 		      struct annotation_options *options,
 		      struct arch **parch);
 
@@ -355,25 +470,44 @@ enum symbol_disassemble_errno {
 	__SYMBOL_ANNOTATE_ERRNO__START		= -10000,
 
 	SYMBOL_ANNOTATE_ERRNO__NO_VMLINUX	= __SYMBOL_ANNOTATE_ERRNO__START,
+<<<<<<< HEAD
+=======
+	SYMBOL_ANNOTATE_ERRNO__NO_LIBOPCODES_FOR_BPF,
+	SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING,
+	SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_REGEXP,
+	SYMBOL_ANNOTATE_ERRNO__BPF_INVALID_FILE,
+	SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF,
+>>>>>>> upstream/android-13
 
 	__SYMBOL_ANNOTATE_ERRNO__END,
 };
 
+<<<<<<< HEAD
 int symbol__strerror_disassemble(struct symbol *sym, struct map *map,
 				 int errnum, char *buf, size_t buflen);
 
 int symbol__annotate_printf(struct symbol *sym, struct map *map,
 			    struct perf_evsel *evsel,
+=======
+int symbol__strerror_disassemble(struct map_symbol *ms, int errnum, char *buf, size_t buflen);
+
+int symbol__annotate_printf(struct map_symbol *ms, struct evsel *evsel,
+>>>>>>> upstream/android-13
 			    struct annotation_options *options);
 void symbol__annotate_zero_histogram(struct symbol *sym, int evidx);
 void symbol__annotate_decay_histogram(struct symbol *sym, int evidx);
 void annotated_source__purge(struct annotated_source *as);
 
+<<<<<<< HEAD
 int map_symbol__annotation_dump(struct map_symbol *ms, struct perf_evsel *evsel,
+=======
+int map_symbol__annotation_dump(struct map_symbol *ms, struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct annotation_options *opts);
 
 bool ui__has_annotation(void);
 
+<<<<<<< HEAD
 int symbol__tty_annotate(struct symbol *sym, struct map *map,
 			 struct perf_evsel *evsel, struct annotation_options *opts);
 
@@ -389,6 +523,19 @@ int symbol__tui_annotate(struct symbol *sym, struct map *map,
 static inline int symbol__tui_annotate(struct symbol *sym __maybe_unused,
 				struct map *map __maybe_unused,
 				struct perf_evsel *evsel  __maybe_unused,
+=======
+int symbol__tty_annotate(struct map_symbol *ms, struct evsel *evsel, struct annotation_options *opts);
+
+int symbol__tty_annotate2(struct map_symbol *ms, struct evsel *evsel, struct annotation_options *opts);
+
+#ifdef HAVE_SLANG_SUPPORT
+int symbol__tui_annotate(struct map_symbol *ms, struct evsel *evsel,
+			 struct hist_browser_timer *hbt,
+			 struct annotation_options *opts);
+#else
+static inline int symbol__tui_annotate(struct map_symbol *ms __maybe_unused,
+				struct evsel *evsel  __maybe_unused,
+>>>>>>> upstream/android-13
 				struct hist_browser_timer *hbt __maybe_unused,
 				struct annotation_options *opts __maybe_unused)
 {
@@ -396,8 +543,18 @@ static inline int symbol__tui_annotate(struct symbol *sym __maybe_unused,
 }
 #endif
 
+<<<<<<< HEAD
 void annotation_config__init(void);
 
 int annotate_parse_percent_type(const struct option *opt, const char *_str,
 				int unset);
+=======
+void annotation_config__init(struct annotation_options *opt);
+
+int annotate_parse_percent_type(const struct option *opt, const char *_str,
+				int unset);
+
+int annotate_check_args(struct annotation_options *args);
+
+>>>>>>> upstream/android-13
 #endif	/* __PERF_ANNOTATE_H */

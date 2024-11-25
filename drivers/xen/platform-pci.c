@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
  * platform-pci.c
  *
@@ -8,6 +12,7 @@
  * Copyright (c) 2005, Intel Corporation.
  * Copyright (c) 2007, XenSource Inc.
  * Copyright (c) 2010, Citrix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -22,6 +27,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -87,7 +94,11 @@ static int xen_allocate_irq(struct pci_dev *pdev)
 			"xen-platform-pci", pdev);
 }
 
+<<<<<<< HEAD
 static int platform_pci_resume(struct pci_dev *pdev)
+=======
+static int platform_pci_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -96,7 +107,11 @@ static int platform_pci_resume(struct pci_dev *pdev)
 
 	err = xen_set_callback_via(callback_via);
 	if (err) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "platform_pci_resume failure!\n");
+=======
+		dev_err(dev, "platform_pci_resume failure!\n");
+>>>>>>> upstream/android-13
 		return err;
 	}
 	return 0;
@@ -145,6 +160,16 @@ static int platform_pci_probe(struct pci_dev *pdev,
 			dev_warn(&pdev->dev, "request_irq failed err=%d\n", ret);
 			goto out;
 		}
+<<<<<<< HEAD
+=======
+		/*
+		 * It doesn't strictly *have* to run on CPU0 but it sure
+		 * as hell better process the event channel ports delivered
+		 * to CPU0.
+		 */
+		irq_set_affinity(pdev->irq, cpumask_of(0));
+
+>>>>>>> upstream/android-13
 		callback_via = get_callback_via(pdev);
 		ret = xen_set_callback_via(callback_via);
 		if (ret) {
@@ -180,13 +205,26 @@ static const struct pci_device_id platform_pci_tbl[] = {
 	{0,}
 };
 
+<<<<<<< HEAD
+=======
+static const struct dev_pm_ops platform_pm_ops = {
+	.resume_noirq =   platform_pci_resume,
+};
+
+>>>>>>> upstream/android-13
 static struct pci_driver platform_driver = {
 	.name =           DRV_NAME,
 	.probe =          platform_pci_probe,
 	.id_table =       platform_pci_tbl,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.resume_early =   platform_pci_resume,
 #endif
+=======
+	.driver = {
+		.pm =     &platform_pm_ops,
+	},
+>>>>>>> upstream/android-13
 };
 
 builtin_pci_driver(platform_driver);

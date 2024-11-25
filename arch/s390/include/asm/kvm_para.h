@@ -24,6 +24,7 @@
 #include <uapi/asm/kvm_para.h>
 #include <asm/diag.h>
 
+<<<<<<< HEAD
 static inline long __kvm_hypercall0(unsigned long nr)
 {
 	register unsigned long __nr asm("1") = nr;
@@ -180,6 +181,81 @@ static inline long kvm_hypercall6(unsigned long nr, unsigned long p1,
 	diag_stat_inc(DIAG_STAT_X500);
 	return __kvm_hypercall6(nr, p1, p2, p3, p4, p5, p6);
 }
+=======
+#define HYPERCALL_FMT_0
+#define HYPERCALL_FMT_1 , "0" (r2)
+#define HYPERCALL_FMT_2 , "d" (r3) HYPERCALL_FMT_1
+#define HYPERCALL_FMT_3 , "d" (r4) HYPERCALL_FMT_2
+#define HYPERCALL_FMT_4 , "d" (r5) HYPERCALL_FMT_3
+#define HYPERCALL_FMT_5 , "d" (r6) HYPERCALL_FMT_4
+#define HYPERCALL_FMT_6 , "d" (r7) HYPERCALL_FMT_5
+
+#define HYPERCALL_PARM_0
+#define HYPERCALL_PARM_1 , unsigned long arg1
+#define HYPERCALL_PARM_2 HYPERCALL_PARM_1, unsigned long arg2
+#define HYPERCALL_PARM_3 HYPERCALL_PARM_2, unsigned long arg3
+#define HYPERCALL_PARM_4 HYPERCALL_PARM_3, unsigned long arg4
+#define HYPERCALL_PARM_5 HYPERCALL_PARM_4, unsigned long arg5
+#define HYPERCALL_PARM_6 HYPERCALL_PARM_5, unsigned long arg6
+
+#define HYPERCALL_REGS_0
+#define HYPERCALL_REGS_1						\
+	register unsigned long r2 asm("2") = arg1
+#define HYPERCALL_REGS_2						\
+	HYPERCALL_REGS_1;						\
+	register unsigned long r3 asm("3") = arg2
+#define HYPERCALL_REGS_3						\
+	HYPERCALL_REGS_2;						\
+	register unsigned long r4 asm("4") = arg3
+#define HYPERCALL_REGS_4						\
+	HYPERCALL_REGS_3;						\
+	register unsigned long r5 asm("5") = arg4
+#define HYPERCALL_REGS_5						\
+	HYPERCALL_REGS_4;						\
+	register unsigned long r6 asm("6") = arg5
+#define HYPERCALL_REGS_6						\
+	HYPERCALL_REGS_5;						\
+	register unsigned long r7 asm("7") = arg6
+
+#define HYPERCALL_ARGS_0
+#define HYPERCALL_ARGS_1 , arg1
+#define HYPERCALL_ARGS_2 HYPERCALL_ARGS_1, arg2
+#define HYPERCALL_ARGS_3 HYPERCALL_ARGS_2, arg3
+#define HYPERCALL_ARGS_4 HYPERCALL_ARGS_3, arg4
+#define HYPERCALL_ARGS_5 HYPERCALL_ARGS_4, arg5
+#define HYPERCALL_ARGS_6 HYPERCALL_ARGS_5, arg6
+
+#define GENERATE_KVM_HYPERCALL_FUNC(args)				\
+static inline								\
+long __kvm_hypercall##args(unsigned long nr HYPERCALL_PARM_##args)	\
+{									\
+	register unsigned long __nr asm("1") = nr;			\
+	register long __rc asm("2");					\
+	HYPERCALL_REGS_##args;						\
+									\
+	asm volatile (							\
+		"	diag	2,4,0x500\n"				\
+		: "=d" (__rc)						\
+		: "d" (__nr) HYPERCALL_FMT_##args			\
+		: "memory", "cc");					\
+	return __rc;							\
+}									\
+									\
+static inline								\
+long kvm_hypercall##args(unsigned long nr HYPERCALL_PARM_##args)	\
+{									\
+	diag_stat_inc(DIAG_STAT_X500);					\
+	return __kvm_hypercall##args(nr HYPERCALL_ARGS_##args);		\
+}
+
+GENERATE_KVM_HYPERCALL_FUNC(0)
+GENERATE_KVM_HYPERCALL_FUNC(1)
+GENERATE_KVM_HYPERCALL_FUNC(2)
+GENERATE_KVM_HYPERCALL_FUNC(3)
+GENERATE_KVM_HYPERCALL_FUNC(4)
+GENERATE_KVM_HYPERCALL_FUNC(5)
+GENERATE_KVM_HYPERCALL_FUNC(6)
+>>>>>>> upstream/android-13
 
 /* kvm on s390 is always paravirtualization enabled */
 static inline int kvm_para_available(void)

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ISHTP bus layer messages handling
  *
  * Copyright (c) 2003-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ISHTP_HBM_H_
@@ -90,7 +97,11 @@ struct ishtp_msg_hdr {
 
 struct ishtp_bus_message {
 	uint8_t hbm_cmd;
+<<<<<<< HEAD
 	uint8_t data[0];
+=======
+	uint8_t data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /**
@@ -149,7 +160,11 @@ struct hbm_host_enum_response {
 } __packed;
 
 struct ishtp_client_properties {
+<<<<<<< HEAD
 	uuid_le protocol_name;
+=======
+	guid_t protocol_name;
+>>>>>>> upstream/android-13
 	uint8_t protocol_version;
 	uint8_t max_number_of_connections;
 	uint8_t fixed_address;
@@ -243,6 +258,10 @@ struct dma_xfer_hbm {
 #define SYSTEM_STATE_QUERY_SUBSCRIBERS		0x3
 #define SYSTEM_STATE_STATE_CHANGE_REQ		0x4
 /*indicates suspend and resume states*/
+<<<<<<< HEAD
+=======
+#define CONNECTED_STANDBY_STATE_BIT		(1<<0)
+>>>>>>> upstream/android-13
 #define SUSPEND_STATE_BIT			(1<<1)
 
 struct ish_system_states_header {

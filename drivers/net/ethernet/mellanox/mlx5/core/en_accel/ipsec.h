@@ -75,6 +75,12 @@ struct mlx5e_ipsec_stats {
 	u64 ipsec_cmd_drop;
 };
 
+<<<<<<< HEAD
+=======
+struct mlx5e_accel_fs_esp;
+struct mlx5e_ipsec_tx;
+
+>>>>>>> upstream/android-13
 struct mlx5e_ipsec {
 	struct mlx5e_priv *en_priv;
 	DECLARE_HASHTABLE(sadb_rx, MLX5E_IPSEC_SADB_RX_BITS);
@@ -84,6 +90,11 @@ struct mlx5e_ipsec {
 	struct mlx5e_ipsec_sw_stats sw_stats;
 	struct mlx5e_ipsec_stats stats;
 	struct workqueue_struct *wq;
+<<<<<<< HEAD
+=======
+	struct mlx5e_accel_fs_esp *rx_fs;
+	struct mlx5e_ipsec_tx *tx_fs;
+>>>>>>> upstream/android-13
 };
 
 struct mlx5e_ipsec_esn_state {
@@ -92,6 +103,14 @@ struct mlx5e_ipsec_esn_state {
 	u8 overlap: 1;
 };
 
+<<<<<<< HEAD
+=======
+struct mlx5e_ipsec_rule {
+	struct mlx5_flow_handle *rule;
+	struct mlx5_modify_hdr *set_modify_hdr;
+};
+
+>>>>>>> upstream/android-13
 struct mlx5e_ipsec_sa_entry {
 	struct hlist_node hlist; /* Item in SADB_RX hashtable */
 	struct mlx5e_ipsec_esn_state esn_state;
@@ -102,6 +121,11 @@ struct mlx5e_ipsec_sa_entry {
 	void *hw_context;
 	void (*set_iv_op)(struct sk_buff *skb, struct xfrm_state *x,
 			  struct xfrm_offload *xo);
+<<<<<<< HEAD
+=======
+	u32 ipsec_obj_id;
+	struct mlx5e_ipsec_rule ipsec_rule;
+>>>>>>> upstream/android-13
 };
 
 void mlx5e_ipsec_build_inverse_table(void);
@@ -109,11 +133,14 @@ int mlx5e_ipsec_init(struct mlx5e_priv *priv);
 void mlx5e_ipsec_cleanup(struct mlx5e_priv *priv);
 void mlx5e_ipsec_build_netdev(struct mlx5e_priv *priv);
 
+<<<<<<< HEAD
 int mlx5e_ipsec_get_count(struct mlx5e_priv *priv);
 int mlx5e_ipsec_get_strings(struct mlx5e_priv *priv, uint8_t *data);
 void mlx5e_ipsec_update_stats(struct mlx5e_priv *priv);
 int mlx5e_ipsec_get_stats(struct mlx5e_priv *priv, u64 *data);
 
+=======
+>>>>>>> upstream/android-13
 struct xfrm_state *mlx5e_ipsec_sadb_rx_lookup(struct mlx5e_ipsec *dev,
 					      unsigned int handle);
 
@@ -136,6 +163,7 @@ static inline void mlx5e_ipsec_build_netdev(struct mlx5e_priv *priv)
 {
 }
 
+<<<<<<< HEAD
 static inline int mlx5e_ipsec_get_count(struct mlx5e_priv *priv)
 {
 	return 0;
@@ -156,6 +184,8 @@ static inline int mlx5e_ipsec_get_stats(struct mlx5e_priv *priv, u64 *data)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif	/* __MLX5E_IPSEC_H__ */

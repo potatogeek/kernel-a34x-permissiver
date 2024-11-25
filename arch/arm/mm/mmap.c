@@ -17,6 +17,7 @@
 	((((addr)+SHMLBA-1)&~(SHMLBA-1)) +	\
 	 (((pgoff)<<PAGE_SHIFT) & (SHMLBA-1)))
 
+<<<<<<< HEAD
 /* gap between mmap and stack */
 #define MIN_GAP		(128*1024*1024UL)
 #define MAX_GAP		((STACK_TOP)/6*5)
@@ -54,6 +55,8 @@ static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
 	return PAGE_ALIGN(STACK_TOP - gap - rnd);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * We need to ensure that shared mappings are correctly aligned to
  * avoid aliasing issues with VIPT caches.  We need to ensure that
@@ -181,6 +184,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 	return addr;
 }
 
+<<<<<<< HEAD
 unsigned long arch_mmap_rnd(void)
 {
 	unsigned long rnd;
@@ -206,6 +210,8 @@ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * You really shouldn't be using read() or write() on /dev/mem.  This
  * might go away in the future.
@@ -227,6 +233,7 @@ int valid_mmap_phys_addr_range(unsigned long pfn, size_t size)
 {
 	return (pfn + (size >> PAGE_SHIFT)) <= (1 + (PHYS_MASK >> PAGE_SHIFT));
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_STRICT_DEVMEM
 
@@ -249,3 +256,5 @@ int devmem_is_allowed(unsigned long pfn)
 }
 
 #endif
+=======
+>>>>>>> upstream/android-13

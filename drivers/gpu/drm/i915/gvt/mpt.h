@@ -33,6 +33,11 @@
 #ifndef _GVT_MPT_H_
 #define _GVT_MPT_H_
 
+<<<<<<< HEAD
+=======
+#include "gvt.h"
+
+>>>>>>> upstream/android-13
 /**
  * DOC: Hypervisor Service APIs for GVT-g Core Logic
  *
@@ -50,11 +55,18 @@
  * Zero on success, negative error code if failed
  */
 static inline int intel_gvt_hypervisor_host_init(struct device *dev,
+<<<<<<< HEAD
 			void *gvt, const void *ops)
 {
 	/* optional to provide */
 	if (!intel_gvt_host.mpt->host_init)
 		return 0;
+=======
+						 void *gvt, const void *ops)
+{
+	if (!intel_gvt_host.mpt->host_init)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	return intel_gvt_host.mpt->host_init(dev, gvt, ops);
 }
@@ -62,8 +74,12 @@ static inline int intel_gvt_hypervisor_host_init(struct device *dev,
 /**
  * intel_gvt_hypervisor_host_exit - exit GVT-g host side
  */
+<<<<<<< HEAD
 static inline void intel_gvt_hypervisor_host_exit(struct device *dev,
 			void *gvt)
+=======
+static inline void intel_gvt_hypervisor_host_exit(struct device *dev, void *gvt)
+>>>>>>> upstream/android-13
 {
 	/* optional to provide */
 	if (!intel_gvt_host.mpt->host_exit)
@@ -101,7 +117,11 @@ static inline void intel_gvt_hypervisor_detach_vgpu(struct intel_vgpu *vgpu)
 	if (!intel_gvt_host.mpt->detach_vgpu)
 		return;
 
+<<<<<<< HEAD
 	intel_gvt_host.mpt->detach_vgpu(vgpu->handle);
+=======
+	intel_gvt_host.mpt->detach_vgpu(vgpu);
+>>>>>>> upstream/android-13
 }
 
 #define MSI_CAP_CONTROL(offset) (offset + 2)
@@ -257,6 +277,24 @@ static inline void intel_gvt_hypervisor_dma_unmap_guest_page(
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * intel_gvt_hypervisor_dma_pin_guest_page - pin guest dma buf
+ * @vgpu: a vGPU
+ * @dma_addr: guest dma addr
+ *
+ * Returns:
+ * 0 on success, negative error code if failed.
+ */
+static inline int
+intel_gvt_hypervisor_dma_pin_guest_page(struct intel_vgpu *vgpu,
+					dma_addr_t dma_addr)
+{
+	return intel_gvt_host.mpt->dma_pin_guest_page(vgpu->handle, dma_addr);
+}
+
+/**
+>>>>>>> upstream/android-13
  * intel_gvt_hypervisor_map_gfn_to_mfn - map a GFN region to MFN
  * @vgpu: a vGPU
  * @gfn: guest PFN
@@ -316,6 +354,26 @@ static inline int intel_gvt_hypervisor_set_opregion(struct intel_vgpu *vgpu)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * intel_gvt_hypervisor_set_edid - Set EDID region for guest
+ * @vgpu: a vGPU
+ * @port_num: display port number
+ *
+ * Returns:
+ * Zero on success, negative error code if failed.
+ */
+static inline int intel_gvt_hypervisor_set_edid(struct intel_vgpu *vgpu,
+						int port_num)
+{
+	if (!intel_gvt_host.mpt->set_edid)
+		return 0;
+
+	return intel_gvt_host.mpt->set_edid(vgpu, port_num);
+}
+
+/**
+>>>>>>> upstream/android-13
  * intel_gvt_hypervisor_get_vfio_device - increase vfio device ref count
  * @vgpu: a vGPU
  *
@@ -362,4 +420,10 @@ static inline bool intel_gvt_hypervisor_is_valid_gfn(
 	return intel_gvt_host.mpt->is_valid_gfn(vgpu->handle, gfn);
 }
 
+<<<<<<< HEAD
+=======
+int intel_gvt_register_hypervisor(const struct intel_gvt_mpt *);
+void intel_gvt_unregister_hypervisor(void);
+
+>>>>>>> upstream/android-13
 #endif /* _GVT_MPT_H_ */

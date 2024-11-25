@@ -6,13 +6,21 @@
 #include <linux/compiler.h>
 #include <linux/gfp.h>
 
+<<<<<<< HEAD
 #define FW_ACTION_NOHOTPLUG 0
 #define FW_ACTION_HOTPLUG 1
+=======
+#define FW_ACTION_NOUEVENT 0
+#define FW_ACTION_UEVENT 1
+>>>>>>> upstream/android-13
 
 struct firmware {
 	size_t size;
 	const u8 *data;
+<<<<<<< HEAD
 	struct page **pages;
+=======
+>>>>>>> upstream/android-13
 
 	/* firmware loader private fields */
 	void *priv;
@@ -37,13 +45,22 @@ struct builtin_fw {
 
 #define DECLARE_BUILTIN_FIRMWARE_SIZE(name, blob, size)			     \
 	static const struct builtin_fw __fw_concat(__builtin_fw,__COUNTER__) \
+<<<<<<< HEAD
 	__used __section(.builtin_fw) = { name, blob, size }
+=======
+	__used __section(".builtin_fw") = { name, blob, size }
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_FW_LOADER) || (defined(CONFIG_FW_LOADER_MODULE) && defined(MODULE))
 int request_firmware(const struct firmware **fw, const char *name,
 		     struct device *device);
 int firmware_request_nowarn(const struct firmware **fw, const char *name,
 			    struct device *device);
+<<<<<<< HEAD
+=======
+int firmware_request_platform(const struct firmware **fw, const char *name,
+			      struct device *device);
+>>>>>>> upstream/android-13
 int request_firmware_nowait(
 	struct module *module, bool uevent,
 	const char *name, struct device *device, gfp_t gfp, void *context,
@@ -52,6 +69,12 @@ int request_firmware_direct(const struct firmware **fw, const char *name,
 			    struct device *device);
 int request_firmware_into_buf(const struct firmware **firmware_p,
 	const char *name, struct device *device, void *buf, size_t size);
+<<<<<<< HEAD
+=======
+int request_partial_firmware_into_buf(const struct firmware **firmware_p,
+				      const char *name, struct device *device,
+				      void *buf, size_t size, size_t offset);
+>>>>>>> upstream/android-13
 
 void release_firmware(const struct firmware *fw);
 #else
@@ -69,6 +92,16 @@ static inline int firmware_request_nowarn(const struct firmware **fw,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static inline int firmware_request_platform(const struct firmware **fw,
+					    const char *name,
+					    struct device *device)
+{
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 static inline int request_firmware_nowait(
 	struct module *module, bool uevent,
 	const char *name, struct device *device, gfp_t gfp, void *context,
@@ -94,6 +127,18 @@ static inline int request_firmware_into_buf(const struct firmware **firmware_p,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static inline int request_partial_firmware_into_buf
+					(const struct firmware **firmware_p,
+					 const char *name,
+					 struct device *device,
+					 void *buf, size_t size, size_t offset)
+{
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 int firmware_request_cache(struct device *device, const char *name);

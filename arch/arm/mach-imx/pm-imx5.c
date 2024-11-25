@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2011 Freescale Semiconductor, Inc. All Rights Reserved.
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2011 Freescale Semiconductor, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/suspend.h>
 #include <linux/clk.h>
@@ -51,7 +57,11 @@
  * This is also the lowest power state possible without affecting
  * non-cpu parts of the system.  For these reasons, imx5 should default
  * to always using this state for cpu idling.  The PM_SUSPEND_STANDBY also
+<<<<<<< HEAD
  * uses this state and needs to take no action when registers remain confgiured
+=======
+ * uses this state and needs to take no action when registers remain configured
+>>>>>>> upstream/android-13
  * for this state.
  */
 #define IMX5_DEFAULT_CPU_IDLE_STATE WAIT_UNCLOCKED_POWER_OFF

@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 /* Marvell Wireless LAN device driver: TDLS handling
  *
  * Copyright (C) 2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+/*
+ * NXP Wireless LAN device driver: TDLS handling
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available on the worldwide web at
@@ -33,12 +43,19 @@ static void mwifiex_restore_tdls_packets(struct mwifiex_private *priv,
 	struct list_head *tid_list;
 	struct sk_buff *skb, *tmp;
 	struct mwifiex_txinfo *tx_info;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u32 tid;
 	u8 tid_down;
 
 	mwifiex_dbg(priv->adapter, DATA, "%s: %pM\n", __func__, mac);
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->wmm.ra_list_spinlock, flags);
+=======
+	spin_lock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 
 	skb_queue_walk_safe(&priv->tdls_txq, skb, tmp) {
 		if (!ether_addr_equal(mac, skb->data))
@@ -78,7 +95,11 @@ static void mwifiex_restore_tdls_packets(struct mwifiex_private *priv,
 		atomic_inc(&priv->wmm.tx_pkts_queued);
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->wmm.ra_list_spinlock, flags);
+=======
+	spin_unlock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -88,11 +109,18 @@ static void mwifiex_hold_tdls_packets(struct mwifiex_private *priv,
 	struct mwifiex_ra_list_tbl *ra_list;
 	struct list_head *ra_list_head;
 	struct sk_buff *skb, *tmp;
+<<<<<<< HEAD
 	unsigned long flags;
 	int i;
 
 	mwifiex_dbg(priv->adapter, DATA, "%s: %pM\n", __func__, mac);
 	spin_lock_irqsave(&priv->wmm.ra_list_spinlock, flags);
+=======
+	int i;
+
+	mwifiex_dbg(priv->adapter, DATA, "%s: %pM\n", __func__, mac);
+	spin_lock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MAX_NUM_TID; i++) {
 		if (!list_empty(&priv->wmm.tid_tbl_ptr[i].ra_list)) {
@@ -111,7 +139,11 @@ static void mwifiex_hold_tdls_packets(struct mwifiex_private *priv,
 		}
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->wmm.ra_list_spinlock, flags);
+=======
+	spin_unlock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -733,7 +765,10 @@ mwifiex_construct_tdls_action_frame(struct mwifiex_private *priv,
 				    u16 status_code, struct sk_buff *skb)
 {
 	struct ieee80211_mgmt *mgmt;
+<<<<<<< HEAD
 	u8 bc_addr[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	u16 capab;
 	struct ieee80211_ht_cap *ht_cap;
@@ -767,7 +802,11 @@ mwifiex_construct_tdls_action_frame(struct mwifiex_private *priv,
 		memmove(pos + ETH_ALEN, &mgmt->u.action.category,
 			sizeof(mgmt->u.action.u.tdls_discover_resp));
 		/* init address 4 */
+<<<<<<< HEAD
 		memcpy(pos, bc_addr, ETH_ALEN);
+=======
+		eth_broadcast_addr(pos);
+>>>>>>> upstream/android-13
 
 		ret = mwifiex_tdls_append_rates_ie(priv, skb);
 		if (ret) {
@@ -1109,7 +1148,10 @@ mwifiex_tdls_process_disable_link(struct mwifiex_private *priv, const u8 *peer)
 {
 	struct mwifiex_sta_node *sta_ptr;
 	struct mwifiex_ds_tdls_oper tdls_oper;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	memset(&tdls_oper, 0, sizeof(struct mwifiex_ds_tdls_oper));
 	sta_ptr = mwifiex_get_sta_entry(priv, peer);
@@ -1117,11 +1159,17 @@ mwifiex_tdls_process_disable_link(struct mwifiex_private *priv, const u8 *peer)
 	if (sta_ptr) {
 		if (sta_ptr->is_11n_enabled) {
 			mwifiex_11n_cleanup_reorder_tbl(priv);
+<<<<<<< HEAD
 			spin_lock_irqsave(&priv->wmm.ra_list_spinlock,
 					  flags);
 			mwifiex_11n_delete_all_tx_ba_stream_tbl(priv);
 			spin_unlock_irqrestore(&priv->wmm.ra_list_spinlock,
 					       flags);
+=======
+			spin_lock_bh(&priv->wmm.ra_list_spinlock);
+			mwifiex_11n_delete_all_tx_ba_stream_tbl(priv);
+			spin_unlock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 		}
 		mwifiex_del_sta_entry(priv, peer);
 	}
@@ -1139,7 +1187,10 @@ mwifiex_tdls_process_enable_link(struct mwifiex_private *priv, const u8 *peer)
 {
 	struct mwifiex_sta_node *sta_ptr;
 	struct ieee80211_mcs_info mcs;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	sta_ptr = mwifiex_get_sta_entry(priv, peer);
@@ -1184,11 +1235,17 @@ mwifiex_tdls_process_enable_link(struct mwifiex_private *priv, const u8 *peer)
 			    "tdls: enable link %pM failed\n", peer);
 		if (sta_ptr) {
 			mwifiex_11n_cleanup_reorder_tbl(priv);
+<<<<<<< HEAD
 			spin_lock_irqsave(&priv->wmm.ra_list_spinlock,
 					  flags);
 			mwifiex_11n_delete_all_tx_ba_stream_tbl(priv);
 			spin_unlock_irqrestore(&priv->wmm.ra_list_spinlock,
 					       flags);
+=======
+			spin_lock_bh(&priv->wmm.ra_list_spinlock);
+			mwifiex_11n_delete_all_tx_ba_stream_tbl(priv);
+			spin_unlock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 			mwifiex_del_sta_entry(priv, peer);
 		}
 		mwifiex_restore_tdls_packets(priv, peer, TDLS_LINK_TEARDOWN);
@@ -1233,7 +1290,10 @@ int mwifiex_get_tdls_list(struct mwifiex_private *priv,
 	struct mwifiex_sta_node *sta_ptr;
 	struct tdls_peer_info *peer = buf;
 	int count = 0;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!ISSUPP_TDLS_ENABLED(priv->adapter->fw_cap_info))
 		return 0;
@@ -1242,7 +1302,11 @@ int mwifiex_get_tdls_list(struct mwifiex_private *priv,
 	if (!(priv->bss_type == MWIFIEX_BSS_TYPE_STA && priv->media_connected))
 		return 0;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->sta_list_spinlock, flags);
+=======
+	spin_lock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(sta_ptr, &priv->sta_list, list) {
 		if (mwifiex_is_tdls_link_setup(sta_ptr->tdls_status)) {
 			ether_addr_copy(peer->peer_addr, sta_ptr->mac_addr);
@@ -1252,7 +1316,11 @@ int mwifiex_get_tdls_list(struct mwifiex_private *priv,
 				break;
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->sta_list_spinlock, flags);
+=======
+	spin_unlock_bh(&priv->sta_list_spinlock);
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -1261,7 +1329,10 @@ void mwifiex_disable_all_tdls_links(struct mwifiex_private *priv)
 {
 	struct mwifiex_sta_node *sta_ptr;
 	struct mwifiex_ds_tdls_oper tdls_oper;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (list_empty(&priv->sta_list))
 		return;
@@ -1271,11 +1342,17 @@ void mwifiex_disable_all_tdls_links(struct mwifiex_private *priv)
 
 		if (sta_ptr->is_11n_enabled) {
 			mwifiex_11n_cleanup_reorder_tbl(priv);
+<<<<<<< HEAD
 			spin_lock_irqsave(&priv->wmm.ra_list_spinlock,
 					  flags);
 			mwifiex_11n_delete_all_tx_ba_stream_tbl(priv);
 			spin_unlock_irqrestore(&priv->wmm.ra_list_spinlock,
 					       flags);
+=======
+			spin_lock_bh(&priv->wmm.ra_list_spinlock);
+			mwifiex_11n_delete_all_tx_ba_stream_tbl(priv);
+			spin_unlock_bh(&priv->wmm.ra_list_spinlock);
+>>>>>>> upstream/android-13
 		}
 
 		mwifiex_restore_tdls_packets(priv, sta_ptr->mac_addr,
@@ -1295,12 +1372,19 @@ void mwifiex_disable_all_tdls_links(struct mwifiex_private *priv)
 int mwifiex_tdls_check_tx(struct mwifiex_private *priv, struct sk_buff *skb)
 {
 	struct mwifiex_auto_tdls_peer *peer;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u8 mac[ETH_ALEN];
 
 	ether_addr_copy(mac, skb->data);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->auto_tdls_lock, flags);
+=======
+	spin_lock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(peer, &priv->auto_tdls_list, list) {
 		if (!memcmp(mac, peer->mac_addr, ETH_ALEN)) {
 			if (peer->rssi <= MWIFIEX_TDLS_RSSI_HIGH &&
@@ -1329,7 +1413,11 @@ int mwifiex_tdls_check_tx(struct mwifiex_private *priv, struct sk_buff *skb)
 			}
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->auto_tdls_lock, flags);
+=======
+	spin_unlock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1337,33 +1425,53 @@ int mwifiex_tdls_check_tx(struct mwifiex_private *priv, struct sk_buff *skb)
 void mwifiex_flush_auto_tdls_list(struct mwifiex_private *priv)
 {
 	struct mwifiex_auto_tdls_peer *peer, *tmp_node;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&priv->auto_tdls_lock, flags);
+=======
+
+	spin_lock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(peer, tmp_node, &priv->auto_tdls_list, list) {
 		list_del(&peer->list);
 		kfree(peer);
 	}
 
 	INIT_LIST_HEAD(&priv->auto_tdls_list);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->auto_tdls_lock, flags);
+=======
+	spin_unlock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 	priv->check_tdls_tx = false;
 }
 
 void mwifiex_add_auto_tdls_peer(struct mwifiex_private *priv, const u8 *mac)
 {
 	struct mwifiex_auto_tdls_peer *tdls_peer;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!priv->adapter->auto_tdls)
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->auto_tdls_lock, flags);
+=======
+	spin_lock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(tdls_peer, &priv->auto_tdls_list, list) {
 		if (!memcmp(tdls_peer->mac_addr, mac, ETH_ALEN)) {
 			tdls_peer->tdls_status = TDLS_SETUP_INPROGRESS;
 			tdls_peer->rssi_jiffies = jiffies;
+<<<<<<< HEAD
 			spin_unlock_irqrestore(&priv->auto_tdls_lock, flags);
+=======
+			spin_unlock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
@@ -1380,19 +1488,30 @@ void mwifiex_add_auto_tdls_peer(struct mwifiex_private *priv, const u8 *mac)
 			    "Add auto TDLS peer= %pM to list\n", mac);
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->auto_tdls_lock, flags);
+=======
+	spin_unlock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 }
 
 void mwifiex_auto_tdls_update_peer_status(struct mwifiex_private *priv,
 					  const u8 *mac, u8 link_status)
 {
 	struct mwifiex_auto_tdls_peer *peer;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!priv->adapter->auto_tdls)
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->auto_tdls_lock, flags);
+=======
+	spin_lock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(peer, &priv->auto_tdls_list, list) {
 		if (!memcmp(peer->mac_addr, mac, ETH_ALEN)) {
 			if ((link_status == TDLS_NOT_SETUP) &&
@@ -1405,19 +1524,30 @@ void mwifiex_auto_tdls_update_peer_status(struct mwifiex_private *priv,
 			break;
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->auto_tdls_lock, flags);
+=======
+	spin_unlock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 }
 
 void mwifiex_auto_tdls_update_peer_signal(struct mwifiex_private *priv,
 					  u8 *mac, s8 snr, s8 nflr)
 {
 	struct mwifiex_auto_tdls_peer *peer;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!priv->adapter->auto_tdls)
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->auto_tdls_lock, flags);
+=======
+	spin_lock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(peer, &priv->auto_tdls_list, list) {
 		if (!memcmp(peer->mac_addr, mac, ETH_ALEN)) {
 			peer->rssi = nflr - snr;
@@ -1425,14 +1555,21 @@ void mwifiex_auto_tdls_update_peer_signal(struct mwifiex_private *priv,
 			break;
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->auto_tdls_lock, flags);
+=======
+	spin_unlock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 }
 
 void mwifiex_check_auto_tdls(struct timer_list *t)
 {
 	struct mwifiex_private *priv = from_timer(priv, t, auto_tdls_timer);
 	struct mwifiex_auto_tdls_peer *tdls_peer;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u16 reason = WLAN_REASON_TDLS_TEARDOWN_UNSPECIFIED;
 
 	if (WARN_ON_ONCE(!priv || !priv->adapter)) {
@@ -1452,7 +1589,11 @@ void mwifiex_check_auto_tdls(struct timer_list *t)
 
 	priv->check_tdls_tx = false;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&priv->auto_tdls_lock, flags);
+=======
+	spin_lock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(tdls_peer, &priv->auto_tdls_list, list) {
 		if ((jiffies - tdls_peer->rssi_jiffies) >
 		    (MWIFIEX_AUTO_TDLS_IDLE_TIME * HZ)) {
@@ -1487,7 +1628,11 @@ void mwifiex_check_auto_tdls(struct timer_list *t)
 					    tdls_peer->rssi);
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->auto_tdls_lock, flags);
+=======
+	spin_unlock_bh(&priv->auto_tdls_lock);
+>>>>>>> upstream/android-13
 
 	mod_timer(&priv->auto_tdls_timer,
 		  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));

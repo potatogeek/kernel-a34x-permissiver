@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * MEN Chameleon Bus.
  *
  * Copyright (C) 2014 MEN Mikroelektronik GmbH (www.men.de)
  * Author: Johannes Thumshirn <johannes.thumshirn@men.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_MCB_H
 #define _LINUX_MCB_H
@@ -123,7 +130,11 @@ extern int __must_check __mcb_register_driver(struct mcb_driver *drv,
 	__mcb_register_driver(driver, THIS_MODULE, KBUILD_MODNAME)
 extern void mcb_unregister_driver(struct mcb_driver *driver);
 #define module_mcb_driver(__mcb_driver)		\
+<<<<<<< HEAD
 	module_driver(__mcb_driver, mcb_register_driver, mcb_unregister_driver);
+=======
+	module_driver(__mcb_driver, mcb_register_driver, mcb_unregister_driver)
+>>>>>>> upstream/android-13
 extern void mcb_bus_add_devices(const struct mcb_bus *bus);
 extern int mcb_device_register(struct mcb_bus *bus, struct mcb_device *dev);
 extern struct mcb_bus *mcb_alloc_bus(struct device *carrier);

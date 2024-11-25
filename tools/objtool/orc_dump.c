@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Josh Poimboeuf <jpoimboe@redhat.com>
  *
@@ -18,6 +19,19 @@
 #include <unistd.h>
 #include "orc.h"
 #include "warn.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2017 Josh Poimboeuf <jpoimboe@redhat.com>
+ */
+
+#include <unistd.h>
+#include <linux/objtool.h>
+#include <asm/orc_types.h>
+#include <objtool/objtool.h>
+#include <objtool/warn.h>
+#include <objtool/endianness.h>
+>>>>>>> upstream/android-13
 
 static const char *reg_name(unsigned int reg)
 {
@@ -48,12 +62,21 @@ static const char *reg_name(unsigned int reg)
 static const char *orc_type_name(unsigned int type)
 {
 	switch (type) {
+<<<<<<< HEAD
 	case ORC_TYPE_CALL:
 		return "call";
 	case ORC_TYPE_REGS:
 		return "regs";
 	case ORC_TYPE_REGS_IRET:
 		return "iret";
+=======
+	case UNWIND_HINT_TYPE_CALL:
+		return "call";
+	case UNWIND_HINT_TYPE_REGS:
+		return "regs";
+	case UNWIND_HINT_TYPE_REGS_PARTIAL:
+		return "regs (partial)";
+>>>>>>> upstream/android-13
 	default:
 		return "?";
 	}
@@ -64,7 +87,11 @@ static void print_reg(unsigned int reg, int offset)
 	if (reg == ORC_REG_BP_INDIRECT)
 		printf("(bp%+d)", offset);
 	else if (reg == ORC_REG_SP_INDIRECT)
+<<<<<<< HEAD
 		printf("(sp%+d)", offset);
+=======
+		printf("(sp)%+d", offset);
+>>>>>>> upstream/android-13
 	else if (reg == ORC_REG_UNDEFINED)
 		printf("(und)");
 	else
@@ -207,11 +234,19 @@ int orc_dump(const char *_objname)
 
 		printf(" sp:");
 
+<<<<<<< HEAD
 		print_reg(orc[i].sp_reg, orc[i].sp_offset);
 
 		printf(" bp:");
 
 		print_reg(orc[i].bp_reg, orc[i].bp_offset);
+=======
+		print_reg(orc[i].sp_reg, bswap_if_needed(orc[i].sp_offset));
+
+		printf(" bp:");
+
+		print_reg(orc[i].bp_reg, bswap_if_needed(orc[i].bp_offset));
+>>>>>>> upstream/android-13
 
 		printf(" type:%s end:%d\n",
 		       orc_type_name(orc[i].type), orc[i].end);

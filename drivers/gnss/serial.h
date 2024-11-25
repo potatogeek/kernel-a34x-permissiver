@@ -16,7 +16,11 @@ struct gnss_serial {
 	struct gnss_device *gdev;
 	speed_t	speed;
 	const struct gnss_serial_ops *ops;
+<<<<<<< HEAD
 	unsigned long drvdata[0];
+=======
+	unsigned long drvdata[];
+>>>>>>> upstream/android-13
 };
 
 enum gnss_serial_pm_state {

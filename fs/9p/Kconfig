@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config 9P_FS
 	tristate "Plan 9 Resource Sharing Support (9P2000)"
 	depends on INET && NET_9P
@@ -31,6 +35,7 @@ endif
 
 
 config 9P_FS_SECURITY
+<<<<<<< HEAD
         bool "9P Security Labels"
         depends on 9P_FS
         help
@@ -41,3 +46,15 @@ config 9P_FS_SECURITY
 
           If you are not using a security module that requires using
           extended attributes for file security labels, say N.
+=======
+	bool "9P Security Labels"
+	depends on 9P_FS
+	help
+	  Security labels support alternative access control models
+	  implemented by security modules like SELinux.  This option
+	  enables an extended attribute handler for file security
+	  labels in the 9P filesystem.
+
+	  If you are not using a security module that requires using
+	  extended attributes for file security labels, say N.
+>>>>>>> upstream/android-13

@@ -1,10 +1,17 @@
 # SPDX-License-Identifier: GPL-2.0
 ldflags-y += --wrap=ioremap_wc
 ldflags-y += --wrap=memremap
+<<<<<<< HEAD
 ldflags-y += --wrap=devm_ioremap_nocache
 ldflags-y += --wrap=devm_memremap
 ldflags-y += --wrap=devm_memunmap
 ldflags-y += --wrap=ioremap_nocache
+=======
+ldflags-y += --wrap=devm_ioremap
+ldflags-y += --wrap=devm_memremap
+ldflags-y += --wrap=devm_memunmap
+ldflags-y += --wrap=ioremap
+>>>>>>> upstream/android-13
 ldflags-y += --wrap=iounmap
 ldflags-y += --wrap=memunmap
 ldflags-y += --wrap=__devm_request_region
@@ -21,7 +28,12 @@ DRIVERS := ../../../drivers
 NVDIMM_SRC := $(DRIVERS)/nvdimm
 ACPI_SRC := $(DRIVERS)/acpi/nfit
 DAX_SRC := $(DRIVERS)/dax
+<<<<<<< HEAD
 ccflags-y := -I$(src)/$(NVDIMM_SRC)/
+=======
+ccflags-y := -I$(srctree)/drivers/nvdimm/
+ccflags-y += -I$(srctree)/drivers/acpi/nfit/
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_LIBNVDIMM) += libnvdimm.o
 obj-$(CONFIG_BLK_DEV_PMEM) += nd_pmem.o
@@ -34,8 +46,16 @@ obj-$(CONFIG_DAX) += dax.o
 endif
 obj-$(CONFIG_DEV_DAX) += device_dax.o
 obj-$(CONFIG_DEV_DAX_PMEM) += dax_pmem.o
+<<<<<<< HEAD
 
 nfit-y := $(ACPI_SRC)/core.o
+=======
+obj-$(CONFIG_DEV_DAX_PMEM) += dax_pmem_core.o
+obj-$(CONFIG_DEV_DAX_PMEM_COMPAT) += dax_pmem_compat.o
+
+nfit-y := $(ACPI_SRC)/core.o
+nfit-y += $(ACPI_SRC)/intel.o
+>>>>>>> upstream/android-13
 nfit-$(CONFIG_X86_MCE) += $(ACPI_SRC)/mce.o
 nfit-y += acpi_nfit_test.o
 nfit-y += config_check.o
@@ -55,6 +75,10 @@ nd_e820-y := $(NVDIMM_SRC)/e820.o
 nd_e820-y += config_check.o
 
 dax-y := $(DAX_SRC)/super.o
+<<<<<<< HEAD
+=======
+dax-y += $(DAX_SRC)/bus.o
+>>>>>>> upstream/android-13
 dax-y += config_check.o
 
 device_dax-y := $(DAX_SRC)/device.o
@@ -62,7 +86,16 @@ device_dax-y += dax-dev.o
 device_dax-y += device_dax_test.o
 device_dax-y += config_check.o
 
+<<<<<<< HEAD
 dax_pmem-y := $(DAX_SRC)/pmem.o
+=======
+dax_pmem-y := $(DAX_SRC)/pmem/pmem.o
+dax_pmem-y += dax_pmem_test.o
+dax_pmem_core-y := $(DAX_SRC)/pmem/core.o
+dax_pmem_core-y += dax_pmem_core_test.o
+dax_pmem_compat-y := $(DAX_SRC)/pmem/compat.o
+dax_pmem_compat-y += dax_pmem_compat_test.o
+>>>>>>> upstream/android-13
 dax_pmem-y += config_check.o
 
 libnvdimm-y := $(NVDIMM_SRC)/core.o
@@ -78,6 +111,11 @@ libnvdimm-$(CONFIG_ND_CLAIM) += $(NVDIMM_SRC)/claim.o
 libnvdimm-$(CONFIG_BTT) += $(NVDIMM_SRC)/btt_devs.o
 libnvdimm-$(CONFIG_NVDIMM_PFN) += $(NVDIMM_SRC)/pfn_devs.o
 libnvdimm-$(CONFIG_NVDIMM_DAX) += $(NVDIMM_SRC)/dax_devs.o
+<<<<<<< HEAD
+=======
+libnvdimm-$(CONFIG_NVDIMM_KEYS) += $(NVDIMM_SRC)/security.o
+libnvdimm-y += dimm_devs.o
+>>>>>>> upstream/android-13
 libnvdimm-y += libnvdimm_test.o
 libnvdimm-y += config_check.o
 

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl871x_mlme.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -41,7 +48,11 @@
 
 static void update_ht_cap(struct _adapter *padapter, u8 *pie, uint ie_len);
 
+<<<<<<< HEAD
 static sint _init_mlme_priv(struct _adapter *padapter)
+=======
+int r8712_init_mlme_priv(struct _adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	sint	i;
 	u8	*pbuf;
@@ -65,7 +76,11 @@ static sint _init_mlme_priv(struct _adapter *padapter)
 	pbuf = kmalloc_array(MAX_BSS_CNT, sizeof(struct wlan_network),
 			     GFP_ATOMIC);
 	if (!pbuf)
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	pmlmepriv->free_bss_buf = pbuf;
 	pnetwork = (struct wlan_network *)pbuf;
 	for (i = 0; i < MAX_BSS_CNT; i++) {
@@ -79,7 +94,11 @@ static sint _init_mlme_priv(struct _adapter *padapter)
 	pmlmepriv->sitesurveyctrl.traffic_busy = false;
 	/* allocate DMA-able/Non-Page memory for cmd_buf and rsp_buf */
 	r8712_init_mlme_timer(padapter);
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 struct wlan_network *_r8712_alloc_network(struct mlme_priv *pmlmepriv)
@@ -107,7 +126,11 @@ static void _free_network(struct mlme_priv *pmlmepriv,
 	unsigned long irqL;
 	struct  __queue *free_queue = &(pmlmepriv->free_bss_pool);
 
+<<<<<<< HEAD
 	if (pnetwork == NULL)
+=======
+	if (!pnetwork)
+>>>>>>> upstream/android-13
 		return;
 	if (pnetwork->fixed)
 		return;
@@ -127,7 +150,11 @@ static void free_network_nolock(struct mlme_priv *pmlmepriv,
 {
 	struct  __queue *free_queue = &pmlmepriv->free_bss_pool;
 
+<<<<<<< HEAD
 	if (pnetwork == NULL)
+=======
+	if (!pnetwork)
+>>>>>>> upstream/android-13
 		return;
 	if (pnetwork->fixed)
 		return;
@@ -136,13 +163,21 @@ static void free_network_nolock(struct mlme_priv *pmlmepriv,
 	pmlmepriv->num_of_scanned--;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* return the wlan_network with the matching addr
  * Shall be called under atomic context...
  * to avoid possible racing condition...
  */
+<<<<<<< HEAD
 static struct wlan_network *_r8712_find_network(struct  __queue *scanned_queue,
 					 u8 *addr)
+=======
+static struct wlan_network *r8712_find_network(struct  __queue *scanned_queue,
+					       u8 *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqL;
 	struct list_head *phead, *plist;
@@ -152,6 +187,7 @@ static struct wlan_network *_r8712_find_network(struct  __queue *scanned_queue,
 		return NULL;
 	spin_lock_irqsave(&scanned_queue->lock, irqL);
 	phead = &scanned_queue->queue;
+<<<<<<< HEAD
 	plist = phead->next;
 	while (plist != phead) {
 		pnetwork = container_of(plist, struct wlan_network, list);
@@ -159,11 +195,24 @@ static struct wlan_network *_r8712_find_network(struct  __queue *scanned_queue,
 		if (!memcmp(addr, pnetwork->network.MacAddress, ETH_ALEN))
 			break;
 	}
+=======
+	list_for_each(plist, phead) {
+		pnetwork = list_entry(plist, struct wlan_network, list);
+		if (!memcmp(addr, pnetwork->network.MacAddress, ETH_ALEN))
+			break;
+	}
+	if (plist == phead)
+		pnetwork = NULL;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&scanned_queue->lock, irqL);
 	return pnetwork;
 }
 
+<<<<<<< HEAD
 static void _free_network_queue(struct _adapter *padapter)
+=======
+void r8712_free_network_queue(struct _adapter *padapter)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqL;
 	struct list_head *phead, *plist;
@@ -186,7 +235,11 @@ sint r8712_if_up(struct _adapter *padapter)
 {
 	sint res;
 
+<<<<<<< HEAD
 	if (padapter->bDriverStopped || padapter->bSurpriseRemoved ||
+=======
+	if (padapter->driver_stopped || padapter->surprise_removed ||
+>>>>>>> upstream/android-13
 	    !check_fwstate(&padapter->mlmepriv, _FW_LINKED)) {
 		res = false;
 	} else {
@@ -217,11 +270,14 @@ u8 *r8712_get_capability_from_ie(u8 *ie)
 	return ie + 8 + 2;
 }
 
+<<<<<<< HEAD
 int r8712_init_mlme_priv(struct _adapter *padapter)
 {
 	return _init_mlme_priv(padapter);
 }
 
+=======
+>>>>>>> upstream/android-13
 void r8712_free_mlme_priv(struct mlme_priv *pmlmepriv)
 {
 	kfree(pmlmepriv->free_bss_buf);
@@ -232,6 +288,7 @@ static struct	wlan_network *alloc_network(struct mlme_priv *pmlmepriv)
 	return _r8712_alloc_network(pmlmepriv);
 }
 
+<<<<<<< HEAD
 void r8712_free_network_queue(struct _adapter *dev)
 {
 	_free_network_queue(dev);
@@ -251,6 +308,8 @@ static struct wlan_network *r8712_find_network(struct  __queue *scanned_queue,
 	return pnetwork;
 }
 
+=======
+>>>>>>> upstream/android-13
 int r8712_is_same_ibss(struct _adapter *adapter, struct wlan_network *pnetwork)
 {
 	int ret = true;
@@ -271,7 +330,11 @@ int r8712_is_same_ibss(struct _adapter *adapter, struct wlan_network *pnetwork)
 static int is_same_network(struct wlan_bssid_ex *src,
 			   struct wlan_bssid_ex *dst)
 {
+<<<<<<< HEAD
 	 u16 s_cap, d_cap;
+=======
+	u16 s_cap, d_cap;
+>>>>>>> upstream/android-13
 
 	memcpy((u8 *)&s_cap, r8712_get_capability_from_ie(src->IEs), 2);
 	memcpy((u8 *)&d_cap, r8712_get_capability_from_ie(dst->IEs), 2);
@@ -285,8 +348,13 @@ static int is_same_network(struct wlan_bssid_ex *src,
 			  src->Ssid.SsidLength))) &&
 			((s_cap & WLAN_CAPABILITY_IBSS) ==
 			(d_cap & WLAN_CAPABILITY_IBSS)) &&
+<<<<<<< HEAD
 			((s_cap & WLAN_CAPABILITY_BSS) ==
 			(d_cap & WLAN_CAPABILITY_BSS));
+=======
+			((s_cap & WLAN_CAPABILITY_ESS) ==
+			(d_cap & WLAN_CAPABILITY_ESS));
+>>>>>>> upstream/android-13
 
 }
 
@@ -300,6 +368,7 @@ struct	wlan_network *r8712_get_oldest_wlan_network(
 	phead = &scanned_queue->queue;
 	plist = phead->next;
 	while (1) {
+<<<<<<< HEAD
 		if (end_of_queue_search(phead, plist) ==  true)
 			break;
 		pwlan = container_of(plist, struct wlan_network, list);
@@ -307,6 +376,15 @@ struct	wlan_network *r8712_get_oldest_wlan_network(
 			if (oldest == NULL ||
 			    time_after((unsigned long)oldest->last_scanned,
 			    (unsigned long)pwlan->last_scanned))
+=======
+		if (end_of_queue_search(phead, plist))
+			break;
+		pwlan = container_of(plist, struct wlan_network, list);
+		if (!pwlan->fixed) {
+			if (!oldest ||
+			    time_after((unsigned long)oldest->last_scanned,
+				       (unsigned long)pwlan->last_scanned))
+>>>>>>> upstream/android-13
 				oldest = pwlan;
 		}
 		plist = plist->next;
@@ -394,7 +472,10 @@ static void update_scanned_network(struct _adapter *adapter,
 		plist = plist->next;
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* If we didn't find a match, then get a new network slot to initialize
 	 * with this beacon's information
 	 */
@@ -411,7 +492,11 @@ static void update_scanned_network(struct _adapter *adapter,
 			/* Otherwise just pull from the free list */
 			/* update scan_time */
 			pnetwork = alloc_network(pmlmepriv);
+<<<<<<< HEAD
 			if (pnetwork == NULL)
+=======
+			if (!pnetwork)
+>>>>>>> upstream/android-13
 				return;
 			bssid_ex_sz = r8712_get_wlan_bssid_ex_sz(target);
 			target->Length = bssid_ex_sz;
@@ -570,8 +655,12 @@ void r8712_surveydone_event_callback(struct _adapter *adapter, u8 *pbuf)
 			if (!check_fwstate(pmlmepriv, _FW_LINKED)) {
 				set_fwstate(pmlmepriv, _FW_UNDER_LINKING);
 
+<<<<<<< HEAD
 				if (r8712_select_and_join_from_scan(pmlmepriv)
 				    == _SUCCESS) {
+=======
+				if (!r8712_select_and_join_from_scan(pmlmepriv)) {
+>>>>>>> upstream/android-13
 					mod_timer(&pmlmepriv->assoc_timer, jiffies +
 						  msecs_to_jiffies(MAX_JOIN_TIMEOUT));
 				} else {
@@ -596,8 +685,12 @@ void r8712_surveydone_event_callback(struct _adapter *adapter, u8 *pbuf)
 		} else {
 			pmlmepriv->to_join = false;
 			set_fwstate(pmlmepriv, _FW_UNDER_LINKING);
+<<<<<<< HEAD
 			if (r8712_select_and_join_from_scan(pmlmepriv) ==
 			    _SUCCESS)
+=======
+			if (!r8712_select_and_join_from_scan(pmlmepriv))
+>>>>>>> upstream/android-13
 				mod_timer(&pmlmepriv->assoc_timer, jiffies +
 					  msecs_to_jiffies(MAX_JOIN_TIMEOUT));
 			else
@@ -659,7 +752,10 @@ void r8712_indicate_connect(struct _adapter *padapter)
 			  jiffies + msecs_to_jiffies(60000));
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * r8712_ind_disconnect: the caller has to lock pmlmepriv->lock
  */
@@ -766,7 +862,12 @@ void r8712_joinbss_event_callback(struct _adapter *adapter, u8 *pbuf)
 					     r8712_find_network(&pmlmepriv->
 					     scanned_queue,
 					     cur_network->network.MacAddress);
+<<<<<<< HEAD
 					pcur_wlan->fixed = false;
+=======
+					if (pcur_wlan)
+						pcur_wlan->fixed = false;
+>>>>>>> upstream/android-13
 
 					pcur_sta = r8712_get_stainfo(pstapriv,
 					     cur_network->network.MacAddress);
@@ -792,7 +893,11 @@ void r8712_joinbss_event_callback(struct _adapter *adapter, u8 *pbuf)
 					ptarget_wlan->fixed = true;
 			}
 
+<<<<<<< HEAD
 			if (ptarget_wlan == NULL) {
+=======
+			if (!ptarget_wlan) {
+>>>>>>> upstream/android-13
 				if (check_fwstate(pmlmepriv,
 					_FW_UNDER_LINKING))
 					pmlmepriv->fw_state ^=
@@ -806,7 +911,11 @@ void r8712_joinbss_event_callback(struct _adapter *adapter, u8 *pbuf)
 					ptarget_sta =
 						 r8712_get_stainfo(pstapriv,
 						 pnetwork->network.MacAddress);
+<<<<<<< HEAD
 					if (ptarget_sta == NULL)
+=======
+					if (!ptarget_sta)
+>>>>>>> upstream/android-13
 						ptarget_sta =
 						 r8712_alloc_stainfo(pstapriv,
 						 pnetwork->network.MacAddress);
@@ -917,7 +1026,11 @@ void r8712_stassoc_event_callback(struct _adapter *adapter, u8 *pbuf)
 	if (!r8712_access_ctrl(&adapter->acl_list, pstassoc->macaddr))
 		return;
 	psta = r8712_get_stainfo(&adapter->stapriv, pstassoc->macaddr);
+<<<<<<< HEAD
 	if (psta != NULL) {
+=======
+	if (psta) {
+>>>>>>> upstream/android-13
 		/*the sta have been in sta_info_queue => do nothing
 		 *(between drv has received this event before and
 		 * fw have not yet to set key to CAM_ENTRY)
@@ -926,7 +1039,11 @@ void r8712_stassoc_event_callback(struct _adapter *adapter, u8 *pbuf)
 	}
 
 	psta = r8712_alloc_stainfo(&adapter->stapriv, pstassoc->macaddr);
+<<<<<<< HEAD
 	if (psta == NULL)
+=======
+	if (!psta)
+>>>>>>> upstream/android-13
 		return;
 	/* to do : init sta_info variable */
 	psta->qos_option = 0;
@@ -1067,7 +1184,11 @@ void _r8712_join_timeout_handler(struct _adapter *adapter)
 	unsigned long irqL;
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
 
+<<<<<<< HEAD
 	if (adapter->bDriverStopped || adapter->bSurpriseRemoved)
+=======
+	if (adapter->driver_stopped || adapter->surprise_removed)
+>>>>>>> upstream/android-13
 		return;
 	spin_lock_irqsave(&pmlmepriv->lock, irqL);
 	_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);
@@ -1096,18 +1217,25 @@ void r8712_scan_timeout_handler (struct _adapter *adapter)
 
 void _r8712_dhcp_timeout_handler (struct _adapter *adapter)
 {
+<<<<<<< HEAD
 	if (adapter->bDriverStopped || adapter->bSurpriseRemoved)
+=======
+	if (adapter->driver_stopped || adapter->surprise_removed)
+>>>>>>> upstream/android-13
 		return;
 	if (adapter->pwrctrlpriv.pwr_mode != adapter->registrypriv.power_mgnt)
 		r8712_set_ps_mode(adapter, adapter->registrypriv.power_mgnt,
 			    adapter->registrypriv.smart_ps);
 }
 
+<<<<<<< HEAD
 void _r8712_wdg_timeout_handler(struct _adapter *adapter)
 {
 	r8712_wdg_wk_cmd(adapter);
 }
 
+=======
+>>>>>>> upstream/android-13
 int r8712_select_and_join_from_scan(struct mlme_priv *pmlmepriv)
 {
 	struct list_head *phead;
@@ -1123,6 +1251,7 @@ int r8712_select_and_join_from_scan(struct mlme_priv *pmlmepriv)
 	pmlmepriv->pscanned = phead->next;
 	while (1) {
 		if (end_of_queue_search(phead, pmlmepriv->pscanned)) {
+<<<<<<< HEAD
 			if ((pmlmepriv->assoc_by_rssi) &&
 			    (pnetwork_max_rssi != NULL)) {
 				pnetwork = pnetwork_max_rssi;
@@ -1134,6 +1263,16 @@ int r8712_select_and_join_from_scan(struct mlme_priv *pmlmepriv)
 					struct wlan_network, list);
 		if (pnetwork == NULL)
 			return _FAIL;
+=======
+			if (pmlmepriv->assoc_by_rssi && pnetwork_max_rssi) {
+				pnetwork = pnetwork_max_rssi;
+				goto ask_for_joinbss;
+			}
+			return -EINVAL;
+		}
+		pnetwork = container_of(pmlmepriv->pscanned,
+					struct wlan_network, list);
+>>>>>>> upstream/android-13
 		pmlmepriv->pscanned = pmlmepriv->pscanned->next;
 		if (pmlmepriv->assoc_by_bssid) {
 			dst_ssid = pnetwork->network.MacAddress;
@@ -1189,8 +1328,13 @@ ask_for_joinbss:
 	return r8712_joinbss_cmd(adapter, pnetwork);
 }
 
+<<<<<<< HEAD
 sint r8712_set_auth(struct _adapter *adapter,
 		    struct security_priv *psecuritypriv)
+=======
+int r8712_set_auth(struct _adapter *adapter,
+		   struct security_priv *psecuritypriv)
+>>>>>>> upstream/android-13
 {
 	struct cmd_priv	*pcmdpriv = &adapter->cmdpriv;
 	struct cmd_obj *pcmd;
@@ -1198,12 +1342,20 @@ sint r8712_set_auth(struct _adapter *adapter,
 
 	pcmd = kmalloc(sizeof(*pcmd), GFP_ATOMIC);
 	if (!pcmd)
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	psetauthparm = kzalloc(sizeof(*psetauthparm), GFP_ATOMIC);
 	if (!psetauthparm) {
 		kfree(pcmd);
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 	psetauthparm->mode = (u8)psecuritypriv->AuthAlgrthm;
 	pcmd->cmdcode = _SetAuth_CMD_;
@@ -1213,17 +1365,27 @@ sint r8712_set_auth(struct _adapter *adapter,
 	pcmd->rspsz = 0;
 	INIT_LIST_HEAD(&pcmd->list);
 	r8712_enqueue_cmd(pcmdpriv, pcmd);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 sint r8712_set_key(struct _adapter *adapter,
 		   struct security_priv *psecuritypriv,
 	     sint keyid)
+=======
+	return 0;
+}
+
+int r8712_set_key(struct _adapter *adapter,
+		  struct security_priv *psecuritypriv,
+		  sint keyid)
+>>>>>>> upstream/android-13
 {
 	struct cmd_priv *pcmdpriv = &adapter->cmdpriv;
 	struct cmd_obj *pcmd;
 	struct setkey_parm *psetkeyparm;
 	u8 keylen;
+<<<<<<< HEAD
 	sint ret = _SUCCESS;
 
 	pcmd = kmalloc(sizeof(*pcmd), GFP_ATOMIC);
@@ -1232,6 +1394,16 @@ sint r8712_set_key(struct _adapter *adapter,
 	psetkeyparm = kzalloc(sizeof(*psetkeyparm), GFP_ATOMIC);
 	if (!psetkeyparm) {
 		ret = _FAIL;
+=======
+	int ret;
+
+	pcmd = kmalloc(sizeof(*pcmd), GFP_ATOMIC);
+	if (!pcmd)
+		return -ENOMEM;
+	psetkeyparm = kzalloc(sizeof(*psetkeyparm), GFP_ATOMIC);
+	if (!psetkeyparm) {
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto err_free_cmd;
 	}
 	if (psecuritypriv->AuthAlgrthm == 2) { /* 802.1X */
@@ -1256,7 +1428,11 @@ sint r8712_set_key(struct _adapter *adapter,
 		break;
 	case _TKIP_:
 		if (keyid < 1 || keyid > 2) {
+<<<<<<< HEAD
 			ret = _FAIL;
+=======
+			ret = -EINVAL;
+>>>>>>> upstream/android-13
 			goto err_free_parm;
 		}
 		keylen = 16;
@@ -1266,7 +1442,11 @@ sint r8712_set_key(struct _adapter *adapter,
 		break;
 	case _AES_:
 		if (keyid < 1 || keyid > 2) {
+<<<<<<< HEAD
 			ret = _FAIL;
+=======
+			ret = -EINVAL;
+>>>>>>> upstream/android-13
 			goto err_free_parm;
 		}
 		keylen = 16;
@@ -1275,7 +1455,11 @@ sint r8712_set_key(struct _adapter *adapter,
 		psetkeyparm->grpkey = 1;
 		break;
 	default:
+<<<<<<< HEAD
 		ret = _FAIL;
+=======
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 		goto err_free_parm;
 	}
 	pcmd->cmdcode = _SetKey_CMD_;
@@ -1285,7 +1469,11 @@ sint r8712_set_key(struct _adapter *adapter,
 	pcmd->rspsz = 0;
 	INIT_LIST_HEAD(&pcmd->list);
 	r8712_enqueue_cmd(pcmdpriv, pcmd);
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 err_free_parm:
 	kfree(psetkeyparm);
@@ -1695,25 +1883,43 @@ unsigned int r8712_restructure_ht_ie(struct _adapter *padapter, u8 *in_ie,
 	struct ht_priv *phtpriv = &pmlmepriv->htpriv;
 
 	phtpriv->ht_option = 0;
+<<<<<<< HEAD
 	p = r8712_get_ie(in_ie + 12, _HT_CAPABILITY_IE_, &ielen, in_len - 12);
 	if (p && (ielen > 0)) {
 		if (pqospriv->qos_option == 0) {
 			out_len = *pout_len;
 			r8712_set_ie(out_ie + out_len, _VENDOR_SPECIFIC_IE_,
+=======
+	p = r8712_get_ie(in_ie + 12, WLAN_EID_HT_CAPABILITY, &ielen, in_len - 12);
+	if (p && (ielen > 0)) {
+		if (pqospriv->qos_option == 0) {
+			out_len = *pout_len;
+			r8712_set_ie(out_ie + out_len, WLAN_EID_VENDOR_SPECIFIC,
+>>>>>>> upstream/android-13
 				     _WMM_IE_Length_, WMM_IE, pout_len);
 			pqospriv->qos_option = 1;
 		}
 		out_len = *pout_len;
 		memset(&ht_capie, 0, sizeof(struct ieee80211_ht_cap));
+<<<<<<< HEAD
 		ht_capie.cap_info = cpu_to_le16(IEEE80211_HT_CAP_SUP_WIDTH |
+=======
+		ht_capie.cap_info = cpu_to_le16(IEEE80211_HT_CAP_SUP_WIDTH_20_40 |
+>>>>>>> upstream/android-13
 				    IEEE80211_HT_CAP_SGI_20 |
 				    IEEE80211_HT_CAP_SGI_40 |
 				    IEEE80211_HT_CAP_TX_STBC |
 				    IEEE80211_HT_CAP_MAX_AMSDU |
 				    IEEE80211_HT_CAP_DSSSCCK40);
+<<<<<<< HEAD
 		ht_capie.ampdu_params_info = (IEEE80211_HT_CAP_AMPDU_FACTOR &
 				0x03) | (IEEE80211_HT_CAP_AMPDU_DENSITY & 0x00);
 		r8712_set_ie(out_ie + out_len, _HT_CAPABILITY_IE_,
+=======
+		ht_capie.ampdu_params_info = (IEEE80211_HT_AMPDU_PARM_FACTOR &
+				0x03) | (IEEE80211_HT_AMPDU_PARM_DENSITY & 0x00);
+		r8712_set_ie(out_ie + out_len, WLAN_EID_HT_CAPABILITY,
+>>>>>>> upstream/android-13
 			     sizeof(struct ieee80211_ht_cap),
 			     (unsigned char *)&ht_capie, pout_len);
 		phtpriv->ht_option = 1;
@@ -1744,13 +1950,21 @@ static void update_ht_cap(struct _adapter *padapter, u8 *pie, uint ie_len)
 	/*check Max Rx A-MPDU Size*/
 	len = 0;
 	p = r8712_get_ie(pie + sizeof(struct NDIS_802_11_FIXED_IEs),
+<<<<<<< HEAD
 				_HT_CAPABILITY_IE_,
+=======
+				WLAN_EID_HT_CAPABILITY,
+>>>>>>> upstream/android-13
 				&len, ie_len -
 				sizeof(struct NDIS_802_11_FIXED_IEs));
 	if (p && len > 0) {
 		pht_capie = (struct ieee80211_ht_cap *)(p + 2);
 		max_ampdu_sz = (pht_capie->ampdu_params_info &
+<<<<<<< HEAD
 				IEEE80211_HT_CAP_AMPDU_FACTOR);
+=======
+				IEEE80211_HT_AMPDU_PARM_FACTOR);
+>>>>>>> upstream/android-13
 		/* max_ampdu_sz (kbytes); */
 		max_ampdu_sz = 1 << (max_ampdu_sz + 3);
 		phtpriv->rx_ampdu_maxlen = max_ampdu_sz;
@@ -1779,7 +1993,11 @@ static void update_ht_cap(struct _adapter *padapter, u8 *pie, uint ie_len)
 	}
 	len = 0;
 	p = r8712_get_ie(pie + sizeof(struct NDIS_802_11_FIXED_IEs),
+<<<<<<< HEAD
 		   _HT_ADD_INFO_IE_, &len,
+=======
+		   WLAN_EID_HT_OPERATION, &len,
+>>>>>>> upstream/android-13
 		   ie_len - sizeof(struct NDIS_802_11_FIXED_IEs));
 }
 

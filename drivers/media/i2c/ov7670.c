@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * A V4L2 driver for OmniVision OV7670 cameras.
  *
@@ -6,9 +10,12 @@
  * McClelland's ovcamchip code.
  *
  * Copyright 2006-7 Jonathan Corbet <corbet@lwn.net>
+<<<<<<< HEAD
  *
  * This file may be distributed under the terms of the GNU General
  * Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/init.h>
@@ -20,6 +27,10 @@
 #include <linux/gpio.h>
 #include <linux/gpio/consumer.h>
 #include <media/v4l2-device.h>
+<<<<<<< HEAD
+=======
+#include <media/v4l2-event.h>
+>>>>>>> upstream/android-13
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-fwnode.h>
 #include <media/v4l2-mediabus.h>
@@ -240,7 +251,13 @@ struct ov7670_info {
 	};
 	struct v4l2_mbus_framefmt format;
 	struct ov7670_format_struct *fmt;  /* Current format */
+<<<<<<< HEAD
 	struct clk *clk;
+=======
+	struct ov7670_win_size *wsize;
+	struct clk *clk;
+	int on;
+>>>>>>> upstream/android-13
 	struct gpio_desc *resetb_gpio;
 	struct gpio_desc *pwdn_gpio;
 	unsigned int mbus_config;	/* Media bus configuration flags */
@@ -560,6 +577,10 @@ static int ov7670_read(struct v4l2_subdev *sd, unsigned char reg,
 		unsigned char *value)
 {
 	struct ov7670_info *info = to_state(sd);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (info->use_smbus)
 		return ov7670_read_smbus(sd, reg, value);
 	else
@@ -570,6 +591,10 @@ static int ov7670_write(struct v4l2_subdev *sd, unsigned char reg,
 		unsigned char value)
 {
 	struct ov7670_info *info = to_state(sd);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (info->use_smbus)
 		return ov7670_write_smbus(sd, reg, value);
 	else
@@ -596,6 +621,10 @@ static int ov7670_write_array(struct v4l2_subdev *sd, struct regval_list *vals)
 {
 	while (vals->reg_num != 0xff || vals->value != 0xff) {
 		int ret = ov7670_write(sd, vals->reg_num, vals->value);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 		vals++;
@@ -809,13 +838,32 @@ static void ov7675_get_framerate(struct v4l2_subdev *sd,
 			(4 * clkrc);
 }
 
+<<<<<<< HEAD
+=======
+static int ov7675_apply_framerate(struct v4l2_subdev *sd)
+{
+	struct ov7670_info *info = to_state(sd);
+	int ret;
+
+	ret = ov7670_write(sd, REG_CLKRC, info->clkrc);
+	if (ret < 0)
+		return ret;
+
+	return ov7670_write(sd, REG_DBLV,
+			    info->pll_bypass ? DBLV_BYPASS : DBLV_X4);
+}
+
+>>>>>>> upstream/android-13
 static int ov7675_set_framerate(struct v4l2_subdev *sd,
 				 struct v4l2_fract *tpf)
 {
 	struct ov7670_info *info = to_state(sd);
 	u32 clkrc;
 	int pll_factor;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * The formula is fps = 5/4*pixclk for YUV/RGB and
@@ -824,6 +872,7 @@ static int ov7675_set_framerate(struct v4l2_subdev *sd,
 	 * pixclk = clock_speed / (clkrc + 1) * PLLfactor
 	 *
 	 */
+<<<<<<< HEAD
 	if (info->pll_bypass) {
 		pll_factor = 1;
 		ret = ov7670_write(sd, REG_DBLV, DBLV_BYPASS);
@@ -837,6 +886,12 @@ static int ov7675_set_framerate(struct v4l2_subdev *sd,
 	if (tpf->numerator == 0 || tpf->denominator == 0) {
 		clkrc = 0;
 	} else {
+=======
+	if (tpf->numerator == 0 || tpf->denominator == 0) {
+		clkrc = 0;
+	} else {
+		pll_factor = info->pll_bypass ? 1 : PLL_FACTOR;
+>>>>>>> upstream/android-13
 		clkrc = (5 * pll_factor * info->clock_speed * tpf->numerator) /
 			(4 * tpf->denominator);
 		if (info->fmt->mbus_code == MEDIA_BUS_FMT_SBGGR8_1X8)
@@ -858,9 +913,19 @@ static int ov7675_set_framerate(struct v4l2_subdev *sd,
 	/* Recalculate frame rate */
 	ov7675_get_framerate(sd, tpf);
 
+<<<<<<< HEAD
 	ret = ov7670_write(sd, REG_CLKRC, info->clkrc);
 	if (ret < 0)
 		return ret;
+=======
+	/*
+	 * If the device is not powered up by the host driver do
+	 * not apply any changes to H/W at this time. Instead
+	 * the framerate will be restored right after power-up.
+	 */
+	if (info->on)
+		return ov7675_apply_framerate(sd);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -893,7 +958,20 @@ static int ov7670_set_framerate_legacy(struct v4l2_subdev *sd,
 	info->clkrc = (info->clkrc & 0x80) | div;
 	tpf->numerator = 1;
 	tpf->denominator = info->clock_speed / div;
+<<<<<<< HEAD
 	return ov7670_write(sd, REG_CLKRC, info->clkrc);
+=======
+
+	/*
+	 * If the device is not powered up by the host driver do
+	 * not apply any changes to H/W at this time. Instead
+	 * the framerate will be restored right after power-up.
+	 */
+	if (info->on)
+		return ov7670_write(sd, REG_CLKRC, info->clkrc);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -904,6 +982,7 @@ static int ov7670_set_hw(struct v4l2_subdev *sd, int hstart, int hstop,
 {
 	int ret;
 	unsigned char v;
+<<<<<<< HEAD
 /*
  * Horizontal: 11 bits, top 8 live in hstart and hstop.  Bottom 3 of
  * hstart are in href[2:0], bottom 3 of hstop in href[5:3].  There is
@@ -925,11 +1004,49 @@ static int ov7670_set_hw(struct v4l2_subdev *sd, int hstart, int hstop,
 	msleep(10);
 	ret += ov7670_write(sd, REG_VREF, v);
 	return ret;
+=======
+	/*
+	 * Horizontal: 11 bits, top 8 live in hstart and hstop.  Bottom 3 of
+	 * hstart are in href[2:0], bottom 3 of hstop in href[5:3].  There is
+	 * a mystery "edge offset" value in the top two bits of href.
+	 */
+	ret = ov7670_write(sd, REG_HSTART, (hstart >> 3) & 0xff);
+	if (ret)
+		return ret;
+	ret = ov7670_write(sd, REG_HSTOP, (hstop >> 3) & 0xff);
+	if (ret)
+		return ret;
+	ret = ov7670_read(sd, REG_HREF, &v);
+	if (ret)
+		return ret;
+	v = (v & 0xc0) | ((hstop & 0x7) << 3) | (hstart & 0x7);
+	msleep(10);
+	ret = ov7670_write(sd, REG_HREF, v);
+	if (ret)
+		return ret;
+	/* Vertical: similar arrangement, but only 10 bits. */
+	ret = ov7670_write(sd, REG_VSTART, (vstart >> 2) & 0xff);
+	if (ret)
+		return ret;
+	ret = ov7670_write(sd, REG_VSTOP, (vstop >> 2) & 0xff);
+	if (ret)
+		return ret;
+	ret = ov7670_read(sd, REG_VREF, &v);
+	if (ret)
+		return ret;
+	v = (v & 0xf0) | ((vstop & 0x3) << 2) | (vstart & 0x3);
+	msleep(10);
+	return ov7670_write(sd, REG_VREF, v);
+>>>>>>> upstream/android-13
 }
 
 
 static int ov7670_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->pad || code->index >= N_OV7670_FMTS)
@@ -1003,6 +1120,7 @@ static int ov7670_try_fmt_internal(struct v4l2_subdev *sd,
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Set a format.
  */
@@ -1038,13 +1156,26 @@ static int ov7670_set_fmt(struct v4l2_subdev *sd,
 	ret = ov7670_try_fmt_internal(sd, &format->format, &ovfmt, &wsize);
 	if (ret)
 		return ret;
+=======
+static int ov7670_apply_fmt(struct v4l2_subdev *sd)
+{
+	struct ov7670_info *info = to_state(sd);
+	struct ov7670_win_size *wsize = info->wsize;
+	unsigned char com7, com10 = 0;
+	int ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * COM7 is a pain in the ass, it doesn't like to be read then
 	 * quickly written afterward.  But we have everything we need
 	 * to set it absolutely here, as long as the format-specific
 	 * register sets list it first.
 	 */
+<<<<<<< HEAD
 	com7 = ovfmt->regs[0].value;
+=======
+	com7 = info->fmt->regs[0].value;
+>>>>>>> upstream/android-13
 	com7 |= wsize->com7_bit;
 	ret = ov7670_write(sd, REG_COM7, com7);
 	if (ret)
@@ -1066,7 +1197,11 @@ static int ov7670_set_fmt(struct v4l2_subdev *sd,
 	/*
 	 * Now write the rest of the array.  Also store start/stops
 	 */
+<<<<<<< HEAD
 	ret = ov7670_write_array(sd, ovfmt->regs + 1);
+=======
+	ret = ov7670_write_array(sd, info->fmt->regs + 1);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1081,8 +1216,11 @@ static int ov7670_set_fmt(struct v4l2_subdev *sd,
 			return ret;
 	}
 
+<<<<<<< HEAD
 	info->fmt = ovfmt;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If we're running RGB565, we must rewrite clkrc after setting
 	 * the other parameters or the image looks poor.  If we're *not*
@@ -1100,8 +1238,56 @@ static int ov7670_set_fmt(struct v4l2_subdev *sd,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ov7670_get_fmt(struct v4l2_subdev *sd,
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+/*
+ * Set a format.
+ */
+static int ov7670_set_fmt(struct v4l2_subdev *sd,
+		struct v4l2_subdev_state *sd_state,
+		struct v4l2_subdev_format *format)
+{
+	struct ov7670_info *info = to_state(sd);
+#ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
+	struct v4l2_mbus_framefmt *mbus_fmt;
+#endif
+	int ret;
+
+	if (format->pad)
+		return -EINVAL;
+
+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
+		ret = ov7670_try_fmt_internal(sd, &format->format, NULL, NULL);
+		if (ret)
+			return ret;
+#ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
+		mbus_fmt = v4l2_subdev_get_try_format(sd, sd_state,
+						      format->pad);
+		*mbus_fmt = format->format;
+#endif
+		return 0;
+	}
+
+	ret = ov7670_try_fmt_internal(sd, &format->format, &info->fmt, &info->wsize);
+	if (ret)
+		return ret;
+
+	/*
+	 * If the device is not powered up by the host driver do
+	 * not apply any changes to H/W at this time. Instead
+	 * the frame format will be restored right after power-up.
+	 */
+	if (info->on)
+		return ov7670_apply_fmt(sd);
+
+	return 0;
+}
+
+static int ov7670_get_fmt(struct v4l2_subdev *sd,
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *format)
 {
 	struct ov7670_info *info = to_state(sd);
@@ -1111,11 +1297,19 @@ static int ov7670_get_fmt(struct v4l2_subdev *sd,
 
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 #ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
+<<<<<<< HEAD
 		mbus_fmt = v4l2_subdev_get_try_format(sd, cfg, 0);
 		format->format = *mbus_fmt;
 		return 0;
 #else
 		return -ENOTTY;
+=======
+		mbus_fmt = v4l2_subdev_get_try_format(sd, sd_state, 0);
+		format->format = *mbus_fmt;
+		return 0;
+#else
+		return -EINVAL;
+>>>>>>> upstream/android-13
 #endif
 	} else {
 		format->format = info->format;
@@ -1159,7 +1353,11 @@ static int ov7670_s_frame_interval(struct v4l2_subdev *sd,
 static int ov7670_frame_rates[] = { 30, 15, 10, 5, 1 };
 
 static int ov7670_enum_frame_interval(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				      struct v4l2_subdev_pad_config *cfg,
+=======
+				      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				      struct v4l2_subdev_frame_interval_enum *fie)
 {
 	struct ov7670_info *info = to_state(sd);
@@ -1198,7 +1396,11 @@ static int ov7670_enum_frame_interval(struct v4l2_subdev *sd,
  * Frame size enumeration
  */
 static int ov7670_enum_frame_size(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct ov7670_info *info = to_state(sd);
@@ -1216,6 +1418,10 @@ static int ov7670_enum_frame_size(struct v4l2_subdev *sd,
 	 */
 	for (i = 0; i < n_win_sizes; i++) {
 		struct ov7670_win_size *win = &info->devtype->win_sizes[i];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (info->min_width && win->width < info->min_width)
 			continue;
 		if (info->min_height && win->height < info->min_height)
@@ -1256,17 +1462,29 @@ static int ov7670_store_cmatrix(struct v4l2_subdev *sd,
 				raw = 0xff;
 			else
 				raw = (-1 * matrix[i]) & 0xff;
+<<<<<<< HEAD
 		}
 		else {
+=======
+		} else {
+>>>>>>> upstream/android-13
 			if (matrix[i] > 255)
 				raw = 0xff;
 			else
 				raw = matrix[i] & 0xff;
 		}
+<<<<<<< HEAD
 		ret += ov7670_write(sd, REG_CMATRIX_BASE + i, raw);
 	}
 	ret += ov7670_write(sd, REG_CMATRIX_SIGN, signbits);
 	return ret;
+=======
+		ret = ov7670_write(sd, REG_CMATRIX_BASE + i, raw);
+		if (ret)
+			return ret;
+	}
+	return ov7670_write(sd, REG_CMATRIX_SIGN, signbits);
+>>>>>>> upstream/android-13
 }
 
 
@@ -1352,11 +1570,17 @@ static int ov7670_s_sat_hue(struct v4l2_subdev *sd, int sat, int hue)
 {
 	struct ov7670_info *info = to_state(sd);
 	int matrix[CMATRIX_LEN];
+<<<<<<< HEAD
 	int ret;
 
 	ov7670_calc_cmatrix(info, matrix, sat, hue);
 	ret = ov7670_store_cmatrix(sd, matrix);
 	return ret;
+=======
+
+	ov7670_calc_cmatrix(info, matrix, sat, hue);
+	return ov7670_store_cmatrix(sd, matrix);
+>>>>>>> upstream/android-13
 }
 
 
@@ -1374,14 +1598,21 @@ static unsigned char ov7670_abs_to_sm(unsigned char v)
 static int ov7670_s_brightness(struct v4l2_subdev *sd, int value)
 {
 	unsigned char com8 = 0, v;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	ov7670_read(sd, REG_COM8, &com8);
 	com8 &= ~COM8_AEC;
 	ov7670_write(sd, REG_COM8, com8);
 	v = ov7670_abs_to_sm(value);
+<<<<<<< HEAD
 	ret = ov7670_write(sd, REG_BRIGHT, v);
 	return ret;
+=======
+	return ov7670_write(sd, REG_BRIGHT, v);
+>>>>>>> upstream/android-13
 }
 
 static int ov7670_s_contrast(struct v4l2_subdev *sd, int value)
@@ -1395,13 +1626,22 @@ static int ov7670_s_hflip(struct v4l2_subdev *sd, int value)
 	int ret;
 
 	ret = ov7670_read(sd, REG_MVFP, &v);
+<<<<<<< HEAD
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	if (value)
 		v |= MVFP_MIRROR;
 	else
 		v &= ~MVFP_MIRROR;
 	msleep(10);  /* FIXME */
+<<<<<<< HEAD
 	ret += ov7670_write(sd, REG_MVFP, v);
 	return ret;
+=======
+	return ov7670_write(sd, REG_MVFP, v);
+>>>>>>> upstream/android-13
 }
 
 static int ov7670_s_vflip(struct v4l2_subdev *sd, int value)
@@ -1410,13 +1650,22 @@ static int ov7670_s_vflip(struct v4l2_subdev *sd, int value)
 	int ret;
 
 	ret = ov7670_read(sd, REG_MVFP, &v);
+<<<<<<< HEAD
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	if (value)
 		v |= MVFP_FLIP;
 	else
 		v &= ~MVFP_FLIP;
 	msleep(10);  /* FIXME */
+<<<<<<< HEAD
 	ret += ov7670_write(sd, REG_MVFP, v);
 	return ret;
+=======
+	return ov7670_write(sd, REG_MVFP, v);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1431,8 +1680,15 @@ static int ov7670_g_gain(struct v4l2_subdev *sd, __s32 *value)
 	unsigned char gain;
 
 	ret = ov7670_read(sd, REG_GAIN, &gain);
+<<<<<<< HEAD
 	*value = gain;
 	return ret;
+=======
+	if (ret)
+		return ret;
+	*value = gain;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ov7670_s_gain(struct v4l2_subdev *sd, int value)
@@ -1441,12 +1697,22 @@ static int ov7670_s_gain(struct v4l2_subdev *sd, int value)
 	unsigned char com8;
 
 	ret = ov7670_write(sd, REG_GAIN, value & 0xff);
+<<<<<<< HEAD
 	/* Have to turn off AGC as well */
 	if (ret == 0) {
 		ret = ov7670_read(sd, REG_COM8, &com8);
 		ret = ov7670_write(sd, REG_COM8, com8 & ~COM8_AGC);
 	}
 	return ret;
+=======
+	if (ret)
+		return ret;
+	/* Have to turn off AGC as well */
+	ret = ov7670_read(sd, REG_COM8, &com8);
+	if (ret)
+		return ret;
+	return ov7670_write(sd, REG_COM8, com8 & ~COM8_AGC);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1606,10 +1872,51 @@ static int ov7670_s_register(struct v4l2_subdev *sd, const struct v4l2_dbg_regis
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static void ov7670_power_on(struct v4l2_subdev *sd)
+{
+	struct ov7670_info *info = to_state(sd);
+
+	if (info->on)
+		return;
+
+	clk_prepare_enable(info->clk);
+
+	if (info->pwdn_gpio)
+		gpiod_set_value(info->pwdn_gpio, 0);
+	if (info->resetb_gpio) {
+		gpiod_set_value(info->resetb_gpio, 1);
+		usleep_range(500, 1000);
+		gpiod_set_value(info->resetb_gpio, 0);
+	}
+	if (info->pwdn_gpio || info->resetb_gpio || info->clk)
+		usleep_range(3000, 5000);
+
+	info->on = true;
+}
+
+static void ov7670_power_off(struct v4l2_subdev *sd)
+{
+	struct ov7670_info *info = to_state(sd);
+
+	if (!info->on)
+		return;
+
+	clk_disable_unprepare(info->clk);
+
+	if (info->pwdn_gpio)
+		gpiod_set_value(info->pwdn_gpio, 1);
+
+	info->on = false;
+}
+
+>>>>>>> upstream/android-13
 static int ov7670_s_power(struct v4l2_subdev *sd, int on)
 {
 	struct ov7670_info *info = to_state(sd);
 
+<<<<<<< HEAD
 	if (info->pwdn_gpio)
 		gpiod_set_value(info->pwdn_gpio, !on);
 	if (on && info->resetb_gpio) {
@@ -1617,6 +1924,19 @@ static int ov7670_s_power(struct v4l2_subdev *sd, int on)
 		usleep_range(500, 1000);
 		gpiod_set_value(info->resetb_gpio, 0);
 		usleep_range(3000, 5000);
+=======
+	if (info->on == on)
+		return 0;
+
+	if (on) {
+		ov7670_power_on(sd);
+		ov7670_init(sd, 0);
+		ov7670_apply_fmt(sd);
+		ov7675_apply_framerate(sd);
+		v4l2_ctrl_handler_setup(&info->hdl);
+	} else {
+		ov7670_power_off(sd);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1638,7 +1958,11 @@ static void ov7670_get_default_format(struct v4l2_subdev *sd,
 static int ov7670_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
 	struct v4l2_mbus_framefmt *format =
+<<<<<<< HEAD
 				v4l2_subdev_get_try_format(sd, fh->pad, 0);
+=======
+				v4l2_subdev_get_try_format(sd, fh->state, 0);
+>>>>>>> upstream/android-13
 
 	ov7670_get_default_format(sd, format);
 
@@ -1651,6 +1975,13 @@ static int ov7670_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 static const struct v4l2_subdev_core_ops ov7670_core_ops = {
 	.reset = ov7670_reset,
 	.init = ov7670_init,
+<<<<<<< HEAD
+=======
+	.s_power = ov7670_s_power,
+	.log_status = v4l2_ctrl_subdev_log_status,
+	.subscribe_event = v4l2_ctrl_subdev_subscribe_event,
+	.unsubscribe_event = v4l2_event_subdev_unsubscribe,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VIDEO_ADV_DEBUG
 	.g_register = ov7670_g_register,
 	.s_register = ov7670_s_register,
@@ -1728,7 +2059,11 @@ static int ov7670_parse_dt(struct device *dev,
 			   struct ov7670_info *info)
 {
 	struct fwnode_handle *fwnode = dev_fwnode(dev);
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint bus_cfg;
+=======
+	struct v4l2_fwnode_endpoint bus_cfg = { .bus_type = 0 };
+>>>>>>> upstream/android-13
 	struct fwnode_handle *ep;
 	int ret;
 
@@ -1773,7 +2108,11 @@ static int ov7670_probe(struct i2c_client *client,
 
 #ifdef CONFIG_VIDEO_V4L2_SUBDEV_API
 	sd->internal_ops = &ov7670_subdev_internal_ops;
+<<<<<<< HEAD
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+=======
+	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE | V4L2_SUBDEV_FL_HAS_EVENTS;
+>>>>>>> upstream/android-13
 #endif
 
 	info->clock_speed = 30; /* default: a guess */
@@ -1812,6 +2151,7 @@ static int ov7670_probe(struct i2c_client *client,
 		else
 			return ret;
 	}
+<<<<<<< HEAD
 	if (info->clk) {
 		ret = clk_prepare_enable(info->clk);
 		if (ret)
@@ -1829,6 +2169,22 @@ static int ov7670_probe(struct i2c_client *client,
 		goto clk_disable;
 
 	ov7670_s_power(sd, 1);
+=======
+
+	ret = ov7670_init_gpio(client, info);
+	if (ret)
+		return ret;
+
+	ov7670_power_on(sd);
+
+	if (info->clk) {
+		info->clock_speed = clk_get_rate(info->clk) / 1000000;
+		if (info->clock_speed < 10 || info->clock_speed > 48) {
+			ret = -EINVAL;
+			goto power_off;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* Make sure it's an ov7670 */
 	ret = ov7670_detect(sd);
@@ -1843,6 +2199,10 @@ static int ov7670_probe(struct i2c_client *client,
 
 	info->devtype = &ov7670_devdata[id->driver_data];
 	info->fmt = &ov7670_formats[0];
+<<<<<<< HEAD
+=======
+	info->wsize = &info->devtype->win_sizes[0];
+>>>>>>> upstream/android-13
 
 	ov7670_get_default_format(sd, &info->format);
 
@@ -1908,6 +2268,10 @@ static int ov7670_probe(struct i2c_client *client,
 	if (ret < 0)
 		goto entity_cleanup;
 
+<<<<<<< HEAD
+=======
+	ov7670_power_off(sd);
+>>>>>>> upstream/android-13
 	return 0;
 
 entity_cleanup:
@@ -1915,6 +2279,7 @@ entity_cleanup:
 hdl_free:
 	v4l2_ctrl_handler_free(&info->hdl);
 power_off:
+<<<<<<< HEAD
 	ov7670_s_power(sd, 0);
 clk_disable:
 	clk_disable_unprepare(info->clk);
@@ -1922,6 +2287,12 @@ clk_disable:
 }
 
 
+=======
+	ov7670_power_off(sd);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int ov7670_remove(struct i2c_client *client)
 {
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
@@ -1929,9 +2300,14 @@ static int ov7670_remove(struct i2c_client *client)
 
 	v4l2_async_unregister_subdev(sd);
 	v4l2_ctrl_handler_free(&info->hdl);
+<<<<<<< HEAD
 	clk_disable_unprepare(info->clk);
 	media_entity_cleanup(&info->sd.entity);
 	ov7670_s_power(sd, 0);
+=======
+	media_entity_cleanup(&info->sd.entity);
+	ov7670_power_off(sd);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

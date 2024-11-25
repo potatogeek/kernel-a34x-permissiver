@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # humidity sensor drivers
 #
 menu "Humidity sensors"
 
 config AM2315
+<<<<<<< HEAD
     tristate "Aosong AM2315 relative humidity and temperature sensor"
     depends on I2C
     select IIO_BUFFER
@@ -14,6 +19,18 @@ config AM2315
 
       This driver can also be built as a module. If so, the module will
       be called am2315.
+=======
+	tristate "Aosong AM2315 relative humidity and temperature sensor"
+	depends on I2C
+	select IIO_BUFFER
+	select IIO_TRIGGERED_BUFFER
+	help
+	  If you say yes here you get support for the Aosong AM2315
+	  relative humidity and ambient temperature sensor.
+
+	  This driver can also be built as a module. If so, the module will
+	  be called am2315.
+>>>>>>> upstream/android-13
 
 config DHT11
 	tristate "DHT11 (and compatible sensors) driver"
@@ -37,11 +54,27 @@ config HDC100X
 	  To compile this driver as a module, choose M here: the module
 	  will be called hdc100x.
 
+<<<<<<< HEAD
+=======
+config HDC2010
+	tristate "TI HDC2010 relative humidity and temperature sensor"
+	depends on I2C
+	help
+	  Say yes here to build support for the Texas Instruments
+	  HDC2010 and HDC2080 relative humidity and temperature sensors.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called hdc2010.
+
+>>>>>>> upstream/android-13
 config HID_SENSOR_HUMIDITY
 	tristate "HID Environmental humidity sensor"
 	depends on HID_SENSOR_HUB
 	select IIO_BUFFER
+<<<<<<< HEAD
 	select IIO_TRIGGERED_BUFFER
+=======
+>>>>>>> upstream/android-13
 	select HID_SENSOR_IIO_COMMON
 	select HID_SENSOR_IIO_TRIGGER
 	help
@@ -78,7 +111,11 @@ config HTS221_SPI
 config HTU21
 	tristate "Measurement Specialties HTU21 humidity & temperature sensor"
 	depends on I2C
+<<<<<<< HEAD
         select IIO_MS_SENSORS_I2C
+=======
+	select IIO_MS_SENSORS_I2C
+>>>>>>> upstream/android-13
 	help
 	  If you say yes here you get support for the Measurement Specialties
 	  HTU21 humidity and temperature sensor.

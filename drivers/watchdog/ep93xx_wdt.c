@@ -89,6 +89,7 @@ static const struct watchdog_ops ep93xx_wdt_ops = {
 
 static int ep93xx_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct ep93xx_wdt_priv *priv;
 	struct watchdog_device *wdd;
 	struct resource *res;
@@ -101,6 +102,19 @@ static int ep93xx_wdt_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->mmio = devm_ioremap_resource(&pdev->dev, res);
+=======
+	struct device *dev = &pdev->dev;
+	struct ep93xx_wdt_priv *priv;
+	struct watchdog_device *wdd;
+	unsigned long val;
+	int ret;
+
+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	priv->mmio = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->mmio))
 		return PTR_ERR(priv->mmio);
 
@@ -112,11 +126,16 @@ static int ep93xx_wdt_probe(struct platform_device *pdev)
 	wdd->ops = &ep93xx_wdt_ops;
 	wdd->min_timeout = 1;
 	wdd->max_hw_heartbeat_ms = 200;
+<<<<<<< HEAD
 	wdd->parent = &pdev->dev;
+=======
+	wdd->parent = dev;
+>>>>>>> upstream/android-13
 
 	watchdog_set_nowayout(wdd, nowayout);
 
 	wdd->timeout = WDT_TIMEOUT;
+<<<<<<< HEAD
 	watchdog_init_timeout(wdd, timeout, &pdev->dev);
 
 	watchdog_set_drvdata(wdd, priv);
@@ -127,6 +146,18 @@ static int ep93xx_wdt_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "EP93XX watchdog driver %s\n",
 		(val & 0x08) ? " (nCS1 disable detected)" : "");
+=======
+	watchdog_init_timeout(wdd, timeout, dev);
+
+	watchdog_set_drvdata(wdd, priv);
+
+	ret = devm_watchdog_register_device(dev, wdd);
+	if (ret)
+		return ret;
+
+	dev_info(dev, "EP93XX watchdog driver %s\n",
+		 (val & 0x08) ? " (nCS1 disable detected)" : "");
+>>>>>>> upstream/android-13
 
 	return 0;
 }

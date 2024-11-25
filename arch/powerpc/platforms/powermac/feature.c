@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 1996-2001 Paul Mackerras (paulus@cs.anu.edu.au)
  *                          Ben. Herrenschmidt (benh@kernel.crashing.org)
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *  TODO:
  *
  *   - Replace mdelay with some schedule loop if possible
@@ -14,7 +21,10 @@
  *     power)
  *   - Refcount some clocks (see darwin)
  *   - Split split split...
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/init.h>
@@ -51,7 +61,11 @@
 #define DBG(fmt...)
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_6xx
+=======
+#ifdef CONFIG_PPC_BOOK3S_32
+>>>>>>> upstream/android-13
 extern int powersave_lowspeed;
 #endif
 
@@ -173,9 +187,15 @@ static long ohare_htw_scc_enable(struct device_node *node, long param,
 	macio = macio_find(node, 0);
 	if (!macio)
 		return -ENODEV;
+<<<<<<< HEAD
 	if (!strcmp(node->name, "ch-a"))
 		chan_mask = MACIO_FLAG_SCCA_ON;
 	else if (!strcmp(node->name, "ch-b"))
+=======
+	if (of_node_name_eq(node, "ch-a"))
+		chan_mask = MACIO_FLAG_SCCA_ON;
+	else if (of_node_name_eq(node, "ch-b"))
+>>>>>>> upstream/android-13
 		chan_mask = MACIO_FLAG_SCCB_ON;
 	else
 		return -ENODEV;
@@ -610,9 +630,15 @@ static long core99_scc_enable(struct device_node *node, long param, long value)
 	macio = macio_find(node, 0);
 	if (!macio)
 		return -ENODEV;
+<<<<<<< HEAD
 	if (!strcmp(node->name, "ch-a"))
 		chan_mask = MACIO_FLAG_SCCA_ON;
 	else if (!strcmp(node->name, "ch-b"))
+=======
+	if (of_node_name_eq(node, "ch-a"))
+		chan_mask = MACIO_FLAG_SCCA_ON;
+	else if (of_node_name_eq(node, "ch-b"))
+>>>>>>> upstream/android-13
 		chan_mask = MACIO_FLAG_SCCB_ON;
 	else
 		return -ENODEV;
@@ -1049,7 +1075,10 @@ core99_reset_cpu(struct device_node *node, long param, long value)
 	unsigned long flags;
 	struct macio_chip *macio;
 	struct device_node *np;
+<<<<<<< HEAD
 	struct device_node *cpus;
+=======
+>>>>>>> upstream/android-13
 	const int dflt_reset_lines[] = {	KL_GPIO_RESET_CPU0,
 						KL_GPIO_RESET_CPU1,
 						KL_GPIO_RESET_CPU2,
@@ -1059,10 +1088,14 @@ core99_reset_cpu(struct device_node *node, long param, long value)
 	if (macio->type != macio_keylargo)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	cpus = of_find_node_by_path("/cpus");
 	if (cpus == NULL)
 		return -ENODEV;
 	for (np = cpus->child; np != NULL; np = np->sibling) {
+=======
+	for_each_of_cpu_node(np) {
+>>>>>>> upstream/android-13
 		const u32 *num = of_get_property(np, "reg", NULL);
 		const u32 *rst = of_get_property(np, "soft-reset", NULL);
 		if (num == NULL || rst == NULL)
@@ -1072,7 +1105,10 @@ core99_reset_cpu(struct device_node *node, long param, long value)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	of_node_put(cpus);
+=======
+>>>>>>> upstream/android-13
 	if (np == NULL || reset_io == 0)
 		reset_io = dflt_reset_lines[param];
 
@@ -1397,8 +1433,12 @@ static long g5_mpic_enable(struct device_node *node, long param, long value)
 
 	if (parent == NULL)
 		return 0;
+<<<<<<< HEAD
 	is_u3 = strcmp(parent->name, "u3") == 0 ||
 		strcmp(parent->name, "u4") == 0;
+=======
+	is_u3 = of_node_name_eq(parent, "u3") || of_node_name_eq(parent, "u4");
+>>>>>>> upstream/android-13
 	of_node_put(parent);
 	if (!is_u3)
 		return 0;
@@ -1476,6 +1516,10 @@ static long g5_i2s_enable(struct device_node *node, long param, long value)
 	case 2:
 		if (macio->type == macio_shasta)
 			break;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return -ENODEV;
 	}
@@ -1504,16 +1548,23 @@ static long g5_reset_cpu(struct device_node *node, long param, long value)
 	unsigned long flags;
 	struct macio_chip *macio;
 	struct device_node *np;
+<<<<<<< HEAD
 	struct device_node *cpus;
+=======
+>>>>>>> upstream/android-13
 
 	macio = &macio_chips[0];
 	if (macio->type != macio_keylargo2 && macio->type != macio_shasta)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	cpus = of_find_node_by_path("/cpus");
 	if (cpus == NULL)
 		return -ENODEV;
 	for (np = cpus->child; np != NULL; np = np->sibling) {
+=======
+	for_each_of_cpu_node(np) {
+>>>>>>> upstream/android-13
 		const u32 *num = of_get_property(np, "reg", NULL);
 		const u32 *rst = of_get_property(np, "soft-reset", NULL);
 		if (num == NULL || rst == NULL)
@@ -1523,7 +1574,10 @@ static long g5_reset_cpu(struct device_node *node, long param, long value)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	of_node_put(cpus);
+=======
+>>>>>>> upstream/android-13
 	if (np == NULL || reset_io == 0)
 		return -ENODEV;
 
@@ -2515,6 +2569,7 @@ found:
 	 * supposed to be set when not supported, but I'm not very confident
 	 * that all Apple OF revs did it properly, I do it the paranoid way.
 	 */
+<<<<<<< HEAD
 	while (uninorth_base && uninorth_rev > 3) {
 		struct device_node *cpus = of_find_node_by_path("/cpus");
 		struct device_node *np;
@@ -2540,6 +2595,28 @@ found:
 		printk(KERN_DEBUG "Processor NAP mode on idle enabled.\n");
 		break;
 	}
+=======
+	if (uninorth_base && uninorth_rev > 3) {
+		struct device_node *np;
+
+		for_each_of_cpu_node(np) {
+			int cpu_count = 1;
+
+			/* Nap mode not supported on SMP */
+			if (of_get_property(np, "flush-on-lock", NULL) ||
+			    (cpu_count > 1)) {
+				powersave_nap = 0;
+				of_node_put(np);
+				break;
+			}
+
+			cpu_count++;
+			powersave_nap = 1;
+		}
+	}
+	if (powersave_nap)
+		printk(KERN_DEBUG "Processor NAP mode on idle enabled.\n");
+>>>>>>> upstream/android-13
 
 	/* On CPUs that support it (750FX), lowspeed by default during
 	 * NAP mode

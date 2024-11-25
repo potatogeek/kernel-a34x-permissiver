@@ -8,11 +8,19 @@ Contents:
    :maxdepth: 2
 
    intro
+<<<<<<< HEAD
+=======
+   using-gpio
+>>>>>>> upstream/android-13
    driver
    consumer
    board
    drivers-on-gpio
    legacy
+<<<<<<< HEAD
+=======
+   bt8xxgpio
+>>>>>>> upstream/android-13
 
 Core
 ====
@@ -38,7 +46,11 @@ Device tree support
 Device-managed API
 ==================
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpio/devres.c
+=======
+.. kernel-doc:: drivers/gpio/gpiolib-devres.c
+>>>>>>> upstream/android-13
    :export:
 
 sysfs helpers

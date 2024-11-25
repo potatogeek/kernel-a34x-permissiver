@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cs5345 Cirrus Logic 24-bit, 192 kHz Stereo Audio ADC
  * Copyright (C) 2007 Hans Verkuil
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * cs5345 Cirrus Logic 24-bit, 192 kHz Stereo Audio ADC
+ * Copyright (C) 2007 Hans Verkuil
+>>>>>>> upstream/android-13
  */
 
 

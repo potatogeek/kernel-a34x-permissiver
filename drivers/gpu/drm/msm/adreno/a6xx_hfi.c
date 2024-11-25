@@ -7,6 +7,10 @@
 
 #include "a6xx_gmu.h"
 #include "a6xx_gmu.xml.h"
+<<<<<<< HEAD
+=======
+#include "a6xx_gpu.h"
+>>>>>>> upstream/android-13
 
 #define HFI_MSG_ID(val) [val] = #val
 
@@ -16,10 +20,21 @@ static const char * const a6xx_hfi_msg_id[] = {
 	HFI_MSG_ID(HFI_H2F_MSG_BW_TABLE),
 	HFI_MSG_ID(HFI_H2F_MSG_PERF_TABLE),
 	HFI_MSG_ID(HFI_H2F_MSG_TEST),
+<<<<<<< HEAD
 };
 
 static int a6xx_hfi_queue_read(struct a6xx_hfi_queue *queue, u32 *data,
 		u32 dwords)
+=======
+	HFI_MSG_ID(HFI_H2F_MSG_START),
+	HFI_MSG_ID(HFI_H2F_MSG_CORE_FW_START),
+	HFI_MSG_ID(HFI_H2F_MSG_GX_BW_PERF_VOTE),
+	HFI_MSG_ID(HFI_H2F_MSG_PREPARE_SLUMBER),
+};
+
+static int a6xx_hfi_queue_read(struct a6xx_gmu *gmu,
+	struct a6xx_hfi_queue *queue, u32 *data, u32 dwords)
+>>>>>>> upstream/android-13
 {
 	struct a6xx_hfi_queue_header *header = queue->header;
 	u32 i, hdr, index = header->read_index;
@@ -47,6 +62,12 @@ static int a6xx_hfi_queue_read(struct a6xx_hfi_queue *queue, u32 *data,
 		index = (index + 1) % header->size;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!gmu->legacy)
+		index = ALIGN(index, 4) % header->size;
+
+>>>>>>> upstream/android-13
 	header->read_index = index;
 	return HFI_HEADER_SIZE(hdr);
 }
@@ -72,6 +93,15 @@ static int a6xx_hfi_queue_write(struct a6xx_gmu *gmu,
 		index = (index + 1) % header->size;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Cookify any non used data at the end of the write buffer */
+	if (!gmu->legacy) {
+		for (; index % 4; index = (index + 1) % header->size)
+			queue->data[index] = 0xfafafafa;
+	}
+
+>>>>>>> upstream/android-13
 	header->write_index = index;
 	spin_unlock(&queue->lock);
 
@@ -79,6 +109,7 @@ static int a6xx_hfi_queue_write(struct a6xx_gmu *gmu,
 	return 0;
 }
 
+<<<<<<< HEAD
 struct a6xx_hfi_response {
 	u32 id;
 	u32 seqnum;
@@ -156,6 +187,74 @@ void a6xx_hfi_task(unsigned long data)
 			a6xx_hfi_handle_ack(gmu, &resp);
 		else if (id == HFI_F2H_MSG_ERROR)
 			a6xx_hfi_handle_error(gmu, &resp);
+=======
+static int a6xx_hfi_wait_for_ack(struct a6xx_gmu *gmu, u32 id, u32 seqnum,
+		u32 *payload, u32 payload_size)
+{
+	struct a6xx_hfi_queue *queue = &gmu->queues[HFI_RESPONSE_QUEUE];
+	u32 val;
+	int ret;
+
+	/* Wait for a response */
+	ret = gmu_poll_timeout(gmu, REG_A6XX_GMU_GMU2HOST_INTR_INFO, val,
+		val & A6XX_GMU_GMU2HOST_INTR_INFO_MSGQ, 100, 5000);
+
+	if (ret) {
+		DRM_DEV_ERROR(gmu->dev,
+			"Message %s id %d timed out waiting for response\n",
+			a6xx_hfi_msg_id[id], seqnum);
+		return -ETIMEDOUT;
+	}
+
+	/* Clear the interrupt */
+	gmu_write(gmu, REG_A6XX_GMU_GMU2HOST_INTR_CLR,
+		A6XX_GMU_GMU2HOST_INTR_INFO_MSGQ);
+
+	for (;;) {
+		struct a6xx_hfi_msg_response resp;
+
+		/* Get the next packet */
+		ret = a6xx_hfi_queue_read(gmu, queue, (u32 *) &resp,
+			sizeof(resp) >> 2);
+
+		/* If the queue is empty our response never made it */
+		if (!ret) {
+			DRM_DEV_ERROR(gmu->dev,
+				"The HFI response queue is unexpectedly empty\n");
+
+			return -ENOENT;
+		}
+
+		if (HFI_HEADER_ID(resp.header) == HFI_F2H_MSG_ERROR) {
+			struct a6xx_hfi_msg_error *error =
+				(struct a6xx_hfi_msg_error *) &resp;
+
+			DRM_DEV_ERROR(gmu->dev, "GMU firmware error %d\n",
+				error->code);
+			continue;
+		}
+
+		if (seqnum != HFI_HEADER_SEQNUM(resp.ret_header)) {
+			DRM_DEV_ERROR(gmu->dev,
+				"Unexpected message id %d on the response queue\n",
+				HFI_HEADER_SEQNUM(resp.ret_header));
+			continue;
+		}
+
+		if (resp.error) {
+			DRM_DEV_ERROR(gmu->dev,
+				"Message %s id %d returned error %d\n",
+				a6xx_hfi_msg_id[id], seqnum, resp.error);
+			return -EINVAL;
+		}
+
+		/* All is well, copy over the buffer */
+		if (payload && payload_size)
+			memcpy(payload, resp.payload,
+				min_t(u32, payload_size, sizeof(resp.payload)));
+
+		return 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -163,7 +262,10 @@ static int a6xx_hfi_send_msg(struct a6xx_gmu *gmu, int id,
 		void *data, u32 size, u32 *payload, u32 payload_size)
 {
 	struct a6xx_hfi_queue *queue = &gmu->queues[HFI_COMMAND_QUEUE];
+<<<<<<< HEAD
 	struct a6xx_hfi_response resp = { 0 };
+=======
+>>>>>>> upstream/android-13
 	int ret, dwords = size >> 2;
 	u32 seqnum;
 
@@ -173,6 +275,7 @@ static int a6xx_hfi_send_msg(struct a6xx_gmu *gmu, int id,
 	*((u32 *) data) = (seqnum << 20) | (HFI_MSG_CMD << 16) |
 		(dwords << 8) | id;
 
+<<<<<<< HEAD
 	init_completion(&resp.complete);
 	resp.id = id;
 	resp.seqnum = seqnum;
@@ -220,14 +323,29 @@ out:
 	}
 
 	return 0;
+=======
+	ret = a6xx_hfi_queue_write(gmu, queue, data, dwords);
+	if (ret) {
+		DRM_DEV_ERROR(gmu->dev, "Unable to send message %s id %d\n",
+			a6xx_hfi_msg_id[id], seqnum);
+		return ret;
+	}
+
+	return a6xx_hfi_wait_for_ack(gmu, id, seqnum, payload, payload_size);
+>>>>>>> upstream/android-13
 }
 
 static int a6xx_hfi_send_gmu_init(struct a6xx_gmu *gmu, int boot_state)
 {
 	struct a6xx_hfi_msg_gmu_init_cmd msg = { 0 };
 
+<<<<<<< HEAD
 	msg.dbg_buffer_addr = (u32) gmu->debug->iova;
 	msg.dbg_buffer_size = (u32) gmu->debug->size;
+=======
+	msg.dbg_buffer_addr = (u32) gmu->debug.iova;
+	msg.dbg_buffer_size = (u32) gmu->debug.size;
+>>>>>>> upstream/android-13
 	msg.boot_state = boot_state;
 
 	return a6xx_hfi_send_msg(gmu, HFI_H2F_MSG_INIT, &msg, sizeof(msg),
@@ -245,9 +363,15 @@ static int a6xx_hfi_get_fw_version(struct a6xx_gmu *gmu, u32 *version)
 		version, sizeof(*version));
 }
 
+<<<<<<< HEAD
 static int a6xx_hfi_send_perf_table(struct a6xx_gmu *gmu)
 {
 	struct a6xx_hfi_msg_perf_table msg = { 0 };
+=======
+static int a6xx_hfi_send_perf_table_v1(struct a6xx_gmu *gmu)
+{
+	struct a6xx_hfi_msg_perf_table_v1 msg = { 0 };
+>>>>>>> upstream/android-13
 	int i;
 
 	msg.num_gpu_levels = gmu->nr_gpu_freqs;
@@ -267,6 +391,7 @@ static int a6xx_hfi_send_perf_table(struct a6xx_gmu *gmu)
 		NULL, 0);
 }
 
+<<<<<<< HEAD
 static int a6xx_hfi_send_bw_table(struct a6xx_gmu *gmu)
 {
 	struct a6xx_hfi_msg_bw_table msg = { 0 };
@@ -289,12 +414,212 @@ static int a6xx_hfi_send_bw_table(struct a6xx_gmu *gmu)
 	msg.ddr_cmds_data[0][0] =  0x40000000;
 	msg.ddr_cmds_data[0][1] =  0x40000000;
 	msg.ddr_cmds_data[0][2] =  0x40000000;
+=======
+static int a6xx_hfi_send_perf_table(struct a6xx_gmu *gmu)
+{
+	struct a6xx_hfi_msg_perf_table msg = { 0 };
+	int i;
+
+	msg.num_gpu_levels = gmu->nr_gpu_freqs;
+	msg.num_gmu_levels = gmu->nr_gmu_freqs;
+
+	for (i = 0; i < gmu->nr_gpu_freqs; i++) {
+		msg.gx_votes[i].vote = gmu->gx_arc_votes[i];
+		msg.gx_votes[i].acd = 0xffffffff;
+		msg.gx_votes[i].freq = gmu->gpu_freqs[i] / 1000;
+	}
+
+	for (i = 0; i < gmu->nr_gmu_freqs; i++) {
+		msg.cx_votes[i].vote = gmu->cx_arc_votes[i];
+		msg.cx_votes[i].freq = gmu->gmu_freqs[i] / 1000;
+	}
+
+	return a6xx_hfi_send_msg(gmu, HFI_H2F_MSG_PERF_TABLE, &msg, sizeof(msg),
+		NULL, 0);
+}
+
+static void a618_build_bw_table(struct a6xx_hfi_msg_bw_table *msg)
+{
+	/* Send a single "off" entry since the 618 GMU doesn't do bus scaling */
+	msg->bw_level_num = 1;
+
+	msg->ddr_cmds_num = 3;
+	msg->ddr_wait_bitmask = 0x01;
+
+	msg->ddr_cmds_addrs[0] = 0x50000;
+	msg->ddr_cmds_addrs[1] = 0x5003c;
+	msg->ddr_cmds_addrs[2] = 0x5000c;
+
+	msg->ddr_cmds_data[0][0] =  0x40000000;
+	msg->ddr_cmds_data[0][1] =  0x40000000;
+	msg->ddr_cmds_data[0][2] =  0x40000000;
+
+	/*
+	 * These are the CX (CNOC) votes - these are used by the GMU but the
+	 * votes are known and fixed for the target
+	 */
+	msg->cnoc_cmds_num = 1;
+	msg->cnoc_wait_bitmask = 0x01;
+
+	msg->cnoc_cmds_addrs[0] = 0x5007c;
+	msg->cnoc_cmds_data[0][0] =  0x40000000;
+	msg->cnoc_cmds_data[1][0] =  0x60000001;
+}
+
+static void a640_build_bw_table(struct a6xx_hfi_msg_bw_table *msg)
+{
+	/*
+	 * Send a single "off" entry just to get things running
+	 * TODO: bus scaling
+	 */
+	msg->bw_level_num = 1;
+
+	msg->ddr_cmds_num = 3;
+	msg->ddr_wait_bitmask = 0x01;
+
+	msg->ddr_cmds_addrs[0] = 0x50000;
+	msg->ddr_cmds_addrs[1] = 0x5003c;
+	msg->ddr_cmds_addrs[2] = 0x5000c;
+
+	msg->ddr_cmds_data[0][0] =  0x40000000;
+	msg->ddr_cmds_data[0][1] =  0x40000000;
+	msg->ddr_cmds_data[0][2] =  0x40000000;
+
+	/*
+	 * These are the CX (CNOC) votes - these are used by the GMU but the
+	 * votes are known and fixed for the target
+	 */
+	msg->cnoc_cmds_num = 3;
+	msg->cnoc_wait_bitmask = 0x01;
+
+	msg->cnoc_cmds_addrs[0] = 0x50034;
+	msg->cnoc_cmds_addrs[1] = 0x5007c;
+	msg->cnoc_cmds_addrs[2] = 0x5004c;
+
+	msg->cnoc_cmds_data[0][0] =  0x40000000;
+	msg->cnoc_cmds_data[0][1] =  0x00000000;
+	msg->cnoc_cmds_data[0][2] =  0x40000000;
+
+	msg->cnoc_cmds_data[1][0] =  0x60000001;
+	msg->cnoc_cmds_data[1][1] =  0x20000001;
+	msg->cnoc_cmds_data[1][2] =  0x60000001;
+}
+
+static void a650_build_bw_table(struct a6xx_hfi_msg_bw_table *msg)
+{
+	/*
+	 * Send a single "off" entry just to get things running
+	 * TODO: bus scaling
+	 */
+	msg->bw_level_num = 1;
+
+	msg->ddr_cmds_num = 3;
+	msg->ddr_wait_bitmask = 0x01;
+
+	msg->ddr_cmds_addrs[0] = 0x50000;
+	msg->ddr_cmds_addrs[1] = 0x50004;
+	msg->ddr_cmds_addrs[2] = 0x5007c;
+
+	msg->ddr_cmds_data[0][0] =  0x40000000;
+	msg->ddr_cmds_data[0][1] =  0x40000000;
+	msg->ddr_cmds_data[0][2] =  0x40000000;
+
+	/*
+	 * These are the CX (CNOC) votes - these are used by the GMU but the
+	 * votes are known and fixed for the target
+	 */
+	msg->cnoc_cmds_num = 1;
+	msg->cnoc_wait_bitmask = 0x01;
+
+	msg->cnoc_cmds_addrs[0] = 0x500a4;
+	msg->cnoc_cmds_data[0][0] =  0x40000000;
+	msg->cnoc_cmds_data[1][0] =  0x60000001;
+}
+
+static void a660_build_bw_table(struct a6xx_hfi_msg_bw_table *msg)
+{
+	/*
+	 * Send a single "off" entry just to get things running
+	 * TODO: bus scaling
+	 */
+	msg->bw_level_num = 1;
+
+	msg->ddr_cmds_num = 3;
+	msg->ddr_wait_bitmask = 0x01;
+
+	msg->ddr_cmds_addrs[0] = 0x50004;
+	msg->ddr_cmds_addrs[1] = 0x500a0;
+	msg->ddr_cmds_addrs[2] = 0x50000;
+
+	msg->ddr_cmds_data[0][0] =  0x40000000;
+	msg->ddr_cmds_data[0][1] =  0x40000000;
+	msg->ddr_cmds_data[0][2] =  0x40000000;
+
+	/*
+	 * These are the CX (CNOC) votes - these are used by the GMU but the
+	 * votes are known and fixed for the target
+	 */
+	msg->cnoc_cmds_num = 1;
+	msg->cnoc_wait_bitmask = 0x01;
+
+	msg->cnoc_cmds_addrs[0] = 0x50070;
+	msg->cnoc_cmds_data[0][0] =  0x40000000;
+	msg->cnoc_cmds_data[1][0] =  0x60000001;
+}
+
+static void adreno_7c3_build_bw_table(struct a6xx_hfi_msg_bw_table *msg)
+{
+	/*
+	 * Send a single "off" entry just to get things running
+	 * TODO: bus scaling
+	 */
+	msg->bw_level_num = 1;
+
+	msg->ddr_cmds_num = 3;
+	msg->ddr_wait_bitmask = 0x07;
+
+	msg->ddr_cmds_addrs[0] = 0x50004;
+	msg->ddr_cmds_addrs[1] = 0x50000;
+	msg->ddr_cmds_addrs[2] = 0x50088;
+
+	msg->ddr_cmds_data[0][0] =  0x40000000;
+	msg->ddr_cmds_data[0][1] =  0x40000000;
+	msg->ddr_cmds_data[0][2] =  0x40000000;
+
+	/*
+	 * These are the CX (CNOC) votes - these are used by the GMU but the
+	 * votes are known and fixed for the target
+	 */
+	msg->cnoc_cmds_num = 1;
+	msg->cnoc_wait_bitmask = 0x01;
+
+	msg->cnoc_cmds_addrs[0] = 0x5006c;
+	msg->cnoc_cmds_data[0][0] =  0x40000000;
+	msg->cnoc_cmds_data[1][0] =  0x60000001;
+}
+static void a6xx_build_bw_table(struct a6xx_hfi_msg_bw_table *msg)
+{
+	/* Send a single "off" entry since the 630 GMU doesn't do bus scaling */
+	msg->bw_level_num = 1;
+
+	msg->ddr_cmds_num = 3;
+	msg->ddr_wait_bitmask = 0x07;
+
+	msg->ddr_cmds_addrs[0] = 0x50000;
+	msg->ddr_cmds_addrs[1] = 0x5005c;
+	msg->ddr_cmds_addrs[2] = 0x5000c;
+
+	msg->ddr_cmds_data[0][0] =  0x40000000;
+	msg->ddr_cmds_data[0][1] =  0x40000000;
+	msg->ddr_cmds_data[0][2] =  0x40000000;
+>>>>>>> upstream/android-13
 
 	/*
 	 * These are the CX (CNOC) votes.  This is used but the values for the
 	 * sdm845 GMU are known and fixed so we can hard code them.
 	 */
 
+<<<<<<< HEAD
 	msg.cnoc_cmds_num = 3;
 	msg.cnoc_wait_bitmask = 0x05;
 
@@ -309,6 +634,43 @@ static int a6xx_hfi_send_bw_table(struct a6xx_gmu *gmu)
 	msg.cnoc_cmds_data[1][0] =  0x60000001;
 	msg.cnoc_cmds_data[1][1] =  0x20000001;
 	msg.cnoc_cmds_data[1][2] =  0x60000001;
+=======
+	msg->cnoc_cmds_num = 3;
+	msg->cnoc_wait_bitmask = 0x05;
+
+	msg->cnoc_cmds_addrs[0] = 0x50034;
+	msg->cnoc_cmds_addrs[1] = 0x5007c;
+	msg->cnoc_cmds_addrs[2] = 0x5004c;
+
+	msg->cnoc_cmds_data[0][0] =  0x40000000;
+	msg->cnoc_cmds_data[0][1] =  0x00000000;
+	msg->cnoc_cmds_data[0][2] =  0x40000000;
+
+	msg->cnoc_cmds_data[1][0] =  0x60000001;
+	msg->cnoc_cmds_data[1][1] =  0x20000001;
+	msg->cnoc_cmds_data[1][2] =  0x60000001;
+}
+
+
+static int a6xx_hfi_send_bw_table(struct a6xx_gmu *gmu)
+{
+	struct a6xx_hfi_msg_bw_table msg = { 0 };
+	struct a6xx_gpu *a6xx_gpu = container_of(gmu, struct a6xx_gpu, gmu);
+	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
+
+	if (adreno_is_a618(adreno_gpu))
+		a618_build_bw_table(&msg);
+	else if (adreno_is_a640_family(adreno_gpu))
+		a640_build_bw_table(&msg);
+	else if (adreno_is_a650(adreno_gpu))
+		a650_build_bw_table(&msg);
+	else if (adreno_is_7c3(adreno_gpu))
+		adreno_7c3_build_bw_table(&msg);
+	else if (adreno_is_a660(adreno_gpu))
+		a660_build_bw_table(&msg);
+	else
+		a6xx_build_bw_table(&msg);
+>>>>>>> upstream/android-13
 
 	return a6xx_hfi_send_msg(gmu, HFI_H2F_MSG_BW_TABLE, &msg, sizeof(msg),
 		NULL, 0);
@@ -322,7 +684,49 @@ static int a6xx_hfi_send_test(struct a6xx_gmu *gmu)
 		NULL, 0);
 }
 
+<<<<<<< HEAD
 int a6xx_hfi_start(struct a6xx_gmu *gmu, int boot_state)
+=======
+static int a6xx_hfi_send_start(struct a6xx_gmu *gmu)
+{
+	struct a6xx_hfi_msg_start msg = { 0 };
+
+	return a6xx_hfi_send_msg(gmu, HFI_H2F_MSG_START, &msg, sizeof(msg),
+		NULL, 0);
+}
+
+static int a6xx_hfi_send_core_fw_start(struct a6xx_gmu *gmu)
+{
+	struct a6xx_hfi_msg_core_fw_start msg = { 0 };
+
+	return a6xx_hfi_send_msg(gmu, HFI_H2F_MSG_CORE_FW_START, &msg,
+		sizeof(msg), NULL, 0);
+}
+
+int a6xx_hfi_set_freq(struct a6xx_gmu *gmu, int index)
+{
+	struct a6xx_hfi_gx_bw_perf_vote_cmd msg = { 0 };
+
+	msg.ack_type = 1; /* blocking */
+	msg.freq = index;
+	msg.bw = 0; /* TODO: bus scaling */
+
+	return a6xx_hfi_send_msg(gmu, HFI_H2F_MSG_GX_BW_PERF_VOTE, &msg,
+		sizeof(msg), NULL, 0);
+}
+
+int a6xx_hfi_send_prep_slumber(struct a6xx_gmu *gmu)
+{
+	struct a6xx_hfi_prep_slumber_cmd msg = { 0 };
+
+	/* TODO: should freq and bw fields be non-zero ? */
+
+	return a6xx_hfi_send_msg(gmu, HFI_H2F_MSG_PREPARE_SLUMBER, &msg,
+		sizeof(msg), NULL, 0);
+}
+
+static int a6xx_hfi_start_v1(struct a6xx_gmu *gmu, int boot_state)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -340,7 +744,11 @@ int a6xx_hfi_start(struct a6xx_gmu *gmu, int boot_state)
 	 * the GMU firmware
 	 */
 
+<<<<<<< HEAD
 	ret = a6xx_hfi_send_perf_table(gmu);
+=======
+	ret = a6xx_hfi_send_perf_table_v1(gmu);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -357,6 +765,40 @@ int a6xx_hfi_start(struct a6xx_gmu *gmu, int boot_state)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int a6xx_hfi_start(struct a6xx_gmu *gmu, int boot_state)
+{
+	int ret;
+
+	if (gmu->legacy)
+		return a6xx_hfi_start_v1(gmu, boot_state);
+
+
+	ret = a6xx_hfi_send_perf_table(gmu);
+	if (ret)
+		return ret;
+
+	ret = a6xx_hfi_send_bw_table(gmu);
+	if (ret)
+		return ret;
+
+	ret = a6xx_hfi_send_core_fw_start(gmu);
+	if (ret)
+		return ret;
+
+	/*
+	 * Downstream driver sends this in its "a6xx_hw_init" equivalent,
+	 * but seems to be no harm in sending it here
+	 */
+	ret = a6xx_hfi_send_start(gmu);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 void a6xx_hfi_stop(struct a6xx_gmu *gmu)
 {
 	int i;
@@ -368,7 +810,11 @@ void a6xx_hfi_stop(struct a6xx_gmu *gmu)
 			continue;
 
 		if (queue->header->read_index != queue->header->write_index)
+<<<<<<< HEAD
 			dev_err(gmu->dev, "HFI queue %d is not empty\n", i);
+=======
+			DRM_DEV_ERROR(gmu->dev, "HFI queue %d is not empty\n", i);
+>>>>>>> upstream/android-13
 
 		queue->header->read_index = 0;
 		queue->header->write_index = 0;
@@ -401,7 +847,11 @@ static void a6xx_hfi_queue_init(struct a6xx_hfi_queue *queue,
 
 void a6xx_hfi_init(struct a6xx_gmu *gmu)
 {
+<<<<<<< HEAD
 	struct a6xx_gmu_bo *hfi = gmu->hfi;
+=======
+	struct a6xx_gmu_bo *hfi = &gmu->hfi;
+>>>>>>> upstream/android-13
 	struct a6xx_hfi_queue_table_header *table = hfi->virt;
 	struct a6xx_hfi_queue_header *headers = hfi->virt + sizeof(*table);
 	u64 offset;
@@ -431,5 +881,9 @@ void a6xx_hfi_init(struct a6xx_gmu *gmu)
 	/* GMU response queue */
 	offset += SZ_4K;
 	a6xx_hfi_queue_init(&gmu->queues[1], &headers[1], hfi->virt + offset,
+<<<<<<< HEAD
 		hfi->iova + offset, 4);
+=======
+		hfi->iova + offset, gmu->legacy ? 4 : 1);
+>>>>>>> upstream/android-13
 }

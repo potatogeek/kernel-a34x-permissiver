@@ -7,7 +7,10 @@
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <asm/compiler.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/machvec.h>
 #include <asm/hwrpb.h>
 
@@ -61,7 +64,11 @@ extern inline void set_hae(unsigned long new_hae)
  * Change virtual addresses to physical addresses and vv.
  */
 #ifdef USE_48_BIT_KSEG
+<<<<<<< HEAD
 static inline unsigned long virt_to_phys(void *address)
+=======
+static inline unsigned long virt_to_phys(volatile void *address)
+>>>>>>> upstream/android-13
 {
 	return (unsigned long)address - IDENT_ADDR;
 }
@@ -71,7 +78,11 @@ static inline void * phys_to_virt(unsigned long address)
 	return (void *) (address + IDENT_ADDR);
 }
 #else
+<<<<<<< HEAD
 static inline unsigned long virt_to_phys(void *address)
+=======
+static inline unsigned long virt_to_phys(volatile void *address)
+>>>>>>> upstream/android-13
 {
         unsigned long phys = (unsigned long)address;
 
@@ -93,11 +104,14 @@ static inline void * phys_to_virt(unsigned long address)
 
 #define page_to_phys(page)	page_to_pa(page)
 
+<<<<<<< HEAD
 static inline dma_addr_t __deprecated isa_page_to_bus(struct page *page)
 {
 	return page_to_phys(page);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Maximum PIO space address supported?  */
 #define IO_SPACE_LIMIT 0xffff
 
@@ -112,7 +126,11 @@ static inline dma_addr_t __deprecated isa_page_to_bus(struct page *page)
 extern unsigned long __direct_map_base;
 extern unsigned long __direct_map_size;
 
+<<<<<<< HEAD
 static inline unsigned long __deprecated virt_to_bus(void *address)
+=======
+static inline unsigned long __deprecated virt_to_bus(volatile void *address)
+>>>>>>> upstream/android-13
 {
 	unsigned long phys = virt_to_phys(address);
 	unsigned long bus = phys + __direct_map_base;
@@ -156,9 +174,15 @@ static inline void generic_##NAME(TYPE b, QUAL void __iomem *addr)	\
 	alpha_mv.mv_##NAME(b, addr);					\
 }
 
+<<<<<<< HEAD
 REMAP1(unsigned int, ioread8, /**/)
 REMAP1(unsigned int, ioread16, /**/)
 REMAP1(unsigned int, ioread32, /**/)
+=======
+REMAP1(unsigned int, ioread8, const)
+REMAP1(unsigned int, ioread16, const)
+REMAP1(unsigned int, ioread32, const)
+>>>>>>> upstream/android-13
 REMAP1(u8, readb, const volatile)
 REMAP1(u16, readw, const volatile)
 REMAP1(u32, readl, const volatile)
@@ -288,6 +312,7 @@ static inline void __iomem *ioremap(unsigned long port, unsigned long size)
 	return IO_CONCAT(__IO_PREFIX,ioremap) (port, size);
 }
 
+<<<<<<< HEAD
 static inline void __iomem *__ioremap(unsigned long port, unsigned long size,
 				      unsigned long flags)
 {
@@ -302,6 +327,10 @@ static inline void __iomem * ioremap_nocache(unsigned long offset,
 
 #define ioremap_wc ioremap_nocache
 #define ioremap_uc ioremap_nocache
+=======
+#define ioremap_wc ioremap
+#define ioremap_uc ioremap
+>>>>>>> upstream/android-13
 
 static inline void iounmap(volatile void __iomem *addr)
 {
@@ -325,7 +354,11 @@ static inline int __is_mmio(const volatile void __iomem *addr)
  */
 
 #if IO_CONCAT(__IO_PREFIX,trivial_io_bw)
+<<<<<<< HEAD
 extern inline unsigned int ioread8(void __iomem *addr)
+=======
+extern inline unsigned int ioread8(const void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned int ret;
 	mb();
@@ -334,7 +367,11 @@ extern inline unsigned int ioread8(void __iomem *addr)
 	return ret;
 }
 
+<<<<<<< HEAD
 extern inline unsigned int ioread16(void __iomem *addr)
+=======
+extern inline unsigned int ioread16(const void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned int ret;
 	mb();
@@ -377,7 +414,11 @@ extern inline void outw(u16 b, unsigned long port)
 #endif
 
 #if IO_CONCAT(__IO_PREFIX,trivial_io_lq)
+<<<<<<< HEAD
 extern inline unsigned int ioread32(void __iomem *addr)
+=======
+extern inline unsigned int ioread32(const void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned int ret;
 	mb();
@@ -557,8 +598,11 @@ extern inline u64 readq_relaxed(const volatile void __iomem *addr)
 #define writel_relaxed	writel
 #define writeq_relaxed	writeq
 
+<<<<<<< HEAD
 #define mmiowb()
 
+=======
+>>>>>>> upstream/android-13
 /*
  * String version of IO memory access ops:
  */
@@ -622,11 +666,14 @@ extern void outsl (unsigned long port, const void *src, unsigned long count);
  */
 #define xlate_dev_mem_ptr(p)	__va(p)
 
+<<<<<<< HEAD
 /*
  * Convert a virtual cached pointer to an uncached pointer
  */
 #define xlate_dev_kmem_ptr(p)	p
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 
 #endif /* __ALPHA_IO_H */

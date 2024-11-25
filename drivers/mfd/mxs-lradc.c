@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale MXS Low Resolution Analog-to-Digital Converter driver
  *
@@ -7,6 +11,7 @@
  * Authors:
  *  Marek Vasut <marex@denx.de>
  *  Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -181,7 +188,11 @@ static int mxs_lradc_probe(struct platform_device *pdev)
 					MXS_LRADC_TOUCHSCREEN_5WIRE;
 				break;
 			}
+<<<<<<< HEAD
 			/* fall through to an error message for i.MX23 */
+=======
+			fallthrough;	/* to an error message for i.MX23 */
+>>>>>>> upstream/android-13
 		default:
 			dev_err(&pdev->dev,
 				"Unsupported number of touchscreen wires (%d)\n"

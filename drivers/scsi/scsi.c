@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  scsi.c Copyright (C) 1992 Drew Eckhardt
  *         Copyright (C) 1993, 1994, 1995, 1999 Eric Youngdale
@@ -85,6 +89,7 @@ unsigned int scsi_logging_level;
 EXPORT_SYMBOL(scsi_logging_level);
 #endif
 
+<<<<<<< HEAD
 /* sd, scsi core and power management need to coordinate flushing async actions */
 ASYNC_DOMAIN(scsi_sd_probe_domain);
 EXPORT_SYMBOL(scsi_sd_probe_domain);
@@ -94,10 +99,17 @@ EXPORT_SYMBOL(scsi_sd_probe_domain);
  * asynchronous system resume operations.  It is marked 'exclusive' to avoid
  * being included in the async_synchronize_full() that is invoked by
  * dpm_resume()
+=======
+/*
+ * Domain for asynchronous system resume operations.  It is marked 'exclusive'
+ * to avoid being included in the async_synchronize_full() that is invoked by
+ * dpm_resume().
+>>>>>>> upstream/android-13
  */
 ASYNC_DOMAIN_EXCLUSIVE(scsi_sd_pm_domain);
 EXPORT_SYMBOL(scsi_sd_pm_domain);
 
+<<<<<<< HEAD
 /**
  * scsi_put_command - Free a scsi command block
  * @cmd: command block to free
@@ -112,6 +124,8 @@ void scsi_put_command(struct scsi_cmnd *cmd)
 	BUG_ON(delayed_work_pending(&cmd->abort_work));
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SCSI_LOGGING
 void scsi_log_send(struct scsi_cmnd *cmd)
 {
@@ -162,7 +176,11 @@ void scsi_log_completion(struct scsi_cmnd *cmd, int disposition)
 		    (level > 1)) {
 			scsi_print_result(cmd, "Done", disposition);
 			scsi_print_command(cmd);
+<<<<<<< HEAD
 			if (status_byte(cmd->result) == CHECK_CONDITION)
+=======
+			if (scsi_status_is_check_condition(cmd->result))
+>>>>>>> upstream/android-13
 				scsi_print_sense(cmd);
 			if (level > 3)
 				scmd_printk(KERN_INFO, cmd,
@@ -175,6 +193,7 @@ void scsi_log_completion(struct scsi_cmnd *cmd, int disposition)
 #endif
 
 /**
+<<<<<<< HEAD
  * scsi_cmd_get_serial - Assign a serial number to a command
  * @host: the scsi host
  * @cmd: command to assign serial number to
@@ -191,6 +210,8 @@ void scsi_cmd_get_serial(struct Scsi_Host *host, struct scsi_cmnd *cmd)
 EXPORT_SYMBOL(scsi_cmd_get_serial);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * scsi_finish_command - cleanup and pass command back to upper layer
  * @cmd: the command
  *
@@ -206,7 +227,11 @@ void scsi_finish_command(struct scsi_cmnd *cmd)
 	struct scsi_driver *drv;
 	unsigned int good_bytes;
 
+<<<<<<< HEAD
 	scsi_device_unbusy(sdev);
+=======
+	scsi_device_unbusy(sdev, cmd);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Clear the flags that say that the device/target/host is no longer
@@ -219,6 +244,7 @@ void scsi_finish_command(struct scsi_cmnd *cmd)
 	if (atomic_read(&sdev->device_blocked))
 		atomic_set(&sdev->device_blocked, 0);
 
+<<<<<<< HEAD
 	/*
 	 * If we have valid sense information, then some kind of recovery
 	 * must have taken place.  Make a note of this.
@@ -226,12 +252,18 @@ void scsi_finish_command(struct scsi_cmnd *cmd)
 	if (SCSI_SENSE_VALID(cmd))
 		cmd->result |= (DRIVER_SENSE << 24);
 
+=======
+>>>>>>> upstream/android-13
 	SCSI_LOG_MLCOMPLETE(4, sdev_printk(KERN_INFO, sdev,
 				"Notifying upper driver of completion "
 				"(result %x)\n", cmd->result));
 
 	good_bytes = scsi_bufflen(cmd);
+<<<<<<< HEAD
 	if (!blk_rq_is_passthrough(cmd->request)) {
+=======
+	if (!blk_rq_is_passthrough(scsi_cmd_to_rq(cmd))) {
+>>>>>>> upstream/android-13
 		int old_good_bytes = good_bytes;
 		drv = scsi_cmd_to_driver(cmd);
 		if (drv->done)
@@ -248,6 +280,18 @@ void scsi_finish_command(struct scsi_cmnd *cmd)
 	scsi_io_completion(cmd, good_bytes);
 }
 
+<<<<<<< HEAD
+=======
+
+/*
+ * 1024 is big enough for saturating fast SCSI LUNs.
+ */
+int scsi_device_max_queue_depth(struct scsi_device *sdev)
+{
+	return min_t(int, sdev->host->can_queue, 1024);
+}
+
+>>>>>>> upstream/android-13
 /**
  * scsi_change_queue_depth - change a device's queue depth
  * @sdev: SCSI Device in question
@@ -257,6 +301,11 @@ void scsi_finish_command(struct scsi_cmnd *cmd)
  */
 int scsi_change_queue_depth(struct scsi_device *sdev, int depth)
 {
+<<<<<<< HEAD
+=======
+	depth = min_t(int, depth, scsi_device_max_queue_depth(sdev));
+
+>>>>>>> upstream/android-13
 	if (depth > 0) {
 		sdev->queue_depth = depth;
 		wmb();
@@ -265,6 +314,11 @@ int scsi_change_queue_depth(struct scsi_device *sdev, int depth)
 	if (sdev->request_queue)
 		blk_set_queue_depth(sdev->request_queue, depth);
 
+<<<<<<< HEAD
+=======
+	sbitmap_resize(&sdev->budget_map, sdev->queue_depth);
+
+>>>>>>> upstream/android-13
 	return sdev->queue_depth;
 }
 EXPORT_SYMBOL(scsi_change_queue_depth);
@@ -454,8 +508,13 @@ static void scsi_update_vpd_page(struct scsi_device *sdev, u8 page,
 		return;
 
 	mutex_lock(&sdev->inquiry_mutex);
+<<<<<<< HEAD
 	rcu_swap_protected(*sdev_vpd_buf, vpd_buf,
 			   lockdep_is_held(&sdev->inquiry_mutex));
+=======
+	vpd_buf = rcu_replace_pointer(*sdev_vpd_buf, vpd_buf,
+				      lockdep_is_held(&sdev->inquiry_mutex));
+>>>>>>> upstream/android-13
 	mutex_unlock(&sdev->inquiry_mutex);
 
 	if (vpd_buf)
@@ -485,10 +544,20 @@ void scsi_attach_vpd(struct scsi_device *sdev)
 		return;
 
 	for (i = 4; i < vpd_buf->len; i++) {
+<<<<<<< HEAD
+=======
+		if (vpd_buf->data[i] == 0x0)
+			scsi_update_vpd_page(sdev, 0x0, &sdev->vpd_pg0);
+>>>>>>> upstream/android-13
 		if (vpd_buf->data[i] == 0x80)
 			scsi_update_vpd_page(sdev, 0x80, &sdev->vpd_pg80);
 		if (vpd_buf->data[i] == 0x83)
 			scsi_update_vpd_page(sdev, 0x83, &sdev->vpd_pg83);
+<<<<<<< HEAD
+=======
+		if (vpd_buf->data[i] == 0x89)
+			scsi_update_vpd_page(sdev, 0x89, &sdev->vpd_pg89);
+>>>>>>> upstream/android-13
 	}
 	kfree(vpd_buf);
 }
@@ -525,6 +594,11 @@ int scsi_report_opcode(struct scsi_device *sdev, unsigned char *buffer,
 	result = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buffer, len,
 				  &sshdr, 30 * HZ, 3, NULL);
 
+<<<<<<< HEAD
+=======
+	if (result < 0)
+		return result;
+>>>>>>> upstream/android-13
 	if (result && scsi_sense_valid(&sshdr) &&
 	    sshdr.sense_key == ILLEGAL_REQUEST &&
 	    (sshdr.asc == 0x20 || sshdr.asc == 0x24) && sshdr.ascq == 0x00)
@@ -575,8 +649,15 @@ EXPORT_SYMBOL(scsi_device_get);
  */
 void scsi_device_put(struct scsi_device *sdev)
 {
+<<<<<<< HEAD
 	module_put(sdev->host->hostt->module);
 	put_device(&sdev->sdev_gendev);
+=======
+	struct module *mod = sdev->host->hostt->module;
+
+	put_device(&sdev->sdev_gendev);
+	module_put(mod);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(scsi_device_put);
 
@@ -780,6 +861,7 @@ MODULE_LICENSE("GPL");
 module_param(scsi_logging_level, int, S_IRUGO|S_IWUSR);
 MODULE_PARM_DESC(scsi_logging_level, "a bit mask of logging levels");
 
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_MQ_DEFAULT
 bool scsi_use_blk_mq = true;
 #else
@@ -787,13 +869,18 @@ bool scsi_use_blk_mq = false;
 #endif
 module_param_named(use_blk_mq, scsi_use_blk_mq, bool, S_IWUSR | S_IRUGO);
 
+=======
+>>>>>>> upstream/android-13
 static int __init init_scsi(void)
 {
 	int error;
 
+<<<<<<< HEAD
 	error = scsi_init_queue();
 	if (error)
 		return error;
+=======
+>>>>>>> upstream/android-13
 	error = scsi_init_procfs();
 	if (error)
 		goto cleanup_queue;
@@ -839,7 +926,10 @@ static void __exit exit_scsi(void)
 	scsi_exit_devinfo();
 	scsi_exit_procfs();
 	scsi_exit_queue();
+<<<<<<< HEAD
 	async_unregister_domain(&scsi_sd_probe_domain);
+=======
+>>>>>>> upstream/android-13
 }
 
 subsys_initcall(init_scsi);

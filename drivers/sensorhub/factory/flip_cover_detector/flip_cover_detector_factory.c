@@ -16,7 +16,10 @@
 #include "../../utility/shub_utility.h"
 #include "../../comm/shub_comm.h"
 #include "../../sensor/flip_cover_detector.h"
+<<<<<<< HEAD
 #include "../../sensor/magnetometer.h"
+=======
+>>>>>>> upstream/android-13
 #include "../../sensorhub/shub_device.h"
 #include "../../sensormanager/shub_sensor.h"
 #include "../../sensormanager/shub_sensor_manager.h"
@@ -58,7 +61,11 @@ static ssize_t nfc_cover_status_show(struct device *dev,
 {
 	struct flip_cover_detector_data *data = get_sensor(SENSOR_TYPE_FLIP_COVER_DETECTOR)->data;
 
+<<<<<<< HEAD
 	if (data->nfc_cover_status == COVER_ATTACH || data->nfc_cover_status == COVER_ATTACH_NFC_ACTIVE || data->nfc_cover_status == COVER_ATTACH_NFC_TAG_PRESENT) {
+=======
+	if (data->nfc_cover_status == COVER_ATTACH || data->nfc_cover_status == COVER_ATTACH_NFC_ACTIVE) {
+>>>>>>> upstream/android-13
 		snprintf(sysfs_cover_status, 10, "CLOSE");
 	} else if (data->nfc_cover_status == COVER_DETACH){
 		snprintf(sysfs_cover_status, 10, "OPEN");
@@ -80,7 +87,11 @@ static ssize_t nfc_cover_status_store(struct device *dev,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	if (!(status == 0 || status == 1 || status == 2 || status == 7)) {
+=======
+	if (status < 0 || status > 2) {
+>>>>>>> upstream/android-13
 		shub_errf("invalid status %d", status);
 		return -EINVAL;
 	}
@@ -336,7 +347,11 @@ static ssize_t axis_threshold_setting_store(struct device *dev,
 {
 	struct flip_cover_detector_data *data = get_sensor(SENSOR_TYPE_FLIP_COVER_DETECTOR)->data;
 	int ret;
+<<<<<<< HEAD
 	int axis;
+=======
+	int8_t axis;
+>>>>>>> upstream/android-13
 	int threshold;
 	int8_t shub_data[5] = {0};
 
@@ -367,6 +382,7 @@ static ssize_t axis_threshold_setting_store(struct device *dev,
 	return size;
 }
 
+<<<<<<< HEAD
 static ssize_t cal_matrix_num_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	int ret = 0;
@@ -399,12 +415,20 @@ static DEVICE_ATTR(nfc_cover_status, 0664, nfc_cover_status_show, nfc_cover_stat
 static DEVICE_ATTR(factory_cover_status, 0664, factory_cover_status_show, factory_cover_status_store);
 static DEVICE_ATTR(axis_threshold_setting, 0664, axis_threshold_setting_show, axis_threshold_setting_store);
 static DEVICE_ATTR_RO(cal_matrix_num);
+=======
+static DEVICE_ATTR(nfc_cover_status, 0664, nfc_cover_status_show, nfc_cover_status_store);
+static DEVICE_ATTR(factory_cover_status, 0664, factory_cover_status_show, factory_cover_status_store);
+static DEVICE_ATTR(axis_threshold_setting, 0664, axis_threshold_setting_show, axis_threshold_setting_store);
+>>>>>>> upstream/android-13
 
 static struct device_attribute *fcd_attrs[] = {
 	&dev_attr_nfc_cover_status,
 	&dev_attr_factory_cover_status,
 	&dev_attr_axis_threshold_setting,
+<<<<<<< HEAD
 	&dev_attr_cal_matrix_num,
+=======
+>>>>>>> upstream/android-13
 	NULL,
 };
 

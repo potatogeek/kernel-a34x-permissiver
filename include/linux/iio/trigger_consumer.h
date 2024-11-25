@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* The industrial I/O core, trigger consumer functions
  *
  * Copyright (c) 2008-2011 Jonathan Cameron
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* The industrial I/O core, trigger consumer functions
+ *
+ * Copyright (c) 2008-2011 Jonathan Cameron
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_IIO_TRIGGER_CONSUMER_H__
@@ -41,7 +48,11 @@ struct iio_poll_func {
 };
 
 
+<<<<<<< HEAD
 struct iio_poll_func
+=======
+__printf(5, 6) struct iio_poll_func
+>>>>>>> upstream/android-13
 *iio_alloc_pollfunc(irqreturn_t (*h)(int irq, void *p),
 		    irqreturn_t (*thread)(int irq, void *p),
 		    int type,
@@ -53,6 +64,7 @@ irqreturn_t iio_pollfunc_store_time(int irq, void *p);
 
 void iio_trigger_notify_done(struct iio_trigger *trig);
 
+<<<<<<< HEAD
 /*
  * Two functions for common case where all that happens is a pollfunc
  * is attached and detached from a trigger
@@ -60,4 +72,6 @@ void iio_trigger_notify_done(struct iio_trigger *trig);
 int iio_triggered_buffer_postenable(struct iio_dev *indio_dev);
 int iio_triggered_buffer_predisable(struct iio_dev *indio_dev);
 
+=======
+>>>>>>> upstream/android-13
 #endif

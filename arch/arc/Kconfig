@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #
 # Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
 #
@@ -5,10 +6,17 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation.
 #
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+#
+>>>>>>> upstream/android-13
 
 config ARC
 	def_bool y
 	select ARC_TIMERS
+<<<<<<< HEAD
 	select ARCH_HAS_PTE_SPECIAL
 	select ARCH_HAS_SYNC_DMA_FOR_CPU
 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
@@ -21,6 +29,22 @@ config ARC
 	select DMA_NONCOHERENT_MMAP
 	select GENERIC_ATOMIC64 if !ISA_ARCV2 || !(ARC_HAS_LL64 && ARC_HAS_LLSC)
 	select GENERIC_CLOCKEVENTS
+=======
+	select ARCH_HAS_CACHE_LINE_SIZE
+	select ARCH_HAS_DEBUG_VM_PGTABLE
+	select ARCH_HAS_DMA_PREP_COHERENT
+	select ARCH_HAS_PTE_SPECIAL
+	select ARCH_HAS_SETUP_DMA_OPS
+	select ARCH_HAS_SYNC_DMA_FOR_CPU
+	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+	select ARCH_SUPPORTS_ATOMIC_RMW if ARC_HAS_LLSC
+	select ARCH_32BIT_OFF_T
+	select BUILDTIME_TABLE_SORT
+	select CLONE_BACKWARDS
+	select COMMON_CLK
+	select DMA_DIRECT_REMAP
+	select GENERIC_ATOMIC64 if !ISA_ARCV2 || !(ARC_HAS_LL64 && ARC_HAS_LLSC)
+>>>>>>> upstream/android-13
 	select GENERIC_FIND_FIRST_BIT
 	# for now, we don't need GENERIC_IRQ_PROBE, CONFIG_GENERIC_IRQ_CHIP
 	select GENERIC_IRQ_SHOW
@@ -30,21 +54,33 @@ config ARC
 	select GENERIC_SMP_IDLE_THREAD
 	select HAVE_ARCH_KGDB
 	select HAVE_ARCH_TRACEHOOK
+<<<<<<< HEAD
 	select HAVE_DEBUG_STACKOVERFLOW
 	select HAVE_FUTEX_CMPXCHG if FUTEX
 	select HAVE_GENERIC_DMA_COHERENT
+=======
+	select HAVE_ARCH_TRANSPARENT_HUGEPAGE if ARC_MMU_V4
+	select HAVE_DEBUG_STACKOVERFLOW
+	select HAVE_DEBUG_KMEMLEAK
+	select HAVE_FUTEX_CMPXCHG if FUTEX
+>>>>>>> upstream/android-13
 	select HAVE_IOREMAP_PROT
 	select HAVE_KERNEL_GZIP
 	select HAVE_KERNEL_LZMA
 	select HAVE_KPROBES
 	select HAVE_KRETPROBES
+<<<<<<< HEAD
 	select HAVE_MEMBLOCK
 	select HAVE_MOD_ARCH_SPECIFIC
 	select HAVE_OPROFILE
+=======
+	select HAVE_MOD_ARCH_SPECIFIC
+>>>>>>> upstream/android-13
 	select HAVE_PERF_EVENTS
 	select HANDLE_DOMAIN_IRQ
 	select IRQ_DOMAIN
 	select MODULES_USE_ELF_RELA
+<<<<<<< HEAD
 	select NO_BOOTMEM
 	select OF
 	select OF_EARLY_FLATTREE
@@ -59,6 +95,15 @@ config MIGHT_HAVE_PCI
 
 config TRACE_IRQFLAGS_SUPPORT
 	def_bool y
+=======
+	select OF
+	select OF_EARLY_FLATTREE
+	select PCI_SYSCALL if PCI
+	select PERF_USE_VMALLOC if ARC_CACHE_VIPT_ALIASING
+	select HAVE_ARCH_JUMP_LABEL if ISA_ARCV2 && !CPU_ENDIAN_BE32
+	select SET_FS
+	select TRACE_IRQFLAGS_SUPPORT
+>>>>>>> upstream/android-13
 
 config LOCKDEP_SUPPORT
 	def_bool y
@@ -69,12 +114,15 @@ config SCHED_OMIT_FRAME_POINTER
 config GENERIC_CSUM
 	def_bool y
 
+<<<<<<< HEAD
 config RWSEM_GENERIC_SPINLOCK
 	def_bool y
 
 config ARCH_DISCONTIGMEM_ENABLE
 	def_bool n
 
+=======
+>>>>>>> upstream/android-13
 config ARCH_FLATMEM_ENABLE
 	def_bool y
 
@@ -94,18 +142,24 @@ config STACKTRACE_SUPPORT
 	def_bool y
 	select STACKTRACE
 
+<<<<<<< HEAD
 config HAVE_ARCH_TRANSPARENT_HUGEPAGE
 	def_bool y
 	depends on ARC_MMU_V4
 
+=======
+>>>>>>> upstream/android-13
 menu "ARC Architecture Configuration"
 
 menu "ARC Platform/SoC/Board"
 
 source "arch/arc/plat-tb10x/Kconfig"
 source "arch/arc/plat-axs10x/Kconfig"
+<<<<<<< HEAD
 #New platform adds here
 source "arch/arc/plat-eznps/Kconfig"
+=======
+>>>>>>> upstream/android-13
 source "arch/arc/plat-hsdk/Kconfig"
 
 endmenu
@@ -135,6 +189,7 @@ choice
 	default ARC_CPU_770 if ISA_ARCOMPACT
 	default ARC_CPU_HS if ISA_ARCV2
 
+<<<<<<< HEAD
 if ISA_ARCOMPACT
 
 config ARC_CPU_750D
@@ -145,24 +200,40 @@ config ARC_CPU_750D
 
 config ARC_CPU_770
 	bool "ARC770"
+=======
+config ARC_CPU_770
+	bool "ARC770"
+	depends on ISA_ARCOMPACT
+>>>>>>> upstream/android-13
 	select ARC_HAS_SWAPE
 	help
 	  Support for ARC770 core introduced with Rel 4.10 (Summer 2011)
 	  This core has a bunch of cool new features:
 	  -MMU-v3: Variable Page Sz (4k, 8k, 16k), bigger J-TLB (128x4)
+<<<<<<< HEAD
                    Shared Address Spaces (for sharing TLB entries in MMU)
 	  -Caches: New Prog Model, Region Flush
 	  -Insns: endian swap, load-locked/store-conditional, time-stamp-ctr
 
 endif	#ISA_ARCOMPACT
 
+=======
+	           Shared Address Spaces (for sharing TLB entries in MMU)
+	  -Caches: New Prog Model, Region Flush
+	  -Insns: endian swap, load-locked/store-conditional, time-stamp-ctr
+
+>>>>>>> upstream/android-13
 config ARC_CPU_HS
 	bool "ARC-HS"
 	depends on ISA_ARCV2
 	help
 	  Support for ARC HS38x Cores based on ARCv2 ISA
 	  The notable features are:
+<<<<<<< HEAD
 	    - SMP configurations of upto 4 core with coherency
+=======
+	    - SMP configurations of up to 4 cores with coherency
+>>>>>>> upstream/android-13
 	    - Optional L2 Cache and IO-Coherency
 	    - Revised Interrupt Architecture (multiple priorites, reg banks,
 	        auto stack switch, auto regfile save/restore)
@@ -177,15 +248,32 @@ config ARC_CPU_HS
 
 endchoice
 
+<<<<<<< HEAD
 config CPU_BIG_ENDIAN
 	bool "Enable Big Endian Mode"
 	default n
+=======
+config ARC_TUNE_MCPU
+	string "Override default -mcpu compiler flag"
+	default ""
+	help
+	  Override default -mcpu=xxx compiler flag (which is set depending on
+	  the ISA version) with the specified value.
+	  NOTE: If specified flag isn't supported by current compiler the
+	  ISA default value will be used as a fallback.
+
+config CPU_BIG_ENDIAN
+	bool "Enable Big Endian Mode"
+>>>>>>> upstream/android-13
 	help
 	  Build kernel for Big Endian Mode of ARC CPU
 
 config SMP
 	bool "Symmetric Multi-Processing"
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	select ARC_MCIP if ISA_ARCV2
 	help
 	  This enables support for systems with more than one CPU.
@@ -202,11 +290,19 @@ config ARC_SMP_HALT_ON_RESET
 	help
 	  In SMP configuration cores can be configured as Halt-on-reset
 	  or they could all start at same time. For Halt-on-reset, non
+<<<<<<< HEAD
 	  masters are parked until Master kicks them so they can start of
 	  at designated entry point. For other case, all jump to common
 	  entry point and spin wait for Master's signal.
 
 endif	#SMP
+=======
+	  masters are parked until Master kicks them so they can start off
+	  at designated entry point. For other case, all jump to common
+	  entry point and spin wait for Master's signal.
+
+endif #SMP
+>>>>>>> upstream/android-13
 
 config ARC_MCIP
 	bool "ARConnect Multicore IP (MCIP) Support "
@@ -256,15 +352,23 @@ config ARC_CACHE_PAGES
 config ARC_CACHE_VIPT_ALIASING
 	bool "Support VIPT Aliasing D$"
 	depends on ARC_HAS_DCACHE && ISA_ARCOMPACT
+<<<<<<< HEAD
 	default n
 
 endif	#ARC_CACHE
+=======
+
+endif #ARC_CACHE
+>>>>>>> upstream/android-13
 
 config ARC_HAS_ICCM
 	bool "Use ICCM"
 	help
 	  Single Cycle RAMS to store Fast Path Code
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 
 config ARC_ICCM_SZ
 	int "ICCM Size in KB"
@@ -275,7 +379,10 @@ config ARC_HAS_DCCM
 	bool "Use DCCM"
 	help
 	  Single Cycle RAMS to store Fast Path Data
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 
 config ARC_DCCM_SZ
 	int "DCCM Size in KB"
@@ -289,6 +396,7 @@ config ARC_DCCM_BASE
 
 choice
 	prompt "MMU Version"
+<<<<<<< HEAD
 	default ARC_MMU_V3 if ARC_CPU_770
 	default ARC_MMU_V2 if ARC_CPU_750D
 	default ARC_MMU_V4 if ARC_CPU_HS
@@ -309,13 +417,24 @@ config ARC_MMU_V2
 config ARC_MMU_V3
 	bool "MMU v3"
 	depends on ARC_CPU_770
+=======
+	default ARC_MMU_V3 if ISA_ARCOMPACT
+	default ARC_MMU_V4 if ISA_ARCV2
+
+config ARC_MMU_V3
+	bool "MMU v3"
+	depends on ISA_ARCOMPACT
+>>>>>>> upstream/android-13
 	help
 	  Introduced with ARC700 4.10: New Features
 	  Variable Page size (1k-16k), var JTLB size 128 x (2 or 4)
 	  Shared Address Spaces (SASID)
 
+<<<<<<< HEAD
 endif
 
+=======
+>>>>>>> upstream/android-13
 config ARC_MMU_V4
 	bool "MMU v4"
 	depends on ISA_ARCV2
@@ -334,7 +453,10 @@ config ARC_PAGE_SIZE_8K
 
 config ARC_PAGE_SIZE_16K
 	bool "16KB"
+<<<<<<< HEAD
 	depends on ARC_MMU_V3 || ARC_MMU_V4
+=======
+>>>>>>> upstream/android-13
 
 config ARC_PAGE_SIZE_4K
 	bool "4KB"
@@ -355,6 +477,7 @@ config ARC_HUGEPAGE_16M
 
 endchoice
 
+<<<<<<< HEAD
 config NODES_SHIFT
 	int "Maximum NUMA Nodes (as a power of 2)"
 	default "0" if !DISCONTIGMEM
@@ -369,11 +492,21 @@ if ISA_ARCOMPACT
 config ARC_COMPACT_IRQ_LEVELS
 	bool "Setup Timer IRQ as high Priority"
 	default n
+=======
+config PGTABLE_LEVELS
+	int "Number of Page table levels"
+	default 2
+
+config ARC_COMPACT_IRQ_LEVELS
+	depends on ISA_ARCOMPACT
+	bool "Setup Timer IRQ as high Priority"
+>>>>>>> upstream/android-13
 	# if SMP, LV2 enabled ONLY if ARC implementation has LV2 re-entrancy
 	depends on !SMP
 
 config ARC_FPU_SAVE_RESTORE
 	bool "Enable FPU state persistence across context switch"
+<<<<<<< HEAD
 	default n
 	help
 	  Double Precision Floating Point unit had dedicated regs which
@@ -384,6 +517,13 @@ config ARC_FPU_SAVE_RESTORE
 	  this for all tasks in system.
 
 endif	#ISA_ARCOMPACT
+=======
+	help
+	  ARCompact FPU has internal registers to assist with Double precision
+	  Floating Point operations. There are control and stauts registers
+	  for floating point exceptions and rounding modes. These are
+	  preserved across task context switch when enabled.
+>>>>>>> upstream/android-13
 
 config ARC_CANT_LLSC
 	def_bool n
@@ -399,6 +539,18 @@ config ARC_HAS_SWAPE
 
 if ISA_ARCV2
 
+<<<<<<< HEAD
+=======
+config ARC_USE_UNALIGNED_MEM_ACCESS
+	bool "Enable unaligned access in HW"
+	default y
+	select HAVE_EFFICIENT_UNALIGNED_ACCESS
+	help
+	  The ARC HS architecture supports unaligned memory access
+	  which is disabled by default. Enable unaligned access in
+	  hardware and use software to use it
+
+>>>>>>> upstream/android-13
 config ARC_HAS_LL64
 	bool "Insn: 64bit LDD/STD"
 	help
@@ -412,13 +564,68 @@ config ARC_HAS_DIV_REM
 	default y
 
 config ARC_HAS_ACCL_REGS
+<<<<<<< HEAD
 	bool "Reg Pair ACCL:ACCH (FPU and/or MPY > 6)"
+=======
+	bool "Reg Pair ACCL:ACCH (FPU and/or MPY > 6 and/or DSP)"
+>>>>>>> upstream/android-13
 	default y
 	help
 	  Depending on the configuration, CPU can contain accumulator reg-pair
 	  (also referred to as r58:r59). These can also be used by gcc as GPR so
 	  kernel needs to save/restore per process
 
+<<<<<<< HEAD
+=======
+config ARC_DSP_HANDLED
+	def_bool n
+
+config ARC_DSP_SAVE_RESTORE_REGS
+	def_bool n
+
+choice
+	prompt "DSP support"
+	default ARC_DSP_NONE
+	help
+	  Depending on the configuration, CPU can contain DSP registers
+	  (ACC0_GLO, ACC0_GHI, DSP_BFLY0, DSP_CTRL, DSP_FFT_CTRL).
+	  Below are options describing how to handle these registers in
+	  interrupt entry / exit and in context switch.
+
+config ARC_DSP_NONE
+	bool "No DSP extension presence in HW"
+	help
+	  No DSP extension presence in HW
+
+config ARC_DSP_KERNEL
+	bool "DSP extension in HW, no support for userspace"
+	select ARC_HAS_ACCL_REGS
+	select ARC_DSP_HANDLED
+	help
+	  DSP extension presence in HW, no support for DSP-enabled userspace
+	  applications. We don't save / restore DSP registers and only do
+	  some minimal preparations so userspace won't be able to break kernel
+
+config ARC_DSP_USERSPACE
+	bool "Support DSP for userspace apps"
+	select ARC_HAS_ACCL_REGS
+	select ARC_DSP_HANDLED
+	select ARC_DSP_SAVE_RESTORE_REGS
+	help
+	  DSP extension presence in HW, support save / restore DSP registers to
+	  run DSP-enabled userspace applications
+
+config ARC_DSP_AGU_USERSPACE
+	bool "Support DSP with AGU for userspace apps"
+	select ARC_HAS_ACCL_REGS
+	select ARC_DSP_HANDLED
+	select ARC_DSP_SAVE_RESTORE_REGS
+	help
+	  DSP and AGU extensions presence in HW, support save / restore DSP
+	  and AGU registers to run DSP-enabled userspace applications
+endchoice
+
+>>>>>>> upstream/android-13
 config ARC_IRQ_NO_AUTOSAVE
 	bool "Disable hardware autosave regfile on interrupts"
 	default n
@@ -427,7 +634,17 @@ config ARC_IRQ_NO_AUTOSAVE
 	  This is programmable and can be optionally disabled in which case
 	  software INTERRUPT_PROLOGUE/EPILGUE do the needed work
 
+<<<<<<< HEAD
 endif	# ISA_ARCV2
+=======
+config ARC_LPB_DISABLE
+	bool "Disable loop buffer (LPB)"
+	help
+	  On HS cores, loop buffer (LPB) is programmable in runtime and can
+	  be optionally disabled.
+
+endif # ISA_ARCV2
+>>>>>>> upstream/android-13
 
 endmenu   # "ARC CPU Configuration"
 
@@ -455,7 +672,12 @@ config LINUX_RAM_BASE
 
 config HIGHMEM
 	bool "High Memory Support"
+<<<<<<< HEAD
 	select ARCH_DISCONTIGMEM_ENABLE
+=======
+	select HAVE_ARCH_PFN_VALID
+	select KMAP_LOCAL
+>>>>>>> upstream/android-13
 	help
 	  With ARC 2G:2G address split, only upper 2G is directly addressable by
 	  kernel. Enable this to potentially allow access to rest of 2G and PAE
@@ -463,7 +685,10 @@ config HIGHMEM
 
 config ARC_HAS_PAE40
 	bool "Support for the 40-bit Physical Address Extension"
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	depends on ISA_ARCV2
 	select HIGHMEM
 	select PHYS_ADDR_T_64BIT
@@ -506,7 +731,10 @@ config HZ
 
 config ARC_METAWARE_HLINK
 	bool "Support for Metaware debugger assisted Host access"
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  This options allows a Linux userland apps to directly access
 	  host file system (open/creat/read/write etc) with help from
@@ -532,10 +760,20 @@ config ARC_DW2_UNWIND
 	  If you don't debug the kernel, you can say N, but we may not be able
 	  to solve problems without frame unwind information
 
+<<<<<<< HEAD
 config ARC_DBG_TLB_PARANOIA
 	bool "Paranoia Checks in Low Level TLB Handlers"
 	default n
 
+=======
+config ARC_DBG_JUMP_LABEL
+	bool "Paranoid checks in Static Keys (jump labels) code"
+	depends on JUMP_LABEL
+	default y if STATIC_KEYS_SELFTEST
+	help
+	  Enable paranoid checks and self-test of both ARC-specific and generic
+	  part of static keys (jump labels) related code.
+>>>>>>> upstream/android-13
 endif
 
 config ARC_BUILTIN_DTB_NAME
@@ -551,6 +789,7 @@ config FORCE_MAX_ZONEORDER
 	default "12" if ARC_HUGEPAGE_16M
 	default "11"
 
+<<<<<<< HEAD
 menu "Bus Support"
 
 config PCI
@@ -571,4 +810,6 @@ source "drivers/pci/Kconfig"
 
 endmenu
 
+=======
+>>>>>>> upstream/android-13
 source "kernel/power/Kconfig"

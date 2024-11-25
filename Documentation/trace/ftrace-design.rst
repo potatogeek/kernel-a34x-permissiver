@@ -229,6 +229,7 @@ Adding support for it is easy: just define the macro in asm/ftrace.h and
 pass the return address pointer as the 'retp' argument to
 ftrace_push_return_trace().
 
+<<<<<<< HEAD
 HAVE_FTRACE_NMI_ENTER
 ---------------------
 
@@ -237,6 +238,8 @@ If you can't trace NMI functions, then skip this option.
 <details to be filled>
 
 
+=======
+>>>>>>> upstream/android-13
 HAVE_SYSCALL_TRACEPOINTS
 ------------------------
 

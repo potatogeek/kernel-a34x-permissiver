@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 - 2008 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 - 2008 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <unistd.h>
@@ -132,7 +138,11 @@ static void update_thread(void)
 	int n;
 	char c;
 
+<<<<<<< HEAD
 	flags = set_signals(0);
+=======
+	flags = um_set_signals_trace(0);
+>>>>>>> upstream/android-13
 	CATCH_EINTR(n = write(sigio_private[0], &c, sizeof(c)));
 	if (n != sizeof(c)) {
 		printk(UM_KERN_ERR "update_thread : write failed, err = %d\n",
@@ -147,7 +157,11 @@ static void update_thread(void)
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	set_signals(flags);
+=======
+	um_set_signals_trace(flags);
+>>>>>>> upstream/android-13
 	return;
  fail:
 	/* Critical section start */
@@ -161,6 +175,7 @@ static void update_thread(void)
 	close(write_sigio_fds[0]);
 	close(write_sigio_fds[1]);
 	/* Critical section end */
+<<<<<<< HEAD
 	set_signals(flags);
 }
 
@@ -170,30 +185,53 @@ int add_sigio_fd(int fd)
 	int err = 0, i, n;
 
 	sigio_lock();
+=======
+	um_set_signals_trace(flags);
+}
+
+int __add_sigio_fd(int fd)
+{
+	struct pollfd *p;
+	int err, i, n;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < all_sigio_fds.used; i++) {
 		if (all_sigio_fds.poll[i].fd == fd)
 			break;
 	}
 	if (i == all_sigio_fds.used)
+<<<<<<< HEAD
 		goto out;
+=======
+		return -ENOSPC;
+>>>>>>> upstream/android-13
 
 	p = &all_sigio_fds.poll[i];
 
 	for (i = 0; i < current_poll.used; i++) {
 		if (current_poll.poll[i].fd == fd)
+<<<<<<< HEAD
 			goto out;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 	}
 
 	n = current_poll.used;
 	err = need_poll(&next_poll, n + 1);
 	if (err)
+<<<<<<< HEAD
 		goto out;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	memcpy(next_poll.poll, current_poll.poll,
 	       current_poll.used * sizeof(struct pollfd));
 	next_poll.poll[n] = *p;
 	next_poll.used = n + 1;
 	update_thread();
+<<<<<<< HEAD
  out:
 	sigio_unlock();
 	return err;
@@ -203,6 +241,28 @@ int ignore_sigio_fd(int fd)
 {
 	struct pollfd *p;
 	int err = 0, i, n = 0;
+=======
+
+	return 0;
+}
+
+
+int add_sigio_fd(int fd)
+{
+	int err;
+
+	sigio_lock();
+	err = __add_sigio_fd(fd);
+	sigio_unlock();
+
+	return err;
+}
+
+int __ignore_sigio_fd(int fd)
+{
+	struct pollfd *p;
+	int err, i, n = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This is called from exitcalls elsewhere in UML - if
@@ -212,17 +272,28 @@ int ignore_sigio_fd(int fd)
 	if (write_sigio_pid == -1)
 		return -EIO;
 
+<<<<<<< HEAD
 	sigio_lock();
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < current_poll.used; i++) {
 		if (current_poll.poll[i].fd == fd)
 			break;
 	}
 	if (i == current_poll.used)
+<<<<<<< HEAD
 		goto out;
 
 	err = need_poll(&next_poll, current_poll.used - 1);
 	if (err)
 		goto out;
+=======
+		return -ENOENT;
+
+	err = need_poll(&next_poll, current_poll.used - 1);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < current_poll.used; i++) {
 		p = &current_poll.poll[i];
@@ -232,8 +303,23 @@ int ignore_sigio_fd(int fd)
 	next_poll.used = current_poll.used - 1;
 
 	update_thread();
+<<<<<<< HEAD
  out:
 	sigio_unlock();
+=======
+
+	return 0;
+}
+
+int ignore_sigio_fd(int fd)
+{
+	int err;
+
+	sigio_lock();
+	err = __ignore_sigio_fd(fd);
+	sigio_unlock();
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -336,7 +422,11 @@ out_close1:
 	close(l_write_sigio_fds[1]);
 }
 
+<<<<<<< HEAD
 void sigio_broken(int fd, int read)
+=======
+void sigio_broken(int fd)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -352,7 +442,11 @@ void sigio_broken(int fd, int read)
 
 	all_sigio_fds.poll[all_sigio_fds.used++] =
 		((struct pollfd) { .fd  	= fd,
+<<<<<<< HEAD
 				   .events 	= read ? POLLIN : POLLOUT,
+=======
+				   .events 	= POLLIN,
+>>>>>>> upstream/android-13
 				   .revents 	= 0 });
 out:
 	sigio_unlock();
@@ -360,17 +454,29 @@ out:
 
 /* Changed during early boot */
 static int pty_output_sigio;
+<<<<<<< HEAD
 static int pty_close_sigio;
 
 void maybe_sigio_broken(int fd, int read)
+=======
+
+void maybe_sigio_broken(int fd)
+>>>>>>> upstream/android-13
 {
 	if (!isatty(fd))
 		return;
 
+<<<<<<< HEAD
 	if ((read || pty_output_sigio) && (!read || pty_close_sigio))
 		return;
 
 	sigio_broken(fd, read);
+=======
+	if (pty_output_sigio)
+		return;
+
+	sigio_broken(fd);
+>>>>>>> upstream/android-13
 }
 
 static void sigio_cleanup(void)
@@ -514,6 +620,7 @@ static void tty_output(int master, int slave)
 		printk(UM_KERN_CONT "tty_output : read failed, err = %d\n", n);
 }
 
+<<<<<<< HEAD
 static void tty_close(int master, int slave)
 {
 	printk(UM_KERN_INFO "Checking that host ptys support SIGIO on "
@@ -527,6 +634,8 @@ static void tty_close(int master, int slave)
 		printk(UM_KERN_CONT "No, enabling workaround\n");
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init check_sigio(void)
 {
 	if ((access("/dev/ptmx", R_OK) < 0) &&
@@ -536,7 +645,10 @@ static void __init check_sigio(void)
 		return;
 	}
 	check_one_sigio(tty_output);
+<<<<<<< HEAD
 	check_one_sigio(tty_close);
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Here because it only does the SIGIO testing for now */

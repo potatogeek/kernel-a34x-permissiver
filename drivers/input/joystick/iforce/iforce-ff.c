@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2000-2002 Vojtech Pavlik <vojtech@ucw.cz>
  *  Copyright (c) 2001-2002, 2007 Johann Deneux <johann.deneux@gmail.com>
@@ -5,6 +9,7 @@
  *  USB/RS232 I-Force joysticks and wheels.
  */
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+=======
+>>>>>>> upstream/android-13
 #include "iforce.h"
 
 /*
@@ -384,12 +391,21 @@ int iforce_upload_periodic(struct iforce *iforce, struct ff_effect *effect, stru
 	}
 
 	switch (effect->u.periodic.waveform) {
+<<<<<<< HEAD
 		case FF_SQUARE:		wave_code = 0x20; break;
 		case FF_TRIANGLE:	wave_code = 0x21; break;
 		case FF_SINE:		wave_code = 0x22; break;
 		case FF_SAW_UP:		wave_code = 0x23; break;
 		case FF_SAW_DOWN:	wave_code = 0x24; break;
 		default:		wave_code = 0x20; break;
+=======
+	case FF_SQUARE:		wave_code = 0x20; break;
+	case FF_TRIANGLE:	wave_code = 0x21; break;
+	case FF_SINE:		wave_code = 0x22; break;
+	case FF_SAW_UP:		wave_code = 0x23; break;
+	case FF_SAW_DOWN:	wave_code = 0x24; break;
+	default:		wave_code = 0x20; break;
+>>>>>>> upstream/android-13
 	}
 
 	if (!old || need_core(old, effect)) {
@@ -488,9 +504,15 @@ int iforce_upload_condition(struct iforce *iforce, struct ff_effect *effect, str
 	int core_err = 0;
 
 	switch (effect->type) {
+<<<<<<< HEAD
 		case FF_SPRING:	type = 0x40; break;
 		case FF_DAMPER:	type = 0x41; break;
 		default: return -1;
+=======
+	case FF_SPRING:	type = 0x40; break;
+	case FF_DAMPER:	type = 0x41; break;
+	default: return -1;
+>>>>>>> upstream/android-13
 	}
 
 	if (!old || need_condition_modifier(iforce, old, effect)) {

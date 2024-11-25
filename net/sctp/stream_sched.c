@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright Red Hat Inc. 2017
  *
@@ -5,6 +9,7 @@
  *
  * These functions manipulate sctp stream queue/scheduling.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email addresched(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -243,7 +250,11 @@ int sctp_sched_get_value(struct sctp_association *asoc, __u16 sid,
 void sctp_sched_dequeue_done(struct sctp_outq *q, struct sctp_chunk *ch)
 {
 	if (!list_is_last(&ch->frag_list, &ch->msg->chunks) &&
+<<<<<<< HEAD
 	    !q->asoc->intl_enable) {
+=======
+	    !q->asoc->peer.intl_capable) {
+>>>>>>> upstream/android-13
 		struct sctp_stream_out *sout;
 		__u16 sid;
 

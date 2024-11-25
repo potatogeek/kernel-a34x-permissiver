@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_ISCSI_H
@@ -52,10 +59,13 @@ struct qed_iscsi_info {
 	iscsi_event_cb_t event_cb;
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_QED_LL2
 extern const struct qed_ll2_ops qed_ll2_ops_pass;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_QED_ISCSI)
 int qed_iscsi_alloc(struct qed_hwfn *p_hwfn);
 

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
  *   Copyright 2007 rPath, Inc. - All Rights Reserved
  *   Copyright 2009 Intel Corporation; author H. Peter Anvin
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available under
  *   the terms of the GNU General Public License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -76,7 +83,11 @@ static int get_edd_info(u8 devno, struct edd_info *ei)
 {
 	struct biosregs ireg, oreg;
 
+<<<<<<< HEAD
 	memset(ei, 0, sizeof *ei);
+=======
+	memset(ei, 0, sizeof(*ei));
+>>>>>>> upstream/android-13
 
 	/* Check Extensions Present */
 
@@ -133,7 +144,11 @@ void query_edd(void)
 	struct edd_info ei, *edp;
 	u32 *mbrptr;
 
+<<<<<<< HEAD
 	if (cmdline_find_option("edd", eddarg, sizeof eddarg) > 0) {
+=======
+	if (cmdline_find_option("edd", eddarg, sizeof(eddarg)) > 0) {
+>>>>>>> upstream/android-13
 		if (!strcmp(eddarg, "skipmbr") || !strcmp(eddarg, "skip")) {
 			do_edd = 1;
 			do_mbr = 0;
@@ -166,7 +181,11 @@ void query_edd(void)
 		 */
 		if (!get_edd_info(devno, &ei)
 		    && boot_params.eddbuf_entries < EDDMAXNR) {
+<<<<<<< HEAD
 			memcpy(edp, &ei, sizeof ei);
+=======
+			memcpy(edp, &ei, sizeof(ei));
+>>>>>>> upstream/android-13
 			edp++;
 			boot_params.eddbuf_entries++;
 		}

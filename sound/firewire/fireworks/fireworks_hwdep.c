@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fireworks_hwdep.c - a part of driver for Fireworks based devices
  *
  * Copyright (c) 2013-2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -35,6 +42,10 @@ hwdep_read_resp_buf(struct snd_efw *efw, char __user *buf, long remained,
 	type = SNDRV_FIREWIRE_EVENT_EFW_RESPONSE;
 	if (copy_to_user(buf, &type, sizeof(type)))
 		return -EFAULT;
+<<<<<<< HEAD
+=======
+	count += sizeof(type);
+>>>>>>> upstream/android-13
 	remained -= sizeof(type);
 	buf += sizeof(type);
 
@@ -213,7 +224,11 @@ hwdep_get_info(struct snd_efw *efw, void __user *arg)
 	info.card = dev->card->index;
 	*(__be32 *)&info.guid[0] = cpu_to_be32(dev->config_rom[3]);
 	*(__be32 *)&info.guid[4] = cpu_to_be32(dev->config_rom[4]);
+<<<<<<< HEAD
 	strlcpy(info.device_name, dev_name(&dev->device),
+=======
+	strscpy(info.device_name, dev_name(&dev->device),
+>>>>>>> upstream/android-13
 		sizeof(info.device_name));
 
 	if (copy_to_user(arg, &info, sizeof(info)))

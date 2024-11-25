@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  FM Driver for Connectivity chip of Texas Instruments.
  *
  *  Common header for all FM driver sub-modules.
  *
  *  Copyright (C) 2011 Texas Instruments
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _FM_DRV_H
@@ -133,7 +140,11 @@ struct fm_rds {
 /*
  * Current RX channel Alternate Frequency cache.
  * This info is used to switch to other freq (AF)
+<<<<<<< HEAD
  * when current channel signal strengh is below RSSI threshold.
+=======
+ * when current channel signal strength is below RSSI threshold.
+>>>>>>> upstream/android-13
  */
 struct tuned_station_info {
 	u16 picode;
@@ -228,7 +239,11 @@ struct fmdev {
 	struct fm_rx rx;	/* FM receiver info */
 	struct fmtx_data tx_data;
 
+<<<<<<< HEAD
 	/* V4L2 ctrl framwork handler*/
+=======
+	/* V4L2 ctrl framework handler*/
+>>>>>>> upstream/android-13
 	struct v4l2_ctrl_handler ctrl_handler;
 
 	/* For core assisted locking */

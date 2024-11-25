@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * (C) Copyright 2008
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver implements a lcd device for the ILITEK 922x display
  * controller. The interface to the display is SPI and the display's
  * memory is cyclically updated over the RGB interface.
@@ -111,6 +118,11 @@
  *	lower frequency when the registers are read/written.
  *	The macro sets the frequency in the spi_transfer structure if
  *	the frequency exceeds the maximum value.
+<<<<<<< HEAD
+=======
+ * @s: pointer to an SPI device
+ * @x: pointer to the read/write buffer pair
+>>>>>>> upstream/android-13
  */
 #define CHECK_FREQ_REG(s, x)	\
 	do {			\
@@ -125,7 +137,11 @@
 
 #define set_tx_byte(b)		(tx_invert ? ~(b) : b)
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ili922x_id - id as set by manufacturer
  */
 static int ili922x_id = 1;
@@ -134,7 +150,11 @@ module_param(ili922x_id, int, 0);
 static int tx_invert;
 module_param(tx_invert, int, 0);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * driver's private structure
  */
 struct ili922x {
@@ -297,6 +317,11 @@ static int ili922x_write(struct spi_device *spi, u8 reg, u16 value)
 #ifdef DEBUG
 /**
  * ili922x_reg_dump - dump all registers
+<<<<<<< HEAD
+=======
+ *
+ * @spi: pointer to an SPI device
+>>>>>>> upstream/android-13
  */
 static void ili922x_reg_dump(struct spi_device *spi)
 {

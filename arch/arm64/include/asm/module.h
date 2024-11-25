@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,17 +13,28 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_MODULE_H
 #define __ASM_MODULE_H
 
 #include <asm-generic/module.h>
 
+<<<<<<< HEAD
 #define MODULE_ARCH_VERMAGIC	"aarch64"
 
 #ifdef CONFIG_ARM64_MODULE_PLTS
 struct mod_plt_sec {
 	struct elf64_shdr	*plt;
+=======
+#ifdef CONFIG_ARM64_MODULE_PLTS
+struct mod_plt_sec {
+	int			plt_shndx;
+>>>>>>> upstream/android-13
 	int			plt_num_entries;
 	int			plt_max_entries;
 };
@@ -32,6 +44,7 @@ struct mod_arch_specific {
 	struct mod_plt_sec	init;
 
 	/* for CONFIG_DYNAMIC_FTRACE */
+<<<<<<< HEAD
 	struct plt_entry 	*ftrace_trampoline;
 };
 #endif
@@ -40,6 +53,18 @@ u64 module_emit_plt_entry(struct module *mod, void *loc, const Elf64_Rela *rela,
 			  Elf64_Sym *sym);
 
 u64 module_emit_veneer_for_adrp(struct module *mod, void *loc, u64 val);
+=======
+	struct plt_entry	*ftrace_trampolines;
+};
+#endif
+
+u64 module_emit_plt_entry(struct module *mod, Elf64_Shdr *sechdrs,
+			  void *loc, const Elf64_Rela *rela,
+			  Elf64_Sym *sym);
+
+u64 module_emit_veneer_for_adrp(struct module *mod, Elf64_Shdr *sechdrs,
+				void *loc, u64 val);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_RANDOMIZE_BASE
 extern u64 module_alloc_base;
@@ -56,6 +81,7 @@ struct plt_entry {
 	 * is exactly what we are dealing with here, we are free to use x16
 	 * as a scratch register in the PLT veneers.
 	 */
+<<<<<<< HEAD
 	__le32	mov0;	/* movn	x16, #0x....			*/
 	__le32	mov1;	/* movk	x16, #0x...., lsl #16		*/
 	__le32	mov2;	/* movk	x16, #0x...., lsl #32		*/
@@ -89,6 +115,26 @@ static inline bool plt_entries_equal(const struct plt_entry *a,
 	return a->mov0 == b->mov0 &&
 	       a->mov1 == b->mov1 &&
 	       a->mov2 == b->mov2;
+=======
+	__le32	adrp;	/* adrp	x16, ....			*/
+	__le32	add;	/* add	x16, x16, #0x....		*/
+	__le32	br;	/* br	x16				*/
+};
+
+static inline bool is_forbidden_offset_for_adrp(void *place)
+{
+	return IS_ENABLED(CONFIG_ARM64_ERRATUM_843419) &&
+	       cpus_have_const_cap(ARM64_WORKAROUND_843419) &&
+	       ((u64)place & 0xfff) >= 0xff8;
+}
+
+struct plt_entry get_plt_entry(u64 dst, void *pc);
+bool plt_entries_equal(const struct plt_entry *a, const struct plt_entry *b);
+
+static inline bool plt_entry_is_initialized(const struct plt_entry *e)
+{
+	return e->adrp || e->add || e->br;
+>>>>>>> upstream/android-13
 }
 
 #endif /* __ASM_MODULE_H */

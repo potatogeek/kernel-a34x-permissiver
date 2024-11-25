@@ -23,6 +23,16 @@ void pager_init(const char *pager_env)
 	subcmd_config.pager_env = pager_env;
 }
 
+<<<<<<< HEAD
+=======
+static const char *forced_pager;
+
+void force_pager(const char *pager)
+{
+	forced_pager = pager;
+}
+
+>>>>>>> upstream/android-13
 static void pager_preexec(void)
 {
 	/*
@@ -66,7 +76,13 @@ void setup_pager(void)
 	const char *pager = getenv(subcmd_config.pager_env);
 	struct winsize sz;
 
+<<<<<<< HEAD
 	if (!isatty(1))
+=======
+	if (forced_pager)
+		pager = forced_pager;
+	if (!isatty(1) && !forced_pager)
+>>>>>>> upstream/android-13
 		return;
 	if (ioctl(1, TIOCGWINSZ, &sz) == 0)
 		pager_columns = sz.ws_col;

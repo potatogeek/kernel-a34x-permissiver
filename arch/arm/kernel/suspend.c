@@ -3,12 +3,19 @@
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/mm_types.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/bugs.h>
 #include <asm/cacheflush.h>
 #include <asm/idmap.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/memory.h>
 #include <asm/smp_plat.h>
 #include <asm/suspend.h>

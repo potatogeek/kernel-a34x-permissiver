@@ -37,6 +37,13 @@
 	cpu-supply = <&sw1a_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&cpu1 {
+	cpu-supply = <&sw1a_reg>;
+};
+
+>>>>>>> upstream/android-13
 &fec1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet1>;
@@ -54,10 +61,18 @@
 		#size-cells = <0>;
 
 		ethphy0: ethernet-phy@0 {
+<<<<<<< HEAD
+=======
+			compatible = "ethernet-phy-ieee802.3-c22";
+>>>>>>> upstream/android-13
 			reg = <0>;
 		};
 
 		ethphy1: ethernet-phy@1 {
+<<<<<<< HEAD
+=======
+			compatible = "ethernet-phy-ieee802.3-c22";
+>>>>>>> upstream/android-13
 			reg = <1>;
 		};
 	};
@@ -83,12 +98,20 @@
 
 	pmic: pmic@8 {
 		compatible = "fsl,pfuze3000";
+<<<<<<< HEAD
 		reg = <0x08>;
+=======
+		reg = <0x8>;
+>>>>>>> upstream/android-13
 
 		regulators {
 			sw1a_reg: sw1a {
 				regulator-min-microvolt = <700000>;
+<<<<<<< HEAD
 				regulator-max-microvolt = <1475000>;
+=======
+				regulator-max-microvolt = <3300000>;
+>>>>>>> upstream/android-13
 				regulator-boot-on;
 				regulator-always-on;
 				regulator-ramp-delay = <6250>;

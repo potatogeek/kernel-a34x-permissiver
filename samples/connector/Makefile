@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 obj-$(CONFIG_SAMPLE_CONNECTOR) += cn_test.o
 
+<<<<<<< HEAD
 # List of programs to build
 ifdef CONFIG_SAMPLE_CONNECTOR
 hostprogs-y := ucon
@@ -15,3 +16,8 @@ all: modules
 
 modules clean:
 	$(MAKE) -C ../.. SUBDIRS=$(CURDIR) $@
+=======
+userprogs-always-$(CONFIG_CC_CAN_LINK) += ucon
+
+userccflags += -I usr/include
+>>>>>>> upstream/android-13

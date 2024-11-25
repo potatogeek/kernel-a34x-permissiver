@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/mm/nommu.c
  *
  *  Replacement code for mm functions to support CPU's that don't
  *  have any form of memory management unit (thus no virtual memory).
  *
+<<<<<<< HEAD
  *  See Documentation/nommu-mmap.txt
+=======
+ *  See Documentation/admin-guide/mm/nommu-mmap.rst
+>>>>>>> upstream/android-13
  *
  *  Copyright (c) 2004-2008 David Howells <dhowells@redhat.com>
  *  Copyright (c) 2000-2003 David McCullough <davidm@snapgear.com>
@@ -107,6 +115,7 @@ unsigned int kobjsize(const void *objp)
 	 * The ksize() function is only guaranteed to work for pointers
 	 * returned by kmalloc(). So handle arbitrary pointers here.
 	 */
+<<<<<<< HEAD
 	return PAGE_SIZE << compound_order(page);
 }
 
@@ -198,6 +207,11 @@ long get_user_pages_unlocked(unsigned long start, unsigned long nr_pages,
 }
 EXPORT_SYMBOL(get_user_pages_unlocked);
 
+=======
+	return page_size(page);
+}
+
+>>>>>>> upstream/android-13
 /**
  * follow_pfn - look up PFN at a user virtual address
  * @vma: memory mapping
@@ -227,7 +241,11 @@ void vfree(const void *addr)
 }
 EXPORT_SYMBOL(vfree);
 
+<<<<<<< HEAD
 void *__vmalloc(unsigned long size, gfp_t gfp_mask, pgprot_t prot)
+=======
+void *__vmalloc(unsigned long size, gfp_t gfp_mask)
+>>>>>>> upstream/android-13
 {
 	/*
 	 *  You can't specify __GFP_HIGHMEM with kmalloc() since kmalloc()
@@ -237,13 +255,47 @@ void *__vmalloc(unsigned long size, gfp_t gfp_mask, pgprot_t prot)
 }
 EXPORT_SYMBOL(__vmalloc);
 
+<<<<<<< HEAD
 void *__vmalloc_node_flags(unsigned long size, int node, gfp_t flags)
 {
 	return __vmalloc(size, flags, PAGE_KERNEL);
+=======
+void *__vmalloc_node_range(unsigned long size, unsigned long align,
+		unsigned long start, unsigned long end, gfp_t gfp_mask,
+		pgprot_t prot, unsigned long vm_flags, int node,
+		const void *caller)
+{
+	return __vmalloc(size, gfp_mask);
+}
+
+void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
+		int node, const void *caller)
+{
+	return __vmalloc(size, gfp_mask);
+}
+
+static void *__vmalloc_user_flags(unsigned long size, gfp_t flags)
+{
+	void *ret;
+
+	ret = __vmalloc(size, flags);
+	if (ret) {
+		struct vm_area_struct *vma;
+
+		mmap_write_lock(current->mm);
+		vma = find_vma(current->mm, (unsigned long)ret);
+		if (vma)
+			vma->vm_flags |= VM_USERMAP;
+		mmap_write_unlock(current->mm);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 void *vmalloc_user(unsigned long size)
 {
+<<<<<<< HEAD
 	void *ret;
 
 	ret = __vmalloc(size, GFP_KERNEL | __GFP_ZERO, PAGE_KERNEL);
@@ -258,6 +310,9 @@ void *vmalloc_user(unsigned long size)
 	}
 
 	return ret;
+=======
+	return __vmalloc_user_flags(size, GFP_KERNEL | __GFP_ZERO);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(vmalloc_user);
 
@@ -283,6 +338,7 @@ long vread(char *buf, char *addr, unsigned long count)
 	return count;
 }
 
+<<<<<<< HEAD
 long vwrite(char *buf, char *addr, unsigned long count)
 {
 	/* Don't allow overflow */
@@ -293,6 +349,8 @@ long vwrite(char *buf, char *addr, unsigned long count)
 	return count;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  *	vmalloc  -  allocate virtually contiguous memory
  *
@@ -306,7 +364,11 @@ long vwrite(char *buf, char *addr, unsigned long count)
  */
 void *vmalloc(unsigned long size)
 {
+<<<<<<< HEAD
        return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL);
+=======
+	return __vmalloc(size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(vmalloc);
 
@@ -324,8 +386,12 @@ EXPORT_SYMBOL(vmalloc);
  */
 void *vzalloc(unsigned long size)
 {
+<<<<<<< HEAD
 	return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO,
 			PAGE_KERNEL);
+=======
+	return __vmalloc(size, GFP_KERNEL | __GFP_ZERO);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(vzalloc);
 
@@ -365,6 +431,7 @@ void *vzalloc_node(unsigned long size, int node)
 EXPORT_SYMBOL(vzalloc_node);
 
 /**
+<<<<<<< HEAD
  *	vmalloc_exec  -  allocate virtually contiguous, executable memory
  *	@size:		allocation size
  *
@@ -382,6 +449,8 @@ void *vmalloc_exec(unsigned long size)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * vmalloc_32  -  allocate virtually contiguous memory (32bit addressable)
  *	@size:		allocation size
  *
@@ -390,7 +459,11 @@ void *vmalloc_exec(unsigned long size)
  */
 void *vmalloc_32(unsigned long size)
 {
+<<<<<<< HEAD
 	return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL);
+=======
+	return __vmalloc(size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(vmalloc_32);
 
@@ -427,7 +500,11 @@ void vunmap(const void *addr)
 }
 EXPORT_SYMBOL(vunmap);
 
+<<<<<<< HEAD
 void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t prot)
+=======
+void *vm_map_ram(struct page **pages, unsigned int count, int node)
+>>>>>>> upstream/android-13
 {
 	BUG();
 	return NULL;
@@ -445,6 +522,7 @@ void vm_unmap_aliases(void)
 }
 EXPORT_SYMBOL_GPL(vm_unmap_aliases);
 
+<<<<<<< HEAD
 /*
  * Implement a stub for vmalloc_sync_[un]mapping() if the architecture
  * chose not to have one.
@@ -464,6 +542,8 @@ struct vm_struct *alloc_vm_area(size_t size, pte_t **ptes)
 }
 EXPORT_SYMBOL_GPL(alloc_vm_area);
 
+=======
+>>>>>>> upstream/android-13
 void free_vm_area(struct vm_struct *area)
 {
 	BUG();
@@ -477,6 +557,23 @@ int vm_insert_page(struct vm_area_struct *vma, unsigned long addr,
 }
 EXPORT_SYMBOL(vm_insert_page);
 
+<<<<<<< HEAD
+=======
+int vm_map_pages(struct vm_area_struct *vma, struct page **pages,
+			unsigned long num)
+{
+	return -EINVAL;
+}
+EXPORT_SYMBOL(vm_map_pages);
+
+int vm_map_pages_zero(struct vm_area_struct *vma, struct page **pages,
+				unsigned long num)
+{
+	return -EINVAL;
+}
+EXPORT_SYMBOL(vm_map_pages_zero);
+
+>>>>>>> upstream/android-13
 /*
  *  sys_brk() for the most part doesn't need the global kernel
  *  lock, except when an application is doing something nasty
@@ -505,7 +602,11 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
 	/*
 	 * Ok, looks good - let it rip.
 	 */
+<<<<<<< HEAD
 	flush_icache_range(mm->brk, brk);
+=======
+	flush_icache_user_range(mm->brk, brk);
+>>>>>>> upstream/android-13
 	return mm->brk = brk;
 }
 
@@ -654,7 +755,11 @@ static void put_nommu_region(struct vm_region *region)
  * add a VMA into a process's mm_struct in the appropriate place in the list
  * and tree and add to the address space's page tree also if not an anonymous
  * page
+<<<<<<< HEAD
  * - should be called with mm->mmap_sem held writelocked
+=======
+ * - should be called with mm->mmap_lock held writelocked
+>>>>>>> upstream/android-13
  */
 static void add_vma_to_mm(struct mm_struct *mm, struct vm_area_struct *vma)
 {
@@ -714,7 +819,11 @@ static void add_vma_to_mm(struct mm_struct *mm, struct vm_area_struct *vma)
 	if (rb_prev)
 		prev = rb_entry(rb_prev, struct vm_area_struct, vm_rb);
 
+<<<<<<< HEAD
 	__vma_link_list(mm, vma, prev, parent);
+=======
+	__vma_link_list(mm, vma, prev);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -750,6 +859,7 @@ static void delete_vma_from_mm(struct vm_area_struct *vma)
 	/* remove from the MM's tree and list */
 	rb_erase(&vma->vm_rb, &mm->mm_rb);
 
+<<<<<<< HEAD
 	if (vma->vm_prev)
 		vma->vm_prev->vm_next = vma->vm_next;
 	else
@@ -757,6 +867,9 @@ static void delete_vma_from_mm(struct vm_area_struct *vma)
 
 	if (vma->vm_next)
 		vma->vm_next->vm_prev = vma->vm_prev;
+=======
+	__vma_unlink_list(mm, vma);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -766,6 +879,7 @@ static void delete_vma(struct mm_struct *mm, struct vm_area_struct *vma)
 {
 	if (vma->vm_ops && vma->vm_ops->close)
 		vma->vm_ops->close(vma);
+<<<<<<< HEAD
 	if (vma->vm_file)
 		fput(vma->vm_file);
 	put_nommu_region(vma->vm_region);
@@ -785,20 +899,60 @@ struct vm_area_struct *find_vma(struct mm_struct *mm, unsigned long addr)
 	if (likely(vma))
 		return vma;
 
+=======
+	put_nommu_region(vma->vm_region);
+	/* fput(vma->vm_file) happens within vm_area_free() */
+	vm_area_free(vma);
+}
+
+struct vm_area_struct *find_vma_from_tree(struct mm_struct *mm, unsigned long addr)
+{
+	struct vm_area_struct *vma;
+
+>>>>>>> upstream/android-13
 	/* trawl the list (there may be multiple mappings in which addr
 	 * resides) */
 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
 		if (vma->vm_start > addr)
 			return NULL;
+<<<<<<< HEAD
 		if (vma->vm_end > addr) {
 			vmacache_update(addr, vma);
 			return vma;
 		}
+=======
+		if (vma->vm_end > addr)
+			return vma;
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(find_vma);
+=======
+
+/*
+ * look up the first VMA in which addr resides, NULL if none
+ * - should be called with mm->mmap_lock at least held readlocked
+ */
+struct vm_area_struct *__find_vma(struct mm_struct *mm, unsigned long addr)
+{
+	struct vm_area_struct *vma;
+
+	/* Check the cache first. */
+	vma = vmacache_find(mm, addr);
+	if (likely(vma))
+		return vma;
+
+	vma = find_vma_from_tree(mm, addr);
+
+	if (vma)
+		vmacache_update(addr, vma);
+	return vma;
+}
+EXPORT_SYMBOL(__find_vma);
+>>>>>>> upstream/android-13
 
 /*
  * find a VMA
@@ -820,7 +974,11 @@ int expand_stack(struct vm_area_struct *vma, unsigned long address)
 
 /*
  * look up the first VMA exactly that exactly matches addr
+<<<<<<< HEAD
  * - should be called with mm->mmap_sem at least held readlocked
+=======
+ * - should be called with mm->mmap_lock at least held readlocked
+>>>>>>> upstream/android-13
  */
 static struct vm_area_struct *find_vma_exact(struct mm_struct *mm,
 					     unsigned long addr,
@@ -938,9 +1096,12 @@ static int validate_mmap_request(struct file *file,
 			    (file->f_mode & FMODE_WRITE))
 				return -EACCES;
 
+<<<<<<< HEAD
 			if (locks_verify_locked(file))
 				return -EAGAIN;
 
+=======
+>>>>>>> upstream/android-13
 			if (!(capabilities & NOMMU_MAP_DIRECT))
 				return -ENODEV;
 
@@ -1173,7 +1334,10 @@ unsigned long do_mmap(struct file *file,
 			unsigned long len,
 			unsigned long prot,
 			unsigned long flags,
+<<<<<<< HEAD
 			vm_flags_t vm_flags,
+=======
+>>>>>>> upstream/android-13
 			unsigned long pgoff,
 			unsigned long *populate,
 			struct list_head *uf)
@@ -1181,6 +1345,10 @@ unsigned long do_mmap(struct file *file,
 	struct vm_area_struct *vma;
 	struct vm_region *region;
 	struct rb_node *rb;
+<<<<<<< HEAD
+=======
+	vm_flags_t vm_flags;
+>>>>>>> upstream/android-13
 	unsigned long capabilities, result;
 	int ret;
 
@@ -1199,7 +1367,11 @@ unsigned long do_mmap(struct file *file,
 
 	/* we've determined that we can make the mapping, now translate what we
 	 * now know into VMA flags */
+<<<<<<< HEAD
 	vm_flags |= determine_vm_flags(file, prot, flags, capabilities);
+=======
+	vm_flags = determine_vm_flags(file, prot, flags, capabilities);
+>>>>>>> upstream/android-13
 
 	/* we're going to need to record the mapping */
 	region = kmem_cache_zalloc(vm_region_jar, GFP_KERNEL);
@@ -1214,7 +1386,10 @@ unsigned long do_mmap(struct file *file,
 	region->vm_flags = vm_flags;
 	region->vm_pgoff = pgoff;
 
+<<<<<<< HEAD
 	INIT_VMA(vma);
+=======
+>>>>>>> upstream/android-13
 	vma->vm_flags = vm_flags;
 	vma->vm_pgoff = pgoff;
 
@@ -1339,7 +1514,13 @@ unsigned long do_mmap(struct file *file,
 	add_nommu_region(region);
 
 	/* clear anonymous mappings that don't ask for uninitialized data */
+<<<<<<< HEAD
 	if (!vma->vm_file && !(flags & MAP_UNINITIALIZED))
+=======
+	if (!vma->vm_file &&
+	    (!IS_ENABLED(CONFIG_MMAP_ALLOW_UNINITIALIZED) ||
+	     !(flags & MAP_UNINITIALIZED)))
+>>>>>>> upstream/android-13
 		memset((void *)region->vm_start, 0,
 		       region->vm_end - region->vm_start);
 
@@ -1354,7 +1535,11 @@ share:
 	/* we flush the region from the icache only when the first executable
 	 * mapping of it is made  */
 	if (vma->vm_flags & VM_EXEC && !region->vm_icache_flushed) {
+<<<<<<< HEAD
 		flush_icache_range(region->vm_start, region->vm_end);
+=======
+		flush_icache_user_range(region->vm_start, region->vm_end);
+>>>>>>> upstream/android-13
 		region->vm_icache_flushed = true;
 	}
 
@@ -1368,8 +1553,12 @@ error:
 	if (region->vm_file)
 		fput(region->vm_file);
 	kmem_cache_free(vm_region_jar, region);
+<<<<<<< HEAD
 	if (vma->vm_file)
 		fput(vma->vm_file);
+=======
+	/* fput(vma->vm_file) happens within vm_area_free() */
+>>>>>>> upstream/android-13
 	vm_area_free(vma);
 	return ret;
 
@@ -1407,8 +1596,11 @@ unsigned long ksys_mmap_pgoff(unsigned long addr, unsigned long len,
 			goto out;
 	}
 
+<<<<<<< HEAD
 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
 
+=======
+>>>>>>> upstream/android-13
 	retval = vm_mmap_pgoff(file, addr, len, prot, flags, pgoff);
 
 	if (file)
@@ -1612,16 +1804,25 @@ erase_whole_vma:
 	delete_vma(mm, vma);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(do_munmap);
+=======
+>>>>>>> upstream/android-13
 
 int vm_munmap(unsigned long addr, size_t len)
 {
 	struct mm_struct *mm = current->mm;
 	int ret;
 
+<<<<<<< HEAD
 	down_write(&mm->mmap_sem);
 	ret = do_munmap(mm, addr, len, NULL);
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_lock(mm);
+	ret = do_munmap(mm, addr, len, NULL);
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(vm_munmap);
@@ -1708,6 +1909,7 @@ SYSCALL_DEFINE5(mremap, unsigned long, addr, unsigned long, old_len,
 {
 	unsigned long ret;
 
+<<<<<<< HEAD
 	down_write(&current->mm->mmap_sem);
 	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
 	up_write(&current->mm->mmap_sem);
@@ -1719,6 +1921,17 @@ struct page *follow_page_mask(struct vm_area_struct *vma,
 			      unsigned int *page_mask)
 {
 	*page_mask = 0;
+=======
+	mmap_write_lock(current->mm);
+	ret = do_mremap(addr, old_len, new_len, flags, new_addr);
+	mmap_write_unlock(current->mm);
+	return ret;
+}
+
+struct page *follow_page(struct vm_area_struct *vma, unsigned long address,
+			 unsigned int foll_flags)
+{
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -1771,6 +1984,7 @@ vm_fault_t filemap_fault(struct vm_fault *vmf)
 }
 EXPORT_SYMBOL(filemap_fault);
 
+<<<<<<< HEAD
 void filemap_map_pages(struct vm_fault *vmf,
 		pgoff_t start_pgoff, pgoff_t end_pgoff)
 {
@@ -1780,11 +1994,27 @@ EXPORT_SYMBOL(filemap_map_pages);
 
 int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
 		unsigned long addr, void *buf, int len, unsigned int gup_flags)
+=======
+vm_fault_t filemap_map_pages(struct vm_fault *vmf,
+		pgoff_t start_pgoff, pgoff_t end_pgoff)
+{
+	BUG();
+	return 0;
+}
+EXPORT_SYMBOL(filemap_map_pages);
+
+int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
+		       int len, unsigned int gup_flags)
+>>>>>>> upstream/android-13
 {
 	struct vm_area_struct *vma;
 	int write = gup_flags & FOLL_WRITE;
 
+<<<<<<< HEAD
 	if (down_read_killable(&mm->mmap_sem))
+=======
+	if (mmap_read_lock_killable(mm))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* the access must start within one of the target process's mappings */
@@ -1807,7 +2037,11 @@ int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
 		len = 0;
 	}
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -1825,7 +2059,11 @@ int __access_remote_vm(struct task_struct *tsk, struct mm_struct *mm,
 int access_remote_vm(struct mm_struct *mm, unsigned long addr,
 		void *buf, int len, unsigned int gup_flags)
 {
+<<<<<<< HEAD
 	return __access_remote_vm(NULL, mm, addr, buf, len, gup_flags);
+=======
+	return __access_remote_vm(mm, addr, buf, len, gup_flags);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1844,7 +2082,11 @@ int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, in
 	if (!mm)
 		return 0;
 
+<<<<<<< HEAD
 	len = __access_remote_vm(tsk, mm, addr, buf, len, gup_flags);
+=======
+	len = __access_remote_vm(mm, addr, buf, len, gup_flags);
+>>>>>>> upstream/android-13
 
 	mmput(mm);
 	return len;
@@ -1858,8 +2100,13 @@ EXPORT_SYMBOL_GPL(access_process_vm);
  * @newsize: The proposed filesize of the inode
  *
  * Check the shared mappings on an inode on behalf of a shrinking truncate to
+<<<<<<< HEAD
  * make sure that that any outstanding VMAs aren't broken and then shrink the
  * vm_regions that extend that beyond so that do_mmap_pgoff() doesn't
+=======
+ * make sure that any outstanding VMAs aren't broken and then shrink the
+ * vm_regions that extend beyond so that do_mmap() doesn't
+>>>>>>> upstream/android-13
  * automatically grant mappings that are too large.
  */
 int nommu_shrink_inode_mappings(struct inode *inode, size_t size,

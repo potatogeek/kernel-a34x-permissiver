@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * TPM handling.
  *
@@ -5,9 +9,12 @@
  * Copyright (C) 2017 Google, Inc.
  *     Matthew Garrett <mjg59@google.com>
  *     Thiebaud Weksteen <tweek@google.com>
+<<<<<<< HEAD
  *
  * This file is part of the Linux kernel, and is made available under the
  * terms of the GNU General Public License version 2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/efi.h>
 #include <linux/tpm_eventlog.h>
@@ -22,6 +29,7 @@ static const efi_char16_t efi_MemoryOverWriteRequest_name[] =
 #define MEMORY_ONLY_RESET_CONTROL_GUID \
 	EFI_GUID(0xe20939be, 0x32d4, 0x41be, 0xa1, 0x50, 0x89, 0x7f, 0x85, 0xd4, 0x98, 0x29)
 
+<<<<<<< HEAD
 #define get_efi_var(name, vendor, ...) \
 	efi_call_runtime(get_variable, \
 			 (efi_char16_t *)(name), (efi_guid_t *)(vendor), \
@@ -32,13 +40,19 @@ static const efi_char16_t efi_MemoryOverWriteRequest_name[] =
 			 (efi_char16_t *)(name), (efi_guid_t *)(vendor), \
 			 __VA_ARGS__)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Enable reboot attack mitigation. This requests that the firmware clear the
  * RAM on next reboot before proceeding with boot, ensuring that any secrets
  * are cleared. If userland has ensured that all secrets have been removed
  * from RAM before reboot it can simply reset this variable.
  */
+<<<<<<< HEAD
 void efi_enable_reset_attack_mitigation(efi_system_table_t *sys_table_arg)
+=======
+void efi_enable_reset_attack_mitigation(void)
+>>>>>>> upstream/android-13
 {
 	u8 val = 1;
 	efi_guid_t var_guid = MEMORY_ONLY_RESET_CONTROL_GUID;
@@ -59,13 +73,18 @@ void efi_enable_reset_attack_mitigation(efi_system_table_t *sys_table_arg)
 
 #endif
 
+<<<<<<< HEAD
 static void efi_retrieve_tpm2_eventlog_1_2(efi_system_table_t *sys_table_arg)
+=======
+void efi_retrieve_tpm2_eventlog(void)
+>>>>>>> upstream/android-13
 {
 	efi_guid_t tcg2_guid = EFI_TCG2_PROTOCOL_GUID;
 	efi_guid_t linux_eventlog_guid = LINUX_EFI_TPM_EVENT_LOG_GUID;
 	efi_status_t status;
 	efi_physical_addr_t log_location = 0, log_last_entry = 0;
 	struct linux_efi_tpm_eventlog *log_tbl = NULL;
+<<<<<<< HEAD
 	unsigned long first_entry_addr, last_entry_addr;
 	size_t log_size, last_entry_size;
 	efi_bool_t truncated;
@@ -84,6 +103,34 @@ static void efi_retrieve_tpm2_eventlog_1_2(efi_system_table_t *sys_table_arg)
 
 	if (!log_location)
 		return;
+=======
+	struct efi_tcg2_final_events_table *final_events_table = NULL;
+	unsigned long first_entry_addr, last_entry_addr;
+	size_t log_size, last_entry_size;
+	efi_bool_t truncated;
+	int version = EFI_TCG2_EVENT_LOG_FORMAT_TCG_2;
+	efi_tcg2_protocol_t *tcg2_protocol = NULL;
+	int final_events_size = 0;
+
+	status = efi_bs_call(locate_protocol, &tcg2_guid, NULL,
+			     (void **)&tcg2_protocol);
+	if (status != EFI_SUCCESS)
+		return;
+
+	status = efi_call_proto(tcg2_protocol, get_event_log, version,
+				&log_location, &log_last_entry, &truncated);
+
+	if (status != EFI_SUCCESS || !log_location) {
+		version = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
+		status = efi_call_proto(tcg2_protocol, get_event_log, version,
+					&log_location, &log_last_entry,
+					&truncated);
+		if (status != EFI_SUCCESS || !log_location)
+			return;
+
+	}
+
+>>>>>>> upstream/android-13
 	first_entry_addr = (unsigned long) log_location;
 
 	/*
@@ -98,12 +145,33 @@ static void efi_retrieve_tpm2_eventlog_1_2(efi_system_table_t *sys_table_arg)
 		 * We need to calculate its size to deduce the full size of
 		 * the logs.
 		 */
+<<<<<<< HEAD
 		last_entry_size = sizeof(struct tcpa_event) +
 			((struct tcpa_event *) last_entry_addr)->event_size;
+=======
+		if (version == EFI_TCG2_EVENT_LOG_FORMAT_TCG_2) {
+			/*
+			 * The TCG2 log format has variable length entries,
+			 * and the information to decode the hash algorithms
+			 * back into a size is contained in the first entry -
+			 * pass a pointer to the final entry (to calculate its
+			 * size) and the first entry (so we know how long each
+			 * digest is)
+			 */
+			last_entry_size =
+				__calc_tpm2_event_size((void *)last_entry_addr,
+						    (void *)(long)log_location,
+						    false);
+		} else {
+			last_entry_size = sizeof(struct tcpa_event) +
+			   ((struct tcpa_event *) last_entry_addr)->event_size;
+		}
+>>>>>>> upstream/android-13
 		log_size = log_last_entry - log_location + last_entry_size;
 	}
 
 	/* Allocate space for the logs and copy them. */
+<<<<<<< HEAD
 	status = efi_call_early(allocate_pool, EFI_LOADER_DATA,
 				sizeof(*log_tbl) + log_size,
 				(void **) &log_tbl);
@@ -121,11 +189,57 @@ static void efi_retrieve_tpm2_eventlog_1_2(efi_system_table_t *sys_table_arg)
 
 	status = efi_call_early(install_configuration_table,
 				&linux_eventlog_guid, log_tbl);
+=======
+	status = efi_bs_call(allocate_pool, EFI_LOADER_DATA,
+			     sizeof(*log_tbl) + log_size, (void **)&log_tbl);
+
+	if (status != EFI_SUCCESS) {
+		efi_err("Unable to allocate memory for event log\n");
+		return;
+	}
+
+	/*
+	 * Figure out whether any events have already been logged to the
+	 * final events structure, and if so how much space they take up
+	 */
+	if (version == EFI_TCG2_EVENT_LOG_FORMAT_TCG_2)
+		final_events_table = get_efi_config_table(LINUX_EFI_TPM_FINAL_LOG_GUID);
+	if (final_events_table && final_events_table->nr_events) {
+		struct tcg_pcr_event2_head *header;
+		int offset;
+		void *data;
+		int event_size;
+		int i = final_events_table->nr_events;
+
+		data = (void *)final_events_table;
+		offset = sizeof(final_events_table->version) +
+			sizeof(final_events_table->nr_events);
+
+		while (i > 0) {
+			header = data + offset + final_events_size;
+			event_size = __calc_tpm2_event_size(header,
+						   (void *)(long)log_location,
+						   false);
+			final_events_size += event_size;
+			i--;
+		}
+	}
+
+	memset(log_tbl, 0, sizeof(*log_tbl) + log_size);
+	log_tbl->size = log_size;
+	log_tbl->final_events_preboot_size = final_events_size;
+	log_tbl->version = version;
+	memcpy(log_tbl->log, (void *) first_entry_addr, log_size);
+
+	status = efi_bs_call(install_configuration_table,
+			     &linux_eventlog_guid, log_tbl);
+>>>>>>> upstream/android-13
 	if (status != EFI_SUCCESS)
 		goto err_free;
 	return;
 
 err_free:
+<<<<<<< HEAD
 	efi_call_early(free_pool, log_tbl);
 }
 
@@ -133,4 +247,7 @@ void efi_retrieve_tpm2_eventlog(efi_system_table_t *sys_table_arg)
 {
 	/* Only try to retrieve the logs in 1.2 format. */
 	efi_retrieve_tpm2_eventlog_1_2(sys_table_arg);
+=======
+	efi_bs_call(free_pool, log_tbl);
+>>>>>>> upstream/android-13
 }

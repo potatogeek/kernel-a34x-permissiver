@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  sst_mfld_platform.c - Intel MID Platform driver
  *
@@ -6,6 +10,7 @@
  *  Author: Harsha Priya <priya.harsha@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -15,6 +20,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -135,7 +142,11 @@ static void sst_fill_alloc_params(struct snd_pcm_substream *substream,
 	snd_pcm_uframes_t period_size;
 	ssize_t periodbytes;
 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+<<<<<<< HEAD
 	u32 buffer_addr = virt_to_phys(substream->dma_buffer.area);
+=======
+	u32 buffer_addr = substream->runtime->dma_addr;
+>>>>>>> upstream/android-13
 
 	channels = substream->runtime->channels;
 	period_size = substream->runtime->period_size;
@@ -190,7 +201,11 @@ int sst_fill_stream_params(void *substream,
 	map = ctx->pdata->pdev_strm_map;
 	map_size = ctx->pdata->strm_map_size;
 
+<<<<<<< HEAD
 	if (is_compress == true)
+=======
+	if (is_compress)
+>>>>>>> upstream/android-13
 		cstream = (struct snd_compr_stream *)substream;
 	else
 		pstream = (struct snd_pcm_substream *)substream;
@@ -241,7 +256,10 @@ static int sst_platform_alloc_stream(struct snd_pcm_substream *substream,
 	/* set codec params and inform SST driver the same */
 	sst_fill_pcm_params(substream, &param);
 	sst_fill_alloc_params(substream, &alloc_params);
+<<<<<<< HEAD
 	substream->runtime->dma_area = substream->dma_buffer.area;
+=======
+>>>>>>> upstream/android-13
 	str_params.sparams = param;
 	str_params.aparams = alloc_params;
 	str_params.codec = SST_CODEC_TYPE_PCM;
@@ -282,7 +300,11 @@ static int sst_platform_init_stream(struct snd_pcm_substream *substream)
 {
 	struct sst_runtime_stream *stream =
 			substream->runtime->private_data;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	int ret_val;
 
 	dev_dbg(rtd->dev, "setting buffer ptr param\n");
@@ -341,6 +363,20 @@ static int sst_media_open(struct snd_pcm_substream *substream,
 	if (ret_val < 0)
 		goto out_power_up;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Make sure the period to be multiple of 1ms to align the
+	 * design of firmware. Apply same rule to buffer size to make
+	 * sure alsa could always find a value for period size
+	 * regardless the buffer size given by user space.
+	 */
+	snd_pcm_hw_constraint_step(substream->runtime, 0,
+			   SNDRV_PCM_HW_PARAM_PERIOD_SIZE, 48);
+	snd_pcm_hw_constraint_step(substream->runtime, 0,
+			   SNDRV_PCM_HW_PARAM_BUFFER_SIZE, 48);
+
+>>>>>>> upstream/android-13
 	/* Make sure, that the period size is always even */
 	snd_pcm_hw_constraint_step(substream->runtime, 0,
 			   SNDRV_PCM_HW_PARAM_PERIODS, 2);
@@ -374,7 +410,11 @@ static int sst_media_prepare(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
 {
 	struct sst_runtime_stream *stream;
+<<<<<<< HEAD
 	int ret_val = 0, str_id;
+=======
+	int ret_val, str_id;
+>>>>>>> upstream/android-13
 
 	stream = substream->runtime->private_data;
 	str_id = stream->stream_info.str_id;
@@ -393,6 +433,7 @@ static int sst_media_prepare(struct snd_pcm_substream *substream,
 	if (ret_val)
 		return ret_val;
 	substream->runtime->hw.info = SNDRV_PCM_INFO_BLOCK_TRANSFER;
+<<<<<<< HEAD
 	return ret_val;
 }
 
@@ -417,12 +458,21 @@ static int sst_media_hw_free(struct snd_pcm_substream *substream,
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int sst_enable_ssp(struct snd_pcm_substream *substream,
 			struct snd_soc_dai *dai)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!dai->active) {
+=======
+	if (!snd_soc_dai_active(dai)) {
+>>>>>>> upstream/android-13
 		ret = sst_handle_vb_timer(dai, true);
 		sst_fill_ssp_defaults(dai);
 	}
@@ -435,7 +485,11 @@ static int sst_be_hw_params(struct snd_pcm_substream *substream,
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (dai->active == 1)
+=======
+	if (snd_soc_dai_active(dai) == 1)
+>>>>>>> upstream/android-13
 		ret = send_ssp_cmd(dai, dai->name, 1);
 	return ret;
 }
@@ -444,7 +498,11 @@ static int sst_set_format(struct snd_soc_dai *dai, unsigned int fmt)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!dai->active)
+=======
+	if (!snd_soc_dai_active(dai))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ret = sst_fill_ssp_config(dai, fmt);
@@ -459,7 +517,11 @@ static int sst_platform_set_ssp_slot(struct snd_soc_dai *dai,
 			int slots, int slot_width) {
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!dai->active)
+=======
+	if (!snd_soc_dai_active(dai))
+>>>>>>> upstream/android-13
 		return ret;
 
 	ret = sst_fill_ssp_slot(dai, tx_mask, rx_mask, slots, slot_width);
@@ -472,7 +534,11 @@ static int sst_platform_set_ssp_slot(struct snd_soc_dai *dai,
 static void sst_disable_ssp(struct snd_pcm_substream *substream,
 			struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	if (!dai->active) {
+=======
+	if (!snd_soc_dai_active(dai)) {
+>>>>>>> upstream/android-13
 		send_ssp_cmd(dai, dai->name, 0);
 		sst_handle_vb_timer(dai, false);
 	}
@@ -482,8 +548,11 @@ static const struct snd_soc_dai_ops sst_media_dai_ops = {
 	.startup = sst_media_open,
 	.shutdown = sst_media_close,
 	.prepare = sst_media_prepare,
+<<<<<<< HEAD
 	.hw_params = sst_media_hw_params,
 	.hw_free = sst_media_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.mute_stream = sst_media_digital_mute,
 };
 
@@ -507,14 +576,22 @@ static struct snd_soc_dai_driver sst_platform_dai[] = {
 		.stream_name = "Headset Playback",
 		.channels_min = SST_STEREO,
 		.channels_max = SST_STEREO,
+<<<<<<< HEAD
 		.rates = SNDRV_PCM_RATE_44100|SNDRV_PCM_RATE_48000,
+=======
+		.rates = SNDRV_PCM_RATE_48000,
+>>>>>>> upstream/android-13
 		.formats = SNDRV_PCM_FMTBIT_S16_LE,
 	},
 	.capture = {
 		.stream_name = "Headset Capture",
 		.channels_min = 1,
 		.channels_max = 2,
+<<<<<<< HEAD
 		.rates = SNDRV_PCM_RATE_44100|SNDRV_PCM_RATE_48000,
+=======
+		.rates = SNDRV_PCM_RATE_48000,
+>>>>>>> upstream/android-13
 		.formats = SNDRV_PCM_FMTBIT_S16_LE,
 	},
 },
@@ -525,7 +602,11 @@ static struct snd_soc_dai_driver sst_platform_dai[] = {
 		.stream_name = "Deepbuffer Playback",
 		.channels_min = SST_STEREO,
 		.channels_max = SST_STEREO,
+<<<<<<< HEAD
 		.rates = SNDRV_PCM_RATE_44100|SNDRV_PCM_RATE_48000,
+=======
+		.rates = SNDRV_PCM_RATE_48000,
+>>>>>>> upstream/android-13
 		.formats = SNDRV_PCM_FMTBIT_S16_LE,
 	},
 },
@@ -595,7 +676,12 @@ static struct snd_soc_dai_driver sst_platform_dai[] = {
 },
 };
 
+<<<<<<< HEAD
 static int sst_platform_open(struct snd_pcm_substream *substream)
+=======
+static int sst_soc_open(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime;
 
@@ -607,15 +693,26 @@ static int sst_platform_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sst_platform_pcm_trigger(struct snd_pcm_substream *substream,
 					int cmd)
+=======
+static int sst_soc_trigger(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream, int cmd)
+>>>>>>> upstream/android-13
 {
 	int ret_val = 0, str_id;
 	struct sst_runtime_stream *stream;
 	int status;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 
 	dev_dbg(rtd->dev, "sst_platform_pcm_trigger called\n");
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+
+	dev_dbg(rtd->dev, "%s called\n", __func__);
+>>>>>>> upstream/android-13
 	if (substream->pcm->internal)
 		return 0;
 	stream = substream->runtime->private_data;
@@ -655,13 +752,22 @@ static int sst_platform_pcm_trigger(struct snd_pcm_substream *substream,
 }
 
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t sst_platform_pcm_pointer
 			(struct snd_pcm_substream *substream)
+=======
+static snd_pcm_uframes_t sst_soc_pointer(struct snd_soc_component *component,
+					 struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct sst_runtime_stream *stream;
 	int ret_val, status;
 	struct pcm_stream_info *str_info;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 
 	stream = substream->runtime->private_data;
 	status = sst_get_stream_status(stream);
@@ -677,6 +783,7 @@ static snd_pcm_uframes_t sst_platform_pcm_pointer
 	return str_info->buffer_ptr;
 }
 
+<<<<<<< HEAD
 static const struct snd_pcm_ops sst_platform_ops = {
 	.open = sst_platform_open,
 	.ioctl = snd_pcm_lib_ioctl,
@@ -702,6 +809,22 @@ static int sst_pcm_new(struct snd_soc_pcm_runtime *rtd)
 		}
 	}
 	return retval;
+=======
+static int sst_soc_pcm_new(struct snd_soc_component *component,
+			   struct snd_soc_pcm_runtime *rtd)
+{
+	struct snd_soc_dai *dai = asoc_rtd_to_cpu(rtd, 0);
+	struct snd_pcm *pcm = rtd->pcm;
+
+	if (dai->driver->playback.channels_min ||
+			dai->driver->capture.channels_min) {
+		snd_pcm_set_managed_buffer_all(pcm,
+			SNDRV_DMA_TYPE_CONTINUOUS,
+			snd_dma_continuous_data(GFP_DMA),
+			SST_MIN_BUFFER, SST_MAX_BUFFER);
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int sst_soc_probe(struct snd_soc_component *component)
@@ -723,9 +846,17 @@ static const struct snd_soc_component_driver sst_soc_platform_drv  = {
 	.name		= DRV_NAME,
 	.probe		= sst_soc_probe,
 	.remove		= sst_soc_remove,
+<<<<<<< HEAD
 	.ops		= &sst_platform_ops,
 	.compr_ops	= &sst_platform_compr_ops,
 	.pcm_new	= sst_pcm_new,
+=======
+	.open		= sst_soc_open,
+	.trigger	= sst_soc_trigger,
+	.pointer	= sst_soc_pointer,
+	.compress_ops	= &sst_platform_compress_ops,
+	.pcm_construct	= sst_soc_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 static int sst_platform_probe(struct platform_device *pdev)
@@ -780,10 +911,17 @@ static int sst_soc_prepare(struct device *dev)
 	snd_soc_poweroff(drv->soc_card->dev);
 
 	/* set the SSPs to idle */
+<<<<<<< HEAD
 	list_for_each_entry(rtd, &drv->soc_card->rtd_list, list) {
 		struct snd_soc_dai *dai = rtd->cpu_dai;
 
 		if (dai->active) {
+=======
+	for_each_card_rtds(drv->soc_card, rtd) {
+		struct snd_soc_dai *dai = asoc_rtd_to_cpu(rtd, 0);
+
+		if (snd_soc_dai_active(dai)) {
+>>>>>>> upstream/android-13
 			send_ssp_cmd(dai, dai->name, 0);
 			sst_handle_vb_timer(dai, false);
 		}
@@ -801,10 +939,17 @@ static void sst_soc_complete(struct device *dev)
 		return;
 
 	/* restart SSPs */
+<<<<<<< HEAD
 	list_for_each_entry(rtd, &drv->soc_card->rtd_list, list) {
 		struct snd_soc_dai *dai = rtd->cpu_dai;
 
 		if (dai->active) {
+=======
+	for_each_card_rtds(drv->soc_card, rtd) {
+		struct snd_soc_dai *dai = asoc_rtd_to_cpu(rtd, 0);
+
+		if (snd_soc_dai_active(dai)) {
+>>>>>>> upstream/android-13
 			sst_handle_vb_timer(dai, true);
 			send_ssp_cmd(dai, dai->name, 1);
 		}

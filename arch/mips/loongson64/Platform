@@ -2,6 +2,7 @@
 # Loongson Processors' Support
 #
 
+<<<<<<< HEAD
 # Only gcc >= 4.4 have Loongson specific support
 cflags-$(CONFIG_CPU_LOONGSON2)	+= -Wa,--trap
 cflags-$(CONFIG_CPU_LOONGSON2E) += \
@@ -23,6 +24,11 @@ ifdef CONFIG_CPU_LOONGSON2F_WORKAROUNDS
 endif
 
 cflags-$(CONFIG_CPU_LOONGSON3)	+= -Wa,--trap
+=======
+
+cflags-$(CONFIG_CPU_LOONGSON64)	+= -Wa,--trap
+
+>>>>>>> upstream/android-13
 #
 # binutils from v2.25 on and gcc starting from v4.9.0 treat -march=loongson3a
 # as MIPS64 R2; older versions as just R1.  This leaves the possibility open
@@ -31,6 +37,7 @@ cflags-$(CONFIG_CPU_LOONGSON3)	+= -Wa,--trap
 # can't easily be used safely within the kbuild framework.
 #
 ifeq ($(call cc-ifversion, -ge, 0409, y), y)
+<<<<<<< HEAD
   ifeq ($(call ld-ifversion, -ge, 225000000, y), y)
     cflags-$(CONFIG_CPU_LOONGSON3)  += \
       $(call cc-option,-march=loongson3a -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS64)
@@ -40,6 +47,17 @@ ifeq ($(call cc-ifversion, -ge, 0409, y), y)
   endif
 else
     cflags-$(CONFIG_CPU_LOONGSON3)  += \
+=======
+  ifeq ($(call ld-ifversion, -ge, 22500, y), y)
+    cflags-$(CONFIG_CPU_LOONGSON64)  += \
+      $(call cc-option,-march=loongson3a -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS64)
+  else
+    cflags-$(CONFIG_CPU_LOONGSON64)  += \
+      $(call cc-option,-march=mips64r2,-mips64r2 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS64)
+  endif
+else
+    cflags-$(CONFIG_CPU_LOONGSON64)  += \
+>>>>>>> upstream/android-13
       $(call cc-option,-march=mips64r2,-mips64r2 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS64)
 endif
 
@@ -51,8 +69,13 @@ cflags-y += $(call cc-option,-mno-loongson-mmi)
 # Loongson Machines' Support
 #
 
+<<<<<<< HEAD
 platform-$(CONFIG_MACH_LOONGSON64) += loongson64/
 cflags-$(CONFIG_MACH_LOONGSON64) += -I$(srctree)/arch/mips/include/asm/mach-loongson64 -mno-branch-likely
 load-$(CONFIG_LEMOTE_FULOONG2E) += 0xffffffff80100000
 load-$(CONFIG_LEMOTE_MACH2F) += 0xffffffff80200000
 load-$(CONFIG_LOONGSON_MACH3X) += 0xffffffff80200000
+=======
+cflags-$(CONFIG_MACH_LOONGSON64) += -I$(srctree)/arch/mips/include/asm/mach-loongson64 -mno-branch-likely
+load-$(CONFIG_CPU_LOONGSON64) += 0xffffffff80200000
+>>>>>>> upstream/android-13

@@ -4,6 +4,7 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RECV_OSDEP_C_
 
 #include <drv_types.h>
@@ -14,6 +15,17 @@ void rtw_os_free_recvframe(union recv_frame *precvframe)
 {
 	if (precvframe->u.hdr.pkt)
 	{
+=======
+#include <drv_types.h>
+#include <rtw_debug.h>
+#include <linux/jiffies.h>
+#include <net/cfg80211.h>
+#include <asm/unaligned.h>
+
+void rtw_os_free_recvframe(union recv_frame *precvframe)
+{
+	if (precvframe->u.hdr.pkt) {
+>>>>>>> upstream/android-13
 		dev_kfree_skb_any(precvframe->u.hdr.pkt);/* free skb by driver */
 
 		precvframe->u.hdr.pkt = NULL;
@@ -21,6 +33,7 @@ void rtw_os_free_recvframe(union recv_frame *precvframe)
 }
 
 /* alloc os related resource in union recv_frame */
+<<<<<<< HEAD
 int rtw_os_recv_resource_alloc(struct adapter *padapter, union recv_frame *precvframe)
 {
 	int	res = _SUCCESS;
@@ -28,11 +41,17 @@ int rtw_os_recv_resource_alloc(struct adapter *padapter, union recv_frame *precv
 	precvframe->u.hdr.pkt_newalloc = precvframe->u.hdr.pkt = NULL;
 
 	return res;
+=======
+void rtw_os_recv_resource_alloc(struct adapter *padapter, union recv_frame *precvframe)
+{
+	precvframe->u.hdr.pkt_newalloc = precvframe->u.hdr.pkt = NULL;
+>>>>>>> upstream/android-13
 }
 
 /* free os related resource in union recv_frame */
 void rtw_os_recv_resource_free(struct recv_priv *precvpriv)
 {
+<<<<<<< HEAD
 	sint i;
 	union recv_frame *precvframe;
 
@@ -43,6 +62,17 @@ void rtw_os_recv_resource_free(struct recv_priv *precvpriv)
 		if (precvframe->u.hdr.pkt)
 		{
 			dev_kfree_skb_any(precvframe->u.hdr.pkt);/* free skb by driver */
+=======
+	signed int i;
+	union recv_frame *precvframe;
+
+	precvframe = (union recv_frame *) precvpriv->precv_frame_buf;
+
+	for (i = 0; i < NR_RECVFRAME; i++) {
+		if (precvframe->u.hdr.pkt) {
+			/* free skb by driver */
+			dev_kfree_skb_any(precvframe->u.hdr.pkt);
+>>>>>>> upstream/android-13
 			precvframe->u.hdr.pkt = NULL;
 		}
 		precvframe++;
@@ -50,6 +80,7 @@ void rtw_os_recv_resource_free(struct recv_priv *precvpriv)
 }
 
 /* free os related resource in struct recv_buf */
+<<<<<<< HEAD
 int rtw_os_recvbuf_resource_free(struct adapter *padapter, struct recv_buf *precvbuf)
 {
 	int ret = _SUCCESS;
@@ -66,11 +97,25 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 
 {
 	u16 eth_type;
 	_pkt *sub_skb;
+=======
+void rtw_os_recvbuf_resource_free(struct adapter *padapter, struct recv_buf *precvbuf)
+{
+	if (precvbuf->pskb) {
+		dev_kfree_skb_any(precvbuf->pskb);
+	}
+}
+
+struct sk_buff *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 *pdata)
+{
+	u16 eth_type;
+	struct sk_buff *sub_skb;
+>>>>>>> upstream/android-13
 	struct rx_pkt_attrib *pattrib;
 
 	pattrib = &prframe->u.hdr.attrib;
 
 	sub_skb = rtw_skb_alloc(nSubframe_Length + 12);
+<<<<<<< HEAD
 	if (sub_skb)
 	{
 		skb_reserve(sub_skb, 12);
@@ -99,6 +144,24 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 
 		  eth_type != ETH_P_AARP && eth_type != ETH_P_IPX) ||
 		 !memcmp(sub_skb->data, rtw_bridge_tunnel_header, SNAP_SIZE))) {
 		/* remove RFC1042 or Bridge-Tunnel encapsulation and replace EtherType */
+=======
+	if (!sub_skb)
+		return NULL;
+
+	skb_reserve(sub_skb, 12);
+	skb_put_data(sub_skb, (pdata + ETH_HLEN), nSubframe_Length);
+
+	eth_type = get_unaligned_be16(&sub_skb->data[6]);
+
+	if (sub_skb->len >= 8 &&
+		((!memcmp(sub_skb->data, rfc1042_header, SNAP_SIZE) &&
+		  eth_type != ETH_P_AARP && eth_type != ETH_P_IPX) ||
+		 !memcmp(sub_skb->data, bridge_tunnel_header, SNAP_SIZE))) {
+		/*
+		 * remove RFC1042 or Bridge-Tunnel encapsulation and replace
+		 * EtherType
+		 */
+>>>>>>> upstream/android-13
 		skb_pull(sub_skb, SNAP_SIZE);
 		memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->src, ETH_ALEN);
 		memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->dst, ETH_ALEN);
@@ -114,6 +177,7 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 
 	return sub_skb;
 }
 
+<<<<<<< HEAD
 void rtw_os_recv_indicate_pkt(struct adapter *padapter, _pkt *pkt, struct rx_pkt_attrib *pattrib)
 {
 	struct mlme_priv*pmlmepriv = &padapter->mlmepriv;
@@ -124,10 +188,21 @@ void rtw_os_recv_indicate_pkt(struct adapter *padapter, _pkt *pkt, struct rx_pkt
 		if (check_fwstate(pmlmepriv, WIFI_AP_STATE) == true)
 		{
 			_pkt *pskb2 = NULL;
+=======
+void rtw_os_recv_indicate_pkt(struct adapter *padapter, struct sk_buff *pkt, struct rx_pkt_attrib *pattrib)
+{
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+
+	/* Indicate the packets to upper layer */
+	if (pkt) {
+		if (check_fwstate(pmlmepriv, WIFI_AP_STATE) == true) {
+			struct sk_buff *pskb2 = NULL;
+>>>>>>> upstream/android-13
 			struct sta_info *psta = NULL;
 			struct sta_priv *pstapriv = &padapter->stapriv;
 			int bmcast = IS_MCAST(pattrib->dst);
 
+<<<<<<< HEAD
 			/* DBG_871X("bmcast =%d\n", bmcast); */
 
 			if (memcmp(pattrib->dst, myid(&padapter->eeprompriv), ETH_ALEN))
@@ -138,22 +213,34 @@ void rtw_os_recv_indicate_pkt(struct adapter *padapter, _pkt *pkt, struct rx_pkt
 				{
 					psta = rtw_get_bcmc_stainfo(padapter);
 					pskb2 = rtw_skb_clone(pkt);
+=======
+			if (memcmp(pattrib->dst, myid(&padapter->eeprompriv), ETH_ALEN)) {
+				if (bmcast) {
+					psta = rtw_get_bcmc_stainfo(padapter);
+					pskb2 = skb_clone(pkt, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 				} else {
 					psta = rtw_get_stainfo(pstapriv, pattrib->dst);
 				}
 
+<<<<<<< HEAD
 				if (psta)
 				{
 					struct net_device *pnetdev = (struct net_device*)padapter->pnetdev;
 
 					/* DBG_871X("directly forwarding to the rtw_xmit_entry\n"); */
 
+=======
+				if (psta) {
+					struct net_device *pnetdev = (struct net_device *)padapter->pnetdev;
+>>>>>>> upstream/android-13
 					/* skb->ip_summed = CHECKSUM_NONE; */
 					pkt->dev = pnetdev;
 					skb_set_queue_mapping(pkt, rtw_recv_select_queue(pkt));
 
 					_rtw_xmit_entry(pkt, pnetdev);
 
+<<<<<<< HEAD
 					if (bmcast && (pskb2 != NULL)) {
 						pkt = pskb2;
 						DBG_COUNTER(padapter->rx_logs.os_indicate_ap_mcast);
@@ -167,12 +254,22 @@ void rtw_os_recv_indicate_pkt(struct adapter *padapter, _pkt *pkt, struct rx_pkt
 			{
 				/* DBG_871X("to APSelf\n"); */
 				DBG_COUNTER(padapter->rx_logs.os_indicate_ap_self);
+=======
+					if (bmcast && pskb2)
+						pkt = pskb2;
+					else
+						return;
+				}
+			} else {
+				/*  to APself */
+>>>>>>> upstream/android-13
 			}
 		}
 
 		pkt->protocol = eth_type_trans(pkt, padapter->pnetdev);
 		pkt->dev = padapter->pnetdev;
 
+<<<<<<< HEAD
 #ifdef CONFIG_TCP_CSUM_OFFLOAD_RX
 		if ((pattrib->tcpchk_valid == 1) && (pattrib->tcp_chkrpt == 1))
 			pkt->ip_summed = CHECKSUM_UNNECESSARY;
@@ -188,6 +285,11 @@ void rtw_os_recv_indicate_pkt(struct adapter *padapter, _pkt *pkt, struct rx_pkt
 			DBG_COUNTER(padapter->rx_logs.os_netif_ok);
 		else
 			DBG_COUNTER(padapter->rx_logs.os_netif_err);
+=======
+		pkt->ip_summed = CHECKSUM_NONE;
+
+		rtw_netif_rx(padapter->pnetdev, pkt);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -196,6 +298,7 @@ void rtw_handle_tkip_mic_err(struct adapter *padapter, u8 bgroup)
 	enum nl80211_key_type key_type = 0;
 	union iwreq_data wrqu;
 	struct iw_michaelmicfailure    ev;
+<<<<<<< HEAD
 	struct mlme_priv*              pmlmepriv  = &padapter->mlmepriv;
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
 	unsigned long cur_time = 0;
@@ -216,10 +319,27 @@ void rtw_handle_tkip_mic_err(struct adapter *padapter, u8 bgroup)
 		}
 		else
 		{
+=======
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	unsigned long cur_time = 0;
+
+	if (psecuritypriv->last_mic_err_time == 0) {
+		psecuritypriv->last_mic_err_time = jiffies;
+	} else {
+		cur_time = jiffies;
+
+		if (cur_time - psecuritypriv->last_mic_err_time < 60*HZ) {
+			psecuritypriv->btkip_countermeasure = true;
+			psecuritypriv->last_mic_err_time = 0;
+			psecuritypriv->btkip_countermeasure_time = cur_time;
+		} else {
+>>>>>>> upstream/android-13
 			psecuritypriv->last_mic_err_time = jiffies;
 		}
 	}
 
+<<<<<<< HEAD
 	if (bgroup)
 	{
 		key_type |= NL80211_KEYTYPE_GROUP;
@@ -244,11 +364,32 @@ void rtw_handle_tkip_mic_err(struct adapter *padapter, u8 bgroup)
 
 	ev.src_addr.sa_family = ARPHRD_ETHER;
 	memcpy(ev.src_addr.sa_data, &pmlmepriv->assoc_bssid[ 0 ], ETH_ALEN);
+=======
+	if (bgroup) {
+		key_type |= NL80211_KEYTYPE_GROUP;
+	} else {
+		key_type |= NL80211_KEYTYPE_PAIRWISE;
+	}
+
+	cfg80211_michael_mic_failure(padapter->pnetdev, (u8 *)&pmlmepriv->assoc_bssid[0], key_type, -1,
+		NULL, GFP_ATOMIC);
+
+	memset(&ev, 0x00, sizeof(ev));
+	if (bgroup) {
+		ev.flags |= IW_MICFAILURE_GROUP;
+	} else {
+		ev.flags |= IW_MICFAILURE_PAIRWISE;
+	}
+
+	ev.src_addr.sa_family = ARPHRD_ETHER;
+	memcpy(ev.src_addr.sa_data, &pmlmepriv->assoc_bssid[0], ETH_ALEN);
+>>>>>>> upstream/android-13
 
 	memset(&wrqu, 0x00, sizeof(wrqu));
 	wrqu.data.length = sizeof(ev);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_AUTO_AP_MODE
 static void rtw_os_ksocket_send(struct adapter *padapter, union recv_frame *precv_frame)
 {
@@ -288,19 +429,28 @@ static void rtw_os_ksocket_send(struct adapter *padapter, union recv_frame *prec
 }
 #endif /* CONFIG_AUTO_AP_MODE */
 
+=======
+>>>>>>> upstream/android-13
 int rtw_recv_indicatepkt(struct adapter *padapter, union recv_frame *precv_frame)
 {
 	struct recv_priv *precvpriv;
 	struct __queue	*pfree_recv_queue;
+<<<<<<< HEAD
 	_pkt *skb;
 	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
 
 	DBG_COUNTER(padapter->rx_logs.os_indicate);
 
+=======
+	struct sk_buff *skb;
+	struct rx_pkt_attrib *pattrib = &precv_frame->u.hdr.attrib;
+
+>>>>>>> upstream/android-13
 	precvpriv = &(padapter->recvpriv);
 	pfree_recv_queue = &(precvpriv->free_recv_queue);
 
 	skb = precv_frame->u.hdr.pkt;
+<<<<<<< HEAD
 	if (skb == NULL)
 	{
 		RT_TRACE(_module_recv_osdep_c_, _drv_err_, ("rtw_recv_indicatepkt():skb == NULL something wrong!!!!\n"));
@@ -310,6 +460,10 @@ int rtw_recv_indicatepkt(struct adapter *padapter, union recv_frame *precv_frame
 	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("rtw_recv_indicatepkt():skb != NULL !!!\n"));
 	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("rtw_recv_indicatepkt():precv_frame->u.hdr.rx_head =%p  precv_frame->hdr.rx_data =%p\n", precv_frame->u.hdr.rx_head, precv_frame->u.hdr.rx_data));
 	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("precv_frame->hdr.rx_tail =%p precv_frame->u.hdr.rx_end =%p precv_frame->hdr.len =%d\n", precv_frame->u.hdr.rx_tail, precv_frame->u.hdr.rx_end, precv_frame->u.hdr.len));
+=======
+	if (!skb)
+		goto _recv_indicatepkt_drop;
+>>>>>>> upstream/android-13
 
 	skb->data = precv_frame->u.hdr.rx_data;
 
@@ -317,6 +471,7 @@ int rtw_recv_indicatepkt(struct adapter *padapter, union recv_frame *precv_frame
 
 	skb->len = precv_frame->u.hdr.len;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("\n skb->head =%p skb->data =%p skb->tail =%p skb->end =%p skb->len =%d\n", skb->head, skb->data, skb_tail_pointer(skb), skb_end_pointer(skb), skb->len));
 
 #ifdef CONFIG_AUTO_AP_MODE
@@ -345,6 +500,23 @@ _recv_indicatepkt_drop:
 
 	 DBG_COUNTER(padapter->rx_logs.os_indicate_err);
 	 return _FAIL;
+=======
+	rtw_os_recv_indicate_pkt(padapter, skb, pattrib);
+
+	/* pointers to NULL before rtw_free_recvframe() */
+	precv_frame->u.hdr.pkt = NULL;
+
+	rtw_free_recvframe(precv_frame, pfree_recv_queue);
+
+	return _SUCCESS;
+
+_recv_indicatepkt_drop:
+
+	/* enqueue back to free_recv_queue */
+	rtw_free_recvframe(precv_frame, pfree_recv_queue);
+
+	return _FAIL;
+>>>>>>> upstream/android-13
 }
 
 void rtw_init_recv_timer(struct recv_reorder_ctrl *preorder_ctrl)

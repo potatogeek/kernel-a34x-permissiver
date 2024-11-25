@@ -30,6 +30,7 @@
 
 /* Format of the ULOG packets passed through netlink */
 typedef struct ulog_packet_msg {
+<<<<<<< HEAD
 #ifdef CONFIG_NETFILTER_XT_MATCH_QUOTA2_LOG_32BIT
 	unsigned int mark;
 	int timestamp_sec;
@@ -39,6 +40,8 @@ typedef struct ulog_packet_msg {
 	char outdev_name[IFNAMSIZ];
 	unsigned int data_len;
 #else
+=======
+>>>>>>> upstream/android-13
 	unsigned long mark;
 	long timestamp_sec;
 	long timestamp_usec;
@@ -46,7 +49,10 @@ typedef struct ulog_packet_msg {
 	char indev_name[IFNAMSIZ];
 	char outdev_name[IFNAMSIZ];
 	size_t data_len;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 	char prefix[ULOG_PREFIX_LEN];
 	unsigned char mac_len;
 	unsigned char mac[ULOG_MAC_LEN];
@@ -174,10 +180,17 @@ static ssize_t quota_proc_write(struct file *file, const char __user *input,
 	return size;
 }
 
+<<<<<<< HEAD
 static const struct file_operations q2_counter_fops = {
 	.read		= quota_proc_read,
 	.write		= quota_proc_write,
 	.llseek		= default_llseek,
+=======
+static const struct proc_ops q2_counter_fops = {
+	.proc_read	= quota_proc_read,
+	.proc_write	= quota_proc_write,
+	.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 };
 
 static struct xt_quota_counter *

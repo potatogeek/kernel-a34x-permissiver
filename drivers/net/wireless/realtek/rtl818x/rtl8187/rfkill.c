@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Linux RFKILL support for RTL8187
  *
@@ -7,10 +11,13 @@
  * Copyright (c) Realtek Semiconductor Corp. All rights reserved.
  *
  * Thanks to Realtek for their support!
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>

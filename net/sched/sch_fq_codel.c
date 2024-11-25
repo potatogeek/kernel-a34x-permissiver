@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Fair Queue CoDel discipline
  *
@@ -6,6 +7,12 @@
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Fair Queue CoDel discipline
+ *
+>>>>>>> upstream/android-13
  *  Copyright (C) 2012,2015 Eric Dumazet <edumazet@google.com>
  */
 
@@ -18,7 +25,10 @@
 #include <linux/errno.h>
 #include <linux/init.h>
 #include <linux/skbuff.h>
+<<<<<<< HEAD
 #include <linux/jhash.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <net/netlink.h>
@@ -49,7 +59,10 @@ struct fq_codel_flow {
 	struct sk_buff	  *tail;
 	struct list_head  flowchain;
 	int		  deficit;
+<<<<<<< HEAD
 	u32		  dropped; /* number of drops (or ECN marks) on this flow */
+=======
+>>>>>>> upstream/android-13
 	struct codel_vars cvars;
 }; /* please try to keep this structure <= 64 bytes */
 
@@ -97,7 +110,11 @@ static unsigned int fq_codel_classify(struct sk_buff *skb, struct Qdisc *sch,
 		return fq_codel_hash(q, skb) + 1;
 
 	*qerr = NET_XMIT_SUCCESS | __NET_XMIT_BYPASS;
+<<<<<<< HEAD
 	result = tcf_classify(skb, filter, &res, false);
+=======
+	result = tcf_classify(skb, NULL, filter, &res, false);
+>>>>>>> upstream/android-13
 	if (result >= 0) {
 #ifdef CONFIG_NET_CLS_ACT
 		switch (result) {
@@ -105,7 +122,11 @@ static unsigned int fq_codel_classify(struct sk_buff *skb, struct Qdisc *sch,
 		case TC_ACT_QUEUED:
 		case TC_ACT_TRAP:
 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_ACT_SHOT:
 			return 0;
 		}
@@ -124,7 +145,11 @@ static inline struct sk_buff *dequeue_head(struct fq_codel_flow *flow)
 	struct sk_buff *skb = flow->head;
 
 	flow->head = skb->next;
+<<<<<<< HEAD
 	skb->next = NULL;
+=======
+	skb_mark_not_on_list(skb);
+>>>>>>> upstream/android-13
 	return skb;
 }
 
@@ -177,7 +202,12 @@ static unsigned int fq_codel_drop(struct Qdisc *sch, unsigned int max_packets,
 		__qdisc_drop(skb, to_free);
 	} while (++i < max_packets && len < threshold);
 
+<<<<<<< HEAD
 	flow->dropped += i;
+=======
+	/* Tell codel to increase its signal strength also */
+	flow->cvars.count += i;
+>>>>>>> upstream/android-13
 	q->backlogs[idx] -= len;
 	q->memory_usage -= mem;
 	sch->qstats.drops += i;
@@ -192,7 +222,11 @@ static int fq_codel_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 	struct fq_codel_sched_data *q = qdisc_priv(sch);
 	unsigned int idx, prev_backlog, prev_qlen;
 	struct fq_codel_flow *flow;
+<<<<<<< HEAD
 	int uninitialized_var(ret);
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	unsigned int pkt_len;
 	bool memory_limited;
 
@@ -215,7 +249,10 @@ static int fq_codel_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 		list_add_tail(&flow->flowchain, &q->new_flows);
 		q->new_flow_count++;
 		flow->deficit = q->quantum;
+<<<<<<< HEAD
 		flow->dropped = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 	get_codel_cb(skb)->mem_usage = skb->truesize;
 	q->memory_usage += get_codel_cb(skb)->mem_usage;
@@ -290,7 +327,10 @@ static struct sk_buff *fq_codel_dequeue(struct Qdisc *sch)
 	struct sk_buff *skb;
 	struct fq_codel_flow *flow;
 	struct list_head *head;
+<<<<<<< HEAD
 	u32 prev_drop_count, prev_ecn_mark;
+=======
+>>>>>>> upstream/android-13
 
 begin:
 	head = &q->new_flows;
@@ -307,16 +347,22 @@ begin:
 		goto begin;
 	}
 
+<<<<<<< HEAD
 	prev_drop_count = q->cstats.drop_count;
 	prev_ecn_mark = q->cstats.ecn_mark;
 
+=======
+>>>>>>> upstream/android-13
 	skb = codel_dequeue(sch, &sch->qstats.backlog, &q->cparams,
 			    &flow->cvars, &q->cstats, qdisc_pkt_len,
 			    codel_get_enqueue_time, drop_func, dequeue_func);
 
+<<<<<<< HEAD
 	flow->dropped += q->cstats.drop_count - prev_drop_count;
 	flow->dropped += q->cstats.ecn_mark - prev_ecn_mark;
 
+=======
+>>>>>>> upstream/android-13
 	if (!skb) {
 		/* force a pass through old_flows to prevent starvation */
 		if ((head == &q->new_flows) && !list_empty(&q->old_flows))
@@ -382,13 +428,22 @@ static int fq_codel_change(struct Qdisc *sch, struct nlattr *opt,
 {
 	struct fq_codel_sched_data *q = qdisc_priv(sch);
 	struct nlattr *tb[TCA_FQ_CODEL_MAX + 1];
+<<<<<<< HEAD
+=======
+	u32 quantum = 0;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!opt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_FQ_CODEL_MAX, opt, fq_codel_policy,
 			       NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_FQ_CODEL_MAX, opt,
+					  fq_codel_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	if (tb[TCA_FQ_CODEL_FLOWS]) {
@@ -399,6 +454,16 @@ static int fq_codel_change(struct Qdisc *sch, struct nlattr *opt,
 		    q->flows_cnt > 65536)
 			return -EINVAL;
 	}
+<<<<<<< HEAD
+=======
+	if (tb[TCA_FQ_CODEL_QUANTUM]) {
+		quantum = max(256U, nla_get_u32(tb[TCA_FQ_CODEL_QUANTUM]));
+		if (quantum > FQ_CODEL_QUANTUM_MAX) {
+			NL_SET_ERR_MSG(extack, "Invalid quantum");
+			return -EINVAL;
+		}
+	}
+>>>>>>> upstream/android-13
 	sch_tree_lock(sch);
 
 	if (tb[TCA_FQ_CODEL_TARGET]) {
@@ -425,8 +490,13 @@ static int fq_codel_change(struct Qdisc *sch, struct nlattr *opt,
 	if (tb[TCA_FQ_CODEL_ECN])
 		q->cparams.ecn = !!nla_get_u32(tb[TCA_FQ_CODEL_ECN]);
 
+<<<<<<< HEAD
 	if (tb[TCA_FQ_CODEL_QUANTUM])
 		q->quantum = max(256U, nla_get_u32(tb[TCA_FQ_CODEL_QUANTUM]));
+=======
+	if (quantum)
+		q->quantum = quantum;
+>>>>>>> upstream/android-13
 
 	if (tb[TCA_FQ_CODEL_DROP_BATCH_SIZE])
 		q->drop_batch_size = max(1U, nla_get_u32(tb[TCA_FQ_CODEL_DROP_BATCH_SIZE]));
@@ -527,7 +597,11 @@ static int fq_codel_dump(struct Qdisc *sch, struct sk_buff *skb)
 	struct fq_codel_sched_data *q = qdisc_priv(sch);
 	struct nlattr *opts;
 
+<<<<<<< HEAD
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (opts == NULL)
 		goto nla_put_failure;
 
@@ -662,7 +736,11 @@ static int fq_codel_dump_class_stats(struct Qdisc *sch, unsigned long cl,
 			sch_tree_unlock(sch);
 		}
 		qs.backlog = q->backlogs[idx];
+<<<<<<< HEAD
 		qs.drops = flow->dropped;
+=======
+		qs.drops = 0;
+>>>>>>> upstream/android-13
 	}
 	if (gnet_stats_copy_queue(d, NULL, &qs, qs.qlen) < 0)
 		return -1;
@@ -734,3 +812,7 @@ module_init(fq_codel_module_init)
 module_exit(fq_codel_module_exit)
 MODULE_AUTHOR("Eric Dumazet");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Fair Queue CoDel discipline");
+>>>>>>> upstream/android-13

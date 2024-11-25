@@ -4,9 +4,14 @@
 .section .__syscall_stub, "ax"
 	.globl batch_syscall_stub
 batch_syscall_stub:
+<<<<<<< HEAD
 	mov	$(STUB_DATA), %rbx
 	/* load pointer to first operation */
 	mov	%rbx, %rsp
+=======
+	/* %rsp has the pointer to first operation */
+	mov	%rsp, %rbx
+>>>>>>> upstream/android-13
 	add	$0x10, %rsp
 again:
 	/* load length of additional data */

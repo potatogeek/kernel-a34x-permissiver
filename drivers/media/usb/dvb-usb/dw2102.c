@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* DVB USB framework compliant Linux driver for the
  *	DVBWorld DVB-S 2101, 2102, DVB-S2 2104, DVB-C 3101,
  *	TeVii S421, S480, S482, S600, S630, S632, S650, S660, S662,
@@ -7,11 +11,15 @@
  *	Terratec Cinergy S2 cards
  * Copyright (C) 2008-2012 Igor M. Liplianin (liplianin@me.by)
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the
  *	Free Software Foundation, version 2.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 #include <media/dvb-usb-ids.h>
 #include "dw2102.h"
@@ -958,8 +966,13 @@ static int su3000_read_mac_address(struct dvb_usb_device *d, u8 mac[6])
 }
 
 static int su3000_identify_state(struct usb_device *udev,
+<<<<<<< HEAD
 				 struct dvb_usb_device_properties *props,
 				 struct dvb_usb_device_description **desc,
+=======
+				 const struct dvb_usb_device_properties *props,
+				 const struct dvb_usb_device_description **desc,
+>>>>>>> upstream/android-13
 				 int *cold)
 {
 	info("%s", __func__);
@@ -1527,6 +1540,32 @@ static int m88rs2000_frontend_attach(struct dvb_usb_adapter *adap)
 	return -EIO;
 }
 
+<<<<<<< HEAD
+=======
+static int tt_s2_4600_frontend_attach_probe_demod(struct dvb_usb_device *d,
+						  const int probe_addr)
+{
+	struct dw2102_state *state = d->priv;
+
+	state->data[0] = 0x9;
+	state->data[1] = 0x1;
+	state->data[2] = 0x1;
+	state->data[3] = probe_addr;
+	state->data[4] = 0x0;
+
+	if (dvb_usb_generic_rw(d, state->data, 5, state->data, 2, 0) < 0) {
+		err("i2c probe for address 0x%x failed.", probe_addr);
+		return 0;
+	}
+
+	if (state->data[0] != 8) /* fail(7) or error, no device at address */
+		return 0;
+
+	/* probing successful */
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 static int tt_s2_4600_frontend_attach(struct dvb_usb_adapter *adap)
 {
 	struct dvb_usb_device *d = adap->dev;
@@ -1536,6 +1575,10 @@ static int tt_s2_4600_frontend_attach(struct dvb_usb_adapter *adap)
 	struct i2c_board_info board_info;
 	struct m88ds3103_platform_data m88ds3103_pdata = {};
 	struct ts2020_config ts2020_config = {};
+<<<<<<< HEAD
+=======
+	int demod_addr;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&d->data_mutex);
 
@@ -1573,8 +1616,27 @@ static int tt_s2_4600_frontend_attach(struct dvb_usb_adapter *adap)
 	if (dvb_usb_generic_rw(d, state->data, 1, state->data, 1, 0) < 0)
 		err("command 0x51 transfer failed.");
 
+<<<<<<< HEAD
 	mutex_unlock(&d->data_mutex);
 
+=======
+	/* probe for demodulator i2c address */
+	demod_addr = -1;
+	if (tt_s2_4600_frontend_attach_probe_demod(d, 0x68))
+		demod_addr = 0x68;
+	else if (tt_s2_4600_frontend_attach_probe_demod(d, 0x69))
+		demod_addr = 0x69;
+	else if (tt_s2_4600_frontend_attach_probe_demod(d, 0x6a))
+		demod_addr = 0x6a;
+
+	mutex_unlock(&d->data_mutex);
+
+	if (demod_addr < 0) {
+		err("probing for demodulator failed. Is the external power switched on?");
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	/* attach demod */
 	m88ds3103_pdata.clk = 27000000;
 	m88ds3103_pdata.i2c_wr_max = 33;
@@ -1589,12 +1651,24 @@ static int tt_s2_4600_frontend_attach(struct dvb_usb_adapter *adap)
 	m88ds3103_pdata.lnb_hv_pol = 1;
 	m88ds3103_pdata.lnb_en_pol = 0;
 	memset(&board_info, 0, sizeof(board_info));
+<<<<<<< HEAD
 	strlcpy(board_info.type, "m88ds3103", I2C_NAME_SIZE);
 	board_info.addr = 0x68;
 	board_info.platform_data = &m88ds3103_pdata;
 	request_module("m88ds3103");
 	client = i2c_new_device(&d->i2c_adap, &board_info);
 	if (client == NULL || client->dev.driver == NULL)
+=======
+	if (demod_addr == 0x6a)
+		strscpy(board_info.type, "m88ds3103b", I2C_NAME_SIZE);
+	else
+		strscpy(board_info.type, "m88ds3103", I2C_NAME_SIZE);
+	board_info.addr = demod_addr;
+	board_info.platform_data = &m88ds3103_pdata;
+	request_module("m88ds3103");
+	client = i2c_new_client_device(&d->i2c_adap, &board_info);
+	if (!i2c_client_has_driver(client))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	if (!try_module_get(client->dev.driver->owner)) {
 		i2c_unregister_device(client);
@@ -1608,6 +1682,7 @@ static int tt_s2_4600_frontend_attach(struct dvb_usb_adapter *adap)
 	/* attach tuner */
 	ts2020_config.fe = adap->fe_adap[0].fe;
 	memset(&board_info, 0, sizeof(board_info));
+<<<<<<< HEAD
 	strlcpy(board_info.type, "ts2022", I2C_NAME_SIZE);
 	board_info.addr = 0x60;
 	board_info.platform_data = &ts2020_config;
@@ -1615,6 +1690,15 @@ static int tt_s2_4600_frontend_attach(struct dvb_usb_adapter *adap)
 	client = i2c_new_device(i2c_adapter, &board_info);
 
 	if (client == NULL || client->dev.driver == NULL) {
+=======
+	strscpy(board_info.type, "ts2022", I2C_NAME_SIZE);
+	board_info.addr = 0x60;
+	board_info.platform_data = &ts2020_config;
+	request_module("ts2020");
+	client = i2c_new_client_device(i2c_adapter, &board_info);
+
+	if (!i2c_client_has_driver(client)) {
+>>>>>>> upstream/android-13
 		dvb_frontend_detach(adap->fe_adap[0].fe);
 		return -ENODEV;
 	}
@@ -1732,6 +1816,10 @@ enum dw2102_table_entry {
 	TEVII_S660,
 	PROF_7500,
 	GENIATECH_SU3000,
+<<<<<<< HEAD
+=======
+	HAUPPAUGE_MAX_S2,
+>>>>>>> upstream/android-13
 	TERRATEC_CINERGY_S2,
 	TEVII_S480_1,
 	TEVII_S480_2,
@@ -1741,6 +1829,11 @@ enum dw2102_table_entry {
 	TERRATEC_CINERGY_S2_R2,
 	TERRATEC_CINERGY_S2_R3,
 	TERRATEC_CINERGY_S2_R4,
+<<<<<<< HEAD
+=======
+	TERRATEC_CINERGY_S2_1,
+	TERRATEC_CINERGY_S2_2,
+>>>>>>> upstream/android-13
 	GOTVIEW_SAT_HD,
 	GENIATECH_T220,
 	TECHNOTREND_S2_4600,
@@ -1762,15 +1855,32 @@ static struct usb_device_id dw2102_table[] = {
 	[TEVII_S660] = {USB_DEVICE(0x9022, USB_PID_TEVII_S660)},
 	[PROF_7500] = {USB_DEVICE(0x3034, 0x7500)},
 	[GENIATECH_SU3000] = {USB_DEVICE(0x1f4d, 0x3000)},
+<<<<<<< HEAD
+=======
+	[HAUPPAUGE_MAX_S2] = {USB_DEVICE(0x2040, 0xd900)},
+>>>>>>> upstream/android-13
 	[TERRATEC_CINERGY_S2] = {USB_DEVICE(USB_VID_TERRATEC, USB_PID_TERRATEC_CINERGY_S2_R1)},
 	[TEVII_S480_1] = {USB_DEVICE(0x9022, USB_PID_TEVII_S480_1)},
 	[TEVII_S480_2] = {USB_DEVICE(0x9022, USB_PID_TEVII_S480_2)},
 	[X3M_SPC1400HD] = {USB_DEVICE(0x1f4d, 0x3100)},
 	[TEVII_S421] = {USB_DEVICE(0x9022, USB_PID_TEVII_S421)},
 	[TEVII_S632] = {USB_DEVICE(0x9022, USB_PID_TEVII_S632)},
+<<<<<<< HEAD
 	[TERRATEC_CINERGY_S2_R2] = {USB_DEVICE(USB_VID_TERRATEC, USB_PID_TERRATEC_CINERGY_S2_R2)},
 	[TERRATEC_CINERGY_S2_R3] = {USB_DEVICE(USB_VID_TERRATEC, USB_PID_TERRATEC_CINERGY_S2_R3)},
 	[TERRATEC_CINERGY_S2_R4] = {USB_DEVICE(USB_VID_TERRATEC, USB_PID_TERRATEC_CINERGY_S2_R4)},
+=======
+	[TERRATEC_CINERGY_S2_R2] = {USB_DEVICE(USB_VID_TERRATEC,
+				    USB_PID_TERRATEC_CINERGY_S2_R2)},
+	[TERRATEC_CINERGY_S2_R3] = {USB_DEVICE(USB_VID_TERRATEC,
+				    USB_PID_TERRATEC_CINERGY_S2_R3)},
+	[TERRATEC_CINERGY_S2_R4] = {USB_DEVICE(USB_VID_TERRATEC,
+				    USB_PID_TERRATEC_CINERGY_S2_R4)},
+	[TERRATEC_CINERGY_S2_1] = {USB_DEVICE(USB_VID_TERRATEC_2,
+				   USB_PID_TERRATEC_CINERGY_S2_1)},
+	[TERRATEC_CINERGY_S2_2] = {USB_DEVICE(USB_VID_TERRATEC_2,
+				   USB_PID_TERRATEC_CINERGY_S2_2)},
+>>>>>>> upstream/android-13
 	[GOTVIEW_SAT_HD] = {USB_DEVICE(0x1FE1, USB_PID_GOTVIEW_SAT_HD)},
 	[GENIATECH_T220] = {USB_DEVICE(0x1f4d, 0xD220)},
 	[TECHNOTREND_S2_4600] = {USB_DEVICE(USB_VID_TECHNOTREND,
@@ -1839,12 +1949,20 @@ static int dw2102_load_firmware(struct usb_device *dev,
 		switch (le16_to_cpu(dev->descriptor.idProduct)) {
 		case USB_PID_TEVII_S650:
 			dw2104_properties.rc.core.rc_codes = RC_MAP_TEVII_NEC;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case USB_PID_DW2104:
 			reset = 1;
 			dw210x_op_rw(dev, 0xc4, 0x0000, 0, &reset, 1,
 					DW210X_WRITE_MSG);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case USB_PID_DW3101:
 			reset = 0;
 			dw210x_op_rw(dev, 0xbf, 0x0040, 0, &reset, 0,
@@ -1877,7 +1995,11 @@ static int dw2102_load_firmware(struct usb_device *dev,
 					break;
 				}
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x2101:
 			dw210x_op_rw(dev, 0xbc, 0x0030, 0, &reset16[0], 2,
 					DW210X_READ_MSG);
@@ -2101,6 +2223,7 @@ static struct dvb_usb_device_properties s6x0_properties = {
 	}
 };
 
+<<<<<<< HEAD
 static const struct dvb_usb_device_description d1100 = {
 	"Prof 1100 USB ",
 	{&dw2102_table[PROF_1100], NULL},
@@ -2141,6 +2264,155 @@ static const struct dvb_usb_device_description d632 = {
 	"TeVii S632 USB",
 	{&dw2102_table[TEVII_S632], NULL},
 	{NULL},
+=======
+static struct dvb_usb_device_properties p1100_properties = {
+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
+	.usb_ctrl = DEVICE_SPECIFIC,
+	.size_of_priv = sizeof(struct dw2102_state),
+	.firmware = P1100_FIRMWARE,
+	.no_reconnect = 1,
+
+	.i2c_algo = &s6x0_i2c_algo,
+	.rc.core = {
+		.rc_interval = 150,
+		.rc_codes = RC_MAP_TBS_NEC,
+		.module_name = "dw2102",
+		.allowed_protos   = RC_PROTO_BIT_NEC,
+		.rc_query = prof_rc_query,
+	},
+
+	.generic_bulk_ctrl_endpoint = 0x81,
+	.num_adapters = 1,
+	.download_firmware = dw2102_load_firmware,
+	.read_mac_address = s6x0_read_mac_address,
+	.adapter = {
+		{
+			.num_frontends = 1,
+			.fe = {{
+				.frontend_attach = stv0288_frontend_attach,
+				.stream = {
+					.type = USB_BULK,
+					.count = 8,
+					.endpoint = 0x82,
+					.u = {
+						.bulk = {
+							.buffersize = 4096,
+						}
+					}
+				},
+			} },
+		}
+	},
+	.num_device_descs = 1,
+	.devices = {
+		{"Prof 1100 USB ",
+			{&dw2102_table[PROF_1100], NULL},
+			{NULL},
+		},
+	}
+};
+
+static struct dvb_usb_device_properties s660_properties = {
+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
+	.usb_ctrl = DEVICE_SPECIFIC,
+	.size_of_priv = sizeof(struct dw2102_state),
+	.firmware = S660_FIRMWARE,
+	.no_reconnect = 1,
+
+	.i2c_algo = &s6x0_i2c_algo,
+	.rc.core = {
+		.rc_interval = 150,
+		.rc_codes = RC_MAP_TEVII_NEC,
+		.module_name = "dw2102",
+		.allowed_protos   = RC_PROTO_BIT_NEC,
+		.rc_query = dw2102_rc_query,
+	},
+
+	.generic_bulk_ctrl_endpoint = 0x81,
+	.num_adapters = 1,
+	.download_firmware = dw2102_load_firmware,
+	.read_mac_address = s6x0_read_mac_address,
+	.adapter = {
+		{
+			.num_frontends = 1,
+			.fe = {{
+				.frontend_attach = ds3000_frontend_attach,
+				.stream = {
+					.type = USB_BULK,
+					.count = 8,
+					.endpoint = 0x82,
+					.u = {
+						.bulk = {
+							.buffersize = 4096,
+						}
+					}
+				},
+			} },
+		}
+	},
+	.num_device_descs = 3,
+	.devices = {
+		{"TeVii S660 USB",
+			{&dw2102_table[TEVII_S660], NULL},
+			{NULL},
+		},
+		{"TeVii S480.1 USB",
+			{&dw2102_table[TEVII_S480_1], NULL},
+			{NULL},
+		},
+		{"TeVii S480.2 USB",
+			{&dw2102_table[TEVII_S480_2], NULL},
+			{NULL},
+		},
+	}
+};
+
+static struct dvb_usb_device_properties p7500_properties = {
+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
+	.usb_ctrl = DEVICE_SPECIFIC,
+	.size_of_priv = sizeof(struct dw2102_state),
+	.firmware = P7500_FIRMWARE,
+	.no_reconnect = 1,
+
+	.i2c_algo = &s6x0_i2c_algo,
+	.rc.core = {
+		.rc_interval = 150,
+		.rc_codes = RC_MAP_TBS_NEC,
+		.module_name = "dw2102",
+		.allowed_protos   = RC_PROTO_BIT_NEC,
+		.rc_query = prof_rc_query,
+	},
+
+	.generic_bulk_ctrl_endpoint = 0x81,
+	.num_adapters = 1,
+	.download_firmware = dw2102_load_firmware,
+	.read_mac_address = s6x0_read_mac_address,
+	.adapter = {
+		{
+			.num_frontends = 1,
+			.fe = {{
+				.frontend_attach = prof_7500_frontend_attach,
+				.stream = {
+					.type = USB_BULK,
+					.count = 8,
+					.endpoint = 0x82,
+					.u = {
+						.bulk = {
+							.buffersize = 4096,
+						}
+					}
+				},
+			} },
+		}
+	},
+	.num_device_descs = 1,
+	.devices = {
+		{"Prof 7500 USB DVB-S2",
+			{&dw2102_table[PROF_7500], NULL},
+			{NULL},
+		},
+	}
+>>>>>>> upstream/android-13
 };
 
 static struct dvb_usb_device_properties su3000_properties = {
@@ -2183,12 +2455,23 @@ static struct dvb_usb_device_properties su3000_properties = {
 		}},
 		}
 	},
+<<<<<<< HEAD
 	.num_device_descs = 6,
+=======
+	.num_device_descs = 9,
+>>>>>>> upstream/android-13
 	.devices = {
 		{ "SU3000HD DVB-S USB2.0",
 			{ &dw2102_table[GENIATECH_SU3000], NULL },
 			{ NULL },
 		},
+<<<<<<< HEAD
+=======
+		{ "Hauppauge MAX S2 or WinTV NOVA HD USB2.0",
+			{ &dw2102_table[HAUPPAUGE_MAX_S2], NULL },
+			{ NULL },
+		},
+>>>>>>> upstream/android-13
 		{ "Terratec Cinergy S2 USB HD",
 			{ &dw2102_table[TERRATEC_CINERGY_S2], NULL },
 			{ NULL },
@@ -2205,6 +2488,17 @@ static struct dvb_usb_device_properties su3000_properties = {
 			{ &dw2102_table[TERRATEC_CINERGY_S2_R3], NULL },
 			{ NULL },
 		},
+<<<<<<< HEAD
+=======
+		{ "Terratec Cinergy S2 PCIe Dual Port 1",
+			{ &dw2102_table[TERRATEC_CINERGY_S2_1], NULL },
+			{ NULL },
+		},
+		{ "Terratec Cinergy S2 PCIe Dual Port 2",
+			{ &dw2102_table[TERRATEC_CINERGY_S2_2], NULL },
+			{ NULL },
+		},
+>>>>>>> upstream/android-13
 		{ "GOTVIEW Satellite HD",
 			{ &dw2102_table[GOTVIEW_SAT_HD], NULL },
 			{ NULL },
@@ -2212,6 +2506,62 @@ static struct dvb_usb_device_properties su3000_properties = {
 	}
 };
 
+<<<<<<< HEAD
+=======
+static struct dvb_usb_device_properties s421_properties = {
+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
+	.usb_ctrl = DEVICE_SPECIFIC,
+	.size_of_priv = sizeof(struct dw2102_state),
+	.power_ctrl = su3000_power_ctrl,
+	.num_adapters = 1,
+	.identify_state	= su3000_identify_state,
+	.i2c_algo = &su3000_i2c_algo,
+
+	.rc.core = {
+		.rc_interval = 150,
+		.rc_codes = RC_MAP_SU3000,
+		.module_name = "dw2102",
+		.allowed_protos   = RC_PROTO_BIT_RC5,
+		.rc_query = su3000_rc_query,
+	},
+
+	.read_mac_address = su3000_read_mac_address,
+
+	.generic_bulk_ctrl_endpoint = 0x01,
+
+	.adapter = {
+		{
+		.num_frontends = 1,
+		.fe = {{
+			.streaming_ctrl   = su3000_streaming_ctrl,
+			.frontend_attach  = m88rs2000_frontend_attach,
+			.stream = {
+				.type = USB_BULK,
+				.count = 8,
+				.endpoint = 0x82,
+				.u = {
+					.bulk = {
+						.buffersize = 4096,
+					}
+				}
+			}
+		} },
+		}
+	},
+	.num_device_descs = 2,
+	.devices = {
+		{ "TeVii S421 PCI",
+			{ &dw2102_table[TEVII_S421], NULL },
+			{ NULL },
+		},
+		{ "TeVii S632 USB",
+			{ &dw2102_table[TEVII_S632], NULL },
+			{ NULL },
+		},
+	}
+};
+
+>>>>>>> upstream/android-13
 static struct dvb_usb_device_properties t220_properties = {
 	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
 	.usb_ctrl = DEVICE_SPECIFIC,
@@ -2329,6 +2679,7 @@ static struct dvb_usb_device_properties tt_s2_4600_properties = {
 static int dw2102_probe(struct usb_interface *intf,
 		const struct usb_device_id *id)
 {
+<<<<<<< HEAD
 	int retval = -ENOMEM;
 	struct dvb_usb_device_properties *p1100;
 	struct dvb_usb_device_properties *s660;
@@ -2410,10 +2761,35 @@ static int dw2102_probe(struct usb_interface *intf,
 		kfree(p7500);
 		kfree(s660);
 		kfree(p1100);
+=======
+	if (!(dvb_usb_device_init(intf, &dw2102_properties,
+			          THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &dw2104_properties,
+				  THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &dw3101_properties,
+			          THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &s6x0_properties,
+			          THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &p1100_properties,
+			          THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &s660_properties,
+				  THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &p7500_properties,
+				  THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &s421_properties,
+				  THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &su3000_properties,
+				  THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &t220_properties,
+				  THIS_MODULE, NULL, adapter_nr) &&
+	      dvb_usb_device_init(intf, &tt_s2_4600_properties,
+				  THIS_MODULE, NULL, adapter_nr))) {
+>>>>>>> upstream/android-13
 
 		return 0;
 	}
 
+<<<<<<< HEAD
 	retval = -ENODEV;
 	kfree(s421);
 err3:
@@ -2424,6 +2800,9 @@ err1:
 	kfree(p1100);
 err0:
 	return retval;
+=======
+	return -ENODEV;
+>>>>>>> upstream/android-13
 }
 
 static void dw2102_disconnect(struct usb_interface *intf)

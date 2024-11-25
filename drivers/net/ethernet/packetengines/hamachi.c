@@ -546,9 +546,17 @@ static int read_eeprom(void __iomem *ioaddr, int location);
 static int mdio_read(struct net_device *dev, int phy_id, int location);
 static void mdio_write(struct net_device *dev, int phy_id, int location, int value);
 static int hamachi_open(struct net_device *dev);
+<<<<<<< HEAD
 static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
 static void hamachi_timer(struct timer_list *t);
 static void hamachi_tx_timeout(struct net_device *dev);
+=======
+static int hamachi_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+static int hamachi_siocdevprivate(struct net_device *dev, struct ifreq *rq,
+				  void __user *data, int cmd);
+static void hamachi_timer(struct timer_list *t);
+static void hamachi_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void hamachi_init_ring(struct net_device *dev);
 static netdev_tx_t hamachi_start_xmit(struct sk_buff *skb,
 				      struct net_device *dev);
@@ -571,7 +579,12 @@ static const struct net_device_ops hamachi_netdev_ops = {
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address 	= eth_mac_addr,
 	.ndo_tx_timeout		= hamachi_tx_timeout,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= netdev_ioctl,
+=======
+	.ndo_eth_ioctl		= hamachi_ioctl,
+	.ndo_siocdevprivate	= hamachi_siocdevprivate,
+>>>>>>> upstream/android-13
 };
 
 
@@ -644,13 +657,23 @@ static int hamachi_init_one(struct pci_dev *pdev,
 	hmp->mii_if.phy_id_mask = 0x1f;
 	hmp->mii_if.reg_num_mask = 0x1f;
 
+<<<<<<< HEAD
 	ring_space = pci_alloc_consistent(pdev, TX_TOTAL_SIZE, &ring_dma);
+=======
+	ring_space = dma_alloc_coherent(&pdev->dev, TX_TOTAL_SIZE, &ring_dma,
+					GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring_space)
 		goto err_out_cleardev;
 	hmp->tx_ring = ring_space;
 	hmp->tx_ring_dma = ring_dma;
 
+<<<<<<< HEAD
 	ring_space = pci_alloc_consistent(pdev, RX_TOTAL_SIZE, &ring_dma);
+=======
+	ring_space = dma_alloc_coherent(&pdev->dev, RX_TOTAL_SIZE, &ring_dma,
+					GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring_space)
 		goto err_out_unmap_tx;
 	hmp->rx_ring = ring_space;
@@ -773,11 +796,19 @@ static int hamachi_init_one(struct pci_dev *pdev,
 	return 0;
 
 err_out_unmap_rx:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, RX_TOTAL_SIZE, hmp->rx_ring,
 		hmp->rx_ring_dma);
 err_out_unmap_tx:
 	pci_free_consistent(pdev, TX_TOTAL_SIZE, hmp->tx_ring,
 		hmp->tx_ring_dma);
+=======
+	dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, hmp->rx_ring,
+			  hmp->rx_ring_dma);
+err_out_unmap_tx:
+	dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, hmp->tx_ring,
+			  hmp->tx_ring_dma);
+>>>>>>> upstream/android-13
 err_out_cleardev:
 	free_netdev (dev);
 err_out_iounmap:
@@ -1001,9 +1032,15 @@ static inline int hamachi_tx(struct net_device *dev)
 		/* Free the original skb. */
 		skb = hmp->tx_skbuff[entry];
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(hmp->pci_dev,
 				leXX_to_cpu(hmp->tx_ring[entry].addr),
 				skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&hmp->pci_dev->dev,
+					 leXX_to_cpu(hmp->tx_ring[entry].addr),
+					 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(skb);
 			hmp->tx_skbuff[entry] = NULL;
 		}
@@ -1042,7 +1079,11 @@ static void hamachi_timer(struct timer_list *t)
 	add_timer(&hmp->timer);
 }
 
+<<<<<<< HEAD
 static void hamachi_tx_timeout(struct net_device *dev)
+=======
+static void hamachi_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct hamachi_private *hmp = netdev_priv(dev);
@@ -1093,8 +1134,14 @@ static void hamachi_tx_timeout(struct net_device *dev)
 			hmp->tx_ring[i].status_n_length &= cpu_to_le32(0x0000ffff);
 		skb = hmp->tx_skbuff[i];
 		if (skb){
+<<<<<<< HEAD
 			pci_unmap_single(hmp->pci_dev, leXX_to_cpu(hmp->tx_ring[i].addr),
 				skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&hmp->pci_dev->dev,
+					 leXX_to_cpu(hmp->tx_ring[i].addr),
+					 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(skb);
 			hmp->tx_skbuff[i] = NULL;
 		}
@@ -1115,9 +1162,15 @@ static void hamachi_tx_timeout(struct net_device *dev)
 		struct sk_buff *skb = hmp->rx_skbuff[i];
 
 		if (skb){
+<<<<<<< HEAD
 			pci_unmap_single(hmp->pci_dev,
 				leXX_to_cpu(hmp->rx_ring[i].addr),
 				hmp->rx_buf_sz, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&hmp->pci_dev->dev,
+					 leXX_to_cpu(hmp->rx_ring[i].addr),
+					 hmp->rx_buf_sz, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(skb);
 			hmp->rx_skbuff[i] = NULL;
 		}
@@ -1131,8 +1184,15 @@ static void hamachi_tx_timeout(struct net_device *dev)
 		if (skb == NULL)
 			break;
 
+<<<<<<< HEAD
                 hmp->rx_ring[i].addr = cpu_to_leXX(pci_map_single(hmp->pci_dev,
 			skb->data, hmp->rx_buf_sz, PCI_DMA_FROMDEVICE));
+=======
+		hmp->rx_ring[i].addr = cpu_to_leXX(dma_map_single(&hmp->pci_dev->dev,
+								  skb->data,
+								  hmp->rx_buf_sz,
+								  DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 		hmp->rx_ring[i].status_n_length = cpu_to_le32(DescOwn |
 			DescEndPacket | DescIntr | (hmp->rx_buf_sz - 2));
 	}
@@ -1183,8 +1243,15 @@ static void hamachi_init_ring(struct net_device *dev)
 		if (skb == NULL)
 			break;
 		skb_reserve(skb, 2); /* 16 byte align the IP header. */
+<<<<<<< HEAD
                 hmp->rx_ring[i].addr = cpu_to_leXX(pci_map_single(hmp->pci_dev,
 			skb->data, hmp->rx_buf_sz, PCI_DMA_FROMDEVICE));
+=======
+		hmp->rx_ring[i].addr = cpu_to_leXX(dma_map_single(&hmp->pci_dev->dev,
+								  skb->data,
+								  hmp->rx_buf_sz,
+								  DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 		/* -2 because it doesn't REALLY have that first 2 bytes -KDU */
 		hmp->rx_ring[i].status_n_length = cpu_to_le32(DescOwn |
 			DescEndPacket | DescIntr | (hmp->rx_buf_sz -2));
@@ -1233,8 +1300,15 @@ static netdev_tx_t hamachi_start_xmit(struct sk_buff *skb,
 
 	hmp->tx_skbuff[entry] = skb;
 
+<<<<<<< HEAD
         hmp->tx_ring[entry].addr = cpu_to_leXX(pci_map_single(hmp->pci_dev,
 		skb->data, skb->len, PCI_DMA_TODEVICE));
+=======
+	hmp->tx_ring[entry].addr = cpu_to_leXX(dma_map_single(&hmp->pci_dev->dev,
+							      skb->data,
+							      skb->len,
+							      DMA_TO_DEVICE));
+>>>>>>> upstream/android-13
 
 	/* Hmmmm, could probably put a DescIntr on these, but the way
 		the driver is currently coded makes Tx interrupts unnecessary
@@ -1333,11 +1407,19 @@ static irqreturn_t hamachi_interrupt(int irq, void *dev_instance)
 					skb = hmp->tx_skbuff[entry];
 					/* Free the original skb. */
 					if (skb){
+<<<<<<< HEAD
 						pci_unmap_single(hmp->pci_dev,
 							leXX_to_cpu(hmp->tx_ring[entry].addr),
 							skb->len,
 							PCI_DMA_TODEVICE);
 						dev_kfree_skb_irq(skb);
+=======
+						dma_unmap_single(&hmp->pci_dev->dev,
+								 leXX_to_cpu(hmp->tx_ring[entry].addr),
+								 skb->len,
+								 DMA_TO_DEVICE);
+						dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 						hmp->tx_skbuff[entry] = NULL;
 					}
 					hmp->tx_ring[entry].status_n_length = 0;
@@ -1413,10 +1495,16 @@ static int hamachi_rx(struct net_device *dev)
 
 		if (desc_status & DescOwn)
 			break;
+<<<<<<< HEAD
 		pci_dma_sync_single_for_cpu(hmp->pci_dev,
 					    leXX_to_cpu(desc->addr),
 					    hmp->rx_buf_sz,
 					    PCI_DMA_FROMDEVICE);
+=======
+		dma_sync_single_for_cpu(&hmp->pci_dev->dev,
+					leXX_to_cpu(desc->addr),
+					hmp->rx_buf_sz, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		buf_addr = (u8 *) hmp->rx_skbuff[entry]->data;
 		frame_status = get_unaligned_le32(&(buf_addr[data_size - 12]));
 		if (hamachi_debug > 4)
@@ -1483,10 +1571,17 @@ static int hamachi_rx(struct net_device *dev)
 				  "not good with RX_CHECKSUM\n", dev->name);
 #endif
 				skb_reserve(skb, 2);	/* 16 byte align the IP header */
+<<<<<<< HEAD
 				pci_dma_sync_single_for_cpu(hmp->pci_dev,
 							    leXX_to_cpu(hmp->rx_ring[entry].addr),
 							    hmp->rx_buf_sz,
 							    PCI_DMA_FROMDEVICE);
+=======
+				dma_sync_single_for_cpu(&hmp->pci_dev->dev,
+							leXX_to_cpu(hmp->rx_ring[entry].addr),
+							hmp->rx_buf_sz,
+							DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				/* Call copy + cksum if available. */
 #if 1 || USE_IP_COPYSUM
 				skb_copy_to_linear_data(skb,
@@ -1496,6 +1591,7 @@ static int hamachi_rx(struct net_device *dev)
 				skb_put_data(skb, hmp->rx_ring_dma
 					     + entry*sizeof(*desc), pkt_len);
 #endif
+<<<<<<< HEAD
 				pci_dma_sync_single_for_device(hmp->pci_dev,
 							       leXX_to_cpu(hmp->rx_ring[entry].addr),
 							       hmp->rx_buf_sz,
@@ -1504,6 +1600,17 @@ static int hamachi_rx(struct net_device *dev)
 				pci_unmap_single(hmp->pci_dev,
 						 leXX_to_cpu(hmp->rx_ring[entry].addr),
 						 hmp->rx_buf_sz, PCI_DMA_FROMDEVICE);
+=======
+				dma_sync_single_for_device(&hmp->pci_dev->dev,
+							   leXX_to_cpu(hmp->rx_ring[entry].addr),
+							   hmp->rx_buf_sz,
+							   DMA_FROM_DEVICE);
+			} else {
+				dma_unmap_single(&hmp->pci_dev->dev,
+						 leXX_to_cpu(hmp->rx_ring[entry].addr),
+						 hmp->rx_buf_sz,
+						 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				skb_put(skb = hmp->rx_skbuff[entry], pkt_len);
 				hmp->rx_skbuff[entry] = NULL;
 			}
@@ -1586,8 +1693,15 @@ static int hamachi_rx(struct net_device *dev)
 			if (skb == NULL)
 				break;		/* Better luck next round. */
 			skb_reserve(skb, 2);	/* Align IP on 16 byte boundaries */
+<<<<<<< HEAD
                 	desc->addr = cpu_to_leXX(pci_map_single(hmp->pci_dev,
 				skb->data, hmp->rx_buf_sz, PCI_DMA_FROMDEVICE));
+=======
+			desc->addr = cpu_to_leXX(dma_map_single(&hmp->pci_dev->dev,
+								skb->data,
+								hmp->rx_buf_sz,
+								DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 		}
 		desc->status_n_length = cpu_to_le32(hmp->rx_buf_sz);
 		if (entry >= RX_RING_SIZE-1)
@@ -1704,9 +1818,15 @@ static int hamachi_close(struct net_device *dev)
 		skb = hmp->rx_skbuff[i];
 		hmp->rx_ring[i].status_n_length = 0;
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(hmp->pci_dev,
 				leXX_to_cpu(hmp->rx_ring[i].addr),
 				hmp->rx_buf_sz, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&hmp->pci_dev->dev,
+					 leXX_to_cpu(hmp->rx_ring[i].addr),
+					 hmp->rx_buf_sz, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(skb);
 			hmp->rx_skbuff[i] = NULL;
 		}
@@ -1715,9 +1835,15 @@ static int hamachi_close(struct net_device *dev)
 	for (i = 0; i < TX_RING_SIZE; i++) {
 		skb = hmp->tx_skbuff[i];
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(hmp->pci_dev,
 				leXX_to_cpu(hmp->tx_ring[i].addr),
 				skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&hmp->pci_dev->dev,
+					 leXX_to_cpu(hmp->tx_ring[i].addr),
+					 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(skb);
 			hmp->tx_skbuff[i] = NULL;
 		}
@@ -1856,7 +1982,40 @@ static const struct ethtool_ops ethtool_ops_no_mii = {
 	.get_drvinfo = hamachi_get_drvinfo,
 };
 
+<<<<<<< HEAD
 static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+=======
+/* private ioctl: set rx,tx intr params */
+static int hamachi_siocdevprivate(struct net_device *dev, struct ifreq *rq,
+				  void __user *data, int cmd)
+{
+	struct hamachi_private *np = netdev_priv(dev);
+	u32 *d = (u32 *)&rq->ifr_ifru;
+
+	if (!netif_running(dev))
+		return -EINVAL;
+
+	if (cmd != SIOCDEVPRIVATE + 3)
+		return -EOPNOTSUPP;
+
+	/* Should add this check here or an ordinary user can do nasty
+	 * things. -KDU
+	 *
+	 * TODO: Shut down the Rx and Tx engines while doing this.
+	 */
+	if (!capable(CAP_NET_ADMIN))
+		return -EPERM;
+	writel(d[0], np->base + TxIntrCtrl);
+	writel(d[1], np->base + RxIntrCtrl);
+	printk(KERN_NOTICE "%s: tx %08x, rx %08x intr\n", dev->name,
+	       (u32)readl(np->base + TxIntrCtrl),
+	       (u32)readl(np->base + RxIntrCtrl));
+
+	return 0;
+}
+
+static int hamachi_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct hamachi_private *np = netdev_priv(dev);
 	struct mii_ioctl_data *data = if_mii(rq);
@@ -1865,6 +2024,7 @@ static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	if (!netif_running(dev))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (cmd == (SIOCDEVPRIVATE+3)) { /* set rx,tx intr params */
 		u32 *d = (u32 *)&rq->ifr_ifru;
 		/* Should add this check here or an ordinary user can do nasty
@@ -1887,6 +2047,11 @@ static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 		rc = generic_mii_ioctl(&np->mii_if, data, cmd, NULL);
 		spin_unlock_irq(&np->lock);
 	}
+=======
+	spin_lock_irq(&np->lock);
+	rc = generic_mii_ioctl(&np->mii_if, data, cmd, NULL);
+	spin_unlock_irq(&np->lock);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -1899,10 +2064,17 @@ static void hamachi_remove_one(struct pci_dev *pdev)
 	if (dev) {
 		struct hamachi_private *hmp = netdev_priv(dev);
 
+<<<<<<< HEAD
 		pci_free_consistent(pdev, RX_TOTAL_SIZE, hmp->rx_ring,
 			hmp->rx_ring_dma);
 		pci_free_consistent(pdev, TX_TOTAL_SIZE, hmp->tx_ring,
 			hmp->tx_ring_dma);
+=======
+		dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, hmp->rx_ring,
+				  hmp->rx_ring_dma);
+		dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, hmp->tx_ring,
+				  hmp->tx_ring_dma);
+>>>>>>> upstream/android-13
 		unregister_netdev(dev);
 		iounmap(hmp->base);
 		free_netdev(dev);

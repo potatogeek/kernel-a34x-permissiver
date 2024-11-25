@@ -1,17 +1,29 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Register definition file for s3c24xx/s3c64xx SoC CAMIF driver
  *
  * Copyright (C) 2012 Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
  * Copyright (C) 2012 Tomasz Figa <tomasz.figa@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef CAMIF_REGS_H_
 #define CAMIF_REGS_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/bitops.h>
+
+>>>>>>> upstream/android-13
 #include "camif-core.h"
 #include <media/drv-intf/s3c_camif.h>
 
@@ -22,7 +34,11 @@
 
 /* Camera input format */
 #define S3C_CAMIF_REG_CISRCFMT			0x00
+<<<<<<< HEAD
 #define  CISRCFMT_ITU601_8BIT			(1 << 31)
+=======
+#define  CISRCFMT_ITU601_8BIT			BIT(31)
+>>>>>>> upstream/android-13
 #define  CISRCFMT_ITU656_8BIT			(0 << 31)
 #define  CISRCFMT_ORDER422_YCBYCR		(0 << 14)
 #define  CISRCFMT_ORDER422_YCRYCB		(1 << 14)
@@ -33,6 +49,7 @@
 
 /* Window offset */
 #define S3C_CAMIF_REG_CIWDOFST			0x04
+<<<<<<< HEAD
 #define  CIWDOFST_WINOFSEN			(1 << 31)
 #define  CIWDOFST_CLROVCOFIY			(1 << 30)
 #define  CIWDOFST_CLROVRLB_PR			(1 << 28)
@@ -41,6 +58,16 @@
 #define  CIWDOFST_CLROVCOFICR			(1 << 14)
 #define  CIWDOFST_CLROVPRFICB			(1 << 13)
 #define  CIWDOFST_CLROVPRFICR			(1 << 12)
+=======
+#define  CIWDOFST_WINOFSEN			BIT(31)
+#define  CIWDOFST_CLROVCOFIY			BIT(30)
+#define  CIWDOFST_CLROVRLB_PR			BIT(28)
+/* #define  CIWDOFST_CLROVPRFIY			BIT(27) */
+#define  CIWDOFST_CLROVCOFICB			BIT(15)
+#define  CIWDOFST_CLROVCOFICR			BIT(14)
+#define  CIWDOFST_CLROVPRFICB			BIT(13)
+#define  CIWDOFST_CLROVPRFICR			BIT(12)
+>>>>>>> upstream/android-13
 #define  CIWDOFST_OFST_MASK			(0x7ff << 16 | 0x7ff)
 
 /* Window offset 2 */
@@ -49,13 +76,19 @@
 
 /* Global control */
 #define S3C_CAMIF_REG_CIGCTRL			0x08
+<<<<<<< HEAD
 #define  CIGCTRL_SWRST				(1 << 31)
 #define  CIGCTRL_CAMRST				(1 << 30)
+=======
+#define  CIGCTRL_SWRST				BIT(31)
+#define  CIGCTRL_CAMRST				BIT(30)
+>>>>>>> upstream/android-13
 #define  CIGCTRL_TESTPATTERN_NORMAL		(0 << 27)
 #define  CIGCTRL_TESTPATTERN_COLOR_BAR		(1 << 27)
 #define  CIGCTRL_TESTPATTERN_HOR_INC		(2 << 27)
 #define  CIGCTRL_TESTPATTERN_VER_INC		(3 << 27)
 #define  CIGCTRL_TESTPATTERN_MASK		(3 << 27)
+<<<<<<< HEAD
 #define  CIGCTRL_INVPOLPCLK			(1 << 26)
 #define  CIGCTRL_INVPOLVSYNC			(1 << 25)
 #define  CIGCTRL_INVPOLHREF			(1 << 24)
@@ -67,6 +100,19 @@
 #define  CIGCTRL_FIELDMODE			(1 << 2)
 #define  CIGCTRL_INVPOLFIELD			(1 << 1)
 #define  CIGCTRL_CAM_INTERLACE			(1 << 0)
+=======
+#define  CIGCTRL_INVPOLPCLK			BIT(26)
+#define  CIGCTRL_INVPOLVSYNC			BIT(25)
+#define  CIGCTRL_INVPOLHREF			BIT(24)
+#define  CIGCTRL_IRQ_OVFEN			BIT(22)
+#define  CIGCTRL_HREF_MASK			BIT(21)
+#define  CIGCTRL_IRQ_LEVEL			BIT(20)
+/* IRQ_CLR_C, IRQ_CLR_P */
+#define  CIGCTRL_IRQ_CLR(id)			BIT(19 - (id))
+#define  CIGCTRL_FIELDMODE			BIT(2)
+#define  CIGCTRL_INVPOLFIELD			BIT(1)
+#define  CIGCTRL_CAM_INTERLACE			BIT(0)
+>>>>>>> upstream/android-13
 
 /* Y DMA output frame start address. n = 0..3. */
 #define S3C_CAMIF_REG_CIYSA(id, n)		(0x18 + (id) * 0x54 + (n) * 4)
@@ -77,8 +123,13 @@
 
 /* CICOTRGFMT, CIPRTRGFMT - Target format */
 #define S3C_CAMIF_REG_CITRGFMT(id, _offs)	(0x48 + (id) * (0x34 + (_offs)))
+<<<<<<< HEAD
 #define  CITRGFMT_IN422				(1 << 31) /* only for s3c24xx */
 #define  CITRGFMT_OUT422			(1 << 30) /* only for s3c24xx */
+=======
+#define  CITRGFMT_IN422				BIT(31) /* only for s3c24xx */
+#define  CITRGFMT_OUT422			BIT(30) /* only for s3c24xx */
+>>>>>>> upstream/android-13
 #define  CITRGFMT_OUTFORMAT_YCBCR420		(0 << 29) /* only for s3c6410 */
 #define  CITRGFMT_OUTFORMAT_YCBCR422		(1 << 29) /* only for s3c6410 */
 #define  CITRGFMT_OUTFORMAT_YCBCR422I		(2 << 29) /* only for s3c6410 */
@@ -91,7 +142,11 @@
 #define  CITRGFMT_FLIP_180			(3 << 14)
 #define  CITRGFMT_FLIP_MASK			(3 << 14)
 /* Preview path only */
+<<<<<<< HEAD
 #define  CITRGFMT_ROT90_PR			(1 << 13)
+=======
+#define  CITRGFMT_ROT90_PR			BIT(13)
+>>>>>>> upstream/android-13
 #define  CITRGFMT_TARGETVSIZE(x)		((x) << 0)
 #define  CITRGFMT_TARGETSIZE_MASK		((0x1fff << 16) | 0x1fff)
 
@@ -105,7 +160,11 @@
 #define  CICTRL_RGBBURST2(x)			((x) << 14)
 #define  CICTRL_CBURST1(x)			((x) << 9)
 #define  CICTRL_CBURST2(x)			((x) << 4)
+<<<<<<< HEAD
 #define  CICTRL_LASTIRQ_ENABLE			(1 << 2)
+=======
+#define  CICTRL_LASTIRQ_ENABLE			BIT(2)
+>>>>>>> upstream/android-13
 #define  CICTRL_ORDER422_MASK			(3 << 0)
 
 /* CICOSCPRERATIO, CIPRSCPRERATIO. Pre-scaler control 1. */
@@ -116,6 +175,7 @@
 
 /* CICOSCCTRL, CIPRSCCTRL. Main scaler control. */
 #define S3C_CAMIF_REG_CISCCTRL(id, _offs)	(0x58 + (id) * (0x34 + (_offs)))
+<<<<<<< HEAD
 #define  CISCCTRL_SCALERBYPASS			(1 << 31)
 /* s3c244x preview path only, s3c64xx both */
 #define  CIPRSCCTRL_SAMPLE			(1 << 31)
@@ -132,6 +192,24 @@
 #define  CISCCTRL_LCDPATHEN_FIFO		(1 << 26)
 #define  CISCCTRL_INTERLACE			(1 << 25)
 #define  CISCCTRL_SCALERSTART			(1 << 15)
+=======
+#define  CISCCTRL_SCALERBYPASS			BIT(31)
+/* s3c244x preview path only, s3c64xx both */
+#define  CIPRSCCTRL_SAMPLE			BIT(31)
+/* 0 - 16-bit RGB, 1 - 24-bit RGB */
+#define  CIPRSCCTRL_RGB_FORMAT_24BIT		BIT(30) /* only for s3c244x */
+#define  CIPRSCCTRL_SCALEUP_H			BIT(29) /* only for s3c244x */
+#define  CIPRSCCTRL_SCALEUP_V			BIT(28) /* only for s3c244x */
+/* s3c64xx */
+#define  CISCCTRL_SCALEUP_H			BIT(30)
+#define  CISCCTRL_SCALEUP_V			BIT(29)
+#define  CISCCTRL_SCALEUP_MASK			(0x3 << 29)
+#define  CISCCTRL_CSCR2Y_WIDE			BIT(28)
+#define  CISCCTRL_CSCY2R_WIDE			BIT(27)
+#define  CISCCTRL_LCDPATHEN_FIFO		BIT(26)
+#define  CISCCTRL_INTERLACE			BIT(25)
+#define  CISCCTRL_SCALERSTART			BIT(15)
+>>>>>>> upstream/android-13
 #define  CISCCTRL_INRGB_FMT_RGB565		(0 << 13)
 #define  CISCCTRL_INRGB_FMT_RGB666		(1 << 13)
 #define  CISCCTRL_INRGB_FMT_RGB888		(2 << 13)
@@ -140,8 +218,13 @@
 #define  CISCCTRL_OUTRGB_FMT_RGB666		(1 << 11)
 #define  CISCCTRL_OUTRGB_FMT_RGB888		(2 << 11)
 #define  CISCCTRL_OUTRGB_FMT_MASK		(3 << 11)
+<<<<<<< HEAD
 #define  CISCCTRL_EXTRGB_EXTENSION		(1 << 10)
 #define  CISCCTRL_ONE2ONE			(1 << 9)
+=======
+#define  CISCCTRL_EXTRGB_EXTENSION		BIT(10)
+#define  CISCCTRL_ONE2ONE			BIT(9)
+>>>>>>> upstream/android-13
 #define  CISCCTRL_MAIN_RATIO_MASK		(0x1ff << 16 | 0x1ff)
 
 /* CICOTAREA, CIPRTAREA. Target area for DMA (Hsize x Vsize). */
@@ -150,6 +233,7 @@
 
 /* Codec (id = 0) or preview (id = 1) path status. */
 #define S3C_CAMIF_REG_CISTATUS(id, _offs)	(0x64 + (id) * (0x34 + (_offs)))
+<<<<<<< HEAD
 #define  CISTATUS_OVFIY_STATUS			(1 << 31)
 #define  CISTATUS_OVFICB_STATUS			(1 << 30)
 #define  CISTATUS_OVFICR_STATUS			(1 << 29)
@@ -172,16 +256,47 @@
 #define  CIIMGCPT_CPT_FREN_ENABLE(id)		(1 << (25 - (id)))
 #define  CIIMGCPT_CPT_FRMOD_ENABLE		(0 << 18)
 #define  CIIMGCPT_CPT_FRMOD_CNT			(1 << 18)
+=======
+#define  CISTATUS_OVFIY_STATUS			BIT(31)
+#define  CISTATUS_OVFICB_STATUS			BIT(30)
+#define  CISTATUS_OVFICR_STATUS			BIT(29)
+#define  CISTATUS_OVF_MASK			(0x7 << 29)
+#define  CIPRSTATUS_OVF_MASK			(0x3 << 30)
+#define  CISTATUS_VSYNC_STATUS			BIT(28)
+#define  CISTATUS_FRAMECNT_MASK			(3 << 26)
+#define  CISTATUS_FRAMECNT(__reg)		(((__reg) >> 26) & 0x3)
+#define  CISTATUS_WINOFSTEN_STATUS		BIT(25)
+#define  CISTATUS_IMGCPTEN_STATUS		BIT(22)
+#define  CISTATUS_IMGCPTENSC_STATUS		BIT(21)
+#define  CISTATUS_VSYNC_A_STATUS		BIT(20)
+#define  CISTATUS_FRAMEEND_STATUS		BIT(19) /* 17 on s3c64xx */
+
+/* Image capture enable */
+#define S3C_CAMIF_REG_CIIMGCPT(_offs)		(0xa0 + (_offs))
+#define  CIIMGCPT_IMGCPTEN			BIT(31)
+#define  CIIMGCPT_IMGCPTEN_SC(id)		BIT(30 - (id))
+/* Frame control: 1 - one-shot, 0 - free run */
+#define  CIIMGCPT_CPT_FREN_ENABLE(id)		BIT(25 - (id))
+#define  CIIMGCPT_CPT_FRMOD_ENABLE		(0 << 18)
+#define  CIIMGCPT_CPT_FRMOD_CNT			BIT(18)
+>>>>>>> upstream/android-13
 
 /* Capture sequence */
 #define S3C_CAMIF_REG_CICPTSEQ			0xc4
 
 /* Image effects */
 #define S3C_CAMIF_REG_CIIMGEFF(_offs)		(0xb0 + (_offs))
+<<<<<<< HEAD
 #define  CIIMGEFF_IE_ENABLE(id)			(1 << (30 + (id)))
 #define  CIIMGEFF_IE_ENABLE_MASK		(3 << 30)
 /* Image effect: 1 - after scaler, 0 - before scaler */
 #define  CIIMGEFF_IE_AFTER_SC			(1 << 29)
+=======
+#define  CIIMGEFF_IE_ENABLE(id)			BIT(30 + (id))
+#define  CIIMGEFF_IE_ENABLE_MASK		(3 << 30)
+/* Image effect: 1 - after scaler, 0 - before scaler */
+#define  CIIMGEFF_IE_AFTER_SC			BIT(29)
+>>>>>>> upstream/android-13
 #define  CIIMGEFF_FIN_MASK			(7 << 26)
 #define  CIIMGEFF_FIN_BYPASS			(0 << 26)
 #define  CIIMGEFF_FIN_ARBITRARY			(1 << 26)
@@ -210,8 +325,13 @@
 
 /* Real input DMA data size. n = 0 - codec, 1 - preview. */
 #define S3C_CAMIF_REG_MSWIDTH(id)		(0xf8 + (id) * 0x2c)
+<<<<<<< HEAD
 #define  AUTOLOAD_ENABLE			(1 << 31)
 #define  ADDR_CH_DIS				(1 << 30)
+=======
+#define  AUTOLOAD_ENABLE			BIT(31)
+#define  ADDR_CH_DIS				BIT(30)
+>>>>>>> upstream/android-13
 #define  MSHEIGHT(x)				(((x) & 0x3ff) << 16)
 #define  MSWIDTH(x)				((x) & 0x3ff)
 
@@ -222,12 +342,20 @@
 #define  MSCTRL_ORDER422_M_CBYCRY		(2 << 4)
 #define  MSCTRL_ORDER422_M_CRYCBY		(3 << 4)
 /* 0 - camera, 1 - DMA */
+<<<<<<< HEAD
 #define  MSCTRL_SEL_DMA_CAM			(1 << 3)
+=======
+#define  MSCTRL_SEL_DMA_CAM			BIT(3)
+>>>>>>> upstream/android-13
 #define  MSCTRL_INFORMAT_M_YCBCR420		(0 << 1)
 #define  MSCTRL_INFORMAT_M_YCBCR422		(1 << 1)
 #define  MSCTRL_INFORMAT_M_YCBCR422I		(2 << 1)
 #define  MSCTRL_INFORMAT_M_RGB			(3 << 1)
+<<<<<<< HEAD
 #define  MSCTRL_ENVID_M				(1 << 0)
+=======
+#define  MSCTRL_ENVID_M				BIT(0)
+>>>>>>> upstream/android-13
 
 /* CICOSCOSY, CIPRSCOSY. Scan line Y/Cb/Cr offset. */
 #define S3C_CAMIF_REG_CISSY(id)			(0x12c + (id) * 0x0c)

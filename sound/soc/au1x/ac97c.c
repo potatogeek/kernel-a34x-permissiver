@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Au1000/Au1500/Au1100 AC97C controller driver for ASoC
  *
@@ -205,7 +209,10 @@ static int au1xac97c_dai_probe(struct snd_soc_dai *dai)
 
 static struct snd_soc_dai_driver au1xac97c_dai_driver = {
 	.name			= "alchemy-ac97c",
+<<<<<<< HEAD
 	.bus_control		= true,
+=======
+>>>>>>> upstream/android-13
 	.probe			= au1xac97c_dai_probe,
 	.playback = {
 		.rates		= AC97_RATES,
@@ -247,7 +254,11 @@ static int au1xac97c_drvprobe(struct platform_device *pdev)
 				     pdev->name))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	ctx->mmio = devm_ioremap_nocache(&pdev->dev, iores->start,
+=======
+	ctx->mmio = devm_ioremap(&pdev->dev, iores->start,
+>>>>>>> upstream/android-13
 					 resource_size(iores));
 	if (!ctx->mmio)
 		return -EBUSY;

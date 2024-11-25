@@ -94,7 +94,11 @@ static int sl811_hc_init(struct device *parent, resource_size_t base_addr,
 		return -EBUSY;
 	platform_dev.dev.parent = parent;
 
+<<<<<<< HEAD
 	/* finish seting up the platform device */
+=======
+	/* finish setting up the platform device */
+>>>>>>> upstream/android-13
 	resources[0].start = irq;
 
 	resources[1].start = base_addr;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * abituguru3.c
  *
  * Copyright (c) 2006-2008 Hans de Goede <hdegoede@redhat.com>
  * Copyright (c) 2008 Alistair John Strachan <alistair@devzero.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 /*
  * This driver supports the sensor part of revision 3 of the custom Abit uGuru

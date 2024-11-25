@@ -22,7 +22,11 @@
 			label = "IRQBTN";
 			linux,code = <99>;
 			gpios = <&pioB 18 GPIO_ACTIVE_LOW>;
+<<<<<<< HEAD
 			gpio-key,wakeup = <1>;
+=======
+			wakeup-source;
+>>>>>>> upstream/android-13
 		};
 	};
 };

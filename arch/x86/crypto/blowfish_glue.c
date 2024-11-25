@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for assembler optimized version of Blowfish
  *
@@ -5,6 +9,7 @@
  *
  * CBC & ECB parts based on code (crypto/cbc.c,ecb.c) by:
  *   Copyright (c) 2006 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  * CTR part based on code (crypto/ctr.c) by:
  *   (C) Copyright IBM Corp. 2007 - Joy Latten <latten@us.ibm.com>
  *
@@ -23,6 +28,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/algapi.h>
@@ -262,6 +269,7 @@ static int cbc_decrypt(struct skcipher_request *req)
 	return err;
 }
 
+<<<<<<< HEAD
 static void ctr_crypt_final(struct bf_ctx *ctx, struct skcipher_walk *walk)
 {
 	u8 *ctrblk = walk->iv;
@@ -353,6 +361,8 @@ static int ctr_crypt(struct skcipher_request *req)
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct crypto_alg bf_cipher_alg = {
 	.cra_name		= "blowfish",
 	.cra_driver_name	= "blowfish-asm",
@@ -399,6 +409,7 @@ static struct skcipher_alg bf_skcipher_algs[] = {
 		.setkey			= blowfish_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "ctr(blowfish)",
 		.base.cra_driver_name	= "ctr-blowfish-asm",
@@ -413,6 +424,8 @@ static struct skcipher_alg bf_skcipher_algs[] = {
 		.setkey			= blowfish_setkey_skcipher,
 		.encrypt		= ctr_crypt,
 		.decrypt		= ctr_crypt,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 

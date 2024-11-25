@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * da9211-regulator.c - Regulator device driver for DA9211/DA9212
  * /DA9213/DA9223/DA9214/DA9224/DA9215/DA9225
@@ -13,6 +14,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// da9211-regulator.c - Regulator device driver for DA9211/DA9212
+// /DA9213/DA9223/DA9214/DA9224/DA9215/DA9225
+// Copyright (C) 2015  Dialog Semiconductor Ltd.
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 #include <linux/i2c.h>
@@ -27,6 +35,10 @@
 #include <linux/gpio/consumer.h>
 #include <linux/regulator/of_regulator.h>
 #include <linux/regulator/da9211.h>
+<<<<<<< HEAD
+=======
+#include <dt-bindings/regulator/dlg,da9211-regulator.h>
+>>>>>>> upstream/android-13
 #include "da9211-regulator.h"
 
 /* DEVICE IDs */
@@ -34,10 +46,13 @@
 #define DA9213_DEVICE_ID	0x23
 #define DA9215_DEVICE_ID	0x24
 
+<<<<<<< HEAD
 #define DA9211_BUCK_MODE_SLEEP	1
 #define DA9211_BUCK_MODE_SYNC	2
 #define DA9211_BUCK_MODE_AUTO	3
 
+=======
+>>>>>>> upstream/android-13
 /* DA9211 REGULATOR IDs */
 #define DA9211_ID_BUCKA	0
 #define DA9211_ID_BUCKB	1
@@ -64,10 +79,30 @@ static const struct regmap_range_cfg da9211_regmap_range[] = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static bool da9211_volatile_reg(struct device *dev, unsigned int reg)
+{
+	switch (reg) {
+	case DA9211_REG_STATUS_A:
+	case DA9211_REG_STATUS_B:
+	case DA9211_REG_EVENT_A:
+	case DA9211_REG_EVENT_B:
+		return true;
+	}
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static const struct regmap_config da9211_regmap_config = {
 	.reg_bits = 8,
 	.val_bits = 8,
 	.max_register = 5 * 128,
+<<<<<<< HEAD
+=======
+	.volatile_reg = da9211_volatile_reg,
+	.cache_type = REGCACHE_RBTREE,
+>>>>>>> upstream/android-13
 	.ranges = da9211_regmap_range,
 	.num_ranges = ARRAY_SIZE(da9211_regmap_range),
 };
@@ -99,6 +134,23 @@ static const int da9215_current_limits[] = {
 	5600000, 5800000, 6000000, 6200000, 6400000, 6600000, 6800000, 7000000
 };
 
+<<<<<<< HEAD
+=======
+static unsigned int da9211_map_buck_mode(unsigned int mode)
+{
+	switch (mode) {
+	case DA9211_BUCK_MODE_SLEEP:
+		return REGULATOR_MODE_STANDBY;
+	case DA9211_BUCK_MODE_SYNC:
+		return REGULATOR_MODE_FAST;
+	case DA9211_BUCK_MODE_AUTO:
+		return REGULATOR_MODE_NORMAL;
+	default:
+		return REGULATOR_MODE_INVALID;
+	}
+}
+
+>>>>>>> upstream/android-13
 static unsigned int da9211_buck_get_mode(struct regulator_dev *rdev)
 {
 	int id = rdev_get_id(rdev);
@@ -125,6 +177,7 @@ static unsigned int da9211_buck_get_mode(struct regulator_dev *rdev)
 	return mode;
 }
 
+<<<<<<< HEAD
 static unsigned int da9211_map_mode(unsigned int mode)
 {
 	unsigned int val = 0;
@@ -144,12 +197,18 @@ static unsigned int da9211_map_mode(unsigned int mode)
 	return val;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int da9211_buck_set_mode(struct regulator_dev *rdev,
 					unsigned int mode)
 {
 	int id = rdev_get_id(rdev);
 	struct da9211 *chip = rdev_get_drvdata(rdev);
+<<<<<<< HEAD
 	int val = 0, ret;
+=======
+	int val = 0;
+>>>>>>> upstream/android-13
 
 	switch (mode) {
 	case REGULATOR_MODE_FAST:
@@ -163,6 +222,7 @@ static int da9211_buck_set_mode(struct regulator_dev *rdev,
 		break;
 	}
 
+<<<<<<< HEAD
 	ret = regmap_update_bits(chip->regmap, DA9211_REG_BUCKA_CONF+id,
 				 0x03, val);
 
@@ -170,6 +230,10 @@ static int da9211_buck_set_mode(struct regulator_dev *rdev,
 	dev_notice(chip->dev, "set mode = 0x%x\n", val);
 
 	return ret;
+=======
+	return regmap_update_bits(chip->regmap, DA9211_REG_BUCKA_CONF+id,
+					0x03, val);
+>>>>>>> upstream/android-13
 }
 
 static int da9211_set_current_limit(struct regulator_dev *rdev, int min,
@@ -269,8 +333,13 @@ static const struct regulator_ops da9211_buck_ops = {
 	.enable_mask = DA9211_BUCKA_EN,\
 	.vsel_reg = DA9211_REG_VBUCKA_A + DA9211_ID_##_id * 2,\
 	.vsel_mask = DA9211_VBUCK_MASK,\
+<<<<<<< HEAD
 	.of_map_mode = da9211_map_mode,\
 	.owner = THIS_MODULE,\
+=======
+	.owner = THIS_MODULE,\
+	.of_map_mode = da9211_map_buck_mode,\
+>>>>>>> upstream/android-13
 }
 
 static struct regulator_desc da9211_regulators[] = {
@@ -280,10 +349,21 @@ static struct regulator_desc da9211_regulators[] = {
 
 #ifdef CONFIG_OF
 static struct of_regulator_match da9211_matches[] = {
+<<<<<<< HEAD
 	[DA9211_ID_BUCKA] = { .name = "BUCKA",
 			      .desc = &da9211_regulators[0] },
 	[DA9211_ID_BUCKB] = { .name = "BUCKB",
 			      .desc = &da9211_regulators[1] },
+=======
+	[DA9211_ID_BUCKA] = {
+		.name = "BUCKA",
+		.desc = &da9211_regulators[DA9211_ID_BUCKA],
+	},
+	[DA9211_ID_BUCKB] = {
+		.name = "BUCKB",
+		.desc = &da9211_regulators[DA9211_ID_BUCKB],
+	},
+>>>>>>> upstream/android-13
 	};
 
 static struct da9211_pdata *da9211_parse_regulators_dt(
@@ -320,12 +400,23 @@ static struct da9211_pdata *da9211_parse_regulators_dt(
 
 		pdata->init_data[n] = da9211_matches[i].init_data;
 		pdata->reg_node[n] = da9211_matches[i].of_node;
+<<<<<<< HEAD
 		pdata->gpiod_ren[n] = devm_gpiod_get_from_of_node(dev,
 								  da9211_matches[i].of_node,
 								  "enable",
 								  0,
 								  GPIOD_OUT_HIGH,
 								  "da9211-enable");
+=======
+		pdata->gpiod_ren[n] = devm_fwnode_gpiod_get(dev,
+					of_fwnode_handle(pdata->reg_node[n]),
+					"enable",
+					GPIOD_OUT_HIGH |
+						GPIOD_FLAGS_BIT_NONEXCLUSIVE,
+					"da9211-enable");
+		if (IS_ERR(pdata->gpiod_ren[n]))
+			pdata->gpiod_ren[n] = NULL;
+>>>>>>> upstream/android-13
 		n++;
 	}
 
@@ -416,6 +507,15 @@ static int da9211_regulator_init(struct da9211 *chip)
 		else
 			config.ena_gpiod = NULL;
 
+<<<<<<< HEAD
+=======
+		/*
+		 * Hand the GPIO descriptor management over to the regulator
+		 * core, remove it from GPIO devres management.
+		 */
+		if (config.ena_gpiod)
+			devm_gpiod_unhinge(chip->dev, config.ena_gpiod);
+>>>>>>> upstream/android-13
 		chip->rdev[i] = devm_regulator_register(chip->dev,
 			&da9211_regulators[i], &config);
 		if (IS_ERR(chip->rdev[i])) {
@@ -441,8 +541,12 @@ static int da9211_regulator_init(struct da9211 *chip)
 /*
  * I2C driver interface functions
  */
+<<<<<<< HEAD
 static int da9211_i2c_probe(struct i2c_client *i2c,
 		const struct i2c_device_id *id)
+=======
+static int da9211_i2c_probe(struct i2c_client *i2c)
+>>>>>>> upstream/android-13
 {
 	struct da9211 *chip;
 	int error, ret;
@@ -551,7 +655,11 @@ static struct i2c_driver da9211_regulator_driver = {
 		.name = "da9211",
 		.of_match_table = of_match_ptr(da9211_dt_ids),
 	},
+<<<<<<< HEAD
 	.probe = da9211_i2c_probe,
+=======
+	.probe_new = da9211_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table = da9211_i2c_id,
 };
 

@@ -13,12 +13,19 @@
 #include <linux/sched.h>
 #include <linux/delay.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/fs.h>
 #include <linux/console.h>
 #include <linux/errno.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <linux/init.h>
 #include <linux/of.h>
@@ -31,7 +38,10 @@
 
 #include <asm/setup.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/page.h>
 
@@ -70,6 +80,7 @@ void __init h8300_fdt_init(void *fdt, char *bootargs)
 
 static void __init bootmem_init(void)
 {
+<<<<<<< HEAD
 	struct memblock_region *region;
 
 	memory_end = memory_start = 0;
@@ -79,13 +90,24 @@ static void __init bootmem_init(void)
 		memory_start = region->base;
 		memory_end = region->base + region->size;
 	}
+=======
+	memory_end = memory_start = 0;
+
+	/* Find main memory where is the kernel */
+	memory_start = memblock_start_of_DRAM();
+	memory_end = memblock_end_of_DRAM();
+>>>>>>> upstream/android-13
 
 	if (!memory_end)
 		panic("No memory!");
 
 	/* setup bootmem globals (we use no_bootmem, but mm still depends on this) */
 	min_low_pfn = PFN_UP(memory_start);
+<<<<<<< HEAD
 	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
+=======
+	max_low_pfn = PFN_DOWN(memory_end);
+>>>>>>> upstream/android-13
 	max_pfn = max_low_pfn;
 
 	memblock_reserve(__pa(_stext), _end - _stext);
@@ -100,10 +122,14 @@ void __init setup_arch(char **cmdline_p)
 {
 	unflatten_and_copy_device_tree();
 
+<<<<<<< HEAD
 	init_mm.start_code = (unsigned long) _stext;
 	init_mm.end_code = (unsigned long) _etext;
 	init_mm.end_data = (unsigned long) _edata;
 	init_mm.brk = (unsigned long) 0;
+=======
+	setup_initial_init_mm(_stext, _etext, _edata, NULL);
+>>>>>>> upstream/android-13
 
 	pr_notice("\r\n\nuClinux " CPU "\n");
 	pr_notice("Flat model support (C) 1998,1999 Kenneth Albanowski, D. Jeff Dionne\n");

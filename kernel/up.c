@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Uniprocessor-only support functions.  The counterpart to kernel/smp.c
  */
@@ -13,7 +17,12 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	WARN_ON(cpu != 0);
+=======
+	if (cpu != 0)
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	local_irq_save(flags);
 	func(info);
@@ -34,6 +43,7 @@ int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
 }
 EXPORT_SYMBOL(smp_call_function_single_async);
 
+<<<<<<< HEAD
 int on_each_cpu(smp_call_func_t func, void *info, int wait)
 {
 	unsigned long flags;
@@ -71,18 +81,34 @@ EXPORT_SYMBOL(on_each_cpu_mask);
 void on_each_cpu_cond(bool (*cond_func)(int cpu, void *info),
 		      smp_call_func_t func, void *info, bool wait,
 		      gfp_t gfp_flags)
+=======
+/*
+ * Preemption is disabled here to make sure the cond_func is called under the
+ * same conditions in UP and SMP.
+ */
+void on_each_cpu_cond_mask(smp_cond_func_t cond_func, smp_call_func_t func,
+			   void *info, bool wait, const struct cpumask *mask)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
 	preempt_disable();
+<<<<<<< HEAD
 	if (cond_func(0, info)) {
+=======
+	if ((!cond_func || cond_func(0, info)) && cpumask_test_cpu(0, mask)) {
+>>>>>>> upstream/android-13
 		local_irq_save(flags);
 		func(info);
 		local_irq_restore(flags);
 	}
 	preempt_enable();
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(on_each_cpu_cond);
+=======
+EXPORT_SYMBOL(on_each_cpu_cond_mask);
+>>>>>>> upstream/android-13
 
 int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par, bool phys)
 {

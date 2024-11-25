@@ -15,7 +15,11 @@
 #include <uapi/linux/filter.h>
 #include <uapi/linux/pkt_cls.h>
 #include <net/ipv6.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+>>>>>>> upstream/android-13
 
 #define _htonl __builtin_bswap32
 

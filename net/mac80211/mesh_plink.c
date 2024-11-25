@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008, 2009 open80211s Ltd.
  * Author:     Luis Carlos Cobo <luisca@cozybit.com>
@@ -5,6 +6,13 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008, 2009 open80211s Ltd.
+ * Copyright (C) 2019 Intel Corporation
+ * Author:     Luis Carlos Cobo <luisca@cozybit.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/gfp.h>
 #include <linux/kernel.h>
@@ -146,12 +154,20 @@ out:
 
 /**
  * mesh_set_ht_prot_mode - set correct HT protection mode
+<<<<<<< HEAD
+=======
+ * @sdata: the (mesh) interface to handle
+>>>>>>> upstream/android-13
  *
  * Section 9.23.3.5 of IEEE 80211-2012 describes the protection rules for HT
  * mesh STA in a MBSS. Three HT protection modes are supported for now, non-HT
  * mixed mode, 20MHz-protection and no-protection mode. non-HT mixed mode is
  * selected if any non-HT peers are present in our MBSS.  20MHz-protection mode
+<<<<<<< HEAD
  * is selected if all peers in our 20/40MHz MBSS support HT and atleast one
+=======
+ * is selected if all peers in our 20/40MHz MBSS support HT and at least one
+>>>>>>> upstream/android-13
  * HT20 peer is present. Otherwise no-protection mode is selected.
  */
 static u32 mesh_set_ht_prot_mode(struct ieee80211_sub_if_data *sdata)
@@ -220,9 +236,18 @@ static int mesh_plink_frame_tx(struct ieee80211_sub_if_data *sdata,
 	bool include_plid = false;
 	u16 peering_proto = 0;
 	u8 *pos, ie_len = 4;
+<<<<<<< HEAD
 	int hdr_len = offsetofend(struct ieee80211_mgmt, u.action.u.self_prot);
 	int err = -ENOMEM;
 
+=======
+	u8 ie_len_he_cap;
+	int hdr_len = offsetofend(struct ieee80211_mgmt, u.action.u.self_prot);
+	int err = -ENOMEM;
+
+	ie_len_he_cap = ieee80211_ie_len_he_cap(sdata,
+						NL80211_IFTYPE_MESH_POINT);
+>>>>>>> upstream/android-13
 	skb = dev_alloc_skb(local->tx_headroom +
 			    hdr_len +
 			    2 + /* capability info */
@@ -235,6 +260,13 @@ static int mesh_plink_frame_tx(struct ieee80211_sub_if_data *sdata,
 			    2 + sizeof(struct ieee80211_ht_operation) +
 			    2 + sizeof(struct ieee80211_vht_cap) +
 			    2 + sizeof(struct ieee80211_vht_operation) +
+<<<<<<< HEAD
+=======
+			    ie_len_he_cap +
+			    2 + 1 + sizeof(struct ieee80211_he_operation) +
+				    sizeof(struct ieee80211_he_6ghz_oper) +
+			    2 + 1 + sizeof(struct ieee80211_he_6ghz_capa) +
+>>>>>>> upstream/android-13
 			    2 + 8 + /* peering IE */
 			    sdata->u.mesh.ie_len);
 	if (!skb)
@@ -323,7 +355,14 @@ static int mesh_plink_frame_tx(struct ieee80211_sub_if_data *sdata,
 		if (mesh_add_ht_cap_ie(sdata, skb) ||
 		    mesh_add_ht_oper_ie(sdata, skb) ||
 		    mesh_add_vht_cap_ie(sdata, skb) ||
+<<<<<<< HEAD
 		    mesh_add_vht_oper_ie(sdata, skb))
+=======
+		    mesh_add_vht_oper_ie(sdata, skb) ||
+		    mesh_add_he_cap_ie(sdata, skb, ie_len_he_cap) ||
+		    mesh_add_he_oper_ie(sdata, skb) ||
+		    mesh_add_he_6ghz_cap_ie(sdata, skb))
+>>>>>>> upstream/android-13
 			goto free;
 	}
 
@@ -435,6 +474,14 @@ static void mesh_sta_info_init(struct ieee80211_sub_if_data *sdata,
 	ieee80211_vht_cap_ie_to_sta_vht_cap(sdata, sband,
 					    elems->vht_cap_elem, sta);
 
+<<<<<<< HEAD
+=======
+	ieee80211_he_cap_ie_to_sta_he_cap(sdata, sband, elems->he_cap,
+					  elems->he_cap_len,
+					  elems->he_6ghz_capa,
+					  sta);
+
+>>>>>>> upstream/android-13
 	if (bw != sta->sta.bandwidth)
 		changed |= IEEE80211_RC_BW_CHANGED;
 
@@ -513,7 +560,12 @@ __mesh_sta_info_alloc(struct ieee80211_sub_if_data *sdata, u8 *hw_addr)
 
 static struct sta_info *
 mesh_sta_info_alloc(struct ieee80211_sub_if_data *sdata, u8 *addr,
+<<<<<<< HEAD
 		    struct ieee802_11_elems *elems)
+=======
+		    struct ieee802_11_elems *elems,
+		    struct ieee80211_rx_status *rx_status)
+>>>>>>> upstream/android-13
 {
 	struct sta_info *sta = NULL;
 
@@ -521,11 +573,25 @@ mesh_sta_info_alloc(struct ieee80211_sub_if_data *sdata, u8 *addr,
 	if (sdata->u.mesh.user_mpm ||
 	    sdata->u.mesh.security & IEEE80211_MESH_SEC_AUTHED) {
 		if (mesh_peer_accepts_plinks(elems) &&
+<<<<<<< HEAD
 		    mesh_plink_availables(sdata))
 			cfg80211_notify_new_peer_candidate(sdata->dev, addr,
 							   elems->ie_start,
 							   elems->total_len,
 							   GFP_KERNEL);
+=======
+		    mesh_plink_availables(sdata)) {
+			int sig = 0;
+
+			if (ieee80211_hw_check(&sdata->local->hw, SIGNAL_DBM))
+				sig = rx_status->signal;
+
+			cfg80211_notify_new_peer_candidate(sdata->dev, addr,
+							   elems->ie_start,
+							   elems->total_len,
+							   sig, GFP_KERNEL);
+		}
+>>>>>>> upstream/android-13
 	} else
 		sta = __mesh_sta_info_alloc(sdata, addr);
 
@@ -538,13 +604,22 @@ mesh_sta_info_alloc(struct ieee80211_sub_if_data *sdata, u8 *addr,
  * @sdata: local meshif
  * @addr: peer's address
  * @elems: IEs from beacon or mesh peering frame.
+<<<<<<< HEAD
+=======
+ * @rx_status: rx status for the frame for signal reporting
+>>>>>>> upstream/android-13
  *
  * Return existing or newly allocated sta_info under RCU read lock.
  * (re)initialize with given IEs.
  */
 static struct sta_info *
 mesh_sta_info_get(struct ieee80211_sub_if_data *sdata,
+<<<<<<< HEAD
 		  u8 *addr, struct ieee802_11_elems *elems) __acquires(RCU)
+=======
+		  u8 *addr, struct ieee802_11_elems *elems,
+		  struct ieee80211_rx_status *rx_status) __acquires(RCU)
+>>>>>>> upstream/android-13
 {
 	struct sta_info *sta = NULL;
 
@@ -555,7 +630,11 @@ mesh_sta_info_get(struct ieee80211_sub_if_data *sdata,
 	} else {
 		rcu_read_unlock();
 		/* can't run atomic */
+<<<<<<< HEAD
 		sta = mesh_sta_info_alloc(sdata, addr, elems);
+=======
+		sta = mesh_sta_info_alloc(sdata, addr, elems, rx_status);
+>>>>>>> upstream/android-13
 		if (!sta) {
 			rcu_read_lock();
 			return NULL;
@@ -576,20 +655,39 @@ mesh_sta_info_get(struct ieee80211_sub_if_data *sdata,
  * @sdata: local meshif
  * @addr: peer's address
  * @elems: IEs from beacon or mesh peering frame
+<<<<<<< HEAD
+=======
+ * @rx_status: rx status for the frame for signal reporting
+>>>>>>> upstream/android-13
  *
  * Initiates peering if appropriate.
  */
 void mesh_neighbour_update(struct ieee80211_sub_if_data *sdata,
 			   u8 *hw_addr,
+<<<<<<< HEAD
 			   struct ieee802_11_elems *elems)
+=======
+			   struct ieee802_11_elems *elems,
+			   struct ieee80211_rx_status *rx_status)
+>>>>>>> upstream/android-13
 {
 	struct sta_info *sta;
 	u32 changed = 0;
 
+<<<<<<< HEAD
 	sta = mesh_sta_info_get(sdata, hw_addr, elems);
 	if (!sta)
 		goto out;
 
+=======
+	sta = mesh_sta_info_get(sdata, hw_addr, elems, rx_status);
+	if (!sta)
+		goto out;
+
+	sta->mesh->connected_to_gate = elems->mesh_config->meshconf_form &
+		IEEE80211_MESHCONF_FORM_CONNECTED_TO_GATE;
+
+>>>>>>> upstream/android-13
 	if (mesh_peer_accepts_plinks(elems) &&
 	    sta->mesh->plink_state == NL80211_PLINK_LISTEN &&
 	    sdata->u.mesh.accepting_plinks &&
@@ -672,7 +770,11 @@ void mesh_plink_timer(struct timer_list *t)
 			break;
 		}
 		reason = WLAN_REASON_MESH_MAX_RETRIES;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_PLINK_CNF_RCVD:
 		/* confirm timer */
 		if (!reason)
@@ -1069,7 +1171,12 @@ out:
 static void
 mesh_process_plink_frame(struct ieee80211_sub_if_data *sdata,
 			 struct ieee80211_mgmt *mgmt,
+<<<<<<< HEAD
 			 struct ieee802_11_elems *elems)
+=======
+			 struct ieee802_11_elems *elems,
+			 struct ieee80211_rx_status *rx_status)
+>>>>>>> upstream/android-13
 {
 
 	struct sta_info *sta;
@@ -1134,7 +1241,11 @@ mesh_process_plink_frame(struct ieee80211_sub_if_data *sdata,
 	if (event == OPN_ACPT) {
 		rcu_read_unlock();
 		/* allocate sta entry if necessary and update info */
+<<<<<<< HEAD
 		sta = mesh_sta_info_get(sdata, mgmt->sa, elems);
+=======
+		sta = mesh_sta_info_get(sdata, mgmt->sa, elems, rx_status);
+>>>>>>> upstream/android-13
 		if (!sta) {
 			mpl_dbg(sdata, "Mesh plink: failed to init peer!\n");
 			goto unlock_rcu;
@@ -1199,6 +1310,12 @@ void mesh_rx_plink_frame(struct ieee80211_sub_if_data *sdata,
 		if (baselen > len)
 			return;
 	}
+<<<<<<< HEAD
 	ieee802_11_parse_elems(baseaddr, len - baselen, true, &elems);
 	mesh_process_plink_frame(sdata, mgmt, &elems);
+=======
+	ieee802_11_parse_elems(baseaddr, len - baselen, true, &elems,
+			       mgmt->bssid, NULL);
+	mesh_process_plink_frame(sdata, mgmt, &elems, rx_status);
+>>>>>>> upstream/android-13
 }

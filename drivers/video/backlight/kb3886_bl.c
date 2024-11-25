@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Backlight Driver for the KB3886 Backlight
  *
  *  Copyright (c) 2007-2008 Claudio Nieder
  *
  *  Based on corgi_bl.c by Richard Purdie and kb3886 driver by Robert Woerle
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -91,12 +98,17 @@ static const struct dmi_system_id kb3886bl_device_table[] __initconst = {
 
 static int kb3886bl_send_intensity(struct backlight_device *bd)
 {
+<<<<<<< HEAD
 	int intensity = bd->props.brightness;
 
 	if (bd->props.power != FB_BLANK_UNBLANK)
 		intensity = 0;
 	if (bd->props.fb_blank != FB_BLANK_UNBLANK)
 		intensity = 0;
+=======
+	int intensity = backlight_get_brightness(bd);
+
+>>>>>>> upstream/android-13
 	if (kb3886bl_flags & KB3886BL_SUSPENDED)
 		intensity = 0;
 

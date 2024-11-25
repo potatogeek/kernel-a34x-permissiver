@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * gpiolib support for Wolfson WM835x PMICs
  *
@@ -5,17 +9,24 @@
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/mfd/core.h>
 #include <linux/platform_device.h>
 #include <linux/seq_file.h>
@@ -109,7 +120,10 @@ static int wm8350_gpio_probe(struct platform_device *pdev)
 	struct wm8350 *wm8350 = dev_get_drvdata(pdev->dev.parent);
 	struct wm8350_platform_data *pdata = dev_get_platdata(wm8350->dev);
 	struct wm8350_gpio_data *wm8350_gpio;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	wm8350_gpio = devm_kzalloc(&pdev->dev, sizeof(*wm8350_gpio),
 				   GFP_KERNEL);
@@ -125,6 +139,7 @@ static int wm8350_gpio_probe(struct platform_device *pdev)
 	else
 		wm8350_gpio->gpio_chip.base = -1;
 
+<<<<<<< HEAD
 	ret = devm_gpiochip_add_data(&pdev->dev, &wm8350_gpio->gpio_chip,
 				     wm8350_gpio);
 	if (ret < 0) {
@@ -135,6 +150,9 @@ static int wm8350_gpio_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, wm8350_gpio);
 
 	return ret;
+=======
+	return devm_gpiochip_add_data(&pdev->dev, &wm8350_gpio->gpio_chip, wm8350_gpio);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver wm8350_gpio_driver = {

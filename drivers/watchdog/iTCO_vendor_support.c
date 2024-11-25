@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *	intel TCO vendor specific watchdog driver support
  *
  *	(c) Copyright 2006-2009 Wim Van Sebroeck <wim@iguana.be>.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Neither Wim Van Sebroeck nor Iguana vzw. admit liability nor
  *	provide warranty for any of this software. This material is
  *	provided "AS-IS" and at no charge.
@@ -38,16 +45,29 @@
 /* List of vendor support modes */
 /* SuperMicro Pentium 3 Era 370SSE+-OEM1/P3TSSE */
 #define SUPERMICRO_OLD_BOARD	1
+<<<<<<< HEAD
 /* SuperMicro Pentium 4 / Xeon 4 / EMT64T Era Systems */
+=======
+/* SuperMicro Pentium 4 / Xeon 4 / EMT64T Era Systems - no longer supported */
+>>>>>>> upstream/android-13
 #define SUPERMICRO_NEW_BOARD	2
 /* Broken BIOS */
 #define BROKEN_BIOS		911
 
+<<<<<<< HEAD
 static int vendorsupport;
 module_param(vendorsupport, int, 0);
 MODULE_PARM_DESC(vendorsupport, "iTCO vendor specific support mode, default="
 			"0 (none), 1=SuperMicro Pent3, 2=SuperMicro Pent4+, "
 							"911=Broken SMI BIOS");
+=======
+int iTCO_vendorsupport;
+EXPORT_SYMBOL(iTCO_vendorsupport);
+
+module_param_named(vendorsupport, iTCO_vendorsupport, int, 0);
+MODULE_PARM_DESC(vendorsupport, "iTCO vendor specific support mode, default="
+			"0 (none), 1=SuperMicro Pent3, 911=Broken SMI BIOS");
+>>>>>>> upstream/android-13
 
 /*
  *	Vendor Specific Support
@@ -98,6 +118,7 @@ static void supermicro_old_pre_stop(struct resource *smires)
 }
 
 /*
+<<<<<<< HEAD
  *	Vendor Support: 2
  *	Board: Super Micro Computer Inc. P4SBx, P4DPx
  *	iTCO chipset: ICH4
@@ -235,6 +256,8 @@ static void supermicro_new_pre_set_heartbeat(unsigned int heartbeat)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  *	Vendor Support: 911
  *	Board: Some Intel ICHx based motherboards
  *	iTCO chipset: ICH7+
@@ -294,6 +317,7 @@ static void broken_bios_stop(struct resource *smires)
 void iTCO_vendor_pre_start(struct resource *smires,
 			   unsigned int heartbeat)
 {
+<<<<<<< HEAD
 	switch (vendorsupport) {
 	case SUPERMICRO_OLD_BOARD:
 		supermicro_old_pre_start(smires);
@@ -301,6 +325,12 @@ void iTCO_vendor_pre_start(struct resource *smires,
 	case SUPERMICRO_NEW_BOARD:
 		supermicro_new_pre_start(heartbeat);
 		break;
+=======
+	switch (iTCO_vendorsupport) {
+	case SUPERMICRO_OLD_BOARD:
+		supermicro_old_pre_start(smires);
+		break;
+>>>>>>> upstream/android-13
 	case BROKEN_BIOS:
 		broken_bios_start(smires);
 		break;
@@ -310,6 +340,7 @@ EXPORT_SYMBOL(iTCO_vendor_pre_start);
 
 void iTCO_vendor_pre_stop(struct resource *smires)
 {
+<<<<<<< HEAD
 	switch (vendorsupport) {
 	case SUPERMICRO_OLD_BOARD:
 		supermicro_old_pre_stop(smires);
@@ -317,6 +348,12 @@ void iTCO_vendor_pre_stop(struct resource *smires)
 	case SUPERMICRO_NEW_BOARD:
 		supermicro_new_pre_stop();
 		break;
+=======
+	switch (iTCO_vendorsupport) {
+	case SUPERMICRO_OLD_BOARD:
+		supermicro_old_pre_stop(smires);
+		break;
+>>>>>>> upstream/android-13
 	case BROKEN_BIOS:
 		broken_bios_stop(smires);
 		break;
@@ -324,6 +361,7 @@ void iTCO_vendor_pre_stop(struct resource *smires)
 }
 EXPORT_SYMBOL(iTCO_vendor_pre_stop);
 
+<<<<<<< HEAD
 void iTCO_vendor_pre_keepalive(struct resource *smires, unsigned int heartbeat)
 {
 	if (vendorsupport == SUPERMICRO_NEW_BOARD)
@@ -341,6 +379,11 @@ EXPORT_SYMBOL(iTCO_vendor_pre_set_heartbeat);
 int iTCO_vendor_check_noreboot_on(void)
 {
 	switch (vendorsupport) {
+=======
+int iTCO_vendor_check_noreboot_on(void)
+{
+	switch (iTCO_vendorsupport) {
+>>>>>>> upstream/android-13
 	case SUPERMICRO_OLD_BOARD:
 		return 0;
 	default:
@@ -351,7 +394,17 @@ EXPORT_SYMBOL(iTCO_vendor_check_noreboot_on);
 
 static int __init iTCO_vendor_init_module(void)
 {
+<<<<<<< HEAD
 	pr_info("vendor-support=%d\n", vendorsupport);
+=======
+	if (iTCO_vendorsupport == SUPERMICRO_NEW_BOARD) {
+		pr_warn("Option vendorsupport=%d is no longer supported, "
+			"please use the w83627hf_wdt driver instead\n",
+			SUPERMICRO_NEW_BOARD);
+		return -EINVAL;
+	}
+	pr_info("vendor-support=%d\n", iTCO_vendorsupport);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -368,4 +421,7 @@ MODULE_AUTHOR("Wim Van Sebroeck <wim@iguana.be>, "
 MODULE_DESCRIPTION("Intel TCO Vendor Specific WatchDog Timer Driver Support");
 MODULE_VERSION(DRV_VERSION);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

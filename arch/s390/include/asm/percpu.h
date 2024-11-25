@@ -16,7 +16,11 @@
  * per cpu area, use weak definitions to force the compiler to
  * generate external references.
  */
+<<<<<<< HEAD
 #if defined(CONFIG_SMP) && defined(MODULE)
+=======
+#if defined(MODULE)
+>>>>>>> upstream/android-13
 #define ARCH_NEEDS_WEAK_PER_CPU
 #endif
 
@@ -164,6 +168,7 @@
 #define this_cpu_xchg_4(pcp, nval) arch_this_cpu_xchg(pcp, nval)
 #define this_cpu_xchg_8(pcp, nval) arch_this_cpu_xchg(pcp, nval)
 
+<<<<<<< HEAD
 #define arch_this_cpu_cmpxchg_double(pcp1, pcp2, o1, o2, n1, n2)	\
 ({									\
 	typeof(pcp1) o1__ = (o1), n1__ = (n1);				\
@@ -177,6 +182,22 @@
 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
 	preempt_enable_notrace();					\
 	ret__;								\
+=======
+#define arch_this_cpu_cmpxchg_double(pcp1, pcp2, o1, o2, n1, n2)	    \
+({									    \
+	typeof(pcp1) *p1__;						    \
+	typeof(pcp2) *p2__;						    \
+	int ret__;							    \
+									    \
+	preempt_disable_notrace();					    \
+	p1__ = raw_cpu_ptr(&(pcp1));					    \
+	p2__ = raw_cpu_ptr(&(pcp2));					    \
+	ret__ = __cmpxchg_double((unsigned long)p1__, (unsigned long)p2__,  \
+				 (unsigned long)(o1), (unsigned long)(o2),  \
+				 (unsigned long)(n1), (unsigned long)(n2)); \
+	preempt_enable_notrace();					    \
+	ret__;								    \
+>>>>>>> upstream/android-13
 })
 
 #define this_cpu_cmpxchg_double_8 arch_this_cpu_cmpxchg_double

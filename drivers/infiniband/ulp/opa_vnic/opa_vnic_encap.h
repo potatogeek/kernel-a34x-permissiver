@@ -118,12 +118,26 @@
  * struct opa_vesw_info - OPA vnic switch information
  * @fabric_id: 10-bit fabric id
  * @vesw_id: 12-bit virtual ethernet switch id
+<<<<<<< HEAD
  * @def_port_mask: bitmask of default ports
  * @pkey: partition key
  * @u_mcast_dlid: unknown multicast dlid
  * @u_ucast_dlid: array of unknown unicast dlids
  * @rc: routing control
  * @eth_mtu: Ethernet MTU
+=======
+ * @rsvd0: reserved bytes
+ * @def_port_mask: bitmask of default ports
+ * @rsvd1: reserved bytes
+ * @pkey: partition key
+ * @rsvd2: reserved bytes
+ * @u_mcast_dlid: unknown multicast dlid
+ * @u_ucast_dlid: array of unknown unicast dlids
+ * @rsvd3: reserved bytes
+ * @rc: routing control
+ * @eth_mtu: Ethernet MTU
+ * @rsvd4: reserved bytes
+>>>>>>> upstream/android-13
  */
 struct opa_vesw_info {
 	__be16  fabric_id;
@@ -150,12 +164,20 @@ struct opa_vesw_info {
  * struct opa_per_veswport_info - OPA vnic per port information
  * @port_num: port number
  * @eth_link_status: current ethernet link state
+<<<<<<< HEAD
+=======
+ * @rsvd0: reserved bytes
+>>>>>>> upstream/android-13
  * @base_mac_addr: base mac address
  * @config_state: configured port state
  * @oper_state: operational port state
  * @max_mac_tbl_ent: max number of mac table entries
  * @max_smac_ent: max smac entries in mac table
  * @mac_tbl_digest: mac table digest
+<<<<<<< HEAD
+=======
+ * @rsvd1: reserved bytes
+>>>>>>> upstream/android-13
  * @encap_slid: base slid for the port
  * @pcp_to_sc_uc: sc by pcp index for unicast ethernet packets
  * @pcp_to_vl_uc: vl by pcp index for unicast ethernet packets
@@ -165,8 +187,15 @@ struct opa_vesw_info {
  * @non_vlan_vl_uc: vl for non-vlan unicast ethernet packets
  * @non_vlan_sc_mc: sc for non-vlan multicast ethernet packets
  * @non_vlan_vl_mc: vl for non-vlan multicast ethernet packets
+<<<<<<< HEAD
  * @uc_macs_gen_count: generation count for unicast macs list
  * @mc_macs_gen_count: generation count for multicast macs list
+=======
+ * @rsvd2: reserved bytes
+ * @uc_macs_gen_count: generation count for unicast macs list
+ * @mc_macs_gen_count: generation count for multicast macs list
+ * @rsvd3: reserved bytes
+>>>>>>> upstream/android-13
  */
 struct opa_per_veswport_info {
 	__be32  port_num;
@@ -239,7 +268,11 @@ struct opa_veswport_mactable_entry {
  * @offset: mac table starting offset
  * @num_entries: Number of entries to get or set
  * @mac_tbl_digest: mac table digest
+<<<<<<< HEAD
  * @tbl_entries[]: Array of table entries
+=======
+ * @tbl_entries: Array of table entries
+>>>>>>> upstream/android-13
  *
  * The EM sends down this structure in a MAD indicating
  * the starting offset in the forwarding table that this
@@ -258,7 +291,11 @@ struct opa_veswport_mactable {
 	__be16                              offset;
 	__be16                              num_entries;
 	__be32                              mac_tbl_digest;
+<<<<<<< HEAD
 	struct opa_veswport_mactable_entry  tbl_entries[0];
+=======
+	struct opa_veswport_mactable_entry  tbl_entries[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /**
@@ -294,6 +331,10 @@ struct opa_veswport_mactable {
  * @rx_512_1023: received packet length is >=512 and < 1023 bytes
  * @rx_1024_1518: received packet length is >=1024 and < 1518 bytes
  * @rx_1519_max: received packet length >= 1519 bytes
+<<<<<<< HEAD
+=======
+ * @reserved: reserved bytes
+>>>>>>> upstream/android-13
  *
  * All the above are counters of corresponding conditions.
  */
@@ -347,6 +388,7 @@ struct opa_veswport_summary_counters {
  * @veswport_num: virtual ethernet switch port number
  * @tx_errors: transmit errors
  * @rx_errors: receive errors
+<<<<<<< HEAD
  * @tx_smac_filt: smac filter errors
  * @tx_dlid_zero: transmit packets with invalid dlid
  * @tx_logic: other transmit errors
@@ -359,6 +401,30 @@ struct opa_veswport_summary_counters {
  * @rx_logic: other receive errors
  *
  * All the above are counters of corresponding erorr conditions.
+=======
+ * @rsvd0: reserved bytes
+ * @tx_smac_filt: smac filter errors
+ * @rsvd1: reserved bytes
+ * @rsvd2: reserved bytes
+ * @rsvd3: reserved bytes
+ * @tx_dlid_zero: transmit packets with invalid dlid
+ * @rsvd4: reserved bytes
+ * @tx_logic: other transmit errors
+ * @rsvd5: reserved bytes
+ * @tx_drop_state: packet tansmission in non-forward port state
+ * @rx_bad_veswid: received packet with invalid vesw id
+ * @rsvd6: reserved bytes
+ * @rx_runt: received ethernet packet with length < 64 bytes
+ * @rx_oversize: received ethernet packet with length > MTU size
+ * @rsvd7: reserved bytes
+ * @rx_eth_down: received packets when interface is down
+ * @rx_drop_state: received packets in non-forwarding port state
+ * @rx_logic: other receive errors
+ * @rsvd8: reserved bytes
+ * @rsvd9: reserved bytes
+ *
+ * All the above are counters of corresponding error conditions.
+>>>>>>> upstream/android-13
  */
 struct opa_veswport_error_counters {
 	__be16  vp_instance;
@@ -417,7 +483,11 @@ struct opa_veswport_trap {
 } __packed;
 
 /**
+<<<<<<< HEAD
  * struct opa_vnic_iface_macs_entry - single entry in the mac list
+=======
+ * struct opa_vnic_iface_mac_entry - single entry in the mac list
+>>>>>>> upstream/android-13
  * @mac_addr: MAC address
  */
 struct opa_vnic_iface_mac_entry {
@@ -440,13 +510,21 @@ struct opa_veswport_iface_macs {
 	__be16 num_macs_in_msg;
 	__be16 tot_macs_in_lst;
 	__be16 gen_count;
+<<<<<<< HEAD
 	struct opa_vnic_iface_mac_entry entry[0];
+=======
+	struct opa_vnic_iface_mac_entry entry[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /**
  * struct opa_vnic_vema_mad - Generic VEMA MAD
  * @mad_hdr: Generic MAD header
  * @rmpp_hdr: RMPP header for vendor specific MADs
+<<<<<<< HEAD
+=======
+ * @reserved: reserved bytes
+>>>>>>> upstream/android-13
  * @oui: Unique org identifier
  * @data: MAD data
  */
@@ -467,6 +545,10 @@ struct opa_vnic_vema_mad {
  * @trap_num: Trap number
  * @toggle_count: Notice toggle bit and count value
  * @issuer_lid: Trap issuer's lid
+<<<<<<< HEAD
+=======
+ * @reserved: reserved bytes
+>>>>>>> upstream/android-13
  * @issuer_gid: Issuer GID (only if Report method)
  * @raw_data: Trap message body
  */
@@ -487,6 +569,10 @@ struct opa_vnic_notice_attr {
  * struct opa_vnic_vema_mad_trap - Generic VEMA MAD Trap
  * @mad_hdr: Generic MAD header
  * @rmpp_hdr: RMPP header for vendor specific MADs
+<<<<<<< HEAD
+=======
+ * @reserved: reserved bytes
+>>>>>>> upstream/android-13
  * @oui: Unique org identifier
  * @notice: Notice structure
  */

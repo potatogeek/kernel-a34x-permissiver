@@ -15,7 +15,11 @@
 #define EX(insn,reg,addr,handler)			\
 9:	insn	reg, addr;				\
 	.section __ex_table,"a";			\
+<<<<<<< HEAD
 	PTR	9b, handler;				\
+=======
+	PTR_WD	9b, handler;				\
+>>>>>>> upstream/android-13
 	.previous
 
 /*
@@ -29,6 +33,7 @@
  * it happens at most some bytes of the exceptions handlers will be copied.
  */
 
+<<<<<<< HEAD
 	.macro __BUILD_STRNCPY_ASM func
 LEAF(__strncpy_from_\func\()_asm)
 	LONG_L		v0, TI_ADDR_LIMIT($28)	# pointer ok?
@@ -42,6 +47,19 @@ LEAF(__strncpy_from_\func\()_asm)
 .else
 1:	EX(lbue, v0, (v1), .Lfault\@)
 .endif
+=======
+LEAF(__strncpy_from_user_asm)
+	move		t0, zero
+	move		v1, a1
+#ifdef CONFIG_EVA
+	.set push
+	.set eva
+1:	EX(lbue, v0, (v1), .Lfault)
+	.set pop
+#else
+1:	EX(lbu, v0, (v1), .Lfault)
+#endif
+>>>>>>> upstream/android-13
 	PTR_ADDIU	v1, 1
 	R10KCBARRIER(0(ra))
 	sb		v0, (a0)
@@ -51,16 +69,26 @@ LEAF(__strncpy_from_\func\()_asm)
 	bne		t0, a2, 1b
 2:	PTR_ADDU	v0, a1, t0
 	xor		v0, a1
+<<<<<<< HEAD
 	bltz		v0, .Lfault\@
 	move		v0, t0
 	jr		ra			# return n
 	END(__strncpy_from_\func\()_asm)
 
 .Lfault\@:
+=======
+	bltz		v0, .Lfault
+	move		v0, t0
+	jr		ra			# return n
+	END(__strncpy_from_user_asm)
+
+.Lfault:
+>>>>>>> upstream/android-13
 	li		v0, -EFAULT
 	jr		ra
 
 	.section	__ex_table,"a"
+<<<<<<< HEAD
 	PTR		1b, .Lfault\@
 	.previous
 
@@ -83,3 +111,9 @@ __BUILD_STRNCPY_ASM user
 	.set pop
 EXPORT_SYMBOL(__strncpy_from_user_asm)
 #endif
+=======
+	PTR_WD		1b, .Lfault
+	.previous
+
+	EXPORT_SYMBOL(__strncpy_from_user_asm)
+>>>>>>> upstream/android-13

@@ -11,7 +11,11 @@ struct fpga_bridge;
 /**
  * struct fpga_bridge_ops - ops for low level FPGA bridge drivers
  * @enable_show: returns the FPGA bridge's status
+<<<<<<< HEAD
  * @enable_set: set a FPGA bridge as enabled or disabled
+=======
+ * @enable_set: set an FPGA bridge as enabled or disabled
+>>>>>>> upstream/android-13
  * @fpga_bridge_remove: set FPGA into a specific state during driver remove
  * @groups: optional attribute groups.
  */
@@ -69,4 +73,11 @@ void fpga_bridge_free(struct fpga_bridge *br);
 int fpga_bridge_register(struct fpga_bridge *br);
 void fpga_bridge_unregister(struct fpga_bridge *br);
 
+<<<<<<< HEAD
+=======
+struct fpga_bridge
+*devm_fpga_bridge_create(struct device *dev, const char *name,
+			 const struct fpga_bridge_ops *br_ops, void *priv);
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_FPGA_BRIDGE_H */

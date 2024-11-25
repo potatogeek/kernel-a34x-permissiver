@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2017 Western Digital Corporation or its affiliates.
+<<<<<<< HEAD
  *
  * This file is released under the GPL.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/blkdev.h>

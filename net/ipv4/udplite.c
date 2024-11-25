@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  UDPLITE     An implementation of the UDP-Lite protocol (RFC 3828).
  *
@@ -5,10 +9,13 @@
  *
  *  Changes:
  *  Fixes:
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "UDPLite: " fmt
@@ -25,16 +32,25 @@ static int udplite_rcv(struct sk_buff *skb)
 	return __udp4_lib_rcv(skb, &udplite_table, IPPROTO_UDPLITE);
 }
 
+<<<<<<< HEAD
 static void udplite_err(struct sk_buff *skb, u32 info)
 {
 	__udp4_lib_err(skb, info, &udplite_table);
+=======
+static int udplite_err(struct sk_buff *skb, u32 info)
+{
+	return __udp4_lib_err(skb, info, &udplite_table);
+>>>>>>> upstream/android-13
 }
 
 static const struct net_protocol udplite_protocol = {
 	.handler	= udplite_rcv,
 	.err_handler	= udplite_err,
 	.no_policy	= 1,
+<<<<<<< HEAD
 	.netns_ok	= 1,
+=======
+>>>>>>> upstream/android-13
 };
 
 struct proto 	udplite_prot = {
@@ -53,15 +69,22 @@ struct proto 	udplite_prot = {
 	.sendpage	   = udp_sendpage,
 	.hash		   = udp_lib_hash,
 	.unhash		   = udp_lib_unhash,
+<<<<<<< HEAD
+=======
+	.rehash		   = udp_v4_rehash,
+>>>>>>> upstream/android-13
 	.get_port	   = udp_v4_get_port,
 	.memory_allocated  = &udp_memory_allocated,
 	.sysctl_mem	   = sysctl_udp_mem,
 	.obj_size	   = sizeof(struct udp_sock),
 	.h.udp_table	   = &udplite_table,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_udp_setsockopt,
 	.compat_getsockopt = compat_udp_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL(udplite_prot);
 

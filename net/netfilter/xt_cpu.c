@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Kernel module to match running CPU */
 
 /*
  * Might be used to distribute connections on several daemons, if
  * RPS (Remote Packet Steering) is enabled or NIC is multiqueue capable,
  * each RX queue IRQ affined to one CPU (1:1 mapping)
+<<<<<<< HEAD
  *
  */
 
@@ -12,6 +17,11 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ */
+
+/* (C) 2010 Eric Dumazet
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

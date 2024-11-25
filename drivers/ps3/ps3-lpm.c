@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PS3 Logical Performance Monitor.
  *
  *  Copyright (C) 2007 Sony Computer Entertainment Inc.
  *  Copyright 2007 Sony Corp.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -1108,8 +1115,13 @@ int ps3_lpm_open(enum ps3_lpm_tb_type tb_type, void *tb_cache,
 		lpm_priv->tb_cache_internal = NULL;
 		lpm_priv->tb_cache = NULL;
 	} else if (tb_cache) {
+<<<<<<< HEAD
 		if (tb_cache != (void *)_ALIGN_UP((unsigned long)tb_cache, 128)
 			|| tb_cache_size != _ALIGN_UP(tb_cache_size, 128)) {
+=======
+		if (tb_cache != (void *)ALIGN((unsigned long)tb_cache, 128)
+			|| tb_cache_size != ALIGN(tb_cache_size, 128)) {
+>>>>>>> upstream/android-13
 			dev_err(sbd_core(), "%s:%u: unaligned tb_cache\n",
 				__func__, __LINE__);
 			result = -EINVAL;
@@ -1123,12 +1135,19 @@ int ps3_lpm_open(enum ps3_lpm_tb_type tb_type, void *tb_cache,
 		lpm_priv->tb_cache_internal = kzalloc(
 			lpm_priv->tb_cache_size + 127, GFP_KERNEL);
 		if (!lpm_priv->tb_cache_internal) {
+<<<<<<< HEAD
 			dev_err(sbd_core(), "%s:%u: alloc internal tb_cache "
 				"failed\n", __func__, __LINE__);
 			result = -ENOMEM;
 			goto fail_malloc;
 		}
 		lpm_priv->tb_cache = (void *)_ALIGN_UP(
+=======
+			result = -ENOMEM;
+			goto fail_malloc;
+		}
+		lpm_priv->tb_cache = (void *)ALIGN(
+>>>>>>> upstream/android-13
 			(unsigned long)lpm_priv->tb_cache_internal, 128);
 	}
 
@@ -1210,7 +1229,11 @@ static int ps3_lpm_probe(struct ps3_system_bus_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ps3_lpm_remove(struct ps3_system_bus_device *dev)
+=======
+static void ps3_lpm_remove(struct ps3_system_bus_device *dev)
+>>>>>>> upstream/android-13
 {
 	dev_dbg(&dev->core, " -> %s:%u:\n", __func__, __LINE__);
 
@@ -1220,7 +1243,10 @@ static int ps3_lpm_remove(struct ps3_system_bus_device *dev)
 	lpm_priv = NULL;
 
 	dev_info(&dev->core, " <- %s:%u:\n", __func__, __LINE__);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct ps3_system_bus_driver ps3_lpm_driver = {

@@ -5,7 +5,11 @@
  * Description: cfag12864b LCD framebuffer driver
  *     Depends: cfag12864b
  *
+<<<<<<< HEAD
  *      Author: Copyright (C) Miguel Ojeda Sandonis
+=======
+ *      Author: Copyright (C) Miguel Ojeda <ojeda@kernel.org>
+>>>>>>> upstream/android-13
  *        Date: 2006-10-31
  */
 
@@ -52,11 +56,20 @@ static const struct fb_var_screeninfo cfag12864bfb_var = {
 
 static int cfag12864bfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	return vm_insert_page(vma, vma->vm_start,
 		virt_to_page(cfag12864b_buffer));
 }
 
 static struct fb_ops cfag12864bfb_ops = {
+=======
+	struct page *pages = virt_to_page(cfag12864b_buffer);
+
+	return vm_map_pages_zero(vma, &pages, 1);
+}
+
+static const struct fb_ops cfag12864bfb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_read = fb_sys_read,
 	.fb_write = fb_sys_write,
@@ -170,5 +183,9 @@ module_init(cfag12864bfb_init);
 module_exit(cfag12864bfb_exit);
 
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_AUTHOR("Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>");
+=======
+MODULE_AUTHOR("Miguel Ojeda <ojeda@kernel.org>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("cfag12864b LCD framebuffer driver");

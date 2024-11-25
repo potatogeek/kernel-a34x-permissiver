@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-1.0+
+=======
+/* SPDX-License-Identifier: GPL-1.0+ */
+>>>>>>> upstream/android-13
 /*
  * Renesas USB driver
  *
@@ -50,7 +54,11 @@ struct usbhs_pkt {
 		     struct usbhs_pkt *pkt);
 	struct work_struct work;
 	dma_addr_t dma;
+<<<<<<< HEAD
 	dma_cookie_t cookie;
+=======
+	const struct dmaengine_result *dma_result;
+>>>>>>> upstream/android-13
 	void *buf;
 	int length;
 	int trans;

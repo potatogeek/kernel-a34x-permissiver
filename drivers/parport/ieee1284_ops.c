@@ -27,12 +27,15 @@
 #undef DEBUG /* Don't want a garbled console */
 #endif
 
+<<<<<<< HEAD
 #ifdef DEBUG
 #define DPRINTK(stuff...) printk (stuff)
 #else
 #define DPRINTK(stuff...)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /***                                *
  * One-way data transfer functions. *
  *                                ***/
@@ -115,7 +118,11 @@ size_t parport_ieee1284_write_compat (struct parport *port,
 		if (signal_pending (current))
 			break;
 
+<<<<<<< HEAD
 		DPRINTK (KERN_DEBUG "%s: Timed out\n", port->name);
+=======
+		pr_debug("%s: Timed out\n", port->name);
+>>>>>>> upstream/android-13
 		break;
 
 	ready:
@@ -178,9 +185,14 @@ size_t parport_ieee1284_read_nibble (struct parport *port,
 		if (parport_wait_peripheral (port,
 					     PARPORT_STATUS_ACK, 0)) {
 			/* Timeout -- no more data? */
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG
 				 "%s: Nibble timeout at event 9 (%d bytes)\n",
 				 port->name, i/2);
+=======
+			pr_debug("%s: Nibble timeout at event 9 (%d bytes)\n",
+				 port->name, i / 2);
+>>>>>>> upstream/android-13
 			parport_frob_control (port, PARPORT_CONTROL_AUTOFD, 0);
 			break;
 		}
@@ -201,8 +213,12 @@ size_t parport_ieee1284_read_nibble (struct parport *port,
 					     PARPORT_STATUS_ACK,
 					     PARPORT_STATUS_ACK)) {
 			/* Timeout -- no more data? */
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG
 				 "%s: Nibble timeout at event 11\n",
+=======
+			pr_debug("%s: Nibble timeout at event 11\n",
+>>>>>>> upstream/android-13
 				 port->name);
 			break;
 		}
@@ -219,9 +235,14 @@ size_t parport_ieee1284_read_nibble (struct parport *port,
 		/* Read the last nibble without checking data avail. */
 		if (parport_read_status (port) & PARPORT_STATUS_ERROR) {
 		end_of_data:
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG
 				"%s: No more nibble data (%d bytes)\n",
 				port->name, i/2);
+=======
+			pr_debug("%s: No more nibble data (%d bytes)\n",
+				 port->name, i / 2);
+>>>>>>> upstream/android-13
 
 			/* Go to reverse idle phase. */
 			parport_frob_control (port,
@@ -272,8 +293,12 @@ size_t parport_ieee1284_read_byte (struct parport *port,
 			/* Timeout -- no more data? */
 			parport_frob_control (port, PARPORT_CONTROL_AUTOFD,
 						 0);
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG "%s: Byte timeout at event 9\n",
 				 port->name);
+=======
+			pr_debug("%s: Byte timeout at event 9\n", port->name);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -288,8 +313,12 @@ size_t parport_ieee1284_read_byte (struct parport *port,
 					     PARPORT_STATUS_ACK,
 					     PARPORT_STATUS_ACK)) {
 			/* Timeout -- no more data? */
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG "%s: Byte timeout at event 11\n",
 				 port->name);
+=======
+			pr_debug("%s: Byte timeout at event 11\n", port->name);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -307,8 +336,12 @@ size_t parport_ieee1284_read_byte (struct parport *port,
 		/* Read the last byte without checking data avail. */
 		if (parport_read_status (port) & PARPORT_STATUS_ERROR) {
 		end_of_data:
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG
 				 "%s: No more byte data (%zd bytes)\n",
+=======
+			pr_debug("%s: No more byte data (%zd bytes)\n",
+>>>>>>> upstream/android-13
 				 port->name, count);
 
 			/* Go to reverse idle phase. */
@@ -353,12 +386,19 @@ int ecp_forward_to_reverse (struct parport *port)
 					  PARPORT_STATUS_PAPEROUT, 0);
 
 	if (!retval) {
+<<<<<<< HEAD
 		DPRINTK (KERN_DEBUG "%s: ECP direction: reverse\n",
 			 port->name);
 		port->ieee1284.phase = IEEE1284_PH_REV_IDLE;
 	} else {
 		DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
 			 port->name);
+=======
+		pr_debug("%s: ECP direction: reverse\n", port->name);
+		port->ieee1284.phase = IEEE1284_PH_REV_IDLE;
+	} else {
+		pr_debug("%s: ECP direction: failed to reverse\n", port->name);
+>>>>>>> upstream/android-13
 		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
 	}
 
@@ -384,12 +424,19 @@ int ecp_reverse_to_forward (struct parport *port)
 
 	if (!retval) {
 		parport_data_forward (port);
+<<<<<<< HEAD
 		DPRINTK (KERN_DEBUG "%s: ECP direction: forward\n",
 			 port->name);
 		port->ieee1284.phase = IEEE1284_PH_FWD_IDLE;
 	} else {
 		DPRINTK (KERN_DEBUG
 			 "%s: ECP direction: failed to switch forward\n",
+=======
+		pr_debug("%s: ECP direction: forward\n", port->name);
+		port->ieee1284.phase = IEEE1284_PH_FWD_IDLE;
+	} else {
+		pr_debug("%s: ECP direction: failed to switch forward\n",
+>>>>>>> upstream/android-13
 			 port->name);
 		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
 	}
@@ -450,7 +497,11 @@ size_t parport_ieee1284_ecp_write_data (struct parport *port,
 		}
 
 		/* Time for Host Transfer Recovery (page 41 of IEEE1284) */
+<<<<<<< HEAD
 		DPRINTK (KERN_DEBUG "%s: ECP transfer stalled!\n", port->name);
+=======
+		pr_debug("%s: ECP transfer stalled!\n", port->name);
+>>>>>>> upstream/android-13
 
 		parport_frob_control (port, PARPORT_CONTROL_INIT,
 				      PARPORT_CONTROL_INIT);
@@ -466,8 +517,12 @@ size_t parport_ieee1284_ecp_write_data (struct parport *port,
 		if (!(parport_read_status (port) & PARPORT_STATUS_PAPEROUT))
 			break;
 
+<<<<<<< HEAD
 		DPRINTK (KERN_DEBUG "%s: Host transfer recovered\n",
 			 port->name);
+=======
+		pr_debug("%s: Host transfer recovered\n", port->name);
+>>>>>>> upstream/android-13
 
 		if (time_after_eq (jiffies, expire)) break;
 		goto try_again;
@@ -535,7 +590,11 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
 				goto out;
 
 			/* Yield the port for a while. */
+<<<<<<< HEAD
 			if (count && dev->port->irq != PARPORT_IRQ_NONE) {
+=======
+			if (dev->port->irq != PARPORT_IRQ_NONE) {
+>>>>>>> upstream/android-13
 				parport_release (dev);
 				schedule_timeout_interruptible(msecs_to_jiffies(40));
 				parport_claim_or_block (dev);
@@ -565,23 +624,36 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
                    command or a normal data byte, don't accept it. */
 		if (command) {
 			if (byte & 0x80) {
+<<<<<<< HEAD
 				DPRINTK (KERN_DEBUG "%s: stopping short at "
 					 "channel command (%02x)\n",
+=======
+				pr_debug("%s: stopping short at channel command (%02x)\n",
+>>>>>>> upstream/android-13
 					 port->name, byte);
 				goto out;
 			}
 			else if (port->ieee1284.mode != IEEE1284_MODE_ECPRLE)
+<<<<<<< HEAD
 				DPRINTK (KERN_DEBUG "%s: device illegally "
 					 "using RLE; accepting anyway\n",
+=======
+				pr_debug("%s: device illegally using RLE; accepting anyway\n",
+>>>>>>> upstream/android-13
 					 port->name);
 
 			rle_count = byte + 1;
 
 			/* Are we allowed to read that many bytes? */
 			if (rle_count > (len - count)) {
+<<<<<<< HEAD
 				DPRINTK (KERN_DEBUG "%s: leaving %d RLE bytes "
 					 "for next time\n", port->name,
 					 rle_count);
+=======
+				pr_debug("%s: leaving %d RLE bytes for next time\n",
+					 port->name, rle_count);
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -596,11 +668,18 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
 					     PARPORT_STATUS_ACK)) {
 			/* It's gone wrong.  Return what data we have
                            to the caller. */
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG "ECP read timed out at 45\n");
 
 			if (command)
 				printk (KERN_WARNING
 					"%s: command ignored (%02x)\n",
+=======
+			pr_debug("ECP read timed out at 45\n");
+
+			if (command)
+				pr_warn("%s: command ignored (%02x)\n",
+>>>>>>> upstream/android-13
 					port->name, byte);
 
 			break;
@@ -620,7 +699,11 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
 			memset (buf, byte, rle_count);
 			buf += rle_count;
 			count += rle_count;
+<<<<<<< HEAD
 			DPRINTK (KERN_DEBUG "%s: decompressed to %d bytes\n",
+=======
+			pr_debug("%s: decompressed to %d bytes\n",
+>>>>>>> upstream/android-13
 				 port->name, rle_count);
 		} else {
 			/* Normal data byte. */
@@ -686,7 +769,11 @@ size_t parport_ieee1284_ecp_write_addr (struct parport *port,
 		}
 
 		/* Time for Host Transfer Recovery (page 41 of IEEE1284) */
+<<<<<<< HEAD
 		DPRINTK (KERN_DEBUG "%s: ECP transfer stalled!\n", port->name);
+=======
+		pr_debug("%s: ECP transfer stalled!\n", port->name);
+>>>>>>> upstream/android-13
 
 		parport_frob_control (port, PARPORT_CONTROL_INIT,
 				      PARPORT_CONTROL_INIT);
@@ -702,8 +789,12 @@ size_t parport_ieee1284_ecp_write_addr (struct parport *port,
 		if (!(parport_read_status (port) & PARPORT_STATUS_PAPEROUT))
 			break;
 
+<<<<<<< HEAD
 		DPRINTK (KERN_DEBUG "%s: Host transfer recovered\n",
 			 port->name);
+=======
+		pr_debug("%s: Host transfer recovered\n", port->name);
+>>>>>>> upstream/android-13
 
 		if (time_after_eq (jiffies, expire)) break;
 		goto try_again;

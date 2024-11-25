@@ -40,6 +40,11 @@
 					   insmod -oslip_maxdev=nnn	*/
 #define SL_MTU		296		/* 296; I am used to 600- FvK	*/
 
+<<<<<<< HEAD
+=======
+/* some arch define END as assembly function ending, just undef it */
+#undef	END
+>>>>>>> upstream/android-13
 /* SLIP protocol characters. */
 #define END             0300		/* indicates end of frame	*/
 #define ESC             0333		/* indicates byte stuffing	*/

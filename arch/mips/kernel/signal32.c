@@ -46,7 +46,11 @@ SYSCALL_DEFINE3(32_sigaction, long, sig, const struct compat_sigaction __user *,
 		old_sigset_t mask;
 		s32 handler;
 
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, act, sizeof(*act)))
+=======
+		if (!access_ok(act, sizeof(*act)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		err |= __get_user(handler, &act->sa_handler);
 		new_ka.sa.sa_handler = (void __user *)(s64)handler;
@@ -61,7 +65,11 @@ SYSCALL_DEFINE3(32_sigaction, long, sig, const struct compat_sigaction __user *,
 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
 
 	if (!ret && oact) {
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)))
+=======
+		if (!access_ok(oact, sizeof(*oact)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		err |= __put_user(old_ka.sa.sa_flags, &oact->sa_flags);
 		err |= __put_user((u32)(u64)old_ka.sa.sa_handler,

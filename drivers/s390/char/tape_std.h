@@ -101,7 +101,10 @@ struct tape_request *tape_std_read_block(struct tape_device *, size_t);
 void tape_std_read_backward(struct tape_device *device,
 			    struct tape_request *request);
 struct tape_request *tape_std_write_block(struct tape_device *, size_t);
+<<<<<<< HEAD
 void tape_std_check_locate(struct tape_device *, struct tape_request *);
+=======
+>>>>>>> upstream/android-13
 
 /* Some non-mtop commands. */
 int tape_std_assign(struct tape_device *);
@@ -131,6 +134,7 @@ int tape_std_mtunload(struct tape_device *, int);
 int tape_std_mtweof(struct tape_device *, int);
 
 /* Event handlers */
+<<<<<<< HEAD
 void tape_std_default_handler(struct tape_device *);
 void tape_std_unexpect_uchk_handler(struct tape_device *);
 void tape_std_irq(struct tape_device *);
@@ -144,6 +148,10 @@ void tape_std_error_recovery_do_retry(struct tape_device *);
 void tape_std_error_recovery_read_opposite(struct tape_device *);
 void tape_std_error_recovery_HWBUG(struct tape_device *, int condno);
 
+=======
+void tape_std_process_eov(struct tape_device *);
+
+>>>>>>> upstream/android-13
 /* S390 tape types */
 enum s390_tape_type {
         tape_3480,

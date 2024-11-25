@@ -1,13 +1,19 @@
+<<<<<<< HEAD
 /*
 * This code is licenced under 
 * the General Public Licence
 * version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
 *
 * Copyright Adrian McMenamin 2005, 2006, 2007
 * <adrian@mcmen.demon.co.uk>
 * Requires firmware (BSD licenced) available from:
 * http://linuxdc.cvs.sourceforge.net/linuxdc/linux-sh-dc/sound/oss/aica/firmware/
 * or the maintainer
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of version 2 of the GNU General Public License as published by
@@ -22,6 +28,8 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/init.h>
@@ -48,7 +56,10 @@
 MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk>");
 MODULE_DESCRIPTION("Dreamcast AICA sound (pcm) driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Yamaha/SEGA, AICA}}");
+=======
+>>>>>>> upstream/android-13
 MODULE_FIRMWARE("aica_firmware.bin");
 
 /* module parameters */
@@ -379,6 +390,7 @@ static int snd_aicapcm_pcm_close(struct snd_pcm_substream
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_aicapcm_pcm_hw_free(struct snd_pcm_substream
 				   *substream)
 {
@@ -396,6 +408,8 @@ static int snd_aicapcm_pcm_hw_params(struct snd_pcm_substream
 				     params_buffer_bytes(hw_params));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_aicapcm_pcm_prepare(struct snd_pcm_substream
 				   *substream)
 {
@@ -432,9 +446,12 @@ static unsigned long snd_aicapcm_pcm_pointer(struct snd_pcm_substream
 static const struct snd_pcm_ops snd_aicapcm_playback_ops = {
 	.open = snd_aicapcm_pcm_open,
 	.close = snd_aicapcm_pcm_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_aicapcm_pcm_hw_params,
 	.hw_free = snd_aicapcm_pcm_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_aicapcm_pcm_prepare,
 	.trigger = snd_aicapcm_pcm_trigger,
 	.pointer = snd_aicapcm_pcm_pointer,
@@ -457,6 +474,7 @@ static int __init snd_aicapcmchip(struct snd_card_aica
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK,
 			&snd_aicapcm_playback_ops);
 	/* Allocate the DMA buffers */
+<<<<<<< HEAD
 	err =
 	    snd_pcm_lib_preallocate_pages_for_all(pcm,
 						  SNDRV_DMA_TYPE_CONTINUOUS,
@@ -465,6 +483,14 @@ static int __init snd_aicapcmchip(struct snd_card_aica
 						  AICA_BUFFER_SIZE,
 						  AICA_BUFFER_SIZE);
 	return err;
+=======
+	snd_pcm_set_managed_buffer_all(pcm,
+				       SNDRV_DMA_TYPE_CONTINUOUS,
+				       NULL,
+				       AICA_BUFFER_SIZE,
+				       AICA_BUFFER_SIZE);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Mixer controls */

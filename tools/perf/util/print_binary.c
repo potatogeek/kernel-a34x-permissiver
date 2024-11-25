@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "print_binary.h"
 #include <linux/log2.h>
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 
 int binary__fprintf(unsigned char *data, size_t len,
 		    size_t bytes_per_line, binary__fprintf_t printer,

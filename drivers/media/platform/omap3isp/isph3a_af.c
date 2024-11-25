@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * isph3a_af.c
  *
@@ -9,10 +13,13 @@
  * Contacts: David Cohen <dacohen@gmail.com>
  *	     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	     Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Linux specific include files */
@@ -354,9 +361,16 @@ int omap3isp_h3a_af_init(struct isp_device *isp)
 {
 	struct ispstat *af = &isp->isp_af;
 	struct omap3isp_h3a_af_config *af_cfg;
+<<<<<<< HEAD
 	struct omap3isp_h3a_af_config *af_recover_cfg;
 
 	af_cfg = devm_kzalloc(isp->dev, sizeof(*af_cfg), GFP_KERNEL);
+=======
+	struct omap3isp_h3a_af_config *af_recover_cfg = NULL;
+	int ret;
+
+	af_cfg = kzalloc(sizeof(*af_cfg), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (af_cfg == NULL)
 		return -ENOMEM;
 
@@ -366,12 +380,21 @@ int omap3isp_h3a_af_init(struct isp_device *isp)
 	af->isp = isp;
 
 	/* Set recover state configuration */
+<<<<<<< HEAD
 	af_recover_cfg = devm_kzalloc(isp->dev, sizeof(*af_recover_cfg),
 				      GFP_KERNEL);
 	if (!af_recover_cfg) {
 		dev_err(af->isp->dev,
 			"AF: cannot allocate memory for recover configuration.\n");
 		return -ENOMEM;
+=======
+	af_recover_cfg = kzalloc(sizeof(*af_recover_cfg), GFP_KERNEL);
+	if (!af_recover_cfg) {
+		dev_err(af->isp->dev,
+			"AF: cannot allocate memory for recover configuration.\n");
+		ret = -ENOMEM;
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	af_recover_cfg->paxel.h_start = OMAP3ISP_AF_PAXEL_HZSTART_MIN;
@@ -383,13 +406,30 @@ int omap3isp_h3a_af_init(struct isp_device *isp)
 	if (h3a_af_validate_params(af, af_recover_cfg)) {
 		dev_err(af->isp->dev,
 			"AF: recover configuration is invalid.\n");
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	af_recover_cfg->buf_size = h3a_af_get_buf_size(af_recover_cfg);
 	af->recover_priv = af_recover_cfg;
 
+<<<<<<< HEAD
 	return omap3isp_stat_init(af, "AF", &h3a_af_subdev_ops);
+=======
+	ret = omap3isp_stat_init(af, "AF", &h3a_af_subdev_ops);
+
+err:
+	if (ret) {
+		kfree(af_cfg);
+		kfree(af_recover_cfg);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 void omap3isp_h3a_af_cleanup(struct isp_device *isp)

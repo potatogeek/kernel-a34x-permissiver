@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 /*******************************************************************************
@@ -178,8 +184,13 @@ brcmf_proto_bcdc_query_dcmd(struct brcmf_pub *drvr, int ifidx, uint cmd,
 	*fwerr = 0;
 	ret = brcmf_proto_bcdc_msg(drvr, ifidx, cmd, buf, len, false);
 	if (ret < 0) {
+<<<<<<< HEAD
 		brcmf_err("brcmf_proto_bcdc_msg failed w/status %d\n",
 			  ret);
+=======
+		bphy_err(drvr, "brcmf_proto_bcdc_msg failed w/status %d\n",
+			 ret);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -195,9 +206,15 @@ retry:
 	if ((id < bcdc->reqid) && (++retries < RETRIES))
 		goto retry;
 	if (id != bcdc->reqid) {
+<<<<<<< HEAD
 		brcmf_err("%s: unexpected request id %d (expected %d)\n",
 			  brcmf_ifname(brcmf_get_ifp(drvr, ifidx)), id,
 			  bcdc->reqid);
+=======
+		bphy_err(drvr, "%s: unexpected request id %d (expected %d)\n",
+			 brcmf_ifname(brcmf_get_ifp(drvr, ifidx)), id,
+			 bcdc->reqid);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto done;
 	}
@@ -245,9 +262,15 @@ brcmf_proto_bcdc_set_dcmd(struct brcmf_pub *drvr, int ifidx, uint cmd,
 	id = (flags & BCDC_DCMD_ID_MASK) >> BCDC_DCMD_ID_SHIFT;
 
 	if (id != bcdc->reqid) {
+<<<<<<< HEAD
 		brcmf_err("%s: unexpected request id %d (expected %d)\n",
 			  brcmf_ifname(brcmf_get_ifp(drvr, ifidx)), id,
 			  bcdc->reqid);
+=======
+		bphy_err(drvr, "%s: unexpected request id %d (expected %d)\n",
+			 brcmf_ifname(brcmf_get_ifp(drvr, ifidx)), id,
+			 bcdc->reqid);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto done;
 	}
@@ -312,8 +335,13 @@ brcmf_proto_bcdc_hdrpull(struct brcmf_pub *drvr, bool do_fws,
 	}
 	if (((h->flags & BCDC_FLAG_VER_MASK) >> BCDC_FLAG_VER_SHIFT) !=
 	    BCDC_PROTO_VER) {
+<<<<<<< HEAD
 		brcmf_err("%s: non-BCDC packet received, flags 0x%x\n",
 			  brcmf_ifname(tmp_if), h->flags);
+=======
+		bphy_err(drvr, "%s: non-BCDC packet received, flags 0x%x\n",
+			 brcmf_ifname(tmp_if), h->flags);
+>>>>>>> upstream/android-13
 		return -EBADE;
 	}
 
@@ -408,9 +436,15 @@ brcmf_proto_bcdc_add_tdls_peer(struct brcmf_pub *drvr, int ifidx,
 }
 
 static void brcmf_proto_bcdc_rxreorder(struct brcmf_if *ifp,
+<<<<<<< HEAD
 				       struct sk_buff *skb)
 {
 	brcmf_fws_rxreorder(ifp, skb);
+=======
+				       struct sk_buff *skb, bool inirq)
+{
+	brcmf_fws_rxreorder(ifp, skb, inirq);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -460,7 +494,11 @@ int brcmf_proto_bcdc_attach(struct brcmf_pub *drvr)
 
 	/* ensure that the msg buf directly follows the cdc msg struct */
 	if ((unsigned long)(&bcdc->msg + 1) != (unsigned long)bcdc->buf) {
+<<<<<<< HEAD
 		brcmf_err("struct brcmf_proto_bcdc is not correctly defined\n");
+=======
+		bphy_err(drvr, "struct brcmf_proto_bcdc is not correctly defined\n");
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -490,6 +528,7 @@ fail:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 void brcmf_proto_bcdc_detach_pre_delif(struct brcmf_pub *drvr)
 {
 	struct brcmf_bcdc *bcdc = drvr->proto->pd;
@@ -498,10 +537,17 @@ void brcmf_proto_bcdc_detach_pre_delif(struct brcmf_pub *drvr)
 }
 
 void brcmf_proto_bcdc_detach_post_delif(struct brcmf_pub *drvr)
+=======
+void brcmf_proto_bcdc_detach(struct brcmf_pub *drvr)
+>>>>>>> upstream/android-13
 {
 	struct brcmf_bcdc *bcdc = drvr->proto->pd;
 
 	drvr->proto->pd = NULL;
+<<<<<<< HEAD
 	brcmf_fws_detach_post_delif(bcdc->fws);
+=======
+	brcmf_fws_detach(bcdc->fws);
+>>>>>>> upstream/android-13
 	kfree(bcdc);
 }

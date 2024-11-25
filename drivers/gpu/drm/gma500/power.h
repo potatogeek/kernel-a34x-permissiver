@@ -31,7 +31,13 @@
 #define _PSB_POWERMGMT_H_
 
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+struct device;
+struct drm_device;
+>>>>>>> upstream/android-13
 
 void gma_power_init(struct drm_device *dev);
 void gma_power_uninit(struct drm_device *dev);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -8,6 +12,7 @@
  *
  * These are definitions needed by the state machine.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email addresses:
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -166,6 +173,10 @@ sctp_state_fn_t sctp_sf_cookie_wait_icmp_abort;
 /* Prototypes for timeout event state functions.  */
 sctp_state_fn_t sctp_sf_do_6_3_3_rtx;
 sctp_state_fn_t sctp_sf_send_reconf;
+<<<<<<< HEAD
+=======
+sctp_state_fn_t sctp_sf_send_probe;
+>>>>>>> upstream/android-13
 sctp_state_fn_t sctp_sf_do_6_2_sack;
 sctp_state_fn_t sctp_sf_autoclose_timer_expire;
 
@@ -173,7 +184,11 @@ sctp_state_fn_t sctp_sf_autoclose_timer_expire;
 __u8 sctp_get_chunk_type(struct sctp_chunk *chunk);
 const struct sctp_sm_table_entry *sctp_sm_lookup_event(
 					struct net *net,
+<<<<<<< HEAD
 					enum sctp_event event_type,
+=======
+					enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 					enum sctp_state state,
 					union sctp_subtype event_subtype);
 int sctp_chunk_iif(const struct sctp_chunk *);
@@ -236,12 +251,25 @@ struct sctp_chunk *sctp_make_violation_paramlen(
 struct sctp_chunk *sctp_make_violation_max_retrans(
 					const struct sctp_association *asoc,
 					const struct sctp_chunk *chunk);
+<<<<<<< HEAD
 struct sctp_chunk *sctp_make_heartbeat(const struct sctp_association *asoc,
 				       const struct sctp_transport *transport);
+=======
+struct sctp_chunk *sctp_make_new_encap_port(
+					const struct sctp_association *asoc,
+					const struct sctp_chunk *chunk);
+struct sctp_chunk *sctp_make_heartbeat(const struct sctp_association *asoc,
+				       const struct sctp_transport *transport,
+				       __u32 probe_size);
+>>>>>>> upstream/android-13
 struct sctp_chunk *sctp_make_heartbeat_ack(const struct sctp_association *asoc,
 					   const struct sctp_chunk *chunk,
 					   const void *payload,
 					   const size_t paylen);
+<<<<<<< HEAD
+=======
+struct sctp_chunk *sctp_make_pad(const struct sctp_association *asoc, int len);
+>>>>>>> upstream/android-13
 struct sctp_chunk *sctp_make_op_error(const struct sctp_association *asoc,
 				      const struct sctp_chunk *chunk,
 				      __be16 cause_code, const void *payload,
@@ -313,7 +341,11 @@ struct sctp_chunk *sctp_process_strreset_resp(
 
 /* Prototypes for statetable processing. */
 
+<<<<<<< HEAD
 int sctp_do_sm(struct net *net, enum sctp_event event_type,
+=======
+int sctp_do_sm(struct net *net, enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 	       union sctp_subtype subtype, enum sctp_state state,
 	       struct sctp_endpoint *ep, struct sctp_association *asoc,
 	       void *event_arg, gfp_t gfp);
@@ -322,6 +354,10 @@ int sctp_do_sm(struct net *net, enum sctp_event event_type,
 void sctp_generate_t3_rtx_event(struct timer_list *t);
 void sctp_generate_heartbeat_event(struct timer_list *t);
 void sctp_generate_reconf_event(struct timer_list *t);
+<<<<<<< HEAD
+=======
+void sctp_generate_probe_event(struct timer_list *t);
+>>>>>>> upstream/android-13
 void sctp_generate_proto_unreach_event(struct timer_list *t);
 
 void sctp_ootb_pkt_free(struct sctp_packet *packet);
@@ -392,10 +428,18 @@ sctp_vtag_verify(const struct sctp_chunk *chunk,
 	 * Verification Tag value does not match the receiver's own
 	 * tag value, the receiver shall silently discard the packet...
 	 */
+<<<<<<< HEAD
         if (ntohl(chunk->sctp_hdr->vtag) == asoc->c.my_vtag)
                 return 1;
 
 	return 0;
+=======
+	if (ntohl(chunk->sctp_hdr->vtag) != asoc->c.my_vtag)
+		return 0;
+
+	chunk->transport->encap_port = SCTP_INPUT_CB(chunk->skb)->encap_port;
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 /* Check VTAG of the packet matches the sender's own tag and the T bit is

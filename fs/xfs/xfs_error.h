@@ -12,16 +12,29 @@ extern void xfs_error_report(const char *tag, int level, struct xfs_mount *mp,
 			const char *filename, int linenum,
 			xfs_failaddr_t failaddr);
 extern void xfs_corruption_error(const char *tag, int level,
+<<<<<<< HEAD
 			struct xfs_mount *mp, void *buf, size_t bufsize,
 			const char *filename, int linenum,
 			xfs_failaddr_t failaddr);
 extern void xfs_buf_verifier_error(struct xfs_buf *bp, int error,
 			const char *name, void *buf, size_t bufsz,
+=======
+			struct xfs_mount *mp, const void *buf, size_t bufsize,
+			const char *filename, int linenum,
+			xfs_failaddr_t failaddr);
+void xfs_buf_corruption_error(struct xfs_buf *bp, xfs_failaddr_t fa);
+extern void xfs_buf_verifier_error(struct xfs_buf *bp, int error,
+			const char *name, const void *buf, size_t bufsz,
+>>>>>>> upstream/android-13
 			xfs_failaddr_t failaddr);
 extern void xfs_verifier_error(struct xfs_buf *bp, int error,
 			xfs_failaddr_t failaddr);
 extern void xfs_inode_verifier_error(struct xfs_inode *ip, int error,
+<<<<<<< HEAD
 			const char *name, void *buf, size_t bufsz,
+=======
+			const char *name, const void *buf, size_t bufsz,
+>>>>>>> upstream/android-13
 			xfs_failaddr_t failaddr);
 
 #define	XFS_ERROR_REPORT(e, lvl, mp)	\
@@ -37,6 +50,7 @@ extern void xfs_inode_verifier_error(struct xfs_inode *ip, int error,
 /* Dump 128 bytes of any corrupt buffer */
 #define XFS_CORRUPTION_DUMP_LEN		(128)
 
+<<<<<<< HEAD
 /*
  * Macros to set EFSCORRUPTED & return/branch.
  */
@@ -63,6 +77,8 @@ extern void xfs_inode_verifier_error(struct xfs_inode *ip, int error,
 		} \
 	}
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 extern int xfs_errortag_init(struct xfs_mount *mp);
 extern void xfs_errortag_del(struct xfs_mount *mp);
@@ -98,5 +114,21 @@ extern int xfs_errortag_clearall(struct xfs_mount *mp);
 #define		XFS_PTAG_SHUTDOWN_IOERROR	0x00000020
 #define		XFS_PTAG_SHUTDOWN_LOGERROR	0x00000040
 #define		XFS_PTAG_FSBLOCK_ZERO		0x00000080
+<<<<<<< HEAD
+=======
+#define		XFS_PTAG_VERIFIER_ERROR		0x00000100
+
+#define XFS_PTAG_STRINGS \
+	{ XFS_NO_PTAG,			"none" }, \
+	{ XFS_PTAG_IFLUSH,		"iflush" }, \
+	{ XFS_PTAG_LOGRES,		"logres" }, \
+	{ XFS_PTAG_AILDELETE,		"aildelete" }, \
+	{ XFS_PTAG_ERROR_REPORT	,	"error_report" }, \
+	{ XFS_PTAG_SHUTDOWN_CORRUPT,	"corrupt" }, \
+	{ XFS_PTAG_SHUTDOWN_IOERROR,	"ioerror" }, \
+	{ XFS_PTAG_SHUTDOWN_LOGERROR,	"logerror" }, \
+	{ XFS_PTAG_FSBLOCK_ZERO,	"fsb_zero" }, \
+	{ XFS_PTAG_VERIFIER_ERROR,	"verifier" }
+>>>>>>> upstream/android-13
 
 #endif	/* __XFS_ERROR_H__ */

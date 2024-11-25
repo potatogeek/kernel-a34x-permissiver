@@ -228,7 +228,10 @@ static inline void ctcmpc_dump32(char *buf, int len)
 		ctcmpc_dumpit(buf, 32);
 }
 
+<<<<<<< HEAD
 int ctcmpc_open(struct net_device *);
+=======
+>>>>>>> upstream/android-13
 void ctcm_ccw_check_rc(struct channel *, int, char *);
 void mpc_group_ready(unsigned long adev);
 void mpc_channel_action(struct channel *ch, int direction, int action);

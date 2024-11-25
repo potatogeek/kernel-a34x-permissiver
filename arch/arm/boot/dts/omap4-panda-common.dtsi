@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011-2013 Texas Instruments Incorporated - http://www.ti.com/
  *
@@ -7,6 +8,15 @@
  */
 #include <dt-bindings/input/input.h>
 #include "elpida_ecb240abacn.dtsi"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011-2013 Texas Instruments Incorporated - https://www.ti.com/
+ */
+#include <dt-bindings/input/input.h>
+#include "elpida_ecb240abacn.dtsi"
+#include "omap4-mcpdm.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	memory@80000000 {
@@ -14,6 +24,29 @@
 		reg = <0x80000000 0x40000000>; /* 1 GB */
 	};
 
+<<<<<<< HEAD
+=======
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		dsp_memory_region: dsp-memory@98000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x98000000 0x800000>;
+			reusable;
+			status = "okay";
+		};
+
+		ipu_memory_region: ipu-memory@98800000 {
+			compatible = "shared-dma-pool";
+			reg = <0x98800000 0x7000000>;
+			reusable;
+			status = "okay";
+		};
+	};
+
+>>>>>>> upstream/android-13
 	chosen {
 		stdout-path = &uart3;
 	};
@@ -226,6 +259,7 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	mcpdm_pins: pinmux_mcpdm_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x106, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* abe_pdm_ul_data.abe_pdm_ul_data */
@@ -236,6 +270,8 @@
 		>;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	mcbsp1_pins: pinmux_mcbsp1_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x0fe, PIN_INPUT | MUX_MODE0)		/* abe_mcbsp1_clkx.abe_mcbsp1_clkx */
@@ -485,8 +521,15 @@
 	wlcore: wlcore@2 {
 		compatible = "ti,wl1271";
 		reg = <2>;
+<<<<<<< HEAD
 		interrupt-parent = <&gpio2>;
 		interrupts = <21 IRQ_TYPE_EDGE_RISING>; /* gpio 53 */
+=======
+		/* gpio_53 with gpmc_ncs3 pad as wakeup */
+		interrupts-extended = <&gpio2 21 IRQ_TYPE_LEVEL_HIGH>,
+				      <&omap4_pmx_core 0x3a>;
+		interrupt-names = "irq", "wakeup";
+>>>>>>> upstream/android-13
 		ref-clock-frequency = <38400000>;
 	};
 };
@@ -507,6 +550,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &mcpdm {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcpdm_pins>;
@@ -517,6 +561,8 @@
 	status = "okay";
 };
 
+=======
+>>>>>>> upstream/android-13
 &twl_usb_comparator {
 	usb-supply = <&vusb>;
 };
@@ -566,7 +612,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	port {
 		dpi_out: endpoint {
@@ -577,12 +627,20 @@
 };
 
 &dsi2 {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdd-supply = <&vcxio>;
 };
 
 &hdmi {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdda-supply = <&vdac>;
 
 	port {
@@ -591,3 +649,20 @@
 		};
 	};
 };
+<<<<<<< HEAD
+=======
+
+&dsp {
+	status = "okay";
+	memory-region = <&dsp_memory_region>;
+	ti,timers = <&timer5>;
+	ti,watchdog-timers = <&timer6>;
+};
+
+&ipu {
+	status = "okay";
+	memory-region = <&ipu_memory_region>;
+	ti,timers = <&timer3>;
+	ti,watchdog-timers = <&timer9>, <&timer11>;
+};
+>>>>>>> upstream/android-13

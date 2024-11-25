@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * macfb.c: Generic framebuffer for Macs whose colourmaps/modes we
  * don't know how to set.
@@ -17,10 +21,13 @@
  *
  * The VideoToolbox "Bugs" web page at
  * http://rajsky.psych.nyu.edu/Tips/VideoBugs.html
+<<<<<<< HEAD
  *
  * This code is free software.  You may copy, modify, and distribute
  * it subject to the terms and conditions of the GNU General Public
  * License, version 2, or any later version, at your convenience.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -120,10 +127,14 @@ struct jet_cmap_regs {
 #define PIXEL_TO_MM(a)	(((a)*10)/28)	/* width in mm at 72 dpi */
 
 static struct fb_var_screeninfo macfb_defined = {
+<<<<<<< HEAD
 	.bits_per_pixel	= 8,
 	.activate	= FB_ACTIVATE_NOW,
 	.width		= -1,
 	.height		= -1,
+=======
+	.activate	= FB_ACTIVATE_NOW,
+>>>>>>> upstream/android-13
 	.right_margin	= 32,
 	.upper_margin	= 16,
 	.lower_margin	= 4,
@@ -139,7 +150,10 @@ static struct fb_fix_screeninfo macfb_fix = {
 static void *slot_addr;
 static struct fb_info fb_info;
 static u32 pseudo_palette[16];
+<<<<<<< HEAD
 static int inverse;
+=======
+>>>>>>> upstream/android-13
 static int vidtest;
 
 /*
@@ -152,7 +166,11 @@ static int dafb_setpalette(unsigned int regno, unsigned int red,
 			   unsigned int green, unsigned int blue,
 			   struct fb_info *info)
 {
+<<<<<<< HEAD
 	static int lastreg = -1;
+=======
+	static int lastreg = -2;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	local_irq_save(flags);
@@ -201,9 +219,12 @@ static int v8_brazil_setpalette(unsigned int regno, unsigned int red,
 	unsigned int bpp = info->var.bits_per_pixel;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (bpp > 8)
 		return 1; /* failsafe */
 
+=======
+>>>>>>> upstream/android-13
 	local_irq_save(flags);
 
 	/* On these chips, the CLUT register numbers are spread out
@@ -234,9 +255,12 @@ static int rbv_setpalette(unsigned int regno, unsigned int red,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (info->var.bits_per_pixel > 8)
 		return 1; /* failsafe */
 
+=======
+>>>>>>> upstream/android-13
 	local_irq_save(flags);
 
 	/* From the VideoToolbox driver.  Seems to be saying that
@@ -353,9 +377,12 @@ static int civic_setpalette(unsigned int regno, unsigned int red,
 	unsigned long flags;
 	int clut_status;
 	
+<<<<<<< HEAD
 	if (info->var.bits_per_pixel > 8)
 		return 1; /* failsafe */
 
+=======
+>>>>>>> upstream/android-13
 	local_irq_save(flags);
 
 	/* Set the register address */
@@ -494,7 +521,11 @@ static int macfb_setcolreg(unsigned regno, unsigned red, unsigned green,
 			break;
 		/*
 		 * 24-bit colour almost doesn't exist on 68k Macs --
+<<<<<<< HEAD
 		 * http://support.apple.com/kb/TA28634 (Old Article: 10992)
+=======
+		 * https://support.apple.com/kb/TA28634 (Old Article: 10992)
+>>>>>>> upstream/android-13
 		 */
 		case 24:
 		case 32:
@@ -512,7 +543,11 @@ static int macfb_setcolreg(unsigned regno, unsigned red, unsigned green,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops macfb_ops = {
+=======
+static const struct fb_ops macfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_setcolreg	= macfb_setcolreg,
 	.fb_fillrect	= cfb_fillrect,
@@ -532,7 +567,11 @@ static void __init macfb_setup(char *options)
 			continue;
 
 		if (!strcmp(this_opt, "inverse"))
+<<<<<<< HEAD
 			inverse = 1;
+=======
+			fb_invert_cmaps();
+>>>>>>> upstream/android-13
 		else
 			if (!strcmp(this_opt, "vidtest"))
 				vidtest = 1; /* enable experimental CLUT code */
@@ -688,17 +727,26 @@ static int __init macfb_init(void)
 		case NUBUS_DRHW_APPLE_MDC:
 			strcpy(macfb_fix.id, "Mac Disp. Card");
 			macfb_setpalette = mdc_setpalette;
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 		case NUBUS_DRHW_APPLE_TFB:
 			strcpy(macfb_fix.id, "Toby");
 			macfb_setpalette = toby_setpalette;
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 		case NUBUS_DRHW_APPLE_JET:
 			strcpy(macfb_fix.id, "Jet");
 			macfb_setpalette = jet_setpalette;
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 		default:
 			strcpy(macfb_fix.id, "Generic NuBus");
@@ -731,7 +779,10 @@ static int __init macfb_init(void)
 			strcpy(macfb_fix.id, "DAFB");
 			macfb_setpalette = dafb_setpalette;
 			dafb_cmap_regs = ioremap(DAFB_BASE, 0x1000);
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		/*
@@ -741,7 +792,10 @@ static int __init macfb_init(void)
 			strcpy(macfb_fix.id, "V8");
 			macfb_setpalette = v8_brazil_setpalette;
 			v8_brazil_cmap_regs = ioremap(DAC_BASE, 0x1000);
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		/*
@@ -755,7 +809,10 @@ static int __init macfb_init(void)
 			strcpy(macfb_fix.id, "Brazil");
 			macfb_setpalette = v8_brazil_setpalette;
 			v8_brazil_cmap_regs = ioremap(DAC_BASE, 0x1000);
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		/*
@@ -772,7 +829,10 @@ static int __init macfb_init(void)
 			strcpy(macfb_fix.id, "Sonora");
 			macfb_setpalette = v8_brazil_setpalette;
 			v8_brazil_cmap_regs = ioremap(DAC_BASE, 0x1000);
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		/*
@@ -785,7 +845,10 @@ static int __init macfb_init(void)
 			strcpy(macfb_fix.id, "RBV");
 			macfb_setpalette = rbv_setpalette;
 			rbv_cmap_regs = ioremap(DAC_BASE, 0x1000);
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		/*
@@ -796,7 +859,10 @@ static int __init macfb_init(void)
 			strcpy(macfb_fix.id, "Civic");
 			macfb_setpalette = civic_setpalette;
 			civic_cmap_regs = ioremap(CIVIC_BASE, 0x1000);
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		
@@ -810,7 +876,10 @@ static int __init macfb_init(void)
 				macfb_setpalette = v8_brazil_setpalette;
 				v8_brazil_cmap_regs =
 					ioremap(DAC_BASE, 0x1000);
+<<<<<<< HEAD
 				macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			}
 			break;
 
@@ -823,7 +892,10 @@ static int __init macfb_init(void)
 				macfb_setpalette = v8_brazil_setpalette;
 				v8_brazil_cmap_regs =
 					ioremap(DAC_BASE, 0x1000);
+<<<<<<< HEAD
 				macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			}
 			break;
 
@@ -892,7 +964,10 @@ static int __init macfb_init(void)
 			strcpy(macfb_fix.id, "CSC");
 			macfb_setpalette = csc_setpalette;
 			csc_cmap_regs = ioremap(CSC_BASE, 0x1000);
+<<<<<<< HEAD
 			macfb_defined.activate = FB_ACTIVATE_NOW;
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		default:

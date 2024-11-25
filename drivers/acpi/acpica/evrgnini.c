@@ -3,7 +3,11 @@
  *
  * Module Name: evrgnini- ACPI address_space (op_region) init
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -38,6 +42,10 @@ acpi_ev_system_memory_region_setup(acpi_handle handle,
 	union acpi_operand_object *region_desc =
 	    (union acpi_operand_object *)handle;
 	struct acpi_mem_space_context *local_region_context;
+<<<<<<< HEAD
+=======
+	struct acpi_mem_mapping *mm;
+>>>>>>> upstream/android-13
 
 	ACPI_FUNCTION_TRACE(ev_system_memory_region_setup);
 
@@ -46,6 +54,7 @@ acpi_ev_system_memory_region_setup(acpi_handle handle,
 			local_region_context =
 			    (struct acpi_mem_space_context *)*region_context;
 
+<<<<<<< HEAD
 			/* Delete a cached mapping if present */
 
 			if (local_region_context->mapped_length) {
@@ -53,6 +62,16 @@ acpi_ev_system_memory_region_setup(acpi_handle handle,
 						     mapped_logical_address,
 						     local_region_context->
 						     mapped_length);
+=======
+			/* Delete memory mappings if present */
+
+			while (local_region_context->first_mm) {
+				mm = local_region_context->first_mm;
+				local_region_context->first_mm = mm->next_mm;
+				acpi_os_unmap_memory(mm->logical_address,
+						     mm->length);
+				ACPI_FREE(mm);
+>>>>>>> upstream/android-13
 			}
 			ACPI_FREE(local_region_context);
 			*region_context = NULL;
@@ -198,7 +217,10 @@ acpi_ev_pci_config_region_setup(acpi_handle handle,
 						 * root bridge. Still need to return a context object
 						 * for the new PCI_Config operation region, however.
 						 */
+<<<<<<< HEAD
 						status = AE_OK;
+=======
+>>>>>>> upstream/android-13
 					} else {
 						ACPI_EXCEPTION((AE_INFO, status,
 								"Could not install PciConfig handler "
@@ -516,6 +538,7 @@ acpi_status acpi_ev_initialize_region(union acpi_operand_object *region_obj)
 				handler_obj = obj_desc->common_notify.handler;
 				break;
 
+<<<<<<< HEAD
 			case ACPI_TYPE_METHOD:
 				/*
 				 * If we are executing module level code, the original
@@ -535,6 +558,8 @@ acpi_status acpi_ev_initialize_region(union acpi_operand_object *region_obj)
 				}
 				break;
 
+=======
+>>>>>>> upstream/android-13
 			default:
 
 				/* Ignore other objects */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
 * Filename: target_core_fabric_configfs.c
  *
@@ -8,6 +12,7 @@
  *
  * Nicholas A. Bellinger <nab@linux-iscsi.org>
 *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 #include <linux/module.h>
@@ -203,7 +210,11 @@ static ssize_t target_fabric_mappedlun_write_protect_store(
 
 	pr_debug("%s_ConfigFS: Changed Initiator ACL: %s"
 		" Mapped LUN: %llu Write Protect bit to %s\n",
+<<<<<<< HEAD
 		se_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+		se_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 		se_nacl->initiatorname, lacl->mapped_lun, (wp) ? "ON" : "OFF");
 
 	return count;
@@ -900,6 +911,10 @@ static void target_fabric_release_wwn(struct config_item *item)
 	struct target_fabric_configfs *tf = wwn->wwn_tf;
 
 	configfs_remove_default_groups(&wwn->fabric_stat_group);
+<<<<<<< HEAD
+=======
+	configfs_remove_default_groups(&wwn->param_group);
+>>>>>>> upstream/android-13
 	tf->tf_ops->fabric_drop_wwn(wwn);
 }
 
@@ -926,6 +941,60 @@ TF_CIT_SETUP(wwn_fabric_stats, NULL, NULL, NULL);
 
 /* End of tfc_wwn_fabric_stats_cit */
 
+<<<<<<< HEAD
+=======
+static ssize_t
+target_fabric_wwn_cmd_completion_affinity_show(struct config_item *item,
+					       char *page)
+{
+	struct se_wwn *wwn = container_of(to_config_group(item), struct se_wwn,
+					  param_group);
+	return sprintf(page, "%d\n",
+		       wwn->cmd_compl_affinity == WORK_CPU_UNBOUND ?
+		       SE_COMPL_AFFINITY_CURR_CPU : wwn->cmd_compl_affinity);
+}
+
+static ssize_t
+target_fabric_wwn_cmd_completion_affinity_store(struct config_item *item,
+						const char *page, size_t count)
+{
+	struct se_wwn *wwn = container_of(to_config_group(item), struct se_wwn,
+					  param_group);
+	int compl_val;
+
+	if (kstrtoint(page, 0, &compl_val))
+		return -EINVAL;
+
+	switch (compl_val) {
+	case SE_COMPL_AFFINITY_CPUID:
+		wwn->cmd_compl_affinity = compl_val;
+		break;
+	case SE_COMPL_AFFINITY_CURR_CPU:
+		wwn->cmd_compl_affinity = WORK_CPU_UNBOUND;
+		break;
+	default:
+		if (compl_val < 0 || compl_val >= nr_cpu_ids ||
+		    !cpu_online(compl_val)) {
+			pr_err("Command completion value must be between %d and %d or an online CPU.\n",
+			       SE_COMPL_AFFINITY_CPUID,
+			       SE_COMPL_AFFINITY_CURR_CPU);
+			return -EINVAL;
+		}
+		wwn->cmd_compl_affinity = compl_val;
+	}
+
+	return count;
+}
+CONFIGFS_ATTR(target_fabric_wwn_, cmd_completion_affinity);
+
+static struct configfs_attribute *target_fabric_wwn_param_attrs[] = {
+	&target_fabric_wwn_attr_cmd_completion_affinity,
+	NULL,
+};
+
+TF_CIT_SETUP(wwn_param, NULL, NULL, target_fabric_wwn_param_attrs);
+
+>>>>>>> upstream/android-13
 /* Start of tfc_wwn_cit */
 
 static struct config_group *target_fabric_make_wwn(
@@ -945,6 +1014,10 @@ static struct config_group *target_fabric_make_wwn(
 	if (!wwn || IS_ERR(wwn))
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
+=======
+	wwn->cmd_compl_affinity = SE_COMPL_AFFINITY_CPUID;
+>>>>>>> upstream/android-13
 	wwn->wwn_tf = tf;
 
 	config_group_init_type_name(&wwn->wwn_group, name, &tf->tf_tpg_cit);
@@ -953,6 +1026,13 @@ static struct config_group *target_fabric_make_wwn(
 			&tf->tf_wwn_fabric_stats_cit);
 	configfs_add_default_group(&wwn->fabric_stat_group, &wwn->wwn_group);
 
+<<<<<<< HEAD
+=======
+	config_group_init_type_name(&wwn->param_group, "param",
+			&tf->tf_wwn_param_cit);
+	configfs_add_default_group(&wwn->param_group, &wwn->wwn_group);
+
+>>>>>>> upstream/android-13
 	if (tf->tf_ops->add_wwn_groups)
 		tf->tf_ops->add_wwn_groups(wwn);
 	return &wwn->wwn_group;
@@ -982,6 +1062,10 @@ int target_fabric_setup_cits(struct target_fabric_configfs *tf)
 	target_fabric_setup_discovery_cit(tf);
 	target_fabric_setup_wwn_cit(tf);
 	target_fabric_setup_wwn_fabric_stats_cit(tf);
+<<<<<<< HEAD
+=======
+	target_fabric_setup_wwn_param_cit(tf);
+>>>>>>> upstream/android-13
 	target_fabric_setup_tpg_cit(tf);
 	target_fabric_setup_tpg_base_cit(tf);
 	target_fabric_setup_tpg_port_cit(tf);

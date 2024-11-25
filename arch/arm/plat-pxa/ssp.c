@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-pxa/ssp.c
  *
@@ -6,10 +10,13 @@
  *  Copyright (C) 2003 Russell King.
  *  Copyright (C) 2003 Wolfson Microelectronics PLC
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  PXA2xx SSP driver.  This provides the generic core for simple
  *  IO-based SSP applications and allows easy port setup for DMA access.
  *
@@ -92,7 +99,11 @@ void pxa_ssp_free(struct ssp_device *ssp)
 		ssp->use_count--;
 		ssp->label = NULL;
 	} else
+<<<<<<< HEAD
 		dev_err(&ssp->pdev->dev, "device already free\n");
+=======
+		dev_err(ssp->dev, "device already free\n");
+>>>>>>> upstream/android-13
 	mutex_unlock(&ssp_lock);
 }
 EXPORT_SYMBOL(pxa_ssp_free);
@@ -121,7 +132,11 @@ static int pxa_ssp_probe(struct platform_device *pdev)
 	if (ssp == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ssp->pdev = pdev;
+=======
+	ssp->dev = dev;
+>>>>>>> upstream/android-13
 
 	ssp->clk = devm_clk_get(dev, NULL);
 	if (IS_ERR(ssp->clk))

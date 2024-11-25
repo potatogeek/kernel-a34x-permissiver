@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP2+ common Power & Reset Management (PRM) IP block functions
  *
  * Copyright (C) 2011 Texas Instruments, Inc.
  * Tero Kristo <t-kristo@ti.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * For historical purposes, the API used to configure the PRM
  * interrupt handler refers to it as the "PRCM interrupt."  The
  * underlying registers are located in the PRM on OMAP3/4.

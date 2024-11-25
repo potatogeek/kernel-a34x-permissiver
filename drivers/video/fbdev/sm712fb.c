@@ -1047,7 +1047,11 @@ static ssize_t smtcfb_read(struct fb_info *info, char __user *buf,
 	if (count + p > total_size)
 		count = total_size - p;
 
+<<<<<<< HEAD
 	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
+=======
+	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!buffer)
 		return -ENOMEM;
 
@@ -1059,6 +1063,7 @@ static ssize_t smtcfb_read(struct fb_info *info, char __user *buf,
 	while (count) {
 		c = (count > PAGE_SIZE) ? PAGE_SIZE : count;
 		dst = buffer;
+<<<<<<< HEAD
 		for (i = c >> 2; i--;) {
 			*dst = fb_readl(src++);
 			*dst = big_swap(*dst);
@@ -1077,6 +1082,15 @@ static ssize_t smtcfb_read(struct fb_info *info, char __user *buf,
 				}
 			}
 			src = (u32 __iomem *)src8;
+=======
+		for (i = (c + 3) >> 2; i--;) {
+			u32 val;
+
+			val = fb_readl(src);
+			*dst = big_swap(val);
+			src++;
+			dst++;
+>>>>>>> upstream/android-13
 		}
 
 		if (copy_to_user(buf, buffer, c)) {
@@ -1130,7 +1144,11 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
 		count = total_size - p;
 	}
 
+<<<<<<< HEAD
 	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
+=======
+	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!buffer)
 		return -ENOMEM;
 
@@ -1148,6 +1166,7 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
 			break;
 		}
 
+<<<<<<< HEAD
 		for (i = c >> 2; i--;) {
 			fb_writel(big_swap(*src), dst++);
 			src++;
@@ -1166,6 +1185,13 @@ static ssize_t smtcfb_write(struct fb_info *info, const char __user *buf,
 			}
 			dst = (u32 __iomem *)dst8;
 		}
+=======
+		for (i = (c + 3) >> 2; i--;) {
+			fb_writel(big_swap(*src), dst);
+			dst++;
+			src++;
+		}
+>>>>>>> upstream/android-13
 
 		*ppos += c;
 		buf += c;
@@ -1369,7 +1395,11 @@ static int smtc_set_par(struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops smtcfb_ops = {
+=======
+static const struct fb_ops smtcfb_ops = {
+>>>>>>> upstream/android-13
 	.owner        = THIS_MODULE,
 	.fb_check_var = smtc_check_var,
 	.fb_set_par   = smtc_set_par,
@@ -1540,7 +1570,10 @@ static int smtcfb_pci_probe(struct pci_dev *pdev,
 
 	info = framebuffer_alloc(sizeof(*sfb), &pdev->dev);
 	if (!info) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "framebuffer_alloc failed\n");
+=======
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto failed_free;
 	}
@@ -1605,6 +1638,17 @@ static int smtcfb_pci_probe(struct pci_dev *pdev,
 		sfb->fb->fix.mmio_start = mmio_base;
 		sfb->fb->fix.mmio_len = 0x00200000;
 		sfb->dp_regs = ioremap(mmio_base, 0x00200000 + smem_size);
+<<<<<<< HEAD
+=======
+		if (!sfb->dp_regs) {
+			dev_err(&pdev->dev,
+				"%s: unable to map memory mapped IO!\n",
+				sfb->fb->fix.id);
+			err = -ENOMEM;
+			goto failed_fb;
+		}
+
+>>>>>>> upstream/android-13
 		sfb->lfb = sfb->dp_regs + 0x00200000;
 		sfb->mmio = (smtc_regbaseaddress =
 		    sfb->dp_regs + 0x000c0000);
@@ -1617,7 +1661,11 @@ static int smtcfb_pci_probe(struct pci_dev *pdev,
 	default:
 		dev_err(&pdev->dev,
 			"No valid Silicon Motion display chip was detected!\n");
+<<<<<<< HEAD
 
+=======
+		err = -ENODEV;
+>>>>>>> upstream/android-13
 		goto failed_fb;
 	}
 
@@ -1697,10 +1745,15 @@ static void smtcfb_pci_remove(struct pci_dev *pdev)
 
 static int __maybe_unused smtcfb_pci_suspend(struct device *device)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct smtcfb_info *sfb;
 
 	sfb = pci_get_drvdata(pdev);
+=======
+	struct smtcfb_info *sfb = dev_get_drvdata(device);
+
+>>>>>>> upstream/android-13
 
 	/* set the hw in sleep mode use external clock and self memory refresh
 	 * so that we can turn off internal PLLs later on
@@ -1720,10 +1773,15 @@ static int __maybe_unused smtcfb_pci_suspend(struct device *device)
 
 static int __maybe_unused smtcfb_pci_resume(struct device *device)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct smtcfb_info *sfb;
 
 	sfb = pci_get_drvdata(pdev);
+=======
+	struct smtcfb_info *sfb = dev_get_drvdata(device);
+
+>>>>>>> upstream/android-13
 
 	/* reinit hardware */
 	sm7xx_init_hw();

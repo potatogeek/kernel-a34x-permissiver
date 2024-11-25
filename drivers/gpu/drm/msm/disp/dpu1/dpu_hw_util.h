@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_HW_UTIL_H
@@ -18,7 +23,10 @@
 #include "dpu_hw_mdss.h"
 
 #define REG_MASK(n)                     ((BIT(n)) - 1)
+<<<<<<< HEAD
 struct dpu_format_extended;
+=======
+>>>>>>> upstream/android-13
 
 /*
  * This is the common struct maintained by each sub block
@@ -106,6 +114,10 @@ struct dpu_hw_scaler3_de_cfg {
  * @ cir_lut:      pointer to circular filter LUT
  * @ sep_lut:      pointer to separable filter LUT
  * @ de: detail enhancer configuration
+<<<<<<< HEAD
+=======
+ * @ dir_weight:   Directional weight
+>>>>>>> upstream/android-13
  */
 struct dpu_hw_scaler3_cfg {
 	u32 enable;
@@ -146,6 +158,7 @@ struct dpu_hw_scaler3_cfg {
 	 * Detail enhancer settings
 	 */
 	struct dpu_hw_scaler3_de_cfg de;
+<<<<<<< HEAD
 };
 
 struct dpu_hw_scaler3_lut_cfg {
@@ -156,6 +169,10 @@ struct dpu_hw_scaler3_lut_cfg {
 	size_t cir_len;
 	u32 *sep_lut;
 	size_t sep_len;
+=======
+
+	u32 dir_weight;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -325,12 +342,15 @@ int dpu_reg_read(struct dpu_hw_blk_reg_map *c, u32 reg_off);
 #define DPU_REG_WRITE(c, off, val) dpu_reg_write(c, off, val, #off)
 #define DPU_REG_READ(c, off) dpu_reg_read(c, off)
 
+<<<<<<< HEAD
 #define MISR_FRAME_COUNT_MASK		0xFF
 #define MISR_CTRL_ENABLE		BIT(8)
 #define MISR_CTRL_STATUS		BIT(9)
 #define MISR_CTRL_STATUS_CLEAR		BIT(10)
 #define INTF_MISR_CTRL_FREE_RUN_MASK	BIT(31)
 
+=======
+>>>>>>> upstream/android-13
 void *dpu_hw_util_get_dir(void);
 
 void dpu_hw_setup_scaler3(struct dpu_hw_blk_reg_map *c,

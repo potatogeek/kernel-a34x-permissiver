@@ -54,17 +54,24 @@
 #include <linux/nvram.h>
 #include <linux/adb.h>
 #include <linux/cuda.h>
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MAC
 #include <asm/macintosh.h>
 #else
 #include <asm/prom.h>
 #endif
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "macmodes.h"
 #include "valkyriefb.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_MAC
 /* We don't yet have functions to read the PRAM... perhaps we can
    adapt them from the PPC code? */
@@ -74,6 +81,10 @@ static int default_cmode = CMODE_8;
 static int default_vmode = VMODE_NVRAM;
 static int default_cmode = CMODE_NVRAM;
 #endif
+=======
+static int default_vmode = VMODE_NVRAM;
+static int default_cmode = CMODE_NVRAM;
+>>>>>>> upstream/android-13
 
 struct fb_par_valkyrie {
 	int	vmode, cmode;
@@ -122,7 +133,11 @@ static int valkyrie_init_info(struct fb_info *info, struct fb_info_valkyrie *p);
 static void valkyrie_par_to_fix(struct fb_par_valkyrie *par, struct fb_fix_screeninfo *fix);
 static void valkyrie_init_fix(struct fb_fix_screeninfo *fix, struct fb_info_valkyrie *p);
 
+<<<<<<< HEAD
 static struct fb_ops valkyriefb_ops = {
+=======
+static const struct fb_ops valkyriefb_ops = {
+>>>>>>> upstream/android-13
 	.owner =	THIS_MODULE,
 	.fb_check_var =	valkyriefb_check_var,
 	.fb_set_par =	valkyriefb_set_par,
@@ -285,6 +300,7 @@ static void __init valkyrie_choose_mode(struct fb_info_valkyrie *p)
 	printk(KERN_INFO "Monitor sense value = 0x%x\n", p->sense);
 
 	/* Try to pick a video mode out of NVRAM if we have one. */
+<<<<<<< HEAD
 #if !defined(CONFIG_MAC) && defined(CONFIG_NVRAM)
 	if (default_vmode == VMODE_NVRAM) {
 		default_vmode = nvram_read_byte(NV_VMODE);
@@ -303,6 +319,23 @@ static void __init valkyrie_choose_mode(struct fb_info_valkyrie *p)
 		default_cmode = nvram_read_byte(NV_CMODE);
 #endif
 
+=======
+#ifdef CONFIG_PPC_PMAC
+	if (IS_REACHABLE(CONFIG_NVRAM) && default_vmode == VMODE_NVRAM)
+		default_vmode = nvram_read_byte(NV_VMODE);
+#endif
+	if (default_vmode <= 0 || default_vmode > VMODE_MAX ||
+	    !valkyrie_reg_init[default_vmode - 1]) {
+		default_vmode = mac_map_monitor_sense(p->sense);
+		if (!valkyrie_reg_init[default_vmode - 1])
+			default_vmode = VMODE_640_480_67;
+	}
+
+#ifdef CONFIG_PPC_PMAC
+	if (IS_REACHABLE(CONFIG_NVRAM) && default_cmode == CMODE_NVRAM)
+		default_cmode = nvram_read_byte(NV_CMODE);
+#endif
+>>>>>>> upstream/android-13
 	/*
 	 * Reduce the pixel size if we don't have enough VRAM or bandwidth.
 	 */
@@ -318,7 +351,11 @@ static void __init valkyrie_choose_mode(struct fb_info_valkyrie *p)
 int __init valkyriefb_init(void)
 {
 	struct fb_info_valkyrie	*p;
+<<<<<<< HEAD
 	unsigned long frame_buffer_phys, cmap_regs_phys, flags;
+=======
+	unsigned long frame_buffer_phys, cmap_regs_phys;
+>>>>>>> upstream/android-13
 	int err;
 	char *option = NULL;
 
@@ -337,14 +374,21 @@ int __init valkyriefb_init(void)
 	/* Hardcoded addresses... welcome to 68k Macintosh country :-) */
 	frame_buffer_phys = 0xf9000000;
 	cmap_regs_phys = 0x50f24000;
+<<<<<<< HEAD
 	flags = IOMAP_NOCACHE_SER; /* IOMAP_WRITETHROUGH?? */
+=======
+>>>>>>> upstream/android-13
 #else /* ppc (!CONFIG_MAC) */
 	{
 		struct device_node *dp;
 		struct resource r;
 
 		dp = of_find_node_by_name(NULL, "valkyrie");
+<<<<<<< HEAD
 		if (dp == 0)
+=======
+		if (!dp)
+>>>>>>> upstream/android-13
 			return 0;
 
 		if (of_address_to_resource(dp, 0, &r)) {
@@ -354,12 +398,19 @@ int __init valkyriefb_init(void)
 
 		frame_buffer_phys = r.start;
 		cmap_regs_phys = r.start + 0x304000;
+<<<<<<< HEAD
 		flags = _PAGE_WRITETHRU;
+=======
+>>>>>>> upstream/android-13
 	}
 #endif /* ppc (!CONFIG_MAC) */
 
 	p = kzalloc(sizeof(*p), GFP_ATOMIC);
+<<<<<<< HEAD
 	if (p == 0)
+=======
+	if (!p)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/* Map in frame buffer and registers */
@@ -369,7 +420,15 @@ int __init valkyriefb_init(void)
 	}
 	p->total_vram = 0x100000;
 	p->frame_buffer_phys = frame_buffer_phys;
+<<<<<<< HEAD
 	p->frame_buffer = __ioremap(frame_buffer_phys, p->total_vram, flags);
+=======
+#ifdef CONFIG_MAC
+	p->frame_buffer = ioremap(frame_buffer_phys, p->total_vram);
+#else
+	p->frame_buffer = ioremap_wt(frame_buffer_phys, p->total_vram);
+#endif
+>>>>>>> upstream/android-13
 	p->cmap_regs_phys = cmap_regs_phys;
 	p->cmap_regs = ioremap(p->cmap_regs_phys, 0x1000);
 	p->valkyrie_regs_phys = cmap_regs_phys+0x6000;

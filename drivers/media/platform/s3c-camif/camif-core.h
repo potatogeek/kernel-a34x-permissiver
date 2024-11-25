@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * s3c24xx/s3c64xx SoC series Camera Interface (CAMIF) driver
  *
  * Copyright (C) 2012 Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
  * Copyright (C) 2012 Tomasz Figa <tomasz.figa@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef CAMIF_CORE_H_
@@ -92,7 +99,10 @@ enum img_fmt {
  * @ybpp:      number of luminance bytes per pixel
  */
 struct camif_fmt {
+<<<<<<< HEAD
 	char *name;
+=======
+>>>>>>> upstream/android-13
 	u32 fourcc;
 	u32 color;
 	u16 colplanes;
@@ -148,8 +158,15 @@ struct camif_pix_limits {
 /**
  * struct s3c_camif_variant - CAMIF variant structure
  * @vp_pix_limits:    pixel limits for the codec and preview paths
+<<<<<<< HEAD
  * @camif_pix_limits: pixel limits for the camera input interface
  * @ip_revision:      the CAMIF IP revision: 0x20 for s3c244x, 0x32 for s3c6410
+=======
+ * @pix_limits:       pixel limits for the camera input interface
+ * @ip_revision:      the CAMIF IP revision: 0x20 for s3c244x, 0x32 for s3c6410
+ * @has_img_effect:   supports image effects
+ * @vp_offset:        register offset
+>>>>>>> upstream/android-13
  */
 struct s3c_camif_variant {
 	struct vp_pix_limits vp_pix_limits[2];
@@ -187,9 +204,16 @@ struct camif_dev;
  * @irq:	    interrupt number for this data path
  * @camif:	    pointer to the camif structure
  * @pad:	    media pad for the video node
+<<<<<<< HEAD
  * @vdev            video device
  * @ctrl_handler:   video node controls handler
  * @owner:	    file handle that own the streaming
+=======
+ * @vdev:           video device
+ * @ctrl_handler:   video node controls handler
+ * @owner:	    file handle that own the streaming
+ * @vb_queue:       vb2 buffer queue
+>>>>>>> upstream/android-13
  * @pending_buf_q:  pending (empty) buffers queue head
  * @active_buf_q:   active (being written) buffers queue head
  * @active_buffers: counter of buffer set up at the DMA engine
@@ -206,6 +230,10 @@ struct camif_dev;
  * @rotation:	    current image rotation value
  * @hflip:	    apply horizontal flip if set
  * @vflip:	    apply vertical flip if set
+<<<<<<< HEAD
+=======
+ * @offset:	    register offset
+>>>>>>> upstream/android-13
  */
 struct camif_vp {
 	wait_queue_head_t	irq_queue;
@@ -252,7 +280,17 @@ struct camif_vp {
  * @sensor:       image sensor data structure
  * @m_pipeline:	  video entity pipeline description
  * @ctrl_handler: v4l2 control handler (owned by @subdev)
+<<<<<<< HEAD
  * @test_pattern: test pattern controls
+=======
+ * @ctrl_test_pattern: V4L2_CID_TEST_PATTERN control
+ * @ctrl_colorfx: V4L2_CID_COLORFX control
+ * @ctrl_colorfx_cbcr:  V4L2_CID_COLORFX_CBCR control
+ * @test_pattern: test pattern
+ * @colorfx:	  color effect
+ * @colorfx_cb:   Cb value for V4L2_COLORFX_SET_CBCR
+ * @colorfx_cr:   Cr value for V4L2_COLORFX_SET_CBCR
+>>>>>>> upstream/android-13
  * @vp:           video path (DMA) description (codec/preview)
  * @variant:      variant information for this device
  * @dev:	  pointer to the CAMIF device struct
@@ -260,7 +298,11 @@ struct camif_vp {
  * @clock:	  clocks required for the CAMIF operation
  * @lock:	  mutex protecting this data structure
  * @slock:	  spinlock protecting CAMIF registers
+<<<<<<< HEAD
  * @io_base:	  start address of the mmaped CAMIF registers
+=======
+ * @io_base:	  start address of the mmapped CAMIF registers
+>>>>>>> upstream/android-13
  */
 struct camif_dev {
 	struct media_device		media_dev;

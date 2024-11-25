@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AMD am53c974 driver.
  * Copyright (c) 2014 Hannes Reinecke, SUSE Linux GmbH
@@ -96,9 +100,13 @@ static void pci_esp_dma_drain(struct esp *esp);
 
 static inline struct pci_esp_priv *pci_esp_get_priv(struct esp *esp)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = esp->dev;
 
 	return pci_get_drvdata(pdev);
+=======
+	return dev_get_drvdata(esp->dev);
+>>>>>>> upstream/android-13
 }
 
 static void pci_esp_write8(struct esp *esp, u8 val, unsigned long reg)
@@ -116,6 +124,7 @@ static void pci_esp_write32(struct esp *esp, u32 val, unsigned long reg)
 	return iowrite32(val, esp->regs + (reg * 4UL));
 }
 
+<<<<<<< HEAD
 static dma_addr_t pci_esp_map_single(struct esp *esp, void *buf,
 				     size_t sz, int dir)
 {
@@ -140,6 +149,8 @@ static void pci_esp_unmap_sg(struct esp *esp, struct scatterlist *sg,
 	pci_unmap_sg(esp->dev, sg, num_sg, dir);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pci_esp_irq_pending(struct esp *esp)
 {
 	struct pci_esp_priv *pep = pci_esp_get_priv(esp);
@@ -295,10 +306,13 @@ static u32 pci_esp_dma_length_limit(struct esp *esp, u32 dma_addr, u32 dma_len)
 static const struct esp_driver_ops pci_esp_ops = {
 	.esp_write8	=	pci_esp_write8,
 	.esp_read8	=	pci_esp_read8,
+<<<<<<< HEAD
 	.map_single	=	pci_esp_map_single,
 	.map_sg		=	pci_esp_map_sg,
 	.unmap_single	=	pci_esp_unmap_single,
 	.unmap_sg	=	pci_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending	=	pci_esp_irq_pending,
 	.reset_dma	=	pci_esp_reset_dma,
 	.dma_drain	=	pci_esp_dma_drain,
@@ -375,18 +389,29 @@ static void dc390_read_eeprom(struct pci_dev *pdev, u16 *ptr)
 
 static void dc390_check_eeprom(struct esp *esp)
 {
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(esp->dev);
+>>>>>>> upstream/android-13
 	u8 EEbuf[128];
 	u16 *ptr = (u16 *)EEbuf, wval = 0;
 	int i;
 
+<<<<<<< HEAD
 	dc390_read_eeprom((struct pci_dev *)esp->dev, ptr);
+=======
+	dc390_read_eeprom(pdev, ptr);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < DC390_EEPROM_LEN; i++, ptr++)
 		wval += *ptr;
 
 	/* no Tekram EEprom found */
 	if (wval != 0x1234) {
+<<<<<<< HEAD
 		struct pci_dev *pdev = esp->dev;
+=======
+>>>>>>> upstream/android-13
 		dev_printk(KERN_INFO, &pdev->dev,
 			   "No valid Tekram EEprom found\n");
 		return;
@@ -411,7 +436,11 @@ static int pci_esp_probe_one(struct pci_dev *pdev,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		dev_printk(KERN_INFO, &pdev->dev,
 			   "failed to set 32bit DMA mask\n");
 		goto fail_disable_device;
@@ -435,7 +464,11 @@ static int pci_esp_probe_one(struct pci_dev *pdev,
 
 	esp = shost_priv(shost);
 	esp->host = shost;
+<<<<<<< HEAD
 	esp->dev = pdev;
+=======
+	esp->dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	esp->ops = &pci_esp_ops;
 	/*
 	 * The am53c974 HBA has a design flaw of generating
@@ -467,8 +500,13 @@ static int pci_esp_probe_one(struct pci_dev *pdev,
 
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	esp->command_block = pci_alloc_consistent(pdev, 16,
 						  &esp->command_block_dma);
+=======
+	esp->command_block = dma_alloc_coherent(&pdev->dev, 16,
+			&esp->command_block_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!esp->command_block) {
 		dev_printk(KERN_ERR, &pdev->dev,
 			   "failed to allocate command block\n");
@@ -498,7 +536,11 @@ static int pci_esp_probe_one(struct pci_dev *pdev,
 	/* Assume 40MHz clock */
 	esp->cfreq = 40000000;
 
+<<<<<<< HEAD
 	err = scsi_esp_register(esp, &pdev->dev);
+=======
+	err = scsi_esp_register(esp);
+>>>>>>> upstream/android-13
 	if (err)
 		goto fail_free_irq;
 
@@ -508,8 +550,13 @@ fail_free_irq:
 	free_irq(pdev->irq, esp);
 fail_unmap_command_block:
 	pci_set_drvdata(pdev, NULL);
+<<<<<<< HEAD
 	pci_free_consistent(pdev, 16, esp->command_block,
 			    esp->command_block_dma);
+=======
+	dma_free_coherent(&pdev->dev, 16, esp->command_block,
+			  esp->command_block_dma);
+>>>>>>> upstream/android-13
 fail_unmap_regs:
 	pci_iounmap(pdev, esp->regs);
 fail_release_regions:
@@ -532,8 +579,13 @@ static void pci_esp_remove_one(struct pci_dev *pdev)
 	scsi_esp_unregister(esp);
 	free_irq(pdev->irq, esp);
 	pci_set_drvdata(pdev, NULL);
+<<<<<<< HEAD
 	pci_free_consistent(pdev, 16, esp->command_block,
 			    esp->command_block_dma);
+=======
+	dma_free_coherent(&pdev->dev, 16, esp->command_block,
+			  esp->command_block_dma);
+>>>>>>> upstream/android-13
 	pci_iounmap(pdev, esp->regs);
 	pci_release_regions(pdev);
 	pci_disable_device(pdev);

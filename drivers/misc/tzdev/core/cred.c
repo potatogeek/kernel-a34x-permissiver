@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2017, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -18,14 +22,28 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
 
 #include "tzdev_internal.h"
 #include "core/cred.h"
+=======
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+#include <crypto/sha2.h>
+#else
+#include <crypto/sha.h>
+#endif
+
+#include "tzdev_internal.h"
+#include "core/cred.h"
+#include "core/log.h"
+>>>>>>> upstream/android-13
 #include "core/subsystem.h"
 #include "core/sysdep.h"
 #include "debug/trace.h"
 
+<<<<<<< HEAD
 struct cred_cache_entry {
 	struct list_head link;
 	char hash[CRED_HASH_SIZE];
@@ -35,6 +53,8 @@ struct cred_cache_entry {
 static LIST_HEAD(cred_cache);
 static DEFINE_MUTEX(cred_cache_mutex);
 
+=======
+>>>>>>> upstream/android-13
 static const uint8_t kernel_client_hash[CRED_HASH_SIZE] = {
 	0x49, 0x43, 0x54, 0xd8, 0x88, 0x45, 0x37, 0xaa,
 	0x95, 0xff, 0x73, 0x57, 0x22, 0x07, 0xc9, 0x01,
@@ -42,6 +62,7 @@ static const uint8_t kernel_client_hash[CRED_HASH_SIZE] = {
 	0xfa, 0x94, 0x79, 0x6b, 0xc9, 0x37, 0x39, 0x7e
 };
 
+<<<<<<< HEAD
 static int tz_crypto_file_sha256(uint8_t *hash, struct file *file)
 {
 	loff_t i_size, offset = 0;
@@ -59,6 +80,17 @@ static int tz_crypto_file_sha256(uint8_t *hash, struct file *file)
 	if (IS_ERR(tfm)) {
 		ret = PTR_ERR(tfm);
 		goto out;
+=======
+static int tz_crypto_path_sha256(uint8_t hash[SHA256_DIGEST_SIZE], char *path, size_t len)
+{
+	struct crypto_shash *tfm;
+	int ret = 0;
+
+	tfm = crypto_alloc_shash("sha256", 0, 0);
+	if (IS_ERR(tfm)) {
+		ret = PTR_ERR(tfm);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	{
@@ -67,6 +99,7 @@ static int tz_crypto_file_sha256(uint8_t *hash, struct file *file)
 
 		ret = crypto_shash_init(desc);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto out;
 
 		while (offset < i_size) {
@@ -83,23 +116,36 @@ static int tz_crypto_file_sha256(uint8_t *hash, struct file *file)
 				break;
 		}
 
+=======
+			goto out_free_tfm;
+
+
+		ret = crypto_shash_update(desc, path, len);
+>>>>>>> upstream/android-13
 		if (!ret)
 			crypto_shash_final(desc, hash);
 
 		shash_desc_zero(desc);
 	}
 
+<<<<<<< HEAD
 	crypto_free_shash(tfm);
 
 out:
 	kfree(rbuf);
 
+=======
+out_free_tfm:
+	crypto_free_shash(tfm);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int tz_format_cred_user(struct tz_cred *cred)
 {
 	uint8_t hash[SHA256_DIGEST_SIZE];
+<<<<<<< HEAD
 	struct cred_cache_entry *cred_cache_entry;
 	struct pid *pid = get_task_pid(current, PIDTYPE_PID);
 	struct file *exe_file;
@@ -155,6 +201,61 @@ unlock:
 	cred->pid = current->tgid;
 	cred->uid = __kuid_val(current_uid());
 	cred->gid = __kgid_val(current_gid());
+=======
+	char *buf;
+	char *path;
+	size_t len;
+	struct file *exe_file;
+	struct task_struct *task = current;
+	struct mm_struct *mm = task->mm;
+	int ret = 0;
+
+	buf = kmalloc(PATH_MAX, GFP_KERNEL);
+	if (!buf) {
+		log_error(tzdev_cred, "Failed to allocate path buffer\n");
+		return -ENOMEM;
+	}
+
+	exe_file = sysdep_get_exe_file(task);
+	if (!exe_file) {
+		log_error(tzdev_cred, "mm has no associated executable file\n");
+		ret = -ENOENT;
+		goto out_free_buf;
+	}
+
+	sysdep_mm_down_read(mm);
+
+	path = d_path(&exe_file->f_path, buf, PATH_MAX);
+
+	sysdep_mm_up_read(mm);
+	fput(exe_file);
+
+	if (IS_ERR(path)) {
+		log_error(tzdev_cred, "Failed to get path\n");
+		ret = PTR_ERR(path);
+		goto out_free_buf;
+	}
+
+	log_debug(tzdev_cred, "Executable file path=%s", path);
+
+	len = strlen(path);
+
+	ret = tz_crypto_path_sha256(hash, path, len);
+	if (ret) {
+		log_error(tzdev_cred, "Failed to calculate hash\n");
+		goto out_free_buf;
+	}
+
+	memcpy(&cred->hash, hash, SHA256_DIGEST_SIZE);
+
+	cred->pid = task->tgid;
+	cred->uid = __kuid_val(current_uid());
+	cred->gid = __kgid_val(current_gid());
+	cred->type = TZ_CRED_HASH;
+
+out_free_buf:
+	kfree(buf);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -179,6 +280,7 @@ int tz_format_cred(struct tz_cred *cred, int is_kern)
 
 	return (current->mm && !is_kern) ? tz_format_cred_user(cred) : tz_format_cred_kernel(cred);
 }
+<<<<<<< HEAD
 
 static struct delayed_work tz_cred_gc_work;
 
@@ -208,3 +310,5 @@ int tz_cred_init_notifier(void)
 }
 
 tzdev_initcall(tz_cred_init_notifier);
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2006 PathScale, Inc.  All Rights Reserved.
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2006 PathScale, Inc.  All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -20,8 +26,16 @@
 /*
  * override generic version in lib/iomap_copy.c
  */
+<<<<<<< HEAD
 ENTRY(__iowrite32_copy)
 	movl %edx,%ecx
 	rep movsd
 	ret
 ENDPROC(__iowrite32_copy)
+=======
+SYM_FUNC_START(__iowrite32_copy)
+	movl %edx,%ecx
+	rep movsd
+	RET
+SYM_FUNC_END(__iowrite32_copy)
+>>>>>>> upstream/android-13

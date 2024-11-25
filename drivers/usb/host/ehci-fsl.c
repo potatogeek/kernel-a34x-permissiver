@@ -23,6 +23,10 @@
 #include <linux/platform_device.h>
 #include <linux/fsl_devices.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #include "ehci.h"
 #include "ehci-fsl.h"
@@ -38,10 +42,17 @@ static struct hc_driver __read_mostly fsl_ehci_hc_driver;
 /*
  * fsl_ehci_drv_probe - initialize FSL-based HCDs
  * @pdev: USB Host Controller being probed
+<<<<<<< HEAD
  * Context: !in_interrupt()
  *
  * Allocates basic resources for this USB host controller.
  *
+=======
+ *
+ * Context: task context, might sleep
+ *
+ * Allocates basic resources for this USB host controller.
+>>>>>>> upstream/android-13
  */
 static int fsl_ehci_drv_probe(struct platform_device *pdev)
 {
@@ -50,6 +61,10 @@ static int fsl_ehci_drv_probe(struct platform_device *pdev)
 	struct resource *res;
 	int irq;
 	int retval;
+<<<<<<< HEAD
+=======
+	u32 tmp;
+>>>>>>> upstream/android-13
 
 	pr_debug("initializing FSL-SOC USB Controller\n");
 
@@ -114,17 +129,39 @@ static int fsl_ehci_drv_probe(struct platform_device *pdev)
 	}
 
 	/* Enable USB controller, 83xx or 8536 */
+<<<<<<< HEAD
 	if (pdata->have_sysif_regs && pdata->controller_ver < FSL_USB_VER_1_6)
 		clrsetbits_be32(hcd->regs + FSL_SOC_USB_CTRL,
 				CONTROL_REGISTER_W1C_MASK, 0x4);
+=======
+	if (pdata->have_sysif_regs && pdata->controller_ver < FSL_USB_VER_1_6) {
+		tmp = ioread32be(hcd->regs + FSL_SOC_USB_CTRL);
+		tmp &= ~CONTROL_REGISTER_W1C_MASK;
+		tmp |= 0x4;
+		iowrite32be(tmp, hcd->regs + FSL_SOC_USB_CTRL);
+	}
+
+	/* Set USB_EN bit to select ULPI phy for USB controller version 2.5 */
+	if (pdata->controller_ver == FSL_USB_VER_2_5 &&
+	    pdata->phy_mode == FSL_USB2_PHY_ULPI)
+		iowrite32be(USB_CTRL_USB_EN, hcd->regs + FSL_SOC_USB_CTRL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Enable UTMI phy and program PTS field in UTMI mode before asserting
 	 * controller reset for USB Controller version 2.5
 	 */
 	if (pdata->has_fsl_erratum_a007792) {
+<<<<<<< HEAD
 		clrsetbits_be32(hcd->regs + FSL_SOC_USB_CTRL,
 				CONTROL_REGISTER_W1C_MASK, CTRL_UTMI_PHY_EN);
+=======
+		tmp = ioread32be(hcd->regs + FSL_SOC_USB_CTRL);
+		tmp &= ~CONTROL_REGISTER_W1C_MASK;
+		tmp |= CTRL_UTMI_PHY_EN;
+		iowrite32be(tmp, hcd->regs + FSL_SOC_USB_CTRL);
+
+>>>>>>> upstream/android-13
 		writel(PORT_PTS_UTMI, hcd->regs + FSL_SOC_USB_PORTSC1);
 	}
 
@@ -170,11 +207,29 @@ static int fsl_ehci_drv_probe(struct platform_device *pdev)
 	return retval;
 }
 
+<<<<<<< HEAD
+=======
+static bool usb_phy_clk_valid(struct usb_hcd *hcd)
+{
+	void __iomem *non_ehci = hcd->regs;
+	bool ret = true;
+
+	if (!(ioread32be(non_ehci + FSL_SOC_USB_CTRL) & PHY_CLK_VALID))
+		ret = false;
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int ehci_fsl_setup_phy(struct usb_hcd *hcd,
 			       enum fsl_usb2_phy_modes phy_mode,
 			       unsigned int port_offset)
 {
+<<<<<<< HEAD
 	u32 portsc;
+=======
+	u32 portsc, tmp;
+>>>>>>> upstream/android-13
 	struct ehci_hcd *ehci = hcd_to_ehci(hcd);
 	void __iomem *non_ehci = hcd->regs;
 	struct device *dev = hcd->self.controller;
@@ -192,11 +247,24 @@ static int ehci_fsl_setup_phy(struct usb_hcd *hcd,
 	case FSL_USB2_PHY_ULPI:
 		if (pdata->have_sysif_regs && pdata->controller_ver) {
 			/* controller version 1.6 or above */
+<<<<<<< HEAD
 			clrbits32(non_ehci + FSL_SOC_USB_CTRL,
 				  CONTROL_REGISTER_W1C_MASK | UTMI_PHY_EN);
 			clrsetbits_be32(non_ehci + FSL_SOC_USB_CTRL,
 					CONTROL_REGISTER_W1C_MASK,
 					ULPI_PHY_CLK_SEL | USB_CTRL_USB_EN);
+=======
+			/* turn off UTMI PHY first */
+			tmp = ioread32be(non_ehci + FSL_SOC_USB_CTRL);
+			tmp &= ~(CONTROL_REGISTER_W1C_MASK | UTMI_PHY_EN);
+			iowrite32be(tmp, non_ehci + FSL_SOC_USB_CTRL);
+
+			/* then turn on ULPI and enable USB controller */
+			tmp = ioread32be(non_ehci + FSL_SOC_USB_CTRL);
+			tmp &= ~CONTROL_REGISTER_W1C_MASK;
+			tmp |= ULPI_PHY_CLK_SEL | USB_CTRL_USB_EN;
+			iowrite32be(tmp, non_ehci + FSL_SOC_USB_CTRL);
+>>>>>>> upstream/android-13
 		}
 		portsc |= PORT_PTS_ULPI;
 		break;
@@ -205,6 +273,7 @@ static int ehci_fsl_setup_phy(struct usb_hcd *hcd,
 		break;
 	case FSL_USB2_PHY_UTMI_WIDE:
 		portsc |= PORT_PTS_PTW;
+<<<<<<< HEAD
 		/* fall through */
 	case FSL_USB2_PHY_UTMI:
 	case FSL_USB2_PHY_UTMI_DUAL:
@@ -212,20 +281,61 @@ static int ehci_fsl_setup_phy(struct usb_hcd *hcd,
 			/* controller version 1.6 or above */
 			clrsetbits_be32(non_ehci + FSL_SOC_USB_CTRL,
 					CONTROL_REGISTER_W1C_MASK, UTMI_PHY_EN);
+=======
+		fallthrough;
+	case FSL_USB2_PHY_UTMI:
+		/* Presence of this node "has_fsl_erratum_a006918"
+		 * in device-tree is used to stop USB controller
+		 * initialization in Linux
+		 */
+		if (pdata->has_fsl_erratum_a006918) {
+			dev_warn(dev, "USB PHY clock invalid\n");
+			return -EINVAL;
+		}
+		fallthrough;
+	case FSL_USB2_PHY_UTMI_DUAL:
+		/* PHY_CLK_VALID bit is de-featured from all controller
+		 * versions below 2.4 and is to be checked only for
+		 * internal UTMI phy
+		 */
+		if (pdata->controller_ver > FSL_USB_VER_2_4 &&
+		    pdata->have_sysif_regs && !usb_phy_clk_valid(hcd)) {
+			dev_err(dev, "USB PHY clock invalid\n");
+			return -EINVAL;
+		}
+
+		if (pdata->have_sysif_regs && pdata->controller_ver) {
+			/* controller version 1.6 or above */
+			tmp = ioread32be(non_ehci + FSL_SOC_USB_CTRL);
+			tmp &= ~CONTROL_REGISTER_W1C_MASK;
+			tmp |= UTMI_PHY_EN;
+			iowrite32be(tmp, non_ehci + FSL_SOC_USB_CTRL);
+
+>>>>>>> upstream/android-13
 			mdelay(FSL_UTMI_PHY_DLY);  /* Delay for UTMI PHY CLK to
 						become stable - 10ms*/
 		}
 		/* enable UTMI PHY */
+<<<<<<< HEAD
 		if (pdata->have_sysif_regs)
 			clrsetbits_be32(non_ehci + FSL_SOC_USB_CTRL,
 					CONTROL_REGISTER_W1C_MASK,
 					CTRL_UTMI_PHY_EN);
+=======
+		if (pdata->have_sysif_regs) {
+			tmp = ioread32be(non_ehci + FSL_SOC_USB_CTRL);
+			tmp &= ~CONTROL_REGISTER_W1C_MASK;
+			tmp |= CTRL_UTMI_PHY_EN;
+			iowrite32be(tmp, non_ehci + FSL_SOC_USB_CTRL);
+		}
+>>>>>>> upstream/android-13
 		portsc |= PORT_PTS_UTMI;
 		break;
 	case FSL_USB2_PHY_NONE:
 		break;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * check PHY_CLK_VALID to determine phy clock presence before writing
 	 * to portsc
@@ -237,13 +347,29 @@ static int ehci_fsl_setup_phy(struct usb_hcd *hcd,
 				 "USB PHY clock invalid\n");
 			return -EINVAL;
 		}
+=======
+	if (pdata->have_sysif_regs &&
+	    pdata->controller_ver > FSL_USB_VER_1_6 &&
+	    !usb_phy_clk_valid(hcd)) {
+		dev_warn(hcd->self.controller, "USB PHY clock invalid\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	ehci_writel(ehci, portsc, &ehci->regs->port_status[port_offset]);
 
+<<<<<<< HEAD
 	if (phy_mode != FSL_USB2_PHY_ULPI && pdata->have_sysif_regs)
 		clrsetbits_be32(non_ehci + FSL_SOC_USB_CTRL,
 				CONTROL_REGISTER_W1C_MASK, USB_CTRL_USB_EN);
+=======
+	if (phy_mode != FSL_USB2_PHY_ULPI && pdata->have_sysif_regs) {
+		tmp = ioread32be(non_ehci + FSL_SOC_USB_CTRL);
+		tmp &= ~CONTROL_REGISTER_W1C_MASK;
+		tmp |= USB_CTRL_USB_EN;
+		iowrite32be(tmp, non_ehci + FSL_SOC_USB_CTRL);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -284,6 +410,7 @@ static int ehci_fsl_usb_setup(struct ehci_hcd *ehci)
 			return -EINVAL;
 
 	if (pdata->operating_mode == FSL_USB2_MPH_HOST) {
+<<<<<<< HEAD
 		unsigned int chip, rev, svr;
 
 		svr = mfspr(SPRN_SVR);
@@ -292,6 +419,11 @@ static int ehci_fsl_usb_setup(struct ehci_hcd *ehci)
 
 		/* Deal with USB Erratum #14 on MPC834x Rev 1.0 & 1.1 chips */
 		if ((rev == 1) && (chip >= 0x8050) && (chip <= 0x8055))
+=======
+
+		/* Deal with USB Erratum #14 on MPC834x Rev 1.0 & 1.1 chips */
+		if (pdata->has_fsl_erratum_14 == 1)
+>>>>>>> upstream/android-13
 			ehci->has_fsl_port_bug = 1;
 
 		if (pdata->port_enables & FSL_USB2_PORT0_ENABLED)
@@ -342,11 +474,19 @@ static int ehci_fsl_setup(struct usb_hcd *hcd)
 	/* EHCI registers start at offset 0x100 */
 	ehci->caps = hcd->regs + 0x100;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_83xx
 	/*
 	 * Deal with MPC834X that need port power to be cycled after the power
 	 * fault condition is removed. Otherwise the state machine does not
 	 * reflect PORTSC[CSC] correctly.
+=======
+#if defined(CONFIG_PPC_83xx) || defined(CONFIG_PPC_85xx)
+	/*
+	 * Deal with MPC834X/85XX that need port power to be cycled
+	 * after the power fault condition is removed. Otherwise the
+	 * state machine does not reflect PORTSC[CSC] correctly.
+>>>>>>> upstream/android-13
 	 */
 	ehci->need_oc_pp_cycle = 1;
 #endif
@@ -638,6 +778,7 @@ static const struct ehci_driver_overrides ehci_fsl_overrides __initconst = {
 
 /**
  * fsl_ehci_drv_remove - shutdown processing for FSL-based HCDs
+<<<<<<< HEAD
  * @dev: USB Host Controller being removed
  * Context: !in_interrupt()
  *
@@ -645,6 +786,14 @@ static const struct ehci_driver_overrides ehci_fsl_overrides __initconst = {
  *
  */
 
+=======
+ * @pdev: USB Host Controller being removed
+ *
+ * Context: task context, might sleep
+ *
+ * Reverses the effect of usb_hcd_fsl_probe().
+ */
+>>>>>>> upstream/android-13
 static int fsl_ehci_drv_remove(struct platform_device *pdev)
 {
 	struct fsl_usb2_platform_data *pdata = dev_get_platdata(&pdev->dev);

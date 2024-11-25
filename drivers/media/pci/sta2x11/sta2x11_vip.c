@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This is the driver for the STA2x11 Video Input Port.
  *
@@ -6,6 +10,7 @@
  * Copyright (C) 2010       WindRiver Systems, Inc.
  *     authors: Andreas Kies <andreas.kies@windriver.com>
  *              Vlad Lungu   <vlad.lungu@windriver.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -23,6 +28,8 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -110,7 +117,11 @@ static inline struct vip_buffer *to_vip_buffer(struct vb2_v4l2_buffer *vb2)
  * @std: video standard (e.g. PAL/NTSC)
  * @input: input line for video signal ( 0 or 1 )
  * @disabled: Device is in power down state
+<<<<<<< HEAD
  * @slock: for excluse acces of registers
+=======
+ * @slock: for excluse access of registers
+>>>>>>> upstream/android-13
  * @vb_vidq: queue maintained by videobuf2 layer
  * @buffer_list: list of buffer in use
  * @sequence: sequence number of acquired buffer
@@ -419,6 +430,7 @@ static int vidioc_querycap(struct file *file, void *priv,
 {
 	struct sta2x11_vip *vip = video_drvdata(file);
 
+<<<<<<< HEAD
 	strcpy(cap->driver, KBUILD_MODNAME);
 	strcpy(cap->card, KBUILD_MODNAME);
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "PCI:%s",
@@ -427,6 +439,12 @@ static int vidioc_querycap(struct file *file, void *priv,
 			   V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
+	strscpy(cap->card, KBUILD_MODNAME, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "PCI:%s",
+		 pci_name(vip->pdev));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -580,9 +598,13 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void *priv,
 	if (f->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(f->description, "4:2:2, packed, UYVY");
 	f->pixelformat = V4L2_PIX_FMT_UYVY;
 	f->flags = 0;
+=======
+	f->pixelformat = V4L2_PIX_FMT_UYVY;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -775,6 +797,11 @@ static const struct video_device video_dev_template = {
 	.fops = &vip_fops,
 	.ioctl_ops = &vip_ioctl_ops,
 	.tvnorms = V4L2_STD_ALL,
+<<<<<<< HEAD
+=======
+	.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+		       V4L2_CAP_STREAMING,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1089,7 +1116,11 @@ static int sta2x11_vip_init_one(struct pci_dev *pdev,
 	vip->video_dev.lock = &vip->v4l_lock;
 	video_set_drvdata(&vip->video_dev, vip);
 
+<<<<<<< HEAD
 	ret = video_register_device(&vip->video_dev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(&vip->video_dev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto vrelease;
 
@@ -1121,12 +1152,19 @@ static int sta2x11_vip_init_one(struct pci_dev *pdev,
 vunreg:
 	video_set_drvdata(&vip->video_dev, NULL);
 vrelease:
+<<<<<<< HEAD
 	video_unregister_device(&vip->video_dev);
+=======
+	vb2_video_unregister_device(&vip->video_dev);
+>>>>>>> upstream/android-13
 	free_irq(pdev->irq, vip);
 release_buf:
 	pci_disable_msi(pdev);
 unmap:
+<<<<<<< HEAD
 	vb2_queue_release(&vip->vb_vidq);
+=======
+>>>>>>> upstream/android-13
 	pci_iounmap(pdev, vip->iomem);
 release:
 	pci_release_regions(pdev);
@@ -1166,10 +1204,16 @@ static void sta2x11_vip_remove_one(struct pci_dev *pdev)
 	sta2x11_vip_clear_register(vip);
 
 	video_set_drvdata(&vip->video_dev, NULL);
+<<<<<<< HEAD
 	video_unregister_device(&vip->video_dev);
 	free_irq(pdev->irq, vip);
 	pci_disable_msi(pdev);
 	vb2_queue_release(&vip->vb_vidq);
+=======
+	vb2_video_unregister_device(&vip->video_dev);
+	free_irq(pdev->irq, vip);
+	pci_disable_msi(pdev);
+>>>>>>> upstream/android-13
 	pci_iounmap(pdev, vip->iomem);
 	pci_release_regions(pdev);
 
@@ -1187,21 +1231,33 @@ static void sta2x11_vip_remove_one(struct pci_dev *pdev)
 	 */
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 /**
  * sta2x11_vip_suspend - set device into power save mode
  * @pdev: PCI device
  * @state: new state of device
+=======
+/**
+ * sta2x11_vip_suspend - set device into power save mode
+ * @dev_d: PCI device
+>>>>>>> upstream/android-13
  *
  * all relevant registers are saved and an attempt to set a new state is made.
  *
  * return value: 0 always indicate success,
  * even if device could not be disabled. (workaround for hardware problem)
  */
+<<<<<<< HEAD
 static int sta2x11_vip_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct v4l2_device *v4l2_dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused sta2x11_vip_suspend(struct device *dev_d)
+{
+	struct v4l2_device *v4l2_dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct sta2x11_vip *vip =
 	    container_of(v4l2_dev, struct sta2x11_vip, v4l2_dev);
 	unsigned long flags;
@@ -1218,6 +1274,7 @@ static int sta2x11_vip_suspend(struct pci_dev *pdev, pm_message_t state)
 		vip->register_save_area[SAVE_COUNT + IRQ_COUNT + i] =
 		    reg_read(vip, registers_to_save[i]);
 	spin_unlock_irqrestore(&vip->slock, flags);
+<<<<<<< HEAD
 	/* save pci state */
 	pci_save_state(pdev);
 	if (pci_set_power_state(pdev, pci_choose_state(pdev, state))) {
@@ -1227,6 +1284,10 @@ static int sta2x11_vip_suspend(struct pci_dev *pdev, pm_message_t state)
 		 */
 		vip->disabled = 1;
 	}
+=======
+
+	vip->disabled = 1;
+>>>>>>> upstream/android-13
 
 	pr_info("VIP: suspend\n");
 	return 0;
@@ -1234,15 +1295,20 @@ static int sta2x11_vip_suspend(struct pci_dev *pdev, pm_message_t state)
 
 /**
  * sta2x11_vip_resume - resume device operation
+<<<<<<< HEAD
  * @pdev : PCI device
  *
  * re-enable device, set PCI state to powered and restore registers.
  * resume normal device operation afterwards.
+=======
+ * @dev_d : PCI device
+>>>>>>> upstream/android-13
  *
  * return value: 0, no error.
  *
  * other, could not set device to power on state.
  */
+<<<<<<< HEAD
 static int sta2x11_vip_resume(struct pci_dev *pdev)
 {
 	struct v4l2_device *v4l2_dev = pci_get_drvdata(pdev);
@@ -1273,6 +1339,19 @@ static int sta2x11_vip_resume(struct pci_dev *pdev)
 	}
 
 	pci_restore_state(pdev);
+=======
+static int __maybe_unused sta2x11_vip_resume(struct device *dev_d)
+{
+	struct v4l2_device *v4l2_dev = dev_get_drvdata(dev_d);
+	struct sta2x11_vip *vip =
+	    container_of(v4l2_dev, struct sta2x11_vip, v4l2_dev);
+	unsigned long flags;
+	int i;
+
+	pr_info("VIP: resume\n");
+
+	vip->disabled = 0;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&vip->slock, flags);
 	for (i = 1; i < SAVE_COUNT; i++)
@@ -1286,22 +1365,36 @@ static int sta2x11_vip_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static const struct pci_device_id sta2x11_vip_pci_tbl[] = {
 	{PCI_DEVICE(PCI_VENDOR_ID_STMICRO, PCI_DEVICE_ID_STMICRO_VIP)},
 	{0,}
 };
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(sta2x11_vip_pm_ops,
+			 sta2x11_vip_suspend,
+			 sta2x11_vip_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver sta2x11_vip_driver = {
 	.name = KBUILD_MODNAME,
 	.probe = sta2x11_vip_init_one,
 	.remove = sta2x11_vip_remove_one,
 	.id_table = sta2x11_vip_pci_tbl,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = sta2x11_vip_suspend,
 	.resume = sta2x11_vip_resume,
 #endif
+=======
+	.driver.pm = &sta2x11_vip_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init sta2x11_vip_init_module(void)
@@ -1324,6 +1417,9 @@ late_initcall_sync(sta2x11_vip_init_module);
 MODULE_DESCRIPTION("STA2X11 Video Input Port driver");
 MODULE_AUTHOR("Wind River");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("sta2x11 video input");
+=======
+>>>>>>> upstream/android-13
 MODULE_VERSION(DRV_VERSION);
 MODULE_DEVICE_TABLE(pci, sta2x11_vip_pci_tbl);

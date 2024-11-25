@@ -252,7 +252,11 @@ static int chunk_io(struct pstore *ps, void *area, chunk_t chunk, int op,
 
 	/*
 	 * Issue the synchronous I/O from a different thread
+<<<<<<< HEAD
 	 * to avoid generic_make_request recursion.
+=======
+	 * to avoid submit_bio_noacct recursion.
+>>>>>>> upstream/android-13
 	 */
 	INIT_WORK_ONSTACK(&req.work, do_metadata);
 	queue_work(ps->metadata_wq, &req.work);
@@ -284,6 +288,7 @@ static void skip_metadata(struct pstore *ps)
  */
 static int area_io(struct pstore *ps, int op, int op_flags)
 {
+<<<<<<< HEAD
 	int r;
 	chunk_t chunk;
 
@@ -294,6 +299,11 @@ static int area_io(struct pstore *ps, int op, int op_flags)
 		return r;
 
 	return 0;
+=======
+	chunk_t chunk = area_location(ps, ps->current_area);
+
+	return chunk_io(ps, ps->area, chunk, op, op_flags, 0);
+>>>>>>> upstream/android-13
 }
 
 static void zero_memory_area(struct pstore *ps)
@@ -603,7 +613,11 @@ static void persistent_dtr(struct dm_exception_store *store)
 	free_area(ps);
 
 	/* Allocated in persistent_read_metadata */
+<<<<<<< HEAD
 	vfree(ps->callbacks);
+=======
+	kvfree(ps->callbacks);
+>>>>>>> upstream/android-13
 
 	kfree(ps);
 }
@@ -613,7 +627,11 @@ static int persistent_read_metadata(struct dm_exception_store *store,
 						    chunk_t old, chunk_t new),
 				    void *callback_context)
 {
+<<<<<<< HEAD
 	int r, uninitialized_var(new_snapshot);
+=======
+	int r, new_snapshot;
+>>>>>>> upstream/android-13
 	struct pstore *ps = get_info(store);
 
 	/*
@@ -628,8 +646,13 @@ static int persistent_read_metadata(struct dm_exception_store *store,
 	 */
 	ps->exceptions_per_area = (ps->store->chunk_size << SECTOR_SHIFT) /
 				  sizeof(struct disk_exception);
+<<<<<<< HEAD
 	ps->callbacks = dm_vcalloc(ps->exceptions_per_area,
 				   sizeof(*ps->callbacks));
+=======
+	ps->callbacks = kvcalloc(ps->exceptions_per_area,
+				 sizeof(*ps->callbacks), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ps->callbacks)
 		return -ENOMEM;
 
@@ -915,6 +938,13 @@ static unsigned persistent_status(struct dm_exception_store *store,
 	case STATUSTYPE_TABLE:
 		DMEMIT(" %s %llu", store->userspace_supports_overflow ? "PO" : "P",
 		       (unsigned long long)store->chunk_size);
+<<<<<<< HEAD
+=======
+		break;
+	case STATUSTYPE_IMA:
+		*result = '\0';
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return sz;

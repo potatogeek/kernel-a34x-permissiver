@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic PowerPC 40x platform support
  *
  * Copyright 2008 IBM Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * This implements simple platform support for PowerPC 44x chips.  This is
  * mostly used for eval boards or other simple and "generic" 44x boards.  If
  * your board has custom functions or hardware, then you will likely want to

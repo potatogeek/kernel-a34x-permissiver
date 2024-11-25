@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC8536 DS Board Setup
  *
  * Copyright 2008 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -57,8 +64,11 @@ static void __init mpc8536_ds_setup_arch(void)
 
 machine_arch_initcall(mpc8536_ds, mpc85xx_common_publish_devices);
 
+<<<<<<< HEAD
 machine_arch_initcall(mpc8536_ds, swiotlb_setup_bus_notifier);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Called very early, device-tree isn't unflattened
  */

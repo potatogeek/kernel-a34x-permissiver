@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sleep.c - ACPI sleep support.
  *
@@ -5,11 +9,18 @@
  * Copyright (c) 2004 David Shaohua Li <shaohua.li@intel.com>
  * Copyright (c) 2000-2003 Patrick Mochel
  * Copyright (c) 2003 Open Source Development Lab
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
  *
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) "ACPI: PM: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/irq.h>
 #include <linux/dmi.h>
@@ -43,7 +54,11 @@ static void acpi_sleep_tts_switch(u32 acpi_state)
 		 * OS can't evaluate the _TTS object correctly. Some warning
 		 * message will be printed. But it won't break anything.
 		 */
+<<<<<<< HEAD
 		printk(KERN_NOTICE "Failure in evaluating _TTS object\n");
+=======
+		pr_notice("Failure in evaluating _TTS object\n");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -63,8 +78,16 @@ static struct notifier_block tts_notifier = {
 static int acpi_sleep_prepare(u32 acpi_state)
 {
 #ifdef CONFIG_ACPI_SLEEP
+<<<<<<< HEAD
 	/* do we have a wakeup address for S2 and S3? */
 	if (acpi_state == ACPI_STATE_S3) {
+=======
+	unsigned long acpi_wakeup_address;
+
+	/* do we have a wakeup address for S2 and S3? */
+	if (acpi_state == ACPI_STATE_S3) {
+		acpi_wakeup_address = acpi_get_wakeup_address();
+>>>>>>> upstream/android-13
 		if (!acpi_wakeup_address)
 			return -EFAULT;
 		acpi_set_waking_vector(acpi_wakeup_address);
@@ -72,14 +95,22 @@ static int acpi_sleep_prepare(u32 acpi_state)
 	}
 	ACPI_FLUSH_CPU_CACHE();
 #endif
+<<<<<<< HEAD
 	printk(KERN_INFO PREFIX "Preparing to enter system sleep state S%d\n",
 		acpi_state);
+=======
+	pr_info("Preparing to enter system sleep state S%d\n", acpi_state);
+>>>>>>> upstream/android-13
 	acpi_enable_wakeup_devices(acpi_state);
 	acpi_enter_sleep_state_prep(acpi_state);
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool acpi_sleep_state_supported(u8 sleep_state)
+=======
+bool acpi_sleep_state_supported(u8 sleep_state)
+>>>>>>> upstream/android-13
 {
 	acpi_status status;
 	u8 type_a, type_b;
@@ -160,11 +191,19 @@ static int __init init_nvs_nosave(const struct dmi_system_id *d)
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool acpi_sleep_no_lps0;
 
 static int __init init_no_lps0(const struct dmi_system_id *d)
 {
 	acpi_sleep_no_lps0 = true;
+=======
+bool acpi_sleep_default_s3;
+
+static int __init init_default_s3(const struct dmi_system_id *d)
+{
+	acpi_sleep_default_s3 = true;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -360,6 +399,7 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
 		},
 	},
 	/*
+<<<<<<< HEAD
 	 * https://bugzilla.kernel.org/show_bug.cgi?id=196907
 	 * Some Dell XPS13 9360 cannot do suspend-to-idle using the Low Power
 	 * S0 Idle firmware interface.
@@ -373,12 +413,18 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
 		},
 	},
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * ThinkPad X1 Tablet(2016) cannot do suspend-to-idle using
 	 * the Low Power S0 Idle firmware interface (see
 	 * https://bugzilla.kernel.org/show_bug.cgi?id=199057).
 	 */
 	{
+<<<<<<< HEAD
 	.callback = init_no_lps0,
+=======
+	.callback = init_default_s3,
+>>>>>>> upstream/android-13
 	.ident = "ThinkPad X1 Tablet(2016)",
 	.matches = {
 		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
@@ -418,7 +464,11 @@ static int acpi_pm_freeze(void)
 }
 
 /**
+<<<<<<< HEAD
  * acpi_pre_suspend - Enable wakeup devices, "freeze" EC and save NVS.
+=======
+ * acpi_pm_pre_suspend - Enable wakeup devices, "freeze" EC and save NVS.
+>>>>>>> upstream/android-13
  */
 static int acpi_pm_pre_suspend(void)
 {
@@ -454,6 +504,7 @@ static int acpi_pm_prepare(void)
 	return error;
 }
 
+<<<<<<< HEAD
 static int find_powerf_dev(struct device *dev, void *data)
 {
 	struct acpi_device *device = to_acpi_device(dev);
@@ -462,6 +513,8 @@ static int find_powerf_dev(struct device *dev, void *data)
 	return !strcmp(hid, ACPI_BUTTON_HID_POWERF);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  *	acpi_pm_finish - Instruct the platform to leave a sleep state.
  *
@@ -470,7 +523,11 @@ static int find_powerf_dev(struct device *dev, void *data)
  */
 static void acpi_pm_finish(void)
 {
+<<<<<<< HEAD
 	struct device *pwr_btn_dev;
+=======
+	struct acpi_device *pwr_btn_adev;
+>>>>>>> upstream/android-13
 	u32 acpi_state = acpi_target_sleep_state;
 
 	acpi_ec_unblock_transactions();
@@ -479,8 +536,12 @@ static void acpi_pm_finish(void)
 	if (acpi_state == ACPI_STATE_S0)
 		return;
 
+<<<<<<< HEAD
 	printk(KERN_INFO PREFIX "Waking up from system sleep state S%d\n",
 		acpi_state);
+=======
+	pr_info("Waking up from system sleep state S%d\n", acpi_state);
+>>>>>>> upstream/android-13
 	acpi_disable_wakeup_devices(acpi_state);
 	acpi_leave_sleep_state(acpi_state);
 
@@ -501,11 +562,19 @@ static void acpi_pm_finish(void)
 		return;
 
 	pwr_btn_event_pending = false;
+<<<<<<< HEAD
 	pwr_btn_dev = bus_find_device(&acpi_bus_type, NULL, NULL,
 				      find_powerf_dev);
 	if (pwr_btn_dev) {
 		pm_wakeup_event(pwr_btn_dev, 0);
 		put_device(pwr_btn_dev);
+=======
+	pwr_btn_adev = acpi_dev_get_first_match_dev(ACPI_BUTTON_HID_POWERF,
+						    NULL, -1);
+	if (pwr_btn_adev) {
+		pm_wakeup_event(&pwr_btn_adev->dev, 0);
+		acpi_dev_put(pwr_btn_adev);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -534,8 +603,14 @@ static void acpi_pm_end(void)
 	acpi_sleep_tts_switch(acpi_target_sleep_state);
 }
 #else /* !CONFIG_ACPI_SLEEP */
+<<<<<<< HEAD
 #define acpi_target_sleep_state	ACPI_STATE_S0
 #define acpi_sleep_no_lps0	(false)
+=======
+#define sleep_no_lps0	(1)
+#define acpi_target_sleep_state	ACPI_STATE_S0
+#define acpi_sleep_default_s3	(1)
+>>>>>>> upstream/android-13
 static inline void acpi_sleep_dmi_check(void) {}
 #endif /* CONFIG_ACPI_SLEEP */
 
@@ -600,7 +675,11 @@ static int acpi_suspend_enter(suspend_state_t pm_state)
 		error = acpi_suspend_lowlevel();
 		if (error)
 			return error;
+<<<<<<< HEAD
 		pr_info(PREFIX "Low-level resume complete\n");
+=======
+		pr_info("Low-level resume complete\n");
+>>>>>>> upstream/android-13
 		pm_set_resume_via_firmware();
 		break;
 	}
@@ -701,6 +780,7 @@ static const struct platform_suspend_ops acpi_suspend_ops_old = {
 	.recover = acpi_pm_finish,
 };
 
+<<<<<<< HEAD
 static bool s2idle_in_progress;
 static bool s2idle_wakeup;
 
@@ -977,11 +1057,29 @@ static int acpi_s2idle_prepare(void)
 	if (acpi_sci_irq_valid())
 		enable_irq_wake(acpi_sci_irq);
 
+=======
+static bool s2idle_wakeup;
+
+int acpi_s2idle_begin(void)
+{
+	acpi_scan_lock_acquire();
+	return 0;
+}
+
+int acpi_s2idle_prepare(void)
+{
+	if (acpi_sci_irq_valid()) {
+		enable_irq_wake(acpi_sci_irq);
+		acpi_ec_set_gpe_wake_mask(ACPI_GPE_ENABLE);
+	}
+
+>>>>>>> upstream/android-13
 	acpi_enable_wakeup_devices(ACPI_STATE_S0);
 
 	/* Change the configuration of GPEs to avoid spurious wakeup. */
 	acpi_enable_all_wakeup_gpes();
 	acpi_os_wait_events_complete();
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -1026,10 +1124,97 @@ static void acpi_s2idle_sync(void)
 
 static void acpi_s2idle_restore(void)
 {
+=======
+
+	s2idle_wakeup = true;
+	return 0;
+}
+
+bool acpi_s2idle_wake(void)
+{
+	if (!acpi_sci_irq_valid())
+		return pm_wakeup_pending();
+
+	while (pm_wakeup_pending()) {
+		/*
+		 * If IRQD_WAKEUP_ARMED is set for the SCI at this point, the
+		 * SCI has not triggered while suspended, so bail out (the
+		 * wakeup is pending anyway and the SCI is not the source of
+		 * it).
+		 */
+		if (irqd_is_wakeup_armed(irq_get_irq_data(acpi_sci_irq))) {
+			pm_pr_dbg("Wakeup unrelated to ACPI SCI\n");
+			return true;
+		}
+
+		/*
+		 * If the status bit of any enabled fixed event is set, the
+		 * wakeup is regarded as valid.
+		 */
+		if (acpi_any_fixed_event_status_set()) {
+			pm_pr_dbg("ACPI fixed event wakeup\n");
+			return true;
+		}
+
+		/* Check wakeups from drivers sharing the SCI. */
+		if (acpi_check_wakeup_handlers()) {
+			pm_pr_dbg("ACPI custom handler wakeup\n");
+			return true;
+		}
+
+		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
+		if (acpi_ec_dispatch_gpe()) {
+			pm_pr_dbg("ACPI non-EC GPE wakeup\n");
+			return true;
+		}
+
+		/*
+		 * Cancel the SCI wakeup and process all pending events in case
+		 * there are any wakeup ones in there.
+		 *
+		 * Note that if any non-EC GPEs are active at this point, the
+		 * SCI will retrigger after the rearming below, so no events
+		 * should be missed by canceling the wakeup here.
+		 */
+		pm_system_cancel_wakeup();
+		acpi_os_wait_events_complete();
+
+		/*
+		 * The SCI is in the "suspended" state now and it cannot produce
+		 * new wakeup events till the rearming below, so if any of them
+		 * are pending here, they must be resulting from the processing
+		 * of EC events above or coming from somewhere else.
+		 */
+		if (pm_wakeup_pending()) {
+			pm_pr_dbg("Wakeup after ACPI Notify sync\n");
+			return true;
+		}
+
+		pm_wakeup_clear(acpi_sci_irq);
+		rearm_wake_irq(acpi_sci_irq);
+	}
+
+	return false;
+}
+
+void acpi_s2idle_restore(void)
+{
+	/*
+	 * Drain pending events before restoring the working-state configuration
+	 * of GPEs.
+	 */
+	acpi_os_wait_events_complete(); /* synchronize GPE processing */
+	acpi_ec_flush_work(); /* flush the EC driver's workqueues */
+	acpi_os_wait_events_complete(); /* synchronize Notify handling */
+
+	s2idle_wakeup = false;
+
+>>>>>>> upstream/android-13
 	acpi_enable_all_runtime_gpes();
 
 	acpi_disable_wakeup_devices(ACPI_STATE_S0);
 
+<<<<<<< HEAD
 	if (acpi_sci_irq_valid())
 		disable_irq_wake(acpi_sci_irq);
 
@@ -1044,6 +1229,16 @@ static void acpi_s2idle_restore(void)
 static void acpi_s2idle_end(void)
 {
 	s2idle_in_progress = false;
+=======
+	if (acpi_sci_irq_valid()) {
+		acpi_ec_set_gpe_wake_mask(ACPI_GPE_DISABLE);
+		disable_irq_wake(acpi_sci_irq);
+	}
+}
+
+void acpi_s2idle_end(void)
+{
+>>>>>>> upstream/android-13
 	acpi_scan_lock_release();
 }
 
@@ -1051,11 +1246,22 @@ static const struct platform_s2idle_ops acpi_s2idle_ops = {
 	.begin = acpi_s2idle_begin,
 	.prepare = acpi_s2idle_prepare,
 	.wake = acpi_s2idle_wake,
+<<<<<<< HEAD
 	.sync = acpi_s2idle_sync,
+=======
+>>>>>>> upstream/android-13
 	.restore = acpi_s2idle_restore,
 	.end = acpi_s2idle_end,
 };
 
+<<<<<<< HEAD
+=======
+void __weak acpi_s2idle_setup(void)
+{
+	s2idle_set_ops(&acpi_s2idle_ops);
+}
+
+>>>>>>> upstream/android-13
 static void acpi_sleep_suspend_setup(void)
 {
 	int i;
@@ -1067,6 +1273,7 @@ static void acpi_sleep_suspend_setup(void)
 	suspend_set_ops(old_suspend_ordering ?
 		&acpi_suspend_ops_old : &acpi_suspend_ops);
 
+<<<<<<< HEAD
 	acpi_scan_add_handler(&lps0_handler);
 	s2idle_set_ops(&acpi_s2idle_ops);
 }
@@ -1075,6 +1282,13 @@ static void acpi_sleep_suspend_setup(void)
 #define s2idle_in_progress	(false)
 #define s2idle_wakeup		(false)
 #define lps0_device_handle	(NULL)
+=======
+	acpi_s2idle_setup();
+}
+
+#else /* !CONFIG_SUSPEND */
+#define s2idle_wakeup		(false)
+>>>>>>> upstream/android-13
 static inline void acpi_sleep_suspend_setup(void) {}
 #endif /* !CONFIG_SUSPEND */
 
@@ -1083,11 +1297,14 @@ bool acpi_s2idle_wakeup(void)
 	return s2idle_wakeup;
 }
 
+<<<<<<< HEAD
 bool acpi_sleep_no_ec_events(void)
 {
 	return !s2idle_in_progress || !lps0_device_handle;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static u32 saved_bm_rld;
 
@@ -1131,6 +1348,7 @@ void __init acpi_no_s4_hw_signature(void)
 	nosigcheck = true;
 }
 
+<<<<<<< HEAD
 static int acpi_hibernation_begin(void)
 {
 	int error;
@@ -1140,6 +1358,21 @@ static int acpi_hibernation_begin(void)
 		acpi_pm_start(ACPI_STATE_S4);
 
 	return error;
+=======
+static int acpi_hibernation_begin(pm_message_t stage)
+{
+	if (!nvs_nosave) {
+		int error = suspend_nvs_alloc();
+		if (error)
+			return error;
+	}
+
+	if (stage.event == PM_EVENT_HIBERNATE)
+		pm_set_suspend_via_firmware();
+
+	acpi_pm_start(ACPI_STATE_S4);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int acpi_hibernation_enter(void)
@@ -1168,7 +1401,11 @@ static void acpi_hibernation_leave(void)
 	acpi_leave_sleep_state_prep(ACPI_STATE_S4);
 	/* Check the hardware signature */
 	if (facs && s4_hardware_signature != facs->hardware_signature)
+<<<<<<< HEAD
 		pr_crit("ACPI: Hardware changed while hibernated, success doubtful!\n");
+=======
+		pr_crit("Hardware changed while hibernated, success doubtful!\n");
+>>>>>>> upstream/android-13
 	/* Restore the NVS memory area */
 	suspend_nvs_restore();
 	/* Allow EC transactions to happen. */
@@ -1199,7 +1436,11 @@ static const struct platform_hibernation_ops acpi_hibernation_ops = {
  *		function is used if the pre-ACPI 2.0 suspend ordering has been
  *		requested.
  */
+<<<<<<< HEAD
 static int acpi_hibernation_begin_old(void)
+=======
+static int acpi_hibernation_begin_old(pm_message_t stage)
+>>>>>>> upstream/android-13
 {
 	int error;
 	/*
@@ -1210,6 +1451,7 @@ static int acpi_hibernation_begin_old(void)
 	acpi_sleep_tts_switch(ACPI_STATE_S4);
 
 	error = acpi_sleep_prepare(ACPI_STATE_S4);
+<<<<<<< HEAD
 
 	if (!error) {
 		if (!nvs_nosave)
@@ -1220,6 +1462,23 @@ static int acpi_hibernation_begin_old(void)
 		}
 	}
 	return error;
+=======
+	if (error)
+		return error;
+
+	if (!nvs_nosave) {
+		error = suspend_nvs_alloc();
+		if (error)
+			return error;
+	}
+
+	if (stage.event == PM_EVENT_HIBERNATE)
+		pm_set_suspend_via_firmware();
+
+	acpi_target_sleep_state = ACPI_STATE_S4;
+	acpi_scan_lock_acquire();
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1269,7 +1528,11 @@ static void acpi_power_off_prepare(void)
 static void acpi_power_off(void)
 {
 	/* acpi_sleep_prepare(ACPI_STATE_S5) should have already been called */
+<<<<<<< HEAD
 	printk(KERN_DEBUG "%s called\n", __func__);
+=======
+	pr_debug("%s called\n", __func__);
+>>>>>>> upstream/android-13
 	local_irq_disable();
 	acpi_enter_sleep_state(ACPI_STATE_S5);
 }
@@ -1301,7 +1564,11 @@ int __init acpi_sleep_init(void)
 		if (sleep_states[i])
 			pos += sprintf(pos, " S%d", i);
 	}
+<<<<<<< HEAD
 	pr_info(PREFIX "(supports%s)\n", supported);
+=======
+	pr_info("(supports%s)\n", supported);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Register the tts_notifier to reboot notifier list so that the _TTS

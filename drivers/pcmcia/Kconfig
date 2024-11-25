@@ -1,10 +1,19 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # PCCARD (PCMCIA/CardBus) bus subsystem configuration
 #
 
 menuconfig PCCARD
 	tristate "PCCard (PCMCIA/CardBus) support"
+<<<<<<< HEAD
 	---help---
+=======
+	depends on !UML
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you want to attach PCMCIA- or PC-cards to your Linux
 	  computer.  These are credit-card size devices such as network cards,
 	  modems or hard drives often used with laptops computers.  There are
@@ -20,7 +29,11 @@ config PCMCIA
 	tristate "16-bit PCMCIA support"
 	select CRC32
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	   This option enables support for 16-bit PCMCIA cards. Most older
 	   PC-cards are such 16-bit PCMCIA cards, so unless you know you're
 	   only using 32-bit CardBus cards, say Y or M here.
@@ -52,7 +65,11 @@ config CARDBUS
 	bool "32-bit CardBus support"
 	depends on PCI
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  CardBus is a bus mastering architecture for PC-cards, which allows
 	  for 32 bit PC-cards (the original PCMCIA standard specifies only
 	  a 16 bit wide bus). Many newer PC-cards are actually CardBus cards.
@@ -63,6 +80,12 @@ config CARDBUS
 
 	  If unsure, say Y.
 
+<<<<<<< HEAD
+=======
+config PCMCIA_MAX1600
+	tristate
+
+>>>>>>> upstream/android-13
 comment "PC-card bridges"
 
 config YENTA
@@ -70,7 +93,11 @@ config YENTA
 	depends on PCI
 	select CARDBUS if !EXPERT
 	select PCCARD_NONSTATIC if PCMCIA != n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This option enables support for CardBus host bridges.  Virtually
 	  all modern PCMCIA bridges are CardBus compatible.  A "bridge" is
 	  the hardware inside your computer that PCMCIA cards are plugged
@@ -191,6 +218,11 @@ config PCMCIA_SA1111
 	select PCMCIA_SOC_COMMON
 	select PCMCIA_SA11XX_BASE if ARCH_SA1100
 	select PCMCIA_PXA2XX if ARCH_LUBBOCK && SA1111
+<<<<<<< HEAD
+=======
+	select PCMCIA_MAX1600 if ASSABET_NEPONSET
+	select PCMCIA_MAX1600 if ARCH_LUBBOCK && SA1111
+>>>>>>> upstream/android-13
 	help
 	  Say Y  here to include support for SA1111-based PCMCIA or CF
 	  sockets, found on the Jornada 720, Graphicsmaster and other
@@ -207,6 +239,10 @@ config PCMCIA_PXA2XX
 		    || MACH_VPAC270 || MACH_BALLOON3 || MACH_COLIBRI \
 		    || MACH_COLIBRI320 || MACH_H4700)
 	select PCMCIA_SOC_COMMON
+<<<<<<< HEAD
+=======
+	select PCMCIA_MAX1600 if MACH_MAINSTONE
+>>>>>>> upstream/android-13
 	help
 	  Say Y here to include support for the PXA2xx PCMCIA controller
 
@@ -236,10 +272,13 @@ config PCMCIA_VRC4171
 	tristate "NEC VRC4171 Card Controllers support"
 	depends on CPU_VR41XX && ISA && PCMCIA
 
+<<<<<<< HEAD
 config PCMCIA_VRC4173
 	tristate "NEC VRC4173 CARDU support"
 	depends on CPU_VR41XX && PCI && PCMCIA
 
+=======
+>>>>>>> upstream/android-13
 config OMAP_CF
 	tristate "OMAP CompactFlash Controller"
 	depends on PCMCIA && ARCH_OMAP16XX
@@ -250,6 +289,10 @@ config OMAP_CF
 config AT91_CF
 	tristate "AT91 CompactFlash Controller"
 	depends on PCI
+<<<<<<< HEAD
+=======
+	depends on OF
+>>>>>>> upstream/android-13
 	depends on PCMCIA && ARCH_AT91
 	help
 	  Say Y here to support the CompactFlash controller on AT91 chips.

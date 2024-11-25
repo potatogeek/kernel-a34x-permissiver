@@ -21,14 +21,26 @@
  */
 
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <linux/uaccess.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_framebuffer.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_property.h>
 
 #include "drm_crtc_internal.h"
 
+<<<<<<< HEAD
 #define MAX_BLOB_PROP_SIZE	(PAGE_SIZE * 30)
 #define MAX_BLOB_PROP_COUNT	250
 
+=======
+>>>>>>> upstream/android-13
 /**
  * DOC: overview
  *
@@ -41,7 +53,11 @@
  * property types and ranges.
  *
  * Properties don't store the current value directly, but need to be
+<<<<<<< HEAD
  * instatiated by attaching them to a &drm_mode_object with
+=======
+ * instantiated by attaching them to a &drm_mode_object with
+>>>>>>> upstream/android-13
  * drm_object_attach_property().
  *
  * Property values are only 64bit. To support bigger piles of data (like gamma
@@ -432,7 +448,11 @@ EXPORT_SYMBOL(drm_property_add_enum);
 /**
  * drm_property_destroy - destroy a drm property
  * @dev: drm device
+<<<<<<< HEAD
  * @property: property to destry
+=======
+ * @property: property to destroy
+>>>>>>> upstream/android-13
  *
  * This function frees a property including any attached resources like
  * enumeration values.
@@ -467,7 +487,11 @@ int drm_mode_getproperty_ioctl(struct drm_device *dev,
 	uint64_t __user *values_ptr;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	property = drm_property_find(dev, file_priv, out_resp->prop_id);
 	if (!property)
@@ -559,8 +583,12 @@ drm_property_create_blob(struct drm_device *dev, size_t length,
 	struct drm_property_blob *blob;
 	int ret;
 
+<<<<<<< HEAD
 	if (!length || length > MAX_BLOB_PROP_SIZE -
 				sizeof(struct drm_property_blob))
+=======
+	if (!length || length > INT_MAX - sizeof(struct drm_property_blob))
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 
 	blob = kvzalloc(sizeof(struct drm_property_blob)+length, GFP_KERNEL);
@@ -643,7 +671,11 @@ EXPORT_SYMBOL(drm_property_blob_get);
  * @id: id of the blob property
  *
  * If successful, this takes an additional reference to the blob property.
+<<<<<<< HEAD
  * callers need to make sure to eventually unreference the returned property
+=======
+ * callers need to make sure to eventually unreferenced the returned property
+>>>>>>> upstream/android-13
  * again, using drm_property_blob_put().
  *
  * Return:
@@ -761,7 +793,11 @@ int drm_mode_getblob_ioctl(struct drm_device *dev,
 	int ret = 0;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	blob = drm_property_lookup_blob(dev, out_resp->blob_id);
 	if (!blob)
@@ -786,6 +822,7 @@ int drm_mode_createblob_ioctl(struct drm_device *dev,
 			      void *data, struct drm_file *file_priv)
 {
 	struct drm_mode_create_blob *out_resp = data;
+<<<<<<< HEAD
 	struct drm_property_blob *blob, *bt;
 	int ret = 0;
 	u32 count = 0;
@@ -799,6 +836,12 @@ int drm_mode_createblob_ioctl(struct drm_device *dev,
 	mutex_unlock(&dev->mode_config.blob_lock);
 
 	if (count >= MAX_BLOB_PROP_COUNT)
+=======
+	struct drm_property_blob *blob;
+	int ret = 0;
+
+	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	blob = drm_property_create_blob(dev, out_resp->length, NULL);
@@ -836,7 +879,11 @@ int drm_mode_destroyblob_ioctl(struct drm_device *dev,
 	int ret = 0;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	blob = drm_property_lookup_blob(dev, out_resp->blob_id);
 	if (!blob)
@@ -879,7 +926,11 @@ err:
  * value doesn't become invalid part way through the property update due to
  * race).  The value returned by reference via 'obj' should be passed back
  * to drm_property_change_valid_put() after the property is set (and the
+<<<<<<< HEAD
  * object to which the property is attached has a chance to take it's own
+=======
+ * object to which the property is attached has a chance to take its own
+>>>>>>> upstream/android-13
  * reference).
  */
 bool drm_property_change_valid_get(struct drm_property *property,

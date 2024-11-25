@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* The industrial I/O core, trigger handling functions
  *
  * Copyright (c) 2008 Jonathan Cameron
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* The industrial I/O core, trigger handling functions
+ *
+ * Copyright (c) 2008 Jonathan Cameron
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -16,6 +23,10 @@
 #include <linux/slab.h>
 
 #include <linux/iio/iio.h>
+<<<<<<< HEAD
+=======
+#include <linux/iio/iio-opaque.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/trigger.h>
 #include "iio_core.h"
 #include "iio_core_trigger.h"
@@ -53,7 +64,11 @@ static ssize_t iio_trigger_read_name(struct device *dev,
 				     char *buf)
 {
 	struct iio_trigger *trig = to_iio_trigger(dev);
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", trig->name);
+=======
+	return sysfs_emit(buf, "%s\n", trig->name);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(name, S_IRUGO, iio_trigger_read_name, NULL);
@@ -78,8 +93,12 @@ int __iio_trigger_register(struct iio_trigger *trig_info,
 		return trig_info->id;
 
 	/* Set the name used for the sysfs directory etc */
+<<<<<<< HEAD
 	dev_set_name(&trig_info->dev, "trigger%ld",
 		     (unsigned long) trig_info->id);
+=======
+	dev_set_name(&trig_info->dev, "trigger%d", trig_info->id);
+>>>>>>> upstream/android-13
 
 	ret = device_add(&trig_info->dev);
 	if (ret)
@@ -120,6 +139,7 @@ EXPORT_SYMBOL(iio_trigger_unregister);
 
 int iio_trigger_set_immutable(struct iio_dev *indio_dev, struct iio_trigger *trig)
 {
+<<<<<<< HEAD
 	if (!indio_dev || !trig)
 		return -EINVAL;
 
@@ -128,6 +148,19 @@ int iio_trigger_set_immutable(struct iio_dev *indio_dev, struct iio_trigger *tri
 
 	indio_dev->trig = iio_trigger_get(trig);
 	indio_dev->trig_readonly = true;
+=======
+	struct iio_dev_opaque *iio_dev_opaque;
+
+	if (!indio_dev || !trig)
+		return -EINVAL;
+
+	iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+	mutex_lock(&indio_dev->mlock);
+	WARN_ON(iio_dev_opaque->trig_readonly);
+
+	indio_dev->trig = iio_trigger_get(trig);
+	iio_dev_opaque->trig_readonly = true;
+>>>>>>> upstream/android-13
 	mutex_unlock(&indio_dev->mlock);
 
 	return 0;
@@ -162,6 +195,42 @@ static struct iio_trigger *iio_trigger_acquire_by_name(const char *name)
 	return trig;
 }
 
+<<<<<<< HEAD
+=======
+static void iio_reenable_work_fn(struct work_struct *work)
+{
+	struct iio_trigger *trig = container_of(work, struct iio_trigger,
+						reenable_work);
+
+	/*
+	 * This 'might' occur after the trigger state is set to disabled -
+	 * in that case the driver should skip reenabling.
+	 */
+	trig->ops->reenable(trig);
+}
+
+/*
+ * In general, reenable callbacks may need to sleep and this path is
+ * not performance sensitive, so just queue up a work item
+ * to reneable the trigger for us.
+ *
+ * Races that can cause this.
+ * 1) A handler occurs entirely in interrupt context so the counter
+ *    the final decrement is still in this interrupt.
+ * 2) The trigger has been removed, but one last interrupt gets through.
+ *
+ * For (1) we must call reenable, but not in atomic context.
+ * For (2) it should be safe to call reenanble, if drivers never blindly
+ * reenable after state is off.
+ */
+static void iio_trigger_notify_done_atomic(struct iio_trigger *trig)
+{
+	if (atomic_dec_and_test(&trig->use_count) && trig->ops &&
+	    trig->ops->reenable)
+		schedule_work(&trig->reenable_work);
+}
+
+>>>>>>> upstream/android-13
 void iio_trigger_poll(struct iio_trigger *trig)
 {
 	int i;
@@ -173,7 +242,11 @@ void iio_trigger_poll(struct iio_trigger *trig)
 			if (trig->subirqs[i].enabled)
 				generic_handle_irq(trig->subirq_base + i);
 			else
+<<<<<<< HEAD
 				iio_trigger_notify_done(trig);
+=======
+				iio_trigger_notify_done_atomic(trig);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -206,10 +279,15 @@ EXPORT_SYMBOL(iio_trigger_poll_chained);
 void iio_trigger_notify_done(struct iio_trigger *trig)
 {
 	if (atomic_dec_and_test(&trig->use_count) && trig->ops &&
+<<<<<<< HEAD
 	    trig->ops->try_reenable)
 		if (trig->ops->try_reenable(trig))
 			/* Missed an interrupt so launch new poll now */
 			iio_trigger_poll(trig);
+=======
+	    trig->ops->reenable)
+		trig->ops->reenable(trig);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(iio_trigger_notify_done);
 
@@ -217,6 +295,10 @@ EXPORT_SYMBOL(iio_trigger_notify_done);
 static int iio_trigger_get_irq(struct iio_trigger *trig)
 {
 	int ret;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	mutex_lock(&trig->pool_lock);
 	ret = bitmap_find_free_region(trig->pool,
 				      CONFIG_IIO_CONSUMERS_PER_TRIGGER,
@@ -242,6 +324,7 @@ static void iio_trigger_put_irq(struct iio_trigger *trig, int irq)
  * the relevant function is in there may be the best option.
  */
 /* Worth protecting against double additions? */
+<<<<<<< HEAD
 static int iio_trigger_attach_poll_func(struct iio_trigger *trig,
 					struct iio_poll_func *pf)
 {
@@ -256,6 +339,26 @@ static int iio_trigger_attach_poll_func(struct iio_trigger *trig,
 	pf->irq = iio_trigger_get_irq(trig);
 	if (pf->irq < 0)
 		goto out_put_module;
+=======
+int iio_trigger_attach_poll_func(struct iio_trigger *trig,
+				 struct iio_poll_func *pf)
+{
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(pf->indio_dev);
+	bool notinuse =
+		bitmap_empty(trig->pool, CONFIG_IIO_CONSUMERS_PER_TRIGGER);
+	int ret = 0;
+
+	/* Prevent the module from being removed whilst attached to a trigger */
+	__module_get(iio_dev_opaque->driver_module);
+
+	/* Get irq number */
+	pf->irq = iio_trigger_get_irq(trig);
+	if (pf->irq < 0) {
+		pr_err("Could not find an available irq for trigger %s, CONFIG_IIO_CONSUMERS_PER_TRIGGER=%d limit might be exceeded\n",
+			trig->name, CONFIG_IIO_CONSUMERS_PER_TRIGGER);
+		goto out_put_module;
+	}
+>>>>>>> upstream/android-13
 
 	/* Request irq */
 	ret = request_threaded_irq(pf->irq, pf->h, pf->thread,
@@ -286,6 +389,7 @@ out_free_irq:
 out_put_irq:
 	iio_trigger_put_irq(trig, pf->irq);
 out_put_module:
+<<<<<<< HEAD
 	module_put(pf->indio_dev->driver_module);
 	return ret;
 }
@@ -298,6 +402,20 @@ static int iio_trigger_detach_poll_func(struct iio_trigger *trig,
 		= (bitmap_weight(trig->pool,
 				 CONFIG_IIO_CONSUMERS_PER_TRIGGER)
 		   == 1);
+=======
+	module_put(iio_dev_opaque->driver_module);
+	return ret;
+}
+
+int iio_trigger_detach_poll_func(struct iio_trigger *trig,
+				 struct iio_poll_func *pf)
+{
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(pf->indio_dev);
+	bool no_other_users =
+		bitmap_weight(trig->pool, CONFIG_IIO_CONSUMERS_PER_TRIGGER) == 1;
+	int ret = 0;
+
+>>>>>>> upstream/android-13
 	if (trig->ops && trig->ops->set_trigger_state && no_other_users) {
 		ret = trig->ops->set_trigger_state(trig, false);
 		if (ret)
@@ -307,7 +425,11 @@ static int iio_trigger_detach_poll_func(struct iio_trigger *trig,
 		trig->attached_own_device = false;
 	iio_trigger_put_irq(trig, pf->irq);
 	free_irq(pf->irq, pf);
+<<<<<<< HEAD
 	module_put(pf->indio_dev->driver_module);
+=======
+	module_put(iio_dev_opaque->driver_module);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -315,6 +437,10 @@ static int iio_trigger_detach_poll_func(struct iio_trigger *trig,
 irqreturn_t iio_pollfunc_store_time(int irq, void *p)
 {
 	struct iio_poll_func *pf = p;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	pf->timestamp = iio_get_time_ns(pf->indio_dev);
 	return IRQ_WAKE_THREAD;
 }
@@ -377,7 +503,11 @@ static ssize_t iio_trigger_read_current(struct device *dev,
 	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
 
 	if (indio_dev->trig)
+<<<<<<< HEAD
 		return sprintf(buf, "%s\n", indio_dev->trig->name);
+=======
+		return sysfs_emit(buf, "%s\n", indio_dev->trig->name);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -401,6 +531,10 @@ static ssize_t iio_trigger_write_current(struct device *dev,
 					 size_t len)
 {
 	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
+<<<<<<< HEAD
+=======
+	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+>>>>>>> upstream/android-13
 	struct iio_trigger *oldtrig = indio_dev->trig;
 	struct iio_trigger *trig;
 	int ret;
@@ -410,7 +544,11 @@ static ssize_t iio_trigger_write_current(struct device *dev,
 		mutex_unlock(&indio_dev->mlock);
 		return -EBUSY;
 	}
+<<<<<<< HEAD
 	if (indio_dev->trig_readonly) {
+=======
+	if (iio_dev_opaque->trig_readonly) {
+>>>>>>> upstream/android-13
 		mutex_unlock(&indio_dev->mlock);
 		return -EPERM;
 	}
@@ -501,15 +639,21 @@ static const struct device_type iio_trig_type = {
 static void iio_trig_subirqmask(struct irq_data *d)
 {
 	struct irq_chip *chip = irq_data_get_irq_chip(d);
+<<<<<<< HEAD
 	struct iio_trigger *trig
 		= container_of(chip,
 			       struct iio_trigger, subirq_chip);
+=======
+	struct iio_trigger *trig = container_of(chip, struct iio_trigger, subirq_chip);
+
+>>>>>>> upstream/android-13
 	trig->subirqs[d->irq - trig->subirq_base].enabled = false;
 }
 
 static void iio_trig_subirqunmask(struct irq_data *d)
 {
 	struct irq_chip *chip = irq_data_get_irq_chip(d);
+<<<<<<< HEAD
 	struct iio_trigger *trig
 		= container_of(chip,
 			       struct iio_trigger, subirq_chip);
@@ -517,6 +661,17 @@ static void iio_trig_subirqunmask(struct irq_data *d)
 }
 
 static struct iio_trigger *viio_trigger_alloc(const char *fmt, va_list vargs)
+=======
+	struct iio_trigger *trig = container_of(chip, struct iio_trigger, subirq_chip);
+
+	trig->subirqs[d->irq - trig->subirq_base].enabled = true;
+}
+
+static __printf(2, 0)
+struct iio_trigger *viio_trigger_alloc(struct device *parent,
+				       const char *fmt,
+				       va_list vargs)
+>>>>>>> upstream/android-13
 {
 	struct iio_trigger *trig;
 	int i;
@@ -525,9 +680,17 @@ static struct iio_trigger *viio_trigger_alloc(const char *fmt, va_list vargs)
 	if (!trig)
 		return NULL;
 
+<<<<<<< HEAD
 	trig->dev.type = &iio_trig_type;
 	trig->dev.bus = &iio_bus_type;
 	device_initialize(&trig->dev);
+=======
+	trig->dev.parent = parent;
+	trig->dev.type = &iio_trig_type;
+	trig->dev.bus = &iio_bus_type;
+	device_initialize(&trig->dev);
+	INIT_WORK(&trig->reenable_work, iio_reenable_work_fn);
+>>>>>>> upstream/android-13
 
 	mutex_init(&trig->pool_lock);
 	trig->subirq_base = irq_alloc_descs(-1, 0,
@@ -549,7 +712,10 @@ static struct iio_trigger *viio_trigger_alloc(const char *fmt, va_list vargs)
 		irq_modify_status(trig->subirq_base + i,
 				  IRQ_NOREQUEST | IRQ_NOAUTOEN, IRQ_NOPROBE);
 	}
+<<<<<<< HEAD
 	get_device(&trig->dev);
+=======
+>>>>>>> upstream/android-13
 
 	return trig;
 
@@ -560,13 +726,31 @@ free_trig:
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct iio_trigger *iio_trigger_alloc(const char *fmt, ...)
+=======
+/**
+ * iio_trigger_alloc - Allocate a trigger
+ * @parent:		Device to allocate iio_trigger for
+ * @fmt:		trigger name format. If it includes format
+ *			specifiers, the additional arguments following
+ *			format are formatted and inserted in the resulting
+ *			string replacing their respective specifiers.
+ * RETURNS:
+ * Pointer to allocated iio_trigger on success, NULL on failure.
+ */
+struct iio_trigger *iio_trigger_alloc(struct device *parent, const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	struct iio_trigger *trig;
 	va_list vargs;
 
 	va_start(vargs, fmt);
+<<<<<<< HEAD
 	trig = viio_trigger_alloc(fmt, vargs);
+=======
+	trig = viio_trigger_alloc(parent, fmt, vargs);
+>>>>>>> upstream/android-13
 	va_end(vargs);
 
 	return trig;
@@ -585,6 +769,7 @@ static void devm_iio_trigger_release(struct device *dev, void *res)
 	iio_trigger_free(*(struct iio_trigger **)res);
 }
 
+<<<<<<< HEAD
 static int devm_iio_trigger_match(struct device *dev, void *res, void *data)
 {
 	struct iio_trigger **r = res;
@@ -600,22 +785,36 @@ static int devm_iio_trigger_match(struct device *dev, void *res, void *data)
 /**
  * devm_iio_trigger_alloc - Resource-managed iio_trigger_alloc()
  * @dev:		Device to allocate iio_trigger for
+=======
+/**
+ * devm_iio_trigger_alloc - Resource-managed iio_trigger_alloc()
+ * Managed iio_trigger_alloc.  iio_trigger allocated with this function is
+ * automatically freed on driver detach.
+ * @parent:		Device to allocate iio_trigger for
+>>>>>>> upstream/android-13
  * @fmt:		trigger name format. If it includes format
  *			specifiers, the additional arguments following
  *			format are formatted and inserted in the resulting
  *			string replacing their respective specifiers.
  *
+<<<<<<< HEAD
  * Managed iio_trigger_alloc.  iio_trigger allocated with this function is
  * automatically freed on driver detach.
  *
  * If an iio_trigger allocated with this function needs to be freed separately,
  * devm_iio_trigger_free() must be used.
+=======
+>>>>>>> upstream/android-13
  *
  * RETURNS:
  * Pointer to allocated iio_trigger on success, NULL on failure.
  */
+<<<<<<< HEAD
 struct iio_trigger *devm_iio_trigger_alloc(struct device *dev,
 						const char *fmt, ...)
+=======
+struct iio_trigger *devm_iio_trigger_alloc(struct device *parent, const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	struct iio_trigger **ptr, *trig;
 	va_list vargs;
@@ -627,11 +826,19 @@ struct iio_trigger *devm_iio_trigger_alloc(struct device *dev,
 
 	/* use raw alloc_dr for kmalloc caller tracing */
 	va_start(vargs, fmt);
+<<<<<<< HEAD
 	trig = viio_trigger_alloc(fmt, vargs);
 	va_end(vargs);
 	if (trig) {
 		*ptr = trig;
 		devres_add(dev, ptr);
+=======
+	trig = viio_trigger_alloc(parent, fmt, vargs);
+	va_end(vargs);
+	if (trig) {
+		*ptr = trig;
+		devres_add(parent, ptr);
+>>>>>>> upstream/android-13
 	} else {
 		devres_free(ptr);
 	}
@@ -640,6 +847,7 @@ struct iio_trigger *devm_iio_trigger_alloc(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(devm_iio_trigger_alloc);
 
+<<<<<<< HEAD
 /**
  * devm_iio_trigger_free - Resource-managed iio_trigger_free()
  * @dev:		Device this iio_dev belongs to
@@ -660,6 +868,11 @@ EXPORT_SYMBOL_GPL(devm_iio_trigger_free);
 static void devm_iio_trigger_unreg(struct device *dev, void *res)
 {
 	iio_trigger_unregister(*(struct iio_trigger **)res);
+=======
+static void devm_iio_trigger_unreg(void *trigger_info)
+{
+	iio_trigger_unregister(trigger_info);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -673,9 +886,12 @@ static void devm_iio_trigger_unreg(struct device *dev, void *res)
  * calls iio_trigger_register() internally. Refer to that function for more
  * information.
  *
+<<<<<<< HEAD
  * If an iio_trigger registered with this function needs to be unregistered
  * separately, devm_iio_trigger_unregister() must be used.
  *
+=======
+>>>>>>> upstream/android-13
  * RETURNS:
  * 0 on success, negative error number on failure.
  */
@@ -683,6 +899,7 @@ int __devm_iio_trigger_register(struct device *dev,
 				struct iio_trigger *trig_info,
 				struct module *this_mod)
 {
+<<<<<<< HEAD
 	struct iio_trigger **ptr;
 	int ret;
 
@@ -719,6 +936,18 @@ void devm_iio_trigger_unregister(struct device *dev,
 }
 EXPORT_SYMBOL_GPL(devm_iio_trigger_unregister);
 
+=======
+	int ret;
+
+	ret = __iio_trigger_register(trig_info, this_mod);
+	if (ret)
+		return ret;
+
+	return devm_add_action_or_reset(dev, devm_iio_trigger_unreg, trig_info);
+}
+EXPORT_SYMBOL_GPL(__devm_iio_trigger_register);
+
+>>>>>>> upstream/android-13
 bool iio_trigger_using_own(struct iio_dev *indio_dev)
 {
 	return indio_dev->trig->attached_own_device;
@@ -738,7 +967,11 @@ EXPORT_SYMBOL(iio_trigger_using_own);
  * device, -EINVAL otherwise.
  */
 int iio_trigger_validate_own_device(struct iio_trigger *trig,
+<<<<<<< HEAD
 	struct iio_dev *indio_dev)
+=======
+				    struct iio_dev *indio_dev)
+>>>>>>> upstream/android-13
 {
 	if (indio_dev->dev.parent != trig->dev.parent)
 		return -EINVAL;
@@ -746,10 +979,17 @@ int iio_trigger_validate_own_device(struct iio_trigger *trig,
 }
 EXPORT_SYMBOL(iio_trigger_validate_own_device);
 
+<<<<<<< HEAD
 void iio_device_register_trigger_consumer(struct iio_dev *indio_dev)
 {
 	indio_dev->groups[indio_dev->groupcounter++] =
 		&iio_trigger_consumer_attr_group;
+=======
+int iio_device_register_trigger_consumer(struct iio_dev *indio_dev)
+{
+	return iio_device_register_sysfs_group(indio_dev,
+					       &iio_trigger_consumer_attr_group);
+>>>>>>> upstream/android-13
 }
 
 void iio_device_unregister_trigger_consumer(struct iio_dev *indio_dev)
@@ -758,6 +998,7 @@ void iio_device_unregister_trigger_consumer(struct iio_dev *indio_dev)
 	if (indio_dev->trig)
 		iio_trigger_put(indio_dev->trig);
 }
+<<<<<<< HEAD
 
 int iio_triggered_buffer_postenable(struct iio_dev *indio_dev)
 {
@@ -772,3 +1013,5 @@ int iio_triggered_buffer_predisable(struct iio_dev *indio_dev)
 					     indio_dev->pollfunc);
 }
 EXPORT_SYMBOL(iio_triggered_buffer_predisable);
+=======
+>>>>>>> upstream/android-13

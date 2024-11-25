@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/kernel/signal.c
  *
@@ -42,8 +46,14 @@
 #include <linux/cn_proc.h>
 #include <linux/compiler.h>
 #include <linux/posix-timers.h>
+<<<<<<< HEAD
 #include <linux/livepatch.h>
 #include <linux/cgroup.h>
+=======
+#include <linux/cgroup.h>
+#include <linux/audit.h>
+#include <linux/oom.h>
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/signal.h>
@@ -53,12 +63,19 @@
 #include <asm/unistd.h>
 #include <asm/siginfo.h>
 #include <asm/cacheflush.h>
+<<<<<<< HEAD
 #include "audit.h"	/* audit_signal_info() */
 
 #ifdef CONFIG_SAMSUNG_FREECESS
 #include <linux/freecess.h>
 #endif
 
+=======
+#include <asm/syscall.h>	/* for syscall_get_* */
+
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/signal.h>
+>>>>>>> upstream/android-13
 /*
  * SLAB caches for signal bits.
  */
@@ -184,11 +201,19 @@ void recalc_sigpending_and_wake(struct task_struct *t)
 
 void recalc_sigpending(void)
 {
+<<<<<<< HEAD
 	if (!recalc_sigpending_tsk(current) && !freezing(current) &&
 	    !klp_patch_pending(current))
 		clear_thread_flag(TIF_SIGPENDING);
 
 }
+=======
+	if (!recalc_sigpending_tsk(current) && !freezing(current))
+		clear_thread_flag(TIF_SIGPENDING);
+
+}
+EXPORT_SYMBOL(recalc_sigpending);
+>>>>>>> upstream/android-13
 
 void calculate_sigpending(void)
 {
@@ -356,7 +381,11 @@ void task_clear_jobctl_pending(struct task_struct *task, unsigned long mask)
  * @task has %JOBCTL_STOP_PENDING set and is participating in a group stop.
  * Group stop states are cleared and the group stop count is consumed if
  * %JOBCTL_STOP_CONSUME was set.  If the consumption completes the group
+<<<<<<< HEAD
  * stop, the appropriate %SIGNAL_* flags are set.
+=======
+ * stop, the appropriate `SIGNAL_*` flags are set.
+>>>>>>> upstream/android-13
  *
  * CONTEXT:
  * Must be called with @task->sighand->siglock held.
@@ -412,11 +441,20 @@ void task_join_group_stop(struct task_struct *task)
  *   appropriate lock must be held to stop the target task from exiting
  */
 static struct sigqueue *
+<<<<<<< HEAD
 __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimit)
 {
 	struct sigqueue *q = NULL;
 	struct user_struct *user;
 	int sigpending;
+=======
+__sigqueue_alloc(int sig, struct task_struct *t, gfp_t gfp_flags,
+		 int override_rlimit, const unsigned int sigqueue_flags)
+{
+	struct sigqueue *q = NULL;
+	struct ucounts *ucounts = NULL;
+	long sigpending;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Protect access to @t credentials. This can go away when all
@@ -427,6 +465,7 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
 	 * changes from/to zero.
 	 */
 	rcu_read_lock();
+<<<<<<< HEAD
 	user = __task_cred(t)->user;
 	sigpending = atomic_inc_return(&user->sigpending);
 	if (sigpending == 1)
@@ -435,11 +474,22 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
 
 	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
 		q = kmem_cache_alloc(sigqueue_cachep, flags);
+=======
+	ucounts = task_ucounts(t);
+	sigpending = inc_rlimit_get_ucounts(ucounts, UCOUNT_RLIMIT_SIGPENDING);
+	rcu_read_unlock();
+	if (!sigpending)
+		return NULL;
+
+	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
+		q = kmem_cache_alloc(sigqueue_cachep, gfp_flags);
+>>>>>>> upstream/android-13
 	} else {
 		print_dropped_signal(sig);
 	}
 
 	if (unlikely(q == NULL)) {
+<<<<<<< HEAD
 		if (atomic_dec_and_test(&user->sigpending))
 			free_uid(user);
 	} else {
@@ -448,6 +498,14 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
 		q->user = user;
 	}
 
+=======
+		dec_rlimit_put_ucounts(ucounts, UCOUNT_RLIMIT_SIGPENDING);
+	} else {
+		INIT_LIST_HEAD(&q->list);
+		q->flags = sigqueue_flags;
+		q->ucounts = ucounts;
+	}
+>>>>>>> upstream/android-13
 	return q;
 }
 
@@ -455,8 +513,15 @@ static void __sigqueue_free(struct sigqueue *q)
 {
 	if (q->flags & SIGQUEUE_PREALLOC)
 		return;
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&q->user->sigpending))
 		free_uid(q->user);
+=======
+	if (q->ucounts) {
+		dec_rlimit_put_ucounts(q->ucounts, UCOUNT_RLIMIT_SIGPENDING);
+		q->ucounts = NULL;
+	}
+>>>>>>> upstream/android-13
 	kmem_cache_free(sigqueue_cachep, q);
 }
 
@@ -485,6 +550,10 @@ void flush_signals(struct task_struct *t)
 	flush_sigqueue(&t->signal->shared_pending);
 	spin_unlock_irqrestore(&t->sighand->siglock, flags);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(flush_signals);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_POSIX_TIMERS
 static void __flush_itimer_signals(struct sigpending *pending)
@@ -566,7 +635,11 @@ bool unhandled_signal(struct task_struct *tsk, int sig)
 	return !tsk->ptrace;
 }
 
+<<<<<<< HEAD
 static void collect_signal(int sig, struct sigpending *list, siginfo_t *info,
+=======
+static void collect_signal(int sig, struct sigpending *list, kernel_siginfo_t *info,
+>>>>>>> upstream/android-13
 			   bool *resched_timer)
 {
 	struct sigqueue *q, *first = NULL;
@@ -612,7 +685,11 @@ still_pending:
 }
 
 static int __dequeue_signal(struct sigpending *pending, sigset_t *mask,
+<<<<<<< HEAD
 			siginfo_t *info, bool *resched_timer)
+=======
+			kernel_siginfo_t *info, bool *resched_timer)
+>>>>>>> upstream/android-13
 {
 	int sig = next_signal(pending, mask);
 
@@ -627,7 +704,11 @@ static int __dequeue_signal(struct sigpending *pending, sigset_t *mask,
  *
  * All callers have to hold the siglock.
  */
+<<<<<<< HEAD
 int dequeue_signal(struct task_struct *tsk, sigset_t *mask, siginfo_t *info)
+=======
+int dequeue_signal(struct task_struct *tsk, sigset_t *mask, kernel_siginfo_t *info)
+>>>>>>> upstream/android-13
 {
 	bool resched_timer = false;
 	int signr;
@@ -703,8 +784,14 @@ int dequeue_signal(struct task_struct *tsk, sigset_t *mask, siginfo_t *info)
 #endif
 	return signr;
 }
+<<<<<<< HEAD
 
 static int dequeue_synchronous_signal(siginfo_t *info)
+=======
+EXPORT_SYMBOL_GPL(dequeue_signal);
+
+static int dequeue_synchronous_signal(kernel_siginfo_t *info)
+>>>>>>> upstream/android-13
 {
 	struct task_struct *tsk = current;
 	struct sigpending *pending = &tsk->pending;
@@ -720,7 +807,11 @@ static int dequeue_synchronous_signal(siginfo_t *info)
 	 * Return the first synchronous signal in the queue.
 	 */
 	list_for_each_entry(q, &pending->list, list) {
+<<<<<<< HEAD
 		/* Synchronous signals have a postive si_code */
+=======
+		/* Synchronous signals have a positive si_code */
+>>>>>>> upstream/android-13
 		if ((q->info.si_code > SI_USER) &&
 		    (sigmask(q->info.si_signo) & SYNCHRONOUS_MASK)) {
 			sync = q;
@@ -795,12 +886,21 @@ static void flush_sigqueue_mask(sigset_t *mask, struct sigpending *s)
 	}
 }
 
+<<<<<<< HEAD
 static inline int is_si_special(const struct siginfo *info)
 {
 	return info <= SEND_SIG_FORCED;
 }
 
 static inline bool si_fromuser(const struct siginfo *info)
+=======
+static inline int is_si_special(const struct kernel_siginfo *info)
+{
+	return info <= SEND_SIG_PRIV;
+}
+
+static inline bool si_fromuser(const struct kernel_siginfo *info)
+>>>>>>> upstream/android-13
 {
 	return info == SEND_SIG_NOINFO ||
 		(!is_si_special(info) && SI_FROMUSER(info));
@@ -825,7 +925,11 @@ static bool kill_ok_by_cred(struct task_struct *t)
  * Bad permissions for sending the signal
  * - the caller must hold the RCU read lock
  */
+<<<<<<< HEAD
 static int check_kill_permission(int sig, struct siginfo *info,
+=======
+static int check_kill_permission(int sig, struct kernel_siginfo *info,
+>>>>>>> upstream/android-13
 				 struct task_struct *t)
 {
 	struct pid *sid;
@@ -852,6 +956,10 @@ static int check_kill_permission(int sig, struct siginfo *info,
 			 */
 			if (!sid || sid == task_session(current))
 				break;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			return -EPERM;
 		}
@@ -903,11 +1011,16 @@ static bool prepare_signal(int sig, struct task_struct *p, bool force)
 	sigset_t flush;
 
 	if (signal->flags & (SIGNAL_GROUP_EXIT | SIGNAL_GROUP_COREDUMP)) {
+<<<<<<< HEAD
 		if (signal->flags & SIGNAL_GROUP_COREDUMP) {
 			pr_debug("[%d:%s] is in the middle of doing coredump so skip sig %d\n",
 				p->pid, p->comm, sig);
 			return 0;
 		}
+=======
+		if (!(signal->flags & SIGNAL_GROUP_EXIT))
+			return sig == SIGKILL;
+>>>>>>> upstream/android-13
 		/*
 		 * The process is in the middle of dying, nothing to do.
 		 */
@@ -953,7 +1066,11 @@ static bool prepare_signal(int sig, struct task_struct *p, bool force)
 			/*
 			 * The first thread which returns from do_signal_stop()
 			 * will take ->siglock, notice SIGNAL_CLD_MASK, and
+<<<<<<< HEAD
 			 * notify its parent. See get_signal_to_deliver().
+=======
+			 * notify its parent. See get_signal().
+>>>>>>> upstream/android-13
 			 */
 			signal_set_stop_flags(signal, why | SIGNAL_STOP_CONTINUED);
 			signal->group_stop_count = 0;
@@ -986,7 +1103,11 @@ static inline bool wants_signal(int sig, struct task_struct *p)
 	if (task_is_stopped_or_traced(p))
 		return false;
 
+<<<<<<< HEAD
 	return task_curr(p) || !signal_pending(p);
+=======
+	return task_curr(p) || !task_sigpending(p);
+>>>>>>> upstream/android-13
 }
 
 static void complete_signal(int sig, struct task_struct *p, enum pid_type type)
@@ -1049,6 +1170,10 @@ static void complete_signal(int sig, struct task_struct *p, enum pid_type type)
 			signal->group_stop_count = 0;
 			t = p;
 			do {
+<<<<<<< HEAD
+=======
+				trace_android_vh_exit_signal(t);
+>>>>>>> upstream/android-13
 				task_clear_jobctl_pending(t, JOBCTL_PENDING_MASK);
 				sigaddset(&t->pending.signal, SIGKILL);
 				signal_wake_up(t, 1);
@@ -1070,6 +1195,7 @@ static inline bool legacy_queue(struct sigpending *signals, int sig)
 	return (sig < SIGRTMIN) && sigismember(&signals->signal, sig);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_USER_NS
 static inline void userns_fixup_signal_uid(struct siginfo *info, struct task_struct *t)
 {
@@ -1093,6 +1219,10 @@ static inline void userns_fixup_signal_uid(struct siginfo *info, struct task_str
 
 static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 			enum pid_type type, int from_ancestor_ns)
+=======
+static int __send_signal(int sig, struct kernel_siginfo *info, struct task_struct *t,
+			enum pid_type type, bool force)
+>>>>>>> upstream/android-13
 {
 	struct sigpending *pending;
 	struct sigqueue *q;
@@ -1102,8 +1232,12 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 	assert_spin_locked(&t->sighand->siglock);
 
 	result = TRACE_SIGNAL_IGNORED;
+<<<<<<< HEAD
 	if (!prepare_signal(sig, t,
 			from_ancestor_ns || (info == SEND_SIG_PRIV) || (info == SEND_SIG_FORCED)))
+=======
+	if (!prepare_signal(sig, t, force))
+>>>>>>> upstream/android-13
 		goto ret;
 
 	pending = (type != PIDTYPE_PID) ? &t->signal->shared_pending : &t->pending;
@@ -1118,10 +1252,16 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 
 	result = TRACE_SIGNAL_DELIVERED;
 	/*
+<<<<<<< HEAD
 	 * fast-pathed signals for kernel-internal things like SIGSTOP
 	 * or SIGKILL.
 	 */
 	if (info == SEND_SIG_FORCED)
+=======
+	 * Skip useless siginfo allocation for SIGKILL and kernel threads.
+	 */
+	if ((sig == SIGKILL) || (t->flags & PF_KTHREAD))
+>>>>>>> upstream/android-13
 		goto out_set;
 
 	/*
@@ -1138,7 +1278,12 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 	else
 		override_rlimit = 0;
 
+<<<<<<< HEAD
 	q = __sigqueue_alloc(sig, t, GFP_ATOMIC, override_rlimit);
+=======
+	q = __sigqueue_alloc(sig, t, GFP_ATOMIC, override_rlimit, 0);
+
+>>>>>>> upstream/android-13
 	if (q) {
 		list_add_tail(&q->list, &pending->list);
 		switch ((unsigned long) info) {
@@ -1149,7 +1294,15 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 			q->info.si_code = SI_USER;
 			q->info.si_pid = task_tgid_nr_ns(current,
 							task_active_pid_ns(t));
+<<<<<<< HEAD
 			q->info.si_uid = from_kuid_munged(current_user_ns(), current_uid());
+=======
+			rcu_read_lock();
+			q->info.si_uid =
+				from_kuid_munged(task_cred_xxx(t, user_ns),
+						 current_uid());
+			rcu_read_unlock();
+>>>>>>> upstream/android-13
 			break;
 		case (unsigned long) SEND_SIG_PRIV:
 			clear_siginfo(&q->info);
@@ -1161,6 +1314,7 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 			break;
 		default:
 			copy_siginfo(&q->info, info);
+<<<<<<< HEAD
 			if (from_ancestor_ns)
 				q->info.si_pid = 0;
 			break;
@@ -1185,6 +1339,26 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 			 */
 			result = TRACE_SIGNAL_LOSE_INFO;
 		}
+=======
+			break;
+		}
+	} else if (!is_si_special(info) &&
+		   sig >= SIGRTMIN && info->si_code != SI_USER) {
+		/*
+		 * Queue overflow, abort.  We may abort if the
+		 * signal was rt and sent by user using something
+		 * other than kill().
+		 */
+		result = TRACE_SIGNAL_OVERFLOW_FAIL;
+		ret = -EAGAIN;
+		goto ret;
+	} else {
+		/*
+		 * This is a silent loss of information.  We still
+		 * send the signal, but the *info bits are lost.
+		 */
+		result = TRACE_SIGNAL_LOSE_INFO;
+>>>>>>> upstream/android-13
 	}
 
 out_set:
@@ -1211,6 +1385,7 @@ ret:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int send_signal(int sig, struct siginfo *info, struct task_struct *t,
 			enum pid_type type)
 {
@@ -1222,6 +1397,66 @@ static int send_signal(int sig, struct siginfo *info, struct task_struct *t,
 #endif
 
 	return __send_signal(sig, info, t, type, from_ancestor_ns);
+=======
+static inline bool has_si_pid_and_uid(struct kernel_siginfo *info)
+{
+	bool ret = false;
+	switch (siginfo_layout(info->si_signo, info->si_code)) {
+	case SIL_KILL:
+	case SIL_CHLD:
+	case SIL_RT:
+		ret = true;
+		break;
+	case SIL_TIMER:
+	case SIL_POLL:
+	case SIL_FAULT:
+	case SIL_FAULT_TRAPNO:
+	case SIL_FAULT_MCEERR:
+	case SIL_FAULT_BNDERR:
+	case SIL_FAULT_PKUERR:
+	case SIL_FAULT_PERF_EVENT:
+	case SIL_SYS:
+		ret = false;
+		break;
+	}
+	return ret;
+}
+
+static int send_signal(int sig, struct kernel_siginfo *info, struct task_struct *t,
+			enum pid_type type)
+{
+	/* Should SIGKILL or SIGSTOP be received by a pid namespace init? */
+	bool force = false;
+
+	if (info == SEND_SIG_NOINFO) {
+		/* Force if sent from an ancestor pid namespace */
+		force = !task_pid_nr_ns(current, task_active_pid_ns(t));
+	} else if (info == SEND_SIG_PRIV) {
+		/* Don't ignore kernel generated signals */
+		force = true;
+	} else if (has_si_pid_and_uid(info)) {
+		/* SIGKILL and SIGSTOP is special or has ids */
+		struct user_namespace *t_user_ns;
+
+		rcu_read_lock();
+		t_user_ns = task_cred_xxx(t, user_ns);
+		if (current_user_ns() != t_user_ns) {
+			kuid_t uid = make_kuid(current_user_ns(), info->si_uid);
+			info->si_uid = from_kuid_munged(t_user_ns, uid);
+		}
+		rcu_read_unlock();
+
+		/* A kernel generated signal? */
+		force = (info->si_code == SI_KERNEL);
+
+		/* From an ancestor pid namespace? */
+		if (!task_pid_nr_ns(current, task_active_pid_ns(t))) {
+			info->si_pid = 0;
+			force = true;
+		}
+	}
+	return __send_signal(sig, info, t, type, force);
+>>>>>>> upstream/android-13
 }
 
 static void print_fatal_signal(int signr)
@@ -1258,11 +1493,16 @@ static int __init setup_print_fatal_signals(char *str)
 __setup("print-fatal-signals=", setup_print_fatal_signals);
 
 int
+<<<<<<< HEAD
 __group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
+=======
+__group_send_sig_info(int sig, struct kernel_siginfo *info, struct task_struct *p)
+>>>>>>> upstream/android-13
 {
 	return send_signal(sig, info, p, PIDTYPE_TGID);
 }
 
+<<<<<<< HEAD
 static int
 specific_send_sig_info(int sig, struct siginfo *info, struct task_struct *t)
 {
@@ -1270,10 +1510,14 @@ specific_send_sig_info(int sig, struct siginfo *info, struct task_struct *t)
 }
 
 int do_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
+=======
+int do_send_sig_info(int sig, struct kernel_siginfo *info, struct task_struct *p,
+>>>>>>> upstream/android-13
 			enum pid_type type)
 {
 	unsigned long flags;
 	int ret = -ESRCH;
+<<<<<<< HEAD
 
 #ifdef CONFIG_SAMSUNG_FREECESS
 	/*
@@ -1286,6 +1530,9 @@ int do_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
  	}
 #endif
 
+=======
+	trace_android_vh_do_send_sig_info(sig, current, p);
+>>>>>>> upstream/android-13
 	if (lock_task_sighand(p, &flags)) {
 		ret = send_signal(sig, info, p, type);
 		unlock_task_sighand(p, &flags);
@@ -1294,6 +1541,15 @@ int do_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+enum sig_handler {
+	HANDLER_CURRENT, /* If reachable use the current handler */
+	HANDLER_SIG_DFL, /* Always use SIG_DFL handler semantics */
+	HANDLER_EXIT,	 /* Only visible as the process exit code */
+};
+
+>>>>>>> upstream/android-13
 /*
  * Force a signal that the process can't ignore: if necessary
  * we unblock the signal and change any SIG_IGN to SIG_DFL.
@@ -1305,19 +1561,36 @@ int do_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
  * We don't want to have recursive SIGSEGV's etc, for example,
  * that is why we also clear SIGNAL_UNKILLABLE.
  */
+<<<<<<< HEAD
 int
 force_sig_info(int sig, struct siginfo *info, struct task_struct *t)
+=======
+static int
+force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t,
+	enum sig_handler handler)
+>>>>>>> upstream/android-13
 {
 	unsigned long int flags;
 	int ret, blocked, ignored;
 	struct k_sigaction *action;
+<<<<<<< HEAD
+=======
+	int sig = info->si_signo;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&t->sighand->siglock, flags);
 	action = &t->sighand->action[sig-1];
 	ignored = action->sa.sa_handler == SIG_IGN;
 	blocked = sigismember(&t->blocked, sig);
+<<<<<<< HEAD
 	if (blocked || ignored) {
 		action->sa.sa_handler = SIG_DFL;
+=======
+	if (blocked || ignored || (handler != HANDLER_CURRENT)) {
+		action->sa.sa_handler = SIG_DFL;
+		if (handler == HANDLER_EXIT)
+			action->sa.sa_flags |= SA_IMMUTABLE;
+>>>>>>> upstream/android-13
 		if (blocked) {
 			sigdelset(&t->blocked, sig);
 			recalc_sigpending_and_wake(t);
@@ -1325,16 +1598,33 @@ force_sig_info(int sig, struct siginfo *info, struct task_struct *t)
 	}
 	/*
 	 * Don't clear SIGNAL_UNKILLABLE for traced tasks, users won't expect
+<<<<<<< HEAD
 	 * debugging to leave init killable.
 	 */
 	if (action->sa.sa_handler == SIG_DFL && !t->ptrace)
 		t->signal->flags &= ~SIGNAL_UNKILLABLE;
 	ret = specific_send_sig_info(sig, info, t);
+=======
+	 * debugging to leave init killable. But HANDLER_EXIT is always fatal.
+	 */
+	if (action->sa.sa_handler == SIG_DFL &&
+	    (!t->ptrace || (handler == HANDLER_EXIT)))
+		t->signal->flags &= ~SIGNAL_UNKILLABLE;
+	ret = send_signal(sig, info, t, PIDTYPE_PID);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&t->sighand->siglock, flags);
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+int force_sig_info(struct kernel_siginfo *info)
+{
+	return force_sig_info_to_task(info, current, HANDLER_CURRENT);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Nuke all other threads in the group.
  */
@@ -1382,7 +1672,11 @@ struct sighand_struct *__lock_task_sighand(struct task_struct *tsk,
 		 * must see ->sighand == NULL.
 		 */
 		spin_lock_irqsave(&sighand->siglock, *flags);
+<<<<<<< HEAD
 		if (likely(sighand == tsk->sighand))
+=======
+		if (likely(sighand == rcu_access_pointer(tsk->sighand)))
+>>>>>>> upstream/android-13
 			break;
 		spin_unlock_irqrestore(&sighand->siglock, *flags);
 	}
@@ -1391,11 +1685,34 @@ struct sighand_struct *__lock_task_sighand(struct task_struct *tsk,
 	return sighand;
 }
 
+<<<<<<< HEAD
 /*
  * send signal info to all the members of a group
  */
 int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
 			enum pid_type type)
+=======
+#ifdef CONFIG_LOCKDEP
+void lockdep_assert_task_sighand_held(struct task_struct *task)
+{
+	struct sighand_struct *sighand;
+
+	rcu_read_lock();
+	sighand = rcu_dereference(task->sighand);
+	if (sighand)
+		lockdep_assert_held(&sighand->siglock);
+	else
+		WARN_ON_ONCE(1);
+	rcu_read_unlock();
+}
+#endif
+
+/*
+ * send signal info to all the members of a group
+ */
+int group_send_sig_info(int sig, struct kernel_siginfo *info,
+			struct task_struct *p, enum pid_type type)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -1403,8 +1720,21 @@ int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
 	ret = check_kill_permission(sig, info, p);
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	if (!ret && sig)
 		ret = do_send_sig_info(sig, info, p, type);
+=======
+	if (!ret && sig) {
+		ret = do_send_sig_info(sig, info, p, type);
+		if (!ret && sig == SIGKILL) {
+			bool reap = false;
+
+			trace_android_vh_process_killed(current, &reap);
+			if (reap)
+				add_to_oom_reaper(p);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1414,7 +1744,11 @@ int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
  * control characters do (^C, ^Z etc)
  * - the caller must hold at least a readlock on tasklist_lock
  */
+<<<<<<< HEAD
 int __kill_pgrp_info(int sig, struct siginfo *info, struct pid *pgrp)
+=======
+int __kill_pgrp_info(int sig, struct kernel_siginfo *info, struct pid *pgrp)
+>>>>>>> upstream/android-13
 {
 	struct task_struct *p = NULL;
 	int retval, success;
@@ -1429,7 +1763,11 @@ int __kill_pgrp_info(int sig, struct siginfo *info, struct pid *pgrp)
 	return success ? 0 : retval;
 }
 
+<<<<<<< HEAD
 int kill_pid_info(int sig, struct siginfo *info, struct pid *pid)
+=======
+int kill_pid_info(int sig, struct kernel_siginfo *info, struct pid *pid)
+>>>>>>> upstream/android-13
 {
 	int error = -ESRCH;
 	struct task_struct *p;
@@ -1451,7 +1789,11 @@ int kill_pid_info(int sig, struct siginfo *info, struct pid *pid)
 	}
 }
 
+<<<<<<< HEAD
 static int kill_proc_info(int sig, struct siginfo *info, pid_t pid)
+=======
+static int kill_proc_info(int sig, struct kernel_siginfo *info, pid_t pid)
+>>>>>>> upstream/android-13
 {
 	int error;
 	rcu_read_lock();
@@ -1471,6 +1813,7 @@ static inline bool kill_as_cred_perm(const struct cred *cred,
 	       uid_eq(cred->uid, pcred->uid);
 }
 
+<<<<<<< HEAD
 /* like kill_pid_info(), but doesn't use uid/euid of "current" */
 int kill_pid_info_as_cred(int sig, struct siginfo *info, struct pid *pid,
 			 const struct cred *cred)
@@ -1478,27 +1821,82 @@ int kill_pid_info_as_cred(int sig, struct siginfo *info, struct pid *pid,
 	int ret = -EINVAL;
 	struct task_struct *p;
 	unsigned long flags;
+=======
+/*
+ * The usb asyncio usage of siginfo is wrong.  The glibc support
+ * for asyncio which uses SI_ASYNCIO assumes the layout is SIL_RT.
+ * AKA after the generic fields:
+ *	kernel_pid_t	si_pid;
+ *	kernel_uid32_t	si_uid;
+ *	sigval_t	si_value;
+ *
+ * Unfortunately when usb generates SI_ASYNCIO it assumes the layout
+ * after the generic fields is:
+ *	void __user 	*si_addr;
+ *
+ * This is a practical problem when there is a 64bit big endian kernel
+ * and a 32bit userspace.  As the 32bit address will encoded in the low
+ * 32bits of the pointer.  Those low 32bits will be stored at higher
+ * address than appear in a 32 bit pointer.  So userspace will not
+ * see the address it was expecting for it's completions.
+ *
+ * There is nothing in the encoding that can allow
+ * copy_siginfo_to_user32 to detect this confusion of formats, so
+ * handle this by requiring the caller of kill_pid_usb_asyncio to
+ * notice when this situration takes place and to store the 32bit
+ * pointer in sival_int, instead of sival_addr of the sigval_t addr
+ * parameter.
+ */
+int kill_pid_usb_asyncio(int sig, int errno, sigval_t addr,
+			 struct pid *pid, const struct cred *cred)
+{
+	struct kernel_siginfo info;
+	struct task_struct *p;
+	unsigned long flags;
+	int ret = -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (!valid_signal(sig))
 		return ret;
 
+<<<<<<< HEAD
+=======
+	clear_siginfo(&info);
+	info.si_signo = sig;
+	info.si_errno = errno;
+	info.si_code = SI_ASYNCIO;
+	*((sigval_t *)&info.si_pid) = addr;
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	p = pid_task(pid, PIDTYPE_PID);
 	if (!p) {
 		ret = -ESRCH;
 		goto out_unlock;
 	}
+<<<<<<< HEAD
 	if (si_fromuser(info) && !kill_as_cred_perm(cred, p)) {
 		ret = -EPERM;
 		goto out_unlock;
 	}
 	ret = security_task_kill(p, info, sig, cred);
+=======
+	if (!kill_as_cred_perm(cred, p)) {
+		ret = -EPERM;
+		goto out_unlock;
+	}
+	ret = security_task_kill(p, &info, sig, cred);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_unlock;
 
 	if (sig) {
 		if (lock_task_sighand(p, &flags)) {
+<<<<<<< HEAD
 			ret = __send_signal(sig, info, p, PIDTYPE_TGID, 0);
+=======
+			ret = __send_signal(sig, &info, p, PIDTYPE_TGID, false);
+>>>>>>> upstream/android-13
 			unlock_task_sighand(p, &flags);
 		} else
 			ret = -ESRCH;
@@ -1507,7 +1905,11 @@ out_unlock:
 	rcu_read_unlock();
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(kill_pid_info_as_cred);
+=======
+EXPORT_SYMBOL_GPL(kill_pid_usb_asyncio);
+>>>>>>> upstream/android-13
 
 /*
  * kill_something_info() interprets pid in interesting ways just like kill(2).
@@ -1516,6 +1918,7 @@ EXPORT_SYMBOL_GPL(kill_pid_info_as_cred);
  * is probably wrong.  Should make it like BSD or SYSV.
  */
 
+<<<<<<< HEAD
 static int kill_something_info(int sig, struct siginfo *info, pid_t pid)
 {
 	int ret;
@@ -1526,6 +1929,14 @@ static int kill_something_info(int sig, struct siginfo *info, pid_t pid)
 		rcu_read_unlock();
 		return ret;
 	}
+=======
+static int kill_something_info(int sig, struct kernel_siginfo *info, pid_t pid)
+{
+	int ret;
+
+	if (pid > 0)
+		return kill_proc_info(sig, info, pid);
+>>>>>>> upstream/android-13
 
 	/* -INT_MIN is undefined.  Exclude this case to avoid a UBSAN warning */
 	if (pid == INT_MIN)
@@ -1560,7 +1971,11 @@ static int kill_something_info(int sig, struct siginfo *info, pid_t pid)
  * These are for backward compatibility with the rest of the kernel source.
  */
 
+<<<<<<< HEAD
 int send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
+=======
+int send_sig_info(int sig, struct kernel_siginfo *info, struct task_struct *p)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Make sure legacy kernel users don't send in bad values
@@ -1571,6 +1986,10 @@ int send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
 
 	return do_send_sig_info(sig, info, p, PIDTYPE_PID);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(send_sig_info);
+>>>>>>> upstream/android-13
 
 #define __si_special(priv) \
 	((priv) ? SEND_SIG_PRIV : SEND_SIG_NOINFO)
@@ -1580,10 +1999,53 @@ send_sig(int sig, struct task_struct *p, int priv)
 {
 	return send_sig_info(sig, __si_special(priv), p);
 }
+<<<<<<< HEAD
 
 void force_sig(int sig, struct task_struct *p)
 {
 	force_sig_info(sig, SEND_SIG_PRIV, p);
+=======
+EXPORT_SYMBOL(send_sig);
+
+void force_sig(int sig)
+{
+	struct kernel_siginfo info;
+
+	clear_siginfo(&info);
+	info.si_signo = sig;
+	info.si_errno = 0;
+	info.si_code = SI_KERNEL;
+	info.si_pid = 0;
+	info.si_uid = 0;
+	force_sig_info(&info);
+}
+EXPORT_SYMBOL(force_sig);
+
+void force_fatal_sig(int sig)
+{
+	struct kernel_siginfo info;
+
+	clear_siginfo(&info);
+	info.si_signo = sig;
+	info.si_errno = 0;
+	info.si_code = SI_KERNEL;
+	info.si_pid = 0;
+	info.si_uid = 0;
+	force_sig_info_to_task(&info, current, HANDLER_SIG_DFL);
+}
+
+void force_exit_sig(int sig)
+{
+	struct kernel_siginfo info;
+
+	clear_siginfo(&info);
+	info.si_signo = sig;
+	info.si_errno = 0;
+	info.si_code = SI_KERNEL;
+	info.si_pid = 0;
+	info.si_uid = 0;
+	force_sig_info_to_task(&info, current, HANDLER_EXIT);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1592,6 +2054,7 @@ void force_sig(int sig, struct task_struct *p)
  * the problem was already a SIGSEGV, we'll want to
  * make sure we don't even try to deliver the signal..
  */
+<<<<<<< HEAD
 void force_sigsegv(int sig, struct task_struct *p)
 {
 	if (sig == SIGSEGV) {
@@ -1609,20 +2072,39 @@ int force_sig_fault(int sig, int code, void __user *addr
 	, struct task_struct *t)
 {
 	struct siginfo info;
+=======
+void force_sigsegv(int sig)
+{
+	if (sig == SIGSEGV)
+		force_fatal_sig(SIGSEGV);
+	else
+		force_sig(SIGSEGV);
+}
+
+int force_sig_fault_to_task(int sig, int code, void __user *addr
+	___ARCH_SI_IA64(int imm, unsigned int flags, unsigned long isr)
+	, struct task_struct *t)
+{
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	clear_siginfo(&info);
 	info.si_signo = sig;
 	info.si_errno = 0;
 	info.si_code  = code;
 	info.si_addr  = addr;
+<<<<<<< HEAD
 #ifdef __ARCH_SI_TRAPNO
 	info.si_trapno = trapno;
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef __ia64__
 	info.si_imm = imm;
 	info.si_flags = flags;
 	info.si_isr = isr;
 #endif
+<<<<<<< HEAD
 	return force_sig_info(info.si_signo, &info, t);
 }
 
@@ -1632,15 +2114,35 @@ int send_sig_fault(int sig, int code, void __user *addr
 	, struct task_struct *t)
 {
 	struct siginfo info;
+=======
+	return force_sig_info_to_task(&info, t, HANDLER_CURRENT);
+}
+
+int force_sig_fault(int sig, int code, void __user *addr
+	___ARCH_SI_IA64(int imm, unsigned int flags, unsigned long isr))
+{
+	return force_sig_fault_to_task(sig, code, addr
+				       ___ARCH_SI_IA64(imm, flags, isr), current);
+}
+
+int send_sig_fault(int sig, int code, void __user *addr
+	___ARCH_SI_IA64(int imm, unsigned int flags, unsigned long isr)
+	, struct task_struct *t)
+{
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	clear_siginfo(&info);
 	info.si_signo = sig;
 	info.si_errno = 0;
 	info.si_code  = code;
 	info.si_addr  = addr;
+<<<<<<< HEAD
 #ifdef __ARCH_SI_TRAPNO
 	info.si_trapno = trapno;
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef __ia64__
 	info.si_imm = imm;
 	info.si_flags = flags;
@@ -1649,9 +2151,15 @@ int send_sig_fault(int sig, int code, void __user *addr
 	return send_sig_info(info.si_signo, &info, t);
 }
 
+<<<<<<< HEAD
 int force_sig_mceerr(int code, void __user *addr, short lsb, struct task_struct *t)
 {
 	struct siginfo info;
+=======
+int force_sig_mceerr(int code, void __user *addr, short lsb)
+{
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	WARN_ON((code != BUS_MCEERR_AO) && (code != BUS_MCEERR_AR));
 	clear_siginfo(&info);
@@ -1660,12 +2168,20 @@ int force_sig_mceerr(int code, void __user *addr, short lsb, struct task_struct 
 	info.si_code = code;
 	info.si_addr = addr;
 	info.si_addr_lsb = lsb;
+<<<<<<< HEAD
 	return force_sig_info(info.si_signo, &info, t);
+=======
+	return force_sig_info(&info);
+>>>>>>> upstream/android-13
 }
 
 int send_sig_mceerr(int code, void __user *addr, short lsb, struct task_struct *t)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	WARN_ON((code != BUS_MCEERR_AO) && (code != BUS_MCEERR_AR));
 	clear_siginfo(&info);
@@ -1680,7 +2196,11 @@ EXPORT_SYMBOL(send_sig_mceerr);
 
 int force_sig_bnderr(void __user *addr, void __user *lower, void __user *upper)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	clear_siginfo(&info);
 	info.si_signo = SIGSEGV;
@@ -1689,13 +2209,21 @@ int force_sig_bnderr(void __user *addr, void __user *lower, void __user *upper)
 	info.si_addr  = addr;
 	info.si_lower = lower;
 	info.si_upper = upper;
+<<<<<<< HEAD
 	return force_sig_info(info.si_signo, &info, current);
+=======
+	return force_sig_info(&info);
+>>>>>>> upstream/android-13
 }
 
 #ifdef SEGV_PKUERR
 int force_sig_pkuerr(void __user *addr, u32 pkey)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	clear_siginfo(&info);
 	info.si_signo = SIGSEGV;
@@ -1703,23 +2231,108 @@ int force_sig_pkuerr(void __user *addr, u32 pkey)
 	info.si_code  = SEGV_PKUERR;
 	info.si_addr  = addr;
 	info.si_pkey  = pkey;
+<<<<<<< HEAD
 	return force_sig_info(info.si_signo, &info, current);
 }
 #endif
 
+=======
+	return force_sig_info(&info);
+}
+#endif
+
+int force_sig_perf(void __user *addr, u32 type, u64 sig_data)
+{
+	struct kernel_siginfo info;
+
+	clear_siginfo(&info);
+	info.si_signo     = SIGTRAP;
+	info.si_errno     = 0;
+	info.si_code      = TRAP_PERF;
+	info.si_addr      = addr;
+	info.si_perf_data = sig_data;
+	info.si_perf_type = type;
+
+	return force_sig_info(&info);
+}
+
+/**
+ * force_sig_seccomp - signals the task to allow in-process syscall emulation
+ * @syscall: syscall number to send to userland
+ * @reason: filter-supplied reason code to send to userland (via si_errno)
+ *
+ * Forces a SIGSYS with a code of SYS_SECCOMP and related sigsys info.
+ */
+int force_sig_seccomp(int syscall, int reason, bool force_coredump)
+{
+	struct kernel_siginfo info;
+
+	clear_siginfo(&info);
+	info.si_signo = SIGSYS;
+	info.si_code = SYS_SECCOMP;
+	info.si_call_addr = (void __user *)KSTK_EIP(current);
+	info.si_errno = reason;
+	info.si_arch = syscall_get_arch(current);
+	info.si_syscall = syscall;
+	return force_sig_info_to_task(&info, current,
+		force_coredump ? HANDLER_EXIT : HANDLER_CURRENT);
+}
+
+>>>>>>> upstream/android-13
 /* For the crazy architectures that include trap information in
  * the errno field, instead of an actual errno value.
  */
 int force_sig_ptrace_errno_trap(int errno, void __user *addr)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	clear_siginfo(&info);
 	info.si_signo = SIGTRAP;
 	info.si_errno = errno;
 	info.si_code  = TRAP_HWBKPT;
 	info.si_addr  = addr;
+<<<<<<< HEAD
 	return force_sig_info(info.si_signo, &info, current);
+=======
+	return force_sig_info(&info);
+}
+
+/* For the rare architectures that include trap information using
+ * si_trapno.
+ */
+int force_sig_fault_trapno(int sig, int code, void __user *addr, int trapno)
+{
+	struct kernel_siginfo info;
+
+	clear_siginfo(&info);
+	info.si_signo = sig;
+	info.si_errno = 0;
+	info.si_code  = code;
+	info.si_addr  = addr;
+	info.si_trapno = trapno;
+	return force_sig_info(&info);
+}
+
+/* For the rare architectures that include trap information using
+ * si_trapno.
+ */
+int send_sig_fault_trapno(int sig, int code, void __user *addr, int trapno,
+			  struct task_struct *t)
+{
+	struct kernel_siginfo info;
+
+	clear_siginfo(&info);
+	info.si_signo = sig;
+	info.si_errno = 0;
+	info.si_code  = code;
+	info.si_addr  = addr;
+	info.si_trapno = trapno;
+	return send_sig_info(info.si_signo, &info, t);
+>>>>>>> upstream/android-13
 }
 
 int kill_pgrp(struct pid *pid, int sig, int priv)
@@ -1751,12 +2364,16 @@ EXPORT_SYMBOL(kill_pid);
  */
 struct sigqueue *sigqueue_alloc(void)
 {
+<<<<<<< HEAD
 	struct sigqueue *q = __sigqueue_alloc(-1, current, GFP_KERNEL, 0);
 
 	if (q)
 		q->flags |= SIGQUEUE_PREALLOC;
 
 	return q;
+=======
+	return __sigqueue_alloc(-1, current, GFP_KERNEL, 0, SIGQUEUE_PREALLOC);
+>>>>>>> upstream/android-13
 }
 
 void sigqueue_free(struct sigqueue *q)
@@ -1836,6 +2453,10 @@ static void do_notify_pidfd(struct task_struct *task)
 {
 	struct pid *pid;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(task->exit_state == 0);
+>>>>>>> upstream/android-13
 	pid = task_pid(task);
 	wake_up_all(&pid->wait_pidfd);
 }
@@ -1849,7 +2470,11 @@ static void do_notify_pidfd(struct task_struct *task)
  */
 bool do_notify_parent(struct task_struct *tsk, int sig)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct sighand_struct *psig;
 	bool autoreap = false;
@@ -1933,8 +2558,17 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
 		if (psig->action[SIGCHLD-1].sa.sa_handler == SIG_IGN)
 			sig = 0;
 	}
+<<<<<<< HEAD
 	if (valid_signal(sig) && sig)
 		__group_send_sig_info(sig, &info, tsk->parent);
+=======
+	/*
+	 * Send with __send_signal as si_pid and si_uid are in the
+	 * parent's namespaces.
+	 */
+	if (valid_signal(sig) && sig)
+		__send_signal(sig, &info, tsk->parent, PIDTYPE_TGID, false);
+>>>>>>> upstream/android-13
 	__wake_up_parent(tsk, tsk->parent);
 	spin_unlock_irqrestore(&psig->siglock, flags);
 
@@ -1957,7 +2591,11 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
 static void do_notify_parent_cldstop(struct task_struct *tsk,
 				     bool for_ptracer, int why)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct task_struct *parent;
 	struct sighand_struct *sighand;
@@ -2036,6 +2674,7 @@ static inline bool may_ptrace_stop(void)
 	return true;
 }
 
+<<<<<<< HEAD
 /*
  * Return non-zero if there is a SIGKILL that should be waking us up.
  * Called with the siglock held.
@@ -2045,6 +2684,8 @@ static bool sigkill_pending(struct task_struct *tsk)
 	return sigismember(&tsk->pending.signal, SIGKILL) ||
 	       sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
 }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * This must be called with current->sighand->siglock held.
@@ -2057,7 +2698,11 @@ static bool sigkill_pending(struct task_struct *tsk)
  * If we actually decide not to stop at all because the tracer
  * is gone, we keep current->exit_code unless clear_code.
  */
+<<<<<<< HEAD
 static void ptrace_stop(int exit_code, int why, int clear_code, siginfo_t *info)
+=======
+static void ptrace_stop(int exit_code, int why, int clear_code, kernel_siginfo_t *info)
+>>>>>>> upstream/android-13
 	__releases(&current->sighand->siglock)
 	__acquires(&current->sighand->siglock)
 {
@@ -2071,17 +2716,29 @@ static void ptrace_stop(int exit_code, int why, int clear_code, siginfo_t *info)
 		 * calling arch_ptrace_stop, so we must release it now.
 		 * To preserve proper semantics, we must do this before
 		 * any signal bookkeeping like checking group_stop_count.
+<<<<<<< HEAD
 		 * Meanwhile, a SIGKILL could come in before we retake the
 		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
 		 * So after regaining the lock, we must check for SIGKILL.
+=======
+>>>>>>> upstream/android-13
 		 */
 		spin_unlock_irq(&current->sighand->siglock);
 		arch_ptrace_stop(exit_code, info);
 		spin_lock_irq(&current->sighand->siglock);
+<<<<<<< HEAD
 		if (sigkill_pending(current))
 			return;
 	}
 
+=======
+	}
+
+	/*
+	 * schedule() will not sleep if there is a pending signal that
+	 * can awaken the task.
+	 */
+>>>>>>> upstream/android-13
 	set_special_state(TASK_TRACED);
 
 	/*
@@ -2196,7 +2853,11 @@ static void ptrace_stop(int exit_code, int why, int clear_code, siginfo_t *info)
 
 static void ptrace_do_notify(int signr, int exit_code, int why)
 {
+<<<<<<< HEAD
 	siginfo_t info;
+=======
+	kernel_siginfo_t info;
+>>>>>>> upstream/android-13
 
 	clear_siginfo(&info);
 	info.si_signo = signr;
@@ -2415,7 +3076,11 @@ static void do_freezer_trap(void)
 	freezable_schedule();
 }
 
+<<<<<<< HEAD
 static int ptrace_signal(int signr, siginfo_t *info)
+=======
+static int ptrace_signal(int signr, kernel_siginfo_t *info)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * We do not check sig_kernel_stop(signr) but set this marker
@@ -2456,13 +3121,42 @@ static int ptrace_signal(int signr, siginfo_t *info)
 
 	/* If the (new) signal is now blocked, requeue it.  */
 	if (sigismember(&current->blocked, signr)) {
+<<<<<<< HEAD
 		specific_send_sig_info(signr, info, current);
+=======
+		send_signal(signr, info, current, PIDTYPE_PID);
+>>>>>>> upstream/android-13
 		signr = 0;
 	}
 
 	return signr;
 }
 
+<<<<<<< HEAD
+=======
+static void hide_si_addr_tag_bits(struct ksignal *ksig)
+{
+	switch (siginfo_layout(ksig->sig, ksig->info.si_code)) {
+	case SIL_FAULT:
+	case SIL_FAULT_TRAPNO:
+	case SIL_FAULT_MCEERR:
+	case SIL_FAULT_BNDERR:
+	case SIL_FAULT_PKUERR:
+	case SIL_FAULT_PERF_EVENT:
+		ksig->info.si_addr = arch_untagged_si_addr(
+			ksig->info.si_addr, ksig->sig, ksig->info.si_code);
+		break;
+	case SIL_KILL:
+	case SIL_TIMER:
+	case SIL_POLL:
+	case SIL_CHLD:
+	case SIL_RT:
+	case SIL_SYS:
+		break;
+	}
+}
+
+>>>>>>> upstream/android-13
 bool get_signal(struct ksignal *ksig)
 {
 	struct sighand_struct *sighand = current->sighand;
@@ -2472,6 +3166,21 @@ bool get_signal(struct ksignal *ksig)
 	if (unlikely(current->task_works))
 		task_work_run();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * For non-generic architectures, check for TIF_NOTIFY_SIGNAL so
+	 * that the arch handlers don't all have to do it. If we get here
+	 * without TIF_SIGPENDING, just exit after running signal work.
+	 */
+	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY)) {
+		if (test_thread_flag(TIF_NOTIFY_SIGNAL))
+			tracehook_notify_signal();
+		if (!task_sigpending(current))
+			return false;
+	}
+
+>>>>>>> upstream/android-13
 	if (unlikely(uprobe_deny_signal()))
 		return false;
 
@@ -2484,6 +3193,10 @@ bool get_signal(struct ksignal *ksig)
 
 relock:
 	spin_lock_irq(&sighand->siglock);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Every stopped thread goes here after wakeup. Check to see if
 	 * we should notify the parent, prepare_signal(SIGCONT) encodes
@@ -2520,6 +3233,7 @@ relock:
 		goto relock;
 	}
 
+<<<<<<< HEAD
 	/* Has this task already been marked for death? */
 	if (signal_group_exit(signal)) {
 		ksig->info.si_signo = signr = SIGKILL;
@@ -2537,6 +3251,21 @@ relock:
 	for (;;) {
 		struct k_sigaction *ka;
 
+=======
+	for (;;) {
+		struct k_sigaction *ka;
+
+		/* Has this task already been marked for death? */
+		if (signal_group_exit(signal)) {
+			ksig->info.si_signo = signr = SIGKILL;
+			sigdelset(&current->pending.signal, SIGKILL);
+			trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
+				&sighand->action[SIGKILL - 1]);
+			recalc_sigpending();
+			goto fatal;
+		}
+
+>>>>>>> upstream/android-13
 		if (unlikely(current->jobctl & JOBCTL_STOP_PENDING) &&
 		    do_signal_stop(0))
 			goto relock;
@@ -2558,7 +3287,11 @@ relock:
 		 */
 		if (unlikely(cgroup_task_frozen(current))) {
 			spin_unlock_irq(&sighand->siglock);
+<<<<<<< HEAD
 			cgroup_leave_frozen(true);
+=======
+			cgroup_leave_frozen(false);
+>>>>>>> upstream/android-13
 			goto relock;
 		}
 
@@ -2575,7 +3308,12 @@ relock:
 		if (!signr)
 			break; /* will return 0 */
 
+<<<<<<< HEAD
 		if (unlikely(current->ptrace) && signr != SIGKILL) {
+=======
+		if (unlikely(current->ptrace) && (signr != SIGKILL) &&
+		    !(sighand->action[signr -1].sa.sa_flags & SA_IMMUTABLE)) {
+>>>>>>> upstream/android-13
 			signr = ptrace_signal(signr, &ksig->info);
 			if (!signr)
 				continue;
@@ -2652,8 +3390,15 @@ relock:
 			continue;
 		}
 
+<<<<<<< HEAD
 		spin_unlock_irq(&sighand->siglock);
 	fatal:
+=======
+	fatal:
+		spin_unlock_irq(&sighand->siglock);
+		if (unlikely(cgroup_task_frozen(current)))
+			cgroup_leave_frozen(true);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Anything else is fatal, maybe with a core dump.
@@ -2676,14 +3421,34 @@ relock:
 		}
 
 		/*
+<<<<<<< HEAD
+=======
+		 * PF_IO_WORKER threads will catch and exit on fatal signals
+		 * themselves. They have cleanup that must be performed, so
+		 * we cannot call do_exit() on their behalf.
+		 */
+		if (current->flags & PF_IO_WORKER)
+			goto out;
+
+		/*
+>>>>>>> upstream/android-13
 		 * Death signals, no core dump.
 		 */
 		do_group_exit(ksig->info.si_signo);
 		/* NOTREACHED */
 	}
 	spin_unlock_irq(&sighand->siglock);
+<<<<<<< HEAD
 
 	ksig->sig = signr;
+=======
+out:
+	ksig->sig = signr;
+
+	if (!(ksig->ka.sa.sa_flags & SA_EXPOSE_TAGBITS))
+		hide_si_addr_tag_bits(ksig);
+
+>>>>>>> upstream/android-13
 	return ksig->sig > 0;
 }
 
@@ -2711,13 +3476,22 @@ static void signal_delivered(struct ksignal *ksig, int stepping)
 	if (!(ksig->ka.sa.sa_flags & SA_NODEFER))
 		sigaddset(&blocked, ksig->sig);
 	set_current_blocked(&blocked);
+<<<<<<< HEAD
+=======
+	if (current->sas_ss_flags & SS_AUTODISARM)
+		sas_ss_reset(current);
+>>>>>>> upstream/android-13
 	tracehook_signal_handler(stepping);
 }
 
 void signal_setup_done(int failed, struct ksignal *ksig, int stepping)
 {
 	if (failed)
+<<<<<<< HEAD
 		force_sigsegv(ksig->sig, current);
+=======
+		force_sigsegv(ksig->sig);
+>>>>>>> upstream/android-13
 	else
 		signal_delivered(ksig, stepping);
 }
@@ -2746,7 +3520,11 @@ static void retarget_shared_pending(struct task_struct *tsk, sigset_t *which)
 		/* Remove the signals this thread can handle. */
 		sigandsets(&retarget, &retarget, &t->blocked);
 
+<<<<<<< HEAD
 		if (!signal_pending(t))
+=======
+		if (!task_sigpending(t))
+>>>>>>> upstream/android-13
 			signal_wake_up(t, 0);
 
 		if (sigisemptyset(&retarget))
@@ -2780,7 +3558,11 @@ void exit_signals(struct task_struct *tsk)
 
 	cgroup_threadgroup_change_end(tsk);
 
+<<<<<<< HEAD
 	if (!signal_pending(tsk))
+=======
+	if (!task_sigpending(tsk))
+>>>>>>> upstream/android-13
 		goto out;
 
 	unblocked = tsk->blocked;
@@ -2804,6 +3586,7 @@ out:
 	}
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(recalc_sigpending);
 EXPORT_SYMBOL_GPL(dequeue_signal);
 EXPORT_SYMBOL(flush_signals);
@@ -2812,6 +3595,8 @@ EXPORT_SYMBOL(send_sig);
 EXPORT_SYMBOL(send_sig_info);
 EXPORT_SYMBOL(sigprocmask);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * System call entry points.
  */
@@ -2832,7 +3617,11 @@ long do_no_restart_syscall(struct restart_block *param)
 
 static void __set_task_blocked(struct task_struct *tsk, const sigset_t *newset)
 {
+<<<<<<< HEAD
 	if (signal_pending(tsk) && !thread_group_empty(tsk)) {
+=======
+	if (task_sigpending(tsk) && !thread_group_empty(tsk)) {
+>>>>>>> upstream/android-13
 		sigset_t newblocked;
 		/* A set of now blocked but previously unblocked signals. */
 		sigandnsets(&newblocked, newset, &current->blocked);
@@ -2905,6 +3694,58 @@ int sigprocmask(int how, sigset_t *set, sigset_t *oldset)
 	__set_current_blocked(&newset);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(sigprocmask);
+
+/*
+ * The api helps set app-provided sigmasks.
+ *
+ * This is useful for syscalls such as ppoll, pselect, io_pgetevents and
+ * epoll_pwait where a new sigmask is passed from userland for the syscalls.
+ *
+ * Note that it does set_restore_sigmask() in advance, so it must be always
+ * paired with restore_saved_sigmask_unless() before return from syscall.
+ */
+int set_user_sigmask(const sigset_t __user *umask, size_t sigsetsize)
+{
+	sigset_t kmask;
+
+	if (!umask)
+		return 0;
+	if (sigsetsize != sizeof(sigset_t))
+		return -EINVAL;
+	if (copy_from_user(&kmask, umask, sizeof(sigset_t)))
+		return -EFAULT;
+
+	set_restore_sigmask();
+	current->saved_sigmask = current->blocked;
+	set_current_blocked(&kmask);
+
+	return 0;
+}
+
+#ifdef CONFIG_COMPAT
+int set_compat_user_sigmask(const compat_sigset_t __user *umask,
+			    size_t sigsetsize)
+{
+	sigset_t kmask;
+
+	if (!umask)
+		return 0;
+	if (sigsetsize != sizeof(compat_sigset_t))
+		return -EINVAL;
+	if (get_compat_sigset(&kmask, umask))
+		return -EFAULT;
+
+	set_restore_sigmask();
+	current->saved_sigmask = current->blocked;
+	set_current_blocked(&kmask);
+
+	return 0;
+}
+#endif
+>>>>>>> upstream/android-13
 
 /**
  *  sys_rt_sigprocmask - change the list of currently blocked signals
@@ -3015,10 +3856,49 @@ COMPAT_SYSCALL_DEFINE2(rt_sigpending, compat_sigset_t __user *, uset,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static const struct {
+	unsigned char limit, layout;
+} sig_sicodes[] = {
+	[SIGILL]  = { NSIGILL,  SIL_FAULT },
+	[SIGFPE]  = { NSIGFPE,  SIL_FAULT },
+	[SIGSEGV] = { NSIGSEGV, SIL_FAULT },
+	[SIGBUS]  = { NSIGBUS,  SIL_FAULT },
+	[SIGTRAP] = { NSIGTRAP, SIL_FAULT },
+#if defined(SIGEMT)
+	[SIGEMT]  = { NSIGEMT,  SIL_FAULT },
+#endif
+	[SIGCHLD] = { NSIGCHLD, SIL_CHLD },
+	[SIGPOLL] = { NSIGPOLL, SIL_POLL },
+	[SIGSYS]  = { NSIGSYS,  SIL_SYS },
+};
+
+static bool known_siginfo_layout(unsigned sig, int si_code)
+{
+	if (si_code == SI_KERNEL)
+		return true;
+	else if ((si_code > SI_USER)) {
+		if (sig_specific_sicodes(sig)) {
+			if (si_code <= sig_sicodes[sig].limit)
+				return true;
+		}
+		else if (si_code <= NSIGPOLL)
+			return true;
+	}
+	else if (si_code >= SI_DETHREAD)
+		return true;
+	else if (si_code == SI_ASYNCNL)
+		return true;
+	return false;
+}
+
+>>>>>>> upstream/android-13
 enum siginfo_layout siginfo_layout(unsigned sig, int si_code)
 {
 	enum siginfo_layout layout = SIL_KILL;
 	if ((si_code > SI_USER) && (si_code < SI_KERNEL)) {
+<<<<<<< HEAD
 		static const struct {
 			unsigned char limit, layout;
 		} filter[] = {
@@ -3036,6 +3916,11 @@ enum siginfo_layout siginfo_layout(unsigned sig, int si_code)
 		};
 		if ((sig < ARRAY_SIZE(filter)) && (si_code <= filter[sig].limit)) {
 			layout = filter[sig].layout;
+=======
+		if ((sig < ARRAY_SIZE(sig_sicodes)) &&
+		    (si_code <= sig_sicodes[sig].limit)) {
+			layout = sig_sicodes[sig].layout;
+>>>>>>> upstream/android-13
 			/* Handle the exceptions */
 			if ((sig == SIGBUS) &&
 			    (si_code >= BUS_MCEERR_AR) && (si_code <= BUS_MCEERR_AO))
@@ -3046,6 +3931,18 @@ enum siginfo_layout siginfo_layout(unsigned sig, int si_code)
 			else if ((sig == SIGSEGV) && (si_code == SEGV_PKUERR))
 				layout = SIL_FAULT_PKUERR;
 #endif
+<<<<<<< HEAD
+=======
+			else if ((sig == SIGTRAP) && (si_code == TRAP_PERF))
+				layout = SIL_FAULT_PERF_EVENT;
+			else if (IS_ENABLED(CONFIG_SPARC) &&
+				 (sig == SIGILL) && (si_code == ILL_ILLTRP))
+				layout = SIL_FAULT_TRAPNO;
+			else if (IS_ENABLED(CONFIG_ALPHA) &&
+				 ((sig == SIGFPE) ||
+				  ((sig == SIGTRAP) && (si_code == TRAP_UNK))))
+				layout = SIL_FAULT_TRAPNO;
+>>>>>>> upstream/android-13
 		}
 		else if (si_code <= NSIGPOLL)
 			layout = SIL_POLL;
@@ -3060,13 +3957,28 @@ enum siginfo_layout siginfo_layout(unsigned sig, int si_code)
 	return layout;
 }
 
+<<<<<<< HEAD
 int copy_siginfo_to_user(siginfo_t __user *to, const siginfo_t *from)
 {
 	if (copy_to_user(to, from , sizeof(struct siginfo)))
+=======
+static inline char __user *si_expansion(const siginfo_t __user *info)
+{
+	return ((char __user *)info) + sizeof(struct kernel_siginfo);
+}
+
+int copy_siginfo_to_user(siginfo_t __user *to, const kernel_siginfo_t *from)
+{
+	char __user *expansion = si_expansion(to);
+	if (copy_to_user(to, from , sizeof(struct kernel_siginfo)))
+		return -EFAULT;
+	if (clear_user(expansion, SI_EXPANSION_SIZE))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 int copy_siginfo_to_user32(struct compat_siginfo __user *to,
 			   const struct siginfo *from)
@@ -3160,6 +4072,224 @@ int __copy_siginfo_to_user32(struct compat_siginfo __user *to,
 }
 
 int copy_siginfo_from_user32(struct siginfo *to,
+=======
+static int post_copy_siginfo_from_user(kernel_siginfo_t *info,
+				       const siginfo_t __user *from)
+{
+	if (unlikely(!known_siginfo_layout(info->si_signo, info->si_code))) {
+		char __user *expansion = si_expansion(from);
+		char buf[SI_EXPANSION_SIZE];
+		int i;
+		/*
+		 * An unknown si_code might need more than
+		 * sizeof(struct kernel_siginfo) bytes.  Verify all of the
+		 * extra bytes are 0.  This guarantees copy_siginfo_to_user
+		 * will return this data to userspace exactly.
+		 */
+		if (copy_from_user(&buf, expansion, SI_EXPANSION_SIZE))
+			return -EFAULT;
+		for (i = 0; i < SI_EXPANSION_SIZE; i++) {
+			if (buf[i] != 0)
+				return -E2BIG;
+		}
+	}
+	return 0;
+}
+
+static int __copy_siginfo_from_user(int signo, kernel_siginfo_t *to,
+				    const siginfo_t __user *from)
+{
+	if (copy_from_user(to, from, sizeof(struct kernel_siginfo)))
+		return -EFAULT;
+	to->si_signo = signo;
+	return post_copy_siginfo_from_user(to, from);
+}
+
+int copy_siginfo_from_user(kernel_siginfo_t *to, const siginfo_t __user *from)
+{
+	if (copy_from_user(to, from, sizeof(struct kernel_siginfo)))
+		return -EFAULT;
+	return post_copy_siginfo_from_user(to, from);
+}
+
+#ifdef CONFIG_COMPAT
+/**
+ * copy_siginfo_to_external32 - copy a kernel siginfo into a compat user siginfo
+ * @to: compat siginfo destination
+ * @from: kernel siginfo source
+ *
+ * Note: This function does not work properly for the SIGCHLD on x32, but
+ * fortunately it doesn't have to.  The only valid callers for this function are
+ * copy_siginfo_to_user32, which is overriden for x32 and the coredump code.
+ * The latter does not care because SIGCHLD will never cause a coredump.
+ */
+void copy_siginfo_to_external32(struct compat_siginfo *to,
+		const struct kernel_siginfo *from)
+{
+	memset(to, 0, sizeof(*to));
+
+	to->si_signo = from->si_signo;
+	to->si_errno = from->si_errno;
+	to->si_code  = from->si_code;
+	switch(siginfo_layout(from->si_signo, from->si_code)) {
+	case SIL_KILL:
+		to->si_pid = from->si_pid;
+		to->si_uid = from->si_uid;
+		break;
+	case SIL_TIMER:
+		to->si_tid     = from->si_tid;
+		to->si_overrun = from->si_overrun;
+		to->si_int     = from->si_int;
+		break;
+	case SIL_POLL:
+		to->si_band = from->si_band;
+		to->si_fd   = from->si_fd;
+		break;
+	case SIL_FAULT:
+		to->si_addr = ptr_to_compat(from->si_addr);
+		break;
+	case SIL_FAULT_TRAPNO:
+		to->si_addr = ptr_to_compat(from->si_addr);
+		to->si_trapno = from->si_trapno;
+		break;
+	case SIL_FAULT_MCEERR:
+		to->si_addr = ptr_to_compat(from->si_addr);
+		to->si_addr_lsb = from->si_addr_lsb;
+		break;
+	case SIL_FAULT_BNDERR:
+		to->si_addr = ptr_to_compat(from->si_addr);
+		to->si_lower = ptr_to_compat(from->si_lower);
+		to->si_upper = ptr_to_compat(from->si_upper);
+		break;
+	case SIL_FAULT_PKUERR:
+		to->si_addr = ptr_to_compat(from->si_addr);
+		to->si_pkey = from->si_pkey;
+		break;
+	case SIL_FAULT_PERF_EVENT:
+		to->si_addr = ptr_to_compat(from->si_addr);
+		to->si_perf_data = from->si_perf_data;
+		to->si_perf_type = from->si_perf_type;
+		break;
+	case SIL_CHLD:
+		to->si_pid = from->si_pid;
+		to->si_uid = from->si_uid;
+		to->si_status = from->si_status;
+		to->si_utime = from->si_utime;
+		to->si_stime = from->si_stime;
+		break;
+	case SIL_RT:
+		to->si_pid = from->si_pid;
+		to->si_uid = from->si_uid;
+		to->si_int = from->si_int;
+		break;
+	case SIL_SYS:
+		to->si_call_addr = ptr_to_compat(from->si_call_addr);
+		to->si_syscall   = from->si_syscall;
+		to->si_arch      = from->si_arch;
+		break;
+	}
+}
+
+int __copy_siginfo_to_user32(struct compat_siginfo __user *to,
+			   const struct kernel_siginfo *from)
+{
+	struct compat_siginfo new;
+
+	copy_siginfo_to_external32(&new, from);
+	if (copy_to_user(to, &new, sizeof(struct compat_siginfo)))
+		return -EFAULT;
+	return 0;
+}
+
+static int post_copy_siginfo_from_user32(kernel_siginfo_t *to,
+					 const struct compat_siginfo *from)
+{
+	clear_siginfo(to);
+	to->si_signo = from->si_signo;
+	to->si_errno = from->si_errno;
+	to->si_code  = from->si_code;
+	switch(siginfo_layout(from->si_signo, from->si_code)) {
+	case SIL_KILL:
+		to->si_pid = from->si_pid;
+		to->si_uid = from->si_uid;
+		break;
+	case SIL_TIMER:
+		to->si_tid     = from->si_tid;
+		to->si_overrun = from->si_overrun;
+		to->si_int     = from->si_int;
+		break;
+	case SIL_POLL:
+		to->si_band = from->si_band;
+		to->si_fd   = from->si_fd;
+		break;
+	case SIL_FAULT:
+		to->si_addr = compat_ptr(from->si_addr);
+		break;
+	case SIL_FAULT_TRAPNO:
+		to->si_addr = compat_ptr(from->si_addr);
+		to->si_trapno = from->si_trapno;
+		break;
+	case SIL_FAULT_MCEERR:
+		to->si_addr = compat_ptr(from->si_addr);
+		to->si_addr_lsb = from->si_addr_lsb;
+		break;
+	case SIL_FAULT_BNDERR:
+		to->si_addr = compat_ptr(from->si_addr);
+		to->si_lower = compat_ptr(from->si_lower);
+		to->si_upper = compat_ptr(from->si_upper);
+		break;
+	case SIL_FAULT_PKUERR:
+		to->si_addr = compat_ptr(from->si_addr);
+		to->si_pkey = from->si_pkey;
+		break;
+	case SIL_FAULT_PERF_EVENT:
+		to->si_addr = compat_ptr(from->si_addr);
+		to->si_perf_data = from->si_perf_data;
+		to->si_perf_type = from->si_perf_type;
+		break;
+	case SIL_CHLD:
+		to->si_pid    = from->si_pid;
+		to->si_uid    = from->si_uid;
+		to->si_status = from->si_status;
+#ifdef CONFIG_X86_X32_ABI
+		if (in_x32_syscall()) {
+			to->si_utime = from->_sifields._sigchld_x32._utime;
+			to->si_stime = from->_sifields._sigchld_x32._stime;
+		} else
+#endif
+		{
+			to->si_utime = from->si_utime;
+			to->si_stime = from->si_stime;
+		}
+		break;
+	case SIL_RT:
+		to->si_pid = from->si_pid;
+		to->si_uid = from->si_uid;
+		to->si_int = from->si_int;
+		break;
+	case SIL_SYS:
+		to->si_call_addr = compat_ptr(from->si_call_addr);
+		to->si_syscall   = from->si_syscall;
+		to->si_arch      = from->si_arch;
+		break;
+	}
+	return 0;
+}
+
+static int __copy_siginfo_from_user32(int signo, struct kernel_siginfo *to,
+				      const struct compat_siginfo __user *ufrom)
+{
+	struct compat_siginfo from;
+
+	if (copy_from_user(&from, ufrom, sizeof(struct compat_siginfo)))
+		return -EFAULT;
+
+	from.si_signo = signo;
+	return post_copy_siginfo_from_user32(to, &from);
+}
+
+int copy_siginfo_from_user32(struct kernel_siginfo *to,
+>>>>>>> upstream/android-13
 			     const struct compat_siginfo __user *ufrom)
 {
 	struct compat_siginfo from;
@@ -3167,6 +4297,7 @@ int copy_siginfo_from_user32(struct siginfo *to,
 	if (copy_from_user(&from, ufrom, sizeof(struct compat_siginfo)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	clear_siginfo(to);
 	to->si_signo = from.si_signo;
 	to->si_errno = from.si_errno;
@@ -3240,6 +4371,9 @@ int copy_siginfo_from_user32(struct siginfo *to,
 		break;
 	}
 	return 0;
+=======
+	return post_copy_siginfo_from_user32(to, &from);
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_COMPAT */
 
@@ -3249,8 +4383,13 @@ int copy_siginfo_from_user32(struct siginfo *to,
  *  @info: if non-null, the signal's siginfo is returned here
  *  @ts: upper bound on process time suspension
  */
+<<<<<<< HEAD
 static int do_sigtimedwait(const sigset_t *which, siginfo_t *info,
 		    const struct timespec *ts)
+=======
+static int do_sigtimedwait(const sigset_t *which, kernel_siginfo_t *info,
+		    const struct timespec64 *ts)
+>>>>>>> upstream/android-13
 {
 	ktime_t *to = NULL, timeout = KTIME_MAX;
 	struct task_struct *tsk = current;
@@ -3258,9 +4397,15 @@ static int do_sigtimedwait(const sigset_t *which, siginfo_t *info,
 	int sig, ret = 0;
 
 	if (ts) {
+<<<<<<< HEAD
 		if (!timespec_valid(ts))
 			return -EINVAL;
 		timeout = timespec_to_ktime(*ts);
+=======
+		if (!timespec64_valid(ts))
+			return -EINVAL;
+		timeout = timespec64_to_ktime(*ts);
+>>>>>>> upstream/android-13
 		to = &timeout;
 	}
 
@@ -3308,12 +4453,22 @@ static int do_sigtimedwait(const sigset_t *which, siginfo_t *info,
  *  @sigsetsize: size of sigset_t type
  */
 SYSCALL_DEFINE4(rt_sigtimedwait, const sigset_t __user *, uthese,
+<<<<<<< HEAD
 		siginfo_t __user *, uinfo, const struct timespec __user *, uts,
 		size_t, sigsetsize)
 {
 	sigset_t these;
 	struct timespec ts;
 	siginfo_t info;
+=======
+		siginfo_t __user *, uinfo,
+		const struct __kernel_timespec __user *, uts,
+		size_t, sigsetsize)
+{
+	sigset_t these;
+	struct timespec64 ts;
+	kernel_siginfo_t info;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* XXX: Don't preclude handling different sized sigset_t's.  */
@@ -3324,7 +4479,11 @@ SYSCALL_DEFINE4(rt_sigtimedwait, const sigset_t __user *, uthese,
 		return -EFAULT;
 
 	if (uts) {
+<<<<<<< HEAD
 		if (copy_from_user(&ts, uts, sizeof(ts)))
+=======
+		if (get_timespec64(&ts, uts))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 	}
 
@@ -3338,6 +4497,7 @@ SYSCALL_DEFINE4(rt_sigtimedwait, const sigset_t __user *, uthese,
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 COMPAT_SYSCALL_DEFINE4(rt_sigtimedwait, compat_sigset_t __user *, uthese,
 		struct compat_siginfo __user *, uinfo,
@@ -3346,6 +4506,49 @@ COMPAT_SYSCALL_DEFINE4(rt_sigtimedwait, compat_sigset_t __user *, uthese,
 	sigset_t s;
 	struct timespec t;
 	siginfo_t info;
+=======
+#ifdef CONFIG_COMPAT_32BIT_TIME
+SYSCALL_DEFINE4(rt_sigtimedwait_time32, const sigset_t __user *, uthese,
+		siginfo_t __user *, uinfo,
+		const struct old_timespec32 __user *, uts,
+		size_t, sigsetsize)
+{
+	sigset_t these;
+	struct timespec64 ts;
+	kernel_siginfo_t info;
+	int ret;
+
+	if (sigsetsize != sizeof(sigset_t))
+		return -EINVAL;
+
+	if (copy_from_user(&these, uthese, sizeof(these)))
+		return -EFAULT;
+
+	if (uts) {
+		if (get_old_timespec32(&ts, uts))
+			return -EFAULT;
+	}
+
+	ret = do_sigtimedwait(&these, &info, uts ? &ts : NULL);
+
+	if (ret > 0 && uinfo) {
+		if (copy_siginfo_to_user(uinfo, &info))
+			ret = -EFAULT;
+	}
+
+	return ret;
+}
+#endif
+
+#ifdef CONFIG_COMPAT
+COMPAT_SYSCALL_DEFINE4(rt_sigtimedwait_time64, compat_sigset_t __user *, uthese,
+		struct compat_siginfo __user *, uinfo,
+		struct __kernel_timespec __user *, uts, compat_size_t, sigsetsize)
+{
+	sigset_t s;
+	struct timespec64 t;
+	kernel_siginfo_t info;
+>>>>>>> upstream/android-13
 	long ret;
 
 	if (sigsetsize != sizeof(sigset_t))
@@ -3355,7 +4558,42 @@ COMPAT_SYSCALL_DEFINE4(rt_sigtimedwait, compat_sigset_t __user *, uthese,
 		return -EFAULT;
 
 	if (uts) {
+<<<<<<< HEAD
 		if (compat_get_timespec(&t, uts))
+=======
+		if (get_timespec64(&t, uts))
+			return -EFAULT;
+	}
+
+	ret = do_sigtimedwait(&s, &info, uts ? &t : NULL);
+
+	if (ret > 0 && uinfo) {
+		if (copy_siginfo_to_user32(uinfo, &info))
+			ret = -EFAULT;
+	}
+
+	return ret;
+}
+
+#ifdef CONFIG_COMPAT_32BIT_TIME
+COMPAT_SYSCALL_DEFINE4(rt_sigtimedwait_time32, compat_sigset_t __user *, uthese,
+		struct compat_siginfo __user *, uinfo,
+		struct old_timespec32 __user *, uts, compat_size_t, sigsetsize)
+{
+	sigset_t s;
+	struct timespec64 t;
+	kernel_siginfo_t info;
+	long ret;
+
+	if (sigsetsize != sizeof(sigset_t))
+		return -EINVAL;
+
+	if (get_compat_sigset(&s, uthese))
+		return -EFAULT;
+
+	if (uts) {
+		if (get_old_timespec32(&t, uts))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 	}
 
@@ -3369,8 +4607,14 @@ COMPAT_SYSCALL_DEFINE4(rt_sigtimedwait, compat_sigset_t __user *, uthese,
 	return ret;
 }
 #endif
+<<<<<<< HEAD
 
 static inline void prepare_kill_siginfo(int sig, struct siginfo *info)
+=======
+#endif
+
+static inline void prepare_kill_siginfo(int sig, struct kernel_siginfo *info)
+>>>>>>> upstream/android-13
 {
 	clear_siginfo(info);
 	info->si_signo = sig;
@@ -3387,7 +4631,11 @@ static inline void prepare_kill_siginfo(int sig, struct siginfo *info)
  */
 SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	prepare_kill_siginfo(sig, &info);
 
@@ -3415,7 +4663,12 @@ static bool access_pidfd_pidns(struct pid *pid)
 	return true;
 }
 
+<<<<<<< HEAD
 static int copy_siginfo_from_user_any(siginfo_t *kinfo, siginfo_t __user *info)
+=======
+static int copy_siginfo_from_user_any(kernel_siginfo_t *kinfo,
+		siginfo_t __user *info)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_COMPAT
 	/*
@@ -3427,13 +4680,25 @@ static int copy_siginfo_from_user_any(siginfo_t *kinfo, siginfo_t __user *info)
 		return copy_siginfo_from_user32(
 			kinfo, (struct compat_siginfo __user *)info);
 #endif
+<<<<<<< HEAD
 	return copy_from_user(kinfo, info, sizeof(siginfo_t));
+=======
+	return copy_siginfo_from_user(kinfo, info);
+>>>>>>> upstream/android-13
 }
 
 static struct pid *pidfd_to_pid(const struct file *file)
 {
+<<<<<<< HEAD
 	if (file->f_op == &pidfd_fops)
 		return file->private_data;
+=======
+	struct pid *pid;
+
+	pid = pidfd_pid(file);
+	if (!IS_ERR(pid))
+		return pid;
+>>>>>>> upstream/android-13
 
 	return tgid_pidfd_to_pid(file);
 }
@@ -3462,7 +4727,11 @@ SYSCALL_DEFINE4(pidfd_send_signal, int, pidfd, int, sig,
 	int ret;
 	struct fd f;
 	struct pid *pid;
+<<<<<<< HEAD
 	siginfo_t kinfo;
+=======
+	kernel_siginfo_t kinfo;
+>>>>>>> upstream/android-13
 
 	/* Enforce flags be set to 0 until we add an extension. */
 	if (flags)
@@ -3509,7 +4778,11 @@ err:
 }
 
 static int
+<<<<<<< HEAD
 do_send_specific(pid_t tgid, pid_t pid, int sig, struct siginfo *info)
+=======
+do_send_specific(pid_t tgid, pid_t pid, int sig, struct kernel_siginfo *info)
+>>>>>>> upstream/android-13
 {
 	struct task_struct *p;
 	int error = -ESRCH;
@@ -3540,7 +4813,11 @@ do_send_specific(pid_t tgid, pid_t pid, int sig, struct siginfo *info)
 
 static int do_tkill(pid_t tgid, pid_t pid, int sig)
 {
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+	struct kernel_siginfo info;
+>>>>>>> upstream/android-13
 
 	clear_siginfo(&info);
 	info.si_signo = sig;
@@ -3587,7 +4864,11 @@ SYSCALL_DEFINE2(tkill, pid_t, pid, int, sig)
 	return do_tkill(0, pid, sig);
 }
 
+<<<<<<< HEAD
 static int do_rt_sigqueueinfo(pid_t pid, int sig, siginfo_t *info)
+=======
+static int do_rt_sigqueueinfo(pid_t pid, int sig, kernel_siginfo_t *info)
+>>>>>>> upstream/android-13
 {
 	/* Not even root can pretend to send signals from the kernel.
 	 * Nor can they impersonate a kill()/tgkill(), which adds source info.
@@ -3596,8 +4877,11 @@ static int do_rt_sigqueueinfo(pid_t pid, int sig, siginfo_t *info)
 	    (task_pid_vnr(current) != pid))
 		return -EPERM;
 
+<<<<<<< HEAD
 	info->si_signo = sig;
 
+=======
+>>>>>>> upstream/android-13
 	/* POSIX.1b doesn't mention process groups.  */
 	return kill_proc_info(sig, info, pid);
 }
@@ -3611,9 +4895,16 @@ static int do_rt_sigqueueinfo(pid_t pid, int sig, siginfo_t *info)
 SYSCALL_DEFINE3(rt_sigqueueinfo, pid_t, pid, int, sig,
 		siginfo_t __user *, uinfo)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 	if (copy_from_user(&info, uinfo, sizeof(siginfo_t)))
 		return -EFAULT;
+=======
+	kernel_siginfo_t info;
+	int ret = __copy_siginfo_from_user(sig, &info, uinfo);
+	if (unlikely(ret))
+		return ret;
+>>>>>>> upstream/android-13
 	return do_rt_sigqueueinfo(pid, sig, &info);
 }
 
@@ -3623,15 +4914,24 @@ COMPAT_SYSCALL_DEFINE3(rt_sigqueueinfo,
 			int, sig,
 			struct compat_siginfo __user *, uinfo)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 	int ret = copy_siginfo_from_user32(&info, uinfo);
+=======
+	kernel_siginfo_t info;
+	int ret = __copy_siginfo_from_user32(sig, &info, uinfo);
+>>>>>>> upstream/android-13
 	if (unlikely(ret))
 		return ret;
 	return do_rt_sigqueueinfo(pid, sig, &info);
 }
 #endif
 
+<<<<<<< HEAD
 static int do_rt_tgsigqueueinfo(pid_t tgid, pid_t pid, int sig, siginfo_t *info)
+=======
+static int do_rt_tgsigqueueinfo(pid_t tgid, pid_t pid, int sig, kernel_siginfo_t *info)
+>>>>>>> upstream/android-13
 {
 	/* This is only valid for single tasks */
 	if (pid <= 0 || tgid <= 0)
@@ -3644,19 +4944,29 @@ static int do_rt_tgsigqueueinfo(pid_t tgid, pid_t pid, int sig, siginfo_t *info)
 	    (task_pid_vnr(current) != pid))
 		return -EPERM;
 
+<<<<<<< HEAD
 	info->si_signo = sig;
 
+=======
+>>>>>>> upstream/android-13
 	return do_send_specific(tgid, pid, sig, info);
 }
 
 SYSCALL_DEFINE4(rt_tgsigqueueinfo, pid_t, tgid, pid_t, pid, int, sig,
 		siginfo_t __user *, uinfo)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 
 	if (copy_from_user(&info, uinfo, sizeof(siginfo_t)))
 		return -EFAULT;
 
+=======
+	kernel_siginfo_t info;
+	int ret = __copy_siginfo_from_user(sig, &info, uinfo);
+	if (unlikely(ret))
+		return ret;
+>>>>>>> upstream/android-13
 	return do_rt_tgsigqueueinfo(tgid, pid, sig, &info);
 }
 
@@ -3667,10 +4977,17 @@ COMPAT_SYSCALL_DEFINE4(rt_tgsigqueueinfo,
 			int, sig,
 			struct compat_siginfo __user *, uinfo)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 
 	if (copy_siginfo_from_user32(&info, uinfo))
 		return -EFAULT;
+=======
+	kernel_siginfo_t info;
+	int ret = __copy_siginfo_from_user32(sig, &info, uinfo);
+	if (unlikely(ret))
+		return ret;
+>>>>>>> upstream/android-13
 	return do_rt_tgsigqueueinfo(tgid, pid, sig, &info);
 }
 #endif
@@ -3713,9 +5030,35 @@ int do_sigaction(int sig, struct k_sigaction *act, struct k_sigaction *oact)
 	k = &p->sighand->action[sig-1];
 
 	spin_lock_irq(&p->sighand->siglock);
+<<<<<<< HEAD
 	if (oact)
 		*oact = *k;
 
+=======
+	if (k->sa.sa_flags & SA_IMMUTABLE) {
+		spin_unlock_irq(&p->sighand->siglock);
+		return -EINVAL;
+	}
+	if (oact)
+		*oact = *k;
+
+	/*
+	 * Make sure that we never accidentally claim to support SA_UNSUPPORTED,
+	 * e.g. by having an architecture use the bit in their uapi.
+	 */
+	BUILD_BUG_ON(UAPI_SA_FLAGS & SA_UNSUPPORTED);
+
+	/*
+	 * Clear unknown flag bits in order to allow userspace to detect missing
+	 * support for flag bits and to allow the kernel to use non-uapi bits
+	 * internally.
+	 */
+	if (act)
+		act->sa.sa_flags &= UAPI_SA_FLAGS;
+	if (oact)
+		oact->sa.sa_flags &= UAPI_SA_FLAGS;
+
+>>>>>>> upstream/android-13
 	sigaction_compat_abi(act, oact);
 
 	if (act) {
@@ -3820,11 +5163,15 @@ int __save_altstack(stack_t __user *uss, unsigned long sp)
 	int err = __put_user((void __user *)t->sas_ss_sp, &uss->ss_sp) |
 		__put_user(t->sas_ss_flags, &uss->ss_flags) |
 		__put_user(t->sas_ss_size, &uss->ss_size);
+<<<<<<< HEAD
 	if (err)
 		return err;
 	if (t->sas_ss_flags & SS_AUTODISARM)
 		sas_ss_reset(t);
 	return 0;
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_COMPAT
@@ -3879,11 +5226,15 @@ int __compat_save_altstack(compat_stack_t __user *uss, unsigned long sp)
 			 &uss->ss_sp) |
 		__put_user(t->sas_ss_flags, &uss->ss_flags) |
 		__put_user(t->sas_ss_size, &uss->ss_size);
+<<<<<<< HEAD
 	if (err)
 		return err;
 	if (t->sas_ss_flags & SS_AUTODISARM)
 		sas_ss_reset(t);
 	return 0;
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -4061,7 +5412,11 @@ SYSCALL_DEFINE3(sigaction, int, sig,
 
 	if (act) {
 		old_sigset_t mask;
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+=======
+		if (!access_ok(act, sizeof(*act)) ||
+>>>>>>> upstream/android-13
 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer) ||
 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
@@ -4076,7 +5431,11 @@ SYSCALL_DEFINE3(sigaction, int, sig,
 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
 
 	if (!ret && oact) {
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+=======
+		if (!access_ok(oact, sizeof(*oact)) ||
+>>>>>>> upstream/android-13
 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer) ||
 		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags) ||
@@ -4098,7 +5457,11 @@ COMPAT_SYSCALL_DEFINE3(sigaction, int, sig,
 	compat_uptr_t handler, restorer;
 
 	if (act) {
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+=======
+		if (!access_ok(act, sizeof(*act)) ||
+>>>>>>> upstream/android-13
 		    __get_user(handler, &act->sa_handler) ||
 		    __get_user(restorer, &act->sa_restorer) ||
 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
@@ -4116,7 +5479,11 @@ COMPAT_SYSCALL_DEFINE3(sigaction, int, sig,
 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
 
 	if (!ret && oact) {
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+=======
+		if (!access_ok(oact, sizeof(*oact)) ||
+>>>>>>> upstream/android-13
 		    __put_user(ptr_to_compat(old_ka.sa.sa_handler),
 			       &oact->sa_handler) ||
 		    __put_user(ptr_to_compat(old_ka.sa.sa_restorer),
@@ -4253,6 +5620,7 @@ __weak const char *arch_vma_name(struct vm_area_struct *vma)
 	return NULL;
 }
 
+<<<<<<< HEAD
 void __init signals_init(void)
 {
 	/* If this check fails, the __ARCH_SI_PREAMBLE_SIZE value is wrong! */
@@ -4261,6 +5629,85 @@ void __init signals_init(void)
 	BUILD_BUG_ON(sizeof(struct siginfo) != SI_MAX_SIZE);
 
 	sigqueue_cachep = KMEM_CACHE(sigqueue, SLAB_PANIC);
+=======
+static inline void siginfo_buildtime_checks(void)
+{
+	BUILD_BUG_ON(sizeof(struct siginfo) != SI_MAX_SIZE);
+
+	/* Verify the offsets in the two siginfos match */
+#define CHECK_OFFSET(field) \
+	BUILD_BUG_ON(offsetof(siginfo_t, field) != offsetof(kernel_siginfo_t, field))
+
+	/* kill */
+	CHECK_OFFSET(si_pid);
+	CHECK_OFFSET(si_uid);
+
+	/* timer */
+	CHECK_OFFSET(si_tid);
+	CHECK_OFFSET(si_overrun);
+	CHECK_OFFSET(si_value);
+
+	/* rt */
+	CHECK_OFFSET(si_pid);
+	CHECK_OFFSET(si_uid);
+	CHECK_OFFSET(si_value);
+
+	/* sigchld */
+	CHECK_OFFSET(si_pid);
+	CHECK_OFFSET(si_uid);
+	CHECK_OFFSET(si_status);
+	CHECK_OFFSET(si_utime);
+	CHECK_OFFSET(si_stime);
+
+	/* sigfault */
+	CHECK_OFFSET(si_addr);
+	CHECK_OFFSET(si_trapno);
+	CHECK_OFFSET(si_addr_lsb);
+	CHECK_OFFSET(si_lower);
+	CHECK_OFFSET(si_upper);
+	CHECK_OFFSET(si_pkey);
+	CHECK_OFFSET(si_perf_data);
+	CHECK_OFFSET(si_perf_type);
+
+	/* sigpoll */
+	CHECK_OFFSET(si_band);
+	CHECK_OFFSET(si_fd);
+
+	/* sigsys */
+	CHECK_OFFSET(si_call_addr);
+	CHECK_OFFSET(si_syscall);
+	CHECK_OFFSET(si_arch);
+#undef CHECK_OFFSET
+
+	/* usb asyncio */
+	BUILD_BUG_ON(offsetof(struct siginfo, si_pid) !=
+		     offsetof(struct siginfo, si_addr));
+	if (sizeof(int) == sizeof(void __user *)) {
+		BUILD_BUG_ON(sizeof_field(struct siginfo, si_pid) !=
+			     sizeof(void __user *));
+	} else {
+		BUILD_BUG_ON((sizeof_field(struct siginfo, si_pid) +
+			      sizeof_field(struct siginfo, si_uid)) !=
+			     sizeof(void __user *));
+		BUILD_BUG_ON(offsetofend(struct siginfo, si_pid) !=
+			     offsetof(struct siginfo, si_uid));
+	}
+#ifdef CONFIG_COMPAT
+	BUILD_BUG_ON(offsetof(struct compat_siginfo, si_pid) !=
+		     offsetof(struct compat_siginfo, si_addr));
+	BUILD_BUG_ON(sizeof_field(struct compat_siginfo, si_pid) !=
+		     sizeof(compat_uptr_t));
+	BUILD_BUG_ON(sizeof_field(struct compat_siginfo, si_pid) !=
+		     sizeof_field(struct siginfo, si_pid));
+#endif
+}
+
+void __init signals_init(void)
+{
+	siginfo_buildtime_checks();
+
+	sigqueue_cachep = KMEM_CACHE(sigqueue, SLAB_PANIC | SLAB_ACCOUNT);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_KGDB_KDB
@@ -4283,7 +5730,11 @@ void kdb_send_sig(struct task_struct *t, int sig)
 	}
 	new_t = kdb_prev_t != t;
 	kdb_prev_t = t;
+<<<<<<< HEAD
 	if (t->state != TASK_RUNNING && new_t) {
+=======
+	if (!task_is_running(t) && new_t) {
+>>>>>>> upstream/android-13
 		spin_unlock(&t->sighand->siglock);
 		kdb_printf("Process is not RUNNING, sending a signal from "
 			   "kdb risks deadlock\n"

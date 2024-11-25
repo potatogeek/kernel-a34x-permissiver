@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43legacy wireless driver
@@ -12,6 +16,7 @@
   Some parts of the code in this file are derived from the ipw2200
   driver  Copyright(c) 2003 - 2004 Intel Corporation.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -26,6 +31,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -82,6 +89,7 @@ static const s8 b43legacy_tssi2dbm_g_table[] = {
 
 static void b43legacy_phy_initg(struct b43legacy_wldev *dev);
 
+<<<<<<< HEAD
 
 static inline
 void b43legacy_voluntary_preempt(void)
@@ -93,6 +101,8 @@ void b43legacy_voluntary_preempt(void)
 #endif /* CONFIG_PREEMPT */
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Lock the PHY registers against concurrent access from the microcode.
  * This lock is nonrecursive. */
 void b43legacy_phy_lock(struct b43legacy_wldev *dev)
@@ -134,7 +144,10 @@ u16 b43legacy_phy_read(struct b43legacy_wldev *dev, u16 offset)
 void b43legacy_phy_write(struct b43legacy_wldev *dev, u16 offset, u16 val)
 {
 	b43legacy_write16(dev, B43legacy_MMIO_PHY_CONTROL, offset);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	b43legacy_write16(dev, B43legacy_MMIO_PHY_DATA, val);
 }
 
@@ -154,7 +167,11 @@ void b43legacy_phy_calibrate(struct b43legacy_wldev *dev)
 }
 
 /* initialize B PHY power control
+<<<<<<< HEAD
  * as described in http://bcm-specs.sipsolutions.net/InitPowerControl
+=======
+ * as described in https://bcm-specs.sipsolutions.net/InitPowerControl
+>>>>>>> upstream/android-13
  */
 static void b43legacy_phy_init_pctl(struct b43legacy_wldev *dev)
 {
@@ -1138,7 +1155,11 @@ static u16 b43legacy_phy_lo_b_r15_loop(struct b43legacy_wldev *dev)
 		ret += b43legacy_phy_read(dev, 0x002C);
 	}
 	local_irq_restore(flags);
+<<<<<<< HEAD
 	b43legacy_voluntary_preempt();
+=======
+	cond_resched();
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1267,7 +1288,11 @@ u16 b43legacy_phy_lo_g_deviation_subval(struct b43legacy_wldev *dev,
 	}
 	ret = b43legacy_phy_read(dev, 0x002D);
 	local_irq_restore(flags);
+<<<<<<< HEAD
 	b43legacy_voluntary_preempt();
+=======
+	cond_resched();
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1486,7 +1511,11 @@ void b43legacy_phy_set_baseband_attenuation(struct b43legacy_wldev *dev,
 	b43legacy_phy_write(dev, 0x0060, value);
 }
 
+<<<<<<< HEAD
 /* http://bcm-specs.sipsolutions.net/LocalOscillator/Measure */
+=======
+/* https://bcm-specs.sipsolutions.net/LocalOscillator/Measure */
+>>>>>>> upstream/android-13
 void b43legacy_phy_lo_g_measure(struct b43legacy_wldev *dev)
 {
 	static const u8 pairorder[10] = { 3, 1, 5, 7, 9, 2, 0, 4, 6, 8 };
@@ -1605,7 +1634,11 @@ void b43legacy_phy_lo_g_measure(struct b43legacy_wldev *dev)
 			b43legacy_radio_write16(dev, 0x43, i);
 			b43legacy_radio_write16(dev, 0x52, phy->txctl2);
 			udelay(10);
+<<<<<<< HEAD
 			b43legacy_voluntary_preempt();
+=======
+			cond_resched();
+>>>>>>> upstream/android-13
 
 			b43legacy_phy_set_baseband_attenuation(dev, j * 2);
 
@@ -1656,7 +1689,11 @@ void b43legacy_phy_lo_g_measure(struct b43legacy_wldev *dev)
 					      phy->txctl2
 					      | (3/*txctl1*/ << 4));
 			udelay(10);
+<<<<<<< HEAD
 			b43legacy_voluntary_preempt();
+=======
+			cond_resched();
+>>>>>>> upstream/android-13
 
 			b43legacy_phy_set_baseband_attenuation(dev, j * 2);
 
@@ -1679,7 +1716,11 @@ void b43legacy_phy_lo_g_measure(struct b43legacy_wldev *dev)
 		b43legacy_phy_write(dev, 0x0812, (r27 << 8) | 0xA2);
 		udelay(2);
 		b43legacy_phy_write(dev, 0x0812, (r27 << 8) | 0xA3);
+<<<<<<< HEAD
 		b43legacy_voluntary_preempt();
+=======
+		cond_resched();
+>>>>>>> upstream/android-13
 	} else
 		b43legacy_phy_write(dev, 0x0015, r27 | 0xEFA0);
 	b43legacy_phy_lo_adjust(dev, is_initializing);
@@ -1746,7 +1787,11 @@ void b43legacy_phy_lo_mark_all_unused(struct b43legacy_wldev *dev)
 	}
 }
 
+<<<<<<< HEAD
 /* http://bcm-specs.sipsolutions.net/EstimatePowerOut
+=======
+/* https://bcm-specs.sipsolutions.net/EstimatePowerOut
+>>>>>>> upstream/android-13
  * This function converts a TSSI value to dBm in Q5.2
  */
 static s8 b43legacy_phy_estimate_power_out(struct b43legacy_wldev *dev, s8 tssi)
@@ -1772,7 +1817,11 @@ static s8 b43legacy_phy_estimate_power_out(struct b43legacy_wldev *dev, s8 tssi)
 	return dbm;
 }
 
+<<<<<<< HEAD
 /* http://bcm-specs.sipsolutions.net/RecalculateTransmissionPower */
+=======
+/* https://bcm-specs.sipsolutions.net/RecalculateTransmissionPower */
+>>>>>>> upstream/android-13
 void b43legacy_phy_xmitpower(struct b43legacy_wldev *dev)
 {
 	struct b43legacy_phy *phy = &dev->phy;

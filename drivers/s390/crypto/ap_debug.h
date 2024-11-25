@@ -20,6 +20,17 @@
 
 #define AP_DBF(...)					\
 	debug_sprintf_event(ap_dbf_info, ##__VA_ARGS__)
+<<<<<<< HEAD
+=======
+#define AP_DBF_ERR(...)					\
+	debug_sprintf_event(ap_dbf_info, DBF_ERR, ##__VA_ARGS__)
+#define AP_DBF_WARN(...)					\
+	debug_sprintf_event(ap_dbf_info, DBF_WARN, ##__VA_ARGS__)
+#define AP_DBF_INFO(...)					\
+	debug_sprintf_event(ap_dbf_info, DBF_INFO, ##__VA_ARGS__)
+#define AP_DBF_DBG(...)					\
+	debug_sprintf_event(ap_dbf_info, DBF_DEBUG, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 extern debug_info_t *ap_dbf_info;
 

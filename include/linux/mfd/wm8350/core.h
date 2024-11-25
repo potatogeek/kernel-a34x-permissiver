@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * core.h  --  Core Driver for Wolfson WM8350 PMIC
  *
  * Copyright 2007 Wolfson Microelectronics PLC
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_WM8350_CORE_H_
@@ -643,7 +650,10 @@ struct wm8350_platform_data {
  */
 int wm8350_device_init(struct wm8350 *wm8350, int irq,
 		       struct wm8350_platform_data *pdata);
+<<<<<<< HEAD
 void wm8350_device_exit(struct wm8350 *wm8350);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * WM8350 device IO

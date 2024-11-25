@@ -244,6 +244,15 @@ static void reserve_release_intr_bandwidth(struct ehci_hcd *ehci,
 
 	/* FS/LS bus bandwidth */
 	if (tt_usecs) {
+<<<<<<< HEAD
+=======
+		/*
+		 * find_tt() will not return any error here as we have
+		 * already called find_tt() before calling this function
+		 * and checked for any error return. The previous call
+		 * would have created the data structure.
+		 */
+>>>>>>> upstream/android-13
 		tt = find_tt(qh->ps.udev);
 		if (sign > 0)
 			list_add_tail(&qh->ps.ps_list, &tt->ps_list);
@@ -307,6 +316,7 @@ static int __maybe_unused same_tt(struct usb_device *dev1,
 
 #ifdef CONFIG_USB_EHCI_TT_NEWSCHED
 
+<<<<<<< HEAD
 /* Which uframe does the low/fullspeed transfer start in?
  *
  * The parameter is the mask of ssplits in "H-frame" terms
@@ -327,6 +337,8 @@ static inline unsigned char tt_start_uframe(struct ehci_hcd *ehci, __hc32 mask)
 	return ffs(smask) - 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const unsigned char
 max_tt_usecs[] = { 125, 125, 125, 125, 125, 125, 30, 0 };
 
@@ -1357,6 +1369,15 @@ static void reserve_release_iso_bandwidth(struct ehci_hcd *ehci,
 			}
 		}
 
+<<<<<<< HEAD
+=======
+		/*
+		 * find_tt() will not return any error here as we have
+		 * already called find_tt() before calling this function
+		 * and checked for any error return. The previous call
+		 * would have created the data structure.
+		 */
+>>>>>>> upstream/android-13
 		tt = find_tt(stream->ps.udev);
 		if (sign > 0)
 			list_add_tail(&stream->ps.ps_list, &tt->ps_list);
@@ -2475,7 +2496,11 @@ restart:
 			ehci_dbg(ehci, "corrupt type %d frame %d shadow %p\n",
 					type, frame, q.ptr);
 			/* BUG(); */
+<<<<<<< HEAD
 			/* FALL THROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Q_TYPE_QH:
 		case Q_TYPE_FSTN:
 			/* End of the iTDs and siTDs */

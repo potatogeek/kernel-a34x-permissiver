@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright 2010 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
  * Copyright 2011 David Gibson, IBM Corporation <dwg@au1.ibm.com>
@@ -35,7 +40,10 @@
 #include <asm/hvcall.h>
 #include <asm/synch.h>
 #include <asm/ppc-opcode.h>
+<<<<<<< HEAD
 #include <asm/kvm_host.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/udbg.h>
 #include <asm/iommu.h>
 #include <asm/tce.h>
@@ -44,7 +52,11 @@
 #ifdef CONFIG_BUG
 
 #define WARN_ON_ONCE_RM(condition)	({			\
+<<<<<<< HEAD
 	static bool __section(.data.unlikely) __warned;		\
+=======
+	static bool __section(".data.unlikely") __warned;	\
+>>>>>>> upstream/android-13
 	int __ret_warn_once = !!(condition);			\
 								\
 	if (unlikely(__ret_warn_once && !__warned)) {		\
@@ -66,8 +78,11 @@
 
 #endif
 
+<<<<<<< HEAD
 #define TCES_PER_PAGE	(PAGE_SIZE / sizeof(u64))
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Finds a TCE table descriptor by LIOBN.
  *
@@ -87,6 +102,26 @@ struct kvmppc_spapr_tce_table *kvmppc_find_table(struct kvm *kvm,
 }
 EXPORT_SYMBOL_GPL(kvmppc_find_table);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
+static long kvmppc_rm_tce_to_ua(struct kvm *kvm,
+				unsigned long tce, unsigned long *ua)
+{
+	unsigned long gfn = tce >> PAGE_SHIFT;
+	struct kvm_memory_slot *memslot;
+
+	memslot = __gfn_to_memslot(kvm_memslots_raw(kvm), gfn);
+	if (!memslot)
+		return -EINVAL;
+
+	*ua = __gfn_to_hva_memslot(memslot, gfn) |
+		(tce & ~(PAGE_MASK | TCE_PCI_READ | TCE_PCI_WRITE));
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Validates TCE address.
  * At the moment flags and page mask are validated.
@@ -94,6 +129,7 @@ EXPORT_SYMBOL_GPL(kvmppc_find_table);
  * to the table and user space is supposed to process them), we can skip
  * checking other things (such as TCE is a guest RAM address or the page
  * was actually allocated).
+<<<<<<< HEAD
  *
  * WARNING: This will be called in real-mode on HV KVM and virtual
  *          mode on PR KVM
@@ -102,6 +138,16 @@ long kvmppc_tce_validate(struct kvmppc_spapr_tce_table *stt, unsigned long tce)
 {
 	unsigned long gpa = tce & ~(TCE_PCI_READ | TCE_PCI_WRITE);
 	enum dma_data_direction dir = iommu_tce_direction(tce);
+=======
+ */
+static long kvmppc_rm_tce_validate(struct kvmppc_spapr_tce_table *stt,
+		unsigned long tce)
+{
+	unsigned long gpa = tce & ~(TCE_PCI_READ | TCE_PCI_WRITE);
+	enum dma_data_direction dir = iommu_tce_direction(tce);
+	struct kvmppc_spapr_tce_iommu_table *stit;
+	unsigned long ua = 0;
+>>>>>>> upstream/android-13
 
 	/* Allow userspace to poison TCE table */
 	if (dir == DMA_NONE)
@@ -110,9 +156,30 @@ long kvmppc_tce_validate(struct kvmppc_spapr_tce_table *stt, unsigned long tce)
 	if (iommu_tce_check_gpa(stt->page_shift, gpa))
 		return H_PARAMETER;
 
+<<<<<<< HEAD
 	return H_SUCCESS;
 }
 EXPORT_SYMBOL_GPL(kvmppc_tce_validate);
+=======
+	if (kvmppc_rm_tce_to_ua(stt->kvm, tce, &ua))
+		return H_TOO_HARD;
+
+	list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+		unsigned long hpa = 0;
+		struct mm_iommu_table_group_mem_t *mem;
+		long shift = stit->tbl->it_page_shift;
+
+		mem = mm_iommu_lookup_rm(stt->kvm->mm, ua, 1ULL << shift);
+		if (!mem)
+			return H_TOO_HARD;
+
+		if (mm_iommu_ua_to_hpa_rm(mem, ua, shift, &hpa))
+			return H_TOO_HARD;
+	}
+
+	return H_SUCCESS;
+}
+>>>>>>> upstream/android-13
 
 /* Note on the use of page_address() in real mode,
  *
@@ -144,6 +211,7 @@ static u64 *kvmppc_page_address(struct page *page)
 /*
  * Handles TCE requests for emulated devices.
  * Puts guest TCE values to the table and expects user space to convert them.
+<<<<<<< HEAD
  * Called in both real and virtual modes.
  * Cannot fail so kvmppc_tce_validate must be called before it.
  *
@@ -151,6 +219,11 @@ static u64 *kvmppc_page_address(struct page *page)
  *          mode on PR KVM
  */
 void kvmppc_tce_put(struct kvmppc_spapr_tce_table *stt,
+=======
+ * Cannot fail so kvmppc_rm_tce_validate must be called before it.
+ */
+static void kvmppc_rm_tce_put(struct kvmppc_spapr_tce_table *stt,
+>>>>>>> upstream/android-13
 		unsigned long idx, unsigned long tce)
 {
 	struct page *page;
@@ -158,10 +231,22 @@ void kvmppc_tce_put(struct kvmppc_spapr_tce_table *stt,
 
 	idx -= stt->offset;
 	page = stt->pages[idx / TCES_PER_PAGE];
+<<<<<<< HEAD
+=======
+	/*
+	 * kvmppc_rm_ioba_validate() allows pages not be allocated if TCE is
+	 * being cleared, otherwise it returns H_TOO_HARD and we skip this.
+	 */
+	if (!page) {
+		WARN_ON_ONCE_RM(tce != 0);
+		return;
+	}
+>>>>>>> upstream/android-13
 	tbl = kvmppc_page_address(page);
 
 	tbl[idx % TCES_PER_PAGE] = tce;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(kvmppc_tce_put);
 
 long kvmppc_gpa_to_ua(struct kvm *kvm, unsigned long gpa,
@@ -188,16 +273,61 @@ EXPORT_SYMBOL_GPL(kvmppc_gpa_to_ua);
 
 #ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
 static long iommu_tce_xchg_rm(struct mm_struct *mm, struct iommu_table *tbl,
+=======
+
+/*
+ * TCEs pages are allocated in kvmppc_rm_tce_put() which won't be able to do so
+ * in real mode.
+ * Check if kvmppc_rm_tce_put() can succeed in real mode, i.e. a TCEs page is
+ * allocated or not required (when clearing a tce entry).
+ */
+static long kvmppc_rm_ioba_validate(struct kvmppc_spapr_tce_table *stt,
+		unsigned long ioba, unsigned long npages, bool clearing)
+{
+	unsigned long i, idx, sttpage, sttpages;
+	unsigned long ret = kvmppc_ioba_validate(stt, ioba, npages);
+
+	if (ret)
+		return ret;
+	/*
+	 * clearing==true says kvmppc_rm_tce_put won't be allocating pages
+	 * for empty tces.
+	 */
+	if (clearing)
+		return H_SUCCESS;
+
+	idx = (ioba >> stt->page_shift) - stt->offset;
+	sttpage = idx / TCES_PER_PAGE;
+	sttpages = ALIGN(idx % TCES_PER_PAGE + npages, TCES_PER_PAGE) /
+			TCES_PER_PAGE;
+	for (i = sttpage; i < sttpage + sttpages; ++i)
+		if (!stt->pages[i])
+			return H_TOO_HARD;
+
+	return H_SUCCESS;
+}
+
+static long iommu_tce_xchg_no_kill_rm(struct mm_struct *mm,
+		struct iommu_table *tbl,
+>>>>>>> upstream/android-13
 		unsigned long entry, unsigned long *hpa,
 		enum dma_data_direction *direction)
 {
 	long ret;
 
+<<<<<<< HEAD
 	ret = tbl->it_ops->exchange_rm(tbl, entry, hpa, direction);
 
 	if (!ret && ((*direction == DMA_FROM_DEVICE) ||
 				(*direction == DMA_BIDIRECTIONAL))) {
 		__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RM(tbl, entry);
+=======
+	ret = tbl->it_ops->xchg_no_kill(tbl, entry, hpa, direction, true);
+
+	if (!ret && ((*direction == DMA_FROM_DEVICE) ||
+				(*direction == DMA_BIDIRECTIONAL))) {
+		__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RO(tbl, entry);
+>>>>>>> upstream/android-13
 		/*
 		 * kvmppc_rm_tce_iommu_do_map() updates the UA cache after
 		 * calling this so we still get here a valid UA.
@@ -209,6 +339,7 @@ static long iommu_tce_xchg_rm(struct mm_struct *mm, struct iommu_table *tbl,
 	return ret;
 }
 
+<<<<<<< HEAD
 static void kvmppc_rm_clear_tce(struct kvm *kvm, struct iommu_table *tbl,
 		unsigned long entry)
 {
@@ -216,6 +347,28 @@ static void kvmppc_rm_clear_tce(struct kvm *kvm, struct iommu_table *tbl,
 	enum dma_data_direction dir = DMA_NONE;
 
 	iommu_tce_xchg_rm(kvm->mm, tbl, entry, &hpa, &dir);
+=======
+static void iommu_tce_kill_rm(struct iommu_table *tbl,
+		unsigned long entry, unsigned long pages)
+{
+	if (tbl->it_ops->tce_kill)
+		tbl->it_ops->tce_kill(tbl, entry, pages, true);
+}
+
+static void kvmppc_rm_clear_tce(struct kvm *kvm, struct kvmppc_spapr_tce_table *stt,
+		struct iommu_table *tbl, unsigned long entry)
+{
+	unsigned long i;
+	unsigned long subpages = 1ULL << (stt->page_shift - tbl->it_page_shift);
+	unsigned long io_entry = entry << (stt->page_shift - tbl->it_page_shift);
+
+	for (i = 0; i < subpages; ++i) {
+		unsigned long hpa = 0;
+		enum dma_data_direction dir = DMA_NONE;
+
+		iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, io_entry + i, &hpa, &dir);
+	}
+>>>>>>> upstream/android-13
 }
 
 static long kvmppc_rm_tce_iommu_mapped_dec(struct kvm *kvm,
@@ -223,7 +376,11 @@ static long kvmppc_rm_tce_iommu_mapped_dec(struct kvm *kvm,
 {
 	struct mm_iommu_table_group_mem_t *mem = NULL;
 	const unsigned long pgsize = 1ULL << tbl->it_page_shift;
+<<<<<<< HEAD
 	__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RM(tbl, entry);
+=======
+	__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RO(tbl, entry);
+>>>>>>> upstream/android-13
 
 	if (!pua)
 		/* it_userspace allocation might be delayed */
@@ -247,7 +404,11 @@ static long kvmppc_rm_tce_iommu_do_unmap(struct kvm *kvm,
 	unsigned long hpa = 0;
 	long ret;
 
+<<<<<<< HEAD
 	if (iommu_tce_xchg_rm(kvm->mm, tbl, entry, &hpa, &dir))
+=======
+	if (iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, entry, &hpa, &dir))
+>>>>>>> upstream/android-13
 		/*
 		 * real mode xchg can fail if struct page crosses
 		 * a page boundary
@@ -259,7 +420,11 @@ static long kvmppc_rm_tce_iommu_do_unmap(struct kvm *kvm,
 
 	ret = kvmppc_rm_tce_iommu_mapped_dec(kvm, tbl, entry);
 	if (ret)
+<<<<<<< HEAD
 		iommu_tce_xchg_rm(kvm->mm, tbl, entry, &hpa, &dir);
+=======
+		iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, entry, &hpa, &dir);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -278,6 +443,11 @@ static long kvmppc_rm_tce_iommu_unmap(struct kvm *kvm,
 			break;
 	}
 
+<<<<<<< HEAD
+=======
+	iommu_tce_kill_rm(tbl, io_entry, subpages);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -287,7 +457,11 @@ static long kvmppc_rm_tce_iommu_do_map(struct kvm *kvm, struct iommu_table *tbl,
 {
 	long ret;
 	unsigned long hpa = 0;
+<<<<<<< HEAD
 	__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RM(tbl, entry);
+=======
+	__be64 *pua = IOMMU_TABLE_USERSPACE_ENTRY_RO(tbl, entry);
+>>>>>>> upstream/android-13
 	struct mm_iommu_table_group_mem_t *mem;
 
 	if (!pua)
@@ -305,7 +479,11 @@ static long kvmppc_rm_tce_iommu_do_map(struct kvm *kvm, struct iommu_table *tbl,
 	if (WARN_ON_ONCE_RM(mm_iommu_mapped_inc(mem)))
 		return H_TOO_HARD;
 
+<<<<<<< HEAD
 	ret = iommu_tce_xchg_rm(kvm->mm, tbl, entry, &hpa, &dir);
+=======
+	ret = iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, entry, &hpa, &dir);
+>>>>>>> upstream/android-13
 	if (ret) {
 		mm_iommu_mapped_dec(mem);
 		/*
@@ -341,6 +519,11 @@ static long kvmppc_rm_tce_iommu_map(struct kvm *kvm,
 			break;
 	}
 
+<<<<<<< HEAD
+=======
+	iommu_tce_kill_rm(tbl, io_entry, subpages);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -356,25 +539,40 @@ long kvmppc_rm_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
 	/* udbg_printf("H_PUT_TCE(): liobn=0x%lx ioba=0x%lx, tce=0x%lx\n", */
 	/* 	    liobn, ioba, tce); */
 
+<<<<<<< HEAD
 	/* For radix, we might be in virtual mode, so punt */
 	if (kvm_is_radix(vcpu->kvm))
 		return H_TOO_HARD;
 
+=======
+>>>>>>> upstream/android-13
 	stt = kvmppc_find_table(vcpu->kvm, liobn);
 	if (!stt)
 		return H_TOO_HARD;
 
+<<<<<<< HEAD
 	ret = kvmppc_ioba_validate(stt, ioba, 1);
 	if (ret != H_SUCCESS)
 		return ret;
 
 	ret = kvmppc_tce_validate(stt, tce);
+=======
+	ret = kvmppc_rm_ioba_validate(stt, ioba, 1, tce == 0);
+	if (ret != H_SUCCESS)
+		return ret;
+
+	ret = kvmppc_rm_tce_validate(stt, tce);
+>>>>>>> upstream/android-13
 	if (ret != H_SUCCESS)
 		return ret;
 
 	dir = iommu_tce_direction(tce);
+<<<<<<< HEAD
 	if ((dir != DMA_NONE) && kvmppc_gpa_to_ua(vcpu->kvm,
 			tce & ~(TCE_PCI_READ | TCE_PCI_WRITE), &ua, NULL))
+=======
+	if ((dir != DMA_NONE) && kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua))
+>>>>>>> upstream/android-13
 		return H_PARAMETER;
 
 	entry = ioba >> stt->page_shift;
@@ -387,6 +585,7 @@ long kvmppc_rm_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
 					stit->tbl, entry, ua, dir);
 
+<<<<<<< HEAD
 		if (ret == H_SUCCESS)
 			continue;
 
@@ -398,12 +597,26 @@ long kvmppc_rm_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
 	}
 
 	kvmppc_tce_put(stt, entry, tce);
+=======
+		if (ret != H_SUCCESS) {
+			kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl, entry);
+			return ret;
+		}
+	}
+
+	kvmppc_rm_tce_put(stt, entry, tce);
+>>>>>>> upstream/android-13
 
 	return H_SUCCESS;
 }
 
+<<<<<<< HEAD
 static long kvmppc_rm_ua_to_hpa(struct kvm_vcpu *vcpu,
 		unsigned long ua, unsigned long *phpa)
+=======
+static long kvmppc_rm_ua_to_hpa(struct kvm_vcpu *vcpu, unsigned long mmu_seq,
+				unsigned long ua, unsigned long *phpa)
+>>>>>>> upstream/android-13
 {
 	pte_t *ptep, pte;
 	unsigned shift = 0;
@@ -417,10 +630,24 @@ static long kvmppc_rm_ua_to_hpa(struct kvm_vcpu *vcpu,
 	 * to exit which will agains result in the below page table walk
 	 * to finish.
 	 */
+<<<<<<< HEAD
 	ptep = __find_linux_pte(vcpu->arch.pgdir, ua, NULL, &shift);
 	if (!ptep || !pte_present(*ptep))
 		return -ENXIO;
 	pte = *ptep;
+=======
+	/* an rmap lock won't make it safe. because that just ensure hash
+	 * page table entries are removed with rmap lock held. After that
+	 * mmu notifier returns and we go ahead and removing ptes from Qemu page table.
+	 */
+	ptep = find_kvm_host_pte(vcpu->kvm, mmu_seq, ua, &shift);
+	if (!ptep)
+		return -ENXIO;
+
+	pte = READ_ONCE(*ptep);
+	if (!pte_present(pte))
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	if (!shift)
 		shift = PAGE_SHIFT;
@@ -442,6 +669,7 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 		unsigned long liobn, unsigned long ioba,
 		unsigned long tce_list,	unsigned long npages)
 {
+<<<<<<< HEAD
 	struct kvmppc_spapr_tce_table *stt;
 	long i, ret = H_SUCCESS;
 	unsigned long tces, entry, ua = 0;
@@ -452,6 +680,21 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 	/* For radix, we might be in virtual mode, so punt */
 	if (kvm_is_radix(vcpu->kvm))
 		return H_TOO_HARD;
+=======
+	struct kvm *kvm = vcpu->kvm;
+	struct kvmppc_spapr_tce_table *stt;
+	long i, ret = H_SUCCESS;
+	unsigned long tces, entry, ua = 0;
+	unsigned long mmu_seq;
+	bool prereg = false;
+	struct kvmppc_spapr_tce_iommu_table *stit;
+
+	/*
+	 * used to check for invalidations in progress
+	 */
+	mmu_seq = kvm->mmu_notifier_seq;
+	smp_rmb();
+>>>>>>> upstream/android-13
 
 	stt = kvmppc_find_table(vcpu->kvm, liobn);
 	if (!stt)
@@ -468,7 +711,11 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 	if (tce_list & (SZ_4K - 1))
 		return H_PARAMETER;
 
+<<<<<<< HEAD
 	ret = kvmppc_ioba_validate(stt, ioba, npages);
+=======
+	ret = kvmppc_rm_ioba_validate(stt, ioba, npages, false);
+>>>>>>> upstream/android-13
 	if (ret != H_SUCCESS)
 		return ret;
 
@@ -480,7 +727,11 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 		 */
 		struct mm_iommu_table_group_mem_t *mem;
 
+<<<<<<< HEAD
 		if (kvmppc_gpa_to_ua(vcpu->kvm, tce_list, &ua, NULL))
+=======
+		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce_list, &ua))
+>>>>>>> upstream/android-13
 			return H_TOO_HARD;
 
 		mem = mm_iommu_lookup_rm(vcpu->kvm->mm, ua, IOMMU_PAGE_SIZE_4K);
@@ -496,6 +747,7 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 		 * We do not require memory to be preregistered in this case
 		 * so lock rmap and do __find_linux_pte_or_hugepte().
 		 */
+<<<<<<< HEAD
 		if (kvmppc_gpa_to_ua(vcpu->kvm, tce_list, &ua, &rmap))
 			return H_TOO_HARD;
 
@@ -513,6 +765,13 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 		 */
 		lock_rmap(rmap);
 		if (kvmppc_rm_ua_to_hpa(vcpu, ua, &tces)) {
+=======
+		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce_list, &ua))
+			return H_TOO_HARD;
+
+		arch_spin_lock(&kvm->mmu_lock.rlock.raw_lock);
+		if (kvmppc_rm_ua_to_hpa(vcpu, mmu_seq, ua, &tces)) {
+>>>>>>> upstream/android-13
 			ret = H_TOO_HARD;
 			goto unlock_exit;
 		}
@@ -521,6 +780,7 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 	for (i = 0; i < npages; ++i) {
 		unsigned long tce = be64_to_cpu(((u64 *)tces)[i]);
 
+<<<<<<< HEAD
 		ret = kvmppc_tce_validate(stt, tce);
 		if (ret != H_SUCCESS)
 			goto unlock_exit;
@@ -529,6 +789,18 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 		if (kvmppc_gpa_to_ua(vcpu->kvm,
 				tce & ~(TCE_PCI_READ | TCE_PCI_WRITE),
 				&ua, NULL)) {
+=======
+		ret = kvmppc_rm_tce_validate(stt, tce);
+		if (ret != H_SUCCESS)
+			goto unlock_exit;
+	}
+
+	for (i = 0; i < npages; ++i) {
+		unsigned long tce = be64_to_cpu(((u64 *)tces)[i]);
+
+		ua = 0;
+		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua)) {
+>>>>>>> upstream/android-13
 			ret = H_PARAMETER;
 			goto unlock_exit;
 		}
@@ -538,6 +810,7 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
 					stit->tbl, entry + i, ua,
 					iommu_tce_direction(tce));
 
+<<<<<<< HEAD
 			if (ret == H_SUCCESS)
 				continue;
 
@@ -555,6 +828,21 @@ unlock_exit:
 	if (rmap)
 		unlock_rmap(rmap);
 
+=======
+			if (ret != H_SUCCESS) {
+				kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl,
+						entry + i);
+				goto unlock_exit;
+			}
+		}
+
+		kvmppc_rm_tce_put(stt, entry + i, tce);
+	}
+
+unlock_exit:
+	if (!prereg)
+		arch_spin_unlock(&kvm->mmu_lock.rlock.raw_lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -566,15 +854,22 @@ long kvmppc_rm_h_stuff_tce(struct kvm_vcpu *vcpu,
 	long i, ret;
 	struct kvmppc_spapr_tce_iommu_table *stit;
 
+<<<<<<< HEAD
 	/* For radix, we might be in virtual mode, so punt */
 	if (kvm_is_radix(vcpu->kvm))
 		return H_TOO_HARD;
 
+=======
+>>>>>>> upstream/android-13
 	stt = kvmppc_find_table(vcpu->kvm, liobn);
 	if (!stt)
 		return H_TOO_HARD;
 
+<<<<<<< HEAD
 	ret = kvmppc_ioba_validate(stt, ioba, npages);
+=======
+	ret = kvmppc_rm_ioba_validate(stt, ioba, npages, tce_value == 0);
+>>>>>>> upstream/android-13
 	if (ret != H_SUCCESS)
 		return ret;
 
@@ -596,14 +891,24 @@ long kvmppc_rm_h_stuff_tce(struct kvm_vcpu *vcpu,
 				return ret;
 
 			WARN_ON_ONCE_RM(1);
+<<<<<<< HEAD
 			kvmppc_rm_clear_tce(vcpu->kvm, stit->tbl, entry);
+=======
+			kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl, entry + i);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	for (i = 0; i < npages; ++i, ioba += (1ULL << stt->page_shift))
+<<<<<<< HEAD
 		kvmppc_tce_put(stt, ioba >> stt->page_shift, tce_value);
 
 	return H_SUCCESS;
+=======
+		kvmppc_rm_tce_put(stt, ioba >> stt->page_shift, tce_value);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* This can be called in either virtual mode or real mode */
@@ -626,6 +931,13 @@ long kvmppc_h_get_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
 
 	idx = (ioba >> stt->page_shift) - stt->offset;
 	page = stt->pages[idx / TCES_PER_PAGE];
+<<<<<<< HEAD
+=======
+	if (!page) {
+		vcpu->arch.regs.gpr[4] = 0;
+		return H_SUCCESS;
+	}
+>>>>>>> upstream/android-13
 	tbl = (u64 *)page_address(page);
 
 	vcpu->arch.regs.gpr[4] = tbl[idx % TCES_PER_PAGE];

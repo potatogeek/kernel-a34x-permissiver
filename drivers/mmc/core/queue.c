@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2003 Russell King, All Rights Reserved.
  *  Copyright 2006-2007 Pierre Ossman
@@ -6,15 +7,28 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 2003 Russell King, All Rights Reserved.
+ *  Copyright 2006-2007 Pierre Ossman
+>>>>>>> upstream/android-13
  */
 #include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/blkdev.h>
+<<<<<<< HEAD
 #include <linux/backing-dev.h>
 #include <linux/freezer.h>
 #include <linux/kthread.h>
 #include <linux/scatterlist.h>
 #include <linux/dma-mapping.h>
+=======
+#include <linux/freezer.h>
+#include <linux/scatterlist.h>
+#include <linux/dma-mapping.h>
+#include <linux/backing-dev.h>
+>>>>>>> upstream/android-13
 
 #include <linux/mmc/card.h>
 #include <linux/mmc/host.h>
@@ -22,11 +36,20 @@
 #include "queue.h"
 #include "block.h"
 #include "core.h"
+<<<<<<< HEAD
 #include "crypto.h"
 #include "card.h"
 #include "host.h"
 #include "mmc_crypto.h"
 #include "mtk_mmc_block.h"
+=======
+#include "card.h"
+#include "crypto.h"
+#include "host.h"
+#include <trace/hooks/mmc.h>
+
+#define MMC_DMA_MAP_MERGE_SEGMENTS	512
+>>>>>>> upstream/android-13
 
 static inline bool mmc_cqe_dcmd_busy(struct mmc_queue *mq)
 {
@@ -38,8 +61,11 @@ void mmc_cqe_check_busy(struct mmc_queue *mq)
 {
 	if ((mq->cqe_busy & MMC_CQE_DCMD_BUSY) && !mmc_cqe_dcmd_busy(mq))
 		mq->cqe_busy &= ~MMC_CQE_DCMD_BUSY;
+<<<<<<< HEAD
 
 	mq->cqe_busy &= ~MMC_CQE_QUEUE_FULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline bool mmc_cqe_can_dcmd(struct mmc_host *host)
@@ -67,7 +93,11 @@ enum mmc_issue_type mmc_issue_type(struct mmc_queue *mq, struct request *req)
 {
 	struct mmc_host *host = mq->card->host;
 
+<<<<<<< HEAD
 	if (mq->use_cqe)
+=======
+	if (host->cqe_enabled && !host->hsq_enabled)
+>>>>>>> upstream/android-13
 		return mmc_cqe_issue_type(host, req);
 
 	if (req_op(req) == REQ_OP_READ || req_op(req) == REQ_OP_WRITE)
@@ -75,6 +105,10 @@ enum mmc_issue_type mmc_issue_type(struct mmc_queue *mq, struct request *req)
 
 	return MMC_ISSUE_SYNC;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_issue_type);
+>>>>>>> upstream/android-13
 
 static void __mmc_cqe_recovery_notifier(struct mmc_queue *mq)
 {
@@ -93,9 +127,15 @@ void mmc_cqe_recovery_notifier(struct mmc_request *mrq)
 	struct mmc_queue *mq = q->queuedata;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(q->queue_lock, flags);
 	__mmc_cqe_recovery_notifier(mq);
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	spin_lock_irqsave(&mq->lock, flags);
+	__mmc_cqe_recovery_notifier(mq);
+	spin_unlock_irqrestore(&mq->lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
@@ -128,12 +168,23 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
 {
 	struct request_queue *q = req->q;
 	struct mmc_queue *mq = q->queuedata;
+<<<<<<< HEAD
 	unsigned long flags;
 	bool ignore_tout;
 
 	spin_lock_irqsave(q->queue_lock, flags);
 	ignore_tout = mq->recovery_needed || !mq->use_cqe;
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	struct mmc_card *card = mq->card;
+	struct mmc_host *host = card->host;
+	unsigned long flags;
+	bool ignore_tout;
+
+	spin_lock_irqsave(&mq->lock, flags);
+	ignore_tout = mq->recovery_needed || !host->cqe_enabled || host->hsq_enabled;
+	spin_unlock_irqrestore(&mq->lock, flags);
+>>>>>>> upstream/android-13
 
 	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
 }
@@ -143,28 +194,49 @@ static void mmc_mq_recovery_handler(struct work_struct *work)
 	struct mmc_queue *mq = container_of(work, struct mmc_queue,
 					    recovery_work);
 	struct request_queue *q = mq->queue;
+<<<<<<< HEAD
+=======
+	struct mmc_host *host = mq->card->host;
+>>>>>>> upstream/android-13
 
 	mmc_get_card(mq->card, &mq->ctx);
 
 	mq->in_recovery = true;
 
+<<<<<<< HEAD
 	if (mq->use_cqe)
+=======
+	if (host->cqe_enabled && !host->hsq_enabled)
+>>>>>>> upstream/android-13
 		mmc_blk_cqe_recovery(mq);
 	else
 		mmc_blk_mq_recovery(mq);
 
 	mq->in_recovery = false;
 
+<<<<<<< HEAD
 	spin_lock_irq(q->queue_lock);
 	mq->recovery_needed = false;
 	spin_unlock_irq(q->queue_lock);
+=======
+	spin_lock_irq(&mq->lock);
+	mq->recovery_needed = false;
+	spin_unlock_irq(&mq->lock);
+
+	if (host->hsq_enabled)
+		host->cqe_ops->cqe_recovery_finish(host);
+>>>>>>> upstream/android-13
 
 	mmc_put_card(mq->card, &mq->ctx);
 
 	blk_mq_run_hw_queues(q, true);
 }
 
+<<<<<<< HEAD
 static struct scatterlist *mmc_alloc_sg(int sg_len, gfp_t gfp)
+=======
+static struct scatterlist *mmc_alloc_sg(unsigned short sg_len, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct scatterlist *sg;
 
@@ -194,6 +266,7 @@ static void mmc_queue_setup_discard(struct request_queue *q,
 		blk_queue_flag_set(QUEUE_FLAG_SECERASE, q);
 }
 
+<<<<<<< HEAD
 /**
  * mmc_init_request() - initialize the MMC-specific per-request data
  * @q: the request queue
@@ -208,13 +281,35 @@ static int __mmc_init_request(struct mmc_queue *mq, struct request *req,
 	struct mmc_host *host = card->host;
 
 	mq_rq->sg = mmc_alloc_sg(host->max_segs, gfp);
+=======
+static unsigned short mmc_get_max_segments(struct mmc_host *host)
+{
+	return host->can_dma_map_merge ? MMC_DMA_MAP_MERGE_SEGMENTS :
+					 host->max_segs;
+}
+
+static int mmc_mq_init_request(struct blk_mq_tag_set *set, struct request *req,
+			       unsigned int hctx_idx, unsigned int numa_node)
+{
+	struct mmc_queue_req *mq_rq = req_to_mmc_queue_req(req);
+	struct mmc_queue *mq = set->driver_data;
+	struct mmc_card *card = mq->card;
+	struct mmc_host *host = card->host;
+
+	mq_rq->sg = mmc_alloc_sg(mmc_get_max_segments(host), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mq_rq->sg)
 		return -ENOMEM;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mmc_exit_request(struct request_queue *q, struct request *req)
+=======
+static void mmc_mq_exit_request(struct blk_mq_tag_set *set, struct request *req,
+				unsigned int hctx_idx)
+>>>>>>> upstream/android-13
 {
 	struct mmc_queue_req *mq_rq = req_to_mmc_queue_req(req);
 
@@ -222,6 +317,7 @@ static void mmc_exit_request(struct request_queue *q, struct request *req)
 	mq_rq->sg = NULL;
 }
 
+<<<<<<< HEAD
 static int mmc_mq_init_request(struct blk_mq_tag_set *set, struct request *req,
 			       unsigned int hctx_idx, unsigned int numa_node)
 {
@@ -236,6 +332,8 @@ static void mmc_mq_exit_request(struct blk_mq_tag_set *set, struct request *req,
 	mmc_exit_request(mq->queue, req);
 }
 
+=======
+>>>>>>> upstream/android-13
 static blk_status_t mmc_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 				    const struct blk_mq_queue_data *bd)
 {
@@ -247,7 +345,11 @@ static blk_status_t mmc_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 	enum mmc_issue_type issue_type;
 	enum mmc_issued issued;
 	bool get_card, cqe_retune_ok;
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (mmc_card_removed(mq->card)) {
 		req->rq_flags |= RQF_QUIET;
@@ -256,10 +358,17 @@ static blk_status_t mmc_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 
 	issue_type = mmc_issue_type(mq, req);
 
+<<<<<<< HEAD
 	spin_lock_irq(q->queue_lock);
 
 	if (mq->recovery_needed || mq->busy) {
 		spin_unlock_irq(q->queue_lock);
+=======
+	spin_lock_irq(&mq->lock);
+
+	if (mq->recovery_needed || mq->busy) {
+		spin_unlock_irq(&mq->lock);
+>>>>>>> upstream/android-13
 		return BLK_STS_RESOURCE;
 	}
 
@@ -267,11 +376,27 @@ static blk_status_t mmc_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 	case MMC_ISSUE_DCMD:
 		if (mmc_cqe_dcmd_busy(mq)) {
 			mq->cqe_busy |= MMC_CQE_DCMD_BUSY;
+<<<<<<< HEAD
 			spin_unlock_irq(q->queue_lock);
+=======
+			spin_unlock_irq(&mq->lock);
+>>>>>>> upstream/android-13
 			return BLK_STS_RESOURCE;
 		}
 		break;
 	case MMC_ISSUE_ASYNC:
+<<<<<<< HEAD
+=======
+		/*
+		 * For MMC host software queue, we only allow 2 requests in
+		 * flight to avoid a long latency.
+		 */
+		trace_android_vh_mmc_check_status(bd, &ret);
+		if (!ret && host->hsq_enabled && mq->in_flight[issue_type] > 2) {
+			spin_unlock_irq(&mq->lock);
+			return BLK_STS_RESOURCE;
+		}
+>>>>>>> upstream/android-13
 		break;
 	default:
 		/*
@@ -292,7 +417,11 @@ static blk_status_t mmc_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 	get_card = (mmc_tot_in_flight(mq) == 1);
 	cqe_retune_ok = (mmc_cqe_qcnt(mq) == 1);
 
+<<<<<<< HEAD
 	spin_unlock_irq(q->queue_lock);
+=======
+	spin_unlock_irq(&mq->lock);
+>>>>>>> upstream/android-13
 
 	if (!(req->rq_flags & RQF_DONTPREP)) {
 		req_to_mmc_queue_req(req)->retries = 0;
@@ -302,7 +431,11 @@ static blk_status_t mmc_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 	if (get_card)
 		mmc_get_card(card, &mq->ctx);
 
+<<<<<<< HEAD
 	if (mq->use_cqe) {
+=======
+	if (host->cqe_enabled) {
+>>>>>>> upstream/android-13
 		host->retune_now = host->need_retune && cqe_retune_ok &&
 				   !host->hold_retune;
 	}
@@ -326,12 +459,20 @@ static blk_status_t mmc_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 	if (issued != MMC_REQ_STARTED) {
 		bool put_card = false;
 
+<<<<<<< HEAD
 		spin_lock_irq(q->queue_lock);
+=======
+		spin_lock_irq(&mq->lock);
+>>>>>>> upstream/android-13
 		mq->in_flight[issue_type] -= 1;
 		if (mmc_tot_in_flight(mq) == 0)
 			put_card = true;
 		mq->busy = false;
+<<<<<<< HEAD
 		spin_unlock_irq(q->queue_lock);
+=======
+		spin_unlock_irq(&mq->lock);
+>>>>>>> upstream/android-13
 		if (put_card)
 			mmc_put_card(card, &mq->ctx);
 	} else {
@@ -352,21 +493,38 @@ static const struct blk_mq_ops mmc_mq_ops = {
 static void mmc_setup_queue(struct mmc_queue *mq, struct mmc_card *card)
 {
 	struct mmc_host *host = card->host;
+<<<<<<< HEAD
 	u64 limit = BLK_BOUNCE_HIGH;
 	unsigned block_size = 512;
 
 	if (mmc_dev(host)->dma_mask && *mmc_dev(host)->dma_mask)
 		limit = (u64)dma_max_pfn(mmc_dev(host)) << PAGE_SHIFT;
 
+=======
+	unsigned block_size = 512;
+
+>>>>>>> upstream/android-13
 	blk_queue_flag_set(QUEUE_FLAG_NONROT, mq->queue);
 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, mq->queue);
 	if (mmc_can_erase(card))
 		mmc_queue_setup_discard(mq->queue, card);
 
+<<<<<<< HEAD
 	blk_queue_bounce_limit(mq->queue, limit);
 	blk_queue_max_hw_sectors(mq->queue,
 		min(host->max_blk_count, host->max_req_size / 512));
 	blk_queue_max_segments(mq->queue, host->max_segs);
+=======
+	if (!mmc_dev(host)->dma_mask || !*mmc_dev(host)->dma_mask)
+		blk_queue_bounce_limit(mq->queue, BLK_BOUNCE_HIGH);
+	blk_queue_max_hw_sectors(mq->queue,
+		min(host->max_blk_count, host->max_req_size / 512));
+	if (host->can_dma_map_merge)
+		WARN(!blk_queue_can_use_dma_map_merging(mq->queue,
+							mmc_dev(host)),
+		     "merging was advertised but not possible");
+	blk_queue_max_segments(mq->queue, mmc_get_max_segments(host));
+>>>>>>> upstream/android-13
 
 	if (mmc_card_mmc(card) && card->ext_csd.data_sector_size) {
 		block_size = card->ext_csd.data_sector_size;
@@ -374,6 +532,7 @@ static void mmc_setup_queue(struct mmc_queue *mq, struct mmc_card *card)
 	}
 
 	blk_queue_logical_block_size(mq->queue, block_size);
+<<<<<<< HEAD
 	blk_queue_max_segment_size(mq->queue,
 			round_down(host->max_seg_size, block_size));
 
@@ -442,11 +601,38 @@ free_tag_set:
 	blk_mq_free_tag_set(&mq->tag_set);
 
 	return ret;
+=======
+	/*
+	 * After blk_queue_can_use_dma_map_merging() was called with succeed,
+	 * since it calls blk_queue_virt_boundary(), the mmc should not call
+	 * both blk_queue_max_segment_size().
+	 */
+	if (!host->can_dma_map_merge)
+		blk_queue_max_segment_size(mq->queue,
+			round_down(host->max_seg_size, block_size));
+
+	dma_set_max_seg_size(mmc_dev(host), queue_max_segment_size(mq->queue));
+
+	INIT_WORK(&mq->recovery_work, mmc_mq_recovery_handler);
+	INIT_WORK(&mq->complete_work, mmc_blk_mq_complete_work);
+
+	mutex_init(&mq->complete_lock);
+
+	init_waitqueue_head(&mq->wait);
+
+	mmc_crypto_setup_queue(mq->queue, host);
+}
+
+static inline bool mmc_merge_capable(struct mmc_host *host)
+{
+	return host->caps2 & MMC_CAP2_MERGE_CAPABLE;
+>>>>>>> upstream/android-13
 }
 
 /* Set queue depth to get a reasonable value for q->nr_requests */
 #define MMC_QUEUE_DEPTH 64
 
+<<<<<<< HEAD
 static int mmc_mq_init(struct mmc_queue *mq, struct mmc_card *card,
 			 spinlock_t *lock)
 {
@@ -512,10 +698,13 @@ static int mmc_mq_init(struct mmc_queue *mq, struct mmc_card *card,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * mmc_init_queue - initialise a queue structure.
  * @mq: mmc queue
  * @card: mmc card to attach this queue
+<<<<<<< HEAD
  * @lock: queue lock
  * @subname: partition subname
  *
@@ -541,6 +730,68 @@ int mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card,
 #endif
 
 	return mmc_mq_init(mq, card, lock);
+=======
+ *
+ * Initialise a MMC card request queue.
+ */
+struct gendisk *mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card)
+{
+	struct mmc_host *host = card->host;
+	struct gendisk *disk;
+	int ret;
+
+	mq->card = card;
+	
+	spin_lock_init(&mq->lock);
+
+	memset(&mq->tag_set, 0, sizeof(mq->tag_set));
+	mq->tag_set.ops = &mmc_mq_ops;
+	/*
+	 * The queue depth for CQE must match the hardware because the request
+	 * tag is used to index the hardware queue.
+	 */
+	if (host->cqe_enabled && !host->hsq_enabled)
+		mq->tag_set.queue_depth =
+			min_t(int, card->ext_csd.cmdq_depth, host->cqe_qdepth);
+	else
+		mq->tag_set.queue_depth = MMC_QUEUE_DEPTH;
+	mq->tag_set.numa_node = NUMA_NO_NODE;
+	mq->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING;
+	mq->tag_set.nr_hw_queues = 1;
+	mq->tag_set.cmd_size = sizeof(struct mmc_queue_req);
+	mq->tag_set.driver_data = mq;
+
+	/*
+	 * Since blk_mq_alloc_tag_set() calls .init_request() of mmc_mq_ops,
+	 * the host->can_dma_map_merge should be set before to get max_segs
+	 * from mmc_get_max_segments().
+	 */
+	if (mmc_merge_capable(host) &&
+	    host->max_segs < MMC_DMA_MAP_MERGE_SEGMENTS &&
+	    dma_get_merge_boundary(mmc_dev(host)))
+		host->can_dma_map_merge = 1;
+	else
+		host->can_dma_map_merge = 0;
+
+	ret = blk_mq_alloc_tag_set(&mq->tag_set);
+	if (ret)
+		return ERR_PTR(ret);
+		
+
+	disk = blk_mq_alloc_disk(&mq->tag_set, mq);
+	if (IS_ERR(disk)) {
+		blk_mq_free_tag_set(&mq->tag_set);
+		return disk;
+	}
+	mq->queue = disk->queue;
+
+	if (mmc_host_is_spi(host) && host->use_spi_crc)
+		blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, mq->queue);
+	blk_queue_rq_timeout(mq->queue, 20 * HZ);
+
+	mmc_setup_queue(mq, card);
+	return disk;
+>>>>>>> upstream/android-13
 }
 
 void mmc_queue_suspend(struct mmc_queue *mq)
@@ -564,12 +815,15 @@ void mmc_cleanup_queue(struct mmc_queue *mq)
 {
 	struct request_queue *q = mq->queue;
 
+<<<<<<< HEAD
 #ifdef CONFIG_LARGE_DIRTY_BUFFER
 	/* Restore bdi min/max ratio before device removal */
 	bdi_set_min_ratio(q->backing_dev_info, 0);
 	bdi_set_max_ratio(q->backing_dev_info, 100);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The legacy code handled the possibility of being suspended,
 	 * so do that here too.

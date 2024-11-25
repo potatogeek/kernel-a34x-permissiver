@@ -5,7 +5,11 @@
 #define XCOPY_TARGET_DESC_LEN		32
 #define XCOPY_SEGMENT_DESC_LEN		28
 #define XCOPY_NAA_IEEE_REGEX_LEN	16
+<<<<<<< HEAD
 #define XCOPY_MAX_SECTORS		1024
+=======
+#define XCOPY_MAX_SECTORS		4096
+>>>>>>> upstream/android-13
 
 /*
  * SPC4r37 6.4.6.1
@@ -18,8 +22,11 @@ enum xcopy_origin_list {
 	XCOL_DEST_RECV_OP = 0x02,
 };
 
+<<<<<<< HEAD
 struct xcopy_pt_cmd;
 
+=======
+>>>>>>> upstream/android-13
 struct xcopy_op {
 	int op_origin;
 
@@ -36,11 +43,16 @@ struct xcopy_op {
 	unsigned short stdi;
 	unsigned short dtdi;
 	unsigned short nolb;
+<<<<<<< HEAD
 	unsigned int dbl;
 
 	struct xcopy_pt_cmd *src_pt_cmd;
 	struct xcopy_pt_cmd *dst_pt_cmd;
 
+=======
+
+	u32 xop_data_bytes;
+>>>>>>> upstream/android-13
 	u32 xop_data_nents;
 	struct scatterlist *xop_data_sg;
 	struct work_struct xop_work;

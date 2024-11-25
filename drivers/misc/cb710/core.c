@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  cb710/core.c
  *
  *  Copyright by Michał Mirosław, 2008-2009
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -169,6 +176,7 @@ void cb710_set_irq_handler(struct cb710_slot *slot,
 }
 EXPORT_SYMBOL_GPL(cb710_set_irq_handler);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 static int cb710_suspend(struct pci_dev *pdev, pm_message_t state)
@@ -193,13 +201,31 @@ static int cb710_resume(struct pci_dev *pdev)
 	err = pcim_enable_device(pdev);
 	if (err)
 		return err;
+=======
+static int __maybe_unused cb710_suspend(struct device *dev_d)
+{
+	struct pci_dev *pdev = to_pci_dev(dev_d);
+	struct cb710_chip *chip = pci_get_drvdata(pdev);
+
+	devm_free_irq(&pdev->dev, pdev->irq, chip);
+	return 0;
+}
+
+static int __maybe_unused cb710_resume(struct device *dev_d)
+{
+	struct pci_dev *pdev = to_pci_dev(dev_d);
+	struct cb710_chip *chip = pci_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 
 	return devm_request_irq(&pdev->dev, pdev->irq,
 		cb710_irq_handler, IRQF_SHARED, KBUILD_MODNAME, chip);
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
 
+=======
+>>>>>>> upstream/android-13
 static int cb710_probe(struct pci_dev *pdev,
 	const struct pci_device_id *ent)
 {
@@ -315,15 +341,24 @@ static const struct pci_device_id cb710_pci_tbl[] = {
 	{ 0, }
 };
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(cb710_pm_ops, cb710_suspend, cb710_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver cb710_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = cb710_pci_tbl,
 	.probe = cb710_probe,
 	.remove = cb710_remove_one,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = cb710_suspend,
 	.resume = cb710_resume,
 #endif
+=======
+	.driver.pm = &cb710_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init cb710_init_module(void)

@@ -10,6 +10,12 @@
 #include <net/ip_vs.h>
 
 static int
+<<<<<<< HEAD
+=======
+sctp_csum_check(int af, struct sk_buff *skb, struct ip_vs_protocol *pp);
+
+static int
+>>>>>>> upstream/android-13
 sctp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 		   struct ip_vs_proto_data *pd,
 		   int *verdict, struct ip_vs_conn **cpp,
@@ -98,14 +104,22 @@ sctp_snat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 #endif
 
 	/* csum_check requires unshared skb */
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, sctphoff + sizeof(*sctph)))
+=======
+	if (skb_ensure_writable(skb, sctphoff + sizeof(*sctph)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (unlikely(cp->app != NULL)) {
 		int ret;
 
 		/* Some checks before mangling */
+<<<<<<< HEAD
 		if (pp->csum_check && !pp->csum_check(cp->af, skb, pp))
+=======
+		if (!sctp_csum_check(cp->af, skb, pp))
+>>>>>>> upstream/android-13
 			return 0;
 
 		/* Call application helper if needed */
@@ -145,14 +159,22 @@ sctp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 #endif
 
 	/* csum_check requires unshared skb */
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, sctphoff + sizeof(*sctph)))
+=======
+	if (skb_ensure_writable(skb, sctphoff + sizeof(*sctph)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (unlikely(cp->app != NULL)) {
 		int ret;
 
 		/* Some checks before mangling */
+<<<<<<< HEAD
 		if (pp->csum_check && !pp->csum_check(cp->af, skb, pp))
+=======
+		if (!sctp_csum_check(cp->af, skb, pp))
+>>>>>>> upstream/android-13
 			return 0;
 
 		/* Call application helper if needed */
@@ -183,7 +205,11 @@ static int
 sctp_csum_check(int af, struct sk_buff *skb, struct ip_vs_protocol *pp)
 {
 	unsigned int sctphoff;
+<<<<<<< HEAD
 	struct sctphdr *sh, _sctph;
+=======
+	struct sctphdr *sh;
+>>>>>>> upstream/android-13
 	__le32 cmp, val;
 
 #ifdef CONFIG_IP_VS_IPV6
@@ -193,10 +219,14 @@ sctp_csum_check(int af, struct sk_buff *skb, struct ip_vs_protocol *pp)
 #endif
 		sctphoff = ip_hdrlen(skb);
 
+<<<<<<< HEAD
 	sh = skb_header_pointer(skb, sctphoff, sizeof(_sctph), &_sctph);
 	if (sh == NULL)
 		return 0;
 
+=======
+	sh = (struct sctphdr *)(skb->data + sctphoff);
+>>>>>>> upstream/android-13
 	cmp = sh->checksum;
 	val = sctp_compute_cksum(skb, sctphoff);
 
@@ -587,7 +617,10 @@ struct ip_vs_protocol ip_vs_protocol_sctp = {
 	.conn_out_get	= ip_vs_conn_out_get_proto,
 	.snat_handler	= sctp_snat_handler,
 	.dnat_handler	= sctp_dnat_handler,
+<<<<<<< HEAD
 	.csum_check	= sctp_csum_check,
+=======
+>>>>>>> upstream/android-13
 	.state_name	= sctp_state_name,
 	.state_transition = sctp_state_transition,
 	.app_conn_bind	= sctp_app_conn_bind,

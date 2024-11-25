@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Dove thermal sensor driver
  *
  * Copyright (C) 2013 Andrew Lunn <andrew@lunn.ch>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/err.h>
@@ -162,6 +169,15 @@ static int dove_thermal_probe(struct platform_device *pdev)
 		return PTR_ERR(thermal);
 	}
 
+<<<<<<< HEAD
+=======
+	ret = thermal_zone_device_enable(thermal);
+	if (ret) {
+		thermal_zone_device_unregister(thermal);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, thermal);
 
 	return 0;

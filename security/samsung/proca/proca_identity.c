@@ -22,7 +22,11 @@
 #include <linux/string.h>
 
 int init_proca_identity(struct proca_identity *identity, struct file *file,
+<<<<<<< HEAD
 			char **cert_value, const size_t cert_size,
+=======
+			char *xattr_value, const size_t xattr_size,
+>>>>>>> upstream/android-13
 			struct proca_certificate *parsed_cert)
 {
 	int rc = 0;
@@ -32,12 +36,17 @@ int init_proca_identity(struct proca_identity *identity, struct file *file,
 
 	get_file(file);
 	identity->file = file;
+<<<<<<< HEAD
 	identity->certificate_size = cert_size;
 	identity->certificate = NULL;
 	if (cert_value) {
 		identity->certificate = *cert_value;
 		*cert_value = NULL;
 	}
+=======
+	identity->certificate = xattr_value;
+	identity->certificate_size = xattr_size;
+>>>>>>> upstream/android-13
 
 	if (parsed_cert)
 		identity->parsed_cert = *parsed_cert;

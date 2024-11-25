@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  * Author: Rob Clark <rob@ti.com>
  *         Andy Gross <andy.gross@ti.com>
  *
@@ -159,6 +163,10 @@ struct dmm_platform_data {
 
 struct dmm {
 	struct device *dev;
+<<<<<<< HEAD
+=======
+	dma_addr_t phys_base;
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	int irq;
 
@@ -189,6 +197,15 @@ struct dmm {
 	struct list_head alloc_head;
 
 	const struct dmm_platform_data *plat_data;
+<<<<<<< HEAD
+=======
+
+	bool dmm_workaround;
+	spinlock_t wa_lock;
+	u32 *wa_dma_data;
+	dma_addr_t wa_dma_handle;
+	struct dma_chan *wa_dma_chan;
+>>>>>>> upstream/android-13
 };
 
 #endif

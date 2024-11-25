@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * processor_idle - idle state submodule to the ACPI processor driver
  *
@@ -8,6 +12,7 @@
  *  			- Added processor hotplug support
  *  Copyright (C) 2005  Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
  *  			- Added support for C3 on SMP
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -22,6 +27,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) "ACPI: " fmt
 
@@ -29,6 +36,10 @@
 #include <linux/acpi.h>
 #include <linux/dmi.h>
 #include <linux/sched.h>       /* need_resched() */
+<<<<<<< HEAD
+=======
+#include <linux/sort.h>
+>>>>>>> upstream/android-13
 #include <linux/tick.h>
 #include <linux/cpuidle.h>
 #include <linux/cpu.h>
@@ -42,12 +53,18 @@
  */
 #ifdef CONFIG_X86
 #include <asm/apic.h>
+<<<<<<< HEAD
 #endif
 
 #define ACPI_PROCESSOR_CLASS            "processor"
 #define _COMPONENT              ACPI_PROCESSOR_COMPONENT
 ACPI_MODULE_NAME("processor_idle");
 
+=======
+#include <asm/cpu.h>
+#endif
+
+>>>>>>> upstream/android-13
 #define ACPI_IDLE_STATE_START	(IS_ENABLED(CONFIG_ARCH_HAS_CPU_RELAX) ? 1 : 0)
 
 static unsigned int max_cstate __read_mostly = ACPI_PROCESSOR_MAX_POWER;
@@ -174,6 +191,7 @@ static void lapic_timer_propagate_broadcast(struct acpi_processor *pr)
 }
 
 /* Power(C) State timer broadcast control */
+<<<<<<< HEAD
 static void lapic_timer_state_broadcast(struct acpi_processor *pr,
 				       struct acpi_processor_cx *cx,
 				       int broadcast)
@@ -186,6 +204,12 @@ static void lapic_timer_state_broadcast(struct acpi_processor *pr,
 		else
 			tick_broadcast_exit();
 	}
+=======
+static bool lapic_timer_needs_broadcast(struct acpi_processor *pr,
+					struct acpi_processor_cx *cx)
+{
+	return cx - pr->power.states >= pr->power.timer_broadcast_on_state;
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -193,10 +217,18 @@ static void lapic_timer_state_broadcast(struct acpi_processor *pr,
 static void lapic_timer_check_state(int state, struct acpi_processor *pr,
 				   struct acpi_processor_cx *cstate) { }
 static void lapic_timer_propagate_broadcast(struct acpi_processor *pr) { }
+<<<<<<< HEAD
 static void lapic_timer_state_broadcast(struct acpi_processor *pr,
 				       struct acpi_processor_cx *cx,
 				       int broadcast)
 {
+=======
+
+static bool lapic_timer_needs_broadcast(struct acpi_processor *pr,
+					struct acpi_processor_cx *cx)
+{
+	return false;
+>>>>>>> upstream/android-13
 }
 
 #endif
@@ -205,17 +237,29 @@ static void lapic_timer_state_broadcast(struct acpi_processor *pr,
 static void tsc_check_state(int state)
 {
 	switch (boot_cpu_data.x86_vendor) {
+<<<<<<< HEAD
 	case X86_VENDOR_AMD:
 	case X86_VENDOR_INTEL:
 	case X86_VENDOR_CENTAUR:
+=======
+	case X86_VENDOR_HYGON:
+	case X86_VENDOR_AMD:
+	case X86_VENDOR_INTEL:
+	case X86_VENDOR_CENTAUR:
+	case X86_VENDOR_ZHAOXIN:
+>>>>>>> upstream/android-13
 		/*
 		 * AMD Fam10h TSC will tick in all
 		 * C/P/S0/S1 states when this bit is set.
 		 */
 		if (boot_cpu_has(X86_FEATURE_NONSTOP_TSC))
 			return;
+<<<<<<< HEAD
 
 		/*FALL THROUGH*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* TSC could halt in idle, so notify users */
 		if (state > ACPI_STATE_C1)
@@ -259,8 +303,13 @@ static int acpi_processor_get_power_info_fadt(struct acpi_processor *pr)
 	 * 100 microseconds.
 	 */
 	if (acpi_gbl_FADT.c2_latency > ACPI_PROCESSOR_MAX_C2_LATENCY) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 			"C2 latency too large [%d]\n", acpi_gbl_FADT.c2_latency));
+=======
+		acpi_handle_debug(pr->handle, "C2 latency too large [%d]\n",
+				  acpi_gbl_FADT.c2_latency);
+>>>>>>> upstream/android-13
 		/* invalidate C2 */
 		pr->power.states[ACPI_STATE_C2].address = 0;
 	}
@@ -270,16 +319,34 @@ static int acpi_processor_get_power_info_fadt(struct acpi_processor *pr)
 	 * 1000 microseconds.
 	 */
 	if (acpi_gbl_FADT.c3_latency > ACPI_PROCESSOR_MAX_C3_LATENCY) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 			"C3 latency too large [%d]\n", acpi_gbl_FADT.c3_latency));
+=======
+		acpi_handle_debug(pr->handle, "C3 latency too large [%d]\n",
+				  acpi_gbl_FADT.c3_latency);
+>>>>>>> upstream/android-13
 		/* invalidate C3 */
 		pr->power.states[ACPI_STATE_C3].address = 0;
 	}
 
+<<<<<<< HEAD
 	ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 			  "lvl2[0x%08x] lvl3[0x%08x]\n",
 			  pr->power.states[ACPI_STATE_C2].address,
 			  pr->power.states[ACPI_STATE_C3].address));
+=======
+	acpi_handle_debug(pr->handle, "lvl2[0x%08x] lvl3[0x%08x]\n",
+			  pr->power.states[ACPI_STATE_C2].address,
+			  pr->power.states[ACPI_STATE_C3].address);
+
+	snprintf(pr->power.states[ACPI_STATE_C2].desc,
+			 ACPI_CX_DESC_LEN, "ACPI P_LVL2 IOPORT 0x%x",
+			 pr->power.states[ACPI_STATE_C2].address);
+	snprintf(pr->power.states[ACPI_STATE_C3].desc,
+			 ACPI_CX_DESC_LEN, "ACPI P_LVL3 IOPORT 0x%x",
+			 pr->power.states[ACPI_STATE_C3].address);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -303,16 +370,21 @@ static int acpi_processor_get_power_info_default(struct acpi_processor *pr)
 
 static int acpi_processor_get_power_info_cst(struct acpi_processor *pr)
 {
+<<<<<<< HEAD
 	acpi_status status;
 	u64 count;
 	int current_count;
 	int i, ret = 0;
 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
 	union acpi_object *cst;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (nocst)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	current_count = 0;
 
 	status = acpi_evaluate_object(pr->handle, "_CST", NULL, &buffer);
@@ -461,6 +533,17 @@ static int acpi_processor_get_power_info_cst(struct acpi_processor *pr)
 	kfree(buffer.pointer);
 
 	return ret;
+=======
+	ret = acpi_processor_evaluate_cst(pr->handle, pr->id, &pr->power);
+	if (ret)
+		return ret;
+
+	if (!pr->power.count)
+		return -EFAULT;
+
+	pr->flags.has_cst = 1;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
@@ -481,8 +564,13 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
 	 * devices thus we take the conservative approach.
 	 */
 	else if (errata.piix4.fdma) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 				  "C3 not supported on PIIX4 with Type-F DMA\n"));
+=======
+		acpi_handle_debug(pr->handle,
+				  "C3 not supported on PIIX4 with Type-F DMA\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -501,6 +589,7 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
 		if (!pr->flags.bm_control) {
 			if (pr->flags.has_cst != 1) {
 				/* bus mastering control is necessary */
+<<<<<<< HEAD
 				ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 					"C3 support requires BM control\n"));
 				return;
@@ -508,6 +597,15 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
 				/* Here we enter C3 without bus mastering */
 				ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 					"C3 support without BM control\n"));
+=======
+				acpi_handle_debug(pr->handle,
+						  "C3 support requires BM control\n");
+				return;
+			} else {
+				/* Here we enter C3 without bus mastering */
+				acpi_handle_debug(pr->handle,
+						  "C3 support without BM control\n");
+>>>>>>> upstream/android-13
 			}
 		}
 	} else {
@@ -516,9 +614,15 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
 		 * supported on when bm_check is not required.
 		 */
 		if (!(acpi_gbl_FADT.flags & ACPI_FADT_WBINVD)) {
+<<<<<<< HEAD
 			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 					  "Cache invalidation should work properly"
 					  " for C3 to be enabled on SMP systems\n"));
+=======
+			acpi_handle_debug(pr->handle,
+					  "Cache invalidation should work properly"
+					  " for C3 to be enabled on SMP systems\n");
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
@@ -544,10 +648,43 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
 	return;
 }
 
+<<<<<<< HEAD
+=======
+static int acpi_cst_latency_cmp(const void *a, const void *b)
+{
+	const struct acpi_processor_cx *x = a, *y = b;
+
+	if (!(x->valid && y->valid))
+		return 0;
+	if (x->latency > y->latency)
+		return 1;
+	if (x->latency < y->latency)
+		return -1;
+	return 0;
+}
+static void acpi_cst_latency_swap(void *a, void *b, int n)
+{
+	struct acpi_processor_cx *x = a, *y = b;
+	u32 tmp;
+
+	if (!(x->valid && y->valid))
+		return;
+	tmp = x->latency;
+	x->latency = y->latency;
+	y->latency = tmp;
+}
+
+>>>>>>> upstream/android-13
 static int acpi_processor_power_verify(struct acpi_processor *pr)
 {
 	unsigned int i;
 	unsigned int working = 0;
+<<<<<<< HEAD
+=======
+	unsigned int last_latency = 0;
+	unsigned int last_type = 0;
+	bool buggy_latency = false;
+>>>>>>> upstream/android-13
 
 	pr->power.timer_broadcast_on_state = INT_MAX;
 
@@ -571,12 +708,30 @@ static int acpi_processor_power_verify(struct acpi_processor *pr)
 		}
 		if (!cx->valid)
 			continue;
+<<<<<<< HEAD
+=======
+		if (cx->type >= last_type && cx->latency < last_latency)
+			buggy_latency = true;
+		last_latency = cx->latency;
+		last_type = cx->type;
+>>>>>>> upstream/android-13
 
 		lapic_timer_check_state(i, pr, cx);
 		tsc_check_state(cx->type);
 		working++;
 	}
 
+<<<<<<< HEAD
+=======
+	if (buggy_latency) {
+		pr_notice("FW issue: working around C-state latencies out of order\n");
+		sort(&pr->power.states[1], max_cstate,
+		     sizeof(struct acpi_processor_cx),
+		     acpi_cst_latency_cmp,
+		     acpi_cst_latency_swap);
+	}
+
+>>>>>>> upstream/android-13
 	lapic_timer_propagate_broadcast(pr);
 
 	return (working);
@@ -612,8 +767,12 @@ static int acpi_processor_get_cstate_info(struct acpi_processor *pr)
 	for (i = 1; i < ACPI_PROCESSOR_MAX_POWER; i++) {
 		if (pr->power.states[i].valid) {
 			pr->power.count = i;
+<<<<<<< HEAD
 			if (pr->power.states[i].type >= ACPI_STATE_C2)
 				pr->flags.power = 1;
+=======
+			pr->flags.power = 1;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -646,6 +805,22 @@ static int acpi_idle_bm_check(void)
 	return bm_status;
 }
 
+<<<<<<< HEAD
+=======
+static void wait_for_freeze(void)
+{
+#ifdef	CONFIG_X86
+	/* No delay is needed if we are in guest */
+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
+		return;
+#endif
+	/* Dummy wait op - must do something useless after P_LVL2 read
+	   because chipsets cannot guarantee that STPCLK# signal
+	   gets asserted in time to freeze execution properly. */
+	inl(acpi_gbl_FADT.xpm_timer_block.address);
+}
+
+>>>>>>> upstream/android-13
 /**
  * acpi_idle_do_entry - enter idle state using the appropriate method
  * @cx: cstate data
@@ -662,10 +837,14 @@ static void __cpuidle acpi_idle_do_entry(struct acpi_processor_cx *cx)
 	} else {
 		/* IO port based C-state */
 		inb(cx->address);
+<<<<<<< HEAD
 		/* Dummy wait op - must do something useless after P_LVL2 read
 		   because chipsets cannot guarantee that STPCLK# signal
 		   gets asserted in time to freeze execution properly. */
 		inl(acpi_gbl_FADT.xpm_timer_block.address);
+=======
+		wait_for_freeze();
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -686,10 +865,20 @@ static int acpi_idle_play_dead(struct cpuidle_device *dev, int index)
 			safe_halt();
 		else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
 			inb(cx->address);
+<<<<<<< HEAD
 			/* See comment in acpi_idle_do_entry() */
 			inl(acpi_gbl_FADT.xpm_timer_block.address);
 		} else
 			return -ENODEV;
+=======
+			wait_for_freeze();
+		} else
+			return -ENODEV;
+
+#if defined(CONFIG_X86) && defined(CONFIG_HOTPLUG_CPU)
+		cond_wakeup_cpu0();
+#endif
+>>>>>>> upstream/android-13
 	}
 
 	/* Never reached */
@@ -707,6 +896,7 @@ static DEFINE_RAW_SPINLOCK(c3_lock);
 
 /**
  * acpi_idle_enter_bm - enters C3 with proper BM handling
+<<<<<<< HEAD
  * @pr: Target processor
  * @cx: Target state context
  * @timer_bc: Whether or not to change timer mode to broadcast
@@ -722,17 +912,53 @@ static void acpi_idle_enter_bm(struct acpi_processor *pr,
 	 */
 	if (timer_bc)
 		lapic_timer_state_broadcast(pr, cx, 1);
+=======
+ * @drv: cpuidle driver
+ * @pr: Target processor
+ * @cx: Target state context
+ * @index: index of target state
+ */
+static int acpi_idle_enter_bm(struct cpuidle_driver *drv,
+			       struct acpi_processor *pr,
+			       struct acpi_processor_cx *cx,
+			       int index)
+{
+	static struct acpi_processor_cx safe_cx = {
+		.entry_method = ACPI_CSTATE_HALT,
+	};
+>>>>>>> upstream/android-13
 
 	/*
 	 * disable bus master
 	 * bm_check implies we need ARB_DIS
 	 * bm_control implies whether we can do ARB_DIS
 	 *
+<<<<<<< HEAD
 	 * That leaves a case where bm_check is set and bm_control is
 	 * not set. In that case we cannot do much, we enter C3
 	 * without doing anything.
 	 */
 	if (pr->flags.bm_control) {
+=======
+	 * That leaves a case where bm_check is set and bm_control is not set.
+	 * In that case we cannot do much, we enter C3 without doing anything.
+	 */
+	bool dis_bm = pr->flags.bm_control;
+
+	/* If we can skip BM, demote to a safe state. */
+	if (!cx->bm_sts_skip && acpi_idle_bm_check()) {
+		dis_bm = false;
+		index = drv->safe_state_index;
+		if (index >= 0) {
+			cx = this_cpu_read(acpi_cstate[index]);
+		} else {
+			cx = &safe_cx;
+			index = -EBUSY;
+		}
+	}
+
+	if (dis_bm) {
+>>>>>>> upstream/android-13
 		raw_spin_lock(&c3_lock);
 		c3_cpu_count++;
 		/* Disable bus master arbitration when all CPUs are in C3 */
@@ -741,18 +967,33 @@ static void acpi_idle_enter_bm(struct acpi_processor *pr,
 		raw_spin_unlock(&c3_lock);
 	}
 
+<<<<<<< HEAD
 	acpi_idle_do_entry(cx);
 
 	/* Re-enable bus master arbitration */
 	if (pr->flags.bm_control) {
+=======
+	rcu_idle_enter();
+
+	acpi_idle_do_entry(cx);
+
+	rcu_idle_exit();
+
+	/* Re-enable bus master arbitration */
+	if (dis_bm) {
+>>>>>>> upstream/android-13
 		raw_spin_lock(&c3_lock);
 		acpi_write_bit_register(ACPI_BITREG_ARB_DISABLE, 0);
 		c3_cpu_count--;
 		raw_spin_unlock(&c3_lock);
 	}
 
+<<<<<<< HEAD
 	if (timer_bc)
 		lapic_timer_state_broadcast(pr, cx, 0);
+=======
+	return index;
+>>>>>>> upstream/android-13
 }
 
 static int acpi_idle_enter(struct cpuidle_device *dev,
@@ -766,6 +1007,7 @@ static int acpi_idle_enter(struct cpuidle_device *dev,
 		return -EINVAL;
 
 	if (cx->type != ACPI_STATE_C1) {
+<<<<<<< HEAD
 		if (acpi_idle_fallback_to_c1(pr) && num_online_cpus() > 1) {
 			index = ACPI_IDLE_STATE_START;
 			cx = per_cpu(acpi_cstate[index], dev->cpu);
@@ -785,11 +1027,24 @@ static int acpi_idle_enter(struct cpuidle_device *dev,
 
 	lapic_timer_state_broadcast(pr, cx, 1);
 
+=======
+		if (cx->type == ACPI_STATE_C3 && pr->flags.bm_check)
+			return acpi_idle_enter_bm(drv, pr, cx, index);
+
+		/* C2 to C1 demotion. */
+		if (acpi_idle_fallback_to_c1(pr) && num_online_cpus() > 1) {
+			index = ACPI_IDLE_STATE_START;
+			cx = per_cpu(acpi_cstate[index], dev->cpu);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (cx->type == ACPI_STATE_C3)
 		ACPI_FLUSH_CPU_CACHE();
 
 	acpi_idle_do_entry(cx);
 
+<<<<<<< HEAD
 	lapic_timer_state_broadcast(pr, cx, 0);
 
 	return index;
@@ -797,6 +1052,13 @@ static int acpi_idle_enter(struct cpuidle_device *dev,
 
 static void acpi_idle_enter_s2idle(struct cpuidle_device *dev,
 				   struct cpuidle_driver *drv, int index)
+=======
+	return index;
+}
+
+static int acpi_idle_enter_s2idle(struct cpuidle_device *dev,
+				  struct cpuidle_driver *drv, int index)
+>>>>>>> upstream/android-13
 {
 	struct acpi_processor_cx *cx = per_cpu(acpi_cstate[index], dev->cpu);
 
@@ -804,16 +1066,35 @@ static void acpi_idle_enter_s2idle(struct cpuidle_device *dev,
 		struct acpi_processor *pr = __this_cpu_read(processors);
 
 		if (unlikely(!pr))
+<<<<<<< HEAD
 			return;
 
 		if (pr->flags.bm_check) {
 			acpi_idle_enter_bm(pr, cx, false);
 			return;
+=======
+			return 0;
+
+		if (pr->flags.bm_check) {
+			u8 bm_sts_skip = cx->bm_sts_skip;
+
+			/* Don't check BM_STS, do an unconditional ARB_DIS for S2IDLE */
+			cx->bm_sts_skip = 1;
+			acpi_idle_enter_bm(drv, pr, cx, index);
+			cx->bm_sts_skip = bm_sts_skip;
+
+			return 0;
+>>>>>>> upstream/android-13
 		} else {
 			ACPI_FLUSH_CPU_CACHE();
 		}
 	}
 	acpi_idle_do_entry(cx);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int acpi_processor_setup_cpuidle_cx(struct acpi_processor *pr,
@@ -821,11 +1102,19 @@ static int acpi_processor_setup_cpuidle_cx(struct acpi_processor *pr,
 {
 	int i, count = ACPI_IDLE_STATE_START;
 	struct acpi_processor_cx *cx;
+<<<<<<< HEAD
+=======
+	struct cpuidle_state *state;
+>>>>>>> upstream/android-13
 
 	if (max_cstate == 0)
 		max_cstate = 1;
 
 	for (i = 1; i < ACPI_PROCESSOR_MAX_POWER && i <= max_cstate; i++) {
+<<<<<<< HEAD
+=======
+		state = &acpi_idle_driver.states[count];
+>>>>>>> upstream/android-13
 		cx = &pr->power.states[i];
 
 		if (!cx->valid)
@@ -833,6 +1122,18 @@ static int acpi_processor_setup_cpuidle_cx(struct acpi_processor *pr,
 
 		per_cpu(acpi_cstate[count], dev->cpu) = cx;
 
+<<<<<<< HEAD
+=======
+		if (lapic_timer_needs_broadcast(pr, cx))
+			state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+
+		if (cx->type == ACPI_STATE_C3) {
+			state->flags |= CPUIDLE_FLAG_TLB_FLUSHED;
+			if (pr->flags.bm_check)
+				state->flags |= CPUIDLE_FLAG_RCU_IDLE;
+		}
+
+>>>>>>> upstream/android-13
 		count++;
 		if (count == CPUIDLE_STATE_MAX)
 			break;
@@ -875,9 +1176,17 @@ static int acpi_processor_setup_cstates(struct acpi_processor *pr)
 		state->enter = acpi_idle_enter;
 
 		state->flags = 0;
+<<<<<<< HEAD
 		if (cx->type == ACPI_STATE_C1 || cx->type == ACPI_STATE_C2) {
 			state->enter_dead = acpi_idle_play_dead;
 			drv->safe_state_index = count;
+=======
+		if (cx->type == ACPI_STATE_C1 || cx->type == ACPI_STATE_C2 ||
+		    cx->type == ACPI_STATE_C3) {
+			state->enter_dead = acpi_idle_play_dead;
+			if (cx->type != ACPI_STATE_C3)
+				drv->safe_state_index = count;
+>>>>>>> upstream/android-13
 		}
 		/*
 		 * Halt-induced C1 is not good for ->enter_s2idle, because it
@@ -904,7 +1213,10 @@ static int acpi_processor_setup_cstates(struct acpi_processor *pr)
 
 static inline void acpi_processor_cstate_first_run_checks(void)
 {
+<<<<<<< HEAD
 	acpi_status status;
+=======
+>>>>>>> upstream/android-13
 	static int first_run;
 
 	if (first_run)
@@ -912,6 +1224,7 @@ static inline void acpi_processor_cstate_first_run_checks(void)
 	dmi_check_system(processor_power_dmi_table);
 	max_cstate = acpi_processor_cstate_check(max_cstate);
 	if (max_cstate < ACPI_C_STATES_MAX)
+<<<<<<< HEAD
 		pr_notice("ACPI: processor limited to max C-state %d\n",
 			  max_cstate);
 	first_run++;
@@ -923,6 +1236,16 @@ static inline void acpi_processor_cstate_first_run_checks(void)
 			ACPI_EXCEPTION((AE_INFO, status,
 					"Notifying BIOS of _CST ability failed"));
 	}
+=======
+		pr_notice("processor limited to max C-state %d\n", max_cstate);
+
+	first_run++;
+
+	if (nocst)
+		return;
+
+	acpi_processor_claim_cst_control();
+>>>>>>> upstream/android-13
 }
 #else
 
@@ -974,7 +1297,11 @@ static int acpi_processor_evaluate_lpi(acpi_handle handle,
 
 	status = acpi_evaluate_object(handle, "_LPI", NULL, &buffer);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "No _LPI, giving up\n"));
+=======
+		acpi_handle_debug(handle, "No _LPI, giving up\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -1165,6 +1492,14 @@ static int flatten_lpi_states(struct acpi_processor *pr,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int __weak acpi_processor_ffh_lpi_probe(unsigned int cpu)
+{
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static int acpi_processor_get_lpi_info(struct acpi_processor *pr)
 {
 	int ret, i;
@@ -1173,6 +1508,14 @@ static int acpi_processor_get_lpi_info(struct acpi_processor *pr)
 	struct acpi_device *d = NULL;
 	struct acpi_lpi_states_array info[2], *tmp, *prev, *curr;
 
+<<<<<<< HEAD
+=======
+	/* make sure our architecture has support */
+	ret = acpi_processor_ffh_lpi_probe(pr->id);
+	if (ret == -EOPNOTSUPP)
+		return ret;
+
+>>>>>>> upstream/android-13
 	if (!osc_pc_lpi_support_confirmed)
 		return -EOPNOTSUPP;
 
@@ -1224,11 +1567,14 @@ static int acpi_processor_get_lpi_info(struct acpi_processor *pr)
 	return 0;
 }
 
+<<<<<<< HEAD
 int __weak acpi_processor_ffh_lpi_probe(unsigned int cpu)
 {
 	return -ENODEV;
 }
 
+=======
+>>>>>>> upstream/android-13
 int __weak acpi_processor_ffh_lpi_enter(struct acpi_lpi_state *lpi)
 {
 	return -ENODEV;
@@ -1391,7 +1737,11 @@ int acpi_processor_power_state_has_changed(struct acpi_processor *pr)
 	if (pr->id == 0 && cpuidle_get_driver() == &acpi_idle_driver) {
 
 		/* Protect against cpu-hotplug */
+<<<<<<< HEAD
 		get_online_cpus();
+=======
+		cpus_read_lock();
+>>>>>>> upstream/android-13
 		cpuidle_pause_and_lock();
 
 		/* Disable all cpuidle devices */
@@ -1420,7 +1770,11 @@ int acpi_processor_power_state_has_changed(struct acpi_processor *pr)
 			}
 		}
 		cpuidle_resume_and_unlock();
+<<<<<<< HEAD
 		put_online_cpus();
+=======
+		cpus_read_unlock();
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

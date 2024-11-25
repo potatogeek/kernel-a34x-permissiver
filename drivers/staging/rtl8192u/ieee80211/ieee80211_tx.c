@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *  Copyright(c) 2003 - 2004 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of version 2 of the GNU General Public License as
  *  published by the Free Software Foundation.
@@ -18,6 +23,8 @@
  *  The full GNU General Public License is included in this distribution in the
  *  file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  *  Contact Information:
  *  James P. Ketrenos <ipw2100-admin@linux.intel.com>
  *  Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -184,8 +191,12 @@ int ieee80211_encrypt_fragment(
 	struct ieee80211_crypt_data *crypt = ieee->crypt[ieee->tx_keyidx];
 	int res;
 
+<<<<<<< HEAD
 	if (!(crypt && crypt->ops))
 	{
+=======
+	if (!(crypt && crypt->ops)) {
+>>>>>>> upstream/android-13
 		printk("=========>%s(), crypt is null\n", __func__);
 		return -1;
 	}
@@ -196,9 +207,14 @@ int ieee80211_encrypt_fragment(
 			struct rtl_80211_hdr_3addrqos *header;
 
 			header = (struct rtl_80211_hdr_3addrqos *)frag->data;
+<<<<<<< HEAD
 			printk(KERN_DEBUG "%s: TKIP countermeasures: dropped "
 			       "TX packet to %pM\n",
 			       ieee->dev->name, header->addr1);
+=======
+			netdev_dbg(ieee->dev, "TKIP countermeasures: dropped "
+			       "TX packet to %pM\n", header->addr1);
+>>>>>>> upstream/android-13
 		}
 		return -1;
 	}
@@ -220,8 +236,13 @@ int ieee80211_encrypt_fragment(
 
 	atomic_dec(&crypt->refcnt);
 	if (res < 0) {
+<<<<<<< HEAD
 		printk(KERN_INFO "%s: Encryption failed: len=%d.\n",
 		       ieee->dev->name, frag->len);
+=======
+		netdev_info(ieee->dev, "Encryption failed: len=%d.\n",
+			    frag->len);
+>>>>>>> upstream/android-13
 		ieee->ieee_stats.tx_discards++;
 		return -1;
 	}
@@ -230,7 +251,12 @@ int ieee80211_encrypt_fragment(
 }
 
 
+<<<<<<< HEAD
 void ieee80211_txb_free(struct ieee80211_txb *txb) {
+=======
+void ieee80211_txb_free(struct ieee80211_txb *txb)
+{
+>>>>>>> upstream/android-13
 	//int i;
 	if (unlikely(!txb))
 		return;
@@ -309,7 +335,11 @@ static void ieee80211_tx_query_agg_cap(struct ieee80211_device *ieee,
 	struct tx_ts_record        *pTxTs = NULL;
 	struct rtl_80211_hdr_1addr *hdr = (struct rtl_80211_hdr_1addr *)skb->data;
 
+<<<<<<< HEAD
 	if (!pHTInfo->bCurrentHTSupport||!pHTInfo->bEnableHT)
+=======
+	if (!pHTInfo->bCurrentHTSupport || !pHTInfo->bEnableHT)
+>>>>>>> upstream/android-13
 		return;
 	if (!IsQoSDataFrame(skb->data))
 		return;
@@ -317,6 +347,7 @@ static void ieee80211_tx_query_agg_cap(struct ieee80211_device *ieee,
 	if (is_multicast_ether_addr(hdr->addr1))
 		return;
 	//check packet and mode later
+<<<<<<< HEAD
 #ifdef TO_DO_LIST
 	if(pTcb->PacketLength >= 4096)
 		return;
@@ -343,19 +374,39 @@ static void ieee80211_tx_query_agg_cap(struct ieee80211_device *ieee,
 		else if (!pTxTs->using_ba)
 		{
 			if (SN_LESS(pTxTs->tx_admitted_ba_record.BaStartSeqCtrl.field.SeqNum, (pTxTs->tx_cur_seq + 1) % 4096))
+=======
+	if (!ieee->GetNmodeSupportBySecCfg(ieee->dev))
+		return;
+
+	if (pHTInfo->bCurrentAMPDUEnable) {
+		if (!GetTs(ieee, (struct ts_common_info **)(&pTxTs), hdr->addr1, skb->priority, TX_DIR, true)) {
+			printk("===>can't get TS\n");
+			return;
+		}
+		if (!pTxTs->tx_admitted_ba_record.valid) {
+			TsStartAddBaProcess(ieee, pTxTs);
+			goto FORCED_AGG_SETTING;
+		} else if (!pTxTs->using_ba) {
+			if (SN_LESS(pTxTs->tx_admitted_ba_record.start_seq_ctrl.field.seq_num, (pTxTs->tx_cur_seq + 1) % 4096))
+>>>>>>> upstream/android-13
 				pTxTs->using_ba = true;
 			else
 				goto FORCED_AGG_SETTING;
 		}
 
+<<<<<<< HEAD
 		if (ieee->iw_mode == IW_MODE_INFRA)
 		{
+=======
+		if (ieee->iw_mode == IW_MODE_INFRA) {
+>>>>>>> upstream/android-13
 			tcb_desc->bAMPDUEnable = true;
 			tcb_desc->ampdu_factor = pHTInfo->CurrentAMPDUFactor;
 			tcb_desc->ampdu_density = pHTInfo->CurrentMPDUDensity;
 		}
 	}
 FORCED_AGG_SETTING:
+<<<<<<< HEAD
 	switch (pHTInfo->ForcedAMPDUMode )
 	{
 		case HT_AGG_AUTO:
@@ -372,6 +423,23 @@ FORCED_AGG_SETTING:
 			tcb_desc->ampdu_density = 0;
 			tcb_desc->ampdu_factor = 0;
 			break;
+=======
+	switch (pHTInfo->ForcedAMPDUMode) {
+	case HT_AGG_AUTO:
+		break;
+
+	case HT_AGG_FORCE_ENABLE:
+		tcb_desc->bAMPDUEnable = true;
+		tcb_desc->ampdu_density = pHTInfo->ForcedMPDUDensity;
+		tcb_desc->ampdu_factor = pHTInfo->ForcedAMPDUFactor;
+		break;
+
+	case HT_AGG_FORCE_DISABLE:
+		tcb_desc->bAMPDUEnable = false;
+		tcb_desc->ampdu_density = 0;
+		tcb_desc->ampdu_factor = 0;
+		break;
+>>>>>>> upstream/android-13
 
 	}
 		return;
@@ -381,12 +449,18 @@ static void ieee80211_qurey_ShortPreambleMode(struct ieee80211_device *ieee,
 					      struct cb_desc *tcb_desc)
 {
 	tcb_desc->bUseShortPreamble = false;
+<<<<<<< HEAD
 	if (tcb_desc->data_rate == 2)
 	{//// 1M can only use Long Preamble. 11B spec
 		return;
 	}
 	else if (ieee->current_network.capability & WLAN_CAPABILITY_SHORT_PREAMBLE)
 	{
+=======
+	if (tcb_desc->data_rate == 2) {//// 1M can only use Long Preamble. 11B spec
+		return;
+	} else if (ieee->current_network.capability & WLAN_CAPABILITY_SHORT_PREAMBLE) {
+>>>>>>> upstream/android-13
 		tcb_desc->bUseShortPreamble = true;
 	}
 	return;
@@ -398,18 +472,31 @@ ieee80211_query_HTCapShortGI(struct ieee80211_device *ieee, struct cb_desc *tcb_
 
 	tcb_desc->bUseShortGI		= false;
 
+<<<<<<< HEAD
 	if(!pHTInfo->bCurrentHTSupport||!pHTInfo->bEnableHT)
 		return;
 
 	if(pHTInfo->bForcedShortGI)
 	{
+=======
+	if (!pHTInfo->bCurrentHTSupport || !pHTInfo->bEnableHT)
+		return;
+
+	if (pHTInfo->bForcedShortGI) {
+>>>>>>> upstream/android-13
 		tcb_desc->bUseShortGI = true;
 		return;
 	}
 
+<<<<<<< HEAD
 	if((pHTInfo->bCurBW40MHz==true) && pHTInfo->bCurShortGI40MHz)
 		tcb_desc->bUseShortGI = true;
 	else if((pHTInfo->bCurBW40MHz==false) && pHTInfo->bCurShortGI20MHz)
+=======
+	if (pHTInfo->bCurBW40MHz && pHTInfo->bCurShortGI40MHz)
+		tcb_desc->bUseShortGI = true;
+	else if (!pHTInfo->bCurBW40MHz && pHTInfo->bCurShortGI20MHz)
+>>>>>>> upstream/android-13
 		tcb_desc->bUseShortGI = true;
 }
 
@@ -420,6 +507,7 @@ static void ieee80211_query_BandwidthMode(struct ieee80211_device *ieee,
 
 	tcb_desc->bPacketBW = false;
 
+<<<<<<< HEAD
 	if(!pHTInfo->bCurrentHTSupport||!pHTInfo->bEnableHT)
 		return;
 
@@ -430,6 +518,18 @@ static void ieee80211_query_BandwidthMode(struct ieee80211_device *ieee,
 		return;
 	//BandWidthAutoSwitch is for auto switch to 20 or 40 in long distance
 	if(pHTInfo->bCurBW40MHz && pHTInfo->bCurTxBW40MHz && !ieee->bandwidth_auto_switch.bforced_tx20Mhz)
+=======
+	if (!pHTInfo->bCurrentHTSupport || !pHTInfo->bEnableHT)
+		return;
+
+	if (tcb_desc->bMulticast || tcb_desc->bBroadcast)
+		return;
+
+	if ((tcb_desc->data_rate & 0x80) == 0) // If using legacy rate, it shall use 20MHz channel.
+		return;
+	//BandWidthAutoSwitch is for auto switch to 20 or 40 in long distance
+	if (pHTInfo->bCurBW40MHz && pHTInfo->bCurTxBW40MHz && !ieee->bandwidth_auto_switch.bforced_tx20Mhz)
+>>>>>>> upstream/android-13
 		tcb_desc->bPacketBW = true;
 	return;
 }
@@ -445,6 +545,7 @@ static void ieee80211_query_protectionmode(struct ieee80211_device *ieee,
 	tcb_desc->RTSSC				= 0;		// 20MHz: Don't care;  40MHz: Duplicate.
 	tcb_desc->bRTSBW			= false; // RTS frame bandwidth is always 20MHz
 
+<<<<<<< HEAD
 	if(tcb_desc->bBroadcast || tcb_desc->bMulticast)//only unicast frame will use rts/cts
 		return;
 
@@ -453,10 +554,20 @@ static void ieee80211_query_protectionmode(struct ieee80211_device *ieee,
 
 	if (ieee->mode < IEEE_N_24G) //b, g mode
 	{
+=======
+	if (tcb_desc->bBroadcast || tcb_desc->bMulticast) //only unicast frame will use rts/cts
+		return;
+
+	if (is_broadcast_ether_addr(skb->data + 16))  //check addr3 as infrastructure add3 is DA.
+		return;
+
+	if (ieee->mode < IEEE_N_24G) /* b, g mode */ {
+>>>>>>> upstream/android-13
 			// (1) RTS_Threshold is compared to the MPDU, not MSDU.
 			// (2) If there are more than one frag in  this MSDU, only the first frag uses protection frame.
 			//		Other fragments are protected by previous fragment.
 			//		So we only need to check the length of first fragment.
+<<<<<<< HEAD
 		if (skb->len > ieee->rts)
 		{
 			tcb_desc->bRTSEnable = true;
@@ -464,6 +575,12 @@ static void ieee80211_query_protectionmode(struct ieee80211_device *ieee,
 		}
 		else if (ieee->current_network.buseprotection)
 		{
+=======
+		if (skb->len > ieee->rts) {
+			tcb_desc->bRTSEnable = true;
+			tcb_desc->rts_rate = MGN_24M;
+		} else if (ieee->current_network.buseprotection) {
+>>>>>>> upstream/android-13
 			// Use CTS-to-SELF in protection mode.
 			tcb_desc->bRTSEnable = true;
 			tcb_desc->bCTSEnable = true;
@@ -471,6 +588,7 @@ static void ieee80211_query_protectionmode(struct ieee80211_device *ieee,
 		}
 		//otherwise return;
 		return;
+<<<<<<< HEAD
 	}
 	else
 	{// 11n High throughput case.
@@ -480,34 +598,56 @@ static void ieee80211_query_protectionmode(struct ieee80211_device *ieee,
 			//check ERP protection
 			if (ieee->current_network.buseprotection)
 			{// CTS-to-SELF
+=======
+	} else { // 11n High throughput case.
+		PRT_HIGH_THROUGHPUT pHTInfo = ieee->pHTInfo;
+		while (true) {
+			//check ERP protection
+			if (ieee->current_network.buseprotection) {// CTS-to-SELF
+>>>>>>> upstream/android-13
 				tcb_desc->bRTSEnable = true;
 				tcb_desc->bCTSEnable = true;
 				tcb_desc->rts_rate = MGN_24M;
 				break;
 			}
 			//check HT op mode
+<<<<<<< HEAD
 			if(pHTInfo->bCurrentHTSupport  && pHTInfo->bEnableHT)
 			{
 				u8 HTOpMode = pHTInfo->CurrentOpMode;
 				if((pHTInfo->bCurBW40MHz && (HTOpMode == 2 || HTOpMode == 3)) ||
 							(!pHTInfo->bCurBW40MHz && HTOpMode == 3) )
 				{
+=======
+			if (pHTInfo->bCurrentHTSupport && pHTInfo->bEnableHT) {
+				u8 HTOpMode = pHTInfo->CurrentOpMode;
+				if ((pHTInfo->bCurBW40MHz && (HTOpMode == 2 || HTOpMode == 3)) ||
+							(!pHTInfo->bCurBW40MHz && HTOpMode == 3)) {
+>>>>>>> upstream/android-13
 					tcb_desc->rts_rate = MGN_24M; // Rate is 24Mbps.
 					tcb_desc->bRTSEnable = true;
 					break;
 				}
 			}
 			//check rts
+<<<<<<< HEAD
 			if (skb->len > ieee->rts)
 			{
+=======
+			if (skb->len > ieee->rts) {
+>>>>>>> upstream/android-13
 				tcb_desc->rts_rate = MGN_24M; // Rate is 24Mbps.
 				tcb_desc->bRTSEnable = true;
 				break;
 			}
 			//to do list: check MIMO power save condition.
 			//check AMPDU aggregation for TXOP
+<<<<<<< HEAD
 			if(tcb_desc->bAMPDUEnable)
 			{
+=======
+			if (tcb_desc->bAMPDUEnable) {
+>>>>>>> upstream/android-13
 				tcb_desc->rts_rate = MGN_24M; // Rate is 24Mbps.
 				// According to 8190 design, firmware sends CF-End only if RTS/CTS is enabled. However, it degrads
 				// throughput around 10M, so we disable of this mechanism. 2007.08.03 by Emily
@@ -515,8 +655,12 @@ static void ieee80211_query_protectionmode(struct ieee80211_device *ieee,
 				break;
 			}
 			//check IOT action
+<<<<<<< HEAD
 			if(pHTInfo->IOTAction & HT_IOT_ACT_FORCED_CTS2SELF)
 			{
+=======
+			if (pHTInfo->IOTAction & HT_IOT_ACT_FORCED_CTS2SELF) {
+>>>>>>> upstream/android-13
 				tcb_desc->bCTSEnable	= true;
 				tcb_desc->rts_rate  =	MGN_24M;
 				tcb_desc->bRTSEnable = true;
@@ -535,7 +679,11 @@ static void ieee80211_query_protectionmode(struct ieee80211_device *ieee,
 	if (ieee->current_network.capability & WLAN_CAPABILITY_SHORT_PREAMBLE)
 		tcb_desc->bUseShortPreamble = true;
 	if (ieee->mode == IW_MODE_MASTER)
+<<<<<<< HEAD
 			goto NO_PROTECTION;
+=======
+		goto NO_PROTECTION;
+>>>>>>> upstream/android-13
 	return;
 NO_PROTECTION:
 	tcb_desc->bRTSEnable	= false;
@@ -549,6 +697,7 @@ NO_PROTECTION:
 static void ieee80211_txrate_selectmode(struct ieee80211_device *ieee,
 					struct cb_desc *tcb_desc)
 {
+<<<<<<< HEAD
 #ifdef TO_DO_LIST
 	if(!IsDataFrame(pFrame))
 	{
@@ -572,6 +721,14 @@ static void ieee80211_txrate_selectmode(struct ieee80211_device *ieee,
 		tcb_desc->bTxUseDriverAssingedRate = true;
 	if(!tcb_desc->bTxDisableRateFallBack || !tcb_desc->bTxUseDriverAssingedRate)
 	{
+=======
+	if (ieee->bTxDisableRateFallBack)
+		tcb_desc->bTxDisableRateFallBack = true;
+
+	if (ieee->bTxUseDriverAssingedRate)
+		tcb_desc->bTxUseDriverAssingedRate = true;
+	if (!tcb_desc->bTxDisableRateFallBack || !tcb_desc->bTxUseDriverAssingedRate) {
+>>>>>>> upstream/android-13
 		if (ieee->iw_mode == IW_MODE_INFRA || ieee->iw_mode == IW_MODE_ADHOC)
 			tcb_desc->RATRIndex = 0;
 	}
@@ -582,11 +739,17 @@ static void ieee80211_query_seqnum(struct ieee80211_device *ieee,
 {
 	if (is_multicast_ether_addr(dst))
 		return;
+<<<<<<< HEAD
 	if (IsQoSDataFrame(skb->data)) //we deal qos data only
 	{
 		struct tx_ts_record *pTS = NULL;
 		if (!GetTs(ieee, (struct ts_common_info **)(&pTS), dst, skb->priority, TX_DIR, true))
 		{
+=======
+	if (IsQoSDataFrame(skb->data)) /* we deal qos data only */ {
+		struct tx_ts_record *pTS = NULL;
+		if (!GetTs(ieee, (struct ts_common_info **)(&pTS), dst, skb->priority, TX_DIR, true)) {
+>>>>>>> upstream/android-13
 			return;
 		}
 		pTS->tx_cur_seq = (pTS->tx_cur_seq + 1) % 4096;
@@ -621,18 +784,31 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 	/* If there is no driver handler to take the TXB, dont' bother
 	 * creating it...
 	 */
+<<<<<<< HEAD
 	if ((!ieee->hard_start_xmit && !(ieee->softmac_features & IEEE_SOFTMAC_TX_QUEUE))||
 	   ((!ieee->softmac_data_hard_start_xmit && (ieee->softmac_features & IEEE_SOFTMAC_TX_QUEUE)))) {
 		printk(KERN_WARNING "%s: No xmit handler.\n",
 		       ieee->dev->name);
+=======
+	if ((!ieee->hard_start_xmit && !(ieee->softmac_features & IEEE_SOFTMAC_TX_QUEUE)) ||
+	   ((!ieee->softmac_data_hard_start_xmit && (ieee->softmac_features & IEEE_SOFTMAC_TX_QUEUE)))) {
+		netdev_warn(ieee->dev, "No xmit handler.\n");
+>>>>>>> upstream/android-13
 		goto success;
 	}
 
 
+<<<<<<< HEAD
 	if(likely(ieee->raw_tx == 0)){
 		if (unlikely(skb->len < SNAP_SIZE + sizeof(u16))) {
 			printk(KERN_WARNING "%s: skb too small (%d).\n",
 			ieee->dev->name, skb->len);
+=======
+	if (likely(ieee->raw_tx == 0)) {
+		if (unlikely(skb->len < SNAP_SIZE + sizeof(u16))) {
+			netdev_warn(ieee->dev, "skb too small (%d).\n",
+				    skb->len);
+>>>>>>> upstream/android-13
 			goto success;
 		}
 
@@ -660,7 +836,11 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 
 		/* Save source and destination addresses */
 		memcpy(&dest, skb->data, ETH_ALEN);
+<<<<<<< HEAD
 		memcpy(&src, skb->data+ETH_ALEN, ETH_ALEN);
+=======
+		memcpy(&src, skb->data + ETH_ALEN, ETH_ALEN);
+>>>>>>> upstream/android-13
 
 		/* Advance the SKB to the start of the payload */
 		skb_pull(skb, sizeof(struct ethhdr));
@@ -675,7 +855,11 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 			fc = IEEE80211_FTYPE_DATA;
 
 		//if(ieee->current_network.QoS_Enable)
+<<<<<<< HEAD
 		if(qos_actived)
+=======
+		if (qos_actived)
+>>>>>>> upstream/android-13
 			fc |= IEEE80211_STYPE_QOS_DATA;
 		else
 			fc |= IEEE80211_STYPE_DATA;
@@ -705,15 +889,23 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 		if (is_multicast_ether_addr(header.addr1)) {
 			frag_size = MAX_FRAG_THRESHOLD;
 			qos_ctl |= QOS_CTL_NOTCONTAIN_ACK;
+<<<<<<< HEAD
 		}
 		else {
+=======
+		} else {
+>>>>>>> upstream/android-13
 			frag_size = ieee->fts;//default:392
 			qos_ctl = 0;
 		}
 
 		//if (ieee->current_network.QoS_Enable)
+<<<<<<< HEAD
 		if(qos_actived)
 		{
+=======
+		if (qos_actived) {
+>>>>>>> upstream/android-13
 			hdr_len = IEEE80211_3ADDR_LEN + 2;
 
 			skb->priority = ieee80211_classify(skb, &ieee->current_network);
@@ -753,27 +945,42 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 		 */
 		txb = ieee80211_alloc_txb(nr_frags, frag_size + ieee->tx_headroom, GFP_ATOMIC);
 		if (unlikely(!txb)) {
+<<<<<<< HEAD
 			printk(KERN_WARNING "%s: Could not allocate TXB\n",
 			ieee->dev->name);
+=======
+			netdev_warn(ieee->dev, "Could not allocate TXB\n");
+>>>>>>> upstream/android-13
 			goto failed;
 		}
 		txb->encrypted = encrypt;
 		txb->payload_size = __cpu_to_le16(bytes);
 
 		//if (ieee->current_network.QoS_Enable)
+<<<<<<< HEAD
 		if(qos_actived)
 		{
 			txb->queue_index = UP2AC(skb->priority);
 		} else {
 			txb->queue_index = WME_AC_BK;
 		}
+=======
+		if (qos_actived)
+			txb->queue_index = UP2AC(skb->priority);
+		else
+			txb->queue_index = WME_AC_BK;
+>>>>>>> upstream/android-13
 
 
 
 		for (i = 0; i < nr_frags; i++) {
 			skb_frag = txb->fragments[i];
 			tcb_desc = (struct cb_desc *)(skb_frag->cb + MAX_DEV_ADDR_SIZE);
+<<<<<<< HEAD
 			if(qos_actived){
+=======
+			if (qos_actived) {
+>>>>>>> upstream/android-13
 				skb_frag->priority = skb->priority;//UP2AC(skb->priority);
 				tcb_desc->queue_index =  UP2AC(skb->priority);
 			} else {
@@ -782,15 +989,23 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 			}
 			skb_reserve(skb_frag, ieee->tx_headroom);
 
+<<<<<<< HEAD
 			if (encrypt){
+=======
+			if (encrypt) {
+>>>>>>> upstream/android-13
 				if (ieee->hwsec_active)
 					tcb_desc->bHwSec = 1;
 				else
 					tcb_desc->bHwSec = 0;
 				skb_reserve(skb_frag, crypt->ops->extra_prefix_len);
+<<<<<<< HEAD
 			}
 			else
 			{
+=======
+			} else {
+>>>>>>> upstream/android-13
 				tcb_desc->bHwSec = 0;
 			}
 			frag_hdr = skb_put_data(skb_frag, &header, hdr_len);
@@ -808,12 +1023,20 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 				bytes = bytes_last_frag;
 			}
 			//if(ieee->current_network.QoS_Enable)
+<<<<<<< HEAD
 			if(qos_actived)
 			{
 				// add 1 only indicate to corresponding seq number control 2006/7/12
 				frag_hdr->seq_ctl = cpu_to_le16(ieee->seq_ctrl[UP2AC(skb->priority)+1]<<4 | i);
 			} else {
 				frag_hdr->seq_ctl = cpu_to_le16(ieee->seq_ctrl[0]<<4 | i);
+=======
+			if (qos_actived) {
+				// add 1 only indicate to corresponding seq number control 2006/7/12
+				frag_hdr->seq_ctl = cpu_to_le16(ieee->seq_ctrl[UP2AC(skb->priority) + 1] << 4 | i);
+			} else {
+				frag_hdr->seq_ctl = cpu_to_le16(ieee->seq_ctrl[0] << 4 | i);
+>>>>>>> upstream/android-13
 			}
 
 			/* Put a SNAP header on the first fragment */
@@ -839,6 +1062,7 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 				skb_put(skb_frag, 4);
 		}
 
+<<<<<<< HEAD
 		if(qos_actived)
 		{
 		  if (ieee->seq_ctrl[UP2AC(skb->priority) + 1] == 0xFFF)
@@ -855,13 +1079,35 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 		if (unlikely(skb->len < sizeof(struct rtl_80211_hdr_3addr))) {
 			printk(KERN_WARNING "%s: skb too small (%d).\n",
 			ieee->dev->name, skb->len);
+=======
+		if (qos_actived) {
+			if (ieee->seq_ctrl[UP2AC(skb->priority) + 1] == 0xFFF)
+				ieee->seq_ctrl[UP2AC(skb->priority) + 1] = 0;
+			else
+				ieee->seq_ctrl[UP2AC(skb->priority) + 1]++;
+		} else {
+			if (ieee->seq_ctrl[0] == 0xFFF)
+				ieee->seq_ctrl[0] = 0;
+			else
+				ieee->seq_ctrl[0]++;
+		}
+	} else {
+		if (unlikely(skb->len < sizeof(struct rtl_80211_hdr_3addr))) {
+			netdev_warn(ieee->dev, "skb too small (%d).\n",
+				    skb->len);
+>>>>>>> upstream/android-13
 			goto success;
 		}
 
 		txb = ieee80211_alloc_txb(1, skb->len, GFP_ATOMIC);
+<<<<<<< HEAD
 		if(!txb){
 			printk(KERN_WARNING "%s: Could not allocate TXB\n",
 			ieee->dev->name);
+=======
+		if (!txb) {
+			netdev_warn(ieee->dev, "Could not allocate TXB\n");
+>>>>>>> upstream/android-13
 			goto failed;
 		}
 
@@ -872,9 +1118,14 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 
  success:
 //WB add to fill data tcb_desc here. only first fragment is considered, need to change, and you may remove to other place.
+<<<<<<< HEAD
 	if (txb)
 	{
 		struct cb_desc *tcb_desc = (struct cb_desc *)(txb->fragments[0]->cb + MAX_DEV_ADDR_SIZE);
+=======
+	if (txb) {
+		tcb_desc = (struct cb_desc *)(txb->fragments[0]->cb + MAX_DEV_ADDR_SIZE);
+>>>>>>> upstream/android-13
 		tcb_desc->bTxEnableFwCalcDur = 1;
 		if (is_multicast_ether_addr(header.addr1))
 			tcb_desc->bMulticast = 1;
@@ -895,9 +1146,15 @@ int ieee80211_xmit(struct sk_buff *skb, struct net_device *dev)
 	spin_unlock_irqrestore(&ieee->lock, flags);
 	dev_kfree_skb_any(skb);
 	if (txb) {
+<<<<<<< HEAD
 		if (ieee->softmac_features & IEEE_SOFTMAC_TX_QUEUE){
 			ieee80211_softmac_xmit(txb, ieee);
 		}else{
+=======
+		if (ieee->softmac_features & IEEE_SOFTMAC_TX_QUEUE) {
+			ieee80211_softmac_xmit(txb, ieee);
+		} else {
+>>>>>>> upstream/android-13
 			if ((*ieee->hard_start_xmit)(txb, dev) == 0) {
 				stats->tx_packets++;
 				stats->tx_bytes += __le16_to_cpu(txb->payload_size);

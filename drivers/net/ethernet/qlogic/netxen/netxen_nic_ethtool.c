@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2003 - 2009 NetXen, Inc.
  * Copyright (C) 2009 - QLogic Corporation.
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * The full GNU General Public License is included in this distribution
  * in the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -169,7 +176,11 @@ skip:
 	case NETXEN_BRDTYPE_P3_4_GB_MM:
 		supported |= SUPPORTED_Autoneg;
 		advertising |= ADVERTISED_Autoneg;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NETXEN_BRDTYPE_P2_SB31_10G_CX4:
 	case NETXEN_BRDTYPE_P3_10G_CX4:
 	case NETXEN_BRDTYPE_P3_10G_CX4_LP:
@@ -198,7 +209,11 @@ skip:
 		supported |= SUPPORTED_TP;
 		check_sfp_module = netif_running(dev) &&
 			adapter->has_link_events;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NETXEN_BRDTYPE_P2_SB31_10G:
 	case NETXEN_BRDTYPE_P3_10G_XFP:
 		supported |= SUPPORTED_FIBRE;
@@ -747,7 +762,13 @@ netxen_nic_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
  * firmware coalescing to default.
  */
 static int netxen_set_intr_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			struct ethtool_coalesce *ethcoal)
+=======
+				    struct ethtool_coalesce *ethcoal,
+				    struct kernel_ethtool_coalesce *kernel_coal,
+				    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct netxen_adapter *adapter = netdev_priv(netdev);
 
@@ -764,6 +785,7 @@ static int netxen_set_intr_coalesce(struct net_device *netdev,
 	if (ethcoal->rx_coalesce_usecs > 0xffff ||
 		ethcoal->rx_max_coalesced_frames > 0xffff ||
 		ethcoal->tx_coalesce_usecs > 0xffff ||
+<<<<<<< HEAD
 		ethcoal->tx_max_coalesced_frames > 0xffff ||
 		ethcoal->rx_coalesce_usecs_irq ||
 		ethcoal->rx_max_coalesced_frames_irq ||
@@ -782,6 +804,9 @@ static int netxen_set_intr_coalesce(struct net_device *netdev,
 		ethcoal->rx_max_coalesced_frames_high ||
 		ethcoal->tx_coalesce_usecs_high ||
 		ethcoal->tx_max_coalesced_frames_high)
+=======
+		ethcoal->tx_max_coalesced_frames > 0xffff)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!ethcoal->rx_coalesce_usecs ||
@@ -808,7 +833,13 @@ static int netxen_set_intr_coalesce(struct net_device *netdev,
 }
 
 static int netxen_get_intr_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			struct ethtool_coalesce *ethcoal)
+=======
+				    struct ethtool_coalesce *ethcoal,
+				    struct kernel_ethtool_coalesce *kernel_coal,
+				    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct netxen_adapter *adapter = netdev_priv(netdev);
 
@@ -847,6 +878,12 @@ netxen_get_dump_flag(struct net_device *netdev, struct ethtool_dump *dump)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* Fw dump levels */
+static const u32 FW_DUMP_LEVELS[] = { 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f, 0xff };
+
+>>>>>>> upstream/android-13
 static int
 netxen_set_dump(struct net_device *netdev, struct ethtool_dump *val)
 {
@@ -939,6 +976,11 @@ netxen_get_dump_data(struct net_device *netdev, struct ethtool_dump *dump,
 }
 
 const struct ethtool_ops netxen_nic_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo = netxen_nic_get_drvinfo,
 	.get_regs_len = netxen_nic_get_regs_len,
 	.get_regs = netxen_nic_get_regs,

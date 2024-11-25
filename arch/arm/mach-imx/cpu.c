@@ -4,8 +4,11 @@
 #include <linux/io.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/sys_soc.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "hardware.h"
 #include "common.h"
@@ -72,6 +75,7 @@ void __init imx_aips_allow_unprivileged_access(
 		imx_set_aips(aips_base_addr);
 	}
 }
+<<<<<<< HEAD
 
 struct device * __init imx_soc_device_init(void)
 {
@@ -165,3 +169,5 @@ free_soc:
 	kfree(soc_dev_attr);
 	return NULL;
 }
+=======
+>>>>>>> upstream/android-13

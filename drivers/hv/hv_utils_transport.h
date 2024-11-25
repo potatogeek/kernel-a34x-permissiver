@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Kernel/userspace transport abstraction for Hyper-V util driver.
  *
  * Copyright (C) 2015, Vitaly Kuznetsov <vkuznets@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -13,6 +18,8 @@
  * NON INFRINGEMENT.  See the GNU General Public License for more
  * details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _HV_UTILS_TRANSPORT_H

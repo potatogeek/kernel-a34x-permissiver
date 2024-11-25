@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* ds.c: Domain Services driver for Logical Domains
  *
  * Copyright (C) 2007, 2008 David S. Miller <davem@davemloft.net>
@@ -86,7 +90,11 @@ struct ds_reg_req {
 	__u64			handle;
 	__u16			major;
 	__u16			minor;
+<<<<<<< HEAD
 	char			svc_id[0];
+=======
+	char			svc_id[];
+>>>>>>> upstream/android-13
 };
 
 struct ds_reg_ack {
@@ -554,7 +562,11 @@ static int dr_cpu_configure(struct ds_info *dp, struct ds_cap_state *cp,
 
 		printk(KERN_INFO "ds-%llu: Starting cpu %d...\n",
 		       dp->id, cpu);
+<<<<<<< HEAD
 		err = cpu_up(cpu);
+=======
+		err = add_cpu(cpu);
+>>>>>>> upstream/android-13
 		if (err) {
 			__u32 res = DR_CPU_RES_FAILURE;
 			__u32 stat = DR_CPU_STAT_UNCONFIGURED;
@@ -610,7 +622,11 @@ static int dr_cpu_unconfigure(struct ds_info *dp,
 
 		printk(KERN_INFO "ds-%llu: Shutting down cpu %d...\n",
 		       dp->id, cpu);
+<<<<<<< HEAD
 		err = cpu_down(cpu);
+=======
+		err = remove_cpu(cpu);
+>>>>>>> upstream/android-13
 		if (err)
 			dr_cpu_mark(resp, cpu, ncpus,
 				    DR_CPU_RES_FAILURE,
@@ -700,12 +716,20 @@ struct ds_var_hdr {
 
 struct ds_var_set_msg {
 	struct ds_var_hdr		hdr;
+<<<<<<< HEAD
 	char				name_and_value[0];
+=======
+	char				name_and_value[];
+>>>>>>> upstream/android-13
 };
 
 struct ds_var_delete_msg {
 	struct ds_var_hdr		hdr;
+<<<<<<< HEAD
 	char				name[0];
+=======
+	char				name[];
+>>>>>>> upstream/android-13
 };
 
 struct ds_var_resp {
@@ -876,7 +900,11 @@ void ldom_power_off(void)
 
 static void ds_conn_reset(struct ds_info *dp)
 {
+<<<<<<< HEAD
 	printk(KERN_ERR "ds-%llu: ds_conn_reset() from %pf\n",
+=======
+	printk(KERN_ERR "ds-%llu: ds_conn_reset() from %ps\n",
+>>>>>>> upstream/android-13
 	       dp->id, __builtin_return_address(0));
 }
 
@@ -988,7 +1016,11 @@ struct ds_queue_entry {
 	struct ds_info			*dp;
 	int				req_len;
 	int				__pad;
+<<<<<<< HEAD
 	u64				req[0];
+=======
+	u64				req[];
+>>>>>>> upstream/android-13
 };
 
 static void process_ds_work(void)
@@ -1235,11 +1267,14 @@ out_err:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ds_remove(struct vio_dev *vdev)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct vio_device_id ds_match[] = {
 	{
 		.type = "domain-services-port",
@@ -1250,7 +1285,10 @@ static const struct vio_device_id ds_match[] = {
 static struct vio_driver ds_driver = {
 	.id_table	= ds_match,
 	.probe		= ds_probe,
+<<<<<<< HEAD
 	.remove		= ds_remove,
+=======
+>>>>>>> upstream/android-13
 	.name		= "ds",
 };
 

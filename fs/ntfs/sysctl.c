@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sysctl.c - Code for sysctl handling in NTFS Linux kernel driver. Part of
  *	      the Linux-NTFS project. Adapted from the old NTFS driver,
  *	      Copyright (C) 1997 Martin von Löwis, Régis Duchesne
  *
  * Copyright (c) 2002-2005 Anton Altaparmakov
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -19,6 +24,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifdef DEBUG

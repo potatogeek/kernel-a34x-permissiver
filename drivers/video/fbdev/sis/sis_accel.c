@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SiS 300/540/630[S]/730[S],
  * SiS 315[E|PRO]/550/[M]650/651/[M]661[F|M]X/740/[M]741[GX]/330/[M]760[GX],
@@ -6,6 +10,7 @@
  *
  * 2D acceleration part
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the named License,
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Based on the XFree86/X.org driver which is
  *     Copyright (C) 2001-2005 by Thomas Winischhofer, Vienna, Austria
  *

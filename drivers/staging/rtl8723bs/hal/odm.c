@@ -7,6 +7,7 @@
 
 #include "odm_precomp.h"
 
+<<<<<<< HEAD
 static const u16 dB_Invert_Table[8][12] = {
 	{1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4},
 	{4, 5, 6, 6, 7, 8, 9, 10, 11, 13, 14, 16},
@@ -20,6 +21,8 @@ static const u16 dB_Invert_Table[8][12] = {
 	 56234, 65535}
  };
 
+=======
+>>>>>>> upstream/android-13
 /*  Global var */
 
 u32 OFDMSwingTable[OFDM_TABLE_SIZE] = {
@@ -292,6 +295,7 @@ u32 TxScalingTable_Jaguar[TXSCALE_TABLE_SIZE] = {
 	0x3FE  /*  36, +6.0dB */
 };
 
+<<<<<<< HEAD
 /*  Local Function predefine. */
 
 /* START------------COMMON INFO RELATED--------------- */
@@ -369,6 +373,458 @@ void odm_SetRxIdleAnt(PDM_ODM_T pDM_Odm, u8 Ant, bool bDualPath);
 
 void odm_HwAntDiv(PDM_ODM_T pDM_Odm);
 
+=======
+/* Remove Edca by Yu Chen */
+
+static void odm_CommonInfoSelfInit(struct dm_odm_t *pDM_Odm)
+{
+	pDM_Odm->bCckHighPower = (bool) PHY_QueryBBReg(pDM_Odm->Adapter, ODM_REG(CCK_RPT_FORMAT, pDM_Odm), ODM_BIT(CCK_RPT_FORMAT, pDM_Odm));
+	pDM_Odm->RFPathRxEnable = (u8) PHY_QueryBBReg(pDM_Odm->Adapter, ODM_REG(BB_RX_PATH, pDM_Odm), ODM_BIT(BB_RX_PATH, pDM_Odm));
+
+	pDM_Odm->TxRate = 0xFF;
+}
+
+static void odm_CommonInfoSelfUpdate(struct dm_odm_t *pDM_Odm)
+{
+	u8 EntryCnt = 0;
+	u8 i;
+	PSTA_INFO_T	pEntry;
+
+	if (*(pDM_Odm->pBandWidth) == ODM_BW40M) {
+		if (*(pDM_Odm->pSecChOffset) == 1)
+			pDM_Odm->ControlChannel = *(pDM_Odm->pChannel)-2;
+		else if (*(pDM_Odm->pSecChOffset) == 2)
+			pDM_Odm->ControlChannel = *(pDM_Odm->pChannel)+2;
+	} else
+		pDM_Odm->ControlChannel = *(pDM_Odm->pChannel);
+
+	for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
+		pEntry = pDM_Odm->pODM_StaInfo[i];
+		if (IS_STA_VALID(pEntry))
+			EntryCnt++;
+	}
+
+	if (EntryCnt == 1)
+		pDM_Odm->bOneEntryOnly = true;
+	else
+		pDM_Odm->bOneEntryOnly = false;
+}
+
+static void odm_CmnInfoInit_Debug(struct dm_odm_t *pDM_Odm)
+{
+}
+
+static void odm_BasicDbgMessage(struct dm_odm_t *pDM_Odm)
+{
+}
+
+/* 3 ============================================================ */
+/* 3 RATR MASK */
+/* 3 ============================================================ */
+/* 3 ============================================================ */
+/* 3 Rate Adaptive */
+/* 3 ============================================================ */
+
+static void odm_RateAdaptiveMaskInit(struct dm_odm_t *pDM_Odm)
+{
+	struct odm_rate_adaptive *pOdmRA = &pDM_Odm->RateAdaptive;
+
+	pOdmRA->Type = DM_Type_ByDriver;
+	if (pOdmRA->Type == DM_Type_ByDriver)
+		pDM_Odm->bUseRAMask = true;
+	else
+		pDM_Odm->bUseRAMask = false;
+
+	pOdmRA->RATRState = DM_RATR_STA_INIT;
+	pOdmRA->LdpcThres = 35;
+	pOdmRA->bUseLdpc = false;
+	pOdmRA->HighRSSIThresh = 50;
+	pOdmRA->LowRSSIThresh = 20;
+}
+
+u32 ODM_Get_Rate_Bitmap(
+	struct dm_odm_t *pDM_Odm,
+	u32 macid,
+	u32 ra_mask,
+	u8 rssi_level
+)
+{
+	PSTA_INFO_T	pEntry;
+	u32 rate_bitmap = 0;
+	u8 WirelessMode;
+
+	pEntry = pDM_Odm->pODM_StaInfo[macid];
+	if (!IS_STA_VALID(pEntry))
+		return ra_mask;
+
+	WirelessMode = pEntry->wireless_mode;
+
+	switch (WirelessMode) {
+	case ODM_WM_B:
+		if (ra_mask & 0x0000000c)		/* 11M or 5.5M enable */
+			rate_bitmap = 0x0000000d;
+		else
+			rate_bitmap = 0x0000000f;
+		break;
+
+	case (ODM_WM_G):
+		if (rssi_level == DM_RATR_STA_HIGH)
+			rate_bitmap = 0x00000f00;
+		else
+			rate_bitmap = 0x00000ff0;
+		break;
+
+	case (ODM_WM_B|ODM_WM_G):
+		if (rssi_level == DM_RATR_STA_HIGH)
+			rate_bitmap = 0x00000f00;
+		else if (rssi_level == DM_RATR_STA_MIDDLE)
+			rate_bitmap = 0x00000ff0;
+		else
+			rate_bitmap = 0x00000ff5;
+		break;
+
+	case (ODM_WM_B|ODM_WM_G|ODM_WM_N24G):
+	case (ODM_WM_B|ODM_WM_N24G):
+	case (ODM_WM_G|ODM_WM_N24G):
+		if (rssi_level == DM_RATR_STA_HIGH)
+			rate_bitmap = 0x000f0000;
+		else if (rssi_level == DM_RATR_STA_MIDDLE)
+			rate_bitmap = 0x000ff000;
+		else {
+			if (*(pDM_Odm->pBandWidth) == ODM_BW40M)
+				rate_bitmap = 0x000ff015;
+			else
+				rate_bitmap = 0x000ff005;
+		}
+		break;
+
+	default:
+		rate_bitmap = 0x0fffffff;
+		break;
+	}
+
+	return ra_mask & rate_bitmap;
+
+}
+
+static void odm_RefreshRateAdaptiveMaskCE(struct dm_odm_t *pDM_Odm)
+{
+	u8 i;
+	struct adapter *padapter =  pDM_Odm->Adapter;
+
+	if (padapter->bDriverStopped) {
+		return;
+	}
+
+	if (!pDM_Odm->bUseRAMask) {
+		return;
+	}
+
+	for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
+		PSTA_INFO_T pstat = pDM_Odm->pODM_StaInfo[i];
+
+		if (IS_STA_VALID(pstat)) {
+			if (IS_MCAST(pstat->hwaddr))  /* if (psta->mac_id == 1) */
+				continue;
+
+			if (true == ODM_RAStateCheck(pDM_Odm, pstat->rssi_stat.UndecoratedSmoothedPWDB, false, &pstat->rssi_level)) {
+				/* printk("RSSI:%d, RSSI_LEVEL:%d\n", pstat->rssi_stat.UndecoratedSmoothedPWDB, pstat->rssi_level); */
+				rtw_hal_update_ra_mask(pstat, pstat->rssi_level);
+			}
+
+		}
+	}
+}
+
+/*-----------------------------------------------------------------------------
+* Function:	odm_RefreshRateAdaptiveMask()
+*
+* Overview:	Update rate table mask according to rssi
+*
+* Input:		NONE
+*
+* Output:		NONE
+*
+* Return:		NONE
+*
+* Revised History:
+*When		Who		Remark
+*05/27/2009	hpfan	Create Version 0.
+*
+* --------------------------------------------------------------------------
+*/
+static void odm_RefreshRateAdaptiveMask(struct dm_odm_t *pDM_Odm)
+{
+
+	if (!(pDM_Odm->SupportAbility & ODM_BB_RA_MASK)) {
+		return;
+	}
+	odm_RefreshRateAdaptiveMaskCE(pDM_Odm);
+}
+
+/*  Return Value: bool */
+/*  - true: RATRState is changed. */
+bool ODM_RAStateCheck(
+	struct dm_odm_t *pDM_Odm,
+	s32 RSSI,
+	bool bForceUpdate,
+	u8 *pRATRState
+)
+{
+	struct odm_rate_adaptive *pRA = &pDM_Odm->RateAdaptive;
+	const u8 GoUpGap = 5;
+	u8 HighRSSIThreshForRA = pRA->HighRSSIThresh;
+	u8 LowRSSIThreshForRA = pRA->LowRSSIThresh;
+	u8 RATRState;
+
+	/*  Threshold Adjustment: */
+	/*  when RSSI state trends to go up one or two levels, make sure RSSI is high enough. */
+	/*  Here GoUpGap is added to solve the boundary's level alternation issue. */
+	switch (*pRATRState) {
+	case DM_RATR_STA_INIT:
+	case DM_RATR_STA_HIGH:
+		break;
+
+	case DM_RATR_STA_MIDDLE:
+		HighRSSIThreshForRA += GoUpGap;
+		break;
+
+	case DM_RATR_STA_LOW:
+		HighRSSIThreshForRA += GoUpGap;
+		LowRSSIThreshForRA += GoUpGap;
+		break;
+
+	default:
+		netdev_dbg(pDM_Odm->Adapter->pnetdev,
+			   "wrong rssi level setting %d !", *pRATRState);
+		break;
+	}
+
+	/*  Decide RATRState by RSSI. */
+	if (RSSI > HighRSSIThreshForRA)
+		RATRState = DM_RATR_STA_HIGH;
+	else if (RSSI > LowRSSIThreshForRA)
+		RATRState = DM_RATR_STA_MIDDLE;
+	else
+		RATRState = DM_RATR_STA_LOW;
+	/* printk("==>%s, RATRState:0x%02x , RSSI:%d\n", __func__, RATRState, RSSI); */
+
+	if (*pRATRState != RATRState || bForceUpdate) {
+		*pRATRState = RATRState;
+		return true;
+	}
+
+	return false;
+}
+
+/*  */
+
+/* 3 ============================================================ */
+/* 3 RSSI Monitor */
+/* 3 ============================================================ */
+
+static void odm_RSSIMonitorInit(struct dm_odm_t *pDM_Odm)
+{
+	struct ra_t *pRA_Table = &pDM_Odm->DM_RA_Table;
+
+	pRA_Table->firstconnect = false;
+
+}
+
+static void FindMinimumRSSI(struct adapter *padapter)
+{
+	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
+	struct dm_priv *pdmpriv = &pHalData->dmpriv;
+	struct dm_odm_t *pDM_Odm = &pHalData->odmpriv;
+
+	/* 1 1.Determine the minimum RSSI */
+
+	if (
+		(pDM_Odm->bLinked != true) &&
+		(pdmpriv->EntryMinUndecoratedSmoothedPWDB == 0)
+	) {
+		pdmpriv->MinUndecoratedPWDBForDM = 0;
+	} else
+		pdmpriv->MinUndecoratedPWDBForDM = pdmpriv->EntryMinUndecoratedSmoothedPWDB;
+}
+
+static void odm_RSSIMonitorCheckCE(struct dm_odm_t *pDM_Odm)
+{
+	struct adapter *Adapter = pDM_Odm->Adapter;
+	struct hal_com_data	*pHalData = GET_HAL_DATA(Adapter);
+	struct dm_priv *pdmpriv = &pHalData->dmpriv;
+	int i;
+	int tmpEntryMaxPWDB = 0, tmpEntryMinPWDB = 0xff;
+	u8 sta_cnt = 0;
+	u32 PWDB_rssi[NUM_STA] = {0};/* 0~15]:MACID, [16~31]:PWDB_rssi */
+	struct ra_t *pRA_Table = &pDM_Odm->DM_RA_Table;
+
+	if (pDM_Odm->bLinked != true)
+		return;
+
+	pRA_Table->firstconnect = pDM_Odm->bLinked;
+
+	/* if (check_fwstate(&Adapter->mlmepriv, WIFI_AP_STATE|WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE) == true) */
+	{
+		struct sta_info *psta;
+
+		for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
+			psta = pDM_Odm->pODM_StaInfo[i];
+			if (IS_STA_VALID(psta)) {
+				if (IS_MCAST(psta->hwaddr))  /* if (psta->mac_id == 1) */
+					continue;
+
+				if (psta->rssi_stat.UndecoratedSmoothedPWDB == (-1))
+					continue;
+
+				if (psta->rssi_stat.UndecoratedSmoothedPWDB < tmpEntryMinPWDB)
+					tmpEntryMinPWDB = psta->rssi_stat.UndecoratedSmoothedPWDB;
+
+				if (psta->rssi_stat.UndecoratedSmoothedPWDB > tmpEntryMaxPWDB)
+					tmpEntryMaxPWDB = psta->rssi_stat.UndecoratedSmoothedPWDB;
+
+				if (psta->rssi_stat.UndecoratedSmoothedPWDB != (-1))
+					PWDB_rssi[sta_cnt++] = (psta->mac_id | (psta->rssi_stat.UndecoratedSmoothedPWDB<<16));
+			}
+		}
+
+		/* printk("%s ==> sta_cnt(%d)\n", __func__, sta_cnt); */
+
+		for (i = 0; i < sta_cnt; i++) {
+			if (PWDB_rssi[i] != (0)) {
+				if (pHalData->fw_ractrl == true)/*  Report every sta's RSSI to FW */
+					rtl8723b_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
+			}
+		}
+	}
+
+
+
+	if (tmpEntryMaxPWDB != 0)	/*  If associated entry is found */
+		pdmpriv->EntryMaxUndecoratedSmoothedPWDB = tmpEntryMaxPWDB;
+	else
+		pdmpriv->EntryMaxUndecoratedSmoothedPWDB = 0;
+
+	if (tmpEntryMinPWDB != 0xff) /*  If associated entry is found */
+		pdmpriv->EntryMinUndecoratedSmoothedPWDB = tmpEntryMinPWDB;
+	else
+		pdmpriv->EntryMinUndecoratedSmoothedPWDB = 0;
+
+	FindMinimumRSSI(Adapter);/* get pdmpriv->MinUndecoratedPWDBForDM */
+
+	pDM_Odm->RSSI_Min = pdmpriv->MinUndecoratedPWDBForDM;
+	/* ODM_CmnInfoUpdate(&pHalData->odmpriv , ODM_CMNINFO_RSSI_MIN, pdmpriv->MinUndecoratedPWDBForDM); */
+}
+
+static void odm_RSSIMonitorCheck(struct dm_odm_t *pDM_Odm)
+{
+	if (!(pDM_Odm->SupportAbility & ODM_BB_RSSI_MONITOR))
+		return;
+
+	odm_RSSIMonitorCheckCE(pDM_Odm);
+
+}	/*  odm_RSSIMonitorCheck */
+
+/* 3 ============================================================ */
+/* 3 SW Antenna Diversity */
+/* 3 ============================================================ */
+static void odm_SwAntDetectInit(struct dm_odm_t *pDM_Odm)
+{
+	struct swat_t *pDM_SWAT_Table = &pDM_Odm->DM_SWAT_Table;
+
+	pDM_SWAT_Table->SWAS_NoLink_BK_Reg92c = rtw_read32(pDM_Odm->Adapter, rDPDT_control);
+	pDM_SWAT_Table->PreAntenna = MAIN_ANT;
+	pDM_SWAT_Table->CurAntenna = MAIN_ANT;
+	pDM_SWAT_Table->SWAS_NoLink_State = 0;
+}
+
+/* 3 ============================================================ */
+/* 3 Tx Power Tracking */
+/* 3 ============================================================ */
+
+static u8 getSwingIndex(struct dm_odm_t *pDM_Odm)
+{
+	struct adapter *Adapter = pDM_Odm->Adapter;
+	u8 i = 0;
+	u32 bbSwing;
+	u32 swingTableSize;
+	u32 *pSwingTable;
+
+	bbSwing = PHY_QueryBBReg(Adapter, rOFDM0_XATxIQImbalance, 0xFFC00000);
+
+	pSwingTable = OFDMSwingTable_New;
+	swingTableSize = OFDM_TABLE_SIZE;
+
+	for (i = 0; i < swingTableSize; ++i) {
+		u32 tableValue = pSwingTable[i];
+
+		if (tableValue >= 0x100000)
+			tableValue >>= 22;
+		if (bbSwing == tableValue)
+			break;
+	}
+	return i;
+}
+
+void odm_TXPowerTrackingInit(struct dm_odm_t *pDM_Odm)
+{
+	u8 defaultSwingIndex = getSwingIndex(pDM_Odm);
+	u8 p = 0;
+	struct adapter *Adapter = pDM_Odm->Adapter;
+	struct hal_com_data *pHalData = GET_HAL_DATA(Adapter);
+
+
+	struct dm_priv *pdmpriv = &pHalData->dmpriv;
+
+	pdmpriv->bTXPowerTracking = true;
+	pdmpriv->TXPowercount = 0;
+	pdmpriv->bTXPowerTrackingInit = false;
+
+	if (*(pDM_Odm->mp_mode) != 1)
+		pdmpriv->TxPowerTrackControl = true;
+	else
+		pdmpriv->TxPowerTrackControl = false;
+
+	/* pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = true; */
+	pDM_Odm->RFCalibrateInfo.ThermalValue = pHalData->EEPROMThermalMeter;
+	pDM_Odm->RFCalibrateInfo.ThermalValue_IQK = pHalData->EEPROMThermalMeter;
+	pDM_Odm->RFCalibrateInfo.ThermalValue_LCK = pHalData->EEPROMThermalMeter;
+
+	/*  The index of "0 dB" in SwingTable. */
+	pDM_Odm->DefaultOfdmIndex = (defaultSwingIndex >= OFDM_TABLE_SIZE) ? 30 : defaultSwingIndex;
+	pDM_Odm->DefaultCckIndex = 20;
+
+	pDM_Odm->BbSwingIdxCckBase = pDM_Odm->DefaultCckIndex;
+	pDM_Odm->RFCalibrateInfo.CCK_index = pDM_Odm->DefaultCckIndex;
+
+	for (p = RF_PATH_A; p < MAX_RF_PATH; ++p) {
+		pDM_Odm->BbSwingIdxOfdmBase[p] = pDM_Odm->DefaultOfdmIndex;
+		pDM_Odm->RFCalibrateInfo.OFDM_index[p] = pDM_Odm->DefaultOfdmIndex;
+		pDM_Odm->RFCalibrateInfo.DeltaPowerIndex[p] = 0;
+		pDM_Odm->RFCalibrateInfo.DeltaPowerIndexLast[p] = 0;
+		pDM_Odm->RFCalibrateInfo.PowerIndexOffset[p] = 0;
+	}
+
+}
+
+void ODM_TXPowerTrackingCheck(struct dm_odm_t *pDM_Odm)
+{
+	struct adapter *Adapter = pDM_Odm->Adapter;
+
+	if (!(pDM_Odm->SupportAbility & ODM_RF_TX_PWR_TRACK))
+		return;
+
+	if (!pDM_Odm->RFCalibrateInfo.TM_Trigger) { /* at least delay 1 sec */
+		PHY_SetRFReg(pDM_Odm->Adapter, RF_PATH_A, RF_T_METER_NEW, (BIT17 | BIT16), 0x03);
+
+		pDM_Odm->RFCalibrateInfo.TM_Trigger = 1;
+		return;
+	} else {
+		ODM_TXPowerTrackingCallback_ThermalMeter(Adapter);
+		pDM_Odm->RFCalibrateInfo.TM_Trigger = 0;
+	}
+}
+>>>>>>> upstream/android-13
 
 /*  */
 /* 3 Export Interface */
@@ -377,7 +833,11 @@ void odm_HwAntDiv(PDM_ODM_T pDM_Odm);
 /*  */
 /*  2011/09/21 MH Add to describe different team necessary resource allocate?? */
 /*  */
+<<<<<<< HEAD
 void ODM_DMInit(PDM_ODM_T pDM_Odm)
+=======
+void ODM_DMInit(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 
 	odm_CommonInfoSelfInit(pDM_Odm);
@@ -393,9 +853,12 @@ void ODM_DMInit(PDM_ODM_T pDM_Odm)
 
 	ODM_ClearTxPowerTrackingState(pDM_Odm);
 
+<<<<<<< HEAD
 	if (*(pDM_Odm->mp_mode) != 1)
 		odm_PathDiversityInit(pDM_Odm);
 
+=======
+>>>>>>> upstream/android-13
 	odm_DynamicBBPowerSavingInit(pDM_Odm);
 	odm_DynamicTxPowerInit(pDM_Odm);
 
@@ -407,13 +870,20 @@ void ODM_DMInit(PDM_ODM_T pDM_Odm)
 /*  You can not add any dummy function here, be care, you can only use DM structure */
 /*  to perform any new ODM_DM. */
 /*  */
+<<<<<<< HEAD
 void ODM_DMWatchdog(PDM_ODM_T pDM_Odm)
+=======
+void ODM_DMWatchdog(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 	odm_CommonInfoSelfUpdate(pDM_Odm);
 	odm_BasicDbgMessage(pDM_Odm);
 	odm_FalseAlarmCounterStatistics(pDM_Odm);
 	odm_NHMCounterStatistics(pDM_Odm);
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): RSSI = 0x%x\n", pDM_Odm->RSSI_Min));
+=======
+>>>>>>> upstream/android-13
 
 	odm_RSSIMonitorCheck(pDM_Odm);
 
@@ -427,14 +897,21 @@ void ODM_DMWatchdog(PDM_ODM_T pDM_Odm)
 		/* (pDM_Odm->SupportICType & (ODM_RTL8188E) &&(&&(((pDM_Odm->SupportInterface  == ODM_ITRF_SDIO))) */
 		/*  */
 	) {
+<<<<<<< HEAD
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("----Step1: odm_DIG is in LPS mode\n"));
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("---Step2: 8723AS is in LPS mode\n"));
+=======
+>>>>>>> upstream/android-13
 			odm_DIGbyRSSI_LPS(pDM_Odm);
 	} else
 		odm_DIG(pDM_Odm);
 
 	{
+<<<<<<< HEAD
 		pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
+=======
+		struct dig_t *pDM_DigTable = &pDM_Odm->DM_DigTable;
+>>>>>>> upstream/android-13
 
 		odm_Adaptivity(pDM_Odm, pDM_DigTable->CurIGValue);
 	}
@@ -446,7 +923,10 @@ void ODM_DMWatchdog(PDM_ODM_T pDM_Odm)
 
 	odm_RefreshRateAdaptiveMask(pDM_Odm);
 	odm_EdcaTurboCheck(pDM_Odm);
+<<<<<<< HEAD
 	odm_PathDiversity(pDM_Odm);
+=======
+>>>>>>> upstream/android-13
 	ODM_CfoTracking(pDM_Odm);
 
 	ODM_TXPowerTrackingCheck(pDM_Odm);
@@ -462,7 +942,11 @@ void ODM_DMWatchdog(PDM_ODM_T pDM_Odm)
 /*  */
 /*  Init /.. Fixed HW value. Only init time. */
 /*  */
+<<<<<<< HEAD
 void ODM_CmnInfoInit(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, u32 Value)
+=======
+void ODM_CmnInfoInit(struct dm_odm_t *pDM_Odm, enum odm_cmninfo_e CmnInfo, u32 Value)
+>>>>>>> upstream/android-13
 {
 	/*  */
 	/*  This section is used for init value */
@@ -475,10 +959,13 @@ void ODM_CmnInfoInit(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, u32 Value)
 		pDM_Odm->SupportAbility = (u32)Value;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_RF_TYPE:
 		pDM_Odm->RFType = (u8)Value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case ODM_CMNINFO_PLATFORM:
 		pDM_Odm->SupportPlatform = (u8)Value;
 		break;
@@ -487,10 +974,13 @@ void ODM_CmnInfoInit(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, u32 Value)
 		pDM_Odm->SupportInterface = (u8)Value;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_MP_TEST_CHIP:
 		pDM_Odm->bIsMPChip = (u8)Value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case ODM_CMNINFO_IC_TYPE:
 		pDM_Odm->SupportICType = Value;
 		break;
@@ -511,10 +1001,13 @@ void ODM_CmnInfoInit(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, u32 Value)
 		pDM_Odm->AntDivType = (u8)Value;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_BOARD_TYPE:
 		pDM_Odm->BoardType = (u8)Value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case ODM_CMNINFO_PACKAGE_TYPE:
 		pDM_Odm->PackageType = (u8)Value;
 		break;
@@ -523,14 +1016,18 @@ void ODM_CmnInfoInit(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, u32 Value)
 		pDM_Odm->ExtLNA = (u8)Value;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_5G_EXT_LNA:
 		pDM_Odm->ExtLNA5G = (u8)Value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case ODM_CMNINFO_EXT_PA:
 		pDM_Odm->ExtPA = (u8)Value;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_5G_EXT_PA:
 		pDM_Odm->ExtPA5G = (u8)Value;
 		break;
@@ -546,6 +1043,19 @@ void ODM_CmnInfoInit(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, u32 Value)
 		break;
 	case ODM_CMNINFO_ALNA:
 		pDM_Odm->TypeALNA = (ODM_TYPE_ALNA_E)Value;
+=======
+	case ODM_CMNINFO_GPA:
+		pDM_Odm->TypeGPA = (enum odm_type_gpa_e)Value;
+		break;
+	case ODM_CMNINFO_APA:
+		pDM_Odm->TypeAPA = (enum odm_type_apa_e)Value;
+		break;
+	case ODM_CMNINFO_GLNA:
+		pDM_Odm->TypeGLNA = (enum odm_type_glna_e)Value;
+		break;
+	case ODM_CMNINFO_ALNA:
+		pDM_Odm->TypeALNA = (enum odm_type_alna_e)Value;
+>>>>>>> upstream/android-13
 		break;
 
 	case ODM_CMNINFO_EXT_TRSW:
@@ -574,7 +1084,11 @@ void ODM_CmnInfoInit(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, u32 Value)
 }
 
 
+<<<<<<< HEAD
 void ODM_CmnInfoHook(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, void *pValue)
+=======
+void ODM_CmnInfoHook(struct dm_odm_t *pDM_Odm, enum odm_cmninfo_e CmnInfo, void *pValue)
+>>>>>>> upstream/android-13
 {
 	/*  */
 	/*  Hook call by reference pointer. */
@@ -599,10 +1113,13 @@ void ODM_CmnInfoHook(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, void *pValue)
 		pDM_Odm->pwirelessmode = pValue;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_BAND:
 		pDM_Odm->pBandType = pValue;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case ODM_CMNINFO_SEC_CHNL_OFFSET:
 		pDM_Odm->pSecChOffset = pValue;
 		break;
@@ -691,7 +1208,11 @@ void ODM_CmnInfoHook(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, void *pValue)
 	/* break; */
 
 	/* case ODM_CMNINFO_MAC_STATUS: */
+<<<<<<< HEAD
 	/* pDM_Odm->pMacInfo = (ODM_MAC_INFO *)pValue; */
+=======
+	/* pDM_Odm->pMacInfo = (struct odm_mac_status_info *)pValue; */
+>>>>>>> upstream/android-13
 	/* break; */
 	/* To remove the compiler warning, must add an empty default statement to handle the other values. */
 	default:
@@ -703,8 +1224,13 @@ void ODM_CmnInfoHook(PDM_ODM_T pDM_Odm, ODM_CMNINFO_E CmnInfo, void *pValue)
 
 
 void ODM_CmnInfoPtrArrayHook(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm,
 	ODM_CMNINFO_E CmnInfo,
+=======
+	struct dm_odm_t *pDM_Odm,
+	enum odm_cmninfo_e CmnInfo,
+>>>>>>> upstream/android-13
 	u16 Index,
 	void *pValue
 )
@@ -731,7 +1257,11 @@ void ODM_CmnInfoPtrArrayHook(
 /*  */
 /*  Update Band/CHannel/.. The values are dynamic but non-per-packet. */
 /*  */
+<<<<<<< HEAD
 void ODM_CmnInfoUpdate(PDM_ODM_T pDM_Odm, u32 CmnInfo, u64 Value)
+=======
+void ODM_CmnInfoUpdate(struct dm_odm_t *pDM_Odm, u32 CmnInfo, u64 Value)
+>>>>>>> upstream/android-13
 {
 	/*  */
 	/*  This init variable may be changed in run time. */
@@ -745,10 +1275,13 @@ void ODM_CmnInfoUpdate(PDM_ODM_T pDM_Odm, u32 CmnInfo, u64 Value)
 		pDM_Odm->SupportAbility = (u32)Value;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_RF_TYPE:
 		pDM_Odm->RFType = (u8)Value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case ODM_CMNINFO_WIFI_DIRECT:
 		pDM_Odm->bWIFI_Direct = (bool)Value;
 		break;
@@ -769,6 +1302,7 @@ void ODM_CmnInfoUpdate(PDM_ODM_T pDM_Odm, u32 CmnInfo, u64 Value)
 		pDM_Odm->RSSI_Min = (u8)Value;
 		break;
 
+<<<<<<< HEAD
 	case ODM_CMNINFO_DBG_COMP:
 		pDM_Odm->DebugComponents = Value;
 		break;
@@ -776,6 +1310,8 @@ void ODM_CmnInfoUpdate(PDM_ODM_T pDM_Odm, u32 CmnInfo, u64 Value)
 	case ODM_CMNINFO_DBG_LEVEL:
 		pDM_Odm->DebugLevel = (u32)Value;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case ODM_CMNINFO_RA_THRESHOLD_HIGH:
 		pDM_Odm->RateAdaptive.HighRSSIThresh = (u8)Value;
 		break;
@@ -817,10 +1353,13 @@ void ODM_CmnInfoUpdate(PDM_ODM_T pDM_Odm, u32 CmnInfo, u64 Value)
 		pDM_Odm->WirelessMode = (u8)Value;
 		break;
 
+<<<<<<< HEAD
 	case	ODM_CMNINFO_BAND:
 		pDM_Odm->BandType = (u8)Value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case	ODM_CMNINFO_SEC_CHNL_OFFSET:
 		pDM_Odm->SecChOffset = (u8)Value;
 		break;
@@ -845,6 +1384,7 @@ void ODM_CmnInfoUpdate(PDM_ODM_T pDM_Odm, u32 CmnInfo, u64 Value)
 
 }
 
+<<<<<<< HEAD
 void odm_CommonInfoSelfInit(PDM_ODM_T pDM_Odm)
 {
 	pDM_Odm->bCckHighPower = (bool) PHY_QueryBBReg(pDM_Odm->Adapter, ODM_REG(CCK_RPT_FORMAT, pDM_Odm), ODM_BIT(CCK_RPT_FORMAT, pDM_Odm));
@@ -911,6 +1451,8 @@ void odm_BasicDbgMessage(PDM_ODM_T pDM_Odm)
 		pDM_Odm->RxRate, pDM_Odm->RSSI_A, pDM_Odm->RSSI_B));
 }
 
+=======
+>>>>>>> upstream/android-13
 /* 3 ============================================================ */
 /* 3 DIG */
 /* 3 ============================================================ */
@@ -935,7 +1477,10 @@ void odm_BasicDbgMessage(PDM_ODM_T pDM_Odm)
 
 /* Remove DIG and FA check by Yu Chen */
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* 3 ============================================================ */
 /* 3 BB Power Save */
 /* 3 ============================================================ */
@@ -943,6 +1488,7 @@ void odm_BasicDbgMessage(PDM_ODM_T pDM_Odm)
 /* Remove BB power saving by Yuchen */
 
 /* 3 ============================================================ */
+<<<<<<< HEAD
 /* 3 RATR MASK */
 /* 3 ============================================================ */
 /* 3 ============================================================ */
@@ -1203,11 +1749,14 @@ bool ODM_RAStateCheck(
 /*  */
 
 /* 3 ============================================================ */
+=======
+>>>>>>> upstream/android-13
 /* 3 Dynamic Tx Power */
 /* 3 ============================================================ */
 
 /* Remove BY YuChen */
 
+<<<<<<< HEAD
 /* 3 ============================================================ */
 /* 3 RSSI Monitor */
 /* 3 ============================================================ */
@@ -1436,3 +1985,5 @@ void odm_SwAntDetectInit(PDM_ODM_T pDM_Odm)
 	pDM_SWAT_Table->CurAntenna = MAIN_ANT;
 	pDM_SWAT_Table->SWAS_NoLink_State = 0;
 }
+=======
+>>>>>>> upstream/android-13

@@ -3,10 +3,18 @@
 #include <linux/spinlock.h>
 #include <linux/once.h>
 #include <linux/random.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 
 struct once_work {
 	struct work_struct work;
 	struct static_key_true *key;
+<<<<<<< HEAD
+=======
+	struct module *module;
+>>>>>>> upstream/android-13
 };
 
 static void once_deferred(struct work_struct *w)
@@ -16,10 +24,18 @@ static void once_deferred(struct work_struct *w)
 	work = container_of(w, struct once_work, work);
 	BUG_ON(!static_key_enabled(work->key));
 	static_branch_disable(work->key);
+<<<<<<< HEAD
 	kfree(work);
 }
 
 static void once_disable_jump(struct static_key_true *key)
+=======
+	module_put(work->module);
+	kfree(work);
+}
+
+static void once_disable_jump(struct static_key_true *key, struct module *mod)
+>>>>>>> upstream/android-13
 {
 	struct once_work *w;
 
@@ -29,6 +45,11 @@ static void once_disable_jump(struct static_key_true *key)
 
 	INIT_WORK(&w->work, once_deferred);
 	w->key = key;
+<<<<<<< HEAD
+=======
+	w->module = mod;
+	__module_get(mod);
+>>>>>>> upstream/android-13
 	schedule_work(&w->work);
 }
 
@@ -53,11 +74,19 @@ bool __do_once_start(bool *done, unsigned long *flags)
 EXPORT_SYMBOL(__do_once_start);
 
 void __do_once_done(bool *done, struct static_key_true *once_key,
+<<<<<<< HEAD
 		    unsigned long *flags)
+=======
+		    unsigned long *flags, struct module *mod)
+>>>>>>> upstream/android-13
 	__releases(once_lock)
 {
 	*done = true;
 	spin_unlock_irqrestore(&once_lock, *flags);
+<<<<<<< HEAD
 	once_disable_jump(once_key);
+=======
+	once_disable_jump(once_key, mod);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__do_once_done);

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AB8500 system control driver
  *
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Mattias Nilsson <mattias.i.nilsson@stericsson.com> for ST Ericsson.
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>

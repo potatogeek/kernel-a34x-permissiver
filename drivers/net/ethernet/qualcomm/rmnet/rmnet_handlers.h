@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2013, 2016-2017 The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -11,6 +12,12 @@
  *
  * RMNET Data ingress/egress handler
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2013, 2016-2017 The Linux Foundation. All rights reserved.
+ *
+ * RMNET Data ingress/egress handler
+>>>>>>> upstream/android-13
  */
 
 #ifndef _RMNET_HANDLERS_H_

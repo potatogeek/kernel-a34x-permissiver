@@ -23,14 +23,23 @@
 #define EX(a,b)							\
 9:	a,##b;							\
 	.section __ex_table,"a";				\
+<<<<<<< HEAD
 	PTR	9b,fault;					\
+=======
+	PTR_WD	9b,fault;					\
+>>>>>>> upstream/android-13
 	.previous
 
 #define EX2(a,b)						\
 9:	a,##b;							\
 	.section __ex_table,"a";				\
+<<<<<<< HEAD
 	PTR	9b,bad_stack;					\
 	PTR	9b+4,bad_stack;					\
+=======
+	PTR_WD	9b,fault;					\
+	PTR_WD	9b+4,fault;					\
+>>>>>>> upstream/android-13
 	.previous
 
 	.set	mips1
@@ -52,6 +61,7 @@ LEAF(_restore_fp)
 	jr	ra
 	END(_restore_fp)
 
+<<<<<<< HEAD
 /*
  * Load the FPU with signalling NANS.  This bit pattern we're using has
  * the property that no matter whether considered as single or as double
@@ -110,6 +120,8 @@ LEAF(_init_fpu)
 
 	.set pop
 
+=======
+>>>>>>> upstream/android-13
 	.set	noreorder
 
 /**

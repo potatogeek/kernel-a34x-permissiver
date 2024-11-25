@@ -36,8 +36,15 @@
 #include <linux/uio.h>
 #include <linux/khugepaged.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
 
 #include <asm/tlbflush.h> /* for arch/microblaze update_mmu_cache() */
+=======
+#include <linux/frontswap.h>
+#include <linux/fs_parser.h>
+#include <linux/swapfile.h>
+#include <linux/mm_inline.h>
+>>>>>>> upstream/android-13
 
 static struct vfsmount *shm_mnt;
 
@@ -80,7 +87,10 @@ static struct vfsmount *shm_mnt;
 #include <linux/uuid.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
@@ -95,7 +105,11 @@ static struct vfsmount *shm_mnt;
 
 /*
  * shmem_fallocate communicates with shmem_fault or shmem_writepage via
+<<<<<<< HEAD
  * inode->i_private (with i_mutex making sure that it has only one user at
+=======
+ * inode->i_private (with i_rwsem making sure that it has only one user at
+>>>>>>> upstream/android-13
  * a time): we would prefer not to enlarge the shmem inode just for that.
  */
 struct shmem_falloc {
@@ -106,14 +120,38 @@ struct shmem_falloc {
 	pgoff_t nr_unswapped;	/* how often writepage refused to swap out */
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_TMPFS
 static unsigned long shmem_default_max_blocks(void)
 {
 	return totalram_pages / 2;
+=======
+struct shmem_options {
+	unsigned long long blocks;
+	unsigned long long inodes;
+	struct mempolicy *mpol;
+	kuid_t uid;
+	kgid_t gid;
+	umode_t mode;
+	bool full_inums;
+	int huge;
+	int seen;
+#define SHMEM_SEEN_BLOCKS 1
+#define SHMEM_SEEN_INODES 2
+#define SHMEM_SEEN_HUGE 4
+#define SHMEM_SEEN_INUMS 8
+};
+
+#ifdef CONFIG_TMPFS
+static unsigned long shmem_default_max_blocks(void)
+{
+	return totalram_pages() / 2;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long shmem_default_max_inodes(void)
 {
+<<<<<<< HEAD
 	return min(totalram_pages - totalhigh_pages, totalram_pages / 2);
 }
 #endif
@@ -121,6 +159,18 @@ static unsigned long shmem_default_max_inodes(void)
 static bool shmem_should_replace_page(struct page *page, gfp_t gfp);
 static int shmem_replace_page(struct page **pagep, gfp_t gfp,
 				struct shmem_inode_info *info, pgoff_t index);
+=======
+	unsigned long nr_pages = totalram_pages();
+
+	return min(nr_pages - totalhigh_pages(), nr_pages / 2);
+}
+#endif
+
+static int shmem_swapin_page(struct inode *inode, pgoff_t index,
+			     struct page **pagep, enum sgp_type sgp,
+			     gfp_t gfp, struct vm_area_struct *vma,
+			     vm_fault_t *fault_type);
+>>>>>>> upstream/android-13
 static int shmem_getpage_gfp(struct inode *inode, pgoff_t index,
 		struct page **pagep, enum sgp_type sgp,
 		gfp_t gfp, struct vm_area_struct *vma,
@@ -223,7 +273,11 @@ static inline void shmem_inode_unacct_blocks(struct inode *inode, long pages)
 }
 
 static const struct super_operations shmem_ops;
+<<<<<<< HEAD
 static const struct address_space_operations shmem_aops;
+=======
+const struct address_space_operations shmem_aops;
+>>>>>>> upstream/android-13
 static const struct file_operations shmem_file_operations;
 static const struct inode_operations shmem_inode_operations;
 static const struct inode_operations shmem_dir_inode_operations;
@@ -239,6 +293,7 @@ bool vma_is_shmem(struct vm_area_struct *vma)
 static LIST_HEAD(shmem_swaplist);
 static DEFINE_MUTEX(shmem_swaplist_mutex);
 
+<<<<<<< HEAD
 static int shmem_reserve_inode(struct super_block *sb)
 {
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
@@ -251,6 +306,81 @@ static int shmem_reserve_inode(struct super_block *sb)
 		sbinfo->free_inodes--;
 		spin_unlock(&sbinfo->stat_lock);
 	}
+=======
+/*
+ * shmem_reserve_inode() performs bookkeeping to reserve a shmem inode, and
+ * produces a novel ino for the newly allocated inode.
+ *
+ * It may also be called when making a hard link to permit the space needed by
+ * each dentry. However, in that case, no new inode number is needed since that
+ * internally draws from another pool of inode numbers (currently global
+ * get_next_ino()). This case is indicated by passing NULL as inop.
+ */
+#define SHMEM_INO_BATCH 1024
+static int shmem_reserve_inode(struct super_block *sb, ino_t *inop)
+{
+	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
+	ino_t ino;
+
+	if (!(sb->s_flags & SB_KERNMOUNT)) {
+		raw_spin_lock(&sbinfo->stat_lock);
+		if (sbinfo->max_inodes) {
+			if (!sbinfo->free_inodes) {
+				raw_spin_unlock(&sbinfo->stat_lock);
+				return -ENOSPC;
+			}
+			sbinfo->free_inodes--;
+		}
+		if (inop) {
+			ino = sbinfo->next_ino++;
+			if (unlikely(is_zero_ino(ino)))
+				ino = sbinfo->next_ino++;
+			if (unlikely(!sbinfo->full_inums &&
+				     ino > UINT_MAX)) {
+				/*
+				 * Emulate get_next_ino uint wraparound for
+				 * compatibility
+				 */
+				if (IS_ENABLED(CONFIG_64BIT))
+					pr_warn("%s: inode number overflow on device %d, consider using inode64 mount option\n",
+						__func__, MINOR(sb->s_dev));
+				sbinfo->next_ino = 1;
+				ino = sbinfo->next_ino++;
+			}
+			*inop = ino;
+		}
+		raw_spin_unlock(&sbinfo->stat_lock);
+	} else if (inop) {
+		/*
+		 * __shmem_file_setup, one of our callers, is lock-free: it
+		 * doesn't hold stat_lock in shmem_reserve_inode since
+		 * max_inodes is always 0, and is called from potentially
+		 * unknown contexts. As such, use a per-cpu batched allocator
+		 * which doesn't require the per-sb stat_lock unless we are at
+		 * the batch boundary.
+		 *
+		 * We don't need to worry about inode{32,64} since SB_KERNMOUNT
+		 * shmem mounts are not exposed to userspace, so we don't need
+		 * to worry about things like glibc compatibility.
+		 */
+		ino_t *next_ino;
+
+		next_ino = per_cpu_ptr(sbinfo->ino_batch, get_cpu());
+		ino = *next_ino;
+		if (unlikely(ino % SHMEM_INO_BATCH == 0)) {
+			raw_spin_lock(&sbinfo->stat_lock);
+			ino = sbinfo->next_ino;
+			sbinfo->next_ino += SHMEM_INO_BATCH;
+			raw_spin_unlock(&sbinfo->stat_lock);
+			if (unlikely(is_zero_ino(ino)))
+				ino++;
+		}
+		*inop = ino;
+		*next_ino = ++ino;
+		put_cpu();
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -258,9 +388,15 @@ static void shmem_free_inode(struct super_block *sb)
 {
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
 	if (sbinfo->max_inodes) {
+<<<<<<< HEAD
 		spin_lock(&sbinfo->stat_lock);
 		sbinfo->free_inodes++;
 		spin_unlock(&sbinfo->stat_lock);
+=======
+		raw_spin_lock(&sbinfo->stat_lock);
+		sbinfo->free_inodes++;
+		raw_spin_unlock(&sbinfo->stat_lock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -326,6 +462,7 @@ void shmem_uncharge(struct inode *inode, long pages)
 }
 
 /*
+<<<<<<< HEAD
  * Replace item expected in radix tree by a new item, while holding tree lock.
  */
 static int shmem_radix_tree_replace(struct address_space *mapping,
@@ -333,10 +470,19 @@ static int shmem_radix_tree_replace(struct address_space *mapping,
 {
 	struct radix_tree_node *node;
 	void __rcu **pslot;
+=======
+ * Replace item expected in xarray by a new item, while holding xa_lock.
+ */
+static int shmem_replace_entry(struct address_space *mapping,
+			pgoff_t index, void *expected, void *replacement)
+{
+	XA_STATE(xas, &mapping->i_pages, index);
+>>>>>>> upstream/android-13
 	void *item;
 
 	VM_BUG_ON(!expected);
 	VM_BUG_ON(!replacement);
+<<<<<<< HEAD
 	item = __radix_tree_lookup(&mapping->i_pages, index, &node, &pslot);
 	if (!item)
 		return -ENOENT;
@@ -344,6 +490,12 @@ static int shmem_radix_tree_replace(struct address_space *mapping,
 		return -ENOENT;
 	__radix_tree_replace(&mapping->i_pages, node, pslot,
 			     replacement, NULL);
+=======
+	item = xas_load(&xas);
+	if (item != expected)
+		return -ENOENT;
+	xas_store(&xas, replacement);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -357,12 +509,16 @@ static int shmem_radix_tree_replace(struct address_space *mapping,
 static bool shmem_confirm_swap(struct address_space *mapping,
 			       pgoff_t index, swp_entry_t swap)
 {
+<<<<<<< HEAD
 	void *item;
 
 	rcu_read_lock();
 	item = radix_tree_lookup(&mapping->i_pages, index);
 	rcu_read_unlock();
 	return item == swp_to_radix_entry(swap);
+=======
+	return xa_load(&mapping->i_pages, index) == swp_to_radix_entry(swap);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -397,12 +553,52 @@ static bool shmem_confirm_swap(struct address_space *mapping,
 #define SHMEM_HUGE_DENY		(-1)
 #define SHMEM_HUGE_FORCE	(-2)
 
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGE_PAGECACHE
 /* ifdef here to avoid bloating shmem.o when not necessary */
 
 static int shmem_huge __read_mostly;
 
 #if defined(CONFIG_SYSFS) || defined(CONFIG_TMPFS)
+=======
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+/* ifdef here to avoid bloating shmem.o when not necessary */
+
+static int shmem_huge __read_mostly = SHMEM_HUGE_NEVER;
+
+bool shmem_is_huge(struct vm_area_struct *vma,
+		   struct inode *inode, pgoff_t index)
+{
+	loff_t i_size;
+
+	if (shmem_huge == SHMEM_HUGE_DENY)
+		return false;
+	if (vma && ((vma->vm_flags & VM_NOHUGEPAGE) ||
+	    test_bit(MMF_DISABLE_THP, &vma->vm_mm->flags)))
+		return false;
+	if (shmem_huge == SHMEM_HUGE_FORCE)
+		return true;
+
+	switch (SHMEM_SB(inode->i_sb)->huge) {
+	case SHMEM_HUGE_ALWAYS:
+		return true;
+	case SHMEM_HUGE_WITHIN_SIZE:
+		index = round_up(index + 1, HPAGE_PMD_NR);
+		i_size = round_up(i_size_read(inode), PAGE_SIZE);
+		if (i_size >> PAGE_SHIFT >= index)
+			return true;
+		fallthrough;
+	case SHMEM_HUGE_ADVISE:
+		if (vma && (vma->vm_flags & VM_HUGEPAGE))
+			return true;
+		fallthrough;
+	default:
+		return false;
+	}
+}
+
+#if defined(CONFIG_SYSFS)
+>>>>>>> upstream/android-13
 static int shmem_parse_huge(const char *str)
 {
 	if (!strcmp(str, "never"))
@@ -419,7 +615,13 @@ static int shmem_parse_huge(const char *str)
 		return SHMEM_HUGE_FORCE;
 	return -EINVAL;
 }
+<<<<<<< HEAD
 
+=======
+#endif
+
+#if defined(CONFIG_SYSFS) || defined(CONFIG_TMPFS)
+>>>>>>> upstream/android-13
 static const char *shmem_format_huge(int huge)
 {
 	switch (huge) {
@@ -451,7 +653,11 @@ static unsigned long shmem_unused_huge_shrink(struct shmem_sb_info *sbinfo,
 	struct shmem_inode_info *info;
 	struct page *page;
 	unsigned long batch = sc ? sc->nr_to_scan : 128;
+<<<<<<< HEAD
 	int removed = 0, split = 0;
+=======
+	int split = 0;
+>>>>>>> upstream/android-13
 
 	if (list_empty(&sbinfo->shrinklist))
 		return SHRINK_STOP;
@@ -466,7 +672,10 @@ static unsigned long shmem_unused_huge_shrink(struct shmem_sb_info *sbinfo,
 		/* inode is about to be evicted */
 		if (!inode) {
 			list_del_init(&info->shrinklist);
+<<<<<<< HEAD
 			removed++;
+=======
+>>>>>>> upstream/android-13
 			goto next;
 		}
 
@@ -474,12 +683,19 @@ static unsigned long shmem_unused_huge_shrink(struct shmem_sb_info *sbinfo,
 		if (round_up(inode->i_size, PAGE_SIZE) ==
 				round_up(inode->i_size, HPAGE_PMD_SIZE)) {
 			list_move(&info->shrinklist, &to_remove);
+<<<<<<< HEAD
 			removed++;
+=======
+>>>>>>> upstream/android-13
 			goto next;
 		}
 
 		list_move(&info->shrinklist, &list);
 next:
+<<<<<<< HEAD
+=======
+		sbinfo->shrinklist_len--;
+>>>>>>> upstream/android-13
 		if (!--batch)
 			break;
 	}
@@ -499,7 +715,11 @@ next:
 		inode = &info->vfs_inode;
 
 		if (nr_to_split && split >= nr_to_split)
+<<<<<<< HEAD
 			goto leave;
+=======
+			goto move_back;
+>>>>>>> upstream/android-13
 
 		page = find_get_page(inode->i_mapping,
 				(inode->i_size & HPAGE_PMD_MASK) >> PAGE_SHIFT);
@@ -513,28 +733,44 @@ next:
 		}
 
 		/*
+<<<<<<< HEAD
 		 * Leave the inode on the list if we failed to lock
 		 * the page at this time.
+=======
+		 * Move the inode on the list back to shrinklist if we failed
+		 * to lock the page at this time.
+>>>>>>> upstream/android-13
 		 *
 		 * Waiting for the lock may lead to deadlock in the
 		 * reclaim path.
 		 */
 		if (!trylock_page(page)) {
 			put_page(page);
+<<<<<<< HEAD
 			goto leave;
+=======
+			goto move_back;
+>>>>>>> upstream/android-13
 		}
 
 		ret = split_huge_page(page);
 		unlock_page(page);
 		put_page(page);
 
+<<<<<<< HEAD
 		/* If split failed leave the inode on the list */
 		if (ret)
 			goto leave;
+=======
+		/* If split failed move the inode on the list back to shrinklist */
+		if (ret)
+			goto move_back;
+>>>>>>> upstream/android-13
 
 		split++;
 drop:
 		list_del_init(&info->shrinklist);
+<<<<<<< HEAD
 		removed++;
 leave:
 		iput(inode);
@@ -545,6 +781,24 @@ leave:
 	sbinfo->shrinklist_len -= removed;
 	spin_unlock(&sbinfo->shrinklist_lock);
 
+=======
+		goto put;
+move_back:
+		/*
+		 * Make sure the inode is either on the global list or deleted
+		 * from any local list before iput() since it could be deleted
+		 * in another thread once we put the inode (then the local list
+		 * is corrupted).
+		 */
+		spin_lock(&sbinfo->shrinklist_lock);
+		list_move(&info->shrinklist, &sbinfo->shrinklist);
+		sbinfo->shrinklist_len++;
+		spin_unlock(&sbinfo->shrinklist_lock);
+put:
+		iput(inode);
+	}
+
+>>>>>>> upstream/android-13
 	return split;
 }
 
@@ -565,15 +819,29 @@ static long shmem_unused_huge_count(struct super_block *sb,
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
 	return READ_ONCE(sbinfo->shrinklist_len);
 }
+<<<<<<< HEAD
 #else /* !CONFIG_TRANSPARENT_HUGE_PAGECACHE */
 
 #define shmem_huge SHMEM_HUGE_DENY
 
+=======
+#else /* !CONFIG_TRANSPARENT_HUGEPAGE */
+
+#define shmem_huge SHMEM_HUGE_DENY
+
+bool shmem_is_huge(struct vm_area_struct *vma,
+		   struct inode *inode, pgoff_t index)
+{
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static unsigned long shmem_unused_huge_shrink(struct shmem_sb_info *sbinfo,
 		struct shrink_control *sc, unsigned long nr_to_split)
 {
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_TRANSPARENT_HUGE_PAGECACHE */
 
 static inline bool is_huge_enabled(struct shmem_sb_info *sbinfo)
@@ -584,15 +852,28 @@ static inline bool is_huge_enabled(struct shmem_sb_info *sbinfo)
 		return true;
 	return false;
 }
+=======
+#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+>>>>>>> upstream/android-13
 
 /*
  * Like add_to_page_cache_locked, but error if expected item has gone.
  */
 static int shmem_add_to_page_cache(struct page *page,
 				   struct address_space *mapping,
+<<<<<<< HEAD
 				   pgoff_t index, void *expected)
 {
 	int error, nr = hpage_nr_pages(page);
+=======
+				   pgoff_t index, void *expected, gfp_t gfp,
+				   struct mm_struct *charge_mm)
+{
+	XA_STATE_ORDER(xas, &mapping->i_pages, index, compound_order(page));
+	unsigned long i = 0;
+	unsigned long nr = compound_nr(page);
+	int error;
+>>>>>>> upstream/android-13
 
 	VM_BUG_ON_PAGE(PageTail(page), page);
 	VM_BUG_ON_PAGE(index != round_down(index, nr), page);
@@ -604,6 +885,7 @@ static int shmem_add_to_page_cache(struct page *page,
 	page->mapping = mapping;
 	page->index = index;
 
+<<<<<<< HEAD
 	xa_lock_irq(&mapping->i_pages);
 	if (PageTransHuge(page)) {
 		void __rcu **results;
@@ -644,6 +926,55 @@ static int shmem_add_to_page_cache(struct page *page,
 		xa_unlock_irq(&mapping->i_pages);
 		page_ref_sub(page, nr);
 	}
+=======
+	if (!PageSwapCache(page)) {
+		error = mem_cgroup_charge(page, charge_mm, gfp);
+		if (error) {
+			if (PageTransHuge(page)) {
+				count_vm_event(THP_FILE_FALLBACK);
+				count_vm_event(THP_FILE_FALLBACK_CHARGE);
+			}
+			goto error;
+		}
+	}
+	cgroup_throttle_swaprate(page, gfp);
+
+	do {
+		void *entry;
+		xas_lock_irq(&xas);
+		entry = xas_find_conflict(&xas);
+		if (entry != expected)
+			xas_set_err(&xas, -EEXIST);
+		xas_create_range(&xas);
+		if (xas_error(&xas))
+			goto unlock;
+next:
+		xas_store(&xas, page);
+		if (++i < nr) {
+			xas_next(&xas);
+			goto next;
+		}
+		if (PageTransHuge(page)) {
+			count_vm_event(THP_FILE_ALLOC);
+			__mod_lruvec_page_state(page, NR_SHMEM_THPS, nr);
+		}
+		mapping->nrpages += nr;
+		__mod_lruvec_page_state(page, NR_FILE_PAGES, nr);
+		__mod_lruvec_page_state(page, NR_SHMEM, nr);
+unlock:
+		xas_unlock_irq(&xas);
+	} while (xas_nomem(&xas, gfp));
+
+	if (xas_error(&xas)) {
+		error = xas_error(&xas);
+		goto error;
+	}
+
+	return 0;
+error:
+	page->mapping = NULL;
+	page_ref_sub(page, nr);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -658,27 +989,43 @@ static void shmem_delete_from_page_cache(struct page *page, void *radswap)
 	VM_BUG_ON_PAGE(PageCompound(page), page);
 
 	xa_lock_irq(&mapping->i_pages);
+<<<<<<< HEAD
 	error = shmem_radix_tree_replace(mapping, page->index, page, radswap);
 	page->mapping = NULL;
 	mapping->nrpages--;
 	__dec_node_page_state(page, NR_FILE_PAGES);
 	__dec_node_page_state(page, NR_SHMEM);
+=======
+	error = shmem_replace_entry(mapping, page->index, page, radswap);
+	page->mapping = NULL;
+	mapping->nrpages--;
+	__dec_lruvec_page_state(page, NR_FILE_PAGES);
+	__dec_lruvec_page_state(page, NR_SHMEM);
+>>>>>>> upstream/android-13
 	xa_unlock_irq(&mapping->i_pages);
 	put_page(page);
 	BUG_ON(error);
 }
 
 /*
+<<<<<<< HEAD
  * Remove swap entry from radix tree, free the swap and its page cache.
+=======
+ * Remove swap entry from page cache, free the swap and its page cache.
+>>>>>>> upstream/android-13
  */
 static int shmem_free_swap(struct address_space *mapping,
 			   pgoff_t index, void *radswap)
 {
 	void *old;
 
+<<<<<<< HEAD
 	xa_lock_irq(&mapping->i_pages);
 	old = radix_tree_delete_item(&mapping->i_pages, index, radswap);
 	xa_unlock_irq(&mapping->i_pages);
+=======
+	old = xa_cmpxchg_irq(&mapping->i_pages, index, radswap, NULL, 0);
+>>>>>>> upstream/android-13
 	if (old != radswap)
 		return -ENOENT;
 	free_swap_and_cache(radix_to_swp_entry(radswap));
@@ -689,18 +1036,27 @@ static int shmem_free_swap(struct address_space *mapping,
  * Determine (in bytes) how many of the shmem object's pages mapped by the
  * given offsets are swapped out.
  *
+<<<<<<< HEAD
  * This is safe to call without i_mutex or the i_pages lock thanks to RCU,
+=======
+ * This is safe to call without i_rwsem or the i_pages lock thanks to RCU,
+>>>>>>> upstream/android-13
  * as long as the inode doesn't go away and racy results are not a problem.
  */
 unsigned long shmem_partial_swap_usage(struct address_space *mapping,
 						pgoff_t start, pgoff_t end)
 {
+<<<<<<< HEAD
 	struct radix_tree_iter iter;
 	void __rcu **slot;
+=======
+	XA_STATE(xas, &mapping->i_pages, start);
+>>>>>>> upstream/android-13
 	struct page *page;
 	unsigned long swapped = 0;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 
 	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
 		if (iter.index >= end)
@@ -718,6 +1074,16 @@ unsigned long shmem_partial_swap_usage(struct address_space *mapping,
 
 		if (need_resched()) {
 			slot = radix_tree_iter_resume(slot, &iter);
+=======
+	xas_for_each(&xas, page, end - 1) {
+		if (xas_retry(&xas, page))
+			continue;
+		if (xa_is_value(page))
+			swapped++;
+
+		if (need_resched()) {
+			xas_pause(&xas);
+>>>>>>> upstream/android-13
 			cond_resched_rcu();
 		}
 	}
@@ -731,7 +1097,11 @@ unsigned long shmem_partial_swap_usage(struct address_space *mapping,
  * Determine (in bytes) how many of the shmem object's pages mapped by the
  * given vma is swapped out.
  *
+<<<<<<< HEAD
  * This is safe to call without i_mutex or the i_pages lock thanks to RCU,
+=======
+ * This is safe to call without i_rwsem or the i_pages lock thanks to RCU,
+>>>>>>> upstream/android-13
  * as long as the inode doesn't go away and racy results are not a problem.
  */
 unsigned long shmem_swap_usage(struct vm_area_struct *vma)
@@ -767,7 +1137,10 @@ unsigned long shmem_swap_usage(struct vm_area_struct *vma)
 void shmem_unlock_mapping(struct address_space *mapping)
 {
 	struct pagevec pvec;
+<<<<<<< HEAD
 	pgoff_t indices[PAGEVEC_SIZE];
+=======
+>>>>>>> upstream/android-13
 	pgoff_t index = 0;
 
 	pagevec_init(&pvec);
@@ -775,6 +1148,7 @@ void shmem_unlock_mapping(struct address_space *mapping)
 	 * Minor point, but we might as well stop if someone else SHM_LOCKs it.
 	 */
 	while (!mapping_unevictable(mapping)) {
+<<<<<<< HEAD
 		/*
 		 * Avoid pagevec_lookup(): find_get_pages() returns 0 as if it
 		 * has finished, if it hits a row of PAGEVEC_SIZE swap entries.
@@ -786,13 +1160,48 @@ void shmem_unlock_mapping(struct address_space *mapping)
 		index = indices[pvec.nr - 1] + 1;
 		pagevec_remove_exceptionals(&pvec);
 		check_move_unevictable_pages(pvec.pages, pvec.nr);
+=======
+		if (!pagevec_lookup(&pvec, mapping, &index))
+			break;
+		check_move_unevictable_pages(&pvec);
+>>>>>>> upstream/android-13
 		pagevec_release(&pvec);
 		cond_resched();
 	}
 }
 
 /*
+<<<<<<< HEAD
  * Remove range of pages and swap entries from radix tree, and free them.
+=======
+ * Check whether a hole-punch or truncation needs to split a huge page,
+ * returning true if no split was required, or the split has been successful.
+ *
+ * Eviction (or truncation to 0 size) should never need to split a huge page;
+ * but in rare cases might do so, if shmem_undo_range() failed to trylock on
+ * head, and then succeeded to trylock on tail.
+ *
+ * A split can only succeed when there are no additional references on the
+ * huge page: so the split below relies upon find_get_entries() having stopped
+ * when it found a subpage of the huge page, without getting further references.
+ */
+static bool shmem_punch_compound(struct page *page, pgoff_t start, pgoff_t end)
+{
+	if (!PageTransCompound(page))
+		return true;
+
+	/* Just proceed to delete a huge page wholly within the range punched */
+	if (PageHead(page) &&
+	    page->index >= start && page->index + HPAGE_PMD_NR <= end)
+		return true;
+
+	/* Try to split huge page, so we can truly punch the hole or truncate */
+	return split_huge_page(page) >= 0;
+}
+
+/*
+ * Remove range of pages and swap entries from page cache, and free them.
+>>>>>>> upstream/android-13
  * If !unfalloc, truncate or punch hole; if unfalloc, undo failed fallocate.
  */
 static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
@@ -813,6 +1222,7 @@ static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
 	if (lend == -1)
 		end = -1;	/* unsigned, so actually very big */
 
+<<<<<<< HEAD
 	pagevec_init(&pvec);
 	index = start;
 	while (index < end) {
@@ -821,20 +1231,35 @@ static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
 			pvec.pages, indices);
 		if (!pvec.nr)
 			break;
+=======
+	if (info->fallocend > start && info->fallocend <= end && !unfalloc)
+		info->fallocend = start;
+
+	pagevec_init(&pvec);
+	index = start;
+	while (index < end && find_lock_entries(mapping, index, end - 1,
+			&pvec, indices)) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < pagevec_count(&pvec); i++) {
 			struct page *page = pvec.pages[i];
 
 			index = indices[i];
+<<<<<<< HEAD
 			if (index >= end)
 				break;
 
 			if (radix_tree_exceptional_entry(page)) {
+=======
+
+			if (xa_is_value(page)) {
+>>>>>>> upstream/android-13
 				if (unfalloc)
 					continue;
 				nr_swaps_freed += !shmem_free_swap(mapping,
 								index, page);
 				continue;
 			}
+<<<<<<< HEAD
 
 			VM_BUG_ON_PAGE(page_to_pgoff(page) != index, page);
 
@@ -867,6 +1292,12 @@ static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
 					truncate_inode_page(mapping, page);
 				}
 			}
+=======
+			index += thp_nr_pages(page) - 1;
+
+			if (!unfalloc || !PageUptodate(page))
+				truncate_inode_page(mapping, page);
+>>>>>>> upstream/android-13
 			unlock_page(page);
 		}
 		pagevec_remove_exceptionals(&pvec);
@@ -907,10 +1338,15 @@ static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
 	while (index < end) {
 		cond_resched();
 
+<<<<<<< HEAD
 		pvec.nr = find_get_entries(mapping, index,
 				min(end - index, (pgoff_t)PAGEVEC_SIZE),
 				pvec.pages, indices);
 		if (!pvec.nr) {
+=======
+		if (!find_get_entries(mapping, index, end - 1, &pvec,
+				indices)) {
+>>>>>>> upstream/android-13
 			/* If all gone or hole-punch or unfalloc, we're done */
 			if (index == start || end != -1)
 				break;
@@ -922,10 +1358,14 @@ static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
 			struct page *page = pvec.pages[i];
 
 			index = indices[i];
+<<<<<<< HEAD
 			if (index >= end)
 				break;
 
 			if (radix_tree_exceptional_entry(page)) {
+=======
+			if (xa_is_value(page)) {
+>>>>>>> upstream/android-13
 				if (unfalloc)
 					continue;
 				if (shmem_free_swap(mapping, index, page)) {
@@ -939,6 +1379,7 @@ static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
 
 			lock_page(page);
 
+<<<<<<< HEAD
 			if (PageTransTail(page)) {
 				/* Middle of THP: zero out the page */
 				clear_highpage(page);
@@ -971,11 +1412,30 @@ static void shmem_undo_range(struct inode *inode, loff_t lstart, loff_t lend,
 					VM_BUG_ON_PAGE(PageWriteback(page), page);
 					truncate_inode_page(mapping, page);
 				} else {
+=======
+			if (!unfalloc || !PageUptodate(page)) {
+				if (page_mapping(page) != mapping) {
+>>>>>>> upstream/android-13
 					/* Page was replaced by swap: retry */
 					unlock_page(page);
 					index--;
 					break;
 				}
+<<<<<<< HEAD
+=======
+				VM_BUG_ON_PAGE(PageWriteback(page), page);
+				if (shmem_punch_compound(page, start, end))
+					truncate_inode_page(mapping, page);
+				else if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
+					/* Wipe the page and don't get stuck */
+					clear_highpage(page);
+					flush_dcache_page(page);
+					set_page_dirty(page);
+					if (index <
+					    round_up(start, HPAGE_PMD_NR))
+						start = index + 1;
+				}
+>>>>>>> upstream/android-13
 			}
 			unlock_page(page);
 		}
@@ -997,26 +1457,41 @@ void shmem_truncate_range(struct inode *inode, loff_t lstart, loff_t lend)
 }
 EXPORT_SYMBOL_GPL(shmem_truncate_range);
 
+<<<<<<< HEAD
 static int shmem_getattr(const struct path *path, struct kstat *stat,
+=======
+static int shmem_getattr(struct user_namespace *mnt_userns,
+			 const struct path *path, struct kstat *stat,
+>>>>>>> upstream/android-13
 			 u32 request_mask, unsigned int query_flags)
 {
 	struct inode *inode = path->dentry->d_inode;
 	struct shmem_inode_info *info = SHMEM_I(inode);
+<<<<<<< HEAD
 	struct shmem_sb_info *sb_info = SHMEM_SB(inode->i_sb);
+=======
+>>>>>>> upstream/android-13
 
 	if (info->alloced - info->swapped != inode->i_mapping->nrpages) {
 		spin_lock_irq(&info->lock);
 		shmem_recalc_inode(inode);
 		spin_unlock_irq(&info->lock);
 	}
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
 
 	if (is_huge_enabled(sb_info))
+=======
+	generic_fillattr(&init_user_ns, inode, stat);
+
+	if (shmem_is_huge(NULL, inode, 0))
+>>>>>>> upstream/android-13
 		stat->blksize = HPAGE_PMD_SIZE;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
 {
 	struct inode *inode = d_inode(dentry);
@@ -1025,6 +1500,16 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
 	int error;
 
 	error = setattr_prepare(dentry, attr);
+=======
+static int shmem_setattr(struct user_namespace *mnt_userns,
+			 struct dentry *dentry, struct iattr *attr)
+{
+	struct inode *inode = d_inode(dentry);
+	struct shmem_inode_info *info = SHMEM_I(inode);
+	int error;
+
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -1032,7 +1517,11 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
 		loff_t oldsize = inode->i_size;
 		loff_t newsize = attr->ia_size;
 
+<<<<<<< HEAD
 		/* protected by i_mutex */
+=======
+		/* protected by i_rwsem */
+>>>>>>> upstream/android-13
 		if ((newsize < oldsize && (info->seals & F_SEAL_SHRINK)) ||
 		    (newsize > oldsize && (info->seals & F_SEAL_GROW)))
 			return -EPERM;
@@ -1057,6 +1546,7 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
 			if (oldsize > holebegin)
 				unmap_mapping_range(inode->i_mapping,
 							holebegin, 0, 1);
+<<<<<<< HEAD
 
 			/*
 			 * Part of the huge page can be beyond i_size: subject
@@ -1081,6 +1571,14 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
 	setattr_copy(inode, attr);
 	if (attr->ia_valid & ATTR_MODE)
 		error = posix_acl_chmod(inode, inode->i_mode);
+=======
+		}
+	}
+
+	setattr_copy(&init_user_ns, inode, attr);
+	if (attr->ia_valid & ATTR_MODE)
+		error = posix_acl_chmod(&init_user_ns, inode, inode->i_mode);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1089,7 +1587,11 @@ static void shmem_evict_inode(struct inode *inode)
 	struct shmem_inode_info *info = SHMEM_I(inode);
 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
 
+<<<<<<< HEAD
 	if (inode->i_mapping->a_ops == &shmem_aops) {
+=======
+	if (shmem_mapping(inode->i_mapping)) {
+>>>>>>> upstream/android-13
 		shmem_unacct_size(info->flags, inode->i_size);
 		inode->i_size = 0;
 		shmem_truncate_range(inode, 0, (loff_t)-1);
@@ -1101,9 +1603,20 @@ static void shmem_evict_inode(struct inode *inode)
 			}
 			spin_unlock(&sbinfo->shrinklist_lock);
 		}
+<<<<<<< HEAD
 		if (!list_empty(&info->swaplist)) {
 			mutex_lock(&shmem_swaplist_mutex);
 			list_del_init(&info->swaplist);
+=======
+		while (!list_empty(&info->swaplist)) {
+			/* Wait while shmem_unuse() is scanning this inode... */
+			wait_var_event(&info->stop_eviction,
+				       !atomic_read(&info->stop_eviction));
+			mutex_lock(&shmem_swaplist_mutex);
+			/* ...but beware of the race if we peeked too early */
+			if (!atomic_read(&info->stop_eviction))
+				list_del_init(&info->swaplist);
+>>>>>>> upstream/android-13
 			mutex_unlock(&shmem_swaplist_mutex);
 		}
 	}
@@ -1114,6 +1627,7 @@ static void shmem_evict_inode(struct inode *inode)
 	clear_inode(inode);
 }
 
+<<<<<<< HEAD
 static unsigned long find_swap_entry(struct radix_tree_root *root, void *item)
 {
 	struct radix_tree_iter iter;
@@ -1142,11 +1656,88 @@ static unsigned long find_swap_entry(struct radix_tree_root *root, void *item)
 
 	rcu_read_unlock();
 	return found;
+=======
+static int shmem_find_swap_entries(struct address_space *mapping,
+				   pgoff_t start, unsigned int nr_entries,
+				   struct page **entries, pgoff_t *indices,
+				   unsigned int type, bool frontswap)
+{
+	XA_STATE(xas, &mapping->i_pages, start);
+	struct page *page;
+	swp_entry_t entry;
+	unsigned int ret = 0;
+
+	if (!nr_entries)
+		return 0;
+
+	rcu_read_lock();
+	xas_for_each(&xas, page, ULONG_MAX) {
+		if (xas_retry(&xas, page))
+			continue;
+
+		if (!xa_is_value(page))
+			continue;
+
+		entry = radix_to_swp_entry(page);
+		if (swp_type(entry) != type)
+			continue;
+		if (frontswap &&
+		    !frontswap_test(swap_info[type], swp_offset(entry)))
+			continue;
+
+		indices[ret] = xas.xa_index;
+		entries[ret] = page;
+
+		if (need_resched()) {
+			xas_pause(&xas);
+			cond_resched_rcu();
+		}
+		if (++ret == nr_entries)
+			break;
+	}
+	rcu_read_unlock();
+
+	return ret;
+}
+
+/*
+ * Move the swapped pages for an inode to page cache. Returns the count
+ * of pages swapped in, or the error in case of failure.
+ */
+static int shmem_unuse_swap_entries(struct inode *inode, struct pagevec pvec,
+				    pgoff_t *indices)
+{
+	int i = 0;
+	int ret = 0;
+	int error = 0;
+	struct address_space *mapping = inode->i_mapping;
+
+	for (i = 0; i < pvec.nr; i++) {
+		struct page *page = pvec.pages[i];
+
+		if (!xa_is_value(page))
+			continue;
+		error = shmem_swapin_page(inode, indices[i],
+					  &page, SGP_CACHE,
+					  mapping_gfp_mask(mapping),
+					  NULL, NULL);
+		if (error == 0) {
+			unlock_page(page);
+			put_page(page);
+			ret++;
+		}
+		if (error == -ENOMEM)
+			break;
+		error = 0;
+	}
+	return error ? error : ret;
+>>>>>>> upstream/android-13
 }
 
 /*
  * If swap found in inode, free it and move page from swapcache to filecache.
  */
+<<<<<<< HEAD
 static int shmem_unuse_inode(struct shmem_inode_info *info,
 			     swp_entry_t swap, struct page **pagep)
 {
@@ -1274,6 +1865,95 @@ int shmem_unuse(swp_entry_t swap, struct page *page)
 out:
 	unlock_page(page);
 	put_page(page);
+=======
+static int shmem_unuse_inode(struct inode *inode, unsigned int type,
+			     bool frontswap, unsigned long *fs_pages_to_unuse)
+{
+	struct address_space *mapping = inode->i_mapping;
+	pgoff_t start = 0;
+	struct pagevec pvec;
+	pgoff_t indices[PAGEVEC_SIZE];
+	bool frontswap_partial = (frontswap && *fs_pages_to_unuse > 0);
+	int ret = 0;
+
+	pagevec_init(&pvec);
+	do {
+		unsigned int nr_entries = PAGEVEC_SIZE;
+
+		if (frontswap_partial && *fs_pages_to_unuse < PAGEVEC_SIZE)
+			nr_entries = *fs_pages_to_unuse;
+
+		pvec.nr = shmem_find_swap_entries(mapping, start, nr_entries,
+						  pvec.pages, indices,
+						  type, frontswap);
+		if (pvec.nr == 0) {
+			ret = 0;
+			break;
+		}
+
+		ret = shmem_unuse_swap_entries(inode, pvec, indices);
+		if (ret < 0)
+			break;
+
+		if (frontswap_partial) {
+			*fs_pages_to_unuse -= ret;
+			if (*fs_pages_to_unuse == 0) {
+				ret = FRONTSWAP_PAGES_UNUSED;
+				break;
+			}
+		}
+
+		start = indices[pvec.nr - 1];
+	} while (true);
+
+	return ret;
+}
+
+/*
+ * Read all the shared memory data that resides in the swap
+ * device 'type' back into memory, so the swap device can be
+ * unused.
+ */
+int shmem_unuse(unsigned int type, bool frontswap,
+		unsigned long *fs_pages_to_unuse)
+{
+	struct shmem_inode_info *info, *next;
+	int error = 0;
+
+	if (list_empty(&shmem_swaplist))
+		return 0;
+
+	mutex_lock(&shmem_swaplist_mutex);
+	list_for_each_entry_safe(info, next, &shmem_swaplist, swaplist) {
+		if (!info->swapped) {
+			list_del_init(&info->swaplist);
+			continue;
+		}
+		/*
+		 * Drop the swaplist mutex while searching the inode for swap;
+		 * but before doing so, make sure shmem_evict_inode() will not
+		 * remove placeholder inode from swaplist, nor let it be freed
+		 * (igrab() would protect from unlink, but not from unmount).
+		 */
+		atomic_inc(&info->stop_eviction);
+		mutex_unlock(&shmem_swaplist_mutex);
+
+		error = shmem_unuse_inode(&info->vfs_inode, type, frontswap,
+					  fs_pages_to_unuse);
+		cond_resched();
+
+		mutex_lock(&shmem_swaplist_mutex);
+		next = list_next_entry(info, swaplist);
+		if (!info->swapped)
+			list_del_init(&info->swaplist);
+		if (atomic_dec_and_test(&info->stop_eviction))
+			wake_up_var(&info->stop_eviction);
+		if (error)
+			break;
+	}
+	mutex_unlock(&shmem_swaplist_mutex);
+
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -1288,7 +1968,23 @@ static int shmem_writepage(struct page *page, struct writeback_control *wbc)
 	swp_entry_t swap;
 	pgoff_t index;
 
+<<<<<<< HEAD
 	VM_BUG_ON_PAGE(PageCompound(page), page);
+=======
+	/*
+	 * If /sys/kernel/mm/transparent_hugepage/shmem_enabled is "always" or
+	 * "force", drivers/gpu/drm/i915/gem/i915_gem_shmem.c gets huge pages,
+	 * and its shmem_writeback() needs them to be split when swapping.
+	 */
+	if (PageTransCompound(page)) {
+		/* Ensure the subpages are still dirty */
+		SetPageDirty(page);
+		if (split_huge_page(page) < 0)
+			goto redirty;
+		ClearPageDirty(page);
+	}
+
+>>>>>>> upstream/android-13
 	BUG_ON(!PageLocked(page));
 	mapping = page->mapping;
 	index = page->index;
@@ -1357,9 +2053,17 @@ static int shmem_writepage(struct page *page, struct writeback_control *wbc)
 	 */
 	mutex_lock(&shmem_swaplist_mutex);
 	if (list_empty(&info->swaplist))
+<<<<<<< HEAD
 		list_add_tail(&info->swaplist, &shmem_swaplist);
 
 	if (add_to_swap_cache(page, swap, GFP_ATOMIC) == 0) {
+=======
+		list_add(&info->swaplist, &shmem_swaplist);
+
+	if (add_to_swap_cache(page, swap,
+			__GFP_HIGH | __GFP_NOMEMALLOC | __GFP_NOWARN,
+			NULL) == 0) {
+>>>>>>> upstream/android-13
 		spin_lock_irq(&info->lock);
 		shmem_recalc_inode(inode);
 		info->swapped++;
@@ -1401,10 +2105,17 @@ static struct mempolicy *shmem_get_sbmpol(struct shmem_sb_info *sbinfo)
 {
 	struct mempolicy *mpol = NULL;
 	if (sbinfo->mpol) {
+<<<<<<< HEAD
 		spin_lock(&sbinfo->stat_lock);	/* prevent replace/use races */
 		mpol = sbinfo->mpol;
 		mpol_get(mpol);
 		spin_unlock(&sbinfo->stat_lock);
+=======
+		raw_spin_lock(&sbinfo->stat_lock);	/* prevent replace/use races */
+		mpol = sbinfo->mpol;
+		mpol_get(mpol);
+		raw_spin_unlock(&sbinfo->stat_lock);
+>>>>>>> upstream/android-13
 	}
 	return mpol;
 }
@@ -1442,21 +2153,57 @@ static struct page *shmem_swapin(swp_entry_t swap, gfp_t gfp,
 {
 	struct vm_area_struct pvma;
 	struct page *page;
+<<<<<<< HEAD
 	struct vm_fault vmf;
 
 	shmem_pseudo_vma_init(&pvma, info, index);
 	vmf.vma = &pvma;
 	vmf.address = 0;
+=======
+	struct vm_fault vmf = {
+		.vma = &pvma,
+	};
+
+	shmem_pseudo_vma_init(&pvma, info, index);
+>>>>>>> upstream/android-13
 	page = swap_cluster_readahead(swap, gfp, &vmf);
 	shmem_pseudo_vma_destroy(&pvma);
 
 	return page;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Make sure huge_gfp is always more limited than limit_gfp.
+ * Some of the flags set permissions, while others set limitations.
+ */
+static gfp_t limit_gfp_mask(gfp_t huge_gfp, gfp_t limit_gfp)
+{
+	gfp_t allowflags = __GFP_IO | __GFP_FS | __GFP_RECLAIM;
+	gfp_t denyflags = __GFP_NOWARN | __GFP_NORETRY;
+	gfp_t zoneflags = limit_gfp & GFP_ZONEMASK;
+	gfp_t result = huge_gfp & ~(allowflags | GFP_ZONEMASK);
+
+	/* Allow allocations only from the originally specified zones. */
+	result |= zoneflags;
+
+	/*
+	 * Minimize the result gfp by taking the union with the deny flags,
+	 * and the intersection of the allow flags.
+	 */
+	result |= (limit_gfp & denyflags);
+	result |= (huge_gfp & limit_gfp) & allowflags;
+
+	return result;
+}
+
+>>>>>>> upstream/android-13
 static struct page *shmem_alloc_hugepage(gfp_t gfp,
 		struct shmem_inode_info *info, pgoff_t index)
 {
 	struct vm_area_struct pvma;
+<<<<<<< HEAD
 	struct inode *inode = &info->vfs_inode;
 	struct address_space *mapping = inode->i_mapping;
 	pgoff_t idx, hindex;
@@ -1481,6 +2228,25 @@ static struct page *shmem_alloc_hugepage(gfp_t gfp,
 	shmem_pseudo_vma_destroy(&pvma);
 	if (page)
 		prep_transhuge_page(page);
+=======
+	struct address_space *mapping = info->vfs_inode.i_mapping;
+	pgoff_t hindex;
+	struct page *page;
+
+	hindex = round_down(index, HPAGE_PMD_NR);
+	if (xa_find(&mapping->i_pages, &hindex, hindex + HPAGE_PMD_NR - 1,
+								XA_PRESENT))
+		return NULL;
+
+	shmem_pseudo_vma_init(&pvma, info, hindex);
+	page = alloc_pages_vma(gfp, HPAGE_PMD_ORDER, &pvma, 0, numa_node_id(),
+			       true);
+	shmem_pseudo_vma_destroy(&pvma);
+	if (page)
+		prep_transhuge_page(page);
+	else
+		count_vm_event(THP_FILE_FALLBACK);
+>>>>>>> upstream/android-13
 	return page;
 }
 
@@ -1506,7 +2272,11 @@ static struct page *shmem_alloc_and_acct_page(gfp_t gfp,
 	int nr;
 	int err = -ENOSPC;
 
+<<<<<<< HEAD
 	if (!IS_ENABLED(CONFIG_TRANSPARENT_HUGE_PAGECACHE))
+=======
+	if (!IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE))
+>>>>>>> upstream/android-13
 		huge = false;
 	nr = huge ? HPAGE_PMD_NR : 1;
 
@@ -1584,11 +2354,19 @@ static int shmem_replace_page(struct page **pagep, gfp_t gfp,
 	 * a nice clean interface for us to replace oldpage by newpage there.
 	 */
 	xa_lock_irq(&swap_mapping->i_pages);
+<<<<<<< HEAD
 	error = shmem_radix_tree_replace(swap_mapping, swap_index, oldpage,
 								   newpage);
 	if (!error) {
 		__inc_node_page_state(newpage, NR_FILE_PAGES);
 		__dec_node_page_state(oldpage, NR_FILE_PAGES);
+=======
+	error = shmem_replace_entry(swap_mapping, swap_index, oldpage, newpage);
+	if (!error) {
+		mem_cgroup_migrate(oldpage, newpage);
+		__inc_lruvec_page_state(newpage, NR_FILE_PAGES);
+		__dec_lruvec_page_state(oldpage, NR_FILE_PAGES);
+>>>>>>> upstream/android-13
 	}
 	xa_unlock_irq(&swap_mapping->i_pages);
 
@@ -1600,8 +2378,12 @@ static int shmem_replace_page(struct page **pagep, gfp_t gfp,
 		 */
 		oldpage = newpage;
 	} else {
+<<<<<<< HEAD
 		mem_cgroup_migrate(oldpage, newpage);
 		lru_cache_add_anon(newpage);
+=======
+		lru_cache_add(newpage);
+>>>>>>> upstream/android-13
 		*pagep = newpage;
 	}
 
@@ -1615,13 +2397,116 @@ static int shmem_replace_page(struct page **pagep, gfp_t gfp,
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Swap in the page pointed to by *pagep.
+ * Caller has to make sure that *pagep contains a valid swapped page.
+ * Returns 0 and the page in pagep if success. On failure, returns the
+ * error code and NULL in *pagep.
+ */
+static int shmem_swapin_page(struct inode *inode, pgoff_t index,
+			     struct page **pagep, enum sgp_type sgp,
+			     gfp_t gfp, struct vm_area_struct *vma,
+			     vm_fault_t *fault_type)
+{
+	struct address_space *mapping = inode->i_mapping;
+	struct shmem_inode_info *info = SHMEM_I(inode);
+	struct mm_struct *charge_mm = vma ? vma->vm_mm : NULL;
+	struct page *page;
+	swp_entry_t swap;
+	int error;
+
+	VM_BUG_ON(!*pagep || !xa_is_value(*pagep));
+	swap = radix_to_swp_entry(*pagep);
+	*pagep = NULL;
+
+	/* Look it up and read it in.. */
+	page = lookup_swap_cache(swap, NULL, 0);
+	if (!page) {
+		/* Or update major stats only when swapin succeeds?? */
+		if (fault_type) {
+			*fault_type |= VM_FAULT_MAJOR;
+			count_vm_event(PGMAJFAULT);
+			count_memcg_event_mm(charge_mm, PGMAJFAULT);
+		}
+		/* Here we actually start the io */
+		page = shmem_swapin(swap, gfp, info, index);
+		if (!page) {
+			error = -ENOMEM;
+			goto failed;
+		}
+	}
+
+	/* We have to do this with page locked to prevent races */
+	lock_page(page);
+	if (!PageSwapCache(page) || page_private(page) != swap.val ||
+	    !shmem_confirm_swap(mapping, index, swap)) {
+		error = -EEXIST;
+		goto unlock;
+	}
+	if (!PageUptodate(page)) {
+		error = -EIO;
+		goto failed;
+	}
+	wait_on_page_writeback(page);
+
+	/*
+	 * Some architectures may have to restore extra metadata to the
+	 * physical page after reading from swap.
+	 */
+	arch_swap_restore(swap, page);
+
+	if (shmem_should_replace_page(page, gfp)) {
+		error = shmem_replace_page(&page, gfp, info, index);
+		if (error)
+			goto failed;
+	}
+
+	error = shmem_add_to_page_cache(page, mapping, index,
+					swp_to_radix_entry(swap), gfp,
+					charge_mm);
+	if (error)
+		goto failed;
+
+	spin_lock_irq(&info->lock);
+	info->swapped--;
+	shmem_recalc_inode(inode);
+	spin_unlock_irq(&info->lock);
+
+	if (sgp == SGP_WRITE)
+		mark_page_accessed(page);
+
+	delete_from_swap_cache(page);
+	set_page_dirty(page);
+	swap_free(swap);
+
+	*pagep = page;
+	return 0;
+failed:
+	if (!shmem_confirm_swap(mapping, index, swap))
+		error = -EEXIST;
+unlock:
+	if (page) {
+		unlock_page(page);
+		put_page(page);
+	}
+
+	return error;
+}
+
+/*
+>>>>>>> upstream/android-13
  * shmem_getpage_gfp - find page in cache, or get from swap, or allocate
  *
  * If we allocate a new one we do not mark it dirty. That's up to the
  * vm. If we swap it in we mark it dirty since we also free the swap
  * entry since a page cannot live in both the swap and page cache.
  *
+<<<<<<< HEAD
  * fault_mm and fault_type are only supplied by shmem_fault:
+=======
+ * vma, vmf, and fault_type are only supplied by shmem_fault:
+>>>>>>> upstream/android-13
  * otherwise they are NULL.
  */
 static int shmem_getpage_gfp(struct inode *inode, pgoff_t index,
@@ -1633,17 +2518,24 @@ static int shmem_getpage_gfp(struct inode *inode, pgoff_t index,
 	struct shmem_inode_info *info = SHMEM_I(inode);
 	struct shmem_sb_info *sbinfo;
 	struct mm_struct *charge_mm;
+<<<<<<< HEAD
 	struct mem_cgroup *memcg;
 	struct page *page;
 	swp_entry_t swap;
 	enum sgp_type sgp_huge = sgp;
 	pgoff_t hindex = index;
+=======
+	struct page *page;
+	pgoff_t hindex = index;
+	gfp_t huge_gfp;
+>>>>>>> upstream/android-13
 	int error;
 	int once = 0;
 	int alloced = 0;
 
 	if (index > (MAX_LFS_FILESIZE >> PAGE_SHIFT))
 		return -EFBIG;
+<<<<<<< HEAD
 	if (sgp == SGP_NOHUGE || sgp == SGP_HUGE)
 		sgp = SGP_CACHE;
 repeat:
@@ -1665,10 +2557,51 @@ repeat:
 
 	/* fallocated page? */
 	if (page && !PageUptodate(page)) {
+=======
+repeat:
+	if (sgp <= SGP_CACHE &&
+	    ((loff_t)index << PAGE_SHIFT) >= i_size_read(inode)) {
+		return -EINVAL;
+	}
+
+	sbinfo = SHMEM_SB(inode->i_sb);
+	charge_mm = vma ? vma->vm_mm : NULL;
+
+	page = pagecache_get_page(mapping, index,
+					FGP_ENTRY | FGP_HEAD | FGP_LOCK, 0);
+
+	if (page && vma && userfaultfd_minor(vma)) {
+		if (!xa_is_value(page)) {
+			unlock_page(page);
+			put_page(page);
+		}
+		*fault_type = handle_userfault(vmf, VM_UFFD_MINOR);
+		return 0;
+	}
+
+	if (xa_is_value(page)) {
+		error = shmem_swapin_page(inode, index, &page,
+					  sgp, gfp, vma, fault_type);
+		if (error == -EEXIST)
+			goto repeat;
+
+		*pagep = page;
+		return error;
+	}
+
+	if (page) {
+		hindex = page->index;
+		if (sgp == SGP_WRITE)
+			mark_page_accessed(page);
+		if (PageUptodate(page))
+			goto out;
+		/* fallocated page */
+>>>>>>> upstream/android-13
 		if (sgp != SGP_READ)
 			goto clear;
 		unlock_page(page);
 		put_page(page);
+<<<<<<< HEAD
 		page = NULL;
 	}
 	if (page || (sgp == SGP_READ && !swap.val)) {
@@ -1894,6 +2827,127 @@ clear:
 			}
 			SetPageUptodate(head);
 		}
+=======
+	}
+
+	/*
+	 * SGP_READ: succeed on hole, with NULL page, letting caller zero.
+	 * SGP_NOALLOC: fail on hole, with NULL page, letting caller fail.
+	 */
+	*pagep = NULL;
+	if (sgp == SGP_READ)
+		return 0;
+	if (sgp == SGP_NOALLOC)
+		return -ENOENT;
+
+	/*
+	 * Fast cache lookup and swap lookup did not find it: allocate.
+	 */
+
+	if (vma && userfaultfd_missing(vma)) {
+		*fault_type = handle_userfault(vmf, VM_UFFD_MISSING);
+		return 0;
+	}
+
+	/* Never use a huge page for shmem_symlink() */
+	if (S_ISLNK(inode->i_mode))
+		goto alloc_nohuge;
+	if (!shmem_is_huge(vma, inode, index))
+		goto alloc_nohuge;
+
+	huge_gfp = vma_thp_gfp_mask(vma);
+	huge_gfp = limit_gfp_mask(huge_gfp, gfp);
+	page = shmem_alloc_and_acct_page(huge_gfp, inode, index, true);
+	if (IS_ERR(page)) {
+alloc_nohuge:
+		page = shmem_alloc_and_acct_page(gfp, inode,
+						 index, false);
+	}
+	if (IS_ERR(page)) {
+		int retry = 5;
+
+		error = PTR_ERR(page);
+		page = NULL;
+		if (error != -ENOSPC)
+			goto unlock;
+		/*
+		 * Try to reclaim some space by splitting a huge page
+		 * beyond i_size on the filesystem.
+		 */
+		while (retry--) {
+			int ret;
+
+			ret = shmem_unused_huge_shrink(sbinfo, NULL, 1);
+			if (ret == SHRINK_STOP)
+				break;
+			if (ret)
+				goto alloc_nohuge;
+		}
+		goto unlock;
+	}
+
+	if (PageTransHuge(page))
+		hindex = round_down(index, HPAGE_PMD_NR);
+	else
+		hindex = index;
+
+	if (sgp == SGP_WRITE)
+		__SetPageReferenced(page);
+
+	error = shmem_add_to_page_cache(page, mapping, hindex,
+					NULL, gfp & GFP_RECLAIM_MASK,
+					charge_mm);
+	if (error)
+		goto unacct;
+	lru_cache_add(page);
+
+	spin_lock_irq(&info->lock);
+	info->alloced += compound_nr(page);
+	inode->i_blocks += BLOCKS_PER_PAGE << compound_order(page);
+	shmem_recalc_inode(inode);
+	spin_unlock_irq(&info->lock);
+	alloced = true;
+
+	if (PageTransHuge(page) &&
+	    DIV_ROUND_UP(i_size_read(inode), PAGE_SIZE) <
+			hindex + HPAGE_PMD_NR - 1) {
+		/*
+		 * Part of the huge page is beyond i_size: subject
+		 * to shrink under memory pressure.
+		 */
+		spin_lock(&sbinfo->shrinklist_lock);
+		/*
+		 * _careful to defend against unlocked access to
+		 * ->shrink_list in shmem_unused_huge_shrink()
+		 */
+		if (list_empty_careful(&info->shrinklist)) {
+			list_add_tail(&info->shrinklist,
+				      &sbinfo->shrinklist);
+			sbinfo->shrinklist_len++;
+		}
+		spin_unlock(&sbinfo->shrinklist_lock);
+	}
+
+	/*
+	 * Let SGP_FALLOC use the SGP_WRITE optimization on a new page.
+	 */
+	if (sgp == SGP_FALLOC)
+		sgp = SGP_WRITE;
+clear:
+	/*
+	 * Let SGP_WRITE caller clear ends if write does not fill page;
+	 * but SGP_FALLOC on a page fallocated earlier must initialize
+	 * it now, lest undo on failure cancel our earlier guarantee.
+	 */
+	if (sgp != SGP_WRITE && !PageUptodate(page)) {
+		int i;
+
+		for (i = 0; i < compound_nr(page); i++) {
+			clear_highpage(page + i);
+			flush_dcache_page(page + i);
+		}
+		SetPageUptodate(page);
+>>>>>>> upstream/android-13
 	}
 
 	/* Perhaps the file has been truncated since we checked */
@@ -1909,6 +2963,10 @@ clear:
 		error = -EINVAL;
 		goto unlock;
 	}
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	*pagep = page + index - hindex;
 	return 0;
 
@@ -1916,16 +2974,23 @@ clear:
 	 * Error recovery.
 	 */
 unacct:
+<<<<<<< HEAD
 	shmem_inode_unacct_blocks(inode, 1 << compound_order(page));
+=======
+	shmem_inode_unacct_blocks(inode, compound_nr(page));
+>>>>>>> upstream/android-13
 
 	if (PageTransHuge(page)) {
 		unlock_page(page);
 		put_page(page);
 		goto alloc_nohuge;
 	}
+<<<<<<< HEAD
 failed:
 	if (swap.val && !shmem_confirm_swap(mapping, index, swap))
 		error = -EEXIST;
+=======
+>>>>>>> upstream/android-13
 unlock:
 	if (page) {
 		unlock_page(page);
@@ -1937,7 +3002,11 @@ unlock:
 		spin_unlock_irq(&info->lock);
 		goto repeat;
 	}
+<<<<<<< HEAD
 	if (error == -EEXIST)	/* from above or from radix_tree_insert */
+=======
+	if (error == -EEXIST)
+>>>>>>> upstream/android-13
 		goto repeat;
 	return error;
 }
@@ -1959,14 +3028,21 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
 	struct vm_area_struct *vma = vmf->vma;
 	struct inode *inode = file_inode(vma->vm_file);
 	gfp_t gfp = mapping_gfp_mask(inode->i_mapping);
+<<<<<<< HEAD
 	enum sgp_type sgp;
+=======
+>>>>>>> upstream/android-13
 	int err;
 	vm_fault_t ret = VM_FAULT_LOCKED;
 
 	/*
 	 * Trinity finds that probing a hole which tmpfs is punching can
 	 * prevent the hole-punch from ever completing: which in turn
+<<<<<<< HEAD
 	 * locks writers out with its hold on i_mutex.  So refrain from
+=======
+	 * locks writers out with its hold on i_rwsem.  So refrain from
+>>>>>>> upstream/android-13
 	 * faulting pages into the hole while it's being punched.  Although
 	 * shmem_undo_range() does remove the additions, it may be unable to
 	 * keep up, as each new page needs its own unmap_mapping_range() call,
@@ -1977,7 +3053,11 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
 	 * we just need to make racing faults a rare case.
 	 *
 	 * The implementation below would be much simpler if we just used a
+<<<<<<< HEAD
 	 * standard mutex or completion: but we cannot take i_mutex in fault,
+=======
+	 * standard mutex or completion: but we cannot take i_rwsem in fault,
+>>>>>>> upstream/android-13
 	 * and bloating every shmem inode for this unlikely case would be sad.
 	 */
 	if (unlikely(inode->i_private)) {
@@ -1989,16 +3069,26 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
 		    shmem_falloc->waitq &&
 		    vmf->pgoff >= shmem_falloc->start &&
 		    vmf->pgoff < shmem_falloc->next) {
+<<<<<<< HEAD
+=======
+			struct file *fpin;
+>>>>>>> upstream/android-13
 			wait_queue_head_t *shmem_falloc_waitq;
 			DEFINE_WAIT_FUNC(shmem_fault_wait, synchronous_wake_function);
 
 			ret = VM_FAULT_NOPAGE;
+<<<<<<< HEAD
 			if ((vmf->flags & FAULT_FLAG_ALLOW_RETRY) &&
 			   !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT)) {
 				/* It's polite to up mmap_sem if we can */
 				up_read(&vma->vm_mm->mmap_sem);
 				ret = VM_FAULT_RETRY;
 			}
+=======
+			fpin = maybe_unlock_mmap_for_io(vmf, NULL);
+			if (fpin)
+				ret = VM_FAULT_RETRY;
+>>>>>>> upstream/android-13
 
 			shmem_falloc_waitq = shmem_falloc->waitq;
 			prepare_to_wait(shmem_falloc_waitq, &shmem_fault_wait,
@@ -2016,11 +3106,18 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
 			spin_lock(&inode->i_lock);
 			finish_wait(shmem_falloc_waitq, &shmem_fault_wait);
 			spin_unlock(&inode->i_lock);
+<<<<<<< HEAD
+=======
+
+			if (fpin)
+				fput(fpin);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 		spin_unlock(&inode->i_lock);
 	}
 
+<<<<<<< HEAD
 	sgp = SGP_CACHE;
 
 	if ((vma->vm_flags & VM_NOHUGEPAGE) ||
@@ -2030,6 +3127,9 @@ static vm_fault_t shmem_fault(struct vm_fault *vmf)
 		sgp = SGP_HUGE;
 
 	err = shmem_getpage_gfp(inode, vmf->pgoff, &vmf->page, sgp,
+=======
+	err = shmem_getpage_gfp(inode, vmf->pgoff, &vmf->page, SGP_CACHE,
+>>>>>>> upstream/android-13
 				  gfp, vma, vmf, &ret);
 	if (err)
 		return vmf_error(err);
@@ -2054,7 +3154,11 @@ unsigned long shmem_get_unmapped_area(struct file *file,
 	get_area = current->mm->get_unmapped_area;
 	addr = get_area(file, uaddr, len, pgoff, flags);
 
+<<<<<<< HEAD
 	if (!IS_ENABLED(CONFIG_TRANSPARENT_HUGE_PAGECACHE))
+=======
+	if (!IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE))
+>>>>>>> upstream/android-13
 		return addr;
 	if (IS_ERR_VALUE(addr))
 		return addr;
@@ -2143,7 +3247,11 @@ static struct mempolicy *shmem_get_policy(struct vm_area_struct *vma,
 }
 #endif
 
+<<<<<<< HEAD
 int shmem_lock(struct file *file, int lock, struct user_struct *user)
+=======
+int shmem_lock(struct file *file, int lock, struct ucounts *ucounts)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = file_inode(file);
 	struct shmem_inode_info *info = SHMEM_I(inode);
@@ -2155,13 +3263,22 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
 	 * no serialization needed when called from shm_destroy().
 	 */
 	if (lock && !(info->flags & VM_LOCKED)) {
+<<<<<<< HEAD
 		if (!user_shm_lock(inode->i_size, user))
+=======
+		if (!user_shm_lock(inode->i_size, ucounts))
+>>>>>>> upstream/android-13
 			goto out_nomem;
 		info->flags |= VM_LOCKED;
 		mapping_set_unevictable(file->f_mapping);
 	}
+<<<<<<< HEAD
 	if (!lock && (info->flags & VM_LOCKED) && user) {
 		user_shm_unlock(inode->i_size, user);
+=======
+	if (!lock && (info->flags & VM_LOCKED) && ucounts) {
+		user_shm_unlock(inode->i_size, ucounts);
+>>>>>>> upstream/android-13
 		info->flags &= ~VM_LOCKED;
 		mapping_clear_unevictable(file->f_mapping);
 	}
@@ -2174,6 +3291,7 @@ out_nomem:
 static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct shmem_inode_info *info = SHMEM_I(file_inode(file));
+<<<<<<< HEAD
 
 	if (info->seals & F_SEAL_FUTURE_WRITE) {
 		/*
@@ -2194,6 +3312,20 @@ static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
 	file_accessed(file);
 	vma->vm_ops = &shmem_vm_ops;
 	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGE_PAGECACHE) &&
+=======
+	int ret;
+
+	ret = seal_check_future_write(info->seals, vma);
+	if (ret)
+		return ret;
+
+	/* arm64 - allow memory tagging on RAM-based files */
+	vma->vm_flags |= VM_MTE_ALLOWED;
+
+	file_accessed(file);
+	vma->vm_ops = &shmem_vm_ops;
+	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) &&
+>>>>>>> upstream/android-13
 			((vma->vm_start + ~HPAGE_PMD_MASK) & HPAGE_PMD_MASK) <
 			(vma->vm_end & HPAGE_PMD_MASK)) {
 		khugepaged_enter(vma, vma->vm_flags);
@@ -2207,12 +3339,19 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 	struct inode *inode;
 	struct shmem_inode_info *info;
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
+<<<<<<< HEAD
 
 	if (shmem_reserve_inode(sb))
+=======
+	ino_t ino;
+
+	if (shmem_reserve_inode(sb, &ino))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	inode = new_inode(sb);
 	if (inode) {
+<<<<<<< HEAD
 		inode->i_ino = get_next_ino();
 		inode_init_owner(inode, dir, mode);
 		inode->i_blocks = 0;
@@ -2228,6 +3367,17 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 		info = SHMEM_I(inode);
 		memset(info, 0, (char *)inode - (char *)info);
 		spin_lock_init(&info->lock);
+=======
+		inode->i_ino = ino;
+		inode_init_owner(&init_user_ns, inode, dir, mode);
+		inode->i_blocks = 0;
+		inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
+		inode->i_generation = prandom_u32();
+		info = SHMEM_I(inode);
+		memset(info, 0, (char *)inode - (char *)info);
+		spin_lock_init(&info->lock);
+		atomic_set(&info->stop_eviction, 0);
+>>>>>>> upstream/android-13
 		info->seals = F_SEAL_SEAL;
 		info->flags = flags & VM_NORESERVE;
 		INIT_LIST_HEAD(&info->shrinklist);
@@ -2269,6 +3419,7 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode 
 	return inode;
 }
 
+<<<<<<< HEAD
 bool shmem_mapping(struct address_space *mapping)
 {
 	return mapping->a_ops == &shmem_aops;
@@ -2281,12 +3432,23 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
 				  unsigned long src_addr,
 				  bool zeropage,
 				  struct page **pagep)
+=======
+#ifdef CONFIG_USERFAULTFD
+int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
+			   pmd_t *dst_pmd,
+			   struct vm_area_struct *dst_vma,
+			   unsigned long dst_addr,
+			   unsigned long src_addr,
+			   bool zeropage,
+			   struct page **pagep)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = file_inode(dst_vma->vm_file);
 	struct shmem_inode_info *info = SHMEM_I(inode);
 	struct address_space *mapping = inode->i_mapping;
 	gfp_t gfp = mapping_gfp_mask(mapping);
 	pgoff_t pgoff = linear_page_index(dst_vma, dst_addr);
+<<<<<<< HEAD
 	struct mem_cgroup *memcg;
 	spinlock_t *ptl;
 	void *page_kaddr;
@@ -2296,6 +3458,13 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
 	pgoff_t offset, max_off;
 
 	ret = -ENOMEM;
+=======
+	void *page_kaddr;
+	struct page *page;
+	int ret;
+	pgoff_t max_off;
+
+>>>>>>> upstream/android-13
 	if (!shmem_inode_acct_block(inode, 1)) {
 		/*
 		 * We may have got a page, returned -ENOENT triggering a retry,
@@ -2306,21 +3475,34 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
 			put_page(*pagep);
 			*pagep = NULL;
 		}
+<<<<<<< HEAD
 		goto out;
 	}
 
 	if (!*pagep) {
+=======
+		return -ENOMEM;
+	}
+
+	if (!*pagep) {
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		page = shmem_alloc_page(gfp, info, pgoff);
 		if (!page)
 			goto out_unacct_blocks;
 
+<<<<<<< HEAD
 		if (!zeropage) {	/* mcopy_atomic */
+=======
+		if (!zeropage) {	/* COPY */
+>>>>>>> upstream/android-13
 			page_kaddr = kmap_atomic(page);
 			ret = copy_from_user(page_kaddr,
 					     (const void __user *)src_addr,
 					     PAGE_SIZE);
 			kunmap_atomic(page_kaddr);
 
+<<<<<<< HEAD
 			/* fallback to copy_from_user outside mmap_sem */
 			if (unlikely(ret)) {
 				*pagep = page;
@@ -2330,18 +3512,37 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
 			}
 		} else {		/* mfill_zeropage_atomic */
 			clear_highpage(page);
+=======
+			/* fallback to copy_from_user outside mmap_lock */
+			if (unlikely(ret)) {
+				*pagep = page;
+				ret = -ENOENT;
+				/* don't free the page */
+				goto out_unacct_blocks;
+			}
+
+			flush_dcache_page(page);
+		} else {		/* ZEROPAGE */
+			clear_user_highpage(page, dst_addr);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		page = *pagep;
 		*pagep = NULL;
 	}
 
+<<<<<<< HEAD
 	VM_BUG_ON(PageLocked(page) || PageSwapBacked(page));
+=======
+	VM_BUG_ON(PageLocked(page));
+	VM_BUG_ON(PageSwapBacked(page));
+>>>>>>> upstream/android-13
 	__SetPageLocked(page);
 	__SetPageSwapBacked(page);
 	__SetPageUptodate(page);
 
 	ret = -EFAULT;
+<<<<<<< HEAD
 	offset = linear_page_index(dst_vma, dst_addr);
 	max_off = DIV_ROUND_UP(i_size_read(inode), PAGE_SIZE);
 	if (unlikely(offset >= max_off))
@@ -2387,6 +3588,21 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
 		goto out_release_uncharge_unlock;
 
 	lru_cache_add_anon(page);
+=======
+	max_off = DIV_ROUND_UP(i_size_read(inode), PAGE_SIZE);
+	if (unlikely(pgoff >= max_off))
+		goto out_release;
+
+	ret = shmem_add_to_page_cache(page, mapping, pgoff, NULL,
+				      gfp & GFP_RECLAIM_MASK, dst_mm);
+	if (ret)
+		goto out_release;
+
+	ret = mfill_atomic_install_pte(dst_mm, dst_pmd, dst_vma, dst_addr,
+				       page, true, false);
+	if (ret)
+		goto out_delete_from_cache;
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&info->lock);
 	info->alloced++;
@@ -2394,6 +3610,7 @@ static int shmem_mfill_atomic_pte(struct mm_struct *dst_mm,
 	shmem_recalc_inode(inode);
 	spin_unlock_irq(&info->lock);
 
+<<<<<<< HEAD
 	inc_mm_counter(dst_mm, mm_counter_file(page));
 	page_add_file_rmap(page, false);
 	set_pte_at(dst_mm, dst_addr, dst_pte, _dst_pte);
@@ -2411,11 +3628,19 @@ out_release_uncharge_unlock:
 	delete_from_page_cache(page);
 out_release_uncharge:
 	mem_cgroup_cancel_charge(page, memcg, false);
+=======
+	SetPageDirty(page);
+	unlock_page(page);
+	return 0;
+out_delete_from_cache:
+	delete_from_page_cache(page);
+>>>>>>> upstream/android-13
 out_release:
 	unlock_page(page);
 	put_page(page);
 out_unacct_blocks:
 	shmem_inode_unacct_blocks(inode, 1);
+<<<<<<< HEAD
 	goto out;
 }
 
@@ -2440,6 +3665,11 @@ int shmem_mfill_zeropage_pte(struct mm_struct *dst_mm,
 	return shmem_mfill_atomic_pte(dst_mm, dst_pmd, dst_vma,
 				      dst_addr, 0, true, &page);
 }
+=======
+	return ret;
+}
+#endif /* CONFIG_USERFAULTFD */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_TMPFS
 static const struct inode_operations shmem_symlink_inode_operations;
@@ -2460,7 +3690,11 @@ shmem_write_begin(struct file *file, struct address_space *mapping,
 	struct shmem_inode_info *info = SHMEM_I(inode);
 	pgoff_t index = pos >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	/* i_mutex is held by caller */
+=======
+	/* i_rwsem is held by caller */
+>>>>>>> upstream/android-13
 	if (unlikely(info->seals & (F_SEAL_GROW |
 				   F_SEAL_WRITE | F_SEAL_FUTURE_WRITE))) {
 		if (info->seals & (F_SEAL_WRITE | F_SEAL_FUTURE_WRITE))
@@ -2560,7 +3794,11 @@ static ssize_t shmem_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 
 		/*
 		 * We must evaluate after, since reads (unlike writes)
+<<<<<<< HEAD
 		 * are called without i_mutex protection against truncate
+=======
+		 * are called without i_rwsem protection against truncate
+>>>>>>> upstream/android-13
 		 */
 		nr = PAGE_SIZE;
 		i_size = i_size_read(inode);
@@ -2618,6 +3856,7 @@ static ssize_t shmem_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 	return retval ? retval : error;
 }
 
+<<<<<<< HEAD
 /*
  * llseek SEEK_DATA or SEEK_HOLE through the radix_tree.
  */
@@ -2668,16 +3907,22 @@ static pgoff_t shmem_seek_hole_data(struct address_space *mapping,
 	return index;
 }
 
+=======
+>>>>>>> upstream/android-13
 static loff_t shmem_file_llseek(struct file *file, loff_t offset, int whence)
 {
 	struct address_space *mapping = file->f_mapping;
 	struct inode *inode = mapping->host;
+<<<<<<< HEAD
 	pgoff_t start, end;
 	loff_t new_offset;
+=======
+>>>>>>> upstream/android-13
 
 	if (whence != SEEK_DATA && whence != SEEK_HOLE)
 		return generic_file_llseek_size(file, offset, whence,
 					MAX_LFS_FILESIZE, i_size_read(inode));
+<<<<<<< HEAD
 	inode_lock(inode);
 	/* We're holding i_mutex so we can access i_size directly */
 
@@ -2698,6 +3943,14 @@ static loff_t shmem_file_llseek(struct file *file, loff_t offset, int whence)
 		}
 	}
 
+=======
+	if (offset < 0)
+		return -ENXIO;
+
+	inode_lock(inode);
+	/* We're holding i_rwsem so we can access i_size directly */
+	offset = mapping_seek_hole_data(mapping, offset, inode->i_size, whence);
+>>>>>>> upstream/android-13
 	if (offset >= 0)
 		offset = vfs_setpos(file, offset, MAX_LFS_FILESIZE);
 	inode_unlock(inode);
@@ -2711,7 +3964,11 @@ static long shmem_fallocate(struct file *file, int mode, loff_t offset,
 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
 	struct shmem_inode_info *info = SHMEM_I(inode);
 	struct shmem_falloc shmem_falloc;
+<<<<<<< HEAD
 	pgoff_t start, index, end;
+=======
+	pgoff_t start, index, end, undo_fallocend;
+>>>>>>> upstream/android-13
 	int error;
 
 	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
@@ -2725,7 +3982,11 @@ static long shmem_fallocate(struct file *file, int mode, loff_t offset,
 		loff_t unmap_end = round_down(offset + len, PAGE_SIZE) - 1;
 		DECLARE_WAIT_QUEUE_HEAD_ONSTACK(shmem_falloc_waitq);
 
+<<<<<<< HEAD
 		/* protected by i_mutex */
+=======
+		/* protected by i_rwsem */
+>>>>>>> upstream/android-13
 		if (info->seals & (F_SEAL_WRITE | F_SEAL_FUTURE_WRITE)) {
 			error = -EPERM;
 			goto out;
@@ -2780,7 +4041,20 @@ static long shmem_fallocate(struct file *file, int mode, loff_t offset,
 	inode->i_private = &shmem_falloc;
 	spin_unlock(&inode->i_lock);
 
+<<<<<<< HEAD
 	for (index = start; index < end; index++) {
+=======
+	/*
+	 * info->fallocend is only relevant when huge pages might be
+	 * involved: to prevent split_huge_page() freeing fallocated
+	 * pages when FALLOC_FL_KEEP_SIZE committed beyond i_size.
+	 */
+	undo_fallocend = info->fallocend;
+	if (info->fallocend < end)
+		info->fallocend = end;
+
+	for (index = start; index < end; ) {
+>>>>>>> upstream/android-13
 		struct page *page;
 
 		/*
@@ -2794,6 +4068,10 @@ static long shmem_fallocate(struct file *file, int mode, loff_t offset,
 		else
 			error = shmem_getpage(inode, index, &page, SGP_FALLOC);
 		if (error) {
+<<<<<<< HEAD
+=======
+			info->fallocend = undo_fallocend;
+>>>>>>> upstream/android-13
 			/* Remove the !PageUptodate pages we added */
 			if (index > start) {
 				shmem_undo_range(inode,
@@ -2803,13 +4081,35 @@ static long shmem_fallocate(struct file *file, int mode, loff_t offset,
 			goto undone;
 		}
 
+<<<<<<< HEAD
+=======
+		index++;
+		/*
+		 * Here is a more important optimization than it appears:
+		 * a second SGP_FALLOC on the same huge page will clear it,
+		 * making it PageUptodate and un-undoable if we fail later.
+		 */
+		if (PageTransCompound(page)) {
+			index = round_up(index, HPAGE_PMD_NR);
+			/* Beware 32-bit wraparound */
+			if (!index)
+				index--;
+		}
+
+>>>>>>> upstream/android-13
 		/*
 		 * Inform shmem_writepage() how far we have reached.
 		 * No need for lock or barrier: we have the page lock.
 		 */
+<<<<<<< HEAD
 		shmem_falloc.next++;
 		if (!PageUptodate(page))
 			shmem_falloc.nr_falloced++;
+=======
+		if (!PageUptodate(page))
+			shmem_falloc.nr_falloced += index - shmem_falloc.next;
+		shmem_falloc.next = index;
+>>>>>>> upstream/android-13
 
 		/*
 		 * If !PageUptodate, leave it that way so that freeable pages
@@ -2854,6 +4154,12 @@ static int shmem_statfs(struct dentry *dentry, struct kstatfs *buf)
 		buf->f_ffree = sbinfo->free_inodes;
 	}
 	/* else leave those fields 0 like simple_statfs */
+<<<<<<< HEAD
+=======
+
+	buf->f_fsid = uuid_to_fsid(dentry->d_sb->s_uuid.b);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2861,7 +4167,12 @@ static int shmem_statfs(struct dentry *dentry, struct kstatfs *buf)
  * File creation. Allocate an inode, and we're done..
  */
 static int
+<<<<<<< HEAD
 shmem_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
+=======
+shmem_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+	    struct dentry *dentry, umode_t mode, dev_t dev)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	int error = -ENOSPC;
@@ -2890,7 +4201,12 @@ out_iput:
 }
 
 static int
+<<<<<<< HEAD
 shmem_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+shmem_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+	      struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	int error = -ENOSPC;
@@ -2913,20 +4229,37 @@ out_iput:
 	return error;
 }
 
+<<<<<<< HEAD
 static int shmem_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	int error;
 
 	if ((error = shmem_mknod(dir, dentry, mode | S_IFDIR, 0)))
+=======
+static int shmem_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode)
+{
+	int error;
+
+	if ((error = shmem_mknod(&init_user_ns, dir, dentry,
+				 mode | S_IFDIR, 0)))
+>>>>>>> upstream/android-13
 		return error;
 	inc_nlink(dir);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int shmem_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		bool excl)
 {
 	return shmem_mknod(dir, dentry, mode | S_IFREG, 0);
+=======
+static int shmem_create(struct user_namespace *mnt_userns, struct inode *dir,
+			struct dentry *dentry, umode_t mode, bool excl)
+{
+	return shmem_mknod(&init_user_ns, dir, dentry, mode | S_IFREG, 0);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2945,7 +4278,11 @@ static int shmem_link(struct dentry *old_dentry, struct inode *dir, struct dentr
 	 * first link must skip that, to get the accounting right.
 	 */
 	if (inode->i_nlink) {
+<<<<<<< HEAD
 		ret = shmem_reserve_inode(inode->i_sb);
+=======
+		ret = shmem_reserve_inode(inode->i_sb, NULL);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out;
 	}
@@ -3006,7 +4343,12 @@ static int shmem_exchange(struct inode *old_dir, struct dentry *old_dentry, stru
 	return 0;
 }
 
+<<<<<<< HEAD
 static int shmem_whiteout(struct inode *old_dir, struct dentry *old_dentry)
+=======
+static int shmem_whiteout(struct user_namespace *mnt_userns,
+			  struct inode *old_dir, struct dentry *old_dentry)
+>>>>>>> upstream/android-13
 {
 	struct dentry *whiteout;
 	int error;
@@ -3015,7 +4357,11 @@ static int shmem_whiteout(struct inode *old_dir, struct dentry *old_dentry)
 	if (!whiteout)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	error = shmem_mknod(old_dir, whiteout,
+=======
+	error = shmem_mknod(&init_user_ns, old_dir, whiteout,
+>>>>>>> upstream/android-13
 			    S_IFCHR | WHITEOUT_MODE, WHITEOUT_DEV);
 	dput(whiteout);
 	if (error)
@@ -3038,7 +4384,14 @@ static int shmem_whiteout(struct inode *old_dir, struct dentry *old_dentry)
  * it exists so that the VFS layer correctly free's it when it
  * gets overwritten.
  */
+<<<<<<< HEAD
 static int shmem_rename2(struct inode *old_dir, struct dentry *old_dentry, struct inode *new_dir, struct dentry *new_dentry, unsigned int flags)
+=======
+static int shmem_rename2(struct user_namespace *mnt_userns,
+			 struct inode *old_dir, struct dentry *old_dentry,
+			 struct inode *new_dir, struct dentry *new_dentry,
+			 unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(old_dentry);
 	int they_are_dirs = S_ISDIR(inode->i_mode);
@@ -3055,7 +4408,11 @@ static int shmem_rename2(struct inode *old_dir, struct dentry *old_dentry, struc
 	if (flags & RENAME_WHITEOUT) {
 		int error;
 
+<<<<<<< HEAD
 		error = shmem_whiteout(old_dir, old_dentry);
+=======
+		error = shmem_whiteout(&init_user_ns, old_dir, old_dentry);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	}
@@ -3079,7 +4436,12 @@ static int shmem_rename2(struct inode *old_dir, struct dentry *old_dentry, struc
 	return 0;
 }
 
+<<<<<<< HEAD
 static int shmem_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
+=======
+static int shmem_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+			 struct dentry *dentry, const char *symname)
+>>>>>>> upstream/android-13
 {
 	int error;
 	int len;
@@ -3097,12 +4459,18 @@ static int shmem_symlink(struct inode *dir, struct dentry *dentry, const char *s
 
 	error = security_inode_init_security(inode, dir, &dentry->d_name,
 					     shmem_initxattrs, NULL);
+<<<<<<< HEAD
 	if (error) {
 		if (error != -EOPNOTSUPP) {
 			iput(inode);
 			return error;
 		}
 		error = 0;
+=======
+	if (error && error != -EOPNOTSUPP) {
+		iput(inode);
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	inode->i_size = len-1;
@@ -3194,7 +4562,11 @@ static int shmem_initxattrs(struct inode *inode,
 		new_xattr->name = kmalloc(XATTR_SECURITY_PREFIX_LEN + len,
 					  GFP_KERNEL);
 		if (!new_xattr->name) {
+<<<<<<< HEAD
 			kfree(new_xattr);
+=======
+			kvfree(new_xattr);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 
@@ -3220,6 +4592,10 @@ static int shmem_xattr_handler_get(const struct xattr_handler *handler,
 }
 
 static int shmem_xattr_handler_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				   struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				   struct dentry *unused, struct inode *inode,
 				   const char *name, const void *value,
 				   size_t size, int flags)
@@ -3227,7 +4603,11 @@ static int shmem_xattr_handler_set(const struct xattr_handler *handler,
 	struct shmem_inode_info *info = SHMEM_I(inode);
 
 	name = xattr_full_name(handler, name);
+<<<<<<< HEAD
 	return simple_xattr_set(&info->xattrs, name, value, size, flags);
+=======
+	return simple_xattr_set(&info->xattrs, name, value, size, flags, NULL);
+>>>>>>> upstream/android-13
 }
 
 static const struct xattr_handler shmem_security_xattr_handler = {
@@ -3354,6 +4734,7 @@ static const struct export_operations shmem_export_ops = {
 	.fh_to_dentry	= shmem_fh_to_dentry,
 };
 
+<<<<<<< HEAD
 static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
 			       bool remount)
 {
@@ -3364,6 +4745,144 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
 
 	while (options != NULL) {
 		this_char = options;
+=======
+enum shmem_param {
+	Opt_gid,
+	Opt_huge,
+	Opt_mode,
+	Opt_mpol,
+	Opt_nr_blocks,
+	Opt_nr_inodes,
+	Opt_size,
+	Opt_uid,
+	Opt_inode32,
+	Opt_inode64,
+};
+
+static const struct constant_table shmem_param_enums_huge[] = {
+	{"never",	SHMEM_HUGE_NEVER },
+	{"always",	SHMEM_HUGE_ALWAYS },
+	{"within_size",	SHMEM_HUGE_WITHIN_SIZE },
+	{"advise",	SHMEM_HUGE_ADVISE },
+	{}
+};
+
+const struct fs_parameter_spec shmem_fs_parameters[] = {
+	fsparam_u32   ("gid",		Opt_gid),
+	fsparam_enum  ("huge",		Opt_huge,  shmem_param_enums_huge),
+	fsparam_u32oct("mode",		Opt_mode),
+	fsparam_string("mpol",		Opt_mpol),
+	fsparam_string("nr_blocks",	Opt_nr_blocks),
+	fsparam_string("nr_inodes",	Opt_nr_inodes),
+	fsparam_string("size",		Opt_size),
+	fsparam_u32   ("uid",		Opt_uid),
+	fsparam_flag  ("inode32",	Opt_inode32),
+	fsparam_flag  ("inode64",	Opt_inode64),
+	{}
+};
+
+static int shmem_parse_one(struct fs_context *fc, struct fs_parameter *param)
+{
+	struct shmem_options *ctx = fc->fs_private;
+	struct fs_parse_result result;
+	unsigned long long size;
+	char *rest;
+	int opt;
+
+	opt = fs_parse(fc, shmem_fs_parameters, param, &result);
+	if (opt < 0)
+		return opt;
+
+	switch (opt) {
+	case Opt_size:
+		size = memparse(param->string, &rest);
+		if (*rest == '%') {
+			size <<= PAGE_SHIFT;
+			size *= totalram_pages();
+			do_div(size, 100);
+			rest++;
+		}
+		if (*rest)
+			goto bad_value;
+		ctx->blocks = DIV_ROUND_UP(size, PAGE_SIZE);
+		ctx->seen |= SHMEM_SEEN_BLOCKS;
+		break;
+	case Opt_nr_blocks:
+		ctx->blocks = memparse(param->string, &rest);
+		if (*rest)
+			goto bad_value;
+		ctx->seen |= SHMEM_SEEN_BLOCKS;
+		break;
+	case Opt_nr_inodes:
+		ctx->inodes = memparse(param->string, &rest);
+		if (*rest)
+			goto bad_value;
+		ctx->seen |= SHMEM_SEEN_INODES;
+		break;
+	case Opt_mode:
+		ctx->mode = result.uint_32 & 07777;
+		break;
+	case Opt_uid:
+		ctx->uid = make_kuid(current_user_ns(), result.uint_32);
+		if (!uid_valid(ctx->uid))
+			goto bad_value;
+		break;
+	case Opt_gid:
+		ctx->gid = make_kgid(current_user_ns(), result.uint_32);
+		if (!gid_valid(ctx->gid))
+			goto bad_value;
+		break;
+	case Opt_huge:
+		ctx->huge = result.uint_32;
+		if (ctx->huge != SHMEM_HUGE_NEVER &&
+		    !(IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) &&
+		      has_transparent_hugepage()))
+			goto unsupported_parameter;
+		ctx->seen |= SHMEM_SEEN_HUGE;
+		break;
+	case Opt_mpol:
+		if (IS_ENABLED(CONFIG_NUMA)) {
+			mpol_put(ctx->mpol);
+			ctx->mpol = NULL;
+			if (mpol_parse_str(param->string, &ctx->mpol))
+				goto bad_value;
+			break;
+		}
+		goto unsupported_parameter;
+	case Opt_inode32:
+		ctx->full_inums = false;
+		ctx->seen |= SHMEM_SEEN_INUMS;
+		break;
+	case Opt_inode64:
+		if (sizeof(ino_t) < 8) {
+			return invalfc(fc,
+				       "Cannot use inode64 with <64bit inums in kernel\n");
+		}
+		ctx->full_inums = true;
+		ctx->seen |= SHMEM_SEEN_INUMS;
+		break;
+	}
+	return 0;
+
+unsupported_parameter:
+	return invalfc(fc, "Unsupported parameter '%s'", param->key);
+bad_value:
+	return invalfc(fc, "Bad value for '%s'", param->key);
+}
+
+static int shmem_parse_options(struct fs_context *fc, void *data)
+{
+	char *options = data;
+
+	if (options) {
+		int err = security_sb_eat_lsm_opts(options, &fc->security);
+		if (err)
+			return err;
+	}
+
+	while (options != NULL) {
+		char *this_char = options;
+>>>>>>> upstream/android-13
 		for (;;) {
 			/*
 			 * NUL-terminate this option: unfortunately,
@@ -3379,6 +4898,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
 				break;
 			}
 		}
+<<<<<<< HEAD
 		if (!*this_char)
 			continue;
 		if ((value = strchr(this_char,'=')) != NULL) {
@@ -3501,10 +5021,85 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
 	sbinfo->max_blocks  = config.max_blocks;
 	sbinfo->max_inodes  = config.max_inodes;
 	sbinfo->free_inodes = config.max_inodes - inodes;
+=======
+		if (*this_char) {
+			char *value = strchr(this_char, '=');
+			size_t len = 0;
+			int err;
+
+			if (value) {
+				*value++ = '\0';
+				len = strlen(value);
+			}
+			err = vfs_parse_fs_string(fc, this_char, value, len);
+			if (err < 0)
+				return err;
+		}
+	}
+	return 0;
+}
+
+/*
+ * Reconfigure a shmem filesystem.
+ *
+ * Note that we disallow change from limited->unlimited blocks/inodes while any
+ * are in use; but we must separately disallow unlimited->limited, because in
+ * that case we have no record of how much is already in use.
+ */
+static int shmem_reconfigure(struct fs_context *fc)
+{
+	struct shmem_options *ctx = fc->fs_private;
+	struct shmem_sb_info *sbinfo = SHMEM_SB(fc->root->d_sb);
+	unsigned long inodes;
+	struct mempolicy *mpol = NULL;
+	const char *err;
+
+	raw_spin_lock(&sbinfo->stat_lock);
+	inodes = sbinfo->max_inodes - sbinfo->free_inodes;
+	if ((ctx->seen & SHMEM_SEEN_BLOCKS) && ctx->blocks) {
+		if (!sbinfo->max_blocks) {
+			err = "Cannot retroactively limit size";
+			goto out;
+		}
+		if (percpu_counter_compare(&sbinfo->used_blocks,
+					   ctx->blocks) > 0) {
+			err = "Too small a size for current use";
+			goto out;
+		}
+	}
+	if ((ctx->seen & SHMEM_SEEN_INODES) && ctx->inodes) {
+		if (!sbinfo->max_inodes) {
+			err = "Cannot retroactively limit inodes";
+			goto out;
+		}
+		if (ctx->inodes < inodes) {
+			err = "Too few inodes for current use";
+			goto out;
+		}
+	}
+
+	if ((ctx->seen & SHMEM_SEEN_INUMS) && !ctx->full_inums &&
+	    sbinfo->next_ino > UINT_MAX) {
+		err = "Current inum too high to switch to 32-bit inums";
+		goto out;
+	}
+
+	if (ctx->seen & SHMEM_SEEN_HUGE)
+		sbinfo->huge = ctx->huge;
+	if (ctx->seen & SHMEM_SEEN_INUMS)
+		sbinfo->full_inums = ctx->full_inums;
+	if (ctx->seen & SHMEM_SEEN_BLOCKS)
+		sbinfo->max_blocks  = ctx->blocks;
+	if (ctx->seen & SHMEM_SEEN_INODES) {
+		sbinfo->max_inodes  = ctx->inodes;
+		sbinfo->free_inodes = ctx->inodes - inodes;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Preserve previous mempolicy unless mpol remount option was specified.
 	 */
+<<<<<<< HEAD
 	if (config.mpol) {
 		mpol_put(sbinfo->mpol);
 		sbinfo->mpol = config.mpol;	/* transfers initial ref */
@@ -3512,6 +5107,19 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
 out:
 	spin_unlock(&sbinfo->stat_lock);
 	return error;
+=======
+	if (ctx->mpol) {
+		mpol = sbinfo->mpol;
+		sbinfo->mpol = ctx->mpol;	/* transfers initial ref */
+		ctx->mpol = NULL;
+	}
+	raw_spin_unlock(&sbinfo->stat_lock);
+	mpol_put(mpol);
+	return 0;
+out:
+	raw_spin_unlock(&sbinfo->stat_lock);
+	return invalfc(fc, "%s", err);
+>>>>>>> upstream/android-13
 }
 
 static int shmem_show_options(struct seq_file *seq, struct dentry *root)
@@ -3531,7 +5139,34 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
 	if (!gid_eq(sbinfo->gid, GLOBAL_ROOT_GID))
 		seq_printf(seq, ",gid=%u",
 				from_kgid_munged(&init_user_ns, sbinfo->gid));
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGE_PAGECACHE
+=======
+
+	/*
+	 * Showing inode{64,32} might be useful even if it's the system default,
+	 * since then people don't have to resort to checking both here and
+	 * /proc/config.gz to confirm 64-bit inums were successfully applied
+	 * (which may not even exist if IKCONFIG_PROC isn't enabled).
+	 *
+	 * We hide it when inode64 isn't the default and we are using 32-bit
+	 * inodes, since that probably just means the feature isn't even under
+	 * consideration.
+	 *
+	 * As such:
+	 *
+	 *                     +-----------------+-----------------+
+	 *                     | TMPFS_INODE64=y | TMPFS_INODE64=n |
+	 *  +------------------+-----------------+-----------------+
+	 *  | full_inums=true  | show            | show            |
+	 *  | full_inums=false | show            | hide            |
+	 *  +------------------+-----------------+-----------------+
+	 *
+	 */
+	if (IS_ENABLED(CONFIG_TMPFS_INODE64) || sbinfo->full_inums)
+		seq_printf(seq, ",inode%d", (sbinfo->full_inums ? 64 : 32));
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>>>>>>> upstream/android-13
 	/* Rightly or wrongly, show huge mount option unmasked by shmem_huge */
 	if (sbinfo->huge)
 		seq_printf(seq, ",huge=%s", shmem_format_huge(sbinfo->huge));
@@ -3546,17 +5181,29 @@ static void shmem_put_super(struct super_block *sb)
 {
 	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
 
+<<<<<<< HEAD
+=======
+	free_percpu(sbinfo->ino_batch);
+>>>>>>> upstream/android-13
 	percpu_counter_destroy(&sbinfo->used_blocks);
 	mpol_put(sbinfo->mpol);
 	kfree(sbinfo);
 	sb->s_fs_info = NULL;
 }
 
+<<<<<<< HEAD
 int shmem_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct inode *inode;
 	struct shmem_sb_info *sbinfo;
 	int err = -ENOMEM;
+=======
+static int shmem_fill_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct shmem_options *ctx = fc->fs_private;
+	struct inode *inode;
+	struct shmem_sb_info *sbinfo;
+>>>>>>> upstream/android-13
 
 	/* Round up to L1_CACHE_BYTES to resist false sharing */
 	sbinfo = kzalloc(max((int)sizeof(struct shmem_sb_info),
@@ -3564,9 +5211,12 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
 	if (!sbinfo)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	sbinfo->mode = 0777 | S_ISVTX;
 	sbinfo->uid = current_fsuid();
 	sbinfo->gid = current_fsgid();
+=======
+>>>>>>> upstream/android-13
 	sb->s_fs_info = sbinfo;
 
 #ifdef CONFIG_TMPFS
@@ -3576,12 +5226,21 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
 	 * but the internal instance is left unlimited.
 	 */
 	if (!(sb->s_flags & SB_KERNMOUNT)) {
+<<<<<<< HEAD
 		sbinfo->max_blocks = shmem_default_max_blocks();
 		sbinfo->max_inodes = shmem_default_max_inodes();
 		if (shmem_parse_options(data, sbinfo, false)) {
 			err = -EINVAL;
 			goto failed;
 		}
+=======
+		if (!(ctx->seen & SHMEM_SEEN_BLOCKS))
+			ctx->blocks = shmem_default_max_blocks();
+		if (!(ctx->seen & SHMEM_SEEN_INODES))
+			ctx->inodes = shmem_default_max_inodes();
+		if (!(ctx->seen & SHMEM_SEEN_INUMS))
+			ctx->full_inums = IS_ENABLED(CONFIG_TMPFS_INODE64);
+>>>>>>> upstream/android-13
 	} else {
 		sb->s_flags |= SB_NOUSER;
 	}
@@ -3590,11 +5249,32 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
 #else
 	sb->s_flags |= SB_NOUSER;
 #endif
+<<<<<<< HEAD
 
 	spin_lock_init(&sbinfo->stat_lock);
 	if (percpu_counter_init(&sbinfo->used_blocks, 0, GFP_KERNEL))
 		goto failed;
 	sbinfo->free_inodes = sbinfo->max_inodes;
+=======
+	sbinfo->max_blocks = ctx->blocks;
+	sbinfo->free_inodes = sbinfo->max_inodes = ctx->inodes;
+	if (sb->s_flags & SB_KERNMOUNT) {
+		sbinfo->ino_batch = alloc_percpu(ino_t);
+		if (!sbinfo->ino_batch)
+			goto failed;
+	}
+	sbinfo->uid = ctx->uid;
+	sbinfo->gid = ctx->gid;
+	sbinfo->full_inums = ctx->full_inums;
+	sbinfo->mode = ctx->mode;
+	sbinfo->huge = ctx->huge;
+	sbinfo->mpol = ctx->mpol;
+	ctx->mpol = NULL;
+
+	raw_spin_lock_init(&sbinfo->stat_lock);
+	if (percpu_counter_init(&sbinfo->used_blocks, 0, GFP_KERNEL))
+		goto failed;
+>>>>>>> upstream/android-13
 	spin_lock_init(&sbinfo->shrinklist_lock);
 	INIT_LIST_HEAD(&sbinfo->shrinklist);
 
@@ -3624,9 +5304,40 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
 
 failed:
 	shmem_put_super(sb);
+<<<<<<< HEAD
 	return err;
 }
 
+=======
+	return -ENOMEM;
+}
+
+static int shmem_get_tree(struct fs_context *fc)
+{
+	return get_tree_nodev(fc, shmem_fill_super);
+}
+
+static void shmem_free_fc(struct fs_context *fc)
+{
+	struct shmem_options *ctx = fc->fs_private;
+
+	if (ctx) {
+		mpol_put(ctx->mpol);
+		kfree(ctx);
+	}
+}
+
+static const struct fs_context_operations shmem_fs_context_ops = {
+	.free			= shmem_free_fc,
+	.get_tree		= shmem_get_tree,
+#ifdef CONFIG_TMPFS
+	.parse_monolithic	= shmem_parse_options,
+	.parse_param		= shmem_parse_one,
+	.reconfigure		= shmem_reconfigure,
+#endif
+};
+
+>>>>>>> upstream/android-13
 static struct kmem_cache *shmem_inode_cachep;
 
 static struct inode *shmem_alloc_inode(struct super_block *sb)
@@ -3638,9 +5349,14 @@ static struct inode *shmem_alloc_inode(struct super_block *sb)
 	return &info->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void shmem_destroy_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
+=======
+static void shmem_free_in_core_inode(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	if (S_ISLNK(inode->i_mode))
 		kfree(inode->i_link);
 	kmem_cache_free(shmem_inode_cachep, SHMEM_I(inode));
@@ -3650,7 +5366,10 @@ static void shmem_destroy_inode(struct inode *inode)
 {
 	if (S_ISREG(inode->i_mode))
 		mpol_free_shared_policy(&SHMEM_I(inode)->policy);
+<<<<<<< HEAD
 	call_rcu(&inode->i_rcu, shmem_destroy_callback);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void shmem_init_inode(void *foo)
@@ -3671,7 +5390,11 @@ static void shmem_destroy_inodecache(void)
 	kmem_cache_destroy(shmem_inode_cachep);
 }
 
+<<<<<<< HEAD
 static const struct address_space_operations shmem_aops = {
+=======
+const struct address_space_operations shmem_aops = {
+>>>>>>> upstream/android-13
 	.writepage	= shmem_writepage,
 	.set_page_dirty	= __set_page_dirty_no_writeback,
 #ifdef CONFIG_TMPFS
@@ -3683,6 +5406,10 @@ static const struct address_space_operations shmem_aops = {
 #endif
 	.error_remove_page = generic_error_remove_page,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(shmem_aops);
+>>>>>>> upstream/android-13
 
 static const struct file_operations shmem_file_operations = {
 	.mmap		= shmem_mmap,
@@ -3741,16 +5468,27 @@ static const struct inode_operations shmem_special_inode_operations = {
 
 static const struct super_operations shmem_ops = {
 	.alloc_inode	= shmem_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= shmem_destroy_inode,
 #ifdef CONFIG_TMPFS
 	.statfs		= shmem_statfs,
 	.remount_fs	= shmem_remount_fs,
+=======
+	.free_inode	= shmem_free_in_core_inode,
+	.destroy_inode	= shmem_destroy_inode,
+#ifdef CONFIG_TMPFS
+	.statfs		= shmem_statfs,
+>>>>>>> upstream/android-13
 	.show_options	= shmem_show_options,
 #endif
 	.evict_inode	= shmem_evict_inode,
 	.drop_inode	= generic_delete_inode,
 	.put_super	= shmem_put_super,
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGE_PAGECACHE
+=======
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>>>>>>> upstream/android-13
 	.nr_cached_objects	= shmem_unused_huge_count,
 	.free_cached_objects	= shmem_unused_huge_scan,
 #endif
@@ -3765,28 +5503,58 @@ static const struct vm_operations_struct shmem_vm_ops = {
 #endif
 };
 
+<<<<<<< HEAD
 static struct dentry *shmem_mount(struct file_system_type *fs_type,
 	int flags, const char *dev_name, void *data)
 {
 	return mount_nodev(fs_type, flags, data, shmem_fill_super);
+=======
+int shmem_init_fs_context(struct fs_context *fc)
+{
+	struct shmem_options *ctx;
+
+	ctx = kzalloc(sizeof(struct shmem_options), GFP_KERNEL);
+	if (!ctx)
+		return -ENOMEM;
+
+	ctx->mode = 0777 | S_ISVTX;
+	ctx->uid = current_fsuid();
+	ctx->gid = current_fsgid();
+
+	fc->fs_private = ctx;
+	fc->ops = &shmem_fs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type shmem_fs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "tmpfs",
+<<<<<<< HEAD
 	.mount		= shmem_mount,
 	.kill_sb	= kill_litter_super,
 	.fs_flags	= FS_USERNS_MOUNT,
+=======
+	.init_fs_context = shmem_init_fs_context,
+#ifdef CONFIG_TMPFS
+	.parameters	= shmem_fs_parameters,
+#endif
+	.kill_sb	= kill_litter_super,
+	.fs_flags	= FS_USERNS_MOUNT | FS_THP_SUPPORT,
+>>>>>>> upstream/android-13
 };
 
 int __init shmem_init(void)
 {
 	int error;
 
+<<<<<<< HEAD
 	/* If rootfs called this, don't re-init */
 	if (shmem_inode_cachep)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	shmem_init_inodecache();
 
 	error = register_filesystem(&shmem_fs_type);
@@ -3802,11 +5570,19 @@ int __init shmem_init(void)
 		goto out1;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGE_PAGECACHE
 	if (has_transparent_hugepage() && shmem_huge > SHMEM_HUGE_DENY)
 		SHMEM_SB(shm_mnt->mnt_sb)->huge = shmem_huge;
 	else
 		shmem_huge = 0; /* just in case it was patched */
+=======
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	if (has_transparent_hugepage() && shmem_huge > SHMEM_HUGE_DENY)
+		SHMEM_SB(shm_mnt->mnt_sb)->huge = shmem_huge;
+	else
+		shmem_huge = SHMEM_HUGE_NEVER; /* just in case it was patched */
+>>>>>>> upstream/android-13
 #endif
 	return 0;
 
@@ -3818,11 +5594,19 @@ out2:
 	return error;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_TRANSPARENT_HUGE_PAGECACHE) && defined(CONFIG_SYSFS)
 static ssize_t shmem_enabled_show(struct kobject *kobj,
 		struct kobj_attribute *attr, char *buf)
 {
 	int values[] = {
+=======
+#if defined(CONFIG_TRANSPARENT_HUGEPAGE) && defined(CONFIG_SYSFS)
+static ssize_t shmem_enabled_show(struct kobject *kobj,
+				  struct kobj_attribute *attr, char *buf)
+{
+	static const int values[] = {
+>>>>>>> upstream/android-13
 		SHMEM_HUGE_ALWAYS,
 		SHMEM_HUGE_WITHIN_SIZE,
 		SHMEM_HUGE_ADVISE,
@@ -3830,6 +5614,7 @@ static ssize_t shmem_enabled_show(struct kobject *kobj,
 		SHMEM_HUGE_DENY,
 		SHMEM_HUGE_FORCE,
 	};
+<<<<<<< HEAD
 	int i, count;
 
 	for (i = 0, count = 0; i < ARRAY_SIZE(values); i++) {
@@ -3840,6 +5625,21 @@ static ssize_t shmem_enabled_show(struct kobject *kobj,
 	}
 	buf[count - 1] = '\n';
 	return count;
+=======
+	int len = 0;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(values); i++) {
+		len += sysfs_emit_at(buf, len,
+				     shmem_huge == values[i] ? "%s[%s]" : "%s%s",
+				     i ? " " : "",
+				     shmem_format_huge(values[i]));
+	}
+
+	len += sysfs_emit_at(buf, len, "\n");
+
+	return len;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t shmem_enabled_store(struct kobject *kobj,
@@ -3870,6 +5670,7 @@ static ssize_t shmem_enabled_store(struct kobject *kobj,
 
 struct kobj_attribute shmem_enabled_attr =
 	__ATTR(shmem_enabled, 0644, shmem_enabled_show, shmem_enabled_store);
+<<<<<<< HEAD
 #endif /* CONFIG_TRANSPARENT_HUGE_PAGECACHE && CONFIG_SYSFS */
 
 #ifdef CONFIG_TRANSPARENT_HUGE_PAGECACHE
@@ -3905,6 +5706,9 @@ bool shmem_huge_enabled(struct vm_area_struct *vma)
 	}
 }
 #endif /* CONFIG_TRANSPARENT_HUGE_PAGECACHE */
+=======
+#endif /* CONFIG_TRANSPARENT_HUGEPAGE && CONFIG_SYSFS */
+>>>>>>> upstream/android-13
 
 #else /* !CONFIG_SHMEM */
 
@@ -3919,7 +5723,12 @@ bool shmem_huge_enabled(struct vm_area_struct *vma)
 
 static struct file_system_type shmem_fs_type = {
 	.name		= "tmpfs",
+<<<<<<< HEAD
 	.mount		= ramfs_mount,
+=======
+	.init_fs_context = ramfs_init_fs_context,
+	.parameters	= ramfs_fs_parameters,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_litter_super,
 	.fs_flags	= FS_USERNS_MOUNT,
 };
@@ -3934,12 +5743,21 @@ int __init shmem_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 int shmem_unuse(swp_entry_t swap, struct page *page)
+=======
+int shmem_unuse(unsigned int type, bool frontswap,
+		unsigned long *fs_pages_to_unuse)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 int shmem_lock(struct file *file, int lock, struct user_struct *user)
+=======
+int shmem_lock(struct file *file, int lock, struct ucounts *ucounts)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -4049,7 +5867,11 @@ EXPORT_SYMBOL_GPL(shmem_file_setup_with_mnt);
 
 /**
  * shmem_zero_setup - setup a shared anonymous mapping
+<<<<<<< HEAD
  * @vma: the vma to be mmapped is prepared by do_mmap_pgoff
+=======
+ * @vma: the vma to be mmapped is prepared by do_mmap
+>>>>>>> upstream/android-13
  */
 int shmem_zero_setup(struct vm_area_struct *vma)
 {
@@ -4057,7 +5879,11 @@ int shmem_zero_setup(struct vm_area_struct *vma)
 	loff_t size = vma->vm_end - vma->vm_start;
 
 	/*
+<<<<<<< HEAD
 	 * Cloning a new file under mmap_sem leads to a lock ordering conflict
+=======
+	 * Cloning a new file under mmap_lock leads to a lock ordering conflict
+>>>>>>> upstream/android-13
 	 * between XFS directory reading and selinux: since this file is only
 	 * accessible to the user through its mapping, use S_PRIVATE flag to
 	 * bypass file security, in the same way as shmem_kernel_file_setup().
@@ -4071,7 +5897,11 @@ int shmem_zero_setup(struct vm_area_struct *vma)
 	vma->vm_file = file;
 	vma->vm_ops = &shmem_vm_ops;
 
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGE_PAGECACHE) &&
+=======
+	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) &&
+>>>>>>> upstream/android-13
 			((vma->vm_start + ~HPAGE_PMD_MASK) & HPAGE_PMD_MASK) <
 			(vma->vm_end & HPAGE_PMD_MASK)) {
 		khugepaged_enter(vma, vma->vm_flags);
@@ -4103,7 +5933,11 @@ struct page *shmem_read_mapping_page_gfp(struct address_space *mapping,
 	struct page *page;
 	int error;
 
+<<<<<<< HEAD
 	BUG_ON(mapping->a_ops != &shmem_aops);
+=======
+	BUG_ON(!shmem_mapping(mapping));
+>>>>>>> upstream/android-13
 	error = shmem_getpage_gfp(inode, index, &page, SGP_CACHE,
 				  gfp, NULL, NULL, NULL);
 	if (error)
@@ -4119,3 +5953,44 @@ struct page *shmem_read_mapping_page_gfp(struct address_space *mapping,
 #endif
 }
 EXPORT_SYMBOL_GPL(shmem_read_mapping_page_gfp);
+<<<<<<< HEAD
+=======
+
+int reclaim_shmem_address_space(struct address_space *mapping)
+{
+#ifdef CONFIG_SHMEM
+	pgoff_t start = 0;
+	struct page *page;
+	LIST_HEAD(page_list);
+	XA_STATE(xas, &mapping->i_pages, start);
+
+	if (!shmem_mapping(mapping))
+		return -EINVAL;
+
+	lru_add_drain();
+
+	rcu_read_lock();
+	xas_for_each(&xas, page, ULONG_MAX) {
+		if (xas_retry(&xas, page))
+			continue;
+		if (xa_is_value(page))
+			continue;
+		if (isolate_lru_page(page))
+			continue;
+
+		list_add(&page->lru, &page_list);
+
+		if (need_resched()) {
+			xas_pause(&xas);
+			cond_resched_rcu();
+		}
+	}
+	rcu_read_unlock();
+
+	return reclaim_pages(&page_list);
+#else
+	return 0;
+#endif
+}
+EXPORT_SYMBOL_GPL(reclaim_shmem_address_space);
+>>>>>>> upstream/android-13

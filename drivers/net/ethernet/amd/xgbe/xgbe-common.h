@@ -1331,6 +1331,13 @@
 #define MDIO_VEND2_PMA_CDR_CONTROL	0x8056
 #endif
 
+<<<<<<< HEAD
+=======
+#ifndef MDIO_VEND2_PMA_MISC_CTRL0
+#define MDIO_VEND2_PMA_MISC_CTRL0	0x8090
+#endif
+
+>>>>>>> upstream/android-13
 #ifndef MDIO_CTRL1_SPEED1G
 #define MDIO_CTRL1_SPEED1G		(MDIO_CTRL1_SPEED10G & ~BMCR_SPEED100)
 #endif
@@ -1389,6 +1396,13 @@
 #define XGBE_PMA_RX_RST_0_RESET_ON	0x10
 #define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
 
+<<<<<<< HEAD
+=======
+#define XGBE_PMA_PLL_CTRL_MASK		BIT(15)
+#define XGBE_PMA_PLL_CTRL_ENABLE	BIT(15)
+#define XGBE_PMA_PLL_CTRL_DISABLE	0x0000
+
+>>>>>>> upstream/android-13
 /* Bit setting and getting macros
  *  The get macro will extract the current bit field value from within
  *  the variable

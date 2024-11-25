@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  skl-i2s.h - i2s blob mapping
  *
  *  Copyright (C) 2017 Intel Corp
  *  Author: Subhransu S. Prusty < subhransu.s.prusty@intel.com>
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -15,6 +20,10 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+=======
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOUND_SOC_SKL_I2S_H
@@ -54,7 +63,11 @@ struct skl_i2s_config_mclk {
 struct skl_i2s_config_mclk_ext {
 	u32 mdivctrl;
 	u32 mdivr_count;
+<<<<<<< HEAD
 	u32 mdivr[0];
+=======
+	u32 mdivr[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct skl_i2s_config_blob_signature {

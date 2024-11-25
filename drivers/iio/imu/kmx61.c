@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * KMX61 - Kionix 6-axis Accelerometer/Magnetometer
  *
  * Copyright (c) 2014, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
  * IIO driver for KMX61 (7-bit I2C slave address 0x0E or 0x0F).
  *
+=======
+ * IIO driver for KMX61 (7-bit I2C slave address 0x0E or 0x0F).
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -316,10 +324,17 @@ static int kmx61_convert_wake_up_odr_to_bit(int val, int val2)
 
 /**
  * kmx61_set_mode() - set KMX61 device operating mode
+<<<<<<< HEAD
  * @data - kmx61 device private data pointer
  * @mode - bitmask, indicating operating mode for @device
  * @device - bitmask, indicating device for which @mode needs to be set
  * @update - update stby bits stored in device's private  @data
+=======
+ * @data: kmx61 device private data pointer
+ * @mode: bitmask, indicating operating mode for @device
+ * @device: bitmask, indicating device for which @mode needs to be set
+ * @update: update stby bits stored in device's private  @data
+>>>>>>> upstream/android-13
  *
  * For each sensor (accelerometer/magnetometer) there are two operating modes
  * STANDBY and OPERATION. Neither accel nor magn can be disabled independently
@@ -722,9 +737,15 @@ static int kmx61_setup_any_motion_interrupt(struct kmx61_data *data,
 
 /**
  * kmx61_set_power_state() - set power state for kmx61 @device
+<<<<<<< HEAD
  * @data - kmx61 device private pointer
  * @on - power state to be set for @device
  * @device - bitmask indicating device for which @on state needs to be set
+=======
+ * @data: kmx61 device private pointer
+ * @on: power state to be set for @device
+ * @device: bitmask indicating device for which @on state needs to be set
+>>>>>>> upstream/android-13
  *
  * Notice that when ACC power state needs to be set to ON and MAG is in
  * OPERATION then we know that kmx61_runtime_resume was already called
@@ -754,7 +775,11 @@ static int kmx61_set_power_state(struct kmx61_data *data, bool on, u8 device)
 	}
 
 	if (on) {
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(&data->client->dev);
+=======
+		ret = pm_runtime_resume_and_get(&data->client->dev);
+>>>>>>> upstream/android-13
 	} else {
 		pm_runtime_mark_last_busy(&data->client->dev);
 		ret = pm_runtime_put_autosuspend(&data->client->dev);
@@ -763,8 +788,11 @@ static int kmx61_set_power_state(struct kmx61_data *data, bool on, u8 device)
 		dev_err(&data->client->dev,
 			"Failed: kmx61_set_power_state for %d, ret %d\n",
 			on, ret);
+<<<<<<< HEAD
 		if (on)
 			pm_runtime_put_noidle(&data->client->dev);
+=======
+>>>>>>> upstream/android-13
 
 		return ret;
 	}
@@ -1067,24 +1095,37 @@ err_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int kmx61_trig_try_reenable(struct iio_trigger *trig)
+=======
+static void kmx61_trig_reenable(struct iio_trigger *trig)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *indio_dev = iio_trigger_get_drvdata(trig);
 	struct kmx61_data *data = kmx61_get_data(indio_dev);
 	int ret;
 
 	ret = i2c_smbus_read_byte_data(data->client, KMX61_REG_INL);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_inl\n");
 		return ret;
 	}
 
 	return 0;
+=======
+	if (ret < 0)
+		dev_err(&data->client->dev, "Error reading reg_inl\n");
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_trigger_ops kmx61_trigger_ops = {
 	.set_trigger_state = kmx61_data_rdy_trigger_set_state,
+<<<<<<< HEAD
 	.try_reenable = kmx61_trig_try_reenable,
+=======
+	.reenable = kmx61_trig_reenable,
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t kmx61_event_handler(int irq, void *private)
@@ -1252,7 +1293,10 @@ static struct iio_dev *kmx61_indiodev_setup(struct kmx61_data *data,
 
 	kmx61_set_data(indio_dev, data);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &data->client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = chan;
 	indio_dev->num_channels = num_channels;
 	indio_dev->name = name;
@@ -1273,11 +1317,18 @@ static struct iio_trigger *kmx61_trigger_setup(struct kmx61_data *data,
 				      "%s-%s-dev%d",
 				      indio_dev->name,
 				      tag,
+<<<<<<< HEAD
 				      indio_dev->id);
 	if (!trig)
 		return ERR_PTR(-ENOMEM);
 
 	trig->dev.parent = &data->client->dev;
+=======
+				      iio_device_id(indio_dev));
+	if (!trig)
+		return ERR_PTR(-ENOMEM);
+
+>>>>>>> upstream/android-13
 	trig->ops = &kmx61_trigger_ops;
 	iio_trigger_set_drvdata(trig, indio_dev);
 
@@ -1397,7 +1448,11 @@ static int kmx61_probe(struct i2c_client *client,
 	ret = iio_device_register(data->acc_indio_dev);
 	if (ret < 0) {
 		dev_err(&client->dev, "Failed to register acc iio device\n");
+<<<<<<< HEAD
 		goto err_buffer_cleanup_mag;
+=======
+		goto err_pm_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	ret = iio_device_register(data->mag_indio_dev);
@@ -1410,6 +1465,12 @@ static int kmx61_probe(struct i2c_client *client,
 
 err_iio_unregister_acc:
 	iio_device_unregister(data->acc_indio_dev);
+<<<<<<< HEAD
+=======
+err_pm_cleanup:
+	pm_runtime_dont_use_autosuspend(&client->dev);
+	pm_runtime_disable(&client->dev);
+>>>>>>> upstream/android-13
 err_buffer_cleanup_mag:
 	if (client->irq > 0)
 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
@@ -1436,7 +1497,10 @@ static int kmx61_remove(struct i2c_client *client)
 
 	pm_runtime_disable(&client->dev);
 	pm_runtime_set_suspended(&client->dev);
+<<<<<<< HEAD
 	pm_runtime_put_noidle(&client->dev);
+=======
+>>>>>>> upstream/android-13
 
 	if (client->irq > 0) {
 		iio_triggered_buffer_cleanup(data->acc_indio_dev);

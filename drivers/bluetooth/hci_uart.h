@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *
  *  Bluetooth HCI UART driver
@@ -5,6 +9,7 @@
  *  Copyright (C) 2000-2001  Qualcomm Incorporated
  *  Copyright (C) 2002-2003  Maxim Krasnyansky <maxk@qualcomm.com>
  *  Copyright (C) 2004-2005  Marcel Holtmann <marcel@holtmann.org>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef N_HCI
@@ -101,9 +108,16 @@ struct hci_uart {
 };
 
 /* HCI_UART proto flag bits */
+<<<<<<< HEAD
 #define HCI_UART_PROTO_SET	0
 #define HCI_UART_REGISTERED	1
 #define HCI_UART_PROTO_READY	2
+=======
+#define HCI_UART_PROTO_SET		0
+#define HCI_UART_REGISTERED		1
+#define HCI_UART_PROTO_READY		2
+#define HCI_UART_NO_SUSPEND_NOTIFIER	3
+>>>>>>> upstream/android-13
 
 /* TX states  */
 #define HCI_UART_SENDING	1
@@ -115,6 +129,10 @@ int hci_uart_register_device(struct hci_uart *hu, const struct hci_uart_proto *p
 void hci_uart_unregister_device(struct hci_uart *hu);
 
 int hci_uart_tx_wakeup(struct hci_uart *hu);
+<<<<<<< HEAD
+=======
+int hci_uart_wait_until_sent(struct hci_uart *hu);
+>>>>>>> upstream/android-13
 int hci_uart_init_ready(struct hci_uart *hu);
 void hci_uart_init_work(struct work_struct *work);
 void hci_uart_set_baudrate(struct hci_uart *hu, unsigned int speed);
@@ -157,6 +175,16 @@ struct h4_recv_pkt {
 	.lsize = 1, \
 	.maxlen = HCI_MAX_EVENT_SIZE
 
+<<<<<<< HEAD
+=======
+#define H4_RECV_ISO \
+	.type = HCI_ISODATA_PKT, \
+	.hlen = HCI_ISO_HDR_SIZE, \
+	.loff = 2, \
+	.lsize = 2, \
+	.maxlen = HCI_MAX_FRAME_SIZE \
+
+>>>>>>> upstream/android-13
 struct sk_buff *h4_recv_buf(struct hci_dev *hdev, struct sk_buff *skb,
 			    const unsigned char *buffer, int count,
 			    const struct h4_recv_pkt *pkts, int pkts_count);

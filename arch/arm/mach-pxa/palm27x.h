@@ -1,23 +1,39 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Common functions for Palm LD, T5, TX, Z72
  *
  * Copyright (C) 2010
  * Marek Vasut <marek.vasut@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef	__INCLUDE_MACH_PALM27X__
 #define	__INCLUDE_MACH_PALM27X__
 
+<<<<<<< HEAD
 #if defined(CONFIG_MMC_PXA) || defined(CONFIG_MMC_PXA_MODULE)
 extern void __init palm27x_mmc_init(int detect, int ro, int power,
 					int power_inverted);
 #else
 static inline void palm27x_mmc_init(int detect, int ro, int power,
 					int power_inverted)
+=======
+#include <linux/gpio/machine.h>
+
+#if defined(CONFIG_MMC_PXA) || defined(CONFIG_MMC_PXA_MODULE)
+extern void __init palm27x_mmc_init(struct gpiod_lookup_table *gtable);
+#else
+static inline void palm27x_mmc_init(struct gpiod_lookup_table *gtable)
+>>>>>>> upstream/android-13
 {}
 #endif
 

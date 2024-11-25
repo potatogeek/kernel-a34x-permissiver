@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005-2006 Micronas USA Inc.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2005-2006 Micronas USA Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -208,7 +214,11 @@ static int init_i2c_module(struct i2c_adapter *adapter, const struct go_i2c *con
 	struct i2c_board_info info;
 
 	memset(&info, 0, sizeof(info));
+<<<<<<< HEAD
 	strlcpy(info.type, i2c->type, sizeof(info.type));
+=======
+	strscpy(info.type, i2c->type, sizeof(info.type));
+>>>>>>> upstream/android-13
 	info.addr = i2c->addr;
 	info.flags = i2c->flags;
 
@@ -651,7 +661,11 @@ void go7007_parse_video_stream(struct go7007 *go, u8 *buf, int length)
 			case 0xD8:
 				if (go->format == V4L2_PIX_FMT_MJPEG)
 					vb = frame_boundary(go, vb);
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				store_byte(vb, 0xFF);
 				store_byte(vb, buf[i]);
@@ -699,21 +713,29 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
 						struct device *dev)
 {
 	struct go7007 *go;
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
 	if (go == NULL)
 		return NULL;
 	go->dev = dev;
 	go->board_info = board;
+<<<<<<< HEAD
 	go->board_id = 0;
 	go->tuner_type = -1;
 	go->channel_number = 0;
 	go->name[0] = 0;
+=======
+	go->tuner_type = -1;
+>>>>>>> upstream/android-13
 	mutex_init(&go->hw_lock);
 	init_waitqueue_head(&go->frame_waitq);
 	spin_lock_init(&go->spinlock);
 	go->status = STATUS_INIT;
+<<<<<<< HEAD
 	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
 	go->i2c_adapter_online = 0;
 	go->interrupt_available = 0;
@@ -742,6 +764,14 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
 		go->modet_map[i] = 0;
 	go->audio_deliver = NULL;
 	go->audio_enabled = 0;
+=======
+	init_waitqueue_head(&go->interrupt_waitq);
+	go7007_update_board(go);
+	go->format = V4L2_PIX_FMT_MJPEG;
+	go->bitrate = 1500000;
+	go->fps_scale = 1;
+	go->aspect_ratio = GO7007_RATIO_1_1;
+>>>>>>> upstream/android-13
 
 	return go;
 }

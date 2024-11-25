@@ -18,6 +18,10 @@
  */
 struct sigcontext {
 	struct user_regs_struct regs;
+<<<<<<< HEAD
+=======
+	struct user_regs_arcv2 v2abi;
+>>>>>>> upstream/android-13
 };
 
 #endif /* _ASM_ARC_SIGCONTEXT_H */

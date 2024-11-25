@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Driver for TI CC2520 802.15.4 Wireless-PAN Networking controller
  *
  * Copyright (C) 2014 Varka Bhadram <varkab@cdac.in>
  *		      Md.Jamal Mohiuddin <mjmohiuddin@cdac.in>
  *		      P Sowjanya <sowjanyap@cdac.in>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -223,7 +230,10 @@ static int
 cc2520_cmd_strobe(struct cc2520_private *priv, u8 cmd)
 {
 	int ret;
+<<<<<<< HEAD
 	u8 status = 0xff;
+=======
+>>>>>>> upstream/android-13
 	struct spi_message msg;
 	struct spi_transfer xfer = {
 		.len = 0,
@@ -241,8 +251,11 @@ cc2520_cmd_strobe(struct cc2520_private *priv, u8 cmd)
 		 priv->buf[0]);
 
 	ret = spi_sync(priv->spi, &msg);
+<<<<<<< HEAD
 	if (!ret)
 		status = priv->buf[0];
+=======
+>>>>>>> upstream/android-13
 	dev_vdbg(&priv->spi->dev,
 		 "buf[0] = %02x\n", priv->buf[0]);
 	mutex_unlock(&priv->buffer_mutex);

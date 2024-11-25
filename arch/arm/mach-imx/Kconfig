@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_MXC
 	bool "Freescale i.MX family"
 	depends on ARCH_MULTI_V4_V5 || ARCH_MULTI_V6_V7 || ARM_SINGLE_ARMV7M
@@ -46,6 +50,7 @@ config HAVE_IMX_SRC
 	def_bool y if SMP
 	select ARCH_HAS_RESET_CONTROLLER
 
+<<<<<<< HEAD
 config IMX_HAVE_IOMUX_V1
 	bool
 
@@ -411,6 +416,28 @@ endif
 
 comment "Device tree only"
 
+=======
+if ARCH_MULTI_V6
+
+comment "ARM1136 platforms"
+
+config SOC_IMX31
+	bool "i.MX31 support"
+	select CPU_V6
+	select MXC_AVIC
+	help
+	  This enables support for Freescale i.MX31 processor
+
+config SOC_IMX35
+	bool "i.MX35 support"
+	select MXC_AVIC
+	select PINCTRL_IMX35
+	help
+	  This enables support for Freescale i.MX35 processor
+
+endif
+
+>>>>>>> upstream/android-13
 if ARCH_MULTI_V4T
 
 config SOC_IMX1
@@ -427,12 +454,27 @@ if ARCH_MULTI_V5
 
 config SOC_IMX25
 	bool "i.MX25 support"
+<<<<<<< HEAD
 	select ARCH_MXC_IOMUX_V3
+=======
+>>>>>>> upstream/android-13
 	select CPU_ARM926T
 	select MXC_AVIC
 	select PINCTRL_IMX25
 	help
 	  This enables support for Freescale i.MX25 processor
+<<<<<<< HEAD
+=======
+
+config SOC_IMX27
+	bool "i.MX27 support"
+	select CPU_ARM926T
+	select MXC_AVIC
+	select PINCTRL_IMX27
+	help
+	  This enables support for Freescale i.MX27 processor
+
+>>>>>>> upstream/android-13
 endif
 
 if ARCH_MULTI_V7
@@ -470,8 +512,11 @@ config	SOC_IMX53
 config SOC_IMX6
 	bool
 	select ARM_CPU_SUSPEND if (PM || CPU_IDLE)
+<<<<<<< HEAD
 	select ARM_ERRATA_754322
 	select ARM_ERRATA_775420
+=======
+>>>>>>> upstream/android-13
 	select ARM_GIC
 	select HAVE_IMX_ANATOP
 	select HAVE_IMX_GPC
@@ -483,6 +528,11 @@ config SOC_IMX6
 config SOC_IMX6Q
 	bool "i.MX6 Quad/DualLite support"
 	select ARM_ERRATA_764369 if SMP
+<<<<<<< HEAD
+=======
+	select ARM_ERRATA_754322
+	select ARM_ERRATA_775420
+>>>>>>> upstream/android-13
 	select HAVE_ARM_SCU if SMP
 	select HAVE_ARM_TWD
 	select PINCTRL_IMX6Q
@@ -493,6 +543,11 @@ config SOC_IMX6Q
 
 config SOC_IMX6SL
 	bool "i.MX6 SoloLite support"
+<<<<<<< HEAD
+=======
+	select ARM_ERRATA_754322
+	select ARM_ERRATA_775420
+>>>>>>> upstream/android-13
 	select PINCTRL_IMX6SL
 	select SOC_IMX6
 
@@ -501,6 +556,11 @@ config SOC_IMX6SL
 
 config SOC_IMX6SLL
 	bool "i.MX6 SoloLiteLite support"
+<<<<<<< HEAD
+=======
+	select ARM_ERRATA_754322
+	select ARM_ERRATA_775420
+>>>>>>> upstream/android-13
 	select PINCTRL_IMX6SLL
 	select SOC_IMX6
 
@@ -509,6 +569,11 @@ config SOC_IMX6SLL
 
 config SOC_IMX6SX
 	bool "i.MX6 SoloX support"
+<<<<<<< HEAD
+=======
+	select ARM_ERRATA_754322
+	select ARM_ERRATA_775420
+>>>>>>> upstream/android-13
 	select PINCTRL_IMX6SX
 	select SOC_IMX6
 
@@ -519,6 +584,10 @@ config SOC_IMX6UL
 	bool "i.MX6 UltraLite support"
 	select PINCTRL_IMX6UL
 	select SOC_IMX6
+<<<<<<< HEAD
+=======
+	select ARM_ERRATA_814220
+>>>>>>> upstream/android-13
 
 	help
 	  This enables support for Freescale i.MX6 UltraLite processor.
@@ -533,10 +602,17 @@ config SOC_LS1021A
 
 endif
 
+<<<<<<< HEAD
 comment "Cortex-A/Cortex-M asymmetric multiprocessing platforms"
 
 if ARCH_MULTI_V7 || ARM_SINGLE_ARMV7M
 
+=======
+if ARCH_MULTI_V7 || ARM_SINGLE_ARMV7M
+
+comment "Cortex-A/Cortex-M asymmetric multiprocessing platforms"
+
+>>>>>>> upstream/android-13
 config SOC_IMX7D_CA7
 	bool
 	select ARM_GIC
@@ -555,9 +631,25 @@ config SOC_IMX7D
 	select PINCTRL_IMX7D
 	select SOC_IMX7D_CA7 if ARCH_MULTI_V7
 	select SOC_IMX7D_CM4 if ARM_SINGLE_ARMV7M
+<<<<<<< HEAD
 	help
 		This enables support for Freescale i.MX7 Dual processor.
 
+=======
+	select ARM_ERRATA_814220 if ARCH_MULTI_V7
+	help
+		This enables support for Freescale i.MX7 Dual processor.
+
+config SOC_IMX7ULP
+	bool "i.MX7ULP support"
+	select CLKSRC_IMX_TPM
+	select PINCTRL_IMX7ULP
+	select SOC_IMX7D_CA7 if ARCH_MULTI_V7
+	select SOC_IMX7D_CM4 if ARM_SINGLE_ARMV7M
+	help
+	  This enables support for Freescale i.MX7 Ultra Low Power processor.
+
+>>>>>>> upstream/android-13
 config SOC_VF610
 	bool "Vybrid Family VF610 support"
 	select ARM_GIC if ARCH_MULTI_V7
@@ -589,6 +681,9 @@ endchoice
 
 endif
 
+<<<<<<< HEAD
 source "arch/arm/mach-imx/devices/Kconfig"
 
+=======
+>>>>>>> upstream/android-13
 endif

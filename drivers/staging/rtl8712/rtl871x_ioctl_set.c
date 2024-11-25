@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl871x_ioctl_set.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -78,7 +85,11 @@ static u8 do_join(struct _adapter *padapter)
 	}
 
 	ret = r8712_select_and_join_from_scan(pmlmepriv);
+<<<<<<< HEAD
 	if (ret == _SUCCESS) {
+=======
+	if (!ret) {
+>>>>>>> upstream/android-13
 		mod_timer(&pmlmepriv->assoc_timer,
 			  jiffies + msecs_to_jiffies(MAX_JOIN_TIMEOUT));
 	} else {
@@ -96,7 +107,11 @@ static u8 do_join(struct _adapter *padapter)
 			       sizeof(struct ndis_802_11_ssid));
 			r8712_update_registrypriv_dev_network(padapter);
 			r8712_generate_random_ibss(pibss);
+<<<<<<< HEAD
 			if (r8712_createbss_cmd(padapter) != _SUCCESS)
+=======
+			if (r8712_createbss_cmd(padapter))
+>>>>>>> upstream/android-13
 				return false;
 			pmlmepriv->to_join = false;
 		} else {
@@ -332,6 +347,7 @@ u8 r8712_set_802_11_authentication_mode(struct _adapter *padapter,
 	psecuritypriv->ndisauthtype = authmode;
 	if (psecuritypriv->ndisauthtype > 3)
 		psecuritypriv->AuthAlgrthm = 2; /* 802.1x */
+<<<<<<< HEAD
 	if (r8712_set_auth(padapter, psecuritypriv) == _SUCCESS)
 		ret = true;
 	else
@@ -341,13 +357,28 @@ u8 r8712_set_802_11_authentication_mode(struct _adapter *padapter,
 
 u8 r8712_set_802_11_add_wep(struct _adapter *padapter,
 			    struct NDIS_802_11_WEP *wep)
+=======
+	if (r8712_set_auth(padapter, psecuritypriv))
+		ret = false;
+	else
+		ret = true;
+	return ret;
+}
+
+int r8712_set_802_11_add_wep(struct _adapter *padapter,
+			     struct NDIS_802_11_WEP *wep)
+>>>>>>> upstream/android-13
 {
 	sint	keyid;
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
 
 	keyid = wep->KeyIndex & 0x3fffffff;
 	if (keyid >= WEP_KEYS)
+<<<<<<< HEAD
 		return false;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	switch (wep->KeyLength) {
 	case 5:
 		psecuritypriv->PrivacyAlgrthm = _WEP40_;
@@ -363,7 +394,11 @@ u8 r8712_set_802_11_add_wep(struct _adapter *padapter,
 		wep->KeyLength);
 	psecuritypriv->DefKeylen[keyid] = wep->KeyLength;
 	psecuritypriv->PrivacyKeyIndex = keyid;
+<<<<<<< HEAD
 	if (r8712_set_key(padapter, psecuritypriv, keyid) == _FAIL)
 		return false;
 	return _SUCCESS;
+=======
+	return r8712_set_key(padapter, psecuritypriv, keyid);
+>>>>>>> upstream/android-13
 }

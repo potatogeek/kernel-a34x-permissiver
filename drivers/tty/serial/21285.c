@@ -41,8 +41,48 @@
 
 static const char serial21285_name[] = "Footbridge UART";
 
+<<<<<<< HEAD
 #define tx_enabled(port)	((port)->unused[0])
 #define rx_enabled(port)	((port)->unused[1])
+=======
+/*
+ * We only need 2 bits of data, so instead of creating a whole structure for
+ * this, use bits of the private_data pointer of the uart port structure.
+ */
+#define tx_enabled_bit	0
+#define rx_enabled_bit	1
+
+static bool is_enabled(struct uart_port *port, int bit)
+{
+	unsigned long *private_data = (unsigned long *)&port->private_data;
+
+	if (test_bit(bit, private_data))
+		return true;
+	return false;
+}
+
+static void enable(struct uart_port *port, int bit)
+{
+	unsigned long *private_data = (unsigned long *)&port->private_data;
+
+	set_bit(bit, private_data);
+}
+
+static void disable(struct uart_port *port, int bit)
+{
+	unsigned long *private_data = (unsigned long *)&port->private_data;
+
+	clear_bit(bit, private_data);
+}
+
+#define is_tx_enabled(port)	is_enabled(port, tx_enabled_bit)
+#define tx_enable(port)		enable(port, tx_enabled_bit)
+#define tx_disable(port)	disable(port, tx_enabled_bit)
+
+#define is_rx_enabled(port)	is_enabled(port, rx_enabled_bit)
+#define rx_enable(port)		enable(port, rx_enabled_bit)
+#define rx_disable(port)	disable(port, rx_enabled_bit)
+>>>>>>> upstream/android-13
 
 /*
  * The documented expression for selecting the divisor is:
@@ -57,25 +97,43 @@ static const char serial21285_name[] = "Footbridge UART";
 
 static void serial21285_stop_tx(struct uart_port *port)
 {
+<<<<<<< HEAD
 	if (tx_enabled(port)) {
 		disable_irq_nosync(IRQ_CONTX);
 		tx_enabled(port) = 0;
+=======
+	if (is_tx_enabled(port)) {
+		disable_irq_nosync(IRQ_CONTX);
+		tx_disable(port);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void serial21285_start_tx(struct uart_port *port)
 {
+<<<<<<< HEAD
 	if (!tx_enabled(port)) {
 		enable_irq(IRQ_CONTX);
 		tx_enabled(port) = 1;
+=======
+	if (!is_tx_enabled(port)) {
+		enable_irq(IRQ_CONTX);
+		tx_enable(port);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void serial21285_stop_rx(struct uart_port *port)
 {
+<<<<<<< HEAD
 	if (rx_enabled(port)) {
 		disable_irq_nosync(IRQ_CONRX);
 		rx_enabled(port) = 0;
+=======
+	if (is_rx_enabled(port)) {
+		disable_irq_nosync(IRQ_CONRX);
+		rx_disable(port);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -185,8 +243,13 @@ static int serial21285_startup(struct uart_port *port)
 {
 	int ret;
 
+<<<<<<< HEAD
 	tx_enabled(port) = 1;
 	rx_enabled(port) = 1;
+=======
+	tx_enable(port);
+	rx_enable(port);
+>>>>>>> upstream/android-13
 
 	ret = request_irq(IRQ_CONRX, serial21285_rx_chars, 0,
 			  serial21285_name, port);

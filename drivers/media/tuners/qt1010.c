@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for Quantek QT1010 silicon tuner
  *
  *  Copyright (C) 2006 Antti Palosaari <crope@iki.fi>
  *                     Aapo Tahkola <aet@rasterburn.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include "qt1010.h"
 #include "qt1010_priv.h"
@@ -224,13 +231,18 @@ static int qt1010_set_params(struct dvb_frontend *fe)
 static int qt1010_init_meas1(struct qt1010_priv *priv,
 			     u8 oper, u8 reg, u8 reg_init_val, u8 *retval)
 {
+<<<<<<< HEAD
 	u8 i, val1, uninitialized_var(val2);
+=======
+	u8 i, val1, val2;
+>>>>>>> upstream/android-13
 	int err;
 
 	qt1010_i2c_oper_t i2c_data[] = {
 		{ QT1010_WR, reg, reg_init_val },
 		{ QT1010_WR, 0x1e, 0x00 },
 		{ QT1010_WR, 0x1e, oper },
+<<<<<<< HEAD
 		{ QT1010_RD, reg, 0xff }
 	};
 
@@ -248,6 +260,26 @@ static int qt1010_init_meas1(struct qt1010_priv *priv,
 		val1 = val2;
 		err = qt1010_readreg(priv, reg, &val2);
 		if (err) return err;
+=======
+	};
+
+	for (i = 0; i < ARRAY_SIZE(i2c_data); i++) {
+		err = qt1010_writereg(priv, i2c_data[i].reg,
+				      i2c_data[i].val);
+		if (err)
+			return err;
+	}
+
+	err = qt1010_readreg(priv, reg, &val2);
+	if (err)
+		return err;
+	do {
+		val1 = val2;
+		err = qt1010_readreg(priv, reg, &val2);
+		if (err)
+			return err;
+
+>>>>>>> upstream/android-13
 		dev_dbg(&priv->i2c->dev, "%s: compare reg:%02x %02x %02x\n",
 				__func__, reg, val1, val2);
 	} while (val1 != val2);
@@ -259,7 +291,11 @@ static int qt1010_init_meas1(struct qt1010_priv *priv,
 static int qt1010_init_meas2(struct qt1010_priv *priv,
 			    u8 reg_init_val, u8 *retval)
 {
+<<<<<<< HEAD
 	u8 i, uninitialized_var(val);
+=======
+	u8 i, val = 0xff;
+>>>>>>> upstream/android-13
 	int err;
 	qt1010_i2c_oper_t i2c_data[] = {
 		{ QT1010_WR, 0x07, reg_init_val },
@@ -270,6 +306,10 @@ static int qt1010_init_meas2(struct qt1010_priv *priv,
 		{ QT1010_WR, 0x1e, 0x00 },
 		{ QT1010_WR, 0x22, 0xff }
 	};
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(i2c_data); i++) {
 		if (i2c_data[i].oper == QT1010_WR) {
 			err = qt1010_writereg(priv, i2c_data[i].reg,
@@ -277,7 +317,12 @@ static int qt1010_init_meas2(struct qt1010_priv *priv,
 		} else {
 			err = qt1010_readreg(priv, i2c_data[i].reg, &val);
 		}
+<<<<<<< HEAD
 		if (err) return err;
+=======
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	}
 	*retval = val;
 	return 0;

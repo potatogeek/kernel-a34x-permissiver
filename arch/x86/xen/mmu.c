@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+
+>>>>>>> upstream/android-13
 #include <linux/pfn.h>
 #include <asm/xen/page.h>
 #include <asm/xen/hypercall.h>
@@ -6,12 +11,15 @@
 #include "multicalls.h"
 #include "mmu.h"
 
+<<<<<<< HEAD
 /*
  * Protects atomic reservation decrease/increase against concurrent increases.
  * Also protects non-atomic updates of current_pages and balloon lists.
  */
 DEFINE_SPINLOCK(xen_reservation_lock);
 
+=======
+>>>>>>> upstream/android-13
 unsigned long arbitrary_virt_to_mfn(void *vaddr)
 {
 	xmaddr_t maddr = arbitrary_virt_to_machine(vaddr);
@@ -42,6 +50,7 @@ xmaddr_t arbitrary_virt_to_machine(void *vaddr)
 }
 EXPORT_SYMBOL_GPL(arbitrary_virt_to_machine);
 
+<<<<<<< HEAD
 static noinline void xen_flush_tlb_all(void)
 {
 	struct mmuext_op *op;
@@ -222,6 +231,8 @@ int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
 }
 EXPORT_SYMBOL_GPL(xen_remap_domain_mfn_array);
 
+=======
+>>>>>>> upstream/android-13
 /* Returns: 0 success */
 int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
 			       int nr, struct page **pages)

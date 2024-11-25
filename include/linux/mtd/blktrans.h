@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2003-2010 David Woodhouse <dwmw2@infradead.org>
  *
@@ -15,6 +16,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright © 2003-2010 David Woodhouse <dwmw2@infradead.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MTD_TRANS_H__
@@ -23,7 +29,10 @@
 #include <linux/mutex.h>
 #include <linux/kref.h>
 #include <linux/sysfs.h>
+<<<<<<< HEAD
 #include <linux/workqueue.h>
+=======
+>>>>>>> upstream/android-13
 
 struct hd_geometry;
 struct mtd_info;
@@ -44,9 +53,15 @@ struct mtd_blktrans_dev {
 	struct kref ref;
 	struct gendisk *disk;
 	struct attribute_group *disk_attributes;
+<<<<<<< HEAD
 	struct workqueue_struct *wq;
 	struct work_struct work;
 	struct request_queue *rq;
+=======
+	struct request_queue *rq;
+	struct list_head rq_list;
+	struct blk_mq_tag_set *tag_set;
+>>>>>>> upstream/android-13
 	spinlock_t queue_lock;
 	void *priv;
 	fmode_t file_mode;
@@ -92,5 +107,19 @@ extern int add_mtd_blktrans_dev(struct mtd_blktrans_dev *dev);
 extern int del_mtd_blktrans_dev(struct mtd_blktrans_dev *dev);
 extern int mtd_blktrans_cease_background(struct mtd_blktrans_dev *dev);
 
+<<<<<<< HEAD
+=======
+/**
+ * module_mtd_blktrans() - Helper macro for registering a mtd blktrans driver
+ * @__mtd_blktrans: mtd_blktrans_ops struct
+ *
+ * Helper macro for mtd blktrans drivers which do not do anything special in
+ * module init/exit. This eliminates a lot of boilerplate. Each module may only
+ * use this macro once, and calling it replaces module_init() and module_exit()
+ */
+#define module_mtd_blktrans(__mtd_blktrans) \
+	module_driver(__mtd_blktrans, register_mtd_blktrans, \
+					deregister_mtd_blktrans)
+>>>>>>> upstream/android-13
 
 #endif /* __MTD_TRANS_H__ */

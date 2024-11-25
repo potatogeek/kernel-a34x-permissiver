@@ -9,7 +9,10 @@ script_base=$(realpath $(dirname $0))
 exec $script_base/../../../scripts/checkpatch.pl \
 	--subjective \
 	--no-summary \
+<<<<<<< HEAD
 	--max-line-length=90 \
+=======
+>>>>>>> upstream/android-13
 	--show-types \
 	--ignore ARCH_INCLUDE_LINUX \
 	--ignore BIT_MACRO \
@@ -19,4 +22,8 @@ exec $script_base/../../../scripts/checkpatch.pl \
 	--ignore GLOBAL_INITIALISERS \
 	--ignore LINE_SPACING \
 	--ignore MULTIPLE_ASSIGNMENTS \
+<<<<<<< HEAD
+=======
+	--ignore DT_SPLIT_BINDING_PATCH \
+>>>>>>> upstream/android-13
 	$@

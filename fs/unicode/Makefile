@@ -35,4 +35,8 @@ $(obj)/utf8data.h: $(src)/utf8data.h_shipped FORCE
 endif
 
 targets += utf8data.h
+<<<<<<< HEAD
 hostprogs-y += mkutf8data
+=======
+hostprogs += mkutf8data
+>>>>>>> upstream/android-13

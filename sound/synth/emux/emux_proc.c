@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2000 Takashi Iwai <tiwai@suse.de>
  *
  *  Proc interface for Emu8k/Emu10k1 WaveTable synth
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/wait.h>
@@ -115,10 +122,13 @@ void snd_emux_proc_init(struct snd_emux *emu, struct snd_card *card, int device)
 	entry->content = SNDRV_INFO_CONTENT_TEXT;
 	entry->private_data = emu;
 	entry->c.text.read = snd_emux_proc_info_read;
+<<<<<<< HEAD
 	if (snd_info_register(entry) < 0)
 		snd_info_free_entry(entry);
 	else
 		emu->proc = entry;
+=======
+>>>>>>> upstream/android-13
 }
 
 void snd_emux_proc_free(struct snd_emux *emu)

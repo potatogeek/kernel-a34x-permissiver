@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
  * Copyright (C) 2019 MediaTek Inc.
  * Author: Argus Lin <argus.lin@mediatek.com>
  */
@@ -1000,6 +1001,16 @@
 
 
 /* The following are used for mt6359.c */
+=======
+ * mt6358.h  --  mt6358 ALSA SoC audio codec driver
+ *
+ * Copyright (c) 2018 MediaTek Inc.
+ * Author: KaiChieh Chuang <kaichieh.chuang@mediatek.com>
+ */
+
+#ifndef __MT6358_H__
+#define __MT6358_H__
+>>>>>>> upstream/android-13
 
 /* Reg bit define */
 /* MT6358_DCXO_CW14 */
@@ -3077,9 +3088,224 @@
 #define RG_AUDINTGAIN2_MASK                               0x3f
 #define RG_AUDINTGAIN2_MASK_SFT                           (0x3f << 8)
 
+<<<<<<< HEAD
 #define MT6358_MAX_REGISTER MT6358_ZCD_CON5
 
 #define CODEC_MT6358_NAME "mtk-codec-mt6358"
+=======
+/* audio register */
+#define MT6358_DRV_CON3            0x3c
+#define MT6358_GPIO_DIR0           0x88
+
+#define MT6358_GPIO_MODE2          0xd8	/* mosi */
+#define MT6358_GPIO_MODE2_SET      0xda
+#define MT6358_GPIO_MODE2_CLR      0xdc
+
+#define MT6358_GPIO_MODE3          0xde	/* miso */
+#define MT6358_GPIO_MODE3_SET      0xe0
+#define MT6358_GPIO_MODE3_CLR      0xe2
+
+#define MT6358_TOP_CKPDN_CON0      0x10c
+#define MT6358_TOP_CKPDN_CON0_SET  0x10e
+#define MT6358_TOP_CKPDN_CON0_CLR  0x110
+
+#define MT6358_TOP_CKHWEN_CON0     0x12a
+#define MT6358_TOP_CKHWEN_CON0_SET 0x12c
+#define MT6358_TOP_CKHWEN_CON0_CLR 0x12e
+
+#define MT6358_OTP_CON0            0x38a
+#define MT6358_OTP_CON8            0x39a
+#define MT6358_OTP_CON11           0x3a0
+#define MT6358_OTP_CON12           0x3a2
+#define MT6358_OTP_CON13           0x3a4
+
+#define MT6358_DCXO_CW13           0x7aa
+#define MT6358_DCXO_CW14           0x7ac
+
+#define MT6358_AUXADC_CON10        0x11a0
+
+/* audio register */
+#define MT6358_AUD_TOP_ID                    0x2200
+#define MT6358_AUD_TOP_REV0                  0x2202
+#define MT6358_AUD_TOP_DBI                   0x2204
+#define MT6358_AUD_TOP_DXI                   0x2206
+#define MT6358_AUD_TOP_CKPDN_TPM0            0x2208
+#define MT6358_AUD_TOP_CKPDN_TPM1            0x220a
+#define MT6358_AUD_TOP_CKPDN_CON0            0x220c
+#define MT6358_AUD_TOP_CKPDN_CON0_SET        0x220e
+#define MT6358_AUD_TOP_CKPDN_CON0_CLR        0x2210
+#define MT6358_AUD_TOP_CKSEL_CON0            0x2212
+#define MT6358_AUD_TOP_CKSEL_CON0_SET        0x2214
+#define MT6358_AUD_TOP_CKSEL_CON0_CLR        0x2216
+#define MT6358_AUD_TOP_CKTST_CON0            0x2218
+#define MT6358_AUD_TOP_CLK_HWEN_CON0         0x221a
+#define MT6358_AUD_TOP_CLK_HWEN_CON0_SET     0x221c
+#define MT6358_AUD_TOP_CLK_HWEN_CON0_CLR     0x221e
+#define MT6358_AUD_TOP_RST_CON0              0x2220
+#define MT6358_AUD_TOP_RST_CON0_SET          0x2222
+#define MT6358_AUD_TOP_RST_CON0_CLR          0x2224
+#define MT6358_AUD_TOP_RST_BANK_CON0         0x2226
+#define MT6358_AUD_TOP_INT_CON0              0x2228
+#define MT6358_AUD_TOP_INT_CON0_SET          0x222a
+#define MT6358_AUD_TOP_INT_CON0_CLR          0x222c
+#define MT6358_AUD_TOP_INT_MASK_CON0         0x222e
+#define MT6358_AUD_TOP_INT_MASK_CON0_SET     0x2230
+#define MT6358_AUD_TOP_INT_MASK_CON0_CLR     0x2232
+#define MT6358_AUD_TOP_INT_STATUS0           0x2234
+#define MT6358_AUD_TOP_INT_RAW_STATUS0       0x2236
+#define MT6358_AUD_TOP_INT_MISC_CON0         0x2238
+#define MT6358_AUDNCP_CLKDIV_CON0            0x223a
+#define MT6358_AUDNCP_CLKDIV_CON1            0x223c
+#define MT6358_AUDNCP_CLKDIV_CON2            0x223e
+#define MT6358_AUDNCP_CLKDIV_CON3            0x2240
+#define MT6358_AUDNCP_CLKDIV_CON4            0x2242
+#define MT6358_AUD_TOP_MON_CON0              0x2244
+#define MT6358_AUDIO_DIG_DSN_ID              0x2280
+#define MT6358_AUDIO_DIG_DSN_REV0            0x2282
+#define MT6358_AUDIO_DIG_DSN_DBI             0x2284
+#define MT6358_AUDIO_DIG_DSN_DXI             0x2286
+#define MT6358_AFE_UL_DL_CON0                0x2288
+#define MT6358_AFE_DL_SRC2_CON0_L            0x228a
+#define MT6358_AFE_UL_SRC_CON0_H             0x228c
+#define MT6358_AFE_UL_SRC_CON0_L             0x228e
+#define MT6358_AFE_TOP_CON0                  0x2290
+#define MT6358_AUDIO_TOP_CON0                0x2292
+#define MT6358_AFE_MON_DEBUG0                0x2294
+#define MT6358_AFUNC_AUD_CON0                0x2296
+#define MT6358_AFUNC_AUD_CON1                0x2298
+#define MT6358_AFUNC_AUD_CON2                0x229a
+#define MT6358_AFUNC_AUD_CON3                0x229c
+#define MT6358_AFUNC_AUD_CON4                0x229e
+#define MT6358_AFUNC_AUD_CON5                0x22a0
+#define MT6358_AFUNC_AUD_CON6                0x22a2
+#define MT6358_AFUNC_AUD_MON0                0x22a4
+#define MT6358_AUDRC_TUNE_MON0               0x22a6
+#define MT6358_AFE_ADDA_MTKAIF_FIFO_CFG0     0x22a8
+#define MT6358_AFE_ADDA_MTKAIF_FIFO_LOG_MON1 0x22aa
+#define MT6358_AFE_ADDA_MTKAIF_MON0          0x22ac
+#define MT6358_AFE_ADDA_MTKAIF_MON1          0x22ae
+#define MT6358_AFE_ADDA_MTKAIF_MON2          0x22b0
+#define MT6358_AFE_ADDA_MTKAIF_MON3          0x22b2
+#define MT6358_AFE_ADDA_MTKAIF_CFG0          0x22b4
+#define MT6358_AFE_ADDA_MTKAIF_RX_CFG0       0x22b6
+#define MT6358_AFE_ADDA_MTKAIF_RX_CFG1       0x22b8
+#define MT6358_AFE_ADDA_MTKAIF_RX_CFG2       0x22ba
+#define MT6358_AFE_ADDA_MTKAIF_RX_CFG3       0x22bc
+#define MT6358_AFE_ADDA_MTKAIF_TX_CFG1       0x22be
+#define MT6358_AFE_SGEN_CFG0                 0x22c0
+#define MT6358_AFE_SGEN_CFG1                 0x22c2
+#define MT6358_AFE_ADC_ASYNC_FIFO_CFG        0x22c4
+#define MT6358_AFE_DCCLK_CFG0                0x22c6
+#define MT6358_AFE_DCCLK_CFG1                0x22c8
+#define MT6358_AUDIO_DIG_CFG                 0x22ca
+#define MT6358_AFE_AUD_PAD_TOP               0x22cc
+#define MT6358_AFE_AUD_PAD_TOP_MON           0x22ce
+#define MT6358_AFE_AUD_PAD_TOP_MON1          0x22d0
+#define MT6358_AFE_DL_NLE_CFG                0x22d2
+#define MT6358_AFE_DL_NLE_MON                0x22d4
+#define MT6358_AFE_CG_EN_MON                 0x22d6
+#define MT6358_AUDIO_DIG_2ND_DSN_ID          0x2300
+#define MT6358_AUDIO_DIG_2ND_DSN_REV0        0x2302
+#define MT6358_AUDIO_DIG_2ND_DSN_DBI         0x2304
+#define MT6358_AUDIO_DIG_2ND_DSN_DXI         0x2306
+#define MT6358_AFE_PMIC_NEWIF_CFG3           0x2308
+#define MT6358_AFE_VOW_TOP                   0x230a
+#define MT6358_AFE_VOW_CFG0                  0x230c
+#define MT6358_AFE_VOW_CFG1                  0x230e
+#define MT6358_AFE_VOW_CFG2                  0x2310
+#define MT6358_AFE_VOW_CFG3                  0x2312
+#define MT6358_AFE_VOW_CFG4                  0x2314
+#define MT6358_AFE_VOW_CFG5                  0x2316
+#define MT6358_AFE_VOW_CFG6                  0x2318
+#define MT6358_AFE_VOW_MON0                  0x231a
+#define MT6358_AFE_VOW_MON1                  0x231c
+#define MT6358_AFE_VOW_MON2                  0x231e
+#define MT6358_AFE_VOW_MON3                  0x2320
+#define MT6358_AFE_VOW_MON4                  0x2322
+#define MT6358_AFE_VOW_MON5                  0x2324
+#define MT6358_AFE_VOW_SN_INI_CFG            0x2326
+#define MT6358_AFE_VOW_TGEN_CFG0             0x2328
+#define MT6358_AFE_VOW_POSDIV_CFG0           0x232a
+#define MT6358_AFE_VOW_HPF_CFG0              0x232c
+#define MT6358_AFE_VOW_PERIODIC_CFG0         0x232e
+#define MT6358_AFE_VOW_PERIODIC_CFG1         0x2330
+#define MT6358_AFE_VOW_PERIODIC_CFG2         0x2332
+#define MT6358_AFE_VOW_PERIODIC_CFG3         0x2334
+#define MT6358_AFE_VOW_PERIODIC_CFG4         0x2336
+#define MT6358_AFE_VOW_PERIODIC_CFG5         0x2338
+#define MT6358_AFE_VOW_PERIODIC_CFG6         0x233a
+#define MT6358_AFE_VOW_PERIODIC_CFG7         0x233c
+#define MT6358_AFE_VOW_PERIODIC_CFG8         0x233e
+#define MT6358_AFE_VOW_PERIODIC_CFG9         0x2340
+#define MT6358_AFE_VOW_PERIODIC_CFG10        0x2342
+#define MT6358_AFE_VOW_PERIODIC_CFG11        0x2344
+#define MT6358_AFE_VOW_PERIODIC_CFG12        0x2346
+#define MT6358_AFE_VOW_PERIODIC_CFG13        0x2348
+#define MT6358_AFE_VOW_PERIODIC_CFG14        0x234a
+#define MT6358_AFE_VOW_PERIODIC_CFG15        0x234c
+#define MT6358_AFE_VOW_PERIODIC_CFG16        0x234e
+#define MT6358_AFE_VOW_PERIODIC_CFG17        0x2350
+#define MT6358_AFE_VOW_PERIODIC_CFG18        0x2352
+#define MT6358_AFE_VOW_PERIODIC_CFG19        0x2354
+#define MT6358_AFE_VOW_PERIODIC_CFG20        0x2356
+#define MT6358_AFE_VOW_PERIODIC_CFG21        0x2358
+#define MT6358_AFE_VOW_PERIODIC_CFG22        0x235a
+#define MT6358_AFE_VOW_PERIODIC_CFG23        0x235c
+#define MT6358_AFE_VOW_PERIODIC_MON0         0x235e
+#define MT6358_AFE_VOW_PERIODIC_MON1         0x2360
+#define MT6358_AUDENC_DSN_ID                 0x2380
+#define MT6358_AUDENC_DSN_REV0               0x2382
+#define MT6358_AUDENC_DSN_DBI                0x2384
+#define MT6358_AUDENC_DSN_FPI                0x2386
+#define MT6358_AUDENC_ANA_CON0               0x2388
+#define MT6358_AUDENC_ANA_CON1               0x238a
+#define MT6358_AUDENC_ANA_CON2               0x238c
+#define MT6358_AUDENC_ANA_CON3               0x238e
+#define MT6358_AUDENC_ANA_CON4               0x2390
+#define MT6358_AUDENC_ANA_CON5               0x2392
+#define MT6358_AUDENC_ANA_CON6               0x2394
+#define MT6358_AUDENC_ANA_CON7               0x2396
+#define MT6358_AUDENC_ANA_CON8               0x2398
+#define MT6358_AUDENC_ANA_CON9               0x239a
+#define MT6358_AUDENC_ANA_CON10              0x239c
+#define MT6358_AUDENC_ANA_CON11              0x239e
+#define MT6358_AUDENC_ANA_CON12              0x23a0
+#define MT6358_AUDDEC_DSN_ID                 0x2400
+#define MT6358_AUDDEC_DSN_REV0               0x2402
+#define MT6358_AUDDEC_DSN_DBI                0x2404
+#define MT6358_AUDDEC_DSN_FPI                0x2406
+#define MT6358_AUDDEC_ANA_CON0               0x2408
+#define MT6358_AUDDEC_ANA_CON1               0x240a
+#define MT6358_AUDDEC_ANA_CON2               0x240c
+#define MT6358_AUDDEC_ANA_CON3               0x240e
+#define MT6358_AUDDEC_ANA_CON4               0x2410
+#define MT6358_AUDDEC_ANA_CON5               0x2412
+#define MT6358_AUDDEC_ANA_CON6               0x2414
+#define MT6358_AUDDEC_ANA_CON7               0x2416
+#define MT6358_AUDDEC_ANA_CON8               0x2418
+#define MT6358_AUDDEC_ANA_CON9               0x241a
+#define MT6358_AUDDEC_ANA_CON10              0x241c
+#define MT6358_AUDDEC_ANA_CON11              0x241e
+#define MT6358_AUDDEC_ANA_CON12              0x2420
+#define MT6358_AUDDEC_ANA_CON13              0x2422
+#define MT6358_AUDDEC_ANA_CON14              0x2424
+#define MT6358_AUDDEC_ANA_CON15              0x2426
+#define MT6358_AUDDEC_ELR_NUM                0x2428
+#define MT6358_AUDDEC_ELR_0                  0x242a
+#define MT6358_AUDZCD_DSN_ID                 0x2480
+#define MT6358_AUDZCD_DSN_REV0               0x2482
+#define MT6358_AUDZCD_DSN_DBI                0x2484
+#define MT6358_AUDZCD_DSN_FPI                0x2486
+#define MT6358_ZCD_CON0                      0x2488
+#define MT6358_ZCD_CON1                      0x248a
+#define MT6358_ZCD_CON2                      0x248c
+#define MT6358_ZCD_CON3                      0x248e
+#define MT6358_ZCD_CON4                      0x2490
+#define MT6358_ZCD_CON5                      0x2492
+#define MT6358_ACCDET_CON13                  0x2522
+
+#define MT6358_MAX_REGISTER MT6358_ZCD_CON5
+>>>>>>> upstream/android-13
 
 enum {
 	MT6358_MTKAIF_PROTOCOL_1 = 0,
@@ -3087,6 +3313,7 @@ enum {
 	MT6358_MTKAIF_PROTOCOL_2_CLK_P2,
 };
 
+<<<<<<< HEAD
 struct mt6358_codec_ops {
 	int (*enable_dc_compensation)(bool enable);
 	int (*set_lch_dc_compensation)(int value);
@@ -3100,10 +3327,19 @@ int mt6358_set_codec_ops(struct snd_soc_component *cmpnt,
 int mt6358_set_mtkaif_protocol(struct snd_soc_component *cmpnt,
 			       int mtkaif_protocol);
 
+=======
+/* set only during init */
+int mt6358_set_mtkaif_protocol(struct snd_soc_component *cmpnt,
+			       int mtkaif_protocol);
+>>>>>>> upstream/android-13
 int mt6358_mtkaif_calibration_enable(struct snd_soc_component *cmpnt);
 int mt6358_mtkaif_calibration_disable(struct snd_soc_component *cmpnt);
 int mt6358_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
 					int phase_1, int phase_2);
+<<<<<<< HEAD
 
 #endif /* __MT6358_H__ */
 
+=======
+#endif /* __MT6358_H__ */
+>>>>>>> upstream/android-13

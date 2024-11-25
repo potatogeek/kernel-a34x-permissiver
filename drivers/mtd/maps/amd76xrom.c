@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * amd76xrom.c
  *
@@ -162,7 +166,11 @@ static int amd76xrom_init_one(struct pci_dev *pdev,
 	/* FIXME handle registers 0x80 - 0x8C the bios region locks */
 
 	/* For write accesses caches are useless */
+<<<<<<< HEAD
 	window->virt = ioremap_nocache(window->phys, window->size);
+=======
+	window->virt = ioremap(window->phys, window->size);
+>>>>>>> upstream/android-13
 	if (!window->virt) {
 		printk(KERN_ERR MOD_NAME ": ioremap(%08lx, %08lx) failed\n",
 			window->phys, window->size);
@@ -188,10 +196,15 @@ static int amd76xrom_init_one(struct pci_dev *pdev,
 
 		if (!map) {
 			map = kmalloc(sizeof(*map), GFP_KERNEL);
+<<<<<<< HEAD
 		}
 		if (!map) {
 			printk(KERN_ERR MOD_NAME ": kmalloc failed");
 			goto out;
+=======
+			if (!map)
+				goto out;
+>>>>>>> upstream/android-13
 		}
 		memset(map, 0, sizeof(*map));
 		INIT_LIST_HEAD(&map->list);

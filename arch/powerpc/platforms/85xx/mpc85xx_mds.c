@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2010, 2012-2013 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -10,11 +14,14 @@
  *
  * Description:
  * MPC85xx MDS board specific routines.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -47,9 +54,13 @@
 #include <asm/udbg.h>
 #include <sysdev/fsl_soc.h>
 #include <sysdev/fsl_pci.h>
+<<<<<<< HEAD
 #include <sysdev/simple_gpio.h>
 #include <soc/fsl/qe/qe.h>
 #include <soc/fsl/qe/qe_ic.h>
+=======
+#include <soc/fsl/qe/qe.h>
+>>>>>>> upstream/android-13
 #include <asm/mpic.h>
 #include <asm/swiotlb.h>
 #include "smp.h"
@@ -242,7 +253,10 @@ static void __init mpc85xx_mds_qe_init(void)
 {
 	struct device_node *np;
 
+<<<<<<< HEAD
 	mpc85xx_qe_init();
+=======
+>>>>>>> upstream/android-13
 	mpc85xx_qe_par_io_init();
 	mpc85xx_mds_reset_ucc_phys();
 
@@ -274,6 +288,7 @@ static void __init mpc85xx_mds_qe_init(void)
 	}
 }
 
+<<<<<<< HEAD
 static void __init mpc85xx_mds_qeic_init(void)
 {
 	struct device_node *np;
@@ -301,6 +316,10 @@ static void __init mpc85xx_mds_qeic_init(void)
 #else
 static void __init mpc85xx_mds_qe_init(void) { }
 static void __init mpc85xx_mds_qeic_init(void) { }
+=======
+#else
+static void __init mpc85xx_mds_qe_init(void) { }
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_QUICC_ENGINE */
 
 static void __init mpc85xx_mds_setup_arch(void)
@@ -355,11 +374,14 @@ machine_arch_initcall(mpc8569_mds, board_fixups);
 
 static int __init mpc85xx_publish_devices(void)
 {
+<<<<<<< HEAD
 	if (machine_is(mpc8568_mds))
 		simple_gpiochip_init("fsl,mpc8568mds-bcsr-gpio");
 	if (machine_is(mpc8569_mds))
 		simple_gpiochip_init("fsl,mpc8569mds-bcsr-gpio");
 
+=======
+>>>>>>> upstream/android-13
 	return mpc85xx_common_publish_devices();
 }
 
@@ -367,10 +389,13 @@ machine_arch_initcall(mpc8568_mds, mpc85xx_publish_devices);
 machine_arch_initcall(mpc8569_mds, mpc85xx_publish_devices);
 machine_arch_initcall(p1021_mds, mpc85xx_common_publish_devices);
 
+<<<<<<< HEAD
 machine_arch_initcall(mpc8568_mds, swiotlb_setup_bus_notifier);
 machine_arch_initcall(mpc8569_mds, swiotlb_setup_bus_notifier);
 machine_arch_initcall(p1021_mds, swiotlb_setup_bus_notifier);
 
+=======
+>>>>>>> upstream/android-13
 static void __init mpc85xx_mds_pic_init(void)
 {
 	struct mpic *mpic = mpic_alloc(NULL, 0, MPIC_BIG_ENDIAN |
@@ -379,7 +404,10 @@ static void __init mpc85xx_mds_pic_init(void)
 	BUG_ON(mpic == NULL);
 
 	mpic_init(mpic);
+<<<<<<< HEAD
 	mpc85xx_mds_qeic_init();
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __init mpc85xx_mds_probe(void)

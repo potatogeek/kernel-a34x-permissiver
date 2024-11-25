@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Chelsio Communications, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Chelsio Communications, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/workqueue.h>
@@ -286,6 +292,7 @@ void cxgbit_push_tx_frames(struct cxgbit_sock *csk)
 	}
 }
 
+<<<<<<< HEAD
 static bool cxgbit_lock_sock(struct cxgbit_sock *csk)
 {
 	spin_lock_bh(&csk->lock);
@@ -298,6 +305,8 @@ static bool cxgbit_lock_sock(struct cxgbit_sock *csk)
 	return csk->lock_owner;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cxgbit_unlock_sock(struct cxgbit_sock *csk)
 {
 	struct sk_buff_head backlogq;
@@ -327,13 +336,20 @@ static int cxgbit_queue_skb(struct cxgbit_sock *csk, struct sk_buff *skb)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	wait_event_interruptible(csk->ack_waitq, cxgbit_lock_sock(csk));
+=======
+	spin_lock_bh(&csk->lock);
+	csk->lock_owner = true;
+	spin_unlock_bh(&csk->lock);
+>>>>>>> upstream/android-13
 
 	if (unlikely((csk->com.state != CSK_STATE_ESTABLISHED) ||
 		     signal_pending(current))) {
 		__kfree_skb(skb);
 		__skb_queue_purge(&csk->ppodq);
 		ret = -1;
+<<<<<<< HEAD
 		spin_lock_bh(&csk->lock);
 		if (csk->lock_owner) {
 			spin_unlock_bh(&csk->lock);
@@ -341,6 +357,9 @@ static int cxgbit_queue_skb(struct cxgbit_sock *csk, struct sk_buff *skb)
 		}
 		spin_unlock_bh(&csk->lock);
 		return ret;
+=======
+		goto unlock;
+>>>>>>> upstream/android-13
 	}
 
 	csk->write_seq += skb->len +
@@ -901,9 +920,15 @@ cxgbit_handle_immediate_data(struct iscsi_cmd *cmd, struct iscsi_scsi_req *hdr,
 		skb_frag_t *dfrag = &ssi->frags[pdu_cb->dfrag_idx];
 
 		sg_init_table(&ccmd->sg, 1);
+<<<<<<< HEAD
 		sg_set_page(&ccmd->sg, dfrag->page.p, skb_frag_size(dfrag),
 			    dfrag->page_offset);
 		get_page(dfrag->page.p);
+=======
+		sg_set_page(&ccmd->sg, skb_frag_page(dfrag),
+				skb_frag_size(dfrag), skb_frag_off(dfrag));
+		get_page(skb_frag_page(dfrag));
+>>>>>>> upstream/android-13
 
 		cmd->se_cmd.t_data_sg = &ccmd->sg;
 		cmd->se_cmd.t_data_nents = 1;
@@ -959,7 +984,11 @@ after_immediate_data:
 			target_put_sess_cmd(&cmd->se_cmd);
 			return 0;
 		} else if (cmd->unsolicited_data) {
+<<<<<<< HEAD
 			iscsit_set_unsoliticed_dataout(cmd);
+=======
+			iscsit_set_unsolicited_dataout(cmd);
+>>>>>>> upstream/android-13
 		}
 
 	} else if (immed_ret == IMMEDIATE_DATA_ERL1_CRC_FAILURE) {
@@ -1016,17 +1045,29 @@ static int cxgbit_handle_iscsi_dataout(struct cxgbit_sock *csk)
 	struct scatterlist *sg_start;
 	struct iscsi_conn *conn = csk->conn;
 	struct iscsi_cmd *cmd = NULL;
+<<<<<<< HEAD
 	struct cxgbit_lro_pdu_cb *pdu_cb = cxgbit_rx_pdu_cb(csk->skb);
 	struct iscsi_data *hdr = (struct iscsi_data *)pdu_cb->hdr;
 	u32 data_offset = be32_to_cpu(hdr->offset);
 	u32 data_len = pdu_cb->dlen;
+=======
+	struct cxgbit_cmd *ccmd;
+	struct cxgbi_task_tag_info *ttinfo;
+	struct cxgbit_lro_pdu_cb *pdu_cb = cxgbit_rx_pdu_cb(csk->skb);
+	struct iscsi_data *hdr = (struct iscsi_data *)pdu_cb->hdr;
+	u32 data_offset = be32_to_cpu(hdr->offset);
+	u32 data_len = ntoh24(hdr->dlength);
+>>>>>>> upstream/android-13
 	int rc, sg_nents, sg_off;
 	bool dcrc_err = false;
 
 	if (pdu_cb->flags & PDUCBF_RX_DDP_CMP) {
 		u32 offset = be32_to_cpu(hdr->offset);
 		u32 ddp_data_len;
+<<<<<<< HEAD
 		u32 payload_length = ntoh24(hdr->dlength);
+=======
+>>>>>>> upstream/android-13
 		bool success = false;
 
 		cmd = iscsit_find_cmd_from_itt_or_dump(conn, hdr->itt, 0);
@@ -1041,7 +1082,11 @@ static int cxgbit_handle_iscsi_dataout(struct cxgbit_sock *csk)
 		cmd->data_sn = be32_to_cpu(hdr->datasn);
 
 		rc = __iscsit_check_dataout_hdr(conn, (unsigned char *)hdr,
+<<<<<<< HEAD
 						cmd, payload_length, &success);
+=======
+						cmd, data_len, &success);
+>>>>>>> upstream/android-13
 		if (rc < 0)
 			return rc;
 		else if (!success)
@@ -1079,6 +1124,23 @@ static int cxgbit_handle_iscsi_dataout(struct cxgbit_sock *csk)
 		cxgbit_skb_copy_to_sg(csk->skb, sg_start, sg_nents, skip);
 	}
 
+<<<<<<< HEAD
+=======
+	ccmd = iscsit_priv_cmd(cmd);
+	ttinfo = &ccmd->ttinfo;
+
+	if (ccmd->release && ttinfo->sgl &&
+	    (cmd->se_cmd.data_length ==	(cmd->write_data_done + data_len))) {
+		struct cxgbit_device *cdev = csk->com.cdev;
+		struct cxgbi_ppm *ppm = cdev2ppm(cdev);
+
+		dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl, ttinfo->nents,
+			     DMA_FROM_DEVICE);
+		ttinfo->nents = 0;
+		ttinfo->sgl = NULL;
+	}
+
+>>>>>>> upstream/android-13
 check_payload:
 
 	rc = iscsit_check_dataout_payload(cmd, hdr, dcrc_err);
@@ -1405,7 +1467,12 @@ static void cxgbit_lro_skb_dump(struct sk_buff *skb)
 			pdu_cb->ddigest, pdu_cb->frags);
 	for (i = 0; i < ssi->nr_frags; i++)
 		pr_info("skb 0x%p, frag %d, off %u, sz %u.\n",
+<<<<<<< HEAD
 			skb, i, ssi->frags[i].page_offset, ssi->frags[i].size);
+=======
+			skb, i, skb_frag_off(&ssi->frags[i]),
+			skb_frag_size(&ssi->frags[i]));
+>>>>>>> upstream/android-13
 }
 
 static void cxgbit_lro_hskb_reset(struct cxgbit_sock *csk)
@@ -1449,7 +1516,11 @@ cxgbit_lro_skb_merge(struct cxgbit_sock *csk, struct sk_buff *skb, u8 pdu_idx)
 		hpdu_cb->frags++;
 		hpdu_cb->hfrag_idx = hfrag_idx;
 
+<<<<<<< HEAD
 		len = hssi->frags[hfrag_idx].size;
+=======
+		len = skb_frag_size(&hssi->frags[hfrag_idx]);
+>>>>>>> upstream/android-13
 		hskb->len += len;
 		hskb->data_len += len;
 		hskb->truesize += len;
@@ -1469,7 +1540,11 @@ cxgbit_lro_skb_merge(struct cxgbit_sock *csk, struct sk_buff *skb, u8 pdu_idx)
 
 			get_page(skb_frag_page(&hssi->frags[dfrag_idx]));
 
+<<<<<<< HEAD
 			len += hssi->frags[dfrag_idx].size;
+=======
+			len += skb_frag_size(&hssi->frags[dfrag_idx]);
+>>>>>>> upstream/android-13
 
 			hssi->nr_frags++;
 			hpdu_cb->frags++;

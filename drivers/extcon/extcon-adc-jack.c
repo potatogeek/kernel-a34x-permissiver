@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/extcon/extcon-adc-jack.c
  *
@@ -10,11 +14,14 @@
  * MyungJoo Ham <myungjoo.ham@samsung.com>
  *
  * Modified for calling to IIO to get adc by <anish.singh@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -144,10 +151,15 @@ static int adc_jack_probe(struct platform_device *pdev)
 		return err;
 
 	data->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (data->irq < 0) {
 		dev_err(&pdev->dev, "platform_get_irq failed\n");
 		return -ENODEV;
 	}
+=======
+	if (data->irq < 0)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	err = request_any_context_irq(data->irq, adc_jack_irq_thread,
 			pdata->irq_flags, pdata->name, data);

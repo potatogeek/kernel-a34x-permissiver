@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /*
  * dvb_frontend.c: DVB frontend tuning interface/thread
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * dvb_frontend.c: DVB frontend tuning interface/thread
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) 1999-2001 Ralph  Metzler
  *			   Marcus Metzler
  *			   Holger Waechtler
  *				      for convergence integrated media GmbH
  *
  * Copyright (C) 2004 Andrew de Quincey (tuning thread cleanup)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +28,8 @@
  * GNU General Public License for more details.
  * To obtain the license, point your browser to
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Enables DVBv3 compatibility bits at the headers */
@@ -35,6 +45,10 @@
 #include <linux/poll.h>
 #include <linux/semaphore.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/nospec.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/freezer.h>
 #include <linux/jiffies.h>
@@ -493,6 +507,13 @@ static void dvb_frontend_swzigzag(struct dvb_frontend *fe)
 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
 	struct dtv_frontend_properties *c = &fe->dtv_property_cache, tmp;
 
+<<<<<<< HEAD
+=======
+	if (fepriv->max_drift)
+		dev_warn_once(fe->dvb->device,
+			      "Frontend requested software zigzag, but didn't set the frequency step size\n");
+
+>>>>>>> upstream/android-13
 	/* if we've got no parameters, just keep idling */
 	if (fepriv->state & FESTATE_IDLE) {
 		fepriv->delay = 3 * HZ;
@@ -920,6 +941,12 @@ static void dvb_frontend_get_frequency_limits(struct dvb_frontend *fe,
 			 "DVB: adapter %i frontend %u frequency limits undefined - fix the driver\n",
 			 fe->dvb->num, fe->id);
 
+<<<<<<< HEAD
+=======
+	dev_dbg(fe->dvb->device, "frequency interval: tuner: %u...%u, frontend: %u...%u",
+		tuner_min, tuner_max, frontend_min, frontend_max);
+
+>>>>>>> upstream/android-13
 	/* If the standard is for satellite, convert frequencies to kHz */
 	switch (c->delivery_system) {
 	case SYS_DVBS:
@@ -993,6 +1020,10 @@ static int dvb_frontend_check_parameters(struct dvb_frontend *fe)
 				 fe->ops.info.symbol_rate_max);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1067,6 +1098,7 @@ static int dvb_frontend_clear_cache(struct dvb_frontend *fe)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define _DTV_CMD(n, s, b) \
 [n] = { \
 	.name = #n, \
@@ -1168,6 +1200,99 @@ static struct dtv_cmds_h dtv_cmds[DTV_MAX_COMMAND + 1] = {
 	_DTV_CMD(DTV_STAT_TOTAL_BLOCK_COUNT, 0, 0),
 };
 
+=======
+#define _DTV_CMD(n) \
+	[n] =  #n
+
+static char *dtv_cmds[DTV_MAX_COMMAND + 1] = {
+	_DTV_CMD(DTV_TUNE),
+	_DTV_CMD(DTV_CLEAR),
+
+	/* Set */
+	_DTV_CMD(DTV_FREQUENCY),
+	_DTV_CMD(DTV_BANDWIDTH_HZ),
+	_DTV_CMD(DTV_MODULATION),
+	_DTV_CMD(DTV_INVERSION),
+	_DTV_CMD(DTV_DISEQC_MASTER),
+	_DTV_CMD(DTV_SYMBOL_RATE),
+	_DTV_CMD(DTV_INNER_FEC),
+	_DTV_CMD(DTV_VOLTAGE),
+	_DTV_CMD(DTV_TONE),
+	_DTV_CMD(DTV_PILOT),
+	_DTV_CMD(DTV_ROLLOFF),
+	_DTV_CMD(DTV_DELIVERY_SYSTEM),
+	_DTV_CMD(DTV_HIERARCHY),
+	_DTV_CMD(DTV_CODE_RATE_HP),
+	_DTV_CMD(DTV_CODE_RATE_LP),
+	_DTV_CMD(DTV_GUARD_INTERVAL),
+	_DTV_CMD(DTV_TRANSMISSION_MODE),
+	_DTV_CMD(DTV_INTERLEAVING),
+
+	_DTV_CMD(DTV_ISDBT_PARTIAL_RECEPTION),
+	_DTV_CMD(DTV_ISDBT_SOUND_BROADCASTING),
+	_DTV_CMD(DTV_ISDBT_SB_SUBCHANNEL_ID),
+	_DTV_CMD(DTV_ISDBT_SB_SEGMENT_IDX),
+	_DTV_CMD(DTV_ISDBT_SB_SEGMENT_COUNT),
+	_DTV_CMD(DTV_ISDBT_LAYER_ENABLED),
+	_DTV_CMD(DTV_ISDBT_LAYERA_FEC),
+	_DTV_CMD(DTV_ISDBT_LAYERA_MODULATION),
+	_DTV_CMD(DTV_ISDBT_LAYERA_SEGMENT_COUNT),
+	_DTV_CMD(DTV_ISDBT_LAYERA_TIME_INTERLEAVING),
+	_DTV_CMD(DTV_ISDBT_LAYERB_FEC),
+	_DTV_CMD(DTV_ISDBT_LAYERB_MODULATION),
+	_DTV_CMD(DTV_ISDBT_LAYERB_SEGMENT_COUNT),
+	_DTV_CMD(DTV_ISDBT_LAYERB_TIME_INTERLEAVING),
+	_DTV_CMD(DTV_ISDBT_LAYERC_FEC),
+	_DTV_CMD(DTV_ISDBT_LAYERC_MODULATION),
+	_DTV_CMD(DTV_ISDBT_LAYERC_SEGMENT_COUNT),
+	_DTV_CMD(DTV_ISDBT_LAYERC_TIME_INTERLEAVING),
+
+	_DTV_CMD(DTV_STREAM_ID),
+	_DTV_CMD(DTV_DVBT2_PLP_ID_LEGACY),
+	_DTV_CMD(DTV_SCRAMBLING_SEQUENCE_INDEX),
+	_DTV_CMD(DTV_LNA),
+
+	/* Get */
+	_DTV_CMD(DTV_DISEQC_SLAVE_REPLY),
+	_DTV_CMD(DTV_API_VERSION),
+
+	_DTV_CMD(DTV_ENUM_DELSYS),
+
+	_DTV_CMD(DTV_ATSCMH_PARADE_ID),
+	_DTV_CMD(DTV_ATSCMH_RS_FRAME_ENSEMBLE),
+
+	_DTV_CMD(DTV_ATSCMH_FIC_VER),
+	_DTV_CMD(DTV_ATSCMH_NOG),
+	_DTV_CMD(DTV_ATSCMH_TNOG),
+	_DTV_CMD(DTV_ATSCMH_SGN),
+	_DTV_CMD(DTV_ATSCMH_PRC),
+	_DTV_CMD(DTV_ATSCMH_RS_FRAME_MODE),
+	_DTV_CMD(DTV_ATSCMH_RS_CODE_MODE_PRI),
+	_DTV_CMD(DTV_ATSCMH_RS_CODE_MODE_SEC),
+	_DTV_CMD(DTV_ATSCMH_SCCC_BLOCK_MODE),
+	_DTV_CMD(DTV_ATSCMH_SCCC_CODE_MODE_A),
+	_DTV_CMD(DTV_ATSCMH_SCCC_CODE_MODE_B),
+	_DTV_CMD(DTV_ATSCMH_SCCC_CODE_MODE_C),
+	_DTV_CMD(DTV_ATSCMH_SCCC_CODE_MODE_D),
+
+	/* Statistics API */
+	_DTV_CMD(DTV_STAT_SIGNAL_STRENGTH),
+	_DTV_CMD(DTV_STAT_CNR),
+	_DTV_CMD(DTV_STAT_PRE_ERROR_BIT_COUNT),
+	_DTV_CMD(DTV_STAT_PRE_TOTAL_BIT_COUNT),
+	_DTV_CMD(DTV_STAT_POST_ERROR_BIT_COUNT),
+	_DTV_CMD(DTV_STAT_POST_TOTAL_BIT_COUNT),
+	_DTV_CMD(DTV_STAT_ERROR_BLOCK_COUNT),
+	_DTV_CMD(DTV_STAT_TOTAL_BLOCK_COUNT),
+};
+
+static char *dtv_cmd_name(u32 cmd)
+{
+	cmd = array_index_nospec(cmd, DTV_MAX_COMMAND);
+	return dtv_cmds[cmd];
+}
+
+>>>>>>> upstream/android-13
 /* Synchronise the legacy tuning parameters into the cache, so that demodulator
  * drivers can use a single set_frontend tuning function, regardless of whether
  * it's being used for the legacy or new API, reducing code and complexity.
@@ -1350,6 +1475,10 @@ static int dtv_property_process_get(struct dvb_frontend *fe,
 				    struct file *file)
 {
 	int ncaps;
+<<<<<<< HEAD
+=======
+	unsigned int len = 1;
+>>>>>>> upstream/android-13
 
 	switch (tvp->cmd) {
 	case DTV_ENUM_DELSYS:
@@ -1359,6 +1488,10 @@ static int dtv_property_process_get(struct dvb_frontend *fe,
 			ncaps++;
 		}
 		tvp->u.buffer.len = ncaps;
+<<<<<<< HEAD
+=======
+		len = ncaps;
+>>>>>>> upstream/android-13
 		break;
 	case DTV_FREQUENCY:
 		tvp->u.data = c->frequency;
@@ -1536,6 +1669,7 @@ static int dtv_property_process_get(struct dvb_frontend *fe,
 	/* Fill quality measures */
 	case DTV_STAT_SIGNAL_STRENGTH:
 		tvp->u.st = c->strength;
+<<<<<<< HEAD
 		break;
 	case DTV_STAT_CNR:
 		tvp->u.st = c->cnr;
@@ -1557,6 +1691,53 @@ static int dtv_property_process_get(struct dvb_frontend *fe,
 		break;
 	case DTV_STAT_TOTAL_BLOCK_COUNT:
 		tvp->u.st = c->block_count;
+=======
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+		break;
+	case DTV_STAT_CNR:
+		tvp->u.st = c->cnr;
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+		break;
+	case DTV_STAT_PRE_ERROR_BIT_COUNT:
+		tvp->u.st = c->pre_bit_error;
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+		break;
+	case DTV_STAT_PRE_TOTAL_BIT_COUNT:
+		tvp->u.st = c->pre_bit_count;
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+		break;
+	case DTV_STAT_POST_ERROR_BIT_COUNT:
+		tvp->u.st = c->post_bit_error;
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+		break;
+	case DTV_STAT_POST_TOTAL_BIT_COUNT:
+		tvp->u.st = c->post_bit_count;
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+		break;
+	case DTV_STAT_ERROR_BLOCK_COUNT:
+		tvp->u.st = c->block_error;
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+		break;
+	case DTV_STAT_TOTAL_BLOCK_COUNT:
+		tvp->u.st = c->block_count;
+		if (tvp->u.buffer.len > MAX_DTV_STATS * sizeof(u32))
+			tvp->u.buffer.len = MAX_DTV_STATS * sizeof(u32);
+		len = tvp->u.buffer.len;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_dbg(fe->dvb->device,
@@ -1565,6 +1746,7 @@ static int dtv_property_process_get(struct dvb_frontend *fe,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!dtv_cmds[tvp->cmd].buffer)
 		dev_dbg(fe->dvb->device,
 			"%s: GET cmd 0x%08x (%s) = 0x%08x\n",
@@ -1577,6 +1759,15 @@ static int dtv_property_process_get(struct dvb_frontend *fe,
 			tvp->cmd, dtv_cmds[tvp->cmd].name,
 			tvp->u.buffer.len,
 			tvp->u.buffer.len, tvp->u.buffer.data);
+=======
+	if (len < 1)
+		len = 1;
+
+	dev_dbg(fe->dvb->device,
+		"%s: GET cmd 0x%08x (%s) len %d: %*ph\n",
+		__func__, tvp->cmd, dtv_cmd_name(tvp->cmd),
+		tvp->u.buffer.len, tvp->u.buffer.len, tvp->u.buffer.data);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1596,7 +1787,11 @@ static bool is_dvbv3_delsys(u32 delsys)
  *
  * Provides emulation for delivery systems that are compatible with the old
  * DVBv3 call. Among its usages, it provices support for ISDB-T, and allows
+<<<<<<< HEAD
  * using a DVB-S2 only frontend just like it were a DVB-S, if the frontent
+=======
+ * using a DVB-S2 only frontend just like it were a DVB-S, if the frontend
+>>>>>>> upstream/android-13
  * parameters are compatible with DVB-S spec.
  */
 static int emulate_delivery_system(struct dvb_frontend *fe, u32 delsys)
@@ -1799,6 +1994,56 @@ static int dvbv3_set_delivery_system(struct dvb_frontend *fe)
 	return emulate_delivery_system(fe, delsys);
 }
 
+<<<<<<< HEAD
+=======
+static void prepare_tuning_algo_parameters(struct dvb_frontend *fe)
+{
+	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+	struct dvb_frontend_private *fepriv = fe->frontend_priv;
+	struct dvb_frontend_tune_settings fetunesettings = { 0 };
+
+	/* get frontend-specific tuning settings */
+	if (fe->ops.get_tune_settings && (fe->ops.get_tune_settings(fe, &fetunesettings) == 0)) {
+		fepriv->min_delay = (fetunesettings.min_delay_ms * HZ) / 1000;
+		fepriv->max_drift = fetunesettings.max_drift;
+		fepriv->step_size = fetunesettings.step_size;
+	} else {
+		/* default values */
+		switch (c->delivery_system) {
+		case SYS_DVBS:
+		case SYS_DVBS2:
+		case SYS_ISDBS:
+		case SYS_TURBO:
+		case SYS_DVBC_ANNEX_A:
+		case SYS_DVBC_ANNEX_C:
+			fepriv->min_delay = HZ / 20;
+			fepriv->step_size = c->symbol_rate / 16000;
+			fepriv->max_drift = c->symbol_rate / 2000;
+			break;
+		case SYS_DVBT:
+		case SYS_DVBT2:
+		case SYS_ISDBT:
+		case SYS_DTMB:
+			fepriv->min_delay = HZ / 20;
+			fepriv->step_size = dvb_frontend_get_stepsize(fe) * 2;
+			fepriv->max_drift = fepriv->step_size + 1;
+			break;
+		default:
+			/*
+			 * FIXME: This sounds wrong! if freqency_stepsize is
+			 * defined by the frontend, why not use it???
+			 */
+			fepriv->min_delay = HZ / 20;
+			fepriv->step_size = 0; /* no zigzag */
+			fepriv->max_drift = 0;
+			break;
+		}
+	}
+	if (dvb_override_tune_delay > 0)
+		fepriv->min_delay = (dvb_override_tune_delay * HZ) / 1000;
+}
+
+>>>>>>> upstream/android-13
 /**
  * dtv_property_process_set -  Sets a single DTV property
  * @fe:		Pointer to &struct dvb_frontend
@@ -1827,7 +2072,11 @@ static int dtv_property_process_set(struct dvb_frontend *fe,
 	else
 		dev_dbg(fe->dvb->device,
 			"%s: SET cmd 0x%08x (%s) to 0x%08x\n",
+<<<<<<< HEAD
 			__func__, cmd, dtv_cmds[cmd].name, data);
+=======
+			__func__, cmd, dtv_cmd_name(cmd), data);
+>>>>>>> upstream/android-13
 	switch (cmd) {
 	case DTV_CLEAR:
 		/*
@@ -2191,7 +2440,10 @@ static int dtv_set_frontend(struct dvb_frontend *fe)
 {
 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+<<<<<<< HEAD
 	struct dvb_frontend_tune_settings fetunesettings;
+=======
+>>>>>>> upstream/android-13
 	u32 rolloff = 0;
 
 	if (dvb_frontend_check_parameters(fe) < 0)
@@ -2269,6 +2521,7 @@ static int dtv_set_frontend(struct dvb_frontend *fe)
 	if (c->hierarchy == HIERARCHY_NONE && c->code_rate_LP == FEC_NONE)
 		c->code_rate_LP = FEC_AUTO;
 
+<<<<<<< HEAD
 	/* get frontend-specific tuning settings */
 	memset(&fetunesettings, 0, sizeof(struct dvb_frontend_tune_settings));
 	if (fe->ops.get_tune_settings && (fe->ops.get_tune_settings(fe, &fetunesettings) == 0)) {
@@ -2309,6 +2562,9 @@ static int dtv_set_frontend(struct dvb_frontend *fe)
 	}
 	if (dvb_override_tune_delay > 0)
 		fepriv->min_delay = (dvb_override_tune_delay * HZ) / 1000;
+=======
+	prepare_tuning_algo_parameters(fe);
+>>>>>>> upstream/android-13
 
 	fepriv->state = FESTATE_RETUNE;
 
@@ -2323,6 +2579,81 @@ static int dtv_set_frontend(struct dvb_frontend *fe)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int dvb_get_property(struct dvb_frontend *fe, struct file *file,
+			    struct dtv_properties *tvps)
+{
+	struct dvb_frontend_private *fepriv = fe->frontend_priv;
+	struct dtv_property *tvp = NULL;
+	struct dtv_frontend_properties getp;
+	int i, err;
+
+	memcpy(&getp, &fe->dtv_property_cache, sizeof(getp));
+
+	dev_dbg(fe->dvb->device, "%s: properties.num = %d\n",
+		__func__, tvps->num);
+	dev_dbg(fe->dvb->device, "%s: properties.props = %p\n",
+		__func__, tvps->props);
+
+	/*
+	 * Put an arbitrary limit on the number of messages that can
+	 * be sent at once
+	 */
+	if (!tvps->num || tvps->num > DTV_IOCTL_MAX_MSGS)
+		return -EINVAL;
+
+	tvp = memdup_user((void __user *)tvps->props, tvps->num * sizeof(*tvp));
+	if (IS_ERR(tvp))
+		return PTR_ERR(tvp);
+
+	/*
+	 * Let's use our own copy of property cache, in order to
+	 * avoid mangling with DTV zigzag logic, as drivers might
+	 * return crap, if they don't check if the data is available
+	 * before updating the properties cache.
+	 */
+	if (fepriv->state != FESTATE_IDLE) {
+		err = dtv_get_frontend(fe, &getp, NULL);
+		if (err < 0)
+			goto out;
+	}
+	for (i = 0; i < tvps->num; i++) {
+		err = dtv_property_process_get(fe, &getp,
+					       tvp + i, file);
+		if (err < 0)
+			goto out;
+	}
+
+	if (copy_to_user((void __user *)tvps->props, tvp,
+			 tvps->num * sizeof(struct dtv_property))) {
+		err = -EFAULT;
+		goto out;
+	}
+
+	err = 0;
+out:
+	kfree(tvp);
+	return err;
+}
+
+static int dvb_get_frontend(struct dvb_frontend *fe,
+			    struct dvb_frontend_parameters *p_out)
+{
+	struct dtv_frontend_properties getp;
+
+	/*
+	 * Let's use our own copy of property cache, in order to
+	 * avoid mangling with DTV zigzag logic, as drivers might
+	 * return crap, if they don't check if the data is available
+	 * before updating the properties cache.
+	 */
+	memcpy(&getp, &fe->dtv_property_cache, sizeof(getp));
+
+	return dtv_get_frontend(fe, &getp, p_out);
+}
+
+>>>>>>> upstream/android-13
 static int dvb_frontend_handle_ioctl(struct file *file,
 				     unsigned int cmd, void *parg)
 {
@@ -2368,6 +2699,7 @@ static int dvb_frontend_handle_ioctl(struct file *file,
 		err = 0;
 		break;
 	}
+<<<<<<< HEAD
 	case FE_GET_PROPERTY: {
 		struct dtv_properties *tvps = parg;
 		struct dtv_property *tvp = NULL;
@@ -2420,12 +2752,21 @@ static int dvb_frontend_handle_ioctl(struct file *file,
 		err = 0;
 		break;
 	}
+=======
+	case FE_GET_PROPERTY:
+		err = dvb_get_property(fe, file, parg);
+		break;
+>>>>>>> upstream/android-13
 
 	case FE_GET_INFO: {
 		struct dvb_frontend_info *info = parg;
 		memset(info, 0, sizeof(*info));
 
+<<<<<<< HEAD
 		strcpy(info->name, fe->ops.info.name);
+=======
+		strscpy(info->name, fe->ops.info.name, sizeof(info->name));
+>>>>>>> upstream/android-13
 		info->symbol_rate_min = fe->ops.info.symbol_rate_min;
 		info->symbol_rate_max = fe->ops.info.symbol_rate_max;
 		info->symbol_rate_tolerance = fe->ops.info.symbol_rate_tolerance;
@@ -2557,7 +2898,10 @@ static int dvb_frontend_handle_ioctl(struct file *file,
 		fepriv->tune_mode_flags = (unsigned long)parg;
 		err = 0;
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* DEPRECATED dish control ioctls */
 
 	case FE_DISHNETWORK_SEND_LEGACY_CMD:
@@ -2590,8 +2934,13 @@ static int dvb_frontend_handle_ioctl(struct file *file,
 			u8 last = 1;
 
 			if (dvb_frontend_debug)
+<<<<<<< HEAD
 				dprintk("%s switch command: 0x%04lx\n",
 					__func__, swcmd);
+=======
+				dprintk("switch command: 0x%04lx\n",
+					swcmd);
+>>>>>>> upstream/android-13
 			nexttime = ktime_get_boottime();
 			if (dvb_frontend_debug)
 				tv[0] = nexttime;
@@ -2614,8 +2963,13 @@ static int dvb_frontend_handle_ioctl(struct file *file,
 					dvb_frontend_sleep_until(&nexttime, 8000);
 			}
 			if (dvb_frontend_debug) {
+<<<<<<< HEAD
 				dprintk("%s(%d): switch delay (should be 32k followed by all 8k)\n",
 					__func__, fe->dvb->num);
+=======
+				dprintk("(adapter %d): switch delay (should be 32k followed by all 8k)\n",
+					fe->dvb->num);
+>>>>>>> upstream/android-13
 				for (i = 1; i < 10; i++)
 					pr_info("%d: %d\n", i,
 						(int)ktime_us_delta(tv[i], tv[i - 1]));
@@ -2676,10 +3030,15 @@ static int dvb_frontend_handle_ioctl(struct file *file,
 			break;
 		err = dtv_set_frontend(fe);
 		break;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	case FE_GET_EVENT:
 		err = dvb_frontend_get_event(fe, parg, file->f_flags);
 		break;
 
+<<<<<<< HEAD
 	case FE_GET_FRONTEND: {
 		struct dtv_frontend_properties getp = fe->dtv_property_cache;
 
@@ -2692,6 +3051,11 @@ static int dvb_frontend_handle_ioctl(struct file *file,
 		err = dtv_get_frontend(fe, &getp, parg);
 		break;
 	}
+=======
+	case FE_GET_FRONTEND:
+		err = dvb_get_frontend(fe, parg);
+		break;
+>>>>>>> upstream/android-13
 
 	default:
 		return -ENOTSUPP;

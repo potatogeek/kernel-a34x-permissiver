@@ -22,6 +22,10 @@
 #include <linux/platform_device.h>
 #include <linux/hw_random.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/pm_runtime.h>
 #include <linux/of.h>
@@ -29,8 +33,12 @@
 #include <linux/of_address.h>
 #include <linux/interrupt.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #define RNG_REG_STATUS_RDY			(1 << 0)
 
@@ -243,7 +251,10 @@ static struct omap_rng_pdata omap2_rng_pdata = {
 	.cleanup	= omap2_rng_cleanup,
 };
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF)
+=======
+>>>>>>> upstream/android-13
 static inline u32 omap4_rng_data_present(struct omap_rng_dev *priv)
 {
 	return omap_rng_read(priv, RNG_STATUS_REG) & RNG_REG_STATUS_RDY;
@@ -358,7 +369,11 @@ static struct omap_rng_pdata eip76_rng_pdata = {
 	.cleanup	= omap4_rng_cleanup,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id omap_rng_of_match[] = {
+=======
+static const struct of_device_id omap_rng_of_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 		{
 			.compatible	= "ti,omap2-rng",
 			.data		= &omap2_rng_pdata,
@@ -378,6 +393,7 @@ MODULE_DEVICE_TABLE(of, omap_rng_of_match);
 static int of_get_omap_rng_device_details(struct omap_rng_dev *priv,
 					  struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *match;
 	struct device *dev = &pdev->dev;
 	int irq, err;
@@ -388,15 +404,29 @@ static int of_get_omap_rng_device_details(struct omap_rng_dev *priv,
 		return -EINVAL;
 	}
 	priv->pdata = match->data;
+=======
+	struct device *dev = &pdev->dev;
+	int irq, err;
+
+	priv->pdata = of_device_get_match_data(dev);
+	if (!priv->pdata)
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 
 	if (of_device_is_compatible(dev->of_node, "ti,omap4-rng") ||
 	    of_device_is_compatible(dev->of_node, "inside-secure,safexcel-eip76")) {
 		irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(dev, "%s: error getting IRQ resource - %d\n",
 				__func__, irq);
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 
 		err = devm_request_irq(dev, irq, omap4_rng_irq,
 				       IRQF_TRIGGER_NONE, dev_name(dev), priv);
@@ -421,6 +451,7 @@ static int of_get_omap_rng_device_details(struct omap_rng_dev *priv,
 	}
 	return 0;
 }
+<<<<<<< HEAD
 #else
 static int of_get_omap_rng_device_details(struct omap_rng_dev *omap_rng,
 					  struct platform_device *pdev)
@@ -428,6 +459,8 @@ static int of_get_omap_rng_device_details(struct omap_rng_dev *omap_rng,
 	return -EINVAL;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static int get_omap_rng_device_details(struct omap_rng_dev *omap_rng)
 {
@@ -439,7 +472,10 @@ static int get_omap_rng_device_details(struct omap_rng_dev *omap_rng)
 static int omap_rng_probe(struct platform_device *pdev)
 {
 	struct omap_rng_dev *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = &pdev->dev;
 	int ret;
 
@@ -456,8 +492,12 @@ static int omap_rng_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, priv);
 	priv->dev = dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(dev, res);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base)) {
 		ret = PTR_ERR(priv->base);
 		goto err_ioremap;
@@ -470,15 +510,25 @@ static int omap_rng_probe(struct platform_device *pdev)
 	}
 
 	pm_runtime_enable(&pdev->dev);
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&pdev->dev);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Failed to runtime_get device: %d\n", ret);
 		pm_runtime_put_noidle(&pdev->dev);
+=======
+	ret = pm_runtime_resume_and_get(&pdev->dev);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to runtime_get device: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto err_ioremap;
 	}
 
 	priv->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(priv->clk) && PTR_ERR(priv->clk) == -EPROBE_DEFER)
+=======
+	if (PTR_ERR(priv->clk) == -EPROBE_DEFER)
+>>>>>>> upstream/android-13
 		return -EPROBE_DEFER;
 	if (!IS_ERR(priv->clk)) {
 		ret = clk_prepare_enable(priv->clk);
@@ -490,7 +540,11 @@ static int omap_rng_probe(struct platform_device *pdev)
 	}
 
 	priv->clk_reg = devm_clk_get(&pdev->dev, "reg");
+<<<<<<< HEAD
 	if (IS_ERR(priv->clk_reg) && PTR_ERR(priv->clk_reg) == -EPROBE_DEFER)
+=======
+	if (PTR_ERR(priv->clk_reg) == -EPROBE_DEFER)
+>>>>>>> upstream/android-13
 		return -EPROBE_DEFER;
 	if (!IS_ERR(priv->clk_reg)) {
 		ret = clk_prepare_enable(priv->clk_reg);
@@ -507,7 +561,11 @@ static int omap_rng_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_register;
 
+<<<<<<< HEAD
 	ret = hwrng_register(&priv->rng);
+=======
+	ret = devm_hwrng_register(&pdev->dev, &priv->rng);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_register;
 
@@ -532,7 +590,10 @@ static int omap_rng_remove(struct platform_device *pdev)
 {
 	struct omap_rng_dev *priv = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	hwrng_unregister(&priv->rng);
+=======
+>>>>>>> upstream/android-13
 
 	priv->pdata->cleanup(priv);
 
@@ -560,10 +621,16 @@ static int __maybe_unused omap_rng_resume(struct device *dev)
 	struct omap_rng_dev *priv = dev_get_drvdata(dev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(dev);
 	if (ret < 0) {
 		dev_err(dev, "Failed to runtime_get device: %d\n", ret);
 		pm_runtime_put_noidle(dev);
+=======
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0) {
+		dev_err(dev, "Failed to runtime_get device: %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

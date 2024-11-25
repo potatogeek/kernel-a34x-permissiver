@@ -10,6 +10,10 @@
 #include <linux/timer.h>
 #include <linux/scatterlist.h>
 #include <scsi/scsi_device.h>
+<<<<<<< HEAD
+=======
+#include <scsi/scsi_host.h>
+>>>>>>> upstream/android-13
 #include <scsi/scsi_request.h>
 #include <linux/android_kabi.h>
 
@@ -36,7 +40,10 @@ struct scsi_driver;
 struct scsi_data_buffer {
 	struct sg_table table;
 	unsigned length;
+<<<<<<< HEAD
 	int resid;
+=======
+>>>>>>> upstream/android-13
 };
 
 /* embedded in scsi_cmnd */
@@ -57,22 +64,38 @@ struct scsi_pointer {
 
 /* for scmd->flags */
 #define SCMD_TAGGED		(1 << 0)
+<<<<<<< HEAD
 #define SCMD_UNCHECKED_ISA_DMA	(1 << 1)
 #define SCMD_INITIALIZED	(1 << 2)
 /* flags preserved across unprep / reprep */
 #define SCMD_PRESERVED_FLAGS	(SCMD_UNCHECKED_ISA_DMA | SCMD_INITIALIZED)
+=======
+#define SCMD_INITIALIZED	(1 << 1)
+#define SCMD_LAST		(1 << 2)
+/* flags preserved across unprep / reprep */
+#define SCMD_PRESERVED_FLAGS	(SCMD_INITIALIZED)
+
+/* for scmd->state */
+#define SCMD_STATE_COMPLETE	0
+#define SCMD_STATE_INFLIGHT	1
+>>>>>>> upstream/android-13
 
 struct scsi_cmnd {
 	struct scsi_request req;
 	struct scsi_device *device;
+<<<<<<< HEAD
 	struct list_head list;  /* scsi_cmnd participates in queue lists */
 	struct list_head eh_entry; /* entry for the host eh_cmd_q */
+=======
+	struct list_head eh_entry; /* entry for the host eh_abort_list/eh_cmd_q */
+>>>>>>> upstream/android-13
 	struct delayed_work abort_work;
 
 	struct rcu_head rcu;
 
 	int eh_eflags;		/* Used by error handlr */
 
+<<<<<<< HEAD
 	/*
 	 * A SCSI Command is assigned a nonzero serial_number before passed
 	 * to the driver's queue command function.  The serial_number is
@@ -82,6 +105,9 @@ struct scsi_cmnd {
 	 * for debugging).
 	 */
 	unsigned long serial_number;
+=======
+	int budget_token;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This is set to jiffies as it was when the command was first
@@ -117,9 +143,12 @@ struct scsi_cmnd {
 				   reconnects.   Probably == sector
 				   size */
 
+<<<<<<< HEAD
 	struct request *request;	/* The command we are
 				   	   working on */
 
+=======
+>>>>>>> upstream/android-13
 	unsigned char *sense_buffer;
 				/* obtained by REQUEST SENSE when
 				 * CHECK CONDITION is received on original
@@ -146,8 +175,14 @@ struct scsi_cmnd {
 
 	int result;		/* Status code from lower level driver */
 	int flags;		/* Command flags */
+<<<<<<< HEAD
 
 	unsigned char tag;	/* SCSI-II queued command tag */
+=======
+	unsigned long state;	/* Command completion state */
+
+	unsigned int extra_len;	/* length of alignment and padding */
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -155,6 +190,15 @@ struct scsi_cmnd {
 	ANDROID_KABI_RESERVE(4);
 };
 
+<<<<<<< HEAD
+=======
+/* Variant of blk_mq_rq_from_pdu() that verifies the type of its argument. */
+static inline struct request *scsi_cmd_to_rq(struct scsi_cmnd *scmd)
+{
+	return blk_mq_rq_from_pdu(scmd);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Return the driver private allocation behind the command.
  * Only works if cmd_size is set in the host template.
@@ -167,17 +211,30 @@ static inline void *scsi_cmd_priv(struct scsi_cmnd *cmd)
 /* make sure not to use it with passthrough commands */
 static inline struct scsi_driver *scsi_cmd_to_driver(struct scsi_cmnd *cmd)
 {
+<<<<<<< HEAD
 	return *(struct scsi_driver **)cmd->request->rq_disk->private_data;
 }
 
 extern void scsi_put_command(struct scsi_cmnd *);
+=======
+	struct request *rq = scsi_cmd_to_rq(cmd);
+
+	return *(struct scsi_driver **)rq->rq_disk->private_data;
+}
+
+>>>>>>> upstream/android-13
 extern void scsi_finish_command(struct scsi_cmnd *cmd);
 
 extern void *scsi_kmap_atomic_sg(struct scatterlist *sg, int sg_count,
 				 size_t *offset, size_t *len);
 extern void scsi_kunmap_atomic_sg(void *virt);
 
+<<<<<<< HEAD
 extern int scsi_init_io(struct scsi_cmnd *cmd);
+=======
+blk_status_t scsi_alloc_sgtables(struct scsi_cmnd *cmd);
+void scsi_free_sgtables(struct scsi_cmnd *cmd);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SCSI_DMA
 extern int scsi_dma_map(struct scsi_cmnd *cmd);
@@ -202,6 +259,7 @@ static inline unsigned scsi_bufflen(struct scsi_cmnd *cmd)
 	return cmd->sdb.length;
 }
 
+<<<<<<< HEAD
 static inline void scsi_set_resid(struct scsi_cmnd *cmd, int resid)
 {
 	cmd->sdb.resid = resid;
@@ -210,11 +268,22 @@ static inline void scsi_set_resid(struct scsi_cmnd *cmd, int resid)
 static inline int scsi_get_resid(struct scsi_cmnd *cmd)
 {
 	return cmd->sdb.resid;
+=======
+static inline void scsi_set_resid(struct scsi_cmnd *cmd, unsigned int resid)
+{
+	cmd->req.resid_len = resid;
+}
+
+static inline unsigned int scsi_get_resid(struct scsi_cmnd *cmd)
+{
+	return cmd->req.resid_len;
+>>>>>>> upstream/android-13
 }
 
 #define scsi_for_each_sg(cmd, sg, nseg, __i)			\
 	for_each_sg(scsi_sglist(cmd), sg, nseg, __i)
 
+<<<<<<< HEAD
 static inline int scsi_bidi_cmnd(struct scsi_cmnd *cmd)
 {
 	return blk_bidi_rq(cmd->request) &&
@@ -232,6 +301,8 @@ static inline struct scsi_data_buffer *scsi_out(struct scsi_cmnd *cmd)
 	return &cmd->sdb;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int scsi_sg_copy_from_buffer(struct scsi_cmnd *cmd,
 					   void *buf, int buflen)
 {
@@ -246,6 +317,28 @@ static inline int scsi_sg_copy_to_buffer(struct scsi_cmnd *cmd,
 				 buf, buflen);
 }
 
+<<<<<<< HEAD
+=======
+static inline sector_t scsi_get_sector(struct scsi_cmnd *scmd)
+{
+	return blk_rq_pos(scsi_cmd_to_rq(scmd));
+}
+
+static inline sector_t scsi_get_lba(struct scsi_cmnd *scmd)
+{
+	unsigned int shift = ilog2(scmd->device->sector_size) - SECTOR_SHIFT;
+
+	return blk_rq_pos(scsi_cmd_to_rq(scmd)) >> shift;
+}
+
+static inline unsigned int scsi_logical_block_count(struct scsi_cmnd *scmd)
+{
+	unsigned int shift = ilog2(scmd->device->sector_size) - SECTOR_SHIFT;
+
+	return blk_rq_bytes(scsi_cmd_to_rq(scmd)) >> shift;
+}
+
+>>>>>>> upstream/android-13
 /*
  * The operations below are hints that tell the controller driver how
  * to handle I/Os with DIF or similar types of protection information.
@@ -308,9 +401,17 @@ static inline unsigned char scsi_get_prot_type(struct scsi_cmnd *scmd)
 	return scmd->prot_type;
 }
 
+<<<<<<< HEAD
 static inline sector_t scsi_get_lba(struct scsi_cmnd *scmd)
 {
 	return blk_rq_pos(scmd->request);
+=======
+static inline u32 scsi_prot_ref_tag(struct scsi_cmnd *scmd)
+{
+	struct request *rq = blk_mq_rq_from_pdu(scmd);
+
+	return t10_pi_ref_tag(rq);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int scsi_prot_interval(struct scsi_cmnd *scmd)
@@ -336,9 +437,20 @@ static inline struct scsi_data_buffer *scsi_prot(struct scsi_cmnd *cmd)
 #define scsi_for_each_prot_sg(cmd, sg, nseg, __i)		\
 	for_each_sg(scsi_prot_sglist(cmd), sg, nseg, __i)
 
+<<<<<<< HEAD
 static inline void set_msg_byte(struct scsi_cmnd *cmd, char status)
 {
 	cmd->result = (cmd->result & 0xffff00ff) | (status << 8);
+=======
+static inline void set_status_byte(struct scsi_cmnd *cmd, char status)
+{
+	cmd->result = (cmd->result & 0xffffff00) | status;
+}
+
+static inline u8 get_status_byte(struct scsi_cmnd *cmd)
+{
+	return cmd->result & 0xff;
+>>>>>>> upstream/android-13
 }
 
 static inline void set_host_byte(struct scsi_cmnd *cmd, char status)
@@ -346,14 +458,51 @@ static inline void set_host_byte(struct scsi_cmnd *cmd, char status)
 	cmd->result = (cmd->result & 0xff00ffff) | (status << 16);
 }
 
+<<<<<<< HEAD
 static inline void set_driver_byte(struct scsi_cmnd *cmd, char status)
 {
 	cmd->result = (cmd->result & 0x00ffffff) | (status << 24);
+=======
+static inline u8 get_host_byte(struct scsi_cmnd *cmd)
+{
+	return (cmd->result >> 16) & 0xff;
+}
+
+/**
+ * scsi_msg_to_host_byte() - translate message byte
+ *
+ * Translate the SCSI parallel message byte to a matching
+ * host byte setting. A message of COMMAND_COMPLETE indicates
+ * a successful command execution, any other message indicate
+ * an error. As the messages themselves only have a meaning
+ * for the SCSI parallel protocol this function translates
+ * them into a matching host byte value for SCSI EH.
+ */
+static inline void scsi_msg_to_host_byte(struct scsi_cmnd *cmd, u8 msg)
+{
+	switch (msg) {
+	case COMMAND_COMPLETE:
+		break;
+	case ABORT_TASK_SET:
+		set_host_byte(cmd, DID_ABORT);
+		break;
+	case TARGET_RESET:
+		set_host_byte(cmd, DID_RESET);
+		break;
+	default:
+		set_host_byte(cmd, DID_ERROR);
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned scsi_transfer_length(struct scsi_cmnd *scmd)
 {
+<<<<<<< HEAD
 	unsigned int xfer_len = scsi_out(scmd)->length;
+=======
+	unsigned int xfer_len = scmd->sdb.length;
+>>>>>>> upstream/android-13
 	unsigned int prot_interval = scsi_prot_interval(scmd);
 
 	if (scmd->prot_flags & SCSI_PROT_TRANSFER_PI)
@@ -362,4 +511,10 @@ static inline unsigned scsi_transfer_length(struct scsi_cmnd *scmd)
 	return xfer_len;
 }
 
+<<<<<<< HEAD
+=======
+extern void scsi_build_sense(struct scsi_cmnd *scmd, int desc,
+			     u8 key, u8 asc, u8 ascq);
+
+>>>>>>> upstream/android-13
 #endif /* _SCSI_SCSI_CMND_H */

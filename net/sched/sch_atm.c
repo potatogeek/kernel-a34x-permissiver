@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* net/sched/sch_atm.c - ATM VC selection "queueing discipline" */
 
 /* Written 1998-2000 by Werner Almesberger, EPFL ICA */
@@ -57,7 +61,11 @@ struct atm_flow_data {
 	struct atm_flow_data	*excess;	/* flow for excess traffic;
 						   NULL to set CLP instead */
 	int			hdr_len;
+<<<<<<< HEAD
 	unsigned char		hdr[0];		/* header data; MUST BE LAST */
+=======
+	unsigned char		hdr[];		/* header data; MUST BE LAST */
+>>>>>>> upstream/android-13
 };
 
 struct atm_qdisc_data {
@@ -150,7 +158,11 @@ static void atm_tc_put(struct Qdisc *sch, unsigned long cl)
 	pr_debug("atm_tc_put: destroying\n");
 	list_del_init(&flow->list);
 	pr_debug("atm_tc_put: qdisc %p\n", flow->q);
+<<<<<<< HEAD
 	qdisc_destroy(flow->q);
+=======
+	qdisc_put(flow->q);
+>>>>>>> upstream/android-13
 	tcf_block_put(flow->block);
 	if (flow->sock) {
 		pr_debug("atm_tc_put: f_count %ld\n",
@@ -223,7 +235,12 @@ static int atm_tc_change(struct Qdisc *sch, u32 classid, u32 parent,
 	if (opt == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	error = nla_parse_nested(tb, TCA_ATM_MAX, opt, atm_policy, NULL);
+=======
+	error = nla_parse_nested_deprecated(tb, TCA_ATM_MAX, opt, atm_policy,
+					    NULL);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
@@ -318,7 +335,12 @@ err_out:
 	return error;
 }
 
+<<<<<<< HEAD
 static int atm_tc_delete(struct Qdisc *sch, unsigned long arg)
+=======
+static int atm_tc_delete(struct Qdisc *sch, unsigned long arg,
+			 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct atm_qdisc_data *p = qdisc_priv(sch);
 	struct atm_flow_data *flow = (struct atm_flow_data *)arg;
@@ -391,7 +413,11 @@ static int atm_tc_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 		list_for_each_entry(flow, &p->flows, list) {
 			fl = rcu_dereference_bh(flow->filter_list);
 			if (fl) {
+<<<<<<< HEAD
 				result = tcf_classify(skb, fl, &res, true);
+=======
+				result = tcf_classify(skb, NULL, fl, &res, true);
+>>>>>>> upstream/android-13
 				if (result < 0)
 					continue;
 				flow = (struct atm_flow_data *)res.class;
@@ -464,10 +490,17 @@ drop: __maybe_unused
  * non-ATM interfaces.
  */
 
+<<<<<<< HEAD
 static void sch_atm_dequeue(unsigned long data)
 {
 	struct Qdisc *sch = (struct Qdisc *)data;
 	struct atm_qdisc_data *p = qdisc_priv(sch);
+=======
+static void sch_atm_dequeue(struct tasklet_struct *t)
+{
+	struct atm_qdisc_data *p = from_tasklet(p, t, task);
+	struct Qdisc *sch = qdisc_from_priv(p);
+>>>>>>> upstream/android-13
 	struct atm_flow_data *flow;
 	struct sk_buff *skb;
 
@@ -561,7 +594,11 @@ static int atm_tc_init(struct Qdisc *sch, struct nlattr *opt,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	tasklet_init(&p->task, sch_atm_dequeue, (unsigned long)sch);
+=======
+	tasklet_setup(&p->task, sch_atm_dequeue);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -609,7 +646,11 @@ static int atm_tc_dump_class(struct Qdisc *sch, unsigned long cl,
 	tcm->tcm_handle = flow->common.classid;
 	tcm->tcm_info = flow->q->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 

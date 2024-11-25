@@ -9,7 +9,11 @@
  *  (C) Copyright 2002 Red Hat Inc, All Rights Reserved
  */
 
+<<<<<<< HEAD
 #include <linux/mm.h>
+=======
+#include <linux/pagewalk.h>
+>>>>>>> upstream/android-13
 #include <linux/hugetlb.h>
 #include <linux/shm.h>
 #include <linux/mman.h>
@@ -28,7 +32,11 @@
 #include <linux/ksm.h>
 #include <linux/uaccess.h>
 #include <linux/mm_inline.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/mmu_context.h>
 #include <asm/tlbflush.h>
@@ -37,16 +45,31 @@
 
 static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
 		unsigned long addr, unsigned long end, pgprot_t newprot,
+<<<<<<< HEAD
 		int dirty_accountable, int prot_numa)
 {
 	struct mm_struct *mm = vma->vm_mm;
+=======
+		unsigned long cp_flags)
+{
+>>>>>>> upstream/android-13
 	pte_t *pte, oldpte;
 	spinlock_t *ptl;
 	unsigned long pages = 0;
 	int target_node = NUMA_NO_NODE;
+<<<<<<< HEAD
 
 	/*
 	 * Can be called with only the mmap_sem for reading by
+=======
+	bool dirty_accountable = cp_flags & MM_CP_DIRTY_ACCT;
+	bool prot_numa = cp_flags & MM_CP_PROT_NUMA;
+	bool uffd_wp = cp_flags & MM_CP_UFFD_WP;
+	bool uffd_wp_resolve = cp_flags & MM_CP_UFFD_WP_RESOLVE;
+
+	/*
+	 * Can be called with only the mmap_lock for reading by
+>>>>>>> upstream/android-13
 	 * prot_numa so we must check the pmd isn't constantly
 	 * changing from under us from pmd_none to pmd_trans_huge
 	 * and/or the other way around.
@@ -56,7 +79,11 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
 
 	/*
 	 * The pmd points to a regular pte so the pmd can't change
+<<<<<<< HEAD
 	 * from under us even if the mmap_sem is only hold for
+=======
+	 * from under us even if the mmap_lock is only hold for
+>>>>>>> upstream/android-13
 	 * reading.
 	 */
 	pte = pte_offset_map_lock(vma->vm_mm, pmd, addr, &ptl);
@@ -81,13 +108,24 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
 			if (prot_numa) {
 				struct page *page;
 
+<<<<<<< HEAD
+=======
+				/* Avoid TLB flush if possible */
+				if (pte_protnone(oldpte))
+					continue;
+
+>>>>>>> upstream/android-13
 				page = vm_normal_page(vma, addr, oldpte);
 				if (!page || PageKsm(page))
 					continue;
 
 				/* Also skip shared copy-on-write pages */
 				if (is_cow_mapping(vma->vm_flags) &&
+<<<<<<< HEAD
 				    page_mapcount(page) != 1)
+=======
+				    page_count(page) != 1)
+>>>>>>> upstream/android-13
 					continue;
 
 				/*
@@ -95,11 +133,15 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
 				 * it cannot move them all from MIGRATE_ASYNC
 				 * context.
 				 */
+<<<<<<< HEAD
 				if (page_is_file_cache(page) && PageDirty(page))
 					continue;
 
 				/* Avoid TLB flush if possible */
 				if (pte_protnone(oldpte))
+=======
+				if (page_is_file_lru(page) && PageDirty(page))
+>>>>>>> upstream/android-13
 					continue;
 
 				/*
@@ -110,17 +152,39 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
 					continue;
 			}
 
+<<<<<<< HEAD
 			ptent = ptep_modify_prot_start(mm, addr, pte);
 			ptent = pte_modify(ptent, newprot);
 			if (preserve_write)
 				ptent = pte_mk_savedwrite(ptent);
 
+=======
+			oldpte = ptep_modify_prot_start(vma, addr, pte);
+			ptent = pte_modify(oldpte, newprot);
+			if (preserve_write)
+				ptent = pte_mk_savedwrite(ptent);
+
+			if (uffd_wp) {
+				ptent = pte_wrprotect(ptent);
+				ptent = pte_mkuffd_wp(ptent);
+			} else if (uffd_wp_resolve) {
+				/*
+				 * Leave the write bit to be handled
+				 * by PF interrupt handler, then
+				 * things like COW could be properly
+				 * handled.
+				 */
+				ptent = pte_clear_uffd_wp(ptent);
+			}
+
+>>>>>>> upstream/android-13
 			/* Avoid taking write faults for known dirty pages */
 			if (dirty_accountable && pte_dirty(ptent) &&
 					(pte_soft_dirty(ptent) ||
 					 !(vma->vm_flags & VM_SOFTDIRTY))) {
 				ptent = pte_mkwrite(ptent);
 			}
+<<<<<<< HEAD
 			ptep_modify_prot_commit(mm, addr, pte, ptent);
 			pages++;
 		} else if (IS_ENABLED(CONFIG_MIGRATION)) {
@@ -128,10 +192,20 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
 
 			if (is_write_migration_entry(entry)) {
 				pte_t newpte;
+=======
+			ptep_modify_prot_commit(vma, addr, pte, oldpte, ptent);
+			pages++;
+		} else if (is_swap_pte(oldpte)) {
+			swp_entry_t entry = pte_to_swp_entry(oldpte);
+			pte_t newpte;
+
+			if (is_writable_migration_entry(entry)) {
+>>>>>>> upstream/android-13
 				/*
 				 * A protection check is difficult so
 				 * just be safe and disable write
 				 */
+<<<<<<< HEAD
 				make_migration_entry_read(&entry);
 				newpte = swp_entry_to_pte(entry);
 				if (pte_swp_soft_dirty(oldpte))
@@ -144,14 +218,51 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
 			if (is_write_device_private_entry(entry)) {
 				pte_t newpte;
 
+=======
+				entry = make_readable_migration_entry(
+							swp_offset(entry));
+				newpte = swp_entry_to_pte(entry);
+				if (pte_swp_soft_dirty(oldpte))
+					newpte = pte_swp_mksoft_dirty(newpte);
+				if (pte_swp_uffd_wp(oldpte))
+					newpte = pte_swp_mkuffd_wp(newpte);
+			} else if (is_writable_device_private_entry(entry)) {
+>>>>>>> upstream/android-13
 				/*
 				 * We do not preserve soft-dirtiness. See
 				 * copy_one_pte() for explanation.
 				 */
+<<<<<<< HEAD
 				make_device_private_entry_read(&entry);
 				newpte = swp_entry_to_pte(entry);
 				set_pte_at(mm, addr, pte, newpte);
 
+=======
+				entry = make_readable_device_private_entry(
+							swp_offset(entry));
+				newpte = swp_entry_to_pte(entry);
+				if (pte_swp_uffd_wp(oldpte))
+					newpte = pte_swp_mkuffd_wp(newpte);
+			} else if (is_writable_device_exclusive_entry(entry)) {
+				entry = make_readable_device_exclusive_entry(
+							swp_offset(entry));
+				newpte = swp_entry_to_pte(entry);
+				if (pte_swp_soft_dirty(oldpte))
+					newpte = pte_swp_mksoft_dirty(newpte);
+				if (pte_swp_uffd_wp(oldpte))
+					newpte = pte_swp_mkuffd_wp(newpte);
+			} else {
+				newpte = oldpte;
+			}
+
+			if (uffd_wp)
+				newpte = pte_swp_mkuffd_wp(newpte);
+			else if (uffd_wp_resolve)
+				newpte = pte_swp_clear_uffd_wp(newpte);
+
+			if (!pte_same(oldpte, newpte)) {
+				set_pte_at(vma->vm_mm, addr, pte, newpte);
+>>>>>>> upstream/android-13
 				pages++;
 			}
 		}
@@ -189,6 +300,7 @@ static inline int pmd_none_or_clear_bad_unless_trans_huge(pmd_t *pmd)
 
 static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
 		pud_t *pud, unsigned long addr, unsigned long end,
+<<<<<<< HEAD
 		pgprot_t newprot, int dirty_accountable, int prot_numa)
 {
 	pmd_t *pmd;
@@ -197,6 +309,17 @@ static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
 	unsigned long pages = 0;
 	unsigned long nr_huge_updates = 0;
 	unsigned long mni_start = 0;
+=======
+		pgprot_t newprot, unsigned long cp_flags)
+{
+	pmd_t *pmd;
+	unsigned long next;
+	unsigned long pages = 0;
+	unsigned long nr_huge_updates = 0;
+	struct mmu_notifier_range range;
+
+	range.start = 0;
+>>>>>>> upstream/android-13
 
 	pmd = pmd_offset(pud, addr);
 	do {
@@ -205,7 +328,11 @@ static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
 		next = pmd_addr_end(addr, end);
 
 		/*
+<<<<<<< HEAD
 		 * Automatic NUMA balancing walks the tables with mmap_sem
+=======
+		 * Automatic NUMA balancing walks the tables with mmap_lock
+>>>>>>> upstream/android-13
 		 * held for read. It's possible a parallel update to occur
 		 * between pmd_trans_huge() and a pmd_none_or_clear_bad()
 		 * check leading to a false positive and clearing.
@@ -217,9 +344,17 @@ static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
 			goto next;
 
 		/* invoke the mmu notifier if the pmd is populated */
+<<<<<<< HEAD
 		if (!mni_start) {
 			mni_start = addr;
 			mmu_notifier_invalidate_range_start(mm, mni_start, end);
+=======
+		if (!range.start) {
+			mmu_notifier_range_init(&range,
+				MMU_NOTIFY_PROTECTION_VMA, 0,
+				vma, vma->vm_mm, addr, end);
+			mmu_notifier_invalidate_range_start(&range);
+>>>>>>> upstream/android-13
 		}
 
 		if (is_swap_pmd(*pmd) || pmd_trans_huge(*pmd) || pmd_devmap(*pmd)) {
@@ -227,7 +362,11 @@ static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
 				__split_huge_pmd(vma, pmd, addr, false, NULL);
 			} else {
 				int nr_ptes = change_huge_pmd(vma, pmd, addr,
+<<<<<<< HEAD
 						newprot, prot_numa);
+=======
+							      newprot, cp_flags);
+>>>>>>> upstream/android-13
 
 				if (nr_ptes) {
 					if (nr_ptes == HPAGE_PMD_NR) {
@@ -242,14 +381,23 @@ static inline unsigned long change_pmd_range(struct vm_area_struct *vma,
 			/* fall through, the trans huge pmd just split */
 		}
 		this_pages = change_pte_range(vma, pmd, addr, next, newprot,
+<<<<<<< HEAD
 				 dirty_accountable, prot_numa);
+=======
+					      cp_flags);
+>>>>>>> upstream/android-13
 		pages += this_pages;
 next:
 		cond_resched();
 	} while (pmd++, addr = next, addr != end);
 
+<<<<<<< HEAD
 	if (mni_start)
 		mmu_notifier_invalidate_range_end(mm, mni_start, end);
+=======
+	if (range.start)
+		mmu_notifier_invalidate_range_end(&range);
+>>>>>>> upstream/android-13
 
 	if (nr_huge_updates)
 		count_vm_numa_events(NUMA_HUGE_PTE_UPDATES, nr_huge_updates);
@@ -258,7 +406,11 @@ next:
 
 static inline unsigned long change_pud_range(struct vm_area_struct *vma,
 		p4d_t *p4d, unsigned long addr, unsigned long end,
+<<<<<<< HEAD
 		pgprot_t newprot, int dirty_accountable, int prot_numa)
+=======
+		pgprot_t newprot, unsigned long cp_flags)
+>>>>>>> upstream/android-13
 {
 	pud_t *pud;
 	unsigned long next;
@@ -270,7 +422,11 @@ static inline unsigned long change_pud_range(struct vm_area_struct *vma,
 		if (pud_none_or_clear_bad(pud))
 			continue;
 		pages += change_pmd_range(vma, pud, addr, next, newprot,
+<<<<<<< HEAD
 				 dirty_accountable, prot_numa);
+=======
+					  cp_flags);
+>>>>>>> upstream/android-13
 	} while (pud++, addr = next, addr != end);
 
 	return pages;
@@ -278,7 +434,11 @@ static inline unsigned long change_pud_range(struct vm_area_struct *vma,
 
 static inline unsigned long change_p4d_range(struct vm_area_struct *vma,
 		pgd_t *pgd, unsigned long addr, unsigned long end,
+<<<<<<< HEAD
 		pgprot_t newprot, int dirty_accountable, int prot_numa)
+=======
+		pgprot_t newprot, unsigned long cp_flags)
+>>>>>>> upstream/android-13
 {
 	p4d_t *p4d;
 	unsigned long next;
@@ -290,7 +450,11 @@ static inline unsigned long change_p4d_range(struct vm_area_struct *vma,
 		if (p4d_none_or_clear_bad(p4d))
 			continue;
 		pages += change_pud_range(vma, p4d, addr, next, newprot,
+<<<<<<< HEAD
 				 dirty_accountable, prot_numa);
+=======
+					  cp_flags);
+>>>>>>> upstream/android-13
 	} while (p4d++, addr = next, addr != end);
 
 	return pages;
@@ -298,7 +462,11 @@ static inline unsigned long change_p4d_range(struct vm_area_struct *vma,
 
 static unsigned long change_protection_range(struct vm_area_struct *vma,
 		unsigned long addr, unsigned long end, pgprot_t newprot,
+<<<<<<< HEAD
 		int dirty_accountable, int prot_numa)
+=======
+		unsigned long cp_flags)
+>>>>>>> upstream/android-13
 {
 	struct mm_struct *mm = vma->vm_mm;
 	pgd_t *pgd;
@@ -315,7 +483,11 @@ static unsigned long change_protection_range(struct vm_area_struct *vma,
 		if (pgd_none_or_clear_bad(pgd))
 			continue;
 		pages += change_p4d_range(vma, pgd, addr, next, newprot,
+<<<<<<< HEAD
 				 dirty_accountable, prot_numa);
+=======
+					  cp_flags);
+>>>>>>> upstream/android-13
 	} while (pgd++, addr = next, addr != end);
 
 	/* Only flush the TLB if we actually modified any entries: */
@@ -328,6 +500,7 @@ static unsigned long change_protection_range(struct vm_area_struct *vma,
 
 unsigned long change_protection(struct vm_area_struct *vma, unsigned long start,
 		       unsigned long end, pgprot_t newprot,
+<<<<<<< HEAD
 		       int dirty_accountable, int prot_numa)
 {
 	unsigned long pages;
@@ -336,6 +509,19 @@ unsigned long change_protection(struct vm_area_struct *vma, unsigned long start,
 		pages = hugetlb_change_protection(vma, start, end, newprot);
 	else
 		pages = change_protection_range(vma, start, end, newprot, dirty_accountable, prot_numa);
+=======
+		       unsigned long cp_flags)
+{
+	unsigned long pages;
+
+	BUG_ON((cp_flags & MM_CP_UFFD_WP_ALL) == MM_CP_UFFD_WP_ALL);
+
+	if (is_vm_hugetlb_page(vma))
+		pages = hugetlb_change_protection(vma, start, end, newprot);
+	else
+		pages = change_protection_range(vma, start, end, newprot,
+						cp_flags);
+>>>>>>> upstream/android-13
 
 	return pages;
 }
@@ -361,6 +547,7 @@ static int prot_none_test(unsigned long addr, unsigned long next,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int prot_none_walk(struct vm_area_struct *vma, unsigned long start,
 			   unsigned long end, unsigned long newflags)
 {
@@ -375,6 +562,13 @@ static int prot_none_walk(struct vm_area_struct *vma, unsigned long start,
 
 	return walk_page_range(start, end, &prot_none_walk);
 }
+=======
+static const struct mm_walk_ops prot_none_walk_ops = {
+	.pte_entry		= prot_none_pte_entry,
+	.hugetlb_entry		= prot_none_hugetlb_entry,
+	.test_walk		= prot_none_test,
+};
+>>>>>>> upstream/android-13
 
 int
 mprotect_fixup(struct vm_area_struct *vma, struct vm_area_struct **pprev,
@@ -400,8 +594,16 @@ mprotect_fixup(struct vm_area_struct *vma, struct vm_area_struct **pprev,
 	 */
 	if (arch_has_pfn_modify_check() &&
 	    (vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) &&
+<<<<<<< HEAD
 	    (newflags & (VM_READ|VM_WRITE|VM_EXEC)) == 0) {
 		error = prot_none_walk(vma, start, end, newflags);
+=======
+	    (newflags & VM_ACCESS_FLAGS) == 0) {
+		pgprot_t new_pgprot = vm_get_page_prot(newflags);
+
+		error = walk_page_range(current->mm, start, end,
+				&prot_none_walk_ops, &new_pgprot);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	}
@@ -432,7 +634,11 @@ mprotect_fixup(struct vm_area_struct *vma, struct vm_area_struct **pprev,
 	pgoff = vma->vm_pgoff + ((start - vma->vm_start) >> PAGE_SHIFT);
 	*pprev = vma_merge(mm, *pprev, start, end, newflags,
 			   vma->anon_vma, vma->vm_file, pgoff, vma_policy(vma),
+<<<<<<< HEAD
 			   vma->vm_userfaultfd_ctx, vma_get_anon_name(vma));
+=======
+			   vma->vm_userfaultfd_ctx, anon_vma_name(vma));
+>>>>>>> upstream/android-13
 	if (*pprev) {
 		vma = *pprev;
 		VM_WARN_ON((vma->vm_flags ^ newflags) & ~VM_SOFTDIRTY);
@@ -455,17 +661,28 @@ mprotect_fixup(struct vm_area_struct *vma, struct vm_area_struct **pprev,
 
 success:
 	/*
+<<<<<<< HEAD
 	 * vm_flags and vm_page_prot are protected by the mmap_sem
 	 * held in write mode.
 	 */
 	vm_write_begin(vma);
 	WRITE_ONCE(vma->vm_flags, newflags);
+=======
+	 * vm_flags and vm_page_prot are protected by the mmap_lock
+	 * held in write mode.
+	 */
+	vma->vm_flags = newflags;
+>>>>>>> upstream/android-13
 	dirty_accountable = vma_wants_writenotify(vma, vma->vm_page_prot);
 	vma_set_page_prot(vma);
 
 	change_protection(vma, start, end, vma->vm_page_prot,
+<<<<<<< HEAD
 			  dirty_accountable, 0);
 	vm_write_end(vma);
+=======
+			  dirty_accountable ? MM_CP_DIRTY_ACCT : 0);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Private VM_LOCKED VMA becoming writable: trigger COW to avoid major
@@ -518,7 +735,11 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
 
 	reqprot = prot;
 
+<<<<<<< HEAD
 	if (down_write_killable(&current->mm->mmap_sem))
+=======
+	if (mmap_write_lock_killable(current->mm))
+>>>>>>> upstream/android-13
 		return -EINTR;
 
 	/*
@@ -578,11 +799,24 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
 		newflags |= (vma->vm_flags & ~mask_off_old_flags);
 
 		/* newflags >> 4 shift VM_MAY% in place of VM_% */
+<<<<<<< HEAD
 		if ((newflags & ~(newflags >> 4)) & (VM_READ | VM_WRITE | VM_EXEC)) {
+=======
+		if ((newflags & ~(newflags >> 4)) & VM_ACCESS_FLAGS) {
+>>>>>>> upstream/android-13
 			error = -EACCES;
 			goto out;
 		}
 
+<<<<<<< HEAD
+=======
+		/* Allow architectures to sanity-check the new flags */
+		if (!arch_validate_flags(newflags)) {
+			error = -EINVAL;
+			goto out;
+		}
+
+>>>>>>> upstream/android-13
 		error = security_file_mprotect(vma, reqprot, prot);
 		if (error)
 			goto out;
@@ -590,9 +824,23 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
 		tmp = vma->vm_end;
 		if (tmp > end)
 			tmp = end;
+<<<<<<< HEAD
 		error = mprotect_fixup(vma, &prev, nstart, tmp, newflags);
 		if (error)
 			goto out;
+=======
+
+		if (vma->vm_ops && vma->vm_ops->mprotect) {
+			error = vma->vm_ops->mprotect(vma, nstart, tmp, newflags);
+			if (error)
+				goto out;
+		}
+
+		error = mprotect_fixup(vma, &prev, nstart, tmp, newflags);
+		if (error)
+			goto out;
+
+>>>>>>> upstream/android-13
 		nstart = tmp;
 
 		if (nstart < prev->vm_end)
@@ -608,7 +856,11 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
 		prot = reqprot;
 	}
 out:
+<<<<<<< HEAD
 	up_write(&current->mm->mmap_sem);
+=======
+	mmap_write_unlock(current->mm);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -638,7 +890,11 @@ SYSCALL_DEFINE2(pkey_alloc, unsigned long, flags, unsigned long, init_val)
 	if (init_val & ~PKEY_ACCESS_MASK)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	down_write(&current->mm->mmap_sem);
+=======
+	mmap_write_lock(current->mm);
+>>>>>>> upstream/android-13
 	pkey = mm_pkey_alloc(current->mm);
 
 	ret = -ENOSPC;
@@ -652,7 +908,11 @@ SYSCALL_DEFINE2(pkey_alloc, unsigned long, flags, unsigned long, init_val)
 	}
 	ret = pkey;
 out:
+<<<<<<< HEAD
 	up_write(&current->mm->mmap_sem);
+=======
+	mmap_write_unlock(current->mm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -660,12 +920,21 @@ SYSCALL_DEFINE1(pkey_free, int, pkey)
 {
 	int ret;
 
+<<<<<<< HEAD
 	down_write(&current->mm->mmap_sem);
 	ret = mm_pkey_free(current->mm, pkey);
 	up_write(&current->mm->mmap_sem);
 
 	/*
 	 * We could provie warnings or errors if any VMA still
+=======
+	mmap_write_lock(current->mm);
+	ret = mm_pkey_free(current->mm, pkey);
+	mmap_write_unlock(current->mm);
+
+	/*
+	 * We could provide warnings or errors if any VMA still
+>>>>>>> upstream/android-13
 	 * has the pkey set here.
 	 */
 	return ret;

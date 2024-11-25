@@ -74,12 +74,20 @@
 	leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		blue {
+=======
+		led-0 {
+>>>>>>> upstream/android-13
 			label = "bananapi-m3:blue:usr";
 			gpios = <&axp_gpio 1 GPIO_ACTIVE_HIGH>;
 		};
 
+<<<<<<< HEAD
 		green {
+=======
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "bananapi-m3:green:usr";
 			gpios = <&axp_gpio 0 GPIO_ACTIVE_HIGH>;
 		};
@@ -191,6 +199,14 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&r_cir {
+	clock-frequency = <3000000>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &r_rsb {
 	status = "okay";
 
@@ -198,7 +214,11 @@
 		compatible = "x-powers,axp813";
 		reg = <0x3a3>;
 		interrupt-parent = <&r_intc>;
+<<<<<<< HEAD
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+=======
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;
+>>>>>>> upstream/android-13
 		eldoin-supply = <&reg_dcdc1>;
 		fldoin-supply = <&reg_dcdc5>;
 		swin-supply = <&reg_dcdc1>;
@@ -220,7 +240,11 @@
 		ac100_rtc: rtc {
 			compatible = "x-powers,ac100-rtc";
 			interrupt-parent = <&r_intc>;
+<<<<<<< HEAD
 			interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+=======
+			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;
+>>>>>>> upstream/android-13
 			clocks = <&ac100_codec>;
 			#clock-cells = <1>;
 			clock-output-names = "cko1_rtc",
@@ -232,6 +256,17 @@
 
 #include "axp81x.dtsi"
 
+<<<<<<< HEAD
+=======
+&ac_power_supply {
+	status = "okay";
+};
+
+&battery_power_supply {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &reg_aldo1 {
 	regulator-always-on;
 	regulator-min-microvolt = <1800000>;
@@ -358,7 +393,41 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &usbphy {
+=======
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_pins>, <&uart1_rts_cts_pins>;
+	uart-has-rtscts;
+	status = "okay";
+
+	bluetooth {
+		compatible = "brcm,bcm43438-bt";
+		clocks = <&ac100_rtc 1>;
+		clock-names = "lpo";
+		vbat-supply = <&reg_dldo1>;
+		vddio-supply = <&reg_dldo1>;
+		device-wakeup-gpios = <&pio 7 9 GPIO_ACTIVE_HIGH>; /* PH9 */
+		host-wakeup-gpios = <&r_pio 0 5 GPIO_ACTIVE_HIGH>; /* PL5 */
+		shutdown-gpios = <&r_pio 0 4 GPIO_ACTIVE_HIGH>; /* PL4 */
+	};
+};
+
+&usb_otg {
+	dr_mode = "otg";
+	status = "okay";
+};
+
+&usb_power_supply {
+	status = "okay";
+};
+
+&usbphy {
+	usb0_id_det-gpios = <&pio 7 11 GPIO_ACTIVE_HIGH>; /* PH11 */
+	usb0_vbus_power-supply = <&usb_power_supply>;
+	usb0_vbus-supply = <&reg_drivevbus>;
+>>>>>>> upstream/android-13
 	usb1_vbus-supply = <&reg_usb1_vbus>;
 	status = "okay";
 };

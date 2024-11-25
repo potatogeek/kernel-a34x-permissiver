@@ -111,10 +111,15 @@ static int ohci_platform_probe(struct platform_device *dev)
 		return err;
 
 	irq = platform_get_irq(dev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&dev->dev, "no irq provided");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	hcd = usb_create_hcd(&ohci_platform_hc_driver, &dev->dev,
 			dev_name(&dev->dev));
@@ -301,6 +306,14 @@ static int ohci_platform_resume(struct device *dev)
 	}
 
 	ohci_resume(hcd, false);
+<<<<<<< HEAD
+=======
+
+	pm_runtime_disable(dev);
+	pm_runtime_set_active(dev);
+	pm_runtime_enable(dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif /* CONFIG_PM_SLEEP */

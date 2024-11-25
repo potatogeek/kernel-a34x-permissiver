@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 * Common leds properties.
 
 LED and flash LED devices provide the same basic functionality as current
@@ -113,3 +114,6 @@ max77693-led {
 		flash-max-timeout-us = <500000>;
 	};
 };
+=======
+This file has moved to ./common.yaml.
+>>>>>>> upstream/android-13

@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013-2015 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
  *
  * Licensed under the GPL-2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2013-2015 Analog Devices Inc.
+ *  Author: Lars-Peter Clausen <lars@metafoo.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -13,7 +20,10 @@
 #include <linux/mutex.h>
 #include <linux/sched.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
 #include <linux/iio/buffer.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/iio/buffer_impl.h>
 #include <linux/iio/buffer-dma.h>
 #include <linux/dma-mapping.h>
@@ -477,7 +487,11 @@ static struct iio_dma_buffer_block *iio_dma_buffer_dequeue(
  * @n: Number of bytes to read
  * @user_buffer: Userspace buffer to copy the data to
  *
+<<<<<<< HEAD
  * Should be used as the read_first_n callback for iio_buffer_access_ops
+=======
+ * Should be used as the read callback for iio_buffer_access_ops
+>>>>>>> upstream/android-13
  * struct for DMA buffers.
  */
 int iio_dma_buffer_read(struct iio_buffer *buffer, size_t n,

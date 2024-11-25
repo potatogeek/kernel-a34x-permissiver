@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Qualcomm Atheros, Inc. All rights reserved.
  * Copyright (c) 2015 The Linux Foundation. All rights reserved.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+/* SPDX-License-Identifier: ISC */
+/*
+ * Copyright (c) 2016 Qualcomm Atheros, Inc. All rights reserved.
+ * Copyright (c) 2015 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _AHB_H_

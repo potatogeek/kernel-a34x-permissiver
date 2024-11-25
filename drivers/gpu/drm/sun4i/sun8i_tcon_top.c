@@ -1,19 +1,40 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright (c) 2018 Jernej Skrabec <jernej.skrabec@siol.net> */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
 #include <dt-bindings/clock/sun8i-tcon-top.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/bitfield.h>
 #include <linux/component.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/of_graph.h>
 #include <linux/platform_device.h>
 
 #include "sun8i_tcon_top.h"
 
+=======
+#include <linux/io.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/of_graph.h>
+#include <linux/platform_device.h>
+
+#include <dt-bindings/clock/sun8i-tcon-top.h>
+
+#include "sun8i_tcon_top.h"
+
+struct sun8i_tcon_top_quirks {
+	bool has_tcon_tv1;
+	bool has_dsi;
+};
+
+>>>>>>> upstream/android-13
 static bool sun8i_tcon_top_node_is_tcon_top(struct device_node *node)
 {
 	return !!of_match_node(sun8i_tcon_top_of_table, node);
@@ -121,16 +142,29 @@ static int sun8i_tcon_top_bind(struct device *dev, struct device *master,
 	struct platform_device *pdev = to_platform_device(dev);
 	struct clk_hw_onecell_data *clk_data;
 	struct sun8i_tcon_top *tcon_top;
+<<<<<<< HEAD
+=======
+	const struct sun8i_tcon_top_quirks *quirks;
+>>>>>>> upstream/android-13
 	struct resource *res;
 	void __iomem *regs;
 	int ret, i;
 
+<<<<<<< HEAD
+=======
+	quirks = of_device_get_match_data(&pdev->dev);
+
+>>>>>>> upstream/android-13
 	tcon_top = devm_kzalloc(dev, sizeof(*tcon_top), GFP_KERNEL);
 	if (!tcon_top)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	clk_data = devm_kzalloc(dev, sizeof(*clk_data) +
 				sizeof(*clk_data->hws) * CLK_NUM,
+=======
+	clk_data = devm_kzalloc(dev, struct_size(clk_data, hws, CLK_NUM),
+>>>>>>> upstream/android-13
 				GFP_KERNEL);
 	if (!clk_data)
 		return -ENOMEM;
@@ -188,6 +222,7 @@ static int sun8i_tcon_top_bind(struct device *dev, struct device *master,
 					     &tcon_top->reg_lock,
 					     TCON_TOP_TCON_TV0_GATE, 0);
 
+<<<<<<< HEAD
 	clk_data->hws[CLK_TCON_TOP_TV1] =
 		sun8i_tcon_top_register_gate(dev, "tcon-tv1", regs,
 					     &tcon_top->reg_lock,
@@ -197,6 +232,19 @@ static int sun8i_tcon_top_bind(struct device *dev, struct device *master,
 		sun8i_tcon_top_register_gate(dev, "dsi", regs,
 					     &tcon_top->reg_lock,
 					     TCON_TOP_TCON_DSI_GATE, 2);
+=======
+	if (quirks->has_tcon_tv1)
+		clk_data->hws[CLK_TCON_TOP_TV1] =
+			sun8i_tcon_top_register_gate(dev, "tcon-tv1", regs,
+						     &tcon_top->reg_lock,
+						     TCON_TOP_TCON_TV1_GATE, 1);
+
+	if (quirks->has_dsi)
+		clk_data->hws[CLK_TCON_TOP_DSI] =
+			sun8i_tcon_top_register_gate(dev, "dsi", regs,
+						     &tcon_top->reg_lock,
+						     TCON_TOP_TCON_DSI_GATE, 2);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < CLK_NUM; i++)
 		if (IS_ERR(clk_data->hws[i])) {
@@ -259,8 +307,30 @@ static int sun8i_tcon_top_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* sun4i_drv uses this list to check if a device node is a TCON TOP */
 const struct of_device_id sun8i_tcon_top_of_table[] = {
+=======
+static const struct sun8i_tcon_top_quirks sun8i_r40_tcon_top_quirks = {
+	.has_tcon_tv1	= true,
+	.has_dsi	= true,
+};
+
+static const struct sun8i_tcon_top_quirks sun50i_h6_tcon_top_quirks = {
+	/* Nothing special */
+};
+
+/* sun4i_drv uses this list to check if a device node is a TCON TOP */
+const struct of_device_id sun8i_tcon_top_of_table[] = {
+	{
+		.compatible = "allwinner,sun8i-r40-tcon-top",
+		.data = &sun8i_r40_tcon_top_quirks
+	},
+	{
+		.compatible = "allwinner,sun50i-h6-tcon-top",
+		.data = &sun50i_h6_tcon_top_quirks
+	},
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, sun8i_tcon_top_of_table);

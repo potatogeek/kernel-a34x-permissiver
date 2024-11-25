@@ -69,7 +69,11 @@ struct vmw_cmdbuf_res_manager {
  * vmw_cmdbuf_res_lookup - Look up a command buffer resource
  *
  * @man: Pointer to the command buffer resource manager
+<<<<<<< HEAD
  * @resource_type: The resource type, that combined with the user key
+=======
+ * @res_type: The resource type, that combined with the user key
+>>>>>>> upstream/android-13
  * identifies the resource.
  * @user_key: The user key.
  *
@@ -89,8 +93,12 @@ vmw_cmdbuf_res_lookup(struct vmw_cmdbuf_res_manager *man,
 	if (unlikely(ret != 0))
 		return ERR_PTR(ret);
 
+<<<<<<< HEAD
 	return vmw_resource_reference
 		(drm_hash_entry(hash, struct vmw_cmdbuf_res, hash)->res);
+=======
+	return drm_hash_entry(hash, struct vmw_cmdbuf_res, hash)->res;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -149,7 +157,10 @@ void vmw_cmdbuf_res_commit(struct list_head *list)
 /**
  * vmw_cmdbuf_res_revert - Revert a list of command buffer resource actions
  *
+<<<<<<< HEAD
  * @man: Pointer to the command buffer resource manager
+=======
+>>>>>>> upstream/android-13
  * @list: Caller's list of command buffer resource action
  *
  * This function reverts a list of command buffer resource
@@ -169,10 +180,16 @@ void vmw_cmdbuf_res_revert(struct list_head *list)
 			vmw_cmdbuf_res_free(entry->man, entry);
 			break;
 		case VMW_CMDBUF_RES_DEL:
+<<<<<<< HEAD
 			ret = drm_ht_insert_item(&entry->man->resources,
 						 &entry->hash);
 			list_del(&entry->head);
 			list_add_tail(&entry->head, &entry->man->list);
+=======
+			ret = drm_ht_insert_item(&entry->man->resources, &entry->hash);
+			BUG_ON(ret);
+			list_move_tail(&entry->head, &entry->man->list);
+>>>>>>> upstream/android-13
 			entry->state = VMW_CMDBUF_RES_COMMITTED;
 			break;
 		default:
@@ -328,7 +345,10 @@ void vmw_cmdbuf_res_man_destroy(struct vmw_cmdbuf_res_manager *man)
 }
 
 /**
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * vmw_cmdbuf_res_man_size - Return the size of a command buffer managed
  * resource manager
  *

@@ -37,6 +37,10 @@ static int llc_mac_header_len(unsigned short devtype)
 
 /**
  *	llc_alloc_frame - allocates sk_buff for frame
+<<<<<<< HEAD
+=======
+ *	@sk:  socket to allocate frame to
+>>>>>>> upstream/android-13
  *	@dev: network device this skb will be sent over
  *	@type: pdu type to allocate
  *	@data_size: data size to allocate
@@ -273,6 +277,10 @@ void llc_build_and_send_xid_pkt(struct llc_sap *sap, struct sk_buff *skb,
  *	llc_sap_rcv - sends received pdus to the sap state machine
  *	@sap: current sap component structure.
  *	@skb: received frame.
+<<<<<<< HEAD
+=======
+ *	@sk:  socket to associate to frame
+>>>>>>> upstream/android-13
  *
  *	Sends received pdus to the sap state machine.
  */
@@ -379,6 +387,10 @@ static void llc_do_mcast(struct llc_sap *sap, struct sk_buff *skb,
  * 	llc_sap_mcast - Deliver multicast PDU's to all matching datagram sockets.
  *	@sap: SAP
  *	@laddr: address of local LLC (MAC + SAP)
+<<<<<<< HEAD
+=======
+ *	@skb: PDU to deliver
+>>>>>>> upstream/android-13
  *
  *	Search socket list of the SAP and finds connections with same sap.
  *	Deliver clone to each.

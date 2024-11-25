@@ -13,6 +13,7 @@
 #include <linux/dcache.h>
 #include <linux/magic.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/refcount.h>
 #include <linux/workqueue.h>
 #include "flask.h"
@@ -20,6 +21,13 @@
 #include <linux/uh.h>
 #include <linux/kdp.h>
 #endif
+=======
+#include <linux/rcupdate.h>
+#include <linux/refcount.h>
+#include <linux/workqueue.h>
+#include "flask.h"
+#include "policycap.h"
+>>>>>>> upstream/android-13
 
 #define SECSID_NULL			0x00000000 /* unspecified SID */
 #define SECSID_WILD			0xffffffff /* wildcard SID */
@@ -44,10 +52,19 @@
 #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
 #define POLICYDB_VERSION_XPERMS_IOCTL	30
 #define POLICYDB_VERSION_INFINIBAND		31
+<<<<<<< HEAD
 
 /* Range of policy versions we understand*/
 #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
 #define POLICYDB_VERSION_MAX   POLICYDB_VERSION_INFINIBAND
+=======
+#define POLICYDB_VERSION_GLBLUB		32
+#define POLICYDB_VERSION_COMP_FTRANS	33 /* compressed filename transitions */
+
+/* Range of policy versions we understand*/
+#define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+#define POLICYDB_VERSION_MAX   POLICYDB_VERSION_COMP_FTRANS
+>>>>>>> upstream/android-13
 
 /* Mask for just the mount related flags */
 #define SE_MNTMASK	0x0f
@@ -62,6 +79,7 @@
 #define SE_SBINITIALIZED	0x0100
 #define SE_SBPROC		0x0200
 #define SE_SBGENFS		0x0400
+<<<<<<< HEAD
 
 #define CONTEXT_STR	"context="
 #define FSCONTEXT_STR	"fscontext="
@@ -90,6 +108,19 @@ enum {
 #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
 
 extern const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
+=======
+#define SE_SBGENFS_XATTR	0x0800
+
+#define CONTEXT_STR	"context"
+#define FSCONTEXT_STR	"fscontext"
+#define ROOTCONTEXT_STR	"rootcontext"
+#define DEFCONTEXT_STR	"defcontext"
+#define SECLABEL_STR "seclabel"
+
+struct netlbl_lsm_secattr;
+
+extern int selinux_enabled_boot;
+>>>>>>> upstream/android-13
 
 /*
  * type_datum properties
@@ -102,10 +133,19 @@ extern const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
 #define POLICYDB_BOUNDS_MAXDEPTH	4
 
 struct selinux_avc;
+<<<<<<< HEAD
 struct selinux_ss;
 
 struct selinux_state {
 	bool disabled;
+=======
+struct selinux_policy;
+
+struct selinux_state {
+#ifdef CONFIG_SECURITY_SELINUX_DISABLE
+	bool disabled;
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
 	bool enforcing;
 #endif
@@ -115,15 +155,27 @@ struct selinux_state {
 	bool android_netlink_route;
 	bool android_netlink_getneigh;
 
+<<<<<<< HEAD
 	struct selinux_avc *avc;
 	struct selinux_ss *ss;
 };
 
 void selinux_ss_init(struct selinux_ss **ss);
+=======
+	struct page *status_page;
+	struct mutex status_lock;
+
+	struct selinux_avc *avc;
+	struct selinux_policy __rcu *policy;
+	struct mutex policy_mutex;
+} __randomize_layout;
+
+>>>>>>> upstream/android-13
 void selinux_avc_init(struct selinux_avc **avc);
 
 extern struct selinux_state selinux_state;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
 //If the binary is no-ship, selinux_enforcing value can be changed.
 #if (defined CONFIG_KDP_CRED && defined CONFIG_SAMSUNG_PRODUCT_SHIP)
@@ -134,15 +186,37 @@ extern int selinux_enforcing;
 static inline bool enforcing_enabled(struct selinux_state *state)
 {
 	return selinux_enforcing; // SEC_SELINUX_PORTING_COMMON Change to use RKP 
+=======
+static inline bool selinux_initialized(const struct selinux_state *state)
+{
+	/* do a synchronized load to avoid race conditions */
+	return smp_load_acquire(&state->initialized);
+}
+
+static inline void selinux_mark_initialized(struct selinux_state *state)
+{
+	/* do a synchronized write to avoid race conditions */
+	smp_store_release(&state->initialized, true);
+}
+
+#ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+static inline bool enforcing_enabled(struct selinux_state *state)
+{
+	return READ_ONCE(state->enforcing);
+>>>>>>> upstream/android-13
 }
 
 static inline void enforcing_set(struct selinux_state *state, bool value)
 {
+<<<<<<< HEAD
 #if (defined CONFIG_KDP_CRED && defined CONFIG_SAMSUNG_PRODUCT_SHIP)
 	uh_call(UH_APP_KDP, PROTECT_SELINUX_VAR, (u64)&selinux_enforcing, (u64)value, 0, 0);
 #else
 	selinux_enforcing = value; // SEC_SELINUX_PORTING_COMMON Change to use RKP
 #endif
+=======
+	WRITE_ONCE(state->enforcing, value);
+>>>>>>> upstream/android-13
 }
 #else
 static inline bool enforcing_enabled(struct selinux_state *state)
@@ -155,46 +229,114 @@ static inline void enforcing_set(struct selinux_state *state, bool value)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static inline bool checkreqprot_get(const struct selinux_state *state)
+{
+	return READ_ONCE(state->checkreqprot);
+}
+
+static inline void checkreqprot_set(struct selinux_state *state, bool value)
+{
+	WRITE_ONCE(state->checkreqprot, value);
+}
+
+#ifdef CONFIG_SECURITY_SELINUX_DISABLE
+static inline bool selinux_disabled(struct selinux_state *state)
+{
+	return READ_ONCE(state->disabled);
+}
+
+static inline void selinux_mark_disabled(struct selinux_state *state)
+{
+	WRITE_ONCE(state->disabled, true);
+}
+#else
+static inline bool selinux_disabled(struct selinux_state *state)
+{
+	return false;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static inline bool selinux_policycap_netpeer(void)
 {
 	struct selinux_state *state = &selinux_state;
 
+<<<<<<< HEAD
 	return state->policycap[POLICYDB_CAPABILITY_NETPEER];
+=======
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_NETPEER]);
+>>>>>>> upstream/android-13
 }
 
 static inline bool selinux_policycap_openperm(void)
 {
 	struct selinux_state *state = &selinux_state;
 
+<<<<<<< HEAD
 	return state->policycap[POLICYDB_CAPABILITY_OPENPERM];
+=======
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_OPENPERM]);
+>>>>>>> upstream/android-13
 }
 
 static inline bool selinux_policycap_extsockclass(void)
 {
 	struct selinux_state *state = &selinux_state;
 
+<<<<<<< HEAD
 	return state->policycap[POLICYDB_CAPABILITY_EXTSOCKCLASS];
+=======
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_EXTSOCKCLASS]);
+>>>>>>> upstream/android-13
 }
 
 static inline bool selinux_policycap_alwaysnetwork(void)
 {
 	struct selinux_state *state = &selinux_state;
 
+<<<<<<< HEAD
 	return state->policycap[POLICYDB_CAPABILITY_ALWAYSNETWORK];
+=======
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_ALWAYSNETWORK]);
+>>>>>>> upstream/android-13
 }
 
 static inline bool selinux_policycap_cgroupseclabel(void)
 {
 	struct selinux_state *state = &selinux_state;
 
+<<<<<<< HEAD
 	return state->policycap[POLICYDB_CAPABILITY_CGROUPSECLABEL];
+=======
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_CGROUPSECLABEL]);
+>>>>>>> upstream/android-13
 }
 
 static inline bool selinux_policycap_nnp_nosuid_transition(void)
 {
 	struct selinux_state *state = &selinux_state;
 
+<<<<<<< HEAD
 	return state->policycap[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION];
+=======
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION]);
+}
+
+static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
+{
+	struct selinux_state *state = &selinux_state;
+
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
+}
+
+static inline bool selinux_policycap_ioctl_skip_cloexec(void)
+{
+	struct selinux_state *state = &selinux_state;
+
+	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC]);
+>>>>>>> upstream/android-13
 }
 
 static inline bool selinux_android_nlroute_getlink(void)
@@ -211,6 +353,7 @@ static inline bool selinux_android_nlroute_getneigh(void)
 	return state->android_netlink_getneigh;
 }
 
+<<<<<<< HEAD
 int security_mls_enabled(struct selinux_state *state);
 int security_load_policy(struct selinux_state *state,
 			 void *data, size_t len);
@@ -218,6 +361,27 @@ int security_read_policy(struct selinux_state *state,
 			 void **data, size_t *len);
 size_t security_policydb_len(struct selinux_state *state);
 
+=======
+struct selinux_policy_convert_data;
+
+struct selinux_load_state {
+	struct selinux_policy *policy;
+	struct selinux_policy_convert_data *convert_data;
+};
+
+int security_mls_enabled(struct selinux_state *state);
+int security_load_policy(struct selinux_state *state,
+			 void *data, size_t len,
+			 struct selinux_load_state *load_state);
+void selinux_policy_commit(struct selinux_state *state,
+			   struct selinux_load_state *load_state);
+void selinux_policy_cancel(struct selinux_state *state,
+			   struct selinux_load_state *load_state);
+int security_read_policy(struct selinux_state *state,
+			 void **data, size_t *len);
+int security_read_state_kernel(struct selinux_state *state,
+			       void **data, size_t *len);
+>>>>>>> upstream/android-13
 int security_policycap_supported(struct selinux_state *state,
 				 unsigned int req_cap);
 
@@ -254,6 +418,7 @@ struct extended_perms {
 };
 
 /* definitions of av_decision.flags */
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
 #define AVD_FLAGS_PERMISSIVE	0x0000
@@ -261,6 +426,9 @@ struct extended_perms {
 #define AVD_FLAGS_PERMISSIVE	0x0001
 #endif
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+#define AVD_FLAGS_PERMISSIVE	0x0001
+>>>>>>> upstream/android-13
 
 void security_compute_av(struct selinux_state *state,
 			 u32 ssid, u32 tsid,
@@ -296,6 +464,12 @@ int security_sid_to_context(struct selinux_state *state, u32 sid,
 int security_sid_to_context_force(struct selinux_state *state,
 				  u32 sid, char **scontext, u32 *scontext_len);
 
+<<<<<<< HEAD
+=======
+int security_sid_to_context_inval(struct selinux_state *state,
+				  u32 sid, char **scontext, u32 *scontext_len);
+
+>>>>>>> upstream/android-13
 int security_context_to_sid(struct selinux_state *state,
 			    const char *scontext, u32 scontext_len,
 			    u32 *out_sid, gfp_t gfp);
@@ -350,9 +524,15 @@ int security_net_peersid_resolve(struct selinux_state *state,
 				 u32 xfrm_sid,
 				 u32 *peer_sid);
 
+<<<<<<< HEAD
 int security_get_classes(struct selinux_state *state,
 			 char ***classes, int *nclasses);
 int security_get_permissions(struct selinux_state *state,
+=======
+int security_get_classes(struct selinux_policy *policy,
+			 char ***classes, int *nclasses);
+int security_get_permissions(struct selinux_policy *policy,
+>>>>>>> upstream/android-13
 			     char *class, char ***perms, int *nperms);
 int security_get_reject_unknown(struct selinux_state *state);
 int security_get_allow_unknown(struct selinux_state *state);
@@ -372,6 +552,13 @@ int security_genfs_sid(struct selinux_state *state,
 		       const char *fstype, char *name, u16 sclass,
 		       u32 *sid);
 
+<<<<<<< HEAD
+=======
+int selinux_policy_genfs_sid(struct selinux_policy *policy,
+		       const char *fstype, char *name, u16 sclass,
+		       u32 *sid);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NETLABEL
 int security_netlbl_secattr_to_sid(struct selinux_state *state,
 				   struct netlbl_lsm_secattr *secattr,
@@ -405,7 +592,11 @@ extern struct page *selinux_kernel_status_page(struct selinux_state *state);
 
 #define SELINUX_KERNEL_STATUS_VERSION	1
 struct selinux_kernel_status {
+<<<<<<< HEAD
 	u32	version;	/* version number of thie structure */
+=======
+	u32	version;	/* version number of the structure */
+>>>>>>> upstream/android-13
 	u32	sequence;	/* sequence number of seqlock logic */
 	u32	enforcing;	/* current setting of enforcing mode */
 	u32	policyload;	/* times of policy reloaded */
@@ -423,7 +614,10 @@ extern void selinux_complete_init(void);
 extern int selinux_disable(struct selinux_state *state);
 extern void exit_sel_fs(void);
 extern struct path selinux_null;
+<<<<<<< HEAD
 extern struct vfsmount *selinuxfs_mount;
+=======
+>>>>>>> upstream/android-13
 extern void selnl_notify_setenforce(int val);
 extern void selnl_notify_policyload(u32 seqno);
 extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
@@ -431,7 +625,12 @@ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
 extern void avtab_cache_init(void);
 extern void ebitmap_cache_init(void);
 extern void hashtab_cache_init(void);
+<<<<<<< HEAD
 extern void selinux_nlmsg_init(void);
 extern int security_sidtab_hash_stats(struct selinux_state *state, char *page);
+=======
+extern int security_sidtab_hash_stats(struct selinux_state *state, char *page);
+extern void selinux_nlmsg_init(void);
+>>>>>>> upstream/android-13
 
 #endif /* _SELINUX_SECURITY_H_ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	vfsv0 quota IO operations on file
  */
@@ -21,8 +25,11 @@ MODULE_AUTHOR("Jan Kara");
 MODULE_DESCRIPTION("Quota format v2 support");
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 #define __QUOTA_V2_PARANOIA
 
+=======
+>>>>>>> upstream/android-13
 static void v2r0_mem2diskdqb(void *dp, struct dquot *dquot);
 static void v2r0_disk2memdqb(struct dquot *dquot, void *dp);
 static int v2r0_is_id(void *dp, struct dquot *dquot);
@@ -78,7 +85,11 @@ static int v2_check_quota_file(struct super_block *sb, int type)
 	struct v2_disk_dqheader dqhead;
 	static const uint quota_magics[] = V2_INITQMAGICS;
 	static const uint quota_versions[] = V2_INITQVERSIONS;
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> upstream/android-13
 	if (v2_read_header(sb, type, &dqhead))
 		return 0;
 	if (le32_to_cpu(dqhead.dqh_magic) != quota_magics[type] ||

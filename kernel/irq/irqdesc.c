@@ -31,7 +31,11 @@ static int __init irq_affinity_setup(char *str)
 	cpulist_parse(str, irq_default_affinity);
 	/*
 	 * Set at least the boot cpu. We don't want to end up with
+<<<<<<< HEAD
 	 * bugreports caused by random comandline masks
+=======
+	 * bugreports caused by random commandline masks
+>>>>>>> upstream/android-13
 	 */
 	cpumask_set_cpu(smp_processor_id(), irq_default_affinity);
 	return 1;
@@ -147,12 +151,21 @@ static ssize_t per_cpu_count_show(struct kobject *kobj,
 				  struct kobj_attribute *attr, char *buf)
 {
 	struct irq_desc *desc = container_of(kobj, struct irq_desc, kobj);
+<<<<<<< HEAD
 	int cpu, irq = desc->irq_data.irq;
 	ssize_t ret = 0;
 	char *p = "";
 
 	for_each_possible_cpu(cpu) {
 		unsigned int c = kstat_irqs_cpu(irq, cpu);
+=======
+	ssize_t ret = 0;
+	char *p = "";
+	int cpu;
+
+	for_each_possible_cpu(cpu) {
+		unsigned int c = irq_desc_kstat_cpu(desc, cpu);
+>>>>>>> upstream/android-13
 
 		ret += scnprintf(buf + ret, PAGE_SIZE - ret, "%s%u", p, c);
 		p = ",";
@@ -188,7 +201,11 @@ static ssize_t hwirq_show(struct kobject *kobj,
 
 	raw_spin_lock_irq(&desc->lock);
 	if (desc->irq_data.domain)
+<<<<<<< HEAD
 		ret = sprintf(buf, "%d\n", (int)desc->irq_data.hwirq);
+=======
+		ret = sprintf(buf, "%lu\n", desc->irq_data.hwirq);
+>>>>>>> upstream/android-13
 	raw_spin_unlock_irq(&desc->lock);
 
 	return ret;
@@ -275,11 +292,19 @@ static struct attribute *irq_attrs[] = {
 	&actions_attr.attr,
 	NULL
 };
+<<<<<<< HEAD
+=======
+ATTRIBUTE_GROUPS(irq);
+>>>>>>> upstream/android-13
 
 static struct kobj_type irq_kobj_type = {
 	.release	= irq_kobj_release,
 	.sysfs_ops	= &kobj_sysfs_ops,
+<<<<<<< HEAD
 	.default_attrs	= irq_attrs,
+=======
+	.default_groups = irq_groups,
+>>>>>>> upstream/android-13
 };
 
 static void irq_sysfs_add(int irq, struct irq_desc *desc)
@@ -351,7 +376,11 @@ struct irq_desc *irq_to_desc(unsigned int irq)
 {
 	return radix_tree_lookup(&irq_desc_tree, irq);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(irq_to_desc);
+=======
+EXPORT_SYMBOL_GPL(irq_to_desc);
+>>>>>>> upstream/android-13
 
 static void delete_irq_desc(unsigned int irq)
 {
@@ -404,6 +433,10 @@ static struct irq_desc *alloc_desc(int irq, int node, unsigned int flags,
 	lockdep_set_class(&desc->lock, &irq_desc_lock_class);
 	mutex_init(&desc->request_mutex);
 	init_rcu_head(&desc->rcu);
+<<<<<<< HEAD
+=======
+	init_waitqueue_head(&desc->wait_for_threads);
+>>>>>>> upstream/android-13
 
 	desc_set_defaults(irq, desc, node, affinity, owner);
 	irqd_set(&desc->irq_data, flags);
@@ -463,21 +496,34 @@ static void free_desc(unsigned int irq)
 }
 
 static int alloc_descs(unsigned int start, unsigned int cnt, int node,
+<<<<<<< HEAD
 		       const struct cpumask *affinity, struct module *owner)
 {
 	const struct cpumask *mask = NULL;
 	struct irq_desc *desc;
 	unsigned int flags;
+=======
+		       const struct irq_affinity_desc *affinity,
+		       struct module *owner)
+{
+	struct irq_desc *desc;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* Validate affinity mask(s) */
 	if (affinity) {
+<<<<<<< HEAD
 		for (i = 0, mask = affinity; i < cnt; i++, mask++) {
 			if (cpumask_empty(mask))
+=======
+		for (i = 0; i < cnt; i++) {
+			if (cpumask_empty(&affinity[i].mask))
+>>>>>>> upstream/android-13
 				return -EINVAL;
 		}
 	}
 
+<<<<<<< HEAD
 	flags = affinity ? IRQD_AFFINITY_MANAGED | IRQD_MANAGED_SHUTDOWN : 0;
 	mask = NULL;
 
@@ -487,6 +533,22 @@ static int alloc_descs(unsigned int start, unsigned int cnt, int node,
 			mask = affinity;
 			affinity++;
 		}
+=======
+	for (i = 0; i < cnt; i++) {
+		const struct cpumask *mask = NULL;
+		unsigned int flags = 0;
+
+		if (affinity) {
+			if (affinity->is_managed) {
+				flags = IRQD_AFFINITY_MANAGED |
+					IRQD_MANAGED_SHUTDOWN;
+			}
+			mask = &affinity->mask;
+			node = cpu_to_node(cpumask_first(mask));
+			affinity++;
+		}
+
+>>>>>>> upstream/android-13
 		desc = alloc_desc(start + i, node, flags, mask, owner);
 		if (!desc)
 			goto err;
@@ -568,6 +630,10 @@ int __init early_irq_init(void)
 		raw_spin_lock_init(&desc[i].lock);
 		lockdep_set_class(&desc[i].lock, &irq_desc_lock_class);
 		mutex_init(&desc[i].request_mutex);
+<<<<<<< HEAD
+=======
+		init_waitqueue_head(&desc[i].wait_for_threads);
+>>>>>>> upstream/android-13
 		desc_set_defaults(i, &desc[i], node, NULL, NULL);
 	}
 	return arch_early_irq_init();
@@ -590,7 +656,11 @@ static void free_desc(unsigned int irq)
 }
 
 static inline int alloc_descs(unsigned int start, unsigned int cnt, int node,
+<<<<<<< HEAD
 			      const struct cpumask *affinity,
+=======
+			      const struct irq_affinity_desc *affinity,
+>>>>>>> upstream/android-13
 			      struct module *owner)
 {
 	u32 i;
@@ -625,6 +695,25 @@ void irq_init_desc(unsigned int irq)
 
 #endif /* !CONFIG_SPARSE_IRQ */
 
+<<<<<<< HEAD
+=======
+int handle_irq_desc(struct irq_desc *desc)
+{
+	struct irq_data *data;
+
+	if (!desc)
+		return -EINVAL;
+
+	data = irq_desc_get_irq_data(desc);
+	if (WARN_ON_ONCE(!in_irq() && handle_enforce_irqctx(data)))
+		return -EPERM;
+
+	generic_handle_irq_desc(desc);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(handle_irq_desc);
+
+>>>>>>> upstream/android-13
 /**
  * generic_handle_irq - Invoke the handler for a particular irq
  * @irq:	The irq number to handle
@@ -632,6 +721,7 @@ void irq_init_desc(unsigned int irq)
  */
 int generic_handle_irq(unsigned int irq)
 {
+<<<<<<< HEAD
 	struct irq_desc *desc = irq_to_desc(irq);
 
 	if (!desc)
@@ -647,10 +737,40 @@ EXPORT_SYMBOL_GPL(generic_handle_irq);
  * @domain:	The domain where to perform the lookup
  * @hwirq:	The HW irq number to convert to a logical one
  * @lookup:	Whether to perform the domain lookup or not
+=======
+	return handle_irq_desc(irq_to_desc(irq));
+}
+EXPORT_SYMBOL_GPL(generic_handle_irq);
+
+#ifdef CONFIG_IRQ_DOMAIN
+/**
+ * generic_handle_domain_irq - Invoke the handler for a HW irq belonging
+ *                             to a domain, usually for a non-root interrupt
+ *                             controller
+ * @domain:	The domain where to perform the lookup
+ * @hwirq:	The HW irq number to convert to a logical one
+ *
+ * Returns:	0 on success, or -EINVAL if conversion has failed
+ *
+ */
+int generic_handle_domain_irq(struct irq_domain *domain, unsigned int hwirq)
+{
+	return handle_irq_desc(irq_resolve_mapping(domain, hwirq));
+}
+EXPORT_SYMBOL_GPL(generic_handle_domain_irq);
+
+#ifdef CONFIG_HANDLE_DOMAIN_IRQ
+/**
+ * handle_domain_irq - Invoke the handler for a HW irq belonging to a domain,
+ *                     usually for a root interrupt controller
+ * @domain:	The domain where to perform the lookup
+ * @hwirq:	The HW irq number to convert to a logical one
+>>>>>>> upstream/android-13
  * @regs:	Register file coming from the low-level handling code
  *
  * Returns:	0 on success, or -EINVAL if conversion has failed
  */
+<<<<<<< HEAD
 int __handle_domain_irq(struct irq_domain *domain, unsigned int hwirq,
 			bool lookup, struct pt_regs *regs)
 {
@@ -686,6 +806,72 @@ int __handle_domain_irq(struct irq_domain *domain, unsigned int hwirq,
 	set_irq_regs(old_regs);
 	return ret;
 }
+=======
+int handle_domain_irq(struct irq_domain *domain,
+		      unsigned int hwirq, struct pt_regs *regs)
+{
+	struct pt_regs *old_regs = set_irq_regs(regs);
+	struct irq_desc *desc;
+	int ret = 0;
+
+
+	/* The irqdomain code provides boundary checks */
+	desc = irq_resolve_mapping(domain, hwirq);
+	if (likely(desc)) {
+		if (IS_ENABLED(CONFIG_ARCH_WANTS_IRQ_RAW) &&
+		    unlikely(irq_settings_is_raw(desc))) {
+			handle_irq_desc(desc);
+		} else {
+			irq_enter();
+			handle_irq_desc(desc);
+			irq_exit();
+		}
+	}
+	else
+		ret = -EINVAL;
+
+	set_irq_regs(old_regs);
+	return ret;
+}
+
+/**
+ * handle_domain_nmi - Invoke the handler for a HW irq belonging to a domain
+ * @domain:	The domain where to perform the lookup
+ * @hwirq:	The HW irq number to convert to a logical one
+ * @regs:	Register file coming from the low-level handling code
+ *
+ *		This function must be called from an NMI context.
+ *
+ * Returns:	0 on success, or -EINVAL if conversion has failed
+ */
+int handle_domain_nmi(struct irq_domain *domain, unsigned int hwirq,
+		      struct pt_regs *regs)
+{
+	struct pt_regs *old_regs = set_irq_regs(regs);
+	struct irq_desc *desc;
+	int ret = 0;
+
+	/*
+	 * NMI context needs to be setup earlier in order to deal with tracing.
+	 */
+	WARN_ON(!in_nmi());
+
+	desc = irq_resolve_mapping(domain, hwirq);
+
+	/*
+	 * ack_bad_irq is not NMI-safe, just report
+	 * an invalid interrupt.
+	 */
+	if (likely(desc))
+		handle_irq_desc(desc);
+	else
+		ret = -EINVAL;
+
+	set_irq_regs(old_regs);
+	return ret;
+}
+#endif
+>>>>>>> upstream/android-13
 #endif
 
 /* Dynamic interrupt handling */
@@ -712,7 +898,11 @@ void irq_free_descs(unsigned int from, unsigned int cnt)
 EXPORT_SYMBOL_GPL(irq_free_descs);
 
 /**
+<<<<<<< HEAD
  * irq_alloc_descs - allocate and initialize a range of irq descriptors
+=======
+ * __irq_alloc_descs - allocate and initialize a range of irq descriptors
+>>>>>>> upstream/android-13
  * @irq:	Allocate for specific irq number if irq >= 0
  * @from:	Start the search from this irq number
  * @cnt:	Number of consecutive irqs to allocate.
@@ -726,7 +916,11 @@ EXPORT_SYMBOL_GPL(irq_free_descs);
  */
 int __ref
 __irq_alloc_descs(int irq, unsigned int from, unsigned int cnt, int node,
+<<<<<<< HEAD
 		  struct module *owner, const struct cpumask *affinity)
+=======
+		  struct module *owner, const struct irq_affinity_desc *affinity)
+>>>>>>> upstream/android-13
 {
 	int start, ret;
 
@@ -766,6 +960,7 @@ unlock:
 }
 EXPORT_SYMBOL_GPL(__irq_alloc_descs);
 
+<<<<<<< HEAD
 #ifdef CONFIG_GENERIC_IRQ_LEGACY_ALLOC_HWIRQ
 /**
  * irq_alloc_hwirqs - Allocate an irq descriptor and initialize the hardware
@@ -817,6 +1012,8 @@ void irq_free_hwirqs(unsigned int from, int cnt)
 EXPORT_SYMBOL_GPL(irq_free_hwirqs);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * irq_get_next_irq - get next allocated irq number
  * @offset:	where to start the search
@@ -853,6 +1050,10 @@ __irq_get_desc_lock(unsigned int irq, unsigned long *flags, bool bus,
 }
 
 void __irq_put_desc_unlock(struct irq_desc *desc, unsigned long flags, bool bus)
+<<<<<<< HEAD
+=======
+	__releases(&desc->lock)
+>>>>>>> upstream/android-13
 {
 	raw_spin_unlock_irqrestore(&desc->lock, flags);
 	if (bus)
@@ -924,6 +1125,7 @@ unsigned int kstat_irqs_cpu(unsigned int irq, int cpu)
 	return desc && desc->kstat_irqs ?
 			*per_cpu_ptr(desc->kstat_irqs, cpu) : 0;
 }
+<<<<<<< HEAD
 
 /**
  * kstat_irqs - Get the statistics for an interrupt
@@ -934,6 +1136,16 @@ unsigned int kstat_irqs_cpu(unsigned int irq, int cpu)
  * concurrently.
  */
 unsigned int kstat_irqs(unsigned int irq)
+=======
+EXPORT_SYMBOL_GPL(kstat_irqs_cpu);
+
+static bool irq_is_nmi(struct irq_desc *desc)
+{
+	return desc->istate & IRQS_NMI;
+}
+
+static unsigned int kstat_irqs(unsigned int irq)
+>>>>>>> upstream/android-13
 {
 	struct irq_desc *desc = irq_to_desc(irq);
 	unsigned int sum = 0;
@@ -942,15 +1154,25 @@ unsigned int kstat_irqs(unsigned int irq)
 	if (!desc || !desc->kstat_irqs)
 		return 0;
 	if (!irq_settings_is_per_cpu_devid(desc) &&
+<<<<<<< HEAD
 	    !irq_settings_is_per_cpu(desc))
 	    return desc->tot_count;
 
 	for_each_possible_cpu(cpu)
 		sum += *per_cpu_ptr(desc->kstat_irqs, cpu);
+=======
+	    !irq_settings_is_per_cpu(desc) &&
+	    !irq_is_nmi(desc))
+		return data_race(desc->tot_count);
+
+	for_each_possible_cpu(cpu)
+		sum += data_race(*per_cpu_ptr(desc->kstat_irqs, cpu));
+>>>>>>> upstream/android-13
 	return sum;
 }
 
 /**
+<<<<<<< HEAD
  * kstat_irqs_usr - Get the statistics for an interrupt
  * @irq:	The interrupt number
  *
@@ -958,6 +1180,16 @@ unsigned int kstat_irqs(unsigned int irq)
  * Contrary to kstat_irqs() this can be called from any context.
  * It uses rcu since a concurrent removal of an interrupt descriptor is
  * observing an rcu grace period before delayed_free_desc()/irq_kobj_release().
+=======
+ * kstat_irqs_usr - Get the statistics for an interrupt from thread context
+ * @irq:	The interrupt number
+ *
+ * Returns the sum of interrupt counts on all cpus since boot for @irq.
+ *
+ * It uses rcu to protect the access since a concurrent removal of an
+ * interrupt descriptor is observing an rcu grace period before
+ * delayed_free_desc()/irq_kobj_release().
+>>>>>>> upstream/android-13
  */
 unsigned int kstat_irqs_usr(unsigned int irq)
 {
@@ -968,4 +1200,21 @@ unsigned int kstat_irqs_usr(unsigned int irq)
 	rcu_read_unlock();
 	return sum;
 }
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_LOCKDEP
+void __irq_set_lockdep_class(unsigned int irq, struct lock_class_key *lock_class,
+			     struct lock_class_key *request_class)
+{
+	struct irq_desc *desc = irq_to_desc(irq);
+
+	if (desc) {
+		lockdep_set_class(&desc->lock, lock_class);
+		lockdep_set_class(&desc->request_mutex, request_class);
+	}
+}
+EXPORT_SYMBOL_GPL(__irq_set_lockdep_class);
+#endif
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(kstat_irqs_usr);

@@ -1,28 +1,53 @@
+<<<<<<< HEAD
 /*
  * HiSilicon SoC Hardware event counters support
  *
  * Copyright (C) 2017 Hisilicon Limited
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * HiSilicon SoC Hardware event counters support
+ *
+ * Copyright (C) 2017 HiSilicon Limited
+>>>>>>> upstream/android-13
  * Author: Anurup M <anurup.m@huawei.com>
  *         Shaokun Zhang <zhangshaokun@hisilicon.com>
  *
  * This code is based on the uncore PMUs like arm-cci and arm-ccn.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __HISI_UNCORE_PMU_H__
 #define __HISI_UNCORE_PMU_H__
 
+<<<<<<< HEAD
 #include <linux/cpumask.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/perf_event.h>
+=======
+#include <linux/bitfield.h>
+#include <linux/cpumask.h>
+#include <linux/device.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/perf_event.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 #undef pr_fmt
 #define pr_fmt(fmt)     "hisi_pmu: " fmt
 
+<<<<<<< HEAD
+=======
+#define HISI_PMU_V2		0x30
+>>>>>>> upstream/android-13
 #define HISI_MAX_COUNTERS 0x10
 #define to_hisi_pmu(p)	(container_of(p, struct hisi_pmu, pmu))
 
@@ -36,6 +61,15 @@
 #define HISI_PMU_EVENT_ATTR(_name, _config)		\
 	HISI_PMU_ATTR(_name, hisi_event_sysfs_show, (unsigned long)_config)
 
+<<<<<<< HEAD
+=======
+#define HISI_PMU_EVENT_ATTR_EXTRACTOR(name, config, hi, lo)        \
+	static inline u32 hisi_get_##name(struct perf_event *event)            \
+	{                                                                  \
+		return FIELD_GET(GENMASK_ULL(hi, lo), event->attr.config);  \
+	}
+
+>>>>>>> upstream/android-13
 struct hisi_pmu;
 
 struct hisi_uncore_ops {
@@ -49,11 +83,22 @@ struct hisi_uncore_ops {
 	void (*disable_counter_int)(struct hisi_pmu *, struct hw_perf_event *);
 	void (*start_counters)(struct hisi_pmu *);
 	void (*stop_counters)(struct hisi_pmu *);
+<<<<<<< HEAD
+=======
+	u32 (*get_int_status)(struct hisi_pmu *hisi_pmu);
+	void (*clear_int_status)(struct hisi_pmu *hisi_pmu, int idx);
+	void (*enable_filter)(struct perf_event *event);
+	void (*disable_filter)(struct perf_event *event);
+>>>>>>> upstream/android-13
 };
 
 struct hisi_pmu_hwevents {
 	struct perf_event *hw_events[HISI_MAX_COUNTERS];
 	DECLARE_BITMAP(used_mask, HISI_MAX_COUNTERS);
+<<<<<<< HEAD
+=======
+	const struct attribute_group **attr_groups;
+>>>>>>> upstream/android-13
 };
 
 /* Generic pmu struct for different pmu types */
@@ -73,13 +118,24 @@ struct hisi_pmu {
 	void __iomem *base;
 	/* the ID of the PMU modules */
 	u32 index_id;
+<<<<<<< HEAD
+=======
+	/* For DDRC PMU v2: each DDRC has more than one DMC */
+	u32 sub_id;
+>>>>>>> upstream/android-13
 	int num_counters;
 	int counter_bits;
 	/* check event code range */
 	int check_event;
+<<<<<<< HEAD
 };
 
 int hisi_uncore_pmu_counter_valid(struct hisi_pmu *hisi_pmu, int idx);
+=======
+	u32 identifier;
+};
+
+>>>>>>> upstream/android-13
 int hisi_uncore_pmu_get_event_idx(struct perf_event *event);
 void hisi_uncore_pmu_read(struct perf_event *event);
 int hisi_uncore_pmu_add(struct perf_event *event, int flags);
@@ -99,4 +155,14 @@ ssize_t hisi_cpumask_sysfs_show(struct device *dev,
 				struct device_attribute *attr, char *buf);
 int hisi_uncore_pmu_online_cpu(unsigned int cpu, struct hlist_node *node);
 int hisi_uncore_pmu_offline_cpu(unsigned int cpu, struct hlist_node *node);
+<<<<<<< HEAD
+=======
+
+ssize_t hisi_uncore_pmu_identifier_attr_show(struct device *dev,
+					     struct device_attribute *attr,
+					     char *page);
+int hisi_uncore_pmu_init_irq(struct hisi_pmu *hisi_pmu,
+			     struct platform_device *pdev);
+
+>>>>>>> upstream/android-13
 #endif /* __HISI_UNCORE_PMU_H__ */

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TPO TD043MTEA1 Panel driver
  *
  * Author: Gražvydas Ignotas <notasas@gmail.com>
  * Converted to new DSS device model: Tomi Valkeinen <tomi.valkeinen@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -173,7 +180,11 @@ static ssize_t tpo_td043_vmirror_show(struct device *dev,
 {
 	struct panel_drv_data *ddata = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ddata->vmirror);
+=======
+	return sysfs_emit(buf, "%d\n", ddata->vmirror);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t tpo_td043_vmirror_store(struct device *dev,
@@ -203,7 +214,11 @@ static ssize_t tpo_td043_mode_show(struct device *dev,
 {
 	struct panel_drv_data *ddata = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ddata->mode);
+=======
+	return sysfs_emit(buf, "%d\n", ddata->mode);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t tpo_td043_mode_store(struct device *dev,
@@ -341,16 +356,23 @@ static int tpo_td043_connect(struct omap_dss_device *dssdev)
 {
 	struct panel_drv_data *ddata = to_panel_data(dssdev);
 	struct omap_dss_device *in = ddata->in;
+<<<<<<< HEAD
 	int r;
+=======
+>>>>>>> upstream/android-13
 
 	if (omapdss_device_is_connected(dssdev))
 		return 0;
 
+<<<<<<< HEAD
 	r = in->ops.dpi->connect(in, dssdev);
 	if (r)
 		return r;
 
 	return 0;
+=======
+	return in->ops.dpi->connect(in, dssdev);
+>>>>>>> upstream/android-13
 }
 
 static void tpo_td043_disconnect(struct omap_dss_device *dssdev)

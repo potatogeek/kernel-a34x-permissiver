@@ -80,7 +80,16 @@ init_rtc_epoch(void)
 static int
 alpha_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
+<<<<<<< HEAD
 	mc146818_get_time(tm);
+=======
+	int ret = mc146818_get_time(tm);
+
+	if (ret < 0) {
+		dev_err_ratelimited(dev, "unable to read current time\n");
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/* Adjust for non-default epochs.  It's easier to depend on the
 	   generic __get_rtc_time and adjust the epoch here than create
@@ -198,6 +207,7 @@ static const struct rtc_class_ops remote_rtc_ops = {
 static int __init
 alpha_rtc_init(void)
 {
+<<<<<<< HEAD
 	const struct rtc_class_ops *ops;
 	struct platform_device *pdev;
 	struct rtc_device *rtc;
@@ -214,10 +224,30 @@ alpha_rtc_init(void)
 
 	pdev = platform_device_register_simple(name, -1, NULL, 0);
 	rtc = devm_rtc_device_register(&pdev->dev, name, ops, THIS_MODULE);
+=======
+	struct platform_device *pdev;
+	struct rtc_device *rtc;
+
+	init_rtc_epoch();
+
+	pdev = platform_device_register_simple("rtc-alpha", -1, NULL, 0);
+	rtc = devm_rtc_allocate_device(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rtc))
 		return PTR_ERR(rtc);
 
 	platform_set_drvdata(pdev, rtc);
+<<<<<<< HEAD
 	return 0;
+=======
+	rtc->ops = &alpha_rtc_ops;
+
+#ifdef HAVE_REMOTE_RTC
+	if (alpha_mv.rtc_boot_cpu_only)
+		rtc->ops = &remote_rtc_ops;
+#endif
+
+	return devm_rtc_register_device(rtc);
+>>>>>>> upstream/android-13
 }
 device_initcall(alpha_rtc_init);

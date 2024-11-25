@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	matrox_w1.c
  *
  * Copyright (c) 2004 Evgeniy Polyakov <zbr@ioremap.net>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/types.h>
@@ -153,7 +160,11 @@ static int matrox_w1_probe(struct pci_dev *pdev, const struct pci_device_id *ent
 
 	dev->phys_addr = pci_resource_start(pdev, 1);
 
+<<<<<<< HEAD
 	dev->virt_addr = ioremap_nocache(dev->phys_addr, 16384);
+=======
+	dev->virt_addr = ioremap(dev->phys_addr, 16384);
+>>>>>>> upstream/android-13
 	if (!dev->virt_addr) {
 		dev_err(&pdev->dev, "%s: failed to ioremap(0x%lx, %d).\n",
 			__func__, dev->phys_addr, 16384);

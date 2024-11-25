@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2013 Realtek Corporation. All rights reserved.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  ******************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2007-2013  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "halbt_precomp.h"
 
@@ -69,12 +74,17 @@ static bool is_any_client_connect_to_ap(struct btc_coexist *btcoexist)
 {
 	struct rtl_priv *rtlpriv = btcoexist->adapter;
 	struct rtl_mac *mac = rtl_mac(rtlpriv);
+<<<<<<< HEAD
 	struct rtl_sta_info *drv_priv;
 	u8 cnt = 0;
+=======
+	bool ret = false;
+>>>>>>> upstream/android-13
 
 	if (mac->opmode == NL80211_IFTYPE_ADHOC ||
 	    mac->opmode == NL80211_IFTYPE_MESH_POINT ||
 	    mac->opmode == NL80211_IFTYPE_AP) {
+<<<<<<< HEAD
 		if (in_interrupt() > 0) {
 			list_for_each_entry(drv_priv, &rtlpriv->entry_list,
 					    list) {
@@ -93,6 +103,14 @@ static bool is_any_client_connect_to_ap(struct btc_coexist *btcoexist)
 		return true;
 	else
 		return false;
+=======
+		spin_lock_bh(&rtlpriv->locks.entry_list_lock);
+		if (!list_empty(&rtlpriv->entry_list))
+			ret = true;
+		spin_unlock_bh(&rtlpriv->locks.entry_list_lock);
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static bool halbtc_legacy(struct rtl_priv *adapter)
@@ -151,8 +169,13 @@ static u8 halbtc_get_wifi_central_chnl(struct btc_coexist *btcoexist)
 
 	if (rtlphy->current_channel != 0)
 		chnl = rtlphy->current_channel;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
 		 "static halbtc_get_wifi_central_chnl:%d\n", chnl);
+=======
+	rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
+		"%s:%d\n", __func__, chnl);
+>>>>>>> upstream/android-13
 	return chnl;
 }
 
@@ -272,6 +295,7 @@ bool halbtc_send_bt_mp_operation(struct btc_coexist *btcoexist, u8 op_code,
 	if (!wait_ms)
 		return true;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
 		 "btmpinfo wait req_num=%d wait=%ld\n", req_num, wait_ms);
 
@@ -282,6 +306,15 @@ bool halbtc_send_bt_mp_operation(struct btc_coexist *btcoexist, u8 op_code,
 					msecs_to_jiffies(wait_ms)) == 0) {
 		RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_DMESG,
 			 "btmpinfo wait (req_num=%d) timeout\n", req_num);
+=======
+	rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
+		"btmpinfo wait req_num=%d wait=%ld\n", req_num, wait_ms);
+
+	if (wait_for_completion_timeout(&btcoexist->bt_mp_comp,
+					msecs_to_jiffies(wait_ms)) == 0) {
+		rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_DMESG,
+			"btmpinfo wait (req_num=%d) timeout\n", req_num);
+>>>>>>> upstream/android-13
 
 		return false;	/* timeout */
 	}
@@ -292,47 +325,79 @@ bool halbtc_send_bt_mp_operation(struct btc_coexist *btcoexist, u8 op_code,
 static void halbtc_leave_lps(struct btc_coexist *btcoexist)
 {
 	struct rtl_priv *rtlpriv;
+<<<<<<< HEAD
 	struct rtl_ps_ctl *ppsc;
 	bool ap_enable = false;
 
 	rtlpriv = btcoexist->adapter;
 	ppsc = rtl_psc(rtlpriv);
+=======
+	bool ap_enable = false;
+
+	rtlpriv = btcoexist->adapter;
+>>>>>>> upstream/android-13
 
 	btcoexist->btc_get(btcoexist, BTC_GET_BL_WIFI_AP_MODE_ENABLE,
 			   &ap_enable);
 
 	if (ap_enable) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_DMESG,
 			 "%s()<--dont leave lps under AP mode\n", __func__);
+=======
+		rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_DMESG,
+			"%s()<--dont leave lps under AP mode\n", __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	btcoexist->bt_info.bt_ctrl_lps = true;
 	btcoexist->bt_info.bt_lps_on = false;
+<<<<<<< HEAD
 	rtl_lps_leave(rtlpriv->mac80211.hw);
+=======
+	/* FIXME: Context is unclear. Is it allowed to block? */
+	rtl_lps_leave(rtlpriv->mac80211.hw, false);
+>>>>>>> upstream/android-13
 }
 
 static void halbtc_enter_lps(struct btc_coexist *btcoexist)
 {
 	struct rtl_priv *rtlpriv;
+<<<<<<< HEAD
 	struct rtl_ps_ctl *ppsc;
 	bool ap_enable = false;
 
 	rtlpriv = btcoexist->adapter;
 	ppsc = rtl_psc(rtlpriv);
+=======
+	bool ap_enable = false;
+
+	rtlpriv = btcoexist->adapter;
+>>>>>>> upstream/android-13
 
 	btcoexist->btc_get(btcoexist, BTC_GET_BL_WIFI_AP_MODE_ENABLE,
 			   &ap_enable);
 
 	if (ap_enable) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_DMESG,
 			 "%s()<--dont enter lps under AP mode\n", __func__);
+=======
+		rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_DMESG,
+			"%s()<--dont enter lps under AP mode\n", __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	btcoexist->bt_info.bt_ctrl_lps = true;
 	btcoexist->bt_info.bt_lps_on = true;
+<<<<<<< HEAD
 	rtl_lps_enter(rtlpriv->mac80211.hw);
+=======
+	/* FIXME: Context is unclear. Is it allowed to block? */
+	rtl_lps_enter(rtlpriv->mac80211.hw, false);
+>>>>>>> upstream/android-13
 }
 
 static void halbtc_normal_lps(struct btc_coexist *btcoexist)
@@ -343,7 +408,12 @@ static void halbtc_normal_lps(struct btc_coexist *btcoexist)
 
 	if (btcoexist->bt_info.bt_ctrl_lps) {
 		btcoexist->bt_info.bt_lps_on = false;
+<<<<<<< HEAD
 		rtl_lps_leave(rtlpriv->mac80211.hw);
+=======
+		/* FIXME: Context is unclear. Is it allowed to block? */
+		rtl_lps_leave(rtlpriv->mac80211.hw, false);
+>>>>>>> upstream/android-13
 		btcoexist->bt_info.bt_ctrl_lps = false;
 	}
 }
@@ -354,7 +424,12 @@ static void halbtc_pre_normal_lps(struct btc_coexist *btcoexist)
 
 	if (btcoexist->bt_info.bt_ctrl_lps) {
 		btcoexist->bt_info.bt_lps_on = false;
+<<<<<<< HEAD
 		rtl_lps_leave(rtlpriv->mac80211.hw);
+=======
+		/* FIXME: Context is unclear. Is it allowed to block? */
+		rtl_lps_leave(rtlpriv->mac80211.hw, false);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -535,6 +610,7 @@ static u32 halbtc_get_wifi_link_status(struct btc_coexist *btcoexist)
 
 static s32 halbtc_get_wifi_rssi(struct rtl_priv *rtlpriv)
 {
+<<<<<<< HEAD
 	int undec_sm_pwdb = 0;
 
 	if (rtlpriv->mac80211.link_state >= MAC80211_LINKED)
@@ -542,6 +618,9 @@ static s32 halbtc_get_wifi_rssi(struct rtl_priv *rtlpriv)
 	else /* associated entry pwdb */
 		undec_sm_pwdb = rtlpriv->dm.undec_sm_pwdb;
 	return undec_sm_pwdb;
+=======
+	return rtlpriv->dm.undec_sm_pwdb;
+>>>>>>> upstream/android-13
 }
 
 static bool halbtc_get(void *void_btcoexist, u8 get_type, void *out_buf)
@@ -926,11 +1005,17 @@ static void halbtc_display_wifi_status(struct btc_coexist *btcoexist,
 		   (low_power ? ", 32k" : ""));
 
 	seq_printf(m,
+<<<<<<< HEAD
 		   "\n %-35s = %02x %02x %02x %02x %02x %02x (0x%x/0x%x)",
 		   "Power mode cmd(lps/rpwm)",
 		   btcoexist->pwr_mode_val[0], btcoexist->pwr_mode_val[1],
 		   btcoexist->pwr_mode_val[2], btcoexist->pwr_mode_val[3],
 		   btcoexist->pwr_mode_val[4], btcoexist->pwr_mode_val[5],
+=======
+		   "\n %-35s = %6ph (0x%x/0x%x)",
+		   "Power mode cmd(lps/rpwm)",
+		   btcoexist->pwr_mode_val,
+>>>>>>> upstream/android-13
 		   btcoexist->bt_info.lps_val,
 		   btcoexist->bt_info.rpwm_val);
 }
@@ -1350,7 +1435,11 @@ bool exhalbtc_bind_bt_coex_withadapter(void *adapter)
 {
 	struct rtl_priv *rtlpriv = adapter;
 	struct btc_coexist *btcoexist = rtl_btc_coexist(rtlpriv);
+<<<<<<< HEAD
 	u8 ant_num = 2, chip_type, single_ant_path = 0;
+=======
+	u8 ant_num, chip_type, single_ant_path;
+>>>>>>> upstream/android-13
 
 	if (!btcoexist)
 		return false;
@@ -1402,11 +1491,19 @@ bool exhalbtc_bind_bt_coex_withadapter(void *adapter)
 		btcoexist->board_info.tfbga_package = true;
 
 	if (btcoexist->board_info.tfbga_package)
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
 			 "[BTCoex], Package Type = TFBGA\n");
 	else
 		RT_TRACE(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
 			 "[BTCoex], Package Type = Non-TFBGA\n");
+=======
+		rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
+			"[BTCoex], Package Type = TFBGA\n");
+	else
+		rtl_dbg(rtlpriv, COMP_BT_COEXIST, DBG_LOUD,
+			"[BTCoex], Package Type = Non-TFBGA\n");
+>>>>>>> upstream/android-13
 
 	btcoexist->board_info.rfe_type = rtl_get_hwpg_rfe_type(rtlpriv);
 	btcoexist->board_info.ant_div_cfg = 0;
@@ -1493,7 +1590,11 @@ void exhalbtc_init_coex_dm(struct btc_coexist *btcoexist)
 			ex_btc8192e2ant_init_coex_dm(btcoexist);
 	}
 
+<<<<<<< HEAD
 	btcoexist->initilized = true;
+=======
+	btcoexist->initialized = true;
+>>>>>>> upstream/android-13
 }
 
 void exhalbtc_ips_notify(struct btc_coexist *btcoexist, u8 type)
@@ -1604,7 +1705,11 @@ void exhalbtc_scan_notify_wifi_only(struct wifi_only_cfg *wifionly_cfg,
 
 void exhalbtc_connect_notify(struct btc_coexist *btcoexist, u8 action)
 {
+<<<<<<< HEAD
 	u8 asso_type, asso_type_v2;
+=======
+	u8 asso_type;
+>>>>>>> upstream/android-13
 	bool wifi_under_5g;
 
 	if (!halbtc_is_bt_coexist_available(btcoexist))
@@ -1615,6 +1720,7 @@ void exhalbtc_connect_notify(struct btc_coexist *btcoexist, u8 action)
 
 	btcoexist->btc_get(btcoexist, BTC_GET_BL_WIFI_UNDER_5G, &wifi_under_5g);
 
+<<<<<<< HEAD
 	if (action) {
 		asso_type = BTC_ASSOCIATE_START;
 		asso_type_v2 = wifi_under_5g ? BTC_ASSOCIATE_5G_START :
@@ -1624,6 +1730,12 @@ void exhalbtc_connect_notify(struct btc_coexist *btcoexist, u8 action)
 		asso_type_v2 = wifi_under_5g ? BTC_ASSOCIATE_5G_FINISH :
 					       BTC_ASSOCIATE_FINISH;
 	}
+=======
+	if (action)
+		asso_type = BTC_ASSOCIATE_START;
+	else
+		asso_type = BTC_ASSOCIATE_FINISH;
+>>>>>>> upstream/android-13
 
 	halbtc_leave_low_power(btcoexist);
 
@@ -1772,6 +1884,7 @@ void exhalbtc_rf_status_notify(struct btc_coexist *btcoexist, u8 type)
 	}
 }
 
+<<<<<<< HEAD
 void exhalbtc_stack_operation_notify(struct btc_coexist *btcoexist, u8 type)
 {
 	u8 stack_op_type;
@@ -1796,6 +1909,8 @@ void exhalbtc_stack_operation_notify(struct btc_coexist *btcoexist, u8 type)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void exhalbtc_halt_notify(struct btc_coexist *btcoexist)
 {
 	if (!halbtc_is_bt_coexist_available(btcoexist))

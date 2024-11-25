@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  acpi_drivers.h  ($Revision: 31 $)
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -17,6 +22,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ACPI_DRIVERS_H__
@@ -25,6 +32,7 @@
 #define ACPI_MAX_STRING			80
 
 /*
+<<<<<<< HEAD
  * Please update drivers/acpi/debug.c and Documentation/acpi/debug.txt
  * if you add to this list.
  */
@@ -44,6 +52,8 @@
 #define ACPI_PROCESSOR_COMPONENT	0x20000000
 
 /*
+=======
+>>>>>>> upstream/android-13
  * _HID definitions
  * HIDs must conform to ACPI spec(6.1.4)
  * Linux specific HIDs do not apply to this and begin with LNX:
@@ -77,18 +87,37 @@
    -------------------------------------------------------------------------- */
 
 
+<<<<<<< HEAD
 /* ACPI PCI Interrupt Link (pci_link.c) */
+=======
+/* ACPI PCI Interrupt Link */
+>>>>>>> upstream/android-13
 
 int acpi_irq_penalty_init(void);
 int acpi_pci_link_allocate_irq(acpi_handle handle, int index, int *triggering,
 			       int *polarity, char **name);
 int acpi_pci_link_free_irq(acpi_handle handle);
 
+<<<<<<< HEAD
 /* ACPI PCI Device Binding (pci_bind.c) */
 
 struct pci_bus;
 
 struct pci_dev *acpi_get_pci_dev(acpi_handle);
+=======
+/* ACPI PCI Device Binding */
+
+struct pci_bus;
+
+#ifdef CONFIG_PCI
+struct pci_dev *acpi_get_pci_dev(acpi_handle);
+#else
+static inline struct pci_dev *acpi_get_pci_dev(acpi_handle handle)
+{
+	return NULL;
+}
+#endif
+>>>>>>> upstream/android-13
 
 /* Arch-defined function to add a bus to the system */
 
@@ -100,6 +129,7 @@ void pci_acpi_crs_quirks(void);
 static inline void pci_acpi_crs_quirks(void) { }
 #endif
 
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
                                     Processor
    -------------------------------------------------------------------------- */
@@ -108,6 +138,8 @@ static inline void pci_acpi_crs_quirks(void) { }
 #define ACPI_PROCESSOR_LIMIT_INCREMENT	0x01
 #define ACPI_PROCESSOR_LIMIT_DECREMENT	0x02
 
+=======
+>>>>>>> upstream/android-13
 /*--------------------------------------------------------------------------
                                   Dock Station
   -------------------------------------------------------------------------- */

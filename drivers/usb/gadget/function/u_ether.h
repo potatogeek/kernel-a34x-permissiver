@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * u_ether.h -- interface to USB gadget "ethernet link" utilities
  *
@@ -16,7 +20,11 @@
 #include <linux/usb/cdc.h>
 #include <linux/netdevice.h>
 
+<<<<<<< HEAD
 #define QMULT_DEFAULT 50
+=======
+#define QMULT_DEFAULT 10
+>>>>>>> upstream/android-13
 
 /*
  * dev_addr: initial value
@@ -25,6 +33,7 @@
  */
 #define USB_ETHERNET_MODULE_PARAMETERS() \
 	static unsigned qmult = QMULT_DEFAULT;				\
+<<<<<<< HEAD
 	module_param(qmult, uint, 0644);			\
 	MODULE_PARM_DESC(qmult, "queue length multiplier at high/super speed");\
 									\
@@ -70,6 +79,20 @@ struct eth_dev {
 	u8			host_mac[ETH_ALEN];
 	u8			dev_mac[ETH_ALEN];
 };
+=======
+	module_param(qmult, uint, S_IRUGO|S_IWUSR);			\
+	MODULE_PARM_DESC(qmult, "queue length multiplier at high/super speed");\
+									\
+	static char *dev_addr;						\
+	module_param(dev_addr, charp, S_IRUGO);				\
+	MODULE_PARM_DESC(dev_addr, "Device Ethernet Address");		\
+									\
+	static char *host_addr;						\
+	module_param(host_addr, charp, S_IRUGO);			\
+	MODULE_PARM_DESC(host_addr, "Host Ethernet Address")
+
+struct eth_dev;
+>>>>>>> upstream/android-13
 
 /*
  * This represents the USB side of an "ethernet" link, managed by a USB
@@ -102,9 +125,14 @@ struct gether {
 	bool				is_fixed;
 	u32				fixed_out_len;
 	u32				fixed_in_len;
+<<<<<<< HEAD
 	unsigned int		ul_max_pkts_per_xfer;
 	unsigned int		dl_max_pkts_per_xfer;
 	unsigned int		dl_max_transfer_len;
+=======
+	u32				ul_max_pkts_per_xfer;
+	u32				dl_max_pkts_per_xfer;
+>>>>>>> upstream/android-13
 	bool				multi_pkt_xfer;
 	bool				supports_multi_frame;
 	struct sk_buff			*(*wrap)(struct gether *port,
@@ -116,7 +144,10 @@ struct gether {
 	/* called on network open/close */
 	void				(*open)(struct gether *);
 	void				(*close)(struct gether *);
+<<<<<<< HEAD
 	struct rndis_packet_msg_type	*header;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define	DEFAULT_FILTER	(USB_CDC_PACKET_TYPE_BROADCAST \
@@ -282,12 +313,30 @@ unsigned gether_get_qmult(struct net_device *net);
  */
 int gether_get_ifname(struct net_device *net, char *name, int len);
 
+<<<<<<< HEAD
+=======
+/**
+ * gether_set_ifname - set an ethernet-over-usb link interface name
+ * @net: device representing this link
+ * @name: new interface name
+ * @len: length of @name
+ *
+ * This sets the interface name of this ethernet-over-usb link.
+ * A single terminating newline, if any, is ignored.
+ * Returns zero on success, else negative errno.
+ */
+int gether_set_ifname(struct net_device *net, const char *name, int len);
+
+>>>>>>> upstream/android-13
 void gether_cleanup(struct eth_dev *dev);
 
 /* connect/disconnect is handled by individual functions */
 struct net_device *gether_connect(struct gether *);
 void gether_disconnect(struct gether *);
+<<<<<<< HEAD
 void gether_update_dl_max_xfer_size(struct gether *link, uint32_t s);
+=======
+>>>>>>> upstream/android-13
 
 /* Some controllers can't support CDC Ethernet (ECM) ... */
 static inline bool can_support_ecm(struct usb_gadget *gadget)
@@ -302,6 +351,7 @@ static inline bool can_support_ecm(struct usb_gadget *gadget)
 	return true;
 }
 
+<<<<<<< HEAD
 extern unsigned int rndis_test_last_resp_id;
 extern unsigned int rndis_test_last_msg_id;
 extern unsigned long rndis_test_reset_msg_cnt;
@@ -316,4 +366,6 @@ extern unsigned long rndis_test_tx_nomem;
 extern unsigned long rndis_test_tx_usb_out;
 extern unsigned long rndis_test_tx_complete;
 extern void rx_fill(struct eth_dev *dev, gfp_t gfp_flags);
+=======
+>>>>>>> upstream/android-13
 #endif /* __U_ETHER_H */

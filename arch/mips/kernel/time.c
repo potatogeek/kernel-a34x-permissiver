@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2001 MontaVista Software Inc.
  * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
  * Copyright (c) 2003, 2004  Maciej W. Rozycki
  *
  * Common time service routines for MIPS machines.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute	it and/or modify it
  * under  the terms of	the GNU General	 Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/bug.h>
 #include <linux/clockchips.h>
@@ -40,8 +47,15 @@ static unsigned long glb_lpj_ref_freq;
 static int cpufreq_callback(struct notifier_block *nb,
 			    unsigned long val, void *data)
 {
+<<<<<<< HEAD
 	int cpu;
 	struct cpufreq_freqs *freq = data;
+=======
+	struct cpufreq_freqs *freq = data;
+	struct cpumask *cpus = freq->policy->cpus;
+	unsigned long lpj;
+	int cpu;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Skip lpj numbers adjustment if the CPU-freq transition is safe for
@@ -62,7 +76,10 @@ static int cpufreq_callback(struct notifier_block *nb,
 		}
 	}
 
+<<<<<<< HEAD
 	cpu = freq->cpu;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Adjust global lpj variable and per-CPU udelay_val number in
 	 * accordance with the new CPU frequency.
@@ -73,8 +90,17 @@ static int cpufreq_callback(struct notifier_block *nb,
 						glb_lpj_ref_freq,
 						freq->new);
 
+<<<<<<< HEAD
 		cpu_data[cpu].udelay_val = cpufreq_scale(per_cpu(pcp_lpj_ref, cpu),
 					   per_cpu(pcp_lpj_ref_freq, cpu), freq->new);
+=======
+		for_each_cpu(cpu, cpus) {
+			lpj = cpufreq_scale(per_cpu(pcp_lpj_ref, cpu),
+					    per_cpu(pcp_lpj_ref_freq, cpu),
+					    freq->new);
+			cpu_data[cpu].udelay_val = (unsigned int)lpj;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return NOTIFY_OK;
@@ -140,6 +166,7 @@ static __init int cpu_has_mfc0_count_bug(void)
 	case CPU_R4400MC:
 		/*
 		 * The published errata for the R4400 up to 3.0 say the CPU
+<<<<<<< HEAD
 		 * has the mfc0 from count bug.
 		 */
 		if ((current_cpu_data.processor_id & 0xff) <= 0x30)
@@ -149,6 +176,12 @@ static __init int cpu_has_mfc0_count_bug(void)
 		 * we assume newer revisions are ok
 		 */
 		return 0;
+=======
+		 * has the mfc0 from count bug.  This seems the last version
+		 * produced.
+		 */
+		return 1;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * dev-path-parser.c - EFI Device Path parser
  * Copyright (C) 2016 Lukas Wunner <lukas@wunner.de>
@@ -5,6 +9,7 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (version 2) as
  * published by the Free Software Foundation.
+<<<<<<< HEAD
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,12 +18,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
 #include <linux/efi.h>
 #include <linux/pci.h>
 
+<<<<<<< HEAD
 struct acpi_hid_uid {
 	struct acpi_device_id hid[2];
 	char uid[11]; /* UINT_MAX + null byte */
@@ -48,10 +56,24 @@ static long __init parse_acpi_path(struct efi_dev_path *node,
 		return -EINVAL;
 
 	sprintf(hid_uid.hid[0].id, "%c%c%c%04X",
+=======
+static long __init parse_acpi_path(const struct efi_dev_path *node,
+				   struct device *parent, struct device **child)
+{
+	char hid[ACPI_ID_LEN], uid[11]; /* UINT_MAX + null byte */
+	struct acpi_device *adev;
+	struct device *phys_dev;
+
+	if (node->header.length != 12)
+		return -EINVAL;
+
+	sprintf(hid, "%c%c%c%04X",
+>>>>>>> upstream/android-13
 		'A' + ((node->acpi.hid >> 10) & 0x1f) - 1,
 		'A' + ((node->acpi.hid >>  5) & 0x1f) - 1,
 		'A' + ((node->acpi.hid >>  0) & 0x1f) - 1,
 			node->acpi.hid >> 16);
+<<<<<<< HEAD
 	sprintf(hid_uid.uid, "%u", node->acpi.uid);
 
 	*child = bus_find_device(&acpi_bus_type, NULL, &hid_uid,
@@ -65,6 +87,25 @@ static long __init parse_acpi_path(struct efi_dev_path *node,
 		put_device(*child);
 		*child = phys_dev;
 	}
+=======
+	sprintf(uid, "%u", node->acpi.uid);
+
+	for_each_acpi_dev_match(adev, hid, NULL, -1) {
+		if (adev->pnp.unique_id && !strcmp(adev->pnp.unique_id, uid))
+			break;
+		if (!adev->pnp.unique_id && node->acpi.uid == 0)
+			break;
+	}
+	if (!adev)
+		return -ENODEV;
+
+	phys_dev = acpi_get_first_physical_node(adev);
+	if (phys_dev) {
+		*child = get_device(phys_dev);
+		acpi_dev_put(adev);
+	} else
+		*child = &adev->dev;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -76,12 +117,20 @@ static int __init match_pci_dev(struct device *dev, void *data)
 	return dev_is_pci(dev) && to_pci_dev(dev)->devfn == devfn;
 }
 
+<<<<<<< HEAD
 static long __init parse_pci_path(struct efi_dev_path *node,
+=======
+static long __init parse_pci_path(const struct efi_dev_path *node,
+>>>>>>> upstream/android-13
 				  struct device *parent, struct device **child)
 {
 	unsigned int devfn;
 
+<<<<<<< HEAD
 	if (node->length != 6)
+=======
+	if (node->header.length != 6)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	if (!parent)
 		return -EINVAL;
@@ -112,6 +161,7 @@ static long __init parse_pci_path(struct efi_dev_path *node,
  * search for a device.
  */
 
+<<<<<<< HEAD
 static long __init parse_end_path(struct efi_dev_path *node,
 				  struct device *parent, struct device **child)
 {
@@ -119,12 +169,25 @@ static long __init parse_end_path(struct efi_dev_path *node,
 		return -EINVAL;
 	if (node->sub_type != EFI_DEV_END_INSTANCE &&
 	    node->sub_type != EFI_DEV_END_ENTIRE)
+=======
+static long __init parse_end_path(const struct efi_dev_path *node,
+				  struct device *parent, struct device **child)
+{
+	if (node->header.length != 4)
+		return -EINVAL;
+	if (node->header.sub_type != EFI_DEV_END_INSTANCE &&
+	    node->header.sub_type != EFI_DEV_END_ENTIRE)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	if (!parent)
 		return -ENODEV;
 
 	*child = get_device(parent);
+<<<<<<< HEAD
 	return node->sub_type;
+=======
+	return node->header.sub_type;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -163,7 +226,11 @@ static long __init parse_end_path(struct efi_dev_path *node,
  *	%ERR_PTR(-EINVAL) if a node is malformed or exceeds @len,
  *	%ERR_PTR(-ENOTSUPP) if support for a node type is not yet implemented.
  */
+<<<<<<< HEAD
 struct device * __init efi_get_device_by_path(struct efi_dev_path **node,
+=======
+struct device * __init efi_get_device_by_path(const struct efi_dev_path **node,
+>>>>>>> upstream/android-13
 					      size_t *len)
 {
 	struct device *parent = NULL, *child;
@@ -173,6 +240,7 @@ struct device * __init efi_get_device_by_path(struct efi_dev_path **node,
 		return NULL;
 
 	while (!ret) {
+<<<<<<< HEAD
 		if (*len < 4 || *len < (*node)->length)
 			ret = -EINVAL;
 		else if ((*node)->type     == EFI_DEV_ACPI &&
@@ -183,6 +251,18 @@ struct device * __init efi_get_device_by_path(struct efi_dev_path **node,
 			ret = parse_pci_path(*node, parent, &child);
 		else if (((*node)->type    == EFI_DEV_END_PATH ||
 			  (*node)->type    == EFI_DEV_END_PATH2))
+=======
+		if (*len < 4 || *len < (*node)->header.length)
+			ret = -EINVAL;
+		else if ((*node)->header.type		== EFI_DEV_ACPI &&
+			 (*node)->header.sub_type	== EFI_DEV_BASIC_ACPI)
+			ret = parse_acpi_path(*node, parent, &child);
+		else if ((*node)->header.type		== EFI_DEV_HW &&
+			 (*node)->header.sub_type	== EFI_DEV_PCI)
+			ret = parse_pci_path(*node, parent, &child);
+		else if (((*node)->header.type		== EFI_DEV_END_PATH ||
+			  (*node)->header.type		== EFI_DEV_END_PATH2))
+>>>>>>> upstream/android-13
 			ret = parse_end_path(*node, parent, &child);
 		else
 			ret = -ENOTSUPP;
@@ -192,8 +272,13 @@ struct device * __init efi_get_device_by_path(struct efi_dev_path **node,
 			return ERR_PTR(ret);
 
 		parent = child;
+<<<<<<< HEAD
 		*node  = (void *)*node + (*node)->length;
 		*len  -= (*node)->length;
+=======
+		*node  = (void *)*node + (*node)->header.length;
+		*len  -= (*node)->header.length;
+>>>>>>> upstream/android-13
 	}
 
 	if (ret == EFI_DEV_END_ENTIRE)

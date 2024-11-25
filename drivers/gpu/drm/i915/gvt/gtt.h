@@ -34,10 +34,26 @@
 #ifndef _GVT_GTT_H_
 #define _GVT_GTT_H_
 
+<<<<<<< HEAD
 #define I915_GTT_PAGE_SHIFT         12
 
 struct intel_vgpu_mm;
 
+=======
+#include <linux/kernel.h>
+#include <linux/kref.h>
+#include <linux/mutex.h>
+#include <linux/radix-tree.h>
+
+#include "gt/intel_gtt.h"
+
+struct intel_gvt;
+struct intel_vgpu;
+struct intel_vgpu_mm;
+
+#define I915_GTT_PAGE_SHIFT         12
+
+>>>>>>> upstream/android-13
 #define INTEL_GVT_INVALID_ADDR (~0UL)
 
 struct intel_gvt_gtt_entry {
@@ -88,14 +104,23 @@ struct intel_gvt_gtt {
 	void (*mm_free_page_table)(struct intel_vgpu_mm *mm);
 	struct list_head oos_page_use_list_head;
 	struct list_head oos_page_free_list_head;
+<<<<<<< HEAD
+=======
+	struct mutex ppgtt_mm_lock;
+>>>>>>> upstream/android-13
 	struct list_head ppgtt_mm_lru_list_head;
 
 	struct page *scratch_page;
 	unsigned long scratch_mfn;
 };
 
+<<<<<<< HEAD
 typedef enum {
 	GTT_TYPE_INVALID = -1,
+=======
+enum intel_gvt_gtt_type {
+	GTT_TYPE_INVALID = 0,
+>>>>>>> upstream/android-13
 
 	GTT_TYPE_GGTT_PTE,
 
@@ -123,7 +148,11 @@ typedef enum {
 	GTT_TYPE_PPGTT_PML4_PT,
 
 	GTT_TYPE_MAX,
+<<<<<<< HEAD
 } intel_gvt_gtt_type_t;
+=======
+};
+>>>>>>> upstream/android-13
 
 enum intel_gvt_mm_type {
 	INTEL_GVT_MM_GGTT,
@@ -132,6 +161,15 @@ enum intel_gvt_mm_type {
 
 #define GVT_RING_CTX_NR_PDPS	GEN8_3LVL_PDPES
 
+<<<<<<< HEAD
+=======
+struct intel_gvt_partial_pte {
+	unsigned long offset;
+	u64 data;
+	struct list_head list;
+};
+
+>>>>>>> upstream/android-13
 struct intel_vgpu_mm {
 	enum intel_gvt_mm_type type;
 	struct intel_vgpu *vgpu;
@@ -141,7 +179,11 @@ struct intel_vgpu_mm {
 
 	union {
 		struct {
+<<<<<<< HEAD
 			intel_gvt_gtt_type_t root_entry_type;
+=======
+			enum intel_gvt_gtt_type root_entry_type;
+>>>>>>> upstream/android-13
 			/*
 			 * The 4 PDPs in ring context. For 48bit addressing,
 			 * only PDP0 is valid and point to PML4. For 32it
@@ -153,17 +195,32 @@ struct intel_vgpu_mm {
 
 			struct list_head list;
 			struct list_head lru_list;
+<<<<<<< HEAD
 		} ppgtt_mm;
 		struct {
 			void *virtual_ggtt;
 			unsigned long last_partial_off;
 			u64 last_partial_data;
+=======
+			struct list_head link; /* possible LRI shadow mm list */
+		} ppgtt_mm;
+		struct {
+			void *virtual_ggtt;
+			/* Save/restore for PM */
+			u64 *host_ggtt_aperture;
+			u64 *host_ggtt_hidden;
+			struct list_head partial_pte_list;
+>>>>>>> upstream/android-13
 		} ggtt_mm;
 	};
 };
 
 struct intel_vgpu_mm *intel_vgpu_create_ppgtt_mm(struct intel_vgpu *vgpu,
+<<<<<<< HEAD
 		intel_gvt_gtt_type_t root_entry_type, u64 pdps[]);
+=======
+		enum intel_gvt_gtt_type root_entry_type, u64 pdps[]);
+>>>>>>> upstream/android-13
 
 static inline void intel_vgpu_mm_get(struct intel_vgpu_mm *mm)
 {
@@ -199,6 +256,7 @@ struct intel_vgpu_gtt {
 	struct intel_vgpu_scratch_pt scratch_pt[GTT_TYPE_MAX];
 };
 
+<<<<<<< HEAD
 extern int intel_vgpu_init_gtt(struct intel_vgpu *vgpu);
 extern void intel_vgpu_clean_gtt(struct intel_vgpu *vgpu);
 void intel_vgpu_reset_ggtt(struct intel_vgpu *vgpu, bool invalidate_old);
@@ -210,13 +268,31 @@ extern void intel_gvt_clean_gtt(struct intel_gvt *gvt);
 
 extern struct intel_vgpu_mm *intel_gvt_find_ppgtt_mm(struct intel_vgpu *vgpu,
 		int page_table_level, void *root_entry);
+=======
+int intel_vgpu_init_gtt(struct intel_vgpu *vgpu);
+void intel_vgpu_clean_gtt(struct intel_vgpu *vgpu);
+void intel_vgpu_reset_ggtt(struct intel_vgpu *vgpu, bool invalidate_old);
+void intel_vgpu_invalidate_ppgtt(struct intel_vgpu *vgpu);
+
+int intel_gvt_init_gtt(struct intel_gvt *gvt);
+void intel_vgpu_reset_gtt(struct intel_vgpu *vgpu);
+void intel_gvt_clean_gtt(struct intel_gvt *gvt);
+
+struct intel_vgpu_mm *intel_gvt_find_ppgtt_mm(struct intel_vgpu *vgpu,
+					      int page_table_level,
+					      void *root_entry);
+>>>>>>> upstream/android-13
 
 struct intel_vgpu_oos_page {
 	struct intel_vgpu_ppgtt_spt *spt;
 	struct list_head list;
 	struct list_head vm_list;
 	int id;
+<<<<<<< HEAD
 	unsigned char mem[I915_GTT_PAGE_SIZE];
+=======
+	void *mem;
+>>>>>>> upstream/android-13
 };
 
 #define GTT_ENTRY_NUM_IN_ONE_PAGE 512
@@ -227,7 +303,11 @@ struct intel_vgpu_ppgtt_spt {
 	struct intel_vgpu *vgpu;
 
 	struct {
+<<<<<<< HEAD
 		intel_gvt_gtt_type_t type;
+=======
+		enum intel_gvt_gtt_type type;
+>>>>>>> upstream/android-13
 		bool pde_ips; /* for 64KB PTEs */
 		void *vaddr;
 		struct page *page;
@@ -235,7 +315,11 @@ struct intel_vgpu_ppgtt_spt {
 	} shadow_page;
 
 	struct {
+<<<<<<< HEAD
 		intel_gvt_gtt_type_t type;
+=======
+		enum intel_gvt_gtt_type type;
+>>>>>>> upstream/android-13
 		bool pde_ips; /* for 64KB PTEs */
 		unsigned long gfn;
 		unsigned long write_cnt;
@@ -261,7 +345,11 @@ struct intel_vgpu_mm *intel_vgpu_find_ppgtt_mm(struct intel_vgpu *vgpu,
 		u64 pdps[]);
 
 struct intel_vgpu_mm *intel_vgpu_get_ppgtt_mm(struct intel_vgpu *vgpu,
+<<<<<<< HEAD
 		intel_gvt_gtt_type_t root_entry_type, u64 pdps[]);
+=======
+		enum intel_gvt_gtt_type root_entry_type, u64 pdps[]);
+>>>>>>> upstream/android-13
 
 int intel_vgpu_put_ppgtt_mm(struct intel_vgpu *vgpu, u64 pdps[]);
 
@@ -271,4 +359,10 @@ int intel_vgpu_emulate_ggtt_mmio_read(struct intel_vgpu *vgpu,
 int intel_vgpu_emulate_ggtt_mmio_write(struct intel_vgpu *vgpu,
 	unsigned int off, void *p_data, unsigned int bytes);
 
+<<<<<<< HEAD
+=======
+void intel_vgpu_destroy_all_ppgtt_mm(struct intel_vgpu *vgpu);
+void intel_gvt_restore_ggtt(struct intel_gvt *gvt);
+
+>>>>>>> upstream/android-13
 #endif /* _GVT_GTT_H_ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     Copyright (c) 2001,2002 Christer Weinigel <wingel@nano-system.com>
 
@@ -8,6 +12,7 @@
         Copyright (c) 2001 Benjamin Herrenschmidt <benh@kernel.crashing.org>
         Copyright (c) 2000 Philip Edelbrock <phil@stimpy.netroedge.com>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License as
     published by the Free Software Foundation; either version 2 of the
@@ -17,6 +22,8 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -159,7 +166,11 @@ static void scx200_acb_machine(struct scx200_acb_iface *iface, u8 status)
 
 	case state_repeat_start:
 		outb(inb(ACBCTL1) | ACBCTL1_START, ACBCTL1);
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case state_quick:
 		if (iface->address_byte & 1) {

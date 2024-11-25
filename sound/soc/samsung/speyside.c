@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Speyside audio support
  *
@@ -8,6 +9,13 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Speyside audio support
+//
+// Copyright 2011 Wolfson Microelectronics
+>>>>>>> upstream/android-13
 
 #include <sound/soc.h>
 #include <sound/soc-dapm.h>
@@ -29,8 +37,13 @@ static int speyside_set_bias_level(struct snd_soc_card *card,
 	struct snd_soc_dai *codec_dai;
 	int ret;
 
+<<<<<<< HEAD
 	rtd = snd_soc_get_pcm_runtime(card, card->dai_link[1].name);
 	codec_dai = rtd->codec_dai;
+=======
+	rtd = snd_soc_get_pcm_runtime(card, &card->dai_link[1]);
+	codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 
 	if (dapm->dev != codec_dai->dev)
 		return 0;
@@ -65,8 +78,13 @@ static int speyside_set_bias_level_post(struct snd_soc_card *card,
 	struct snd_soc_dai *codec_dai;
 	int ret;
 
+<<<<<<< HEAD
 	rtd = snd_soc_get_pcm_runtime(card, card->dai_link[1].name);
 	codec_dai = rtd->codec_dai;
+=======
+	rtd = snd_soc_get_pcm_runtime(card, &card->dai_link[1]);
+	codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 
 	if (dapm->dev != codec_dai->dev)
 		return 0;
@@ -136,7 +154,11 @@ static void speyside_set_polarity(struct snd_soc_component *component,
 
 static int speyside_wm0010_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_dai *dai = rtd->codec_dai;
+=======
+	struct snd_soc_dai *dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = snd_soc_dai_set_sysclk(dai, 0, MCLK_AUDIO_RATE, 0);
@@ -148,7 +170,11 @@ static int speyside_wm0010_init(struct snd_soc_pcm_runtime *rtd)
 
 static int speyside_wm8996_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_dai *dai = rtd->codec_dai;
+=======
+	struct snd_soc_dai *dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	struct snd_soc_component *component = dai->component;
 	int ret;
 
@@ -194,10 +220,27 @@ static const struct snd_soc_pcm_stream dsp_codec_params = {
 	.channels_max = 2,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(cpu_dsp,
+	DAILINK_COMP_ARRAY(COMP_CPU("samsung-i2s.0")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("spi0.0", "wm0010-sdi1")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("samsung-i2s.0")));
+
+SND_SOC_DAILINK_DEFS(dsp_codec,
+	DAILINK_COMP_ARRAY(COMP_CPU("wm0010-sdi2")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm8996.1-001a", "wm8996-aif1")));
+
+SND_SOC_DAILINK_DEFS(baseband,
+	DAILINK_COMP_ARRAY(COMP_CPU("wm8996-aif2")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm1250-ev1.1-0027", "wm1250-ev1")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link speyside_dai[] = {
 	{
 		.name = "CPU-DSP",
 		.stream_name = "CPU-DSP",
+<<<<<<< HEAD
 		.cpu_dai_name = "samsung-i2s.0",
 		.codec_dai_name = "wm0010-sdi1",
 		.platform_name = "samsung-i2s.0",
@@ -205,28 +248,48 @@ static struct snd_soc_dai_link speyside_dai[] = {
 		.init = speyside_wm0010_init,
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
 				| SND_SOC_DAIFMT_CBM_CFM,
+=======
+		.init = speyside_wm0010_init,
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
+				| SND_SOC_DAIFMT_CBM_CFM,
+		SND_SOC_DAILINK_REG(cpu_dsp),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "DSP-CODEC",
 		.stream_name = "DSP-CODEC",
+<<<<<<< HEAD
 		.cpu_dai_name = "wm0010-sdi2",
 		.codec_dai_name = "wm8996-aif1",
 		.codec_name = "wm8996.1-001a",
+=======
+>>>>>>> upstream/android-13
 		.init = speyside_wm8996_init,
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
 				| SND_SOC_DAIFMT_CBM_CFM,
 		.params = &dsp_codec_params,
 		.ignore_suspend = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(dsp_codec),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "Baseband",
 		.stream_name = "Baseband",
+<<<<<<< HEAD
 		.cpu_dai_name = "wm8996-aif2",
 		.codec_dai_name = "wm1250-ev1",
 		.codec_name = "wm1250-ev1.1-0027",
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
 				| SND_SOC_DAIFMT_CBM_CFM,
 		.ignore_suspend = 1,
+=======
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
+				| SND_SOC_DAIFMT_CBM_CFM,
+		.ignore_suspend = 1,
+		SND_SOC_DAILINK_REG(baseband),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -239,15 +302,23 @@ static int speyside_wm9081_init(struct snd_soc_component *component)
 
 static struct snd_soc_aux_dev speyside_aux_dev[] = {
 	{
+<<<<<<< HEAD
 		.name = "wm9081",
 		.codec_name = "wm9081.1-006c",
+=======
+		.dlc = COMP_AUX("wm9081.1-006c"),
+>>>>>>> upstream/android-13
 		.init = speyside_wm9081_init,
 	},
 };
 
 static struct snd_soc_codec_conf speyside_codec_conf[] = {
 	{
+<<<<<<< HEAD
 		.dev_name = "wm9081.1-006c",
+=======
+		.dlc = COMP_CODEC_CONF("wm9081.1-006c"),
+>>>>>>> upstream/android-13
 		.name_prefix = "Sub",
 	},
 };
@@ -330,7 +401,11 @@ static int speyside_probe(struct platform_device *pdev)
 	card->dev = &pdev->dev;
 
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+<<<<<<< HEAD
 	if (ret)
+=======
+	if (ret && ret != -EPROBE_DEFER)
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "snd_soc_register_card() failed: %d\n",
 			ret);
 

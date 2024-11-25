@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* 
  * Code to handle x86 style IRQs plus some generic interrupt stuff.
  *
@@ -6,6 +10,7 @@
  * Copyright (C) 1999 SuSE GmbH (Philipp Rumpf, prumpf@tux.org)
  * Copyright (C) 1999-2000 Grant Grundler
  * Copyright (c) 2005 Matthew Wilcox
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/bitops.h>
 #include <linux/errno.h>
@@ -30,6 +37,10 @@
 #include <linux/types.h>
 #include <asm/io.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/softirq_stack.h>
+>>>>>>> upstream/android-13
 #include <asm/smp.h>
 #include <asm/ldcw.h>
 
@@ -117,7 +128,14 @@ int cpu_check_affinity(struct irq_data *d, const struct cpumask *dest)
 		return -EINVAL;
 
 	/* whatever mask they set, we just allow one CPU */
+<<<<<<< HEAD
 	cpu_dest = cpumask_first_and(dest, cpu_online_mask);
+=======
+	cpu_dest = cpumask_next_and(d->irq & (num_online_cpus()-1),
+					dest, cpu_online_mask);
+	if (cpu_dest >= nr_cpu_ids)
+		cpu_dest = cpumask_first_and(dest, cpu_online_mask);
+>>>>>>> upstream/android-13
 
 	return cpu_dest;
 }
@@ -175,10 +193,23 @@ int arch_show_interrupts(struct seq_file *p, int prec)
 # endif
 #endif
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 	seq_printf(p, "%*s: ", prec, "RES");
 	for_each_online_cpu(j)
 		seq_printf(p, "%10u ", irq_stats(j)->irq_resched_count);
 	seq_puts(p, "  Rescheduling interrupts\n");
+=======
+	if (num_online_cpus() > 1) {
+		seq_printf(p, "%*s: ", prec, "RES");
+		for_each_online_cpu(j)
+			seq_printf(p, "%10u ", irq_stats(j)->irq_resched_count);
+		seq_puts(p, "  Rescheduling interrupts\n");
+		seq_printf(p, "%*s: ", prec, "CAL");
+		for_each_online_cpu(j)
+			seq_printf(p, "%10u ", irq_stats(j)->irq_call_count);
+		seq_puts(p, "  Function call interrupts\n");
+	}
+>>>>>>> upstream/android-13
 #endif
 	seq_printf(p, "%*s: ", prec, "UAH");
 	for_each_online_cpu(j)
@@ -220,12 +251,18 @@ int show_interrupts(struct seq_file *p, void *v)
 		if (!action)
 			goto skip;
 		seq_printf(p, "%3d: ", i);
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 		for_each_online_cpu(j)
 			seq_printf(p, "%10u ", kstat_irqs_cpu(i, j));
 #else
 		seq_printf(p, "%10u ", kstat_irqs(i));
 #endif
+=======
+
+		for_each_online_cpu(j)
+			seq_printf(p, "%10u ", irq_desc_kstat_cpu(desc, j));
+>>>>>>> upstream/android-13
 
 		seq_printf(p, " %14s", irq_desc_get_chip(desc)->name);
 #ifndef PARISC_IRQ_CR16_COUNTS
@@ -568,6 +605,7 @@ void do_cpu_irq_mask(struct pt_regs *regs)
 	goto out;
 }
 
+<<<<<<< HEAD
 static struct irqaction timer_action = {
 	.handler = timer_interrupt,
 	.name = "timer",
@@ -585,16 +623,32 @@ static struct irqaction ipi_action = {
 static void claim_cpu_irqs(void)
 {
 	int i;
+=======
+static void claim_cpu_irqs(void)
+{
+	unsigned long flags = IRQF_TIMER | IRQF_PERCPU | IRQF_IRQPOLL;
+	int i;
+
+>>>>>>> upstream/android-13
 	for (i = CPU_IRQ_BASE; i <= CPU_IRQ_MAX; i++) {
 		irq_set_chip_and_handler(i, &cpu_interrupt_type,
 					 handle_percpu_irq);
 	}
 
 	irq_set_handler(TIMER_IRQ, handle_percpu_irq);
+<<<<<<< HEAD
 	setup_irq(TIMER_IRQ, &timer_action);
 #ifdef CONFIG_SMP
 	irq_set_handler(IPI_IRQ, handle_percpu_irq);
 	setup_irq(IPI_IRQ, &ipi_action);
+=======
+	if (request_irq(TIMER_IRQ, timer_interrupt, flags, "timer", NULL))
+		pr_err("Failed to register timer interrupt\n");
+#ifdef CONFIG_SMP
+	irq_set_handler(IPI_IRQ, handle_percpu_irq);
+	if (request_irq(IPI_IRQ, ipi_interrupt, IRQF_PERCPU, "IPI", NULL))
+		pr_err("Failed to register IPI interrupt\n");
+>>>>>>> upstream/android-13
 #endif
 }
 

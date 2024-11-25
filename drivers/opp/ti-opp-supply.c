@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (C) 2016-2017 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2016-2017 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *	Nishanth Menon <nm@ti.com>
  *	Dave Gerlach <d-gerlach@ti.com>
  *
@@ -90,7 +94,11 @@ static int _store_optimized_voltages(struct device *dev,
 		goto out_map;
 	}
 
+<<<<<<< HEAD
 	base = ioremap_nocache(res->start, resource_size(res));
+=======
+	base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!base) {
 		dev_err(dev, "Unable to map Efuse registers\n");
 		ret = -ENOMEM;
@@ -417,7 +425,10 @@ static struct platform_driver ti_opp_supply_driver = {
 	.probe = ti_opp_supply_probe,
 	.driver = {
 		   .name = "ti_opp_supply",
+<<<<<<< HEAD
 		   .owner = THIS_MODULE,
+=======
+>>>>>>> upstream/android-13
 		   .of_match_table = of_match_ptr(ti_opp_supply_of_match),
 		   },
 };

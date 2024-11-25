@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  Universal power supply monitor class
  *
@@ -6,8 +10,11 @@
  *  Copyright © 2003  Ian Molton <spyro@f2s.com>
  *
  *  Modified: 2004, Oct     Szabolcs Gyurko
+<<<<<<< HEAD
  *
  *  You may use this code as per GPL version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_POWER_SUPPLY_H__
@@ -18,7 +25,11 @@
 #include <linux/leds.h>
 #include <linux/spinlock.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
 #include <linux/types.h>
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 /*
  * All voltages, currents, charges, energies, time and temperatures in uV,
@@ -41,6 +52,7 @@ enum {
 	POWER_SUPPLY_STATUS_FULL,
 };
 
+<<<<<<< HEAD
 enum {
 	POWER_SUPPLY_CHARGE_TYPE_UNKNOWN = 0,
 	POWER_SUPPLY_CHARGE_TYPE_NONE,
@@ -51,6 +63,26 @@ enum {
 };
 
 #if defined(CONFIG_BATTERY_GKI)
+=======
+/* What algorithm is the charger using? */
+enum {
+	POWER_SUPPLY_CHARGE_TYPE_UNKNOWN = 0,
+	POWER_SUPPLY_CHARGE_TYPE_NONE,
+	POWER_SUPPLY_CHARGE_TYPE_TRICKLE,	/* slow speed */
+	POWER_SUPPLY_CHARGE_TYPE_FAST,		/* fast speed */
+	POWER_SUPPLY_CHARGE_TYPE_STANDARD,	/* normal speed */
+	POWER_SUPPLY_CHARGE_TYPE_ADAPTIVE,	/* dynamically adjusted speed */
+	POWER_SUPPLY_CHARGE_TYPE_CUSTOM,	/* use CHARGE_CONTROL_* props */
+	POWER_SUPPLY_CHARGE_TYPE_LONGLIFE,	/* slow speed, longer life */
+
+	/*
+	 * force to 50 to minimize the chances of userspace binary
+	 * incompatibility on newer upstream kernels
+	 */
+	POWER_SUPPLY_CHARGE_TYPE_TAPER_EXT = 50,	/* charging in CV phase */
+};
+
+>>>>>>> upstream/android-13
 enum {
 	POWER_SUPPLY_HEALTH_UNKNOWN = 0,
 	POWER_SUPPLY_HEALTH_GOOD,
@@ -67,6 +99,7 @@ enum {
 	POWER_SUPPLY_HEALTH_COOL,
 	POWER_SUPPLY_HEALTH_HOT,
 };
+<<<<<<< HEAD
 #else
 enum {
 	POWER_SUPPLY_HEALTH_UNKNOWN = 0,
@@ -85,6 +118,8 @@ enum {
 	POWER_SUPPLY_HEALTH_MAX,
 };
 #endif
+=======
+>>>>>>> upstream/android-13
 
 enum {
 	POWER_SUPPLY_TECHNOLOGY_UNKNOWN = 0,
@@ -111,6 +146,7 @@ enum {
 	POWER_SUPPLY_SCOPE_DEVICE,
 };
 
+<<<<<<< HEAD
 enum {
 	POWER_SUPPLY_DP_DM_UNKNOWN = 0,
 	POWER_SUPPLY_DP_DM_PREPARE = 1,
@@ -189,6 +225,8 @@ enum {
 	POWER_SUPPLY_ALIGN_ERROR,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum power_supply_property {
 	/* Properties of type `int' */
 	POWER_SUPPLY_PROP_STATUS = 0,
@@ -210,7 +248,10 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_CURRENT_MAX,
 	POWER_SUPPLY_PROP_CURRENT_NOW,
 	POWER_SUPPLY_PROP_CURRENT_AVG,
+<<<<<<< HEAD
 	POWER_SUPPLY_PROP_CURRENT_FULL,
+=======
+>>>>>>> upstream/android-13
 	POWER_SUPPLY_PROP_CURRENT_BOOT,
 	POWER_SUPPLY_PROP_POWER_NOW,
 	POWER_SUPPLY_PROP_POWER_AVG,
@@ -221,16 +262,27 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_CHARGE_NOW,
 	POWER_SUPPLY_PROP_CHARGE_AVG,
 	POWER_SUPPLY_PROP_CHARGE_COUNTER,
+<<<<<<< HEAD
 	POWER_SUPPLY_PROP_CHARGE_OTG_CONTROL,
 	POWER_SUPPLY_PROP_CHARGE_POWERED_OTG_CONTROL,
 	POWER_SUPPLY_PROP_CHARGE_TEMP,
+=======
+>>>>>>> upstream/android-13
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE_MAX,
 	POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT,
 	POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT_MAX,
+<<<<<<< HEAD
 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
+=======
+	POWER_SUPPLY_PROP_CHARGE_CONTROL_START_THRESHOLD, /* in percents! */
+	POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD, /* in percents! */
+	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
+	POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT,
+	POWER_SUPPLY_PROP_INPUT_POWER_LIMIT,
+>>>>>>> upstream/android-13
 	POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN,
 	POWER_SUPPLY_PROP_ENERGY_EMPTY_DESIGN,
 	POWER_SUPPLY_PROP_ENERGY_FULL,
@@ -240,6 +292,10 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_CAPACITY, /* in percents! */
 	POWER_SUPPLY_PROP_CAPACITY_ALERT_MIN, /* in percents! */
 	POWER_SUPPLY_PROP_CAPACITY_ALERT_MAX, /* in percents! */
+<<<<<<< HEAD
+=======
+	POWER_SUPPLY_PROP_CAPACITY_ERROR_MARGIN, /* in percents! */
+>>>>>>> upstream/android-13
 	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
 	POWER_SUPPLY_PROP_TEMP,
 	POWER_SUPPLY_PROP_TEMP_MAX,
@@ -259,6 +315,7 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_PRECHARGE_CURRENT,
 	POWER_SUPPLY_PROP_CHARGE_TERM_CURRENT,
 	POWER_SUPPLY_PROP_CALIBRATE,
+<<<<<<< HEAD
 	/* Local extensions */
 	POWER_SUPPLY_PROP_USB_HC,
 	POWER_SUPPLY_PROP_USB_OTG,
@@ -456,10 +513,20 @@ enum power_supply_property {
 #if !defined(CONFIG_BATTERY_GKI)
 	POWER_SUPPLY_EXT_PROP_MAX = POWER_SUPPLY_PROP_MAX + 256,
 #endif
+=======
+	POWER_SUPPLY_PROP_MANUFACTURE_YEAR,
+	POWER_SUPPLY_PROP_MANUFACTURE_MONTH,
+	POWER_SUPPLY_PROP_MANUFACTURE_DAY,
+	/* Properties of type `const char *' */
+	POWER_SUPPLY_PROP_MODEL_NAME,
+	POWER_SUPPLY_PROP_MANUFACTURER,
+	POWER_SUPPLY_PROP_SERIAL_NUMBER,
+>>>>>>> upstream/android-13
 };
 
 enum power_supply_type {
 	POWER_SUPPLY_TYPE_UNKNOWN = 0,
+<<<<<<< HEAD
 	POWER_SUPPLY_TYPE_BATTERY,			/* 1 */
 	POWER_SUPPLY_TYPE_UPS,				/* 2 */
 	POWER_SUPPLY_TYPE_MAINS,			/* 3 */
@@ -503,6 +570,20 @@ enum power_supply_type {
 	POWER_SUPPLY_TYPE_HV_QC30,			/* 41 - ILIM 3.0A - CHG 3.5A (Step Charging 4.2A -> 3.0A) */
 	POWER_SUPPLY_TYPE_POGO,			/* POGO */
 	POWER_SUPPLY_TYPE_MAX,
+=======
+	POWER_SUPPLY_TYPE_BATTERY,
+	POWER_SUPPLY_TYPE_UPS,
+	POWER_SUPPLY_TYPE_MAINS,
+	POWER_SUPPLY_TYPE_USB,			/* Standard Downstream Port */
+	POWER_SUPPLY_TYPE_USB_DCP,		/* Dedicated Charging Port */
+	POWER_SUPPLY_TYPE_USB_CDP,		/* Charging Downstream Port */
+	POWER_SUPPLY_TYPE_USB_ACA,		/* Accessory Charger Adapters */
+	POWER_SUPPLY_TYPE_USB_TYPE_C,		/* Type C Port */
+	POWER_SUPPLY_TYPE_USB_PD,		/* Power Delivery Port */
+	POWER_SUPPLY_TYPE_USB_PD_DRP,		/* PD Dual Role Port */
+	POWER_SUPPLY_TYPE_APPLE_BRICK_ID,	/* Apple Charging Method */
+	POWER_SUPPLY_TYPE_WIRELESS,		/* Wireless */
+>>>>>>> upstream/android-13
 };
 
 enum power_supply_usb_type {
@@ -518,6 +599,7 @@ enum power_supply_usb_type {
 	POWER_SUPPLY_USB_TYPE_APPLE_BRICK_ID,	/* Apple Charging Method */
 };
 
+<<<<<<< HEAD
 /* Indicates USB Type-C CC connection status */
 enum power_supply_typec_mode {
 	POWER_SUPPLY_TYPEC_NONE,
@@ -560,12 +642,19 @@ enum power_supply_typec_power_role {
 enum power_supply_notifier_events {
 	PSY_EVENT_PROP_CHANGED,
 	PSY_EVENT_PROP_ADDED,
+=======
+enum power_supply_notifier_events {
+	PSY_EVENT_PROP_CHANGED,
+>>>>>>> upstream/android-13
 };
 
 union power_supply_propval {
 	int intval;
 	const char *strval;
+<<<<<<< HEAD
 	int64_t int64val;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct device_node;
@@ -579,17 +668,33 @@ struct power_supply_config {
 	/* Driver private data */
 	void *drv_data;
 
+<<<<<<< HEAD
 	char **supplied_to;
 	size_t num_supplicants;
+=======
+	/* Device specific sysfs attributes */
+	const struct attribute_group **attr_grp;
+
+	char **supplied_to;
+	size_t num_supplicants;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /* Description of power supply */
 struct power_supply_desc {
 	const char *name;
 	enum power_supply_type type;
+<<<<<<< HEAD
 	enum power_supply_usb_type *usb_types;
 	size_t num_usb_types;
 	enum power_supply_property *properties;
+=======
+	const enum power_supply_usb_type *usb_types;
+	size_t num_usb_types;
+	const enum power_supply_property *properties;
+>>>>>>> upstream/android-13
 	size_t num_properties;
 
 	/*
@@ -622,6 +727,11 @@ struct power_supply_desc {
 	bool no_thermal;
 	/* For APM emulation, think legacy userspace. */
 	int use_for_apm;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct power_supply {
@@ -663,6 +773,11 @@ struct power_supply {
 	struct led_trigger *charging_blink_full_solid_trig;
 	char *charging_blink_full_solid_trig_name;
 #endif
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -684,6 +799,21 @@ struct power_supply_info {
 	int use_for_apm;
 };
 
+<<<<<<< HEAD
+=======
+struct power_supply_battery_ocv_table {
+	int ocv;	/* microVolts */
+	int capacity;	/* percent */
+};
+
+struct power_supply_resistance_temp_table {
+	int temp;	/* celsius */
+	int resistance;	/* internal resistance percent */
+};
+
+#define POWER_SUPPLY_OCV_TEMP_MAX 20
+
+>>>>>>> upstream/android-13
 /*
  * This is the recommended struct to manage static battery parameters,
  * populated by power_supply_get_battery_info(). Most platform drivers should
@@ -694,6 +824,7 @@ struct power_supply_info {
  */
 
 struct power_supply_battery_info {
+<<<<<<< HEAD
 	int energy_full_design_uwh;	    /* microWatt-hours */
 	int charge_full_design_uah;	    /* microAmp-hours */
 	int voltage_min_design_uv;	    /* microVolts */
@@ -701,22 +832,78 @@ struct power_supply_battery_info {
 	int charge_term_current_ua;	    /* microAmps */
 	int constant_charge_current_max_ua; /* microAmps */
 	int constant_charge_voltage_max_uv; /* microVolts */
+=======
+	unsigned int technology;	    /* from the enum above */
+	int energy_full_design_uwh;	    /* microWatt-hours */
+	int charge_full_design_uah;	    /* microAmp-hours */
+	int voltage_min_design_uv;	    /* microVolts */
+	int voltage_max_design_uv;	    /* microVolts */
+	int tricklecharge_current_ua;	    /* microAmps */
+	int precharge_current_ua;	    /* microAmps */
+	int precharge_voltage_max_uv;	    /* microVolts */
+	int charge_term_current_ua;	    /* microAmps */
+	int charge_restart_voltage_uv;	    /* microVolts */
+	int overvoltage_limit_uv;	    /* microVolts */
+	int constant_charge_current_max_ua; /* microAmps */
+	int constant_charge_voltage_max_uv; /* microVolts */
+	int factory_internal_resistance_uohm;   /* microOhms */
+	int ocv_temp[POWER_SUPPLY_OCV_TEMP_MAX];/* celsius */
+	int temp_ambient_alert_min;             /* celsius */
+	int temp_ambient_alert_max;             /* celsius */
+	int temp_alert_min;                     /* celsius */
+	int temp_alert_max;                     /* celsius */
+	int temp_min;                           /* celsius */
+	int temp_max;                           /* celsius */
+	struct power_supply_battery_ocv_table *ocv_table[POWER_SUPPLY_OCV_TEMP_MAX];
+	int ocv_table_size[POWER_SUPPLY_OCV_TEMP_MAX];
+	struct power_supply_resistance_temp_table *resist_table;
+	int resist_table_size;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 extern struct atomic_notifier_head power_supply_notifier;
 extern int power_supply_reg_notifier(struct notifier_block *nb);
 extern void power_supply_unreg_notifier(struct notifier_block *nb);
+<<<<<<< HEAD
 extern struct power_supply *power_supply_get_by_name(const char *name);
 extern void power_supply_put(struct power_supply *psy);
 #ifdef CONFIG_OF
 extern struct power_supply *power_supply_get_by_phandle(struct device_node *np,
 							const char *property);
+=======
+#if IS_ENABLED(CONFIG_POWER_SUPPLY)
+extern struct power_supply *power_supply_get_by_name(const char *name);
+extern void power_supply_put(struct power_supply *psy);
+#else
+static inline void power_supply_put(struct power_supply *psy) {}
+static inline struct power_supply *power_supply_get_by_name(const char *name)
+{ return NULL; }
+#endif
+#ifdef CONFIG_OF
+extern struct power_supply *power_supply_get_by_phandle(struct device_node *np,
+							const char *property);
+extern int power_supply_get_by_phandle_array(struct device_node *np,
+					     const char *property,
+					     struct power_supply **psy,
+					     ssize_t size);
+>>>>>>> upstream/android-13
 extern struct power_supply *devm_power_supply_get_by_phandle(
 				    struct device *dev, const char *property);
 #else /* !CONFIG_OF */
 static inline struct power_supply *
 power_supply_get_by_phandle(struct device_node *np, const char *property)
 { return NULL; }
+<<<<<<< HEAD
+=======
+static inline int
+power_supply_get_by_phandle_array(struct device_node *np,
+				  const char *property,
+				  struct power_supply **psy,
+				  int size)
+{ return 0; }
+>>>>>>> upstream/android-13
 static inline struct power_supply *
 devm_power_supply_get_by_phandle(struct device *dev, const char *property)
 { return NULL; }
@@ -724,6 +911,21 @@ devm_power_supply_get_by_phandle(struct device *dev, const char *property)
 
 extern int power_supply_get_battery_info(struct power_supply *psy,
 					 struct power_supply_battery_info *info);
+<<<<<<< HEAD
+=======
+extern void power_supply_put_battery_info(struct power_supply *psy,
+					  struct power_supply_battery_info *info);
+extern int power_supply_ocv2cap_simple(struct power_supply_battery_ocv_table *table,
+				       int table_len, int ocv);
+extern struct power_supply_battery_ocv_table *
+power_supply_find_ocv2cap_table(struct power_supply_battery_info *info,
+				int temp, int *table_len);
+extern int power_supply_batinfo_ocv2cap(struct power_supply_battery_info *info,
+					int ocv, int temp);
+extern int
+power_supply_temp2resist_simple(struct power_supply_resistance_temp_table *table,
+				int table_len, int temp);
+>>>>>>> upstream/android-13
 extern void power_supply_changed(struct power_supply *psy);
 extern int power_supply_am_i_supplied(struct power_supply *psy);
 extern int power_supply_set_input_current_limit_from_supplier(
@@ -739,9 +941,22 @@ static inline int power_supply_is_system_supplied(void) { return -ENOSYS; }
 extern int power_supply_get_property(struct power_supply *psy,
 			    enum power_supply_property psp,
 			    union power_supply_propval *val);
+<<<<<<< HEAD
 extern int power_supply_set_property(struct power_supply *psy,
 			    enum power_supply_property psp,
 			    const union power_supply_propval *val);
+=======
+#if IS_ENABLED(CONFIG_POWER_SUPPLY)
+extern int power_supply_set_property(struct power_supply *psy,
+			    enum power_supply_property psp,
+			    const union power_supply_propval *val);
+#else
+static inline int power_supply_set_property(struct power_supply *psy,
+			    enum power_supply_property psp,
+			    const union power_supply_propval *val)
+{ return 0; }
+#endif
+>>>>>>> upstream/android-13
 extern int power_supply_property_is_writeable(struct power_supply *psy,
 					enum power_supply_property psp);
 extern void power_supply_external_power_changed(struct power_supply *psy);
@@ -789,12 +1004,20 @@ static inline bool power_supply_is_amp_property(enum power_supply_property psp)
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
 	case POWER_SUPPLY_PROP_CURRENT_BOOT:
+<<<<<<< HEAD
 		return 1;
+=======
+		return true;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static inline bool power_supply_is_watt_property(enum power_supply_property psp)
@@ -817,12 +1040,35 @@ static inline bool power_supply_is_watt_property(enum power_supply_property psp)
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE:
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE_MAX:
 	case POWER_SUPPLY_PROP_POWER_NOW:
+<<<<<<< HEAD
 		return 1;
+=======
+		return true;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
 
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+	return false;
+}
+
+#ifdef CONFIG_POWER_SUPPLY_HWMON
+int power_supply_add_hwmon_sysfs(struct power_supply *psy);
+void power_supply_remove_hwmon_sysfs(struct power_supply *psy);
+#else
+static inline int power_supply_add_hwmon_sysfs(struct power_supply *psy)
+{
+	return 0;
+}
+
+static inline
+void power_supply_remove_hwmon_sysfs(struct power_supply *psy) {}
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __LINUX_POWER_SUPPLY_H__ */

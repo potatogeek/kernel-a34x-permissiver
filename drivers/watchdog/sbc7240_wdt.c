@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  *	NANO7240 SBC Watchdog device driver
  *
  *	Based on w83877f.c by Scott Jennings,
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License version 2 as
  *	published by the Free Software Foundation;
@@ -14,6 +19,9 @@
  *
  *	(c) Copyright 2007  Gilles GIGAN <gilles.gigan@jcu.edu.au>
  *
+=======
+ *	(c) Copyright 2007  Gilles GIGAN <gilles.gigan@jcu.edu.au>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -136,7 +144,11 @@ static int fop_open(struct inode *inode, struct file *file)
 
 	wdt_enable();
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int fop_close(struct inode *inode, struct file *file)
@@ -203,9 +215,14 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 		if (wdt_set_timeout(new_timeout))
 			return -EINVAL;
+<<<<<<< HEAD
 
 		/* Fall through */
 	}
+=======
+	}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WDIOC_GETTIMEOUT:
 		return put_user(timeout, (int __user *)arg);
 	default:
@@ -220,6 +237,10 @@ static const struct file_operations wdt_fops = {
 	.open = fop_open,
 	.release = fop_close,
 	.unlocked_ioctl = fop_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static struct miscdevice wdt_miscdev = {

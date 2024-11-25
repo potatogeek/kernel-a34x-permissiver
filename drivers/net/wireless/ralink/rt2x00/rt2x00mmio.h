@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -80,8 +87,11 @@ int rt2x00mmio_regbusy_read(struct rt2x00_dev *rt2x00dev,
  *
  * @desc: Pointer to device descriptor
  * @desc_dma: DMA pointer to &desc.
+<<<<<<< HEAD
  * @data: Pointer to device's entry memory.
  * @data_dma: DMA pointer to &data.
+=======
+>>>>>>> upstream/android-13
  */
 struct queue_entry_priv_mmio {
 	__le32 *desc;

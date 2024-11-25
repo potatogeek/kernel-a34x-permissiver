@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Powerpc needs __SANE_USERSPACE_TYPES__ before <linux/types.h> to select
  * 'int-ll64.h' and avoid compile warnings when printing __u64 with %llu.
@@ -9,6 +13,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
+<<<<<<< HEAD
 #include <time.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -23,6 +28,18 @@
 #include "cloexec.h"
 
 volatile long the_var;
+=======
+#include <fcntl.h>
+#include <linux/hw_breakpoint.h>
+
+#include "tests.h"
+#include "debug.h"
+#include "event.h"
+#include "../perf-sys.h"
+#include "cloexec.h"
+
+static volatile long the_var;
+>>>>>>> upstream/android-13
 
 static noinline int test_function(void)
 {
@@ -191,3 +208,22 @@ int test__bp_accounting(struct test *test __maybe_unused, int subtest __maybe_un
 
 	return bp_accounting(wp_cnt, share);
 }
+<<<<<<< HEAD
+=======
+
+bool test__bp_account_is_supported(void)
+{
+	/*
+	 * PowerPC and S390 do not support creation of instruction
+	 * breakpoints using the perf_event interface.
+	 *
+	 * Just disable the test for these architectures until these
+	 * issues are resolved.
+	 */
+#if defined(__powerpc__) || defined(__s390x__)
+	return false;
+#else
+	return true;
+#endif
+}
+>>>>>>> upstream/android-13

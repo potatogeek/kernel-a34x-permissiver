@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble ICE1712 (Envy24)
  *
  *	Copyright (c) 2000 Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -74,12 +81,15 @@
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("ICEnsemble ICE1712 (Envy24)");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{"
 	       HOONTECH_DEVICE_DESC
 	       DELTA_DEVICE_DESC
 	       EWS_DEVICE_DESC
 	       "{ICEnsemble,Generic ICE1712},"
 	       "{ICEnsemble,Generic Envy24}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -494,6 +504,7 @@ static irqreturn_t snd_ice1712_interrupt(int irq, void *dev_id)
 
 
 /*
+<<<<<<< HEAD
  *  PCM part - misc
  */
 
@@ -509,6 +520,8 @@ static int snd_ice1712_hw_free(struct snd_pcm_substream *substream)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  *  PCM part - consumer I/O
  */
 
@@ -850,9 +863,12 @@ static int snd_ice1712_capture_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_ice1712_playback_ops = {
 	.open =		snd_ice1712_playback_open,
 	.close =	snd_ice1712_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ice1712_hw_params,
 	.hw_free =	snd_ice1712_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_ice1712_playback_prepare,
 	.trigger =	snd_ice1712_playback_trigger,
 	.pointer =	snd_ice1712_playback_pointer,
@@ -861,9 +877,12 @@ static const struct snd_pcm_ops snd_ice1712_playback_ops = {
 static const struct snd_pcm_ops snd_ice1712_playback_ds_ops = {
 	.open =		snd_ice1712_playback_ds_open,
 	.close =	snd_ice1712_playback_ds_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ice1712_hw_params,
 	.hw_free =	snd_ice1712_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_ice1712_playback_ds_prepare,
 	.trigger =	snd_ice1712_playback_ds_trigger,
 	.pointer =	snd_ice1712_playback_ds_pointer,
@@ -872,9 +891,12 @@ static const struct snd_pcm_ops snd_ice1712_playback_ds_ops = {
 static const struct snd_pcm_ops snd_ice1712_capture_ops = {
 	.open =		snd_ice1712_capture_open,
 	.close =	snd_ice1712_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ice1712_hw_params,
 	.hw_free =	snd_ice1712_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_ice1712_capture_prepare,
 	.trigger =	snd_ice1712_capture_trigger,
 	.pointer =	snd_ice1712_capture_pointer,
@@ -897,8 +919,13 @@ static int snd_ice1712_pcm(struct snd_ice1712 *ice, int device)
 	strcpy(pcm->name, "ICE1712 consumer");
 	ice->pcm = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(ice->pci), 64*1024, 64*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &ice->pci->dev, 64*1024, 64*1024);
+>>>>>>> upstream/android-13
 
 	dev_warn(ice->card->dev,
 		 "Consumer PCM code does not work well at the moment --jk\n");
@@ -922,8 +949,13 @@ static int snd_ice1712_pcm_ds(struct snd_ice1712 *ice, int device)
 	strcpy(pcm->name, "ICE1712 consumer (DS)");
 	ice->pcm_ds = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(ice->pci), 64*1024, 128*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &ice->pci->dev, 64*1024, 128*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1075,7 +1107,11 @@ static int snd_ice1712_playback_pro_hw_params(struct snd_pcm_substream *substrea
 	struct snd_ice1712 *ice = snd_pcm_substream_chip(substream);
 
 	snd_ice1712_set_pro_rate(ice, params_rate(hw_params), 0);
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int snd_ice1712_capture_pro_prepare(struct snd_pcm_substream *substream)
@@ -1097,7 +1133,11 @@ static int snd_ice1712_capture_pro_hw_params(struct snd_pcm_substream *substream
 	struct snd_ice1712 *ice = snd_pcm_substream_chip(substream);
 
 	snd_ice1712_set_pro_rate(ice, params_rate(hw_params), 0);
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static snd_pcm_uframes_t snd_ice1712_playback_pro_pointer(struct snd_pcm_substream *substream)
@@ -1231,9 +1271,13 @@ static int snd_ice1712_capture_pro_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_ice1712_playback_pro_ops = {
 	.open =		snd_ice1712_playback_pro_open,
 	.close =	snd_ice1712_playback_pro_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ice1712_playback_pro_hw_params,
 	.hw_free =	snd_ice1712_hw_free,
+=======
+	.hw_params =	snd_ice1712_playback_pro_hw_params,
+>>>>>>> upstream/android-13
 	.prepare =	snd_ice1712_playback_pro_prepare,
 	.trigger =	snd_ice1712_pro_trigger,
 	.pointer =	snd_ice1712_playback_pro_pointer,
@@ -1242,9 +1286,13 @@ static const struct snd_pcm_ops snd_ice1712_playback_pro_ops = {
 static const struct snd_pcm_ops snd_ice1712_capture_pro_ops = {
 	.open =		snd_ice1712_capture_pro_open,
 	.close =	snd_ice1712_capture_pro_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_ice1712_capture_pro_hw_params,
 	.hw_free =	snd_ice1712_hw_free,
+=======
+	.hw_params =	snd_ice1712_capture_pro_hw_params,
+>>>>>>> upstream/android-13
 	.prepare =	snd_ice1712_capture_pro_prepare,
 	.trigger =	snd_ice1712_pro_trigger,
 	.pointer =	snd_ice1712_capture_pro_pointer,
@@ -1266,8 +1314,13 @@ static int snd_ice1712_pcm_profi(struct snd_ice1712 *ice, int device)
 	pcm->info_flags = 0;
 	strcpy(pcm->name, "ICE1712 multi");
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(ice->pci), 256*1024, 256*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &ice->pci->dev, 256*1024, 256*1024);
+>>>>>>> upstream/android-13
 
 	ice->pcm_pro = pcm;
 
@@ -1377,7 +1430,11 @@ static int snd_ice1712_pro_mixer_volume_put(struct snd_kcontrol *kcontrol, struc
 
 static const DECLARE_TLV_DB_SCALE(db_scale_playback, -14400, 150, 0);
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_ice1712_multi_playback_ctrls[] = {
+=======
+static const struct snd_kcontrol_new snd_ice1712_multi_playback_ctrls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "Multi Playback Switch",
@@ -1506,11 +1563,19 @@ static int snd_ice1712_ac97_mixer(struct snd_ice1712 *ice)
 	int err, bus_num = 0;
 	struct snd_ac97_template ac97;
 	struct snd_ac97_bus *pbus;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops con_ops = {
 		.write = snd_ice1712_ac97_write,
 		.read = snd_ice1712_ac97_read,
 	};
 	static struct snd_ac97_bus_ops pro_ops = {
+=======
+	static const struct snd_ac97_bus_ops con_ops = {
+		.write = snd_ice1712_ac97_write,
+		.read = snd_ice1712_ac97_read,
+	};
+	static const struct snd_ac97_bus_ops pro_ops = {
+>>>>>>> upstream/android-13
 		.write = snd_ice1712_pro_ac97_write,
 		.read = snd_ice1712_pro_ac97_read,
 	};
@@ -1603,10 +1668,14 @@ static void snd_ice1712_proc_read(struct snd_info_entry *entry,
 
 static void snd_ice1712_proc_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 
 	if (!snd_card_proc_new(ice->card, "ice1712", &entry))
 		snd_info_set_text_ops(entry, ice, snd_ice1712_proc_read);
+=======
+	snd_card_ro_proc_new(ice->card, "ice1712", ice, snd_ice1712_proc_read);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2263,7 +2332,11 @@ static const struct snd_kcontrol_new snd_ice1712_mixer_pro_peak = {
 /*
  * list of available boards
  */
+<<<<<<< HEAD
 static struct snd_ice1712_card_info *card_tables[] = {
+=======
+static const struct snd_ice1712_card_info *card_tables[] = {
+>>>>>>> upstream/android-13
 	snd_ice1712_hoontech_cards,
 	snd_ice1712_delta_cards,
 	snd_ice1712_ews_cards,
@@ -2287,7 +2360,11 @@ static int snd_ice1712_read_eeprom(struct snd_ice1712 *ice,
 {
 	int dev = ICE_I2C_EEPROM_ADDR;	/* I2C EEPROM device address */
 	unsigned int i, size;
+<<<<<<< HEAD
 	struct snd_ice1712_card_info * const *tbl, *c;
+=======
+	const struct snd_ice1712_card_info * const *tbl, *c;
+>>>>>>> upstream/android-13
 
 	if (!modelname || !*modelname) {
 		ice->eeprom.subvendor = 0;
@@ -2483,6 +2560,7 @@ static int snd_ice1712_build_controls(struct snd_ice1712 *ice)
 			   snd_ctl_new1(&snd_ice1712_mixer_pro_peak, ice));
 }
 
+<<<<<<< HEAD
 static int snd_ice1712_free(struct snd_ice1712 *ice)
 {
 	if (!ice->port)
@@ -2508,6 +2586,20 @@ static int snd_ice1712_dev_free(struct snd_device *device)
 {
 	struct snd_ice1712 *ice = device->device_data;
 	return snd_ice1712_free(ice);
+=======
+static void snd_ice1712_free(struct snd_card *card)
+{
+	struct snd_ice1712 *ice = card->private_data;
+
+	if (ice->card_info && ice->card_info->chip_exit)
+		ice->card_info->chip_exit(ice);
+
+	/* mask all interrupts */
+	outb(ICE1712_MULTI_CAPTURE | ICE1712_MULTI_PLAYBACK, ICEMT(ice, IRQ));
+	outb(0xff, ICEREG(ice, IRQMASK));
+
+	snd_ice1712_akm4xxx_free(ice);
+>>>>>>> upstream/android-13
 }
 
 static int snd_ice1712_create(struct snd_card *card,
@@ -2515,6 +2607,7 @@ static int snd_ice1712_create(struct snd_card *card,
 			      const char *modelname,
 			      int omni,
 			      int cs8427_timeout,
+<<<<<<< HEAD
 			      int dxr_enable,
 			      struct snd_ice1712 **r_ice1712)
 {
@@ -2544,6 +2637,24 @@ static int snd_ice1712_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+			      int dxr_enable)
+{
+	struct snd_ice1712 *ice = card->private_data;
+	int err;
+
+	/* enable PCI device */
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+	/* check, if we can restrict PCI DMA transfers to 28 bits */
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(28))) {
+		dev_err(card->dev,
+			"architecture does not support 28bit PCI busmaster DMA\n");
+		return -ENXIO;
+	}
+
+>>>>>>> upstream/android-13
 	ice->omni = omni ? 1 : 0;
 	if (cs8427_timeout < 1)
 		cs8427_timeout = 1;
@@ -2574,6 +2685,7 @@ static int snd_ice1712_create(struct snd_card *card,
 	pci_write_config_word(ice->pci, 0x40, 0x807f);
 	pci_write_config_word(ice->pci, 0x42, 0x0006);
 	snd_ice1712_proc_init(ice);
+<<<<<<< HEAD
 	synchronize_irq(pci->irq);
 
 	card->private_data = ice;
@@ -2584,19 +2696,32 @@ static int snd_ice1712_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return err;
 	}
+=======
+
+	err = pci_request_regions(pci, "ICE1712");
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	ice->port = pci_resource_start(pci, 0);
 	ice->ddma_port = pci_resource_start(pci, 1);
 	ice->dmapath_port = pci_resource_start(pci, 2);
 	ice->profi_port = pci_resource_start(pci, 3);
 
+<<<<<<< HEAD
 	if (request_irq(pci->irq, snd_ice1712_interrupt, IRQF_SHARED,
 			KBUILD_MODNAME, ice)) {
 		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
 		snd_ice1712_free(ice);
+=======
+	if (devm_request_irq(&pci->dev, pci->irq, snd_ice1712_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, ice)) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
 	ice->irq = pci->irq;
+<<<<<<< HEAD
 
 	if (snd_ice1712_read_eeprom(ice, modelname) < 0) {
 		snd_ice1712_free(ice);
@@ -2614,6 +2739,16 @@ static int snd_ice1712_create(struct snd_card *card,
 	}
 
 	*r_ice1712 = ice;
+=======
+	card->sync_irq = ice->irq;
+	card->private_free = snd_ice1712_free;
+
+	if (snd_ice1712_read_eeprom(ice, modelname) < 0)
+		return -EIO;
+	if (snd_ice1712_chip_init(ice) < 0)
+		return -EIO;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2633,7 +2768,11 @@ static int snd_ice1712_probe(struct pci_dev *pci,
 	struct snd_card *card;
 	struct snd_ice1712 *ice;
 	int pcm_dev = 0, err;
+<<<<<<< HEAD
 	struct snd_ice1712_card_info * const *tbl, *c;
+=======
+	const struct snd_ice1712_card_info * const *tbl, *c;
+>>>>>>> upstream/android-13
 
 	if (dev >= SNDRV_CARDS)
 		return -ENODEV;
@@ -2643,34 +2782,57 @@ static int snd_ice1712_probe(struct pci_dev *pci,
 	}
 
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+<<<<<<< HEAD
 			   0, &card);
 	if (err < 0)
 		return err;
+=======
+			   sizeof(*ice), &card);
+	if (err < 0)
+		return err;
+	ice = card->private_data;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, "ICE1712");
 	strcpy(card->shortname, "ICEnsemble ICE1712");
 
 	err = snd_ice1712_create(card, pci, model[dev], omni[dev],
+<<<<<<< HEAD
 		cs8427_timeout[dev], dxr_enable[dev], &ice);
 	if (err < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+				 cs8427_timeout[dev], dxr_enable[dev]);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	for (tbl = card_tables; *tbl; tbl++) {
 		for (c = *tbl; c->subvendor; c++) {
 			if (c->subvendor == ice->eeprom.subvendor) {
+<<<<<<< HEAD
 				ice->card_info = c;
+=======
+>>>>>>> upstream/android-13
 				strcpy(card->shortname, c->name);
 				if (c->driver) /* specific driver? */
 					strcpy(card->driver, c->driver);
 				if (c->chip_init) {
 					err = c->chip_init(ice);
+<<<<<<< HEAD
 					if (err < 0) {
 						snd_card_free(card);
 						return err;
 					}
 				}
+=======
+					if (err < 0)
+						return err;
+				}
+				ice->card_info = c;
+>>>>>>> upstream/android-13
 				goto __found;
 			}
 		}
@@ -2679,6 +2841,7 @@ static int snd_ice1712_probe(struct pci_dev *pci,
  __found:
 
 	err = snd_ice1712_pcm_profi(ice, pcm_dev++);
+<<<<<<< HEAD
 	if (err < 0) {
 		snd_card_free(card);
 		return err;
@@ -2710,14 +2873,42 @@ static int snd_ice1712_probe(struct pci_dev *pci,
 			snd_card_free(card);
 			return err;
 		}
+=======
+	if (err < 0)
+		return err;
+
+	if (ice_has_con_ac97(ice)) {
+		err = snd_ice1712_pcm(ice, pcm_dev++);
+		if (err < 0)
+			return err;
+	}
+
+	err = snd_ice1712_ac97_mixer(ice);
+	if (err < 0)
+		return err;
+
+	err = snd_ice1712_build_controls(ice);
+	if (err < 0)
+		return err;
+
+	if (c->build_controls) {
+		err = c->build_controls(ice);
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (ice_has_con_ac97(ice)) {
 		err = snd_ice1712_pcm_ds(ice, pcm_dev++);
+<<<<<<< HEAD
 		if (err < 0) {
 			snd_card_free(card);
 			return err;
 		}
+=======
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (!c->no_mpu401) {
@@ -2726,10 +2917,15 @@ static int snd_ice1712_probe(struct pci_dev *pci,
 			c->mpu401_1_info_flags |
 			MPU401_INFO_INTEGRATED | MPU401_INFO_IRQ_HOOK,
 			-1, &ice->rmidi[0]);
+<<<<<<< HEAD
 		if (err < 0) {
 			snd_card_free(card);
 			return err;
 		}
+=======
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 		if (c->mpu401_1_name)
 			/*  Preferred name available in card_info */
 			snprintf(ice->rmidi[0]->name,
@@ -2744,10 +2940,15 @@ static int snd_ice1712_probe(struct pci_dev *pci,
 				MPU401_INFO_INTEGRATED | MPU401_INFO_IRQ_HOOK,
 				-1, &ice->rmidi[1]);
 
+<<<<<<< HEAD
 			if (err < 0) {
 				snd_card_free(card);
 				return err;
 			}
+=======
+			if (err < 0)
+				return err;
+>>>>>>> upstream/android-13
 			if (c->mpu401_2_name)
 				/*  Preferred name available in card_info */
 				snprintf(ice->rmidi[1]->name,
@@ -2763,15 +2964,21 @@ static int snd_ice1712_probe(struct pci_dev *pci,
 		card->shortname, ice->port, ice->irq);
 
 	err = snd_card_register(card);
+<<<<<<< HEAD
 	if (err < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_ice1712_remove(struct pci_dev *pci)
 {
 	struct snd_card *card = pci_get_drvdata(pci);
@@ -2782,6 +2989,8 @@ static void snd_ice1712_remove(struct pci_dev *pci)
 	snd_card_free(card);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int snd_ice1712_suspend(struct device *dev)
 {
@@ -2793,9 +3002,12 @@ static int snd_ice1712_suspend(struct device *dev)
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
 
+<<<<<<< HEAD
 	snd_pcm_suspend_all(ice->pcm);
 	snd_pcm_suspend_all(ice->pcm_pro);
 	snd_pcm_suspend_all(ice->pcm_ds);
+=======
+>>>>>>> upstream/android-13
 	snd_ac97_suspend(ice->ac97);
 
 	spin_lock_irq(&ice->reg_lock);
@@ -2865,7 +3077,10 @@ static struct pci_driver ice1712_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_ice1712_ids,
 	.probe = snd_ice1712_probe,
+<<<<<<< HEAD
 	.remove = snd_ice1712_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = SND_VT1712_PM_OPS,
 	},

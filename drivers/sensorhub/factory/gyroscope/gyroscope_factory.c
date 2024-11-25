@@ -24,6 +24,7 @@
 
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SHUB_KUNIT)
 #include <kunit/mock.h>
 #define __mockable __weak
@@ -33,6 +34,8 @@
 #define __visible_for_testing static
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*************************************************************************/
 /* factory Sysfs                                                         */
 /*************************************************************************/
@@ -119,7 +122,11 @@ static DEVICE_ATTR_RO(temperature);
 static DEVICE_ATTR_RO(selftest_revised);
 static DEVICE_ATTR(selftest_dps, 0664, selftest_dps_show, selftest_dps_store);
 
+<<<<<<< HEAD
 __visible_for_testing struct device_attribute *gyro_attrs[] = {
+=======
+static struct device_attribute *gyro_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_power_on,
 	&dev_attr_power_off,
 	&dev_attr_temperature,
@@ -133,7 +140,10 @@ get_chipset_dev_attrs get_gyro_chipset_dev_attrs[] = {
 	get_gyroscope_icm42605m_dev_attrs,
 	get_gyroscope_lsm6dsl_dev_attrs,
 	get_gyroscope_lsm6dsotr_dev_attrs,
+<<<<<<< HEAD
 	get_gyroscope_lsm6dsvtr_dev_attrs,
+=======
+>>>>>>> upstream/android-13
 	get_gyroscope_icm42632m_dev_attrs,
 };
 
@@ -160,7 +170,11 @@ void initialize_gyroscope_sysfs(void)
 		if (chipset_attrs) {
 			ret = add_sensor_device_attr(gyro_sysfs_device, chipset_attrs);
 			if (ret < 0) {
+<<<<<<< HEAD
 				shub_errf("fail to add sysfs chipset device attr(%d)", (int)i);
+=======
+				shub_errf("fail to add sysfs chipset device attr(%d)", i);
+>>>>>>> upstream/android-13
 				return;
 			}
 			break;

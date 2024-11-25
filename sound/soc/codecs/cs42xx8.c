@@ -14,6 +14,10 @@
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/regulator/consumer.h>
 #include <sound/pcm_params.h>
@@ -45,6 +49,11 @@ struct cs42xx8_priv {
 	bool slave_mode;
 	unsigned long sysclk;
 	u32 tx_channels;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *gpiod_reset;
+	u32 rate[2];
+>>>>>>> upstream/android-13
 };
 
 /* -127.5dB to 0dB with step of 0.5dB */
@@ -174,6 +183,7 @@ static const struct snd_soc_dapm_route cs42xx8_adc3_dapm_routes[] = {
 };
 
 struct cs42xx8_ratios {
+<<<<<<< HEAD
 	unsigned int ratio;
 	unsigned char speed;
 	unsigned char mclk;
@@ -189,6 +199,29 @@ static const struct cs42xx8_ratios cs42xx8_ratios[] = {
 	{ 512, CS42XX8_FM_SINGLE, CS42XX8_FUNCMOD_MFREQ_512(1) },
 	{ 768, CS42XX8_FM_SINGLE, CS42XX8_FUNCMOD_MFREQ_768(1) },
 	{ 1024, CS42XX8_FM_SINGLE, CS42XX8_FUNCMOD_MFREQ_1024(1) }
+=======
+	unsigned int mfreq;
+	unsigned int min_mclk;
+	unsigned int max_mclk;
+	unsigned int ratio[3];
+};
+
+/*
+ * According to reference mannual, define the cs42xx8_ratio struct
+ * MFreq2 | MFreq1 | MFreq0 |     Description     | SSM | DSM | QSM |
+ * 0      | 0      | 0      |1.029MHz to 12.8MHz  | 256 | 128 |  64 |
+ * 0      | 0      | 1      |1.536MHz to 19.2MHz  | 384 | 192 |  96 |
+ * 0      | 1      | 0      |2.048MHz to 25.6MHz  | 512 | 256 | 128 |
+ * 0      | 1      | 1      |3.072MHz to 38.4MHz  | 768 | 384 | 192 |
+ * 1      | x      | x      |4.096MHz to 51.2MHz  |1024 | 512 | 256 |
+ */
+static const struct cs42xx8_ratios cs42xx8_ratios[] = {
+	{ 0, 1029000, 12800000, {256, 128, 64} },
+	{ 2, 1536000, 19200000, {384, 192, 96} },
+	{ 4, 2048000, 25600000, {512, 256, 128} },
+	{ 6, 3072000, 38400000, {768, 384, 192} },
+	{ 8, 4096000, 51200000, {1024, 512, 256} },
+>>>>>>> upstream/android-13
 };
 
 static int cs42xx8_set_dai_sysclk(struct snd_soc_dai *codec_dai,
@@ -255,14 +288,78 @@ static int cs42xx8_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_component *component = dai->component;
 	struct cs42xx8_priv *cs42xx8 = snd_soc_component_get_drvdata(component);
 	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
+<<<<<<< HEAD
 	u32 ratio = cs42xx8->sysclk / params_rate(params);
 	u32 i, fm, val, mask;
+=======
+	u32 ratio[2];
+	u32 rate[2];
+	u32 fm[2];
+	u32 i, val, mask;
+	bool condition1, condition2;
+>>>>>>> upstream/android-13
 
 	if (tx)
 		cs42xx8->tx_channels = params_channels(params);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(cs42xx8_ratios); i++) {
 		if (cs42xx8_ratios[i].ratio == ratio)
+=======
+	rate[tx]  = params_rate(params);
+	rate[!tx] = cs42xx8->rate[!tx];
+
+	ratio[tx] = rate[tx] > 0 ? cs42xx8->sysclk / rate[tx] : 0;
+	ratio[!tx] = rate[!tx] > 0 ? cs42xx8->sysclk / rate[!tx] : 0;
+
+	/* Get functional mode for tx and rx according to rate */
+	for (i = 0; i < 2; i++) {
+		if (cs42xx8->slave_mode) {
+			fm[i] = CS42XX8_FM_AUTO;
+		} else {
+			if (rate[i] < 50000) {
+				fm[i] = CS42XX8_FM_SINGLE;
+			} else if (rate[i] > 50000 && rate[i] < 100000) {
+				fm[i] = CS42XX8_FM_DOUBLE;
+			} else if (rate[i] > 100000 && rate[i] < 200000) {
+				fm[i] = CS42XX8_FM_QUAD;
+			} else {
+				dev_err(component->dev,
+					"unsupported sample rate\n");
+				return -EINVAL;
+			}
+		}
+	}
+
+	for (i = 0; i < ARRAY_SIZE(cs42xx8_ratios); i++) {
+		/* Is the ratio[tx] valid ? */
+		condition1 = ((fm[tx] == CS42XX8_FM_AUTO) ?
+			(cs42xx8_ratios[i].ratio[0] == ratio[tx] ||
+			cs42xx8_ratios[i].ratio[1] == ratio[tx] ||
+			cs42xx8_ratios[i].ratio[2] == ratio[tx]) :
+			(cs42xx8_ratios[i].ratio[fm[tx]] == ratio[tx])) &&
+			cs42xx8->sysclk >= cs42xx8_ratios[i].min_mclk &&
+			cs42xx8->sysclk <= cs42xx8_ratios[i].max_mclk;
+
+		if (!ratio[tx])
+			condition1 = true;
+
+		/* Is the ratio[!tx] valid ? */
+		condition2 = ((fm[!tx] == CS42XX8_FM_AUTO) ?
+			(cs42xx8_ratios[i].ratio[0] == ratio[!tx] ||
+			cs42xx8_ratios[i].ratio[1] == ratio[!tx] ||
+			cs42xx8_ratios[i].ratio[2] == ratio[!tx]) :
+			(cs42xx8_ratios[i].ratio[fm[!tx]] == ratio[!tx]));
+
+		if (!ratio[!tx])
+			condition2 = true;
+
+		/*
+		 * Both ratio[tx] and ratio[!tx] is valid, then we get
+		 * a proper MFreq.
+		 */
+		if (condition1 && condition2)
+>>>>>>> upstream/android-13
 			break;
 	}
 
@@ -271,6 +368,7 @@ static int cs42xx8_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mask = CS42XX8_FUNCMOD_MFREQ_MASK;
 	val = cs42xx8_ratios[i].mclk;
 
@@ -279,11 +377,41 @@ static int cs42xx8_hw_params(struct snd_pcm_substream *substream,
 	regmap_update_bits(cs42xx8->regmap, CS42XX8_FUNCMOD,
 			   CS42XX8_FUNCMOD_xC_FM_MASK(tx) | mask,
 			   CS42XX8_FUNCMOD_xC_FM(tx, fm) | val);
+=======
+	cs42xx8->rate[tx] = params_rate(params);
+
+	mask = CS42XX8_FUNCMOD_MFREQ_MASK;
+	val = cs42xx8_ratios[i].mfreq;
+
+	regmap_update_bits(cs42xx8->regmap, CS42XX8_FUNCMOD,
+			   CS42XX8_FUNCMOD_xC_FM_MASK(tx) | mask,
+			   CS42XX8_FUNCMOD_xC_FM(tx, fm[tx]) | val);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cs42xx8_digital_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int cs42xx8_hw_free(struct snd_pcm_substream *substream,
+			   struct snd_soc_dai *dai)
+{
+	struct snd_soc_component *component = dai->component;
+	struct cs42xx8_priv *cs42xx8 = snd_soc_component_get_drvdata(component);
+	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
+
+	/* Clear stored rate */
+	cs42xx8->rate[tx] = 0;
+
+	regmap_update_bits(cs42xx8->regmap, CS42XX8_FUNCMOD,
+			   CS42XX8_FUNCMOD_xC_FM_MASK(tx),
+			   CS42XX8_FUNCMOD_xC_FM(tx, CS42XX8_FM_AUTO));
+	return 0;
+}
+
+static int cs42xx8_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	struct cs42xx8_priv *cs42xx8 = snd_soc_component_get_drvdata(component);
@@ -300,7 +428,13 @@ static const struct snd_soc_dai_ops cs42xx8_dai_ops = {
 	.set_fmt	= cs42xx8_set_dai_fmt,
 	.set_sysclk	= cs42xx8_set_dai_sysclk,
 	.hw_params	= cs42xx8_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= cs42xx8_digital_mute,
+=======
+	.hw_free	= cs42xx8_hw_free,
+	.mute_stream	= cs42xx8_mute,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver cs42xx8_dai = {
@@ -467,6 +601,16 @@ int cs42xx8_probe(struct device *dev, struct regmap *regmap)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	cs42xx8->gpiod_reset = devm_gpiod_get_optional(dev, "reset",
+							GPIOD_OUT_HIGH);
+	if (IS_ERR(cs42xx8->gpiod_reset))
+		return PTR_ERR(cs42xx8->gpiod_reset);
+
+	gpiod_set_value_cansleep(cs42xx8->gpiod_reset, 0);
+
+>>>>>>> upstream/android-13
 	cs42xx8->clk = devm_clk_get(dev, "mclk");
 	if (IS_ERR(cs42xx8->clk)) {
 		dev_err(dev, "failed to get the clock: %ld\n",
@@ -547,6 +691,11 @@ static int cs42xx8_runtime_resume(struct device *dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	gpiod_set_value_cansleep(cs42xx8->gpiod_reset, 0);
+
+>>>>>>> upstream/android-13
 	ret = regulator_bulk_enable(ARRAY_SIZE(cs42xx8->supplies),
 				    cs42xx8->supplies);
 	if (ret) {
@@ -586,6 +735,11 @@ static int cs42xx8_runtime_suspend(struct device *dev)
 	regulator_bulk_disable(ARRAY_SIZE(cs42xx8->supplies),
 			       cs42xx8->supplies);
 
+<<<<<<< HEAD
+=======
+	gpiod_set_value_cansleep(cs42xx8->gpiod_reset, 1);
+
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(cs42xx8->clk);
 
 	return 0;
@@ -593,6 +747,11 @@ static int cs42xx8_runtime_suspend(struct device *dev)
 #endif
 
 const struct dev_pm_ops cs42xx8_pm = {
+<<<<<<< HEAD
+=======
+	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+				pm_runtime_force_resume)
+>>>>>>> upstream/android-13
 	SET_RUNTIME_PM_OPS(cs42xx8_runtime_suspend, cs42xx8_runtime_resume, NULL)
 };
 EXPORT_SYMBOL_GPL(cs42xx8_pm);

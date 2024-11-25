@@ -429,7 +429,11 @@ nv40_gr_init(struct nvkm_gr *base)
 
 int
 nv40_gr_new_(const struct nvkm_gr_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	     int index, struct nvkm_gr **pgr)
+=======
+	     enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+>>>>>>> upstream/android-13
 {
 	struct nv40_gr *gr;
 
@@ -438,7 +442,11 @@ nv40_gr_new_(const struct nvkm_gr_func *func, struct nvkm_device *device,
 	*pgr = &gr->base;
 	INIT_LIST_HEAD(&gr->chan);
 
+<<<<<<< HEAD
 	return nvkm_gr_ctor(func, device, index, true, &gr->base);
+=======
+	return nvkm_gr_ctor(func, device, type, inst, true, &gr->base);
+>>>>>>> upstream/android-13
 }
 
 static const struct nvkm_gr_func
@@ -470,7 +478,13 @@ nv40_gr = {
 };
 
 int
+<<<<<<< HEAD
 nv40_gr_new(struct nvkm_device *device, int index, struct nvkm_gr **pgr)
 {
 	return nv40_gr_new_(&nv40_gr, device, index, pgr);
+=======
+nv40_gr_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+{
+	return nv40_gr_new_(&nv40_gr, device, type, inst, pgr);
+>>>>>>> upstream/android-13
 }

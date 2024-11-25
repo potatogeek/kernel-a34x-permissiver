@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Wacom Penabled Driver for I2C
  *
  * Copyright (c) 2011 - 2013 Tatsunosuke Tobita, Wacom.
  * <tobita.tatsunosuke@wacom.co.jp>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General
  * Public License as published by the Free Software
  * Foundation; either version of 2 of the License,
  * or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -17,7 +24,10 @@
 #include <linux/slab.h>
 #include <linux/irq.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 
 #define WACOM_CMD_QUERY0	0x04
@@ -151,15 +161,25 @@ static void wacom_i2c_close(struct input_dev *dev)
 }
 
 static int wacom_i2c_probe(struct i2c_client *client,
+<<<<<<< HEAD
 				     const struct i2c_device_id *id)
 {
+=======
+			   const struct i2c_device_id *id)
+{
+	struct device *dev = &client->dev;
+>>>>>>> upstream/android-13
 	struct wacom_i2c *wac_i2c;
 	struct input_dev *input;
 	struct wacom_features features = { 0 };
 	int error;
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+<<<<<<< HEAD
 		dev_err(&client->dev, "i2c_check_functionality error\n");
+=======
+		dev_err(dev, "i2c_check_functionality error\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -167,6 +187,7 @@ static int wacom_i2c_probe(struct i2c_client *client,
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	wac_i2c = kzalloc(sizeof(*wac_i2c), GFP_KERNEL);
 	input = input_allocate_device();
 	if (!wac_i2c || !input) {
@@ -175,13 +196,28 @@ static int wacom_i2c_probe(struct i2c_client *client,
 	}
 
 	wac_i2c->client = client;
+=======
+	wac_i2c = devm_kzalloc(dev, sizeof(*wac_i2c), GFP_KERNEL);
+	if (!wac_i2c)
+		return -ENOMEM;
+
+	wac_i2c->client = client;
+
+	input = devm_input_allocate_device(dev);
+	if (!input)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	wac_i2c->input = input;
 
 	input->name = "Wacom I2C Digitizer";
 	input->id.bustype = BUS_I2C;
 	input->id.vendor = 0x56a;
 	input->id.version = features.fw_version;
+<<<<<<< HEAD
 	input->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	input->open = wacom_i2c_open;
 	input->close = wacom_i2c_close;
 
@@ -200,6 +236,7 @@ static int wacom_i2c_probe(struct i2c_client *client,
 
 	input_set_drvdata(input, wac_i2c);
 
+<<<<<<< HEAD
 	error = request_threaded_irq(client->irq, NULL, wacom_i2c_irq,
 				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
 				     "wacom_i2c", wac_i2c);
@@ -207,6 +244,13 @@ static int wacom_i2c_probe(struct i2c_client *client,
 		dev_err(&client->dev,
 			"Failed to enable IRQ, error: %d\n", error);
 		goto err_free_mem;
+=======
+	error = devm_request_threaded_irq(dev, client->irq, NULL, wacom_i2c_irq,
+					  IRQF_ONESHOT, "wacom_i2c", wac_i2c);
+	if (error) {
+		dev_err(dev, "Failed to request IRQ: %d\n", error);
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	/* Disable the IRQ, we'll enable it in wac_i2c_open() */
@@ -214,6 +258,7 @@ static int wacom_i2c_probe(struct i2c_client *client,
 
 	error = input_register_device(wac_i2c->input);
 	if (error) {
+<<<<<<< HEAD
 		dev_err(&client->dev,
 			"Failed to register input device, error: %d\n", error);
 		goto err_free_irq;
@@ -239,6 +284,12 @@ static int wacom_i2c_remove(struct i2c_client *client)
 	input_unregister_device(wac_i2c->input);
 	kfree(wac_i2c);
 
+=======
+		dev_err(dev, "Failed to register input device: %d\n", error);
+		return error;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -275,7 +326,10 @@ static struct i2c_driver wacom_i2c_driver = {
 	},
 
 	.probe		= wacom_i2c_probe,
+<<<<<<< HEAD
 	.remove		= wacom_i2c_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= wacom_i2c_id,
 };
 module_i2c_driver(wacom_i2c_driver);

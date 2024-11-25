@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -66,6 +67,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/skbuff.h>
@@ -78,6 +87,10 @@
 #include <net/ieee80211_radiotap.h>
 #include <net/tcp.h>
 
+<<<<<<< HEAD
+=======
+#include "iwl-drv.h"
+>>>>>>> upstream/android-13
 #include "iwl-op-mode.h"
 #include "iwl-io.h"
 #include "mvm.h"
@@ -189,6 +202,7 @@ static const struct iwl_fw_bcast_filter iwl_mvm_default_bcast_filters[] = {
 };
 #endif
 
+<<<<<<< HEAD
 void iwl_mvm_ref(struct iwl_mvm *mvm, enum iwl_mvm_ref_type ref_type)
 {
 	if (!iwl_mvm_is_d0i3_supported(mvm))
@@ -273,6 +287,39 @@ int iwl_mvm_ref_sync(struct iwl_mvm *mvm, enum iwl_mvm_ref_type ref_type)
 
 	return 0;
 }
+=======
+static const struct cfg80211_pmsr_capabilities iwl_mvm_pmsr_capa = {
+	.max_peers = IWL_MVM_TOF_MAX_APS,
+	.report_ap_tsf = 1,
+	.randomize_mac_addr = 1,
+
+	.ftm = {
+		.supported = 1,
+		.asap = 1,
+		.non_asap = 1,
+		.request_lci = 1,
+		.request_civicloc = 1,
+		.trigger_based = 1,
+		.non_trigger_based = 1,
+		.max_bursts_exponent = -1, /* all supported */
+		.max_ftms_per_burst = 0, /* no limits */
+		.bandwidths = BIT(NL80211_CHAN_WIDTH_20_NOHT) |
+			      BIT(NL80211_CHAN_WIDTH_20) |
+			      BIT(NL80211_CHAN_WIDTH_40) |
+			      BIT(NL80211_CHAN_WIDTH_80),
+		.preambles = BIT(NL80211_PREAMBLE_LEGACY) |
+			     BIT(NL80211_PREAMBLE_HT) |
+			     BIT(NL80211_PREAMBLE_VHT) |
+			     BIT(NL80211_PREAMBLE_HE),
+	},
+};
+
+static int __iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
+				 enum set_key_cmd cmd,
+				 struct ieee80211_vif *vif,
+				 struct ieee80211_sta *sta,
+				 struct ieee80211_key_conf *key);
+>>>>>>> upstream/android-13
 
 static void iwl_mvm_reset_phy_ctxts(struct iwl_mvm *mvm)
 {
@@ -294,6 +341,10 @@ struct ieee80211_regdomain *iwl_mvm_get_regdomain(struct wiphy *wiphy,
 	struct ieee80211_hw *hw = wiphy_to_ieee80211_hw(wiphy);
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	struct iwl_mcc_update_resp *resp;
+<<<<<<< HEAD
+=======
+	u8 resp_ver;
+>>>>>>> upstream/android-13
 
 	IWL_DEBUG_LAR(mvm, "Getting regdomain data for %s from FW\n", alpha2);
 
@@ -312,13 +363,23 @@ struct ieee80211_regdomain *iwl_mvm_get_regdomain(struct wiphy *wiphy,
 		*changed = (status == MCC_RESP_NEW_CHAN_PROFILE ||
 			    status == MCC_RESP_ILLEGAL);
 	}
+<<<<<<< HEAD
+=======
+	resp_ver = iwl_fw_lookup_notif_ver(mvm->fw, IWL_ALWAYS_LONG_GROUP,
+					   MCC_UPDATE_CMD, 0);
+	IWL_DEBUG_LAR(mvm, "MCC update response version: %d\n", resp_ver);
+>>>>>>> upstream/android-13
 
 	regd = iwl_parse_nvm_mcc_info(mvm->trans->dev, mvm->cfg,
 				      __le32_to_cpu(resp->n_channels),
 				      resp->channels,
 				      __le16_to_cpu(resp->mcc),
 				      __le16_to_cpu(resp->geo_info),
+<<<<<<< HEAD
 				      __le16_to_cpu(resp->cap));
+=======
+				      __le16_to_cpu(resp->cap), resp_ver);
+>>>>>>> upstream/android-13
 	/* Store the return source id */
 	src_id = resp->source_id;
 	kfree(resp);
@@ -371,7 +432,11 @@ int iwl_mvm_init_fw_regd(struct iwl_mvm *mvm)
 	int ret;
 	bool changed;
 	const struct ieee80211_regdomain *r =
+<<<<<<< HEAD
 			rtnl_dereference(mvm->hw->wiphy->regd);
+=======
+			wiphy_dereference(mvm->hw->wiphy, mvm->hw->wiphy->regd);
+>>>>>>> upstream/android-13
 
 	if (!r)
 		return -ENOENT;
@@ -393,7 +458,11 @@ int iwl_mvm_init_fw_regd(struct iwl_mvm *mvm)
 
 	/* update cfg80211 if the regdomain was changed */
 	if (changed)
+<<<<<<< HEAD
 		ret = regulatory_set_wiphy_regd_sync_rtnl(mvm->hw->wiphy, regd);
+=======
+		ret = regulatory_set_wiphy_regd_sync(mvm->hw->wiphy, regd);
+>>>>>>> upstream/android-13
 	else
 		ret = 0;
 
@@ -401,6 +470,33 @@ int iwl_mvm_init_fw_regd(struct iwl_mvm *mvm)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static const u8 he_if_types_ext_capa_sta[] = {
+	 [0] = WLAN_EXT_CAPA1_EXT_CHANNEL_SWITCHING,
+	 [2] = WLAN_EXT_CAPA3_MULTI_BSSID_SUPPORT,
+	 [7] = WLAN_EXT_CAPA8_OPMODE_NOTIF,
+};
+
+static const struct wiphy_iftype_ext_capab he_iftypes_ext_capa[] = {
+	{
+		.iftype = NL80211_IFTYPE_STATION,
+		.extended_capabilities = he_if_types_ext_capa_sta,
+		.extended_capabilities_mask = he_if_types_ext_capa_sta,
+		.extended_capabilities_len = sizeof(he_if_types_ext_capa_sta),
+	},
+};
+
+static int
+iwl_mvm_op_get_antenna(struct ieee80211_hw *hw, u32 *tx_ant, u32 *rx_ant)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	*tx_ant = iwl_mvm_get_valid_tx_ant(mvm);
+	*rx_ant = iwl_mvm_get_valid_rx_ant(mvm);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 {
 	struct ieee80211_hw *hw = mvm->hw;
@@ -411,12 +507,22 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 		WLAN_CIPHER_SUITE_TKIP,
 		WLAN_CIPHER_SUITE_CCMP,
 	};
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM_SLEEP
+	bool unified = fw_has_capa(&mvm->fw->ucode_capa,
+				   IWL_UCODE_TLV_CAPA_CNSLDTD_D3_D0_IMG);
+#endif
+>>>>>>> upstream/android-13
 
 	/* Tell mac80211 our characteristics */
 	ieee80211_hw_set(hw, SIGNAL_DBM);
 	ieee80211_hw_set(hw, SPECTRUM_MGMT);
 	ieee80211_hw_set(hw, REPORTS_TX_ACK_STATUS);
+<<<<<<< HEAD
 	ieee80211_hw_set(hw, QUEUE_CONTROL);
+=======
+>>>>>>> upstream/android-13
 	ieee80211_hw_set(hw, WANT_MONITOR_VIF);
 	ieee80211_hw_set(hw, SUPPORTS_PS);
 	ieee80211_hw_set(hw, SUPPORTS_DYNAMIC_PS);
@@ -429,6 +535,26 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 	ieee80211_hw_set(hw, SUPPORTS_AMSDU_IN_AMPDU);
 	ieee80211_hw_set(hw, NEEDS_UNIQUE_STA_ADDR);
 	ieee80211_hw_set(hw, DEAUTH_NEED_MGD_TX_PREP);
+<<<<<<< HEAD
+=======
+	ieee80211_hw_set(hw, SUPPORTS_VHT_EXT_NSS_BW);
+	ieee80211_hw_set(hw, BUFF_MMPDU_TXQ);
+	ieee80211_hw_set(hw, STA_MMPDU_TXQ);
+	/*
+	 * On older devices, enabling TX A-MSDU occasionally leads to
+	 * something getting messed up, the command read from the FIFO
+	 * gets out of sync and isn't a TX command, so that we have an
+	 * assert EDC.
+	 *
+	 * It's not clear where the bug is, but since we didn't used to
+	 * support A-MSDU until moving the mac80211 iTXQs, just leave it
+	 * for older devices. We also don't see this issue on any newer
+	 * devices.
+	 */
+	if (mvm->trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_9000)
+		ieee80211_hw_set(hw, TX_AMSDU);
+	ieee80211_hw_set(hw, TX_FRAG_LIST);
+>>>>>>> upstream/android-13
 
 	if (iwl_mvm_has_tlc_offload(mvm)) {
 		ieee80211_hw_set(hw, TX_AMPDU_SETUP_IN_HW);
@@ -456,7 +582,11 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 	if (mvm->trans->max_skb_frags)
 		hw->netdev_features = NETIF_F_HIGHDMA | NETIF_F_SG;
 
+<<<<<<< HEAD
 	hw->queues = IEEE80211_MAX_QUEUES;
+=======
+	hw->queues = IEEE80211_NUM_ACS;
+>>>>>>> upstream/android-13
 	hw->offchannel_tx_hw_queue = IWL_MVM_OFFCHANNEL_QUEUE;
 	hw->radiotap_mcs_details |= IEEE80211_RADIOTAP_MCS_HAVE_FEC |
 				    IEEE80211_RADIOTAP_MCS_HAVE_STBC;
@@ -474,6 +604,10 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 
 	hw->uapsd_queues = IWL_MVM_UAPSD_QUEUES;
 	hw->uapsd_max_sp_len = IWL_UAPSD_MAX_SP;
+<<<<<<< HEAD
+=======
+	hw->max_tx_fragments = mvm->trans->max_skb_frags;
+>>>>>>> upstream/android-13
 
 	BUILD_BUG_ON(ARRAY_SIZE(mvm->ciphers) < ARRAY_SIZE(mvm_ciphers) + 6);
 	memcpy(mvm->ciphers, mvm_ciphers, sizeof(mvm_ciphers));
@@ -489,6 +623,7 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 		hw->wiphy->n_cipher_suites++;
 	}
 
+<<<<<<< HEAD
 	/* Enable 11w if software crypto is not enabled (as the
 	 * firmware will interpret some mgmt packets, so enabling it
 	 * with software crypto isn't safe).
@@ -506,6 +641,25 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 				WLAN_CIPHER_SUITE_BIP_GMAC_256;
 			hw->wiphy->n_cipher_suites++;
 		}
+=======
+	if (iwlwifi_mod_params.swcrypto)
+		IWL_ERR(mvm,
+			"iwlmvm doesn't allow to disable HW crypto, check swcrypto module parameter\n");
+	if (!iwlwifi_mod_params.bt_coex_active)
+		IWL_ERR(mvm,
+			"iwlmvm doesn't allow to disable BT Coex, check bt_coex_active module parameter\n");
+
+	ieee80211_hw_set(hw, MFP_CAPABLE);
+	mvm->ciphers[hw->wiphy->n_cipher_suites] = WLAN_CIPHER_SUITE_AES_CMAC;
+	hw->wiphy->n_cipher_suites++;
+	if (iwl_mvm_has_new_rx_api(mvm)) {
+		mvm->ciphers[hw->wiphy->n_cipher_suites] =
+			WLAN_CIPHER_SUITE_BIP_GMAC_128;
+		hw->wiphy->n_cipher_suites++;
+		mvm->ciphers[hw->wiphy->n_cipher_suites] =
+			WLAN_CIPHER_SUITE_BIP_GMAC_256;
+		hw->wiphy->n_cipher_suites++;
+>>>>>>> upstream/android-13
 	}
 
 	/* currently FW API supports only one optional cipher scheme */
@@ -530,6 +684,21 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 		hw->wiphy->n_cipher_suites++;
 	}
 
+<<<<<<< HEAD
+=======
+	if (fw_has_capa(&mvm->fw->ucode_capa,
+			IWL_UCODE_TLV_CAPA_FTM_CALIBRATED)) {
+		wiphy_ext_feature_set(hw->wiphy,
+				      NL80211_EXT_FEATURE_ENABLE_FTM_RESPONDER);
+		hw->wiphy->pmsr_capa = &iwl_mvm_pmsr_capa;
+	}
+
+	if (fw_has_capa(&mvm->fw->ucode_capa,
+			IWL_UCODE_TLV_CAPA_BIGTK_SUPPORT))
+		wiphy_ext_feature_set(hw->wiphy,
+				      NL80211_EXT_FEATURE_BEACON_PROTECTION_CLIENT);
+
+>>>>>>> upstream/android-13
 	ieee80211_hw_set(hw, SINGLE_SCAN_ON_ALL_BANDS);
 	hw->wiphy->features |=
 		NL80211_FEATURE_SCHED_SCAN_RANDOM_MAC_ADDR |
@@ -539,6 +708,10 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 	hw->sta_data_size = sizeof(struct iwl_mvm_sta);
 	hw->vif_data_size = sizeof(struct iwl_mvm_vif);
 	hw->chanctx_data_size = sizeof(u16);
+<<<<<<< HEAD
+=======
+	hw->txq_data_size = sizeof(struct iwl_mvm_txq);
+>>>>>>> upstream/android-13
 
 	hw->wiphy->interface_modes = BIT(NL80211_IFTYPE_STATION) |
 		BIT(NL80211_IFTYPE_P2P_CLIENT) |
@@ -548,6 +721,20 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 		BIT(NL80211_IFTYPE_ADHOC);
 
 	hw->wiphy->flags |= WIPHY_FLAG_IBSS_RSN;
+<<<<<<< HEAD
+=======
+	wiphy_ext_feature_set(hw->wiphy, NL80211_EXT_FEATURE_VHT_IBSS);
+
+	/* The new Tx API does not allow to pass the key or keyid of a MPDU to
+	 * the hw, preventing us to control which key(id) to use per MPDU.
+	 * Till that's fixed we can't use Extended Key ID for the newer cards.
+	 */
+	if (!iwl_mvm_has_new_tx_api(mvm))
+		wiphy_ext_feature_set(hw->wiphy,
+				      NL80211_EXT_FEATURE_EXT_KEY_ID);
+	hw->wiphy->features |= NL80211_FEATURE_HT_IBSS;
+
+>>>>>>> upstream/android-13
 	hw->wiphy->regulatory_flags |= REGULATORY_ENABLE_RELAX_NO_IR;
 	if (iwl_mvm_is_lar_supported(mvm))
 		hw->wiphy->regulatory_flags |= REGULATORY_WIPHY_SELF_MANAGED;
@@ -557,6 +744,10 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 
 	hw->wiphy->flags |= WIPHY_FLAG_AP_UAPSD;
 	hw->wiphy->flags |= WIPHY_FLAG_HAS_CHANNEL_SWITCH;
+<<<<<<< HEAD
+=======
+	hw->wiphy->flags |= WIPHY_FLAG_SPLIT_SCAN_6GHZ;
+>>>>>>> upstream/android-13
 
 	hw->wiphy->iface_combinations = iwl_mvm_iface_combinations;
 	hw->wiphy->n_iface_combinations =
@@ -564,8 +755,11 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 
 	hw->wiphy->max_remain_on_channel_duration = 10000;
 	hw->max_listen_interval = IWL_CONN_MAX_LISTEN_INTERVAL;
+<<<<<<< HEAD
 	/* we can compensate an offset of up to 3 channels = 15 MHz */
 	hw->wiphy->max_adj_channel_rssi_comp = 3 * 5;
+=======
+>>>>>>> upstream/android-13
 
 	/* Extract MAC address */
 	memcpy(mvm->addresses[0].addr, mvm->nvm_data->hw_addr, ETH_ALEN);
@@ -612,6 +806,14 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 			hw->wiphy->bands[NL80211_BAND_5GHZ]->vht_cap.cap |=
 				IEEE80211_VHT_CAP_SU_BEAMFORMER_CAPABLE;
 	}
+<<<<<<< HEAD
+=======
+	if (fw_has_capa(&mvm->fw->ucode_capa,
+			IWL_UCODE_TLV_CAPA_PSC_CHAN_SUPPORT) &&
+	    mvm->nvm_data->bands[NL80211_BAND_6GHZ].n_channels)
+		hw->wiphy->bands[NL80211_BAND_6GHZ] =
+			&mvm->nvm_data->bands[NL80211_BAND_6GHZ];
+>>>>>>> upstream/android-13
 
 	hw->wiphy->hw_version = mvm->trans->hw_id;
 
@@ -622,7 +824,11 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 
 	hw->wiphy->max_sched_scan_reqs = 1;
 	hw->wiphy->max_sched_scan_ssids = PROBE_OPTION_MAX;
+<<<<<<< HEAD
 	hw->wiphy->max_match_sets = IWL_SCAN_MAX_PROFILES;
+=======
+	hw->wiphy->max_match_sets = iwl_umac_scan_get_max_profiles(mvm->fw);
+>>>>>>> upstream/android-13
 	/* we create the 802.11 header and zero length SSID IE. */
 	hw->wiphy->max_sched_scan_ie_len =
 		SCAN_OFFLOAD_PROBE_REQ_SIZE - 24 - 2;
@@ -659,14 +865,25 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 			IWL_UCODE_TLV_CAPA_WFA_TPC_REP_IE_SUPPORT))
 		hw->wiphy->features |= NL80211_FEATURE_WFA_TPC_IE_IN_PROBES;
 
+<<<<<<< HEAD
+=======
+	if (iwl_fw_lookup_cmd_ver(mvm->fw, IWL_ALWAYS_LONG_GROUP,
+				  WOWLAN_KEK_KCK_MATERIAL,
+				  IWL_FW_CMD_VER_UNKNOWN) == 3)
+		hw->wiphy->flags |= WIPHY_FLAG_SUPPORTS_EXT_KEK_KCK;
+
+>>>>>>> upstream/android-13
 	if (fw_has_api(&mvm->fw->ucode_capa,
 		       IWL_UCODE_TLV_API_SCAN_TSF_REPORT)) {
 		wiphy_ext_feature_set(hw->wiphy,
 				      NL80211_EXT_FEATURE_SCAN_START_TIME);
 		wiphy_ext_feature_set(hw->wiphy,
 				      NL80211_EXT_FEATURE_BSS_PARENT_TSF);
+<<<<<<< HEAD
 		wiphy_ext_feature_set(hw->wiphy,
 				      NL80211_EXT_FEATURE_SET_SCAN_DWELL);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (iwl_mvm_is_oce_supported(mvm)) {
@@ -680,6 +897,7 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 			NL80211_EXT_FEATURE_OCE_PROBE_REQ_HIGH_TX_RATE);
 	}
 
+<<<<<<< HEAD
 	mvm->rts_threshold = IEEE80211_MAX_RTS_THRESHOLD;
 
 #ifdef CONFIG_PM_SLEEP
@@ -690,6 +908,22 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 	}
 
 	if (mvm->fw->img[IWL_UCODE_WOWLAN].num_sec &&
+=======
+	if (mvm->nvm_data->sku_cap_11ax_enable &&
+	    !iwlwifi_mod_params.disable_11ax) {
+		hw->wiphy->iftype_ext_capab = he_iftypes_ext_capa;
+		hw->wiphy->num_iftype_ext_capab =
+			ARRAY_SIZE(he_iftypes_ext_capa);
+
+		ieee80211_hw_set(hw, SUPPORTS_MULTI_BSSID);
+		ieee80211_hw_set(hw, SUPPORTS_ONLY_HE_MULTI_BSSID);
+	}
+
+	mvm->rts_threshold = IEEE80211_MAX_RTS_THRESHOLD;
+
+#ifdef CONFIG_PM_SLEEP
+	if ((unified || mvm->fw->img[IWL_UCODE_WOWLAN].num_sec) &&
+>>>>>>> upstream/android-13
 	    mvm->trans->ops->d3_suspend &&
 	    mvm->trans->ops->d3_resume &&
 	    device_can_wakeup(mvm->trans->dev)) {
@@ -698,15 +932,26 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 				     WIPHY_WOWLAN_EAP_IDENTITY_REQ |
 				     WIPHY_WOWLAN_RFKILL_RELEASE |
 				     WIPHY_WOWLAN_NET_DETECT;
+<<<<<<< HEAD
 		if (!iwlwifi_mod_params.swcrypto)
 			mvm->wowlan.flags |= WIPHY_WOWLAN_SUPPORTS_GTK_REKEY |
 					     WIPHY_WOWLAN_GTK_REKEY_FAILURE |
 					     WIPHY_WOWLAN_4WAY_HANDSHAKE;
+=======
+		mvm->wowlan.flags |= WIPHY_WOWLAN_SUPPORTS_GTK_REKEY |
+				     WIPHY_WOWLAN_GTK_REKEY_FAILURE |
+				     WIPHY_WOWLAN_4WAY_HANDSHAKE;
+>>>>>>> upstream/android-13
 
 		mvm->wowlan.n_patterns = IWL_WOWLAN_MAX_PATTERNS;
 		mvm->wowlan.pattern_min_len = IWL_WOWLAN_MIN_PATTERN_LEN;
 		mvm->wowlan.pattern_max_len = IWL_WOWLAN_MAX_PATTERN_LEN;
+<<<<<<< HEAD
 		mvm->wowlan.max_nd_match_sets = IWL_SCAN_MAX_PROFILES;
+=======
+		mvm->wowlan.max_nd_match_sets =
+			iwl_umac_scan_get_max_profiles(mvm->fw);
+>>>>>>> upstream/android-13
 		hw->wiphy->wowlan = &mvm->wowlan;
 	}
 #endif
@@ -734,6 +979,7 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 	}
 
 	hw->netdev_features |= mvm->cfg->features;
+<<<<<<< HEAD
 	if (!iwl_mvm_is_csum_supported(mvm)) {
 		hw->netdev_features &= ~(IWL_TX_CSUM_NETIF_FLAGS |
 					 NETIF_F_RXCSUM);
@@ -746,11 +992,17 @@ int iwl_mvm_mac_setup_register(struct iwl_mvm *mvm)
 	if (ret)
 		iwl_mvm_leds_exit(mvm);
 	mvm->init_status |= IWL_MVM_INIT_STATUS_REG_HW_INIT_COMPLETE;
+=======
+	if (!iwl_mvm_is_csum_supported(mvm))
+		hw->netdev_features &= ~(IWL_TX_CSUM_NETIF_FLAGS |
+					 NETIF_F_RXCSUM);
+>>>>>>> upstream/android-13
 
 	if (mvm->cfg->vht_mu_mimo_supported)
 		wiphy_ext_feature_set(hw->wiphy,
 				      NL80211_EXT_FEATURE_MU_MIMO_AIR_SNIFFER);
 
+<<<<<<< HEAD
 	return ret;
 }
 
@@ -793,6 +1045,35 @@ static bool iwl_mvm_defer_tx(struct iwl_mvm *mvm,
 out:
 	spin_unlock(&mvm->d0i3_tx_lock);
 	return defer;
+=======
+	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_PROTECTED_TWT))
+		wiphy_ext_feature_set(hw->wiphy,
+				      NL80211_EXT_FEATURE_PROTECTED_TWT);
+
+	hw->wiphy->available_antennas_tx = iwl_mvm_get_valid_tx_ant(mvm);
+	hw->wiphy->available_antennas_rx = iwl_mvm_get_valid_rx_ant(mvm);
+
+	ret = ieee80211_register_hw(mvm->hw);
+	if (ret) {
+		iwl_mvm_leds_exit(mvm);
+	}
+
+	return ret;
+}
+
+static void iwl_mvm_tx_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
+			   struct ieee80211_sta *sta)
+{
+	if (likely(sta)) {
+		if (likely(iwl_mvm_tx_skb_sta(mvm, skb, sta) == 0))
+			return;
+	} else {
+		if (likely(iwl_mvm_tx_skb_non_sta(mvm, skb) == 0))
+			return;
+	}
+
+	ieee80211_free_txskb(mvm->hw, skb);
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_mac_tx(struct ieee80211_hw *hw,
@@ -803,17 +1084,27 @@ static void iwl_mvm_mac_tx(struct ieee80211_hw *hw,
 	struct ieee80211_sta *sta = control->sta;
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 	struct ieee80211_hdr *hdr = (void *)skb->data;
+<<<<<<< HEAD
+=======
+	bool offchannel = IEEE80211_SKB_CB(skb)->flags &
+		IEEE80211_TX_CTL_TX_OFFCHAN;
+>>>>>>> upstream/android-13
 
 	if (iwl_mvm_is_radio_killed(mvm)) {
 		IWL_DEBUG_DROP(mvm, "Dropping - RF/CT KILL\n");
 		goto drop;
 	}
 
+<<<<<<< HEAD
 	if (info->hw_queue == IWL_MVM_OFFCHANNEL_QUEUE &&
+=======
+	if (offchannel &&
+>>>>>>> upstream/android-13
 	    !test_bit(IWL_MVM_STATUS_ROC_RUNNING, &mvm->status) &&
 	    !test_bit(IWL_MVM_STATUS_ROC_AUX_RUNNING, &mvm->status))
 		goto drop;
 
+<<<<<<< HEAD
 	/* treat non-bufferable MMPDUs on AP interfaces as broadcast */
 	if ((info->control.vif->type == NL80211_IFTYPE_AP ||
 	     info->control.vif->type == NL80211_IFTYPE_ADHOC) &&
@@ -824,11 +1115,27 @@ static void iwl_mvm_mac_tx(struct ieee80211_hw *hw,
 	/* If there is no sta, and it's not offchannel - send through AP */
 	if (info->control.vif->type == NL80211_IFTYPE_STATION &&
 	    info->hw_queue != IWL_MVM_OFFCHANNEL_QUEUE && !sta) {
+=======
+	/*
+	 * bufferable MMPDUs or MMPDUs on STA interfaces come via TXQs
+	 * so we treat the others as broadcast
+	 */
+	if (ieee80211_is_mgmt(hdr->frame_control))
+		sta = NULL;
+
+	/* If there is no sta, and it's not offchannel - send through AP */
+	if (!sta && info->control.vif->type == NL80211_IFTYPE_STATION &&
+	    !offchannel) {
+>>>>>>> upstream/android-13
 		struct iwl_mvm_vif *mvmvif =
 			iwl_mvm_vif_from_mac80211(info->control.vif);
 		u8 ap_sta_id = READ_ONCE(mvmvif->ap_sta_id);
 
+<<<<<<< HEAD
 		if (ap_sta_id < IWL_MVM_STATION_COUNT) {
+=======
+		if (ap_sta_id < mvm->fw->ucode_capa.num_stations) {
+>>>>>>> upstream/android-13
 			/* mac80211 holds rcu read lock */
 			sta = rcu_dereference(mvm->fw_id_to_mac_id[ap_sta_id]);
 			if (IS_ERR_OR_NULL(sta))
@@ -836,6 +1143,7 @@ static void iwl_mvm_mac_tx(struct ieee80211_hw *hw,
 		}
 	}
 
+<<<<<<< HEAD
 	if (sta) {
 		if (iwl_mvm_defer_tx(mvm, sta, skb))
 			return;
@@ -846,11 +1154,15 @@ static void iwl_mvm_mac_tx(struct ieee80211_hw *hw,
 
 	if (iwl_mvm_tx_skb_non_sta(mvm, skb))
 		goto drop;
+=======
+	iwl_mvm_tx_skb(mvm, skb, sta);
+>>>>>>> upstream/android-13
 	return;
  drop:
 	ieee80211_free_txskb(hw, skb);
 }
 
+<<<<<<< HEAD
 static inline bool iwl_enable_rx_ampdu(const struct iwl_cfg *cfg)
 {
 	if (iwlwifi_mod_params.disable_11n & IWL_DISABLE_HT_RXAGG)
@@ -867,6 +1179,99 @@ static inline bool iwl_enable_tx_ampdu(const struct iwl_cfg *cfg)
 
 	/* enabled by default */
 	return true;
+=======
+void iwl_mvm_mac_itxq_xmit(struct ieee80211_hw *hw, struct ieee80211_txq *txq)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	struct iwl_mvm_txq *mvmtxq = iwl_mvm_txq_from_mac80211(txq);
+	struct sk_buff *skb = NULL;
+
+	/*
+	 * No need for threads to be pending here, they can leave the first
+	 * taker all the work.
+	 *
+	 * mvmtxq->tx_request logic:
+	 *
+	 * If 0, no one is currently TXing, set to 1 to indicate current thread
+	 * will now start TX and other threads should quit.
+	 *
+	 * If 1, another thread is currently TXing, set to 2 to indicate to
+	 * that thread that there was another request. Since that request may
+	 * have raced with the check whether the queue is empty, the TXing
+	 * thread should check the queue's status one more time before leaving.
+	 * This check is done in order to not leave any TX hanging in the queue
+	 * until the next TX invocation (which may not even happen).
+	 *
+	 * If 2, another thread is currently TXing, and it will already double
+	 * check the queue, so do nothing.
+	 */
+	if (atomic_fetch_add_unless(&mvmtxq->tx_request, 1, 2))
+		return;
+
+	rcu_read_lock();
+	do {
+		while (likely(!mvmtxq->stopped &&
+			      !test_bit(IWL_MVM_STATUS_IN_D3, &mvm->status))) {
+			skb = ieee80211_tx_dequeue(hw, txq);
+
+			if (!skb) {
+				if (txq->sta)
+					IWL_DEBUG_TX(mvm,
+						     "TXQ of sta %pM tid %d is now empty\n",
+						     txq->sta->addr,
+						     txq->tid);
+				break;
+			}
+
+			iwl_mvm_tx_skb(mvm, skb, txq->sta);
+		}
+	} while (atomic_dec_return(&mvmtxq->tx_request));
+	rcu_read_unlock();
+}
+
+static void iwl_mvm_mac_wake_tx_queue(struct ieee80211_hw *hw,
+				      struct ieee80211_txq *txq)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	struct iwl_mvm_txq *mvmtxq = iwl_mvm_txq_from_mac80211(txq);
+
+	/*
+	 * Please note that racing is handled very carefully here:
+	 * mvmtxq->txq_id is updated during allocation, and mvmtxq->list is
+	 * deleted afterwards.
+	 * This means that if:
+	 * mvmtxq->txq_id != INVALID_QUEUE && list_empty(&mvmtxq->list):
+	 *	queue is allocated and we can TX.
+	 * mvmtxq->txq_id != INVALID_QUEUE && !list_empty(&mvmtxq->list):
+	 *	a race, should defer the frame.
+	 * mvmtxq->txq_id == INVALID_QUEUE && list_empty(&mvmtxq->list):
+	 *	need to allocate the queue and defer the frame.
+	 * mvmtxq->txq_id == INVALID_QUEUE && !list_empty(&mvmtxq->list):
+	 *	queue is already scheduled for allocation, no need to allocate,
+	 *	should defer the frame.
+	 */
+
+	/* If the queue is allocated TX and return. */
+	if (!txq->sta || mvmtxq->txq_id != IWL_MVM_INVALID_QUEUE) {
+		/*
+		 * Check that list is empty to avoid a race where txq_id is
+		 * already updated, but the queue allocation work wasn't
+		 * finished
+		 */
+		if (unlikely(txq->sta && !list_empty(&mvmtxq->list)))
+			return;
+
+		iwl_mvm_mac_itxq_xmit(hw, txq);
+		return;
+	}
+
+	/* The list is being deleted only after the queue is fully allocated. */
+	if (!list_empty(&mvmtxq->list))
+		return;
+
+	list_add_tail(&mvmtxq->list, &mvm->add_stream_txqs);
+	schedule_work(&mvm->add_stream_wk);
+>>>>>>> upstream/android-13
 }
 
 #define CHECK_BA_TRIGGER(_mvm, _trig, _tid_bm, _tid, _fmt...)		\
@@ -884,6 +1289,7 @@ iwl_mvm_ampdu_check_trigger(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_ba *ba_trig;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_BA))
 		return;
 
@@ -894,6 +1300,15 @@ iwl_mvm_ampdu_check_trigger(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 					   ieee80211_vif_to_wdev(vif), trig))
 		return;
 
+=======
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, ieee80211_vif_to_wdev(vif),
+				     FW_DBG_TRIGGER_BA);
+	if (!trig)
+		return;
+
+	ba_trig = (void *)trig->data;
+
+>>>>>>> upstream/android-13
 	switch (action) {
 	case IEEE80211_AMPDU_TX_OPERATIONAL: {
 		struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
@@ -930,7 +1345,10 @@ static int iwl_mvm_mac_ampdu_action(struct ieee80211_hw *hw,
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	int ret;
+<<<<<<< HEAD
 	bool tx_agg_ref = false;
+=======
+>>>>>>> upstream/android-13
 	struct ieee80211_sta *sta = params->sta;
 	enum ieee80211_ampdu_mlme_action action = params->action;
 	u16 tid = params->tid;
@@ -945,6 +1363,7 @@ static int iwl_mvm_mac_ampdu_action(struct ieee80211_hw *hw,
 	if (!(mvm->nvm_data->sku_cap_11n_enable))
 		return -EACCES;
 
+<<<<<<< HEAD
 	/* return from D0i3 before starting a new Tx aggregation */
 	switch (action) {
 	case IEEE80211_AMPDU_TX_START:
@@ -970,6 +1389,8 @@ static int iwl_mvm_mac_ampdu_action(struct ieee80211_hw *hw,
 		break;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&mvm->mutex);
 
 	switch (action) {
@@ -984,7 +1405,11 @@ static int iwl_mvm_mac_ampdu_action(struct ieee80211_hw *hw,
 			mvmvif = iwl_mvm_vif_from_mac80211(vif);
 			cancel_delayed_work(&mvmvif->uapsd_nonagg_detected_wk);
 		}
+<<<<<<< HEAD
 		if (!iwl_enable_rx_ampdu(mvm->cfg)) {
+=======
+		if (!iwl_enable_rx_ampdu()) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
@@ -996,7 +1421,11 @@ static int iwl_mvm_mac_ampdu_action(struct ieee80211_hw *hw,
 					 timeout);
 		break;
 	case IEEE80211_AMPDU_TX_START:
+<<<<<<< HEAD
 		if (!iwl_enable_tx_ampdu(mvm->cfg)) {
+=======
+		if (!iwl_enable_tx_ampdu()) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
@@ -1030,6 +1459,7 @@ static int iwl_mvm_mac_ampdu_action(struct ieee80211_hw *hw,
 	}
 	mutex_unlock(&mvm->mutex);
 
+<<<<<<< HEAD
 	/*
 	 * If the tid is marked as started, we won't use it for offloaded
 	 * traffic on the next D0i3 entry. It's safe to unref.
@@ -1037,6 +1467,8 @@ static int iwl_mvm_mac_ampdu_action(struct ieee80211_hw *hw,
 	if (tx_agg_ref)
 		iwl_mvm_unref(mvm, IWL_MVM_REF_TX_AGG);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1055,10 +1487,15 @@ static void iwl_mvm_cleanup_iterator(void *data, u8 *mac,
 
 	mvmvif->phy_ctxt = NULL;
 	memset(&mvmvif->bf_data, 0, sizeof(mvmvif->bf_data));
+<<<<<<< HEAD
+=======
+	memset(&mvmvif->probe_resp_data, 0, sizeof(mvmvif->probe_resp_data));
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_restart_cleanup(struct iwl_mvm *mvm)
 {
+<<<<<<< HEAD
 	/* clear the D3 reconfig, we only need it to avoid dumping a
 	 * firmware coredump on reconfiguration, we shouldn't do that
 	 * on D3->D0 transition
@@ -1078,11 +1515,25 @@ static void iwl_mvm_restart_cleanup(struct iwl_mvm *mvm)
 	mvm->scan_status = 0;
 	mvm->ps_disabled = false;
 	mvm->calibrating = false;
+=======
+	iwl_mvm_stop_device(mvm);
+
+	mvm->cur_aid = 0;
+
+	mvm->scan_status = 0;
+	mvm->ps_disabled = false;
+	mvm->rfkill_safe_init_done = false;
+>>>>>>> upstream/android-13
 
 	/* just in case one was running */
 	iwl_mvm_cleanup_roc_te(mvm);
 	ieee80211_remain_on_channel_expired(mvm->hw);
 
+<<<<<<< HEAD
+=======
+	iwl_mvm_ftm_restart(mvm);
+
+>>>>>>> upstream/android-13
 	/*
 	 * cleanup all interfaces, even inactive ones, as some might have
 	 * gone down during the HW restart
@@ -1090,19 +1541,28 @@ static void iwl_mvm_restart_cleanup(struct iwl_mvm *mvm)
 	ieee80211_iterate_interfaces(mvm->hw, 0, iwl_mvm_cleanup_iterator, mvm);
 
 	mvm->p2p_device_vif = NULL;
+<<<<<<< HEAD
 	mvm->d0i3_ap_sta_id = IWL_MVM_INVALID_STA;
 
 	iwl_mvm_reset_phy_ctxts(mvm);
 	memset(mvm->fw_key_table, 0, sizeof(mvm->fw_key_table));
 	memset(mvm->sta_deferred_frames, 0, sizeof(mvm->sta_deferred_frames));
+=======
+
+	iwl_mvm_reset_phy_ctxts(mvm);
+	memset(mvm->fw_key_table, 0, sizeof(mvm->fw_key_table));
+>>>>>>> upstream/android-13
 	memset(&mvm->last_bt_notif, 0, sizeof(mvm->last_bt_notif));
 	memset(&mvm->last_bt_ci_cmd, 0, sizeof(mvm->last_bt_ci_cmd));
 
 	ieee80211_wake_queues(mvm->hw);
 
+<<<<<<< HEAD
 	/* clear any stale d0i3 state */
 	clear_bit(IWL_MVM_STATUS_IN_D0I3, &mvm->status);
 
+=======
+>>>>>>> upstream/android-13
 	mvm->vif_count = 0;
 	mvm->rx_ba_sessions = 0;
 	mvm->fwrt.dump.conf = FW_DBG_INVALID;
@@ -1127,6 +1587,7 @@ int __iwl_mvm_mac_start(struct iwl_mvm *mvm)
 		clear_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status);
 		/* Clean up some internal and mac80211 state on restart */
 		iwl_mvm_restart_cleanup(mvm);
+<<<<<<< HEAD
 	} else {
 		/* Hold the reference to prevent runtime suspend while
 		 * the start procedure runs.  It's a bit confusing
@@ -1138,13 +1599,28 @@ int __iwl_mvm_mac_start(struct iwl_mvm *mvm)
 	}
 	ret = iwl_mvm_up(mvm);
 
+=======
+	}
+	ret = iwl_mvm_up(mvm);
+
+	iwl_dbg_tlv_time_point(&mvm->fwrt, IWL_FW_INI_TIME_POINT_POST_INIT,
+			       NULL);
+	iwl_dbg_tlv_time_point(&mvm->fwrt, IWL_FW_INI_TIME_POINT_PERIODIC,
+			       NULL);
+
+	mvm->last_reset_or_resume_time_jiffies = jiffies;
+
+>>>>>>> upstream/android-13
 	if (ret && test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
 		/* Something went wrong - we need to finish some cleanup
 		 * that normally iwl_mvm_mac_restart_complete() below
 		 * would do.
 		 */
 		clear_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status);
+<<<<<<< HEAD
 		iwl_mvm_d0i3_enable_tx(mvm, NULL);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -1154,6 +1630,7 @@ static int iwl_mvm_mac_start(struct ieee80211_hw *hw)
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	int ret;
+<<<<<<< HEAD
 
 	/* Some hw restart cleanups must not hold the mutex */
 	if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
@@ -1170,6 +1647,32 @@ static int iwl_mvm_mac_start(struct ieee80211_hw *hw)
 
 	mutex_lock(&mvm->mutex);
 	ret = __iwl_mvm_mac_start(mvm);
+=======
+	int retry, max_retry = 0;
+
+	mutex_lock(&mvm->mutex);
+
+	/* we are starting the mac not in error flow, and restart is enabled */
+	if (!test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) &&
+	    iwlwifi_mod_params.fw_restart) {
+		max_retry = IWL_MAX_INIT_RETRY;
+		/*
+		 * This will prevent mac80211 recovery flows to trigger during
+		 * init failures
+		 */
+		set_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
+	}
+
+	for (retry = 0; retry <= max_retry; retry++) {
+		ret = __iwl_mvm_mac_start(mvm);
+		if (!ret)
+			break;
+
+		IWL_ERR(mvm, "mac start retry %d\n", retry);
+	}
+	clear_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&mvm->mutex);
 
 	return ret;
@@ -1182,14 +1685,22 @@ static void iwl_mvm_restart_complete(struct iwl_mvm *mvm)
 	mutex_lock(&mvm->mutex);
 
 	clear_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status);
+<<<<<<< HEAD
 	iwl_mvm_d0i3_enable_tx(mvm, NULL);
+=======
+
+>>>>>>> upstream/android-13
 	ret = iwl_mvm_update_quotas(mvm, true, NULL);
 	if (ret)
 		IWL_ERR(mvm, "Failed to update quotas after restart (%d)\n",
 			ret);
 
+<<<<<<< HEAD
 	/* allow transport/FW low power modes */
 	iwl_mvm_unref(mvm, IWL_MVM_REF_UCODE_DOWN);
+=======
+	iwl_mvm_send_recovery_cmd(mvm, ERROR_RECOVERY_END_OF_RECOVERY);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we have TDLS peers, remove them. We don't know the last seqno/PN
@@ -1200,6 +1711,7 @@ static void iwl_mvm_restart_complete(struct iwl_mvm *mvm)
 	mutex_unlock(&mvm->mutex);
 }
 
+<<<<<<< HEAD
 static void iwl_mvm_resume_complete(struct iwl_mvm *mvm)
 {
 	if (iwl_mvm_is_d0i3_supported(mvm) &&
@@ -1211,6 +1723,8 @@ static void iwl_mvm_resume_complete(struct iwl_mvm *mvm)
 			  "D0i3 exit on resume timed out\n");
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 iwl_mvm_mac_reconfig_complete(struct ieee80211_hw *hw,
 			      enum ieee80211_reconfig_type reconfig_type)
@@ -1222,7 +1736,10 @@ iwl_mvm_mac_reconfig_complete(struct ieee80211_hw *hw,
 		iwl_mvm_restart_complete(mvm);
 		break;
 	case IEEE80211_RECONFIG_TYPE_SUSPEND:
+<<<<<<< HEAD
 		iwl_mvm_resume_complete(mvm);
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1231,6 +1748,11 @@ void __iwl_mvm_mac_stop(struct iwl_mvm *mvm)
 {
 	lockdep_assert_held(&mvm->mutex);
 
+<<<<<<< HEAD
+=======
+	iwl_mvm_ftm_initiator_smooth_stop(mvm);
+
+>>>>>>> upstream/android-13
 	/* firmware counters are obviously reset now, but we shouldn't
 	 * partially track so also clear the fw_reset_accu counters.
 	 */
@@ -1238,20 +1760,28 @@ void __iwl_mvm_mac_stop(struct iwl_mvm *mvm)
 
 	/* async_handlers_wk is now blocked */
 
+<<<<<<< HEAD
 	/*
 	 * The work item could be running or queued if the
 	 * ROC time event stops just as we get here.
 	 */
 	flush_work(&mvm->roc_done_wk);
+=======
+	if (iwl_fw_lookup_cmd_ver(mvm->fw, LONG_GROUP, ADD_STA, 0) < 12)
+		iwl_mvm_rm_aux_sta(mvm);
+>>>>>>> upstream/android-13
 
 	iwl_mvm_stop_device(mvm);
 
 	iwl_mvm_async_handlers_purge(mvm);
 	/* async_handlers_list is empty and will stay empty: HW is stopped */
 
+<<<<<<< HEAD
 	/* the fw is stopped, the aux sta is dead: clean up driver state */
 	iwl_mvm_del_aux_sta(mvm);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Clear IN_HW_RESTART and HW_RESTART_REQUESTED flag when stopping the
 	 * hw (as restart_complete() won't be called in this case) and mac80211
@@ -1284,7 +1814,10 @@ static void iwl_mvm_mac_stop(struct ieee80211_hw *hw)
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 
+<<<<<<< HEAD
 	flush_work(&mvm->d0i3_exit_work);
+=======
+>>>>>>> upstream/android-13
 	flush_work(&mvm->async_handlers_wk);
 	flush_work(&mvm->add_stream_wk);
 
@@ -1298,10 +1831,21 @@ static void iwl_mvm_mac_stop(struct ieee80211_hw *hw)
 	 */
 	clear_bit(IWL_MVM_STATUS_FIRMWARE_RUNNING, &mvm->status);
 
+<<<<<<< HEAD
 	iwl_fw_cancel_dump(&mvm->fwrt);
 	cancel_delayed_work_sync(&mvm->cs_tx_unblock_dwork);
 	cancel_delayed_work_sync(&mvm->scan_timeout_dwork);
 	iwl_fw_free_dump_desc(&mvm->fwrt);
+=======
+	cancel_delayed_work_sync(&mvm->cs_tx_unblock_dwork);
+	cancel_delayed_work_sync(&mvm->scan_timeout_dwork);
+
+	/*
+	 * The work item could be running or queued if the
+	 * ROC time event stops just as we get here.
+	 */
+	flush_work(&mvm->roc_done_wk);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mvm->mutex);
 	__iwl_mvm_mac_stop(mvm);
@@ -1331,6 +1875,7 @@ static struct iwl_mvm_phy_ctxt *iwl_mvm_get_free_phy_ctxt(struct iwl_mvm *mvm)
 static int iwl_mvm_set_tx_power(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 				s16 tx_power)
 {
+<<<<<<< HEAD
 	struct iwl_dev_tx_power_cmd cmd = {
 		.v3.set_mode = cpu_to_le32(IWL_TX_POWER_MODE_SET_MAC),
 		.v3.mac_context_id =
@@ -1348,6 +1893,126 @@ static int iwl_mvm_set_tx_power(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 	return iwl_mvm_send_cmd_pdu(mvm, REDUCE_TX_POWER_CMD, 0, len, &cmd);
 }
 
+=======
+	int len;
+	struct iwl_dev_tx_power_cmd cmd = {
+		.common.set_mode = cpu_to_le32(IWL_TX_POWER_MODE_SET_MAC),
+		.common.mac_context_id =
+			cpu_to_le32(iwl_mvm_vif_from_mac80211(vif)->id),
+		.common.pwr_restriction = cpu_to_le16(8 * tx_power),
+	};
+	u8 cmd_ver = iwl_fw_lookup_cmd_ver(mvm->fw, LONG_GROUP,
+					   REDUCE_TX_POWER_CMD,
+					   IWL_FW_CMD_VER_UNKNOWN);
+
+	if (tx_power == IWL_DEFAULT_MAX_TX_POWER)
+		cmd.common.pwr_restriction = cpu_to_le16(IWL_DEV_MAX_TX_POWER);
+
+	if (cmd_ver == 6)
+		len = sizeof(cmd.v6);
+	else if (fw_has_api(&mvm->fw->ucode_capa,
+			    IWL_UCODE_TLV_API_REDUCE_TX_POWER))
+		len = sizeof(cmd.v5);
+	else if (fw_has_capa(&mvm->fw->ucode_capa,
+			     IWL_UCODE_TLV_CAPA_TX_POWER_ACK))
+		len = sizeof(cmd.v4);
+	else
+		len = sizeof(cmd.v3);
+
+	/* all structs have the same common part, add it */
+	len += sizeof(cmd.common);
+
+	return iwl_mvm_send_cmd_pdu(mvm, REDUCE_TX_POWER_CMD, 0, len, &cmd);
+}
+
+static int iwl_mvm_post_channel_switch(struct ieee80211_hw *hw,
+				       struct ieee80211_vif *vif)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	int ret;
+
+	mutex_lock(&mvm->mutex);
+
+	if (vif->type == NL80211_IFTYPE_STATION) {
+		struct iwl_mvm_sta *mvmsta;
+
+		mvmvif->csa_bcn_pending = false;
+		mvmsta = iwl_mvm_sta_from_staid_protected(mvm,
+							  mvmvif->ap_sta_id);
+
+		if (WARN_ON(!mvmsta)) {
+			ret = -EIO;
+			goto out_unlock;
+		}
+
+		iwl_mvm_sta_modify_disable_tx(mvm, mvmsta, false);
+
+		iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
+
+		if (!fw_has_capa(&mvm->fw->ucode_capa,
+				 IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD)) {
+			ret = iwl_mvm_enable_beacon_filter(mvm, vif, 0);
+			if (ret)
+				goto out_unlock;
+
+			iwl_mvm_stop_session_protection(mvm, vif);
+		}
+	}
+
+	mvmvif->ps_disabled = false;
+
+	ret = iwl_mvm_power_update_ps(mvm);
+
+out_unlock:
+	if (mvmvif->csa_failed)
+		ret = -EIO;
+	mutex_unlock(&mvm->mutex);
+
+	return ret;
+}
+
+static void iwl_mvm_abort_channel_switch(struct ieee80211_hw *hw,
+					 struct ieee80211_vif *vif)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	struct iwl_chan_switch_te_cmd cmd = {
+		.mac_id = cpu_to_le32(FW_CMD_ID_AND_COLOR(mvmvif->id,
+							  mvmvif->color)),
+		.action = cpu_to_le32(FW_CTXT_ACTION_REMOVE),
+	};
+
+	IWL_DEBUG_MAC80211(mvm, "Abort CSA on mac %d\n", mvmvif->id);
+
+	mutex_lock(&mvm->mutex);
+	if (!fw_has_capa(&mvm->fw->ucode_capa,
+			 IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD))
+		iwl_mvm_remove_csa_period(mvm, vif);
+	else
+		WARN_ON(iwl_mvm_send_cmd_pdu(mvm,
+					     WIDE_ID(MAC_CONF_GROUP,
+						     CHANNEL_SWITCH_TIME_EVENT_CMD),
+					     0, sizeof(cmd), &cmd));
+	mvmvif->csa_failed = true;
+	mutex_unlock(&mvm->mutex);
+
+	iwl_mvm_post_channel_switch(hw, vif);
+}
+
+static void iwl_mvm_channel_switch_disconnect_wk(struct work_struct *wk)
+{
+	struct iwl_mvm_vif *mvmvif;
+	struct ieee80211_vif *vif;
+
+	mvmvif = container_of(wk, struct iwl_mvm_vif, csa_work.work);
+	vif = container_of((void *)mvmvif, struct ieee80211_vif, drv_priv);
+
+	/* Trigger disconnect (should clear the CSA state) */
+	ieee80211_chswitch_done(vif, false);
+}
+
+>>>>>>> upstream/android-13
 static int iwl_mvm_mac_add_interface(struct ieee80211_hw *hw,
 				     struct ieee80211_vif *vif)
 {
@@ -1356,6 +2021,7 @@ static int iwl_mvm_mac_add_interface(struct ieee80211_hw *hw,
 	int ret;
 
 	mvmvif->mvm = mvm;
+<<<<<<< HEAD
 
 	/*
 	 * make sure D0i3 exit is completed, otherwise a target access
@@ -1365,6 +2031,9 @@ static int iwl_mvm_mac_add_interface(struct ieee80211_hw *hw,
 	ret = iwl_mvm_ref_sync(mvm, IWL_MVM_REF_ADD_IF);
 	if (ret)
 		return ret;
+=======
+	RCU_INIT_POINTER(mvmvif->probe_resp_data, NULL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Not much to do here. The stack will not allow interface
@@ -1384,6 +2053,11 @@ static int iwl_mvm_mac_add_interface(struct ieee80211_hw *hw,
 	if (ret)
 		goto out_unlock;
 
+<<<<<<< HEAD
+=======
+	rcu_assign_pointer(mvm->vif_id_to_mac[mvmvif->id], vif);
+
+>>>>>>> upstream/android-13
 	/* Counting number of interfaces is needed for legacy PM */
 	if (vif->type != NL80211_IFTYPE_P2P_DEVICE)
 		mvm->vif_count++;
@@ -1471,6 +2145,11 @@ static int iwl_mvm_mac_add_interface(struct ieee80211_hw *hw,
 	}
 
 	iwl_mvm_tcm_add_vif(mvm, vif);
+<<<<<<< HEAD
+=======
+	INIT_DELAYED_WORK(&mvmvif->csa_work,
+			  iwl_mvm_channel_switch_disconnect_wk);
+>>>>>>> upstream/android-13
 
 	if (vif->type == NL80211_IFTYPE_MONITOR)
 		mvm->monitor_on = true;
@@ -1497,8 +2176,11 @@ static int iwl_mvm_mac_add_interface(struct ieee80211_hw *hw,
  out_unlock:
 	mutex_unlock(&mvm->mutex);
 
+<<<<<<< HEAD
 	iwl_mvm_unref(mvm, IWL_MVM_REF_ADD_IF);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1520,6 +2202,10 @@ static void iwl_mvm_mac_remove_interface(struct ieee80211_hw *hw,
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+<<<<<<< HEAD
+=======
+	struct iwl_probe_resp_data *probe_data;
+>>>>>>> upstream/android-13
 
 	iwl_mvm_prepare_mac_removal(mvm, vif);
 
@@ -1529,12 +2215,27 @@ static void iwl_mvm_mac_remove_interface(struct ieee80211_hw *hw,
 
 	mutex_lock(&mvm->mutex);
 
+<<<<<<< HEAD
+=======
+	probe_data = rcu_dereference_protected(mvmvif->probe_resp_data,
+					       lockdep_is_held(&mvm->mutex));
+	RCU_INIT_POINTER(mvmvif->probe_resp_data, NULL);
+	if (probe_data)
+		kfree_rcu(probe_data, rcu_head);
+
+>>>>>>> upstream/android-13
 	if (mvm->bf_allowed_vif == mvmvif) {
 		mvm->bf_allowed_vif = NULL;
 		vif->driver_flags &= ~(IEEE80211_VIF_BEACON_FILTER |
 				       IEEE80211_VIF_SUPPORTS_CQM_RSSI);
 	}
 
+<<<<<<< HEAD
+=======
+	if (vif->bss_conf.ftm_responder)
+		memset(&mvm->ftm_resp_stats, 0, sizeof(mvm->ftm_resp_stats));
+
+>>>>>>> upstream/android-13
 	iwl_mvm_vif_dbgfs_clean(mvm, vif);
 
 	/*
@@ -1568,6 +2269,11 @@ static void iwl_mvm_mac_remove_interface(struct ieee80211_hw *hw,
 	iwl_mvm_power_update_mac(mvm);
 	iwl_mvm_mac_ctxt_remove(mvm, vif);
 
+<<<<<<< HEAD
+=======
+	RCU_INIT_POINTER(mvm->vif_id_to_mac[mvmvif->id], NULL);
+
+>>>>>>> upstream/android-13
 	if (vif->type == NL80211_IFTYPE_MONITOR)
 		mvm->monitor_on = false;
 
@@ -1623,6 +2329,10 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
 	struct iwl_mvm_mc_iter_data iter_data = {
 		.mvm = mvm,
 	};
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&mvm->mutex);
 
@@ -1632,6 +2342,25 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
 	ieee80211_iterate_active_interfaces_atomic(
 		mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
 		iwl_mvm_mc_iface_iterator, &iter_data);
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Send a (synchronous) ech command so that we wait for the
+	 * multiple asynchronous MCAST_FILTER_CMD commands sent by
+	 * the interface iterator. Otherwise, we might get here over
+	 * and over again (by userspace just sending a lot of these)
+	 * and the CPU can send them faster than the firmware can
+	 * process them.
+	 * Note that the CPU is still faster - but with this we'll
+	 * actually send fewer commands overall because the CPU will
+	 * not schedule the work in mac80211 as frequently if it's
+	 * still running when rescheduled (possibly multiple times).
+	 */
+	ret = iwl_mvm_send_cmd_pdu(mvm, ECHO_CMD, 0, 0, NULL);
+	if (ret)
+		IWL_ERR(mvm, "Failed to synchronize multicast groups update\n");
+>>>>>>> upstream/android-13
 }
 
 static u64 iwl_mvm_prepare_multicast(struct ieee80211_hw *hw,
@@ -1955,11 +2684,16 @@ static void iwl_mvm_cfg_he_sta(struct iwl_mvm *mvm,
 	struct iwl_he_sta_context_cmd sta_ctxt_cmd = {
 		.sta_id = sta_id,
 		.tid_limit = IWL_MAX_TID_COUNT,
+<<<<<<< HEAD
 		.bss_color = vif->bss_conf.bss_color,
+=======
+		.bss_color = vif->bss_conf.he_bss_color.color,
+>>>>>>> upstream/android-13
 		.htc_trig_based_pkt_ext = vif->bss_conf.htc_trig_based_pkt_ext,
 		.frame_time_rts_th =
 			cpu_to_le16(vif->bss_conf.frame_time_rts_th),
 	};
+<<<<<<< HEAD
 	struct ieee80211_sta *sta;
 	u32 flags;
 	int i;
@@ -1968,6 +2702,32 @@ static void iwl_mvm_cfg_he_sta(struct iwl_mvm *mvm,
 
 	sta = rcu_dereference(mvm->fw_id_to_mac_id[sta_ctxt_cmd.sta_id]);
 	if (IS_ERR(sta)) {
+=======
+	int size = fw_has_api(&mvm->fw->ucode_capa,
+			      IWL_UCODE_TLV_API_MBSSID_HE) ?
+		   sizeof(sta_ctxt_cmd) :
+		   sizeof(struct iwl_he_sta_context_cmd_v1);
+	struct ieee80211_sta *sta;
+	u32 flags;
+	int i;
+	const struct ieee80211_sta_he_cap *own_he_cap = NULL;
+	struct ieee80211_chanctx_conf *chanctx_conf;
+	const struct ieee80211_supported_band *sband;
+
+	rcu_read_lock();
+
+	chanctx_conf = rcu_dereference(vif->chanctx_conf);
+	if (WARN_ON(!chanctx_conf)) {
+		rcu_read_unlock();
+		return;
+	}
+
+	sband = mvm->hw->wiphy->bands[chanctx_conf->def.chan->band];
+	own_he_cap = ieee80211_get_he_iftype_cap(sband, vif->type);
+
+	sta = rcu_dereference(mvm->fw_id_to_mac_id[sta_ctxt_cmd.sta_id]);
+	if (IS_ERR_OR_NULL(sta)) {
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		WARN(1, "Can't find STA to configure HE\n");
 		return;
@@ -1980,6 +2740,13 @@ static void iwl_mvm_cfg_he_sta(struct iwl_mvm *mvm,
 
 	flags = 0;
 
+<<<<<<< HEAD
+=======
+	/* Block 26-tone RU OFDMA transmissions */
+	if (mvmvif->he_ru_2mhz_block)
+		flags |= STA_CTXT_HE_RU_2MHZ_BLOCK;
+
+>>>>>>> upstream/android-13
 	/* HTC flags */
 	if (sta->he_cap.he_cap_elem.mac_cap_info[0] &
 	    IEEE80211_HE_MAC_CAP0_HTC_HE)
@@ -2001,10 +2768,13 @@ static void iwl_mvm_cfg_he_sta(struct iwl_mvm *mvm,
 			sta_ctxt_cmd.htc_flags |=
 				cpu_to_le32(IWL_HE_HTC_LINK_ADAP_BOTH);
 	}
+<<<<<<< HEAD
 	if (sta->he_cap.he_cap_elem.mac_cap_info[2] &
 	    IEEE80211_HE_MAC_CAP2_UL_MU_RESP_SCHED)
 		sta_ctxt_cmd.htc_flags |=
 			cpu_to_le32(IWL_HE_HTC_UL_MU_RESP_SCHED);
+=======
+>>>>>>> upstream/android-13
 	if (sta->he_cap.he_cap_elem.mac_cap_info[2] & IEEE80211_HE_MAC_CAP2_BSR)
 		sta_ctxt_cmd.htc_flags |= cpu_to_le32(IWL_HE_HTC_BSR_SUPP);
 	if (sta->he_cap.he_cap_elem.mac_cap_info[3] &
@@ -2066,20 +2836,83 @@ static void iwl_mvm_cfg_he_sta(struct iwl_mvm *mvm,
 		}
 
 		flags |= STA_CTXT_HE_PACKET_EXT;
+<<<<<<< HEAD
 	}
+=======
+	} else if ((sta->he_cap.he_cap_elem.phy_cap_info[9] &
+		    IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_MASK) !=
+		  IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_RESERVED) {
+		int low_th = -1;
+		int high_th = -1;
+
+		/* Take the PPE thresholds from the nominal padding info */
+		switch (sta->he_cap.he_cap_elem.phy_cap_info[9] &
+			IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_MASK) {
+		case IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_0US:
+			low_th = IWL_HE_PKT_EXT_NONE;
+			high_th = IWL_HE_PKT_EXT_NONE;
+			break;
+		case IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_8US:
+			low_th = IWL_HE_PKT_EXT_BPSK;
+			high_th = IWL_HE_PKT_EXT_NONE;
+			break;
+		case IEEE80211_HE_PHY_CAP9_NOMIMAL_PKT_PADDING_16US:
+			low_th = IWL_HE_PKT_EXT_NONE;
+			high_th = IWL_HE_PKT_EXT_BPSK;
+			break;
+		}
+
+		/* Set the PPE thresholds accordingly */
+		if (low_th >= 0 && high_th >= 0) {
+			struct iwl_he_pkt_ext *pkt_ext =
+				(struct iwl_he_pkt_ext *)&sta_ctxt_cmd.pkt_ext;
+
+			for (i = 0; i < MAX_HE_SUPP_NSS; i++) {
+				u8 bw;
+
+				for (bw = 0; bw < MAX_HE_CHANNEL_BW_INDX;
+				     bw++) {
+					pkt_ext->pkt_ext_qam_th[i][bw][0] =
+						low_th;
+					pkt_ext->pkt_ext_qam_th[i][bw][1] =
+						high_th;
+				}
+			}
+
+			flags |= STA_CTXT_HE_PACKET_EXT;
+		}
+	}
+
+	if (sta->he_cap.he_cap_elem.mac_cap_info[2] &
+	    IEEE80211_HE_MAC_CAP2_32BIT_BA_BITMAP)
+		flags |= STA_CTXT_HE_32BIT_BA_BITMAP;
+
+	if (sta->he_cap.he_cap_elem.mac_cap_info[2] &
+	    IEEE80211_HE_MAC_CAP2_ACK_EN)
+		flags |= STA_CTXT_HE_ACK_ENABLED;
+
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	/* Mark MU EDCA as enabled, unless none detected on some AC */
 	flags |= STA_CTXT_HE_MU_EDCA_CW;
+<<<<<<< HEAD
 	for (i = 0; i < AC_NUM; i++) {
 		struct ieee80211_he_mu_edca_param_ac_rec *mu_edca =
 			&mvmvif->queue_params[i].mu_edca_param_rec;
+=======
+	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
+		struct ieee80211_he_mu_edca_param_ac_rec *mu_edca =
+			&mvmvif->queue_params[i].mu_edca_param_rec;
+		u8 ac = iwl_mvm_mac80211_ac_to_ucode_ac(i);
+>>>>>>> upstream/android-13
 
 		if (!mvmvif->queue_params[i].mu_edca) {
 			flags &= ~STA_CTXT_HE_MU_EDCA_CW;
 			break;
 		}
 
+<<<<<<< HEAD
 		sta_ctxt_cmd.trig_based_txf[i].cwmin =
 			cpu_to_le16(mu_edca->ecw_min_max & 0xf);
 		sta_ctxt_cmd.trig_based_txf[i].cwmax =
@@ -2095,6 +2928,18 @@ static void iwl_mvm_cfg_he_sta(struct iwl_mvm *mvm,
 
 	if (vif->bss_conf.ack_enabled)
 		flags |= STA_CTXT_HE_ACK_ENABLED;
+=======
+		sta_ctxt_cmd.trig_based_txf[ac].cwmin =
+			cpu_to_le16(mu_edca->ecw_min_max & 0xf);
+		sta_ctxt_cmd.trig_based_txf[ac].cwmax =
+			cpu_to_le16((mu_edca->ecw_min_max & 0xf0) >> 4);
+		sta_ctxt_cmd.trig_based_txf[ac].aifsn =
+			cpu_to_le16(mu_edca->aifsn);
+		sta_ctxt_cmd.trig_based_txf[ac].mu_time =
+			cpu_to_le16(mu_edca->mu_edca_timer);
+	}
+
+>>>>>>> upstream/android-13
 
 	if (vif->bss_conf.uora_exists) {
 		flags |= STA_CTXT_HE_TRIG_RND_ALLOC;
@@ -2105,13 +2950,35 @@ static void iwl_mvm_cfg_he_sta(struct iwl_mvm *mvm,
 			(vif->bss_conf.uora_ocw_range >> 3) & 0x7;
 	}
 
+<<<<<<< HEAD
 	/* TODO: support Multi BSSID IE */
+=======
+	if (own_he_cap && !(own_he_cap->he_cap_elem.mac_cap_info[2] &
+			    IEEE80211_HE_MAC_CAP2_ACK_EN))
+		flags |= STA_CTXT_HE_NIC_NOT_ACK_ENABLED;
+
+	if (vif->bss_conf.nontransmitted) {
+		flags |= STA_CTXT_HE_REF_BSSID_VALID;
+		ether_addr_copy(sta_ctxt_cmd.ref_bssid_addr,
+				vif->bss_conf.transmitter_bssid);
+		sta_ctxt_cmd.max_bssid_indicator =
+			vif->bss_conf.bssid_indicator;
+		sta_ctxt_cmd.bssid_index = vif->bss_conf.bssid_index;
+		sta_ctxt_cmd.ema_ap = vif->bss_conf.ema_ap;
+		sta_ctxt_cmd.profile_periodicity =
+			vif->bss_conf.profile_periodicity;
+	}
+>>>>>>> upstream/android-13
 
 	sta_ctxt_cmd.flags = cpu_to_le32(flags);
 
 	if (iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(STA_HE_CTXT_CMD,
 						 DATA_PATH_GROUP, 0),
+<<<<<<< HEAD
 				 0, sizeof(sta_ctxt_cmd), &sta_ctxt_cmd))
+=======
+				 0, size, &sta_ctxt_cmd))
+>>>>>>> upstream/android-13
 		IWL_ERR(mvm, "Failed to config FW to work HE!\n");
 }
 
@@ -2124,9 +2991,15 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 	int ret;
 
 	/*
+<<<<<<< HEAD
 	 * Re-calculate the tsf id, as the master-slave relations depend on the
 	 * beacon interval, which was not known when the station interface was
 	 * added.
+=======
+	 * Re-calculate the tsf id, as the leader-follower relations depend
+	 * on the beacon interval, which was not known when the station
+	 * interface was added.
+>>>>>>> upstream/android-13
 	 */
 	if (changes & BSS_CHANGED_ASSOC && bss_conf->assoc) {
 		if (vif->bss_conf.he_support &&
@@ -2136,6 +3009,15 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 		iwl_mvm_mac_ctxt_recalc_tsf_id(mvm, vif);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Update MU EDCA params */
+	if (changes & BSS_CHANGED_QOS && mvmvif->associated &&
+	    bss_conf->assoc && vif->bss_conf.he_support &&
+	    !iwlwifi_mod_params.disable_11ax)
+		iwl_mvm_cfg_he_sta(mvm, vif, mvmvif->ap_sta_id);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If we're not associated yet, take the (new) BSSID before associating
 	 * so the firmware knows. If we're already associated, then use the old
@@ -2168,7 +3050,13 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 			}
 
 			if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART,
+<<<<<<< HEAD
 				     &mvm->status)) {
+=======
+				     &mvm->status) &&
+			    !fw_has_capa(&mvm->fw->ucode_capa,
+					 IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD)) {
+>>>>>>> upstream/android-13
 				/*
 				 * If we're restarting then the firmware will
 				 * obviously have lost synchronisation with
@@ -2182,6 +3070,13 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 				 *
 				 * Set a large maximum delay to allow for more
 				 * than a single interface.
+<<<<<<< HEAD
+=======
+				 *
+				 * For new firmware versions, rely on the
+				 * firmware. This is relevant for DCM scenarios
+				 * only anyway.
+>>>>>>> upstream/android-13
 				 */
 				u32 dur = (11 * vif->bss_conf.beacon_int) / 10;
 				iwl_mvm_protect_session(mvm, vif, dur, dur,
@@ -2191,7 +3086,10 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 			iwl_mvm_sf_update(mvm, vif, false);
 			iwl_mvm_power_vif_assoc(mvm, vif);
 			if (vif->p2p) {
+<<<<<<< HEAD
 				iwl_mvm_ref(mvm, IWL_MVM_REF_P2P_CLIENT);
+=======
+>>>>>>> upstream/android-13
 				iwl_mvm_update_smps(mvm, vif,
 						    IWL_MVM_SMPS_REQ_PROT,
 						    IEEE80211_SMPS_DYNAMIC);
@@ -2201,7 +3099,14 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 			 * If update fails - SF might be running in associated
 			 * mode while disassociated - which is forbidden.
 			 */
+<<<<<<< HEAD
 			WARN_ONCE(iwl_mvm_sf_update(mvm, vif, false),
+=======
+			ret = iwl_mvm_sf_update(mvm, vif, false);
+			WARN_ONCE(ret &&
+				  !test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED,
+					    &mvm->status),
+>>>>>>> upstream/android-13
 				  "Failed to update SF upon disassociation\n");
 
 			/*
@@ -2224,9 +3129,12 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 					IWL_ERR(mvm,
 						"failed to remove AP station\n");
 
+<<<<<<< HEAD
 				if (mvm->d0i3_ap_sta_id == mvmvif->ap_sta_id)
 					mvm->d0i3_ap_sta_id =
 						IWL_MVM_INVALID_STA;
+=======
+>>>>>>> upstream/android-13
 				mvmvif->ap_sta_id = IWL_MVM_INVALID_STA;
 			}
 
@@ -2235,9 +3143,12 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 			if (ret)
 				IWL_ERR(mvm, "failed to update quotas\n");
 
+<<<<<<< HEAD
 			if (vif->p2p)
 				iwl_mvm_unref(mvm, IWL_MVM_REF_P2P_CLIENT);
 
+=======
+>>>>>>> upstream/android-13
 			/* this will take the cleared BSSID from bss_conf */
 			ret = iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
 			if (ret)
@@ -2276,8 +3187,16 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 		/*
 		 * We received a beacon from the associated AP so
 		 * remove the session protection.
+<<<<<<< HEAD
 		 */
 		iwl_mvm_stop_session_protection(mvm, vif);
+=======
+		 * A firmware with the new API will remove it automatically.
+		 */
+		if (!fw_has_capa(&mvm->fw->ucode_capa,
+				 IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD))
+			iwl_mvm_stop_session_protection(mvm, vif);
+>>>>>>> upstream/android-13
 
 		iwl_mvm_sf_update(mvm, vif, false);
 		WARN_ON(iwl_mvm_enable_beacon_filter(mvm, vif, 0));
@@ -2294,12 +3213,15 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 			IWL_ERR(mvm, "failed to update power mode\n");
 	}
 
+<<<<<<< HEAD
 	if (changes & BSS_CHANGED_TXPOWER) {
 		IWL_DEBUG_CALIB(mvm, "Changing TX Power to %d\n",
 				bss_conf->txpower);
 		iwl_mvm_set_tx_power(mvm, vif, bss_conf->txpower);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (changes & BSS_CHANGED_CQM) {
 		IWL_DEBUG_MAC80211(mvm, "cqm info_changed\n");
 		/* reset cqm events tracking */
@@ -2316,6 +3238,12 @@ static void iwl_mvm_bss_info_changed_station(struct iwl_mvm *mvm,
 		IWL_DEBUG_MAC80211(mvm, "arp filter changed\n");
 		iwl_mvm_configure_bcast_filter(mvm);
 	}
+<<<<<<< HEAD
+=======
+
+	if (changes & BSS_CHANGED_BANDWIDTH)
+		iwl_mvm_apply_fw_smps_request(vif);
+>>>>>>> upstream/android-13
 }
 
 static int iwl_mvm_start_ap_ibss(struct ieee80211_hw *hw,
@@ -2323,6 +3251,7 @@ static int iwl_mvm_start_ap_ibss(struct ieee80211_hw *hw,
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+<<<<<<< HEAD
 	int ret;
 
 	/*
@@ -2332,6 +3261,9 @@ static int iwl_mvm_start_ap_ibss(struct ieee80211_hw *hw,
 	ret = iwl_mvm_ref_sync(mvm, IWL_MVM_REF_START_AP);
 	if (ret)
 		return ret;
+=======
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mvm->mutex);
 
@@ -2341,8 +3273,14 @@ static int iwl_mvm_start_ap_ibss(struct ieee80211_hw *hw,
 		goto out_unlock;
 
 	/*
+<<<<<<< HEAD
 	 * Re-calculate the tsf id, as the master-slave relations depend on the
 	 * beacon interval, which was not known when the AP interface was added.
+=======
+	 * Re-calculate the tsf id, as the leader-follower relations depend on
+	 * the beacon interval, which was not known when the AP interface
+	 * was added.
+>>>>>>> upstream/android-13
 	 */
 	if (vif->type == NL80211_IFTYPE_AP)
 		iwl_mvm_mac_ctxt_recalc_tsf_id(mvm, vif);
@@ -2397,6 +3335,29 @@ static int iwl_mvm_start_ap_ibss(struct ieee80211_hw *hw,
 	/* must be set before quota calculations */
 	mvmvif->ap_ibss_active = true;
 
+<<<<<<< HEAD
+=======
+	/* send all the early keys to the device now */
+	for (i = 0; i < ARRAY_SIZE(mvmvif->ap_early_keys); i++) {
+		struct ieee80211_key_conf *key = mvmvif->ap_early_keys[i];
+
+		if (!key)
+			continue;
+
+		mvmvif->ap_early_keys[i] = NULL;
+
+		ret = __iwl_mvm_mac_set_key(hw, SET_KEY, vif, NULL, key);
+		if (ret)
+			goto out_quota_failed;
+	}
+
+	if (vif->type == NL80211_IFTYPE_AP && !vif->p2p) {
+		iwl_mvm_vif_set_low_latency(mvmvif, true,
+					    LOW_LATENCY_VIF_TYPE);
+		iwl_mvm_send_low_latency_cmd(mvm, true, mvmvif->id);
+	}
+
+>>>>>>> upstream/android-13
 	/* power updated needs to be done before quotas */
 	iwl_mvm_power_update_mac(mvm);
 
@@ -2408,14 +3369,22 @@ static int iwl_mvm_start_ap_ibss(struct ieee80211_hw *hw,
 	if (vif->p2p && mvm->p2p_device_vif)
 		iwl_mvm_mac_ctxt_changed(mvm, mvm->p2p_device_vif, false, NULL);
 
+<<<<<<< HEAD
 	iwl_mvm_ref(mvm, IWL_MVM_REF_AP_IBSS);
 
+=======
+>>>>>>> upstream/android-13
 	iwl_mvm_bt_coex_vif_change(mvm);
 
 	/* we don't support TDLS during DCM */
 	if (iwl_mvm_phy_ctx_count(mvm) > 1)
 		iwl_mvm_teardown_tdls_peers(mvm);
 
+<<<<<<< HEAD
+=======
+	iwl_mvm_ftm_restart_responder(mvm, vif);
+
+>>>>>>> upstream/android-13
 	goto out_unlock;
 
 out_quota_failed:
@@ -2429,7 +3398,10 @@ out_remove:
 	iwl_mvm_mac_ctxt_remove(mvm, vif);
 out_unlock:
 	mutex_unlock(&mvm->mutex);
+<<<<<<< HEAD
 	iwl_mvm_unref(mvm, IWL_MVM_REF_START_AP);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2459,9 +3431,19 @@ static void iwl_mvm_stop_ap_ibss(struct ieee80211_hw *hw,
 	mvmvif->ap_ibss_active = false;
 	mvm->ap_last_beacon_gp2 = 0;
 
+<<<<<<< HEAD
 	iwl_mvm_bt_coex_vif_change(mvm);
 
 	iwl_mvm_unref(mvm, IWL_MVM_REF_AP_IBSS);
+=======
+	if (vif->type == NL80211_IFTYPE_AP && !vif->p2p) {
+		iwl_mvm_vif_set_low_latency(mvmvif, false,
+					    LOW_LATENCY_VIF_TYPE);
+		iwl_mvm_send_low_latency_cmd(mvm, false,  mvmvif->id);
+	}
+
+	iwl_mvm_bt_coex_vif_change(mvm);
+>>>>>>> upstream/android-13
 
 	/* Need to update the P2P Device MAC (only GO, IBSS is single vif) */
 	if (vif->p2p && mvm->p2p_device_vif)
@@ -2469,6 +3451,11 @@ static void iwl_mvm_stop_ap_ibss(struct ieee80211_hw *hw,
 
 	iwl_mvm_update_quotas(mvm, false, NULL);
 
+<<<<<<< HEAD
+=======
+	iwl_mvm_ftm_responder_clear(mvm, vif);
+
+>>>>>>> upstream/android-13
 	/*
 	 * This is not very nice, but the simplest:
 	 * For older FWs removing the mcast sta before the bcast station may
@@ -2513,11 +3500,22 @@ iwl_mvm_bss_info_changed_ap_ibss(struct iwl_mvm *mvm,
 	    iwl_mvm_mac_ctxt_beacon_changed(mvm, vif))
 		IWL_WARN(mvm, "Failed updating beacon data\n");
 
+<<<<<<< HEAD
 	if (changes & BSS_CHANGED_TXPOWER) {
 		IWL_DEBUG_CALIB(mvm, "Changing TX Power to %d\n",
 				bss_conf->txpower);
 		iwl_mvm_set_tx_power(mvm, vif, bss_conf->txpower);
 	}
+=======
+	if (changes & BSS_CHANGED_FTM_RESPONDER) {
+		int ret = iwl_mvm_ftm_start_responder(mvm, vif);
+
+		if (ret)
+			IWL_WARN(mvm, "Failed to enable FTM responder (%d)\n",
+				 ret);
+	}
+
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_bss_info_changed(struct ieee80211_hw *hw,
@@ -2527,6 +3525,7 @@ static void iwl_mvm_bss_info_changed(struct ieee80211_hw *hw,
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 
+<<<<<<< HEAD
 	/*
 	 * iwl_mvm_bss_info_changed_station() might call
 	 * iwl_mvm_protect_session(), which reads directly from
@@ -2535,6 +3534,8 @@ static void iwl_mvm_bss_info_changed(struct ieee80211_hw *hw,
 	if (iwl_mvm_ref_sync(mvm, IWL_MVM_REF_BSS_CHANGED))
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&mvm->mutex);
 
 	if (changes & BSS_CHANGED_IDLE && !bss_conf->idle)
@@ -2557,8 +3558,18 @@ static void iwl_mvm_bss_info_changed(struct ieee80211_hw *hw,
 		WARN_ON_ONCE(1);
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&mvm->mutex);
 	iwl_mvm_unref(mvm, IWL_MVM_REF_BSS_CHANGED);
+=======
+	if (changes & BSS_CHANGED_TXPOWER) {
+		IWL_DEBUG_CALIB(mvm, "Changing TX Power to %d dBm\n",
+				bss_conf->txpower);
+		iwl_mvm_set_tx_power(mvm, vif, bss_conf->txpower);
+	}
+
+	mutex_unlock(&mvm->mutex);
+>>>>>>> upstream/android-13
 }
 
 static int iwl_mvm_mac_hw_scan(struct ieee80211_hw *hw,
@@ -2647,7 +3658,11 @@ static void __iwl_mvm_mac_sta_notify(struct ieee80211_hw *hw,
 		return;
 
 	spin_lock_bh(&mvmsta->lock);
+<<<<<<< HEAD
 	for (tid = 0; tid < IWL_MAX_TID_COUNT; tid++) {
+=======
+	for (tid = 0; tid < ARRAY_SIZE(mvmsta->tid_data); tid++) {
+>>>>>>> upstream/android-13
 		struct iwl_mvm_tid_data *tid_data = &mvmsta->tid_data[tid];
 
 		if (tid_data->txq_id == IWL_MVM_INVALID_QUEUE)
@@ -2704,7 +3719,11 @@ void iwl_mvm_sta_pm_notif(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 	struct iwl_mvm_sta *mvmsta;
 	bool sleeping = (notif->type != IWL_MVM_PM_EVENT_AWAKE);
 
+<<<<<<< HEAD
 	if (WARN_ON(notif->sta_id >= ARRAY_SIZE(mvm->fw_id_to_mac_id)))
+=======
+	if (WARN_ON(notif->sta_id >= mvm->fw->ucode_capa.num_stations))
+>>>>>>> upstream/android-13
 		return;
 
 	rcu_read_lock();
@@ -2817,6 +3836,7 @@ iwl_mvm_tdls_check_trigger(struct iwl_mvm *mvm,
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_tdls *tdls_trig;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_TDLS))
 		return;
 
@@ -2825,6 +3845,14 @@ iwl_mvm_tdls_check_trigger(struct iwl_mvm *mvm,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt,
 					   ieee80211_vif_to_wdev(vif), trig))
 		return;
+=======
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, ieee80211_vif_to_wdev(vif),
+				     FW_DBG_TRIGGER_TDLS);
+	if (!trig)
+		return;
+
+	tdls_trig = (void *)trig->data;
+>>>>>>> upstream/android-13
 
 	if (!(tdls_trig->action_bitmap & BIT(action)))
 		return;
@@ -2838,6 +3866,7 @@ iwl_mvm_tdls_check_trigger(struct iwl_mvm *mvm,
 				peer_addr, action);
 }
 
+<<<<<<< HEAD
 static void iwl_mvm_purge_deferred_tx_frames(struct iwl_mvm *mvm,
 					     struct iwl_mvm_sta *mvm_sta)
 {
@@ -2862,6 +3891,88 @@ static void iwl_mvm_purge_deferred_tx_frames(struct iwl_mvm *mvm,
 		}
 	}
 	spin_unlock_bh(&mvm_sta->lock);
+=======
+struct iwl_mvm_he_obss_narrow_bw_ru_data {
+	bool tolerated;
+};
+
+static void iwl_mvm_check_he_obss_narrow_bw_ru_iter(struct wiphy *wiphy,
+						    struct cfg80211_bss *bss,
+						    void *_data)
+{
+	struct iwl_mvm_he_obss_narrow_bw_ru_data *data = _data;
+	const struct cfg80211_bss_ies *ies;
+	const struct element *elem;
+
+	rcu_read_lock();
+	ies = rcu_dereference(bss->ies);
+	elem = cfg80211_find_elem(WLAN_EID_EXT_CAPABILITY, ies->data,
+				  ies->len);
+
+	if (!elem || elem->datalen < 10 ||
+	    !(elem->data[10] &
+	      WLAN_EXT_CAPA10_OBSS_NARROW_BW_RU_TOLERANCE_SUPPORT)) {
+		data->tolerated = false;
+	}
+	rcu_read_unlock();
+}
+
+static void iwl_mvm_check_he_obss_narrow_bw_ru(struct ieee80211_hw *hw,
+					       struct ieee80211_vif *vif)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	struct iwl_mvm_he_obss_narrow_bw_ru_data iter_data = {
+		.tolerated = true,
+	};
+
+	if (!(vif->bss_conf.chandef.chan->flags & IEEE80211_CHAN_RADAR)) {
+		mvmvif->he_ru_2mhz_block = false;
+		return;
+	}
+
+	cfg80211_bss_iter(hw->wiphy, &vif->bss_conf.chandef,
+			  iwl_mvm_check_he_obss_narrow_bw_ru_iter,
+			  &iter_data);
+
+	/*
+	 * If there is at least one AP on radar channel that cannot
+	 * tolerate 26-tone RU UL OFDMA transmissions using HE TB PPDU.
+	 */
+	mvmvif->he_ru_2mhz_block = !iter_data.tolerated;
+}
+
+static void iwl_mvm_reset_cca_40mhz_workaround(struct iwl_mvm *mvm,
+					       struct ieee80211_vif *vif)
+{
+	struct ieee80211_supported_band *sband;
+	const struct ieee80211_sta_he_cap *he_cap;
+
+	if (vif->type != NL80211_IFTYPE_STATION)
+		return;
+
+	if (!mvm->cca_40mhz_workaround)
+		return;
+
+	/* decrement and check that we reached zero */
+	mvm->cca_40mhz_workaround--;
+	if (mvm->cca_40mhz_workaround)
+		return;
+
+	sband = mvm->hw->wiphy->bands[NL80211_BAND_2GHZ];
+
+	sband->ht_cap.cap |= IEEE80211_HT_CAP_SUP_WIDTH_20_40;
+
+	he_cap = ieee80211_get_he_iftype_cap(sband,
+					     ieee80211_vif_type_p2p(vif));
+
+	if (he_cap) {
+		/* we know that ours is writable */
+		struct ieee80211_sta_he_cap *he = (void *)he_cap;
+
+		he->he_cap_elem.phy_cap_info[0] |=
+			IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_IN_2G;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
@@ -2897,13 +4008,25 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 	 */
 	if (old_state == IEEE80211_STA_NONE &&
 	    new_state == IEEE80211_STA_NOTEXIST) {
+<<<<<<< HEAD
 		iwl_mvm_purge_deferred_tx_frames(mvm, mvm_sta);
+=======
+>>>>>>> upstream/android-13
 		flush_work(&mvm->add_stream_wk);
 
 		/*
 		 * No need to make sure deferred TX indication is off since the
 		 * worker will already remove it if it was on
 		 */
+<<<<<<< HEAD
+=======
+
+		/*
+		 * Additionally, reset the 40 MHz capability if we disconnected
+		 * from the AP now.
+		 */
+		iwl_mvm_reset_cca_40mhz_workaround(mvm, vif);
+>>>>>>> upstream/android-13
 	}
 
 	mutex_lock(&mvm->mutex);
@@ -2917,7 +4040,11 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 		 * than 16. We can't avoid connecting at all, so refuse the
 		 * station state change, this will cause mac80211 to abandon
 		 * attempts to connect to this AP, and eventually wpa_s will
+<<<<<<< HEAD
 		 * blacklist the AP...
+=======
+		 * blocklist the AP...
+>>>>>>> upstream/android-13
 		 */
 		if (vif->type == NL80211_IFTYPE_STATION &&
 		    vif->bss_conf.beacon_int < 16) {
@@ -2928,6 +4055,12 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 			goto out_unlock;
 		}
 
+<<<<<<< HEAD
+=======
+		if (vif->type == NL80211_IFTYPE_STATION)
+			vif->bss_conf.he_support = sta->he_cap.has_he;
+
+>>>>>>> upstream/android-13
 		if (sta->tdls &&
 		    (vif->p2p ||
 		     iwl_mvm_tdls_sta_count(mvm, NULL) ==
@@ -2944,6 +4077,11 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 			iwl_mvm_tdls_check_trigger(mvm, vif, sta->addr,
 						   NL80211_TDLS_SETUP);
 		}
+<<<<<<< HEAD
+=======
+
+		sta->max_rc_amsdu_len = 1;
+>>>>>>> upstream/android-13
 	} else if (old_state == IEEE80211_STA_NONE &&
 		   new_state == IEEE80211_STA_AUTH) {
 		/*
@@ -2956,8 +4094,25 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 	} else if (old_state == IEEE80211_STA_AUTH &&
 		   new_state == IEEE80211_STA_ASSOC) {
 		if (vif->type == NL80211_IFTYPE_AP) {
+<<<<<<< HEAD
 			mvmvif->ap_assoc_sta_count++;
 			iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
+=======
+			vif->bss_conf.he_support = sta->he_cap.has_he;
+			mvmvif->ap_assoc_sta_count++;
+			iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
+			if (vif->bss_conf.he_support &&
+			    !iwlwifi_mod_params.disable_11ax)
+				iwl_mvm_cfg_he_sta(mvm, vif, mvm_sta->sta_id);
+		} else if (vif->type == NL80211_IFTYPE_STATION) {
+			vif->bss_conf.he_support = sta->he_cap.has_he;
+
+			mvmvif->he_ru_2mhz_block = false;
+			if (sta->he_cap.has_he)
+				iwl_mvm_check_he_obss_narrow_bw_ru(hw, vif);
+
+			iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
+>>>>>>> upstream/android-13
 		}
 
 		iwl_mvm_rs_rate_init(mvm, sta, mvmvif->phy_ctxt->channel->band,
@@ -2965,6 +4120,10 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 		ret = iwl_mvm_update_sta(mvm, vif, sta);
 	} else if (old_state == IEEE80211_STA_ASSOC &&
 		   new_state == IEEE80211_STA_AUTHORIZED) {
+<<<<<<< HEAD
+=======
+		ret = 0;
+>>>>>>> upstream/android-13
 
 		/* we don't support TDLS during DCM */
 		if (iwl_mvm_phy_ctx_count(mvm) > 1)
@@ -2977,6 +4136,7 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 		/* enable beacon filtering */
 		WARN_ON(iwl_mvm_enable_beacon_filter(mvm, vif, 0));
 
+<<<<<<< HEAD
 		iwl_mvm_rs_rate_init(mvm, sta, mvmvif->phy_ctxt->channel->band,
 				     true);
 
@@ -2985,6 +4145,27 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 		   new_state == IEEE80211_STA_ASSOC) {
 		/* disable beacon filtering */
 		WARN_ON(iwl_mvm_disable_beacon_filter(mvm, vif, 0));
+=======
+		/*
+		 * Now that the station is authorized, i.e., keys were already
+		 * installed, need to indicate to the FW that
+		 * multicast data frames can be forwarded to the driver
+		 */
+		iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
+
+		iwl_mvm_rs_rate_init(mvm, sta, mvmvif->phy_ctxt->channel->band,
+				     true);
+	} else if (old_state == IEEE80211_STA_AUTHORIZED &&
+		   new_state == IEEE80211_STA_ASSOC) {
+		/* Multicast data frames are no longer allowed */
+		iwl_mvm_mac_ctxt_changed(mvm, vif, false, NULL);
+
+		/* disable beacon filtering */
+		ret = iwl_mvm_disable_beacon_filter(mvm, vif, 0);
+		WARN_ON(ret &&
+			!test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED,
+				  &mvm->status));
+>>>>>>> upstream/android-13
 		ret = 0;
 	} else if (old_state == IEEE80211_STA_ASSOC &&
 		   new_state == IEEE80211_STA_AUTH) {
@@ -3004,6 +4185,14 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
 			iwl_mvm_tdls_check_trigger(mvm, vif, sta->addr,
 						   NL80211_TDLS_DISABLE_LINK);
 		}
+<<<<<<< HEAD
+=======
+
+		if (unlikely(ret &&
+			     test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED,
+				      &mvm->status)))
+			ret = 0;
+>>>>>>> upstream/android-13
 	} else {
 		ret = -EIO;
 	}
@@ -3036,6 +4225,16 @@ static void iwl_mvm_sta_rc_update(struct ieee80211_hw *hw,
 				  struct ieee80211_sta *sta, u32 changed)
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+<<<<<<< HEAD
+=======
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+
+	if (changed & (IEEE80211_RC_BW_CHANGED |
+		       IEEE80211_RC_SUPP_RATES_CHANGED |
+		       IEEE80211_RC_NSS_CHANGED))
+		iwl_mvm_rs_rate_init(mvm, sta, mvmvif->phy_ctxt->channel->band,
+				     true);
+>>>>>>> upstream/android-13
 
 	if (vif->type == NL80211_IFTYPE_STATION &&
 	    changed & IEEE80211_RC_NSS_CHANGED)
@@ -3068,12 +4267,17 @@ static int iwl_mvm_mac_conf_tx(struct ieee80211_hw *hw,
 
 static void iwl_mvm_mac_mgd_prepare_tx(struct ieee80211_hw *hw,
 				       struct ieee80211_vif *vif,
+<<<<<<< HEAD
 				       u16 req_duration)
+=======
+				       struct ieee80211_prep_tx_info *info)
+>>>>>>> upstream/android-13
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	u32 duration = IWL_MVM_TE_SESSION_PROTECTION_MAX_TIME_MS;
 	u32 min_duration = IWL_MVM_TE_SESSION_PROTECTION_MIN_TIME_MS;
 
+<<<<<<< HEAD
 	/*
 	 * iwl_mvm_protect_session() reads directly from the device
 	 * (the system time), so make sure it is available.
@@ -3090,6 +4294,29 @@ static void iwl_mvm_mac_mgd_prepare_tx(struct ieee80211_hw *hw,
 	mutex_unlock(&mvm->mutex);
 
 	iwl_mvm_unref(mvm, IWL_MVM_REF_PREPARE_TX);
+=======
+	if (info->duration > duration)
+		duration = info->duration;
+
+	mutex_lock(&mvm->mutex);
+	/* Try really hard to protect the session and hear a beacon
+	 * The new session protection command allows us to protect the
+	 * session for a much longer time since the firmware will internally
+	 * create two events: a 300TU one with a very high priority that
+	 * won't be fragmented which should be enough for 99% of the cases,
+	 * and another one (which we configure here to be 900TU long) which
+	 * will have a slightly lower priority, but more importantly, can be
+	 * fragmented so that it'll allow other activities to run.
+	 */
+	if (fw_has_capa(&mvm->fw->ucode_capa,
+			IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD))
+		iwl_mvm_schedule_session_protection(mvm, vif, 900,
+						    min_duration, false);
+	else
+		iwl_mvm_protect_session(mvm, vif, duration,
+					min_duration, 500, false);
+	mutex_unlock(&mvm->mutex);
+>>>>>>> upstream/android-13
 }
 
 static int iwl_mvm_mac_sched_scan_start(struct ieee80211_hw *hw,
@@ -3143,16 +4370,27 @@ static int iwl_mvm_mac_sched_scan_stop(struct ieee80211_hw *hw,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 			       enum set_key_cmd cmd,
 			       struct ieee80211_vif *vif,
 			       struct ieee80211_sta *sta,
 			       struct ieee80211_key_conf *key)
 {
+=======
+static int __iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
+				 enum set_key_cmd cmd,
+				 struct ieee80211_vif *vif,
+				 struct ieee80211_sta *sta,
+				 struct ieee80211_key_conf *key)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+>>>>>>> upstream/android-13
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	struct iwl_mvm_sta *mvmsta;
 	struct iwl_mvm_key_pn *ptk_pn;
 	int keyidx = key->keyidx;
+<<<<<<< HEAD
 	int ret;
 	u8 key_offset;
 
@@ -3165,6 +4403,22 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 	case WLAN_CIPHER_SUITE_TKIP:
 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_MMIC;
 		key->flags |= IEEE80211_KEY_FLAG_PUT_IV_SPACE;
+=======
+	int ret, i;
+	u8 key_offset;
+
+	switch (key->cipher) {
+	case WLAN_CIPHER_SUITE_TKIP:
+		if (!mvm->trans->trans_cfg->gen2) {
+			key->flags |= IEEE80211_KEY_FLAG_GENERATE_MMIC;
+			key->flags |= IEEE80211_KEY_FLAG_PUT_IV_SPACE;
+		} else if (vif->type == NL80211_IFTYPE_STATION) {
+			key->flags |= IEEE80211_KEY_FLAG_PUT_MIC_SPACE;
+		} else {
+			IWL_DEBUG_MAC80211(mvm, "Use SW encryption for TKIP\n");
+			return -EOPNOTSUPP;
+		}
+>>>>>>> upstream/android-13
 		break;
 	case WLAN_CIPHER_SUITE_CCMP:
 	case WLAN_CIPHER_SUITE_GCMP:
@@ -3179,6 +4433,7 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 		break;
 	case WLAN_CIPHER_SUITE_WEP40:
 	case WLAN_CIPHER_SUITE_WEP104:
+<<<<<<< HEAD
 		/* For non-client mode, only use WEP keys for TX as we probably
 		 * don't have a station yet anyway and would then have to keep
 		 * track of the keys, linking them to each of the clients/peers
@@ -3189,6 +4444,14 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 		if (vif->type != NL80211_IFTYPE_STATION)
 			return 0;
 		break;
+=======
+		if (vif->type == NL80211_IFTYPE_STATION)
+			break;
+		if (iwl_mvm_has_new_tx_api(mvm))
+			return -EOPNOTSUPP;
+		/* support HW crypto on TX */
+		return 0;
+>>>>>>> upstream/android-13
 	default:
 		/* currently FW supports only one optional cipher scheme */
 		if (hw->n_cipher_schemes &&
@@ -3198,10 +4461,19 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 			return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&mvm->mutex);
 
 	switch (cmd) {
 	case SET_KEY:
+=======
+	switch (cmd) {
+	case SET_KEY:
+		if (keyidx == 6 || keyidx == 7)
+			rcu_assign_pointer(mvmvif->bcn_prot.keys[keyidx - 6],
+					   key);
+
+>>>>>>> upstream/android-13
 		if ((vif->type == NL80211_IFTYPE_ADHOC ||
 		     vif->type == NL80211_IFTYPE_AP) && !sta) {
 			/*
@@ -3212,15 +4484,44 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 			 */
 			if (key->cipher == WLAN_CIPHER_SUITE_AES_CMAC ||
 			    key->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_128 ||
+<<<<<<< HEAD
 			    key->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256)
 				ret = -EOPNOTSUPP;
 			else
 				ret = 0;
+=======
+			    key->cipher == WLAN_CIPHER_SUITE_BIP_GMAC_256) {
+				ret = -EOPNOTSUPP;
+				break;
+			}
+>>>>>>> upstream/android-13
 
 			if (key->cipher != WLAN_CIPHER_SUITE_GCMP &&
 			    key->cipher != WLAN_CIPHER_SUITE_GCMP_256 &&
 			    !iwl_mvm_has_new_tx_api(mvm)) {
 				key->hw_key_idx = STA_KEY_IDX_INVALID;
+<<<<<<< HEAD
+=======
+				ret = 0;
+				break;
+			}
+
+			if (!mvmvif->ap_ibss_active) {
+				for (i = 0;
+				     i < ARRAY_SIZE(mvmvif->ap_early_keys);
+				     i++) {
+					if (!mvmvif->ap_early_keys[i]) {
+						mvmvif->ap_early_keys[i] = key;
+						break;
+					}
+				}
+
+				if (i >= ARRAY_SIZE(mvmvif->ap_early_keys))
+					ret = -ENOSPC;
+				else
+					ret = 0;
+
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
@@ -3276,16 +4577,49 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 		ret = iwl_mvm_set_sta_key(mvm, vif, sta, key, key_offset);
 		if (ret) {
 			IWL_WARN(mvm, "set key failed\n");
+<<<<<<< HEAD
 			/*
 			 * can't add key for RX, but we don't need it
 			 * in the device for TX so still return 0
 			 */
 			key->hw_key_idx = STA_KEY_IDX_INVALID;
 			ret = 0;
+=======
+			key->hw_key_idx = STA_KEY_IDX_INVALID;
+			/*
+			 * can't add key for RX, but we don't need it
+			 * in the device for TX so still return 0,
+			 * unless we have new TX API where we cannot
+			 * put key material into the TX_CMD
+			 */
+			if (iwl_mvm_has_new_tx_api(mvm))
+				ret = -EOPNOTSUPP;
+			else
+				ret = 0;
+>>>>>>> upstream/android-13
 		}
 
 		break;
 	case DISABLE_KEY:
+<<<<<<< HEAD
+=======
+		if (keyidx == 6 || keyidx == 7)
+			RCU_INIT_POINTER(mvmvif->bcn_prot.keys[keyidx - 6],
+					 NULL);
+
+		ret = -ENOENT;
+		for (i = 0; i < ARRAY_SIZE(mvmvif->ap_early_keys); i++) {
+			if (mvmvif->ap_early_keys[i] == key) {
+				mvmvif->ap_early_keys[i] = NULL;
+				ret = 0;
+			}
+		}
+
+		/* found in pending list - don't do anything else */
+		if (ret == 0)
+			break;
+
+>>>>>>> upstream/android-13
 		if (key->hw_key_idx == STA_KEY_IDX_INVALID) {
 			ret = 0;
 			break;
@@ -3312,7 +4646,26 @@ static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
 		ret = -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&mvm->mutex);
+=======
+	return ret;
+}
+
+static int iwl_mvm_mac_set_key(struct ieee80211_hw *hw,
+			       enum set_key_cmd cmd,
+			       struct ieee80211_vif *vif,
+			       struct ieee80211_sta *sta,
+			       struct ieee80211_key_conf *key)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	int ret;
+
+	mutex_lock(&mvm->mutex);
+	ret = __iwl_mvm_mac_set_key(hw, cmd, vif, sta, key);
+	mutex_unlock(&mvm->mutex);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -3351,7 +4704,11 @@ static bool iwl_mvm_rx_aux_roc(struct iwl_notif_wait_data *notif_wait,
 	resp = (void *)pkt->data;
 
 	IWL_DEBUG_TE(mvm,
+<<<<<<< HEAD
 		     "Aux ROC: Recieved response from ucode: status=%d uid=%d\n",
+=======
+		     "Aux ROC: Received response from ucode: status=%d uid=%d\n",
+>>>>>>> upstream/android-13
 		     resp->status, resp->event_unique_id);
 
 	te_data->uid = le32_to_cpu(resp->event_unique_id);
@@ -3375,7 +4732,11 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
 				    struct ieee80211_vif *vif,
 				    int duration)
 {
+<<<<<<< HEAD
 	int res, time_reg = DEVICE_SYSTEM_TIME_REG;
+=======
+	int res;
+>>>>>>> upstream/android-13
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
 	struct iwl_mvm_time_event_data *te_data = &mvmvif->hs_time_event_data;
 	static const u16 time_event_response[] = { HOT_SPOT_CMD };
@@ -3388,6 +4749,7 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
 		.id_and_color =
 			cpu_to_le32(FW_CMD_ID_AND_COLOR(MAC_INDEX_AUX, 0)),
 		.sta_id_and_color = cpu_to_le32(mvm->aux_sta.sta_id),
+<<<<<<< HEAD
 		/* Set the channel info data */
 		.channel_info.band = (channel->band == NL80211_BAND_2GHZ) ?
 			PHY_BAND_24 : PHY_BAND_5,
@@ -3396,6 +4758,21 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
 		/* Set the time and duration */
 		.apply_time = cpu_to_le32(iwl_read_prph(mvm->trans, time_reg)),
 	 };
+=======
+	};
+	struct iwl_hs20_roc_req_tail *tail = iwl_mvm_chan_info_cmd_tail(mvm,
+		&aux_roc_req.channel_info);
+	u16 len = sizeof(aux_roc_req) - iwl_mvm_chan_info_padding(mvm);
+
+	/* Set the channel info data */
+	iwl_mvm_set_chan_info(mvm, &aux_roc_req.channel_info, channel->hw_value,
+			      iwl_mvm_phy_band_from_nl80211(channel->band),
+			      PHY_VHT_CHANNEL_MODE20,
+			      0);
+
+	/* Set the time and duration */
+	tail->apply_time = cpu_to_le32(iwl_mvm_get_systime(mvm));
+>>>>>>> upstream/android-13
 
 	delay = AUX_ROC_MIN_DELAY;
 	req_dur = MSEC_TO_TU(duration);
@@ -3420,8 +4797,13 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
 		}
 	}
 
+<<<<<<< HEAD
 	aux_roc_req.duration = cpu_to_le32(req_dur);
 	aux_roc_req.apply_time_max_delay = cpu_to_le32(delay);
+=======
+	tail->duration = cpu_to_le32(req_dur);
+	tail->apply_time_max_delay = cpu_to_le32(delay);
+>>>>>>> upstream/android-13
 
 	IWL_DEBUG_TE(mvm,
 		     "ROC: Requesting to remain on channel %u for %ums\n",
@@ -3431,7 +4813,11 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
 		     duration, delay, dtim_interval);
 
 	/* Set the node address */
+<<<<<<< HEAD
 	memcpy(aux_roc_req.node_addr, vif->addr, ETH_ALEN);
+=======
+	memcpy(tail->node_addr, vif->addr, ETH_ALEN);
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&mvm->mutex);
 
@@ -3462,7 +4848,11 @@ static int iwl_mvm_send_aux_roc_cmd(struct iwl_mvm *mvm,
 				   ARRAY_SIZE(time_event_response),
 				   iwl_mvm_rx_aux_roc, te_data);
 
+<<<<<<< HEAD
 	res = iwl_mvm_send_cmd_pdu(mvm, HOT_SPOT_CMD, 0, sizeof(aux_roc_req),
+=======
+	res = iwl_mvm_send_cmd_pdu(mvm, HOT_SPOT_CMD, 0, len,
+>>>>>>> upstream/android-13
 				   &aux_roc_req);
 
 	if (res) {
@@ -3496,6 +4886,10 @@ static int iwl_mvm_roc(struct ieee80211_hw *hw,
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
 	struct cfg80211_chan_def chandef;
 	struct iwl_mvm_phy_ctxt *phy_ctxt;
+<<<<<<< HEAD
+=======
+	bool band_change_removal;
+>>>>>>> upstream/android-13
 	int ret, i;
 
 	IWL_DEBUG_MAC80211(mvm, "enter (%d, %d, %d)\n", channel->hw_value,
@@ -3514,6 +4908,20 @@ static int iwl_mvm_roc(struct ieee80211_hw *hw,
 		if (fw_has_capa(&mvm->fw->ucode_capa,
 				IWL_UCODE_TLV_CAPA_HOTSPOT_SUPPORT)) {
 			/* Use aux roc framework (HS20) */
+<<<<<<< HEAD
+=======
+			if (iwl_fw_lookup_cmd_ver(mvm->fw, LONG_GROUP,
+						  ADD_STA, 0) >= 12) {
+				u32 lmac_id;
+
+				lmac_id = iwl_mvm_get_lmac_id(mvm->fw,
+							      channel->band);
+				ret = iwl_mvm_add_aux_sta(mvm, lmac_id);
+				if (WARN(ret,
+					 "Failed to allocate aux station"))
+					goto out_unlock;
+			}
+>>>>>>> upstream/android-13
 			ret = iwl_mvm_send_aux_roc_cmd(mvm, channel,
 						       vif, duration);
 			goto out_unlock;
@@ -3565,19 +4973,43 @@ static int iwl_mvm_roc(struct ieee80211_hw *hw,
 	cfg80211_chandef_create(&chandef, channel, NL80211_CHAN_NO_HT);
 
 	/*
+<<<<<<< HEAD
 	 * Change the PHY context configuration as it is currently referenced
 	 * only by the P2P Device MAC
 	 */
 	if (mvmvif->phy_ctxt->ref == 1) {
+=======
+	 * Check if the remain-on-channel is on a different band and that
+	 * requires context removal, see iwl_mvm_phy_ctxt_changed(). If
+	 * so, we'll need to release and then re-configure here, since we
+	 * must not remove a PHY context that's part of a binding.
+	 */
+	band_change_removal =
+		fw_has_capa(&mvm->fw->ucode_capa,
+			    IWL_UCODE_TLV_CAPA_BINDING_CDB_SUPPORT) &&
+		mvmvif->phy_ctxt->channel->band != chandef.chan->band;
+
+	if (mvmvif->phy_ctxt->ref == 1 && !band_change_removal) {
+		/*
+		 * Change the PHY context configuration as it is currently
+		 * referenced only by the P2P Device MAC (and we can modify it)
+		 */
+>>>>>>> upstream/android-13
 		ret = iwl_mvm_phy_ctxt_changed(mvm, mvmvif->phy_ctxt,
 					       &chandef, 1, 1);
 		if (ret)
 			goto out_unlock;
 	} else {
 		/*
+<<<<<<< HEAD
 		 * The PHY context is shared with other MACs. Need to remove the
 		 * P2P Device from the binding, allocate an new PHY context and
 		 * create a new binding
+=======
+		 * The PHY context is shared with other MACs (or we're trying to
+		 * switch bands), so remove the P2P Device from the binding,
+		 * allocate an new PHY context and create a new binding.
+>>>>>>> upstream/android-13
 		 */
 		phy_ctxt = iwl_mvm_get_free_phy_ctxt(mvm);
 		if (!phy_ctxt) {
@@ -3619,25 +5051,72 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int iwl_mvm_cancel_roc(struct ieee80211_hw *hw)
+=======
+static int iwl_mvm_cancel_roc(struct ieee80211_hw *hw,
+			      struct ieee80211_vif *vif)
+>>>>>>> upstream/android-13
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 
 	IWL_DEBUG_MAC80211(mvm, "enter\n");
 
 	mutex_lock(&mvm->mutex);
+<<<<<<< HEAD
 	iwl_mvm_stop_roc(mvm);
+=======
+	iwl_mvm_stop_roc(mvm, vif);
+>>>>>>> upstream/android-13
 	mutex_unlock(&mvm->mutex);
 
 	IWL_DEBUG_MAC80211(mvm, "leave\n");
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+struct iwl_mvm_ftm_responder_iter_data {
+	bool responder;
+	struct ieee80211_chanctx_conf *ctx;
+};
+
+static void iwl_mvm_ftm_responder_chanctx_iter(void *_data, u8 *mac,
+					       struct ieee80211_vif *vif)
+{
+	struct iwl_mvm_ftm_responder_iter_data *data = _data;
+
+	if (rcu_access_pointer(vif->chanctx_conf) == data->ctx &&
+	    vif->type == NL80211_IFTYPE_AP && vif->bss_conf.ftmr_params)
+		data->responder = true;
+}
+
+static bool iwl_mvm_is_ftm_responder_chanctx(struct iwl_mvm *mvm,
+					     struct ieee80211_chanctx_conf *ctx)
+{
+	struct iwl_mvm_ftm_responder_iter_data data = {
+		.responder = false,
+		.ctx = ctx,
+	};
+
+	ieee80211_iterate_active_interfaces_atomic(mvm->hw,
+					IEEE80211_IFACE_ITER_NORMAL,
+					iwl_mvm_ftm_responder_chanctx_iter,
+					&data);
+	return data.responder;
+}
+
+>>>>>>> upstream/android-13
 static int __iwl_mvm_add_chanctx(struct iwl_mvm *mvm,
 				 struct ieee80211_chanctx_conf *ctx)
 {
 	u16 *phy_ctxt_id = (u16 *)ctx->drv_priv;
 	struct iwl_mvm_phy_ctxt *phy_ctxt;
+<<<<<<< HEAD
+=======
+	bool responder = iwl_mvm_is_ftm_responder_chanctx(mvm, ctx);
+	struct cfg80211_chan_def *def = responder ? &ctx->def : &ctx->min_def;
+>>>>>>> upstream/android-13
 	int ret;
 
 	lockdep_assert_held(&mvm->mutex);
@@ -3650,7 +5129,11 @@ static int __iwl_mvm_add_chanctx(struct iwl_mvm *mvm,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = iwl_mvm_phy_ctxt_changed(mvm, phy_ctxt, &ctx->min_def,
+=======
+	ret = iwl_mvm_phy_ctxt_changed(mvm, phy_ctxt, def,
+>>>>>>> upstream/android-13
 				       ctx->rx_chains_static,
 				       ctx->rx_chains_dynamic);
 	if (ret) {
@@ -3705,6 +5188,11 @@ static void iwl_mvm_change_chanctx(struct ieee80211_hw *hw,
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	u16 *phy_ctxt_id = (u16 *)ctx->drv_priv;
 	struct iwl_mvm_phy_ctxt *phy_ctxt = &mvm->phy_ctxts[*phy_ctxt_id];
+<<<<<<< HEAD
+=======
+	bool responder = iwl_mvm_is_ftm_responder_chanctx(mvm, ctx);
+	struct cfg80211_chan_def *def = responder ? &ctx->def : &ctx->min_def;
+>>>>>>> upstream/android-13
 
 	if (WARN_ONCE((phy_ctxt->ref > 1) &&
 		      (changed & ~(IEEE80211_CHANCTX_CHANGE_WIDTH |
@@ -3719,17 +5207,29 @@ static void iwl_mvm_change_chanctx(struct ieee80211_hw *hw,
 
 	/* we are only changing the min_width, may be a noop */
 	if (changed == IEEE80211_CHANCTX_CHANGE_MIN_WIDTH) {
+<<<<<<< HEAD
 		if (phy_ctxt->width == ctx->min_def.width)
+=======
+		if (phy_ctxt->width == def->width)
+>>>>>>> upstream/android-13
 			goto out_unlock;
 
 		/* we are just toggling between 20_NOHT and 20 */
 		if (phy_ctxt->width <= NL80211_CHAN_WIDTH_20 &&
+<<<<<<< HEAD
 		    ctx->min_def.width <= NL80211_CHAN_WIDTH_20)
+=======
+		    def->width <= NL80211_CHAN_WIDTH_20)
+>>>>>>> upstream/android-13
 			goto out_unlock;
 	}
 
 	iwl_mvm_bt_coex_vif_change(mvm);
+<<<<<<< HEAD
 	iwl_mvm_phy_ctxt_changed(mvm, phy_ctxt, &ctx->min_def,
+=======
+	iwl_mvm_phy_ctxt_changed(mvm, phy_ctxt, def,
+>>>>>>> upstream/android-13
 				 ctx->rx_chains_static,
 				 ctx->rx_chains_dynamic);
 
@@ -3758,6 +5258,10 @@ static int __iwl_mvm_assign_vif_chanctx(struct iwl_mvm *mvm,
 			mvmvif->ap_ibss_active = true;
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_ADHOC:
 		/*
 		 * The AP binding flow is handled as part of the start_ap flow
@@ -3810,6 +5314,7 @@ static int __iwl_mvm_assign_vif_chanctx(struct iwl_mvm *mvm,
 	}
 
 	if (switching_chanctx && vif->type == NL80211_IFTYPE_STATION) {
+<<<<<<< HEAD
 		u32 duration = 3 * vif->bss_conf.beacon_int;
 
 		/* iwl_mvm_protect_session() reads directly from the
@@ -3829,6 +5334,21 @@ static int __iwl_mvm_assign_vif_chanctx(struct iwl_mvm *mvm,
 					true);
 
 		iwl_mvm_unref(mvm, IWL_MVM_REF_PROTECT_CSA);
+=======
+		mvmvif->csa_bcn_pending = true;
+
+		if (!fw_has_capa(&mvm->fw->ucode_capa,
+				 IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD)) {
+			u32 duration = 3 * vif->bss_conf.beacon_int;
+
+			/* Protect the session to make sure we hear the first
+			 * beacon on the new channel.
+			 */
+			iwl_mvm_protect_session(mvm, vif, duration, duration,
+						vif->bss_conf.beacon_int / 2,
+						true);
+		}
+>>>>>>> upstream/android-13
 
 		iwl_mvm_update_quotas(mvm, false, NULL);
 	}
@@ -3866,7 +5386,10 @@ static void __iwl_mvm_unassign_vif_chanctx(struct iwl_mvm *mvm,
 	struct ieee80211_vif *disabled_vif = NULL;
 
 	lockdep_assert_held(&mvm->mutex);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	iwl_mvm_remove_time_event(mvm, mvmvif, &mvmvif->time_event_data);
 
 	switch (vif->type) {
@@ -3898,7 +5421,13 @@ static void __iwl_mvm_unassign_vif_chanctx(struct iwl_mvm *mvm,
 
 		disabled_vif = vif;
 
+<<<<<<< HEAD
 		iwl_mvm_mac_ctxt_changed(mvm, vif, true, NULL);
+=======
+		if (!fw_has_capa(&mvm->fw->ucode_capa,
+				 IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD))
+			iwl_mvm_mac_ctxt_changed(mvm, vif, true, NULL);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -3908,6 +5437,12 @@ static void __iwl_mvm_unassign_vif_chanctx(struct iwl_mvm *mvm,
 	iwl_mvm_binding_remove_vif(mvm, vif);
 
 out:
+<<<<<<< HEAD
+=======
+	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD) &&
+	    switching_chanctx)
+		return;
+>>>>>>> upstream/android-13
 	mvmvif->phy_ctxt = NULL;
 	iwl_mvm_power_update_mac(mvm);
 }
@@ -4082,8 +5617,13 @@ static int __iwl_mvm_mac_testmode_cmd(struct iwl_mvm *mvm,
 	int err;
 	u32 noa_duration;
 
+<<<<<<< HEAD
 	err = nla_parse(tb, IWL_MVM_TM_ATTR_MAX, data, len, iwl_mvm_tm_policy,
 			NULL);
+=======
+	err = nla_parse_deprecated(tb, IWL_MVM_TM_ATTR_MAX, data, len,
+				   iwl_mvm_tm_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -4149,6 +5689,72 @@ static void iwl_mvm_channel_switch(struct ieee80211_hw *hw,
 			   "dummy channel switch op\n");
 }
 
+<<<<<<< HEAD
+=======
+static int iwl_mvm_schedule_client_csa(struct iwl_mvm *mvm,
+				       struct ieee80211_vif *vif,
+				       struct ieee80211_channel_switch *chsw)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	struct iwl_chan_switch_te_cmd cmd = {
+		.mac_id = cpu_to_le32(FW_CMD_ID_AND_COLOR(mvmvif->id,
+							  mvmvif->color)),
+		.action = cpu_to_le32(FW_CTXT_ACTION_ADD),
+		.tsf = cpu_to_le32(chsw->timestamp),
+		.cs_count = chsw->count,
+		.cs_mode = chsw->block_tx,
+	};
+
+	lockdep_assert_held(&mvm->mutex);
+
+	if (chsw->delay)
+		cmd.cs_delayed_bcn_count =
+			DIV_ROUND_UP(chsw->delay, vif->bss_conf.beacon_int);
+
+	return iwl_mvm_send_cmd_pdu(mvm,
+				    WIDE_ID(MAC_CONF_GROUP,
+					    CHANNEL_SWITCH_TIME_EVENT_CMD),
+				    0, sizeof(cmd), &cmd);
+}
+
+static int iwl_mvm_old_pre_chan_sw_sta(struct iwl_mvm *mvm,
+				       struct ieee80211_vif *vif,
+				       struct ieee80211_channel_switch *chsw)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	u32 apply_time;
+
+	/* Schedule the time event to a bit before beacon 1,
+	 * to make sure we're in the new channel when the
+	 * GO/AP arrives. In case count <= 1 immediately schedule the
+	 * TE (this might result with some packet loss or connection
+	 * loss).
+	 */
+	if (chsw->count <= 1)
+		apply_time = 0;
+	else
+		apply_time = chsw->device_timestamp +
+			((vif->bss_conf.beacon_int * (chsw->count - 1) -
+			  IWL_MVM_CHANNEL_SWITCH_TIME_CLIENT) * 1024);
+
+	if (chsw->block_tx)
+		iwl_mvm_csa_client_absent(mvm, vif);
+
+	if (mvmvif->bf_data.bf_enabled) {
+		int ret = iwl_mvm_disable_beacon_filter(mvm, vif, 0);
+
+		if (ret)
+			return ret;
+	}
+
+	iwl_mvm_schedule_csa_period(mvm, vif, vif->bss_conf.beacon_int,
+				    apply_time);
+
+	return 0;
+}
+
+#define IWL_MAX_CSA_BLOCK_TX 1500
+>>>>>>> upstream/android-13
 static int iwl_mvm_pre_channel_switch(struct ieee80211_hw *hw,
 				      struct ieee80211_vif *vif,
 				      struct ieee80211_channel_switch *chsw)
@@ -4156,7 +5762,10 @@ static int iwl_mvm_pre_channel_switch(struct ieee80211_hw *hw,
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
 	struct ieee80211_vif *csa_vif;
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+<<<<<<< HEAD
 	u32 apply_time;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	mutex_lock(&mvm->mutex);
@@ -4200,6 +5809,7 @@ static int iwl_mvm_pre_channel_switch(struct ieee80211_hw *hw,
 
 		break;
 	case NL80211_IFTYPE_STATION:
+<<<<<<< HEAD
 		/* Schedule the time event to a bit before beacon 1,
 		 * to make sure we're in the new channel when the
 		 * GO/AP arrives. In case count <= 1 immediately schedule the
@@ -4224,6 +5834,44 @@ static int iwl_mvm_pre_channel_switch(struct ieee80211_hw *hw,
 				goto out_unlock;
 		}
 
+=======
+		/*
+		 * We haven't configured the firmware to be associated yet since
+		 * we don't know the dtim period. In this case, the firmware can't
+		 * track the beacons.
+		 */
+		if (!vif->bss_conf.assoc || !vif->bss_conf.dtim_period) {
+			ret = -EBUSY;
+			goto out_unlock;
+		}
+
+		if (chsw->delay > IWL_MAX_CSA_BLOCK_TX)
+			schedule_delayed_work(&mvmvif->csa_work, 0);
+
+		if (chsw->block_tx) {
+			/*
+			 * In case of undetermined / long time with immediate
+			 * quiet monitor status to gracefully disconnect
+			 */
+			if (!chsw->count ||
+			    chsw->count * vif->bss_conf.beacon_int >
+			    IWL_MAX_CSA_BLOCK_TX)
+				schedule_delayed_work(&mvmvif->csa_work,
+						      msecs_to_jiffies(IWL_MAX_CSA_BLOCK_TX));
+		}
+
+		if (!fw_has_capa(&mvm->fw->ucode_capa,
+				 IWL_UCODE_TLV_CAPA_CHANNEL_SWITCH_CMD)) {
+			ret = iwl_mvm_old_pre_chan_sw_sta(mvm, vif, chsw);
+			if (ret)
+				goto out_unlock;
+		} else {
+			iwl_mvm_schedule_client_csa(mvm, vif, chsw);
+		}
+
+		mvmvif->csa_count = chsw->count;
+		mvmvif->csa_misbehave = false;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -4244,6 +5892,7 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int iwl_mvm_post_channel_switch(struct ieee80211_hw *hw,
 				       struct ieee80211_vif *vif)
 {
@@ -4290,6 +5939,50 @@ out_unlock:
 	mutex_unlock(&mvm->mutex);
 
 	return ret;
+=======
+static void iwl_mvm_channel_switch_rx_beacon(struct ieee80211_hw *hw,
+					     struct ieee80211_vif *vif,
+					     struct ieee80211_channel_switch *chsw)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+	struct iwl_chan_switch_te_cmd cmd = {
+		.mac_id = cpu_to_le32(FW_CMD_ID_AND_COLOR(mvmvif->id,
+							  mvmvif->color)),
+		.action = cpu_to_le32(FW_CTXT_ACTION_MODIFY),
+		.tsf = cpu_to_le32(chsw->timestamp),
+		.cs_count = chsw->count,
+		.cs_mode = chsw->block_tx,
+	};
+
+	if (!fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_CS_MODIFY))
+		return;
+
+	if (chsw->count >= mvmvif->csa_count && chsw->block_tx) {
+		if (mvmvif->csa_misbehave) {
+			/* Second time, give up on this AP*/
+			iwl_mvm_abort_channel_switch(hw, vif);
+			ieee80211_chswitch_done(vif, false);
+			mvmvif->csa_misbehave = false;
+			return;
+		}
+		mvmvif->csa_misbehave = true;
+	}
+	mvmvif->csa_count = chsw->count;
+
+	mutex_lock(&mvm->mutex);
+	if (mvmvif->csa_failed)
+		goto out_unlock;
+
+	IWL_DEBUG_MAC80211(mvm, "Modify CSA on mac %d count = %d mode = %d\n",
+			   mvmvif->id, chsw->count, chsw->block_tx);
+	WARN_ON(iwl_mvm_send_cmd_pdu(mvm,
+				     WIDE_ID(MAC_CONF_GROUP,
+					     CHANNEL_SWITCH_TIME_EVENT_CMD),
+				     0, sizeof(cmd), &cmd));
+out_unlock:
+	mutex_unlock(&mvm->mutex);
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_flush_no_vif(struct iwl_mvm *mvm, u32 queues, bool drop)
@@ -4300,7 +5993,11 @@ static void iwl_mvm_flush_no_vif(struct iwl_mvm *mvm, u32 queues, bool drop)
 		if (drop) {
 			mutex_lock(&mvm->mutex);
 			iwl_mvm_flush_tx_path(mvm,
+<<<<<<< HEAD
 				iwl_mvm_flushable_queues(mvm) & queues, 0);
+=======
+				iwl_mvm_flushable_queues(mvm) & queues);
+>>>>>>> upstream/android-13
 			mutex_unlock(&mvm->mutex);
 		} else {
 			iwl_trans_wait_tx_queues_empty(mvm->trans, queues);
@@ -4309,7 +6006,11 @@ static void iwl_mvm_flush_no_vif(struct iwl_mvm *mvm, u32 queues, bool drop)
 	}
 
 	mutex_lock(&mvm->mutex);
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(mvm->fw_id_to_mac_id); i++) {
+=======
+	for (i = 0; i < mvm->fw->ucode_capa.num_stations; i++) {
+>>>>>>> upstream/android-13
 		struct ieee80211_sta *sta;
 
 		sta = rcu_dereference_protected(mvm->fw_id_to_mac_id[i],
@@ -4318,7 +6019,11 @@ static void iwl_mvm_flush_no_vif(struct iwl_mvm *mvm, u32 queues, bool drop)
 			continue;
 
 		if (drop)
+<<<<<<< HEAD
 			iwl_mvm_flush_sta_tids(mvm, i, 0xFF, 0);
+=======
+			iwl_mvm_flush_sta_tids(mvm, i, 0xFFFF);
+>>>>>>> upstream/android-13
 		else
 			iwl_mvm_wait_sta_queues_empty(mvm,
 					iwl_mvm_sta_from_mac80211(sta));
@@ -4351,7 +6056,11 @@ static void iwl_mvm_mac_flush(struct ieee80211_hw *hw,
 	mvmvif = iwl_mvm_vif_from_mac80211(vif);
 
 	/* flush the AP-station and all TDLS peers */
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(mvm->fw_id_to_mac_id); i++) {
+=======
+	for (i = 0; i < mvm->fw->ucode_capa.num_stations; i++) {
+>>>>>>> upstream/android-13
 		sta = rcu_dereference_protected(mvm->fw_id_to_mac_id[i],
 						lockdep_is_held(&mvm->mutex));
 		if (IS_ERR_OR_NULL(sta))
@@ -4365,7 +6074,11 @@ static void iwl_mvm_mac_flush(struct ieee80211_hw *hw,
 		WARN_ON(i != mvmvif->ap_sta_id && !sta->tdls);
 
 		if (drop) {
+<<<<<<< HEAD
 			if (iwl_mvm_flush_sta(mvm, mvmsta, false, 0))
+=======
+			if (iwl_mvm_flush_sta(mvm, mvmsta, false))
+>>>>>>> upstream/android-13
 				IWL_ERR(mvm, "flush request fail\n");
 		} else {
 			msk |= mvmsta->tfd_queue_msk;
@@ -4433,6 +6146,128 @@ static int iwl_mvm_mac_get_survey(struct ieee80211_hw *hw, int idx,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void iwl_mvm_set_sta_rate(u32 rate_n_flags, struct rate_info *rinfo)
+{
+	switch (rate_n_flags & RATE_MCS_CHAN_WIDTH_MSK) {
+	case RATE_MCS_CHAN_WIDTH_20:
+		rinfo->bw = RATE_INFO_BW_20;
+		break;
+	case RATE_MCS_CHAN_WIDTH_40:
+		rinfo->bw = RATE_INFO_BW_40;
+		break;
+	case RATE_MCS_CHAN_WIDTH_80:
+		rinfo->bw = RATE_INFO_BW_80;
+		break;
+	case RATE_MCS_CHAN_WIDTH_160:
+		rinfo->bw = RATE_INFO_BW_160;
+		break;
+	}
+
+	if (rate_n_flags & RATE_MCS_HT_MSK) {
+		rinfo->flags |= RATE_INFO_FLAGS_MCS;
+		rinfo->mcs = u32_get_bits(rate_n_flags, RATE_HT_MCS_INDEX_MSK);
+		rinfo->nss = u32_get_bits(rate_n_flags,
+					  RATE_HT_MCS_NSS_MSK) + 1;
+		if (rate_n_flags & RATE_MCS_SGI_MSK)
+			rinfo->flags |= RATE_INFO_FLAGS_SHORT_GI;
+	} else if (rate_n_flags & RATE_MCS_VHT_MSK) {
+		rinfo->flags |= RATE_INFO_FLAGS_VHT_MCS;
+		rinfo->mcs = u32_get_bits(rate_n_flags,
+					  RATE_VHT_MCS_RATE_CODE_MSK);
+		rinfo->nss = u32_get_bits(rate_n_flags,
+					  RATE_VHT_MCS_NSS_MSK) + 1;
+		if (rate_n_flags & RATE_MCS_SGI_MSK)
+			rinfo->flags |= RATE_INFO_FLAGS_SHORT_GI;
+	} else if (rate_n_flags & RATE_MCS_HE_MSK) {
+		u32 gi_ltf = u32_get_bits(rate_n_flags,
+					  RATE_MCS_HE_GI_LTF_MSK);
+
+		rinfo->flags |= RATE_INFO_FLAGS_HE_MCS;
+		rinfo->mcs = u32_get_bits(rate_n_flags,
+					  RATE_VHT_MCS_RATE_CODE_MSK);
+		rinfo->nss = u32_get_bits(rate_n_flags,
+					  RATE_VHT_MCS_NSS_MSK) + 1;
+
+		if (rate_n_flags & RATE_MCS_HE_106T_MSK) {
+			rinfo->bw = RATE_INFO_BW_HE_RU;
+			rinfo->he_ru_alloc = NL80211_RATE_INFO_HE_RU_ALLOC_106;
+		}
+
+		switch (rate_n_flags & RATE_MCS_HE_TYPE_MSK) {
+		case RATE_MCS_HE_TYPE_SU:
+		case RATE_MCS_HE_TYPE_EXT_SU:
+			if (gi_ltf == 0 || gi_ltf == 1)
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_0_8;
+			else if (gi_ltf == 2)
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_1_6;
+			else if (rate_n_flags & RATE_MCS_SGI_MSK)
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_0_8;
+			else
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_3_2;
+			break;
+		case RATE_MCS_HE_TYPE_MU:
+			if (gi_ltf == 0 || gi_ltf == 1)
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_0_8;
+			else if (gi_ltf == 2)
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_1_6;
+			else
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_3_2;
+			break;
+		case RATE_MCS_HE_TYPE_TRIG:
+			if (gi_ltf == 0 || gi_ltf == 1)
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_1_6;
+			else
+				rinfo->he_gi = NL80211_RATE_INFO_HE_GI_3_2;
+			break;
+		}
+
+		if (rate_n_flags & RATE_HE_DUAL_CARRIER_MODE_MSK)
+			rinfo->he_dcm = 1;
+	} else {
+		switch (u32_get_bits(rate_n_flags, RATE_LEGACY_RATE_MSK)) {
+		case IWL_RATE_1M_PLCP:
+			rinfo->legacy = 10;
+			break;
+		case IWL_RATE_2M_PLCP:
+			rinfo->legacy = 20;
+			break;
+		case IWL_RATE_5M_PLCP:
+			rinfo->legacy = 55;
+			break;
+		case IWL_RATE_11M_PLCP:
+			rinfo->legacy = 110;
+			break;
+		case IWL_RATE_6M_PLCP:
+			rinfo->legacy = 60;
+			break;
+		case IWL_RATE_9M_PLCP:
+			rinfo->legacy = 90;
+			break;
+		case IWL_RATE_12M_PLCP:
+			rinfo->legacy = 120;
+			break;
+		case IWL_RATE_18M_PLCP:
+			rinfo->legacy = 180;
+			break;
+		case IWL_RATE_24M_PLCP:
+			rinfo->legacy = 240;
+			break;
+		case IWL_RATE_36M_PLCP:
+			rinfo->legacy = 360;
+			break;
+		case IWL_RATE_48M_PLCP:
+			rinfo->legacy = 480;
+			break;
+		case IWL_RATE_54M_PLCP:
+			rinfo->legacy = 540;
+			break;
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static void iwl_mvm_mac_sta_statistics(struct ieee80211_hw *hw,
 				       struct ieee80211_vif *vif,
 				       struct ieee80211_sta *sta,
@@ -4443,10 +6278,24 @@ static void iwl_mvm_mac_sta_statistics(struct ieee80211_hw *hw,
 	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
 
 	if (mvmsta->avg_energy) {
+<<<<<<< HEAD
 		sinfo->signal_avg = mvmsta->avg_energy;
 		sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL_AVG);
 	}
 
+=======
+		sinfo->signal_avg = -(s8)mvmsta->avg_energy;
+		sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL_AVG);
+	}
+
+	if (iwl_mvm_has_tlc_offload(mvm)) {
+		struct iwl_lq_sta_rs_fw *lq_sta = &mvmsta->lq_sta.rs_fw;
+
+		iwl_mvm_set_sta_rate(lq_sta->last_rate_n_flags, &sinfo->txrate);
+		sinfo->filled |= BIT_ULL(NL80211_STA_INFO_TX_BITRATE);
+	}
+
+>>>>>>> upstream/android-13
 	/* if beacon filtering isn't on mac80211 does it anyway */
 	if (!(vif->driver_flags & IEEE80211_VIF_BEACON_FILTER))
 		return;
@@ -4474,6 +6323,29 @@ static void iwl_mvm_mac_sta_statistics(struct ieee80211_hw *hw,
 	mutex_unlock(&mvm->mutex);
 }
 
+<<<<<<< HEAD
+=======
+static void iwl_mvm_event_mlme_callback_ini(struct iwl_mvm *mvm,
+					    struct ieee80211_vif *vif,
+					    const  struct ieee80211_mlme_event *mlme)
+{
+	if ((mlme->data == ASSOC_EVENT || mlme->data == AUTH_EVENT) &&
+	    (mlme->status == MLME_DENIED || mlme->status == MLME_TIMEOUT)) {
+		iwl_dbg_tlv_time_point(&mvm->fwrt,
+				       IWL_FW_INI_TIME_POINT_ASSOC_FAILED,
+				       NULL);
+		return;
+	}
+
+	if (mlme->data == DEAUTH_RX_EVENT || mlme->data == DEAUTH_TX_EVENT) {
+		iwl_dbg_tlv_time_point(&mvm->fwrt,
+				       IWL_FW_INI_TIME_POINT_DEASSOC,
+				       NULL);
+		return;
+	}
+}
+
+>>>>>>> upstream/android-13
 static void iwl_mvm_event_mlme_callback(struct iwl_mvm *mvm,
 					struct ieee80211_vif *vif,
 					const struct ieee80211_event *event)
@@ -4488,6 +6360,7 @@ static void iwl_mvm_event_mlme_callback(struct iwl_mvm *mvm,
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_mlme *trig_mlme;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_MLME))
 		return;
 
@@ -4496,6 +6369,19 @@ static void iwl_mvm_event_mlme_callback(struct iwl_mvm *mvm,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt,
 					   ieee80211_vif_to_wdev(vif), trig))
 		return;
+=======
+	if (iwl_trans_dbg_ini_valid(mvm->trans)) {
+		iwl_mvm_event_mlme_callback_ini(mvm, vif, &event->u.mlme);
+		return;
+	}
+
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, ieee80211_vif_to_wdev(vif),
+				     FW_DBG_TRIGGER_MLME);
+	if (!trig)
+		return;
+
+	trig_mlme = (void *)trig->data;
+>>>>>>> upstream/android-13
 
 	if (event->u.mlme.data == ASSOC_EVENT) {
 		if (event->u.mlme.status == MLME_DENIED)
@@ -4530,6 +6416,7 @@ static void iwl_mvm_event_bar_rx_callback(struct iwl_mvm *mvm,
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_ba *ba_trig;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_BA))
 		return;
 
@@ -4538,6 +6425,14 @@ static void iwl_mvm_event_bar_rx_callback(struct iwl_mvm *mvm,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt,
 					   ieee80211_vif_to_wdev(vif), trig))
 		return;
+=======
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, ieee80211_vif_to_wdev(vif),
+				     FW_DBG_TRIGGER_BA);
+	if (!trig)
+		return;
+
+	ba_trig = (void *)trig->data;
+>>>>>>> upstream/android-13
 
 	if (!(le16_to_cpu(ba_trig->rx_bar) & BIT(event->u.ba.tid)))
 		return;
@@ -4571,6 +6466,7 @@ static void iwl_mvm_mac_event_callback(struct ieee80211_hw *hw,
 }
 
 void iwl_mvm_sync_rx_queues_internal(struct iwl_mvm *mvm,
+<<<<<<< HEAD
 				     struct iwl_mvm_internal_rxq_notif *notif,
 				     u32 size)
 {
@@ -4578,10 +6474,41 @@ void iwl_mvm_sync_rx_queues_internal(struct iwl_mvm *mvm,
 	int ret;
 
 	lockdep_assert_held(&mvm->mutex);
+=======
+				     enum iwl_mvm_rxq_notif_type type,
+				     bool sync,
+				     const void *data, u32 size)
+{
+	struct {
+		struct iwl_rxq_sync_cmd cmd;
+		struct iwl_mvm_internal_rxq_notif notif;
+	} __packed cmd = {
+		.cmd.rxq_mask = cpu_to_le32(BIT(mvm->trans->num_rx_queues) - 1),
+		.cmd.count =
+			cpu_to_le32(sizeof(struct iwl_mvm_internal_rxq_notif) +
+				    size),
+		.notif.type = type,
+		.notif.sync = sync,
+	};
+	struct iwl_host_cmd hcmd = {
+		.id = WIDE_ID(DATA_PATH_GROUP, TRIGGER_RX_QUEUES_NOTIF_CMD),
+		.data[0] = &cmd,
+		.len[0] = sizeof(cmd),
+		.data[1] = data,
+		.len[1] = size,
+		.flags = sync ? 0 : CMD_ASYNC,
+	};
+	int ret;
+
+	/* size must be a multiple of DWORD */
+	if (WARN_ON(cmd.cmd.count & cpu_to_le32(3)))
+		return;
+>>>>>>> upstream/android-13
 
 	if (!iwl_mvm_has_new_rx_api(mvm))
 		return;
 
+<<<<<<< HEAD
 	notif->cookie = mvm->queue_sync_cookie;
 
 	if (notif->sync)
@@ -4589,11 +6516,20 @@ void iwl_mvm_sync_rx_queues_internal(struct iwl_mvm *mvm,
 			   mvm->trans->num_rx_queues);
 
 	ret = iwl_mvm_notify_rx_queue(mvm, qmask, (u8 *)notif, size);
+=======
+	if (sync) {
+		cmd.notif.cookie = mvm->queue_sync_cookie;
+		mvm->queue_sync_state = (1 << mvm->trans->num_rx_queues) - 1;
+	}
+
+	ret = iwl_mvm_send_cmd(mvm, &hcmd);
+>>>>>>> upstream/android-13
 	if (ret) {
 		IWL_ERR(mvm, "Failed to trigger RX queues sync (%d)\n", ret);
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (notif->sync) {
 		ret = wait_event_timeout(mvm->rx_sync_waitq,
 					 atomic_read(&mvm->queue_sync_counter) == 0 ||
@@ -4605,11 +6541,30 @@ void iwl_mvm_sync_rx_queues_internal(struct iwl_mvm *mvm,
 out:
 	atomic_set(&mvm->queue_sync_counter, 0);
 	mvm->queue_sync_cookie++;
+=======
+	if (sync) {
+		lockdep_assert_held(&mvm->mutex);
+		ret = wait_event_timeout(mvm->rx_sync_waitq,
+					 READ_ONCE(mvm->queue_sync_state) == 0 ||
+					 iwl_mvm_is_radio_killed(mvm),
+					 HZ);
+		WARN_ONCE(!ret && !iwl_mvm_is_radio_killed(mvm),
+			  "queue sync: failed to sync, state is 0x%lx\n",
+			  mvm->queue_sync_state);
+	}
+
+out:
+	if (sync) {
+		mvm->queue_sync_state = 0;
+		mvm->queue_sync_cookie++;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_sync_rx_queues(struct ieee80211_hw *hw)
 {
 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+<<<<<<< HEAD
 	struct iwl_mvm_internal_rxq_notif data = {
 		.type = IWL_MVM_RXQ_EMPTY,
 		.sync = 1,
@@ -4623,6 +6578,99 @@ static void iwl_mvm_sync_rx_queues(struct ieee80211_hw *hw)
 const struct ieee80211_ops iwl_mvm_hw_ops = {
 	.tx = iwl_mvm_mac_tx,
 	.ampdu_action = iwl_mvm_mac_ampdu_action,
+=======
+
+	mutex_lock(&mvm->mutex);
+	iwl_mvm_sync_rx_queues_internal(mvm, IWL_MVM_RXQ_EMPTY, true, NULL, 0);
+	mutex_unlock(&mvm->mutex);
+}
+
+static int
+iwl_mvm_mac_get_ftm_responder_stats(struct ieee80211_hw *hw,
+				    struct ieee80211_vif *vif,
+				    struct cfg80211_ftm_responder_stats *stats)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+
+	if (vif->p2p || vif->type != NL80211_IFTYPE_AP ||
+	    !mvmvif->ap_ibss_active || !vif->bss_conf.ftm_responder)
+		return -EINVAL;
+
+	mutex_lock(&mvm->mutex);
+	*stats = mvm->ftm_resp_stats;
+	mutex_unlock(&mvm->mutex);
+
+	stats->filled = BIT(NL80211_FTM_STATS_SUCCESS_NUM) |
+			BIT(NL80211_FTM_STATS_PARTIAL_NUM) |
+			BIT(NL80211_FTM_STATS_FAILED_NUM) |
+			BIT(NL80211_FTM_STATS_ASAP_NUM) |
+			BIT(NL80211_FTM_STATS_NON_ASAP_NUM) |
+			BIT(NL80211_FTM_STATS_TOTAL_DURATION_MSEC) |
+			BIT(NL80211_FTM_STATS_UNKNOWN_TRIGGERS_NUM) |
+			BIT(NL80211_FTM_STATS_RESCHEDULE_REQUESTS_NUM) |
+			BIT(NL80211_FTM_STATS_OUT_OF_WINDOW_TRIGGERS_NUM);
+
+	return 0;
+}
+
+static int iwl_mvm_start_pmsr(struct ieee80211_hw *hw,
+			      struct ieee80211_vif *vif,
+			      struct cfg80211_pmsr_request *request)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+	int ret;
+
+	mutex_lock(&mvm->mutex);
+	ret = iwl_mvm_ftm_start(mvm, vif, request);
+	mutex_unlock(&mvm->mutex);
+
+	return ret;
+}
+
+static void iwl_mvm_abort_pmsr(struct ieee80211_hw *hw,
+			       struct ieee80211_vif *vif,
+			       struct cfg80211_pmsr_request *request)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+
+	mutex_lock(&mvm->mutex);
+	iwl_mvm_ftm_abort(mvm, request);
+	mutex_unlock(&mvm->mutex);
+}
+
+static bool iwl_mvm_can_hw_csum(struct sk_buff *skb)
+{
+	u8 protocol = ip_hdr(skb)->protocol;
+
+	if (!IS_ENABLED(CONFIG_INET))
+		return false;
+
+	return protocol == IPPROTO_TCP || protocol == IPPROTO_UDP;
+}
+
+static bool iwl_mvm_mac_can_aggregate(struct ieee80211_hw *hw,
+				      struct sk_buff *head,
+				      struct sk_buff *skb)
+{
+	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+
+	/* For now don't aggregate IPv6 in AMSDU */
+	if (skb->protocol != htons(ETH_P_IP))
+		return false;
+
+	if (!iwl_mvm_is_csum_supported(mvm))
+		return true;
+
+	return iwl_mvm_can_hw_csum(skb) == iwl_mvm_can_hw_csum(head);
+}
+
+const struct ieee80211_ops iwl_mvm_hw_ops = {
+	.tx = iwl_mvm_mac_tx,
+	.wake_tx_queue = iwl_mvm_mac_wake_tx_queue,
+	.ampdu_action = iwl_mvm_mac_ampdu_action,
+	.get_antenna = iwl_mvm_op_get_antenna,
+>>>>>>> upstream/android-13
 	.start = iwl_mvm_mac_start,
 	.reconfig_complete = iwl_mvm_mac_reconfig_complete,
 	.stop = iwl_mvm_mac_stop,
@@ -4671,6 +6719,11 @@ const struct ieee80211_ops iwl_mvm_hw_ops = {
 	.channel_switch = iwl_mvm_channel_switch,
 	.pre_channel_switch = iwl_mvm_pre_channel_switch,
 	.post_channel_switch = iwl_mvm_post_channel_switch,
+<<<<<<< HEAD
+=======
+	.abort_channel_switch = iwl_mvm_abort_channel_switch,
+	.channel_switch_rx_beacon = iwl_mvm_channel_switch_rx_beacon,
+>>>>>>> upstream/android-13
 
 	.tdls_channel_switch = iwl_mvm_tdls_channel_switch,
 	.tdls_cancel_channel_switch = iwl_mvm_tdls_cancel_channel_switch,
@@ -4695,6 +6748,14 @@ const struct ieee80211_ops iwl_mvm_hw_ops = {
 #endif
 	.get_survey = iwl_mvm_mac_get_survey,
 	.sta_statistics = iwl_mvm_mac_sta_statistics,
+<<<<<<< HEAD
+=======
+	.get_ftm_responder_stats = iwl_mvm_mac_get_ftm_responder_stats,
+	.start_pmsr = iwl_mvm_start_pmsr,
+	.abort_pmsr = iwl_mvm_abort_pmsr,
+
+	.can_aggregate_in_amsdu = iwl_mvm_mac_can_aggregate,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IWLWIFI_DEBUGFS
 	.sta_add_debugfs = iwl_mvm_sta_add_debugfs,
 #endif

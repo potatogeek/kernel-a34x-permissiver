@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_PCM_PARAMS_H
 #define __SOUND_PCM_PARAMS_H
 
 /*
  *  PCM params helpers
  *  Copyright (c) by Abramo Bagnara <abramo@alsa-project.org>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/pcm.h>
@@ -38,11 +45,14 @@ int snd_pcm_hw_param_value(const struct snd_pcm_hw_params *params,
 #define MASK_OFS(i)	((i) >> 5)
 #define MASK_BIT(i)	(1U << ((i) & 31))
 
+<<<<<<< HEAD
 static inline size_t snd_mask_sizeof(void)
 {
 	return sizeof(struct snd_mask);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void snd_mask_none(struct snd_mask *mask)
 {
 	memset(mask, 0, sizeof(*mask));
@@ -148,6 +158,16 @@ static inline int snd_mask_test(const struct snd_mask *mask, unsigned int val)
 	return mask->bits[MASK_OFS(val)] & MASK_BIT(val);
 }
 
+<<<<<<< HEAD
+=======
+/* Most of drivers need only this one */
+static inline int snd_mask_test_format(const struct snd_mask *mask,
+				       snd_pcm_format_t format)
+{
+	return snd_mask_test(mask, (__force unsigned int)format);
+}
+
+>>>>>>> upstream/android-13
 static inline int snd_mask_single(const struct snd_mask *mask)
 {
 	int i, c = 0;

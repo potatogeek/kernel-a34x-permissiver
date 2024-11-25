@@ -14,9 +14,15 @@
 #include <linux/string.h>
 #include <linux/uaccess.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 
 #include "gb-camera.h"
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+#include "gb-camera.h"
+>>>>>>> upstream/android-13
 #include "greybus_protocols.h"
 
 enum gb_camera_debugs_buffer_id {
@@ -841,8 +847,13 @@ done:
 }
 
 static int gb_camera_op_capture(void *priv, u32 request_id,
+<<<<<<< HEAD
 		unsigned int streams, unsigned int num_frames,
 		size_t settings_size, const void *settings)
+=======
+				unsigned int streams, unsigned int num_frames,
+				size_t settings_size, const void *settings)
+>>>>>>> upstream/android-13
 {
 	struct gb_camera *gcam = priv;
 
@@ -869,7 +880,11 @@ static const struct gb_camera_ops gb_cam_ops = {
  */
 
 static ssize_t gb_camera_debugfs_capabilities(struct gb_camera *gcam,
+<<<<<<< HEAD
 		char *buf, size_t len)
+=======
+					      char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	struct gb_camera_debugfs_buffer *buffer =
 		&gcam->debugfs.buffers[GB_CAMERA_DEBUGFS_BUFFER_CAPABILITIES];
@@ -905,7 +920,11 @@ done:
 }
 
 static ssize_t gb_camera_debugfs_configure_streams(struct gb_camera *gcam,
+<<<<<<< HEAD
 		char *buf, size_t len)
+=======
+						   char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	struct gb_camera_debugfs_buffer *buffer =
 		&gcam->debugfs.buffers[GB_CAMERA_DEBUGFS_BUFFER_STREAMS];
@@ -999,7 +1018,11 @@ done:
 };
 
 static ssize_t gb_camera_debugfs_capture(struct gb_camera *gcam,
+<<<<<<< HEAD
 		char *buf, size_t len)
+=======
+					 char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	unsigned int request_id;
 	unsigned int streams_mask;
@@ -1040,7 +1063,11 @@ static ssize_t gb_camera_debugfs_capture(struct gb_camera *gcam,
 }
 
 static ssize_t gb_camera_debugfs_flush(struct gb_camera *gcam,
+<<<<<<< HEAD
 		char *buf, size_t len)
+=======
+				       char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	struct gb_camera_debugfs_buffer *buffer =
 		&gcam->debugfs.buffers[GB_CAMERA_DEBUGFS_BUFFER_FLUSH];
@@ -1120,6 +1147,7 @@ static ssize_t gb_camera_debugfs_write(struct file *file,
 	if (len > 1024)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	kbuf = kmalloc(len + 1, GFP_KERNEL);
 	if (!kbuf)
 		return -ENOMEM;
@@ -1130,6 +1158,11 @@ static ssize_t gb_camera_debugfs_write(struct file *file,
 	}
 
 	kbuf[len] = '\0';
+=======
+	kbuf = memdup_user_nul(buf, len);
+	if (IS_ERR(kbuf))
+		return PTR_ERR(kbuf);
+>>>>>>> upstream/android-13
 
 	ret = op->execute(gcam, kbuf, len);
 
@@ -1190,7 +1223,10 @@ static int gb_camera_debugfs_init(struct gb_camera *gcam)
 		debugfs_create_file(entry->name, entry->mask,
 				    gcam->debugfs.root, gcam,
 				    &gb_camera_debugfs_ops);
+<<<<<<< HEAD
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

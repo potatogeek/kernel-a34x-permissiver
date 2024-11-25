@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005-2006 Micronas USA Inc.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2005-2006 Micronas USA Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -17,7 +23,10 @@
 #include <linux/spinlock.h>
 #include <linux/delay.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/time.h>
 #include <linux/mm.h>
 #include <linux/i2c.h>
@@ -108,6 +117,7 @@ static int go7007_snd_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *hw_params)
 {
 	struct go7007 *go = snd_pcm_substream_chip(substream);
+<<<<<<< HEAD
 	unsigned int bytes;
 
 	bytes = params_buffer_bytes(hw_params);
@@ -118,6 +128,9 @@ static int go7007_snd_hw_params(struct snd_pcm_substream *substream,
 	if (substream->runtime->dma_area == NULL)
 		return -ENOMEM;
 	substream->runtime->dma_bytes = bytes;
+=======
+
+>>>>>>> upstream/android-13
 	go->audio_deliver = parse_audio_stream_data;
 	return 0;
 }
@@ -127,9 +140,12 @@ static int go7007_snd_hw_free(struct snd_pcm_substream *substream)
 	struct go7007 *go = snd_pcm_substream_chip(substream);
 
 	go->audio_deliver = NULL;
+<<<<<<< HEAD
 	if (substream->runtime->dma_bytes > 0)
 		vfree(substream->runtime->dma_area);
 	substream->runtime->dma_bytes = 0;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -193,6 +209,7 @@ static snd_pcm_uframes_t go7007_snd_pcm_pointer(struct snd_pcm_substream *substr
 	return gosnd->hw_ptr;
 }
 
+<<<<<<< HEAD
 static struct page *go7007_snd_pcm_page(struct snd_pcm_substream *substream,
 					unsigned long offset)
 {
@@ -203,12 +220,20 @@ static const struct snd_pcm_ops go7007_snd_capture_ops = {
 	.open		= go7007_snd_capture_open,
 	.close		= go7007_snd_capture_close,
 	.ioctl		= snd_pcm_lib_ioctl,
+=======
+static const struct snd_pcm_ops go7007_snd_capture_ops = {
+	.open		= go7007_snd_capture_open,
+	.close		= go7007_snd_capture_close,
+>>>>>>> upstream/android-13
 	.hw_params	= go7007_snd_hw_params,
 	.hw_free	= go7007_snd_hw_free,
 	.prepare	= go7007_snd_pcm_prepare,
 	.trigger	= go7007_snd_pcm_trigger,
 	.pointer	= go7007_snd_pcm_pointer,
+<<<<<<< HEAD
 	.page		= go7007_snd_pcm_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int go7007_snd_free(struct snd_device *device)
@@ -256,14 +281,26 @@ int go7007_snd_init(struct go7007 *go)
 	if (ret < 0)
 		goto free_card;
 
+<<<<<<< HEAD
 	strlcpy(gosnd->card->driver, "go7007", sizeof(gosnd->card->driver));
 	strlcpy(gosnd->card->shortname, go->name, sizeof(gosnd->card->driver));
 	strlcpy(gosnd->card->longname, gosnd->card->shortname,
 			sizeof(gosnd->card->longname));
+=======
+	strscpy(gosnd->card->driver, "go7007", sizeof(gosnd->card->driver));
+	strscpy(gosnd->card->shortname, go->name, sizeof(gosnd->card->shortname));
+	strscpy(gosnd->card->longname, gosnd->card->shortname,
+		sizeof(gosnd->card->longname));
+>>>>>>> upstream/android-13
 
 	gosnd->pcm->private_data = go;
 	snd_pcm_set_ops(gosnd->pcm, SNDRV_PCM_STREAM_CAPTURE,
 			&go7007_snd_capture_ops);
+<<<<<<< HEAD
+=======
+	snd_pcm_set_managed_buffer_all(gosnd->pcm, SNDRV_DMA_TYPE_VMALLOC,
+				       NULL, 0, 0);
+>>>>>>> upstream/android-13
 
 	ret = snd_card_register(gosnd->card);
 	if (ret < 0)

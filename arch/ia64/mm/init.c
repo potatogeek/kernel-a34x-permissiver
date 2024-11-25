@@ -8,7 +8,12 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/dmar.h>
+>>>>>>> upstream/android-13
 #include <linux/efi.h>
 #include <linux/elf.h>
 #include <linux/memblock.h>
@@ -23,10 +28,18 @@
 #include <linux/proc_fs.h>
 #include <linux/bitops.h>
 #include <linux/kexec.h>
+<<<<<<< HEAD
 
 #include <asm/dma.h>
 #include <asm/io.h>
 #include <asm/machvec.h>
+=======
+#include <linux/swiotlb.h>
+
+#include <asm/dma.h>
+#include <asm/efi.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/numa.h>
 #include <asm/patch.h>
 #include <asm/pgalloc.h>
@@ -41,6 +54,7 @@ extern void ia64_tlb_init (void);
 
 unsigned long MAX_DMA_ADDRESS = PAGE_OFFSET + 0x100000000UL;
 
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTUAL_MEM_MAP
 unsigned long VMALLOC_END = VMALLOC_END_INIT;
 EXPORT_SYMBOL(VMALLOC_END);
@@ -48,6 +62,8 @@ struct page *vmem_map;
 EXPORT_SYMBOL(vmem_map);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 struct page *zero_page_memmap_ptr;	/* map entry for zero page */
 EXPORT_SYMBOL(zero_page_memmap_ptr);
 
@@ -63,7 +79,11 @@ __ia64_sync_icache_dcache (pte_t pte)
 	if (test_bit(PG_arch_1, &page->flags))
 		return;				/* i-cache is already coherent with d-cache */
 
+<<<<<<< HEAD
 	flush_icache_range(addr, addr + (PAGE_SIZE << compound_order(page)));
+=======
+	flush_icache_range(addr, addr + page_size(page));
+>>>>>>> upstream/android-13
 	set_bit(PG_arch_1, &page->flags);	/* mark page as clean */
 }
 
@@ -72,6 +92,7 @@ __ia64_sync_icache_dcache (pte_t pte)
  * DMA can be marked as "clean" so that lazy_mmu_prot_update() doesn't have to
  * flush them when they get mapped into an executable vm-area.
  */
+<<<<<<< HEAD
 void
 dma_mark_clean(void *addr, size_t size)
 {
@@ -84,6 +105,15 @@ dma_mark_clean(void *addr, size_t size)
 		set_bit(PG_arch_1, &page->flags);
 		pg_addr += PAGE_SIZE;
 	}
+=======
+void arch_dma_mark_clean(phys_addr_t paddr, size_t size)
+{
+	unsigned long pfn = PHYS_PFN(paddr);
+
+	do {
+		set_bit(PG_arch_1, &pfn_to_page(pfn)->flags);
+	} while (++pfn <= PHYS_PFN(paddr + size - 1));
+>>>>>>> upstream/android-13
 }
 
 inline void
@@ -121,6 +151,7 @@ ia64_init_addr_space (void)
 		vma->vm_end = vma->vm_start + PAGE_SIZE;
 		vma->vm_flags = VM_DATA_DEFAULT_FLAGS|VM_GROWSUP|VM_ACCOUNT;
 		vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
+<<<<<<< HEAD
 		down_write(&current->mm->mmap_sem);
 		if (insert_vm_struct(current->mm, vma)) {
 			up_write(&current->mm->mmap_sem);
@@ -128,6 +159,15 @@ ia64_init_addr_space (void)
 			return;
 		}
 		up_write(&current->mm->mmap_sem);
+=======
+		mmap_write_lock(current->mm);
+		if (insert_vm_struct(current->mm, vma)) {
+			mmap_write_unlock(current->mm);
+			vm_area_free(vma);
+			return;
+		}
+		mmap_write_unlock(current->mm);
+>>>>>>> upstream/android-13
 	}
 
 	/* map NaT-page at address zero to speed up speculative dereferencing of NULL: */
@@ -139,6 +179,7 @@ ia64_init_addr_space (void)
 			vma->vm_page_prot = __pgprot(pgprot_val(PAGE_READONLY) | _PAGE_MA_NAT);
 			vma->vm_flags = VM_READ | VM_MAYREAD | VM_IO |
 					VM_DONTEXPAND | VM_DONTDUMP;
+<<<<<<< HEAD
 			down_write(&current->mm->mmap_sem);
 			if (insert_vm_struct(current->mm, vma)) {
 				up_write(&current->mm->mmap_sem);
@@ -146,6 +187,15 @@ ia64_init_addr_space (void)
 				return;
 			}
 			up_write(&current->mm->mmap_sem);
+=======
+			mmap_write_lock(current->mm);
+			if (insert_vm_struct(current->mm, vma)) {
+				mmap_write_unlock(current->mm);
+				vm_area_free(vma);
+				return;
+			}
+			mmap_write_unlock(current->mm);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -211,6 +261,10 @@ static struct page * __init
 put_kernel_page (struct page *page, unsigned long address, pgprot_t pgprot)
 {
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
@@ -218,7 +272,14 @@ put_kernel_page (struct page *page, unsigned long address, pgprot_t pgprot)
 	pgd = pgd_offset_k(address);		/* note: this is NOT pgd_offset()! */
 
 	{
+<<<<<<< HEAD
 		pud = pud_alloc(&init_mm, pgd, address);
+=======
+		p4d = p4d_alloc(&init_mm, pgd, address);
+		if (!p4d)
+			goto out;
+		pud = pud_alloc(&init_mm, p4d, address);
+>>>>>>> upstream/android-13
 		if (!pud)
 			goto out;
 		pmd = pmd_alloc(&init_mm, pud, address);
@@ -372,6 +433,7 @@ void ia64_mmu_init(void *my_cpu_data)
 #endif
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTUAL_MEM_MAP
 int vmemmap_find_next_valid_pfn(int node, int i)
 {
@@ -552,6 +614,8 @@ int __init find_largest_hole(u64 start, u64 end, void *arg)
 
 #endif /* CONFIG_VIRTUAL_MEM_MAP */
 
+=======
+>>>>>>> upstream/android-13
 int __init register_active_ranges(u64 start, u64 len, int nid)
 {
 	u64 end = start + len;
@@ -612,6 +676,7 @@ mem_init (void)
 	BUG_ON(PTRS_PER_PMD * sizeof(pmd_t) != PAGE_SIZE);
 	BUG_ON(PTRS_PER_PTE * sizeof(pte_t) != PAGE_SIZE);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI
 	/*
 	 * This needs to be called _after_ the command line has been parsed but _before_
@@ -620,6 +685,23 @@ mem_init (void)
 	 */
 	platform_dma_init();
 #endif
+=======
+	/*
+	 * This needs to be called _after_ the command line has been parsed but
+	 * _before_ any drivers that may need the PCI DMA interface are
+	 * initialized or bootmem has been freed.
+	 */
+	do {
+#ifdef CONFIG_INTEL_IOMMU
+		detect_intel_iommu();
+		if (iommu_detected)
+			break;
+#endif
+#ifdef CONFIG_SWIOTLB
+		swiotlb_init(1);
+#endif
+	} while (0);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_FLATMEM
 	BUG_ON(!mem_map);
@@ -627,8 +709,12 @@ mem_init (void)
 
 	set_max_mapnr(max_low_pfn);
 	high_memory = __va(max_low_pfn * PAGE_SIZE);
+<<<<<<< HEAD
 	free_all_bootmem();
 	mem_init_print_info(NULL);
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 	/*
 	 * For fsyscall entrpoints with no light-weight handler, use the ordinary
@@ -646,14 +732,26 @@ mem_init (void)
 }
 
 #ifdef CONFIG_MEMORY_HOTPLUG
+<<<<<<< HEAD
 int arch_add_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap,
 		bool want_memblock)
+=======
+int arch_add_memory(int nid, u64 start, u64 size,
+		    struct mhp_params *params)
+>>>>>>> upstream/android-13
 {
 	unsigned long start_pfn = start >> PAGE_SHIFT;
 	unsigned long nr_pages = size >> PAGE_SHIFT;
 	int ret;
 
+<<<<<<< HEAD
 	ret = __add_pages(nid, start_pfn, nr_pages, altmap, want_memblock);
+=======
+	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
+		return -EINVAL;
+
+	ret = __add_pages(nid, start_pfn, nr_pages, params);
+>>>>>>> upstream/android-13
 	if (ret)
 		printk("%s: Problem encountered in __add_pages() as ret=%d\n",
 		       __func__,  ret);
@@ -661,8 +759,12 @@ int arch_add_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap,
 	return ret;
 }
 
+<<<<<<< HEAD
 void arch_remove_memory(int nid, u64 start, u64 size,
 			struct vmem_altmap *altmap)
+=======
+void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
+>>>>>>> upstream/android-13
 {
 	unsigned long start_pfn = start >> PAGE_SHIFT;
 	unsigned long nr_pages = size >> PAGE_SHIFT;

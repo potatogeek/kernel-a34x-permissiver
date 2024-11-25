@@ -21,7 +21,13 @@
  */
 
 #include <linux/dma-buf.h>
+<<<<<<< HEAD
 #include <linux/reservation.h>
+=======
+#include <linux/dma-resv.h>
+
+#include <drm/drm_file.h>
+>>>>>>> upstream/android-13
 
 #include "vgem_drv.h"
 
@@ -43,6 +49,7 @@ static const char *vgem_fence_get_timeline_name(struct dma_fence *fence)
 	return "unbound";
 }
 
+<<<<<<< HEAD
 static bool vgem_fence_signaled(struct dma_fence *fence)
 {
 	return false;
@@ -53,6 +60,8 @@ static bool vgem_fence_enable_signaling(struct dma_fence *fence)
 	return true;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void vgem_fence_release(struct dma_fence *base)
 {
 	struct vgem_fence *fence = container_of(base, typeof(*fence), base);
@@ -63,22 +72,33 @@ static void vgem_fence_release(struct dma_fence *base)
 
 static void vgem_fence_value_str(struct dma_fence *fence, char *str, int size)
 {
+<<<<<<< HEAD
 	snprintf(str, size, "%u", fence->seqno);
+=======
+	snprintf(str, size, "%llu", fence->seqno);
+>>>>>>> upstream/android-13
 }
 
 static void vgem_fence_timeline_value_str(struct dma_fence *fence, char *str,
 					  int size)
 {
+<<<<<<< HEAD
 	snprintf(str, size, "%u",
+=======
+	snprintf(str, size, "%llu",
+>>>>>>> upstream/android-13
 		 dma_fence_is_signaled(fence) ? fence->seqno : 0);
 }
 
 static const struct dma_fence_ops vgem_fence_ops = {
 	.get_driver_name = vgem_fence_get_driver_name,
 	.get_timeline_name = vgem_fence_get_timeline_name,
+<<<<<<< HEAD
 	.enable_signaling = vgem_fence_enable_signaling,
 	.signaled = vgem_fence_signaled,
 	.wait = dma_fence_default_wait,
+=======
+>>>>>>> upstream/android-13
 	.release = vgem_fence_release,
 
 	.fence_value_str = vgem_fence_value_str,
@@ -113,6 +133,7 @@ static struct dma_fence *vgem_fence_create(struct vgem_file *vfile,
 	return &fence->base;
 }
 
+<<<<<<< HEAD
 static int attach_dmabuf(struct drm_device *dev,
 			 struct drm_gem_object *obj)
 {
@@ -129,6 +150,8 @@ static int attach_dmabuf(struct drm_device *dev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * vgem_fence_attach_ioctl (DRM_IOCTL_VGEM_FENCE_ATTACH):
  *
@@ -155,7 +178,11 @@ int vgem_fence_attach_ioctl(struct drm_device *dev,
 {
 	struct drm_vgem_fence_attach *arg = data;
 	struct vgem_file *vfile = file->driver_priv;
+<<<<<<< HEAD
 	struct reservation_object *resv;
+=======
+	struct dma_resv *resv;
+>>>>>>> upstream/android-13
 	struct drm_gem_object *obj;
 	struct dma_fence *fence;
 	int ret;
@@ -170,10 +197,13 @@ int vgem_fence_attach_ioctl(struct drm_device *dev,
 	if (!obj)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	ret = attach_dmabuf(dev, obj);
 	if (ret)
 		goto err;
 
+=======
+>>>>>>> upstream/android-13
 	fence = vgem_fence_create(vfile, arg->flags);
 	if (!fence) {
 		ret = -ENOMEM;
@@ -181,21 +211,35 @@ int vgem_fence_attach_ioctl(struct drm_device *dev,
 	}
 
 	/* Check for a conflicting fence */
+<<<<<<< HEAD
 	resv = obj->dma_buf->resv;
 	if (!reservation_object_test_signaled_rcu(resv,
 						  arg->flags & VGEM_FENCE_WRITE)) {
+=======
+	resv = obj->resv;
+	if (!dma_resv_test_signaled(resv, arg->flags & VGEM_FENCE_WRITE)) {
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 		goto err_fence;
 	}
 
 	/* Expose the fence via the dma-buf */
 	ret = 0;
+<<<<<<< HEAD
 	reservation_object_lock(resv, NULL);
 	if (arg->flags & VGEM_FENCE_WRITE)
 		reservation_object_add_excl_fence(resv, fence);
 	else if ((ret = reservation_object_reserve_shared(resv)) == 0)
 		reservation_object_add_shared_fence(resv, fence);
 	reservation_object_unlock(resv);
+=======
+	dma_resv_lock(resv, NULL);
+	if (arg->flags & VGEM_FENCE_WRITE)
+		dma_resv_add_excl_fence(resv, fence);
+	else if ((ret = dma_resv_reserve_shared(resv, 1)) == 0)
+		dma_resv_add_shared_fence(resv, fence);
+	dma_resv_unlock(resv);
+>>>>>>> upstream/android-13
 
 	/* Record the fence in our idr for later signaling */
 	if (ret == 0) {
@@ -213,7 +257,11 @@ err_fence:
 		dma_fence_put(fence);
 	}
 err:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -264,7 +312,11 @@ int vgem_fence_signal_ioctl(struct drm_device *dev,
 int vgem_fence_open(struct vgem_file *vfile)
 {
 	mutex_init(&vfile->fence_mutex);
+<<<<<<< HEAD
 	idr_init(&vfile->fence_idr);
+=======
+	idr_init_base(&vfile->fence_idr, 1);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

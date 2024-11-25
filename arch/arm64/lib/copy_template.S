@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 ARM Ltd.
  * Copyright (C) 2013 Linaro.
  *
  * This code is based on glibc cortex strings work originally authored by Linaro
+<<<<<<< HEAD
  * and re-licensed under GPLv2 for the Linux kernel. The original code can
+=======
+>>>>>>> upstream/android-13
  * be found @
  *
  * http://bazaar.launchpad.net/~linaro-toolchain-dev/cortex-strings/trunk/
  * files/head:/src/aarch64/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +28,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 

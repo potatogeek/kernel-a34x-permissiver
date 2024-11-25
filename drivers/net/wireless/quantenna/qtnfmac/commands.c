@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016 Quantenna Communications, Inc.
  *
@@ -12,6 +13,10 @@
  * GNU General Public License for more details.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/* Copyright (c) 2015-2016 Quantenna Communications. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 #include <linux/skbuff.h>
@@ -23,6 +28,16 @@
 #include "bus.h"
 #include "commands.h"
 
+<<<<<<< HEAD
+=======
+/* Let device itself to select best values for current conditions */
+#define QTNF_SCAN_TIME_AUTO	0
+
+#define QTNF_SCAN_DWELL_ACTIVE_DEFAULT		90
+#define QTNF_SCAN_DWELL_PASSIVE_DEFAULT		100
+#define QTNF_SCAN_SAMPLE_DURATION_DEFAULT	QTNF_SCAN_TIME_AUTO
+
+>>>>>>> upstream/android-13
 static int qtnf_cmd_check_reply_header(const struct qlink_resp *resp,
 				       u16 cmd_id, u8 mac_id, u8 vif_id,
 				       size_t resp_size)
@@ -72,6 +87,11 @@ static int qtnf_cmd_resp_result_decode(enum qlink_cmd_result qcode)
 		return -EADDRINUSE;
 	case QLINK_CMD_RESULT_EADDRNOTAVAIL:
 		return -EADDRNOTAVAIL;
+<<<<<<< HEAD
+=======
+	case QLINK_CMD_RESULT_EBUSY:
+		return -EBUSY;
+>>>>>>> upstream/android-13
 	default:
 		return -EFAULT;
 	}
@@ -80,15 +100,27 @@ static int qtnf_cmd_resp_result_decode(enum qlink_cmd_result qcode)
 static int qtnf_cmd_send_with_reply(struct qtnf_bus *bus,
 				    struct sk_buff *cmd_skb,
 				    struct sk_buff **response_skb,
+<<<<<<< HEAD
 				    u16 *result_code,
+=======
+>>>>>>> upstream/android-13
 				    size_t const_resp_size,
 				    size_t *var_resp_size)
 {
 	struct qlink_cmd *cmd;
+<<<<<<< HEAD
 	const struct qlink_resp *resp;
 	struct sk_buff *resp_skb = NULL;
 	u16 cmd_id;
 	u8 mac_id, vif_id;
+=======
+	struct qlink_resp *resp = NULL;
+	struct sk_buff *resp_skb = NULL;
+	int resp_res = 0;
+	u16 cmd_id;
+	u8 mac_id;
+	u8 vif_id;
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd = (struct qlink_cmd *)cmd_skb->data;
@@ -97,15 +129,24 @@ static int qtnf_cmd_send_with_reply(struct qtnf_bus *bus,
 	vif_id = cmd->vifid;
 	cmd->mhdr.len = cpu_to_le16(cmd_skb->len);
 
+<<<<<<< HEAD
 	if (unlikely(bus->fw_state != QTNF_FW_STATE_ACTIVE &&
 		     le16_to_cpu(cmd->cmd_id) != QLINK_CMD_FW_INIT)) {
 		pr_warn("VIF%u.%u: drop cmd 0x%.4X in fw state %d\n",
 			mac_id, vif_id, le16_to_cpu(cmd->cmd_id),
 			bus->fw_state);
+=======
+	pr_debug("VIF%u.%u cmd=0x%.4X\n", mac_id, vif_id, cmd_id);
+
+	if (!qtnf_fw_is_up(bus) && cmd_id != QLINK_CMD_FW_INIT) {
+		pr_warn("VIF%u.%u: drop cmd 0x%.4X in fw state %d\n",
+			mac_id, vif_id, cmd_id, bus->fw_state);
+>>>>>>> upstream/android-13
 		dev_kfree_skb(cmd_skb);
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	pr_debug("VIF%u.%u cmd=0x%.4X\n", mac_id, vif_id,
 		 le16_to_cpu(cmd->cmd_id));
 
@@ -124,6 +165,24 @@ static int qtnf_cmd_send_with_reply(struct qtnf_bus *bus,
 	if (likely(result_code))
 		*result_code = le16_to_cpu(resp->result);
 
+=======
+	ret = qtnf_trans_send_cmd_with_resp(bus, cmd_skb, &resp_skb);
+	if (ret)
+		goto out;
+
+	if (WARN_ON(!resp_skb || !resp_skb->data)) {
+		ret = -EFAULT;
+		goto out;
+	}
+
+	resp = (struct qlink_resp *)resp_skb->data;
+	resp_res = le16_to_cpu(resp->result);
+	ret = qtnf_cmd_check_reply_header(resp, cmd_id, mac_id, vif_id,
+					  const_resp_size);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/* Return length of variable part of response */
 	if (response_skb && var_resp_size)
 		*var_resp_size = le16_to_cpu(resp->mhdr.len) - const_resp_size;
@@ -134,6 +193,7 @@ out:
 	else
 		consume_skb(resp_skb);
 
+<<<<<<< HEAD
 	return ret;
 }
 
@@ -142,6 +202,20 @@ static inline int qtnf_cmd_send(struct qtnf_bus *bus,
 				u16 *result_code)
 {
 	return qtnf_cmd_send_with_reply(bus, cmd_skb, NULL, result_code,
+=======
+	if (!ret)
+		return qtnf_cmd_resp_result_decode(resp_res);
+
+	pr_warn("VIF%u.%u: cmd 0x%.4X failed: %d\n",
+		mac_id, vif_id, cmd_id, ret);
+
+	return ret;
+}
+
+static inline int qtnf_cmd_send(struct qtnf_bus *bus, struct sk_buff *cmd_skb)
+{
+	return qtnf_cmd_send_with_reply(bus, cmd_skb, NULL,
+>>>>>>> upstream/android-13
 					sizeof(struct qlink_resp), NULL);
 }
 
@@ -175,7 +249,12 @@ static void qtnf_cmd_tlv_ie_set_add(struct sk_buff *cmd_skb, u8 frame_type,
 {
 	struct qlink_tlv_ie_set *tlv;
 
+<<<<<<< HEAD
 	tlv = (struct qlink_tlv_ie_set *)skb_put(cmd_skb, sizeof(*tlv) + len);
+=======
+	tlv = (struct qlink_tlv_ie_set *)skb_put(cmd_skb, sizeof(*tlv) +
+						 round_up(len, QLINK_ALIGN));
+>>>>>>> upstream/android-13
 	tlv->hdr.type = cpu_to_le16(QTN_TLV_ID_IE_SET);
 	tlv->hdr.len = cpu_to_le16(len + sizeof(*tlv) - sizeof(tlv->hdr));
 	tlv->type = frame_type;
@@ -185,6 +264,7 @@ static void qtnf_cmd_tlv_ie_set_add(struct sk_buff *cmd_skb, u8 frame_type,
 		memcpy(tlv->ie_data, buf, len);
 }
 
+<<<<<<< HEAD
 static inline size_t qtnf_cmd_acl_data_size(const struct cfg80211_acl_data *acl)
 {
 	size_t size = sizeof(struct qlink_acl_data) +
@@ -193,11 +273,14 @@ static inline size_t qtnf_cmd_acl_data_size(const struct cfg80211_acl_data *acl)
 	return size;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool qtnf_cmd_start_ap_can_fit(const struct qtnf_vif *vif,
 				      const struct cfg80211_ap_settings *s)
 {
 	unsigned int len = sizeof(struct qlink_cmd_start_ap);
 
+<<<<<<< HEAD
 	len += s->ssid_len;
 	len += s->beacon.head_len;
 	len += s->beacon.tail_len;
@@ -205,13 +288,32 @@ static bool qtnf_cmd_start_ap_can_fit(const struct qtnf_vif *vif,
 	len += s->beacon.proberesp_ies_len;
 	len += s->beacon.assocresp_ies_len;
 	len += s->beacon.probe_resp_len;
+=======
+	len += round_up(s->ssid_len, QLINK_ALIGN);
+	len += round_up(s->beacon.head_len, QLINK_ALIGN);
+	len += round_up(s->beacon.tail_len, QLINK_ALIGN);
+	len += round_up(s->beacon.beacon_ies_len, QLINK_ALIGN);
+	len += round_up(s->beacon.proberesp_ies_len, QLINK_ALIGN);
+	len += round_up(s->beacon.assocresp_ies_len, QLINK_ALIGN);
+	len += round_up(s->beacon.probe_resp_len, QLINK_ALIGN);
+>>>>>>> upstream/android-13
 
 	if (cfg80211_chandef_valid(&s->chandef))
 		len += sizeof(struct qlink_tlv_chandef);
 
+<<<<<<< HEAD
 	if (s->acl)
 		len += sizeof(struct qlink_tlv_hdr) +
 		       qtnf_cmd_acl_data_size(s->acl);
+=======
+	if (s->acl) {
+		unsigned int acl_len = struct_size(s->acl, mac_addrs,
+						   s->acl->n_acl_entries);
+
+		len += sizeof(struct qlink_tlv_hdr) +
+			round_up(acl_len, QLINK_ALIGN);
+	}
+>>>>>>> upstream/android-13
 
 	if (len > (sizeof(struct qlink_cmd) + QTNF_MAX_CMD_BUF_SIZE)) {
 		pr_err("VIF%u.%u: can not fit AP settings: %u\n",
@@ -222,15 +324,38 @@ static bool qtnf_cmd_start_ap_can_fit(const struct qtnf_vif *vif,
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static void qtnf_cmd_tlv_ie_ext_add(struct sk_buff *cmd_skb, u8 eid_ext,
+				    const void *buf, size_t len)
+{
+	struct qlink_tlv_ext_ie *tlv;
+
+	tlv = (struct qlink_tlv_ext_ie *)skb_put(cmd_skb, sizeof(*tlv) + len);
+	tlv->hdr.type = cpu_to_le16(WLAN_EID_EXTENSION);
+	tlv->hdr.len = cpu_to_le16(sizeof(*tlv) + len - sizeof(tlv->hdr));
+	tlv->eid_ext = eid_ext;
+
+	if (len && buf)
+		memcpy(tlv->ie_data, buf, len);
+}
+
+>>>>>>> upstream/android-13
 int qtnf_cmd_send_start_ap(struct qtnf_vif *vif,
 			   const struct cfg80211_ap_settings *s)
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_start_ap *cmd;
 	struct qlink_auth_encr *aen;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
 	int ret;
 	int i;
+=======
+	int ret;
+	int i;
+	int n;
+>>>>>>> upstream/android-13
 
 	if (!qtnf_cmd_start_ap_can_fit(vif, s))
 		return -E2BIG;
@@ -252,6 +377,17 @@ int qtnf_cmd_send_start_ap(struct qtnf_vif *vif,
 	cmd->pbss = s->pbss;
 	cmd->ht_required = s->ht_required;
 	cmd->vht_required = s->vht_required;
+<<<<<<< HEAD
+=======
+	cmd->twt_responder = s->twt_responder;
+	if (s->he_obss_pd.enable) {
+		cmd->sr_params.sr_control |= QLINK_SR_SRG_INFORMATION_PRESENT;
+		cmd->sr_params.srg_obss_pd_min_offset =
+			s->he_obss_pd.min_offset;
+		cmd->sr_params.srg_obss_pd_max_offset =
+			s->he_obss_pd.max_offset;
+	}
+>>>>>>> upstream/android-13
 
 	aen = &cmd->aen;
 	aen->auth_type = s->auth_type;
@@ -262,8 +398,14 @@ int qtnf_cmd_send_start_ap(struct qtnf_vif *vif,
 	for (i = 0; i < QLINK_MAX_NR_CIPHER_SUITES; i++)
 		aen->ciphers_pairwise[i] =
 				cpu_to_le32(s->crypto.ciphers_pairwise[i]);
+<<<<<<< HEAD
 	aen->n_akm_suites = cpu_to_le32(s->crypto.n_akm_suites);
 	for (i = 0; i < QLINK_MAX_NR_AKM_SUITES; i++)
+=======
+	n = min(QLINK_MAX_NR_AKM_SUITES, s->crypto.n_akm_suites);
+	aen->n_akm_suites = cpu_to_le32(n);
+	for (i = 0; i < n; i++)
+>>>>>>> upstream/android-13
 		aen->akm_suites[i] = cpu_to_le32(s->crypto.akm_suites[i]);
 	aen->control_port = s->crypto.control_port;
 	aen->control_port_no_encrypt = s->crypto.control_port_no_encrypt;
@@ -302,7 +444,12 @@ int qtnf_cmd_send_start_ap(struct qtnf_vif *vif,
 
 	if (s->ht_cap) {
 		struct qlink_tlv_hdr *tlv = (struct qlink_tlv_hdr *)
+<<<<<<< HEAD
 			skb_put(cmd_skb, sizeof(*tlv) + sizeof(*s->ht_cap));
+=======
+			skb_put(cmd_skb, sizeof(*tlv) +
+				round_up(sizeof(*s->ht_cap), QLINK_ALIGN));
+>>>>>>> upstream/android-13
 
 		tlv->type = cpu_to_le16(WLAN_EID_HT_CAPABILITY);
 		tlv->len = cpu_to_le16(sizeof(*s->ht_cap));
@@ -318,10 +465,23 @@ int qtnf_cmd_send_start_ap(struct qtnf_vif *vif,
 		memcpy(tlv->val, s->vht_cap, sizeof(*s->vht_cap));
 	}
 
+<<<<<<< HEAD
 	if (s->acl) {
 		size_t acl_size = qtnf_cmd_acl_data_size(s->acl);
 		struct qlink_tlv_hdr *tlv =
 			skb_put(cmd_skb, sizeof(*tlv) + acl_size);
+=======
+	if (s->he_cap)
+		qtnf_cmd_tlv_ie_ext_add(cmd_skb, WLAN_EID_EXT_HE_CAPABILITY,
+					s->he_cap, sizeof(*s->he_cap));
+
+	if (s->acl) {
+		size_t acl_size = struct_size(s->acl, mac_addrs,
+					      s->acl->n_acl_entries);
+		struct qlink_tlv_hdr *tlv =
+			skb_put(cmd_skb,
+				sizeof(*tlv) + round_up(acl_size, QLINK_ALIGN));
+>>>>>>> upstream/android-13
 
 		tlv->type = cpu_to_le16(QTN_TLV_ID_ACL_DATA);
 		tlv->len = cpu_to_le16(acl_size);
@@ -329,6 +489,7 @@ int qtnf_cmd_send_start_ap(struct qtnf_vif *vif,
 	}
 
 	qtnf_bus_lock(vif->mac->bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
@@ -342,17 +503,30 @@ int qtnf_cmd_send_start_ap(struct qtnf_vif *vif,
 		goto out;
 	}
 
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	netif_carrier_on(vif->netdev);
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 int qtnf_cmd_send_stop_ap(struct qtnf_vif *vif)
 {
 	struct sk_buff *cmd_skb;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -362,6 +536,7 @@ int qtnf_cmd_send_stop_ap(struct qtnf_vif *vif)
 		return -ENOMEM;
 
 	qtnf_bus_lock(vif->mac->bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
@@ -379,6 +554,11 @@ int qtnf_cmd_send_stop_ap(struct qtnf_vif *vif)
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -386,7 +566,10 @@ int qtnf_cmd_send_register_mgmt(struct qtnf_vif *vif, u16 frame_type, bool reg)
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_mgmt_frame_register *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -401,6 +584,7 @@ int qtnf_cmd_send_register_mgmt(struct qtnf_vif *vif, u16 frame_type, bool reg)
 	cmd->frame_type = cpu_to_le16(frame_type);
 	cmd->do_register = reg;
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
 	if (unlikely(ret))
@@ -424,6 +608,20 @@ int qtnf_cmd_send_mgmt_frame(struct qtnf_vif *vif, u32 cookie, u16 flags,
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_mgmt_frame_tx *cmd;
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+	return ret;
+}
+
+int qtnf_cmd_send_frame(struct qtnf_vif *vif, u32 cookie, u16 flags,
+			u16 freq, const u8 *buf, size_t len)
+{
+	struct sk_buff *cmd_skb;
+	struct qlink_cmd_frame_tx *cmd;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (sizeof(*cmd) + len > QTNF_MAX_CMD_BUF_SIZE) {
@@ -433,14 +631,22 @@ int qtnf_cmd_send_mgmt_frame(struct qtnf_vif *vif, u32 cookie, u16 flags,
 	}
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
+<<<<<<< HEAD
 					    QLINK_CMD_SEND_MGMT_FRAME,
+=======
+					    QLINK_CMD_SEND_FRAME,
+>>>>>>> upstream/android-13
 					    sizeof(*cmd));
 	if (!cmd_skb)
 		return -ENOMEM;
 
 	qtnf_bus_lock(vif->mac->bus);
 
+<<<<<<< HEAD
 	cmd = (struct qlink_cmd_mgmt_frame_tx *)cmd_skb->data;
+=======
+	cmd = (struct qlink_cmd_frame_tx *)cmd_skb->data;
+>>>>>>> upstream/android-13
 	cmd->cookie = cpu_to_le32(cookie);
 	cmd->freq = cpu_to_le16(freq);
 	cmd->flags = cpu_to_le16(flags);
@@ -448,6 +654,7 @@ int qtnf_cmd_send_mgmt_frame(struct qtnf_vif *vif, u32 cookie, u16 flags,
 	if (len && buf)
 		qtnf_cmd_skb_put_buffer(cmd_skb, buf, len);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
 	if (unlikely(ret))
@@ -462,6 +669,12 @@ int qtnf_cmd_send_mgmt_frame(struct qtnf_vif *vif, u32 cookie, u16 flags,
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -469,7 +682,10 @@ int qtnf_cmd_send_mgmt_set_appie(struct qtnf_vif *vif, u8 frame_type,
 				 const u8 *buf, size_t len)
 {
 	struct sk_buff *cmd_skb;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (len > QTNF_MAX_CMD_BUF_SIZE) {
@@ -487,6 +703,7 @@ int qtnf_cmd_send_mgmt_set_appie(struct qtnf_vif *vif, u8 frame_type,
 	qtnf_cmd_tlv_ie_set_add(cmd_skb, frame_type, buf, len);
 
 	qtnf_bus_lock(vif->mac->bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
@@ -502,6 +719,11 @@ int qtnf_cmd_send_mgmt_set_appie(struct qtnf_vif *vif, u8 frame_type,
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -544,6 +766,11 @@ qtnf_sta_info_parse_rate(struct rate_info *rate_dst,
 		rate_dst->flags |= RATE_INFO_FLAGS_MCS;
 	else if (rate_src->flags & QLINK_STA_INFO_RATE_FLAG_VHT_MCS)
 		rate_dst->flags |= RATE_INFO_FLAGS_VHT_MCS;
+<<<<<<< HEAD
+=======
+	else if (rate_src->flags & QLINK_STA_INFO_RATE_FLAG_HE_MCS)
+		rate_dst->flags |= RATE_INFO_FLAGS_HE_MCS;
+>>>>>>> upstream/android-13
 
 	if (rate_src->flags & QLINK_STA_INFO_RATE_FLAG_SHORT_GI)
 		rate_dst->flags |= RATE_INFO_FLAGS_SHORT_GI;
@@ -605,10 +832,17 @@ qtnf_sta_info_parse_flags(struct nl80211_sta_flag_update *dst,
 }
 
 static void
+<<<<<<< HEAD
 qtnf_cmd_sta_info_parse(struct station_info *sinfo,
 			const struct qlink_tlv_hdr *tlv,
 			size_t resp_size)
 {
+=======
+qtnf_cmd_sta_info_parse(struct station_info *sinfo, const u8 *data,
+			size_t resp_size)
+{
+	const struct qlink_tlv_hdr *tlv;
+>>>>>>> upstream/android-13
 	const struct qlink_sta_stats *stats = NULL;
 	const u8 *map = NULL;
 	unsigned int map_len = 0;
@@ -619,11 +853,19 @@ qtnf_cmd_sta_info_parse(struct station_info *sinfo,
 	(qtnf_utils_is_bit_set(map, bitn, map_len) && \
 	 (offsetofend(struct qlink_sta_stats, stat_name) <= stats_len))
 
+<<<<<<< HEAD
 	while (resp_size >= sizeof(*tlv)) {
 		tlv_len = le16_to_cpu(tlv->len);
 
 		switch (le16_to_cpu(tlv->type)) {
 		case QTN_TLV_ID_STA_STATS_MAP:
+=======
+	qlink_for_each_tlv(tlv, data, resp_size) {
+		tlv_len = le16_to_cpu(tlv->len);
+
+		switch (le16_to_cpu(tlv->type)) {
+		case QTN_TLV_ID_BITMAP:
+>>>>>>> upstream/android-13
 			map_len = tlv_len;
 			map = tlv->val;
 			break;
@@ -634,9 +876,17 @@ qtnf_cmd_sta_info_parse(struct station_info *sinfo,
 		default:
 			break;
 		}
+<<<<<<< HEAD
 
 		resp_size -= tlv_len + sizeof(*tlv);
 		tlv = (const struct qlink_tlv_hdr *)(tlv->val + tlv_len);
+=======
+	}
+
+	if (!qlink_tlv_parsing_ok(tlv, data, resp_size)) {
+		pr_err("Malformed TLV buffer\n");
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	if (!map || !stats)
@@ -732,8 +982,12 @@ int qtnf_cmd_get_sta_info(struct qtnf_vif *vif, const u8 *sta_mac,
 	struct sk_buff *cmd_skb, *resp_skb = NULL;
 	struct qlink_cmd_get_sta_info *cmd;
 	const struct qlink_resp_get_sta_info *resp;
+<<<<<<< HEAD
 	size_t var_resp_len;
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+	size_t var_resp_len = 0;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -748,6 +1002,7 @@ int qtnf_cmd_get_sta_info(struct qtnf_vif *vif, const u8 *sta_mac,
 	ether_addr_copy(cmd->sta_addr, sta_mac);
 
 	ret = qtnf_cmd_send_with_reply(vif->mac->bus, cmd_skb, &resp_skb,
+<<<<<<< HEAD
 				       &res_code, sizeof(*resp),
 				       &var_resp_len);
 
@@ -773,15 +1028,28 @@ int qtnf_cmd_get_sta_info(struct qtnf_vif *vif, const u8 *sta_mac,
 	resp = (const struct qlink_resp_get_sta_info *)resp_skb->data;
 
 	if (unlikely(!ether_addr_equal(sta_mac, resp->sta_addr))) {
+=======
+				       sizeof(*resp), &var_resp_len);
+	if (ret)
+		goto out;
+
+	resp = (const struct qlink_resp_get_sta_info *)resp_skb->data;
+
+	if (!ether_addr_equal(sta_mac, resp->sta_addr)) {
+>>>>>>> upstream/android-13
 		pr_err("VIF%u.%u: wrong mac in reply: %pM != %pM\n",
 		       vif->mac->macid, vif->vifid, resp->sta_addr, sta_mac);
 		ret = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	qtnf_cmd_sta_info_parse(sinfo,
 				(const struct qlink_tlv_hdr *)resp->info,
 				var_resp_len);
+=======
+	qtnf_cmd_sta_info_parse(sinfo, resp->info, var_resp_len);
+>>>>>>> upstream/android-13
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
@@ -792,13 +1060,20 @@ out:
 
 static int qtnf_cmd_send_add_change_intf(struct qtnf_vif *vif,
 					 enum nl80211_iftype iftype,
+<<<<<<< HEAD
+=======
+					 int use4addr,
+>>>>>>> upstream/android-13
 					 u8 *mac_addr,
 					 enum qlink_cmd_type cmd_type)
 {
 	struct sk_buff *cmd_skb, *resp_skb = NULL;
 	struct qlink_cmd_manage_intf *cmd;
 	const struct qlink_resp_manage_intf *resp;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -810,6 +1085,10 @@ static int qtnf_cmd_send_add_change_intf(struct qtnf_vif *vif,
 	qtnf_bus_lock(vif->mac->bus);
 
 	cmd = (struct qlink_cmd_manage_intf *)cmd_skb->data;
+<<<<<<< HEAD
+=======
+	cmd->intf_info.use4addr = use4addr;
+>>>>>>> upstream/android-13
 
 	switch (iftype) {
 	case NL80211_IFTYPE_AP:
@@ -831,6 +1110,7 @@ static int qtnf_cmd_send_add_change_intf(struct qtnf_vif *vif,
 		eth_zero_addr(cmd->intf_info.mac_addr);
 
 	ret = qtnf_cmd_send_with_reply(vif->mac->bus, cmd_skb, &resp_skb,
+<<<<<<< HEAD
 				       &res_code, sizeof(*resp), NULL);
 
 	if (unlikely(ret))
@@ -843,6 +1123,12 @@ static int qtnf_cmd_send_add_change_intf(struct qtnf_vif *vif,
 		goto out;
 	}
 
+=======
+				       sizeof(*resp), NULL);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	resp = (const struct qlink_resp_manage_intf *)resp_skb->data;
 	ether_addr_copy(vif->mac_addr, resp->intf_info.mac_addr);
 
@@ -853,25 +1139,61 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 int qtnf_cmd_send_add_intf(struct qtnf_vif *vif,
 			   enum nl80211_iftype iftype, u8 *mac_addr)
 {
 	return qtnf_cmd_send_add_change_intf(vif, iftype, mac_addr,
+=======
+int qtnf_cmd_send_add_intf(struct qtnf_vif *vif, enum nl80211_iftype iftype,
+			   int use4addr, u8 *mac_addr)
+{
+	return qtnf_cmd_send_add_change_intf(vif, iftype, use4addr, mac_addr,
+>>>>>>> upstream/android-13
 			QLINK_CMD_ADD_INTF);
 }
 
 int qtnf_cmd_send_change_intf_type(struct qtnf_vif *vif,
+<<<<<<< HEAD
 				   enum nl80211_iftype iftype, u8 *mac_addr)
 {
 	return qtnf_cmd_send_add_change_intf(vif, iftype, mac_addr,
 					     QLINK_CMD_CHANGE_INTF);
+=======
+				   enum nl80211_iftype iftype,
+				   int use4addr,
+				   u8 *mac_addr)
+{
+	int ret;
+
+	ret = qtnf_cmd_send_add_change_intf(vif, iftype, use4addr, mac_addr,
+					    QLINK_CMD_CHANGE_INTF);
+
+	/* Regulatory settings may be different for different interface types */
+	if (ret == 0 && vif->wdev.iftype != iftype) {
+		enum nl80211_band band;
+		struct wiphy *wiphy = priv_to_wiphy(vif->mac);
+
+		for (band = 0; band < NUM_NL80211_BANDS; ++band) {
+			if (!wiphy->bands[band])
+				continue;
+
+			qtnf_cmd_band_info_get(vif->mac, wiphy->bands[band]);
+		}
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int qtnf_cmd_send_del_intf(struct qtnf_vif *vif)
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_manage_intf *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -901,6 +1223,7 @@ int qtnf_cmd_send_del_intf(struct qtnf_vif *vif)
 
 	eth_zero_addr(cmd->intf_info.mac_addr);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
 	if (unlikely(ret))
@@ -913,11 +1236,18 @@ int qtnf_cmd_send_del_intf(struct qtnf_vif *vif)
 		goto out;
 	}
 
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 out:
 	qtnf_bus_unlock(vif->mac->bus);
 	return ret;
 }
 
+<<<<<<< HEAD
 static u32 qtnf_cmd_resp_reg_rule_flags_parse(u32 qflags)
 {
 	u32 flags = 0;
@@ -967,6 +1297,8 @@ static u32 qtnf_cmd_resp_reg_rule_flags_parse(u32 qflags)
 	return flags;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 			   const struct qlink_resp_get_hw_info *resp,
@@ -974,7 +1306,10 @@ qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 {
 	struct qtnf_hw_info *hwinfo = &bus->hw_info;
 	const struct qlink_tlv_hdr *tlv;
+<<<<<<< HEAD
 	const struct qlink_tlv_reg_rule *tlv_rule;
+=======
+>>>>>>> upstream/android-13
 	const char *bld_name = NULL;
 	const char *bld_rev = NULL;
 	const char *bld_type = NULL;
@@ -985,6 +1320,7 @@ qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 	const char *calibration_ver = NULL;
 	const char *uboot_ver = NULL;
 	u32 hw_ver = 0;
+<<<<<<< HEAD
 	struct ieee80211_reg_rule *rule;
 	u16 tlv_type;
 	u16 tlv_value_len;
@@ -999,10 +1335,15 @@ qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 
 	if (!hwinfo->rd)
 		return -ENOMEM;
+=======
+	u16 tlv_type;
+	u16 tlv_len;
+>>>>>>> upstream/android-13
 
 	hwinfo->num_mac = resp->num_mac;
 	hwinfo->mac_bitmap = resp->mac_bitmap;
 	hwinfo->fw_ver = le32_to_cpu(resp->fw_ver);
+<<<<<<< HEAD
 	hwinfo->ql_proto_ver = le16_to_cpu(resp->ql_proto_ver);
 	hwinfo->total_tx_chain = resp->total_tx_chain;
 	hwinfo->total_rx_chain = resp->total_rx_chain;
@@ -1010,11 +1351,16 @@ qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 	hwinfo->rd->n_reg_rules = resp->n_reg_rules;
 	hwinfo->rd->alpha2[0] = resp->alpha2[0];
 	hwinfo->rd->alpha2[1] = resp->alpha2[1];
+=======
+	hwinfo->total_tx_chain = resp->total_tx_chain;
+	hwinfo->total_rx_chain = resp->total_rx_chain;
+>>>>>>> upstream/android-13
 
 	bld_tmstamp = le32_to_cpu(resp->bld_tmstamp);
 	plat_id = le32_to_cpu(resp->plat_id);
 	hw_ver = le32_to_cpu(resp->hw_ver);
 
+<<<<<<< HEAD
 	switch (resp->dfs_region) {
 	case QLINK_DFS_FCC:
 		hwinfo->rd->dfs_region = NL80211_DFS_FCC;
@@ -1075,6 +1421,13 @@ qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 			rule->flags = qtnf_cmd_resp_reg_rule_flags_parse(
 					le32_to_cpu(tlv_rule->flags));
 			break;
+=======
+	qlink_for_each_tlv(tlv, resp->info, info_len) {
+		tlv_type = le16_to_cpu(tlv->type);
+		tlv_len = le16_to_cpu(tlv->len);
+
+		switch (tlv_type) {
+>>>>>>> upstream/android-13
 		case QTN_TLV_ID_BUILD_NAME:
 			bld_name = (const void *)tlv->val;
 			break;
@@ -1096,12 +1449,19 @@ qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 		case QTN_TLV_ID_UBOOT_VER:
 			uboot_ver = (const void *)tlv->val;
 			break;
+<<<<<<< HEAD
 		case QTN_TLV_ID_MAX_SCAN_SSIDS:
 			hwinfo->max_scan_ssids = *tlv->val;
+=======
+		case QTN_TLV_ID_BITMAP:
+			memcpy(hwinfo->hw_capab, tlv->val,
+			       min(sizeof(hwinfo->hw_capab), (size_t)tlv_len));
+>>>>>>> upstream/android-13
 			break;
 		default:
 			break;
 		}
+<<<<<<< HEAD
 
 		info_len -= tlv_value_len + sizeof(*tlv);
 		tlv = (struct qlink_tlv_hdr *)(tlv->val + tlv_value_len);
@@ -1135,6 +1495,38 @@ qtnf_cmd_resp_proc_hw_info(struct qtnf_bus *bus,
 		(unsigned long)bld_tmstamp,
 		(unsigned long)plat_id,
 		hw_id, calibration_ver, uboot_ver, hw_ver);
+=======
+	}
+
+	if (!qlink_tlv_parsing_ok(tlv, resp->info, info_len)) {
+		pr_err("Malformed TLV buffer\n");
+		return -EINVAL;
+	}
+
+	pr_info("\nBuild name:            %s\n"
+		"Build revision:        %s\n"
+		"Build type:            %s\n"
+		"Build label:           %s\n"
+		"Build timestamp:       %lu\n"
+		"Platform ID:           %lu\n"
+		"Hardware ID:           %s\n"
+		"Calibration version:   %s\n"
+		"U-Boot version:        %s\n"
+		"Hardware version:      0x%08x\n"
+		"Qlink ver:             %u.%u\n"
+		"MACs map:              %#x\n"
+		"Chains Rx-Tx:          %ux%u\n"
+		"FW version:            0x%x\n",
+		bld_name, bld_rev, bld_type, bld_label,
+		(unsigned long)bld_tmstamp,
+		(unsigned long)plat_id,
+		hw_id, calibration_ver, uboot_ver, hw_ver,
+		QLINK_VER_MAJOR(bus->hw_info.ql_proto_ver),
+		QLINK_VER_MINOR(bus->hw_info.ql_proto_ver),
+		hwinfo->mac_bitmap,
+		hwinfo->total_rx_chain, hwinfo->total_tx_chain,
+		hwinfo->fw_ver);
+>>>>>>> upstream/android-13
 
 	strlcpy(hwinfo->fw_version, bld_label, sizeof(hwinfo->fw_version));
 	hwinfo->hw_version = hw_ver;
@@ -1173,6 +1565,7 @@ qtnf_parse_wowlan_info(struct qtnf_wmac *mac,
 	}
 }
 
+<<<<<<< HEAD
 static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
 					const u8 *tlv_buf, size_t tlv_buf_size)
 {
@@ -1180,19 +1573,33 @@ static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
 	size_t n_comb = 0;
 	struct ieee80211_iface_limit *limits;
 	const struct qlink_iface_comb_num *comb_num;
+=======
+static int
+qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
+			     const struct qlink_resp_get_mac_info *resp,
+			     size_t tlv_buf_size)
+{
+	struct ieee80211_iface_combination *comb = mac->macinfo.if_comb;
+	size_t n_comb = 0;
+	struct ieee80211_iface_limit *limits;
+>>>>>>> upstream/android-13
 	const struct qlink_iface_limit_record *rec;
 	const struct qlink_iface_limit *lim;
 	const struct qlink_wowlan_capab_data *wowlan;
 	u16 rec_len;
 	u16 tlv_type;
 	u16 tlv_value_len;
+<<<<<<< HEAD
 	size_t tlv_full_len;
+=======
+>>>>>>> upstream/android-13
 	const struct qlink_tlv_hdr *tlv;
 	u8 *ext_capa = NULL;
 	u8 *ext_capa_mask = NULL;
 	u8 ext_capa_len = 0;
 	u8 ext_capa_mask_len = 0;
 	int i = 0;
+<<<<<<< HEAD
 
 	tlv = (const struct qlink_tlv_hdr *)tlv_buf;
 	while (tlv_buf_size >= sizeof(struct qlink_tlv_hdr)) {
@@ -1232,6 +1639,45 @@ static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
 				 mac->macid, mac->macinfo.n_if_comb);
 
 			break;
+=======
+	struct ieee80211_reg_rule *rule;
+	unsigned int rule_idx = 0;
+	const struct qlink_tlv_reg_rule *tlv_rule;
+
+	if (WARN_ON(resp->n_reg_rules > NL80211_MAX_SUPP_REG_RULES))
+		return -E2BIG;
+
+	mac->rd = kzalloc(struct_size(mac->rd, reg_rules, resp->n_reg_rules),
+			  GFP_KERNEL);
+	if (!mac->rd)
+		return -ENOMEM;
+
+	mac->rd->n_reg_rules = resp->n_reg_rules;
+	mac->rd->alpha2[0] = resp->alpha2[0];
+	mac->rd->alpha2[1] = resp->alpha2[1];
+
+	switch (resp->dfs_region) {
+	case QLINK_DFS_FCC:
+		mac->rd->dfs_region = NL80211_DFS_FCC;
+		break;
+	case QLINK_DFS_ETSI:
+		mac->rd->dfs_region = NL80211_DFS_ETSI;
+		break;
+	case QLINK_DFS_JP:
+		mac->rd->dfs_region = NL80211_DFS_JP;
+		break;
+	case QLINK_DFS_UNSET:
+	default:
+		mac->rd->dfs_region = NL80211_DFS_UNSET;
+		break;
+	}
+
+	qlink_for_each_tlv(tlv, resp->var_info, tlv_buf_size) {
+		tlv_type = le16_to_cpu(tlv->type);
+		tlv_value_len = le16_to_cpu(tlv->len);
+
+		switch (tlv_type) {
+>>>>>>> upstream/android-13
 		case QTN_TLV_ID_IFACE_LIMIT:
 			if (unlikely(!comb)) {
 				pr_warn("MAC%u: no combinations advertised\n",
@@ -1313,11 +1759,32 @@ static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
 			mac->macinfo.wowlan = NULL;
 			qtnf_parse_wowlan_info(mac, wowlan);
 			break;
+<<<<<<< HEAD
+=======
+		case QTN_TLV_ID_REG_RULE:
+			if (rule_idx >= resp->n_reg_rules) {
+				pr_warn("unexpected number of rules: %u\n",
+					resp->n_reg_rules);
+				return -EINVAL;
+			}
+
+			if (tlv_value_len != sizeof(*tlv_rule) - sizeof(*tlv)) {
+				pr_warn("malformed TLV 0x%.2X; LEN: %u\n",
+					tlv_type, tlv_value_len);
+				return -EINVAL;
+			}
+
+			tlv_rule = (const struct qlink_tlv_reg_rule *)tlv;
+			rule = &mac->rd->reg_rules[rule_idx++];
+			qlink_utils_regrule_q2nl(rule, tlv_rule);
+			break;
+>>>>>>> upstream/android-13
 		default:
 			pr_warn("MAC%u: unknown TLV type %u\n",
 				mac->macid, tlv_type);
 			break;
 		}
+<<<<<<< HEAD
 
 		tlv_buf_size -= tlv_full_len;
 		tlv = (struct qlink_tlv_hdr *)(tlv->val + tlv_value_len);
@@ -1326,6 +1793,12 @@ static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
 	if (tlv_buf_size) {
 		pr_warn("MAC%u: malformed TLV buf; bytes left: %zu\n",
 			mac->macid, tlv_buf_size);
+=======
+	}
+
+	if (!qlink_tlv_parsing_ok(tlv, resp->var_info, tlv_buf_size)) {
+		pr_err("Malformed TLV buffer\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1341,6 +1814,15 @@ static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (rule_idx != resp->n_reg_rules) {
+		pr_warn("unexpected number of rules: expected %u got %u\n",
+			resp->n_reg_rules, rule_idx);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (ext_capa_len > 0) {
 		ext_capa = kmemdup(ext_capa, ext_capa_len, GFP_KERNEL);
 		if (!ext_capa)
@@ -1365,13 +1847,18 @@ static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void
+=======
+static int
+>>>>>>> upstream/android-13
 qtnf_cmd_resp_proc_mac_info(struct qtnf_wmac *mac,
 			    const struct qlink_resp_get_mac_info *resp_info)
 {
 	struct qtnf_mac_info *mac_info;
 	struct qtnf_vif *vif;
 
+<<<<<<< HEAD
 	mac_info = &mac->macinfo;
 
 	mac_info->bands_cap = resp_info->bands_cap;
@@ -1379,6 +1866,14 @@ qtnf_cmd_resp_proc_mac_info(struct qtnf_wmac *mac,
 	       sizeof(mac_info->dev_mac));
 
 	ether_addr_copy(mac->macaddr, mac_info->dev_mac);
+=======
+	qtnf_mac_iface_comb_free(mac);
+
+	mac_info = &mac->macinfo;
+
+	mac_info->bands_cap = resp_info->bands_cap;
+	ether_addr_copy(mac->macaddr, resp_info->dev_mac);
+>>>>>>> upstream/android-13
 
 	vif = qtnf_mac_get_base_vif(mac);
 	if (vif)
@@ -1393,12 +1888,35 @@ qtnf_cmd_resp_proc_mac_info(struct qtnf_wmac *mac,
 	mac_info->radar_detect_widths =
 			qlink_chan_width_mask_to_nl(le16_to_cpu(
 					resp_info->radar_detect_widths));
+<<<<<<< HEAD
 	mac_info->max_acl_mac_addrs = le32_to_cpu(resp_info->max_acl_mac_addrs);
+=======
+	mac_info->max_acl_mac_addrs = le16_to_cpu(resp_info->max_acl_mac_addrs);
+	mac_info->frag_thr = le32_to_cpu(resp_info->frag_threshold);
+	mac_info->rts_thr = le32_to_cpu(resp_info->rts_threshold);
+	mac_info->sretry_limit = resp_info->retry_short;
+	mac_info->lretry_limit = resp_info->retry_long;
+	mac_info->coverage_class = resp_info->coverage_class;
+	mac_info->max_scan_ssids = resp_info->max_scan_ssids;
+>>>>>>> upstream/android-13
 
 	memcpy(&mac_info->ht_cap_mod_mask, &resp_info->ht_cap_mod_mask,
 	       sizeof(mac_info->ht_cap_mod_mask));
 	memcpy(&mac_info->vht_cap_mod_mask, &resp_info->vht_cap_mod_mask,
 	       sizeof(mac_info->vht_cap_mod_mask));
+<<<<<<< HEAD
+=======
+
+	mac_info->n_if_comb = resp_info->n_iface_combinations;
+	mac_info->if_comb = kcalloc(mac->macinfo.n_if_comb,
+				    sizeof(*mac->macinfo.if_comb),
+				    GFP_KERNEL);
+
+	if (!mac->macinfo.if_comb)
+		return -ENOMEM;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void qtnf_cmd_resp_band_fill_htcap(const u8 *info,
@@ -1428,19 +1946,92 @@ static void qtnf_cmd_resp_band_fill_vhtcap(const u8 *info,
 	memcpy(&bcap->vht_mcs, &vht_cap->supp_mcs, sizeof(bcap->vht_mcs));
 }
 
+<<<<<<< HEAD
+=======
+static void qtnf_cmd_conv_iftype(struct ieee80211_sband_iftype_data
+				  *iftype_data,
+				  const struct qlink_sband_iftype_data
+				  *qlink_data)
+{
+	iftype_data->types_mask = le16_to_cpu(qlink_data->types_mask);
+
+	iftype_data->he_cap.has_he = true;
+	memcpy(&iftype_data->he_cap.he_cap_elem, &qlink_data->he_cap_elem,
+	       sizeof(qlink_data->he_cap_elem));
+	memcpy(iftype_data->he_cap.ppe_thres, qlink_data->ppe_thres,
+	       ARRAY_SIZE(qlink_data->ppe_thres));
+
+	iftype_data->he_cap.he_mcs_nss_supp.rx_mcs_80 =
+		qlink_data->he_mcs_nss_supp.rx_mcs_80;
+	iftype_data->he_cap.he_mcs_nss_supp.tx_mcs_80 =
+		qlink_data->he_mcs_nss_supp.tx_mcs_80;
+	iftype_data->he_cap.he_mcs_nss_supp.rx_mcs_160 =
+		qlink_data->he_mcs_nss_supp.rx_mcs_160;
+	iftype_data->he_cap.he_mcs_nss_supp.tx_mcs_160 =
+		qlink_data->he_mcs_nss_supp.tx_mcs_160;
+	iftype_data->he_cap.he_mcs_nss_supp.rx_mcs_80p80 =
+		qlink_data->he_mcs_nss_supp.rx_mcs_80p80;
+	iftype_data->he_cap.he_mcs_nss_supp.tx_mcs_80p80 =
+		qlink_data->he_mcs_nss_supp.tx_mcs_80p80;
+}
+
+static int qtnf_cmd_band_fill_iftype(const u8 *data,
+				     struct ieee80211_supported_band *band)
+{
+	unsigned int i;
+	struct ieee80211_sband_iftype_data *iftype_data;
+	const struct qlink_tlv_iftype_data *tlv =
+		(const struct qlink_tlv_iftype_data *)data;
+	size_t payload_len = tlv->n_iftype_data * sizeof(*tlv->iftype_data) +
+		sizeof(*tlv) -
+		sizeof(struct qlink_tlv_hdr);
+
+	if (tlv->hdr.len != cpu_to_le16(payload_len)) {
+		pr_err("bad IFTYPE_DATA TLV len %u\n", tlv->hdr.len);
+		return -EINVAL;
+	}
+
+	kfree(band->iftype_data);
+	band->iftype_data = NULL;
+	band->n_iftype_data = tlv->n_iftype_data;
+	if (band->n_iftype_data == 0)
+		return 0;
+
+	iftype_data = kcalloc(band->n_iftype_data, sizeof(*iftype_data),
+			      GFP_KERNEL);
+	if (!iftype_data) {
+		band->n_iftype_data = 0;
+		return -ENOMEM;
+	}
+	band->iftype_data = iftype_data;
+
+	for (i = 0; i < band->n_iftype_data; i++)
+		qtnf_cmd_conv_iftype(iftype_data++, &tlv->iftype_data[i]);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int
 qtnf_cmd_resp_fill_band_info(struct ieee80211_supported_band *band,
 			     struct qlink_resp_band_info_get *resp,
 			     size_t payload_len)
 {
 	u16 tlv_type;
+<<<<<<< HEAD
 	size_t tlv_len;
+=======
+>>>>>>> upstream/android-13
 	size_t tlv_dlen;
 	const struct qlink_tlv_hdr *tlv;
 	const struct qlink_channel *qchan;
 	struct ieee80211_channel *chan;
 	unsigned int chidx = 0;
 	u32 qflags;
+<<<<<<< HEAD
+=======
+	int ret = -EINVAL;
+>>>>>>> upstream/android-13
 
 	memset(&band->ht_cap, 0, sizeof(band->ht_cap));
 	memset(&band->vht_cap, 0, sizeof(band->vht_cap));
@@ -1468,6 +2059,7 @@ qtnf_cmd_resp_fill_band_info(struct ieee80211_supported_band *band,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	tlv = (struct qlink_tlv_hdr *)resp->info;
 
 	while (payload_len >= sizeof(*tlv)) {
@@ -1480,12 +2072,21 @@ qtnf_cmd_resp_fill_band_info(struct ieee80211_supported_band *band,
 				tlv_type, tlv_len);
 			goto error_ret;
 		}
+=======
+	qlink_for_each_tlv(tlv, resp->info, payload_len) {
+		tlv_type = le16_to_cpu(tlv->type);
+		tlv_dlen = le16_to_cpu(tlv->len);
+>>>>>>> upstream/android-13
 
 		switch (tlv_type) {
 		case QTN_TLV_ID_CHANNEL:
 			if (unlikely(tlv_dlen != sizeof(*qchan))) {
 				pr_err("invalid channel TLV len %zu\n",
+<<<<<<< HEAD
 				       tlv_len);
+=======
+				       tlv_dlen);
+>>>>>>> upstream/android-13
 				goto error_ret;
 			}
 
@@ -1578,10 +2179,20 @@ qtnf_cmd_resp_fill_band_info(struct ieee80211_supported_band *band,
 			qtnf_cmd_resp_band_fill_vhtcap(tlv->val,
 						       &band->vht_cap);
 			break;
+<<<<<<< HEAD
+=======
+		case QTN_TLV_ID_IFTYPE_DATA:
+			ret = qtnf_cmd_band_fill_iftype((const uint8_t *)tlv,
+							band);
+			if (ret)
+				goto error_ret;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			pr_warn("unknown TLV type: %#x\n", tlv_type);
 			break;
 		}
+<<<<<<< HEAD
 
 		payload_len -= tlv_len;
 		tlv = (struct qlink_tlv_hdr *)(tlv->val + tlv_dlen);
@@ -1589,6 +2200,12 @@ qtnf_cmd_resp_fill_band_info(struct ieee80211_supported_band *band,
 
 	if (payload_len) {
 		pr_err("malformed TLV buf; bytes left: %zu\n", payload_len);
+=======
+	}
+
+	if (!qlink_tlv_parsing_ok(tlv, resp->info, payload_len)) {
+		pr_err("Malformed TLV buffer\n");
+>>>>>>> upstream/android-13
 		goto error_ret;
 	}
 
@@ -1605,6 +2222,7 @@ error_ret:
 	band->channels = NULL;
 	band->n_channels = 0;
 
+<<<<<<< HEAD
 	return -EINVAL;
 }
 
@@ -1728,14 +2346,21 @@ qtnf_cmd_resp_proc_chan_stat_info(struct qtnf_chan_stats *stats,
 	}
 
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int qtnf_cmd_get_mac_info(struct qtnf_wmac *mac)
 {
 	struct sk_buff *cmd_skb, *resp_skb = NULL;
 	const struct qlink_resp_get_mac_info *resp;
+<<<<<<< HEAD
 	size_t var_data_len;
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+	size_t var_data_len = 0;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(mac->macid, QLINK_VIFID_RSVD,
@@ -1745,6 +2370,7 @@ int qtnf_cmd_get_mac_info(struct qtnf_wmac *mac)
 		return -ENOMEM;
 
 	qtnf_bus_lock(mac->bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send_with_reply(mac->bus, cmd_skb, &resp_skb, &res_code,
 				       sizeof(*resp), &var_data_len);
@@ -1760,6 +2386,19 @@ int qtnf_cmd_get_mac_info(struct qtnf_wmac *mac)
 	resp = (const struct qlink_resp_get_mac_info *)resp_skb->data;
 	qtnf_cmd_resp_proc_mac_info(mac, resp);
 	ret = qtnf_parse_variable_mac_info(mac, resp->var_info, var_data_len);
+=======
+	ret = qtnf_cmd_send_with_reply(mac->bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), &var_data_len);
+	if (ret)
+		goto out;
+
+	resp = (const struct qlink_resp_get_mac_info *)resp_skb->data;
+	ret = qtnf_cmd_resp_proc_mac_info(mac, resp);
+	if (ret)
+		goto out;
+
+	ret = qtnf_parse_variable_mac_info(mac, resp, var_data_len);
+>>>>>>> upstream/android-13
 
 out:
 	qtnf_bus_unlock(mac->bus);
@@ -1772,9 +2411,14 @@ int qtnf_cmd_get_hw_info(struct qtnf_bus *bus)
 {
 	struct sk_buff *cmd_skb, *resp_skb = NULL;
 	const struct qlink_resp_get_hw_info *resp;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
 	int ret = 0;
 	size_t info_len;
+=======
+	size_t info_len = 0;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(QLINK_MACID_RSVD, QLINK_VIFID_RSVD,
 					    QLINK_CMD_GET_HW_INFO,
@@ -1783,6 +2427,7 @@ int qtnf_cmd_get_hw_info(struct qtnf_bus *bus)
 		return -ENOMEM;
 
 	qtnf_bus_lock(bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send_with_reply(bus, cmd_skb, &resp_skb, &res_code,
 				       sizeof(*resp), &info_len);
@@ -1796,6 +2441,13 @@ int qtnf_cmd_get_hw_info(struct qtnf_bus *bus)
 		goto out;
 	}
 
+=======
+	ret = qtnf_cmd_send_with_reply(bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), &info_len);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	resp = (const struct qlink_resp_get_hw_info *)resp_skb->data;
 	ret = qtnf_cmd_resp_proc_hw_info(bus, resp, info_len);
 
@@ -1810,6 +2462,7 @@ int qtnf_cmd_band_info_get(struct qtnf_wmac *mac,
 			   struct ieee80211_supported_band *band)
 {
 	struct sk_buff *cmd_skb, *resp_skb = NULL;
+<<<<<<< HEAD
 	size_t info_len;
 	struct qlink_cmd_band_info_get *cmd;
 	struct qlink_resp_band_info_get *resp;
@@ -1830,6 +2483,13 @@ int qtnf_cmd_band_info_get(struct qtnf_wmac *mac,
 	default:
 		return -EINVAL;
 	}
+=======
+	struct qlink_cmd_band_info_get *cmd;
+	struct qlink_resp_band_info_get *resp;
+	size_t info_len = 0;
+	int ret = 0;
+	u8 qband = qlink_utils_band_cfg2q(band->band);
+>>>>>>> upstream/android-13
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(mac->macid, 0,
 					    QLINK_CMD_BAND_INFO_GET,
@@ -1841,6 +2501,7 @@ int qtnf_cmd_band_info_get(struct qtnf_wmac *mac,
 	cmd->band = qband;
 
 	qtnf_bus_lock(mac->bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send_with_reply(mac->bus, cmd_skb, &resp_skb, &res_code,
 				       sizeof(*resp), &info_len);
@@ -1854,6 +2515,13 @@ int qtnf_cmd_band_info_get(struct qtnf_wmac *mac,
 		goto out;
 	}
 
+=======
+	ret = qtnf_cmd_send_with_reply(mac->bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), &info_len);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	resp = (struct qlink_resp_band_info_get *)resp_skb->data;
 	if (resp->band != qband) {
 		pr_err("MAC%u: reply band %u != cmd band %u\n", mac->macid,
@@ -1871,6 +2539,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 int qtnf_cmd_send_get_phy_params(struct qtnf_wmac *mac)
 {
 	struct sk_buff *cmd_skb, *resp_skb = NULL;
@@ -1909,11 +2578,16 @@ out:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 int qtnf_cmd_send_update_phy_params(struct qtnf_wmac *mac, u32 changed)
 {
 	struct wiphy *wiphy = priv_to_wiphy(mac);
 	struct sk_buff *cmd_skb;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(mac->macid, 0,
@@ -1925,6 +2599,7 @@ int qtnf_cmd_send_update_phy_params(struct qtnf_wmac *mac, u32 changed)
 	qtnf_bus_lock(mac->bus);
 
 	if (changed & WIPHY_PARAM_FRAG_THRESHOLD)
+<<<<<<< HEAD
 		qtnf_cmd_skb_put_tlv_u16(cmd_skb, QTN_TLV_ID_FRAG_THRESH,
 					 wiphy->frag_threshold);
 	if (changed & WIPHY_PARAM_RTS_THRESHOLD)
@@ -1947,11 +2622,35 @@ int qtnf_cmd_send_update_phy_params(struct qtnf_wmac *mac, u32 changed)
 
 out:
 	qtnf_bus_unlock(mac->bus);
+=======
+		qtnf_cmd_skb_put_tlv_u32(cmd_skb, QTN_TLV_ID_FRAG_THRESH,
+					 wiphy->frag_threshold);
+	if (changed & WIPHY_PARAM_RTS_THRESHOLD)
+		qtnf_cmd_skb_put_tlv_u32(cmd_skb, QTN_TLV_ID_RTS_THRESH,
+					 wiphy->rts_threshold);
+	if (changed & WIPHY_PARAM_COVERAGE_CLASS)
+		qtnf_cmd_skb_put_tlv_u32(cmd_skb, QTN_TLV_ID_COVERAGE_CLASS,
+					 wiphy->coverage_class);
+
+	if (changed & WIPHY_PARAM_RETRY_LONG)
+		qtnf_cmd_skb_put_tlv_u32(cmd_skb, QTN_TLV_ID_LRETRY_LIMIT,
+					 wiphy->retry_long);
+
+	if (changed & WIPHY_PARAM_RETRY_SHORT)
+		qtnf_cmd_skb_put_tlv_u32(cmd_skb, QTN_TLV_ID_SRETRY_LIMIT,
+					 wiphy->retry_short);
+
+	ret = qtnf_cmd_send(mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 int qtnf_cmd_send_init_fw(struct qtnf_bus *bus)
 {
+<<<<<<< HEAD
 	struct sk_buff *cmd_skb;
 	u16 res_code = QLINK_CMD_RESULT_OK;
 	int ret = 0;
@@ -1977,6 +2676,37 @@ int qtnf_cmd_send_init_fw(struct qtnf_bus *bus)
 
 out:
 	qtnf_bus_unlock(bus);
+=======
+	struct sk_buff *resp_skb = NULL;
+	struct qlink_resp_init_fw *resp;
+	struct qlink_cmd_init_fw *cmd;
+	struct sk_buff *cmd_skb;
+	size_t info_len = 0;
+	int ret;
+
+	cmd_skb = qtnf_cmd_alloc_new_cmdskb(QLINK_MACID_RSVD, QLINK_VIFID_RSVD,
+					    QLINK_CMD_FW_INIT,
+					    sizeof(*cmd));
+	if (!cmd_skb)
+		return -ENOMEM;
+
+	cmd = (struct qlink_cmd_init_fw *)cmd_skb->data;
+	cmd->qlink_proto_ver = cpu_to_le32(QLINK_PROTO_VER);
+
+	qtnf_bus_lock(bus);
+	ret = qtnf_cmd_send_with_reply(bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), &info_len);
+	qtnf_bus_unlock(bus);
+
+	if (ret)
+		goto out;
+
+	resp = (struct qlink_resp_init_fw *)resp_skb->data;
+	bus->hw_info.ql_proto_ver = le32_to_cpu(resp->qlink_proto_ver);
+
+out:
+	consume_skb(resp_skb);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1991,9 +2721,13 @@ void qtnf_cmd_send_deinit_fw(struct qtnf_bus *bus)
 		return;
 
 	qtnf_bus_lock(bus);
+<<<<<<< HEAD
 
 	qtnf_cmd_send(bus, cmd_skb, NULL);
 
+=======
+	qtnf_cmd_send(bus, cmd_skb);
+>>>>>>> upstream/android-13
 	qtnf_bus_unlock(bus);
 }
 
@@ -2002,7 +2736,10 @@ int qtnf_cmd_send_add_key(struct qtnf_vif *vif, u8 key_index, bool pairwise,
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_add_key *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2034,6 +2771,7 @@ int qtnf_cmd_send_add_key(struct qtnf_vif *vif, u8 key_index, bool pairwise,
 					 params->seq,
 					 params->seq_len);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 	if (unlikely(ret))
 		goto out;
@@ -2047,6 +2785,12 @@ int qtnf_cmd_send_add_key(struct qtnf_vif *vif, u8 key_index, bool pairwise,
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2055,7 +2799,10 @@ int qtnf_cmd_send_del_key(struct qtnf_vif *vif, u8 key_index, bool pairwise,
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_del_key *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2075,6 +2822,7 @@ int qtnf_cmd_send_del_key(struct qtnf_vif *vif, u8 key_index, bool pairwise,
 
 	cmd->key_index = key_index;
 	cmd->pairwise = pairwise;
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 	if (unlikely(ret))
 		goto out;
@@ -2088,6 +2836,13 @@ int qtnf_cmd_send_del_key(struct qtnf_vif *vif, u8 key_index, bool pairwise,
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2096,7 +2851,10 @@ int qtnf_cmd_send_set_default_key(struct qtnf_vif *vif, u8 key_index,
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_set_def_key *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2111,6 +2869,7 @@ int qtnf_cmd_send_set_default_key(struct qtnf_vif *vif, u8 key_index,
 	cmd->key_index = key_index;
 	cmd->unicast = unicast;
 	cmd->multicast = multicast;
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 	if (unlikely(ret))
 		goto out;
@@ -2124,6 +2883,13 @@ int qtnf_cmd_send_set_default_key(struct qtnf_vif *vif, u8 key_index,
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2131,7 +2897,10 @@ int qtnf_cmd_send_set_default_mgmt_key(struct qtnf_vif *vif, u8 key_index)
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_set_def_mgmt_key *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2144,6 +2913,7 @@ int qtnf_cmd_send_set_default_mgmt_key(struct qtnf_vif *vif, u8 key_index)
 
 	cmd = (struct qlink_cmd_set_def_mgmt_key *)cmd_skb->data;
 	cmd->key_index = key_index;
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 	if (unlikely(ret))
 		goto out;
@@ -2157,6 +2927,13 @@ int qtnf_cmd_send_set_default_mgmt_key(struct qtnf_vif *vif, u8 key_index)
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2186,7 +2963,10 @@ int qtnf_cmd_send_change_sta(struct qtnf_vif *vif, const u8 *mac,
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_change_sta *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2218,6 +2998,7 @@ int qtnf_cmd_send_change_sta(struct qtnf_vif *vif, const u8 *mac,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 	if (unlikely(ret))
 		goto out;
@@ -2231,6 +3012,13 @@ int qtnf_cmd_send_change_sta(struct qtnf_vif *vif, const u8 *mac,
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+out:
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2239,7 +3027,10 @@ int qtnf_cmd_send_del_sta(struct qtnf_vif *vif,
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_del_sta *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2260,6 +3051,7 @@ int qtnf_cmd_send_del_sta(struct qtnf_vif *vif,
 	cmd->subtype = params->subtype;
 	cmd->reason_code = cpu_to_le16(params->reason_code);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 	if (unlikely(ret))
 		goto out;
@@ -2273,12 +3065,19 @@ int qtnf_cmd_send_del_sta(struct qtnf_vif *vif,
 
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void qtnf_cmd_channel_tlv_add(struct sk_buff *cmd_skb,
 				     const struct ieee80211_channel *sc)
 {
+<<<<<<< HEAD
 	struct qlink_tlv_channel *qchan;
 	u32 flags = 0;
 
@@ -2295,6 +3094,25 @@ static void qtnf_cmd_channel_tlv_add(struct sk_buff *cmd_skb,
 		flags |= QLINK_CHAN_RADAR;
 
 	qchan->chan.flags = cpu_to_le32(flags);
+=======
+	struct qlink_tlv_channel *tlv;
+	struct qlink_channel *qch;
+
+	tlv = skb_put_zero(cmd_skb, sizeof(*tlv));
+	qch = &tlv->chan;
+	tlv->hdr.type = cpu_to_le16(QTN_TLV_ID_CHANNEL);
+	tlv->hdr.len = cpu_to_le16(sizeof(*qch));
+
+	qch->center_freq = cpu_to_le16(sc->center_freq);
+	qch->hw_value = cpu_to_le16(sc->hw_value);
+	qch->band = qlink_utils_band_cfg2q(sc->band);
+	qch->max_power = sc->max_power;
+	qch->max_reg_power = sc->max_reg_power;
+	qch->max_antenna_gain = sc->max_antenna_gain;
+	qch->beacon_found = sc->beacon_found;
+	qch->dfs_state = qlink_utils_dfs_state_cfg2q(sc->dfs_state);
+	qch->flags = cpu_to_le32(qlink_utils_chflags_cfg2q(sc->flags));
+>>>>>>> upstream/android-13
 }
 
 static void qtnf_cmd_randmac_tlv_add(struct sk_buff *cmd_skb,
@@ -2315,16 +3133,30 @@ static void qtnf_cmd_randmac_tlv_add(struct sk_buff *cmd_skb,
 
 int qtnf_cmd_send_scan(struct qtnf_wmac *mac)
 {
+<<<<<<< HEAD
 	struct sk_buff *cmd_skb;
 	u16 res_code = QLINK_CMD_RESULT_OK;
 	struct ieee80211_channel *sc;
 	struct cfg80211_scan_request *scan_req = mac->scan_req;
 	int n_channels;
 	int count = 0;
+=======
+	struct cfg80211_scan_request *scan_req = mac->scan_req;
+	u16 dwell_passive = QTNF_SCAN_DWELL_PASSIVE_DEFAULT;
+	u16 dwell_active = QTNF_SCAN_DWELL_ACTIVE_DEFAULT;
+	struct wireless_dev *wdev = scan_req->wdev;
+	struct ieee80211_channel *sc;
+	struct qlink_cmd_scan *cmd;
+	struct sk_buff *cmd_skb;
+	int n_channels = 0;
+	u64 flags = 0;
+	int count;
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(mac->macid, QLINK_VIFID_RSVD,
 					    QLINK_CMD_SCAN,
+<<<<<<< HEAD
 					    sizeof(struct qlink_cmd));
 	if (!cmd_skb)
 		return -ENOMEM;
@@ -2338,12 +3170,36 @@ int qtnf_cmd_send_scan(struct qtnf_wmac *mac)
 				scan_req->ssids[count].ssid_len);
 			count++;
 		}
+=======
+					    sizeof(*cmd));
+	if (!cmd_skb)
+		return -ENOMEM;
+
+	cmd = (struct qlink_cmd_scan *)cmd_skb->data;
+
+	if (scan_req->duration) {
+		dwell_active = scan_req->duration;
+		dwell_passive = scan_req->duration;
+	} else if (wdev->iftype == NL80211_IFTYPE_STATION &&
+		   wdev->connected) {
+		/* let device select dwell based on traffic conditions */
+		dwell_active = QTNF_SCAN_TIME_AUTO;
+		dwell_passive = QTNF_SCAN_TIME_AUTO;
+	}
+
+	cmd->n_ssids = cpu_to_le16(scan_req->n_ssids);
+	for (count = 0; count < scan_req->n_ssids; ++count) {
+		qtnf_cmd_skb_put_tlv_arr(cmd_skb, WLAN_EID_SSID,
+					 scan_req->ssids[count].ssid,
+					 scan_req->ssids[count].ssid_len);
+>>>>>>> upstream/android-13
 	}
 
 	if (scan_req->ie_len != 0)
 		qtnf_cmd_tlv_ie_set_add(cmd_skb, QLINK_IE_SET_PROBE_REQ,
 					scan_req->ie, scan_req->ie_len);
 
+<<<<<<< HEAD
 	if (scan_req->n_channels) {
 		n_channels = scan_req->n_channels;
 		count = 0;
@@ -2370,10 +3226,48 @@ int qtnf_cmd_send_scan(struct qtnf_wmac *mac)
 			 mac->macid,
 			 scan_req->mac_addr, scan_req->mac_addr_mask);
 
+=======
+	for (count = 0; count < scan_req->n_channels; ++count) {
+		sc = scan_req->channels[count];
+		if (sc->flags & IEEE80211_CHAN_DISABLED)
+			continue;
+
+		pr_debug("[MAC%u] scan chan=%d, freq=%d, flags=%#x\n",
+			 mac->macid, sc->hw_value, sc->center_freq,
+			 sc->flags);
+
+		qtnf_cmd_channel_tlv_add(cmd_skb, sc);
+		++n_channels;
+	}
+
+	if (scan_req->flags & NL80211_SCAN_FLAG_FLUSH)
+		flags |= QLINK_SCAN_FLAG_FLUSH;
+
+	if (scan_req->duration_mandatory)
+		flags |= QLINK_SCAN_FLAG_DURATION_MANDATORY;
+
+	cmd->n_channels = cpu_to_le16(n_channels);
+	cmd->active_dwell = cpu_to_le16(dwell_active);
+	cmd->passive_dwell = cpu_to_le16(dwell_passive);
+	cmd->sample_duration = cpu_to_le16(QTNF_SCAN_SAMPLE_DURATION_DEFAULT);
+	cmd->flags = cpu_to_le64(flags);
+
+	pr_debug("[MAC%u] %s scan dwell active=%u passive=%u duration=%u\n",
+		 mac->macid,
+		 scan_req->duration_mandatory ? "mandatory" : "max",
+		 dwell_active, dwell_passive,
+		 QTNF_SCAN_SAMPLE_DURATION_DEFAULT);
+
+	if (scan_req->flags & NL80211_SCAN_FLAG_RANDOM_ADDR) {
+		pr_debug("[MAC%u] scan with random addr=%pM, mask=%pM\n",
+			 mac->macid,
+			 scan_req->mac_addr, scan_req->mac_addr_mask);
+>>>>>>> upstream/android-13
 		qtnf_cmd_randmac_tlv_add(cmd_skb, scan_req->mac_addr,
 					 scan_req->mac_addr_mask);
 	}
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(mac->bus, cmd_skb, &res_code);
 
 	if (unlikely(ret))
@@ -2388,6 +3282,12 @@ int qtnf_cmd_send_scan(struct qtnf_wmac *mac)
 	}
 out:
 	qtnf_bus_unlock(mac->bus);
+=======
+	qtnf_bus_lock(mac->bus);
+	ret = qtnf_cmd_send(mac->bus, cmd_skb);
+	qtnf_bus_unlock(mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2397,9 +3297,15 @@ int qtnf_cmd_send_connect(struct qtnf_vif *vif,
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_connect *cmd;
 	struct qlink_auth_encr *aen;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
 	int ret;
 	int i;
+=======
+	int ret;
+	int i;
+	int n;
+>>>>>>> upstream/android-13
 	u32 connect_flags = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2456,9 +3362,16 @@ int qtnf_cmd_send_connect(struct qtnf_vif *vif,
 		aen->ciphers_pairwise[i] =
 			cpu_to_le32(sme->crypto.ciphers_pairwise[i]);
 
+<<<<<<< HEAD
 	aen->n_akm_suites = cpu_to_le32(sme->crypto.n_akm_suites);
 
 	for (i = 0; i < QLINK_MAX_NR_AKM_SUITES; i++)
+=======
+	n = min(QLINK_MAX_NR_AKM_SUITES, sme->crypto.n_akm_suites);
+	aen->n_akm_suites = cpu_to_le32(n);
+
+	for (i = 0; i < n; i++)
+>>>>>>> upstream/android-13
 		aen->akm_suites[i] = cpu_to_le32(sme->crypto.akm_suites[i]);
 
 	aen->control_port = sme->crypto.control_port;
@@ -2478,6 +3391,7 @@ int qtnf_cmd_send_connect(struct qtnf_vif *vif,
 		qtnf_cmd_channel_tlv_add(cmd_skb, sme->channel);
 
 	qtnf_bus_lock(vif->mac->bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
@@ -2492,6 +3406,36 @@ int qtnf_cmd_send_connect(struct qtnf_vif *vif,
 	}
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	qtnf_bus_unlock(vif->mac->bus);
+
+	return ret;
+}
+
+int qtnf_cmd_send_external_auth(struct qtnf_vif *vif,
+				struct cfg80211_external_auth_params *auth)
+{
+	struct sk_buff *cmd_skb;
+	struct qlink_cmd_external_auth *cmd;
+	int ret;
+
+	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
+					    QLINK_CMD_EXTERNAL_AUTH,
+					    sizeof(*cmd));
+	if (!cmd_skb)
+		return -ENOMEM;
+
+	cmd = (struct qlink_cmd_external_auth *)cmd_skb->data;
+
+	ether_addr_copy(cmd->peer, auth->bssid);
+	cmd->status = cpu_to_le16(auth->status);
+
+	qtnf_bus_lock(vif->mac->bus);
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2499,7 +3443,10 @@ int qtnf_cmd_send_disconnect(struct qtnf_vif *vif, u16 reason_code)
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_disconnect *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2513,6 +3460,7 @@ int qtnf_cmd_send_disconnect(struct qtnf_vif *vif, u16 reason_code)
 	cmd = (struct qlink_cmd_disconnect *)cmd_skb->data;
 	cmd->reason = cpu_to_le16(reason_code);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
 	if (unlikely(ret))
@@ -2526,6 +3474,12 @@ int qtnf_cmd_send_disconnect(struct qtnf_vif *vif, u16 reason_code)
 	}
 out:
 	qtnf_bus_unlock(vif->mac->bus);
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+
+	qtnf_bus_unlock(vif->mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2533,7 +3487,10 @@ int qtnf_cmd_send_updown_intf(struct qtnf_vif *vif, bool up)
 {
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_updown *cmd;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2546,6 +3503,7 @@ int qtnf_cmd_send_updown_intf(struct qtnf_vif *vif, bool up)
 	cmd->if_up = !!up;
 
 	qtnf_bus_lock(vif->mac->bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb, &res_code);
 
@@ -2571,6 +3529,26 @@ int qtnf_cmd_reg_notify(struct qtnf_bus *bus, struct regulatory_request *req)
 	struct qlink_cmd_reg_notify *cmd;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(QLINK_MACID_RSVD, QLINK_VIFID_RSVD,
+=======
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	qtnf_bus_unlock(vif->mac->bus);
+
+	return ret;
+}
+
+int qtnf_cmd_reg_notify(struct qtnf_wmac *mac, struct regulatory_request *req,
+			bool slave_radar, bool dfs_offload)
+{
+	struct wiphy *wiphy = priv_to_wiphy(mac);
+	struct qtnf_bus *bus = mac->bus;
+	struct sk_buff *cmd_skb;
+	int ret;
+	struct qlink_cmd_reg_notify *cmd;
+	enum nl80211_band band;
+	const struct ieee80211_supported_band *cfg_band;
+
+	cmd_skb = qtnf_cmd_alloc_new_cmdskb(mac->macid, QLINK_VIFID_RSVD,
+>>>>>>> upstream/android-13
 					    QLINK_CMD_REG_NOTIFY,
 					    sizeof(*cmd));
 	if (!cmd_skb)
@@ -2607,6 +3585,7 @@ int qtnf_cmd_reg_notify(struct qtnf_bus *bus, struct regulatory_request *req)
 		break;
 	}
 
+<<<<<<< HEAD
 	qtnf_bus_lock(bus);
 
 	ret = qtnf_cmd_send(bus, cmd_skb, &res_code);
@@ -2632,19 +3611,149 @@ int qtnf_cmd_reg_notify(struct qtnf_bus *bus, struct regulatory_request *req)
 	}
 
 out:
+=======
+	switch (req->dfs_region) {
+	case NL80211_DFS_FCC:
+		cmd->dfs_region = QLINK_DFS_FCC;
+		break;
+	case NL80211_DFS_ETSI:
+		cmd->dfs_region = QLINK_DFS_ETSI;
+		break;
+	case NL80211_DFS_JP:
+		cmd->dfs_region = QLINK_DFS_JP;
+		break;
+	default:
+		cmd->dfs_region = QLINK_DFS_UNSET;
+		break;
+	}
+
+	cmd->slave_radar = slave_radar;
+	cmd->dfs_offload = dfs_offload;
+	cmd->num_channels = 0;
+
+	for (band = 0; band < NUM_NL80211_BANDS; band++) {
+		unsigned int i;
+
+		cfg_band = wiphy->bands[band];
+		if (!cfg_band)
+			continue;
+
+		cmd->num_channels += cfg_band->n_channels;
+
+		for (i = 0; i < cfg_band->n_channels; ++i) {
+			qtnf_cmd_channel_tlv_add(cmd_skb,
+						 &cfg_band->channels[i]);
+		}
+	}
+
+	qtnf_bus_lock(bus);
+	ret = qtnf_cmd_send(bus, cmd_skb);
+>>>>>>> upstream/android-13
 	qtnf_bus_unlock(bus);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 int qtnf_cmd_get_chan_stats(struct qtnf_wmac *mac, u16 channel,
 			    struct qtnf_chan_stats *stats)
+=======
+static int
+qtnf_cmd_resp_proc_chan_stat_info(struct survey_info *survey,
+				  const u8 *payload, size_t payload_len)
+{
+	const struct qlink_chan_stats *stats = NULL;
+	const struct qlink_tlv_hdr *tlv;
+	u16 tlv_value_len;
+	u16 tlv_type;
+	const u8 *map = NULL;
+	unsigned int map_len = 0;
+	unsigned int stats_len = 0;
+
+	qlink_for_each_tlv(tlv, payload, payload_len) {
+		tlv_type = le16_to_cpu(tlv->type);
+		tlv_value_len = le16_to_cpu(tlv->len);
+
+		switch (tlv_type) {
+		case QTN_TLV_ID_BITMAP:
+			map = tlv->val;
+			map_len = tlv_value_len;
+			break;
+		case QTN_TLV_ID_CHANNEL_STATS:
+			stats = (struct qlink_chan_stats *)tlv->val;
+			stats_len = tlv_value_len;
+			break;
+		default:
+			pr_info("Unknown TLV type: %#x\n", tlv_type);
+			break;
+		}
+	}
+
+	if (!qlink_tlv_parsing_ok(tlv, payload, payload_len)) {
+		pr_err("Malformed TLV buffer\n");
+		return -EINVAL;
+	}
+
+	if (!map || !stats)
+		return 0;
+
+#define qtnf_chan_stat_avail(stat_name, bitn)	\
+	(qtnf_utils_is_bit_set(map, bitn, map_len) && \
+	 (offsetofend(struct qlink_chan_stats, stat_name) <= stats_len))
+
+	if (qtnf_chan_stat_avail(time_on, QLINK_CHAN_STAT_TIME_ON)) {
+		survey->filled |= SURVEY_INFO_TIME;
+		survey->time = le64_to_cpu(stats->time_on);
+	}
+
+	if (qtnf_chan_stat_avail(time_tx, QLINK_CHAN_STAT_TIME_TX)) {
+		survey->filled |= SURVEY_INFO_TIME_TX;
+		survey->time_tx = le64_to_cpu(stats->time_tx);
+	}
+
+	if (qtnf_chan_stat_avail(time_rx, QLINK_CHAN_STAT_TIME_RX)) {
+		survey->filled |= SURVEY_INFO_TIME_RX;
+		survey->time_rx = le64_to_cpu(stats->time_rx);
+	}
+
+	if (qtnf_chan_stat_avail(cca_busy, QLINK_CHAN_STAT_CCA_BUSY)) {
+		survey->filled |= SURVEY_INFO_TIME_BUSY;
+		survey->time_busy = le64_to_cpu(stats->cca_busy);
+	}
+
+	if (qtnf_chan_stat_avail(cca_busy_ext, QLINK_CHAN_STAT_CCA_BUSY_EXT)) {
+		survey->filled |= SURVEY_INFO_TIME_EXT_BUSY;
+		survey->time_ext_busy = le64_to_cpu(stats->cca_busy_ext);
+	}
+
+	if (qtnf_chan_stat_avail(time_scan, QLINK_CHAN_STAT_TIME_SCAN)) {
+		survey->filled |= SURVEY_INFO_TIME_SCAN;
+		survey->time_scan = le64_to_cpu(stats->time_scan);
+	}
+
+	if (qtnf_chan_stat_avail(chan_noise, QLINK_CHAN_STAT_CHAN_NOISE)) {
+		survey->filled |= SURVEY_INFO_NOISE_DBM;
+		survey->noise = stats->chan_noise;
+	}
+
+#undef qtnf_chan_stat_avail
+
+	return 0;
+}
+
+int qtnf_cmd_get_chan_stats(struct qtnf_wmac *mac, u32 chan_freq,
+			    struct survey_info *survey)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *cmd_skb, *resp_skb = NULL;
 	struct qlink_cmd_get_chan_stats *cmd;
 	struct qlink_resp_get_chan_stats *resp;
+<<<<<<< HEAD
 	size_t var_data_len;
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+	size_t var_data_len = 0;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(mac->macid, QLINK_VIFID_RSVD,
@@ -2653,6 +3762,7 @@ int qtnf_cmd_get_chan_stats(struct qtnf_wmac *mac, u16 channel,
 	if (!cmd_skb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	qtnf_bus_lock(mac->bus);
 
 	cmd = (struct qlink_cmd_get_chan_stats *)cmd_skb->data;
@@ -2685,6 +3795,34 @@ int qtnf_cmd_get_chan_stats(struct qtnf_wmac *mac, u16 channel,
 out:
 	qtnf_bus_unlock(mac->bus);
 	consume_skb(resp_skb);
+=======
+	cmd = (struct qlink_cmd_get_chan_stats *)cmd_skb->data;
+	cmd->channel_freq = cpu_to_le32(chan_freq);
+
+	qtnf_bus_lock(mac->bus);
+	ret = qtnf_cmd_send_with_reply(mac->bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), &var_data_len);
+	qtnf_bus_unlock(mac->bus);
+
+	if (ret)
+		goto out;
+
+	resp = (struct qlink_resp_get_chan_stats *)resp_skb->data;
+
+	if (le32_to_cpu(resp->chan_freq) != chan_freq) {
+		pr_err("[MAC%u] channel stats freq %u != requested %u\n",
+		       mac->macid, le32_to_cpu(resp->chan_freq), chan_freq);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	ret = qtnf_cmd_resp_proc_chan_stat_info(survey, resp->info,
+						var_data_len);
+
+out:
+	consume_skb(resp_skb);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2694,8 +3832,13 @@ int qtnf_cmd_send_chan_switch(struct qtnf_vif *vif,
 	struct qtnf_wmac *mac = vif->mac;
 	struct qlink_cmd_chan_switch *cmd;
 	struct sk_buff *cmd_skb;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
 	int ret;
+=======
+	int ret;
+	u64 flags = 0;
+>>>>>>> upstream/android-13
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(mac->macid, vif->vifid,
 					    QLINK_CMD_CHAN_SWITCH,
@@ -2703,6 +3846,7 @@ int qtnf_cmd_send_chan_switch(struct qtnf_vif *vif,
 	if (!cmd_skb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	qtnf_bus_lock(mac->bus);
 
 	cmd = (struct qlink_cmd_chan_switch *)cmd_skb->data;
@@ -2737,6 +3881,23 @@ int qtnf_cmd_send_chan_switch(struct qtnf_vif *vif,
 
 out:
 	qtnf_bus_unlock(mac->bus);
+=======
+	if (params->radar_required)
+		flags |= QLINK_CHAN_SW_RADAR_REQUIRED;
+
+	if (params->block_tx)
+		flags |= QLINK_CHAN_SW_BLOCK_TX;
+
+	cmd = (struct qlink_cmd_chan_switch *)cmd_skb->data;
+	qlink_chandef_cfg2q(&params->chandef, &cmd->channel);
+	cmd->flags = cpu_to_le64(flags);
+	cmd->beacon_count = params->count;
+
+	qtnf_bus_lock(mac->bus);
+	ret = qtnf_cmd_send(mac->bus, cmd_skb);
+	qtnf_bus_unlock(mac->bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2746,7 +3907,10 @@ int qtnf_cmd_get_channel(struct qtnf_vif *vif, struct cfg80211_chan_def *chdef)
 	const struct qlink_resp_channel_get *resp;
 	struct sk_buff *cmd_skb;
 	struct sk_buff *resp_skb = NULL;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2756,6 +3920,7 @@ int qtnf_cmd_get_channel(struct qtnf_vif *vif, struct cfg80211_chan_def *chdef)
 		return -ENOMEM;
 
 	qtnf_bus_lock(bus);
+<<<<<<< HEAD
 
 	ret = qtnf_cmd_send_with_reply(bus, cmd_skb, &resp_skb, &res_code,
 				       sizeof(*resp), NULL);
@@ -2770,11 +3935,24 @@ int qtnf_cmd_get_channel(struct qtnf_vif *vif, struct cfg80211_chan_def *chdef)
 		goto out;
 	}
 
+=======
+	ret = qtnf_cmd_send_with_reply(bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), NULL);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	resp = (const struct qlink_resp_channel_get *)resp_skb->data;
 	qlink_chandef_q2cfg(priv_to_wiphy(vif->mac), &resp->chan, chdef);
 
 out:
+<<<<<<< HEAD
 	consume_skb(resp_skb);
+=======
+	qtnf_bus_unlock(bus);
+	consume_skb(resp_skb);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2786,7 +3964,10 @@ int qtnf_cmd_start_cac(const struct qtnf_vif *vif,
 	struct sk_buff *cmd_skb;
 	struct qlink_cmd_start_cac *cmd;
 	int ret;
+<<<<<<< HEAD
 	u16 res_code;
+=======
+>>>>>>> upstream/android-13
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
 					    QLINK_CMD_START_CAC,
@@ -2799,6 +3980,7 @@ int qtnf_cmd_start_cac(const struct qtnf_vif *vif,
 	qlink_chandef_cfg2q(chdef, &cmd->chan);
 
 	qtnf_bus_lock(bus);
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(bus, cmd_skb, &res_code);
 	qtnf_bus_unlock(bus);
 
@@ -2813,6 +3995,11 @@ int qtnf_cmd_start_cac(const struct qtnf_vif *vif,
 		break;
 	}
 
+=======
+	ret = qtnf_cmd_send(bus, cmd_skb);
+	qtnf_bus_unlock(bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2822,8 +4009,12 @@ int qtnf_cmd_set_mac_acl(const struct qtnf_vif *vif,
 	struct qtnf_bus *bus = vif->mac->bus;
 	struct sk_buff *cmd_skb;
 	struct qlink_tlv_hdr *tlv;
+<<<<<<< HEAD
 	size_t acl_size = qtnf_cmd_acl_data_size(params);
 	u16 res_code;
+=======
+	size_t acl_size = struct_size(params, mac_addrs, params->n_acl_entries);
+>>>>>>> upstream/android-13
 	int ret;
 
 	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
@@ -2832,12 +4023,17 @@ int qtnf_cmd_set_mac_acl(const struct qtnf_vif *vif,
 	if (!cmd_skb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	tlv = skb_put(cmd_skb, sizeof(*tlv) + acl_size);
+=======
+	tlv = skb_put(cmd_skb, sizeof(*tlv) + round_up(acl_size, QLINK_ALIGN));
+>>>>>>> upstream/android-13
 	tlv->type = cpu_to_le16(QTN_TLV_ID_ACL_DATA);
 	tlv->len = cpu_to_le16(acl_size);
 	qlink_acl_data_cfg2q(params, (struct qlink_acl_data *)tlv->val);
 
 	qtnf_bus_lock(bus);
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(bus, cmd_skb, &res_code);
 	qtnf_bus_unlock(bus);
 
@@ -2855,6 +4051,11 @@ int qtnf_cmd_set_mac_acl(const struct qtnf_vif *vif,
 		break;
 	}
 
+=======
+	ret = qtnf_cmd_send(bus, cmd_skb);
+	qtnf_bus_unlock(bus);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2862,7 +4063,10 @@ int qtnf_cmd_send_pm_set(const struct qtnf_vif *vif, u8 pm_mode, int timeout)
 {
 	struct qtnf_bus *bus = vif->mac->bus;
 	struct sk_buff *cmd_skb;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	struct qlink_cmd_pm_set *cmd;
 	int ret = 0;
 
@@ -2877,6 +4081,7 @@ int qtnf_cmd_send_pm_set(const struct qtnf_vif *vif, u8 pm_mode, int timeout)
 
 	qtnf_bus_lock(bus);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(bus, cmd_skb, &res_code);
 
 	if (unlikely(ret))
@@ -2889,6 +4094,77 @@ int qtnf_cmd_send_pm_set(const struct qtnf_vif *vif, u8 pm_mode, int timeout)
 
 out:
 	qtnf_bus_unlock(bus);
+=======
+	ret = qtnf_cmd_send(bus, cmd_skb);
+
+	qtnf_bus_unlock(bus);
+
+	return ret;
+}
+
+int qtnf_cmd_get_tx_power(const struct qtnf_vif *vif, int *dbm)
+{
+	struct qtnf_bus *bus = vif->mac->bus;
+	const struct qlink_resp_txpwr *resp;
+	struct sk_buff *resp_skb = NULL;
+	struct qlink_cmd_txpwr *cmd;
+	struct sk_buff *cmd_skb;
+	int ret = 0;
+
+	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
+					    QLINK_CMD_TXPWR, sizeof(*cmd));
+	if (!cmd_skb)
+		return -ENOMEM;
+
+	cmd = (struct qlink_cmd_txpwr *)cmd_skb->data;
+	cmd->op_type = QLINK_TXPWR_GET;
+
+	qtnf_bus_lock(bus);
+
+	ret = qtnf_cmd_send_with_reply(bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), NULL);
+	if (ret)
+		goto out;
+
+	resp = (const struct qlink_resp_txpwr *)resp_skb->data;
+	*dbm = MBM_TO_DBM(le32_to_cpu(resp->txpwr));
+
+out:
+	qtnf_bus_unlock(bus);
+	consume_skb(resp_skb);
+
+	return ret;
+}
+
+int qtnf_cmd_set_tx_power(const struct qtnf_vif *vif,
+			  enum nl80211_tx_power_setting type, int mbm)
+{
+	struct qtnf_bus *bus = vif->mac->bus;
+	const struct qlink_resp_txpwr *resp;
+	struct sk_buff *resp_skb = NULL;
+	struct qlink_cmd_txpwr *cmd;
+	struct sk_buff *cmd_skb;
+	int ret = 0;
+
+	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
+					    QLINK_CMD_TXPWR, sizeof(*cmd));
+	if (!cmd_skb)
+		return -ENOMEM;
+
+	cmd = (struct qlink_cmd_txpwr *)cmd_skb->data;
+	cmd->op_type = QLINK_TXPWR_SET;
+	cmd->txpwr_setting = type;
+	cmd->txpwr = cpu_to_le32(mbm);
+
+	qtnf_bus_lock(bus);
+
+	ret = qtnf_cmd_send_with_reply(bus, cmd_skb, &resp_skb,
+				       sizeof(*resp), NULL);
+
+	qtnf_bus_unlock(bus);
+	consume_skb(resp_skb);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2897,7 +4173,10 @@ int qtnf_cmd_send_wowlan_set(const struct qtnf_vif *vif,
 {
 	struct qtnf_bus *bus = vif->mac->bus;
 	struct sk_buff *cmd_skb;
+<<<<<<< HEAD
 	u16 res_code = QLINK_CMD_RESULT_OK;
+=======
+>>>>>>> upstream/android-13
 	struct qlink_cmd_wowlan_set *cmd;
 	u32 triggers = 0;
 	int count = 0;
@@ -2933,6 +4212,7 @@ int qtnf_cmd_send_wowlan_set(const struct qtnf_vif *vif,
 
 	cmd->triggers = cpu_to_le32(triggers);
 
+<<<<<<< HEAD
 	ret = qtnf_cmd_send(bus, cmd_skb, &res_code);
 
 	if (unlikely(ret))
@@ -2947,3 +4227,74 @@ out:
 	qtnf_bus_unlock(bus);
 	return ret;
 }
+=======
+	ret = qtnf_cmd_send(bus, cmd_skb);
+
+	qtnf_bus_unlock(bus);
+	return ret;
+}
+
+int qtnf_cmd_netdev_changeupper(const struct qtnf_vif *vif, int br_domain)
+{
+	struct qtnf_bus *bus = vif->mac->bus;
+	struct sk_buff *cmd_skb;
+	struct qlink_cmd_ndev_changeupper *cmd;
+	int ret;
+
+	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
+					    QLINK_CMD_NDEV_EVENT,
+					    sizeof(*cmd));
+	if (!cmd_skb)
+		return -ENOMEM;
+
+	pr_debug("[VIF%u.%u] set broadcast domain to %d\n",
+		 vif->mac->macid, vif->vifid, br_domain);
+
+	cmd = (struct qlink_cmd_ndev_changeupper *)cmd_skb->data;
+	cmd->nehdr.event = cpu_to_le16(QLINK_NDEV_EVENT_CHANGEUPPER);
+	cmd->upper_type = QLINK_NDEV_UPPER_TYPE_BRIDGE;
+	cmd->br_domain = cpu_to_le32(br_domain);
+
+	qtnf_bus_lock(bus);
+	ret = qtnf_cmd_send(bus, cmd_skb);
+	qtnf_bus_unlock(bus);
+
+	if (ret)
+		pr_err("[VIF%u.%u] failed to set broadcast domain\n",
+		       vif->mac->macid, vif->vifid);
+
+	return ret;
+}
+
+int qtnf_cmd_send_update_owe(struct qtnf_vif *vif,
+			     struct cfg80211_update_owe_info *owe)
+{
+	struct qlink_cmd_update_owe *cmd;
+	struct sk_buff *cmd_skb;
+	int ret;
+
+	if (sizeof(*cmd) + owe->ie_len > QTNF_MAX_CMD_BUF_SIZE) {
+		pr_warn("VIF%u.%u: OWE update IEs too big: %zu\n",
+			vif->mac->macid, vif->vifid, owe->ie_len);
+		return -E2BIG;
+	}
+
+	cmd_skb = qtnf_cmd_alloc_new_cmdskb(vif->mac->macid, vif->vifid,
+					    QLINK_CMD_UPDATE_OWE,
+					    sizeof(*cmd));
+	if (!cmd_skb)
+		return -ENOMEM;
+
+	cmd = (struct qlink_cmd_update_owe *)cmd_skb->data;
+	ether_addr_copy(cmd->peer, owe->peer);
+	cmd->status = cpu_to_le16(owe->status);
+	if (owe->ie_len && owe->ie)
+		qtnf_cmd_skb_put_buffer(cmd_skb, owe->ie, owe->ie_len);
+
+	qtnf_bus_lock(vif->mac->bus);
+	ret = qtnf_cmd_send(vif->mac->bus, cmd_skb);
+	qtnf_bus_unlock(vif->mac->bus);
+
+	return ret;
+}
+>>>>>>> upstream/android-13

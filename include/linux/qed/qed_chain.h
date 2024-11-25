@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_CHAIN_H
@@ -37,6 +44,10 @@
 #include <asm/byteorder.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
+<<<<<<< HEAD
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/qed/common_hsi.h>
 
@@ -44,7 +55,11 @@ enum qed_chain_mode {
 	/* Each Page contains a next pointer at its end */
 	QED_CHAIN_MODE_NEXT_PTR,
 
+<<<<<<< HEAD
 	/* Chain is a single page (next ptr) is unrequired */
+=======
+	/* Chain is a single page (next ptr) is not required */
+>>>>>>> upstream/android-13
 	QED_CHAIN_MODE_SINGLE,
 
 	/* Page pointers are located in a side list */
@@ -52,9 +67,15 @@ enum qed_chain_mode {
 };
 
 enum qed_chain_use_mode {
+<<<<<<< HEAD
 	QED_CHAIN_USE_TO_PRODUCE,		/* Chain starts empty */
 	QED_CHAIN_USE_TO_CONSUME,		/* Chain starts full */
 	QED_CHAIN_USE_TO_CONSUME_PRODUCE,	/* Chain starts empty */
+=======
+	QED_CHAIN_USE_TO_PRODUCE,			/* Chain starts empty */
+	QED_CHAIN_USE_TO_CONSUME,			/* Chain starts full */
+	QED_CHAIN_USE_TO_CONSUME_PRODUCE,		/* Chain starts empty */
+>>>>>>> upstream/android-13
 };
 
 enum qed_chain_cnt_type {
@@ -66,6 +87,7 @@ enum qed_chain_cnt_type {
 };
 
 struct qed_chain_next {
+<<<<<<< HEAD
 	struct regpair	next_phys;
 	void		*next_virt;
 };
@@ -111,11 +133,56 @@ struct qed_chain {
 	void *p_cons_elem;
 
 	/* Fastpath portions of the PBL [if exists] */
+=======
+	struct regpair					next_phys;
+	void						*next_virt;
+};
+
+struct qed_chain_pbl_u16 {
+	u16						prod_page_idx;
+	u16						cons_page_idx;
+};
+
+struct qed_chain_pbl_u32 {
+	u32						prod_page_idx;
+	u32						cons_page_idx;
+};
+
+struct qed_chain_u16 {
+	/* Cyclic index of next element to produce/consume */
+	u16						prod_idx;
+	u16						cons_idx;
+};
+
+struct qed_chain_u32 {
+	/* Cyclic index of next element to produce/consume */
+	u32						prod_idx;
+	u32						cons_idx;
+};
+
+struct addr_tbl_entry {
+	void						*virt_addr;
+	dma_addr_t					dma_map;
+};
+
+struct qed_chain {
+	/* Fastpath portion of the chain - required for commands such
+	 * as produce / consume.
+	 */
+
+	/* Point to next element to produce/consume */
+	void						*p_prod_elem;
+	void						*p_cons_elem;
+
+	/* Fastpath portions of the PBL [if exists] */
+
+>>>>>>> upstream/android-13
 	struct {
 		/* Table for keeping the virtual and physical addresses of the
 		 * chain pages, respectively to the physical addresses
 		 * in the pbl table.
 		 */
+<<<<<<< HEAD
 		struct addr_tbl_entry *pp_addr_tbl;
 
 		union {
@@ -144,11 +211,42 @@ struct qed_chain {
 	u8 elem_unusable;
 
 	u8 cnt_type;
+=======
+		struct addr_tbl_entry			*pp_addr_tbl;
+
+		union {
+			struct qed_chain_pbl_u16	u16;
+			struct qed_chain_pbl_u32	u32;
+		}					c;
+	}						pbl;
+
+	union {
+		struct qed_chain_u16			chain16;
+		struct qed_chain_u32			chain32;
+	}						u;
+
+	/* Capacity counts only usable elements */
+	u32						capacity;
+	u32						page_cnt;
+
+	enum qed_chain_mode				mode;
+
+	/* Elements information for fast calculations */
+	u16						elem_per_page;
+	u16						elem_per_page_mask;
+	u16						elem_size;
+	u16						next_page_mask;
+	u16						usable_per_page;
+	u8						elem_unusable;
+
+	enum qed_chain_cnt_type				cnt_type;
+>>>>>>> upstream/android-13
 
 	/* Slowpath of the chain - required for initialization and destruction,
 	 * but isn't involved in regular functionality.
 	 */
 
+<<<<<<< HEAD
 	/* Base address of a pre-allocated buffer for pbl */
 	struct {
 		dma_addr_t p_phys_table;
@@ -210,12 +308,102 @@ static inline u16 qed_chain_get_elem_left(struct qed_chain *p_chain)
 	u16 elem_per_page = p_chain->elem_per_page;
 	u32 prod = p_chain->u.chain16.prod_idx;
 	u32 cons = p_chain->u.chain16.cons_idx;
+=======
+	u32						page_size;
+
+	/* Base address of a pre-allocated buffer for pbl */
+	struct {
+		__le64					*table_virt;
+		dma_addr_t				table_phys;
+		size_t					table_size;
+	}						pbl_sp;
+
+	/* Address of first page of the chain - the address is required
+	 * for fastpath operation [consume/produce] but only for the SINGLE
+	 * flavour which isn't considered fastpath [== SPQ].
+	 */
+	void						*p_virt_addr;
+	dma_addr_t					p_phys_addr;
+
+	/* Total number of elements [for entire chain] */
+	u32						size;
+
+	enum qed_chain_use_mode				intended_use;
+
+	bool						b_external_pbl;
+};
+
+struct qed_chain_init_params {
+	enum qed_chain_mode				mode;
+	enum qed_chain_use_mode				intended_use;
+	enum qed_chain_cnt_type				cnt_type;
+
+	u32						page_size;
+	u32						num_elems;
+	size_t						elem_size;
+
+	void						*ext_pbl_virt;
+	dma_addr_t					ext_pbl_phys;
+};
+
+#define QED_CHAIN_PAGE_SIZE				SZ_4K
+
+#define ELEMS_PER_PAGE(elem_size, page_size)				     \
+	((page_size) / (elem_size))
+
+#define UNUSABLE_ELEMS_PER_PAGE(elem_size, mode)			     \
+	(((mode) == QED_CHAIN_MODE_NEXT_PTR) ?				     \
+	 (u8)(1 + ((sizeof(struct qed_chain_next) - 1) / (elem_size))) :     \
+	 0)
+
+#define USABLE_ELEMS_PER_PAGE(elem_size, page_size, mode)		     \
+	((u32)(ELEMS_PER_PAGE((elem_size), (page_size)) -		     \
+	       UNUSABLE_ELEMS_PER_PAGE((elem_size), (mode))))
+
+#define QED_CHAIN_PAGE_CNT(elem_cnt, elem_size, page_size, mode)	     \
+	DIV_ROUND_UP((elem_cnt),					     \
+		     USABLE_ELEMS_PER_PAGE((elem_size), (page_size), (mode)))
+
+#define is_chain_u16(p)							     \
+	((p)->cnt_type == QED_CHAIN_CNT_TYPE_U16)
+#define is_chain_u32(p)							     \
+	((p)->cnt_type == QED_CHAIN_CNT_TYPE_U32)
+
+/* Accessors */
+
+static inline u16 qed_chain_get_prod_idx(const struct qed_chain *chain)
+{
+	return chain->u.chain16.prod_idx;
+}
+
+static inline u16 qed_chain_get_cons_idx(const struct qed_chain *chain)
+{
+	return chain->u.chain16.cons_idx;
+}
+
+static inline u32 qed_chain_get_prod_idx_u32(const struct qed_chain *chain)
+{
+	return chain->u.chain32.prod_idx;
+}
+
+static inline u32 qed_chain_get_cons_idx_u32(const struct qed_chain *chain)
+{
+	return chain->u.chain32.cons_idx;
+}
+
+static inline u16 qed_chain_get_elem_used(const struct qed_chain *chain)
+{
+	u32 prod = qed_chain_get_prod_idx(chain);
+	u32 cons = qed_chain_get_cons_idx(chain);
+	u16 elem_per_page = chain->elem_per_page;
+>>>>>>> upstream/android-13
 	u16 used;
 
 	if (prod < cons)
 		prod += (u32)U16_MAX + 1;
 
 	used = (u16)(prod - cons);
+<<<<<<< HEAD
 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
 		used -= prod / elem_per_page - cons / elem_per_page;
 
@@ -227,12 +415,31 @@ static inline u32 qed_chain_get_elem_left_u32(struct qed_chain *p_chain)
 	u16 elem_per_page = p_chain->elem_per_page;
 	u64 prod = p_chain->u.chain32.prod_idx;
 	u64 cons = p_chain->u.chain32.cons_idx;
+=======
+	if (chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+		used -= (u16)(prod / elem_per_page - cons / elem_per_page);
+
+	return used;
+}
+
+static inline u16 qed_chain_get_elem_left(const struct qed_chain *chain)
+{
+	return (u16)(chain->capacity - qed_chain_get_elem_used(chain));
+}
+
+static inline u32 qed_chain_get_elem_used_u32(const struct qed_chain *chain)
+{
+	u64 prod = qed_chain_get_prod_idx_u32(chain);
+	u64 cons = qed_chain_get_cons_idx_u32(chain);
+	u16 elem_per_page = chain->elem_per_page;
+>>>>>>> upstream/android-13
 	u32 used;
 
 	if (prod < cons)
 		prod += (u64)U32_MAX + 1;
 
 	used = (u32)(prod - cons);
+<<<<<<< HEAD
 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
 		used -= (u32)(prod / elem_per_page - cons / elem_per_page);
 
@@ -257,12 +464,47 @@ static inline u32 qed_chain_get_page_cnt(struct qed_chain *p_chain)
 static inline dma_addr_t qed_chain_get_pbl_phys(struct qed_chain *p_chain)
 {
 	return p_chain->pbl_sp.p_phys_table;
+=======
+	if (chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+		used -= (u32)(prod / elem_per_page - cons / elem_per_page);
+
+	return used;
+}
+
+static inline u32 qed_chain_get_elem_left_u32(const struct qed_chain *chain)
+{
+	return chain->capacity - qed_chain_get_elem_used_u32(chain);
+}
+
+static inline u16 qed_chain_get_usable_per_page(const struct qed_chain *chain)
+{
+	return chain->usable_per_page;
+}
+
+static inline u8 qed_chain_get_unusable_per_page(const struct qed_chain *chain)
+{
+	return chain->elem_unusable;
+}
+
+static inline u32 qed_chain_get_page_cnt(const struct qed_chain *chain)
+{
+	return chain->page_cnt;
+}
+
+static inline dma_addr_t qed_chain_get_pbl_phys(const struct qed_chain *chain)
+{
+	return chain->pbl_sp.table_phys;
+>>>>>>> upstream/android-13
 }
 
 /**
  * @brief qed_chain_advance_page -
  *
+<<<<<<< HEAD
  * Advance the next element accros pages for a linked chain
+=======
+ * Advance the next element across pages for a linked chain
+>>>>>>> upstream/android-13
  *
  * @param p_chain
  * @param p_next_elem
@@ -462,7 +704,11 @@ static inline void *qed_chain_consume(struct qed_chain *p_chain)
 /**
  * @brief qed_chain_reset - Resets the chain to its start state
  *
+<<<<<<< HEAD
  * @param p_chain pointer to a previously allocted chain
+=======
+ * @param p_chain pointer to a previously allocated chain
+>>>>>>> upstream/android-13
  */
 static inline void qed_chain_reset(struct qed_chain *p_chain)
 {
@@ -511,6 +757,7 @@ static inline void qed_chain_reset(struct qed_chain *p_chain)
 }
 
 /**
+<<<<<<< HEAD
  * @brief qed_chain_init - Initalizes a basic chain struct
  *
  * @param p_chain
@@ -623,6 +870,8 @@ qed_chain_init_next_ptr_elem(struct qed_chain *p_chain,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * @brief qed_chain_get_last_elem -
  *
  * Returns a pointer to the last element of the chain
@@ -729,7 +978,11 @@ static inline void qed_chain_pbl_zero_mem(struct qed_chain *p_chain)
 
 	for (i = 0; i < page_cnt; i++)
 		memset(p_chain->pbl.pp_addr_tbl[i].virt_addr, 0,
+<<<<<<< HEAD
 		       QED_CHAIN_PAGE_SIZE);
+=======
+		       p_chain->page_size);
+>>>>>>> upstream/android-13
 }
 
 #endif

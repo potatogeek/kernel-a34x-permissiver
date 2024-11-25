@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /****************************************************************************
  *
  *  Filename: cpia2.h
@@ -12,6 +16,7 @@
  *     This driver is modelled on the cpia usb driver by
  *     Jochen Scharrlach and Johannes Erdfeldt.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 #ifndef __CPIA2_H__
@@ -350,7 +357,11 @@ struct cpia2_sbuf {
 };
 
 struct framebuf {
+<<<<<<< HEAD
 	struct timeval timestamp;
+=======
+	u64 ts;
+>>>>>>> upstream/android-13
 	unsigned long seq;
 	int num;
 	int length;
@@ -438,6 +449,10 @@ int cpia2_send_command(struct camera_data *cam, struct cpia2_command *cmd);
 int cpia2_do_command(struct camera_data *cam,
 		     unsigned int command,
 		     unsigned char direction, unsigned char param);
+<<<<<<< HEAD
+=======
+void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf);
+>>>>>>> upstream/android-13
 struct camera_data *cpia2_init_camera_struct(struct usb_interface *intf);
 int cpia2_init_camera(struct camera_data *cam);
 int cpia2_allocate_buffers(struct camera_data *cam);

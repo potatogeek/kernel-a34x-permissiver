@@ -7,6 +7,7 @@
 #define __SND_SOC_MT6660_H
 
 #include <linux/mutex.h>
+<<<<<<< HEAD
 
 struct dbg_internal {
 	struct dentry *rt_root;
@@ -28,11 +29,22 @@ struct dbg_info {
 	int (*io_read)(void *drvdata, u16 reg, void *val, u16 size);
 	int (*io_write)(void *drvdata, u16 reg, const void *val, u16 size);
 	struct dbg_internal internal;
+=======
+#include <linux/regmap.h>
+
+#pragma pack(push, 1)
+struct mt6660_platform_data {
+	u8 init_setting_num;
+	u32 *init_setting_addr;
+	u32 *init_setting_mask;
+	u32 *init_setting_val;
+>>>>>>> upstream/android-13
 };
 
 struct mt6660_chip {
 	struct i2c_client *i2c;
 	struct device *dev;
+<<<<<<< HEAD
 	struct snd_soc_component *component;
 	struct platform_device *param_dev;
 	struct mutex var_lock;
@@ -44,6 +56,15 @@ struct mt6660_chip {
 
 int mt6660_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id);
 int mt6660_i2c_remove(struct i2c_client *client);
+=======
+	struct platform_device *param_dev;
+	struct mt6660_platform_data plat_data;
+	struct mutex io_lock;
+	struct regmap *regmap;
+	u16 chip_rev;
+};
+#pragma pack(pop)
+>>>>>>> upstream/android-13
 
 #define MT6660_REG_DEVID		(0x00)
 #define MT6660_REG_SYSTEM_CTRL		(0x03)

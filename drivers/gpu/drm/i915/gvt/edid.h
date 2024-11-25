@@ -35,6 +35,13 @@
 #ifndef _GVT_EDID_H_
 #define _GVT_EDID_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+
+struct intel_vgpu;
+
+>>>>>>> upstream/android-13
 #define EDID_SIZE		128
 #define EDID_ADDR		0x50 /* Linux hvm EDID addr */
 

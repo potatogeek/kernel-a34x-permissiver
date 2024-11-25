@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ptrace test for TAR, PPR, DSCR registers in the TM context
  *
  * Copyright (C) 2015 Anshuman Khandual, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include "ptrace.h"
 #include "tm.h"
@@ -66,7 +73,11 @@ trans:
 		[sprn_ppr]"i"(SPRN_PPR), [sprn_texasr]"i"(SPRN_TEXASR),
 		[tar_1]"i"(TAR_1), [dscr_1]"i"(DSCR_1), [tar_2]"i"(TAR_2),
 		[dscr_2]"i"(DSCR_2), [cptr1] "b" (&cptr[1])
+<<<<<<< HEAD
 		: "memory", "r0", "r1", "r3", "r4", "r5", "r6"
+=======
+		: "memory", "r0", "r3", "r4", "r5", "r6"
+>>>>>>> upstream/android-13
 		);
 
 	/* TM failed, analyse */
@@ -121,6 +132,10 @@ int ptrace_tm_tar(void)
 	int ret, status;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 	shm_id = shmget(IPC_PRIVATE, sizeof(int) * 2, 0777|IPC_CREAT);
 	pid = fork();
 	if (pid == 0)

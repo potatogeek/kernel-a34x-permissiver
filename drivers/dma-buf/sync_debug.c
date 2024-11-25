@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Sync File validation framework and debug information
  *
  * Copyright (C) 2012 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -147,7 +154,11 @@ static void sync_print_sync_file(struct seq_file *s,
 	}
 }
 
+<<<<<<< HEAD
 static int sync_debugfs_show(struct seq_file *s, void *unused)
+=======
+static int sync_info_debugfs_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct list_head *pos;
 
@@ -178,6 +189,7 @@ static int sync_debugfs_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sync_info_debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, sync_debugfs_show, inode->i_private);
@@ -189,6 +201,9 @@ static const struct file_operations sync_info_debugfs_fops = {
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(sync_info_debugfs);
+>>>>>>> upstream/android-13
 
 static __init int sync_debugfs_init(void)
 {
@@ -207,6 +222,7 @@ static __init int sync_debugfs_init(void)
 	return 0;
 }
 late_initcall(sync_debugfs_init);
+<<<<<<< HEAD
 
 #define DUMP_CHUNK 256
 static char sync_dump_buf[64 * 1024];
@@ -233,3 +249,5 @@ void sync_dump(void)
 		}
 	}
 }
+=======
+>>>>>>> upstream/android-13

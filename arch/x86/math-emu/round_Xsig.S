@@ -23,7 +23,11 @@
 
 
 .text
+<<<<<<< HEAD
 ENTRY(round_Xsig)
+=======
+SYM_FUNC_START(round_Xsig)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 	pushl	%ebx		/* Reserve some space */
@@ -78,12 +82,21 @@ L_exit:
 	popl	%esi
 	popl	%ebx
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(round_Xsig)
 
 
 
 ENTRY(norm_Xsig)
+=======
+	RET
+SYM_FUNC_END(round_Xsig)
+
+
+
+SYM_FUNC_START(norm_Xsig)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 	pushl	%ebx		/* Reserve some space */
@@ -138,5 +151,10 @@ L_n_exit:
 	popl	%esi
 	popl	%ebx
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(norm_Xsig)
+=======
+	RET
+SYM_FUNC_END(norm_Xsig)
+>>>>>>> upstream/android-13

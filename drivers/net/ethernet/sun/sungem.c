@@ -545,11 +545,16 @@ static int gem_pci_interrupt(struct net_device *dev, struct gem *gp, u32 gem_sta
 	}
 
 	if (pci_estat & GREG_PCIESTAT_OTHER) {
+<<<<<<< HEAD
 		u16 pci_cfg_stat;
+=======
+		int pci_errs;
+>>>>>>> upstream/android-13
 
 		/* Interrogate PCI config space for the
 		 * true cause.
 		 */
+<<<<<<< HEAD
 		pci_read_config_word(gp->pdev, PCI_STATUS,
 				     &pci_cfg_stat);
 		netdev_err(dev, "Read PCI cfg space status [%04x]\n",
@@ -576,6 +581,22 @@ static int gem_pci_interrupt(struct net_device *dev, struct gem *gp, u32 gem_sta
 				 PCI_STATUS_DETECTED_PARITY);
 		pci_write_config_word(gp->pdev,
 				      PCI_STATUS, pci_cfg_stat);
+=======
+		pci_errs = pci_status_get_and_clear_errors(gp->pdev);
+		netdev_err(dev, "PCI status errors[%04x]\n", pci_errs);
+		if (pci_errs & PCI_STATUS_PARITY)
+			netdev_err(dev, "PCI parity error detected\n");
+		if (pci_errs & PCI_STATUS_SIG_TARGET_ABORT)
+			netdev_err(dev, "PCI target abort\n");
+		if (pci_errs & PCI_STATUS_REC_TARGET_ABORT)
+			netdev_err(dev, "PCI master acks target abort\n");
+		if (pci_errs & PCI_STATUS_REC_MASTER_ABORT)
+			netdev_err(dev, "PCI master abort\n");
+		if (pci_errs & PCI_STATUS_SIG_SYSTEM_ERROR)
+			netdev_err(dev, "PCI system error SERR#\n");
+		if (pci_errs & PCI_STATUS_DETECTED_PARITY)
+			netdev_err(dev, "PCI parity error\n");
+>>>>>>> upstream/android-13
 	}
 
 	/* For all PCI errors, we should reset the chip. */
@@ -682,7 +703,12 @@ static __inline__ void gem_tx(struct net_device *dev, struct gem *gp, u32 gem_st
 			dma_addr = le64_to_cpu(txd->buffer);
 			dma_len = le64_to_cpu(txd->control_word) & TXDCTRL_BUFSZ;
 
+<<<<<<< HEAD
 			pci_unmap_page(gp->pdev, dma_addr, dma_len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_page(&gp->pdev->dev, dma_addr, dma_len,
+				       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			entry = NEXT_TX(entry);
 		}
 
@@ -821,6 +847,7 @@ static int gem_rx(struct gem *gp, int work_to_do)
 				drops++;
 				goto drop_it;
 			}
+<<<<<<< HEAD
 			pci_unmap_page(gp->pdev, dma_addr,
 				       RX_BUF_ALLOC_SIZE(gp),
 				       PCI_DMA_FROMDEVICE);
@@ -831,6 +858,17 @@ static int gem_rx(struct gem *gp, int work_to_do)
 							       offset_in_page(new_skb->data),
 							       RX_BUF_ALLOC_SIZE(gp),
 							       PCI_DMA_FROMDEVICE));
+=======
+			dma_unmap_page(&gp->pdev->dev, dma_addr,
+				       RX_BUF_ALLOC_SIZE(gp), DMA_FROM_DEVICE);
+			gp->rx_skbs[entry] = new_skb;
+			skb_put(new_skb, (gp->rx_buf_sz + RX_OFFSET));
+			rxd->buffer = cpu_to_le64(dma_map_page(&gp->pdev->dev,
+							       virt_to_page(new_skb->data),
+							       offset_in_page(new_skb->data),
+							       RX_BUF_ALLOC_SIZE(gp),
+							       DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 			skb_reserve(new_skb, RX_OFFSET);
 
 			/* Trim the original skb for the netif. */
@@ -845,9 +883,17 @@ static int gem_rx(struct gem *gp, int work_to_do)
 
 			skb_reserve(copy_skb, 2);
 			skb_put(copy_skb, len);
+<<<<<<< HEAD
 			pci_dma_sync_single_for_cpu(gp->pdev, dma_addr, len, PCI_DMA_FROMDEVICE);
 			skb_copy_from_linear_data(skb, copy_skb->data, len);
 			pci_dma_sync_single_for_device(gp->pdev, dma_addr, len, PCI_DMA_FROMDEVICE);
+=======
+			dma_sync_single_for_cpu(&gp->pdev->dev, dma_addr, len,
+						DMA_FROM_DEVICE);
+			skb_copy_from_linear_data(skb, copy_skb->data, len);
+			dma_sync_single_for_device(&gp->pdev->dev, dma_addr,
+						   len, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 			/* We'll reuse the original ring buffer. */
 			skb = copy_skb;
@@ -970,7 +1016,11 @@ static void gem_poll_controller(struct net_device *dev)
 }
 #endif
 
+<<<<<<< HEAD
 static void gem_tx_timeout(struct net_device *dev)
+=======
+static void gem_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct gem *gp = netdev_priv(dev);
 
@@ -1032,10 +1082,17 @@ static netdev_tx_t gem_start_xmit(struct sk_buff *skb,
 		u32 len;
 
 		len = skb->len;
+<<<<<<< HEAD
 		mapping = pci_map_page(gp->pdev,
 				       virt_to_page(skb->data),
 				       offset_in_page(skb->data),
 				       len, PCI_DMA_TODEVICE);
+=======
+		mapping = dma_map_page(&gp->pdev->dev,
+				       virt_to_page(skb->data),
+				       offset_in_page(skb->data),
+				       len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		ctrl |= TXDCTRL_SOF | TXDCTRL_EOF | len;
 		if (gem_intme(entry))
 			ctrl |= TXDCTRL_INTME;
@@ -1058,9 +1115,16 @@ static netdev_tx_t gem_start_xmit(struct sk_buff *skb,
 		 * Otherwise we could race with the device.
 		 */
 		first_len = skb_headlen(skb);
+<<<<<<< HEAD
 		first_mapping = pci_map_page(gp->pdev, virt_to_page(skb->data),
 					     offset_in_page(skb->data),
 					     first_len, PCI_DMA_TODEVICE);
+=======
+		first_mapping = dma_map_page(&gp->pdev->dev,
+					     virt_to_page(skb->data),
+					     offset_in_page(skb->data),
+					     first_len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		entry = NEXT_TX(entry);
 
 		for (frag = 0; frag < skb_shinfo(skb)->nr_frags; frag++) {
@@ -1267,8 +1331,13 @@ static void gem_begin_auto_negotiation(struct gem *gp,
 			&advertising, ep->link_modes.advertising);
 
 	if (gp->phy_type != phy_mii_mdio0 &&
+<<<<<<< HEAD
      	    gp->phy_type != phy_mii_mdio1)
      	    	goto non_mii;
+=======
+	    gp->phy_type != phy_mii_mdio1)
+		goto non_mii;
+>>>>>>> upstream/android-13
 
 	/* Setup advertise */
 	if (found_mii_phy(gp))
@@ -1419,7 +1488,11 @@ static int gem_set_link_modes(struct gem *gp)
 
 	if (gp->phy_type == phy_serialink ||
 	    gp->phy_type == phy_serdes) {
+<<<<<<< HEAD
  		u32 pcs_lpa = readl(gp->regs + PCS_MIILP);
+=======
+		u32 pcs_lpa = readl(gp->regs + PCS_MIILP);
+>>>>>>> upstream/android-13
 
 		if (pcs_lpa & (PCS_MIIADV_SP | PCS_MIIADV_AP))
 			pause = 1;
@@ -1586,9 +1659,15 @@ static void gem_clean_rings(struct gem *gp)
 		if (gp->rx_skbs[i] != NULL) {
 			skb = gp->rx_skbs[i];
 			dma_addr = le64_to_cpu(rxd->buffer);
+<<<<<<< HEAD
 			pci_unmap_page(gp->pdev, dma_addr,
 				       RX_BUF_ALLOC_SIZE(gp),
 				       PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_page(&gp->pdev->dev, dma_addr,
+				       RX_BUF_ALLOC_SIZE(gp),
+				       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(skb);
 			gp->rx_skbs[i] = NULL;
 		}
@@ -1610,9 +1689,15 @@ static void gem_clean_rings(struct gem *gp)
 
 				txd = &gb->txd[ent];
 				dma_addr = le64_to_cpu(txd->buffer);
+<<<<<<< HEAD
 				pci_unmap_page(gp->pdev, dma_addr,
 					       le64_to_cpu(txd->control_word) &
 					       TXDCTRL_BUFSZ, PCI_DMA_TODEVICE);
+=======
+				dma_unmap_page(&gp->pdev->dev, dma_addr,
+					       le64_to_cpu(txd->control_word) &
+					       TXDCTRL_BUFSZ, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 				if (frag != skb_shinfo(skb)->nr_frags)
 					i++;
@@ -1649,11 +1734,19 @@ static void gem_init_rings(struct gem *gp)
 
 		gp->rx_skbs[i] = skb;
 		skb_put(skb, (gp->rx_buf_sz + RX_OFFSET));
+<<<<<<< HEAD
 		dma_addr = pci_map_page(gp->pdev,
 					virt_to_page(skb->data),
 					offset_in_page(skb->data),
 					RX_BUF_ALLOC_SIZE(gp),
 					PCI_DMA_FROMDEVICE);
+=======
+		dma_addr = dma_map_page(&gp->pdev->dev,
+					virt_to_page(skb->data),
+					offset_in_page(skb->data),
+					RX_BUF_ALLOC_SIZE(gp),
+					DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		rxd->buffer = cpu_to_le64(dma_addr);
 		dma_wmb();
 		rxd->status_word = cpu_to_le64(RXDCTRL_FRESH(gp));
@@ -1683,8 +1776,13 @@ static void gem_init_phy(struct gem *gp)
 	if (gp->pdev->vendor == PCI_VENDOR_ID_APPLE) {
 		int i;
 
+<<<<<<< HEAD
 		/* Those delay sucks, the HW seem to love them though, I'll
 		 * serisouly consider breaking some locks here to be able
+=======
+		/* Those delays sucks, the HW seems to love them though, I'll
+		 * seriously consider breaking some locks here to be able
+>>>>>>> upstream/android-13
 		 * to schedule instead
 		 */
 		for (i = 0; i < 3; i++) {
@@ -1901,7 +1999,11 @@ static void gem_init_mac(struct gem *gp)
 
 static void gem_init_pause_thresholds(struct gem *gp)
 {
+<<<<<<< HEAD
        	u32 cfg;
+=======
+	u32 cfg;
+>>>>>>> upstream/android-13
 
 	/* Calculate pause thresholds.  Setting the OFF threshold to the
 	 * full RX fifo size effectively disables PAUSE generation which
@@ -1923,6 +2025,7 @@ static void gem_init_pause_thresholds(struct gem *gp)
 	/* Configure the chip "burst" DMA mode & enable some
 	 * HW bug fixes on Apple version
 	 */
+<<<<<<< HEAD
        	cfg  = 0;
        	if (gp->pdev->vendor == PCI_VENDOR_ID_APPLE)
 		cfg |= GREG_CFG_RONPAULBIT | GREG_CFG_ENBUG2FIX;
@@ -1932,6 +2035,17 @@ static void gem_init_pause_thresholds(struct gem *gp)
        	cfg |= ((31 << 1) & GREG_CFG_TXDMALIM);
        	cfg |= ((31 << 6) & GREG_CFG_RXDMALIM);
        	writel(cfg, gp->regs + GREG_CFG);
+=======
+	cfg  = 0;
+	if (gp->pdev->vendor == PCI_VENDOR_ID_APPLE)
+		cfg |= GREG_CFG_RONPAULBIT | GREG_CFG_ENBUG2FIX;
+#if !defined(CONFIG_SPARC64) && !defined(CONFIG_ALPHA)
+	cfg |= GREG_CFG_IBURST;
+#endif
+	cfg |= ((31 << 1) & GREG_CFG_TXDMALIM);
+	cfg |= ((31 << 6) & GREG_CFG_RXDMALIM);
+	writel(cfg, gp->regs + GREG_CFG);
+>>>>>>> upstream/android-13
 
 	/* If Infinite Burst didn't stick, then use different
 	 * thresholds (and Apple bug fixes don't exist)
@@ -2151,6 +2265,7 @@ static int gem_do_start(struct net_device *dev)
 	struct gem *gp = netdev_priv(dev);
 	int rc;
 
+<<<<<<< HEAD
 	/* Enable the cell */
 	gem_get_cell(gp);
 
@@ -2165,6 +2280,8 @@ static int gem_do_start(struct net_device *dev)
 		gem_put_cell(gp);
 		return -ENXIO;
 	}
+=======
+>>>>>>> upstream/android-13
 	pci_set_master(gp->pdev);
 
 	/* Init & setup chip hardware */
@@ -2242,6 +2359,7 @@ static void gem_do_stop(struct net_device *dev, int wol)
 
 	/* Shut the PHY down eventually and setup WOL */
 	gem_stop_phy(gp, wol);
+<<<<<<< HEAD
 
 	/* Make sure bus master is disabled */
 	pci_disable_device(gp->pdev);
@@ -2249,6 +2367,8 @@ static void gem_do_stop(struct net_device *dev, int wol)
 	/* Cell not needed neither if no WOL */
 	if (!wol)
 		gem_put_cell(gp);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void gem_reset_task(struct work_struct *work)
@@ -2300,16 +2420,44 @@ static void gem_reset_task(struct work_struct *work)
 
 static int gem_open(struct net_device *dev)
 {
+<<<<<<< HEAD
 	/* We allow open while suspended, we just do nothing,
 	 * the chip will be initialized in resume()
 	 */
 	if (netif_device_present(dev))
 		return gem_do_start(dev);
+=======
+	struct gem *gp = netdev_priv(dev);
+	int rc;
+
+	/* We allow open while suspended, we just do nothing,
+	 * the chip will be initialized in resume()
+	 */
+	if (netif_device_present(dev)) {
+		/* Enable the cell */
+		gem_get_cell(gp);
+
+		/* Make sure PCI access and bus master are enabled */
+		rc = pci_enable_device(gp->pdev);
+		if (rc) {
+			netdev_err(dev, "Failed to enable chip on PCI bus !\n");
+
+			/* Put cell and forget it for now, it will be considered
+			 *as still asleep, a new sleep cycle may bring it back
+			 */
+			gem_put_cell(gp);
+			return -ENXIO;
+		}
+		return gem_do_start(dev);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int gem_close(struct net_device *dev)
 {
+<<<<<<< HEAD
 	if (netif_device_present(dev))
 		gem_do_stop(dev, 0);
 
@@ -2320,6 +2468,26 @@ static int gem_close(struct net_device *dev)
 static int gem_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+	struct gem *gp = netdev_priv(dev);
+
+	if (netif_device_present(dev)) {
+		gem_do_stop(dev, 0);
+
+		/* Make sure bus master is disabled */
+		pci_disable_device(gp->pdev);
+
+		/* Cell not needed neither if no WOL */
+		if (!gp->asleep_wol)
+			gem_put_cell(gp);
+	}
+	return 0;
+}
+
+static int __maybe_unused gem_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct gem *gp = netdev_priv(dev);
 
 	/* Lock the network stack first to avoid racing with open/close,
@@ -2348,15 +2516,28 @@ static int gem_suspend(struct pci_dev *pdev, pm_message_t state)
 	gp->asleep_wol = !!gp->wake_on_lan;
 	gem_do_stop(dev, gp->asleep_wol);
 
+<<<<<<< HEAD
+=======
+	/* Cell not needed neither if no WOL */
+	if (!gp->asleep_wol)
+		gem_put_cell(gp);
+
+>>>>>>> upstream/android-13
 	/* Unlock the network stack */
 	rtnl_unlock();
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int gem_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused gem_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct gem *gp = netdev_priv(dev);
 
 	/* See locking comment in gem_suspend */
@@ -2371,6 +2552,12 @@ static int gem_resume(struct pci_dev *pdev)
 		return 0;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Enable the cell */
+	gem_get_cell(gp);
+
+>>>>>>> upstream/android-13
 	/* Restart chip. If that fails there isn't much we can do, we
 	 * leave things stopped.
 	 */
@@ -2387,7 +2574,10 @@ static int gem_resume(struct pci_dev *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
+=======
+>>>>>>> upstream/android-13
 
 static struct net_device_stats *gem_get_stats(struct net_device *dev)
 {
@@ -2709,7 +2899,11 @@ static int gem_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	switch (cmd) {
 	case SIOCGMIIPHY:		/* Get address of MII PHY in use. */
 		data->phy_id = gp->mii_phy_addr;
+<<<<<<< HEAD
 		/* Fallthrough... */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case SIOCGMIIREG:		/* Read MII PHY register. */
 		data->val_out = __sungem_phy_read(gp, data->phy_id & 0x1f,
@@ -2760,7 +2954,11 @@ static void get_gem_mac_nonobp(struct pci_dev *pdev, unsigned char *dev_addr)
 	void __iomem *p = pci_map_rom(pdev, &size);
 
 	if (p) {
+<<<<<<< HEAD
 			int found;
+=======
+		int found;
+>>>>>>> upstream/android-13
 
 		found = readb(p) == 0x55 &&
 			readb(p + 1) == 0xaa &&
@@ -2814,10 +3012,15 @@ static void gem_remove_one(struct pci_dev *pdev)
 		cancel_work_sync(&gp->reset_task);
 
 		/* Free resources */
+<<<<<<< HEAD
 		pci_free_consistent(pdev,
 				    sizeof(struct gem_init_block),
 				    gp->init_block,
 				    gp->gblock_dvma);
+=======
+		dma_free_coherent(&pdev->dev, sizeof(struct gem_init_block),
+				  gp->init_block, gp->gblock_dvma);
+>>>>>>> upstream/android-13
 		iounmap(gp->regs);
 		pci_release_regions(pdev);
 		free_netdev(dev);
@@ -2830,7 +3033,11 @@ static const struct net_device_ops gem_netdev_ops = {
 	.ndo_start_xmit		= gem_start_xmit,
 	.ndo_get_stats		= gem_get_stats,
 	.ndo_set_rx_mode	= gem_set_multicast,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= gem_ioctl,
+=======
+	.ndo_eth_ioctl		= gem_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= gem_tx_timeout,
 	.ndo_change_mtu		= gem_change_mtu,
 	.ndo_validate_addr	= eth_validate_addr,
@@ -2873,10 +3080,17 @@ static int gem_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 */
 	if (pdev->vendor == PCI_VENDOR_ID_SUN &&
 	    pdev->device == PCI_DEVICE_ID_SUN_GEM &&
+<<<<<<< HEAD
 	    !pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		pci_using_dac = 1;
 	} else {
 		err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	    !dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+		pci_using_dac = 1;
+	} else {
+		err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (err) {
 			pr_err("No usable DMA configuration, aborting\n");
 			goto err_disable_device;
@@ -2964,9 +3178,14 @@ static int gem_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* It is guaranteed that the returned buffer will be at least
 	 * PAGE_SIZE aligned.
 	 */
+<<<<<<< HEAD
 	gp->init_block = (struct gem_init_block *)
 		pci_alloc_consistent(pdev, sizeof(struct gem_init_block),
 				     &gp->gblock_dvma);
+=======
+	gp->init_block = dma_alloc_coherent(&pdev->dev, sizeof(struct gem_init_block),
+					    &gp->gblock_dvma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!gp->init_block) {
 		pr_err("Cannot allocate init block, aborting\n");
 		err = -ENOMEM;
@@ -3031,16 +3250,24 @@ err_disable_device:
 
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(gem_pm_ops, gem_suspend, gem_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver gem_driver = {
 	.name		= GEM_MODULE_NAME,
 	.id_table	= gem_pci_tbl,
 	.probe		= gem_init_one,
 	.remove		= gem_remove_one,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= gem_suspend,
 	.resume		= gem_resume,
 #endif /* CONFIG_PM */
+=======
+	.driver.pm	= &gem_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(gem_driver);

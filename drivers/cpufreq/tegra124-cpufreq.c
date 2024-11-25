@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Tegra 124 cpufreq driver
  *
@@ -9,11 +10,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Tegra 124 cpufreq driver
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/cpufreq.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -22,11 +32,17 @@
 #include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/pm_opp.h>
+<<<<<<< HEAD
 #include <linux/regulator/consumer.h>
 #include <linux/types.h>
 
 struct tegra124_cpufreq_priv {
 	struct regulator *vdd_cpu_reg;
+=======
+#include <linux/types.h>
+
+struct tegra124_cpufreq_priv {
+>>>>>>> upstream/android-13
 	struct clk *cpu_clk;
 	struct clk *pllp_clk;
 	struct clk *pllx_clk;
@@ -60,6 +76,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void tegra124_cpu_switch_to_pllx(struct tegra124_cpufreq_priv *priv)
 {
 	clk_set_parent(priv->cpu_clk, priv->pllp_clk);
@@ -68,6 +85,8 @@ static void tegra124_cpu_switch_to_pllx(struct tegra124_cpufreq_priv *priv)
 	clk_set_parent(priv->cpu_clk, priv->pllx_clk);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int tegra124_cpufreq_probe(struct platform_device *pdev)
 {
 	struct tegra124_cpufreq_priv *priv;
@@ -88,6 +107,7 @@ static int tegra124_cpufreq_probe(struct platform_device *pdev)
 	if (!np)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	priv->vdd_cpu_reg = regulator_get(cpu_dev, "vdd-cpu");
 	if (IS_ERR(priv->vdd_cpu_reg)) {
 		ret = PTR_ERR(priv->vdd_cpu_reg);
@@ -98,6 +118,12 @@ static int tegra124_cpufreq_probe(struct platform_device *pdev)
 	if (IS_ERR(priv->cpu_clk)) {
 		ret = PTR_ERR(priv->cpu_clk);
 		goto out_put_vdd_cpu_reg;
+=======
+	priv->cpu_clk = of_clk_get_by_name(np, "cpu_g");
+	if (IS_ERR(priv->cpu_clk)) {
+		ret = PTR_ERR(priv->cpu_clk);
+		goto out_put_np;
+>>>>>>> upstream/android-13
 	}
 
 	priv->dfll_clk = of_clk_get_by_name(np, "dfll");
@@ -129,7 +155,11 @@ static int tegra124_cpufreq_probe(struct platform_device *pdev)
 		platform_device_register_full(&cpufreq_dt_devinfo);
 	if (IS_ERR(priv->cpufreq_dt_pdev)) {
 		ret = PTR_ERR(priv->cpufreq_dt_pdev);
+<<<<<<< HEAD
 		goto out_switch_to_pllx;
+=======
+		goto out_put_pllp_clk;
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, priv);
@@ -138,8 +168,11 @@ static int tegra124_cpufreq_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
 out_switch_to_pllx:
 	tegra124_cpu_switch_to_pllx(priv);
+=======
+>>>>>>> upstream/android-13
 out_put_pllp_clk:
 	clk_put(priv->pllp_clk);
 out_put_pllx_clk:
@@ -148,14 +181,18 @@ out_put_dfll_clk:
 	clk_put(priv->dfll_clk);
 out_put_cpu_clk:
 	clk_put(priv->cpu_clk);
+<<<<<<< HEAD
 out_put_vdd_cpu_reg:
 	regulator_put(priv->vdd_cpu_reg);
+=======
+>>>>>>> upstream/android-13
 out_put_np:
 	of_node_put(np);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int tegra124_cpufreq_remove(struct platform_device *pdev)
 {
 	struct tegra124_cpufreq_priv *priv = platform_get_drvdata(pdev);
@@ -168,14 +205,76 @@ static int tegra124_cpufreq_remove(struct platform_device *pdev)
 	clk_put(priv->dfll_clk);
 	clk_put(priv->cpu_clk);
 	regulator_put(priv->vdd_cpu_reg);
+=======
+static int __maybe_unused tegra124_cpufreq_suspend(struct device *dev)
+{
+	struct tegra124_cpufreq_priv *priv = dev_get_drvdata(dev);
+	int err;
+
+	/*
+	 * PLLP rate 408Mhz is below the CPU Fmax at Vmin and is safe to
+	 * use during suspend and resume. So, switch the CPU clock source
+	 * to PLLP and disable DFLL.
+	 */
+	err = clk_set_parent(priv->cpu_clk, priv->pllp_clk);
+	if (err < 0) {
+		dev_err(dev, "failed to reparent to PLLP: %d\n", err);
+		return err;
+	}
+
+	clk_disable_unprepare(priv->dfll_clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct platform_driver tegra124_cpufreq_platdrv = {
 	.driver.name	= "cpufreq-tegra124",
 	.probe		= tegra124_cpufreq_probe,
 	.remove		= tegra124_cpufreq_remove,
+=======
+static int __maybe_unused tegra124_cpufreq_resume(struct device *dev)
+{
+	struct tegra124_cpufreq_priv *priv = dev_get_drvdata(dev);
+	int err;
+
+	/*
+	 * Warmboot code powers up the CPU with PLLP clock source.
+	 * Enable DFLL clock and switch CPU clock source back to DFLL.
+	 */
+	err = clk_prepare_enable(priv->dfll_clk);
+	if (err < 0) {
+		dev_err(dev, "failed to enable DFLL clock for CPU: %d\n", err);
+		goto disable_cpufreq;
+	}
+
+	err = clk_set_parent(priv->cpu_clk, priv->dfll_clk);
+	if (err < 0) {
+		dev_err(dev, "failed to reparent to DFLL clock: %d\n", err);
+		goto disable_dfll;
+	}
+
+	return 0;
+
+disable_dfll:
+	clk_disable_unprepare(priv->dfll_clk);
+disable_cpufreq:
+	disable_cpufreq();
+
+	return err;
+}
+
+static const struct dev_pm_ops tegra124_cpufreq_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(tegra124_cpufreq_suspend,
+				tegra124_cpufreq_resume)
+};
+
+static struct platform_driver tegra124_cpufreq_platdrv = {
+	.driver.name	= "cpufreq-tegra124",
+	.driver.pm	= &tegra124_cpufreq_pm_ops,
+	.probe		= tegra124_cpufreq_probe,
+>>>>>>> upstream/android-13
 };
 
 static int __init tegra_cpufreq_init(void)
@@ -183,7 +282,12 @@ static int __init tegra_cpufreq_init(void)
 	int ret;
 	struct platform_device *pdev;
 
+<<<<<<< HEAD
 	if (!of_machine_is_compatible("nvidia,tegra124"))
+=======
+	if (!(of_machine_is_compatible("nvidia,tegra124") ||
+		of_machine_is_compatible("nvidia,tegra210")))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	/*

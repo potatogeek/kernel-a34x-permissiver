@@ -572,7 +572,11 @@ __EXTERN_INLINE int t2_is_mmio(const volatile void __iomem *addr)
    it doesn't make sense to merge the pio and mmio routines.  */
 
 #define IOPORT(OS, NS)							\
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int t2_ioread##NS(void __iomem *xaddr)		\
+=======
+__EXTERN_INLINE unsigned int t2_ioread##NS(const void __iomem *xaddr)		\
+>>>>>>> upstream/android-13
 {									\
 	if (t2_is_mmio(xaddr))						\
 		return t2_read##OS(xaddr);				\

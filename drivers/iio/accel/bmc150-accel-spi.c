@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * 3-axis accelerometer driver supporting SPI Bosch-Sensortec accelerometer chip
  * Copyright © 2015 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * 3-axis accelerometer driver supporting SPI Bosch-Sensortec accelerometer chip
+ * Copyright © 2015 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -28,6 +35,11 @@
 static int bmc150_accel_probe(struct spi_device *spi)
 {
 	struct regmap *regmap;
+<<<<<<< HEAD
+=======
+	const char *name = NULL;
+	enum bmc150_type type = BOSCH_UNKNOWN;
+>>>>>>> upstream/android-13
 	const struct spi_device_id *id = spi_get_device_id(spi);
 
 	regmap = devm_regmap_init_spi(spi, &bmc150_regmap_conf);
@@ -36,7 +48,16 @@ static int bmc150_accel_probe(struct spi_device *spi)
 		return PTR_ERR(regmap);
 	}
 
+<<<<<<< HEAD
 	return bmc150_accel_core_probe(&spi->dev, regmap, spi->irq, id->name,
+=======
+	if (id) {
+		name = id->name;
+		type = id->driver_data;
+	}
+
+	return bmc150_accel_core_probe(&spi->dev, regmap, spi->irq, type, name,
+>>>>>>> upstream/android-13
 				       true);
 }
 
@@ -46,6 +67,7 @@ static int bmc150_accel_remove(struct spi_device *spi)
 }
 
 static const struct acpi_device_id bmc150_accel_acpi_match[] = {
+<<<<<<< HEAD
 	{"BSBA0150",	bmc150},
 	{"BMC150A",	bmc150},
 	{"BMI055A",	bmi055},
@@ -53,17 +75,39 @@ static const struct acpi_device_id bmc150_accel_acpi_match[] = {
 	{"BMA250E",	bma250e},
 	{"BMA222E",	bma222e},
 	{"BMA0280",	bma280},
+=======
+	{"BMA0255"},
+	{"BMA0280"},
+	{"BMA222"},
+	{"BMA222E"},
+	{"BMA250E"},
+	{"BMC150A"},
+	{"BMI055A"},
+	{"BSBA0150"},
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, bmc150_accel_acpi_match);
 
 static const struct spi_device_id bmc150_accel_id[] = {
+<<<<<<< HEAD
 	{"bmc150_accel",	bmc150},
 	{"bmi055_accel",	bmi055},
 	{"bma255",		bma255},
 	{"bma250e",		bma250e},
 	{"bma222e",		bma222e},
 	{"bma280",		bma280},
+=======
+	{"bma222"},
+	{"bma222e"},
+	{"bma250e"},
+	{"bma253"},
+	{"bma255"},
+	{"bma280"},
+	{"bmc150_accel"},
+	{"bmc156_accel", BOSCH_BMC156},
+	{"bmi055_accel"},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(spi, bmc150_accel_id);

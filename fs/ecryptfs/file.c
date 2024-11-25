@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * eCryptfs: Linux filesystem encryption layer
  *
  * Copyright (C) 1997-2004 Erez Zadok
@@ -6,6 +11,7 @@
  * Copyright (C) 2004-2007 International Business Machines Corp.
  *   Author(s): Michael A. Halcrow <mhalcrow@us.ibm.com>
  *   		Michael C. Thompson <mcthomps@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/file.h>
@@ -31,6 +39,7 @@
 #include <linux/security.h>
 #include <linux/compat.h>
 #include <linux/fs_stack.h>
+<<<<<<< HEAD
 #include <linux/xattr.h>
 
 #include "ecryptfs_kernel.h"
@@ -42,6 +51,11 @@
 #endif
 
 /**
+=======
+#include "ecryptfs_kernel.h"
+
+/*
+>>>>>>> upstream/android-13
  * ecryptfs_read_update_atime
  *
  * generic_file_read updates the atime of upper layer inode.  But, it
@@ -156,6 +170,7 @@ static int read_or_initialize_metadata(struct dentry *dentry)
 	crypt_stat = &ecryptfs_inode_to_private(inode)->crypt_stat;
 	mount_crypt_stat = &ecryptfs_superblock_to_private(
 						inode->i_sb)->mount_crypt_stat;
+<<<<<<< HEAD
 
 #ifdef CONFIG_WTL_ENCRYPTION_FILTER
 	if (crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED
@@ -197,6 +212,8 @@ static int read_or_initialize_metadata(struct dentry *dentry)
 	mutex_unlock(&crypt_stat->cs_mutex);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&crypt_stat->cs_mutex);
 
 	if (crypt_stat->flags & ECRYPTFS_POLICY_APPLIED &&
@@ -231,13 +248,21 @@ out:
 
 static int ecryptfs_mmap(struct file *file, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	struct dentry *dentry = ecryptfs_dentry_to_lower(file->f_path.dentry);
+=======
+	struct file *lower_file = ecryptfs_file_to_lower(file);
+>>>>>>> upstream/android-13
 	/*
 	 * Don't allow mmap on top of file systems that don't support it
 	 * natively.  If FILESYSTEM_MAX_STACK_DEPTH > 2 or ecryptfs
 	 * allows recursive mounting, this will need to be extended.
 	 */
+<<<<<<< HEAD
 	if (!dentry->d_inode->i_fop->mmap)
+=======
+	if (!lower_file->f_op->mmap)
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	return generic_file_mmap(file, vma);
 }
@@ -411,6 +436,7 @@ ecryptfs_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct file *lower_file = ecryptfs_file_to_lower(file);
 	long rc = -ENOTTY;
+<<<<<<< HEAD
 #ifdef CONFIG_WTL_ENCRYPTION_FILTER
 	if (cmd == ECRYPTFS_IOCTL_GET_ATTRIBUTES) {
 		u32 __user *user_attr = (u32 __user *)arg;
@@ -449,6 +475,8 @@ ecryptfs_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		return 0;
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	if (!lower_file->f_op->unlocked_ioctl)
 		return rc;
@@ -474,6 +502,7 @@ ecryptfs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct file *lower_file = ecryptfs_file_to_lower(file);
 	long rc = -ENOIOCTLCMD;
+<<<<<<< HEAD
 #ifdef CONFIG_WTL_ENCRYPTION_FILTER
 	if (cmd == ECRYPTFS_IOCTL_GET_ATTRIBUTES) {
 		u32 __user *user_attr = (u32 __user *)arg;
@@ -512,11 +541,17 @@ ecryptfs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		return 0;
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	if (!lower_file->f_op->compat_ioctl)
 		return rc;
 
 	switch (cmd) {
+<<<<<<< HEAD
+=======
+	case FITRIM:
+>>>>>>> upstream/android-13
 	case FS_IOC32_GETFLAGS:
 	case FS_IOC32_SETFLAGS:
 	case FS_IOC32_GETVERSION:
@@ -531,6 +566,7 @@ ecryptfs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_WTL_ENCRYPTION_FILTER
 int is_file_name_match(struct ecryptfs_mount_crypt_stat *mcs,
 					struct dentry *fp_dentry)
@@ -612,6 +648,8 @@ int is_file_ext_match(struct ecryptfs_mount_crypt_stat *mcs, char *str)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 const struct file_operations ecryptfs_dir_fops = {
 	.iterate_shared = ecryptfs_readdir,
 	.read = generic_read_dir,

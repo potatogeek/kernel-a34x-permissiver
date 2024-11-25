@@ -8,7 +8,12 @@ through the intermediate links connecting the source to the currently selected
 sink. Each CoreSight component device should use these properties to describe
 its hardware characteristcs.
 
+<<<<<<< HEAD
 * Required properties for all components *except* non-configurable replicators:
+=======
+* Required properties for all components *except* non-configurable replicators
+  and non-configurable funnels:
+>>>>>>> upstream/android-13
 
 	* compatible: These have to be supplemented with "arm,primecell" as
 	  drivers are using the AMBA bus interface.  Possible values include:
@@ -24,16 +29,32 @@ its hardware characteristcs.
 		  discovered at boot time when the device is probed.
 			"arm,coresight-tmc", "arm,primecell";
 
+<<<<<<< HEAD
 		- Trace Funnel:
 			"arm,coresight-funnel", "arm,primecell";
+=======
+		- Trace Programmable Funnel:
+			"arm,coresight-dynamic-funnel", "arm,primecell";
+			"arm,coresight-funnel", "arm,primecell"; (OBSOLETE. For
+				backward compatibility and will be removed)
+>>>>>>> upstream/android-13
 
 		- Embedded Trace Macrocell (version 3.x) and
 					Program Flow Trace Macrocell:
 			"arm,coresight-etm3x", "arm,primecell";
 
+<<<<<<< HEAD
 		- Embedded Trace Macrocell (version 4.x):
 			"arm,coresight-etm4x", "arm,primecell";
 
+=======
+		- Embedded Trace Macrocell (version 4.x), with memory mapped access.
+			"arm,coresight-etm4x", "arm,primecell";
+
+		- Embedded Trace Macrocell (version 4.x), with system register access only.
+			"arm,coresight-etm4x-sysreg";
+
+>>>>>>> upstream/android-13
 		- Coresight programmable Replicator :
 			"arm,coresight-dynamic-replicator", "arm,primecell";
 
@@ -42,6 +63,13 @@ its hardware characteristcs.
 		- Coresight Address Translation Unit (CATU)
 			"arm,coresight-catu", "arm,primecell";
 
+<<<<<<< HEAD
+=======
+		- Coresight Cross Trigger Interface (CTI):
+			"arm,coresight-cti", "arm,primecell";
+			See coresight-cti.yaml for full CTI definitions.
+
+>>>>>>> upstream/android-13
 	* reg: physical base address and length of the register
 	  set(s) of the component.
 
@@ -54,9 +82,18 @@ its hardware characteristcs.
 	  clocks the core of that coresight component. The latter clock
 	  is optional.
 
+<<<<<<< HEAD
 	* port or ports: The representation of the component's port
 	  layout using the generic DT graph presentation found in
 	  "bindings/graph.txt".
+=======
+	* port or ports: see "Graph bindings for Coresight" below.
+
+* Additional required property for Embedded Trace Macrocell (version 3.x and
+  version 4.x):
+	* cpu: the cpu phandle this ETM/PTM is affined to. Do not
+	  assume it to default to CPU0 if omitted.
+>>>>>>> upstream/android-13
 
 * Additional required properties for System Trace Macrocells (STM):
 	* reg: along with the physical base address and length of the register
@@ -66,6 +103,7 @@ its hardware characteristcs.
 	* reg-names: the only acceptable values are "stm-base" and
 	  "stm-stimulus-base", each corresponding to the areas defined in "reg".
 
+<<<<<<< HEAD
 * Required properties for devices that don't show up on the AMBA bus, such as
   non-configurable replicators:
 
@@ -74,6 +112,25 @@ its hardware characteristcs.
 		- "arm,coresight-replicator"
 
 	* port or ports: same as above.
+=======
+* Required properties for Coresight Cross Trigger Interface (CTI)
+	See coresight-cti.yaml for full CTI definitions.
+
+* Required properties for devices that don't show up on the AMBA bus, such as
+  non-configurable replicators and non-configurable funnels:
+
+	* compatible: Currently supported value is (note the absence of the
+	  AMBA markee):
+		- Coresight Non-configurable Replicator:
+			"arm,coresight-static-replicator";
+			"arm,coresight-replicator"; (OBSOLETE. For backward
+				compatibility and will be removed)
+
+		- Coresight Non-configurable Funnel:
+			"arm,coresight-static-funnel";
+
+	* port or ports: see "Graph bindings for Coresight" below.
+>>>>>>> upstream/android-13
 
 * Optional properties for all components:
 
@@ -89,8 +146,17 @@ its hardware characteristcs.
 	* arm,cp14: must be present if the system accesses ETM/PTM management
 	  registers via co-processor 14.
 
+<<<<<<< HEAD
 	* cpu: the cpu phandle this ETM/PTM is affined to. When omitted the
 	  source is considered to belong to CPU0.
+=======
+	* qcom,skip-power-up: boolean. Indicates that an implementation can
+	  skip powering up the trace unit. TRCPDCR.PU does not have to be set
+	  on Qualcomm Technologies Inc. systems since ETMs are in the same power
+	  domain as their CPU cores. This property is required to identify such
+	  systems with hardware errata where the CPU watchdog counter is stopped
+	  when TRCPDCR.PU is set.
+>>>>>>> upstream/android-13
 
 * Optional property for TMC:
 
@@ -105,6 +171,29 @@ its hardware characteristcs.
 	* interrupts : Exactly one SPI may be listed for reporting the address
 	  error
 
+<<<<<<< HEAD
+=======
+* Optional property for configurable replicators:
+
+	* qcom,replicator-loses-context: boolean. Indicates that the replicator
+	  will lose register context when AMBA clock is removed which is observed
+	  in some replicator designs.
+
+Graph bindings for Coresight
+-------------------------------
+
+Coresight components are interconnected to create a data path for the flow of
+trace data generated from the "sources" to their collection points "sink".
+Each coresight component must describe the "input" and "output" connections.
+The connections must be described via generic DT graph bindings as described
+by the "bindings/graph.txt", where each "port" along with an "endpoint"
+component represents a hardware port and the connection.
+
+ * All output ports must be listed inside a child node named "out-ports"
+ * All input ports must be listed inside a child node named "in-ports".
+ * Port address must match the hardware port number.
+
+>>>>>>> upstream/android-13
 Example:
 
 1. Sinks
@@ -114,10 +203,18 @@ Example:
 
 		clocks = <&oscclk6a>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			etb_in_port: endpoint@0 {
 				slave-mode;
 				remote-endpoint = <&replicator_out_port0>;
+=======
+		in-ports {
+			port {
+				etb_in_port: endpoint@0 {
+					remote-endpoint = <&replicator_out_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -128,10 +225,18 @@ Example:
 
 		clocks = <&oscclk6a>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			tpiu_in_port: endpoint@0 {
 				slave-mode;
 				remote-endpoint = <&replicator_out_port1>;
+=======
+		in-ports {
+			port {
+				tpiu_in_port: endpoint@0 {
+					remote-endpoint = <&replicator_out_port1>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -142,6 +247,7 @@ Example:
 
 		clocks = <&oscclk6a>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -158,6 +264,18 @@ Example:
 			/* CATU link represented by output port */
 			port@1 {
 				reg = <1>;
+=======
+		in-ports {
+			port {
+				etr_in_port: endpoint {
+					remote-endpoint = <&replicator2_out_port0>;
+				};
+			};
+		};
+
+		out-ports {
+			port {
+>>>>>>> upstream/android-13
 				etr_out_port: endpoint {
 					remote-endpoint = <&catu_in_port>;
 				};
@@ -170,9 +288,15 @@ Example:
 		/* non-configurable replicators don't show up on the
 		 * AMBA bus.  As such no need to add "arm,primecell".
 		 */
+<<<<<<< HEAD
 		compatible = "arm,coresight-replicator";
 
 		ports {
+=======
+		compatible = "arm,coresight-static-replicator";
+
+		out-ports {
+>>>>>>> upstream/android-13
 			#address-cells = <1>;
 			#size-cells = <0>;
 
@@ -190,24 +314,75 @@ Example:
 					remote-endpoint = <&tpiu_in_port>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* replicator input port */
 			port@2 {
 				reg = <0>;
 				replicator_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			port {
+				replicator_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&funnel_out_port0>;
 				};
 			};
 		};
 	};
 
+<<<<<<< HEAD
 	funnel@20040000 {
 		compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+	funnel {
+		/*
+		 * non-configurable funnel don't show up on the AMBA
+		 * bus.  As such no need to add "arm,primecell".
+		 */
+		compatible = "arm,coresight-static-funnel";
+		clocks = <&crg_ctrl HI3660_PCLK>;
+		clock-names = "apb_pclk";
+
+		out-ports {
+			port {
+				combo_funnel_out: endpoint {
+					remote-endpoint = <&top_funnel_in>;
+				};
+			};
+		};
+
+		in-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				combo_funnel_in0: endpoint {
+					remote-endpoint = <&cluster0_etf_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				combo_funnel_in1: endpoint {
+					remote-endpoint = <&cluster1_etf_out>;
+				};
+			};
+		};
+	};
+
+	funnel@20040000 {
+		compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 		reg = <0 0x20040000 0 0x1000>;
 
 		clocks = <&oscclk6a>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -215,33 +390,61 @@ Example:
 			/* funnel output port */
 			port@0 {
 				reg = <0>;
+=======
+		out-ports {
+			port {
+>>>>>>> upstream/android-13
 				funnel_out_port0: endpoint {
 					remote-endpoint =
 							<&replicator_in_port0>;
 				};
 			};
+<<<<<<< HEAD
 
 			/* funnel input ports */
 			port@1 {
 				reg = <0>;
 				funnel_in_port0: endpoint {
 					slave-mode;
+=======
+		};
+
+		in-ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				funnel_in_port0: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm0_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@2 {
 				reg = <1>;
 				funnel_in_port1: endpoint {
 					slave-mode;
+=======
+			port@1 {
+				reg = <1>;
+				funnel_in_port1: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&ptm1_out_port>;
 				};
 			};
 
+<<<<<<< HEAD
 			port@3 {
 				reg = <2>;
 				funnel_in_port2: endpoint {
 					slave-mode;
+=======
+			port@2 {
+				reg = <2>;
+				funnel_in_port2: endpoint {
+>>>>>>> upstream/android-13
 					remote-endpoint = <&etm0_out_port>;
 				};
 			};
@@ -257,9 +460,17 @@ Example:
 		cpu = <&cpu0>;
 		clocks = <&oscclk6a>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			ptm0_out_port: endpoint {
 				remote-endpoint = <&funnel_in_port0>;
+=======
+		out-ports {
+			port {
+				ptm0_out_port: endpoint {
+					remote-endpoint = <&funnel_in_port0>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -271,9 +482,17 @@ Example:
 		cpu = <&cpu1>;
 		clocks = <&oscclk6a>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			ptm1_out_port: endpoint {
 				remote-endpoint = <&funnel_in_port1>;
+=======
+		out-ports {
+			port {
+				ptm1_out_port: endpoint {
+					remote-endpoint = <&funnel_in_port1>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -287,9 +506,17 @@ Example:
 
 		clocks = <&soc_smc50mhz>;
 		clock-names = "apb_pclk";
+<<<<<<< HEAD
 		port {
 			stm_out_port: endpoint {
 				remote-endpoint = <&main_funnel_in_port2>;
+=======
+		out-ports {
+			port {
+				stm_out_port: endpoint {
+					remote-endpoint = <&main_funnel_in_port2>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -304,10 +531,18 @@ Example:
 		clock-names = "apb_pclk";
 
 		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 		port {
 			catu_in_port: endpoint {
 				slave-mode;
 				remote-endpoint = <&etr_out_port>;
+=======
+		in-ports {
+			port {
+				catu_in_port: endpoint {
+					remote-endpoint = <&etr_out_port>;
+				};
+>>>>>>> upstream/android-13
 			};
 		};
 	};

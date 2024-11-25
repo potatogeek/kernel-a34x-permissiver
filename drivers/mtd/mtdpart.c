@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Simple MTD partitioning layer
  *
  * Copyright © 2000 Nicolas Pitre <nico@fluxnic.net>
  * Copyright © 2002 Thomas Gleixner <gleixner@linutronix.de>
  * Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -34,6 +41,7 @@
 
 #include "mtdcore.h"
 
+<<<<<<< HEAD
 /* Our partition linked list */
 static LIST_HEAD(mtd_partitions);
 static DEFINE_MUTEX(mtd_partitions_mutex);
@@ -62,11 +70,14 @@ static inline struct mtd_part *mtd_to_part(const struct mtd_info *mtd)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * MTD methods which simply translate the effective address and pass through
  * to the _real_ device.
  */
 
+<<<<<<< HEAD
 static int part_read(struct mtd_info *mtd, loff_t from, size_t len,
 		size_t *retlen, u_char *buf)
 {
@@ -329,11 +340,30 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 	int wr_alignment = (parent->flags & MTD_NO_ERASE) ? parent->writesize :
 							    parent->erasesize;
 	struct mtd_part *slave;
+=======
+static inline void free_partition(struct mtd_info *mtd)
+{
+	kfree(mtd->name);
+	kfree(mtd);
+}
+
+static struct mtd_info *allocate_partition(struct mtd_info *parent,
+					   const struct mtd_partition *part,
+					   int partno, uint64_t cur_offset)
+{
+	struct mtd_info *master = mtd_get_master(parent);
+	int wr_alignment = (parent->flags & MTD_NO_ERASE) ?
+			   master->writesize : master->erasesize;
+	u64 parent_size = mtd_is_partition(parent) ?
+			  parent->part.size : parent->size;
+	struct mtd_info *child;
+>>>>>>> upstream/android-13
 	u32 remainder;
 	char *name;
 	u64 tmp;
 
 	/* allocate the partition structure */
+<<<<<<< HEAD
 	slave = kzalloc(sizeof(*slave), GFP_KERNEL);
 	name = kstrdup(part->name, GFP_KERNEL);
 	if (!name || !slave) {
@@ -341,10 +371,20 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 		       parent->name);
 		kfree(name);
 		kfree(slave);
+=======
+	child = kzalloc(sizeof(*child), GFP_KERNEL);
+	name = kstrdup(part->name, GFP_KERNEL);
+	if (!name || !child) {
+		printk(KERN_ERR"memory allocation error while creating partitions for \"%s\"\n",
+		       parent->name);
+		kfree(name);
+		kfree(child);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOMEM);
 	}
 
 	/* set up the MTD object for this partition */
+<<<<<<< HEAD
 	slave->mtd.type = parent->type;
 	slave->mtd.flags = parent->flags & ~part->mask_flags;
 	slave->mtd.size = part->size;
@@ -357,6 +397,21 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 
 	slave->mtd.name = name;
 	slave->mtd.owner = parent->owner;
+=======
+	child->type = parent->type;
+	child->part.flags = parent->flags & ~part->mask_flags;
+	child->part.flags |= part->add_flags;
+	child->flags = child->part.flags;
+	child->part.size = part->size;
+	child->writesize = parent->writesize;
+	child->writebufsize = parent->writebufsize;
+	child->oobsize = parent->oobsize;
+	child->oobavail = parent->oobavail;
+	child->subpage_sft = parent->subpage_sft;
+
+	child->name = name;
+	child->owner = parent->owner;
+>>>>>>> upstream/android-13
 
 	/* NOTE: Historically, we didn't arrange MTDs as a tree out of
 	 * concern for showing the same data in multiple partitions.
@@ -364,6 +419,7 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 	 * so the MTD_PARTITIONED_MASTER option allows that. The master
 	 * will have device nodes etc only if this is set, so make the
 	 * parent conditional on that option. Note, this is a way to
+<<<<<<< HEAD
 	 * distinguish between the master and the partition in sysfs.
 	 */
 	slave->mtd.dev.parent = IS_ENABLED(CONFIG_MTD_PARTITIONED_MASTER) || mtd_is_partition(parent) ?
@@ -455,10 +511,45 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 			printk(KERN_ERR "mtd partition \"%s\" doesn't have enough space: %#llx < %#llx, disabled\n",
 				part->name, parent->size - slave->offset,
 				slave->mtd.size);
+=======
+	 * distinguish between the parent and its partitions in sysfs.
+	 */
+	child->dev.parent = IS_ENABLED(CONFIG_MTD_PARTITIONED_MASTER) || mtd_is_partition(parent) ?
+			    &parent->dev : parent->dev.parent;
+	child->dev.of_node = part->of_node;
+	child->parent = parent;
+	child->part.offset = part->offset;
+	INIT_LIST_HEAD(&child->partitions);
+
+	if (child->part.offset == MTDPART_OFS_APPEND)
+		child->part.offset = cur_offset;
+	if (child->part.offset == MTDPART_OFS_NXTBLK) {
+		tmp = cur_offset;
+		child->part.offset = cur_offset;
+		remainder = do_div(tmp, wr_alignment);
+		if (remainder) {
+			child->part.offset += wr_alignment - remainder;
+			printk(KERN_NOTICE "Moving partition %d: "
+			       "0x%012llx -> 0x%012llx\n", partno,
+			       (unsigned long long)cur_offset,
+			       child->part.offset);
+		}
+	}
+	if (child->part.offset == MTDPART_OFS_RETAIN) {
+		child->part.offset = cur_offset;
+		if (parent_size - child->part.offset >= child->part.size) {
+			child->part.size = parent_size - child->part.offset -
+					   child->part.size;
+		} else {
+			printk(KERN_ERR "mtd partition \"%s\" doesn't have enough space: %#llx < %#llx, disabled\n",
+				part->name, parent_size - child->part.offset,
+				child->part.size);
+>>>>>>> upstream/android-13
 			/* register to preserve ordering */
 			goto out_register;
 		}
 	}
+<<<<<<< HEAD
 	if (slave->mtd.size == MTDPART_SIZ_FULL)
 		slave->mtd.size = parent->size - slave->offset;
 
@@ -474,10 +565,28 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 		/* Initialize ->erasesize to make add_mtd_device() happy. */
 		slave->mtd.erasesize = parent->erasesize;
 
+=======
+	if (child->part.size == MTDPART_SIZ_FULL)
+		child->part.size = parent_size - child->part.offset;
+
+	printk(KERN_NOTICE "0x%012llx-0x%012llx : \"%s\"\n",
+	       child->part.offset, child->part.offset + child->part.size,
+	       child->name);
+
+	/* let's do some sanity checks */
+	if (child->part.offset >= parent_size) {
+		/* let's register it anyway to preserve ordering */
+		child->part.offset = 0;
+		child->part.size = 0;
+
+		/* Initialize ->erasesize to make add_mtd_device() happy. */
+		child->erasesize = parent->erasesize;
+>>>>>>> upstream/android-13
 		printk(KERN_ERR"mtd: partition \"%s\" is out of reach -- disabled\n",
 			part->name);
 		goto out_register;
 	}
+<<<<<<< HEAD
 	if (slave->offset + slave->mtd.size > parent->size) {
 		slave->mtd.size = parent->size - slave->offset;
 		printk(KERN_WARNING"mtd: partition \"%s\" extends beyond the end of device \"%s\" -- size truncated to %#llx\n",
@@ -487,11 +596,28 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 		/* Deal with variable erase size stuff */
 		int i, max = parent->numeraseregions;
 		u64 end = slave->offset + slave->mtd.size;
+=======
+	if (child->part.offset + child->part.size > parent->size) {
+		child->part.size = parent_size - child->part.offset;
+		printk(KERN_WARNING"mtd: partition \"%s\" extends beyond the end of device \"%s\" -- size truncated to %#llx\n",
+			part->name, parent->name, child->part.size);
+	}
+
+	if (parent->numeraseregions > 1) {
+		/* Deal with variable erase size stuff */
+		int i, max = parent->numeraseregions;
+		u64 end = child->part.offset + child->part.size;
+>>>>>>> upstream/android-13
 		struct mtd_erase_region_info *regions = parent->eraseregions;
 
 		/* Find the first erase regions which is part of this
 		 * partition. */
+<<<<<<< HEAD
 		for (i = 0; i < max && regions[i].offset <= slave->offset; i++)
+=======
+		for (i = 0; i < max && regions[i].offset <= child->part.offset;
+		     i++)
+>>>>>>> upstream/android-13
 			;
 		/* The loop searched for the region _behind_ the first one */
 		if (i > 0)
@@ -499,6 +625,7 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 
 		/* Pick biggest erasesize */
 		for (; i < max && regions[i].offset < end; i++) {
+<<<<<<< HEAD
 			if (slave->mtd.erasesize < regions[i].erasesize) {
 				slave->mtd.erasesize = regions[i].erasesize;
 			}
@@ -524,18 +651,52 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 		/* FIXME: Let it be writable if it is on a boundary of
 		 * _minor_ erase size though */
 		slave->mtd.flags &= ~MTD_WRITEABLE;
+=======
+			if (child->erasesize < regions[i].erasesize)
+				child->erasesize = regions[i].erasesize;
+		}
+		BUG_ON(child->erasesize == 0);
+	} else {
+		/* Single erase size */
+		child->erasesize = master->erasesize;
+	}
+
+	/*
+	 * Child erasesize might differ from the parent one if the parent
+	 * exposes several regions with different erasesize. Adjust
+	 * wr_alignment accordingly.
+	 */
+	if (!(child->flags & MTD_NO_ERASE))
+		wr_alignment = child->erasesize;
+
+	tmp = mtd_get_master_ofs(child, 0);
+	remainder = do_div(tmp, wr_alignment);
+	if ((child->flags & MTD_WRITEABLE) && remainder) {
+		/* Doesn't start on a boundary of major erase size */
+		/* FIXME: Let it be writable if it is on a boundary of
+		 * _minor_ erase size though */
+		child->flags &= ~MTD_WRITEABLE;
+>>>>>>> upstream/android-13
 		printk(KERN_WARNING"mtd: partition \"%s\" doesn't start on an erase/write block boundary -- force read-only\n",
 			part->name);
 	}
 
+<<<<<<< HEAD
 	tmp = slave->mtd.size;
 	remainder = do_div(tmp, wr_alignment);
 	if ((slave->mtd.flags & MTD_WRITEABLE) && remainder) {
 		slave->mtd.flags &= ~MTD_WRITEABLE;
+=======
+	tmp = mtd_get_master_ofs(child, 0) + child->part.size;
+	remainder = do_div(tmp, wr_alignment);
+	if ((child->flags & MTD_WRITEABLE) && remainder) {
+		child->flags &= ~MTD_WRITEABLE;
+>>>>>>> upstream/android-13
 		printk(KERN_WARNING"mtd: partition \"%s\" doesn't end on an erase/write block -- force read-only\n",
 			part->name);
 	}
 
+<<<<<<< HEAD
 	mtd_set_ooblayout(&slave->mtd, &part_ooblayout_ops);
 	slave->mtd.ecc_step_size = parent->ecc_step_size;
 	slave->mtd.ecc_strength = parent->ecc_strength;
@@ -550,10 +711,27 @@ static struct mtd_part *allocate_partition(struct mtd_info *parent,
 			else if (mtd_block_isbad(parent, offs + slave->offset))
 				slave->mtd.ecc_stats.badblocks++;
 			offs += slave->mtd.erasesize;
+=======
+	child->size = child->part.size;
+	child->ecc_step_size = parent->ecc_step_size;
+	child->ecc_strength = parent->ecc_strength;
+	child->bitflip_threshold = parent->bitflip_threshold;
+
+	if (master->_block_isbad) {
+		uint64_t offs = 0;
+
+		while (offs < child->part.size) {
+			if (mtd_block_isreserved(child, offs))
+				child->ecc_stats.bbtblocks++;
+			else if (mtd_block_isbad(child, offs))
+				child->ecc_stats.badblocks++;
+			offs += child->erasesize;
+>>>>>>> upstream/android-13
 		}
 	}
 
 out_register:
+<<<<<<< HEAD
 	return slave;
 }
 
@@ -566,15 +744,34 @@ static ssize_t mtd_partition_offset_show(struct device *dev,
 }
 
 static DEVICE_ATTR(offset, S_IRUGO, mtd_partition_offset_show, NULL);
+=======
+	return child;
+}
+
+static ssize_t offset_show(struct device *dev,
+			   struct device_attribute *attr, char *buf)
+{
+	struct mtd_info *mtd = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%lld\n", mtd->part.offset);
+}
+static DEVICE_ATTR_RO(offset);	/* mtd partition offset */
+>>>>>>> upstream/android-13
 
 static const struct attribute *mtd_partition_attrs[] = {
 	&dev_attr_offset.attr,
 	NULL
 };
 
+<<<<<<< HEAD
 static int mtd_add_partition_attrs(struct mtd_part *new)
 {
 	int ret = sysfs_create_files(&new->mtd.dev.kobj, mtd_partition_attrs);
+=======
+static int mtd_add_partition_attrs(struct mtd_info *new)
+{
+	int ret = sysfs_create_files(&new->dev.kobj, mtd_partition_attrs);
+>>>>>>> upstream/android-13
 	if (ret)
 		printk(KERN_WARNING
 		       "mtd: failed to create partition attrs, err=%d\n", ret);
@@ -584,8 +781,16 @@ static int mtd_add_partition_attrs(struct mtd_part *new)
 int mtd_add_partition(struct mtd_info *parent, const char *name,
 		      long long offset, long long length)
 {
+<<<<<<< HEAD
 	struct mtd_partition part;
 	struct mtd_part *new;
+=======
+	struct mtd_info *master = mtd_get_master(parent);
+	u64 parent_size = mtd_is_partition(parent) ?
+			  parent->part.size : parent->size;
+	struct mtd_partition part;
+	struct mtd_info *child;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	/* the direct offset is expected */
@@ -594,7 +799,11 @@ int mtd_add_partition(struct mtd_info *parent, const char *name,
 		return -EINVAL;
 
 	if (length == MTDPART_SIZ_FULL)
+<<<<<<< HEAD
 		length = parent->size - offset;
+=======
+		length = parent_size - offset;
+>>>>>>> upstream/android-13
 
 	if (length <= 0)
 		return -EINVAL;
@@ -604,6 +813,7 @@ int mtd_add_partition(struct mtd_info *parent, const char *name,
 	part.size = length;
 	part.offset = offset;
 
+<<<<<<< HEAD
 	new = allocate_partition(parent, &part, -1, offset);
 	if (IS_ERR(new))
 		return PTR_ERR(new);
@@ -617,15 +827,38 @@ int mtd_add_partition(struct mtd_info *parent, const char *name,
 		goto err_remove_part;
 
 	mtd_add_partition_attrs(new);
+=======
+	child = allocate_partition(parent, &part, -1, offset);
+	if (IS_ERR(child))
+		return PTR_ERR(child);
+
+	mutex_lock(&master->master.partitions_lock);
+	list_add_tail(&child->part.node, &parent->partitions);
+	mutex_unlock(&master->master.partitions_lock);
+
+	ret = add_mtd_device(child);
+	if (ret)
+		goto err_remove_part;
+
+	mtd_add_partition_attrs(child);
+>>>>>>> upstream/android-13
 
 	return 0;
 
 err_remove_part:
+<<<<<<< HEAD
 	mutex_lock(&mtd_partitions_mutex);
 	list_del(&new->list);
 	mutex_unlock(&mtd_partitions_mutex);
 
 	free_partition(new);
+=======
+	mutex_lock(&master->master.partitions_lock);
+	list_del(&child->part.node);
+	mutex_unlock(&master->master.partitions_lock);
+
+	free_partition(child);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -634,6 +867,7 @@ EXPORT_SYMBOL_GPL(mtd_add_partition);
 /**
  * __mtd_del_partition - delete MTD partition
  *
+<<<<<<< HEAD
  * @priv: internal MTD struct for partition to be deleted
  *
  * This function must be called with the partitions mutex locked.
@@ -659,12 +893,38 @@ static int __mtd_del_partition(struct mtd_part *priv)
 
 	list_del(&priv->list);
 	free_partition(priv);
+=======
+ * @mtd: MTD structure to be deleted
+ *
+ * This function must be called with the partitions mutex locked.
+ */
+static int __mtd_del_partition(struct mtd_info *mtd)
+{
+	struct mtd_info *child, *next;
+	int err;
+
+	list_for_each_entry_safe(child, next, &mtd->partitions, part.node) {
+		err = __mtd_del_partition(child);
+		if (err)
+			return err;
+	}
+
+	sysfs_remove_files(&mtd->dev.kobj, mtd_partition_attrs);
+
+	err = del_mtd_device(mtd);
+	if (err)
+		return err;
+
+	list_del(&mtd->part.node);
+	free_partition(mtd);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /*
  * This function unregisters and destroy all slave MTD objects which are
+<<<<<<< HEAD
  * attached to the given MTD object.
  */
 int del_mtd_partitions(struct mtd_info *mtd)
@@ -680,10 +940,37 @@ int del_mtd_partitions(struct mtd_info *mtd)
 				err = ret;
 		}
 	mutex_unlock(&mtd_partitions_mutex);
+=======
+ * attached to the given MTD object, recursively.
+ */
+static int __del_mtd_partitions(struct mtd_info *mtd)
+{
+	struct mtd_info *child, *next;
+	LIST_HEAD(tmp_list);
+	int ret, err = 0;
+
+	list_for_each_entry_safe(child, next, &mtd->partitions, part.node) {
+		if (mtd_has_partitions(child))
+			__del_mtd_partitions(child);
+
+		pr_info("Deleting %s MTD partition\n", child->name);
+		ret = del_mtd_device(child);
+		if (ret < 0) {
+			pr_err("Error when deleting partition \"%s\" (%d)\n",
+			       child->name, ret);
+			err = ret;
+			continue;
+		}
+
+		list_del(&child->part.node);
+		free_partition(child);
+	}
+>>>>>>> upstream/android-13
 
 	return err;
 }
 
+<<<<<<< HEAD
 int mtd_del_partition(struct mtd_info *mtd, int partno)
 {
 	struct mtd_part *slave, *next;
@@ -697,12 +984,42 @@ int mtd_del_partition(struct mtd_info *mtd, int partno)
 			break;
 		}
 	mutex_unlock(&mtd_partitions_mutex);
+=======
+int del_mtd_partitions(struct mtd_info *mtd)
+{
+	struct mtd_info *master = mtd_get_master(mtd);
+	int ret;
+
+	pr_info("Deleting MTD partitions on \"%s\":\n", mtd->name);
+
+	mutex_lock(&master->master.partitions_lock);
+	ret = __del_mtd_partitions(mtd);
+	mutex_unlock(&master->master.partitions_lock);
+
+	return ret;
+}
+
+int mtd_del_partition(struct mtd_info *mtd, int partno)
+{
+	struct mtd_info *child, *master = mtd_get_master(mtd);
+	int ret = -EINVAL;
+
+	mutex_lock(&master->master.partitions_lock);
+	list_for_each_entry(child, &mtd->partitions, part.node) {
+		if (child->index == partno) {
+			ret = __mtd_del_partition(child);
+			break;
+		}
+	}
+	mutex_unlock(&master->master.partitions_lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 EXPORT_SYMBOL_GPL(mtd_del_partition);
 
 /*
+<<<<<<< HEAD
  * This function, given a master MTD object and a partition table, creates
  * and registers slave MTD objects which are bound to the master according to
  * the partition definitions.
@@ -747,6 +1064,54 @@ int add_mtd_partitions(struct mtd_info *master,
 		parse_mtd_partitions(&slave->mtd, parts[i].types, NULL);
 
 		cur_offset = slave->offset + slave->mtd.size;
+=======
+ * This function, given a parent MTD object and a partition table, creates
+ * and registers the child MTD objects which are bound to the parent according
+ * to the partition definitions.
+ *
+ * For historical reasons, this function's caller only registers the parent
+ * if the MTD_PARTITIONED_MASTER config option is set.
+ */
+
+int add_mtd_partitions(struct mtd_info *parent,
+		       const struct mtd_partition *parts,
+		       int nbparts)
+{
+	struct mtd_info *child, *master = mtd_get_master(parent);
+	uint64_t cur_offset = 0;
+	int i, ret;
+
+	printk(KERN_NOTICE "Creating %d MTD partitions on \"%s\":\n",
+	       nbparts, parent->name);
+
+	for (i = 0; i < nbparts; i++) {
+		child = allocate_partition(parent, parts + i, i, cur_offset);
+		if (IS_ERR(child)) {
+			ret = PTR_ERR(child);
+			goto err_del_partitions;
+		}
+
+		mutex_lock(&master->master.partitions_lock);
+		list_add_tail(&child->part.node, &parent->partitions);
+		mutex_unlock(&master->master.partitions_lock);
+
+		ret = add_mtd_device(child);
+		if (ret) {
+			mutex_lock(&master->master.partitions_lock);
+			list_del(&child->part.node);
+			mutex_unlock(&master->master.partitions_lock);
+
+			free_partition(child);
+			goto err_del_partitions;
+		}
+
+		mtd_add_partition_attrs(child);
+
+		/* Look for subpartitions */
+		parse_mtd_partitions(child, parts[i].types, NULL);
+
+		cur_offset = child->part.offset + child->part.size;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1027,6 +1392,7 @@ void mtd_part_parser_cleanup(struct mtd_partitions *parts)
 	}
 }
 
+<<<<<<< HEAD
 int mtd_is_partition(const struct mtd_info *mtd)
 {
 	struct mtd_part *part;
@@ -1051,5 +1417,13 @@ uint64_t mtd_get_device_size(const struct mtd_info *mtd)
 		return mtd->size;
 
 	return mtd_get_device_size(mtd_to_part(mtd)->parent);
+=======
+/* Returns the size of the entire flash chip */
+uint64_t mtd_get_device_size(const struct mtd_info *mtd)
+{
+	struct mtd_info *master = mtd_get_master((struct mtd_info *)mtd);
+
+	return master->size;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtd_get_device_size);

@@ -85,6 +85,7 @@ TRACE_EVENT(credit_entropy_bits,
 		  __entry->entropy_count, (void *)__entry->IP)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(push_to_pool,
 	TP_PROTO(const char *pool_name, int pool_bits, int input_bits),
 
@@ -107,6 +108,8 @@ TRACE_EVENT(push_to_pool,
 		  __entry->input_bits)
 );
 
+=======
+>>>>>>> upstream/android-13
 TRACE_EVENT(debit_entropy,
 	TP_PROTO(const char *pool_name, int debit_bits),
 
@@ -161,6 +164,7 @@ TRACE_EVENT(add_disk_randomness,
 		  MINOR(__entry->dev), __entry->input_bits)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(xfer_secondary_pool,
 	TP_PROTO(const char *pool_name, int xfer_bits, int request_bits,
 		 int pool_entropy, int input_entropy),
@@ -190,6 +194,8 @@ TRACE_EVENT(xfer_secondary_pool,
 		  __entry->input_entropy)
 );
 
+=======
+>>>>>>> upstream/android-13
 DECLARE_EVENT_CLASS(random__get_random_bytes,
 	TP_PROTO(int nbytes, unsigned long IP),
 
@@ -253,6 +259,7 @@ DEFINE_EVENT(random__extract_entropy, extract_entropy,
 	TP_ARGS(pool_name, nbytes, entropy_count, IP)
 );
 
+<<<<<<< HEAD
 DEFINE_EVENT(random__extract_entropy, extract_entropy_user,
 	TP_PROTO(const char *pool_name, int nbytes, int entropy_count,
 		 unsigned long IP),
@@ -285,6 +292,8 @@ TRACE_EVENT(random_read,
 		  __entry->input_left)
 );
 
+=======
+>>>>>>> upstream/android-13
 TRACE_EVENT(urandom_read,
 	TP_PROTO(int got_bits, int pool_left, int input_left),
 
@@ -307,6 +316,26 @@ TRACE_EVENT(urandom_read,
 		  __entry->pool_left, __entry->input_left)
 );
 
+<<<<<<< HEAD
+=======
+TRACE_EVENT(prandom_u32,
+
+	TP_PROTO(unsigned int ret),
+
+	TP_ARGS(ret),
+
+	TP_STRUCT__entry(
+		__field(   unsigned int, ret)
+	),
+
+	TP_fast_assign(
+		__entry->ret = ret;
+	),
+
+	TP_printk("ret=%u" , __entry->ret)
+);
+
+>>>>>>> upstream/android-13
 #endif /* _TRACE_RANDOM_H */
 
 /* This part must be outside protection */

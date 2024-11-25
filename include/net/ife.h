@@ -4,7 +4,10 @@
 
 #include <linux/etherdevice.h>
 #include <linux/rtnetlink.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <uapi/linux/ife.h>
 
 #if IS_ENABLED(CONFIG_NET_IFE)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/sch_fifo.c	The simplest FIFO queue.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/sch_fifo.c	The simplest FIFO queue.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  */
 
@@ -16,6 +23,10 @@
 #include <linux/errno.h>
 #include <linux/skbuff.h>
 #include <net/pkt_sched.h>
+<<<<<<< HEAD
+=======
+#include <net/pkt_cls.h>
+>>>>>>> upstream/android-13
 
 /* 1 band FIFO pseudo-"scheduler" */
 
@@ -55,8 +66,54 @@ static int pfifo_tail_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 	return NET_XMIT_CN;
 }
 
+<<<<<<< HEAD
 static int fifo_init(struct Qdisc *sch, struct nlattr *opt,
 		     struct netlink_ext_ack *extack)
+=======
+static void fifo_offload_init(struct Qdisc *sch)
+{
+	struct net_device *dev = qdisc_dev(sch);
+	struct tc_fifo_qopt_offload qopt;
+
+	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+		return;
+
+	qopt.command = TC_FIFO_REPLACE;
+	qopt.handle = sch->handle;
+	qopt.parent = sch->parent;
+	dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_FIFO, &qopt);
+}
+
+static void fifo_offload_destroy(struct Qdisc *sch)
+{
+	struct net_device *dev = qdisc_dev(sch);
+	struct tc_fifo_qopt_offload qopt;
+
+	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+		return;
+
+	qopt.command = TC_FIFO_DESTROY;
+	qopt.handle = sch->handle;
+	qopt.parent = sch->parent;
+	dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_FIFO, &qopt);
+}
+
+static int fifo_offload_dump(struct Qdisc *sch)
+{
+	struct tc_fifo_qopt_offload qopt;
+
+	qopt.command = TC_FIFO_STATS;
+	qopt.handle = sch->handle;
+	qopt.parent = sch->parent;
+	qopt.stats.bstats = &sch->bstats;
+	qopt.stats.qstats = &sch->qstats;
+
+	return qdisc_offload_dump_helper(sch, TC_SETUP_QDISC_FIFO, &qopt);
+}
+
+static int __fifo_init(struct Qdisc *sch, struct nlattr *opt,
+		       struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	bool bypass;
 	bool is_bfifo = sch->ops == &bfifo_qdisc_ops;
@@ -86,10 +143,42 @@ static int fifo_init(struct Qdisc *sch, struct nlattr *opt,
 		sch->flags |= TCQ_F_CAN_BYPASS;
 	else
 		sch->flags &= ~TCQ_F_CAN_BYPASS;
+<<<<<<< HEAD
 	return 0;
 }
 
 static int fifo_dump(struct Qdisc *sch, struct sk_buff *skb)
+=======
+
+	return 0;
+}
+
+static int fifo_init(struct Qdisc *sch, struct nlattr *opt,
+		     struct netlink_ext_ack *extack)
+{
+	int err;
+
+	err = __fifo_init(sch, opt, extack);
+	if (err)
+		return err;
+
+	fifo_offload_init(sch);
+	return 0;
+}
+
+static int fifo_hd_init(struct Qdisc *sch, struct nlattr *opt,
+			struct netlink_ext_ack *extack)
+{
+	return __fifo_init(sch, opt, extack);
+}
+
+static void fifo_destroy(struct Qdisc *sch)
+{
+	fifo_offload_destroy(sch);
+}
+
+static int __fifo_dump(struct Qdisc *sch, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct tc_fifo_qopt opt = { .limit = sch->limit };
 
@@ -101,6 +190,25 @@ nla_put_failure:
 	return -1;
 }
 
+<<<<<<< HEAD
+=======
+static int fifo_dump(struct Qdisc *sch, struct sk_buff *skb)
+{
+	int err;
+
+	err = fifo_offload_dump(sch);
+	if (err)
+		return err;
+
+	return __fifo_dump(sch, skb);
+}
+
+static int fifo_hd_dump(struct Qdisc *sch, struct sk_buff *skb)
+{
+	return __fifo_dump(sch, skb);
+}
+
+>>>>>>> upstream/android-13
 struct Qdisc_ops pfifo_qdisc_ops __read_mostly = {
 	.id		=	"pfifo",
 	.priv_size	=	0,
@@ -108,6 +216,10 @@ struct Qdisc_ops pfifo_qdisc_ops __read_mostly = {
 	.dequeue	=	qdisc_dequeue_head,
 	.peek		=	qdisc_peek_head,
 	.init		=	fifo_init,
+<<<<<<< HEAD
+=======
+	.destroy	=	fifo_destroy,
+>>>>>>> upstream/android-13
 	.reset		=	qdisc_reset_queue,
 	.change		=	fifo_init,
 	.dump		=	fifo_dump,
@@ -122,6 +234,10 @@ struct Qdisc_ops bfifo_qdisc_ops __read_mostly = {
 	.dequeue	=	qdisc_dequeue_head,
 	.peek		=	qdisc_peek_head,
 	.init		=	fifo_init,
+<<<<<<< HEAD
+=======
+	.destroy	=	fifo_destroy,
+>>>>>>> upstream/android-13
 	.reset		=	qdisc_reset_queue,
 	.change		=	fifo_init,
 	.dump		=	fifo_dump,
@@ -135,10 +251,17 @@ struct Qdisc_ops pfifo_head_drop_qdisc_ops __read_mostly = {
 	.enqueue	=	pfifo_tail_enqueue,
 	.dequeue	=	qdisc_dequeue_head,
 	.peek		=	qdisc_peek_head,
+<<<<<<< HEAD
 	.init		=	fifo_init,
 	.reset		=	qdisc_reset_queue,
 	.change		=	fifo_init,
 	.dump		=	fifo_dump,
+=======
+	.init		=	fifo_hd_init,
+	.reset		=	qdisc_reset_queue,
+	.change		=	fifo_hd_init,
+	.dump		=	fifo_hd_dump,
+>>>>>>> upstream/android-13
 	.owner		=	THIS_MODULE,
 };
 
@@ -152,6 +275,12 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (!q->ops->change)
+		return 0;
+
+>>>>>>> upstream/android-13
 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
 	if (nla) {
 		nla->nla_type = RTM_NEWQDISC;
@@ -177,7 +306,11 @@ struct Qdisc *fifo_create_dflt(struct Qdisc *sch, struct Qdisc_ops *ops,
 	if (q) {
 		err = fifo_set_limit(q, limit);
 		if (err < 0) {
+<<<<<<< HEAD
 			qdisc_destroy(q);
+=======
+			qdisc_put(q);
+>>>>>>> upstream/android-13
 			q = NULL;
 		}
 	}

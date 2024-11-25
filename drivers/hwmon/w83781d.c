@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * w83781d.c - Part of lm_sensors, Linux kernel modules for hardware
  *	       monitoring
@@ -5,6 +9,7 @@
  *			      Philip Edelbrock <phil@netroedge.com>,
  *			      and Mark Studebaker <mdsxyz123@yahoo.com>
  * Copyright (c) 2007 - 2008  Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -827,7 +834,11 @@ store_sensor(struct device *dev, struct device_attribute *da,
 		dev_warn(dev,
 			 "Sensor type %d is deprecated, please use 4 instead\n",
 			 W83781D_DEFAULT_BETA);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 4:		/* thermistor */
 		tmp = w83781d_read_value(data, W83781D_REG_SCFG1);
 		w83781d_write_value(data, W83781D_REG_SCFG1,
@@ -907,12 +918,21 @@ w83781d_detect_subclients(struct i2c_client *new_client)
 	}
 
 	for (i = 0; i < num_sc; i++) {
+<<<<<<< HEAD
 		data->lm75[i] = i2c_new_dummy(adapter, sc_addr[i]);
 		if (!data->lm75[i]) {
 			dev_err(&new_client->dev,
 				"Subclient %d registration at address 0x%x failed.\n",
 				i, sc_addr[i]);
 			err = -ENOMEM;
+=======
+		data->lm75[i] = i2c_new_dummy_device(adapter, sc_addr[i]);
+		if (IS_ERR(data->lm75[i])) {
+			dev_err(&new_client->dev,
+				"Subclient %d registration at address 0x%x failed.\n",
+				i, sc_addr[i]);
+			err = PTR_ERR(data->lm75[i]);
+>>>>>>> upstream/android-13
 			if (i == 1)
 				goto ERROR_SC_3;
 			goto ERROR_SC_2;
@@ -1205,8 +1225,14 @@ static void w83781d_remove_files(struct device *dev)
 	sysfs_remove_group(&dev->kobj, &w83781d_group_other);
 }
 
+<<<<<<< HEAD
 static int
 w83781d_probe(struct i2c_client *client, const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id w83781d_ids[];
+
+static int w83781d_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct w83781d_data *data;
@@ -1220,7 +1246,11 @@ w83781d_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	mutex_init(&data->lock);
 	mutex_init(&data->update_lock);
 
+<<<<<<< HEAD
 	data->type = id->driver_data;
+=======
+	data->type = i2c_match_id(w83781d_ids, client)->driver_data;
+>>>>>>> upstream/android-13
 	data->client = client;
 
 	/* attach secondary i2c lm75-like clients */
@@ -1583,12 +1613,31 @@ static const struct i2c_device_id w83781d_ids[] = {
 };
 MODULE_DEVICE_TABLE(i2c, w83781d_ids);
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id w83781d_of_match[] = {
+	{ .compatible = "winbond,w83781d" },
+	{ .compatible = "winbond,w83781g" },
+	{ .compatible = "winbond,w83782d" },
+	{ .compatible = "winbond,w83783s" },
+	{ .compatible = "asus,as99127f" },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, w83781d_of_match);
+
+>>>>>>> upstream/android-13
 static struct i2c_driver w83781d_driver = {
 	.class		= I2C_CLASS_HWMON,
 	.driver = {
 		.name = "w83781d",
+<<<<<<< HEAD
 	},
 	.probe		= w83781d_probe,
+=======
+		.of_match_table = w83781d_of_match,
+	},
+	.probe_new	= w83781d_probe,
+>>>>>>> upstream/android-13
 	.remove		= w83781d_remove,
 	.id_table	= w83781d_ids,
 	.detect		= w83781d_detect,

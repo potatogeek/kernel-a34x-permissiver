@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Joshua Henderson <joshua.henderson@microchip.com>
  * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
@@ -12,10 +13,21 @@
  *  for more details.
  */
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Joshua Henderson <joshua.henderson@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
+ */
+>>>>>>> upstream/android-13
 #include <linux/clocksource.h>
 #include <linux/init.h>
 #include <linux/irqdomain.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 
 #include <asm/time.h>
@@ -31,7 +43,11 @@ static const struct of_device_id pic32_infra_match[] = {
 
 static unsigned int pic32_xlate_core_timer_irq(void)
 {
+<<<<<<< HEAD
 	static struct device_node *node;
+=======
+	struct device_node *node;
+>>>>>>> upstream/android-13
 	unsigned int irq;
 
 	node = of_find_matching_node(NULL, pic32_infra_match);

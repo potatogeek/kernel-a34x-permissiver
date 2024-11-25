@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  PowerPC version
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -11,12 +15,15 @@
  *
  *  This file contains the system call entry code, context switch
  *  code, and exception/interrupt return code for PowerPC.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -33,6 +40,7 @@
 #include <asm/unistd.h>
 #include <asm/ptrace.h>
 #include <asm/export.h>
+<<<<<<< HEAD
 #include <asm/asm-405.h>
 #include <asm/feature-fixups.h>
 #include <asm/barrier.h>
@@ -45,6 +53,21 @@
 #else
 #define LOAD_MSR_KERNEL(r, x)	li r,(x)
 #endif
+=======
+#include <asm/feature-fixups.h>
+#include <asm/barrier.h>
+#include <asm/kup.h>
+#include <asm/bug.h>
+#include <asm/interrupt.h>
+
+#include "head_32.h"
+
+/*
+ * powerpc relies on return from interrupt/syscall being context synchronising
+ * (which rfi is) to support ARCH_HAS_MEMBARRIER_SYNC_CORE without additional
+ * synchronisation instructions.
+ */
+>>>>>>> upstream/android-13
 
 /*
  * Align to 4k in order to ensure that all functions modyfing srr0/srr1
@@ -53,6 +76,7 @@
  */
 	.align	12
 
+<<<<<<< HEAD
 #ifdef CONFIG_BOOKE
 	.globl	mcheck_transfer_to_handler
 mcheck_transfer_to_handler:
@@ -424,10 +448,69 @@ syscall_exit_cont:
 #endif
 #ifdef CONFIG_44x
 BEGIN_MMU_FTR_SECTION
+=======
+#if defined(CONFIG_PPC_BOOK3S_32) || defined(CONFIG_E500)
+	.globl	prepare_transfer_to_handler
+prepare_transfer_to_handler:
+	/* if from kernel, check interrupted DOZE/NAP mode */
+	lwz	r12,TI_LOCAL_FLAGS(r2)
+	mtcrf	0x01,r12
+	bt-	31-TLF_NAPPING,4f
+	bt-	31-TLF_SLEEPING,7f
+	blr
+
+4:	rlwinm	r12,r12,0,~_TLF_NAPPING
+	stw	r12,TI_LOCAL_FLAGS(r2)
+	b	power_save_ppc32_restore
+
+7:	rlwinm	r12,r12,0,~_TLF_SLEEPING
+	stw	r12,TI_LOCAL_FLAGS(r2)
+	lwz	r9,_MSR(r11)		/* if sleeping, clear MSR.EE */
+	rlwinm	r9,r9,0,~MSR_EE
+	lwz	r12,_LINK(r11)		/* and return to address in LR */
+	lwz	r2, GPR2(r11)
+	b	fast_exception_return
+_ASM_NOKPROBE_SYMBOL(prepare_transfer_to_handler)
+#endif /* CONFIG_PPC_BOOK3S_32 || CONFIG_E500 */
+
+	.globl	transfer_to_syscall
+transfer_to_syscall:
+	stw	r11, GPR1(r1)
+	stw	r11, 0(r1)
+	mflr	r12
+	stw	r12, _LINK(r1)
+#if defined(CONFIG_BOOKE) || defined(CONFIG_40x)
+	rlwinm	r9,r9,0,14,12		/* clear MSR_WE (necessary?) */
+#endif
+	lis	r12,STACK_FRAME_REGS_MARKER@ha /* exception frame marker */
+	SAVE_GPR(2, r1)
+	addi	r12,r12,STACK_FRAME_REGS_MARKER@l
+	stw	r9,_MSR(r1)
+	li	r2, INTERRUPT_SYSCALL
+	stw	r12,8(r1)
+	stw	r2,_TRAP(r1)
+	SAVE_GPR(0, r1)
+	SAVE_4GPRS(3, r1)
+	SAVE_2GPRS(7, r1)
+	addi	r2,r10,-THREAD
+	SAVE_NVGPRS(r1)
+
+	/* Calling convention has r9 = orig r0, r10 = regs */
+	addi	r10,r1,STACK_FRAME_OVERHEAD
+	mr	r9,r0
+	bl	system_call_exception
+
+ret_from_syscall:
+	addi    r4,r1,STACK_FRAME_OVERHEAD
+	li	r5,0
+	bl	syscall_exit_prepare
+#ifdef CONFIG_PPC_47x
+>>>>>>> upstream/android-13
 	lis	r4,icache_44x_need_flush@ha
 	lwz	r5,icache_44x_need_flush@l(r4)
 	cmplwi	cr0,r5,0
 	bne-	2f
+<<<<<<< HEAD
 1:
 END_MMU_FTR_SECTION_IFCLR(MMU_FTR_TYPE_47x)
 #endif /* CONFIG_44x */
@@ -456,6 +539,42 @@ END_FTR_SECTION_IFSET(CPU_FTR_NEED_PAIRED_STWCX)
 	mtspr	SPRN_SRR1,r8
 	SYNC
 	RFI
+=======
+#endif /* CONFIG_PPC_47x */
+	lwz	r4,_LINK(r1)
+	lwz	r5,_CCR(r1)
+	mtlr	r4
+	lwz	r7,_NIP(r1)
+	lwz	r8,_MSR(r1)
+	cmpwi	r3,0
+	lwz	r3,GPR3(r1)
+syscall_exit_finish:
+	mtspr	SPRN_SRR0,r7
+	mtspr	SPRN_SRR1,r8
+
+	bne	3f
+	mtcr	r5
+
+1:	lwz	r2,GPR2(r1)
+	lwz	r1,GPR1(r1)
+	rfi
+#ifdef CONFIG_40x
+	b .	/* Prevent prefetch past rfi */
+#endif
+
+3:	mtcr	r5
+	lwz	r4,_CTR(r1)
+	lwz	r5,_XER(r1)
+	REST_NVGPRS(r1)
+	mtctr	r4
+	mtxer	r5
+	lwz	r0,GPR0(r1)
+	lwz	r3,GPR3(r1)
+	REST_8GPRS(4,r1)
+	lwz	r12,GPR12(r1)
+	b	1b
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_44x
 2:	li	r7,0
 	iccci	r0,r0
@@ -463,9 +582,12 @@ END_FTR_SECTION_IFSET(CPU_FTR_NEED_PAIRED_STWCX)
 	b	1b
 #endif  /* CONFIG_44x */
 
+<<<<<<< HEAD
 66:	li	r3,-ENOSYS
 	b	ret_from_syscall
 
+=======
+>>>>>>> upstream/android-13
 	.globl	ret_from_fork
 ret_from_fork:
 	REST_NVGPRS(r1)
@@ -477,6 +599,7 @@ ret_from_fork:
 ret_from_kernel_thread:
 	REST_NVGPRS(r1)
 	bl	schedule_tail
+<<<<<<< HEAD
 	mtlr	r14
 	mr	r3,r15
 	PPC440EP_ERR42
@@ -640,6 +763,15 @@ handle_dabr_fault:
 	b	ret_from_except_full
 #endif
 
+=======
+	mtctr	r14
+	mr	r3,r15
+	PPC440EP_ERR42
+	bctrl
+	li	r3,0
+	b	ret_from_syscall
+
+>>>>>>> upstream/android-13
 /*
  * This routine switches between two different tasks.  The process
  * state of one is saved on its kernel stack.  Then the state
@@ -667,6 +799,7 @@ _GLOBAL(_switch)
 	/* r3-r12 are caller saved -- Cort */
 	SAVE_NVGPRS(r1)
 	stw	r0,_NIP(r1)	/* Return to switch caller */
+<<<<<<< HEAD
 	mfmsr	r11
 	li	r0,MSR_FP	/* Disable floating-point */
 #ifdef CONFIG_ALTIVEC
@@ -689,6 +822,8 @@ END_FTR_SECTION_IFSET(CPU_FTR_SPE)
 	MTMSRD(r11)
 	isync
 1:	stw	r11,_MSR(r1)
+=======
+>>>>>>> upstream/android-13
 	mfcr	r10
 	stw	r10,_CCR(r1)
 	stw	r1,KSP(r3)	/* Set old stack pointer */
@@ -709,6 +844,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_SPE)
 	mr	r3,r2
 	addi	r2,r4,-THREAD	/* Update current */
 
+<<<<<<< HEAD
 #ifdef CONFIG_ALTIVEC
 BEGIN_FTR_SECTION
 	lwz	r0,THREAD+THREAD_VRSAVE(r2)
@@ -722,6 +858,8 @@ BEGIN_FTR_SECTION
 END_FTR_SECTION_IFSET(CPU_FTR_SPE)
 #endif /* CONFIG_SPE */
 
+=======
+>>>>>>> upstream/android-13
 	lwz	r0,_CCR(r1)
 	mtcrf	0xFF,r0
 	/* r3-r12 are destroyed -- Cort */
@@ -736,12 +874,20 @@ END_FTR_SECTION_IFSET(CPU_FTR_SPE)
 fast_exception_return:
 #if !(defined(CONFIG_4xx) || defined(CONFIG_BOOKE))
 	andi.	r10,r9,MSR_RI		/* check for recoverable interrupt */
+<<<<<<< HEAD
 	beq	1f			/* if not, we've got problems */
+=======
+	beq	3f			/* if not, we've got problems */
+>>>>>>> upstream/android-13
 #endif
 
 2:	REST_4GPRS(3, r11)
 	lwz	r10,_CCR(r11)
+<<<<<<< HEAD
 	REST_GPR(1, r11)
+=======
+	REST_2GPRS(1, r11)
+>>>>>>> upstream/android-13
 	mtcr	r10
 	lwz	r10,_LINK(r11)
 	mtlr	r10
@@ -757,6 +903,7 @@ fast_exception_return:
 	REST_GPR(9, r11)
 	REST_GPR(12, r11)
 	lwz	r11,GPR11(r11)
+<<<<<<< HEAD
 	SYNC
 	RFI
 
@@ -1045,6 +1192,155 @@ exc_exit_restart_end:
 	PPC405_ERR77_SYNC
 	rfi
 	b	.			/* prevent prefetch past rfi */
+=======
+	rfi
+#ifdef CONFIG_40x
+	b .	/* Prevent prefetch past rfi */
+#endif
+_ASM_NOKPROBE_SYMBOL(fast_exception_return)
+
+/* aargh, a nonrecoverable interrupt, panic */
+/* aargh, we don't know which trap this is */
+3:
+	li	r10,-1
+	stw	r10,_TRAP(r11)
+	prepare_transfer_to_handler
+	bl	unrecoverable_exception
+	trap	/* should not get here */
+
+	.globl interrupt_return
+interrupt_return:
+	lwz	r4,_MSR(r1)
+	addi	r3,r1,STACK_FRAME_OVERHEAD
+	andi.	r0,r4,MSR_PR
+	beq	.Lkernel_interrupt_return
+	bl	interrupt_exit_user_prepare
+	cmpwi	r3,0
+	bne-	.Lrestore_nvgprs
+
+.Lfast_user_interrupt_return:
+	lwz	r11,_NIP(r1)
+	lwz	r12,_MSR(r1)
+	mtspr	SPRN_SRR0,r11
+	mtspr	SPRN_SRR1,r12
+
+BEGIN_FTR_SECTION
+	stwcx.	r0,0,r1		/* to clear the reservation */
+FTR_SECTION_ELSE
+	lwarx	r0,0,r1
+ALT_FTR_SECTION_END_IFCLR(CPU_FTR_STCX_CHECKS_ADDRESS)
+
+	lwz	r3,_CCR(r1)
+	lwz	r4,_LINK(r1)
+	lwz	r5,_CTR(r1)
+	lwz	r6,_XER(r1)
+	li	r0,0
+
+	/*
+	 * Leaving a stale exception_marker on the stack can confuse
+	 * the reliable stack unwinder later on. Clear it.
+	 */
+	stw	r0,8(r1)
+	REST_4GPRS(7, r1)
+	REST_2GPRS(11, r1)
+
+	mtcr	r3
+	mtlr	r4
+	mtctr	r5
+	mtspr	SPRN_XER,r6
+
+	REST_4GPRS(2, r1)
+	REST_GPR(6, r1)
+	REST_GPR(0, r1)
+	REST_GPR(1, r1)
+	rfi
+#ifdef CONFIG_40x
+	b .	/* Prevent prefetch past rfi */
+#endif
+
+.Lrestore_nvgprs:
+	REST_NVGPRS(r1)
+	b	.Lfast_user_interrupt_return
+
+.Lkernel_interrupt_return:
+	bl	interrupt_exit_kernel_prepare
+
+.Lfast_kernel_interrupt_return:
+	cmpwi	cr1,r3,0
+	lwz	r11,_NIP(r1)
+	lwz	r12,_MSR(r1)
+	mtspr	SPRN_SRR0,r11
+	mtspr	SPRN_SRR1,r12
+
+BEGIN_FTR_SECTION
+	stwcx.	r0,0,r1		/* to clear the reservation */
+FTR_SECTION_ELSE
+	lwarx	r0,0,r1
+ALT_FTR_SECTION_END_IFCLR(CPU_FTR_STCX_CHECKS_ADDRESS)
+
+	lwz	r3,_LINK(r1)
+	lwz	r4,_CTR(r1)
+	lwz	r5,_XER(r1)
+	lwz	r6,_CCR(r1)
+	li	r0,0
+
+	REST_4GPRS(7, r1)
+	REST_2GPRS(11, r1)
+
+	mtlr	r3
+	mtctr	r4
+	mtspr	SPRN_XER,r5
+
+	/*
+	 * Leaving a stale exception_marker on the stack can confuse
+	 * the reliable stack unwinder later on. Clear it.
+	 */
+	stw	r0,8(r1)
+
+	REST_4GPRS(2, r1)
+
+	bne-	cr1,1f /* emulate stack store */
+	mtcr	r6
+	REST_GPR(6, r1)
+	REST_GPR(0, r1)
+	REST_GPR(1, r1)
+	rfi
+#ifdef CONFIG_40x
+	b .	/* Prevent prefetch past rfi */
+#endif
+
+1:	/*
+	 * Emulate stack store with update. New r1 value was already calculated
+	 * and updated in our interrupt regs by emulate_loadstore, but we can't
+	 * store the previous value of r1 to the stack before re-loading our
+	 * registers from it, otherwise they could be clobbered.  Use
+	 * SPRG Scratch0 as temporary storage to hold the store
+	 * data, as interrupts are disabled here so it won't be clobbered.
+	 */
+	mtcr	r6
+#ifdef CONFIG_BOOKE
+	mtspr	SPRN_SPRG_WSCRATCH0, r9
+#else
+	mtspr	SPRN_SPRG_SCRATCH0, r9
+#endif
+	addi	r9,r1,INT_FRAME_SIZE /* get original r1 */
+	REST_GPR(6, r1)
+	REST_GPR(0, r1)
+	REST_GPR(1, r1)
+	stw	r9,0(r1) /* perform store component of stwu */
+#ifdef CONFIG_BOOKE
+	mfspr	r9, SPRN_SPRG_RSCRATCH0
+#else
+	mfspr	r9, SPRN_SPRG_SCRATCH0
+#endif
+	rfi
+#ifdef CONFIG_40x
+	b .	/* Prevent prefetch past rfi */
+#endif
+_ASM_NOKPROBE_SYMBOL(interrupt_return)
+
+#if defined(CONFIG_4xx) || defined(CONFIG_BOOKE)
+>>>>>>> upstream/android-13
 
 /*
  * Returning from a critical interrupt in user mode doesn't need
@@ -1075,8 +1371,12 @@ exc_exit_restart_end:
 	REST_NVGPRS(r1);						\
 	lwz	r3,_MSR(r1);						\
 	andi.	r3,r3,MSR_PR;						\
+<<<<<<< HEAD
 	LOAD_MSR_KERNEL(r10,MSR_KERNEL);				\
 	bne	user_exc_return;					\
+=======
+	bne	interrupt_return;					\
+>>>>>>> upstream/android-13
 	lwz	r0,GPR0(r1);						\
 	lwz	r2,GPR2(r1);						\
 	REST_4GPRS(3, r1);						\
@@ -1085,7 +1385,10 @@ exc_exit_restart_end:
 	lwz	r11,_CTR(r1);						\
 	mtspr	SPRN_XER,r10;						\
 	mtctr	r11;							\
+<<<<<<< HEAD
 	PPC405_ERR77(0,r1);						\
+=======
+>>>>>>> upstream/android-13
 	stwcx.	r0,0,r1;		/* to clear the reservation */	\
 	lwz	r11,_LINK(r1);						\
 	mtlr	r11;							\
@@ -1105,7 +1408,10 @@ exc_exit_restart_end:
 	lwz	r10,GPR10(r1);						\
 	lwz	r11,GPR11(r1);						\
 	lwz	r1,GPR1(r1);						\
+<<<<<<< HEAD
 	PPC405_ERR77_SYNC;						\
+=======
+>>>>>>> upstream/android-13
 	exc_lvl_rfi;							\
 	b	.;		/* prevent prefetch past exc_lvl_rfi */
 
@@ -1146,11 +1452,14 @@ exc_exit_restart_end:
 #ifdef CONFIG_40x
 	.globl	ret_from_crit_exc
 ret_from_crit_exc:
+<<<<<<< HEAD
 	mfspr	r9,SPRN_SPRG_THREAD
 	lis	r10,saved_ksp_limit@ha;
 	lwz	r10,saved_ksp_limit@l(r10);
 	tovirt(r9,r9);
 	stw	r10,KSP_LIMIT(r9)
+=======
+>>>>>>> upstream/android-13
 	lis	r9,crit_srr0@ha;
 	lwz	r9,crit_srr0@l(r9);
 	lis	r10,crit_srr1@ha;
@@ -1158,11 +1467,16 @@ ret_from_crit_exc:
 	mtspr	SPRN_SRR0,r9;
 	mtspr	SPRN_SRR1,r10;
 	RET_FROM_EXC_LEVEL(SPRN_CSRR0, SPRN_CSRR1, PPC_RFCI)
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(ret_from_crit_exc)
+>>>>>>> upstream/android-13
 #endif /* CONFIG_40x */
 
 #ifdef CONFIG_BOOKE
 	.globl	ret_from_crit_exc
 ret_from_crit_exc:
+<<<<<<< HEAD
 	mfspr	r9,SPRN_SPRG_THREAD
 	lwz	r10,SAVED_KSP_LIMIT(r1)
 	stw	r10,KSP_LIMIT(r9)
@@ -1179,21 +1493,38 @@ ret_from_debug_exc:
 	CURRENT_THREAD_INFO(r10, r1)
 	lwz	r10,TI_PREEMPT(r10)
 	stw	r10,TI_PREEMPT(r9)
+=======
+	RESTORE_xSRR(SRR0,SRR1);
+	RESTORE_MMU_REGS;
+	RET_FROM_EXC_LEVEL(SPRN_CSRR0, SPRN_CSRR1, PPC_RFCI)
+_ASM_NOKPROBE_SYMBOL(ret_from_crit_exc)
+
+	.globl	ret_from_debug_exc
+ret_from_debug_exc:
+>>>>>>> upstream/android-13
 	RESTORE_xSRR(SRR0,SRR1);
 	RESTORE_xSRR(CSRR0,CSRR1);
 	RESTORE_MMU_REGS;
 	RET_FROM_EXC_LEVEL(SPRN_DSRR0, SPRN_DSRR1, PPC_RFDI)
+<<<<<<< HEAD
 
 	.globl	ret_from_mcheck_exc
 ret_from_mcheck_exc:
 	mfspr	r9,SPRN_SPRG_THREAD
 	lwz	r10,SAVED_KSP_LIMIT(r1)
 	stw	r10,KSP_LIMIT(r9)
+=======
+_ASM_NOKPROBE_SYMBOL(ret_from_debug_exc)
+
+	.globl	ret_from_mcheck_exc
+ret_from_mcheck_exc:
+>>>>>>> upstream/android-13
 	RESTORE_xSRR(SRR0,SRR1);
 	RESTORE_xSRR(CSRR0,CSRR1);
 	RESTORE_xSRR(DSRR0,DSRR1);
 	RESTORE_MMU_REGS;
 	RET_FROM_EXC_LEVEL(SPRN_MCSRR0, SPRN_MCSRR1, PPC_RFMCI)
+<<<<<<< HEAD
 #endif /* CONFIG_BOOKE */
 
 /*
@@ -1316,6 +1647,12 @@ ee_restarts:
 	.space	4
 	.previous
 
+=======
+_ASM_NOKPROBE_SYMBOL(ret_from_mcheck_exc)
+#endif /* CONFIG_BOOKE */
+#endif /* !(CONFIG_4xx || CONFIG_BOOKE) */
+
+>>>>>>> upstream/android-13
 /*
  * PROM code for specific machines follows.  Put it
  * here so it's easy to add arch-specific sections later.
@@ -1334,11 +1671,15 @@ _GLOBAL(enter_rtas)
 	lis	r6,1f@ha	/* physical return address for rtas */
 	addi	r6,r6,1f@l
 	tophys(r6,r6)
+<<<<<<< HEAD
 	tophys(r7,r1)
+=======
+>>>>>>> upstream/android-13
 	lwz	r8,RTASENTRY(r4)
 	lwz	r4,RTASBASE(r4)
 	mfmsr	r9
 	stw	r9,8(r1)
+<<<<<<< HEAD
 	LOAD_MSR_KERNEL(r0,MSR_KERNEL)
 	SYNC			/* disable interrupts so SRR0/1 */
 	MTMSRD(r0)		/* don't get trashed */
@@ -1363,4 +1704,31 @@ machine_check_in_rtas:
 	twi	31,0,0
 	/* XXX load up BATs and panic */
 
+=======
+	LOAD_REG_IMMEDIATE(r0,MSR_KERNEL)
+	mtmsr	r0	/* disable interrupts so SRR0/1 don't get trashed */
+	li	r9,MSR_KERNEL & ~(MSR_IR|MSR_DR)
+	mtlr	r6
+	stw	r1, THREAD + RTAS_SP(r2)
+	mtspr	SPRN_SRR0,r8
+	mtspr	SPRN_SRR1,r9
+	rfi
+1:
+	lis	r8, 1f@h
+	ori	r8, r8, 1f@l
+	LOAD_REG_IMMEDIATE(r9,MSR_KERNEL)
+	mtspr	SPRN_SRR0,r8
+	mtspr	SPRN_SRR1,r9
+	rfi			/* Reactivate MMU translation */
+1:
+	lwz	r8,INT_FRAME_SIZE+4(r1)	/* get return address */
+	lwz	r9,8(r1)	/* original msr value */
+	addi	r1,r1,INT_FRAME_SIZE
+	li	r0,0
+	stw	r0, THREAD + RTAS_SP(r2)
+	mtlr	r8
+	mtmsr	r9
+	blr			/* return to caller */
+_ASM_NOKPROBE_SYMBOL(enter_rtas)
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC_RTAS */

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Anton Ivanov (aivanov@{brocade.com,kot-begemot.co.uk})
  * Copyright (C) 2015 Thomas Meyer (thomas@m3y3r.de)
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
  * Copyright 2003 PathScale, Inc.
+<<<<<<< HEAD
  * Licensed under the GPL
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -25,14 +32,21 @@
 #include <linux/threads.h>
 #include <linux/tracehook.h>
 #include <asm/current.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <linux/uaccess.h>
 #include <as-layout.h>
 #include <kern_util.h>
 #include <os.h>
 #include <skas.h>
+<<<<<<< HEAD
 #include <timer-internal.h>
+=======
+#include <linux/time-internal.h>
+>>>>>>> upstream/android-13
 
 /*
  * This is a per-cpu array.  A processor only modifies its entry and it only
@@ -100,9 +114,16 @@ void interrupt_end(void)
 
 	if (need_resched())
 		schedule();
+<<<<<<< HEAD
 	if (test_thread_flag(TIF_SIGPENDING))
 		do_signal(regs);
 	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
+=======
+	if (test_thread_flag(TIF_SIGPENDING) ||
+	    test_thread_flag(TIF_NOTIFY_SIGNAL))
+		do_signal(regs);
+	if (test_thread_flag(TIF_NOTIFY_RESUME))
+>>>>>>> upstream/android-13
 		tracehook_notify_resume(regs);
 }
 
@@ -154,10 +175,17 @@ void fork_handler(void)
 }
 
 int copy_thread(unsigned long clone_flags, unsigned long sp,
+<<<<<<< HEAD
 		unsigned long arg, struct task_struct * p)
 {
 	void (*handler)(void);
 	int kthread = current->flags & PF_KTHREAD;
+=======
+		unsigned long arg, struct task_struct * p, unsigned long tls)
+{
+	void (*handler)(void);
+	int kthread = current->flags & (PF_KTHREAD | PF_IO_WORKER);
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	p->thread = (struct thread_struct) INIT_THREAD;
@@ -188,7 +216,11 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
 		 * Set a new TLS for the child thread?
 		 */
 		if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 			ret = arch_copy_tls(p);
+=======
+			ret = arch_set_tls(p, tls);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -203,11 +235,27 @@ void initial_thread_cb(void (*proc)(void *), void *arg)
 	kmalloc_ok = save_kmalloc_ok;
 }
 
+<<<<<<< HEAD
 void arch_cpu_idle(void)
 {
 	cpu_tasks[current_thread_info()->cpu].pid = os_getpid();
 	os_idle_sleep(UM_NSEC_PER_SEC);
 	local_irq_enable();
+=======
+void um_idle_sleep(void)
+{
+	if (time_travel_mode != TT_MODE_OFF)
+		time_travel_sleep();
+	else
+		os_idle_sleep();
+}
+
+void arch_cpu_idle(void)
+{
+	cpu_tasks[current_thread_info()->cpu].pid = os_getpid();
+	um_idle_sleep();
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 int __cant_sleep(void) {
@@ -300,6 +348,7 @@ static ssize_t sysemu_proc_write(struct file *file, const char __user *buf,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations sysemu_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= sysemu_proc_open,
@@ -307,6 +356,14 @@ static const struct file_operations sysemu_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= sysemu_proc_write,
+=======
+static const struct proc_ops sysemu_proc_ops = {
+	.proc_open	= sysemu_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= sysemu_proc_write,
+>>>>>>> upstream/android-13
 };
 
 int __init make_proc_sysemu(void)
@@ -315,7 +372,11 @@ int __init make_proc_sysemu(void)
 	if (!sysemu_supported)
 		return 0;
 
+<<<<<<< HEAD
 	ent = proc_create("sysemu", 0600, NULL, &sysemu_proc_fops);
+=======
+	ent = proc_create("sysemu", 0600, NULL, &sysemu_proc_ops);
+>>>>>>> upstream/android-13
 
 	if (ent == NULL)
 	{
@@ -362,7 +423,11 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long stack_page, sp, ip;
 	bool seen_sched = 0;
 
+<<<<<<< HEAD
 	if ((p == NULL) || (p == current) || (p->state == TASK_RUNNING))
+=======
+	if ((p == NULL) || (p == current) || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	stack_page = (unsigned long) task_stack_page(p);

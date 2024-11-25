@@ -10,7 +10,10 @@ extern void ppc_printk_progress(char *s, unsigned short hex);
 extern unsigned int rtas_data;
 extern unsigned long long memory_limit;
 extern bool init_mem_is_free;
+<<<<<<< HEAD
 extern unsigned long klimit;
+=======
+>>>>>>> upstream/android-13
 extern void *zalloc_maybe_bootmem(size_t size, gfp_t mask);
 
 struct device_node;
@@ -30,12 +33,20 @@ void setup_panic(void);
 #define ARCH_PANIC_TIMEOUT 180
 
 #ifdef CONFIG_PPC_PSERIES
+<<<<<<< HEAD
 extern void pseries_enable_reloc_on_exc(void);
+=======
+extern bool pseries_enable_reloc_on_exc(void);
+>>>>>>> upstream/android-13
 extern void pseries_disable_reloc_on_exc(void);
 extern void pseries_big_endian_exceptions(void);
 extern void pseries_little_endian_exceptions(void);
 #else
+<<<<<<< HEAD
 static inline void pseries_enable_reloc_on_exc(void) {}
+=======
+static inline bool pseries_enable_reloc_on_exc(void) { return false; }
+>>>>>>> upstream/android-13
 static inline void pseries_disable_reloc_on_exc(void) {}
 static inline void pseries_big_endian_exceptions(void) {}
 static inline void pseries_little_endian_exceptions(void) {}
@@ -58,7 +69,11 @@ void do_rfi_flush_fixups(enum l1d_flush_type types);
 #ifdef CONFIG_PPC_BARRIER_NOSPEC
 void setup_barrier_nospec(void);
 #else
+<<<<<<< HEAD
 static inline void setup_barrier_nospec(void) { };
+=======
+static inline void setup_barrier_nospec(void) { }
+>>>>>>> upstream/android-13
 #endif
 void do_uaccess_flush_fixups(enum l1d_flush_type types);
 void do_entry_flush_fixups(enum l1d_flush_type types);
@@ -68,13 +83,21 @@ extern bool barrier_nospec_enabled;
 #ifdef CONFIG_PPC_BARRIER_NOSPEC
 void do_barrier_nospec_fixups_range(bool enable, void *start, void *end);
 #else
+<<<<<<< HEAD
 static inline void do_barrier_nospec_fixups_range(bool enable, void *start, void *end) { };
+=======
+static inline void do_barrier_nospec_fixups_range(bool enable, void *start, void *end) { }
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_PPC_FSL_BOOK3E
 void setup_spectre_v2(void);
 #else
+<<<<<<< HEAD
 static inline void setup_spectre_v2(void) {};
+=======
+static inline void setup_spectre_v2(void) {}
+>>>>>>> upstream/android-13
 #endif
 void do_btb_flush_fixups(void);
 

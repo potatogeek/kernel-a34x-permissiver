@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic qlcnic NIC Driver
  * Copyright (c) 2009-2013 QLogic Corporation
  *
  * See LICENSE.qlcnic for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic qlcnic NIC Driver
+ * Copyright (c) 2009-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QLCNIC_H_
@@ -418,7 +425,11 @@ struct qlcnic_83xx_dump_template_hdr {
 	u32	saved_state[16];
 	u32	cap_sizes[8];
 	u32	ocm_wnd_reg[16];
+<<<<<<< HEAD
 	u32	rsvd[0];
+=======
+	u32	rsvd[];
+>>>>>>> upstream/android-13
 };
 
 struct qlcnic_82xx_dump_template_hdr {
@@ -436,7 +447,11 @@ struct qlcnic_82xx_dump_template_hdr {
 	u32	cap_sizes[8];
 	u32	rsvd[7];
 	u32	capabilities;
+<<<<<<< HEAD
 	u32	rsvd1[0];
+=======
+	u32	rsvd1[];
+>>>>>>> upstream/android-13
 };
 
 #define QLC_PEX_DMA_READ_SIZE	(PAGE_SIZE * 16)
@@ -497,7 +512,11 @@ struct qlcnic_hardware_context {
 	u16 board_type;
 	u16 supported_type;
 
+<<<<<<< HEAD
 	u16 link_speed;
+=======
+	u32 link_speed;
+>>>>>>> upstream/android-13
 	u16 link_duplex;
 	u16 link_autoneg;
 	u16 module_type;
@@ -536,8 +555,11 @@ struct qlcnic_hardware_context {
 	u8 extend_lb_time;
 	u8 phys_port_id[ETH_ALEN];
 	u8 lb_mode;
+<<<<<<< HEAD
 	u8 vxlan_port_count;
 	u16 vxlan_port;
+=======
+>>>>>>> upstream/android-13
 	struct device *hwmon_dev;
 	u32 post_mode;
 	bool run_post;
@@ -740,7 +762,11 @@ struct qlcnic_hostrq_rx_ctx {
 	   The following is packed:
 	   - N hostrq_rds_rings
 	   - N hostrq_sds_rings */
+<<<<<<< HEAD
 	char data[0];
+=======
+	char data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct qlcnic_cardrsp_rds_ring{
@@ -769,7 +795,11 @@ struct qlcnic_cardrsp_rx_ctx {
 	   The following is packed:
 	   - N cardrsp_rds_rings
 	   - N cardrs_sds_rings */
+<<<<<<< HEAD
 	char data[0];
+=======
+	char data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define SIZEOF_HOSTRQ_RX(HOSTRQ_RX, rds_rings, sds_rings)	\
@@ -1026,9 +1056,12 @@ struct qlcnic_ipaddr {
 #define QLCNIC_HAS_PHYS_PORT_ID		0x40000
 #define QLCNIC_TSS_RSS			0x80000
 
+<<<<<<< HEAD
 #define QLCNIC_ADD_VXLAN_PORT		0x100000
 #define QLCNIC_DEL_VXLAN_PORT		0x200000
 
+=======
+>>>>>>> upstream/android-13
 #define QLCNIC_VLAN_FILTERING		0x800000
 
 #define QLCNIC_IS_MSI_FAMILY(adapter) \
@@ -1700,6 +1733,11 @@ int qlcnic_init_pci_info(struct qlcnic_adapter *);
 int qlcnic_set_default_offload_settings(struct qlcnic_adapter *);
 int qlcnic_reset_npar_config(struct qlcnic_adapter *);
 int qlcnic_set_eswitch_port_config(struct qlcnic_adapter *);
+<<<<<<< HEAD
+=======
+int qlcnic_set_vxlan_port(struct qlcnic_adapter *adapter, u16 port);
+int qlcnic_set_vxlan_parsing(struct qlcnic_adapter *adapter, u16 port);
+>>>>>>> upstream/android-13
 int qlcnic_83xx_configure_opmode(struct qlcnic_adapter *adapter);
 int qlcnic_read_mac_addr(struct qlcnic_adapter *);
 int qlcnic_setup_netdev(struct qlcnic_adapter *, struct net_device *, int);
@@ -1880,12 +1918,15 @@ static inline void qlcnic_write_crb(struct qlcnic_adapter *adapter, char *buf,
 	adapter->ahw->hw_ops->write_crb(adapter, buf, offset, size);
 }
 
+<<<<<<< HEAD
 static inline int qlcnic_hw_write_wx_2M(struct qlcnic_adapter *adapter,
 					ulong off, u32 data)
 {
 	return adapter->ahw->hw_ops->write_reg(adapter, off, data);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int qlcnic_get_mac_address(struct qlcnic_adapter *adapter,
 					 u8 *mac, u8 function)
 {

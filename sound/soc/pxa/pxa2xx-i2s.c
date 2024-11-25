@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pxa2xx-i2s.c  --  ALSA Soc Audio Layer
  *
  * Copyright 2005 Wolfson Microelectronics PLC.
  * Author: Liam Girdwood
  *         lrg@slimlogic.co.uk
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -99,13 +106,22 @@ static struct snd_dmaengine_dai_dma_data pxa2xx_i2s_pcm_stereo_in = {
 static int pxa2xx_i2s_startup(struct snd_pcm_substream *substream,
 			      struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(clk_i2s))
 		return PTR_ERR(clk_i2s);
 
+<<<<<<< HEAD
 	if (!cpu_dai->active)
+=======
+	if (!snd_soc_dai_active(cpu_dai))
+>>>>>>> upstream/android-13
 		SACR0 = 0;
 
 	return 0;
@@ -265,7 +281,11 @@ static void pxa2xx_i2s_shutdown(struct snd_pcm_substream *substream,
 }
 
 #ifdef CONFIG_PM
+<<<<<<< HEAD
 static int pxa2xx_i2s_suspend(struct snd_soc_dai *dai)
+=======
+static int pxa2xx_soc_pcm_suspend(struct snd_soc_component *component)
+>>>>>>> upstream/android-13
 {
 	/* store registers */
 	pxa_i2s.sacr0 = SACR0;
@@ -279,7 +299,11 @@ static int pxa2xx_i2s_suspend(struct snd_soc_dai *dai)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pxa2xx_i2s_resume(struct snd_soc_dai *dai)
+=======
+static int pxa2xx_soc_pcm_resume(struct snd_soc_component *component)
+>>>>>>> upstream/android-13
 {
 	pxa_i2s_wait();
 
@@ -294,8 +318,13 @@ static int pxa2xx_i2s_resume(struct snd_soc_dai *dai)
 }
 
 #else
+<<<<<<< HEAD
 #define pxa2xx_i2s_suspend	NULL
 #define pxa2xx_i2s_resume	NULL
+=======
+#define pxa2xx_soc_pcm_suspend	NULL
+#define pxa2xx_soc_pcm_resume	NULL
+>>>>>>> upstream/android-13
 #endif
 
 static int pxa2xx_i2s_probe(struct snd_soc_dai *dai)
@@ -346,8 +375,11 @@ static const struct snd_soc_dai_ops pxa_i2s_dai_ops = {
 static struct snd_soc_dai_driver pxa_i2s_dai = {
 	.probe = pxa2xx_i2s_probe,
 	.remove = pxa2xx_i2s_remove,
+<<<<<<< HEAD
 	.suspend = pxa2xx_i2s_suspend,
 	.resume = pxa2xx_i2s_resume,
+=======
+>>>>>>> upstream/android-13
 	.playback = {
 		.channels_min = 2,
 		.channels_max = 2,
@@ -359,14 +391,30 @@ static struct snd_soc_dai_driver pxa_i2s_dai = {
 		.rates = PXA2XX_I2S_RATES,
 		.formats = SNDRV_PCM_FMTBIT_S16_LE,},
 	.ops = &pxa_i2s_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver pxa_i2s_component = {
 	.name		= "pxa-i2s",
+<<<<<<< HEAD
 	.ops		= &pxa2xx_pcm_ops,
 	.pcm_new	= pxa2xx_soc_pcm_new,
 	.pcm_free	= pxa2xx_pcm_free_dma_buffers,
+=======
+	.pcm_construct	= pxa2xx_soc_pcm_new,
+	.open		= pxa2xx_soc_pcm_open,
+	.close		= pxa2xx_soc_pcm_close,
+	.hw_params	= pxa2xx_soc_pcm_hw_params,
+	.prepare	= pxa2xx_soc_pcm_prepare,
+	.trigger	= pxa2xx_soc_pcm_trigger,
+	.pointer	= pxa2xx_soc_pcm_pointer,
+	.suspend	= pxa2xx_soc_pcm_suspend,
+	.resume		= pxa2xx_soc_pcm_resume,
+>>>>>>> upstream/android-13
 };
 
 static int pxa2xx_i2s_drv_probe(struct platform_device *pdev)

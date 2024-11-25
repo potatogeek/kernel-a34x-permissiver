@@ -575,6 +575,15 @@ static u_short maxfmode, chipset;
 #define downx(x, v)	((v) & -(x))
 #define modx(x, v)	((v) & ((x) - 1))
 
+<<<<<<< HEAD
+=======
+/*
+ * FIXME: Use C variants of the code marked with #ifdef __mc68000__
+ * in the driver. It shouldn't negatively affect the performance and
+ * is required for APUS support (once it is re-added to the kernel).
+ * Needs to be tested on the hardware though..
+ */
+>>>>>>> upstream/android-13
 /* if x1 is not a constant, this macro won't make real sense :-) */
 #ifdef __mc68000__
 #define DIVUL(x1, x2) ({int res; asm("divul %1,%2,%3": "=d" (res): \
@@ -1855,8 +1864,11 @@ static int ami_get_var_cursorinfo(struct fb_var_cursorinfo *var,
 	var->yspot = par->crsr.spot_y;
 	if (size > var->height * var->width)
 		return -ENAMETOOLONG;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, data, size))
 		return -EFAULT;
+=======
+>>>>>>> upstream/android-13
 	delta = 1 << par->crsr.fmode;
 	lspr = lofsprite + (delta << 1);
 	if (par->bplcon0 & BPC0_LACE)
@@ -1886,6 +1898,10 @@ static int ami_get_var_cursorinfo(struct fb_var_cursorinfo *var,
 				 | ((datawords >> 15) & 1));
 			datawords <<= 1;
 #endif
+<<<<<<< HEAD
+=======
+			/* FIXME: check the return value + test the change */
+>>>>>>> upstream/android-13
 			put_user(color, data++);
 		}
 		if (bits > 0) {
@@ -1935,8 +1951,11 @@ static int ami_set_var_cursorinfo(struct fb_var_cursorinfo *var,
 		return -EINVAL;
 	if (!var->height)
 		return -EINVAL;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, data, var->width * var->height))
 		return -EFAULT;
+=======
+>>>>>>> upstream/android-13
 	delta = 1 << fmode;
 	lofsprite = shfsprite = (u_short *)spritememory;
 	lspr = lofsprite + (delta << 1);
@@ -1956,6 +1975,10 @@ static int ami_set_var_cursorinfo(struct fb_var_cursorinfo *var,
 		bits = 16; words = delta; datawords = 0;
 		for (width = (short)var->width - 1; width >= 0; width--) {
 			unsigned long tdata = 0;
+<<<<<<< HEAD
+=======
+			/* FIXME: check the return value + test the change */
+>>>>>>> upstream/android-13
 			get_user(tdata, data);
 			data++;
 #ifdef __mc68000__
@@ -3493,7 +3516,11 @@ static irqreturn_t amifb_interrupt(int irq, void *dev_id)
 }
 
 
+<<<<<<< HEAD
 static struct fb_ops amifb_ops = {
+=======
+static const struct fb_ops amifb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= amifb_check_var,
 	.fb_set_par	= amifb_set_par,
@@ -3554,10 +3581,15 @@ static int __init amifb_probe(struct platform_device *pdev)
 	custom.dmacon = DMAF_ALL | DMAF_MASTER;
 
 	info = framebuffer_alloc(sizeof(struct amifb_par), &pdev->dev);
+<<<<<<< HEAD
 	if (!info) {
 		dev_err(&pdev->dev, "framebuffer_alloc failed\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	strcpy(info->fix.id, "Amiga ");
 	info->fix.visual = FB_VISUAL_PSEUDOCOLOR;
@@ -3734,7 +3766,11 @@ default_chipset:
 	if (err)
 		goto free_irq;
 
+<<<<<<< HEAD
 	dev_set_drvdata(&pdev->dev, info);
+=======
+	platform_set_drvdata(pdev, info);
+>>>>>>> upstream/android-13
 
 	err = register_framebuffer(info);
 	if (err)
@@ -3762,7 +3798,11 @@ release:
 
 static int __exit amifb_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct fb_info *info = dev_get_drvdata(&pdev->dev);
+=======
+	struct fb_info *info = platform_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 
 	unregister_framebuffer(info);
 	fb_dealloc_cmap(&info->cmap);

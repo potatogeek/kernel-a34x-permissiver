@@ -270,7 +270,11 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
 	 */
 	r = ll_pthread_mutex_lock(mutex);
 	if (r)
+<<<<<<< HEAD
 		lock_release(&__get_lock(mutex)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+		lock_release(&__get_lock(mutex)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -284,7 +288,11 @@ int pthread_mutex_trylock(pthread_mutex_t *mutex)
 	lock_acquire(&__get_lock(mutex)->dep_map, 0, 1, 0, 1, NULL, (unsigned long)_RET_IP_);
 	r = ll_pthread_mutex_trylock(mutex);
 	if (r)
+<<<<<<< HEAD
 		lock_release(&__get_lock(mutex)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+		lock_release(&__get_lock(mutex)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -295,7 +303,11 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
 
 	try_init_preload();
 
+<<<<<<< HEAD
 	lock_release(&__get_lock(mutex)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+	lock_release(&__get_lock(mutex)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 	/*
 	 * Just like taking a lock, only in reverse!
 	 *
@@ -355,7 +367,11 @@ int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock)
 	lock_acquire(&__get_lock(rwlock)->dep_map, 0, 0, 2, 1, NULL, (unsigned long)_RET_IP_);
 	r = ll_pthread_rwlock_rdlock(rwlock);
 	if (r)
+<<<<<<< HEAD
 		lock_release(&__get_lock(rwlock)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+		lock_release(&__get_lock(rwlock)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -369,7 +385,11 @@ int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock)
 	lock_acquire(&__get_lock(rwlock)->dep_map, 0, 1, 2, 1, NULL, (unsigned long)_RET_IP_);
 	r = ll_pthread_rwlock_tryrdlock(rwlock);
 	if (r)
+<<<<<<< HEAD
 		lock_release(&__get_lock(rwlock)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+		lock_release(&__get_lock(rwlock)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -383,7 +403,11 @@ int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock)
 	lock_acquire(&__get_lock(rwlock)->dep_map, 0, 1, 0, 1, NULL, (unsigned long)_RET_IP_);
 	r = ll_pthread_rwlock_trywrlock(rwlock);
 	if (r)
+<<<<<<< HEAD
                 lock_release(&__get_lock(rwlock)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+		lock_release(&__get_lock(rwlock)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -397,7 +421,11 @@ int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock)
 	lock_acquire(&__get_lock(rwlock)->dep_map, 0, 0, 0, 1, NULL, (unsigned long)_RET_IP_);
 	r = ll_pthread_rwlock_wrlock(rwlock);
 	if (r)
+<<<<<<< HEAD
 		lock_release(&__get_lock(rwlock)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+		lock_release(&__get_lock(rwlock)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -408,7 +436,11 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock)
 
         init_preload();
 
+<<<<<<< HEAD
 	lock_release(&__get_lock(rwlock)->dep_map, 0, (unsigned long)_RET_IP_);
+=======
+	lock_release(&__get_lock(rwlock)->dep_map, (unsigned long)_RET_IP_);
+>>>>>>> upstream/android-13
 	r = ll_pthread_rwlock_unlock(rwlock);
 	if (r)
 		lock_acquire(&__get_lock(rwlock)->dep_map, 0, 0, 0, 1, NULL, (unsigned long)_RET_IP_);

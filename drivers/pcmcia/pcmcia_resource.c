@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PCMCIA 16-bit resource management functions
  *
@@ -7,11 +11,14 @@
  *
  * Copyright (C) 1999	     David A. Hinds
  * Copyright (C) 2004-2010   Dominik Brodowski
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -148,7 +155,11 @@ static int alloc_io_space(struct pcmcia_socket *s, struct resource *res,
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pcmcia_access_config() - read or write card configuration registers
  *
  * pcmcia_access_config() reads and writes configuration registers in
@@ -188,7 +199,11 @@ static int pcmcia_access_config(struct pcmcia_device *p_dev,
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pcmcia_read_config_byte() - read a byte from a card configuration register
  *
  * pcmcia_read_config_byte() reads a byte from a configuration register in
@@ -201,7 +216,11 @@ int pcmcia_read_config_byte(struct pcmcia_device *p_dev, off_t where, u8 *val)
 EXPORT_SYMBOL(pcmcia_read_config_byte);
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pcmcia_write_config_byte() - write a byte to a card configuration register
  *
  * pcmcia_write_config_byte() writes a byte to a configuration register in
@@ -284,7 +303,11 @@ int pcmcia_fixup_iowidth(struct pcmcia_device *p_dev)
 		io_on.stop = s->io[i].res->end;
 
 		s->ops->set_io_map(s, &io_off);
+<<<<<<< HEAD
 		mdelay(40);
+=======
+		msleep(40);
+>>>>>>> upstream/android-13
 		s->ops->set_io_map(s, &io_on);
 	}
 unlock:
@@ -567,7 +590,11 @@ int pcmcia_enable_device(struct pcmcia_device *p_dev)
 			!(flags & CONF_ENABLE_PULSE_IRQ))
 			option |= COR_LEVEL_REQ;
 		pcmcia_write_cis_mem(s, 1, (base + CISREG_COR)>>1, 1, &option);
+<<<<<<< HEAD
 		mdelay(40);
+=======
+		msleep(40);
+>>>>>>> upstream/android-13
 	}
 	if (p_dev->config_regs & PRESENT_STATUS)
 		pcmcia_write_cis_mem(s, 1, (base + CISREG_CCSR)>>1, 1, &status);
@@ -724,7 +751,12 @@ static irqreturn_t test_action(int cpl, void *dev_id)
 
 /**
  * pcmcia_setup_isa_irq() - determine whether an ISA IRQ can be used
+<<<<<<< HEAD
  * @p_dev - the associated PCMCIA device
+=======
+ * @p_dev: the associated PCMCIA device
+ * @type:  IRQ type (flags)
+>>>>>>> upstream/android-13
  *
  * locking note: must be called with ops_mutex locked.
  */
@@ -789,7 +821,11 @@ void pcmcia_cleanup_irq(struct pcmcia_socket *s)
 
 /**
  * pcmcia_setup_irq() - determine IRQ to be used for device
+<<<<<<< HEAD
  * @p_dev - the associated PCMCIA device
+=======
+ * @p_dev: the associated PCMCIA device
+>>>>>>> upstream/android-13
  *
  * locking note: must be called with ops_mutex locked.
  */

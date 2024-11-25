@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *                   Uros Bizjak <uros@kss-loka.si>
@@ -5,6 +9,7 @@
  *  Routines for control of 8-bit SoundBlaster cards and clones
  *  Please note: I don't have access to old SB8 soundcards.
  *
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * --
  *
  * Thu Apr 29 20:36:17 BST 1999 George David Morrison <gdm@gedamo.demon.co.uk>
@@ -130,13 +137,21 @@ static int snd_sb8_playback_prepare(struct snd_pcm_substream *substream)
 			chip->playback_format = SB_DSP_HI_OUTPUT_AUTO;
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SB_HW_201:
 		if (rate > 23000) {
 			chip->playback_format = SB_DSP_HI_OUTPUT_AUTO;
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SB_HW_20:
 		chip->playback_format = SB_DSP_LO_OUTPUT_AUTO;
 		break;
@@ -239,6 +254,7 @@ static int snd_sb8_playback_trigger(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_sb8_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *hw_params)
 {
@@ -251,6 +267,8 @@ static int snd_sb8_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_sb8_capture_prepare(struct snd_pcm_substream *substream)
 {
 	unsigned long flags;
@@ -287,7 +305,11 @@ static int snd_sb8_capture_prepare(struct snd_pcm_substream *substream)
 			chip->capture_format = SB_DSP_HI_INPUT_AUTO;
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SB_HW_20:
 		chip->capture_format = SB_DSP_LO_INPUT_AUTO;
 		break;
@@ -387,7 +409,11 @@ irqreturn_t snd_sb8dsp_interrupt(struct snd_sb *chip)
 	case SB_MODE_PLAYBACK_16:	/* ok.. playback is active */
 		if (chip->hardware != SB_HW_JAZZ16)
 			break;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SB_MODE_PLAYBACK_8:
 		substream = chip->playback_substream;
 		if (chip->playback_format == SB_DSP_OUTPUT)
@@ -397,7 +423,11 @@ irqreturn_t snd_sb8dsp_interrupt(struct snd_sb *chip)
 	case SB_MODE_CAPTURE_16:
 		if (chip->hardware != SB_HW_JAZZ16)
 			break;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SB_MODE_CAPTURE_8:
 		substream = chip->capture_substream;
 		if (chip->capture_format == SB_DSP_INPUT)
@@ -532,6 +562,10 @@ static int snd_sb8_open(struct snd_pcm_substream *substream)
 		} else {
 			runtime->hw.rate_max = 15000;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -572,9 +606,12 @@ static int snd_sb8_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_sb8_playback_ops = {
 	.open =			snd_sb8_open,
 	.close =		snd_sb8_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
 	.hw_params =		snd_sb8_hw_params,
 	.hw_free =		snd_sb8_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =		snd_sb8_playback_prepare,
 	.trigger =		snd_sb8_playback_trigger,
 	.pointer =		snd_sb8_playback_pointer,
@@ -583,9 +620,12 @@ static const struct snd_pcm_ops snd_sb8_playback_ops = {
 static const struct snd_pcm_ops snd_sb8_capture_ops = {
 	.open =			snd_sb8_open,
 	.close =		snd_sb8_close,
+<<<<<<< HEAD
 	.ioctl =		snd_pcm_lib_ioctl,
 	.hw_params =		snd_sb8_hw_params,
 	.hw_free =		snd_sb8_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =		snd_sb8_capture_prepare,
 	.trigger =		snd_sb8_capture_trigger,
 	.pointer =		snd_sb8_capture_pointer,
@@ -598,7 +638,12 @@ int snd_sb8dsp_pcm(struct snd_sb *chip, int device)
 	int err;
 	size_t max_prealloc = 64 * 1024;
 
+<<<<<<< HEAD
 	if ((err = snd_pcm_new(card, "SB8 DSP", device, 1, 1, &pcm)) < 0)
+=======
+	err = snd_pcm_new(card, "SB8 DSP", device, 1, 1, &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	sprintf(pcm->name, "DSP v%i.%i", chip->version >> 8, chip->version & 0xff);
 	pcm->info_flags = SNDRV_PCM_INFO_HALF_DUPLEX;
@@ -609,9 +654,14 @@ int snd_sb8dsp_pcm(struct snd_sb *chip, int device)
 
 	if (chip->dma8 > 3 || chip->dma16 >= 0)
 		max_prealloc = 128 * 1024;
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_isa_data(),
 					      64*1024, max_prealloc);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       card->dev, 64*1024, max_prealloc);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -8,6 +12,7 @@
  *
  * This abstraction carries sctp events to the ULP (sockets).
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -116,12 +123,21 @@ int sctp_ulpq_tail_data(struct sctp_ulpq *ulpq, struct sctp_chunk *chunk,
 	event = sctp_ulpq_reasm(ulpq, event);
 
 	/* Do ordering if needed.  */
+<<<<<<< HEAD
 	if ((event) && (event->msg_flags & MSG_EOR)) {
+=======
+	if (event) {
+>>>>>>> upstream/android-13
 		/* Create a temporary list to collect chunks on.  */
 		skb_queue_head_init(&temp);
 		__skb_queue_tail(&temp, sctp_event2skb(event));
 
+<<<<<<< HEAD
 		event = sctp_ulpq_order(ulpq, event);
+=======
+		if (event->msg_flags & MSG_EOR)
+			event = sctp_ulpq_order(ulpq, event);
+>>>>>>> upstream/android-13
 	}
 
 	/* Send event to the ULP.  'event' is the sctp_ulpevent for
@@ -129,7 +145,11 @@ int sctp_ulpq_tail_data(struct sctp_ulpq *ulpq, struct sctp_chunk *chunk,
 	 */
 	if (event) {
 		event_eor = (event->msg_flags & MSG_EOR) ? 1 : 0;
+<<<<<<< HEAD
 		sctp_ulpq_tail_event(ulpq, event);
+=======
+		sctp_ulpq_tail_event(ulpq, &temp);
+>>>>>>> upstream/android-13
 	}
 
 	return event_eor;
@@ -193,6 +213,7 @@ static int sctp_ulpq_clear_pd(struct sctp_ulpq *ulpq)
 	return sctp_clear_pd(ulpq->asoc->base.sk, ulpq->asoc);
 }
 
+<<<<<<< HEAD
 /* If the SKB of 'event' is on a list, it is the first such member
  * of that list.
  */
@@ -205,6 +226,19 @@ int sctp_ulpq_tail_event(struct sctp_ulpq *ulpq, struct sctp_ulpevent *event)
 	int clear_pd = 0;
 
 	skb_list = (struct sk_buff_head *) skb->prev;
+=======
+int sctp_ulpq_tail_event(struct sctp_ulpq *ulpq, struct sk_buff_head *skb_list)
+{
+	struct sock *sk = ulpq->asoc->base.sk;
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_ulpevent *event;
+	struct sk_buff_head *queue;
+	struct sk_buff *skb;
+	int clear_pd = 0;
+
+	skb = __skb_peek(skb_list);
+	event = sctp_skb2event(skb);
+>>>>>>> upstream/android-13
 
 	/* If the socket is just going to throw this away, do not
 	 * even try to deliver it.
@@ -219,7 +253,11 @@ int sctp_ulpq_tail_event(struct sctp_ulpq *ulpq, struct sctp_ulpevent *event)
 		sk_incoming_cpu_update(sk);
 	}
 	/* Check if the user wishes to receive this event.  */
+<<<<<<< HEAD
 	if (!sctp_ulpevent_is_enabled(event, &sp->subscribe))
+=======
+	if (!sctp_ulpevent_is_enabled(event, ulpq->asoc->subscribe))
+>>>>>>> upstream/android-13
 		goto out_free;
 
 	/* If we are in partial delivery mode, post to the lobby until
@@ -257,6 +295,7 @@ int sctp_ulpq_tail_event(struct sctp_ulpq *ulpq, struct sctp_ulpevent *event)
 		}
 	}
 
+<<<<<<< HEAD
 	/* If we are harvesting multiple skbs they will be
 	 * collected on a list.
 	 */
@@ -264,6 +303,9 @@ int sctp_ulpq_tail_event(struct sctp_ulpq *ulpq, struct sctp_ulpevent *event)
 		skb_queue_splice_tail_init(skb_list, queue);
 	else
 		__skb_queue_tail(queue, skb);
+=======
+	skb_queue_splice_tail_init(skb_list, queue);
+>>>>>>> upstream/android-13
 
 	/* Did we just complete partial delivery and need to get
 	 * rolling again?  Move pending data to the receive
@@ -459,7 +501,11 @@ static struct sctp_ulpevent *sctp_ulpq_retrieve_reassembled(struct sctp_ulpq *ul
 			 * element in the queue, then count it towards
 			 * possible PD.
 			 */
+<<<<<<< HEAD
 			if (pos == ulpq->reasm.next) {
+=======
+			if (skb_queue_is_first(&ulpq->reasm, pos)) {
+>>>>>>> upstream/android-13
 			    pd_first = pos;
 			    pd_last = pos;
 			    pd_len = pos->len;
@@ -507,10 +553,16 @@ static struct sctp_ulpevent *sctp_ulpq_retrieve_reassembled(struct sctp_ulpq *ul
 		cevent = sctp_skb2event(pd_first);
 		pd_point = sctp_sk(asoc->base.sk)->pd_point;
 		if (pd_point && pd_point <= pd_len) {
+<<<<<<< HEAD
 			retval = sctp_make_reassembled_event(sock_net(asoc->base.sk),
 							     &ulpq->reasm,
 							     pd_first,
 							     pd_last);
+=======
+			retval = sctp_make_reassembled_event(asoc->base.net,
+							     &ulpq->reasm,
+							     pd_first, pd_last);
+>>>>>>> upstream/android-13
 			if (retval)
 				sctp_ulpq_set_pd(ulpq);
 		}
@@ -518,7 +570,11 @@ static struct sctp_ulpevent *sctp_ulpq_retrieve_reassembled(struct sctp_ulpq *ul
 done:
 	return retval;
 found:
+<<<<<<< HEAD
 	retval = sctp_make_reassembled_event(sock_net(ulpq->asoc->base.sk),
+=======
+	retval = sctp_make_reassembled_event(ulpq->asoc->base.net,
+>>>>>>> upstream/android-13
 					     &ulpq->reasm, first_frag, pos);
 	if (retval)
 		retval->msg_flags |= MSG_EOR;
@@ -584,8 +640,13 @@ static struct sctp_ulpevent *sctp_ulpq_retrieve_partial(struct sctp_ulpq *ulpq)
 	 * further.
 	 */
 done:
+<<<<<<< HEAD
 	retval = sctp_make_reassembled_event(sock_net(ulpq->asoc->base.sk),
 					&ulpq->reasm, first_frag, last_frag);
+=======
+	retval = sctp_make_reassembled_event(ulpq->asoc->base.net, &ulpq->reasm,
+					     first_frag, last_frag);
+>>>>>>> upstream/android-13
 	if (retval && is_last)
 		retval->msg_flags |= MSG_EOR;
 
@@ -685,8 +746,13 @@ static struct sctp_ulpevent *sctp_ulpq_retrieve_first(struct sctp_ulpq *ulpq)
 	 * further.
 	 */
 done:
+<<<<<<< HEAD
 	retval = sctp_make_reassembled_event(sock_net(ulpq->asoc->base.sk),
 					&ulpq->reasm, first_frag, last_frag);
+=======
+	retval = sctp_make_reassembled_event(ulpq->asoc->base.net, &ulpq->reasm,
+					     first_frag, last_frag);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -738,12 +804,16 @@ void sctp_ulpq_reasm_flushtsn(struct sctp_ulpq *ulpq, __u32 fwd_tsn)
 static void sctp_ulpq_reasm_drain(struct sctp_ulpq *ulpq)
 {
 	struct sctp_ulpevent *event = NULL;
+<<<<<<< HEAD
 	struct sk_buff_head temp;
+=======
+>>>>>>> upstream/android-13
 
 	if (skb_queue_empty(&ulpq->reasm))
 		return;
 
 	while ((event = sctp_ulpq_retrieve_reassembled(ulpq)) != NULL) {
+<<<<<<< HEAD
 		/* Do ordering if needed.  */
 		if ((event) && (event->msg_flags & MSG_EOR)) {
 			skb_queue_head_init(&temp);
@@ -751,18 +821,36 @@ static void sctp_ulpq_reasm_drain(struct sctp_ulpq *ulpq)
 
 			event = sctp_ulpq_order(ulpq, event);
 		}
+=======
+		struct sk_buff_head temp;
+
+		skb_queue_head_init(&temp);
+		__skb_queue_tail(&temp, sctp_event2skb(event));
+
+		/* Do ordering if needed.  */
+		if (event->msg_flags & MSG_EOR)
+			event = sctp_ulpq_order(ulpq, event);
+>>>>>>> upstream/android-13
 
 		/* Send event to the ULP.  'event' is the
 		 * sctp_ulpevent for  very first SKB on the  temp' list.
 		 */
 		if (event)
+<<<<<<< HEAD
 			sctp_ulpq_tail_event(ulpq, event);
+=======
+			sctp_ulpq_tail_event(ulpq, &temp);
+>>>>>>> upstream/android-13
 	}
 }
 
 
 /* Helper function to gather skbs that have possibly become
+<<<<<<< HEAD
  * ordered by an an incoming chunk.
+=======
+ * ordered by an incoming chunk.
+>>>>>>> upstream/android-13
  */
 static void sctp_ulpq_retrieve_ordered(struct sctp_ulpq *ulpq,
 					      struct sctp_ulpevent *event)
@@ -956,7 +1044,11 @@ static void sctp_ulpq_reap_ordered(struct sctp_ulpq *ulpq, __u16 sid)
 	if (event) {
 		/* see if we have more ordered that we can deliver */
 		sctp_ulpq_retrieve_ordered(ulpq, event);
+<<<<<<< HEAD
 		sctp_ulpq_tail_event(ulpq, event);
+=======
+		sctp_ulpq_tail_event(ulpq, &temp);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1082,7 +1174,15 @@ void sctp_ulpq_partial_delivery(struct sctp_ulpq *ulpq,
 		event = sctp_ulpq_retrieve_first(ulpq);
 		/* Send event to the ULP.   */
 		if (event) {
+<<<<<<< HEAD
 			sctp_ulpq_tail_event(ulpq, event);
+=======
+			struct sk_buff_head temp;
+
+			skb_queue_head_init(&temp);
+			__skb_queue_tail(&temp, sctp_event2skb(event));
+			sctp_ulpq_tail_event(ulpq, &temp);
+>>>>>>> upstream/android-13
 			sctp_ulpq_set_pd(ulpq);
 			return;
 		}
@@ -1106,7 +1206,12 @@ void sctp_ulpq_renege(struct sctp_ulpq *ulpq, struct sctp_chunk *chunk,
 			freed += sctp_ulpq_renege_frags(ulpq, needed - freed);
 	}
 	/* If able to free enough room, accept this chunk. */
+<<<<<<< HEAD
 	if (freed >= needed) {
+=======
+	if (sk_rmem_schedule(asoc->base.sk, chunk->skb, needed) &&
+	    freed >= needed) {
+>>>>>>> upstream/android-13
 		int retval = sctp_ulpq_tail_data(ulpq, chunk, gfp);
 		/*
 		 * Enter partial delivery if chunk has not been
@@ -1129,16 +1234,26 @@ void sctp_ulpq_renege(struct sctp_ulpq *ulpq, struct sctp_chunk *chunk,
 void sctp_ulpq_abort_pd(struct sctp_ulpq *ulpq, gfp_t gfp)
 {
 	struct sctp_ulpevent *ev = NULL;
+<<<<<<< HEAD
 	struct sock *sk;
 	struct sctp_sock *sp;
+=======
+	struct sctp_sock *sp;
+	struct sock *sk;
+>>>>>>> upstream/android-13
 
 	if (!ulpq->pd_mode)
 		return;
 
 	sk = ulpq->asoc->base.sk;
 	sp = sctp_sk(sk);
+<<<<<<< HEAD
 	if (sctp_ulpevent_type_enabled(SCTP_PARTIAL_DELIVERY_EVENT,
 				       &sctp_sk(sk)->subscribe))
+=======
+	if (sctp_ulpevent_type_enabled(ulpq->asoc->subscribe,
+				       SCTP_PARTIAL_DELIVERY_EVENT))
+>>>>>>> upstream/android-13
 		ev = sctp_ulpevent_make_pdapi(ulpq->asoc,
 					      SCTP_PARTIAL_DELIVERY_ABORTED,
 					      0, 0, 0, gfp);

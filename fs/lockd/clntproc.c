@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/lockd/clntproc.c
  *
@@ -46,13 +50,22 @@ void nlmclnt_next_cookie(struct nlm_cookie *c)
 	c->len=4;
 }
 
+<<<<<<< HEAD
 static struct nlm_lockowner *nlm_get_lockowner(struct nlm_lockowner *lockowner)
+=======
+static struct nlm_lockowner *
+nlmclnt_get_lockowner(struct nlm_lockowner *lockowner)
+>>>>>>> upstream/android-13
 {
 	refcount_inc(&lockowner->count);
 	return lockowner;
 }
 
+<<<<<<< HEAD
 static void nlm_put_lockowner(struct nlm_lockowner *lockowner)
+=======
+static void nlmclnt_put_lockowner(struct nlm_lockowner *lockowner)
+>>>>>>> upstream/android-13
 {
 	if (!refcount_dec_and_lock(&lockowner->count, &lockowner->host->h_lock))
 		return;
@@ -81,28 +94,48 @@ static inline uint32_t __nlm_alloc_pid(struct nlm_host *host)
 	return res;
 }
 
+<<<<<<< HEAD
 static struct nlm_lockowner *__nlm_find_lockowner(struct nlm_host *host, fl_owner_t owner)
+=======
+static struct nlm_lockowner *__nlmclnt_find_lockowner(struct nlm_host *host, fl_owner_t owner)
+>>>>>>> upstream/android-13
 {
 	struct nlm_lockowner *lockowner;
 	list_for_each_entry(lockowner, &host->h_lockowners, list) {
 		if (lockowner->owner != owner)
 			continue;
+<<<<<<< HEAD
 		return nlm_get_lockowner(lockowner);
+=======
+		return nlmclnt_get_lockowner(lockowner);
+>>>>>>> upstream/android-13
 	}
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct nlm_lockowner *nlm_find_lockowner(struct nlm_host *host, fl_owner_t owner)
+=======
+static struct nlm_lockowner *nlmclnt_find_lockowner(struct nlm_host *host, fl_owner_t owner)
+>>>>>>> upstream/android-13
 {
 	struct nlm_lockowner *res, *new = NULL;
 
 	spin_lock(&host->h_lock);
+<<<<<<< HEAD
 	res = __nlm_find_lockowner(host, owner);
+=======
+	res = __nlmclnt_find_lockowner(host, owner);
+>>>>>>> upstream/android-13
 	if (res == NULL) {
 		spin_unlock(&host->h_lock);
 		new = kmalloc(sizeof(*new), GFP_KERNEL);
 		spin_lock(&host->h_lock);
+<<<<<<< HEAD
 		res = __nlm_find_lockowner(host, owner);
+=======
+		res = __nlmclnt_find_lockowner(host, owner);
+>>>>>>> upstream/android-13
 		if (res == NULL && new != NULL) {
 			res = new;
 			refcount_set(&new->count, 1);
@@ -256,7 +289,11 @@ static int nlm_wait_on_grace(wait_queue_head_t *queue)
  * Generic NLM call
  */
 static int
+<<<<<<< HEAD
 nlmclnt_call(struct rpc_cred *cred, struct nlm_rqst *req, u32 proc)
+=======
+nlmclnt_call(const struct cred *cred, struct nlm_rqst *req, u32 proc)
+>>>>>>> upstream/android-13
 {
 	struct nlm_host	*host = req->a_host;
 	struct rpc_clnt	*clnt;
@@ -401,7 +438,11 @@ int nlm_async_reply(struct nlm_rqst *req, u32 proc, const struct rpc_call_ops *t
  *      completion in order to be able to correctly track the lock
  *      state.
  */
+<<<<<<< HEAD
 static int nlmclnt_async_call(struct rpc_cred *cred, struct nlm_rqst *req, u32 proc, const struct rpc_call_ops *tk_ops)
+=======
+static int nlmclnt_async_call(const struct cred *cred, struct nlm_rqst *req, u32 proc, const struct rpc_call_ops *tk_ops)
+>>>>>>> upstream/android-13
 {
 	struct rpc_message msg = {
 		.rpc_argp	= &req->a_args,
@@ -456,7 +497,11 @@ static void nlmclnt_locks_copy_lock(struct file_lock *new, struct file_lock *fl)
 {
 	spin_lock(&fl->fl_u.nfs_fl.owner->host->h_lock);
 	new->fl_u.nfs_fl.state = fl->fl_u.nfs_fl.state;
+<<<<<<< HEAD
 	new->fl_u.nfs_fl.owner = nlm_get_lockowner(fl->fl_u.nfs_fl.owner);
+=======
+	new->fl_u.nfs_fl.owner = nlmclnt_get_lockowner(fl->fl_u.nfs_fl.owner);
+>>>>>>> upstream/android-13
 	list_add_tail(&new->fl_u.nfs_fl.list, &fl->fl_u.nfs_fl.owner->host->h_granted);
 	spin_unlock(&fl->fl_u.nfs_fl.owner->host->h_lock);
 }
@@ -466,7 +511,11 @@ static void nlmclnt_locks_release_private(struct file_lock *fl)
 	spin_lock(&fl->fl_u.nfs_fl.owner->host->h_lock);
 	list_del(&fl->fl_u.nfs_fl.list);
 	spin_unlock(&fl->fl_u.nfs_fl.owner->host->h_lock);
+<<<<<<< HEAD
 	nlm_put_lockowner(fl->fl_u.nfs_fl.owner);
+=======
+	nlmclnt_put_lockowner(fl->fl_u.nfs_fl.owner);
+>>>>>>> upstream/android-13
 }
 
 static const struct file_lock_operations nlmclnt_lock_ops = {
@@ -477,7 +526,11 @@ static const struct file_lock_operations nlmclnt_lock_ops = {
 static void nlmclnt_locks_init_private(struct file_lock *fl, struct nlm_host *host)
 {
 	fl->fl_u.nfs_fl.state = 0;
+<<<<<<< HEAD
 	fl->fl_u.nfs_fl.owner = nlm_find_lockowner(host, fl->fl_owner);
+=======
+	fl->fl_u.nfs_fl.owner = nlmclnt_find_lockowner(host, fl->fl_owner);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&fl->fl_u.nfs_fl.list);
 	fl->fl_ops = &nlmclnt_lock_ops;
 }
@@ -510,7 +563,11 @@ static int do_vfs_lock(struct file_lock *fl)
 static int
 nlmclnt_lock(struct nlm_rqst *req, struct file_lock *fl)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred = nfs_file_cred(fl->fl_file);
+=======
+	const struct cred *cred = nfs_file_cred(fl->fl_file);
+>>>>>>> upstream/android-13
 	struct nlm_host	*host = req->a_host;
 	struct nlm_res	*resp = &req->a_res;
 	struct nlm_wait *block = NULL;
@@ -715,7 +772,11 @@ static void nlmclnt_unlock_callback(struct rpc_task *task, void *data)
 	struct nlm_rqst	*req = data;
 	u32 status = ntohl(req->a_res.status);
 
+<<<<<<< HEAD
 	if (RPC_ASSASSINATED(task))
+=======
+	if (RPC_SIGNALLED(task))
+>>>>>>> upstream/android-13
 		goto die;
 
 	if (task->tk_status < 0) {
@@ -783,7 +844,11 @@ static void nlmclnt_cancel_callback(struct rpc_task *task, void *data)
 	struct nlm_rqst	*req = data;
 	u32 status = ntohl(req->a_res.status);
 
+<<<<<<< HEAD
 	if (RPC_ASSASSINATED(task))
+=======
+	if (RPC_SIGNALLED(task))
+>>>>>>> upstream/android-13
 		goto die;
 
 	if (task->tk_status < 0) {

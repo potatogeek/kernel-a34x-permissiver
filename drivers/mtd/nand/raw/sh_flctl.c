@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SuperH FLCTL nand controller
  *
@@ -5,6 +9,7 @@
  * Copyright (c) 2008 Atom Create Engineering Co., Ltd.
  *
  * Based on fsl_elbc_nand.c, Copyright (c) 2006-2007 Freescale Semiconductor
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -114,14 +121,20 @@ static const struct mtd_ooblayout_ops flctl_4secc_oob_largepage_ops = {
 static uint8_t scan_ff_pattern[] = { 0xff, 0xff };
 
 static struct nand_bbt_descr flctl_4secc_smallpage = {
+<<<<<<< HEAD
 	.options = NAND_BBT_SCAN2NDPAGE,
+=======
+>>>>>>> upstream/android-13
 	.offs = 11,
 	.len = 1,
 	.pattern = scan_ff_pattern,
 };
 
 static struct nand_bbt_descr flctl_4secc_largepage = {
+<<<<<<< HEAD
 	.options = NAND_BBT_SCAN2NDPAGE,
+=======
+>>>>>>> upstream/android-13
 	.offs = 0,
 	.len = 2,
 	.pattern = scan_ff_pattern,
@@ -399,7 +412,12 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
 	dma_addr_t dma_addr;
 	dma_cookie_t cookie;
 	uint32_t reg;
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret = 0;
+	unsigned long time_left;
+>>>>>>> upstream/android-13
 
 	if (dir == DMA_FROM_DEVICE) {
 		chan = flctl->chan_fifo0_rx;
@@ -440,6 +458,7 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret =
 	wait_for_completion_timeout(&flctl->dma_complete,
 				msecs_to_jiffies(3000));
@@ -447,6 +466,16 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
 	if (ret <= 0) {
 		dmaengine_terminate_all(chan);
 		dev_err(&flctl->pdev->dev, "wait_for_completion_timeout\n");
+=======
+	time_left =
+	wait_for_completion_timeout(&flctl->dma_complete,
+				msecs_to_jiffies(3000));
+
+	if (time_left == 0) {
+		dmaengine_terminate_all(chan);
+		dev_err(&flctl->pdev->dev, "wait_for_completion_timeout\n");
+		ret = -ETIMEDOUT;
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -456,7 +485,11 @@ out:
 
 	dma_unmap_single(chan->device->dev, dma_addr, len, dir);
 
+<<<<<<< HEAD
 	/* ret > 0 is success */
+=======
+	/* ret == 0 is success */
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -480,7 +513,11 @@ static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
 
 	/* initiate DMA transfer */
 	if (flctl->chan_fifo0_rx && rlen >= 32 &&
+<<<<<<< HEAD
 		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE) > 0)
+=======
+		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE))
+>>>>>>> upstream/android-13
 			goto convert;	/* DMA success */
 
 	/* do polling transfer */
@@ -539,7 +576,11 @@ static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
 
 	/* initiate DMA transfer */
 	if (flctl->chan_fifo0_tx && rlen >= 32 &&
+<<<<<<< HEAD
 		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE) > 0)
+=======
+		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE))
+>>>>>>> upstream/android-13
 			return;	/* DMA success */
 
 	/* do polling transfer */
@@ -611,6 +652,7 @@ static void set_cmd_regs(struct mtd_info *mtd, uint32_t cmd, uint32_t flcmcdr_va
 	writel(flcmcdr_val, FLCMCDR(flctl));
 }
 
+<<<<<<< HEAD
 static int flctl_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
 				uint8_t *buf, int oob_required, int page)
 {
@@ -626,6 +668,26 @@ static int flctl_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
 {
 	nand_prog_page_begin_op(chip, page, 0, buf, mtd->writesize);
 	chip->write_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+static int flctl_read_page_hwecc(struct nand_chip *chip, uint8_t *buf,
+				 int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+	nand_read_page_op(chip, page, 0, buf, mtd->writesize);
+	if (oob_required)
+		chip->legacy.read_buf(chip, chip->oob_poi, mtd->oobsize);
+	return 0;
+}
+
+static int flctl_write_page_hwecc(struct nand_chip *chip, const uint8_t *buf,
+				  int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+	nand_prog_page_begin_op(chip, page, 0, buf, mtd->writesize);
+	chip->legacy.write_buf(chip, chip->oob_poi, mtd->oobsize);
+>>>>>>> upstream/android-13
 	return nand_prog_page_end_op(chip);
 }
 
@@ -747,9 +809,16 @@ static void execmd_write_oob(struct mtd_info *mtd)
 	}
 }
 
+<<<<<<< HEAD
 static void flctl_cmdfunc(struct mtd_info *mtd, unsigned int command,
 			int column, int page_addr)
 {
+=======
+static void flctl_cmdfunc(struct nand_chip *chip, unsigned int command,
+			int column, int page_addr)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct sh_flctl *flctl = mtd_to_flctl(mtd);
 	uint32_t read_cmd = 0;
 
@@ -923,9 +992,15 @@ runtime_exit:
 	return;
 }
 
+<<<<<<< HEAD
 static void flctl_select_chip(struct mtd_info *mtd, int chipnr)
 {
 	struct sh_flctl *flctl = mtd_to_flctl(mtd);
+=======
+static void flctl_select_chip(struct nand_chip *chip, int chipnr)
+{
+	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	int ret;
 
 	switch (chipnr) {
@@ -967,17 +1042,29 @@ static void flctl_select_chip(struct mtd_info *mtd, int chipnr)
 	}
 }
 
+<<<<<<< HEAD
 static void flctl_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 {
 	struct sh_flctl *flctl = mtd_to_flctl(mtd);
+=======
+static void flctl_write_buf(struct nand_chip *chip, const uint8_t *buf, int len)
+{
+	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	memcpy(&flctl->done_buff[flctl->index], buf, len);
 	flctl->index += len;
 }
 
+<<<<<<< HEAD
 static uint8_t flctl_read_byte(struct mtd_info *mtd)
 {
 	struct sh_flctl *flctl = mtd_to_flctl(mtd);
+=======
+static uint8_t flctl_read_byte(struct nand_chip *chip)
+{
+	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	uint8_t data;
 
 	data = flctl->done_buff[flctl->index];
@@ -985,6 +1072,7 @@ static uint8_t flctl_read_byte(struct mtd_info *mtd)
 	return data;
 }
 
+<<<<<<< HEAD
 static uint16_t flctl_read_word(struct mtd_info *mtd)
 {
 	struct sh_flctl *flctl = mtd_to_flctl(mtd);
@@ -997,6 +1085,11 @@ static uint16_t flctl_read_word(struct mtd_info *mtd)
 static void flctl_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	struct sh_flctl *flctl = mtd_to_flctl(mtd);
+=======
+static void flctl_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+{
+	struct sh_flctl *flctl = mtd_to_flctl(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	memcpy(buf, &flctl->done_buff[flctl->index], len);
 	flctl->index += len;
@@ -1004,6 +1097,10 @@ static void flctl_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 
 static int flctl_chip_attach_chip(struct nand_chip *chip)
 {
+<<<<<<< HEAD
+=======
+	u64 targetsize = nanddev_target_size(&chip->base);
+>>>>>>> upstream/android-13
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct sh_flctl *flctl = mtd_to_flctl(mtd);
 
@@ -1016,11 +1113,19 @@ static int flctl_chip_attach_chip(struct nand_chip *chip)
 
 	if (mtd->writesize == 512) {
 		flctl->page_size = 0;
+<<<<<<< HEAD
 		if (chip->chipsize > (32 << 20)) {
 			/* big than 32MB */
 			flctl->rw_ADRCNT = ADRCNT_4;
 			flctl->erase_ADRCNT = ADRCNT_3;
 		} else if (chip->chipsize > (2 << 16)) {
+=======
+		if (targetsize > (32 << 20)) {
+			/* big than 32MB */
+			flctl->rw_ADRCNT = ADRCNT_4;
+			flctl->erase_ADRCNT = ADRCNT_3;
+		} else if (targetsize > (2 << 16)) {
+>>>>>>> upstream/android-13
 			/* big than 128KB */
 			flctl->rw_ADRCNT = ADRCNT_3;
 			flctl->erase_ADRCNT = ADRCNT_2;
@@ -1030,11 +1135,19 @@ static int flctl_chip_attach_chip(struct nand_chip *chip)
 		}
 	} else {
 		flctl->page_size = 1;
+<<<<<<< HEAD
 		if (chip->chipsize > (128 << 20)) {
 			/* big than 128MB */
 			flctl->rw_ADRCNT = ADRCNT2_E;
 			flctl->erase_ADRCNT = ADRCNT_3;
 		} else if (chip->chipsize > (8 << 16)) {
+=======
+		if (targetsize > (128 << 20)) {
+			/* big than 128MB */
+			flctl->rw_ADRCNT = ADRCNT2_E;
+			flctl->erase_ADRCNT = ADRCNT_3;
+		} else if (targetsize > (8 << 16)) {
+>>>>>>> upstream/android-13
 			/* big than 512KB */
 			flctl->rw_ADRCNT = ADRCNT_4;
 			flctl->erase_ADRCNT = ADRCNT_2;
@@ -1058,13 +1171,22 @@ static int flctl_chip_attach_chip(struct nand_chip *chip)
 		chip->ecc.strength = 4;
 		chip->ecc.read_page = flctl_read_page_hwecc;
 		chip->ecc.write_page = flctl_write_page_hwecc;
+<<<<<<< HEAD
 		chip->ecc.mode = NAND_ECC_HW;
+=======
+		chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+>>>>>>> upstream/android-13
 
 		/* 4 symbols ECC enabled */
 		flctl->flcmncr_base |= _4ECCEN;
 	} else {
+<<<<<<< HEAD
 		chip->ecc.mode = NAND_ECC_SOFT;
 		chip->ecc.algo = NAND_ECC_HAMMING;
+=======
+		chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1148,10 +1270,15 @@ static int flctl_probe(struct platform_device *pdev)
 	flctl->fifo = res->start + 0x24; /* FLDTFIFO */
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "failed to get flste irq data: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(&pdev->dev, irq, flctl_handle_flste, IRQF_SHARED,
 			       "flste", flctl);
@@ -1183,6 +1310,7 @@ static int flctl_probe(struct platform_device *pdev)
 
 	/* Set address of hardware control function */
 	/* 20 us command delay time */
+<<<<<<< HEAD
 	nand->chip_delay = 20;
 
 	nand->read_byte = flctl_read_byte;
@@ -1193,16 +1321,36 @@ static int flctl_probe(struct platform_device *pdev)
 	nand->cmdfunc = flctl_cmdfunc;
 	nand->set_features = nand_get_set_features_notsupp;
 	nand->get_features = nand_get_set_features_notsupp;
+=======
+	nand->legacy.chip_delay = 20;
+
+	nand->legacy.read_byte = flctl_read_byte;
+	nand->legacy.write_buf = flctl_write_buf;
+	nand->legacy.read_buf = flctl_read_buf;
+	nand->legacy.select_chip = flctl_select_chip;
+	nand->legacy.cmdfunc = flctl_cmdfunc;
+	nand->legacy.set_features = nand_get_set_features_notsupp;
+	nand->legacy.get_features = nand_get_set_features_notsupp;
+>>>>>>> upstream/android-13
 
 	if (pdata->flcmncr_val & SEL_16BIT)
 		nand->options |= NAND_BUSWIDTH_16;
 
+<<<<<<< HEAD
+=======
+	nand->options |= NAND_BBM_FIRSTPAGE | NAND_BBM_SECONDPAGE;
+
+>>>>>>> upstream/android-13
 	pm_runtime_enable(&pdev->dev);
 	pm_runtime_resume(&pdev->dev);
 
 	flctl_setup_dma(flctl);
 
+<<<<<<< HEAD
 	nand->dummy_controller.ops = &flctl_nand_controller_ops;
+=======
+	nand->legacy.dummy_controller.ops = &flctl_nand_controller_ops;
+>>>>>>> upstream/android-13
 	ret = nand_scan(nand, 1);
 	if (ret)
 		goto err_chip;
@@ -1224,9 +1372,19 @@ err_chip:
 static int flctl_remove(struct platform_device *pdev)
 {
 	struct sh_flctl *flctl = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	flctl_release_dma(flctl);
 	nand_release(&flctl->chip);
+=======
+	struct nand_chip *chip = &flctl->chip;
+	int ret;
+
+	flctl_release_dma(flctl);
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 
 	return 0;
@@ -1242,7 +1400,11 @@ static struct platform_driver flctl_driver = {
 
 module_platform_driver_probe(flctl_driver, flctl_probe);
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Yoshihiro Shimoda");
 MODULE_DESCRIPTION("SuperH FLCTL driver");
 MODULE_ALIAS("platform:sh_flctl");

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/sound/fsl-imx-audmux.h>
@@ -84,7 +90,12 @@
 	ssi2 {
 		fsl,audmux-port = <1>;
 		fsl,port-config = <
+<<<<<<< HEAD
 			(IMX_AUDMUX_V2_PTCR_TFSDIR |
+=======
+			(IMX_AUDMUX_V2_PTCR_SYN |
+			IMX_AUDMUX_V2_PTCR_TFSDIR |
+>>>>>>> upstream/android-13
 			IMX_AUDMUX_V2_PTCR_TFSEL(4) |
 			IMX_AUDMUX_V2_PTCR_TCLKDIR |
 			IMX_AUDMUX_V2_PTCR_TCSEL(4))
@@ -95,7 +106,11 @@
 	pins5 {
 		fsl,audmux-port = <4>;
 		fsl,port-config = <
+<<<<<<< HEAD
 			0x00000000
+=======
+			IMX_AUDMUX_V2_PTCR_SYN
+>>>>>>> upstream/android-13
 			IMX_AUDMUX_V2_PDCR_RXDSEL(1)
 		>;
 	};
@@ -134,7 +149,11 @@
 	};
 
 	rtc@51 {
+<<<<<<< HEAD
 		compatible = "nxp,rtc8564";
+=======
+		compatible = "epson,rtc8564";
+>>>>>>> upstream/android-13
 		reg = <0x51>;
 	};
 
@@ -170,6 +189,10 @@
 
 &usbotg {
 	status = "okay";
+<<<<<<< HEAD
+=======
+	dr_mode = "peripheral";
+>>>>>>> upstream/android-13
 };
 
 &usdhc2 {

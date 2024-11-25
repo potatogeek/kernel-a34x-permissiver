@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * V9FS VFS extensions.
  *
  *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -19,6 +24,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef FS_9P_V9FS_VFS_H
 #define FS_9P_V9FS_VFS_H
@@ -58,7 +65,11 @@ extern const struct file_operations v9fs_mmap_file_operations_dotl;
 extern struct kmem_cache *v9fs_inode_cache;
 
 struct inode *v9fs_alloc_inode(struct super_block *sb);
+<<<<<<< HEAD
 void v9fs_destroy_inode(struct inode *inode);
+=======
+void v9fs_free_inode(struct inode *inode);
+>>>>>>> upstream/android-13
 struct inode *v9fs_get_inode(struct super_block *sb, umode_t mode, dev_t);
 int v9fs_init_inode(struct v9fs_session_info *v9ses,
 		    struct inode *inode, umode_t mode, dev_t);
@@ -74,7 +85,12 @@ void v9fs_inode2stat(struct inode *inode, struct p9_wstat *stat);
 int v9fs_uflags2omode(int uflags, int extended);
 
 void v9fs_blank_wstat(struct p9_wstat *wstat);
+<<<<<<< HEAD
 int v9fs_vfs_setattr_dotl(struct dentry *, struct iattr *);
+=======
+int v9fs_vfs_setattr_dotl(struct user_namespace *, struct dentry *,
+			  struct iattr *);
+>>>>>>> upstream/android-13
 int v9fs_file_fsync_dotl(struct file *filp, loff_t start, loff_t end,
 			 int datasync);
 int v9fs_refresh_inode(struct p9_fid *fid, struct inode *inode);

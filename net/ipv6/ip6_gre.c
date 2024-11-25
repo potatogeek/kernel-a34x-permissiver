@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	GRE over IPv6 protocol decoder.
  *
  *	Authors: Dmitry Kozlov (xeb@mail.ru)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -425,6 +432,7 @@ static void ip6gre_tunnel_uninit(struct net_device *dev)
 }
 
 
+<<<<<<< HEAD
 static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 		       u8 type, u8 code, int offset, __be32 info)
 {
@@ -464,20 +472,53 @@ static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	switch (type) {
 		struct ipv6_tlv_tnl_enc_lim *tel;
 		__u32 teli;
+=======
+static int ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
+		       u8 type, u8 code, int offset, __be32 info)
+{
+	struct net *net = dev_net(skb->dev);
+	const struct ipv6hdr *ipv6h;
+	struct tnl_ptk_info tpi;
+	struct ip6_tnl *t;
+
+	if (gre_parse_header(skb, &tpi, NULL, htons(ETH_P_IPV6),
+			     offset) < 0)
+		return -EINVAL;
+
+	ipv6h = (const struct ipv6hdr *)skb->data;
+	t = ip6gre_tunnel_lookup(skb->dev, &ipv6h->daddr, &ipv6h->saddr,
+				 tpi.key, tpi.proto);
+	if (!t)
+		return -ENOENT;
+
+	switch (type) {
+>>>>>>> upstream/android-13
 	case ICMPV6_DEST_UNREACH:
 		net_dbg_ratelimited("%s: Path to destination invalid or inactive!\n",
 				    t->parms.name);
 		if (code != ICMPV6_PORT_UNREACH)
 			break;
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	case ICMPV6_TIME_EXCEED:
 		if (code == ICMPV6_EXC_HOPLIMIT) {
 			net_dbg_ratelimited("%s: Too small hop limit or routing loop in tunnel!\n",
 					    t->parms.name);
 			break;
 		}
+<<<<<<< HEAD
 		return;
 	case ICMPV6_PARAMPROB:
+=======
+		return 0;
+	case ICMPV6_PARAMPROB: {
+		struct ipv6_tlv_tnl_enc_lim *tel;
+		__u32 teli;
+
+>>>>>>> upstream/android-13
 		teli = 0;
 		if (code == ICMPV6_HDR_FIELD)
 			teli = ip6_tnl_parse_tlv_enc_lim(skb, skb->data);
@@ -492,6 +533,7 @@ static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 			net_dbg_ratelimited("%s: Recipient unable to parse tunneled packet!\n",
 					    t->parms.name);
 		}
+<<<<<<< HEAD
 		return;
 	case ICMPV6_PKT_TOOBIG:
 		ip6_update_pmtu(skb, net, info, 0, 0, sock_net_uid(net, NULL));
@@ -500,6 +542,17 @@ static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 		ip6_redirect(skb, net, skb->dev->ifindex, 0,
 			     sock_net_uid(net, NULL));
 		return;
+=======
+		return 0;
+	}
+	case ICMPV6_PKT_TOOBIG:
+		ip6_update_pmtu(skb, net, info, 0, 0, sock_net_uid(net, NULL));
+		return 0;
+	case NDISC_REDIRECT:
+		ip6_redirect(skb, net, skb->dev->ifindex, 0,
+			     sock_net_uid(net, NULL));
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	if (time_before(jiffies, t->err_time + IP6TUNNEL_ERR_TIMEO))
@@ -507,6 +560,11 @@ static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	else
 		t->err_count = 1;
 	t->err_time = jiffies;
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ip6gre_rcv(struct sk_buff *skb, const struct tnl_ptk_info *tpi)
@@ -542,7 +600,12 @@ static int ip6gre_rcv(struct sk_buff *skb, const struct tnl_ptk_info *tpi)
 	return PACKET_REJECT;
 }
 
+<<<<<<< HEAD
 static int ip6erspan_rcv(struct sk_buff *skb, struct tnl_ptk_info *tpi,
+=======
+static int ip6erspan_rcv(struct sk_buff *skb,
+			 struct tnl_ptk_info *tpi,
+>>>>>>> upstream/android-13
 			 int gre_hdr_len)
 {
 	struct erspan_base_hdr *ershdr;
@@ -695,8 +758,13 @@ static int prepare_ip6gre_xmit_ipv6(struct sk_buff *skb,
 
 		tel = (struct ipv6_tlv_tnl_enc_lim *)&skb_network_header(skb)[offset];
 		if (tel->encap_limit == 0) {
+<<<<<<< HEAD
 			icmpv6_send(skb, ICMPV6_PARAMPROB,
 				    ICMPV6_HDR_FIELD, offset + 2);
+=======
+			icmpv6_ndo_send(skb, ICMPV6_PARAMPROB,
+					ICMPV6_HDR_FIELD, offset + 2);
+>>>>>>> upstream/android-13
 			return -1;
 		}
 		*encap_limit = tel->encap_limit - 1;
@@ -724,6 +792,20 @@ static int prepare_ip6gre_xmit_ipv6(struct sk_buff *skb,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static struct ip_tunnel_info *skb_tunnel_info_txcheck(struct sk_buff *skb)
+{
+	struct ip_tunnel_info *tun_info;
+
+	tun_info = skb_tunnel_info(skb);
+	if (unlikely(!tun_info || !(tun_info->mode & IP_TUNNEL_INFO_TX)))
+		return ERR_PTR(-EINVAL);
+
+	return tun_info;
+}
+
+>>>>>>> upstream/android-13
 static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
 			       struct net_device *dev, __u8 dsfield,
 			       struct flowi6 *fl6, int encap_limit,
@@ -731,6 +813,10 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
 {
 	struct ip6_tnl *tunnel = netdev_priv(dev);
 	__be16 protocol;
+<<<<<<< HEAD
+=======
+	__be16 flags;
+>>>>>>> upstream/android-13
 
 	if (dev->type == ARPHRD_ETHER)
 		IPCB(skb)->flags = 0;
@@ -740,21 +826,32 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
 	else
 		fl6->daddr = tunnel->parms.raddr;
 
+<<<<<<< HEAD
 	if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	/* Push GRE header. */
 	protocol = (dev->type == ARPHRD_ETHER) ? htons(ETH_P_TEB) : proto;
 
 	if (tunnel->parms.collect_md) {
 		struct ip_tunnel_info *tun_info;
 		const struct ip_tunnel_key *key;
+<<<<<<< HEAD
 		__be16 flags;
 
 		tun_info = skb_tunnel_info(skb);
 		if (unlikely(!tun_info ||
 			     !(tun_info->mode & IP_TUNNEL_INFO_TX) ||
 			     ip_tunnel_info_af(tun_info) != AF_INET6))
+=======
+		int tun_hlen;
+
+		tun_info = skb_tunnel_info_txcheck(skb);
+		if (IS_ERR(tun_info) ||
+		    unlikely(ip_tunnel_info_af(tun_info) != AF_INET6))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		key = &tun_info->key;
@@ -763,10 +860,15 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
 		fl6->daddr = key->u.ipv6.dst;
 		fl6->flowlabel = key->label;
 		fl6->flowi6_uid = sock_net_uid(dev_net(dev), NULL);
+<<<<<<< HEAD
+=======
+		fl6->fl6_gre_key = tunnel_id_to_key32(key->tun_id);
+>>>>>>> upstream/android-13
 
 		dsfield = key->tos;
 		flags = key->tun_flags &
 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
+<<<<<<< HEAD
 		tunnel->tun_hlen = gre_calc_hlen(flags);
 
 		gre_build_header(skb, tunnel->tun_hlen,
@@ -782,6 +884,29 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
 		gre_build_header(skb, tunnel->tun_hlen, tunnel->parms.o_flags,
 				 protocol, tunnel->parms.o_key,
 				 htonl(tunnel->o_seqno));
+=======
+		tun_hlen = gre_calc_hlen(flags);
+
+		if (skb_cow_head(skb, dev->needed_headroom ?: tun_hlen + tunnel->encap_hlen))
+			return -ENOMEM;
+
+		gre_build_header(skb, tun_hlen,
+				 flags, protocol,
+				 tunnel_id_to_key32(tun_info->key.tun_id),
+				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
+						      : 0);
+
+	} else {
+		if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
+			return -ENOMEM;
+
+		flags = tunnel->parms.o_flags;
+
+		gre_build_header(skb, tunnel->tun_hlen, flags,
+				 protocol, tunnel->parms.o_key,
+				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
+						      : 0);
+>>>>>>> upstream/android-13
 	}
 
 	return ip6_tnl_xmit(skb, dev, dsfield, fl6, encap_limit, pmtu,
@@ -812,8 +937,13 @@ static inline int ip6gre_xmit_ipv4(struct sk_buff *skb, struct net_device *dev)
 	if (err != 0) {
 		/* XXX: send ICMP error even if DF is not set. */
 		if (err == -EMSGSIZE)
+<<<<<<< HEAD
 			icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
 				  htonl(mtu));
+=======
+			icmp_ndo_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
+				      htonl(mtu));
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -844,7 +974,11 @@ static inline int ip6gre_xmit_ipv6(struct sk_buff *skb, struct net_device *dev)
 			  &mtu, skb->protocol);
 	if (err != 0) {
 		if (err == -EMSGSIZE)
+<<<<<<< HEAD
 			icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+=======
+			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -925,7 +1059,12 @@ static netdev_tx_t ip6gre_tunnel_xmit(struct sk_buff *skb,
 	return NETDEV_TX_OK;
 
 tx_err:
+<<<<<<< HEAD
 	stats->tx_errors++;
+=======
+	if (!t->parms.collect_md || !IS_ERR(skb_tunnel_info_txcheck(skb)))
+		stats->tx_errors++;
+>>>>>>> upstream/android-13
 	stats->tx_dropped++;
 	kfree_skb(skb);
 	return NETDEV_TX_OK;
@@ -934,6 +1073,10 @@ tx_err:
 static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
 					 struct net_device *dev)
 {
+<<<<<<< HEAD
+=======
+	struct ip_tunnel_info *tun_info = NULL;
+>>>>>>> upstream/android-13
 	struct ip6_tnl *t = netdev_priv(dev);
 	struct dst_entry *dst = skb_dst(skb);
 	struct net_device_stats *stats;
@@ -981,15 +1124,24 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
 	 * for native mode, call prepare_ip6gre_xmit_{ipv4,ipv6}.
 	 */
 	if (t->parms.collect_md) {
+<<<<<<< HEAD
 		struct ip_tunnel_info *tun_info;
+=======
+>>>>>>> upstream/android-13
 		const struct ip_tunnel_key *key;
 		struct erspan_metadata *md;
 		__be32 tun_id;
 
+<<<<<<< HEAD
 		tun_info = skb_tunnel_info(skb);
 		if (unlikely(!tun_info ||
 			     !(tun_info->mode & IP_TUNNEL_INFO_TX) ||
 			     ip_tunnel_info_af(tun_info) != AF_INET6))
+=======
+		tun_info = skb_tunnel_info_txcheck(skb);
+		if (IS_ERR(tun_info) ||
+		    unlikely(ip_tunnel_info_af(tun_info) != AF_INET6))
+>>>>>>> upstream/android-13
 			goto tx_err;
 
 		key = &tun_info->key;
@@ -998,6 +1150,10 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
 		fl6.daddr = key->u.ipv6.dst;
 		fl6.flowlabel = key->label;
 		fl6.flowi6_uid = sock_net_uid(dev_net(dev), NULL);
+<<<<<<< HEAD
+=======
+		fl6.fl6_gre_key = tunnel_id_to_key32(key->tun_id);
+>>>>>>> upstream/android-13
 
 		dsfield = key->tos;
 		if (!(tun_info->key.tun_flags & TUNNEL_ERSPAN_OPT))
@@ -1058,7 +1214,11 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
 	/* Push GRE header. */
 	proto = (t->parms.erspan_ver == 1) ? htons(ETH_P_ERSPAN)
 					   : htons(ETH_P_ERSPAN2);
+<<<<<<< HEAD
 	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(t->o_seqno++));
+=======
+	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(atomic_fetch_inc(&t->o_seqno)));
+>>>>>>> upstream/android-13
 
 	/* TooBig packet may have updated dst->dev's mtu */
 	if (!t->parms.collect_md && dst && dst_mtu(dst) > dst->dev->mtu)
@@ -1070,10 +1230,17 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
 		/* XXX: send ICMP error even if DF is not set. */
 		if (err == -EMSGSIZE) {
 			if (skb->protocol == htons(ETH_P_IP))
+<<<<<<< HEAD
 				icmp_send(skb, ICMP_DEST_UNREACH,
 					  ICMP_FRAG_NEEDED, htonl(mtu));
 			else
 				icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+=======
+				icmp_ndo_send(skb, ICMP_DEST_UNREACH,
+					      ICMP_FRAG_NEEDED, htonl(mtu));
+			else
+				icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+>>>>>>> upstream/android-13
 		}
 
 		goto tx_err;
@@ -1082,7 +1249,12 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
 
 tx_err:
 	stats = &t->dev->stats;
+<<<<<<< HEAD
 	stats->tx_errors++;
+=======
+	if (!IS_ERR(tun_info))
+		stats->tx_errors++;
+>>>>>>> upstream/android-13
 	stats->tx_dropped++;
 	kfree_skb(skb);
 	return NETDEV_TX_OK;
@@ -1105,6 +1277,10 @@ static void ip6gre_tnl_link_config_common(struct ip6_tnl *t)
 	fl6->flowi6_oif = p->link;
 	fl6->flowlabel = 0;
 	fl6->flowi6_proto = IPPROTO_GRE;
+<<<<<<< HEAD
+=======
+	fl6->fl6_gre_key = t->parms.o_key;
+>>>>>>> upstream/android-13
 
 	if (!(p->flags&IP6_TNL_F_USE_ORIG_TCLASS))
 		fl6->flowlabel |= IPV6_TCLASS_MASK & p->flowinfo;
@@ -1251,8 +1427,14 @@ static void ip6gre_tnl_parm_to_user(struct ip6_tnl_parm2 *u,
 	memcpy(u->name, p->name, sizeof(u->name));
 }
 
+<<<<<<< HEAD
 static int ip6gre_tunnel_ioctl(struct net_device *dev,
 	struct ifreq *ifr, int cmd)
+=======
+static int ip6gre_tunnel_siocdevprivate(struct net_device *dev,
+					struct ifreq *ifr, void __user *data,
+					int cmd)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 	struct ip6_tnl_parm2 p;
@@ -1266,7 +1448,11 @@ static int ip6gre_tunnel_ioctl(struct net_device *dev,
 	switch (cmd) {
 	case SIOCGETTUNNEL:
 		if (dev == ign->fb_tunnel_dev) {
+<<<<<<< HEAD
 			if (copy_from_user(&p, ifr->ifr_ifru.ifru_data, sizeof(p))) {
+=======
+			if (copy_from_user(&p, data, sizeof(p))) {
+>>>>>>> upstream/android-13
 				err = -EFAULT;
 				break;
 			}
@@ -1277,7 +1463,11 @@ static int ip6gre_tunnel_ioctl(struct net_device *dev,
 		}
 		memset(&p, 0, sizeof(p));
 		ip6gre_tnl_parm_to_user(&p, &t->parms);
+<<<<<<< HEAD
 		if (copy_to_user(ifr->ifr_ifru.ifru_data, &p, sizeof(p)))
+=======
+		if (copy_to_user(data, &p, sizeof(p)))
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 		break;
 
@@ -1288,7 +1478,11 @@ static int ip6gre_tunnel_ioctl(struct net_device *dev,
 			goto done;
 
 		err = -EFAULT;
+<<<<<<< HEAD
 		if (copy_from_user(&p, ifr->ifr_ifru.ifru_data, sizeof(p)))
+=======
+		if (copy_from_user(&p, data, sizeof(p)))
+>>>>>>> upstream/android-13
 			goto done;
 
 		err = -EINVAL;
@@ -1325,7 +1519,11 @@ static int ip6gre_tunnel_ioctl(struct net_device *dev,
 
 			memset(&p, 0, sizeof(p));
 			ip6gre_tnl_parm_to_user(&p, &t->parms);
+<<<<<<< HEAD
 			if (copy_to_user(ifr->ifr_ifru.ifru_data, &p, sizeof(p)))
+=======
+			if (copy_to_user(data, &p, sizeof(p)))
+>>>>>>> upstream/android-13
 				err = -EFAULT;
 		} else
 			err = (cmd == SIOCADDTUNNEL ? -ENOBUFS : -ENOENT);
@@ -1338,7 +1536,11 @@ static int ip6gre_tunnel_ioctl(struct net_device *dev,
 
 		if (dev == ign->fb_tunnel_dev) {
 			err = -EFAULT;
+<<<<<<< HEAD
 			if (copy_from_user(&p, ifr->ifr_ifru.ifru_data, sizeof(p)))
+=======
+			if (copy_from_user(&p, data, sizeof(p)))
+>>>>>>> upstream/android-13
 				goto done;
 			err = -ENOENT;
 			ip6gre_tnl_parm_from_user(&p1, &p);
@@ -1405,9 +1607,15 @@ static const struct net_device_ops ip6gre_netdev_ops = {
 	.ndo_init		= ip6gre_tunnel_init,
 	.ndo_uninit		= ip6gre_tunnel_uninit,
 	.ndo_start_xmit		= ip6gre_tunnel_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= ip6gre_tunnel_ioctl,
 	.ndo_change_mtu		= ip6_tnl_change_mtu,
 	.ndo_get_stats64	= ip_tunnel_get_stats64,
+=======
+	.ndo_siocdevprivate	= ip6gre_tunnel_siocdevprivate,
+	.ndo_change_mtu		= ip6_tnl_change_mtu,
+	.ndo_get_stats64	= dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_get_iflink		= ip6_tnl_get_iflink,
 };
 
@@ -1550,7 +1758,11 @@ static void ip6gre_fb_tunnel_init(struct net_device *dev)
 static struct inet6_protocol ip6gre_protocol __read_mostly = {
 	.handler     = gre_rcv,
 	.err_handler = ip6gre_err,
+<<<<<<< HEAD
 	.flags       = INET6_PROTO_NOPOLICY|INET6_PROTO_FINAL,
+=======
+	.flags       = INET6_PROTO_FINAL,
+>>>>>>> upstream/android-13
 };
 
 static void ip6gre_destroy_tunnels(struct net *net, struct list_head *head)
@@ -1843,7 +2055,11 @@ static const struct net_device_ops ip6gre_tap_netdev_ops = {
 	.ndo_set_mac_address = eth_mac_addr,
 	.ndo_validate_addr = eth_validate_addr,
 	.ndo_change_mtu = ip6_tnl_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64 = ip_tunnel_get_stats64,
+=======
+	.ndo_get_stats64 = dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_get_iflink = ip6_tnl_get_iflink,
 };
 
@@ -1912,7 +2128,11 @@ static const struct net_device_ops ip6erspan_netdev_ops = {
 	.ndo_set_mac_address =	eth_mac_addr,
 	.ndo_validate_addr =	eth_validate_addr,
 	.ndo_change_mtu =	ip6_tnl_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64 =	ip_tunnel_get_stats64,
+=======
+	.ndo_get_stats64 =	dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_get_iflink =	ip6_tnl_get_iflink,
 };
 
@@ -1931,12 +2151,15 @@ static void ip6gre_tap_setup(struct net_device *dev)
 	netif_keep_dst(dev);
 }
 
+<<<<<<< HEAD
 bool is_ip6gretap_dev(const struct net_device *dev)
 {
 	return dev->netdev_ops == &ip6gre_tap_netdev_ops;
 }
 EXPORT_SYMBOL_GPL(is_ip6gretap_dev);
 
+=======
+>>>>>>> upstream/android-13
 static bool ip6gre_netlink_encap_parms(struct nlattr *data[],
 				       struct ip_tunnel_encap *ipencap)
 {
@@ -2205,8 +2428,13 @@ static const struct nla_policy ip6gre_policy[IFLA_GRE_MAX + 1] = {
 	[IFLA_GRE_OFLAGS]      = { .type = NLA_U16 },
 	[IFLA_GRE_IKEY]        = { .type = NLA_U32 },
 	[IFLA_GRE_OKEY]        = { .type = NLA_U32 },
+<<<<<<< HEAD
 	[IFLA_GRE_LOCAL]       = { .len = FIELD_SIZEOF(struct ipv6hdr, saddr) },
 	[IFLA_GRE_REMOTE]      = { .len = FIELD_SIZEOF(struct ipv6hdr, daddr) },
+=======
+	[IFLA_GRE_LOCAL]       = { .len = sizeof_field(struct ipv6hdr, saddr) },
+	[IFLA_GRE_REMOTE]      = { .len = sizeof_field(struct ipv6hdr, daddr) },
+>>>>>>> upstream/android-13
 	[IFLA_GRE_TTL]         = { .type = NLA_U8 },
 	[IFLA_GRE_ENCAP_LIMIT] = { .type = NLA_U8 },
 	[IFLA_GRE_FLOWINFO]    = { .type = NLA_U32 },

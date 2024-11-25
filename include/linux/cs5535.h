@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AMD CS5535/CS5536 definitions
  * Copyright (C) 2006  Advanced Micro Devices, Inc.
  * Copyright (C) 2009  Andres Salomon <dilinger@collabora.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CS5535_H

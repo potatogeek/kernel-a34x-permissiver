@@ -33,6 +33,10 @@ obj-y                   += irq_$(BITS).o
 obj-$(CONFIG_SPARC32)   += sun4m_irq.o sun4d_irq.o
 
 obj-y                   += process_$(BITS).o
+<<<<<<< HEAD
+=======
+obj-y                   += process.o
+>>>>>>> upstream/android-13
 obj-y                   += signal_$(BITS).o
 obj-y                   += sigutil_$(BITS).o
 obj-$(CONFIG_SPARC32)   += ioport.o

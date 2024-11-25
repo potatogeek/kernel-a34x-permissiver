@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  LCD/Backlight Driver for Sharp Zaurus Handhelds (various models)
  *
@@ -8,18 +12,25 @@
  *  Copyright (c) 2008 Marvell International Ltd.
  *	Converted to SPI device based LCD/Backlight device driver
  *	by Eric Miao <eric.miao@marvell.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/fb.h>
 #include <linux/lcd.h>
 #include <linux/spi/spi.h>
@@ -94,9 +105,14 @@ struct corgi_lcd {
 	int	mode;
 	char	buf[2];
 
+<<<<<<< HEAD
 	int	gpio_backlight_on;
 	int	gpio_backlight_cont;
 	int	gpio_backlight_cont_inverted;
+=======
+	struct gpio_desc *backlight_on;
+	struct gpio_desc *backlight_cont;
+>>>>>>> upstream/android-13
 
 	void (*kick_battery)(void);
 };
@@ -407,6 +423,7 @@ static int corgi_bl_set_intensity(struct corgi_lcd *lcd, int intensity)
 	corgi_ssp_lcdtg_send(lcd, DUTYCTRL_ADRS, intensity);
 
 	/* Bit 5 via GPIO_BACKLIGHT_CONT */
+<<<<<<< HEAD
 	cont = !!(intensity & 0x20) ^ lcd->gpio_backlight_cont_inverted;
 
 	if (gpio_is_valid(lcd->gpio_backlight_cont))
@@ -414,6 +431,15 @@ static int corgi_bl_set_intensity(struct corgi_lcd *lcd, int intensity)
 
 	if (gpio_is_valid(lcd->gpio_backlight_on))
 		gpio_set_value_cansleep(lcd->gpio_backlight_on, intensity);
+=======
+	cont = !!(intensity & 0x20);
+
+	if (lcd->backlight_cont)
+		gpiod_set_value_cansleep(lcd->backlight_cont, cont);
+
+	if (lcd->backlight_on)
+		gpiod_set_value_cansleep(lcd->backlight_on, intensity);
+>>>>>>> upstream/android-13
 
 	if (lcd->kick_battery)
 		lcd->kick_battery();
@@ -425,6 +451,7 @@ static int corgi_bl_set_intensity(struct corgi_lcd *lcd, int intensity)
 static int corgi_bl_update_status(struct backlight_device *bd)
 {
 	struct corgi_lcd *lcd = bl_get_data(bd);
+<<<<<<< HEAD
 	int intensity = bd->props.brightness;
 
 	if (bd->props.power != FB_BLANK_UNBLANK)
@@ -432,6 +459,9 @@ static int corgi_bl_update_status(struct backlight_device *bd)
 
 	if (bd->props.fb_blank != FB_BLANK_UNBLANK)
 		intensity = 0;
+=======
+	int intensity = backlight_get_brightness(bd);
+>>>>>>> upstream/android-13
 
 	if (corgibl_flags & CORGIBL_SUSPENDED)
 		intensity = 0;
@@ -486,6 +516,7 @@ static int setup_gpio_backlight(struct corgi_lcd *lcd,
 				struct corgi_lcd_platform_data *pdata)
 {
 	struct spi_device *spi = lcd->spi_dev;
+<<<<<<< HEAD
 	int err;
 
 	lcd->gpio_backlight_on = -1;
@@ -528,6 +559,19 @@ static int setup_gpio_backlight(struct corgi_lcd *lcd,
 			gpio_direction_output(lcd->gpio_backlight_cont, 0);
 		}
 	}
+=======
+
+	lcd->backlight_on = devm_gpiod_get_optional(&spi->dev,
+						    "BL_ON", GPIOD_OUT_LOW);
+	if (IS_ERR(lcd->backlight_on))
+		return PTR_ERR(lcd->backlight_on);
+
+	lcd->backlight_cont = devm_gpiod_get_optional(&spi->dev, "BL_CONT",
+						      GPIOD_OUT_LOW);
+	if (IS_ERR(lcd->backlight_cont))
+		return PTR_ERR(lcd->backlight_cont);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics sensors library driver
  *
  * Copyright 2012-2013 STMicroelectronics Inc.
  *
  * Denis Ciocca <denis.ciocca@st.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ST_SENSORS_H
@@ -14,6 +21,7 @@
 #include <linux/i2c.h>
 #include <linux/spi/spi.h>
 #include <linux/irqreturn.h>
+<<<<<<< HEAD
 #include <linux/iio/trigger.h>
 #include <linux/bitops.h>
 #include <linux/regulator/consumer.h>
@@ -22,6 +30,24 @@
 
 #define ST_SENSORS_TX_MAX_LENGTH		2
 #define ST_SENSORS_RX_MAX_LENGTH		6
+=======
+#include <linux/iio/iio.h>
+#include <linux/iio/trigger.h>
+#include <linux/bitops.h>
+#include <linux/regulator/consumer.h>
+#include <linux/regmap.h>
+
+#include <linux/platform_data/st_sensors_pdata.h>
+
+#define LSM9DS0_IMU_DEV_NAME		"lsm9ds0"
+
+/*
+ * Buffer size max case: 2bytes per channel, 3 channels in total +
+ *			 8bytes timestamp channel (s64)
+ */
+#define ST_SENSORS_MAX_BUFFER_SIZE		(ALIGN(2 * 3, sizeof(s64)) + \
+						 sizeof(s64))
+>>>>>>> upstream/android-13
 
 #define ST_SENSORS_ODR_LIST_MAX			10
 #define ST_SENSORS_FULLSCALE_AVL_MAX		10
@@ -40,10 +66,17 @@
 #define ST_SENSORS_DEFAULT_STAT_ADDR		0x27
 
 #define ST_SENSORS_MAX_NAME			17
+<<<<<<< HEAD
 #define ST_SENSORS_MAX_4WAI			7
 
 #define ST_SENSORS_LSM_CHANNELS(device_type, mask, index, mod, \
 					ch2, s, endian, rbits, sbits, addr) \
+=======
+#define ST_SENSORS_MAX_4WAI			8
+
+#define ST_SENSORS_LSM_CHANNELS_EXT(device_type, mask, index, mod, \
+				    ch2, s, endian, rbits, sbits, addr, ext) \
+>>>>>>> upstream/android-13
 { \
 	.type = device_type, \
 	.modified = mod, \
@@ -59,8 +92,19 @@
 		.storagebits = sbits, \
 		.endianness = endian, \
 	}, \
+<<<<<<< HEAD
 }
 
+=======
+	.ext_info = ext, \
+}
+
+#define ST_SENSORS_LSM_CHANNELS(device_type, mask, index, mod, \
+				ch2, s, endian, rbits, sbits, addr)	\
+	ST_SENSORS_LSM_CHANNELS_EXT(device_type, mask, index, mod,	\
+				    ch2, s, endian, rbits, sbits, addr, NULL)
+
+>>>>>>> upstream/android-13
 #define ST_SENSORS_DEV_ATTR_SAMP_FREQ_AVAIL() \
 		IIO_DEV_ATTR_SAMP_FREQ_AVAIL( \
 			st_sensors_sysfs_sampling_frequency_avail)
@@ -171,6 +215,7 @@ struct st_sensor_data_ready_irq {
 };
 
 /**
+<<<<<<< HEAD
  * struct st_sensor_transfer_buffer - ST sensor device I/O buffer
  * @buf_lock: Mutex to protect rx and tx buffers.
  * @tx_buf: Buffer used by SPI transfer function to send data to the sensors.
@@ -201,6 +246,8 @@ struct st_sensor_transfer_function {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct st_sensor_settings - ST specific sensor settings
  * @wai: Contents of WhoAmI register.
  * @wai_addr: The address of WhoAmI register.
@@ -239,51 +286,87 @@ struct st_sensor_settings {
  * struct st_sensor_data - ST sensor device status
  * @dev: Pointer to instance of struct device (I2C or SPI).
  * @trig: The trigger in use by the core driver.
+<<<<<<< HEAD
+=======
+ * @mount_matrix: The mounting matrix of the sensor.
+>>>>>>> upstream/android-13
  * @sensor_settings: Pointer to the specific sensor settings in use.
  * @current_fullscale: Maximum range of measure by the sensor.
  * @vdd: Pointer to sensor's Vdd power supply
  * @vdd_io: Pointer to sensor's Vdd-IO power supply
+<<<<<<< HEAD
  * @enabled: Status of the sensor (false->off, true->on).
  * @multiread_bit: Use or not particular bit for [I2C/SPI] multiread.
  * @buffer_data: Data used by buffer part.
+=======
+ * @regmap: Pointer to specific sensor regmap configuration.
+ * @enabled: Status of the sensor (false->off, true->on).
+>>>>>>> upstream/android-13
  * @odr: Output data rate of the sensor [Hz].
  * num_data_channels: Number of data channels used in buffer.
  * @drdy_int_pin: Redirect DRDY on pin 1 (1) or pin 2 (2).
  * @int_pin_open_drain: Set the interrupt/DRDY to open drain.
+<<<<<<< HEAD
  * @get_irq_data_ready: Function to get the IRQ used for data ready signal.
  * @tf: Transfer function structure used by I/O operations.
  * @tb: Transfer buffers and mutex used by I/O operations.
  * @edge_irq: the IRQ triggers on edges and need special handling.
  * @hw_irq_trigger: if we're using the hardware interrupt on the sensor.
  * @hw_timestamp: Latest timestamp from the interrupt handler, when in use.
+=======
+ * @irq: the IRQ number.
+ * @edge_irq: the IRQ triggers on edges and need special handling.
+ * @hw_irq_trigger: if we're using the hardware interrupt on the sensor.
+ * @hw_timestamp: Latest timestamp from the interrupt handler, when in use.
+ * @buffer_data: Data used by buffer part.
+>>>>>>> upstream/android-13
  */
 struct st_sensor_data {
 	struct device *dev;
 	struct iio_trigger *trig;
+<<<<<<< HEAD
+=======
+	struct iio_mount_matrix mount_matrix;
+>>>>>>> upstream/android-13
 	struct st_sensor_settings *sensor_settings;
 	struct st_sensor_fullscale_avl *current_fullscale;
 	struct regulator *vdd;
 	struct regulator *vdd_io;
+<<<<<<< HEAD
 
 	bool enabled;
 	bool multiread_bit;
 
 	char *buffer_data;
+=======
+	struct regmap *regmap;
+
+	bool enabled;
+>>>>>>> upstream/android-13
 
 	unsigned int odr;
 	unsigned int num_data_channels;
 
 	u8 drdy_int_pin;
 	bool int_pin_open_drain;
+<<<<<<< HEAD
 
 	unsigned int (*get_irq_data_ready) (struct iio_dev *indio_dev);
 
 	const struct st_sensor_transfer_function *tf;
 	struct st_sensor_transfer_buffer tb;
+=======
+	int irq;
+>>>>>>> upstream/android-13
 
 	bool edge_irq;
 	bool hw_irq_trigger;
 	s64 hw_timestamp;
+<<<<<<< HEAD
+=======
+
+	char buffer_data[ST_SENSORS_MAX_BUFFER_SIZE] ____cacheline_aligned;
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_IIO_BUFFER
@@ -334,8 +417,16 @@ int st_sensors_set_fullscale_by_gain(struct iio_dev *indio_dev, int scale);
 int st_sensors_read_info_raw(struct iio_dev *indio_dev,
 				struct iio_chan_spec const *ch, int *val);
 
+<<<<<<< HEAD
 int st_sensors_check_device_support(struct iio_dev *indio_dev,
 	int num_sensors_list, const struct st_sensor_settings *sensor_settings);
+=======
+int st_sensors_get_settings_index(const char *name,
+				  const struct st_sensor_settings *list,
+				  const int list_length);
+
+int st_sensors_verify_id(struct iio_dev *indio_dev);
+>>>>>>> upstream/android-13
 
 ssize_t st_sensors_sysfs_sampling_frequency_avail(struct device *dev,
 				struct device_attribute *attr, char *buf);
@@ -343,6 +434,7 @@ ssize_t st_sensors_sysfs_sampling_frequency_avail(struct device *dev,
 ssize_t st_sensors_sysfs_scale_avail(struct device *dev,
 				struct device_attribute *attr, char *buf);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 void st_sensors_of_name_probe(struct device *dev,
 			      const struct of_device_id *match,
@@ -354,5 +446,28 @@ static inline void st_sensors_of_name_probe(struct device *dev,
 {
 }
 #endif
+=======
+void st_sensors_dev_name_probe(struct device *dev, char *name, int len);
+
+/* Accelerometer */
+const struct st_sensor_settings *st_accel_get_settings(const char *name);
+int st_accel_common_probe(struct iio_dev *indio_dev);
+void st_accel_common_remove(struct iio_dev *indio_dev);
+
+/* Gyroscope */
+const struct st_sensor_settings *st_gyro_get_settings(const char *name);
+int st_gyro_common_probe(struct iio_dev *indio_dev);
+void st_gyro_common_remove(struct iio_dev *indio_dev);
+
+/* Magnetometer */
+const struct st_sensor_settings *st_magn_get_settings(const char *name);
+int st_magn_common_probe(struct iio_dev *indio_dev);
+void st_magn_common_remove(struct iio_dev *indio_dev);
+
+/* Pressure */
+const struct st_sensor_settings *st_press_get_settings(const char *name);
+int st_press_common_probe(struct iio_dev *indio_dev);
+void st_press_common_remove(struct iio_dev *indio_dev);
+>>>>>>> upstream/android-13
 
 #endif /* ST_SENSORS_H */

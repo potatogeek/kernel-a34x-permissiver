@@ -6,6 +6,10 @@
 #include <linux/fdtable.h>
 #include <linux/namei.h>
 #include <linux/pid.h>
+<<<<<<< HEAD
+=======
+#include <linux/ptrace.h>
+>>>>>>> upstream/android-13
 #include <linux/security.h>
 #include <linux/file.h>
 #include <linux/seq_file.h>
@@ -28,14 +32,23 @@ static int seq_show(struct seq_file *m, void *v)
 	if (!task)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	files = get_files_struct(task);
 	put_task_struct(task);
 
+=======
+	task_lock(task);
+	files = task->files;
+>>>>>>> upstream/android-13
 	if (files) {
 		unsigned int fd = proc_fd(m->private);
 
 		spin_lock(&files->file_lock);
+<<<<<<< HEAD
 		file = fcheck_files(files, fd);
+=======
+		file = files_lookup_fd_locked(files, fd);
+>>>>>>> upstream/android-13
 		if (file) {
 			struct fdtable *fdt = files_fdtable(files);
 
@@ -47,16 +60,31 @@ static int seq_show(struct seq_file *m, void *v)
 			ret = 0;
 		}
 		spin_unlock(&files->file_lock);
+<<<<<<< HEAD
 		put_files_struct(files);
 	}
+=======
+	}
+	task_unlock(task);
+	put_task_struct(task);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	seq_printf(m, "pos:\t%lli\nflags:\t0%o\nmnt_id:\t%i\n",
 		   (long long)file->f_pos, f_flags,
 		   real_mount(file->f_path.mnt)->mnt_id);
 
+=======
+	seq_printf(m, "pos:\t%lli\nflags:\t0%o\nmnt_id:\t%i\nino:\t%lu\n",
+		   (long long)file->f_pos, f_flags,
+		   real_mount(file->f_path.mnt)->mnt_id,
+		   file_inode(file)->i_ino);
+
+	/* show_fd_locks() never deferences files so a stale value is safe */
+>>>>>>> upstream/android-13
 	show_fd_locks(m, file, files);
 	if (seq_has_overflowed(m))
 		goto out;
@@ -69,8 +97,35 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int seq_fdinfo_open(struct inode *inode, struct file *file)
 {
+=======
+static int proc_fdinfo_access_allowed(struct inode *inode)
+{
+	bool allowed = false;
+	struct task_struct *task = get_proc_task(inode);
+
+	if (!task)
+		return -ESRCH;
+
+	allowed = ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS);
+	put_task_struct(task);
+
+	if (!allowed)
+		return -EACCES;
+
+	return 0;
+}
+
+static int seq_fdinfo_open(struct inode *inode, struct file *file)
+{
+	int ret = proc_fdinfo_access_allowed(inode);
+
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	return single_open(file, seq_show, inode);
 }
 
@@ -83,6 +138,7 @@ static const struct file_operations proc_fdinfo_file_operations = {
 
 static bool tid_fd_mode(struct task_struct *task, unsigned fd, fmode_t *mode)
 {
+<<<<<<< HEAD
 	struct files_struct *files = get_files_struct(task);
 	struct file *file;
 
@@ -95,6 +151,15 @@ static bool tid_fd_mode(struct task_struct *task, unsigned fd, fmode_t *mode)
 		*mode = file->f_mode;
 	rcu_read_unlock();
 	put_files_struct(files);
+=======
+	struct file *file;
+
+	rcu_read_lock();
+	file = task_lookup_fd_rcu(task, fd);
+	if (file)
+		*mode = file->f_mode;
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return !!file;
 }
 
@@ -146,12 +211,16 @@ static const struct dentry_operations tid_fd_dentry_operations = {
 
 static int proc_fd_link(struct dentry *dentry, struct path *path)
 {
+<<<<<<< HEAD
 	struct files_struct *files = NULL;
+=======
+>>>>>>> upstream/android-13
 	struct task_struct *task;
 	int ret = -ENOENT;
 
 	task = get_proc_task(d_inode(dentry));
 	if (task) {
+<<<<<<< HEAD
 		files = get_files_struct(task);
 		put_task_struct(task);
 	}
@@ -162,13 +231,25 @@ static int proc_fd_link(struct dentry *dentry, struct path *path)
 
 		spin_lock(&files->file_lock);
 		fd_file = fcheck_files(files, fd);
+=======
+		unsigned int fd = proc_fd(d_inode(dentry));
+		struct file *fd_file;
+
+		fd_file = fget_task(task, fd);
+>>>>>>> upstream/android-13
 		if (fd_file) {
 			*path = fd_file->f_path;
 			path_get(&fd_file->f_path);
 			ret = 0;
+<<<<<<< HEAD
 		}
 		spin_unlock(&files->file_lock);
 		put_files_struct(files);
+=======
+			fput(fd_file);
+		}
+		put_task_struct(task);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -229,7 +310,10 @@ static int proc_readfd_common(struct file *file, struct dir_context *ctx,
 			      instantiate_t instantiate)
 {
 	struct task_struct *p = get_proc_task(file_inode(file));
+<<<<<<< HEAD
 	struct files_struct *files;
+=======
+>>>>>>> upstream/android-13
 	unsigned int fd;
 
 	if (!p)
@@ -237,6 +321,7 @@ static int proc_readfd_common(struct file *file, struct dir_context *ctx,
 
 	if (!dir_emit_dots(file, ctx))
 		goto out;
+<<<<<<< HEAD
 	files = get_files_struct(p);
 	if (!files)
 		goto out;
@@ -245,14 +330,26 @@ static int proc_readfd_common(struct file *file, struct dir_context *ctx,
 	for (fd = ctx->pos - 2;
 	     fd < files_fdtable(files)->max_fds;
 	     fd++, ctx->pos++) {
+=======
+
+	rcu_read_lock();
+	for (fd = ctx->pos - 2;; fd++) {
+>>>>>>> upstream/android-13
 		struct file *f;
 		struct fd_data data;
 		char name[10 + 1];
 		unsigned int len;
 
+<<<<<<< HEAD
 		f = fcheck_files(files, fd);
 		if (!f)
 			continue;
+=======
+		f = task_lookup_next_fd_rcu(p, &fd);
+		ctx->pos = fd + 2LL;
+		if (!f)
+			break;
+>>>>>>> upstream/android-13
 		data.mode = f->f_mode;
 		rcu_read_unlock();
 		data.fd = fd;
@@ -261,13 +358,20 @@ static int proc_readfd_common(struct file *file, struct dir_context *ctx,
 		if (!proc_fill_cache(file, ctx,
 				     name, len, instantiate, p,
 				     &data))
+<<<<<<< HEAD
 			goto out_fd_loop;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 		cond_resched();
 		rcu_read_lock();
 	}
 	rcu_read_unlock();
+<<<<<<< HEAD
 out_fd_loop:
 	put_files_struct(files);
+=======
+>>>>>>> upstream/android-13
 out:
 	put_task_struct(p);
 	return 0;
@@ -294,12 +398,21 @@ static struct dentry *proc_lookupfd(struct inode *dir, struct dentry *dentry,
  * /proc/pid/fd needs a special permission handler so that a process can still
  * access /proc/self/fd after it has executed a setuid().
  */
+<<<<<<< HEAD
 int proc_fd_permission(struct inode *inode, int mask)
+=======
+int proc_fd_permission(struct user_namespace *mnt_userns,
+		       struct inode *inode, int mask)
+>>>>>>> upstream/android-13
 {
 	struct task_struct *p;
 	int rv;
 
+<<<<<<< HEAD
 	rv = generic_permission(inode, mask);
+=======
+	rv = generic_permission(&init_user_ns, inode, mask);
+>>>>>>> upstream/android-13
 	if (rv == 0)
 		return rv;
 
@@ -325,7 +438,11 @@ static struct dentry *proc_fdinfo_instantiate(struct dentry *dentry,
 	struct proc_inode *ei;
 	struct inode *inode;
 
+<<<<<<< HEAD
 	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFREG | S_IRUSR);
+=======
+	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFREG | S_IRUGO);
+>>>>>>> upstream/android-13
 	if (!inode)
 		return ERR_PTR(-ENOENT);
 
@@ -351,12 +468,29 @@ static int proc_readfdinfo(struct file *file, struct dir_context *ctx)
 				  proc_fdinfo_instantiate);
 }
 
+<<<<<<< HEAD
+=======
+static int proc_open_fdinfo(struct inode *inode, struct file *file)
+{
+	int ret = proc_fdinfo_access_allowed(inode);
+
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 const struct inode_operations proc_fdinfo_inode_operations = {
 	.lookup		= proc_lookupfdinfo,
 	.setattr	= proc_setattr,
 };
 
 const struct file_operations proc_fdinfo_operations = {
+<<<<<<< HEAD
+=======
+	.open		= proc_open_fdinfo,
+>>>>>>> upstream/android-13
 	.read		= generic_read_dir,
 	.iterate_shared	= proc_readfdinfo,
 	.llseek		= generic_file_llseek,

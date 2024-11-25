@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Network filesystem caching backend to use cache files on a premounted
  * filesystem
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -32,6 +39,10 @@ MODULE_PARM_DESC(cachefiles_debug, "CacheFiles debugging mask");
 MODULE_DESCRIPTION("Mounted-filesystem based cache");
 MODULE_AUTHOR("Red Hat, Inc.");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 struct kmem_cache *cachefiles_object_jar;
 
@@ -73,6 +84,7 @@ static int __init cachefiles_init(void)
 		goto error_object_jar;
 	}
 
+<<<<<<< HEAD
 	ret = cachefiles_proc_init();
 	if (ret < 0)
 		goto error_proc;
@@ -82,6 +94,11 @@ static int __init cachefiles_init(void)
 
 error_proc:
 	kmem_cache_destroy(cachefiles_object_jar);
+=======
+	pr_info("Loaded\n");
+	return 0;
+
+>>>>>>> upstream/android-13
 error_object_jar:
 	misc_deregister(&cachefiles_dev);
 error_dev:
@@ -98,7 +115,10 @@ static void __exit cachefiles_exit(void)
 {
 	pr_info("Unloading\n");
 
+<<<<<<< HEAD
 	cachefiles_proc_cleanup();
+=======
+>>>>>>> upstream/android-13
 	kmem_cache_destroy(cachefiles_object_jar);
 	misc_deregister(&cachefiles_dev);
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Setup code for SH7720, SH7721.
  *
@@ -8,10 +12,13 @@
  *
  *  Copyright (C) 2006  Paul Mundt
  *  Copyright (C) 2006  Jamie Lenehan
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/init.h>
@@ -22,6 +29,10 @@
 #include <linux/sh_intc.h>
 #include <linux/usb/ohci_pdriver.h>
 #include <asm/rtc.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 #include <cpu/serial.h>
 
 static struct resource rtc_resources[] = {
@@ -214,7 +225,11 @@ static struct platform_device *sh7720_early_devices[] __initdata = {
 
 void __init plat_early_device_setup(void)
 {
+<<<<<<< HEAD
 	early_platform_add_devices(sh7720_early_devices,
+=======
+	sh_early_platform_add_devices(sh7720_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(sh7720_early_devices));
 }
 

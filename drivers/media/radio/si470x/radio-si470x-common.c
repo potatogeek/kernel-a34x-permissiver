@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  drivers/media/radio/si470x/radio-si470x-common.c
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (c) 2009 Tobias Lorenz <tobias.lorenz@gmx.net>
  *  Copyright (c) 2012 Hans de Goede <hdegoede@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -622,7 +629,11 @@ static int si470x_vidioc_g_tuner(struct file *file, void *priv,
 	}
 
 	/* driver constants */
+<<<<<<< HEAD
 	strcpy(tuner->name, "FM");
+=======
+	strscpy(tuner->name, "FM", sizeof(tuner->name));
+>>>>>>> upstream/android-13
 	tuner->type = V4L2_TUNER_RADIO;
 	tuner->capability = V4L2_TUNER_CAP_LOW | V4L2_TUNER_CAP_STEREO |
 			    V4L2_TUNER_CAP_RDS | V4L2_TUNER_CAP_RDS_BLOCK_IO |

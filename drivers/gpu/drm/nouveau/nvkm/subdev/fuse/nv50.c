@@ -45,7 +45,14 @@ nv50_fuse = {
 };
 
 int
+<<<<<<< HEAD
 nv50_fuse_new(struct nvkm_device *device, int index, struct nvkm_fuse **pfuse)
 {
 	return nvkm_fuse_new_(&nv50_fuse, device, index, pfuse);
+=======
+nv50_fuse_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_fuse **pfuse)
+{
+	return nvkm_fuse_new_(&nv50_fuse, device, type, inst, pfuse);
+>>>>>>> upstream/android-13
 }

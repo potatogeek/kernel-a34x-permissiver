@@ -21,7 +21,10 @@
 #include <asm/bootinfo.h>
 #include <asm/hazards.h>
 #include <asm/mmu_context.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlb.h>
 #include <asm/tlbmisc.h>
 
@@ -35,10 +38,17 @@ extern void build_tlb_refill_handler(void);
 static inline void flush_micro_tlb(void)
 {
 	switch (current_cpu_type()) {
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
 		write_c0_diag(LOONGSON_DIAG_ITLB);
 		break;
 	case CPU_LOONGSON3:
+=======
+	case CPU_LOONGSON2EF:
+		write_c0_diag(LOONGSON_DIAG_ITLB);
+		break;
+	case CPU_LOONGSON64:
+>>>>>>> upstream/android-13
 		write_c0_diag(LOONGSON_DIAG_ITLB | LOONGSON_DIAG_DTLB);
 		break;
 	default:
@@ -104,6 +114,7 @@ void local_flush_tlb_all(void)
 }
 EXPORT_SYMBOL(local_flush_tlb_all);
 
+<<<<<<< HEAD
 /* All entries common to a mm share an asid.  To effectively flush
    these entries, we just bump the asid. */
 void local_flush_tlb_mm(struct mm_struct *mm)
@@ -121,6 +132,8 @@ void local_flush_tlb_mm(struct mm_struct *mm)
 	preempt_enable();
 }
 
+=======
+>>>>>>> upstream/android-13
 void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
 	unsigned long end)
 {
@@ -137,14 +150,33 @@ void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
 		if (size <= (current_cpu_data.tlbsizeftlbsets ?
 			     current_cpu_data.tlbsize / 8 :
 			     current_cpu_data.tlbsize / 2)) {
+<<<<<<< HEAD
 			int oldpid = read_c0_entryhi();
 			int newpid = cpu_asid(cpu, mm);
 
+=======
+			unsigned long old_entryhi, old_mmid;
+			int newpid = cpu_asid(cpu, mm);
+
+			old_entryhi = read_c0_entryhi();
+			if (cpu_has_mmid) {
+				old_mmid = read_c0_memorymapid();
+				write_c0_memorymapid(newpid);
+			}
+
+>>>>>>> upstream/android-13
 			htw_stop();
 			while (start < end) {
 				int idx;
 
+<<<<<<< HEAD
 				write_c0_entryhi(start | newpid);
+=======
+				if (cpu_has_mmid)
+					write_c0_entryhi(start);
+				else
+					write_c0_entryhi(start | newpid);
+>>>>>>> upstream/android-13
 				start += (PAGE_SIZE << 1);
 				mtc0_tlbw_hazard();
 				tlb_probe();
@@ -160,10 +192,19 @@ void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
 				tlb_write_indexed();
 			}
 			tlbw_use_hazard();
+<<<<<<< HEAD
 			write_c0_entryhi(oldpid);
 			htw_start();
 		} else {
 			drop_mmu_context(mm, cpu);
+=======
+			write_c0_entryhi(old_entryhi);
+			if (cpu_has_mmid)
+				write_c0_memorymapid(old_mmid);
+			htw_start();
+		} else {
+			drop_mmu_context(mm);
+>>>>>>> upstream/android-13
 		}
 		flush_micro_tlb();
 		local_irq_restore(flags);
@@ -220,6 +261,7 @@ void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
 	int cpu = smp_processor_id();
 
 	if (cpu_context(cpu, vma->vm_mm) != 0) {
+<<<<<<< HEAD
 		unsigned long flags;
 		int oldpid, newpid, idx;
 
@@ -229,6 +271,23 @@ void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
 		oldpid = read_c0_entryhi();
 		htw_stop();
 		write_c0_entryhi(page | newpid);
+=======
+		unsigned long old_mmid;
+		unsigned long flags, old_entryhi;
+		int idx;
+
+		page &= (PAGE_MASK << 1);
+		local_irq_save(flags);
+		old_entryhi = read_c0_entryhi();
+		htw_stop();
+		if (cpu_has_mmid) {
+			old_mmid = read_c0_memorymapid();
+			write_c0_entryhi(page);
+			write_c0_memorymapid(cpu_asid(cpu, vma->vm_mm));
+		} else {
+			write_c0_entryhi(page | cpu_asid(cpu, vma->vm_mm));
+		}
+>>>>>>> upstream/android-13
 		mtc0_tlbw_hazard();
 		tlb_probe();
 		tlb_probe_hazard();
@@ -244,7 +303,13 @@ void local_flush_tlb_page(struct vm_area_struct *vma, unsigned long page)
 		tlbw_use_hazard();
 
 	finish:
+<<<<<<< HEAD
 		write_c0_entryhi(oldpid);
+=======
+		write_c0_entryhi(old_entryhi);
+		if (cpu_has_mmid)
+			write_c0_memorymapid(old_mmid);
+>>>>>>> upstream/android-13
 		htw_start();
 		flush_micro_tlb_vm(vma);
 		local_irq_restore(flags);
@@ -293,6 +358,10 @@ void __update_tlb(struct vm_area_struct * vma, unsigned long address, pte_t pte)
 {
 	unsigned long flags;
 	pgd_t *pgdp;
+<<<<<<< HEAD
+=======
+	p4d_t *p4dp;
+>>>>>>> upstream/android-13
 	pud_t *pudp;
 	pmd_t *pmdp;
 	pte_t *ptep;
@@ -307,14 +376,29 @@ void __update_tlb(struct vm_area_struct * vma, unsigned long address, pte_t pte)
 	local_irq_save(flags);
 
 	htw_stop();
+<<<<<<< HEAD
 	pid = read_c0_entryhi() & cpu_asid_mask(&current_cpu_data);
 	address &= (PAGE_MASK << 1);
 	write_c0_entryhi(address | pid);
+=======
+	address &= (PAGE_MASK << 1);
+	if (cpu_has_mmid) {
+		write_c0_entryhi(address);
+	} else {
+		pid = read_c0_entryhi() & cpu_asid_mask(&current_cpu_data);
+		write_c0_entryhi(address | pid);
+	}
+>>>>>>> upstream/android-13
 	pgdp = pgd_offset(vma->vm_mm, address);
 	mtc0_tlbw_hazard();
 	tlb_probe();
 	tlb_probe_hazard();
+<<<<<<< HEAD
 	pudp = pud_offset(pgdp, address);
+=======
+	p4dp = p4d_offset(pgdp, address);
+	pudp = pud_offset(p4dp, address);
+>>>>>>> upstream/android-13
 	pmdp = pmd_offset(pudp, address);
 	idx = read_c0_index();
 #ifdef CONFIG_MIPS_HUGE_TLB_SUPPORT
@@ -375,12 +459,23 @@ void add_wired_entry(unsigned long entrylo0, unsigned long entrylo1,
 #ifdef CONFIG_XPA
 	panic("Broken for XPA kernels");
 #else
+<<<<<<< HEAD
+=======
+	unsigned int old_mmid;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned long wired;
 	unsigned long old_pagemask;
 	unsigned long old_ctx;
 
 	local_irq_save(flags);
+<<<<<<< HEAD
+=======
+	if (cpu_has_mmid) {
+		old_mmid = read_c0_memorymapid();
+		write_c0_memorymapid(MMID_KERNEL_WIRED);
+	}
+>>>>>>> upstream/android-13
 	/* Save old context and create impossible VPN2 value */
 	old_ctx = read_c0_entryhi();
 	htw_stop();
@@ -398,6 +493,11 @@ void add_wired_entry(unsigned long entrylo0, unsigned long entrylo1,
 	tlbw_use_hazard();
 
 	write_c0_entryhi(old_ctx);
+<<<<<<< HEAD
+=======
+	if (cpu_has_mmid)
+		write_c0_memorymapid(old_mmid);
+>>>>>>> upstream/android-13
 	tlbw_use_hazard();	/* What is the hazard here? */
 	htw_start();
 	write_c0_pagemask(old_pagemask);

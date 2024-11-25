@@ -16,6 +16,15 @@ enum {
 	FOU_ATTR_IPPROTO,			/* u8 */
 	FOU_ATTR_TYPE,				/* u8 */
 	FOU_ATTR_REMCSUM_NOPARTIAL,		/* flag */
+<<<<<<< HEAD
+=======
+	FOU_ATTR_LOCAL_V4,			/* u32 */
+	FOU_ATTR_LOCAL_V6,			/* in6_addr */
+	FOU_ATTR_PEER_V4,			/* u32 */
+	FOU_ATTR_PEER_V6,			/* in6_addr */
+	FOU_ATTR_PEER_PORT,			/* u16 */
+	FOU_ATTR_IFINDEX,			/* s32 */
+>>>>>>> upstream/android-13
 
 	__FOU_ATTR_MAX,
 };

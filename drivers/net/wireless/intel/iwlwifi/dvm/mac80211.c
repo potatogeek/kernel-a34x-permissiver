@@ -1,10 +1,19 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
+ * Copyright (C) 2018 - 2019 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Portions of this file are derived from the ipw3945 project, as well
  * as portions of the ieee80211 subsystem header files.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -21,6 +30,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -214,6 +225,10 @@ int iwlagn_mac_setup_register(struct iwl_priv *priv,
 	iwl_leds_init(priv);
 
 	wiphy_ext_feature_set(hw->wiphy, NL80211_EXT_FEATURE_CQM_RSSI_LIST);
+<<<<<<< HEAD
+=======
+	wiphy_ext_feature_set(hw->wiphy, NL80211_EXT_FEATURE_EXT_KEY_ID);
+>>>>>>> upstream/android-13
 
 	ret = ieee80211_register_hw(priv->hw);
 	if (ret) {
@@ -317,7 +332,11 @@ static int iwlagn_mac_start(struct ieee80211_hw *hw)
 
 	priv->is_open = 1;
 	IWL_DEBUG_MAC80211(priv, "leave\n");
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void iwlagn_mac_stop(struct ieee80211_hw *hw)
@@ -632,7 +651,11 @@ static int iwlagn_mac_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	switch (key->cipher) {
 	case WLAN_CIPHER_SUITE_TKIP:
 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_MMIC;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WLAN_CIPHER_SUITE_CCMP:
 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_IV;
 		break;
@@ -714,6 +737,7 @@ static int iwlagn_mac_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline bool iwl_enable_rx_ampdu(const struct iwl_cfg *cfg)
 {
 	if (iwlwifi_mod_params.disable_11n & IWL_DISABLE_HT_RXAGG)
@@ -732,6 +756,8 @@ static inline bool iwl_enable_tx_ampdu(const struct iwl_cfg *cfg)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int iwlagn_mac_ampdu_action(struct ieee80211_hw *hw,
 				   struct ieee80211_vif *vif,
 				   struct ieee80211_ampdu_params *params)
@@ -756,7 +782,11 @@ static int iwlagn_mac_ampdu_action(struct ieee80211_hw *hw,
 
 	switch (action) {
 	case IEEE80211_AMPDU_RX_START:
+<<<<<<< HEAD
 		if (!iwl_enable_rx_ampdu(priv->cfg))
+=======
+		if (!iwl_enable_rx_ampdu())
+>>>>>>> upstream/android-13
 			break;
 		IWL_DEBUG_HT(priv, "start Rx\n");
 		ret = iwl_sta_rx_agg_start(priv, sta, tid, *ssn);
@@ -768,7 +798,11 @@ static int iwlagn_mac_ampdu_action(struct ieee80211_hw *hw,
 	case IEEE80211_AMPDU_TX_START:
 		if (!priv->trans->ops->txq_enable)
 			break;
+<<<<<<< HEAD
 		if (!iwl_enable_tx_ampdu(priv->cfg))
+=======
+		if (!iwl_enable_tx_ampdu())
+>>>>>>> upstream/android-13
 			break;
 		IWL_DEBUG_HT(priv, "start Tx\n");
 		ret = iwlagn_tx_agg_start(priv, vif, sta, tid, ssn);
@@ -1131,7 +1165,11 @@ static void iwlagn_mac_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 		goto done;
 	}
 
+<<<<<<< HEAD
 	scd_queues = BIT(priv->cfg->base_params->num_of_queues) - 1;
+=======
+	scd_queues = BIT(priv->trans->trans_cfg->base_params->num_of_queues) - 1;
+>>>>>>> upstream/android-13
 	scd_queues &= ~(BIT(IWL_IPAN_CMD_QUEUE_NUM) |
 			BIT(IWL_DEFAULT_CMD_QUEUE_NUM));
 

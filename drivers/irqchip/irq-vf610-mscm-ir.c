@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014-2015 Toradex AG
  * Author: Stefan Agner <stefan@agner.ch>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * IRQ chip driver for MSCM interrupt router available on Vybrid SoC's.
  * The interrupt router is between the CPU's interrupt controller and the
  * peripheral. The router allows to route the peripheral interrupts to

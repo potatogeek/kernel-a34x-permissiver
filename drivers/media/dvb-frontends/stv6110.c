@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * stv6110.c
  *
@@ -5,6 +9,7 @@
  *
  * Copyright (C) 2009 NetUP Inc.
  * Copyright (C) 2009 Igor M. Liplianin <liplianin@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -202,7 +209,11 @@ static int stv6110_set_bandwidth(struct dvb_frontend *fe, u32 bandwidth)
 		i++;
 	}
 
+<<<<<<< HEAD
 	/* RCCLKOFF = 1 calibration done, desactivate the calibration Clock */
+=======
+	/* RCCLKOFF = 1 calibration done, deactivate the calibration Clock */
+>>>>>>> upstream/android-13
 	priv->regs[RSTV6110_CTRL3] |= (1 << 6);
 	stv6110_write_regs(fe, &priv->regs[RSTV6110_CTRL3], RSTV6110_CTRL3, 1);
 	return 0;

@@ -22,6 +22,10 @@
 #include <linux/iopoll.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_device.h>
 
@@ -39,6 +43,10 @@
 #define STM32_ADC_MAX_SMP		7	/* SMPx range is [0..7] */
 #define STM32_ADC_TIMEOUT_US		100000
 #define STM32_ADC_TIMEOUT	(msecs_to_jiffies(STM32_ADC_TIMEOUT_US / 1000))
+<<<<<<< HEAD
+=======
+#define STM32_ADC_HW_STOP_DELAY_MS	100
+>>>>>>> upstream/android-13
 
 #define STM32_DMA_BUFFER_SIZE		PAGE_SIZE
 
@@ -90,15 +98,27 @@ struct stm32_adc_trig_info {
  * @calfact_s: Calibration offset for single ended channels
  * @calfact_d: Calibration offset in differential
  * @lincalfact: Linearity calibration factor
+<<<<<<< HEAD
+=======
+ * @calibrated: Indicates calibration status
+>>>>>>> upstream/android-13
  */
 struct stm32_adc_calib {
 	u32			calfact_s;
 	u32			calfact_d;
 	u32			lincalfact[STM32H7_LINCALFACT_NUM];
+<<<<<<< HEAD
 };
 
 /**
  * stm32_adc_regs - stm32 ADC misc registers & bitfield desc
+=======
+	bool			calibrated;
+};
+
+/**
+ * struct stm32_adc_regs - stm32 ADC misc registers & bitfield desc
+>>>>>>> upstream/android-13
  * @reg:		register offset
  * @mask:		bitfield mask
  * @shift:		left shift
@@ -110,10 +130,19 @@ struct stm32_adc_regs {
 };
 
 /**
+<<<<<<< HEAD
  * stm32_adc_regspec - stm32 registers definition, compatible dependent data
  * @dr:			data register offset
  * @ier_eoc:		interrupt enable register & eocie bitfield
  * @isr_eoc:		interrupt status register & eoc bitfield
+=======
+ * struct stm32_adc_regspec - stm32 registers definition
+ * @dr:			data register offset
+ * @ier_eoc:		interrupt enable register & eocie bitfield
+ * @ier_ovr:		interrupt enable register & overrun bitfield
+ * @isr_eoc:		interrupt status register & eoc bitfield
+ * @isr_ovr:		interrupt status register & overrun bitfield
+>>>>>>> upstream/android-13
  * @sqr:		reference to sequence registers array
  * @exten:		trigger control register & bitfield
  * @extsel:		trigger selection register & bitfield
@@ -124,7 +153,13 @@ struct stm32_adc_regs {
 struct stm32_adc_regspec {
 	const u32 dr;
 	const struct stm32_adc_regs ier_eoc;
+<<<<<<< HEAD
 	const struct stm32_adc_regs isr_eoc;
+=======
+	const struct stm32_adc_regs ier_ovr;
+	const struct stm32_adc_regs isr_eoc;
+	const struct stm32_adc_regs isr_ovr;
+>>>>>>> upstream/android-13
 	const struct stm32_adc_regs *sqr;
 	const struct stm32_adc_regs exten;
 	const struct stm32_adc_regs extsel;
@@ -136,17 +171,28 @@ struct stm32_adc_regspec {
 struct stm32_adc;
 
 /**
+<<<<<<< HEAD
  * stm32_adc_cfg - stm32 compatible configuration data
+=======
+ * struct stm32_adc_cfg - stm32 compatible configuration data
+>>>>>>> upstream/android-13
  * @regs:		registers descriptions
  * @adc_info:		per instance input channels definitions
  * @trigs:		external trigger sources
  * @clk_required:	clock is required
  * @has_vregready:	vregready status flag presence
+<<<<<<< HEAD
  * @selfcalib:		optional routine for self-calibration
+=======
+>>>>>>> upstream/android-13
  * @prepare:		optional prepare routine (power-up, enable)
  * @start_conv:		routine to start conversions
  * @stop_conv:		routine to stop conversions
  * @unprepare:		optional unprepare routine (disable, power-down)
+<<<<<<< HEAD
+=======
+ * @irq_clear:		routine to clear irqs
+>>>>>>> upstream/android-13
  * @smp_cycles:		programmable sampling time (ADC clock cycles)
  */
 struct stm32_adc_cfg {
@@ -155,11 +201,19 @@ struct stm32_adc_cfg {
 	struct stm32_adc_trig_info	*trigs;
 	bool clk_required;
 	bool has_vregready;
+<<<<<<< HEAD
 	int (*selfcalib)(struct stm32_adc *);
 	int (*prepare)(struct stm32_adc *);
 	void (*start_conv)(struct stm32_adc *, bool dma);
 	void (*stop_conv)(struct stm32_adc *);
 	void (*unprepare)(struct stm32_adc *);
+=======
+	int (*prepare)(struct iio_dev *);
+	void (*start_conv)(struct iio_dev *, bool dma);
+	void (*stop_conv)(struct iio_dev *);
+	void (*unprepare)(struct iio_dev *);
+	void (*irq_clear)(struct iio_dev *indio_dev, u32 msk);
+>>>>>>> upstream/android-13
 	const unsigned int *smp_cycles;
 };
 
@@ -169,7 +223,11 @@ struct stm32_adc_cfg {
  * @offset:		ADC instance register offset in ADC block
  * @cfg:		compatible configuration data
  * @completion:		end of single conversion completion
+<<<<<<< HEAD
  * @buffer:		data buffer
+=======
+ * @buffer:		data buffer + 8 bytes for timestamp if enabled
+>>>>>>> upstream/android-13
  * @clk:		clock for this adc instance
  * @irq:		interrupt for this adc instance
  * @lock:		spinlock
@@ -181,8 +239,13 @@ struct stm32_adc_cfg {
  * @rx_buf:		dma rx buffer cpu address
  * @rx_dma_buf:		dma rx buffer bus address
  * @rx_buf_sz:		dma rx buffer size
+<<<<<<< HEAD
  * @difsel		bitmask to set single-ended/differential channel
  * @pcsel		bitmask to preselect channels on some devices
+=======
+ * @difsel:		bitmask to set single-ended/differential channel
+ * @pcsel:		bitmask to preselect channels on some devices
+>>>>>>> upstream/android-13
  * @smpr_val:		sampling time settings (e.g. smpr1 / smpr2)
  * @cal:		optional calibration data on some devices
  * @chan_name:		channel name array
@@ -192,7 +255,11 @@ struct stm32_adc {
 	u32			offset;
 	const struct stm32_adc_cfg	*cfg;
 	struct completion	completion;
+<<<<<<< HEAD
 	u16			buffer[STM32_ADC_MAX_SQ];
+=======
+	u16			buffer[STM32_ADC_MAX_SQ + 4] __aligned(8);
+>>>>>>> upstream/android-13
 	struct clk		*clk;
 	int			irq;
 	spinlock_t		lock;		/* interrupt lock */
@@ -252,7 +319,11 @@ static const struct stm32_adc_info stm32h7_adc_info = {
 	.num_res = ARRAY_SIZE(stm32h7_adc_resolutions),
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * stm32f4_sq - describe regular sequence registers
  * - L: sequence len (register & bit field)
  * - SQ1..SQ16: sequence entries (register & bit field)
@@ -299,7 +370,11 @@ static struct stm32_adc_trig_info stm32f4_adc_trigs[] = {
 	{}, /* sentinel */
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * stm32f4_smp_bits[] - describe sampling time register index & bit fields
  * Sorted so it can be indexed by channel number.
  */
@@ -335,7 +410,13 @@ static const unsigned int stm32f4_adc_smp_cycles[STM32_ADC_MAX_SMP + 1] = {
 static const struct stm32_adc_regspec stm32f4_adc_regspec = {
 	.dr = STM32F4_ADC_DR,
 	.ier_eoc = { STM32F4_ADC_CR1, STM32F4_EOCIE },
+<<<<<<< HEAD
 	.isr_eoc = { STM32F4_ADC_SR, STM32F4_EOC },
+=======
+	.ier_ovr = { STM32F4_ADC_CR1, STM32F4_OVRIE },
+	.isr_eoc = { STM32F4_ADC_SR, STM32F4_EOC },
+	.isr_ovr = { STM32F4_ADC_SR, STM32F4_OVR },
+>>>>>>> upstream/android-13
 	.sqr = stm32f4_sq,
 	.exten = { STM32F4_ADC_CR2, STM32F4_EXTEN_MASK, STM32F4_EXTEN_SHIFT },
 	.extsel = { STM32F4_ADC_CR2, STM32F4_EXTSEL_MASK,
@@ -390,7 +471,11 @@ static struct stm32_adc_trig_info stm32h7_adc_trigs[] = {
 	{},
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * stm32h7_smp_bits - describe sampling time register index & bit fields
  * Sorted so it can be indexed by channel number.
  */
@@ -427,7 +512,13 @@ static const unsigned int stm32h7_adc_smp_cycles[STM32_ADC_MAX_SMP + 1] = {
 static const struct stm32_adc_regspec stm32h7_adc_regspec = {
 	.dr = STM32H7_ADC_DR,
 	.ier_eoc = { STM32H7_ADC_IER, STM32H7_EOCIE },
+<<<<<<< HEAD
 	.isr_eoc = { STM32H7_ADC_ISR, STM32H7_EOC },
+=======
+	.ier_ovr = { STM32H7_ADC_IER, STM32H7_OVRIE },
+	.isr_eoc = { STM32H7_ADC_ISR, STM32H7_EOC },
+	.isr_ovr = { STM32H7_ADC_ISR, STM32H7_OVR },
+>>>>>>> upstream/android-13
 	.sqr = stm32h7_sq,
 	.exten = { STM32H7_ADC_CFGR, STM32H7_EXTEN_MASK, STM32H7_EXTEN_SHIFT },
 	.extsel = { STM32H7_ADC_CFGR, STM32H7_EXTSEL_MASK,
@@ -437,7 +528,11 @@ static const struct stm32_adc_regspec stm32h7_adc_regspec = {
 	.smp_bits = stm32h7_smp_bits,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * STM32 ADC registers access routines
  * @adc: stm32 adc instance
  * @reg: reg offset in adc instance
@@ -504,6 +599,21 @@ static void stm32_adc_conv_irq_disable(struct stm32_adc *adc)
 			   adc->cfg->regs->ier_eoc.mask);
 }
 
+<<<<<<< HEAD
+=======
+static void stm32_adc_ovr_irq_enable(struct stm32_adc *adc)
+{
+	stm32_adc_set_bits(adc, adc->cfg->regs->ier_ovr.reg,
+			   adc->cfg->regs->ier_ovr.mask);
+}
+
+static void stm32_adc_ovr_irq_disable(struct stm32_adc *adc)
+{
+	stm32_adc_clr_bits(adc, adc->cfg->regs->ier_ovr.reg,
+			   adc->cfg->regs->ier_ovr.mask);
+}
+
+>>>>>>> upstream/android-13
 static void stm32_adc_set_res(struct stm32_adc *adc)
 {
 	const struct stm32_adc_regs *res = &adc->cfg->regs->res;
@@ -514,9 +624,54 @@ static void stm32_adc_set_res(struct stm32_adc *adc)
 	stm32_adc_writel(adc, res->reg, val);
 }
 
+<<<<<<< HEAD
 /**
  * stm32f4_adc_start_conv() - Start conversions for regular channels.
  * @adc: stm32 adc instance
+=======
+static int stm32_adc_hw_stop(struct device *dev)
+{
+	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+	struct stm32_adc *adc = iio_priv(indio_dev);
+
+	if (adc->cfg->unprepare)
+		adc->cfg->unprepare(indio_dev);
+
+	clk_disable_unprepare(adc->clk);
+
+	return 0;
+}
+
+static int stm32_adc_hw_start(struct device *dev)
+{
+	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+	struct stm32_adc *adc = iio_priv(indio_dev);
+	int ret;
+
+	ret = clk_prepare_enable(adc->clk);
+	if (ret)
+		return ret;
+
+	stm32_adc_set_res(adc);
+
+	if (adc->cfg->prepare) {
+		ret = adc->cfg->prepare(indio_dev);
+		if (ret)
+			goto err_clk_dis;
+	}
+
+	return 0;
+
+err_clk_dis:
+	clk_disable_unprepare(adc->clk);
+
+	return ret;
+}
+
+/**
+ * stm32f4_adc_start_conv() - Start conversions for regular channels.
+ * @indio_dev: IIO device instance
+>>>>>>> upstream/android-13
  * @dma: use dma to transfer conversion result
  *
  * Start conversions for regular channels.
@@ -524,8 +679,15 @@ static void stm32_adc_set_res(struct stm32_adc *adc)
  * conversions, in IIO buffer modes. Otherwise, use ADC interrupt with direct
  * DR read instead (e.g. read_raw, or triggered buffer mode without DMA).
  */
+<<<<<<< HEAD
 static void stm32f4_adc_start_conv(struct stm32_adc *adc, bool dma)
 {
+=======
+static void stm32f4_adc_start_conv(struct iio_dev *indio_dev, bool dma)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+
+>>>>>>> upstream/android-13
 	stm32_adc_set_bits(adc, STM32F4_ADC_CR1, STM32F4_SCAN);
 
 	if (dma)
@@ -542,8 +704,15 @@ static void stm32f4_adc_start_conv(struct stm32_adc *adc, bool dma)
 		stm32_adc_set_bits(adc, STM32F4_ADC_CR2, STM32F4_SWSTART);
 }
 
+<<<<<<< HEAD
 static void stm32f4_adc_stop_conv(struct stm32_adc *adc)
 {
+=======
+static void stm32f4_adc_stop_conv(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+
+>>>>>>> upstream/android-13
 	stm32_adc_clr_bits(adc, STM32F4_ADC_CR2, STM32F4_EXTEN_MASK);
 	stm32_adc_clr_bits(adc, STM32F4_ADC_SR, STM32F4_STRT);
 
@@ -552,8 +721,21 @@ static void stm32f4_adc_stop_conv(struct stm32_adc *adc)
 			   STM32F4_ADON | STM32F4_DMA | STM32F4_DDS);
 }
 
+<<<<<<< HEAD
 static void stm32h7_adc_start_conv(struct stm32_adc *adc, bool dma)
 {
+=======
+static void stm32f4_adc_irq_clear(struct iio_dev *indio_dev, u32 msk)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+
+	stm32_adc_clr_bits(adc, adc->cfg->regs->isr_eoc.reg, msk);
+}
+
+static void stm32h7_adc_start_conv(struct iio_dev *indio_dev, bool dma)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+>>>>>>> upstream/android-13
 	enum stm32h7_adc_dmngt dmngt;
 	unsigned long flags;
 	u32 val;
@@ -572,9 +754,15 @@ static void stm32h7_adc_start_conv(struct stm32_adc *adc, bool dma)
 	stm32_adc_set_bits(adc, STM32H7_ADC_CR, STM32H7_ADSTART);
 }
 
+<<<<<<< HEAD
 static void stm32h7_adc_stop_conv(struct stm32_adc *adc)
 {
 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
+=======
+static void stm32h7_adc_stop_conv(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+>>>>>>> upstream/android-13
 	int ret;
 	u32 val;
 
@@ -589,9 +777,22 @@ static void stm32h7_adc_stop_conv(struct stm32_adc *adc)
 	stm32_adc_clr_bits(adc, STM32H7_ADC_CFGR, STM32H7_DMNGT_MASK);
 }
 
+<<<<<<< HEAD
 static int stm32h7_adc_exit_pwr_down(struct stm32_adc *adc)
 {
 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
+=======
+static void stm32h7_adc_irq_clear(struct iio_dev *indio_dev, u32 msk)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+	/* On STM32H7 IRQs are cleared by writing 1 into ISR register */
+	stm32_adc_set_bits(adc, adc->cfg->regs->isr_eoc.reg, msk);
+}
+
+static int stm32h7_adc_exit_pwr_down(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+>>>>>>> upstream/android-13
 	int ret;
 	u32 val;
 
@@ -627,9 +828,15 @@ static void stm32h7_adc_enter_pwr_down(struct stm32_adc *adc)
 	stm32_adc_set_bits(adc, STM32H7_ADC_CR, STM32H7_DEEPPWD);
 }
 
+<<<<<<< HEAD
 static int stm32h7_adc_enable(struct stm32_adc *adc)
 {
 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
+=======
+static int stm32h7_adc_enable(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+>>>>>>> upstream/android-13
 	int ret;
 	u32 val;
 
@@ -650,9 +857,15 @@ static int stm32h7_adc_enable(struct stm32_adc *adc)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void stm32h7_adc_disable(struct stm32_adc *adc)
 {
 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
+=======
+static void stm32h7_adc_disable(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+>>>>>>> upstream/android-13
 	int ret;
 	u32 val;
 
@@ -667,6 +880,7 @@ static void stm32h7_adc_disable(struct stm32_adc *adc)
 
 /**
  * stm32h7_adc_read_selfcalib() - read calibration shadow regs, save result
+<<<<<<< HEAD
  * @adc: stm32 adc instance
  */
 static int stm32h7_adc_read_selfcalib(struct stm32_adc *adc)
@@ -680,6 +894,17 @@ static int stm32h7_adc_read_selfcalib(struct stm32_adc *adc)
 	if (ret)
 		return ret;
 
+=======
+ * @indio_dev: IIO device instance
+ * Note: Must be called once ADC is enabled, so LINCALRDYW[1..6] are writable
+ */
+static int stm32h7_adc_read_selfcalib(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+	int i, ret;
+	u32 lincalrdyw_mask, val;
+
+>>>>>>> upstream/android-13
 	/* Read linearity calibration */
 	lincalrdyw_mask = STM32H7_LINCALRDYW6;
 	for (i = STM32H7_LINCALFACT_NUM - 1; i >= 0; i--) {
@@ -692,7 +917,11 @@ static int stm32h7_adc_read_selfcalib(struct stm32_adc *adc)
 						   100, STM32_ADC_TIMEOUT_US);
 		if (ret) {
 			dev_err(&indio_dev->dev, "Failed to read calfact\n");
+<<<<<<< HEAD
 			goto disable;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 
 		val = stm32_adc_readl(adc, STM32H7_ADC_CALFACT2);
@@ -708,21 +937,36 @@ static int stm32h7_adc_read_selfcalib(struct stm32_adc *adc)
 	adc->cal.calfact_s >>= STM32H7_CALFACT_S_SHIFT;
 	adc->cal.calfact_d = (val & STM32H7_CALFACT_D_MASK);
 	adc->cal.calfact_d >>= STM32H7_CALFACT_D_SHIFT;
+<<<<<<< HEAD
 
 disable:
 	stm32h7_adc_disable(adc);
 
 	return ret;
+=======
+	adc->cal.calibrated = true;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  * stm32h7_adc_restore_selfcalib() - Restore saved self-calibration result
+<<<<<<< HEAD
  * @adc: stm32 adc instance
  * Note: ADC must be enabled, with no on-going conversions.
  */
 static int stm32h7_adc_restore_selfcalib(struct stm32_adc *adc)
 {
 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
+=======
+ * @indio_dev: IIO device instance
+ * Note: ADC must be enabled, with no on-going conversions.
+ */
+static int stm32h7_adc_restore_selfcalib(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+>>>>>>> upstream/android-13
 	int i, ret;
 	u32 lincalrdyw_mask, val;
 
@@ -775,7 +1019,11 @@ static int stm32h7_adc_restore_selfcalib(struct stm32_adc *adc)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Fixed timeout value for ADC calibration.
  * worst cases:
  * - low clock frequency
@@ -789,6 +1037,7 @@ static int stm32h7_adc_restore_selfcalib(struct stm32_adc *adc)
 #define STM32H7_ADC_CALIB_TIMEOUT_US		100000
 
 /**
+<<<<<<< HEAD
  * stm32h7_adc_selfcalib() - Procedure to calibrate ADC (from power down)
  * @adc: stm32 adc instance
  * Exit from power down, calibrate ADC, then return to power down.
@@ -802,6 +1051,20 @@ static int stm32h7_adc_selfcalib(struct stm32_adc *adc)
 	ret = stm32h7_adc_exit_pwr_down(adc);
 	if (ret)
 		return ret;
+=======
+ * stm32h7_adc_selfcalib() - Procedure to calibrate ADC
+ * @indio_dev: IIO device instance
+ * Note: Must be called once ADC is out of power down.
+ */
+static int stm32h7_adc_selfcalib(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+	int ret;
+	u32 val;
+
+	if (adc->cal.calibrated)
+		return true;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Select calibration mode:
@@ -818,7 +1081,11 @@ static int stm32h7_adc_selfcalib(struct stm32_adc *adc)
 					   STM32H7_ADC_CALIB_TIMEOUT_US);
 	if (ret) {
 		dev_err(&indio_dev->dev, "calibration failed\n");
+<<<<<<< HEAD
 		goto pwr_dwn;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -835,6 +1102,7 @@ static int stm32h7_adc_selfcalib(struct stm32_adc *adc)
 					   STM32H7_ADC_CALIB_TIMEOUT_US);
 	if (ret) {
 		dev_err(&indio_dev->dev, "calibration failed\n");
+<<<<<<< HEAD
 		goto pwr_dwn;
 	}
 
@@ -847,12 +1115,25 @@ static int stm32h7_adc_selfcalib(struct stm32_adc *adc)
 pwr_dwn:
 	stm32h7_adc_enter_pwr_down(adc);
 
+=======
+		goto out;
+	}
+
+out:
+	stm32_adc_clr_bits(adc, STM32H7_ADC_CR,
+			   STM32H7_ADCALDIF | STM32H7_ADCALLIN);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /**
  * stm32h7_adc_prepare() - Leave power down mode to enable ADC.
+<<<<<<< HEAD
  * @adc: stm32 adc instance
+=======
+ * @indio_dev: IIO device instance
+>>>>>>> upstream/android-13
  * Leave power down mode.
  * Configure channels as single ended or differential before enabling ADC.
  * Enable ADC.
@@ -861,6 +1142,7 @@ pwr_dwn:
  * - Only one input is selected for single ended (e.g. 'vinp')
  * - Two inputs are selected for differential channels (e.g. 'vinp' & 'vinn')
  */
+<<<<<<< HEAD
 static int stm32h7_adc_prepare(struct stm32_adc *adc)
 {
 	int ret;
@@ -876,6 +1158,33 @@ static int stm32h7_adc_prepare(struct stm32_adc *adc)
 		goto pwr_dwn;
 
 	ret = stm32h7_adc_restore_selfcalib(adc);
+=======
+static int stm32h7_adc_prepare(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+	int calib, ret;
+
+	ret = stm32h7_adc_exit_pwr_down(indio_dev);
+	if (ret)
+		return ret;
+
+	ret = stm32h7_adc_selfcalib(indio_dev);
+	if (ret < 0)
+		goto pwr_dwn;
+	calib = ret;
+
+	stm32_adc_writel(adc, STM32H7_ADC_DIFSEL, adc->difsel);
+
+	ret = stm32h7_adc_enable(indio_dev);
+	if (ret)
+		goto pwr_dwn;
+
+	/* Either restore or read calibration result for future reference */
+	if (calib)
+		ret = stm32h7_adc_restore_selfcalib(indio_dev);
+	else
+		ret = stm32h7_adc_read_selfcalib(indio_dev);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto disable;
 
@@ -884,16 +1193,29 @@ static int stm32h7_adc_prepare(struct stm32_adc *adc)
 	return 0;
 
 disable:
+<<<<<<< HEAD
 	stm32h7_adc_disable(adc);
+=======
+	stm32h7_adc_disable(indio_dev);
+>>>>>>> upstream/android-13
 pwr_dwn:
 	stm32h7_adc_enter_pwr_down(adc);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static void stm32h7_adc_unprepare(struct stm32_adc *adc)
 {
 	stm32h7_adc_disable(adc);
+=======
+static void stm32h7_adc_unprepare(struct iio_dev *indio_dev)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+
+	stm32_adc_writel(adc, STM32H7_ADC_PCSEL, 0);
+	stm32h7_adc_disable(indio_dev);
+>>>>>>> upstream/android-13
 	stm32h7_adc_enter_pwr_down(adc);
 }
 
@@ -954,6 +1276,10 @@ static int stm32_adc_conf_scan_seq(struct iio_dev *indio_dev,
 
 /**
  * stm32_adc_get_trig_extsel() - Get external trigger selection
+<<<<<<< HEAD
+=======
+ * @indio_dev: IIO device structure
+>>>>>>> upstream/android-13
  * @trig: trigger
  *
  * Returns trigger extsel value, if trig matches, -EINVAL otherwise.
@@ -1065,6 +1391,10 @@ static int stm32_adc_single_conv(struct iio_dev *indio_dev,
 				 int *res)
 {
 	struct stm32_adc *adc = iio_priv(indio_dev);
+<<<<<<< HEAD
+=======
+	struct device *dev = indio_dev->dev.parent;
+>>>>>>> upstream/android-13
 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
 	long timeout;
 	u32 val;
@@ -1074,11 +1404,17 @@ static int stm32_adc_single_conv(struct iio_dev *indio_dev,
 
 	adc->bufi = 0;
 
+<<<<<<< HEAD
 	if (adc->cfg->prepare) {
 		ret = adc->cfg->prepare(adc);
 		if (ret)
 			return ret;
 	}
+=======
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Apply sampling time settings */
 	stm32_adc_writel(adc, regs->smpr[0], adc->smpr_val[0]);
@@ -1098,7 +1434,11 @@ static int stm32_adc_single_conv(struct iio_dev *indio_dev,
 
 	stm32_adc_conv_irq_enable(adc);
 
+<<<<<<< HEAD
 	adc->cfg->start_conv(adc, false);
+=======
+	adc->cfg->start_conv(indio_dev, false);
+>>>>>>> upstream/android-13
 
 	timeout = wait_for_completion_interruptible_timeout(
 					&adc->completion, STM32_ADC_TIMEOUT);
@@ -1111,12 +1451,21 @@ static int stm32_adc_single_conv(struct iio_dev *indio_dev,
 		ret = IIO_VAL_INT;
 	}
 
+<<<<<<< HEAD
 	adc->cfg->stop_conv(adc);
 
 	stm32_adc_conv_irq_disable(adc);
 
 	if (adc->cfg->unprepare)
 		adc->cfg->unprepare(adc);
+=======
+	adc->cfg->stop_conv(indio_dev);
+
+	stm32_adc_conv_irq_disable(adc);
+
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1163,12 +1512,74 @@ static int stm32_adc_read_raw(struct iio_dev *indio_dev,
 	}
 }
 
+<<<<<<< HEAD
 static irqreturn_t stm32_adc_isr(int irq, void *data)
 {
 	struct stm32_adc *adc = data;
 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
 	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
+=======
+static void stm32_adc_irq_clear(struct iio_dev *indio_dev, u32 msk)
+{
+	struct stm32_adc *adc = iio_priv(indio_dev);
+
+	adc->cfg->irq_clear(indio_dev, msk);
+}
+
+static irqreturn_t stm32_adc_threaded_isr(int irq, void *data)
+{
+	struct iio_dev *indio_dev = data;
+	struct stm32_adc *adc = iio_priv(indio_dev);
+	const struct stm32_adc_regspec *regs = adc->cfg->regs;
+	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
+	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
+
+	/* Check ovr status right now, as ovr mask should be already disabled */
+	if (status & regs->isr_ovr.mask) {
+		/*
+		 * Clear ovr bit to avoid subsequent calls to IRQ handler.
+		 * This requires to stop ADC first. OVR bit state in ISR,
+		 * is propaged to CSR register by hardware.
+		 */
+		adc->cfg->stop_conv(indio_dev);
+		stm32_adc_irq_clear(indio_dev, regs->isr_ovr.mask);
+		dev_err(&indio_dev->dev, "Overrun, stopping: restart needed\n");
+		return IRQ_HANDLED;
+	}
+
+	if (!(status & mask))
+		dev_err_ratelimited(&indio_dev->dev,
+				    "Unexpected IRQ: IER=0x%08x, ISR=0x%08x\n",
+				    mask, status);
+
+	return IRQ_NONE;
+}
+
+static irqreturn_t stm32_adc_isr(int irq, void *data)
+{
+	struct iio_dev *indio_dev = data;
+	struct stm32_adc *adc = iio_priv(indio_dev);
+	const struct stm32_adc_regspec *regs = adc->cfg->regs;
+	u32 status = stm32_adc_readl(adc, regs->isr_eoc.reg);
+	u32 mask = stm32_adc_readl(adc, regs->ier_eoc.reg);
+
+	if (!(status & mask))
+		return IRQ_WAKE_THREAD;
+
+	if (status & regs->isr_ovr.mask) {
+		/*
+		 * Overrun occurred on regular conversions: data for wrong
+		 * channel may be read. Unconditionally disable interrupts
+		 * to stop processing data and print error message.
+		 * Restarting the capture can be done by disabling, then
+		 * re-enabling it (e.g. write 0, then 1 to buffer/enable).
+		 */
+		stm32_adc_ovr_irq_disable(adc);
+		stm32_adc_conv_irq_disable(adc);
+		return IRQ_WAKE_THREAD;
+	}
+>>>>>>> upstream/android-13
 
 	if (status & regs->isr_eoc.mask) {
 		/* Reading DR also clears EOC status flag */
@@ -1212,7 +1623,11 @@ static int stm32_adc_set_watermark(struct iio_dev *indio_dev, unsigned int val)
 	 * dma cyclic transfers are used, buffer is split into two periods.
 	 * There should be :
 	 * - always one buffer (period) dma is working on
+<<<<<<< HEAD
 	 * - one buffer (period) driver can push with iio_trigger_poll().
+=======
+	 * - one buffer (period) driver can push data.
+>>>>>>> upstream/android-13
 	 */
 	watermark = min(watermark, val * (unsigned)(sizeof(u16)));
 	adc->rx_buf_sz = min(rx_buf_sz, watermark * 2 * adc->num_conv);
@@ -1224,6 +1639,7 @@ static int stm32_adc_update_scan_mode(struct iio_dev *indio_dev,
 				      const unsigned long *scan_mask)
 {
 	struct stm32_adc *adc = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int ret;
 
 	adc->num_conv = bitmap_weight(scan_mask, indio_dev->masklength);
@@ -1233,6 +1649,22 @@ static int stm32_adc_update_scan_mode(struct iio_dev *indio_dev,
 		return ret;
 
 	return 0;
+=======
+	struct device *dev = indio_dev->dev.parent;
+	int ret;
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+
+	adc->num_conv = bitmap_weight(scan_mask, indio_dev->masklength);
+
+	ret = stm32_adc_conf_scan_seq(indio_dev, scan_mask);
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int stm32_adc_of_xlate(struct iio_dev *indio_dev,
@@ -1249,6 +1681,13 @@ static int stm32_adc_of_xlate(struct iio_dev *indio_dev,
 
 /**
  * stm32_adc_debugfs_reg_access - read or write register value
+<<<<<<< HEAD
+=======
+ * @indio_dev: IIO device structure
+ * @reg: register offset
+ * @writeval: value to write
+ * @readval: value to read
+>>>>>>> upstream/android-13
  *
  * To read a value from an ADC register:
  *   echo [ADC reg offset] > direct_reg_access
@@ -1262,12 +1701,27 @@ static int stm32_adc_debugfs_reg_access(struct iio_dev *indio_dev,
 					unsigned *readval)
 {
 	struct stm32_adc *adc = iio_priv(indio_dev);
+<<<<<<< HEAD
+=======
+	struct device *dev = indio_dev->dev.parent;
+	int ret;
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (!readval)
 		stm32_adc_writel(adc, reg, writeval);
 	else
 		*readval = stm32_adc_readl(adc, reg);
 
+<<<<<<< HEAD
+=======
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1375,6 +1829,7 @@ static int stm32_adc_dma_start(struct iio_dev *indio_dev)
 static int stm32_adc_buffer_postenable(struct iio_dev *indio_dev)
 {
 	struct stm32_adc *adc = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int ret;
 
 	if (adc->cfg->prepare) {
@@ -1382,11 +1837,23 @@ static int stm32_adc_buffer_postenable(struct iio_dev *indio_dev)
 		if (ret)
 			return ret;
 	}
+=======
+	struct device *dev = indio_dev->dev.parent;
+	int ret;
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = stm32_adc_set_trig(indio_dev, indio_dev->trig);
 	if (ret) {
 		dev_err(&indio_dev->dev, "Can't set trigger\n");
+<<<<<<< HEAD
 		goto err_unprepare;
+=======
+		goto err_pm_put;
+>>>>>>> upstream/android-13
 	}
 
 	ret = stm32_adc_dma_start(indio_dev);
@@ -1395,6 +1862,7 @@ static int stm32_adc_buffer_postenable(struct iio_dev *indio_dev)
 		goto err_clr_trig;
 	}
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_postenable(indio_dev);
 	if (ret < 0)
 		goto err_stop_dma;
@@ -1417,6 +1885,25 @@ err_clr_trig:
 err_unprepare:
 	if (adc->cfg->unprepare)
 		adc->cfg->unprepare(adc);
+=======
+	/* Reset adc buffer index */
+	adc->bufi = 0;
+
+	stm32_adc_ovr_irq_enable(adc);
+
+	if (!adc->dma_chan)
+		stm32_adc_conv_irq_enable(adc);
+
+	adc->cfg->start_conv(indio_dev, !!adc->dma_chan);
+
+	return 0;
+
+err_clr_trig:
+	stm32_adc_set_trig(indio_dev, NULL);
+err_pm_put:
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1424,6 +1911,7 @@ err_unprepare:
 static int stm32_adc_buffer_predisable(struct iio_dev *indio_dev)
 {
 	struct stm32_adc *adc = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int ret;
 
 	adc->cfg->stop_conv(adc);
@@ -1433,6 +1921,15 @@ static int stm32_adc_buffer_predisable(struct iio_dev *indio_dev)
 	ret = iio_triggered_buffer_predisable(indio_dev);
 	if (ret < 0)
 		dev_err(&indio_dev->dev, "predisable failed\n");
+=======
+	struct device *dev = indio_dev->dev.parent;
+
+	adc->cfg->stop_conv(indio_dev);
+	if (!adc->dma_chan)
+		stm32_adc_conv_irq_disable(adc);
+
+	stm32_adc_ovr_irq_disable(adc);
+>>>>>>> upstream/android-13
 
 	if (adc->dma_chan)
 		dmaengine_terminate_sync(adc->dma_chan);
@@ -1440,10 +1937,17 @@ static int stm32_adc_buffer_predisable(struct iio_dev *indio_dev)
 	if (stm32_adc_set_trig(indio_dev, NULL))
 		dev_err(&indio_dev->dev, "Can't clear trigger\n");
 
+<<<<<<< HEAD
 	if (adc->cfg->unprepare)
 		adc->cfg->unprepare(adc);
 
 	return ret;
+=======
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_buffer_setup_ops stm32_adc_buffer_setup_ops = {
@@ -1459,6 +1963,7 @@ static irqreturn_t stm32_adc_trigger_handler(int irq, void *p)
 
 	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
 
+<<<<<<< HEAD
 	if (!adc->dma_chan) {
 		/* reset buffer index */
 		adc->bufi = 0;
@@ -1484,6 +1989,16 @@ static irqreturn_t stm32_adc_trigger_handler(int irq, void *p)
 	/* re-enable eoc irq */
 	if (!adc->dma_chan)
 		stm32_adc_conv_irq_enable(adc);
+=======
+	/* reset buffer index */
+	adc->bufi = 0;
+	iio_push_to_buffers_with_timestamp(indio_dev, adc->buffer,
+					   pf->timestamp);
+	iio_trigger_notify_done(indio_dev->trig);
+
+	/* re-enable eoc irq */
+	stm32_adc_conv_irq_enable(adc);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -1578,7 +2093,11 @@ static void stm32_adc_chan_init_one(struct iio_dev *indio_dev,
 	}
 }
 
+<<<<<<< HEAD
 static int stm32_adc_chan_of_init(struct iio_dev *indio_dev)
+=======
+static int stm32_adc_chan_of_init(struct iio_dev *indio_dev, bool timestamping)
+>>>>>>> upstream/android-13
 {
 	struct device_node *node = indio_dev->dev.of_node;
 	struct stm32_adc *adc = iio_priv(indio_dev);
@@ -1626,6 +2145,12 @@ static int stm32_adc_chan_of_init(struct iio_dev *indio_dev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (timestamping)
+		num_channels++;
+
+>>>>>>> upstream/android-13
 	channels = devm_kcalloc(&indio_dev->dev, num_channels,
 				sizeof(struct iio_chan_spec), GFP_KERNEL);
 	if (!channels)
@@ -1676,6 +2201,22 @@ static int stm32_adc_chan_of_init(struct iio_dev *indio_dev)
 		stm32_adc_smpr_init(adc, channels[i].channel, smp);
 	}
 
+<<<<<<< HEAD
+=======
+	if (timestamping) {
+		struct iio_chan_spec *timestamp = &channels[scan_index];
+
+		timestamp->type = IIO_TIMESTAMP;
+		timestamp->channel = -1;
+		timestamp->scan_index = scan_index;
+		timestamp->scan_type.sign = 's';
+		timestamp->scan_type.realbits = 64;
+		timestamp->scan_type.storagebits = 64;
+
+		scan_index++;
+	}
+
+>>>>>>> upstream/android-13
 	indio_dev->num_channels = scan_index;
 	indio_dev->channels = channels;
 
@@ -1691,6 +2232,7 @@ static int stm32_adc_dma_request(struct device *dev, struct iio_dev *indio_dev)
 	adc->dma_chan = dma_request_chan(dev, "rx");
 	if (IS_ERR(adc->dma_chan)) {
 		ret = PTR_ERR(adc->dma_chan);
+<<<<<<< HEAD
 		if (ret != -ENODEV) {
 			if (ret != -EPROBE_DEFER)
 				dev_err(dev,
@@ -1698,6 +2240,11 @@ static int stm32_adc_dma_request(struct device *dev, struct iio_dev *indio_dev)
 					ret);
 			return ret;
 		}
+=======
+		if (ret != -ENODEV)
+			return dev_err_probe(dev, ret,
+					     "DMA channel request failed with\n");
+>>>>>>> upstream/android-13
 
 		/* DMA is optional: fall back to IRQ mode */
 		adc->dma_chan = NULL;
@@ -1739,6 +2286,10 @@ static int stm32_adc_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	irqreturn_t (*handler)(int irq, void *p) = NULL;
 	struct stm32_adc *adc;
+<<<<<<< HEAD
+=======
+	bool timestamping = false;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!pdev->dev.of_node)
@@ -1756,12 +2307,19 @@ static int stm32_adc_probe(struct platform_device *pdev)
 		of_match_device(dev->driver->of_match_table, dev)->data;
 
 	indio_dev->name = dev_name(&pdev->dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->dev.of_node = pdev->dev.of_node;
 	indio_dev->info = &stm32_adc_iio_info;
 	indio_dev->modes = INDIO_DIRECT_MODE | INDIO_HARDWARE_TRIGGERED;
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, adc);
+=======
+	platform_set_drvdata(pdev, indio_dev);
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(pdev->dev.of_node, "reg", &adc->offset);
 	if (ret != 0) {
@@ -1770,6 +2328,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
 	}
 
 	adc->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (adc->irq < 0) {
 		dev_err(&pdev->dev, "failed to get irq\n");
 		return adc->irq;
@@ -1777,6 +2336,14 @@ static int stm32_adc_probe(struct platform_device *pdev)
 
 	ret = devm_request_irq(&pdev->dev, adc->irq, stm32_adc_isr,
 			       0, pdev->name, adc);
+=======
+	if (adc->irq < 0)
+		return adc->irq;
+
+	ret = devm_request_threaded_irq(&pdev->dev, adc->irq, stm32_adc_isr,
+					stm32_adc_threaded_isr,
+					0, pdev->name, indio_dev);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "failed to request IRQ\n");
 		return ret;
@@ -1793,6 +2360,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	if (adc->clk) {
 		ret = clk_prepare_enable(adc->clk);
 		if (ret < 0) {
@@ -1822,6 +2390,28 @@ static int stm32_adc_probe(struct platform_device *pdev)
 
 	if (!adc->dma_chan)
 		handler = &stm32_adc_trigger_handler;
+=======
+	ret = stm32_adc_of_get_resolution(indio_dev);
+	if (ret < 0)
+		return ret;
+
+	ret = stm32_adc_dma_request(dev, indio_dev);
+	if (ret < 0)
+		return ret;
+
+	if (!adc->dma_chan) {
+		/* For PIO mode only, iio_pollfunc_store_time stores a timestamp
+		 * in the primary trigger IRQ handler and stm32_adc_trigger_handler
+		 * runs in the IRQ thread to push out buffer along with timestamp.
+		 */
+		handler = &stm32_adc_trigger_handler;
+		timestamping = true;
+	}
+
+	ret = stm32_adc_chan_of_init(indio_dev, timestamping);
+	if (ret < 0)
+		goto err_dma_disable;
+>>>>>>> upstream/android-13
 
 	ret = iio_triggered_buffer_setup(indio_dev,
 					 &iio_pollfunc_store_time, handler,
@@ -1831,6 +2421,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
 		goto err_dma_disable;
 	}
 
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret) {
 		dev_err(&pdev->dev, "iio dev register failed\n");
@@ -1840,6 +2431,37 @@ static int stm32_adc_probe(struct platform_device *pdev)
 	return 0;
 
 err_buffer_cleanup:
+=======
+	/* Get stm32-adc-core PM online */
+	pm_runtime_get_noresume(dev);
+	pm_runtime_set_active(dev);
+	pm_runtime_set_autosuspend_delay(dev, STM32_ADC_HW_STOP_DELAY_MS);
+	pm_runtime_use_autosuspend(dev);
+	pm_runtime_enable(dev);
+
+	ret = stm32_adc_hw_start(dev);
+	if (ret)
+		goto err_buffer_cleanup;
+
+	ret = iio_device_register(indio_dev);
+	if (ret) {
+		dev_err(&pdev->dev, "iio dev register failed\n");
+		goto err_hw_stop;
+	}
+
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+
+	return 0;
+
+err_hw_stop:
+	stm32_adc_hw_stop(dev);
+
+err_buffer_cleanup:
+	pm_runtime_disable(dev);
+	pm_runtime_set_suspended(dev);
+	pm_runtime_put_noidle(dev);
+>>>>>>> upstream/android-13
 	iio_triggered_buffer_cleanup(indio_dev);
 
 err_dma_disable:
@@ -1849,19 +2471,34 @@ err_dma_disable:
 				  adc->rx_buf, adc->rx_dma_buf);
 		dma_release_channel(adc->dma_chan);
 	}
+<<<<<<< HEAD
 err_clk_disable:
 	if (adc->clk)
 		clk_disable_unprepare(adc->clk);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static int stm32_adc_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct stm32_adc *adc = platform_get_drvdata(pdev);
 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
 
 	iio_device_unregister(indio_dev);
+=======
+	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+	struct stm32_adc *adc = iio_priv(indio_dev);
+
+	pm_runtime_get_sync(&pdev->dev);
+	iio_device_unregister(indio_dev);
+	stm32_adc_hw_stop(&pdev->dev);
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_put_noidle(&pdev->dev);
+>>>>>>> upstream/android-13
 	iio_triggered_buffer_cleanup(indio_dev);
 	if (adc->dma_chan) {
 		dma_free_coherent(adc->dma_chan->device->dev,
@@ -1869,12 +2506,68 @@ static int stm32_adc_remove(struct platform_device *pdev)
 				  adc->rx_buf, adc->rx_dma_buf);
 		dma_release_channel(adc->dma_chan);
 	}
+<<<<<<< HEAD
 	if (adc->clk)
 		clk_disable_unprepare(adc->clk);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_PM_SLEEP)
+static int stm32_adc_suspend(struct device *dev)
+{
+	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+
+	if (iio_buffer_enabled(indio_dev))
+		stm32_adc_buffer_predisable(indio_dev);
+
+	return pm_runtime_force_suspend(dev);
+}
+
+static int stm32_adc_resume(struct device *dev)
+{
+	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+	int ret;
+
+	ret = pm_runtime_force_resume(dev);
+	if (ret < 0)
+		return ret;
+
+	if (!iio_buffer_enabled(indio_dev))
+		return 0;
+
+	ret = stm32_adc_update_scan_mode(indio_dev,
+					 indio_dev->active_scan_mask);
+	if (ret < 0)
+		return ret;
+
+	return stm32_adc_buffer_postenable(indio_dev);
+}
+#endif
+
+#if defined(CONFIG_PM)
+static int stm32_adc_runtime_suspend(struct device *dev)
+{
+	return stm32_adc_hw_stop(dev);
+}
+
+static int stm32_adc_runtime_resume(struct device *dev)
+{
+	return stm32_adc_hw_start(dev);
+}
+#endif
+
+static const struct dev_pm_ops stm32_adc_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(stm32_adc_suspend, stm32_adc_resume)
+	SET_RUNTIME_PM_OPS(stm32_adc_runtime_suspend, stm32_adc_runtime_resume,
+			   NULL)
+};
+
+>>>>>>> upstream/android-13
 static const struct stm32_adc_cfg stm32f4_adc_cfg = {
 	.regs = &stm32f4_adc_regspec,
 	.adc_info = &stm32f4_adc_info,
@@ -1883,18 +2576,29 @@ static const struct stm32_adc_cfg stm32f4_adc_cfg = {
 	.start_conv = stm32f4_adc_start_conv,
 	.stop_conv = stm32f4_adc_stop_conv,
 	.smp_cycles = stm32f4_adc_smp_cycles,
+<<<<<<< HEAD
+=======
+	.irq_clear = stm32f4_adc_irq_clear,
+>>>>>>> upstream/android-13
 };
 
 static const struct stm32_adc_cfg stm32h7_adc_cfg = {
 	.regs = &stm32h7_adc_regspec,
 	.adc_info = &stm32h7_adc_info,
 	.trigs = stm32h7_adc_trigs,
+<<<<<<< HEAD
 	.selfcalib = stm32h7_adc_selfcalib,
+=======
+>>>>>>> upstream/android-13
 	.start_conv = stm32h7_adc_start_conv,
 	.stop_conv = stm32h7_adc_stop_conv,
 	.prepare = stm32h7_adc_prepare,
 	.unprepare = stm32h7_adc_unprepare,
 	.smp_cycles = stm32h7_adc_smp_cycles,
+<<<<<<< HEAD
+=======
+	.irq_clear = stm32h7_adc_irq_clear,
+>>>>>>> upstream/android-13
 };
 
 static const struct stm32_adc_cfg stm32mp1_adc_cfg = {
@@ -1902,12 +2606,19 @@ static const struct stm32_adc_cfg stm32mp1_adc_cfg = {
 	.adc_info = &stm32h7_adc_info,
 	.trigs = stm32h7_adc_trigs,
 	.has_vregready = true,
+<<<<<<< HEAD
 	.selfcalib = stm32h7_adc_selfcalib,
+=======
+>>>>>>> upstream/android-13
 	.start_conv = stm32h7_adc_start_conv,
 	.stop_conv = stm32h7_adc_stop_conv,
 	.prepare = stm32h7_adc_prepare,
 	.unprepare = stm32h7_adc_unprepare,
 	.smp_cycles = stm32h7_adc_smp_cycles,
+<<<<<<< HEAD
+=======
+	.irq_clear = stm32h7_adc_irq_clear,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id stm32_adc_of_match[] = {
@@ -1924,6 +2635,10 @@ static struct platform_driver stm32_adc_driver = {
 	.driver = {
 		.name = "stm32-adc",
 		.of_match_table = stm32_adc_of_match,
+<<<<<<< HEAD
+=======
+		.pm = &stm32_adc_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(stm32_adc_driver);

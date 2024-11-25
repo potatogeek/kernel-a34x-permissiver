@@ -4,7 +4,11 @@
  * Module Name: nsconvert - Object conversions for objects returned by
  *                          predefined methods
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -486,5 +490,9 @@ acpi_ns_convert_to_reference(struct acpi_namespace_node *scope,
 error_exit:
 	ACPI_FREE(name);
 	*return_object = new_object;
+<<<<<<< HEAD
 	return (AE_OK);
+=======
+	return (status);
+>>>>>>> upstream/android-13
 }

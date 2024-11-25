@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include "cptvf.h"
@@ -17,6 +23,7 @@ static void cptvf_send_msg_to_pf(struct cpt_vf *cptvf, struct cpt_mbox *mbx)
 			mbx->data);
 }
 
+<<<<<<< HEAD
 /* ACKs PF's mailbox message
  */
 void cptvf_mbox_send_ack(struct cpt_vf *cptvf, struct cpt_mbox *mbx)
@@ -34,6 +41,8 @@ void cptvf_mbox_send_nack(struct cpt_vf *cptvf, struct cpt_mbox *mbx)
 	cptvf_send_msg_to_pf(cptvf, mbx);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Interrupt handler to handle mailbox messages from VFs */
 void cptvf_handle_mbox_intr(struct cpt_vf *cptvf)
 {

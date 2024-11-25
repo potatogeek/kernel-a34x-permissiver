@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Z-Star/Vimicro zc301/zc302p/vc30x driver
  *
  * Copyright (C) 2009-2012 Jean-Francois Moine <http://moinejf.free.fr>
  * Copyright (C) 2004 2005 2006 Michel Xhaard mxhaard@magic.fr
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -332,7 +339,11 @@ static const struct usb_action adcm2700_60HZ[] = {
 	{0xaa, 0x28, 0x0002},				/* 00,28,02,aa */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action adcm2700_NoFliker[] = {
+=======
+static const struct usb_action adcm2700_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x01, ZC3XX_R010_CMOSSENSORSELECT},	/* 00,10,01,cc */
 	{0xaa, 0xfe, 0x0002},				/* 00,fe,02,aa */
 	{0xa0, 0x0a, ZC3XX_R010_CMOSSENSORSELECT},	/* 00,10,0a,cc */
@@ -534,7 +545,11 @@ static const struct usb_action cs2102_60HZ[] = {
 	{0xa0, 0xff, ZC3XX_R020_HSYNC_3},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action cs2102_NoFlikerScale[] = {
+=======
+static const struct usb_action cs2102_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xaa, 0x23, 0x0001},
 	{0xaa, 0x24, 0x005f},
@@ -556,7 +571,11 @@ static const struct usb_action cs2102_NoFlikerScale[] = {
 	{0xa0, 0xff, ZC3XX_R020_HSYNC_3},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action cs2102_NoFliker[] = {
+=======
+static const struct usb_action cs2102_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xaa, 0x23, 0x0000},
 	{0xaa, 0x24, 0x00af},
@@ -1394,7 +1413,11 @@ static const struct usb_action gc0305_60HZ[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static const struct usb_action gc0305_NoFliker[] = {
+=======
+static const struct usb_action gc0305_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x0c, ZC3XX_R100_OPERATIONMODE},	/* 01,00,0c,cc */
 	{0xaa, 0x82, 0x0000},	/* 00,82,00,aa */
 	{0xaa, 0x83, 0x0000},	/* 00,83,00,aa */
@@ -1719,7 +1742,11 @@ static const struct usb_action hdcs2020_60HZ[] = {
 	{0xa0, 0x2c, ZC3XX_R01F_HSYNC_2}, /* 00,1f,2c,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action hdcs2020_NoFliker[] = {
+=======
+static const struct usb_action hdcs2020_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS}, /* 00,19,00,cc */
 	{0xaa, 0x13, 0x0010},			/* 00,13,10,aa */
 	{0xaa, 0x14, 0x0001},			/* 00,14,01,aa */
@@ -1934,7 +1961,11 @@ static const struct usb_action hv7131b_60HZScale[] = {	/* 320x240 */
 	{0xa0, 0x40, ZC3XX_R020_HSYNC_3},	/* 00,20,40,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action hv7131b_NoFliker[] = {	/* 640x480*/
+=======
+static const struct usb_action hv7131b_NoFlicker[] = {	/* 640x480*/
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},	/* 00,19,00,cc */
 	{0xaa, 0x25, 0x0003},			/* 00,25,03,aa */
 	{0xaa, 0x26, 0x0000},			/* 00,26,00,aa */
@@ -1959,7 +1990,11 @@ static const struct usb_action hv7131b_NoFliker[] = {	/* 640x480*/
 	{0xa0, 0x03, ZC3XX_R020_HSYNC_3},	/* 00,20,03,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action hv7131b_NoFlikerScale[] = { /* 320x240 */
+=======
+static const struct usb_action hv7131b_NoFlickerScale[] = { /* 320x240 */
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},	/* 00,19,00,cc */
 	{0xaa, 0x25, 0x0003},			/* 00,25,03,aa */
 	{0xaa, 0x26, 0x0000},			/* 00,26,00,aa */
@@ -2150,7 +2185,11 @@ static const struct usb_action hv7131r_60HZScale[] = {
 	{0xa0, 0x08, ZC3XX_R020_HSYNC_3},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action hv7131r_NoFliker[] = {
+=======
+static const struct usb_action hv7131r_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xa0, 0x2f, ZC3XX_R190_EXPOSURELIMITHIGH},
 	{0xa0, 0xf8, ZC3XX_R191_EXPOSURELIMITMID},
@@ -2168,7 +2207,11 @@ static const struct usb_action hv7131r_NoFliker[] = {
 	{0xa0, 0x08, ZC3XX_R020_HSYNC_3},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action hv7131r_NoFlikerScale[] = {
+=======
+static const struct usb_action hv7131r_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xa0, 0x2f, ZC3XX_R190_EXPOSURELIMITHIGH},
 	{0xa0, 0xf8, ZC3XX_R191_EXPOSURELIMITMID},
@@ -2671,7 +2714,11 @@ static const struct usb_action icm105a_60HZ[] = {
 	{0xa0, 0xc0, ZC3XX_R1A8_DIGITALGAIN}, /* 01,a8,c0,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action icm105a_NoFlikerScale[] = {
+=======
+static const struct usb_action icm105a_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS}, /* 00,19,00,cc */
 	{0xaa, 0x0d, 0x0003}, /* 00,0d,03,aa */
 	{0xaa, 0x0c, 0x0004}, /* 00,0c,04,aa */
@@ -2702,7 +2749,11 @@ static const struct usb_action icm105a_NoFlikerScale[] = {
 	{0xa0, 0xff, ZC3XX_R020_HSYNC_3}, /* 00,20,ff,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action icm105a_NoFliker[] = {
+=======
+static const struct usb_action icm105a_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS}, /* 00,19,00,cc */
 	{0xaa, 0x0d, 0x0003}, /* 00,0d,03,aa */
 	{0xaa, 0x0c, 0x0004}, /* 00,0c,04,aa */
@@ -3018,7 +3069,11 @@ static const struct usb_action mc501cb_60HZScale[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static const struct usb_action mc501cb_NoFliker[] = {
+=======
+static const struct usb_action mc501cb_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xaa, 0x03, 0x0003}, /* 00,03,03,aa */
 	{0xaa, 0x10, 0x00fc}, /* 00,10,fc,aa */
 	{0xaa, 0x36, 0x0018}, /* 00,36,18,aa */
@@ -3030,7 +3085,11 @@ static const struct usb_action mc501cb_NoFliker[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static const struct usb_action mc501cb_NoFlikerScale[] = {
+=======
+static const struct usb_action mc501cb_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xaa, 0x03, 0x0003}, /* 00,03,03,aa */
 	{0xaa, 0x10, 0x00fc}, /* 00,10,fc,aa */
 	{0xaa, 0x36, 0x0030}, /* 00,36,30,aa */
@@ -3220,7 +3279,11 @@ static const struct usb_action ov7620_60HZ[] = {
 	{0xa1, 0x01, 0x0037},		*/
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action ov7620_NoFliker[] = {
+=======
+static const struct usb_action ov7620_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xdd, 0x00, 0x0100},			/* 00,01,00,dd */
 	{0xaa, 0x2b, 0x0000},			/* 00,2b,00,aa */
 	/* disable 1/120s & 1/100s exposures for banding filter */
@@ -3602,7 +3665,11 @@ static const struct usb_action pas106b_InitialScale[] = {	/* 176x144 */
 	{0xaa, 0x14, 0x0081},
 /* Other registers */
 	{0xa0, 0x37, ZC3XX_R101_SENSORCORRECTION},
+<<<<<<< HEAD
 /* Frame retreiving */
+=======
+/* Frame retrieving */
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 /* Gains */
 	{0xa0, 0xa0, ZC3XX_R1A8_DIGITALGAIN},
@@ -3718,7 +3785,11 @@ static const struct usb_action pas106b_Initial[] = {	/* 352x288 */
 	{0xaa, 0x14, 0x0081},
 /* Other registers */
 	{0xa0, 0x37, ZC3XX_R101_SENSORCORRECTION},
+<<<<<<< HEAD
 /* Frame retreiving */
+=======
+/* Frame retrieving */
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 /* Gains */
 	{0xa0, 0xa0, ZC3XX_R1A8_DIGITALGAIN},
@@ -3836,7 +3907,11 @@ static const struct usb_action pas106b_60HZ[] = {
 	{0xa0, 0x04, ZC3XX_R1A9_DIGITALLIMITDIFF}, /* 01,a9,04,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action pas106b_NoFliker[] = {
+=======
+static const struct usb_action pas106b_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R190_EXPOSURELIMITHIGH}, /* 01,90,00,cc */
 	{0xa0, 0x06, ZC3XX_R191_EXPOSURELIMITMID}, /* 01,91,06,cc */
 	{0xa0, 0x50, ZC3XX_R192_EXPOSURELIMITLOW}, /* 01,92,50,cc */
@@ -4060,7 +4135,11 @@ static const struct usb_action pas202b_60HZScale[] = {
 	{0xa0, 0x0e, ZC3XX_R088_EXPTIMELOW},		/* 00,88,0e,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action pas202b_NoFliker[] = {
+=======
+static const struct usb_action pas202b_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},		/* 00,19,00,cc */
 	{0xa0, 0x20, ZC3XX_R087_EXPTIMEMID},		/* 00,87,20,cc */
 	{0xa0, 0x21, ZC3XX_R088_EXPTIMELOW},		/* 00,88,21,cc */
@@ -4089,7 +4168,11 @@ static const struct usb_action pas202b_NoFliker[] = {
 	{0xa0, 0x0e, ZC3XX_R088_EXPTIMELOW},		/* 00,88,0e,cc */
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action pas202b_NoFlikerScale[] = {
+=======
+static const struct usb_action pas202b_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},		/* 00,19,00,cc */
 	{0xa0, 0x20, ZC3XX_R087_EXPTIMEMID},		/* 00,87,20,cc */
 	{0xa0, 0x21, ZC3XX_R088_EXPTIMELOW},		/* 00,88,21,cc */
@@ -4318,7 +4401,11 @@ static const struct usb_action mt9v111_1_AE60HZScale[] = {
 	{0xa0, 0x42, ZC3XX_R180_AUTOCORRECTENABLE},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action mt9v111_1_AENoFliker[] = {
+=======
+static const struct usb_action mt9v111_1_AENoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R180_AUTOCORRECTENABLE},
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xbb, 0x00, 0x0509},
@@ -4341,7 +4428,11 @@ static const struct usb_action mt9v111_1_AENoFliker[] = {
 	{0xa0, 0x42, ZC3XX_R180_AUTOCORRECTENABLE},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action mt9v111_1_AENoFlikerScale[] = {
+=======
+static const struct usb_action mt9v111_1_AENoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R180_AUTOCORRECTENABLE},
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xbb, 0x00, 0x0534},
@@ -4563,7 +4654,11 @@ static const struct usb_action mt9v111_3_AE60HZScale[] = {
 	{0xa0, 0x42, ZC3XX_R180_AUTOCORRECTENABLE},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action mt9v111_3_AENoFliker[] = {
+=======
+static const struct usb_action mt9v111_3_AENoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R180_AUTOCORRECTENABLE},
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xaa, 0x05, 0x0034},
@@ -4586,7 +4681,11 @@ static const struct usb_action mt9v111_3_AENoFliker[] = {
 	{0xa0, 0x42, ZC3XX_R180_AUTOCORRECTENABLE},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action mt9v111_3_AENoFlikerScale[] = {
+=======
+static const struct usb_action mt9v111_3_AENoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R180_AUTOCORRECTENABLE},
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xaa, 0x05, 0x0034},
@@ -4796,7 +4895,11 @@ static const struct usb_action pb0330_60HZScale[] = {
 	{0xa0, 0xd0, ZC3XX_R020_HSYNC_3},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action pb0330_NoFliker[] = {
+=======
+static const struct usb_action pb0330_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xbb, 0x00, 0x0509},
 	{0xbb, 0x02, 0x0940},
@@ -4818,7 +4921,11 @@ static const struct usb_action pb0330_NoFliker[] = {
 	{0xa0, 0xe0, ZC3XX_R020_HSYNC_3},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action pb0330_NoFlikerScale[] = {
+=======
+static const struct usb_action pb0330_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS},
 	{0xbb, 0x00, 0x0535},
 	{0xbb, 0x01, 0x0980},
@@ -5040,7 +5147,11 @@ static const struct usb_action po2030_60HZ[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static const struct usb_action po2030_NoFliker[] = {
+=======
+static const struct usb_action po2030_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x02, ZC3XX_R180_AUTOCORRECTENABLE}, /* 01,80,02,cc */
 	{0xaa, 0x8d, 0x000d}, /* 00,8d,0d,aa */
 	{0xaa, 0x1a, 0x0000}, /* 00,1a,00,aa */
@@ -5224,7 +5335,11 @@ static const struct usb_action tas5130c_60HZScale[] = {
 	{0xa0, 0x50, ZC3XX_R11D_GLOBALGAIN},
 	{}
 };
+<<<<<<< HEAD
 static const struct usb_action tas5130c_NoFliker[] = {
+=======
+static const struct usb_action tas5130c_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS}, /* 00,19,00,cc */
 	{0xaa, 0xa3, 0x0001}, /* 00,a3,01,aa */
 	{0xaa, 0xa4, 0x0040}, /* 00,a4,40,aa */
@@ -5250,7 +5365,11 @@ static const struct usb_action tas5130c_NoFliker[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static const struct usb_action tas5130c_NoFlikerScale[] = {
+=======
+static const struct usb_action tas5130c_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x00, ZC3XX_R019_AUTOADJUSTFPS}, /* 00,19,00,cc */
 	{0xaa, 0xa3, 0x0001}, /* 00,a3,01,aa */
 	{0xaa, 0xa4, 0x0090}, /* 00,a4,90,aa */
@@ -5491,7 +5610,11 @@ static const struct usb_action gc0303_60HZScale[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static const struct usb_action gc0303_NoFliker[] = {
+=======
+static const struct usb_action gc0303_NoFlicker[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x0c, ZC3XX_R100_OPERATIONMODE},		/* 01,00,0c,cc, */
 	{0xaa, 0x82, 0x0000},		/* 00,82,00,aa */
 	{0xaa, 0x83, 0x0000},		/* 00,83,00,aa */
@@ -5513,7 +5636,11 @@ static const struct usb_action gc0303_NoFliker[] = {
 	{}
 };
 
+<<<<<<< HEAD
 static const struct usb_action gc0303_NoFlikerScale[] = {
+=======
+static const struct usb_action gc0303_NoFlickerScale[] = {
+>>>>>>> upstream/android-13
 	{0xa0, 0x0c, ZC3XX_R100_OPERATIONMODE},		/* 01,00,0c,cc, */
 	{0xaa, 0x82, 0x0000},		/* 00,82,00,aa */
 	{0xaa, 0x83, 0x0000},		/* 00,83,00,aa */
@@ -5815,7 +5942,11 @@ static void setquality(struct gspca_dev *gspca_dev)
  * Valid frequencies are:
  *	50Hz, for European and Asian lighting (default)
  *	60Hz, for American lighting
+<<<<<<< HEAD
  *	0 = No Fliker (for outdoore usage)
+=======
+ *	0 = No Flicker (for outdoor usage)
+>>>>>>> upstream/android-13
  */
 static void setlightfreq(struct gspca_dev *gspca_dev, s32 val)
 {
@@ -5823,6 +5954,7 @@ static void setlightfreq(struct gspca_dev *gspca_dev, s32 val)
 	int i, mode;
 	const struct usb_action *zc3_freq;
 	static const struct usb_action *freq_tb[SENSOR_MAX][6] = {
+<<<<<<< HEAD
 	[SENSOR_ADCM2700] =
 		{adcm2700_NoFliker, adcm2700_NoFliker,
 		 adcm2700_50HZ, adcm2700_50HZ,
@@ -5897,6 +6029,82 @@ static void setlightfreq(struct gspca_dev *gspca_dev, s32 val)
 		 po2030_60HZ, po2030_60HZ},
 	[SENSOR_TAS5130C] =
 		{tas5130c_NoFliker, tas5130c_NoFlikerScale,
+=======
+	[SENSOR_ADCM2700] = {
+		 adcm2700_NoFlicker, adcm2700_NoFlicker,
+		 adcm2700_50HZ, adcm2700_50HZ,
+		 adcm2700_60HZ, adcm2700_60HZ},
+	[SENSOR_CS2102] = {
+		 cs2102_NoFlicker, cs2102_NoFlickerScale,
+		 cs2102_50HZ, cs2102_50HZScale,
+		 cs2102_60HZ, cs2102_60HZScale},
+	[SENSOR_CS2102K] = {
+		 cs2102_NoFlicker, cs2102_NoFlickerScale,
+		 NULL, NULL, /* currently disabled */
+		 NULL, NULL},
+	[SENSOR_GC0303] = {
+		 gc0303_NoFlicker, gc0303_NoFlickerScale,
+		 gc0303_50HZ, gc0303_50HZScale,
+		 gc0303_60HZ, gc0303_60HZScale},
+	[SENSOR_GC0305] = {
+		 gc0305_NoFlicker, gc0305_NoFlicker,
+		 gc0305_50HZ, gc0305_50HZ,
+		 gc0305_60HZ, gc0305_60HZ},
+	[SENSOR_HDCS2020] = {
+		 hdcs2020_NoFlicker, hdcs2020_NoFlicker,
+		 hdcs2020_50HZ, hdcs2020_50HZ,
+		 hdcs2020_60HZ, hdcs2020_60HZ},
+	[SENSOR_HV7131B] = {
+		 hv7131b_NoFlicker, hv7131b_NoFlickerScale,
+		 hv7131b_50HZ, hv7131b_50HZScale,
+		 hv7131b_60HZ, hv7131b_60HZScale},
+	[SENSOR_HV7131R] = {
+		 hv7131r_NoFlicker, hv7131r_NoFlickerScale,
+		 hv7131r_50HZ, hv7131r_50HZScale,
+		 hv7131r_60HZ, hv7131r_60HZScale},
+	[SENSOR_ICM105A] = {
+		 icm105a_NoFlicker, icm105a_NoFlickerScale,
+		 icm105a_50HZ, icm105a_50HZScale,
+		 icm105a_60HZ, icm105a_60HZScale},
+	[SENSOR_MC501CB] = {
+		 mc501cb_NoFlicker, mc501cb_NoFlickerScale,
+		 mc501cb_50HZ, mc501cb_50HZScale,
+		 mc501cb_60HZ, mc501cb_60HZScale},
+	[SENSOR_MT9V111_1] = {
+		 mt9v111_1_AENoFlicker, mt9v111_1_AENoFlickerScale,
+		 mt9v111_1_AE50HZ, mt9v111_1_AE50HZScale,
+		 mt9v111_1_AE60HZ, mt9v111_1_AE60HZScale},
+	[SENSOR_MT9V111_3] = {
+		 mt9v111_3_AENoFlicker, mt9v111_3_AENoFlickerScale,
+		 mt9v111_3_AE50HZ, mt9v111_3_AE50HZScale,
+		 mt9v111_3_AE60HZ, mt9v111_3_AE60HZScale},
+	[SENSOR_OV7620] = {
+		 ov7620_NoFlicker, ov7620_NoFlicker,
+		 ov7620_50HZ, ov7620_50HZ,
+		 ov7620_60HZ, ov7620_60HZ},
+	[SENSOR_OV7630C] = {
+		 NULL, NULL,
+		 NULL, NULL,
+		 NULL, NULL},
+	[SENSOR_PAS106] = {
+		 pas106b_NoFlicker, pas106b_NoFlicker,
+		 pas106b_50HZ, pas106b_50HZ,
+		 pas106b_60HZ, pas106b_60HZ},
+	[SENSOR_PAS202B] = {
+		 pas202b_NoFlicker, pas202b_NoFlickerScale,
+		 pas202b_50HZ, pas202b_50HZScale,
+		 pas202b_60HZ, pas202b_60HZScale},
+	[SENSOR_PB0330] = {
+		 pb0330_NoFlicker, pb0330_NoFlickerScale,
+		 pb0330_50HZ, pb0330_50HZScale,
+		 pb0330_60HZ, pb0330_60HZScale},
+	[SENSOR_PO2030] = {
+		 po2030_NoFlicker, po2030_NoFlicker,
+		 po2030_50HZ, po2030_50HZ,
+		 po2030_60HZ, po2030_60HZ},
+	[SENSOR_TAS5130C] = {
+		 tas5130c_NoFlicker, tas5130c_NoFlickerScale,
+>>>>>>> upstream/android-13
 		 tas5130c_50HZ, tas5130c_50HZScale,
 		 tas5130c_60HZ, tas5130c_60HZScale},
 	};
@@ -6775,7 +6983,11 @@ static int sd_start(struct gspca_dev *gspca_dev)
 	case SENSOR_HV7131R:
 	case SENSOR_TAS5130C:
 		reg_r(gspca_dev, 0x0008);
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SENSOR_PO2030:
 		reg_w(gspca_dev, 0x03, 0x0008);
 		break;
@@ -6824,7 +7036,11 @@ static int sd_start(struct gspca_dev *gspca_dev)
 	case SENSOR_TAS5130C:
 		reg_w(gspca_dev, 0x09, 0x01ad);	/* (from win traces) */
 		reg_w(gspca_dev, 0x15, 0x01ae);
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SENSOR_PAS202B:
 	case SENSOR_PO2030:
 /*		reg_w(gspca_dev, 0x40, ZC3XX_R117_GGAIN); in win traces */

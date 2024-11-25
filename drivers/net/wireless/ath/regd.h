@@ -28,7 +28,10 @@ enum ctl_group {
 	CTL_ETSI = 0x30,
 };
 
+<<<<<<< HEAD
 #define NO_CTL 0xff
+=======
+>>>>>>> upstream/android-13
 #define SD_NO_CTL               0xE0
 #define NO_CTL                  0xff
 #define CTL_11A                 0
@@ -185,7 +188,13 @@ enum CountryCode {
 	CTRY_UKRAINE = 804,
 	CTRY_UNITED_KINGDOM = 826,
 	CTRY_UNITED_STATES = 840,
+<<<<<<< HEAD
 	CTRY_UNITED_STATES_FCC49 = 842,
+=======
+	CTRY_UNITED_STATES2 = 841,
+	CTRY_UNITED_STATES_FCC49 = 842,
+	CTRY_UNITED_STATES3 = 843,
+>>>>>>> upstream/android-13
 	CTRY_URUGUAY = 858,
 	CTRY_UZBEKISTAN = 860,
 	CTRY_VENEZUELA = 862,

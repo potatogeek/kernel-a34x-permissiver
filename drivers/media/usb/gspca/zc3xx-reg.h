@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * zc030x registers
  *
@@ -5,8 +9,11 @@
  *
  * The register aliases used here came from this driver:
  *	http://zc0302.sourceforge.net/zc0302.php
+<<<<<<< HEAD
  *
  * This code is placed under the terms of the GNU General Public License v2
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Define the register map */
@@ -26,7 +33,11 @@
 /* Test mode */
 #define ZC3XX_R00B_TESTMODECONTROL     0x000b
 
+<<<<<<< HEAD
 /* Frame retreiving */
+=======
+/* Frame retrieving */
+>>>>>>> upstream/android-13
 #define ZC3XX_R00C_LASTACQTIME         0x000c
 #define ZC3XX_R00D_MONITORRES          0x000d
 #define ZC3XX_R00E_TIMESTAMPHIGH       0x000e

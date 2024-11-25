@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  ebt_redirect
  *
@@ -20,7 +24,11 @@ ebt_redirect_tg(struct sk_buff *skb, const struct xt_action_param *par)
 {
 	const struct ebt_redirect_info *info = par->targinfo;
 
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, 0))
+=======
+	if (skb_ensure_writable(skb, 0))
+>>>>>>> upstream/android-13
 		return EBT_DROP;
 
 	if (xt_hooknum(par) != NF_BR_BROUTING)

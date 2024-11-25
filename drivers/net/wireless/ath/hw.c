@@ -24,7 +24,11 @@
 #define REG_WRITE(_ah, _reg, _val)	(common->ops->write)(_ah, _val, _reg)
 
 /**
+<<<<<<< HEAD
  * ath_hw_set_bssid_mask - filter out bssids we listen
+=======
+ * ath_hw_setbssidmask - filter out bssids we listen
+>>>>>>> upstream/android-13
  *
  * @common: the ath_common struct for the device.
  *

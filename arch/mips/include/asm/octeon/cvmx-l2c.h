@@ -327,7 +327,11 @@ void cvmx_l2c_flush(void);
 
 /**
  *
+<<<<<<< HEAD
  * Returns Returns the size of the L2 cache in bytes,
+=======
+ * Returns the size of the L2 cache in bytes,
+>>>>>>> upstream/android-13
  * -1 on error (unrecognized model)
  */
 int cvmx_l2c_get_cache_size_bytes(void);

@@ -80,9 +80,12 @@ union cvmx_rst_boot {
 		uint64_t chipkill:1;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_boot_s cn70xx;
 	struct cvmx_rst_boot_s cn70xxp1;
 	struct cvmx_rst_boot_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_cfg {
@@ -102,9 +105,12 @@ union cvmx_rst_cfg {
 		uint64_t bist_delay:58;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_cfg_s cn70xx;
 	struct cvmx_rst_cfg_s cn70xxp1;
 	struct cvmx_rst_cfg_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_ckill {
@@ -118,9 +124,12 @@ union cvmx_rst_ckill {
 		uint64_t reserved_47_63:17;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_ckill_s cn70xx;
 	struct cvmx_rst_ckill_s cn70xxp1;
 	struct cvmx_rst_ckill_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_ctlx {
@@ -150,9 +159,12 @@ union cvmx_rst_ctlx {
 		uint64_t reserved_10_63:54;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_ctlx_s cn70xx;
 	struct cvmx_rst_ctlx_s cn70xxp1;
 	struct cvmx_rst_ctlx_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_delay {
@@ -168,9 +180,12 @@ union cvmx_rst_delay {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_delay_s cn70xx;
 	struct cvmx_rst_delay_s cn70xxp1;
 	struct cvmx_rst_delay_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_eco {
@@ -184,7 +199,10 @@ union cvmx_rst_eco {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_eco_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_int {
@@ -215,8 +233,11 @@ union cvmx_rst_int {
 		uint64_t reserved_11_63:53;
 #endif
 	} cn70xx;
+<<<<<<< HEAD
 	struct cvmx_rst_int_cn70xx cn70xxp1;
 	struct cvmx_rst_int_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_ocx {
@@ -230,7 +251,10 @@ union cvmx_rst_ocx {
 		uint64_t reserved_3_63:61;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_ocx_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_power_dbg {
@@ -244,7 +268,10 @@ union cvmx_rst_power_dbg {
 		uint64_t reserved_3_63:61;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_power_dbg_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_pp_power {
@@ -267,8 +294,11 @@ union cvmx_rst_pp_power {
 		uint64_t reserved_4_63:60;
 #endif
 	} cn70xx;
+<<<<<<< HEAD
 	struct cvmx_rst_pp_power_cn70xx cn70xxp1;
 	struct cvmx_rst_pp_power_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_soft_prstx {
@@ -282,9 +312,12 @@ union cvmx_rst_soft_prstx {
 		uint64_t reserved_1_63:63;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_soft_prstx_s cn70xx;
 	struct cvmx_rst_soft_prstx_s cn70xxp1;
 	struct cvmx_rst_soft_prstx_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_rst_soft_rst {
@@ -298,9 +331,12 @@ union cvmx_rst_soft_rst {
 		uint64_t reserved_1_63:63;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_rst_soft_rst_s cn70xx;
 	struct cvmx_rst_soft_rst_s cn70xxp1;
 	struct cvmx_rst_soft_rst_s cn78xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

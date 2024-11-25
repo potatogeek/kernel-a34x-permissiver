@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * External Connector (extcon) framework
  * - linux/include/linux/extcon.h for extcon consumer device driver.
@@ -12,6 +16,7 @@
  * based on switch class driver
  * Copyright (C) 2008 Google, Inc.
  * Author: Mike Lockwood <lockwood@android.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -21,6 +26,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_EXTCON_H__
@@ -125,19 +132,28 @@
  * @type:       integer (intval)
  * @value:      0 (USB/USB2) or 1 (USB3)
  * @default:    0 (USB/USB2)
+<<<<<<< HEAD
  * - EXTCON_PROP_USB_TYPEC_MED_HIGH_CURRENT
  * @type:       integer (intval)
  * @value:      0 (default current), 1 (medium or high current)
  * @default:    0 (default current)
+=======
+>>>>>>> upstream/android-13
  *
  */
 #define EXTCON_PROP_USB_VBUS		0
 #define EXTCON_PROP_USB_TYPEC_POLARITY	1
 #define EXTCON_PROP_USB_SS		2
+<<<<<<< HEAD
 #define EXTCON_PROP_USB_TYPEC_MED_HIGH_CURRENT	3
 
 #define EXTCON_PROP_USB_MIN		0
 #define EXTCON_PROP_USB_MAX		3
+=======
+
+#define EXTCON_PROP_USB_MIN		0
+#define EXTCON_PROP_USB_MAX		2
+>>>>>>> upstream/android-13
 #define EXTCON_PROP_USB_CNT	(EXTCON_PROP_USB_MAX - EXTCON_PROP_USB_MIN + 1)
 
 /* Properties of EXTCON_TYPE_CHG. */
@@ -183,7 +199,11 @@ struct extcon_dev;
  * Following APIs get the connected state of each external connector.
  * The 'id' argument indicates the defined external connector.
  */
+<<<<<<< HEAD
 extern int extcon_get_state(struct extcon_dev *edev, unsigned int id);
+=======
+int extcon_get_state(struct extcon_dev *edev, unsigned int id);
+>>>>>>> upstream/android-13
 
 /*
  * Following APIs get the property of each external connector.
@@ -194,10 +214,17 @@ extern int extcon_get_state(struct extcon_dev *edev, unsigned int id);
  * for each external connector. They are used to get the capability of the
  * property of each external connector based on the id and property.
  */
+<<<<<<< HEAD
 extern int extcon_get_property(struct extcon_dev *edev, unsigned int id,
 				unsigned int prop,
 				union extcon_property_value *prop_val);
 extern int extcon_get_property_capability(struct extcon_dev *edev,
+=======
+int extcon_get_property(struct extcon_dev *edev, unsigned int id,
+				unsigned int prop,
+				union extcon_property_value *prop_val);
+int extcon_get_property_capability(struct extcon_dev *edev,
+>>>>>>> upstream/android-13
 				unsigned int id, unsigned int prop);
 
 /*
@@ -209,6 +236,7 @@ extern int extcon_get_property_capability(struct extcon_dev *edev,
  * extcon_register_notifier_all(*edev, *nb) : Register a notifier block
  *			for all supported external connectors of the extcon.
  */
+<<<<<<< HEAD
 extern int extcon_register_notifier(struct extcon_dev *edev, unsigned int id,
 				struct notifier_block *nb);
 extern int extcon_unregister_notifier(struct extcon_dev *edev, unsigned int id,
@@ -232,12 +260,34 @@ extern int devm_extcon_register_notifier_all(struct device *dev,
 				struct extcon_dev *edev,
 				struct notifier_block *nb);
 extern void devm_extcon_unregister_notifier_all(struct device *dev,
+=======
+int extcon_register_notifier(struct extcon_dev *edev, unsigned int id,
+				struct notifier_block *nb);
+int extcon_unregister_notifier(struct extcon_dev *edev, unsigned int id,
+				struct notifier_block *nb);
+int devm_extcon_register_notifier(struct device *dev,
+				struct extcon_dev *edev, unsigned int id,
+				struct notifier_block *nb);
+void devm_extcon_unregister_notifier(struct device *dev,
+				struct extcon_dev *edev, unsigned int id,
+				struct notifier_block *nb);
+
+int extcon_register_notifier_all(struct extcon_dev *edev,
+				struct notifier_block *nb);
+int extcon_unregister_notifier_all(struct extcon_dev *edev,
+				struct notifier_block *nb);
+int devm_extcon_register_notifier_all(struct device *dev,
+				struct extcon_dev *edev,
+				struct notifier_block *nb);
+void devm_extcon_unregister_notifier_all(struct device *dev,
+>>>>>>> upstream/android-13
 				struct extcon_dev *edev,
 				struct notifier_block *nb);
 
 /*
  * Following APIs get the extcon_dev from devicetree or by through extcon name.
  */
+<<<<<<< HEAD
 extern struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name);
 extern struct extcon_dev *extcon_find_edev_by_node(struct device_node *node);
 extern struct extcon_dev *extcon_get_edev_by_phandle(struct device *dev,
@@ -248,6 +298,16 @@ extern const char *extcon_get_edev_name(struct extcon_dev *edev);
 
 extern int extcon_blocking_sync(struct extcon_dev *edev, unsigned int id,
 							bool val);
+=======
+struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name);
+struct extcon_dev *extcon_find_edev_by_node(struct device_node *node);
+struct extcon_dev *extcon_get_edev_by_phandle(struct device *dev,
+						     int index);
+
+/* Following API get the name of extcon device. */
+const char *extcon_get_edev_name(struct extcon_dev *edev);
+
+>>>>>>> upstream/android-13
 #else /* CONFIG_EXTCON */
 static inline int extcon_get_state(struct extcon_dev *edev, unsigned int id)
 {
@@ -279,6 +339,7 @@ static inline int extcon_unregister_notifier(struct extcon_dev *edev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int extcon_register_blocking_notifier(struct extcon_dev *edev,
 					unsigned int id,
 					struct notifier_block *nb)
@@ -293,6 +354,8 @@ static inline int extcon_unregister_blocking_notifier(struct extcon_dev *edev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int devm_extcon_register_notifier(struct device *dev,
 				struct extcon_dev *edev, unsigned int id,
 				struct notifier_block *nb)
@@ -332,11 +395,14 @@ static inline struct extcon_dev *extcon_get_extcon_dev(const char *extcon_name)
 	return ERR_PTR(-ENODEV);
 }
 
+<<<<<<< HEAD
 static inline const char *extcon_get_edev_name(struct extcon_dev *edev)
 {
   return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct extcon_dev *extcon_find_edev_by_node(struct device_node *node)
 {
 	return ERR_PTR(-ENODEV);
@@ -347,6 +413,14 @@ static inline struct extcon_dev *extcon_get_edev_by_phandle(struct device *dev,
 {
 	return ERR_PTR(-ENODEV);
 }
+<<<<<<< HEAD
+=======
+
+static inline const char *extcon_get_edev_name(struct extcon_dev *edev)
+{
+	return NULL;
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_EXTCON */
 
 /*

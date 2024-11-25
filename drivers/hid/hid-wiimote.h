@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __HID_WIIMOTE_H
 #define __HID_WIIMOTE_H
 
@@ -7,10 +11,13 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -165,6 +172,11 @@ struct wiimote_data {
 	struct work_struct init_worker;
 };
 
+<<<<<<< HEAD
+=======
+extern bool wiimote_dpad_as_analog;
+
+>>>>>>> upstream/android-13
 /* wiimote modules */
 
 enum wiimod_module {

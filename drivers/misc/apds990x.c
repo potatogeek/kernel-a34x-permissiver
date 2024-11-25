@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of the APDS990x sensor driver.
  * Chip is combined proximity and ambient light sensor.
@@ -5,6 +9,7 @@
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  *
  * Contact: Samu Onkalo <samu.p.onkalo@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +25,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -188,7 +195,10 @@ struct apds990x_chip {
 #define APDS_LUX_DEFAULT_RATE		200
 
 static const u8 again[]	= {1, 8, 16, 120}; /* ALS gain steps */
+<<<<<<< HEAD
 static const u8 ir_currents[]	= {100, 50, 25, 12}; /* IRled currents in mA */
+=======
+>>>>>>> upstream/android-13
 
 /* Following two tables must match i.e 10Hz rate means 1 as persistence value */
 static const u16 arates_hz[] = {10, 5, 2, 1};

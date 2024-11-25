@@ -540,7 +540,11 @@ struct pnp_resource *pnp_add_irq_resource(struct pnp_dev *dev, int irq,
 	res->start = irq;
 	res->end = irq;
 
+<<<<<<< HEAD
 	dev_printk(KERN_DEBUG, &dev->dev, "%pR\n", res);
+=======
+	dev_dbg(&dev->dev, "%pR\n", res);
+>>>>>>> upstream/android-13
 	return pnp_res;
 }
 

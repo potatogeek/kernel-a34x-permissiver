@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016-2017
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2016-2017
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -20,6 +27,10 @@
 	compatible = "lwn,mccmon6", "fsl,imx6q";
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x80000000>;
 	};
 
@@ -240,7 +251,10 @@
 };
 
 &pwm2 {
+<<<<<<< HEAD
 	#pwm-cells = <3>;
+=======
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm2>;
 	status = "okay";

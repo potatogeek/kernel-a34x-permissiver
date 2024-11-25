@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 /*
  * Connection tracking support for PPTP (Point to Point Tunneling Protocol).
  * PPTP is a a protocol for creating virtual private networks.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Connection tracking support for PPTP (Point to Point Tunneling Protocol).
+ * PPTP is a protocol for creating virtual private networks.
+>>>>>>> upstream/android-13
  * It is a specification defined by Microsoft and some vendors
  * working with Microsoft.  PPTP is built on top of a modified
  * version of the Internet Generic Routing Encapsulation Protocol.
@@ -129,7 +136,11 @@ static void pptp_expectfn(struct nf_conn *ct,
 		struct nf_conntrack_expect *exp_other;
 
 		/* obviously this tuple inversion only works until you do NAT */
+<<<<<<< HEAD
 		nf_ct_invert_tuplepr(&inv_t, &exp->tuple);
+=======
+		nf_ct_invert_tuple(&inv_t, &exp->tuple);
+>>>>>>> upstream/android-13
 		pr_debug("trying to unexpect other dir: ");
 		nf_ct_dump_tuple(&inv_t);
 
@@ -241,9 +252,15 @@ static int exp_gre(struct nf_conn *ct, __be16 callid, __be16 peer_callid)
 	nf_nat_pptp_exp_gre = rcu_dereference(nf_nat_pptp_hook_exp_gre);
 	if (nf_nat_pptp_exp_gre && ct->status & IPS_NAT_MASK)
 		nf_nat_pptp_exp_gre(exp_orig, exp_reply);
+<<<<<<< HEAD
 	if (nf_ct_expect_related(exp_orig) != 0)
 		goto out_put_both;
 	if (nf_ct_expect_related(exp_reply) != 0)
+=======
+	if (nf_ct_expect_related(exp_orig, 0) != 0)
+		goto out_put_both;
+	if (nf_ct_expect_related(exp_reply, 0) != 0)
+>>>>>>> upstream/android-13
 		goto out_unexpect_orig;
 
 	/* Add GRE keymap entries */
@@ -543,7 +560,13 @@ conntrack_pptp_help(struct sk_buff *skb, unsigned int protoff,
 
 	nexthdr_off = protoff;
 	tcph = skb_header_pointer(skb, nexthdr_off, sizeof(_tcph), &_tcph);
+<<<<<<< HEAD
 	BUG_ON(!tcph);
+=======
+	if (!tcph)
+		return NF_ACCEPT;
+
+>>>>>>> upstream/android-13
 	nexthdr_off += tcph->doff * 4;
 	datalen = tcplen - tcph->doff * 4;
 

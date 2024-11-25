@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * drivers/net/ethernet/ibm/emac/debug.h
  *
@@ -10,12 +14,15 @@
  *
  * Copyright (c) 2004, 2005 Zultys Technologies
  * Eugene Surovegin <eugene.surovegin@zultys.com> or <ebs@ebshome.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __IBM_NEWEMAC_DEBUG_H
 #define __IBM_NEWEMAC_DEBUG_H

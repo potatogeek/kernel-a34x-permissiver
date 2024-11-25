@@ -3,7 +3,11 @@
 
 #include <linux/linkage.h>
 #include <asm/cpufeatures.h>
+<<<<<<< HEAD
 #include <asm/alternative-asm.h>
+=======
+#include <asm/alternative.h>
+>>>>>>> upstream/android-13
 #include <asm/export.h>
 
 /*
@@ -13,6 +17,7 @@
  * prefetch distance based on SMP/UP.
  */
 	ALIGN
+<<<<<<< HEAD
 ENTRY(copy_page)
 	ALTERNATIVE "jmp copy_page_regs", "", X86_FEATURE_REP_GOOD
 	movl	$4096/8, %ecx
@@ -22,6 +27,17 @@ ENDPROC(copy_page)
 EXPORT_SYMBOL(copy_page)
 
 ENTRY(copy_page_regs)
+=======
+SYM_FUNC_START(copy_page)
+	ALTERNATIVE "jmp copy_page_regs", "", X86_FEATURE_REP_GOOD
+	movl	$4096/8, %ecx
+	rep	movsq
+	RET
+SYM_FUNC_END(copy_page)
+EXPORT_SYMBOL(copy_page)
+
+SYM_FUNC_START_LOCAL(copy_page_regs)
+>>>>>>> upstream/android-13
 	subq	$2*8,	%rsp
 	movq	%rbx,	(%rsp)
 	movq	%r12,	1*8(%rsp)
@@ -85,5 +101,10 @@ ENTRY(copy_page_regs)
 	movq	(%rsp), %rbx
 	movq	1*8(%rsp), %r12
 	addq	$2*8, %rsp
+<<<<<<< HEAD
 	ret
 ENDPROC(copy_page_regs)
+=======
+	RET
+SYM_FUNC_END(copy_page_regs)
+>>>>>>> upstream/android-13

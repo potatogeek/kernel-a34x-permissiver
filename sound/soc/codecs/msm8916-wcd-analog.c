@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2016, The Linux Foundation. All rights reserved.
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -225,6 +231,13 @@
 #define CDC_A_RX_EAR_CTL			(0xf19E)
 #define RX_EAR_CTL_SPK_VBAT_LDO_EN_MASK		BIT(0)
 #define RX_EAR_CTL_SPK_VBAT_LDO_EN_ENABLE	BIT(0)
+<<<<<<< HEAD
+=======
+#define RX_EAR_CTL_PA_EAR_PA_EN_MASK		BIT(6)
+#define RX_EAR_CTL_PA_EAR_PA_EN_ENABLE		BIT(6)
+#define RX_EAR_CTL_PA_SEL_MASK			BIT(7)
+#define RX_EAR_CTL_PA_SEL			BIT(7)
+>>>>>>> upstream/android-13
 
 #define CDC_A_SPKR_DAC_CTL		(0xf1B0)
 #define SPKR_DAC_CTL_DAC_RESET_MASK	BIT(4)
@@ -309,6 +322,10 @@ static const char *const hph_text[] = { "ZERO", "Switch", };
 static const struct soc_enum hph_enum = SOC_ENUM_SINGLE_VIRT(
 					ARRAY_SIZE(hph_text), hph_text);
 
+<<<<<<< HEAD
+=======
+static const struct snd_kcontrol_new ear_mux = SOC_DAPM_ENUM("EAR_S", hph_enum);
+>>>>>>> upstream/android-13
 static const struct snd_kcontrol_new hphl_mux = SOC_DAPM_ENUM("HPHL", hph_enum);
 static const struct snd_kcontrol_new hphr_mux = SOC_DAPM_ENUM("HPHR", hph_enum);
 
@@ -366,9 +383,14 @@ static void pm8916_wcd_analog_micbias_enable(struct snd_soc_component *component
 
 }
 
+<<<<<<< HEAD
 static int pm8916_wcd_analog_enable_micbias_ext(struct snd_soc_component
 						 *component, int event,
 						 int reg, unsigned int cap_mode)
+=======
+static int pm8916_wcd_analog_enable_micbias(struct snd_soc_component *component,
+					    int event, unsigned int cap_mode)
+>>>>>>> upstream/android-13
 {
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
@@ -381,6 +403,7 @@ static int pm8916_wcd_analog_enable_micbias_ext(struct snd_soc_component
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pm8916_wcd_analog_enable_micbias_int(struct snd_soc_component
 						 *component, int event,
 						 int reg, u32 cap_mode)
@@ -398,20 +421,40 @@ static int pm8916_wcd_analog_enable_micbias_int(struct snd_soc_component
 		pm8916_wcd_analog_micbias_enable(component);
 		snd_soc_component_update_bits(component, CDC_A_MICB_1_EN,
 				    MICB_1_EN_BYP_CAP_MASK, cap_mode);
+=======
+static int pm8916_wcd_analog_enable_micbias_int(struct snd_soc_dapm_widget *w,
+						struct snd_kcontrol *kcontrol,
+						int event)
+{
+	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+
+	switch (event) {
+	case SND_SOC_DAPM_PRE_PMU:
+		snd_soc_component_update_bits(component, CDC_A_MICB_1_EN,
+				    MICB_1_EN_OPA_STG2_TAIL_CURR_MASK,
+				    MICB_1_EN_OPA_STG2_TAIL_CURR_1_60UA);
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pm8916_wcd_analog_enable_micbias_ext1(struct
 						  snd_soc_dapm_widget
 						  *w, struct snd_kcontrol
 						  *kcontrol, int event)
+=======
+static int pm8916_wcd_analog_enable_micbias1(struct snd_soc_dapm_widget *w,
+					     struct snd_kcontrol *kcontrol,
+					     int event)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
 	struct pm8916_wcd_analog_priv *wcd = snd_soc_component_get_drvdata(component);
 
+<<<<<<< HEAD
 	return pm8916_wcd_analog_enable_micbias_ext(component, event, w->reg,
 						     wcd->micbias1_cap_mode);
 }
@@ -420,10 +463,20 @@ static int pm8916_wcd_analog_enable_micbias_ext2(struct
 						  snd_soc_dapm_widget
 						  *w, struct snd_kcontrol
 						  *kcontrol, int event)
+=======
+	return pm8916_wcd_analog_enable_micbias(component, event,
+						wcd->micbias1_cap_mode);
+}
+
+static int pm8916_wcd_analog_enable_micbias2(struct snd_soc_dapm_widget *w,
+					     struct snd_kcontrol *kcontrol,
+					     int event)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
 	struct pm8916_wcd_analog_priv *wcd = snd_soc_component_get_drvdata(component);
 
+<<<<<<< HEAD
 	return pm8916_wcd_analog_enable_micbias_ext(component, event, w->reg,
 						     wcd->micbias2_cap_mode);
 
@@ -449,6 +502,13 @@ static int pm8916_wcd_analog_enable_micbias_int1(struct
 						     wcd->micbias1_cap_mode);
 }
 
+=======
+	return pm8916_wcd_analog_enable_micbias(component, event,
+						wcd->micbias2_cap_mode);
+
+}
+
+>>>>>>> upstream/android-13
 static int pm8916_mbhc_configure_bias(struct pm8916_wcd_analog_priv *priv,
 				      bool micbias2_enabled)
 {
@@ -531,7 +591,11 @@ static void pm8916_wcd_setup_mbhc(struct pm8916_wcd_analog_priv *wcd)
 			    DIG_CLK_CTL_D_MBHC_CLK_EN_MASK,
 			    DIG_CLK_CTL_D_MBHC_CLK_EN);
 
+<<<<<<< HEAD
 	if (snd_soc_component_read32(component, CDC_A_MICB_2_EN) & CDC_A_MICB_2_EN_ENABLE)
+=======
+	if (snd_soc_component_read(component, CDC_A_MICB_2_EN) & CDC_A_MICB_2_EN_ENABLE)
+>>>>>>> upstream/android-13
 		micbias_enabled = true;
 
 	pm8916_mbhc_configure_bias(wcd, micbias_enabled);
@@ -556,9 +620,14 @@ static int pm8916_wcd_analog_enable_micbias_int2(struct
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
+<<<<<<< HEAD
 		snd_soc_component_update_bits(component, CDC_A_MICB_1_INT_RBIAS,
 				    MICB_1_INT_TX2_INT_RBIAS_EN_MASK,
 				    MICB_1_INT_TX2_INT_RBIAS_EN_ENABLE);
+=======
+		snd_soc_component_update_bits(component, CDC_A_MICB_2_EN,
+					      CDC_A_MICB_2_PULL_DOWN_EN_MASK, 0);
+>>>>>>> upstream/android-13
 		break;
 	case SND_SOC_DAPM_POST_PMU:
 		pm8916_mbhc_configure_bias(wcd, true);
@@ -568,8 +637,12 @@ static int pm8916_wcd_analog_enable_micbias_int2(struct
 		break;
 	}
 
+<<<<<<< HEAD
 	return pm8916_wcd_analog_enable_micbias_int(component, event, w->reg,
 						     wcd->micbias2_cap_mode);
+=======
+	return pm8916_wcd_analog_enable_micbias_int(w, kcontrol, event);
+>>>>>>> upstream/android-13
 }
 
 static int pm8916_wcd_analog_enable_adc(struct snd_soc_dapm_widget *w,
@@ -631,7 +704,11 @@ static int pm8916_wcd_analog_enable_adc(struct snd_soc_dapm_widget *w,
 		case CDC_A_TX_2_EN:
 			snd_soc_component_update_bits(component, CDC_A_MICB_1_CTL,
 					    MICB_1_CTL_CFILT_REF_SEL_MASK, 0);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case CDC_A_TX_3_EN:
 			snd_soc_component_update_bits(component, CDC_D_CDC_CONN_TX2_CTL,
 					    CONN_TX2_SERIAL_TX2_MUX,
@@ -692,6 +769,37 @@ static int pm8916_wcd_analog_enable_spk_pa(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int pm8916_wcd_analog_enable_ear_pa(struct snd_soc_dapm_widget *w,
+					    struct snd_kcontrol *kcontrol,
+					    int event)
+{
+	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+
+	switch (event) {
+	case SND_SOC_DAPM_PRE_PMU:
+		snd_soc_component_update_bits(component, CDC_A_RX_EAR_CTL,
+				    RX_EAR_CTL_PA_SEL_MASK, RX_EAR_CTL_PA_SEL);
+		break;
+	case SND_SOC_DAPM_POST_PMU:
+		snd_soc_component_update_bits(component, CDC_A_RX_EAR_CTL,
+				    RX_EAR_CTL_PA_EAR_PA_EN_MASK,
+				    RX_EAR_CTL_PA_EAR_PA_EN_ENABLE);
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+		snd_soc_component_update_bits(component, CDC_A_RX_EAR_CTL,
+				    RX_EAR_CTL_PA_EAR_PA_EN_MASK, 0);
+		/* Delay to reduce ear turn off pop */
+		usleep_range(7000, 7100);
+		snd_soc_component_update_bits(component, CDC_A_RX_EAR_CTL,
+				    RX_EAR_CTL_PA_SEL_MASK, 0);
+		break;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct reg_default wcd_reg_defaults_2_0[] = {
 	{CDC_A_RX_COM_OCP_CTL, 0xD1},
 	{CDC_A_RX_COM_OCP_COUNT, 0xFF},
@@ -725,8 +833,13 @@ static int pm8916_wcd_analog_probe(struct snd_soc_component *component)
 	snd_soc_component_init_regmap(component,
 				  dev_get_regmap(component->dev->parent, NULL));
 	snd_soc_component_set_drvdata(component, priv);
+<<<<<<< HEAD
 	priv->pmic_rev = snd_soc_component_read32(component, CDC_D_REVISION1);
 	priv->codec_version = snd_soc_component_read32(component, CDC_D_PERPH_SUBTYPE);
+=======
+	priv->pmic_rev = snd_soc_component_read(component, CDC_D_REVISION1);
+	priv->codec_version = snd_soc_component_read(component, CDC_D_PERPH_SUBTYPE);
+>>>>>>> upstream/android-13
 
 	dev_info(component->dev, "PMIC REV: %d\t CODEC Version: %d\n",
 		 priv->pmic_rev, priv->codec_version);
@@ -808,12 +921,28 @@ static const struct snd_soc_dapm_route pm8916_wcd_analog_audio_map[] = {
 	{"PDM_TX", NULL, "A_MCLK2"},
 	{"A_MCLK2", NULL, "A_MCLK"},
 
+<<<<<<< HEAD
+=======
+	/* Earpiece (RX MIX1) */
+	{"EAR", NULL, "EAR_S"},
+	{"EAR_S", "Switch", "EAR PA"},
+	{"EAR PA", NULL, "RX_BIAS"},
+	{"EAR PA", NULL, "HPHL DAC"},
+	{"EAR PA", NULL, "HPHR DAC"},
+	{"EAR PA", NULL, "EAR CP"},
+
+>>>>>>> upstream/android-13
 	/* Headset (RX MIX1 and RX MIX2) */
 	{"HEADPHONE", NULL, "HPHL PA"},
 	{"HEADPHONE", NULL, "HPHR PA"},
 
+<<<<<<< HEAD
 	{"HPHL PA", NULL, "EAR_HPHL_CLK"},
 	{"HPHR PA", NULL, "EAR_HPHR_CLK"},
+=======
+	{"HPHL DAC", NULL, "EAR_HPHL_CLK"},
+	{"HPHR DAC", NULL, "EAR_HPHR_CLK"},
+>>>>>>> upstream/android-13
 
 	{"CP", NULL, "NCP_CLK"},
 
@@ -834,6 +963,7 @@ static const struct snd_soc_dapm_route pm8916_wcd_analog_audio_map[] = {
 	{"SPK PA", NULL, "SPK DAC"},
 	{"SPK DAC", "Switch", "PDM_RX3"},
 
+<<<<<<< HEAD
 	{"MIC BIAS Internal1", NULL, "INT_LDO_H"},
 	{"MIC BIAS Internal2", NULL, "INT_LDO_H"},
 	{"MIC BIAS External1", NULL, "INT_LDO_H"},
@@ -842,6 +972,18 @@ static const struct snd_soc_dapm_route pm8916_wcd_analog_audio_map[] = {
 	{"MIC BIAS Internal2", NULL, "vdd-micbias"},
 	{"MIC BIAS External1", NULL, "vdd-micbias"},
 	{"MIC BIAS External2", NULL, "vdd-micbias"},
+=======
+	{"MIC_BIAS1", NULL, "INT_LDO_H"},
+	{"MIC_BIAS2", NULL, "INT_LDO_H"},
+	{"MIC_BIAS1", NULL, "vdd-micbias"},
+	{"MIC_BIAS2", NULL, "vdd-micbias"},
+
+	{"MIC BIAS External1", NULL, "MIC_BIAS1"},
+	{"MIC BIAS Internal1", NULL, "MIC_BIAS1"},
+	{"MIC BIAS External2", NULL, "MIC_BIAS2"},
+	{"MIC BIAS Internal2", NULL, "MIC_BIAS2"},
+	{"MIC BIAS Internal3", NULL, "MIC_BIAS1"},
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_dapm_widget pm8916_wcd_analog_dapm_widgets[] = {
@@ -854,11 +996,26 @@ static const struct snd_soc_dapm_widget pm8916_wcd_analog_dapm_widgets[] = {
 	SND_SOC_DAPM_INPUT("AMIC1"),
 	SND_SOC_DAPM_INPUT("AMIC3"),
 	SND_SOC_DAPM_INPUT("AMIC2"),
+<<<<<<< HEAD
+=======
+	SND_SOC_DAPM_OUTPUT("EAR"),
+>>>>>>> upstream/android-13
 	SND_SOC_DAPM_OUTPUT("HEADPHONE"),
 
 	/* RX stuff */
 	SND_SOC_DAPM_SUPPLY("INT_LDO_H", SND_SOC_NOPM, 1, 0, NULL, 0),
 
+<<<<<<< HEAD
+=======
+	SND_SOC_DAPM_PGA_E("EAR PA", SND_SOC_NOPM,
+			   0, 0, NULL, 0,
+			   pm8916_wcd_analog_enable_ear_pa,
+			   SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_MUX("EAR_S", SND_SOC_NOPM, 0, 0, &ear_mux),
+	SND_SOC_DAPM_SUPPLY("EAR CP", CDC_A_NCP_EN, 4, 0, NULL, 0),
+
+>>>>>>> upstream/android-13
 	SND_SOC_DAPM_PGA("HPHL PA", CDC_A_RX_HPH_CNP_EN, 5, 0, NULL, 0),
 	SND_SOC_DAPM_MUX("HPHL", SND_SOC_NOPM, 0, 0, &hphl_mux),
 	SND_SOC_DAPM_MIXER("HPHL DAC", CDC_A_RX_HPH_L_PA_DAC_CTL, 3, 0, NULL,
@@ -884,6 +1041,7 @@ static const struct snd_soc_dapm_widget pm8916_wcd_analog_dapm_widgets[] = {
 	SND_SOC_DAPM_SUPPLY("RX_BIAS", CDC_A_RX_COM_BIAS_DAC, 7, 0, NULL, 0),
 
 	/* TX */
+<<<<<<< HEAD
 	SND_SOC_DAPM_SUPPLY("MIC BIAS Internal1", CDC_A_MICB_1_EN, 7, 0,
 			    pm8916_wcd_analog_enable_micbias_int1,
 			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
@@ -899,6 +1057,28 @@ static const struct snd_soc_dapm_widget pm8916_wcd_analog_dapm_widgets[] = {
 	SND_SOC_DAPM_SUPPLY("MIC BIAS External2", CDC_A_MICB_2_EN, 7, 0,
 			    pm8916_wcd_analog_enable_micbias_ext2,
 			    SND_SOC_DAPM_POST_PMU),
+=======
+	SND_SOC_DAPM_SUPPLY("MIC_BIAS1", CDC_A_MICB_1_EN, 7, 0,
+			    pm8916_wcd_analog_enable_micbias1,
+			    SND_SOC_DAPM_POST_PMU),
+	SND_SOC_DAPM_SUPPLY("MIC_BIAS2", CDC_A_MICB_2_EN, 7, 0,
+			    pm8916_wcd_analog_enable_micbias2,
+			    SND_SOC_DAPM_POST_PMU),
+
+	SND_SOC_DAPM_SUPPLY("MIC BIAS External1", SND_SOC_NOPM, 0, 0, NULL, 0),
+	SND_SOC_DAPM_SUPPLY("MIC BIAS External2", SND_SOC_NOPM, 0, 0, NULL, 0),
+
+	SND_SOC_DAPM_SUPPLY("MIC BIAS Internal1", CDC_A_MICB_1_INT_RBIAS, 7, 0,
+			    pm8916_wcd_analog_enable_micbias_int,
+			    SND_SOC_DAPM_PRE_PMU),
+	SND_SOC_DAPM_SUPPLY("MIC BIAS Internal2", CDC_A_MICB_1_INT_RBIAS, 4, 0,
+			    pm8916_wcd_analog_enable_micbias_int2,
+			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+			    SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_SUPPLY("MIC BIAS Internal3", CDC_A_MICB_1_INT_RBIAS, 1, 0,
+			    pm8916_wcd_analog_enable_micbias_int,
+			    SND_SOC_DAPM_PRE_PMU),
+>>>>>>> upstream/android-13
 
 	SND_SOC_DAPM_ADC_E("ADC1", NULL, CDC_A_TX_1_EN, 7, 0,
 			   pm8916_wcd_analog_enable_adc,
@@ -961,7 +1141,11 @@ static irqreturn_t mbhc_btn_release_irq_handler(int irq, void *arg)
 
 	if (priv->detect_accessory_type) {
 		struct snd_soc_component *component = priv->component;
+<<<<<<< HEAD
 		u32 val = snd_soc_component_read32(component, CDC_A_MBHC_RESULT_1);
+=======
+		u32 val = snd_soc_component_read(component, CDC_A_MBHC_RESULT_1);
+>>>>>>> upstream/android-13
 
 		/* check if its BTN0 thats released */
 		if ((val != -1) && !(val & CDC_A_MBHC_RESULT_1_BTN_RESULT_MASK))
@@ -980,7 +1164,11 @@ static irqreturn_t mbhc_btn_press_irq_handler(int irq, void *arg)
 	struct snd_soc_component *component = priv->component;
 	u32 btn_result;
 
+<<<<<<< HEAD
 	btn_result = snd_soc_component_read32(component, CDC_A_MBHC_RESULT_1) &
+=======
+	btn_result = snd_soc_component_read(component, CDC_A_MBHC_RESULT_1) &
+>>>>>>> upstream/android-13
 				  CDC_A_MBHC_RESULT_1_BTN_RESULT_MASK;
 
 	switch (btn_result) {
@@ -1017,7 +1205,11 @@ static irqreturn_t pm8916_mbhc_switch_irq_handler(int irq, void *arg)
 	struct snd_soc_component *component = priv->component;
 	bool ins = false;
 
+<<<<<<< HEAD
 	if (snd_soc_component_read32(component, CDC_A_MBHC_DET_CTL_1) &
+=======
+	if (snd_soc_component_read(component, CDC_A_MBHC_DET_CTL_1) &
+>>>>>>> upstream/android-13
 				CDC_A_MBHC_DET_CTL_MECH_DET_TYPE_MASK)
 		ins = true;
 
@@ -1030,7 +1222,11 @@ static irqreturn_t pm8916_mbhc_switch_irq_handler(int irq, void *arg)
 	if (ins) { /* hs insertion */
 		bool micbias_enabled = false;
 
+<<<<<<< HEAD
 		if (snd_soc_component_read32(component, CDC_A_MICB_2_EN) &
+=======
+		if (snd_soc_component_read(component, CDC_A_MICB_2_EN) &
+>>>>>>> upstream/android-13
 				CDC_A_MICB_2_EN_ENABLE)
 			micbias_enabled = true;
 
@@ -1193,8 +1389,13 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq_byname(pdev, "mbhc_switch_int");
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to get mbhc switch irq\n");
 		return irq;
+=======
+		ret = irq;
+		goto err_disable_clk;
+>>>>>>> upstream/android-13
 	}
 
 	ret = devm_request_threaded_irq(dev, irq, NULL,
@@ -1208,8 +1409,13 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
 	if (priv->mbhc_btn_enabled) {
 		irq = platform_get_irq_byname(pdev, "mbhc_but_press_det");
 		if (irq < 0) {
+<<<<<<< HEAD
 			dev_err(dev, "failed to get button press irq\n");
 			return irq;
+=======
+			ret = irq;
+			goto err_disable_clk;
+>>>>>>> upstream/android-13
 		}
 
 		ret = devm_request_threaded_irq(dev, irq, NULL,
@@ -1222,8 +1428,13 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
 
 		irq = platform_get_irq_byname(pdev, "mbhc_but_rel_det");
 		if (irq < 0) {
+<<<<<<< HEAD
 			dev_err(dev, "failed to get button release irq\n");
 			return irq;
+=======
+			ret = irq;
+			goto err_disable_clk;
+>>>>>>> upstream/android-13
 		}
 
 		ret = devm_request_threaded_irq(dev, irq, NULL,
@@ -1241,6 +1452,13 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
 	return devm_snd_soc_register_component(dev, &pm8916_wcd_analog,
 				      pm8916_wcd_analog_dai,
 				      ARRAY_SIZE(pm8916_wcd_analog_dai));
+<<<<<<< HEAD
+=======
+
+err_disable_clk:
+	clk_disable_unprepare(priv->mclk);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int pm8916_wcd_analog_spmi_remove(struct platform_device *pdev)

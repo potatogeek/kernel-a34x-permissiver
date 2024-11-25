@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IBM Real-Time Linux driver
  *
@@ -15,11 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * IBM Real-Time Linux driver
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2010
  *
  * Author: Keith Mannthey <kmannth@us.ibm.com>
  *         Vernon Mauery <vernux@us.ibm.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt

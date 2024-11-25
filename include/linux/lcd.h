@@ -41,6 +41,7 @@ struct lcd_ops {
 	/* Get the LCD panel power status (0: full on, 1..3: controller
 	   power on, flat panel power off, 4: full off), see FB_BLANK_XXX */
 	int (*get_power)(struct lcd_device *);
+<<<<<<< HEAD
 	/*
 	 * Enable or disable power to the LCD(0: on; 4: off, see FB_BLANK_XXX)
 	 * and this callback would be called proir to fb driver's callback.
@@ -51,6 +52,8 @@ struct lcd_ops {
 	int (*early_set_power)(struct lcd_device *, int power);
 	/* revert the effects of the early blank event. */
 	int (*r_early_set_power)(struct lcd_device *, int power);
+=======
+>>>>>>> upstream/android-13
 	/* Enable or disable power to the LCD (0: on; 4: off, see FB_BLANK_XXX) */
 	int (*set_power)(struct lcd_device *, int power);
 	/* Get the current contrast setting (0-max_contrast) */

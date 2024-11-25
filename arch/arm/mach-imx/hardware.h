@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2004-2007, 2014 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright 2008 Juergen Beisert, kernel@pengutronix.de
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2004-2007, 2014 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2008 Juergen Beisert, kernel@pengutronix.de
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ARCH_MXC_HARDWARE_H__
@@ -24,7 +31,11 @@
 #include <asm/io.h>
 #include <soc/imx/revision.h>
 #endif
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #define addr_in_module(addr, mod) \
 	((unsigned long)(addr) - mod ## _BASE_ADDR < mod ## _SIZE)
@@ -110,7 +121,10 @@
 #include "mx31.h"
 #include "mx35.h"
 #include "mx2x.h"
+<<<<<<< HEAD
 #include "mx21.h"
+=======
+>>>>>>> upstream/android-13
 #include "mx27.h"
 
 #define imx_map_entry(soc, name, _type)	{				\
@@ -120,8 +134,11 @@
 	.type = _type,							\
 }
 
+<<<<<<< HEAD
 /* There's an off-by-one between the gpio bank number and the gpiochip */
 /* range e.g. GPIO_1_5 is gpio 5 under linux */
 #define IMX_GPIO_NR(bank, nr)		(((bank) - 1) * 32 + (nr))
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_ARCH_MXC_HARDWARE_H__ */

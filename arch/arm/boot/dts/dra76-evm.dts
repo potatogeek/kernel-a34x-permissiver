@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2017 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 
@@ -16,11 +22,58 @@
 	model = "TI DRA762 EVM";
 	compatible = "ti,dra76-evm", "ti,dra762", "ti,dra7";
 
+<<<<<<< HEAD
+=======
+	aliases {
+		display0 = &hdmi0;
+
+		sound0 = &sound0;
+		sound1 = &hdmi;
+	};
+
+>>>>>>> upstream/android-13
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x80000000 0x0 0x80000000>;
 	};
 
+<<<<<<< HEAD
+=======
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		ipu2_cma_pool: ipu2_cma@95800000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x95800000 0x0 0x3800000>;
+			reusable;
+			status = "okay";
+		};
+
+		dsp1_cma_pool: dsp1_cma@99000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x99000000 0x0 0x4000000>;
+			reusable;
+			status = "okay";
+		};
+
+		ipu1_cma_pool: ipu1_cma@9d000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x9d000000 0x0 0x2000000>;
+			reusable;
+			status = "okay";
+		};
+
+		dsp2_cma_pool: dsp2_cma@9f000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x9f000000 0x0 0x800000>;
+			reusable;
+			status = "okay";
+		};
+	};
+
+>>>>>>> upstream/android-13
 	vsys_12v0: fixedregulator-vsys12v0 {
 		/* main supply */
 		compatible = "regulator-fixed";
@@ -119,6 +172,51 @@
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 	};
+<<<<<<< HEAD
+=======
+
+	hdmi0: connector {
+		compatible = "hdmi-connector";
+		label = "hdmi";
+
+		type = "a";
+
+		port {
+			hdmi_connector_in: endpoint {
+				remote-endpoint = <&tpd12s015_out>;
+			};
+		};
+	};
+
+	tpd12s015: encoder {
+		compatible = "ti,tpd12s015";
+
+		gpios = <&gpio7 30 GPIO_ACTIVE_HIGH>,   /* gpio7_30, CT CP HPD */
+			<&gpio7 31 GPIO_ACTIVE_HIGH>,   /* gpio7_31, LS OE */
+			<&gpio7 12 GPIO_ACTIVE_HIGH>;   /* gpio7_12/sp1_cs2, HPD */
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				tpd12s015_in: endpoint {
+					remote-endpoint = <&hdmi_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				tpd12s015_out: endpoint {
+					remote-endpoint = <&hdmi_connector_in>;
+				};
+			};
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &i2c1 {
@@ -269,7 +367,11 @@
 	};
 
 	pcf_lcd: pcf8757@20 {
+<<<<<<< HEAD
 		compatible = "ti,pcf8575", "nxp,pcf8575";
+=======
+		compatible = "nxp,pcf8575";
+>>>>>>> upstream/android-13
 		reg = <0x20>;
 		gpio-controller;
 		#gpio-cells = <2>;
@@ -280,7 +382,11 @@
 	};
 
 	pcf_gpio_21: pcf8757@21 {
+<<<<<<< HEAD
 		compatible = "ti,pcf8575", "nxp,pcf8575";
+=======
+		compatible = "nxp,pcf8575";
+>>>>>>> upstream/android-13
 		reg = <0x21>;
 		gpio-controller;
 		#gpio-cells = <2>;
@@ -291,11 +397,19 @@
 	};
 
 	pcf_hdmi: pcf8575@26 {
+<<<<<<< HEAD
 		compatible = "ti,pcf8575", "nxp,pcf8575";
 		reg = <0x26>;
 		gpio-controller;
 		#gpio-cells = <2>;
 		p1 {
+=======
+		compatible = "nxp,pcf8575";
+		reg = <0x26>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		hdmi-audio-hog {
+>>>>>>> upstream/android-13
 			/* vin6_sel_s0: high: VIN6, low: audio */
 			gpio-hog;
 			gpios = <1 GPIO_ACTIVE_HIGH>;
@@ -368,6 +482,7 @@
 	status = "disabled";
 };
 
+<<<<<<< HEAD
 &mac {
 	status = "okay";
 
@@ -387,6 +502,25 @@
 };
 
 &davinci_mdio {
+=======
+&mac_sw {
+	status = "okay";
+};
+
+&cpsw_port1 {
+	phy-handle = <&dp83867_0>;
+	phy-mode = "rgmii-id";
+	ti,dual-emac-pvid = <1>;
+};
+
+&cpsw_port2 {
+	phy-handle = <&dp83867_1>;
+	phy-mode = "rgmii-id";
+	ti,dual-emac-pvid = <2>;
+};
+
+&davinci_mdio_sw {
+>>>>>>> upstream/android-13
 	dp83867_0: ethernet-phy@2 {
 		reg = <2>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_25_NS>;
@@ -414,6 +548,26 @@
 	phy-supply = <&ldo3_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&dss {
+	status = "okay";
+	vdda_video-supply = <&ldo5_reg>;
+};
+
+&hdmi {
+	status = "okay";
+
+	vdda-supply = <&ldo1_reg>;
+
+	port {
+		hdmi_out: endpoint {
+			remote-endpoint = <&tpd12s015_in>;
+		};
+	};
+};
+
+>>>>>>> upstream/android-13
 &qspi {
 	spi-max-frequency = <96000000>;
 	m25p80@0 {
@@ -450,3 +604,26 @@
 		max-bitrate = <5000000>;
 	};
 };
+<<<<<<< HEAD
+=======
+
+&ipu2 {
+	status = "okay";
+	memory-region = <&ipu2_cma_pool>;
+};
+
+&ipu1 {
+	status = "okay";
+	memory-region = <&ipu1_cma_pool>;
+};
+
+&dsp1 {
+	status = "okay";
+	memory-region = <&dsp1_cma_pool>;
+};
+
+&dsp2 {
+	status = "okay";
+	memory-region = <&dsp2_cma_pool>;
+};
+>>>>>>> upstream/android-13

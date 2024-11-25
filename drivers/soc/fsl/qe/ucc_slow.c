@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -6,11 +10,14 @@
  *
  * Description:
  * QE UCC Slow API Set - UCC Slow specific routines implementations.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/errno.h>
@@ -76,13 +83,21 @@ EXPORT_SYMBOL(ucc_slow_restart_tx);
 
 void ucc_slow_enable(struct ucc_slow_private * uccs, enum comm_dir mode)
 {
+<<<<<<< HEAD
 	struct ucc_slow *us_regs;
+=======
+	struct ucc_slow __iomem *us_regs;
+>>>>>>> upstream/android-13
 	u32 gumr_l;
 
 	us_regs = uccs->us_regs;
 
 	/* Enable reception and/or transmission on this UCC. */
+<<<<<<< HEAD
 	gumr_l = in_be32(&us_regs->gumr_l);
+=======
+	gumr_l = ioread32be(&us_regs->gumr_l);
+>>>>>>> upstream/android-13
 	if (mode & COMM_DIR_TX) {
 		gumr_l |= UCC_SLOW_GUMR_L_ENT;
 		uccs->enabled_tx = 1;
@@ -91,19 +106,31 @@ void ucc_slow_enable(struct ucc_slow_private * uccs, enum comm_dir mode)
 		gumr_l |= UCC_SLOW_GUMR_L_ENR;
 		uccs->enabled_rx = 1;
 	}
+<<<<<<< HEAD
 	out_be32(&us_regs->gumr_l, gumr_l);
+=======
+	iowrite32be(gumr_l, &us_regs->gumr_l);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ucc_slow_enable);
 
 void ucc_slow_disable(struct ucc_slow_private * uccs, enum comm_dir mode)
 {
+<<<<<<< HEAD
 	struct ucc_slow *us_regs;
+=======
+	struct ucc_slow __iomem *us_regs;
+>>>>>>> upstream/android-13
 	u32 gumr_l;
 
 	us_regs = uccs->us_regs;
 
 	/* Disable reception and/or transmission on this UCC. */
+<<<<<<< HEAD
 	gumr_l = in_be32(&us_regs->gumr_l);
+=======
+	gumr_l = ioread32be(&us_regs->gumr_l);
+>>>>>>> upstream/android-13
 	if (mode & COMM_DIR_TX) {
 		gumr_l &= ~UCC_SLOW_GUMR_L_ENT;
 		uccs->enabled_tx = 0;
@@ -112,7 +139,11 @@ void ucc_slow_disable(struct ucc_slow_private * uccs, enum comm_dir mode)
 		gumr_l &= ~UCC_SLOW_GUMR_L_ENR;
 		uccs->enabled_rx = 0;
 	}
+<<<<<<< HEAD
 	out_be32(&us_regs->gumr_l, gumr_l);
+=======
+	iowrite32be(gumr_l, &us_regs->gumr_l);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ucc_slow_disable);
 
@@ -126,7 +157,11 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	u32 i;
 	struct ucc_slow __iomem *us_regs;
 	u32 gumr;
+<<<<<<< HEAD
 	struct qe_bd *bd;
+=======
+	struct qe_bd __iomem *bd;
+>>>>>>> upstream/android-13
 	u32 id;
 	u32 command;
 	int ret = 0;
@@ -158,6 +193,12 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 			__func__);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
+=======
+	uccs->rx_base_offset = -1;
+	uccs->tx_base_offset = -1;
+	uccs->us_pram_offset = -1;
+>>>>>>> upstream/android-13
 
 	/* Fill slow UCC structure */
 	uccs->us_info = us_info;
@@ -169,6 +210,7 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	uccs->saved_uccm = 0;
 	uccs->p_rx_frame = 0;
 	us_regs = uccs->us_regs;
@@ -179,11 +221,20 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	uccs->tx_frames = 0;
 	uccs->rx_discarded = 0;
 #endif				/* STATISTICS */
+=======
+	us_regs = uccs->us_regs;
+	uccs->p_ucce = &us_regs->ucce;
+	uccs->p_uccm = &us_regs->uccm;
+>>>>>>> upstream/android-13
 
 	/* Get PRAM base */
 	uccs->us_pram_offset =
 		qe_muram_alloc(UCC_SLOW_PRAM_SIZE, ALIGNMENT_OF_UCC_SLOW_PRAM);
+<<<<<<< HEAD
 	if (IS_ERR_VALUE(uccs->us_pram_offset)) {
+=======
+	if (uccs->us_pram_offset < 0) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "%s: cannot allocate MURAM for PRAM", __func__);
 		ucc_slow_free(uccs);
 		return -ENOMEM;
@@ -202,7 +253,11 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 		return ret;
 	}
 
+<<<<<<< HEAD
 	out_be16(&uccs->us_pram->mrblr, us_info->max_rx_buf_length);
+=======
+	iowrite16be(us_info->max_rx_buf_length, &uccs->us_pram->mrblr);
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&uccs->confQ);
 
@@ -210,10 +265,16 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	uccs->rx_base_offset =
 		qe_muram_alloc(us_info->rx_bd_ring_len * sizeof(struct qe_bd),
 				QE_ALIGNMENT_OF_BD);
+<<<<<<< HEAD
 	if (IS_ERR_VALUE(uccs->rx_base_offset)) {
 		printk(KERN_ERR "%s: cannot allocate %u RX BDs\n", __func__,
 			us_info->rx_bd_ring_len);
 		uccs->rx_base_offset = 0;
+=======
+	if (uccs->rx_base_offset < 0) {
+		printk(KERN_ERR "%s: cannot allocate %u RX BDs\n", __func__,
+			us_info->rx_bd_ring_len);
+>>>>>>> upstream/android-13
 		ucc_slow_free(uccs);
 		return -ENOMEM;
 	}
@@ -221,9 +282,14 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	uccs->tx_base_offset =
 		qe_muram_alloc(us_info->tx_bd_ring_len * sizeof(struct qe_bd),
 			QE_ALIGNMENT_OF_BD);
+<<<<<<< HEAD
 	if (IS_ERR_VALUE(uccs->tx_base_offset)) {
 		printk(KERN_ERR "%s: cannot allocate TX BDs", __func__);
 		uccs->tx_base_offset = 0;
+=======
+	if (uccs->tx_base_offset < 0) {
+		printk(KERN_ERR "%s: cannot allocate TX BDs", __func__);
+>>>>>>> upstream/android-13
 		ucc_slow_free(uccs);
 		return -ENOMEM;
 	}
@@ -232,6 +298,7 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	bd = uccs->confBd = uccs->tx_bd = qe_muram_addr(uccs->tx_base_offset);
 	for (i = 0; i < us_info->tx_bd_ring_len - 1; i++) {
 		/* clear bd buffer */
+<<<<<<< HEAD
 		out_be32(&bd->buf, 0);
 		/* set bd status and length */
 		out_be32((u32 *) bd, 0);
@@ -240,11 +307,22 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	/* for last BD set Wrap bit */
 	out_be32(&bd->buf, 0);
 	out_be32((u32 *) bd, cpu_to_be32(T_W));
+=======
+		iowrite32be(0, &bd->buf);
+		/* set bd status and length */
+		iowrite32be(0, (u32 __iomem *)bd);
+		bd++;
+	}
+	/* for last BD set Wrap bit */
+	iowrite32be(0, &bd->buf);
+	iowrite32be(T_W, (u32 __iomem *)bd);
+>>>>>>> upstream/android-13
 
 	/* Init Rx bds */
 	bd = uccs->rx_bd = qe_muram_addr(uccs->rx_base_offset);
 	for (i = 0; i < us_info->rx_bd_ring_len - 1; i++) {
 		/* set bd status and length */
+<<<<<<< HEAD
 		out_be32((u32*)bd, 0);
 		/* clear bd buffer */
 		out_be32(&bd->buf, 0);
@@ -253,6 +331,16 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	/* for last BD set Wrap bit */
 	out_be32((u32*)bd, cpu_to_be32(R_W));
 	out_be32(&bd->buf, 0);
+=======
+		iowrite32be(0, (u32 __iomem *)bd);
+		/* clear bd buffer */
+		iowrite32be(0, &bd->buf);
+		bd++;
+	}
+	/* for last BD set Wrap bit */
+	iowrite32be(R_W, (u32 __iomem *)bd);
+	iowrite32be(0, &bd->buf);
+>>>>>>> upstream/android-13
 
 	/* Set GUMR (For more details see the hardware spec.). */
 	/* gumr_h */
@@ -273,11 +361,19 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 		gumr |= UCC_SLOW_GUMR_H_TXSY;
 	if (us_info->rtsm)
 		gumr |= UCC_SLOW_GUMR_H_RTSM;
+<<<<<<< HEAD
 	out_be32(&us_regs->gumr_h, gumr);
 
 	/* gumr_l */
 	gumr = us_info->tdcr | us_info->rdcr | us_info->tenc | us_info->renc |
 		us_info->diag | us_info->mode;
+=======
+	iowrite32be(gumr, &us_regs->gumr_h);
+
+	/* gumr_l */
+	gumr = (u32)us_info->tdcr | (u32)us_info->rdcr | (u32)us_info->tenc |
+	       (u32)us_info->renc | (u32)us_info->diag | (u32)us_info->mode;
+>>>>>>> upstream/android-13
 	if (us_info->tci)
 		gumr |= UCC_SLOW_GUMR_L_TCI;
 	if (us_info->rinv)
@@ -286,18 +382,31 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 		gumr |= UCC_SLOW_GUMR_L_TINV;
 	if (us_info->tend)
 		gumr |= UCC_SLOW_GUMR_L_TEND;
+<<<<<<< HEAD
 	out_be32(&us_regs->gumr_l, gumr);
+=======
+	iowrite32be(gumr, &us_regs->gumr_l);
+>>>>>>> upstream/android-13
 
 	/* Function code registers */
 
 	/* if the data is in cachable memory, the 'global' */
 	/* in the function code should be set. */
+<<<<<<< HEAD
 	uccs->us_pram->tbmr = UCC_BMR_BO_BE;
 	uccs->us_pram->rbmr = UCC_BMR_BO_BE;
 
 	/* rbase, tbase are offsets from MURAM base */
 	out_be16(&uccs->us_pram->rbase, uccs->rx_base_offset);
 	out_be16(&uccs->us_pram->tbase, uccs->tx_base_offset);
+=======
+	iowrite8(UCC_BMR_BO_BE, &uccs->us_pram->tbmr);
+	iowrite8(UCC_BMR_BO_BE, &uccs->us_pram->rbmr);
+
+	/* rbase, tbase are offsets from MURAM base */
+	iowrite16be(uccs->rx_base_offset, &uccs->us_pram->rbase);
+	iowrite16be(uccs->tx_base_offset, &uccs->us_pram->tbase);
+>>>>>>> upstream/android-13
 
 	/* Mux clocking */
 	/* Grant Support */
@@ -327,14 +436,22 @@ int ucc_slow_init(struct ucc_slow_info * us_info, struct ucc_slow_private ** ucc
 	}
 
 	/* Set interrupt mask register at UCC level. */
+<<<<<<< HEAD
 	out_be16(&us_regs->uccm, us_info->uccm_mask);
+=======
+	iowrite16be(us_info->uccm_mask, &us_regs->uccm);
+>>>>>>> upstream/android-13
 
 	/* First, clear anything pending at UCC level,
 	 * otherwise, old garbage may come through
 	 * as soon as the dam is opened. */
 
 	/* Writing '1' clears */
+<<<<<<< HEAD
 	out_be16(&us_regs->ucce, 0xffff);
+=======
+	iowrite16be(0xffff, &us_regs->ucce);
+>>>>>>> upstream/android-13
 
 	/* Issue QE Init command */
 	if (us_info->init_tx && us_info->init_rx)
@@ -356,6 +473,7 @@ void ucc_slow_free(struct ucc_slow_private * uccs)
 	if (!uccs)
 		return;
 
+<<<<<<< HEAD
 	if (uccs->rx_base_offset)
 		qe_muram_free(uccs->rx_base_offset);
 
@@ -364,6 +482,11 @@ void ucc_slow_free(struct ucc_slow_private * uccs)
 
 	if (uccs->us_pram)
 		qe_muram_free(uccs->us_pram_offset);
+=======
+	qe_muram_free(uccs->rx_base_offset);
+	qe_muram_free(uccs->tx_base_offset);
+	qe_muram_free(uccs->us_pram_offset);
+>>>>>>> upstream/android-13
 
 	if (uccs->us_regs)
 		iounmap(uccs->us_regs);

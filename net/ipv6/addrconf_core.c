@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IPv6 library code, needed by static components when full IPv6 support is
  * not configured or static.
@@ -5,6 +9,10 @@
 
 #include <linux/export.h>
 #include <net/ipv6.h>
+<<<<<<< HEAD
+=======
+#include <net/ipv6_stubs.h>
+>>>>>>> upstream/android-13
 #include <net/addrconf.h>
 #include <net/ip.h>
 
@@ -135,11 +143,20 @@ static struct dst_entry *eafnosupport_ipv6_dst_lookup_flow(struct net *net,
 	return ERR_PTR(-EAFNOSUPPORT);
 }
 
+<<<<<<< HEAD
+=======
+static int eafnosupport_ipv6_route_input(struct sk_buff *skb)
+{
+	return -EAFNOSUPPORT;
+}
+
+>>>>>>> upstream/android-13
 static struct fib6_table *eafnosupport_fib6_get_table(struct net *net, u32 id)
 {
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct fib6_info *
 eafnosupport_fib6_table_lookup(struct net *net, struct fib6_table *table,
 			       int oif, struct flowi6 *fl6, int flags)
@@ -165,10 +182,39 @@ eafnosupport_fib6_multipath_select(const struct net *net, struct fib6_info *f6i,
 static u32
 eafnosupport_ip6_mtu_from_fib6(struct fib6_info *f6i, struct in6_addr *daddr,
 			       struct in6_addr *saddr)
+=======
+static int
+eafnosupport_fib6_table_lookup(struct net *net, struct fib6_table *table,
+			       int oif, struct flowi6 *fl6,
+			       struct fib6_result *res, int flags)
+{
+	return -EAFNOSUPPORT;
+}
+
+static int
+eafnosupport_fib6_lookup(struct net *net, int oif, struct flowi6 *fl6,
+			 struct fib6_result *res, int flags)
+{
+	return -EAFNOSUPPORT;
+}
+
+static void
+eafnosupport_fib6_select_path(const struct net *net, struct fib6_result *res,
+			      struct flowi6 *fl6, int oif, bool have_oif_match,
+			      const struct sk_buff *skb, int strict)
+{
+}
+
+static u32
+eafnosupport_ip6_mtu_from_fib6(const struct fib6_result *res,
+			       const struct in6_addr *daddr,
+			       const struct in6_addr *saddr)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 const struct ipv6_stub *ipv6_stub __read_mostly = &(struct ipv6_stub) {
 	.ipv6_dst_lookup_flow = eafnosupport_ipv6_dst_lookup_flow,
 	.fib6_get_table    = eafnosupport_fib6_get_table,
@@ -176,6 +222,47 @@ const struct ipv6_stub *ipv6_stub __read_mostly = &(struct ipv6_stub) {
 	.fib6_lookup       = eafnosupport_fib6_lookup,
 	.fib6_multipath_select = eafnosupport_fib6_multipath_select,
 	.ip6_mtu_from_fib6 = eafnosupport_ip6_mtu_from_fib6,
+=======
+static int eafnosupport_fib6_nh_init(struct net *net, struct fib6_nh *fib6_nh,
+				     struct fib6_config *cfg, gfp_t gfp_flags,
+				     struct netlink_ext_ack *extack)
+{
+	NL_SET_ERR_MSG(extack, "IPv6 support not enabled in kernel");
+	return -EAFNOSUPPORT;
+}
+
+static int eafnosupport_ip6_del_rt(struct net *net, struct fib6_info *rt,
+				   bool skip_notify)
+{
+	return -EAFNOSUPPORT;
+}
+
+static int eafnosupport_ipv6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+				      int (*output)(struct net *, struct sock *, struct sk_buff *))
+{
+	kfree_skb(skb);
+	return -EAFNOSUPPORT;
+}
+
+static struct net_device *eafnosupport_ipv6_dev_find(struct net *net, const struct in6_addr *addr,
+						     struct net_device *dev)
+{
+	return ERR_PTR(-EAFNOSUPPORT);
+}
+
+const struct ipv6_stub *ipv6_stub __read_mostly = &(struct ipv6_stub) {
+	.ipv6_dst_lookup_flow = eafnosupport_ipv6_dst_lookup_flow,
+	.ipv6_route_input  = eafnosupport_ipv6_route_input,
+	.fib6_get_table    = eafnosupport_fib6_get_table,
+	.fib6_table_lookup = eafnosupport_fib6_table_lookup,
+	.fib6_lookup       = eafnosupport_fib6_lookup,
+	.fib6_select_path  = eafnosupport_fib6_select_path,
+	.ip6_mtu_from_fib6 = eafnosupport_ip6_mtu_from_fib6,
+	.fib6_nh_init	   = eafnosupport_fib6_nh_init,
+	.ip6_del_rt	   = eafnosupport_ip6_del_rt,
+	.ipv6_fragment	   = eafnosupport_ipv6_fragment,
+	.ipv6_dev_find     = eafnosupport_ipv6_dev_find,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(ipv6_stub);
 
@@ -217,7 +304,11 @@ void in6_dev_finish_destroy(struct inet6_dev *idev)
 	struct net_device *dev = idev->dev;
 
 	WARN_ON(!list_empty(&idev->addr_list));
+<<<<<<< HEAD
 	WARN_ON(idev->mc_list);
+=======
+	WARN_ON(rcu_access_pointer(idev->mc_list));
+>>>>>>> upstream/android-13
 	WARN_ON(timer_pending(&idev->rs_timer));
 
 #ifdef NET_REFCNT_DEBUG

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pinctrl data for the NVIDIA Tegra20 pinmux
  *
@@ -8,6 +12,7 @@
  * Derived from code:
  * Copyright (C) 2010 Google, Inc.
  * Copyright (C) 2010 NVIDIA Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -17,6 +22,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -1997,13 +2004,20 @@ static struct tegra_function tegra20_functions[] = {
 		.tri_reg = ((tri_r) - TRISTATE_REG_A),		\
 		.tri_bank = 0,					\
 		.tri_bit = tri_b,				\
+<<<<<<< HEAD
 		.parked_bit = -1,				\
+=======
+>>>>>>> upstream/android-13
 		.einput_bit = -1,				\
 		.odrain_bit = -1,				\
 		.lock_bit = -1,					\
 		.ioreset_bit = -1,				\
 		.rcv_sel_bit = -1,				\
 		.drv_reg = -1,					\
+<<<<<<< HEAD
+=======
+		.parked_bitmask = 0,				\
+>>>>>>> upstream/android-13
 	}
 
 /* Pin groups with only pull up and pull down control */
@@ -2017,7 +2031,11 @@ static struct tegra_function tegra20_functions[] = {
 		.pupd_bank = 2,					\
 		.pupd_bit = pupd_b,				\
 		.drv_reg = -1,					\
+<<<<<<< HEAD
 		.parked_bit = -1,				\
+=======
+		.parked_bitmask = 0,				\
+>>>>>>> upstream/android-13
 	}
 
 /* Pin groups for drive strength registers (configurable version) */
@@ -2033,7 +2051,11 @@ static struct tegra_function tegra20_functions[] = {
 		.tri_reg = -1,					\
 		.drv_reg = ((r) - PINGROUP_REG_A),		\
 		.drv_bank = 3,					\
+<<<<<<< HEAD
 		.parked_bit = -1,				\
+=======
+		.parked_bitmask = 0,				\
+>>>>>>> upstream/android-13
 		.hsm_bit = hsm_b,				\
 		.schmitt_bit = schmitt_b,			\
 		.lpmd_bit = lpmd_b,				\

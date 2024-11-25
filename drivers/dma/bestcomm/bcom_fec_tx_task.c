@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Bestcomm FEC TX task microcode
  *
  * Copyright (c) 2004 Freescale Semiconductor, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Automatically created based on BestCommAPI-2.2/code_dma/image_rtos1/dma_image.hex
  * on Tue Mar 22 11:19:29 2005 GMT
  */

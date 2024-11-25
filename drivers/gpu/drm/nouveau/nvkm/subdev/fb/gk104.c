@@ -83,7 +83,13 @@ gk104_fb = {
 };
 
 int
+<<<<<<< HEAD
 gk104_fb_new(struct nvkm_device *device, int index, struct nvkm_fb **pfb)
 {
 	return gf100_fb_new_(&gk104_fb, device, index, pfb);
+=======
+gk104_fb_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_fb **pfb)
+{
+	return gf100_fb_new_(&gk104_fb, device, type, inst, pfb);
+>>>>>>> upstream/android-13
 }

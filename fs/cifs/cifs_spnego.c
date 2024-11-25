@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cifs_spnego.c -- SPNEGO upcall management for CIFS
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+ *   SPNEGO upcall management for CIFS
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) 2007 Red Hat, Inc.
  *   Author(s): Jeff Layton (jlayton@redhat.com)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -17,6 +24,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/list.h>
@@ -98,7 +107,11 @@ struct key_type cifs_spnego_key_type = {
 struct key *
 cifs_get_spnego_key(struct cifs_ses *sesInfo)
 {
+<<<<<<< HEAD
 	struct TCP_Server_Info *server = sesInfo->server;
+=======
+	struct TCP_Server_Info *server = cifs_ses_server(sesInfo);
+>>>>>>> upstream/android-13
 	struct sockaddr_in *sa = (struct sockaddr_in *) &server->dstaddr;
 	struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *) &server->dstaddr;
 	char *description, *dp;

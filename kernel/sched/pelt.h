@@ -7,6 +7,29 @@ int __update_load_avg_cfs_rq(u64 now, struct cfs_rq *cfs_rq);
 int update_rt_rq_load_avg(u64 now, struct rq *rq, int running);
 int update_dl_rq_load_avg(u64 now, struct rq *rq, int running);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SCHED_THERMAL_PRESSURE
+int update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity);
+
+static inline u64 thermal_load_avg(struct rq *rq)
+{
+	return READ_ONCE(rq->avg_thermal.load_avg);
+}
+#else
+static inline int
+update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity)
+{
+	return 0;
+}
+
+static inline u64 thermal_load_avg(struct rq *rq)
+{
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HAVE_SCHED_AVG_IRQ
 int update_irq_load_avg(struct rq *rq, u64 running);
 #else
@@ -17,6 +40,7 @@ update_irq_load_avg(struct rq *rq, u64 running)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * When a task is dequeued, its estimated utilization should not be update if
  * its util_avg has not been updated at least once.
@@ -25,6 +49,14 @@ update_irq_load_avg(struct rq *rq, u64 running)
  * dequeue time (i.e. util_est.dequeued).
  */
 #define UTIL_AVG_UNCHANGED 0x1
+=======
+#define PELT_MIN_DIVIDER	(LOAD_AVG_MAX - 1024)
+
+static inline u32 get_pelt_divider(struct sched_avg *avg)
+{
+	return PELT_MIN_DIVIDER + avg->period_contrib;
+}
+>>>>>>> upstream/android-13
 
 static inline void cfs_se_util_change(struct sched_avg *avg)
 {
@@ -33,7 +65,11 @@ static inline void cfs_se_util_change(struct sched_avg *avg)
 	if (!sched_feat(UTIL_EST))
 		return;
 
+<<<<<<< HEAD
 	/* Avoid store if the flag has been already set */
+=======
+	/* Avoid store if the flag has been already reset */
+>>>>>>> upstream/android-13
 	enqueued = avg->util_est.enqueued;
 	if (!(enqueued & UTIL_AVG_UNCHANGED))
 		return;
@@ -43,6 +79,11 @@ static inline void cfs_se_util_change(struct sched_avg *avg)
 	WRITE_ONCE(avg->util_est.enqueued, enqueued);
 }
 
+<<<<<<< HEAD
+=======
+extern unsigned int sched_pelt_lshift;
+
+>>>>>>> upstream/android-13
 /*
  * The clock_pelt scales the time to reflect the effective amount of
  * computation done during the running delta time but then sync back to
@@ -57,9 +98,19 @@ static inline void cfs_se_util_change(struct sched_avg *avg)
  */
 static inline void update_rq_clock_pelt(struct rq *rq, s64 delta)
 {
+<<<<<<< HEAD
 	if (unlikely(is_idle_task(rq->curr))) {
 		/* The rq is idle, we can sync to clock_task */
 		rq->clock_pelt  = rq_clock_task(rq);
+=======
+	delta <<= READ_ONCE(sched_pelt_lshift);
+
+	rq->clock_task_mult += delta;
+
+	if (unlikely(is_idle_task(rq->curr))) {
+		/* The rq is idle, we can sync to clock_task */
+		rq->clock_pelt = rq_clock_task_mult(rq);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -79,7 +130,11 @@ static inline void update_rq_clock_pelt(struct rq *rq, s64 delta)
 	 * Scale the elapsed time to reflect the real amount of
 	 * computation
 	 */
+<<<<<<< HEAD
 	delta = cap_scale(delta, arch_scale_cpu_capacity(NULL, cpu_of(rq)));
+=======
+	delta = cap_scale(delta, arch_scale_cpu_capacity(cpu_of(rq)));
+>>>>>>> upstream/android-13
 	delta = cap_scale(delta, arch_scale_freq_capacity(cpu_of(rq)));
 
 	rq->clock_pelt += delta;
@@ -105,18 +160,31 @@ static inline void update_idle_rq_clock_pelt(struct rq *rq)
 	 * Reflecting stolen time makes sense only if the idle
 	 * phase would be present at max capacity. As soon as the
 	 * utilization of a rq has reached the maximum value, it is
+<<<<<<< HEAD
 	 * considered as an always runnig rq without idle time to
+=======
+	 * considered as an always running rq without idle time to
+>>>>>>> upstream/android-13
 	 * steal. This potential idle time is considered as lost in
 	 * this case. We keep track of this lost idle time compare to
 	 * rq's clock_task.
 	 */
 	if (util_sum >= divider)
+<<<<<<< HEAD
 		rq->lost_idle_time += rq_clock_task(rq) - rq->clock_pelt;
+=======
+		rq->lost_idle_time += rq_clock_task_mult(rq) -
+				      rq->clock_pelt;
+>>>>>>> upstream/android-13
 }
 
 static inline u64 rq_clock_pelt(struct rq *rq)
 {
+<<<<<<< HEAD
 	lockdep_assert_held(&rq->lock);
+=======
+	lockdep_assert_rq_held(rq);
+>>>>>>> upstream/android-13
 	assert_clock_updated(rq);
 
 	return rq->clock_pelt - rq->lost_idle_time;
@@ -159,6 +227,20 @@ update_dl_rq_load_avg(u64 now, struct rq *rq, int running)
 }
 
 static inline int
+<<<<<<< HEAD
+=======
+update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity)
+{
+	return 0;
+}
+
+static inline u64 thermal_load_avg(struct rq *rq)
+{
+	return 0;
+}
+
+static inline int
+>>>>>>> upstream/android-13
 update_irq_load_avg(struct rq *rq, u64 running)
 {
 	return 0;

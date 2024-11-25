@@ -4,6 +4,10 @@
 #include <linux/kallsyms.h>
 #include <linux/semaphore.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 /* Legacy tty mutex glue */
 

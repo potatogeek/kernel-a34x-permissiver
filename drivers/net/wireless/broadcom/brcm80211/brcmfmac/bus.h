@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef BRCMFMAC_BUS_H
@@ -91,6 +97,10 @@ struct brcmf_bus_ops {
 	int (*get_fwname)(struct device *dev, const char *ext,
 			  unsigned char *fw_name);
 	void (*debugfs_create)(struct device *dev);
+<<<<<<< HEAD
+=======
+	int (*reset)(struct device *dev);
+>>>>>>> upstream/android-13
 };
 
 
@@ -245,11 +255,24 @@ void brcmf_bus_debugfs_create(struct brcmf_bus *bus)
 	return bus->ops->debugfs_create(bus->dev);
 }
 
+<<<<<<< HEAD
+=======
+static inline
+int brcmf_bus_reset(struct brcmf_bus *bus)
+{
+	if (!bus->ops->reset)
+		return -EOPNOTSUPP;
+
+	return bus->ops->reset(bus->dev);
+}
+
+>>>>>>> upstream/android-13
 /*
  * interface functions from common layer
  */
 
 /* Receive frame for delivery to OS.  Callee disposes of rxp. */
+<<<<<<< HEAD
 void brcmf_rx_frame(struct device *dev, struct sk_buff *rxp, bool handle_event);
 /* Receive async event packet from firmware. Callee disposes of rxp. */
 void brcmf_rx_event(struct device *dev, struct sk_buff *rxp);
@@ -258,10 +281,28 @@ void brcmf_rx_event(struct device *dev, struct sk_buff *rxp);
 int brcmf_attach(struct device *dev, struct brcmf_mp_device *settings);
 /* Indication from bus module regarding removal/absence of dongle */
 void brcmf_detach(struct device *dev);
+=======
+void brcmf_rx_frame(struct device *dev, struct sk_buff *rxp, bool handle_event,
+		    bool inirq);
+/* Receive async event packet from firmware. Callee disposes of rxp. */
+void brcmf_rx_event(struct device *dev, struct sk_buff *rxp);
+
+int brcmf_alloc(struct device *dev, struct brcmf_mp_device *settings);
+/* Indication from bus module regarding presence/insertion of dongle. */
+int brcmf_attach(struct device *dev);
+/* Indication from bus module regarding removal/absence of dongle */
+void brcmf_detach(struct device *dev);
+void brcmf_free(struct device *dev);
+>>>>>>> upstream/android-13
 /* Indication from bus module that dongle should be reset */
 void brcmf_dev_reset(struct device *dev);
 /* Request from bus module to initiate a coredump */
 void brcmf_dev_coredump(struct device *dev);
+<<<<<<< HEAD
+=======
+/* Indication that firmware has halted or crashed */
+void brcmf_fw_crashed(struct device *dev);
+>>>>>>> upstream/android-13
 
 /* Configure the "global" bus state used by upper layers */
 void brcmf_bus_change_state(struct brcmf_bus *bus, enum brcmf_bus_state state);
@@ -271,11 +312,34 @@ void brcmf_bus_add_txhdrlen(struct device *dev, uint len);
 
 #ifdef CONFIG_BRCMFMAC_SDIO
 void brcmf_sdio_exit(void);
+<<<<<<< HEAD
 void brcmf_sdio_register(void);
 #endif
 #ifdef CONFIG_BRCMFMAC_USB
 void brcmf_usb_exit(void);
 void brcmf_usb_register(void);
+=======
+int brcmf_sdio_register(void);
+#else
+static inline void brcmf_sdio_exit(void) { }
+static inline int brcmf_sdio_register(void) { return 0; }
+#endif
+
+#ifdef CONFIG_BRCMFMAC_USB
+void brcmf_usb_exit(void);
+int brcmf_usb_register(void);
+#else
+static inline void brcmf_usb_exit(void) { }
+static inline int brcmf_usb_register(void) { return 0; }
+#endif
+
+#ifdef CONFIG_BRCMFMAC_PCIE
+void brcmf_pcie_exit(void);
+int brcmf_pcie_register(void);
+#else
+static inline void brcmf_pcie_exit(void) { }
+static inline int brcmf_pcie_register(void) { return 0; }
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* BRCMFMAC_BUS_H */

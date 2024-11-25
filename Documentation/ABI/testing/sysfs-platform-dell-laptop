@@ -2,7 +2,11 @@ What:		/sys/class/leds/dell::kbd_backlight/als_enabled
 Date:		December 2014
 KernelVersion:	3.19
 Contact:	Gabriele Mazzotta <gabriele.mzt@gmail.com>,
+<<<<<<< HEAD
 		Pali Rohár <pali.rohar@gmail.com>
+=======
+		Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
 Description:
 		This file allows to control the automatic keyboard
 		illumination mode on some systems that have an ambient
@@ -13,7 +17,11 @@ What:		/sys/class/leds/dell::kbd_backlight/als_setting
 Date:		December 2014
 KernelVersion:	3.19
 Contact:	Gabriele Mazzotta <gabriele.mzt@gmail.com>,
+<<<<<<< HEAD
 		Pali Rohár <pali.rohar@gmail.com>
+=======
+		Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
 Description:
 		This file allows to specifiy the on/off threshold value,
 		as reported by the ambient light sensor.
@@ -22,7 +30,11 @@ What:		/sys/class/leds/dell::kbd_backlight/start_triggers
 Date:		December 2014
 KernelVersion:	3.19
 Contact:	Gabriele Mazzotta <gabriele.mzt@gmail.com>,
+<<<<<<< HEAD
 		Pali Rohár <pali.rohar@gmail.com>
+=======
+		Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
 Description:
 		This file allows to control the input triggers that
 		turn on the keyboard backlight illumination that is
@@ -34,9 +46,18 @@ Description:
 		this file. To disable a trigger, write its name preceded
 		by '-' instead.
 
+<<<<<<< HEAD
 		For example, to enable the keyboard as trigger run:
 		    echo +keyboard > /sys/class/leds/dell::kbd_backlight/start_triggers
 		To disable it:
+=======
+		For example, to enable the keyboard as trigger run::
+
+		    echo +keyboard > /sys/class/leds/dell::kbd_backlight/start_triggers
+
+		To disable it::
+
+>>>>>>> upstream/android-13
 		    echo -keyboard > /sys/class/leds/dell::kbd_backlight/start_triggers
 
 		Note that not all the available triggers can be configured.
@@ -45,7 +66,11 @@ What:		/sys/class/leds/dell::kbd_backlight/stop_timeout
 Date:		December 2014
 KernelVersion:	3.19
 Contact:	Gabriele Mazzotta <gabriele.mzt@gmail.com>,
+<<<<<<< HEAD
 		Pali Rohár <pali.rohar@gmail.com>
+=======
+		Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
 Description:
 		This file allows to specify the interval after which the
 		keyboard illumination is disabled because of inactivity.
@@ -57,7 +82,12 @@ Description:
 		with any the above units. If no unit is specified, the value
 		is assumed to be expressed in seconds.
 
+<<<<<<< HEAD
 		For example, to set the timeout to 10 minutes run:
+=======
+		For example, to set the timeout to 10 minutes run::
+
+>>>>>>> upstream/android-13
 		    echo 10m > /sys/class/leds/dell::kbd_backlight/stop_timeout
 
 		Note that when this file is read, the returned value might be

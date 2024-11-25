@@ -7,10 +7,13 @@
  *  Copyright (C) 2000 Deep Blue Solutions Ltd.
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_SA1100_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/ioport.h>
 #include <linux/init.h>
@@ -28,6 +31,11 @@
 #include <mach/hardware.h>
 #include <mach/irqs.h>
 
+<<<<<<< HEAD
+=======
+#include "serial_mctrl_gpio.h"
+
+>>>>>>> upstream/android-13
 /* We've been assigned a range on the "Low-density serial ports" major */
 #define SERIAL_SA1100_MAJOR	204
 #define MINOR_START		5
@@ -77,6 +85,10 @@ struct sa1100_port {
 	struct uart_port	port;
 	struct timer_list	timer;
 	unsigned int		old_status;
+<<<<<<< HEAD
+=======
+	struct mctrl_gpios	*gpios;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -174,6 +186,11 @@ static void sa1100_enable_ms(struct uart_port *port)
 		container_of(port, struct sa1100_port, port);
 
 	mod_timer(&sport->timer, jiffies);
+<<<<<<< HEAD
+=======
+
+	mctrl_gpio_enable_ms(sport->gpios);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -209,9 +226,13 @@ sa1100_rx_chars(struct sa1100_port *sport)
 			else if (status & UTSR1_TO_SM(UTSR1_FRE))
 				flg = TTY_FRAME;
 
+<<<<<<< HEAD
 #ifdef SUPPORT_SYSRQ
 			sport->port.sysrq = 0;
 #endif
+=======
+			sport->port.sysrq = 0;
+>>>>>>> upstream/android-13
 		}
 
 		if (uart_handle_sysrq_char(&sport->port, ch))
@@ -224,9 +245,13 @@ sa1100_rx_chars(struct sa1100_port *sport)
 			 UTSR0_TO_SM(UART_GET_UTSR0(sport));
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&sport->port.lock);
 	tty_flip_buffer_push(&sport->port.state->port);
 	spin_lock(&sport->port.lock);
+=======
+	tty_flip_buffer_push(&sport->port.state->port);
+>>>>>>> upstream/android-13
 }
 
 static void sa1100_tx_chars(struct sa1100_port *sport)
@@ -322,11 +347,28 @@ static unsigned int sa1100_tx_empty(struct uart_port *port)
 
 static unsigned int sa1100_get_mctrl(struct uart_port *port)
 {
+<<<<<<< HEAD
 	return TIOCM_CTS | TIOCM_DSR | TIOCM_CAR;
+=======
+	struct sa1100_port *sport =
+		container_of(port, struct sa1100_port, port);
+	int ret = TIOCM_CTS | TIOCM_DSR | TIOCM_CAR;
+
+	mctrl_gpio_get(sport->gpios, &ret);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void sa1100_set_mctrl(struct uart_port *port, unsigned int mctrl)
 {
+<<<<<<< HEAD
+=======
+	struct sa1100_port *sport =
+		container_of(port, struct sa1100_port, port);
+
+	mctrl_gpio_set(sport->gpios, mctrl);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -842,6 +884,7 @@ static int sa1100_serial_resume(struct platform_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sa1100_serial_probe(struct platform_device *dev)
 {
 	struct resource *res = dev->resource;
@@ -862,6 +905,50 @@ static int sa1100_serial_probe(struct platform_device *dev)
 			break;
 		}
 	}
+=======
+static int sa1100_serial_add_one_port(struct sa1100_port *sport, struct platform_device *dev)
+{
+	sport->port.dev = &dev->dev;
+	sport->port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_SA1100_CONSOLE);
+
+	// mctrl_gpio_init() requires that the GPIO driver supports interrupts,
+	// but we need to support GPIO drivers for hardware that has no such
+	// interrupts.  Use mctrl_gpio_init_noauto() instead.
+	sport->gpios = mctrl_gpio_init_noauto(sport->port.dev, 0);
+	if (IS_ERR(sport->gpios)) {
+		int err = PTR_ERR(sport->gpios);
+
+		dev_err(sport->port.dev, "failed to get mctrl gpios: %d\n",
+			err);
+
+		if (err == -EPROBE_DEFER)
+			return err;
+
+		sport->gpios = NULL;
+	}
+
+	platform_set_drvdata(dev, sport);
+
+	return uart_add_one_port(&sa1100_reg, &sport->port);
+}
+
+static int sa1100_serial_probe(struct platform_device *dev)
+{
+	struct resource *res;
+	int i;
+
+	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+	if (!res)
+		return -EINVAL;
+
+	for (i = 0; i < NR_PORTS; i++)
+		if (sa1100_ports[i].port.mapbase == res->start)
+			break;
+	if (i == NR_PORTS)
+		return -ENODEV;
+
+	sa1100_serial_add_one_port(&sa1100_ports[i], dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

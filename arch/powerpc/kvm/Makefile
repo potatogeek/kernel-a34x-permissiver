@@ -3,6 +3,7 @@
 # Makefile for Kernel-based Virtual Machine module
 #
 
+<<<<<<< HEAD
 subdir-ccflags-$(CONFIG_PPC_WERROR) := -Werror
 
 ccflags-y := -Ivirt/kvm -Iarch/powerpc/kvm
@@ -17,6 +18,15 @@ CFLAGS_e500_mmu_host.o := -I.
 CFLAGS_emulate.o  := -I.
 CFLAGS_emulate_loadstore.o  := -I.
 
+=======
+ccflags-y := -Ivirt/kvm -Iarch/powerpc/kvm
+KVM := ../../../virt/kvm
+
+common-objs-y = $(KVM)/kvm_main.o $(KVM)/eventfd.o $(KVM)/binary_stats.o
+common-objs-$(CONFIG_KVM_VFIO) += $(KVM)/vfio.o
+common-objs-$(CONFIG_KVM_MMIO) += $(KVM)/coalesced_mmio.o
+
+>>>>>>> upstream/android-13
 common-objs-y += powerpc.o emulate_loadstore.o
 obj-$(CONFIG_KVM_EXIT_TIMING) += timing.o
 obj-$(CONFIG_KVM_BOOK3S_HANDLER) += book3s_exports.o
@@ -64,6 +74,10 @@ kvm-pr-y := \
 	book3s_32_mmu.o
 
 kvm-book3s_64-builtin-objs-$(CONFIG_KVM_BOOK3S_64_HANDLER) += \
+<<<<<<< HEAD
+=======
+	book3s_64_entry.o \
+>>>>>>> upstream/android-13
 	tm.o
 
 ifdef CONFIG_KVM_BOOK3S_PR_POSSIBLE
@@ -75,7 +89,15 @@ kvm-hv-y += \
 	book3s_hv.o \
 	book3s_hv_interrupts.o \
 	book3s_64_mmu_hv.o \
+<<<<<<< HEAD
 	book3s_64_mmu_radix.o
+=======
+	book3s_64_mmu_radix.o \
+	book3s_hv_nested.o
+
+kvm-hv-$(CONFIG_PPC_UV) += \
+	book3s_hv_uvmem.o
+>>>>>>> upstream/android-13
 
 kvm-hv-$(CONFIG_PPC_TRANSACTIONAL_MEM) += \
 	book3s_hv_tm.o
@@ -89,6 +111,10 @@ kvm-book3s_64-builtin-tm-objs-$(CONFIG_PPC_TRANSACTIONAL_MEM) += \
 ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
 kvm-book3s_64-builtin-objs-$(CONFIG_KVM_BOOK3S_64_HANDLER) += \
 	book3s_hv_hmi.o \
+<<<<<<< HEAD
+=======
+	book3s_hv_p9_entry.o \
+>>>>>>> upstream/android-13
 	book3s_hv_rmhandlers.o \
 	book3s_hv_rm_mmu.o \
 	book3s_hv_ras.o \
@@ -100,7 +126,11 @@ endif
 kvm-book3s_64-objs-$(CONFIG_KVM_XICS) += \
 	book3s_xics.o
 
+<<<<<<< HEAD
 kvm-book3s_64-objs-$(CONFIG_KVM_XIVE) += book3s_xive.o
+=======
+kvm-book3s_64-objs-$(CONFIG_KVM_XIVE) += book3s_xive.o book3s_xive_native.o
+>>>>>>> upstream/android-13
 kvm-book3s_64-objs-$(CONFIG_SPAPR_TCE_IOMMU) += book3s_64_vio.o
 
 kvm-book3s_64-module-objs := \

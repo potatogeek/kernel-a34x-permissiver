@@ -54,25 +54,37 @@ int rpaphp_get_sensor_state(struct slot *slot, int *state)
  * rpaphp_enable_slot - record slot state, config pci device
  * @slot: target &slot
  *
+<<<<<<< HEAD
  * Initialize values in the slot, and the hotplug_slot info
  * structures to indicate if there is a pci card plugged into
  * the slot. If the slot is not empty, run the pcibios routine
+=======
+ * Initialize values in the slot structure to indicate if there is a pci card
+ * plugged into the slot. If the slot is not empty, run the pcibios routine
+>>>>>>> upstream/android-13
  * to get pcibios stuff correctly set up.
  */
 int rpaphp_enable_slot(struct slot *slot)
 {
 	int rc, level, state;
 	struct pci_bus *bus;
+<<<<<<< HEAD
 	struct hotplug_slot_info *info = slot->hotplug_slot->info;
 
 	info->adapter_status = NOT_VALID;
+=======
+
+>>>>>>> upstream/android-13
 	slot->state = EMPTY;
 
 	/* Find out if the power is turned on for the slot */
 	rc = rtas_get_power_level(slot->power_domain, &level);
 	if (rc)
 		return rc;
+<<<<<<< HEAD
 	info->power_status = level;
+=======
+>>>>>>> upstream/android-13
 
 	/* Figure out if there is an adapter in the slot */
 	rc = rpaphp_get_sensor_state(slot, &state);
@@ -85,13 +97,19 @@ int rpaphp_enable_slot(struct slot *slot)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	info->adapter_status = EMPTY;
+=======
+>>>>>>> upstream/android-13
 	slot->bus = bus;
 	slot->pci_devs = &bus->devices;
 
 	/* if there's an adapter in the slot, go add the pci devices */
 	if (state == PRESENT) {
+<<<<<<< HEAD
 		info->adapter_status = NOT_CONFIGURED;
+=======
+>>>>>>> upstream/android-13
 		slot->state = NOT_CONFIGURED;
 
 		/* non-empty slot has to have child */
@@ -101,11 +119,20 @@ int rpaphp_enable_slot(struct slot *slot)
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		if (list_empty(&bus->devices))
 			pci_hp_add_devices(bus);
 
 		if (!list_empty(&bus->devices)) {
 			info->adapter_status = CONFIGURED;
+=======
+		if (list_empty(&bus->devices)) {
+			pseries_eeh_init_edev_recursive(PCI_DN(slot->dn));
+			pci_hp_add_devices(bus);
+		}
+
+		if (!list_empty(&bus->devices)) {
+>>>>>>> upstream/android-13
 			slot->state = CONFIGURED;
 		}
 

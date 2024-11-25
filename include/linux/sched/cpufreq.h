@@ -3,13 +3,20 @@
 #define _LINUX_SCHED_CPUFREQ_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include "../../../drivers/misc/mediatek/base/power/include/mtk_upower.h"
+=======
+
+>>>>>>> upstream/android-13
 /*
  * Interface between cpufreq drivers and the scheduler:
  */
 
 #define SCHED_CPUFREQ_IOWAIT	(1U << 0)
+<<<<<<< HEAD
 #define SCHED_CPUFREQ_MIGRATION	(1U << 1)
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_FREQ
 struct cpufreq_policy;
@@ -27,6 +34,7 @@ bool cpufreq_this_cpu_can_update(struct cpufreq_policy *policy);
 static inline unsigned long map_util_freq(unsigned long util,
 					unsigned long freq, unsigned long cap)
 {
+<<<<<<< HEAD
 	return (freq + (freq >> 2)) * util / cap;
 }
 
@@ -58,6 +66,15 @@ __attribute__((unused)) static unsigned long mtk_map_util_freq(int cpu, unsigned
 }
 #endif /* CONFIG_NONLINEAR_FREQ_CTL */
 
+=======
+	return freq * util / cap;
+}
+
+static inline unsigned long map_util_perf(unsigned long util)
+{
+	return util + (util >> 2);
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_CPU_FREQ */
 
 #endif /* _LINUX_SCHED_CPUFREQ_H */

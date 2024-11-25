@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012-2016 Mentor Graphics Inc.
  * Copyright (C) 2005-2009 Freescale Semiconductor, Inc.
@@ -11,6 +12,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2012-2016 Mentor Graphics Inc.
+ * Copyright (C) 2005-2009 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include "ipu-prv.h"

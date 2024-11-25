@@ -1,5 +1,6 @@
 [
     {
+<<<<<<< HEAD
         "ArchStdEvent": "L1D_CACHE_RD",
     },
     {
@@ -52,71 +53,170 @@
     },
     {
         "ArchStdEvent": "L2D_CACHE_INVAL",
+=======
+        "ArchStdEvent": "L1D_CACHE_RD"
+    },
+    {
+        "ArchStdEvent": "L1D_CACHE_WR"
+    },
+    {
+        "ArchStdEvent": "L1D_CACHE_REFILL_RD"
+    },
+    {
+        "ArchStdEvent": "L1D_CACHE_REFILL_WR"
+    },
+    {
+        "ArchStdEvent": "L1D_CACHE_WB_VICTIM"
+    },
+    {
+        "ArchStdEvent": "L1D_CACHE_WB_CLEAN"
+    },
+    {
+        "ArchStdEvent": "L1D_CACHE_INVAL"
+    },
+    {
+        "ArchStdEvent": "L1D_TLB_REFILL_RD"
+    },
+    {
+        "ArchStdEvent": "L1D_TLB_REFILL_WR"
+    },
+    {
+        "ArchStdEvent": "L1D_TLB_RD"
+    },
+    {
+        "ArchStdEvent": "L1D_TLB_WR"
+    },
+    {
+        "ArchStdEvent": "L2D_CACHE_RD"
+    },
+    {
+        "ArchStdEvent": "L2D_CACHE_WR"
+    },
+    {
+        "ArchStdEvent": "L2D_CACHE_REFILL_RD"
+    },
+    {
+        "ArchStdEvent": "L2D_CACHE_REFILL_WR"
+    },
+    {
+        "ArchStdEvent": "L2D_CACHE_WB_VICTIM"
+    },
+    {
+        "ArchStdEvent": "L2D_CACHE_WB_CLEAN"
+    },
+    {
+        "ArchStdEvent": "L2D_CACHE_INVAL"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Level 1 instruction cache prefetch access count",
         "EventCode": "0x102e",
         "EventName": "L1I_CACHE_PRF",
+<<<<<<< HEAD
         "BriefDescription": "L1I cache prefetch access count",
+=======
+        "BriefDescription": "L1I cache prefetch access count"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Level 1 instruction cache miss due to prefetch access count",
         "EventCode": "0x102f",
         "EventName": "L1I_CACHE_PRF_REFILL",
+<<<<<<< HEAD
         "BriefDescription": "L1I cache miss due to prefetch access count",
+=======
+        "BriefDescription": "L1I cache miss due to prefetch access count"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Instruction queue is empty",
         "EventCode": "0x1043",
         "EventName": "IQ_IS_EMPTY",
+<<<<<<< HEAD
         "BriefDescription": "Instruction queue is empty",
+=======
+        "BriefDescription": "Instruction queue is empty"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Instruction fetch stall cycles",
         "EventCode": "0x1044",
         "EventName": "IF_IS_STALL",
+<<<<<<< HEAD
         "BriefDescription": "Instruction fetch stall cycles",
+=======
+        "BriefDescription": "Instruction fetch stall cycles"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Instructions can receive, but not send",
         "EventCode": "0x2014",
         "EventName": "FETCH_BUBBLE",
+<<<<<<< HEAD
         "BriefDescription": "Instructions can receive, but not send",
+=======
+        "BriefDescription": "Instructions can receive, but not send"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Prefetch request from LSU",
         "EventCode": "0x6013",
         "EventName": "PRF_REQ",
+<<<<<<< HEAD
         "BriefDescription": "Prefetch request from LSU",
+=======
+        "BriefDescription": "Prefetch request from LSU"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Hit on prefetched data",
         "EventCode": "0x6014",
         "EventName": "HIT_ON_PRF",
+<<<<<<< HEAD
         "BriefDescription": "Hit on prefetched data",
+=======
+        "BriefDescription": "Hit on prefetched data"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "Cycles of that the number of issuing micro operations are less than 4",
         "EventCode": "0x7001",
         "EventName": "EXE_STALL_CYCLE",
+<<<<<<< HEAD
         "BriefDescription": "Cycles of that the number of issue ups are less than 4",
+=======
+        "BriefDescription": "Cycles of that the number of issue ups are less than 4"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "No any micro operation is issued and meanwhile any load operation is not resolved",
         "EventCode": "0x7004",
         "EventName": "MEM_STALL_ANYLOAD",
+<<<<<<< HEAD
         "BriefDescription": "No any micro operation is issued and meanwhile any load operation is not resolved",
+=======
+        "BriefDescription": "No any micro operation is issued and meanwhile any load operation is not resolved"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "No any micro operation is issued and meanwhile there is any load operation missing L1 cache and pending data refill",
         "EventCode": "0x7006",
         "EventName": "MEM_STALL_L1MISS",
+<<<<<<< HEAD
         "BriefDescription": "No any micro operation is issued and meanwhile there is any load operation missing L1 cache and pending data refill",
+=======
+        "BriefDescription": "No any micro operation is issued and meanwhile there is any load operation missing L1 cache and pending data refill"
+>>>>>>> upstream/android-13
     },
     {
         "PublicDescription": "No any micro operation is issued and meanwhile there is any load operation missing both L1 and L2 cache and pending data refill from L3 cache",
         "EventCode": "0x7007",
         "EventName": "MEM_STALL_L2MISS",
+<<<<<<< HEAD
         "BriefDescription": "No any micro operation is issued and meanwhile there is any load operation missing both L1 and L2 cache and pending data refill from L3 cache",
     },
+=======
+        "BriefDescription": "No any micro operation is issued and meanwhile there is any load operation missing both L1 and L2 cache and pending data refill from L3 cache"
+    }
+>>>>>>> upstream/android-13
 ]

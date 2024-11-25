@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Texas Instruments
+ * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OMAP2_DSS_DISPC_COMPAT_H

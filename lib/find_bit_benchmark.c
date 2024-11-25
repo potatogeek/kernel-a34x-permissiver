@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Test for find_*_bit functions.
  *
  * Copyright (c) 2017 Cavium.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -108,6 +115,7 @@ static int __init test_find_next_and_bit(const void *bitmap,
 		const void *bitmap2, unsigned long len)
 {
 	unsigned long i, cnt;
+<<<<<<< HEAD
 	cycles_t cycles;
 
 	cycles = get_cycles();
@@ -116,6 +124,15 @@ static int __init test_find_next_and_bit(const void *bitmap,
 	cycles = get_cycles() - cycles;
 	pr_err("find_next_and_bit:\t\t%llu cycles, %ld iterations\n",
 		(u64)cycles, cnt);
+=======
+	ktime_t time;
+
+	time = ktime_get();
+	for (cnt = i = 0; i < BITMAP_LEN; cnt++)
+		i = find_next_and_bit(bitmap, bitmap2, BITMAP_LEN, i + 1);
+	time = ktime_get() - time;
+	pr_err("find_next_and_bit:  %18llu ns, %6ld iterations\n", time, cnt);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

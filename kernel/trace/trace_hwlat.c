@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * trace_hwlatdetect.c - A simple Hardware Latency detector.
+=======
+ * trace_hwlat.c - A simple Hardware Latency detector.
+>>>>>>> upstream/android-13
  *
  * Use this tracer to detect large system latencies induced by the behavior of
  * certain underlying system hardware or firmware, independent of Linux itself.
@@ -34,7 +38,11 @@
  * Copyright (C) 2008-2009 Jon Masters, Red Hat, Inc. <jcm@redhat.com>
  * Copyright (C) 2013-2016 Steven Rostedt, Red Hat, Inc. <srostedt@redhat.com>
  *
+<<<<<<< HEAD
  * Includes useful feedback from Clark Williams <clark@redhat.com>
+=======
+ * Includes useful feedback from Clark Williams <williams@redhat.com>
+>>>>>>> upstream/android-13
  *
  */
 #include <linux/kthread.h>
@@ -54,20 +62,49 @@ static struct trace_array	*hwlat_trace;
 #define DEFAULT_SAMPLE_WIDTH	500000			/* 0.5s */
 #define DEFAULT_LAT_THRESHOLD	10			/* 10us */
 
+<<<<<<< HEAD
 /* sampling thread*/
 static struct task_struct *hwlat_kthread;
 
 static struct dentry *hwlat_sample_width;	/* sample width us */
 static struct dentry *hwlat_sample_window;	/* sample window us */
+=======
+static struct dentry *hwlat_sample_width;	/* sample width us */
+static struct dentry *hwlat_sample_window;	/* sample window us */
+static struct dentry *hwlat_thread_mode;	/* hwlat thread mode */
+
+enum {
+	MODE_NONE = 0,
+	MODE_ROUND_ROBIN,
+	MODE_PER_CPU,
+	MODE_MAX
+};
+static char *thread_mode_str[] = { "none", "round-robin", "per-cpu" };
+>>>>>>> upstream/android-13
 
 /* Save the previous tracing_thresh value */
 static unsigned long save_tracing_thresh;
 
+<<<<<<< HEAD
 /* NMI timestamp counters */
 static u64 nmi_ts_start;
 static u64 nmi_total_ts;
 static int nmi_count;
 static int nmi_cpu;
+=======
+/* runtime kthread data */
+struct hwlat_kthread_data {
+	struct task_struct	*kthread;
+	/* NMI timestamp counters */
+	u64			nmi_ts_start;
+	u64			nmi_total_ts;
+	int			nmi_count;
+	int			nmi_cpu;
+};
+
+struct hwlat_kthread_data hwlat_single_cpu_data;
+DEFINE_PER_CPU(struct hwlat_kthread_data, hwlat_per_cpu_data);
+>>>>>>> upstream/android-13
 
 /* Tells NMIs to call back to the hwlat tracer to record timestamps */
 bool trace_hwlat_callback_enabled;
@@ -83,6 +120,10 @@ struct hwlat_sample {
 	u64			nmi_total_ts;	/* Total time spent in NMIs */
 	struct timespec64	timestamp;	/* wall time */
 	int			nmi_count;	/* # NMIs during this sample */
+<<<<<<< HEAD
+=======
+	int			count;		/* # of iterations over thresh */
+>>>>>>> upstream/android-13
 };
 
 /* keep the global state somewhere. */
@@ -95,15 +136,37 @@ static struct hwlat_data {
 	u64	sample_window;		/* total sampling window (on+off) */
 	u64	sample_width;		/* active sampling portion of window */
 
+<<<<<<< HEAD
 } hwlat_data = {
 	.sample_window		= DEFAULT_SAMPLE_WINDOW,
 	.sample_width		= DEFAULT_SAMPLE_WIDTH,
 };
 
+=======
+	int	thread_mode;		/* thread mode */
+
+} hwlat_data = {
+	.sample_window		= DEFAULT_SAMPLE_WINDOW,
+	.sample_width		= DEFAULT_SAMPLE_WIDTH,
+	.thread_mode		= MODE_ROUND_ROBIN
+};
+
+static struct hwlat_kthread_data *get_cpu_data(void)
+{
+	if (hwlat_data.thread_mode == MODE_PER_CPU)
+		return this_cpu_ptr(&hwlat_per_cpu_data);
+	else
+		return &hwlat_single_cpu_data;
+}
+
+static bool hwlat_busy;
+
+>>>>>>> upstream/android-13
 static void trace_hwlat_sample(struct hwlat_sample *sample)
 {
 	struct trace_array *tr = hwlat_trace;
 	struct trace_event_call *call = &event_hwlat;
+<<<<<<< HEAD
 	struct ring_buffer *buffer = tr->trace_buffer.buffer;
 	struct ring_buffer_event *event;
 	struct hwlat_entry *entry;
@@ -115,6 +178,14 @@ static void trace_hwlat_sample(struct hwlat_sample *sample)
 
 	event = trace_buffer_lock_reserve(buffer, TRACE_HWLAT, sizeof(*entry),
 					  flags, pc);
+=======
+	struct trace_buffer *buffer = tr->array_buffer.buffer;
+	struct ring_buffer_event *event;
+	struct hwlat_entry *entry;
+
+	event = trace_buffer_lock_reserve(buffer, TRACE_HWLAT, sizeof(*entry),
+					  tracing_gen_ctx());
+>>>>>>> upstream/android-13
 	if (!event)
 		return;
 	entry	= ring_buffer_event_data(event);
@@ -124,6 +195,10 @@ static void trace_hwlat_sample(struct hwlat_sample *sample)
 	entry->timestamp		= sample->timestamp;
 	entry->nmi_total_ts		= sample->nmi_total_ts;
 	entry->nmi_count		= sample->nmi_count;
+<<<<<<< HEAD
+=======
+	entry->count			= sample->count;
+>>>>>>> upstream/android-13
 
 	if (!call_filter_check_discard(call, entry, buffer, event))
 		trace_buffer_unlock_commit_nostack(buffer, event);
@@ -139,7 +214,13 @@ static void trace_hwlat_sample(struct hwlat_sample *sample)
 
 void trace_hwlat_callback(bool enter)
 {
+<<<<<<< HEAD
 	if (smp_processor_id() != nmi_cpu)
+=======
+	struct hwlat_kthread_data *kdata = get_cpu_data();
+
+	if (!kdata->kthread)
+>>>>>>> upstream/android-13
 		return;
 
 	/*
@@ -148,6 +229,7 @@ void trace_hwlat_callback(bool enter)
 	 */
 	if (!IS_ENABLED(CONFIG_GENERIC_SCHED_CLOCK)) {
 		if (enter)
+<<<<<<< HEAD
 			nmi_ts_start = time_get();
 		else
 			nmi_total_ts += time_get() - nmi_ts_start;
@@ -157,6 +239,26 @@ void trace_hwlat_callback(bool enter)
 		nmi_count++;
 }
 
+=======
+			kdata->nmi_ts_start = time_get();
+		else
+			kdata->nmi_total_ts += time_get() - kdata->nmi_ts_start;
+	}
+
+	if (enter)
+		kdata->nmi_count++;
+}
+
+/*
+ * hwlat_err - report a hwlat error.
+ */
+#define hwlat_err(msg) ({							\
+	struct trace_array *tr = hwlat_trace;					\
+										\
+	trace_array_printk_buf(tr->array_buffer.buffer, _THIS_IP_, msg);	\
+})
+
+>>>>>>> upstream/android-13
 /**
  * get_sample - sample the CPU TSC and look for likely hardware latencies
  *
@@ -166,19 +268,36 @@ void trace_hwlat_callback(bool enter)
  */
 static int get_sample(void)
 {
+<<<<<<< HEAD
 	struct trace_array *tr = hwlat_trace;
 	time_type start, t1, t2, last_t2;
 	s64 diff, total, last_total = 0;
+=======
+	struct hwlat_kthread_data *kdata = get_cpu_data();
+	struct trace_array *tr = hwlat_trace;
+	struct hwlat_sample s;
+	time_type start, t1, t2, last_t2;
+	s64 diff, outer_diff, total, last_total = 0;
+>>>>>>> upstream/android-13
 	u64 sample = 0;
 	u64 thresh = tracing_thresh;
 	u64 outer_sample = 0;
 	int ret = -1;
+<<<<<<< HEAD
 
 	do_div(thresh, NSEC_PER_USEC); /* modifies interval value */
 
 	nmi_cpu = smp_processor_id();
 	nmi_total_ts = 0;
 	nmi_count = 0;
+=======
+	unsigned int count = 0;
+
+	do_div(thresh, NSEC_PER_USEC); /* modifies interval value */
+
+	kdata->nmi_total_ts = 0;
+	kdata->nmi_count = 0;
+>>>>>>> upstream/android-13
 	/* Make sure NMIs see this first */
 	barrier();
 
@@ -186,6 +305,10 @@ static int get_sample(void)
 
 	init_time(last_t2, 0);
 	start = time_get(); /* start timestamp */
+<<<<<<< HEAD
+=======
+	outer_diff = 0;
+>>>>>>> upstream/android-13
 
 	do {
 
@@ -194,6 +317,7 @@ static int get_sample(void)
 
 		if (time_u64(last_t2)) {
 			/* Check the delta from outer loop (t2 to next t1) */
+<<<<<<< HEAD
 			diff = time_to_us(time_sub(t1, last_t2));
 			/* This shouldn't happen */
 			if (diff < 0) {
@@ -202,6 +326,16 @@ static int get_sample(void)
 			}
 			if (diff > outer_sample)
 				outer_sample = diff;
+=======
+			outer_diff = time_to_us(time_sub(t1, last_t2));
+			/* This shouldn't happen */
+			if (outer_diff < 0) {
+				hwlat_err(BANNER "time running backwards\n");
+				goto out;
+			}
+			if (outer_diff > outer_sample)
+				outer_sample = outer_diff;
+>>>>>>> upstream/android-13
 		}
 		last_t2 = t2;
 
@@ -209,7 +343,11 @@ static int get_sample(void)
 
 		/* Check for possible overflows */
 		if (total < last_total) {
+<<<<<<< HEAD
 			pr_err("Time total overflowed\n");
+=======
+			hwlat_err("Time total overflowed\n");
+>>>>>>> upstream/android-13
 			break;
 		}
 		last_total = total;
@@ -217,9 +355,21 @@ static int get_sample(void)
 		/* This checks the inner loop (t1 to t2) */
 		diff = time_to_us(time_sub(t2, t1));     /* current diff */
 
+<<<<<<< HEAD
 		/* This shouldn't happen */
 		if (diff < 0) {
 			pr_err(BANNER "time running backwards\n");
+=======
+		if (diff > thresh || outer_diff > thresh) {
+			if (!count)
+				ktime_get_real_ts64(&s.timestamp);
+			count++;
+		}
+
+		/* This shouldn't happen */
+		if (diff < 0) {
+			hwlat_err(BANNER "time running backwards\n");
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
@@ -236,18 +386,28 @@ static int get_sample(void)
 
 	/* If we exceed the threshold value, we have found a hardware latency */
 	if (sample > thresh || outer_sample > thresh) {
+<<<<<<< HEAD
 		struct hwlat_sample s;
+=======
+		u64 latency;
+>>>>>>> upstream/android-13
 
 		ret = 1;
 
 		/* We read in microseconds */
+<<<<<<< HEAD
 		if (nmi_total_ts)
 			do_div(nmi_total_ts, NSEC_PER_USEC);
+=======
+		if (kdata->nmi_total_ts)
+			do_div(kdata->nmi_total_ts, NSEC_PER_USEC);
+>>>>>>> upstream/android-13
 
 		hwlat_data.count++;
 		s.seqnum = hwlat_data.count;
 		s.duration = sample;
 		s.outer_duration = outer_sample;
+<<<<<<< HEAD
 		ktime_get_real_ts64(&s.timestamp);
 		s.nmi_total_ts = nmi_total_ts;
 		s.nmi_count = nmi_count;
@@ -258,6 +418,20 @@ static int get_sample(void)
 			tr->max_latency = sample;
 		if (outer_sample > tr->max_latency)
 			tr->max_latency = outer_sample;
+=======
+		s.nmi_total_ts = kdata->nmi_total_ts;
+		s.nmi_count = kdata->nmi_count;
+		s.count = count;
+		trace_hwlat_sample(&s);
+
+		latency = max(sample, outer_sample);
+
+		/* Keep a running maximum ever recorded hardware latency */
+		if (latency > tr->max_latency) {
+			tr->max_latency = latency;
+			latency_fsnotify(tr);
+		}
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -265,7 +439,10 @@ out:
 }
 
 static struct cpumask save_cpumask;
+<<<<<<< HEAD
 static bool disable_migrate;
+=======
+>>>>>>> upstream/android-13
 
 static void move_to_next_cpu(void)
 {
@@ -273,6 +450,7 @@ static void move_to_next_cpu(void)
 	struct trace_array *tr = hwlat_trace;
 	int next_cpu;
 
+<<<<<<< HEAD
 	if (disable_migrate)
 		return;
 	/*
@@ -287,12 +465,30 @@ static void move_to_next_cpu(void)
 	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
 	next_cpu = cpumask_next(smp_processor_id(), current_mask);
 	put_online_cpus();
+=======
+	/*
+	 * If for some reason the user modifies the CPU affinity
+	 * of this thread, then stop migrating for the duration
+	 * of the current test.
+	 */
+	if (!cpumask_equal(current_mask, current->cpus_ptr))
+		goto change_mode;
+
+	cpus_read_lock();
+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
+	next_cpu = cpumask_next(raw_smp_processor_id(), current_mask);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	if (next_cpu >= nr_cpu_ids)
 		next_cpu = cpumask_first(current_mask);
 
 	if (next_cpu >= nr_cpu_ids) /* Shouldn't happen! */
+<<<<<<< HEAD
 		goto disable;
+=======
+		goto change_mode;
+>>>>>>> upstream/android-13
 
 	cpumask_clear(current_mask);
 	cpumask_set_cpu(next_cpu, current_mask);
@@ -300,8 +496,14 @@ static void move_to_next_cpu(void)
 	sched_setaffinity(0, current_mask);
 	return;
 
+<<<<<<< HEAD
  disable:
 	disable_migrate = true;
+=======
+ change_mode:
+	hwlat_data.thread_mode = MODE_NONE;
+	pr_info(BANNER "cpumask changed while in round-robin mode, switching to mode none\n");
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -320,7 +522,12 @@ static int kthread_fn(void *data)
 
 	while (!kthread_should_stop()) {
 
+<<<<<<< HEAD
 		move_to_next_cpu();
+=======
+		if (hwlat_data.thread_mode == MODE_ROUND_ROBIN)
+			move_to_next_cpu();
+>>>>>>> upstream/android-13
 
 		local_irq_disable();
 		get_sample();
@@ -343,18 +550,55 @@ static int kthread_fn(void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * start_kthread - Kick off the hardware latency sampling/detector kthread
+=======
+/*
+ * stop_stop_kthread - Inform the hardware latency sampling/detector kthread to stop
+ *
+ * This kicks the running hardware latency sampling/detector kernel thread and
+ * tells it to stop sampling now. Use this on unload and at system shutdown.
+ */
+static void stop_single_kthread(void)
+{
+	struct hwlat_kthread_data *kdata = get_cpu_data();
+	struct task_struct *kthread;
+
+	cpus_read_lock();
+	kthread = kdata->kthread;
+
+	if (!kthread)
+		goto out_put_cpus;
+
+	kthread_stop(kthread);
+	kdata->kthread = NULL;
+
+out_put_cpus:
+	cpus_read_unlock();
+}
+
+
+/*
+ * start_single_kthread - Kick off the hardware latency sampling/detector kthread
+>>>>>>> upstream/android-13
  *
  * This starts the kernel thread that will sit and sample the CPU timestamp
  * counter (TSC or similar) and look for potential hardware latencies.
  */
+<<<<<<< HEAD
 static int start_kthread(struct trace_array *tr)
 {
+=======
+static int start_single_kthread(struct trace_array *tr)
+{
+	struct hwlat_kthread_data *kdata = get_cpu_data();
+>>>>>>> upstream/android-13
 	struct cpumask *current_mask = &save_cpumask;
 	struct task_struct *kthread;
 	int next_cpu;
 
+<<<<<<< HEAD
 	if (hwlat_kthread)
 		return 0;
 
@@ -364,10 +608,16 @@ static int start_kthread(struct trace_array *tr)
 	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
 	put_online_cpus();
 	next_cpu = cpumask_first(current_mask);
+=======
+	cpus_read_lock();
+	if (kdata->kthread)
+		goto out_put_cpus;
+>>>>>>> upstream/android-13
 
 	kthread = kthread_create(kthread_fn, NULL, "hwlatd");
 	if (IS_ERR(kthread)) {
 		pr_err(BANNER "could not start sampling thread\n");
+<<<<<<< HEAD
 		return -ENOMEM;
 	}
 
@@ -376,11 +626,84 @@ static int start_kthread(struct trace_array *tr)
 	sched_setaffinity(kthread->pid, current_mask);
 
 	hwlat_kthread = kthread;
+=======
+		cpus_read_unlock();
+		return -ENOMEM;
+	}
+
+	/* Just pick the first CPU on first iteration */
+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
+
+	if (hwlat_data.thread_mode == MODE_ROUND_ROBIN) {
+		next_cpu = cpumask_first(current_mask);
+		cpumask_clear(current_mask);
+		cpumask_set_cpu(next_cpu, current_mask);
+
+	}
+
+	sched_setaffinity(kthread->pid, current_mask);
+
+	kdata->kthread = kthread;
+	wake_up_process(kthread);
+
+out_put_cpus:
+	cpus_read_unlock();
+	return 0;
+}
+
+/*
+ * stop_cpu_kthread - Stop a hwlat cpu kthread
+ */
+static void stop_cpu_kthread(unsigned int cpu)
+{
+	struct task_struct *kthread;
+
+	kthread = per_cpu(hwlat_per_cpu_data, cpu).kthread;
+	if (kthread)
+		kthread_stop(kthread);
+	per_cpu(hwlat_per_cpu_data, cpu).kthread = NULL;
+}
+
+/*
+ * stop_per_cpu_kthreads - Inform the hardware latency sampling/detector kthread to stop
+ *
+ * This kicks the running hardware latency sampling/detector kernel threads and
+ * tells it to stop sampling now. Use this on unload and at system shutdown.
+ */
+static void stop_per_cpu_kthreads(void)
+{
+	unsigned int cpu;
+
+	cpus_read_lock();
+	for_each_online_cpu(cpu)
+		stop_cpu_kthread(cpu);
+	cpus_read_unlock();
+}
+
+/*
+ * start_cpu_kthread - Start a hwlat cpu kthread
+ */
+static int start_cpu_kthread(unsigned int cpu)
+{
+	struct task_struct *kthread;
+	char comm[24];
+
+	snprintf(comm, 24, "hwlatd/%d", cpu);
+
+	kthread = kthread_create_on_cpu(kthread_fn, NULL, cpu, comm);
+	if (IS_ERR(kthread)) {
+		pr_err(BANNER "could not start sampling thread\n");
+		return -ENOMEM;
+	}
+
+	per_cpu(hwlat_per_cpu_data, cpu).kthread = kthread;
+>>>>>>> upstream/android-13
 	wake_up_process(kthread);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * stop_kthread - Inform the hardware latency samping/detector kthread to stop
  *
@@ -516,6 +839,262 @@ static const struct file_operations window_fops = {
 	.write		= hwlat_window_write,
 };
 
+=======
+#ifdef CONFIG_HOTPLUG_CPU
+static void hwlat_hotplug_workfn(struct work_struct *dummy)
+{
+	struct trace_array *tr = hwlat_trace;
+	unsigned int cpu = smp_processor_id();
+
+	mutex_lock(&trace_types_lock);
+	mutex_lock(&hwlat_data.lock);
+	cpus_read_lock();
+
+	if (!hwlat_busy || hwlat_data.thread_mode != MODE_PER_CPU)
+		goto out_unlock;
+
+	if (!cpumask_test_cpu(cpu, tr->tracing_cpumask))
+		goto out_unlock;
+
+	start_cpu_kthread(cpu);
+
+out_unlock:
+	cpus_read_unlock();
+	mutex_unlock(&hwlat_data.lock);
+	mutex_unlock(&trace_types_lock);
+}
+
+static DECLARE_WORK(hwlat_hotplug_work, hwlat_hotplug_workfn);
+
+/*
+ * hwlat_cpu_init - CPU hotplug online callback function
+ */
+static int hwlat_cpu_init(unsigned int cpu)
+{
+	schedule_work_on(cpu, &hwlat_hotplug_work);
+	return 0;
+}
+
+/*
+ * hwlat_cpu_die - CPU hotplug offline callback function
+ */
+static int hwlat_cpu_die(unsigned int cpu)
+{
+	stop_cpu_kthread(cpu);
+	return 0;
+}
+
+static void hwlat_init_hotplug_support(void)
+{
+	int ret;
+
+	ret = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "trace/hwlat:online",
+				hwlat_cpu_init, hwlat_cpu_die);
+	if (ret < 0)
+		pr_warn(BANNER "Error to init cpu hotplug support\n");
+
+	return;
+}
+#else /* CONFIG_HOTPLUG_CPU */
+static void hwlat_init_hotplug_support(void)
+{
+	return;
+}
+#endif /* CONFIG_HOTPLUG_CPU */
+
+/*
+ * start_per_cpu_kthreads - Kick off the hardware latency sampling/detector kthreads
+ *
+ * This starts the kernel threads that will sit on potentially all cpus and
+ * sample the CPU timestamp counter (TSC or similar) and look for potential
+ * hardware latencies.
+ */
+static int start_per_cpu_kthreads(struct trace_array *tr)
+{
+	struct cpumask *current_mask = &save_cpumask;
+	unsigned int cpu;
+	int retval;
+
+	cpus_read_lock();
+	/*
+	 * Run only on CPUs in which hwlat is allowed to run.
+	 */
+	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
+
+	for_each_online_cpu(cpu)
+		per_cpu(hwlat_per_cpu_data, cpu).kthread = NULL;
+
+	for_each_cpu(cpu, current_mask) {
+		retval = start_cpu_kthread(cpu);
+		if (retval)
+			goto out_error;
+	}
+	cpus_read_unlock();
+
+	return 0;
+
+out_error:
+	cpus_read_unlock();
+	stop_per_cpu_kthreads();
+	return retval;
+}
+
+static void *s_mode_start(struct seq_file *s, loff_t *pos)
+{
+	int mode = *pos;
+
+	mutex_lock(&hwlat_data.lock);
+
+	if (mode >= MODE_MAX)
+		return NULL;
+
+	return pos;
+}
+
+static void *s_mode_next(struct seq_file *s, void *v, loff_t *pos)
+{
+	int mode = ++(*pos);
+
+	if (mode >= MODE_MAX)
+		return NULL;
+
+	return pos;
+}
+
+static int s_mode_show(struct seq_file *s, void *v)
+{
+	loff_t *pos = v;
+	int mode = *pos;
+
+	if (mode == hwlat_data.thread_mode)
+		seq_printf(s, "[%s]", thread_mode_str[mode]);
+	else
+		seq_printf(s, "%s", thread_mode_str[mode]);
+
+	if (mode != MODE_MAX)
+		seq_puts(s, " ");
+
+	return 0;
+}
+
+static void s_mode_stop(struct seq_file *s, void *v)
+{
+	seq_puts(s, "\n");
+	mutex_unlock(&hwlat_data.lock);
+}
+
+static const struct seq_operations thread_mode_seq_ops = {
+	.start		= s_mode_start,
+	.next		= s_mode_next,
+	.show		= s_mode_show,
+	.stop		= s_mode_stop
+};
+
+static int hwlat_mode_open(struct inode *inode, struct file *file)
+{
+	return seq_open(file, &thread_mode_seq_ops);
+};
+
+static void hwlat_tracer_start(struct trace_array *tr);
+static void hwlat_tracer_stop(struct trace_array *tr);
+
+/**
+ * hwlat_mode_write - Write function for "mode" entry
+ * @filp: The active open file structure
+ * @ubuf: The user buffer that contains the value to write
+ * @cnt: The maximum number of bytes to write to "file"
+ * @ppos: The current position in @file
+ *
+ * This function provides a write implementation for the "mode" interface
+ * to the hardware latency detector. hwlatd has different operation modes.
+ * The "none" sets the allowed cpumask for a single hwlatd thread at the
+ * startup and lets the scheduler handle the migration. The default mode is
+ * the "round-robin" one, in which a single hwlatd thread runs, migrating
+ * among the allowed CPUs in a round-robin fashion. The "per-cpu" mode
+ * creates one hwlatd thread per allowed CPU.
+ */
+static ssize_t hwlat_mode_write(struct file *filp, const char __user *ubuf,
+				 size_t cnt, loff_t *ppos)
+{
+	struct trace_array *tr = hwlat_trace;
+	const char *mode;
+	char buf[64];
+	int ret, i;
+
+	if (cnt >= sizeof(buf))
+		return -EINVAL;
+
+	if (copy_from_user(buf, ubuf, cnt))
+		return -EFAULT;
+
+	buf[cnt] = 0;
+
+	mode = strstrip(buf);
+
+	ret = -EINVAL;
+
+	/*
+	 * trace_types_lock is taken to avoid concurrency on start/stop
+	 * and hwlat_busy.
+	 */
+	mutex_lock(&trace_types_lock);
+	if (hwlat_busy)
+		hwlat_tracer_stop(tr);
+
+	mutex_lock(&hwlat_data.lock);
+
+	for (i = 0; i < MODE_MAX; i++) {
+		if (strcmp(mode, thread_mode_str[i]) == 0) {
+			hwlat_data.thread_mode = i;
+			ret = cnt;
+		}
+	}
+
+	mutex_unlock(&hwlat_data.lock);
+
+	if (hwlat_busy)
+		hwlat_tracer_start(tr);
+	mutex_unlock(&trace_types_lock);
+
+	*ppos += cnt;
+
+
+
+	return ret;
+}
+
+/*
+ * The width parameter is read/write using the generic trace_min_max_param
+ * method. The *val is protected by the hwlat_data lock and is upper
+ * bounded by the window parameter.
+ */
+static struct trace_min_max_param hwlat_width = {
+	.lock		= &hwlat_data.lock,
+	.val		= &hwlat_data.sample_width,
+	.max		= &hwlat_data.sample_window,
+	.min		= NULL,
+};
+
+/*
+ * The window parameter is read/write using the generic trace_min_max_param
+ * method. The *val is protected by the hwlat_data lock and is lower
+ * bounded by the width parameter.
+ */
+static struct trace_min_max_param hwlat_window = {
+	.lock		= &hwlat_data.lock,
+	.val		= &hwlat_data.sample_window,
+	.max		= NULL,
+	.min		= &hwlat_data.sample_width,
+};
+
+static const struct file_operations thread_mode_fops = {
+	.open		= hwlat_mode_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= seq_release,
+	.write		= hwlat_mode_write
+};
+>>>>>>> upstream/android-13
 /**
  * init_tracefs - A function to initialize the tracefs interface files
  *
@@ -526,6 +1105,7 @@ static const struct file_operations window_fops = {
  */
 static int init_tracefs(void)
 {
+<<<<<<< HEAD
 	struct dentry *d_tracer;
 	struct dentry *top_dir;
 
@@ -534,18 +1114,34 @@ static int init_tracefs(void)
 		return -ENOMEM;
 
 	top_dir = tracefs_create_dir("hwlat_detector", d_tracer);
+=======
+	int ret;
+	struct dentry *top_dir;
+
+	ret = tracing_init_dentry();
+	if (ret)
+		return -ENOMEM;
+
+	top_dir = tracefs_create_dir("hwlat_detector", NULL);
+>>>>>>> upstream/android-13
 	if (!top_dir)
 		return -ENOMEM;
 
 	hwlat_sample_window = tracefs_create_file("window", 0640,
 						  top_dir,
+<<<<<<< HEAD
 						  &hwlat_data.sample_window,
 						  &window_fops);
+=======
+						  &hwlat_window,
+						  &trace_min_max_fops);
+>>>>>>> upstream/android-13
 	if (!hwlat_sample_window)
 		goto err;
 
 	hwlat_sample_width = tracefs_create_file("width", 0644,
 						 top_dir,
+<<<<<<< HEAD
 						 &hwlat_data.sample_width,
 						 &width_fops);
 	if (!hwlat_sample_width)
@@ -555,6 +1151,24 @@ static int init_tracefs(void)
 
  err:
 	tracefs_remove_recursive(top_dir);
+=======
+						 &hwlat_width,
+						 &trace_min_max_fops);
+	if (!hwlat_sample_width)
+		goto err;
+
+	hwlat_thread_mode = trace_create_file("mode", 0644,
+					      top_dir,
+					      NULL,
+					      &thread_mode_fops);
+	if (!hwlat_thread_mode)
+		goto err;
+
+	return 0;
+
+ err:
+	tracefs_remove(top_dir);
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 
@@ -562,18 +1176,34 @@ static void hwlat_tracer_start(struct trace_array *tr)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = start_kthread(tr);
+=======
+	if (hwlat_data.thread_mode == MODE_PER_CPU)
+		err = start_per_cpu_kthreads(tr);
+	else
+		err = start_single_kthread(tr);
+>>>>>>> upstream/android-13
 	if (err)
 		pr_err(BANNER "Cannot start hwlat kthread\n");
 }
 
 static void hwlat_tracer_stop(struct trace_array *tr)
 {
+<<<<<<< HEAD
 	stop_kthread();
 }
 
 static bool hwlat_busy;
 
+=======
+	if (hwlat_data.thread_mode == MODE_PER_CPU)
+		stop_per_cpu_kthreads();
+	else
+		stop_single_kthread();
+}
+
+>>>>>>> upstream/android-13
 static int hwlat_tracer_init(struct trace_array *tr)
 {
 	/* Only allow one instance to enable this */
@@ -582,7 +1212,10 @@ static int hwlat_tracer_init(struct trace_array *tr)
 
 	hwlat_trace = tr;
 
+<<<<<<< HEAD
 	disable_migrate = false;
+=======
+>>>>>>> upstream/android-13
 	hwlat_data.count = 0;
 	tr->max_latency = 0;
 	save_tracing_thresh = tracing_thresh;
@@ -601,7 +1234,11 @@ static int hwlat_tracer_init(struct trace_array *tr)
 
 static void hwlat_tracer_reset(struct trace_array *tr)
 {
+<<<<<<< HEAD
 	stop_kthread();
+=======
+	hwlat_tracer_stop(tr);
+>>>>>>> upstream/android-13
 
 	/* the tracing threshold is static between runs */
 	last_tracing_thresh = tracing_thresh;
@@ -630,6 +1267,11 @@ __init static int init_hwlat_tracer(void)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	hwlat_init_hotplug_support();
+
+>>>>>>> upstream/android-13
 	init_tracefs();
 
 	return 0;

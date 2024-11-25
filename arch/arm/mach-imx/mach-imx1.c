@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_platform.h>
@@ -21,6 +27,7 @@ static void __init imx1_init_early(void)
 	mxc_set_cpu_type(MXC_CPU_MX1);
 }
 
+<<<<<<< HEAD
 static void __init imx1_init_irq(void)
 {
 	void __iomem *avic_addr;
@@ -31,6 +38,8 @@ static void __init imx1_init_irq(void)
 	mxc_init_irq(avic_addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const char * const imx1_dt_board_compat[] __initconst = {
 	"fsl,imx1",
 	NULL
@@ -38,7 +47,10 @@ static const char * const imx1_dt_board_compat[] __initconst = {
 
 DT_MACHINE_START(IMX1_DT, "Freescale i.MX1 (Device Tree Support)")
 	.init_early	= imx1_init_early,
+<<<<<<< HEAD
 	.init_irq	= imx1_init_irq,
+=======
+>>>>>>> upstream/android-13
 	.dt_compat	= imx1_dt_board_compat,
 	.restart	= mxc_restart,
 MACHINE_END

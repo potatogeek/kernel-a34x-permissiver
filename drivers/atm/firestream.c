@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /* drivers/atm/firestream.c - FireStream 155 (MB86697) and
  *                            FireStream  50 (MB86695) device driver 
@@ -9,6 +13,7 @@
  */
 
 /*
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -25,6 +30,8 @@
 
   The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian
   system and in the file COPYING in the Linux kernel source.
+=======
+>>>>>>> upstream/android-13
 */
 
 
@@ -726,7 +733,11 @@ static void process_txdone_queue (struct fs_dev *dev, struct queue *q)
 
 		switch (STATUS_CODE (qe)) {
 		case 0x01: /* This is for AAL0 where we put the chip in streaming mode */
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x02:
 			/* Process a real txdone entry. */
 			tmp = qe->p0;
@@ -810,6 +821,10 @@ static void process_incoming (struct fs_dev *dev, struct queue *q)
 		switch (STATUS_CODE (qe)) {
 		case 0x1:
 			/* Fall through for streaming mode */
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x2:/* Packet received OK.... */
 			if (atm_vcc) {
 				skb = pe->skb;
@@ -1089,7 +1104,11 @@ static int fs_open(struct atm_vcc *atm_vcc)
 					RC_FLAGS_BFPS_BFP * bfp |
 					RC_FLAGS_RXBM_PSB, 0, 0);
 			break;
+<<<<<<< HEAD
 		};
+=======
+		}
+>>>>>>> upstream/android-13
 		if (IS_FS50 (dev)) {
 			submit_command (dev, &dev->hp_txq, 
 					QE_CMD_REG_WR | QE_CMD_IMM_INQ,
@@ -1293,8 +1312,11 @@ static const struct atmdev_ops ops = {
 	.send =         fs_send,
 	.owner =        THIS_MODULE,
 	/* ioctl:          fs_ioctl, */
+<<<<<<< HEAD
 	/* getsockopt:     fs_getsockopt, */
 	/* setsockopt:     fs_setsockopt, */
+=======
+>>>>>>> upstream/android-13
 	/* change_qos:     fs_change_qos, */
 
 	/* For now implement these internally here... */  
@@ -1414,7 +1436,11 @@ static int init_q(struct fs_dev *dev, struct queue *txq, int queue,
 
 	func_enter ();
 
+<<<<<<< HEAD
 	fs_dprintk (FS_DEBUG_INIT, "Inititing queue at %x: %d entries:\n", 
+=======
+	fs_dprintk (FS_DEBUG_INIT, "Initializing queue at %x: %d entries:\n",
+>>>>>>> upstream/android-13
 		    queue, nentries);
 
 	p = aligned_kmalloc (sz, GFP_KERNEL, 0x10);
@@ -1447,7 +1473,11 @@ static int init_fp(struct fs_dev *dev, struct freepool *fp, int queue,
 {
 	func_enter ();
 
+<<<<<<< HEAD
 	fs_dprintk (FS_DEBUG_INIT, "Inititing free pool at %x:\n", queue);
+=======
+	fs_dprintk (FS_DEBUG_INIT, "Initializing free pool at %x:\n", queue);
+>>>>>>> upstream/android-13
 
 	write_fs (dev, FP_CNF(queue), (bufsize * RBFP_RBS) | RBFP_RBSVAL | RBFP_CME);
 	write_fs (dev, FP_SA(queue),  0);
@@ -1650,7 +1680,11 @@ static irqreturn_t fs_irq (int irq, void *dev_id)
 	}
 
 	if (status & ISR_TBRQ_W) {
+<<<<<<< HEAD
 		fs_dprintk (FS_DEBUG_IRQ, "Data tramsitted!\n");
+=======
+		fs_dprintk (FS_DEBUG_IRQ, "Data transmitted!\n");
+>>>>>>> upstream/android-13
 		process_txdone_queue (dev, &dev->tx_relq);
 	}
 
@@ -1692,6 +1726,11 @@ static int fs_init(struct fs_dev *dev)
 	dev->hw_base = pci_resource_start(pci_dev, 0);
 
 	dev->base = ioremap(dev->hw_base, 0x1000);
+<<<<<<< HEAD
+=======
+	if (!dev->base)
+		return 1;
+>>>>>>> upstream/android-13
 
 	reset_chip (dev);
   

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rfd77402.c - Support for RF Digital RFD77402 Time-of-Flight (distance) sensor
  *
  * Copyright 2017 Peter Meerwald-Stadler <pmeerw@pmeerw.net>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * 7-bit I2C slave address 0x4c
  *
  * TODO: interrupt
@@ -93,18 +100,30 @@ static const struct iio_chan_spec rfd77402_channels[] = {
 	},
 };
 
+<<<<<<< HEAD
 static int rfd77402_set_state(struct rfd77402_data *data, u8 state, u16 check)
 {
 	int ret;
 
 	ret = i2c_smbus_write_byte_data(data->client, RFD77402_CMD_R,
+=======
+static int rfd77402_set_state(struct i2c_client *client, u8 state, u16 check)
+{
+	int ret;
+
+	ret = i2c_smbus_write_byte_data(client, RFD77402_CMD_R,
+>>>>>>> upstream/android-13
 					state | RFD77402_CMD_VALID);
 	if (ret < 0)
 		return ret;
 
 	usleep_range(10000, 20000);
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_word_data(data->client, RFD77402_STATUS_R);
+=======
+	ret = i2c_smbus_read_word_data(client, RFD77402_STATUS_R);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	if ((ret & RFD77402_STATUS_PM_MASK) != check)
@@ -113,24 +132,40 @@ static int rfd77402_set_state(struct rfd77402_data *data, u8 state, u16 check)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rfd77402_measure(struct rfd77402_data *data)
+=======
+static int rfd77402_measure(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	int tries = 10;
 
+<<<<<<< HEAD
 	ret = rfd77402_set_state(data, RFD77402_CMD_MCPU_ON,
+=======
+	ret = rfd77402_set_state(client, RFD77402_CMD_MCPU_ON,
+>>>>>>> upstream/android-13
 				 RFD77402_STATUS_MCPU_ON);
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, RFD77402_CMD_R,
+=======
+	ret = i2c_smbus_write_byte_data(client, RFD77402_CMD_R,
+>>>>>>> upstream/android-13
 					RFD77402_CMD_SINGLE |
 					RFD77402_CMD_VALID);
 	if (ret < 0)
 		goto err;
 
 	while (tries-- > 0) {
+<<<<<<< HEAD
 		ret = i2c_smbus_read_byte_data(data->client, RFD77402_ICSR);
+=======
+		ret = i2c_smbus_read_byte_data(client, RFD77402_ICSR);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto err;
 		if (ret & RFD77402_ICSR_RESULT)
@@ -143,7 +178,11 @@ static int rfd77402_measure(struct rfd77402_data *data)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_word_data(data->client, RFD77402_RESULT_R);
+=======
+	ret = i2c_smbus_read_word_data(client, RFD77402_RESULT_R);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto err;
 
@@ -156,7 +195,11 @@ static int rfd77402_measure(struct rfd77402_data *data)
 	return (ret & RFD77402_RESULT_DIST_MASK) >> 2;
 
 err:
+<<<<<<< HEAD
 	rfd77402_set_state(data, RFD77402_CMD_MCPU_OFF,
+=======
+	rfd77402_set_state(client, RFD77402_CMD_MCPU_OFF,
+>>>>>>> upstream/android-13
 			   RFD77402_STATUS_MCPU_OFF);
 	return ret;
 }
@@ -171,7 +214,11 @@ static int rfd77402_read_raw(struct iio_dev *indio_dev,
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
 		mutex_lock(&data->lock);
+<<<<<<< HEAD
 		ret = rfd77402_measure(data);
+=======
+		ret = rfd77402_measure(data->client);
+>>>>>>> upstream/android-13
 		mutex_unlock(&data->lock);
 		if (ret < 0)
 			return ret;
@@ -191,23 +238,39 @@ static const struct iio_info rfd77402_info = {
 	.read_raw = rfd77402_read_raw,
 };
 
+<<<<<<< HEAD
 static int rfd77402_init(struct rfd77402_data *data)
 {
 	int ret, i;
 
 	ret = rfd77402_set_state(data, RFD77402_CMD_STANDBY,
+=======
+static int rfd77402_init(struct i2c_client *client)
+{
+	int ret, i;
+
+	ret = rfd77402_set_state(client, RFD77402_CMD_STANDBY,
+>>>>>>> upstream/android-13
 				 RFD77402_STATUS_STANDBY);
 	if (ret < 0)
 		return ret;
 
 	/* configure INT pad as push-pull, active low */
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, RFD77402_ICSR,
+=======
+	ret = i2c_smbus_write_byte_data(client, RFD77402_ICSR,
+>>>>>>> upstream/android-13
 					RFD77402_ICSR_INT_MODE);
 	if (ret < 0)
 		return ret;
 
 	/* I2C configuration */
+<<<<<<< HEAD
 	ret = i2c_smbus_write_word_data(data->client, RFD77402_I2C_INIT_CFG,
+=======
+	ret = i2c_smbus_write_word_data(client, RFD77402_I2C_INIT_CFG,
+>>>>>>> upstream/android-13
 					RFD77402_I2C_ADDR_INCR |
 					RFD77402_I2C_DATA_INCR |
 					RFD77402_I2C_HOST_DEBUG	|
@@ -216,45 +279,83 @@ static int rfd77402_init(struct rfd77402_data *data)
 		return ret;
 
 	/* set initialization */
+<<<<<<< HEAD
 	ret = i2c_smbus_write_word_data(data->client, RFD77402_PMU_CFG, 0x0500);
 	if (ret < 0)
 		return ret;
 
 	ret = rfd77402_set_state(data, RFD77402_CMD_MCPU_OFF,
+=======
+	ret = i2c_smbus_write_word_data(client, RFD77402_PMU_CFG, 0x0500);
+	if (ret < 0)
+		return ret;
+
+	ret = rfd77402_set_state(client, RFD77402_CMD_MCPU_OFF,
+>>>>>>> upstream/android-13
 				 RFD77402_STATUS_MCPU_OFF);
 	if (ret < 0)
 		return ret;
 
 	/* set initialization */
+<<<<<<< HEAD
 	ret = i2c_smbus_write_word_data(data->client, RFD77402_PMU_CFG, 0x0600);
 	if (ret < 0)
 		return ret;
 
 	ret = rfd77402_set_state(data, RFD77402_CMD_MCPU_ON,
+=======
+	ret = i2c_smbus_write_word_data(client, RFD77402_PMU_CFG, 0x0600);
+	if (ret < 0)
+		return ret;
+
+	ret = rfd77402_set_state(client, RFD77402_CMD_MCPU_ON,
+>>>>>>> upstream/android-13
 				 RFD77402_STATUS_MCPU_ON);
 	if (ret < 0)
 		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(rf77402_tof_config); i++) {
+<<<<<<< HEAD
 		ret = i2c_smbus_write_word_data(data->client,
+=======
+		ret = i2c_smbus_write_word_data(client,
+>>>>>>> upstream/android-13
 						rf77402_tof_config[i].reg,
 						rf77402_tof_config[i].val);
 		if (ret < 0)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	ret = rfd77402_set_state(data, RFD77402_CMD_STANDBY,
+=======
+	ret = rfd77402_set_state(client, RFD77402_CMD_STANDBY,
+>>>>>>> upstream/android-13
 				 RFD77402_STATUS_STANDBY);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int rfd77402_powerdown(struct rfd77402_data *data)
 {
 	return rfd77402_set_state(data, RFD77402_CMD_STANDBY,
 				  RFD77402_STATUS_STANDBY);
 }
 
+=======
+static int rfd77402_powerdown(struct i2c_client *client)
+{
+	return rfd77402_set_state(client, RFD77402_CMD_STANDBY,
+				  RFD77402_STATUS_STANDBY);
+}
+
+static void rfd77402_disable(void *client)
+{
+	rfd77402_powerdown(client);
+}
+
+>>>>>>> upstream/android-13
 static int rfd77402_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
 {
@@ -273,17 +374,24 @@ static int rfd77402_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	data = iio_priv(indio_dev);
+<<<<<<< HEAD
 	i2c_set_clientdata(client, indio_dev);
 	data->client = client;
 	mutex_init(&data->lock);
 
 	indio_dev->dev.parent = &client->dev;
+=======
+	data->client = client;
+	mutex_init(&data->lock);
+
+>>>>>>> upstream/android-13
 	indio_dev->info = &rfd77402_info;
 	indio_dev->channels = rfd77402_channels;
 	indio_dev->num_channels = ARRAY_SIZE(rfd77402_channels);
 	indio_dev->name = RFD77402_DRV_NAME;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
+<<<<<<< HEAD
 	ret = rfd77402_init(data);
 	if (ret < 0)
 		return ret;
@@ -307,23 +415,42 @@ static int rfd77402_remove(struct i2c_client *client)
 	rfd77402_powerdown(iio_priv(indio_dev));
 
 	return 0;
+=======
+	ret = rfd77402_init(client);
+	if (ret < 0)
+		return ret;
+
+	ret = devm_add_action_or_reset(&client->dev, rfd77402_disable, client);
+	if (ret)
+		return ret;
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
 static int rfd77402_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct rfd77402_data *data = iio_priv(i2c_get_clientdata(
 				     to_i2c_client(dev)));
 
 	return rfd77402_powerdown(data);
+=======
+	return rfd77402_powerdown(to_i2c_client(dev));
+>>>>>>> upstream/android-13
 }
 
 static int rfd77402_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct rfd77402_data *data = iio_priv(i2c_get_clientdata(
 				     to_i2c_client(dev)));
 
 	return rfd77402_init(data);
+=======
+	return rfd77402_init(to_i2c_client(dev));
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -341,7 +468,10 @@ static struct i2c_driver rfd77402_driver = {
 		.pm     = &rfd77402_pm_ops,
 	},
 	.probe  = rfd77402_probe,
+<<<<<<< HEAD
 	.remove = rfd77402_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table = rfd77402_id,
 };
 

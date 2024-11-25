@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cifsfs.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (C) International Business Machines  Corp., 2002,2008
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *
  *   Common Internet FileSystem (CIFS) client
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -19,6 +25,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Note that BB means BUGBUG (ie something to fix eventually) */
@@ -52,6 +60,25 @@
 #include "cifs_spnego.h"
 #include "fscache.h"
 #include "smb2pdu.h"
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CIFS_DFS_UPCALL
+#include "dfs_cache.h"
+#endif
+#ifdef CONFIG_CIFS_SWN_UPCALL
+#include "netlink.h"
+#endif
+#include "fs_context.h"
+
+/*
+ * DOS dates from 1980/1/1 through 2107/12/31
+ * Protocol specifications indicate the range should be to 119, which
+ * limits maximum year to 2099. But this range has not been checked.
+ */
+#define SMB_DATE_MAX (127<<9 | 12<<5 | 31)
+#define SMB_DATE_MIN (0<<9 | 1<<5 | 1)
+#define SMB_TIME_MAX (23<<11 | 59<<5 | 29)
+>>>>>>> upstream/android-13
 
 int cifsFYI = 0;
 bool traceSMB;
@@ -59,6 +86,12 @@ bool enable_oplocks = true;
 bool linuxExtEnabled = true;
 bool lookupCacheEnabled = true;
 bool disable_legacy_dialects; /* false by default */
+<<<<<<< HEAD
+=======
+bool enable_gcm_256 = true;
+bool require_gcm_256; /* false by default */
+bool enable_negotiate_signing; /* false by default */
+>>>>>>> upstream/android-13
 unsigned int global_secflags = CIFSSEC_DEF;
 /* unsigned int ntlmv2_support = 0; */
 unsigned int sign_CIFS_PDUs = 1;
@@ -81,9 +114,32 @@ module_param(cifs_max_pending, uint, 0444);
 MODULE_PARM_DESC(cifs_max_pending, "Simultaneous requests to server for "
 				   "CIFS/SMB1 dialect (N/A for SMB3) "
 				   "Default: 32767 Range: 2 to 32767.");
+<<<<<<< HEAD
 module_param(enable_oplocks, bool, 0644);
 MODULE_PARM_DESC(enable_oplocks, "Enable or disable oplocks. Default: y/Y/1");
 
+=======
+#ifdef CONFIG_CIFS_STATS2
+unsigned int slow_rsp_threshold = 1;
+module_param(slow_rsp_threshold, uint, 0644);
+MODULE_PARM_DESC(slow_rsp_threshold, "Amount of time (in seconds) to wait "
+				   "before logging that a response is delayed. "
+				   "Default: 1 (if set to 0 disables msg).");
+#endif /* STATS2 */
+
+module_param(enable_oplocks, bool, 0644);
+MODULE_PARM_DESC(enable_oplocks, "Enable or disable oplocks. Default: y/Y/1");
+
+module_param(enable_gcm_256, bool, 0644);
+MODULE_PARM_DESC(enable_gcm_256, "Enable requesting strongest (256 bit) GCM encryption. Default: n/N/0");
+
+module_param(require_gcm_256, bool, 0644);
+MODULE_PARM_DESC(require_gcm_256, "Require strongest (256 bit) GCM encryption. Default: n/N/0");
+
+module_param(enable_negotiate_signing, bool, 0644);
+MODULE_PARM_DESC(enable_negotiate_signing, "Enable negotiating packet signing algorithm with server. Default: n/N/0");
+
+>>>>>>> upstream/android-13
 module_param(disable_legacy_dialects, bool, 0644);
 MODULE_PARM_DESC(disable_legacy_dialects, "To improve security it may be "
 				  "helpful to restrict the ability to "
@@ -98,7 +154,14 @@ extern mempool_t *cifs_req_poolp;
 extern mempool_t *cifs_mid_poolp;
 
 struct workqueue_struct	*cifsiod_wq;
+<<<<<<< HEAD
 struct workqueue_struct	*cifsoplockd_wq;
+=======
+struct workqueue_struct	*decrypt_wq;
+struct workqueue_struct	*fileinfo_put_wq;
+struct workqueue_struct	*cifsoplockd_wq;
+struct workqueue_struct	*deferredclose_wq;
+>>>>>>> upstream/android-13
 __u32 cifs_lock_secret;
 
 /*
@@ -131,6 +194,10 @@ cifs_read_super(struct super_block *sb)
 	struct inode *inode;
 	struct cifs_sb_info *cifs_sb;
 	struct cifs_tcon *tcon;
+<<<<<<< HEAD
+=======
+	struct timespec64 ts;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	cifs_sb = CIFS_SB(sb);
@@ -147,8 +214,39 @@ cifs_read_super(struct super_block *sb)
 	else
 		sb->s_maxbytes = MAX_NON_LFS;
 
+<<<<<<< HEAD
 	/* BB FIXME fix time_gran to be larger for LANMAN sessions */
 	sb->s_time_gran = 100;
+=======
+	/*
+	 * Some very old servers like DOS and OS/2 used 2 second granularity
+	 * (while all current servers use 100ns granularity - see MS-DTYP)
+	 * but 1 second is the maximum allowed granularity for the VFS
+	 * so for old servers set time granularity to 1 second while for
+	 * everything else (current servers) set it to 100ns.
+	 */
+	if ((tcon->ses->server->vals->protocol_id == SMB10_PROT_ID) &&
+	    ((tcon->ses->capabilities &
+	      tcon->ses->server->vals->cap_nt_find) == 0) &&
+	    !tcon->unix_ext) {
+		sb->s_time_gran = 1000000000; /* 1 second is max allowed gran */
+		ts = cnvrtDosUnixTm(cpu_to_le16(SMB_DATE_MIN), 0, 0);
+		sb->s_time_min = ts.tv_sec;
+		ts = cnvrtDosUnixTm(cpu_to_le16(SMB_DATE_MAX),
+				    cpu_to_le16(SMB_TIME_MAX), 0);
+		sb->s_time_max = ts.tv_sec;
+	} else {
+		/*
+		 * Almost every server, including all SMB2+, uses DCE TIME
+		 * ie 100 nanosecond units, since 1601.  See MS-DTYP and MS-FSCC
+		 */
+		sb->s_time_gran = 100;
+		ts = cifs_NTtimeToUnix(0);
+		sb->s_time_min = ts.tv_sec;
+		ts = cifs_NTtimeToUnix(cpu_to_le64(S64_MAX));
+		sb->s_time_max = ts.tv_sec;
+	}
+>>>>>>> upstream/android-13
 
 	sb->s_magic = CIFS_MAGIC_NUMBER;
 	sb->s_op = &cifs_super_ops;
@@ -156,8 +254,19 @@ cifs_read_super(struct super_block *sb)
 	rc = super_setup_bdi(sb);
 	if (rc)
 		goto out_no_root;
+<<<<<<< HEAD
 	/* tune readahead according to rsize */
 	sb->s_bdi->ra_pages = cifs_sb->rsize / PAGE_SIZE;
+=======
+	/* tune readahead according to rsize if readahead size not set on mount */
+	if (cifs_sb->ctx->rsize == 0)
+		cifs_sb->ctx->rsize =
+			tcon->ses->server->ops->negotiate_rsize(tcon, cifs_sb->ctx);
+	if (cifs_sb->ctx->rasize)
+		sb->s_bdi->ra_pages = cifs_sb->ctx->rasize / PAGE_SIZE;
+	else
+		sb->s_bdi->ra_pages = cifs_sb->ctx->rsize / PAGE_SIZE;
+>>>>>>> upstream/android-13
 
 	sb->s_blocksize = CIFS_MAX_MSGSIZE;
 	sb->s_blocksize_bits = 14;	/* default 2**14 = CIFS_MAX_MSGSIZE */
@@ -196,6 +305,39 @@ out_no_root:
 static void cifs_kill_sb(struct super_block *sb)
 {
 	struct cifs_sb_info *cifs_sb = CIFS_SB(sb);
+<<<<<<< HEAD
+=======
+	struct cifs_tcon *tcon;
+	struct cached_fid *cfid;
+	struct rb_root *root = &cifs_sb->tlink_tree;
+	struct rb_node *node;
+	struct tcon_link *tlink;
+
+	/*
+	 * We ned to release all dentries for the cached directories
+	 * before we kill the sb.
+	 */
+	if (cifs_sb->root) {
+		for (node = rb_first(root); node; node = rb_next(node)) {
+			tlink = rb_entry(node, struct tcon_link, tl_rbnode);
+			tcon = tlink_tcon(tlink);
+			if (IS_ERR(tcon))
+				continue;
+			cfid = &tcon->crfid;
+			mutex_lock(&cfid->fid_mutex);
+			if (cfid->dentry) {
+				dput(cfid->dentry);
+				cfid->dentry = NULL;
+			}
+			mutex_unlock(&cfid->fid_mutex);
+		}
+
+		/* finally release root dentry */
+		dput(cifs_sb->root);
+		cifs_sb->root = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	kill_anon_super(sb);
 	cifs_umount(cifs_sb);
 }
@@ -226,7 +368,11 @@ cifs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_ffree = 0;	/* unlimited */
 
 	if (server->ops->queryfs)
+<<<<<<< HEAD
 		rc = server->ops->queryfs(xid, tcon, buf);
+=======
+		rc = server->ops->queryfs(xid, tcon, cifs_sb, buf);
+>>>>>>> upstream/android-13
 
 	free_xid(xid);
 	return rc;
@@ -244,7 +390,12 @@ static long cifs_fallocate(struct file *file, int mode, loff_t off, loff_t len)
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
 static int cifs_permission(struct inode *inode, int mask)
+=======
+static int cifs_permission(struct user_namespace *mnt_userns,
+			   struct inode *inode, int mask)
+>>>>>>> upstream/android-13
 {
 	struct cifs_sb_info *cifs_sb;
 
@@ -259,7 +410,11 @@ static int cifs_permission(struct inode *inode, int mask)
 		on the client (above and beyond ACL on servers) for
 		servers which do not support setting and viewing mode bits,
 		so allowing client to check permissions is useful */
+<<<<<<< HEAD
 		return generic_permission(inode, mask);
+=======
+		return generic_permission(&init_user_ns, inode, mask);
+>>>>>>> upstream/android-13
 }
 
 static struct kmem_cache *cifs_inode_cachep;
@@ -302,6 +457,7 @@ cifs_alloc_inode(struct super_block *sb)
 	/* cifs_inode->vfs_inode.i_flags = S_NOATIME | S_NOCMTIME; */
 	INIT_LIST_HEAD(&cifs_inode->openFileList);
 	INIT_LIST_HEAD(&cifs_inode->llist);
+<<<<<<< HEAD
 	return &cifs_inode->vfs_inode;
 }
 
@@ -315,6 +471,17 @@ static void
 cifs_destroy_inode(struct inode *inode)
 {
 	call_rcu(&inode->i_rcu, cifs_i_callback);
+=======
+	INIT_LIST_HEAD(&cifs_inode->deferred_closes);
+	spin_lock_init(&cifs_inode->deferred_lock);
+	return &cifs_inode->vfs_inode;
+}
+
+static void
+cifs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(cifs_inode_cachep, CIFS_I(inode));
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -322,7 +489,10 @@ cifs_evict_inode(struct inode *inode)
 {
 	truncate_inode_pages_final(&inode->i_data);
 	clear_inode(inode);
+<<<<<<< HEAD
 	cifs_fscache_release_inode_cookie(inode);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -361,6 +531,7 @@ cifs_show_security(struct seq_file *s, struct cifs_ses *ses)
 	seq_puts(s, ",sec=");
 
 	switch (ses->sectype) {
+<<<<<<< HEAD
 	case LANMAN:
 		seq_puts(s, "lanman");
 		break;
@@ -370,6 +541,11 @@ cifs_show_security(struct seq_file *s, struct cifs_ses *ses)
 	case NTLM:
 		seq_puts(s, "ntlm");
 		break;
+=======
+	case NTLMv2:
+		seq_puts(s, "ntlmv2");
+		break;
+>>>>>>> upstream/android-13
 	case Kerberos:
 		seq_puts(s, "krb5");
 		break;
@@ -384,6 +560,13 @@ cifs_show_security(struct seq_file *s, struct cifs_ses *ses)
 
 	if (ses->sign)
 		seq_puts(s, "i");
+<<<<<<< HEAD
+=======
+
+	if (ses->sectype == Kerberos)
+		seq_printf(s, ",cruid=%u",
+			   from_kuid_munged(&init_user_ns, ses->cred_uid));
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -395,10 +578,18 @@ cifs_show_cache_flavor(struct seq_file *s, struct cifs_sb_info *cifs_sb)
 		seq_puts(s, "strict");
 	else if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_DIRECT_IO)
 		seq_puts(s, "none");
+<<<<<<< HEAD
+=======
+	else if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_RW_CACHE)
+		seq_puts(s, "singleclient"); /* assume only one client access */
+	else if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_RO_CACHE)
+		seq_puts(s, "ro"); /* read only caching assumed */
+>>>>>>> upstream/android-13
 	else
 		seq_puts(s, "loose");
 }
 
+<<<<<<< HEAD
 static void
 cifs_show_nls(struct seq_file *s, struct nls_table *cur)
 {
@@ -409,6 +600,26 @@ cifs_show_nls(struct seq_file *s, struct nls_table *cur)
 	if (def != cur)
 		seq_printf(s, ",iocharset=%s", cur->charset);
 	unload_nls(def);
+=======
+/*
+ * cifs_show_devname() is used so we show the mount device name with correct
+ * format (e.g. forward slashes vs. back slashes) in /proc/mounts
+ */
+static int cifs_show_devname(struct seq_file *m, struct dentry *root)
+{
+	struct cifs_sb_info *cifs_sb = CIFS_SB(root->d_sb);
+	char *devname = kstrdup(cifs_sb->ctx->source, GFP_KERNEL);
+
+	if (devname == NULL)
+		seq_puts(m, "none");
+	else {
+		convert_delimiter(devname, '/');
+		/* escape all spaces in share names */
+		seq_escape(m, devname, " \t");
+		kfree(devname);
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -430,7 +641,11 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 
 	if (tcon->no_lease)
 		seq_puts(s, ",nolease");
+<<<<<<< HEAD
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER)
+=======
+	if (cifs_sb->ctx->multiuser)
+>>>>>>> upstream/android-13
 		seq_puts(s, ",multiuser");
 	else if (tcon->ses->user_name)
 		seq_show_option(s, "username", tcon->ses->user_name);
@@ -455,14 +670,22 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 	}
 
 	seq_printf(s, ",uid=%u",
+<<<<<<< HEAD
 		   from_kuid_munged(&init_user_ns, cifs_sb->mnt_uid));
+=======
+		   from_kuid_munged(&init_user_ns, cifs_sb->ctx->linux_uid));
+>>>>>>> upstream/android-13
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_OVERR_UID)
 		seq_puts(s, ",forceuid");
 	else
 		seq_puts(s, ",noforceuid");
 
 	seq_printf(s, ",gid=%u",
+<<<<<<< HEAD
 		   from_kgid_munged(&init_user_ns, cifs_sb->mnt_gid));
+=======
+		   from_kgid_munged(&init_user_ns, cifs_sb->ctx->linux_gid));
+>>>>>>> upstream/android-13
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_OVERR_GID)
 		seq_puts(s, ",forcegid");
 	else
@@ -472,6 +695,7 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 
 	if (!tcon->unix_ext)
 		seq_printf(s, ",file_mode=0%ho,dir_mode=0%ho",
+<<<<<<< HEAD
 					   cifs_sb->mnt_file_mode,
 					   cifs_sb->mnt_dir_mode);
 
@@ -481,6 +705,22 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 		seq_puts(s, ",seal");
 	if (tcon->nocase)
 		seq_puts(s, ",nocase");
+=======
+					   cifs_sb->ctx->file_mode,
+					   cifs_sb->ctx->dir_mode);
+	if (cifs_sb->ctx->iocharset)
+		seq_printf(s, ",iocharset=%s", cifs_sb->ctx->iocharset);
+	if (tcon->seal)
+		seq_puts(s, ",seal");
+	else if (tcon->ses->server->ignore_signature)
+		seq_puts(s, ",signloosely");
+	if (tcon->nocase)
+		seq_puts(s, ",nocase");
+	if (tcon->nodelete)
+		seq_puts(s, ",nodelete");
+	if (tcon->local_lease)
+		seq_puts(s, ",locallease");
+>>>>>>> upstream/android-13
 	if (tcon->retry)
 		seq_puts(s, ",hard");
 	else
@@ -495,6 +735,11 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 		seq_puts(s, ",unix");
 	else
 		seq_puts(s, ",nounix");
+<<<<<<< HEAD
+=======
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_DFS)
+		seq_puts(s, ",nodfs");
+>>>>>>> upstream/android-13
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_POSIX_PATHS)
 		seq_puts(s, ",posixpaths");
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID)
@@ -519,6 +764,11 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 		seq_puts(s, ",nobrl");
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_HANDLE_CACHE)
 		seq_puts(s, ",nohandlecache");
+<<<<<<< HEAD
+=======
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MODE_FROM_SID)
+		seq_puts(s, ",modefromsid");
+>>>>>>> upstream/android-13
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_CIFS_ACL)
 		seq_puts(s, ",cifsacl");
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_DYNPERM)
@@ -536,6 +786,7 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_CIFS_BACKUPUID)
 		seq_printf(s, ",backupuid=%u",
 			   from_kuid_munged(&init_user_ns,
+<<<<<<< HEAD
 					    cifs_sb->mnt_backupuid));
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_CIFS_BACKUPGID)
 		seq_printf(s, ",backupgid=%u",
@@ -550,6 +801,51 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
 		seq_printf(s, ",snapshot=%llu", tcon->snapshot_time);
 	/* convert actimeo and display it in seconds */
 	seq_printf(s, ",actimeo=%lu", cifs_sb->actimeo / HZ);
+=======
+					    cifs_sb->ctx->backupuid));
+	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_CIFS_BACKUPGID)
+		seq_printf(s, ",backupgid=%u",
+			   from_kgid_munged(&init_user_ns,
+					    cifs_sb->ctx->backupgid));
+
+	seq_printf(s, ",rsize=%u", cifs_sb->ctx->rsize);
+	seq_printf(s, ",wsize=%u", cifs_sb->ctx->wsize);
+	seq_printf(s, ",bsize=%u", cifs_sb->ctx->bsize);
+	if (cifs_sb->ctx->rasize)
+		seq_printf(s, ",rasize=%u", cifs_sb->ctx->rasize);
+	if (tcon->ses->server->min_offload)
+		seq_printf(s, ",esize=%u", tcon->ses->server->min_offload);
+	seq_printf(s, ",echo_interval=%lu",
+			tcon->ses->server->echo_interval / HZ);
+
+	/* Only display max_credits if it was overridden on mount */
+	if (tcon->ses->server->max_credits != SMB2_MAX_CREDITS_AVAILABLE)
+		seq_printf(s, ",max_credits=%u", tcon->ses->server->max_credits);
+
+	if (tcon->snapshot_time)
+		seq_printf(s, ",snapshot=%llu", tcon->snapshot_time);
+	if (tcon->handle_timeout)
+		seq_printf(s, ",handletimeout=%u", tcon->handle_timeout);
+
+	/*
+	 * Display file and directory attribute timeout in seconds.
+	 * If file and directory attribute timeout the same then actimeo
+	 * was likely specified on mount
+	 */
+	if (cifs_sb->ctx->acdirmax == cifs_sb->ctx->acregmax)
+		seq_printf(s, ",actimeo=%lu", cifs_sb->ctx->acregmax / HZ);
+	else {
+		seq_printf(s, ",acdirmax=%lu", cifs_sb->ctx->acdirmax / HZ);
+		seq_printf(s, ",acregmax=%lu", cifs_sb->ctx->acregmax / HZ);
+	}
+
+	if (tcon->ses->chan_max > 1)
+		seq_printf(s, ",multichannel,max_channels=%zu",
+			   tcon->ses->chan_max);
+
+	if (tcon->use_witness)
+		seq_puts(s, ",witness");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -598,6 +894,7 @@ static int cifs_show_stats(struct seq_file *s, struct dentry *root)
 }
 #endif
 
+<<<<<<< HEAD
 static int cifs_remount(struct super_block *sb, int *flags, char *data)
 {
 	sync_filesystem(sb);
@@ -605,6 +902,8 @@ static int cifs_remount(struct super_block *sb, int *flags, char *data)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cifs_drop_inode(struct inode *inode)
 {
 	struct cifs_sb_info *cifs_sb = CIFS_SB(inode->i_sb);
@@ -617,16 +916,27 @@ static int cifs_drop_inode(struct inode *inode)
 static const struct super_operations cifs_super_ops = {
 	.statfs = cifs_statfs,
 	.alloc_inode = cifs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode = cifs_destroy_inode,
 	.drop_inode	= cifs_drop_inode,
 	.evict_inode	= cifs_evict_inode,
+=======
+	.free_inode = cifs_free_inode,
+	.drop_inode	= cifs_drop_inode,
+	.evict_inode	= cifs_evict_inode,
+/*	.show_path	= cifs_show_path, */ /* Would we ever need show path? */
+	.show_devname   = cifs_show_devname,
+>>>>>>> upstream/android-13
 /*	.delete_inode	= cifs_delete_inode,  */  /* Do not need above
 	function unless later we add lazy close of inodes or unless the
 	kernel forgets to call us with the same number of releases (closes)
 	as opens */
 	.show_options = cifs_show_options,
 	.umount_begin   = cifs_umount_begin,
+<<<<<<< HEAD
 	.remount_fs = cifs_remount,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CIFS_STATS2
 	.show_stats = cifs_show_stats,
 #endif
@@ -637,7 +947,11 @@ static const struct super_operations cifs_super_ops = {
  * Return dentry with refcount + 1 on success and NULL otherwise.
  */
 static struct dentry *
+<<<<<<< HEAD
 cifs_get_root(struct smb_vol *vol, struct super_block *sb)
+=======
+cifs_get_root(struct smb3_fs_context *ctx, struct super_block *sb)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry;
 	struct cifs_sb_info *cifs_sb = CIFS_SB(sb);
@@ -648,7 +962,11 @@ cifs_get_root(struct smb_vol *vol, struct super_block *sb)
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH)
 		return dget(sb->s_root);
 
+<<<<<<< HEAD
 	full_path = cifs_build_path_to_root(vol, cifs_sb,
+=======
+	full_path = cifs_build_path_to_root(ctx, cifs_sb,
+>>>>>>> upstream/android-13
 				cifs_sb_master_tcon(cifs_sb), 0);
 	if (full_path == NULL)
 		return ERR_PTR(-ENOMEM);
@@ -663,11 +981,14 @@ cifs_get_root(struct smb_vol *vol, struct super_block *sb)
 		struct inode *dir = d_inode(dentry);
 		struct dentry *child;
 
+<<<<<<< HEAD
 		if (!dir) {
 			dput(dentry);
 			dentry = ERR_PTR(-ENOENT);
 			break;
 		}
+=======
+>>>>>>> upstream/android-13
 		if (!S_ISDIR(dir->i_mode)) {
 			dput(dentry);
 			dentry = ERR_PTR(-ENOTDIR);
@@ -684,7 +1005,11 @@ cifs_get_root(struct smb_vol *vol, struct super_block *sb)
 		while (*s && *s != sep)
 			s++;
 
+<<<<<<< HEAD
 		child = lookup_one_len_unlocked(p, dentry, s - p);
+=======
+		child = lookup_positive_unlocked(p, dentry, s - p);
+>>>>>>> upstream/android-13
 		dput(dentry);
 		dentry = child;
 	} while (!IS_ERR(dentry));
@@ -699,6 +1024,7 @@ static int cifs_set_super(struct super_block *sb, void *data)
 	return set_anon_super(sb, NULL);
 }
 
+<<<<<<< HEAD
 static struct dentry *
 cifs_smb3_do_mount(struct file_system_type *fs_type,
 	      int flags, const char *dev_name, void *data, bool is_smb3)
@@ -715,10 +1041,31 @@ cifs_smb3_do_mount(struct file_system_type *fs_type,
 	volume_info = cifs_get_volume_info((char *)data, dev_name, is_smb3);
 	if (IS_ERR(volume_info))
 		return ERR_CAST(volume_info);
+=======
+struct dentry *
+cifs_smb3_do_mount(struct file_system_type *fs_type,
+	      int flags, struct smb3_fs_context *old_ctx)
+{
+	int rc;
+	struct super_block *sb;
+	struct cifs_sb_info *cifs_sb = NULL;
+	struct cifs_mnt_data mnt_data;
+	struct dentry *root;
+
+	/*
+	 * Prints in Kernel / CIFS log the attempted mount operation
+	 *	If CIFS_DEBUG && cifs_FYI
+	 */
+	if (cifsFYI)
+		cifs_dbg(FYI, "Devname: %s flags: %d\n", old_ctx->UNC, flags);
+	else
+		cifs_info("Attempting to mount %s\n", old_ctx->UNC);
+>>>>>>> upstream/android-13
 
 	cifs_sb = kzalloc(sizeof(struct cifs_sb_info), GFP_KERNEL);
 	if (cifs_sb == NULL) {
 		root = ERR_PTR(-ENOMEM);
+<<<<<<< HEAD
 		goto out_nls;
 	}
 
@@ -735,15 +1082,51 @@ cifs_smb3_do_mount(struct file_system_type *fs_type,
 	}
 
 	rc = cifs_mount(cifs_sb, volume_info);
+=======
+		goto out;
+	}
+
+	cifs_sb->ctx = kzalloc(sizeof(struct smb3_fs_context), GFP_KERNEL);
+	if (!cifs_sb->ctx) {
+		root = ERR_PTR(-ENOMEM);
+		goto out;
+	}
+	rc = smb3_fs_context_dup(cifs_sb->ctx, old_ctx);
+	if (rc) {
+		root = ERR_PTR(rc);
+		goto out;
+	}
+
+	rc = cifs_setup_volume_info(cifs_sb->ctx, NULL, NULL);
+	if (rc) {
+		root = ERR_PTR(rc);
+		goto out;
+	}
+
+	rc = cifs_setup_cifs_sb(cifs_sb);
+	if (rc) {
+		root = ERR_PTR(rc);
+		goto out;
+	}
+
+	rc = cifs_mount(cifs_sb, cifs_sb->ctx);
+>>>>>>> upstream/android-13
 	if (rc) {
 		if (!(flags & SB_SILENT))
 			cifs_dbg(VFS, "cifs_mount failed w/return code = %d\n",
 				 rc);
 		root = ERR_PTR(rc);
+<<<<<<< HEAD
 		goto out_free;
 	}
 
 	mnt_data.vol = volume_info;
+=======
+		goto out;
+	}
+
+	mnt_data.ctx = cifs_sb->ctx;
+>>>>>>> upstream/android-13
 	mnt_data.cifs_sb = cifs_sb;
 	mnt_data.flags = flags;
 
@@ -754,12 +1137,20 @@ cifs_smb3_do_mount(struct file_system_type *fs_type,
 	if (IS_ERR(sb)) {
 		root = ERR_CAST(sb);
 		cifs_umount(cifs_sb);
+<<<<<<< HEAD
+=======
+		cifs_sb = NULL;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	if (sb->s_root) {
 		cifs_dbg(FYI, "Use existing superblock\n");
 		cifs_umount(cifs_sb);
+<<<<<<< HEAD
+=======
+		cifs_sb = NULL;
+>>>>>>> upstream/android-13
 	} else {
 		rc = cifs_read_super(sb);
 		if (rc) {
@@ -770,6 +1161,7 @@ cifs_smb3_do_mount(struct file_system_type *fs_type,
 		sb->s_flags |= SB_ACTIVE;
 	}
 
+<<<<<<< HEAD
 	root = cifs_get_root(volume_info, sb);
 	if (IS_ERR(root))
 		goto out_super;
@@ -805,6 +1197,30 @@ cifs_do_mount(struct file_system_type *fs_type,
 {
 	return cifs_smb3_do_mount(fs_type, flags, dev_name, data, false);
 }
+=======
+	root = cifs_get_root(cifs_sb ? cifs_sb->ctx : old_ctx, sb);
+	if (IS_ERR(root))
+		goto out_super;
+
+	if (cifs_sb)
+		cifs_sb->root = dget(root);
+
+	cifs_dbg(FYI, "dentry root is: %p\n", root);
+	return root;
+
+out_super:
+	deactivate_locked_super(sb);
+	return root;
+out:
+	if (cifs_sb) {
+		kfree(cifs_sb->prepath);
+		smb3_cleanup_fs_context(cifs_sb->ctx);
+		kfree(cifs_sb);
+	}
+	return root;
+}
+
+>>>>>>> upstream/android-13
 
 static ssize_t
 cifs_loose_read_iter(struct kiocb *iocb, struct iov_iter *iter)
@@ -812,7 +1228,11 @@ cifs_loose_read_iter(struct kiocb *iocb, struct iov_iter *iter)
 	ssize_t rc;
 	struct inode *inode = file_inode(iocb->ki_filp);
 
+<<<<<<< HEAD
 	if (iocb->ki_filp->f_flags & O_DIRECT)
+=======
+	if (iocb->ki_flags & IOCB_DIRECT)
+>>>>>>> upstream/android-13
 		return cifs_user_readv(iocb, iter);
 
 	rc = cifs_revalidate_mapping(inode);
@@ -862,6 +1282,12 @@ out:
 
 static loff_t cifs_llseek(struct file *file, loff_t offset, int whence)
 {
+<<<<<<< HEAD
+=======
+	struct cifsFileInfo *cfile = file->private_data;
+	struct cifs_tcon *tcon;
+
+>>>>>>> upstream/android-13
 	/*
 	 * whence == SEEK_END || SEEK_DATA || SEEK_HOLE => we must revalidate
 	 * the cached file length
@@ -893,6 +1319,15 @@ static loff_t cifs_llseek(struct file *file, loff_t offset, int whence)
 		if (rc < 0)
 			return (loff_t)rc;
 	}
+<<<<<<< HEAD
+=======
+	if (cfile && cfile->tlink) {
+		tcon = tlink_tcon(cfile->tlink);
+		if (tcon->ses->server->ops->llseek)
+			return tcon->ses->server->ops->llseek(file, tcon,
+							      offset, whence);
+	}
+>>>>>>> upstream/android-13
 	return generic_file_llseek(file, offset, whence);
 }
 
@@ -932,18 +1367,32 @@ cifs_setlease(struct file *file, long arg, struct file_lock **lease, void **priv
 struct file_system_type cifs_fs_type = {
 	.owner = THIS_MODULE,
 	.name = "cifs",
+<<<<<<< HEAD
 	.mount = cifs_do_mount,
 	.kill_sb = cifs_kill_sb,
 	/*  .fs_flags */
+=======
+	.init_fs_context = smb3_init_fs_context,
+	.parameters = smb3_fs_parameters,
+	.kill_sb = cifs_kill_sb,
+	.fs_flags = FS_RENAME_DOES_D_MOVE,
+>>>>>>> upstream/android-13
 };
 MODULE_ALIAS_FS("cifs");
 
 static struct file_system_type smb3_fs_type = {
 	.owner = THIS_MODULE,
 	.name = "smb3",
+<<<<<<< HEAD
 	.mount = smb3_do_mount,
 	.kill_sb = cifs_kill_sb,
 	/*  .fs_flags */
+=======
+	.init_fs_context = smb3_init_fs_context,
+	.parameters = smb3_fs_parameters,
+	.kill_sb = cifs_kill_sb,
+	.fs_flags = FS_RENAME_DOES_D_MOVE,
+>>>>>>> upstream/android-13
 };
 MODULE_ALIAS_FS("smb3");
 MODULE_ALIAS("smb3");
@@ -970,6 +1419,10 @@ const struct inode_operations cifs_file_inode_ops = {
 	.getattr = cifs_getattr,
 	.permission = cifs_permission,
 	.listxattr = cifs_listxattr,
+<<<<<<< HEAD
+=======
+	.fiemap = cifs_fiemap,
+>>>>>>> upstream/android-13
 };
 
 const struct inode_operations cifs_symlink_inode_ops = {
@@ -978,8 +1431,14 @@ const struct inode_operations cifs_symlink_inode_ops = {
 	.listxattr = cifs_listxattr,
 };
 
+<<<<<<< HEAD
 static int cifs_clone_file_range(struct file *src_file, loff_t off,
 		struct file *dst_file, loff_t destoff, u64 len)
+=======
+static loff_t cifs_remap_file_range(struct file *src_file, loff_t off,
+		struct file *dst_file, loff_t destoff, loff_t len,
+		unsigned int remap_flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *src_inode = file_inode(src_file);
 	struct inode *target_inode = file_inode(dst_file);
@@ -989,6 +1448,12 @@ static int cifs_clone_file_range(struct file *src_file, loff_t off,
 	unsigned int xid;
 	int rc;
 
+<<<<<<< HEAD
+=======
+	if (remap_flags & ~(REMAP_FILE_DEDUP | REMAP_FILE_ADVISORY))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	cifs_dbg(FYI, "clone range\n");
 
 	xid = get_xid();
@@ -1031,7 +1496,11 @@ static int cifs_clone_file_range(struct file *src_file, loff_t off,
 	unlock_two_nondirectories(src_inode, target_inode);
 out:
 	free_xid(xid);
+<<<<<<< HEAD
 	return rc;
+=======
+	return rc < 0 ? rc : len;
+>>>>>>> upstream/android-13
 }
 
 ssize_t cifs_file_copychunk_range(unsigned int xid,
@@ -1049,11 +1518,14 @@ ssize_t cifs_file_copychunk_range(unsigned int xid,
 
 	cifs_dbg(FYI, "copychunk range\n");
 
+<<<<<<< HEAD
 	if (src_inode == target_inode) {
 		rc = -EINVAL;
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!src_file->private_data || !dst_file->private_data) {
 		rc = -EBADF;
 		cifs_dbg(VFS, "missing cifsFileInfo on copy range src file\n");
@@ -1071,6 +1543,13 @@ ssize_t cifs_file_copychunk_range(unsigned int xid,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	rc = -EOPNOTSUPP;
+	if (!target_tcon->ses->server->ops->copychunk_range)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Note: cifs case is easier than btrfs since server responsible for
 	 * checks for proper open modes and file type and if it wants
@@ -1082,11 +1561,20 @@ ssize_t cifs_file_copychunk_range(unsigned int xid,
 	/* should we flush first and last page first */
 	truncate_inode_pages(&target_inode->i_data, 0);
 
+<<<<<<< HEAD
 	if (target_tcon->ses->server->ops->copychunk_range)
 		rc = target_tcon->ses->server->ops->copychunk_range(xid,
 			smb_file_src, smb_file_target, off, len, destoff);
 	else
 		rc = -EOPNOTSUPP;
+=======
+	rc = file_modified(dst_file);
+	if (!rc)
+		rc = target_tcon->ses->server->ops->copychunk_range(xid,
+			smb_file_src, smb_file_target, off, len, destoff);
+
+	file_accessed(src_file);
+>>>>>>> upstream/android-13
 
 	/* force revalidate of size and timestamps of target file now
 	 * that target is updated on the server
@@ -1119,10 +1607,24 @@ static ssize_t cifs_copy_file_range(struct file *src_file, loff_t off,
 {
 	unsigned int xid = get_xid();
 	ssize_t rc;
+<<<<<<< HEAD
+=======
+	struct cifsFileInfo *cfile = dst_file->private_data;
+
+	if (cfile->swapfile)
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	rc = cifs_file_copychunk_range(xid, src_file, off, dst_file, destoff,
 					len, flags);
 	free_xid(xid);
+<<<<<<< HEAD
+=======
+
+	if (rc == -EOPNOTSUPP || rc == -EXDEV)
+		rc = generic_copy_file_range(src_file, off, dst_file,
+					     destoff, len, flags);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1132,6 +1634,10 @@ const struct file_operations cifs_file_ops = {
 	.open = cifs_open,
 	.release = cifs_close,
 	.lock = cifs_lock,
+<<<<<<< HEAD
+=======
+	.flock = cifs_flock,
+>>>>>>> upstream/android-13
 	.fsync = cifs_fsync,
 	.flush = cifs_flush,
 	.mmap  = cifs_file_mmap,
@@ -1140,7 +1646,11 @@ const struct file_operations cifs_file_ops = {
 	.llseek = cifs_llseek,
 	.unlocked_ioctl	= cifs_ioctl,
 	.copy_file_range = cifs_copy_file_range,
+<<<<<<< HEAD
 	.clone_file_range = cifs_clone_file_range,
+=======
+	.remap_file_range = cifs_remap_file_range,
+>>>>>>> upstream/android-13
 	.setlease = cifs_setlease,
 	.fallocate = cifs_fallocate,
 };
@@ -1151,6 +1661,10 @@ const struct file_operations cifs_file_strict_ops = {
 	.open = cifs_open,
 	.release = cifs_close,
 	.lock = cifs_lock,
+<<<<<<< HEAD
+=======
+	.flock = cifs_flock,
+>>>>>>> upstream/android-13
 	.fsync = cifs_strict_fsync,
 	.flush = cifs_flush,
 	.mmap = cifs_file_strict_mmap,
@@ -1159,18 +1673,31 @@ const struct file_operations cifs_file_strict_ops = {
 	.llseek = cifs_llseek,
 	.unlocked_ioctl	= cifs_ioctl,
 	.copy_file_range = cifs_copy_file_range,
+<<<<<<< HEAD
 	.clone_file_range = cifs_clone_file_range,
+=======
+	.remap_file_range = cifs_remap_file_range,
+>>>>>>> upstream/android-13
 	.setlease = cifs_setlease,
 	.fallocate = cifs_fallocate,
 };
 
 const struct file_operations cifs_file_direct_ops = {
+<<<<<<< HEAD
 	/* BB reevaluate whether they can be done with directio, no cache */
 	.read_iter = cifs_user_readv,
 	.write_iter = cifs_user_writev,
 	.open = cifs_open,
 	.release = cifs_close,
 	.lock = cifs_lock,
+=======
+	.read_iter = cifs_direct_readv,
+	.write_iter = cifs_direct_writev,
+	.open = cifs_open,
+	.release = cifs_close,
+	.lock = cifs_lock,
+	.flock = cifs_flock,
+>>>>>>> upstream/android-13
 	.fsync = cifs_fsync,
 	.flush = cifs_flush,
 	.mmap = cifs_file_mmap,
@@ -1178,7 +1705,11 @@ const struct file_operations cifs_file_direct_ops = {
 	.splice_write = iter_file_splice_write,
 	.unlocked_ioctl  = cifs_ioctl,
 	.copy_file_range = cifs_copy_file_range,
+<<<<<<< HEAD
 	.clone_file_range = cifs_clone_file_range,
+=======
+	.remap_file_range = cifs_remap_file_range,
+>>>>>>> upstream/android-13
 	.llseek = cifs_llseek,
 	.setlease = cifs_setlease,
 	.fallocate = cifs_fallocate,
@@ -1197,7 +1728,11 @@ const struct file_operations cifs_file_nobrl_ops = {
 	.llseek = cifs_llseek,
 	.unlocked_ioctl	= cifs_ioctl,
 	.copy_file_range = cifs_copy_file_range,
+<<<<<<< HEAD
 	.clone_file_range = cifs_clone_file_range,
+=======
+	.remap_file_range = cifs_remap_file_range,
+>>>>>>> upstream/android-13
 	.setlease = cifs_setlease,
 	.fallocate = cifs_fallocate,
 };
@@ -1215,15 +1750,24 @@ const struct file_operations cifs_file_strict_nobrl_ops = {
 	.llseek = cifs_llseek,
 	.unlocked_ioctl	= cifs_ioctl,
 	.copy_file_range = cifs_copy_file_range,
+<<<<<<< HEAD
 	.clone_file_range = cifs_clone_file_range,
+=======
+	.remap_file_range = cifs_remap_file_range,
+>>>>>>> upstream/android-13
 	.setlease = cifs_setlease,
 	.fallocate = cifs_fallocate,
 };
 
 const struct file_operations cifs_file_direct_nobrl_ops = {
+<<<<<<< HEAD
 	/* BB reevaluate whether they can be done with directio, no cache */
 	.read_iter = cifs_user_readv,
 	.write_iter = cifs_user_writev,
+=======
+	.read_iter = cifs_direct_readv,
+	.write_iter = cifs_direct_writev,
+>>>>>>> upstream/android-13
 	.open = cifs_open,
 	.release = cifs_close,
 	.fsync = cifs_fsync,
@@ -1233,7 +1777,11 @@ const struct file_operations cifs_file_direct_nobrl_ops = {
 	.splice_write = iter_file_splice_write,
 	.unlocked_ioctl  = cifs_ioctl,
 	.copy_file_range = cifs_copy_file_range,
+<<<<<<< HEAD
 	.clone_file_range = cifs_clone_file_range,
+=======
+	.remap_file_range = cifs_remap_file_range,
+>>>>>>> upstream/android-13
 	.llseek = cifs_llseek,
 	.setlease = cifs_setlease,
 	.fallocate = cifs_fallocate,
@@ -1245,7 +1793,11 @@ const struct file_operations cifs_dir_ops = {
 	.read    = generic_read_dir,
 	.unlocked_ioctl  = cifs_ioctl,
 	.copy_file_range = cifs_copy_file_range,
+<<<<<<< HEAD
 	.clone_file_range = cifs_clone_file_range,
+=======
+	.remap_file_range = cifs_remap_file_range,
+>>>>>>> upstream/android-13
 	.llseek = generic_file_llseek,
 	.fsync = cifs_dir_fsync,
 };
@@ -1406,15 +1958,22 @@ init_cifs(void)
 	int rc = 0;
 	cifs_proc_init();
 	INIT_LIST_HEAD(&cifs_tcp_ses_list);
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_DNOTIFY_EXPERIMENTAL /* unused temporarily */
 	INIT_LIST_HEAD(&GlobalDnotifyReqList);
 	INIT_LIST_HEAD(&GlobalDnotifyRsp_Q);
 #endif /* was needed for dnotify, and will be needed for inotify when VFS fix */
+=======
+>>>>>>> upstream/android-13
 /*
  *  Initialize Global counters
  */
 	atomic_set(&sesInfoAllocCount, 0);
 	atomic_set(&tconInfoAllocCount, 0);
+<<<<<<< HEAD
+=======
+	atomic_set(&tcpSesNextId, 0);
+>>>>>>> upstream/android-13
 	atomic_set(&tcpSesAllocCount, 0);
 	atomic_set(&tcpSesReconnectCount, 0);
 	atomic_set(&tconInfoReconnectCount, 0);
@@ -1424,6 +1983,14 @@ init_cifs(void)
 #ifdef CONFIG_CIFS_STATS2
 	atomic_set(&totBufAllocCount, 0);
 	atomic_set(&totSmBufAllocCount, 0);
+<<<<<<< HEAD
+=======
+	if (slow_rsp_threshold < 1)
+		cifs_dbg(FYI, "slow_response_threshold msgs disabled\n");
+	else if (slow_rsp_threshold > 32767)
+		cifs_dbg(VFS,
+		       "slow response threshold set higher than recommended (0 to 32767)\n");
+>>>>>>> upstream/android-13
 #endif /* CONFIG_CIFS_STATS2 */
 
 	atomic_set(&midCount, 0);
@@ -1450,16 +2017,56 @@ init_cifs(void)
 		goto out_clean_proc;
 	}
 
+<<<<<<< HEAD
 	cifsoplockd_wq = alloc_workqueue("cifsoplockd",
 					 WQ_FREEZABLE|WQ_MEM_RECLAIM, 0);
 	if (!cifsoplockd_wq) {
+=======
+	/*
+	 * Consider in future setting limit!=0 maybe to min(num_of_cores - 1, 3)
+	 * so that we don't launch too many worker threads but
+	 * Documentation/core-api/workqueue.rst recommends setting it to 0
+	 */
+
+	/* WQ_UNBOUND allows decrypt tasks to run on any CPU */
+	decrypt_wq = alloc_workqueue("smb3decryptd",
+				     WQ_UNBOUND|WQ_FREEZABLE|WQ_MEM_RECLAIM, 0);
+	if (!decrypt_wq) {
+>>>>>>> upstream/android-13
 		rc = -ENOMEM;
 		goto out_destroy_cifsiod_wq;
 	}
 
+<<<<<<< HEAD
 	rc = cifs_fscache_register();
 	if (rc)
 		goto out_destroy_cifsoplockd_wq;
+=======
+	fileinfo_put_wq = alloc_workqueue("cifsfileinfoput",
+				     WQ_UNBOUND|WQ_FREEZABLE|WQ_MEM_RECLAIM, 0);
+	if (!fileinfo_put_wq) {
+		rc = -ENOMEM;
+		goto out_destroy_decrypt_wq;
+	}
+
+	cifsoplockd_wq = alloc_workqueue("cifsoplockd",
+					 WQ_FREEZABLE|WQ_MEM_RECLAIM, 0);
+	if (!cifsoplockd_wq) {
+		rc = -ENOMEM;
+		goto out_destroy_fileinfo_put_wq;
+	}
+
+	deferredclose_wq = alloc_workqueue("deferredclose",
+					   WQ_FREEZABLE|WQ_MEM_RECLAIM, 0);
+	if (!deferredclose_wq) {
+		rc = -ENOMEM;
+		goto out_destroy_cifsoplockd_wq;
+	}
+
+	rc = cifs_fscache_register();
+	if (rc)
+		goto out_destroy_deferredclose_wq;
+>>>>>>> upstream/android-13
 
 	rc = cifs_init_inodecache();
 	if (rc)
@@ -1473,6 +2080,7 @@ init_cifs(void)
 	if (rc)
 		goto out_destroy_mids;
 
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_UPCALL
 	rc = init_cifs_spnego();
 	if (rc)
@@ -1484,6 +2092,27 @@ init_cifs(void)
 	if (rc)
 		goto out_register_key_type;
 #endif /* CONFIG_CIFS_ACL */
+=======
+#ifdef CONFIG_CIFS_DFS_UPCALL
+	rc = dfs_cache_init();
+	if (rc)
+		goto out_destroy_request_bufs;
+#endif /* CONFIG_CIFS_DFS_UPCALL */
+#ifdef CONFIG_CIFS_UPCALL
+	rc = init_cifs_spnego();
+	if (rc)
+		goto out_destroy_dfs_cache;
+#endif /* CONFIG_CIFS_UPCALL */
+#ifdef CONFIG_CIFS_SWN_UPCALL
+	rc = cifs_genl_init();
+	if (rc)
+		goto out_register_key_type;
+#endif /* CONFIG_CIFS_SWN_UPCALL */
+
+	rc = init_cifs_idmap();
+	if (rc)
+		goto out_cifs_swn_init;
+>>>>>>> upstream/android-13
 
 	rc = register_filesystem(&cifs_fs_type);
 	if (rc)
@@ -1498,12 +2127,26 @@ init_cifs(void)
 	return 0;
 
 out_init_cifs_idmap:
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_ACL
 	exit_cifs_idmap();
+=======
+	exit_cifs_idmap();
+out_cifs_swn_init:
+#ifdef CONFIG_CIFS_SWN_UPCALL
+	cifs_genl_exit();
+>>>>>>> upstream/android-13
 out_register_key_type:
 #endif
 #ifdef CONFIG_CIFS_UPCALL
 	exit_cifs_spnego();
+<<<<<<< HEAD
+=======
+out_destroy_dfs_cache:
+#endif
+#ifdef CONFIG_CIFS_DFS_UPCALL
+	dfs_cache_destroy();
+>>>>>>> upstream/android-13
 out_destroy_request_bufs:
 #endif
 	cifs_destroy_request_bufs();
@@ -1513,8 +2156,19 @@ out_destroy_inodecache:
 	cifs_destroy_inodecache();
 out_unreg_fscache:
 	cifs_fscache_unregister();
+<<<<<<< HEAD
 out_destroy_cifsoplockd_wq:
 	destroy_workqueue(cifsoplockd_wq);
+=======
+out_destroy_deferredclose_wq:
+	destroy_workqueue(deferredclose_wq);
+out_destroy_cifsoplockd_wq:
+	destroy_workqueue(cifsoplockd_wq);
+out_destroy_fileinfo_put_wq:
+	destroy_workqueue(fileinfo_put_wq);
+out_destroy_decrypt_wq:
+	destroy_workqueue(decrypt_wq);
+>>>>>>> upstream/android-13
 out_destroy_cifsiod_wq:
 	destroy_workqueue(cifsiod_wq);
 out_clean_proc:
@@ -1529,21 +2183,41 @@ exit_cifs(void)
 	unregister_filesystem(&cifs_fs_type);
 	unregister_filesystem(&smb3_fs_type);
 	cifs_dfs_release_automount_timer();
+<<<<<<< HEAD
 #ifdef CONFIG_CIFS_ACL
 	exit_cifs_idmap();
+=======
+	exit_cifs_idmap();
+#ifdef CONFIG_CIFS_SWN_UPCALL
+	cifs_genl_exit();
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_CIFS_UPCALL
 	exit_cifs_spnego();
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CIFS_DFS_UPCALL
+	dfs_cache_destroy();
+#endif
+>>>>>>> upstream/android-13
 	cifs_destroy_request_bufs();
 	cifs_destroy_mids();
 	cifs_destroy_inodecache();
 	cifs_fscache_unregister();
+<<<<<<< HEAD
 	destroy_workqueue(cifsoplockd_wq);
+=======
+	destroy_workqueue(deferredclose_wq);
+	destroy_workqueue(cifsoplockd_wq);
+	destroy_workqueue(decrypt_wq);
+	destroy_workqueue(fileinfo_put_wq);
+>>>>>>> upstream/android-13
 	destroy_workqueue(cifsiod_wq);
 	cifs_proc_clean();
 }
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Steve French <sfrench@us.ibm.com>");
 MODULE_LICENSE("GPL");	/* combination of LGPL + GPL source behaves as GPL */
 MODULE_DESCRIPTION
@@ -1563,5 +2237,25 @@ MODULE_SOFTDEP("pre: sha256");
 MODULE_SOFTDEP("pre: sha512");
 MODULE_SOFTDEP("pre: aead2");
 MODULE_SOFTDEP("pre: ccm");
+=======
+MODULE_AUTHOR("Steve French");
+MODULE_LICENSE("GPL");	/* combination of LGPL + GPL source behaves as GPL */
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+MODULE_DESCRIPTION
+	("VFS to access SMB3 servers e.g. Samba, Macs, Azure and Windows (and "
+	"also older servers complying with the SNIA CIFS Specification)");
+MODULE_VERSION(CIFS_VERSION);
+MODULE_SOFTDEP("ecb");
+MODULE_SOFTDEP("hmac");
+MODULE_SOFTDEP("md5");
+MODULE_SOFTDEP("nls");
+MODULE_SOFTDEP("aes");
+MODULE_SOFTDEP("cmac");
+MODULE_SOFTDEP("sha256");
+MODULE_SOFTDEP("sha512");
+MODULE_SOFTDEP("aead2");
+MODULE_SOFTDEP("ccm");
+MODULE_SOFTDEP("gcm");
+>>>>>>> upstream/android-13
 module_init(init_cifs)
 module_exit(exit_cifs)

@@ -51,10 +51,13 @@
 
 #define NUM_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
 
+<<<<<<< HEAD
 struct dcn10_input_csc_matrix {
 	enum dc_color_space color_space;
 	uint16_t regval[12];
 };
+=======
+>>>>>>> upstream/android-13
 
 enum dcn10_coef_filter_type_sel {
 	SCL_COEF_LUMA_VERT_FILTER = 0,
@@ -92,6 +95,7 @@ enum dscl_mode_sel {
 	DSCL_MODE_DSCL_BYPASS = 6
 };
 
+<<<<<<< HEAD
 enum gamut_remap_select {
 	GAMUT_REMAP_BYPASS = 0,
 	GAMUT_REMAP_COEFF,
@@ -119,6 +123,8 @@ static const struct dcn10_input_csc_matrix dcn10_input_csc_matrix[] = {
 						0x2568, 0x43ee, 0xdbb2} }
 };
 
+=======
+>>>>>>> upstream/android-13
 static void program_gamut_remap(
 		struct dcn10_dpp *dpp,
 		const uint16_t *regval,
@@ -363,6 +369,11 @@ void dpp1_cm_program_regamma_lut(struct dpp *dpp_base,
 	uint32_t i;
 	struct dcn10_dpp *dpp = TO_DCN10_DPP(dpp_base);
 
+<<<<<<< HEAD
+=======
+	REG_SEQ_START();
+
+>>>>>>> upstream/android-13
 	for (i = 0 ; i < num; i++) {
 		REG_SET(CM_RGAM_LUT_DATA, 0, CM_RGAM_LUT_DATA, rgb[i].red_reg);
 		REG_SET(CM_RGAM_LUT_DATA, 0, CM_RGAM_LUT_DATA, rgb[i].green_reg);
@@ -454,7 +465,11 @@ void dpp1_program_input_csc(
 {
 	struct dcn10_dpp *dpp = TO_DCN10_DPP(dpp_base);
 	int i;
+<<<<<<< HEAD
 	int arr_size = sizeof(dcn10_input_csc_matrix)/sizeof(struct dcn10_input_csc_matrix);
+=======
+	int arr_size = sizeof(dpp_input_csc_matrix)/sizeof(struct dpp_input_csc_matrix);
+>>>>>>> upstream/android-13
 	const uint16_t *regval = NULL;
 	uint32_t cur_select = 0;
 	enum dcn10_input_csc_select select;
@@ -467,8 +482,13 @@ void dpp1_program_input_csc(
 
 	if (tbl_entry == NULL) {
 		for (i = 0; i < arr_size; i++)
+<<<<<<< HEAD
 			if (dcn10_input_csc_matrix[i].color_space == color_space) {
 				regval = dcn10_input_csc_matrix[i].regval;
+=======
+			if (dpp_input_csc_matrix[i].color_space == color_space) {
+				regval = dpp_input_csc_matrix[i].regval;
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -606,7 +626,11 @@ void dpp1_power_on_degamma_lut(
 	struct dcn10_dpp *dpp = TO_DCN10_DPP(dpp_base);
 
 	REG_SET(CM_MEM_PWR_CTRL, 0,
+<<<<<<< HEAD
 			SHARED_MEM_PWR_DIS, power_on == true ? 0:1);
+=======
+			SHARED_MEM_PWR_DIS, power_on ? 0:1);
+>>>>>>> upstream/android-13
 
 }
 
@@ -637,10 +661,22 @@ void dpp1_set_degamma(
 	case IPP_DEGAMMA_MODE_HW_xvYCC:
 		REG_UPDATE(CM_DGAM_CONTROL, CM_DGAM_LUT_MODE, 2);
 			break;
+<<<<<<< HEAD
+=======
+	case IPP_DEGAMMA_MODE_USER_PWL:
+		REG_UPDATE(CM_DGAM_CONTROL, CM_DGAM_LUT_MODE, 3);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		BREAK_TO_DEBUGGER();
 		break;
 	}
+<<<<<<< HEAD
+=======
+
+	REG_SEQ_SUBMIT();
+	REG_SEQ_WAIT_DONE();
+>>>>>>> upstream/android-13
 }
 
 void dpp1_degamma_ram_select(
@@ -742,6 +778,11 @@ void dpp1_full_bypass(struct dpp *dpp_base)
 	/* COLOR_KEYER_CONTROL.COLOR_KEYER_EN = 0 this should be default */
 	if (dpp->tf_mask->CM_BYPASS_EN)
 		REG_SET(CM_CONTROL, 0, CM_BYPASS_EN, 1);
+<<<<<<< HEAD
+=======
+	else
+		REG_SET(CM_CONTROL, 0, CM_BYPASS, 1);
+>>>>>>> upstream/android-13
 
 	/* Setting degamma bypass for now */
 	REG_SET(CM_DGAM_CONTROL, 0, CM_DGAM_LUT_MODE, 0);

@@ -5,11 +5,20 @@
  */
 
 #include <linux/component.h>
+<<<<<<< HEAD
 #include <linux/firmware.h>
+=======
+#include <linux/delay.h>
+#include <linux/dma-mapping.h>
+#include <linux/firmware.h>
+#include <linux/io.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/reset.h>
 #include <linux/seq_file.h>
 
 #include <drm/drm_atomic.h>
+<<<<<<< HEAD
 #include <drm/drm_fb_cma_helper.h>
 #include <drm/drm_gem_cma_helper.h>
 
@@ -18,6 +27,18 @@
 #include "sti_plane.h"
 #include "sti_vtg.h"
 #include "sti_drv.h"
+=======
+#include <drm/drm_device.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_cma_helper.h>
+
+#include "sti_compositor.h"
+#include "sti_drv.h"
+#include "sti_hqvdp_lut.h"
+#include "sti_plane.h"
+#include "sti_vtg.h"
+>>>>>>> upstream/android-13
 
 /* Firmware name */
 #define HQVDP_FMW_NAME          "hqvdp-stih407.bin"
@@ -633,16 +654,26 @@ static struct drm_info_list hqvdp_debugfs_files[] = {
 	{ "hqvdp", hqvdp_dbg_show, 0, NULL },
 };
 
+<<<<<<< HEAD
 static int hqvdp_debugfs_init(struct sti_hqvdp *hqvdp, struct drm_minor *minor)
+=======
+static void hqvdp_debugfs_init(struct sti_hqvdp *hqvdp, struct drm_minor *minor)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(hqvdp_debugfs_files); i++)
 		hqvdp_debugfs_files[i].data = hqvdp;
 
+<<<<<<< HEAD
 	return drm_debugfs_create_files(hqvdp_debugfs_files,
 					ARRAY_SIZE(hqvdp_debugfs_files),
 					minor->debugfs_root, minor);
+=======
+	drm_debugfs_create_files(hqvdp_debugfs_files,
+				 ARRAY_SIZE(hqvdp_debugfs_files),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -776,7 +807,11 @@ static void sti_hqvdp_disable(struct sti_hqvdp *hqvdp)
 }
 
 /**
+<<<<<<< HEAD
  * sti_vdp_vtg_cb
+=======
+ * sti_hqvdp_vtg_cb
+>>>>>>> upstream/android-13
  * @nb: notifier block
  * @evt: event message
  * @data: private data
@@ -1011,12 +1046,23 @@ out:
 }
 
 static int sti_hqvdp_atomic_check(struct drm_plane *drm_plane,
+<<<<<<< HEAD
 				  struct drm_plane_state *state)
 {
 	struct sti_plane *plane = to_sti_plane(drm_plane);
 	struct sti_hqvdp *hqvdp = to_sti_hqvdp(plane);
 	struct drm_crtc *crtc = state->crtc;
 	struct drm_framebuffer *fb = state->fb;
+=======
+				  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 drm_plane);
+	struct sti_plane *plane = to_sti_plane(drm_plane);
+	struct sti_hqvdp *hqvdp = to_sti_hqvdp(plane);
+	struct drm_crtc *crtc = new_plane_state->crtc;
+	struct drm_framebuffer *fb = new_plane_state->fb;
+>>>>>>> upstream/android-13
 	struct drm_crtc_state *crtc_state;
 	struct drm_display_mode *mode;
 	int dst_x, dst_y, dst_w, dst_h;
@@ -1026,6 +1072,7 @@ static int sti_hqvdp_atomic_check(struct drm_plane *drm_plane,
 	if (!crtc || !fb)
 		return 0;
 
+<<<<<<< HEAD
 	crtc_state = drm_atomic_get_crtc_state(state->state, crtc);
 	mode = &crtc_state->mode;
 	dst_x = state->crtc_x;
@@ -1037,6 +1084,19 @@ static int sti_hqvdp_atomic_check(struct drm_plane *drm_plane,
 	src_y = state->src_y >> 16;
 	src_w = state->src_w >> 16;
 	src_h = state->src_h >> 16;
+=======
+	crtc_state = drm_atomic_get_crtc_state(state, crtc);
+	mode = &crtc_state->mode;
+	dst_x = new_plane_state->crtc_x;
+	dst_y = new_plane_state->crtc_y;
+	dst_w = clamp_val(new_plane_state->crtc_w, 0, mode->hdisplay - dst_x);
+	dst_h = clamp_val(new_plane_state->crtc_h, 0, mode->vdisplay - dst_y);
+	/* src_x are in 16.16 format */
+	src_x = new_plane_state->src_x >> 16;
+	src_y = new_plane_state->src_y >> 16;
+	src_w = new_plane_state->src_w >> 16;
+	src_h = new_plane_state->src_h >> 16;
+>>>>>>> upstream/android-13
 
 	if (mode->clock && !sti_hqvdp_check_hw_scaling(hqvdp, mode,
 						       src_w, src_h,
@@ -1101,6 +1161,7 @@ static int sti_hqvdp_atomic_check(struct drm_plane *drm_plane,
 }
 
 static void sti_hqvdp_atomic_update(struct drm_plane *drm_plane,
+<<<<<<< HEAD
 				    struct drm_plane_state *oldstate)
 {
 	struct drm_plane_state *state = drm_plane->state;
@@ -1108,6 +1169,18 @@ static void sti_hqvdp_atomic_update(struct drm_plane *drm_plane,
 	struct sti_hqvdp *hqvdp = to_sti_hqvdp(plane);
 	struct drm_crtc *crtc = state->crtc;
 	struct drm_framebuffer *fb = state->fb;
+=======
+				    struct drm_atomic_state *state)
+{
+	struct drm_plane_state *oldstate = drm_atomic_get_old_plane_state(state,
+									  drm_plane);
+	struct drm_plane_state *newstate = drm_atomic_get_new_plane_state(state,
+									  drm_plane);
+	struct sti_plane *plane = to_sti_plane(drm_plane);
+	struct sti_hqvdp *hqvdp = to_sti_hqvdp(plane);
+	struct drm_crtc *crtc = newstate->crtc;
+	struct drm_framebuffer *fb = newstate->fb;
+>>>>>>> upstream/android-13
 	struct drm_display_mode *mode;
 	int dst_x, dst_y, dst_w, dst_h;
 	int src_x, src_y, src_w, src_h;
@@ -1119,6 +1192,7 @@ static void sti_hqvdp_atomic_update(struct drm_plane *drm_plane,
 	if (!crtc || !fb)
 		return;
 
+<<<<<<< HEAD
 	if ((oldstate->fb == state->fb) &&
 	    (oldstate->crtc_x == state->crtc_x) &&
 	    (oldstate->crtc_y == state->crtc_y) &&
@@ -1128,6 +1202,17 @@ static void sti_hqvdp_atomic_update(struct drm_plane *drm_plane,
 	    (oldstate->src_y == state->src_y) &&
 	    (oldstate->src_w == state->src_w) &&
 	    (oldstate->src_h == state->src_h)) {
+=======
+	if ((oldstate->fb == newstate->fb) &&
+	    (oldstate->crtc_x == newstate->crtc_x) &&
+	    (oldstate->crtc_y == newstate->crtc_y) &&
+	    (oldstate->crtc_w == newstate->crtc_w) &&
+	    (oldstate->crtc_h == newstate->crtc_h) &&
+	    (oldstate->src_x == newstate->src_x) &&
+	    (oldstate->src_y == newstate->src_y) &&
+	    (oldstate->src_w == newstate->src_w) &&
+	    (oldstate->src_h == newstate->src_h)) {
+>>>>>>> upstream/android-13
 		/* No change since last update, do not post cmd */
 		DRM_DEBUG_DRIVER("No change, not posting cmd\n");
 		plane->status = STI_PLANE_UPDATED;
@@ -1135,6 +1220,7 @@ static void sti_hqvdp_atomic_update(struct drm_plane *drm_plane,
 	}
 
 	mode = &crtc->mode;
+<<<<<<< HEAD
 	dst_x = state->crtc_x;
 	dst_y = state->crtc_y;
 	dst_w = clamp_val(state->crtc_w, 0, mode->hdisplay - dst_x);
@@ -1144,6 +1230,17 @@ static void sti_hqvdp_atomic_update(struct drm_plane *drm_plane,
 	src_y = state->src_y >> 16;
 	src_w = state->src_w >> 16;
 	src_h = state->src_h >> 16;
+=======
+	dst_x = newstate->crtc_x;
+	dst_y = newstate->crtc_y;
+	dst_w = clamp_val(newstate->crtc_w, 0, mode->hdisplay - dst_x);
+	dst_h = clamp_val(newstate->crtc_h, 0, mode->vdisplay - dst_y);
+	/* src_x are in 16.16 format */
+	src_x = newstate->src_x >> 16;
+	src_y = newstate->src_y >> 16;
+	src_w = newstate->src_w >> 16;
+	src_h = newstate->src_h >> 16;
+>>>>>>> upstream/android-13
 
 	cmd_offset = sti_hqvdp_get_free_cmd(hqvdp);
 	if (cmd_offset == -1) {
@@ -1232,8 +1329,15 @@ static void sti_hqvdp_atomic_update(struct drm_plane *drm_plane,
 }
 
 static void sti_hqvdp_atomic_disable(struct drm_plane *drm_plane,
+<<<<<<< HEAD
 				     struct drm_plane_state *oldstate)
 {
+=======
+				     struct drm_atomic_state *state)
+{
+	struct drm_plane_state *oldstate = drm_atomic_get_old_plane_state(state,
+									  drm_plane);
+>>>>>>> upstream/android-13
 	struct sti_plane *plane = to_sti_plane(drm_plane);
 
 	if (!oldstate->crtc) {
@@ -1256,6 +1360,7 @@ static const struct drm_plane_helper_funcs sti_hqvdp_helpers_funcs = {
 	.atomic_disable = sti_hqvdp_atomic_disable,
 };
 
+<<<<<<< HEAD
 static void sti_hqvdp_destroy(struct drm_plane *drm_plane)
 {
 	DRM_DEBUG_DRIVER("\n");
@@ -1264,18 +1369,30 @@ static void sti_hqvdp_destroy(struct drm_plane *drm_plane)
 	drm_plane_cleanup(drm_plane);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sti_hqvdp_late_register(struct drm_plane *drm_plane)
 {
 	struct sti_plane *plane = to_sti_plane(drm_plane);
 	struct sti_hqvdp *hqvdp = to_sti_hqvdp(plane);
 
+<<<<<<< HEAD
 	return hqvdp_debugfs_init(hqvdp, drm_plane->dev->primary);
+=======
+	hqvdp_debugfs_init(hqvdp, drm_plane->dev->primary);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_plane_funcs sti_hqvdp_plane_helpers_funcs = {
 	.update_plane = drm_atomic_helper_update_plane,
 	.disable_plane = drm_atomic_helper_disable_plane,
+<<<<<<< HEAD
 	.destroy = sti_hqvdp_destroy,
+=======
+	.destroy = drm_plane_cleanup,
+>>>>>>> upstream/android-13
 	.reset = sti_plane_reset,
 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,

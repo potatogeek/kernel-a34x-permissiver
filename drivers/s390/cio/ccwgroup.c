@@ -45,6 +45,7 @@ static void __ccwgroup_remove_symlinks(struct ccwgroup_device *gdev)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * Remove references from ccw devices to ccw group device and from
  * ccw group device to ccw devices.
@@ -66,6 +67,8 @@ static void __ccwgroup_remove_cdev_refs(struct ccwgroup_device *gdev)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ccwgroup_set_online() - enable a ccwgroup device
  * @gdev: target ccwgroup device
@@ -98,12 +101,20 @@ EXPORT_SYMBOL(ccwgroup_set_online);
 /**
  * ccwgroup_set_offline() - disable a ccwgroup device
  * @gdev: target ccwgroup device
+<<<<<<< HEAD
+=======
+ * @call_gdrv: Call the registered gdrv set_offline function
+>>>>>>> upstream/android-13
  *
  * This function attempts to put the ccwgroup device into the offline state.
  * Returns:
  *  %0 on success and a negative error value on failure.
  */
+<<<<<<< HEAD
 int ccwgroup_set_offline(struct ccwgroup_device *gdev)
+=======
+int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv)
+>>>>>>> upstream/android-13
 {
 	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(gdev->dev.driver);
 	int ret = -EINVAL;
@@ -112,11 +123,22 @@ int ccwgroup_set_offline(struct ccwgroup_device *gdev)
 		return -EAGAIN;
 	if (gdev->state == CCWGROUP_OFFLINE)
 		goto out;
+<<<<<<< HEAD
+=======
+	if (!call_gdrv) {
+		ret = 0;
+		goto offline;
+	}
+>>>>>>> upstream/android-13
 	if (gdrv->set_offline)
 		ret = gdrv->set_offline(gdev);
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
+=======
+offline:
+>>>>>>> upstream/android-13
 	gdev->state = CCWGROUP_OFFLINE;
 out:
 	atomic_set(&gdev->onoff, 0);
@@ -145,7 +167,11 @@ static ssize_t ccwgroup_online_store(struct device *dev,
 	if (value == 1)
 		ret = ccwgroup_set_online(gdev);
 	else if (value == 0)
+<<<<<<< HEAD
 		ret = ccwgroup_set_offline(gdev);
+=======
+		ret = ccwgroup_set_offline(gdev, true);
+>>>>>>> upstream/android-13
 	else
 		ret = -EINVAL;
 out:
@@ -175,7 +201,10 @@ static void ccwgroup_ungroup(struct ccwgroup_device *gdev)
 	if (device_is_registered(&gdev->dev)) {
 		__ccwgroup_remove_symlinks(gdev);
 		device_unregister(&gdev->dev);
+<<<<<<< HEAD
 		__ccwgroup_remove_cdev_refs(gdev);
+=======
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&gdev->reg_mutex);
 }
@@ -210,11 +239,16 @@ out:
 static DEVICE_ATTR(ungroup, 0200, NULL, ccwgroup_ungroup_store);
 static DEVICE_ATTR(online, 0644, ccwgroup_online_show, ccwgroup_online_store);
 
+<<<<<<< HEAD
 static struct attribute *ccwgroup_attrs[] = {
+=======
+static struct attribute *ccwgroup_dev_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_online.attr,
 	&dev_attr_ungroup.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group ccwgroup_attr_group = {
 	.attrs = ccwgroup_attrs,
 };
@@ -222,6 +256,9 @@ static const struct attribute_group *ccwgroup_attr_groups[] = {
 	&ccwgroup_attr_group,
 	NULL,
 };
+=======
+ATTRIBUTE_GROUPS(ccwgroup_dev);
+>>>>>>> upstream/android-13
 
 static void ccwgroup_ungroup_workfn(struct work_struct *work)
 {
@@ -234,7 +271,27 @@ static void ccwgroup_ungroup_workfn(struct work_struct *work)
 
 static void ccwgroup_release(struct device *dev)
 {
+<<<<<<< HEAD
 	kfree(to_ccwgroupdev(dev));
+=======
+	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
+	unsigned int i;
+
+	for (i = 0; i < gdev->count; i++) {
+		struct ccw_device *cdev = gdev->cdev[i];
+		unsigned long flags;
+
+		if (cdev) {
+			spin_lock_irqsave(cdev->ccwlock, flags);
+			if (dev_get_drvdata(&cdev->dev) == gdev)
+				dev_set_drvdata(&cdev->dev, NULL);
+			spin_unlock_irqrestore(cdev->ccwlock, flags);
+			put_device(&cdev->dev);
+		}
+	}
+
+	kfree(gdev);
+>>>>>>> upstream/android-13
 }
 
 static int __ccwgroup_create_symlinks(struct ccwgroup_device *gdev)
@@ -384,7 +441,10 @@ int ccwgroup_create_dev(struct device *parent, struct ccwgroup_driver *gdrv,
 	}
 
 	dev_set_name(&gdev->dev, "%s", dev_name(&gdev->cdev[0]->dev));
+<<<<<<< HEAD
 	gdev->dev.groups = ccwgroup_attr_groups;
+=======
+>>>>>>> upstream/android-13
 
 	if (gdrv) {
 		gdev->dev.driver = &gdrv->driver;
@@ -403,6 +463,7 @@ int ccwgroup_create_dev(struct device *parent, struct ccwgroup_driver *gdrv,
 	mutex_unlock(&gdev->reg_mutex);
 	return 0;
 error:
+<<<<<<< HEAD
 	for (i = 0; i < num_devices; i++)
 		if (gdev->cdev[i]) {
 			spin_lock_irq(gdev->cdev[i]->ccwlock);
@@ -412,6 +473,8 @@ error:
 			put_device(&gdev->cdev[i]->dev);
 			gdev->cdev[i] = NULL;
 		}
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&gdev->reg_mutex);
 	put_device(&gdev->dev);
 	return rc;
@@ -423,7 +486,11 @@ static int ccwgroup_notifier(struct notifier_block *nb, unsigned long action,
 {
 	struct ccwgroup_device *gdev = to_ccwgroupdev(data);
 
+<<<<<<< HEAD
 	if (action == BUS_NOTIFY_UNBIND_DRIVER) {
+=======
+	if (action == BUS_NOTIFY_UNBOUND_DRIVER) {
+>>>>>>> upstream/android-13
 		get_device(&gdev->dev);
 		schedule_work(&gdev->ungroup_work);
 	}
@@ -461,17 +528,26 @@ module_exit(cleanup_ccwgroup);
 
 /************************** driver stuff ******************************/
 
+<<<<<<< HEAD
 static int ccwgroup_remove(struct device *dev)
+=======
+static void ccwgroup_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
 	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(dev->driver);
 
+<<<<<<< HEAD
 	if (!dev->driver)
 		return 0;
 	if (gdrv->remove)
 		gdrv->remove(gdev);
 
 	return 0;
+=======
+	if (gdrv->remove)
+		gdrv->remove(gdev);
+>>>>>>> upstream/android-13
 }
 
 static void ccwgroup_shutdown(struct device *dev)
@@ -485,6 +561,7 @@ static void ccwgroup_shutdown(struct device *dev)
 		gdrv->shutdown(gdev);
 }
 
+<<<<<<< HEAD
 static int ccwgroup_pm_prepare(struct device *dev)
 {
 	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
@@ -558,6 +635,13 @@ static struct bus_type ccwgroup_bus_type = {
 	.remove = ccwgroup_remove,
 	.shutdown = ccwgroup_shutdown,
 	.pm = &ccwgroup_pm_ops,
+=======
+static struct bus_type ccwgroup_bus_type = {
+	.name   = "ccwgroup",
+	.dev_groups = ccwgroup_dev_groups,
+	.remove = ccwgroup_remove,
+	.shutdown = ccwgroup_shutdown,
+>>>>>>> upstream/android-13
 };
 
 bool dev_is_ccwgroup(struct device *dev)
@@ -581,11 +665,14 @@ int ccwgroup_driver_register(struct ccwgroup_driver *cdriver)
 }
 EXPORT_SYMBOL(ccwgroup_driver_register);
 
+<<<<<<< HEAD
 static int __ccwgroup_match_all(struct device *dev, void *data)
 {
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ccwgroup_driver_unregister() - deregister a ccw group driver
  * @cdriver: driver to be deregistered
@@ -594,6 +681,7 @@ static int __ccwgroup_match_all(struct device *dev, void *data)
  */
 void ccwgroup_driver_unregister(struct ccwgroup_driver *cdriver)
 {
+<<<<<<< HEAD
 	struct device *dev;
 
 	/* We don't want ccwgroup devices to live longer than their driver. */
@@ -604,6 +692,8 @@ void ccwgroup_driver_unregister(struct ccwgroup_driver *cdriver)
 		ccwgroup_ungroup(gdev);
 		put_device(dev);
 	}
+=======
+>>>>>>> upstream/android-13
 	driver_unregister(&cdriver->driver);
 }
 EXPORT_SYMBOL(ccwgroup_driver_unregister);

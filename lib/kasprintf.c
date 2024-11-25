@@ -5,7 +5,11 @@
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/slab.h>
 #include <linux/types.h>

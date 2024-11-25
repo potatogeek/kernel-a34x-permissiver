@@ -7,6 +7,7 @@
 
 /dts-v1/;
 /plugin/;
+<<<<<<< HEAD
 / {
 	fragment@0 {
 		target-path = "/";
@@ -53,11 +54,35 @@
 						lvds1_out: endpoint {
 						};
 					};
+=======
+
+&{/} {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	lvds@feb90000 {
+		compatible = "renesas,r8a7790-lvds";
+		reg = <0 0xfeb90000 0 0x1c>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				lvds0_input: endpoint {
+				};
+			};
+			port@1 {
+				reg = <1>;
+				lvds0_out: endpoint {
+>>>>>>> upstream/android-13
 				};
 			};
 		};
 	};
 
+<<<<<<< HEAD
 	fragment@1 {
 		target-path = "/display@feb00000/ports";
 		__overlay__ {
@@ -69,8 +94,42 @@
 			port@2 {
 				endpoint {
 					remote-endpoint = <&lvds1_input>;
+=======
+	lvds@feb94000 {
+		compatible = "renesas,r8a7790-lvds";
+		reg = <0 0xfeb94000 0 0x1c>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				lvds1_input: endpoint {
+				};
+			};
+			port@1 {
+				reg = <1>;
+				lvds1_out: endpoint {
+>>>>>>> upstream/android-13
 				};
 			};
 		};
 	};
 };
+<<<<<<< HEAD
+=======
+
+&{/display@feb00000/ports} {
+	port@1 {
+		endpoint {
+			remote-endpoint = <&lvds0_input>;
+		};
+	};
+	port@2 {
+		endpoint {
+			remote-endpoint = <&lvds1_input>;
+		};
+	};
+};
+>>>>>>> upstream/android-13

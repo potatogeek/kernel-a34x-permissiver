@@ -74,7 +74,13 @@ gf117_pm = {
 };
 
 int
+<<<<<<< HEAD
 gf117_pm_new(struct nvkm_device *device, int index, struct nvkm_pm **ppm)
 {
 	return gf100_pm_new_(&gf117_pm, device, index, ppm);
+=======
+gf117_pm_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_pm **ppm)
+{
+	return gf100_pm_new_(&gf117_pm, device, type, inst, ppm);
+>>>>>>> upstream/android-13
 }

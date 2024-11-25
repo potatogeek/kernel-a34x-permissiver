@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Consumer interface the pin control subsystem
  *
@@ -6,8 +10,11 @@
  * Based on bits of regulator core, gpio core and clk core
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_PINCTRL_CONSUMER_H
 #define __LINUX_PINCTRL_CONSUMER_H
@@ -25,6 +32,10 @@ struct device;
 #ifdef CONFIG_PINCTRL
 
 /* External interface to pin control */
+<<<<<<< HEAD
+=======
+extern bool pinctrl_gpio_can_use_line(unsigned gpio);
+>>>>>>> upstream/android-13
 extern int pinctrl_gpio_request(unsigned gpio);
 extern void pinctrl_gpio_free(unsigned gpio);
 extern int pinctrl_gpio_direction_input(unsigned gpio);
@@ -40,6 +51,10 @@ extern int pinctrl_select_state(struct pinctrl *p, struct pinctrl_state *s);
 
 extern struct pinctrl * __must_check devm_pinctrl_get(struct device *dev);
 extern void devm_pinctrl_put(struct pinctrl *p);
+<<<<<<< HEAD
+=======
+extern int pinctrl_select_default_state(struct device *dev);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 extern int pinctrl_pm_select_default_state(struct device *dev);
@@ -62,6 +77,14 @@ static inline int pinctrl_pm_select_idle_state(struct device *dev)
 
 #else /* !CONFIG_PINCTRL */
 
+<<<<<<< HEAD
+=======
+static inline bool pinctrl_gpio_can_use_line(unsigned gpio)
+{
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static inline int pinctrl_gpio_request(unsigned gpio)
 {
 	return 0;
@@ -117,6 +140,14 @@ static inline void devm_pinctrl_put(struct pinctrl *p)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline int pinctrl_select_default_state(struct device *dev)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int pinctrl_pm_select_default_state(struct device *dev)
 {
 	return 0;

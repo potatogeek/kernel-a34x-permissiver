@@ -1,6 +1,10 @@
 * Samsung Exynos5 G-Scaler device
 
+<<<<<<< HEAD
 G-Scaler is used for scaling and color space conversion on EXYNOS5 SoCs.
+=======
+G-Scaler is used for scaling and color space conversion on Exynos5 SoCs.
+>>>>>>> upstream/android-13
 
 Required properties:
 - compatible: should be one of

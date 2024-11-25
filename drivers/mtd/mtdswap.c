@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Swap block device support for MTDs
  * Turns an MTD device into a swap device with block wear leveling
@@ -8,6 +12,7 @@
  *
  * Based on Richard Purdie's earlier implementation in 2007. Background
  * support and lock-less operation written by Adrian Hunter.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -1066,7 +1073,10 @@ static int mtdswap_writesect(struct mtd_blktrans_dev *dev,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	eb = d->eb_data + (newblock / d->pages_per_eblk);
+=======
+>>>>>>> upstream/android-13
 	d->page_data[page] = newblock;
 
 	return 0;
@@ -1265,6 +1275,7 @@ static int mtdswap_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int mtdswap_open(struct inode *inode, struct file *file)
 {
@@ -1277,11 +1288,17 @@ static const struct file_operations mtdswap_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(mtdswap);
+>>>>>>> upstream/android-13
 
 static int mtdswap_add_debugfs(struct mtdswap_dev *d)
 {
 	struct dentry *root = d->mtd->dbg.dfs_dir;
+<<<<<<< HEAD
 	struct dentry *dent;
+=======
+>>>>>>> upstream/android-13
 
 	if (!IS_ENABLED(CONFIG_DEBUG_FS))
 		return 0;
@@ -1289,12 +1306,16 @@ static int mtdswap_add_debugfs(struct mtdswap_dev *d)
 	if (IS_ERR_OR_NULL(root))
 		return -1;
 
+<<<<<<< HEAD
 	dent = debugfs_create_file("mtdswap_stats", S_IRUSR, root, d,
 				&mtdswap_fops);
 	if (!dent) {
 		dev_err(d->dev, "debugfs_create_file failed\n");
 		return -1;
 	}
+=======
+	debugfs_create_file("mtdswap_stats", S_IRUSR, root, d, &mtdswap_fops);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1515,6 +1536,7 @@ static struct mtd_blktrans_ops mtdswap_ops = {
 	.owner		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
 static int __init mtdswap_modinit(void)
 {
 	return register_mtd_blktrans(&mtdswap_ops);
@@ -1528,6 +1550,9 @@ static void __exit mtdswap_modexit(void)
 module_init(mtdswap_modinit);
 module_exit(mtdswap_modexit);
 
+=======
+module_mtd_blktrans(mtdswap_ops);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jarkko Lavinen <jarkko.lavinen@nokia.com>");

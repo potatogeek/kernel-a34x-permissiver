@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Hardware descriptions for HP 9000 based hardware, including
  *    system types, SCSI controllers, DMA controllers, HPPB controllers
@@ -5,6 +9,7 @@
  * 
  *    Based on the document "PA-RISC 1.1 I/O Firmware Architecture 
  *    Reference Specification", March 7, 1999, version 0.96.  This
+<<<<<<< HEAD
  *    is available at http://parisc-linux.org/documentation/
  *
  *    Copyright 1999 by Alex deVries <alex@onefishtwo.ca>
@@ -24,6 +29,13 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+ *    is available at
+ *    https://parisc.wiki.kernel.org/index.php/Technical_Documentation
+ *
+ *    Copyright 1999 by Alex deVries <alex@onefishtwo.ca>
+ *    and copyright 1999 The Puffin Group Inc.
+>>>>>>> upstream/android-13
  */
 
 

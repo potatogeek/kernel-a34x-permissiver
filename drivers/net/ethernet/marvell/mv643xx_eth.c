@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Marvell Discovery (MV643XX) and Marvell Orion ethernet ports
  * Copyright (C) 2002 Matthew Dharm <mdharm@momenco.com>
@@ -21,6 +25,7 @@
  *			   Lennert Buytenhek <buytenh@marvell.com>
  *
  * Copyright (C) 2013 Michael Stapelberg <michael@stapelberg.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,6 +39,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -671,18 +678,25 @@ static inline unsigned int has_tiny_unaligned_frags(struct sk_buff *skb)
 	for (frag = 0; frag < skb_shinfo(skb)->nr_frags; frag++) {
 		const skb_frag_t *fragp = &skb_shinfo(skb)->frags[frag];
 
+<<<<<<< HEAD
 		if (skb_frag_size(fragp) <= 8 && fragp->page_offset & 7)
+=======
+		if (skb_frag_size(fragp) <= 8 && skb_frag_off(fragp) & 7)
+>>>>>>> upstream/android-13
 			return 1;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline __be16 sum16_as_be(__sum16 sum)
 {
 	return (__force __be16)sum;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int skb_tx_csum(struct mv643xx_eth_private *mp, struct sk_buff *skb,
 		       u16 *l4i_chk, u32 *command, int length)
 {
@@ -717,7 +731,12 @@ static int skb_tx_csum(struct mv643xx_eth_private *mp, struct sk_buff *skb,
 			   ip_hdr(skb)->ihl << TX_IHL_SHIFT;
 
 		/* TODO: Revisit this. With the usage of GEN_TCP_UDP_CHK_FULL
+<<<<<<< HEAD
 		 * it seems we don't need to pass the initial checksum. */
+=======
+		 * it seems we don't need to pass the initial checksum.
+		 */
+>>>>>>> upstream/android-13
 		switch (ip_hdr(skb)->protocol) {
 		case IPPROTO_UDP:
 			cmd |= UDP_FRAME;
@@ -807,7 +826,12 @@ txq_put_hdr_tso(struct sk_buff *skb, struct tx_queue *txq, int length,
 		WARN(1, "failed to prepare checksum!");
 
 	/* Should we set this? Can't use the value from skb_tx_csum()
+<<<<<<< HEAD
 	 * as it's not the correct initial L4 checksum to use. */
+=======
+	 * as it's not the correct initial L4 checksum to use.
+	 */
+>>>>>>> upstream/android-13
 	desc->l4i_chk = 0;
 
 	desc->byte_cnt = hdr_len;
@@ -833,10 +857,16 @@ static int txq_submit_tso(struct tx_queue *txq, struct sk_buff *skb,
 			  struct net_device *dev)
 {
 	struct mv643xx_eth_private *mp = txq_to_mp(txq);
+<<<<<<< HEAD
 	int total_len, data_left, ret;
 	int desc_count = 0;
 	struct tso_t tso;
 	int hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
+=======
+	int hdr_len, total_len, data_left, ret;
+	int desc_count = 0;
+	struct tso_t tso;
+>>>>>>> upstream/android-13
 	struct tx_desc *first_tx_desc;
 	u32 first_cmd_sts = 0;
 
@@ -849,7 +879,11 @@ static int txq_submit_tso(struct tx_queue *txq, struct sk_buff *skb,
 	first_tx_desc = &txq->tx_desc_area[txq->tx_curr_desc];
 
 	/* Initialize the TSO handler, and prepare the first payload */
+<<<<<<< HEAD
 	tso_start(skb, &tso);
+=======
+	hdr_len = tso_start(skb, &tso);
+>>>>>>> upstream/android-13
 
 	total_len = skb->len - hdr_len;
 	while (total_len > 0) {
@@ -1444,11 +1478,19 @@ struct mv643xx_eth_stats {
 };
 
 #define SSTAT(m)						\
+<<<<<<< HEAD
 	{ #m, FIELD_SIZEOF(struct net_device_stats, m),		\
 	  offsetof(struct net_device, stats.m), -1 }
 
 #define MIBSTAT(m)						\
 	{ #m, FIELD_SIZEOF(struct mib_counters, m),		\
+=======
+	{ #m, sizeof_field(struct net_device_stats, m),		\
+	  offsetof(struct net_device, stats.m), -1 }
+
+#define MIBSTAT(m)						\
+	{ #m, sizeof_field(struct mib_counters, m),		\
+>>>>>>> upstream/android-13
 	  -1, offsetof(struct mv643xx_eth_private, mib_counters.m) }
 
 static const struct mv643xx_eth_stats mv643xx_eth_stats[] = {
@@ -1499,13 +1541,17 @@ mv643xx_eth_get_link_ksettings_phy(struct mv643xx_eth_private *mp,
 				   struct ethtool_link_ksettings *cmd)
 {
 	struct net_device *dev = mp->dev;
+<<<<<<< HEAD
 	u32 supported, advertising;
+=======
+>>>>>>> upstream/android-13
 
 	phy_ethtool_ksettings_get(dev->phydev, cmd);
 
 	/*
 	 * The MAC does not support 1000baseT_Half.
 	 */
+<<<<<<< HEAD
 	ethtool_convert_link_mode_to_legacy_u32(&supported,
 						cmd->link_modes.supported);
 	ethtool_convert_link_mode_to_legacy_u32(&advertising,
@@ -1516,6 +1562,12 @@ mv643xx_eth_get_link_ksettings_phy(struct mv643xx_eth_private *mp,
 						supported);
 	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.advertising,
 						advertising);
+=======
+	linkmode_clear_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT,
+			   cmd->link_modes.supported);
+	linkmode_clear_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT,
+			   cmd->link_modes.advertising);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1634,8 +1686,15 @@ static void mv643xx_eth_get_drvinfo(struct net_device *dev,
 	strlcpy(drvinfo->bus_info, "platform", sizeof(drvinfo->bus_info));
 }
 
+<<<<<<< HEAD
 static int
 mv643xx_eth_get_coalesce(struct net_device *dev, struct ethtool_coalesce *ec)
+=======
+static int mv643xx_eth_get_coalesce(struct net_device *dev,
+				    struct ethtool_coalesce *ec,
+				    struct kernel_ethtool_coalesce *kernel_coal,
+				    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct mv643xx_eth_private *mp = netdev_priv(dev);
 
@@ -1645,8 +1704,15 @@ mv643xx_eth_get_coalesce(struct net_device *dev, struct ethtool_coalesce *ec)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 mv643xx_eth_set_coalesce(struct net_device *dev, struct ethtool_coalesce *ec)
+=======
+static int mv643xx_eth_set_coalesce(struct net_device *dev,
+				    struct ethtool_coalesce *ec,
+				    struct kernel_ethtool_coalesce *kernel_coal,
+				    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct mv643xx_eth_private *mp = netdev_priv(dev);
 
@@ -1756,6 +1822,10 @@ static int mv643xx_eth_get_sset_count(struct net_device *dev, int sset)
 }
 
 static const struct ethtool_ops mv643xx_eth_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo		= mv643xx_eth_get_drvinfo,
 	.nway_reset		= phy_ethtool_nway_reset,
 	.get_link		= ethtool_op_get_link,
@@ -2609,7 +2679,11 @@ static void tx_timeout_task(struct work_struct *ugly)
 	}
 }
 
+<<<<<<< HEAD
 static void mv643xx_eth_tx_timeout(struct net_device *dev)
+=======
+static void mv643xx_eth_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct mv643xx_eth_private *mp = netdev_priv(dev);
 
@@ -2708,7 +2782,11 @@ static const struct of_device_id mv643xx_eth_shared_ids[] = {
 MODULE_DEVICE_TABLE(of, mv643xx_eth_shared_ids);
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF_IRQ) && !defined(CONFIG_MV64X60)
+=======
+#ifdef CONFIG_OF_IRQ
+>>>>>>> upstream/android-13
 #define mv643xx_eth_property(_np, _name, _v)				\
 	do {								\
 		u32 tmp;						\
@@ -2718,13 +2796,29 @@ MODULE_DEVICE_TABLE(of, mv643xx_eth_shared_ids);
 
 static struct platform_device *port_platdev[3];
 
+<<<<<<< HEAD
+=======
+static void mv643xx_eth_shared_of_remove(void)
+{
+	int n;
+
+	for (n = 0; n < 3; n++) {
+		platform_device_del(port_platdev[n]);
+		port_platdev[n] = NULL;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
 					  struct device_node *pnp)
 {
 	struct platform_device *ppdev;
 	struct mv643xx_eth_platform_data ppd;
 	struct resource res;
+<<<<<<< HEAD
 	const char *mac_addr;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	int dev_num = 0;
 
@@ -2733,17 +2827,29 @@ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
 
 	memset(&res, 0, sizeof(res));
 	if (of_irq_to_resource(pnp, 0, &res) <= 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "missing interrupt on %s\n", pnp->name);
+=======
+		dev_err(&pdev->dev, "missing interrupt on %pOFn\n", pnp);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (of_property_read_u32(pnp, "reg", &ppd.port_number)) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "missing reg property on %s\n", pnp->name);
+=======
+		dev_err(&pdev->dev, "missing reg property on %pOFn\n", pnp);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (ppd.port_number >= 3) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "invalid reg property on %s\n", pnp->name);
+=======
+		dev_err(&pdev->dev, "invalid reg property on %pOFn\n", pnp);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2755,9 +2861,15 @@ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mac_addr = of_get_mac_address(pnp);
 	if (mac_addr)
 		memcpy(ppd.mac_addr, mac_addr, ETH_ALEN);
+=======
+	ret = of_get_mac_address(pnp, ppd.mac_addr);
+	if (ret == -EPROBE_DEFER)
+		return ret;
+>>>>>>> upstream/android-13
 
 	mv643xx_eth_property(pnp, "tx-queue-size", ppd.tx_queue_size);
 	mv643xx_eth_property(pnp, "tx-sram-addr", ppd.tx_sram_addr);
@@ -2821,12 +2933,17 @@ static int mv643xx_eth_shared_of_probe(struct platform_device *pdev)
 		ret = mv643xx_eth_shared_of_add_port(pdev, pnp);
 		if (ret) {
 			of_node_put(pnp);
+<<<<<<< HEAD
+=======
+			mv643xx_eth_shared_of_remove();
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mv643xx_eth_shared_of_remove(void)
 {
 	int n;
@@ -2836,6 +2953,8 @@ static void mv643xx_eth_shared_of_remove(void)
 		port_platdev[n] = NULL;
 	}
 }
+=======
+>>>>>>> upstream/android-13
 #else
 static inline int mv643xx_eth_shared_of_probe(struct platform_device *pdev)
 {
@@ -2978,15 +3097,27 @@ static void set_params(struct mv643xx_eth_private *mp,
 static int get_phy_mode(struct mv643xx_eth_private *mp)
 {
 	struct device *dev = mp->dev->dev.parent;
+<<<<<<< HEAD
 	int iface = -1;
 
 	if (dev->of_node)
 		iface = of_get_phy_mode(dev->of_node);
+=======
+	phy_interface_t iface;
+	int err;
+
+	if (dev->of_node)
+		err = of_get_phy_mode(dev->of_node, &iface);
+>>>>>>> upstream/android-13
 
 	/* Historical default if unspecified. We could also read/write
 	 * the interface state in the PSC1
 	 */
+<<<<<<< HEAD
 	if (iface < 0)
+=======
+	if (!dev->of_node || err)
+>>>>>>> upstream/android-13
 		iface = PHY_INTERFACE_MODE_GMII;
 	return iface;
 }
@@ -3036,10 +3167,19 @@ static void phy_init(struct mv643xx_eth_private *mp, int speed, int duplex)
 		phy->autoneg = AUTONEG_ENABLE;
 		phy->speed = 0;
 		phy->duplex = 0;
+<<<<<<< HEAD
 		phy->advertising = phy->supported | ADVERTISED_Autoneg;
 	} else {
 		phy->autoneg = AUTONEG_DISABLE;
 		phy->advertising = 0;
+=======
+		linkmode_copy(phy->advertising, phy->supported);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_Autoneg_BIT,
+				 phy->advertising);
+	} else {
+		phy->autoneg = AUTONEG_DISABLE;
+		linkmode_zero(phy->advertising);
+>>>>>>> upstream/android-13
 		phy->speed = speed;
 		phy->duplex = duplex;
 	}
@@ -3082,7 +3222,11 @@ static const struct net_device_ops mv643xx_eth_netdev_ops = {
 	.ndo_set_rx_mode	= mv643xx_eth_set_rx_mode,
 	.ndo_set_mac_address	= mv643xx_eth_set_mac_address,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= mv643xx_eth_ioctl,
+=======
+	.ndo_eth_ioctl		= mv643xx_eth_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= mv643xx_eth_change_mtu,
 	.ndo_set_features	= mv643xx_eth_set_features,
 	.ndo_tx_timeout		= mv643xx_eth_tx_timeout,

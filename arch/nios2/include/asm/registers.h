@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Tobias Klauser <tklauser@distanz.ch>
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2011 Tobias Klauser <tklauser@distanz.ch>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_NIOS2_REGISTERS_H
@@ -24,7 +30,11 @@
 #endif
 
 /* control register numbers */
+<<<<<<< HEAD
 #define CTL_STATUS	0
+=======
+#define CTL_FSTATUS	0
+>>>>>>> upstream/android-13
 #define CTL_ESTATUS	1
 #define CTL_BSTATUS	2
 #define CTL_IENABLE	3

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
    cx231xx_vbi.h - driver for Conexant Cx23100/101/102 USB video capture devices
 
    Copyright (C) 2008 <srinivasa.deevi at conexant dot com>
 		Based on cx88 driver
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -17,12 +22,18 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CX231XX_VBI_H
 #define _CX231XX_VBI_H
 
+<<<<<<< HEAD
 extern const struct videobuf_queue_ops cx231xx_vbi_qops;
+=======
+extern struct vb2_ops cx231xx_vbi_qops;
+>>>>>>> upstream/android-13
 
 #define   NTSC_VBI_START_LINE 10	/* line 10 - 21 */
 #define   NTSC_VBI_END_LINE   21

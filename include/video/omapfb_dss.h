@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Texas Instruments, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2016 Texas Instruments, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OMAPFB_DSS_H
@@ -118,11 +124,14 @@ enum omap_dss_trans_key_type {
 	OMAP_DSS_COLOR_KEY_VID_SRC = 1,
 };
 
+<<<<<<< HEAD
 enum omap_rfbi_te_mode {
 	OMAP_DSS_RFBI_TE_MODE_1 = 1,
 	OMAP_DSS_RFBI_TE_MODE_2 = 2,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum omap_dss_signal_level {
 	OMAPDSS_SIG_ACTIVE_LOW,
 	OMAPDSS_SIG_ACTIVE_HIGH,
@@ -193,6 +202,7 @@ enum omap_dss_output_id {
 	OMAP_DSS_OUTPUT_HDMI	= 1 << 6,
 };
 
+<<<<<<< HEAD
 /* RFBI */
 
 struct rfbi_timings {
@@ -214,6 +224,8 @@ struct rfbi_timings {
 	int converted;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* DSI */
 
 enum omap_dss_dsi_trans_mode {
@@ -645,11 +657,14 @@ struct omap_dss_device {
 		} dpi;
 
 		struct {
+<<<<<<< HEAD
 			u8 channel;
 			u8 data_lines;
 		} rfbi;
 
 		struct {
+=======
+>>>>>>> upstream/android-13
 			u8 datapairs;
 		} sdi;
 
@@ -672,7 +687,10 @@ struct omap_dss_device {
 
 	struct {
 		u8 pixel_size;
+<<<<<<< HEAD
 		struct rfbi_timings rfbi_timings;
+=======
+>>>>>>> upstream/android-13
 	} ctrl;
 
 	const char *name;

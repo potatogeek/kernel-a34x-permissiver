@@ -97,7 +97,11 @@
 
 .text
 .align 32
+<<<<<<< HEAD
 ENTRY(sha256_ni_transform)
+=======
+SYM_FUNC_START(sha256_ni_transform)
+>>>>>>> upstream/android-13
 
 	shl		$6, NUM_BLKS		/*  convert to bytes */
 	jz		.Ldone_hash
@@ -326,8 +330,13 @@ ENTRY(sha256_ni_transform)
 
 .Ldone_hash:
 
+<<<<<<< HEAD
 	ret
 ENDPROC(sha256_ni_transform)
+=======
+	RET
+SYM_FUNC_END(sha256_ni_transform)
+>>>>>>> upstream/android-13
 
 .section	.rodata.cst256.K256, "aM", @progbits, 256
 .align 64

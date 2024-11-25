@@ -107,7 +107,11 @@ qca_tty_receive(struct serdev_device *serdev, const unsigned char *data,
 			skb_put(qca->rx_skb, retcode);
 			qca->rx_skb->protocol = eth_type_trans(
 						qca->rx_skb, qca->rx_skb->dev);
+<<<<<<< HEAD
 			qca->rx_skb->ip_summed = CHECKSUM_UNNECESSARY;
+=======
+			skb_checksum_none_assert(qca->rx_skb);
+>>>>>>> upstream/android-13
 			netif_rx_ni(qca->rx_skb);
 			qca->rx_skb = netdev_alloc_skb_ip_align(netdev,
 								netdev->mtu +
@@ -167,7 +171,11 @@ static void qca_tty_wakeup(struct serdev_device *serdev)
 	schedule_work(&qca->tx_work);
 }
 
+<<<<<<< HEAD
 static struct serdev_device_ops qca_serdev_ops = {
+=======
+static const struct serdev_device_ops qca_serdev_ops = {
+>>>>>>> upstream/android-13
 	.receive_buf = qca_tty_receive,
 	.write_wakeup = qca_tty_wakeup,
 };
@@ -248,7 +256,11 @@ out:
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static void qcauart_netdev_tx_timeout(struct net_device *dev)
+=======
+static void qcauart_netdev_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct qcauart *qca = netdev_priv(dev);
 
@@ -285,8 +297,12 @@ static void qcauart_netdev_uninit(struct net_device *dev)
 {
 	struct qcauart *qca = netdev_priv(dev);
 
+<<<<<<< HEAD
 	if (qca->rx_skb)
 		dev_kfree_skb(qca->rx_skb);
+=======
+	dev_kfree_skb(qca->rx_skb);
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops qcauart_netdev_ops = {
@@ -324,7 +340,10 @@ static int qca_uart_probe(struct serdev_device *serdev)
 {
 	struct net_device *qcauart_dev = alloc_etherdev(sizeof(struct qcauart));
 	struct qcauart *qca;
+<<<<<<< HEAD
 	const char *mac;
+=======
+>>>>>>> upstream/android-13
 	u32 speed = 115200;
 	int ret;
 
@@ -349,12 +368,17 @@ static int qca_uart_probe(struct serdev_device *serdev)
 
 	of_property_read_u32(serdev->dev.of_node, "current-speed", &speed);
 
+<<<<<<< HEAD
 	mac = of_get_mac_address(serdev->dev.of_node);
 
 	if (mac)
 		ether_addr_copy(qca->net_dev->dev_addr, mac);
 
 	if (!is_valid_ether_addr(qca->net_dev->dev_addr)) {
+=======
+	ret = of_get_mac_address(serdev->dev.of_node, qca->net_dev->dev_addr);
+	if (ret) {
+>>>>>>> upstream/android-13
 		eth_hw_addr_random(qca->net_dev);
 		dev_info(&serdev->dev, "Using random MAC address: %pM\n",
 			 qca->net_dev->dev_addr);

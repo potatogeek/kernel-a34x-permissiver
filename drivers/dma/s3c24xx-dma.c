@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * S3C24XX DMA handling
  *
@@ -11,11 +15,14 @@
  * Author: Peter Pearse <peter.pearse@arm.com>
  * Author: Linus Walleij <linus.walleij@stericsson.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * The DMA controllers in S3C24XX SoCs have a varying number of DMA signals
  * that can be routed to any of the 4 to 8 hardware-channels.
  *
@@ -523,6 +530,7 @@ static void s3c24xx_dma_start_next_txd(struct s3c24xx_dma_chan *s3cchan)
 	s3c24xx_dma_start_next_sg(s3cchan, txd);
 }
 
+<<<<<<< HEAD
 static void s3c24xx_dma_free_txd_list(struct s3c24xx_dma_engine *s3cdma,
 				struct s3c24xx_dma_chan *s3cchan)
 {
@@ -532,6 +540,8 @@ static void s3c24xx_dma_free_txd_list(struct s3c24xx_dma_engine *s3cdma,
 	vchan_dma_desc_free_list(&s3cchan->vc, &head);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Try to allocate a physical channel.  When successful, assign it to
  * this virtual channel, and initiate the next descriptor.  The
@@ -713,8 +723,14 @@ static int s3c24xx_dma_terminate_all(struct dma_chan *chan)
 {
 	struct s3c24xx_dma_chan *s3cchan = to_s3c24xx_dma_chan(chan);
 	struct s3c24xx_dma_engine *s3cdma = s3cchan->host;
+<<<<<<< HEAD
 	unsigned long flags;
 	int ret = 0;
+=======
+	LIST_HEAD(head);
+	unsigned long flags;
+	int ret;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&s3cchan->vc.lock, flags);
 
@@ -738,7 +754,19 @@ static int s3c24xx_dma_terminate_all(struct dma_chan *chan)
 	}
 
 	/* Dequeue jobs not yet fired as well */
+<<<<<<< HEAD
 	s3c24xx_dma_free_txd_list(s3cdma, s3cchan);
+=======
+
+	vchan_get_all_descriptors(&s3cchan->vc, &head);
+
+	spin_unlock_irqrestore(&s3cchan->vc.lock, flags);
+
+	vchan_dma_desc_free_list(&s3cchan->vc, &head);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 unlock:
 	spin_unlock_irqrestore(&s3cchan->vc.lock, flags);
 
@@ -1202,7 +1230,11 @@ static int s3c24xx_dma_probe(struct platform_device *pdev)
 
 	/* Basic sanity check */
 	if (pdata->num_phy_channels > MAX_DMA_CHANNELS) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "to many dma channels %d, max %d\n",
+=======
+		dev_err(&pdev->dev, "too many dma channels %d, max %d\n",
+>>>>>>> upstream/android-13
 			pdata->num_phy_channels, MAX_DMA_CHANNELS);
 		return -EINVAL;
 	}
@@ -1241,11 +1273,16 @@ static int s3c24xx_dma_probe(struct platform_device *pdev)
 		phy->host = s3cdma;
 
 		phy->irq = platform_get_irq(pdev, i);
+<<<<<<< HEAD
 		if (phy->irq < 0) {
 			dev_err(&pdev->dev, "failed to get irq %d, err %d\n",
 				i, phy->irq);
 			continue;
 		}
+=======
+		if (phy->irq < 0)
+			continue;
+>>>>>>> upstream/android-13
 
 		ret = devm_request_irq(&pdev->dev, phy->irq, s3c24xx_dma_irq,
 				       0, pdev->name, phy);

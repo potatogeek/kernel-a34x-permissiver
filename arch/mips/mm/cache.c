@@ -14,13 +14,24 @@
 #include <linux/sched.h>
 #include <linux/syscalls.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 
 #include <asm/cacheflush.h>
 #include <asm/highmem.h>
+=======
+#include <linux/highmem.h>
+#include <linux/pagemap.h>
+
+#include <asm/cacheflush.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/cpu.h>
 #include <asm/cpu-features.h>
 #include <asm/setup.h>
+<<<<<<< HEAD
+=======
+#include <asm/pgtable.h>
+>>>>>>> upstream/android-13
 
 /* Cache operations. */
 void (*flush_cache_all)(void);
@@ -36,7 +47,10 @@ EXPORT_SYMBOL_GPL(flush_icache_range);
 void (*local_flush_icache_range)(unsigned long start, unsigned long end);
 EXPORT_SYMBOL_GPL(local_flush_icache_range);
 void (*__flush_icache_user_range)(unsigned long start, unsigned long end);
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(__flush_icache_user_range);
+=======
+>>>>>>> upstream/android-13
 void (*__local_flush_icache_user_range)(unsigned long start, unsigned long end);
 EXPORT_SYMBOL_GPL(__local_flush_icache_user_range);
 
@@ -47,7 +61,10 @@ void (*__flush_kernel_vmap_range)(unsigned long vaddr, int size);
 EXPORT_SYMBOL_GPL(__flush_kernel_vmap_range);
 
 /* MIPS specific cache operations */
+<<<<<<< HEAD
 void (*flush_cache_sigtramp)(unsigned long addr);
+=======
+>>>>>>> upstream/android-13
 void (*local_flush_data_cache_page)(void * addr);
 void (*flush_data_cache_page)(unsigned long addr);
 void (*flush_icache_all)(void);
@@ -63,8 +80,11 @@ void (*_dma_cache_wback_inv)(unsigned long start, unsigned long size);
 void (*_dma_cache_wback)(unsigned long start, unsigned long size);
 void (*_dma_cache_inv)(unsigned long start, unsigned long size);
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(_dma_cache_wback_inv);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_DMA_NONCOHERENT */
 
 /*
@@ -76,7 +96,11 @@ SYSCALL_DEFINE3(cacheflush, unsigned long, addr, unsigned long, bytes,
 {
 	if (bytes == 0)
 		return 0;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, (void __user *) addr, bytes))
+=======
+	if (!access_ok((void __user *) addr, bytes))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	__flush_icache_user_range(addr, addr + bytes);
@@ -107,7 +131,11 @@ void __flush_dcache_page(struct page *page)
 	flush_data_cache_page(addr);
 
 	if (PageHighMem(page))
+<<<<<<< HEAD
 		__kunmap_atomic((void *)addr);
+=======
+		kunmap_atomic((void *)addr);
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL(__flush_dcache_page);
@@ -150,7 +178,11 @@ void __update_cache(unsigned long address, pte_t pte)
 			flush_data_cache_page(addr);
 
 		if (PageHighMem(page))
+<<<<<<< HEAD
 			__kunmap_atomic((void *)addr);
+=======
+			kunmap_atomic((void *)addr);
+>>>>>>> upstream/android-13
 
 		ClearPageDcacheDirty(page);
 	}
@@ -159,6 +191,7 @@ void __update_cache(unsigned long address, pte_t pte)
 unsigned long _page_cachable_default;
 EXPORT_SYMBOL(_page_cachable_default);
 
+<<<<<<< HEAD
 static inline void setup_protection_map(void)
 {
 	if (cpu_has_rixi) {
@@ -200,6 +233,34 @@ static inline void setup_protection_map(void)
 	}
 }
 
+=======
+#define PM(p)	__pgprot(_page_cachable_default | (p))
+
+static inline void setup_protection_map(void)
+{
+	protection_map[0]  = PM(_PAGE_PRESENT | _PAGE_NO_EXEC | _PAGE_NO_READ);
+	protection_map[1]  = PM(_PAGE_PRESENT | _PAGE_NO_EXEC);
+	protection_map[2]  = PM(_PAGE_PRESENT | _PAGE_NO_EXEC | _PAGE_NO_READ);
+	protection_map[3]  = PM(_PAGE_PRESENT | _PAGE_NO_EXEC);
+	protection_map[4]  = PM(_PAGE_PRESENT);
+	protection_map[5]  = PM(_PAGE_PRESENT);
+	protection_map[6]  = PM(_PAGE_PRESENT);
+	protection_map[7]  = PM(_PAGE_PRESENT);
+
+	protection_map[8]  = PM(_PAGE_PRESENT | _PAGE_NO_EXEC | _PAGE_NO_READ);
+	protection_map[9]  = PM(_PAGE_PRESENT | _PAGE_NO_EXEC);
+	protection_map[10] = PM(_PAGE_PRESENT | _PAGE_NO_EXEC | _PAGE_WRITE |
+				_PAGE_NO_READ);
+	protection_map[11] = PM(_PAGE_PRESENT | _PAGE_NO_EXEC | _PAGE_WRITE);
+	protection_map[12] = PM(_PAGE_PRESENT);
+	protection_map[13] = PM(_PAGE_PRESENT);
+	protection_map[14] = PM(_PAGE_PRESENT | _PAGE_WRITE);
+	protection_map[15] = PM(_PAGE_PRESENT | _PAGE_WRITE);
+}
+
+#undef PM
+
+>>>>>>> upstream/android-13
 void cpu_cache_init(void)
 {
 	if (cpu_has_3k_cache) {
@@ -207,21 +268,27 @@ void cpu_cache_init(void)
 
 		r3k_cache_init();
 	}
+<<<<<<< HEAD
 	if (cpu_has_6k_cache) {
 		extern void __weak r6k_cache_init(void);
 
 		r6k_cache_init();
 	}
+=======
+>>>>>>> upstream/android-13
 	if (cpu_has_4k_cache) {
 		extern void __weak r4k_cache_init(void);
 
 		r4k_cache_init();
 	}
+<<<<<<< HEAD
 	if (cpu_has_8k_cache) {
 		extern void __weak r8k_cache_init(void);
 
 		r8k_cache_init();
 	}
+=======
+>>>>>>> upstream/android-13
 	if (cpu_has_tx39_cache) {
 		extern void __weak tx39_cache_init(void);
 
@@ -236,6 +303,7 @@ void cpu_cache_init(void)
 
 	setup_protection_map();
 }
+<<<<<<< HEAD
 
 int __weak __uncached_access(struct file *file, unsigned long addr)
 {
@@ -244,3 +312,5 @@ int __weak __uncached_access(struct file *file, unsigned long addr)
 
 	return addr >= __pa(high_memory);
 }
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -62,6 +63,14 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2015-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_rx_h__
 #define __iwl_fw_api_rx_h__
 
@@ -198,7 +207,12 @@ enum iwl_rx_phy_flags {
  * @RX_MPDU_RES_STATUS_SEC_TKIP_ENC: this frame is encrypted using TKIP
  * @RX_MPDU_RES_STATUS_SEC_EXT_ENC: this frame is encrypted using extension
  *	algorithm
+<<<<<<< HEAD
  * @RX_MPDU_RES_STATUS_SEC_CCM_CMAC_ENC: this frame is encrypted using CCM_CMAC
+=======
+ * @RX_MPDU_RES_STATUS_SEC_CMAC_GMAC_ENC: this frame is protected using
+ *	CMAC or GMAC
+>>>>>>> upstream/android-13
  * @RX_MPDU_RES_STATUS_SEC_ENC_ERR: this frame couldn't be decrypted
  * @RX_MPDU_RES_STATUS_SEC_ENC_MSK: bitmask of the encryption algorithm
  * @RX_MPDU_RES_STATUS_DEC_DONE: this frame has been successfully decrypted
@@ -209,8 +223,11 @@ enum iwl_rx_phy_flags {
  * @RX_MPDU_RES_STATUS_CSUM_OK: checksum found no errors
  * @RX_MPDU_RES_STATUS_STA_ID_MSK: station ID mask
  * @RX_MDPU_RES_STATUS_STA_ID_SHIFT: station ID bit shift
+<<<<<<< HEAD
  * @RX_MPDU_RES_STATUS_FILTERING_MSK: filter status
  * @RX_MPDU_RES_STATUS2_FILTERING_MSK: filter status 2
+=======
+>>>>>>> upstream/android-13
  */
 enum iwl_mvm_rx_status {
 	RX_MPDU_RES_STATUS_CRC_OK			= BIT(0),
@@ -227,7 +244,11 @@ enum iwl_mvm_rx_status {
 	RX_MPDU_RES_STATUS_SEC_CCM_ENC			= (2 << 8),
 	RX_MPDU_RES_STATUS_SEC_TKIP_ENC			= (3 << 8),
 	RX_MPDU_RES_STATUS_SEC_EXT_ENC			= (4 << 8),
+<<<<<<< HEAD
 	RX_MPDU_RES_STATUS_SEC_CCM_CMAC_ENC		= (6 << 8),
+=======
+	RX_MPDU_RES_STATUS_SEC_CMAC_GMAC_ENC		= (6 << 8),
+>>>>>>> upstream/android-13
 	RX_MPDU_RES_STATUS_SEC_ENC_ERR			= (7 << 8),
 	RX_MPDU_RES_STATUS_SEC_ENC_MSK			= (7 << 8),
 	RX_MPDU_RES_STATUS_DEC_DONE			= BIT(11),
@@ -238,8 +259,11 @@ enum iwl_mvm_rx_status {
 	RX_MPDU_RES_STATUS_CSUM_OK			= BIT(17),
 	RX_MDPU_RES_STATUS_STA_ID_SHIFT			= 24,
 	RX_MPDU_RES_STATUS_STA_ID_MSK			= 0x1f << RX_MDPU_RES_STATUS_STA_ID_SHIFT,
+<<<<<<< HEAD
 	RX_MPDU_RES_STATUS_FILTERING_MSK		= (0xc00000),
 	RX_MPDU_RES_STATUS2_FILTERING_MSK		= (0xc0000000),
+=======
+>>>>>>> upstream/android-13
 };
 
 /* 9000 series API */
@@ -264,6 +288,14 @@ enum iwl_rx_mpdu_amsdu_info {
 	IWL_RX_MPDU_AMSDU_LAST_SUBFRAME		= 0x80,
 };
 
+<<<<<<< HEAD
+=======
+#define RX_MPDU_BAND_POS 6
+#define RX_MPDU_BAND_MASK 0xC0
+#define BAND_IN_RX_STATUS(_val) \
+	(((_val) & RX_MPDU_BAND_MASK) >> RX_MPDU_BAND_POS)
+
+>>>>>>> upstream/android-13
 enum iwl_rx_l3_proto_values {
 	IWL_RX_L3_TYPE_NONE,
 	IWL_RX_L3_TYPE_IPV4,
@@ -296,6 +328,11 @@ enum iwl_rx_mpdu_status {
 	IWL_RX_MPDU_STATUS_ICV_OK		= BIT(5),
 	IWL_RX_MPDU_STATUS_MIC_OK		= BIT(6),
 	IWL_RX_MPDU_RES_STATUS_TTAK_OK		= BIT(7),
+<<<<<<< HEAD
+=======
+	/* overlayed since IWL_UCODE_TLV_API_DEPRECATE_TTAK */
+	IWL_RX_MPDU_STATUS_REPLAY_ERROR		= BIT(7),
+>>>>>>> upstream/android-13
 	IWL_RX_MPDU_STATUS_SEC_MASK		= 0x7 << 8,
 	IWL_RX_MPDU_STATUS_SEC_UNKNOWN		= IWL_RX_MPDU_STATUS_SEC_MASK,
 	IWL_RX_MPDU_STATUS_SEC_NONE		= 0x0 << 8,
@@ -309,6 +346,7 @@ enum iwl_rx_mpdu_status {
 	IWL_RX_MPDU_STATUS_EXT_IV_MATCH		= BIT(13),
 	IWL_RX_MPDU_STATUS_KEY_ID_MATCH		= BIT(14),
 	IWL_RX_MPDU_STATUS_ROBUST_MNG_FRAME	= BIT(15),
+<<<<<<< HEAD
 };
 
 enum iwl_rx_mpdu_hash_filter {
@@ -320,6 +358,13 @@ enum iwl_rx_mpdu_sta_id_flags {
 	IWL_RX_MPDU_SIF_STA_ID_MASK		= 0x1f,
 	IWL_RX_MPDU_SIF_RRF_ABORT		= 0x20,
 	IWL_RX_MPDU_SIF_FILTER_STATUS_MASK	= 0xc0,
+=======
+
+	IWL_RX_MPDU_STATUS_KEY			= 0x3f0000,
+	IWL_RX_MPDU_STATUS_DUPLICATE		= BIT(22),
+
+	IWL_RX_MPDU_STATUS_STA_ID		= 0x1f000000,
+>>>>>>> upstream/android-13
 };
 
 #define IWL_RX_REORDER_DATA_INVALID_BAID 0x7f
@@ -337,6 +382,11 @@ enum iwl_rx_mpdu_phy_info {
 	IWL_RX_MPDU_PHY_AMPDU		= BIT(5),
 	IWL_RX_MPDU_PHY_AMPDU_TOGGLE	= BIT(6),
 	IWL_RX_MPDU_PHY_SHORT_PREAMBLE	= BIT(7),
+<<<<<<< HEAD
+=======
+	/* short preamble is only for CCK, for non-CCK overridden by this */
+	IWL_RX_MPDU_PHY_NCCK_ADDTL_NTFY	= BIT(7),
+>>>>>>> upstream/android-13
 	IWL_RX_MPDU_PHY_TSF_OVERLOAD	= BIT(8),
 };
 
@@ -345,6 +395,7 @@ enum iwl_rx_mpdu_mac_info {
 	IWL_RX_MPDU_PHY_PHY_INDEX_MASK		= 0xf0,
 };
 
+<<<<<<< HEAD
 /*
  * enum iwl_rx_he_phy - HE PHY data
  */
@@ -374,6 +425,100 @@ enum iwl_rx_he_phy {
 	IWL_RX_HE_PHY_SIGB_DCM			= BIT_ULL(32 + 21),
 	IWL_RX_HE_PHY_PREAMBLE_PUNC_TYPE_MASK	= 0xc0000000000000ULL,
 	/* 8 bits reserved */
+=======
+/* TSF overload low dword */
+enum iwl_rx_phy_data0 {
+	/* info type: HE any */
+	IWL_RX_PHY_DATA0_HE_BEAM_CHNG				= 0x00000001,
+	IWL_RX_PHY_DATA0_HE_UPLINK				= 0x00000002,
+	IWL_RX_PHY_DATA0_HE_BSS_COLOR_MASK			= 0x000000fc,
+	IWL_RX_PHY_DATA0_HE_SPATIAL_REUSE_MASK			= 0x00000f00,
+	/* 1 bit reserved */
+	IWL_RX_PHY_DATA0_HE_TXOP_DUR_MASK			= 0x000fe000,
+	IWL_RX_PHY_DATA0_HE_LDPC_EXT_SYM			= 0x00100000,
+	IWL_RX_PHY_DATA0_HE_PRE_FEC_PAD_MASK			= 0x00600000,
+	IWL_RX_PHY_DATA0_HE_PE_DISAMBIG				= 0x00800000,
+	IWL_RX_PHY_DATA0_HE_DOPPLER				= 0x01000000,
+	/* 6 bits reserved */
+	IWL_RX_PHY_DATA0_HE_DELIM_EOF				= 0x80000000,
+};
+
+enum iwl_rx_phy_info_type {
+	IWL_RX_PHY_INFO_TYPE_NONE				= 0,
+	IWL_RX_PHY_INFO_TYPE_CCK				= 1,
+	IWL_RX_PHY_INFO_TYPE_OFDM_LGCY				= 2,
+	IWL_RX_PHY_INFO_TYPE_HT					= 3,
+	IWL_RX_PHY_INFO_TYPE_VHT_SU				= 4,
+	IWL_RX_PHY_INFO_TYPE_VHT_MU				= 5,
+	IWL_RX_PHY_INFO_TYPE_HE_SU				= 6,
+	IWL_RX_PHY_INFO_TYPE_HE_MU				= 7,
+	IWL_RX_PHY_INFO_TYPE_HE_TB				= 8,
+	IWL_RX_PHY_INFO_TYPE_HE_MU_EXT				= 9,
+	IWL_RX_PHY_INFO_TYPE_HE_TB_EXT				= 10,
+};
+
+/* TSF overload high dword */
+enum iwl_rx_phy_data1 {
+	/*
+	 * check this first - if TSF overload is set,
+	 * see &enum iwl_rx_phy_info_type
+	 */
+	IWL_RX_PHY_DATA1_INFO_TYPE_MASK				= 0xf0000000,
+
+	/* info type: HT/VHT/HE any */
+	IWL_RX_PHY_DATA1_LSIG_LEN_MASK				= 0x0fff0000,
+
+	/* info type: HE MU/MU-EXT */
+	IWL_RX_PHY_DATA1_HE_MU_SIGB_COMPRESSION			= 0x00000001,
+	IWL_RX_PHY_DATA1_HE_MU_SIBG_SYM_OR_USER_NUM_MASK	= 0x0000001e,
+
+	/* info type: HE any */
+	IWL_RX_PHY_DATA1_HE_LTF_NUM_MASK			= 0x000000e0,
+	IWL_RX_PHY_DATA1_HE_RU_ALLOC_SEC80			= 0x00000100,
+	/* trigger encoded */
+	IWL_RX_PHY_DATA1_HE_RU_ALLOC_MASK			= 0x0000fe00,
+
+	/* info type: HE TB/TX-EXT */
+	IWL_RX_PHY_DATA1_HE_TB_PILOT_TYPE			= 0x00000001,
+	IWL_RX_PHY_DATA1_HE_TB_LOW_SS_MASK			= 0x0000000e,
+};
+
+/* goes into Metadata DW 7 */
+enum iwl_rx_phy_data2 {
+	/* info type: HE MU-EXT */
+	/* the a1/a2/... is what the PHY/firmware calls the values */
+	IWL_RX_PHY_DATA2_HE_MU_EXT_CH1_RU0		= 0x000000ff, /* a1 */
+	IWL_RX_PHY_DATA2_HE_MU_EXT_CH1_RU2		= 0x0000ff00, /* a2 */
+	IWL_RX_PHY_DATA2_HE_MU_EXT_CH2_RU0		= 0x00ff0000, /* b1 */
+	IWL_RX_PHY_DATA2_HE_MU_EXT_CH2_RU2		= 0xff000000, /* b2 */
+
+	/* info type: HE TB-EXT */
+	IWL_RX_PHY_DATA2_HE_TB_EXT_SPTL_REUSE1		= 0x0000000f,
+	IWL_RX_PHY_DATA2_HE_TB_EXT_SPTL_REUSE2		= 0x000000f0,
+	IWL_RX_PHY_DATA2_HE_TB_EXT_SPTL_REUSE3		= 0x00000f00,
+	IWL_RX_PHY_DATA2_HE_TB_EXT_SPTL_REUSE4		= 0x0000f000,
+};
+
+/* goes into Metadata DW 8 */
+enum iwl_rx_phy_data3 {
+	/* info type: HE MU-EXT */
+	IWL_RX_PHY_DATA3_HE_MU_EXT_CH1_RU1		= 0x000000ff, /* c1 */
+	IWL_RX_PHY_DATA3_HE_MU_EXT_CH1_RU3		= 0x0000ff00, /* c2 */
+	IWL_RX_PHY_DATA3_HE_MU_EXT_CH2_RU1		= 0x00ff0000, /* d1 */
+	IWL_RX_PHY_DATA3_HE_MU_EXT_CH2_RU3		= 0xff000000, /* d2 */
+};
+
+/* goes into Metadata DW 4 high 16 bits */
+enum iwl_rx_phy_data4 {
+	/* info type: HE MU-EXT */
+	IWL_RX_PHY_DATA4_HE_MU_EXT_CH1_CTR_RU			= 0x0001,
+	IWL_RX_PHY_DATA4_HE_MU_EXT_CH2_CTR_RU			= 0x0002,
+	IWL_RX_PHY_DATA4_HE_MU_EXT_CH1_CRC_OK			= 0x0004,
+	IWL_RX_PHY_DATA4_HE_MU_EXT_CH2_CRC_OK			= 0x0008,
+	IWL_RX_PHY_DATA4_HE_MU_EXT_SIGB_MCS_MASK		= 0x00f0,
+	IWL_RX_PHY_DATA4_HE_MU_EXT_SIGB_DCM			= 0x0100,
+	IWL_RX_PHY_DATA4_HE_MU_EXT_PREAMBLE_PUNC_TYPE_MASK	= 0x0600,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -381,6 +526,7 @@ enum iwl_rx_he_phy {
  */
 struct iwl_rx_mpdu_desc_v1 {
 	/* DW7 - carries rss_hash only when rpa_en == 1 */
+<<<<<<< HEAD
 	/**
 	 * @rss_hash: RSS hash value
 	 */
@@ -390,6 +536,33 @@ struct iwl_rx_mpdu_desc_v1 {
 	 * @filter_match: filter match value
 	 */
 	__le32 filter_match;
+=======
+	union {
+		/**
+		 * @rss_hash: RSS hash value
+		 */
+		__le32 rss_hash;
+
+		/**
+		 * @phy_data2: depends on info type (see @phy_data1)
+		 */
+		__le32 phy_data2;
+	};
+
+	/* DW8 - carries filter_match only when rpa_en == 1 */
+	union {
+		/**
+		 * @filter_match: filter match value
+		 */
+		__le32 filter_match;
+
+		/**
+		 * @phy_data3: depends on info type (see @phy_data1)
+		 */
+		__le32 phy_data3;
+	};
+
+>>>>>>> upstream/android-13
 	/* DW9 */
 	/**
 	 * @rate_n_flags: RX rate/flags encoding
@@ -425,12 +598,28 @@ struct iwl_rx_mpdu_desc_v1 {
 		 * %IWL_RX_MPDU_PHY_TSF_OVERLOAD isn't set
 		 */
 		__le64 tsf_on_air_rise;
+<<<<<<< HEAD
 		/**
 		 * @he_phy_data:
 		 * HE PHY data, see &enum iwl_rx_he_phy, valid
 		 * only if %IWL_RX_MPDU_PHY_TSF_OVERLOAD is set
 		 */
 		__le64 he_phy_data;
+=======
+
+		struct {
+			/**
+			 * @phy_data0: depends on info_type, see @phy_data1
+			 */
+			__le32 phy_data0;
+			/**
+			 * @phy_data1: valid only if
+			 * %IWL_RX_MPDU_PHY_TSF_OVERLOAD is set,
+			 * see &enum iwl_rx_phy_data1.
+			 */
+			__le32 phy_data1;
+		};
+>>>>>>> upstream/android-13
 	};
 } __packed;
 
@@ -439,6 +628,7 @@ struct iwl_rx_mpdu_desc_v1 {
  */
 struct iwl_rx_mpdu_desc_v3 {
 	/* DW7 - carries filter_match only when rpa_en == 1 */
+<<<<<<< HEAD
 	/**
 	 * @filter_match: filter match value
 	 */
@@ -448,6 +638,32 @@ struct iwl_rx_mpdu_desc_v3 {
 	 * @rss_hash: RSS hash value
 	 */
 	__le32 rss_hash;
+=======
+	union {
+		/**
+		 * @filter_match: filter match value
+		 */
+		__le32 filter_match;
+
+		/**
+		 * @phy_data3: depends on info type (see @phy_data1)
+		 */
+		__le32 phy_data3;
+	};
+
+	/* DW8 - carries rss_hash only when rpa_en == 1 */
+	union {
+		/**
+		 * @rss_hash: RSS hash value
+		 */
+		__le32 rss_hash;
+
+		/**
+		 * @phy_data2: depends on info type (see @phy_data1)
+		 */
+		__le32 phy_data2;
+	};
+>>>>>>> upstream/android-13
 	/* DW9 */
 	/**
 	 * @partial_hash: 31:0 ip/tcp header hash
@@ -458,7 +674,15 @@ struct iwl_rx_mpdu_desc_v3 {
 	/**
 	 * @raw_xsum: raw xsum value
 	 */
+<<<<<<< HEAD
 	__le32 raw_xsum;
+=======
+	__be16 raw_xsum;
+	/**
+	 * @reserved_xsum: reserved high bits in the raw checksum
+	 */
+	__le16 reserved_xsum;
+>>>>>>> upstream/android-13
 	/* DW11 */
 	/**
 	 * @rate_n_flags: RX rate/flags encoding
@@ -494,12 +718,28 @@ struct iwl_rx_mpdu_desc_v3 {
 		 * %IWL_RX_MPDU_PHY_TSF_OVERLOAD isn't set
 		 */
 		__le64 tsf_on_air_rise;
+<<<<<<< HEAD
 		/**
 		 * @he_phy_data:
 		 * HE PHY data, see &enum iwl_rx_he_phy, valid
 		 * only if %IWL_RX_MPDU_PHY_TSF_OVERLOAD is set
 		 */
 		__le64 he_phy_data;
+=======
+
+		struct {
+			/**
+			 * @phy_data0: depends on info_type, see @phy_data1
+			 */
+			__le32 phy_data0;
+			/**
+			 * @phy_data1: valid only if
+			 * %IWL_RX_MPDU_PHY_TSF_OVERLOAD is set,
+			 * see &enum iwl_rx_phy_data1.
+			 */
+			__le32 phy_data1;
+		};
+>>>>>>> upstream/android-13
 	};
 	/* DW16 & DW17 */
 	/**
@@ -543,14 +783,30 @@ struct iwl_rx_mpdu_desc {
 	 * @raw_csum: raw checksum (alledgedly unreliable)
 	 */
 	__le16 raw_csum;
+<<<<<<< HEAD
 	/**
 	 * @l3l4_flags: &enum iwl_rx_l3l4_flags
 	 */
 	__le16 l3l4_flags;
+=======
+
+	union {
+		/**
+		 * @l3l4_flags: &enum iwl_rx_l3l4_flags
+		 */
+		__le16 l3l4_flags;
+
+		/**
+		 * @phy_data4: depends on info type, see phy_data1
+		 */
+		__le16 phy_data4;
+	};
+>>>>>>> upstream/android-13
 	/* DW5 */
 	/**
 	 * @status: &enum iwl_rx_mpdu_status
 	 */
+<<<<<<< HEAD
 	__le16 status;
 	/**
 	 * @hash_filter: hash filter value
@@ -560,6 +816,10 @@ struct iwl_rx_mpdu_desc {
 	 * @sta_id_flags: &enum iwl_rx_mpdu_sta_id_flags
 	 */
 	u8 sta_id_flags;
+=======
+	__le32 status;
+
+>>>>>>> upstream/android-13
 	/* DW6 */
 	/**
 	 * @reorder_data: &enum iwl_rx_mpdu_reorder_data
@@ -574,6 +834,7 @@ struct iwl_rx_mpdu_desc {
 
 #define IWL_RX_DESC_SIZE_V1 offsetofend(struct iwl_rx_mpdu_desc, v1)
 
+<<<<<<< HEAD
 #define IWL_CD_STTS_OPTIMIZED_POS	0
 #define IWL_CD_STTS_OPTIMIZED_MSK	0x01
 #define IWL_CD_STTS_TRANSFER_STATUS_POS	1
@@ -636,6 +897,59 @@ enum iwl_completion_desc_wifi_status {
 	IWL_CD_STTS_NOT_USED,
 	IWL_CD_STTS_REPLAY_ERR,
 };
+=======
+#define RX_NO_DATA_CHAIN_A_POS		0
+#define RX_NO_DATA_CHAIN_A_MSK		(0xff << RX_NO_DATA_CHAIN_A_POS)
+#define RX_NO_DATA_CHAIN_B_POS		8
+#define RX_NO_DATA_CHAIN_B_MSK		(0xff << RX_NO_DATA_CHAIN_B_POS)
+#define RX_NO_DATA_CHANNEL_POS		16
+#define RX_NO_DATA_CHANNEL_MSK		(0xff << RX_NO_DATA_CHANNEL_POS)
+
+#define RX_NO_DATA_INFO_TYPE_POS	0
+#define RX_NO_DATA_INFO_TYPE_MSK	(0xff << RX_NO_DATA_INFO_TYPE_POS)
+#define RX_NO_DATA_INFO_TYPE_NONE	0
+#define RX_NO_DATA_INFO_TYPE_RX_ERR	1
+#define RX_NO_DATA_INFO_TYPE_NDP	2
+#define RX_NO_DATA_INFO_TYPE_MU_UNMATCHED	3
+#define RX_NO_DATA_INFO_TYPE_HE_TB_UNMATCHED	4
+
+#define RX_NO_DATA_INFO_ERR_POS		8
+#define RX_NO_DATA_INFO_ERR_MSK		(0xff << RX_NO_DATA_INFO_ERR_POS)
+#define RX_NO_DATA_INFO_ERR_NONE	0
+#define RX_NO_DATA_INFO_ERR_BAD_PLCP	1
+#define RX_NO_DATA_INFO_ERR_UNSUPPORTED_RATE	2
+#define RX_NO_DATA_INFO_ERR_NO_DELIM		3
+#define RX_NO_DATA_INFO_ERR_BAD_MAC_HDR	4
+
+#define RX_NO_DATA_FRAME_TIME_POS	0
+#define RX_NO_DATA_FRAME_TIME_MSK	(0xfffff << RX_NO_DATA_FRAME_TIME_POS)
+
+#define RX_NO_DATA_RX_VEC0_HE_NSTS_MSK	0x03800000
+#define RX_NO_DATA_RX_VEC0_VHT_NSTS_MSK	0x38000000
+
+/**
+ * struct iwl_rx_no_data - RX no data descriptor
+ * @info: 7:0 frame type, 15:8 RX error type
+ * @rssi: 7:0 energy chain-A,
+ *	15:8 chain-B, measured at FINA time (FINA_ENERGY), 16:23 channel
+ * @on_air_rise_time: GP2 during on air rise
+ * @fr_time: frame time
+ * @rate: rate/mcs of frame
+ * @phy_info: &enum iwl_rx_phy_data0 and &enum iwl_rx_phy_info_type
+ * @rx_vec: DW-12:9 raw RX vectors from DSP according to modulation type.
+ *	for VHT: OFDM_RX_VECTOR_SIGA1_OUT, OFDM_RX_VECTOR_SIGA2_OUT
+ *	for HE: OFDM_RX_VECTOR_HE_SIGA1_OUT, OFDM_RX_VECTOR_HE_SIGA2_OUT
+ */
+struct iwl_rx_no_data {
+	__le32 info;
+	__le32 rssi;
+	__le32 on_air_rise_time;
+	__le32 fr_time;
+	__le32 rate;
+	__le32 phy_info[2];
+	__le32 rx_vec[2];
+} __packed; /* RX_NO_DATA_NTFY_API_S_VER_1 */
+>>>>>>> upstream/android-13
 
 struct iwl_frame_release {
 	u8 baid;
@@ -643,6 +957,41 @@ struct iwl_frame_release {
 	__le16 nssn;
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * enum iwl_bar_frame_release_sta_tid - STA/TID information for BAR release
+ * @IWL_BAR_FRAME_RELEASE_TID_MASK: TID mask
+ * @IWL_BAR_FRAME_RELEASE_STA_MASK: STA mask
+ */
+enum iwl_bar_frame_release_sta_tid {
+	IWL_BAR_FRAME_RELEASE_TID_MASK = 0x0000000f,
+	IWL_BAR_FRAME_RELEASE_STA_MASK = 0x000001f0,
+};
+
+/**
+ * enum iwl_bar_frame_release_ba_info - BA information for BAR release
+ * @IWL_BAR_FRAME_RELEASE_NSSN_MASK: NSSN mask
+ * @IWL_BAR_FRAME_RELEASE_SN_MASK: SN mask (ignored by driver)
+ * @IWL_BAR_FRAME_RELEASE_BAID_MASK: BAID mask
+ */
+enum iwl_bar_frame_release_ba_info {
+	IWL_BAR_FRAME_RELEASE_NSSN_MASK	= 0x00000fff,
+	IWL_BAR_FRAME_RELEASE_SN_MASK	= 0x00fff000,
+	IWL_BAR_FRAME_RELEASE_BAID_MASK	= 0x3f000000,
+};
+
+/**
+ * struct iwl_bar_frame_release - frame release from BAR info
+ * @sta_tid: STA & TID information, see &enum iwl_bar_frame_release_sta_tid.
+ * @ba_info: BA information, see &enum iwl_bar_frame_release_ba_info.
+ */
+struct iwl_bar_frame_release {
+	__le32 sta_tid;
+	__le32 ba_info;
+} __packed; /* RX_BAR_TO_FRAME_RELEASE_API_S_VER_1 */
+
+>>>>>>> upstream/android-13
 enum iwl_rss_hash_func_en {
 	IWL_RSS_HASH_TYPE_IPV4_TCP,
 	IWL_RSS_HASH_TYPE_IPV4_UDP,
@@ -673,7 +1022,10 @@ struct iwl_rss_config_cmd {
 	u8 indirection_table[IWL_RSS_INDIRECTION_TABLE_SIZE];
 } __packed; /* RSS_CONFIG_CMD_API_S_VER_1 */
 
+<<<<<<< HEAD
 #define IWL_MULTI_QUEUE_SYNC_MSG_MAX_SIZE 128
+=======
+>>>>>>> upstream/android-13
 #define IWL_MULTI_QUEUE_SYNC_SENDER_POS 0
 #define IWL_MULTI_QUEUE_SYNC_SENDER_MSK 0xf
 
@@ -705,6 +1057,7 @@ struct iwl_rxq_sync_notification {
 } __packed; /* MULTI_QUEUE_DRV_SYNC_HDR_CMD_API_S_VER_1 */
 
 /**
+<<<<<<< HEAD
  * enum iwl_mvm_rxq_notif_type - Internal message identifier
  *
  * @IWL_MVM_RXQ_EMPTY: empty sync notification
@@ -733,6 +1086,8 @@ struct iwl_mvm_internal_rxq_notif {
 } __packed;
 
 /**
+=======
+>>>>>>> upstream/android-13
  * enum iwl_mvm_pm_event - type of station PM event
  * @IWL_MVM_PM_EVENT_AWAKE: station woke up
  * @IWL_MVM_PM_EVENT_ASLEEP: station went to sleep

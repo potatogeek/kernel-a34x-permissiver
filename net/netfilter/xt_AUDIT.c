@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Creates audit record for dropped/accepted packets
  *
  * (C) 2010-2011 Thomas Graf <tgraf@redhat.com>
  * (C) 2010-2011 Red Hat, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -120,7 +127,11 @@ static int audit_tg_check(const struct xt_tgchk_param *par)
 	const struct xt_audit_info *info = par->targinfo;
 
 	if (info->type > XT_AUDIT_TYPE_MAX) {
+<<<<<<< HEAD
 		pr_info_ratelimited("Audit type out of range (valid range: 0..%hhu)\n",
+=======
+		pr_info_ratelimited("Audit type out of range (valid range: 0..%u)\n",
+>>>>>>> upstream/android-13
 				    XT_AUDIT_TYPE_MAX);
 		return -ERANGE;
 	}

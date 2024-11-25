@@ -34,12 +34,19 @@
 #include <linux/kdebug.h>
 #include <linux/export.h>
 #include <linux/start_kernel.h>
+<<<<<<< HEAD
+=======
+#include <uapi/linux/mount.h>
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/oplib.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 #include <asm/vaddrs.h>
 #include <asm/mbus.h>
@@ -266,7 +273,10 @@ static __init void leon_patch(void)
 }
 
 struct tt_entry *sparc_ttable;
+<<<<<<< HEAD
 static struct pt_regs fake_swapper_regs;
+=======
+>>>>>>> upstream/android-13
 
 /* Called from head_32.S - before we have setup anything
  * in the kernel. Be very careful with what you do here.
@@ -310,6 +320,7 @@ void __init setup_arch(char **cmdline_p)
 
 	register_console(&prom_early_console);
 
+<<<<<<< HEAD
 	printk("ARCH: ");
 	switch(sparc_cpu_model) {
 	case sun4m:
@@ -336,6 +347,29 @@ void __init setup_arch(char **cmdline_p)
 	conswitchp = &dummy_con;
 #endif
 
+=======
+	switch(sparc_cpu_model) {
+	case sun4m:
+		pr_info("ARCH: SUN4M\n");
+		break;
+	case sun4d:
+		pr_info("ARCH: SUN4D\n");
+		break;
+	case sun4e:
+		pr_info("ARCH: SUN4E\n");
+		break;
+	case sun4u:
+		pr_info("ARCH: SUN4U\n");
+		break;
+	case sparc_leon:
+		pr_info("ARCH: LEON\n");
+		break;
+	default:
+		pr_info("ARCH: UNKNOWN!\n");
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	idprom_init();
 	load_mmu();
 
@@ -358,8 +392,11 @@ void __init setup_arch(char **cmdline_p)
 	ROOT_DEV = old_decode_dev(root_dev);
 #ifdef CONFIG_BLK_DEV_RAM
 	rd_image_start = ram_flags & RAMDISK_IMAGE_START_MASK;
+<<<<<<< HEAD
 	rd_prompt = ((ram_flags & RAMDISK_PROMPT_FLAG) != 0);
 	rd_doload = ((ram_flags & RAMDISK_LOAD_FLAG) != 0);	
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	prom_setsync(prom_sync_me);
@@ -370,8 +407,11 @@ void __init setup_arch(char **cmdline_p)
 		(*(linux_dbvec->teach_debugger))();
 	}
 
+<<<<<<< HEAD
 	init_task.thread.kregs = &fake_swapper_regs;
 
+=======
+>>>>>>> upstream/android-13
 	/* Run-time patch instructions to match the cpu model */
 	per_cpu_patch();
 

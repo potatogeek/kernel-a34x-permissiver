@@ -49,8 +49,11 @@
 
 	gpio_keys {
 		compatible = "gpio-keys";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 
 		hook {
 			label = "HOOK";
@@ -84,8 +87,13 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &nand {
 	nandcs@1 {
+=======
+&nand_controller {
+	nand@1 {
+>>>>>>> upstream/android-13
 		compatible = "brcm,nandcs";
 		reg = <0>;
 		nand-on-flash-bbt;

@@ -10,7 +10,11 @@
 
  *  usb-skeleton.c by Greg Kroah-Hartman  <greg@kroah.com>
  *  brlvger.c by Stephane Dalton  <sdalton@videotron.ca>
+<<<<<<< HEAD
  *           and St�hane Doyon   <s.doyon@videotron.ca>
+=======
+ *           and Stephane Doyon   <s.doyon@videotron.ca>
+>>>>>>> upstream/android-13
  *
  *  Released under the GPLv2.
  */
@@ -63,11 +67,15 @@ MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 /* Module parameters */
 static DEFINE_MUTEX(iowarrior_mutex);
 
 static struct usb_driver iowarrior_driver;
 static DEFINE_MUTEX(iowarrior_open_disc_lock);
+=======
+static struct usb_driver iowarrior_driver;
+>>>>>>> upstream/android-13
 
 /*--------------*/
 /*     data     */
@@ -103,10 +111,13 @@ struct iowarrior {
 /*    globals   */
 /*--------------*/
 
+<<<<<<< HEAD
 /*
  *  USB spec identifies 5 second timeouts.
  */
 #define GET_TIMEOUT 5
+=======
+>>>>>>> upstream/android-13
 #define USB_REQ_GET_REPORT  0x01
 //#if 0
 static int usb_get_report(struct usb_device *dev,
@@ -118,7 +129,11 @@ static int usb_get_report(struct usb_device *dev,
 			       USB_DIR_IN | USB_TYPE_CLASS |
 			       USB_RECIP_INTERFACE, (type << 8) + id,
 			       inter->desc.bInterfaceNumber, buf, size,
+<<<<<<< HEAD
 			       GET_TIMEOUT*HZ);
+=======
+			       USB_CTRL_GET_TIMEOUT);
+>>>>>>> upstream/android-13
 }
 //#endif
 
@@ -133,7 +148,11 @@ static int usb_set_report(struct usb_interface *intf, unsigned char type,
 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE,
 			       (type << 8) + id,
 			       intf->cur_altsetting->desc.bInterfaceNumber, buf,
+<<<<<<< HEAD
 			       size, HZ);
+=======
+			       size, 1000);
+>>>>>>> upstream/android-13
 }
 
 /*---------------------*/
@@ -249,7 +268,11 @@ static void iowarrior_write_callback(struct urb *urb)
 	wake_up_interruptible(&dev->write_wait);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	iowarrior_delete
  */
 static inline void iowarrior_delete(struct iowarrior *dev)
@@ -276,7 +299,11 @@ static int read_index(struct iowarrior *dev)
 	return (read_idx == intr_idx ? -1 : read_idx);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *  iowarrior_read
  */
 static ssize_t iowarrior_read(struct file *file, char __user *buffer,
@@ -388,7 +415,10 @@ static ssize_t iowarrior_write(struct file *file,
 		retval = usb_set_report(dev->interface, 2, 0, buf, count);
 		kfree(buf);
 		goto exit;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case USB_DEVICE_ID_CODEMERCS_IOW56:
 	case USB_DEVICE_ID_CODEMERCS_IOW56AM:
 	case USB_DEVICE_ID_CODEMERCS_IOW28:
@@ -458,14 +488,20 @@ static ssize_t iowarrior_write(struct file *file,
 		retval = count;
 		usb_free_urb(int_out_urb);
 		goto exit;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		/* what do we have here ? An unsupported Product-ID ? */
 		dev_err(&dev->interface->dev, "%s - not supported for product=0x%x\n",
 			__func__, dev->product_id);
 		retval = -EFAULT;
 		goto exit;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 error:
 	usb_free_coherent(dev->udev, dev->report_size, buf,
@@ -480,7 +516,11 @@ exit:
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	iowarrior_ioctl
  */
 static long iowarrior_ioctl(struct file *file, unsigned int cmd,
@@ -500,8 +540,11 @@ static long iowarrior_ioctl(struct file *file, unsigned int cmd,
 	if (!buffer)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/* lock this object */
 	mutex_lock(&iowarrior_mutex);
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&dev->mutex);
 
 	/* verify that the device wasn't unplugged */
@@ -595,12 +638,19 @@ static long iowarrior_ioctl(struct file *file, unsigned int cmd,
 error_out:
 	/* unlock the device */
 	mutex_unlock(&dev->mutex);
+<<<<<<< HEAD
 	mutex_unlock(&iowarrior_mutex);
+=======
+>>>>>>> upstream/android-13
 	kfree(buffer);
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	iowarrior_open
  */
 static int iowarrior_open(struct inode *inode, struct file *file)
@@ -610,17 +660,25 @@ static int iowarrior_open(struct inode *inode, struct file *file)
 	int subminor;
 	int retval = 0;
 
+<<<<<<< HEAD
 	mutex_lock(&iowarrior_mutex);
+=======
+>>>>>>> upstream/android-13
 	subminor = iminor(inode);
 
 	interface = usb_find_interface(&iowarrior_driver, subminor);
 	if (!interface) {
+<<<<<<< HEAD
 		mutex_unlock(&iowarrior_mutex);
 		printk(KERN_ERR "%s - error, can't find device for minor %d\n",
+=======
+		pr_err("%s - error, can't find device for minor %d\n",
+>>>>>>> upstream/android-13
 		       __func__, subminor);
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&iowarrior_open_disc_lock);
 	dev = usb_get_intfdata(interface);
 	if (!dev) {
@@ -631,6 +689,13 @@ static int iowarrior_open(struct inode *inode, struct file *file)
 
 	mutex_lock(&dev->mutex);
 	mutex_unlock(&iowarrior_open_disc_lock);
+=======
+	dev = usb_get_intfdata(interface);
+	if (!dev)
+		return -ENODEV;
+
+	mutex_lock(&dev->mutex);
+>>>>>>> upstream/android-13
 
 	/* Only one process can open each device, no sharing. */
 	if (dev->opened) {
@@ -652,11 +717,18 @@ static int iowarrior_open(struct inode *inode, struct file *file)
 
 out:
 	mutex_unlock(&dev->mutex);
+<<<<<<< HEAD
 	mutex_unlock(&iowarrior_mutex);
 	return retval;
 }
 
 /**
+=======
+	return retval;
+}
+
+/*
+>>>>>>> upstream/android-13
  *	iowarrior_release
  */
 static int iowarrior_release(struct inode *inode, struct file *file)
@@ -758,7 +830,11 @@ static struct usb_class_driver iowarrior_class = {
 /*---------------------------------*/
 /*  probe and disconnect functions */
 /*---------------------------------*/
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	iowarrior_probe
  *
  *	Called by the usb core when a new device is connected that it thinks
@@ -856,8 +932,13 @@ static int iowarrior_probe(struct usb_interface *interface,
 			 dev->int_in_endpoint->bInterval);
 	/* create an internal buffer for interrupt data from the device */
 	dev->read_queue =
+<<<<<<< HEAD
 	    kmalloc(((dev->report_size + 1) * MAX_INTERRUPT_BUFFER),
 		    GFP_KERNEL);
+=======
+	    kmalloc_array(dev->report_size + 1, MAX_INTERRUPT_BUFFER,
+			  GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev->read_queue)
 		goto error;
 	/* Get the serial-number of the chip */
@@ -884,7 +965,10 @@ static int iowarrior_probe(struct usb_interface *interface,
 	if (retval) {
 		/* something prevented us from registering this driver */
 		dev_err(&interface->dev, "Not able to get a minor for this device.\n");
+<<<<<<< HEAD
 		usb_set_intfdata(interface, NULL);
+=======
+>>>>>>> upstream/android-13
 		goto error;
 	}
 
@@ -901,13 +985,18 @@ error:
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	iowarrior_disconnect
  *
  *	Called by the usb core when the device is removed from the system.
  */
 static void iowarrior_disconnect(struct usb_interface *interface)
 {
+<<<<<<< HEAD
 	struct iowarrior *dev;
 	int minor;
 
@@ -918,6 +1007,10 @@ static void iowarrior_disconnect(struct usb_interface *interface)
 	minor = dev->minor;
 	mutex_unlock(&iowarrior_open_disc_lock);
 	/* give back our minor - this will call close() locks need to be dropped at this point*/
+=======
+	struct iowarrior *dev = usb_get_intfdata(interface);
+	int minor = dev->minor;
+>>>>>>> upstream/android-13
 
 	usb_deregister_dev(interface, &iowarrior_class);
 

@@ -30,7 +30,11 @@
 };
 
 &ecspi3 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 24 0>;
+=======
+	cs-gpios = <&gpio4 24 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi3>;
 	status = "okay";

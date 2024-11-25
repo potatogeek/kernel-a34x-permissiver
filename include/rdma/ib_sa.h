@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2004 Topspin Communications.  All rights reserved.
  * Copyright (c) 2005 Voltaire, Inc.  All rights reserved.
  * Copyright (c) 2006 Intel Corporation.  All rights reserved.
+<<<<<<< HEAD
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -30,6 +35,8 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef IB_SA_H
@@ -393,6 +400,7 @@ struct ib_sa_mcmember_rec {
 
 #define IB_DEFAULT_SERVICE_LEASE 	0xFFFFFFFF
 
+<<<<<<< HEAD
 struct ib_sa_service_rec {
 	u64		id;
 	union ib_gid	gid;
@@ -407,6 +415,8 @@ struct ib_sa_service_rec {
 	u64		data64[2];
 };
 
+=======
+>>>>>>> upstream/android-13
 #define IB_SA_GUIDINFO_REC_LID		IB_SA_COMP_MASK(0)
 #define IB_SA_GUIDINFO_REC_BLOCK_NUM	IB_SA_COMP_MASK(1)
 #define IB_SA_GUIDINFO_REC_RES1		IB_SA_COMP_MASK(2)
@@ -449,6 +459,7 @@ struct ib_sa_query;
 
 void ib_sa_cancel_query(int id, struct ib_sa_query *query);
 
+<<<<<<< HEAD
 int ib_sa_path_rec_get(struct ib_sa_client *client,
 		       struct ib_device *device, u8 port_num,
 		       struct sa_path_rec *rec,
@@ -471,6 +482,15 @@ int ib_sa_service_rec_query(struct ib_sa_client *client,
 					  void *context),
 			 void *context,
 			 struct ib_sa_query **sa_query);
+=======
+int ib_sa_path_rec_get(struct ib_sa_client *client, struct ib_device *device,
+		       u32 port_num, struct sa_path_rec *rec,
+		       ib_sa_comp_mask comp_mask, unsigned long timeout_ms,
+		       gfp_t gfp_mask,
+		       void (*callback)(int status, struct sa_path_rec *resp,
+					void *context),
+		       void *context, struct ib_sa_query **query);
+>>>>>>> upstream/android-13
 
 struct ib_sa_multicast {
 	struct ib_sa_mcmember_rec rec;
@@ -509,7 +529,12 @@ struct ib_sa_multicast {
  *   group, and the user must rejoin the group to continue using it.
  */
 struct ib_sa_multicast *ib_sa_join_multicast(struct ib_sa_client *client,
+<<<<<<< HEAD
 					     struct ib_device *device, u8 port_num,
+=======
+					     struct ib_device *device,
+					     u32 port_num,
+>>>>>>> upstream/android-13
 					     struct ib_sa_mcmember_rec *rec,
 					     ib_sa_comp_mask comp_mask, gfp_t gfp_mask,
 					     int (*callback)(int status,
@@ -538,20 +563,32 @@ void ib_sa_free_multicast(struct ib_sa_multicast *multicast);
  * @mgid: MGID of multicast group.
  * @rec: Location to copy SA multicast member record.
  */
+<<<<<<< HEAD
 int ib_sa_get_mcmember_rec(struct ib_device *device, u8 port_num,
+=======
+int ib_sa_get_mcmember_rec(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			   union ib_gid *mgid, struct ib_sa_mcmember_rec *rec);
 
 /**
  * ib_init_ah_from_mcmember - Initialize address handle attributes based on
  * an SA multicast member record.
  */
+<<<<<<< HEAD
 int ib_init_ah_from_mcmember(struct ib_device *device, u8 port_num,
+=======
+int ib_init_ah_from_mcmember(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			     struct ib_sa_mcmember_rec *rec,
 			     struct net_device *ndev,
 			     enum ib_gid_type gid_type,
 			     struct rdma_ah_attr *ah_attr);
 
+<<<<<<< HEAD
 int ib_init_ah_attr_from_path(struct ib_device *device, u8 port_num,
+=======
+int ib_init_ah_attr_from_path(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			      struct sa_path_rec *rec,
 			      struct rdma_ah_attr *ah_attr,
 			      const struct ib_gid_attr *sgid_attr);
@@ -570,6 +607,7 @@ void ib_sa_unpack_path(void *attribute, struct sa_path_rec *rec);
 
 /* Support GuidInfoRecord */
 int ib_sa_guid_info_rec_query(struct ib_sa_client *client,
+<<<<<<< HEAD
 			      struct ib_device *device, u8 port_num,
 			      struct ib_sa_guidinfo_rec *rec,
 			      ib_sa_comp_mask comp_mask, u8 method,
@@ -583,6 +621,16 @@ int ib_sa_guid_info_rec_query(struct ib_sa_client *client,
 bool ib_sa_sendonly_fullmem_support(struct ib_sa_client *client,
 				    struct ib_device *device,
 				    u8 port_num);
+=======
+			      struct ib_device *device, u32 port_num,
+			      struct ib_sa_guidinfo_rec *rec,
+			      ib_sa_comp_mask comp_mask, u8 method,
+			      unsigned long timeout_ms, gfp_t gfp_mask,
+			      void (*callback)(int status,
+					       struct ib_sa_guidinfo_rec *resp,
+					       void *context),
+			      void *context, struct ib_sa_query **sa_query);
+>>>>>>> upstream/android-13
 
 static inline bool sa_path_is_roce(struct sa_path_rec *rec)
 {

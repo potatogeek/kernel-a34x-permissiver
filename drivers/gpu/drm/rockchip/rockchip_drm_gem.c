@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author:Mark Yao <mark.yao@rock-chips.com>
@@ -19,6 +20,23 @@
 
 #include <linux/dma-buf.h>
 #include <linux/iommu.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
+ * Author:Mark Yao <mark.yao@rock-chips.com>
+ */
+
+#include <linux/dma-buf.h>
+#include <linux/iommu.h>
+#include <linux/vmalloc.h>
+
+#include <drm/drm.h>
+#include <drm/drm_gem.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_prime.h>
+#include <drm/drm_vma_manager.h>
+>>>>>>> upstream/android-13
 
 #include "rockchip_drm_drv.h"
 #include "rockchip_drm_gem.h"
@@ -43,8 +61,13 @@ static int rockchip_gem_iommu_map(struct rockchip_gem_object *rk_obj)
 
 	rk_obj->dma_addr = rk_obj->mm.start;
 
+<<<<<<< HEAD
 	ret = iommu_map_sg(private->domain, rk_obj->dma_addr, rk_obj->sgt->sgl,
 			   rk_obj->sgt->nents, prot);
+=======
+	ret = iommu_map_sgtable(private->domain, rk_obj->dma_addr, rk_obj->sgt,
+				prot);
+>>>>>>> upstream/android-13
 	if (ret < rk_obj->base.size) {
 		DRM_ERROR("failed to map buffer: size=%zd request_size=%zd\n",
 			  ret, rk_obj->base.size);
@@ -92,7 +115,12 @@ static int rockchip_gem_get_pages(struct rockchip_gem_object *rk_obj)
 
 	rk_obj->num_pages = rk_obj->base.size >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	rk_obj->sgt = drm_prime_pages_to_sg(rk_obj->pages, rk_obj->num_pages);
+=======
+	rk_obj->sgt = drm_prime_pages_to_sg(rk_obj->base.dev,
+					    rk_obj->pages, rk_obj->num_pages);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rk_obj->sgt)) {
 		ret = PTR_ERR(rk_obj->sgt);
 		goto err_put_pages;
@@ -105,11 +133,18 @@ static int rockchip_gem_get_pages(struct rockchip_gem_object *rk_obj)
 	 * TODO: Replace this by drm_clflush_sg() once it can be implemented
 	 * without relying on symbols that are not exported.
 	 */
+<<<<<<< HEAD
 	for_each_sg(rk_obj->sgt->sgl, s, rk_obj->sgt->nents, i)
 		sg_dma_address(s) = sg_phys(s);
 
 	dma_sync_sg_for_device(drm->dev, rk_obj->sgt->sgl, rk_obj->sgt->nents,
 			       DMA_TO_DEVICE);
+=======
+	for_each_sgtable_sg(rk_obj->sgt, s, i)
+		sg_dma_address(s) = sg_phys(s);
+
+	dma_sync_sgtable_for_device(drm->dev, rk_obj->sgt, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -221,6 +256,7 @@ static int rockchip_drm_gem_object_mmap_iommu(struct drm_gem_object *obj,
 					      struct vm_area_struct *vma)
 {
 	struct rockchip_gem_object *rk_obj = to_rockchip_obj(obj);
+<<<<<<< HEAD
 	unsigned int i, count = obj->size >> PAGE_SHIFT;
 	unsigned long user_count = vma_pages(vma);
 	unsigned long uaddr = vma->vm_start;
@@ -241,6 +277,15 @@ static int rockchip_drm_gem_object_mmap_iommu(struct drm_gem_object *obj,
 	}
 
 	return 0;
+=======
+	unsigned int count = obj->size >> PAGE_SHIFT;
+	unsigned long user_count = vma_pages(vma);
+
+	if (user_count == 0)
+		return -ENXIO;
+
+	return vm_map_pages(vma, rk_obj->pages, count);
+>>>>>>> upstream/android-13
 }
 
 static int rockchip_drm_gem_object_mmap_dma(struct drm_gem_object *obj,
@@ -315,7 +360,19 @@ static void rockchip_gem_release_object(struct rockchip_gem_object *rk_obj)
 	kfree(rk_obj);
 }
 
+<<<<<<< HEAD
 struct rockchip_gem_object *
+=======
+static const struct drm_gem_object_funcs rockchip_gem_object_funcs = {
+	.free = rockchip_gem_free_object,
+	.get_sg_table = rockchip_gem_prime_get_sg_table,
+	.vmap = rockchip_gem_prime_vmap,
+	.vunmap	= rockchip_gem_prime_vunmap,
+	.vm_ops = &drm_gem_cma_vm_ops,
+};
+
+static struct rockchip_gem_object *
+>>>>>>> upstream/android-13
 	rockchip_gem_alloc_object(struct drm_device *drm, unsigned int size)
 {
 	struct rockchip_gem_object *rk_obj;
@@ -329,6 +386,11 @@ struct rockchip_gem_object *
 
 	obj = &rk_obj->base;
 
+<<<<<<< HEAD
+=======
+	obj->funcs = &rockchip_gem_object_funcs;
+
+>>>>>>> upstream/android-13
 	drm_gem_object_init(drm, obj, size);
 
 	return rk_obj;
@@ -357,7 +419,11 @@ err_free_rk_obj:
 }
 
 /*
+<<<<<<< HEAD
  * rockchip_gem_free_object - (struct drm_driver)->gem_free_object_unlocked
+=======
+ * rockchip_gem_free_object - (struct drm_gem_object_funcs)->free
+>>>>>>> upstream/android-13
  * callback function
  */
 void rockchip_gem_free_object(struct drm_gem_object *obj)
@@ -370,8 +436,13 @@ void rockchip_gem_free_object(struct drm_gem_object *obj)
 		if (private->domain) {
 			rockchip_gem_iommu_unmap(rk_obj);
 		} else {
+<<<<<<< HEAD
 			dma_unmap_sg(drm->dev, rk_obj->sgt->sgl,
 				     rk_obj->sgt->nents, DMA_BIDIRECTIONAL);
+=======
+			dma_unmap_sgtable(drm->dev, rk_obj->sgt,
+					  DMA_BIDIRECTIONAL, 0);
+>>>>>>> upstream/android-13
 		}
 		drm_prime_gem_destroy(obj, rk_obj->sgt);
 	} else {
@@ -412,7 +483,11 @@ rockchip_gem_create_with_handle(struct drm_file *file_priv,
 		goto err_handle_create;
 
 	/* drop reference from allocate - handle holds it now. */
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return rk_obj;
 
@@ -462,7 +537,11 @@ struct sg_table *rockchip_gem_prime_get_sg_table(struct drm_gem_object *obj)
 	int ret;
 
 	if (rk_obj->pages)
+<<<<<<< HEAD
 		return drm_prime_pages_to_sg(rk_obj->pages, rk_obj->num_pages);
+=======
+		return drm_prime_pages_to_sg(obj->dev, rk_obj->pages, rk_obj->num_pages);
+>>>>>>> upstream/android-13
 
 	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
 	if (!sgt)
@@ -480,6 +559,7 @@ struct sg_table *rockchip_gem_prime_get_sg_table(struct drm_gem_object *obj)
 	return sgt;
 }
 
+<<<<<<< HEAD
 static unsigned long rockchip_sg_get_contiguous_size(struct sg_table *sgt,
 						     int count)
 {
@@ -497,6 +577,8 @@ static unsigned long rockchip_sg_get_contiguous_size(struct sg_table *sgt,
 	return size;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 rockchip_gem_iommu_map_sg(struct drm_device *drm,
 			  struct dma_buf_attachment *attach,
@@ -513,6 +595,7 @@ rockchip_gem_dma_map_sg(struct drm_device *drm,
 			struct sg_table *sg,
 			struct rockchip_gem_object *rk_obj)
 {
+<<<<<<< HEAD
 	int count = dma_map_sg(drm->dev, sg->sgl, sg->nents,
 			       DMA_BIDIRECTIONAL);
 	if (!count)
@@ -522,6 +605,15 @@ rockchip_gem_dma_map_sg(struct drm_device *drm,
 		DRM_ERROR("failed to map sg_table to contiguous linear address.\n");
 		dma_unmap_sg(drm->dev, sg->sgl, sg->nents,
 			     DMA_BIDIRECTIONAL);
+=======
+	int err = dma_map_sgtable(drm->dev, sg, DMA_BIDIRECTIONAL, 0);
+	if (err)
+		return err;
+
+	if (drm_prime_get_contiguous_size(sg) < attach->dmabuf->size) {
+		DRM_ERROR("failed to map sg_table to contiguous linear address.\n");
+		dma_unmap_sgtable(drm->dev, sg, DMA_BIDIRECTIONAL, 0);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -560,6 +652,7 @@ err_free_rk_obj:
 	return ERR_PTR(ret);
 }
 
+<<<<<<< HEAD
 void *rockchip_gem_prime_vmap(struct drm_gem_object *obj)
 {
 	struct rockchip_gem_object *rk_obj = to_rockchip_obj(obj);
@@ -575,11 +668,38 @@ void *rockchip_gem_prime_vmap(struct drm_gem_object *obj)
 }
 
 void rockchip_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
+=======
+int rockchip_gem_prime_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_gem_object *rk_obj = to_rockchip_obj(obj);
 
 	if (rk_obj->pages) {
+<<<<<<< HEAD
 		vunmap(vaddr);
+=======
+		void *vaddr = vmap(rk_obj->pages, rk_obj->num_pages, VM_MAP,
+				  pgprot_writecombine(PAGE_KERNEL));
+		if (!vaddr)
+			return -ENOMEM;
+		dma_buf_map_set_vaddr(map, vaddr);
+		return 0;
+	}
+
+	if (rk_obj->dma_attrs & DMA_ATTR_NO_KERNEL_MAPPING)
+		return -ENOMEM;
+	dma_buf_map_set_vaddr(map, rk_obj->kvaddr);
+
+	return 0;
+}
+
+void rockchip_gem_prime_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+{
+	struct rockchip_gem_object *rk_obj = to_rockchip_obj(obj);
+
+	if (rk_obj->pages) {
+		vunmap(map->vaddr);
+>>>>>>> upstream/android-13
 		return;
 	}
 

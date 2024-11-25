@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2013  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2013  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../base.h"
@@ -437,6 +442,7 @@ static void rtl88e_dm_false_alarm_counter_statistics(struct ieee80211_hw *hw)
 	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(15)|BIT(14), 0);
 	rtl_set_bbreg(hw, RCCK0_FALSEALARMREPORT, BIT(15)|BIT(14), 2);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_DIG, DBG_TRACE,
 		 "cnt_parity_fail = %d, cnt_rate_illegal = %d, cnt_crc8_fail = %d, cnt_mcs_fail = %d\n",
 		 falsealm_cnt->cnt_parity_fail,
@@ -447,6 +453,18 @@ static void rtl88e_dm_false_alarm_counter_statistics(struct ieee80211_hw *hw)
 		 "cnt_ofdm_fail = %x, cnt_cck_fail = %x, cnt_all = %x\n",
 		 falsealm_cnt->cnt_ofdm_fail,
 		 falsealm_cnt->cnt_cck_fail, falsealm_cnt->cnt_all);
+=======
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_TRACE,
+		"cnt_parity_fail = %d, cnt_rate_illegal = %d, cnt_crc8_fail = %d, cnt_mcs_fail = %d\n",
+		falsealm_cnt->cnt_parity_fail,
+		falsealm_cnt->cnt_rate_illegal,
+		falsealm_cnt->cnt_crc8_fail, falsealm_cnt->cnt_mcs_fail);
+
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_TRACE,
+		"cnt_ofdm_fail = %x, cnt_cck_fail = %x, cnt_all = %x\n",
+		falsealm_cnt->cnt_ofdm_fail,
+		falsealm_cnt->cnt_cck_fail, falsealm_cnt->cnt_all);
+>>>>>>> upstream/android-13
 }
 
 static void rtl88e_dm_cck_packet_detection_thresh(struct ieee80211_hw *hw)
@@ -481,8 +499,13 @@ static void rtl88e_dm_cck_packet_detection_thresh(struct ieee80211_hw *hw)
 
 	dm_dig->cur_cck_cca_thres = cur_cck_cca_thresh;
 	dm_dig->pre_cck_cca_thres = dm_dig->cur_cck_cca_thres;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_DIG, DBG_TRACE,
 		 "CCK cca thresh hold =%x\n", dm_dig->cur_cck_cca_thres);
+=======
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_TRACE,
+		"CCK cca thresh hold =%x\n", dm_dig->cur_cck_cca_thres);
+>>>>>>> upstream/android-13
 }
 
 static void rtl88e_dm_dig(struct ieee80211_hw *hw)
@@ -496,11 +519,19 @@ static void rtl88e_dm_dig(struct ieee80211_hw *hw)
 	u8 dm_dig_max, dm_dig_min;
 	u8 current_igi = dm_dig->cur_igvalue;
 
+<<<<<<< HEAD
 	if (rtlpriv->dm.dm_initialgain_enable == false)
 		return;
 	if (dm_dig->dig_enable_flag == false)
 		return;
 	if (mac->act_scanning == true)
+=======
+	if (!rtlpriv->dm.dm_initialgain_enable)
+		return;
+	if (!dm_dig->dig_enable_flag)
+		return;
+	if (mac->act_scanning)
+>>>>>>> upstream/android-13
 		return;
 
 	if (mac->link_state >= MAC80211_LINKED)
@@ -542,7 +573,11 @@ static void rtl88e_dm_dig(struct ieee80211_hw *hw)
 	} else {
 		dm_dig->rx_gain_max = dm_dig_max;
 		dig_dynamic_min = dm_dig_min;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD, "no link\n");
+=======
+		rtl_dbg(rtlpriv, COMP_DIG, DBG_LOUD, "no link\n");
+>>>>>>> upstream/android-13
 	}
 
 	if (rtlpriv->falsealm_cnt.cnt_all > 10000) {
@@ -646,8 +681,13 @@ static void rtl92c_dm_dynamic_txpower(struct ieee80211_hw *hw)
 
 	if ((mac->link_state < MAC80211_LINKED) &&
 	    (rtlpriv->dm.entry_min_undec_sm_pwdb == 0)) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_TRACE,
 			 "Not connected to any\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_TRACE,
+			"Not connected to any\n");
+>>>>>>> upstream/android-13
 
 		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
 
@@ -659,6 +699,7 @@ static void rtl92c_dm_dynamic_txpower(struct ieee80211_hw *hw)
 		if (mac->opmode == NL80211_IFTYPE_ADHOC) {
 			undec_sm_pwdb =
 			    rtlpriv->dm.entry_min_undec_sm_pwdb;
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 				 "AP Client PWDB = 0x%lx\n",
 				  undec_sm_pwdb);
@@ -668,25 +709,48 @@ static void rtl92c_dm_dynamic_txpower(struct ieee80211_hw *hw)
 			RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 				 "STA Default Port PWDB = 0x%lx\n",
 				  undec_sm_pwdb);
+=======
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+				"AP Client PWDB = 0x%lx\n",
+				undec_sm_pwdb);
+		} else {
+			undec_sm_pwdb =
+			    rtlpriv->dm.undec_sm_pwdb;
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+				"STA Default Port PWDB = 0x%lx\n",
+				undec_sm_pwdb);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		undec_sm_pwdb =
 		    rtlpriv->dm.entry_min_undec_sm_pwdb;
 
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "AP Ext Port PWDB = 0x%lx\n",
 			  undec_sm_pwdb);
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"AP Ext Port PWDB = 0x%lx\n",
+			undec_sm_pwdb);
+>>>>>>> upstream/android-13
 	}
 
 	if (undec_sm_pwdb >= TX_POWER_NEAR_FIELD_THRESH_LVL2) {
 		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_LEVEL1;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "TXHIGHPWRLEVEL_LEVEL1 (TxPwr = 0x0)\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"TXHIGHPWRLEVEL_LEVEL1 (TxPwr = 0x0)\n");
+>>>>>>> upstream/android-13
 	} else if ((undec_sm_pwdb <
 		    (TX_POWER_NEAR_FIELD_THRESH_LVL2 - 3)) &&
 		   (undec_sm_pwdb >=
 		    TX_POWER_NEAR_FIELD_THRESH_LVL1)) {
 		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_LEVEL1;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "TXHIGHPWRLEVEL_LEVEL1 (TxPwr = 0x10)\n");
 	} else if (undec_sm_pwdb <
@@ -694,12 +758,26 @@ static void rtl92c_dm_dynamic_txpower(struct ieee80211_hw *hw)
 		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "TXHIGHPWRLEVEL_NORMAL\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"TXHIGHPWRLEVEL_LEVEL1 (TxPwr = 0x10)\n");
+	} else if (undec_sm_pwdb <
+		   (TX_POWER_NEAR_FIELD_THRESH_LVL1 - 5)) {
+		rtlpriv->dm.dynamic_txhighpower_lvl = TXHIGHPWRLEVEL_NORMAL;
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"TXHIGHPWRLEVEL_NORMAL\n");
+>>>>>>> upstream/android-13
 	}
 
 	if ((rtlpriv->dm.dynamic_txhighpower_lvl !=
 		rtlpriv->dm.last_dtp_lvl)) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "PHY_SetTxPowerLevel8192S() Channel = %d\n",
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"PHY_SetTxPowerLevel8192S() Channel = %d\n",
+>>>>>>> upstream/android-13
 			  rtlphy->current_channel);
 		rtl88e_phy_set_txpower_level(hw, rtlphy->current_channel);
 	}
@@ -712,8 +790,13 @@ void rtl88e_dm_write_dig(struct ieee80211_hw *hw)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct dig_t *dm_dig = &rtlpriv->dm_digtable;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD,
 		 "cur_igvalue = 0x%x, pre_igvalue = 0x%x, backoff_val = %d\n",
+=======
+	rtl_dbg(rtlpriv, COMP_DIG, DBG_LOUD,
+		"cur_igvalue = 0x%x, pre_igvalue = 0x%x, backoff_val = %d\n",
+>>>>>>> upstream/android-13
 		 dm_dig->cur_igvalue, dm_dig->pre_igvalue,
 		 dm_dig->back_val);
 
@@ -781,6 +864,7 @@ static void rtl88e_dm_pwdb_monitor(struct ieee80211_hw *hw)
 		rtlpriv->dm.entry_min_undec_sm_pwdb = 0;
 	}
 	/* Indicate Rx signal strength to FW. */
+<<<<<<< HEAD
 	if (rtlpriv->dm.useramask) {
 		u8 h2c_parameter[3] = { 0 };
 
@@ -789,6 +873,10 @@ static void rtl88e_dm_pwdb_monitor(struct ieee80211_hw *hw)
 	} else {
 		rtl_write_byte(rtlpriv, 0x4fe, rtlpriv->dm.undec_sm_pwdb);
 	}
+=======
+	if (!rtlpriv->dm.useramask)
+		rtl_write_byte(rtlpriv, 0x4fe, rtlpriv->dm.undec_sm_pwdb);
+>>>>>>> upstream/android-13
 }
 
 void rtl88e_dm_init_edca_turbo(struct ieee80211_hw *hw)
@@ -898,28 +986,48 @@ static void dm_txpower_track_cb_therm(struct ieee80211_hw *hw)
 	/*0.1 the following TWO tables decide the
 	 *final index of OFDM/CCK swing table
 	 */
+<<<<<<< HEAD
 	s8 delta_swing_table_idx[2][15]  = {
 		{0, 0, 2, 3, 4, 4, 5, 6, 7, 7, 8, 9, 10, 10, 11},
 		{0, 0, -1, -2, -3, -4, -4, -4, -4, -5, -7, -8, -9, -9, -10}
 	};
 	u8 thermal_threshold[2][15] = {
+=======
+	static const s8 delta_swing_table_idx[2][15]  = {
+		{0, 0, 2, 3, 4, 4, 5, 6, 7, 7, 8, 9, 10, 10, 11},
+		{0, 0, -1, -2, -3, -4, -4, -4, -4, -5, -7, -8, -9, -9, -10}
+	};
+	static const u8 thermal_threshold[2][15] = {
+>>>>>>> upstream/android-13
 		{0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 27},
 		{0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 25, 25, 25}
 	};
 
 	/*Initilization (7 steps in total) */
 	rtlpriv->dm.txpower_trackinginit = true;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "dm_txpower_track_cb_therm\n");
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"%s\n", __func__);
+>>>>>>> upstream/android-13
 
 	thermalvalue = (u8)rtl_get_rfreg(hw, RF90_PATH_A, RF_T_METER,
 					 0xfc00);
 	if (!thermalvalue)
 		return;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x\n",
 		 thermalvalue, rtlpriv->dm.thermalvalue,
 		 rtlefuse->eeprom_thermalmeter);
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x\n",
+		thermalvalue, rtlpriv->dm.thermalvalue,
+		rtlefuse->eeprom_thermalmeter);
+>>>>>>> upstream/android-13
 
 	/*1. Query OFDM Default Setting: Path A*/
 	ele_d = rtl_get_bbreg(hw, ROFDM0_XATXIQIMBALANCE, MASKDWORD) &
@@ -928,8 +1036,13 @@ static void dm_txpower_track_cb_therm(struct ieee80211_hw *hw)
 		if (ele_d == (ofdmswing_table[i] & MASKOFDM_D)) {
 			ofdm_index_old[0] = (u8)i;
 			rtldm->swing_idx_ofdm_base[RF90_PATH_A] = (u8)i;
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 				 "Initial pathA ele_d reg0x%x = 0x%lx, ofdm_index = 0x%x\n",
+=======
+			rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+				"Initial pathA ele_d reg0x%x = 0x%lx, ofdm_index = 0x%x\n",
+>>>>>>> upstream/android-13
 				 ROFDM0_XATXIQIMBALANCE,
 				 ele_d, ofdm_index_old[0]);
 			break;
@@ -943,24 +1056,42 @@ static void dm_txpower_track_cb_therm(struct ieee80211_hw *hw)
 			if (memcmp(&temp_cck, &cck_tbl_ch14[i][2], 4) == 0) {
 				cck_index_old = (u8)i;
 				rtldm->swing_idx_cck_base = (u8)i;
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_POWER_TRACKING,
 					 DBG_LOUD,
 					 "Initial reg0x%x = 0x%lx, cck_index = 0x%x, ch 14 %d\n",
 					 RCCK0_TXFILTER2, temp_cck,
 					 cck_index_old,
 					 rtlpriv->dm.cck_inch14);
+=======
+				rtl_dbg(rtlpriv, COMP_POWER_TRACKING,
+					DBG_LOUD,
+					"Initial reg0x%x = 0x%lx, cck_index = 0x%x, ch 14 %d\n",
+					RCCK0_TXFILTER2, temp_cck,
+					cck_index_old,
+					rtlpriv->dm.cck_inch14);
+>>>>>>> upstream/android-13
 				break;
 			}
 		} else {
 			if (memcmp(&temp_cck, &cck_tbl_ch1_13[i][2], 4) == 0) {
 				cck_index_old = (u8)i;
 				rtldm->swing_idx_cck_base = (u8)i;
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_POWER_TRACKING,
 					 DBG_LOUD,
 					 "Initial reg0x%x = 0x%lx, cck_index = 0x%x, ch14 %d\n",
 					 RCCK0_TXFILTER2, temp_cck,
 					 cck_index_old,
 					 rtlpriv->dm.cck_inch14);
+=======
+				rtl_dbg(rtlpriv, COMP_POWER_TRACKING,
+					DBG_LOUD,
+					"Initial reg0x%x = 0x%lx, cck_index = 0x%x, ch14 %d\n",
+					RCCK0_TXFILTER2, temp_cck,
+					cck_index_old,
+					rtlpriv->dm.cck_inch14);
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
@@ -1015,11 +1146,19 @@ static void dm_txpower_track_cb_therm(struct ieee80211_hw *hw)
 	    (thermalvalue - rtlpriv->dm.thermalvalue_iqk) :
 	    (rtlpriv->dm.thermalvalue_iqk - thermalvalue);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x delta 0x%x delta_lck 0x%x delta_iqk 0x%x\n",
 		 thermalvalue, rtlpriv->dm.thermalvalue,
 		 rtlefuse->eeprom_thermalmeter, delta, delta_lck,
 		 delta_iqk);
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"Readback Thermal Meter = 0x%x pre thermal meter 0x%x eeprom_thermalmeter 0x%x delta 0x%x delta_lck 0x%x delta_iqk 0x%x\n",
+		thermalvalue, rtlpriv->dm.thermalvalue,
+		rtlefuse->eeprom_thermalmeter, delta, delta_lck,
+		delta_iqk);
+>>>>>>> upstream/android-13
 	/* 6 If necessary, do LCK.*/
 	if (delta_lck >= 8) {
 		rtlpriv->dm.thermalvalue_lck = thermalvalue;
@@ -1100,7 +1239,11 @@ static void dm_txpower_track_cb_therm(struct ieee80211_hw *hw)
 	if (rtldm->txpower_track_control)
 		rtldm->thermalvalue = thermalvalue;
 	rtldm->txpowercount = 0;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD, "end\n");
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD, "end\n");
+>>>>>>> upstream/android-13
 }
 
 static void rtl88e_dm_init_txpower_tracking(struct ieee80211_hw *hw)
@@ -1115,9 +1258,15 @@ static void rtl88e_dm_init_txpower_tracking(struct ieee80211_hw *hw)
 	rtlpriv->dm.swing_idx_ofdm[RF90_PATH_A] = 12;
 	rtlpriv->dm.swing_idx_ofdm_cur = 12;
 	rtlpriv->dm.swing_flag_ofdm = false;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 		 "rtlpriv->dm.txpower_tracking = %d\n",
 		 rtlpriv->dm.txpower_tracking);
+=======
+	rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+		"rtlpriv->dm.txpower_tracking = %d\n",
+		rtlpriv->dm.txpower_tracking);
+>>>>>>> upstream/android-13
 }
 
 void rtl88e_dm_check_txpower_tracking(struct ieee80211_hw *hw)
@@ -1130,6 +1279,7 @@ void rtl88e_dm_check_txpower_tracking(struct ieee80211_hw *hw)
 	if (!rtlpriv->dm.tm_trigger) {
 		rtl_set_rfreg(hw, RF90_PATH_A, RF_T_METER, BIT(17)|BIT(16),
 			      0x03);
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 			 "Trigger 88E Thermal Meter!!\n");
 		rtlpriv->dm.tm_trigger = 1;
@@ -1137,6 +1287,15 @@ void rtl88e_dm_check_txpower_tracking(struct ieee80211_hw *hw)
 	} else {
 		RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 			 "Schedule TxPowerTracking !!\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+			"Trigger 88E Thermal Meter!!\n");
+		rtlpriv->dm.tm_trigger = 1;
+		return;
+	} else {
+		rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+			"Schedule TxPowerTracking !!\n");
+>>>>>>> upstream/android-13
 		dm_txpower_track_cb_therm(hw);
 		rtlpriv->dm.tm_trigger = 0;
 	}
@@ -1166,14 +1325,24 @@ static void rtl88e_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 	struct ieee80211_sta *sta = NULL;
 
 	if (is_hal_stop(rtlhal)) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 			 "driver is going to unload\n");
+=======
+		rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+			"driver is going to unload\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (!rtlpriv->dm.useramask) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 			 "driver does not control rate adaptive mask\n");
+=======
+		rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+			"driver does not control rate adaptive mask\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1208,6 +1377,7 @@ static void rtl88e_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 			p_ra->ratr_state = DM_RATR_STA_LOW;
 
 		if (p_ra->pre_ratr_state != p_ra->ratr_state) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 				 "RSSI = %ld\n",
 				  rtlpriv->dm.undec_sm_pwdb);
@@ -1216,6 +1386,16 @@ static void rtl88e_dm_refresh_rate_adaptive_mask(struct ieee80211_hw *hw)
 			RT_TRACE(rtlpriv, COMP_RATE, DBG_LOUD,
 				 "PreState = %d, CurState = %d\n",
 				  p_ra->pre_ratr_state, p_ra->ratr_state);
+=======
+			rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+				"RSSI = %ld\n",
+				rtlpriv->dm.undec_sm_pwdb);
+			rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+				"RSSI_LEVEL = %d\n", p_ra->ratr_state);
+			rtl_dbg(rtlpriv, COMP_RATE, DBG_LOUD,
+				"PreState = %d, CurState = %d\n",
+				p_ra->pre_ratr_state, p_ra->ratr_state);
+>>>>>>> upstream/android-13
 
 			rcu_read_lock();
 			sta = rtl_find_sta(hw, mac->bssid);
@@ -1252,8 +1432,13 @@ static void rtl88e_dm_update_rx_idle_ant(struct ieee80211_hw *hw,
 	u32 default_ant, optional_ant;
 
 	if (pfat_table->rx_idle_ant != ant) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "need to update rx idle ant\n");
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"need to update rx idle ant\n");
+>>>>>>> upstream/android-13
 		if (ant == MAIN_ANT) {
 			default_ant =
 			  (pfat_table->rx_idle_ant == CG_TRX_HW_ANTDIV) ?
@@ -1288,8 +1473,13 @@ static void rtl88e_dm_update_rx_idle_ant(struct ieee80211_hw *hw,
 		}
 	}
 	pfat_table->rx_idle_ant = ant;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "RxIdleAnt %s\n",
 		 (ant == MAIN_ANT) ? ("MAIN_ANT") : ("AUX_ANT"));
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "RxIdleAnt %s\n",
+		(ant == MAIN_ANT) ? ("MAIN_ANT") : ("AUX_ANT"));
+>>>>>>> upstream/android-13
 }
 
 static void rtl88e_dm_update_tx_ant(struct ieee80211_hw *hw,
@@ -1308,9 +1498,15 @@ static void rtl88e_dm_update_tx_ant(struct ieee80211_hw *hw,
 	pfat_table->antsel_a[mac_id] = target_ant & BIT(0);
 	pfat_table->antsel_b[mac_id] = (target_ant & BIT(1)) >> 1;
 	pfat_table->antsel_c[mac_id] = (target_ant & BIT(2)) >> 2;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "txfrominfo target ant %s\n",
 		(ant == MAIN_ANT) ? ("MAIN_ANT") : ("AUX_ANT"));
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "antsel_tr_mux = 3'b%d%d%d\n",
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "txfrominfo target ant %s\n",
+		(ant == MAIN_ANT) ? ("MAIN_ANT") : ("AUX_ANT"));
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "antsel_tr_mux = 3'b%d%d%d\n",
+>>>>>>> upstream/android-13
 		pfat_table->antsel_c[mac_id],
 		pfat_table->antsel_b[mac_id],
 		pfat_table->antsel_a[mac_id]);
@@ -1433,12 +1629,22 @@ void rtl88e_dm_set_tx_ant_by_tx_info(struct ieee80211_hw *hw,
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
 	struct rtl_dm *rtldm = rtl_dm(rtl_priv(hw));
 	struct fast_ant_training *pfat_table = &rtldm->fat_table;
+<<<<<<< HEAD
 
 	if ((rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) ||
 	    (rtlefuse->antenna_div_type == CG_TRX_SMART_ANTDIV)) {
 		SET_TX_DESC_ANTSEL_A(pdesc, pfat_table->antsel_a[mac_id]);
 		SET_TX_DESC_ANTSEL_B(pdesc, pfat_table->antsel_b[mac_id]);
 		SET_TX_DESC_ANTSEL_C(pdesc, pfat_table->antsel_c[mac_id]);
+=======
+	__le32 *pdesc32 = (__le32 *)pdesc;
+
+	if ((rtlefuse->antenna_div_type == CG_TRX_HW_ANTDIV) ||
+	    (rtlefuse->antenna_div_type == CG_TRX_SMART_ANTDIV)) {
+		set_tx_desc_antsel_a(pdesc32, pfat_table->antsel_a[mac_id]);
+		set_tx_desc_antsel_b(pdesc32, pfat_table->antsel_b[mac_id]);
+		set_tx_desc_antsel_c(pdesc32, pfat_table->antsel_c[mac_id]);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1491,6 +1697,7 @@ static void rtl88e_dm_hw_ant_div(struct ieee80211_hw *hw)
 	target_ant = (main_rssi == aux_rssi) ?
 		pfat_table->rx_idle_ant : ((main_rssi >= aux_rssi) ?
 		MAIN_ANT : AUX_ANT);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		"main_ant_sum %d main_ant_cnt %d\n",
 		pfat_table->main_ant_sum[i],
@@ -1500,6 +1707,17 @@ static void rtl88e_dm_hw_ant_div(struct ieee80211_hw *hw)
 		 pfat_table->aux_ant_sum[i], pfat_table->aux_ant_cnt[i]);
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "main_rssi %d aux_rssi%d\n",
 		 main_rssi, aux_rssi);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"main_ant_sum %d main_ant_cnt %d\n",
+		pfat_table->main_ant_sum[i],
+		pfat_table->main_ant_cnt[i]);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"aux_ant_sum %d aux_ant_cnt %d\n",
+		pfat_table->aux_ant_sum[i], pfat_table->aux_ant_cnt[i]);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "main_rssi %d aux_rssi%d\n",
+		main_rssi, aux_rssi);
+>>>>>>> upstream/android-13
 	local_max_rssi = (main_rssi > aux_rssi) ? main_rssi : aux_rssi;
 	if ((local_max_rssi > ant_div_max_rssi) && (local_max_rssi < 40))
 		ant_div_max_rssi = local_max_rssi;
@@ -1664,7 +1882,11 @@ static void rtl88e_dm_fast_ant_training(struct ieee80211_hw *hw)
 			}
 		}
 
+<<<<<<< HEAD
 		if (bpkt_filter_match == false) {
+=======
+		if (!bpkt_filter_match) {
+>>>>>>> upstream/android-13
 			rtl_set_bbreg(hw, DM_REG_TXAGC_A_1_MCS32_11N,
 				      BIT(16), 0);
 			rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 0);
@@ -1726,10 +1948,17 @@ static void rtl88e_dm_antenna_diversity(struct ieee80211_hw *hw)
 	struct fast_ant_training *pfat_table = &rtldm->fat_table;
 
 	if (mac->link_state < MAC80211_LINKED) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD, "No Link\n");
 		if (pfat_table->becomelinked) {
 			RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD,
 				 "need to turn off HW AntDiv\n");
+=======
+		rtl_dbg(rtlpriv, COMP_DIG, DBG_LOUD, "No Link\n");
+		if (pfat_table->becomelinked) {
+			rtl_dbg(rtlpriv, COMP_DIG, DBG_LOUD,
+				"need to turn off HW AntDiv\n");
+>>>>>>> upstream/android-13
 			rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 0);
 			rtl_set_bbreg(hw, DM_REG_CCK_ANTDIV_PARA1_11N,
 				      BIT(15), 0);
@@ -1743,8 +1972,13 @@ static void rtl88e_dm_antenna_diversity(struct ieee80211_hw *hw)
 		return;
 	} else {
 		if (!pfat_table->becomelinked) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_DIG, DBG_LOUD,
 				 "Need to turn on HW AntDiv\n");
+=======
+			rtl_dbg(rtlpriv, COMP_DIG, DBG_LOUD,
+				"Need to turn on HW AntDiv\n");
+>>>>>>> upstream/android-13
 			rtl_set_bbreg(hw, DM_REG_IGI_A_11N, BIT(7), 1);
 			rtl_set_bbreg(hw, DM_REG_CCK_ANTDIV_PARA1_11N,
 				      BIT(15), 1);

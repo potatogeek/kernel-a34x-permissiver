@@ -27,7 +27,11 @@
 #include <nvif/class.h>
 
 void
+<<<<<<< HEAD
 gk208_fifo_init_pbdma_timeout(struct gk104_fifo *fifo)
+=======
+gk208_fifo_pbdma_init_timeout(struct gk104_fifo *fifo)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_device *device = fifo->base.engine.subdev.device;
 	int i;
@@ -36,9 +40,23 @@ gk208_fifo_init_pbdma_timeout(struct gk104_fifo *fifo)
 		nvkm_wr32(device, 0x04012c + (i * 0x2000), 0x0000ffff);
 }
 
+<<<<<<< HEAD
 static const struct gk104_fifo_func
 gk208_fifo = {
 	.init_pbdma_timeout = gk208_fifo_init_pbdma_timeout,
+=======
+const struct gk104_fifo_pbdma_func
+gk208_fifo_pbdma = {
+	.nr = gk104_fifo_pbdma_nr,
+	.init = gk104_fifo_pbdma_init,
+	.init_timeout = gk208_fifo_pbdma_init_timeout,
+};
+
+static const struct gk104_fifo_func
+gk208_fifo = {
+	.intr.fault = gf100_fifo_intr_fault,
+	.pbdma = &gk208_fifo_pbdma,
+>>>>>>> upstream/android-13
 	.fault.access = gk104_fifo_fault_access,
 	.fault.engine = gk104_fifo_fault_engine,
 	.fault.reason = gk104_fifo_fault_reason,
@@ -49,7 +67,14 @@ gk208_fifo = {
 };
 
 int
+<<<<<<< HEAD
 gk208_fifo_new(struct nvkm_device *device, int index, struct nvkm_fifo **pfifo)
 {
 	return gk104_fifo_new_(&gk208_fifo, device, index, 1024, pfifo);
+=======
+gk208_fifo_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_fifo **pfifo)
+{
+	return gk104_fifo_new_(&gk208_fifo, device, type, inst, 1024, pfifo);
+>>>>>>> upstream/android-13
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * This file contains common routines for dealing with free of page tables
  * Along with common page table handling code
@@ -14,11 +18,14 @@
  *
  *  Dave Engebretsen <engebret@us.ibm.com>
  *      Rework for PPC64 port.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,9 +34,24 @@
 #include <linux/percpu.h>
 #include <linux/hardirq.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/tlbflush.h>
 #include <asm/tlb.h>
+=======
+#include <asm/tlbflush.h>
+#include <asm/tlb.h>
+#include <asm/hugetlb.h>
+#include <asm/pte-walk.h>
+
+#ifdef CONFIG_PPC64
+#define PGD_ALIGN (sizeof(pgd_t) * MAX_PTRS_PER_PGD)
+#else
+#define PGD_ALIGN PAGE_SIZE
+#endif
+
+pgd_t swapper_pg_dir[MAX_PTRS_PER_PGD] __section(".bss..page_aligned") __aligned(PGD_ALIGN);
+>>>>>>> upstream/android-13
 
 static inline int is_exec_fault(void)
 {
@@ -44,20 +66,27 @@ static inline int is_exec_fault(void)
 static inline int pte_looks_normal(pte_t pte)
 {
 
+<<<<<<< HEAD
 #if defined(CONFIG_PPC_BOOK3S_64)
 	if ((pte_val(pte) & (_PAGE_PRESENT | _PAGE_SPECIAL)) == _PAGE_PRESENT) {
+=======
+	if (pte_present(pte) && !pte_special(pte)) {
+>>>>>>> upstream/android-13
 		if (pte_ci(pte))
 			return 0;
 		if (pte_user(pte))
 			return 1;
 	}
 	return 0;
+<<<<<<< HEAD
 #else
 	return (pte_val(pte) &
 		(_PAGE_PRESENT | _PAGE_SPECIAL | _PAGE_NO_CACHE | _PAGE_USER |
 		 _PAGE_PRIVILEGED)) ==
 		(_PAGE_PRESENT | _PAGE_USER);
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct page *maybe_pte_to_page(pte_t pte)
@@ -73,7 +102,11 @@ static struct page *maybe_pte_to_page(pte_t pte)
 	return page;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_PPC_STD_MMU) || _PAGE_EXEC == 0
+=======
+#ifdef CONFIG_PPC_BOOK3S
+>>>>>>> upstream/android-13
 
 /* Server-style MMU handles coherency when hashing if HW exec permission
  * is supposed per page (currently 64-bit only). If not, then, we always
@@ -81,7 +114,11 @@ static struct page *maybe_pte_to_page(pte_t pte)
  * support falls into the same category.
  */
 
+<<<<<<< HEAD
 static pte_t set_pte_filter(pte_t pte)
+=======
+static pte_t set_pte_filter_hash(pte_t pte)
+>>>>>>> upstream/android-13
 {
 	if (radix_enabled())
 		return pte;
@@ -92,14 +129,21 @@ static pte_t set_pte_filter(pte_t pte)
 		struct page *pg = maybe_pte_to_page(pte);
 		if (!pg)
 			return pte;
+<<<<<<< HEAD
 		if (!test_bit(PG_arch_1, &pg->flags)) {
 			flush_dcache_icache_page(pg);
 			set_bit(PG_arch_1, &pg->flags);
+=======
+		if (!test_bit(PG_dcache_clean, &pg->flags)) {
+			flush_dcache_icache_page(pg);
+			set_bit(PG_dcache_clean, &pg->flags);
+>>>>>>> upstream/android-13
 		}
 	}
 	return pte;
 }
 
+<<<<<<< HEAD
 static pte_t set_access_flags_filter(pte_t pte, struct vm_area_struct *vma,
 				     int dirty)
 {
@@ -107,17 +151,36 @@ static pte_t set_access_flags_filter(pte_t pte, struct vm_area_struct *vma,
 }
 
 #else /* defined(CONFIG_PPC_STD_MMU) || _PAGE_EXEC == 0 */
+=======
+#else /* CONFIG_PPC_BOOK3S */
+
+static pte_t set_pte_filter_hash(pte_t pte) { return pte; }
+
+#endif /* CONFIG_PPC_BOOK3S */
+>>>>>>> upstream/android-13
 
 /* Embedded type MMU with HW exec support. This is a bit more complicated
  * as we don't have two bits to spare for _PAGE_EXEC and _PAGE_HWEXEC so
  * instead we "filter out" the exec permission for non clean pages.
  */
+<<<<<<< HEAD
 static pte_t set_pte_filter(pte_t pte)
 {
 	struct page *pg;
 
 	/* No exec permission in the first place, move on */
 	if (!(pte_val(pte) & _PAGE_EXEC) || !pte_looks_normal(pte))
+=======
+static inline pte_t set_pte_filter(pte_t pte)
+{
+	struct page *pg;
+
+	if (mmu_has_feature(MMU_FTR_HPTE_TABLE))
+		return set_pte_filter_hash(pte);
+
+	/* No exec permission in the first place, move on */
+	if (!pte_exec(pte) || !pte_looks_normal(pte))
+>>>>>>> upstream/android-13
 		return pte;
 
 	/* If you set _PAGE_EXEC on weird pages you're on your own */
@@ -126,18 +189,30 @@ static pte_t set_pte_filter(pte_t pte)
 		return pte;
 
 	/* If the page clean, we move on */
+<<<<<<< HEAD
 	if (test_bit(PG_arch_1, &pg->flags))
+=======
+	if (test_bit(PG_dcache_clean, &pg->flags))
+>>>>>>> upstream/android-13
 		return pte;
 
 	/* If it's an exec fault, we flush the cache and make it clean */
 	if (is_exec_fault()) {
 		flush_dcache_icache_page(pg);
+<<<<<<< HEAD
 		set_bit(PG_arch_1, &pg->flags);
+=======
+		set_bit(PG_dcache_clean, &pg->flags);
+>>>>>>> upstream/android-13
 		return pte;
 	}
 
 	/* Else, we filter out _PAGE_EXEC */
+<<<<<<< HEAD
 	return __pte(pte_val(pte) & ~_PAGE_EXEC);
+=======
+	return pte_exprotect(pte);
+>>>>>>> upstream/android-13
 }
 
 static pte_t set_access_flags_filter(pte_t pte, struct vm_area_struct *vma,
@@ -145,12 +220,22 @@ static pte_t set_access_flags_filter(pte_t pte, struct vm_area_struct *vma,
 {
 	struct page *pg;
 
+<<<<<<< HEAD
+=======
+	if (mmu_has_feature(MMU_FTR_HPTE_TABLE))
+		return pte;
+
+>>>>>>> upstream/android-13
 	/* So here, we only care about exec faults, as we use them
 	 * to recover lost _PAGE_EXEC and perform I$/D$ coherency
 	 * if necessary. Also if _PAGE_EXEC is already set, same deal,
 	 * we just bail out
 	 */
+<<<<<<< HEAD
 	if (dirty || (pte_val(pte) & _PAGE_EXEC) || !is_exec_fault())
+=======
+	if (dirty || pte_exec(pte) || !is_exec_fault())
+>>>>>>> upstream/android-13
 		return pte;
 
 #ifdef CONFIG_DEBUG_VM
@@ -168,6 +253,7 @@ static pte_t set_access_flags_filter(pte_t pte, struct vm_area_struct *vma,
 		goto bail;
 
 	/* If the page is already clean, we move on */
+<<<<<<< HEAD
 	if (test_bit(PG_arch_1, &pg->flags))
 		goto bail;
 
@@ -181,6 +267,19 @@ static pte_t set_access_flags_filter(pte_t pte, struct vm_area_struct *vma,
 
 #endif /* !(defined(CONFIG_PPC_STD_MMU) || _PAGE_EXEC == 0) */
 
+=======
+	if (test_bit(PG_dcache_clean, &pg->flags))
+		goto bail;
+
+	/* Clean the page and set PG_dcache_clean */
+	flush_dcache_icache_page(pg);
+	set_bit(PG_dcache_clean, &pg->flags);
+
+ bail:
+	return pte_mkexec(pte);
+}
+
+>>>>>>> upstream/android-13
 /*
  * set_pte stores a linux PTE into the linux page table.
  */
@@ -188,6 +287,7 @@ void set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
 		pte_t pte)
 {
 	/*
+<<<<<<< HEAD
 	 * When handling numa faults, we already have the pte marked
 	 * _PAGE_PRESENT, but we can be sure that it is not in hpte.
 	 * Hence we can use set_pte_at for them.
@@ -196,6 +296,12 @@ void set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
 
 	/* Add the pte bit when trying to set a pte */
 	pte = __pte(pte_val(pte) | _PAGE_PTE);
+=======
+	 * Make sure hardware valid bit is not set. We don't do
+	 * tlb flush for this update.
+	 */
+	VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
+>>>>>>> upstream/android-13
 
 	/* Note: mm->context.id might not yet have been assigned as
 	 * this context might not have been activated yet when this
@@ -207,6 +313,18 @@ void set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
 	__set_pte_at(mm, addr, ptep, pte, 0);
 }
 
+<<<<<<< HEAD
+=======
+void unmap_kernel_page(unsigned long va)
+{
+	pmd_t *pmdp = pmd_off_k(va);
+	pte_t *ptep = pte_offset_kernel(pmdp, va);
+
+	pte_clear(&init_mm, va, ptep);
+	flush_tlb_kernel_range(va, va + PAGE_SIZE);
+}
+
+>>>>>>> upstream/android-13
 /*
  * This is called when relaxing access to a PTE. It's also called in the page
  * fault path when we don't hit any of the major fault cases, ie, a minor
@@ -229,9 +347,15 @@ int ptep_set_access_flags(struct vm_area_struct *vma, unsigned long address,
 }
 
 #ifdef CONFIG_HUGETLB_PAGE
+<<<<<<< HEAD
 extern int huge_ptep_set_access_flags(struct vm_area_struct *vma,
 				      unsigned long addr, pte_t *ptep,
 				      pte_t pte, int dirty)
+=======
+int huge_ptep_set_access_flags(struct vm_area_struct *vma,
+			       unsigned long addr, pte_t *ptep,
+			       pte_t pte, int dirty)
+>>>>>>> upstream/android-13
 {
 #ifdef HUGETLB_NEED_PRELOAD
 	/*
@@ -258,22 +382,62 @@ extern int huge_ptep_set_access_flags(struct vm_area_struct *vma,
 
 #else
 		/*
+<<<<<<< HEAD
 		 * Not used on non book3s64 platforms. But 8xx
 		 * can possibly use tsize derived from hstate.
 		 */
 		psize = 0;
+=======
+		 * Not used on non book3s64 platforms.
+		 * 8xx compares it with mmu_virtual_psize to
+		 * know if it is a huge page or not.
+		 */
+		psize = MMU_PAGE_COUNT;
+>>>>>>> upstream/android-13
 #endif
 		__ptep_set_access_flags(vma, ptep, pte, addr, psize);
 	}
 	return changed;
 #endif
 }
+<<<<<<< HEAD
+=======
+
+#if defined(CONFIG_PPC_8xx)
+void set_huge_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte)
+{
+	pmd_t *pmd = pmd_off(mm, addr);
+	pte_basic_t val;
+	pte_basic_t *entry = &ptep->pte;
+	int num, i;
+
+	/*
+	 * Make sure hardware valid bit is not set. We don't do
+	 * tlb flush for this update.
+	 */
+	VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
+
+	pte = set_pte_filter(pte);
+
+	val = pte_val(pte);
+
+	num = number_of_cells_per_pte(pmd, val, 1);
+
+	for (i = 0; i < num; i++, entry++, val += SZ_4K)
+		*entry = val;
+}
+#endif
+>>>>>>> upstream/android-13
 #endif /* CONFIG_HUGETLB_PAGE */
 
 #ifdef CONFIG_DEBUG_VM
 void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
 {
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	pmd_t *pmd;
 
@@ -281,12 +445,22 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
 		return;
 	pgd = mm->pgd + pgd_index(addr);
 	BUG_ON(pgd_none(*pgd));
+<<<<<<< HEAD
 	pud = pud_offset(pgd, addr);
+=======
+	p4d = p4d_offset(pgd, addr);
+	BUG_ON(p4d_none(*p4d));
+	pud = pud_offset(p4d, addr);
+>>>>>>> upstream/android-13
 	BUG_ON(pud_none(*pud));
 	pmd = pmd_offset(pud, addr);
 	/*
 	 * khugepaged to collapse normal pages to hugepage, first set
+<<<<<<< HEAD
 	 * pmd to none to force page fault/gup to take mmap_sem. After
+=======
+	 * pmd to none to force page fault/gup to take mmap_lock. After
+>>>>>>> upstream/android-13
 	 * pmd is set to none, we do a pte_clear which does this assertion
 	 * so if we find pmd none, return.
 	 */
@@ -305,3 +479,136 @@ unsigned long vmalloc_to_phys(void *va)
 	return __pa(pfn_to_kaddr(pfn)) + offset_in_page(va);
 }
 EXPORT_SYMBOL_GPL(vmalloc_to_phys);
+<<<<<<< HEAD
+=======
+
+/*
+ * We have 4 cases for pgds and pmds:
+ * (1) invalid (all zeroes)
+ * (2) pointer to next table, as normal; bottom 6 bits == 0
+ * (3) leaf pte for huge page _PAGE_PTE set
+ * (4) hugepd pointer, _PAGE_PTE = 0 and bits [2..6] indicate size of table
+ *
+ * So long as we atomically load page table pointers we are safe against teardown,
+ * we can follow the address down to the the page and take a ref on it.
+ * This function need to be called with interrupts disabled. We use this variant
+ * when we have MSR[EE] = 0 but the paca->irq_soft_mask = IRQS_ENABLED
+ */
+pte_t *__find_linux_pte(pgd_t *pgdir, unsigned long ea,
+			bool *is_thp, unsigned *hpage_shift)
+{
+	pgd_t *pgdp;
+	p4d_t p4d, *p4dp;
+	pud_t pud, *pudp;
+	pmd_t pmd, *pmdp;
+	pte_t *ret_pte;
+	hugepd_t *hpdp = NULL;
+	unsigned pdshift;
+
+	if (hpage_shift)
+		*hpage_shift = 0;
+
+	if (is_thp)
+		*is_thp = false;
+
+	/*
+	 * Always operate on the local stack value. This make sure the
+	 * value don't get updated by a parallel THP split/collapse,
+	 * page fault or a page unmap. The return pte_t * is still not
+	 * stable. So should be checked there for above conditions.
+	 * Top level is an exception because it is folded into p4d.
+	 */
+	pgdp = pgdir + pgd_index(ea);
+	p4dp = p4d_offset(pgdp, ea);
+	p4d  = READ_ONCE(*p4dp);
+	pdshift = P4D_SHIFT;
+
+	if (p4d_none(p4d))
+		return NULL;
+
+	if (p4d_is_leaf(p4d)) {
+		ret_pte = (pte_t *)p4dp;
+		goto out;
+	}
+
+	if (is_hugepd(__hugepd(p4d_val(p4d)))) {
+		hpdp = (hugepd_t *)&p4d;
+		goto out_huge;
+	}
+
+	/*
+	 * Even if we end up with an unmap, the pgtable will not
+	 * be freed, because we do an rcu free and here we are
+	 * irq disabled
+	 */
+	pdshift = PUD_SHIFT;
+	pudp = pud_offset(&p4d, ea);
+	pud  = READ_ONCE(*pudp);
+
+	if (pud_none(pud))
+		return NULL;
+
+	if (pud_is_leaf(pud)) {
+		ret_pte = (pte_t *)pudp;
+		goto out;
+	}
+
+	if (is_hugepd(__hugepd(pud_val(pud)))) {
+		hpdp = (hugepd_t *)&pud;
+		goto out_huge;
+	}
+
+	pdshift = PMD_SHIFT;
+	pmdp = pmd_offset(&pud, ea);
+	pmd  = READ_ONCE(*pmdp);
+
+	/*
+	 * A hugepage collapse is captured by this condition, see
+	 * pmdp_collapse_flush.
+	 */
+	if (pmd_none(pmd))
+		return NULL;
+
+#ifdef CONFIG_PPC_BOOK3S_64
+	/*
+	 * A hugepage split is captured by this condition, see
+	 * pmdp_invalidate.
+	 *
+	 * Huge page modification can be caught here too.
+	 */
+	if (pmd_is_serializing(pmd))
+		return NULL;
+#endif
+
+	if (pmd_trans_huge(pmd) || pmd_devmap(pmd)) {
+		if (is_thp)
+			*is_thp = true;
+		ret_pte = (pte_t *)pmdp;
+		goto out;
+	}
+
+	if (pmd_is_leaf(pmd)) {
+		ret_pte = (pte_t *)pmdp;
+		goto out;
+	}
+
+	if (is_hugepd(__hugepd(pmd_val(pmd)))) {
+		hpdp = (hugepd_t *)&pmd;
+		goto out_huge;
+	}
+
+	return pte_offset_kernel(&pmd, ea);
+
+out_huge:
+	if (!hpdp)
+		return NULL;
+
+	ret_pte = hugepte_offset(*hpdp, ea, pdshift);
+	pdshift = hugepd_shift(*hpdp);
+out:
+	if (hpage_shift)
+		*hpage_shift = pdshift;
+	return ret_pte;
+}
+EXPORT_SYMBOL_GPL(__find_linux_pte);
+>>>>>>> upstream/android-13

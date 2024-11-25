@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0
 
+<<<<<<< HEAD
 config TRACE_IRQFLAGS_SUPPORT
 	bool
 	default y
 
+=======
+>>>>>>> upstream/android-13
 config DEBUG_DCFLUSH
 	bool "D-cache flush debugging"
 	depends on SPARC64 && DEBUG_KERNEL

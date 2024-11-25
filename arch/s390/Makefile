@@ -16,6 +16,7 @@ KBUILD_AFLAGS_MODULE += -fPIC
 KBUILD_CFLAGS_MODULE += -fPIC
 KBUILD_AFLAGS	+= -m64
 KBUILD_CFLAGS	+= -m64
+<<<<<<< HEAD
 aflags_dwarf	:= -Wa,-gdwarf-2
 KBUILD_AFLAGS_DECOMPRESSOR := -m64 -D__ASSEMBLY__
 KBUILD_AFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),$(aflags_dwarf))
@@ -29,6 +30,36 @@ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
 KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
 UTS_MACHINE	:= s390x
 STACK_SIZE	:= 16384
+=======
+ifeq ($(CONFIG_RELOCATABLE),y)
+KBUILD_CFLAGS	+= -fPIE
+LDFLAGS_vmlinux	:= -pie
+endif
+aflags_dwarf	:= -Wa,-gdwarf-2
+KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
+KBUILD_AFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),$(aflags_dwarf))
+KBUILD_CFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -O2
+KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
+KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float -mbackchain
+KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables
+KBUILD_CFLAGS_DECOMPRESSOR += -ffreestanding
+KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
+KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
+KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
+KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
+
+ifdef CONFIG_CC_IS_GCC
+	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
+		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
+			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
+			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
+		endif
+	endif
+endif
+
+UTS_MACHINE	:= s390x
+STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,16384)
+>>>>>>> upstream/android-13
 CHECKFLAGS	+= -D__s390__ -D__s390x__
 
 export LD_BFD
@@ -41,6 +72,10 @@ mflags-$(CONFIG_MARCH_Z196)   := -march=z196
 mflags-$(CONFIG_MARCH_ZEC12)  := -march=zEC12
 mflags-$(CONFIG_MARCH_Z13)    := -march=z13
 mflags-$(CONFIG_MARCH_Z14)    := -march=z14
+<<<<<<< HEAD
+=======
+mflags-$(CONFIG_MARCH_Z15)    := -march=z15
+>>>>>>> upstream/android-13
 
 export CC_FLAGS_MARCH := $(mflags-y)
 
@@ -55,6 +90,10 @@ cflags-$(CONFIG_MARCH_Z196_TUNE)	+= -mtune=z196
 cflags-$(CONFIG_MARCH_ZEC12_TUNE)	+= -mtune=zEC12
 cflags-$(CONFIG_MARCH_Z13_TUNE)		+= -mtune=z13
 cflags-$(CONFIG_MARCH_Z14_TUNE)		+= -mtune=z14
+<<<<<<< HEAD
+=======
+cflags-$(CONFIG_MARCH_Z15_TUNE)		+= -mtune=z15
+>>>>>>> upstream/android-13
 
 cflags-y += -Wa,-I$(srctree)/arch/$(ARCH)/include
 
@@ -63,7 +102,11 @@ cflags-y += -Wa,-I$(srctree)/arch/$(ARCH)/include
 #
 cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
 
+<<<<<<< HEAD
 ifeq ($(call cc-option-yn,-mpacked-stack -mbackchain -msoft-float),y)
+=======
+ifneq ($(call cc-option,-mpacked-stack -mbackchain -msoft-float),)
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_PACK_STACK)  += -mpacked-stack -D__PACK_STACK
 aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
 endif
@@ -71,6 +114,7 @@ endif
 KBUILD_AFLAGS_DECOMPRESSOR += $(aflags-y)
 KBUILD_CFLAGS_DECOMPRESSOR += $(cflags-y)
 
+<<<<<<< HEAD
 ifeq ($(call cc-option-yn,-mstack-size=8192 -mstack-guard=128),y)
 cflags-$(CONFIG_CHECK_STACK) += -mstack-size=$(STACK_SIZE)
 ifneq ($(call cc-option-yn,-mstack-size=8192),y)
@@ -87,6 +131,19 @@ endif
 
 ifdef CONFIG_EXPOLINE
   ifeq ($(call cc-option-yn,$(CC_FLAGS_MARCH) -mindirect-branch=thunk),y)
+=======
+ifneq ($(call cc-option,-mstack-size=8192 -mstack-guard=128),)
+  CC_FLAGS_CHECK_STACK := -mstack-size=$(STACK_SIZE)
+  ifeq ($(call cc-option,-mstack-size=8192),)
+    CC_FLAGS_CHECK_STACK += -mstack-guard=$(CONFIG_STACK_GUARD)
+  endif
+  export CC_FLAGS_CHECK_STACK
+  cflags-$(CONFIG_CHECK_STACK) += $(CC_FLAGS_CHECK_STACK)
+endif
+
+ifdef CONFIG_EXPOLINE
+  ifneq ($(call cc-option,$(CC_FLAGS_MARCH) -mindirect-branch=thunk),)
+>>>>>>> upstream/android-13
     CC_FLAGS_EXPOLINE := -mindirect-branch=thunk
     CC_FLAGS_EXPOLINE += -mfunction-return=thunk
     CC_FLAGS_EXPOLINE += -mindirect-branch-table
@@ -97,10 +154,17 @@ ifdef CONFIG_EXPOLINE
 endif
 
 ifdef CONFIG_FUNCTION_TRACER
+<<<<<<< HEAD
   ifeq ($(call cc-option-yn,-mfentry -mnop-mcount),n)
     # make use of hotpatch feature if the compiler supports it
     cc_hotpatch	:= -mhotpatch=0,3
     ifeq ($(call cc-option-yn,$(cc_hotpatch)),y)
+=======
+  ifeq ($(call cc-option,-mfentry -mnop-mcount),)
+    # make use of hotpatch feature if the compiler supports it
+    cc_hotpatch	:= -mhotpatch=0,3
+    ifneq ($(call cc-option,$(cc_hotpatch)),)
+>>>>>>> upstream/android-13
       CC_FLAGS_FTRACE := $(cc_hotpatch)
       KBUILD_AFLAGS	+= -DCC_USING_HOTPATCH
       KBUILD_CFLAGS	+= -DCC_USING_HOTPATCH
@@ -112,7 +176,11 @@ endif
 cfi := $(call as-instr,.cfi_startproc\n.cfi_val_offset 15$(comma)-160\n.cfi_endproc,-DCONFIG_AS_CFI_VAL_OFFSET=1)
 
 KBUILD_CFLAGS	+= -mbackchain -msoft-float $(cflags-y)
+<<<<<<< HEAD
 KBUILD_CFLAGS	+= -pipe -fno-strength-reduce -Wno-sign-compare
+=======
+KBUILD_CFLAGS	+= -pipe -Wno-sign-compare
+>>>>>>> upstream/android-13
 KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables $(cfi)
 KBUILD_AFLAGS	+= $(aflags-y) $(cfi)
 export KBUILD_AFLAGS_DECOMPRESSOR
@@ -122,6 +190,7 @@ OBJCOPYFLAGS	:= -O binary
 
 head-y		:= arch/s390/kernel/head64.o
 
+<<<<<<< HEAD
 # See arch/s390/Kbuild for content of core part of the kernel
 core-y		+= arch/s390/
 
@@ -131,6 +200,11 @@ drivers-y	+= drivers/s390/
 # must be linked after kernel
 drivers-$(CONFIG_OPROFILE)	+= arch/s390/oprofile/
 
+=======
+libs-y		+= arch/s390/lib/
+drivers-y	+= drivers/s390/
+
+>>>>>>> upstream/android-13
 boot		:= arch/s390/boot
 syscalls	:= arch/s390/kernel/syscalls
 tools		:= arch/s390/tools
@@ -141,7 +215,12 @@ all: bzImage
 KBUILD_IMAGE	:= $(boot)/bzImage
 
 install:
+<<<<<<< HEAD
 	$(Q)$(MAKE) $(build)=$(boot) $@
+=======
+	sh -x $(srctree)/$(boot)/install.sh $(KERNELRELEASE) $(KBUILD_IMAGE) \
+	      System.map "$(INSTALL_PATH)"
+>>>>>>> upstream/android-13
 
 bzImage: vmlinux
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
@@ -151,7 +230,10 @@ zfcpdump:
 
 vdso_install:
 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso64 $@
+<<<<<<< HEAD
 	$(Q)$(MAKE) $(build)=arch/$(ARCH)/kernel/vdso32 $@
+=======
+>>>>>>> upstream/android-13
 
 archclean:
 	$(Q)$(MAKE) $(clean)=$(boot)
@@ -163,6 +245,22 @@ archheaders:
 archprepare:
 	$(Q)$(MAKE) $(build)=$(syscalls) kapi
 	$(Q)$(MAKE) $(build)=$(tools) kapi
+<<<<<<< HEAD
+=======
+ifeq ($(KBUILD_EXTMOD),)
+# We need to generate vdso-offsets.h before compiling certain files in kernel/.
+# In order to do that, we should use the archprepare target, but we can't since
+# asm-offsets.h is included in some files used to generate vdso-offsets.h, and
+# asm-offsets.h is built in prepare0, for which archprepare is a dependency.
+# Therefore we need to generate the header after prepare0 has been made, hence
+# this hack.
+prepare: vdso_prepare
+vdso_prepare: prepare0
+	$(Q)$(MAKE) $(build)=arch/s390/kernel/vdso64 include/generated/vdso64-offsets.h
+	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
+		$(build)=arch/s390/kernel/vdso32 include/generated/vdso32-offsets.h)
+endif
+>>>>>>> upstream/android-13
 
 # Don't use tabs in echo arguments
 define archhelp

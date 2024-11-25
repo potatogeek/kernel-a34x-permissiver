@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* sha1-armv7-neon.S - ARM/NEON accelerated SHA-1 transform function
  *
  * Copyright © 2013-2014 Jussi Kivilinna <jussi.kivilinna@iki.fi>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* sha1-armv7-neon.S - ARM/NEON accelerated SHA-1 transform function
+ *
+ * Copyright © 2013-2014 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>

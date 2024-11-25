@@ -9,6 +9,7 @@
 #define EXTENT_MAP_LAST_BYTE ((u64)-4)
 #define EXTENT_MAP_HOLE ((u64)-3)
 #define EXTENT_MAP_INLINE ((u64)-2)
+<<<<<<< HEAD
 #define EXTENT_MAP_DELALLOC ((u64)-1)
 
 /* bits for the flags field */
@@ -18,6 +19,25 @@
 #define EXTENT_FLAG_LOGGING 4 /* Logging this extent */
 #define EXTENT_FLAG_FILLING 5 /* Filling in a preallocated extent */
 #define EXTENT_FLAG_FS_MAPPING 6 /* filesystem extent mapping type */
+=======
+/* used only during fiemap calls */
+#define EXTENT_MAP_DELALLOC ((u64)-1)
+
+/* bits for the extent_map::flags field */
+enum {
+	/* this entry not yet on disk, don't free it */
+	EXTENT_FLAG_PINNED,
+	EXTENT_FLAG_COMPRESSED,
+	/* pre-allocated extent */
+	EXTENT_FLAG_PREALLOC,
+	/* Logging this extent */
+	EXTENT_FLAG_LOGGING,
+	/* Filling in a preallocated extent */
+	EXTENT_FLAG_FILLING,
+	/* filesystem extent mapping type */
+	EXTENT_FLAG_FS_MAPPING,
+};
+>>>>>>> upstream/android-13
 
 struct extent_map {
 	struct rb_node rb_node;
@@ -34,6 +54,7 @@ struct extent_map {
 	u64 block_len;
 	u64 generation;
 	unsigned long flags;
+<<<<<<< HEAD
 	union {
 		struct block_device *bdev;
 
@@ -43,13 +64,21 @@ struct extent_map {
 		 */
 		struct map_lookup *map_lookup;
 	};
+=======
+	/* Used for chunk mappings, flag EXTENT_FLAG_FS_MAPPING must be set */
+	struct map_lookup *map_lookup;
+>>>>>>> upstream/android-13
 	refcount_t refs;
 	unsigned int compress_type;
 	struct list_head list;
 };
 
 struct extent_map_tree {
+<<<<<<< HEAD
 	struct rb_root map;
+=======
+	struct rb_root_cached map;
+>>>>>>> upstream/android-13
 	struct list_head modified_extents;
 	rwlock_t lock;
 };
@@ -78,7 +107,11 @@ struct extent_map *lookup_extent_mapping(struct extent_map_tree *tree,
 					 u64 start, u64 len);
 int add_extent_mapping(struct extent_map_tree *tree,
 		       struct extent_map *em, int modified);
+<<<<<<< HEAD
 int remove_extent_mapping(struct extent_map_tree *tree, struct extent_map *em);
+=======
+void remove_extent_mapping(struct extent_map_tree *tree, struct extent_map *em);
+>>>>>>> upstream/android-13
 void replace_extent_mapping(struct extent_map_tree *tree,
 			    struct extent_map *cur,
 			    struct extent_map *new,

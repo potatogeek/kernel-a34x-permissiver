@@ -46,6 +46,10 @@
 #define BCLINK_WIN_MIN      32	/* bcast minimum link window size */
 
 const char tipc_bclink_name[] = "broadcast-link";
+<<<<<<< HEAD
+=======
+unsigned long sysctl_tipc_bc_retruni __read_mostly;
+>>>>>>> upstream/android-13
 
 /**
  * struct tipc_bc_base - base structure for keeping broadcast send state
@@ -54,7 +58,13 @@ const char tipc_bclink_name[] = "broadcast-link";
  * @dests: array keeping number of reachable destinations per bearer
  * @primary_bearer: a bearer having links to all broadcast destinations, if any
  * @bcast_support: indicates if primary bearer, if any, supports broadcast
+<<<<<<< HEAD
  * @rcast_support: indicates if all peer nodes support replicast
+=======
+ * @force_bcast: forces broadcast for multicast traffic
+ * @rcast_support: indicates if all peer nodes support replicast
+ * @force_rcast: forces replicast for multicast traffic
+>>>>>>> upstream/android-13
  * @rc_ratio: dest count as percentage of cluster size where send method changes
  * @bc_threshold: calculated from rc_ratio; if dests > threshold use broadcast
  */
@@ -64,7 +74,13 @@ struct tipc_bc_base {
 	int dests[MAX_BEARERS];
 	int primary_bearer;
 	bool bcast_support;
+<<<<<<< HEAD
 	bool rcast_support;
+=======
+	bool force_bcast;
+	bool rcast_support;
+	bool force_rcast;
+>>>>>>> upstream/android-13
 	int rc_ratio;
 	int bc_threshold;
 };
@@ -80,12 +96,21 @@ static struct tipc_bc_base *tipc_bc_base(struct net *net)
  */
 int tipc_bcast_get_mtu(struct net *net)
 {
+<<<<<<< HEAD
 	return tipc_link_mtu(tipc_bc_sndlink(net)) - INT_H_SIZE;
 }
 
 void tipc_bcast_disable_rcast(struct net *net)
 {
 	tipc_bc_base(net)->rcast_support = false;
+=======
+	return tipc_link_mss(tipc_bc_sndlink(net));
+}
+
+void tipc_bcast_toggle_rcast(struct net *net, bool supp)
+{
+	tipc_bc_base(net)->rcast_support = supp;
+>>>>>>> upstream/android-13
 }
 
 static void tipc_bcbase_calc_bc_threshold(struct net *net)
@@ -103,6 +128,11 @@ static void tipc_bcbase_select_primary(struct net *net)
 {
 	struct tipc_bc_base *bb = tipc_bc_base(net);
 	int all_dests =  tipc_link_bc_peers(bb->link);
+<<<<<<< HEAD
+=======
+	int max_win = tipc_link_max_win(bb->link);
+	int min_win = tipc_link_min_win(bb->link);
+>>>>>>> upstream/android-13
 	int i, mtu, prim;
 
 	bb->primary_bearer = INVALID_BEARER_ID;
@@ -116,8 +146,17 @@ static void tipc_bcbase_select_primary(struct net *net)
 			continue;
 
 		mtu = tipc_bearer_mtu(net, i);
+<<<<<<< HEAD
 		if (mtu < tipc_link_mtu(bb->link))
 			tipc_link_set_mtu(bb->link, mtu);
+=======
+		if (mtu < tipc_link_mtu(bb->link)) {
+			tipc_link_set_mtu(bb->link, mtu);
+			tipc_link_set_queue_limits(bb->link,
+						   min_win,
+						   max_win);
+		}
+>>>>>>> upstream/android-13
 		bb->bcast_support &= tipc_bearer_bcast_support(net, i);
 		if (bb->dests[i] < all_dests)
 			continue;
@@ -216,9 +255,30 @@ static void tipc_bcast_select_xmit_method(struct net *net, int dests,
 	}
 	/* Can current method be changed ? */
 	method->expires = jiffies + TIPC_METHOD_EXPIRE;
+<<<<<<< HEAD
 	if (method->mandatory || time_before(jiffies, exp))
 		return;
 
+=======
+	if (method->mandatory)
+		return;
+
+	if (!(tipc_net(net)->capabilities & TIPC_MCAST_RBCTL) &&
+	    time_before(jiffies, exp))
+		return;
+
+	/* Configuration as force 'broadcast' method */
+	if (bb->force_bcast) {
+		method->rcast = false;
+		return;
+	}
+	/* Configuration as force 'replicast' method */
+	if (bb->force_rcast) {
+		method->rcast = true;
+		return;
+	}
+	/* Configuration as 'autoselect' or default method */
+>>>>>>> upstream/android-13
 	/* Determine method to use now */
 	method->rcast = dests <= bb->bc_threshold;
 }
@@ -230,8 +290,13 @@ static void tipc_bcast_select_xmit_method(struct net *net, int dests,
  * Consumes the buffer chain.
  * Returns 0 if success, otherwise errno: -EHOSTUNREACH,-EMSGSIZE
  */
+<<<<<<< HEAD
 static int tipc_bcast_xmit(struct net *net, struct sk_buff_head *pkts,
 			   u16 *cong_link_cnt)
+=======
+int tipc_bcast_xmit(struct net *net, struct sk_buff_head *pkts,
+		    u16 *cong_link_cnt)
+>>>>>>> upstream/android-13
 {
 	struct tipc_link *l = tipc_bc_sndlink(net);
 	struct sk_buff_head xmitq;
@@ -281,6 +346,67 @@ static int tipc_rcast_xmit(struct net *net, struct sk_buff_head *pkts,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* tipc_mcast_send_sync - deliver a dummy message with SYN bit
+ * @net: the applicable net namespace
+ * @skb: socket buffer to copy
+ * @method: send method to be used
+ * @dests: destination nodes for message.
+ * Returns 0 if success, otherwise errno
+ */
+static int tipc_mcast_send_sync(struct net *net, struct sk_buff *skb,
+				struct tipc_mc_method *method,
+				struct tipc_nlist *dests)
+{
+	struct tipc_msg *hdr, *_hdr;
+	struct sk_buff_head tmpq;
+	struct sk_buff *_skb;
+	u16 cong_link_cnt;
+	int rc = 0;
+
+	/* Is a cluster supporting with new capabilities ? */
+	if (!(tipc_net(net)->capabilities & TIPC_MCAST_RBCTL))
+		return 0;
+
+	hdr = buf_msg(skb);
+	if (msg_user(hdr) == MSG_FRAGMENTER)
+		hdr = msg_inner_hdr(hdr);
+	if (msg_type(hdr) != TIPC_MCAST_MSG)
+		return 0;
+
+	/* Allocate dummy message */
+	_skb = tipc_buf_acquire(MCAST_H_SIZE, GFP_KERNEL);
+	if (!_skb)
+		return -ENOMEM;
+
+	/* Preparing for 'synching' header */
+	msg_set_syn(hdr, 1);
+
+	/* Copy skb's header into a dummy header */
+	skb_copy_to_linear_data(_skb, hdr, MCAST_H_SIZE);
+	skb_orphan(_skb);
+
+	/* Reverse method for dummy message */
+	_hdr = buf_msg(_skb);
+	msg_set_size(_hdr, MCAST_H_SIZE);
+	msg_set_is_rcast(_hdr, !msg_is_rcast(hdr));
+	msg_set_errcode(_hdr, TIPC_ERR_NO_PORT);
+
+	__skb_queue_head_init(&tmpq);
+	__skb_queue_tail(&tmpq, _skb);
+	if (method->rcast)
+		rc = tipc_bcast_xmit(net, &tmpq, &cong_link_cnt);
+	else
+		rc = tipc_rcast_xmit(net, &tmpq, dests, &cong_link_cnt);
+
+	/* This queue should normally be empty by now */
+	__skb_queue_purge(&tmpq);
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 /* tipc_mcast_xmit - deliver message to indicated destination nodes
  *                   and to identified node local sockets
  * @net: the applicable net namespace
@@ -296,6 +422,12 @@ int tipc_mcast_xmit(struct net *net, struct sk_buff_head *pkts,
 		    u16 *cong_link_cnt)
 {
 	struct sk_buff_head inputq, localq;
+<<<<<<< HEAD
+=======
+	bool rcast = method->rcast;
+	struct tipc_msg *hdr;
+	struct sk_buff *skb;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	skb_queue_head_init(&inputq);
@@ -309,14 +441,41 @@ int tipc_mcast_xmit(struct net *net, struct sk_buff_head *pkts,
 	/* Send according to determined transmit method */
 	if (dests->remote) {
 		tipc_bcast_select_xmit_method(net, dests->remote, method);
+<<<<<<< HEAD
+=======
+
+		skb = skb_peek(pkts);
+		hdr = buf_msg(skb);
+		if (msg_user(hdr) == MSG_FRAGMENTER)
+			hdr = msg_inner_hdr(hdr);
+		msg_set_is_rcast(hdr, method->rcast);
+
+		/* Switch method ? */
+		if (rcast != method->rcast) {
+			rc = tipc_mcast_send_sync(net, skb, method, dests);
+			if (unlikely(rc)) {
+				pr_err("Unable to send SYN: method %d, rc %d\n",
+				       rcast, rc);
+				goto exit;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		if (method->rcast)
 			rc = tipc_rcast_xmit(net, pkts, dests, cong_link_cnt);
 		else
 			rc = tipc_bcast_xmit(net, pkts, cong_link_cnt);
 	}
 
+<<<<<<< HEAD
 	if (dests->local)
 		tipc_sk_mcast_rcv(net, &localq, &inputq);
+=======
+	if (dests->local) {
+		tipc_loopback_trace(net, &localq);
+		tipc_sk_mcast_rcv(net, &localq, &inputq);
+	}
+>>>>>>> upstream/android-13
 exit:
 	/* This queue should normally be empty by now */
 	__skb_queue_purge(pkts);
@@ -375,7 +534,11 @@ void tipc_bcast_ack_rcv(struct net *net, struct tipc_link *l,
 	__skb_queue_head_init(&xmitq);
 
 	tipc_bcast_lock(net);
+<<<<<<< HEAD
 	tipc_link_bc_ack_rcv(l, acked, &xmitq);
+=======
+	tipc_link_bc_ack_rcv(l, acked, 0, NULL, &xmitq, NULL);
+>>>>>>> upstream/android-13
 	tipc_bcast_unlock(net);
 
 	tipc_bcbase_xmit(net, &xmitq);
@@ -390,9 +553,17 @@ void tipc_bcast_ack_rcv(struct net *net, struct tipc_link *l,
  * RCU is locked, no other locks set
  */
 int tipc_bcast_sync_rcv(struct net *net, struct tipc_link *l,
+<<<<<<< HEAD
 			struct tipc_msg *hdr)
 {
 	struct sk_buff_head *inputq = &tipc_bc_base(net)->inputq;
+=======
+			struct tipc_msg *hdr,
+			struct sk_buff_head *retrq)
+{
+	struct sk_buff_head *inputq = &tipc_bc_base(net)->inputq;
+	struct tipc_gap_ack_blks *ga;
+>>>>>>> upstream/android-13
 	struct sk_buff_head xmitq;
 	int rc = 0;
 
@@ -402,8 +573,18 @@ int tipc_bcast_sync_rcv(struct net *net, struct tipc_link *l,
 	if (msg_type(hdr) != STATE_MSG) {
 		tipc_link_bc_init_rcv(l, hdr);
 	} else if (!msg_bc_ack_invalid(hdr)) {
+<<<<<<< HEAD
 		tipc_link_bc_ack_rcv(l, msg_bcast_ack(hdr), &xmitq);
 		rc = tipc_link_bc_sync_rcv(l, hdr, &xmitq);
+=======
+		tipc_get_gap_ack_blks(&ga, l, hdr, false);
+		if (!sysctl_tipc_bc_retruni)
+			retrq = &xmitq;
+		rc = tipc_link_bc_ack_rcv(l, msg_bcast_ack(hdr),
+					  msg_bc_gap(hdr), ga, &xmitq,
+					  retrq);
+		rc |= tipc_link_bc_sync_rcv(l, hdr, &xmitq);
+>>>>>>> upstream/android-13
 	}
 	tipc_bcast_unlock(net);
 
@@ -456,10 +637,15 @@ void tipc_bcast_remove_peer(struct net *net, struct tipc_link *rcv_l)
 		tipc_sk_rcv(net, inputq);
 }
 
+<<<<<<< HEAD
 int tipc_bclink_reset_stats(struct net *net)
 {
 	struct tipc_link *l = tipc_bc_sndlink(net);
 
+=======
+int tipc_bclink_reset_stats(struct net *net, struct tipc_link *l)
+{
+>>>>>>> upstream/android-13
 	if (!l)
 		return -ENOPROTOOPT;
 
@@ -469,26 +655,98 @@ int tipc_bclink_reset_stats(struct net *net)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tipc_bc_link_set_queue_limits(struct net *net, u32 limit)
+=======
+static int tipc_bc_link_set_queue_limits(struct net *net, u32 max_win)
+>>>>>>> upstream/android-13
 {
 	struct tipc_link *l = tipc_bc_sndlink(net);
 
 	if (!l)
 		return -ENOPROTOOPT;
+<<<<<<< HEAD
 	if (limit < BCLINK_WIN_MIN)
 		limit = BCLINK_WIN_MIN;
 	if (limit > TIPC_MAX_LINK_WIN)
 		return -EINVAL;
 	tipc_bcast_lock(net);
 	tipc_link_set_queue_limits(l, limit);
+=======
+	if (max_win < BCLINK_WIN_MIN)
+		max_win = BCLINK_WIN_MIN;
+	if (max_win > TIPC_MAX_LINK_WIN)
+		return -EINVAL;
+	tipc_bcast_lock(net);
+	tipc_link_set_queue_limits(l, tipc_link_min_win(l), max_win);
+>>>>>>> upstream/android-13
 	tipc_bcast_unlock(net);
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int tipc_bc_link_set_broadcast_mode(struct net *net, u32 bc_mode)
+{
+	struct tipc_bc_base *bb = tipc_bc_base(net);
+
+	switch (bc_mode) {
+	case BCLINK_MODE_BCAST:
+		if (!bb->bcast_support)
+			return -ENOPROTOOPT;
+
+		bb->force_bcast = true;
+		bb->force_rcast = false;
+		break;
+	case BCLINK_MODE_RCAST:
+		if (!bb->rcast_support)
+			return -ENOPROTOOPT;
+
+		bb->force_bcast = false;
+		bb->force_rcast = true;
+		break;
+	case BCLINK_MODE_SEL:
+		if (!bb->bcast_support || !bb->rcast_support)
+			return -ENOPROTOOPT;
+
+		bb->force_bcast = false;
+		bb->force_rcast = false;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int tipc_bc_link_set_broadcast_ratio(struct net *net, u32 bc_ratio)
+{
+	struct tipc_bc_base *bb = tipc_bc_base(net);
+
+	if (!bb->bcast_support || !bb->rcast_support)
+		return -ENOPROTOOPT;
+
+	if (bc_ratio > 100 || bc_ratio <= 0)
+		return -EINVAL;
+
+	bb->rc_ratio = bc_ratio;
+	tipc_bcast_lock(net);
+	tipc_bcbase_calc_bc_threshold(net);
+	tipc_bcast_unlock(net);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int tipc_nl_bc_link_set(struct net *net, struct nlattr *attrs[])
 {
 	int err;
 	u32 win;
+<<<<<<< HEAD
+=======
+	u32 bc_mode;
+	u32 bc_ratio;
+>>>>>>> upstream/android-13
 	struct nlattr *props[TIPC_NLA_PROP_MAX + 1];
 
 	if (!attrs[TIPC_NLA_LINK_PROP])
@@ -498,12 +756,37 @@ int tipc_nl_bc_link_set(struct net *net, struct nlattr *attrs[])
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	if (!props[TIPC_NLA_PROP_WIN])
 		return -EOPNOTSUPP;
 
 	win = nla_get_u32(props[TIPC_NLA_PROP_WIN]);
 
 	return tipc_bc_link_set_queue_limits(net, win);
+=======
+	if (!props[TIPC_NLA_PROP_WIN] &&
+	    !props[TIPC_NLA_PROP_BROADCAST] &&
+	    !props[TIPC_NLA_PROP_BROADCAST_RATIO]) {
+		return -EOPNOTSUPP;
+	}
+
+	if (props[TIPC_NLA_PROP_BROADCAST]) {
+		bc_mode = nla_get_u32(props[TIPC_NLA_PROP_BROADCAST]);
+		err = tipc_bc_link_set_broadcast_mode(net, bc_mode);
+	}
+
+	if (!err && props[TIPC_NLA_PROP_BROADCAST_RATIO]) {
+		bc_ratio = nla_get_u32(props[TIPC_NLA_PROP_BROADCAST_RATIO]);
+		err = tipc_bc_link_set_broadcast_ratio(net, bc_ratio);
+	}
+
+	if (!err && props[TIPC_NLA_PROP_WIN]) {
+		win = nla_get_u32(props[TIPC_NLA_PROP_WIN]);
+		err = tipc_bc_link_set_queue_limits(net, win);
+	}
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 int tipc_bcast_init(struct net *net)
@@ -518,8 +801,14 @@ int tipc_bcast_init(struct net *net)
 	tn->bcbase = bb;
 	spin_lock_init(&tipc_net(net)->bclock);
 
+<<<<<<< HEAD
 	if (!tipc_link_bc_create(net, 0, 0,
 				 FB_MTU,
+=======
+	if (!tipc_link_bc_create(net, 0, 0, NULL,
+				 one_page_mtu,
+				 BCLINK_WIN_DEFAULT,
+>>>>>>> upstream/android-13
 				 BCLINK_WIN_DEFAULT,
 				 0,
 				 &bb->inputq,
@@ -529,7 +818,11 @@ int tipc_bcast_init(struct net *net)
 		goto enomem;
 	bb->link = l;
 	tn->bcl = l;
+<<<<<<< HEAD
 	bb->rc_ratio = 25;
+=======
+	bb->rc_ratio = 10;
+>>>>>>> upstream/android-13
 	bb->rcast_support = true;
 	return 0;
 enomem:
@@ -576,3 +869,111 @@ void tipc_nlist_purge(struct tipc_nlist *nl)
 	nl->remote = 0;
 	nl->local = false;
 }
+<<<<<<< HEAD
+=======
+
+u32 tipc_bcast_get_mode(struct net *net)
+{
+	struct tipc_bc_base *bb = tipc_bc_base(net);
+
+	if (bb->force_bcast)
+		return BCLINK_MODE_BCAST;
+
+	if (bb->force_rcast)
+		return BCLINK_MODE_RCAST;
+
+	if (bb->bcast_support && bb->rcast_support)
+		return BCLINK_MODE_SEL;
+
+	return 0;
+}
+
+u32 tipc_bcast_get_broadcast_ratio(struct net *net)
+{
+	struct tipc_bc_base *bb = tipc_bc_base(net);
+
+	return bb->rc_ratio;
+}
+
+void tipc_mcast_filter_msg(struct net *net, struct sk_buff_head *defq,
+			   struct sk_buff_head *inputq)
+{
+	struct sk_buff *skb, *_skb, *tmp;
+	struct tipc_msg *hdr, *_hdr;
+	bool match = false;
+	u32 node, port;
+
+	skb = skb_peek(inputq);
+	if (!skb)
+		return;
+
+	hdr = buf_msg(skb);
+
+	if (likely(!msg_is_syn(hdr) && skb_queue_empty(defq)))
+		return;
+
+	node = msg_orignode(hdr);
+	if (node == tipc_own_addr(net))
+		return;
+
+	port = msg_origport(hdr);
+
+	/* Has the twin SYN message already arrived ? */
+	skb_queue_walk(defq, _skb) {
+		_hdr = buf_msg(_skb);
+		if (msg_orignode(_hdr) != node)
+			continue;
+		if (msg_origport(_hdr) != port)
+			continue;
+		match = true;
+		break;
+	}
+
+	if (!match) {
+		if (!msg_is_syn(hdr))
+			return;
+		__skb_dequeue(inputq);
+		__skb_queue_tail(defq, skb);
+		return;
+	}
+
+	/* Deliver non-SYN message from other link, otherwise queue it */
+	if (!msg_is_syn(hdr)) {
+		if (msg_is_rcast(hdr) != msg_is_rcast(_hdr))
+			return;
+		__skb_dequeue(inputq);
+		__skb_queue_tail(defq, skb);
+		return;
+	}
+
+	/* Queue non-SYN/SYN message from same link */
+	if (msg_is_rcast(hdr) == msg_is_rcast(_hdr)) {
+		__skb_dequeue(inputq);
+		__skb_queue_tail(defq, skb);
+		return;
+	}
+
+	/* Matching SYN messages => return the one with data, if any */
+	__skb_unlink(_skb, defq);
+	if (msg_data_sz(hdr)) {
+		kfree_skb(_skb);
+	} else {
+		__skb_dequeue(inputq);
+		kfree_skb(skb);
+		__skb_queue_tail(inputq, _skb);
+	}
+
+	/* Deliver subsequent non-SYN messages from same peer */
+	skb_queue_walk_safe(defq, _skb, tmp) {
+		_hdr = buf_msg(_skb);
+		if (msg_orignode(_hdr) != node)
+			continue;
+		if (msg_origport(_hdr) != port)
+			continue;
+		if (msg_is_syn(_hdr))
+			break;
+		__skb_unlink(_skb, defq);
+		__skb_queue_tail(inputq, _skb);
+	}
+}
+>>>>>>> upstream/android-13

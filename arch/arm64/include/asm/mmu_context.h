@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/include/asm/mmu_context.h
  *
  * Copyright (C) 1996 Russell King.
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_MMU_CONTEXT_H
 #define __ASM_MMU_CONTEXT_H
@@ -25,16 +32,28 @@
 #include <linux/sched.h>
 #include <linux/sched/hotplug.h>
 #include <linux/mm_types.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cacheflush.h>
 #include <asm/cpufeature.h>
 #include <asm/proc-fns.h>
 #include <asm-generic/mm_hooks.h>
 #include <asm/cputype.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/sysreg.h>
 #include <asm/tlbflush.h>
 
+=======
+#include <asm/sysreg.h>
+#include <asm/tlbflush.h>
+
+extern bool rodata_full;
+
+>>>>>>> upstream/android-13
 static inline void contextidr_thread_switch(struct task_struct *next)
 {
 	if (!IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR))
@@ -45,16 +64,29 @@ static inline void contextidr_thread_switch(struct task_struct *next)
 }
 
 /*
+<<<<<<< HEAD
  * Set TTBR0 to empty_zero_page. No translations will be possible via TTBR0.
  */
 static inline void cpu_set_reserved_ttbr0(void)
 {
 	unsigned long ttbr = phys_to_ttbr(__pa_symbol(empty_zero_page));
+=======
+ * Set TTBR0 to reserved_pg_dir. No translations will be possible via TTBR0.
+ */
+static inline void cpu_set_reserved_ttbr0(void)
+{
+	unsigned long ttbr = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
+>>>>>>> upstream/android-13
 
 	write_sysreg(ttbr, ttbr0_el1);
 	isb();
 }
 
+<<<<<<< HEAD
+=======
+void cpu_do_switch_mm(phys_addr_t pgd_phys, struct mm_struct *mm);
+
+>>>>>>> upstream/android-13
 static inline void cpu_switch_mm(pgd_t *pgd, struct mm_struct *mm)
 {
 	BUG_ON(pgd == swapper_pg_dir);
@@ -70,6 +102,7 @@ static inline void cpu_switch_mm(pgd_t *pgd, struct mm_struct *mm)
 extern u64 idmap_t0sz;
 extern u64 idmap_ptrs_per_pgd;
 
+<<<<<<< HEAD
 static inline bool __cpu_uses_extended_idmap(void)
 {
 	return unlikely(idmap_t0sz != TCR_T0SZ(VA_BITS));
@@ -95,13 +128,29 @@ static inline void __cpu_set_tcr_t0sz(unsigned long t0sz)
 		return;
 
 	tcr = read_sysreg(tcr_el1);
+=======
+/*
+ * Ensure TCR.T0SZ is set to the provided value.
+ */
+static inline void __cpu_set_tcr_t0sz(unsigned long t0sz)
+{
+	unsigned long tcr = read_sysreg(tcr_el1);
+
+	if ((tcr & TCR_T0SZ_MASK) >> TCR_T0SZ_OFFSET == t0sz)
+		return;
+
+>>>>>>> upstream/android-13
 	tcr &= ~TCR_T0SZ_MASK;
 	tcr |= t0sz << TCR_T0SZ_OFFSET;
 	write_sysreg(tcr, tcr_el1);
 	isb();
 }
 
+<<<<<<< HEAD
 #define cpu_set_default_tcr_t0sz()	__cpu_set_tcr_t0sz(TCR_T0SZ(VA_BITS))
+=======
+#define cpu_set_default_tcr_t0sz()	__cpu_set_tcr_t0sz(TCR_T0SZ(vabits_actual))
+>>>>>>> upstream/android-13
 #define cpu_set_idmap_tcr_t0sz()	__cpu_set_tcr_t0sz(idmap_t0sz)
 
 /*
@@ -147,12 +196,34 @@ static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp)
 	extern ttbr_replace_func idmap_cpu_replace_ttbr1;
 	ttbr_replace_func *replace_phys;
 
+<<<<<<< HEAD
 	phys_addr_t pgd_phys = virt_to_phys(pgdp);
 
 	replace_phys = (void *)__pa_function(idmap_cpu_replace_ttbr1);
 
 	cpu_install_idmap();
 	replace_phys(pgd_phys);
+=======
+	/* phys_to_ttbr() zeros lower 2 bits of ttbr with 52-bit PA */
+	phys_addr_t ttbr1 = phys_to_ttbr(virt_to_phys(pgdp));
+
+	if (system_supports_cnp() && !WARN_ON(pgdp != lm_alias(swapper_pg_dir))) {
+		/*
+		 * cpu_replace_ttbr1() is used when there's a boot CPU
+		 * up (i.e. cpufeature framework is not up yet) and
+		 * latter only when we enable CNP via cpufeature's
+		 * enable() callback.
+		 * Also we rely on the cpu_hwcap bit being set before
+		 * calling the enable() function.
+		 */
+		ttbr1 |= TTBR_CNP_BIT;
+	}
+
+	replace_phys = (void *)__pa_symbol(function_nocfi(idmap_cpu_replace_ttbr1));
+
+	cpu_install_idmap();
+	replace_phys(ttbr1);
+>>>>>>> upstream/android-13
 	cpu_uninstall_idmap();
 }
 
@@ -165,10 +236,23 @@ static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp)
  * Setting a reserved TTBR0 or EPD0 would work, but it all gets ugly when you
  * take CPU migration into account.
  */
+<<<<<<< HEAD
 #define destroy_context(mm)		do { } while(0)
 void check_and_switch_context(struct mm_struct *mm, unsigned int cpu);
 
 #define init_new_context(tsk,mm)	({ atomic64_set(&(mm)->context.id, 0); 0; })
+=======
+void check_and_switch_context(struct mm_struct *mm);
+
+#define init_new_context(tsk, mm) init_new_context(tsk, mm)
+static inline int
+init_new_context(struct task_struct *tsk, struct mm_struct *mm)
+{
+	atomic64_set(&mm->context.id, 0);
+	refcount_set(&mm->context.pinned, 0);
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ARM64_SW_TTBR0_PAN
 static inline void update_saved_ttbr0(struct task_struct *tsk,
@@ -180,9 +264,15 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
 		return;
 
 	if (mm == &init_mm)
+<<<<<<< HEAD
 		ttbr = __pa_symbol(empty_zero_page);
 	else
 		ttbr = virt_to_phys(mm->pgd) | ASID(mm) << 48;
+=======
+		ttbr = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
+	else
+		ttbr = phys_to_ttbr(virt_to_phys(mm->pgd)) | ASID(mm) << 48;
+>>>>>>> upstream/android-13
 
 	WRITE_ONCE(task_thread_info(tsk)->ttbr0, ttbr);
 }
@@ -193,6 +283,10 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#define enter_lazy_tlb enter_lazy_tlb
+>>>>>>> upstream/android-13
 static inline void
 enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {
@@ -205,8 +299,11 @@ enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 
 static inline void __switch_mm(struct mm_struct *next)
 {
+<<<<<<< HEAD
 	unsigned int cpu = smp_processor_id();
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * init_mm.pgd does not contain any user mappings and it is always
 	 * active for kernel addresses in TTBR1. Just set the reserved TTBR0.
@@ -216,7 +313,11 @@ static inline void __switch_mm(struct mm_struct *next)
 		return;
 	}
 
+<<<<<<< HEAD
 	check_and_switch_context(next, cpu);
+=======
+	check_and_switch_context(next);
+>>>>>>> upstream/android-13
 }
 
 static inline void
@@ -235,12 +336,35 @@ switch_mm(struct mm_struct *prev, struct mm_struct *next,
 	update_saved_ttbr0(tsk, next);
 }
 
+<<<<<<< HEAD
 #define deactivate_mm(tsk,mm)	do { } while (0)
 #define activate_mm(prev,next)	switch_mm(prev, next, current)
+=======
+static inline const struct cpumask *
+task_cpu_possible_mask(struct task_struct *p)
+{
+	if (!static_branch_unlikely(&arm64_mismatched_32bit_el0))
+		return cpu_possible_mask;
+
+	if (!is_compat_thread(task_thread_info(p)))
+		return cpu_possible_mask;
+
+	return system_32bit_el0_cpumask();
+}
+#define task_cpu_possible_mask	task_cpu_possible_mask
+>>>>>>> upstream/android-13
 
 void verify_cpu_asid_bits(void);
 void post_ttbr_update_workaround(void);
 
+<<<<<<< HEAD
+=======
+unsigned long arm64_mm_context_get(struct mm_struct *mm);
+void arm64_mm_context_put(struct mm_struct *mm);
+
+#include <asm-generic/mmu_context.h>
+
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 #endif /* !__ASM_MMU_CONTEXT_H */

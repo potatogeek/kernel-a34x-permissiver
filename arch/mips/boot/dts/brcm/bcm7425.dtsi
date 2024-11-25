@@ -403,8 +403,13 @@
 			compatible = "brcm,brcmnand-v5.0", "brcm,brcmnand";
 			#address-cells = <1>;
 			#size-cells = <0>;
+<<<<<<< HEAD
 			reg-names = "nand";
 			reg = <0x41b800 0x400>;
+=======
+			reg-names = "nand", "flash-edu";
+			reg = <0x41b800 0x400>, <0x41bc00 0x24>;
+>>>>>>> upstream/android-13
 			interrupt-parent = <&hif_l2_intc>;
 			interrupts = <24>;
 			status = "disabled";

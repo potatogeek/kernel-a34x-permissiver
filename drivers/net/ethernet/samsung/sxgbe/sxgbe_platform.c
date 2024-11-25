@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* 10G controller driver for Samsung SoCs
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
  * Author: Siva Reddy Kallam <siva.kallam@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -28,17 +35,31 @@
 
 #ifdef CONFIG_OF
 static int sxgbe_probe_config_dt(struct platform_device *pdev,
+<<<<<<< HEAD
 				 struct sxgbe_plat_data *plat,
 				 const char **mac)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct sxgbe_dma_cfg *dma_cfg;
+=======
+				 struct sxgbe_plat_data *plat)
+{
+	struct device_node *np = pdev->dev.of_node;
+	struct sxgbe_dma_cfg *dma_cfg;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!np)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	*mac = of_get_mac_address(np);
 	plat->interface = of_get_phy_mode(np);
+=======
+	err = of_get_phy_mode(np, &plat->interface);
+	if (err && err != -ENODEV)
+		return err;
+>>>>>>> upstream/android-13
 
 	plat->bus_id = of_alias_get_id(np, "ethernet");
 	if (plat->bus_id < 0)
@@ -63,8 +84,12 @@ static int sxgbe_probe_config_dt(struct platform_device *pdev,
 }
 #else
 static int sxgbe_probe_config_dt(struct platform_device *pdev,
+<<<<<<< HEAD
 				 struct sxgbe_plat_data *plat,
 				 const char **mac)
+=======
+				 struct sxgbe_plat_data *plat)
+>>>>>>> upstream/android-13
 {
 	return -ENOSYS;
 }
@@ -81,18 +106,28 @@ static int sxgbe_platform_probe(struct platform_device *pdev)
 {
 	int ret;
 	int i, chan;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = &pdev->dev;
 	void __iomem *addr;
 	struct sxgbe_priv_data *priv = NULL;
 	struct sxgbe_plat_data *plat_dat = NULL;
+<<<<<<< HEAD
 	const char *mac = NULL;
+=======
+>>>>>>> upstream/android-13
 	struct net_device *ndev = platform_get_drvdata(pdev);
 	struct device_node *node = dev->of_node;
 
 	/* Get memory resource */
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	addr = devm_ioremap_resource(dev, res);
+=======
+	addr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(addr))
 		return PTR_ERR(addr);
 
@@ -103,7 +138,11 @@ static int sxgbe_platform_probe(struct platform_device *pdev)
 		if (!plat_dat)
 			return  -ENOMEM;
 
+<<<<<<< HEAD
 		ret = sxgbe_probe_config_dt(pdev, plat_dat, &mac);
+=======
+		ret = sxgbe_probe_config_dt(pdev, plat_dat);
+>>>>>>> upstream/android-13
 		if (ret) {
 			pr_err("%s: main dt probe failed\n", __func__);
 			return ret;
@@ -124,8 +163,12 @@ static int sxgbe_platform_probe(struct platform_device *pdev)
 	}
 
 	/* Get MAC address if available (DT) */
+<<<<<<< HEAD
 	if (mac)
 		ether_addr_copy(priv->dev->dev_addr, mac);
+=======
+	of_get_mac_address(node, priv->dev->dev_addr);
+>>>>>>> upstream/android-13
 
 	/* Get the TX/RX IRQ numbers */
 	for (i = 0, chan = 1; i < SXGBE_TX_QUEUES; i++) {

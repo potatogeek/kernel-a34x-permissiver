@@ -3,15 +3,23 @@
  * Copyright (C) Maxime Coquelin 2015
  * Copyright (C) STMicroelectronics SA 2017
  * Authors:  Maxime Coquelin <mcoquelin.stm32@gmail.com>
+<<<<<<< HEAD
  *	     Gerald Baeza <gerald.baeza@st.com>
+=======
+ *	     Gerald Baeza <gerald.baeza@foss.st.com>
+ *	     Erwan Le Ray <erwan.leray@foss.st.com>
+>>>>>>> upstream/android-13
  *
  * Inspired by st-asc.c from STMicroelectronics (c)
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_STM32_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/console.h>
 #include <linux/delay.h>
@@ -24,6 +32,10 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/pm_wakeirq.h>
@@ -34,17 +46,29 @@
 #include <linux/tty_flip.h>
 #include <linux/tty.h>
 
+<<<<<<< HEAD
 #include "stm32-usart.h"
 
 static void stm32_stop_tx(struct uart_port *port);
 static void stm32_transmit_chars(struct uart_port *port);
+=======
+#include "serial_mctrl_gpio.h"
+#include "stm32-usart.h"
+
+static void stm32_usart_stop_tx(struct uart_port *port);
+static void stm32_usart_transmit_chars(struct uart_port *port);
+>>>>>>> upstream/android-13
 
 static inline struct stm32_port *to_stm32_port(struct uart_port *port)
 {
 	return container_of(port, struct stm32_port, port);
 }
 
+<<<<<<< HEAD
 static void stm32_set_bits(struct uart_port *port, u32 reg, u32 bits)
+=======
+static void stm32_usart_set_bits(struct uart_port *port, u32 reg, u32 bits)
+>>>>>>> upstream/android-13
 {
 	u32 val;
 
@@ -53,7 +77,11 @@ static void stm32_set_bits(struct uart_port *port, u32 reg, u32 bits)
 	writel_relaxed(val, port->membase + reg);
 }
 
+<<<<<<< HEAD
 static void stm32_clr_bits(struct uart_port *port, u32 reg, u32 bits)
+=======
+static void stm32_usart_clr_bits(struct uart_port *port, u32 reg, u32 bits)
+>>>>>>> upstream/android-13
 {
 	u32 val;
 
@@ -62,8 +90,13 @@ static void stm32_clr_bits(struct uart_port *port, u32 reg, u32 bits)
 	writel_relaxed(val, port->membase + reg);
 }
 
+<<<<<<< HEAD
 static void stm32_config_reg_rs485(u32 *cr1, u32 *cr3, u32 delay_ADE,
 				   u32 delay_DDE, u32 baud)
+=======
+static void stm32_usart_config_reg_rs485(u32 *cr1, u32 *cr3, u32 delay_ADE,
+					 u32 delay_DDE, u32 baud)
+>>>>>>> upstream/android-13
 {
 	u32 rs485_deat_dedt;
 	u32 rs485_deat_dedt_max = (USART_CR1_DEAT_MASK >> USART_CR1_DEAT_SHIFT);
@@ -97,6 +130,7 @@ static void stm32_config_reg_rs485(u32 *cr1, u32 *cr3, u32 delay_ADE,
 	*cr1 |= rs485_deat_dedt;
 }
 
+<<<<<<< HEAD
 static int stm32_config_rs485(struct uart_port *port,
 			      struct serial_rs485 *rs485conf)
 {
@@ -107,6 +141,18 @@ static int stm32_config_rs485(struct uart_port *port,
 	bool over8;
 
 	stm32_clr_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+=======
+static int stm32_usart_config_rs485(struct uart_port *port,
+				    struct serial_rs485 *rs485conf)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	const struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+	u32 usartdiv, baud, cr1, cr3;
+	bool over8;
+
+	stm32_usart_clr_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+>>>>>>> upstream/android-13
 
 	port->rs485 = *rs485conf;
 
@@ -124,9 +170,16 @@ static int stm32_config_rs485(struct uart_port *port,
 				   << USART_BRR_04_R_SHIFT;
 
 		baud = DIV_ROUND_CLOSEST(port->uartclk, usartdiv);
+<<<<<<< HEAD
 		stm32_config_reg_rs485(&cr1, &cr3,
 				       rs485conf->delay_rts_before_send,
 				       rs485conf->delay_rts_after_send, baud);
+=======
+		stm32_usart_config_reg_rs485(&cr1, &cr3,
+					     rs485conf->delay_rts_before_send,
+					     rs485conf->delay_rts_after_send,
+					     baud);
+>>>>>>> upstream/android-13
 
 		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
 			cr3 &= ~USART_CR3_DEP;
@@ -139,18 +192,33 @@ static int stm32_config_rs485(struct uart_port *port,
 		writel_relaxed(cr3, port->membase + ofs->cr3);
 		writel_relaxed(cr1, port->membase + ofs->cr1);
 	} else {
+<<<<<<< HEAD
 		stm32_clr_bits(port, ofs->cr3, USART_CR3_DEM | USART_CR3_DEP);
 		stm32_clr_bits(port, ofs->cr1,
 			       USART_CR1_DEDT_MASK | USART_CR1_DEAT_MASK);
 	}
 
 	stm32_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+=======
+		stm32_usart_clr_bits(port, ofs->cr3,
+				     USART_CR3_DEM | USART_CR3_DEP);
+		stm32_usart_clr_bits(port, ofs->cr1,
+				     USART_CR1_DEDT_MASK | USART_CR1_DEAT_MASK);
+	}
+
+	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int stm32_init_rs485(struct uart_port *port,
 			    struct platform_device *pdev)
+=======
+static int stm32_usart_init_rs485(struct uart_port *port,
+				  struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	struct serial_rs485 *rs485conf = &port->rs485;
 
@@ -161,6 +229,7 @@ static int stm32_init_rs485(struct uart_port *port,
 	if (!pdev->dev.of_node)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	uart_get_rs485_mode(&pdev->dev, rs485conf);
 
 	return 0;
@@ -171,6 +240,16 @@ static int stm32_pending_rx(struct uart_port *port, u32 *sr, int *last_res,
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+=======
+	return uart_get_rs485_mode(port);
+}
+
+static int stm32_usart_pending_rx(struct uart_port *port, u32 *sr,
+				  int *last_res, bool threaded)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+>>>>>>> upstream/android-13
 	enum dma_status status;
 	struct dma_tx_state state;
 
@@ -180,8 +259,12 @@ static int stm32_pending_rx(struct uart_port *port, u32 *sr, int *last_res,
 		status = dmaengine_tx_status(stm32_port->rx_ch,
 					     stm32_port->rx_ch->cookie,
 					     &state);
+<<<<<<< HEAD
 		if ((status == DMA_IN_PROGRESS) &&
 		    (*last_res != state.residue))
+=======
+		if (status == DMA_IN_PROGRESS && (*last_res != state.residue))
+>>>>>>> upstream/android-13
 			return 1;
 		else
 			return 0;
@@ -191,11 +274,19 @@ static int stm32_pending_rx(struct uart_port *port, u32 *sr, int *last_res,
 	return 0;
 }
 
+<<<<<<< HEAD
 static unsigned long stm32_get_char(struct uart_port *port, u32 *sr,
 				    int *last_res)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+=======
+static unsigned long stm32_usart_get_char(struct uart_port *port, u32 *sr,
+					  int *last_res)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+>>>>>>> upstream/android-13
 	unsigned long c;
 
 	if (stm32_port->rx_ch) {
@@ -211,19 +302,34 @@ static unsigned long stm32_get_char(struct uart_port *port, u32 *sr,
 	return c;
 }
 
+<<<<<<< HEAD
 static void stm32_receive_chars(struct uart_port *port, bool threaded)
 {
 	struct tty_port *tport = &port->state->port;
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+=======
+static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+{
+	struct tty_port *tport = &port->state->port;
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+>>>>>>> upstream/android-13
 	unsigned long c;
 	u32 sr;
 	char flag;
 
+<<<<<<< HEAD
 	if (irqd_is_wakeup_set(irq_get_irq_data(port->irq)))
 		pm_wakeup_event(tport->tty->dev, 0);
 
 	while (stm32_pending_rx(port, &sr, &stm32_port->last_res, threaded)) {
+=======
+	spin_lock(&port->lock);
+
+	while (stm32_usart_pending_rx(port, &sr, &stm32_port->last_res,
+				      threaded)) {
+>>>>>>> upstream/android-13
 		sr |= USART_SR_DUMMY_RX;
 		flag = TTY_NORMAL;
 
@@ -242,7 +348,11 @@ static void stm32_receive_chars(struct uart_port *port, bool threaded)
 			writel_relaxed(sr & USART_SR_ERR_MASK,
 				       port->membase + ofs->icr);
 
+<<<<<<< HEAD
 		c = stm32_get_char(port, &sr, &stm32_port->last_res);
+=======
+		c = stm32_usart_get_char(port, &sr, &stm32_port->last_res);
+>>>>>>> upstream/android-13
 		port->icount.rx++;
 		if (sr & USART_SR_ERR_MASK) {
 			if (sr & USART_SR_ORE) {
@@ -272,11 +382,16 @@ static void stm32_receive_chars(struct uart_port *port, bool threaded)
 			}
 		}
 
+<<<<<<< HEAD
 		if (uart_handle_sysrq_char(port, c))
+=======
+		if (uart_prepare_sysrq_char(port, c))
+>>>>>>> upstream/android-13
 			continue;
 		uart_insert_char(port, sr, USART_SR_ORE, c, flag);
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
@@ -330,6 +445,89 @@ static void stm32_transmit_chars_dma(struct uart_port *port)
 	struct circ_buf *xmit = &port->state->xmit;
 	struct dma_async_tx_descriptor *desc = NULL;
 	dma_cookie_t cookie;
+=======
+	uart_unlock_and_check_sysrq(port);
+
+	tty_flip_buffer_push(tport);
+}
+
+static void stm32_usart_tx_dma_complete(void *arg)
+{
+	struct uart_port *port = arg;
+	struct stm32_port *stm32port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
+	unsigned long flags;
+
+	dmaengine_terminate_async(stm32port->tx_ch);
+	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+	stm32port->tx_dma_busy = false;
+
+	/* Let's see if we have pending data to send */
+	spin_lock_irqsave(&port->lock, flags);
+	stm32_usart_transmit_chars(port);
+	spin_unlock_irqrestore(&port->lock, flags);
+}
+
+static void stm32_usart_tx_interrupt_enable(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+
+	/*
+	 * Enables TX FIFO threashold irq when FIFO is enabled,
+	 * or TX empty irq when FIFO is disabled
+	 */
+	if (stm32_port->fifoen && stm32_port->txftcfg >= 0)
+		stm32_usart_set_bits(port, ofs->cr3, USART_CR3_TXFTIE);
+	else
+		stm32_usart_set_bits(port, ofs->cr1, USART_CR1_TXEIE);
+}
+
+static void stm32_usart_tx_interrupt_disable(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+
+	if (stm32_port->fifoen && stm32_port->txftcfg >= 0)
+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_TXFTIE);
+	else
+		stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
+}
+
+static void stm32_usart_transmit_chars_pio(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	struct circ_buf *xmit = &port->state->xmit;
+
+	if (stm32_port->tx_dma_busy) {
+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+		stm32_port->tx_dma_busy = false;
+	}
+
+	while (!uart_circ_empty(xmit)) {
+		/* Check that TDR is empty before filling FIFO */
+		if (!(readl_relaxed(port->membase + ofs->isr) & USART_SR_TXE))
+			break;
+		writel_relaxed(xmit->buf[xmit->tail], port->membase + ofs->tdr);
+		xmit->tail = (xmit->tail + 1) & (UART_XMIT_SIZE - 1);
+		port->icount.tx++;
+	}
+
+	/* rely on TXE irq (mask or unmask) for sending remaining data */
+	if (uart_circ_empty(xmit))
+		stm32_usart_tx_interrupt_disable(port);
+	else
+		stm32_usart_tx_interrupt_enable(port);
+}
+
+static void stm32_usart_transmit_chars_dma(struct uart_port *port)
+{
+	struct stm32_port *stm32port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
+	struct circ_buf *xmit = &port->state->xmit;
+	struct dma_async_tx_descriptor *desc = NULL;
+>>>>>>> upstream/android-13
 	unsigned int count, i;
 
 	if (stm32port->tx_dma_busy)
@@ -363,6 +561,7 @@ static void stm32_transmit_chars_dma(struct uart_port *port)
 					   DMA_MEM_TO_DEV,
 					   DMA_PREP_INTERRUPT);
 
+<<<<<<< HEAD
 	if (!desc) {
 		for (i = count; i > 0; i--)
 			stm32_transmit_chars_pio(port);
@@ -374,10 +573,25 @@ static void stm32_transmit_chars_dma(struct uart_port *port)
 
 	/* Push current DMA TX transaction in the pending queue */
 	cookie = dmaengine_submit(desc);
+=======
+	if (!desc)
+		goto fallback_err;
+
+	desc->callback = stm32_usart_tx_dma_complete;
+	desc->callback_param = port;
+
+	/* Push current DMA TX transaction in the pending queue */
+	if (dma_submit_error(dmaengine_submit(desc))) {
+		/* dma no yet started, safe to free resources */
+		dmaengine_terminate_async(stm32port->tx_ch);
+		goto fallback_err;
+	}
+>>>>>>> upstream/android-13
 
 	/* Issue pending DMA TX requests */
 	dma_async_issue_pending(stm32port->tx_ch);
 
+<<<<<<< HEAD
 	stm32_set_bits(port, ofs->cr3, USART_CR3_DMAT);
 
 	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
@@ -393,33 +607,86 @@ static void stm32_transmit_chars(struct uart_port *port)
 	if (port->x_char) {
 		if (stm32_port->tx_dma_busy)
 			stm32_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+=======
+	stm32_usart_set_bits(port, ofs->cr3, USART_CR3_DMAT);
+
+	xmit->tail = (xmit->tail + count) & (UART_XMIT_SIZE - 1);
+	port->icount.tx += count;
+	return;
+
+fallback_err:
+	for (i = count; i > 0; i--)
+		stm32_usart_transmit_chars_pio(port);
+}
+
+static void stm32_usart_transmit_chars(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	struct circ_buf *xmit = &port->state->xmit;
+	u32 isr;
+	int ret;
+
+	if (port->x_char) {
+		if (stm32_port->tx_dma_busy)
+			stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+
+		/* Check that TDR is empty before filling FIFO */
+		ret =
+		readl_relaxed_poll_timeout_atomic(port->membase + ofs->isr,
+						  isr,
+						  (isr & USART_SR_TXE),
+						  10, 1000);
+		if (ret)
+			dev_warn(port->dev, "1 character may be erased\n");
+
+>>>>>>> upstream/android-13
 		writel_relaxed(port->x_char, port->membase + ofs->tdr);
 		port->x_char = 0;
 		port->icount.tx++;
 		if (stm32_port->tx_dma_busy)
+<<<<<<< HEAD
 			stm32_set_bits(port, ofs->cr3, USART_CR3_DMAT);
+=======
+			stm32_usart_set_bits(port, ofs->cr3, USART_CR3_DMAT);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (uart_circ_empty(xmit) || uart_tx_stopped(port)) {
+<<<<<<< HEAD
 		stm32_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
+=======
+		stm32_usart_tx_interrupt_disable(port);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (ofs->icr == UNDEF_REG)
+<<<<<<< HEAD
 		stm32_clr_bits(port, ofs->isr, USART_SR_TC);
+=======
+		stm32_usart_clr_bits(port, ofs->isr, USART_SR_TC);
+>>>>>>> upstream/android-13
 	else
 		writel_relaxed(USART_ICR_TCCF, port->membase + ofs->icr);
 
 	if (stm32_port->tx_ch)
+<<<<<<< HEAD
 		stm32_transmit_chars_dma(port);
 	else
 		stm32_transmit_chars_pio(port);
+=======
+		stm32_usart_transmit_chars_dma(port);
+	else
+		stm32_usart_transmit_chars_pio(port);
+>>>>>>> upstream/android-13
 
 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
 		uart_write_wakeup(port);
 
 	if (uart_circ_empty(xmit))
+<<<<<<< HEAD
 		stm32_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
 }
 
@@ -445,6 +712,42 @@ static irqreturn_t stm32_interrupt(int irq, void *ptr)
 		stm32_transmit_chars(port);
 
 	spin_unlock(&port->lock);
+=======
+		stm32_usart_tx_interrupt_disable(port);
+}
+
+static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
+{
+	struct uart_port *port = ptr;
+	struct tty_port *tport = &port->state->port;
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	u32 sr;
+
+	sr = readl_relaxed(port->membase + ofs->isr);
+
+	if ((sr & USART_SR_RTOF) && ofs->icr != UNDEF_REG)
+		writel_relaxed(USART_ICR_RTOCF,
+			       port->membase + ofs->icr);
+
+	if ((sr & USART_SR_WUF) && ofs->icr != UNDEF_REG) {
+		/* Clear wake up flag and disable wake up interrupt */
+		writel_relaxed(USART_ICR_WUCF,
+			       port->membase + ofs->icr);
+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_WUFIE);
+		if (irqd_is_wakeup_set(irq_get_irq_data(port->irq)))
+			pm_wakeup_event(tport->tty->dev, 0);
+	}
+
+	if ((sr & USART_SR_RXNE) && !(stm32_port->rx_ch))
+		stm32_usart_receive_chars(port, false);
+
+	if ((sr & USART_SR_TXE) && !(stm32_port->tx_ch)) {
+		spin_lock(&port->lock);
+		stm32_usart_transmit_chars(port);
+		spin_unlock(&port->lock);
+	}
+>>>>>>> upstream/android-13
 
 	if (stm32_port->rx_ch)
 		return IRQ_WAKE_THREAD;
@@ -452,25 +755,41 @@ static irqreturn_t stm32_interrupt(int irq, void *ptr)
 		return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static irqreturn_t stm32_threaded_interrupt(int irq, void *ptr)
+=======
+static irqreturn_t stm32_usart_threaded_interrupt(int irq, void *ptr)
+>>>>>>> upstream/android-13
 {
 	struct uart_port *port = ptr;
 	struct stm32_port *stm32_port = to_stm32_port(port);
 
+<<<<<<< HEAD
 	spin_lock(&port->lock);
 
 	if (stm32_port->rx_ch)
 		stm32_receive_chars(port, true);
 
 	spin_unlock(&port->lock);
+=======
+	if (stm32_port->rx_ch)
+		stm32_usart_receive_chars(port, true);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static unsigned int stm32_tx_empty(struct uart_port *port)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+=======
+static unsigned int stm32_usart_tx_empty(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+>>>>>>> upstream/android-13
 
 	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
 		return TIOCSER_TEMT;
@@ -478,6 +797,7 @@ static unsigned int stm32_tx_empty(struct uart_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void stm32_set_mctrl(struct uart_port *port, unsigned int mctrl)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
@@ -524,10 +844,114 @@ static void stm32_throttle(struct uart_port *port)
 
 	spin_lock_irqsave(&port->lock, flags);
 	stm32_clr_bits(port, ofs->cr1, USART_CR1_RXNEIE);
+=======
+static void stm32_usart_set_mctrl(struct uart_port *port, unsigned int mctrl)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+
+	if ((mctrl & TIOCM_RTS) && (port->status & UPSTAT_AUTORTS))
+		stm32_usart_set_bits(port, ofs->cr3, USART_CR3_RTSE);
+	else
+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_RTSE);
+
+	mctrl_gpio_set(stm32_port->gpios, mctrl);
+}
+
+static unsigned int stm32_usart_get_mctrl(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	unsigned int ret;
+
+	/* This routine is used to get signals of: DCD, DSR, RI, and CTS */
+	ret = TIOCM_CAR | TIOCM_DSR | TIOCM_CTS;
+
+	return mctrl_gpio_get(stm32_port->gpios, &ret);
+}
+
+static void stm32_usart_enable_ms(struct uart_port *port)
+{
+	mctrl_gpio_enable_ms(to_stm32_port(port)->gpios);
+}
+
+static void stm32_usart_disable_ms(struct uart_port *port)
+{
+	mctrl_gpio_disable_ms(to_stm32_port(port)->gpios);
+}
+
+/* Transmit stop */
+static void stm32_usart_stop_tx(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	struct serial_rs485 *rs485conf = &port->rs485;
+
+	stm32_usart_tx_interrupt_disable(port);
+
+	if (rs485conf->flags & SER_RS485_ENABLED) {
+		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+			mctrl_gpio_set(stm32_port->gpios,
+					stm32_port->port.mctrl & ~TIOCM_RTS);
+		} else {
+			mctrl_gpio_set(stm32_port->gpios,
+					stm32_port->port.mctrl | TIOCM_RTS);
+		}
+	}
+}
+
+/* There are probably characters waiting to be transmitted. */
+static void stm32_usart_start_tx(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	struct serial_rs485 *rs485conf = &port->rs485;
+	struct circ_buf *xmit = &port->state->xmit;
+
+	if (uart_circ_empty(xmit) && !port->x_char)
+		return;
+
+	if (rs485conf->flags & SER_RS485_ENABLED) {
+		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+			mctrl_gpio_set(stm32_port->gpios,
+					stm32_port->port.mctrl | TIOCM_RTS);
+		} else {
+			mctrl_gpio_set(stm32_port->gpios,
+					stm32_port->port.mctrl & ~TIOCM_RTS);
+		}
+	}
+
+	stm32_usart_transmit_chars(port);
+}
+
+/* Flush the transmit buffer. */
+static void stm32_usart_flush_buffer(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+
+	if (stm32_port->tx_ch) {
+		dmaengine_terminate_async(stm32_port->tx_ch);
+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+		stm32_port->tx_dma_busy = false;
+	}
+}
+
+/* Throttle the remote when input buffer is about to overflow. */
+static void stm32_usart_throttle(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	unsigned long flags;
+
+	spin_lock_irqsave(&port->lock, flags);
+	stm32_usart_clr_bits(port, ofs->cr1, stm32_port->cr1_irq);
+	if (stm32_port->cr3_irq)
+		stm32_usart_clr_bits(port, ofs->cr3, stm32_port->cr3_irq);
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&port->lock, flags);
 }
 
 /* Unthrottle the remote, the input buffer can now accept data. */
+<<<<<<< HEAD
 static void stm32_unthrottle(struct uart_port *port)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
@@ -536,10 +960,24 @@ static void stm32_unthrottle(struct uart_port *port)
 
 	spin_lock_irqsave(&port->lock, flags);
 	stm32_set_bits(port, ofs->cr1, USART_CR1_RXNEIE);
+=======
+static void stm32_usart_unthrottle(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	unsigned long flags;
+
+	spin_lock_irqsave(&port->lock, flags);
+	stm32_usart_set_bits(port, ofs->cr1, stm32_port->cr1_irq);
+	if (stm32_port->cr3_irq)
+		stm32_usart_set_bits(port, ofs->cr3, stm32_port->cr3_irq);
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&port->lock, flags);
 }
 
 /* Receive stop */
+<<<<<<< HEAD
 static void stm32_stop_rx(struct uart_port *port)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
@@ -557,10 +995,33 @@ static int stm32_startup(struct uart_port *port)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+=======
+static void stm32_usart_stop_rx(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+
+	stm32_usart_clr_bits(port, ofs->cr1, stm32_port->cr1_irq);
+	if (stm32_port->cr3_irq)
+		stm32_usart_clr_bits(port, ofs->cr3, stm32_port->cr3_irq);
+}
+
+/* Handle breaks - ignored by us */
+static void stm32_usart_break_ctl(struct uart_port *port, int break_state)
+{
+}
+
+static int stm32_usart_startup(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	const struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+>>>>>>> upstream/android-13
 	const char *name = to_platform_device(port->dev)->name;
 	u32 val;
 	int ret;
 
+<<<<<<< HEAD
 	ret = request_threaded_irq(port->irq, stm32_interrupt,
 				   stm32_threaded_interrupt,
 				   IRQF_NO_SUSPEND, name, port);
@@ -571,10 +1032,33 @@ static int stm32_startup(struct uart_port *port)
 	if (stm32_port->fifoen)
 		val |= USART_CR1_FIFOEN;
 	stm32_set_bits(port, ofs->cr1, val);
+=======
+	ret = request_threaded_irq(port->irq, stm32_usart_interrupt,
+				   stm32_usart_threaded_interrupt,
+				   IRQF_ONESHOT | IRQF_NO_SUSPEND,
+				   name, port);
+	if (ret)
+		return ret;
+
+	if (stm32_port->swap) {
+		val = readl_relaxed(port->membase + ofs->cr2);
+		val |= USART_CR2_SWAP;
+		writel_relaxed(val, port->membase + ofs->cr2);
+	}
+
+	/* RX FIFO Flush */
+	if (ofs->rqr != UNDEF_REG)
+		writel_relaxed(USART_RQR_RXFRQ, port->membase + ofs->rqr);
+
+	/* RX enabling */
+	val = stm32_port->cr1_irq | USART_CR1_RE | BIT(cfg->uart_enable_bit);
+	stm32_usart_set_bits(port, ofs->cr1, val);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void stm32_shutdown(struct uart_port *port)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
@@ -584,6 +1068,26 @@ static void stm32_shutdown(struct uart_port *port)
 	int ret;
 
 	val = USART_CR1_TXEIE | USART_CR1_RXNEIE | USART_CR1_TE | USART_CR1_RE;
+=======
+static void stm32_usart_shutdown(struct uart_port *port)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	const struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+	u32 val, isr;
+	int ret;
+
+	if (stm32_port->tx_dma_busy) {
+		dmaengine_terminate_async(stm32_port->tx_ch);
+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+	}
+
+	/* Disable modem control interrupts */
+	stm32_usart_disable_ms(port);
+
+	val = USART_CR1_TXEIE | USART_CR1_TE;
+	val |= stm32_port->cr1_irq | USART_CR1_RE;
+>>>>>>> upstream/android-13
 	val |= BIT(cfg->uart_enable_bit);
 	if (stm32_port->fifoen)
 		val |= USART_CR1_FIFOEN;
@@ -592,14 +1096,28 @@ static void stm32_shutdown(struct uart_port *port)
 					 isr, (isr & USART_SR_TC),
 					 10, 100000);
 
+<<<<<<< HEAD
 	if (ret)
 		dev_err(port->dev, "transmission complete not set\n");
 
 	stm32_clr_bits(port, ofs->cr1, val);
+=======
+	/* Send the TC error message only when ISR_TC is not set */
+	if (ret)
+		dev_err(port->dev, "Transmission is not complete\n");
+
+	/* flush RX & TX FIFO */
+	if (ofs->rqr != UNDEF_REG)
+		writel_relaxed(USART_RQR_TXFRQ | USART_RQR_RXFRQ,
+			       port->membase + ofs->rqr);
+
+	stm32_usart_clr_bits(port, ofs->cr1, val);
+>>>>>>> upstream/android-13
 
 	free_irq(port->irq, port);
 }
 
+<<<<<<< HEAD
 unsigned int stm32_get_databits(struct ktermios *termios)
 {
 	unsigned int bits;
@@ -636,6 +1154,15 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
 	struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+=======
+static void stm32_usart_set_termios(struct uart_port *port,
+				    struct ktermios *termios,
+				    struct ktermios *old)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	const struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+>>>>>>> upstream/android-13
 	struct serial_rs485 *rs485conf = &port->rs485;
 	unsigned int baud, bits;
 	u32 usartdiv, mantissa, fraction, oversampling;
@@ -663,17 +1190,43 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 	/* Stop serial port and reset value */
 	writel_relaxed(0, port->membase + ofs->cr1);
 
+<<<<<<< HEAD
 	cr1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE;
 
 	if (stm32_port->fifoen)
 		cr1 |= USART_CR1_FIFOEN;
 	cr2 = 0;
 	cr3 = 0;
+=======
+	/* flush RX & TX FIFO */
+	if (ofs->rqr != UNDEF_REG)
+		writel_relaxed(USART_RQR_TXFRQ | USART_RQR_RXFRQ,
+			       port->membase + ofs->rqr);
+
+	cr1 = USART_CR1_TE | USART_CR1_RE;
+	if (stm32_port->fifoen)
+		cr1 |= USART_CR1_FIFOEN;
+	cr2 = stm32_port->swap ? USART_CR2_SWAP : 0;
+
+	/* Tx and RX FIFO configuration */
+	cr3 = readl_relaxed(port->membase + ofs->cr3);
+	cr3 &= USART_CR3_TXFTIE | USART_CR3_RXFTIE;
+	if (stm32_port->fifoen) {
+		if (stm32_port->txftcfg >= 0)
+			cr3 |= stm32_port->txftcfg << USART_CR3_TXFTCFG_SHIFT;
+		if (stm32_port->rxftcfg >= 0)
+			cr3 |= stm32_port->rxftcfg << USART_CR3_RXFTCFG_SHIFT;
+	}
+>>>>>>> upstream/android-13
 
 	if (cflag & CSTOPB)
 		cr2 |= USART_CR2_STOP_2B;
 
+<<<<<<< HEAD
 	bits = stm32_get_databits(termios);
+=======
+	bits = tty_get_char_size(cflag);
+>>>>>>> upstream/android-13
 	stm32_port->rdr_mask = (BIT(bits) - 1);
 
 	if (cflag & PARENB) {
@@ -696,6 +1249,29 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 		dev_dbg(port->dev, "Unsupported data bits config: %u bits\n"
 			, bits);
 
+<<<<<<< HEAD
+=======
+	if (ofs->rtor != UNDEF_REG && (stm32_port->rx_ch ||
+				       (stm32_port->fifoen &&
+					stm32_port->rxftcfg >= 0))) {
+		if (cflag & CSTOPB)
+			bits = bits + 3; /* 1 start bit + 2 stop bits */
+		else
+			bits = bits + 2; /* 1 start bit + 1 stop bit */
+
+		/* RX timeout irq to occur after last stop bit + bits */
+		stm32_port->cr1_irq = USART_CR1_RTOIE;
+		writel_relaxed(bits, port->membase + ofs->rtor);
+		cr2 |= USART_CR2_RTOEN;
+		/* Not using dma, enable fifo threshold irq */
+		if (!stm32_port->rx_ch)
+			stm32_port->cr3_irq =  USART_CR3_RXFTIE;
+	}
+
+	cr1 |= stm32_port->cr1_irq;
+	cr3 |= stm32_port->cr3_irq;
+
+>>>>>>> upstream/android-13
 	if (cflag & PARODD)
 		cr1 |= USART_CR1_PS;
 
@@ -716,11 +1292,19 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 	if (usartdiv < 16) {
 		oversampling = 8;
 		cr1 |= USART_CR1_OVER8;
+<<<<<<< HEAD
 		stm32_set_bits(port, ofs->cr1, USART_CR1_OVER8);
 	} else {
 		oversampling = 16;
 		cr1 &= ~USART_CR1_OVER8;
 		stm32_clr_bits(port, ofs->cr1, USART_CR1_OVER8);
+=======
+		stm32_usart_set_bits(port, ofs->cr1, USART_CR1_OVER8);
+	} else {
+		oversampling = 16;
+		cr1 &= ~USART_CR1_OVER8;
+		stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_OVER8);
+>>>>>>> upstream/android-13
 	}
 
 	mantissa = (usartdiv / oversampling) << USART_BRR_DIV_M_SHIFT;
@@ -757,9 +1341,16 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 		cr3 |= USART_CR3_DMAR;
 
 	if (rs485conf->flags & SER_RS485_ENABLED) {
+<<<<<<< HEAD
 		stm32_config_reg_rs485(&cr1, &cr3,
 				       rs485conf->delay_rts_before_send,
 				       rs485conf->delay_rts_after_send, baud);
+=======
+		stm32_usart_config_reg_rs485(&cr1, &cr3,
+					     rs485conf->delay_rts_before_send,
+					     rs485conf->delay_rts_after_send,
+					     baud);
+>>>>>>> upstream/android-13
 		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
 			cr3 &= ~USART_CR3_DEP;
 			rs485conf->flags &= ~SER_RS485_RTS_AFTER_SEND;
@@ -773,41 +1364,81 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 		cr1 &= ~(USART_CR1_DEDT_MASK | USART_CR1_DEAT_MASK);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Configure wake up from low power on start bit detection */
+	if (stm32_port->wakeup_src) {
+		cr3 &= ~USART_CR3_WUS_MASK;
+		cr3 |= USART_CR3_WUS_START_BIT;
+	}
+
+>>>>>>> upstream/android-13
 	writel_relaxed(cr3, port->membase + ofs->cr3);
 	writel_relaxed(cr2, port->membase + ofs->cr2);
 	writel_relaxed(cr1, port->membase + ofs->cr1);
 
+<<<<<<< HEAD
 	stm32_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
 	spin_unlock_irqrestore(&port->lock, flags);
 }
 
 static const char *stm32_type(struct uart_port *port)
+=======
+	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+	spin_unlock_irqrestore(&port->lock, flags);
+
+	/* Handle modem control interrupts */
+	if (UART_ENABLE_MS(port, termios->c_cflag))
+		stm32_usart_enable_ms(port);
+	else
+		stm32_usart_disable_ms(port);
+}
+
+static const char *stm32_usart_type(struct uart_port *port)
+>>>>>>> upstream/android-13
 {
 	return (port->type == PORT_STM32) ? DRIVER_NAME : NULL;
 }
 
+<<<<<<< HEAD
 static void stm32_release_port(struct uart_port *port)
 {
 }
 
 static int stm32_request_port(struct uart_port *port)
+=======
+static void stm32_usart_release_port(struct uart_port *port)
+{
+}
+
+static int stm32_usart_request_port(struct uart_port *port)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static void stm32_config_port(struct uart_port *port, int flags)
+=======
+static void stm32_usart_config_port(struct uart_port *port, int flags)
+>>>>>>> upstream/android-13
 {
 	if (flags & UART_CONFIG_TYPE)
 		port->type = PORT_STM32;
 }
 
 static int
+<<<<<<< HEAD
 stm32_verify_port(struct uart_port *port, struct serial_struct *ser)
+=======
+stm32_usart_verify_port(struct uart_port *port, struct serial_struct *ser)
+>>>>>>> upstream/android-13
 {
 	/* No user changeable parameters */
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static void stm32_pm(struct uart_port *port, unsigned int state,
 		unsigned int oldstate)
 {
@@ -826,11 +1457,32 @@ static void stm32_pm(struct uart_port *port, unsigned int state,
 		stm32_clr_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
 		spin_unlock_irqrestore(&port->lock, flags);
 		clk_disable_unprepare(stm32port->clk);
+=======
+static void stm32_usart_pm(struct uart_port *port, unsigned int state,
+			   unsigned int oldstate)
+{
+	struct stm32_port *stm32port = container_of(port,
+			struct stm32_port, port);
+	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
+	const struct stm32_usart_config *cfg = &stm32port->info->cfg;
+	unsigned long flags;
+
+	switch (state) {
+	case UART_PM_STATE_ON:
+		pm_runtime_get_sync(port->dev);
+		break;
+	case UART_PM_STATE_OFF:
+		spin_lock_irqsave(&port->lock, flags);
+		stm32_usart_clr_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+		spin_unlock_irqrestore(&port->lock, flags);
+		pm_runtime_put_sync(port->dev);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
 
 static const struct uart_ops stm32_uart_ops = {
+<<<<<<< HEAD
 	.tx_empty	= stm32_tx_empty,
 	.set_mctrl	= stm32_set_mctrl,
 	.get_mctrl	= stm32_get_mctrl,
@@ -857,11 +1509,84 @@ static int stm32_init_port(struct stm32_port *stm32port,
 	struct uart_port *port = &stm32port->port;
 	struct resource *res;
 	int ret;
+=======
+	.tx_empty	= stm32_usart_tx_empty,
+	.set_mctrl	= stm32_usart_set_mctrl,
+	.get_mctrl	= stm32_usart_get_mctrl,
+	.stop_tx	= stm32_usart_stop_tx,
+	.start_tx	= stm32_usart_start_tx,
+	.throttle	= stm32_usart_throttle,
+	.unthrottle	= stm32_usart_unthrottle,
+	.stop_rx	= stm32_usart_stop_rx,
+	.enable_ms	= stm32_usart_enable_ms,
+	.break_ctl	= stm32_usart_break_ctl,
+	.startup	= stm32_usart_startup,
+	.shutdown	= stm32_usart_shutdown,
+	.flush_buffer	= stm32_usart_flush_buffer,
+	.set_termios	= stm32_usart_set_termios,
+	.pm		= stm32_usart_pm,
+	.type		= stm32_usart_type,
+	.release_port	= stm32_usart_release_port,
+	.request_port	= stm32_usart_request_port,
+	.config_port	= stm32_usart_config_port,
+	.verify_port	= stm32_usart_verify_port,
+};
+
+/*
+ * STM32H7 RX & TX FIFO threshold configuration (CR3 RXFTCFG / TXFTCFG)
+ * Note: 1 isn't a valid value in RXFTCFG / TXFTCFG. In this case,
+ * RXNEIE / TXEIE can be used instead of threshold irqs: RXFTIE / TXFTIE.
+ * So, RXFTCFG / TXFTCFG bitfields values are encoded as array index + 1.
+ */
+static const u32 stm32h7_usart_fifo_thresh_cfg[] = { 1, 2, 4, 8, 12, 14, 16 };
+
+static void stm32_usart_get_ftcfg(struct platform_device *pdev, const char *p,
+				  int *ftcfg)
+{
+	u32 bytes, i;
+
+	/* DT option to get RX & TX FIFO threshold (default to 8 bytes) */
+	if (of_property_read_u32(pdev->dev.of_node, p, &bytes))
+		bytes = 8;
+
+	for (i = 0; i < ARRAY_SIZE(stm32h7_usart_fifo_thresh_cfg); i++)
+		if (stm32h7_usart_fifo_thresh_cfg[i] >= bytes)
+			break;
+	if (i >= ARRAY_SIZE(stm32h7_usart_fifo_thresh_cfg))
+		i = ARRAY_SIZE(stm32h7_usart_fifo_thresh_cfg) - 1;
+
+	dev_dbg(&pdev->dev, "%s set to %d bytes\n", p,
+		stm32h7_usart_fifo_thresh_cfg[i]);
+
+	/* Provide FIFO threshold ftcfg (1 is invalid: threshold irq unused) */
+	if (i)
+		*ftcfg = i - 1;
+	else
+		*ftcfg = -EINVAL;
+}
+
+static void stm32_usart_deinit_port(struct stm32_port *stm32port)
+{
+	clk_disable_unprepare(stm32port->clk);
+}
+
+static int stm32_usart_init_port(struct stm32_port *stm32port,
+				 struct platform_device *pdev)
+{
+	struct uart_port *port = &stm32port->port;
+	struct resource *res;
+	int ret, irq;
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	port->iotype	= UPIO_MEM;
 	port->flags	= UPF_BOOT_AUTOCONF;
 	port->ops	= &stm32_uart_ops;
 	port->dev	= &pdev->dev;
+<<<<<<< HEAD
 	port->irq	= platform_get_irq(pdev, 0);
 	port->rs485_config = stm32_config_rs485;
 
@@ -872,6 +1597,32 @@ static int stm32_init_port(struct stm32_port *stm32port,
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	port->membase = devm_ioremap_resource(&pdev->dev, res);
+=======
+	port->fifosize	= stm32port->info->cfg.fifosize;
+	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_STM32_CONSOLE);
+	port->irq = irq;
+	port->rs485_config = stm32_usart_config_rs485;
+
+	ret = stm32_usart_init_rs485(port, pdev);
+	if (ret)
+		return ret;
+
+	stm32port->wakeup_src = stm32port->info->cfg.has_wakeup &&
+		of_property_read_bool(pdev->dev.of_node, "wakeup-source");
+
+	stm32port->swap = stm32port->info->cfg.has_swap &&
+		of_property_read_bool(pdev->dev.of_node, "rx-tx-swap");
+
+	stm32port->fifoen = stm32port->info->cfg.has_fifo;
+	if (stm32port->fifoen) {
+		stm32_usart_get_ftcfg(pdev, "rx-threshold",
+				      &stm32port->rxftcfg);
+		stm32_usart_get_ftcfg(pdev, "tx-threshold",
+				      &stm32port->txftcfg);
+	}
+
+	port->membase = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(port->membase))
 		return PTR_ERR(port->membase);
 	port->mapbase = res->start;
@@ -889,6 +1640,7 @@ static int stm32_init_port(struct stm32_port *stm32port,
 
 	stm32port->port.uartclk = clk_get_rate(stm32port->clk);
 	if (!stm32port->port.uartclk) {
+<<<<<<< HEAD
 		clk_disable_unprepare(stm32port->clk);
 		ret = -EINVAL;
 	}
@@ -897,6 +1649,40 @@ static int stm32_init_port(struct stm32_port *stm32port,
 }
 
 static struct stm32_port *stm32_of_get_stm32_port(struct platform_device *pdev)
+=======
+		ret = -EINVAL;
+		goto err_clk;
+	}
+
+	stm32port->gpios = mctrl_gpio_init(&stm32port->port, 0);
+	if (IS_ERR(stm32port->gpios)) {
+		ret = PTR_ERR(stm32port->gpios);
+		goto err_clk;
+	}
+
+	/*
+	 * Both CTS/RTS gpios and "st,hw-flow-ctrl" (deprecated) or "uart-has-rtscts"
+	 * properties should not be specified.
+	 */
+	if (stm32port->hw_flow_control) {
+		if (mctrl_gpio_to_gpiod(stm32port->gpios, UART_GPIO_CTS) ||
+		    mctrl_gpio_to_gpiod(stm32port->gpios, UART_GPIO_RTS)) {
+			dev_err(&pdev->dev, "Conflicting RTS/CTS config\n");
+			ret = -EINVAL;
+			goto err_clk;
+		}
+	}
+
+	return ret;
+
+err_clk:
+	clk_disable_unprepare(stm32port->clk);
+
+	return ret;
+}
+
+static struct stm32_port *stm32_usart_of_get_port(struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	struct device_node *np = pdev->dev.of_node;
 	int id;
@@ -913,9 +1699,18 @@ static struct stm32_port *stm32_of_get_stm32_port(struct platform_device *pdev)
 	if (WARN_ON(id >= STM32_MAX_PORTS))
 		return NULL;
 
+<<<<<<< HEAD
 	stm32_ports[id].hw_flow_control = of_property_read_bool(np,
 							"st,hw-flow-ctrl");
 	stm32_ports[id].port.line = id;
+=======
+	stm32_ports[id].hw_flow_control =
+		of_property_read_bool (np, "st,hw-flow-ctrl") /*deprecated*/ ||
+		of_property_read_bool (np, "uart-has-rtscts");
+	stm32_ports[id].port.line = id;
+	stm32_ports[id].cr1_irq = USART_CR1_RXNEIE;
+	stm32_ports[id].cr3_irq = 0;
+>>>>>>> upstream/android-13
 	stm32_ports[id].last_res = RX_BUF_L;
 	return &stm32_ports[id];
 }
@@ -931,14 +1726,30 @@ static const struct of_device_id stm32_match[] = {
 MODULE_DEVICE_TABLE(of, stm32_match);
 #endif
 
+<<<<<<< HEAD
 static int stm32_of_dma_rx_probe(struct stm32_port *stm32port,
 				 struct platform_device *pdev)
 {
 	struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
+=======
+static void stm32_usart_of_dma_rx_remove(struct stm32_port *stm32port,
+					 struct platform_device *pdev)
+{
+	if (stm32port->rx_buf)
+		dma_free_coherent(&pdev->dev, RX_BUF_L, stm32port->rx_buf,
+				  stm32port->rx_dma_buf);
+}
+
+static int stm32_usart_of_dma_rx_probe(struct stm32_port *stm32port,
+				       struct platform_device *pdev)
+{
+	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
+>>>>>>> upstream/android-13
 	struct uart_port *port = &stm32port->port;
 	struct device *dev = &pdev->dev;
 	struct dma_slave_config config;
 	struct dma_async_tx_descriptor *desc = NULL;
+<<<<<<< HEAD
 	dma_cookie_t cookie;
 	int ret;
 
@@ -955,6 +1766,22 @@ static int stm32_of_dma_rx_probe(struct stm32_port *stm32port,
 		ret = -ENOMEM;
 		goto alloc_err;
 	}
+=======
+	int ret;
+
+	/*
+	 * Using DMA and threaded handler for the console could lead to
+	 * deadlocks.
+	 */
+	if (uart_console(port))
+		return -ENODEV;
+
+	stm32port->rx_buf = dma_alloc_coherent(dev, RX_BUF_L,
+					       &stm32port->rx_dma_buf,
+					       GFP_KERNEL);
+	if (!stm32port->rx_buf)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Configure DMA channel */
 	memset(&config, 0, sizeof(config));
@@ -964,8 +1791,13 @@ static int stm32_of_dma_rx_probe(struct stm32_port *stm32port,
 	ret = dmaengine_slave_config(stm32port->rx_ch, &config);
 	if (ret < 0) {
 		dev_err(dev, "rx dma channel config failed\n");
+<<<<<<< HEAD
 		ret = -ENODEV;
 		goto config_err;
+=======
+		stm32_usart_of_dma_rx_remove(stm32port, pdev);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	/* Prepare a DMA cyclic transaction */
@@ -975,8 +1807,13 @@ static int stm32_of_dma_rx_probe(struct stm32_port *stm32port,
 					 DMA_PREP_INTERRUPT);
 	if (!desc) {
 		dev_err(dev, "rx dma prep cyclic failed\n");
+<<<<<<< HEAD
 		ret = -ENODEV;
 		goto config_err;
+=======
+		stm32_usart_of_dma_rx_remove(stm32port, pdev);
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 
 	/* No callback as dma buffer is drained on usart interrupt */
@@ -984,12 +1821,22 @@ static int stm32_of_dma_rx_probe(struct stm32_port *stm32port,
 	desc->callback_param = NULL;
 
 	/* Push current DMA transaction in the pending queue */
+<<<<<<< HEAD
 	cookie = dmaengine_submit(desc);
+=======
+	ret = dma_submit_error(dmaengine_submit(desc));
+	if (ret) {
+		dmaengine_terminate_sync(stm32port->rx_ch);
+		stm32_usart_of_dma_rx_remove(stm32port, pdev);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/* Issue pending DMA requests */
 	dma_async_issue_pending(stm32port->rx_ch);
 
 	return 0;
+<<<<<<< HEAD
 
 config_err:
 	dma_free_coherent(&pdev->dev,
@@ -1007,6 +1854,22 @@ static int stm32_of_dma_tx_probe(struct stm32_port *stm32port,
 				 struct platform_device *pdev)
 {
 	struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
+=======
+}
+
+static void stm32_usart_of_dma_tx_remove(struct stm32_port *stm32port,
+					 struct platform_device *pdev)
+{
+	if (stm32port->tx_buf)
+		dma_free_coherent(&pdev->dev, TX_BUF_L, stm32port->tx_buf,
+				  stm32port->tx_dma_buf);
+}
+
+static int stm32_usart_of_dma_tx_probe(struct stm32_port *stm32port,
+				       struct platform_device *pdev)
+{
+	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
+>>>>>>> upstream/android-13
 	struct uart_port *port = &stm32port->port;
 	struct device *dev = &pdev->dev;
 	struct dma_slave_config config;
@@ -1014,6 +1877,7 @@ static int stm32_of_dma_tx_probe(struct stm32_port *stm32port,
 
 	stm32port->tx_dma_busy = false;
 
+<<<<<<< HEAD
 	/* Request DMA TX channel */
 	stm32port->tx_ch = dma_request_slave_channel(dev, "tx");
 	if (!stm32port->tx_ch) {
@@ -1027,6 +1891,13 @@ static int stm32_of_dma_tx_probe(struct stm32_port *stm32port,
 		ret = -ENOMEM;
 		goto alloc_err;
 	}
+=======
+	stm32port->tx_buf = dma_alloc_coherent(dev, TX_BUF_L,
+					       &stm32port->tx_dma_buf,
+					       GFP_KERNEL);
+	if (!stm32port->tx_buf)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Configure DMA channel */
 	memset(&config, 0, sizeof(config));
@@ -1036,6 +1907,7 @@ static int stm32_of_dma_tx_probe(struct stm32_port *stm32port,
 	ret = dmaengine_slave_config(stm32port->tx_ch, &config);
 	if (ret < 0) {
 		dev_err(dev, "tx dma channel config failed\n");
+<<<<<<< HEAD
 		ret = -ENODEV;
 		goto config_err;
 	}
@@ -1113,10 +1985,119 @@ err_nowup:
 
 err_uninit:
 	clk_disable_unprepare(stm32port->clk);
+=======
+		stm32_usart_of_dma_tx_remove(stm32port, pdev);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int stm32_usart_serial_probe(struct platform_device *pdev)
+{
+	struct stm32_port *stm32port;
+	int ret;
+
+	stm32port = stm32_usart_of_get_port(pdev);
+	if (!stm32port)
+		return -ENODEV;
+
+	stm32port->info = of_device_get_match_data(&pdev->dev);
+	if (!stm32port->info)
+		return -EINVAL;
+
+	ret = stm32_usart_init_port(stm32port, pdev);
+	if (ret)
+		return ret;
+
+	if (stm32port->wakeup_src) {
+		device_set_wakeup_capable(&pdev->dev, true);
+		ret = dev_pm_set_wake_irq(&pdev->dev, stm32port->port.irq);
+		if (ret)
+			goto err_deinit_port;
+	}
+
+	stm32port->rx_ch = dma_request_chan(&pdev->dev, "rx");
+	if (PTR_ERR(stm32port->rx_ch) == -EPROBE_DEFER) {
+		ret = -EPROBE_DEFER;
+		goto err_wakeirq;
+	}
+	/* Fall back in interrupt mode for any non-deferral error */
+	if (IS_ERR(stm32port->rx_ch))
+		stm32port->rx_ch = NULL;
+
+	stm32port->tx_ch = dma_request_chan(&pdev->dev, "tx");
+	if (PTR_ERR(stm32port->tx_ch) == -EPROBE_DEFER) {
+		ret = -EPROBE_DEFER;
+		goto err_dma_rx;
+	}
+	/* Fall back in interrupt mode for any non-deferral error */
+	if (IS_ERR(stm32port->tx_ch))
+		stm32port->tx_ch = NULL;
+
+	if (stm32port->rx_ch && stm32_usart_of_dma_rx_probe(stm32port, pdev)) {
+		/* Fall back in interrupt mode */
+		dma_release_channel(stm32port->rx_ch);
+		stm32port->rx_ch = NULL;
+	}
+
+	if (stm32port->tx_ch && stm32_usart_of_dma_tx_probe(stm32port, pdev)) {
+		/* Fall back in interrupt mode */
+		dma_release_channel(stm32port->tx_ch);
+		stm32port->tx_ch = NULL;
+	}
+
+	if (!stm32port->rx_ch)
+		dev_info(&pdev->dev, "interrupt mode for rx (no dma)\n");
+	if (!stm32port->tx_ch)
+		dev_info(&pdev->dev, "interrupt mode for tx (no dma)\n");
+
+	platform_set_drvdata(pdev, &stm32port->port);
+
+	pm_runtime_get_noresume(&pdev->dev);
+	pm_runtime_set_active(&pdev->dev);
+	pm_runtime_enable(&pdev->dev);
+
+	ret = uart_add_one_port(&stm32_usart_driver, &stm32port->port);
+	if (ret)
+		goto err_port;
+
+	pm_runtime_put_sync(&pdev->dev);
+
+	return 0;
+
+err_port:
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_put_noidle(&pdev->dev);
+
+	if (stm32port->tx_ch) {
+		stm32_usart_of_dma_tx_remove(stm32port, pdev);
+		dma_release_channel(stm32port->tx_ch);
+	}
+
+	if (stm32port->rx_ch)
+		stm32_usart_of_dma_rx_remove(stm32port, pdev);
+
+err_dma_rx:
+	if (stm32port->rx_ch)
+		dma_release_channel(stm32port->rx_ch);
+
+err_wakeirq:
+	if (stm32port->wakeup_src)
+		dev_pm_clear_wake_irq(&pdev->dev);
+
+err_deinit_port:
+	if (stm32port->wakeup_src)
+		device_set_wakeup_capable(&pdev->dev, false);
+
+	stm32_usart_deinit_port(stm32port);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int stm32_serial_remove(struct platform_device *pdev)
 {
 	struct uart_port *port = platform_get_drvdata(pdev);
@@ -1145,10 +2126,45 @@ static int stm32_serial_remove(struct platform_device *pdev)
 				  stm32_port->tx_dma_buf);
 
 	if (cfg->has_wakeup && stm32_port->wakeirq >= 0) {
+=======
+static int stm32_usart_serial_remove(struct platform_device *pdev)
+{
+	struct uart_port *port = platform_get_drvdata(pdev);
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	int err;
+
+	pm_runtime_get_sync(&pdev->dev);
+	err = uart_remove_one_port(&stm32_usart_driver, port);
+	if (err)
+		return(err);
+
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_put_noidle(&pdev->dev);
+
+	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAR);
+
+	if (stm32_port->tx_ch) {
+		stm32_usart_of_dma_tx_remove(stm32_port, pdev);
+		dma_release_channel(stm32_port->tx_ch);
+	}
+
+	if (stm32_port->rx_ch) {
+		dmaengine_terminate_async(stm32_port->rx_ch);
+		stm32_usart_of_dma_rx_remove(stm32_port, pdev);
+		dma_release_channel(stm32_port->rx_ch);
+	}
+
+	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+
+	if (stm32_port->wakeup_src) {
+>>>>>>> upstream/android-13
 		dev_pm_clear_wake_irq(&pdev->dev);
 		device_init_wakeup(&pdev->dev, false);
 	}
 
+<<<<<<< HEAD
 	clk_disable_unprepare(stm32_port->clk);
 
 	return uart_remove_one_port(&stm32_usart_driver, port);
@@ -1160,6 +2176,18 @@ static void stm32_console_putchar(struct uart_port *port, int ch)
 {
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+=======
+	stm32_usart_deinit_port(stm32_port);
+
+	return 0;
+}
+
+#ifdef CONFIG_SERIAL_STM32_CONSOLE
+static void stm32_usart_console_putchar(struct uart_port *port, int ch)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+>>>>>>> upstream/android-13
 
 	while (!(readl_relaxed(port->membase + ofs->isr) & USART_SR_TXE))
 		cpu_relax();
@@ -1167,16 +2195,27 @@ static void stm32_console_putchar(struct uart_port *port, int ch)
 	writel_relaxed(ch, port->membase + ofs->tdr);
 }
 
+<<<<<<< HEAD
 static void stm32_console_write(struct console *co, const char *s, unsigned cnt)
 {
 	struct uart_port *port = &stm32_ports[co->index].port;
 	struct stm32_port *stm32_port = to_stm32_port(port);
 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
 	struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+=======
+static void stm32_usart_console_write(struct console *co, const char *s,
+				      unsigned int cnt)
+{
+	struct uart_port *port = &stm32_ports[co->index].port;
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+	const struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 old_cr1, new_cr1;
 	int locked = 1;
 
+<<<<<<< HEAD
 	local_irq_save(flags);
 	if (port->sysrq)
 		locked = 0;
@@ -1184,6 +2223,12 @@ static void stm32_console_write(struct console *co, const char *s, unsigned cnt)
 		locked = spin_trylock(&port->lock);
 	else
 		spin_lock(&port->lock);
+=======
+	if (oops_in_progress)
+		locked = spin_trylock_irqsave(&port->lock, flags);
+	else
+		spin_lock_irqsave(&port->lock, flags);
+>>>>>>> upstream/android-13
 
 	/* Save and disable interrupts, enable the transmitter */
 	old_cr1 = readl_relaxed(port->membase + ofs->cr1);
@@ -1191,17 +2236,28 @@ static void stm32_console_write(struct console *co, const char *s, unsigned cnt)
 	new_cr1 |=  USART_CR1_TE | BIT(cfg->uart_enable_bit);
 	writel_relaxed(new_cr1, port->membase + ofs->cr1);
 
+<<<<<<< HEAD
 	uart_console_write(port, s, cnt, stm32_console_putchar);
+=======
+	uart_console_write(port, s, cnt, stm32_usart_console_putchar);
+>>>>>>> upstream/android-13
 
 	/* Restore interrupt state */
 	writel_relaxed(old_cr1, port->membase + ofs->cr1);
 
 	if (locked)
+<<<<<<< HEAD
 		spin_unlock(&port->lock);
 	local_irq_restore(flags);
 }
 
 static int stm32_console_setup(struct console *co, char *options)
+=======
+		spin_unlock_irqrestore(&port->lock, flags);
+}
+
+static int stm32_usart_console_setup(struct console *co, char *options)
+>>>>>>> upstream/android-13
 {
 	struct stm32_port *stm32port;
 	int baud = 9600;
@@ -1220,7 +2276,11 @@ static int stm32_console_setup(struct console *co, char *options)
 	 * this to be called during the uart port registration when the
 	 * driver gets probed and the port should be mapped at that point.
 	 */
+<<<<<<< HEAD
 	if (stm32port->port.mapbase == 0 || stm32port->port.membase == NULL)
+=======
+	if (stm32port->port.mapbase == 0 || !stm32port->port.membase)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	if (options)
@@ -1232,8 +2292,13 @@ static int stm32_console_setup(struct console *co, char *options)
 static struct console stm32_console = {
 	.name		= STM32_SERIAL_NAME,
 	.device		= uart_console_device,
+<<<<<<< HEAD
 	.write		= stm32_console_write,
 	.setup		= stm32_console_setup,
+=======
+	.write		= stm32_usart_console_write,
+	.setup		= stm32_usart_console_setup,
+>>>>>>> upstream/android-13
 	.flags		= CON_PRINTBUFFER,
 	.index		= -1,
 	.data		= &stm32_usart_driver,
@@ -1254,6 +2319,7 @@ static struct uart_driver stm32_usart_driver = {
 	.cons		= STM32_SERIAL_CONSOLE,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static void stm32_serial_enable_wakeup(struct uart_port *port, bool enable)
 {
@@ -1280,19 +2346,63 @@ static void stm32_serial_enable_wakeup(struct uart_port *port, bool enable)
 }
 
 static int stm32_serial_suspend(struct device *dev)
+=======
+static void __maybe_unused stm32_usart_serial_en_wakeup(struct uart_port *port,
+							bool enable)
+{
+	struct stm32_port *stm32_port = to_stm32_port(port);
+	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+
+	if (!stm32_port->wakeup_src)
+		return;
+
+	/*
+	 * Enable low-power wake-up and wake-up irq if argument is set to
+	 * "enable", disable low-power wake-up and wake-up irq otherwise
+	 */
+	if (enable) {
+		stm32_usart_set_bits(port, ofs->cr1, USART_CR1_UESM);
+		stm32_usart_set_bits(port, ofs->cr3, USART_CR3_WUFIE);
+	} else {
+		stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_UESM);
+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_WUFIE);
+	}
+}
+
+static int __maybe_unused stm32_usart_serial_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct uart_port *port = dev_get_drvdata(dev);
 
 	uart_suspend_port(&stm32_usart_driver, port);
 
+<<<<<<< HEAD
 	if (device_may_wakeup(dev))
 		stm32_serial_enable_wakeup(port, true);
 	else
 		stm32_serial_enable_wakeup(port, false);
+=======
+	if (device_may_wakeup(dev) || device_wakeup_path(dev))
+		stm32_usart_serial_en_wakeup(port, true);
+
+	/*
+	 * When "no_console_suspend" is enabled, keep the pinctrl default state
+	 * and rely on bootloader stage to restore this state upon resume.
+	 * Otherwise, apply the idle or sleep states depending on wakeup
+	 * capabilities.
+	 */
+	if (console_suspend_enabled || !uart_console(port)) {
+		if (device_may_wakeup(dev) || device_wakeup_path(dev))
+			pinctrl_pm_select_idle_state(dev);
+		else
+			pinctrl_pm_select_sleep_state(dev);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int stm32_serial_resume(struct device *dev)
 {
 	struct uart_port *port = dev_get_drvdata(dev);
@@ -1311,6 +2421,50 @@ static const struct dev_pm_ops stm32_serial_pm_ops = {
 static struct platform_driver stm32_serial_driver = {
 	.probe		= stm32_serial_probe,
 	.remove		= stm32_serial_remove,
+=======
+static int __maybe_unused stm32_usart_serial_resume(struct device *dev)
+{
+	struct uart_port *port = dev_get_drvdata(dev);
+
+	pinctrl_pm_select_default_state(dev);
+
+	if (device_may_wakeup(dev) || device_wakeup_path(dev))
+		stm32_usart_serial_en_wakeup(port, false);
+
+	return uart_resume_port(&stm32_usart_driver, port);
+}
+
+static int __maybe_unused stm32_usart_runtime_suspend(struct device *dev)
+{
+	struct uart_port *port = dev_get_drvdata(dev);
+	struct stm32_port *stm32port = container_of(port,
+			struct stm32_port, port);
+
+	clk_disable_unprepare(stm32port->clk);
+
+	return 0;
+}
+
+static int __maybe_unused stm32_usart_runtime_resume(struct device *dev)
+{
+	struct uart_port *port = dev_get_drvdata(dev);
+	struct stm32_port *stm32port = container_of(port,
+			struct stm32_port, port);
+
+	return clk_prepare_enable(stm32port->clk);
+}
+
+static const struct dev_pm_ops stm32_serial_pm_ops = {
+	SET_RUNTIME_PM_OPS(stm32_usart_runtime_suspend,
+			   stm32_usart_runtime_resume, NULL)
+	SET_SYSTEM_SLEEP_PM_OPS(stm32_usart_serial_suspend,
+				stm32_usart_serial_resume)
+};
+
+static struct platform_driver stm32_serial_driver = {
+	.probe		= stm32_usart_serial_probe,
+	.remove		= stm32_usart_serial_remove,
+>>>>>>> upstream/android-13
 	.driver	= {
 		.name	= DRIVER_NAME,
 		.pm	= &stm32_serial_pm_ops,
@@ -1318,7 +2472,11 @@ static struct platform_driver stm32_serial_driver = {
 	},
 };
 
+<<<<<<< HEAD
 static int __init usart_init(void)
+=======
+static int __init stm32_usart_init(void)
+>>>>>>> upstream/android-13
 {
 	static char banner[] __initdata = "STM32 USART driver initialized";
 	int ret;
@@ -1336,14 +2494,23 @@ static int __init usart_init(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void __exit usart_exit(void)
+=======
+static void __exit stm32_usart_exit(void)
+>>>>>>> upstream/android-13
 {
 	platform_driver_unregister(&stm32_serial_driver);
 	uart_unregister_driver(&stm32_usart_driver);
 }
 
+<<<<<<< HEAD
 module_init(usart_init);
 module_exit(usart_exit);
+=======
+module_init(stm32_usart_init);
+module_exit(stm32_usart_exit);
+>>>>>>> upstream/android-13
 
 MODULE_ALIAS("platform:" DRIVER_NAME);
 MODULE_DESCRIPTION("STMicroelectronics STM32 serial port driver");

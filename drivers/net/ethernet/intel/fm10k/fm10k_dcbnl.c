@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #include "fm10k.h"
 
@@ -36,7 +40,11 @@ static int fm10k_dcbnl_ieee_getets(struct net_device *dev, struct ieee_ets *ets)
 static int fm10k_dcbnl_ieee_setets(struct net_device *dev, struct ieee_ets *ets)
 {
 	u8 num_tc = 0;
+<<<<<<< HEAD
 	int i, err;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	/* verify type and determine num_tcs needed */
 	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
@@ -57,7 +65,11 @@ static int fm10k_dcbnl_ieee_setets(struct net_device *dev, struct ieee_ets *ets)
 
 	/* update TC hardware mapping if necessary */
 	if (num_tc != netdev_get_num_tc(dev)) {
+<<<<<<< HEAD
 		err = fm10k_setup_tc(dev, num_tc);
+=======
+		int err = fm10k_setup_tc(dev, num_tc);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -105,7 +117,11 @@ static int fm10k_dcbnl_ieee_setpfc(struct net_device *dev, struct ieee_pfc *pfc)
 }
 
 /**
+<<<<<<< HEAD
  * fm10k_dcbnl_ieee_getdcbx - get the DCBX configuration for the device
+=======
+ * fm10k_dcbnl_getdcbx - get the DCBX configuration for the device
+>>>>>>> upstream/android-13
  * @dev: netdev interface for the device
  *
  * Returns that we support only IEEE DCB for this interface
@@ -116,7 +132,11 @@ static u8 fm10k_dcbnl_getdcbx(struct net_device __always_unused *dev)
 }
 
 /**
+<<<<<<< HEAD
  * fm10k_dcbnl_ieee_setdcbx - get the DCBX configuration for the device
+=======
+ * fm10k_dcbnl_setdcbx - get the DCBX configuration for the device
+>>>>>>> upstream/android-13
  * @dev: netdev interface for the device
  * @mode: new mode for this device
  *

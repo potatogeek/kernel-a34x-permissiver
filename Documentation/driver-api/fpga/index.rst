@@ -11,3 +11,8 @@ FPGA Subsystem
    fpga-mgr
    fpga-bridge
    fpga-region
+<<<<<<< HEAD
+=======
+   fpga-programming
+
+>>>>>>> upstream/android-13

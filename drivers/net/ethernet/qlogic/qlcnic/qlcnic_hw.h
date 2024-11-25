@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic qlcnic NIC Driver
  * Copyright (c) 2009-2013 QLogic Corporation
  *
  * See LICENSE.qlcnic for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic qlcnic NIC Driver
+ * Copyright (c) 2009-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef __QLCNIC_HW_H
@@ -204,7 +211,10 @@ int qlcnic_82xx_set_nic_info(struct qlcnic_adapter *, struct qlcnic_info *);
 int qlcnic_82xx_get_pci_info(struct qlcnic_adapter *, struct qlcnic_pci_info*);
 int qlcnic_82xx_alloc_mbx_args(struct qlcnic_cmd_args *,
 			       struct qlcnic_adapter *, u32);
+<<<<<<< HEAD
 int qlcnic_82xx_hw_write_wx_2M(struct qlcnic_adapter *, ulong, u32);
+=======
+>>>>>>> upstream/android-13
 int qlcnic_82xx_get_board_info(struct qlcnic_adapter *);
 int qlcnic_82xx_config_led(struct qlcnic_adapter *, u32, u32);
 void qlcnic_82xx_get_func_no(struct qlcnic_adapter *);

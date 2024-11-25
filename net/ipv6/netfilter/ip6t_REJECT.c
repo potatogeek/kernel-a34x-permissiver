@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IP6 tables REJECT target module
  * Linux INET6 implementation
@@ -10,11 +14,14 @@
  * Copyright (c) 2005-2007 Patrick McHardy <kaber@trash.net>
  *
  * Based on net/ipv4/netfilter/ipt_REJECT.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -65,7 +72,11 @@ reject_tg6(struct sk_buff *skb, const struct xt_action_param *par)
 		/* Do nothing */
 		break;
 	case IP6T_TCP_RESET:
+<<<<<<< HEAD
 		nf_send_reset6(net, skb, xt_hooknum(par));
+=======
+		nf_send_reset6(net, par->state->sk, skb, xt_hooknum(par));
+>>>>>>> upstream/android-13
 		break;
 	case IP6T_ICMP6_POLICY_FAIL:
 		nf_send_unreach6(net, skb, ICMPV6_POLICY_FAIL, xt_hooknum(par));

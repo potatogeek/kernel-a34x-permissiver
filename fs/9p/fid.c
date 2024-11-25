@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * V9FS FID Management
  *
  *  Copyright (C) 2007 by Latchesar Ionkov <lucho@ionkov.net>
  *  Copyright (C) 2005, 2006 by Eric Van Hensbergen <ericvh@gmail.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -19,6 +24,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -34,18 +41,30 @@
 #include "v9fs_vfs.h"
 #include "fid.h"
 
+<<<<<<< HEAD
+=======
+static inline void __add_fid(struct dentry *dentry, struct p9_fid *fid)
+{
+	hlist_add_head(&fid->dlist, (struct hlist_head *)&dentry->d_fsdata);
+}
+
+
+>>>>>>> upstream/android-13
 /**
  * v9fs_fid_add - add a fid to a dentry
  * @dentry: dentry that the fid is being added to
  * @fid: fid to add
  *
  */
+<<<<<<< HEAD
 
 static inline void __add_fid(struct dentry *dentry, struct p9_fid *fid)
 {
 	hlist_add_head(&fid->dlist, (struct hlist_head *)&dentry->d_fsdata);
 }
 
+=======
+>>>>>>> upstream/android-13
 void v9fs_fid_add(struct dentry *dentry, struct p9_fid *fid)
 {
 	spin_lock(&dentry->d_lock);
@@ -54,6 +73,51 @@ void v9fs_fid_add(struct dentry *dentry, struct p9_fid *fid)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * v9fs_fid_find_inode - search for an open fid off of the inode list
+ * @inode: return a fid pointing to a specific inode
+ * @uid: return a fid belonging to the specified user
+ *
+ */
+
+static struct p9_fid *v9fs_fid_find_inode(struct inode *inode, kuid_t uid)
+{
+	struct hlist_head *h;
+	struct p9_fid *fid, *ret = NULL;
+
+	p9_debug(P9_DEBUG_VFS, " inode: %p\n", inode);
+
+	spin_lock(&inode->i_lock);
+	h = (struct hlist_head *)&inode->i_private;
+	hlist_for_each_entry(fid, h, ilist) {
+		if (uid_eq(fid->uid, uid)) {
+			refcount_inc(&fid->count);
+			ret = fid;
+			break;
+		}
+	}
+	spin_unlock(&inode->i_lock);
+	return ret;
+}
+
+/**
+ * v9fs_open_fid_add - add an open fid to an inode
+ * @inode: inode that the fid is being added to
+ * @fid: fid to add
+ *
+ */
+
+void v9fs_open_fid_add(struct inode *inode, struct p9_fid *fid)
+{
+	spin_lock(&inode->i_lock);
+	hlist_add_head(&fid->ilist, (struct hlist_head *)&inode->i_private);
+	spin_unlock(&inode->i_lock);
+}
+
+
+/**
+>>>>>>> upstream/android-13
  * v9fs_fid_find - retrieve a fid that belongs to the specified uid
  * @dentry: dentry to look for fid in
  * @uid: return fid that belongs to the specified user
@@ -76,10 +140,20 @@ static struct p9_fid *v9fs_fid_find(struct dentry *dentry, kuid_t uid, int any)
 		hlist_for_each_entry(fid, h, dlist) {
 			if (any || uid_eq(fid->uid, uid)) {
 				ret = fid;
+<<<<<<< HEAD
+=======
+				refcount_inc(&ret->count);
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
 		spin_unlock(&dentry->d_lock);
+<<<<<<< HEAD
+=======
+	} else {
+		if (dentry->d_inode)
+			ret = v9fs_fid_find_inode(dentry->d_inode, uid);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -137,7 +211,14 @@ static struct p9_fid *v9fs_fid_lookup_with_uid(struct dentry *dentry,
 	fid = v9fs_fid_find(ds, uid, any);
 	if (fid) {
 		/* Found the parent fid do a lookup with that */
+<<<<<<< HEAD
 		fid = p9_client_walk(fid, 1, &dentry->d_name.name, 1);
+=======
+		struct p9_fid *ofid = fid;
+
+		fid = p9_client_walk(ofid, 1, &dentry->d_name.name, 1);
+		p9_client_clunk(ofid);
+>>>>>>> upstream/android-13
 		goto fid_out;
 	}
 	up_read(&v9ses->rename_sem);
@@ -162,8 +243,15 @@ static struct p9_fid *v9fs_fid_lookup_with_uid(struct dentry *dentry,
 		v9fs_fid_add(dentry->d_sb->s_root, fid);
 	}
 	/* If we are root ourself just return that */
+<<<<<<< HEAD
 	if (dentry->d_sb->s_root == dentry)
 		return fid;
+=======
+	if (dentry->d_sb->s_root == dentry) {
+		refcount_inc(&fid->count);
+		return fid;
+	}
+>>>>>>> upstream/android-13
 	/*
 	 * Do a multipath walk with attached root.
 	 * When walking parent we need to make sure we
@@ -210,6 +298,10 @@ fid_out:
 			fid = ERR_PTR(-ENOENT);
 		} else {
 			__add_fid(dentry, fid);
+<<<<<<< HEAD
+=======
+			refcount_inc(&fid->count);
+>>>>>>> upstream/android-13
 			spin_unlock(&dentry->d_lock);
 		}
 	}
@@ -260,11 +352,21 @@ struct p9_fid *v9fs_fid_lookup(struct dentry *dentry)
 struct p9_fid *v9fs_writeback_fid(struct dentry *dentry)
 {
 	int err;
+<<<<<<< HEAD
 	struct p9_fid *fid;
 
 	fid = clone_fid(v9fs_fid_lookup_with_uid(dentry, GLOBAL_ROOT_UID, 0));
 	if (IS_ERR(fid))
 		goto error_out;
+=======
+	struct p9_fid *fid, *ofid;
+
+	ofid = v9fs_fid_lookup_with_uid(dentry, GLOBAL_ROOT_UID, 0);
+	fid = clone_fid(ofid);
+	if (IS_ERR(fid))
+		goto error_out;
+	p9_client_clunk(ofid);
+>>>>>>> upstream/android-13
 	/*
 	 * writeback fid will only be used to write back the
 	 * dirty pages. We always request for the open fid in read-write

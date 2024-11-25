@@ -9,6 +9,7 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_btree.h"
 #include "xfs_bit.h"
@@ -29,10 +30,69 @@
 
 #include <linux/posix_acl_xattr.h>
 #include <linux/xattr.h>
+=======
+#include "xfs_log_format.h"
+#include "xfs_inode.h"
+#include "xfs_da_format.h"
+#include "xfs_da_btree.h"
+#include "xfs_attr.h"
+#include "xfs_attr_leaf.h"
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+#include "scrub/dabtree.h"
+#include "scrub/attr.h"
+
+/*
+ * Allocate enough memory to hold an attr value and attr block bitmaps,
+ * reallocating the buffer if necessary.  Buffer contents are not preserved
+ * across a reallocation.
+ */
+static int
+xchk_setup_xattr_buf(
+	struct xfs_scrub	*sc,
+	size_t			value_size,
+	gfp_t			flags)
+{
+	size_t			sz;
+	struct xchk_xattr_buf	*ab = sc->buf;
+
+	/*
+	 * We need enough space to read an xattr value from the file or enough
+	 * space to hold three copies of the xattr free space bitmap.  We don't
+	 * need the buffer space for both purposes at the same time.
+	 */
+	sz = 3 * sizeof(long) * BITS_TO_LONGS(sc->mp->m_attr_geo->blksize);
+	sz = max_t(size_t, sz, value_size);
+
+	/*
+	 * If there's already a buffer, figure out if we need to reallocate it
+	 * to accommodate a larger size.
+	 */
+	if (ab) {
+		if (sz <= ab->sz)
+			return 0;
+		kmem_free(ab);
+		sc->buf = NULL;
+	}
+
+	/*
+	 * Don't zero the buffer upon allocation to avoid runtime overhead.
+	 * All users must be careful never to read uninitialized contents.
+	 */
+	ab = kvmalloc(sizeof(*ab) + sz, flags);
+	if (!ab)
+		return -ENOMEM;
+
+	ab->sz = sz;
+	sc->buf = ab;
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /* Set us up to scrub an inode's extended attributes. */
 int
 xchk_setup_xattr(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_inode	*ip)
 {
@@ -51,6 +111,24 @@ xchk_setup_xattr(
 		return -ENOMEM;
 
 	return xchk_setup_inode_contents(sc, ip, 0);
+=======
+	struct xfs_scrub	*sc)
+{
+	int			error;
+
+	/*
+	 * We failed to get memory while checking attrs, so this time try to
+	 * get all the memory we're ever going to need.  Allocate the buffer
+	 * without the inode lock held, which means we can sleep.
+	 */
+	if (sc->flags & XCHK_TRY_HARDER) {
+		error = xchk_setup_xattr_buf(sc, XATTR_SIZE_MAX, GFP_KERNEL);
+		if (error)
+			return error;
+	}
+
+	return xchk_setup_inode_contents(sc, 0);
+>>>>>>> upstream/android-13
 }
 
 /* Extended Attributes */
@@ -63,7 +141,11 @@ struct xchk_xattr {
 /*
  * Check that an extended attribute key can be looked up by hash.
  *
+<<<<<<< HEAD
  * We use the XFS attribute list iterator (i.e. xfs_attr_list_int_ilocked)
+=======
+ * We use the XFS attribute list iterator (i.e. xfs_attr_list_ilocked)
+>>>>>>> upstream/android-13
  * to call this function for every attribute key in an inode.  Once
  * we're here, we load the attribute value to see if any errors happen,
  * or if we get more or less data than we expected.
@@ -82,17 +164,50 @@ xchk_xattr_listent(
 
 	sx = container_of(context, struct xchk_xattr, context);
 
+<<<<<<< HEAD
+=======
+	if (xchk_should_terminate(sx->sc, &error)) {
+		context->seen_enough = error;
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (flags & XFS_ATTR_INCOMPLETE) {
 		/* Incomplete attr key, just mark the inode for preening. */
 		xchk_ino_set_preen(sx->sc, context->dp->i_ino);
 		return;
 	}
 
+<<<<<<< HEAD
 	args.flags = ATTR_KERNOTIME;
 	if (flags & XFS_ATTR_ROOT)
 		args.flags |= ATTR_ROOT;
 	else if (flags & XFS_ATTR_SECURE)
 		args.flags |= ATTR_SECURE;
+=======
+	/* Does this name make sense? */
+	if (!xfs_attr_namecheck(name, namelen)) {
+		xchk_fblock_set_corrupt(sx->sc, XFS_ATTR_FORK, args.blkno);
+		return;
+	}
+
+	/*
+	 * Try to allocate enough memory to extrat the attr value.  If that
+	 * doesn't work, we overload the seen_enough variable to convey
+	 * the error message back to the main scrub function.
+	 */
+	error = xchk_setup_xattr_buf(sx->sc, valuelen,
+			GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+	if (error == -ENOMEM)
+		error = -EDEADLOCK;
+	if (error) {
+		context->seen_enough = error;
+		return;
+	}
+
+	args.op_flags = XFS_DA_OP_NOTIME;
+	args.attr_filter = flags & XFS_ATTR_NSP_ONDISK_MASK;
+>>>>>>> upstream/android-13
 	args.geo = context->dp->i_mount->m_attr_geo;
 	args.whichfork = XFS_ATTR_FORK;
 	args.dp = context->dp;
@@ -100,12 +215,22 @@ xchk_xattr_listent(
 	args.namelen = namelen;
 	args.hashval = xfs_da_hashname(args.name, args.namelen);
 	args.trans = context->tp;
+<<<<<<< HEAD
 	args.value = sx->sc->buf;
 	args.valuelen = XATTR_SIZE_MAX;
 
 	error = xfs_attr_get_ilocked(context->dp, &args);
 	if (error == -EEXIST)
 		error = 0;
+=======
+	args.value = xchk_xattr_valuebuf(sx->sc);
+	args.valuelen = valuelen;
+
+	error = xfs_attr_get_ilocked(&args);
+	/* ENODATA means the hash lookup failed and the attr is bad */
+	if (error == -ENODATA)
+		error = -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 	if (!xchk_fblock_process_error(sx->sc, XFS_ATTR_FORK, args.blkno,
 			&error))
 		goto fail_xref;
@@ -159,13 +284,21 @@ xchk_xattr_check_freemap(
 	unsigned long			*map,
 	struct xfs_attr3_icleaf_hdr	*leafhdr)
 {
+<<<<<<< HEAD
 	unsigned long			*freemap;
 	unsigned long			*dstmap;
+=======
+	unsigned long			*freemap = xchk_xattr_freemap(sc);
+	unsigned long			*dstmap = xchk_xattr_dstmap(sc);
+>>>>>>> upstream/android-13
 	unsigned int			mapsize = sc->mp->m_attr_geo->blksize;
 	int				i;
 
 	/* Construct bitmap of freemap contents. */
+<<<<<<< HEAD
 	freemap = (unsigned long *)sc->buf + BITS_TO_LONGS(mapsize);
+=======
+>>>>>>> upstream/android-13
 	bitmap_zero(freemap, mapsize);
 	for (i = 0; i < XFS_ATTR_LEAF_MAPSIZE; i++) {
 		if (!xchk_xattr_set_map(sc, freemap,
@@ -175,7 +308,10 @@ xchk_xattr_check_freemap(
 	}
 
 	/* Look for bits that are set in freemap and are marked in use. */
+<<<<<<< HEAD
 	dstmap = freemap + BITS_TO_LONGS(mapsize);
+=======
+>>>>>>> upstream/android-13
 	return bitmap_and(dstmap, freemap, map, mapsize) == 0;
 }
 
@@ -190,13 +326,20 @@ xchk_xattr_entry(
 	char				*buf_end,
 	struct xfs_attr_leafblock	*leaf,
 	struct xfs_attr3_icleaf_hdr	*leafhdr,
+<<<<<<< HEAD
 	unsigned long			*usedmap,
+=======
+>>>>>>> upstream/android-13
 	struct xfs_attr_leaf_entry	*ent,
 	int				idx,
 	unsigned int			*usedbytes,
 	__u32				*last_hashval)
 {
 	struct xfs_mount		*mp = ds->state->mp;
+<<<<<<< HEAD
+=======
+	unsigned long			*usedmap = xchk_xattr_usedmap(ds->sc);
+>>>>>>> upstream/android-13
 	char				*name_end;
 	struct xfs_attr_leaf_name_local	*lentry;
 	struct xfs_attr_leaf_name_remote *rentry;
@@ -256,21 +399,46 @@ xchk_xattr_block(
 	struct xfs_attr_leafblock	*leaf = bp->b_addr;
 	struct xfs_attr_leaf_entry	*ent;
 	struct xfs_attr_leaf_entry	*entries;
+<<<<<<< HEAD
 	unsigned long			*usedmap = ds->sc->buf;
+=======
+	unsigned long			*usedmap;
+>>>>>>> upstream/android-13
 	char				*buf_end;
 	size_t				off;
 	__u32				last_hashval = 0;
 	unsigned int			usedbytes = 0;
 	unsigned int			hdrsize;
 	int				i;
+<<<<<<< HEAD
 
 	if (*last_checked == blk->blkno)
 		return 0;
+=======
+	int				error;
+
+	if (*last_checked == blk->blkno)
+		return 0;
+
+	/* Allocate memory for block usage checking. */
+	error = xchk_setup_xattr_buf(ds->sc, 0,
+			GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+	if (error == -ENOMEM)
+		return -EDEADLOCK;
+	if (error)
+		return error;
+	usedmap = xchk_xattr_usedmap(ds->sc);
+
+>>>>>>> upstream/android-13
 	*last_checked = blk->blkno;
 	bitmap_zero(usedmap, mp->m_attr_geo->blksize);
 
 	/* Check all the padding. */
+<<<<<<< HEAD
 	if (xfs_sb_version_hascrc(&ds->sc->mp->m_sb)) {
+=======
+	if (xfs_has_crc(ds->sc->mp)) {
+>>>>>>> upstream/android-13
 		struct xfs_attr3_leafblock	*leaf = bp->b_addr;
 
 		if (leaf->hdr.pad1 != 0 || leaf->hdr.pad2 != 0 ||
@@ -313,7 +481,11 @@ xchk_xattr_block(
 
 		/* Check the entry and nameval. */
 		xchk_xattr_entry(ds, level, buf_end, leaf, &leafhdr,
+<<<<<<< HEAD
 				usedmap, ent, i, &usedbytes, &last_hashval);
+=======
+				ent, i, &usedbytes, &last_hashval);
+>>>>>>> upstream/android-13
 
 		if (ds->sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
 			goto out;
@@ -333,6 +505,7 @@ out:
 STATIC int
 xchk_xattr_rec(
 	struct xchk_da_btree		*ds,
+<<<<<<< HEAD
 	int				level,
 	void				*rec)
 {
@@ -342,6 +515,16 @@ xchk_xattr_rec(
 	struct xfs_attr_leaf_name_local	*lentry;
 	struct xfs_attr_leaf_name_remote	*rentry;
 	struct xfs_buf			*bp;
+=======
+	int				level)
+{
+	struct xfs_mount		*mp = ds->state->mp;
+	struct xfs_da_state_blk		*blk = &ds->state->path.blk[level];
+	struct xfs_attr_leaf_name_local	*lentry;
+	struct xfs_attr_leaf_name_remote	*rentry;
+	struct xfs_buf			*bp;
+	struct xfs_attr_leaf_entry	*ent;
+>>>>>>> upstream/android-13
 	xfs_dahash_t			calc_hash;
 	xfs_dahash_t			hash;
 	int				nameidx;
@@ -349,7 +532,13 @@ xchk_xattr_rec(
 	unsigned int			badflags;
 	int				error;
 
+<<<<<<< HEAD
 	blk = &ds->state->path.blk[level];
+=======
+	ASSERT(blk->magic == XFS_ATTR_LEAF_MAGIC);
+
+	ent = xfs_attr3_leaf_entryp(blk->bp->b_addr) + blk->index;
+>>>>>>> upstream/android-13
 
 	/* Check the whole block, if necessary. */
 	error = xchk_xattr_block(ds, level);
@@ -408,7 +597,10 @@ xchk_xattr(
 	struct xfs_scrub		*sc)
 {
 	struct xchk_xattr		sx;
+<<<<<<< HEAD
 	struct attrlist_cursor_kern	cursor = { 0 };
+=======
+>>>>>>> upstream/android-13
 	xfs_dablk_t			last_checked = -1U;
 	int				error = 0;
 
@@ -427,11 +619,18 @@ xchk_xattr(
 
 	/* Check that every attr key can also be looked up by hash. */
 	sx.context.dp = sc->ip;
+<<<<<<< HEAD
 	sx.context.cursor = &cursor;
 	sx.context.resynch = 1;
 	sx.context.put_listent = xchk_xattr_listent;
 	sx.context.tp = sc->tp;
 	sx.context.flags = ATTR_INCOMPLETE;
+=======
+	sx.context.resynch = 1;
+	sx.context.put_listent = xchk_xattr_listent;
+	sx.context.tp = sc->tp;
+	sx.context.allow_incomplete = true;
+>>>>>>> upstream/android-13
 	sx.sc = sc;
 
 	/*
@@ -450,9 +649,19 @@ xchk_xattr(
 	 * iteration, which doesn't really follow the usual buffer
 	 * locking order.
 	 */
+<<<<<<< HEAD
 	error = xfs_attr_list_int_ilocked(&sx.context);
 	if (!xchk_fblock_process_error(sc, XFS_ATTR_FORK, 0, &error))
 		goto out;
+=======
+	error = xfs_attr_list_ilocked(&sx.context);
+	if (!xchk_fblock_process_error(sc, XFS_ATTR_FORK, 0, &error))
+		goto out;
+
+	/* Did our listent function try to return any errors? */
+	if (sx.context.seen_enough < 0)
+		error = sx.context.seen_enough;
+>>>>>>> upstream/android-13
 out:
 	return error;
 }

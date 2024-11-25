@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mac80211 glue code for mac80211 ST-Ericsson CW1200 drivers
  * DebugFS code
  *
  * Copyright (c) 2010, ST-Ericsson
  * Author: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -289,6 +296,7 @@ static int cw1200_status_show(struct seq_file *seq, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cw1200_status_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, &cw1200_status_show,
@@ -302,6 +310,9 @@ static const struct file_operations fops_status = {
 	.release = single_release,
 	.owner = THIS_MODULE,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(cw1200_status);
+>>>>>>> upstream/android-13
 
 static int cw1200_counters_show(struct seq_file *seq, void *v)
 {
@@ -345,6 +356,7 @@ static int cw1200_counters_show(struct seq_file *seq, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cw1200_counters_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, &cw1200_counters_show,
@@ -358,6 +370,9 @@ static const struct file_operations fops_counters = {
 	.release = single_release,
 	.owner = THIS_MODULE,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(cw1200_counters);
+>>>>>>> upstream/android-13
 
 static ssize_t cw1200_wsm_dumps(struct file *file,
 	const char __user *user_buf, size_t count, loff_t *ppos)
@@ -395,6 +410,7 @@ int cw1200_debug_init(struct cw1200_common *priv)
 
 	d->debugfs_phy = debugfs_create_dir("cw1200",
 					    priv->hw->wiphy->debugfsdir);
+<<<<<<< HEAD
 	if (!d->debugfs_phy)
 		goto err;
 
@@ -417,6 +433,16 @@ err:
 	debugfs_remove_recursive(d->debugfs_phy);
 	kfree(d);
 	return ret;
+=======
+	debugfs_create_file("status", 0400, d->debugfs_phy, priv,
+			    &cw1200_status_fops);
+	debugfs_create_file("counters", 0400, d->debugfs_phy, priv,
+			    &cw1200_counters_fops);
+	debugfs_create_file("wsm_dumps", 0200, d->debugfs_phy, priv,
+			    &fops_wsm_dumps);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void cw1200_debug_release(struct cw1200_common *priv)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -54,7 +60,11 @@
 #include "mcast.h"
 
 /**
+<<<<<<< HEAD
  * rvt_driver_mcast - init resources for multicast
+=======
+ * rvt_driver_mcast_init - init resources for multicast
+>>>>>>> upstream/android-13
  * @rdi: rvt dev struct
  *
  * This is per device that registers with rdmavt
@@ -69,7 +79,11 @@ void rvt_driver_mcast_init(struct rvt_dev_info *rdi)
 }
 
 /**
+<<<<<<< HEAD
  * mcast_qp_alloc - alloc a struct to link a QP to mcast GID struct
+=======
+ * rvt_mcast_qp_alloc - alloc a struct to link a QP to mcast GID struct
+>>>>>>> upstream/android-13
  * @qp: the QP to link
  */
 static struct rvt_mcast_qp *rvt_mcast_qp_alloc(struct rvt_qp *qp)
@@ -98,7 +112,11 @@ static void rvt_mcast_qp_free(struct rvt_mcast_qp *mqp)
 }
 
 /**
+<<<<<<< HEAD
  * mcast_alloc - allocate the multicast GID structure
+=======
+ * rvt_mcast_alloc - allocate the multicast GID structure
+>>>>>>> upstream/android-13
  * @mgid: the multicast GID
  * @lid: the muilticast LID (host order)
  *
@@ -180,8 +198,13 @@ struct rvt_mcast *rvt_mcast_find(struct rvt_ibport *ibp, union ib_gid *mgid,
 }
 EXPORT_SYMBOL(rvt_mcast_find);
 
+<<<<<<< HEAD
 /**
  * mcast_add - insert mcast GID into table and attach QP struct
+=======
+/*
+ * rvt_mcast_add - insert mcast GID into table and attach QP struct
+>>>>>>> upstream/android-13
  * @mcast: the mcast GID table
  * @mqp: the QP to attach
  *
@@ -426,8 +449,13 @@ int rvt_detach_mcast(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
 }
 
 /**
+<<<<<<< HEAD
  *rvt_mast_tree_empty - determine if any qps are attached to any mcast group
  *@rdi: rvt dev struct
+=======
+ * rvt_mcast_tree_empty - determine if any qps are attached to any mcast group
+ * @rdi: rvt dev struct
+>>>>>>> upstream/android-13
  *
  * Return: in use count
  */

@@ -22,7 +22,11 @@ enum cache_type {
 	CACHE_TYPE_UNIFIED,
 };
 
+<<<<<<< HEAD
 static int cache_seq_show(struct seq_file *file, void *iter)
+=======
+static int cache_debugfs_show(struct seq_file *file, void *iter)
+>>>>>>> upstream/android-13
 {
 	unsigned int cache_type = (unsigned int)file->private;
 	struct cache_info *cache;
@@ -94,6 +98,7 @@ static int cache_seq_show(struct seq_file *file, void *iter)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cache_debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, cache_seq_show, inode->i_private);
@@ -125,6 +130,16 @@ static int __init cache_debugfs_init(void)
 		return -ENOMEM;
 	}
 
+=======
+DEFINE_SHOW_ATTRIBUTE(cache_debugfs);
+
+static int __init cache_debugfs_init(void)
+{
+	debugfs_create_file("dcache", S_IRUSR, arch_debugfs_dir,
+			    (void *)CACHE_TYPE_DCACHE, &cache_debugfs_fops);
+	debugfs_create_file("icache", S_IRUSR, arch_debugfs_dir,
+			    (void *)CACHE_TYPE_ICACHE, &cache_debugfs_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 module_init(cache_debugfs_init);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 1998-2005 Vojtech Pavlik
  */
@@ -7,6 +11,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -235,7 +242,11 @@ static __u64 sw_get_bits(unsigned char *buf, int pos, int num, char bits)
 
 static void sw_init_digital(struct gameport *gameport)
 {
+<<<<<<< HEAD
 	int seq[] = { 140, 140+725, 140+300, 0 };
+=======
+	static const int seq[] = { 140, 140+725, 140+300, 0 };
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int i, t;
 
@@ -668,16 +679,32 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
 
 			switch (i * m) {
 				case 60:
+<<<<<<< HEAD
 					sw->number++;			/* fall through */
 				case 45:				/* Ambiguous packet length */
 					if (j <= 40) {			/* ID length less or eq 40 -> FSP */
+=======
+					sw->number++;
+					fallthrough;
+				case 45:				/* Ambiguous packet length */
+					if (j <= 40) {			/* ID length less or eq 40 -> FSP */
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 43:
 						sw->type = SW_ID_FSP;
 						break;
 					}
+<<<<<<< HEAD
 					sw->number++;			/* fall through */
 				case 30:
 					sw->number++;			/* fall through */
+=======
+					sw->number++;
+					fallthrough;
+				case 30:
+					sw->number++;
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 15:
 					sw->type = SW_ID_GP;
 					break;
@@ -693,9 +720,17 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
 						sw->type = SW_ID_PP;
 					break;
 				case 66:
+<<<<<<< HEAD
 					sw->bits = 3;			/* fall through */
 				case 198:
 					sw->length = 22;		/* fall through */
+=======
+					sw->bits = 3;
+					fallthrough;
+				case 198:
+					sw->length = 22;
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 64:
 					sw->type = SW_ID_3DP;
 					if (j == 160)

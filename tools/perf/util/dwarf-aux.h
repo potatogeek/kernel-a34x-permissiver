@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _DWARF_AUX_H
 #define _DWARF_AUX_H
 /*
  * dwarf-aux.h : libdw auxiliary interfaces
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <dwarf.h>
@@ -24,6 +31,11 @@
 #include <elfutils/libdwfl.h>
 #include <elfutils/version.h>
 
+<<<<<<< HEAD
+=======
+struct strbuf;
+
+>>>>>>> upstream/android-13
 /* Find the realpath of the target file */
 const char *cu_find_realpath(Dwarf_Die *cu_die, const char *fname);
 
@@ -31,10 +43,17 @@ const char *cu_find_realpath(Dwarf_Die *cu_die, const char *fname);
 const char *cu_get_comp_dir(Dwarf_Die *cu_die);
 
 /* Get a line number and file name for given address */
+<<<<<<< HEAD
 int cu_find_lineinfo(Dwarf_Die *cudie, unsigned long addr,
 		     const char **fname, int *lineno);
 
 /* Walk on funcitons at given address */
+=======
+int cu_find_lineinfo(Dwarf_Die *cudie, Dwarf_Addr addr,
+		     const char **fname, int *lineno);
+
+/* Walk on functions at given address */
+>>>>>>> upstream/android-13
 int cu_walk_functions_at(Dwarf_Die *cu_die, Dwarf_Addr addr,
 			 int (*callback)(Dwarf_Die *, void *), void *data);
 

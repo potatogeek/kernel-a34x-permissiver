@@ -118,7 +118,12 @@ static void tipc_tlv_init(struct sk_buff *skb, u16 type)
 	skb_put(skb, sizeof(struct tlv_desc));
 }
 
+<<<<<<< HEAD
 static int tipc_tlv_sprintf(struct sk_buff *skb, const char *fmt, ...)
+=======
+static __printf(2, 3) int tipc_tlv_sprintf(struct sk_buff *skb,
+					   const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	int n;
 	u16 len;
@@ -181,15 +186,27 @@ static int __tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
 				   struct tipc_nl_compat_msg *msg,
 				   struct sk_buff *arg)
 {
+<<<<<<< HEAD
+=======
+	struct genl_dumpit_info info;
+>>>>>>> upstream/android-13
 	int len = 0;
 	int err;
 	struct sk_buff *buf;
 	struct nlmsghdr *nlmsg;
 	struct netlink_callback cb;
+<<<<<<< HEAD
+=======
+	struct nlattr **attrbuf;
+>>>>>>> upstream/android-13
 
 	memset(&cb, 0, sizeof(cb));
 	cb.nlh = (struct nlmsghdr *)arg->data;
 	cb.skb = arg;
+<<<<<<< HEAD
+=======
+	cb.data = &info;
+>>>>>>> upstream/android-13
 
 	buf = nlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
 	if (!buf)
@@ -201,12 +218,32 @@ static int __tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
+=======
+	attrbuf = kcalloc(tipc_genl_family.maxattr + 1,
+			  sizeof(struct nlattr *), GFP_KERNEL);
+	if (!attrbuf) {
+		err = -ENOMEM;
+		goto err_out;
+	}
+
+	info.attrs = attrbuf;
+
+	if (nlmsg_len(cb.nlh) > 0) {
+		err = nlmsg_parse_deprecated(cb.nlh, GENL_HDRLEN, attrbuf,
+					     tipc_genl_family.maxattr,
+					     tipc_genl_family.policy, NULL);
+		if (err)
+			goto err_out;
+	}
+>>>>>>> upstream/android-13
 	do {
 		int rem;
 
 		len = (*cmd->dumpit)(buf, &cb);
 
 		nlmsg_for_each_msg(nlmsg, nlmsg_hdr(buf), len, rem) {
+<<<<<<< HEAD
 			struct nlattr **attrs;
 
 			err = tipc_nlmsg_parse(nlmsg, &attrs);
@@ -214,6 +251,17 @@ static int __tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
 				goto err_out;
 
 			err = (*cmd->format)(msg, attrs);
+=======
+			err = nlmsg_parse_deprecated(nlmsg, GENL_HDRLEN,
+						     attrbuf,
+						     tipc_genl_family.maxattr,
+						     tipc_genl_family.policy,
+						     NULL);
+			if (err)
+				goto err_out;
+
+			err = (*cmd->format)(msg, attrbuf);
+>>>>>>> upstream/android-13
 			if (err)
 				goto err_out;
 
@@ -231,6 +279,10 @@ static int __tipc_nl_compat_dumpit(struct tipc_nl_compat_cmd_dump *cmd,
 	err = 0;
 
 err_out:
+<<<<<<< HEAD
+=======
+	kfree(attrbuf);
+>>>>>>> upstream/android-13
 	tipc_dump_done(&cb);
 	kfree_skb(buf);
 
@@ -340,9 +392,15 @@ static int __tipc_nl_compat_doit(struct tipc_nl_compat_cmd_doit *cmd,
 	if (err)
 		goto doit_out;
 
+<<<<<<< HEAD
 	err = nla_parse(attrbuf, tipc_genl_family.maxattr,
 			(const struct nlattr *)trans_buf->data,
 			trans_buf->len, NULL, NULL);
+=======
+	err = nla_parse_deprecated(attrbuf, tipc_genl_family.maxattr,
+				   (const struct nlattr *)trans_buf->data,
+				   trans_buf->len, NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		goto doit_out;
 
@@ -391,8 +449,13 @@ static int tipc_nl_compat_bearer_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_BEARER])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(bearer, TIPC_NLA_BEARER_MAX,
 			       attrs[TIPC_NLA_BEARER], NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(bearer, TIPC_NLA_BEARER_MAX,
+					  attrs[TIPC_NLA_BEARER], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -412,7 +475,11 @@ static int tipc_nl_compat_bearer_enable(struct tipc_nl_compat_cmd_doit *cmd,
 
 	b = (struct tipc_bearer_config *)TLV_DATA(msg->req);
 
+<<<<<<< HEAD
 	bearer = nla_nest_start(skb, TIPC_NLA_BEARER);
+=======
+	bearer = nla_nest_start_noflag(skb, TIPC_NLA_BEARER);
+>>>>>>> upstream/android-13
 	if (!bearer)
 		return -EMSGSIZE;
 
@@ -432,7 +499,11 @@ static int tipc_nl_compat_bearer_enable(struct tipc_nl_compat_cmd_doit *cmd,
 		return -EMSGSIZE;
 
 	if (ntohl(b->priority) <= TIPC_MAX_LINK_PRI) {
+<<<<<<< HEAD
 		prop = nla_nest_start(skb, TIPC_NLA_BEARER_PROP);
+=======
+		prop = nla_nest_start_noflag(skb, TIPC_NLA_BEARER_PROP);
+>>>>>>> upstream/android-13
 		if (!prop)
 			return -EMSGSIZE;
 		if (nla_put_u32(skb, TIPC_NLA_PROP_PRIO, ntohl(b->priority)))
@@ -454,7 +525,11 @@ static int tipc_nl_compat_bearer_disable(struct tipc_nl_compat_cmd_doit *cmd,
 
 	name = (char *)TLV_DATA(msg->req);
 
+<<<<<<< HEAD
 	bearer = nla_nest_start(skb, TIPC_NLA_BEARER);
+=======
+	bearer = nla_nest_start_noflag(skb, TIPC_NLA_BEARER);
+>>>>>>> upstream/android-13
 	if (!bearer)
 		return -EMSGSIZE;
 
@@ -531,24 +606,41 @@ static int tipc_nl_compat_link_stat_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_LINK])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(link, TIPC_NLA_LINK_MAX, attrs[TIPC_NLA_LINK],
 			       NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(link, TIPC_NLA_LINK_MAX,
+					  attrs[TIPC_NLA_LINK], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	if (!link[TIPC_NLA_LINK_PROP])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(prop, TIPC_NLA_PROP_MAX,
 			       link[TIPC_NLA_LINK_PROP], NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(prop, TIPC_NLA_PROP_MAX,
+					  link[TIPC_NLA_LINK_PROP], NULL,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	if (!link[TIPC_NLA_LINK_STATS])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(stats, TIPC_NLA_STATS_MAX,
 			       link[TIPC_NLA_LINK_STATS], NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(stats, TIPC_NLA_STATS_MAX,
+					  link[TIPC_NLA_LINK_STATS], NULL,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -566,7 +658,11 @@ static int tipc_nl_compat_link_stat_dump(struct tipc_nl_compat_msg *msg,
 		return 0;
 
 	tipc_tlv_sprintf(msg->rep, "\nLink <%s>\n",
+<<<<<<< HEAD
 			 nla_data(link[TIPC_NLA_LINK_NAME]));
+=======
+			 (char *)nla_data(link[TIPC_NLA_LINK_NAME]));
+>>>>>>> upstream/android-13
 
 	if (link[TIPC_NLA_LINK_BROADCAST]) {
 		__fill_bc_link_stat(msg, prop, stats);
@@ -666,14 +762,23 @@ static int tipc_nl_compat_link_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_LINK])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(link, TIPC_NLA_LINK_MAX, attrs[TIPC_NLA_LINK],
 			       NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(link, TIPC_NLA_LINK_MAX,
+					  attrs[TIPC_NLA_LINK], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	link_info.dest = htonl(nla_get_flag(link[TIPC_NLA_LINK_DEST]));
 	link_info.up = htonl(nla_get_flag(link[TIPC_NLA_LINK_UP]));
+<<<<<<< HEAD
 	nla_strlcpy(link_info.str, link[TIPC_NLA_LINK_NAME],
+=======
+	nla_strscpy(link_info.str, link[TIPC_NLA_LINK_NAME],
+>>>>>>> upstream/android-13
 		    TIPC_MAX_LINK_NAME);
 
 	return tipc_add_tlv(msg->rep, TIPC_TLV_LINK_INFO,
@@ -702,6 +807,7 @@ static int tipc_nl_compat_media_set(struct sk_buff *skb,
 	struct nlattr *prop;
 	struct nlattr *media;
 	struct tipc_link_config *lc;
+<<<<<<< HEAD
 	int len;
 
 	lc = (struct tipc_link_config *)TLV_DATA(msg->req);
@@ -718,6 +824,19 @@ static int tipc_nl_compat_media_set(struct sk_buff *skb,
 		return -EMSGSIZE;
 
 	prop = nla_nest_start(skb, TIPC_NLA_MEDIA_PROP);
+=======
+
+	lc = (struct tipc_link_config *)TLV_DATA(msg->req);
+
+	media = nla_nest_start_noflag(skb, TIPC_NLA_MEDIA);
+	if (!media)
+		return -EMSGSIZE;
+
+	if (nla_put_string(skb, TIPC_NLA_MEDIA_NAME, lc->name))
+		return -EMSGSIZE;
+
+	prop = nla_nest_start_noflag(skb, TIPC_NLA_MEDIA_PROP);
+>>>>>>> upstream/android-13
 	if (!prop)
 		return -EMSGSIZE;
 
@@ -734,6 +853,7 @@ static int tipc_nl_compat_bearer_set(struct sk_buff *skb,
 	struct nlattr *prop;
 	struct nlattr *bearer;
 	struct tipc_link_config *lc;
+<<<<<<< HEAD
 	int len;
 
 	lc = (struct tipc_link_config *)TLV_DATA(msg->req);
@@ -750,6 +870,19 @@ static int tipc_nl_compat_bearer_set(struct sk_buff *skb,
 		return -EMSGSIZE;
 
 	prop = nla_nest_start(skb, TIPC_NLA_BEARER_PROP);
+=======
+
+	lc = (struct tipc_link_config *)TLV_DATA(msg->req);
+
+	bearer = nla_nest_start_noflag(skb, TIPC_NLA_BEARER);
+	if (!bearer)
+		return -EMSGSIZE;
+
+	if (nla_put_string(skb, TIPC_NLA_BEARER_NAME, lc->name))
+		return -EMSGSIZE;
+
+	prop = nla_nest_start_noflag(skb, TIPC_NLA_BEARER_PROP);
+>>>>>>> upstream/android-13
 	if (!prop)
 		return -EMSGSIZE;
 
@@ -769,14 +902,22 @@ static int __tipc_nl_compat_link_set(struct sk_buff *skb,
 
 	lc = (struct tipc_link_config *)TLV_DATA(msg->req);
 
+<<<<<<< HEAD
 	link = nla_nest_start(skb, TIPC_NLA_LINK);
+=======
+	link = nla_nest_start_noflag(skb, TIPC_NLA_LINK);
+>>>>>>> upstream/android-13
 	if (!link)
 		return -EMSGSIZE;
 
 	if (nla_put_string(skb, TIPC_NLA_LINK_NAME, lc->name))
 		return -EMSGSIZE;
 
+<<<<<<< HEAD
 	prop = nla_nest_start(skb, TIPC_NLA_LINK_PROP);
+=======
+	prop = nla_nest_start_noflag(skb, TIPC_NLA_LINK_PROP);
+>>>>>>> upstream/android-13
 	if (!prop)
 		return -EMSGSIZE;
 
@@ -832,7 +973,11 @@ static int tipc_nl_compat_link_reset_stats(struct tipc_nl_compat_cmd_doit *cmd,
 
 	name = (char *)TLV_DATA(msg->req);
 
+<<<<<<< HEAD
 	link = nla_nest_start(skb, TIPC_NLA_LINK);
+=======
+	link = nla_nest_start_noflag(skb, TIPC_NLA_LINK);
+>>>>>>> upstream/android-13
 	if (!link)
 		return -EMSGSIZE;
 
@@ -894,16 +1039,28 @@ static int tipc_nl_compat_name_table_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_NAME_TABLE])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(nt, TIPC_NLA_NAME_TABLE_MAX,
 			       attrs[TIPC_NLA_NAME_TABLE], NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(nt, TIPC_NLA_NAME_TABLE_MAX,
+					  attrs[TIPC_NLA_NAME_TABLE], NULL,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	if (!nt[TIPC_NLA_NAME_TABLE_PUBL])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(publ, TIPC_NLA_PUBL_MAX,
 			       nt[TIPC_NLA_NAME_TABLE_PUBL], NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(publ, TIPC_NLA_PUBL_MAX,
+					  nt[TIPC_NLA_NAME_TABLE_PUBL], NULL,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -962,8 +1119,13 @@ static int __tipc_nl_compat_publ_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_PUBL])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(publ, TIPC_NLA_PUBL_MAX, attrs[TIPC_NLA_PUBL],
 			       NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(publ, TIPC_NLA_PUBL_MAX,
+					  attrs[TIPC_NLA_PUBL], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -998,7 +1160,11 @@ static int tipc_nl_compat_publ_dump(struct tipc_nl_compat_msg *msg, u32 sock)
 		return -EMSGSIZE;
 	}
 
+<<<<<<< HEAD
 	nest = nla_nest_start(args, TIPC_NLA_SOCK);
+=======
+	nest = nla_nest_start_noflag(args, TIPC_NLA_SOCK);
+>>>>>>> upstream/android-13
 	if (!nest) {
 		kfree_skb(args);
 		return -EMSGSIZE;
@@ -1032,8 +1198,13 @@ static int tipc_nl_compat_sk_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_SOCK])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(sock, TIPC_NLA_SOCK_MAX, attrs[TIPC_NLA_SOCK],
 			       NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(sock, TIPC_NLA_SOCK_MAX,
+					  attrs[TIPC_NLA_SOCK], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1044,8 +1215,14 @@ static int tipc_nl_compat_sk_dump(struct tipc_nl_compat_msg *msg,
 		u32 node;
 		struct nlattr *con[TIPC_NLA_CON_MAX + 1];
 
+<<<<<<< HEAD
 		err = nla_parse_nested(con, TIPC_NLA_CON_MAX,
 				       sock[TIPC_NLA_SOCK_CON], NULL, NULL);
+=======
+		err = nla_parse_nested_deprecated(con, TIPC_NLA_CON_MAX,
+						  sock[TIPC_NLA_SOCK_CON],
+						  NULL, NULL);
+>>>>>>> upstream/android-13
 
 		if (err)
 			return err;
@@ -1084,8 +1261,13 @@ static int tipc_nl_compat_media_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_MEDIA])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(media, TIPC_NLA_MEDIA_MAX,
 			       attrs[TIPC_NLA_MEDIA], NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(media, TIPC_NLA_MEDIA_MAX,
+					  attrs[TIPC_NLA_MEDIA], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1104,8 +1286,13 @@ static int tipc_nl_compat_node_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_NODE])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(node, TIPC_NLA_NODE_MAX, attrs[TIPC_NLA_NODE],
 			       NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(node, TIPC_NLA_NODE_MAX,
+					  attrs[TIPC_NLA_NODE], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1125,7 +1312,11 @@ static int tipc_nl_compat_net_set(struct tipc_nl_compat_cmd_doit *cmd,
 
 	val = ntohl(*(__be32 *)TLV_DATA(msg->req));
 
+<<<<<<< HEAD
 	net = nla_nest_start(skb, TIPC_NLA_NET);
+=======
+	net = nla_nest_start_noflag(skb, TIPC_NLA_NET);
+>>>>>>> upstream/android-13
 	if (!net)
 		return -EMSGSIZE;
 
@@ -1151,8 +1342,13 @@ static int tipc_nl_compat_net_dump(struct tipc_nl_compat_msg *msg,
 	if (!attrs[TIPC_NLA_NET])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(net, TIPC_NLA_NET_MAX, attrs[TIPC_NLA_NET],
 			       NULL, NULL);
+=======
+	err = nla_parse_nested_deprecated(net, TIPC_NLA_NET_MAX,
+					  attrs[TIPC_NLA_NET], NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1322,9 +1518,16 @@ send:
 	return err;
 }
 
+<<<<<<< HEAD
 static const struct genl_ops tipc_genl_compat_ops[] = {
 	{
 		.cmd		= TIPC_GENL_CMD,
+=======
+static const struct genl_small_ops tipc_genl_compat_ops[] = {
+	{
+		.cmd		= TIPC_GENL_CMD,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+>>>>>>> upstream/android-13
 		.doit		= tipc_nl_compat_recv,
 	},
 };
@@ -1336,8 +1539,13 @@ static struct genl_family tipc_genl_compat_family __ro_after_init = {
 	.maxattr	= 0,
 	.netnsok	= true,
 	.module		= THIS_MODULE,
+<<<<<<< HEAD
 	.ops		= tipc_genl_compat_ops,
 	.n_ops		= ARRAY_SIZE(tipc_genl_compat_ops),
+=======
+	.small_ops	= tipc_genl_compat_ops,
+	.n_small_ops	= ARRAY_SIZE(tipc_genl_compat_ops),
+>>>>>>> upstream/android-13
 };
 
 int __init tipc_netlink_compat_start(void)

@@ -93,7 +93,11 @@ static int tfa9879_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tfa9879_digital_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int tfa9879_mute_stream(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 
@@ -251,8 +255,14 @@ static const struct regmap_config tfa9879_regmap = {
 
 static const struct snd_soc_dai_ops tfa9879_dai_ops = {
 	.hw_params = tfa9879_hw_params,
+<<<<<<< HEAD
 	.digital_mute = tfa9879_digital_mute,
 	.set_fmt = tfa9879_set_fmt,
+=======
+	.mute_stream = tfa9879_mute_stream,
+	.set_fmt = tfa9879_set_fmt,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 #define TFA9879_RATES SNDRV_PCM_RATE_8000_96000

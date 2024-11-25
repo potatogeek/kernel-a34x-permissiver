@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  cx18 file operation functions
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2007  Hans Verkuil <hverkuil@xs4all.nl>
  *  Copyright (C) 2008  Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx18-driver.h"
@@ -403,7 +410,11 @@ static size_t cx18_copy_mdl_to_user(struct cx18_stream *s,
 		tot_written += rc;
 
 		if (stop ||	/* Forced stopping point for VBI insertion */
+<<<<<<< HEAD
 		    tot_written >= ucount ||	/* Reader request statisfied */
+=======
+		    tot_written >= ucount ||	/* Reader request satisfied */
+>>>>>>> upstream/android-13
 		    mdl->curr_buf->readpos < mdl->curr_buf->bytesused ||
 		    mdl->readpos >= mdl->bytesused) /* MDL buffers drained */
 			break;

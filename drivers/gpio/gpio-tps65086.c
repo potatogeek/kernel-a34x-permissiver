@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com/
  *	Andrew F. Davis <afd@ti.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -15,6 +20,12 @@
  */
 
 #include <linux/gpio.h>
+=======
+ * Based on the TPS65912 driver
+ */
+
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 
@@ -29,7 +40,11 @@ static int tps65086_gpio_get_direction(struct gpio_chip *chip,
 				       unsigned offset)
 {
 	/* This device is output only */
+<<<<<<< HEAD
 	return 0;
+=======
+	return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int tps65086_gpio_direction_input(struct gpio_chip *chip,

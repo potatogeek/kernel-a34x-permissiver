@@ -1,6 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1+ WITH Linux-syscall-note */
 /*
+<<<<<<< HEAD
  *   include/uapi/linux/cifs/cifs_mount.h
+=======
+>>>>>>> upstream/android-13
  *
  *   Author(s): Scott Lovenberg (scott.lovenberg@gmail.com)
  *

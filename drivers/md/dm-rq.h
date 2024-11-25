@@ -17,6 +17,7 @@
 struct mapped_device;
 
 /*
+<<<<<<< HEAD
  * One of these is allocated per request.
  */
 struct dm_rq_target_io {
@@ -33,6 +34,8 @@ struct dm_rq_target_io {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * For request-based dm - the bio clones we allocate are embedded in these
  * structs.
  *
@@ -46,10 +49,13 @@ struct dm_rq_clone_bio_info {
 	struct bio clone;
 };
 
+<<<<<<< HEAD
 bool dm_use_blk_mq_default(void);
 bool dm_use_blk_mq(struct mapped_device *md);
 
 int dm_old_init_request_queue(struct mapped_device *md, struct dm_table *t);
+=======
+>>>>>>> upstream/android-13
 int dm_mq_init_request_queue(struct mapped_device *md, struct dm_table *t);
 void dm_mq_cleanup_mapped_device(struct mapped_device *md);
 

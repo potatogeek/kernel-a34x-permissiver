@@ -376,7 +376,11 @@ Resources
 ---------
 
 .. [#f1] Almesberger, Werner; "Booting Linux: The History and the Future"
+<<<<<<< HEAD
     http://www.almesberger.net/cv/papers/ols2k-9.ps.gz
+=======
+    https://www.almesberger.net/cv/papers/ols2k-9.ps.gz
+>>>>>>> upstream/android-13
 .. [#f2] newlib package (experimental), with initrd example
     https://www.sourceware.org/newlib/
 .. [#f3] util-linux: Miscellaneous utilities for Linux

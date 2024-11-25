@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -6,10 +10,13 @@
  * Copyright (c) 2012 Eukréa Electromatique - ATMEL
  * Author: Nicolas Royer <nicolas@eukrea.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Some ideas are from omap-sham.c drivers.
  */
 
@@ -24,6 +31,10 @@
 #include <linux/platform_device.h>
 
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/dmaengine.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/errno.h>
 #include <linux/interrupt.h>
@@ -33,6 +44,7 @@
 #include <linux/of_device.h>
 #include <linux/delay.h>
 #include <linux/crypto.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
 #include <crypto/scatterwalk.h>
 #include <crypto/algapi.h>
@@ -43,6 +55,19 @@
 #include "atmel-sha-regs.h"
 #include "atmel-authenc.h"
 
+=======
+#include <crypto/scatterwalk.h>
+#include <crypto/algapi.h>
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+#include <crypto/hash.h>
+#include <crypto/internal/hash.h>
+#include "atmel-sha-regs.h"
+#include "atmel-authenc.h"
+
+#define ATMEL_SHA_PRIORITY	300
+
+>>>>>>> upstream/android-13
 /* SHA flags */
 #define SHA_FLAGS_BUSY			BIT(0)
 #define	SHA_FLAGS_FINAL			BIT(1)
@@ -137,7 +162,10 @@ struct atmel_sha_dev {
 	void __iomem		*io_base;
 
 	spinlock_t		lock;
+<<<<<<< HEAD
 	int			err;
+=======
+>>>>>>> upstream/android-13
 	struct tasklet_struct	done_task;
 	struct tasklet_struct	queue_task;
 
@@ -363,7 +391,11 @@ static size_t atmel_sha_append_sg(struct atmel_sha_reqctx *ctx)
 static void atmel_sha_fill_padding(struct atmel_sha_reqctx *ctx, int length)
 {
 	unsigned int index, padlen;
+<<<<<<< HEAD
 	u64 bits[2];
+=======
+	__be64 bits[2];
+>>>>>>> upstream/android-13
 	u64 size[2];
 
 	size[0] = ctx->digcnt[0];
@@ -436,7 +468,11 @@ static int atmel_sha_init(struct ahash_request *req)
 
 	ctx->flags = 0;
 
+<<<<<<< HEAD
 	dev_dbg(dd->dev, "init: digest size: %d\n",
+=======
+	dev_dbg(dd->dev, "init: digest size: %u\n",
+>>>>>>> upstream/android-13
 		crypto_ahash_digestsize(tfm));
 
 	switch (crypto_ahash_digestsize(tfm)) {
@@ -462,7 +498,10 @@ static int atmel_sha_init(struct ahash_request *req)
 		break;
 	default:
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	ctx->bufcnt = 0;
@@ -854,7 +893,11 @@ static int atmel_sha_update_dma_start(struct atmel_sha_dev *dd)
 								0, final);
 }
 
+<<<<<<< HEAD
 static int atmel_sha_update_dma_stop(struct atmel_sha_dev *dd)
+=======
+static void atmel_sha_update_dma_stop(struct atmel_sha_dev *dd)
+>>>>>>> upstream/android-13
 {
 	struct atmel_sha_reqctx *ctx = ahash_request_ctx(dd->req);
 
@@ -873,8 +916,11 @@ static int atmel_sha_update_dma_stop(struct atmel_sha_dev *dd)
 		dma_unmap_single(dd->dev, ctx->dma_addr, ctx->buflen +
 						ctx->block_size, DMA_TO_DEVICE);
 	}
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int atmel_sha_update_req(struct atmel_sha_dev *dd)
@@ -1028,7 +1074,10 @@ static int atmel_sha_hw_init(struct atmel_sha_dev *dd)
 	if (!(SHA_FLAGS_INIT & dd->flags)) {
 		atmel_sha_write(dd, SHA_CR, SHA_CR_SWRST);
 		dd->flags |= SHA_FLAGS_INIT;
+<<<<<<< HEAD
 		dd->err = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1039,9 +1088,19 @@ static inline unsigned int atmel_sha_get_version(struct atmel_sha_dev *dd)
 	return atmel_sha_read(dd, SHA_HW_VERSION) & 0x00000fff;
 }
 
+<<<<<<< HEAD
 static void atmel_sha_hw_version_init(struct atmel_sha_dev *dd)
 {
 	atmel_sha_hw_init(dd);
+=======
+static int atmel_sha_hw_version_init(struct atmel_sha_dev *dd)
+{
+	int err;
+
+	err = atmel_sha_hw_init(dd);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	dd->hw_version = atmel_sha_get_version(dd);
 
@@ -1049,6 +1108,11 @@ static void atmel_sha_hw_version_init(struct atmel_sha_dev *dd)
 			"version: 0x%x\n", dd->hw_version);
 
 	clk_disable(dd->iclk);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int atmel_sha_handle_queue(struct atmel_sha_dev *dd,
@@ -1102,7 +1166,11 @@ static int atmel_sha_start(struct atmel_sha_dev *dd)
 	struct atmel_sha_reqctx *ctx = ahash_request_ctx(req);
 	int err;
 
+<<<<<<< HEAD
 	dev_dbg(dd->dev, "handling new req, op: %lu, nbytes: %d\n",
+=======
+	dev_dbg(dd->dev, "handling new req, op: %lu, nbytes: %u\n",
+>>>>>>> upstream/android-13
 						ctx->op, req->nbytes);
 
 	err = atmel_sha_hw_init(dd);
@@ -1251,6 +1319,7 @@ static int atmel_sha_cra_init(struct crypto_tfm *tfm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct ahash_alg sha_1_256_algs[] = {
 {
 	.init		= atmel_sha_init,
@@ -1299,10 +1368,46 @@ static struct ahash_alg sha_1_256_algs[] = {
 			.cra_init		= atmel_sha_cra_init,
 		}
 	}
+=======
+static void atmel_sha_alg_init(struct ahash_alg *alg)
+{
+	alg->halg.base.cra_priority = ATMEL_SHA_PRIORITY;
+	alg->halg.base.cra_flags = CRYPTO_ALG_ASYNC;
+	alg->halg.base.cra_ctxsize = sizeof(struct atmel_sha_ctx);
+	alg->halg.base.cra_module = THIS_MODULE;
+	alg->halg.base.cra_init = atmel_sha_cra_init;
+
+	alg->halg.statesize = sizeof(struct atmel_sha_reqctx);
+
+	alg->init = atmel_sha_init;
+	alg->update = atmel_sha_update;
+	alg->final = atmel_sha_final;
+	alg->finup = atmel_sha_finup;
+	alg->digest = atmel_sha_digest;
+	alg->export = atmel_sha_export;
+	alg->import = atmel_sha_import;
+}
+
+static struct ahash_alg sha_1_256_algs[] = {
+{
+	.halg.base.cra_name		= "sha1",
+	.halg.base.cra_driver_name	= "atmel-sha1",
+	.halg.base.cra_blocksize	= SHA1_BLOCK_SIZE,
+
+	.halg.digestsize = SHA1_DIGEST_SIZE,
+},
+{
+	.halg.base.cra_name		= "sha256",
+	.halg.base.cra_driver_name	= "atmel-sha256",
+	.halg.base.cra_blocksize	= SHA256_BLOCK_SIZE,
+
+	.halg.digestsize = SHA256_DIGEST_SIZE,
+>>>>>>> upstream/android-13
 },
 };
 
 static struct ahash_alg sha_224_alg = {
+<<<<<<< HEAD
 	.init		= atmel_sha_init,
 	.update		= atmel_sha_update,
 	.final		= atmel_sha_final,
@@ -1325,10 +1430,18 @@ static struct ahash_alg sha_224_alg = {
 			.cra_init		= atmel_sha_cra_init,
 		}
 	}
+=======
+	.halg.base.cra_name		= "sha224",
+	.halg.base.cra_driver_name	= "atmel-sha224",
+	.halg.base.cra_blocksize	= SHA224_BLOCK_SIZE,
+
+	.halg.digestsize = SHA224_DIGEST_SIZE,
+>>>>>>> upstream/android-13
 };
 
 static struct ahash_alg sha_384_512_algs[] = {
 {
+<<<<<<< HEAD
 	.init		= atmel_sha_init,
 	.update		= atmel_sha_update,
 	.final		= atmel_sha_final,
@@ -1375,6 +1488,22 @@ static struct ahash_alg sha_384_512_algs[] = {
 			.cra_init		= atmel_sha_cra_init,
 		}
 	}
+=======
+	.halg.base.cra_name		= "sha384",
+	.halg.base.cra_driver_name	= "atmel-sha384",
+	.halg.base.cra_blocksize	= SHA384_BLOCK_SIZE,
+	.halg.base.cra_alignmask	= 0x3,
+
+	.halg.digestsize = SHA384_DIGEST_SIZE,
+},
+{
+	.halg.base.cra_name		= "sha512",
+	.halg.base.cra_driver_name	= "atmel-sha512",
+	.halg.base.cra_blocksize	= SHA512_BLOCK_SIZE,
+	.halg.base.cra_alignmask	= 0x3,
+
+	.halg.digestsize = SHA512_DIGEST_SIZE,
+>>>>>>> upstream/android-13
 },
 };
 
@@ -1398,10 +1527,13 @@ static int atmel_sha_done(struct atmel_sha_dev *dd)
 		if (SHA_FLAGS_DMA_ACTIVE & dd->flags) {
 			dd->flags &= ~SHA_FLAGS_DMA_ACTIVE;
 			atmel_sha_update_dma_stop(dd);
+<<<<<<< HEAD
 			if (dd->err) {
 				err = dd->err;
 				goto finish;
 			}
+=======
+>>>>>>> upstream/android-13
 		}
 		if (SHA_FLAGS_OUTPUT_READY & dd->flags) {
 			/* hash or semi-hash ready */
@@ -1496,7 +1628,10 @@ static void atmel_sha_dma_callback2(void *data)
 	struct scatterlist *sg;
 	int nents;
 
+<<<<<<< HEAD
 	dmaengine_terminate_all(dma->chan);
+=======
+>>>>>>> upstream/android-13
 	dma_unmap_sg(dd->dev, dma->sg, dma->nents, DMA_TO_DEVICE);
 
 	sg = dma->sg;
@@ -2082,6 +2217,7 @@ static void atmel_sha_hmac_cra_exit(struct crypto_tfm *tfm)
 	atmel_sha_hmac_key_release(&hmac->hkey);
 }
 
+<<<<<<< HEAD
 static struct ahash_alg sha_hmac_algs[] = {
 {
 	.init		= atmel_sha_hmac_init,
@@ -2207,6 +2343,63 @@ static struct ahash_alg sha_hmac_algs[] = {
 			.cra_exit		= atmel_sha_hmac_cra_exit,
 		}
 	}
+=======
+static void atmel_sha_hmac_alg_init(struct ahash_alg *alg)
+{
+	alg->halg.base.cra_priority = ATMEL_SHA_PRIORITY;
+	alg->halg.base.cra_flags = CRYPTO_ALG_ASYNC;
+	alg->halg.base.cra_ctxsize = sizeof(struct atmel_sha_hmac_ctx);
+	alg->halg.base.cra_module = THIS_MODULE;
+	alg->halg.base.cra_init	= atmel_sha_hmac_cra_init;
+	alg->halg.base.cra_exit	= atmel_sha_hmac_cra_exit;
+
+	alg->halg.statesize = sizeof(struct atmel_sha_reqctx);
+
+	alg->init = atmel_sha_hmac_init;
+	alg->update = atmel_sha_update;
+	alg->final = atmel_sha_final;
+	alg->digest = atmel_sha_hmac_digest;
+	alg->setkey = atmel_sha_hmac_setkey;
+	alg->export = atmel_sha_export;
+	alg->import = atmel_sha_import;
+}
+
+static struct ahash_alg sha_hmac_algs[] = {
+{
+	.halg.base.cra_name		= "hmac(sha1)",
+	.halg.base.cra_driver_name	= "atmel-hmac-sha1",
+	.halg.base.cra_blocksize	= SHA1_BLOCK_SIZE,
+
+	.halg.digestsize = SHA1_DIGEST_SIZE,
+},
+{
+	.halg.base.cra_name		= "hmac(sha224)",
+	.halg.base.cra_driver_name	= "atmel-hmac-sha224",
+	.halg.base.cra_blocksize	= SHA224_BLOCK_SIZE,
+
+	.halg.digestsize = SHA224_DIGEST_SIZE,
+},
+{
+	.halg.base.cra_name		= "hmac(sha256)",
+	.halg.base.cra_driver_name	= "atmel-hmac-sha256",
+	.halg.base.cra_blocksize	= SHA256_BLOCK_SIZE,
+
+	.halg.digestsize = SHA256_DIGEST_SIZE,
+},
+{
+	.halg.base.cra_name		= "hmac(sha384)",
+	.halg.base.cra_driver_name	= "atmel-hmac-sha384",
+	.halg.base.cra_blocksize	= SHA384_BLOCK_SIZE,
+
+	.halg.digestsize = SHA384_DIGEST_SIZE,
+},
+{
+	.halg.base.cra_name		= "hmac(sha512)",
+	.halg.base.cra_driver_name	= "atmel-hmac-sha512",
+	.halg.base.cra_blocksize	= SHA512_BLOCK_SIZE,
+
+	.halg.digestsize = SHA512_DIGEST_SIZE,
+>>>>>>> upstream/android-13
 },
 };
 
@@ -2345,6 +2538,7 @@ void atmel_sha_authenc_free(struct atmel_sha_authenc_ctx *auth)
 EXPORT_SYMBOL_GPL(atmel_sha_authenc_free);
 
 int atmel_sha_authenc_setkey(struct atmel_sha_authenc_ctx *auth,
+<<<<<<< HEAD
 			     const u8 *key, unsigned int keylen,
 			     u32 *flags)
 {
@@ -2357,6 +2551,15 @@ int atmel_sha_authenc_setkey(struct atmel_sha_authenc_ctx *auth,
 	*flags = crypto_ahash_get_flags(tfm);
 
 	return err;
+=======
+			     const u8 *key, unsigned int keylen, u32 flags)
+{
+	struct crypto_ahash *tfm = auth->tfm;
+
+	crypto_ahash_clear_flags(tfm, CRYPTO_TFM_REQ_MASK);
+	crypto_ahash_set_flags(tfm, flags & CRYPTO_TFM_REQ_MASK);
+	return crypto_ahash_setkey(tfm, key, keylen);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(atmel_sha_authenc_setkey);
 
@@ -2559,12 +2762,22 @@ static int atmel_sha_register_algs(struct atmel_sha_dev *dd)
 	int err, i, j;
 
 	for (i = 0; i < ARRAY_SIZE(sha_1_256_algs); i++) {
+<<<<<<< HEAD
+=======
+		atmel_sha_alg_init(&sha_1_256_algs[i]);
+
+>>>>>>> upstream/android-13
 		err = crypto_register_ahash(&sha_1_256_algs[i]);
 		if (err)
 			goto err_sha_1_256_algs;
 	}
 
 	if (dd->caps.has_sha224) {
+<<<<<<< HEAD
+=======
+		atmel_sha_alg_init(&sha_224_alg);
+
+>>>>>>> upstream/android-13
 		err = crypto_register_ahash(&sha_224_alg);
 		if (err)
 			goto err_sha_224_algs;
@@ -2572,6 +2785,11 @@ static int atmel_sha_register_algs(struct atmel_sha_dev *dd)
 
 	if (dd->caps.has_sha_384_512) {
 		for (i = 0; i < ARRAY_SIZE(sha_384_512_algs); i++) {
+<<<<<<< HEAD
+=======
+			atmel_sha_alg_init(&sha_384_512_algs[i]);
+
+>>>>>>> upstream/android-13
 			err = crypto_register_ahash(&sha_384_512_algs[i]);
 			if (err)
 				goto err_sha_384_512_algs;
@@ -2580,6 +2798,11 @@ static int atmel_sha_register_algs(struct atmel_sha_dev *dd)
 
 	if (dd->caps.has_hmac) {
 		for (i = 0; i < ARRAY_SIZE(sha_hmac_algs); i++) {
+<<<<<<< HEAD
+=======
+			atmel_sha_hmac_alg_init(&sha_hmac_algs[i]);
+
+>>>>>>> upstream/android-13
 			err = crypto_register_ahash(&sha_hmac_algs[i]);
 			if (err)
 				goto err_sha_hmac_algs;
@@ -2606,6 +2829,7 @@ err_sha_1_256_algs:
 	return err;
 }
 
+<<<<<<< HEAD
 static bool atmel_sha_filter(struct dma_chan *chan, void *slave)
 {
 	struct at_dma_slave	*sl = slave;
@@ -2635,6 +2859,16 @@ static int atmel_sha_dma_init(struct atmel_sha_dev *dd,
 	}
 
 	dd->dma_lch_in.dma_conf.direction = DMA_MEM_TO_DEV;
+=======
+static int atmel_sha_dma_init(struct atmel_sha_dev *dd)
+{
+	dd->dma_lch_in.chan = dma_request_chan(dd->dev, "tx");
+	if (IS_ERR(dd->dma_lch_in.chan)) {
+		dev_err(dd->dev, "DMA channel is not available\n");
+		return PTR_ERR(dd->dma_lch_in.chan);
+	}
+
+>>>>>>> upstream/android-13
 	dd->dma_lch_in.dma_conf.dst_addr = dd->phys_base +
 		SHA_REG_DIN(0);
 	dd->dma_lch_in.dma_conf.src_maxburst = 1;
@@ -2707,6 +2941,7 @@ static const struct of_device_id atmel_sha_dt_ids[] = {
 };
 
 MODULE_DEVICE_TABLE(of, atmel_sha_dt_ids);
+<<<<<<< HEAD
 
 static struct crypto_platform_data *atmel_sha_of_init(struct platform_device *pdev)
 {
@@ -2735,21 +2970,31 @@ static inline struct crypto_platform_data *atmel_sha_of_init(struct platform_dev
 {
 	return ERR_PTR(-EINVAL);
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 static int atmel_sha_probe(struct platform_device *pdev)
 {
 	struct atmel_sha_dev *sha_dd;
+<<<<<<< HEAD
 	struct crypto_platform_data	*pdata;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = &pdev->dev;
 	struct resource *sha_res;
 	int err;
 
 	sha_dd = devm_kzalloc(&pdev->dev, sizeof(*sha_dd), GFP_KERNEL);
+<<<<<<< HEAD
 	if (sha_dd == NULL) {
 		err = -ENOMEM;
 		goto sha_dd_err;
 	}
+=======
+	if (!sha_dd)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	sha_dd->dev = dev;
 
@@ -2770,23 +3015,36 @@ static int atmel_sha_probe(struct platform_device *pdev)
 	if (!sha_res) {
 		dev_err(dev, "no MEM resource info\n");
 		err = -ENODEV;
+<<<<<<< HEAD
 		goto res_err;
+=======
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 	sha_dd->phys_base = sha_res->start;
 
 	/* Get the IRQ */
 	sha_dd->irq = platform_get_irq(pdev,  0);
 	if (sha_dd->irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "no IRQ resource info\n");
 		err = sha_dd->irq;
 		goto res_err;
+=======
+		err = sha_dd->irq;
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 
 	err = devm_request_irq(&pdev->dev, sha_dd->irq, atmel_sha_irq,
 			       IRQF_SHARED, "atmel-sha", sha_dd);
 	if (err) {
 		dev_err(dev, "unable to request sha irq.\n");
+<<<<<<< HEAD
 		goto res_err;
+=======
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 
 	/* Initializing the clock */
@@ -2794,25 +3052,42 @@ static int atmel_sha_probe(struct platform_device *pdev)
 	if (IS_ERR(sha_dd->iclk)) {
 		dev_err(dev, "clock initialization failed.\n");
 		err = PTR_ERR(sha_dd->iclk);
+<<<<<<< HEAD
 		goto res_err;
+=======
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 
 	sha_dd->io_base = devm_ioremap_resource(&pdev->dev, sha_res);
 	if (IS_ERR(sha_dd->io_base)) {
 		dev_err(dev, "can't ioremap\n");
 		err = PTR_ERR(sha_dd->io_base);
+<<<<<<< HEAD
 		goto res_err;
+=======
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 
 	err = clk_prepare(sha_dd->iclk);
 	if (err)
+<<<<<<< HEAD
 		goto res_err;
 
 	atmel_sha_hw_version_init(sha_dd);
+=======
+		goto err_tasklet_kill;
+
+	err = atmel_sha_hw_version_init(sha_dd);
+	if (err)
+		goto err_iclk_unprepare;
+>>>>>>> upstream/android-13
 
 	atmel_sha_get_cap(sha_dd);
 
 	if (sha_dd->caps.has_dma) {
+<<<<<<< HEAD
 		pdata = pdev->dev.platform_data;
 		if (!pdata) {
 			pdata = atmel_sha_of_init(pdev);
@@ -2829,6 +3104,11 @@ static int atmel_sha_probe(struct platform_device *pdev)
 		err = atmel_sha_dma_init(sha_dd, pdata);
 		if (err)
 			goto err_sha_dma;
+=======
+		err = atmel_sha_dma_init(sha_dd);
+		if (err)
+			goto err_iclk_unprepare;
+>>>>>>> upstream/android-13
 
 		dev_info(dev, "using %s for DMA transfers\n",
 				dma_chan_name(sha_dd->dma_lch_in.chan));
@@ -2854,6 +3134,7 @@ err_algs:
 	spin_unlock(&atmel_sha.lock);
 	if (sha_dd->caps.has_dma)
 		atmel_sha_dma_cleanup(sha_dd);
+<<<<<<< HEAD
 err_sha_dma:
 iclk_unprepare:
 	clk_unprepare(sha_dd->iclk);
@@ -2862,6 +3143,13 @@ res_err:
 	tasklet_kill(&sha_dd->done_task);
 sha_dd_err:
 	dev_err(dev, "initialization failed.\n");
+=======
+err_iclk_unprepare:
+	clk_unprepare(sha_dd->iclk);
+err_tasklet_kill:
+	tasklet_kill(&sha_dd->queue_task);
+	tasklet_kill(&sha_dd->done_task);
+>>>>>>> upstream/android-13
 
 	return err;
 }

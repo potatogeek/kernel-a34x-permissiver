@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Linux network driver for QLogic BR-series Converged Network Adapter.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Linux network driver for QLogic BR-series Converged Network Adapter.
+>>>>>>> upstream/android-13
  */
 /*
  * Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
@@ -397,7 +403,11 @@ struct bfi_msgq_mhdr {
 	u16	msg_token;
 	u16	num_entries;
 	u8	enet_id;
+<<<<<<< HEAD
 	u8	rsvd[1];
+=======
+	u8	rsvd;
+>>>>>>> upstream/android-13
 } __packed;
 
 #define bfi_msgq_mhdr_set(_mh, _mc, _mid, _tok, _enet_id) do {	\

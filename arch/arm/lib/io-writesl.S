@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/io-writesl.S
  *
  *  Copyright (C) 1995-2000 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 #include <asm/assembler.h>
@@ -28,7 +35,11 @@ ENTRY(__raw_writesl)
 		bpl	1b
 		ldmfd	sp!, {r4, lr}
 2:		movs	r2, r2, lsl #31
+<<<<<<< HEAD
 		ldmcsia	r1!, {r3, ip}
+=======
+		ldmiacs	r1!, {r3, ip}
+>>>>>>> upstream/android-13
 		strcs	r3, [r0, #0]
 		ldrne	r3, [r1, #0]
 		strcs	ip, [r0, #0]

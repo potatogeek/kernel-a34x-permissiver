@@ -5,6 +5,7 @@
 #ifdef CONFIG_ARM_CPU_TOPOLOGY
 
 #include <linux/cpumask.h>
+<<<<<<< HEAD
 
 struct cputopo_arm {
 	int thread_id;
@@ -33,6 +34,17 @@ int topology_nr_clusters(void);
 
 /* Replace task scheduler's default max-frequency-invariant accounting */
 #define arch_scale_max_freq_capacity topology_get_max_freq_scale
+=======
+#include <linux/arch_topology.h>
+
+/* big.LITTLE switcher is incompatible with frequency invariance */
+#ifndef CONFIG_BL_SWITCHER
+/* Replace task scheduler's default frequency-invariant accounting */
+#define arch_set_freq_scale topology_set_freq_scale
+#define arch_scale_freq_capacity topology_get_freq_scale
+#define arch_scale_freq_invariant topology_scale_freq_invariant
+#endif
+>>>>>>> upstream/android-13
 
 /* Replace task scheduler's default cpu-invariant accounting */
 #define arch_scale_cpu_capacity topology_get_cpu_scale
@@ -40,9 +52,15 @@ int topology_nr_clusters(void);
 /* Enable topology flag updates */
 #define arch_update_cpu_topology topology_update_cpu_topology
 
+<<<<<<< HEAD
 /* Cpu and cluster informantion */
 #define arch_cpu_cluster_id topology_physical_package_id
 #define arch_nr_clusters topology_nr_clusters
+=======
+/* Replace task scheduler's default thermal pressure API */
+#define arch_scale_thermal_pressure topology_get_thermal_pressure
+#define arch_set_thermal_pressure   topology_set_thermal_pressure
+>>>>>>> upstream/android-13
 
 #else
 

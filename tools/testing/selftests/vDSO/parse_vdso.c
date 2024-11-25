@@ -21,6 +21,7 @@
 #include <limits.h>
 #include <elf.h>
 
+<<<<<<< HEAD
 /*
  * To use this vDSO parser, first call one of the vdso_init_* functions.
  * If you've already parsed auxv, then pass the value of AT_SYSINFO_EHDR
@@ -44,6 +45,9 @@ extern void vdso_init_from_auxv(void *auxv);
 extern void vdso_init_from_sysinfo_ehdr(uintptr_t base);
 extern void *vdso_sym(const char *version, const char *name);
 
+=======
+#include "parse_vdso.h"
+>>>>>>> upstream/android-13
 
 /* And here's the code. */
 #ifndef ELF_BITS

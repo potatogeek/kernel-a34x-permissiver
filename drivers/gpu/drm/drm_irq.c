@@ -51,6 +51,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <drm/drm_irq.h>
 #include <drm/drmP.h>
 
@@ -99,10 +100,30 @@
  * Zero on success or a negative error code on failure.
  */
 int drm_irq_install(struct drm_device *dev, int irq)
+=======
+
+#include <linux/export.h>
+#include <linux/interrupt.h>	/* For task queue support */
+#include <linux/pci.h>
+#include <linux/vgaarb.h>
+
+#include <drm/drm.h>
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_legacy.h>
+#include <drm/drm_print.h>
+#include <drm/drm_vblank.h>
+
+#include "drm_internal.h"
+
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+static int drm_legacy_irq_install(struct drm_device *dev, int irq)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	unsigned long sh_flags = 0;
 
+<<<<<<< HEAD
 	if (!drm_core_check_feature(dev, DRIVER_HAVE_IRQ))
 		return -EINVAL;
 
@@ -113,6 +134,11 @@ int drm_irq_install(struct drm_device *dev, int irq)
 	if (!dev->dev_private)
 		return -EINVAL;
 
+=======
+	if (irq == 0)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (dev->irq_enabled)
 		return -EBUSY;
 	dev->irq_enabled = true;
@@ -123,8 +149,13 @@ int drm_irq_install(struct drm_device *dev, int irq)
 	if (dev->driver->irq_preinstall)
 		dev->driver->irq_preinstall(dev);
 
+<<<<<<< HEAD
 	/* Install handler */
 	if (drm_core_check_feature(dev, DRIVER_IRQ_SHARED))
+=======
+	/* PCI devices require shared interrupts. */
+	if (dev_is_pci(dev->dev))
+>>>>>>> upstream/android-13
 		sh_flags = IRQF_SHARED;
 
 	ret = request_irq(irq, dev->driver->irq_handler,
@@ -142,7 +173,11 @@ int drm_irq_install(struct drm_device *dev, int irq)
 	if (ret < 0) {
 		dev->irq_enabled = false;
 		if (drm_core_check_feature(dev, DRIVER_LEGACY))
+<<<<<<< HEAD
 			vga_client_register(dev->pdev, NULL, NULL, NULL);
+=======
+			vga_client_unregister(to_pci_dev(dev->dev));
+>>>>>>> upstream/android-13
 		free_irq(irq, dev);
 	} else {
 		dev->irq = irq;
@@ -150,6 +185,7 @@ int drm_irq_install(struct drm_device *dev, int irq)
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_irq_install);
 
 /**
@@ -169,14 +205,21 @@ EXPORT_SYMBOL(drm_irq_install);
  * Zero on success or a negative error code on failure.
  */
 int drm_irq_uninstall(struct drm_device *dev)
+=======
+
+int drm_legacy_irq_uninstall(struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqflags;
 	bool irq_enabled;
 	int i;
 
+<<<<<<< HEAD
 	if (!drm_core_check_feature(dev, DRIVER_HAVE_IRQ))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	irq_enabled = dev->irq_enabled;
 	dev->irq_enabled = false;
 
@@ -186,7 +229,11 @@ int drm_irq_uninstall(struct drm_device *dev)
 	 * vblank/irq handling. KMS drivers must ensure that vblanks are all
 	 * disabled when uninstalling the irq handler.
 	 */
+<<<<<<< HEAD
 	if (dev->num_crtcs) {
+=======
+	if (drm_dev_has_vblank(dev)) {
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&dev->vbl_lock, irqflags);
 		for (i = 0; i < dev->num_crtcs; i++) {
 			struct drm_vblank_crtc *vblank = &dev->vblank[i];
@@ -208,7 +255,11 @@ int drm_irq_uninstall(struct drm_device *dev)
 	DRM_DEBUG("irq=%d\n", dev->irq);
 
 	if (drm_core_check_feature(dev, DRIVER_LEGACY))
+<<<<<<< HEAD
 		vga_client_register(dev->pdev, NULL, NULL, NULL);
+=======
+		vga_client_unregister(to_pci_dev(dev->dev));
+>>>>>>> upstream/android-13
 
 	if (dev->driver->irq_uninstall)
 		dev->driver->irq_uninstall(dev);
@@ -217,13 +268,21 @@ int drm_irq_uninstall(struct drm_device *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_irq_uninstall);
+=======
+EXPORT_SYMBOL(drm_legacy_irq_uninstall);
+>>>>>>> upstream/android-13
 
 int drm_legacy_irq_control(struct drm_device *dev, void *data,
 			   struct drm_file *file_priv)
 {
 	struct drm_control *ctl = data;
 	int ret = 0, irq;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev;
+>>>>>>> upstream/android-13
 
 	/* if we haven't irq we fallback for compatibility reasons -
 	 * this used to be a separate function in drm_dma.h
@@ -234,24 +293,41 @@ int drm_legacy_irq_control(struct drm_device *dev, void *data,
 	if (!drm_core_check_feature(dev, DRIVER_LEGACY))
 		return 0;
 	/* UMS was only ever supported on pci devices. */
+<<<<<<< HEAD
 	if (WARN_ON(!dev->pdev))
+=======
+	if (WARN_ON(!dev_is_pci(dev->dev)))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	switch (ctl->func) {
 	case DRM_INST_HANDLER:
+<<<<<<< HEAD
 		irq = dev->pdev->irq;
+=======
+		pdev = to_pci_dev(dev->dev);
+		irq = pdev->irq;
+>>>>>>> upstream/android-13
 
 		if (dev->if_version < DRM_IF_VERSION(1, 2) &&
 		    ctl->irq != irq)
 			return -EINVAL;
 		mutex_lock(&dev->struct_mutex);
+<<<<<<< HEAD
 		ret = drm_irq_install(dev, irq);
+=======
+		ret = drm_legacy_irq_install(dev, irq);
+>>>>>>> upstream/android-13
 		mutex_unlock(&dev->struct_mutex);
 
 		return ret;
 	case DRM_UNINST_HANDLER:
 		mutex_lock(&dev->struct_mutex);
+<<<<<<< HEAD
 		ret = drm_irq_uninstall(dev);
+=======
+		ret = drm_legacy_irq_uninstall(dev);
+>>>>>>> upstream/android-13
 		mutex_unlock(&dev->struct_mutex);
 
 		return ret;
@@ -259,3 +335,7 @@ int drm_legacy_irq_control(struct drm_device *dev, void *data,
 		return -EINVAL;
 	}
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13

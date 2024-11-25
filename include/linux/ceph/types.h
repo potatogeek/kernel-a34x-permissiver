@@ -24,6 +24,10 @@ struct ceph_vino {
 /* context for the caps reservation mechanism */
 struct ceph_cap_reservation {
 	int count;
+<<<<<<< HEAD
+=======
+	int used;
+>>>>>>> upstream/android-13
 };
 
 

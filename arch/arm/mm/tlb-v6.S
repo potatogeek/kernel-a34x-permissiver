@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/tlb-v6.S
  *
  *  Copyright (C) 1997-2002 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  ARM architecture version 6 TLB handling functions.
  *  These assume a split I/D TLB.
  */
@@ -27,7 +34,11 @@
  *
  *	- start - start address (may not be aligned)
  *	- end   - end address (exclusive, may not be aligned)
+<<<<<<< HEAD
  *	- vma   - vma_struct describing address range
+=======
+ *	- vma   - vm_area_struct describing address range
+>>>>>>> upstream/android-13
  *
  *	It is assumed that:
  *	- the "Invalidate single entry" instruction will invalidate

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* lanai.c -- Copyright 1999-2003 by Mitchell Blank Jr <mitch@sfgoth.com>
  *
  *  This program is free software; you can redistribute it and/or
@@ -5,6 +6,11 @@
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* lanai.c -- Copyright 1999-2003 by Mitchell Blank Jr <mitch@sfgoth.com>
+ *
+>>>>>>> upstream/android-13
  * This driver supports ATM cards based on the Efficient "Lanai"
  * chipset such as the Speedstream 3010 and the ENI-25p.  The
  * Speedstream 3060 is currently not supported since we don't
@@ -769,8 +775,12 @@ static void lanai_shutdown_tx_vci(struct lanai_dev *lanai,
 	struct sk_buff *skb;
 	unsigned long flags, timeout;
 	int read, write, lastread = -1;
+<<<<<<< HEAD
 	APRINTK(!in_interrupt(),
 	    "lanai_shutdown_tx_vci called w/o process context!\n");
+=======
+
+>>>>>>> upstream/android-13
 	if (lvcc->vbase == NULL)	/* We were never bound to a VCI */
 		return;
 	/* 15.2.1 - wait for queue to drain */
@@ -2023,7 +2033,11 @@ static int lanai_normalize_ci(struct lanai_dev *lanai,
 	switch (*vpip) {
 		case ATM_VPI_ANY:
 			*vpip = 0;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0:
 			break;
 		default:
@@ -2544,8 +2558,11 @@ static const struct atmdev_ops ops = {
 	.dev_close	= lanai_dev_close,
 	.open		= lanai_open,
 	.close		= lanai_close,
+<<<<<<< HEAD
 	.getsockopt	= NULL,
 	.setsockopt	= NULL,
+=======
+>>>>>>> upstream/android-13
 	.send		= lanai_send,
 	.phy_put	= NULL,
 	.phy_get	= NULL,

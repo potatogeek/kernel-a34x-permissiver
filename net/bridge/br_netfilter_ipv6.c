@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Handle firewalling
  *	Linux ethernet bridge
@@ -6,11 +10,14 @@
  *	Lennert Buytenhek		<buytenh@gnu.org>
  *	Bart De Schuymer		<bdschuym@pandora.be>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Lennert dedicates this file to Kerstin Wurdinger.
  */
 
@@ -225,10 +232,17 @@ unsigned int br_nf_pre_routing_ipv6(void *priv,
 	if (br_validate_ipv6(state->net, skb))
 		return NF_DROP;
 
+<<<<<<< HEAD
 	nf_bridge_put(skb->nf_bridge);
 	if (!nf_bridge_alloc(skb))
 		return NF_DROP;
 	if (!setup_pre_routing(skb))
+=======
+	nf_bridge = nf_bridge_alloc(skb);
+	if (!nf_bridge)
+		return NF_DROP;
+	if (!setup_pre_routing(skb, state->net))
+>>>>>>> upstream/android-13
 		return NF_DROP;
 
 	nf_bridge = nf_bridge_info_get(skb);

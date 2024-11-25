@@ -230,11 +230,25 @@ struct bcm_enet_priv {
 	/* next dirty rx descriptor to refill */
 	int rx_dirty_desc;
 
+<<<<<<< HEAD
 	/* size of allocated rx skbs */
 	unsigned int rx_skb_size;
 
 	/* list of skb given to hw for rx */
 	struct sk_buff **rx_skb;
+=======
+	/* size of allocated rx buffers */
+	unsigned int rx_buf_size;
+
+	/* allocated rx buffer offset */
+	unsigned int rx_buf_offset;
+
+	/* size of allocated rx frag */
+	unsigned int rx_frag_size;
+
+	/* list of buffer given to hw for rx */
+	void **rx_buf;
+>>>>>>> upstream/android-13
 
 	/* used when rx skb allocation failed, so we defer rx queue
 	 * refill */

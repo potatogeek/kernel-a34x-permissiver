@@ -14,7 +14,10 @@
 #include <api/fs/fs.h>
 #include "trace-event.h"
 #include "machine.h"
+<<<<<<< HEAD
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 
 /*
  * global trace_event object used by trace_event__tp_format
@@ -40,7 +43,11 @@ int trace_event__init(struct trace_event *t)
 
 static int trace_event__init2(void)
 {
+<<<<<<< HEAD
 	int be = tep_host_bigendian();
+=======
+	int be = tep_is_bigendian();
+>>>>>>> upstream/android-13
 	struct tep_handle *pevent;
 
 	if (trace_event__init(&tevent))
@@ -49,7 +56,11 @@ static int trace_event__init2(void)
 	pevent = tevent.pevent;
 	tep_set_flag(pevent, TEP_NSEC_OUTPUT);
 	tep_set_file_bigendian(pevent, be);
+<<<<<<< HEAD
 	tep_set_host_bigendian(pevent, be);
+=======
+	tep_set_local_bigendian(pevent, be);
+>>>>>>> upstream/android-13
 	tevent_initialized = true;
 	return 0;
 }
@@ -72,12 +83,20 @@ void trace_event__cleanup(struct trace_event *t)
 /*
  * Returns pointer with encoded error via <linux/err.h> interface.
  */
+<<<<<<< HEAD
 static struct event_format*
+=======
+static struct tep_event*
+>>>>>>> upstream/android-13
 tp_format(const char *sys, const char *name)
 {
 	char *tp_dir = get_events_file(sys);
 	struct tep_handle *pevent = tevent.pevent;
+<<<<<<< HEAD
 	struct event_format *event = NULL;
+=======
+	struct tep_event *event = NULL;
+>>>>>>> upstream/android-13
 	char path[PATH_MAX];
 	size_t size;
 	char *data;
@@ -102,7 +121,11 @@ tp_format(const char *sys, const char *name)
 /*
  * Returns pointer with encoded error via <linux/err.h> interface.
  */
+<<<<<<< HEAD
 struct event_format*
+=======
+struct tep_event*
+>>>>>>> upstream/android-13
 trace_event__tp_format(const char *sys, const char *name)
 {
 	if (!tevent_initialized && trace_event__init2())
@@ -111,7 +134,11 @@ trace_event__tp_format(const char *sys, const char *name)
 	return tp_format(sys, name);
 }
 
+<<<<<<< HEAD
 struct event_format *trace_event__tp_format_id(int id)
+=======
+struct tep_event *trace_event__tp_format_id(int id)
+>>>>>>> upstream/android-13
 {
 	if (!tevent_initialized && trace_event__init2())
 		return ERR_PTR(-ENOMEM);

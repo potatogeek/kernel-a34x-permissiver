@@ -7,7 +7,10 @@ struct cache_stat_collector {
 	atomic_t cache_misses;
 	atomic_t cache_bypass_hits;
 	atomic_t cache_bypass_misses;
+<<<<<<< HEAD
 	atomic_t cache_readaheads;
+=======
+>>>>>>> upstream/android-13
 	atomic_t cache_miss_collisions;
 	atomic_t sectors_bypassed;
 };

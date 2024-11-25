@@ -306,7 +306,11 @@ static irqreturn_t lance_interrupt(int irq, void *dev_id);
 static int lance_close(struct net_device *dev);
 static struct net_device_stats *lance_get_stats(struct net_device *dev);
 static void set_multicast_list(struct net_device *dev);
+<<<<<<< HEAD
 static void lance_tx_timeout (struct net_device *dev);
+=======
+static void lance_tx_timeout (struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 
 
@@ -327,7 +331,11 @@ MODULE_PARM_DESC(dma, "LANCE/PCnet ISA DMA channel (ignored for some devices)");
 MODULE_PARM_DESC(irq, "LANCE/PCnet IRQ number (ignored for some devices)");
 MODULE_PARM_DESC(lance_debug, "LANCE/PCnet debug level (0-7)");
 
+<<<<<<< HEAD
 int __init init_module(void)
+=======
+static int __init lance_init_module(void)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev;
 	int this_dev, found = 0;
@@ -356,6 +364,10 @@ int __init init_module(void)
 		return 0;
 	return -ENXIO;
 }
+<<<<<<< HEAD
+=======
+module_init(lance_init_module);
+>>>>>>> upstream/android-13
 
 static void cleanup_card(struct net_device *dev)
 {
@@ -368,7 +380,11 @@ static void cleanup_card(struct net_device *dev)
 	kfree(lp);
 }
 
+<<<<<<< HEAD
 void __exit cleanup_module(void)
+=======
+static void __exit lance_cleanup_module(void)
+>>>>>>> upstream/android-13
 {
 	int this_dev;
 
@@ -381,6 +397,10 @@ void __exit cleanup_module(void)
 		}
 	}
 }
+<<<<<<< HEAD
+=======
+module_exit(lance_cleanup_module);
+>>>>>>> upstream/android-13
 #endif /* MODULE */
 MODULE_LICENSE("GPL");
 
@@ -780,7 +800,11 @@ lance_open(struct net_device *dev)
 		outw(0x0002, ioaddr+LANCE_ADDR);
 		/* Only touch autoselect bit. */
 		outw(inw(ioaddr+LANCE_BUS_IF) | 0x0002, ioaddr+LANCE_BUS_IF);
+<<<<<<< HEAD
  	}
+=======
+	}
+>>>>>>> upstream/android-13
 
 	if (lance_debug > 1)
 		printk("%s: lance_open() irq %d dma %d tx/rx rings %#x/%#x init %#x.\n",
@@ -812,7 +836,11 @@ lance_open(struct net_device *dev)
 	 * We used to clear the InitDone bit, 0x0100, here but Mark Stockton
 	 * reports that doing so triggers a bug in the '974.
 	 */
+<<<<<<< HEAD
  	outw(0x0042, ioaddr+LANCE_DATA);
+=======
+	outw(0x0042, ioaddr+LANCE_DATA);
+>>>>>>> upstream/android-13
 
 	if (lance_debug > 2)
 		printk("%s: LANCE open after %d ticks, init block %#x csr0 %4.4x.\n",
@@ -913,7 +941,11 @@ lance_restart(struct net_device *dev, unsigned int csr0_bits, int must_reinit)
 }
 
 
+<<<<<<< HEAD
 static void lance_tx_timeout (struct net_device *dev)
+=======
+static void lance_tx_timeout (struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct lance_private *lp = (struct lance_private *) dev->ml_priv;
 	int ioaddr = dev->base_addr;
@@ -1084,7 +1116,11 @@ static irqreturn_t lance_interrupt(int irq, void *dev_id)
 				/* We must free the original skb if it's not a data-only copy
 				   in the bounce buffer. */
 				if (lp->tx_skbuff[entry]) {
+<<<<<<< HEAD
 					dev_kfree_skb_irq(lp->tx_skbuff[entry]);
+=======
+					dev_consume_skb_irq(lp->tx_skbuff[entry]);
+>>>>>>> upstream/android-13
 					lp->tx_skbuff[entry] = NULL;
 				}
 				dirty_tx++;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2018 - ARM Ltd
  * Author: Marc Zyngier <marc.zyngier@arm.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015-2018 - ARM Ltd
+ * Author: Marc Zyngier <marc.zyngier@arm.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/arm-smccc.h>
@@ -23,8 +30,13 @@
 #include <asm/cpufeature.h>
 #include <asm/kvm_arm.h>
 #include <asm/kvm_asm.h>
+<<<<<<< HEAD
 #include <asm/kvm_mmu.h>
 #include <asm/mmu.h>
+=======
+#include <asm/mmu.h>
+#include <asm/spectre.h>
+>>>>>>> upstream/android-13
 
 .macro save_caller_saved_regs_vect
 	/* x0 and x1 were saved in the vector entry */
@@ -51,6 +63,7 @@
 .endm
 
 	.text
+<<<<<<< HEAD
 	.pushsection	.hyp.text, "ax"
 
 .macro do_el2_call
@@ -78,15 +91,22 @@ ENTRY(__vhe_hyp_call)
 	isb
 	ret
 ENDPROC(__vhe_hyp_call)
+=======
+>>>>>>> upstream/android-13
 
 el1_sync:				// Guest trapped into EL2
 
 	mrs	x0, esr_el2
+<<<<<<< HEAD
 	lsr	x0, x0, #ESR_ELx_EC_SHIFT
+=======
+	ubfx	x0, x0, #ESR_ELx_EC_SHIFT, #ESR_ELx_EC_WIDTH
+>>>>>>> upstream/android-13
 	cmp	x0, #ESR_ELx_EC_HVC64
 	ccmp	x0, #ESR_ELx_EC_HVC32, #4, ne
 	b.ne	el1_trap
 
+<<<<<<< HEAD
 	mrs	x1, vttbr_el2		// If vttbr is valid, the guest
 	cbnz	x1, el1_hvc_guest	// called HVC
 
@@ -122,6 +142,8 @@ el1_sync:				// Guest trapped into EL2
 	eret
 
 el1_hvc_guest:
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Fastest possible path for ARM_SMCCC_ARCH_WORKAROUND_1.
 	 * The workaround has already been applied on the host,
@@ -141,6 +163,7 @@ el1_hvc_guest:
 			  ARM_SMCCC_ARCH_WORKAROUND_3)
 	cbnz	w1, el1_trap
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARM64_SSBD
 alternative_cb	arm64_enable_wa2_handling
 	b	wa2_end
@@ -170,10 +193,16 @@ wa2_end:
 	mov	x1, xzr
 #endif
 
+=======
+>>>>>>> upstream/android-13
 wa_epilogue:
 	mov	x0, xzr
 	add	sp, sp, #16
 	eret
+<<<<<<< HEAD
+=======
+	sb
+>>>>>>> upstream/android-13
 
 el1_trap:
 	get_vcpu_ptr	x1, x0
@@ -181,6 +210,10 @@ el1_trap:
 	b	__guest_exit
 
 el1_irq:
+<<<<<<< HEAD
+=======
+el1_fiq:
+>>>>>>> upstream/android-13
 	get_vcpu_ptr	x1, x0
 	mov	x0, #ARM_EXCEPTION_IRQ
 	b	__guest_exit
@@ -191,6 +224,13 @@ el1_error:
 	b	__guest_exit
 
 el2_sync:
+<<<<<<< HEAD
+=======
+	/* Check for illegal exception return */
+	mrs	x0, spsr_el2
+	tbnz	x0, #20, 1f
+
+>>>>>>> upstream/android-13
 	save_caller_saved_regs_vect
 	stp     x29, x30, [sp, #-16]!
 	bl	kvm_unexpected_el2_exception
@@ -199,6 +239,16 @@ el2_sync:
 
 	eret
 
+<<<<<<< HEAD
+=======
+1:
+	/* Let's attempt a recovery from the illegal exception return */
+	get_vcpu_ptr	x1, x0
+	mov	x0, #ARM_EXCEPTION_IL
+	b	__guest_exit
+
+
+>>>>>>> upstream/android-13
 el2_error:
 	save_caller_saved_regs_vect
 	stp     x29, x30, [sp, #-16]!
@@ -209,6 +259,7 @@ el2_error:
 	restore_caller_saved_regs_vect
 
 	eret
+<<<<<<< HEAD
 
 ENTRY(__hyp_do_panic)
 	mov	lr, #(PSR_F_BIT | PSR_I_BIT | PSR_A_BIT | PSR_D_BIT |\
@@ -229,6 +280,15 @@ ENDPROC(__hyp_panic)
 \label:
 	b \target
 ENDPROC(\label)
+=======
+	sb
+
+.macro invalid_vector	label, target = __guest_exit_panic
+	.align	2
+SYM_CODE_START_LOCAL(\label)
+	b \target
+SYM_CODE_END(\label)
+>>>>>>> upstream/android-13
 .endm
 
 	/* None of these should ever happen */
@@ -238,26 +298,61 @@ ENDPROC(\label)
 	invalid_vector	el2t_error_invalid
 	invalid_vector	el2h_irq_invalid
 	invalid_vector	el2h_fiq_invalid
+<<<<<<< HEAD
 	invalid_vector	el1_fiq_invalid
+=======
+>>>>>>> upstream/android-13
 
 	.ltorg
 
 	.align 11
 
+<<<<<<< HEAD
 .macro valid_vect target
 	.align 7
 	stp	x0, x1, [sp, #-16]!
 	b	\target
+=======
+.macro check_preamble_length start, end
+/* kvm_patch_vector_branch() generates code that jumps over the preamble. */
+.if ((\end-\start) != KVM_VECTOR_PREAMBLE)
+	.error "KVM vector preamble length mismatch"
+.endif
+.endm
+
+.macro valid_vect target
+	.align 7
+661:
+	esb
+	stp	x0, x1, [sp, #-16]!
+662:
+	b	\target
+
+check_preamble_length 661b, 662b
+>>>>>>> upstream/android-13
 .endm
 
 .macro invalid_vect target
 	.align 7
+<<<<<<< HEAD
 	b	\target
 	ldp	x0, x1, [sp], #16
 	b	\target
 .endm
 
 ENTRY(__kvm_hyp_vector)
+=======
+661:
+	nop
+	stp	x0, x1, [sp, #-16]!
+662:
+	b	\target
+
+check_preamble_length 661b, 662b
+.endm
+
+SYM_CODE_START(__kvm_hyp_vector)
+>>>>>>> upstream/android-13
 	invalid_vect	el2t_sync_invalid	// Synchronous EL2t
 	invalid_vect	el2t_irq_invalid	// IRQ EL2t
 	invalid_vect	el2t_fiq_invalid	// FIQ EL2t
@@ -270,11 +365,16 @@ ENTRY(__kvm_hyp_vector)
 
 	valid_vect	el1_sync		// Synchronous 64-bit EL1
 	valid_vect	el1_irq			// IRQ 64-bit EL1
+<<<<<<< HEAD
 	invalid_vect	el1_fiq_invalid		// FIQ 64-bit EL1
+=======
+	valid_vect	el1_fiq			// FIQ 64-bit EL1
+>>>>>>> upstream/android-13
 	valid_vect	el1_error		// Error 64-bit EL1
 
 	valid_vect	el1_sync		// Synchronous 32-bit EL1
 	valid_vect	el1_irq			// IRQ 32-bit EL1
+<<<<<<< HEAD
 	invalid_vect	el1_fiq_invalid		// FIQ 32-bit EL1
 	valid_vect	el1_error		// Error 32-bit EL1
 ENDPROC(__kvm_hyp_vector)
@@ -315,11 +415,68 @@ alternative_cb_end
 0:
 	.rept 16
 	hyp_ventry
+=======
+	valid_vect	el1_fiq			// FIQ 32-bit EL1
+	valid_vect	el1_error		// Error 32-bit EL1
+SYM_CODE_END(__kvm_hyp_vector)
+
+.macro spectrev2_smccc_wa1_smc
+	sub	sp, sp, #(8 * 4)
+	stp	x2, x3, [sp, #(8 * 0)]
+	stp	x0, x1, [sp, #(8 * 2)]
+	alternative_cb spectre_bhb_patch_wa3
+	/* Patched to mov WA3 when supported */
+	mov	w0, #ARM_SMCCC_ARCH_WORKAROUND_1
+	alternative_cb_end
+	smc	#0
+	ldp	x2, x3, [sp, #(8 * 0)]
+	add	sp, sp, #(8 * 2)
+.endm
+
+.macro hyp_ventry	indirect, spectrev2
+	.align	7
+1:	esb
+	.if \spectrev2 != 0
+	spectrev2_smccc_wa1_smc
+	.else
+	stp	x0, x1, [sp, #-16]!
+	mitigate_spectre_bhb_loop	x0
+	mitigate_spectre_bhb_clear_insn
+	.endif
+	.if \indirect != 0
+	alternative_cb  kvm_patch_vector_branch
+	/*
+	 * For ARM64_SPECTRE_V3A configurations, these NOPs get replaced with:
+	 *
+	 * movz	x0, #(addr & 0xffff)
+	 * movk	x0, #((addr >> 16) & 0xffff), lsl #16
+	 * movk	x0, #((addr >> 32) & 0xffff), lsl #32
+	 * br	x0
+	 *
+	 * Where:
+	 * addr = kern_hyp_va(__kvm_hyp_vector) + vector-offset + KVM_VECTOR_PREAMBLE.
+	 * See kvm_patch_vector_branch for details.
+	 */
+	nop
+	nop
+	nop
+	nop
+	alternative_cb_end
+	.endif
+	b	__kvm_hyp_vector + (1b - 0b + KVM_VECTOR_PREAMBLE)
+.endm
+
+.macro generate_vectors	indirect, spectrev2
+0:
+	.rept 16
+	hyp_ventry	\indirect, \spectrev2
+>>>>>>> upstream/android-13
 	.endr
 	.org 0b + SZ_2K		// Safety measure
 .endm
 
 	.align	11
+<<<<<<< HEAD
 ENTRY(__bp_harden_hyp_vecs_start)
 	.rept BP_HARDEN_EL2_SLOTS
 	generate_vectors
@@ -399,3 +556,12 @@ ENTRY(__spectre_bhb_clearbhb_start)
 	isb
 ENTRY(__spectre_bhb_clearbhb_end)
 #endif
+=======
+SYM_CODE_START(__bp_harden_hyp_vecs)
+	generate_vectors indirect = 0, spectrev2 = 1 // HYP_VECTOR_SPECTRE_DIRECT
+	generate_vectors indirect = 1, spectrev2 = 0 // HYP_VECTOR_INDIRECT
+	generate_vectors indirect = 1, spectrev2 = 1 // HYP_VECTOR_SPECTRE_INDIRECT
+1:	.org __bp_harden_hyp_vecs + __BP_HARDEN_HYP_VECS_SZ
+	.org 1b
+SYM_CODE_END(__bp_harden_hyp_vecs)
+>>>>>>> upstream/android-13

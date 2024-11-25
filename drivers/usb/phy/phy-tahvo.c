@@ -312,15 +312,23 @@ static ssize_t otg_mode_store(struct device *device,
 }
 static DEVICE_ATTR_RW(otg_mode);
 
+<<<<<<< HEAD
 static struct attribute *tahvo_attributes[] = {
+=======
+static struct attribute *tahvo_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_vbus.attr,
 	&dev_attr_otg_mode.attr,
 	NULL
 };
+<<<<<<< HEAD
 
 static const struct attribute_group tahvo_attr_group = {
 	.attrs = tahvo_attributes,
 };
+=======
+ATTRIBUTE_GROUPS(tahvo);
+>>>>>>> upstream/android-13
 
 static int tahvo_usb_probe(struct platform_device *pdev)
 {
@@ -396,7 +404,13 @@ static int tahvo_usb_probe(struct platform_device *pdev)
 
 	dev_set_drvdata(&pdev->dev, tu);
 
+<<<<<<< HEAD
 	tu->irq = platform_get_irq(pdev, 0);
+=======
+	tu->irq = ret = platform_get_irq(pdev, 0);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 	ret = request_threaded_irq(tu->irq, NULL, tahvo_usb_vbus_interrupt,
 				   IRQF_ONESHOT,
 				   "tahvo-vbus", tu);
@@ -406,6 +420,7 @@ static int tahvo_usb_probe(struct platform_device *pdev)
 		goto err_remove_phy;
 	}
 
+<<<<<<< HEAD
 	/* Attributes */
 	ret = sysfs_create_group(&pdev->dev.kobj, &tahvo_attr_group);
 	if (ret) {
@@ -417,6 +432,10 @@ static int tahvo_usb_probe(struct platform_device *pdev)
 
 err_free_irq:
 	free_irq(tu->irq, tu);
+=======
+	return 0;
+
+>>>>>>> upstream/android-13
 err_remove_phy:
 	usb_remove_phy(&tu->phy);
 err_disable_clk:
@@ -430,7 +449,10 @@ static int tahvo_usb_remove(struct platform_device *pdev)
 {
 	struct tahvo_usb *tu = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	sysfs_remove_group(&pdev->dev.kobj, &tahvo_attr_group);
+=======
+>>>>>>> upstream/android-13
 	free_irq(tu->irq, tu);
 	usb_remove_phy(&tu->phy);
 	if (!IS_ERR(tu->ick))
@@ -444,6 +466,10 @@ static struct platform_driver tahvo_usb_driver = {
 	.remove		= tahvo_usb_remove,
 	.driver		= {
 		.name	= "tahvo-usb",
+<<<<<<< HEAD
+=======
+		.dev_groups = tahvo_groups,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(tahvo_usb_driver);

@@ -420,7 +420,11 @@ static int cn23xx_pf_setup_global_input_regs(struct octeon_device *oct)
 	 * bits 32:47 indicate the PVF num.
 	 */
 	for (q_no = 0; q_no < ern; q_no++) {
+<<<<<<< HEAD
 		reg_val = oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
+=======
+		reg_val = (u64)oct->pcie_port << CN23XX_PKT_INPUT_CTL_MAC_NUM_POS;
+>>>>>>> upstream/android-13
 
 		/* for VF assigned queues. */
 		if (q_no < oct->sriov_info.pf_srn) {
@@ -1450,7 +1454,11 @@ void cn23xx_tell_vf_its_macaddr_changed(struct octeon_device *oct, int vfidx,
 		mbox_cmd.recv_len = 0;
 		mbox_cmd.recv_status = 0;
 		mbox_cmd.fn = NULL;
+<<<<<<< HEAD
 		mbox_cmd.fn_arg = 0;
+=======
+		mbox_cmd.fn_arg = NULL;
+>>>>>>> upstream/android-13
 		ether_addr_copy(mbox_cmd.msg.s.params, mac);
 		mbox_cmd.q_no = vfidx * oct->sriov_info.rings_per_vf;
 		octeon_mbox_write(oct, &mbox_cmd);

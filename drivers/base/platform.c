@@ -5,7 +5,11 @@
  * Copyright (c) 2002-3 Patrick Mochel
  * Copyright (c) 2002-3 Open Source Development Labs
  *
+<<<<<<< HEAD
  * Please see Documentation/driver-model/platform.txt for more
+=======
+ * Please see Documentation/driver-api/driver-model/platform.rst for more
+>>>>>>> upstream/android-13
  * information.
  */
 
@@ -15,8 +19,15 @@
 #include <linux/of_irq.h>
 #include <linux/module.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
 #include <linux/bootmem.h>
+=======
+#include <linux/interrupt.h>
+#include <linux/ioport.h>
+#include <linux/dma-mapping.h>
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/pm_runtime.h>
@@ -26,7 +37,10 @@
 #include <linux/clk/clk-conf.h>
 #include <linux/limits.h>
 #include <linux/property.h>
+<<<<<<< HEAD
 #include <linux/bootprof.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kmemleak.h>
 #include <linux/types.h>
 
@@ -42,6 +56,7 @@ struct device platform_bus = {
 EXPORT_SYMBOL_GPL(platform_bus);
 
 /**
+<<<<<<< HEAD
  * arch_setup_pdev_archdata - Allow manipulation of archdata before its used
  * @pdev: platform device
  *
@@ -61,10 +76,17 @@ void __weak arch_setup_pdev_archdata(struct platform_device *pdev)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * platform_get_resource - get a resource for a device
  * @dev: platform device
  * @type: resource type
  * @num: resource index
+<<<<<<< HEAD
+=======
+ *
+ * Return: a pointer to the resource or NULL on failure.
+>>>>>>> upstream/android-13
  */
 struct resource *platform_get_resource(struct platform_device *dev,
 				       unsigned int type, unsigned int num)
@@ -81,6 +103,7 @@ struct resource *platform_get_resource(struct platform_device *dev,
 }
 EXPORT_SYMBOL_GPL(platform_get_resource);
 
+<<<<<<< HEAD
 /**
  * platform_get_irq - get an IRQ for a device
  * @dev: platform device
@@ -101,16 +124,141 @@ int platform_get_irq(struct platform_device *dev, unsigned int num)
 		ret = of_irq_get(dev->dev.of_node, num);
 		if (ret > 0 || ret == -EPROBE_DEFER)
 			return ret;
+=======
+struct resource *platform_get_mem_or_io(struct platform_device *dev,
+					unsigned int num)
+{
+	u32 i;
+
+	for (i = 0; i < dev->num_resources; i++) {
+		struct resource *r = &dev->resource[i];
+
+		if ((resource_type(r) & (IORESOURCE_MEM|IORESOURCE_IO)) && num-- == 0)
+			return r;
+	}
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(platform_get_mem_or_io);
+
+#ifdef CONFIG_HAS_IOMEM
+/**
+ * devm_platform_get_and_ioremap_resource - call devm_ioremap_resource() for a
+ *					    platform device and get resource
+ *
+ * @pdev: platform device to use both for memory resource lookup as well as
+ *        resource management
+ * @index: resource index
+ * @res: optional output parameter to store a pointer to the obtained resource.
+ *
+ * Return: a pointer to the remapped memory or an ERR_PTR() encoded error code
+ * on failure.
+ */
+void __iomem *
+devm_platform_get_and_ioremap_resource(struct platform_device *pdev,
+				unsigned int index, struct resource **res)
+{
+	struct resource *r;
+
+	r = platform_get_resource(pdev, IORESOURCE_MEM, index);
+	if (res)
+		*res = r;
+	return devm_ioremap_resource(&pdev->dev, r);
+}
+EXPORT_SYMBOL_GPL(devm_platform_get_and_ioremap_resource);
+
+/**
+ * devm_platform_ioremap_resource - call devm_ioremap_resource() for a platform
+ *				    device
+ *
+ * @pdev: platform device to use both for memory resource lookup as well as
+ *        resource management
+ * @index: resource index
+ *
+ * Return: a pointer to the remapped memory or an ERR_PTR() encoded error code
+ * on failure.
+ */
+void __iomem *devm_platform_ioremap_resource(struct platform_device *pdev,
+					     unsigned int index)
+{
+	return devm_platform_get_and_ioremap_resource(pdev, index, NULL);
+}
+EXPORT_SYMBOL_GPL(devm_platform_ioremap_resource);
+
+/**
+ * devm_platform_ioremap_resource_byname - call devm_ioremap_resource for
+ *					   a platform device, retrieve the
+ *					   resource by name
+ *
+ * @pdev: platform device to use both for memory resource lookup as well as
+ *	  resource management
+ * @name: name of the resource
+ *
+ * Return: a pointer to the remapped memory or an ERR_PTR() encoded error code
+ * on failure.
+ */
+void __iomem *
+devm_platform_ioremap_resource_byname(struct platform_device *pdev,
+				      const char *name)
+{
+	struct resource *res;
+
+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, name);
+	return devm_ioremap_resource(&pdev->dev, res);
+}
+EXPORT_SYMBOL_GPL(devm_platform_ioremap_resource_byname);
+#endif /* CONFIG_HAS_IOMEM */
+
+/**
+ * platform_get_irq_optional - get an optional IRQ for a device
+ * @dev: platform device
+ * @num: IRQ number index
+ *
+ * Gets an IRQ for a platform device. Device drivers should check the return
+ * value for errors so as to not pass a negative integer value to the
+ * request_irq() APIs. This is the same as platform_get_irq(), except that it
+ * does not print an error message if an IRQ can not be obtained.
+ *
+ * For example::
+ *
+ *		int irq = platform_get_irq_optional(pdev, 0);
+ *		if (irq < 0)
+ *			return irq;
+ *
+ * Return: non-zero IRQ number on success, negative error number on failure.
+ */
+int platform_get_irq_optional(struct platform_device *dev, unsigned int num)
+{
+	int ret;
+#ifdef CONFIG_SPARC
+	/* sparc does not have irqs represented as IORESOURCE_IRQ resources */
+	if (!dev || num >= dev->archdata.num_irqs)
+		goto out_not_found;
+	ret = dev->archdata.irqs[num];
+	goto out;
+#else
+	struct resource *r;
+
+	if (IS_ENABLED(CONFIG_OF_IRQ) && dev->dev.of_node) {
+		ret = of_irq_get(dev->dev.of_node, num);
+		if (ret > 0 || ret == -EPROBE_DEFER)
+			goto out;
+>>>>>>> upstream/android-13
 	}
 
 	r = platform_get_resource(dev, IORESOURCE_IRQ, num);
 	if (has_acpi_companion(&dev->dev)) {
 		if (r && r->flags & IORESOURCE_DISABLED) {
+<<<<<<< HEAD
 			int ret;
 
 			ret = acpi_irq_get(ACPI_HANDLE(&dev->dev), num, r);
 			if (ret)
 				return ret;
+=======
+			ret = acpi_irq_get(ACPI_HANDLE(&dev->dev), num, r);
+			if (ret)
+				goto out;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -125,12 +273,73 @@ int platform_get_irq(struct platform_device *dev, unsigned int num)
 
 		irqd = irq_get_irq_data(r->start);
 		if (!irqd)
+<<<<<<< HEAD
 			return -ENXIO;
 		irqd_set_trigger_type(irqd, r->flags & IORESOURCE_BITS);
 	}
 
 	return r ? r->start : -ENXIO;
 #endif
+=======
+			goto out_not_found;
+		irqd_set_trigger_type(irqd, r->flags & IORESOURCE_BITS);
+	}
+
+	if (r) {
+		ret = r->start;
+		goto out;
+	}
+
+	/*
+	 * For the index 0 interrupt, allow falling back to GpioInt
+	 * resources. While a device could have both Interrupt and GpioInt
+	 * resources, making this fallback ambiguous, in many common cases
+	 * the device will only expose one IRQ, and this fallback
+	 * allows a common code path across either kind of resource.
+	 */
+	if (num == 0 && has_acpi_companion(&dev->dev)) {
+		ret = acpi_dev_gpio_irq_get(ACPI_COMPANION(&dev->dev), num);
+		/* Our callers expect -ENXIO for missing IRQs. */
+		if (ret >= 0 || ret == -EPROBE_DEFER)
+			goto out;
+	}
+
+#endif
+out_not_found:
+	ret = -ENXIO;
+out:
+	WARN(ret == 0, "0 is an invalid IRQ number\n");
+	return ret;
+}
+EXPORT_SYMBOL_GPL(platform_get_irq_optional);
+
+/**
+ * platform_get_irq - get an IRQ for a device
+ * @dev: platform device
+ * @num: IRQ number index
+ *
+ * Gets an IRQ for a platform device and prints an error message if finding the
+ * IRQ fails. Device drivers should check the return value for errors so as to
+ * not pass a negative integer value to the request_irq() APIs.
+ *
+ * For example::
+ *
+ *		int irq = platform_get_irq(pdev, 0);
+ *		if (irq < 0)
+ *			return irq;
+ *
+ * Return: non-zero IRQ number on success, negative error number on failure.
+ */
+int platform_get_irq(struct platform_device *dev, unsigned int num)
+{
+	int ret;
+
+	ret = platform_get_irq_optional(dev, num);
+	if (ret < 0 && ret != -EPROBE_DEFER)
+		dev_err(&dev->dev, "IRQ index %u not found\n", num);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(platform_get_irq);
 
@@ -144,7 +353,11 @@ int platform_irq_count(struct platform_device *dev)
 {
 	int ret, nr = 0;
 
+<<<<<<< HEAD
 	while ((ret = platform_get_irq(dev, nr)) >= 0)
+=======
+	while ((ret = platform_get_irq_optional(dev, nr)) >= 0)
+>>>>>>> upstream/android-13
 		nr++;
 
 	if (ret == -EPROBE_DEFER)
@@ -154,6 +367,130 @@ int platform_irq_count(struct platform_device *dev)
 }
 EXPORT_SYMBOL_GPL(platform_irq_count);
 
+<<<<<<< HEAD
+=======
+struct irq_affinity_devres {
+	unsigned int count;
+	unsigned int irq[];
+};
+
+static void platform_disable_acpi_irq(struct platform_device *pdev, int index)
+{
+	struct resource *r;
+
+	r = platform_get_resource(pdev, IORESOURCE_IRQ, index);
+	if (r)
+		irqresource_disabled(r, 0);
+}
+
+static void devm_platform_get_irqs_affinity_release(struct device *dev,
+						    void *res)
+{
+	struct irq_affinity_devres *ptr = res;
+	int i;
+
+	for (i = 0; i < ptr->count; i++) {
+		irq_dispose_mapping(ptr->irq[i]);
+
+		if (has_acpi_companion(dev))
+			platform_disable_acpi_irq(to_platform_device(dev), i);
+	}
+}
+
+/**
+ * devm_platform_get_irqs_affinity - devm method to get a set of IRQs for a
+ *				device using an interrupt affinity descriptor
+ * @dev: platform device pointer
+ * @affd: affinity descriptor
+ * @minvec: minimum count of interrupt vectors
+ * @maxvec: maximum count of interrupt vectors
+ * @irqs: pointer holder for IRQ numbers
+ *
+ * Gets a set of IRQs for a platform device, and updates IRQ afffinty according
+ * to the passed affinity descriptor
+ *
+ * Return: Number of vectors on success, negative error number on failure.
+ */
+int devm_platform_get_irqs_affinity(struct platform_device *dev,
+				    struct irq_affinity *affd,
+				    unsigned int minvec,
+				    unsigned int maxvec,
+				    int **irqs)
+{
+	struct irq_affinity_devres *ptr;
+	struct irq_affinity_desc *desc;
+	size_t size;
+	int i, ret, nvec;
+
+	if (!affd)
+		return -EPERM;
+
+	if (maxvec < minvec)
+		return -ERANGE;
+
+	nvec = platform_irq_count(dev);
+	if (nvec < 0)
+		return nvec;
+
+	if (nvec < minvec)
+		return -ENOSPC;
+
+	nvec = irq_calc_affinity_vectors(minvec, nvec, affd);
+	if (nvec < minvec)
+		return -ENOSPC;
+
+	if (nvec > maxvec)
+		nvec = maxvec;
+
+	size = sizeof(*ptr) + sizeof(unsigned int) * nvec;
+	ptr = devres_alloc(devm_platform_get_irqs_affinity_release, size,
+			   GFP_KERNEL);
+	if (!ptr)
+		return -ENOMEM;
+
+	ptr->count = nvec;
+
+	for (i = 0; i < nvec; i++) {
+		int irq = platform_get_irq(dev, i);
+		if (irq < 0) {
+			ret = irq;
+			goto err_free_devres;
+		}
+		ptr->irq[i] = irq;
+	}
+
+	desc = irq_create_affinity_masks(nvec, affd);
+	if (!desc) {
+		ret = -ENOMEM;
+		goto err_free_devres;
+	}
+
+	for (i = 0; i < nvec; i++) {
+		ret = irq_update_affinity_desc(ptr->irq[i], &desc[i]);
+		if (ret) {
+			dev_err(&dev->dev, "failed to update irq%d affinity descriptor (%d)\n",
+				ptr->irq[i], ret);
+			goto err_free_desc;
+		}
+	}
+
+	devres_add(&dev->dev, ptr);
+
+	kfree(desc);
+
+	*irqs = ptr->irq;
+
+	return nvec;
+
+err_free_desc:
+	kfree(desc);
+err_free_devres:
+	devres_free(ptr);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(devm_platform_get_irqs_affinity);
+
+>>>>>>> upstream/android-13
 /**
  * platform_get_resource_byname - get a resource for a device by name
  * @dev: platform device
@@ -179,6 +516,7 @@ struct resource *platform_get_resource_byname(struct platform_device *dev,
 }
 EXPORT_SYMBOL_GPL(platform_get_resource_byname);
 
+<<<<<<< HEAD
 /**
  * platform_get_irq_byname - get an IRQ for a device by name
  * @dev: platform device
@@ -191,17 +529,75 @@ int platform_get_irq_byname(struct platform_device *dev, const char *name)
 	if (IS_ENABLED(CONFIG_OF_IRQ) && dev->dev.of_node) {
 		int ret;
 
+=======
+static int __platform_get_irq_byname(struct platform_device *dev,
+				     const char *name)
+{
+	struct resource *r;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_OF_IRQ) && dev->dev.of_node) {
+>>>>>>> upstream/android-13
 		ret = of_irq_get_byname(dev->dev.of_node, name);
 		if (ret > 0 || ret == -EPROBE_DEFER)
 			return ret;
 	}
 
 	r = platform_get_resource_byname(dev, IORESOURCE_IRQ, name);
+<<<<<<< HEAD
 	return r ? r->start : -ENXIO;
+=======
+	if (r) {
+		WARN(r->start == 0, "0 is an invalid IRQ number\n");
+		return r->start;
+	}
+
+	return -ENXIO;
+}
+
+/**
+ * platform_get_irq_byname - get an IRQ for a device by name
+ * @dev: platform device
+ * @name: IRQ name
+ *
+ * Get an IRQ like platform_get_irq(), but then by name rather then by index.
+ *
+ * Return: non-zero IRQ number on success, negative error number on failure.
+ */
+int platform_get_irq_byname(struct platform_device *dev, const char *name)
+{
+	int ret;
+
+	ret = __platform_get_irq_byname(dev, name);
+	if (ret < 0 && ret != -EPROBE_DEFER)
+		dev_err(&dev->dev, "IRQ %s not found\n", name);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(platform_get_irq_byname);
 
 /**
+<<<<<<< HEAD
+=======
+ * platform_get_irq_byname_optional - get an optional IRQ for a device by name
+ * @dev: platform device
+ * @name: IRQ name
+ *
+ * Get an optional IRQ by name like platform_get_irq_byname(). Except that it
+ * does not print an error message if an IRQ can not be obtained.
+ *
+ * Return: non-zero IRQ number on success, negative error number on failure.
+ */
+int platform_get_irq_byname_optional(struct platform_device *dev,
+				     const char *name)
+{
+	return __platform_get_irq_byname(dev, name);
+}
+EXPORT_SYMBOL_GPL(platform_get_irq_byname_optional);
+
+/**
+>>>>>>> upstream/android-13
  * platform_add_devices - add a numbers of platform devices
  * @devs: array of platform devices to add
  * @num: number of platform devices in array
@@ -228,6 +624,25 @@ struct platform_object {
 	char name[];
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * Set up default DMA mask for platform devices if the they weren't
+ * previously set by the architecture / DT.
+ */
+static void setup_pdev_dma_masks(struct platform_device *pdev)
+{
+	pdev->dev.dma_parms = &pdev->dma_parms;
+
+	if (!pdev->dev.coherent_dma_mask)
+		pdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
+	if (!pdev->dev.dma_mask) {
+		pdev->platform_dma_mask = DMA_BIT_MASK(32);
+		pdev->dev.dma_mask = &pdev->platform_dma_mask;
+	}
+};
+
+>>>>>>> upstream/android-13
 /**
  * platform_device_put - destroy a platform device
  * @pdev: platform device to free
@@ -237,7 +652,11 @@ struct platform_object {
  */
 void platform_device_put(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	if (pdev)
+=======
+	if (!IS_ERR_OR_NULL(pdev))
+>>>>>>> upstream/android-13
 		put_device(&pdev->dev);
 }
 EXPORT_SYMBOL_GPL(platform_device_put);
@@ -247,7 +666,11 @@ static void platform_device_release(struct device *dev)
 	struct platform_object *pa = container_of(dev, struct platform_object,
 						  pdev.dev);
 
+<<<<<<< HEAD
 	of_device_node_put(&pa->pdev.dev);
+=======
+	of_node_put(pa->pdev.dev.of_node);
+>>>>>>> upstream/android-13
 	kfree(pa->pdev.dev.platform_data);
 	kfree(pa->pdev.mfd_cell);
 	kfree(pa->pdev.resource);
@@ -274,7 +697,11 @@ struct platform_device *platform_device_alloc(const char *name, int id)
 		pa->pdev.id = id;
 		device_initialize(&pa->pdev.dev);
 		pa->pdev.dev.release = platform_device_release;
+<<<<<<< HEAD
 		arch_setup_pdev_archdata(&pa->pdev);
+=======
+		setup_pdev_dma_masks(&pa->pdev);
+>>>>>>> upstream/android-13
 	}
 
 	return pa ? &pa->pdev : NULL;
@@ -337,6 +764,7 @@ int platform_device_add_data(struct platform_device *pdev, const void *data,
 EXPORT_SYMBOL_GPL(platform_device_add_data);
 
 /**
+<<<<<<< HEAD
  * platform_device_add_properties - add built-in properties to a platform device
  * @pdev: platform device to add properties to
  * @properties: null terminated array of properties to add
@@ -353,6 +781,8 @@ int platform_device_add_properties(struct platform_device *pdev,
 EXPORT_SYMBOL_GPL(platform_device_add_properties);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * platform_device_add - add a platform device to device hierarchy
  * @pdev: platform device we're adding
  *
@@ -385,7 +815,11 @@ int platform_device_add(struct platform_device *pdev)
 		 * that we remember it must be freed, and we append a suffix
 		 * to avoid namespace collision with explicit IDs.
 		 */
+<<<<<<< HEAD
 		ret = ida_simple_get(&platform_devid_ida, 0, 0, GFP_KERNEL);
+=======
+		ret = ida_alloc(&platform_devid_ida, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto err_out;
 		pdev->id = ret;
@@ -408,10 +842,19 @@ int platform_device_add(struct platform_device *pdev)
 				p = &ioport_resource;
 		}
 
+<<<<<<< HEAD
 		if (p && insert_resource(p, r)) {
 			dev_err(&pdev->dev, "failed to claim resource %d: %pR\n", i, r);
 			ret = -EBUSY;
 			goto failed;
+=======
+		if (p) {
+			ret = insert_resource(p, r);
+			if (ret) {
+				dev_err(&pdev->dev, "failed to claim resource %d: %pR\n", i, r);
+				goto failed;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -424,7 +867,11 @@ int platform_device_add(struct platform_device *pdev)
 
  failed:
 	if (pdev->id_auto) {
+<<<<<<< HEAD
 		ida_simple_remove(&platform_devid_ida, pdev->id);
+=======
+		ida_free(&platform_devid_ida, pdev->id);
+>>>>>>> upstream/android-13
 		pdev->id = PLATFORM_DEVID_AUTO;
 	}
 
@@ -451,12 +898,20 @@ void platform_device_del(struct platform_device *pdev)
 {
 	u32 i;
 
+<<<<<<< HEAD
 	if (pdev) {
 		device_remove_properties(&pdev->dev);
 		device_del(&pdev->dev);
 
 		if (pdev->id_auto) {
 			ida_simple_remove(&platform_devid_ida, pdev->id);
+=======
+	if (!IS_ERR_OR_NULL(pdev)) {
+		device_del(&pdev->dev);
+
+		if (pdev->id_auto) {
+			ida_free(&platform_devid_ida, pdev->id);
+>>>>>>> upstream/android-13
 			pdev->id = PLATFORM_DEVID_AUTO;
 		}
 
@@ -475,6 +930,7 @@ EXPORT_SYMBOL_GPL(platform_device_del);
  */
 int platform_device_register(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int ret;
 #ifdef CONFIG_MTPROF
 	unsigned long long ts;
@@ -486,6 +942,11 @@ int platform_device_register(struct platform_device *pdev)
 	BOOTPROF_TIME_LOG_END(ts);
 	bootprof_pdev_register(ts, pdev);
 	return ret;
+=======
+	device_initialize(&pdev->dev);
+	setup_pdev_dma_masks(pdev);
+	return platform_device_add(pdev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(platform_device_register);
 
@@ -515,11 +976,16 @@ EXPORT_SYMBOL_GPL(platform_device_unregister);
 struct platform_device *platform_device_register_full(
 		const struct platform_device_info *pdevinfo)
 {
+<<<<<<< HEAD
 	int ret = -ENOMEM;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct platform_device *pdev;
 
 	pdev = platform_device_alloc(pdevinfo->name, pdevinfo->id);
 	if (!pdev)
+<<<<<<< HEAD
 		goto err_alloc;
 
 	pdev->dev.parent = pdevinfo->parent;
@@ -540,6 +1006,18 @@ struct platform_device *platform_device_register_full(
 		kmemleak_ignore(pdev->dev.dma_mask);
 
 		*pdev->dev.dma_mask = pdevinfo->dma_mask;
+=======
+		return ERR_PTR(-ENOMEM);
+
+	pdev->dev.parent = pdevinfo->parent;
+	pdev->dev.fwnode = pdevinfo->fwnode;
+	pdev->dev.of_node = of_node_get(to_of_node(pdev->dev.fwnode));
+	pdev->dev.of_node_reused = pdevinfo->of_node_reused;
+
+	if (pdevinfo->dma_mask) {
+		pdev->platform_dma_mask = pdevinfo->dma_mask;
+		pdev->dev.dma_mask = &pdev->platform_dma_mask;
+>>>>>>> upstream/android-13
 		pdev->dev.coherent_dma_mask = pdevinfo->dma_mask;
 	}
 
@@ -554,8 +1032,13 @@ struct platform_device *platform_device_register_full(
 		goto err;
 
 	if (pdevinfo->properties) {
+<<<<<<< HEAD
 		ret = platform_device_add_properties(pdev,
 						     pdevinfo->properties);
+=======
+		ret = device_create_managed_software_node(&pdev->dev,
+							  pdevinfo->properties, NULL);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err;
 	}
@@ -564,9 +1047,12 @@ struct platform_device *platform_device_register_full(
 	if (ret) {
 err:
 		ACPI_COMPANION_SET(&pdev->dev, NULL);
+<<<<<<< HEAD
 		kfree(pdev->dev.dma_mask);
 
 err_alloc:
+=======
+>>>>>>> upstream/android-13
 		platform_device_put(pdev);
 		return ERR_PTR(ret);
 	}
@@ -575,6 +1061,7 @@ err_alloc:
 }
 EXPORT_SYMBOL_GPL(platform_device_register_full);
 
+<<<<<<< HEAD
 static int platform_drv_probe(struct device *_dev)
 {
 	struct platform_driver *drv = to_platform_driver(_dev->driver);
@@ -631,6 +1118,8 @@ static void platform_drv_shutdown(struct device *_dev)
 		drv->shutdown(dev);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * __platform_driver_register - register a driver for platform-level devices
  * @drv: platform driver structure
@@ -641,9 +1130,12 @@ int __platform_driver_register(struct platform_driver *drv,
 {
 	drv->driver.owner = owner;
 	drv->driver.bus = &platform_bus_type;
+<<<<<<< HEAD
 	drv->driver.probe = platform_drv_probe;
 	drv->driver.remove = platform_drv_remove;
 	drv->driver.shutdown = platform_drv_shutdown;
+=======
+>>>>>>> upstream/android-13
 
 	return driver_register(&drv->driver);
 }
@@ -659,6 +1151,14 @@ void platform_driver_unregister(struct platform_driver *drv)
 }
 EXPORT_SYMBOL_GPL(platform_driver_unregister);
 
+<<<<<<< HEAD
+=======
+static int platform_probe_fail(struct platform_device *pdev)
+{
+	return -ENXIO;
+}
+
+>>>>>>> upstream/android-13
 /**
  * __platform_driver_probe - register driver for non-hotpluggable device
  * @drv: platform driver structure
@@ -719,10 +1219,16 @@ int __init_or_module __platform_driver_probe(struct platform_driver *drv,
 	 * new devices fail.
 	 */
 	spin_lock(&drv->driver.bus->p->klist_drivers.k_lock);
+<<<<<<< HEAD
 	drv->probe = NULL;
 	if (code == 0 && list_empty(&drv->driver.p->klist_devices.k_list))
 		retval = -ENODEV;
 	drv->driver.probe = platform_drv_probe_fail;
+=======
+	drv->probe = platform_probe_fail;
+	if (code == 0 && list_empty(&drv->driver.p->klist_devices.k_list))
+		retval = -ENODEV;
+>>>>>>> upstream/android-13
 	spin_unlock(&drv->driver.bus->p->klist_drivers.k_lock);
 
 	if (code != retval)
@@ -835,7 +1341,11 @@ EXPORT_SYMBOL_GPL(__platform_register_drivers);
  * @drivers: an array of drivers to unregister
  * @count: the number of drivers to unregister
  *
+<<<<<<< HEAD
  * Unegisters platform drivers specified by an array. This is typically used
+=======
+ * Unregisters platform drivers specified by an array. This is typically used
+>>>>>>> upstream/android-13
  * to complement an earlier call to platform_register_drivers(). Drivers are
  * unregistered in the reverse order in which they were registered.
  */
@@ -849,6 +1359,7 @@ void platform_unregister_drivers(struct platform_driver * const *drivers,
 }
 EXPORT_SYMBOL_GPL(platform_unregister_drivers);
 
+<<<<<<< HEAD
 /* modalias support enables more hands-off userspace setup:
  * (a) environment variable lets new-style hotplug events work once system is
  *     fully running:  "modprobe $MODALIAS"
@@ -949,6 +1460,8 @@ static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct platform_device_id *platform_match_id(
 			const struct platform_device_id *id,
 			struct platform_device *pdev)
@@ -963,6 +1476,7 @@ static const struct platform_device_id *platform_match_id(
 	return NULL;
 }
 
+<<<<<<< HEAD
 /**
  * platform_match - bind platform device to platform driver.
  * @dev: device.
@@ -1001,6 +1515,8 @@ static int platform_match(struct device *dev, struct device_driver *drv)
 	return (strcmp(pdev->name, drv->name) == 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 
 static int platform_legacy_suspend(struct device *dev, pm_message_t mesg)
@@ -1145,6 +1661,238 @@ int platform_pm_restore(struct device *dev)
 
 #endif /* CONFIG_HIBERNATE_CALLBACKS */
 
+<<<<<<< HEAD
+=======
+/* modalias support enables more hands-off userspace setup:
+ * (a) environment variable lets new-style hotplug events work once system is
+ *     fully running:  "modprobe $MODALIAS"
+ * (b) sysfs attribute lets new-style coldplug recover from hotplug events
+ *     mishandled before system is fully running:  "modprobe $(cat modalias)"
+ */
+static ssize_t modalias_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	int len;
+
+	len = of_device_modalias(dev, buf, PAGE_SIZE);
+	if (len != -ENODEV)
+		return len;
+
+	len = acpi_device_modalias(dev, buf, PAGE_SIZE - 1);
+	if (len != -ENODEV)
+		return len;
+
+	return sysfs_emit(buf, "platform:%s\n", pdev->name);
+}
+static DEVICE_ATTR_RO(modalias);
+
+static ssize_t numa_node_show(struct device *dev,
+			      struct device_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "%d\n", dev_to_node(dev));
+}
+static DEVICE_ATTR_RO(numa_node);
+
+static ssize_t driver_override_show(struct device *dev,
+				    struct device_attribute *attr, char *buf)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	ssize_t len;
+
+	device_lock(dev);
+	len = sysfs_emit(buf, "%s\n", pdev->driver_override);
+	device_unlock(dev);
+
+	return len;
+}
+
+static ssize_t driver_override_store(struct device *dev,
+				     struct device_attribute *attr,
+				     const char *buf, size_t count)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	char *driver_override, *old, *cp;
+
+	/* We need to keep extra room for a newline */
+	if (count >= (PAGE_SIZE - 1))
+		return -EINVAL;
+
+	driver_override = kstrndup(buf, count, GFP_KERNEL);
+	if (!driver_override)
+		return -ENOMEM;
+
+	cp = strchr(driver_override, '\n');
+	if (cp)
+		*cp = '\0';
+
+	device_lock(dev);
+	old = pdev->driver_override;
+	if (strlen(driver_override)) {
+		pdev->driver_override = driver_override;
+	} else {
+		kfree(driver_override);
+		pdev->driver_override = NULL;
+	}
+	device_unlock(dev);
+
+	kfree(old);
+
+	return count;
+}
+static DEVICE_ATTR_RW(driver_override);
+
+static struct attribute *platform_dev_attrs[] = {
+	&dev_attr_modalias.attr,
+	&dev_attr_numa_node.attr,
+	&dev_attr_driver_override.attr,
+	NULL,
+};
+
+static umode_t platform_dev_attrs_visible(struct kobject *kobj, struct attribute *a,
+		int n)
+{
+	struct device *dev = container_of(kobj, typeof(*dev), kobj);
+
+	if (a == &dev_attr_numa_node.attr &&
+			dev_to_node(dev) == NUMA_NO_NODE)
+		return 0;
+
+	return a->mode;
+}
+
+static const struct attribute_group platform_dev_group = {
+	.attrs = platform_dev_attrs,
+	.is_visible = platform_dev_attrs_visible,
+};
+__ATTRIBUTE_GROUPS(platform_dev);
+
+
+/**
+ * platform_match - bind platform device to platform driver.
+ * @dev: device.
+ * @drv: driver.
+ *
+ * Platform device IDs are assumed to be encoded like this:
+ * "<name><instance>", where <name> is a short description of the type of
+ * device, like "pci" or "floppy", and <instance> is the enumerated
+ * instance of the device, like '0' or '42'.  Driver IDs are simply
+ * "<name>".  So, extract the <name> from the platform_device structure,
+ * and compare it against the name of the driver. Return whether they match
+ * or not.
+ */
+static int platform_match(struct device *dev, struct device_driver *drv)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct platform_driver *pdrv = to_platform_driver(drv);
+
+	/* When driver_override is set, only bind to the matching driver */
+	if (pdev->driver_override)
+		return !strcmp(pdev->driver_override, drv->name);
+
+	/* Attempt an OF style match first */
+	if (of_driver_match_device(dev, drv))
+		return 1;
+
+	/* Then try ACPI style match */
+	if (acpi_driver_match_device(dev, drv))
+		return 1;
+
+	/* Then try to match against the id table */
+	if (pdrv->id_table)
+		return platform_match_id(pdrv->id_table, pdev) != NULL;
+
+	/* fall-back to driver name match */
+	return (strcmp(pdev->name, drv->name) == 0);
+}
+
+static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
+{
+	struct platform_device	*pdev = to_platform_device(dev);
+	int rc;
+
+	/* Some devices have extra OF data and an OF-style MODALIAS */
+	rc = of_device_uevent_modalias(dev, env);
+	if (rc != -ENODEV)
+		return rc;
+
+	rc = acpi_device_uevent_modalias(dev, env);
+	if (rc != -ENODEV)
+		return rc;
+
+	add_uevent_var(env, "MODALIAS=%s%s", PLATFORM_MODULE_PREFIX,
+			pdev->name);
+	return 0;
+}
+
+static int platform_probe(struct device *_dev)
+{
+	struct platform_driver *drv = to_platform_driver(_dev->driver);
+	struct platform_device *dev = to_platform_device(_dev);
+	int ret;
+
+	/*
+	 * A driver registered using platform_driver_probe() cannot be bound
+	 * again later because the probe function usually lives in __init code
+	 * and so is gone. For these drivers .probe is set to
+	 * platform_probe_fail in __platform_driver_probe(). Don't even prepare
+	 * clocks and PM domains for these to match the traditional behaviour.
+	 */
+	if (unlikely(drv->probe == platform_probe_fail))
+		return -ENXIO;
+
+	ret = of_clk_set_defaults(_dev->of_node, false);
+	if (ret < 0)
+		return ret;
+
+	ret = dev_pm_domain_attach(_dev, true);
+	if (ret)
+		goto out;
+
+	if (drv->probe) {
+		ret = drv->probe(dev);
+		if (ret)
+			dev_pm_domain_detach(_dev, true);
+	}
+
+out:
+	if (drv->prevent_deferred_probe && ret == -EPROBE_DEFER) {
+		dev_warn(_dev, "probe deferral not supported\n");
+		ret = -ENXIO;
+	}
+
+	return ret;
+}
+
+static void platform_remove(struct device *_dev)
+{
+	struct platform_driver *drv = to_platform_driver(_dev->driver);
+	struct platform_device *dev = to_platform_device(_dev);
+
+	if (drv->remove) {
+		int ret = drv->remove(dev);
+
+		if (ret)
+			dev_warn(_dev, "remove callback returned a non-zero value. This will be ignored.\n");
+	}
+	dev_pm_domain_detach(_dev, true);
+}
+
+static void platform_shutdown(struct device *_dev)
+{
+	struct platform_device *dev = to_platform_device(_dev);
+	struct platform_driver *drv;
+
+	if (!_dev->driver)
+		return;
+
+	drv = to_platform_driver(_dev->driver);
+	if (drv->shutdown)
+		drv->shutdown(dev);
+}
+
+
+>>>>>>> upstream/android-13
 int platform_dma_configure(struct device *dev)
 {
 	enum dev_dma_attr attr;
@@ -1154,8 +1902,12 @@ int platform_dma_configure(struct device *dev)
 		ret = of_dma_configure(dev, dev->of_node, true);
 	} else if (has_acpi_companion(dev)) {
 		attr = acpi_get_dma_attr(to_acpi_device_node(dev->fwnode));
+<<<<<<< HEAD
 		if (attr != DEV_DMA_NOT_SUPPORTED)
 			ret = acpi_dma_configure(dev, attr);
+=======
+		ret = acpi_dma_configure(dev, attr);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -1172,11 +1924,41 @@ struct bus_type platform_bus_type = {
 	.dev_groups	= platform_dev_groups,
 	.match		= platform_match,
 	.uevent		= platform_uevent,
+<<<<<<< HEAD
+=======
+	.probe		= platform_probe,
+	.remove		= platform_remove,
+	.shutdown	= platform_shutdown,
+>>>>>>> upstream/android-13
 	.dma_configure	= platform_dma_configure,
 	.pm		= &platform_dev_pm_ops,
 };
 EXPORT_SYMBOL_GPL(platform_bus_type);
 
+<<<<<<< HEAD
+=======
+static inline int __platform_match(struct device *dev, const void *drv)
+{
+	return platform_match(dev, (struct device_driver *)drv);
+}
+
+/**
+ * platform_find_device_by_driver - Find a platform device with a given
+ * driver.
+ * @start: The device to start the search from.
+ * @drv: The device driver to look for.
+ */
+struct device *platform_find_device_by_driver(struct device *start,
+					      const struct device_driver *drv)
+{
+	return bus_find_device(&platform_bus_type, start, drv,
+			       __platform_match);
+}
+EXPORT_SYMBOL_GPL(platform_find_device_by_driver);
+
+void __weak __init early_platform_cleanup(void) { }
+
+>>>>>>> upstream/android-13
 int __init platform_bus_init(void)
 {
 	int error;
@@ -1194,6 +1976,7 @@ int __init platform_bus_init(void)
 	of_platform_register_reconfig_notifier();
 	return error;
 }
+<<<<<<< HEAD
 
 #ifndef ARCH_HAS_DMA_GET_REQUIRED_MASK
 u64 dma_get_required_mask(struct device *dev)
@@ -1502,3 +2285,5 @@ void __init early_platform_cleanup(void)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13

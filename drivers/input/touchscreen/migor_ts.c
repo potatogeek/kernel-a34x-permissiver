@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Touch Screen driver for Renesas MIGO-R Platform
  *
  * Copyright (c) 2008 Magnus Damm
  * Copyright (c) 2007 Ujjwal Pande <ujjwal@kenati.com>,
  *  Kenati Technologies Pvt Ltd.
+<<<<<<< HEAD
  *
  * This file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU  General Public
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/kernel.h>

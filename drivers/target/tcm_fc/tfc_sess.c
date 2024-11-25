@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Cisco Systems, Inc.
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010 Cisco Systems, Inc.
+>>>>>>> upstream/android-13
  */
 
 /* XXX TBD some includes may be extraneous */
@@ -287,7 +293,11 @@ static struct ft_sess *ft_sess_delete(struct ft_tport *tport, u32 port_id)
 
 static void ft_close_sess(struct ft_sess *sess)
 {
+<<<<<<< HEAD
 	target_sess_cmd_list_set_waiting(sess->se_sess);
+=======
+	target_stop_session(sess->se_sess);
+>>>>>>> upstream/android-13
 	target_wait_for_sess_cmds(sess->se_sess);
 	ft_sess_put(sess);
 }
@@ -422,7 +432,11 @@ not_target:
 }
 
 /**
+<<<<<<< HEAD
  * tcm_fcp_prli() - Handle incoming or outgoing PRLI for the FCP target
+=======
+ * ft_prli() - Handle incoming or outgoing PRLI for the FCP target
+>>>>>>> upstream/android-13
  * @rdata: remote port private
  * @spp_len: service parameter page length
  * @rspp: received service parameter page (NULL for outgoing PRLI)

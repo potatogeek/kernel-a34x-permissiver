@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Marvell 88E6xxx Switch Global 2 Registers support
  *
@@ -8,6 +12,7 @@
  *
  * Copyright (c) 2017 National Instruments
  *	Brandon Streiff <brandon.streiff@ni.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,12 @@
  * (at your option) any later version.
  */
 
+=======
+ */
+
+#include <linux/bitfield.h>
+
+>>>>>>> upstream/android-13
 #include "global2.h"
 
 /* Offset 0x16: AVB Command Register
@@ -31,17 +42,43 @@
 /* mv88e6xxx_g2_avb_read -- Read one or multiple 16-bit words.
  * The hardware supports snapshotting up to four contiguous registers.
  */
+<<<<<<< HEAD
+=======
+static int mv88e6xxx_g2_avb_wait(struct mv88e6xxx_chip *chip)
+{
+	int bit = __bf_shf(MV88E6352_G2_AVB_CMD_BUSY);
+
+	return mv88e6xxx_g2_wait_bit(chip, MV88E6352_G2_AVB_CMD, bit, 0);
+}
+
+>>>>>>> upstream/android-13
 static int mv88e6xxx_g2_avb_read(struct mv88e6xxx_chip *chip, u16 readop,
 				 u16 *data, int len)
 {
 	int err;
 	int i;
 
+<<<<<<< HEAD
+=======
+	err = mv88e6xxx_g2_avb_wait(chip);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	/* Hardware can only snapshot four words. */
 	if (len > 4)
 		return -E2BIG;
 
+<<<<<<< HEAD
 	err = mv88e6xxx_g2_update(chip, MV88E6352_G2_AVB_CMD, readop);
+=======
+	err = mv88e6xxx_g2_write(chip, MV88E6352_G2_AVB_CMD,
+				 MV88E6352_G2_AVB_CMD_BUSY | readop);
+	if (err)
+		return err;
+
+	err = mv88e6xxx_g2_avb_wait(chip);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -61,11 +98,25 @@ static int mv88e6xxx_g2_avb_write(struct mv88e6xxx_chip *chip, u16 writeop,
 {
 	int err;
 
+<<<<<<< HEAD
+=======
+	err = mv88e6xxx_g2_avb_wait(chip);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	err = mv88e6xxx_g2_write(chip, MV88E6352_G2_AVB_DATA, data);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	return mv88e6xxx_g2_update(chip, MV88E6352_G2_AVB_CMD, writeop);
+=======
+	err = mv88e6xxx_g2_write(chip, MV88E6352_G2_AVB_CMD,
+				 MV88E6352_G2_AVB_CMD_BUSY | writeop);
+
+	return mv88e6xxx_g2_avb_wait(chip);
+>>>>>>> upstream/android-13
 }
 
 static int mv88e6352_g2_avb_port_ptp_read(struct mv88e6xxx_chip *chip,

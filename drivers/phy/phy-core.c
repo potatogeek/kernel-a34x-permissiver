@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * phy-core.c  --  Generic Phy framework.
  *
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com
  *
  * Author: Kishon Vijay Abraham I <kishon@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -33,7 +40,11 @@ static void devm_phy_release(struct device *dev, void *res)
 {
 	struct phy *phy = *(struct phy **)res;
 
+<<<<<<< HEAD
 	phy_put(phy);
+=======
+	phy_put(dev, phy);
+>>>>>>> upstream/android-13
 }
 
 static void devm_phy_provider_release(struct device *dev, void *res)
@@ -377,6 +388,7 @@ int phy_set_mode_ext(struct phy *phy, enum phy_mode mode, int submode)
 }
 EXPORT_SYMBOL_GPL(phy_set_mode_ext);
 
+<<<<<<< HEAD
 int phy_get_mode_ext(struct phy *phy)
 {
 	int ret;
@@ -388,11 +400,41 @@ int phy_get_mode_ext(struct phy *phy)
 	ret = phy->ops->get_mode_ext(phy);
 	if (!ret)
 		ret = phy->attrs.mode;
+=======
+int phy_set_media(struct phy *phy, enum phy_media media)
+{
+	int ret;
+
+	if (!phy || !phy->ops->set_media)
+		return 0;
+
+	mutex_lock(&phy->mutex);
+	ret = phy->ops->set_media(phy, media);
+>>>>>>> upstream/android-13
 	mutex_unlock(&phy->mutex);
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(phy_get_mode_ext);
+=======
+EXPORT_SYMBOL_GPL(phy_set_media);
+
+int phy_set_speed(struct phy *phy, int speed)
+{
+	int ret;
+
+	if (!phy || !phy->ops->set_speed)
+		return 0;
+
+	mutex_lock(&phy->mutex);
+	ret = phy->ops->set_speed(phy, speed);
+	mutex_unlock(&phy->mutex);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(phy_set_speed);
+>>>>>>> upstream/android-13
 
 int phy_reset(struct phy *phy)
 {
@@ -401,14 +443,39 @@ int phy_reset(struct phy *phy)
 	if (!phy || !phy->ops->reset)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	ret = phy_pm_runtime_get_sync(phy);
+	if (ret < 0 && ret != -ENOTSUPP)
+		return ret;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&phy->mutex);
 	ret = phy->ops->reset(phy);
 	mutex_unlock(&phy->mutex);
 
+<<<<<<< HEAD
+=======
+	phy_pm_runtime_put(phy);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(phy_reset);
 
+<<<<<<< HEAD
+=======
+/**
+ * phy_calibrate() - Tunes the phy hw parameters for current configuration
+ * @phy: the phy returned by phy_get()
+ *
+ * Used to calibrate phy hardware, typically by adjusting some parameters in
+ * runtime, which are otherwise lost after host controller reset and cannot
+ * be applied in phy_init() or phy_power_on().
+ *
+ * Returns: 0 if successful, an negative error code otherwise
+ */
+>>>>>>> upstream/android-13
 int phy_calibrate(struct phy *phy)
 {
 	int ret;
@@ -425,6 +492,73 @@ int phy_calibrate(struct phy *phy)
 EXPORT_SYMBOL_GPL(phy_calibrate);
 
 /**
+<<<<<<< HEAD
+=======
+ * phy_configure() - Changes the phy parameters
+ * @phy: the phy returned by phy_get()
+ * @opts: New configuration to apply
+ *
+ * Used to change the PHY parameters. phy_init() must have been called
+ * on the phy. The configuration will be applied on the current phy
+ * mode, that can be changed using phy_set_mode().
+ *
+ * Returns: 0 if successful, an negative error code otherwise
+ */
+int phy_configure(struct phy *phy, union phy_configure_opts *opts)
+{
+	int ret;
+
+	if (!phy)
+		return -EINVAL;
+
+	if (!phy->ops->configure)
+		return -EOPNOTSUPP;
+
+	mutex_lock(&phy->mutex);
+	ret = phy->ops->configure(phy, opts);
+	mutex_unlock(&phy->mutex);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(phy_configure);
+
+/**
+ * phy_validate() - Checks the phy parameters
+ * @phy: the phy returned by phy_get()
+ * @mode: phy_mode the configuration is applicable to.
+ * @submode: PHY submode the configuration is applicable to.
+ * @opts: Configuration to check
+ *
+ * Used to check that the current set of parameters can be handled by
+ * the phy. Implementations are free to tune the parameters passed as
+ * arguments if needed by some implementation detail or
+ * constraints. It will not change any actual configuration of the
+ * PHY, so calling it as many times as deemed fit will have no side
+ * effect.
+ *
+ * Returns: 0 if successful, an negative error code otherwise
+ */
+int phy_validate(struct phy *phy, enum phy_mode mode, int submode,
+		 union phy_configure_opts *opts)
+{
+	int ret;
+
+	if (!phy)
+		return -EINVAL;
+
+	if (!phy->ops->validate)
+		return -EOPNOTSUPP;
+
+	mutex_lock(&phy->mutex);
+	ret = phy->ops->validate(phy, mode, submode, opts);
+	mutex_unlock(&phy->mutex);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(phy_validate);
+
+/**
+>>>>>>> upstream/android-13
  * _of_phy_get() - lookup and obtain a reference to a phy by phandle
  * @np: device_node for which to get the phy
  * @index: the index of the phy
@@ -507,19 +641,53 @@ struct phy *of_phy_get(struct device_node *np, const char *con_id)
 EXPORT_SYMBOL_GPL(of_phy_get);
 
 /**
+<<<<<<< HEAD
  * phy_put() - release the PHY
  * @phy: the phy returned by phy_get()
  *
  * Releases a refcount the caller received from phy_get().
  */
 void phy_put(struct phy *phy)
+=======
+ * of_phy_put() - release the PHY
+ * @phy: the phy returned by of_phy_get()
+ *
+ * Releases a refcount the caller received from of_phy_get().
+ */
+void of_phy_put(struct phy *phy)
+>>>>>>> upstream/android-13
 {
 	if (!phy || IS_ERR(phy))
 		return;
 
+<<<<<<< HEAD
 	module_put(phy->ops->owner);
 	put_device(&phy->dev);
 }
+=======
+	mutex_lock(&phy->mutex);
+	if (phy->ops->release)
+		phy->ops->release(phy);
+	mutex_unlock(&phy->mutex);
+
+	module_put(phy->ops->owner);
+	put_device(&phy->dev);
+}
+EXPORT_SYMBOL_GPL(of_phy_put);
+
+/**
+ * phy_put() - release the PHY
+ * @dev: device that wants to release this phy
+ * @phy: the phy returned by phy_get()
+ *
+ * Releases a refcount the caller received from phy_get().
+ */
+void phy_put(struct device *dev, struct phy *phy)
+{
+	device_link_remove(dev, &phy->dev);
+	of_phy_put(phy);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(phy_put);
 
 /**
@@ -587,6 +755,7 @@ struct phy *phy_get(struct device *dev, const char *string)
 {
 	int index = 0;
 	struct phy *phy;
+<<<<<<< HEAD
 
 	if (string == NULL) {
 		dev_WARN(dev, "missing string\n");
@@ -598,6 +767,22 @@ struct phy *phy_get(struct device *dev, const char *string)
 			string);
 		phy = _of_phy_get(dev->of_node, index);
 	} else {
+=======
+	struct device_link *link;
+
+	if (dev->of_node) {
+		if (string)
+			index = of_property_match_string(dev->of_node, "phy-names",
+				string);
+		else
+			index = 0;
+		phy = _of_phy_get(dev->of_node, index);
+	} else {
+		if (string == NULL) {
+			dev_WARN(dev, "missing string\n");
+			return ERR_PTR(-EINVAL);
+		}
+>>>>>>> upstream/android-13
 		phy = phy_find(dev, string);
 	}
 	if (IS_ERR(phy))
@@ -608,6 +793,14 @@ struct phy *phy_get(struct device *dev, const char *string)
 
 	get_device(&phy->dev);
 
+<<<<<<< HEAD
+=======
+	link = device_link_add(dev, &phy->dev, DL_FLAG_STATELESS);
+	if (!link)
+		dev_dbg(dev, "failed to create device link to %s\n",
+			dev_name(phy->dev.parent));
+
+>>>>>>> upstream/android-13
 	return phy;
 }
 EXPORT_SYMBOL_GPL(phy_get);
@@ -626,7 +819,11 @@ struct phy *phy_optional_get(struct device *dev, const char *string)
 {
 	struct phy *phy = phy_get(dev, string);
 
+<<<<<<< HEAD
 	if (IS_ERR(phy) && (PTR_ERR(phy) == -ENODEV))
+=======
+	if (PTR_ERR(phy) == -ENODEV)
+>>>>>>> upstream/android-13
 		phy = NULL;
 
 	return phy;
@@ -680,7 +877,11 @@ struct phy *devm_phy_optional_get(struct device *dev, const char *string)
 {
 	struct phy *phy = devm_phy_get(dev, string);
 
+<<<<<<< HEAD
 	if (IS_ERR(phy) && (PTR_ERR(phy) == -ENODEV))
+=======
+	if (PTR_ERR(phy) == -ENODEV)
+>>>>>>> upstream/android-13
 		phy = NULL;
 
 	return phy;
@@ -701,6 +902,10 @@ struct phy *devm_of_phy_get(struct device *dev, struct device_node *np,
 			    const char *con_id)
 {
 	struct phy **ptr, *phy;
+<<<<<<< HEAD
+=======
+	struct device_link *link;
+>>>>>>> upstream/android-13
 
 	ptr = devres_alloc(devm_phy_release, sizeof(*ptr), GFP_KERNEL);
 	if (!ptr)
@@ -712,8 +917,19 @@ struct phy *devm_of_phy_get(struct device *dev, struct device_node *np,
 		devres_add(dev, ptr);
 	} else {
 		devres_free(ptr);
+<<<<<<< HEAD
 	}
 
+=======
+		return phy;
+	}
+
+	link = device_link_add(dev, &phy->dev, DL_FLAG_STATELESS);
+	if (!link)
+		dev_dbg(dev, "failed to create device link to %s\n",
+			dev_name(phy->dev.parent));
+
+>>>>>>> upstream/android-13
 	return phy;
 }
 EXPORT_SYMBOL_GPL(devm_of_phy_get);
@@ -734,6 +950,10 @@ struct phy *devm_of_phy_get_by_index(struct device *dev, struct device_node *np,
 				     int index)
 {
 	struct phy **ptr, *phy;
+<<<<<<< HEAD
+=======
+	struct device_link *link;
+>>>>>>> upstream/android-13
 
 	ptr = devres_alloc(devm_phy_release, sizeof(*ptr), GFP_KERNEL);
 	if (!ptr)
@@ -755,6 +975,14 @@ struct phy *devm_of_phy_get_by_index(struct device *dev, struct device_node *np,
 	*ptr = phy;
 	devres_add(dev, ptr);
 
+<<<<<<< HEAD
+=======
+	link = device_link_add(dev, &phy->dev, DL_FLAG_STATELESS);
+	if (!link)
+		dev_dbg(dev, "failed to create device link to %s\n",
+			dev_name(phy->dev.parent));
+
+>>>>>>> upstream/android-13
 	return phy;
 }
 EXPORT_SYMBOL_GPL(devm_of_phy_get_by_index);
@@ -965,6 +1193,10 @@ EXPORT_SYMBOL_GPL(__of_phy_provider_register);
  * __devm_of_phy_provider_register() - create/register phy provider with the
  * framework
  * @dev: struct device of the phy provider
+<<<<<<< HEAD
+=======
+ * @children: device node containing children (if different from dev->of_node)
+>>>>>>> upstream/android-13
  * @owner: the module owner containing of_xlate
  * @of_xlate: function pointer to obtain phy instance from phy provider
  *
@@ -1020,12 +1252,21 @@ EXPORT_SYMBOL_GPL(of_phy_provider_unregister);
 /**
  * devm_of_phy_provider_unregister() - remove phy provider from the framework
  * @dev: struct device of the phy provider
+<<<<<<< HEAD
+=======
+ * @phy_provider: phy provider returned by of_phy_provider_register()
+>>>>>>> upstream/android-13
  *
  * destroys the devres associated with this phy provider and invokes
  * of_phy_provider_unregister to unregister the phy provider.
  */
 void devm_of_phy_provider_unregister(struct device *dev,
+<<<<<<< HEAD
 	struct phy_provider *phy_provider) {
+=======
+	struct phy_provider *phy_provider)
+{
+>>>>>>> upstream/android-13
 	int r;
 
 	r = devres_destroy(dev, devm_phy_provider_release, devm_phy_match,
@@ -1065,6 +1306,7 @@ static int __init phy_core_init(void)
 
 	return 0;
 }
+<<<<<<< HEAD
 module_init(phy_core_init);
 
 static void __exit phy_core_exit(void)
@@ -1076,3 +1318,6 @@ module_exit(phy_core_exit);
 MODULE_DESCRIPTION("Generic PHY Framework");
 MODULE_AUTHOR("Kishon Vijay Abraham I <kishon@ti.com>");
 MODULE_LICENSE("GPL v2");
+=======
+device_initcall(phy_core_init);
+>>>>>>> upstream/android-13

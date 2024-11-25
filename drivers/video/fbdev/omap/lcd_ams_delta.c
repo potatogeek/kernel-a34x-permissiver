@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Based on drivers/video/omap/lcd_inn1510.c
  *
  * LCD panel support for the Amstrad E3 (Delta) videophone.
  *
  * Copyright (C) 2006 Jonathan McDowell <noodles@earth.li>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,17 +23,26 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/lcd.h>
 #include <linux/gpio.h>
 
 #include <mach/hardware.h>
 #include <mach/board-ams-delta.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/lcd.h>
+
+#include <mach/hardware.h>
+>>>>>>> upstream/android-13
 
 #include "omapfb.h"
 
@@ -41,6 +55,11 @@
 /* LCD class device section */
 
 static int ams_delta_lcd;
+<<<<<<< HEAD
+=======
+static struct gpio_desc *gpiod_vblen;
+static struct gpio_desc *gpiod_ndisp;
+>>>>>>> upstream/android-13
 
 static int ams_delta_lcd_set_power(struct lcd_device *dev, int power)
 {
@@ -99,6 +118,7 @@ static struct lcd_ops ams_delta_lcd_ops = {
 
 /* omapfb panel section */
 
+<<<<<<< HEAD
 static const struct gpio _gpios[] = {
 	{
 		.gpio	= AMS_DELTA_GPIO_PIN_LCD_VBLEN,
@@ -127,13 +147,24 @@ static int ams_delta_panel_enable(struct lcd_panel *panel)
 {
 	gpio_set_value(AMS_DELTA_GPIO_PIN_LCD_NDISP, 1);
 	gpio_set_value(AMS_DELTA_GPIO_PIN_LCD_VBLEN, 1);
+=======
+static int ams_delta_panel_enable(struct lcd_panel *panel)
+{
+	gpiod_set_value(gpiod_ndisp, 1);
+	gpiod_set_value(gpiod_vblen, 1);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void ams_delta_panel_disable(struct lcd_panel *panel)
 {
+<<<<<<< HEAD
 	gpio_set_value(AMS_DELTA_GPIO_PIN_LCD_VBLEN, 0);
 	gpio_set_value(AMS_DELTA_GPIO_PIN_LCD_NDISP, 0);
+=======
+	gpiod_set_value(gpiod_vblen, 0);
+	gpiod_set_value(gpiod_ndisp, 0);
+>>>>>>> upstream/android-13
 }
 
 static struct lcd_panel ams_delta_panel = {
@@ -154,8 +185,11 @@ static struct lcd_panel ams_delta_panel = {
 	.pcd		= 0,
 	.acb		= 37,
 
+<<<<<<< HEAD
 	.init		= ams_delta_panel_init,
 	.cleanup	= ams_delta_panel_cleanup,
+=======
+>>>>>>> upstream/android-13
 	.enable		= ams_delta_panel_enable,
 	.disable	= ams_delta_panel_disable,
 };
@@ -166,9 +200,29 @@ static struct lcd_panel ams_delta_panel = {
 static int ams_delta_panel_probe(struct platform_device *pdev)
 {
 	struct lcd_device *lcd_device = NULL;
+<<<<<<< HEAD
 #ifdef CONFIG_LCD_CLASS_DEVICE
 	int ret;
 
+=======
+	int ret;
+
+	gpiod_vblen = devm_gpiod_get(&pdev->dev, "vblen", GPIOD_OUT_LOW);
+	if (IS_ERR(gpiod_vblen)) {
+		ret = PTR_ERR(gpiod_vblen);
+		dev_err(&pdev->dev, "VBLEN GPIO request failed (%d)\n", ret);
+		return ret;
+	}
+
+	gpiod_ndisp = devm_gpiod_get(&pdev->dev, "ndisp", GPIOD_OUT_LOW);
+	if (IS_ERR(gpiod_ndisp)) {
+		ret = PTR_ERR(gpiod_ndisp);
+		dev_err(&pdev->dev, "NDISP GPIO request failed (%d)\n", ret);
+		return ret;
+	}
+
+#ifdef CONFIG_LCD_CLASS_DEVICE
+>>>>>>> upstream/android-13
 	lcd_device = lcd_device_register("omapfb", &pdev->dev, NULL,
 						&ams_delta_lcd_ops);
 

@@ -1,21 +1,39 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/include/linux/cpufreq.h
  *
  * Copyright (C) 2001 Russell King
  *           (C) 2002 - 2003 Dominik Brodowski <linux@brodo.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_CPUFREQ_H
 #define _LINUX_CPUFREQ_H
 
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/cpu.h>
+>>>>>>> upstream/android-13
 #include <linux/cpumask.h>
 #include <linux/completion.h>
 #include <linux/kobject.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/pm_opp.h>
+#include <linux/pm_qos.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/sysfs.h>
 
@@ -42,6 +60,7 @@ enum cpufreq_table_sorting {
 	CPUFREQ_TABLE_SORTED_DESCENDING
 };
 
+<<<<<<< HEAD
 struct cpufreq_freqs {
 	unsigned int cpu;	/* cpu nr */
 	unsigned int old;
@@ -49,6 +68,8 @@ struct cpufreq_freqs {
 	u8 flags;		/* flags of cpufreq_driver, see below. */
 };
 
+=======
+>>>>>>> upstream/android-13
 struct cpufreq_cpuinfo {
 	unsigned int		max_freq;
 	unsigned int		min_freq;
@@ -57,11 +78,14 @@ struct cpufreq_cpuinfo {
 	unsigned int		transition_latency;
 };
 
+<<<<<<< HEAD
 struct cpufreq_user_policy {
 	unsigned int		min;    /* in kHz */
 	unsigned int		max;    /* in kHz */
 };
 
+=======
+>>>>>>> upstream/android-13
 struct cpufreq_policy {
 	/* CPUs sharing clock, require sw coordination */
 	cpumask_var_t		cpus;	/* Online CPUs only */
@@ -79,7 +103,10 @@ struct cpufreq_policy {
 	unsigned int		max;    /* in kHz */
 	unsigned int		cur;    /* in kHz, only needed if cpufreq
 					 * governors are used */
+<<<<<<< HEAD
 	unsigned int		restore_freq; /* = policy->cur before transition */
+=======
+>>>>>>> upstream/android-13
 	unsigned int		suspend_freq; /* freq to set during suspend */
 
 	unsigned int		policy; /* see above */
@@ -91,7 +118,14 @@ struct cpufreq_policy {
 	struct work_struct	update; /* if update_policy() needs to be
 					 * called, but you're in IRQ context */
 
+<<<<<<< HEAD
 	struct cpufreq_user_policy user_policy;
+=======
+	struct freq_constraints	constraints;
+	struct freq_qos_request	*min_freq_req;
+	struct freq_qos_request	*max_freq_req;
+
+>>>>>>> upstream/android-13
 	struct cpufreq_frequency_table	*freq_table;
 	enum cpufreq_table_sorting freq_table_sorted;
 
@@ -121,6 +155,15 @@ struct cpufreq_policy {
 	bool			fast_switch_enabled;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Set if the CPUFREQ_GOV_STRICT_TARGET flag is set for the current
+	 * governor.
+	 */
+	bool			strict_target;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Preferred average time interval between consecutive invocations of
 	 * the driver to set the frequency for this policy.  To be set by the
 	 * scaling driver (0, which is the default, means no preference).
@@ -138,7 +181,11 @@ struct cpufreq_policy {
 
 	 /* Cached frequency lookup from cpufreq_driver_resolve_freq. */
 	unsigned int cached_target_freq;
+<<<<<<< HEAD
 	int cached_resolved_idx;
+=======
+	unsigned int cached_resolved_idx;
+>>>>>>> upstream/android-13
 
 	/* Synchronization for frequency transitions */
 	bool			transition_ongoing; /* Tracks transition status */
@@ -151,6 +198,36 @@ struct cpufreq_policy {
 
 	/* For cpufreq driver's internal use */
 	void			*driver_data;
+<<<<<<< HEAD
+=======
+
+	/* Pointer to the cooling device if used for thermal mitigation */
+	struct thermal_cooling_device *cdev;
+
+	struct notifier_block nb_min;
+	struct notifier_block nb_max;
+};
+
+/*
+ * Used for passing new cpufreq policy data to the cpufreq driver's ->verify()
+ * callback for sanitization.  That callback is only expected to modify the min
+ * and max values, if necessary, and specifically it must not update the
+ * frequency table.
+ */
+struct cpufreq_policy_data {
+	struct cpufreq_cpuinfo		cpuinfo;
+	struct cpufreq_frequency_table	*freq_table;
+	unsigned int			cpu;
+	unsigned int			min;    /* in kHz */
+	unsigned int			max;    /* in kHz */
+};
+
+struct cpufreq_freqs {
+	struct cpufreq_policy *policy;
+	unsigned int old;
+	unsigned int new;
+	u8 flags;		/* flags of cpufreq_driver, see below. */
+>>>>>>> upstream/android-13
 };
 
 /* Only for ACPI */
@@ -175,24 +252,51 @@ static inline struct cpufreq_policy *cpufreq_cpu_get(unsigned int cpu)
 static inline void cpufreq_cpu_put(struct cpufreq_policy *policy) { }
 #endif
 
+<<<<<<< HEAD
+=======
+static inline bool policy_is_inactive(struct cpufreq_policy *policy)
+{
+	return cpumask_empty(policy->cpus);
+}
+
+>>>>>>> upstream/android-13
 static inline bool policy_is_shared(struct cpufreq_policy *policy)
 {
 	return cpumask_weight(policy->cpus) > 1;
 }
 
+<<<<<<< HEAD
 /* /sys/devices/system/cpu/cpufreq: entry point for global variables */
 extern struct kobject *cpufreq_global_kobject;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_FREQ
 unsigned int cpufreq_get(unsigned int cpu);
 unsigned int cpufreq_quick_get(unsigned int cpu);
 unsigned int cpufreq_quick_get_max(unsigned int cpu);
+<<<<<<< HEAD
 void disable_cpufreq(void);
 
 u64 get_cpu_idle_time(unsigned int cpu, u64 *wall, int io_busy);
 int cpufreq_get_policy(struct cpufreq_policy *policy, unsigned int cpu);
 void cpufreq_update_policy(unsigned int cpu);
 bool have_governor_per_policy(void);
+=======
+unsigned int cpufreq_get_hw_max_freq(unsigned int cpu);
+void disable_cpufreq(void);
+
+u64 get_cpu_idle_time(unsigned int cpu, u64 *wall, int io_busy);
+
+struct cpufreq_policy *cpufreq_cpu_acquire(unsigned int cpu);
+void cpufreq_cpu_release(struct cpufreq_policy *policy);
+int cpufreq_get_policy(struct cpufreq_policy *policy, unsigned int cpu);
+void refresh_frequency_limits(struct cpufreq_policy *policy);
+void cpufreq_update_policy(unsigned int cpu);
+void cpufreq_update_limits(unsigned int cpu);
+bool have_governor_per_policy(void);
+bool cpufreq_supports_freq_invariance(void);
+>>>>>>> upstream/android-13
 struct kobject *get_governor_parent_kobj(struct cpufreq_policy *policy);
 void cpufreq_enable_fast_switch(struct cpufreq_policy *policy);
 void cpufreq_disable_fast_switch(struct cpufreq_policy *policy);
@@ -209,6 +313,17 @@ static inline unsigned int cpufreq_quick_get_max(unsigned int cpu)
 {
 	return 0;
 }
+<<<<<<< HEAD
+=======
+static inline unsigned int cpufreq_get_hw_max_freq(unsigned int cpu)
+{
+	return 0;
+}
+static inline bool cpufreq_supports_freq_invariance(void)
+{
+	return false;
+}
+>>>>>>> upstream/android-13
 static inline void disable_cpufreq(void) { }
 #endif
 
@@ -265,20 +380,31 @@ __ATTR(_name, 0644, show_##_name, store_##_name)
 
 struct cpufreq_driver {
 	char		name[CPUFREQ_NAME_LEN];
+<<<<<<< HEAD
 	u8		flags;
+=======
+	u16		flags;
+>>>>>>> upstream/android-13
 	void		*driver_data;
 
 	/* needed by all drivers */
 	int		(*init)(struct cpufreq_policy *policy);
+<<<<<<< HEAD
 	int		(*verify)(struct cpufreq_policy *policy);
+=======
+	int		(*verify)(struct cpufreq_policy_data *policy);
+>>>>>>> upstream/android-13
 
 	/* define one out of two */
 	int		(*setpolicy)(struct cpufreq_policy *policy);
 
+<<<<<<< HEAD
 	/*
 	 * On failure, should always restore frequency to policy->restore_freq
 	 * (i.e. old freq).
 	 */
+=======
+>>>>>>> upstream/android-13
 	int		(*target)(struct cpufreq_policy *policy,
 				  unsigned int target_freq,
 				  unsigned int relation);	/* Deprecated */
@@ -286,6 +412,7 @@ struct cpufreq_driver {
 					unsigned int index);
 	unsigned int	(*fast_switch)(struct cpufreq_policy *policy,
 				       unsigned int target_freq);
+<<<<<<< HEAD
 
 	/*
 	 * Caches and returns the lowest driver-supported frequency greater than
@@ -295,6 +422,17 @@ struct cpufreq_driver {
 	 */
 	unsigned int	(*resolve_freq)(struct cpufreq_policy *policy,
 					unsigned int target_freq);
+=======
+	/*
+	 * ->fast_switch() replacement for drivers that use an internal
+	 * representation of performance levels and can pass hints other than
+	 * the target performance level to the hardware.
+	 */
+	void		(*adjust_perf)(unsigned int cpu,
+				       unsigned long min_perf,
+				       unsigned long target_perf,
+				       unsigned long capacity);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Only for drivers with target_index() and CPUFREQ_ASYNC_NOTIFICATION
@@ -302,7 +440,11 @@ struct cpufreq_driver {
 	 *
 	 * get_intermediate should return a stable intermediate frequency
 	 * platform wants to switch to and target_intermediate() should set CPU
+<<<<<<< HEAD
 	 * to to that frequency, before jumping to the frequency corresponding
+=======
+	 * to that frequency, before jumping to the frequency corresponding
+>>>>>>> upstream/android-13
 	 * to 'index'. Core will take care of sending notifications and driver
 	 * doesn't have to handle them in target_intermediate() or
 	 * target_index().
@@ -319,6 +461,7 @@ struct cpufreq_driver {
 	/* should be defined, if possible */
 	unsigned int	(*get)(unsigned int cpu);
 
+<<<<<<< HEAD
 	/* optional */
 	int		(*bios_limit)(int cpu, unsigned int *limit);
 
@@ -330,10 +473,25 @@ struct cpufreq_driver {
 	/* Will be called after the driver is fully initialized */
 	void		(*ready)(struct cpufreq_policy *policy);
 
+=======
+	/* Called to update policy limits on firmware notifications. */
+	void		(*update_limits)(unsigned int cpu);
+
+	/* optional */
+	int		(*bios_limit)(int cpu, unsigned int *limit);
+
+	int		(*online)(struct cpufreq_policy *policy);
+	int		(*offline)(struct cpufreq_policy *policy);
+	int		(*exit)(struct cpufreq_policy *policy);
+	int		(*suspend)(struct cpufreq_policy *policy);
+	int		(*resume)(struct cpufreq_policy *policy);
+
+>>>>>>> upstream/android-13
 	struct freq_attr **attr;
 
 	/* platform specific boost support code */
 	bool		boost_enabled;
+<<<<<<< HEAD
 	int		(*set_boost)(int state);
 };
 
@@ -346,6 +504,35 @@ struct cpufreq_driver {
 						   transitions */
 #define CPUFREQ_PM_NO_WARN	(1 << 2)	/* don't warn on suspend/resume
 						   speed mismatches */
+=======
+	int		(*set_boost)(struct cpufreq_policy *policy, int state);
+
+	/*
+	 * Set by drivers that want to register with the energy model after the
+	 * policy is properly initialized, but before the governor is started.
+	 */
+	void		(*register_em)(struct cpufreq_policy *policy);
+};
+
+/* flags */
+
+/*
+ * Set by drivers that need to update internale upper and lower boundaries along
+ * with the target frequency and so the core and governors should also invoke
+ * the diver if the target frequency does not change, but the policy min or max
+ * may have changed.
+ */
+#define CPUFREQ_NEED_UPDATE_LIMITS		BIT(0)
+
+/* loops_per_jiffy or other kernel "constants" aren't affected by frequency transitions */
+#define CPUFREQ_CONST_LOOPS			BIT(1)
+
+/*
+ * Set by drivers that want the core to automatically register the cpufreq
+ * driver as a thermal cooling device.
+ */
+#define CPUFREQ_IS_COOLING_DEV			BIT(2)
+>>>>>>> upstream/android-13
 
 /*
  * This should be set by platforms having multiple clock-domains, i.e.
@@ -353,14 +540,22 @@ struct cpufreq_driver {
  * be created in cpu/cpu<num>/cpufreq/ directory and so they can use the same
  * governor with different tunables for different clusters.
  */
+<<<<<<< HEAD
 #define CPUFREQ_HAVE_GOVERNOR_PER_POLICY (1 << 3)
+=======
+#define CPUFREQ_HAVE_GOVERNOR_PER_POLICY	BIT(3)
+>>>>>>> upstream/android-13
 
 /*
  * Driver will do POSTCHANGE notifications from outside of their ->target()
  * routine and so must set cpufreq_driver->flags with this flag, so that core
  * can handle them specially.
  */
+<<<<<<< HEAD
 #define CPUFREQ_ASYNC_NOTIFICATION  (1 << 4)
+=======
+#define CPUFREQ_ASYNC_NOTIFICATION		BIT(4)
+>>>>>>> upstream/android-13
 
 /*
  * Set by drivers which want cpufreq core to check if CPU is running at a
@@ -369,22 +564,46 @@ struct cpufreq_driver {
  * from the table. And if that fails, we will stop further boot process by
  * issuing a BUG_ON().
  */
+<<<<<<< HEAD
 #define CPUFREQ_NEED_INITIAL_FREQ_CHECK	(1 << 5)
+=======
+#define CPUFREQ_NEED_INITIAL_FREQ_CHECK	BIT(5)
+>>>>>>> upstream/android-13
 
 /*
  * Set by drivers to disallow use of governors with "dynamic_switching" flag
  * set.
  */
+<<<<<<< HEAD
 #define CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING (1 << 6)
+=======
+#define CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING	BIT(6)
+>>>>>>> upstream/android-13
 
 int cpufreq_register_driver(struct cpufreq_driver *driver_data);
 int cpufreq_unregister_driver(struct cpufreq_driver *driver_data);
 
+<<<<<<< HEAD
 const char *cpufreq_get_current_driver(void);
 void *cpufreq_get_driver_data(void);
 
 static inline void cpufreq_verify_within_limits(struct cpufreq_policy *policy,
 		unsigned int min, unsigned int max)
+=======
+bool cpufreq_driver_test_flags(u16 flags);
+const char *cpufreq_get_current_driver(void);
+void *cpufreq_get_driver_data(void);
+
+static inline int cpufreq_thermal_control_enabled(struct cpufreq_driver *drv)
+{
+	return IS_ENABLED(CONFIG_CPU_THERMAL) &&
+		(drv->flags & CPUFREQ_IS_COOLING_DEV);
+}
+
+static inline void cpufreq_verify_within_limits(struct cpufreq_policy_data *policy,
+						unsigned int min,
+						unsigned int max)
+>>>>>>> upstream/android-13
 {
 	if (policy->min < min)
 		policy->min = min;
@@ -400,10 +619,17 @@ static inline void cpufreq_verify_within_limits(struct cpufreq_policy *policy,
 }
 
 static inline void
+<<<<<<< HEAD
 cpufreq_verify_within_cpu_limits(struct cpufreq_policy *policy)
 {
 	cpufreq_verify_within_limits(policy, policy->cpuinfo.min_freq,
 			policy->cpuinfo.max_freq);
+=======
+cpufreq_verify_within_cpu_limits(struct cpufreq_policy_data *policy)
+{
+	cpufreq_verify_within_limits(policy, policy->cpuinfo.min_freq,
+				     policy->cpuinfo.max_freq);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_CPU_FREQ
@@ -427,8 +653,13 @@ static inline void cpufreq_resume(void) {}
 #define CPUFREQ_POSTCHANGE		(1)
 
 /* Policy Notifiers  */
+<<<<<<< HEAD
 #define CPUFREQ_ADJUST			(0)
 #define CPUFREQ_NOTIFY			(1)
+=======
+#define CPUFREQ_CREATE_POLICY		(0)
+#define CPUFREQ_REMOVE_POLICY		(1)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_FREQ
 int cpufreq_register_notifier(struct notifier_block *nb, unsigned int list);
@@ -481,6 +712,10 @@ static inline unsigned long cpufreq_scale(unsigned long old, u_int div,
  *                          CPUFREQ GOVERNORS                        *
  *********************************************************************/
 
+<<<<<<< HEAD
+=======
+#define CPUFREQ_POLICY_UNKNOWN		(0)
+>>>>>>> upstream/android-13
 /*
  * If (cpufreq_driver->target) exists, the ->governor decides what frequency
  * within the limits is used. If (cpufreq_driver->setpolicy> exists, these
@@ -508,6 +743,7 @@ struct cpufreq_governor {
 					 char *buf);
 	int	(*store_setspeed)	(struct cpufreq_policy *policy,
 					 unsigned int freq);
+<<<<<<< HEAD
 	/* For governors which change frequency dynamically by themselves */
 	bool			dynamic_switching;
 	struct list_head	governor_list;
@@ -517,6 +753,30 @@ struct cpufreq_governor {
 /* Pass a target to the cpufreq driver */
 unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
 					unsigned int target_freq);
+=======
+	struct list_head	governor_list;
+	struct module		*owner;
+	u8			flags;
+};
+
+/* Governor flags */
+
+/* For governors which change frequency dynamically by themselves */
+#define CPUFREQ_GOV_DYNAMIC_SWITCHING	BIT(0)
+
+/* For governors wanting the target frequency to be set exactly */
+#define CPUFREQ_GOV_STRICT_TARGET	BIT(1)
+
+
+/* Pass a target to the cpufreq driver */
+unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
+					unsigned int target_freq);
+void cpufreq_driver_adjust_perf(unsigned int cpu,
+				unsigned long min_perf,
+				unsigned long target_perf,
+				unsigned long capacity);
+bool cpufreq_driver_has_adjust_perf(void);
+>>>>>>> upstream/android-13
 int cpufreq_driver_target(struct cpufreq_policy *policy,
 				 unsigned int target_freq,
 				 unsigned int relation);
@@ -528,6 +788,25 @@ unsigned int cpufreq_driver_resolve_freq(struct cpufreq_policy *policy,
 unsigned int cpufreq_policy_transition_delay_us(struct cpufreq_policy *policy);
 int cpufreq_register_governor(struct cpufreq_governor *governor);
 void cpufreq_unregister_governor(struct cpufreq_governor *governor);
+<<<<<<< HEAD
+=======
+int cpufreq_start_governor(struct cpufreq_policy *policy);
+void cpufreq_stop_governor(struct cpufreq_policy *policy);
+
+#define cpufreq_governor_init(__governor)			\
+static int __init __governor##_init(void)			\
+{								\
+	return cpufreq_register_governor(&__governor);	\
+}								\
+core_initcall(__governor##_init)
+
+#define cpufreq_governor_exit(__governor)			\
+static void __exit __governor##_exit(void)			\
+{								\
+	return cpufreq_unregister_governor(&__governor);	\
+}								\
+module_exit(__governor##_exit)
+>>>>>>> upstream/android-13
 
 struct cpufreq_governor *cpufreq_default_governor(void);
 struct cpufreq_governor *cpufreq_fallback_governor(void);
@@ -652,9 +931,15 @@ static inline void dev_pm_opp_free_cpufreq_table(struct device *dev,
 int cpufreq_frequency_table_cpuinfo(struct cpufreq_policy *policy,
 				    struct cpufreq_frequency_table *table);
 
+<<<<<<< HEAD
 int cpufreq_frequency_table_verify(struct cpufreq_policy *policy,
 				   struct cpufreq_frequency_table *table);
 int cpufreq_generic_frequency_table_verify(struct cpufreq_policy *policy);
+=======
+int cpufreq_frequency_table_verify(struct cpufreq_policy_data *policy,
+				   struct cpufreq_frequency_table *table);
+int cpufreq_generic_frequency_table_verify(struct cpufreq_policy_data *policy);
+>>>>>>> upstream/android-13
 
 int cpufreq_table_index_unsorted(struct cpufreq_policy *policy,
 				 unsigned int target_freq,
@@ -892,8 +1177,13 @@ static inline int cpufreq_frequency_table_target(struct cpufreq_policy *policy,
 	case CPUFREQ_RELATION_C:
 		return cpufreq_table_find_index_c(policy, target_freq);
 	default:
+<<<<<<< HEAD
 		pr_err("%s: Invalid relation: %d\n", __func__, relation);
 		return -EINVAL;
+=======
+		WARN_ON_ONCE(1);
+		return 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -910,6 +1200,58 @@ static inline int cpufreq_table_count_valid_entries(const struct cpufreq_policy 
 
 	return count;
 }
+<<<<<<< HEAD
+=======
+
+static inline int parse_perf_domain(int cpu, const char *list_name,
+				    const char *cell_name)
+{
+	struct device_node *cpu_np;
+	struct of_phandle_args args;
+	int ret;
+
+	cpu_np = of_cpu_device_node_get(cpu);
+	if (!cpu_np)
+		return -ENODEV;
+
+	ret = of_parse_phandle_with_args(cpu_np, list_name, cell_name, 0,
+					 &args);
+	if (ret < 0)
+		return ret;
+
+	of_node_put(cpu_np);
+
+	return args.args[0];
+}
+
+static inline int of_perf_domain_get_sharing_cpumask(int pcpu, const char *list_name,
+						     const char *cell_name, struct cpumask *cpumask)
+{
+	int target_idx;
+	int cpu, ret;
+
+	ret = parse_perf_domain(pcpu, list_name, cell_name);
+	if (ret < 0)
+		return ret;
+
+	target_idx = ret;
+	cpumask_set_cpu(pcpu, cpumask);
+
+	for_each_possible_cpu(cpu) {
+		if (cpu == pcpu)
+			continue;
+
+		ret = parse_perf_domain(cpu, list_name, cell_name);
+		if (ret < 0)
+			continue;
+
+		if (target_idx == ret)
+			cpumask_set_cpu(cpu, cpumask);
+	}
+
+	return target_idx;
+}
+>>>>>>> upstream/android-13
 #else
 static inline int cpufreq_boost_trigger_state(int state)
 {
@@ -929,6 +1271,7 @@ static inline bool policy_has_boost_freq(struct cpufreq_policy *policy)
 {
 	return false;
 }
+<<<<<<< HEAD
 #endif
 
 #if defined(CONFIG_ENERGY_MODEL) && defined(CONFIG_CPU_FREQ_GOV_SCHEDUTIL)
@@ -937,16 +1280,35 @@ void sched_cpufreq_governor_change(struct cpufreq_policy *policy,
 #else
 static inline void sched_cpufreq_governor_change(struct cpufreq_policy *policy,
 			struct cpufreq_governor *old_gov) { }
+=======
+
+static inline int of_perf_domain_get_sharing_cpumask(int pcpu, const char *list_name,
+						     const char *cell_name, struct cpumask *cpumask)
+{
+	return -EOPNOTSUPP;
+}
+>>>>>>> upstream/android-13
 #endif
 
 extern void arch_freq_prepare_all(void);
 extern unsigned int arch_freq_get_on_cpu(int cpu);
 
+<<<<<<< HEAD
 extern void arch_set_freq_scale(struct cpumask *cpus, unsigned long cur_freq,
 				unsigned long max_freq);
 extern void arch_set_max_freq_scale(struct cpumask *cpus,
 				    unsigned long policy_max_freq);
 
+=======
+#ifndef arch_set_freq_scale
+static __always_inline
+void arch_set_freq_scale(const struct cpumask *cpus,
+			 unsigned long cur_freq,
+			 unsigned long max_freq)
+{
+}
+#endif
+>>>>>>> upstream/android-13
 /* the following are really really optional */
 extern struct freq_attr cpufreq_freq_attr_scaling_available_freqs;
 extern struct freq_attr cpufreq_freq_attr_scaling_boost_freqs;
@@ -954,7 +1316,19 @@ extern struct freq_attr *cpufreq_generic_attr[];
 int cpufreq_table_validate_and_sort(struct cpufreq_policy *policy);
 
 unsigned int cpufreq_generic_get(unsigned int cpu);
+<<<<<<< HEAD
 int cpufreq_generic_init(struct cpufreq_policy *policy,
 		struct cpufreq_frequency_table *table,
 		unsigned int transition_latency);
+=======
+void cpufreq_generic_init(struct cpufreq_policy *policy,
+		struct cpufreq_frequency_table *table,
+		unsigned int transition_latency);
+
+static inline void cpufreq_register_em_with_opp(struct cpufreq_policy *policy)
+{
+	dev_pm_opp_of_register_em(get_cpu_device(policy->cpu),
+				  policy->related_cpus);
+}
+>>>>>>> upstream/android-13
 #endif /* _LINUX_CPUFREQ_H */

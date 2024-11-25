@@ -37,8 +37,11 @@
 #define INIT_SENSOR_STATE   0x3FEFF
 #define EXECUTE_FUNC(sensor, f) if ((sensor) && (sensor)->funcs && f != NULL) f()
 
+<<<<<<< HEAD
 #define BIGDATA_KEY_MAX 30
 
+=======
+>>>>>>> upstream/android-13
 struct sensor_manager_t *sensor_manager;
 
 struct init_func_t {
@@ -75,8 +78,11 @@ struct init_func_t init_sensor_funcs[] = {
 	{SENSOR_TYPE_WAKE_UP_MOTION, init_wake_up_motion},
 	{SENSOR_TYPE_PROTOS_MOTION, init_protos_motion},
 	{SENSOR_TYPE_POCKET_MODE_LITE, init_pocket_mode_lite},
+<<<<<<< HEAD
 	{SENSOR_TYPE_POCKET_MODE, init_pocket_mode},
 	{SENSOR_TYPE_POCKET_POS_MODE, init_pocket_pos_mode},
+=======
+>>>>>>> upstream/android-13
 	{SENSOR_TYPE_SENSORHUB, init_super},
 	{SENSOR_TYPE_HUB_DEBUGGER, init_hub_debugger},
 	{SENSOR_TYPE_DEVICE_ORIENTATION, init_device_orientation},
@@ -84,6 +90,7 @@ struct init_func_t init_sensor_funcs[] = {
 	{SENSOR_TYPE_SAR_BACKOFF_MOTION, init_sar_backoff_motion},
 	{SENSOR_TYPE_POGO_REQUEST_HANDLER, init_pogo_request_handler},
 	{SENSOR_TYPE_AOIS, init_aois},
+<<<<<<< HEAD
 	{SENSOR_TYPE_LIGHT_SEAMLESS, init_light_seamless},
 	{SENSOR_TYPE_ROTATION_VECTOR, init_rotation_vector},
 	{SENSOR_TYPE_GAME_ROTATION_VECTOR, init_game_rotation_vector},
@@ -144,6 +151,10 @@ struct sensor_wakeup_count_type {
 struct sensor_wakeup_count_type sensor_wakeup_list[SENSOR_TYPE_MAX];
 static int sensor_wakeup_list_size;
 
+=======
+};
+
+>>>>>>> upstream/android-13
 static int make_sensor_instance(void)
 {
 	int type;
@@ -334,13 +345,20 @@ int disable_sensor(int type, char *buf, int buf_len)
 			event->timestamp = 0;
 			event->received_timestamp = 0;
 		}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	}
 
 	mutex_unlock(&sensor->enabled_mutex);
 
+<<<<<<< HEAD
 	if (type == SENSOR_TYPE_SCONTEXT)
 		disable_scontext_all();
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -361,7 +379,10 @@ int batch_sensor(int type, uint32_t sampling_period, uint32_t max_report_latency
 	if (sensor->enabled &&
 	    (sensor->sampling_period != sampling_period || sensor->max_report_latency != max_report_latency)) {
 		shub_infof("CHANGE RATE %s, %d(%d, %d)", sensor->name, type, sampling_period, max_report_latency);
+<<<<<<< HEAD
 		sensor->change_timestamp = get_current_timestamp();
+=======
+>>>>>>> upstream/android-13
 		memcpy(&buf[0], &sampling_period, 4);
 		memcpy(&buf[4], &max_report_latency, 4);
 		if (type != SENSOR_TYPE_SCONTEXT) {
@@ -413,9 +434,12 @@ int inject_sensor_additional_data(int type, char *buf, int buf_len)
 
 	if (sensor->funcs && sensor->funcs->inject_additional_data)
 		ret = sensor->funcs->inject_additional_data(buf, buf_len);
+<<<<<<< HEAD
 	else
 		ret = shub_send_command(CMD_SETVALUE, type, DATA_INJECTION, buf,
 							buf_len > SHUB_MSG_BUFFER_SIZE ? SHUB_MSG_BUFFER_SIZE : buf_len);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -431,10 +455,17 @@ void print_sensor_debug(int type)
 	if (sensor->funcs == NULL || sensor->funcs->print_debug == NULL) {
 		if (type <= SENSOR_TYPE_LEGACY_MAX) {
 			shub_info("%s(%u) : %ums, %dms(%lld)", sensor->name, type, sensor->sampling_period,
+<<<<<<< HEAD
 				  sensor->max_report_latency, sensor->last_event_buffer.timestamp);
 		} else {
 			shub_info("%s(%u), last event ts = (%lld)",
 				  sensor->name, (type - SENSOR_TYPE_SS_BASE), sensor->last_event_buffer.timestamp);
+=======
+				  sensor->max_report_latency, sensor->event_buffer.timestamp);
+		} else {
+			shub_info("%s(%u), last event ts = (%lld)",
+				  sensor->name, (type - SENSOR_TYPE_SS_BASE), sensor->event_buffer.timestamp);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -442,6 +473,10 @@ void print_sensor_debug(int type)
 int get_sensor_value(int type, char *dataframe, int *index, struct sensor_event *event, int frame_len)
 {
 	struct shub_sensor *sensor = get_sensor(type);
+<<<<<<< HEAD
+=======
+	int receive_event_size;
+>>>>>>> upstream/android-13
 	int ret = 0;
 	u64 current_timestamp = get_current_timestamp();
 #if defined(CONFIG_SHUB_DEBUG) && defined(CONFIG_SHUB_MTK)
@@ -462,10 +497,17 @@ int get_sensor_value(int type, char *dataframe, int *index, struct sensor_event 
 		if (ret < 0)
 			return ret;
 	} else {
+<<<<<<< HEAD
 		memcpy(event->value, dataframe + *index, sensor->receive_event_size);
 		*index += sensor->receive_event_size;
 	}
 	memcpy(sensor->last_event_buffer.value, event->value, sensor->receive_event_size);
+=======
+		receive_event_size = sensor->receive_event_size;
+		memcpy(event->value, dataframe + *index, receive_event_size);
+		*index += receive_event_size;
+	}
+>>>>>>> upstream/android-13
 
 	if (*index + sizeof(event->timestamp) > frame_len)
 		return -EINVAL;
@@ -489,8 +531,11 @@ int get_sensor_value(int type, char *dataframe, int *index, struct sensor_event 
 	if (event->timestamp > current_timestamp)
 		event->timestamp = current_timestamp;
 
+<<<<<<< HEAD
 	sensor->last_event_buffer.timestamp = event->timestamp;
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -602,6 +647,7 @@ int parsing_meta_data(char *dataframe, int *index, int frame_len)
 	return ret;
 }
 
+<<<<<<< HEAD
 void print_big_data(void)
 {
 	int size = sensor_wakeup_list_size;
@@ -727,18 +773,43 @@ int get_sensors_legacy_enable_state(uint64_t *buf)
 	memcpy(buf, en_state, size);
 
 	return size;
+=======
+uint64_t get_sensors_legacy_probe_state(void)
+{
+	return sensor_manager->sensor_probe_state[0];
+}
+
+uint64_t get_sensors_legacy_enable_state(void)
+{
+	int type;
+	uint64_t en_state = 0;
+
+	for (type = 0; type < SENSOR_TYPE_LEGACY_MAX; type++) {
+		if (get_sensor_enabled(type))
+			en_state |= (1ULL << type);
+	}
+
+	return en_state;
+>>>>>>> upstream/android-13
 }
 
 int get_sensors_scontext_probe_state(uint64_t *buf)
 {
+<<<<<<< HEAD
 	int size = sizeof(sensor_manager->scontext_probe_state);
 
 	memcpy(buf, sensor_manager->scontext_probe_state, size);
+=======
+	int size = sizeof(sensor_manager->sensor_probe_state) - sizeof(sensor_manager->sensor_probe_state[0]);
+
+	memcpy(buf, &sensor_manager->sensor_probe_state[1], size);
+>>>>>>> upstream/android-13
 	return size;
 }
 
 bool get_sensor_probe_state(int type)
 {
+<<<<<<< HEAD
 	int interval, index;
 
 	if (type == SENSOR_TYPE_SCONTEXT || type == SENSOR_TYPE_SENSORHUB || type == SENSOR_TYPE_HUB_DEBUGGER)
@@ -756,6 +827,20 @@ bool get_sensor_probe_state(int type)
 		index = ss_type < interval ? 0 : 1;
 
 		return (sensor_manager->scontext_probe_state[index]) & (1ULL << (ss_type % interval));
+=======
+	if (type == SENSOR_TYPE_SCONTEXT || type == SENSOR_TYPE_SENSORHUB || type == SENSOR_TYPE_HUB_DEBUGGER)
+		return true;
+
+	if (type < SENSOR_TYPE_LEGACY_MAX)
+		return (sensor_manager->sensor_probe_state[0]) & (1ULL << type);
+
+	if (type > SENSOR_TYPE_SS_BASE && type < SENSOR_TYPE_SS_MAX) {
+		int32_t ss_type = type - SENSOR_TYPE_SS_BASE;
+		int32_t interval = sizeof(sensor_manager->sensor_probe_state[1]) * BITS_PER_BYTE;
+		int32_t index = ss_type < interval ? 1 : 2;
+
+		return (sensor_manager->sensor_probe_state[index]) & (1ULL << (ss_type % interval));
+>>>>>>> upstream/android-13
 	}
 
 	return false;
@@ -796,8 +881,11 @@ int init_sensor_manager(struct device *dev)
 		return -ENOMEM;
 
 	memset(sensor_manager, 0x00, sizeof(struct sensor_manager_t));
+<<<<<<< HEAD
 
 	sensor_wakeup_list_size = 0;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -863,6 +951,7 @@ static void set_sensor_probe_state(void)
 {
 	struct shub_system_info *system_info = get_shub_system_info();
 
+<<<<<<< HEAD
 	memcpy(sensor_manager->sensor_probe_state, system_info->scan_sensor_probe,
 	       sizeof(sensor_manager->sensor_probe_state));
 	memcpy(sensor_manager->scontext_probe_state, &system_info->scan_scontext_probe,
@@ -871,17 +960,29 @@ static void set_sensor_probe_state(void)
 	shub_info("sensor probe state : 0x%llx, 0x%llx, scontext probe state : 0x%llx, 0x%llx",
 		  sensor_manager->sensor_probe_state[0], sensor_manager->sensor_probe_state[1],
 		  sensor_manager->scontext_probe_state[0], sensor_manager->scontext_probe_state[1]);
+=======
+	memcpy(sensor_manager->sensor_probe_state, system_info->scan, sizeof(sensor_manager->sensor_probe_state));
+
+	shub_info("probe state 0x%llx, 0x%llx, 0x%llx", sensor_manager->sensor_probe_state[0],
+		  sensor_manager->sensor_probe_state[1], sensor_manager->sensor_probe_state[2]);
+>>>>>>> upstream/android-13
 }
 
 static inline int get_probed_legacy_count(void)
 {
 	int type = 0, count = 0;
+<<<<<<< HEAD
 	int32_t interval = sizeof(sensor_manager->sensor_probe_state[0]) * BITS_PER_BYTE;
 	int32_t index = 0;
 
 	for (type = 0; type < SENSOR_TYPE_LEGACY_MAX; type++) {
 		index = type < interval ? 0 : 1;
 		if ((sensor_manager->sensor_probe_state[index]) & (1ULL << type % interval))
+=======
+
+	for (type = 0; type < SENSOR_TYPE_LEGACY_MAX; type++) {
+		if ((sensor_manager->sensor_probe_state[0]) & (1ULL << type))
+>>>>>>> upstream/android-13
 			count++;
 	}
 	return count;
@@ -908,7 +1009,11 @@ int get_sensor_spec_from_hub(void)
 		shub_errf("buffer length error %d", buffer_length);
 		return -EINVAL;
 	} else if (probe_cnt != count) {
+<<<<<<< HEAD
 		shub_errf("spec count error probe count %d spec count %d", probe_cnt, count);
+=======
+		shub_errf("spec count error probe count %d spec count", probe_cnt, count);
+>>>>>>> upstream/android-13
 	}
 
 	specs = (struct sensor_spec_t *)(buffer + 1);
@@ -982,7 +1087,11 @@ static void init_sensors(void)
 
 static int fm_ready_sensors(struct notifier_block *this, unsigned long event, void *ptr)
 {
+<<<<<<< HEAD
 	shub_infof("notify event %d", (int)event);
+=======
+	shub_infof("notify event %d", event);
+>>>>>>> upstream/android-13
 
 	open_sensors_calibration();
 	sync_sensors_attribute();
@@ -1020,7 +1129,11 @@ int refresh_sensors(struct device *dev)
 	if (first) {
 		init_sensors();
 		register_file_manager_ready_callback(&fm_notifier);
+<<<<<<< HEAD
 		remove_empty_dev();
+=======
+		initialize_indio_dev(dev);
+>>>>>>> upstream/android-13
 		first = false;
 	} else {
 		init_scontext_enable_state();

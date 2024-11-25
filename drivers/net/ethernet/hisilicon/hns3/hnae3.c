@@ -10,12 +10,37 @@ static LIST_HEAD(hnae3_ae_algo_list);
 static LIST_HEAD(hnae3_client_list);
 static LIST_HEAD(hnae3_ae_dev_list);
 
+<<<<<<< HEAD
+=======
+void hnae3_unregister_ae_algo_prepare(struct hnae3_ae_algo *ae_algo)
+{
+	const struct pci_device_id *pci_id;
+	struct hnae3_ae_dev *ae_dev;
+
+	if (!ae_algo)
+		return;
+
+	list_for_each_entry(ae_dev, &hnae3_ae_dev_list, node) {
+		if (!hnae3_get_bit(ae_dev->flag, HNAE3_DEV_INITED_B))
+			continue;
+
+		pci_id = pci_match_id(ae_algo->pdev_id_table, ae_dev->pdev);
+		if (!pci_id)
+			continue;
+		if (IS_ENABLED(CONFIG_PCI_IOV))
+			pci_disable_sriov(ae_dev->pdev);
+	}
+}
+EXPORT_SYMBOL(hnae3_unregister_ae_algo_prepare);
+
+>>>>>>> upstream/android-13
 /* we are keeping things simple and using single lock for all the
  * list. This is a non-critical code so other updations, if happen
  * in parallel, can wait.
  */
 static DEFINE_MUTEX(hnae3_common_lock);
 
+<<<<<<< HEAD
 static bool hnae3_client_match(enum hnae3_client_type client_type,
 			       enum hnae3_dev_type dev_type)
 {
@@ -24,21 +49,39 @@ static bool hnae3_client_match(enum hnae3_client_type client_type,
 		return true;
 
 	if (dev_type == HNAE3_DEV_UNIC && client_type == HNAE3_CLIENT_UNIC)
+=======
+static bool hnae3_client_match(enum hnae3_client_type client_type)
+{
+	if (client_type == HNAE3_CLIENT_KNIC ||
+	    client_type == HNAE3_CLIENT_ROCE)
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;
 }
 
 void hnae3_set_client_init_flag(struct hnae3_client *client,
+<<<<<<< HEAD
 				struct hnae3_ae_dev *ae_dev, int inited)
 {
+=======
+				struct hnae3_ae_dev *ae_dev,
+				unsigned int inited)
+{
+	if (!client || !ae_dev)
+		return;
+
+>>>>>>> upstream/android-13
 	switch (client->type) {
 	case HNAE3_CLIENT_KNIC:
 		hnae3_set_bit(ae_dev->flag, HNAE3_KNIC_CLIENT_INITED_B, inited);
 		break;
+<<<<<<< HEAD
 	case HNAE3_CLIENT_UNIC:
 		hnae3_set_bit(ae_dev->flag, HNAE3_UNIC_CLIENT_INITED_B, inited);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case HNAE3_CLIENT_ROCE:
 		hnae3_set_bit(ae_dev->flag, HNAE3_ROCE_CLIENT_INITED_B, inited);
 		break;
@@ -49,7 +92,11 @@ void hnae3_set_client_init_flag(struct hnae3_client *client,
 EXPORT_SYMBOL(hnae3_set_client_init_flag);
 
 static int hnae3_get_client_init_flag(struct hnae3_client *client,
+<<<<<<< HEAD
 				       struct hnae3_ae_dev *ae_dev)
+=======
+				      struct hnae3_ae_dev *ae_dev)
+>>>>>>> upstream/android-13
 {
 	int inited = 0;
 
@@ -58,10 +105,13 @@ static int hnae3_get_client_init_flag(struct hnae3_client *client,
 		inited = hnae3_get_bit(ae_dev->flag,
 				       HNAE3_KNIC_CLIENT_INITED_B);
 		break;
+<<<<<<< HEAD
 	case HNAE3_CLIENT_UNIC:
 		inited = hnae3_get_bit(ae_dev->flag,
 				       HNAE3_UNIC_CLIENT_INITED_B);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case HNAE3_CLIENT_ROCE:
 		inited = hnae3_get_bit(ae_dev->flag,
 				       HNAE3_ROCE_CLIENT_INITED_B);
@@ -73,17 +123,27 @@ static int hnae3_get_client_init_flag(struct hnae3_client *client,
 	return inited;
 }
 
+<<<<<<< HEAD
 static int hnae3_match_n_instantiate(struct hnae3_client *client,
 				     struct hnae3_ae_dev *ae_dev, bool is_reg)
+=======
+static int hnae3_init_client_instance(struct hnae3_client *client,
+				      struct hnae3_ae_dev *ae_dev)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	/* check if this client matches the type of ae_dev */
+<<<<<<< HEAD
 	if (!(hnae3_client_match(client->type, ae_dev->dev_type) &&
+=======
+	if (!(hnae3_client_match(client->type) &&
+>>>>>>> upstream/android-13
 	      hnae3_get_bit(ae_dev->flag, HNAE3_DEV_INITED_B))) {
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/* now, (un-)instantiate client by calling lower layer */
 	if (is_reg) {
 		ret = ae_dev->ops->init_client_instance(client, ae_dev);
@@ -93,21 +153,47 @@ static int hnae3_match_n_instantiate(struct hnae3_client *client,
 
 		return ret;
 	}
+=======
+	ret = ae_dev->ops->init_client_instance(client, ae_dev);
+	if (ret)
+		dev_err(&ae_dev->pdev->dev,
+			"fail to instantiate client, ret = %d\n", ret);
+
+	return ret;
+}
+
+static void hnae3_uninit_client_instance(struct hnae3_client *client,
+					 struct hnae3_ae_dev *ae_dev)
+{
+	/* check if this client matches the type of ae_dev */
+	if (!(hnae3_client_match(client->type) &&
+	      hnae3_get_bit(ae_dev->flag, HNAE3_DEV_INITED_B)))
+		return;
+>>>>>>> upstream/android-13
 
 	if (hnae3_get_client_init_flag(client, ae_dev)) {
 		ae_dev->ops->uninit_client_instance(client, ae_dev);
 
 		hnae3_set_client_init_flag(client, ae_dev, 0);
 	}
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 int hnae3_register_client(struct hnae3_client *client)
 {
 	struct hnae3_client *client_tmp;
 	struct hnae3_ae_dev *ae_dev;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+
+	if (!client)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&hnae3_common_lock);
 	/* one system should only have one client for every type */
@@ -123,7 +209,11 @@ int hnae3_register_client(struct hnae3_client *client)
 		/* if the client could not be initialized on current port, for
 		 * any error reasons, move on to next available port
 		 */
+<<<<<<< HEAD
 		ret = hnae3_match_n_instantiate(client, ae_dev, true);
+=======
+		int ret = hnae3_init_client_instance(client, ae_dev);
+>>>>>>> upstream/android-13
 		if (ret)
 			dev_err(&ae_dev->pdev->dev,
 				"match and instantiation failed for port, ret = %d\n",
@@ -139,12 +229,40 @@ EXPORT_SYMBOL(hnae3_register_client);
 
 void hnae3_unregister_client(struct hnae3_client *client)
 {
+<<<<<<< HEAD
 	struct hnae3_ae_dev *ae_dev;
 
 	mutex_lock(&hnae3_common_lock);
 	/* un-initialize the client on every matched port */
 	list_for_each_entry(ae_dev, &hnae3_ae_dev_list, node) {
 		hnae3_match_n_instantiate(client, ae_dev, false);
+=======
+	struct hnae3_client *client_tmp;
+	struct hnae3_ae_dev *ae_dev;
+	bool existed = false;
+
+	if (!client)
+		return;
+
+	mutex_lock(&hnae3_common_lock);
+	/* one system should only have one client for every type */
+	list_for_each_entry(client_tmp, &hnae3_client_list, node) {
+		if (client_tmp->type == client->type) {
+			existed = true;
+			break;
+		}
+	}
+
+	if (!existed) {
+		mutex_unlock(&hnae3_common_lock);
+		pr_err("client %s does not exist!\n", client->name);
+		return;
+	}
+
+	/* un-initialize the client on every matched port */
+	list_for_each_entry(ae_dev, &hnae3_ae_dev_list, node) {
+		hnae3_uninit_client_instance(client, ae_dev);
+>>>>>>> upstream/android-13
 	}
 
 	list_del(&client->node);
@@ -161,7 +279,14 @@ void hnae3_register_ae_algo(struct hnae3_ae_algo *ae_algo)
 	const struct pci_device_id *id;
 	struct hnae3_ae_dev *ae_dev;
 	struct hnae3_client *client;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+
+	if (!ae_algo)
+		return;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&hnae3_common_lock);
 
@@ -193,7 +318,11 @@ void hnae3_register_ae_algo(struct hnae3_ae_algo *ae_algo)
 		 * initialize the figure out client instance
 		 */
 		list_for_each_entry(client, &hnae3_client_list, node) {
+<<<<<<< HEAD
 			ret = hnae3_match_n_instantiate(client, ae_dev, true);
+=======
+			ret = hnae3_init_client_instance(client, ae_dev);
+>>>>>>> upstream/android-13
 			if (ret)
 				dev_err(&ae_dev->pdev->dev,
 					"match and instantiation failed, ret = %d\n",
@@ -214,6 +343,12 @@ void hnae3_unregister_ae_algo(struct hnae3_ae_algo *ae_algo)
 	struct hnae3_ae_dev *ae_dev;
 	struct hnae3_client *client;
 
+<<<<<<< HEAD
+=======
+	if (!ae_algo)
+		return;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&hnae3_common_lock);
 	/* Check if there are matched ae_dev */
 	list_for_each_entry(ae_dev, &hnae3_ae_dev_list, node) {
@@ -228,7 +363,11 @@ void hnae3_unregister_ae_algo(struct hnae3_ae_algo *ae_algo)
 		 * un-initialize the figure out client instance
 		 */
 		list_for_each_entry(client, &hnae3_client_list, node)
+<<<<<<< HEAD
 			hnae3_match_n_instantiate(client, ae_dev, false);
+=======
+			hnae3_uninit_client_instance(client, ae_dev);
+>>>>>>> upstream/android-13
 
 		ae_algo->ops->uninit_ae_dev(ae_dev);
 		hnae3_set_bit(ae_dev->flag, HNAE3_DEV_INITED_B, 0);
@@ -249,7 +388,14 @@ int hnae3_register_ae_dev(struct hnae3_ae_dev *ae_dev)
 	const struct pci_device_id *id;
 	struct hnae3_ae_algo *ae_algo;
 	struct hnae3_client *client;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+
+	if (!ae_dev)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&hnae3_common_lock);
 
@@ -284,7 +430,11 @@ int hnae3_register_ae_dev(struct hnae3_ae_dev *ae_dev)
 	 * initialize the figure out client instance
 	 */
 	list_for_each_entry(client, &hnae3_client_list, node) {
+<<<<<<< HEAD
 		ret = hnae3_match_n_instantiate(client, ae_dev, true);
+=======
+		ret = hnae3_init_client_instance(client, ae_dev);
+>>>>>>> upstream/android-13
 		if (ret)
 			dev_err(&ae_dev->pdev->dev,
 				"match and instantiation failed, ret = %d\n",
@@ -312,6 +462,12 @@ void hnae3_unregister_ae_dev(struct hnae3_ae_dev *ae_dev)
 	struct hnae3_ae_algo *ae_algo;
 	struct hnae3_client *client;
 
+<<<<<<< HEAD
+=======
+	if (!ae_dev)
+		return;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&hnae3_common_lock);
 	/* Check if there are matched ae_algo */
 	list_for_each_entry(ae_algo, &hnae3_ae_algo_list, node) {
@@ -323,7 +479,11 @@ void hnae3_unregister_ae_dev(struct hnae3_ae_dev *ae_dev)
 			continue;
 
 		list_for_each_entry(client, &hnae3_client_list, node)
+<<<<<<< HEAD
 			hnae3_match_n_instantiate(client, ae_dev, false);
+=======
+			hnae3_uninit_client_instance(client, ae_dev);
+>>>>>>> upstream/android-13
 
 		ae_algo->ops->uninit_ae_dev(ae_dev);
 		hnae3_set_bit(ae_dev->flag, HNAE3_DEV_INITED_B, 0);

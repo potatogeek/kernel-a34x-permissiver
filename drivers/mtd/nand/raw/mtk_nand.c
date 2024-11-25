@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0 OR MIT
+>>>>>>> upstream/android-13
 /*
  * MTK NAND Flash controller driver.
  * Copyright (C) 2016 MediaTek Inc.
  * Authors:	Xiaolei Li		<xiaolei.li@mediatek.com>
  *		Jorge Ramirez-Ortiz	<jorge.ramirez-ortiz@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -87,6 +94,13 @@
 #define NFI_FDMM(x)		(0xA4 + (x) * sizeof(u32) * 2)
 #define NFI_FDM_MAX_SIZE	(8)
 #define NFI_FDM_MIN_SIZE	(1)
+<<<<<<< HEAD
+=======
+#define NFI_DEBUG_CON1		(0x220)
+#define		STROBE_MASK		GENMASK(4, 3)
+#define		STROBE_SHIFT		(3)
+#define		MAX_STROBE_DLY		(3)
+>>>>>>> upstream/android-13
 #define NFI_MASTER_STA		(0x224)
 #define		MASTER_STA_MASK		(0x0FFF)
 #define NFI_EMPTY_THRESH	(0x23C)
@@ -135,7 +149,11 @@ struct mtk_nfc_nand_chip {
 	u32 spare_per_sector;
 
 	int nsels;
+<<<<<<< HEAD
 	u8 sels[0];
+=======
+	u8 sels[];
+>>>>>>> upstream/android-13
 	/* nothing after this field */
 };
 
@@ -158,6 +176,11 @@ struct mtk_nfc {
 	struct list_head chips;
 
 	u8 *buffer;
+<<<<<<< HEAD
+=======
+
+	unsigned long assigned_cs;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -389,6 +412,7 @@ static int mtk_nfc_hw_runtime_config(struct mtd_info *mtd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mtk_nfc_select_chip(struct mtd_info *mtd, int chip)
 {
 	struct nand_chip *nand = mtd_to_nand(mtd);
@@ -427,6 +451,8 @@ static void mtk_nfc_cmd_ctrl(struct mtd_info *mtd, int dat, unsigned int ctrl)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void mtk_nfc_wait_ioready(struct mtk_nfc *nfc)
 {
 	int rc;
@@ -438,9 +464,14 @@ static inline void mtk_nfc_wait_ioready(struct mtk_nfc *nfc)
 		dev_err(nfc->dev, "data not ready\n");
 }
 
+<<<<<<< HEAD
 static inline u8 mtk_nfc_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static inline u8 mtk_nfc_read_byte(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
 	u32 reg;
 
@@ -467,17 +498,30 @@ static inline u8 mtk_nfc_read_byte(struct mtd_info *mtd)
 	return nfi_readb(nfc, NFI_DATAR);
 }
 
+<<<<<<< HEAD
 static void mtk_nfc_read_buf(struct mtd_info *mtd, u8 *buf, int len)
+=======
+static void mtk_nfc_read_buf(struct nand_chip *chip, u8 *buf, int len)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < len; i++)
+<<<<<<< HEAD
 		buf[i] = mtk_nfc_read_byte(mtd);
 }
 
 static void mtk_nfc_write_byte(struct mtd_info *mtd, u8 byte)
 {
 	struct mtk_nfc *nfc = nand_get_controller_data(mtd_to_nand(mtd));
+=======
+		buf[i] = mtk_nfc_read_byte(chip);
+}
+
+static void mtk_nfc_write_byte(struct nand_chip *chip, u8 byte)
+{
+	struct mtk_nfc *nfc = nand_get_controller_data(chip);
+>>>>>>> upstream/android-13
 	u32 reg;
 
 	reg = nfi_readl(nfc, NFI_STA) & NFI_FSM_MASK;
@@ -496,11 +540,16 @@ static void mtk_nfc_write_byte(struct mtd_info *mtd, u8 byte)
 	nfi_writeb(nfc, byte, NFI_DATAW);
 }
 
+<<<<<<< HEAD
 static void mtk_nfc_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
+=======
+static void mtk_nfc_write_buf(struct nand_chip *chip, const u8 *buf, int len)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < len; i++)
+<<<<<<< HEAD
 		mtk_nfc_write_byte(mtd, buf[i]);
 }
 
@@ -511,6 +560,86 @@ static int mtk_nfc_setup_data_interface(struct mtd_info *mtd, int csline,
 	const struct nand_sdr_timings *timings;
 	u32 rate, tpoecs, tprecs, tc2r, tw2r, twh, twst = 0, trlt = 0;
 	u32 thold;
+=======
+		mtk_nfc_write_byte(chip, buf[i]);
+}
+
+static int mtk_nfc_exec_instr(struct nand_chip *chip,
+			      const struct nand_op_instr *instr)
+{
+	struct mtk_nfc *nfc = nand_get_controller_data(chip);
+	unsigned int i;
+	u32 status;
+
+	switch (instr->type) {
+	case NAND_OP_CMD_INSTR:
+		mtk_nfc_send_command(nfc, instr->ctx.cmd.opcode);
+		return 0;
+	case NAND_OP_ADDR_INSTR:
+		for (i = 0; i < instr->ctx.addr.naddrs; i++)
+			mtk_nfc_send_address(nfc, instr->ctx.addr.addrs[i]);
+		return 0;
+	case NAND_OP_DATA_IN_INSTR:
+		mtk_nfc_read_buf(chip, instr->ctx.data.buf.in,
+				 instr->ctx.data.len);
+		return 0;
+	case NAND_OP_DATA_OUT_INSTR:
+		mtk_nfc_write_buf(chip, instr->ctx.data.buf.out,
+				  instr->ctx.data.len);
+		return 0;
+	case NAND_OP_WAITRDY_INSTR:
+		return readl_poll_timeout(nfc->regs + NFI_STA, status,
+					  !(status & STA_BUSY), 20,
+					  instr->ctx.waitrdy.timeout_ms * 1000);
+	default:
+		break;
+	}
+
+	return -EINVAL;
+}
+
+static void mtk_nfc_select_target(struct nand_chip *nand, unsigned int cs)
+{
+	struct mtk_nfc *nfc = nand_get_controller_data(nand);
+	struct mtk_nfc_nand_chip *mtk_nand = to_mtk_nand(nand);
+
+	mtk_nfc_hw_runtime_config(nand_to_mtd(nand));
+
+	nfi_writel(nfc, mtk_nand->sels[cs], NFI_CSEL);
+}
+
+static int mtk_nfc_exec_op(struct nand_chip *chip,
+			   const struct nand_operation *op,
+			   bool check_only)
+{
+	struct mtk_nfc *nfc = nand_get_controller_data(chip);
+	unsigned int i;
+	int ret = 0;
+
+	if (check_only)
+		return 0;
+
+	mtk_nfc_hw_reset(nfc);
+	nfi_writew(nfc, CNFG_OP_CUST, NFI_CNFG);
+	mtk_nfc_select_target(chip, op->cs);
+
+	for (i = 0; i < op->ninstrs; i++) {
+		ret = mtk_nfc_exec_instr(chip, &op->instrs[i]);
+		if (ret)
+			break;
+	}
+
+	return ret;
+}
+
+static int mtk_nfc_setup_interface(struct nand_chip *chip, int csline,
+				   const struct nand_interface_config *conf)
+{
+	struct mtk_nfc *nfc = nand_get_controller_data(chip);
+	const struct nand_sdr_timings *timings;
+	u32 rate, tpoecs, tprecs, tc2r, tw2r, twh, twst = 0, trlt = 0;
+	u32 temp, tsel = 0;
+>>>>>>> upstream/android-13
 
 	timings = nand_get_sdr_timings(conf);
 	if (IS_ERR(timings))
@@ -547,21 +676,33 @@ static int mtk_nfc_setup_data_interface(struct mtd_info *mtd, int csline,
 	twh &= 0xf;
 
 	/* Calculate real WE#/RE# hold time in nanosecond */
+<<<<<<< HEAD
 	thold = (twh + 1) * 1000000 / rate;
 	/* nanosecond to picosecond */
 	thold *= 1000;
+=======
+	temp = (twh + 1) * 1000000 / rate;
+	/* nanosecond to picosecond */
+	temp *= 1000;
+>>>>>>> upstream/android-13
 
 	/*
 	 * WE# low level time should be expaned to meet WE# pulse time
 	 * and WE# cycle time at the same time.
 	 */
+<<<<<<< HEAD
 	if (thold < timings->tWC_min)
 		twst = timings->tWC_min - thold;
+=======
+	if (temp < timings->tWC_min)
+		twst = timings->tWC_min - temp;
+>>>>>>> upstream/android-13
 	twst = max(timings->tWP_min, twst) / 1000;
 	twst = DIV_ROUND_UP(twst * rate, 1000000) - 1;
 	twst &= 0xf;
 
 	/*
+<<<<<<< HEAD
 	 * RE# low level time should be expaned to meet RE# pulse time,
 	 * RE# access time and RE# cycle time at the same time.
 	 */
@@ -571,6 +712,39 @@ static int mtk_nfc_setup_data_interface(struct mtd_info *mtd, int csline,
 	trlt = DIV_ROUND_UP(trlt * rate, 1000000) - 1;
 	trlt &= 0xf;
 
+=======
+	 * RE# low level time should be expaned to meet RE# pulse time
+	 * and RE# cycle time at the same time.
+	 */
+	if (temp < timings->tRC_min)
+		trlt = timings->tRC_min - temp;
+	trlt = max(trlt, timings->tRP_min) / 1000;
+	trlt = DIV_ROUND_UP(trlt * rate, 1000000) - 1;
+	trlt &= 0xf;
+
+	/* Calculate RE# pulse time in nanosecond. */
+	temp = (trlt + 1) * 1000000 / rate;
+	/* nanosecond to picosecond */
+	temp *= 1000;
+	/*
+	 * If RE# access time is bigger than RE# pulse time,
+	 * delay sampling data timing.
+	 */
+	if (temp < timings->tREA_max) {
+		tsel = timings->tREA_max / 1000;
+		tsel = DIV_ROUND_UP(tsel * rate, 1000000);
+		tsel -= (trlt + 1);
+		if (tsel > MAX_STROBE_DLY) {
+			trlt += tsel - MAX_STROBE_DLY;
+			tsel = MAX_STROBE_DLY;
+		}
+	}
+	temp = nfi_readl(nfc, NFI_DEBUG_CON1);
+	temp &= ~STROBE_MASK;
+	temp |= tsel << STROBE_SHIFT;
+	nfi_writel(nfc, temp, NFI_DEBUG_CON1);
+
+>>>>>>> upstream/android-13
 	/*
 	 * ACCON: access timing control register
 	 * -------------------------------------
@@ -784,6 +958,10 @@ static int mtk_nfc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	u32 reg;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	mtk_nfc_select_target(chip, chip->cur_cs);
+>>>>>>> upstream/android-13
 	nand_prog_page_begin_op(chip, page, 0, NULL, 0);
 
 	if (!raw) {
@@ -825,6 +1003,7 @@ static int mtk_nfc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int mtk_nfc_write_page_hwecc(struct mtd_info *mtd,
 				    struct nand_chip *chip, const u8 *buf,
 				    int oob_on, int page)
@@ -835,17 +1014,37 @@ static int mtk_nfc_write_page_hwecc(struct mtd_info *mtd,
 static int mtk_nfc_write_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 				  const u8 *buf, int oob_on, int pg)
 {
+=======
+static int mtk_nfc_write_page_hwecc(struct nand_chip *chip, const u8 *buf,
+				    int oob_on, int page)
+{
+	return mtk_nfc_write_page(nand_to_mtd(chip), chip, buf, page, 0);
+}
+
+static int mtk_nfc_write_page_raw(struct nand_chip *chip, const u8 *buf,
+				  int oob_on, int pg)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
 
 	mtk_nfc_format_page(mtd, buf);
 	return mtk_nfc_write_page(mtd, chip, nfc->buffer, pg, 1);
 }
 
+<<<<<<< HEAD
 static int mtk_nfc_write_subpage_hwecc(struct mtd_info *mtd,
 				       struct nand_chip *chip, u32 offset,
 				       u32 data_len, const u8 *buf,
 				       int oob_on, int page)
 {
+=======
+static int mtk_nfc_write_subpage_hwecc(struct nand_chip *chip, u32 offset,
+				       u32 data_len, const u8 *buf,
+				       int oob_on, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
 	int ret;
 
@@ -857,10 +1056,16 @@ static int mtk_nfc_write_subpage_hwecc(struct mtd_info *mtd,
 	return mtk_nfc_write_page(mtd, chip, nfc->buffer, page, 1);
 }
 
+<<<<<<< HEAD
 static int mtk_nfc_write_oob_std(struct mtd_info *mtd, struct nand_chip *chip,
 				 int page)
 {
 	return mtk_nfc_write_page_raw(mtd, chip, NULL, 1, page);
+=======
+static int mtk_nfc_write_oob_std(struct nand_chip *chip, int page)
+{
+	return mtk_nfc_write_page_raw(chip, NULL, 1, page);
+>>>>>>> upstream/android-13
 }
 
 static int mtk_nfc_update_ecc_stats(struct mtd_info *mtd, u8 *buf, u32 start,
@@ -902,6 +1107,10 @@ static int mtk_nfc_read_subpage(struct mtd_info *mtd, struct nand_chip *chip,
 	u8 *buf;
 	int rc;
 
+<<<<<<< HEAD
+=======
+	mtk_nfc_select_target(chip, chip->cur_cs);
+>>>>>>> upstream/android-13
 	start = data_offs / chip->ecc.size;
 	end = DIV_ROUND_UP(data_offs + readlen, chip->ecc.size);
 
@@ -986,6 +1195,7 @@ done:
 	return bitflips;
 }
 
+<<<<<<< HEAD
 static int mtk_nfc_read_subpage_hwecc(struct mtd_info *mtd,
 				      struct nand_chip *chip, u32 off,
 				      u32 len, u8 *p, int pg)
@@ -1003,6 +1213,27 @@ static int mtk_nfc_read_page_hwecc(struct mtd_info *mtd,
 static int mtk_nfc_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 				 u8 *buf, int oob_on, int page)
 {
+=======
+static int mtk_nfc_read_subpage_hwecc(struct nand_chip *chip, u32 off,
+				      u32 len, u8 *p, int pg)
+{
+	return mtk_nfc_read_subpage(nand_to_mtd(chip), chip, off, len, p, pg,
+				    0);
+}
+
+static int mtk_nfc_read_page_hwecc(struct nand_chip *chip, u8 *p, int oob_on,
+				   int pg)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+	return mtk_nfc_read_subpage(mtd, chip, 0, mtd->writesize, p, pg, 0);
+}
+
+static int mtk_nfc_read_page_raw(struct nand_chip *chip, u8 *buf, int oob_on,
+				 int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct mtk_nfc_nand_chip *mtk_nand = to_mtk_nand(chip);
 	struct mtk_nfc *nfc = nand_get_controller_data(chip);
 	struct mtk_nfc_fdm *fdm = &mtk_nand->fdm;
@@ -1028,10 +1259,16 @@ static int mtk_nfc_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mtk_nfc_read_oob_std(struct mtd_info *mtd, struct nand_chip *chip,
 				int page)
 {
 	return mtk_nfc_read_page_raw(mtd, chip, NULL, 1, page);
+=======
+static int mtk_nfc_read_oob_std(struct nand_chip *chip, int page)
+{
+	return mtk_nfc_read_page_raw(chip, NULL, 1, page);
+>>>>>>> upstream/android-13
 }
 
 static inline void mtk_nfc_hw_init(struct mtk_nfc *nfc)
@@ -1202,21 +1439,36 @@ static int mtk_nfc_set_spare_per_sector(u32 *sps, struct mtd_info *mtd)
 static int mtk_nfc_ecc_init(struct device *dev, struct mtd_info *mtd)
 {
 	struct nand_chip *nand = mtd_to_nand(mtd);
+<<<<<<< HEAD
+=======
+	const struct nand_ecc_props *requirements =
+		nanddev_get_ecc_requirements(&nand->base);
+>>>>>>> upstream/android-13
 	struct mtk_nfc *nfc = nand_get_controller_data(nand);
 	u32 spare;
 	int free, ret;
 
 	/* support only ecc hw mode */
+<<<<<<< HEAD
 	if (nand->ecc.mode != NAND_ECC_HW) {
 		dev_err(dev, "ecc.mode not supported\n");
+=======
+	if (nand->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST) {
+		dev_err(dev, "ecc.engine_type not supported\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	/* if optional dt settings not present */
 	if (!nand->ecc.size || !nand->ecc.strength) {
 		/* use datasheet requirements */
+<<<<<<< HEAD
 		nand->ecc.strength = nand->ecc_strength_ds;
 		nand->ecc.size = nand->ecc_step_ds;
+=======
+		nand->ecc.strength = requirements->strength;
+		nand->ecc.size = requirements->step_size;
+>>>>>>> upstream/android-13
 
 		/*
 		 * align eccstrength and eccsize
@@ -1306,10 +1558,17 @@ static int mtk_nfc_attach_chip(struct nand_chip *chip)
 
 static const struct nand_controller_ops mtk_nfc_controller_ops = {
 	.attach_chip = mtk_nfc_attach_chip,
+<<<<<<< HEAD
 };
 
 static const char * const part_types[] = {"gptpart", "ofpart", NULL};
 
+=======
+	.setup_interface = mtk_nfc_setup_interface,
+	.exec_op = mtk_nfc_exec_op,
+};
+
+>>>>>>> upstream/android-13
 static int mtk_nfc_nand_chip_init(struct device *dev, struct mtk_nfc *nfc,
 				  struct device_node *np)
 {
@@ -1342,6 +1601,20 @@ static int mtk_nfc_nand_chip_init(struct device *dev, struct mtk_nfc *nfc,
 			dev_err(dev, "reg property failure : %d\n", ret);
 			return ret;
 		}
+<<<<<<< HEAD
+=======
+
+		if (tmp >= MTK_NAND_MAX_NSELS) {
+			dev_err(dev, "invalid CS: %u\n", tmp);
+			return -EINVAL;
+		}
+
+		if (test_and_set_bit(tmp, &nfc->assigned_cs)) {
+			dev_err(dev, "CS %u already assigned\n", tmp);
+			return -EINVAL;
+		}
+
+>>>>>>> upstream/android-13
 		chip->sels[i] = tmp;
 	}
 
@@ -1351,6 +1624,7 @@ static int mtk_nfc_nand_chip_init(struct device *dev, struct mtk_nfc *nfc,
 	nand_set_flash_node(nand, np);
 	nand_set_controller_data(nand, nfc);
 
+<<<<<<< HEAD
 	nand->options |= NAND_USE_BOUNCE_BUFFER | NAND_SUBPAGE_READ;
 	nand->dev_ready = mtk_nfc_dev_ready;
 	nand->select_chip = mtk_nfc_select_chip;
@@ -1363,6 +1637,12 @@ static int mtk_nfc_nand_chip_init(struct device *dev, struct mtk_nfc *nfc,
 
 	/* set default mode in case dt entry is missing */
 	nand->ecc.mode = NAND_ECC_HW;
+=======
+	nand->options |= NAND_USES_DMA | NAND_SUBPAGE_READ;
+
+	/* set default mode in case dt entry is missing */
+	nand->ecc.engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+>>>>>>> upstream/android-13
 
 	nand->ecc.write_subpage = mtk_nfc_write_subpage_hwecc;
 	nand->ecc.write_page_raw = mtk_nfc_write_page_raw;
@@ -1388,7 +1668,11 @@ static int mtk_nfc_nand_chip_init(struct device *dev, struct mtk_nfc *nfc,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = mtd_device_parse_register(mtd, part_types, NULL, NULL, 0);
+=======
+	ret = mtd_device_register(mtd, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "mtd parse partition error\n");
 		nand_cleanup(nand);
@@ -1471,8 +1755,12 @@ static int mtk_nfc_probe(struct platform_device *pdev)
 	if (!nfc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	spin_lock_init(&nfc->controller.lock);
 	init_waitqueue_head(&nfc->controller.wq);
+=======
+	nand_controller_init(&nfc->controller);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&nfc->chips);
 	nfc->controller.ops = &mtk_nfc_controller_ops;
 
@@ -1513,7 +1801,10 @@ static int mtk_nfc_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "no nfi irq resource\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto clk_disable;
 	}
@@ -1552,6 +1843,7 @@ release_ecc:
 static int mtk_nfc_remove(struct platform_device *pdev)
 {
 	struct mtk_nfc *nfc = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct mtk_nfc_nand_chip *chip;
 
 	while (!list_empty(&nfc->chips)) {
@@ -1559,6 +1851,20 @@ static int mtk_nfc_remove(struct platform_device *pdev)
 					node);
 		nand_release(&chip->nand);
 		list_del(&chip->node);
+=======
+	struct mtk_nfc_nand_chip *mtk_chip;
+	struct nand_chip *chip;
+	int ret;
+
+	while (!list_empty(&nfc->chips)) {
+		mtk_chip = list_first_entry(&nfc->chips,
+					    struct mtk_nfc_nand_chip, node);
+		chip = &mtk_chip->nand;
+		ret = mtd_device_unregister(nand_to_mtd(chip));
+		WARN_ON(ret);
+		nand_cleanup(chip);
+		list_del(&mtk_chip->node);
+>>>>>>> upstream/android-13
 	}
 
 	mtk_ecc_release(nfc->ecc);
@@ -1618,6 +1924,10 @@ static struct platform_driver mtk_nfc_driver = {
 
 module_platform_driver(mtk_nfc_driver);
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("Dual MIT/GPL");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Xiaolei Li <xiaolei.li@mediatek.com>");
 MODULE_DESCRIPTION("MTK Nand Flash Controller Driver");

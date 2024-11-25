@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /* Copyright (C) 2016 Tomasz Chilinski <tomasz.chilinski@chilan.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (C) 2016 Tomasz Chilinski <tomasz.chilinski@chilan.com>
+>>>>>>> upstream/android-13
  */
 
 /* Kernel module implementing an IP set type: the hash:ip,mac type */
@@ -26,7 +31,11 @@
 #include <linux/netfilter/ipset/ip_set_hash.h>
 
 #define IPSET_TYPE_REV_MIN	0
+<<<<<<< HEAD
 #define IPSET_TYPE_REV_MAX	0
+=======
+#define IPSET_TYPE_REV_MAX	1	/* bucketsize, initval support  */
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Tomasz Chilinski <tomasz.chilinski@chilan.com>");
@@ -50,7 +59,11 @@ struct hash_ipmac4_elem {
 
 /* Common functions */
 
+<<<<<<< HEAD
 static inline bool
+=======
+static bool
+>>>>>>> upstream/android-13
 hash_ipmac4_data_equal(const struct hash_ipmac4_elem *e1,
 		       const struct hash_ipmac4_elem *e2,
 		       u32 *multi)
@@ -70,7 +83,11 @@ nla_put_failure:
 	return true;
 }
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 hash_ipmac4_data_next(struct hash_ipmac4_elem *next,
 		      const struct hash_ipmac4_elem *e)
 {
@@ -157,7 +174,11 @@ struct hash_ipmac6_elem {
 
 /* Common functions */
 
+<<<<<<< HEAD
 static inline bool
+=======
+static bool
+>>>>>>> upstream/android-13
 hash_ipmac6_data_equal(const struct hash_ipmac6_elem *e1,
 		       const struct hash_ipmac6_elem *e2,
 		       u32 *multi)
@@ -178,7 +199,11 @@ nla_put_failure:
 	return true;
 }
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 hash_ipmac6_data_next(struct hash_ipmac6_elem *next,
 		      const struct hash_ipmac6_elem *e)
 {
@@ -271,11 +296,20 @@ static struct ip_set_type hash_ipmac_type __read_mostly = {
 	.family		= NFPROTO_UNSPEC,
 	.revision_min	= IPSET_TYPE_REV_MIN,
 	.revision_max	= IPSET_TYPE_REV_MAX,
+<<<<<<< HEAD
+=======
+	.create_flags[IPSET_TYPE_REV_MAX] = IPSET_CREATE_FLAG_BUCKETSIZE,
+>>>>>>> upstream/android-13
 	.create		= hash_ipmac_create,
 	.create_policy	= {
 		[IPSET_ATTR_HASHSIZE]	= { .type = NLA_U32 },
 		[IPSET_ATTR_MAXELEM]	= { .type = NLA_U32 },
+<<<<<<< HEAD
 		[IPSET_ATTR_PROBES]	= { .type = NLA_U8 },
+=======
+		[IPSET_ATTR_INITVAL]	= { .type = NLA_U32 },
+		[IPSET_ATTR_BUCKETSIZE]	= { .type = NLA_U8 },
+>>>>>>> upstream/android-13
 		[IPSET_ATTR_RESIZE]	= { .type = NLA_U8  },
 		[IPSET_ATTR_TIMEOUT]	= { .type = NLA_U32 },
 		[IPSET_ATTR_CADT_FLAGS]	= { .type = NLA_U32 },

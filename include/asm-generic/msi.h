@@ -4,6 +4,11 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_GENERIC_MSI_IRQ_DOMAIN
+
+>>>>>>> upstream/android-13
 #ifndef NUM_MSI_ALLOC_SCRATCHPAD_REGS
 # define NUM_MSI_ALLOC_SCRATCHPAD_REGS	2
 #endif
@@ -22,12 +27,26 @@ struct msi_desc;
 typedef struct msi_alloc_info {
 	struct msi_desc			*desc;
 	irq_hw_number_t			hwirq;
+<<<<<<< HEAD
+=======
+	unsigned long			flags;
+>>>>>>> upstream/android-13
 	union {
 		unsigned long		ul;
 		void			*ptr;
 	} scratchpad[NUM_MSI_ALLOC_SCRATCHPAD_REGS];
 } msi_alloc_info_t;
 
+<<<<<<< HEAD
 #define GENERIC_MSI_DOMAIN_OPS		1
 
+=======
+/* Device generating MSIs is proxying for another device */
+#define MSI_ALLOC_FLAGS_PROXY_DEVICE	(1UL << 0)
+
+#define GENERIC_MSI_DOMAIN_OPS		1
+
+#endif /* CONFIG_GENERIC_MSI_IRQ_DOMAIN */
+
+>>>>>>> upstream/android-13
 #endif

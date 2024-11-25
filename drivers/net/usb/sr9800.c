@@ -115,6 +115,10 @@ static struct sk_buff *sr_tx_fixup(struct usbnet *dev, struct sk_buff *skb,
 	u32 padbytes = 0xffff0000;
 	u32 packet_len;
 	int padlen;
+<<<<<<< HEAD
+=======
+	void *ptr;
+>>>>>>> upstream/android-13
 
 	padlen = ((skb->len + 4) % (dev->maxpacket - 1)) ? 0 : 4;
 
@@ -133,6 +137,7 @@ static struct sk_buff *sr_tx_fixup(struct usbnet *dev, struct sk_buff *skb,
 			return NULL;
 	}
 
+<<<<<<< HEAD
 	skb_push(skb, 4);
 	packet_len = (((skb->len - 4) ^ 0x0000ffff) << 16) + (skb->len - 4);
 	cpu_to_le32s(&packet_len);
@@ -141,6 +146,14 @@ static struct sk_buff *sr_tx_fixup(struct usbnet *dev, struct sk_buff *skb,
 	if (padlen) {
 		cpu_to_le32s(&padbytes);
 		memcpy(skb_tail_pointer(skb), &padbytes, sizeof(padbytes));
+=======
+	ptr = skb_push(skb, 4);
+	packet_len = (((skb->len - 4) ^ 0x0000ffff) << 16) + (skb->len - 4);
+	put_unaligned_le32(packet_len, ptr);
+
+	if (padlen) {
+		put_unaligned_le32(padbytes, skb_tail_pointer(skb));
+>>>>>>> upstream/android-13
 		skb_put(skb, sizeof(padbytes));
 	}
 
@@ -528,8 +541,13 @@ static const struct ethtool_ops sr9800_ethtool_ops = {
 	.get_eeprom_len	= sr_get_eeprom_len,
 	.get_eeprom	= sr_get_eeprom,
 	.nway_reset	= usbnet_nway_reset,
+<<<<<<< HEAD
 	.get_link_ksettings	= usbnet_get_link_ksettings,
 	.set_link_ksettings	= usbnet_set_link_ksettings,
+=======
+	.get_link_ksettings	= usbnet_get_link_ksettings_mii,
+	.set_link_ksettings	= usbnet_set_link_ksettings_mii,
+>>>>>>> upstream/android-13
 };
 
 static int sr9800_link_reset(struct usbnet *dev)
@@ -682,10 +700,17 @@ static const struct net_device_ops sr9800_netdev_ops = {
 	.ndo_start_xmit		= usbnet_start_xmit,
 	.ndo_tx_timeout		= usbnet_tx_timeout,
 	.ndo_change_mtu		= usbnet_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64	= usbnet_get_stats64,
 	.ndo_set_mac_address	= sr_set_mac_address,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_do_ioctl		= sr_ioctl,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+	.ndo_set_mac_address	= sr_set_mac_address,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_eth_ioctl		= sr_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode        = sr_set_multicast,
 };
 

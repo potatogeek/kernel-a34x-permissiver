@@ -201,7 +201,10 @@ struct mips_elf_abiflags_v0 {
 	uint32_t flags2;
 };
 
+<<<<<<< HEAD
 #ifndef ELF_ARCH
+=======
+>>>>>>> upstream/android-13
 /* ELF register definitions */
 #define ELF_NGREG	45
 #define ELF_NFPREG	33
@@ -219,7 +222,11 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 /*
  * This is used to ensure we don't load something for the wrong architecture.
  */
+<<<<<<< HEAD
 #define elf_check_arch elfo32_check_arch
+=======
+#define elf_check_arch elf32_check_arch
+>>>>>>> upstream/android-13
 
 /*
  * These are used to set parameters in the core dumps.
@@ -235,7 +242,12 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 /*
  * This is used to ensure we don't load something for the wrong architecture.
  */
+<<<<<<< HEAD
 #define elf_check_arch elfn64_check_arch
+=======
+#define elf_check_arch elf64_check_arch
+#define compat_elf_check_arch elf32_check_arch
+>>>>>>> upstream/android-13
 
 /*
  * These are used to set parameters in the core dumps.
@@ -257,8 +269,11 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 #endif
 #define ELF_ARCH	EM_MIPS
 
+<<<<<<< HEAD
 #endif /* !defined(ELF_ARCH) */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * In order to be sure that we don't attempt to execute an O32 binary which
  * requires 64 bit FP (FR=1) on a system which does not support it we refuse
@@ -277,9 +292,15 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 #define vmcore_elf64_check_arch mips_elf_check_machine
 
 /*
+<<<<<<< HEAD
  * Return non-zero if HDR identifies an o32 ELF binary.
  */
 #define elfo32_check_arch(hdr)						\
+=======
+ * Return non-zero if HDR identifies an o32 or n32 ELF binary.
+ */
+#define elf32_check_arch(hdr)						\
+>>>>>>> upstream/android-13
 ({									\
 	int __res = 1;							\
 	struct elfhdr *__h = (hdr);					\
@@ -288,6 +309,7 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 		__res = 0;						\
 	if (__h->e_ident[EI_CLASS] != ELFCLASS32)			\
 		__res = 0;						\
+<<<<<<< HEAD
 	if ((__h->e_flags & EF_MIPS_ABI2) != 0)				\
 		__res = 0;						\
 	if (((__h->e_flags & EF_MIPS_ABI) != 0) &&			\
@@ -296,13 +318,32 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 	if (__h->e_flags & __MIPS_O32_FP64_MUST_BE_ZERO)		\
 		__res = 0;						\
 									\
+=======
+	if ((__h->e_flags & EF_MIPS_ABI2) != 0) {			\
+		if (!IS_ENABLED(CONFIG_MIPS32_N32) ||			\
+		     (__h->e_flags & EF_MIPS_ABI))			\
+			__res = 0;					\
+	} else {							\
+		if (IS_ENABLED(CONFIG_64BIT) && !IS_ENABLED(CONFIG_MIPS32_O32)) \
+			__res = 0;					\
+		if (((__h->e_flags & EF_MIPS_ABI) != 0) &&		\
+		    ((__h->e_flags & EF_MIPS_ABI) != EF_MIPS_ABI_O32))	\
+			__res = 0;					\
+		if (__h->e_flags & __MIPS_O32_FP64_MUST_BE_ZERO)	\
+			__res = 0;					\
+	}								\
+>>>>>>> upstream/android-13
 	__res;								\
 })
 
 /*
  * Return non-zero if HDR identifies an n64 ELF binary.
  */
+<<<<<<< HEAD
 #define elfn64_check_arch(hdr)						\
+=======
+#define elf64_check_arch(hdr)						\
+>>>>>>> upstream/android-13
 ({									\
 	int __res = 1;							\
 	struct elfhdr *__h = (hdr);					\
@@ -315,6 +356,7 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 	__res;								\
 })
 
+<<<<<<< HEAD
 /*
  * Return non-zero if HDR identifies an n32 ELF binary.
  */
@@ -334,6 +376,8 @@ void mips_dump_regs64(u64 *uregs, const struct pt_regs *regs);
 	__res;								\
 })
 
+=======
+>>>>>>> upstream/android-13
 struct mips_abi;
 
 extern struct mips_abi mips_abi;
@@ -410,6 +454,10 @@ do {									\
 	clear_thread_flag(TIF_32BIT_FPREGS);				\
 	clear_thread_flag(TIF_HYBRID_FPREGS);				\
 	clear_thread_flag(TIF_32BIT_ADDR);				\
+<<<<<<< HEAD
+=======
+	current->personality &= ~READ_IMPLIES_EXEC;			\
+>>>>>>> upstream/android-13
 									\
 	if ((ex).e_ident[EI_CLASS] == ELFCLASS32)			\
 		__SET_PERSONALITY32(ex, state);				\
@@ -445,6 +493,12 @@ extern unsigned int elf_hwcap;
 #define ELF_PLATFORM  __elf_platform
 extern const char *__elf_platform;
 
+<<<<<<< HEAD
+=======
+#define ELF_BASE_PLATFORM  __elf_base_platform
+extern const char *__elf_base_platform;
+
+>>>>>>> upstream/android-13
 /*
  * See comments in asm-alpha/elf.h, this is the same thing
  * on the MIPS.
@@ -465,9 +519,13 @@ extern const char *__elf_platform;
    the loader.	We need to make sure that it is out of the way of the program
    that it will "exec", and that there is sufficient room for the brk.	*/
 
+<<<<<<< HEAD
 #ifndef ELF_ET_DYN_BASE
 #define ELF_ET_DYN_BASE		(TASK_SIZE / 3 * 2)
 #endif
+=======
+#define ELF_ET_DYN_BASE		(TASK_SIZE / 3 * 2)
+>>>>>>> upstream/android-13
 
 /* update AT_VECTOR_SIZE_ARCH if the number of NEW_AUX_ENT entries changes */
 #define ARCH_DLINFO							\
@@ -481,6 +539,11 @@ struct linux_binprm;
 extern int arch_setup_additional_pages(struct linux_binprm *bprm,
 				       int uses_interp);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+
+>>>>>>> upstream/android-13
 struct arch_elf_state {
 	int nan_2008;
 	int fp_abi;
@@ -497,19 +560,48 @@ struct arch_elf_state {
 	.overall_fp_mode = -1,			\
 }
 
+<<<<<<< HEAD
 /* Whether to accept legacy-NaN and 2008-NaN user binaries.  */
 extern bool mips_use_nan_legacy;
 extern bool mips_use_nan_2008;
 
+=======
+>>>>>>> upstream/android-13
 extern int arch_elf_pt_proc(void *ehdr, void *phdr, struct file *elf,
 			    bool is_interp, struct arch_elf_state *state);
 
 extern int arch_check_elf(void *ehdr, bool has_interpreter, void *interp_ehdr,
 			  struct arch_elf_state *state);
 
+<<<<<<< HEAD
 extern void mips_set_personality_nan(struct arch_elf_state *state);
 extern void mips_set_personality_fp(struct arch_elf_state *state);
 
+=======
+/* Whether to accept legacy-NaN and 2008-NaN user binaries.  */
+extern bool mips_use_nan_legacy;
+extern bool mips_use_nan_2008;
+
+extern void mips_set_personality_nan(struct arch_elf_state *state);
+extern void mips_set_personality_fp(struct arch_elf_state *state);
+
+#else /* !CONFIG_MIPS_FP_SUPPORT */
+
+struct arch_elf_state;
+
+static inline void mips_set_personality_nan(struct arch_elf_state *state)
+{
+	/* no-op */
+}
+
+static inline void mips_set_personality_fp(struct arch_elf_state *state)
+{
+	/* no-op */
+}
+
+#endif /* !CONFIG_MIPS_FP_SUPPORT */
+
+>>>>>>> upstream/android-13
 #define elf_read_implies_exec(ex, stk) mips_elf_read_implies_exec(&(ex), stk)
 extern int mips_elf_read_implies_exec(void *elf_ex, int exstack);
 

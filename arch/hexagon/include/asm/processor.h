@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Process/processor support for the Hexagon architecture
  *
  * Copyright (c) 2010-2012, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_PROCESSOR_H
@@ -27,9 +34,12 @@
 #include <asm/registers.h>
 #include <asm/hexagon_vm.h>
 
+<<<<<<< HEAD
 /*  must be a macro  */
 #define current_text_addr() ({ __label__ _l; _l: &&_l; })
 
+=======
+>>>>>>> upstream/android-13
 /*  task_struct, defined elsewhere, is the "process descriptor" */
 struct task_struct;
 

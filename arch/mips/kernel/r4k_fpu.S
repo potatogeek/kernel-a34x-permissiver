@@ -31,7 +31,11 @@
 .ex\@:	\insn	\reg, \src
 	.set	pop
 	.section __ex_table,"a"
+<<<<<<< HEAD
 	PTR	.ex\@, fault
+=======
+	PTR_WD	.ex\@, fault
+>>>>>>> upstream/android-13
 	.previous
 	.endm
 
@@ -41,7 +45,11 @@
 LEAF(_save_fp)
 EXPORT_SYMBOL(_save_fp)
 #if defined(CONFIG_64BIT) || defined(CONFIG_CPU_MIPSR2) || \
+<<<<<<< HEAD
 		defined(CONFIG_CPU_MIPSR6)
+=======
+    defined(CONFIG_CPU_MIPSR5) || defined(CONFIG_CPU_MIPSR6)
+>>>>>>> upstream/android-13
 	mfc0	t0, CP0_STATUS
 #endif
 	fpu_save_double a0 t0 t1		# clobbers t1
@@ -53,7 +61,11 @@ EXPORT_SYMBOL(_save_fp)
  */
 LEAF(_restore_fp)
 #if defined(CONFIG_64BIT) || defined(CONFIG_CPU_MIPSR2) || \
+<<<<<<< HEAD
 		defined(CONFIG_CPU_MIPSR6)
+=======
+    defined(CONFIG_CPU_MIPSR5) || defined(CONFIG_CPU_MIPSR6)
+>>>>>>> upstream/android-13
 	mfc0	t0, CP0_STATUS
 #endif
 	fpu_restore_double a0 t0 t1		# clobbers t1
@@ -86,6 +98,7 @@ LEAF(_init_msa_upper)
 
 #endif
 
+<<<<<<< HEAD
 /*
  * Load the FPU with signalling NANS.  This bit pattern we're using has
  * the property that no matter whether considered as single or as double
@@ -230,6 +243,8 @@ LEAF(_init_fpu)
 
 	.set pop	/* SET_HARDFLOAT */
 
+=======
+>>>>>>> upstream/android-13
 	.set	noreorder
 
 /**
@@ -247,10 +262,17 @@ LEAF(_save_fp_context)
 	.set	pop
 
 #if defined(CONFIG_64BIT) || defined(CONFIG_CPU_MIPSR2) || \
+<<<<<<< HEAD
 		defined(CONFIG_CPU_MIPSR6)
 	.set	push
 	SET_HARDFLOAT
 #ifdef CONFIG_CPU_MIPSR2
+=======
+    defined(CONFIG_CPU_MIPSR5) || defined(CONFIG_CPU_MIPSR6)
+	.set	push
+	SET_HARDFLOAT
+#if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR5)
+>>>>>>> upstream/android-13
 	.set	mips32r2
 	.set	fp=64
 	mfc0	t0, CP0_STATUS
@@ -314,11 +336,19 @@ LEAF(_save_fp_context)
 LEAF(_restore_fp_context)
 	EX	lw t1, 0(a1)
 
+<<<<<<< HEAD
 #if defined(CONFIG_64BIT) || defined(CONFIG_CPU_MIPSR2)  || \
 		defined(CONFIG_CPU_MIPSR6)
 	.set	push
 	SET_HARDFLOAT
 #ifdef CONFIG_CPU_MIPSR2
+=======
+#if defined(CONFIG_64BIT) || defined(CONFIG_CPU_MIPSR2) || \
+    defined(CONFIG_CPU_MIPSR5) || defined(CONFIG_CPU_MIPSR6)
+	.set	push
+	SET_HARDFLOAT
+#if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR5)
+>>>>>>> upstream/android-13
 	.set	mips32r2
 	.set	fp=64
 	mfc0	t0, CP0_STATUS

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Synaptics TouchPad PS/2 mouse driver
  *
@@ -16,10 +20,13 @@
  *   Copyright (c) 1998-2000 Bruce Kalk <kall@compass.com>
  *     code for the special synaptics commands (from the tpconfig-source)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Trademarks are the property of their respective owners.
  */
 
@@ -182,12 +189,22 @@ static const char * const smbus_pnp_ids[] = {
 	"LEN0093", /* T480 */
 	"LEN0096", /* X280 */
 	"LEN0097", /* X280 -> ALPS trackpoint */
+<<<<<<< HEAD
 	"LEN0099", /* X1 Extreme 1st */
 	"LEN009b", /* T580 */
+=======
+	"LEN0099", /* X1 Extreme Gen 1 / P1 Gen 1 */
+	"LEN009b", /* T580 */
+	"LEN0402", /* X1 Extreme Gen 2 / P1 Gen 2 */
+>>>>>>> upstream/android-13
 	"LEN200f", /* T450s */
 	"LEN2044", /* L470  */
 	"LEN2054", /* E480 */
 	"LEN2055", /* E580 */
+<<<<<<< HEAD
+=======
+	"LEN2068", /* T14 Gen 1 */
+>>>>>>> upstream/android-13
 	"SYN3052", /* HP EliteBook 840 G4 */
 	"SYN3221", /* HP 15-ay000 */
 	"SYN323d", /* HP Spectre X360 13-w013dx */
@@ -202,7 +219,11 @@ static const char * const forcepad_pnp_ids[] = {
 };
 
 /*
+<<<<<<< HEAD
  * Send a command to the synpatics touchpad by special commands
+=======
+ * Send a command to the synaptics touchpad by special commands
+>>>>>>> upstream/android-13
  */
 static int synaptics_send_cmd(struct psmouse *psmouse, u8 cmd, u8 *param)
 {
@@ -716,7 +737,11 @@ static void synaptics_pt_create(struct psmouse *psmouse)
 
 	serio->id.type = SERIO_PS_PSTHRU;
 	strlcpy(serio->name, "Synaptics pass-through", sizeof(serio->name));
+<<<<<<< HEAD
 	strlcpy(serio->phys, "synaptics-pt/serio0", sizeof(serio->name));
+=======
+	strlcpy(serio->phys, "synaptics-pt/serio0", sizeof(serio->phys));
+>>>>>>> upstream/android-13
 	serio->write = synaptics_pt_write;
 	serio->start = synaptics_pt_start;
 	serio->stop = synaptics_pt_stop;
@@ -1107,8 +1132,16 @@ static void synaptics_process_packet(struct psmouse *psmouse)
 					num_fingers = hw.w + 2;
 				break;
 			case 2:
+<<<<<<< HEAD
 				if (SYN_MODEL_PEN(info->model_id))
 					;   /* Nothing, treat a pen as a single finger */
+=======
+				/*
+				 * SYN_MODEL_PEN(info->model_id): even if
+				 * the device supports pen, we treat it as
+				 * a single finger.
+				 */
+>>>>>>> upstream/android-13
 				break;
 			case 4 ... 15:
 				if (SYN_CAP_PALMDETECT(info->capabilities))
@@ -1755,7 +1788,11 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
 			.kernel_tracking = false,
 			.topbuttonpad = topbuttonpad,
 		},
+<<<<<<< HEAD
 		.f30_data = {
+=======
+		.gpio_data = {
+>>>>>>> upstream/android-13
 			.buttonpad = SYN_CAP_CLICKPAD(info->ext_cap_0c),
 			.trackstick_buttons =
 				!!SYN_CAP_EXT_BUTTONS_STICK(info->ext_cap_10),
@@ -1771,7 +1808,11 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
 				  leave_breadcrumbs);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
  * and decides to instantiate a SMBus InterTouch device.
  */

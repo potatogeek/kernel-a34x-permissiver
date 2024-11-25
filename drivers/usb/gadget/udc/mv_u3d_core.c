@@ -32,7 +32,10 @@
 #define DRIVER_DESC		"Marvell PXA USB3.0 Device Controller driver"
 
 static const char driver_name[] = "mv_u3d";
+<<<<<<< HEAD
 static const char driver_desc[] = DRIVER_DESC;
+=======
+>>>>>>> upstream/android-13
 
 static void mv_u3d_nuke(struct mv_u3d_ep *ep, int status);
 static void mv_u3d_stop_activity(struct mv_u3d *u3d,
@@ -942,7 +945,11 @@ mv_u3d_ep_set_stall(struct mv_u3d *u3d, u8 ep_num, u8 direction, int stall)
 static int mv_u3d_ep_set_halt_wedge(struct usb_ep *_ep, int halt, int wedge)
 {
 	struct mv_u3d_ep *ep;
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int status = 0;
 	struct mv_u3d *u3d;
 
@@ -1548,7 +1555,11 @@ static void mv_u3d_handle_setup_packet(struct mv_u3d *u3d, u8 ep_num,
 		delegate = true;
 
 	/* delegate USB standard requests to the gadget driver */
+<<<<<<< HEAD
 	if (delegate == true) {
+=======
+	if (delegate) {
+>>>>>>> upstream/android-13
 		/* USB requests handled by gadget */
 		if (setup->wLength) {
 			/* DATA phase from gadget, STATUS phase from u3d */
@@ -1922,6 +1933,7 @@ static int mv_u3d_probe(struct platform_device *dev)
 		goto err_get_irq;
 	}
 	u3d->irq = r->start;
+<<<<<<< HEAD
 	if (request_irq(u3d->irq, mv_u3d_irq,
 		IRQF_SHARED, driver_name, u3d)) {
 		u3d->irq = 0;
@@ -1930,6 +1942,8 @@ static int mv_u3d_probe(struct platform_device *dev)
 		retval = -ENODEV;
 		goto err_request_irq;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	/* initialize gadget structure */
 	u3d->gadget.ops = &mv_u3d_ops;	/* usb_gadget_ops */
@@ -1942,6 +1956,18 @@ static int mv_u3d_probe(struct platform_device *dev)
 
 	mv_u3d_eps_init(u3d);
 
+<<<<<<< HEAD
+=======
+	if (request_irq(u3d->irq, mv_u3d_irq,
+		IRQF_SHARED, driver_name, u3d)) {
+		u3d->irq = 0;
+		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
+			u3d->irq);
+		retval = -ENODEV;
+		goto err_request_irq;
+	}
+
+>>>>>>> upstream/android-13
 	/* external vbus detection */
 	if (u3d->vbus) {
 		u3d->clock_gating = 1;
@@ -1965,8 +1991,13 @@ static int mv_u3d_probe(struct platform_device *dev)
 
 err_unregister:
 	free_irq(u3d->irq, u3d);
+<<<<<<< HEAD
 err_request_irq:
 err_get_irq:
+=======
+err_get_irq:
+err_request_irq:
+>>>>>>> upstream/android-13
 	kfree(u3d->status_req);
 err_alloc_status_req:
 	kfree(u3d->eps);

@@ -28,6 +28,10 @@
 #include <linux/dma-mapping.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <asm/dma.h>
@@ -36,7 +40,10 @@
 #include <asm/openprom.h>
 #include <asm/oplib.h>
 #include <asm/auxio.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 
 #include "sunqe.h"
@@ -544,7 +551,11 @@ static void qe_tx_reclaim(struct sunqe *qep)
 	qep->tx_old = elem;
 }
 
+<<<<<<< HEAD
 static void qe_tx_timeout(struct net_device *dev)
+=======
+static void qe_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct sunqe *qep = netdev_priv(dev);
 	int tx_full;

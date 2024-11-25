@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /*
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+>>>>>>> upstream/android-13
  * include/asm-sh/snapgear.h
  *
  * Modified version of io_se.h for the snapgear-specific functions.
  *
+<<<<<<< HEAD
  * May be copied or modified under the terms of the GNU General Public
  * License.  See linux/COPYING for more information.
  *
+=======
+>>>>>>> upstream/android-13
  * IO functions for a SnapGear
  */
 

@@ -3,7 +3,11 @@
  *
  * Module Name: dsfield - Dispatcher field routines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -149,7 +153,10 @@ acpi_ds_create_buffer_field(union acpi_parse_object *op,
 
 	if (walk_state->deferred_node) {
 		node = walk_state->deferred_node;
+<<<<<<< HEAD
 		status = AE_OK;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		/* Execute flag should always be set when this function is entered */
 
@@ -178,7 +185,14 @@ acpi_ds_create_buffer_field(union acpi_parse_object *op,
 					arg->common.value.string, ACPI_TYPE_ANY,
 					ACPI_IMODE_LOAD_PASS1, flags,
 					walk_state, &node);
+<<<<<<< HEAD
 		if (ACPI_FAILURE(status)) {
+=======
+		if ((walk_state->parse_flags & ACPI_PARSE_DISASSEMBLE)
+		    && status == AE_ALREADY_EXISTS) {
+			status = AE_OK;
+		} else if (ACPI_FAILURE(status)) {
+>>>>>>> upstream/android-13
 			ACPI_ERROR_NAMESPACE(walk_state->scope_info,
 					     arg->common.value.string, status);
 			return_ACPI_STATUS(status);
@@ -264,7 +278,10 @@ acpi_ds_get_field_names(struct acpi_create_field_info *info,
 	union acpi_parse_object *child;
 
 #ifdef ACPI_EXEC_APP
+<<<<<<< HEAD
 	u64 value = 0;
+=======
+>>>>>>> upstream/android-13
 	union acpi_operand_object *result_desc;
 	union acpi_operand_object *obj_desc;
 	char *name_path;
@@ -406,19 +423,31 @@ acpi_ds_get_field_names(struct acpi_create_field_info *info,
 					name_path =
 					    acpi_ns_get_external_pathname(info->
 									  field_node);
+<<<<<<< HEAD
 					obj_desc =
 					    acpi_ut_create_integer_object
 					    (value);
 					if (ACPI_SUCCESS
 					    (ae_lookup_init_file_entry
 					     (name_path, &value))) {
+=======
+					if (ACPI_SUCCESS
+					    (ae_lookup_init_file_entry
+					     (name_path, &obj_desc))) {
+>>>>>>> upstream/android-13
 						acpi_ex_write_data_to_field
 						    (obj_desc,
 						     acpi_ns_get_attached_object
 						     (info->field_node),
 						     &result_desc);
+<<<<<<< HEAD
 					}
 					acpi_ut_remove_reference(obj_desc);
+=======
+						acpi_ut_remove_reference
+						    (obj_desc);
+					}
+>>>>>>> upstream/android-13
 					ACPI_FREE(name_path);
 #endif
 				}
@@ -518,6 +547,23 @@ acpi_ds_create_field(union acpi_parse_object *op,
 	info.region_node = region_node;
 
 	status = acpi_ds_get_field_names(&info, walk_state, arg->common.next);
+<<<<<<< HEAD
+=======
+	if (ACPI_FAILURE(status)) {
+		return_ACPI_STATUS(status);
+	}
+
+	if (info.region_node->object->region.space_id ==
+	    ACPI_ADR_SPACE_PLATFORM_COMM) {
+		region_node->object->field.internal_pcc_buffer =
+		    ACPI_ALLOCATE_ZEROED(info.region_node->object->region.
+					 length);
+		if (!region_node->object->field.internal_pcc_buffer) {
+			return_ACPI_STATUS(AE_NO_MEMORY);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return_ACPI_STATUS(status);
 }
 
@@ -629,8 +675,11 @@ acpi_ds_init_field_objects(union acpi_parse_object *op,
 				}
 
 				/* Name already exists, just ignore this error */
+<<<<<<< HEAD
 
 				status = AE_OK;
+=======
+>>>>>>> upstream/android-13
 			}
 
 			arg->common.node = node;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Sascha Hauer <s.hauer@pengutronix.de>
  * Copyright (C) 2005-2009 Freescale Semiconductor, Inc.
@@ -11,6 +12,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2010 Sascha Hauer <s.hauer@pengutronix.de>
+ * Copyright (C) 2005-2009 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <linux/kernel.h>
@@ -19,6 +26,10 @@
 #include <linux/io.h>
 #include <linux/err.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_color_mgmt.h>
+>>>>>>> upstream/android-13
 #include <video/imx-ipu-v3.h>
 #include "ipu-prv.h"
 
@@ -134,6 +145,11 @@ int ipu_dp_set_window_pos(struct ipu_dp *dp, u16 x_pos, u16 y_pos)
 EXPORT_SYMBOL_GPL(ipu_dp_set_window_pos);
 
 static void ipu_dp_csc_init(struct ipu_flow *flow,
+<<<<<<< HEAD
+=======
+		enum drm_color_encoding ycbcr_enc,
+		enum drm_color_range range,
+>>>>>>> upstream/android-13
 		enum ipu_color_space in,
 		enum ipu_color_space out,
 		u32 place)
@@ -157,7 +173,22 @@ static void ipu_dp_csc_init(struct ipu_flow *flow,
 				flow->base + DP_CSC_0);
 		writel(0x200 | (2 << 14) | (0x200 << 16) | (2 << 30),
 				flow->base + DP_CSC_1);
+<<<<<<< HEAD
 	} else {
+=======
+	} else if (ycbcr_enc == DRM_COLOR_YCBCR_BT709) {
+		/* Rec.709 limited range */
+		writel(0x095 | (0x000 << 16), flow->base + DP_CSC_A_0);
+		writel(0x0e5 | (0x095 << 16), flow->base + DP_CSC_A_1);
+		writel(0x3e5 | (0x3bc << 16), flow->base + DP_CSC_A_2);
+		writel(0x095 | (0x10e << 16), flow->base + DP_CSC_A_3);
+		writel(0x000 | (0x3e10 << 16) | (1 << 30),
+				flow->base + DP_CSC_0);
+		writel(0x09a | (1 << 14) | (0x3dbe << 16) | (1 << 30),
+				flow->base + DP_CSC_1);
+	} else {
+		/* BT.601 limited range */
+>>>>>>> upstream/android-13
 		writel(0x095 | (0x000 << 16), flow->base + DP_CSC_A_0);
 		writel(0x0cc | (0x095 << 16), flow->base + DP_CSC_A_1);
 		writel(0x3ce | (0x398 << 16), flow->base + DP_CSC_A_2);
@@ -174,6 +205,11 @@ static void ipu_dp_csc_init(struct ipu_flow *flow,
 }
 
 int ipu_dp_setup_channel(struct ipu_dp *dp,
+<<<<<<< HEAD
+=======
+		enum drm_color_encoding ycbcr_enc,
+		enum drm_color_range range,
+>>>>>>> upstream/android-13
 		enum ipu_color_space in,
 		enum ipu_color_space out)
 {
@@ -192,7 +228,12 @@ int ipu_dp_setup_channel(struct ipu_dp *dp,
 		 * foreground and background are of same colorspace, put
 		 * colorspace converter after combining unit.
 		 */
+<<<<<<< HEAD
 		ipu_dp_csc_init(flow, flow->foreground.in_cs, flow->out_cs,
+=======
+		ipu_dp_csc_init(flow, ycbcr_enc, range,
+				flow->foreground.in_cs, flow->out_cs,
+>>>>>>> upstream/android-13
 				DP_COM_CONF_CSC_DEF_BOTH);
 	} else {
 		if (flow->foreground.in_cs == IPUV3_COLORSPACE_UNKNOWN ||
@@ -201,10 +242,19 @@ int ipu_dp_setup_channel(struct ipu_dp *dp,
 			 * foreground identical to output, apply color
 			 * conversion on background
 			 */
+<<<<<<< HEAD
 			ipu_dp_csc_init(flow, flow->background.in_cs,
 					flow->out_cs, DP_COM_CONF_CSC_DEF_BG);
 		else
 			ipu_dp_csc_init(flow, flow->foreground.in_cs,
+=======
+			ipu_dp_csc_init(flow, ycbcr_enc, range,
+					flow->background.in_cs,
+					flow->out_cs, DP_COM_CONF_CSC_DEF_BG);
+		else
+			ipu_dp_csc_init(flow, ycbcr_enc, range,
+					flow->foreground.in_cs,
+>>>>>>> upstream/android-13
 					flow->out_cs, DP_COM_CONF_CSC_DEF_FG);
 	}
 

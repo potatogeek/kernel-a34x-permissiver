@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * debugfs routines supporting the Power 7+ Nest Accelerators driver
  *
  * Copyright (C) 2011-2012 International Business Machines Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 only.
@@ -16,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Kent Yoder <yoder1@us.ibm.com>
  */
 
@@ -42,6 +50,7 @@
  * Documentation/ABI/testing/debugfs-pfo-nx-crypto
  */
 
+<<<<<<< HEAD
 int nx_debugfs_init(struct nx_crypto_driver *drv)
 {
 	struct nx_debugfs *dfs = &drv->dfs;
@@ -92,12 +101,43 @@ int nx_debugfs_init(struct nx_crypto_driver *drv)
 				   dfs->dfs_root,
 				   (u32 *)&drv->stats.last_error_pid);
 	return 0;
+=======
+void nx_debugfs_init(struct nx_crypto_driver *drv)
+{
+	struct dentry *root;
+
+	root = debugfs_create_dir(NX_NAME, NULL);
+	drv->dfs_root = root;
+
+	debugfs_create_u32("aes_ops", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.aes_ops.counter);
+	debugfs_create_u32("sha256_ops", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.sha256_ops.counter);
+	debugfs_create_u32("sha512_ops", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.sha512_ops.counter);
+	debugfs_create_u64("aes_bytes", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.aes_bytes.counter);
+	debugfs_create_u64("sha256_bytes", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.sha256_bytes.counter);
+	debugfs_create_u64("sha512_bytes", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.sha512_bytes.counter);
+	debugfs_create_u32("errors", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.errors.counter);
+	debugfs_create_u32("last_error", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.last_error.counter);
+	debugfs_create_u32("last_error_pid", S_IRUSR | S_IRGRP | S_IROTH,
+			   root, &drv->stats.last_error_pid.counter);
+>>>>>>> upstream/android-13
 }
 
 void
 nx_debugfs_fini(struct nx_crypto_driver *drv)
 {
+<<<<<<< HEAD
 	debugfs_remove_recursive(drv->dfs.dfs_root);
+=======
+	debugfs_remove_recursive(drv->dfs_root);
+>>>>>>> upstream/android-13
 }
 
 #endif

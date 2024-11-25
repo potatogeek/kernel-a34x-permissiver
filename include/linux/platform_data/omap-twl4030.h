@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /**
  * omap-twl4030.h - ASoC machine driver for TI SoC based boards with twl4030
  *		    codec, header.
  *
+<<<<<<< HEAD
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com
  * All rights reserved.
  *
@@ -20,6 +25,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com
+ * All rights reserved.
+ *
+ * Author: Peter Ujfalusi <peter.ujfalusi@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _OMAP_TWL4030_H_

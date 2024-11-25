@@ -34,6 +34,11 @@ static inline struct hostfs_inode_info *HOSTFS_I(struct inode *inode)
 
 #define FILE_HOSTFS_I(file) HOSTFS_I(file_inode(file))
 
+<<<<<<< HEAD
+=======
+static struct kmem_cache *hostfs_inode_cache;
+
+>>>>>>> upstream/android-13
 /* Changed in hostfs_args before the kernel starts running */
 static char *root_ino = "";
 static int append = 0;
@@ -139,10 +144,17 @@ static char *inode_name(struct inode *ino)
 
 static char *follow_link(char *link)
 {
+<<<<<<< HEAD
 	int len, n;
 	char *name, *resolved, *end;
 
 	name = __getname();
+=======
+	char *name, *resolved, *end;
+	int n;
+
+	name = kmalloc(PATH_MAX, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!name) {
 		n = -ENOMEM;
 		goto out_free;
@@ -164,14 +176,20 @@ static char *follow_link(char *link)
 		return name;
 
 	*(end + 1) = '\0';
+<<<<<<< HEAD
 	len = strlen(link) + strlen(name) + 1;
 
 	resolved = kmalloc(len, GFP_KERNEL);
+=======
+
+	resolved = kasprintf(GFP_KERNEL, "%s%s", link, name);
+>>>>>>> upstream/android-13
 	if (resolved == NULL) {
 		n = -ENOMEM;
 		goto out_free;
 	}
 
+<<<<<<< HEAD
 	sprintf(resolved, "%s%s", link, name);
 	__putname(name);
 	kfree(link);
@@ -179,6 +197,13 @@ static char *follow_link(char *link)
 
  out_free:
 	__putname(name);
+=======
+	kfree(name);
+	return resolved;
+
+ out_free:
+	kfree(name);
+>>>>>>> upstream/android-13
 	return ERR_PTR(n);
 }
 
@@ -223,7 +248,11 @@ static struct inode *hostfs_alloc_inode(struct super_block *sb)
 {
 	struct hostfs_inode_info *hi;
 
+<<<<<<< HEAD
 	hi = kmalloc(sizeof(*hi), GFP_KERNEL_ACCOUNT);
+=======
+	hi = kmem_cache_alloc(hostfs_inode_cache, GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (hi == NULL)
 		return NULL;
 	hi->fd = -1;
@@ -243,6 +272,7 @@ static void hostfs_evict_inode(struct inode *inode)
 	}
 }
 
+<<<<<<< HEAD
 static void hostfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -252,6 +282,11 @@ static void hostfs_i_callback(struct rcu_head *head)
 static void hostfs_destroy_inode(struct inode *inode)
 {
 	call_rcu(&inode->i_rcu, hostfs_i_callback);
+=======
+static void hostfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(hostfs_inode_cache, HOSTFS_I(inode));
+>>>>>>> upstream/android-13
 }
 
 static int hostfs_show_options(struct seq_file *seq, struct dentry *root)
@@ -270,7 +305,11 @@ static int hostfs_show_options(struct seq_file *seq, struct dentry *root)
 
 static const struct super_operations hostfs_sbops = {
 	.alloc_inode	= hostfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= hostfs_destroy_inode,
+=======
+	.free_inode	= hostfs_free_inode,
+>>>>>>> upstream/android-13
 	.evict_inode	= hostfs_evict_inode,
 	.statfs		= hostfs_statfs,
 	.show_options	= hostfs_show_options,
@@ -323,7 +362,11 @@ retry:
 	if (mode & FMODE_WRITE)
 		r = w = 1;
 
+<<<<<<< HEAD
 	name = dentry_name(file->f_path.dentry);
+=======
+	name = dentry_name(file_dentry(file));
+>>>>>>> upstream/android-13
 	if (name == NULL)
 		return -ENOMEM;
 
@@ -388,6 +431,10 @@ static int hostfs_fsync(struct file *file, loff_t start, loff_t end,
 static const struct file_operations hostfs_file_fops = {
 	.llseek		= generic_file_llseek,
 	.splice_read	= generic_file_splice_read,
+<<<<<<< HEAD
+=======
+	.splice_write	= iter_file_splice_write,
+>>>>>>> upstream/android-13
 	.read_iter	= generic_file_read_iter,
 	.write_iter	= generic_file_write_iter,
 	.mmap		= generic_file_mmap,
@@ -555,16 +602,27 @@ static int read_name(struct inode *ino, char *name)
 	set_nlink(ino, st.nlink);
 	i_uid_write(ino, st.uid);
 	i_gid_write(ino, st.gid);
+<<<<<<< HEAD
 	ino->i_atime = timespec_to_timespec64(st.atime);
 	ino->i_mtime = timespec_to_timespec64(st.mtime);
 	ino->i_ctime = timespec_to_timespec64(st.ctime);
+=======
+	ino->i_atime = (struct timespec64){ st.atime.tv_sec, st.atime.tv_nsec };
+	ino->i_mtime = (struct timespec64){ st.mtime.tv_sec, st.mtime.tv_nsec };
+	ino->i_ctime = (struct timespec64){ st.ctime.tv_sec, st.ctime.tv_nsec };
+>>>>>>> upstream/android-13
 	ino->i_size = st.size;
 	ino->i_blocks = st.blocks;
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hostfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 			 bool excl)
+=======
+static int hostfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+			 struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	char *name;
@@ -662,8 +720,13 @@ static int hostfs_unlink(struct inode *ino, struct dentry *dentry)
 	return err;
 }
 
+<<<<<<< HEAD
 static int hostfs_symlink(struct inode *ino, struct dentry *dentry,
 			  const char *to)
+=======
+static int hostfs_symlink(struct user_namespace *mnt_userns, struct inode *ino,
+			  struct dentry *dentry, const char *to)
+>>>>>>> upstream/android-13
 {
 	char *file;
 	int err;
@@ -675,7 +738,12 @@ static int hostfs_symlink(struct inode *ino, struct dentry *dentry,
 	return err;
 }
 
+<<<<<<< HEAD
 static int hostfs_mkdir(struct inode *ino, struct dentry *dentry, umode_t mode)
+=======
+static int hostfs_mkdir(struct user_namespace *mnt_userns, struct inode *ino,
+			struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	char *file;
 	int err;
@@ -699,7 +767,12 @@ static int hostfs_rmdir(struct inode *ino, struct dentry *dentry)
 	return err;
 }
 
+<<<<<<< HEAD
 static int hostfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
+=======
+static int hostfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+			struct dentry *dentry, umode_t mode, dev_t dev)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	char *name;
@@ -716,7 +789,10 @@ static int hostfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, 
 	if (name == NULL)
 		goto out_put;
 
+<<<<<<< HEAD
 	init_special_inode(inode, mode, dev);
+=======
+>>>>>>> upstream/android-13
 	err = do_mknod(name, mode, MAJOR(dev), MINOR(dev));
 	if (err)
 		goto out_free;
@@ -737,7 +813,12 @@ static int hostfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, 
 	return err;
 }
 
+<<<<<<< HEAD
 static int hostfs_rename2(struct inode *old_dir, struct dentry *old_dentry,
+=======
+static int hostfs_rename2(struct user_namespace *mnt_userns,
+			  struct inode *old_dir, struct dentry *old_dentry,
+>>>>>>> upstream/android-13
 			  struct inode *new_dir, struct dentry *new_dentry,
 			  unsigned int flags)
 {
@@ -765,7 +846,12 @@ static int hostfs_rename2(struct inode *old_dir, struct dentry *old_dentry,
 	return err;
 }
 
+<<<<<<< HEAD
 static int hostfs_permission(struct inode *ino, int desired)
+=======
+static int hostfs_permission(struct user_namespace *mnt_userns,
+			     struct inode *ino, int desired)
+>>>>>>> upstream/android-13
 {
 	char *name;
 	int r = 0, w = 0, x = 0, err;
@@ -787,11 +873,20 @@ static int hostfs_permission(struct inode *ino, int desired)
 		err = access_file(name, r, w, x);
 	__putname(name);
 	if (!err)
+<<<<<<< HEAD
 		err = generic_permission(ino, desired);
 	return err;
 }
 
 static int hostfs_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+		err = generic_permission(&init_user_ns, ino, desired);
+	return err;
+}
+
+static int hostfs_setattr(struct user_namespace *mnt_userns,
+			  struct dentry *dentry, struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	struct hostfs_iattr attrs;
@@ -800,7 +895,11 @@ static int hostfs_setattr(struct dentry *dentry, struct iattr *attr)
 
 	int fd = HOSTFS_I(inode)->fd;
 
+<<<<<<< HEAD
 	err = setattr_prepare(dentry, attr);
+=======
+	err = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -826,6 +925,7 @@ static int hostfs_setattr(struct dentry *dentry, struct iattr *attr)
 	}
 	if (attr->ia_valid & ATTR_ATIME) {
 		attrs.ia_valid |= HOSTFS_ATTR_ATIME;
+<<<<<<< HEAD
 		attrs.ia_atime = timespec64_to_timespec(attr->ia_atime);
 	}
 	if (attr->ia_valid & ATTR_MTIME) {
@@ -835,6 +935,20 @@ static int hostfs_setattr(struct dentry *dentry, struct iattr *attr)
 	if (attr->ia_valid & ATTR_CTIME) {
 		attrs.ia_valid |= HOSTFS_ATTR_CTIME;
 		attrs.ia_ctime = timespec64_to_timespec(attr->ia_ctime);
+=======
+		attrs.ia_atime = (struct hostfs_timespec)
+			{ attr->ia_atime.tv_sec, attr->ia_atime.tv_nsec };
+	}
+	if (attr->ia_valid & ATTR_MTIME) {
+		attrs.ia_valid |= HOSTFS_ATTR_MTIME;
+		attrs.ia_mtime = (struct hostfs_timespec)
+			{ attr->ia_mtime.tv_sec, attr->ia_mtime.tv_nsec };
+	}
+	if (attr->ia_valid & ATTR_CTIME) {
+		attrs.ia_valid |= HOSTFS_ATTR_CTIME;
+		attrs.ia_ctime = (struct hostfs_timespec)
+			{ attr->ia_ctime.tv_sec, attr->ia_ctime.tv_nsec };
+>>>>>>> upstream/android-13
 	}
 	if (attr->ia_valid & ATTR_ATIME_SET) {
 		attrs.ia_valid |= HOSTFS_ATTR_ATIME_SET;
@@ -854,7 +968,11 @@ static int hostfs_setattr(struct dentry *dentry, struct iattr *attr)
 	    attr->ia_size != i_size_read(inode))
 		truncate_setsize(inode, attr->ia_size);
 
+<<<<<<< HEAD
 	setattr_copy(inode, attr);
+=======
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }
@@ -924,18 +1042,29 @@ static int hostfs_fill_sb_common(struct super_block *sb, void *d, int silent)
 	sb->s_d_op = &simple_dentry_operations;
 	sb->s_maxbytes = MAX_LFS_FILESIZE;
 
+<<<<<<< HEAD
 	/* NULL is printed as <NULL> by sprintf: avoid that. */
+=======
+	/* NULL is printed as '(null)' by printf(): avoid that. */
+>>>>>>> upstream/android-13
 	if (req_root == NULL)
 		req_root = "";
 
 	err = -ENOMEM;
 	sb->s_fs_info = host_root_path =
+<<<<<<< HEAD
 		kmalloc(strlen(root_ino) + strlen(req_root) + 2, GFP_KERNEL);
 	if (host_root_path == NULL)
 		goto out;
 
 	sprintf(host_root_path, "%s/%s", root_ino, req_root);
 
+=======
+		kasprintf(GFP_KERNEL, "%s/%s", root_ino, req_root);
+	if (host_root_path == NULL)
+		goto out;
+
+>>>>>>> upstream/android-13
 	root_inode = new_inode(sb);
 	if (!root_inode)
 		goto out;
@@ -993,12 +1122,22 @@ MODULE_ALIAS_FS("hostfs");
 
 static int __init init_hostfs(void)
 {
+<<<<<<< HEAD
+=======
+	hostfs_inode_cache = KMEM_CACHE(hostfs_inode_info, 0);
+	if (!hostfs_inode_cache)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	return register_filesystem(&hostfs_type);
 }
 
 static void __exit exit_hostfs(void)
 {
 	unregister_filesystem(&hostfs_type);
+<<<<<<< HEAD
+=======
+	kmem_cache_destroy(hostfs_inode_cache);
+>>>>>>> upstream/android-13
 }
 
 module_init(init_hostfs)

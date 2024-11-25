@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Information interface for ALSA driver
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Information interface for ALSA driver
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -46,7 +53,12 @@ int snd_oss_info_register(int dev, int num, char *string)
 		return -ENXIO;
 	mutex_lock(&strings);
 	if (string == NULL) {
+<<<<<<< HEAD
 		if ((x = snd_sndstat_strings[num][dev]) != NULL) {
+=======
+		x = snd_sndstat_strings[num][dev];
+		if (x) {
+>>>>>>> upstream/android-13
 			kfree(x);
 			x = NULL;
 		}

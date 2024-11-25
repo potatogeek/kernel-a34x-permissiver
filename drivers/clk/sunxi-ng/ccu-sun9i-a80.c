@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Chen-Yu Tsai. All rights reserved.
  *
@@ -12,6 +13,15 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Chen-Yu Tsai. All rights reserved.
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
 
@@ -1238,7 +1248,11 @@ static int sun9i_a80_ccu_probe(struct platform_device *pdev)
 	sun9i_a80_cpu_pll_fixup(reg + SUN9I_A80_PLL_C0CPUX_REG);
 	sun9i_a80_cpu_pll_fixup(reg + SUN9I_A80_PLL_C1CPUX_REG);
 
+<<<<<<< HEAD
 	return sunxi_ccu_probe(pdev->dev.of_node, reg, &sun9i_a80_ccu_desc);
+=======
+	return devm_sunxi_ccu_probe(&pdev->dev, reg, &sun9i_a80_ccu_desc);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id sun9i_a80_ccu_ids[] = {

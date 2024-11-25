@@ -1,19 +1,31 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Driver for the MMC / SD / SDIO IP found in:
  *
  * TC6393XB, TC6391XB, TC6387XB, T7L66XB, ASIC3, SH-Mobile SoCs
  *
+<<<<<<< HEAD
  * Copyright (C) 2015-17 Renesas Electronics Corporation
  * Copyright (C) 2016-17 Sang Engineering, Wolfram Sang
+=======
+ * Copyright (C) 2015-19 Renesas Electronics Corporation
+ * Copyright (C) 2016-19 Sang Engineering, Wolfram Sang
+>>>>>>> upstream/android-13
  * Copyright (C) 2017 Horms Solutions, Simon Horman
  * Copyright (C) 2011 Guennadi Liakhovetski
  * Copyright (C) 2007 Ian Molton
  * Copyright (C) 2004 Ian Molton
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver draws mainly on scattered spec sheets, Reverse engineering
  * of the toshiba e800  SD driver and some parts of the 2.4 ASIC3 driver (4 bit
  * support). (Further 4 bit support from a later datasheet).
@@ -29,6 +41,10 @@
 
 #include <linux/delay.h>
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -48,7 +64,10 @@
 #include <linux/scatterlist.h>
 #include <linux/sizes.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/swiotlb.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 
 #include "tmio_mmc.h"
@@ -60,6 +79,15 @@ static inline void tmio_mmc_start_dma(struct tmio_mmc_host *host,
 		host->dma_ops->start(host, data);
 }
 
+<<<<<<< HEAD
+=======
+static inline void tmio_mmc_end_dma(struct tmio_mmc_host *host)
+{
+	if (host->dma_ops && host->dma_ops->end)
+		host->dma_ops->end(host);
+}
+
+>>>>>>> upstream/android-13
 static inline void tmio_mmc_enable_dma(struct tmio_mmc_host *host, bool enable)
 {
 	if (host->dma_ops)
@@ -161,6 +189,7 @@ static void tmio_mmc_enable_sdio_irq(struct mmc_host *mmc, int enable)
 	}
 }
 
+<<<<<<< HEAD
 static void tmio_mmc_clk_start(struct tmio_mmc_host *host)
 {
 	sd_ctrl_write16(host, CTL_SD_CARD_CLK_CTL, CLK_CTL_SCLKEN |
@@ -236,12 +265,28 @@ static void tmio_mmc_set_clock(struct tmio_mmc_host *host,
 		usleep_range(10000, 11000);
 
 	tmio_mmc_clk_start(host);
+=======
+static void tmio_mmc_set_bus_width(struct tmio_mmc_host *host,
+				   unsigned char bus_width)
+{
+	u16 reg = sd_ctrl_read16(host, CTL_SD_MEM_CARD_OPT)
+				& ~(CARD_OPT_WIDTH | CARD_OPT_WIDTH8);
+
+	/* reg now applies to MMC_BUS_WIDTH_4 */
+	if (bus_width == MMC_BUS_WIDTH_1)
+		reg |= CARD_OPT_WIDTH;
+	else if (bus_width == MMC_BUS_WIDTH_8)
+		reg |= CARD_OPT_WIDTH8;
+
+	sd_ctrl_write16(host, CTL_SD_MEM_CARD_OPT, reg);
+>>>>>>> upstream/android-13
 }
 
 static void tmio_mmc_reset(struct tmio_mmc_host *host)
 {
 	/* FIXME - should we set stop clock reg here */
 	sd_ctrl_write16(host, CTL_RESET_SD, 0x0000);
+<<<<<<< HEAD
 	if (host->pdata->flags & TMIO_MMC_HAVE_HIGH_REG)
 		sd_ctrl_write16(host, CTL_RESET_SDIO, 0x0000);
 	usleep_range(10000, 11000);
@@ -250,11 +295,36 @@ static void tmio_mmc_reset(struct tmio_mmc_host *host)
 		sd_ctrl_write16(host, CTL_RESET_SDIO, 0x0001);
 	usleep_range(10000, 11000);
 
+=======
+	usleep_range(10000, 11000);
+	sd_ctrl_write16(host, CTL_RESET_SD, 0x0001);
+	usleep_range(10000, 11000);
+
+	tmio_mmc_abort_dma(host);
+
+	if (host->reset)
+		host->reset(host);
+
+	sd_ctrl_write32_as_16_and_16(host, CTL_IRQ_MASK, host->sdcard_irq_mask_all);
+	host->sdcard_irq_mask = host->sdcard_irq_mask_all;
+
+	if (host->native_hotplug)
+		tmio_mmc_enable_mmc_irqs(host,
+				TMIO_STAT_CARD_REMOVE | TMIO_STAT_CARD_INSERT);
+
+	tmio_mmc_set_bus_width(host, host->mmc->ios.bus_width);
+
+>>>>>>> upstream/android-13
 	if (host->pdata->flags & TMIO_MMC_SDIO_IRQ) {
 		sd_ctrl_write16(host, CTL_SDIO_IRQ_MASK, host->sdio_irq_mask);
 		sd_ctrl_write16(host, CTL_TRANSACTION_CTL, 0x0001);
 	}
 
+<<<<<<< HEAD
+=======
+	if (host->mmc->card)
+		mmc_retune_needed(host->mmc);
+>>>>>>> upstream/android-13
 }
 
 static void tmio_mmc_reset_work(struct work_struct *work)
@@ -299,8 +369,11 @@ static void tmio_mmc_reset_work(struct work_struct *work)
 
 	/* Ready for new calls */
 	host->mrq = NULL;
+<<<<<<< HEAD
 
 	tmio_mmc_abort_dma(host);
+=======
+>>>>>>> upstream/android-13
 	mmc_request_done(host->mmc, mrq);
 }
 
@@ -447,7 +520,11 @@ static void tmio_mmc_pio_irq(struct tmio_mmc_host *host)
 	unsigned int count;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if ((host->chan_tx || host->chan_rx) && !host->force_pio) {
+=======
+	if (host->dma_on) {
+>>>>>>> upstream/android-13
 		pr_err("PIO IRQ in DMA mode!\n");
 		return;
 	} else if (!data) {
@@ -519,7 +596,11 @@ void tmio_mmc_do_data_irq(struct tmio_mmc_host *host)
 	 */
 
 	if (data->flags & MMC_DATA_READ) {
+<<<<<<< HEAD
 		if (host->chan_rx && !host->force_pio)
+=======
+		if (host->dma_on)
+>>>>>>> upstream/android-13
 			tmio_mmc_check_bounce_buffer(host);
 		dev_dbg(&host->pdev->dev, "Complete Rx request %p\n",
 			host->mrq);
@@ -553,10 +634,19 @@ static void tmio_mmc_data_irq(struct tmio_mmc_host *host, unsigned int stat)
 	if (!data)
 		goto out;
 
+<<<<<<< HEAD
 	if (stat & TMIO_STAT_CRCFAIL || stat & TMIO_STAT_STOPBIT_ERR ||
 	    stat & TMIO_STAT_TXUNDERRUN)
 		data->error = -EILSEQ;
 	if (host->chan_tx && (data->flags & MMC_DATA_WRITE) && !host->force_pio) {
+=======
+	if (stat & TMIO_STAT_DATATIMEOUT)
+		data->error = -ETIMEDOUT;
+	else if (stat & TMIO_STAT_CRCFAIL || stat & TMIO_STAT_STOPBIT_ERR ||
+		 stat & TMIO_STAT_TXUNDERRUN)
+		data->error = -EILSEQ;
+	if (host->dma_on && (data->flags & MMC_DATA_WRITE)) {
+>>>>>>> upstream/android-13
 		u32 status = sd_ctrl_read16_and_16_as_32(host, CTL_STATUS);
 		bool done = false;
 
@@ -580,7 +670,11 @@ static void tmio_mmc_data_irq(struct tmio_mmc_host *host, unsigned int stat)
 			tmio_mmc_disable_mmc_irqs(host, TMIO_STAT_DATAEND);
 			tmio_mmc_dataend_dma(host);
 		}
+<<<<<<< HEAD
 	} else if (host->chan_rx && (data->flags & MMC_DATA_READ) && !host->force_pio) {
+=======
+	} else if (host->dma_on && (data->flags & MMC_DATA_READ)) {
+>>>>>>> upstream/android-13
 		tmio_mmc_disable_mmc_irqs(host, TMIO_STAT_DATAEND);
 		tmio_mmc_dataend_dma(host);
 	} else {
@@ -633,7 +727,11 @@ static void tmio_mmc_cmd_irq(struct tmio_mmc_host *host, unsigned int stat)
 	 */
 	if (host->data && (!cmd->error || cmd->error == -EILSEQ)) {
 		if (host->data->flags & MMC_DATA_READ) {
+<<<<<<< HEAD
 			if (host->force_pio || !host->chan_rx) {
+=======
+			if (!host->dma_on) {
+>>>>>>> upstream/android-13
 				tmio_mmc_enable_mmc_irqs(host, TMIO_MASK_READOP);
 			} else {
 				tmio_mmc_disable_mmc_irqs(host,
@@ -641,7 +739,11 @@ static void tmio_mmc_cmd_irq(struct tmio_mmc_host *host, unsigned int stat)
 				tasklet_schedule(&host->dma_issue);
 			}
 		} else {
+<<<<<<< HEAD
 			if (host->force_pio || !host->chan_tx) {
+=======
+			if (!host->dma_on) {
+>>>>>>> upstream/android-13
 				tmio_mmc_enable_mmc_irqs(host, TMIO_MASK_WRITEOP);
 			} else {
 				tmio_mmc_disable_mmc_irqs(host,
@@ -774,7 +876,11 @@ static int tmio_mmc_start_data(struct tmio_mmc_host *host,
 
 	tmio_mmc_init_sg(host, data);
 	host->data = data;
+<<<<<<< HEAD
 	host->force_pio = false;
+=======
+	host->dma_on = false;
+>>>>>>> upstream/android-13
 
 	/* Set transfer length / blocksize */
 	sd_ctrl_write16(host, CTL_SD_XFER_LEN, data->blksz);
@@ -788,6 +894,7 @@ static int tmio_mmc_start_data(struct tmio_mmc_host *host,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void tmio_mmc_hw_reset(struct mmc_host *mmc)
 {
 	struct tmio_mmc_host *host = mmc_priv(mmc);
@@ -841,6 +948,8 @@ out:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void tmio_process_mrq(struct tmio_mmc_host *host,
 			     struct mmc_request *mrq)
 {
@@ -906,6 +1015,11 @@ static void tmio_mmc_finish_request(struct tmio_mmc_host *host)
 
 	spin_lock_irqsave(&host->lock, flags);
 
+<<<<<<< HEAD
+=======
+	tmio_mmc_end_dma(host);
+
+>>>>>>> upstream/android-13
 	mrq = host->mrq;
 	if (IS_ERR_OR_NULL(mrq)) {
 		spin_unlock_irqrestore(&host->lock, flags);
@@ -923,11 +1037,21 @@ static void tmio_mmc_finish_request(struct tmio_mmc_host *host)
 
 	spin_unlock_irqrestore(&host->lock, flags);
 
+<<<<<<< HEAD
 	if (mrq->cmd->error || (mrq->data && mrq->data->error))
 		tmio_mmc_abort_dma(host);
 
 	/* SCC error means retune, but executed command was still successful */
 	if (host->check_scc_error && host->check_scc_error(host))
+=======
+	if (mrq->cmd->error || (mrq->data && mrq->data->error)) {
+		tmio_mmc_ack_mmc_irqs(host, TMIO_MASK_IRQ); /* Clear all */
+		tmio_mmc_abort_dma(host);
+	}
+
+	/* Error means retune, but executed command was still successful */
+	if (host->check_retune && host->check_retune(host, mrq))
+>>>>>>> upstream/android-13
 		mmc_retune_needed(host->mmc);
 
 	/* If SET_BLOCK_COUNT, continue with main command */
@@ -936,6 +1060,12 @@ static void tmio_mmc_finish_request(struct tmio_mmc_host *host)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if (host->fixup_request)
+		host->fixup_request(host, mrq);
+
+>>>>>>> upstream/android-13
 	mmc_request_done(host->mmc, mrq);
 }
 
@@ -994,6 +1124,7 @@ static void tmio_mmc_power_off(struct tmio_mmc_host *host)
 		host->set_pwr(host->pdev, 0);
 }
 
+<<<<<<< HEAD
 static void tmio_mmc_set_bus_width(struct tmio_mmc_host *host,
 				   unsigned char bus_width)
 {
@@ -1007,6 +1138,22 @@ static void tmio_mmc_set_bus_width(struct tmio_mmc_host *host,
 		reg |= CARD_OPT_WIDTH8;
 
 	sd_ctrl_write16(host, CTL_SD_MEM_CARD_OPT, reg);
+=======
+static unsigned int tmio_mmc_get_timeout_cycles(struct tmio_mmc_host *host)
+{
+	u16 val = sd_ctrl_read16(host, CTL_SD_MEM_CARD_OPT);
+
+	val = (val & CARD_OPT_TOP_MASK) >> CARD_OPT_TOP_SHIFT;
+	return 1 << (13 + val);
+}
+
+static void tmio_mmc_max_busy_timeout(struct tmio_mmc_host *host)
+{
+	unsigned int clk_rate = host->mmc->actual_clock ?: host->mmc->f_max;
+
+	host->mmc->max_busy_timeout = host->get_timeout_cycles(host) /
+				      (clk_rate / MSEC_PER_SEC);
+>>>>>>> upstream/android-13
 }
 
 /* Set MMC clock / power.
@@ -1051,6 +1198,7 @@ static void tmio_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	switch (ios->power_mode) {
 	case MMC_POWER_OFF:
 		tmio_mmc_power_off(host);
+<<<<<<< HEAD
 		tmio_mmc_clk_stop(host);
 		break;
 	case MMC_POWER_UP:
@@ -1060,10 +1208,31 @@ static void tmio_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		break;
 	case MMC_POWER_ON:
 		tmio_mmc_set_clock(host, ios->clock);
+=======
+		/* For R-Car Gen2+, we need to reset SDHI specific SCC */
+		if (host->pdata->flags & TMIO_MMC_MIN_RCAR2)
+			tmio_mmc_reset(host);
+
+		host->set_clock(host, 0);
+		break;
+	case MMC_POWER_UP:
+		tmio_mmc_power_on(host, ios->vdd);
+		host->set_clock(host, ios->clock);
+		tmio_mmc_set_bus_width(host, ios->bus_width);
+		break;
+	case MMC_POWER_ON:
+		host->set_clock(host, ios->clock);
+>>>>>>> upstream/android-13
 		tmio_mmc_set_bus_width(host, ios->bus_width);
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	if (host->pdata->flags & TMIO_MMC_USE_BUSY_TIMEOUT)
+		tmio_mmc_max_busy_timeout(host);
+
+>>>>>>> upstream/android-13
 	/* Let things settle. delay taken from winCE driver */
 	usleep_range(140, 200);
 	if (PTR_ERR(host->mrq) == -EINTR)
@@ -1105,6 +1274,7 @@ static int tmio_multi_io_quirk(struct mmc_card *card,
 	return blk_size;
 }
 
+<<<<<<< HEAD
 static int tmio_mmc_prepare_hs400_tuning(struct mmc_host *mmc,
 					 struct mmc_ios *ios)
 {
@@ -1133,17 +1303,23 @@ static void tmio_mmc_hs400_complete(struct mmc_host *mmc)
 }
 
 static const struct mmc_host_ops tmio_mmc_ops = {
+=======
+static struct mmc_host_ops tmio_mmc_ops = {
+>>>>>>> upstream/android-13
 	.request	= tmio_mmc_request,
 	.set_ios	= tmio_mmc_set_ios,
 	.get_ro         = tmio_mmc_get_ro,
 	.get_cd		= tmio_mmc_get_cd,
 	.enable_sdio_irq = tmio_mmc_enable_sdio_irq,
 	.multi_io_quirk	= tmio_multi_io_quirk,
+<<<<<<< HEAD
 	.hw_reset	= tmio_mmc_hw_reset,
 	.execute_tuning = tmio_mmc_execute_tuning,
 	.prepare_hs400_tuning = tmio_mmc_prepare_hs400_tuning,
 	.hs400_downgrade = tmio_mmc_hs400_downgrade,
 	.hs400_complete	= tmio_mmc_hs400_complete,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int tmio_mmc_init_ocr(struct tmio_mmc_host *host)
@@ -1158,7 +1334,11 @@ static int tmio_mmc_init_ocr(struct tmio_mmc_host *host)
 
 	/* use ocr_mask if no regulator */
 	if (!mmc->ocr_avail)
+<<<<<<< HEAD
 		mmc->ocr_avail =  pdata->ocr_mask;
+=======
+		mmc->ocr_avail = pdata->ocr_mask;
+>>>>>>> upstream/android-13
 
 	/*
 	 * try again.
@@ -1192,12 +1372,19 @@ struct tmio_mmc_host *tmio_mmc_host_alloc(struct platform_device *pdev,
 {
 	struct tmio_mmc_host *host;
 	struct mmc_host *mmc;
+<<<<<<< HEAD
 	struct resource *res;
 	void __iomem *ctl;
 	int ret;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ctl = devm_ioremap_resource(&pdev->dev, res);
+=======
+	void __iomem *ctl;
+	int ret;
+
+	ctl = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ctl))
 		return ERR_CAST(ctl);
 
@@ -1245,7 +1432,11 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 	int ret;
 
 	/*
+<<<<<<< HEAD
 	 * Check the sanity of mmc->f_min to prevent tmio_mmc_set_clock() from
+=======
+	 * Check the sanity of mmc->f_min to prevent host->set_clock() from
+>>>>>>> upstream/android-13
 	 * looping forever...
 	 */
 	if (mmc->f_min == 0)
@@ -1254,13 +1445,21 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 	if (!(pdata->flags & TMIO_MMC_HAS_IDLE_WAIT))
 		_host->write16_hook = NULL;
 
+<<<<<<< HEAD
 	_host->set_pwr = pdata->set_pwr;
 	_host->set_clk_div = pdata->set_clk_div;
+=======
+	if (pdata->flags & TMIO_MMC_USE_BUSY_TIMEOUT && !_host->get_timeout_cycles)
+		_host->get_timeout_cycles = tmio_mmc_get_timeout_cycles;
+
+	_host->set_pwr = pdata->set_pwr;
+>>>>>>> upstream/android-13
 
 	ret = tmio_mmc_init_ocr(_host);
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	if (pdata->flags & TMIO_MMC_USE_GPIO_CD) {
 		ret = mmc_gpio_request_cd(mmc, pdata->cd_gpio, 0);
 		if (ret)
@@ -1286,6 +1485,25 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 		if (mmc->max_req_size > max_size)
 			mmc->max_req_size = max_size;
 	}
+=======
+	/*
+	 * Look for a card detect GPIO, if it fails with anything
+	 * else than a probe deferral, just live without it.
+	 */
+	ret = mmc_gpiod_request_cd(mmc, "cd", 0, false, 0);
+	if (ret == -EPROBE_DEFER)
+		return ret;
+
+	mmc->caps |= MMC_CAP_4_BIT_DATA | pdata->capabilities;
+	mmc->caps2 |= pdata->capabilities2;
+	mmc->max_segs = pdata->max_segs ? : 32;
+	mmc->max_blk_size = TMIO_MAX_BLK_SIZE;
+	mmc->max_blk_count = pdata->max_blk_count ? :
+		(PAGE_SIZE / mmc->max_blk_size) * mmc->max_segs;
+	mmc->max_req_size = min_t(size_t,
+				  mmc->max_blk_size * mmc->max_blk_count,
+				  dma_max_mapping_size(&pdev->dev));
+>>>>>>> upstream/android-13
 	mmc->max_seg_size = mmc->max_req_size;
 
 	if (mmc_can_gpio_ro(mmc))
@@ -1294,11 +1512,16 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 	if (mmc_can_gpio_cd(mmc))
 		_host->ops.get_cd = mmc_gpio_get_cd;
 
+<<<<<<< HEAD
+=======
+	/* must be set before tmio_mmc_reset() */
+>>>>>>> upstream/android-13
 	_host->native_hotplug = !(mmc_can_gpio_cd(mmc) ||
 				  mmc->caps & MMC_CAP_NEEDS_POLL ||
 				  !mmc_card_is_removable(mmc));
 
 	/*
+<<<<<<< HEAD
 	 * On Gen2+, eMMC with NONREMOVABLE currently fails because native
 	 * hotplug gets disabled. It seems RuntimePM related yet we need further
 	 * research. Since we are planning a PM overhaul anyway, let's enforce
@@ -1308,6 +1531,8 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 		_host->native_hotplug = true;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * While using internal tmio hardware logic for card detection, we need
 	 * to ensure it stays powered for it to work.
 	 */
@@ -1318,6 +1543,7 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 	if (pdata->flags & TMIO_MMC_SDIO_IRQ)
 		_host->sdio_irq_mask = TMIO_SDIO_MASK_ALL;
 
+<<<<<<< HEAD
 	tmio_mmc_clk_stop(_host);
 	tmio_mmc_reset(_host);
 
@@ -1328,6 +1554,14 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 		tmio_mmc_enable_mmc_irqs(_host,
 				TMIO_STAT_CARD_REMOVE | TMIO_STAT_CARD_INSERT);
 
+=======
+	if (!_host->sdcard_irq_mask_all)
+		_host->sdcard_irq_mask_all = TMIO_MASK_ALL;
+
+	_host->set_clock(_host, 0);
+	tmio_mmc_reset(_host);
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&_host->lock);
 	mutex_init(&_host->ios_lock);
 
@@ -1338,6 +1572,10 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 	/* See if we also get DMA */
 	tmio_mmc_request_dma(_host, pdata);
 
+<<<<<<< HEAD
+=======
+	pm_runtime_get_noresume(&pdev->dev);
+>>>>>>> upstream/android-13
 	pm_runtime_set_active(&pdev->dev);
 	pm_runtime_set_autosuspend_delay(&pdev->dev, 50);
 	pm_runtime_use_autosuspend(&pdev->dev);
@@ -1348,10 +1586,18 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
 		goto remove_host;
 
 	dev_pm_qos_expose_latency_limit(&pdev->dev, 100);
+<<<<<<< HEAD
+=======
+	pm_runtime_put(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 
 remove_host:
+<<<<<<< HEAD
+=======
+	pm_runtime_put_noidle(&pdev->dev);
+>>>>>>> upstream/android-13
 	tmio_mmc_host_remove(_host);
 	return ret;
 }
@@ -1362,21 +1608,40 @@ void tmio_mmc_host_remove(struct tmio_mmc_host *host)
 	struct platform_device *pdev = host->pdev;
 	struct mmc_host *mmc = host->mmc;
 
+<<<<<<< HEAD
 	if (host->pdata->flags & TMIO_MMC_SDIO_IRQ)
 		sd_ctrl_write16(host, CTL_TRANSACTION_CTL, 0x0000);
 
 	if (!host->native_hotplug)
 		pm_runtime_get_sync(&pdev->dev);
 
+=======
+	pm_runtime_get_sync(&pdev->dev);
+
+	if (host->pdata->flags & TMIO_MMC_SDIO_IRQ)
+		sd_ctrl_write16(host, CTL_TRANSACTION_CTL, 0x0000);
+
+>>>>>>> upstream/android-13
 	dev_pm_qos_hide_latency_limit(&pdev->dev);
 
 	mmc_remove_host(mmc);
 	cancel_work_sync(&host->done);
 	cancel_delayed_work_sync(&host->delayed_reset_work);
 	tmio_mmc_release_dma(host);
+<<<<<<< HEAD
 
 	pm_runtime_put_sync(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
+=======
+	tmio_mmc_disable_mmc_irqs(host, host->sdcard_irq_mask_all);
+
+	if (host->native_hotplug)
+		pm_runtime_put_noidle(&pdev->dev);
+
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_dont_use_autosuspend(&pdev->dev);
+	pm_runtime_put_noidle(&pdev->dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(tmio_mmc_host_remove);
 
@@ -1399,10 +1664,17 @@ int tmio_mmc_host_runtime_suspend(struct device *dev)
 {
 	struct tmio_mmc_host *host = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	tmio_mmc_disable_mmc_irqs(host, TMIO_MASK_ALL);
 
 	if (host->clk_cache)
 		tmio_mmc_clk_stop(host);
+=======
+	tmio_mmc_disable_mmc_irqs(host, host->sdcard_irq_mask_all);
+
+	if (host->clk_cache)
+		host->set_clock(host, 0);
+>>>>>>> upstream/android-13
 
 	tmio_mmc_clk_disable(host);
 
@@ -1410,15 +1682,19 @@ int tmio_mmc_host_runtime_suspend(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(tmio_mmc_host_runtime_suspend);
 
+<<<<<<< HEAD
 static bool tmio_mmc_can_retune(struct tmio_mmc_host *host)
 {
 	return host->tap_num && mmc_can_retune(host->mmc);
 }
 
+=======
+>>>>>>> upstream/android-13
 int tmio_mmc_host_runtime_resume(struct device *dev)
 {
 	struct tmio_mmc_host *host = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	tmio_mmc_reset(host);
 	tmio_mmc_clk_enable(host);
 
@@ -1434,6 +1710,16 @@ int tmio_mmc_host_runtime_resume(struct device *dev)
 	if (tmio_mmc_can_retune(host) && host->select_tuning(host))
 		dev_warn(&host->pdev->dev, "Tuning selection failed\n");
 
+=======
+	tmio_mmc_clk_enable(host);
+	tmio_mmc_reset(host);
+
+	if (host->clk_cache)
+		host->set_clock(host, host->clk_cache);
+
+	tmio_mmc_enable_dma(host, true);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(tmio_mmc_host_runtime_resume);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Copyright (C) 2015 Boris Barbulovski <bbarbulovski@gmail.com>
@@ -25,14 +26,39 @@
 #include <qmessagebox.h>
 #include <qregexp.h>
 #include <qevent.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+ * Copyright (C) 2015 Boris Barbulovski <bbarbulovski@gmail.com>
+ */
+
+#include <QAction>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QDebug>
+#include <QDesktopWidget>
+#include <QFileDialog>
+#include <QLabel>
+#include <QLayout>
+#include <QList>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QToolBar>
+>>>>>>> upstream/android-13
 
 #include <stdlib.h>
 
 #include "lkc.h"
 #include "qconf.h"
 
+<<<<<<< HEAD
 #include "qconf.moc"
 #include "images.c"
+=======
+#include "images.h"
+>>>>>>> upstream/android-13
 
 
 static QApplication *configApp;
@@ -40,11 +66,14 @@ static ConfigSettings *configSettings;
 
 QAction *ConfigMainWindow::saveAction;
 
+<<<<<<< HEAD
 static inline QString qgettext(const char* str)
 {
 	return QString::fromLocal8Bit(str);
 }
 
+=======
+>>>>>>> upstream/android-13
 ConfigSettings::ConfigSettings()
 	: QSettings("kernel.org", "qconf")
 {
@@ -88,6 +117,7 @@ bool ConfigSettings::writeSizes(const QString& key, const QList<int>& value)
 	return true;
 }
 
+<<<<<<< HEAD
 
 /*
  * set the new data
@@ -96,6 +126,15 @@ bool ConfigSettings::writeSizes(const QString& key, const QList<int>& value)
 void ConfigItem::okRename(int col)
 {
 }
+=======
+QIcon ConfigItem::symbolYesIcon;
+QIcon ConfigItem::symbolModIcon;
+QIcon ConfigItem::symbolNoIcon;
+QIcon ConfigItem::choiceYesIcon;
+QIcon ConfigItem::choiceNoIcon;
+QIcon ConfigItem::menuIcon;
+QIcon ConfigItem::menubackIcon;
+>>>>>>> upstream/android-13
 
 /*
  * update the displayed of a menu entry
@@ -111,14 +150,22 @@ void ConfigItem::updateMenu(void)
 
 	list = listView();
 	if (goParent) {
+<<<<<<< HEAD
 		setPixmap(promptColIdx, list->menuBackPix);
+=======
+		setIcon(promptColIdx, menubackIcon);
+>>>>>>> upstream/android-13
 		prompt = "..";
 		goto set_prompt;
 	}
 
 	sym = menu->sym;
 	prop = menu->prompt;
+<<<<<<< HEAD
 	prompt = qgettext(menu_get_prompt(menu));
+=======
+	prompt = menu_get_prompt(menu);
+>>>>>>> upstream/android-13
 
 	if (prop) switch (prop->type) {
 	case P_MENU:
@@ -128,6 +175,7 @@ void ConfigItem::updateMenu(void)
 			 */
 			if (sym && list->rootEntry == menu)
 				break;
+<<<<<<< HEAD
 			setPixmap(promptColIdx, list->menuPix);
 		} else {
 			if (sym)
@@ -137,6 +185,18 @@ void ConfigItem::updateMenu(void)
 		goto set_prompt;
 	case P_COMMENT:
 		setPixmap(promptColIdx, QIcon());
+=======
+			setIcon(promptColIdx, menuIcon);
+		} else {
+			if (sym)
+				break;
+			setIcon(promptColIdx, QIcon());
+		}
+		goto set_prompt;
+	case P_COMMENT:
+		setIcon(promptColIdx, QIcon());
+		prompt = "*** " + prompt + " ***";
+>>>>>>> upstream/android-13
 		goto set_prompt;
 	default:
 		;
@@ -144,7 +204,11 @@ void ConfigItem::updateMenu(void)
 	if (!sym)
 		goto set_prompt;
 
+<<<<<<< HEAD
 	setText(nameColIdx, QString::fromLocal8Bit(sym->name));
+=======
+	setText(nameColIdx, sym->name);
+>>>>>>> upstream/android-13
 
 	type = sym_get_type(sym);
 	switch (type) {
@@ -152,17 +216,23 @@ void ConfigItem::updateMenu(void)
 	case S_TRISTATE:
 		char ch;
 
+<<<<<<< HEAD
 		if (!sym_is_changable(sym) && list->optMode == normalOpt) {
 			setPixmap(promptColIdx, QIcon());
 			setText(noColIdx, QString::null);
 			setText(modColIdx, QString::null);
 			setText(yesColIdx, QString::null);
+=======
+		if (!sym_is_changeable(sym) && list->optMode == normalOpt) {
+			setIcon(promptColIdx, QIcon());
+>>>>>>> upstream/android-13
 			break;
 		}
 		expr = sym_get_tristate_value(sym);
 		switch (expr) {
 		case yes:
 			if (sym_is_choice_value(sym) && type == S_BOOLEAN)
+<<<<<<< HEAD
 				setPixmap(promptColIdx, list->choiceYesPix);
 			else
 				setPixmap(promptColIdx, list->symbolYesPix);
@@ -172,10 +242,20 @@ void ConfigItem::updateMenu(void)
 		case mod:
 			setPixmap(promptColIdx, list->symbolModPix);
 			setText(modColIdx, "M");
+=======
+				setIcon(promptColIdx, choiceYesIcon);
+			else
+				setIcon(promptColIdx, symbolYesIcon);
+			ch = 'Y';
+			break;
+		case mod:
+			setIcon(promptColIdx, symbolModIcon);
+>>>>>>> upstream/android-13
 			ch = 'M';
 			break;
 		default:
 			if (sym_is_choice_value(sym) && type == S_BOOLEAN)
+<<<<<<< HEAD
 				setPixmap(promptColIdx, list->choiceNoPix);
 			else
 				setPixmap(promptColIdx, list->symbolNoPix);
@@ -189,12 +269,21 @@ void ConfigItem::updateMenu(void)
 			setText(modColIdx, sym_tristate_within_range(sym, mod) ? "_" : 0);
 		if (expr != yes)
 			setText(yesColIdx, sym_tristate_within_range(sym, yes) ? "_" : 0);
+=======
+				setIcon(promptColIdx, choiceNoIcon);
+			else
+				setIcon(promptColIdx, symbolNoIcon);
+			ch = 'N';
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		setText(dataColIdx, QChar(ch));
 		break;
 	case S_INT:
 	case S_HEX:
 	case S_STRING:
+<<<<<<< HEAD
 		const char* data;
 
 		data = sym_get_string_value(sym);
@@ -204,6 +293,9 @@ void ConfigItem::updateMenu(void)
 			prompt = QString("%1: %2").arg(prompt).arg(data);
 		else
 			prompt = QString("(%2) %1").arg(prompt).arg(data);
+=======
+		setText(dataColIdx, sym_get_string_value(sym));
+>>>>>>> upstream/android-13
 		break;
 	}
 	if (!sym_has_value(sym) && visible)
@@ -244,6 +336,20 @@ void ConfigItem::init(void)
 		if (list->mode != fullMode)
 			setExpanded(true);
 		sym_calc_value(menu->sym);
+<<<<<<< HEAD
+=======
+
+		if (menu->sym) {
+			enum symbol_type type = menu->sym->type;
+
+			// Allow to edit "int", "hex", and "string" in-place in
+			// the data column. Unfortunately, you cannot specify
+			// the flags per column. Set ItemIsEditable for all
+			// columns here, and check the column in createEditor().
+			if (type == S_INT || type == S_HEX || type == S_STRING)
+				setFlags(flags() | Qt::ItemIsEditable);
+		}
+>>>>>>> upstream/android-13
 	}
 	updateMenu();
 }
@@ -264,6 +370,7 @@ ConfigItem::~ConfigItem(void)
 	}
 }
 
+<<<<<<< HEAD
 ConfigLineEdit::ConfigLineEdit(ConfigView* parent)
 	: Parent(parent)
 {
@@ -311,6 +418,69 @@ ConfigList::ConfigList(ConfigView* p, const char *name)
 {
 	int i;
 
+=======
+QWidget *ConfigItemDelegate::createEditor(QWidget *parent,
+					  const QStyleOptionViewItem &option,
+					  const QModelIndex &index) const
+{
+	ConfigItem *item;
+
+	// Only the data column is editable
+	if (index.column() != dataColIdx)
+		return nullptr;
+
+	// You cannot edit invisible menus
+	item = static_cast<ConfigItem *>(index.internalPointer());
+	if (!item || !item->menu || !menu_is_visible(item->menu))
+		return nullptr;
+
+	return QStyledItemDelegate::createEditor(parent, option, index);
+}
+
+void ConfigItemDelegate::setModelData(QWidget *editor,
+				      QAbstractItemModel *model,
+				      const QModelIndex &index) const
+{
+	QLineEdit *lineEdit;
+	ConfigItem *item;
+	struct symbol *sym;
+	bool success;
+
+	lineEdit = qobject_cast<QLineEdit *>(editor);
+	// If this is not a QLineEdit, use the parent's default.
+	// (does this happen?)
+	if (!lineEdit)
+		goto parent;
+
+	item = static_cast<ConfigItem *>(index.internalPointer());
+	if (!item || !item->menu)
+		goto parent;
+
+	sym = item->menu->sym;
+	if (!sym)
+		goto parent;
+
+	success = sym_set_string_value(sym, lineEdit->text().toUtf8().data());
+	if (success) {
+		ConfigList::updateListForAll();
+	} else {
+		QMessageBox::information(editor, "qconf",
+			"Cannot set the data (maybe due to out of range).\n"
+			"Setting the old value.");
+		lineEdit->setText(sym_get_string_value(sym));
+	}
+
+parent:
+	QStyledItemDelegate::setModelData(editor, model, index);
+}
+
+ConfigList::ConfigList(QWidget *parent, const char *name)
+	: QTreeWidget(parent),
+	  updateAll(false),
+	  showName(false), mode(singleMode), optMode(normalOpt),
+	  rootEntry(0), headerPopup(0)
+{
+>>>>>>> upstream/android-13
 	setObjectName(name);
 	setSortingEnabled(false);
 	setRootIsDecorated(true);
@@ -318,14 +488,22 @@ ConfigList::ConfigList(ConfigView* p, const char *name)
 	setVerticalScrollMode(ScrollPerPixel);
 	setHorizontalScrollMode(ScrollPerPixel);
 
+<<<<<<< HEAD
 	setHeaderLabels(QStringList() << "Option" << "Name" << "N" << "M" << "Y" << "Value");
 
 	connect(this, SIGNAL(itemSelectionChanged(void)),
 		SLOT(updateSelection(void)));
+=======
+	setHeaderLabels(QStringList() << "Option" << "Name" << "Value");
+
+	connect(this, &ConfigList::itemSelectionChanged,
+		this, &ConfigList::updateSelection);
+>>>>>>> upstream/android-13
 
 	if (name) {
 		configSettings->beginGroup(name);
 		showName = configSettings->value("/showName", false).toBool();
+<<<<<<< HEAD
 		showRange = configSettings->value("/showRange", false).toBool();
 		showData = configSettings->value("/showData", false).toBool();
 		optMode = (enum optionMode)configSettings->value("/optionMode", 0).toInt();
@@ -334,10 +512,31 @@ ConfigList::ConfigList(ConfigView* p, const char *name)
 	}
 
 	addColumn(promptColIdx);
+=======
+		optMode = (enum optionMode)configSettings->value("/optionMode", 0).toInt();
+		configSettings->endGroup();
+		connect(configApp, &QApplication::aboutToQuit,
+			this, &ConfigList::saveSettings);
+	}
+
+	showColumn(promptColIdx);
+
+	setItemDelegate(new ConfigItemDelegate(this));
+
+	allLists.append(this);
+>>>>>>> upstream/android-13
 
 	reinit();
 }
 
+<<<<<<< HEAD
+=======
+ConfigList::~ConfigList()
+{
+	allLists.removeOne(this);
+}
+
+>>>>>>> upstream/android-13
 bool ConfigList::menuSkip(struct menu *menu)
 {
 	if (optMode == normalOpt && menu_is_visible(menu))
@@ -351,6 +550,7 @@ bool ConfigList::menuSkip(struct menu *menu)
 
 void ConfigList::reinit(void)
 {
+<<<<<<< HEAD
 	removeColumn(dataColIdx);
 	removeColumn(yesColIdx);
 	removeColumn(modColIdx);
@@ -366,6 +566,24 @@ void ConfigList::reinit(void)
 	}
 	if (showData)
 		addColumn(dataColIdx);
+=======
+	hideColumn(nameColIdx);
+
+	if (showName)
+		showColumn(nameColIdx);
+
+	updateListAll();
+}
+
+void ConfigList::setOptionMode(QAction *action)
+{
+	if (action == showNormalAction)
+		optMode = normalOpt;
+	else if (action == showAllAction)
+		optMode = allOpt;
+	else
+		optMode = promptOpt;
+>>>>>>> upstream/android-13
 
 	updateListAll();
 }
@@ -375,8 +593,11 @@ void ConfigList::saveSettings(void)
 	if (!objectName().isEmpty()) {
 		configSettings->beginGroup(objectName());
 		configSettings->setValue("/showName", showName);
+<<<<<<< HEAD
 		configSettings->setValue("/showRange", showRange);
 		configSettings->setValue("/showData", showData);
+=======
+>>>>>>> upstream/android-13
 		configSettings->setValue("/optionMode", (int)optMode);
 		configSettings->endGroup();
 	}
@@ -415,15 +636,25 @@ void ConfigList::updateSelection(void)
 		emit menuSelected(menu);
 }
 
+<<<<<<< HEAD
 void ConfigList::updateList(ConfigItem* item)
 {
 	ConfigItem* last = 0;
+=======
+void ConfigList::updateList()
+{
+	ConfigItem* last = 0;
+	ConfigItem *item;
+>>>>>>> upstream/android-13
 
 	if (!rootEntry) {
 		if (mode != listMode)
 			goto update;
 		QTreeWidgetItemIterator it(this);
+<<<<<<< HEAD
 		ConfigItem* item;
+=======
+>>>>>>> upstream/android-13
 
 		while (*it) {
 			item = (ConfigItem*)(*it);
@@ -445,7 +676,11 @@ void ConfigList::updateList(ConfigItem* item)
 	}
 	if ((mode == singleMode || (mode == symbolMode && !(rootEntry->flags & MENU_ROOT))) &&
 	    rootEntry->sym && rootEntry->prompt) {
+<<<<<<< HEAD
 		item = last ? last->nextSibling() : firstChild();
+=======
+		item = last ? last->nextSibling() : nullptr;
+>>>>>>> upstream/android-13
 		if (!item)
 			item = new ConfigItem(this, last, rootEntry, true);
 		else
@@ -457,11 +692,40 @@ void ConfigList::updateList(ConfigItem* item)
 		return;
 	}
 update:
+<<<<<<< HEAD
 	updateMenuList(this, rootEntry);
+=======
+	updateMenuList(rootEntry);
+>>>>>>> upstream/android-13
 	update();
 	resizeColumnToContents(0);
 }
 
+<<<<<<< HEAD
+=======
+void ConfigList::updateListForAll()
+{
+	QListIterator<ConfigList *> it(allLists);
+
+	while (it.hasNext()) {
+		ConfigList *list = it.next();
+
+		list->updateList();
+	}
+}
+
+void ConfigList::updateListAllForAll()
+{
+	QListIterator<ConfigList *> it(allLists);
+
+	while (it.hasNext()) {
+		ConfigList *list = it.next();
+
+		list->updateList();
+	}
+}
+
+>>>>>>> upstream/android-13
 void ConfigList::setValue(ConfigItem* item, tristate val)
 {
 	struct symbol* sym;
@@ -482,7 +746,11 @@ void ConfigList::setValue(ConfigItem* item, tristate val)
 			return;
 		if (oldval == no && item->menu->list)
 			item->setExpanded(true);
+<<<<<<< HEAD
 		parent()->updateList(item);
+=======
+		ConfigList::updateListForAll();
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -516,12 +784,18 @@ void ConfigList::changeValue(ConfigItem* item)
 				item->setExpanded(true);
 		}
 		if (oldexpr != newexpr)
+<<<<<<< HEAD
 			parent()->updateList(item);
 		break;
 	case S_INT:
 	case S_HEX:
 	case S_STRING:
 		parent()->lineEdit->show(item);
+=======
+			ConfigList::updateListForAll();
+		break;
+	default:
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -535,11 +809,19 @@ void ConfigList::setRootMenu(struct menu *menu)
 	type = menu && menu->prompt ? menu->prompt->type : P_UNKNOWN;
 	if (type != P_MENU)
 		return;
+<<<<<<< HEAD
 	updateMenuList(this, 0);
 	rootEntry = menu;
 	updateListAll();
 	if (currentItem()) {
 		currentItem()->setSelected(hasFocus());
+=======
+	updateMenuList(0);
+	rootEntry = menu;
+	updateListAll();
+	if (currentItem()) {
+		setSelected(currentItem(), hasFocus());
+>>>>>>> upstream/android-13
 		scrollToItem(currentItem());
 	}
 }
@@ -639,7 +921,11 @@ hide:
 	}
 }
 
+<<<<<<< HEAD
 void ConfigList::updateMenuList(ConfigList *parent, struct menu* menu)
+=======
+void ConfigList::updateMenuList(struct menu *menu)
+>>>>>>> upstream/android-13
 {
 	struct menu* child;
 	ConfigItem* item;
@@ -648,19 +934,33 @@ void ConfigList::updateMenuList(ConfigList *parent, struct menu* menu)
 	enum prop_type type;
 
 	if (!menu) {
+<<<<<<< HEAD
 		while (parent->topLevelItemCount() > 0)
 		{
 			delete parent->takeTopLevelItem(0);
+=======
+		while (topLevelItemCount() > 0)
+		{
+			delete takeTopLevelItem(0);
+>>>>>>> upstream/android-13
 		}
 
 		return;
 	}
 
+<<<<<<< HEAD
 	last = (ConfigItem*)parent->topLevelItem(0);
 	if (last && !last->goParent)
 		last = 0;
 	for (child = menu->list; child; child = child->next) {
 		item = last ? last->nextSibling() : (ConfigItem*)parent->topLevelItem(0);
+=======
+	last = (ConfigItem *)topLevelItem(0);
+	if (last && !last->goParent)
+		last = 0;
+	for (child = menu->list; child; child = child->next) {
+		item = last ? last->nextSibling() : (ConfigItem *)topLevelItem(0);
+>>>>>>> upstream/android-13
 		type = child->prompt ? child->prompt->type : P_UNKNOWN;
 
 		switch (mode) {
@@ -681,7 +981,11 @@ void ConfigList::updateMenuList(ConfigList *parent, struct menu* menu)
 			if (!child->sym && !child->list && !child->prompt)
 				continue;
 			if (!item || item->menu != child)
+<<<<<<< HEAD
 				item = new ConfigItem(parent, last, child, visible);
+=======
+				item = new ConfigItem(this, last, child, visible);
+>>>>>>> upstream/android-13
 			else
 				item->testUpdateMenu(visible);
 
@@ -694,7 +998,11 @@ void ConfigList::updateMenuList(ConfigList *parent, struct menu* menu)
 		}
 hide:
 		if (item && item->menu == child) {
+<<<<<<< HEAD
 			last = (ConfigItem*)parent->topLevelItem(0);
+=======
+			last = (ConfigItem *)topLevelItem(0);
+>>>>>>> upstream/android-13
 			if (last == item)
 				last = 0;
 			else while (last->nextSibling() != item)
@@ -736,7 +1044,14 @@ void ConfigList::keyPressEvent(QKeyEvent* ev)
 		type = menu->prompt ? menu->prompt->type : P_UNKNOWN;
 		if (type == P_MENU && rootEntry != menu &&
 		    mode != fullMode && mode != menuMode) {
+<<<<<<< HEAD
 			emit menuSelected(menu);
+=======
+			if (mode == menuMode)
+				emit menuSelected(menu);
+			else
+				emit itemSelected(menu);
+>>>>>>> upstream/android-13
 			break;
 		}
 	case Qt::Key_Space:
@@ -782,7 +1097,11 @@ void ConfigList::mouseReleaseEvent(QMouseEvent* e)
 	idx = header()->logicalIndexAt(x);
 	switch (idx) {
 	case promptColIdx:
+<<<<<<< HEAD
 		icon = item->pixmap(promptColIdx);
+=======
+		icon = item->icon(promptColIdx);
+>>>>>>> upstream/android-13
 		if (!icon.isNull()) {
 			int off = header()->sectionPosition(0) + visualRect(indexAt(p)).x() + 4; // 4 is Hardcoded image offset. There might be a way to do it properly.
 			if (x >= off && x < off + icon.availableSizes().first().width()) {
@@ -793,13 +1112,19 @@ void ConfigList::mouseReleaseEvent(QMouseEvent* e)
 					break;
 				ptype = menu->prompt ? menu->prompt->type : P_UNKNOWN;
 				if (ptype == P_MENU && rootEntry != menu &&
+<<<<<<< HEAD
 				    mode != fullMode && mode != menuMode)
+=======
+				    mode != fullMode && mode != menuMode &&
+                                    mode != listMode)
+>>>>>>> upstream/android-13
 					emit menuSelected(menu);
 				else
 					changeValue(item);
 			}
 		}
 		break;
+<<<<<<< HEAD
 	case noColIdx:
 		setValue(item, no);
 		break;
@@ -809,6 +1134,8 @@ void ConfigList::mouseReleaseEvent(QMouseEvent* e)
 	case yesColIdx:
 		setValue(item, yes);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case dataColIdx:
 		changeValue(item);
 		break;
@@ -828,7 +1155,11 @@ void ConfigList::mouseMoveEvent(QMouseEvent* e)
 
 void ConfigList::mouseDoubleClickEvent(QMouseEvent* e)
 {
+<<<<<<< HEAD
 	QPoint p = e->pos(); // TODO: Check if this works(was contentsToViewport).
+=======
+	QPoint p = e->pos();
+>>>>>>> upstream/android-13
 	ConfigItem* item = (ConfigItem*)itemAt(p);
 	struct menu *menu;
 	enum prop_type ptype;
@@ -843,9 +1174,18 @@ void ConfigList::mouseDoubleClickEvent(QMouseEvent* e)
 	if (!menu)
 		goto skip;
 	ptype = menu->prompt ? menu->prompt->type : P_UNKNOWN;
+<<<<<<< HEAD
 	if (ptype == P_MENU && (mode == singleMode || mode == symbolMode))
 		emit menuSelected(menu);
 	else if (menu->sym)
+=======
+	if (ptype == P_MENU && mode != listMode) {
+		if (mode == singleMode)
+			emit itemSelected(menu);
+		else if (mode == symbolMode)
+			emit menuSelected(menu);
+	} else if (menu->sym)
+>>>>>>> upstream/android-13
 		changeValue(item);
 
 skip:
@@ -861,7 +1201,11 @@ void ConfigList::focusInEvent(QFocusEvent *e)
 
 	ConfigItem* item = (ConfigItem *)currentItem();
 	if (item) {
+<<<<<<< HEAD
 		item->setSelected(true);
+=======
+		setSelected(item, true);
+>>>>>>> upstream/android-13
 		menu = item->menu;
 	}
 	emit gotFocus(menu);
@@ -875,6 +1219,7 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
 		headerPopup = new QMenu(this);
 		action = new QAction("Show Name", this);
 		action->setCheckable(true);
+<<<<<<< HEAD
 		connect(action, SIGNAL(toggled(bool)),
 			parent(), SLOT(setShowName(bool)));
 		connect(parent(), SIGNAL(showNameChanged(bool)),
@@ -899,12 +1244,21 @@ void ConfigList::contextMenuEvent(QContextMenuEvent *e)
 			action, SLOT(setChecked(bool)));
 		action->setChecked(showData);
 		headerPopup->addAction(action);
+=======
+		connect(action, &QAction::toggled,
+			this, &ConfigList::setShowName);
+		connect(this, &ConfigList::showNameChanged,
+			action, &QAction::setChecked);
+		action->setChecked(showName);
+		headerPopup->addAction(action);
+>>>>>>> upstream/android-13
 	}
 
 	headerPopup->exec(e->globalPos());
 	e->accept();
 }
 
+<<<<<<< HEAD
 ConfigView*ConfigView::viewList;
 QAction *ConfigView::showNormalAction;
 QAction *ConfigView::showAllAction;
@@ -977,6 +1331,22 @@ void ConfigView::setShowData(bool b)
 		emit showDataChanged(b);
 	}
 }
+=======
+void ConfigList::setShowName(bool on)
+{
+	if (showName == on)
+		return;
+
+	showName = on;
+	reinit();
+	emit showNameChanged(on);
+}
+
+QList<ConfigList *> ConfigList::allLists;
+QAction *ConfigList::showNormalAction;
+QAction *ConfigList::showAllAction;
+QAction *ConfigList::showPromptAction;
+>>>>>>> upstream/android-13
 
 void ConfigList::setAllOpen(bool open)
 {
@@ -989,6 +1359,7 @@ void ConfigList::setAllOpen(bool open)
 	}
 }
 
+<<<<<<< HEAD
 void ConfigView::updateList(ConfigItem* item)
 {
 	ConfigView* v;
@@ -1005,18 +1376,42 @@ void ConfigView::updateListAll(void)
 		v->list->updateListAll();
 }
 
+=======
+>>>>>>> upstream/android-13
 ConfigInfoView::ConfigInfoView(QWidget* parent, const char *name)
 	: Parent(parent), sym(0), _menu(0)
 {
 	setObjectName(name);
+<<<<<<< HEAD
 
+=======
+	setOpenLinks(false);
+>>>>>>> upstream/android-13
 
 	if (!objectName().isEmpty()) {
 		configSettings->beginGroup(objectName());
 		setShowDebug(configSettings->value("/showDebug", false).toBool());
 		configSettings->endGroup();
+<<<<<<< HEAD
 		connect(configApp, SIGNAL(aboutToQuit()), SLOT(saveSettings()));
 	}
+=======
+		connect(configApp, &QApplication::aboutToQuit,
+			this, &ConfigInfoView::saveSettings);
+	}
+
+	contextMenu = createStandardContextMenu();
+	QAction *action = new QAction("Show Debug Info", contextMenu);
+
+	action->setCheckable(true);
+	connect(action, &QAction::toggled,
+		this, &ConfigInfoView::setShowDebug);
+	connect(this, &ConfigInfoView::showDebugChanged,
+		action, &QAction::setChecked);
+	action->setChecked(showDebug());
+	contextMenu->addSeparator();
+	contextMenu->addAction(action);
+>>>>>>> upstream/android-13
 }
 
 void ConfigInfoView::saveSettings(void)
@@ -1071,11 +1466,17 @@ void ConfigInfoView::symbolInfo(void)
 void ConfigInfoView::menuInfo(void)
 {
 	struct symbol* sym;
+<<<<<<< HEAD
 	QString head, debug, help;
+=======
+	QString info;
+	QTextStream stream(&info);
+>>>>>>> upstream/android-13
 
 	sym = _menu->sym;
 	if (sym) {
 		if (_menu->prompt) {
+<<<<<<< HEAD
 			head += "<big><b>";
 			head += print_filter(_menu->prompt->text);
 			head += "</b></big>";
@@ -1122,11 +1523,63 @@ void ConfigInfoView::menuInfo(void)
 		debug += QString().sprintf("defined at %s:%d<br><br>", _menu->file->name, _menu->lineno);
 
 	setText(head + debug + help);
+=======
+			stream << "<big><b>";
+			stream << print_filter(_menu->prompt->text);
+			stream << "</b></big>";
+			if (sym->name) {
+				stream << " (";
+				if (showDebug())
+					stream << "<a href=\"s" << sym->name << "\">";
+				stream << print_filter(sym->name);
+				if (showDebug())
+					stream << "</a>";
+				stream << ")";
+			}
+		} else if (sym->name) {
+			stream << "<big><b>";
+			if (showDebug())
+				stream << "<a href=\"s" << sym->name << "\">";
+			stream << print_filter(sym->name);
+			if (showDebug())
+				stream << "</a>";
+			stream << "</b></big>";
+		}
+		stream << "<br><br>";
+
+		if (showDebug())
+			stream << debug_info(sym);
+
+		struct gstr help_gstr = str_new();
+
+		menu_get_ext_help(_menu, &help_gstr);
+		stream << print_filter(str_get(&help_gstr));
+		str_free(&help_gstr);
+	} else if (_menu->prompt) {
+		stream << "<big><b>";
+		stream << print_filter(_menu->prompt->text);
+		stream << "</b></big><br><br>";
+		if (showDebug()) {
+			if (_menu->prompt->visible.expr) {
+				stream << "&nbsp;&nbsp;dep: ";
+				expr_print(_menu->prompt->visible.expr,
+					   expr_print_help, &stream, E_NONE);
+				stream << "<br><br>";
+			}
+
+			stream << "defined at " << _menu->file->name << ":"
+			       << _menu->lineno << "<br><br>";
+		}
+	}
+
+	setText(info);
+>>>>>>> upstream/android-13
 }
 
 QString ConfigInfoView::debug_info(struct symbol *sym)
 {
 	QString debug;
+<<<<<<< HEAD
 
 	debug += "type: ";
 	debug += print_filter(sym_type_name(sym->type));
@@ -1137,18 +1590,38 @@ QString ConfigInfoView::debug_info(struct symbol *sym)
 		debug += "reverse dep: ";
 		expr_print(sym->rev_dep.expr, expr_print_help, &debug, E_NONE);
 		debug += "<br>";
+=======
+	QTextStream stream(&debug);
+
+	stream << "type: ";
+	stream << print_filter(sym_type_name(sym->type));
+	if (sym_is_choice(sym))
+		stream << " (choice)";
+	debug += "<br>";
+	if (sym->rev_dep.expr) {
+		stream << "reverse dep: ";
+		expr_print(sym->rev_dep.expr, expr_print_help, &stream, E_NONE);
+		stream << "<br>";
+>>>>>>> upstream/android-13
 	}
 	for (struct property *prop = sym->prop; prop; prop = prop->next) {
 		switch (prop->type) {
 		case P_PROMPT:
 		case P_MENU:
+<<<<<<< HEAD
 			debug += QString().sprintf("prompt: <a href=\"m%p\">", prop->menu);
 			debug += print_filter(prop->text);
 			debug += "</a><br>";
+=======
+			stream << "prompt: <a href=\"m" << sym->name << "\">";
+			stream << print_filter(prop->text);
+			stream << "</a><br>";
+>>>>>>> upstream/android-13
 			break;
 		case P_DEFAULT:
 		case P_SELECT:
 		case P_RANGE:
+<<<<<<< HEAD
 			debug += prop_get_type_name(prop->type);
 			debug += ": ";
 			expr_print(prop->expr, expr_print_help, &debug, E_NONE);
@@ -1173,6 +1646,38 @@ QString ConfigInfoView::debug_info(struct symbol *sym)
 		}
 	}
 	debug += "<br>";
+=======
+		case P_COMMENT:
+		case P_IMPLY:
+		case P_SYMBOL:
+			stream << prop_get_type_name(prop->type);
+			stream << ": ";
+			expr_print(prop->expr, expr_print_help,
+				   &stream, E_NONE);
+			stream << "<br>";
+			break;
+		case P_CHOICE:
+			if (sym_is_choice(sym)) {
+				stream << "choice: ";
+				expr_print(prop->expr, expr_print_help,
+					   &stream, E_NONE);
+				stream << "<br>";
+			}
+			break;
+		default:
+			stream << "unknown property: ";
+			stream << prop_get_type_name(prop->type);
+			stream << "<br>";
+		}
+		if (prop->visible.expr) {
+			stream << "&nbsp;&nbsp;&nbsp;&nbsp;dep: ";
+			expr_print(prop->visible.expr, expr_print_help,
+				   &stream, E_NONE);
+			stream << "<br>";
+		}
+	}
+	stream << "<br>";
+>>>>>>> upstream/android-13
 
 	return debug;
 }
@@ -1210,6 +1715,7 @@ QString ConfigInfoView::print_filter(const QString &str)
 
 void ConfigInfoView::expr_print_help(void *data, struct symbol *sym, const char *str)
 {
+<<<<<<< HEAD
 	QString* text = reinterpret_cast<QString*>(data);
 	QString str2 = print_filter(str);
 
@@ -1244,26 +1750,112 @@ ConfigSearchWindow::ConfigSearchWindow(ConfigMainWindow* parent, const char *nam
 	: Parent(parent), result(NULL)
 {
 	setObjectName(name);
+=======
+	QTextStream *stream = reinterpret_cast<QTextStream *>(data);
+
+	if (sym && sym->name && !(sym->flags & SYMBOL_CONST)) {
+		*stream << "<a href=\"s" << sym->name << "\">";
+		*stream << print_filter(str);
+		*stream << "</a>";
+	} else {
+		*stream << print_filter(str);
+	}
+}
+
+void ConfigInfoView::clicked(const QUrl &url)
+{
+	QByteArray str = url.toEncoded();
+	const std::size_t count = str.size();
+	char *data = new char[count + 1];
+	struct symbol **result;
+	struct menu *m = NULL;
+
+	if (count < 1) {
+		delete[] data;
+		return;
+	}
+
+	memcpy(data, str.constData(), count);
+	data[count] = '\0';
+
+	/* Seek for exact match */
+	data[0] = '^';
+	strcat(data, "$");
+	result = sym_re_search(data);
+	if (!result) {
+		delete[] data;
+		return;
+	}
+
+	sym = *result;
+
+	/* Seek for the menu which holds the symbol */
+	for (struct property *prop = sym->prop; prop; prop = prop->next) {
+		    if (prop->type != P_PROMPT && prop->type != P_MENU)
+			    continue;
+		    m = prop->menu;
+		    break;
+	}
+
+	if (!m) {
+		/* Symbol is not visible as a menu */
+		symbolInfo();
+		emit showDebugChanged(true);
+	} else {
+		emit menuSelected(m);
+	}
+
+	free(result);
+	delete[] data;
+}
+
+void ConfigInfoView::contextMenuEvent(QContextMenuEvent *event)
+{
+	contextMenu->popup(event->globalPos());
+	event->accept();
+}
+
+ConfigSearchWindow::ConfigSearchWindow(ConfigMainWindow *parent)
+	: Parent(parent), result(NULL)
+{
+	setObjectName("search");
+>>>>>>> upstream/android-13
 	setWindowTitle("Search Config");
 
 	QVBoxLayout* layout1 = new QVBoxLayout(this);
 	layout1->setContentsMargins(11, 11, 11, 11);
 	layout1->setSpacing(6);
+<<<<<<< HEAD
 	QHBoxLayout* layout2 = new QHBoxLayout(0);
+=======
+
+	QHBoxLayout* layout2 = new QHBoxLayout();
+>>>>>>> upstream/android-13
 	layout2->setContentsMargins(0, 0, 0, 0);
 	layout2->setSpacing(6);
 	layout2->addWidget(new QLabel("Find:", this));
 	editField = new QLineEdit(this);
+<<<<<<< HEAD
 	connect(editField, SIGNAL(returnPressed()), SLOT(search()));
 	layout2->addWidget(editField);
 	searchButton = new QPushButton("Search", this);
 	searchButton->setAutoDefault(false);
 	connect(searchButton, SIGNAL(clicked()), SLOT(search()));
+=======
+	connect(editField, &QLineEdit::returnPressed,
+		this, &ConfigSearchWindow::search);
+	layout2->addWidget(editField);
+	searchButton = new QPushButton("Search", this);
+	searchButton->setAutoDefault(false);
+	connect(searchButton, &QPushButton::clicked,
+		this, &ConfigSearchWindow::search);
+>>>>>>> upstream/android-13
 	layout2->addWidget(searchButton);
 	layout1->addLayout(layout2);
 
 	split = new QSplitter(this);
 	split->setOrientation(Qt::Vertical);
+<<<<<<< HEAD
 	list = new ConfigView(split, name);
 	list->list->mode = listMode;
 	info = new ConfigInfoView(split, name);
@@ -1293,6 +1885,36 @@ ConfigSearchWindow::ConfigSearchWindow(ConfigMainWindow* parent, const char *nam
 		configSettings->endGroup();
 		connect(configApp, SIGNAL(aboutToQuit()), SLOT(saveSettings()));
 	}
+=======
+	list = new ConfigList(split, "search");
+	list->mode = listMode;
+	info = new ConfigInfoView(split, "search");
+	connect(list, &ConfigList::menuChanged,
+		info, &ConfigInfoView::setInfo);
+	connect(list, &ConfigList::menuChanged,
+		parent, &ConfigMainWindow::setMenuLink);
+
+	layout1->addWidget(split);
+
+	QVariant x, y;
+	int width, height;
+	bool ok;
+
+	configSettings->beginGroup("search");
+	width = configSettings->value("/window width", parent->width() / 2).toInt();
+	height = configSettings->value("/window height", parent->height() / 2).toInt();
+	resize(width, height);
+	x = configSettings->value("/window x");
+	y = configSettings->value("/window y");
+	if (x.isValid() && y.isValid())
+		move(x.toInt(), y.toInt());
+	QList<int> sizes = configSettings->readSizes("/split", &ok);
+	if (ok)
+		split->setSizes(sizes);
+	configSettings->endGroup();
+	connect(configApp, &QApplication::aboutToQuit,
+		this, &ConfigSearchWindow::saveSettings);
+>>>>>>> upstream/android-13
 }
 
 void ConfigSearchWindow::saveSettings(void)
@@ -1315,7 +1937,11 @@ void ConfigSearchWindow::search(void)
 	ConfigItem *lastItem = NULL;
 
 	free(result);
+<<<<<<< HEAD
 	list->list->clear();
+=======
+	list->clear();
+>>>>>>> upstream/android-13
 	info->clear();
 
 	result = sym_re_search(editField->text().toLatin1());
@@ -1323,7 +1949,11 @@ void ConfigSearchWindow::search(void)
 		return;
 	for (p = result; *p; p++) {
 		for_all_prompts((*p), prop)
+<<<<<<< HEAD
 			lastItem = new ConfigItem(list->list, lastItem, prop->menu,
+=======
+			lastItem = new ConfigItem(list, lastItem, prop->menu,
+>>>>>>> upstream/android-13
 						  menu_is_visible(prop->menu));
 	}
 }
@@ -1334,7 +1964,10 @@ void ConfigSearchWindow::search(void)
 ConfigMainWindow::ConfigMainWindow(void)
 	: searchWindow(0)
 {
+<<<<<<< HEAD
 	QMenuBar* menu;
+=======
+>>>>>>> upstream/android-13
 	bool ok = true;
 	QVariant x, y;
 	int width, height;
@@ -1355,6 +1988,7 @@ ConfigMainWindow::ConfigMainWindow(void)
 	if ((x.isValid())&&(y.isValid()))
 		move(x.toInt(), y.toInt());
 
+<<<<<<< HEAD
 	split1 = new QSplitter(this);
 	split1->setOrientation(Qt::Horizontal);
 	setCentralWidget(split1);
@@ -1370,10 +2004,46 @@ ConfigMainWindow::ConfigMainWindow(void)
 	configList = configView->list;
 
 	helpText = new ConfigInfoView(split2, "help");
+=======
+	// set up icons
+	ConfigItem::symbolYesIcon = QIcon(QPixmap(xpm_symbol_yes));
+	ConfigItem::symbolModIcon = QIcon(QPixmap(xpm_symbol_mod));
+	ConfigItem::symbolNoIcon = QIcon(QPixmap(xpm_symbol_no));
+	ConfigItem::choiceYesIcon = QIcon(QPixmap(xpm_choice_yes));
+	ConfigItem::choiceNoIcon = QIcon(QPixmap(xpm_choice_no));
+	ConfigItem::menuIcon = QIcon(QPixmap(xpm_menu));
+	ConfigItem::menubackIcon = QIcon(QPixmap(xpm_menuback));
+
+	QWidget *widget = new QWidget(this);
+	QVBoxLayout *layout = new QVBoxLayout(widget);
+	setCentralWidget(widget);
+
+	split1 = new QSplitter(widget);
+	split1->setOrientation(Qt::Horizontal);
+	split1->setChildrenCollapsible(false);
+
+	menuList = new ConfigList(widget, "menu");
+
+	split2 = new QSplitter(widget);
+	split2->setChildrenCollapsible(false);
+	split2->setOrientation(Qt::Vertical);
+
+	// create config tree
+	configList = new ConfigList(widget, "config");
+
+	helpText = new ConfigInfoView(widget, "help");
+
+	layout->addWidget(split2);
+	split2->addWidget(split1);
+	split1->addWidget(configList);
+	split1->addWidget(menuList);
+	split2->addWidget(helpText);
+>>>>>>> upstream/android-13
 
 	setTabOrder(configList, helpText);
 	configList->setFocus();
 
+<<<<<<< HEAD
 	menu = menuBar();
 	toolBar = new QToolBar("Tools", this);
 	addToolBar(toolBar);
@@ -1444,6 +2114,88 @@ ConfigMainWindow::ConfigMainWindow(void)
 	  connect(showAboutAction, SIGNAL(triggered(bool)), SLOT(showAbout()));
 
 	// init tool bar
+=======
+	backAction = new QAction(QPixmap(xpm_back), "Back", this);
+	connect(backAction, &QAction::triggered,
+		this, &ConfigMainWindow::goBack);
+
+	QAction *quitAction = new QAction("&Quit", this);
+	quitAction->setShortcut(Qt::CTRL + Qt::Key_Q);
+	connect(quitAction, &QAction::triggered,
+		this, &ConfigMainWindow::close);
+
+	QAction *loadAction = new QAction(QPixmap(xpm_load), "&Load", this);
+	loadAction->setShortcut(Qt::CTRL + Qt::Key_L);
+	connect(loadAction, &QAction::triggered,
+		this, &ConfigMainWindow::loadConfig);
+
+	saveAction = new QAction(QPixmap(xpm_save), "&Save", this);
+	saveAction->setShortcut(Qt::CTRL + Qt::Key_S);
+	connect(saveAction, &QAction::triggered,
+		this, &ConfigMainWindow::saveConfig);
+
+	conf_set_changed_callback(conf_changed);
+
+	// Set saveAction's initial state
+	conf_changed();
+	configname = xstrdup(conf_get_configname());
+
+	QAction *saveAsAction = new QAction("Save &As...", this);
+	connect(saveAsAction, &QAction::triggered,
+		this, &ConfigMainWindow::saveConfigAs);
+	QAction *searchAction = new QAction("&Find", this);
+	searchAction->setShortcut(Qt::CTRL + Qt::Key_F);
+	connect(searchAction, &QAction::triggered,
+		this, &ConfigMainWindow::searchConfig);
+	singleViewAction = new QAction(QPixmap(xpm_single_view), "Single View", this);
+	singleViewAction->setCheckable(true);
+	connect(singleViewAction, &QAction::triggered,
+		this, &ConfigMainWindow::showSingleView);
+	splitViewAction = new QAction(QPixmap(xpm_split_view), "Split View", this);
+	splitViewAction->setCheckable(true);
+	connect(splitViewAction, &QAction::triggered,
+		this, &ConfigMainWindow::showSplitView);
+	fullViewAction = new QAction(QPixmap(xpm_tree_view), "Full View", this);
+	fullViewAction->setCheckable(true);
+	connect(fullViewAction, &QAction::triggered,
+		this, &ConfigMainWindow::showFullView);
+
+	QAction *showNameAction = new QAction("Show Name", this);
+	  showNameAction->setCheckable(true);
+	connect(showNameAction, &QAction::toggled,
+		configList, &ConfigList::setShowName);
+	showNameAction->setChecked(configList->showName);
+
+	QActionGroup *optGroup = new QActionGroup(this);
+	optGroup->setExclusive(true);
+	connect(optGroup, &QActionGroup::triggered,
+		configList, &ConfigList::setOptionMode);
+	connect(optGroup, &QActionGroup::triggered,
+		menuList, &ConfigList::setOptionMode);
+
+	ConfigList::showNormalAction = new QAction("Show Normal Options", optGroup);
+	ConfigList::showNormalAction->setCheckable(true);
+	ConfigList::showAllAction = new QAction("Show All Options", optGroup);
+	ConfigList::showAllAction->setCheckable(true);
+	ConfigList::showPromptAction = new QAction("Show Prompt Options", optGroup);
+	ConfigList::showPromptAction->setCheckable(true);
+
+	QAction *showDebugAction = new QAction("Show Debug Info", this);
+	  showDebugAction->setCheckable(true);
+	connect(showDebugAction, &QAction::toggled,
+		helpText, &ConfigInfoView::setShowDebug);
+	  showDebugAction->setChecked(helpText->showDebug());
+
+	QAction *showIntroAction = new QAction("Introduction", this);
+	connect(showIntroAction, &QAction::triggered,
+		this, &ConfigMainWindow::showIntro);
+	QAction *showAboutAction = new QAction("About", this);
+	connect(showAboutAction, &QAction::triggered,
+		this, &ConfigMainWindow::showAbout);
+
+	// init tool bar
+	QToolBar *toolBar = addToolBar("Tools");
+>>>>>>> upstream/android-13
 	toolBar->addAction(backAction);
 	toolBar->addSeparator();
 	toolBar->addAction(loadAction);
@@ -1453,6 +2205,7 @@ ConfigMainWindow::ConfigMainWindow(void)
 	toolBar->addAction(splitViewAction);
 	toolBar->addAction(fullViewAction);
 
+<<<<<<< HEAD
 	// create config menu
 	QMenu* config = menu->addMenu("&File");
 	config->addAction(loadAction);
@@ -1500,6 +2253,57 @@ ConfigMainWindow::ConfigMainWindow(void)
 		SLOT(listFocusChanged(void)));
 	connect(helpText, SIGNAL(menuSelected(struct menu *)),
 		SLOT(setMenuLink(struct menu *)));
+=======
+	// create file menu
+	QMenu *menu = menuBar()->addMenu("&File");
+	menu->addAction(loadAction);
+	menu->addAction(saveAction);
+	menu->addAction(saveAsAction);
+	menu->addSeparator();
+	menu->addAction(quitAction);
+
+	// create edit menu
+	menu = menuBar()->addMenu("&Edit");
+	menu->addAction(searchAction);
+
+	// create options menu
+	menu = menuBar()->addMenu("&Option");
+	menu->addAction(showNameAction);
+	menu->addSeparator();
+	menu->addActions(optGroup->actions());
+	menu->addSeparator();
+	menu->addAction(showDebugAction);
+
+	// create help menu
+	menu = menuBar()->addMenu("&Help");
+	menu->addAction(showIntroAction);
+	menu->addAction(showAboutAction);
+
+	connect(helpText, &ConfigInfoView::anchorClicked,
+		helpText, &ConfigInfoView::clicked);
+
+	connect(configList, &ConfigList::menuChanged,
+		helpText, &ConfigInfoView::setInfo);
+	connect(configList, &ConfigList::menuSelected,
+		this, &ConfigMainWindow::changeMenu);
+	connect(configList, &ConfigList::itemSelected,
+		this, &ConfigMainWindow::changeItens);
+	connect(configList, &ConfigList::parentSelected,
+		this, &ConfigMainWindow::goBack);
+	connect(menuList, &ConfigList::menuChanged,
+		helpText, &ConfigInfoView::setInfo);
+	connect(menuList, &ConfigList::menuSelected,
+		this, &ConfigMainWindow::changeMenu);
+
+	connect(configList, &ConfigList::gotFocus,
+		helpText, &ConfigInfoView::setInfo);
+	connect(menuList, &ConfigList::gotFocus,
+		helpText, &ConfigInfoView::setInfo);
+	connect(menuList, &ConfigList::gotFocus,
+		this, &ConfigMainWindow::listFocusChanged);
+	connect(helpText, &ConfigInfoView::menuSelected,
+		this, &ConfigMainWindow::setMenuLink);
+>>>>>>> upstream/android-13
 
 	QString listMode = configSettings->value("/listMode", "symbol").toString();
 	if (listMode == "single")
@@ -1521,17 +2325,42 @@ ConfigMainWindow::ConfigMainWindow(void)
 
 void ConfigMainWindow::loadConfig(void)
 {
+<<<<<<< HEAD
 	QString s = QFileDialog::getOpenFileName(this, "", conf_get_configname());
 	if (s.isNull())
 		return;
 	if (conf_read(QFile::encodeName(s)))
 		QMessageBox::information(this, "qconf", "Unable to load configuration!");
 	ConfigView::updateListAll();
+=======
+	QString str;
+	QByteArray ba;
+	const char *name;
+
+	str = QFileDialog::getOpenFileName(this, "", configname);
+	if (str.isNull())
+		return;
+
+	ba = str.toLocal8Bit();
+	name = ba.data();
+
+	if (conf_read(name))
+		QMessageBox::information(this, "qconf", "Unable to load configuration!");
+
+	free(configname);
+	configname = xstrdup(name);
+
+	ConfigList::updateListAllForAll();
+>>>>>>> upstream/android-13
 }
 
 bool ConfigMainWindow::saveConfig(void)
 {
+<<<<<<< HEAD
 	if (conf_write(NULL)) {
+=======
+	if (conf_write(configname)) {
+>>>>>>> upstream/android-13
 		QMessageBox::information(this, "qconf", "Unable to save configuration!");
 		return false;
 	}
@@ -1542,15 +2371,37 @@ bool ConfigMainWindow::saveConfig(void)
 
 void ConfigMainWindow::saveConfigAs(void)
 {
+<<<<<<< HEAD
 	QString s = QFileDialog::getSaveFileName(this, "", conf_get_configname());
 	if (s.isNull())
 		return;
 	saveConfig();
+=======
+	QString str;
+	QByteArray ba;
+	const char *name;
+
+	str = QFileDialog::getSaveFileName(this, "", configname);
+	if (str.isNull())
+		return;
+
+	ba = str.toLocal8Bit();
+	name = ba.data();
+
+	if (conf_write(name)) {
+		QMessageBox::information(this, "qconf", "Unable to save configuration!");
+	}
+	conf_write_autoconf(0);
+
+	free(configname);
+	configname = xstrdup(name);
+>>>>>>> upstream/android-13
 }
 
 void ConfigMainWindow::searchConfig(void)
 {
 	if (!searchWindow)
+<<<<<<< HEAD
 		searchWindow = new ConfigSearchWindow(this, "search");
 	searchWindow->show();
 }
@@ -1562,6 +2413,20 @@ void ConfigMainWindow::changeMenu(struct menu *menu)
 		backAction->setEnabled(false);
 	else
 		backAction->setEnabled(true);
+=======
+		searchWindow = new ConfigSearchWindow(this);
+	searchWindow->show();
+}
+
+void ConfigMainWindow::changeItens(struct menu *menu)
+{
+	configList->setRootMenu(menu);
+}
+
+void ConfigMainWindow::changeMenu(struct menu *menu)
+{
+	menuList->setRootMenu(menu);
+>>>>>>> upstream/android-13
 }
 
 void ConfigMainWindow::setMenuLink(struct menu *menu)
@@ -1581,6 +2446,7 @@ void ConfigMainWindow::setMenuLink(struct menu *menu)
 			return;
 		list->setRootMenu(parent);
 		break;
+<<<<<<< HEAD
 	case symbolMode:
 		if (menu->flags & MENU_ROOT) {
 			configList->setRootMenu(menu);
@@ -1597,6 +2463,28 @@ void ConfigMainWindow::setMenuLink(struct menu *menu)
 				menuList->scrollToItem(item);
 			}
 			list->setRootMenu(parent);
+=======
+	case menuMode:
+		if (menu->flags & MENU_ROOT) {
+			menuList->setRootMenu(menu);
+			configList->clearSelection();
+			list = configList;
+		} else {
+			parent = menu_get_parent_menu(menu->parent);
+			if (!parent)
+				return;
+
+			/* Select the config view */
+			item = configList->findConfigItem(parent);
+			if (item) {
+				configList->setSelected(item, true);
+				configList->scrollToItem(item);
+			}
+
+			menuList->setRootMenu(parent);
+			menuList->clearSelection();
+			list = menuList;
+>>>>>>> upstream/android-13
 		}
 		break;
 	case fullMode:
@@ -1609,9 +2497,16 @@ void ConfigMainWindow::setMenuLink(struct menu *menu)
 	if (list) {
 		item = list->findConfigItem(menu);
 		if (item) {
+<<<<<<< HEAD
 			item->setSelected(true);
 			list->scrollToItem(item);
 			list->setFocus();
+=======
+			list->setSelected(item, true);
+			list->scrollToItem(item);
+			list->setFocus();
+			helpText->setInfo(menu);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -1624,6 +2519,7 @@ void ConfigMainWindow::listFocusChanged(void)
 
 void ConfigMainWindow::goBack(void)
 {
+<<<<<<< HEAD
 	ConfigItem* item, *oldSelection;
 
 	configList->setParentMenu();
@@ -1643,6 +2539,12 @@ void ConfigMainWindow::goBack(void)
 		}
 		item = (ConfigItem*)item->parent();
 	}
+=======
+	if (configList->rootEntry == &rootmenu)
+		return;
+
+	configList->setParentMenu();
+>>>>>>> upstream/android-13
 }
 
 void ConfigMainWindow::showSingleView(void)
@@ -1654,7 +2556,13 @@ void ConfigMainWindow::showSingleView(void)
 	fullViewAction->setEnabled(true);
 	fullViewAction->setChecked(false);
 
+<<<<<<< HEAD
 	menuView->hide();
+=======
+	backAction->setEnabled(true);
+
+	menuList->hide();
+>>>>>>> upstream/android-13
 	menuList->setRootMenu(0);
 	configList->mode = singleMode;
 	if (configList->rootEntry == &rootmenu)
@@ -1673,17 +2581,30 @@ void ConfigMainWindow::showSplitView(void)
 	fullViewAction->setEnabled(true);
 	fullViewAction->setChecked(false);
 
+<<<<<<< HEAD
 	configList->mode = symbolMode;
+=======
+	backAction->setEnabled(false);
+
+	configList->mode = menuMode;
+>>>>>>> upstream/android-13
 	if (configList->rootEntry == &rootmenu)
 		configList->updateListAll();
 	else
 		configList->setRootMenu(&rootmenu);
 	configList->setAllOpen(true);
 	configApp->processEvents();
+<<<<<<< HEAD
 	menuList->mode = menuMode;
 	menuList->setRootMenu(&rootmenu);
 	menuList->setAllOpen(true);
 	menuView->show();
+=======
+	menuList->mode = symbolMode;
+	menuList->setRootMenu(&rootmenu);
+	menuList->setAllOpen(true);
+	menuList->show();
+>>>>>>> upstream/android-13
 	menuList->setFocus();
 }
 
@@ -1696,7 +2617,13 @@ void ConfigMainWindow::showFullView(void)
 	fullViewAction->setEnabled(false);
 	fullViewAction->setChecked(true);
 
+<<<<<<< HEAD
 	menuView->hide();
+=======
+	backAction->setEnabled(false);
+
+	menuList->hide();
+>>>>>>> upstream/android-13
 	menuList->setRootMenu(0);
 	configList->mode = fullMode;
 	if (configList->rootEntry == &rootmenu)
@@ -1708,7 +2635,10 @@ void ConfigMainWindow::showFullView(void)
 
 /*
  * ask for saving configuration before quitting
+<<<<<<< HEAD
  * TODO ask only when something changed
+=======
+>>>>>>> upstream/android-13
  */
 void ConfigMainWindow::closeEvent(QCloseEvent* e)
 {
@@ -1739,6 +2669,7 @@ void ConfigMainWindow::closeEvent(QCloseEvent* e)
 
 void ConfigMainWindow::showIntro(void)
 {
+<<<<<<< HEAD
 	static const QString str = "Welcome to the qconf graphical configuration tool.\n\n"
 		"For each option, a blank box indicates the feature is disabled, a check\n"
 		"indicates it is enabled, and a dot indicates that it is to be compiled\n"
@@ -1750,6 +2681,28 @@ void ConfigMainWindow::showIntro(void)
 		"still view the help of a grayed-out option.\n\n"
 		"Toggling Show Debug Info under the Options menu will show the dependencies,\n"
 		"which you can then match by examining other options.\n\n";
+=======
+	static const QString str =
+		"Welcome to the qconf graphical configuration tool.\n"
+		"\n"
+		"For bool and tristate options, a blank box indicates the "
+		"feature is disabled, a check indicates it is enabled, and a "
+		"dot indicates that it is to be compiled as a module. Clicking "
+		"on the box will cycle through the three states. For int, hex, "
+		"and string options, double-clicking or pressing F2 on the "
+		"Value cell will allow you to edit the value.\n"
+		"\n"
+		"If you do not see an option (e.g., a device driver) that you "
+		"believe should be present, try turning on Show All Options "
+		"under the Options menu. Enabling Show Debug Info will help you"
+		"figure out what other options must be enabled to support the "
+		"option you are interested in, and hyperlinks will navigate to "
+		"them.\n"
+		"\n"
+		"Toggling Show Debug Info under the Options menu will show the "
+		"dependencies, which you can then match by examining other "
+		"options.\n";
+>>>>>>> upstream/android-13
 
 	QMessageBox::information(this, "qconf", str);
 }
@@ -1757,10 +2710,20 @@ void ConfigMainWindow::showIntro(void)
 void ConfigMainWindow::showAbout(void)
 {
 	static const QString str = "qconf is Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>.\n"
+<<<<<<< HEAD
 		"Copyright (C) 2015 Boris Barbulovski <bbarbulovski@gmail.com>.\n\n"
 		"Bug reports and feature request can also be entered at http://bugzilla.kernel.org/\n";
 
 	QMessageBox::information(this, "qconf", str);
+=======
+		"Copyright (C) 2015 Boris Barbulovski <bbarbulovski@gmail.com>.\n"
+		"\n"
+		"Bug reports and feature request can also be entered at http://bugzilla.kernel.org/\n"
+		"\n"
+		"Qt Version: ";
+
+	QMessageBox::information(this, "qconf", str + qVersion());
+>>>>>>> upstream/android-13
 }
 
 void ConfigMainWindow::saveSettings(void)
@@ -1829,7 +2792,10 @@ int main(int ac, char** av)
 	const char *name;
 
 	progname = av[0];
+<<<<<<< HEAD
 	configApp = new QApplication(ac, av);
+=======
+>>>>>>> upstream/android-13
 	if (ac > 1 && av[1][0] == '-') {
 		switch (av[1][1]) {
 		case 's':
@@ -1850,6 +2816,11 @@ int main(int ac, char** av)
 	conf_read(NULL);
 	//zconfdump(stdout);
 
+<<<<<<< HEAD
+=======
+	configApp = new QApplication(ac, av);
+
+>>>>>>> upstream/android-13
 	configSettings = new ConfigSettings();
 	configSettings->beginGroup("/kconfig/qconf");
 	v = new ConfigMainWindow();

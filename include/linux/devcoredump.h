@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This file is provided under the GPLv2 license.
  *
@@ -16,6 +17,11 @@
  *
  * The full GNU General Public License is included in this distribution
  * in the file called COPYING.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright(c) 2015 Intel Deutschland GmbH
+>>>>>>> upstream/android-13
  */
 #ifndef __DEVCOREDUMP_H
 #define __DEVCOREDUMP_H

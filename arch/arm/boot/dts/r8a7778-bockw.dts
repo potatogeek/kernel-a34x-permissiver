@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Reference Device Tree Source for the Bock-W board
+=======
+ * Reference Device Tree Source for the R-Car M1A (R8A77781) Bock-W board
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2013  Renesas Solutions Corp.
  * Copyright (C) 2013  Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
@@ -25,7 +29,11 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "ignore_loglevel ip=dhcp root=/dev/nfs rw";
+=======
+		bootargs = "ignore_loglevel rw root=/dev/nfs ip=on";
+>>>>>>> upstream/android-13
 		stdout-path = "serial0:115200n8";
 	};
 

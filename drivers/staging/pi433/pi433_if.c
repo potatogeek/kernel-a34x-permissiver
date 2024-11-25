@@ -14,6 +14,7 @@
  *
  * Copyright (C) 2016 Wolf-Entwicklungen
  *	Marcus Wolf <linux@wolf-entwicklungen.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +25,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -55,10 +58,17 @@
 #include "pi433_if.h"
 #include "rf69.h"
 
+<<<<<<< HEAD
 #define N_PI433_MINORS			BIT(MINORBITS) /*32*/	/* ... up to 256 */
 #define MAX_MSG_SIZE			900	/* min: FIFO_SIZE! */
 #define MSG_FIFO_SIZE			65536   /* 65536 = 2^16  */
 #define NUM_DIO				2
+=======
+#define N_PI433_MINORS		BIT(MINORBITS) /*32*/	/* ... up to 256 */
+#define MAX_MSG_SIZE		900	/* min: FIFO_SIZE! */
+#define MSG_FIFO_SIZE		65536   /* 65536 = 2^16  */
+#define NUM_DIO			2
+>>>>>>> upstream/android-13
 
 static dev_t pi433_dev;
 static DEFINE_IDR(pi433_idr);
@@ -329,6 +339,15 @@ rf69_set_tx_cfg(struct pi433_device *dev, struct pi433_tx_cfg *tx_cfg)
 	}
 
 	if (tx_cfg->enable_sync == OPTION_ON) {
+<<<<<<< HEAD
+=======
+		ret = rf69_set_sync_size(dev->spi, tx_cfg->sync_length);
+		if (ret < 0)
+			return ret;
+		ret = rf69_set_sync_values(dev->spi, tx_cfg->sync_pattern);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 		ret = rf69_enable_sync(dev->spi);
 		if (ret < 0)
 			return ret;
@@ -358,6 +377,7 @@ rf69_set_tx_cfg(struct pi433_device *dev, struct pi433_tx_cfg *tx_cfg)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	/* configure sync, if enabled */
 	if (tx_cfg->enable_sync == OPTION_ON) {
 		ret = rf69_set_sync_size(dev->spi, tx_cfg->sync_length);
@@ -368,6 +388,8 @@ rf69_set_tx_cfg(struct pi433_device *dev, struct pi433_tx_cfg *tx_cfg)
 			return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -660,11 +682,20 @@ pi433_tx_thread(void *data)
 		disable_irq(device->irq_num[DIO0]);
 		device->tx_active = true;
 
+<<<<<<< HEAD
+=======
+		/* clear fifo, set fifo threshold, set payload length */
+		retval = rf69_set_mode(spi, standby); /* this clears the fifo */
+		if (retval < 0)
+			return retval;
+
+>>>>>>> upstream/android-13
 		if (device->rx_active && !rx_interrupted) {
 			/*
 			 * rx is currently waiting for a telegram;
 			 * we need to set the radio module to standby
 			 */
+<<<<<<< HEAD
 			retval = rf69_set_mode(device->spi, standby);
 			if (retval < 0)
 				return retval;
@@ -675,6 +706,11 @@ pi433_tx_thread(void *data)
 		retval = rf69_set_mode(spi, standby); /* this clears the fifo */
 		if (retval < 0)
 			return retval;
+=======
+			rx_interrupted = true;
+		}
+
+>>>>>>> upstream/android-13
 		retval = rf69_set_fifo_threshold(spi, FIFO_THRESHOLD);
 		if (retval < 0)
 			return retval;
@@ -752,7 +788,11 @@ pi433_tx_thread(void *data)
 					 device->free_in_fifo == FIFO_SIZE ||
 					 kthread_should_stop());
 		if (kthread_should_stop())
+<<<<<<< HEAD
 			dev_dbg(device->dev, "ABORT\n");
+=======
+			return 0;
+>>>>>>> upstream/android-13
 
 		/* STOP_TRANSMISSION */
 		dev_dbg(device->dev, "thread: Packet sent. Set mode to stby.");
@@ -887,7 +927,10 @@ abort:
 static long
 pi433_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
+<<<<<<< HEAD
 	int			retval = 0;
+=======
+>>>>>>> upstream/android-13
 	struct pi433_instance	*instance;
 	struct pi433_device	*device;
 	struct pi433_tx_cfg	tx_cfg;
@@ -939,6 +982,7 @@ pi433_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		mutex_unlock(&device->rx_lock);
 		break;
 	default:
+<<<<<<< HEAD
 		retval = -EINVAL;
 	}
 
@@ -955,6 +999,14 @@ pi433_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 #define pi433_compat_ioctl NULL
 #endif /* CONFIG_COMPAT */
 
+=======
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 static int pi433_open(struct inode *inode, struct file *filp)
@@ -981,7 +1033,11 @@ static int pi433_open(struct inode *inode, struct file *filp)
 
 	/* instance data as context */
 	filp->private_data = instance;
+<<<<<<< HEAD
 	nonseekable_open(inode, filp);
+=======
+	stream_open(inode, filp);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1111,7 +1167,11 @@ static const struct file_operations pi433_fops = {
 	.write =	pi433_write,
 	.read =		pi433_read,
 	.unlocked_ioctl = pi433_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl = pi433_compat_ioctl,
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open =		pi433_open,
 	.release =	pi433_release,
 	.llseek =	no_llseek,
@@ -1257,6 +1317,10 @@ static int pi433_probe(struct spi_device *spi)
 	device->cdev = cdev_alloc();
 	if (!device->cdev) {
 		dev_dbg(device->dev, "allocation of cdev failed");
+<<<<<<< HEAD
+=======
+		retval = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto cdev_failed;
 	}
 	device->cdev->owner = THIS_MODULE;
@@ -1264,7 +1328,11 @@ static int pi433_probe(struct spi_device *spi)
 	retval = cdev_add(device->cdev, device->devt, 1);
 	if (retval) {
 		dev_dbg(device->dev, "register of cdev failed");
+<<<<<<< HEAD
 		goto cdev_failed;
+=======
+		goto del_cdev;
+>>>>>>> upstream/android-13
 	}
 
 	/* spi setup */
@@ -1272,6 +1340,11 @@ static int pi433_probe(struct spi_device *spi)
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+del_cdev:
+	cdev_del(device->cdev);
+>>>>>>> upstream/android-13
 cdev_failed:
 	kthread_stop(device->tx_task_struct);
 send_thread_failed:

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Mahesh Bandewar <maheshb@google.com>
  *
@@ -6,6 +7,11 @@
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2014 Mahesh Bandewar <maheshb@google.com>
+>>>>>>> upstream/android-13
  */
 #ifndef __IPVLAN_H
 #define __IPVLAN_H
@@ -165,10 +171,16 @@ struct ipvl_addr *ipvlan_find_addr(const struct ipvl_dev *ipvlan,
 				   const void *iaddr, bool is_v6);
 bool ipvlan_addr_busy(struct ipvl_port *port, void *iaddr, bool is_v6);
 void ipvlan_ht_addr_del(struct ipvl_addr *addr);
+<<<<<<< HEAD
 struct sk_buff *ipvlan_l3_rcv(struct net_device *dev, struct sk_buff *skb,
 			      u16 proto);
 unsigned int ipvlan_nf_input(void *priv, struct sk_buff *skb,
 			     const struct nf_hook_state *state);
+=======
+struct ipvl_addr *ipvlan_addr_lookup(struct ipvl_port *port, void *lyr3h,
+				     int addr_type, bool use_dest);
+void *ipvlan_get_L3_hdr(struct ipvl_port *port, struct sk_buff *skb, int *type);
+>>>>>>> upstream/android-13
 void ipvlan_count_rx(const struct ipvl_dev *ipvlan,
 		     unsigned int len, bool success, bool mcast);
 int ipvlan_link_new(struct net *src_net, struct net_device *dev,
@@ -177,6 +189,39 @@ int ipvlan_link_new(struct net *src_net, struct net_device *dev,
 void ipvlan_link_delete(struct net_device *dev, struct list_head *head);
 void ipvlan_link_setup(struct net_device *dev);
 int ipvlan_link_register(struct rtnl_link_ops *ops);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_IPVLAN_L3S
+int ipvlan_l3s_register(struct ipvl_port *port);
+void ipvlan_l3s_unregister(struct ipvl_port *port);
+void ipvlan_migrate_l3s_hook(struct net *oldnet, struct net *newnet);
+int ipvlan_l3s_init(void);
+void ipvlan_l3s_cleanup(void);
+#else
+static inline int ipvlan_l3s_register(struct ipvl_port *port)
+{
+	return -ENOTSUPP;
+}
+
+static inline void ipvlan_l3s_unregister(struct ipvl_port *port)
+{
+}
+
+static inline void ipvlan_migrate_l3s_hook(struct net *oldnet,
+					   struct net *newnet)
+{
+}
+
+static inline int ipvlan_l3s_init(void)
+{
+	return 0;
+}
+
+static inline void ipvlan_l3s_cleanup(void)
+{
+}
+#endif /* CONFIG_IPVLAN_L3S */
+>>>>>>> upstream/android-13
 
 static inline bool netif_is_ipvlan_port(const struct net_device *dev)
 {

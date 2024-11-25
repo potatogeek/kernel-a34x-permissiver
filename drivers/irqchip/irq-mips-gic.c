@@ -16,6 +16,10 @@
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/irqchip.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/percpu.h>
 #include <linux/sched.h>
@@ -46,7 +50,11 @@
 
 void __iomem *mips_gic_base;
 
+<<<<<<< HEAD
 DEFINE_PER_CPU_READ_MOSTLY(unsigned long[GIC_MAX_LONGS], pcpu_masks);
+=======
+static DEFINE_PER_CPU_READ_MOSTLY(unsigned long[GIC_MAX_LONGS], pcpu_masks);
+>>>>>>> upstream/android-13
 
 static DEFINE_SPINLOCK(gic_lock);
 static struct irq_domain *gic_irq_domain;
@@ -147,7 +155,11 @@ int gic_get_c0_fdc_int(void)
 
 static void gic_handle_shared_int(bool chained)
 {
+<<<<<<< HEAD
 	unsigned int intr, virq;
+=======
+	unsigned int intr;
+>>>>>>> upstream/android-13
 	unsigned long *pcpu_mask;
 	DECLARE_BITMAP(pending, GIC_MAX_INTRS);
 
@@ -164,12 +176,21 @@ static void gic_handle_shared_int(bool chained)
 	bitmap_and(pending, pending, pcpu_mask, gic_shared_intrs);
 
 	for_each_set_bit(intr, pending, gic_shared_intrs) {
+<<<<<<< HEAD
 		virq = irq_linear_revmap(gic_irq_domain,
 					 GIC_SHARED_TO_HWIRQ(intr));
 		if (chained)
 			generic_handle_irq(virq);
 		else
 			do_IRQ(virq);
+=======
+		if (chained)
+			generic_handle_domain_irq(gic_irq_domain,
+						  GIC_SHARED_TO_HWIRQ(intr));
+		else
+			do_domain_IRQ(gic_irq_domain,
+				      GIC_SHARED_TO_HWIRQ(intr));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -307,7 +328,11 @@ static struct irq_chip gic_edge_irq_controller = {
 static void gic_handle_local_int(bool chained)
 {
 	unsigned long pending, masked;
+<<<<<<< HEAD
 	unsigned int intr, virq;
+=======
+	unsigned int intr;
+>>>>>>> upstream/android-13
 
 	pending = read_gic_vl_pend();
 	masked = read_gic_vl_mask();
@@ -315,12 +340,21 @@ static void gic_handle_local_int(bool chained)
 	bitmap_and(&pending, &pending, &masked, GIC_NUM_LOCAL_INTRS);
 
 	for_each_set_bit(intr, &pending, GIC_NUM_LOCAL_INTRS) {
+<<<<<<< HEAD
 		virq = irq_linear_revmap(gic_irq_domain,
 					 GIC_LOCAL_TO_HWIRQ(intr));
 		if (chained)
 			generic_handle_irq(virq);
 		else
 			do_IRQ(virq);
+=======
+		if (chained)
+			generic_handle_domain_irq(gic_irq_domain,
+						  GIC_LOCAL_TO_HWIRQ(intr));
+		else
+			do_domain_IRQ(gic_irq_domain,
+				      GIC_LOCAL_TO_HWIRQ(intr));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -480,7 +514,11 @@ static int gic_irq_domain_map(struct irq_domain *d, unsigned int virq,
 	case GIC_LOCAL_INT_TIMER:
 		/* CONFIG_MIPS_CMP workaround (see __gic_init) */
 		map = GIC_MAP_PIN_MAP_TO_PIN | timer_cpu_pin;
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case GIC_LOCAL_INT_PERFCTR:
 	case GIC_LOCAL_INT_FDC:
 		/*
@@ -617,8 +655,13 @@ error:
 	return ret;
 }
 
+<<<<<<< HEAD
 void gic_ipi_domain_free(struct irq_domain *d, unsigned int virq,
 			 unsigned int nr_irqs)
+=======
+static void gic_ipi_domain_free(struct irq_domain *d, unsigned int virq,
+				unsigned int nr_irqs)
+>>>>>>> upstream/android-13
 {
 	irq_hw_number_t base_hwirq;
 	struct irq_data *data;
@@ -631,8 +674,13 @@ void gic_ipi_domain_free(struct irq_domain *d, unsigned int virq,
 	bitmap_set(ipi_available, base_hwirq, nr_irqs);
 }
 
+<<<<<<< HEAD
 int gic_ipi_domain_match(struct irq_domain *d, struct device_node *node,
 			 enum irq_domain_bus_token bus_token)
+=======
+static int gic_ipi_domain_match(struct irq_domain *d, struct device_node *node,
+				enum irq_domain_bus_token bus_token)
+>>>>>>> upstream/android-13
 {
 	bool is_ipi;
 
@@ -716,7 +764,11 @@ static int __init gic_of_init(struct device_node *node,
 		__sync();
 	}
 
+<<<<<<< HEAD
 	mips_gic_base = ioremap_nocache(gic_base, gic_len);
+=======
+	mips_gic_base = ioremap(gic_base, gic_len);
+>>>>>>> upstream/android-13
 
 	gicconfig = read_gic_config();
 	gic_shared_intrs = gicconfig & GIC_CONFIG_NUMINTERRUPTS;

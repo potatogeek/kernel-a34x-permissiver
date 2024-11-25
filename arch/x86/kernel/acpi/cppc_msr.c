@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cppc_msr.c:  MSR Interface for CPPC
  * Copyright (c) 2016, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * cppc_msr.c:  MSR Interface for CPPC
+ * Copyright (c) 2016, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <acpi/cppc_acpi.h>

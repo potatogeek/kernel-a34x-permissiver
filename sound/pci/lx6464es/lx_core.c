@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- *
  *
  * ALSA driver for the digigram lx6464es interface
  * low-level interface
  *
  * Copyright (c) 2009 Tim Blechmann <tim@klingt.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* #define RMH_DEBUG 1 */
@@ -176,7 +183,11 @@ struct dsp_cmd_info {
     the number of status words (in addition to the return value)
 */
 
+<<<<<<< HEAD
 static struct dsp_cmd_info dsp_commands[] =
+=======
+static const struct dsp_cmd_info dsp_commands[] =
+>>>>>>> upstream/android-13
 {
 	{ (CMD_00_INFO_DEBUG << OPCODE_OFFSET)			, 1 /*custom*/
 	  , 1	, 0 /**/		    , CMD_NAME("INFO_DEBUG") },
@@ -689,10 +700,13 @@ int lx_stream_set_format(struct lx6464es *chip, struct snd_pcm_runtime *runtime,
 	u32 pipe_cmd = PIPE_INFO_TO_CMD(is_capture, pipe);
 	u32 channels = runtime->channels;
 
+<<<<<<< HEAD
 	if (runtime->channels != channels)
 		dev_err(chip->card->dev, "channel count mismatch: %d vs %d",
 			   runtime->channels, channels);
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&chip->msg_lock);
 	lx_message_init(&chip->rmh, CMD_0C_DEF_STREAM);
 
@@ -873,7 +887,11 @@ int lx_level_unmute(struct lx6464es *chip, int is_capture, int unmute)
 	return err;
 }
 
+<<<<<<< HEAD
 static u32 peak_map[] = {
+=======
+static const u32 peak_map[] = {
+>>>>>>> upstream/android-13
 	0x00000109, /* -90.308dB */
 	0x0000083B, /* -72.247dB */
 	0x000020C4, /* -60.205dB */
@@ -1001,8 +1019,11 @@ static int lx_interrupt_handle_async_events(struct lx6464es *chip, u32 irqsrc,
 	 * Stat[8]	LSB overrun
 	 * */
 
+<<<<<<< HEAD
 	u64 orun_mask;
 	u64 urun_mask;
+=======
+>>>>>>> upstream/android-13
 	int eb_pending_out = (irqsrc & MASK_SYS_STATUS_EOBO) ? 1 : 0;
 	int eb_pending_in  = (irqsrc & MASK_SYS_STATUS_EOBI) ? 1 : 0;
 
@@ -1025,9 +1046,12 @@ static int lx_interrupt_handle_async_events(struct lx6464es *chip, u32 irqsrc,
 			    *r_notified_out_pipe_mask);
 	}
 
+<<<<<<< HEAD
 	orun_mask = ((u64)stat[7] << 32) + stat[8];
 	urun_mask = ((u64)stat[5] << 32) + stat[6];
 
+=======
+>>>>>>> upstream/android-13
 	/* todo: handle xrun notification */
 
 	return err;

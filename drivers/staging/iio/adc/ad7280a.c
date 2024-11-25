@@ -1,11 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * AD7280A Lithium Ion Battery Monitoring System
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
  */
 
+=======
+ */
+
+#include <linux/crc8.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -96,15 +106,29 @@
 #define AD7280A_NUM_CH			(AD7280A_AUX_ADC_6 - \
 					AD7280A_CELL_VOLTAGE_1 + 1)
 
+<<<<<<< HEAD
+=======
+#define AD7280A_CALC_VOLTAGE_CHAN_NUM(d, c) (((d) * AD7280A_CELLS_PER_DEV) + \
+					     (c))
+#define AD7280A_CALC_TEMP_CHAN_NUM(d, c)    (((d) * AD7280A_CELLS_PER_DEV) + \
+					     (c) - AD7280A_CELLS_PER_DEV)
+
+>>>>>>> upstream/android-13
 #define AD7280A_DEVADDR_MASTER		0
 #define AD7280A_DEVADDR_ALL		0x1F
 /* 5-bit device address is sent LSB first */
 static unsigned int ad7280a_devaddr(unsigned int addr)
 {
 	return ((addr & 0x1) << 4) |
+<<<<<<< HEAD
 	       ((addr & 0x2) << 3) |
 	       (addr & 0x4) |
 	       ((addr & 0x8) >> 3) |
+=======
+	       ((addr & 0x2) << 2) |
+	       (addr & 0x4) |
+	       ((addr & 0x8) >> 2) |
+>>>>>>> upstream/android-13
 	       ((addr & 0x10) >> 4);
 }
 
@@ -121,8 +145,11 @@ static unsigned int ad7280a_devaddr(unsigned int addr)
  * P(x) = x^8 + x^5 + x^3 + x^2 + x^1 + x^0 = 0b100101111 => 0x2F
  */
 #define POLYNOM		0x2F
+<<<<<<< HEAD
 #define POLYNOM_ORDER	8
 #define HIGHBIT		(1 << (POLYNOM_ORDER - 1))
+=======
+>>>>>>> upstream/android-13
 
 struct ad7280_state {
 	struct spi_device		*spi;
@@ -131,7 +158,11 @@ struct ad7280_state {
 	int				slave_num;
 	int				scan_cnt;
 	int				readback_delay_us;
+<<<<<<< HEAD
 	unsigned char			crc_tab[256];
+=======
+	unsigned char			crc_tab[CRC8_TABLE_SIZE];
+>>>>>>> upstream/android-13
 	unsigned char			ctrl_hb;
 	unsigned char			ctrl_lb;
 	unsigned char			cell_threshhigh;
@@ -144,6 +175,7 @@ struct ad7280_state {
 	__be32				buf[2] ____cacheline_aligned;
 };
 
+<<<<<<< HEAD
 static void ad7280_crc8_build_table(unsigned char *crc_tab)
 {
 	unsigned char bit, crc;
@@ -161,6 +193,8 @@ static void ad7280_crc8_build_table(unsigned char *crc_tab)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned char ad7280_calc_crc8(unsigned char *crc_tab, unsigned int val)
 {
 	unsigned char crc;
@@ -348,6 +382,17 @@ static int ad7280_read_all_channels(struct ad7280_state *st, unsigned int cnt,
 	return sum;
 }
 
+<<<<<<< HEAD
+=======
+static void ad7280_sw_power_down(void *data)
+{
+	struct ad7280_state *st = data;
+
+	ad7280_write(st, AD7280A_DEVADDR_MASTER, AD7280A_CONTROL_HB, 1,
+		     AD7280A_CTRL_HB_PWRDN_SW | st->ctrl_hb);
+}
+
+>>>>>>> upstream/android-13
 static int ad7280_chain_setup(struct ad7280_state *st)
 {
 	unsigned int val, n;
@@ -368,21 +413,34 @@ static int ad7280_chain_setup(struct ad7280_state *st)
 			   AD7280A_CTRL_LB_MUST_SET |
 			   st->ctrl_lb);
 	if (ret)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto error_power_down;
+>>>>>>> upstream/android-13
 
 	ret = ad7280_write(st, AD7280A_DEVADDR_MASTER, AD7280A_READ, 1,
 			   AD7280A_CONTROL_LB << 2);
 	if (ret)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto error_power_down;
+>>>>>>> upstream/android-13
 
 	for (n = 0; n <= AD7280A_MAX_CHAIN; n++) {
 		ret = __ad7280_read32(st, &val);
 		if (ret)
+<<<<<<< HEAD
 			return ret;
+=======
+			goto error_power_down;
+>>>>>>> upstream/android-13
 
 		if (val == 0)
 			return n - 1;
 
+<<<<<<< HEAD
 		if (ad7280_check_crc(st, val))
 			return -EIO;
 
@@ -391,6 +449,25 @@ static int ad7280_chain_setup(struct ad7280_state *st)
 	}
 
 	return -EFAULT;
+=======
+		if (ad7280_check_crc(st, val)) {
+			ret = -EIO;
+			goto error_power_down;
+		}
+
+		if (n != ad7280a_devaddr(val >> 27)) {
+			ret = -EIO;
+			goto error_power_down;
+		}
+	}
+	ret = -EFAULT;
+
+error_power_down:
+	ad7280_write(st, AD7280A_DEVADDR_MASTER, AD7280A_CONTROL_HB, 1,
+		     AD7280A_CTRL_HB_PWRDN_SW | st->ctrl_hb);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ad7280_show_balance_sw(struct device *dev,
@@ -497,6 +574,7 @@ static const struct attribute_group ad7280_attrs_group = {
 	.attrs = ad7280_attributes,
 };
 
+<<<<<<< HEAD
 static int ad7280_channel_init(struct ad7280_state *st)
 {
 	int dev, ch, cnt;
@@ -554,10 +632,105 @@ static int ad7280_channel_init(struct ad7280_state *st)
 	st->channels[cnt].scan_type.realbits = 64;
 	st->channels[cnt].scan_type.storagebits = 64;
 	st->channels[cnt].scan_type.shift = 0;
+=======
+static void ad7280_voltage_channel_init(struct iio_chan_spec *chan, int i)
+{
+	chan->type = IIO_VOLTAGE;
+	chan->differential = 1;
+	chan->channel = i;
+	chan->channel2 = chan->channel + 1;
+}
+
+static void ad7280_temp_channel_init(struct iio_chan_spec *chan, int i)
+{
+	chan->type = IIO_TEMP;
+	chan->channel = i;
+}
+
+static void ad7280_common_fields_init(struct iio_chan_spec *chan, int addr,
+				      int cnt)
+{
+	chan->indexed = 1;
+	chan->info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
+	chan->info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE);
+	chan->address = addr;
+	chan->scan_index = cnt;
+	chan->scan_type.sign = 'u';
+	chan->scan_type.realbits = 12;
+	chan->scan_type.storagebits = 32;
+}
+
+static void ad7280_total_voltage_channel_init(struct iio_chan_spec *chan,
+					      int cnt, int dev)
+{
+	chan->type = IIO_VOLTAGE;
+	chan->differential = 1;
+	chan->channel = 0;
+	chan->channel2 = dev * AD7280A_CELLS_PER_DEV;
+	chan->address = AD7280A_ALL_CELLS;
+	chan->indexed = 1;
+	chan->info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
+	chan->info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE);
+	chan->scan_index = cnt;
+	chan->scan_type.sign = 'u';
+	chan->scan_type.realbits = 32;
+	chan->scan_type.storagebits = 32;
+}
+
+static void ad7280_timestamp_channel_init(struct iio_chan_spec *chan, int cnt)
+{
+	chan->type = IIO_TIMESTAMP;
+	chan->channel = -1;
+	chan->scan_index = cnt;
+	chan->scan_type.sign = 's';
+	chan->scan_type.realbits = 64;
+	chan->scan_type.storagebits = 64;
+}
+
+static void ad7280_init_dev_channels(struct ad7280_state *st, int dev, int *cnt)
+{
+	int addr, ch, i;
+	struct iio_chan_spec *chan;
+
+	for (ch = AD7280A_CELL_VOLTAGE_1; ch <= AD7280A_AUX_ADC_6; ch++) {
+		chan = &st->channels[*cnt];
+
+		if (ch < AD7280A_AUX_ADC_1) {
+			i = AD7280A_CALC_VOLTAGE_CHAN_NUM(dev, ch);
+			ad7280_voltage_channel_init(chan, i);
+		} else {
+			i = AD7280A_CALC_TEMP_CHAN_NUM(dev, ch);
+			ad7280_temp_channel_init(chan, i);
+		}
+
+		addr = ad7280a_devaddr(dev) << 8 | ch;
+		ad7280_common_fields_init(chan, addr, *cnt);
+
+		(*cnt)++;
+	}
+}
+
+static int ad7280_channel_init(struct ad7280_state *st)
+{
+	int dev, cnt = 0;
+
+	st->channels = devm_kcalloc(&st->spi->dev, (st->slave_num + 1) * 12 + 2,
+				    sizeof(*st->channels), GFP_KERNEL);
+	if (!st->channels)
+		return -ENOMEM;
+
+	for (dev = 0; dev <= st->slave_num; dev++)
+		ad7280_init_dev_channels(st, dev, &cnt);
+
+	ad7280_total_voltage_channel_init(&st->channels[cnt], cnt, dev);
+	cnt++;
+	ad7280_timestamp_channel_init(&st->channels[cnt], cnt);
+>>>>>>> upstream/android-13
 
 	return cnt + 1;
 }
 
+<<<<<<< HEAD
 static int ad7280_attr_init(struct ad7280_state *st)
 {
 	int dev, ch, cnt;
@@ -606,6 +779,89 @@ static int ad7280_attr_init(struct ad7280_state *st)
 		}
 
 	ad7280_attributes[cnt] = NULL;
+=======
+static int ad7280_balance_switch_attr_init(struct iio_dev_attr *attr,
+					   struct device *dev, int addr, int i)
+{
+	attr->address = addr;
+	attr->dev_attr.attr.mode = 0644;
+	attr->dev_attr.show = ad7280_show_balance_sw;
+	attr->dev_attr.store = ad7280_store_balance_sw;
+	attr->dev_attr.attr.name = devm_kasprintf(dev, GFP_KERNEL,
+						  "in%d-in%d_balance_switch_en",
+						  i, i + 1);
+	if (!attr->dev_attr.attr.name)
+		return -ENOMEM;
+
+	return 0;
+}
+
+static int ad7280_balance_timer_attr_init(struct iio_dev_attr *attr,
+					  struct device *dev, int addr, int i)
+{
+	attr->address = addr;
+	attr->dev_attr.attr.mode = 0644;
+	attr->dev_attr.show = ad7280_show_balance_timer;
+	attr->dev_attr.store = ad7280_store_balance_timer;
+	attr->dev_attr.attr.name = devm_kasprintf(dev, GFP_KERNEL,
+						  "in%d-in%d_balance_timer",
+						  i, i + 1);
+	if (!attr->dev_attr.attr.name)
+		return -ENOMEM;
+
+	return 0;
+}
+
+static int ad7280_init_dev_attrs(struct ad7280_state *st, int dev, int *cnt)
+{
+	int addr, ch, i, ret;
+	struct iio_dev_attr *iio_attr;
+	struct device *sdev = &st->spi->dev;
+
+	for (ch = AD7280A_CELL_VOLTAGE_1; ch <= AD7280A_CELL_VOLTAGE_6; ch++) {
+		iio_attr = &st->iio_attr[*cnt];
+		addr = ad7280a_devaddr(dev) << 8 | ch;
+		i = dev * AD7280A_CELLS_PER_DEV + ch;
+
+		ret = ad7280_balance_switch_attr_init(iio_attr, sdev, addr, i);
+		if (ret < 0)
+			return ret;
+
+		ad7280_attributes[*cnt] = &iio_attr->dev_attr.attr;
+
+		(*cnt)++;
+		iio_attr = &st->iio_attr[*cnt];
+		addr = ad7280a_devaddr(dev) << 8 | (AD7280A_CB1_TIMER + ch);
+
+		ret = ad7280_balance_timer_attr_init(iio_attr, sdev, addr, i);
+		if (ret < 0)
+			return ret;
+
+		ad7280_attributes[*cnt] = &iio_attr->dev_attr.attr;
+		(*cnt)++;
+	}
+
+	ad7280_attributes[*cnt] = NULL;
+
+	return 0;
+}
+
+static int ad7280_attr_init(struct ad7280_state *st)
+{
+	int dev, cnt = 0, ret;
+
+	st->iio_attr = devm_kcalloc(&st->spi->dev, 2, sizeof(*st->iio_attr) *
+				    (st->slave_num + 1) * AD7280A_CELLS_PER_DEV,
+				    GFP_KERNEL);
+	if (!st->iio_attr)
+		return -ENOMEM;
+
+	for (dev = 0; dev <= st->slave_num; dev++) {
+		ret = ad7280_init_dev_attrs(st, dev, &cnt);
+		if (ret < 0)
+			return ret;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -619,7 +875,11 @@ static ssize_t ad7280_read_channel_config(struct device *dev,
 	struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
 	unsigned int val;
 
+<<<<<<< HEAD
 	switch ((u32)this_attr->address) {
+=======
+	switch (this_attr->address) {
+>>>>>>> upstream/android-13
 	case AD7280A_CELL_OVERVOLTAGE:
 		val = 1000 + (st->cell_threshhigh * 1568) / 100;
 		break;
@@ -655,7 +915,11 @@ static ssize_t ad7280_write_channel_config(struct device *dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	switch ((u32)this_attr->address) {
+=======
+	switch (this_attr->address) {
+>>>>>>> upstream/android-13
 	case AD7280A_CELL_OVERVOLTAGE:
 	case AD7280A_CELL_UNDERVOLTAGE:
 		val = ((val - 1000) * 100) / 1568; /* LSB 15.68mV */
@@ -671,7 +935,11 @@ static ssize_t ad7280_write_channel_config(struct device *dev,
 	val = clamp(val, 0L, 0xFFL);
 
 	mutex_lock(&st->lock);
+<<<<<<< HEAD
 	switch ((u32)this_attr->address) {
+=======
+	switch (this_attr->address) {
+>>>>>>> upstream/android-13
 	case AD7280A_CELL_OVERVOLTAGE:
 		st->cell_threshhigh = val;
 		break;
@@ -712,6 +980,7 @@ static irqreturn_t ad7280_event_handler(int irq, void *private)
 	for (i = 0; i < st->scan_cnt; i++) {
 		if (((channels[i] >> 23) & 0xF) <= AD7280A_CELL_VOLTAGE_6) {
 			if (((channels[i] >> 11) & 0xFFF) >=
+<<<<<<< HEAD
 				st->cell_threshhigh)
 				iio_push_event(indio_dev,
 					       IIO_EVENT_CODE(IIO_VOLTAGE,
@@ -749,6 +1018,40 @@ static irqreturn_t ad7280_event_handler(int irq, void *private)
 							IIO_EV_TYPE_THRESH,
 							IIO_EV_DIR_FALLING),
 					       iio_get_time_ns(indio_dev));
+=======
+			    st->cell_threshhigh) {
+				u64 tmp = IIO_EVENT_CODE(IIO_VOLTAGE, 1, 0,
+							 IIO_EV_DIR_RISING,
+							 IIO_EV_TYPE_THRESH,
+							 0, 0, 0);
+				iio_push_event(indio_dev, tmp,
+					       iio_get_time_ns(indio_dev));
+			} else if (((channels[i] >> 11) & 0xFFF) <=
+				   st->cell_threshlow) {
+				u64 tmp = IIO_EVENT_CODE(IIO_VOLTAGE, 1, 0,
+							 IIO_EV_DIR_FALLING,
+							 IIO_EV_TYPE_THRESH,
+							 0, 0, 0);
+				iio_push_event(indio_dev, tmp,
+					       iio_get_time_ns(indio_dev));
+			}
+		} else {
+			if (((channels[i] >> 11) & 0xFFF) >=
+			    st->aux_threshhigh) {
+				u64 tmp = IIO_UNMOD_EVENT_CODE(IIO_TEMP, 0,
+							IIO_EV_TYPE_THRESH,
+							IIO_EV_DIR_RISING);
+				iio_push_event(indio_dev, tmp,
+					       iio_get_time_ns(indio_dev));
+			} else if (((channels[i] >> 11) & 0xFFF) <=
+				st->aux_threshlow) {
+				u64 tmp = IIO_UNMOD_EVENT_CODE(IIO_TEMP, 0,
+							IIO_EV_TYPE_THRESH,
+							IIO_EV_DIR_FALLING);
+				iio_push_event(indio_dev, tmp,
+					       iio_get_time_ns(indio_dev));
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -758,6 +1061,7 @@ out:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static IIO_DEVICE_ATTR_NAMED(in_thresh_low_value,
 		in_voltage-voltage_thresh_low_value,
 		0644,
@@ -783,6 +1087,37 @@ static IIO_DEVICE_ATTR(in_temp_thresh_high_value,
 		ad7280_read_channel_config,
 		ad7280_write_channel_config,
 		AD7280A_AUX_ADC_OVERVOLTAGE);
+=======
+/* Note: No need to fix checkpatch warning that reads:
+ *	CHECK: spaces preferred around that '-' (ctx:VxV)
+ * The function argument is stringified and doesn't need a fix
+ */
+static IIO_DEVICE_ATTR_NAMED(in_thresh_low_value,
+			     in_voltage-voltage_thresh_low_value,
+			     0644,
+			     ad7280_read_channel_config,
+			     ad7280_write_channel_config,
+			     AD7280A_CELL_UNDERVOLTAGE);
+
+static IIO_DEVICE_ATTR_NAMED(in_thresh_high_value,
+			     in_voltage-voltage_thresh_high_value,
+			     0644,
+			     ad7280_read_channel_config,
+			     ad7280_write_channel_config,
+			     AD7280A_CELL_OVERVOLTAGE);
+
+static IIO_DEVICE_ATTR(in_temp_thresh_low_value,
+		       0644,
+		       ad7280_read_channel_config,
+		       ad7280_write_channel_config,
+		       AD7280A_AUX_ADC_UNDERVOLTAGE);
+
+static IIO_DEVICE_ATTR(in_temp_thresh_high_value,
+		       0644,
+		       ad7280_read_channel_config,
+		       ad7280_write_channel_config,
+		       AD7280A_AUX_ADC_OVERVOLTAGE);
+>>>>>>> upstream/android-13
 
 static struct attribute *ad7280_event_attributes[] = {
 	&iio_dev_attr_in_thresh_low_value.dev_attr.attr,
@@ -850,8 +1185,13 @@ static int ad7280_probe(struct spi_device *spi)
 	const struct ad7280_platform_data *pdata = dev_get_platdata(&spi->dev);
 	struct ad7280_state *st;
 	int ret;
+<<<<<<< HEAD
 	const unsigned short tACQ_ns[4] = {465, 1010, 1460, 1890};
 	const unsigned short nAVG[4] = {1, 2, 4, 8};
+=======
+	const unsigned short t_acq_ns[4] = {465, 1010, 1460, 1890};
+	const unsigned short n_avg[4] = {1, 2, 4, 8};
+>>>>>>> upstream/android-13
 	struct iio_dev *indio_dev;
 
 	indio_dev = devm_iio_device_alloc(&spi->dev, sizeof(*st));
@@ -866,7 +1206,11 @@ static int ad7280_probe(struct spi_device *spi)
 	if (!pdata)
 		pdata = &ad7793_default_pdata;
 
+<<<<<<< HEAD
 	ad7280_crc8_build_table(st->crc_tab);
+=======
+	crc8_populate_msb(st->crc_tab, POLYNOM);
+>>>>>>> upstream/android-13
 
 	st->spi->max_speed_hz = AD7280A_MAX_SPI_CLK_HZ;
 	st->spi->mode = SPI_MODE_1;
@@ -886,6 +1230,13 @@ static int ad7280_probe(struct spi_device *spi)
 	st->cell_threshhigh = 0xFF;
 	st->aux_threshhigh = 0xFF;
 
+<<<<<<< HEAD
+=======
+	ret = devm_add_action_or_reset(&spi->dev, ad7280_sw_power_down, st);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Total Conversion Time = ((tACQ + tCONV) *
 	 *			   (Number of Conversions per Part)) −
@@ -895,17 +1246,26 @@ static int ad7280_probe(struct spi_device *spi)
 	 */
 
 	st->readback_delay_us =
+<<<<<<< HEAD
 		((tACQ_ns[pdata->acquisition_time & 0x3] + 695) *
 		(AD7280A_NUM_CH * nAVG[pdata->conversion_averaging & 0x3]))
 		- tACQ_ns[pdata->acquisition_time & 0x3] +
 		st->slave_num * 250;
+=======
+		((t_acq_ns[pdata->acquisition_time & 0x3] + 695) *
+		 (AD7280A_NUM_CH * n_avg[pdata->conversion_averaging & 0x3])) -
+		t_acq_ns[pdata->acquisition_time & 0x3] + st->slave_num * 250;
+>>>>>>> upstream/android-13
 
 	/* Convert to usecs */
 	st->readback_delay_us = DIV_ROUND_UP(st->readback_delay_us, 1000);
 	st->readback_delay_us += 5; /* Add tWAIT */
 
 	indio_dev->name = spi_get_device_id(spi)->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
 	ret = ad7280_channel_init(st);
@@ -918,24 +1278,37 @@ static int ad7280_probe(struct spi_device *spi)
 
 	ret = ad7280_attr_init(st);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto error_free_channels;
 
 	ret = iio_device_register(indio_dev);
 	if (ret)
 		goto error_free_attr;
+=======
+		return ret;
+
+	ret = devm_iio_device_register(&spi->dev, indio_dev);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (spi->irq > 0) {
 		ret = ad7280_write(st, AD7280A_DEVADDR_MASTER,
 				   AD7280A_ALERT, 1,
 				   AD7280A_ALERT_RELAY_SIG_CHAIN_DOWN);
 		if (ret)
+<<<<<<< HEAD
 			goto error_unregister;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		ret = ad7280_write(st, ad7280a_devaddr(st->slave_num),
 				   AD7280A_ALERT, 0,
 				   AD7280A_ALERT_GEN_STATIC_HIGH |
 				   (pdata->chain_last_alert_ignore & 0xF));
 		if (ret)
+<<<<<<< HEAD
 			goto error_unregister;
 
 		ret = request_threaded_irq(spi->irq,
@@ -978,6 +1351,22 @@ static int ad7280_remove(struct spi_device *spi)
 	kfree(st->iio_attr);
 
 	return 0;
+=======
+			return ret;
+
+		ret = devm_request_threaded_irq(&spi->dev, spi->irq,
+						NULL,
+						ad7280_event_handler,
+						IRQF_TRIGGER_FALLING |
+						IRQF_ONESHOT,
+						indio_dev->name,
+						indio_dev);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct spi_device_id ad7280_id[] = {
@@ -991,11 +1380,18 @@ static struct spi_driver ad7280_driver = {
 		.name	= "ad7280",
 	},
 	.probe		= ad7280_probe,
+<<<<<<< HEAD
 	.remove		= ad7280_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= ad7280_id,
 };
 module_spi_driver(ad7280_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Analog Devices AD7280A");
 MODULE_LICENSE("GPL v2");

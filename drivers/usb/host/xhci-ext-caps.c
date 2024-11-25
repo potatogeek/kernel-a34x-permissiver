@@ -6,11 +6,26 @@
  */
 
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/property.h>
+#include <linux/pci.h>
+>>>>>>> upstream/android-13
 #include "xhci.h"
 
 #define USB_SW_DRV_NAME		"intel_xhci_usb_sw"
 #define USB_SW_RESOURCE_SIZE	0x400
 
+<<<<<<< HEAD
+=======
+#define PCI_DEVICE_ID_INTEL_CHERRYVIEW_XHCI	0x22b5
+
+static const struct property_entry role_switch_props[] = {
+	PROPERTY_ENTRY_BOOL("sw_switch_disable"),
+	{},
+};
+
+>>>>>>> upstream/android-13
 static void xhci_intel_unregister_pdev(void *arg)
 {
 	platform_device_unregister(arg);
@@ -21,6 +36,10 @@ static int xhci_create_intel_xhci_sw_pdev(struct xhci_hcd *xhci, u32 cap_offset)
 	struct usb_hcd *hcd = xhci_to_hcd(xhci);
 	struct device *dev = hcd->self.controller;
 	struct platform_device *pdev;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pci = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct resource	res = { 0, };
 	int ret;
 
@@ -43,6 +62,19 @@ static int xhci_create_intel_xhci_sw_pdev(struct xhci_hcd *xhci, u32 cap_offset)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	if (pci->device == PCI_DEVICE_ID_INTEL_CHERRYVIEW_XHCI) {
+		ret = device_create_managed_software_node(&pdev->dev, role_switch_props,
+							  NULL);
+		if (ret) {
+			dev_err(dev, "failed to register device properties\n");
+			platform_device_put(pdev);
+			return ret;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	pdev->dev.parent = dev;
 
 	ret = platform_device_add(pdev);

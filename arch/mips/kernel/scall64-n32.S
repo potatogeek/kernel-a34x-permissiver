@@ -33,7 +33,11 @@ NESTED(handle_sysn32, PT_SIZE, sp)
 #endif
 
 	dsubu	t0, v0, __NR_N32_Linux	# check syscall number
+<<<<<<< HEAD
 	sltiu	t0, t0, __NR_N32_Linux_syscalls + 1
+=======
+	sltiu	t0, t0, __NR_N32_Linux_syscalls
+>>>>>>> upstream/android-13
 
 #ifndef CONFIG_MIPS32_O32
 	ld	t1, PT_EPC(sp)		# skip syscall on return
@@ -87,7 +91,11 @@ n32_syscall_trace_entry:
 	ld	a5, PT_R9(sp)
 
 	dsubu	t2, v0, __NR_N32_Linux	# check (new) syscall number
+<<<<<<< HEAD
 	sltiu   t0, t2, __NR_N32_Linux_syscalls + 1
+=======
+	sltiu   t0, t2, __NR_N32_Linux_syscalls
+>>>>>>> upstream/android-13
 	beqz	t0, not_n32_scall
 
 	j	syscall_common
@@ -101,6 +109,7 @@ not_n32_scall:
 
 	END(handle_sysn32)
 
+<<<<<<< HEAD
 	.type	sysn32_call_table, @object
 EXPORT(sysn32_call_table)
 	PTR	sys_read			/* 6000 */
@@ -437,3 +446,9 @@ EXPORT(sysn32_call_table)
 	PTR	sys_rseq
 	PTR	compat_sys_io_pgetevents
 	.size	sysn32_call_table,.-sysn32_call_table
+=======
+#define __SYSCALL(nr, entry)	PTR_WD entry
+	.type	sysn32_call_table, @object
+EXPORT(sysn32_call_table)
+#include <asm/syscall_table_n32.h>
+>>>>>>> upstream/android-13

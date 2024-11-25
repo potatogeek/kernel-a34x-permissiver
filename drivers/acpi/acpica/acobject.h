@@ -3,7 +3,11 @@
  *
  * Name: acobject.h - Definition of union acpi_operand_object  (Internal object only)
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -153,8 +157,13 @@ struct acpi_object_method {
 	} dispatch;
 
 	u32 aml_length;
+<<<<<<< HEAD
 	u8 thread_count;
 	acpi_owner_id owner_id;
+=======
+	acpi_owner_id owner_id;
+	u8 thread_count;
+>>>>>>> upstream/android-13
 };
 
 /* Flags for info_flags field above */
@@ -239,6 +248,10 @@ struct acpi_object_region_field {
 	union acpi_operand_object *region_obj;	/* Containing op_region object */
 	u8 *resource_buffer;	/* resource_template for serial regions/fields */
 	u16 pin_number_index;	/* Index relative to previous Connection/Template */
+<<<<<<< HEAD
+=======
+	u8 *internal_pcc_buffer;	/* Internal buffer for fields associated with PCC */
+>>>>>>> upstream/android-13
 };
 
 struct acpi_object_bank_field {
@@ -259,7 +272,12 @@ struct acpi_object_index_field {
 /* The buffer_field is different in that it is part of a Buffer, not an op_region */
 
 struct acpi_object_buffer_field {
+<<<<<<< HEAD
 	ACPI_OBJECT_COMMON_HEADER ACPI_COMMON_FIELD_INFO union acpi_operand_object *buffer_obj;	/* Containing Buffer object */
+=======
+	ACPI_OBJECT_COMMON_HEADER ACPI_COMMON_FIELD_INFO u8 is_create_field;	/* Special case for objects created by create_field() */
+	union acpi_operand_object *buffer_obj;	/* Containing Buffer object */
+>>>>>>> upstream/android-13
 };
 
 /******************************************************************************
@@ -282,6 +300,10 @@ struct acpi_object_addr_handler {
 	acpi_adr_space_handler handler;
 	struct acpi_namespace_node *node;	/* Parent device */
 	void *context;
+<<<<<<< HEAD
+=======
+	acpi_mutex context_mutex;
+>>>>>>> upstream/android-13
 	acpi_adr_space_setup setup;
 	union acpi_operand_object *region_list;	/* Regions using this handler */
 	union acpi_operand_object *next;

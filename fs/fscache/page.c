@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Cache page management and data I/O routines
  *
  * Copyright (C) 2004-2008 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define FSCACHE_DEBUG_LEVEL PAGE
@@ -293,7 +300,10 @@ static void fscache_release_retrieval_op(struct fscache_operation *_op)
 	ASSERTIFCMP(op->op.state != FSCACHE_OP_ST_INITIALISED,
 		    atomic_read(&op->n_pages), ==, 0);
 
+<<<<<<< HEAD
 	fscache_hist(fscache_retrieval_histogram, op->start_time);
+=======
+>>>>>>> upstream/android-13
 	if (op->context)
 		fscache_put_context(op->cookie, op->context);
 
@@ -303,7 +313,11 @@ static void fscache_release_retrieval_op(struct fscache_operation *_op)
 /*
  * allocate a retrieval op
  */
+<<<<<<< HEAD
 static struct fscache_retrieval *fscache_alloc_retrieval(
+=======
+struct fscache_retrieval *fscache_alloc_retrieval(
+>>>>>>> upstream/android-13
 	struct fscache_cookie *cookie,
 	struct address_space *mapping,
 	fscache_rw_complete_t end_io_func,
@@ -328,7 +342,10 @@ static struct fscache_retrieval *fscache_alloc_retrieval(
 	op->mapping	= mapping;
 	op->end_io_func	= end_io_func;
 	op->context	= context;
+<<<<<<< HEAD
 	op->start_time	= jiffies;
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&op->to_do);
 
 	/* Pin the netfs read context in case we need to do the actual netfs
@@ -344,8 +361,11 @@ static struct fscache_retrieval *fscache_alloc_retrieval(
  */
 int fscache_wait_for_deferred_lookup(struct fscache_cookie *cookie)
 {
+<<<<<<< HEAD
 	unsigned long jif;
 
+=======
+>>>>>>> upstream/android-13
 	_enter("");
 
 	if (!test_bit(FSCACHE_COOKIE_LOOKING_UP, &cookie->flags)) {
@@ -355,7 +375,10 @@ int fscache_wait_for_deferred_lookup(struct fscache_cookie *cookie)
 
 	fscache_stat(&fscache_n_retrievals_wait);
 
+<<<<<<< HEAD
 	jif = jiffies;
+=======
+>>>>>>> upstream/android-13
 	if (wait_on_bit(&cookie->flags, FSCACHE_COOKIE_LOOKING_UP,
 			TASK_INTERRUPTIBLE) != 0) {
 		fscache_stat(&fscache_n_retrievals_intr);
@@ -366,7 +389,10 @@ int fscache_wait_for_deferred_lookup(struct fscache_cookie *cookie)
 	ASSERT(!test_bit(FSCACHE_COOKIE_LOOKING_UP, &cookie->flags));
 
 	smp_rmb();
+<<<<<<< HEAD
 	fscache_hist(fscache_retrieval_delay_histogram, jif);
+=======
+>>>>>>> upstream/android-13
 	_leave(" = 0 [dly]");
 	return 0;
 }

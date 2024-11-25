@@ -46,7 +46,11 @@ EXPORT_SYMBOL(of_iounmap);
 
 static int of_bus_pci_match(struct device_node *np)
 {
+<<<<<<< HEAD
 	if (!strcmp(np->name, "pci")) {
+=======
+	if (of_node_name_eq(np, "pci")) {
+>>>>>>> upstream/android-13
 		const char *model = of_get_property(np, "model", NULL);
 
 		if (model && !strcmp(model, "SUNW,simba"))
@@ -77,7 +81,11 @@ static int of_bus_simba_match(struct device_node *np)
 	/* Treat PCI busses lacking ranges property just like
 	 * simba.
 	 */
+<<<<<<< HEAD
 	if (!strcmp(np->name, "pci")) {
+=======
+	if (of_node_name_eq(np, "pci")) {
+>>>>>>> upstream/android-13
 		if (!of_find_property(np, "ranges", NULL))
 			return 1;
 	}
@@ -170,8 +178,13 @@ static unsigned long of_bus_pci_get_flags(const u32 *addr, unsigned long flags)
  */
 static int of_bus_fhc_match(struct device_node *np)
 {
+<<<<<<< HEAD
 	return !strcmp(np->name, "fhc") ||
 		!strcmp(np->name, "central");
+=======
+	return of_node_name_eq(np, "fhc") ||
+		of_node_name_eq(np, "central");
+>>>>>>> upstream/android-13
 }
 
 #define of_bus_fhc_count_cells of_bus_sbus_count_cells
@@ -295,17 +308,28 @@ static int __init use_1to1_mapping(struct device_node *pp)
 	 * But, we should still pass the translation work up
 	 * to the SBUS itself.
 	 */
+<<<<<<< HEAD
 	if (!strcmp(pp->name, "dma") ||
 	    !strcmp(pp->name, "espdma") ||
 	    !strcmp(pp->name, "ledma") ||
 	    !strcmp(pp->name, "lebuffer"))
+=======
+	if (of_node_name_eq(pp, "dma") ||
+	    of_node_name_eq(pp, "espdma") ||
+	    of_node_name_eq(pp, "ledma") ||
+	    of_node_name_eq(pp, "lebuffer"))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* Similarly for all PCI bridges, if we get this far
 	 * it lacks a ranges property, and this will include
 	 * cases like Simba.
 	 */
+<<<<<<< HEAD
 	if (!strcmp(pp->name, "pci"))
+=======
+	if (of_node_name_eq(pp, "pci"))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return 1;
@@ -341,9 +365,15 @@ static void __init build_device_resources(struct platform_device *op,
 
 	/* Prevent overrunning the op->resources[] array.  */
 	if (num_reg > PROMREG_MAX) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "%s: Too many regs (%d), "
 		       "limiting to %d.\n",
 		       op->dev.of_node->full_name, num_reg, PROMREG_MAX);
+=======
+		printk(KERN_WARNING "%pOF: Too many regs (%d), "
+		       "limiting to %d.\n",
+		       op->dev.of_node, num_reg, PROMREG_MAX);
+>>>>>>> upstream/android-13
 		num_reg = PROMREG_MAX;
 	}
 
@@ -401,8 +431,13 @@ static void __init build_device_resources(struct platform_device *op,
 		memset(r, 0, sizeof(*r));
 
 		if (of_resource_verbose)
+<<<<<<< HEAD
 			printk("%s reg[%d] -> %llx\n",
 			       op->dev.of_node->full_name, index,
+=======
+			printk("%pOF reg[%d] -> %llx\n",
+			       op->dev.of_node, index,
+>>>>>>> upstream/android-13
 			       result);
 
 		if (result != OF_BAD_ADDR) {
@@ -413,7 +448,11 @@ static void __init build_device_resources(struct platform_device *op,
 			r->end = result + size - 1;
 			r->flags = flags;
 		}
+<<<<<<< HEAD
 		r->name = op->dev.of_node->name;
+=======
+		r->name = op->dev.of_node->full_name;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -548,8 +587,13 @@ static unsigned int __init build_one_device_irq(struct platform_device *op,
 					       dp->irq_trans->data);
 
 		if (of_irq_verbose)
+<<<<<<< HEAD
 			printk("%s: direct translate %x --> %x\n",
 			       dp->full_name, orig_irq, irq);
+=======
+			printk("%pOF: direct translate %x --> %x\n",
+			       dp, orig_irq, irq);
+>>>>>>> upstream/android-13
 
 		goto out;
 	}
@@ -579,10 +623,16 @@ static unsigned int __init build_one_device_irq(struct platform_device *op,
 						   &irq);
 
 			if (of_irq_verbose)
+<<<<<<< HEAD
 				printk("%s: Apply [%s:%x] imap --> [%s:%x]\n",
 				       op->dev.of_node->full_name,
 				       pp->full_name, this_orig_irq,
 				       of_node_full_name(iret), irq);
+=======
+				printk("%pOF: Apply [%pOF:%x] imap --> [%pOF:%x]\n",
+				       op->dev.of_node,
+				       pp, this_orig_irq, iret, irq);
+>>>>>>> upstream/android-13
 
 			if (!iret)
 				break;
@@ -592,15 +642,26 @@ static unsigned int __init build_one_device_irq(struct platform_device *op,
 				break;
 			}
 		} else {
+<<<<<<< HEAD
 			if (!strcmp(pp->name, "pci")) {
+=======
+			if (of_node_name_eq(pp, "pci")) {
+>>>>>>> upstream/android-13
 				unsigned int this_orig_irq = irq;
 
 				irq = pci_irq_swizzle(dp, pp, irq);
 				if (of_irq_verbose)
+<<<<<<< HEAD
 					printk("%s: PCI swizzle [%s] "
 					       "%x --> %x\n",
 					       op->dev.of_node->full_name,
 					       pp->full_name, this_orig_irq,
+=======
+					printk("%pOF: PCI swizzle [%pOF] "
+					       "%x --> %x\n",
+					       op->dev.of_node,
+					       pp, this_orig_irq,
+>>>>>>> upstream/android-13
 					       irq);
 
 			}
@@ -619,8 +680,13 @@ static unsigned int __init build_one_device_irq(struct platform_device *op,
 	irq = ip->irq_trans->irq_build(op->dev.of_node, irq,
 				       ip->irq_trans->data);
 	if (of_irq_verbose)
+<<<<<<< HEAD
 		printk("%s: Apply IRQ trans [%s] %x --> %x\n",
 		      op->dev.of_node->full_name, ip->full_name, orig_irq, irq);
+=======
+		printk("%pOF: Apply IRQ trans [%pOF] %x --> %x\n",
+		      op->dev.of_node, ip, orig_irq, irq);
+>>>>>>> upstream/android-13
 
 out:
 	nid = of_node_to_nid(dp);
@@ -656,9 +722,15 @@ static struct platform_device * __init scan_one_device(struct device_node *dp,
 
 		/* Prevent overrunning the op->irqs[] array.  */
 		if (op->archdata.num_irqs > PROMINTR_MAX) {
+<<<<<<< HEAD
 			printk(KERN_WARNING "%s: Too many irqs (%d), "
 			       "limiting to %d.\n",
 			       dp->full_name, op->archdata.num_irqs, PROMINTR_MAX);
+=======
+			printk(KERN_WARNING "%pOF: Too many irqs (%d), "
+			       "limiting to %d.\n",
+			       dp, op->archdata.num_irqs, PROMINTR_MAX);
+>>>>>>> upstream/android-13
 			op->archdata.num_irqs = PROMINTR_MAX;
 		}
 		memcpy(op->archdata.irqs, irq, op->archdata.num_irqs * 4);
@@ -680,8 +752,12 @@ static struct platform_device * __init scan_one_device(struct device_node *dp,
 	op->dev.dma_mask = &op->dev.coherent_dma_mask;
 
 	if (of_device_register(op)) {
+<<<<<<< HEAD
 		printk("%s: Could not register of device.\n",
 		       dp->full_name);
+=======
+		printk("%pOF: Could not register of device.\n", dp);
+>>>>>>> upstream/android-13
 		kfree(op);
 		op = NULL;
 	}

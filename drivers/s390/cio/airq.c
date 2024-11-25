@@ -16,9 +16,17 @@
 #include <linux/mutex.h>
 #include <linux/rculist.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <asm/airq.h>
 #include <asm/isc.h>
+=======
+#include <linux/dmapool.h>
+
+#include <asm/airq.h>
+#include <asm/isc.h>
+#include <asm/cio.h>
+>>>>>>> upstream/android-13
 
 #include "cio.h"
 #include "cio_debug.h"
@@ -27,6 +35,11 @@
 static DEFINE_SPINLOCK(airq_lists_lock);
 static struct hlist_head airq_lists[MAX_ISC+1];
 
+<<<<<<< HEAD
+=======
+static struct dma_pool *airq_iv_cache;
+
+>>>>>>> upstream/android-13
 /**
  * register_adapter_interrupt() - register adapter interrupt handler
  * @airq: pointer to adapter interrupt descriptor
@@ -89,28 +102,49 @@ static irqreturn_t do_airq_interrupt(int irq, void *dummy)
 	struct hlist_head *head;
 
 	set_cpu_flag(CIF_NOHZ_DELAY);
+<<<<<<< HEAD
 	tpi_info = (struct tpi_info *) &get_irq_regs()->int_code;
+=======
+	tpi_info = &get_irq_regs()->tpi_info;
+>>>>>>> upstream/android-13
 	trace_s390_cio_adapter_int(tpi_info);
 	head = &airq_lists[tpi_info->isc];
 	rcu_read_lock();
 	hlist_for_each_entry_rcu(airq, head, list)
 		if ((*airq->lsi_ptr & airq->lsi_mask) != 0)
+<<<<<<< HEAD
 			airq->handler(airq);
+=======
+			airq->handler(airq, !tpi_info->directed_irq);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction airq_interrupt = {
 	.name	 = "AIO",
 	.handler = do_airq_interrupt,
 };
 
+=======
+>>>>>>> upstream/android-13
 void __init init_airq_interrupts(void)
 {
 	irq_set_chip_and_handler(THIN_INTERRUPT,
 				 &dummy_irq_chip, handle_percpu_irq);
+<<<<<<< HEAD
 	setup_irq(THIN_INTERRUPT, &airq_interrupt);
+=======
+	if (request_irq(THIN_INTERRUPT, do_airq_interrupt, 0, "AIO", NULL))
+		panic("Failed to register AIO interrupt\n");
+}
+
+static inline unsigned long iv_size(unsigned long bits)
+{
+	return BITS_TO_LONGS(bits) * sizeof(unsigned long);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -129,10 +163,30 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
 	if (!iv)
 		goto out;
 	iv->bits = bits;
+<<<<<<< HEAD
 	size = BITS_TO_LONGS(bits) * sizeof(unsigned long);
 	iv->vector = kzalloc(size, GFP_KERNEL);
 	if (!iv->vector)
 		goto out_free;
+=======
+	iv->flags = flags;
+	size = iv_size(bits);
+
+	if (flags & AIRQ_IV_CACHELINE) {
+		if ((cache_line_size() * BITS_PER_BYTE) < bits
+				|| !airq_iv_cache)
+			goto out_free;
+
+		iv->vector = dma_pool_zalloc(airq_iv_cache, GFP_KERNEL,
+					     &iv->vector_dma);
+		if (!iv->vector)
+			goto out_free;
+	} else {
+		iv->vector = cio_dma_zalloc(size);
+		if (!iv->vector)
+			goto out_free;
+	}
+>>>>>>> upstream/android-13
 	if (flags & AIRQ_IV_ALLOC) {
 		iv->avail = kmalloc(size, GFP_KERNEL);
 		if (!iv->avail)
@@ -165,7 +219,14 @@ out_free:
 	kfree(iv->ptr);
 	kfree(iv->bitlock);
 	kfree(iv->avail);
+<<<<<<< HEAD
 	kfree(iv->vector);
+=======
+	if (iv->flags & AIRQ_IV_CACHELINE && iv->vector)
+		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+	else
+		cio_dma_free(iv->vector, size);
+>>>>>>> upstream/android-13
 	kfree(iv);
 out:
 	return NULL;
@@ -181,7 +242,14 @@ void airq_iv_release(struct airq_iv *iv)
 	kfree(iv->data);
 	kfree(iv->ptr);
 	kfree(iv->bitlock);
+<<<<<<< HEAD
 	kfree(iv->vector);
+=======
+	if (iv->flags & AIRQ_IV_CACHELINE)
+		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+	else
+		cio_dma_free(iv->vector, iv_size(iv->bits));
+>>>>>>> upstream/android-13
 	kfree(iv->avail);
 	kfree(iv);
 }
@@ -275,3 +343,16 @@ unsigned long airq_iv_scan(struct airq_iv *iv, unsigned long start,
 	return bit;
 }
 EXPORT_SYMBOL(airq_iv_scan);
+<<<<<<< HEAD
+=======
+
+int __init airq_init(void)
+{
+	airq_iv_cache = dma_pool_create("airq_iv_cache", cio_get_dma_css_dev(),
+					cache_line_size(),
+					cache_line_size(), PAGE_SIZE);
+	if (!airq_iv_cache)
+		return -ENOMEM;
+	return 0;
+}
+>>>>>>> upstream/android-13

@@ -31,12 +31,17 @@ static u32 edca_setting_DL[HT_IOT_PEER_MAX] = {
 
 void ODM_EdcaTurboInit(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 	struct adapter *Adapter = pDM_Odm->Adapter;
 
 	pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA = false;
 	pDM_Odm->DM_EDCA_Table.bIsCurRDLState = false;
 	Adapter->recvpriv.bIsAnyNonBEPkts = false;
+<<<<<<< HEAD
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO, ODM_DBG_LOUD,
 		     ("Orginial VO PARAM: 0x%x\n",
@@ -50,6 +55,8 @@ void ODM_EdcaTurboInit(void *pDM_VOID)
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO, ODM_DBG_LOUD,
 		     ("Orginial BK PARAM: 0x%x\n",
 		      rtw_read32(pDM_Odm->Adapter, ODM_EDCA_BK_PARAM)));
+=======
+>>>>>>> upstream/android-13
 }	/*  ODM_InitEdcaTurbo */
 
 void odm_EdcaTurboCheck(void *pDM_VOID)
@@ -58,22 +65,33 @@ void odm_EdcaTurboCheck(void *pDM_VOID)
 	 *  operate at the same time. In stage2/3, we need to prove universal
 	 *  interface and merge all HW dynamic mechanism.
 	 */
+<<<<<<< HEAD
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO, ODM_DBG_LOUD,
 		     ("odm_EdcaTurboCheck ========================>\n"));
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 
 	if (!(pDM_Odm->SupportAbility & ODM_MAC_EDCA_TURBO))
 		return;
 
 	odm_EdcaTurboCheckCE(pDM_Odm);
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO, ODM_DBG_LOUD,
 		     ("<========================odm_EdcaTurboCheck\n"));
+=======
+>>>>>>> upstream/android-13
 }	/*  odm_CheckEdcaTurbo */
 
 void odm_EdcaTurboCheckCE(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 	struct adapter *Adapter = pDM_Odm->Adapter;
 	struct dvobj_priv *pdvobjpriv = adapter_to_dvobj(Adapter);
 	struct recv_priv *precvpriv = &(Adapter->recvpriv);
@@ -97,7 +115,11 @@ void odm_EdcaTurboCheckCE(void *pDM_VOID)
 		return;
 	}
 
+<<<<<<< HEAD
 	if ((pregpriv->wifi_spec == 1)) {
+=======
+	if (pregpriv->wifi_spec == 1) {
+>>>>>>> upstream/android-13
 		precvpriv->bIsAnyNonBEPkts = false;
 		return;
 	}
@@ -142,12 +164,19 @@ void odm_EdcaTurboCheckCE(void *pDM_VOID)
 		} else if ((iot_peer == HT_IOT_PEER_CISCO) &&
 			   ((wirelessmode == ODM_WM_G) ||
 			    (wirelessmode == (ODM_WM_B | ODM_WM_G)) ||
+<<<<<<< HEAD
 			    (wirelessmode == ODM_WM_A) ||
 			    (wirelessmode == ODM_WM_B))) {
 			EDCA_BE_DL = edca_setting_DL_GMode[iot_peer];
 		} else if ((iot_peer == HT_IOT_PEER_AIRGO) &&
 			   ((wirelessmode == ODM_WM_G) ||
 			    (wirelessmode == ODM_WM_A))) {
+=======
+			    (wirelessmode == ODM_WM_B))) {
+			EDCA_BE_DL = edca_setting_DL_GMode[iot_peer];
+		} else if ((iot_peer == HT_IOT_PEER_AIRGO) &&
+			   (wirelessmode == ODM_WM_G)) {
+>>>>>>> upstream/android-13
 			EDCA_BE_DL = 0xa630;
 		} else if (iot_peer == HT_IOT_PEER_MARVELL) {
 			EDCA_BE_DL = edca_setting_DL[iot_peer];

@@ -257,7 +257,12 @@ void hpfs_write_inode_nolock(struct inode *i)
 	brelse(bh);
 }
 
+<<<<<<< HEAD
 int hpfs_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+int hpfs_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		 struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	int error = -EINVAL;
@@ -274,7 +279,11 @@ int hpfs_setattr(struct dentry *dentry, struct iattr *attr)
 	if ((attr->ia_valid & ATTR_SIZE) && attr->ia_size > inode->i_size)
 		goto out_unlock;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_unlock;
 
@@ -288,7 +297,11 @@ int hpfs_setattr(struct dentry *dentry, struct iattr *attr)
 		hpfs_truncate(inode);
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, attr);
+=======
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 
 	hpfs_write_inode(inode);
 

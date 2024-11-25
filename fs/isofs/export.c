@@ -10,7 +10,11 @@
  *
  * The following files are helpful:
  *
+<<<<<<< HEAD
  *     Documentation/filesystems/nfs/Exporting
+=======
+ *     Documentation/filesystems/nfs/exporting.rst
+>>>>>>> upstream/android-13
  *     fs/exportfs/expfs.c.
  */
 

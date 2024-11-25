@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
  *   Copyright 2007 rPath, Inc. - All Rights Reserved
  *   Copyright 2009 Intel Corporation; author H. Peter Anvin
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available under
  *   the terms of the GNU General Public License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -17,7 +24,11 @@
 
 #define SMAP	0x534d4150	/* ASCII "SMAP" */
 
+<<<<<<< HEAD
 static int detect_memory_e820(void)
+=======
+static void detect_memory_e820(void)
+>>>>>>> upstream/android-13
 {
 	int count = 0;
 	struct biosregs ireg, oreg;
@@ -26,7 +37,11 @@ static int detect_memory_e820(void)
 
 	initregs(&ireg);
 	ireg.ax  = 0xe820;
+<<<<<<< HEAD
 	ireg.cx  = sizeof buf;
+=======
+	ireg.cx  = sizeof(buf);
+>>>>>>> upstream/android-13
 	ireg.edx = SMAP;
 	ireg.di  = (size_t)&buf;
 
@@ -68,10 +83,17 @@ static int detect_memory_e820(void)
 		count++;
 	} while (ireg.ebx && count < ARRAY_SIZE(boot_params.e820_table));
 
+<<<<<<< HEAD
 	return boot_params.e820_entries = count;
 }
 
 static int detect_memory_e801(void)
+=======
+	boot_params.e820_entries = count;
+}
+
+static void detect_memory_e801(void)
+>>>>>>> upstream/android-13
 {
 	struct biosregs ireg, oreg;
 
@@ -80,7 +102,11 @@ static int detect_memory_e801(void)
 	intcall(0x15, &ireg, &oreg);
 
 	if (oreg.eflags & X86_EFLAGS_CF)
+<<<<<<< HEAD
 		return -1;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	/* Do we really need to do this? */
 	if (oreg.cx || oreg.dx) {
@@ -89,7 +115,11 @@ static int detect_memory_e801(void)
 	}
 
 	if (oreg.ax > 15*1024) {
+<<<<<<< HEAD
 		return -1;	/* Bogus! */
+=======
+		return;	/* Bogus! */
+>>>>>>> upstream/android-13
 	} else if (oreg.ax == 15*1024) {
 		boot_params.alt_mem_k = (oreg.bx << 6) + oreg.ax;
 	} else {
@@ -102,11 +132,17 @@ static int detect_memory_e801(void)
 		 */
 		boot_params.alt_mem_k = oreg.ax;
 	}
+<<<<<<< HEAD
 
 	return 0;
 }
 
 static int detect_memory_88(void)
+=======
+}
+
+static void detect_memory_88(void)
+>>>>>>> upstream/android-13
 {
 	struct biosregs ireg, oreg;
 
@@ -115,6 +151,7 @@ static int detect_memory_88(void)
 	intcall(0x15, &ireg, &oreg);
 
 	boot_params.screen_info.ext_mem_k = oreg.ax;
+<<<<<<< HEAD
 
 	return -(oreg.eflags & X86_EFLAGS_CF); /* 0 or -1 */
 }
@@ -133,4 +170,15 @@ int detect_memory(void)
 		err = 0;
 
 	return err;
+=======
+}
+
+void detect_memory(void)
+{
+	detect_memory_e820();
+
+	detect_memory_e801();
+
+	detect_memory_88();
+>>>>>>> upstream/android-13
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  hda_intel.c - Implementation of primary alsa driver code base
@@ -8,6 +12,7 @@
  *  Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
  *                     PeiSen Hou <pshou@realtek.com.tw>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the Free
  *  Software Foundation; either version 2 of the License, or (at your option)
@@ -22,6 +27,8 @@
  *  this program; if not, write to the Free Software Foundation, Inc., 59
  *  Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  CONTACTS:
  *
  *  Matt Jared		matt.jared@intel.com
@@ -31,7 +38,10 @@
  *  CHANGES:
  *
  *  2004.12.01	Major rewrite by tiwai, merged the work of pshou
+<<<<<<< HEAD
  * 
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -49,10 +59,18 @@
 #include <linux/clocksource.h>
 #include <linux/time.h>
 #include <linux/completion.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_X86
 /* for snoop control */
 #include <asm/pgtable.h>
+=======
+#include <linux/acpi.h>
+#include <linux/pgtable.h>
+
+#ifdef CONFIG_X86
+/* for snoop control */
+>>>>>>> upstream/android-13
 #include <asm/set_memory.h>
 #include <asm/cpufeature.h>
 #endif
@@ -60,10 +78,18 @@
 #include <sound/initval.h>
 #include <sound/hdaudio.h>
 #include <sound/hda_i915.h>
+<<<<<<< HEAD
 #include <linux/vgaarb.h>
 #include <linux/vga_switcheroo.h>
 #include <linux/firmware.h>
 #include "hda_codec.h"
+=======
+#include <sound/intel-dsp-config.h>
+#include <linux/vgaarb.h>
+#include <linux/vga_switcheroo.h>
+#include <linux/firmware.h>
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_controller.h"
 #include "hda_intel.h"
 
@@ -98,8 +124,11 @@ enum {
 #define INTEL_SCH_HDA_DEVC      0x78
 #define INTEL_SCH_HDA_DEVC_NOSNOOP       (0x1<<11)
 
+<<<<<<< HEAD
 /* Define IN stream 0 FIFO size offset in VIA controller */
 #define VIA_IN_STREAM0_FIFO_SIZE_OFFSET	0x90
+=======
+>>>>>>> upstream/android-13
 /* Define VIA HD Audio Device ID*/
 #define VIA_HDAC_DEVICE_ID		0x3288
 
@@ -139,6 +168,10 @@ static char *patch[SNDRV_CARDS];
 static bool beep_mode[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS-1)] =
 					CONFIG_SND_HDA_INPUT_BEEP_MODE};
 #endif
+<<<<<<< HEAD
+=======
+static bool dmic_detect = 1;
+>>>>>>> upstream/android-13
 
 module_param_array(index, int, NULL, 0444);
 MODULE_PARM_DESC(index, "Index value for Intel HD audio interface.");
@@ -173,6 +206,13 @@ module_param_array(beep_mode, bool, NULL, 0444);
 MODULE_PARM_DESC(beep_mode, "Select HDA Beep registration mode "
 			    "(0=off, 1=on) (default=1).");
 #endif
+<<<<<<< HEAD
+=======
+module_param(dmic_detect, bool, 0444);
+MODULE_PARM_DESC(dmic_detect, "Allow DSP driver selection (bypass this driver) "
+			     "(0=off, 1=on) (default=1); "
+		 "deprecated, use snd-intel-dspcfg.dsp_driver option instead");
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 static int param_set_xint(const char *val, const struct kernel_param *kp);
@@ -189,7 +229,11 @@ MODULE_PARM_DESC(power_save, "Automatic power-saving timeout "
 
 static bool pm_blacklist = true;
 module_param(pm_blacklist, bool, 0644);
+<<<<<<< HEAD
 MODULE_PARM_DESC(pm_blacklist, "Enable power-management blacklist");
+=======
+MODULE_PARM_DESC(pm_blacklist, "Enable power-management denylist");
+>>>>>>> upstream/android-13
 
 /* reset the HD-audio controller in power save mode.
  * this may give more power-saving, but will take longer time to
@@ -217,6 +261,7 @@ MODULE_PARM_DESC(snoop, "Enable/disable snooping");
 
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Intel, ICH6},"
 			 "{Intel, ICH6M},"
 			 "{Intel, ICH7},"
@@ -251,6 +296,8 @@ MODULE_SUPPORTED_DEVICE("{{Intel, ICH6},"
 			 "{VIA, VT8237A},"
 			 "{SiS, SIS966},"
 			 "{ULI, M5461}}");
+=======
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Intel HDA driver");
 
 #if defined(CONFIG_PM) && defined(CONFIG_VGA_SWITCHEROO)
@@ -281,6 +328,10 @@ enum {
 	AZX_DRIVER_CTX,
 	AZX_DRIVER_CTHDA,
 	AZX_DRIVER_CMEDIA,
+<<<<<<< HEAD
+=======
+	AZX_DRIVER_ZHAOXIN,
+>>>>>>> upstream/android-13
 	AZX_DRIVER_GENERIC,
 	AZX_NUM_DRIVERS, /* keep this as last entry */
 };
@@ -311,12 +362,17 @@ enum {
 #define AZX_DCAPS_INTEL_HASWELL \
 	(/*AZX_DCAPS_ALIGN_BUFSIZE |*/ AZX_DCAPS_COUNT_LPIB_DELAY |\
 	 AZX_DCAPS_PM_RUNTIME | AZX_DCAPS_I915_COMPONENT |\
+<<<<<<< HEAD
 	 AZX_DCAPS_I915_POWERWELL | AZX_DCAPS_SNOOP_TYPE(SCH))
+=======
+	 AZX_DCAPS_SNOOP_TYPE(SCH))
+>>>>>>> upstream/android-13
 
 /* Broadwell HDMI can't use position buffer reliably, force to use LPIB */
 #define AZX_DCAPS_INTEL_BROADWELL \
 	(/*AZX_DCAPS_ALIGN_BUFSIZE |*/ AZX_DCAPS_POSFIX_LPIB |\
 	 AZX_DCAPS_PM_RUNTIME | AZX_DCAPS_I915_COMPONENT |\
+<<<<<<< HEAD
 	 AZX_DCAPS_I915_POWERWELL | AZX_DCAPS_SNOOP_TYPE(SCH))
 
 #define AZX_DCAPS_INTEL_BAYTRAIL \
@@ -338,11 +394,35 @@ enum {
 /* quirks for ATI SB / AMD Hudson */
 #define AZX_DCAPS_PRESET_ATI_SB \
 	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_SYNC_WRITE | AZX_DCAPS_POSFIX_LPIB |\
+=======
+	 AZX_DCAPS_SNOOP_TYPE(SCH))
+
+#define AZX_DCAPS_INTEL_BAYTRAIL \
+	(AZX_DCAPS_INTEL_PCH_BASE | AZX_DCAPS_I915_COMPONENT)
+
+#define AZX_DCAPS_INTEL_BRASWELL \
+	(AZX_DCAPS_INTEL_PCH_BASE | AZX_DCAPS_PM_RUNTIME |\
+	 AZX_DCAPS_I915_COMPONENT)
+
+#define AZX_DCAPS_INTEL_SKYLAKE \
+	(AZX_DCAPS_INTEL_PCH_BASE | AZX_DCAPS_PM_RUNTIME |\
+	 AZX_DCAPS_SEPARATE_STREAM_TAG | AZX_DCAPS_I915_COMPONENT)
+
+#define AZX_DCAPS_INTEL_BROXTON		AZX_DCAPS_INTEL_SKYLAKE
+
+/* quirks for ATI SB / AMD Hudson */
+#define AZX_DCAPS_PRESET_ATI_SB \
+	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_POSFIX_LPIB |\
+>>>>>>> upstream/android-13
 	 AZX_DCAPS_SNOOP_TYPE(ATI))
 
 /* quirks for ATI/AMD HDMI */
 #define AZX_DCAPS_PRESET_ATI_HDMI \
+<<<<<<< HEAD
 	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_SYNC_WRITE | AZX_DCAPS_POSFIX_LPIB|\
+=======
+	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_POSFIX_LPIB|\
+>>>>>>> upstream/android-13
 	 AZX_DCAPS_NO_MSI64)
 
 /* quirks for ATI HDMI with snoop off */
@@ -351,8 +431,14 @@ enum {
 
 /* quirks for AMD SB */
 #define AZX_DCAPS_PRESET_AMD_SB \
+<<<<<<< HEAD
 	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_SYNC_WRITE | AZX_DCAPS_AMD_WORKAROUND |\
 	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME)
+=======
+	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_AMD_WORKAROUND |\
+	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME |\
+	 AZX_DCAPS_RETRY_PROBE)
+>>>>>>> upstream/android-13
 
 /* quirks for Nvidia */
 #define AZX_DCAPS_PRESET_NVIDIA \
@@ -369,7 +455,11 @@ enum {
  */
 #ifdef SUPPORT_VGA_SWITCHEROO
 #define use_vga_switcheroo(chip)	((chip)->use_vga_switcheroo)
+<<<<<<< HEAD
 #define needs_eld_notify_link(chip)	((chip)->need_eld_notify_link)
+=======
+#define needs_eld_notify_link(chip)	((chip)->bus.keep_power)
+>>>>>>> upstream/android-13
 #else
 #define use_vga_switcheroo(chip)	0
 #define needs_eld_notify_link(chip)	false
@@ -378,6 +468,7 @@ enum {
 #define CONTROLLER_IN_GPU(pci) (((pci)->device == 0x0a0c) || \
 					((pci)->device == 0x0c0c) || \
 					((pci)->device == 0x0d0c) || \
+<<<<<<< HEAD
 					((pci)->device == 0x160c))
 
 #define IS_BXT(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x5a98)
@@ -385,6 +476,17 @@ enum {
 #define IS_CNL(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x9dc8)
 
 static char *driver_short_names[] = {
+=======
+					((pci)->device == 0x160c) || \
+					((pci)->device == 0x490d) || \
+					((pci)->device == 0x4f90) || \
+					((pci)->device == 0x4f91) || \
+					((pci)->device == 0x4f92))
+
+#define IS_BXT(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x5a98)
+
+static const char * const driver_short_names[] = {
+>>>>>>> upstream/android-13
 	[AZX_DRIVER_ICH] = "HDA Intel",
 	[AZX_DRIVER_PCH] = "HDA Intel PCH",
 	[AZX_DRIVER_SCH] = "HDA Intel MID",
@@ -401,6 +503,7 @@ static char *driver_short_names[] = {
 	[AZX_DRIVER_CTX] = "HDA Creative", 
 	[AZX_DRIVER_CTHDA] = "HDA Creative",
 	[AZX_DRIVER_CMEDIA] = "HDA C-Media",
+<<<<<<< HEAD
 	[AZX_DRIVER_GENERIC] = "HD-Audio Generic",
 };
 
@@ -459,6 +562,12 @@ static inline void mark_runtime_wc(struct azx *chip, struct azx_dev *azx_dev,
 }
 #endif
 
+=======
+	[AZX_DRIVER_ZHAOXIN] = "HDA Zhaoxin",
+	[AZX_DRIVER_GENERIC] = "HD-Audio Generic",
+};
+
+>>>>>>> upstream/android-13
 static int azx_acquire_irq(struct azx *chip, int do_disconnect);
 static void set_default_power_save(struct azx *chip);
 
@@ -565,7 +674,11 @@ static void bxt_reduce_dma_latency(struct azx *chip)
 static int intel_get_lctl_scf(struct azx *chip)
 {
 	struct hdac_bus *bus = azx_bus(chip);
+<<<<<<< HEAD
 	static int preferred_bits[] = { 2, 3, 1, 4, 5 };
+=======
+	static const int preferred_bits[] = { 2, 3, 1, 4, 5 };
+>>>>>>> upstream/android-13
 	u32 val, t;
 	int i;
 
@@ -651,8 +764,12 @@ static void hda_intel_init_chip(struct azx *chip, bool full_reset)
 	struct pci_dev *pci = chip->pci;
 	u32 val;
 
+<<<<<<< HEAD
 	if (chip->driver_caps & AZX_DCAPS_I915_POWERWELL)
 		snd_hdac_set_codec_wakeup(bus, true);
+=======
+	snd_hdac_set_codec_wakeup(bus, true);
+>>>>>>> upstream/android-13
 	if (chip->driver_type == AZX_DRIVER_SKL) {
 		pci_read_config_dword(pci, INTEL_HDA_CGCTL, &val);
 		val = val & ~INTEL_HDA_CGCTL_MISCBDCGE;
@@ -664,8 +781,13 @@ static void hda_intel_init_chip(struct azx *chip, bool full_reset)
 		val = val | INTEL_HDA_CGCTL_MISCBDCGE;
 		pci_write_config_dword(pci, INTEL_HDA_CGCTL, val);
 	}
+<<<<<<< HEAD
 	if (chip->driver_caps & AZX_DCAPS_I915_POWERWELL)
 		snd_hdac_set_codec_wakeup(bus, false);
+=======
+
+	snd_hdac_set_codec_wakeup(bus, false);
+>>>>>>> upstream/android-13
 
 	/* reduce dma latency to avoid noise */
 	if (IS_BXT(pci))
@@ -727,6 +849,7 @@ static int azx_position_check(struct azx *chip, struct azx_dev *azx_dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Enable/disable i915 display power for the link */
 static int azx_intel_link_power(struct azx *chip, bool enable)
 {
@@ -734,6 +857,10 @@ static int azx_intel_link_power(struct azx *chip, bool enable)
 
 	return snd_hdac_display_power(bus, enable);
 }
+=======
+#define display_power(chip, enable) \
+	snd_hdac_display_power(azx_bus(chip), HDA_CODEC_IDX_CONTROLLER, enable)
+>>>>>>> upstream/android-13
 
 /*
  * Check whether the current DMA position is acceptable for updating
@@ -743,13 +870,26 @@ static int azx_intel_link_power(struct azx *chip, bool enable)
  * the update-IRQ timing.  The IRQ is issued before actually the
  * data is processed.  So, we need to process it afterwords in a
  * workqueue.
+<<<<<<< HEAD
+=======
+ *
+ * Returns 1 if OK to proceed, 0 for delay handling, -1 for skipping update
+>>>>>>> upstream/android-13
  */
 static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
 {
 	struct snd_pcm_substream *substream = azx_dev->core.substream;
+<<<<<<< HEAD
 	int stream = substream->stream;
 	u32 wallclk;
 	unsigned int pos;
+=======
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	int stream = substream->stream;
+	u32 wallclk;
+	unsigned int pos;
+	snd_pcm_uframes_t hwptr, target;
+>>>>>>> upstream/android-13
 
 	wallclk = azx_readl(chip, WALLCLK) - azx_dev->core.start_wallclk;
 	if (wallclk < (azx_dev->core.period_wallclk * 2) / 3)
@@ -786,6 +926,27 @@ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
 		/* NG - it's below the first next period boundary */
 		return chip->bdl_pos_adj ? 0 : -1;
 	azx_dev->core.start_wallclk += wallclk;
+<<<<<<< HEAD
+=======
+
+	if (azx_dev->core.no_period_wakeup)
+		return 1; /* OK, no need to check period boundary */
+
+	if (runtime->hw_ptr_base != runtime->hw_ptr_interrupt)
+		return 1; /* OK, already in hwptr updating process */
+
+	/* check whether the period gets really elapsed */
+	pos = bytes_to_frames(runtime, pos);
+	hwptr = runtime->hw_ptr_base + pos;
+	if (hwptr < runtime->status->hw_ptr)
+		hwptr += runtime->buffer_size;
+	target = runtime->hw_ptr_interrupt + runtime->period_size;
+	if (hwptr < target) {
+		/* too early wakeup, process it later */
+		return chip->bdl_pos_adj ? 0 : -1;
+	}
+
+>>>>>>> upstream/android-13
 	return 1; /* OK, it's fine */
 }
 
@@ -863,6 +1024,10 @@ static int azx_acquire_irq(struct azx *chip, int do_disconnect)
 		return -1;
 	}
 	bus->irq = chip->pci->irq;
+<<<<<<< HEAD
+=======
+	chip->card->sync_irq = bus->irq;
+>>>>>>> upstream/android-13
 	pci_intx(chip->pci, !chip->msi);
 	return 0;
 }
@@ -888,11 +1053,15 @@ static unsigned int azx_via_get_position(struct azx *chip,
 	mod_dma_pos = le32_to_cpu(*azx_dev->core.posbuf);
 	mod_dma_pos %= azx_dev->core.period_bytes;
 
+<<<<<<< HEAD
 	/* azx_dev->fifo_size can't get FIFO size of in stream.
 	 * Get from base address + offset.
 	 */
 	fifo_size = readw(azx_bus(chip)->remap_addr +
 			  VIA_IN_STREAM0_FIFO_SIZE_OFFSET);
+=======
+	fifo_size = azx_stream(azx_dev)->fifo_size - 1;
+>>>>>>> upstream/android-13
 
 	if (azx_dev->insufficient) {
 		/* Link position never gather than FIFO size */
@@ -967,6 +1136,7 @@ static int azx_get_delay_from_fifo(struct azx *chip, struct azx_dev *azx_dev,
 	return substream->runtime->delay;
 }
 
+<<<<<<< HEAD
 static unsigned int azx_skl_get_dpib_pos(struct azx *chip,
 					 struct azx_dev *azx_dev)
 {
@@ -990,12 +1160,29 @@ static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
 	udelay(20);
 	azx_skl_get_dpib_pos(chip, azx_dev);
 	return azx_get_pos_posbuf(chip, azx_dev);
+=======
+static void __azx_shutdown_chip(struct azx *chip, bool skip_link_reset)
+{
+	azx_stop_chip(chip);
+	if (!skip_link_reset)
+		azx_enter_link_reset(chip);
+	azx_clear_irq_pending(chip);
+	display_power(chip, false);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM
 static DEFINE_MUTEX(card_list_lock);
 static LIST_HEAD(card_list);
 
+<<<<<<< HEAD
+=======
+static void azx_shutdown_chip(struct azx *chip)
+{
+	__azx_shutdown_chip(chip, false);
+}
+
+>>>>>>> upstream/android-13
 static void azx_add_card_list(struct azx *chip)
 {
 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
@@ -1033,6 +1220,7 @@ static int param_set_xint(const char *val, const struct kernel_param *kp)
 	mutex_unlock(&card_list_lock);
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define azx_add_card_list(chip) /* NOP */
 #define azx_del_card_list(chip) /* NOP */
@@ -1042,10 +1230,98 @@ static int param_set_xint(const char *val, const struct kernel_param *kp)
 /*
  * power management
  */
+=======
+
+/*
+ * power management
+ */
+static bool azx_is_pm_ready(struct snd_card *card)
+{
+	struct azx *chip;
+	struct hda_intel *hda;
+
+	if (!card)
+		return false;
+	chip = card->private_data;
+	hda = container_of(chip, struct hda_intel, chip);
+	if (chip->disabled || hda->init_failed || !chip->running)
+		return false;
+	return true;
+}
+
+static void __azx_runtime_resume(struct azx *chip)
+{
+	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
+	struct hdac_bus *bus = azx_bus(chip);
+	struct hda_codec *codec;
+	int status;
+
+	display_power(chip, true);
+	if (hda->need_i915_power)
+		snd_hdac_i915_set_bclk(bus);
+
+	/* Read STATESTS before controller reset */
+	status = azx_readw(chip, STATESTS);
+
+	azx_init_pci(chip);
+	hda_intel_init_chip(chip, true);
+
+	/* Avoid codec resume if runtime resume is for system suspend */
+	if (!chip->pm_prepared) {
+		list_for_each_codec(codec, &chip->bus) {
+			if (codec->relaxed_resume)
+				continue;
+
+			if (codec->forced_resume || (status & (1 << codec->addr)))
+				pm_request_resume(hda_codec_dev(codec));
+		}
+	}
+
+	/* power down again for link-controlled chips */
+	if (!hda->need_i915_power)
+		display_power(chip, false);
+}
+
+#ifdef CONFIG_PM_SLEEP
+static int azx_prepare(struct device *dev)
+{
+	struct snd_card *card = dev_get_drvdata(dev);
+	struct azx *chip;
+
+	if (!azx_is_pm_ready(card))
+		return 0;
+
+	chip = card->private_data;
+	chip->pm_prepared = 1;
+	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+
+	flush_work(&azx_bus(chip)->unsol_work);
+
+	/* HDA controller always requires different WAKEEN for runtime suspend
+	 * and system suspend, so don't use direct-complete here.
+	 */
+	return 0;
+}
+
+static void azx_complete(struct device *dev)
+{
+	struct snd_card *card = dev_get_drvdata(dev);
+	struct azx *chip;
+
+	if (!azx_is_pm_ready(card))
+		return;
+
+	chip = card->private_data;
+	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
+	chip->pm_prepared = 0;
+}
+
+>>>>>>> upstream/android-13
 static int azx_suspend(struct device *dev)
 {
 	struct snd_card *card = dev_get_drvdata(dev);
 	struct azx *chip;
+<<<<<<< HEAD
 	struct hda_intel *hda;
 	struct hdac_bus *bus;
 
@@ -1065,13 +1341,30 @@ static int azx_suspend(struct device *dev)
 	if (bus->irq >= 0) {
 		free_irq(bus->irq, chip);
 		bus->irq = -1;
+=======
+	struct hdac_bus *bus;
+
+	if (!azx_is_pm_ready(card))
+		return 0;
+
+	chip = card->private_data;
+	bus = azx_bus(chip);
+	azx_shutdown_chip(chip);
+	if (bus->irq >= 0) {
+		free_irq(bus->irq, chip);
+		bus->irq = -1;
+		chip->card->sync_irq = -1;
+>>>>>>> upstream/android-13
 	}
 
 	if (chip->msi)
 		pci_disable_msi(chip->pci);
+<<<<<<< HEAD
 	if ((chip->driver_caps & AZX_DCAPS_I915_POWERWELL)
 		&& hda->need_i915_power)
 		snd_hdac_display_power(bus, false);
+=======
+>>>>>>> upstream/android-13
 
 	trace_azx_suspend(chip);
 	return 0;
@@ -1079,6 +1372,7 @@ static int azx_suspend(struct device *dev)
 
 static int azx_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pci = to_pci_dev(dev);
 	struct snd_card *card = dev_get_drvdata(dev);
 	struct azx *chip;
@@ -1115,6 +1409,22 @@ static int azx_resume(struct device *dev)
 		snd_hdac_display_power(bus, false);
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
+=======
+	struct snd_card *card = dev_get_drvdata(dev);
+	struct azx *chip;
+
+	if (!azx_is_pm_ready(card))
+		return 0;
+
+	chip = card->private_data;
+	if (chip->msi)
+		if (pci_enable_msi(chip->pci) < 0)
+			chip->msi = 0;
+	if (azx_acquire_irq(chip, 1) < 0)
+		return -EIO;
+
+	__azx_runtime_resume(chip);
+>>>>>>> upstream/android-13
 
 	trace_azx_resume(chip);
 	return 0;
@@ -1129,6 +1439,11 @@ static int azx_freeze_noirq(struct device *dev)
 	struct azx *chip = card->private_data;
 	struct pci_dev *pci = to_pci_dev(dev);
 
+<<<<<<< HEAD
+=======
+	if (!azx_is_pm_ready(card))
+		return 0;
+>>>>>>> upstream/android-13
 	if (chip->driver_type == AZX_DRIVER_SKL)
 		pci_set_power_state(pci, PCI_D3hot);
 
@@ -1141,6 +1456,11 @@ static int azx_thaw_noirq(struct device *dev)
 	struct azx *chip = card->private_data;
 	struct pci_dev *pci = to_pci_dev(dev);
 
+<<<<<<< HEAD
+=======
+	if (!azx_is_pm_ready(card))
+		return 0;
+>>>>>>> upstream/android-13
 	if (chip->driver_type == AZX_DRIVER_SKL)
 		pci_set_power_state(pci, PCI_D0);
 
@@ -1148,11 +1468,15 @@ static int azx_thaw_noirq(struct device *dev)
 }
 #endif /* CONFIG_PM_SLEEP */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
+=======
+>>>>>>> upstream/android-13
 static int azx_runtime_suspend(struct device *dev)
 {
 	struct snd_card *card = dev_get_drvdata(dev);
 	struct azx *chip;
+<<<<<<< HEAD
 	struct hda_intel *hda;
 
 	if (!card)
@@ -1177,6 +1501,17 @@ static int azx_runtime_suspend(struct device *dev)
 		&& hda->need_i915_power)
 		snd_hdac_display_power(azx_bus(chip), false);
 
+=======
+
+	if (!azx_is_pm_ready(card))
+		return 0;
+	chip = card->private_data;
+
+	/* enable controller wake up event */
+	azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) | STATESTS_INT_MASK);
+
+	azx_shutdown_chip(chip);
+>>>>>>> upstream/android-13
 	trace_azx_runtime_suspend(chip);
 	return 0;
 }
@@ -1185,6 +1520,7 @@ static int azx_runtime_resume(struct device *dev)
 {
 	struct snd_card *card = dev_get_drvdata(dev);
 	struct azx *chip;
+<<<<<<< HEAD
 	struct hda_intel *hda;
 	struct hdac_bus *bus;
 	struct hda_codec *codec;
@@ -1229,6 +1565,16 @@ static int azx_runtime_resume(struct device *dev)
 	if ((chip->driver_caps & AZX_DCAPS_I915_POWERWELL) &&
 	    !hda->need_i915_power)
 		snd_hdac_display_power(bus, false);
+=======
+
+	if (!azx_is_pm_ready(card))
+		return 0;
+	chip = card->private_data;
+	__azx_runtime_resume(chip);
+
+	/* disable controller Wake Up event*/
+	azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) & ~STATESTS_INT_MASK);
+>>>>>>> upstream/android-13
 
 	trace_azx_runtime_resume(chip);
 	return 0;
@@ -1253,7 +1599,11 @@ static int azx_runtime_idle(struct device *dev)
 		return -EBUSY;
 
 	/* ELD notification gets broken when HD-audio bus is off */
+<<<<<<< HEAD
 	if (needs_eld_notify_link(hda))
+=======
+	if (needs_eld_notify_link(chip))
+>>>>>>> upstream/android-13
 		return -EBUSY;
 
 	return 0;
@@ -1262,6 +1612,11 @@ static int azx_runtime_idle(struct device *dev)
 static const struct dev_pm_ops azx_pm = {
 	SET_SYSTEM_SLEEP_PM_OPS(azx_suspend, azx_resume)
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
+=======
+	.prepare = azx_prepare,
+	.complete = azx_complete,
+>>>>>>> upstream/android-13
 	.freeze_noirq = azx_freeze_noirq,
 	.thaw_noirq = azx_thaw_noirq,
 #endif
@@ -1270,6 +1625,11 @@ static const struct dev_pm_ops azx_pm = {
 
 #define AZX_PM_OPS	&azx_pm
 #else
+<<<<<<< HEAD
+=======
+#define azx_add_card_list(chip) /* NOP */
+#define azx_del_card_list(chip) /* NOP */
+>>>>>>> upstream/android-13
 #define AZX_PM_OPS	NULL
 #endif /* CONFIG_PM */
 
@@ -1301,10 +1661,15 @@ static void azx_vs_set_state(struct pci_dev *pci,
 		if (!disabled) {
 			dev_info(chip->card->dev,
 				 "Start delayed initialization\n");
+<<<<<<< HEAD
 			if (azx_probe_continue(chip) < 0) {
 				dev_err(chip->card->dev, "initialization error\n");
 				hda->init_failed = true;
 			}
+=======
+			if (azx_probe_continue(chip) < 0)
+				dev_err(chip->card->dev, "initialization error\n");
+>>>>>>> upstream/android-13
 		}
 	} else {
 		dev_info(chip->card->dev, "%s via vga_switcheroo\n",
@@ -1362,7 +1727,11 @@ static void setup_vga_switcheroo_runtime_pm(struct azx *chip)
 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
 	struct hda_codec *codec;
 
+<<<<<<< HEAD
 	if (hda->use_vga_switcheroo && !hda->need_eld_notify_link) {
+=======
+	if (hda->use_vga_switcheroo && !needs_eld_notify_link(chip)) {
+>>>>>>> upstream/android-13
 		list_for_each_codec(codec, &chip->bus)
 			codec->auto_runtime_pm = 1;
 		/* reset the power save setup */
@@ -1376,10 +1745,16 @@ static void azx_vs_gpu_bound(struct pci_dev *pci,
 {
 	struct snd_card *card = pci_get_drvdata(pci);
 	struct azx *chip = card->private_data;
+<<<<<<< HEAD
 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
 
 	if (client_id == VGA_SWITCHEROO_DIS)
 		hda->need_eld_notify_link = 0;
+=======
+
+	if (client_id == VGA_SWITCHEROO_DIS)
+		chip->bus.keep_power = 0;
+>>>>>>> upstream/android-13
 	setup_vga_switcheroo_runtime_pm(chip);
 }
 
@@ -1387,11 +1762,24 @@ static void init_vga_switcheroo(struct azx *chip)
 {
 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
 	struct pci_dev *p = get_bound_vga(chip->pci);
+<<<<<<< HEAD
+=======
+	struct pci_dev *parent;
+>>>>>>> upstream/android-13
 	if (p) {
 		dev_info(chip->card->dev,
 			 "Handle vga_switcheroo audio client\n");
 		hda->use_vga_switcheroo = 1;
+<<<<<<< HEAD
 		hda->need_eld_notify_link = 1; /* cleared in gpu_bound op */
+=======
+
+		/* cleared in either gpu_bound op or codec probe, or when its
+		 * upstream port has _PR3 (i.e. dGPU).
+		 */
+		parent = pci_upstream_bridge(p);
+		chip->bus.keep_power = parent ? !pci_pr3_present(parent) : 1;
+>>>>>>> upstream/android-13
 		chip->driver_caps |= AZX_DCAPS_PM_RUNTIME;
 		pci_dev_put(p);
 	}
@@ -1432,12 +1820,22 @@ static int register_vga_switcheroo(struct azx *chip)
 /*
  * destructor
  */
+<<<<<<< HEAD
 static int azx_free(struct azx *chip)
+=======
+static void azx_free(struct azx *chip)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pci = chip->pci;
 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
 	struct hdac_bus *bus = azx_bus(chip);
 
+<<<<<<< HEAD
+=======
+	if (hda->freed)
+		return;
+
+>>>>>>> upstream/android-13
 	if (azx_has_pm_runtime(chip) && chip->running)
 		pm_runtime_get_noresume(&pci->dev);
 	chip->running = 0;
@@ -1462,14 +1860,18 @@ static int azx_free(struct azx *chip)
 
 	if (bus->irq >= 0)
 		free_irq(bus->irq, (void*)chip);
+<<<<<<< HEAD
 	if (chip->msi)
 		pci_disable_msi(chip->pci);
 	iounmap(bus->remap_addr);
+=======
+>>>>>>> upstream/android-13
 
 	azx_free_stream_pages(chip);
 	azx_free_streams(chip);
 	snd_hdac_bus_exit(bus);
 
+<<<<<<< HEAD
 	if (chip->region_requested)
 		pci_release_regions(chip->pci);
 
@@ -1487,6 +1889,17 @@ static int azx_free(struct azx *chip)
 	kfree(hda);
 
 	return 0;
+=======
+#ifdef CONFIG_SND_HDA_PATCH_LOADER
+	release_firmware(chip->fw);
+#endif
+	display_power(chip, false);
+
+	if (chip->driver_caps & AZX_DCAPS_I915_COMPONENT)
+		snd_hdac_i915_exit(bus);
+
+	hda->freed = 1;
+>>>>>>> upstream/android-13
 }
 
 static int azx_dev_disconnect(struct snd_device *device)
@@ -1502,10 +1915,55 @@ static int azx_dev_disconnect(struct snd_device *device)
 
 static int azx_dev_free(struct snd_device *device)
 {
+<<<<<<< HEAD
 	return azx_free(device->device_data);
 }
 
 #ifdef SUPPORT_VGA_SWITCHEROO
+=======
+	azx_free(device->device_data);
+	return 0;
+}
+
+#ifdef SUPPORT_VGA_SWITCHEROO
+#ifdef CONFIG_ACPI
+/* ATPX is in the integrated GPU's namespace */
+static bool atpx_present(void)
+{
+	struct pci_dev *pdev = NULL;
+	acpi_handle dhandle, atpx_handle;
+	acpi_status status;
+
+	while ((pdev = pci_get_class(PCI_CLASS_DISPLAY_VGA << 8, pdev)) != NULL) {
+		dhandle = ACPI_HANDLE(&pdev->dev);
+		if (dhandle) {
+			status = acpi_get_handle(dhandle, "ATPX", &atpx_handle);
+			if (ACPI_SUCCESS(status)) {
+				pci_dev_put(pdev);
+				return true;
+			}
+		}
+	}
+	while ((pdev = pci_get_class(PCI_CLASS_DISPLAY_OTHER << 8, pdev)) != NULL) {
+		dhandle = ACPI_HANDLE(&pdev->dev);
+		if (dhandle) {
+			status = acpi_get_handle(dhandle, "ATPX", &atpx_handle);
+			if (ACPI_SUCCESS(status)) {
+				pci_dev_put(pdev);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#else
+static bool atpx_present(void)
+{
+	return false;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Check of disabled HDMI controller by vga_switcheroo
  */
@@ -1517,6 +1975,25 @@ static struct pci_dev *get_bound_vga(struct pci_dev *pci)
 	switch (pci->vendor) {
 	case PCI_VENDOR_ID_ATI:
 	case PCI_VENDOR_ID_AMD:
+<<<<<<< HEAD
+=======
+		if (pci->devfn == 1) {
+			p = pci_get_domain_bus_and_slot(pci_domain_nr(pci->bus),
+							pci->bus->number, 0);
+			if (p) {
+				/* ATPX is in the integrated GPU's ACPI namespace
+				 * rather than the dGPU's namespace. However,
+				 * the dGPU is the one who is involved in
+				 * vgaswitcheroo.
+				 */
+				if (((p->class >> 16) == PCI_BASE_CLASS_DISPLAY) &&
+				    atpx_present())
+					return p;
+				pci_dev_put(p);
+			}
+		}
+		break;
+>>>>>>> upstream/android-13
 	case PCI_VENDOR_ID_NVIDIA:
 		if (pci->devfn == 1) {
 			p = pci_get_domain_bus_and_slot(pci_domain_nr(pci->bus),
@@ -1547,9 +2024,15 @@ static bool check_hdmi_disabled(struct pci_dev *pci)
 #endif /* SUPPORT_VGA_SWITCHEROO */
 
 /*
+<<<<<<< HEAD
  * white/black-listing for position_fix
  */
 static struct snd_pci_quirk position_fix_list[] = {
+=======
+ * allow/deny-listing for position_fix
+ */
+static const struct snd_pci_quirk position_fix_list[] = {
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x1028, 0x01cc, "Dell D820", POS_FIX_LPIB),
 	SND_PCI_QUIRK(0x1028, 0x01de, "Dell Precision 390", POS_FIX_LPIB),
 	SND_PCI_QUIRK(0x103c, 0x306d, "HP dv3", POS_FIX_LPIB),
@@ -1612,13 +2095,21 @@ static int check_position_fix(struct azx *chip, int fix)
 
 static void assign_position_fix(struct azx *chip, int fix)
 {
+<<<<<<< HEAD
 	static azx_get_pos_callback_t callbacks[] = {
+=======
+	static const azx_get_pos_callback_t callbacks[] = {
+>>>>>>> upstream/android-13
 		[POS_FIX_AUTO] = NULL,
 		[POS_FIX_LPIB] = azx_get_pos_lpib,
 		[POS_FIX_POSBUF] = azx_get_pos_posbuf,
 		[POS_FIX_VIACOMBO] = azx_via_get_position,
 		[POS_FIX_COMBO] = azx_get_pos_lpib,
+<<<<<<< HEAD
 		[POS_FIX_SKL] = azx_get_pos_skl,
+=======
+		[POS_FIX_SKL] = azx_get_pos_posbuf,
+>>>>>>> upstream/android-13
 		[POS_FIX_FIFO] = azx_get_pos_fifo,
 	};
 
@@ -1640,9 +2131,15 @@ static void assign_position_fix(struct azx *chip, int fix)
 }
 
 /*
+<<<<<<< HEAD
  * black-lists for probe_mask
  */
 static struct snd_pci_quirk probe_mask_list[] = {
+=======
+ * deny-lists for probe_mask
+ */
+static const struct snd_pci_quirk probe_mask_list[] = {
+>>>>>>> upstream/android-13
 	/* Thinkpad often breaks the controller communication when accessing
 	 * to the non-working (or non-existing) modem codec slot.
 	 */
@@ -1656,6 +2153,10 @@ static struct snd_pci_quirk probe_mask_list[] = {
 	/* forced codec slots */
 	SND_PCI_QUIRK(0x1043, 0x1262, "ASUS W5Fm", 0x103),
 	SND_PCI_QUIRK(0x1046, 0x1262, "ASUS W5F", 0x103),
+<<<<<<< HEAD
+=======
+	SND_PCI_QUIRK(0x1558, 0x0351, "Schenker Dock 15", 0x105),
+>>>>>>> upstream/android-13
 	/* WinFast VP200 H (Teradici) user reported broken communication */
 	SND_PCI_QUIRK(0x3a21, 0x040d, "WinFast VP200 H", 0x101),
 	{}
@@ -1688,9 +2189,15 @@ static void check_probe_mask(struct azx *chip, int dev)
 }
 
 /*
+<<<<<<< HEAD
  * white/black-list for enable_msi
  */
 static struct snd_pci_quirk msi_black_list[] = {
+=======
+ * allow/deny-list for enable_msi
+ */
+static const struct snd_pci_quirk msi_deny_list[] = {
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x103c, 0x2191, "HP", 0), /* AMD Hudson */
 	SND_PCI_QUIRK(0x103c, 0x2192, "HP", 0), /* AMD Hudson */
 	SND_PCI_QUIRK(0x103c, 0x21f7, "HP", 0), /* AMD Hudson */
@@ -1713,7 +2220,11 @@ static void check_msi(struct azx *chip)
 		return;
 	}
 	chip->msi = 1;	/* enable MSI as default */
+<<<<<<< HEAD
 	q = snd_pci_quirk_lookup(chip->pci, msi_black_list);
+=======
+	q = snd_pci_quirk_lookup(chip->pci, msi_deny_list);
+>>>>>>> upstream/android-13
 	if (q) {
 		dev_info(chip->card->dev,
 			 "msi for device %04x:%04x set to %d\n",
@@ -1769,7 +2280,11 @@ static void azx_check_snoop_available(struct azx *chip)
 
 static void azx_probe_work(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work);
+=======
+	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work.work);
+>>>>>>> upstream/android-13
 	azx_probe_continue(&hda->chip);
 }
 
@@ -1796,14 +2311,21 @@ static int default_bdl_pos_adj(struct azx *chip)
 /*
  * constructor
  */
+<<<<<<< HEAD
 static const struct hdac_io_ops pci_hda_io_ops;
+=======
+>>>>>>> upstream/android-13
 static const struct hda_controller_ops pci_hda_ops;
 
 static int azx_create(struct snd_card *card, struct pci_dev *pci,
 		      int dev, unsigned int driver_caps,
 		      struct azx **rchip)
 {
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_disconnect = azx_dev_disconnect,
 		.dev_free = azx_dev_free,
 	};
@@ -1813,6 +2335,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 
 	*rchip = NULL;
 
+<<<<<<< HEAD
 	err = pci_enable_device(pci);
 	if (err < 0)
 		return err;
@@ -1822,6 +2345,15 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+	hda = devm_kzalloc(&pci->dev, sizeof(*hda), GFP_KERNEL);
+	if (!hda)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	chip = &hda->chip;
 	mutex_init(&chip->open_mutex);
@@ -1832,7 +2364,12 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 	chip->driver_type = driver_caps & 0xff;
 	check_msi(chip);
 	chip->dev_index = dev;
+<<<<<<< HEAD
 	chip->jackpoll_ms = jackpoll_ms;
+=======
+	if (jackpoll_ms[dev] >= 50 && jackpoll_ms[dev] <= 60000)
+		chip->jackpoll_interval = msecs_to_jiffies(jackpoll_ms[dev]);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&chip->pcm_list);
 	INIT_WORK(&hda->irq_pending_work, azx_irq_pending_work);
 	INIT_LIST_HEAD(&hda->list);
@@ -1841,8 +2378,11 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 
 	assign_position_fix(chip, check_position_fix(chip, position_fix[dev]));
 
+<<<<<<< HEAD
 	check_probe_mask(chip, dev);
 
+=======
+>>>>>>> upstream/android-13
 	if (single_cmd < 0) /* allow fallback to single_cmd at errors */
 		chip->fallback_to_single_cmd = 1;
 	else /* explicitly set to single_cmd or not */
@@ -1855,6 +2395,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 	else
 		chip->bdl_pos_adj = bdl_pos_adj[dev];
 
+<<<<<<< HEAD
 	/* Workaround for a communication error on CFL (bko#199007) and CNL */
 	if (IS_CFL(pci) || IS_CNL(pci))
 		chip->polling_mode = 1;
@@ -1871,6 +2412,23 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 		chip->bus.needs_damn_long_delay = 1;
 	}
 
+=======
+	err = azx_bus_init(chip, model[dev]);
+	if (err < 0)
+		return err;
+
+	/* use the non-cached pages in non-snoop mode */
+	if (!azx_snoop(chip))
+		azx_bus(chip)->dma_type = SNDRV_DMA_TYPE_DEV_WC;
+
+	if (chip->driver_type == AZX_DRIVER_NVIDIA) {
+		dev_dbg(chip->card->dev, "Enable delay in RIRB handling\n");
+		chip->bus.core.needs_damn_long_delay = 1;
+	}
+
+	check_probe_mask(chip, dev);
+
+>>>>>>> upstream/android-13
 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
 	if (err < 0) {
 		dev_err(card->dev, "Error creating device [card]!\n");
@@ -1879,7 +2437,11 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
 	}
 
 	/* continue probing in work context as may trigger request module */
+<<<<<<< HEAD
 	INIT_WORK(&hda->probe_work, azx_probe_work);
+=======
+	INIT_DELAYED_WORK(&hda->probe_work, azx_probe_work);
+>>>>>>> upstream/android-13
 
 	*rchip = chip;
 
@@ -1906,6 +2468,7 @@ static int azx_first_init(struct azx *chip)
 	}
 #endif
 
+<<<<<<< HEAD
 	err = pci_request_regions(pci, "ICH HD audio");
 	if (err < 0)
 		return err;
@@ -1917,6 +2480,14 @@ static int azx_first_init(struct azx *chip)
 		dev_err(card->dev, "ioremap error\n");
 		return -ENXIO;
 	}
+=======
+	err = pcim_iomap_regions(pci, 1 << 0, "ICH HD audio");
+	if (err < 0)
+		return err;
+
+	bus->addr = pci_resource_start(pci, 0);
+	bus->remap_addr = pcim_iomap_table(pci)[0];
+>>>>>>> upstream/android-13
 
 	if (chip->driver_type == AZX_DRIVER_SKL)
 		snd_hdac_bus_parse_capabilities(bus);
@@ -1944,7 +2515,10 @@ static int azx_first_init(struct azx *chip)
 	}
 
 	pci_set_master(pci);
+<<<<<<< HEAD
 	synchronize_irq(bus->irq);
+=======
+>>>>>>> upstream/android-13
 
 	gcap = azx_readw(chip, GCAP);
 	dev_dbg(card->dev, "chipset global capabilities = 0x%x\n", gcap);
@@ -1990,12 +2564,17 @@ static int azx_first_init(struct azx *chip)
 	/* allow 64bit DMA address if supported by H/W */
 	if (!(gcap & AZX_GCAP_64OK))
 		dma_bits = 32;
+<<<<<<< HEAD
 	if (!dma_set_mask(&pci->dev, DMA_BIT_MASK(dma_bits))) {
 		dma_set_coherent_mask(&pci->dev, DMA_BIT_MASK(dma_bits));
 	} else {
 		dma_set_mask(&pci->dev, DMA_BIT_MASK(32));
 		dma_set_coherent_mask(&pci->dev, DMA_BIT_MASK(32));
 	}
+=======
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(dma_bits)))
+		dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 
 	/* read number of streams from GCAP register instead of using
 	 * hardcoded value
@@ -2046,8 +2625,12 @@ static int azx_first_init(struct azx *chip)
 	/* initialize chip */
 	azx_init_pci(chip);
 
+<<<<<<< HEAD
 	if (chip->driver_caps & AZX_DCAPS_I915_POWERWELL)
 		snd_hdac_i915_set_bclk(bus);
+=======
+	snd_hdac_i915_set_bclk(bus);
+>>>>>>> upstream/android-13
 
 	hda_intel_init_chip(chip, (probe_only[dev] & 2) == 0);
 
@@ -2061,7 +2644,11 @@ static int azx_first_init(struct azx *chip)
 		return -EBUSY;
 
 	strcpy(card->driver, "HDA-Intel");
+<<<<<<< HEAD
 	strlcpy(card->shortname, driver_short_names[chip->driver_type],
+=======
+	strscpy(card->shortname, driver_short_names[chip->driver_type],
+>>>>>>> upstream/android-13
 		sizeof(card->shortname));
 	snprintf(card->longname, sizeof(card->longname),
 		 "%s at 0x%lx irq %i",
@@ -2088,6 +2675,7 @@ static void azx_firmware_cb(const struct firmware *fw, void *context)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * HDA controller ops.
  */
@@ -2123,6 +2711,8 @@ static u8 pci_azx_readb(u8 __iomem *addr)
 	return readb(addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int disable_msi_reset_irq(struct azx *chip)
 {
 	struct hdac_bus *bus = azx_bus(chip);
@@ -2130,6 +2720,10 @@ static int disable_msi_reset_irq(struct azx *chip)
 
 	free_irq(bus->irq, chip);
 	bus->irq = -1;
+<<<<<<< HEAD
+=======
+	chip->card->sync_irq = -1;
+>>>>>>> upstream/android-13
 	pci_disable_msi(chip->pci);
 	chip->msi = 0;
 	err = azx_acquire_irq(chip, 1);
@@ -2139,6 +2733,7 @@ static int disable_msi_reset_irq(struct azx *chip)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* DMA page allocation helpers.  */
 static int dma_alloc_pages(struct hdac_bus *bus,
 			   int type,
@@ -2215,6 +2810,13 @@ static const struct hdac_io_ops pci_hda_io_ops = {
  * should be ignored from the beginning.
  */
 static const struct pci_device_id driver_blacklist[] = {
+=======
+/* Denylist for skipping the whole probe:
+ * some HD-audio PCI entries are exposed without any codecs, and such devices
+ * should be ignored from the beginning.
+ */
+static const struct pci_device_id driver_denylist[] = {
+>>>>>>> upstream/android-13
 	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1043, 0x874f) }, /* ASUS ROG Zenith II / Strix */
 	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1462, 0xcb59) }, /* MSI TRX40 Creator */
 	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1462, 0xcb60) }, /* MSI TRX40 */
@@ -2223,11 +2825,15 @@ static const struct pci_device_id driver_blacklist[] = {
 
 static const struct hda_controller_ops pci_hda_ops = {
 	.disable_msi_reset_irq = disable_msi_reset_irq,
+<<<<<<< HEAD
 	.substream_alloc_pages = substream_alloc_pages,
 	.substream_free_pages = substream_free_pages,
 	.pcm_mmap_prepare = pcm_mmap_prepare,
 	.position_check = azx_position_check,
 	.link_power = azx_intel_link_power,
+=======
+	.position_check = azx_position_check,
+>>>>>>> upstream/android-13
 };
 
 static int azx_probe(struct pci_dev *pci,
@@ -2240,8 +2846,13 @@ static int azx_probe(struct pci_dev *pci,
 	bool schedule_probe;
 	int err;
 
+<<<<<<< HEAD
 	if (pci_match_id(driver_blacklist, pci)) {
 		dev_info(&pci->dev, "Skipping the blacklisted device\n");
+=======
+	if (pci_match_id(driver_denylist, pci)) {
+		dev_info(&pci->dev, "Skipping the device on the denylist\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -2252,6 +2863,22 @@ static int azx_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * stop probe if another Intel's DSP driver should be activated
+	 */
+	if (dmic_detect) {
+		err = snd_intel_dsp_driver_probe(pci);
+		if (err != SND_INTEL_DSP_DRIVER_ANY && err != SND_INTEL_DSP_DRIVER_LEGACY) {
+			dev_dbg(&pci->dev, "HDAudio driver not selected, aborting probe\n");
+			return -ENODEV;
+		}
+	} else {
+		dev_warn(&pci->dev, "dmic_detect option is deprecated, pass snd-intel-dspcfg.dsp_driver=1 option instead\n");
+	}
+
+>>>>>>> upstream/android-13
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0) {
@@ -2300,7 +2927,11 @@ static int azx_probe(struct pci_dev *pci,
 #endif
 
 	if (schedule_probe)
+<<<<<<< HEAD
 		schedule_work(&hda->probe_work);
+=======
+		schedule_delayed_work(&hda->probe_work, 0);
+>>>>>>> upstream/android-13
 
 	dev++;
 	if (chip->disabled)
@@ -2319,7 +2950,11 @@ out_free:
  * So we keep a list of devices where we disable powersaving as its known
  * to causes problems on these devices.
  */
+<<<<<<< HEAD
 static struct snd_pci_quirk power_save_blacklist[] = {
+=======
+static const struct snd_pci_quirk power_save_denylist[] = {
+>>>>>>> upstream/android-13
 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
 	SND_PCI_QUIRK(0x1849, 0xc892, "Asrock B85M-ITX", 0),
 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
@@ -2329,8 +2964,11 @@ static struct snd_pci_quirk power_save_blacklist[] = {
 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
 	SND_PCI_QUIRK(0x1043, 0x8733, "Asus Prime X370-Pro", 0),
 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+<<<<<<< HEAD
 	SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+=======
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x1028, 0x0497, "Dell Precision T3600", 0),
 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
 	/* Note the P55A-UD3 and Z87-D3HP share the subsys id for the HDA dev */
@@ -2363,9 +3001,15 @@ static void set_default_power_save(struct azx *chip)
 	if (pm_blacklist) {
 		const struct snd_pci_quirk *q;
 
+<<<<<<< HEAD
 		q = snd_pci_quirk_lookup(chip->pci, power_save_blacklist);
 		if (q && val) {
 			dev_info(chip->card->dev, "device %04x:%04x is on the power_save blacklist, forcing power_save to 0\n",
+=======
+		q = snd_pci_quirk_lookup(chip->pci, power_save_denylist);
+		if (q && val) {
+			dev_info(chip->card->dev, "device %04x:%04x is on the power_save denylist, forcing power_save to 0\n",
+>>>>>>> upstream/android-13
 				 q->subvendor, q->subdevice);
 			val = 0;
 		}
@@ -2375,7 +3019,11 @@ static void set_default_power_save(struct azx *chip)
 }
 
 /* number of codec slots for each chipset: 0 = default slots (i.e. 4) */
+<<<<<<< HEAD
 static unsigned int azx_max_codecs[AZX_NUM_DRIVERS] = {
+=======
+static const unsigned int azx_max_codecs[AZX_NUM_DRIVERS] = {
+>>>>>>> upstream/android-13
 	[AZX_DRIVER_NVIDIA] = 8,
 	[AZX_DRIVER_TERA] = 1,
 };
@@ -2388,6 +3036,14 @@ static int azx_probe_continue(struct azx *chip)
 	int dev = chip->dev_index;
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (chip->disabled || hda->init_failed)
+		return -EIO;
+	if (hda->probe_retry)
+		goto probe_retry;
+
+>>>>>>> upstream/android-13
 	to_hda_bus(bus)->bus_probing = 1;
 	hda->probe_continued = 1;
 
@@ -2406,10 +3062,20 @@ static int azx_probe_continue(struct azx *chip)
 				goto out_free;
 			} else {
 				/* don't bother any longer */
+<<<<<<< HEAD
 				chip->driver_caps &=
 					~(AZX_DCAPS_I915_COMPONENT | AZX_DCAPS_I915_POWERWELL);
 			}
 		}
+=======
+				chip->driver_caps &= ~AZX_DCAPS_I915_COMPONENT;
+			}
+		}
+
+		/* HSW/BDW controllers need this power */
+		if (CONTROLLER_IN_GPU(pci))
+			hda->need_i915_power = true;
+>>>>>>> upstream/android-13
 	}
 
 	/* Request display power well for the HDA controller or codec. For
@@ -2417,6 +3083,7 @@ static int azx_probe_continue(struct azx *chip)
 	 * this power. For other platforms, like Baytrail/Braswell, only the
 	 * display codec needs the power and it can be released after probe.
 	 */
+<<<<<<< HEAD
 	if (chip->driver_caps & AZX_DCAPS_I915_POWERWELL) {
 		/* HSW/BDW controllers need this power */
 		if (CONTROLLER_IN_GPU(pci))
@@ -2429,6 +3096,9 @@ static int azx_probe_continue(struct azx *chip)
 			goto i915_power_fail;
 		}
 	}
+=======
+	display_power(chip, true);
+>>>>>>> upstream/android-13
 
 	err = azx_first_init(chip);
 	if (err < 0)
@@ -2457,10 +3127,27 @@ static int azx_probe_continue(struct azx *chip)
 #endif
 	}
 #endif
+<<<<<<< HEAD
 	if (bus->codec_mask && !(probe_only[dev] & 1)) {
 		err = azx_codec_configure(chip);
 		if (err < 0)
 			goto out_free;
+=======
+
+ probe_retry:
+	if (bus->codec_mask && !(probe_only[dev] & 1)) {
+		err = azx_codec_configure(chip);
+		if (err) {
+			if ((chip->driver_caps & AZX_DCAPS_RETRY_PROBE) &&
+			    ++hda->probe_retry < 60) {
+				schedule_delayed_work(&hda->probe_work,
+						      msecs_to_jiffies(1000));
+				return 0; /* keep things up */
+			}
+			dev_err(chip->card->dev, "Cannot probe codecs, giving up\n");
+			goto out_free;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	err = snd_card_register(chip->card);
@@ -2476,10 +3163,15 @@ static int azx_probe_continue(struct azx *chip)
 
 	if (azx_has_pm_runtime(chip)) {
 		pm_runtime_use_autosuspend(&pci->dev);
+<<<<<<< HEAD
+=======
+		pm_runtime_allow(&pci->dev);
+>>>>>>> upstream/android-13
 		pm_runtime_put_autosuspend(&pci->dev);
 	}
 
 out_free:
+<<<<<<< HEAD
 	if ((chip->driver_caps & AZX_DCAPS_I915_POWERWELL)
 		&& !hda->need_i915_power)
 		snd_hdac_display_power(bus, false);
@@ -2490,6 +3182,20 @@ i915_power_fail:
 	complete_all(&hda->probe_wait);
 	to_hda_bus(bus)->bus_probing = 0;
 	return err;
+=======
+	if (err < 0) {
+		pci_set_drvdata(pci, NULL);
+		snd_card_free(chip->card);
+		return err;
+	}
+
+	if (!hda->need_i915_power)
+		display_power(chip, false);
+	complete_all(&hda->probe_wait);
+	to_hda_bus(bus)->bus_probing = 0;
+	hda->probe_retry = 0;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void azx_remove(struct pci_dev *pci)
@@ -2514,7 +3220,11 @@ static void azx_remove(struct pci_dev *pci)
 		 * device during cancel_work_sync() call.
 		 */
 		device_unlock(&pci->dev);
+<<<<<<< HEAD
 		cancel_work_sync(&hda->probe_work);
+=======
+		cancel_delayed_work_sync(&hda->probe_work);
+>>>>>>> upstream/android-13
 		device_lock(&pci->dev);
 
 		snd_card_free(card);
@@ -2530,7 +3240,11 @@ static void azx_shutdown(struct pci_dev *pci)
 		return;
 	chip = card->private_data;
 	if (chip && chip->running)
+<<<<<<< HEAD
 		azx_stop_chip(chip);
+=======
+		__azx_shutdown_chip(chip, true);
+>>>>>>> upstream/android-13
 }
 
 /* PCI IDs */
@@ -2590,9 +3304,67 @@ static const struct pci_device_id azx_ids[] = {
 	/* Cannonlake */
 	{ PCI_DEVICE(0x8086, 0x9dc8),
 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+<<<<<<< HEAD
 	/* Icelake */
 	{ PCI_DEVICE(0x8086, 0x34c8),
 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+=======
+	/* CometLake-LP */
+	{ PCI_DEVICE(0x8086, 0x02C8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* CometLake-H */
+	{ PCI_DEVICE(0x8086, 0x06C8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	{ PCI_DEVICE(0x8086, 0xf1c8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* CometLake-S */
+	{ PCI_DEVICE(0x8086, 0xa3f0),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* CometLake-R */
+	{ PCI_DEVICE(0x8086, 0xf0c8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Icelake */
+	{ PCI_DEVICE(0x8086, 0x34c8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Icelake-H */
+	{ PCI_DEVICE(0x8086, 0x3dc8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Jasperlake */
+	{ PCI_DEVICE(0x8086, 0x38c8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	{ PCI_DEVICE(0x8086, 0x4dc8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Tigerlake */
+	{ PCI_DEVICE(0x8086, 0xa0c8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Tigerlake-H */
+	{ PCI_DEVICE(0x8086, 0x43c8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* DG1 */
+	{ PCI_DEVICE(0x8086, 0x490d),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* DG2 */
+	{ PCI_DEVICE(0x8086, 0x4f90),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	{ PCI_DEVICE(0x8086, 0x4f91),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	{ PCI_DEVICE(0x8086, 0x4f92),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Alderlake-S */
+	{ PCI_DEVICE(0x8086, 0x7ad0),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Alderlake-P */
+	{ PCI_DEVICE(0x8086, 0x51c8),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Alderlake-M */
+	{ PCI_DEVICE(0x8086, 0x51cc),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	/* Elkhart Lake */
+	{ PCI_DEVICE(0x8086, 0x4b55),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+	{ PCI_DEVICE(0x8086, 0x4b58),
+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+>>>>>>> upstream/android-13
 	/* Broxton-P(Apollolake) */
 	{ PCI_DEVICE(0x8086, 0x5a98),
 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_BROXTON },
@@ -2679,7 +3451,12 @@ static const struct pci_device_id azx_ids[] = {
 	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_AMD_SB },
 	/* ATI HDMI */
 	{ PCI_DEVICE(0x1002, 0x0002),
+<<<<<<< HEAD
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
+=======
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+>>>>>>> upstream/android-13
 	{ PCI_DEVICE(0x1002, 0x1308),
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
 	{ PCI_DEVICE(0x1002, 0x157a),
@@ -2741,6 +3518,7 @@ static const struct pci_device_id azx_ids[] = {
 	{ PCI_DEVICE(0x1002, 0xaab0),
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
 	{ PCI_DEVICE(0x1002, 0xaac0),
+<<<<<<< HEAD
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
 	{ PCI_DEVICE(0x1002, 0xaac8),
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
@@ -2752,6 +3530,49 @@ static const struct pci_device_id azx_ids[] = {
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
 	{ PCI_DEVICE(0x1002, 0xaaf0),
 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
+=======
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xaac8),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xaad8),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xaae0),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xaae8),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xaaf0),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xaaf8),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xab00),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xab08),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xab10),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xab18),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xab20),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xab28),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+	{ PCI_DEVICE(0x1002, 0xab38),
+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
+	  AZX_DCAPS_PM_RUNTIME },
+>>>>>>> upstream/android-13
 	/* VIA VT8251/VT8237A */
 	{ PCI_DEVICE(0x1106, 0x3288), .driver_data = AZX_DRIVER_VIA },
 	/* VIA GFX VT7122/VX900 */
@@ -2811,6 +3632,11 @@ static const struct pci_device_id azx_ids[] = {
 	  .class = PCI_CLASS_MULTIMEDIA_HD_AUDIO << 8,
 	  .class_mask = 0xffffff,
 	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_HDMI },
+<<<<<<< HEAD
+=======
+	/* Zhaoxin */
+	{ PCI_DEVICE(0x1d17, 0x3288), .driver_data = AZX_DRIVER_ZHAOXIN },
+>>>>>>> upstream/android-13
 	{ 0, }
 };
 MODULE_DEVICE_TABLE(pci, azx_ids);

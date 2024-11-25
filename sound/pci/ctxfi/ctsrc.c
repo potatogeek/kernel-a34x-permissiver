@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
  *
@@ -5,6 +6,12 @@
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * @File	ctsrc.c
  *
  * @Brief
@@ -13,7 +20,10 @@
  *
  * @Author	Liu Chun
  * @Date 	May 13 2008
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ctsrc.h"
@@ -594,6 +604,7 @@ int src_mgr_destroy(struct src_mgr *src_mgr)
 
 /* SRCIMP resource manager operations */
 
+<<<<<<< HEAD
 static int srcimp_master(struct rsc *rsc)
 {
 	rsc->conj = 0;
@@ -604,6 +615,17 @@ static int srcimp_next_conj(struct rsc *rsc)
 {
 	rsc->conj++;
 	return container_of(rsc, struct srcimp, rsc)->idx[rsc->conj];
+=======
+static void srcimp_master(struct rsc *rsc)
+{
+	rsc->conj = 0;
+	rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
+}
+
+static void srcimp_next_conj(struct rsc *rsc)
+{
+	rsc->conj++;
+>>>>>>> upstream/android-13
 }
 
 static int srcimp_index(const struct rsc *rsc)

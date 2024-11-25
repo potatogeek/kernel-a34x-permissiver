@@ -3,6 +3,10 @@
 #include <linux/kvm_host.h>
 #include <linux/err.h>
 #include <linux/kernel_stat.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/kvm_book3s.h>
 #include <asm/kvm_ppc.h>
@@ -11,7 +15,10 @@
 #include <asm/debug.h>
 #include <asm/synch.h>
 #include <asm/cputhreads.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ppc-opcode.h>
 #include <asm/pnv-pci.h>
 #include <asm/opal.h>

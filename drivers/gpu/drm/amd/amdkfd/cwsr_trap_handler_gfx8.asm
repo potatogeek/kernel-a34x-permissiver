@@ -24,6 +24,7 @@
  * PROJECT=vi ./sp3 cwsr_trap_handler_gfx8.asm -hex tmp.hex
  */
 
+<<<<<<< HEAD
 /* HW (VI) source code for CWSR trap handler */
 /* Version 18 + multiple trap handler */
 
@@ -96,6 +97,8 @@ var SGPR_SAVE_USE_SQC               =   1                   //use SQC D$ to do t
 var USE_MTBUF_INSTEAD_OF_MUBUF      =   0                   //because TC EMU currently asserts on 0 of // overload DFMT field to carry 4 more bits of stride for MUBUF opcodes
 var SWIZZLE_EN                      =   0                   //whether we use swizzled buffer addressing
 
+=======
+>>>>>>> upstream/android-13
 /**************************************************************************/
 /*                      variables                                         */
 /**************************************************************************/
@@ -226,6 +229,7 @@ shader main
   type(CS)
 
 
+<<<<<<< HEAD
     if ((EMU_RUN_HACK) && (!EMU_RUN_HACK_RESTORE_NORMAL))                   //hack to use trap_id for determining save/restore
         //FIXME VCCZ un-init assertion s_getreg_b32     s_save_status, hwreg(HW_REG_STATUS)         //save STATUS since we will change SCC
         s_and_b32 s_save_tmp, s_save_pc_hi, 0xffff0000              //change SCC
@@ -236,6 +240,9 @@ shader main
     else
         s_branch L_SKIP_RESTORE                                     //NOT restore. might be a regular trap or save
     end
+=======
+        s_branch L_SKIP_RESTORE                                     //NOT restore. might be a regular trap or save
+>>>>>>> upstream/android-13
 
 L_JUMP_TO_RESTORE:
     s_branch L_RESTORE                                              //restore
@@ -249,7 +256,11 @@ L_SKIP_RESTORE:
     s_cbranch_scc1  L_SAVE                                      //this is the operation for save
 
     // *********    Handle non-CWSR traps       *******************
+<<<<<<< HEAD
 if (!EMU_RUN_HACK)
+=======
+
+>>>>>>> upstream/android-13
     /* read tba and tma for next level trap handler, ttmp4 is used as s_save_status */
     s_load_dwordx4  [ttmp8,ttmp9,ttmp10, ttmp11], [tma_lo,tma_hi], 0
     s_waitcnt lgkmcnt(0)
@@ -268,7 +279,11 @@ L_EXCP_CASE:
     s_and_b32   ttmp1, ttmp1, 0xFFFF
     set_status_without_spi_prio(s_save_status, ttmp2) //restore HW status(SCC)
     s_rfe_b64       [ttmp0, ttmp1]
+<<<<<<< HEAD
 end
+=======
+
+>>>>>>> upstream/android-13
     // *********        End handling of non-CWSR traps   *******************
 
 /**************************************************************************/
@@ -276,6 +291,7 @@ end
 /**************************************************************************/
 
 L_SAVE:
+<<<<<<< HEAD
 
 if G8SR_DEBUG_TIMESTAMP
         s_memrealtime   s_g8sr_ts_save_s
@@ -295,6 +311,8 @@ end
     s_subb_u32      s_save_pc_hi, s_save_pc_hi, 0x0           // -scc
 
 L_NO_PC_REWIND:
+=======
+>>>>>>> upstream/android-13
     s_mov_b32       s_save_tmp, 0                                                           //clear saveCtx bit
     s_setreg_b32    hwreg(HW_REG_TRAPSTS, SQ_WAVE_TRAPSTS_SAVECTX_SHIFT, 1), s_save_tmp     //clear saveCtx bit
 
@@ -316,6 +334,7 @@ L_NO_PC_REWIND:
     s_mov_b32       s_save_exec_hi, exec_hi
     s_mov_b64       exec,   0x0                                                             //clear EXEC to get ready to receive
 
+<<<<<<< HEAD
 if G8SR_DEBUG_TIMESTAMP
         s_memrealtime  s_g8sr_ts_sq_save_msg
         s_waitcnt lgkmcnt(0)
@@ -326,6 +345,9 @@ end
     else
         s_sendmsg   sendmsg(MSG_SAVEWAVE)  //send SPI a message and wait for SPI's write to EXEC
     end
+=======
+        s_sendmsg   sendmsg(MSG_SAVEWAVE)  //send SPI a message and wait for SPI's write to EXEC
+>>>>>>> upstream/android-13
 
     // Set SPI_PRIO=2 to avoid starving instruction fetch in the waves we're waiting for.
     s_or_b32 s_save_tmp, s_save_status, (2 << SQ_WAVE_STATUS_SPI_PRIO_SHIFT)
@@ -334,6 +356,7 @@ end
   L_SLEEP:
     s_sleep 0x2                // sleep 1 (64clk) is not enough for 8 waves per SIMD, which will cause SQ hang, since the 7,8th wave could not get arbit to exec inst, while other waves are stuck into the sleep-loop and waiting for wrexec!=0
 
+<<<<<<< HEAD
     if (EMU_RUN_HACK)
 
     else
@@ -364,6 +387,11 @@ end
     end
 
 
+=======
+        s_cbranch_execz L_SLEEP
+
+    /*      setup Resource Contants    */
+>>>>>>> upstream/android-13
     s_mov_b32       s_save_buf_rsrc0,   s_save_spi_init_lo                                                      //base_addr_lo
     s_and_b32       s_save_buf_rsrc1,   s_save_spi_init_hi, 0x0000FFFF                                          //base_addr_hi
     s_or_b32        s_save_buf_rsrc1,   s_save_buf_rsrc1,  S_SAVE_BUF_RSRC_WORD1_STRIDE
@@ -396,6 +424,7 @@ end
 
 
     s_mov_b32       s_save_buf_rsrc2, 0x4                               //NUM_RECORDS   in bytes
+<<<<<<< HEAD
     if (SWIZZLE_EN)
         s_add_u32       s_save_buf_rsrc2, s_save_buf_rsrc2, 0x0                     //FIXME need to use swizzle to enable bounds checking?
     else
@@ -412,6 +441,12 @@ end
         s_mov_b32   tba_hi, EMU_RUN_HACK_SAVE_FIRST_TIME_TBA_HI
     end
 
+=======
+        s_mov_b32       s_save_buf_rsrc2,  0x1000000                                //NUM_RECORDS in bytes
+
+
+    write_hwreg_to_mem(s_save_m0, s_save_buf_rsrc0, s_save_mem_offset)                  //M0
+>>>>>>> upstream/android-13
     write_hwreg_to_mem(s_save_pc_lo, s_save_buf_rsrc0, s_save_mem_offset)                   //PC
     write_hwreg_to_mem(s_save_pc_hi, s_save_buf_rsrc0, s_save_mem_offset)
     write_hwreg_to_mem(s_save_exec_lo, s_save_buf_rsrc0, s_save_mem_offset)             //EXEC
@@ -453,6 +488,7 @@ end
     s_add_u32       s_save_alloc_size, s_save_alloc_size, 1
     s_lshl_b32      s_save_alloc_size, s_save_alloc_size, 4                         //Number of SGPRs = (sgpr_size + 1) * 16   (non-zero value)
 
+<<<<<<< HEAD
     if (SGPR_SAVE_USE_SQC)
         s_lshl_b32      s_save_buf_rsrc2,   s_save_alloc_size, 2                    //NUM_RECORDS in bytes
     else
@@ -465,6 +501,10 @@ end
         s_mov_b32       s_save_buf_rsrc2,  0x1000000                                //NUM_RECORDS in bytes
     end
 
+=======
+        s_lshl_b32      s_save_buf_rsrc2,   s_save_alloc_size, 2                    //NUM_RECORDS in bytes
+        s_mov_b32       s_save_buf_rsrc2,  0x1000000                                //NUM_RECORDS in bytes
+>>>>>>> upstream/android-13
 
     // backup s_save_buf_rsrc0,1 to s_save_pc_lo/hi, since write_16sgpr_to_mem function will change the rsrc0
     //s_mov_b64 s_save_pc_lo, s_save_buf_rsrc0
@@ -503,6 +543,7 @@ end
     s_mov_b32       exec_lo, 0xFFFFFFFF                                             //need every thread from now on
     s_mov_b32       exec_hi, 0xFFFFFFFF
 
+<<<<<<< HEAD
     if (SWIZZLE_EN)
         s_add_u32       s_save_buf_rsrc2, s_save_buf_rsrc2, 0x0                     //FIXME need to use swizzle to enable bounds checking?
     else
@@ -522,11 +563,20 @@ if G8SR_VGPR_SR_IN_DWX4
         s_and_b32 s_save_buf_rsrc1, s_save_buf_rsrc1, 0x0000FFFF   // reset const stride to 0
         s_or_b32  s_save_buf_rsrc1, s_save_buf_rsrc1, S_SAVE_BUF_RSRC_WORD1_STRIDE  // reset const stride to 4 bytes
 else
+=======
+        s_mov_b32       s_save_buf_rsrc2,  0x1000000                                //NUM_RECORDS in bytes
+
+    // VGPR Allocated in 4-GPR granularity
+
+>>>>>>> upstream/android-13
         buffer_store_dword v0, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1
         buffer_store_dword v1, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1  offset:256
         buffer_store_dword v2, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1  offset:256*2
         buffer_store_dword v3, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1  offset:256*3
+<<<<<<< HEAD
 end
+=======
+>>>>>>> upstream/android-13
 
 
 
@@ -562,6 +612,7 @@ end
     s_add_u32 s_save_mem_offset, s_save_mem_offset, get_hwreg_size_bytes()
 
 
+<<<<<<< HEAD
     if (SWIZZLE_EN)
         s_add_u32       s_save_buf_rsrc2, s_save_buf_rsrc2, 0x0       //FIXME need to use swizzle to enable bounds checking?
     else
@@ -620,6 +671,12 @@ elsif LDS_DMA_ENABLE==1 && UNROLL==1 // UNROOL  , has ichace miss
        end
 
 else   // BUFFER_STORE
+=======
+        s_mov_b32       s_save_buf_rsrc2,  0x1000000                  //NUM_RECORDS in bytes
+    s_mov_b32       m0, 0x0                                               //lds_offset initial value = 0
+
+
+>>>>>>> upstream/android-13
       v_mbcnt_lo_u32_b32 v2, 0xffffffff, 0x0
       v_mbcnt_hi_u32_b32 v3, 0xffffffff, v2     // tid
       v_mul_i32_i24 v2, v3, 8   // tid*8
@@ -641,8 +698,11 @@ L_SAVE_LDS_LOOP_VECTOR:
       // restore rsrc3
       s_mov_b32 s_save_buf_rsrc3, s0
 
+<<<<<<< HEAD
 end
 
+=======
+>>>>>>> upstream/android-13
 L_SAVE_LDS_DONE:
 
 
@@ -660,6 +720,7 @@ L_SAVE_LDS_DONE:
     s_add_u32       s_save_alloc_size, s_save_alloc_size, 1
     s_lshl_b32      s_save_alloc_size, s_save_alloc_size, 2                         //Number of VGPRs = (vgpr_size + 1) * 4    (non-zero value)   //FIXME for GFX, zero is possible
     s_lshl_b32      s_save_buf_rsrc2,  s_save_alloc_size, 8                         //NUM_RECORDS in bytes (64 threads*4)
+<<<<<<< HEAD
     if (SWIZZLE_EN)
         s_add_u32       s_save_buf_rsrc2, s_save_buf_rsrc2, 0x0                     //FIXME need to use swizzle to enable bounds checking?
     else
@@ -698,6 +759,10 @@ L_SAVE_VGPR_LOOP_END:
         s_and_b32 s_save_buf_rsrc1, s_save_buf_rsrc1, 0x0000FFFF   // reset const stride to 0
         s_or_b32  s_save_buf_rsrc1, s_save_buf_rsrc1, S_SAVE_BUF_RSRC_WORD1_STRIDE  // reset const stride to 4 bytes
 else
+=======
+        s_mov_b32       s_save_buf_rsrc2,  0x1000000                                //NUM_RECORDS in bytes
+
+>>>>>>> upstream/android-13
     // VGPR store using dw burst
     s_mov_b32         m0, 0x4   //VGPR initial index value =0
     s_cmp_lt_u32      m0, s_save_alloc_size
@@ -713,20 +778,27 @@ else
     v_mov_b32       v2, v2              //v0 = v[0+m0]
     v_mov_b32       v3, v3              //v0 = v[0+m0]
 
+<<<<<<< HEAD
     if(USE_MTBUF_INSTEAD_OF_MUBUF)
         tbuffer_store_format_x v0, v0, s_save_buf_rsrc0, s_save_mem_offset format:BUF_NUM_FORMAT_FLOAT format: BUF_DATA_FORMAT_32 slc:1 glc:1
     else
+=======
+>>>>>>> upstream/android-13
         buffer_store_dword v0, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1
         buffer_store_dword v1, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1  offset:256
         buffer_store_dword v2, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1  offset:256*2
         buffer_store_dword v3, v0, s_save_buf_rsrc0, s_save_mem_offset slc:1 glc:1  offset:256*3
+<<<<<<< HEAD
     end
+=======
+>>>>>>> upstream/android-13
 
     s_add_u32       m0, m0, 4                                                       //next vgpr index
     s_add_u32       s_save_mem_offset, s_save_mem_offset, 256*4                     //every buffer_store_dword does 256 bytes
     s_cmp_lt_u32    m0, s_save_alloc_size                                           //scc = (m0 < s_save_alloc_size) ? 1 : 0
     s_cbranch_scc1  L_SAVE_VGPR_LOOP                                                //VGPR save is complete?
     s_set_gpr_idx_off
+<<<<<<< HEAD
 end
 
 L_SAVE_VGPR_END:
@@ -759,6 +831,10 @@ if G8SR_DEBUG_TIMESTAMP
 end
 
 
+=======
+
+L_SAVE_VGPR_END:
+>>>>>>> upstream/android-13
     s_branch    L_END_PGM
 
 
@@ -769,6 +845,7 @@ end
 
 L_RESTORE:
     /*      Setup Resource Contants    */
+<<<<<<< HEAD
     if ((EMU_RUN_HACK) && (!EMU_RUN_HACK_RESTORE_NORMAL))
         //calculate wd_addr using absolute thread id
         v_readlane_b32 s_restore_tmp, v9, 0
@@ -790,6 +867,8 @@ end
 
 
 
+=======
+>>>>>>> upstream/android-13
     s_mov_b32       s_restore_buf_rsrc0,    s_restore_spi_init_lo                                                           //base_addr_lo
     s_and_b32       s_restore_buf_rsrc1,    s_restore_spi_init_hi, 0x0000FFFF                                               //base_addr_hi
     s_or_b32        s_restore_buf_rsrc1,    s_restore_buf_rsrc1,  S_RESTORE_BUF_RSRC_WORD1_STRIDE
@@ -831,6 +910,7 @@ end
     s_add_u32  s_restore_mem_offset, s_restore_mem_offset, get_hwreg_size_bytes()            //FIXME, Check if offset overflow???
 
 
+<<<<<<< HEAD
     if (SWIZZLE_EN)
         s_add_u32       s_restore_buf_rsrc2, s_restore_buf_rsrc2, 0x0                       //FIXME need to use swizzle to enable bounds checking?
     else
@@ -843,6 +923,14 @@ end
         buffer_load_dword   v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset lds:1                    // first 64DW
         buffer_load_dword   v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset lds:1 offset:256         // second 64DW
     end
+=======
+        s_mov_b32       s_restore_buf_rsrc2,  0x1000000                                     //NUM_RECORDS in bytes
+    s_mov_b32       m0, 0x0                                                                 //lds_offset initial value = 0
+
+  L_RESTORE_LDS_LOOP:
+        buffer_load_dword   v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset lds:1                    // first 64DW
+        buffer_load_dword   v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset lds:1 offset:256         // second 64DW
+>>>>>>> upstream/android-13
     s_add_u32       m0, m0, 256*2                                               // 128 DW
     s_add_u32       s_restore_mem_offset, s_restore_mem_offset, 256*2           //mem offset increased by 128DW
     s_cmp_lt_u32    m0, s_restore_alloc_size                                    //scc=(m0 < s_restore_alloc_size) ? 1 : 0
@@ -861,6 +949,7 @@ end
     s_add_u32       s_restore_alloc_size, s_restore_alloc_size, 1
     s_lshl_b32      s_restore_alloc_size, s_restore_alloc_size, 2                           //Number of VGPRs = (vgpr_size + 1) * 4    (non-zero value)
     s_lshl_b32      s_restore_buf_rsrc2,  s_restore_alloc_size, 8                           //NUM_RECORDS in bytes (64 threads*4)
+<<<<<<< HEAD
     if (SWIZZLE_EN)
         s_add_u32       s_restore_buf_rsrc2, s_restore_buf_rsrc2, 0x0                       //FIXME need to use swizzle to enable bounds checking?
     else
@@ -895,6 +984,10 @@ L_RESTORE_VGPR_LOOP:
      s_or_b32  s_restore_buf_rsrc1, s_restore_buf_rsrc1, S_RESTORE_BUF_RSRC_WORD1_STRIDE  // const stride to 4*4 bytes
 
 else
+=======
+        s_mov_b32       s_restore_buf_rsrc2,  0x1000000                                     //NUM_RECORDS in bytes
+
+>>>>>>> upstream/android-13
     // VGPR load using dw burst
     s_mov_b32       s_restore_mem_offset_save, s_restore_mem_offset     // restore start with v1, v0 will be the last
     s_add_u32       s_restore_mem_offset, s_restore_mem_offset, 256*4
@@ -903,14 +996,20 @@ else
     s_add_u32       s_restore_alloc_size, s_restore_alloc_size, 0x8000                      //add 0x8000 since we compare m0 against it later
 
   L_RESTORE_VGPR_LOOP:
+<<<<<<< HEAD
     if(USE_MTBUF_INSTEAD_OF_MUBUF)
         tbuffer_load_format_x v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset format:BUF_NUM_FORMAT_FLOAT format: BUF_DATA_FORMAT_32 slc:1 glc:1
     else
+=======
+>>>>>>> upstream/android-13
         buffer_load_dword v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset slc:1 glc:1
         buffer_load_dword v1, v0, s_restore_buf_rsrc0, s_restore_mem_offset slc:1 glc:1 offset:256
         buffer_load_dword v2, v0, s_restore_buf_rsrc0, s_restore_mem_offset slc:1 glc:1 offset:256*2
         buffer_load_dword v3, v0, s_restore_buf_rsrc0, s_restore_mem_offset slc:1 glc:1 offset:256*3
+<<<<<<< HEAD
     end
+=======
+>>>>>>> upstream/android-13
     s_waitcnt       vmcnt(0)                                                                //ensure data ready
     v_mov_b32       v0, v0                                                                  //v[0+m0] = v0
     v_mov_b32       v1, v1
@@ -922,16 +1021,23 @@ else
     s_cbranch_scc1  L_RESTORE_VGPR_LOOP                                                     //VGPR restore (except v0) is complete?
     s_set_gpr_idx_off
                                                                                             /* VGPR restore on v0 */
+<<<<<<< HEAD
     if(USE_MTBUF_INSTEAD_OF_MUBUF)
         tbuffer_load_format_x v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset_save format:BUF_NUM_FORMAT_FLOAT format: BUF_DATA_FORMAT_32 slc:1 glc:1
     else
+=======
+>>>>>>> upstream/android-13
         buffer_load_dword v0, v0, s_restore_buf_rsrc0, s_restore_mem_offset_save    slc:1 glc:1
         buffer_load_dword v1, v0, s_restore_buf_rsrc0, s_restore_mem_offset_save    slc:1 glc:1 offset:256
         buffer_load_dword v2, v0, s_restore_buf_rsrc0, s_restore_mem_offset_save    slc:1 glc:1 offset:256*2
         buffer_load_dword v3, v0, s_restore_buf_rsrc0, s_restore_mem_offset_save    slc:1 glc:1 offset:256*3
+<<<<<<< HEAD
     end
 
 end
+=======
+        s_waitcnt vmcnt(0)
+>>>>>>> upstream/android-13
 
     /*          restore SGPRs       */
     //////////////////////////////
@@ -947,6 +1053,7 @@ end
     s_add_u32       s_restore_alloc_size, s_restore_alloc_size, 1
     s_lshl_b32      s_restore_alloc_size, s_restore_alloc_size, 4                           //Number of SGPRs = (sgpr_size + 1) * 16   (non-zero value)
 
+<<<<<<< HEAD
     if (SGPR_SAVE_USE_SQC)
         s_lshl_b32      s_restore_buf_rsrc2,    s_restore_alloc_size, 2                     //NUM_RECORDS in bytes
     else
@@ -957,6 +1064,10 @@ end
     else
         s_mov_b32       s_restore_buf_rsrc2,  0x1000000                                     //NUM_RECORDS in bytes
     end
+=======
+        s_lshl_b32      s_restore_buf_rsrc2,    s_restore_alloc_size, 2                     //NUM_RECORDS in bytes
+        s_mov_b32       s_restore_buf_rsrc2,  0x1000000                                     //NUM_RECORDS in bytes
+>>>>>>> upstream/android-13
 
     /* If 112 SGPRs ar allocated, 4 sgprs are not used TBA(108,109),TMA(110,111),
        However, we are safe to restore these 4 SGPRs anyway, since TBA,TMA will later be restored by HWREG
@@ -985,12 +1096,15 @@ end
     //////////////////////////////
   L_RESTORE_HWREG:
 
+<<<<<<< HEAD
 
 if G8SR_DEBUG_TIMESTAMP
       s_mov_b32 s_g8sr_ts_restore_s[0], s_restore_pc_lo
       s_mov_b32 s_g8sr_ts_restore_s[1], s_restore_pc_hi
 end
 
+=======
+>>>>>>> upstream/android-13
     // HWREG SR memory offset : size(VGPR)+size(SGPR)
     get_vgpr_size_bytes(s_restore_mem_offset)
     get_sgpr_size_bytes(s_restore_tmp)
@@ -998,11 +1112,15 @@ end
 
 
     s_mov_b32       s_restore_buf_rsrc2, 0x4                                                //NUM_RECORDS   in bytes
+<<<<<<< HEAD
     if (SWIZZLE_EN)
         s_add_u32       s_restore_buf_rsrc2, s_restore_buf_rsrc2, 0x0                       //FIXME need to use swizzle to enable bounds checking?
     else
         s_mov_b32       s_restore_buf_rsrc2,  0x1000000                                     //NUM_RECORDS in bytes
     end
+=======
+        s_mov_b32       s_restore_buf_rsrc2,  0x1000000                                     //NUM_RECORDS in bytes
+>>>>>>> upstream/android-13
 
     read_hwreg_from_mem(s_restore_m0, s_restore_buf_rsrc0, s_restore_mem_offset)                    //M0
     read_hwreg_from_mem(s_restore_pc_lo, s_restore_buf_rsrc0, s_restore_mem_offset)             //PC
@@ -1019,6 +1137,7 @@ end
 
     s_waitcnt       lgkmcnt(0)                                                                                      //from now on, it is safe to restore STATUS and IB_STS
 
+<<<<<<< HEAD
     //for normal save & restore, the saved PC points to the next inst to execute, no adjustment needs to be made, otherwise:
     if ((EMU_RUN_HACK) && (!EMU_RUN_HACK_RESTORE_NORMAL))
         s_add_u32 s_restore_pc_lo, s_restore_pc_lo, 8            //pc[31:0]+8     //two back-to-back s_trap are used (first for save and second for restore)
@@ -1029,6 +1148,8 @@ end
         s_addc_u32  s_restore_pc_hi, s_restore_pc_hi, 0x0        //carry bit over
     end
 
+=======
+>>>>>>> upstream/android-13
     s_mov_b32       m0,         s_restore_m0
     s_mov_b32       exec_lo,    s_restore_exec_lo
     s_mov_b32       exec_hi,    s_restore_exec_hi
@@ -1061,11 +1182,14 @@ end
 
     s_barrier                                                   //barrier to ensure the readiness of LDS before access attempts from any other wave in the same TG //FIXME not performance-optimal at this time
 
+<<<<<<< HEAD
 if G8SR_DEBUG_TIMESTAMP
     s_memrealtime s_g8sr_ts_restore_d
     s_waitcnt lgkmcnt(0)
 end
 
+=======
+>>>>>>> upstream/android-13
 //  s_rfe_b64 s_restore_pc_lo                                   //Return to the main shader program and resume execution
     s_rfe_restore_b64  s_restore_pc_lo, s_restore_m0            // s_restore_m0[0] is used to set STATUS.inst_atc
 

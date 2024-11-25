@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Robert Jarzmik <robert.jarzmik@free.fr>
  *
  * Scatterlist splitting helpers.
+<<<<<<< HEAD
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2. See the file COPYING for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/scatterlist.h>
@@ -178,11 +185,21 @@ int sg_split(struct scatterlist *in, const int in_mapped_nents,
 	 * The order of these 3 calls is important and should be kept.
 	 */
 	sg_split_phys(splitters, nb_splits);
+<<<<<<< HEAD
 	ret = sg_calculate_split(in, in_mapped_nents, nb_splits, skip,
 				 split_sizes, splitters, true);
 	if (ret < 0)
 		goto err;
 	sg_split_mapped(splitters, nb_splits);
+=======
+	if (in_mapped_nents) {
+		ret = sg_calculate_split(in, in_mapped_nents, nb_splits, skip,
+					 split_sizes, splitters, true);
+		if (ret < 0)
+			goto err;
+		sg_split_mapped(splitters, nb_splits);
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < nb_splits; i++) {
 		out[i] = splitters[i].out_sg;

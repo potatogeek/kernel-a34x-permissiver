@@ -11,7 +11,11 @@
 #ifndef _XTENSA_XT2000_SERIAL_H
 #define _XTENSA_XT2000_SERIAL_H
 
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 
 /*  National-Semi PC16552D DUART:  */

@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 menuconfig INTERCONNECT
 	tristate "On-Chip Interconnect management support"
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+menuconfig INTERCONNECT
+	bool "On-Chip Interconnect management support"
+>>>>>>> upstream/android-13
 	help
 	  Support for management of the on-chip interconnects.
 
@@ -10,7 +16,13 @@ menuconfig INTERCONNECT
 
 if INTERCONNECT
 
+<<<<<<< HEAD
 source "drivers/interconnect/qcom/Kconfig"
 source "drivers/interconnect/mediatek/Kconfig"
+=======
+source "drivers/interconnect/imx/Kconfig"
+source "drivers/interconnect/qcom/Kconfig"
+source "drivers/interconnect/samsung/Kconfig"
+>>>>>>> upstream/android-13
 
 endif

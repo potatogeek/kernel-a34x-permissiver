@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8988.c -- WM8988 ALSA SoC audio driver
  *
@@ -5,10 +9,13 @@
  * Copyright 2005 Openedhand Ltd.
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -245,10 +252,17 @@ static int wm8988_lrc_control(struct snd_soc_dapm_widget *w,
 			      struct snd_kcontrol *kcontrol, int event)
 {
 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+<<<<<<< HEAD
 	u16 adctl2 = snd_soc_component_read32(component, WM8988_ADCTL2);
 
 	/* Use the DAC to gate LRC if active, otherwise use ADC */
 	if (snd_soc_component_read32(component, WM8988_PWR2) & 0x180)
+=======
+	u16 adctl2 = snd_soc_component_read(component, WM8988_ADCTL2);
+
+	/* Use the DAC to gate LRC if active, otherwise use ADC */
+	if (snd_soc_component_read(component, WM8988_PWR2) & 0x180)
+>>>>>>> upstream/android-13
 		adctl2 &= ~0x4;
 	else
 		adctl2 |= 0x4;
@@ -276,7 +290,11 @@ static const struct soc_enum wm8988_rline_enum =
 			      wm8988_line_texts,
 			      wm8988_line_values);
 static const struct snd_kcontrol_new wm8988_right_line_controls =
+<<<<<<< HEAD
 	SOC_DAPM_ENUM("Route", wm8988_lline_enum);
+=======
+	SOC_DAPM_ENUM("Route", wm8988_rline_enum);
+>>>>>>> upstream/android-13
 
 /* Left Mixer */
 static const struct snd_kcontrol_new wm8988_left_mixer_controls[] = {
@@ -670,8 +688,13 @@ static int wm8988_pcm_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_soc_component *component = dai->component;
 	struct wm8988_priv *wm8988 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8988_IFACE) & 0x1f3;
 	u16 srate = snd_soc_component_read32(component, WM8988_SRATE) & 0x180;
+=======
+	u16 iface = snd_soc_component_read(component, WM8988_IFACE) & 0x1f3;
+	u16 srate = snd_soc_component_read(component, WM8988_SRATE) & 0x180;
+>>>>>>> upstream/android-13
 	int coeff;
 
 	coeff = get_coeff(wm8988->sysclk, params_rate(params));
@@ -710,10 +733,17 @@ static int wm8988_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8988_mute(struct snd_soc_dai *dai, int mute)
 {
 	struct snd_soc_component *component = dai->component;
 	u16 mute_reg = snd_soc_component_read32(component, WM8988_ADCDAC) & 0xfff7;
+=======
+static int wm8988_mute(struct snd_soc_dai *dai, int mute, int direction)
+{
+	struct snd_soc_component *component = dai->component;
+	u16 mute_reg = snd_soc_component_read(component, WM8988_ADCDAC) & 0xfff7;
+>>>>>>> upstream/android-13
 
 	if (mute)
 		snd_soc_component_write(component, WM8988_ADCDAC, mute_reg | 0x8);
@@ -726,7 +756,11 @@ static int wm8988_set_bias_level(struct snd_soc_component *component,
 				 enum snd_soc_bias_level level)
 {
 	struct wm8988_priv *wm8988 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 pwr_reg = snd_soc_component_read32(component, WM8988_PWR1) & ~0x1c1;
+=======
+	u16 pwr_reg = snd_soc_component_read(component, WM8988_PWR1) & ~0x1c1;
+>>>>>>> upstream/android-13
 
 	switch (level) {
 	case SND_SOC_BIAS_ON:
@@ -769,7 +803,12 @@ static const struct snd_soc_dai_ops wm8988_ops = {
 	.hw_params = wm8988_pcm_hw_params,
 	.set_fmt = wm8988_set_dai_fmt,
 	.set_sysclk = wm8988_set_dai_sysclk,
+<<<<<<< HEAD
 	.digital_mute = wm8988_mute,
+=======
+	.mute_stream = wm8988_mute,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8988_dai = {
@@ -789,7 +828,11 @@ static struct snd_soc_dai_driver wm8988_dai = {
 		.formats = WM8988_FORMATS,
 	 },
 	.ops = &wm8988_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int wm8988_probe(struct snd_soc_component *component)

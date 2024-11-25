@@ -3,6 +3,7 @@
 #define __ASM_NUMA_H
 
 #include <asm/topology.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_NUMA
 
@@ -50,5 +51,8 @@ static inline void arm64_numa_init(void) { }
 static inline void early_map_cpu_to_node(unsigned int cpu, int nid) { }
 
 #endif	/* CONFIG_NUMA */
+=======
+#include <asm-generic/numa.h>
+>>>>>>> upstream/android-13
 
 #endif	/* __ASM_NUMA_H */

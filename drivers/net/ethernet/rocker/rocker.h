@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * drivers/net/ethernet/rocker/rocker.h - Rocker switch device driver
  * Copyright (c) 2014-2016 Jiri Pirko <jiri@mellanox.com>
  * Copyright (c) 2014 Scott Feldman <sfeldma@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ROCKER_H
@@ -107,17 +114,25 @@ struct rocker_world_ops {
 	int (*port_attr_stp_state_set)(struct rocker_port *rocker_port,
 				       u8 state);
 	int (*port_attr_bridge_flags_set)(struct rocker_port *rocker_port,
+<<<<<<< HEAD
 					  unsigned long brport_flags,
 					  struct switchdev_trans *trans);
 	int (*port_attr_bridge_flags_get)(const struct rocker_port *rocker_port,
 					  unsigned long *p_brport_flags);
+=======
+					  unsigned long brport_flags);
+>>>>>>> upstream/android-13
 	int (*port_attr_bridge_flags_support_get)(const struct rocker_port *
 						  rocker_port,
 						  unsigned long *
 						  p_brport_flags);
 	int (*port_attr_bridge_ageing_time_set)(struct rocker_port *rocker_port,
+<<<<<<< HEAD
 						u32 ageing_time,
 						struct switchdev_trans *trans);
+=======
+						u32 ageing_time);
+>>>>>>> upstream/android-13
 	int (*port_obj_vlan_add)(struct rocker_port *rocker_port,
 				 const struct switchdev_obj_port_vlan *vlan);
 	int (*port_obj_vlan_del)(struct rocker_port *rocker_port,
@@ -127,7 +142,12 @@ struct rocker_world_ops {
 	int (*port_obj_fdb_del)(struct rocker_port *rocker_port,
 				u16 vid, const unsigned char *addr);
 	int (*port_master_linked)(struct rocker_port *rocker_port,
+<<<<<<< HEAD
 				  struct net_device *master);
+=======
+				  struct net_device *master,
+				  struct netlink_ext_ack *extack);
+>>>>>>> upstream/android-13
 	int (*port_master_unlinked)(struct rocker_port *rocker_port,
 				    struct net_device *master);
 	int (*port_neigh_update)(struct rocker_port *rocker_port,

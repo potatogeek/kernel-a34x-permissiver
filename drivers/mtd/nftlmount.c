@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NFTL mount code with extensive checks
  *
  * Author: Fabrice Bellard (fabrice.bellard@netgem.com)
  * Copyright © 2000 Netgem S.A.
  * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -201,17 +208,25 @@ device is already correct.
 		/* memory alloc */
 		nftl->EUNtable = kmalloc_array(nftl->nb_blocks, sizeof(u16),
 					       GFP_KERNEL);
+<<<<<<< HEAD
 		if (!nftl->EUNtable) {
 			printk(KERN_NOTICE "NFTL: allocation of EUNtable failed\n");
 			return -ENOMEM;
 		}
+=======
+		if (!nftl->EUNtable)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 
 		nftl->ReplUnitTable = kmalloc_array(nftl->nb_blocks,
 						    sizeof(u16),
 						    GFP_KERNEL);
 		if (!nftl->ReplUnitTable) {
 			kfree(nftl->EUNtable);
+<<<<<<< HEAD
 			printk(KERN_NOTICE "NFTL: allocation of ReplUnitTable failed\n");
+=======
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 
@@ -282,7 +297,11 @@ static int check_free_sectors(struct NFTLrecord *nftl, unsigned int address, int
 
 	buf = kmalloc(SECTORSIZE + mtd->oobsize, GFP_KERNEL);
 	if (!buf)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	ret = -1;
 	for (i = 0; i < len; i += SECTORSIZE) {
@@ -346,6 +365,7 @@ int NFTL_formatblock(struct NFTLrecord *nftl, int block)
 		goto fail;
 	}
 
+<<<<<<< HEAD
 		/* increase and write Wear-Leveling info */
 		nb_erases = le32_to_cpu(uci.WearInfo);
 		nb_erases++;
@@ -365,6 +385,28 @@ int NFTL_formatblock(struct NFTLrecord *nftl, int block)
 				   8, 8, &retlen, (char *)&uci) < 0)
 			goto fail;
 		return 0;
+=======
+	/* increase and write Wear-Leveling info */
+	nb_erases = le32_to_cpu(uci.WearInfo);
+	nb_erases++;
+
+	/* wrap (almost impossible with current flash) or free block */
+	if (nb_erases == 0)
+		nb_erases = 1;
+
+	/* check the "freeness" of Erase Unit before updating metadata
+	 * FixMe:  is this check really necessary ? since we have check the
+	 *         return code after the erase operation.
+	 */
+	if (check_free_sectors(nftl, instr->addr, nftl->EraseSize, 1) != 0)
+		goto fail;
+
+	uci.WearInfo = le32_to_cpu(nb_erases);
+	if (nftl_write_oob(mtd, block * nftl->EraseSize + SECTORSIZE +
+			   8, 8, &retlen, (char *)&uci) < 0)
+		goto fail;
+	return 0;
+>>>>>>> upstream/android-13
 fail:
 	/* could not format, update the bad block table (caller is responsible
 	   for setting the ReplUnitTable to BLOCK_RESERVED on failure) */

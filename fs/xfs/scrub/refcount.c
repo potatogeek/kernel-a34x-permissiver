@@ -7,6 +7,7 @@
 #include "xfs_fs.h"
 #include "xfs_shared.h"
 #include "xfs_format.h"
+<<<<<<< HEAD
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
@@ -23,16 +24,31 @@
 #include "scrub/common.h"
 #include "scrub/btree.h"
 #include "scrub/trace.h"
+=======
+#include "xfs_btree.h"
+#include "xfs_rmap.h"
+#include "xfs_refcount.h"
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+#include "scrub/btree.h"
+#include "xfs_ag.h"
+>>>>>>> upstream/android-13
 
 /*
  * Set us up to scrub reference count btrees.
  */
 int
 xchk_setup_ag_refcountbt(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_inode	*ip)
 {
 	return xchk_setup_ag_btree(sc, ip, false);
+=======
+	struct xfs_scrub	*sc)
+{
+	return xchk_setup_ag_btree(sc, false);
+>>>>>>> upstream/android-13
 }
 
 /* Reference count btree scrubber. */
@@ -101,7 +117,11 @@ struct xchk_refcnt_check {
 STATIC int
 xchk_refcountbt_rmap_check(
 	struct xfs_btree_cur		*cur,
+<<<<<<< HEAD
 	struct xfs_rmap_irec		*rec,
+=======
+	const struct xfs_rmap_irec	*rec,
+>>>>>>> upstream/android-13
 	void				*priv)
 {
 	struct xchk_refcnt_check	*refchk = priv;
@@ -340,16 +360,27 @@ xchk_refcountbt_xref(
 STATIC int
 xchk_refcountbt_rec(
 	struct xchk_btree	*bs,
+<<<<<<< HEAD
 	union xfs_btree_rec	*rec)
 {
 	struct xfs_mount	*mp = bs->cur->bc_mp;
 	xfs_agblock_t		*cow_blocks = bs->private;
 	xfs_agnumber_t		agno = bs->cur->bc_private.a.agno;
+=======
+	const union xfs_btree_rec *rec)
+{
+	struct xfs_mount	*mp = bs->cur->bc_mp;
+	xfs_agblock_t		*cow_blocks = bs->private;
+	xfs_agnumber_t		agno = bs->cur->bc_ag.pag->pag_agno;
+>>>>>>> upstream/android-13
 	xfs_agblock_t		bno;
 	xfs_extlen_t		len;
 	xfs_nlink_t		refcount;
 	bool			has_cowflag;
+<<<<<<< HEAD
 	int			error = 0;
+=======
+>>>>>>> upstream/android-13
 
 	bno = be32_to_cpu(rec->refc.rc_startblock);
 	len = be32_to_cpu(rec->refc.rc_blockcount);
@@ -374,14 +405,21 @@ xchk_refcountbt_rec(
 
 	xchk_refcountbt_xref(bs->sc, bno, len, refcount);
 
+<<<<<<< HEAD
 	return error;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Make sure we have as many refc blocks as the rmap says. */
 STATIC void
 xchk_refcount_xref_rmap(
 	struct xfs_scrub	*sc,
+<<<<<<< HEAD
 	struct xfs_owner_info	*oinfo,
+=======
+>>>>>>> upstream/android-13
 	xfs_filblks_t		cow_blocks)
 {
 	xfs_extlen_t		refcbt_blocks = 0;
@@ -395,17 +433,27 @@ xchk_refcount_xref_rmap(
 	error = xfs_btree_count_blocks(sc->sa.refc_cur, &refcbt_blocks);
 	if (!xchk_btree_process_error(sc, sc->sa.refc_cur, 0, &error))
 		return;
+<<<<<<< HEAD
 	error = xchk_count_rmap_ownedby_ag(sc, sc->sa.rmap_cur, oinfo,
 			&blocks);
+=======
+	error = xchk_count_rmap_ownedby_ag(sc, sc->sa.rmap_cur,
+			&XFS_RMAP_OINFO_REFC, &blocks);
+>>>>>>> upstream/android-13
 	if (!xchk_should_check_xref(sc, &error, &sc->sa.rmap_cur))
 		return;
 	if (blocks != refcbt_blocks)
 		xchk_btree_xref_set_corrupt(sc, sc->sa.rmap_cur, 0);
 
 	/* Check that we saw as many cow blocks as the rmap knows about. */
+<<<<<<< HEAD
 	xfs_rmap_ag_owner(oinfo, XFS_RMAP_OWN_COW);
 	error = xchk_count_rmap_ownedby_ag(sc, sc->sa.rmap_cur, oinfo,
 			&blocks);
+=======
+	error = xchk_count_rmap_ownedby_ag(sc, sc->sa.rmap_cur,
+			&XFS_RMAP_OINFO_COW, &blocks);
+>>>>>>> upstream/android-13
 	if (!xchk_should_check_xref(sc, &error, &sc->sa.rmap_cur))
 		return;
 	if (blocks != cow_blocks)
@@ -417,6 +465,7 @@ int
 xchk_refcountbt(
 	struct xfs_scrub	*sc)
 {
+<<<<<<< HEAD
 	struct xfs_owner_info	oinfo;
 	xfs_agblock_t		cow_blocks = 0;
 	int			error;
@@ -428,6 +477,17 @@ xchk_refcountbt(
 		return error;
 
 	xchk_refcount_xref_rmap(sc, &oinfo, cow_blocks);
+=======
+	xfs_agblock_t		cow_blocks = 0;
+	int			error;
+
+	error = xchk_btree(sc, sc->sa.refc_cur, xchk_refcountbt_rec,
+			&XFS_RMAP_OINFO_REFC, &cow_blocks);
+	if (error)
+		return error;
+
+	xchk_refcount_xref_rmap(sc, cow_blocks);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

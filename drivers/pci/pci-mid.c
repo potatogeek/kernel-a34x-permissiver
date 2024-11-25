@@ -55,15 +55,23 @@ static const struct pci_platform_pm_ops mid_pci_platform_pm = {
 	.need_resume	= mid_pci_need_resume,
 };
 
+<<<<<<< HEAD
 #define ICPU(model)	{ X86_VENDOR_INTEL, 6, model, X86_FEATURE_ANY, }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This table should be in sync with the one in
  * arch/x86/platform/intel-mid/pwr.c.
  */
 static const struct x86_cpu_id lpss_cpu_ids[] = {
+<<<<<<< HEAD
 	ICPU(INTEL_FAM6_ATOM_SALTWELL_MID),
 	ICPU(INTEL_FAM6_ATOM_SILVERMONT_MID),
+=======
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SALTWELL_MID, NULL),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT_MID, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 

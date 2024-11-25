@@ -22,10 +22,17 @@
  * Authors: Alex Deucher
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "rv730d.h"
 #include "r600_dpm.h"
+=======
+#include "radeon.h"
+#include "rv730d.h"
+#include "r600_dpm.h"
+#include "rv770.h"
+>>>>>>> upstream/android-13
 #include "rv770_dpm.h"
 #include "atom.h"
 
@@ -34,9 +41,12 @@
 #define MC_CG_ARB_FREQ_F2           0x0c
 #define MC_CG_ARB_FREQ_F3           0x0d
 
+<<<<<<< HEAD
 struct rv7xx_ps *rv770_get_ps(struct radeon_ps *rps);
 struct rv7xx_power_info *rv770_get_pi(struct radeon_device *rdev);
 
+=======
+>>>>>>> upstream/android-13
 int rv730_populate_sclk_value(struct radeon_device *rdev,
 			      u32 engine_clock,
 			      RV770_SMC_SCLK_VALUE *sclk)

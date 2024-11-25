@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Sysfs entries for PCI Error Recovery for PAPR-compliant platform.
  * Copyright IBM Corporation 2007
  * Copyright Linas Vepstas <linas@austin.ibm.com> 2007
  *
+<<<<<<< HEAD
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Send comments and feedback to Linas Vepstas <linas@austin.ibm.com>
  */
 #include <linux/pci.h>
@@ -30,7 +37,11 @@
 /**
  * EEH_SHOW_ATTR -- Create sysfs entry for eeh statistic
  * @_name: name of file in sysfs directory
+<<<<<<< HEAD
  * @_memb: name of member in struct pci_dn to access
+=======
+ * @_memb: name of member in struct eeh_dev to access
+>>>>>>> upstream/android-13
  * @_format: printf format for display
  *
  * All of the attributes look very similar, so just
@@ -82,15 +93,25 @@ static ssize_t eeh_pe_state_store(struct device *dev,
 	if (!(edev->pe->state & EEH_PE_ISOLATED))
 		return count;
 
+<<<<<<< HEAD
 	if (eeh_unfreeze_pe(edev->pe, true))
 		return -EIO;
+=======
+	if (eeh_unfreeze_pe(edev->pe))
+		return -EIO;
+	eeh_pe_state_clear(edev->pe, EEH_PE_ISOLATED, true);
+>>>>>>> upstream/android-13
 
 	return count;
 }
 
 static DEVICE_ATTR_RW(eeh_pe_state);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_IOV
+=======
+#if defined(CONFIG_PCI_IOV) && defined(CONFIG_PPC_PSERIES)
+>>>>>>> upstream/android-13
 static ssize_t eeh_notify_resume_show(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
@@ -101,7 +122,10 @@ static ssize_t eeh_notify_resume_show(struct device *dev,
 	if (!edev || !edev->pe)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	pdn = pci_get_pdn(pdev);
+=======
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%d\n", pdn->last_allow_rc);
 }
 
@@ -115,7 +139,11 @@ static ssize_t eeh_notify_resume_store(struct device *dev,
 	if (!edev || !edev->pe || !eeh_ops->notify_resume)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (eeh_ops->notify_resume(pci_get_pdn(pdev)))
+=======
+	if (eeh_ops->notify_resume(edev))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	return count;
@@ -147,7 +175,11 @@ static void eeh_notify_resume_remove(struct pci_dev *pdev)
 #else
 static inline int eeh_notify_resume_add(struct pci_dev *pdev) { return 0; }
 static inline void eeh_notify_resume_remove(struct pci_dev *pdev) { }
+<<<<<<< HEAD
 #endif /* CONFIG_PCI_IOV */
+=======
+#endif /* CONFIG_PCI_IOV && CONFIG PPC_PSERIES*/
+>>>>>>> upstream/android-13
 
 void eeh_sysfs_add_device(struct pci_dev *pdev)
 {
@@ -175,22 +207,40 @@ void eeh_sysfs_remove_device(struct pci_dev *pdev)
 {
 	struct eeh_dev *edev = pci_dev_to_eeh_dev(pdev);
 
+<<<<<<< HEAD
+=======
+	if (!edev) {
+		WARN_ON(eeh_enabled());
+		return;
+	}
+
+	edev->mode &= ~EEH_DEV_SYSFS;
+
+>>>>>>> upstream/android-13
 	/*
 	 * The parent directory might have been removed. We needn't
 	 * continue for that case.
 	 */
+<<<<<<< HEAD
 	if (!pdev->dev.kobj.sd) {
 		if (edev)
 			edev->mode &= ~EEH_DEV_SYSFS;
 		return;
 	}
+=======
+	if (!pdev->dev.kobj.sd)
+		return;
+>>>>>>> upstream/android-13
 
 	device_remove_file(&pdev->dev, &dev_attr_eeh_mode);
 	device_remove_file(&pdev->dev, &dev_attr_eeh_pe_config_addr);
 	device_remove_file(&pdev->dev, &dev_attr_eeh_pe_state);
 
 	eeh_notify_resume_remove(pdev);
+<<<<<<< HEAD
 
 	if (edev)
 		edev->mode &= ~EEH_DEV_SYSFS;
+=======
+>>>>>>> upstream/android-13
 }

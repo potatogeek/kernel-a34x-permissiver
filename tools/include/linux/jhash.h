@@ -5,7 +5,11 @@
  *
  * Copyright (C) 2006. Bob Jenkins (bob_jenkins@burtleburtle.net)
  *
+<<<<<<< HEAD
  * http://burtleburtle.net/bob/hash/
+=======
+ * https://burtleburtle.net/bob/hash/
+>>>>>>> upstream/android-13
  *
  * These are the credits from Bob's sources:
  *

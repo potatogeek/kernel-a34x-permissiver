@@ -26,6 +26,11 @@
 #ifndef __DAL_HW_FACTORY_DIAG_FPGA_H__
 #define __DAL_HW_FACTORY_DIAG_FPGA_H__
 
+<<<<<<< HEAD
+=======
+struct hw_factory;
+
+>>>>>>> upstream/android-13
 /* Initialize HW factory function pointers and pin info */
 void dal_hw_factory_diag_fpga_init(struct hw_factory *factory);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * A driver for the I2C members of the Abracon AB x8xx RTC family,
  * and compatible: AB 1805 and AB 0805
@@ -5,18 +9,28 @@
  * Copyright 2014-2015 Macq S.A.
  *
  * Author: Philippe De Muyter <phdm@macqel.be>
+<<<<<<< HEAD
  * Author: Alexandre Belloni <alexandre.belloni@free-electrons.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Author: Alexandre Belloni <alexandre.belloni@bootlin.com>
+>>>>>>> upstream/android-13
  *
  */
 
 #include <linux/bcd.h>
 #include <linux/i2c.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/rtc.h>
+=======
+#include <linux/of_device.h>
+#include <linux/rtc.h>
+#include <linux/watchdog.h>
+>>>>>>> upstream/android-13
 
 #define ABX8XX_REG_HTH		0x00
 #define ABX8XX_REG_SC		0x01
@@ -37,12 +51,23 @@
 
 #define ABX8XX_REG_STATUS	0x0f
 #define ABX8XX_STATUS_AF	BIT(2)
+<<<<<<< HEAD
+=======
+#define ABX8XX_STATUS_BLF	BIT(4)
+#define ABX8XX_STATUS_WDT	BIT(6)
+>>>>>>> upstream/android-13
 
 #define ABX8XX_REG_CTRL1	0x10
 #define ABX8XX_CTRL_WRITE	BIT(0)
 #define ABX8XX_CTRL_ARST	BIT(2)
 #define ABX8XX_CTRL_12_24	BIT(6)
 
+<<<<<<< HEAD
+=======
+#define ABX8XX_REG_CTRL2	0x11
+#define ABX8XX_CTRL2_RSVD	BIT(5)
+
+>>>>>>> upstream/android-13
 #define ABX8XX_REG_IRQ		0x12
 #define ABX8XX_IRQ_AIE		BIT(2)
 #define ABX8XX_IRQ_IM_1_4	(0x3 << 5)
@@ -61,12 +86,29 @@
 #define ABX8XX_OSS_OF		BIT(1)
 #define ABX8XX_OSS_OMODE	BIT(4)
 
+<<<<<<< HEAD
+=======
+#define ABX8XX_REG_WDT		0x1b
+#define ABX8XX_WDT_WDS		BIT(7)
+#define ABX8XX_WDT_BMB_MASK	0x7c
+#define ABX8XX_WDT_BMB_SHIFT	2
+#define ABX8XX_WDT_MAX_TIME	(ABX8XX_WDT_BMB_MASK >> ABX8XX_WDT_BMB_SHIFT)
+#define ABX8XX_WDT_WRB_MASK	0x03
+#define ABX8XX_WDT_WRB_1HZ	0x02
+
+>>>>>>> upstream/android-13
 #define ABX8XX_REG_CFG_KEY	0x1f
 #define ABX8XX_CFG_KEY_OSC	0xa1
 #define ABX8XX_CFG_KEY_MISC	0x9d
 
 #define ABX8XX_REG_ID0		0x28
 
+<<<<<<< HEAD
+=======
+#define ABX8XX_REG_OUT_CTRL	0x30
+#define ABX8XX_OUT_CTRL_EXDS	BIT(4)
+
+>>>>>>> upstream/android-13
 #define ABX8XX_REG_TRICKLE	0x20
 #define ABX8XX_TRICKLE_CHARGE_ENABLE	0xa0
 #define ABX8XX_TRICKLE_STANDARD_DIODE	0x8
@@ -75,16 +117,25 @@
 static u8 trickle_resistors[] = {0, 3, 6, 11};
 
 enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
+<<<<<<< HEAD
 	AB1801, AB1803, AB1804, AB1805, ABX80X};
+=======
+	AB1801, AB1803, AB1804, AB1805, RV1805, ABX80X};
+>>>>>>> upstream/android-13
 
 struct abx80x_cap {
 	u16 pn;
 	bool has_tc;
+<<<<<<< HEAD
+=======
+	bool has_wdog;
+>>>>>>> upstream/android-13
 };
 
 static struct abx80x_cap abx80x_caps[] = {
 	[AB0801] = {.pn = 0x0801},
 	[AB0803] = {.pn = 0x0803},
+<<<<<<< HEAD
 	[AB0804] = {.pn = 0x0804, .has_tc = true},
 	[AB0805] = {.pn = 0x0805, .has_tc = true},
 	[AB1801] = {.pn = 0x1801},
@@ -94,6 +145,34 @@ static struct abx80x_cap abx80x_caps[] = {
 	[ABX80X] = {.pn = 0}
 };
 
+=======
+	[AB0804] = {.pn = 0x0804, .has_tc = true, .has_wdog = true},
+	[AB0805] = {.pn = 0x0805, .has_tc = true, .has_wdog = true},
+	[AB1801] = {.pn = 0x1801},
+	[AB1803] = {.pn = 0x1803},
+	[AB1804] = {.pn = 0x1804, .has_tc = true, .has_wdog = true},
+	[AB1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
+	[RV1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
+	[ABX80X] = {.pn = 0}
+};
+
+struct abx80x_priv {
+	struct rtc_device *rtc;
+	struct i2c_client *client;
+	struct watchdog_device wdog;
+};
+
+static int abx80x_write_config_key(struct i2c_client *client, u8 key)
+{
+	if (i2c_smbus_write_byte_data(client, ABX8XX_REG_CFG_KEY, key) < 0) {
+		dev_err(&client->dev, "Unable to write configuration key\n");
+		return -EIO;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int abx80x_is_rc_mode(struct i2c_client *client)
 {
 	int flags = 0;
@@ -117,12 +196,17 @@ static int abx80x_enable_trickle_charger(struct i2c_client *client,
 	 * Write the configuration key register to enable access to the Trickle
 	 * register
 	 */
+<<<<<<< HEAD
 	err = i2c_smbus_write_byte_data(client, ABX8XX_REG_CFG_KEY,
 					ABX8XX_CFG_KEY_MISC);
 	if (err < 0) {
 		dev_err(&client->dev, "Unable to write configuration key\n");
 		return -EIO;
 	}
+=======
+	if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_MISC) < 0)
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	err = i2c_smbus_write_byte_data(client, ABX8XX_REG_TRICKLE,
 					ABX8XX_TRICKLE_CHARGE_ENABLE |
@@ -218,7 +302,12 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
 {
 	struct i2c_client *client = dev_id;
+<<<<<<< HEAD
 	struct rtc_device *rtc = i2c_get_clientdata(client);
+=======
+	struct abx80x_priv *priv = i2c_get_clientdata(client);
+	struct rtc_device *rtc = priv->rtc;
+>>>>>>> upstream/android-13
 	int status;
 
 	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
@@ -228,6 +317,16 @@ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
 	if (status & ABX8XX_STATUS_AF)
 		rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * It is unclear if we'll get an interrupt before the external
+	 * reset kicks in.
+	 */
+	if (status & ABX8XX_STATUS_WDT)
+		dev_alert(&client->dev, "watchdog timeout interrupt.\n");
+
+>>>>>>> upstream/android-13
 	i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS, 0);
 
 	return IRQ_HANDLED;
@@ -327,12 +426,17 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
 	}
 
 	/* Unlock write access to Oscillator Control Register */
+<<<<<<< HEAD
 	retval = i2c_smbus_write_byte_data(client, ABX8XX_REG_CFG_KEY,
 					   ABX8XX_CFG_KEY_OSC);
 	if (retval < 0) {
 		dev_err(dev, "Failed to write CONFIG_KEY register\n");
 		return retval;
 	}
+=======
+	if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_OSC) < 0)
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	retval = i2c_smbus_write_byte_data(client, ABX8XX_REG_OSC, flags);
 
@@ -371,7 +475,11 @@ static ssize_t autocalibration_store(struct device *dev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	retval = abx80x_rtc_set_autocalibration(dev, autocalibration);
+=======
+	retval = abx80x_rtc_set_autocalibration(dev->parent, autocalibration);
+>>>>>>> upstream/android-13
 
 	return retval ? retval : count;
 }
@@ -381,7 +489,11 @@ static ssize_t autocalibration_show(struct device *dev,
 {
 	int autocalibration = 0;
 
+<<<<<<< HEAD
 	autocalibration = abx80x_rtc_get_autocalibration(dev);
+=======
+	autocalibration = abx80x_rtc_get_autocalibration(dev->parent);
+>>>>>>> upstream/android-13
 	if (autocalibration < 0) {
 		dev_err(dev, "Failed to read RTC autocalibration\n");
 		sprintf(buf, "0\n");
@@ -397,7 +509,11 @@ static ssize_t oscillator_store(struct device *dev,
 				struct device_attribute *attr,
 				const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
+=======
+	struct i2c_client *client = to_i2c_client(dev->parent);
+>>>>>>> upstream/android-13
 	int retval, flags, rc_mode = 0;
 
 	if (strncmp(buf, "rc", 2) == 0) {
@@ -419,12 +535,17 @@ static ssize_t oscillator_store(struct device *dev,
 		flags |= (ABX8XX_OSC_OSEL);
 
 	/* Unlock write access on Oscillator Control register */
+<<<<<<< HEAD
 	retval = i2c_smbus_write_byte_data(client, ABX8XX_REG_CFG_KEY,
 					   ABX8XX_CFG_KEY_OSC);
 	if (retval < 0) {
 		dev_err(dev, "Failed to write CONFIG_KEY register\n");
 		return retval;
 	}
+=======
+	if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_OSC) < 0)
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	retval = i2c_smbus_write_byte_data(client, ABX8XX_REG_OSC, flags);
 	if (retval < 0) {
@@ -439,7 +560,11 @@ static ssize_t oscillator_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
 {
 	int rc_mode = 0;
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
+=======
+	struct i2c_client *client = to_i2c_client(dev->parent);
+>>>>>>> upstream/android-13
 
 	rc_mode = abx80x_is_rc_mode(client);
 
@@ -482,16 +607,61 @@ static int abx80x_alarm_irq_enable(struct device *dev, unsigned int enabled)
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+	int status, tmp;
+
+	switch (cmd) {
+	case RTC_VL_READ:
+		status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
+		if (status < 0)
+			return status;
+
+		tmp = status & ABX8XX_STATUS_BLF ? RTC_VL_BACKUP_LOW : 0;
+
+		return put_user(tmp, (unsigned int __user *)arg);
+
+	case RTC_VL_CLR:
+		status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
+		if (status < 0)
+			return status;
+
+		status &= ~ABX8XX_STATUS_BLF;
+
+		tmp = i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS, 0);
+		if (tmp < 0)
+			return tmp;
+
+		return 0;
+
+	default:
+		return -ENOIOCTLCMD;
+	}
+}
+
+>>>>>>> upstream/android-13
 static const struct rtc_class_ops abx80x_rtc_ops = {
 	.read_time	= abx80x_rtc_read_time,
 	.set_time	= abx80x_rtc_set_time,
 	.read_alarm	= abx80x_read_alarm,
 	.set_alarm	= abx80x_set_alarm,
 	.alarm_irq_enable = abx80x_alarm_irq_enable,
+<<<<<<< HEAD
 };
 
 static int abx80x_dt_trickle_cfg(struct device_node *np)
 {
+=======
+	.ioctl		= abx80x_ioctl,
+};
+
+static int abx80x_dt_trickle_cfg(struct i2c_client *client)
+{
+	struct device_node *np = client->dev.of_node;
+>>>>>>> upstream/android-13
 	const char *diode;
 	int trickle_cfg = 0;
 	int i, ret;
@@ -501,12 +671,23 @@ static int abx80x_dt_trickle_cfg(struct device_node *np)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (!strcmp(diode, "standard"))
 		trickle_cfg |= ABX8XX_TRICKLE_STANDARD_DIODE;
 	else if (!strcmp(diode, "schottky"))
 		trickle_cfg |= ABX8XX_TRICKLE_SCHOTTKY_DIODE;
 	else
 		return -EINVAL;
+=======
+	if (!strcmp(diode, "standard")) {
+		trickle_cfg |= ABX8XX_TRICKLE_STANDARD_DIODE;
+	} else if (!strcmp(diode, "schottky")) {
+		trickle_cfg |= ABX8XX_TRICKLE_SCHOTTKY_DIODE;
+	} else {
+		dev_dbg(&client->dev, "Invalid tc-diode value: %s\n", diode);
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(np, "abracon,tc-resistor", &tmp);
 	if (ret)
@@ -516,12 +697,20 @@ static int abx80x_dt_trickle_cfg(struct device_node *np)
 		if (trickle_resistors[i] == tmp)
 			break;
 
+<<<<<<< HEAD
 	if (i == sizeof(trickle_resistors))
 		return -EINVAL;
+=======
+	if (i == sizeof(trickle_resistors)) {
+		dev_dbg(&client->dev, "Invalid tc-resistor value: %u\n", tmp);
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return (trickle_cfg | i);
 }
 
+<<<<<<< HEAD
 static void rtc_calib_remove_sysfs_group(void *_dev)
 {
 	struct device *dev = _dev;
@@ -529,11 +718,100 @@ static void rtc_calib_remove_sysfs_group(void *_dev)
 	sysfs_remove_group(&dev->kobj, &rtc_calib_attr_group);
 }
 
+=======
+#ifdef CONFIG_WATCHDOG
+
+static inline u8 timeout_bits(unsigned int timeout)
+{
+	return ((timeout << ABX8XX_WDT_BMB_SHIFT) & ABX8XX_WDT_BMB_MASK) |
+		 ABX8XX_WDT_WRB_1HZ;
+}
+
+static int __abx80x_wdog_set_timeout(struct watchdog_device *wdog,
+				     unsigned int timeout)
+{
+	struct abx80x_priv *priv = watchdog_get_drvdata(wdog);
+	u8 val = ABX8XX_WDT_WDS | timeout_bits(timeout);
+
+	/*
+	 * Writing any timeout to the WDT register resets the watchdog timer.
+	 * Writing 0 disables it.
+	 */
+	return i2c_smbus_write_byte_data(priv->client, ABX8XX_REG_WDT, val);
+}
+
+static int abx80x_wdog_set_timeout(struct watchdog_device *wdog,
+				   unsigned int new_timeout)
+{
+	int err = 0;
+
+	if (watchdog_hw_running(wdog))
+		err = __abx80x_wdog_set_timeout(wdog, new_timeout);
+
+	if (err == 0)
+		wdog->timeout = new_timeout;
+
+	return err;
+}
+
+static int abx80x_wdog_ping(struct watchdog_device *wdog)
+{
+	return __abx80x_wdog_set_timeout(wdog, wdog->timeout);
+}
+
+static int abx80x_wdog_start(struct watchdog_device *wdog)
+{
+	return __abx80x_wdog_set_timeout(wdog, wdog->timeout);
+}
+
+static int abx80x_wdog_stop(struct watchdog_device *wdog)
+{
+	return __abx80x_wdog_set_timeout(wdog, 0);
+}
+
+static const struct watchdog_info abx80x_wdog_info = {
+	.identity = "abx80x watchdog",
+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+};
+
+static const struct watchdog_ops abx80x_wdog_ops = {
+	.owner = THIS_MODULE,
+	.start = abx80x_wdog_start,
+	.stop = abx80x_wdog_stop,
+	.ping = abx80x_wdog_ping,
+	.set_timeout = abx80x_wdog_set_timeout,
+};
+
+static int abx80x_setup_watchdog(struct abx80x_priv *priv)
+{
+	priv->wdog.parent = &priv->client->dev;
+	priv->wdog.ops = &abx80x_wdog_ops;
+	priv->wdog.info = &abx80x_wdog_info;
+	priv->wdog.min_timeout = 1;
+	priv->wdog.max_timeout = ABX8XX_WDT_MAX_TIME;
+	priv->wdog.timeout = ABX8XX_WDT_MAX_TIME;
+
+	watchdog_set_drvdata(&priv->wdog, priv);
+
+	return devm_watchdog_register_device(&priv->client->dev, &priv->wdog);
+}
+#else
+static int abx80x_setup_watchdog(struct abx80x_priv *priv)
+{
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static int abx80x_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
 	struct device_node *np = client->dev.of_node;
+<<<<<<< HEAD
 	struct rtc_device *rtc;
+=======
+	struct abx80x_priv *priv;
+>>>>>>> upstream/android-13
 	int i, data, err, trickle_cfg = -EINVAL;
 	char buf[7];
 	unsigned int part = id->driver_data;
@@ -577,6 +855,60 @@ static int abx80x_probe(struct i2c_client *client,
 		return -EIO;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Configure RV1805 specifics */
+	if (part == RV1805) {
+		/*
+		 * Avoid accidentally entering test mode. This can happen
+		 * on the RV1805 in case the reserved bit 5 in control2
+		 * register is set. RV-1805-C3 datasheet indicates that
+		 * the bit should be cleared in section 11h - Control2.
+		 */
+		data = i2c_smbus_read_byte_data(client, ABX8XX_REG_CTRL2);
+		if (data < 0) {
+			dev_err(&client->dev,
+				"Unable to read control2 register\n");
+			return -EIO;
+		}
+
+		err = i2c_smbus_write_byte_data(client, ABX8XX_REG_CTRL2,
+						data & ~ABX8XX_CTRL2_RSVD);
+		if (err < 0) {
+			dev_err(&client->dev,
+				"Unable to write control2 register\n");
+			return -EIO;
+		}
+
+		/*
+		 * Avoid extra power leakage. The RV1805 uses smaller
+		 * 10pin package and the EXTI input is not present.
+		 * Disable it to avoid leakage.
+		 */
+		data = i2c_smbus_read_byte_data(client, ABX8XX_REG_OUT_CTRL);
+		if (data < 0) {
+			dev_err(&client->dev,
+				"Unable to read output control register\n");
+			return -EIO;
+		}
+
+		/*
+		 * Write the configuration key register to enable access to
+		 * the config2 register
+		 */
+		if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_MISC) < 0)
+			return -EIO;
+
+		err = i2c_smbus_write_byte_data(client, ABX8XX_REG_OUT_CTRL,
+						data | ABX8XX_OUT_CTRL_EXDS);
+		if (err < 0) {
+			dev_err(&client->dev,
+				"Unable to write output control register\n");
+			return -EIO;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/* part autodetection */
 	if (part == ABX80X) {
 		for (i = 0; abx80x_caps[i].pn; i++)
@@ -597,7 +929,11 @@ static int abx80x_probe(struct i2c_client *client,
 	}
 
 	if (np && abx80x_caps[part].has_tc)
+<<<<<<< HEAD
 		trickle_cfg = abx80x_dt_trickle_cfg(np);
+=======
+		trickle_cfg = abx80x_dt_trickle_cfg(client);
+>>>>>>> upstream/android-13
 
 	if (trickle_cfg > 0) {
 		dev_info(&client->dev, "Enabling trickle charger: %02x\n",
@@ -610,6 +946,7 @@ static int abx80x_probe(struct i2c_client *client,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	rtc = devm_rtc_allocate_device(&client->dev);
 	if (IS_ERR(rtc))
 		return PTR_ERR(rtc);
@@ -617,6 +954,26 @@ static int abx80x_probe(struct i2c_client *client,
 	rtc->ops = &abx80x_rtc_ops;
 
 	i2c_set_clientdata(client, rtc);
+=======
+	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
+	if (priv == NULL)
+		return -ENOMEM;
+
+	priv->rtc = devm_rtc_allocate_device(&client->dev);
+	if (IS_ERR(priv->rtc))
+		return PTR_ERR(priv->rtc);
+
+	priv->rtc->ops = &abx80x_rtc_ops;
+	priv->client = client;
+
+	i2c_set_clientdata(client, priv);
+
+	if (abx80x_caps[part].has_wdog) {
+		err = abx80x_setup_watchdog(priv);
+		if (err)
+			return err;
+	}
+>>>>>>> upstream/android-13
 
 	if (client->irq > 0) {
 		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
@@ -631,14 +988,19 @@ static int abx80x_probe(struct i2c_client *client,
 		}
 	}
 
+<<<<<<< HEAD
 	/* Export sysfs entries */
 	err = sysfs_create_group(&(&client->dev)->kobj, &rtc_calib_attr_group);
+=======
+	err = rtc_add_group(priv->rtc, &rtc_calib_attr_group);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&client->dev, "Failed to create sysfs group: %d\n",
 			err);
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = devm_add_action_or_reset(&client->dev,
 				       rtc_calib_remove_sysfs_group,
 				       &client->dev);
@@ -657,6 +1019,9 @@ static int abx80x_probe(struct i2c_client *client,
 static int abx80x_remove(struct i2c_client *client)
 {
 	return 0;
+=======
+	return devm_rtc_register_device(priv->rtc);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id abx80x_id[] = {
@@ -669,23 +1034,87 @@ static const struct i2c_device_id abx80x_id[] = {
 	{ "ab1803", AB1803 },
 	{ "ab1804", AB1804 },
 	{ "ab1805", AB1805 },
+<<<<<<< HEAD
 	{ "rv1805", AB1805 },
+=======
+	{ "rv1805", RV1805 },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, abx80x_id);
 
+<<<<<<< HEAD
 static struct i2c_driver abx80x_driver = {
 	.driver		= {
 		.name	= "rtc-abx80x",
 	},
 	.probe		= abx80x_probe,
 	.remove		= abx80x_remove,
+=======
+#ifdef CONFIG_OF
+static const struct of_device_id abx80x_of_match[] = {
+	{
+		.compatible = "abracon,abx80x",
+		.data = (void *)ABX80X
+	},
+	{
+		.compatible = "abracon,ab0801",
+		.data = (void *)AB0801
+	},
+	{
+		.compatible = "abracon,ab0803",
+		.data = (void *)AB0803
+	},
+	{
+		.compatible = "abracon,ab0804",
+		.data = (void *)AB0804
+	},
+	{
+		.compatible = "abracon,ab0805",
+		.data = (void *)AB0805
+	},
+	{
+		.compatible = "abracon,ab1801",
+		.data = (void *)AB1801
+	},
+	{
+		.compatible = "abracon,ab1803",
+		.data = (void *)AB1803
+	},
+	{
+		.compatible = "abracon,ab1804",
+		.data = (void *)AB1804
+	},
+	{
+		.compatible = "abracon,ab1805",
+		.data = (void *)AB1805
+	},
+	{
+		.compatible = "microcrystal,rv1805",
+		.data = (void *)RV1805
+	},
+	{ }
+};
+MODULE_DEVICE_TABLE(of, abx80x_of_match);
+#endif
+
+static struct i2c_driver abx80x_driver = {
+	.driver		= {
+		.name	= "rtc-abx80x",
+		.of_match_table = of_match_ptr(abx80x_of_match),
+	},
+	.probe		= abx80x_probe,
+>>>>>>> upstream/android-13
 	.id_table	= abx80x_id,
 };
 
 module_i2c_driver(abx80x_driver);
 
 MODULE_AUTHOR("Philippe De Muyter <phdm@macqel.be>");
+<<<<<<< HEAD
 MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@free-electrons.com>");
+=======
+MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@bootlin.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Abracon ABX80X RTC driver");
 MODULE_LICENSE("GPL v2");

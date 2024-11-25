@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Netlink event notifications for SELinux.
  *
  * Author: James Morris <jmorris@redhat.com>
  *
  * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/types.h>
@@ -22,7 +29,11 @@
 
 #include "security.h"
 
+<<<<<<< HEAD
 static struct sock *selnl;
+=======
+static struct sock *selnl __ro_after_init;
+>>>>>>> upstream/android-13
 
 static int selnl_msglen(int msgtype)
 {

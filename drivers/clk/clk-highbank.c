@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2012 Calxeda, Inc.
  *
@@ -12,12 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2011-2012 Calxeda, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/clk.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/clk-provider.h>
 #include <linux/io.h>
 #include <linux/of.h>
@@ -272,23 +281,39 @@ static const struct clk_ops periclk_ops = {
 	.set_rate = clk_periclk_set_rate,
 };
 
+<<<<<<< HEAD
 static __init struct clk *hb_clk_init(struct device_node *node, const struct clk_ops *ops)
+=======
+static void __init hb_clk_init(struct device_node *node, const struct clk_ops *ops, unsigned long clkflags)
+>>>>>>> upstream/android-13
 {
 	u32 reg;
 	struct hb_clk *hb_clk;
 	const char *clk_name = node->name;
 	const char *parent_name;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct device_node *srnp;
 	int rc;
 
 	rc = of_property_read_u32(node, "reg", &reg);
 	if (WARN_ON(rc))
+<<<<<<< HEAD
 		return NULL;
 
 	hb_clk = kzalloc(sizeof(*hb_clk), GFP_KERNEL);
 	if (WARN_ON(!hb_clk))
 		return NULL;
+=======
+		return;
+
+	hb_clk = kzalloc(sizeof(*hb_clk), GFP_KERNEL);
+	if (WARN_ON(!hb_clk))
+		return;
+>>>>>>> upstream/android-13
 
 	/* Map system registers */
 	srnp = of_find_compatible_node(NULL, NULL, "calxeda,hb-sregs");
@@ -301,7 +326,11 @@ static __init struct clk *hb_clk_init(struct device_node *node, const struct clk
 
 	init.name = clk_name;
 	init.ops = ops;
+<<<<<<< HEAD
 	init.flags = 0;
+=======
+	init.flags = clkflags;
+>>>>>>> upstream/android-13
 	parent_name = of_clk_get_parent_name(node, 0);
 	init.parent_names = &parent_name;
 	init.num_parents = 1;
@@ -311,33 +340,55 @@ static __init struct clk *hb_clk_init(struct device_node *node, const struct clk
 	rc = clk_hw_register(NULL, &hb_clk->hw);
 	if (WARN_ON(rc)) {
 		kfree(hb_clk);
+<<<<<<< HEAD
 		return NULL;
 	}
 	rc = of_clk_add_hw_provider(node, of_clk_hw_simple_get, &hb_clk->hw);
 	return hb_clk->hw.clk;
+=======
+		return;
+	}
+	of_clk_add_hw_provider(node, of_clk_hw_simple_get, &hb_clk->hw);
+>>>>>>> upstream/android-13
 }
 
 static void __init hb_pll_init(struct device_node *node)
 {
+<<<<<<< HEAD
 	hb_clk_init(node, &clk_pll_ops);
+=======
+	hb_clk_init(node, &clk_pll_ops, 0);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(hb_pll, "calxeda,hb-pll-clock", hb_pll_init);
 
 static void __init hb_a9periph_init(struct device_node *node)
 {
+<<<<<<< HEAD
 	hb_clk_init(node, &a9periphclk_ops);
+=======
+	hb_clk_init(node, &a9periphclk_ops, 0);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(hb_a9periph, "calxeda,hb-a9periph-clock", hb_a9periph_init);
 
 static void __init hb_a9bus_init(struct device_node *node)
 {
+<<<<<<< HEAD
 	struct clk *clk = hb_clk_init(node, &a9bclk_ops);
 	clk_prepare_enable(clk);
+=======
+	hb_clk_init(node, &a9bclk_ops, CLK_IS_CRITICAL);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(hb_a9bus, "calxeda,hb-a9bus-clock", hb_a9bus_init);
 
 static void __init hb_emmc_init(struct device_node *node)
 {
+<<<<<<< HEAD
 	hb_clk_init(node, &periclk_ops);
+=======
+	hb_clk_init(node, &periclk_ops, 0);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(hb_emmc, "calxeda,hb-emmc-clock", hb_emmc_init);

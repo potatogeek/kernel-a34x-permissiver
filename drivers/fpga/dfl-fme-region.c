@@ -39,7 +39,11 @@ static int fme_region_probe(struct platform_device *pdev)
 	if (IS_ERR(mgr))
 		return -EPROBE_DEFER;
 
+<<<<<<< HEAD
 	region = fpga_region_create(dev, mgr, fme_region_get_bridges);
+=======
+	region = devm_fpga_region_create(dev, mgr, fme_region_get_bridges);
+>>>>>>> upstream/android-13
 	if (!region) {
 		ret = -ENOMEM;
 		goto eprobe_mgr_put;
@@ -51,14 +55,21 @@ static int fme_region_probe(struct platform_device *pdev)
 
 	ret = fpga_region_register(region);
 	if (ret)
+<<<<<<< HEAD
 		goto region_free;
+=======
+		goto eprobe_mgr_put;
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev, "DFL FME FPGA Region probed\n");
 
 	return 0;
 
+<<<<<<< HEAD
 region_free:
 	fpga_region_free(region);
+=======
+>>>>>>> upstream/android-13
 eprobe_mgr_put:
 	fpga_mgr_put(mgr);
 	return ret;
@@ -66,7 +77,11 @@ eprobe_mgr_put:
 
 static int fme_region_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct fpga_region *region = dev_get_drvdata(&pdev->dev);
+=======
+	struct fpga_region *region = platform_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 	struct fpga_manager *mgr = region->mgr;
 
 	fpga_region_unregister(region);

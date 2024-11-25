@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2017 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015 - 2017 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/firmware.h>
@@ -1868,11 +1874,16 @@ int parse_platform_config(struct hfi1_devdata *dd)
 									2;
 				break;
 			case PLATFORM_CONFIG_RX_PRESET_TABLE:
+<<<<<<< HEAD
 				/* fall through */
 			case PLATFORM_CONFIG_TX_PRESET_TABLE:
 				/* fall through */
 			case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
 				/* fall through */
+=======
+			case PLATFORM_CONFIG_TX_PRESET_TABLE:
+			case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
+>>>>>>> upstream/android-13
 			case PLATFORM_CONFIG_VARIABLE_SETTINGS_TABLE:
 				pcfgcache->config_tables[table_type].num_table =
 							table_length_dwords;
@@ -1890,6 +1901,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
 			/* metadata table */
 			switch (table_type) {
 			case PLATFORM_CONFIG_SYSTEM_TABLE:
+<<<<<<< HEAD
 				/* fall through */
 			case PLATFORM_CONFIG_PORT_TABLE:
 				/* fall through */
@@ -1899,6 +1911,12 @@ int parse_platform_config(struct hfi1_devdata *dd)
 				/* fall through */
 			case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
 				/* fall through */
+=======
+			case PLATFORM_CONFIG_PORT_TABLE:
+			case PLATFORM_CONFIG_RX_PRESET_TABLE:
+			case PLATFORM_CONFIG_TX_PRESET_TABLE:
+			case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
+>>>>>>> upstream/android-13
 			case PLATFORM_CONFIG_VARIABLE_SETTINGS_TABLE:
 				break;
 			default:
@@ -2028,6 +2046,7 @@ static int get_platform_fw_field_metadata(struct hfi1_devdata *dd, int table,
 
 	switch (table) {
 	case PLATFORM_CONFIG_SYSTEM_TABLE:
+<<<<<<< HEAD
 		/* fall through */
 	case PLATFORM_CONFIG_PORT_TABLE:
 		/* fall through */
@@ -2037,6 +2056,12 @@ static int get_platform_fw_field_metadata(struct hfi1_devdata *dd, int table,
 		/* fall through */
 	case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
 		/* fall through */
+=======
+	case PLATFORM_CONFIG_PORT_TABLE:
+	case PLATFORM_CONFIG_RX_PRESET_TABLE:
+	case PLATFORM_CONFIG_TX_PRESET_TABLE:
+	case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
+>>>>>>> upstream/android-13
 	case PLATFORM_CONFIG_VARIABLE_SETTINGS_TABLE:
 		if (field && field < platform_config_table_limits[table])
 			src_ptr =
@@ -2139,11 +2164,16 @@ int get_platform_config_field(struct hfi1_devdata *dd,
 			pcfgcache->config_tables[table_type].table;
 		break;
 	case PLATFORM_CONFIG_RX_PRESET_TABLE:
+<<<<<<< HEAD
 		/* fall through */
 	case PLATFORM_CONFIG_TX_PRESET_TABLE:
 		/* fall through */
 	case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
 		/* fall through */
+=======
+	case PLATFORM_CONFIG_TX_PRESET_TABLE:
+	case PLATFORM_CONFIG_QSFP_ATTEN_TABLE:
+>>>>>>> upstream/android-13
 	case PLATFORM_CONFIG_VARIABLE_SETTINGS_TABLE:
 		src_ptr = pcfgcache->config_tables[table_type].table;
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright SUSE Linux Products GmbH 2010
  *
@@ -100,10 +105,18 @@ static inline ulong kvmppc_get_pc(struct kvm_vcpu *vcpu)
 	return vcpu->arch.regs.nip;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BOOKE
+>>>>>>> upstream/android-13
 static inline ulong kvmppc_get_fault_dar(struct kvm_vcpu *vcpu)
 {
 	return vcpu->arch.fault_dear;
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static inline bool kvmppc_supports_magic_page(struct kvm_vcpu *vcpu)
 {

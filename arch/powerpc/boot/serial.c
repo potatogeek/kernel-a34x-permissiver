@@ -92,7 +92,12 @@ static void *serial_get_stdout_devp(void)
 	if (devp == NULL)
 		goto err_out;
 
+<<<<<<< HEAD
 	if (getprop(devp, "linux,stdout-path", path, MAX_PATH_LEN) > 0) {
+=======
+	if (getprop(devp, "linux,stdout-path", path, MAX_PATH_LEN) > 0 ||
+		getprop(devp, "stdout-path", path, MAX_PATH_LEN) > 0) {
+>>>>>>> upstream/android-13
 		devp = finddevice(path);
 		if (devp == NULL)
 			goto err_out;
@@ -131,11 +136,14 @@ int serial_console_init(void)
 	else if (dt_is_compatible(devp, "fsl,mpc5200-psc-uart"))
 		rc = mpc5200_psc_console_init(devp, &serial_cd);
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_XILINX_VIRTEX
 	else if (dt_is_compatible(devp, "xlnx,opb-uartlite-1.00.b") ||
 		 dt_is_compatible(devp, "xlnx,xps-uartlite-1.00.a"))
 		rc = uartlite_console_init(devp, &serial_cd);
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC64_BOOT_WRAPPER
 	else if (dt_is_compatible(devp, "ibm,opal-console-raw"))
 		rc = opal_console_init(devp, &serial_cd);

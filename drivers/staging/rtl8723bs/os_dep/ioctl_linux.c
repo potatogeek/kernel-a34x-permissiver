@@ -4,12 +4,19 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _IOCTL_LINUX_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/etherdevice.h>
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <rtw_mp.h>
+<<<<<<< HEAD
+=======
+#include <hal_btcoex.h>
+>>>>>>> upstream/android-13
 #include <linux/jiffies.h>
 #include <linux/kernel.h>
 
@@ -20,18 +27,25 @@
 #define RATE_COUNT 4
 
 /*  combo scan */
+<<<<<<< HEAD
 #define WEXT_CSCAN_AMOUNT 9
 #define WEXT_CSCAN_BUF_LEN		360
+=======
+>>>>>>> upstream/android-13
 #define WEXT_CSCAN_HEADER		"CSCAN S\x01\x00\x00S\x00"
 #define WEXT_CSCAN_HEADER_SIZE		12
 #define WEXT_CSCAN_SSID_SECTION		'S'
 #define WEXT_CSCAN_CHANNEL_SECTION	'C'
+<<<<<<< HEAD
 #define WEXT_CSCAN_NPROBE_SECTION	'N'
+=======
+>>>>>>> upstream/android-13
 #define WEXT_CSCAN_ACTV_DWELL_SECTION	'A'
 #define WEXT_CSCAN_PASV_DWELL_SECTION	'P'
 #define WEXT_CSCAN_HOME_DWELL_SECTION	'H'
 #define WEXT_CSCAN_TYPE_SECTION		'T'
 
+<<<<<<< HEAD
 static u32 rtw_rates[] = {1000000, 2000000, 5500000, 11000000,
 	6000000, 9000000, 12000000, 18000000, 24000000, 36000000, 48000000, 54000000};
 
@@ -402,21 +416,41 @@ static int wpa_set_auth_algs(struct net_device *dev, u32 value)
 		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
 	} else if (value & WLAN_AUTH_SHARED_KEY)	{
 		DBG_871X("wpa_set_auth_algs, WLAN_AUTH_SHARED_KEY  [value:0x%x]\n", value);
+=======
+static int wpa_set_auth_algs(struct net_device *dev, u32 value)
+{
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	int ret = 0;
+
+	if ((value & IW_AUTH_ALG_SHARED_KEY) && (value & IW_AUTH_ALG_OPEN_SYSTEM)) {
+		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+		padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeAutoSwitch;
+		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
+	} else if (value & IW_AUTH_ALG_SHARED_KEY)	{
+>>>>>>> upstream/android-13
 		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
 
 		padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeShared;
 		padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Shared;
+<<<<<<< HEAD
 	} else if (value & WLAN_AUTH_OPEN) {
 		DBG_871X("wpa_set_auth_algs, WLAN_AUTH_OPEN\n");
+=======
+	} else if (value & IW_AUTH_ALG_OPEN_SYSTEM) {
+>>>>>>> upstream/android-13
 		/* padapter->securitypriv.ndisencryptstatus = Ndis802_11EncryptionDisabled; */
 		if (padapter->securitypriv.ndisauthtype < Ndis802_11AuthModeWPAPSK) {
 			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeOpen;
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_Open;
 		}
+<<<<<<< HEAD
 	} else if (value & WLAN_AUTH_LEAP) {
 		DBG_871X("wpa_set_auth_algs, WLAN_AUTH_LEAP\n");
 	} else {
 		DBG_871X("wpa_set_auth_algs, error!\n");
+=======
+	} else {
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 	}
 
@@ -429,14 +463,22 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	int ret = 0;
 	u32 wep_key_idx, wep_key_len, wep_total_len;
 	struct ndis_802_11_wep	 *pwep = NULL;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
 
 	param->u.crypt.err = 0;
 	param->u.crypt.alg[IEEE_CRYPT_ALG_NAME_LEN - 1] = '\0';
 
+<<<<<<< HEAD
 	if (param_len < (u32) ((u8 *) param->u.crypt.key - (u8 *) param) + param->u.crypt.key_len) {
+=======
+	if (param_len < (u32)((u8 *)param->u.crypt.key - (u8 *)param) + param->u.crypt.key_len) {
+>>>>>>> upstream/android-13
 		ret =  -EINVAL;
 		goto exit;
 	}
@@ -457,8 +499,11 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	}
 
 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_ioctl_os_c, _drv_err_, ("wpa_set_encryption, crypt.alg = WEP\n"));
 		DBG_871X("wpa_set_encryption, crypt.alg = WEP\n");
+=======
+>>>>>>> upstream/android-13
 
 		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
 		padapter->securitypriv.dot11PrivacyAlgrthm = _WEP40_;
@@ -467,6 +512,7 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		wep_key_idx = param->u.crypt.idx;
 		wep_key_len = param->u.crypt.key_len;
 
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_ioctl_os_c, _drv_info_, ("(1)wep_key_idx =%d\n", wep_key_idx));
 		DBG_871X("(1)wep_key_idx =%d\n", wep_key_idx);
 
@@ -488,6 +534,22 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 			pwep->KeyLength = wep_key_len;
 			pwep->Length = wep_total_len;
+=======
+		if (wep_key_idx > WEP_KEYS)
+			return -EINVAL;
+
+		if (wep_key_len > 0) {
+			wep_key_len = wep_key_len <= 5 ? 5 : 13;
+			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, key_material);
+			pwep = kzalloc(wep_total_len, GFP_KERNEL);
+			if (!pwep) {
+				ret = -ENOMEM;
+				goto exit;
+			}
+
+			pwep->key_length = wep_key_len;
+			pwep->length = wep_total_len;
+>>>>>>> upstream/android-13
 
 			if (wep_key_len == 13) {
 				padapter->securitypriv.dot11PrivacyAlgrthm = _WEP104_;
@@ -498,6 +560,7 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 			goto exit;
 		}
 
+<<<<<<< HEAD
 		pwep->KeyIndex = wep_key_idx;
 		pwep->KeyIndex |= 0x80000000;
 
@@ -511,16 +574,36 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		} else {
 			DBG_871X("wep, set_tx = 0\n");
 
+=======
+		pwep->key_index = wep_key_idx;
+		pwep->key_index |= 0x80000000;
+
+		memcpy(pwep->key_material,  param->u.crypt.key, pwep->key_length);
+
+		if (param->u.crypt.set_tx) {
+			if (rtw_set_802_11_add_wep(padapter, pwep) == (u8)_FAIL)
+				ret = -EOPNOTSUPP;
+		} else {
+>>>>>>> upstream/android-13
 			/* don't update "psecuritypriv->dot11PrivacyAlgrthm" and */
 			/* psecuritypriv->dot11PrivacyKeyIndex =keyid", but can rtw_set_key to fw/cam */
 
 			if (wep_key_idx >= WEP_KEYS) {
+<<<<<<< HEAD
 				ret = -EOPNOTSUPP ;
 				goto exit;
 			}
 
 			memcpy(&(psecuritypriv->dot11DefKey[wep_key_idx].skey[0]), pwep->KeyMaterial, pwep->KeyLength);
 			psecuritypriv->dot11DefKeylen[wep_key_idx]=pwep->KeyLength;
+=======
+				ret = -EOPNOTSUPP;
+				goto exit;
+			}
+
+			memcpy(&(psecuritypriv->dot11DefKey[wep_key_idx].skey[0]), pwep->key_material, pwep->key_length);
+			psecuritypriv->dot11DefKeylen[wep_key_idx] = pwep->key_length;
+>>>>>>> upstream/android-13
 			rtw_set_key(padapter, psecuritypriv, wep_key_idx, 0, true);
 		}
 
@@ -528,8 +611,13 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	}
 
 	if (padapter->securitypriv.dot11AuthAlgrthm == dot11AuthAlgrthm_8021X) { /*  802_1x */
+<<<<<<< HEAD
 		struct sta_info * psta,*pbcmc_sta;
 		struct sta_priv * pstapriv = &padapter->stapriv;
+=======
+		struct sta_info *psta, *pbcmc_sta;
+		struct sta_priv *pstapriv = &padapter->stapriv;
+>>>>>>> upstream/android-13
 
 		if (check_fwstate(pmlmepriv, WIFI_STATION_STATE | WIFI_MP_STATE) == true) { /* sta mode */
 			psta = rtw_get_stainfo(pstapriv, get_bssid(pmlmepriv));
@@ -540,19 +628,28 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				if (strcmp(param->u.crypt.alg, "none") != 0)
 					psta->ieee8021x_blocked = false;
 
+<<<<<<< HEAD
 				if ((padapter->securitypriv.ndisencryptstatus == Ndis802_11Encryption2Enabled)||
+=======
+				if ((padapter->securitypriv.ndisencryptstatus == Ndis802_11Encryption2Enabled) ||
+>>>>>>> upstream/android-13
 						(padapter->securitypriv.ndisencryptstatus ==  Ndis802_11Encryption3Enabled)) {
 					psta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 				}
 
 				if (param->u.crypt.set_tx == 1) { /* pairwise key */
+<<<<<<< HEAD
 					memcpy(psta->dot118021x_UncstKey.skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
+=======
+					memcpy(psta->dot118021x_UncstKey.skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+>>>>>>> upstream/android-13
 
 					if (strcmp(param->u.crypt.alg, "TKIP") == 0) { /* set mic key */
 						/* DEBUG_ERR(("\nset key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len)); */
 						memcpy(psta->dot11tkiptxmickey.skey, &(param->u.crypt.key[16]), 8);
 						memcpy(psta->dot11tkiprxmickey.skey, &(param->u.crypt.key[24]), 8);
 
+<<<<<<< HEAD
 						padapter->securitypriv.busetkipkey =false;
 						/* _set_timer(&padapter->securitypriv.tkip_timer, 50); */
 					}
@@ -580,18 +677,49 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 						/* printk("BIP key_len =%d , index =%d @@@@@@@@@@@@@@@@@@\n", param->u.crypt.key_len, param->u.crypt.idx); */
 						/* save the IGTK key, length 16 bytes */
 						memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
+=======
+						padapter->securitypriv.busetkipkey = false;
+						/* _set_timer(&padapter->securitypriv.tkip_timer, 50); */
+					}
+
+					rtw_setstakey_cmd(padapter, psta, true, true);
+				} else { /* group key */
+					if (strcmp(param->u.crypt.alg, "TKIP") == 0 || strcmp(param->u.crypt.alg, "CCMP") == 0) {
+						memcpy(padapter->securitypriv.dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+						/* only TKIP group key need to install this */
+						if (param->u.crypt.key_len > 16) {
+							memcpy(padapter->securitypriv.dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
+							memcpy(padapter->securitypriv.dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
+						}
+						padapter->securitypriv.binstallGrpkey = true;
+
+						padapter->securitypriv.dot118021XGrpKeyid = param->u.crypt.idx;
+
+						rtw_set_key(padapter, &padapter->securitypriv, param->u.crypt.idx, 1, true);
+					} else if (strcmp(param->u.crypt.alg, "BIP") == 0) {
+						/* printk("BIP key_len =%d , index =%d @@@@@@@@@@@@@@@@@@\n", param->u.crypt.key_len, param->u.crypt.idx); */
+						/* save the IGTK key, length 16 bytes */
+						memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+>>>>>>> upstream/android-13
 						/*printk("IGTK key below:\n");
 						for (no = 0;no<16;no++)
 							printk(" %02x ", padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey[no]);
 						printk("\n");*/
 						padapter->securitypriv.dot11wBIPKeyid = param->u.crypt.idx;
 						padapter->securitypriv.binstallBIPkey = true;
+<<<<<<< HEAD
 						DBG_871X(" ~~~~set sta key:IGKT\n");
+=======
+>>>>>>> upstream/android-13
 					}
 				}
 			}
 
+<<<<<<< HEAD
 			pbcmc_sta =rtw_get_bcmc_stainfo(padapter);
+=======
+			pbcmc_sta = rtw_get_bcmc_stainfo(padapter);
+>>>>>>> upstream/android-13
 			if (pbcmc_sta == NULL) {
 				/* DEBUG_ERR(("Set OID_802_11_ADD_KEY: bcmc stainfo is null\n")); */
 			} else {
@@ -599,7 +727,11 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				if (strcmp(param->u.crypt.alg, "none") != 0)
 					pbcmc_sta->ieee8021x_blocked = false;
 
+<<<<<<< HEAD
 				if ((padapter->securitypriv.ndisencryptstatus == Ndis802_11Encryption2Enabled)||
+=======
+				if ((padapter->securitypriv.ndisencryptstatus == Ndis802_11Encryption2Enabled) ||
+>>>>>>> upstream/android-13
 						(padapter->securitypriv.ndisencryptstatus ==  Ndis802_11Encryption3Enabled)) {
 					pbcmc_sta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 				}
@@ -617,10 +749,17 @@ exit:
 
 static int rtw_set_wpa_ie(struct adapter *padapter, char *pie, unsigned short ielen)
 {
+<<<<<<< HEAD
 	u8 *buf = NULL, *pos = NULL;
 	int group_cipher = 0, pairwise_cipher = 0;
 	int ret = 0;
 	u8 null_addr[]= {0, 0, 0, 0, 0, 0};
+=======
+	u8 *buf = NULL;
+	int group_cipher = 0, pairwise_cipher = 0;
+	int ret = 0;
+	u8 null_addr[] = {0, 0, 0, 0, 0, 0};
+>>>>>>> upstream/android-13
 
 	if ((ielen > MAX_WPA_IE_LEN) || (pie == NULL)) {
 		_clr_fwstate_(&padapter->mlmepriv, WIFI_UNDER_WPS);
@@ -637,6 +776,7 @@ static int rtw_set_wpa_ie(struct adapter *padapter, char *pie, unsigned short ie
 			goto exit;
 		}
 
+<<<<<<< HEAD
 		memcpy(buf, pie , ielen);
 
 		/* dump */
@@ -650,19 +790,32 @@ static int rtw_set_wpa_ie(struct adapter *padapter, char *pie, unsigned short ie
 		pos = buf;
 		if (ielen < RSN_HEADER_LEN) {
 			RT_TRACE(_module_rtl871x_ioctl_os_c, _drv_err_, ("Ie len too short %d\n", ielen));
+=======
+		memcpy(buf, pie, ielen);
+
+		if (ielen < RSN_HEADER_LEN) {
+>>>>>>> upstream/android-13
 			ret  = -1;
 			goto exit;
 		}
 
 		if (rtw_parse_wpa_ie(buf, ielen, &group_cipher, &pairwise_cipher, NULL) == _SUCCESS) {
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
+<<<<<<< HEAD
 			padapter->securitypriv.ndisauthtype =Ndis802_11AuthModeWPAPSK;
+=======
+			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPAPSK;
+>>>>>>> upstream/android-13
 			memcpy(padapter->securitypriv.supplicant_ie, &buf[0], ielen);
 		}
 
 		if (rtw_parse_wpa2_ie(buf, ielen, &group_cipher, &pairwise_cipher, NULL) == _SUCCESS) {
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
+<<<<<<< HEAD
 			padapter->securitypriv.ndisauthtype =Ndis802_11AuthModeWPA2PSK;
+=======
+			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPA2PSK;
+>>>>>>> upstream/android-13
 			memcpy(padapter->securitypriv.supplicant_ie, &buf[0], ielen);
 		}
 
@@ -672,6 +825,7 @@ static int rtw_set_wpa_ie(struct adapter *padapter, char *pie, unsigned short ie
 			pairwise_cipher = WPA_CIPHER_NONE;
 
 		switch (group_cipher) {
+<<<<<<< HEAD
 			case WPA_CIPHER_NONE:
 				padapter->securitypriv.dot118021XGrpPrivacy = _NO_PRIVACY_;
 				padapter->securitypriv.ndisencryptstatus =Ndis802_11EncryptionDisabled;
@@ -715,19 +869,72 @@ static int rtw_set_wpa_ie(struct adapter *padapter, char *pie, unsigned short ie
 				padapter->securitypriv.dot11PrivacyAlgrthm = _WEP104_;
 				padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
 				break;
+=======
+		case WPA_CIPHER_NONE:
+			padapter->securitypriv.dot118021XGrpPrivacy = _NO_PRIVACY_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11EncryptionDisabled;
+			break;
+		case WPA_CIPHER_WEP40:
+			padapter->securitypriv.dot118021XGrpPrivacy = _WEP40_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			break;
+		case WPA_CIPHER_TKIP:
+			padapter->securitypriv.dot118021XGrpPrivacy = _TKIP_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption2Enabled;
+			break;
+		case WPA_CIPHER_CCMP:
+			padapter->securitypriv.dot118021XGrpPrivacy = _AES_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption3Enabled;
+			break;
+		case WPA_CIPHER_WEP104:
+			padapter->securitypriv.dot118021XGrpPrivacy = _WEP104_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			break;
+		}
+
+		switch (pairwise_cipher) {
+		case WPA_CIPHER_NONE:
+			padapter->securitypriv.dot11PrivacyAlgrthm = _NO_PRIVACY_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11EncryptionDisabled;
+			break;
+		case WPA_CIPHER_WEP40:
+			padapter->securitypriv.dot11PrivacyAlgrthm = _WEP40_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			break;
+		case WPA_CIPHER_TKIP:
+			padapter->securitypriv.dot11PrivacyAlgrthm = _TKIP_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption2Enabled;
+			break;
+		case WPA_CIPHER_CCMP:
+			padapter->securitypriv.dot11PrivacyAlgrthm = _AES_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption3Enabled;
+			break;
+		case WPA_CIPHER_WEP104:
+			padapter->securitypriv.dot11PrivacyAlgrthm = _WEP104_;
+			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		_clr_fwstate_(&padapter->mlmepriv, WIFI_UNDER_WPS);
 		{/* set wps_ie */
 			u16 cnt = 0;
+<<<<<<< HEAD
 			u8 eid, wps_oui[4]={0x0, 0x50, 0xf2, 0x04};
+=======
+			u8 eid, wps_oui[4] = {0x0, 0x50, 0xf2, 0x04};
+>>>>>>> upstream/android-13
 
 			while (cnt < ielen) {
 				eid = buf[cnt];
 
+<<<<<<< HEAD
 				if ((eid == _VENDOR_SPECIFIC_IE_) && (!memcmp(&buf[cnt+2], wps_oui, 4))) {
 					DBG_871X("SET WPS_IE\n");
 
+=======
+				if ((eid == WLAN_EID_VENDOR_SPECIFIC) && (!memcmp(&buf[cnt+2], wps_oui, 4))) {
+>>>>>>> upstream/android-13
 					padapter->securitypriv.wps_ie_len = ((buf[cnt+1]+2) < MAX_WPS_IE_LEN) ? (buf[cnt+1]+2):MAX_WPS_IE_LEN;
 
 					memcpy(padapter->securitypriv.wps_ie, &buf[cnt], padapter->securitypriv.wps_ie_len);
@@ -745,6 +952,7 @@ static int rtw_set_wpa_ie(struct adapter *padapter, char *pie, unsigned short ie
 	}
 
 	/* TKIP and AES disallow multicast packets until installing group key */
+<<<<<<< HEAD
         if (padapter->securitypriv.dot11PrivacyAlgrthm == _TKIP_
                 || padapter->securitypriv.dot11PrivacyAlgrthm == _TKIP_WTMIC_
                 || padapter->securitypriv.dot11PrivacyAlgrthm == _AES_)
@@ -755,6 +963,14 @@ static int rtw_set_wpa_ie(struct adapter *padapter, char *pie, unsigned short ie
 	RT_TRACE(_module_rtl871x_ioctl_os_c, _drv_info_,
 		 ("rtw_set_wpa_ie: pairwise_cipher = 0x%08x padapter->securitypriv.ndisencryptstatus =%d padapter->securitypriv.ndisauthtype =%d\n",
 		  pairwise_cipher, padapter->securitypriv.ndisencryptstatus, padapter->securitypriv.ndisauthtype));
+=======
+	if (padapter->securitypriv.dot11PrivacyAlgrthm == _TKIP_ ||
+		padapter->securitypriv.dot11PrivacyAlgrthm == _TKIP_WTMIC_ ||
+		padapter->securitypriv.dot11PrivacyAlgrthm == _AES_)
+		/* WPS open need to enable multicast */
+		/*  check_fwstate(&padapter->mlmepriv, WIFI_UNDER_WPS) == true) */
+		rtw_hal_set_hwreg(padapter, HW_VAR_OFF_RCR_AM, null_addr);
+>>>>>>> upstream/android-13
 
 exit:
 
@@ -763,6 +979,7 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int rtw_wx_get_name(struct net_device *dev,
 			     struct iw_request_info *info,
 			     union iwreq_data *wrqu, char *extra)
@@ -3275,6 +3492,12 @@ static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
 {
 	uint ret = 0;
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
+{
+	uint ret = 0;
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 
 	switch (name) {
 	case IEEE_PARAM_WPA_ENABLED:
@@ -3284,7 +3507,11 @@ static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
 		/* ret = ieee80211_wpa_enable(ieee, value); */
 
 		switch ((value)&0xff) {
+<<<<<<< HEAD
 		case 1 : /* WPA */
+=======
+		case 1: /* WPA */
+>>>>>>> upstream/android-13
 			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPAPSK; /* WPA_PSK */
 			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption2Enabled;
 			break;
@@ -3294,8 +3521,11 @@ static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
 			break;
 		}
 
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_ioctl_os_c, _drv_info_, ("wpa_set_param:padapter->securitypriv.ndisauthtype =%d\n", padapter->securitypriv.ndisauthtype));
 
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case IEEE_PARAM_TKIP_COUNTERMEASURES:
@@ -3339,7 +3569,10 @@ static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
 	case IEEE_PARAM_WPAX_SELECT:
 
 		/*  added for WPA2 mixed mode */
+<<<<<<< HEAD
 		/* DBG_871X(KERN_WARNING "------------------------>wpax value = %x\n", value); */
+=======
+>>>>>>> upstream/android-13
 		/*
 		spin_lock_irqsave(&ieee->wpax_suitlist_lock, flags);
 		ieee->wpax_type_set = 1;
@@ -3367,6 +3600,7 @@ static int wpa_set_param(struct net_device *dev, u8 name, u32 value)
 static int wpa_mlme(struct net_device *dev, u32 command, u32 reason)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 
 	switch (command) {
@@ -3387,6 +3621,28 @@ static int wpa_mlme(struct net_device *dev, u32 command, u32 reason)
 		default:
 			ret = -EOPNOTSUPP;
 			break;
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+
+	switch (command) {
+	case IEEE_MLME_STA_DEAUTH:
+
+		if (!rtw_set_802_11_disassociate(padapter))
+			ret = -1;
+
+		break;
+
+	case IEEE_MLME_STA_DISASSOC:
+
+		if (!rtw_set_802_11_disassociate(padapter))
+			ret = -1;
+
+		break;
+
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -3400,6 +3656,7 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 
 	/* down(&ieee->wx_sem); */
 
+<<<<<<< HEAD
 	if (!p->pointer || p->length != sizeof(struct ieee_param)) {
 		ret = -EINVAL;
 		goto out;
@@ -3415,6 +3672,18 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 		kfree(param);
 		ret = -EFAULT;
 		goto out;
+=======
+	if (!p->pointer || p->length != sizeof(struct ieee_param))
+		return -EINVAL;
+
+	param = rtw_malloc(p->length);
+	if (param == NULL)
+		return -ENOMEM;
+
+	if (copy_from_user(param, p->pointer, p->length)) {
+		kfree(param);
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	}
 
 	switch (param->cmd) {
@@ -3425,7 +3694,11 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 
 	case IEEE_CMD_SET_WPA_IE:
 		/* ret = wpa_set_wpa_ie(dev, param, p->length); */
+<<<<<<< HEAD
 		ret =  rtw_set_wpa_ie((struct adapter *)rtw_netdev_priv(dev), (char*)param->u.wpa_ie.data, (u16)param->u.wpa_ie.len);
+=======
+		ret =  rtw_set_wpa_ie(rtw_netdev_priv(dev), (char *)param->u.wpa_ie.data, (u16)param->u.wpa_ie.len);
+>>>>>>> upstream/android-13
 		break;
 
 	case IEEE_CMD_SET_ENCRYPTION:
@@ -3437,7 +3710,10 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 		break;
 
 	default:
+<<<<<<< HEAD
 		DBG_871X("Unknown WPA supplicant request: %d\n", param->cmd);
+=======
+>>>>>>> upstream/android-13
 		ret = -EOPNOTSUPP;
 		break;
 
@@ -3448,12 +3724,17 @@ static int wpa_supplicant_ioctl(struct net_device *dev, struct iw_point *p)
 
 	kfree(param);
 
+<<<<<<< HEAD
 out:
 
 	/* up(&ieee->wx_sem); */
 
 	return ret;
 
+=======
+	/* up(&ieee->wx_sem); */
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
@@ -3462,12 +3743,22 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	u32 wep_key_idx, wep_key_len, wep_total_len;
 	struct ndis_802_11_wep	 *pwep = NULL;
 	struct sta_info *psta = NULL, *pbcmc_sta = NULL;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct security_priv* psecuritypriv =&(padapter->securitypriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 
 	DBG_871X("%s\n", __func__);
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	struct security_priv *psecuritypriv = &(padapter->securitypriv);
+	struct sta_priv *pstapriv = &padapter->stapriv;
+	char *txkey = padapter->securitypriv.dot118021XGrptxmickey[param->u.crypt.idx].skey;
+	char *rxkey = padapter->securitypriv.dot118021XGrprxmickey[param->u.crypt.idx].skey;
+	char *grpkey = psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey;
+>>>>>>> upstream/android-13
 
 	param->u.crypt.err = 0;
 	param->u.crypt.alg[IEEE_CRYPT_ALG_NAME_LEN - 1] = '\0';
@@ -3488,11 +3779,17 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		}
 	} else {
 		psta = rtw_get_stainfo(pstapriv, param->sta_addr);
+<<<<<<< HEAD
 		if (!psta) {
 			/* ret = -EINVAL; */
 			DBG_871X("rtw_set_encryption(), sta has already been removed or never been added\n");
 			goto exit;
 		}
+=======
+		if (!psta)
+			/* ret = -EINVAL; */
+			goto exit;
+>>>>>>> upstream/android-13
 	}
 
 	if (strcmp(param->u.crypt.alg, "none") == 0 && (psta == NULL)) {
@@ -3503,13 +3800,17 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		psecuritypriv->dot11PrivacyAlgrthm = _NO_PRIVACY_;
 		psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
 
+<<<<<<< HEAD
 		DBG_871X("clear default encryption keys, keyid =%d\n", param->u.crypt.idx);
 
+=======
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
 
 	if (strcmp(param->u.crypt.alg, "WEP") == 0 && (psta == NULL)) {
+<<<<<<< HEAD
 		DBG_871X("r871x_set_encryption, crypt.alg = WEP\n");
 
 		wep_key_idx = param->u.crypt.idx;
@@ -3518,6 +3819,12 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		DBG_871X("r871x_set_encryption, wep_key_idx =%d, len =%d\n", wep_key_idx, wep_key_len);
 
 		if ((wep_key_idx >= WEP_KEYS) || (wep_key_len<= 0)) {
+=======
+		wep_key_idx = param->u.crypt.idx;
+		wep_key_len = param->u.crypt.key_len;
+
+		if ((wep_key_idx >= WEP_KEYS) || (wep_key_len <= 0)) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto exit;
 		}
@@ -3525,6 +3832,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 		if (wep_key_len > 0) {
 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
+<<<<<<< HEAD
 			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, KeyMaterial);
 			pwep = rtw_malloc(wep_total_len);
 			if (pwep == NULL) {
@@ -3546,12 +3854,33 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		if (param->u.crypt.set_tx) {
 			DBG_871X("wep, set_tx = 1\n");
 
+=======
+			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, key_material);
+			pwep = kzalloc(wep_total_len, GFP_KERNEL);
+			if (!pwep)
+				goto exit;
+
+			pwep->key_length = wep_key_len;
+			pwep->length = wep_total_len;
+
+		}
+
+		pwep->key_index = wep_key_idx;
+
+		memcpy(pwep->key_material,  param->u.crypt.key, pwep->key_length);
+
+		if (param->u.crypt.set_tx) {
+>>>>>>> upstream/android-13
 			psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_Auto;
 			psecuritypriv->ndisencryptstatus = Ndis802_11Encryption1Enabled;
 			psecuritypriv->dot11PrivacyAlgrthm = _WEP40_;
 			psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
 
+<<<<<<< HEAD
 			if (pwep->KeyLength == 13) {
+=======
+			if (pwep->key_length == 13) {
+>>>>>>> upstream/android-13
 				psecuritypriv->dot11PrivacyAlgrthm = _WEP104_;
 				psecuritypriv->dot118021XGrpPrivacy = _WEP104_;
 			}
@@ -3559,6 +3888,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 			psecuritypriv->dot11PrivacyKeyIndex = wep_key_idx;
 
+<<<<<<< HEAD
 			memcpy(&(psecuritypriv->dot11DefKey[wep_key_idx].skey[0]), pwep->KeyMaterial, pwep->KeyLength);
 
 			psecuritypriv->dot11DefKeylen[wep_key_idx]=pwep->KeyLength;
@@ -3575,6 +3905,22 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 			psecuritypriv->dot11DefKeylen[wep_key_idx] = pwep->KeyLength;
 
 			rtw_ap_set_wep_key(padapter, pwep->KeyMaterial, pwep->KeyLength, wep_key_idx, 0);
+=======
+			memcpy(&(psecuritypriv->dot11DefKey[wep_key_idx].skey[0]), pwep->key_material, pwep->key_length);
+
+			psecuritypriv->dot11DefKeylen[wep_key_idx] = pwep->key_length;
+
+			rtw_ap_set_wep_key(padapter, pwep->key_material, pwep->key_length, wep_key_idx, 1);
+		} else {
+			/* don't update "psecuritypriv->dot11PrivacyAlgrthm" and */
+			/* psecuritypriv->dot11PrivacyKeyIndex =keyid", but can rtw_set_key to cam */
+
+			memcpy(&(psecuritypriv->dot11DefKey[wep_key_idx].skey[0]), pwep->key_material, pwep->key_length);
+
+			psecuritypriv->dot11DefKeylen[wep_key_idx] = pwep->key_length;
+
+			rtw_ap_set_wep_key(padapter, pwep->key_material, pwep->key_length, wep_key_idx, 0);
+>>>>>>> upstream/android-13
 		}
 
 		goto exit;
@@ -3585,15 +3931,20 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	if (!psta && check_fwstate(pmlmepriv, WIFI_AP_STATE)) { /*  group key */
 		if (param->u.crypt.set_tx == 1) {
 			if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+<<<<<<< HEAD
 				DBG_871X("%s, set group_key, WEP\n", __func__);
 
 				memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
+=======
+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+>>>>>>> upstream/android-13
 
 				psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
 				if (param->u.crypt.key_len == 13)
 						psecuritypriv->dot118021XGrpPrivacy = _WEP104_;
 
 			} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
+<<<<<<< HEAD
 				DBG_871X("%s, set group_key, TKIP\n", __func__);
 
 				psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
@@ -3603,12 +3954,22 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
 				/* set mic key */
 				memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
+=======
+				psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
+
+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+
+				/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
+				/* set mic key */
+				memcpy(txkey, &(param->u.crypt.key[16]), 8);
+>>>>>>> upstream/android-13
 				memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
 
 				psecuritypriv->busetkipkey = true;
 
 			}
 			else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
+<<<<<<< HEAD
 				DBG_871X("%s, set group_key, CCMP\n", __func__);
 
 				psecuritypriv->dot118021XGrpPrivacy = _AES_;
@@ -3617,6 +3978,12 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 			} else {
 				DBG_871X("%s, set group_key, none\n", __func__);
 
+=======
+				psecuritypriv->dot118021XGrpPrivacy = _AES_;
+
+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+			} else {
+>>>>>>> upstream/android-13
 				psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
 			}
 
@@ -3628,7 +3995,11 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 			rtw_ap_set_group_key(padapter, param->u.crypt.key, psecuritypriv->dot118021XGrpPrivacy, param->u.crypt.idx);
 
+<<<<<<< HEAD
 			pbcmc_sta =rtw_get_bcmc_stainfo(padapter);
+=======
+			pbcmc_sta = rtw_get_bcmc_stainfo(padapter);
+>>>>>>> upstream/android-13
 			if (pbcmc_sta) {
 				pbcmc_sta->ieee8021x_blocked = false;
 				pbcmc_sta->dot118021XPrivacy = psecuritypriv->dot118021XGrpPrivacy;/* rx will use bmc_sta's dot118021XPrivacy */
@@ -3642,17 +4013,26 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	if (psecuritypriv->dot11AuthAlgrthm == dot11AuthAlgrthm_8021X && psta) { /*  psk/802_1x */
 		if (check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
 			if (param->u.crypt.set_tx == 1)	{
+<<<<<<< HEAD
 				memcpy(psta->dot118021x_UncstKey.skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
 
 				if (strcmp(param->u.crypt.alg, "WEP") == 0) {
 					DBG_871X("%s, set pairwise key, WEP\n", __func__);
 
+=======
+				memcpy(psta->dot118021x_UncstKey.skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+
+				if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+>>>>>>> upstream/android-13
 					psta->dot118021XPrivacy = _WEP40_;
 					if (param->u.crypt.key_len == 13)
 						psta->dot118021XPrivacy = _WEP104_;
 				} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
+<<<<<<< HEAD
 					DBG_871X("%s, set pairwise key, TKIP\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 					psta->dot118021XPrivacy = _TKIP_;
 
 					/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
@@ -3664,12 +4044,17 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 				} else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
 
+<<<<<<< HEAD
 					DBG_871X("%s, set pairwise key, CCMP\n", __func__);
 
 					psta->dot118021XPrivacy = _AES_;
 				} else {
 					DBG_871X("%s, set pairwise key, none\n", __func__);
 
+=======
+					psta->dot118021XPrivacy = _AES_;
+				} else {
+>>>>>>> upstream/android-13
 					psta->dot118021XPrivacy = _NO_PRIVACY_;
 				}
 
@@ -3679,7 +4064,11 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 			} else { /* group key??? */
 				if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+<<<<<<< HEAD
 					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
+=======
+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+>>>>>>> upstream/android-13
 
 					psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
 					if (param->u.crypt.key_len == 13)
@@ -3687,19 +4076,32 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
 					psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
 
+<<<<<<< HEAD
 					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
 
 					/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
 					/* set mic key */
 					memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
 					memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
+=======
+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+
+					/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
+					/* set mic key */
+					memcpy(txkey, &(param->u.crypt.key[16]), 8);
+					memcpy(rxkey, &(param->u.crypt.key[24]), 8);
+>>>>>>> upstream/android-13
 
 					psecuritypriv->busetkipkey = true;
 
 				} else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
 					psecuritypriv->dot118021XGrpPrivacy = _AES_;
 
+<<<<<<< HEAD
 					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len>16 ?16:param->u.crypt.key_len));
+=======
+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
+>>>>>>> upstream/android-13
 				} else {
 					psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
 				}
@@ -3712,7 +4114,11 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 				rtw_ap_set_group_key(padapter, param->u.crypt.key, psecuritypriv->dot118021XGrpPrivacy, param->u.crypt.idx);
 
+<<<<<<< HEAD
 				pbcmc_sta =rtw_get_bcmc_stainfo(padapter);
+=======
+				pbcmc_sta = rtw_get_bcmc_stainfo(padapter);
+>>>>>>> upstream/android-13
 				if (pbcmc_sta) {
 					pbcmc_sta->ieee8021x_blocked = false;
 					pbcmc_sta->dot118021XPrivacy = psecuritypriv->dot118021XGrpPrivacy;/* rx will use bmc_sta's dot118021XPrivacy */
@@ -3731,20 +4137,31 @@ exit:
 static int rtw_set_beacon(struct net_device *dev, struct ieee_param *param, int len)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	unsigned char *pbuf = param->u.bcn_ie.buf;
 
+<<<<<<< HEAD
 
 	DBG_871X("%s, len =%d\n", __func__, len);
 
+=======
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != true)
 		return -EINVAL;
 
 	memcpy(&pstapriv->max_num_sta, param->u.bcn_ie.reserved, 2);
 
+<<<<<<< HEAD
 	if ((pstapriv->max_num_sta>NUM_STA) || (pstapriv->max_num_sta<= 0))
+=======
+	if ((pstapriv->max_num_sta > NUM_STA) || (pstapriv->max_num_sta <= 0))
+>>>>>>> upstream/android-13
 		pstapriv->max_num_sta = NUM_STA;
 
 
@@ -3758,11 +4175,16 @@ static int rtw_set_beacon(struct net_device *dev, struct ieee_param *param, int 
 
 }
 
+<<<<<<< HEAD
 static int rtw_hostapd_sta_flush(struct net_device *dev)
+=======
+static void rtw_hostapd_sta_flush(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	/* _irqL irqL; */
 	/* struct list_head	*phead, *plist; */
 	/* struct sta_info *psta = NULL; */
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 	/* struct sta_priv *pstapriv = &padapter->stapriv; */
 
@@ -3772,18 +4194,33 @@ static int rtw_hostapd_sta_flush(struct net_device *dev)
 
 	return rtw_sta_flush(padapter);
 
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	/* struct sta_priv *pstapriv = &padapter->stapriv; */
+
+	flush_all_cam_entry(padapter);	/* clear CAM */
+
+	rtw_sta_flush(padapter);
+>>>>>>> upstream/android-13
 }
 
 static int rtw_add_sta(struct net_device *dev, struct ieee_param *param)
 {
 	int ret = 0;
 	struct sta_info *psta = NULL;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 
 	DBG_871X("rtw_add_sta(aid =%d) =" MAC_FMT "\n", param->u.add_sta.aid, MAC_ARG(param->sta_addr));
 
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	struct sta_priv *pstapriv = &padapter->stapriv;
+
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, (_FW_LINKED|WIFI_AP_STATE)) != true)
 		return -EINVAL;
 
@@ -3797,10 +4234,14 @@ static int rtw_add_sta(struct net_device *dev, struct ieee_param *param)
 	psta = rtw_get_stainfo(pstapriv, param->sta_addr);
 	if (psta)
 	{
+<<<<<<< HEAD
 		DBG_871X("rtw_add_sta(), free has been added psta =%p\n", psta);
 		spin_lock_bh(&(pstapriv->sta_hash_lock));
 		rtw_free_stainfo(padapter,  psta);
 		spin_unlock_bh(&(pstapriv->sta_hash_lock));
+=======
+		rtw_free_stainfo(padapter,  psta);
+>>>>>>> upstream/android-13
 
 		psta = NULL;
 	}
@@ -3810,8 +4251,11 @@ static int rtw_add_sta(struct net_device *dev, struct ieee_param *param)
 	if (psta) {
 		int flags = param->u.add_sta.flags;
 
+<<<<<<< HEAD
 		/* DBG_871X("rtw_add_sta(), init sta's variables, psta =%p\n", psta); */
 
+=======
+>>>>>>> upstream/android-13
 		psta->aid = param->u.add_sta.aid;/* aid = 1~2007 */
 
 		memcpy(psta->bssrateset, param->u.add_sta.tx_supp_rates, 16);
@@ -3830,7 +4274,11 @@ static int rtw_add_sta(struct net_device *dev, struct ieee_param *param)
 		if (WLAN_STA_HT&flags) {
 			psta->htpriv.ht_option = true;
 			psta->qos_option = 1;
+<<<<<<< HEAD
 			memcpy((void*)&psta->htpriv.ht_cap, (void*)&param->u.add_sta.ht_cap, sizeof(struct rtw_ieee80211_ht_cap));
+=======
+			memcpy((void *)&psta->htpriv.ht_cap, (void *)&param->u.add_sta.ht_cap, sizeof(struct ieee80211_ht_cap));
+>>>>>>> upstream/android-13
 		} else {
 			psta->htpriv.ht_option = false;
 		}
@@ -3853,12 +4301,19 @@ static int rtw_del_sta(struct net_device *dev, struct ieee_param *param)
 {
 	int ret = 0;
 	struct sta_info *psta = NULL;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 
 	DBG_871X("rtw_del_sta =" MAC_FMT "\n", MAC_ARG(param->sta_addr));
 
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	struct sta_priv *pstapriv = &padapter->stapriv;
+
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, (_FW_LINKED|WIFI_AP_STATE)) != true)
 		return -EINVAL;
 
@@ -3870,12 +4325,19 @@ static int rtw_del_sta(struct net_device *dev, struct ieee_param *param)
 
 	psta = rtw_get_stainfo(pstapriv, param->sta_addr);
 	if (psta) {
+<<<<<<< HEAD
 		u8 updated =false;
 
 		/* DBG_871X("free psta =%p, aid =%d\n", psta, psta->aid); */
 
 		spin_lock_bh(&pstapriv->asoc_list_lock);
 		if (list_empty(&psta->asoc_list) ==false) {
+=======
+		u8 updated = false;
+
+		spin_lock_bh(&pstapriv->asoc_list_lock);
+		if (list_empty(&psta->asoc_list) == false) {
+>>>>>>> upstream/android-13
 			list_del_init(&psta->asoc_list);
 			pstapriv->asoc_list_cnt--;
 			updated = ap_free_sta(padapter, psta, true, WLAN_REASON_DEAUTH_LEAVING);
@@ -3887,6 +4349,7 @@ static int rtw_del_sta(struct net_device *dev, struct ieee_param *param)
 
 		psta = NULL;
 
+<<<<<<< HEAD
 	} else {
 		DBG_871X("rtw_del_sta(), sta has already been removed or never been added\n");
 
@@ -3894,6 +4357,10 @@ static int rtw_del_sta(struct net_device *dev, struct ieee_param *param)
 	}
 
 
+=======
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 
 }
@@ -3902,14 +4369,21 @@ static int rtw_ioctl_get_sta_data(struct net_device *dev, struct ieee_param *par
 {
 	int ret = 0;
 	struct sta_info *psta = NULL;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct ieee_param_ex *param_ex = (struct ieee_param_ex *)param;
 	struct sta_data *psta_data = (struct sta_data *)param_ex->data;
 
+<<<<<<< HEAD
 	DBG_871X("rtw_ioctl_get_sta_info, sta_addr: " MAC_FMT "\n", MAC_ARG(param_ex->sta_addr));
 
+=======
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, (_FW_LINKED|WIFI_AP_STATE)) != true)
 		return -EINVAL;
 
@@ -3934,6 +4408,7 @@ static int rtw_ioctl_get_sta_data(struct net_device *dev, struct ieee_param *par
 		ht_20mhz_set : BIT(5)
 */
 
+<<<<<<< HEAD
 		psta_data->sta_set =((psta->nonerp_set) |
 							(psta->no_short_slot_time_set <<1) |
 							(psta->no_short_preamble_set <<2) |
@@ -3944,6 +4419,18 @@ static int rtw_ioctl_get_sta_data(struct net_device *dev, struct ieee_param *par
 		psta_data->tx_supp_rates_len =  psta->bssratelen;
 		memcpy(psta_data->tx_supp_rates, psta->bssrateset, psta->bssratelen);
 		memcpy(&psta_data->ht_cap, &psta->htpriv.ht_cap, sizeof(struct rtw_ieee80211_ht_cap));
+=======
+		psta_data->sta_set = ((psta->nonerp_set) |
+							 (psta->no_short_slot_time_set << 1) |
+							 (psta->no_short_preamble_set << 2) |
+							 (psta->no_ht_gf_set << 3) |
+							 (psta->no_ht_set << 4) |
+							 (psta->ht_20mhz_set << 5));
+
+		psta_data->tx_supp_rates_len =  psta->bssratelen;
+		memcpy(psta_data->tx_supp_rates, psta->bssrateset, psta->bssratelen);
+		memcpy(&psta_data->ht_cap, &psta->htpriv.ht_cap, sizeof(struct ieee80211_ht_cap));
+>>>>>>> upstream/android-13
 		psta_data->rx_pkts = psta->sta_stats.rx_data_pkts;
 		psta_data->rx_bytes = psta->sta_stats.rx_bytes;
 		psta_data->rx_drops = psta->sta_stats.rx_drops;
@@ -3965,12 +4452,19 @@ static int rtw_get_sta_wpaie(struct net_device *dev, struct ieee_param *param)
 {
 	int ret = 0;
 	struct sta_info *psta = NULL;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 
 	DBG_871X("rtw_get_sta_wpaie, sta_addr: " MAC_FMT "\n", MAC_ARG(param->sta_addr));
 
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	struct sta_priv *pstapriv = &padapter->stapriv;
+
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, (_FW_LINKED|WIFI_AP_STATE)) != true)
 		return -EINVAL;
 
@@ -3982,7 +4476,11 @@ static int rtw_get_sta_wpaie(struct net_device *dev, struct ieee_param *param)
 
 	psta = rtw_get_stainfo(pstapriv, param->sta_addr);
 	if (psta) {
+<<<<<<< HEAD
 		if ((psta->wpa_ie[0] == WLAN_EID_RSN) || (psta->wpa_ie[0] == WLAN_EID_GENERIC)) {
+=======
+		if ((psta->wpa_ie[0] == WLAN_EID_RSN) || (psta->wpa_ie[0] == WLAN_EID_VENDOR_SPECIFIC)) {
+>>>>>>> upstream/android-13
 			int wpa_ie_len;
 			int copy_len;
 
@@ -3993,9 +4491,12 @@ static int rtw_get_sta_wpaie(struct net_device *dev, struct ieee_param *param)
 			param->u.wpa_ie.len = copy_len;
 
 			memcpy(param->u.wpa_ie.reserved, psta->wpa_ie, copy_len);
+<<<<<<< HEAD
 		} else {
 			/* ret = -1; */
 			DBG_871X("sta's wpa_ie is NONE\n");
+=======
+>>>>>>> upstream/android-13
 		}
 	} else {
 		ret = -1;
@@ -4008,14 +4509,22 @@ static int rtw_get_sta_wpaie(struct net_device *dev, struct ieee_param *param)
 static int rtw_set_wps_beacon(struct net_device *dev, struct ieee_param *param, int len)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	unsigned char wps_oui[4]={0x0, 0x50, 0xf2, 0x04};
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	unsigned char wps_oui[4] = {0x0, 0x50, 0xf2, 0x04};
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	int ie_len;
 
+<<<<<<< HEAD
 	DBG_871X("%s, len =%d\n", __func__, len);
 
+=======
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != true)
 		return -EINVAL;
 
@@ -4025,6 +4534,7 @@ static int rtw_set_wps_beacon(struct net_device *dev, struct ieee_param *param, 
 	kfree(pmlmepriv->wps_beacon_ie);
 	pmlmepriv->wps_beacon_ie = NULL;
 
+<<<<<<< HEAD
 	if (ie_len>0) {
 		pmlmepriv->wps_beacon_ie = rtw_malloc(ie_len);
 		pmlmepriv->wps_beacon_ie_len = ie_len;
@@ -4036,6 +4546,17 @@ static int rtw_set_wps_beacon(struct net_device *dev, struct ieee_param *param, 
 		memcpy(pmlmepriv->wps_beacon_ie, param->u.bcn_ie.buf, ie_len);
 
 		update_beacon(padapter, _VENDOR_SPECIFIC_IE_, wps_oui, true);
+=======
+	if (ie_len > 0) {
+		pmlmepriv->wps_beacon_ie = rtw_malloc(ie_len);
+		pmlmepriv->wps_beacon_ie_len = ie_len;
+		if (!pmlmepriv->wps_beacon_ie)
+			return -EINVAL;
+
+		memcpy(pmlmepriv->wps_beacon_ie, param->u.bcn_ie.buf, ie_len);
+
+		update_beacon(padapter, WLAN_EID_VENDOR_SPECIFIC, wps_oui, true);
+>>>>>>> upstream/android-13
 
 		pmlmeext->bstart_bss = true;
 	}
@@ -4048,12 +4569,19 @@ static int rtw_set_wps_beacon(struct net_device *dev, struct ieee_param *param, 
 static int rtw_set_wps_probe_resp(struct net_device *dev, struct ieee_param *param, int len)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	int ie_len;
 
 	DBG_871X("%s, len =%d\n", __func__, len);
 
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	int ie_len;
+
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != true)
 		return -EINVAL;
 
@@ -4063,6 +4591,7 @@ static int rtw_set_wps_probe_resp(struct net_device *dev, struct ieee_param *par
 	kfree(pmlmepriv->wps_probe_resp_ie);
 	pmlmepriv->wps_probe_resp_ie = NULL;
 
+<<<<<<< HEAD
 	if (ie_len>0) {
 		pmlmepriv->wps_probe_resp_ie = rtw_malloc(ie_len);
 		pmlmepriv->wps_probe_resp_ie_len = ie_len;
@@ -4070,6 +4599,14 @@ static int rtw_set_wps_probe_resp(struct net_device *dev, struct ieee_param *par
 			DBG_871X("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 			return -EINVAL;
 		}
+=======
+	if (ie_len > 0) {
+		pmlmepriv->wps_probe_resp_ie = rtw_malloc(ie_len);
+		pmlmepriv->wps_probe_resp_ie_len = ie_len;
+		if (!pmlmepriv->wps_probe_resp_ie)
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		memcpy(pmlmepriv->wps_probe_resp_ie, param->u.bcn_ie.buf, ie_len);
 	}
 
@@ -4081,12 +4618,19 @@ static int rtw_set_wps_probe_resp(struct net_device *dev, struct ieee_param *par
 static int rtw_set_wps_assoc_resp(struct net_device *dev, struct ieee_param *param, int len)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	int ie_len;
 
 	DBG_871X("%s, len =%d\n", __func__, len);
 
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	int ie_len;
+
+>>>>>>> upstream/android-13
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != true)
 		return -EINVAL;
 
@@ -4096,6 +4640,7 @@ static int rtw_set_wps_assoc_resp(struct net_device *dev, struct ieee_param *par
 	kfree(pmlmepriv->wps_assoc_resp_ie);
 	pmlmepriv->wps_assoc_resp_ie = NULL;
 
+<<<<<<< HEAD
 	if (ie_len>0) {
 		pmlmepriv->wps_assoc_resp_ie = rtw_malloc(ie_len);
 		pmlmepriv->wps_assoc_resp_ie_len = ie_len;
@@ -4103,6 +4648,13 @@ static int rtw_set_wps_assoc_resp(struct net_device *dev, struct ieee_param *par
 			DBG_871X("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 			return -EINVAL;
 		}
+=======
+	if (ie_len > 0) {
+		pmlmepriv->wps_assoc_resp_ie = rtw_malloc(ie_len);
+		pmlmepriv->wps_assoc_resp_ie_len = ie_len;
+		if (!pmlmepriv->wps_assoc_resp_ie)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		memcpy(pmlmepriv->wps_assoc_resp_ie, param->u.bcn_ie.buf, ie_len);
 	}
@@ -4115,14 +4667,22 @@ static int rtw_set_wps_assoc_resp(struct net_device *dev, struct ieee_param *par
 static int rtw_set_hidden_ssid(struct net_device *dev, struct ieee_param *param, int len)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct adapter *adapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	struct adapter *adapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *mlmepriv = &(adapter->mlmepriv);
 	struct mlme_ext_priv *mlmeext = &(adapter->mlmeextpriv);
 	struct mlme_ext_info *mlmeinfo = &(mlmeext->mlmext_info);
 	int ie_len;
 	u8 *ssid_ie;
 	char ssid[NDIS_802_11_LENGTH_SSID + 1];
+<<<<<<< HEAD
 	sint ssid_len;
+=======
+	signed int ssid_len;
+>>>>>>> upstream/android-13
 	u8 ignore_broadcast_ssid;
 
 	if (check_fwstate(mlmepriv, WIFI_AP_STATE) != true)
@@ -4143,6 +4703,7 @@ static int rtw_set_hidden_ssid(struct net_device *dev, struct ieee_param *param,
 		memcpy(ssid, ssid_ie+2, ssid_len);
 		ssid[ssid_len] = 0x0;
 
+<<<<<<< HEAD
 		if (0)
 			DBG_871X(FUNC_ADPT_FMT" ssid:(%s,%d), from ie:(%s,%d), (%s,%d)\n", FUNC_ADPT_ARG(adapter),
 				 ssid, ssid_len,
@@ -4163,12 +4724,24 @@ static int rtw_set_hidden_ssid(struct net_device *dev, struct ieee_param *param,
 	DBG_871X(FUNC_ADPT_FMT" ignore_broadcast_ssid:%d, %s,%d\n", FUNC_ADPT_ARG(adapter),
 		ignore_broadcast_ssid, ssid, ssid_len);
 
+=======
+		memcpy(pbss_network->ssid.ssid, (void *)ssid, ssid_len);
+		pbss_network->ssid.ssid_length = ssid_len;
+		memcpy(pbss_network_ext->ssid.ssid, (void *)ssid, ssid_len);
+		pbss_network_ext->ssid.ssid_length = ssid_len;
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int rtw_ioctl_acl_remove_sta(struct net_device *dev, struct ieee_param *param, int len)
 {
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != true)
@@ -4180,13 +4753,22 @@ static int rtw_ioctl_acl_remove_sta(struct net_device *dev, struct ieee_param *p
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	return rtw_acl_remove_sta(padapter, param->sta_addr);
+=======
+	rtw_acl_remove_sta(padapter, param->sta_addr);
+	return 0;
+>>>>>>> upstream/android-13
 
 }
 
 static int rtw_ioctl_acl_add_sta(struct net_device *dev, struct ieee_param *param, int len)
 {
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != true)
@@ -4205,7 +4787,11 @@ static int rtw_ioctl_acl_add_sta(struct net_device *dev, struct ieee_param *para
 static int rtw_ioctl_set_macaddr_acl(struct net_device *dev, struct ieee_param *param, int len)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != true)
@@ -4220,15 +4806,20 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 {
 	struct ieee_param *param;
 	int ret = 0;
+<<<<<<< HEAD
 	struct adapter *padapter = (struct adapter *)rtw_netdev_priv(dev);
 
 	/* DBG_871X("%s\n", __func__); */
+=======
+	struct adapter *padapter = rtw_netdev_priv(dev);
+>>>>>>> upstream/android-13
 
 	/*
 	* this function is expect to call in master mode, which allows no power saving
 	* so, we just check hw_init_completed
 	*/
 
+<<<<<<< HEAD
 	if (padapter->hw_init_completed ==false) {
 		ret = -EPERM;
 		goto out;
@@ -4344,12 +4935,118 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 			DBG_871X("Unknown hostapd request: %d\n", param->cmd);
 			ret = -EOPNOTSUPP;
 			break;
+=======
+	if (!padapter->hw_init_completed)
+		return -EPERM;
+
+	if (!p->pointer || p->length != sizeof(*param))
+		return -EINVAL;
+
+	param = rtw_malloc(p->length);
+	if (param == NULL)
+		return -ENOMEM;
+
+	if (copy_from_user(param, p->pointer, p->length)) {
+		kfree(param);
+		return -EFAULT;
+	}
+
+	switch (param->cmd) {
+	case RTL871X_HOSTAPD_FLUSH:
+
+		rtw_hostapd_sta_flush(dev);
+
+		break;
+
+	case RTL871X_HOSTAPD_ADD_STA:
+
+		ret = rtw_add_sta(dev, param);
+
+		break;
+
+	case RTL871X_HOSTAPD_REMOVE_STA:
+
+		ret = rtw_del_sta(dev, param);
+
+		break;
+
+	case RTL871X_HOSTAPD_SET_BEACON:
+
+		ret = rtw_set_beacon(dev, param, p->length);
+
+		break;
+
+	case RTL871X_SET_ENCRYPTION:
+
+		ret = rtw_set_encryption(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_GET_WPAIE_STA:
+
+		ret = rtw_get_sta_wpaie(dev, param);
+
+		break;
+
+	case RTL871X_HOSTAPD_SET_WPS_BEACON:
+
+		ret = rtw_set_wps_beacon(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_SET_WPS_PROBE_RESP:
+
+		ret = rtw_set_wps_probe_resp(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_SET_WPS_ASSOC_RESP:
+
+		ret = rtw_set_wps_assoc_resp(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_SET_HIDDEN_SSID:
+
+		ret = rtw_set_hidden_ssid(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_GET_INFO_STA:
+
+		ret = rtw_ioctl_get_sta_data(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_SET_MACADDR_ACL:
+
+		ret = rtw_ioctl_set_macaddr_acl(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_ACL_ADD_STA:
+
+		ret = rtw_ioctl_acl_add_sta(dev, param, p->length);
+
+		break;
+
+	case RTL871X_HOSTAPD_ACL_REMOVE_STA:
+
+		ret = rtw_ioctl_acl_remove_sta(dev, param, p->length);
+
+		break;
+
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+>>>>>>> upstream/android-13
 
 	}
 
 	if (ret == 0 && copy_to_user(p->pointer, param, p->length))
 		ret = -EFAULT;
 
+<<<<<<< HEAD
 
 	kfree(param);
 
@@ -5274,12 +5971,21 @@ exit:
 	return err;
 }
 
+=======
+	kfree(param);
+	return ret;
+}
+
+/*  copy from net/wireless/wext.c end */
+
+>>>>>>> upstream/android-13
 int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	struct iwreq *wrq = (struct iwreq *)rq;
 	int ret = 0;
 
 	switch (cmd) {
+<<<<<<< HEAD
 		case RTL_IOCTL_WPA_SUPPLICANT:
 			ret = wpa_supplicant_ioctl(dev, &wrq->u.data);
 			break;
@@ -5292,6 +5998,17 @@ int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 		default:
 			ret = -EOPNOTSUPP;
 			break;
+=======
+	case RTL_IOCTL_WPA_SUPPLICANT:
+		ret = wpa_supplicant_ioctl(dev, &wrq->u.data);
+		break;
+	case RTL_IOCTL_HOSTAPD:
+		ret = rtw_hostapd_ioctl(dev, &wrq->u.data);
+		break;
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return ret;

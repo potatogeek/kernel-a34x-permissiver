@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  sst-atom-controls.h - Intel MID Platform driver header file
  *
@@ -7,6 +11,7 @@
  *  	Samreen Nilofer <samreen.nilofer@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -18,6 +23,9 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+=======
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SST_ATOM_CONTROLS_H__
@@ -419,7 +427,11 @@ struct sst_cmd_set_gain_dual {
 struct sst_cmd_set_params {
 	struct sst_destination_id dst;
 	u16 command_id;
+<<<<<<< HEAD
 	char params[0];
+=======
+	char params[];
+>>>>>>> upstream/android-13
 } __packed;
 
 
@@ -448,8 +460,13 @@ struct sst_cmd_tone_stop {
 } __packed;
 
 enum sst_ssp_mode {
+<<<<<<< HEAD
 	SSP_MODE_MASTER = 0,
 	SSP_MODE_SLAVE = 1,
+=======
+	SSP_MODE_PROVIDER = 0,
+	SSP_MODE_CONSUMER = 1,
+>>>>>>> upstream/android-13
 };
 
 enum sst_ssp_pcm_mode {

@@ -11,10 +11,19 @@
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_panel.h>
+=======
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_device.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "sti_awg_utils.h"
 #include "sti_drv.h"
@@ -64,7 +73,11 @@ static struct dvo_config rgb_24bit_de_cfg = {
 	.awg_fwgen_fct = sti_awg_generate_code_data_enable_mode,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * STI digital video output structure
  *
  * @dev: driver device
@@ -194,16 +207,26 @@ static struct drm_info_list dvo_debugfs_files[] = {
 	{ "dvo", dvo_dbg_show, 0, NULL },
 };
 
+<<<<<<< HEAD
 static int dvo_debugfs_init(struct sti_dvo *dvo, struct drm_minor *minor)
+=======
+static void dvo_debugfs_init(struct sti_dvo *dvo, struct drm_minor *minor)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(dvo_debugfs_files); i++)
 		dvo_debugfs_files[i].data = dvo;
 
+<<<<<<< HEAD
 	return drm_debugfs_create_files(dvo_debugfs_files,
 					ARRAY_SIZE(dvo_debugfs_files),
 					minor->debugfs_root, minor);
+=======
+	drm_debugfs_create_files(dvo_debugfs_files,
+				 ARRAY_SIZE(dvo_debugfs_files),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 
 static void sti_dvo_disable(struct drm_bridge *bridge)
@@ -220,8 +243,12 @@ static void sti_dvo_disable(struct drm_bridge *bridge)
 
 	writel(0x00000000, dvo->regs + DVO_DOF_CFG);
 
+<<<<<<< HEAD
 	if (dvo->panel)
 		dvo->panel->funcs->disable(dvo->panel);
+=======
+	drm_panel_disable(dvo->panel);
+>>>>>>> upstream/android-13
 
 	/* Disable/unprepare dvo clock */
 	clk_disable_unprepare(dvo->clk_pix);
@@ -261,8 +288,12 @@ static void sti_dvo_pre_enable(struct drm_bridge *bridge)
 	if (clk_prepare_enable(dvo->clk))
 		DRM_ERROR("Failed to prepare/enable dvo clk\n");
 
+<<<<<<< HEAD
 	if (dvo->panel)
 		dvo->panel->funcs->enable(dvo->panel);
+=======
+	drm_panel_enable(dvo->panel);
+>>>>>>> upstream/android-13
 
 	/* Set LUT */
 	writel(config->lowbyte,  dvo->regs + DVO_LUT_PROG_LOW);
@@ -277,8 +308,13 @@ static void sti_dvo_pre_enable(struct drm_bridge *bridge)
 }
 
 static void sti_dvo_set_mode(struct drm_bridge *bridge,
+<<<<<<< HEAD
 			     struct drm_display_mode *mode,
 			     struct drm_display_mode *adjusted_mode)
+=======
+			     const struct drm_display_mode *mode,
+			     const struct drm_display_mode *adjusted_mode)
+>>>>>>> upstream/android-13
 {
 	struct sti_dvo *dvo = bridge->driver_private;
 	struct sti_mixer *mixer = to_sti_mixer(dvo->encoder->crtc);
@@ -339,7 +375,11 @@ static int sti_dvo_connector_get_modes(struct drm_connector *connector)
 	struct sti_dvo *dvo = dvo_connector->dvo;
 
 	if (dvo->panel)
+<<<<<<< HEAD
 		return dvo->panel->funcs->get_modes(dvo->panel);
+=======
+		return drm_panel_get_modes(dvo->panel, connector);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -389,8 +429,11 @@ sti_dvo_connector_detect(struct drm_connector *connector, bool force)
 		dvo->panel = of_drm_find_panel(dvo->panel_node);
 		if (IS_ERR(dvo->panel))
 			dvo->panel = NULL;
+<<<<<<< HEAD
 		else
 			drm_panel_attach(dvo->panel, connector);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (dvo->panel)
@@ -405,10 +448,14 @@ static int sti_dvo_late_register(struct drm_connector *connector)
 		= to_sti_dvo_connector(connector);
 	struct sti_dvo *dvo = dvo_connector->dvo;
 
+<<<<<<< HEAD
 	if (dvo_debugfs_init(dvo, dvo->drm_dev->primary)) {
 		DRM_ERROR("DVO debugfs setup failed\n");
 		return -EINVAL;
 	}
+=======
+	dvo_debugfs_init(dvo, dvo->drm_dev->primary);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -467,11 +514,17 @@ static int sti_dvo_bind(struct device *dev, struct device *master, void *data)
 	bridge->of_node = dvo->dev.of_node;
 	drm_bridge_add(bridge);
 
+<<<<<<< HEAD
 	err = drm_bridge_attach(encoder, bridge, NULL);
 	if (err) {
 		DRM_ERROR("Failed to attach bridge\n");
 		return err;
 	}
+=======
+	err = drm_bridge_attach(encoder, bridge, NULL, 0);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	dvo->bridge = bridge;
 	connector->encoder = encoder;
@@ -534,7 +587,11 @@ static int sti_dvo_probe(struct platform_device *pdev)
 		DRM_ERROR("Invalid dvo resource\n");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	dvo->regs = devm_ioremap_nocache(dev, res->start,
+=======
+	dvo->regs = devm_ioremap(dev, res->start,
+>>>>>>> upstream/android-13
 			resource_size(res));
 	if (!dvo->regs)
 		return -ENOMEM;

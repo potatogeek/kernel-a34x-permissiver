@@ -1,10 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2012 Bryan Schumaker <bjschuma@netapp.com>
  */
 #include <linux/init.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/nfs4_mount.h>
 #include <linux/nfs_fs.h>
+=======
+#include <linux/mount.h>
+#include <linux/nfs4_mount.h>
+#include <linux/nfs_fs.h>
+#include <linux/nfs_ssc.h>
+>>>>>>> upstream/android-13
 #include "delegation.h"
 #include "internal.h"
 #include "nfs4_fs.h"
@@ -17,6 +28,7 @@
 
 static int nfs4_write_inode(struct inode *inode, struct writeback_control *wbc);
 static void nfs4_evict_inode(struct inode *inode);
+<<<<<<< HEAD
 static struct dentry *nfs4_remote_mount(struct file_system_type *fs_type,
 	int flags, const char *dev_name, void *raw_data);
 static struct dentry *nfs4_referral_mount(struct file_system_type *fs_type,
@@ -51,6 +63,12 @@ struct file_system_type nfs4_referral_fs_type = {
 static const struct super_operations nfs4_sops = {
 	.alloc_inode	= nfs_alloc_inode,
 	.destroy_inode	= nfs_destroy_inode,
+=======
+
+static const struct super_operations nfs4_sops = {
+	.alloc_inode	= nfs_alloc_inode,
+	.free_inode	= nfs_free_inode,
+>>>>>>> upstream/android-13
 	.write_inode	= nfs4_write_inode,
 	.drop_inode	= nfs_drop_inode,
 	.statfs		= nfs_statfs,
@@ -60,6 +78,7 @@ static const struct super_operations nfs4_sops = {
 	.show_devname	= nfs_show_devname,
 	.show_path	= nfs_show_path,
 	.show_stats	= nfs_show_stats,
+<<<<<<< HEAD
 	.remount_fs	= nfs_remount,
 };
 
@@ -70,6 +89,17 @@ struct nfs_subversion nfs_v4 = {
 	.rpc_ops  = &nfs_v4_clientops,
 	.sops     = &nfs4_sops,
 	.xattr    = nfs4_xattr_handlers,
+=======
+};
+
+struct nfs_subversion nfs_v4 = {
+	.owner		= THIS_MODULE,
+	.nfs_fs		= &nfs4_fs_type,
+	.rpc_vers	= &nfs_version4,
+	.rpc_ops	= &nfs_v4_clientops,
+	.sops		= &nfs4_sops,
+	.xattr		= nfs4_xattr_handlers,
+>>>>>>> upstream/android-13
 };
 
 static int nfs4_write_inode(struct inode *inode, struct writeback_control *wbc)
@@ -91,13 +121,19 @@ static void nfs4_evict_inode(struct inode *inode)
 {
 	truncate_inode_pages_final(&inode->i_data);
 	clear_inode(inode);
+<<<<<<< HEAD
 	/* If we are holding a delegation, return it! */
 	nfs_inode_return_delegation_noreclaim(inode);
+=======
+	/* If we are holding a delegation, return and free it */
+	nfs_inode_evict_delegation(inode);
+>>>>>>> upstream/android-13
 	/* Note that above delegreturn would trigger pnfs return-on-close */
 	pnfs_return_layout(inode);
 	pnfs_destroy_layout_final(NFS_I(inode));
 	/* First call standard NFS clear_inode() code */
 	nfs_clear_inode(inode);
+<<<<<<< HEAD
 }
 
 /*
@@ -145,6 +181,9 @@ static struct vfsmount *nfs_do_root_mount(struct file_system_type *fs_type,
 	root_mnt = vfs_kern_mount(fs_type, flags, root_devname, data);
 	kfree(root_devname);
 	return root_mnt;
+=======
+	nfs4_xattr_cache_zap(inode);
+>>>>>>> upstream/android-13
 }
 
 struct nfs_referral_count {
@@ -213,6 +252,7 @@ static void nfs_referral_loop_unprotect(void)
 	kfree(p);
 }
 
+<<<<<<< HEAD
 static struct dentry *nfs_follow_remote_path(struct vfsmount *root_mnt,
 		const char *export_path)
 {
@@ -226,11 +266,76 @@ static struct dentry *nfs_follow_remote_path(struct vfsmount *root_mnt,
 	if (err) {
 		mntput(root_mnt);
 		return ERR_PTR(err);
+=======
+static int do_nfs4_mount(struct nfs_server *server,
+			 struct fs_context *fc,
+			 const char *hostname,
+			 const char *export_path)
+{
+	struct nfs_fs_context *root_ctx;
+	struct fs_context *root_fc;
+	struct vfsmount *root_mnt;
+	struct dentry *dentry;
+	size_t len;
+	int ret;
+
+	struct fs_parameter param = {
+		.key	= "source",
+		.type	= fs_value_is_string,
+		.dirfd	= -1,
+	};
+
+	if (IS_ERR(server))
+		return PTR_ERR(server);
+
+	root_fc = vfs_dup_fs_context(fc);
+	if (IS_ERR(root_fc)) {
+		nfs_free_server(server);
+		return PTR_ERR(root_fc);
+	}
+	kfree(root_fc->source);
+	root_fc->source = NULL;
+
+	root_ctx = nfs_fc2context(root_fc);
+	root_ctx->internal = true;
+	root_ctx->server = server;
+	/* We leave export_path unset as it's not used to find the root. */
+
+	len = strlen(hostname) + 5;
+	param.string = kmalloc(len, GFP_KERNEL);
+	if (param.string == NULL) {
+		put_fs_context(root_fc);
+		return -ENOMEM;
+	}
+
+	/* Does hostname needs to be enclosed in brackets? */
+	if (strchr(hostname, ':'))
+		param.size = snprintf(param.string, len, "[%s]:/", hostname);
+	else
+		param.size = snprintf(param.string, len, "%s:/", hostname);
+	ret = vfs_parse_fs_param(root_fc, &param);
+	kfree(param.string);
+	if (ret < 0) {
+		put_fs_context(root_fc);
+		return ret;
+	}
+	root_mnt = fc_mount(root_fc);
+	put_fs_context(root_fc);
+
+	if (IS_ERR(root_mnt))
+		return PTR_ERR(root_mnt);
+
+	ret = nfs_referral_loop_protect();
+	if (ret) {
+		mntput(root_mnt);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	dentry = mount_subtree(root_mnt, export_path);
 	nfs_referral_loop_unprotect();
 
+<<<<<<< HEAD
 	return dentry;
 }
 
@@ -288,11 +393,41 @@ nfs4_remote_referral_mount(struct file_system_type *fs_type, int flags,
 out:
 	nfs_free_fhandle(mount_info.mntfh);
 	return mntroot;
+=======
+	if (IS_ERR(dentry))
+		return PTR_ERR(dentry);
+
+	fc->root = dentry;
+	return 0;
+}
+
+int nfs4_try_get_tree(struct fs_context *fc)
+{
+	struct nfs_fs_context *ctx = nfs_fc2context(fc);
+	int err;
+
+	dfprintk(MOUNT, "--> nfs4_try_get_tree()\n");
+
+	/* We create a mount for the server's root, walk to the requested
+	 * location and then create another mount for that.
+	 */
+	err= do_nfs4_mount(nfs4_create_server(fc),
+			   fc, ctx->nfs_server.hostname,
+			   ctx->nfs_server.export_path);
+	if (err) {
+		nfs_ferrorf(fc, MOUNT, "NFS4: Couldn't follow remote path");
+		dfprintk(MOUNT, "<-- nfs4_try_get_tree() = %d [error]\n", err);
+	} else {
+		dfprintk(MOUNT, "<-- nfs4_try_get_tree() = 0\n");
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Create an NFS4 server record on referral traversal
  */
+<<<<<<< HEAD
 static struct dentry *nfs4_referral_mount(struct file_system_type *fs_type,
 		int flags, const char *dev_name, void *raw_data)
 {
@@ -318,6 +453,28 @@ static struct dentry *nfs4_referral_mount(struct file_system_type *fs_type,
 }
 
 
+=======
+int nfs4_get_referral_tree(struct fs_context *fc)
+{
+	struct nfs_fs_context *ctx = nfs_fc2context(fc);
+	int err;
+
+	dprintk("--> nfs4_referral_mount()\n");
+
+	/* create a new volume representation */
+	err = do_nfs4_mount(nfs4_create_referral_server(fc),
+			    fc, ctx->nfs_server.hostname,
+			    ctx->nfs_server.export_path);
+	if (err) {
+		nfs_ferrorf(fc, MOUNT, "NFS4: Couldn't follow remote path");
+		dfprintk(MOUNT, "<-- nfs4_get_referral_tree() = %d [error]\n", err);
+	} else {
+		dfprintk(MOUNT, "<-- nfs4_get_referral_tree() = 0\n");
+	}
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int __init init_nfs_v4(void)
 {
 	int err;
@@ -330,10 +487,25 @@ static int __init init_nfs_v4(void)
 	if (err)
 		goto out1;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFS_V4_2
+	err = nfs4_xattr_cache_init();
+	if (err)
+		goto out2;
+#endif
+
+>>>>>>> upstream/android-13
 	err = nfs4_register_sysctl();
 	if (err)
 		goto out2;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFS_V4_2
+	nfs42_ssc_register_ops();
+#endif
+>>>>>>> upstream/android-13
 	register_nfs_version(&nfs_v4);
 	return 0;
 out2:
@@ -350,12 +522,23 @@ static void __exit exit_nfs_v4(void)
 	nfs4_pnfs_v3_ds_connect_unload();
 
 	unregister_nfs_version(&nfs_v4);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFS_V4_2
+	nfs4_xattr_cache_exit();
+	nfs42_ssc_unregister_ops();
+#endif
+>>>>>>> upstream/android-13
 	nfs4_unregister_sysctl();
 	nfs_idmap_quit();
 	nfs_dns_resolver_destroy();
 }
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 module_init(init_nfs_v4);
 module_exit(exit_nfs_v4);

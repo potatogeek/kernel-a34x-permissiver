@@ -92,6 +92,10 @@ struct lapb_cb {
 	unsigned short		n2, n2count;
 	unsigned short		t1, t2;
 	struct timer_list	t1timer, t2timer;
+<<<<<<< HEAD
+=======
+	bool			t1timer_running, t2timer_running;
+>>>>>>> upstream/android-13
 
 	/* Internal control information */
 	struct sk_buff_head	write_queue;
@@ -103,6 +107,10 @@ struct lapb_cb {
 	struct lapb_frame	frmr_data;
 	unsigned char		frmr_type;
 
+<<<<<<< HEAD
+=======
+	spinlock_t		lock;
+>>>>>>> upstream/android-13
 	refcount_t		refcnt;
 };
 

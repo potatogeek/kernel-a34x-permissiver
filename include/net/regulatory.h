@@ -44,7 +44,11 @@ enum environment_cap {
  *	and potentially inform users of which devices specifically
  *	cased the conflicts.
  * @initiator: indicates who sent this request, could be any of
+<<<<<<< HEAD
  *	of those set in nl80211_reg_initiator (%NL80211_REGDOM_SET_BY_*)
+=======
+ *	those set in nl80211_reg_initiator (%NL80211_REGDOM_SET_BY_*)
+>>>>>>> upstream/android-13
  * @alpha2: the ISO / IEC 3166 alpha2 country code of the requested
  *	regulatory domain. We have a few special codes:
  *	00 - World regulatory domain
@@ -231,6 +235,7 @@ struct ieee80211_regdomain {
 	struct ieee80211_reg_rule reg_rules[];
 };
 
+<<<<<<< HEAD
 #define MHZ_TO_KHZ(freq) ((freq) * 1000)
 #define KHZ_TO_MHZ(freq) ((freq) / 1000)
 #define DBI_TO_MBI(gain) ((gain) * 100)
@@ -238,6 +243,8 @@ struct ieee80211_regdomain {
 #define DBM_TO_MBM(gain) ((gain) * 100)
 #define MBM_TO_DBM(gain) ((gain) / 100)
 
+=======
+>>>>>>> upstream/android-13
 #define REG_RULE_EXT(start, end, bw, gain, eirp, dfs_cac, reg_flags)	\
 {									\
 	.freq_range.start_freq_khz = MHZ_TO_KHZ(start),			\

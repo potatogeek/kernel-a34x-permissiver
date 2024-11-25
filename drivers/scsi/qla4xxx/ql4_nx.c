@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI HBA Driver
  * Copyright (c)  2003-2013 QLogic Corporation
  *
  * See LICENSE.qla4xxx for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic iSCSI HBA Driver
+ * Copyright (c)  2003-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -376,6 +383,38 @@ qla4_82xx_pci_set_crbwindow_2M(struct scsi_qla_host *ha, ulong *off)
 	*off = (*off & MASK(16)) + CRB_INDIRECT_2M + ha->nx_pcibase;
 }
 
+<<<<<<< HEAD
+=======
+#define CRB_WIN_LOCK_TIMEOUT 100000000
+
+/*
+ * Context: atomic
+ */
+static int qla4_82xx_crb_win_lock(struct scsi_qla_host *ha)
+{
+	int done = 0, timeout = 0;
+
+	while (!done) {
+		/* acquire semaphore3 from PCI HW block */
+		done = qla4_82xx_rd_32(ha, QLA82XX_PCIE_REG(PCIE_SEM7_LOCK));
+		if (done == 1)
+			break;
+		if (timeout >= CRB_WIN_LOCK_TIMEOUT)
+			return -1;
+
+		timeout++;
+		udelay(10);
+	}
+	qla4_82xx_wr_32(ha, QLA82XX_CRB_WIN_LOCK_ID, ha->func_num);
+	return 0;
+}
+
+void qla4_82xx_crb_win_unlock(struct scsi_qla_host *ha)
+{
+	qla4_82xx_rd_32(ha, QLA82XX_PCIE_REG(PCIE_SEM7_UNLOCK));
+}
+
+>>>>>>> upstream/android-13
 void
 qla4_82xx_wr_32(struct scsi_qla_host *ha, ulong off, u32 data)
 {
@@ -476,6 +515,7 @@ int qla4_82xx_md_wr_32(struct scsi_qla_host *ha, uint32_t off, uint32_t data)
 	return rval;
 }
 
+<<<<<<< HEAD
 #define CRB_WIN_LOCK_TIMEOUT 100000000
 
 int qla4_82xx_crb_win_lock(struct scsi_qla_host *ha)
@@ -510,6 +550,8 @@ void qla4_82xx_crb_win_unlock(struct scsi_qla_host *ha)
 	qla4_82xx_rd_32(ha, QLA82XX_PCIE_REG(PCIE_SEM7_UNLOCK));
 }
 
+=======
+>>>>>>> upstream/android-13
 #define IDC_LOCK_TIMEOUT 100000000
 
 /**
@@ -518,12 +560,24 @@ void qla4_82xx_crb_win_unlock(struct scsi_qla_host *ha)
  *
  * General purpose lock used to synchronize access to
  * CRB_DEV_STATE, CRB_DEV_REF_COUNT, etc.
+<<<<<<< HEAD
  **/
 int qla4_82xx_idc_lock(struct scsi_qla_host *ha)
 {
 	int i;
 	int done = 0, timeout = 0;
 
+=======
+ *
+ * Context: task, can sleep
+ **/
+int qla4_82xx_idc_lock(struct scsi_qla_host *ha)
+{
+	int done = 0, timeout = 0;
+
+	might_sleep();
+
+>>>>>>> upstream/android-13
 	while (!done) {
 		/* acquire semaphore5 from PCI HW block */
 		done = qla4_82xx_rd_32(ha, QLA82XX_PCIE_REG(PCIE_SEM5_LOCK));
@@ -533,6 +587,7 @@ int qla4_82xx_idc_lock(struct scsi_qla_host *ha)
 			return -1;
 
 		timeout++;
+<<<<<<< HEAD
 
 		/* Yield CPU */
 		if (!in_interrupt())
@@ -541,6 +596,9 @@ int qla4_82xx_idc_lock(struct scsi_qla_host *ha)
 			for (i = 0; i < 20; i++)
 				cpu_relax();    /*This a nop instr on i386*/
 		}
+=======
+		msleep(100);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -881,6 +939,7 @@ qla4_82xx_decode_crb_addr(unsigned long addr)
 static long rom_max_timeout = 100;
 static long qla4_82xx_rom_lock_timeout = 100;
 
+<<<<<<< HEAD
 static int
 qla4_82xx_rom_lock(struct scsi_qla_host *ha)
 {
@@ -890,6 +949,20 @@ qla4_82xx_rom_lock(struct scsi_qla_host *ha)
 	while (!done) {
 		/* acquire semaphore2 from PCI HW block */
 
+=======
+/*
+ * Context: task, can_sleep
+ */
+static int
+qla4_82xx_rom_lock(struct scsi_qla_host *ha)
+{
+	int done = 0, timeout = 0;
+
+	might_sleep();
+
+	while (!done) {
+		/* acquire semaphore2 from PCI HW block */
+>>>>>>> upstream/android-13
 		done = qla4_82xx_rd_32(ha, QLA82XX_PCIE_REG(PCIE_SEM2_LOCK));
 		if (done == 1)
 			break;
@@ -897,6 +970,7 @@ qla4_82xx_rom_lock(struct scsi_qla_host *ha)
 			return -1;
 
 		timeout++;
+<<<<<<< HEAD
 
 		/* Yield CPU */
 		if (!in_interrupt())
@@ -905,6 +979,9 @@ qla4_82xx_rom_lock(struct scsi_qla_host *ha)
 			for (i = 0; i < 20; i++)
 				cpu_relax();    /*This a nop instr on i386*/
 		}
+=======
+		msleep(20);
+>>>>>>> upstream/android-13
 	}
 	qla4_82xx_wr_32(ha, QLA82XX_ROM_LOCK_ID, ROM_LOCK_DRIVER);
 	return 0;
@@ -974,10 +1051,17 @@ qla4_82xx_rom_fast_read(struct scsi_qla_host *ha, int addr, int *valp)
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
  * This routine does CRB initialize sequence
  * to put the ISP into operational state
  **/
+=======
+/*
+ * This routine does CRB initialize sequence
+ * to put the ISP into operational state
+ */
+>>>>>>> upstream/android-13
 static int
 qla4_82xx_pinit_from_rom(struct scsi_qla_host *ha, int verbose)
 {
@@ -1781,7 +1865,11 @@ qla4_82xx_start_firmware(struct scsi_qla_host *ha, uint32_t image_start)
 
 int qla4_82xx_try_start_fw(struct scsi_qla_host *ha)
 {
+<<<<<<< HEAD
 	int rval = QLA_ERROR;
+=======
+	int rval;
+>>>>>>> upstream/android-13
 
 	/*
 	 * FW Load priority:
@@ -2645,7 +2733,11 @@ static uint32_t qla4_84xx_minidump_process_rddfe(struct scsi_qla_host *ha,
 	uint32_t addr1, addr2, value, data, temp, wrval;
 	uint8_t stride, stride2;
 	uint16_t count;
+<<<<<<< HEAD
 	uint32_t poll, mask, data_size, modify_mask;
+=======
+	uint32_t poll, mask, modify_mask;
+>>>>>>> upstream/android-13
 	uint32_t wait_count = 0;
 	uint32_t *data_ptr = *d_ptr;
 	struct qla8044_minidump_entry_rddfe *rddfe;
@@ -2661,7 +2753,10 @@ static uint32_t qla4_84xx_minidump_process_rddfe(struct scsi_qla_host *ha,
 	poll = le32_to_cpu(rddfe->poll);
 	mask = le32_to_cpu(rddfe->mask);
 	modify_mask = le32_to_cpu(rddfe->modify_mask);
+<<<<<<< HEAD
 	data_size = le32_to_cpu(rddfe->data_size);
+=======
+>>>>>>> upstream/android-13
 
 	addr2 = addr1 + stride;
 
@@ -2742,7 +2837,11 @@ static uint32_t qla4_84xx_minidump_process_rdmdio(struct scsi_qla_host *ha,
 	uint8_t stride1, stride2;
 	uint32_t addr3, addr4, addr5, addr6, addr7;
 	uint16_t count, loop_cnt;
+<<<<<<< HEAD
 	uint32_t poll, mask;
+=======
+	uint32_t mask;
+>>>>>>> upstream/android-13
 	uint32_t *data_ptr = *d_ptr;
 	struct qla8044_minidump_entry_rdmdio *rdmdio;
 
@@ -2754,7 +2853,10 @@ static uint32_t qla4_84xx_minidump_process_rdmdio(struct scsi_qla_host *ha,
 	stride2 = le32_to_cpu(rdmdio->stride_2);
 	count = le32_to_cpu(rdmdio->count);
 
+<<<<<<< HEAD
 	poll = le32_to_cpu(rdmdio->poll);
+=======
+>>>>>>> upstream/android-13
 	mask = le32_to_cpu(rdmdio->mask);
 	value2 = le32_to_cpu(rdmdio->value_2);
 
@@ -2813,7 +2915,11 @@ static uint32_t qla4_84xx_minidump_process_pollwr(struct scsi_qla_host *ha,
 				struct qla8xxx_minidump_entry_hdr *entry_hdr,
 				uint32_t **d_ptr)
 {
+<<<<<<< HEAD
 	uint32_t addr1, addr2, value1, value2, poll, mask, r_value;
+=======
+	uint32_t addr1, addr2, value1, value2, poll, r_value;
+>>>>>>> upstream/android-13
 	struct qla8044_minidump_entry_pollwr *pollwr_hdr;
 	uint32_t wait_count = 0;
 	uint32_t rval = QLA_SUCCESS;
@@ -2825,7 +2931,10 @@ static uint32_t qla4_84xx_minidump_process_pollwr(struct scsi_qla_host *ha,
 	value2 = le32_to_cpu(pollwr_hdr->value_2);
 
 	poll = le32_to_cpu(pollwr_hdr->poll);
+<<<<<<< HEAD
 	mask = le32_to_cpu(pollwr_hdr->mask);
+=======
+>>>>>>> upstream/android-13
 
 	while (wait_count < poll) {
 		ha->isp_ops->rd_reg_indirect(ha, addr1, &r_value);
@@ -3220,6 +3329,10 @@ md_failed:
 /**
  * qla4_8xxx_uevent_emit - Send uevent when the firmware dump is ready.
  * @ha: pointer to adapter structure
+<<<<<<< HEAD
+=======
+ * @code: uevent code to act upon
+>>>>>>> upstream/android-13
  **/
 static void qla4_8xxx_uevent_emit(struct scsi_qla_host *ha, u32 code)
 {
@@ -3228,7 +3341,11 @@ static void qla4_8xxx_uevent_emit(struct scsi_qla_host *ha, u32 code)
 
 	switch (code) {
 	case QL4_UEVENT_CODE_FW_DUMP:
+<<<<<<< HEAD
 		snprintf(event_string, sizeof(event_string), "FW_DUMP=%ld",
+=======
+		snprintf(event_string, sizeof(event_string), "FW_DUMP=%lu",
+>>>>>>> upstream/android-13
 			 ha->host_no);
 		break;
 	default:
@@ -3650,12 +3767,15 @@ flash_conf_addr(struct ql82xx_hw_data *hw, uint32_t faddr)
 	return hw->flash_conf_off | faddr;
 }
 
+<<<<<<< HEAD
 static inline uint32_t
 flash_data_addr(struct ql82xx_hw_data *hw, uint32_t faddr)
 {
 	return hw->flash_data_off | faddr;
 }
 
+=======
+>>>>>>> upstream/android-13
 static uint32_t *
 qla4_82xx_read_flash_data(struct scsi_qla_host *ha, uint32_t *dwptr,
     uint32_t faddr, uint32_t length)
@@ -3680,7 +3800,11 @@ qla4_82xx_read_flash_data(struct scsi_qla_host *ha, uint32_t *dwptr,
 			    "Do ROM fast read failed\n");
 			goto done_read;
 		}
+<<<<<<< HEAD
 		dwptr[i] = __constant_cpu_to_le32(val);
+=======
+		dwptr[i] = cpu_to_le32(val);
+>>>>>>> upstream/android-13
 	}
 
 done_read:
@@ -3688,9 +3812,15 @@ done_read:
 	return dwptr;
 }
 
+<<<<<<< HEAD
 /**
  * Address and length are byte address
  **/
+=======
+/*
+ * Address and length are byte address
+ */
+>>>>>>> upstream/android-13
 static uint8_t *
 qla4_82xx_read_optrom_data(struct scsi_qla_host *ha, uint8_t *buf,
 		uint32_t offset, uint32_t length)
@@ -3743,9 +3873,15 @@ qla4_8xxx_get_flt_info(struct scsi_qla_host *ha, uint32_t flt_addr)
 			goto no_flash_data;
 	}
 
+<<<<<<< HEAD
 	if (*wptr == __constant_cpu_to_le16(0xffff))
 		goto no_flash_data;
 	if (flt->version != __constant_cpu_to_le16(1)) {
+=======
+	if (*wptr == cpu_to_le16(0xffff))
+		goto no_flash_data;
+	if (flt->version != cpu_to_le16(1)) {
+>>>>>>> upstream/android-13
 		DEBUG2(ql4_printk(KERN_INFO, ha, "Unsupported FLT detected: "
 			"version=0x%x length=0x%x checksum=0x%x.\n",
 			le16_to_cpu(flt->version), le16_to_cpu(flt->length),
@@ -3848,7 +3984,11 @@ qla4_82xx_get_fdt_info(struct scsi_qla_host *ha)
 	qla4_82xx_read_optrom_data(ha, (uint8_t *)ha->request_ring,
 	    hw->flt_region_fdt << 2, OPTROM_BURST_SIZE);
 
+<<<<<<< HEAD
 	if (*wptr == __constant_cpu_to_le16(0xffff))
+=======
+	if (*wptr == cpu_to_le16(0xffff))
+>>>>>>> upstream/android-13
 		goto no_flash_data;
 
 	if (fdt->sig[0] != 'Q' || fdt->sig[1] != 'L' || fdt->sig[2] != 'I' ||
@@ -3905,7 +4045,11 @@ qla4_82xx_get_idc_param(struct scsi_qla_host *ha)
 	qla4_82xx_read_optrom_data(ha, (uint8_t *)ha->request_ring,
 			QLA82XX_IDC_PARAM_ADDR , 8);
 
+<<<<<<< HEAD
 	if (*wptr == __constant_cpu_to_le32(0xffffffff)) {
+=======
+	if (*wptr == cpu_to_le32(0xffffffff)) {
+>>>>>>> upstream/android-13
 		ha->nx_dev_init_timeout = ROM_DEV_INIT_TIMEOUT;
 		ha->nx_reset_timeout = ROM_DRV_RESET_ACK_TIMEOUT;
 	} else {
@@ -4052,8 +4196,13 @@ int qla4_8xxx_get_sys_info(struct scsi_qla_host *ha)
 	dma_addr_t sys_info_dma;
 	int status = QLA_ERROR;
 
+<<<<<<< HEAD
 	sys_info = dma_zalloc_coherent(&ha->pdev->dev, sizeof(*sys_info),
 				       &sys_info_dma, GFP_KERNEL);
+=======
+	sys_info = dma_alloc_coherent(&ha->pdev->dev, sizeof(*sys_info),
+				      &sys_info_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (sys_info == NULL) {
 		DEBUG2(printk("scsi%ld: %s: Unable to allocate dma buffer.\n",
 		    ha->host_no, __func__));

@@ -361,15 +361,22 @@ static const struct i2c_algorithm em_i2c_algo = {
 static int em_i2c_probe(struct platform_device *pdev)
 {
 	struct em_i2c_device *priv;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
@@ -447,6 +454,11 @@ static struct platform_driver em_i2c_driver = {
 module_platform_driver(em_i2c_driver);
 
 MODULE_DESCRIPTION("EMEV2 I2C bus driver");
+<<<<<<< HEAD
 MODULE_AUTHOR("Ian Molton and Wolfram Sang <wsa@sang-engineering.com>");
+=======
+MODULE_AUTHOR("Ian Molton");
+MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");
 MODULE_DEVICE_TABLE(of, em_i2c_ids);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Google, Inc
  *
@@ -13,6 +14,18 @@
 #include <linux/i2c.h>
 #include <linux/mfd/cros_ec.h>
 #include <linux/mfd/cros_ec_commands.h>
+=======
+// SPDX-License-Identifier: GPL-2.0+
+// Expose an I2C passthrough to the ChromeOS EC.
+//
+// Copyright (C) 2013 Google, Inc.
+
+#include <linux/acpi.h>
+#include <linux/module.h>
+#include <linux/i2c.h>
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
@@ -246,7 +259,10 @@ static const struct i2c_algorithm ec_i2c_algorithm = {
 
 static int ec_i2c_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
 	struct device *dev = &pdev->dev;
 	struct ec_i2c_device *bus = NULL;
@@ -262,7 +278,11 @@ static int ec_i2c_probe(struct platform_device *pdev)
 	if (bus == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	err = of_property_read_u32(np, "google,remote-bus", &remote_bus);
+=======
+	err = device_property_read_u32(dev, "google,remote-bus", &remote_bus);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(dev, "Couldn't read remote-bus property\n");
 		return err;
@@ -277,8 +297,14 @@ static int ec_i2c_probe(struct platform_device *pdev)
 	bus->adap.algo = &ec_i2c_algorithm;
 	bus->adap.algo_data = bus;
 	bus->adap.dev.parent = &pdev->dev;
+<<<<<<< HEAD
 	bus->adap.dev.of_node = np;
 	bus->adap.retries = I2C_MAX_RETRIES;
+=======
+	bus->adap.dev.of_node = pdev->dev.of_node;
+	bus->adap.retries = I2C_MAX_RETRIES;
+	ACPI_COMPANION_SET(&bus->adap.dev, ACPI_COMPANION(&pdev->dev));
+>>>>>>> upstream/android-13
 
 	err = i2c_add_adapter(&bus->adap);
 	if (err)
@@ -297,19 +323,35 @@ static int ec_i2c_remove(struct platform_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id cros_ec_i2c_of_match[] = {
 	{ .compatible = "google,cros-ec-i2c-tunnel" },
 	{},
 };
 MODULE_DEVICE_TABLE(of, cros_ec_i2c_of_match);
+<<<<<<< HEAD
 #endif
+=======
+
+static const struct acpi_device_id cros_ec_i2c_tunnel_acpi_id[] = {
+	{ "GOOG0012", 0 },
+	{ }
+};
+MODULE_DEVICE_TABLE(acpi, cros_ec_i2c_tunnel_acpi_id);
+>>>>>>> upstream/android-13
 
 static struct platform_driver ec_i2c_tunnel_driver = {
 	.probe = ec_i2c_probe,
 	.remove = ec_i2c_remove,
 	.driver = {
 		.name = "cros-ec-i2c-tunnel",
+<<<<<<< HEAD
+=======
+		.acpi_match_table = ACPI_PTR(cros_ec_i2c_tunnel_acpi_id),
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(cros_ec_i2c_of_match),
 	},
 };

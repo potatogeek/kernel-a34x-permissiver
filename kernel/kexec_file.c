@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kexec: kexec_file_load system call
  *
  * Copyright (C) 2014 Red Hat Inc.
  * Authors:
  *      Vivek Goyal <vgoyal@redhat.com>
+<<<<<<< HEAD
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -16,17 +23,29 @@
 #include <linux/file.h>
 #include <linux/slab.h>
 #include <linux/kexec.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/list.h>
 #include <linux/fs.h>
 #include <linux/ima.h>
 #include <crypto/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
 #include <linux/elf.h>
 #include <linux/elfcore.h>
 #include <linux/kernel.h>
 #include <linux/kexec.h>
 #include <linux/slab.h>
+=======
+#include <crypto/sha2.h>
+#include <linux/elf.h>
+#include <linux/elfcore.h>
+#include <linux/kernel.h>
+#include <linux/kernel_read_file.h>
+>>>>>>> upstream/android-13
 #include <linux/syscalls.h>
 #include <linux/vmalloc.h>
 #include "kexec_internal.h"
@@ -78,7 +97,11 @@ void * __weak arch_kexec_kernel_image_load(struct kimage *image)
 	return kexec_image_load_default(image);
 }
 
+<<<<<<< HEAD
 static int kexec_image_post_load_cleanup_default(struct kimage *image)
+=======
+int kexec_image_post_load_cleanup_default(struct kimage *image)
+>>>>>>> upstream/android-13
 {
 	if (!image->fops || !image->fops->cleanup)
 		return 0;
@@ -91,7 +114,11 @@ int __weak arch_kimage_file_post_load_cleanup(struct kimage *image)
 	return kexec_image_post_load_cleanup_default(image);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_KEXEC_VERIFY_SIG
+=======
+#ifdef CONFIG_KEXEC_SIG
+>>>>>>> upstream/android-13
 static int kexec_image_verify_sig_default(struct kimage *image, void *buf,
 					  unsigned long buf_len)
 {
@@ -185,6 +212,40 @@ void kimage_file_post_load_cleanup(struct kimage *image)
 	image->image_loader_data = NULL;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEXEC_SIG
+static int
+kimage_validate_signature(struct kimage *image)
+{
+	int ret;
+
+	ret = arch_kexec_kernel_verify_sig(image, image->kernel_buf,
+					   image->kernel_buf_len);
+	if (ret) {
+
+		if (IS_ENABLED(CONFIG_KEXEC_SIG_FORCE)) {
+			pr_notice("Enforced kernel signature verification failed (%d).\n", ret);
+			return ret;
+		}
+
+		/*
+		 * If IMA is guaranteed to appraise a signature on the kexec
+		 * image, permit it even if the kernel is otherwise locked
+		 * down.
+		 */
+		if (!ima_appraise_signature(READING_KEXEC_IMAGE) &&
+		    security_locked_down(LOCKDOWN_KEXEC))
+			return -EPERM;
+
+		pr_debug("kernel signature verification failed (%d).\n", ret);
+	}
+
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * In file mode list of segments is prepared by kernel. Copy relevant
  * data from user space, do error checking, prepare segment list
@@ -194,6 +255,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
 			     const char __user *cmdline_ptr,
 			     unsigned long cmdline_len, unsigned flags)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	void *ldata;
 	loff_t size;
@@ -206,6 +268,16 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
 
 	/* IMA needs to pass the measurement list to the next kernel. */
 	ima_add_kexec_buffer(image);
+=======
+	int ret;
+	void *ldata;
+
+	ret = kernel_read_file_from_fd(kernel_fd, 0, &image->kernel_buf,
+				       INT_MAX, NULL, READING_KEXEC_IMAGE);
+	if (ret < 0)
+		return ret;
+	image->kernel_buf_len = ret;
+>>>>>>> upstream/android-13
 
 	/* Call arch image probe handlers */
 	ret = arch_kexec_kernel_image_probe(image, image->kernel_buf,
@@ -213,6 +285,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 #ifdef CONFIG_KEXEC_VERIFY_SIG
 	ret = arch_kexec_kernel_verify_sig(image, image->kernel_buf,
 					   image->kernel_buf_len);
@@ -230,6 +303,23 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
 		if (ret)
 			goto out;
 		image->initrd_buf_len = size;
+=======
+#ifdef CONFIG_KEXEC_SIG
+	ret = kimage_validate_signature(image);
+
+	if (ret)
+		goto out;
+#endif
+	/* It is possible that there no initramfs is being loaded */
+	if (!(flags & KEXEC_FILE_NO_INITRAMFS)) {
+		ret = kernel_read_file_from_fd(initrd_fd, 0, &image->initrd_buf,
+					       INT_MAX, NULL,
+					       READING_KEXEC_INITRAMFS);
+		if (ret < 0)
+			goto out;
+		image->initrd_buf_len = ret;
+		ret = 0;
+>>>>>>> upstream/android-13
 	}
 
 	if (cmdline_len) {
@@ -247,8 +337,19 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
 			ret = -EINVAL;
 			goto out;
 		}
+<<<<<<< HEAD
 	}
 
+=======
+
+		ima_kexec_cmdline(kernel_fd, image->cmdline_buf,
+				  image->cmdline_buf_len - 1);
+	}
+
+	/* IMA needs to pass the measurement list to the next kernel. */
+	ima_add_kexec_buffer(image);
+
+>>>>>>> upstream/android-13
 	/* Call arch image load handlers */
 	ldata = arch_kexec_kernel_image_load(image);
 
@@ -396,6 +497,13 @@ SYSCALL_DEFINE5(kexec_file_load, int, kernel_fd, int, initrd_fd,
 
 	kimage_terminate(image);
 
+<<<<<<< HEAD
+=======
+	ret = machine_kexec_post_load(image);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Free up any temporary buffers allocated which are not needed
 	 * after image has been loaded
@@ -491,6 +599,14 @@ static int locate_mem_hole_callback(struct resource *res, void *arg)
 	unsigned long sz = end - start + 1;
 
 	/* Returning 0 will take to next memory range */
+<<<<<<< HEAD
+=======
+
+	/* Don't use memory that will be detected and handled by a driver. */
+	if (res->flags & IORESOURCE_SYSRAM_DRIVER_MANAGED)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (sz < kbuf->memsz)
 		return 0;
 
@@ -506,8 +622,65 @@ static int locate_mem_hole_callback(struct resource *res, void *arg)
 	return locate_mem_hole_bottom_up(start, end, kbuf);
 }
 
+<<<<<<< HEAD
 /**
  * arch_kexec_walk_mem - call func(data) on free memory regions
+=======
+#ifdef CONFIG_ARCH_KEEP_MEMBLOCK
+static int kexec_walk_memblock(struct kexec_buf *kbuf,
+			       int (*func)(struct resource *, void *))
+{
+	int ret = 0;
+	u64 i;
+	phys_addr_t mstart, mend;
+	struct resource res = { };
+
+	if (kbuf->image->type == KEXEC_TYPE_CRASH)
+		return func(&crashk_res, kbuf);
+
+	if (kbuf->top_down) {
+		for_each_free_mem_range_reverse(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+						&mstart, &mend, NULL) {
+			/*
+			 * In memblock, end points to the first byte after the
+			 * range while in kexec, end points to the last byte
+			 * in the range.
+			 */
+			res.start = mstart;
+			res.end = mend - 1;
+			ret = func(&res, kbuf);
+			if (ret)
+				break;
+		}
+	} else {
+		for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
+					&mstart, &mend, NULL) {
+			/*
+			 * In memblock, end points to the first byte after the
+			 * range while in kexec, end points to the last byte
+			 * in the range.
+			 */
+			res.start = mstart;
+			res.end = mend - 1;
+			ret = func(&res, kbuf);
+			if (ret)
+				break;
+		}
+	}
+
+	return ret;
+}
+#else
+static int kexec_walk_memblock(struct kexec_buf *kbuf,
+			       int (*func)(struct resource *, void *))
+{
+	return 0;
+}
+#endif
+
+/**
+ * kexec_walk_resources - call func(data) on free memory regions
+>>>>>>> upstream/android-13
  * @kbuf:	Context info for the search. Also passed to @func.
  * @func:	Function to call for each memory region.
  *
@@ -515,8 +688,13 @@ static int locate_mem_hole_callback(struct resource *res, void *arg)
  * and that value will be returned. If all free regions are visited without
  * func returning non-zero, then zero will be returned.
  */
+<<<<<<< HEAD
 int __weak arch_kexec_walk_mem(struct kexec_buf *kbuf,
 			       int (*func)(struct resource *, void *))
+=======
+static int kexec_walk_resources(struct kexec_buf *kbuf,
+				int (*func)(struct resource *, void *))
+>>>>>>> upstream/android-13
 {
 	if (kbuf->image->type == KEXEC_TYPE_CRASH)
 		return walk_iomem_res_desc(crashk_res.desc,
@@ -539,12 +717,39 @@ int kexec_locate_mem_hole(struct kexec_buf *kbuf)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = arch_kexec_walk_mem(kbuf, locate_mem_hole_callback);
+=======
+	/* Arch knows where to place */
+	if (kbuf->mem != KEXEC_BUF_MEM_UNKNOWN)
+		return 0;
+
+	if (!IS_ENABLED(CONFIG_ARCH_KEEP_MEMBLOCK))
+		ret = kexec_walk_resources(kbuf, locate_mem_hole_callback);
+	else
+		ret = kexec_walk_memblock(kbuf, locate_mem_hole_callback);
+>>>>>>> upstream/android-13
 
 	return ret == 1 ? 0 : -EADDRNOTAVAIL;
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * arch_kexec_locate_mem_hole - Find free memory to place the segments.
+ * @kbuf:                       Parameters for the memory search.
+ *
+ * On success, kbuf->mem will have the start address of the memory region found.
+ *
+ * Return: 0 on success, negative errno on error.
+ */
+int __weak arch_kexec_locate_mem_hole(struct kexec_buf *kbuf)
+{
+	return kexec_locate_mem_hole(kbuf);
+}
+
+/**
+>>>>>>> upstream/android-13
  * kexec_add_buffer - place a buffer in a kexec segment
  * @kbuf:	Buffer contents and memory parameters.
  *
@@ -556,7 +761,10 @@ int kexec_locate_mem_hole(struct kexec_buf *kbuf)
  */
 int kexec_add_buffer(struct kexec_buf *kbuf)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	struct kexec_segment *ksegment;
 	int ret;
 
@@ -584,7 +792,11 @@ int kexec_add_buffer(struct kexec_buf *kbuf)
 	kbuf->buf_align = max(kbuf->buf_align, PAGE_SIZE);
 
 	/* Walk the RAM ranges and allocate a suitable range for the buffer */
+<<<<<<< HEAD
 	ret = kexec_locate_mem_hole(kbuf);
+=======
+	ret = arch_kexec_locate_mem_hole(kbuf);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -637,7 +849,10 @@ static int kexec_calculate_store_digests(struct kimage *image)
 	}
 
 	desc->tfm   = tfm;
+<<<<<<< HEAD
 	desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	ret = crypto_shash_init(desc);
 	if (ret < 0)
@@ -1069,24 +1284,42 @@ int crash_exclude_mem_range(struct crash_mem *mem,
 			    unsigned long long mstart, unsigned long long mend)
 {
 	int i, j;
+<<<<<<< HEAD
 	unsigned long long start, end;
+=======
+	unsigned long long start, end, p_start, p_end;
+>>>>>>> upstream/android-13
 	struct crash_mem_range temp_range = {0, 0};
 
 	for (i = 0; i < mem->nr_ranges; i++) {
 		start = mem->ranges[i].start;
 		end = mem->ranges[i].end;
+<<<<<<< HEAD
+=======
+		p_start = mstart;
+		p_end = mend;
+>>>>>>> upstream/android-13
 
 		if (mstart > end || mend < start)
 			continue;
 
 		/* Truncate any area outside of range */
 		if (mstart < start)
+<<<<<<< HEAD
 			mstart = start;
 		if (mend > end)
 			mend = end;
 
 		/* Found completely overlapping range */
 		if (mstart == start && mend == end) {
+=======
+			p_start = start;
+		if (mend > end)
+			p_end = end;
+
+		/* Found completely overlapping range */
+		if (p_start == start && p_end == end) {
+>>>>>>> upstream/android-13
 			mem->ranges[i].start = 0;
 			mem->ranges[i].end = 0;
 			if (i < mem->nr_ranges - 1) {
@@ -1097,11 +1330,24 @@ int crash_exclude_mem_range(struct crash_mem *mem,
 					mem->ranges[j].end =
 							mem->ranges[j+1].end;
 				}
+<<<<<<< HEAD
+=======
+
+				/*
+				 * Continue to check if there are another overlapping ranges
+				 * from the current position because of shifting the above
+				 * mem ranges.
+				 */
+				i--;
+				mem->nr_ranges--;
+				continue;
+>>>>>>> upstream/android-13
 			}
 			mem->nr_ranges--;
 			return 0;
 		}
 
+<<<<<<< HEAD
 		if (mstart > start && mend < end) {
 			/* Split original range */
 			mem->ranges[i].end = mstart - 1;
@@ -1111,6 +1357,17 @@ int crash_exclude_mem_range(struct crash_mem *mem,
 			mem->ranges[i].end = mstart - 1;
 		else
 			mem->ranges[i].start = mend + 1;
+=======
+		if (p_start > start && p_end < end) {
+			/* Split original range */
+			mem->ranges[i].end = p_start - 1;
+			temp_range.start = p_end + 1;
+			temp_range.end = end;
+		} else if (p_start != start)
+			mem->ranges[i].end = p_start - 1;
+		else
+			mem->ranges[i].start = p_end + 1;
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -1147,7 +1404,11 @@ int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
 	unsigned long long notes_addr;
 	unsigned long mstart, mend;
 
+<<<<<<< HEAD
 	/* extra phdr for vmcoreinfo elf note */
+=======
+	/* extra phdr for vmcoreinfo ELF note */
+>>>>>>> upstream/android-13
 	nr_phdr = nr_cpus + 1;
 	nr_phdr += mem->nr_ranges;
 
@@ -1155,7 +1416,11 @@ int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
 	 * kexec-tools creates an extra PT_LOAD phdr for kernel text mapping
 	 * area (for example, ffffffff80000000 - ffffffffa0000000 on x86_64).
 	 * I think this is required by tools like gdb. So same physical
+<<<<<<< HEAD
 	 * memory will be mapped in two elf headers. One will contain kernel
+=======
+	 * memory will be mapped in two ELF headers. One will contain kernel
+>>>>>>> upstream/android-13
 	 * text virtual addresses and other will have __va(physical) addresses.
 	 */
 
@@ -1182,7 +1447,11 @@ int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
 	ehdr->e_ehsize = sizeof(Elf64_Ehdr);
 	ehdr->e_phentsize = sizeof(Elf64_Phdr);
 
+<<<<<<< HEAD
 	/* Prepare one phdr of type PT_NOTE for each present cpu */
+=======
+	/* Prepare one phdr of type PT_NOTE for each present CPU */
+>>>>>>> upstream/android-13
 	for_each_present_cpu(cpu) {
 		phdr->p_type = PT_NOTE;
 		notes_addr = per_cpu_ptr_to_phys(per_cpu_ptr(crash_notes, cpu));
@@ -1203,7 +1472,11 @@ int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
 	if (kernel_map) {
 		phdr->p_type = PT_LOAD;
 		phdr->p_flags = PF_R|PF_W|PF_X;
+<<<<<<< HEAD
 		phdr->p_vaddr = (Elf64_Addr)_text;
+=======
+		phdr->p_vaddr = (unsigned long) _text;
+>>>>>>> upstream/android-13
 		phdr->p_filesz = phdr->p_memsz = _end - _text;
 		phdr->p_offset = phdr->p_paddr = __pa_symbol(_text);
 		ehdr->e_phnum++;
@@ -1220,6 +1493,7 @@ int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
 		phdr->p_offset  = mstart;
 
 		phdr->p_paddr = mstart;
+<<<<<<< HEAD
 		phdr->p_vaddr = (unsigned long long) __va(mstart);
 		phdr->p_filesz = phdr->p_memsz = mend - mstart + 1;
 		phdr->p_align = 0;
@@ -1228,6 +1502,16 @@ int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
 		pr_debug("Crash PT_LOAD elf header. phdr=%p vaddr=0x%llx, paddr=0x%llx, sz=0x%llx e_phnum=%d p_offset=0x%llx\n",
 			phdr, phdr->p_vaddr, phdr->p_paddr, phdr->p_filesz,
 			ehdr->e_phnum, phdr->p_offset);
+=======
+		phdr->p_vaddr = (unsigned long) __va(mstart);
+		phdr->p_filesz = phdr->p_memsz = mend - mstart + 1;
+		phdr->p_align = 0;
+		ehdr->e_phnum++;
+		pr_debug("Crash PT_LOAD ELF header. phdr=%p vaddr=0x%llx, paddr=0x%llx, sz=0x%llx e_phnum=%d p_offset=0x%llx\n",
+			phdr, phdr->p_vaddr, phdr->p_paddr, phdr->p_filesz,
+			ehdr->e_phnum, phdr->p_offset);
+		phdr++;
+>>>>>>> upstream/android-13
 	}
 
 	*addr = buf;

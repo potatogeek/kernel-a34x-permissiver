@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*******************************************************************************
   Header File to describe the DMA descriptors and related definitions.
   This is for DWMAC100 and 1000 cores.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -13,6 +18,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -133,7 +140,11 @@
 #define	ETDES1_BUFFER2_SIZE_SHIFT	16
 
 /* Extended Receive descriptor definitions */
+<<<<<<< HEAD
 #define	ERDES4_IP_PAYLOAD_TYPE_MASK	GENMASK(2, 6)
+=======
+#define	ERDES4_IP_PAYLOAD_TYPE_MASK	GENMASK(6, 2)
+>>>>>>> upstream/android-13
 #define	ERDES4_IP_HDR_ERR		BIT(3)
 #define	ERDES4_IP_PAYLOAD_ERR		BIT(4)
 #define	ERDES4_IP_CSUM_BYPASSED		BIT(5)
@@ -181,6 +192,18 @@ struct dma_extended_desc {
 	__le32 des7;	/* Tx/Rx Timestamp High */
 };
 
+<<<<<<< HEAD
+=======
+/* Enhanced descriptor for TBS */
+struct dma_edesc {
+	__le32 des4;
+	__le32 des5;
+	__le32 des6;
+	__le32 des7;
+	struct dma_desc basic;
+};
+
+>>>>>>> upstream/android-13
 /* Transmit checksum insertion control */
 #define	TX_CIC_FULL	3	/* Include IP header and pseudoheader */
 

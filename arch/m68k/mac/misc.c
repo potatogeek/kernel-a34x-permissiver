@@ -18,7 +18,10 @@
 
 #include <linux/uaccess.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/macintosh.h>
 #include <asm/mac_via.h>
@@ -36,6 +39,7 @@
 
 static void (*rom_reset)(void);
 
+<<<<<<< HEAD
 #ifdef CONFIG_ADB_CUDA
 static time64_t cuda_read_time(void)
 {
@@ -67,6 +71,11 @@ static void cuda_write_time(time64_t time)
 }
 
 static __u8 cuda_read_pram(int offset)
+=======
+#if IS_ENABLED(CONFIG_NVRAM)
+#ifdef CONFIG_ADB_CUDA
+static unsigned char cuda_pram_read_byte(int offset)
+>>>>>>> upstream/android-13
 {
 	struct adb_request req;
 
@@ -78,7 +87,11 @@ static __u8 cuda_read_pram(int offset)
 	return req.reply[3];
 }
 
+<<<<<<< HEAD
 static void cuda_write_pram(int offset, __u8 data)
+=======
+static void cuda_pram_write_byte(unsigned char data, int offset)
+>>>>>>> upstream/android-13
 {
 	struct adb_request req;
 
@@ -91,6 +104,7 @@ static void cuda_write_pram(int offset, __u8 data)
 #endif /* CONFIG_ADB_CUDA */
 
 #ifdef CONFIG_ADB_PMU
+<<<<<<< HEAD
 static time64_t pmu_read_time(void)
 {
 	struct adb_request req;
@@ -141,6 +155,31 @@ static void pmu_write_pram(int offset, __u8 data)
 		pmu_poll();
 }
 #endif /* CONFIG_ADB_PMU */
+=======
+static unsigned char pmu_pram_read_byte(int offset)
+{
+	struct adb_request req;
+
+	if (pmu_request(&req, NULL, 3, PMU_READ_XPRAM,
+	                offset & 0xFF, 1) < 0)
+		return 0;
+	pmu_wait_complete(&req);
+
+	return req.reply[0];
+}
+
+static void pmu_pram_write_byte(unsigned char data, int offset)
+{
+	struct adb_request req;
+
+	if (pmu_request(&req, NULL, 4, PMU_WRITE_XPRAM,
+	                offset & 0xFF, 1, data) < 0)
+		return;
+	pmu_wait_complete(&req);
+}
+#endif /* CONFIG_ADB_PMU */
+#endif /* CONFIG_NVRAM */
+>>>>>>> upstream/android-13
 
 /*
  * VIA PRAM/RTC access routines
@@ -149,7 +188,11 @@ static void pmu_write_pram(int offset, __u8 data)
  * the RTC should be enabled.
  */
 
+<<<<<<< HEAD
 static __u8 via_pram_readbyte(void)
+=======
+static __u8 via_rtc_recv(void)
+>>>>>>> upstream/android-13
 {
 	int i, reg;
 	__u8 data;
@@ -176,7 +219,11 @@ static __u8 via_pram_readbyte(void)
 	return data;
 }
 
+<<<<<<< HEAD
 static void via_pram_writebyte(__u8 data)
+=======
+static void via_rtc_send(__u8 data)
+>>>>>>> upstream/android-13
 {
 	int i, reg, bit;
 
@@ -193,6 +240,34 @@ static void via_pram_writebyte(__u8 data)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * These values can be found in Inside Macintosh vol. III ch. 2
+ * which has a description of the RTC chip in the original Mac.
+ */
+
+#define RTC_FLG_READ            BIT(7)
+#define RTC_FLG_WRITE_PROTECT   BIT(7)
+#define RTC_CMD_READ(r)         (RTC_FLG_READ | (r << 2))
+#define RTC_CMD_WRITE(r)        (r << 2)
+#define RTC_REG_SECONDS_0       0
+#define RTC_REG_SECONDS_1       1
+#define RTC_REG_SECONDS_2       2
+#define RTC_REG_SECONDS_3       3
+#define RTC_REG_WRITE_PROTECT   13
+
+/*
+ * Inside Mac has no information about two-byte RTC commands but
+ * the MAME/MESS source code has the essentials.
+ */
+
+#define RTC_REG_XPRAM           14
+#define RTC_CMD_XPRAM_READ      (RTC_CMD_READ(RTC_REG_XPRAM) << 8)
+#define RTC_CMD_XPRAM_WRITE     (RTC_CMD_WRITE(RTC_REG_XPRAM) << 8)
+#define RTC_CMD_XPRAM_ARG(a)    (((a & 0xE0) << 3) | ((a & 0x1F) << 2))
+
+/*
+>>>>>>> upstream/android-13
  * Execute a VIA PRAM/RTC command. For read commands
  * data should point to a one-byte buffer for the
  * resulting data. For write commands it should point
@@ -201,18 +276,30 @@ static void via_pram_writebyte(__u8 data)
  * This function disables all interrupts while running.
  */
 
+<<<<<<< HEAD
 static void via_pram_command(int command, __u8 *data)
+=======
+static void via_rtc_command(int command, __u8 *data)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	int is_read;
 
 	local_irq_save(flags);
 
+<<<<<<< HEAD
+=======
+	/* The least significant bits must be 0b01 according to Inside Mac */
+
+	command = (command & ~3) | 1;
+
+>>>>>>> upstream/android-13
 	/* Enable the RTC and make sure the strobe line is high */
 
 	via1[vBufB] = (via1[vBufB] | VIA1B_vRTCClk) & ~VIA1B_vRTCEnb;
 
 	if (command & 0xFF00) {		/* extended (two-byte) command */
+<<<<<<< HEAD
 		via_pram_writebyte((command & 0xFF00) >> 8);
 		via_pram_writebyte(command & 0xFF);
 		is_read = command & 0x8000;
@@ -224,6 +311,19 @@ static void via_pram_command(int command, __u8 *data)
 		*data = via_pram_readbyte();
 	} else {
 		via_pram_writebyte(*data);
+=======
+		via_rtc_send((command & 0xFF00) >> 8);
+		via_rtc_send(command & 0xFF);
+		is_read = command & (RTC_FLG_READ << 8);
+	} else {			/* one-byte command */
+		via_rtc_send(command);
+		is_read = command & RTC_FLG_READ;
+	}
+	if (is_read) {
+		*data = via_rtc_recv();
+	} else {
+		via_rtc_send(*data);
+>>>>>>> upstream/android-13
 	}
 
 	/* All done, disable the RTC */
@@ -233,6 +333,7 @@ static void via_pram_command(int command, __u8 *data)
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 static __u8 via_read_pram(int offset)
 {
 	return 0;
@@ -241,6 +342,32 @@ static __u8 via_read_pram(int offset)
 static void via_write_pram(int offset, __u8 data)
 {
 }
+=======
+#if IS_ENABLED(CONFIG_NVRAM)
+static unsigned char via_pram_read_byte(int offset)
+{
+	unsigned char temp;
+
+	via_rtc_command(RTC_CMD_XPRAM_READ | RTC_CMD_XPRAM_ARG(offset), &temp);
+
+	return temp;
+}
+
+static void via_pram_write_byte(unsigned char data, int offset)
+{
+	unsigned char temp;
+
+	temp = 0x55;
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_WRITE_PROTECT), &temp);
+
+	temp = data;
+	via_rtc_command(RTC_CMD_XPRAM_WRITE | RTC_CMD_XPRAM_ARG(offset), &temp);
+
+	temp = 0x55 | RTC_FLG_WRITE_PROTECT;
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_WRITE_PROTECT), &temp);
+}
+#endif /* CONFIG_NVRAM */
+>>>>>>> upstream/android-13
 
 /*
  * Return the current time in seconds since January 1, 1904.
@@ -257,10 +384,17 @@ static time64_t via_read_time(void)
 	} result, last_result;
 	int count = 1;
 
+<<<<<<< HEAD
 	via_pram_command(0x81, &last_result.cdata[3]);
 	via_pram_command(0x85, &last_result.cdata[2]);
 	via_pram_command(0x89, &last_result.cdata[1]);
 	via_pram_command(0x8D, &last_result.cdata[0]);
+=======
+	via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_0), &last_result.cdata[3]);
+	via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_1), &last_result.cdata[2]);
+	via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_2), &last_result.cdata[1]);
+	via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_3), &last_result.cdata[0]);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The NetBSD guys say to loop until you get the same reading
@@ -268,10 +402,21 @@ static time64_t via_read_time(void)
 	 */
 
 	while (1) {
+<<<<<<< HEAD
 		via_pram_command(0x81, &result.cdata[3]);
 		via_pram_command(0x85, &result.cdata[2]);
 		via_pram_command(0x89, &result.cdata[1]);
 		via_pram_command(0x8D, &result.cdata[0]);
+=======
+		via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_0),
+		                &result.cdata[3]);
+		via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_1),
+		                &result.cdata[2]);
+		via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_2),
+		                &result.cdata[1]);
+		via_rtc_command(RTC_CMD_READ(RTC_REG_SECONDS_3),
+		                &result.cdata[0]);
+>>>>>>> upstream/android-13
 
 		if (result.idata == last_result.idata)
 			return (time64_t)result.idata - RTC_OFFSET;
@@ -295,17 +440,29 @@ static time64_t via_read_time(void)
  * is basically any machine with Mac II-style ADB.
  */
 
+<<<<<<< HEAD
 static void via_write_time(time64_t time)
+=======
+static void via_set_rtc_time(struct rtc_time *tm)
+>>>>>>> upstream/android-13
 {
 	union {
 		__u8 cdata[4];
 		__u32 idata;
 	} data;
 	__u8 temp;
+<<<<<<< HEAD
+=======
+	time64_t time;
+
+	time = mktime64(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+	                tm->tm_hour, tm->tm_min, tm->tm_sec);
+>>>>>>> upstream/android-13
 
 	/* Clear the write protect bit */
 
 	temp = 0x55;
+<<<<<<< HEAD
 	via_pram_command(0x35, &temp);
 
 	data.idata = lower_32_bits(time + RTC_OFFSET);
@@ -318,6 +475,20 @@ static void via_write_time(time64_t time)
 
 	temp = 0xD5;
 	via_pram_command(0x35, &temp);
+=======
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_WRITE_PROTECT), &temp);
+
+	data.idata = lower_32_bits(time + RTC_OFFSET);
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_SECONDS_0), &data.cdata[3]);
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_SECONDS_1), &data.cdata[2]);
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_SECONDS_2), &data.cdata[1]);
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_SECONDS_3), &data.cdata[0]);
+
+	/* Set the write protect bit */
+
+	temp = 0x55 | RTC_FLG_WRITE_PROTECT;
+	via_rtc_command(RTC_CMD_WRITE(RTC_REG_WRITE_PROTECT), &temp);
+>>>>>>> upstream/android-13
 }
 
 static void via_shutdown(void)
@@ -378,15 +549,22 @@ static void cuda_shutdown(void)
  *-------------------------------------------------------------------
  */
 
+<<<<<<< HEAD
 void mac_pram_read(int offset, __u8 *buffer, int len)
 {
 	__u8 (*func)(int);
 	int i;
 
+=======
+#if IS_ENABLED(CONFIG_NVRAM)
+unsigned char mac_pram_read_byte(int addr)
+{
+>>>>>>> upstream/android-13
 	switch (macintosh_config->adb_type) {
 	case MAC_ADB_IOP:
 	case MAC_ADB_II:
 	case MAC_ADB_PB1:
+<<<<<<< HEAD
 		func = via_read_pram;
 		break;
 #ifdef CONFIG_ADB_CUDA
@@ -413,20 +591,48 @@ void mac_pram_write(int offset, __u8 *buffer, int len)
 	void (*func)(int, __u8);
 	int i;
 
+=======
+		return via_pram_read_byte(addr);
+#ifdef CONFIG_ADB_CUDA
+	case MAC_ADB_EGRET:
+	case MAC_ADB_CUDA:
+		return cuda_pram_read_byte(addr);
+#endif
+#ifdef CONFIG_ADB_PMU
+	case MAC_ADB_PB2:
+		return pmu_pram_read_byte(addr);
+#endif
+	default:
+		return 0xFF;
+	}
+}
+
+void mac_pram_write_byte(unsigned char val, int addr)
+{
+>>>>>>> upstream/android-13
 	switch (macintosh_config->adb_type) {
 	case MAC_ADB_IOP:
 	case MAC_ADB_II:
 	case MAC_ADB_PB1:
+<<<<<<< HEAD
 		func = via_write_pram;
+=======
+		via_pram_write_byte(val, addr);
+>>>>>>> upstream/android-13
 		break;
 #ifdef CONFIG_ADB_CUDA
 	case MAC_ADB_EGRET:
 	case MAC_ADB_CUDA:
+<<<<<<< HEAD
 		func = cuda_write_pram;
+=======
+		cuda_pram_write_byte(val, addr);
+>>>>>>> upstream/android-13
 		break;
 #endif
 #ifdef CONFIG_ADB_PMU
 	case MAC_ADB_PB2:
+<<<<<<< HEAD
 		func = pmu_write_pram;
 		break;
 #endif
@@ -438,6 +644,22 @@ void mac_pram_write(int offset, __u8 *buffer, int len)
 	}
 }
 
+=======
+		pmu_pram_write_byte(val, addr);
+		break;
+#endif
+	default:
+		break;
+	}
+}
+
+ssize_t mac_pram_get_size(void)
+{
+	return 256;
+}
+#endif /* CONFIG_NVRAM */
+
+>>>>>>> upstream/android-13
 void mac_poweroff(void)
 {
 	if (oss_present) {
@@ -462,9 +684,14 @@ void mac_poweroff(void)
 
 void mac_reset(void)
 {
+<<<<<<< HEAD
 	if (macintosh_config->adb_type == MAC_ADB_II) {
 		unsigned long flags;
 
+=======
+	if (macintosh_config->adb_type == MAC_ADB_II &&
+	    macintosh_config->ident != MAC_MODEL_SE30) {
+>>>>>>> upstream/android-13
 		/* need ROMBASE in booter */
 		/* indeed, plus need to MAP THE ROM !! */
 
@@ -474,6 +701,7 @@ void mac_reset(void)
 		/* works on some */
 		rom_reset = (void *) (mac_bi_data.rombase + 0xa);
 
+<<<<<<< HEAD
 		if (macintosh_config->ident == MAC_MODEL_SE30) {
 			/*
 			 * MSch: Machines known to crash on ROM reset ...
@@ -485,6 +713,10 @@ void mac_reset(void)
 
 			local_irq_restore(flags);
 		}
+=======
+		local_irq_disable();
+		rom_reset();
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ADB_CUDA
 	} else if (macintosh_config->adb_type == MAC_ADB_EGRET ||
 	           macintosh_config->adb_type == MAC_ADB_CUDA) {
@@ -641,12 +873,20 @@ int mac_hwclk(int op, struct rtc_time *t)
 #ifdef CONFIG_ADB_CUDA
 		case MAC_ADB_EGRET:
 		case MAC_ADB_CUDA:
+<<<<<<< HEAD
 			now = cuda_read_time();
+=======
+			now = cuda_get_time();
+>>>>>>> upstream/android-13
 			break;
 #endif
 #ifdef CONFIG_ADB_PMU
 		case MAC_ADB_PB2:
+<<<<<<< HEAD
 			now = pmu_read_time();
+=======
+			now = pmu_get_time();
+>>>>>>> upstream/android-13
 			break;
 #endif
 		default:
@@ -657,6 +897,7 @@ int mac_hwclk(int op, struct rtc_time *t)
 		unmktime(now, 0,
 			 &t->tm_year, &t->tm_mon, &t->tm_mday,
 			 &t->tm_hour, &t->tm_min, &t->tm_sec);
+<<<<<<< HEAD
 		pr_debug("%s: read %04d-%02d-%-2d %02d:%02d:%02d\n",
 		         __func__, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
 		         t->tm_hour, t->tm_min, t->tm_sec);
@@ -667,22 +908,39 @@ int mac_hwclk(int op, struct rtc_time *t)
 
 		now = mktime64(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
 			       t->tm_hour, t->tm_min, t->tm_sec);
+=======
+		pr_debug("%s: read %ptR\n", __func__, t);
+	} else { /* write */
+		pr_debug("%s: tried to write %ptR\n", __func__, t);
+>>>>>>> upstream/android-13
 
 		switch (macintosh_config->adb_type) {
 		case MAC_ADB_IOP:
 		case MAC_ADB_II:
 		case MAC_ADB_PB1:
+<<<<<<< HEAD
 			via_write_time(now);
+=======
+			via_set_rtc_time(t);
+>>>>>>> upstream/android-13
 			break;
 #ifdef CONFIG_ADB_CUDA
 		case MAC_ADB_EGRET:
 		case MAC_ADB_CUDA:
+<<<<<<< HEAD
 			cuda_write_time(now);
+=======
+			cuda_set_rtc_time(t);
+>>>>>>> upstream/android-13
 			break;
 #endif
 #ifdef CONFIG_ADB_PMU
 		case MAC_ADB_PB2:
+<<<<<<< HEAD
 			pmu_write_time(now);
+=======
+			pmu_set_rtc_time(t);
+>>>>>>> upstream/android-13
 			break;
 #endif
 		default:

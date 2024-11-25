@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2009 Gabor Juhos <juhosg@openwrt.org>
  *  Copyright (C) 2010 Joonas Lahtinen <joonas.lahtinen@gmail.com>
@@ -20,7 +25,10 @@
 #include "common.h"
 
 struct ralink_soc_info soc_info;
+<<<<<<< HEAD
 struct rt2880_pmx_group *rt2880_pinmux_data = NULL;
+=======
+>>>>>>> upstream/android-13
 
 enum ralink_soc_type ralink_soc;
 EXPORT_SYMBOL_GPL(ralink_soc);
@@ -68,7 +76,10 @@ void __init prom_init(void)
 
 	prom_init_cmdline();
 }
+<<<<<<< HEAD
 
 void __init prom_free_prom_memory(void)
 {
 }
+=======
+>>>>>>> upstream/android-13

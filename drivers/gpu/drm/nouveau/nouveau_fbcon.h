@@ -31,8 +31,15 @@
 
 #include "nouveau_display.h"
 
+<<<<<<< HEAD
 struct nouveau_fbdev {
 	struct drm_fb_helper helper;
+=======
+struct nouveau_vma;
+
+struct nouveau_fbdev {
+	struct drm_fb_helper helper; /* must be first */
+>>>>>>> upstream/android-13
 	unsigned int saved_flags;
 	struct nvif_object surf2d;
 	struct nvif_object clip;
@@ -41,6 +48,10 @@ struct nouveau_fbdev {
 	struct nvif_object gdi;
 	struct nvif_object blit;
 	struct nvif_object twod;
+<<<<<<< HEAD
+=======
+	struct nouveau_vma *vma;
+>>>>>>> upstream/android-13
 
 	struct mutex hotplug_lock;
 	bool hotplug_waiting;

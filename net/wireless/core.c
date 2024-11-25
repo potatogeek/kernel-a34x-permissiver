@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This is the linux wireless configuration interface.
  *
  * Copyright 2006-2010		Johannes Berg <johannes@sipsolutions.net>
  * Copyright 2013-2014  Intel Mobile Communications GmbH
  * Copyright 2015-2017	Intel Deutschland GmbH
+<<<<<<< HEAD
+=======
+ * Copyright (C) 2018-2022 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -140,12 +148,19 @@ int cfg80211_dev_rename(struct cfg80211_registered_device *rdev,
 	if (result)
 		return result;
 
+<<<<<<< HEAD
 	if (rdev->wiphy.debugfsdir &&
 	    !debugfs_rename(rdev->wiphy.debugfsdir->d_parent,
 			    rdev->wiphy.debugfsdir,
 			    rdev->wiphy.debugfsdir->d_parent,
 			    newname))
 		pr_err("failed to rename debugfs dir to %s!\n", newname);
+=======
+	if (!IS_ERR_OR_NULL(rdev->wiphy.debugfsdir))
+		debugfs_rename(rdev->wiphy.debugfsdir->d_parent,
+			       rdev->wiphy.debugfsdir,
+			       rdev->wiphy.debugfsdir->d_parent, newname);
+>>>>>>> upstream/android-13
 
 	nl80211_notify_wiphy(rdev, NL80211_CMD_NEW_WIPHY);
 
@@ -190,11 +205,31 @@ int cfg80211_switch_netns(struct cfg80211_registered_device *rdev,
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
+		if (!wdev->netdev)
+			continue;
+		nl80211_notify_iface(rdev, wdev, NL80211_CMD_DEL_INTERFACE);
+	}
+	nl80211_notify_wiphy(rdev, NL80211_CMD_DEL_WIPHY);
+
+>>>>>>> upstream/android-13
 	wiphy_net_set(&rdev->wiphy, net);
 
 	err = device_rename(&rdev->wiphy.dev, dev_name(&rdev->wiphy.dev));
 	WARN_ON(err);
 
+<<<<<<< HEAD
+=======
+	nl80211_notify_wiphy(rdev, NL80211_CMD_NEW_WIPHY);
+	list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
+		if (!wdev->netdev)
+			continue;
+		nl80211_notify_iface(rdev, wdev, NL80211_CMD_NEW_INTERFACE);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -208,7 +243,11 @@ static void cfg80211_rfkill_poll(struct rfkill *rfkill, void *data)
 void cfg80211_stop_p2p_device(struct cfg80211_registered_device *rdev,
 			      struct wireless_dev *wdev)
 {
+<<<<<<< HEAD
 	ASSERT_RTNL();
+=======
+	lockdep_assert_held(&rdev->wiphy.mtx);
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_P2P_DEVICE))
 		return;
@@ -222,7 +261,13 @@ void cfg80211_stop_p2p_device(struct cfg80211_registered_device *rdev,
 	rdev->opencount--;
 
 	if (rdev->scan_req && rdev->scan_req->wdev == wdev) {
+<<<<<<< HEAD
 		if (WARN_ON(!rdev->scan_req->notified))
+=======
+		if (WARN_ON(!rdev->scan_req->notified &&
+			    (!rdev->int_scan_req ||
+			     !rdev->int_scan_req->notified)))
+>>>>>>> upstream/android-13
 			rdev->scan_req->info.aborted = true;
 		___cfg80211_scan_done(rdev, false);
 	}
@@ -231,7 +276,11 @@ void cfg80211_stop_p2p_device(struct cfg80211_registered_device *rdev,
 void cfg80211_stop_nan(struct cfg80211_registered_device *rdev,
 		       struct wireless_dev *wdev)
 {
+<<<<<<< HEAD
 	ASSERT_RTNL();
+=======
+	lockdep_assert_held(&rdev->wiphy.mtx);
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_NAN))
 		return;
@@ -257,7 +306,15 @@ void cfg80211_shutdown_all_interfaces(struct wiphy *wiphy)
 			dev_close(wdev->netdev);
 			continue;
 		}
+<<<<<<< HEAD
 		/* otherwise, check iftype */
+=======
+
+		/* otherwise, check iftype */
+
+		wiphy_lock(wiphy);
+
+>>>>>>> upstream/android-13
 		switch (wdev->iftype) {
 		case NL80211_IFTYPE_P2P_DEVICE:
 			cfg80211_stop_p2p_device(rdev, wdev);
@@ -268,6 +325,11 @@ void cfg80211_shutdown_all_interfaces(struct wiphy *wiphy)
 		default:
 			break;
 		}
+<<<<<<< HEAD
+=======
+
+		wiphy_unlock(wiphy);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL_GPL(cfg80211_shutdown_all_interfaces);
@@ -286,12 +348,22 @@ static int cfg80211_rfkill_set_block(void *data, bool blocked)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cfg80211_rfkill_sync_work(struct work_struct *work)
 {
 	struct cfg80211_registered_device *rdev;
 
 	rdev = container_of(work, struct cfg80211_registered_device, rfkill_sync);
 	cfg80211_rfkill_set_block(rdev, rfkill_blocked(rdev->rfkill));
+=======
+static void cfg80211_rfkill_block_work(struct work_struct *work)
+{
+	struct cfg80211_registered_device *rdev;
+
+	rdev = container_of(work, struct cfg80211_registered_device,
+			    rfkill_block);
+	cfg80211_rfkill_set_block(rdev, true);
+>>>>>>> upstream/android-13
 }
 
 static void cfg80211_event_work(struct work_struct *work)
@@ -301,9 +373,15 @@ static void cfg80211_event_work(struct work_struct *work)
 	rdev = container_of(work, struct cfg80211_registered_device,
 			    event_work);
 
+<<<<<<< HEAD
 	rtnl_lock();
 	cfg80211_process_rdev_events(rdev);
 	rtnl_unlock();
+=======
+	wiphy_lock(&rdev->wiphy);
+	cfg80211_process_rdev_events(rdev);
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 }
 
 void cfg80211_destroy_ifaces(struct cfg80211_registered_device *rdev)
@@ -313,8 +391,20 @@ void cfg80211_destroy_ifaces(struct cfg80211_registered_device *rdev)
 	ASSERT_RTNL();
 
 	list_for_each_entry_safe(wdev, tmp, &rdev->wiphy.wdev_list, list) {
+<<<<<<< HEAD
 		if (wdev->nl_owner_dead)
 			rdev_del_virtual_intf(rdev, wdev);
+=======
+		if (wdev->nl_owner_dead) {
+			if (wdev->netdev)
+				dev_close(wdev->netdev);
+
+			wiphy_lock(&rdev->wiphy);
+			cfg80211_leave(rdev, wdev);
+			rdev_del_virtual_intf(rdev, wdev);
+			wiphy_unlock(&rdev->wiphy);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -458,6 +548,10 @@ use_default_name:
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_init(&rdev->wiphy.mtx);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&rdev->wiphy.wdev_list);
 	INIT_LIST_HEAD(&rdev->beacon_registrations);
 	spin_lock_init(&rdev->beacon_registrations_lock);
@@ -465,9 +559,12 @@ use_default_name:
 	INIT_LIST_HEAD(&rdev->bss_list);
 	INIT_LIST_HEAD(&rdev->sched_scan_req_list);
 	INIT_WORK(&rdev->scan_done_wk, __cfg80211_scan_done);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&rdev->mlme_unreg);
 	spin_lock_init(&rdev->mlme_unreg_lock);
 	INIT_WORK(&rdev->mlme_unreg_wk, cfg80211_mlme_unreg_wk);
+=======
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&rdev->dfs_update_channels_wk,
 			  cfg80211_dfs_channels_update_work);
 #ifdef CONFIG_CFG80211_WEXT
@@ -485,6 +582,12 @@ use_default_name:
 	INIT_WORK(&rdev->propagate_radar_detect_wk,
 		  cfg80211_propagate_radar_detect_wk);
 	INIT_WORK(&rdev->propagate_cac_done_wk, cfg80211_propagate_cac_done_wk);
+<<<<<<< HEAD
+=======
+	INIT_WORK(&rdev->mgmt_registrations_update_wk,
+		  cfg80211_mgmt_registrations_update_wk);
+	spin_lock_init(&rdev->mgmt_registrations_lock);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CFG80211_DEFAULT_PS
 	rdev->wiphy.flags |= WIPHY_FLAG_PS_ON_BY_DEFAULT;
@@ -493,18 +596,36 @@ use_default_name:
 	wiphy_net_set(&rdev->wiphy, &init_net);
 
 	rdev->rfkill_ops.set_block = cfg80211_rfkill_set_block;
+<<<<<<< HEAD
 	rdev->rfkill = rfkill_alloc(dev_name(&rdev->wiphy.dev),
 				   &rdev->wiphy.dev, RFKILL_TYPE_WLAN,
 				   &rdev->rfkill_ops, rdev);
 
 	if (!rdev->rfkill) {
+=======
+	rdev->wiphy.rfkill = rfkill_alloc(dev_name(&rdev->wiphy.dev),
+					  &rdev->wiphy.dev, RFKILL_TYPE_WLAN,
+					  &rdev->rfkill_ops, rdev);
+
+	if (!rdev->wiphy.rfkill) {
+>>>>>>> upstream/android-13
 		wiphy_free(&rdev->wiphy);
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	INIT_WORK(&rdev->rfkill_sync, cfg80211_rfkill_sync_work);
 	INIT_WORK(&rdev->conn_work, cfg80211_conn_work);
 	INIT_WORK(&rdev->event_work, cfg80211_event_work);
+=======
+	INIT_WORK(&rdev->rfkill_block, cfg80211_rfkill_block_work);
+	INIT_WORK(&rdev->conn_work, cfg80211_conn_work);
+	INIT_WORK(&rdev->event_work, cfg80211_event_work);
+	INIT_WORK(&rdev->background_cac_abort_wk,
+		  cfg80211_background_cac_abort_wk);
+	INIT_DELAYED_WORK(&rdev->background_cac_done_wk,
+			  cfg80211_background_cac_done_wk);
+>>>>>>> upstream/android-13
 
 	init_waitqueue_head(&rdev->dev_wait);
 
@@ -550,6 +671,7 @@ static int wiphy_verify_combinations(struct wiphy *wiphy)
 		if (WARN_ON(!c->num_different_channels))
 			return -EINVAL;
 
+<<<<<<< HEAD
 		/*
 		 * Put a sane limit on maximum number of different
 		 * channels to simplify channel accounting code.
@@ -558,6 +680,8 @@ static int wiphy_verify_combinations(struct wiphy *wiphy)
 				CFG80211_MAX_NUM_DIFFERENT_CHANNELS))
 			return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 		/* DFS only works on one channel. */
 		if (WARN_ON(c->radar_detect_widths &&
 			    (c->num_different_channels > 1)))
@@ -615,10 +739,15 @@ static int wiphy_verify_combinations(struct wiphy *wiphy)
 				return -EINVAL;
 		}
 
+<<<<<<< HEAD
 #ifndef CONFIG_WIRELESS_WDS
 		if (WARN_ON(all_iftypes & BIT(NL80211_IFTYPE_WDS)))
 			return -EINVAL;
 #endif
+=======
+		if (WARN_ON(all_iftypes & BIT(NL80211_IFTYPE_WDS)))
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		/* You can't even choose that many! */
 		if (WARN_ON(cnt < c->max_interfaces))
@@ -659,10 +788,49 @@ int wiphy_register(struct wiphy *wiphy)
 		     !(wiphy->nan_supported_bands & BIT(NL80211_BAND_2GHZ)))))
 		return -EINVAL;
 
+<<<<<<< HEAD
 #ifndef CONFIG_WIRELESS_WDS
 	if (WARN_ON(wiphy->interface_modes & BIT(NL80211_IFTYPE_WDS)))
 		return -EINVAL;
 #endif
+=======
+	if (WARN_ON(wiphy->interface_modes & BIT(NL80211_IFTYPE_WDS)))
+		return -EINVAL;
+
+	if (WARN_ON(wiphy->pmsr_capa && !wiphy->pmsr_capa->ftm.supported))
+		return -EINVAL;
+
+	if (wiphy->pmsr_capa && wiphy->pmsr_capa->ftm.supported) {
+		if (WARN_ON(!wiphy->pmsr_capa->ftm.asap &&
+			    !wiphy->pmsr_capa->ftm.non_asap))
+			return -EINVAL;
+		if (WARN_ON(!wiphy->pmsr_capa->ftm.preambles ||
+			    !wiphy->pmsr_capa->ftm.bandwidths))
+			return -EINVAL;
+		if (WARN_ON(wiphy->pmsr_capa->ftm.preambles &
+				~(BIT(NL80211_PREAMBLE_LEGACY) |
+				  BIT(NL80211_PREAMBLE_HT) |
+				  BIT(NL80211_PREAMBLE_VHT) |
+				  BIT(NL80211_PREAMBLE_HE) |
+				  BIT(NL80211_PREAMBLE_DMG))))
+			return -EINVAL;
+		if (WARN_ON((wiphy->pmsr_capa->ftm.trigger_based ||
+			     wiphy->pmsr_capa->ftm.non_trigger_based) &&
+			    !(wiphy->pmsr_capa->ftm.preambles &
+			      BIT(NL80211_PREAMBLE_HE))))
+			return -EINVAL;
+		if (WARN_ON(wiphy->pmsr_capa->ftm.bandwidths &
+				~(BIT(NL80211_CHAN_WIDTH_20_NOHT) |
+				  BIT(NL80211_CHAN_WIDTH_20) |
+				  BIT(NL80211_CHAN_WIDTH_40) |
+				  BIT(NL80211_CHAN_WIDTH_80) |
+				  BIT(NL80211_CHAN_WIDTH_80P80) |
+				  BIT(NL80211_CHAN_WIDTH_160) |
+				  BIT(NL80211_CHAN_WIDTH_5) |
+				  BIT(NL80211_CHAN_WIDTH_10))))
+			return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * if a wiphy has unsupported modes for regulatory channel enforcement,
@@ -745,6 +913,10 @@ int wiphy_register(struct wiphy *wiphy)
 	/* sanity check supported bands/channels */
 	for (band = 0; band < NUM_NL80211_BANDS; band++) {
 		u16 types = 0;
+<<<<<<< HEAD
+=======
+		bool have_he = false;
+>>>>>>> upstream/android-13
 
 		sband = wiphy->bands[band];
 		if (!sband)
@@ -754,6 +926,7 @@ int wiphy_register(struct wiphy *wiphy)
 		if (WARN_ON(!sband->n_channels))
 			return -EINVAL;
 		/*
+<<<<<<< HEAD
 		 * on 60GHz band, there are no legacy rates, so
 		 * n_bitrates is 0
 		 */
@@ -761,6 +934,21 @@ int wiphy_register(struct wiphy *wiphy)
 			    !sband->n_bitrates))
 			return -EINVAL;
 
+=======
+		 * on 60GHz or sub-1Ghz band, there are no legacy rates, so
+		 * n_bitrates is 0
+		 */
+		if (WARN_ON((band != NL80211_BAND_60GHZ &&
+			     band != NL80211_BAND_S1GHZ) &&
+			    !sband->n_bitrates))
+			return -EINVAL;
+
+		if (WARN_ON(band == NL80211_BAND_6GHZ &&
+			    (sband->ht_cap.ht_supported ||
+			     sband->vht_cap.vht_supported)))
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Since cfg80211_disable_40mhz_24ghz is global, we can
 		 * modify the sband's ht data even if the driver uses a
@@ -788,6 +976,12 @@ int wiphy_register(struct wiphy *wiphy)
 			sband->channels[i].orig_mpwr =
 				sband->channels[i].max_power;
 			sband->channels[i].band = band;
+<<<<<<< HEAD
+=======
+
+			if (WARN_ON(sband->channels[i].freq_offset >= 1000))
+				return -EINVAL;
+>>>>>>> upstream/android-13
 		}
 
 		for (i = 0; i < sband->n_iftype_data; i++) {
@@ -805,8 +999,22 @@ int wiphy_register(struct wiphy *wiphy)
 				return -EINVAL;
 
 			types |= iftd->types_mask;
+<<<<<<< HEAD
 		}
 
+=======
+
+			if (i == 0)
+				have_he = iftd->he_cap.has_he;
+			else
+				have_he = have_he &&
+					  iftd->he_cap.has_he;
+		}
+
+		if (WARN_ON(!have_he && band == NL80211_BAND_6GHZ))
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		have_band = true;
 	}
 
@@ -815,6 +1023,22 @@ int wiphy_register(struct wiphy *wiphy)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < rdev->wiphy.n_vendor_commands; i++) {
+		/*
+		 * Validate we have a policy (can be explicitly set to
+		 * VENDOR_CMD_RAW_DATA which is non-NULL) and also that
+		 * we have at least one of doit/dumpit.
+		 */
+		if (WARN_ON(!rdev->wiphy.vendor_commands[i].policy))
+			return -EINVAL;
+		if (WARN_ON(!rdev->wiphy.vendor_commands[i].doit &&
+			    !rdev->wiphy.vendor_commands[i].dumpit))
+			return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	if (WARN_ON(rdev->wiphy.wowlan && rdev->wiphy.wowlan->n_patterns &&
 		    (!rdev->wiphy.wowlan->pattern_min_len ||
@@ -823,6 +1047,15 @@ int wiphy_register(struct wiphy *wiphy)
 		return -EINVAL;
 #endif
 
+<<<<<<< HEAD
+=======
+	if (!wiphy->max_num_akm_suites)
+		wiphy->max_num_akm_suites = NL80211_MAX_NR_AKM_SUITES;
+	else if (wiphy->max_num_akm_suites < NL80211_MAX_NR_AKM_SUITES ||
+		 wiphy->max_num_akm_suites > CFG80211_MAX_NUM_AKM_SUITES)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* check and set up bitrates */
 	ieee80211_set_bitrate_flags(wiphy);
 
@@ -835,22 +1068,36 @@ int wiphy_register(struct wiphy *wiphy)
 		return res;
 	}
 
+<<<<<<< HEAD
 	/* set up regulatory info */
 	wiphy_regulatory_register(wiphy);
 
+=======
+>>>>>>> upstream/android-13
 	list_add_rcu(&rdev->list, &cfg80211_rdev_list);
 	cfg80211_rdev_list_generation++;
 
 	/* add to debugfs */
+<<<<<<< HEAD
 	rdev->wiphy.debugfsdir =
 		debugfs_create_dir(wiphy_name(&rdev->wiphy),
 				   ieee80211_debugfs_dir);
 	if (IS_ERR(rdev->wiphy.debugfsdir))
 		rdev->wiphy.debugfsdir = NULL;
+=======
+	rdev->wiphy.debugfsdir = debugfs_create_dir(wiphy_name(&rdev->wiphy),
+						    ieee80211_debugfs_dir);
+>>>>>>> upstream/android-13
 
 	cfg80211_debugfs_rdev_add(rdev);
 	nl80211_notify_wiphy(rdev, NL80211_CMD_NEW_WIPHY);
 
+<<<<<<< HEAD
+=======
+	/* set up regulatory info */
+	wiphy_regulatory_register(wiphy);
+
+>>>>>>> upstream/android-13
 	if (wiphy->regulatory_flags & REGULATORY_CUSTOM_REG) {
 		struct regulatory_request request;
 
@@ -895,10 +1142,17 @@ int wiphy_register(struct wiphy *wiphy)
 	rdev->wiphy.registered = true;
 	rtnl_unlock();
 
+<<<<<<< HEAD
 	res = rfkill_register(rdev->rfkill);
 	if (res) {
 		rfkill_destroy(rdev->rfkill);
 		rdev->rfkill = NULL;
+=======
+	res = rfkill_register(rdev->wiphy.rfkill);
+	if (res) {
+		rfkill_destroy(rdev->wiphy.rfkill);
+		rdev->wiphy.rfkill = NULL;
+>>>>>>> upstream/android-13
 		wiphy_unregister(&rdev->wiphy);
 		return res;
 	}
@@ -914,6 +1168,7 @@ void wiphy_rfkill_start_polling(struct wiphy *wiphy)
 	if (!rdev->ops->rfkill_poll)
 		return;
 	rdev->rfkill_ops.poll = cfg80211_rfkill_poll;
+<<<<<<< HEAD
 	rfkill_resume_polling(rdev->rfkill);
 }
 EXPORT_SYMBOL(wiphy_rfkill_start_polling);
@@ -926,12 +1181,19 @@ void wiphy_rfkill_stop_polling(struct wiphy *wiphy)
 }
 EXPORT_SYMBOL(wiphy_rfkill_stop_polling);
 
+=======
+	rfkill_resume_polling(wiphy->rfkill);
+}
+EXPORT_SYMBOL(wiphy_rfkill_start_polling);
+
+>>>>>>> upstream/android-13
 void wiphy_unregister(struct wiphy *wiphy)
 {
 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wiphy);
 
 	wait_event(rdev->dev_wait, ({
 		int __count;
+<<<<<<< HEAD
 		rtnl_lock();
 		__count = rdev->opencount;
 		rtnl_unlock();
@@ -941,6 +1203,18 @@ void wiphy_unregister(struct wiphy *wiphy)
 		rfkill_unregister(rdev->rfkill);
 
 	rtnl_lock();
+=======
+		wiphy_lock(&rdev->wiphy);
+		__count = rdev->opencount;
+		wiphy_unlock(&rdev->wiphy);
+		__count == 0; }));
+
+	if (rdev->wiphy.rfkill)
+		rfkill_unregister(rdev->wiphy.rfkill);
+
+	rtnl_lock();
+	wiphy_lock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	nl80211_notify_wiphy(rdev, NL80211_CMD_DEL_WIPHY);
 	rdev->wiphy.registered = false;
 
@@ -963,17 +1237,31 @@ void wiphy_unregister(struct wiphy *wiphy)
 	cfg80211_rdev_list_generation++;
 	device_del(&rdev->wiphy.dev);
 
+<<<<<<< HEAD
+=======
+	wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 
 	flush_work(&rdev->scan_done_wk);
 	cancel_work_sync(&rdev->conn_work);
 	flush_work(&rdev->event_work);
 	cancel_delayed_work_sync(&rdev->dfs_update_channels_wk);
+<<<<<<< HEAD
 	flush_work(&rdev->destroy_work);
 	flush_work(&rdev->sched_scan_stop_wk);
 	flush_work(&rdev->mlme_unreg_wk);
 	flush_work(&rdev->propagate_radar_detect_wk);
 	flush_work(&rdev->propagate_cac_done_wk);
+=======
+	cancel_delayed_work_sync(&rdev->background_cac_done_wk);
+	flush_work(&rdev->destroy_work);
+	flush_work(&rdev->sched_scan_stop_wk);
+	flush_work(&rdev->propagate_radar_detect_wk);
+	flush_work(&rdev->propagate_cac_done_wk);
+	flush_work(&rdev->mgmt_registrations_update_wk);
+	flush_work(&rdev->background_cac_abort_wk);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 	if (rdev->wiphy.wowlan_config && rdev->ops->set_wakeup)
@@ -988,13 +1276,31 @@ void cfg80211_dev_free(struct cfg80211_registered_device *rdev)
 {
 	struct cfg80211_internal_bss *scan, *tmp;
 	struct cfg80211_beacon_registration *reg, *treg;
+<<<<<<< HEAD
 	rfkill_destroy(rdev->rfkill);
+=======
+	rfkill_destroy(rdev->wiphy.rfkill);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(reg, treg, &rdev->beacon_registrations, list) {
 		list_del(&reg->list);
 		kfree(reg);
 	}
 	list_for_each_entry_safe(scan, tmp, &rdev->bss_list, list)
 		cfg80211_put_bss(&rdev->wiphy, &scan->pub);
+<<<<<<< HEAD
+=======
+	mutex_destroy(&rdev->wiphy.mtx);
+
+	/*
+	 * The 'regd' can only be non-NULL if we never finished
+	 * initializing the wiphy and thus never went through the
+	 * unregister path - e.g. in failure scenarios. Thus, it
+	 * cannot have been visible to anyone if non-NULL, so we
+	 * can just free it here.
+	 */
+	kfree(rcu_dereference_raw(rdev->wiphy.regd));
+
+>>>>>>> upstream/android-13
 	kfree(rdev);
 }
 
@@ -1004,6 +1310,7 @@ void wiphy_free(struct wiphy *wiphy)
 }
 EXPORT_SYMBOL(wiphy_free);
 
+<<<<<<< HEAD
 void wiphy_rfkill_set_hw_state(struct wiphy *wiphy, bool blocked)
 {
 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wiphy);
@@ -1012,6 +1319,17 @@ void wiphy_rfkill_set_hw_state(struct wiphy *wiphy, bool blocked)
 		schedule_work(&rdev->rfkill_sync);
 }
 EXPORT_SYMBOL(wiphy_rfkill_set_hw_state);
+=======
+void wiphy_rfkill_set_hw_state_reason(struct wiphy *wiphy, bool blocked,
+				      enum rfkill_hard_block_reasons reason)
+{
+	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wiphy);
+
+	if (rfkill_set_hw_state_reason(wiphy->rfkill, blocked, reason))
+		schedule_work(&rdev->rfkill_block);
+}
+EXPORT_SYMBOL(wiphy_rfkill_set_hw_state_reason);
+>>>>>>> upstream/android-13
 
 void cfg80211_cqm_config_free(struct wireless_dev *wdev)
 {
@@ -1019,6 +1337,7 @@ void cfg80211_cqm_config_free(struct wireless_dev *wdev)
 	wdev->cqm_config = NULL;
 }
 
+<<<<<<< HEAD
 void cfg80211_unregister_wdev(struct wireless_dev *wdev)
 {
 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
@@ -1037,17 +1356,91 @@ void cfg80211_unregister_wdev(struct wireless_dev *wdev)
 	switch (wdev->iftype) {
 	case NL80211_IFTYPE_P2P_DEVICE:
 		cfg80211_mlme_purge_registrations(wdev);
+=======
+static void _cfg80211_unregister_wdev(struct wireless_dev *wdev,
+				      bool unregister_netdev)
+{
+	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
+	unsigned int link_id;
+
+	ASSERT_RTNL();
+	lockdep_assert_held(&rdev->wiphy.mtx);
+
+	flush_work(&wdev->pmsr_free_wk);
+
+	nl80211_notify_iface(rdev, wdev, NL80211_CMD_DEL_INTERFACE);
+
+	wdev->registered = false;
+
+	if (wdev->netdev) {
+		sysfs_remove_link(&wdev->netdev->dev.kobj, "phy80211");
+		if (unregister_netdev)
+			unregister_netdevice(wdev->netdev);
+	}
+
+	list_del_rcu(&wdev->list);
+	synchronize_net();
+	rdev->devlist_generation++;
+
+	cfg80211_mlme_purge_registrations(wdev);
+
+	switch (wdev->iftype) {
+	case NL80211_IFTYPE_P2P_DEVICE:
+>>>>>>> upstream/android-13
 		cfg80211_stop_p2p_device(rdev, wdev);
 		break;
 	case NL80211_IFTYPE_NAN:
 		cfg80211_stop_nan(rdev, wdev);
 		break;
 	default:
+<<<<<<< HEAD
 		WARN_ON_ONCE(1);
 		break;
 	}
 
 	cfg80211_cqm_config_free(wdev);
+=======
+		break;
+	}
+
+#ifdef CONFIG_CFG80211_WEXT
+	kfree_sensitive(wdev->wext.keys);
+	wdev->wext.keys = NULL;
+#endif
+	/* only initialized if we have a netdev */
+	if (wdev->netdev)
+		flush_work(&wdev->disconnect_wk);
+
+	cfg80211_cqm_config_free(wdev);
+
+	/*
+	 * Ensure that all events have been processed and
+	 * freed.
+	 */
+	cfg80211_process_wdev_events(wdev);
+
+	if (wdev->iftype == NL80211_IFTYPE_STATION ||
+	    wdev->iftype == NL80211_IFTYPE_P2P_CLIENT) {
+		for (link_id = 0; link_id < ARRAY_SIZE(wdev->links); link_id++) {
+			struct cfg80211_internal_bss *curbss;
+
+			curbss = wdev->links[link_id].client.current_bss;
+
+			if (WARN_ON(curbss)) {
+				cfg80211_unhold_bss(curbss);
+				cfg80211_put_bss(wdev->wiphy, &curbss->pub);
+				wdev->links[link_id].client.current_bss = NULL;
+			}
+		}
+	}
+
+	wdev->connected = false;
+}
+
+void cfg80211_unregister_wdev(struct wireless_dev *wdev)
+{
+	_cfg80211_unregister_wdev(wdev, true);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(cfg80211_unregister_wdev);
 
@@ -1058,7 +1451,11 @@ static const struct device_type wiphy_type = {
 void cfg80211_update_iface_num(struct cfg80211_registered_device *rdev,
 			       enum nl80211_iftype iftype, int num)
 {
+<<<<<<< HEAD
 	ASSERT_RTNL();
+=======
+	lockdep_assert_held(&rdev->wiphy.mtx);
+>>>>>>> upstream/android-13
 
 	rdev->num_running_ifaces += num;
 	if (iftype == NL80211_IFTYPE_MONITOR)
@@ -1071,9 +1468,19 @@ void __cfg80211_leave(struct cfg80211_registered_device *rdev,
 	struct net_device *dev = wdev->netdev;
 	struct cfg80211_sched_scan_request *pos, *tmp;
 
+<<<<<<< HEAD
 	ASSERT_RTNL();
 	ASSERT_WDEV_LOCK(wdev);
 
+=======
+	lockdep_assert_held(&rdev->wiphy.mtx);
+	ASSERT_WDEV_LOCK(wdev);
+
+	cfg80211_pmsr_wdev_down(wdev);
+
+	cfg80211_stop_background_radar_detection(wdev);
+
+>>>>>>> upstream/android-13
 	switch (wdev->iftype) {
 	case NL80211_IFTYPE_ADHOC:
 		__cfg80211_leave_ibss(rdev, dev, true);
@@ -1100,14 +1507,21 @@ void __cfg80211_leave(struct cfg80211_registered_device *rdev,
 		break;
 	case NL80211_IFTYPE_AP:
 	case NL80211_IFTYPE_P2P_GO:
+<<<<<<< HEAD
 		__cfg80211_stop_ap(rdev, dev, true);
+=======
+		__cfg80211_stop_ap(rdev, dev, -1, true);
+>>>>>>> upstream/android-13
 		break;
 	case NL80211_IFTYPE_OCB:
 		__cfg80211_leave_ocb(rdev, dev);
 		break;
+<<<<<<< HEAD
 	case NL80211_IFTYPE_WDS:
 		/* must be handled by mac80211/driver, has no APIs */
 		break;
+=======
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_P2P_DEVICE:
 	case NL80211_IFTYPE_NAN:
 		/* cannot happen, has no netdev */
@@ -1117,6 +1531,10 @@ void __cfg80211_leave(struct cfg80211_registered_device *rdev,
 		/* nothing to do */
 		break;
 	case NL80211_IFTYPE_UNSPECIFIED:
+<<<<<<< HEAD
+=======
+	case NL80211_IFTYPE_WDS:
+>>>>>>> upstream/android-13
 	case NUM_NL80211_IFTYPES:
 		/* invalid */
 		break;
@@ -1153,6 +1571,99 @@ void cfg80211_stop_iface(struct wiphy *wiphy, struct wireless_dev *wdev,
 }
 EXPORT_SYMBOL(cfg80211_stop_iface);
 
+<<<<<<< HEAD
+=======
+void cfg80211_init_wdev(struct wireless_dev *wdev)
+{
+	mutex_init(&wdev->mtx);
+	INIT_LIST_HEAD(&wdev->event_list);
+	spin_lock_init(&wdev->event_lock);
+	INIT_LIST_HEAD(&wdev->mgmt_registrations);
+	INIT_LIST_HEAD(&wdev->pmsr_list);
+	spin_lock_init(&wdev->pmsr_lock);
+	INIT_WORK(&wdev->pmsr_free_wk, cfg80211_pmsr_free_wk);
+
+#ifdef CONFIG_CFG80211_WEXT
+	wdev->wext.default_key = -1;
+	wdev->wext.default_mgmt_key = -1;
+	wdev->wext.connect.auth_type = NL80211_AUTHTYPE_AUTOMATIC;
+#endif
+
+	if (wdev->wiphy->flags & WIPHY_FLAG_PS_ON_BY_DEFAULT)
+		wdev->ps = true;
+	else
+		wdev->ps = false;
+	/* allow mac80211 to determine the timeout */
+	wdev->ps_timeout = -1;
+
+	if ((wdev->iftype == NL80211_IFTYPE_STATION ||
+	     wdev->iftype == NL80211_IFTYPE_P2P_CLIENT ||
+	     wdev->iftype == NL80211_IFTYPE_ADHOC) && !wdev->use_4addr)
+		wdev->netdev->priv_flags |= IFF_DONT_BRIDGE;
+
+	INIT_WORK(&wdev->disconnect_wk, cfg80211_autodisconnect_wk);
+}
+
+void cfg80211_register_wdev(struct cfg80211_registered_device *rdev,
+			    struct wireless_dev *wdev)
+{
+	ASSERT_RTNL();
+	lockdep_assert_held(&rdev->wiphy.mtx);
+
+	/*
+	 * We get here also when the interface changes network namespaces,
+	 * as it's registered into the new one, but we don't want it to
+	 * change ID in that case. Checking if the ID is already assigned
+	 * works, because 0 isn't considered a valid ID and the memory is
+	 * 0-initialized.
+	 */
+	if (!wdev->identifier)
+		wdev->identifier = ++rdev->wdev_id;
+	list_add_rcu(&wdev->list, &rdev->wiphy.wdev_list);
+	rdev->devlist_generation++;
+	wdev->registered = true;
+
+	if (wdev->netdev &&
+	    sysfs_create_link(&wdev->netdev->dev.kobj, &rdev->wiphy.dev.kobj,
+			      "phy80211"))
+		pr_err("failed to add phy80211 symlink to netdev!\n");
+
+	nl80211_notify_iface(rdev, wdev, NL80211_CMD_NEW_INTERFACE);
+}
+
+int cfg80211_register_netdevice(struct net_device *dev)
+{
+	struct wireless_dev *wdev = dev->ieee80211_ptr;
+	struct cfg80211_registered_device *rdev;
+	int ret;
+
+	ASSERT_RTNL();
+
+	if (WARN_ON(!wdev))
+		return -EINVAL;
+
+	rdev = wiphy_to_rdev(wdev->wiphy);
+
+	lockdep_assert_held(&rdev->wiphy.mtx);
+
+	/* we'll take care of this */
+	wdev->registered = true;
+	wdev->registering = true;
+	ret = register_netdevice(dev);
+	if (ret)
+		goto out;
+
+	cfg80211_register_wdev(rdev, wdev);
+	ret = 0;
+out:
+	wdev->registering = false;
+	if (ret)
+		wdev->registered = false;
+	return ret;
+}
+EXPORT_SYMBOL(cfg80211_register_netdevice);
+
+>>>>>>> upstream/android-13
 static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
 					 unsigned long state, void *ptr)
 {
@@ -1171,6 +1682,7 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
 	switch (state) {
 	case NETDEV_POST_INIT:
 		SET_NETDEV_DEVTYPE(dev, &wiphy_type);
+<<<<<<< HEAD
 		break;
 	case NETDEV_REGISTER:
 		/*
@@ -1232,20 +1744,70 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
 		cfg80211_update_iface_num(rdev, wdev->iftype, -1);
 		if (rdev->scan_req && rdev->scan_req->wdev == wdev) {
 			if (WARN_ON(!rdev->scan_req->notified))
+=======
+		wdev->netdev = dev;
+		/* can only change netns with wiphy */
+		dev->features |= NETIF_F_NETNS_LOCAL;
+
+		cfg80211_init_wdev(wdev);
+		break;
+	case NETDEV_REGISTER:
+		if (!wdev->registered) {
+			wiphy_lock(&rdev->wiphy);
+			cfg80211_register_wdev(rdev, wdev);
+			wiphy_unlock(&rdev->wiphy);
+		}
+		break;
+	case NETDEV_UNREGISTER:
+		/*
+		 * It is possible to get NETDEV_UNREGISTER multiple times,
+		 * so check wdev->registered.
+		 */
+		if (wdev->registered && !wdev->registering) {
+			wiphy_lock(&rdev->wiphy);
+			_cfg80211_unregister_wdev(wdev, false);
+			wiphy_unlock(&rdev->wiphy);
+		}
+		break;
+	case NETDEV_GOING_DOWN:
+		wiphy_lock(&rdev->wiphy);
+		cfg80211_leave(rdev, wdev);
+		wiphy_unlock(&rdev->wiphy);
+		break;
+	case NETDEV_DOWN:
+		wiphy_lock(&rdev->wiphy);
+		cfg80211_update_iface_num(rdev, wdev->iftype, -1);
+		if (rdev->scan_req && rdev->scan_req->wdev == wdev) {
+			if (WARN_ON(!rdev->scan_req->notified &&
+				    (!rdev->int_scan_req ||
+				     !rdev->int_scan_req->notified)))
+>>>>>>> upstream/android-13
 				rdev->scan_req->info.aborted = true;
 			___cfg80211_scan_done(rdev, false);
 		}
 
 		list_for_each_entry_safe(pos, tmp,
 					 &rdev->sched_scan_req_list, list) {
+<<<<<<< HEAD
 			if (WARN_ON(pos && pos->dev == wdev->netdev))
+=======
+			if (WARN_ON(pos->dev == wdev->netdev))
+>>>>>>> upstream/android-13
 				cfg80211_stop_sched_scan_req(rdev, pos, false);
 		}
 
 		rdev->opencount--;
+<<<<<<< HEAD
 		wake_up(&rdev->dev_wait);
 		break;
 	case NETDEV_UP:
+=======
+		wiphy_unlock(&rdev->wiphy);
+		wake_up(&rdev->dev_wait);
+		break;
+	case NETDEV_UP:
+		wiphy_lock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 		cfg80211_update_iface_num(rdev, wdev->iftype, 1);
 		wdev_lock(wdev);
 		switch (wdev->iftype) {
@@ -1265,9 +1827,15 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
 				memcpy(&setup, &default_mesh_setup,
 						sizeof(setup));
 				 /* back compat only needed for mesh_id */
+<<<<<<< HEAD
 				setup.mesh_id = wdev->ssid;
 				setup.mesh_id_len = wdev->mesh_id_up_len;
 				if (wdev->mesh_id_up_len)
+=======
+				setup.mesh_id = wdev->u.mesh.id;
+				setup.mesh_id_len = wdev->u.mesh.id_up_len;
+				if (wdev->u.mesh.id_up_len)
+>>>>>>> upstream/android-13
 					__cfg80211_join_mesh(rdev, dev,
 							&setup,
 							&default_mesh_config);
@@ -1292,6 +1860,7 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
 			/* assume this means it's off */
 			wdev->ps = false;
 		}
+<<<<<<< HEAD
 		break;
 	case NETDEV_UNREGISTER:
 		/*
@@ -1333,13 +1902,20 @@ static int cfg80211_netdev_notifier_call(struct notifier_block *nb,
 			cfg80211_put_bss(wdev->wiphy, &wdev->current_bss->pub);
 			wdev->current_bss = NULL;
 		}
+=======
+		wiphy_unlock(&rdev->wiphy);
+>>>>>>> upstream/android-13
 		break;
 	case NETDEV_PRE_UP:
 		if (!cfg80211_iftype_allowed(wdev->wiphy, wdev->iftype,
 					     wdev->use_4addr, 0))
 			return notifier_from_errno(-EOPNOTSUPP);
 
+<<<<<<< HEAD
 		if (rfkill_blocked(rdev->rfkill))
+=======
+		if (rfkill_blocked(rdev->wiphy.rfkill))
+>>>>>>> upstream/android-13
 			return notifier_from_errno(-ERFKILL);
 		break;
 	default:

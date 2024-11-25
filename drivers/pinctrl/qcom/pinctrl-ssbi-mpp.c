@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Sony Mobile Communications AB.
  * Copyright (c) 2013, The Linux Foundation. All rights reserved.
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, Sony Mobile Communications AB.
+ * Copyright (c) 2013, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,7 +27,11 @@
 #include <linux/pinctrl/pinconf-generic.h>
 #include <linux/slab.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/of_device.h>
 #include <linux/of_irq.h>
@@ -438,7 +449,11 @@ static const struct pinconf_ops pm8xxx_pinconf_ops = {
 	.pin_config_group_set = pm8xxx_pin_config_set,
 };
 
+<<<<<<< HEAD
 static struct pinctrl_desc pm8xxx_pinctrl_desc = {
+=======
+static const struct pinctrl_desc pm8xxx_pinctrl_desc = {
+>>>>>>> upstream/android-13
 	.name = "pm8xxx_mpp",
 	.pctlops = &pm8xxx_pinctrl_ops,
 	.pmxops = &pm8xxx_pinmux_ops,
@@ -625,7 +640,10 @@ static void pm8xxx_mpp_dbg_show_one(struct seq_file *s,
 		}
 		break;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 static void pm8xxx_mpp_dbg_show(struct seq_file *s, struct gpio_chip *chip)
@@ -799,11 +817,16 @@ static int pm8xxx_mpp_probe(struct platform_device *pdev)
 	for (i = 0; i < pctrl->desc.npins; i++) {
 		pin_data[i].reg = SSBI_REG_ADDR_MPP(i);
 		pin_data[i].irq = platform_get_irq(pdev, i);
+<<<<<<< HEAD
 		if (pin_data[i].irq < 0) {
 			dev_err(&pdev->dev,
 				"missing interrupts for pin %d\n", i);
 			return pin_data[i].irq;
 		}
+=======
+		if (pin_data[i].irq < 0)
+			return pin_data[i].irq;
+>>>>>>> upstream/android-13
 
 		ret = pm8xxx_pin_populate(pctrl, &pin_data[i]);
 		if (ret)

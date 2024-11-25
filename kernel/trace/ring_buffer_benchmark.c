@@ -29,7 +29,11 @@ static int reader_finish;
 static DECLARE_COMPLETION(read_start);
 static DECLARE_COMPLETION(read_done);
 
+<<<<<<< HEAD
 static struct ring_buffer *buffer;
+=======
+static struct trace_buffer *buffer;
+>>>>>>> upstream/android-13
 static struct task_struct *producer;
 static struct task_struct *consumer;
 static unsigned long read;
@@ -45,8 +49,13 @@ MODULE_PARM_DESC(write_iteration, "# of writes between timestamp readings");
 static int producer_nice = MAX_NICE;
 static int consumer_nice = MAX_NICE;
 
+<<<<<<< HEAD
 static int producer_fifo = -1;
 static int consumer_fifo = -1;
+=======
+static int producer_fifo;
+static int consumer_fifo;
+>>>>>>> upstream/android-13
 
 module_param(producer_nice, int, 0644);
 MODULE_PARM_DESC(producer_nice, "nice prio for producer");
@@ -55,10 +64,17 @@ module_param(consumer_nice, int, 0644);
 MODULE_PARM_DESC(consumer_nice, "nice prio for consumer");
 
 module_param(producer_fifo, int, 0644);
+<<<<<<< HEAD
 MODULE_PARM_DESC(producer_fifo, "fifo prio for producer");
 
 module_param(consumer_fifo, int, 0644);
 MODULE_PARM_DESC(consumer_fifo, "fifo prio for consumer");
+=======
+MODULE_PARM_DESC(producer_fifo, "use fifo for producer: 0 - disabled, 1 - low prio, 2 - fifo");
+
+module_param(consumer_fifo, int, 0644);
+MODULE_PARM_DESC(consumer_fifo, "use fifo for consumer: 0 - disabled, 1 - low prio, 2 - fifo");
+>>>>>>> upstream/android-13
 
 static int read_events;
 
@@ -267,12 +283,21 @@ static void ring_buffer_producer(void)
 		if (consumer && !(cnt % wakeup_interval))
 			wake_up_process(consumer);
 
+<<<<<<< HEAD
 #ifndef CONFIG_PREEMPT
 		/*
 		 * If we are a non preempt kernel, the 10 second run will
 		 * stop everything while it runs. Instead, we will call
 		 * cond_resched and also add any time that was lost by a
 		 * rescedule.
+=======
+#ifndef CONFIG_PREEMPTION
+		/*
+		 * If we are a non preempt kernel, the 10 seconds run will
+		 * stop everything while it runs. Instead, we will call
+		 * cond_resched and also add any time that was lost by a
+		 * reschedule.
+>>>>>>> upstream/android-13
 		 *
 		 * Do a cond resched at the same frequency we would wake up
 		 * the reader.
@@ -303,6 +328,7 @@ static void ring_buffer_producer(void)
 		trace_printk("ERROR!\n");
 
 	if (!disable_reader) {
+<<<<<<< HEAD
 		if (consumer_fifo < 0)
 			trace_printk("Running Consumer at nice: %d\n",
 				     consumer_nice);
@@ -319,6 +345,24 @@ static void ring_buffer_producer(void)
 
 	/* Let the user know that the test is running at low priority */
 	if (producer_fifo < 0 && consumer_fifo < 0 &&
+=======
+		if (consumer_fifo)
+			trace_printk("Running Consumer at SCHED_FIFO %s\n",
+				     consumer_fifo == 1 ? "low" : "high");
+		else
+			trace_printk("Running Consumer at nice: %d\n",
+				     consumer_nice);
+	}
+	if (producer_fifo)
+		trace_printk("Running Producer at SCHED_FIFO %s\n",
+			     producer_fifo == 1 ? "low" : "high");
+	else
+		trace_printk("Running Producer at nice: %d\n",
+			     producer_nice);
+
+	/* Let the user know that the test is running at low priority */
+	if (!producer_fifo && !consumer_fifo &&
+>>>>>>> upstream/android-13
 	    producer_nice == MAX_NICE && consumer_nice == MAX_NICE)
 		trace_printk("WARNING!!! This test is running at lowest priority.\n");
 
@@ -362,7 +406,11 @@ static void ring_buffer_producer(void)
 			hit--; /* make it non zero */
 		}
 
+<<<<<<< HEAD
 		/* Caculate the average time in nanosecs */
+=======
+		/* Calculate the average time in nanosecs */
+>>>>>>> upstream/android-13
 		avg = NSEC_PER_MSEC / (hit + missed);
 		trace_printk("%ld ns per entry\n", avg);
 	}
@@ -455,6 +503,7 @@ static int __init ring_buffer_benchmark_init(void)
 	 * Run them as low-prio background tasks by default:
 	 */
 	if (!disable_reader) {
+<<<<<<< HEAD
 		if (consumer_fifo >= 0) {
 			struct sched_param param = {
 				.sched_priority = consumer_fifo
@@ -470,6 +519,21 @@ static int __init ring_buffer_benchmark_init(void)
 		};
 		sched_setscheduler(producer, SCHED_FIFO, &param);
 	} else
+=======
+		if (consumer_fifo >= 2)
+			sched_set_fifo(consumer);
+		else if (consumer_fifo == 1)
+			sched_set_fifo_low(consumer);
+		else
+			set_user_nice(consumer, consumer_nice);
+	}
+
+	if (producer_fifo >= 2)
+		sched_set_fifo(producer);
+	else if (producer_fifo == 1)
+		sched_set_fifo_low(producer);
+	else
+>>>>>>> upstream/android-13
 		set_user_nice(producer, producer_nice);
 
 	return 0;

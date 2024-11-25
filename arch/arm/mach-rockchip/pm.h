@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
  * Author: Tony Xie <tony.xie@rock-chips.com>
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
+ * Author: Tony Xie <tony.xie@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MACH_ROCKCHIP_PM_H

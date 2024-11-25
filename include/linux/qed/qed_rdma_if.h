@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _QED_RDMA_IF_H
 #define _QED_RDMA_IF_H
 #include <linux/types.h>
@@ -39,6 +48,7 @@
 #include <linux/qed/qed_ll2_if.h>
 #include <linux/qed/rdma_common.h>
 
+<<<<<<< HEAD
 enum qed_roce_ll2_tx_dest {
 	/* Light L2 TX Destination to the Network */
 	QED_ROCE_LL2_TX_DEST_NW,
@@ -48,6 +58,8 @@ enum qed_roce_ll2_tx_dest {
 	QED_ROCE_LL2_TX_DEST_MAX
 };
 
+=======
+>>>>>>> upstream/android-13
 #define QED_RDMA_MAX_CNQ_SIZE               (0xFFFF)
 
 /* rdma interface */
@@ -62,6 +74,16 @@ enum qed_roce_qp_state {
 	QED_ROCE_QP_STATE_SQE
 };
 
+<<<<<<< HEAD
+=======
+enum qed_rdma_qp_type {
+	QED_RDMA_QP_TYPE_RC,
+	QED_RDMA_QP_TYPE_XRC_INI,
+	QED_RDMA_QP_TYPE_XRC_TGT,
+	QED_RDMA_QP_TYPE_INVAL = 0xffff,
+};
+
+>>>>>>> upstream/android-13
 enum qed_rdma_tid_type {
 	QED_RDMA_TID_REGISTERED_MR,
 	QED_RDMA_TID_FMR,
@@ -100,7 +122,10 @@ struct qed_rdma_device {
 	u64 max_mr_size;
 	u32 max_cqe;
 	u32 max_mw;
+<<<<<<< HEAD
 	u32 max_fmr;
+=======
+>>>>>>> upstream/android-13
 	u32 max_mr_mw_fmr_pbl;
 	u64 max_mr_mw_fmr_size;
 	u32 max_pd;
@@ -234,7 +259,11 @@ struct qed_rdma_start_in_params {
 
 struct qed_rdma_add_user_out_params {
 	u16 dpi;
+<<<<<<< HEAD
 	u64 dpi_addr;
+=======
+	void __iomem *dpi_addr;
+>>>>>>> upstream/android-13
 	u64 dpi_phys_addr;
 	u32 dpi_size;
 	u16 wid_count;
@@ -270,10 +299,15 @@ struct qed_rdma_register_tid_in_params {
 	bool pbl_two_level;
 	u8 pbl_page_size_log;
 	u8 page_size_log;
+<<<<<<< HEAD
 	u32 fbo;
 	u64 length;
 	u64 vaddr;
 	bool zbva;
+=======
+	u64 length;
+	u64 vaddr;
+>>>>>>> upstream/android-13
 	bool phy_mr;
 	bool dma_mr;
 
@@ -300,6 +334,15 @@ struct qed_rdma_create_srq_in_params {
 	u16 num_pages;
 	u16 pd_id;
 	u16 page_size;
+<<<<<<< HEAD
+=======
+
+	/* XRC related only */
+	bool reserved_key_en;
+	bool is_xrc;
+	u32 cq_cid;
+	u16 xrcd_id;
+>>>>>>> upstream/android-13
 };
 
 struct qed_rdma_destroy_cq_in_params {
@@ -328,7 +371,16 @@ struct qed_rdma_create_qp_in_params {
 	u16 rq_num_pages;
 	u64 rq_pbl_ptr;
 	u16 srq_id;
+<<<<<<< HEAD
 	u8 stats_queue;
+=======
+	u16 xrcd_id;
+	u8 stats_queue;
+	enum qed_rdma_qp_type qp_type;
+	u8 flags;
+#define QED_ROCE_EDPM_MODE_MASK      0x1
+#define QED_ROCE_EDPM_MODE_SHIFT     0
+>>>>>>> upstream/android-13
 };
 
 struct qed_rdma_create_qp_out_params {
@@ -438,11 +490,19 @@ struct qed_rdma_create_srq_out_params {
 
 struct qed_rdma_destroy_srq_in_params {
 	u16 srq_id;
+<<<<<<< HEAD
+=======
+	bool is_xrc;
+>>>>>>> upstream/android-13
 };
 
 struct qed_rdma_modify_srq_in_params {
 	u32 wqe_limit;
 	u16 srq_id;
+<<<<<<< HEAD
+=======
+	bool is_xrc;
+>>>>>>> upstream/android-13
 };
 
 struct qed_rdma_stats_out_params {
@@ -581,7 +641,11 @@ struct qed_roce_ll2_packet {
 	int n_seg;
 	struct qed_roce_ll2_buffer payload[RDMA_MAX_SGE_PER_SQ_WQE];
 	int roce_mode;
+<<<<<<< HEAD
 	enum qed_roce_ll2_tx_dest tx_dest;
+=======
+	enum qed_ll2_tx_dest tx_dest;
+>>>>>>> upstream/android-13
 };
 
 enum qed_rdma_type {
@@ -620,6 +684,11 @@ struct qed_rdma_ops {
 	int (*rdma_set_rdma_int)(struct qed_dev *cdev, u16 cnt);
 	int (*rdma_alloc_pd)(void *rdma_cxt, u16 *pd);
 	void (*rdma_dealloc_pd)(void *rdma_cxt, u16 pd);
+<<<<<<< HEAD
+=======
+	int (*rdma_alloc_xrcd)(void *rdma_cxt, u16 *xrcd);
+	void (*rdma_dealloc_xrcd)(void *rdma_cxt, u16 xrcd);
+>>>>>>> upstream/android-13
 	int (*rdma_create_cq)(void *rdma_cxt,
 			      struct qed_rdma_create_cq_in_params *params,
 			      u16 *icid);
@@ -679,6 +748,11 @@ struct qed_rdma_ops {
 	int (*ll2_set_mac_filter)(struct qed_dev *cdev,
 				  u8 *old_mac_address, u8 *new_mac_address);
 
+<<<<<<< HEAD
+=======
+	int (*iwarp_set_engine_affin)(struct qed_dev *cdev, bool b_reset);
+
+>>>>>>> upstream/android-13
 	int (*iwarp_connect)(void *rdma_cxt,
 			     struct qed_iwarp_connect_in *iparams,
 			     struct qed_iwarp_connect_out *oparams);

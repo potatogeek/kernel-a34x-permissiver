@@ -30,10 +30,14 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/mlx5/driver.h>
 #include <linux/mlx5/port.h>
 #include <linux/mlx5/cmd.h>
+=======
+#include <linux/mlx5/port.h>
+>>>>>>> upstream/android-13
 #include "mlx5_core.h"
 
 int mlx5_core_access_reg(struct mlx5_core_dev *dev, void *data_in,
@@ -157,6 +161,7 @@ int mlx5_set_port_beacon(struct mlx5_core_dev *dev, u16 beacon_duration)
 				    sizeof(out), MLX5_REG_MLCR, 0, 1);
 }
 
+<<<<<<< HEAD
 int mlx5_query_port_proto_cap(struct mlx5_core_dev *dev,
 			      u32 *proto_cap, int proto_mask)
 {
@@ -230,6 +235,10 @@ EXPORT_SYMBOL(mlx5_query_port_eth_proto_oper);
 
 int mlx5_query_port_ib_proto_oper(struct mlx5_core_dev *dev,
 				  u8 *proto_oper, u8 local_port)
+=======
+int mlx5_query_ib_port_oper(struct mlx5_core_dev *dev, u16 *link_width_oper,
+			    u16 *proto_oper, u8 local_port)
+>>>>>>> upstream/android-13
 {
 	u32 out[MLX5_ST_SZ_DW(ptys_reg)];
 	int err;
@@ -239,10 +248,15 @@ int mlx5_query_port_ib_proto_oper(struct mlx5_core_dev *dev,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	*link_width_oper = MLX5_GET(ptys_reg, out, ib_link_width_oper);
+>>>>>>> upstream/android-13
 	*proto_oper = MLX5_GET(ptys_reg, out, ib_proto_oper);
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mlx5_query_port_ib_proto_oper);
 
 int mlx5_set_port_ptys(struct mlx5_core_dev *dev, bool an_disable,
@@ -273,6 +287,9 @@ int mlx5_set_port_ptys(struct mlx5_core_dev *dev, bool an_disable,
 				    sizeof(out), MLX5_REG_PTYS, 0, 1);
 }
 EXPORT_SYMBOL_GPL(mlx5_set_port_ptys);
+=======
+EXPORT_SYMBOL(mlx5_query_ib_port_oper);
+>>>>>>> upstream/android-13
 
 /* This function should be used after setting a port register only */
 void mlx5_toggle_port_link(struct mlx5_core_dev *dev)
@@ -380,6 +397,7 @@ static int mlx5_query_module_num(struct mlx5_core_dev *dev, int *module_num)
 	return 0;
 }
 
+<<<<<<< HEAD
 int mlx5_query_module_eeprom(struct mlx5_core_dev *dev,
 			     u16 offset, u16 size, u8 *data)
 {
@@ -411,6 +429,100 @@ int mlx5_query_module_eeprom(struct mlx5_core_dev *dev,
 	MLX5_SET(mcia_reg, in, page_number, 0);
 	MLX5_SET(mcia_reg, in, device_address, offset);
 	MLX5_SET(mcia_reg, in, size, size);
+=======
+static int mlx5_query_module_id(struct mlx5_core_dev *dev, int module_num,
+				u8 *module_id)
+{
+	u32 in[MLX5_ST_SZ_DW(mcia_reg)] = {};
+	u32 out[MLX5_ST_SZ_DW(mcia_reg)];
+	int err, status;
+	u8 *ptr;
+
+	MLX5_SET(mcia_reg, in, i2c_device_address, MLX5_I2C_ADDR_LOW);
+	MLX5_SET(mcia_reg, in, module, module_num);
+	MLX5_SET(mcia_reg, in, device_address, 0);
+	MLX5_SET(mcia_reg, in, page_number, 0);
+	MLX5_SET(mcia_reg, in, size, 1);
+	MLX5_SET(mcia_reg, in, l, 0);
+
+	err = mlx5_core_access_reg(dev, in, sizeof(in), out,
+				   sizeof(out), MLX5_REG_MCIA, 0, 0);
+	if (err)
+		return err;
+
+	status = MLX5_GET(mcia_reg, out, status);
+	if (status) {
+		mlx5_core_err(dev, "query_mcia_reg failed: status: 0x%x\n",
+			      status);
+		return -EIO;
+	}
+	ptr = MLX5_ADDR_OF(mcia_reg, out, dword_0);
+
+	*module_id = ptr[0];
+
+	return 0;
+}
+
+static int mlx5_qsfp_eeprom_page(u16 offset)
+{
+	if (offset < MLX5_EEPROM_PAGE_LENGTH)
+		/* Addresses between 0-255 - page 00 */
+		return 0;
+
+	/* Addresses between 256 - 639 belongs to pages 01, 02 and 03
+	 * For example, offset = 400 belongs to page 02:
+	 * 1 + ((400 - 256)/128) = 2
+	 */
+	return 1 + ((offset - MLX5_EEPROM_PAGE_LENGTH) /
+		    MLX5_EEPROM_HIGH_PAGE_LENGTH);
+}
+
+static int mlx5_qsfp_eeprom_high_page_offset(int page_num)
+{
+	if (!page_num) /* Page 0 always start from low page */
+		return 0;
+
+	/* High page */
+	return page_num * MLX5_EEPROM_HIGH_PAGE_LENGTH;
+}
+
+static void mlx5_qsfp_eeprom_params_set(u16 *i2c_addr, int *page_num, u16 *offset)
+{
+	*i2c_addr = MLX5_I2C_ADDR_LOW;
+	*page_num = mlx5_qsfp_eeprom_page(*offset);
+	*offset -=  mlx5_qsfp_eeprom_high_page_offset(*page_num);
+}
+
+static void mlx5_sfp_eeprom_params_set(u16 *i2c_addr, int *page_num, u16 *offset)
+{
+	*i2c_addr = MLX5_I2C_ADDR_LOW;
+	*page_num = 0;
+
+	if (*offset < MLX5_EEPROM_PAGE_LENGTH)
+		return;
+
+	*i2c_addr = MLX5_I2C_ADDR_HIGH;
+	*offset -= MLX5_EEPROM_PAGE_LENGTH;
+}
+
+static int mlx5_query_mcia(struct mlx5_core_dev *dev,
+			   struct mlx5_module_eeprom_query_params *params, u8 *data)
+{
+	u32 in[MLX5_ST_SZ_DW(mcia_reg)] = {};
+	u32 out[MLX5_ST_SZ_DW(mcia_reg)];
+	int status, err;
+	void *ptr;
+	u16 size;
+
+	size = min_t(int, params->size, MLX5_EEPROM_MAX_BYTES);
+
+	MLX5_SET(mcia_reg, in, l, 0);
+	MLX5_SET(mcia_reg, in, size, size);
+	MLX5_SET(mcia_reg, in, module, params->module_number);
+	MLX5_SET(mcia_reg, in, device_address, params->offset);
+	MLX5_SET(mcia_reg, in, page_number, params->page);
+	MLX5_SET(mcia_reg, in, i2c_device_address, params->i2c_address);
+>>>>>>> upstream/android-13
 
 	err = mlx5_core_access_reg(dev, in, sizeof(in), out,
 				   sizeof(out), MLX5_REG_MCIA, 0, 0);
@@ -424,12 +536,80 @@ int mlx5_query_module_eeprom(struct mlx5_core_dev *dev,
 		return -EIO;
 	}
 
+<<<<<<< HEAD
+=======
+	ptr = MLX5_ADDR_OF(mcia_reg, out, dword_0);
+>>>>>>> upstream/android-13
 	memcpy(data, ptr, size);
 
 	return size;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mlx5_query_module_eeprom);
 
+=======
+
+int mlx5_query_module_eeprom(struct mlx5_core_dev *dev,
+			     u16 offset, u16 size, u8 *data)
+{
+	struct mlx5_module_eeprom_query_params query = {0};
+	u8 module_id;
+	int err;
+
+	err = mlx5_query_module_num(dev, &query.module_number);
+	if (err)
+		return err;
+
+	err = mlx5_query_module_id(dev, query.module_number, &module_id);
+	if (err)
+		return err;
+
+	switch (module_id) {
+	case MLX5_MODULE_ID_SFP:
+		mlx5_sfp_eeprom_params_set(&query.i2c_address, &query.page, &offset);
+		break;
+	case MLX5_MODULE_ID_QSFP:
+	case MLX5_MODULE_ID_QSFP_PLUS:
+	case MLX5_MODULE_ID_QSFP28:
+		mlx5_qsfp_eeprom_params_set(&query.i2c_address, &query.page, &offset);
+		break;
+	default:
+		mlx5_core_err(dev, "Module ID not recognized: 0x%x\n", module_id);
+		return -EINVAL;
+	}
+
+	if (offset + size > MLX5_EEPROM_PAGE_LENGTH)
+		/* Cross pages read, read until offset 256 in low page */
+		size = MLX5_EEPROM_PAGE_LENGTH - offset;
+
+	query.size = size;
+	query.offset = offset;
+
+	return mlx5_query_mcia(dev, &query, data);
+}
+EXPORT_SYMBOL_GPL(mlx5_query_module_eeprom);
+
+int mlx5_query_module_eeprom_by_page(struct mlx5_core_dev *dev,
+				     struct mlx5_module_eeprom_query_params *params,
+				     u8 *data)
+{
+	int err;
+
+	err = mlx5_query_module_num(dev, &params->module_number);
+	if (err)
+		return err;
+
+	if (params->i2c_address != MLX5_I2C_ADDR_HIGH &&
+	    params->i2c_address != MLX5_I2C_ADDR_LOW) {
+		mlx5_core_err(dev, "I2C address not recognized: 0x%x\n", params->i2c_address);
+		return -EINVAL;
+	}
+
+	return mlx5_query_mcia(dev, params, data);
+}
+EXPORT_SYMBOL_GPL(mlx5_query_module_eeprom_by_page);
+
+>>>>>>> upstream/android-13
 static int mlx5_query_port_pvlc(struct mlx5_core_dev *dev, u32 *pvlc,
 				int pvlc_size,  u8 local_port)
 {
@@ -602,6 +782,7 @@ int mlx5_query_port_pfc(struct mlx5_core_dev *dev, u8 *pfc_en_tx, u8 *pfc_en_rx)
 }
 EXPORT_SYMBOL_GPL(mlx5_query_port_pfc);
 
+<<<<<<< HEAD
 void mlx5_query_port_autoneg(struct mlx5_core_dev *dev, int proto_mask,
 			     u8 *an_status,
 			     u8 *an_disable_cap, u8 *an_disable_admin)
@@ -621,6 +802,8 @@ void mlx5_query_port_autoneg(struct mlx5_core_dev *dev, int proto_mask,
 }
 EXPORT_SYMBOL_GPL(mlx5_query_port_autoneg);
 
+=======
+>>>>>>> upstream/android-13
 int mlx5_max_tc(struct mlx5_core_dev *mdev)
 {
 	u8 num_tc = MLX5_CAP_GEN(mdev, max_tc) ? : 8;
@@ -841,24 +1024,41 @@ EXPORT_SYMBOL_GPL(mlx5_query_port_ets_rate_limit);
 
 int mlx5_set_port_wol(struct mlx5_core_dev *mdev, u8 wol_mode)
 {
+<<<<<<< HEAD
 	u32 in[MLX5_ST_SZ_DW(set_wol_rol_in)]   = {0};
 	u32 out[MLX5_ST_SZ_DW(set_wol_rol_out)] = {0};
+=======
+	u32 in[MLX5_ST_SZ_DW(set_wol_rol_in)] = {};
+>>>>>>> upstream/android-13
 
 	MLX5_SET(set_wol_rol_in, in, opcode, MLX5_CMD_OP_SET_WOL_ROL);
 	MLX5_SET(set_wol_rol_in, in, wol_mode_valid, 1);
 	MLX5_SET(set_wol_rol_in, in, wol_mode, wol_mode);
+<<<<<<< HEAD
 	return mlx5_cmd_exec(mdev, in, sizeof(in), out, sizeof(out));
+=======
+	return mlx5_cmd_exec_in(mdev, set_wol_rol, in);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mlx5_set_port_wol);
 
 int mlx5_query_port_wol(struct mlx5_core_dev *mdev, u8 *wol_mode)
 {
+<<<<<<< HEAD
 	u32 in[MLX5_ST_SZ_DW(query_wol_rol_in)]   = {0};
 	u32 out[MLX5_ST_SZ_DW(query_wol_rol_out)] = {0};
 	int err;
 
 	MLX5_SET(query_wol_rol_in, in, opcode, MLX5_CMD_OP_QUERY_WOL_ROL);
 	err = mlx5_cmd_exec(mdev, in, sizeof(in), out, sizeof(out));
+=======
+	u32 out[MLX5_ST_SZ_DW(query_wol_rol_out)] = {};
+	u32 in[MLX5_ST_SZ_DW(query_wol_rol_in)] = {};
+	int err;
+
+	MLX5_SET(query_wol_rol_in, in, opcode, MLX5_CMD_OP_QUERY_WOL_ROL);
+	err = mlx5_cmd_exec_inout(mdev, query_wol_rol, in, out);
+>>>>>>> upstream/android-13
 	if (!err)
 		*wol_mode = MLX5_GET(query_wol_rol_out, out, wol_mode);
 
@@ -866,8 +1066,12 @@ int mlx5_query_port_wol(struct mlx5_core_dev *mdev, u8 *wol_mode)
 }
 EXPORT_SYMBOL_GPL(mlx5_query_port_wol);
 
+<<<<<<< HEAD
 static int mlx5_query_ports_check(struct mlx5_core_dev *mdev, u32 *out,
 				  int outlen)
+=======
+int mlx5_query_ports_check(struct mlx5_core_dev *mdev, u32 *out, int outlen)
+>>>>>>> upstream/android-13
 {
 	u32 in[MLX5_ST_SZ_DW(pcmr_reg)] = {0};
 
@@ -876,7 +1080,11 @@ static int mlx5_query_ports_check(struct mlx5_core_dev *mdev, u32 *out,
 				    outlen, MLX5_REG_PCMR, 0, 0);
 }
 
+<<<<<<< HEAD
 static int mlx5_set_ports_check(struct mlx5_core_dev *mdev, u32 *in, int inlen)
+=======
+int mlx5_set_ports_check(struct mlx5_core_dev *mdev, u32 *in, int inlen)
+>>>>>>> upstream/android-13
 {
 	u32 out[MLX5_ST_SZ_DW(pcmr_reg)];
 
@@ -887,7 +1095,15 @@ static int mlx5_set_ports_check(struct mlx5_core_dev *mdev, u32 *in, int inlen)
 int mlx5_set_port_fcs(struct mlx5_core_dev *mdev, u8 enable)
 {
 	u32 in[MLX5_ST_SZ_DW(pcmr_reg)] = {0};
+<<<<<<< HEAD
 
+=======
+	int err;
+
+	err = mlx5_query_ports_check(mdev, in, sizeof(in));
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 	MLX5_SET(pcmr_reg, in, local_port, 1);
 	MLX5_SET(pcmr_reg, in, fcs_chk, enable);
 	return mlx5_set_ports_check(mdev, in, sizeof(in));
@@ -911,6 +1127,7 @@ void mlx5_query_port_fcs(struct mlx5_core_dev *mdev, bool *supported,
 	*enabled = !!(MLX5_GET(pcmr_reg, out, fcs_chk));
 }
 
+<<<<<<< HEAD
 static const char *mlx5_pme_status[MLX5_MODULE_STATUS_NUM] = {
 	"Cable plugged",   /* MLX5_MODULE_STATUS_PLUGGED    = 0x1 */
 	"Cable unplugged", /* MLX5_MODULE_STATUS_UNPLUGGED  = 0x2 */
@@ -968,6 +1185,8 @@ void mlx5_port_module_event(struct mlx5_core_dev *dev, struct mlx5_eqe *eqe)
 			       mlx5_pme_error[error_type]);
 }
 
+=======
+>>>>>>> upstream/android-13
 int mlx5_query_mtpps(struct mlx5_core_dev *mdev, u32 *mtpps, u32 mtpps_size)
 {
 	u32 in[MLX5_ST_SZ_DW(mtpps_reg)] = {0};

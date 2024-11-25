@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* $(CROSS_COMPILE)cc -Wall -Wextra -g -lpthread -o testusb testusb.c */
 
 /*
  * Copyright (c) 2002 by David Brownell
  * Copyright (c) 2010 by Samsung Electronics
  * Author: Michal Nazarewicz <mina86@mina86.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -278,12 +285,15 @@ nomem:
 	}
 
 	entry->ifnum = ifnum;
+<<<<<<< HEAD
 
 	/* FIXME update USBDEVFS_CONNECTINFO so it tells about high speed etc */
 
 	fprintf(stderr, "%s speed\t%s\t%u\n",
 		speed(entry->speed), entry->name, entry->ifnum);
 
+=======
+>>>>>>> upstream/android-13
 	entry->next = testdevs;
 	testdevs = entry;
 	return 0;
@@ -312,6 +322,17 @@ static void *handle_testdev (void *arg)
 		return 0;
 	}
 
+<<<<<<< HEAD
+=======
+	status  =  ioctl(fd, USBDEVFS_GET_SPEED, NULL);
+	if (status < 0)
+		fprintf(stderr, "USBDEVFS_GET_SPEED failed %d\n", status);
+	else
+		dev->speed = status;
+	fprintf(stderr, "%s speed\t%s\t%u\n",
+			speed(dev->speed), dev->name, dev->ifnum);
+
+>>>>>>> upstream/android-13
 restart:
 	for (i = 0; i < TEST_CASES; i++) {
 		if (dev->test != -1 && dev->test != i)

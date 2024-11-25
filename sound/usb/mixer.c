@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   (Tentative) USB Audio Driver for ALSA
  *
@@ -8,6 +12,7 @@
  *   Many codes borrowed from audio.c by
  *	    Alan Cox (alan@lxorguk.ukuu.org.uk)
  *	    Thomas Sailer (sailer@ife.ee.ethz.ch)
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -24,6 +29,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -130,11 +137,21 @@ find_map(const struct usbmix_name_map *p, int unitid, int control)
 static int
 check_mapped_name(const struct usbmix_name_map *p, char *buf, int buflen)
 {
+<<<<<<< HEAD
+=======
+	int len;
+
+>>>>>>> upstream/android-13
 	if (!p || !p->name)
 		return 0;
 
 	buflen--;
+<<<<<<< HEAD
 	return strlcpy(buf, p->name, buflen);
+=======
+	len = strscpy(buf, p->name, buflen);
+	return len < 0 ? buflen : len;
+>>>>>>> upstream/android-13
 }
 
 /* ignore the error value if ignore_ctl_error flag is set */
@@ -166,12 +183,23 @@ static int check_mapped_selector_name(struct mixer_build *state, int unitid,
 				      int index, char *buf, int buflen)
 {
 	const struct usbmix_selector_map *p;
+<<<<<<< HEAD
+=======
+	int len;
+>>>>>>> upstream/android-13
 
 	if (!state->selector_map)
 		return 0;
 	for (p = state->selector_map; p->id; p++) {
+<<<<<<< HEAD
 		if (p->id == unitid && index < p->count)
 			return strlcpy(buf, p->names[index], buflen);
+=======
+		if (p->id == unitid && index < p->count) {
+			len = strscpy(buf, p->names[index], buflen);
+			return len < 0 ? buflen : len;
+		}
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -269,7 +297,11 @@ static int get_relative_value(struct usb_mixer_elem_info *cval, int val)
 	if (val < cval->min)
 		return 0;
 	else if (val >= cval->max)
+<<<<<<< HEAD
 		return (cval->max - cval->min + cval->res - 1) / cval->res;
+=======
+		return DIV_ROUND_UP(cval->max - cval->min, cval->res);
+>>>>>>> upstream/android-13
 	else
 		return (val - cval->min) / cval->res;
 }
@@ -307,6 +339,14 @@ static int uac2_ctl_value_size(int val_type)
  * retrieve a mixer value
  */
 
+<<<<<<< HEAD
+=======
+static inline int mixer_ctrl_intf(struct usb_mixer_interface *mixer)
+{
+	return get_iface_desc(mixer->hostif)->bInterfaceNumber;
+}
+
+>>>>>>> upstream/android-13
 static int get_ctl_value_v1(struct usb_mixer_elem_info *cval, int request,
 			    int validx, int *value_ret)
 {
@@ -321,7 +361,11 @@ static int get_ctl_value_v1(struct usb_mixer_elem_info *cval, int request,
 		return -EIO;
 
 	while (timeout-- > 0) {
+<<<<<<< HEAD
 		idx = snd_usb_ctrl_intf(chip) | (cval->head.id << 8);
+=======
+		idx = mixer_ctrl_intf(cval->head.mixer) | (cval->head.id << 8);
+>>>>>>> upstream/android-13
 		err = snd_usb_ctl_msg(chip->dev, usb_rcvctrlpipe(chip->dev, 0), request,
 				      USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
 				      validx, idx, buf, val_len);
@@ -369,7 +413,11 @@ static int get_ctl_value_v2(struct usb_mixer_elem_info *cval, int request,
 	if (ret)
 		goto error;
 
+<<<<<<< HEAD
 	idx = snd_usb_ctrl_intf(chip) | (cval->head.id << 8);
+=======
+	idx = mixer_ctrl_intf(cval->head.mixer) | (cval->head.id << 8);
+>>>>>>> upstream/android-13
 	ret = snd_usb_ctl_msg(chip->dev, usb_rcvctrlpipe(chip->dev, 0), bRequest,
 			      USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
 			      validx, idx, buf, size);
@@ -494,7 +542,11 @@ int snd_usb_mixer_set_ctl_value(struct usb_mixer_elem_info *cval,
 		return -EIO;
 
 	while (timeout-- > 0) {
+<<<<<<< HEAD
 		idx = snd_usb_ctrl_intf(chip) | (cval->head.id << 8);
+=======
+		idx = mixer_ctrl_intf(cval->head.mixer) | (cval->head.id << 8);
+>>>>>>> upstream/android-13
 		err = snd_usb_ctl_msg(chip->dev,
 				      usb_sndctrlpipe(chip->dev, 0), request,
 				      USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_OUT,
@@ -918,6 +970,15 @@ static int parse_term_effect_unit(struct mixer_build *state,
 				  struct usb_audio_term *term,
 				  void *p1, int id)
 {
+<<<<<<< HEAD
+=======
+	struct uac2_effect_unit_descriptor *d = p1;
+	int err;
+
+	err = __check_input_term(state, d->bSourceID, term);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	term->type = UAC3_EFFECT_UNIT << 16; /* virtual type */
 	term->id = id;
 	return 0;
@@ -1196,6 +1257,16 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
 			cval->res = 1;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case USB_ID(0x1224, 0x2a25): /* Jieli Technology USB PHY 2.0 */
+		if (!strcmp(kctl->id.name, "Mic Capture Volume")) {
+			usb_audio_info(chip,
+				"set resolution quirk: cval->res = 16\n");
+			cval->res = 16;
+		}
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1228,7 +1299,11 @@ static int get_min_max_with_quirks(struct usb_mixer_elem_info *cval,
 		    get_ctl_value(cval, UAC_GET_MIN, (cval->control << 8) | minchn, &cval->min) < 0) {
 			usb_audio_err(cval->head.mixer->chip,
 				      "%d:%d: cannot get min/max values for control %d (id %d)\n",
+<<<<<<< HEAD
 				   cval->head.id, snd_usb_ctrl_intf(cval->head.mixer->chip),
+=======
+				   cval->head.id, mixer_ctrl_intf(cval->head.mixer),
+>>>>>>> upstream/android-13
 							       cval->control, cval->head.id);
 			return -EINVAL;
 		}
@@ -1236,7 +1311,11 @@ static int get_min_max_with_quirks(struct usb_mixer_elem_info *cval,
 				  (cval->control << 8) | minchn,
 				  &cval->res) < 0) {
 			cval->res = 1;
+<<<<<<< HEAD
 		} else {
+=======
+		} else if (cval->head.mixer->protocol == UAC_VERSION_1) {
+>>>>>>> upstream/android-13
 			int last_valid_res = cval->res;
 
 			while (cval->res > 1) {
@@ -1305,6 +1384,20 @@ no_res_check:
 			/* totally crap, return an error */
 			return -EINVAL;
 		}
+<<<<<<< HEAD
+=======
+	} else {
+		/* if the max volume is too low, it's likely a bogus range;
+		 * here we use -96dB as the threshold
+		 */
+		if (cval->dBmax <= -9600) {
+			usb_audio_info(cval->head.mixer->chip,
+				       "%d:%d: bogus dB values (%d/%d), disabling dB reporting\n",
+				       cval->head.id, mixer_ctrl_intf(cval->head.mixer),
+				       cval->dBmin, cval->dBmax);
+			cval->dBmin = cval->dBmax = 0;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1342,7 +1435,11 @@ static int mixer_ctl_feature_info(struct snd_kcontrol *kcontrol,
 		}
 		uinfo->value.integer.min = 0;
 		uinfo->value.integer.max =
+<<<<<<< HEAD
 			(cval->max - cval->min + cval->res - 1) / cval->res;
+=======
+			DIV_ROUND_UP(cval->max - cval->min, cval->res);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -1433,6 +1530,7 @@ static int mixer_ctl_master_bool_get(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* get the connectors status and report it as boolean type */
 static int mixer_ctl_connector_get(struct snd_kcontrol *kcontrol,
 				   struct snd_ctl_elem_value *ucontrol)
@@ -1440,6 +1538,13 @@ static int mixer_ctl_connector_get(struct snd_kcontrol *kcontrol,
 	struct usb_mixer_elem_info *cval = kcontrol->private_data;
 	struct snd_usb_audio *chip = cval->head.mixer->chip;
 	int idx = 0, validx, ret, val;
+=======
+static int get_connector_value(struct usb_mixer_elem_info *cval,
+			       char *name, int *val)
+{
+	struct snd_usb_audio *chip = cval->head.mixer->chip;
+	int idx = 0, validx, ret;
+>>>>>>> upstream/android-13
 
 	validx = cval->control << 8 | 0;
 
@@ -1447,38 +1552,89 @@ static int mixer_ctl_connector_get(struct snd_kcontrol *kcontrol,
 	if (ret)
 		goto error;
 
+<<<<<<< HEAD
 	idx = snd_usb_ctrl_intf(chip) | (cval->head.id << 8);
+=======
+	idx = mixer_ctrl_intf(cval->head.mixer) | (cval->head.id << 8);
+>>>>>>> upstream/android-13
 	if (cval->head.mixer->protocol == UAC_VERSION_2) {
 		struct uac2_connectors_ctl_blk uac2_conn;
 
 		ret = snd_usb_ctl_msg(chip->dev, usb_rcvctrlpipe(chip->dev, 0), UAC2_CS_CUR,
 				      USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
 				      validx, idx, &uac2_conn, sizeof(uac2_conn));
+<<<<<<< HEAD
 		val = !!uac2_conn.bNrChannels;
+=======
+		if (val)
+			*val = !!uac2_conn.bNrChannels;
+>>>>>>> upstream/android-13
 	} else { /* UAC_VERSION_3 */
 		struct uac3_insertion_ctl_blk uac3_conn;
 
 		ret = snd_usb_ctl_msg(chip->dev, usb_rcvctrlpipe(chip->dev, 0), UAC2_CS_CUR,
 				      USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
 				      validx, idx, &uac3_conn, sizeof(uac3_conn));
+<<<<<<< HEAD
 		val = !!uac3_conn.bmConInserted;
+=======
+		if (val)
+			*val = !!uac3_conn.bmConInserted;
+>>>>>>> upstream/android-13
 	}
 
 	snd_usb_unlock_shutdown(chip);
 
 	if (ret < 0) {
+<<<<<<< HEAD
+=======
+		if (name && strstr(name, "Speaker")) {
+			if (val)
+				*val = 1;
+			return 0;
+		}
+>>>>>>> upstream/android-13
 error:
 		usb_audio_err(chip,
 			"cannot get connectors status: req = %#x, wValue = %#x, wIndex = %#x, type = %d\n",
 			UAC_GET_CUR, validx, idx, cval->val_type);
+<<<<<<< HEAD
 		return filter_error(cval, ret);
 	}
 
+=======
+
+		if (val)
+			*val = 0;
+
+		return filter_error(cval, ret);
+	}
+
+	return ret;
+}
+
+/* get the connectors status and report it as boolean type */
+static int mixer_ctl_connector_get(struct snd_kcontrol *kcontrol,
+				   struct snd_ctl_elem_value *ucontrol)
+{
+	struct usb_mixer_elem_info *cval = kcontrol->private_data;
+	int ret, val;
+
+	ret = get_connector_value(cval, kcontrol->id.name, &val);
+
+	if (ret < 0)
+		return ret;
+
+>>>>>>> upstream/android-13
 	ucontrol->value.integer.value[0] = val;
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new usb_feature_unit_ctl = {
+=======
+static const struct snd_kcontrol_new usb_feature_unit_ctl = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.name = "", /* will be filled later manually */
 	.info = mixer_ctl_feature_info,
@@ -1499,7 +1655,11 @@ static const struct snd_kcontrol_new usb_feature_unit_ctl_ro = {
  * A control which shows the boolean value from reading a UAC control on
  * the master channel.
  */
+<<<<<<< HEAD
 static struct snd_kcontrol_new usb_bool_master_control_ctl_ro = {
+=======
+static const struct snd_kcontrol_new usb_bool_master_control_ctl_ro = {
+>>>>>>> upstream/android-13
 	.iface = SNDRV_CTL_ELEM_IFACE_CARD,
 	.name = "", /* will be filled later manually */
 	.access = SNDRV_CTL_ELEM_ACCESS_READ,
@@ -1521,7 +1681,11 @@ static const struct snd_kcontrol_new usb_connector_ctl_ro = {
  * This symbol is exported in order to allow the mixer quirks to
  * hook up to the standard feature unit control mechanism
  */
+<<<<<<< HEAD
 struct snd_kcontrol_new *snd_usb_feature_unit_ctl = &usb_feature_unit_ctl;
+=======
+const struct snd_kcontrol_new *snd_usb_feature_unit_ctl = &usb_feature_unit_ctl;
+>>>>>>> upstream/android-13
 
 /*
  * build a feature control
@@ -1539,9 +1703,15 @@ static size_t append_ctl_name(struct snd_kcontrol *kctl, const char *str)
 static void check_no_speaker_on_headset(struct snd_kcontrol *kctl,
 					struct snd_card *card)
 {
+<<<<<<< HEAD
 	const char *names_to_check[] = {
 		"Headset", "headset", "Headphone", "headphone", NULL};
 	const char **s;
+=======
+	static const char * const names_to_check[] = {
+		"Headset", "headset", "Headphone", "headphone", NULL};
+	const char * const *s;
+>>>>>>> upstream/android-13
 	bool found = false;
 
 	if (strcmp("Speaker", kctl->id.name))
@@ -1556,7 +1726,11 @@ static void check_no_speaker_on_headset(struct snd_kcontrol *kctl,
 	if (!found)
 		return;
 
+<<<<<<< HEAD
 	strlcpy(kctl->id.name, "Headphone", sizeof(kctl->id.name));
+=======
+	strscpy(kctl->id.name, "Headphone", sizeof(kctl->id.name));
+>>>>>>> upstream/android-13
 }
 
 static const struct usb_feature_control_info *get_feature_control_info(int control)
@@ -1691,7 +1865,11 @@ static void __build_feature_ctl(struct usb_mixer_interface *mixer,
 		break;
 	default:
 		if (!len)
+<<<<<<< HEAD
 			strlcpy(kctl->id.name, audio_feature_info[control-1].name,
+=======
+			strscpy(kctl->id.name, audio_feature_info[control-1].name,
+>>>>>>> upstream/android-13
 				sizeof(kctl->id.name));
 		break;
 	}
@@ -1770,7 +1948,11 @@ static void get_connector_control_name(struct usb_mixer_interface *mixer,
 	int name_len = get_term_name(mixer->chip, term, name, name_size, 0);
 
 	if (name_len == 0)
+<<<<<<< HEAD
 		strlcpy(name, "Unknown", name_size);
+=======
+		strscpy(name, "Unknown", name_size);
+>>>>>>> upstream/android-13
 
 	/*
 	 *  sound/core/ctljack.c has a convention of naming jack controls
@@ -1783,6 +1965,18 @@ static void get_connector_control_name(struct usb_mixer_interface *mixer,
 		strlcat(name, " - Output Jack", name_size);
 }
 
+<<<<<<< HEAD
+=======
+/* get connector value to "wake up" the USB audio */
+static int connector_mixer_resume(struct usb_mixer_elem_list *list)
+{
+	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
+
+	get_connector_value(cval, NULL, NULL);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Build a mixer control for a UAC connector control (jack-detect) */
 static void build_connector_control(struct usb_mixer_interface *mixer,
 				    const struct usbmix_name_map *imap,
@@ -1800,6 +1994,13 @@ static void build_connector_control(struct usb_mixer_interface *mixer,
 	if (!cval)
 		return;
 	snd_usb_mixer_elem_init_std(&cval->head, mixer, term->id);
+<<<<<<< HEAD
+=======
+
+	/* set up a specific resume callback */
+	cval->head.resume = connector_mixer_resume;
+
+>>>>>>> upstream/android-13
 	/*
 	 * UAC2: The first byte from reading the UAC2_TE_CONNECTOR control returns the
 	 * number of channels connected.
@@ -1899,7 +2100,11 @@ static int parse_audio_feature_unit(struct mixer_build *state, int unitid,
 {
 	int channels, i, j;
 	struct usb_audio_term iterm;
+<<<<<<< HEAD
 	unsigned int master_bits, first_ch_bits;
+=======
+	unsigned int master_bits;
+>>>>>>> upstream/android-13
 	int err, csize;
 	struct uac_feature_unit_descriptor *hdr = _ftr;
 	__u8 *bmaControls;
@@ -1948,10 +2153,13 @@ static int parse_audio_feature_unit(struct mixer_build *state, int unitid,
 		break;
 
 	}
+<<<<<<< HEAD
 	if (channels > 0)
 		first_ch_bits = snd_usb_combine_bytes(bmaControls + csize, csize);
 	else
 		first_ch_bits = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (state->mixer->protocol == UAC_VERSION_1) {
 		/* check all control types */
@@ -2375,7 +2583,11 @@ static int build_audio_procunit(struct mixer_build *state, int unitid,
 	int num_ins;
 	struct usb_mixer_elem_info *cval;
 	struct snd_kcontrol *kctl;
+<<<<<<< HEAD
 	int i, err, nameid, type, len;
+=======
+	int i, err, nameid, type, len, val;
+>>>>>>> upstream/android-13
 	const struct procunit_info *info;
 	const struct procunit_value_info *valinfo;
 	const struct usbmix_name_map *map;
@@ -2478,6 +2690,15 @@ static int build_audio_procunit(struct mixer_build *state, int unitid,
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		err = get_cur_ctl_value(cval, cval->control << 8, &val);
+		if (err < 0) {
+			usb_mixer_elem_info_free(cval);
+			return -EINVAL;
+		}
+
+>>>>>>> upstream/android-13
 		kctl = snd_ctl_new1(&mixer_procunit_ctl, cval);
 		if (!kctl) {
 			usb_mixer_elem_info_free(cval);
@@ -2488,7 +2709,11 @@ static int build_audio_procunit(struct mixer_build *state, int unitid,
 		if (check_mapped_name(map, kctl->id.name, sizeof(kctl->id.name))) {
 			/* nothing */ ;
 		} else if (info->name) {
+<<<<<<< HEAD
 			strlcpy(kctl->id.name, info->name, sizeof(kctl->id.name));
+=======
+			strscpy(kctl->id.name, info->name, sizeof(kctl->id.name));
+>>>>>>> upstream/android-13
 		} else {
 			if (extension_unit)
 				nameid = uac_extension_unit_iExtension(desc, state->mixer->protocol);
@@ -2501,7 +2726,11 @@ static int build_audio_procunit(struct mixer_build *state, int unitid,
 							       kctl->id.name,
 							       sizeof(kctl->id.name));
 			if (!len)
+<<<<<<< HEAD
 				strlcpy(kctl->id.name, name, sizeof(kctl->id.name));
+=======
+				strscpy(kctl->id.name, name, sizeof(kctl->id.name));
+>>>>>>> upstream/android-13
 		}
 		append_ctl_name(kctl, " ");
 		append_ctl_name(kctl, valinfo->suffix);
@@ -2691,7 +2920,10 @@ static int parse_audio_selector_unit(struct mixer_build *state, int unitid,
 #define MAX_ITEM_NAME_LEN	64
 	for (i = 0; i < desc->bNrInPins; i++) {
 		struct usb_audio_term iterm;
+<<<<<<< HEAD
 		len = 0;
+=======
+>>>>>>> upstream/android-13
 		namelist[i] = kmalloc(MAX_ITEM_NAME_LEN, GFP_KERNEL);
 		if (!namelist[i]) {
 			err = -ENOMEM;
@@ -2741,7 +2973,11 @@ static int parse_audio_selector_unit(struct mixer_build *state, int unitid,
 				    kctl->id.name, sizeof(kctl->id.name), 0);
 		/* ... or use the fixed string "USB" as the last resort */
 		if (!len)
+<<<<<<< HEAD
 			strlcpy(kctl->id.name, "USB", sizeof(kctl->id.name));
+=======
+			strscpy(kctl->id.name, "USB", sizeof(kctl->id.name));
+>>>>>>> upstream/android-13
 
 		/* and add the proper suffix */
 		if (desc->bDescriptorSubtype == UAC2_CLOCK_SELECTOR ||
@@ -3136,7 +3372,10 @@ static int snd_usb_mixer_controls(struct usb_mixer_interface *mixer)
 			state.map = map->map;
 			state.selector_map = map->selector_map;
 			mixer->connector_map = map->connector_map;
+<<<<<<< HEAD
 			mixer->ignore_ctl_error |= map->ignore_ctl_error;
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -3260,8 +3499,22 @@ static void snd_usb_mixer_dump_cval(struct snd_info_buffer *buffer,
 				    struct usb_mixer_elem_list *list)
 {
 	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
+<<<<<<< HEAD
 	static const char * const val_types[] = {"BOOLEAN", "INV_BOOLEAN",
 				    "S8", "U8", "S16", "U16"};
+=======
+	static const char * const val_types[] = {
+		[USB_MIXER_BOOLEAN] = "BOOLEAN",
+		[USB_MIXER_INV_BOOLEAN] = "INV_BOOLEAN",
+		[USB_MIXER_S8] = "S8",
+		[USB_MIXER_U8] = "U8",
+		[USB_MIXER_S16] = "S16",
+		[USB_MIXER_U16] = "U16",
+		[USB_MIXER_S32] = "S32",
+		[USB_MIXER_U32] = "U32",
+		[USB_MIXER_BESPOKEN] = "BESPOKEN",
+	};
+>>>>>>> upstream/android-13
 	snd_iprintf(buffer, "    Info: id=%i, control=%i, cmask=0x%x, "
 			    "channels=%i, type=\"%s\"\n", cval->head.id,
 			    cval->control, cval->cmask, cval->channels,
@@ -3281,7 +3534,11 @@ static void snd_usb_mixer_proc_read(struct snd_info_entry *entry,
 	list_for_each_entry(mixer, &chip->mixer_list, list) {
 		snd_iprintf(buffer,
 			"USB Mixer: usb_id=0x%08x, ctrlif=%i, ctlerr=%i\n",
+<<<<<<< HEAD
 				chip->usb_id, snd_usb_ctrl_intf(chip),
+=======
+				chip->usb_id, mixer_ctrl_intf(mixer),
+>>>>>>> upstream/android-13
 				mixer->ignore_ctl_error);
 		snd_iprintf(buffer, "Card: %s\n", chip->card->longname);
 		for (unitid = 0; unitid < MAX_ID_ELEMS; unitid++) {
@@ -3452,6 +3709,7 @@ static int snd_usb_mixer_status_create(struct usb_mixer_interface *mixer)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int keep_iface_ctl_get(struct snd_kcontrol *kcontrol,
 			      struct snd_ctl_elem_value *ucontrol)
 {
@@ -3502,6 +3760,14 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
 	};
 	struct usb_mixer_interface *mixer;
 	struct snd_info_entry *entry;
+=======
+int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif)
+{
+	static const struct snd_device_ops dev_ops = {
+		.dev_free = snd_usb_mixer_dev_free
+	};
+	struct usb_mixer_interface *mixer;
+>>>>>>> upstream/android-13
 	int err;
 
 	strcpy(chip->card->mixername, "USB Mixer");
@@ -3510,7 +3776,11 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
 	if (!mixer)
 		return -ENOMEM;
 	mixer->chip = chip;
+<<<<<<< HEAD
 	mixer->ignore_ctl_error = ignore_error;
+=======
+	mixer->ignore_ctl_error = !!(chip->quirk_flags & QUIRK_FLAG_IGNORE_CTL_ERROR);
+>>>>>>> upstream/android-13
 	mixer->id_elems = kcalloc(MAX_ID_ELEMS, sizeof(*mixer->id_elems),
 				  GFP_KERNEL);
 	if (!mixer->id_elems) {
@@ -3547,10 +3817,13 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
 	if (err < 0)
 		goto _error;
 
+<<<<<<< HEAD
 	err = create_keep_iface_ctl(mixer);
 	if (err < 0)
 		goto _error;
 
+=======
+>>>>>>> upstream/android-13
 	err = snd_usb_mixer_apply_create_quirk(mixer);
 	if (err < 0)
 		goto _error;
@@ -3559,9 +3832,15 @@ int snd_usb_create_mixer(struct snd_usb_audio *chip, int ctrlif,
 	if (err < 0)
 		goto _error;
 
+<<<<<<< HEAD
 	if (list_empty(&chip->mixer_list) &&
 	    !snd_card_proc_new(chip->card, "usbmixer", &entry))
 		snd_info_set_text_ops(entry, chip, snd_usb_mixer_proc_read);
+=======
+	if (list_empty(&chip->mixer_list))
+		snd_card_ro_proc_new(chip->card, "usbmixer", chip,
+				     snd_usb_mixer_proc_read);
+>>>>>>> upstream/android-13
 
 	list_add(&mixer->list, &chip->mixer_list);
 	return 0;
@@ -3579,6 +3858,11 @@ void snd_usb_mixer_disconnect(struct usb_mixer_interface *mixer)
 		usb_kill_urb(mixer->urb);
 	if (mixer->rc_urb)
 		usb_kill_urb(mixer->rc_urb);
+<<<<<<< HEAD
+=======
+	if (mixer->private_free)
+		mixer->private_free(mixer);
+>>>>>>> upstream/android-13
 	mixer->disconnected = true;
 }
 
@@ -3606,6 +3890,11 @@ static int snd_usb_mixer_activate(struct usb_mixer_interface *mixer)
 int snd_usb_mixer_suspend(struct usb_mixer_interface *mixer)
 {
 	snd_usb_mixer_inactivate(mixer);
+<<<<<<< HEAD
+=======
+	if (mixer->private_suspend)
+		mixer->private_suspend(mixer);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3614,6 +3903,12 @@ static int restore_mixer_value(struct usb_mixer_elem_list *list)
 	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
 	int c, err, idx;
 
+<<<<<<< HEAD
+=======
+	if (cval->val_type == USB_MIXER_BESPOKEN)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (cval->cmask) {
 		idx = 0;
 		for (c = 0; c < MAX_CHANNELS; c++) {
@@ -3639,11 +3934,16 @@ static int restore_mixer_value(struct usb_mixer_elem_list *list)
 	return 0;
 }
 
+<<<<<<< HEAD
 int snd_usb_mixer_resume(struct usb_mixer_interface *mixer, bool reset_resume)
+=======
+int snd_usb_mixer_resume(struct usb_mixer_interface *mixer)
+>>>>>>> upstream/android-13
 {
 	struct usb_mixer_elem_list *list;
 	int id, err;
 
+<<<<<<< HEAD
 	if (reset_resume) {
 		/* restore cached mixer values */
 		for (id = 0; id < MAX_ID_ELEMS; id++) {
@@ -3653,6 +3953,15 @@ int snd_usb_mixer_resume(struct usb_mixer_interface *mixer, bool reset_resume)
 					if (err < 0)
 						return err;
 				}
+=======
+	/* restore cached mixer values */
+	for (id = 0; id < MAX_ID_ELEMS; id++) {
+		for_each_mixer_elem(list, mixer, id) {
+			if (list->resume) {
+				err = list->resume(list);
+				if (err < 0)
+					return err;
+>>>>>>> upstream/android-13
 			}
 		}
 	}

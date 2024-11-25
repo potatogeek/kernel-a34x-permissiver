@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the Diolan DLN-2 USB adapter
  *
@@ -6,10 +10,13 @@
  * Derived from:
  *  i2c-diolan-u2c.c
  *  Copyright (c) 2010-2011 Ericsson AB
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -53,6 +60,10 @@ enum dln2_handle {
 	DLN2_HANDLE_GPIO,
 	DLN2_HANDLE_I2C,
 	DLN2_HANDLE_SPI,
+<<<<<<< HEAD
+=======
+	DLN2_HANDLE_ADC,
+>>>>>>> upstream/android-13
 	DLN2_HANDLES
 };
 
@@ -652,38 +663,100 @@ static int dln2_start_rx_urbs(struct dln2_dev *dln2, gfp_t gfp)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+enum {
+	DLN2_ACPI_MATCH_GPIO	= 0,
+	DLN2_ACPI_MATCH_I2C	= 1,
+	DLN2_ACPI_MATCH_SPI	= 2,
+	DLN2_ACPI_MATCH_ADC	= 3,
+};
+
+>>>>>>> upstream/android-13
 static struct dln2_platform_data dln2_pdata_gpio = {
 	.handle = DLN2_HANDLE_GPIO,
 };
 
+<<<<<<< HEAD
+=======
+static struct mfd_cell_acpi_match dln2_acpi_match_gpio = {
+	.adr = DLN2_ACPI_MATCH_GPIO,
+};
+
+>>>>>>> upstream/android-13
 /* Only one I2C port seems to be supported on current hardware */
 static struct dln2_platform_data dln2_pdata_i2c = {
 	.handle = DLN2_HANDLE_I2C,
 	.port = 0,
 };
 
+<<<<<<< HEAD
+=======
+static struct mfd_cell_acpi_match dln2_acpi_match_i2c = {
+	.adr = DLN2_ACPI_MATCH_I2C,
+};
+
+>>>>>>> upstream/android-13
 /* Only one SPI port supported */
 static struct dln2_platform_data dln2_pdata_spi = {
 	.handle = DLN2_HANDLE_SPI,
 	.port = 0,
 };
 
+<<<<<<< HEAD
 static const struct mfd_cell dln2_devs[] = {
 	{
 		.name = "dln2-gpio",
+=======
+static struct mfd_cell_acpi_match dln2_acpi_match_spi = {
+	.adr = DLN2_ACPI_MATCH_SPI,
+};
+
+/* Only one ADC port supported */
+static struct dln2_platform_data dln2_pdata_adc = {
+	.handle = DLN2_HANDLE_ADC,
+	.port = 0,
+};
+
+static struct mfd_cell_acpi_match dln2_acpi_match_adc = {
+	.adr = DLN2_ACPI_MATCH_ADC,
+};
+
+static const struct mfd_cell dln2_devs[] = {
+	{
+		.name = "dln2-gpio",
+		.acpi_match = &dln2_acpi_match_gpio,
+>>>>>>> upstream/android-13
 		.platform_data = &dln2_pdata_gpio,
 		.pdata_size = sizeof(struct dln2_platform_data),
 	},
 	{
 		.name = "dln2-i2c",
+<<<<<<< HEAD
+=======
+		.acpi_match = &dln2_acpi_match_i2c,
+>>>>>>> upstream/android-13
 		.platform_data = &dln2_pdata_i2c,
 		.pdata_size = sizeof(struct dln2_platform_data),
 	},
 	{
 		.name = "dln2-spi",
+<<<<<<< HEAD
 		.platform_data = &dln2_pdata_spi,
 		.pdata_size = sizeof(struct dln2_platform_data),
 	},
+=======
+		.acpi_match = &dln2_acpi_match_spi,
+		.platform_data = &dln2_pdata_spi,
+		.pdata_size = sizeof(struct dln2_platform_data),
+	},
+	{
+		.name = "dln2-adc",
+		.acpi_match = &dln2_acpi_match_adc,
+		.platform_data = &dln2_pdata_adc,
+		.pdata_size = sizeof(struct dln2_platform_data),
+	},
+>>>>>>> upstream/android-13
 };
 
 static void dln2_stop(struct dln2_dev *dln2)

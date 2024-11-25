@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ff-transaction.c - a part of driver for RME Fireface series
  *
  * Copyright (c) 2015-2017 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ff.h"
@@ -51,23 +58,34 @@ static void finish_transmit_midi1_msg(struct fw_card *card, int rcode,
 	finish_transmit_midi_msg(ff, 1, rcode);
 }
 
+<<<<<<< HEAD
 static inline void fill_midi_buf(struct snd_ff *ff, unsigned int port,
 				 unsigned int index, u8 byte)
 {
 	ff->msg_buf[port][index] = cpu_to_le32(byte);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void transmit_midi_msg(struct snd_ff *ff, unsigned int port)
 {
 	struct snd_rawmidi_substream *substream =
 			READ_ONCE(ff->rx_midi_substreams[port]);
+<<<<<<< HEAD
 	u8 *buf = (u8 *)ff->msg_buf[port];
 	int i, len;
+=======
+	int quad_count;
+>>>>>>> upstream/android-13
 
 	struct fw_device *fw_dev = fw_parent_device(ff->unit);
 	unsigned long long addr;
 	int generation;
 	fw_transaction_callback_t callback;
+<<<<<<< HEAD
+=======
+	int tcode;
+>>>>>>> upstream/android-13
 
 	if (substream == NULL || snd_rawmidi_transmit_empty(substream))
 		return;
@@ -81,6 +99,7 @@ static void transmit_midi_msg(struct snd_ff *ff, unsigned int port)
 		return;
 	}
 
+<<<<<<< HEAD
 	len = snd_rawmidi_transmit_peek(substream, buf,
 					SND_FF_MAXIMIM_MIDI_QUADS);
 	if (len <= 0)
@@ -94,13 +113,33 @@ static void transmit_midi_msg(struct snd_ff *ff, unsigned int port)
 		callback = finish_transmit_midi0_msg;
 	} else {
 		addr = ff->spec->protocol->midi_rx_port_1_reg;
+=======
+	quad_count = ff->spec->protocol->fill_midi_msg(ff, substream, port);
+	if (quad_count <= 0)
+		return;
+
+	if (port == 0) {
+		addr = ff->spec->midi_rx_addrs[0];
+		callback = finish_transmit_midi0_msg;
+	} else {
+		addr = ff->spec->midi_rx_addrs[1];
+>>>>>>> upstream/android-13
 		callback = finish_transmit_midi1_msg;
 	}
 
 	/* Set interval to next transaction. */
 	ff->next_ktime[port] = ktime_add_ns(ktime_get(),
+<<<<<<< HEAD
 					    len * 8 * (NSEC_PER_SEC / 31250));
 	ff->rx_bytes[port] = len;
+=======
+			ff->rx_bytes[port] * 8 * (NSEC_PER_SEC / 31250));
+
+	if (quad_count == 1)
+		tcode = TCODE_WRITE_QUADLET_REQUEST;
+	else
+		tcode = TCODE_WRITE_BLOCK_REQUEST;
+>>>>>>> upstream/android-13
 
 	/*
 	 * In Linux FireWire core, when generation is updated with memory
@@ -112,10 +151,16 @@ static void transmit_midi_msg(struct snd_ff *ff, unsigned int port)
 	 */
 	generation = fw_dev->generation;
 	smp_rmb();
+<<<<<<< HEAD
 	fw_send_request(fw_dev->card, &ff->transactions[port],
 			TCODE_WRITE_BLOCK_REQUEST,
 			fw_dev->node_id, generation, fw_dev->max_speed,
 			addr, &ff->msg_buf[port], len * 4,
+=======
+	fw_send_request(fw_dev->card, &ff->transactions[port], tcode,
+			fw_dev->node_id, generation, fw_dev->max_speed,
+			addr, &ff->msg_buf[port], quad_count * 4,
+>>>>>>> upstream/android-13
 			callback, &ff->transactions[port]);
 }
 
@@ -140,6 +185,7 @@ static void handle_midi_msg(struct fw_card *card, struct fw_request *request,
 {
 	struct snd_ff *ff = callback_data;
 	__le32 *buf = data;
+<<<<<<< HEAD
 	u32 quad;
 	u8 byte;
 	unsigned int index;
@@ -176,6 +222,14 @@ static void handle_midi_msg(struct fw_card *card, struct fw_request *request,
 			}
 		}
 	}
+=======
+
+	fw_send_response(card, request, RCODE_COMPLETE);
+
+	offset -= ff->async_handler.offset;
+	ff->spec->protocol->handle_midi_msg(ff, (unsigned int)offset, buf,
+					    length);
+>>>>>>> upstream/android-13
 }
 
 static int allocate_own_address(struct snd_ff *ff, int i)
@@ -183,7 +237,11 @@ static int allocate_own_address(struct snd_ff *ff, int i)
 	struct fw_address_region midi_msg_region;
 	int err;
 
+<<<<<<< HEAD
 	ff->async_handler.length = SND_FF_MAXIMIM_MIDI_QUADS * 4;
+=======
+	ff->async_handler.length = ff->spec->midi_addr_range;
+>>>>>>> upstream/android-13
 	ff->async_handler.address_callback = handle_midi_msg;
 	ff->async_handler.callback_data = ff;
 
@@ -202,6 +260,7 @@ static int allocate_own_address(struct snd_ff *ff, int i)
 	return err;
 }
 
+<<<<<<< HEAD
 /*
  * The configuration to start asynchronous transactions for MIDI messages is in
  * 0x'0000'8010'051c. This register includes the other options, thus this driver
@@ -234,6 +293,15 @@ static int allocate_own_address(struct snd_ff *ff, int i)
  * asynchronous transactions. These two bits have the same effect.
  *  - 1st/2nd: cancel transferring
  */
+=======
+// Controllers are allowed to register higher 4 bytes of destination address to
+// receive asynchronous transactions for MIDI messages, while the way to
+// register lower 4 bytes of address is different depending on protocols. For
+// details, please refer to comments in protocol implementations.
+//
+// This driver expects userspace applications to configure registers for the
+// lower address because in most cases such registers has the other settings.
+>>>>>>> upstream/android-13
 int snd_ff_transaction_reregister(struct snd_ff *ff)
 {
 	struct fw_card *fw_card = fw_parent_device(ff->unit)->card;
@@ -247,7 +315,11 @@ int snd_ff_transaction_reregister(struct snd_ff *ff)
 	addr = (fw_card->node_id << 16) | (ff->async_handler.offset >> 32);
 	reg = cpu_to_le32(addr);
 	return snd_fw_transaction(ff->unit, TCODE_WRITE_QUADLET_REQUEST,
+<<<<<<< HEAD
 				  ff->spec->protocol->midi_high_addr_reg,
+=======
+				  ff->spec->midi_high_addr,
+>>>>>>> upstream/android-13
 				  &reg, sizeof(reg), 0);
 }
 
@@ -288,7 +360,11 @@ void snd_ff_transaction_unregister(struct snd_ff *ff)
 	/* Release higher 4 bytes of address. */
 	reg = cpu_to_le32(0x00000000);
 	snd_fw_transaction(ff->unit, TCODE_WRITE_QUADLET_REQUEST,
+<<<<<<< HEAD
 			   ff->spec->protocol->midi_high_addr_reg,
+=======
+			   ff->spec->midi_high_addr,
+>>>>>>> upstream/android-13
 			   &reg, sizeof(reg), 0);
 
 	fw_core_remove_address_handler(&ff->async_handler);

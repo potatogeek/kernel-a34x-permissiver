@@ -1,22 +1,36 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support PCI IO workaround
  *
  *  Copyright (C) 2006 Benjamin Herrenschmidt <benh@kernel.crashing.org>
  *		       IBM, Corp.
  *  (C) Copyright 2007-2008 TOSHIBA CORPORATION
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #undef DEBUG
 
 #include <linux/kernel.h>
 #include <linux/sched/mm.h>	/* for init_mm */
+<<<<<<< HEAD
 
 #include <asm/io.h>
 #include <asm/machdep.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/io.h>
+#include <asm/machdep.h>
+>>>>>>> upstream/android-13
 #include <asm/ppc-pci.h>
 #include <asm/io-workarounds.h>
 #include <asm/pte-walk.h>
@@ -58,7 +72,10 @@ static struct iowa_bus *iowa_pci_find(unsigned long vaddr, unsigned long paddr)
 #ifdef CONFIG_PPC_INDIRECT_MMIO
 struct iowa_bus *iowa_mem_find_bus(const PCI_IO_ADDR addr)
 {
+<<<<<<< HEAD
 	unsigned hugepage_shift;
+=======
+>>>>>>> upstream/android-13
 	struct iowa_bus *bus;
 	int token;
 
@@ -68,11 +85,15 @@ struct iowa_bus *iowa_mem_find_bus(const PCI_IO_ADDR addr)
 		bus = &iowa_busses[token - 1];
 	else {
 		unsigned long vaddr, paddr;
+<<<<<<< HEAD
 		pte_t *ptep;
+=======
+>>>>>>> upstream/android-13
 
 		vaddr = (unsigned long)PCI_FIX_ADDR(addr);
 		if (vaddr < PHB_IO_BASE || vaddr >= PHB_IO_END)
 			return NULL;
+<<<<<<< HEAD
 		/*
 		 * We won't find huge pages here (iomem). Also can't hit
 		 * a page table free due to init_mm
@@ -84,6 +105,11 @@ struct iowa_bus *iowa_mem_find_bus(const PCI_IO_ADDR addr)
 			WARN_ON(hugepage_shift);
 			paddr = pte_pfn(*ptep) << PAGE_SHIFT;
 		}
+=======
+
+		paddr = ppc_find_vmap_phys(vaddr);
+
+>>>>>>> upstream/android-13
 		bus = iowa_pci_find(vaddr, paddr);
 
 		if (bus == NULL)
@@ -152,11 +178,19 @@ static const struct ppc_pci_io iowa_pci_io = {
 };
 
 #ifdef CONFIG_PPC_INDIRECT_MMIO
+<<<<<<< HEAD
 static void __iomem *iowa_ioremap(phys_addr_t addr, unsigned long size,
 				  unsigned long flags, void *caller)
 {
 	struct iowa_bus *bus;
 	void __iomem *res = __ioremap_caller(addr, size, flags, caller);
+=======
+void __iomem *iowa_ioremap(phys_addr_t addr, unsigned long size,
+			   pgprot_t prot, void *caller)
+{
+	struct iowa_bus *bus;
+	void __iomem *res = __ioremap_caller(addr, size, prot, caller);
+>>>>>>> upstream/android-13
 	int busno;
 
 	bus = iowa_pci_find(0, (unsigned long)addr);
@@ -166,6 +200,7 @@ static void __iomem *iowa_ioremap(phys_addr_t addr, unsigned long size,
 	}
 	return res;
 }
+<<<<<<< HEAD
 #else /* CONFIG_PPC_INDIRECT_MMIO */
 #define iowa_ioremap NULL
 #endif /* !CONFIG_PPC_INDIRECT_MMIO */
@@ -180,6 +215,19 @@ static void io_workaround_init(void)
 	ppc_pci_io = iowa_pci_io;
 	ppc_md.ioremap = iowa_ioremap;
 	io_workaround_inited = 1;
+=======
+#endif /* !CONFIG_PPC_INDIRECT_MMIO */
+
+bool io_workaround_inited;
+
+/* Enable IO workaround */
+static void io_workaround_init(void)
+{
+	if (io_workaround_inited)
+		return;
+	ppc_pci_io = iowa_pci_io;
+	io_workaround_inited = true;
+>>>>>>> upstream/android-13
 }
 
 /* Register new bus to support workaround */

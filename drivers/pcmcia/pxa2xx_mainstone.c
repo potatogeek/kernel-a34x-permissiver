@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/pcmcia/pxa2xx_mainstone.c
  *
@@ -6,6 +10,7 @@
  * Created:	May 12, 2004
  * Author:	Nicolas Pitre
  * Copyright:	MontaVista Software Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,11 +22,21 @@
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/interrupt.h>
+=======
+ */
+#include <linux/gpio/consumer.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+#include <linux/kernel.h>
+#include <linux/errno.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 
 #include <pcmcia/ss.h>
 
 #include <asm/mach-types.h>
+<<<<<<< HEAD
 #include <asm/irq.h>
 
 #include <mach/pxa2xx-regs.h>
@@ -53,14 +68,53 @@ static int mst_pcmcia_hw_init(struct soc_pcmcia_socket *skt)
 }
 
 static unsigned long mst_pcmcia_status[2];
+=======
+
+#include "soc_common.h"
+#include "max1600.h"
+
+static int mst_pcmcia_hw_init(struct soc_pcmcia_socket *skt)
+{
+	struct device *dev = skt->socket.dev.parent;
+	struct max1600 *m;
+	int ret;
+
+	skt->stat[SOC_STAT_CD].name = skt->nr ? "bdetect" : "adetect";
+	skt->stat[SOC_STAT_BVD1].name = skt->nr ? "bbvd1" : "abvd1";
+	skt->stat[SOC_STAT_BVD2].name = skt->nr ? "bbvd2" : "abvd2";
+	skt->stat[SOC_STAT_RDY].name = skt->nr ? "bready" : "aready";
+	skt->stat[SOC_STAT_VS1].name = skt->nr ? "bvs1" : "avs1";
+	skt->stat[SOC_STAT_VS2].name = skt->nr ? "bvs2" : "avs2";
+
+	skt->gpio_reset = devm_gpiod_get(dev, skt->nr ? "breset" : "areset",
+					 GPIOD_OUT_HIGH);
+	if (IS_ERR(skt->gpio_reset))
+		return PTR_ERR(skt->gpio_reset);
+
+	ret = max1600_init(dev, &m, skt->nr ? MAX1600_CHAN_B : MAX1600_CHAN_A,
+			   MAX1600_CODE_HIGH);
+	if (ret)
+		return ret;
+
+	skt->driver_data = m;
+
+	return soc_pcmcia_request_gpiods(skt);
+}
+
+static unsigned int mst_pcmcia_bvd1_status[2];
+>>>>>>> upstream/android-13
 
 static void mst_pcmcia_socket_state(struct soc_pcmcia_socket *skt,
 				    struct pcmcia_state *state)
 {
+<<<<<<< HEAD
 	unsigned long status, flip;
 
 	status = (skt->nr == 0) ? MST_PCMCIA0 : MST_PCMCIA1;
 	flip = (status ^ mst_pcmcia_status[skt->nr]) & MST_PCMCIA_nSTSCHG_BVD1;
+=======
+	unsigned int flip = mst_pcmcia_bvd1_status[skt->nr] ^ state->bvd1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Workaround for STSCHG which can't be deasserted:
@@ -68,6 +122,7 @@ static void mst_pcmcia_socket_state(struct soc_pcmcia_socket *skt,
 	 * as needed to avoid IRQ locks.
 	 */
 	if (flip) {
+<<<<<<< HEAD
 		mst_pcmcia_status[skt->nr] = status;
 		if (status & MST_PCMCIA_nSTSCHG_BVD1)
 			enable_irq( (skt->nr == 0) ? MAINSTONE_S0_STSCHG_IRQ
@@ -83,11 +138,20 @@ static void mst_pcmcia_socket_state(struct soc_pcmcia_socket *skt,
 	state->bvd2   = (status & MST_PCMCIA_nSPKR_BVD2) ? 1 : 0;
 	state->vs_3v  = (status & MST_PCMCIA_nVS1) ? 0 : 1;
 	state->vs_Xv  = (status & MST_PCMCIA_nVS2) ? 0 : 1;
+=======
+		mst_pcmcia_bvd1_status[skt->nr] = state->bvd1;
+		if (state->bvd1)
+			enable_irq(skt->stat[SOC_STAT_BVD1].irq);
+		else
+			disable_irq(skt->stat[SOC_STAT_BVD2].irq);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int mst_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 				       const socket_state_t *state)
 {
+<<<<<<< HEAD
 	unsigned long power = 0;
 	int ret = 0;
 
@@ -124,6 +188,9 @@ static int mst_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 	}
 
 	return ret;
+=======
+	return max1600_configure(skt->driver_data, state->Vcc, state->Vpp);
+>>>>>>> upstream/android-13
 }
 
 static struct pcmcia_low_level mst_pcmcia_ops __initdata = {

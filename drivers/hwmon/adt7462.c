@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * A hwmon driver for the Analog Devices ADT7462
  * Copyright (C) 2008 IBM
  *
  * Author: Darrick J. Wong <darrick.wong@oracle.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -448,6 +455,10 @@ static const char *voltage_label(struct adt7462_data *data, int which)
 		case 3:
 			return "+1.5V";
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		if (!(data->pin_cfg[1] & ADT7462_PIN22_INPUT))
 			return "+12V3";
@@ -505,6 +516,10 @@ static const char *voltage_label(struct adt7462_data *data, int which)
 		case 3:
 			return "+1.5";
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 11:
 		if (data->pin_cfg[3] >> ADT7462_PIN28_SHIFT ==
 					ADT7462_PIN28_VOLT &&
@@ -542,6 +557,10 @@ static int voltage_multiplier(struct adt7462_data *data, int which)
 		case 3:
 			return 7800;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		if (!(data->pin_cfg[1] & ADT7462_PIN22_INPUT))
 			return 62500;
@@ -599,6 +618,10 @@ static int voltage_multiplier(struct adt7462_data *data, int which)
 		case 3:
 			return 7800;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 11:
 	case 12:
 		if (data->pin_cfg[3] >> ADT7462_PIN28_SHIFT ==
@@ -784,9 +807,14 @@ out:
 	return data;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_min(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t temp_min_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -797,10 +825,16 @@ static ssize_t show_temp_min(struct device *dev,
 	return sprintf(buf, "%d\n", 1000 * (data->temp_min[attr->index] - 64));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_min(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t temp_min_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -822,9 +856,14 @@ static ssize_t set_temp_min(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t temp_max_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -835,10 +874,16 @@ static ssize_t show_temp_max(struct device *dev,
 	return sprintf(buf, "%d\n", 1000 * (data->temp_max[attr->index] - 64));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_max(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t temp_max_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -860,7 +905,11 @@ static ssize_t set_temp_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -874,9 +923,14 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
 				     250 * frac);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_label(struct device *dev,
 			       struct device_attribute *devattr,
 			       char *buf)
+=======
+static ssize_t temp_label_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -884,9 +938,14 @@ static ssize_t show_temp_label(struct device *dev,
 	return sprintf(buf, "%s\n", temp_label(data, attr->index));
 }
 
+<<<<<<< HEAD
 static ssize_t show_volt_max(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t volt_max_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -898,10 +957,16 @@ static ssize_t show_volt_max(struct device *dev,
 	return sprintf(buf, "%d\n", x);
 }
 
+<<<<<<< HEAD
 static ssize_t set_volt_max(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t volt_max_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -926,9 +991,14 @@ static ssize_t set_volt_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_volt_min(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t volt_min_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -940,10 +1010,16 @@ static ssize_t show_volt_min(struct device *dev,
 	return sprintf(buf, "%d\n", x);
 }
 
+<<<<<<< HEAD
 static ssize_t set_volt_min(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t volt_min_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -968,9 +1044,14 @@ static ssize_t set_volt_min(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_voltage(struct device *dev,
 			    struct device_attribute *devattr,
 			    char *buf)
+=======
+static ssize_t voltage_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -982,9 +1063,14 @@ static ssize_t show_voltage(struct device *dev,
 	return sprintf(buf, "%d\n", x);
 }
 
+<<<<<<< HEAD
 static ssize_t show_voltage_label(struct device *dev,
 				  struct device_attribute *devattr,
 				  char *buf)
+=======
+static ssize_t voltage_label_show(struct device *dev,
+				  struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -992,9 +1078,14 @@ static ssize_t show_voltage_label(struct device *dev,
 	return sprintf(buf, "%s\n", voltage_label(data, attr->index));
 }
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev,
 			  struct device_attribute *devattr,
 			  char *buf)
+=======
+static ssize_t alarm_show(struct device *dev,
+			  struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -1012,9 +1103,14 @@ static int fan_enabled(struct adt7462_data *data, int fan)
 	return data->fan_enabled & (1 << fan);
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev,
 			    struct device_attribute *devattr,
 			    char *buf)
+=======
+static ssize_t fan_min_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -1031,9 +1127,15 @@ static ssize_t show_fan_min(struct device *dev,
 	return sprintf(buf, "%d\n", FAN_PERIOD_TO_RPM(temp));
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev,
 			   struct device_attribute *devattr,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -1057,7 +1159,11 @@ static ssize_t set_fan_min(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t fan_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -1071,18 +1177,29 @@ static ssize_t show_fan(struct device *dev, struct device_attribute *devattr,
 		       FAN_PERIOD_TO_RPM(data->fan[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_force_pwm_max(struct device *dev,
 				  struct device_attribute *devattr,
 				  char *buf)
+=======
+static ssize_t force_pwm_max_show(struct device *dev,
+				  struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct adt7462_data *data = adt7462_update_device(dev);
 	return sprintf(buf, "%d\n", (data->cfg2 & ADT7462_FSPD_MASK ? 1 : 0));
 }
 
+<<<<<<< HEAD
 static ssize_t set_force_pwm_max(struct device *dev,
 				 struct device_attribute *devattr,
 				 const char *buf,
 				 size_t count)
+=======
+static ssize_t force_pwm_max_store(struct device *dev,
+				   struct device_attribute *devattr,
+				   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adt7462_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -1105,7 +1222,11 @@ static ssize_t set_force_pwm_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t pwm_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -1113,8 +1234,13 @@ static ssize_t show_pwm(struct device *dev, struct device_attribute *devattr,
 	return sprintf(buf, "%d\n", data->pwm[attr->index]);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev, struct device_attribute *devattr,
 			const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev, struct device_attribute *devattr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -1134,18 +1260,29 @@ static ssize_t set_pwm(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_max(struct device *dev,
 			    struct device_attribute *devattr,
 			    char *buf)
+=======
+static ssize_t pwm_max_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct adt7462_data *data = adt7462_update_device(dev);
 	return sprintf(buf, "%d\n", data->pwm_max);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_max(struct device *dev,
 			   struct device_attribute *devattr,
 			   const char *buf,
 			   size_t count)
+=======
+static ssize_t pwm_max_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adt7462_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -1164,19 +1301,30 @@ static ssize_t set_pwm_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_min(struct device *dev,
 			    struct device_attribute *devattr,
 			    char *buf)
+=======
+static ssize_t pwm_min_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
 	return sprintf(buf, "%d\n", data->pwm_min[attr->index]);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_min(struct device *dev,
 			   struct device_attribute *devattr,
 			   const char *buf,
 			   size_t count)
+=======
+static ssize_t pwm_min_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -1197,9 +1345,14 @@ static ssize_t set_pwm_min(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_hyst(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t pwm_hyst_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -1207,10 +1360,16 @@ static ssize_t show_pwm_hyst(struct device *dev,
 		      (data->pwm_trange[attr->index] & ADT7462_PWM_HYST_MASK));
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_hyst(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t pwm_hyst_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -1236,9 +1395,14 @@ static ssize_t set_pwm_hyst(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_tmax(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t pwm_tmax_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -1251,10 +1415,16 @@ static ssize_t show_pwm_tmax(struct device *dev,
 	return sprintf(buf, "%d\n", tmin + trange);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_tmax(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t pwm_tmax_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int temp;
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -1284,19 +1454,30 @@ static ssize_t set_pwm_tmax(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_tmin(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t pwm_tmin_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
 	return sprintf(buf, "%d\n", 1000 * (data->pwm_tmin[attr->index] - 64));
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_tmin(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t pwm_tmin_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -1318,9 +1499,14 @@ static ssize_t set_pwm_tmin(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_auto(struct device *dev,
 			     struct device_attribute *devattr,
 			     char *buf)
+=======
+static ssize_t pwm_auto_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -1350,10 +1536,16 @@ static void set_pwm_channel(struct i2c_client *client,
 	mutex_unlock(&data->lock);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_auto(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t pwm_auto_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -1375,9 +1567,14 @@ static ssize_t set_pwm_auto(struct device *dev,
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm_auto_temp(struct device *dev,
 				  struct device_attribute *devattr,
 				  char *buf)
+=======
+static ssize_t pwm_auto_temp_show(struct device *dev,
+				  struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = adt7462_update_device(dev);
@@ -1409,10 +1606,16 @@ static int cvt_auto_temp(int input)
 	return ilog2(input);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm_auto_temp(struct device *dev,
 				 struct device_attribute *devattr,
 				 const char *buf,
 				 size_t count)
+=======
+static ssize_t pwm_auto_temp_store(struct device *dev,
+				   struct device_attribute *devattr,
+				   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct adt7462_data *data = dev_get_drvdata(dev);
@@ -1431,6 +1634,7 @@ static ssize_t set_pwm_auto_temp(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp_max,
 		    set_temp_max, 0);
 static SENSOR_DEVICE_ATTR(temp2_max, S_IWUSR | S_IRUGO, show_temp_max,
@@ -1699,6 +1903,201 @@ static SENSOR_DEVICE_ATTR(pwm3_auto_channels_temp, S_IWUSR | S_IRUGO,
 		    show_pwm_auto_temp, set_pwm_auto_temp, 2);
 static SENSOR_DEVICE_ATTR(pwm4_auto_channels_temp, S_IWUSR | S_IRUGO,
 		    show_pwm_auto_temp, set_pwm_auto_temp, 3);
+=======
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp_max, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp_max, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_max, temp_max, 2);
+static SENSOR_DEVICE_ATTR_RW(temp4_max, temp_max, 3);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp_min, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_min, temp_min, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_min, temp_min, 2);
+static SENSOR_DEVICE_ATTR_RW(temp4_min, temp_min, 3);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_input, temp, 3);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_label, temp_label, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_label, temp_label, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_label, temp_label, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_label, temp_label, 3);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_alarm, alarm,
+			     ADT7462_ALARM1 | ADT7462_LT_ALARM);
+static SENSOR_DEVICE_ATTR_RO(temp2_alarm, alarm,
+			     ADT7462_ALARM1 | ADT7462_R1T_ALARM);
+static SENSOR_DEVICE_ATTR_RO(temp3_alarm, alarm,
+			     ADT7462_ALARM1 | ADT7462_R2T_ALARM);
+static SENSOR_DEVICE_ATTR_RO(temp4_alarm, alarm,
+			     ADT7462_ALARM1 | ADT7462_R3T_ALARM);
+
+static SENSOR_DEVICE_ATTR_RW(in1_max, volt_max, 0);
+static SENSOR_DEVICE_ATTR_RW(in2_max, volt_max, 1);
+static SENSOR_DEVICE_ATTR_RW(in3_max, volt_max, 2);
+static SENSOR_DEVICE_ATTR_RW(in4_max, volt_max, 3);
+static SENSOR_DEVICE_ATTR_RW(in5_max, volt_max, 4);
+static SENSOR_DEVICE_ATTR_RW(in6_max, volt_max, 5);
+static SENSOR_DEVICE_ATTR_RW(in7_max, volt_max, 6);
+static SENSOR_DEVICE_ATTR_RW(in8_max, volt_max, 7);
+static SENSOR_DEVICE_ATTR_RW(in9_max, volt_max, 8);
+static SENSOR_DEVICE_ATTR_RW(in10_max, volt_max, 9);
+static SENSOR_DEVICE_ATTR_RW(in11_max, volt_max, 10);
+static SENSOR_DEVICE_ATTR_RW(in12_max, volt_max, 11);
+static SENSOR_DEVICE_ATTR_RW(in13_max, volt_max, 12);
+
+static SENSOR_DEVICE_ATTR_RW(in1_min, volt_min, 0);
+static SENSOR_DEVICE_ATTR_RW(in2_min, volt_min, 1);
+static SENSOR_DEVICE_ATTR_RW(in3_min, volt_min, 2);
+static SENSOR_DEVICE_ATTR_RW(in4_min, volt_min, 3);
+static SENSOR_DEVICE_ATTR_RW(in5_min, volt_min, 4);
+static SENSOR_DEVICE_ATTR_RW(in6_min, volt_min, 5);
+static SENSOR_DEVICE_ATTR_RW(in7_min, volt_min, 6);
+static SENSOR_DEVICE_ATTR_RW(in8_min, volt_min, 7);
+static SENSOR_DEVICE_ATTR_RW(in9_min, volt_min, 8);
+static SENSOR_DEVICE_ATTR_RW(in10_min, volt_min, 9);
+static SENSOR_DEVICE_ATTR_RW(in11_min, volt_min, 10);
+static SENSOR_DEVICE_ATTR_RW(in12_min, volt_min, 11);
+static SENSOR_DEVICE_ATTR_RW(in13_min, volt_min, 12);
+
+static SENSOR_DEVICE_ATTR_RO(in1_input, voltage, 0);
+static SENSOR_DEVICE_ATTR_RO(in2_input, voltage, 1);
+static SENSOR_DEVICE_ATTR_RO(in3_input, voltage, 2);
+static SENSOR_DEVICE_ATTR_RO(in4_input, voltage, 3);
+static SENSOR_DEVICE_ATTR_RO(in5_input, voltage, 4);
+static SENSOR_DEVICE_ATTR_RO(in6_input, voltage, 5);
+static SENSOR_DEVICE_ATTR_RO(in7_input, voltage, 6);
+static SENSOR_DEVICE_ATTR_RO(in8_input, voltage, 7);
+static SENSOR_DEVICE_ATTR_RO(in9_input, voltage, 8);
+static SENSOR_DEVICE_ATTR_RO(in10_input, voltage, 9);
+static SENSOR_DEVICE_ATTR_RO(in11_input, voltage, 10);
+static SENSOR_DEVICE_ATTR_RO(in12_input, voltage, 11);
+static SENSOR_DEVICE_ATTR_RO(in13_input, voltage, 12);
+
+static SENSOR_DEVICE_ATTR_RO(in1_label, voltage_label, 0);
+static SENSOR_DEVICE_ATTR_RO(in2_label, voltage_label, 1);
+static SENSOR_DEVICE_ATTR_RO(in3_label, voltage_label, 2);
+static SENSOR_DEVICE_ATTR_RO(in4_label, voltage_label, 3);
+static SENSOR_DEVICE_ATTR_RO(in5_label, voltage_label, 4);
+static SENSOR_DEVICE_ATTR_RO(in6_label, voltage_label, 5);
+static SENSOR_DEVICE_ATTR_RO(in7_label, voltage_label, 6);
+static SENSOR_DEVICE_ATTR_RO(in8_label, voltage_label, 7);
+static SENSOR_DEVICE_ATTR_RO(in9_label, voltage_label, 8);
+static SENSOR_DEVICE_ATTR_RO(in10_label, voltage_label, 9);
+static SENSOR_DEVICE_ATTR_RO(in11_label, voltage_label, 10);
+static SENSOR_DEVICE_ATTR_RO(in12_label, voltage_label, 11);
+static SENSOR_DEVICE_ATTR_RO(in13_label, voltage_label, 12);
+
+static SENSOR_DEVICE_ATTR_RO(in1_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V0_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in2_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V7_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in3_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V2_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in4_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V6_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in5_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V5_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in6_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V4_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in7_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V3_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in8_alarm, alarm,
+			     ADT7462_ALARM2 | ADT7462_V1_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in9_alarm, alarm,
+			     ADT7462_ALARM3 | ADT7462_V10_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in10_alarm, alarm,
+			     ADT7462_ALARM3 | ADT7462_V9_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in11_alarm, alarm,
+			     ADT7462_ALARM3 | ADT7462_V8_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in12_alarm, alarm,
+			     ADT7462_ALARM3 | ADT7462_V11_ALARM);
+static SENSOR_DEVICE_ATTR_RO(in13_alarm, alarm,
+			     ADT7462_ALARM3 | ADT7462_V12_ALARM);
+
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RW(fan3_min, fan_min, 2);
+static SENSOR_DEVICE_ATTR_RW(fan4_min, fan_min, 3);
+static SENSOR_DEVICE_ATTR_RW(fan5_min, fan_min, 4);
+static SENSOR_DEVICE_ATTR_RW(fan6_min, fan_min, 5);
+static SENSOR_DEVICE_ATTR_RW(fan7_min, fan_min, 6);
+static SENSOR_DEVICE_ATTR_RW(fan8_min, fan_min, 7);
+
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_input, fan, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_input, fan, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_input, fan, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_input, fan, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_input, fan, 7);
+
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F0_ALARM);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F1_ALARM);
+static SENSOR_DEVICE_ATTR_RO(fan3_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F2_ALARM);
+static SENSOR_DEVICE_ATTR_RO(fan4_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F3_ALARM);
+static SENSOR_DEVICE_ATTR_RO(fan5_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F4_ALARM);
+static SENSOR_DEVICE_ATTR_RO(fan6_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F5_ALARM);
+static SENSOR_DEVICE_ATTR_RO(fan7_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F6_ALARM);
+static SENSOR_DEVICE_ATTR_RO(fan8_alarm, alarm,
+			     ADT7462_ALARM4 | ADT7462_F7_ALARM);
+
+static SENSOR_DEVICE_ATTR_RW(force_pwm_max, force_pwm_max, 0);
+
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2, pwm, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3, pwm, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4, pwm, 3);
+
+static SENSOR_DEVICE_ATTR_RW(pwm1_auto_point1_pwm, pwm_min, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2_auto_point1_pwm, pwm_min, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3_auto_point1_pwm, pwm_min, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4_auto_point1_pwm, pwm_min, 3);
+
+static SENSOR_DEVICE_ATTR_RW(pwm1_auto_point2_pwm, pwm_max, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2_auto_point2_pwm, pwm_max, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3_auto_point2_pwm, pwm_max, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4_auto_point2_pwm, pwm_max, 3);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_auto_point1_hyst, pwm_hyst, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_auto_point1_hyst, pwm_hyst, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_auto_point1_hyst, pwm_hyst, 2);
+static SENSOR_DEVICE_ATTR_RW(temp4_auto_point1_hyst, pwm_hyst, 3);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_auto_point2_hyst, pwm_hyst, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_auto_point2_hyst, pwm_hyst, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_auto_point2_hyst, pwm_hyst, 2);
+static SENSOR_DEVICE_ATTR_RW(temp4_auto_point2_hyst, pwm_hyst, 3);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_auto_point1_temp, pwm_tmin, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_auto_point1_temp, pwm_tmin, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_auto_point1_temp, pwm_tmin, 2);
+static SENSOR_DEVICE_ATTR_RW(temp4_auto_point1_temp, pwm_tmin, 3);
+
+static SENSOR_DEVICE_ATTR_RW(temp1_auto_point2_temp, pwm_tmax, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_auto_point2_temp, pwm_tmax, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_auto_point2_temp, pwm_tmax, 2);
+static SENSOR_DEVICE_ATTR_RW(temp4_auto_point2_temp, pwm_tmax, 3);
+
+static SENSOR_DEVICE_ATTR_RW(pwm1_enable, pwm_auto, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2_enable, pwm_auto, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3_enable, pwm_auto, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4_enable, pwm_auto, 3);
+
+static SENSOR_DEVICE_ATTR_RW(pwm1_auto_channels_temp, pwm_auto_temp, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2_auto_channels_temp, pwm_auto_temp, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3_auto_channels_temp, pwm_auto_temp, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4_auto_channels_temp, pwm_auto_temp, 3);
+>>>>>>> upstream/android-13
 
 static struct attribute *adt7462_attrs[] = {
 	&sensor_dev_attr_temp1_max.dev_attr.attr,
@@ -1900,8 +2299,12 @@ static int adt7462_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int adt7462_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int adt7462_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct adt7462_data *data;
@@ -1933,7 +2336,11 @@ static struct i2c_driver adt7462_driver = {
 	.driver = {
 		.name	= "adt7462",
 	},
+<<<<<<< HEAD
 	.probe		= adt7462_probe,
+=======
+	.probe_new	= adt7462_probe,
+>>>>>>> upstream/android-13
 	.id_table	= adt7462_id,
 	.detect		= adt7462_detect,
 	.address_list	= normal_i2c,

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * da7219-aad.c - Dialog DA7219 ALSA SoC AAD Driver
  *
  * Copyright (c) 2015 Dialog Semiconductor Ltd.
  *
  * Author: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -77,7 +84,11 @@ static void da7219_aad_btn_det_work(struct work_struct *work)
 	snd_soc_dapm_sync(dapm);
 
 	do {
+<<<<<<< HEAD
 		statusa = snd_soc_component_read32(component, DA7219_ACCDET_STATUS_A);
+=======
+		statusa = snd_soc_component_read(component, DA7219_ACCDET_STATUS_A);
+>>>>>>> upstream/android-13
 		if (statusa & DA7219_MICBIAS_UP_STS_MASK)
 			micbias_up = true;
 		else if (retries++ < DA7219_AAD_MICBIAS_CHK_RETRIES)
@@ -95,7 +106,11 @@ static void da7219_aad_btn_det_work(struct work_struct *work)
 	 */
 	if (da7219_aad->micbias_pulse_lvl && da7219_aad->micbias_pulse_time) {
 		/* Pulse higher level voltage */
+<<<<<<< HEAD
 		micbias_ctrl = snd_soc_component_read32(component, DA7219_MICBIAS_CTRL);
+=======
+		micbias_ctrl = snd_soc_component_read(component, DA7219_MICBIAS_CTRL);
+>>>>>>> upstream/android-13
 		snd_soc_component_update_bits(component, DA7219_MICBIAS_CTRL,
 				    DA7219_MICBIAS1_LEVEL_MASK,
 				    da7219_aad->micbias_pulse_lvl);
@@ -117,9 +132,15 @@ static void da7219_aad_hptest_work(struct work_struct *work)
 	struct snd_soc_dapm_context *dapm = snd_soc_component_get_dapm(component);
 	struct da7219_priv *da7219 = snd_soc_component_get_drvdata(component);
 
+<<<<<<< HEAD
 	u16 tonegen_freq_hptest;
 	u8 pll_srm_sts, pll_ctrl, gain_ramp_ctrl, accdet_cfg8;
 	int report = 0, ret = 0;
+=======
+	__le16 tonegen_freq_hptest;
+	u8 pll_srm_sts, pll_ctrl, gain_ramp_ctrl, accdet_cfg8;
+	int report = 0, ret;
+>>>>>>> upstream/android-13
 
 	/* Lock DAPM, Kcontrols affected by this test and the PLL */
 	snd_soc_dapm_mutex_lock(dapm);
@@ -145,11 +166,19 @@ static void da7219_aad_hptest_work(struct work_struct *work)
 	 * If MCLK is present, but PLL is not enabled then we enable it here to
 	 * ensure a consistent detection procedure.
 	 */
+<<<<<<< HEAD
 	pll_srm_sts = snd_soc_component_read32(component, DA7219_PLL_SRM_STS);
 	if (pll_srm_sts & DA7219_PLL_SRM_STS_MCLK) {
 		tonegen_freq_hptest = cpu_to_le16(DA7219_AAD_HPTEST_RAMP_FREQ);
 
 		pll_ctrl = snd_soc_component_read32(component, DA7219_PLL_CTRL);
+=======
+	pll_srm_sts = snd_soc_component_read(component, DA7219_PLL_SRM_STS);
+	if (pll_srm_sts & DA7219_PLL_SRM_STS_MCLK) {
+		tonegen_freq_hptest = cpu_to_le16(DA7219_AAD_HPTEST_RAMP_FREQ);
+
+		pll_ctrl = snd_soc_component_read(component, DA7219_PLL_CTRL);
+>>>>>>> upstream/android-13
 		if ((pll_ctrl & DA7219_PLL_MODE_MASK) == DA7219_PLL_MODE_BYPASS)
 			da7219_set_pll(component, DA7219_SYSCLK_PLL,
 				       DA7219_PLL_FREQ_OUT_98304);
@@ -158,7 +187,11 @@ static void da7219_aad_hptest_work(struct work_struct *work)
 	}
 
 	/* Ensure gain ramping at fastest rate */
+<<<<<<< HEAD
 	gain_ramp_ctrl = snd_soc_component_read32(component, DA7219_GAIN_RAMP_CTRL);
+=======
+	gain_ramp_ctrl = snd_soc_component_read(component, DA7219_GAIN_RAMP_CTRL);
+>>>>>>> upstream/android-13
 	snd_soc_component_write(component, DA7219_GAIN_RAMP_CTRL, DA7219_GAIN_RAMP_RATE_X8);
 
 	/* Bypass cache so it saves current settings */
@@ -252,7 +285,11 @@ static void da7219_aad_hptest_work(struct work_struct *work)
 	msleep(DA7219_AAD_HPTEST_PERIOD);
 
 	/* Grab comparator reading */
+<<<<<<< HEAD
 	accdet_cfg8 = snd_soc_component_read32(component, DA7219_ACCDET_CONFIG_8);
+=======
+	accdet_cfg8 = snd_soc_component_read(component, DA7219_ACCDET_CONFIG_8);
+>>>>>>> upstream/android-13
 	if (accdet_cfg8 & DA7219_HPTEST_COMP_MASK)
 		report |= SND_JACK_HEADPHONE;
 	else
@@ -361,7 +398,11 @@ static irqreturn_t da7219_aad_irq_thread(int irq, void *data)
 		return IRQ_NONE;
 
 	/* Read status register for jack insertion & type status */
+<<<<<<< HEAD
 	statusa = snd_soc_component_read32(component, DA7219_ACCDET_STATUS_A);
+=======
+	statusa = snd_soc_component_read(component, DA7219_ACCDET_STATUS_A);
+>>>>>>> upstream/android-13
 
 	/* Clear events */
 	regmap_bulk_write(da7219->regmap, DA7219_ACCDET_IRQ_EVENT_A,
@@ -464,7 +505,11 @@ static irqreturn_t da7219_aad_irq_thread(int irq, void *data)
  */
 
 static enum da7219_aad_micbias_pulse_lvl
+<<<<<<< HEAD
 	da7219_aad_fw_micbias_pulse_lvl(struct snd_soc_component *component, u32 val)
+=======
+	da7219_aad_fw_micbias_pulse_lvl(struct device *dev, u32 val)
+>>>>>>> upstream/android-13
 {
 	switch (val) {
 	case 2800:
@@ -472,13 +517,21 @@ static enum da7219_aad_micbias_pulse_lvl
 	case 2900:
 		return DA7219_AAD_MICBIAS_PULSE_LVL_2_9V;
 	default:
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid micbias pulse level");
+=======
+		dev_warn(dev, "Invalid micbias pulse level");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_MICBIAS_PULSE_LVL_OFF;
 	}
 }
 
 static enum da7219_aad_btn_cfg
+<<<<<<< HEAD
 	da7219_aad_fw_btn_cfg(struct snd_soc_component *component, u32 val)
+=======
+	da7219_aad_fw_btn_cfg(struct device *dev, u32 val)
+>>>>>>> upstream/android-13
 {
 	switch (val) {
 	case 2:
@@ -496,13 +549,21 @@ static enum da7219_aad_btn_cfg
 	case 500:
 		return DA7219_AAD_BTN_CFG_500MS;
 	default:
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid button config");
+=======
+		dev_warn(dev, "Invalid button config");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_BTN_CFG_10MS;
 	}
 }
 
 static enum da7219_aad_mic_det_thr
+<<<<<<< HEAD
 	da7219_aad_fw_mic_det_thr(struct snd_soc_component *component, u32 val)
+=======
+	da7219_aad_fw_mic_det_thr(struct device *dev, u32 val)
+>>>>>>> upstream/android-13
 {
 	switch (val) {
 	case 200:
@@ -514,13 +575,21 @@ static enum da7219_aad_mic_det_thr
 	case 1000:
 		return DA7219_AAD_MIC_DET_THR_1000_OHMS;
 	default:
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid mic detect threshold");
+=======
+		dev_warn(dev, "Invalid mic detect threshold");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_MIC_DET_THR_500_OHMS;
 	}
 }
 
 static enum da7219_aad_jack_ins_deb
+<<<<<<< HEAD
 	da7219_aad_fw_jack_ins_deb(struct snd_soc_component *component, u32 val)
+=======
+	da7219_aad_fw_jack_ins_deb(struct device *dev, u32 val)
+>>>>>>> upstream/android-13
 {
 	switch (val) {
 	case 5:
@@ -540,13 +609,21 @@ static enum da7219_aad_jack_ins_deb
 	case 1000:
 		return DA7219_AAD_JACK_INS_DEB_1S;
 	default:
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid jack insert debounce");
+=======
+		dev_warn(dev, "Invalid jack insert debounce");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_JACK_INS_DEB_20MS;
 	}
 }
 
 static enum da7219_aad_jack_det_rate
+<<<<<<< HEAD
 	da7219_aad_fw_jack_det_rate(struct snd_soc_component *component, const char *str)
+=======
+	da7219_aad_fw_jack_det_rate(struct device *dev, const char *str)
+>>>>>>> upstream/android-13
 {
 	if (!strcmp(str, "32ms_64ms")) {
 		return DA7219_AAD_JACK_DET_RATE_32_64MS;
@@ -557,13 +634,21 @@ static enum da7219_aad_jack_det_rate
 	} else if (!strcmp(str, "256ms_512ms")) {
 		return DA7219_AAD_JACK_DET_RATE_256_512MS;
 	} else {
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid jack detect rate");
+=======
+		dev_warn(dev, "Invalid jack detect rate");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_JACK_DET_RATE_256_512MS;
 	}
 }
 
 static enum da7219_aad_jack_rem_deb
+<<<<<<< HEAD
 	da7219_aad_fw_jack_rem_deb(struct snd_soc_component *component, u32 val)
+=======
+	da7219_aad_fw_jack_rem_deb(struct device *dev, u32 val)
+>>>>>>> upstream/android-13
 {
 	switch (val) {
 	case 1:
@@ -575,13 +660,21 @@ static enum da7219_aad_jack_rem_deb
 	case 20:
 		return DA7219_AAD_JACK_REM_DEB_20MS;
 	default:
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid jack removal debounce");
+=======
+		dev_warn(dev, "Invalid jack removal debounce");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_JACK_REM_DEB_1MS;
 	}
 }
 
 static enum da7219_aad_btn_avg
+<<<<<<< HEAD
 	da7219_aad_fw_btn_avg(struct snd_soc_component *component, u32 val)
+=======
+	da7219_aad_fw_btn_avg(struct device *dev, u32 val)
+>>>>>>> upstream/android-13
 {
 	switch (val) {
 	case 1:
@@ -593,13 +686,21 @@ static enum da7219_aad_btn_avg
 	case 8:
 		return DA7219_AAD_BTN_AVG_8;
 	default:
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid button average value");
+=======
+		dev_warn(dev, "Invalid button average value");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_BTN_AVG_2;
 	}
 }
 
 static enum da7219_aad_adc_1bit_rpt
+<<<<<<< HEAD
 	da7219_aad_fw_adc_1bit_rpt(struct snd_soc_component *component, u32 val)
+=======
+	da7219_aad_fw_adc_1bit_rpt(struct device *dev, u32 val)
+>>>>>>> upstream/android-13
 {
 	switch (val) {
 	case 1:
@@ -611,14 +712,23 @@ static enum da7219_aad_adc_1bit_rpt
 	case 8:
 		return DA7219_AAD_ADC_1BIT_RPT_8;
 	default:
+<<<<<<< HEAD
 		dev_warn(component->dev, "Invalid ADC 1-bit repeat value");
+=======
+		dev_warn(dev, "Invalid ADC 1-bit repeat value");
+>>>>>>> upstream/android-13
 		return DA7219_AAD_ADC_1BIT_RPT_1;
 	}
 }
 
+<<<<<<< HEAD
 static struct da7219_aad_pdata *da7219_aad_fw_to_pdata(struct snd_soc_component *component)
 {
 	struct device *dev = component->dev;
+=======
+static struct da7219_aad_pdata *da7219_aad_fw_to_pdata(struct device *dev)
+{
+>>>>>>> upstream/android-13
 	struct i2c_client *i2c = to_i2c_client(dev);
 	struct fwnode_handle *aad_np;
 	struct da7219_aad_pdata *aad_pdata;
@@ -638,7 +748,11 @@ static struct da7219_aad_pdata *da7219_aad_fw_to_pdata(struct snd_soc_component 
 	if (fwnode_property_read_u32(aad_np, "dlg,micbias-pulse-lvl",
 				     &fw_val32) >= 0)
 		aad_pdata->micbias_pulse_lvl =
+<<<<<<< HEAD
 			da7219_aad_fw_micbias_pulse_lvl(component, fw_val32);
+=======
+			da7219_aad_fw_micbias_pulse_lvl(dev, fw_val32);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->micbias_pulse_lvl = DA7219_AAD_MICBIAS_PULSE_LVL_OFF;
 
@@ -647,31 +761,51 @@ static struct da7219_aad_pdata *da7219_aad_fw_to_pdata(struct snd_soc_component 
 		aad_pdata->micbias_pulse_time = fw_val32;
 
 	if (fwnode_property_read_u32(aad_np, "dlg,btn-cfg", &fw_val32) >= 0)
+<<<<<<< HEAD
 		aad_pdata->btn_cfg = da7219_aad_fw_btn_cfg(component, fw_val32);
+=======
+		aad_pdata->btn_cfg = da7219_aad_fw_btn_cfg(dev, fw_val32);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->btn_cfg = DA7219_AAD_BTN_CFG_10MS;
 
 	if (fwnode_property_read_u32(aad_np, "dlg,mic-det-thr", &fw_val32) >= 0)
 		aad_pdata->mic_det_thr =
+<<<<<<< HEAD
 			da7219_aad_fw_mic_det_thr(component, fw_val32);
+=======
+			da7219_aad_fw_mic_det_thr(dev, fw_val32);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->mic_det_thr = DA7219_AAD_MIC_DET_THR_500_OHMS;
 
 	if (fwnode_property_read_u32(aad_np, "dlg,jack-ins-deb", &fw_val32) >= 0)
 		aad_pdata->jack_ins_deb =
+<<<<<<< HEAD
 			da7219_aad_fw_jack_ins_deb(component, fw_val32);
+=======
+			da7219_aad_fw_jack_ins_deb(dev, fw_val32);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->jack_ins_deb = DA7219_AAD_JACK_INS_DEB_20MS;
 
 	if (!fwnode_property_read_string(aad_np, "dlg,jack-det-rate", &fw_str))
 		aad_pdata->jack_det_rate =
+<<<<<<< HEAD
 			da7219_aad_fw_jack_det_rate(component, fw_str);
+=======
+			da7219_aad_fw_jack_det_rate(dev, fw_str);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->jack_det_rate = DA7219_AAD_JACK_DET_RATE_256_512MS;
 
 	if (fwnode_property_read_u32(aad_np, "dlg,jack-rem-deb", &fw_val32) >= 0)
 		aad_pdata->jack_rem_deb =
+<<<<<<< HEAD
 			da7219_aad_fw_jack_rem_deb(component, fw_val32);
+=======
+			da7219_aad_fw_jack_rem_deb(dev, fw_val32);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->jack_rem_deb = DA7219_AAD_JACK_REM_DEB_1MS;
 
@@ -696,13 +830,21 @@ static struct da7219_aad_pdata *da7219_aad_fw_to_pdata(struct snd_soc_component 
 		aad_pdata->c_mic_btn_thr = 0x3E;
 
 	if (fwnode_property_read_u32(aad_np, "dlg,btn-avg", &fw_val32) >= 0)
+<<<<<<< HEAD
 		aad_pdata->btn_avg = da7219_aad_fw_btn_avg(component, fw_val32);
+=======
+		aad_pdata->btn_avg = da7219_aad_fw_btn_avg(dev, fw_val32);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->btn_avg = DA7219_AAD_BTN_AVG_2;
 
 	if (fwnode_property_read_u32(aad_np, "dlg,adc-1bit-rpt", &fw_val32) >= 0)
 		aad_pdata->adc_1bit_rpt =
+<<<<<<< HEAD
 			da7219_aad_fw_adc_1bit_rpt(component, fw_val32);
+=======
+			da7219_aad_fw_adc_1bit_rpt(dev, fw_val32);
+>>>>>>> upstream/android-13
 	else
 		aad_pdata->adc_1bit_rpt = DA7219_AAD_ADC_1BIT_RPT_1;
 
@@ -851,7 +993,11 @@ void da7219_aad_suspend(struct snd_soc_component *component)
 		 * suspend then this will be dealt with through the IRQ handler.
 		 */
 		if (da7219_aad->jack_inserted) {
+<<<<<<< HEAD
 			micbias_ctrl = snd_soc_component_read32(component, DA7219_MICBIAS_CTRL);
+=======
+			micbias_ctrl = snd_soc_component_read(component, DA7219_MICBIAS_CTRL);
+>>>>>>> upstream/android-13
 			if (micbias_ctrl & DA7219_MICBIAS1_EN_MASK) {
 				snd_soc_dapm_disable_pin(dapm, "Mic Bias");
 				snd_soc_dapm_sync(dapm);
@@ -891,6 +1037,7 @@ void da7219_aad_resume(struct snd_soc_component *component)
 int da7219_aad_init(struct snd_soc_component *component)
 {
 	struct da7219_priv *da7219 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	struct da7219_aad_priv *da7219_aad;
 	u8 mask[DA7219_AAD_IRQ_REG_MAX];
 	int ret;
@@ -906,6 +1053,15 @@ int da7219_aad_init(struct snd_soc_component *component)
 	if (da7219->pdata && !da7219->pdata->aad_pdata)
 		da7219->pdata->aad_pdata = da7219_aad_fw_to_pdata(component);
 
+=======
+	struct da7219_aad_priv *da7219_aad = da7219->aad;
+	u8 mask[DA7219_AAD_IRQ_REG_MAX];
+	int ret;
+
+	da7219_aad->component = component;
+
+	/* Handle any DT/ACPI/platform data */
+>>>>>>> upstream/android-13
 	da7219_aad_handle_pdata(component);
 
 	/* Disable button detection */
@@ -951,6 +1107,33 @@ void da7219_aad_exit(struct snd_soc_component *component)
 }
 EXPORT_SYMBOL_GPL(da7219_aad_exit);
 
+<<<<<<< HEAD
+=======
+/*
+ * AAD related I2C probe handling
+ */
+
+int da7219_aad_probe(struct i2c_client *i2c)
+{
+	struct da7219_priv *da7219 = i2c_get_clientdata(i2c);
+	struct device *dev = &i2c->dev;
+	struct da7219_aad_priv *da7219_aad;
+
+	da7219_aad = devm_kzalloc(dev, sizeof(*da7219_aad), GFP_KERNEL);
+	if (!da7219_aad)
+		return -ENOMEM;
+
+	da7219->aad = da7219_aad;
+
+	/* Retrieve any DT/ACPI/platform data */
+	if (da7219->pdata && !da7219->pdata->aad_pdata)
+		da7219->pdata->aad_pdata = da7219_aad_fw_to_pdata(dev);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(da7219_aad_probe);
+
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ASoC DA7219 AAD Driver");
 MODULE_AUTHOR("Adam Thomson <Adam.Thomson.Opensource@diasemi.com>");
 MODULE_LICENSE("GPL");

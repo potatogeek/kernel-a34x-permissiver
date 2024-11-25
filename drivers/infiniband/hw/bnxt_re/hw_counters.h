@@ -51,6 +51,11 @@ enum bnxt_re_hw_stats {
 	BNXT_RE_TX_PKTS,
 	BNXT_RE_TX_BYTES,
 	BNXT_RE_RECOVERABLE_ERRORS,
+<<<<<<< HEAD
+=======
+	BNXT_RE_RX_DROPS,
+	BNXT_RE_RX_DISCARDS,
+>>>>>>> upstream/android-13
 	BNXT_RE_TO_RETRANSMITS,
 	BNXT_RE_SEQ_ERR_NAKS_RCVD,
 	BNXT_RE_MAX_RETRY_EXCEEDED,
@@ -90,6 +95,7 @@ enum bnxt_re_hw_stats {
 	BNXT_RE_RES_SRQ_LOAD_ERR,
 	BNXT_RE_RES_TX_PCI_ERR,
 	BNXT_RE_RES_RX_PCI_ERR,
+<<<<<<< HEAD
 	BNXT_RE_NUM_COUNTERS
 };
 
@@ -98,4 +104,15 @@ struct rdma_hw_stats *bnxt_re_ib_alloc_hw_stats(struct ib_device *ibdev,
 int bnxt_re_ib_get_hw_stats(struct ib_device *ibdev,
 			    struct rdma_hw_stats *stats,
 			    u8 port, int index);
+=======
+	BNXT_RE_OUT_OF_SEQ_ERR,
+	BNXT_RE_NUM_COUNTERS
+};
+
+struct rdma_hw_stats *bnxt_re_ib_alloc_hw_port_stats(struct ib_device *ibdev,
+						     u32 port_num);
+int bnxt_re_ib_get_hw_stats(struct ib_device *ibdev,
+			    struct rdma_hw_stats *stats,
+			    u32 port, int index);
+>>>>>>> upstream/android-13
 #endif /* __BNXT_RE_HW_STATS_H__ */

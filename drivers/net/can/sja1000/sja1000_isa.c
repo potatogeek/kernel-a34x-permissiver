@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Wolfgang Grandegger <wg@grandegger.com>
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2009 Wolfgang Grandegger <wg@grandegger.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -141,7 +147,11 @@ static int sja1000_isa_probe(struct platform_device *pdev)
 			err = -EBUSY;
 			goto exit;
 		}
+<<<<<<< HEAD
 		base = ioremap_nocache(mem[idx], iosize);
+=======
+		base = ioremap(mem[idx], iosize);
+>>>>>>> upstream/android-13
 		if (!base) {
 			err = -ENOMEM;
 			goto exit_release;

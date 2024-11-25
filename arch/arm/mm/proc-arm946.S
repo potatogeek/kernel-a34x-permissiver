@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/arm946.S: utility functions for ARM946E-S
  *
  *  Copyright (C) 2004-2006 Hyok S. Choi (hyok.choi@samsung.com)
  *
  *  (Many of cache codes are from proc-arm926.S)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,15 @@
 #include <asm/hwcap.h>
 #include <asm/pgtable-hwdef.h>
 #include <asm/pgtable.h>
+=======
+ */
+#include <linux/linkage.h>
+#include <linux/init.h>
+#include <linux/pgtable.h>
+#include <asm/assembler.h>
+#include <asm/hwcap.h>
+#include <asm/pgtable-hwdef.h>
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include "proc-macros.S"
 
@@ -399,7 +413,11 @@ __arm946_setup:
 
 	.align
 
+<<<<<<< HEAD
 	.section ".proc.info.init", #alloc
+=======
+	.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 	.type	__arm946_proc_info,#object
 __arm946_proc_info:
 	.long	0x41009460

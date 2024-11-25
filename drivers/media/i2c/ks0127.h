@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Video Capture Driver ( Video for Linux 1/2 )
  * for the Matrox Marvel G200,G400 and Rainbow Runner-G series
@@ -5,6 +9,7 @@
  * This module is an interface to the KS0127 video decoder chip.
  *
  * Copyright (C) 1999  Ryan Drake <stiletto@mediaone.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef KS0127_H

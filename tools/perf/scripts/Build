@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 libperf-$(CONFIG_LIBPERL)   += perl/Perf-Trace-Util/
 libperf-$(CONFIG_LIBPYTHON) += python/Perf-Trace-Util/
+=======
+perf-$(CONFIG_LIBPERL)   += perl/Perf-Trace-Util/
+perf-$(CONFIG_LIBPYTHON) += python/Perf-Trace-Util/
+>>>>>>> upstream/android-13

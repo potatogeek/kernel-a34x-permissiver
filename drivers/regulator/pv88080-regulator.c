@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * pv88080-regulator.c - Regulator device driver for PV88080
  * Copyright (C) 2016  Powerventure Semiconductor Ltd.
@@ -12,6 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// pv88080-regulator.c - Regulator device driver for PV88080
+// Copyright (C) 2016  Powerventure Semiconductor Ltd.
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 #include <linux/i2c.h>
@@ -45,12 +52,16 @@ enum pv88080_types {
 
 struct pv88080_regulator {
 	struct regulator_desc desc;
+<<<<<<< HEAD
 	/* Current limiting */
 	unsigned int n_current_limits;
 	const int *current_limits;
 	unsigned int limit_mask;
 	unsigned int mode_reg;
 	unsigned int limit_reg;
+=======
+	unsigned int mode_reg;
+>>>>>>> upstream/android-13
 	unsigned int conf2;
 	unsigned int conf5;
 };
@@ -102,11 +113,19 @@ static const struct regmap_config pv88080_regmap_config = {
  * Entry indexes corresponds to register values.
  */
 
+<<<<<<< HEAD
 static const int pv88080_buck1_limits[] = {
 	3230000, 5130000, 6960000, 8790000
 };
 
 static const int pv88080_buck23_limits[] = {
+=======
+static const unsigned int pv88080_buck1_limits[] = {
+	3230000, 5130000, 6960000, 8790000
+};
+
+static const unsigned int pv88080_buck23_limits[] = {
+>>>>>>> upstream/android-13
 	1496000, 2393000, 3291000, 4189000
 };
 
@@ -272,6 +291,7 @@ static int pv88080_buck_set_mode(struct regulator_dev *rdev,
 					PV88080_BUCK1_MODE_MASK, val);
 }
 
+<<<<<<< HEAD
 static int pv88080_set_current_limit(struct regulator_dev *rdev, int min,
 				    int max)
 {
@@ -306,6 +326,8 @@ static int pv88080_get_current_limit(struct regulator_dev *rdev)
 	return info->current_limits[data];
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct regulator_ops pv88080_buck_ops = {
 	.get_mode = pv88080_buck_get_mode,
 	.set_mode = pv88080_buck_set_mode,
@@ -315,8 +337,13 @@ static const struct regulator_ops pv88080_buck_ops = {
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.list_voltage = regulator_list_voltage_linear,
+<<<<<<< HEAD
 	.set_current_limit = pv88080_set_current_limit,
 	.get_current_limit = pv88080_get_current_limit,
+=======
+	.set_current_limit = regulator_set_current_limit_regmap,
+	.get_current_limit = regulator_get_current_limit_regmap,
+>>>>>>> upstream/android-13
 };
 
 static const struct regulator_ops pv88080_hvbuck_ops = {
@@ -341,9 +368,15 @@ static const struct regulator_ops pv88080_hvbuck_ops = {
 		.min_uV = min, \
 		.uV_step = step, \
 		.n_voltages = ((max) - (min))/(step) + 1, \
+<<<<<<< HEAD
 	},\
 	.current_limits = limits_array, \
 	.n_current_limits = ARRAY_SIZE(limits_array), \
+=======
+		.curr_table = limits_array, \
+		.n_current_limits = ARRAY_SIZE(limits_array), \
+	},\
+>>>>>>> upstream/android-13
 }
 
 #define PV88080_HVBUCK(chip, regl_name, min, step, max) \
@@ -383,11 +416,18 @@ static irqreturn_t pv88080_irq_handler(int irq, void *data)
 
 	if (reg_val & PV88080_E_VDD_FLT) {
 		for (i = 0; i < PV88080_MAX_REGULATORS; i++) {
+<<<<<<< HEAD
 			if (chip->rdev[i] != NULL) {
 				regulator_notifier_call_chain(chip->rdev[i],
 					REGULATOR_EVENT_UNDER_VOLTAGE,
 					NULL);
 			}
+=======
+			if (chip->rdev[i] != NULL)
+				regulator_notifier_call_chain(chip->rdev[i],
+					REGULATOR_EVENT_UNDER_VOLTAGE,
+					NULL);
+>>>>>>> upstream/android-13
 		}
 
 		err = regmap_write(chip->regmap, PV88080_REG_EVENT_A,
@@ -400,11 +440,18 @@ static irqreturn_t pv88080_irq_handler(int irq, void *data)
 
 	if (reg_val & PV88080_E_OVER_TEMP) {
 		for (i = 0; i < PV88080_MAX_REGULATORS; i++) {
+<<<<<<< HEAD
 			if (chip->rdev[i] != NULL) {
 				regulator_notifier_call_chain(chip->rdev[i],
 					REGULATOR_EVENT_OVER_TEMP,
 					NULL);
 			}
+=======
+			if (chip->rdev[i] != NULL)
+				regulator_notifier_call_chain(chip->rdev[i],
+					REGULATOR_EVENT_OVER_TEMP,
+					NULL);
+>>>>>>> upstream/android-13
 		}
 
 		err = regmap_write(chip->regmap, PV88080_REG_EVENT_A,
@@ -521,9 +568,15 @@ static int pv88080_i2c_probe(struct i2c_client *i2c,
 		if (init_data)
 			config.init_data = &init_data[i];
 
+<<<<<<< HEAD
 		pv88080_regulator_info[i].limit_reg
 			= regmap_config->buck_regmap[i].buck_limit_reg;
 		pv88080_regulator_info[i].limit_mask
+=======
+		pv88080_regulator_info[i].desc.csel_reg
+			= regmap_config->buck_regmap[i].buck_limit_reg;
+		pv88080_regulator_info[i].desc.csel_mask
+>>>>>>> upstream/android-13
 			= regmap_config->buck_regmap[i].buck_limit_mask;
 		pv88080_regulator_info[i].mode_reg
 			= regmap_config->buck_regmap[i].buck_mode_reg;

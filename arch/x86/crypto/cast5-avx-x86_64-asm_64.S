@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Cast5 Cipher 16-way parallel algorithm (AVX/x86_64)
  *
@@ -5,6 +9,7 @@
  *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
  *
  * Copyright © 2012 Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -224,7 +231,11 @@
 .text
 
 .align 16
+<<<<<<< HEAD
 __cast5_enc_blk16:
+=======
+SYM_FUNC_START_LOCAL(__cast5_enc_blk16)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	RL1: blocks 1 and 2
@@ -294,11 +305,19 @@ __cast5_enc_blk16:
 	outunpack_blocks(RR3, RL3, RTMP, RX, RKM);
 	outunpack_blocks(RR4, RL4, RTMP, RX, RKM);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__cast5_enc_blk16)
 
 .align 16
 __cast5_dec_blk16:
+=======
+	RET;
+SYM_FUNC_END(__cast5_enc_blk16)
+
+.align 16
+SYM_FUNC_START_LOCAL(__cast5_dec_blk16)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	RL1: encrypted blocks 1 and 2
@@ -367,14 +386,24 @@ __cast5_dec_blk16:
 	outunpack_blocks(RR3, RL3, RTMP, RX, RKM);
 	outunpack_blocks(RR4, RL4, RTMP, RX, RKM);
 
+<<<<<<< HEAD
 	ret;
+=======
+	RET;
+>>>>>>> upstream/android-13
 
 .L__skip_dec:
 	vpsrldq $4, RKR, RKR;
 	jmp .L__dec_tail;
+<<<<<<< HEAD
 ENDPROC(__cast5_dec_blk16)
 
 ENTRY(cast5_ecb_enc_16way)
+=======
+SYM_FUNC_END(__cast5_dec_blk16)
+
+SYM_FUNC_START(cast5_ecb_enc_16way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -408,10 +437,17 @@ ENTRY(cast5_ecb_enc_16way)
 
 	popq %r15;
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(cast5_ecb_enc_16way)
 
 ENTRY(cast5_ecb_dec_16way)
+=======
+	RET;
+SYM_FUNC_END(cast5_ecb_enc_16way)
+
+SYM_FUNC_START(cast5_ecb_dec_16way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -446,10 +482,17 @@ ENTRY(cast5_ecb_dec_16way)
 
 	popq %r15;
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(cast5_ecb_dec_16way)
 
 ENTRY(cast5_cbc_dec_16way)
+=======
+	RET;
+SYM_FUNC_END(cast5_ecb_dec_16way)
+
+SYM_FUNC_START(cast5_cbc_dec_16way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -498,10 +541,17 @@ ENTRY(cast5_cbc_dec_16way)
 	popq %r15;
 	popq %r12;
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(cast5_cbc_dec_16way)
 
 ENTRY(cast5_ctr_16way)
+=======
+	RET;
+SYM_FUNC_END(cast5_cbc_dec_16way)
+
+SYM_FUNC_START(cast5_ctr_16way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -574,5 +624,10 @@ ENTRY(cast5_ctr_16way)
 	popq %r15;
 	popq %r12;
 	FRAME_END
+<<<<<<< HEAD
 	ret;
 ENDPROC(cast5_ctr_16way)
+=======
+	RET;
+SYM_FUNC_END(cast5_ctr_16way)
+>>>>>>> upstream/android-13

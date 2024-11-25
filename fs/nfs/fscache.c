@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* NFS filesystem cache interface
  *
  * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -122,8 +129,11 @@ void nfs_fscache_get_super_cookie(struct super_block *sb, const char *uniq, int 
 
 	nfss->fscache_key = NULL;
 	nfss->fscache = NULL;
+<<<<<<< HEAD
 	if (!(nfss->options & NFS_OPTION_FSCACHE))
 		return;
+=======
+>>>>>>> upstream/android-13
 	if (!uniq) {
 		uniq = "";
 		ulen = 1;
@@ -134,7 +144,11 @@ void nfs_fscache_get_super_cookie(struct super_block *sb, const char *uniq, int 
 		return;
 
 	key->nfs_client = nfss->nfs_client;
+<<<<<<< HEAD
 	key->key.super.s_flags = sb->s_flags & NFS_MS_MASK;
+=======
+	key->key.super.s_flags = sb->s_flags & NFS_SB_MASK;
+>>>>>>> upstream/android-13
 	key->key.nfs_server.flags = nfss->flags;
 	key->key.nfs_server.rsize = nfss->rsize;
 	key->key.nfs_server.wsize = nfss->wsize;
@@ -391,6 +405,7 @@ static void nfs_readpage_from_fscache_complete(struct page *page,
 		 "NFS: readpage_from_fscache_complete (0x%p/0x%p/%d)\n",
 		 page, context, error);
 
+<<<<<<< HEAD
 	/* if the read completes with an error, we just unlock the page and let
 	 * the VM reissue the readpage */
 	if (!error) {
@@ -401,6 +416,17 @@ static void nfs_readpage_from_fscache_complete(struct page *page,
 		if (error)
 			unlock_page(page);
 	}
+=======
+	/*
+	 * If the read completes with an error, mark the page with PG_checked,
+	 * unlock the page, and let the VM reissue the readpage.
+	 */
+	if (!error)
+		SetPageUptodate(page);
+	else
+		SetPageChecked(page);
+	unlock_page(page);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -415,6 +441,14 @@ int __nfs_readpage_from_fscache(struct nfs_open_context *ctx,
 		 "NFS: readpage_from_fscache(fsc:%p/p:%p(i:%lx f:%lx)/0x%p)\n",
 		 nfs_i_fscache(inode), page, page->index, page->flags, inode);
 
+<<<<<<< HEAD
+=======
+	if (PageChecked(page)) {
+		ClearPageChecked(page);
+		return 1;
+	}
+
+>>>>>>> upstream/android-13
 	ret = fscache_read_or_alloc_page(nfs_i_fscache(inode),
 					 page,
 					 nfs_readpage_from_fscache_complete,

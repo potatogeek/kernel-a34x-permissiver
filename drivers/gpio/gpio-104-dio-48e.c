@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GPIO driver for the ACCES 104-DIO-48E series
  * Copyright (C) 2016 William Breathitt Gray
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver supports the following ACCES devices: 104-DIO-48E and
  * 104-DIO-24E.
  */
@@ -57,6 +64,7 @@ struct dio48e_gpio {
 	unsigned char out_state[6];
 	unsigned char control[2];
 	raw_spinlock_t lock;
+<<<<<<< HEAD
 	unsigned base;
 	unsigned char irq_mask;
 };
@@ -78,6 +86,32 @@ static int dio48e_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
 	const unsigned control_addr = dio48egpio->base + 3 + control_port*4;
 	unsigned long flags;
 	unsigned control;
+=======
+	unsigned int base;
+	unsigned char irq_mask;
+};
+
+static int dio48e_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
+{
+	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
+	const unsigned int port = offset / 8;
+	const unsigned int mask = BIT(offset % 8);
+
+	if (dio48egpio->io_state[port] & mask)
+		return  GPIO_LINE_DIRECTION_IN;
+
+	return GPIO_LINE_DIRECTION_OUT;
+}
+
+static int dio48e_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
+{
+	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
+	const unsigned int io_port = offset / 8;
+	const unsigned int control_port = io_port / 3;
+	const unsigned int control_addr = dio48egpio->base + 3 + control_port * 4;
+	unsigned long flags;
+	unsigned int control;
+>>>>>>> upstream/android-13
 
 	raw_spin_lock_irqsave(&dio48egpio->lock, flags);
 
@@ -109,6 +143,7 @@ static int dio48e_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dio48e_gpio_direction_output(struct gpio_chip *chip, unsigned offset,
 	int value)
 {
@@ -120,6 +155,19 @@ static int dio48e_gpio_direction_output(struct gpio_chip *chip, unsigned offset,
 	const unsigned out_port = (io_port > 2) ? io_port + 1 : io_port;
 	unsigned long flags;
 	unsigned control;
+=======
+static int dio48e_gpio_direction_output(struct gpio_chip *chip, unsigned int offset,
+					int value)
+{
+	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
+	const unsigned int io_port = offset / 8;
+	const unsigned int control_port = io_port / 3;
+	const unsigned int mask = BIT(offset % 8);
+	const unsigned int control_addr = dio48egpio->base + 3 + control_port * 4;
+	const unsigned int out_port = (io_port > 2) ? io_port + 1 : io_port;
+	unsigned long flags;
+	unsigned int control;
+>>>>>>> upstream/android-13
 
 	raw_spin_lock_irqsave(&dio48egpio->lock, flags);
 
@@ -159,6 +207,7 @@ static int dio48e_gpio_direction_output(struct gpio_chip *chip, unsigned offset,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dio48e_gpio_get(struct gpio_chip *chip, unsigned offset)
 {
 	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
@@ -167,6 +216,16 @@ static int dio48e_gpio_get(struct gpio_chip *chip, unsigned offset)
 	const unsigned in_port = (port > 2) ? port + 1 : port;
 	unsigned long flags;
 	unsigned port_state;
+=======
+static int dio48e_gpio_get(struct gpio_chip *chip, unsigned int offset)
+{
+	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
+	const unsigned int port = offset / 8;
+	const unsigned int mask = BIT(offset % 8);
+	const unsigned int in_port = (port > 2) ? port + 1 : port;
+	unsigned long flags;
+	unsigned int port_state;
+>>>>>>> upstream/android-13
 
 	raw_spin_lock_irqsave(&dio48egpio->lock, flags);
 
@@ -183,10 +242,16 @@ static int dio48e_gpio_get(struct gpio_chip *chip, unsigned offset)
 	return !!(port_state & mask);
 }
 
+<<<<<<< HEAD
+=======
+static const size_t ports[] = { 0, 1, 2, 4, 5, 6 };
+
+>>>>>>> upstream/android-13
 static int dio48e_gpio_get_multiple(struct gpio_chip *chip, unsigned long *mask,
 	unsigned long *bits)
 {
 	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	size_t i;
 	static const size_t ports[] = { 0, 1, 2, 4, 5, 6 };
 	const unsigned int gpio_reg_size = 8;
@@ -195,11 +260,17 @@ static int dio48e_gpio_get_multiple(struct gpio_chip *chip, unsigned long *mask,
 	unsigned int word_offset;
 	unsigned long word_mask;
 	const unsigned long port_mask = GENMASK(gpio_reg_size - 1, 0);
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+	unsigned int port_addr;
+>>>>>>> upstream/android-13
 	unsigned long port_state;
 
 	/* clear bits array to a clean slate */
 	bitmap_zero(bits, chip->ngpio);
 
+<<<<<<< HEAD
 	/* get bits are evaluated a gpio port register at a time */
 	for (i = 0; i < ARRAY_SIZE(ports); i++) {
 		/* gpio offset in bits array */
@@ -223,17 +294,33 @@ static int dio48e_gpio_get_multiple(struct gpio_chip *chip, unsigned long *mask,
 
 		/* store acquired bits at respective bits array offset */
 		bits[word_index] |= port_state << word_offset;
+=======
+	for_each_set_clump8(offset, gpio_mask, mask, ARRAY_SIZE(ports) * 8) {
+		port_addr = dio48egpio->base + ports[offset / 8];
+		port_state = inb(port_addr) & gpio_mask;
+
+		bitmap_set_value8(bits, port_state, offset);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void dio48e_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
 {
 	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
 	const unsigned port = offset / 8;
 	const unsigned mask = BIT(offset % 8);
 	const unsigned out_port = (port > 2) ? port + 1 : port;
+=======
+static void dio48e_gpio_set(struct gpio_chip *chip, unsigned int offset, int value)
+{
+	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
+	const unsigned int port = offset / 8;
+	const unsigned int mask = BIT(offset % 8);
+	const unsigned int out_port = (port > 2) ? port + 1 : port;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&dio48egpio->lock, flags);
@@ -252,6 +339,7 @@ static void dio48e_gpio_set_multiple(struct gpio_chip *chip,
 	unsigned long *mask, unsigned long *bits)
 {
 	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(chip);
+<<<<<<< HEAD
 	unsigned int i;
 	const unsigned int gpio_reg_size = 8;
 	unsigned int port;
@@ -270,10 +358,25 @@ static void dio48e_gpio_set_multiple(struct gpio_chip *chip,
 		port = i / gpio_reg_size;
 		out_port = (port > 2) ? port + 1 : port;
 		bitmask = mask[BIT_WORD(i)] & bits[BIT_WORD(i)];
+=======
+	unsigned long offset;
+	unsigned long gpio_mask;
+	size_t index;
+	unsigned int port_addr;
+	unsigned long bitmask;
+	unsigned long flags;
+
+	for_each_set_clump8(offset, gpio_mask, mask, ARRAY_SIZE(ports) * 8) {
+		index = offset / 8;
+		port_addr = dio48egpio->base + ports[index];
+
+		bitmask = bitmap_get_value8(bits, offset) & gpio_mask;
+>>>>>>> upstream/android-13
 
 		raw_spin_lock_irqsave(&dio48egpio->lock, flags);
 
 		/* update output state data and set device gpio register */
+<<<<<<< HEAD
 		dio48egpio->out_state[port] &= ~mask[BIT_WORD(i)];
 		dio48egpio->out_state[port] |= bitmask;
 		outb(dio48egpio->out_state[port], dio48egpio->base + out_port);
@@ -283,6 +386,13 @@ static void dio48e_gpio_set_multiple(struct gpio_chip *chip,
 		/* prepare for next gpio register set */
 		mask[BIT_WORD(i)] >>= gpio_reg_size;
 		bits[BIT_WORD(i)] >>= gpio_reg_size;
+=======
+		dio48egpio->out_state[index] &= ~gpio_mask;
+		dio48egpio->out_state[index] |= bitmask;
+		outb(dio48egpio->out_state[index], port_addr);
+
+		raw_spin_unlock_irqrestore(&dio48egpio->lock, flags);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -342,7 +452,11 @@ static void dio48e_irq_unmask(struct irq_data *data)
 	raw_spin_unlock_irqrestore(&dio48egpio->lock, flags);
 }
 
+<<<<<<< HEAD
 static int dio48e_irq_set_type(struct irq_data *data, unsigned flow_type)
+=======
+static int dio48e_irq_set_type(struct irq_data *data, unsigned int flow_type)
+>>>>>>> upstream/android-13
 {
 	const unsigned long offset = irqd_to_hwirq(data);
 
@@ -372,8 +486,13 @@ static irqreturn_t dio48e_irq_handler(int irq, void *dev_id)
 	unsigned long gpio;
 
 	for_each_set_bit(gpio, &irq_mask, 2)
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(chip->irq.domain,
 			19 + gpio*24));
+=======
+		generic_handle_domain_irq(chip->irq.domain,
+					  19 + gpio*24);
+>>>>>>> upstream/android-13
 
 	raw_spin_lock(&dio48egpio->lock);
 
@@ -404,10 +523,27 @@ static const char *dio48e_names[DIO48E_NGPIO] = {
 	"PPI Group 1 Port C 5", "PPI Group 1 Port C 6", "PPI Group 1 Port C 7"
 };
 
+<<<<<<< HEAD
+=======
+static int dio48e_irq_init_hw(struct gpio_chip *gc)
+{
+	struct dio48e_gpio *const dio48egpio = gpiochip_get_data(gc);
+
+	/* Disable IRQ by default */
+	inb(dio48egpio->base + 0xB);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int dio48e_probe(struct device *dev, unsigned int id)
 {
 	struct dio48e_gpio *dio48egpio;
 	const char *const name = dev_name(dev);
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	int err;
 
 	dio48egpio = devm_kzalloc(dev, sizeof(*dio48egpio), GFP_KERNEL);
@@ -435,6 +571,7 @@ static int dio48e_probe(struct device *dev, unsigned int id)
 	dio48egpio->chip.set_multiple = dio48e_gpio_set_multiple;
 	dio48egpio->base = base[id];
 
+<<<<<<< HEAD
 	raw_spin_lock_init(&dio48egpio->lock);
 
 	err = devm_gpiochip_add_data(dev, &dio48egpio->chip, dio48egpio);
@@ -442,6 +579,19 @@ static int dio48e_probe(struct device *dev, unsigned int id)
 		dev_err(dev, "GPIO registering failed (%d)\n", err);
 		return err;
 	}
+=======
+	girq = &dio48egpio->chip.irq;
+	girq->chip = &dio48e_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+	girq->init_hw = dio48e_irq_init_hw;
+
+	raw_spin_lock_init(&dio48egpio->lock);
+>>>>>>> upstream/android-13
 
 	/* initialize all GPIO as output */
 	outb(0x80, base[id] + 3);
@@ -455,6 +605,7 @@ static int dio48e_probe(struct device *dev, unsigned int id)
 	outb(0x00, base[id] + 6);
 	outb(0x00, base[id] + 7);
 
+<<<<<<< HEAD
 	/* disable IRQ by default */
 	inb(base[id] + 0xB);
 
@@ -462,6 +613,11 @@ static int dio48e_probe(struct device *dev, unsigned int id)
 		handle_edge_irq, IRQ_TYPE_NONE);
 	if (err) {
 		dev_err(dev, "Could not add irqchip (%d)\n", err);
+=======
+	err = devm_gpiochip_add_data(dev, &dio48egpio->chip, dio48egpio);
+	if (err) {
+		dev_err(dev, "GPIO registering failed (%d)\n", err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 

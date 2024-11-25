@@ -24,9 +24,12 @@
 #include <linux/mm.h>
 #include <linux/rcupdate.h>
 #include <linux/atomic.h>
+<<<<<<< HEAD
 #ifdef PROCA_KUNIT_ENABLED
 #include "asm-generic/io.h"
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0)
 
@@ -198,9 +201,14 @@ static inline struct file *get_task_exe_file(struct task_struct *task)
 }
 #endif
 
+<<<<<<< HEAD
 #if (defined(CONFIG_ANDROID) && (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0) || \
 				LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))) || \
 				LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+=======
+#if defined(CONFIG_ANDROID) && (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0) || \
+				LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+>>>>>>> upstream/android-13
 /*
  * __vfs_getxattr was changed in Android Kernel v5.4
  * https://android.googlesource.com/kernel/common/+/3484eba91d6b529cc606486a2db79513f3db6c67
@@ -212,6 +220,7 @@ static inline struct file *get_task_exe_file(struct task_struct *task)
 		__vfs_getxattr(dentry, inode, name, value, size)
 #endif
 
+<<<<<<< HEAD
 /*
  * BASE64 lib appears since kernel v6.0
  */
@@ -260,6 +269,8 @@ static inline int base64_encode(const u8 *src, int srclen, char *dst)
 #define BASE64_CHARS(nbytes)   DIV_ROUND_UP(nbytes, 3) * 4
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 #define __vfs_setxattr_noperm(dentry, name, value, size, flags) \
 		__vfs_setxattr_noperm(&init_user_ns, dentry, name, value, size, flags)

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * AS3711 PMIC regulator driver, using DCDC Step Down and LDO supplies
  *
  * Copyright (C) 2012 Renesas Electronics Corporation
  * Author: Guennadi Liakhovetski, <g.liakhovetski@gmx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License as
  * published by the Free Software Foundation
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -20,6 +27,7 @@
 #include <linux/regulator/of_regulator.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 struct as3711_regulator_info {
 	struct regulator_desc	desc;
 };
@@ -28,6 +36,8 @@ struct as3711_regulator {
 	struct as3711_regulator_info *reg_info;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The regulator API supports 4 modes of operataion: FAST, NORMAL, IDLE and
  * STANDBY. We map them in the following way to AS3711 SD1-4 DCDC modes:
@@ -114,25 +124,40 @@ static const struct regulator_ops as3711_dldo_ops = {
 	.map_voltage		= regulator_map_voltage_linear_range,
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range as3711_sd_ranges[] = {
+=======
+static const struct linear_range as3711_sd_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(612500, 0x1, 0x40, 12500),
 	REGULATOR_LINEAR_RANGE(1425000, 0x41, 0x70, 25000),
 	REGULATOR_LINEAR_RANGE(2650000, 0x71, 0x7f, 50000),
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range as3711_aldo_ranges[] = {
+=======
+static const struct linear_range as3711_aldo_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(1200000, 0, 0xf, 50000),
 	REGULATOR_LINEAR_RANGE(1800000, 0x10, 0x1f, 100000),
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range as3711_dldo_ranges[] = {
+=======
+static const struct linear_range as3711_dldo_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(900000, 0, 0x10, 50000),
 	REGULATOR_LINEAR_RANGE(1750000, 0x20, 0x3f, 50000),
 };
 
 #define AS3711_REG(_id, _en_reg, _en_bit, _vmask, _sfx)			   \
 	[AS3711_REGULATOR_ ## _id] = {					   \
+<<<<<<< HEAD
 	.desc = {							   \
+=======
+>>>>>>> upstream/android-13
 		.name = "as3711-regulator-" # _id,			   \
 		.id = AS3711_REGULATOR_ ## _id,				   \
 		.n_voltages = (_vmask + 1),				   \
@@ -145,10 +170,16 @@ static const struct regulator_linear_range as3711_dldo_ranges[] = {
 		.enable_mask = BIT(_en_bit),				   \
 		.linear_ranges = as3711_ ## _sfx ## _ranges,		   \
 		.n_linear_ranges = ARRAY_SIZE(as3711_ ## _sfx ## _ranges), \
+<<<<<<< HEAD
 	},								   \
 }
 
 static struct as3711_regulator_info as3711_reg_info[] = {
+=======
+}
+
+static const struct regulator_desc as3711_reg_desc[] = {
+>>>>>>> upstream/android-13
 	AS3711_REG(SD_1, SD_CONTROL, 0, 0x7f, sd),
 	AS3711_REG(SD_2, SD_CONTROL, 1, 0x7f, sd),
 	AS3711_REG(SD_3, SD_CONTROL, 2, 0x7f, sd),
@@ -164,7 +195,11 @@ static struct as3711_regulator_info as3711_reg_info[] = {
 	/* StepUp output voltage depends on supplying regulator */
 };
 
+<<<<<<< HEAD
 #define AS3711_REGULATOR_NUM ARRAY_SIZE(as3711_reg_info)
+=======
+#define AS3711_REGULATOR_NUM ARRAY_SIZE(as3711_reg_desc)
+>>>>>>> upstream/android-13
 
 static struct of_regulator_match
 as3711_regulator_matches[AS3711_REGULATOR_NUM] = {
@@ -218,11 +253,16 @@ static int as3711_regulator_probe(struct platform_device *pdev)
 	struct as3711_regulator_pdata *pdata = dev_get_platdata(&pdev->dev);
 	struct as3711 *as3711 = dev_get_drvdata(pdev->dev.parent);
 	struct regulator_config config = {.dev = &pdev->dev,};
+<<<<<<< HEAD
 	struct as3711_regulator *reg = NULL;
 	struct as3711_regulator *regs;
 	struct device_node *of_node[AS3711_REGULATOR_NUM] = {};
 	struct regulator_dev *rdev;
 	struct as3711_regulator_info *ri;
+=======
+	struct device_node *of_node[AS3711_REGULATOR_NUM] = {};
+	struct regulator_dev *rdev;
+>>>>>>> upstream/android-13
 	int ret;
 	int id;
 
@@ -239,6 +279,7 @@ static int as3711_regulator_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	regs = devm_kcalloc(&pdev->dev,
 			    AS3711_REGULATOR_NUM,
 			    sizeof(struct as3711_regulator),
@@ -263,6 +304,22 @@ static int as3711_regulator_probe(struct platform_device *pdev)
 		}
 	}
 	platform_set_drvdata(pdev, regs);
+=======
+	for (id = 0; id < AS3711_REGULATOR_NUM; id++) {
+		config.init_data = pdata->init_data[id];
+		config.regmap = as3711->regmap;
+		config.of_node = of_node[id];
+
+		rdev = devm_regulator_register(&pdev->dev, &as3711_reg_desc[id],
+					       &config);
+		if (IS_ERR(rdev)) {
+			dev_err(&pdev->dev, "Failed to register regulator %s\n",
+				as3711_reg_desc[id].name);
+			return PTR_ERR(rdev);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

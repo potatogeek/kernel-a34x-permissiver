@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  * Header file
  *
@@ -16,6 +17,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -1062,9 +1071,14 @@ static inline int card_power_off_all(struct rtsx_chip *chip)
 	int retval;
 
 	retval = rtsx_write_register(chip, CARD_PWR_CTL, 0x0F, 0x0F);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }

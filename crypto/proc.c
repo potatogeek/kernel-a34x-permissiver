@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Scatterlist Cryptographic API.
  *
@@ -5,12 +9,15 @@
  *
  * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
  * Copyright (c) 2005 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option) 
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -41,7 +48,11 @@ static void c_stop(struct seq_file *m, void *p)
 static int c_show(struct seq_file *m, void *p)
 {
 	struct crypto_alg *alg = list_entry(p, struct crypto_alg, cra_list);
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	seq_printf(m, "name         : %s\n", alg->cra_name);
 	seq_printf(m, "driver       : %s\n", alg->cra_driver_name);
 	seq_printf(m, "module       : %s\n", module_name(alg->cra_module));
@@ -64,8 +75,13 @@ static int c_show(struct seq_file *m, void *p)
 		alg->cra_type->show(m, alg);
 		goto out;
 	}
+<<<<<<< HEAD
 	
 	switch (alg->cra_flags & (CRYPTO_ALG_TYPE_MASK | CRYPTO_ALG_LARVAL)) {
+=======
+
+	switch (alg->cra_flags & CRYPTO_ALG_TYPE_MASK) {
+>>>>>>> upstream/android-13
 	case CRYPTO_ALG_TYPE_CIPHER:
 		seq_printf(m, "type         : cipher\n");
 		seq_printf(m, "blocksize    : %u\n", alg->cra_blocksize);

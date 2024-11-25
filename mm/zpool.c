@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * zpool memory storage api
  *
@@ -22,6 +26,10 @@ struct zpool {
 	void *pool;
 	const struct zpool_ops *ops;
 	bool evictable;
+<<<<<<< HEAD
+=======
+	bool can_sleep_mapped;
+>>>>>>> upstream/android-13
 
 	struct list_head list;
 };
@@ -182,6 +190,10 @@ struct zpool *zpool_create_pool(const char *type, const char *name, gfp_t gfp,
 	zpool->pool = driver->create(name, gfp, ops, zpool);
 	zpool->ops = ops;
 	zpool->evictable = driver->shrink && ops && ops->evict;
+<<<<<<< HEAD
+=======
+	zpool->can_sleep_mapped = driver->sleep_mapped;
+>>>>>>> upstream/android-13
 
 	if (!zpool->pool) {
 		pr_err("couldn't create %s pool\n", type);
@@ -238,6 +250,25 @@ const char *zpool_get_type(struct zpool *zpool)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * zpool_malloc_support_movable() - Check if the zpool supports
+ *	allocating movable memory
+ * @zpool:	The zpool to check
+ *
+ * This returns if the zpool supports allocating movable memory.
+ *
+ * Implementations must guarantee this to be thread-safe.
+ *
+ * Returns: true if the zpool supports allocating movable memory, false if not
+ */
+bool zpool_malloc_support_movable(struct zpool *zpool)
+{
+	return zpool->driver->malloc_support_movable;
+}
+
+/**
+>>>>>>> upstream/android-13
  * zpool_malloc() - Allocate memory
  * @zpool:	The zpool to allocate from.
  * @size:	The amount of memory to allocate.
@@ -317,7 +348,11 @@ int zpool_shrink(struct zpool *zpool, unsigned int pages,
  * This may hold locks, disable interrupts, and/or preemption,
  * and the zpool_unmap_handle() must be called to undo those
  * actions.  The code that uses the mapped handle should complete
+<<<<<<< HEAD
  * its operatons on the mapped handle memory quickly and unmap
+=======
+ * its operations on the mapped handle memory quickly and unmap
+>>>>>>> upstream/android-13
  * as soon as possible.  As the implementation may use per-cpu
  * data, multiple handles should not be mapped concurrently on
  * any cpu.
@@ -376,6 +411,20 @@ bool zpool_evictable(struct zpool *zpool)
 	return zpool->evictable;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * zpool_can_sleep_mapped - Test if zpool can sleep when do mapped.
+ * @zpool:	The zpool to test
+ *
+ * Returns: true if zpool can sleep; false otherwise.
+ */
+bool zpool_can_sleep_mapped(struct zpool *zpool)
+{
+	return zpool->can_sleep_mapped;
+}
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dan Streetman <ddstreet@ieee.org>");
 MODULE_DESCRIPTION("Common API for compressed memory storage");

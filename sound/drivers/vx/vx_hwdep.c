@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram VX soundcards
  *
  * DSP firmware management
  *
  * Copyright (c) 2002 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -45,7 +52,11 @@ MODULE_FIRMWARE("vx/l_1_vp4.d56");
 
 int snd_vx_setup_firmware(struct vx_core *chip)
 {
+<<<<<<< HEAD
 	static char *fw_files[VX_TYPE_NUMS][4] = {
+=======
+	static const char * const fw_files[VX_TYPE_NUMS][4] = {
+>>>>>>> upstream/android-13
 		[VX_TYPE_BOARD] = {
 			NULL, "x1_1_vx2.xlx", "bd56002.boot", "l_1_vx2.d56",
 		},
@@ -91,6 +102,7 @@ int snd_vx_setup_firmware(struct vx_core *chip)
 
 	/* ok, we reached to the last one */
 	/* create the devices if not built yet */
+<<<<<<< HEAD
 	if ((err = snd_vx_pcm_new(chip)) < 0)
 		return err;
 
@@ -100,6 +112,21 @@ int snd_vx_setup_firmware(struct vx_core *chip)
 	if (chip->ops->add_controls)
 		if ((err = chip->ops->add_controls(chip)) < 0)
 			return err;
+=======
+	err = snd_vx_pcm_new(chip);
+	if (err < 0)
+		return err;
+
+	err = snd_vx_mixer_new(chip);
+	if (err < 0)
+		return err;
+
+	if (chip->ops->add_controls) {
+		err = chip->ops->add_controls(chip);
+		if (err < 0)
+			return err;
+	}
+>>>>>>> upstream/android-13
 
 	chip->chip_status |= VX_STAT_DEVICE_INIT;
 	chip->chip_status |= VX_STAT_CHIP_INIT;

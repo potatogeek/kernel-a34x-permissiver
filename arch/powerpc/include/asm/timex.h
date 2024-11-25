@@ -9,7 +9,11 @@
  */
 
 #include <asm/cputable.h>
+<<<<<<< HEAD
 #include <asm/reg.h>
+=======
+#include <asm/vdso/timebase.h>
+>>>>>>> upstream/android-13
 
 #define CLOCK_TICK_RATE	1024000 /* Underlying HZ */
 
@@ -17,6 +21,7 @@ typedef unsigned long cycles_t;
 
 static inline cycles_t get_cycles(void)
 {
+<<<<<<< HEAD
 #ifdef __powerpc64__
 	return mftb();
 #else
@@ -49,6 +54,9 @@ static inline cycles_t get_cycles(void)
 		: "=r" (ret) : "i" (CPU_FTR_601), "i" (SPRN_TBRL));
 	return ret;
 #endif
+=======
+	return mftb();
+>>>>>>> upstream/android-13
 }
 
 #endif	/* __KERNEL__ */

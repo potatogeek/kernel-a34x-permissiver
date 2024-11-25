@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppliedMicro X-Gene SoC GPIO Driver
  *
  * Copyright (c) 2014, Applied Micro Circuits Corporation
  * Author: Feng Kan <fkan@apm.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -91,7 +98,14 @@ static int xgene_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
 	bank_offset = GPIO_SET_DR_OFFSET + GPIO_BANK_OFFSET(offset);
 	bit_offset = GPIO_BIT_OFFSET(offset);
 
+<<<<<<< HEAD
 	return !!(ioread32(chip->base + bank_offset) & BIT(bit_offset));
+=======
+	if (ioread32(chip->base + bank_offset) & BIT(bit_offset))
+		return GPIO_LINE_DIRECTION_IN;
+
+	return GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int xgene_gpio_dir_in(struct gpio_chip *gc, unsigned int offset)
@@ -166,6 +180,7 @@ static SIMPLE_DEV_PM_OPS(xgene_gpio_pm, xgene_gpio_suspend, xgene_gpio_resume);
 
 static int xgene_gpio_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	struct xgene_gpio *gpio;
 	int err = 0;
@@ -188,6 +203,17 @@ static int xgene_gpio_probe(struct platform_device *pdev)
 		err = -ENOMEM;
 		goto err;
 	}
+=======
+	struct xgene_gpio *gpio;
+
+	gpio = devm_kzalloc(&pdev->dev, sizeof(*gpio), GFP_KERNEL);
+	if (!gpio)
+		return -ENOMEM;
+
+	gpio->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(gpio->base))
+		return PTR_ERR(gpio->base);
+>>>>>>> upstream/android-13
 
 	gpio->chip.ngpio = XGENE_MAX_GPIOS;
 
@@ -203,6 +229,7 @@ static int xgene_gpio_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, gpio);
 
+<<<<<<< HEAD
 	err = devm_gpiochip_add_data(&pdev->dev, &gpio->chip, gpio);
 	if (err) {
 		dev_err(&pdev->dev,
@@ -215,6 +242,9 @@ static int xgene_gpio_probe(struct platform_device *pdev)
 err:
 	dev_err(&pdev->dev, "X-Gene GPIO driver registration failed.\n");
 	return err;
+=======
+	return devm_gpiochip_add_data(&pdev->dev, &gpio->chip, gpio);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id xgene_gpio_of_match[] = {

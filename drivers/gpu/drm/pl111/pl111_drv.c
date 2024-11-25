@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (C) COPYRIGHT 2012-2013 ARM Limited. All rights reserved.
  *
@@ -6,6 +10,7 @@
  * Copyright (c) 2006-2008 Intel Corporation
  * Copyright (c) 2007 Dave Airlie <airlied@linux.ie>
  * Copyright (C) 2011 Texas Instruments
+<<<<<<< HEAD
  *
  * This program is free software and is provided to you under the terms of the
  * GNU General Public License version 2 as published by the Free Software
@@ -27,6 +32,16 @@
  * in converting from using fbdev to using DRM, you also need to write
  * a panel driver (which may be as simple as an entry in
  * panel-simple.c).
+=======
+ */
+
+/**
+ * DOC: ARM PrimeCell PL110 and PL111 CLCD Driver
+ *
+ * The PL110/PL111 is a simple LCD controller that can support TFT
+ * and STN displays. This driver exposes a standard KMS interface
+ * for them.
+>>>>>>> upstream/android-13
  *
  * The driver currently doesn't expose the cursor.  The DRM API for
  * cursors requires support for 64x64 ARGB8888 cursor images, while
@@ -34,16 +49,23 @@
  * cursors.  While one could imagine trying to hack something together
  * to look at the ARGB8888 and program reasonable in monochrome, we
  * just don't expose the cursor at all instead, and leave cursor
+<<<<<<< HEAD
  * support to the X11 software cursor layer.
+=======
+ * support to the application software cursor layer.
+>>>>>>> upstream/android-13
  *
  * TODO:
  *
  * - Fix race between setting plane base address and getting IRQ for
  *   vsync firing the pageflip completion.
  *
+<<<<<<< HEAD
  * - Use the "max-memory-bandwidth" DT property to filter the
  *   supported formats.
  *
+=======
+>>>>>>> upstream/android-13
  * - Read back hardware state at boot to skip reprogramming the
  *   hardware when doing a no-op modeset.
  *
@@ -52,6 +74,7 @@
  */
 
 #include <linux/amba/bus.h>
+<<<<<<< HEAD
 #include <linux/amba/clcd-regs.h>
 #include <linux/version.h>
 #include <linux/shmem_fs.h>
@@ -72,6 +95,27 @@
 #include <drm/drm_of.h>
 #include <drm/drm_bridge.h>
 #include <drm/drm_panel.h>
+=======
+#include <linux/dma-buf.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_graph.h>
+#include <linux/of_reserved_mem.h>
+#include <linux/shmem_fs.h>
+#include <linux/slab.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "pl111_drm.h"
 #include "pl111_versatile.h"
@@ -94,10 +138,20 @@ static int pl111_modeset_init(struct drm_device *dev)
 	struct drm_panel *panel = NULL;
 	struct drm_bridge *bridge = NULL;
 	bool defer = false;
+<<<<<<< HEAD
 	int ret = 0;
 	int i;
 
 	drm_mode_config_init(dev);
+=======
+	int ret;
+	int i;
+
+	ret = drmm_mode_config_init(dev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	mode_config = &dev->mode_config;
 	mode_config->funcs = &mode_config_funcs;
 	mode_config->min_width = 1;
@@ -154,11 +208,19 @@ static int pl111_modeset_init(struct drm_device *dev)
 		return -EPROBE_DEFER;
 
 	if (panel) {
+<<<<<<< HEAD
 		bridge = drm_panel_bridge_add(panel,
 					      DRM_MODE_CONNECTOR_Unknown);
 		if (IS_ERR(bridge)) {
 			ret = PTR_ERR(bridge);
 			goto out_config;
+=======
+		bridge = drm_panel_bridge_add_typed(panel,
+						    DRM_MODE_CONNECTOR_Unknown);
+		if (IS_ERR(bridge)) {
+			ret = PTR_ERR(bridge);
+			goto finish;
+>>>>>>> upstream/android-13
 		}
 	} else if (bridge) {
 		dev_info(dev->dev, "Using non-panel bridge\n");
@@ -170,7 +232,11 @@ static int pl111_modeset_init(struct drm_device *dev)
 	priv->bridge = bridge;
 	if (panel) {
 		priv->panel = panel;
+<<<<<<< HEAD
 		priv->connector = panel->connector;
+=======
+		priv->connector = drm_panel_bridge_connector(bridge);
+>>>>>>> upstream/android-13
 	}
 
 	ret = pl111_display_init(dev);
@@ -194,8 +260,11 @@ static int pl111_modeset_init(struct drm_device *dev)
 
 	drm_mode_config_reset(dev);
 
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_init(dev, priv->variant->fb_bpp, 0);
 
+=======
+>>>>>>> upstream/android-13
 	drm_kms_helper_poll_init(dev);
 
 	goto finish;
@@ -203,8 +272,11 @@ static int pl111_modeset_init(struct drm_device *dev)
 out_bridge:
 	if (panel)
 		drm_panel_bridge_remove(bridge);
+<<<<<<< HEAD
 out_config:
 	drm_mode_config_cleanup(dev);
+=======
+>>>>>>> upstream/android-13
 finish:
 	return ret;
 }
@@ -229,10 +301,16 @@ pl111_gem_import_sg_table(struct drm_device *dev,
 
 DEFINE_DRM_GEM_CMA_FOPS(drm_fops);
 
+<<<<<<< HEAD
 static struct drm_driver pl111_drm_driver = {
 	.driver_features =
 		DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
 	.lastclose = drm_fb_helper_lastclose,
+=======
+static const struct drm_driver pl111_drm_driver = {
+	.driver_features =
+		DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+>>>>>>> upstream/android-13
 	.ioctls = NULL,
 	.fops = &drm_fops,
 	.name = "pl111",
@@ -242,6 +320,7 @@ static struct drm_driver pl111_drm_driver = {
 	.minor = 0,
 	.patchlevel = 0,
 	.dumb_create = drm_gem_cma_dumb_create,
+<<<<<<< HEAD
 	.gem_free_object_unlocked = drm_gem_cma_free_object,
 	.gem_vm_ops = &drm_gem_cma_vm_ops,
 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
@@ -252,6 +331,12 @@ static struct drm_driver pl111_drm_driver = {
 	.gem_prime_get_sg_table	= drm_gem_cma_prime_get_sg_table,
 	.gem_prime_mmap = drm_gem_cma_prime_mmap,
 	.gem_prime_vmap = drm_gem_cma_prime_vmap,
+=======
+	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+	.gem_prime_import_sg_table = pl111_gem_import_sg_table,
+	.gem_prime_mmap = drm_gem_prime_mmap,
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_DEBUG_FS)
 	.debugfs_init = pl111_debugfs_init,
@@ -332,6 +417,11 @@ static int pl111_amba_probe(struct amba_device *amba_dev,
 	if (ret < 0)
 		goto dev_put;
 
+<<<<<<< HEAD
+=======
+	drm_fbdev_generic_setup(drm, priv->variant->fb_bpp);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 dev_put:
@@ -341,13 +431,18 @@ dev_put:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int pl111_amba_remove(struct amba_device *amba_dev)
+=======
+static void pl111_amba_remove(struct amba_device *amba_dev)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &amba_dev->dev;
 	struct drm_device *drm = amba_get_drvdata(amba_dev);
 	struct pl111_drm_dev_private *priv = drm->dev_private;
 
 	drm_dev_unregister(drm);
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(drm);
 	if (priv->panel)
 		drm_panel_bridge_remove(priv->bridge);
@@ -356,6 +451,12 @@ static int pl111_amba_remove(struct amba_device *amba_dev)
 	of_reserved_mem_device_release(dev);
 
 	return 0;
+=======
+	if (priv->panel)
+		drm_panel_bridge_remove(priv->bridge);
+	drm_dev_put(drm);
+	of_reserved_mem_device_release(dev);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -452,6 +553,10 @@ static const struct amba_id pl111_id_table[] = {
 	},
 	{0, 0},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(amba, pl111_id_table);
+>>>>>>> upstream/android-13
 
 static struct amba_driver pl111_amba_driver __maybe_unused = {
 	.drv = {

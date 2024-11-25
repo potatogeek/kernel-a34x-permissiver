@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Linux VM pressure
  *
@@ -6,10 +10,13 @@
  *
  * Based on ideas from Andrew Morton, David Rientjes, KOSAKI Motohiro,
  * Leonid Moiseichuk, Mel Gorman, Minchan Kim and Pekka Enberg.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cgroup.h>
@@ -24,6 +31,11 @@
 #include <linux/printk.h>
 #include <linux/vmpressure.h>
 
+<<<<<<< HEAD
+=======
+#include <trace/hooks/mm.h>
+
+>>>>>>> upstream/android-13
 /*
  * The window size (vmpressure_win) is the number of scanned pages before
  * we try to analyze scanned/reclaimed ratio. So the window is used as a
@@ -77,8 +89,12 @@ static struct vmpressure *work_to_vmpressure(struct work_struct *work)
 
 static struct vmpressure *vmpressure_parent(struct vmpressure *vmpr)
 {
+<<<<<<< HEAD
 	struct cgroup_subsys_state *css = vmpressure_to_css(vmpr);
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
+=======
+	struct mem_cgroup *memcg = vmpressure_to_memcg(vmpr);
+>>>>>>> upstream/android-13
 
 	memcg = parent_mem_cgroup(memcg);
 	if (!memcg)
@@ -243,7 +259,21 @@ static void vmpressure_work_fn(struct work_struct *work)
 void vmpressure(gfp_t gfp, struct mem_cgroup *memcg, bool tree,
 		unsigned long scanned, unsigned long reclaimed)
 {
+<<<<<<< HEAD
 	struct vmpressure *vmpr = memcg_to_vmpressure(memcg);
+=======
+	struct vmpressure *vmpr;
+	bool bypass = false;
+
+	if (mem_cgroup_disabled())
+		return;
+
+	trace_android_vh_vmpressure(memcg, &bypass);
+	if (bypass)
+		return;
+
+	vmpr = memcg_to_vmpressure(memcg);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Here we only want to account pressure that userland is able to
@@ -283,7 +313,11 @@ void vmpressure(gfp_t gfp, struct mem_cgroup *memcg, bool tree,
 		enum vmpressure_levels level;
 
 		/* For now, no users for root-level efficiency */
+<<<<<<< HEAD
 		if (!memcg || memcg == root_mem_cgroup)
+=======
+		if (!memcg || mem_cgroup_is_root(memcg))
+>>>>>>> upstream/android-13
 			return;
 
 		spin_lock(&vmpr->sr_lock);
@@ -374,10 +408,15 @@ int vmpressure_register_event(struct mem_cgroup *memcg,
 	int ret = 0;
 
 	spec_orig = spec = kstrndup(args, MAX_VMPRESSURE_ARGS_LEN, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!spec) {
 		ret = -ENOMEM;
 		goto out;
 	}
+=======
+	if (!spec)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Find required level */
 	token = strsep(&spec, ",");

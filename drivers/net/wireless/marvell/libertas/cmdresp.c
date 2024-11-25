@@ -220,9 +220,14 @@ done:
 	return ret;
 }
 
+<<<<<<< HEAD
 int lbs_process_event(struct lbs_private *priv, u32 event)
 {
 	int ret = 0;
+=======
+void lbs_process_event(struct lbs_private *priv, u32 event)
+{
+>>>>>>> upstream/android-13
 	struct cmd_header cmd;
 
 	switch (event) {
@@ -351,6 +356,9 @@ int lbs_process_event(struct lbs_private *priv, u32 event)
 		netdev_alert(priv->dev, "EVENT: unknown event id %d\n", event);
 		break;
 	}
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }

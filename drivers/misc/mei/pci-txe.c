@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Intel Management Engine Interface (Intel MEI) Linux driver
@@ -12,19 +13,31 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2013-2020, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/fs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/types.h>
 #include <linux/pci.h>
 #include <linux/init.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <linux/uuid.h>
 #include <linux/jiffies.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/workqueue.h>
 #include <linux/pm_domain.h>
@@ -141,7 +154,11 @@ static int mei_txe_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 * MEI requires to resume from runtime suspend mode
 	 * in order to perform link reset flow upon system suspend.
 	 */
+<<<<<<< HEAD
 	dev_pm_set_driver_flags(&pdev->dev, DPM_FLAG_NEVER_SKIP);
+=======
+	dev_pm_set_driver_flags(&pdev->dev, DPM_FLAG_NO_DIRECT_COMPLETE);
+>>>>>>> upstream/android-13
 
 	/*
 	 * TXE maps runtime suspend/resume to own power gating states,
@@ -169,7 +186,11 @@ end:
 }
 
 /**
+<<<<<<< HEAD
  * mei_txe_remove - Device Shutdown Routine
+=======
+ * mei_txe_shutdown- Device Shutdown Routine
+>>>>>>> upstream/android-13
  *
  * @pdev: PCI device structure
  *
@@ -286,12 +307,20 @@ static int mei_txe_pci_resume(struct device *device)
 #ifdef CONFIG_PM
 static int mei_txe_pm_runtime_idle(struct device *device)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mei_device *dev;
 
 	dev_dbg(&pdev->dev, "rpm: txe: runtime_idle\n");
 
 	dev = pci_get_drvdata(pdev);
+=======
+	struct mei_device *dev;
+
+	dev_dbg(device, "rpm: txe: runtime_idle\n");
+
+	dev = dev_get_drvdata(device);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -ENODEV;
 	if (mei_write_is_idle(dev))
@@ -301,6 +330,7 @@ static int mei_txe_pm_runtime_idle(struct device *device)
 }
 static int mei_txe_pm_runtime_suspend(struct device *device)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mei_device *dev;
 	int ret;
@@ -308,6 +338,14 @@ static int mei_txe_pm_runtime_suspend(struct device *device)
 	dev_dbg(&pdev->dev, "rpm: txe: runtime suspend\n");
 
 	dev = pci_get_drvdata(pdev);
+=======
+	struct mei_device *dev;
+	int ret;
+
+	dev_dbg(device, "rpm: txe: runtime suspend\n");
+
+	dev = dev_get_drvdata(device);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -ENODEV;
 
@@ -320,7 +358,11 @@ static int mei_txe_pm_runtime_suspend(struct device *device)
 
 	/* keep irq on we are staying in D0 */
 
+<<<<<<< HEAD
 	dev_dbg(&pdev->dev, "rpm: txe: runtime suspend ret=%d\n", ret);
+=======
+	dev_dbg(device, "rpm: txe: runtime suspend ret=%d\n", ret);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&dev->device_lock);
 
@@ -332,6 +374,7 @@ static int mei_txe_pm_runtime_suspend(struct device *device)
 
 static int mei_txe_pm_runtime_resume(struct device *device)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct mei_device *dev;
 	int ret;
@@ -339,6 +382,14 @@ static int mei_txe_pm_runtime_resume(struct device *device)
 	dev_dbg(&pdev->dev, "rpm: txe: runtime resume\n");
 
 	dev = pci_get_drvdata(pdev);
+=======
+	struct mei_device *dev;
+	int ret;
+
+	dev_dbg(device, "rpm: txe: runtime resume\n");
+
+	dev = dev_get_drvdata(device);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -ENODEV;
 
@@ -350,7 +401,11 @@ static int mei_txe_pm_runtime_resume(struct device *device)
 
 	mutex_unlock(&dev->device_lock);
 
+<<<<<<< HEAD
 	dev_dbg(&pdev->dev, "rpm: txe: runtime resume ret = %d\n", ret);
+=======
+	dev_dbg(device, "rpm: txe: runtime resume ret = %d\n", ret);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		schedule_work(&dev->reset_work);

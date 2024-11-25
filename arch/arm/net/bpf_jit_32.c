@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Just-In-Time compiler for eBPF filters on 32bit ARM
  *
  * Copyright (c) 2017 Shubham Bansal <illusionist.neo@gmail.com>
  * Copyright (c) 2011 Mircea Gherzan <mgherzan@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bpf.h>
@@ -39,6 +46,13 @@
  *                        +-----+
  *                        |RSVD | JIT scratchpad
  * current ARM_SP =>      +-----+ <= (BPF_FP - STACK_SIZE + SCRATCH_SIZE)
+<<<<<<< HEAD
+=======
+ *                        | ... | caller-saved registers
+ *                        +-----+
+ *                        | ... | arguments passed on stack
+ * ARM_SP during call =>  +-----|
+>>>>>>> upstream/android-13
  *                        |     |
  *                        | ... | Function call stack
  *                        |     |
@@ -66,6 +80,15 @@
  *
  * When popping registers off the stack at the end of a BPF function, we
  * reference them via the current ARM_FP register.
+<<<<<<< HEAD
+=======
+ *
+ * Some eBPF operations are implemented via a call to a helper function.
+ * Such calls are "invisible" in the eBPF code, so it is up to the calling
+ * program to preserve any caller-saved ARM registers during the call. The
+ * JIT emits code to push and pop those registers onto the stack, immediately
+ * above the callee stack frame.
+>>>>>>> upstream/android-13
  */
 #define CALLEE_MASK	(1 << ARM_R4 | 1 << ARM_R5 | 1 << ARM_R6 | \
 			 1 << ARM_R7 | 1 << ARM_R8 | 1 << ARM_R9 | \
@@ -73,6 +96,11 @@
 #define CALLEE_PUSH_MASK (CALLEE_MASK | 1 << ARM_LR)
 #define CALLEE_POP_MASK  (CALLEE_MASK | 1 << ARM_PC)
 
+<<<<<<< HEAD
+=======
+#define CALLER_MASK	(1 << ARM_R0 | 1 << ARM_R1 | 1 << ARM_R2 | 1 << ARM_R3)
+
+>>>>>>> upstream/android-13
 enum {
 	/* Stack layout - these are offsets from (top of stack - 4) */
 	BPF_R2_HI,
@@ -467,6 +495,10 @@ static inline int epilogue_offset(const struct jit_ctx *ctx)
 
 static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
 {
+<<<<<<< HEAD
+=======
+	const int exclude_mask = BIT(ARM_R0) | BIT(ARM_R1);
+>>>>>>> upstream/android-13
 	const s8 *tmp = bpf2a32[TMP_REG_1];
 
 #if __LINUX_ARM_ARCH__ == 7
@@ -498,11 +530,23 @@ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
 		emit(ARM_MOV_R(ARM_R0, rm), ctx);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Push caller-saved registers on stack */
+	emit(ARM_PUSH(CALLER_MASK & ~exclude_mask), ctx);
+
+>>>>>>> upstream/android-13
 	/* Call appropriate function */
 	emit_mov_i(ARM_IP, op == BPF_DIV ?
 		   (u32)jit_udiv32 : (u32)jit_mod32, ctx);
 	emit_blx_r(ARM_IP, ctx);
 
+<<<<<<< HEAD
+=======
+	/* Restore caller-saved registers from stack */
+	emit(ARM_POP(CALLER_MASK & ~exclude_mask), ctx);
+
+>>>>>>> upstream/android-13
 	/* Save return value */
 	if (rd != ARM_R0)
 		emit(ARM_MOV_R(rd, ARM_R0), ctx);
@@ -736,7 +780,12 @@ static inline void emit_a32_alu_r64(const bool is64, const s8 dst[],
 
 		/* ALU operation */
 		emit_alu_r(rd[1], rs, true, false, op, ctx);
+<<<<<<< HEAD
 		emit_a32_mov_i(rd[0], 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			emit_a32_mov_i(rd[0], 0, ctx);
+>>>>>>> upstream/android-13
 	}
 
 	arm_bpf_put_reg64(dst, rd, ctx);
@@ -758,8 +807,14 @@ static inline void emit_a32_mov_r64(const bool is64, const s8 dst[],
 				  struct jit_ctx *ctx) {
 	if (!is64) {
 		emit_a32_mov_r(dst_lo, src_lo, ctx);
+<<<<<<< HEAD
 		/* Zero out high 4 bytes */
 		emit_a32_mov_i(dst_hi, 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			/* Zero out high 4 bytes */
+			emit_a32_mov_i(dst_hi, 0, ctx);
+>>>>>>> upstream/android-13
 	} else if (__LINUX_ARM_ARCH__ < 6 &&
 		   ctx->cpu_architecture < CPU_ARCH_ARMv5TE) {
 		/* complete 8 byte move */
@@ -796,6 +851,12 @@ static inline void emit_a32_alu_i(const s8 dst, const u32 val,
 	case BPF_RSH:
 		emit(ARM_LSR_I(rd, rd, val), ctx);
 		break;
+<<<<<<< HEAD
+=======
+	case BPF_ARSH:
+		emit(ARM_ASR_I(rd, rd, val), ctx);
+		break;
+>>>>>>> upstream/android-13
 	case BPF_NEG:
 		emit(ARM_RSB_I(rd, rd, val), ctx);
 		break;
@@ -861,8 +922,13 @@ static inline void emit_a32_arsh_r64(const s8 dst[], const s8 src[],
 	emit(ARM_SUBS_I(tmp2[0], rt, 32), ctx);
 	emit(ARM_MOV_SR(ARM_LR, rd[1], SRTYPE_LSR, rt), ctx);
 	emit(ARM_ORR_SR(ARM_LR, ARM_LR, rd[0], SRTYPE_ASL, ARM_IP), ctx);
+<<<<<<< HEAD
 	_emit(ARM_COND_MI, ARM_B(0), ctx);
 	emit(ARM_ORR_SR(ARM_LR, ARM_LR, rd[0], SRTYPE_ASR, tmp2[0]), ctx);
+=======
+	_emit(ARM_COND_PL,
+	      ARM_ORR_SR(ARM_LR, ARM_LR, rd[0], SRTYPE_ASR, tmp2[0]), ctx);
+>>>>>>> upstream/android-13
 	emit(ARM_MOV_SR(ARM_IP, rd[0], SRTYPE_ASR, rt), ctx);
 
 	arm_bpf_put_reg32(dst_lo, ARM_LR, ctx);
@@ -1076,17 +1142,32 @@ static inline void emit_ldx_r(const s8 dst[], const s8 src,
 	case BPF_B:
 		/* Load a Byte */
 		emit(ARM_LDRB_I(rd[1], rm, off), ctx);
+<<<<<<< HEAD
 		emit_a32_mov_i(rd[0], 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			emit_a32_mov_i(rd[0], 0, ctx);
+>>>>>>> upstream/android-13
 		break;
 	case BPF_H:
 		/* Load a HalfWord */
 		emit(ARM_LDRH_I(rd[1], rm, off), ctx);
+<<<<<<< HEAD
 		emit_a32_mov_i(rd[0], 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			emit_a32_mov_i(rd[0], 0, ctx);
+>>>>>>> upstream/android-13
 		break;
 	case BPF_W:
 		/* Load a Word */
 		emit(ARM_LDR_I(rd[1], rm, off), ctx);
+<<<<<<< HEAD
 		emit_a32_mov_i(rd[0], 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			emit_a32_mov_i(rd[0], 0, ctx);
+>>>>>>> upstream/android-13
 		break;
 	case BPF_DW:
 		/* Load a Double Word */
@@ -1099,12 +1180,26 @@ static inline void emit_ldx_r(const s8 dst[], const s8 src,
 
 /* Arithmatic Operation */
 static inline void emit_ar_r(const u8 rd, const u8 rt, const u8 rm,
+<<<<<<< HEAD
 			     const u8 rn, struct jit_ctx *ctx, u8 op) {
 	switch (op) {
 	case BPF_JSET:
 		emit(ARM_AND_R(ARM_IP, rt, rn), ctx);
 		emit(ARM_AND_R(ARM_LR, rd, rm), ctx);
 		emit(ARM_ORRS_R(ARM_IP, ARM_LR, ARM_IP), ctx);
+=======
+			     const u8 rn, struct jit_ctx *ctx, u8 op,
+			     bool is_jmp64) {
+	switch (op) {
+	case BPF_JSET:
+		if (is_jmp64) {
+			emit(ARM_AND_R(ARM_IP, rt, rn), ctx);
+			emit(ARM_AND_R(ARM_LR, rd, rm), ctx);
+			emit(ARM_ORRS_R(ARM_IP, ARM_LR, ARM_IP), ctx);
+		} else {
+			emit(ARM_ANDS_R(ARM_IP, rt, rn), ctx);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case BPF_JEQ:
 	case BPF_JNE:
@@ -1112,18 +1207,38 @@ static inline void emit_ar_r(const u8 rd, const u8 rt, const u8 rm,
 	case BPF_JGE:
 	case BPF_JLE:
 	case BPF_JLT:
+<<<<<<< HEAD
 		emit(ARM_CMP_R(rd, rm), ctx);
 		_emit(ARM_COND_EQ, ARM_CMP_R(rt, rn), ctx);
+=======
+		if (is_jmp64) {
+			emit(ARM_CMP_R(rd, rm), ctx);
+			/* Only compare low halve if high halve are equal. */
+			_emit(ARM_COND_EQ, ARM_CMP_R(rt, rn), ctx);
+		} else {
+			emit(ARM_CMP_R(rt, rn), ctx);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case BPF_JSLE:
 	case BPF_JSGT:
 		emit(ARM_CMP_R(rn, rt), ctx);
+<<<<<<< HEAD
 		emit(ARM_SBCS_R(ARM_IP, rm, rd), ctx);
+=======
+		if (is_jmp64)
+			emit(ARM_SBCS_R(ARM_IP, rm, rd), ctx);
+>>>>>>> upstream/android-13
 		break;
 	case BPF_JSLT:
 	case BPF_JSGE:
 		emit(ARM_CMP_R(rt, rn), ctx);
+<<<<<<< HEAD
 		emit(ARM_SBCS_R(ARM_IP, rd, rm), ctx);
+=======
+		if (is_jmp64)
+			emit(ARM_SBCS_R(ARM_IP, rd, rm), ctx);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1262,12 +1377,18 @@ static inline void emit_push_r64(const s8 src[], struct jit_ctx *ctx)
 
 static void build_prologue(struct jit_ctx *ctx)
 {
+<<<<<<< HEAD
 	const s8 r0 = bpf2a32[BPF_REG_0][1];
 	const s8 r2 = bpf2a32[BPF_REG_1][1];
 	const s8 r3 = bpf2a32[BPF_REG_1][0];
 	const s8 r4 = bpf2a32[BPF_REG_6][1];
 	const s8 fplo = bpf2a32[BPF_REG_FP][1];
 	const s8 fphi = bpf2a32[BPF_REG_FP][0];
+=======
+	const s8 arm_r0 = bpf2a32[BPF_REG_0][1];
+	const s8 *bpf_r1 = bpf2a32[BPF_REG_1];
+	const s8 *bpf_fp = bpf2a32[BPF_REG_FP];
+>>>>>>> upstream/android-13
 	const s8 *tcc = bpf2a32[TCALL_CNT];
 
 	/* Save callee saved registers. */
@@ -1280,8 +1401,15 @@ static void build_prologue(struct jit_ctx *ctx)
 	emit(ARM_PUSH(CALLEE_PUSH_MASK), ctx);
 	emit(ARM_MOV_R(ARM_FP, ARM_SP), ctx);
 #endif
+<<<<<<< HEAD
 	/* Save frame pointer for later */
 	emit(ARM_SUB_I(ARM_IP, ARM_SP, SCRATCH_SIZE), ctx);
+=======
+	/* mov r3, #0 */
+	/* sub r2, sp, #SCRATCH_SIZE */
+	emit(ARM_MOV_I(bpf_r1[0], 0), ctx);
+	emit(ARM_SUB_I(bpf_r1[1], ARM_SP, SCRATCH_SIZE), ctx);
+>>>>>>> upstream/android-13
 
 	ctx->stack_size = imm8m(STACK_SIZE);
 
@@ -1289,6 +1417,7 @@ static void build_prologue(struct jit_ctx *ctx)
 	emit(ARM_SUB_I(ARM_SP, ARM_SP, ctx->stack_size), ctx);
 
 	/* Set up BPF prog stack base register */
+<<<<<<< HEAD
 	emit_a32_mov_r(fplo, ARM_IP, ctx);
 	emit_a32_mov_i(fphi, 0, ctx);
 
@@ -1301,6 +1430,17 @@ static void build_prologue(struct jit_ctx *ctx)
 	/* Initialize Tail Count */
 	emit(ARM_STR_I(r4, ARM_FP, EBPF_SCRATCH_TO_ARM_FP(tcc[0])), ctx);
 	emit(ARM_STR_I(r4, ARM_FP, EBPF_SCRATCH_TO_ARM_FP(tcc[1])), ctx);
+=======
+	emit_a32_mov_r64(true, bpf_fp, bpf_r1, ctx);
+
+	/* Initialize Tail Count */
+	emit(ARM_MOV_I(bpf_r1[1], 0), ctx);
+	emit_a32_mov_r64(true, tcc, bpf_r1, ctx);
+
+	/* Move BPF_CTX to BPF_R1 */
+	emit(ARM_MOV_R(bpf_r1[1], arm_r0), ctx);
+
+>>>>>>> upstream/android-13
 	/* end of prologue */
 }
 
@@ -1363,6 +1503,14 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx)
 	case BPF_ALU64 | BPF_MOV | BPF_X:
 		switch (BPF_SRC(code)) {
 		case BPF_X:
+<<<<<<< HEAD
+=======
+			if (imm == 1) {
+				/* Special mov32 for zext */
+				emit_a32_mov_i(dst_hi, 0, ctx);
+				break;
+			}
+>>>>>>> upstream/android-13
 			emit_a32_mov_r64(is64, dst, src, ctx);
 			break;
 		case BPF_K:
@@ -1393,7 +1541,10 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx)
 	case BPF_ALU | BPF_MUL | BPF_X:
 	case BPF_ALU | BPF_LSH | BPF_X:
 	case BPF_ALU | BPF_RSH | BPF_X:
+<<<<<<< HEAD
 	case BPF_ALU | BPF_ARSH | BPF_K:
+=======
+>>>>>>> upstream/android-13
 	case BPF_ALU | BPF_ARSH | BPF_X:
 	case BPF_ALU64 | BPF_ADD | BPF_K:
 	case BPF_ALU64 | BPF_ADD | BPF_X:
@@ -1442,22 +1593,41 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx)
 		}
 		emit_udivmod(rd_lo, rd_lo, rt, ctx, BPF_OP(code));
 		arm_bpf_put_reg32(dst_lo, rd_lo, ctx);
+<<<<<<< HEAD
 		emit_a32_mov_i(dst_hi, 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			emit_a32_mov_i(dst_hi, 0, ctx);
+>>>>>>> upstream/android-13
 		break;
 	case BPF_ALU64 | BPF_DIV | BPF_K:
 	case BPF_ALU64 | BPF_DIV | BPF_X:
 	case BPF_ALU64 | BPF_MOD | BPF_K:
 	case BPF_ALU64 | BPF_MOD | BPF_X:
 		goto notyet;
+<<<<<<< HEAD
 	/* dst = dst >> imm */
 	/* dst = dst << imm */
 	case BPF_ALU | BPF_RSH | BPF_K:
 	case BPF_ALU | BPF_LSH | BPF_K:
+=======
+	/* dst = dst << imm */
+	/* dst = dst >> imm */
+	/* dst = dst >> imm (signed) */
+	case BPF_ALU | BPF_LSH | BPF_K:
+	case BPF_ALU | BPF_RSH | BPF_K:
+	case BPF_ALU | BPF_ARSH | BPF_K:
+>>>>>>> upstream/android-13
 		if (unlikely(imm > 31))
 			return -EINVAL;
 		if (imm)
 			emit_a32_alu_i(dst_lo, imm, ctx, BPF_OP(code));
+<<<<<<< HEAD
 		emit_a32_mov_i(dst_hi, 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			emit_a32_mov_i(dst_hi, 0, ctx);
+>>>>>>> upstream/android-13
 		break;
 	/* dst = dst << imm */
 	case BPF_ALU64 | BPF_LSH | BPF_K:
@@ -1492,7 +1662,12 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx)
 	/* dst = ~dst */
 	case BPF_ALU | BPF_NEG:
 		emit_a32_alu_i(dst_lo, 0, ctx, BPF_OP(code));
+<<<<<<< HEAD
 		emit_a32_mov_i(dst_hi, 0, ctx);
+=======
+		if (!ctx->prog->aux->verifier_zext)
+			emit_a32_mov_i(dst_hi, 0, ctx);
+>>>>>>> upstream/android-13
 		break;
 	/* dst = ~dst (64 bit) */
 	case BPF_ALU64 | BPF_NEG:
@@ -1548,11 +1723,21 @@ emit_bswap_uxt:
 #else /* ARMv6+ */
 			emit(ARM_UXTH(rd[1], rd[1]), ctx);
 #endif
+<<<<<<< HEAD
 			emit(ARM_EOR_R(rd[0], rd[0], rd[0]), ctx);
 			break;
 		case 32:
 			/* zero-extend 32 bits into 64 bits */
 			emit(ARM_EOR_R(rd[0], rd[0], rd[0]), ctx);
+=======
+			if (!ctx->prog->aux->verifier_zext)
+				emit(ARM_EOR_R(rd[0], rd[0], rd[0]), ctx);
+			break;
+		case 32:
+			/* zero-extend 32 bits into 64 bits */
+			if (!ctx->prog->aux->verifier_zext)
+				emit(ARM_EOR_R(rd[0], rd[0], rd[0]), ctx);
+>>>>>>> upstream/android-13
 			break;
 		case 64:
 			/* nop */
@@ -1578,6 +1763,12 @@ exit:
 		rn = arm_bpf_get_reg32(src_lo, tmp2[1], ctx);
 		emit_ldx_r(dst, rn, off, ctx, BPF_SIZE(code));
 		break;
+<<<<<<< HEAD
+=======
+	/* speculation barrier */
+	case BPF_ST | BPF_NOSPEC:
+		break;
+>>>>>>> upstream/android-13
 	/* ST: *(size *)(dst + off) = imm */
 	case BPF_ST | BPF_MEM | BPF_W:
 	case BPF_ST | BPF_MEM | BPF_H:
@@ -1596,10 +1787,16 @@ exit:
 		}
 		emit_str_r(dst_lo, tmp2, off, ctx, BPF_SIZE(code));
 		break;
+<<<<<<< HEAD
 	/* STX XADD: lock *(u32 *)(dst + off) += src */
 	case BPF_STX | BPF_XADD | BPF_W:
 	/* STX XADD: lock *(u64 *)(dst + off) += src */
 	case BPF_STX | BPF_XADD | BPF_DW:
+=======
+	/* Atomic ops */
+	case BPF_STX | BPF_ATOMIC | BPF_W:
+	case BPF_STX | BPF_ATOMIC | BPF_DW:
+>>>>>>> upstream/android-13
 		goto notyet;
 	/* STX: *(size *)(dst + off) = src */
 	case BPF_STX | BPF_MEM | BPF_W:
@@ -1631,6 +1828,20 @@ exit:
 	case BPF_JMP | BPF_JLT | BPF_X:
 	case BPF_JMP | BPF_JSLT | BPF_X:
 	case BPF_JMP | BPF_JSLE | BPF_X:
+<<<<<<< HEAD
+=======
+	case BPF_JMP32 | BPF_JEQ | BPF_X:
+	case BPF_JMP32 | BPF_JGT | BPF_X:
+	case BPF_JMP32 | BPF_JGE | BPF_X:
+	case BPF_JMP32 | BPF_JNE | BPF_X:
+	case BPF_JMP32 | BPF_JSGT | BPF_X:
+	case BPF_JMP32 | BPF_JSGE | BPF_X:
+	case BPF_JMP32 | BPF_JSET | BPF_X:
+	case BPF_JMP32 | BPF_JLE | BPF_X:
+	case BPF_JMP32 | BPF_JLT | BPF_X:
+	case BPF_JMP32 | BPF_JSLT | BPF_X:
+	case BPF_JMP32 | BPF_JSLE | BPF_X:
+>>>>>>> upstream/android-13
 		/* Setup source registers */
 		rm = arm_bpf_get_reg32(src_hi, tmp2[0], ctx);
 		rn = arm_bpf_get_reg32(src_lo, tmp2[1], ctx);
@@ -1657,6 +1868,20 @@ exit:
 	case BPF_JMP | BPF_JLE | BPF_K:
 	case BPF_JMP | BPF_JSLT | BPF_K:
 	case BPF_JMP | BPF_JSLE | BPF_K:
+<<<<<<< HEAD
+=======
+	case BPF_JMP32 | BPF_JEQ | BPF_K:
+	case BPF_JMP32 | BPF_JGT | BPF_K:
+	case BPF_JMP32 | BPF_JGE | BPF_K:
+	case BPF_JMP32 | BPF_JNE | BPF_K:
+	case BPF_JMP32 | BPF_JSGT | BPF_K:
+	case BPF_JMP32 | BPF_JSGE | BPF_K:
+	case BPF_JMP32 | BPF_JSET | BPF_K:
+	case BPF_JMP32 | BPF_JLT | BPF_K:
+	case BPF_JMP32 | BPF_JLE | BPF_K:
+	case BPF_JMP32 | BPF_JSLT | BPF_K:
+	case BPF_JMP32 | BPF_JSLE | BPF_K:
+>>>>>>> upstream/android-13
 		if (off == 0)
 			break;
 		rm = tmp2[0];
@@ -1668,7 +1893,12 @@ go_jmp:
 		rd = arm_bpf_get_reg64(dst, tmp, ctx);
 
 		/* Check for the condition */
+<<<<<<< HEAD
 		emit_ar_r(rd[0], rd[1], rm, rn, ctx, BPF_OP(code));
+=======
+		emit_ar_r(rd[0], rd[1], rm, rn, ctx, BPF_OP(code),
+			  BPF_CLASS(code) == BPF_JMP);
+>>>>>>> upstream/android-13
 
 		/* Setup JUMP instruction */
 		jmp_offset = bpf2a32_offset(i+off, i, ctx);
@@ -1819,6 +2049,14 @@ void bpf_jit_compile(struct bpf_prog *prog)
 	/* Nothing to do here. We support Internal BPF. */
 }
 
+<<<<<<< HEAD
+=======
+bool bpf_jit_needs_zext(void)
+{
+	return true;
+}
+
+>>>>>>> upstream/android-13
 struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
 {
 	struct bpf_prog *tmp, *orig_prog = prog;

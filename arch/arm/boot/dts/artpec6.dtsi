@@ -43,9 +43,16 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/dma/nbpfaxi.h>
 #include <dt-bindings/clock/axis,artpec6-clkctrl.h>
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
 / {
+=======
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	compatible = "axis,artpec6";
 	interrupt-parent = <&intc>;
 

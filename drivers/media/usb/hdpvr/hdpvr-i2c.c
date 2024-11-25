@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /*
  * Hauppauge HD PVR USB driver
@@ -6,11 +10,14 @@
  *
  * IR device registration code is
  * Copyright (C) 2010	Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #if IS_ENABLED(CONFIG_I2C)
@@ -48,7 +55,11 @@ struct i2c_client *hdpvr_register_ir_i2c(struct hdpvr_device *dev)
 	init_data->polling_interval = 405; /* ms, duplicated from Windows */
 	info.platform_data = init_data;
 
+<<<<<<< HEAD
 	return i2c_new_device(&dev->i2c_adapter, &info);
+=======
+	return i2c_new_client_device(&dev->i2c_adapter, &info);
+>>>>>>> upstream/android-13
 }
 
 static int hdpvr_i2c_read(struct hdpvr_device *dev, int bus,
@@ -61,10 +72,17 @@ static int hdpvr_i2c_read(struct hdpvr_device *dev, int bus,
 		return -EINVAL;
 
 	if (wlen) {
+<<<<<<< HEAD
 		memcpy(&dev->i2c_buf, wdata, wlen);
 		ret = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 				      REQTYPE_I2C_WRITE, CTRL_WRITE_REQUEST,
 				      (bus << 8) | addr, 0, &dev->i2c_buf,
+=======
+		memcpy(dev->i2c_buf, wdata, wlen);
+		ret = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+				      REQTYPE_I2C_WRITE, CTRL_WRITE_REQUEST,
+				      (bus << 8) | addr, 0, dev->i2c_buf,
+>>>>>>> upstream/android-13
 				      wlen, 1000);
 		if (ret < 0)
 			return ret;
@@ -72,10 +90,17 @@ static int hdpvr_i2c_read(struct hdpvr_device *dev, int bus,
 
 	ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
 			      REQTYPE_I2C_READ, CTRL_READ_REQUEST,
+<<<<<<< HEAD
 			      (bus << 8) | addr, 0, &dev->i2c_buf, len, 1000);
 
 	if (ret == len) {
 		memcpy(data, &dev->i2c_buf, len);
+=======
+			      (bus << 8) | addr, 0, dev->i2c_buf, len, 1000);
+
+	if (ret == len) {
+		memcpy(data, dev->i2c_buf, len);
+>>>>>>> upstream/android-13
 		ret = 0;
 	} else if (ret >= 0)
 		ret = -EIO;
@@ -91,17 +116,28 @@ static int hdpvr_i2c_write(struct hdpvr_device *dev, int bus,
 	if (len > sizeof(dev->i2c_buf))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	memcpy(&dev->i2c_buf, data, len);
 	ret = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			      REQTYPE_I2C_WRITE, CTRL_WRITE_REQUEST,
 			      (bus << 8) | addr, 0, &dev->i2c_buf, len, 1000);
+=======
+	memcpy(dev->i2c_buf, data, len);
+	ret = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			      REQTYPE_I2C_WRITE, CTRL_WRITE_REQUEST,
+			      (bus << 8) | addr, 0, dev->i2c_buf, len, 1000);
+>>>>>>> upstream/android-13
 
 	if (ret < 0)
 		return ret;
 
 	ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
 			      REQTYPE_I2C_WRITE_STATT, CTRL_READ_REQUEST,
+<<<<<<< HEAD
 			      0, 0, &dev->i2c_buf, 2, 1000);
+=======
+			      0, 0, dev->i2c_buf, 2, 1000);
+>>>>>>> upstream/android-13
 
 	if ((ret == 2) && (dev->i2c_buf[1] == (len - 1)))
 		ret = 0;
@@ -197,8 +233,11 @@ static int hdpvr_activate_ir(struct hdpvr_device *dev)
 
 int hdpvr_register_i2c_adapter(struct hdpvr_device *dev)
 {
+<<<<<<< HEAD
 	int retval = -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	hdpvr_activate_ir(dev);
 
 	dev->i2c_adapter = hdpvr_i2c_adapter_template;
@@ -206,9 +245,13 @@ int hdpvr_register_i2c_adapter(struct hdpvr_device *dev)
 
 	i2c_set_adapdata(&dev->i2c_adapter, dev);
 
+<<<<<<< HEAD
 	retval = i2c_add_adapter(&dev->i2c_adapter);
 
 	return retval;
+=======
+	return i2c_add_adapter(&dev->i2c_adapter);
+>>>>>>> upstream/android-13
 }
 
 #endif

@@ -12,6 +12,7 @@
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/highmem.h>	/* pte_offset_map => kmap_atomic */
 #include <linux/scatterlist.h>
 #include <linux/of.h>
@@ -19,6 +20,12 @@
 
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/mxcc.h>
 #include <asm/mbus.h>
@@ -54,6 +61,12 @@ static pgprot_t dvma_prot;		/* Consistent mapping pte flags */
 #define IOPERM        (IOPTE_CACHE | IOPTE_WRITE | IOPTE_VALID)
 #define MKIOPTE(pfn, perm) (((((pfn)<<8) & IOPTE_PAGE) | (perm)) & ~IOPTE_WAZ)
 
+<<<<<<< HEAD
+=======
+static const struct dma_map_ops sbus_iommu_dma_gflush_ops;
+static const struct dma_map_ops sbus_iommu_dma_pflush_ops;
+
+>>>>>>> upstream/android-13
 static void __init sbus_iommu_init(struct platform_device *op)
 {
 	struct iommu_struct *iommu;
@@ -129,6 +142,14 @@ static void __init sbus_iommu_init(struct platform_device *op)
 	       (int)(IOMMU_NPTES*sizeof(iopte_t)), (int)IOMMU_NPTES);
 
 	op->dev.archdata.iommu = iommu;
+<<<<<<< HEAD
+=======
+
+	if (flush_page_for_dma_global)
+		op->dev.dma_ops = &sbus_iommu_dma_gflush_ops;
+	 else
+		op->dev.dma_ops = &sbus_iommu_dma_pflush_ops;
+>>>>>>> upstream/android-13
 }
 
 static int __init iommu_init(void)
@@ -175,6 +196,7 @@ static void iommu_flush_iotlb(iopte_t *iopte, unsigned int niopte)
 	}
 }
 
+<<<<<<< HEAD
 static u32 iommu_get_one(struct device *dev, struct page *page, int npages)
 {
 	struct iommu_struct *iommu = dev->archdata.iommu;
@@ -185,6 +207,39 @@ static u32 iommu_get_one(struct device *dev, struct page *page, int npages)
 
 	/* page color = pfn of page */
 	ioptex = bit_map_string_get(&iommu->usemap, npages, page_to_pfn(page));
+=======
+static dma_addr_t __sbus_iommu_map_page(struct device *dev, struct page *page,
+		unsigned long offset, size_t len, bool per_page_flush)
+{
+	struct iommu_struct *iommu = dev->archdata.iommu;
+	phys_addr_t paddr = page_to_phys(page) + offset;
+	unsigned long off = paddr & ~PAGE_MASK;
+	unsigned long npages = (off + len + PAGE_SIZE - 1) >> PAGE_SHIFT;
+	unsigned long pfn = __phys_to_pfn(paddr);
+	unsigned int busa, busa0;
+	iopte_t *iopte, *iopte0;
+	int ioptex, i;
+
+	/* XXX So what is maxphys for us and how do drivers know it? */
+	if (!len || len > 256 * 1024)
+		return DMA_MAPPING_ERROR;
+
+	/*
+	 * We expect unmapped highmem pages to be not in the cache.
+	 * XXX Is this a good assumption?
+	 * XXX What if someone else unmaps it here and races us?
+	 */
+	if (per_page_flush && !PageHighMem(page)) {
+		unsigned long vaddr, p;
+
+		vaddr = (unsigned long)page_address(page) + offset;
+		for (p = vaddr & PAGE_MASK; p < vaddr + len; p += PAGE_SIZE)
+			flush_page_for_dma(p);
+	}
+
+	/* page color = pfn of page */
+	ioptex = bit_map_string_get(&iommu->usemap, npages, pfn);
+>>>>>>> upstream/android-13
 	if (ioptex < 0)
 		panic("iommu out");
 	busa0 = iommu->start + (ioptex << PAGE_SHIFT);
@@ -193,6 +248,7 @@ static u32 iommu_get_one(struct device *dev, struct page *page, int npages)
 	busa = busa0;
 	iopte = iopte0;
 	for (i = 0; i < npages; i++) {
+<<<<<<< HEAD
 		iopte_val(*iopte) = MKIOPTE(page_to_pfn(page), IOPERM);
 		iommu_invalidate_page(iommu->regs, busa);
 		busa += PAGE_SIZE;
@@ -289,6 +345,76 @@ static void iommu_release_one(struct device *dev, u32 busa, int npages)
 
 	BUG_ON(busa < iommu->start);
 	ioptex = (busa - iommu->start) >> PAGE_SHIFT;
+=======
+		iopte_val(*iopte) = MKIOPTE(pfn, IOPERM);
+		iommu_invalidate_page(iommu->regs, busa);
+		busa += PAGE_SIZE;
+		iopte++;
+		pfn++;
+	}
+
+	iommu_flush_iotlb(iopte0, npages);
+	return busa0 + off;
+}
+
+static dma_addr_t sbus_iommu_map_page_gflush(struct device *dev,
+		struct page *page, unsigned long offset, size_t len,
+		enum dma_data_direction dir, unsigned long attrs)
+{
+	flush_page_for_dma(0);
+	return __sbus_iommu_map_page(dev, page, offset, len, false);
+}
+
+static dma_addr_t sbus_iommu_map_page_pflush(struct device *dev,
+		struct page *page, unsigned long offset, size_t len,
+		enum dma_data_direction dir, unsigned long attrs)
+{
+	return __sbus_iommu_map_page(dev, page, offset, len, true);
+}
+
+static int __sbus_iommu_map_sg(struct device *dev, struct scatterlist *sgl,
+		int nents, enum dma_data_direction dir, unsigned long attrs,
+		bool per_page_flush)
+{
+	struct scatterlist *sg;
+	int j;
+
+	for_each_sg(sgl, sg, nents, j) {
+		sg->dma_address =__sbus_iommu_map_page(dev, sg_page(sg),
+				sg->offset, sg->length, per_page_flush);
+		if (sg->dma_address == DMA_MAPPING_ERROR)
+			return -EIO;
+		sg->dma_length = sg->length;
+	}
+
+	return nents;
+}
+
+static int sbus_iommu_map_sg_gflush(struct device *dev, struct scatterlist *sgl,
+		int nents, enum dma_data_direction dir, unsigned long attrs)
+{
+	flush_page_for_dma(0);
+	return __sbus_iommu_map_sg(dev, sgl, nents, dir, attrs, false);
+}
+
+static int sbus_iommu_map_sg_pflush(struct device *dev, struct scatterlist *sgl,
+		int nents, enum dma_data_direction dir, unsigned long attrs)
+{
+	return __sbus_iommu_map_sg(dev, sgl, nents, dir, attrs, true);
+}
+
+static void sbus_iommu_unmap_page(struct device *dev, dma_addr_t dma_addr,
+		size_t len, enum dma_data_direction dir, unsigned long attrs)
+{
+	struct iommu_struct *iommu = dev->archdata.iommu;
+	unsigned int busa = dma_addr & PAGE_MASK;
+	unsigned long off = dma_addr & ~PAGE_MASK;
+	unsigned int npages = (off + len + PAGE_SIZE-1) >> PAGE_SHIFT;
+	unsigned int ioptex = (busa - iommu->start) >> PAGE_SHIFT;
+	unsigned int i;
+
+	BUG_ON(busa < iommu->start);
+>>>>>>> upstream/android-13
 	for (i = 0; i < npages; i++) {
 		iopte_val(iommu->page_table[ioptex + i]) = 0;
 		iommu_invalidate_page(iommu->regs, busa);
@@ -297,6 +423,7 @@ static void iommu_release_one(struct device *dev, u32 busa, int npages)
 	bit_map_clear(&iommu->usemap, ioptex, npages);
 }
 
+<<<<<<< HEAD
 static void iommu_release_scsi_one(struct device *dev, __u32 vaddr, unsigned long len)
 {
 	unsigned long off;
@@ -318,19 +445,55 @@ static void iommu_release_scsi_sgl(struct device *dev, struct scatterlist *sg, i
 		iommu_release_one(dev, sg->dma_address & PAGE_MASK, n);
 		sg->dma_address = 0x21212121;
 		sg = sg_next(sg);
+=======
+static void sbus_iommu_unmap_sg(struct device *dev, struct scatterlist *sgl,
+		int nents, enum dma_data_direction dir, unsigned long attrs)
+{
+	struct scatterlist *sg;
+	int i;
+
+	for_each_sg(sgl, sg, nents, i) {
+		sbus_iommu_unmap_page(dev, sg->dma_address, sg->length, dir,
+				attrs);
+		sg->dma_address = 0x21212121;
+>>>>>>> upstream/android-13
 	}
 }
 
 #ifdef CONFIG_SBUS
+<<<<<<< HEAD
 static int iommu_map_dma_area(struct device *dev, dma_addr_t *pba, unsigned long va,
 			      unsigned long addr, int len)
 {
 	struct iommu_struct *iommu = dev->archdata.iommu;
 	unsigned long page, end;
+=======
+static void *sbus_iommu_alloc(struct device *dev, size_t len,
+		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+{
+	struct iommu_struct *iommu = dev->archdata.iommu;
+	unsigned long va, addr, page, end, ret;
+>>>>>>> upstream/android-13
 	iopte_t *iopte = iommu->page_table;
 	iopte_t *first;
 	int ioptex;
 
+<<<<<<< HEAD
+=======
+	/* XXX So what is maxphys for us and how do drivers know it? */
+	if (!len || len > 256 * 1024)
+		return NULL;
+
+	len = PAGE_ALIGN(len);
+	va = __get_free_pages(gfp | __GFP_ZERO, get_order(len));
+	if (va == 0)
+		return NULL;
+
+	addr = ret = sparc_dma_alloc_resource(dev, len);
+	if (!addr)
+		goto out_free_pages;
+
+>>>>>>> upstream/android-13
 	BUG_ON((va & ~PAGE_MASK) != 0);
 	BUG_ON((addr & ~PAGE_MASK) != 0);
 	BUG_ON((len & ~PAGE_MASK) != 0);
@@ -347,7 +510,10 @@ static int iommu_map_dma_area(struct device *dev, dma_addr_t *pba, unsigned long
 	while(addr < end) {
 		page = va;
 		{
+<<<<<<< HEAD
 			pgd_t *pgdp;
+=======
+>>>>>>> upstream/android-13
 			pmd_t *pmdp;
 			pte_t *ptep;
 
@@ -358,8 +524,12 @@ static int iommu_map_dma_area(struct device *dev, dma_addr_t *pba, unsigned long
 			else
 				__flush_page_to_ram(page);
 
+<<<<<<< HEAD
 			pgdp = pgd_offset(&init_mm, addr);
 			pmdp = pmd_offset(pgdp, addr);
+=======
+			pmdp = pmd_off_k(addr);
+>>>>>>> upstream/android-13
 			ptep = pte_offset_map(pmdp, addr);
 
 			set_pte(ptep, mk_pte(virt_to_page(page), dvma_prot));
@@ -385,6 +555,7 @@ static int iommu_map_dma_area(struct device *dev, dma_addr_t *pba, unsigned long
 	flush_tlb_all();
 	iommu_invalidate(iommu->regs);
 
+<<<<<<< HEAD
 	*pba = iommu->start + (ioptex << PAGE_SHIFT);
 	return 0;
 }
@@ -395,6 +566,27 @@ static void iommu_unmap_dma_area(struct device *dev, unsigned long busa, int len
 	iopte_t *iopte = iommu->page_table;
 	unsigned long end;
 	int ioptex = (busa - iommu->start) >> PAGE_SHIFT;
+=======
+	*dma_handle = iommu->start + (ioptex << PAGE_SHIFT);
+	return (void *)ret;
+
+out_free_pages:
+	free_pages(va, get_order(len));
+	return NULL;
+}
+
+static void sbus_iommu_free(struct device *dev, size_t len, void *cpu_addr,
+			       dma_addr_t busa, unsigned long attrs)
+{
+	struct iommu_struct *iommu = dev->archdata.iommu;
+	iopte_t *iopte = iommu->page_table;
+	struct page *page = virt_to_page(cpu_addr);
+	int ioptex = (busa - iommu->start) >> PAGE_SHIFT;
+	unsigned long end;
+
+	if (!sparc_dma_free_resource(cpu_addr, len))
+		return;
+>>>>>>> upstream/android-13
 
 	BUG_ON((busa & ~PAGE_MASK) != 0);
 	BUG_ON((len & ~PAGE_MASK) != 0);
@@ -408,6 +600,7 @@ static void iommu_unmap_dma_area(struct device *dev, unsigned long busa, int len
 	flush_tlb_all();
 	iommu_invalidate(iommu->regs);
 	bit_map_clear(&iommu->usemap, ioptex, len >> PAGE_SHIFT);
+<<<<<<< HEAD
 }
 #endif
 
@@ -431,10 +624,38 @@ static const struct sparc32_dma_ops iommu_dma_pflush_ops = {
 	.map_dma_area		= iommu_map_dma_area,
 	.unmap_dma_area		= iommu_unmap_dma_area,
 #endif
+=======
+
+	__free_pages(page, get_order(len));
+}
+#endif
+
+static const struct dma_map_ops sbus_iommu_dma_gflush_ops = {
+#ifdef CONFIG_SBUS
+	.alloc			= sbus_iommu_alloc,
+	.free			= sbus_iommu_free,
+#endif
+	.map_page		= sbus_iommu_map_page_gflush,
+	.unmap_page		= sbus_iommu_unmap_page,
+	.map_sg			= sbus_iommu_map_sg_gflush,
+	.unmap_sg		= sbus_iommu_unmap_sg,
+};
+
+static const struct dma_map_ops sbus_iommu_dma_pflush_ops = {
+#ifdef CONFIG_SBUS
+	.alloc			= sbus_iommu_alloc,
+	.free			= sbus_iommu_free,
+#endif
+	.map_page		= sbus_iommu_map_page_pflush,
+	.unmap_page		= sbus_iommu_unmap_page,
+	.map_sg			= sbus_iommu_map_sg_pflush,
+	.unmap_sg		= sbus_iommu_unmap_sg,
+>>>>>>> upstream/android-13
 };
 
 void __init ld_mmu_iommu(void)
 {
+<<<<<<< HEAD
 	if (flush_page_for_dma_global) {
 		/* flush_page_for_dma flushes everything, no matter of what page is it */
 		sparc32_dma_ops = &iommu_dma_gflush_ops;
@@ -442,6 +663,8 @@ void __init ld_mmu_iommu(void)
 		sparc32_dma_ops = &iommu_dma_pflush_ops;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (viking_mxcc_present || srmmu_modtype == HyperSparc) {
 		dvma_prot = __pgprot(SRMMU_CACHE | SRMMU_ET_PTE | SRMMU_PRIV);
 		ioperm_noc = IOPTE_CACHE | IOPTE_WRITE | IOPTE_VALID;

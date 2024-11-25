@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * SH Pin Function Control Initialization
  *
@@ -11,6 +12,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * SH Pin Function Control Initialization
+ *
+ * Copyright (C) 2012  Renesas Solutions Corp.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ARCH_SH_CPU_PFC_H__

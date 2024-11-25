@@ -29,7 +29,10 @@
 #ifndef _VGEM_DRV_H_
 #define _VGEM_DRV_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include <drm/drm_gem.h>
 #include <drm/drm_cache.h>
 

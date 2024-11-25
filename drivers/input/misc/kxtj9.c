@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Kionix, Inc.
  * Written by Chris Hudson <chudson@kionix.com>
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Kionix, Inc.
+ * Written by Chris Hudson <chudson@kionix.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -24,7 +31,10 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/input/kxtj9.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+>>>>>>> upstream/android-13
 
 #define NAME			"kxtj9"
 #define G_MAX			8000
@@ -84,9 +94,12 @@ struct kxtj9_data {
 	struct i2c_client *client;
 	struct kxtj9_platform_data pdata;
 	struct input_dev *input_dev;
+<<<<<<< HEAD
 #ifdef CONFIG_INPUT_KXTJ9_POLLED_MODE
 	struct input_polled_dev *poll_dev;
 #endif
+=======
+>>>>>>> upstream/android-13
 	unsigned int last_poll_interval;
 	u8 shift;
 	u8 ctrl_reg1;
@@ -295,6 +308,7 @@ static void kxtj9_input_close(struct input_dev *dev)
 	kxtj9_disable(tj9);
 }
 
+<<<<<<< HEAD
 static void kxtj9_init_input_device(struct kxtj9_data *tj9,
 					      struct input_dev *input_dev)
 {
@@ -339,6 +353,8 @@ static int kxtj9_setup_input_device(struct kxtj9_data *tj9)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * When IRQ mode is selected, we need to provide an interface to allow the user
  * to change the output data rate of the part.  For consistency, we are using
@@ -404,12 +420,19 @@ static struct attribute_group kxtj9_attribute_group = {
 	.attrs = kxtj9_attributes
 };
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_INPUT_KXTJ9_POLLED_MODE
 static void kxtj9_poll(struct input_polled_dev *dev)
 {
 	struct kxtj9_data *tj9 = dev->private;
 	unsigned int poll_interval = dev->poll_interval;
+=======
+static void kxtj9_poll(struct input_dev *input)
+{
+	struct kxtj9_data *tj9 = input_get_drvdata(input);
+	unsigned int poll_interval = input_get_poll_interval(input);
+>>>>>>> upstream/android-13
 
 	kxtj9_report_acceleration_data(tj9);
 
@@ -419,6 +442,7 @@ static void kxtj9_poll(struct input_polled_dev *dev)
 	}
 }
 
+<<<<<<< HEAD
 static void kxtj9_polled_input_open(struct input_polled_dev *dev)
 {
 	struct kxtj9_data *tj9 = dev->private;
@@ -485,6 +509,16 @@ static inline void kxtj9_teardown_polled_device(struct kxtj9_data *tj9)
 
 #endif
 
+=======
+static void kxtj9_platform_exit(void *data)
+{
+	struct kxtj9_data *tj9 = data;
+
+	if (tj9->pdata.exit)
+		tj9->pdata.exit();
+}
+
+>>>>>>> upstream/android-13
 static int kxtj9_verify(struct kxtj9_data *tj9)
 {
 	int retval;
@@ -507,11 +541,19 @@ out:
 }
 
 static int kxtj9_probe(struct i2c_client *client,
+<<<<<<< HEAD
 				 const struct i2c_device_id *id)
+=======
+		       const struct i2c_device_id *id)
+>>>>>>> upstream/android-13
 {
 	const struct kxtj9_platform_data *pdata =
 			dev_get_platdata(&client->dev);
 	struct kxtj9_data *tj9;
+<<<<<<< HEAD
+=======
+	struct input_dev *input_dev;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!i2c_check_functionality(client->adapter,
@@ -525,7 +567,11 @@ static int kxtj9_probe(struct i2c_client *client,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	tj9 = kzalloc(sizeof(*tj9), GFP_KERNEL);
+=======
+	tj9 = devm_kzalloc(&client->dev, sizeof(*tj9), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tj9) {
 		dev_err(&client->dev,
 			"failed to allocate memory for module data\n");
@@ -538,6 +584,7 @@ static int kxtj9_probe(struct i2c_client *client,
 	if (pdata->init) {
 		err = pdata->init();
 		if (err < 0)
+<<<<<<< HEAD
 			goto err_free_mem;
 	}
 
@@ -545,6 +592,19 @@ static int kxtj9_probe(struct i2c_client *client,
 	if (err < 0) {
 		dev_err(&client->dev, "device not recognized\n");
 		goto err_pdata_exit;
+=======
+			return err;
+	}
+
+	err = devm_add_action_or_reset(&client->dev, kxtj9_platform_exit, tj9);
+	if (err)
+		return err;
+
+	err = kxtj9_verify(tj9);
+	if (err < 0) {
+		dev_err(&client->dev, "device not recognized\n");
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	i2c_set_clientdata(client, tj9);
@@ -552,11 +612,48 @@ static int kxtj9_probe(struct i2c_client *client,
 	tj9->ctrl_reg1 = tj9->pdata.res_12bit | tj9->pdata.g_range;
 	tj9->last_poll_interval = tj9->pdata.init_interval;
 
+<<<<<<< HEAD
+=======
+	input_dev = devm_input_allocate_device(&client->dev);
+	if (!input_dev) {
+		dev_err(&client->dev, "input device allocate failed\n");
+		return -ENOMEM;
+	}
+
+	input_set_drvdata(input_dev, tj9);
+	tj9->input_dev = input_dev;
+
+	input_dev->name = "kxtj9_accel";
+	input_dev->id.bustype = BUS_I2C;
+
+	input_dev->open = kxtj9_input_open;
+	input_dev->close = kxtj9_input_close;
+
+	input_set_abs_params(input_dev, ABS_X, -G_MAX, G_MAX, FUZZ, FLAT);
+	input_set_abs_params(input_dev, ABS_Y, -G_MAX, G_MAX, FUZZ, FLAT);
+	input_set_abs_params(input_dev, ABS_Z, -G_MAX, G_MAX, FUZZ, FLAT);
+
+	if (client->irq <= 0) {
+		err = input_setup_polling(input_dev, kxtj9_poll);
+		if (err)
+			return err;
+	}
+
+	err = input_register_device(input_dev);
+	if (err) {
+		dev_err(&client->dev,
+			"unable to register input polled device %s: %d\n",
+			input_dev->name, err);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	if (client->irq) {
 		/* If in irq mode, populate INT_CTRL_REG1 and enable DRDY. */
 		tj9->int_ctrl |= KXTJ9_IEN | KXTJ9_IEA | KXTJ9_IEL;
 		tj9->ctrl_reg1 |= DRDYE;
 
+<<<<<<< HEAD
 		err = kxtj9_setup_input_device(tj9);
 		if (err)
 			goto err_pdata_exit;
@@ -613,6 +710,27 @@ static int kxtj9_remove(struct i2c_client *client)
 	kfree(tj9);
 
 	return 0;
+=======
+		err = devm_request_threaded_irq(&client->dev, client->irq,
+						NULL, kxtj9_isr,
+						IRQF_TRIGGER_RISING |
+							IRQF_ONESHOT,
+						"kxtj9-irq", tj9);
+		if (err) {
+			dev_err(&client->dev, "request irq failed: %d\n", err);
+			return err;
+		}
+
+		err = devm_device_add_group(&client->dev,
+					    &kxtj9_attribute_group);
+		if (err) {
+			dev_err(&client->dev, "sysfs create failed: %d\n", err);
+			return err;
+		}
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __maybe_unused kxtj9_suspend(struct device *dev)
@@ -623,7 +741,11 @@ static int __maybe_unused kxtj9_suspend(struct device *dev)
 
 	mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 	if (input_dev->users)
+=======
+	if (input_device_enabled(input_dev))
+>>>>>>> upstream/android-13
 		kxtj9_disable(tj9);
 
 	mutex_unlock(&input_dev->mutex);
@@ -638,7 +760,11 @@ static int __maybe_unused kxtj9_resume(struct device *dev)
 
 	mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 	if (input_dev->users)
+=======
+	if (input_device_enabled(input_dev))
+>>>>>>> upstream/android-13
 		kxtj9_enable(tj9);
 
 	mutex_unlock(&input_dev->mutex);
@@ -660,7 +786,10 @@ static struct i2c_driver kxtj9_driver = {
 		.pm	= &kxtj9_pm_ops,
 	},
 	.probe		= kxtj9_probe,
+<<<<<<< HEAD
 	.remove		= kxtj9_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= kxtj9_id,
 };
 

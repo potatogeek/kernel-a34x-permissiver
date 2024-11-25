@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kgdb support for ARC
  *
  * Copyright (C) 2012 Synopsys, Inc. (www.synopsys.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kgdb.h>
@@ -143,6 +150,10 @@ int kgdb_arch_handle_exception(int e_vector, int signo, int err_code,
 		ptr = &remcomInBuffer[1];
 		if (kgdb_hex2long(&ptr, &addr))
 			regs->ret = addr;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 'D':
 	case 'k':
@@ -192,6 +203,7 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long ip)
 	instruction_pointer(regs) = ip;
 }
 
+<<<<<<< HEAD
 static void kgdb_call_nmi_hook(void *ignored)
 {
 	kgdb_nmicallback(raw_smp_processor_id(), NULL);
@@ -205,6 +217,15 @@ void kgdb_roundup_cpus(unsigned long flags)
 }
 
 struct kgdb_arch arch_kgdb_ops = {
+=======
+void kgdb_call_nmi_hook(void *ignored)
+{
+	/* Default implementation passes get_irq_regs() but we don't */
+	kgdb_nmicallback(raw_smp_processor_id(), NULL);
+}
+
+const struct kgdb_arch arch_kgdb_ops = {
+>>>>>>> upstream/android-13
 	/* breakpoint instruction: TRAP_S 0x3 */
 #ifdef CONFIG_CPU_BIG_ENDIAN
 	.gdb_bpt_instr		= {0x78, 0x7e},

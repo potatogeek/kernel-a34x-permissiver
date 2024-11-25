@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * max8997.h - Driver for the Maxim 8997/8966
  *
  *  Copyright (C) 2009-2010 Samsung Electrnoics
  *  MyungJoo Ham <myungjoo.ham@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  * This driver is based on max8998.h
  *
  * MAX8997 has PMIC, MUIC, HAPTIC, RTC, FLASH, and Fuel Gauge devices.
@@ -27,13 +34,22 @@
  * others and b) it can be enabled simply by using MAX17042 driver.
  */
 
+<<<<<<< HEAD
 #ifndef __LINUX_MFD_MAX8998_H
 #define __LINUX_MFD_MAX8998_H
+=======
+#ifndef __LINUX_MFD_MAX8997_H
+#define __LINUX_MFD_MAX8997_H
+>>>>>>> upstream/android-13
 
 #include <linux/regulator/consumer.h>
 
 /* MAX8997/8966 regulator IDs */
+<<<<<<< HEAD
 enum max8998_regulators {
+=======
+enum max8997_regulators {
+>>>>>>> upstream/android-13
 	MAX8997_LDO1 = 0,
 	MAX8997_LDO2,
 	MAX8997_LDO3,
@@ -220,4 +236,8 @@ struct max8997_platform_data {
 	struct max8997_led_platform_data *led_pdata;
 };
 
+<<<<<<< HEAD
 #endif /* __LINUX_MFD_MAX8998_H */
+=======
+#endif /* __LINUX_MFD_MAX8997_H */
+>>>>>>> upstream/android-13

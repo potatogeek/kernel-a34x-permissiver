@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * k8temp.c - Linux kernel module for hardware monitoring
  *
  * Copyright (C) 2006 Rudolf Marek <r.marek@assembler.cz>
  *
  * Inspired from the w83785 and amd756 drivers.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +24,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/jiffies.h>
 #include <linux/pci.h>
 #include <linux/hwmon.h>
 #include <linux/hwmon-sysfs.h>
+=======
+#include <linux/pci.h>
+#include <linux/hwmon.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/mutex.h>
 #include <asm/processor.h>
@@ -38,6 +50,7 @@
 #define SEL_CORE	0x04
 
 struct k8temp_data {
+<<<<<<< HEAD
 	struct device *hwmon_dev;
 	struct mutex update_lock;
 	const char *name;
@@ -47,10 +60,17 @@ struct k8temp_data {
 	/* registers values */
 	u8 sensorsp;		/* sensor presence bits - SEL_CORE, SEL_PLACE */
 	u32 temp[2][2];		/* core, place */
+=======
+	struct mutex update_lock;
+
+	/* registers values */
+	u8 sensorsp;		/* sensor presence bits - SEL_CORE, SEL_PLACE */
+>>>>>>> upstream/android-13
 	u8 swap_core_select;    /* meaning of SEL_CORE is inverted */
 	u32 temp_offset;
 };
 
+<<<<<<< HEAD
 static struct k8temp_data *k8temp_update_device(struct device *dev)
 {
 	struct k8temp_data *data = dev_get_drvdata(dev);
@@ -135,11 +155,16 @@ static SENSOR_DEVICE_ATTR_2(temp3_input, S_IRUGO, show_temp, NULL, 1, 0);
 static SENSOR_DEVICE_ATTR_2(temp4_input, S_IRUGO, show_temp, NULL, 1, 1);
 static DEVICE_ATTR_RO(name);
 
+=======
+>>>>>>> upstream/android-13
 static const struct pci_device_id k8temp_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_K8_NB_MISC) },
 	{ 0 },
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(pci, k8temp_ids);
 
 static int is_rev_g_desktop(u8 model)
@@ -173,14 +198,86 @@ static int is_rev_g_desktop(u8 model)
 	return 1;
 }
 
+<<<<<<< HEAD
 static int k8temp_probe(struct pci_dev *pdev,
 				  const struct pci_device_id *id)
 {
 	int err;
+=======
+static umode_t
+k8temp_is_visible(const void *drvdata, enum hwmon_sensor_types type,
+		  u32 attr, int channel)
+{
+	const struct k8temp_data *data = drvdata;
+
+	if ((channel & 1) && !(data->sensorsp & SEL_PLACE))
+		return 0;
+
+	if ((channel & 2) && !(data->sensorsp & SEL_CORE))
+		return 0;
+
+	return 0444;
+}
+
+static int
+k8temp_read(struct device *dev, enum hwmon_sensor_types type,
+	    u32 attr, int channel, long *val)
+{
+	struct k8temp_data *data = dev_get_drvdata(dev);
+	struct pci_dev *pdev = to_pci_dev(dev->parent);
+	int core, place;
+	u32 temp;
+	u8 tmp;
+
+	core = (channel >> 1) & 1;
+	place = channel & 1;
+
+	core ^= data->swap_core_select;
+
+	mutex_lock(&data->update_lock);
+	pci_read_config_byte(pdev, REG_TEMP, &tmp);
+	tmp &= ~(SEL_PLACE | SEL_CORE);
+	if (core)
+		tmp |= SEL_CORE;
+	if (place)
+		tmp |= SEL_PLACE;
+	pci_write_config_byte(pdev, REG_TEMP, tmp);
+	pci_read_config_dword(pdev, REG_TEMP, &temp);
+	mutex_unlock(&data->update_lock);
+
+	*val = TEMP_FROM_REG(temp) + data->temp_offset;
+
+	return 0;
+}
+
+static const struct hwmon_ops k8temp_ops = {
+	.is_visible = k8temp_is_visible,
+	.read = k8temp_read,
+};
+
+static const struct hwmon_channel_info *k8temp_info[] = {
+	HWMON_CHANNEL_INFO(temp,
+		HWMON_T_INPUT, HWMON_T_INPUT, HWMON_T_INPUT, HWMON_T_INPUT),
+	NULL
+};
+
+static const struct hwmon_chip_info k8temp_chip_info = {
+	.ops = &k8temp_ops,
+	.info = k8temp_info,
+};
+
+static int k8temp_probe(struct pci_dev *pdev,
+				  const struct pci_device_id *id)
+{
+>>>>>>> upstream/android-13
 	u8 scfg;
 	u32 temp;
 	u8 model, stepping;
 	struct k8temp_data *data;
+<<<<<<< HEAD
+=======
+	struct device *hwmon_dev;
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(&pdev->dev, sizeof(struct k8temp_data), GFP_KERNEL);
 	if (!data)
@@ -245,6 +342,7 @@ static int k8temp_probe(struct pci_dev *pdev,
 			data->sensorsp &= ~SEL_CORE;
 	}
 
+<<<<<<< HEAD
 	data->name = "k8temp";
 	mutex_init(&data->update_lock);
 	pci_set_drvdata(pdev, data);
@@ -318,13 +416,27 @@ static void k8temp_remove(struct pci_dev *pdev)
 	device_remove_file(&pdev->dev,
 			   &sensor_dev_attr_temp4_input.dev_attr);
 	device_remove_file(&pdev->dev, &dev_attr_name);
+=======
+	mutex_init(&data->update_lock);
+
+	hwmon_dev = devm_hwmon_device_register_with_info(&pdev->dev,
+							 "k8temp",
+							 data,
+							 &k8temp_chip_info,
+							 NULL);
+
+	return PTR_ERR_OR_ZERO(hwmon_dev);
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver k8temp_driver = {
 	.name = "k8temp",
 	.id_table = k8temp_ids,
 	.probe = k8temp_probe,
+<<<<<<< HEAD
 	.remove = k8temp_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(k8temp_driver);

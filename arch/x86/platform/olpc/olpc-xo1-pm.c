@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support for power management features of the OLPC XO-1 laptop
  *
@@ -5,18 +9,24 @@
  * Copyright (C) 2010 One Laptop per Child
  * Copyright (C) 2006 Red Hat, Inc.
  * Copyright (C) 2006 Advanced Micro Devices, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cs5535.h>
 #include <linux/platform_device.h>
 #include <linux/export.h>
 #include <linux/pm.h>
+<<<<<<< HEAD
 #include <linux/mfd/core.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/suspend.h>
 #include <linux/olpc-ec.h>
 
@@ -124,16 +134,22 @@ static const struct platform_suspend_ops xo1_suspend_ops = {
 static int xo1_pm_probe(struct platform_device *pdev)
 {
 	struct resource *res;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	/* don't run on non-XOs */
 	if (!machine_is_olpc())
 		return -ENODEV;
 
+<<<<<<< HEAD
 	err = mfd_cell_enable(pdev);
 	if (err)
 		return err;
 
+=======
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
 	if (!res) {
 		dev_err(&pdev->dev, "can't fetch device resource info\n");
@@ -156,8 +172,11 @@ static int xo1_pm_probe(struct platform_device *pdev)
 
 static int xo1_pm_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	mfd_cell_disable(pdev);
 
+=======
+>>>>>>> upstream/android-13
 	if (strcmp(pdev->name, "cs5535-pms") == 0)
 		pms_base = 0;
 	else if (strcmp(pdev->name, "olpc-xo1-pm-acpi") == 0)

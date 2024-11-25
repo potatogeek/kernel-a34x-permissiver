@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * offload engine driver for the Marvell XOR engine
  * Copyright (C) 2007, 2008, Marvell International Ltd.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * offload engine driver for the Marvell XOR engine
+ * Copyright (C) 2007, 2008, Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -344,6 +351,7 @@ static void mv_chan_slot_cleanup(struct mv_xor_chan *mv_chan)
 		mv_chan->dmachan.completed_cookie = cookie;
 }
 
+<<<<<<< HEAD
 static void mv_xor_tasklet(unsigned long data)
 {
 	struct mv_xor_chan *chan = (struct mv_xor_chan *) data;
@@ -351,6 +359,15 @@ static void mv_xor_tasklet(unsigned long data)
 	spin_lock_bh(&chan->lock);
 	mv_chan_slot_cleanup(chan);
 	spin_unlock_bh(&chan->lock);
+=======
+static void mv_xor_tasklet(struct tasklet_struct *t)
+{
+	struct mv_xor_chan *chan = from_tasklet(chan, t, irq_tasklet);
+
+	spin_lock(&chan->lock);
+	mv_chan_slot_cleanup(chan);
+	spin_unlock(&chan->lock);
+>>>>>>> upstream/android-13
 }
 
 static struct mv_xor_desc_slot *
@@ -1105,8 +1122,12 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
 
 	mv_chan->mmr_base = xordev->xor_base;
 	mv_chan->mmr_high_base = xordev->xor_high_base;
+<<<<<<< HEAD
 	tasklet_init(&mv_chan->irq_tasklet, mv_xor_tasklet, (unsigned long)
 		     mv_chan);
+=======
+	tasklet_setup(&mv_chan->irq_tasklet, mv_xor_tasklet);
+>>>>>>> upstream/android-13
 
 	/* clear errors before enabling interrupts */
 	mv_chan_clear_err_status(mv_chan);
@@ -1153,7 +1174,14 @@ mv_xor_channel_add(struct mv_xor_device *xordev,
 		 dma_has_cap(DMA_MEMCPY, dma_dev->cap_mask) ? "cpy " : "",
 		 dma_has_cap(DMA_INTERRUPT, dma_dev->cap_mask) ? "intr " : "");
 
+<<<<<<< HEAD
 	dma_async_device_register(dma_dev);
+=======
+	ret = dma_async_device_register(dma_dev);
+	if (ret)
+		goto err_free_irq;
+
+>>>>>>> upstream/android-13
 	return mv_chan;
 
 err_free_irq:
@@ -1461,7 +1489,11 @@ static struct platform_driver mv_xor_driver = {
 	.resume         = mv_xor_resume,
 	.driver		= {
 		.name	        = MV_XOR_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(mv_xor_dt_ids),
+=======
+		.of_match_table = mv_xor_dt_ids,
+>>>>>>> upstream/android-13
 	},
 };
 

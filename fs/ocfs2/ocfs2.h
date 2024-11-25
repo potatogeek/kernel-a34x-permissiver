@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+>>>>>>> upstream/android-13
  * ocfs2.h
  *
  * Defines macros and structures used in OCFS2
  *
  * Copyright (C) 2002, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef OCFS2_H
@@ -164,6 +172,10 @@ struct ocfs2_lock_stats {
 
 	/* Storing max wait in usecs saves 24 bytes per inode */
 	u32		ls_max;		/* Max wait in USEC */
+<<<<<<< HEAD
+=======
+	u64		ls_last;	/* Last unlock time in USEC */
+>>>>>>> upstream/android-13
 };
 #endif
 
@@ -205,6 +217,10 @@ struct ocfs2_lock_res {
 #ifdef CONFIG_OCFS2_FS_STATS
 	struct ocfs2_lock_stats  l_lock_prmode;		/* PR mode stats */
 	u32                      l_lock_refresh;	/* Disk refreshes */
+<<<<<<< HEAD
+=======
+	u64                      l_lock_wait;	/* First lock wait time */
+>>>>>>> upstream/android-13
 	struct ocfs2_lock_stats  l_lock_exmode;		/* EX mode stats */
 #endif
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
@@ -235,7 +251,11 @@ struct ocfs2_orphan_scan {
 
 struct ocfs2_dlm_debug {
 	struct kref d_refcnt;
+<<<<<<< HEAD
 	struct dentry *d_locking_state;
+=======
+	u32 d_filter_secs;
+>>>>>>> upstream/android-13
 	struct list_head d_lockres_tracking;
 };
 
@@ -291,6 +311,10 @@ enum ocfs2_mount_options
 	OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT = 1 << 15,  /* Journal Async Commit */
 	OCFS2_MOUNT_ERRORS_CONT = 1 << 16, /* Return EIO to the calling process on error */
 	OCFS2_MOUNT_ERRORS_ROFS = 1 << 17, /* Change filesystem to read-only on error */
+<<<<<<< HEAD
+=======
+	OCFS2_MOUNT_NOCLUSTER = 1 << 18, /* No cluster aware filesystem mount */
+>>>>>>> upstream/android-13
 };
 
 #define OCFS2_OSB_SOFT_RO	0x0001
@@ -408,10 +432,17 @@ struct ocfs2_super
 	struct ocfs2_lock_res osb_nfs_sync_lockres;
 	struct rw_semaphore nfs_sync_rwlock;
 	struct ocfs2_lock_res osb_trim_fs_lockres;
+<<<<<<< HEAD
 	struct ocfs2_dlm_debug *osb_dlm_debug;
 
 	struct dentry *osb_debug_root;
 	struct dentry *osb_ctxt;
+=======
+	struct mutex obs_trim_fs_mutex;
+	struct ocfs2_dlm_debug *osb_dlm_debug;
+
+	struct dentry *osb_debug_root;
+>>>>>>> upstream/android-13
 
 	wait_queue_head_t recovery_event;
 
@@ -686,7 +717,12 @@ static inline int ocfs2_cluster_o2cb_global_heartbeat(struct ocfs2_super *osb)
 
 static inline int ocfs2_mount_local(struct ocfs2_super *osb)
 {
+<<<<<<< HEAD
 	return (osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT);
+=======
+	return ((osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT)
+		|| (osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER));
+>>>>>>> upstream/android-13
 }
 
 static inline int ocfs2_uses_extended_slot_map(struct ocfs2_super *osb)

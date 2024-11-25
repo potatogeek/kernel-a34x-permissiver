@@ -4,8 +4,11 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTW_XMIT_C_
 
+=======
+>>>>>>> upstream/android-13
 #include <drv_types.h>
 #include <rtw_debug.h>
 
@@ -25,9 +28,12 @@ void _rtw_init_sta_xmit_priv(struct sta_xmit_priv *psta_xmitpriv)
 
 	spin_lock_init(&psta_xmitpriv->lock);
 
+<<<<<<< HEAD
 	/* for (i = 0 ; i < MAX_NUMBLKS; i++) */
 	/* 	_init_txservq(&(psta_xmitpriv->blk_q[i])); */
 
+=======
+>>>>>>> upstream/android-13
 	_init_txservq(&psta_xmitpriv->be_q);
 	_init_txservq(&psta_xmitpriv->bk_q);
 	_init_txservq(&psta_xmitpriv->vi_q);
@@ -41,6 +47,7 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 	int i;
 	struct xmit_buf *pxmitbuf;
 	struct xmit_frame *pxframe;
+<<<<<<< HEAD
 	sint	res = _SUCCESS;
 
 	spin_lock_init(&pxmitpriv->lock);
@@ -57,12 +64,28 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 	/* for (i = 0 ; i < MAX_NUMBLKS; i++) */
 	/* 	_rtw_init_queue(&pxmitpriv->blk_strms[i]); */
 
+=======
+	signed int	res = _SUCCESS;
+
+	spin_lock_init(&pxmitpriv->lock);
+	spin_lock_init(&pxmitpriv->lock_sctx);
+	init_completion(&pxmitpriv->xmit_comp);
+	init_completion(&pxmitpriv->terminate_xmitthread_comp);
+
+	/*
+	 * Please insert all the queue initializaiton using _rtw_init_queue below
+	 */
+
+	pxmitpriv->adapter = padapter;
+
+>>>>>>> upstream/android-13
 	_rtw_init_queue(&pxmitpriv->be_pending);
 	_rtw_init_queue(&pxmitpriv->bk_pending);
 	_rtw_init_queue(&pxmitpriv->vi_pending);
 	_rtw_init_queue(&pxmitpriv->vo_pending);
 	_rtw_init_queue(&pxmitpriv->bm_pending);
 
+<<<<<<< HEAD
 	/* _rtw_init_queue(&pxmitpriv->legacy_dz_queue); */
 	/* _rtw_init_queue(&pxmitpriv->apsd_queue); */
 
@@ -79,17 +102,38 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 	if (pxmitpriv->pallocated_frame_buf  == NULL) {
 		pxmitpriv->pxmit_frame_buf = NULL;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("alloc xmit_frame fail!\n"));
+=======
+	_rtw_init_queue(&pxmitpriv->free_xmit_queue);
+
+	/*
+	 * Please allocate memory with the sz = (struct xmit_frame) * NR_XMITFRAME,
+	 * and initialize free_xmit_frame below.
+	 * Please also apply  free_txobj to link_up all the xmit_frames...
+	 */
+
+	pxmitpriv->pallocated_frame_buf = vzalloc(NR_XMITFRAME * sizeof(struct xmit_frame) + 4);
+
+	if (!pxmitpriv->pallocated_frame_buf) {
+		pxmitpriv->pxmit_frame_buf = NULL;
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
 	pxmitpriv->pxmit_frame_buf = (u8 *)N_BYTE_ALIGMENT((SIZE_PTR)(pxmitpriv->pallocated_frame_buf), 4);
+<<<<<<< HEAD
 	/* pxmitpriv->pxmit_frame_buf = pxmitpriv->pallocated_frame_buf + 4 - */
 	/* 						((SIZE_PTR) (pxmitpriv->pallocated_frame_buf) &3); */
+=======
+>>>>>>> upstream/android-13
 
 	pxframe = (struct xmit_frame *) pxmitpriv->pxmit_frame_buf;
 
 	for (i = 0; i < NR_XMITFRAME; i++) {
+<<<<<<< HEAD
 		INIT_LIST_HEAD(&(pxframe->list));
+=======
+		INIT_LIST_HEAD(&pxframe->list);
+>>>>>>> upstream/android-13
 
 		pxframe->padapter = padapter;
 		pxframe->frame_tag = NULL_FRAMETAG;
@@ -99,7 +143,12 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 		pxframe->buf_addr = NULL;
 		pxframe->pxmitbuf = NULL;
 
+<<<<<<< HEAD
 		list_add_tail(&(pxframe->list), &(pxmitpriv->free_xmit_queue.queue));
+=======
+		list_add_tail(&pxframe->list,
+			      &pxmitpriv->free_xmit_queue.queue);
+>>>>>>> upstream/android-13
 
 		pxframe++;
 	}
@@ -108,22 +157,32 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 
 	pxmitpriv->frag_len = MAX_FRAG_THRESHOLD;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* init xmit_buf */
 	_rtw_init_queue(&pxmitpriv->free_xmitbuf_queue);
 	_rtw_init_queue(&pxmitpriv->pending_xmitbuf_queue);
 
 	pxmitpriv->pallocated_xmitbuf = vzalloc(NR_XMITBUFF * sizeof(struct xmit_buf) + 4);
 
+<<<<<<< HEAD
 	if (pxmitpriv->pallocated_xmitbuf  == NULL) {
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("alloc xmit_buf fail!\n"));
+=======
+	if (!pxmitpriv->pallocated_xmitbuf) {
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
 
 	pxmitpriv->pxmitbuf = (u8 *)N_BYTE_ALIGMENT((SIZE_PTR)(pxmitpriv->pallocated_xmitbuf), 4);
+<<<<<<< HEAD
 	/* pxmitpriv->pxmitbuf = pxmitpriv->pallocated_xmitbuf + 4 - */
 	/* 						((SIZE_PTR) (pxmitpriv->pallocated_xmitbuf) &3); */
+=======
+>>>>>>> upstream/android-13
 
 	pxmitbuf = (struct xmit_buf *)pxmitpriv->pxmitbuf;
 
@@ -150,13 +209,21 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 
 		pxmitbuf->flags = XMIT_VO_QUEUE;
 
+<<<<<<< HEAD
 		list_add_tail(&pxmitbuf->list, &(pxmitpriv->free_xmitbuf_queue.queue));
+=======
+		list_add_tail(&pxmitbuf->list,
+			      &pxmitpriv->free_xmitbuf_queue.queue);
+>>>>>>> upstream/android-13
 		#ifdef DBG_XMIT_BUF
 		pxmitbuf->no = i;
 		#endif
 
 		pxmitbuf++;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	pxmitpriv->free_xmitbuf_cnt = NR_XMITBUFF;
@@ -166,9 +233,14 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 
 	pxmitpriv->xframe_ext_alloc_addr = vzalloc(NR_XMIT_EXTBUFF * sizeof(struct xmit_frame) + 4);
 
+<<<<<<< HEAD
 	if (pxmitpriv->xframe_ext_alloc_addr  == NULL) {
 		pxmitpriv->xframe_ext = NULL;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("alloc xframe_ext fail!\n"));
+=======
+	if (!pxmitpriv->xframe_ext_alloc_addr) {
+		pxmitpriv->xframe_ext = NULL;
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
@@ -176,7 +248,11 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 	pxframe = (struct xmit_frame *)pxmitpriv->xframe_ext;
 
 	for (i = 0; i < NR_XMIT_EXTBUFF; i++) {
+<<<<<<< HEAD
 		INIT_LIST_HEAD(&(pxframe->list));
+=======
+		INIT_LIST_HEAD(&pxframe->list);
+>>>>>>> upstream/android-13
 
 		pxframe->padapter = padapter;
 		pxframe->frame_tag = NULL_FRAMETAG;
@@ -188,7 +264,12 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 
 		pxframe->ext_tag = 1;
 
+<<<<<<< HEAD
 		list_add_tail(&(pxframe->list), &(pxmitpriv->free_xframe_ext_queue.queue));
+=======
+		list_add_tail(&pxframe->list,
+			      &pxmitpriv->free_xframe_ext_queue.queue);
+>>>>>>> upstream/android-13
 
 		pxframe++;
 	}
@@ -199,8 +280,12 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 
 	pxmitpriv->pallocated_xmit_extbuf = vzalloc(NR_XMIT_EXTBUFF * sizeof(struct xmit_buf) + 4);
 
+<<<<<<< HEAD
 	if (pxmitpriv->pallocated_xmit_extbuf  == NULL) {
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("alloc xmit_extbuf fail!\n"));
+=======
+	if (!pxmitpriv->pallocated_xmit_extbuf) {
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
@@ -227,12 +312,20 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 		pxmitbuf->len = 0;
 		pxmitbuf->pdata = pxmitbuf->ptail = pxmitbuf->phead;
 
+<<<<<<< HEAD
 		list_add_tail(&pxmitbuf->list, &(pxmitpriv->free_xmit_extbuf_queue.queue));
+=======
+		list_add_tail(&pxmitbuf->list,
+			      &pxmitpriv->free_xmit_extbuf_queue.queue);
+>>>>>>> upstream/android-13
 		#ifdef DBG_XMIT_BUF_EXT
 		pxmitbuf->no = i;
 		#endif
 		pxmitbuf++;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	pxmitpriv->free_xmit_extbuf_cnt = NR_XMIT_EXTBUFF;
@@ -265,9 +358,14 @@ s32 _rtw_init_xmit_priv(struct xmit_priv *pxmitpriv, struct adapter *padapter)
 		goto exit;
 	rtw_init_hwxmits(pxmitpriv->hwxmits, pxmitpriv->hwxmit_entry);
 
+<<<<<<< HEAD
 	for (i = 0; i < 4; i++) {
 		pxmitpriv->wmm_para_seq[i] = i;
 	}
+=======
+	for (i = 0; i < 4; i++)
+		pxmitpriv->wmm_para_seq[i] = i;
+>>>>>>> upstream/android-13
 
 	pxmitpriv->ack_tx = false;
 	mutex_init(&pxmitpriv->ack_tx_mutex);
@@ -288,7 +386,11 @@ void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv)
 
 	rtw_hal_free_xmit_priv(padapter);
 
+<<<<<<< HEAD
 	if (pxmitpriv->pxmit_frame_buf == NULL)
+=======
+	if (!pxmitpriv->pxmit_frame_buf)
+>>>>>>> upstream/android-13
 		return;
 
 	for (i = 0; i < NR_XMITFRAME; i++) {
@@ -303,12 +405,17 @@ void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv)
 		pxmitbuf++;
 	}
 
+<<<<<<< HEAD
 	if (pxmitpriv->pallocated_frame_buf)
 		vfree(pxmitpriv->pallocated_frame_buf);
 
 
 	if (pxmitpriv->pallocated_xmitbuf)
 		vfree(pxmitpriv->pallocated_xmitbuf);
+=======
+	vfree(pxmitpriv->pallocated_frame_buf);
+	vfree(pxmitpriv->pallocated_xmitbuf);
+>>>>>>> upstream/android-13
 
 	/* free xframe_ext queue,  the same count as extbuf  */
 	pxmitframe = (struct xmit_frame *)pxmitpriv->xframe_ext;
@@ -318,8 +425,13 @@ void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv)
 			pxmitframe++;
 		}
 	}
+<<<<<<< HEAD
 	if (pxmitpriv->xframe_ext_alloc_addr)
 		vfree(pxmitpriv->xframe_ext_alloc_addr);
+=======
+
+	vfree(pxmitpriv->xframe_ext_alloc_addr);
+>>>>>>> upstream/android-13
 
 	/*  free xmit extension buff */
 	pxmitbuf = (struct xmit_buf *)pxmitpriv->pxmit_extbuf;
@@ -329,6 +441,7 @@ void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv)
 		pxmitbuf++;
 	}
 
+<<<<<<< HEAD
 	if (pxmitpriv->pallocated_xmit_extbuf) {
 		vfree(pxmitpriv->pallocated_xmit_extbuf);
 	}
@@ -336,6 +449,13 @@ void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv)
 	for (i = 0; i < CMDBUF_MAX; i++) {
 		pxmitbuf = &pxmitpriv->pcmd_xmitbuf[i];
 		if (pxmitbuf != NULL)
+=======
+	vfree(pxmitpriv->pallocated_xmit_extbuf);
+
+	for (i = 0; i < CMDBUF_MAX; i++) {
+		pxmitbuf = &pxmitpriv->pcmd_xmitbuf[i];
+		if (pxmitbuf)
+>>>>>>> upstream/android-13
 			rtw_os_xmit_resource_free(padapter, pxmitbuf, MAX_CMDBUF_SZ+XMITBUF_ALIGN_SZ, true);
 	}
 
@@ -346,15 +466,22 @@ void _rtw_free_xmit_priv(struct xmit_priv *pxmitpriv)
 
 u8 query_ra_short_GI(struct sta_info *psta)
 {
+<<<<<<< HEAD
 	u8 sgi = false, sgi_20m = false, sgi_40m = false, sgi_80m = false;
+=======
+	u8 sgi = false, sgi_20m = false, sgi_40m = false;
+>>>>>>> upstream/android-13
 
 	sgi_20m = psta->htpriv.sgi_20m;
 	sgi_40m = psta->htpriv.sgi_40m;
 
 	switch (psta->bw_mode) {
+<<<<<<< HEAD
 	case CHANNEL_WIDTH_80:
 		sgi = sgi_80m;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case CHANNEL_WIDTH_40:
 		sgi = sgi_40m;
 		break;
@@ -372,8 +499,13 @@ static void update_attrib_vcs_info(struct adapter *padapter, struct xmit_frame *
 	u32 sz;
 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
 	/* struct sta_info *psta = pattrib->psta; */
+<<<<<<< HEAD
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
+=======
+	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
+	struct mlme_ext_info *pmlmeinfo = &pmlmeext->mlmext_info;
+>>>>>>> upstream/android-13
 
 	if (pattrib->nr_frags != 1)
 		sz = padapter->xmitpriv.frag_len;
@@ -382,12 +514,21 @@ static void update_attrib_vcs_info(struct adapter *padapter, struct xmit_frame *
 
 	/*  (1) RTS_Threshold is compared to the MPDU, not MSDU. */
 	/*  (2) If there are more than one frag in  this MSDU, only the first frag uses protection frame. */
+<<<<<<< HEAD
 	/* 		Other fragments are protected by previous fragment. */
 	/* 		So we only need to check the length of first fragment. */
 	if (pmlmeext->cur_wireless_mode < WIRELESS_11_24N  || padapter->registrypriv.wifi_spec) {
 		if (sz > padapter->registrypriv.rts_thresh)
 			pattrib->vcs_mode = RTS_CTS;
 		else{
+=======
+	/* Other fragments are protected by previous fragment. */
+	/* So we only need to check the length of first fragment. */
+	if (pmlmeext->cur_wireless_mode < WIRELESS_11_24N  || padapter->registrypriv.wifi_spec) {
+		if (sz > padapter->registrypriv.rts_thresh) {
+			pattrib->vcs_mode = RTS_CTS;
+		} else {
+>>>>>>> upstream/android-13
 			if (pattrib->rtsen)
 				pattrib->vcs_mode = RTS_CTS;
 			else if (pattrib->cts2self)
@@ -395,7 +536,11 @@ static void update_attrib_vcs_info(struct adapter *padapter, struct xmit_frame *
 			else
 				pattrib->vcs_mode = NONE_VCS;
 		}
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		while (true) {
 			/* IOT action */
 			if ((pmlmeinfo->assoc_AP_vendor == HT_IOT_PEER_ATHEROS) && (pattrib->ampdu_en == true) &&
@@ -404,7 +549,10 @@ static void update_attrib_vcs_info(struct adapter *padapter, struct xmit_frame *
 				break;
 			}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 			/* check ERP protection */
 			if (pattrib->rtsen || pattrib->cts2self) {
 				if (pattrib->rtsen)
@@ -418,6 +566,10 @@ static void update_attrib_vcs_info(struct adapter *padapter, struct xmit_frame *
 			/* check HT op mode */
 			if (pattrib->ht_en) {
 				u8 HTOpMode = pmlmeinfo->HT_protection;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 				if ((pmlmeext->cur_bwmode && (HTOpMode == 2 || HTOpMode == 3)) ||
 					(!pmlmeext->cur_bwmode && HTOpMode == 3)) {
 					pattrib->vcs_mode = RTS_CTS;
@@ -485,6 +637,7 @@ static void update_attrib_phy_info(struct adapter *padapter, struct pkt_attrib *
 	else
 		pattrib->ampdu_spacing = psta->htpriv.rx_ampdu_min_spacing;
 
+<<<<<<< HEAD
 	/* if (pattrib->ht_en && psta->htpriv.ampdu_enable) */
 	/*  */
 	/* 	if (psta->htpriv.agg_enable_bitmap & BIT(pattrib->priority)) */
@@ -499,20 +652,31 @@ static void update_attrib_phy_info(struct adapter *padapter, struct pkt_attrib *
 		pattrib->pctrl = true;
 #endif
 
+=======
+	pattrib->retry_ctrl = false;
+>>>>>>> upstream/android-13
 }
 
 static s32 update_attrib_sec_info(struct adapter *padapter, struct pkt_attrib *pattrib, struct sta_info *psta)
 {
+<<<<<<< HEAD
 	sint res = _SUCCESS;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
 	sint bmcast = IS_MCAST(pattrib->ra);
+=======
+	signed int res = _SUCCESS;
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	signed int bmcast = IS_MCAST(pattrib->ra);
+>>>>>>> upstream/android-13
 
 	memset(pattrib->dot118021x_UncstKey.skey,  0, 16);
 	memset(pattrib->dot11tkiptxmickey.skey,  0, 16);
 	pattrib->mac_id = psta->mac_id;
 
 	if (psta->ieee8021x_blocked == true) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("\n psta->ieee8021x_blocked == true\n"));
 
 		pattrib->encrypt = 0;
@@ -526,6 +690,15 @@ static s32 update_attrib_sec_info(struct adapter *padapter, struct pkt_attrib *p
 			goto exit;
 		}
 	} else{
+=======
+		pattrib->encrypt = 0;
+
+		if ((pattrib->ether_type != 0x888e) && (check_fwstate(pmlmepriv, WIFI_MP_STATE) == false)) {
+			res = _FAIL;
+			goto exit;
+		}
+	} else {
+>>>>>>> upstream/android-13
 		GET_ENCRY_ALGO(psecuritypriv, psta, pattrib->encrypt, bmcast);
 
 		switch (psecuritypriv->dot11AuthAlgrthm) {
@@ -548,7 +721,10 @@ static s32 update_attrib_sec_info(struct adapter *padapter, struct pkt_attrib *p
 		/* For WPS 1.0 WEP, driver should not encrypt EAPOL Packet for WPS handshake. */
 		if (((pattrib->encrypt == _WEP40_) || (pattrib->encrypt == _WEP104_)) && (pattrib->ether_type == 0x888e))
 			pattrib->encrypt = _NO_PRIVACY_;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	switch (pattrib->encrypt) {
@@ -564,9 +740,12 @@ static s32 update_attrib_sec_info(struct adapter *padapter, struct pkt_attrib *p
 		pattrib->icv_len = 4;
 
 		if (psecuritypriv->busetkipkey == _FAIL) {
+<<<<<<< HEAD
 			#ifdef DBG_TX_DROP_FRAME
 			DBG_871X("DBG_TX_DROP_FRAME %s psecuritypriv->busetkipkey(%d) == _FAIL drop packet\n", __func__, psecuritypriv->busetkipkey);
 			#endif
+=======
+>>>>>>> upstream/android-13
 			res = _FAIL;
 			goto exit;
 		}
@@ -576,7 +755,10 @@ static s32 update_attrib_sec_info(struct adapter *padapter, struct pkt_attrib *p
 		else
 			TKIP_IV(pattrib->iv, psta->dot11txpn, 0);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		memcpy(pattrib->dot11tkiptxmickey.skey, psta->dot11tkiptxmickey.skey, 16);
 
 		break;
@@ -602,6 +784,7 @@ static s32 update_attrib_sec_info(struct adapter *padapter, struct pkt_attrib *p
 	if (pattrib->encrypt > 0)
 		memcpy(pattrib->dot118021x_UncstKey.skey, psta->dot118021x_UncstKey.skey, 16);
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_,
 		("update_attrib: encrypt =%d  securitypriv.sw_encrypt =%d\n",
 		pattrib->encrypt, padapter->securitypriv.sw_encrypt));
@@ -616,22 +799,39 @@ static s32 update_attrib_sec_info(struct adapter *padapter, struct pkt_attrib *p
 		pattrib->bswenc = false;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("update_attrib: bswenc =false\n"));
 	}
+=======
+	if (pattrib->encrypt &&
+		((padapter->securitypriv.sw_encrypt) || (!psecuritypriv->hw_decrypted)))
+		pattrib->bswenc = true;
+	else
+		pattrib->bswenc = false;
+>>>>>>> upstream/android-13
 
 exit:
 
 	return res;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 u8 qos_acm(u8 acm_mask, u8 priority)
 {
+<<<<<<< HEAD
 	u8 change_priority = priority;
 
+=======
+>>>>>>> upstream/android-13
 	switch (priority) {
 	case 0:
 	case 3:
 		if (acm_mask & BIT(1))
+<<<<<<< HEAD
 			change_priority = 1;
+=======
+			priority = 1;
+>>>>>>> upstream/android-13
 		break;
 	case 1:
 	case 2:
@@ -639,11 +839,16 @@ u8 qos_acm(u8 acm_mask, u8 priority)
 	case 4:
 	case 5:
 		if (acm_mask & BIT(2))
+<<<<<<< HEAD
 			change_priority = 0;
+=======
+			priority = 0;
+>>>>>>> upstream/android-13
 		break;
 	case 6:
 	case 7:
 		if (acm_mask & BIT(3))
+<<<<<<< HEAD
 			change_priority = 5;
 		break;
 	default:
@@ -652,6 +857,15 @@ u8 qos_acm(u8 acm_mask, u8 priority)
 	}
 
 	return change_priority;
+=======
+			priority = 5;
+		break;
+	default:
+		break;
+	}
+
+	return priority;
+>>>>>>> upstream/android-13
 }
 
 static void set_qos(struct pkt_file *ppktfile, struct pkt_attrib *pattrib)
@@ -660,14 +874,20 @@ static void set_qos(struct pkt_file *ppktfile, struct pkt_attrib *pattrib)
 	struct iphdr ip_hdr;
 	s32 UserPriority = 0;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	_rtw_open_pktfile(ppktfile->pkt, ppktfile);
 	_rtw_pktfile_read(ppktfile, (unsigned char *)&etherhdr, ETH_HLEN);
 
 	/*  get UserPriority from IP hdr */
 	if (pattrib->ether_type == 0x0800) {
 		_rtw_pktfile_read(ppktfile, (u8 *)&ip_hdr, sizeof(ip_hdr));
+<<<<<<< HEAD
 /* 		UserPriority = (ntohs(ip_hdr.tos) >> 5) & 0x3; */
+=======
+>>>>>>> upstream/android-13
 		UserPriority = ip_hdr.tos >> 5;
 	}
 	pattrib->priority = UserPriority;
@@ -675,13 +895,19 @@ static void set_qos(struct pkt_file *ppktfile, struct pkt_attrib *pattrib)
 	pattrib->subtype = WIFI_QOS_DATA_TYPE;
 }
 
+<<<<<<< HEAD
 static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib *pattrib)
 {
 	uint i;
+=======
+static s32 update_attrib(struct adapter *padapter, struct sk_buff *pkt, struct pkt_attrib *pattrib)
+{
+>>>>>>> upstream/android-13
 	struct pkt_file pktfile;
 	struct sta_info *psta = NULL;
 	struct ethhdr etherhdr;
 
+<<<<<<< HEAD
 	sint bmcast;
 	struct sta_priv 	*pstapriv = &padapter->stapriv;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -700,10 +926,27 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 	memcpy(pattrib->src, &etherhdr.h_source, ETH_ALEN);
 
 
+=======
+	signed int bmcast;
+	struct sta_priv *pstapriv = &padapter->stapriv;
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	struct qos_priv *pqospriv = &pmlmepriv->qospriv;
+	signed int res = _SUCCESS;
+
+	_rtw_open_pktfile(pkt, &pktfile);
+	_rtw_pktfile_read(&pktfile, (u8 *)&etherhdr, ETH_HLEN);
+
+	pattrib->ether_type = ntohs(etherhdr.h_proto);
+
+	memcpy(pattrib->dst, &etherhdr.h_dest, ETH_ALEN);
+	memcpy(pattrib->src, &etherhdr.h_source, ETH_ALEN);
+
+>>>>>>> upstream/android-13
 	if ((check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true) ||
 		(check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) == true)) {
 		memcpy(pattrib->ra, pattrib->dst, ETH_ALEN);
 		memcpy(pattrib->ta, pattrib->src, ETH_ALEN);
+<<<<<<< HEAD
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_adhoc);
 	} else if (check_fwstate(pmlmepriv, WIFI_STATION_STATE)) {
 		memcpy(pattrib->ra, get_bssid(pmlmepriv), ETH_ALEN);
@@ -719,6 +962,19 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 	pattrib->pktlen = pktfile.pkt_len;
 
 	if (ETH_P_IP == pattrib->ether_type) {
+=======
+	} else if (check_fwstate(pmlmepriv, WIFI_STATION_STATE)) {
+		memcpy(pattrib->ra, get_bssid(pmlmepriv), ETH_ALEN);
+		memcpy(pattrib->ta, pattrib->src, ETH_ALEN);
+	} else if (check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
+		memcpy(pattrib->ra, pattrib->dst, ETH_ALEN);
+		memcpy(pattrib->ta, get_bssid(pmlmepriv), ETH_ALEN);
+	}
+
+	pattrib->pktlen = pktfile.pkt_len;
+
+	if (pattrib->ether_type == ETH_P_IP) {
+>>>>>>> upstream/android-13
 		/*  The following is for DHCP and ARP packet, we use cck1M to tx these packets and let LPS awake some time */
 		/*  to prevent DHCP protocol fail */
 
@@ -728,14 +984,22 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 
 		pattrib->dhcp_pkt = 0;
 		if (pktfile.pkt_len > 282) {/* MINIMUM_DHCP_PACKET_SIZE) { */
+<<<<<<< HEAD
 			if (ETH_P_IP == pattrib->ether_type) {/*  IP header */
+=======
+			if (pattrib->ether_type == ETH_P_IP) {/*  IP header */
+>>>>>>> upstream/android-13
 				if (((tmp[21] == 68) && (tmp[23] == 67)) ||
 					((tmp[21] == 67) && (tmp[23] == 68))) {
 					/*  68 : UDP BOOTP client */
 					/*  67 : UDP BOOTP server */
+<<<<<<< HEAD
 					RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("======================update_attrib: get DHCP Packet\n"));
 					pattrib->dhcp_pkt = 1;
 					DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_dhcp);
+=======
+					pattrib->dhcp_pkt = 1;
+>>>>>>> upstream/android-13
 				}
 			}
 		}
@@ -745,6 +1009,7 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 			struct iphdr *piphdr = (struct iphdr *)tmp;
 
 			pattrib->icmp_pkt = 0;
+<<<<<<< HEAD
 			if (piphdr->protocol == 0x1) { /*  protocol type in ip header 0x1 is ICMP */
 				pattrib->icmp_pkt = 1;
 				DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_icmp);
@@ -754,6 +1019,13 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 
 	} else if (0x888e == pattrib->ether_type) {
 		DBG_871X_LEVEL(_drv_always_, "send eapol packet\n");
+=======
+			if (piphdr->protocol == 0x1) /*  protocol type in ip header 0x1 is ICMP */
+				pattrib->icmp_pkt = 1;
+		}
+	} else if (pattrib->ether_type == 0x888e) {
+		netdev_dbg(padapter->pnetdev, "send eapol packet\n");
+>>>>>>> upstream/android-13
 	}
 
 	if ((pattrib->ether_type == 0x888e) || (pattrib->dhcp_pkt == 1))
@@ -762,10 +1034,15 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 	/*  If EAPOL , ARP , OR DHCP packet, driver must be in active mode. */
 	if (pattrib->icmp_pkt == 1)
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_LEAVE, 1);
+<<<<<<< HEAD
 	else if (pattrib->dhcp_pkt == 1) {
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_active);
 		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_SPECIAL_PACKET, 1);
 	}
+=======
+	else if (pattrib->dhcp_pkt == 1)
+		rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_SPECIAL_PACKET, 1);
+>>>>>>> upstream/android-13
 
 	bmcast = IS_MCAST(pattrib->ra);
 
@@ -774,6 +1051,7 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 		psta = rtw_get_bcmc_stainfo(padapter);
 	} else {
 		psta = rtw_get_stainfo(pstapriv, pattrib->ra);
+<<<<<<< HEAD
 		if (psta == NULL)	{ /*  if we cannot get psta => drop the pkt */
 			DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_err_ucast_sta);
 			RT_TRACE(_module_rtl871x_xmit_c_, _drv_alert_, ("\nupdate_attrib => get sta_info fail, ra:" MAC_FMT"\n", MAC_ARG(pattrib->ra)));
@@ -784,11 +1062,18 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 			goto exit;
 		} else if ((check_fwstate(pmlmepriv, WIFI_AP_STATE) == true) && (!(psta->state & _FW_LINKED))) {
 			DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_err_ucast_ap_link);
+=======
+		if (!psta)	{ /*  if we cannot get psta => drop the pkt */
+			res = _FAIL;
+			goto exit;
+		} else if ((check_fwstate(pmlmepriv, WIFI_AP_STATE) == true) && (!(psta->state & _FW_LINKED))) {
+>>>>>>> upstream/android-13
 			res = _FAIL;
 			goto exit;
 		}
 	}
 
+<<<<<<< HEAD
 	if (psta == NULL) {
 		/*  if we cannot get psta => drop the pkt */
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_err_sta);
@@ -796,10 +1081,15 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 		#ifdef DBG_TX_DROP_FRAME
 		DBG_871X("DBG_TX_DROP_FRAME %s get sta_info fail, ra:" MAC_FMT"\n", __func__, MAC_ARG(pattrib->ra));
 		#endif
+=======
+	if (!psta) {
+		/*  if we cannot get psta => drop the pkt */
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	if (!(psta->state & _FW_LINKED)) {
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_err_link);
 		DBG_871X("%s, psta("MAC_FMT")->state(0x%x) != _FW_LINKED\n", __func__, MAC_ARG(psta->hwaddr), psta->state);
@@ -811,14 +1101,24 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 	/* TODO:_lock */
 	if (update_attrib_sec_info(padapter, pattrib, psta) == _FAIL) {
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_err_sec);
+=======
+	if (!(psta->state & _FW_LINKED))
+		return _FAIL;
+
+	/* TODO:_lock */
+	if (update_attrib_sec_info(padapter, pattrib, psta) == _FAIL) {
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
 
 	update_attrib_phy_info(padapter, pattrib, psta);
 
+<<<<<<< HEAD
 	/* DBG_8192C("%s ==> mac_id(%d)\n", __func__, pattrib->mac_id); */
 
+=======
+>>>>>>> upstream/android-13
 	pattrib->psta = psta;
 	/* TODO:_unlock */
 
@@ -835,13 +1135,20 @@ static s32 update_attrib(struct adapter *padapter, _pkt *pkt, struct pkt_attrib 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE|WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE)) {
 		if (pattrib->qos_en)
 			set_qos(&pktfile, pattrib);
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		if (pqospriv->qos_option) {
 			set_qos(&pktfile, pattrib);
 
 			if (pmlmepriv->acm_mask != 0)
 				pattrib->priority = qos_acm(pmlmepriv->acm_mask, pattrib->priority);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -853,6 +1160,7 @@ exit:
 
 static s32 xmitframe_addmic(struct adapter *padapter, struct xmit_frame *pxmitframe)
 {
+<<<<<<< HEAD
 	sint			curfragnum, length;
 	u8 *pframe, *payload, mic[8];
 	struct	mic_data		micdata;
@@ -893,12 +1201,29 @@ static s32 xmitframe_addmic(struct adapter *padapter, struct xmit_frame *pxmitfr
 	if (pattrib->encrypt == _TKIP_) { /* if (psecuritypriv->dot11PrivacyAlgrthm == _TKIP_PRIVACY_) */
 		/* encode mic code */
 		/* if (stainfo!= NULL) */
+=======
+	signed int			curfragnum, length;
+	u8 *pframe, *payload, mic[8];
+	struct mic_data micdata;
+	struct pkt_attrib *pattrib = &pxmitframe->attrib;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+	u8 priority[4] = {0x0, 0x0, 0x0, 0x0};
+	u8 hw_hdr_offset = 0;
+	signed int bmcst = IS_MCAST(pattrib->ra);
+
+	hw_hdr_offset = TXDESC_OFFSET;
+
+	if (pattrib->encrypt == _TKIP_) {
+		/* encode mic code */
+>>>>>>> upstream/android-13
 		{
 			u8 null_key[16] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
 			pframe = pxmitframe->buf_addr + hw_hdr_offset;
 
 			if (bmcst) {
+<<<<<<< HEAD
 				if (!memcmp(psecuritypriv->dot118021XGrptxmickey[psecuritypriv->dot118021XGrpKeyid].skey, null_key, 16)) {
 					/* DbgPrint("\nxmitframe_addmic:stainfo->dot11tkiptxmickey == 0\n"); */
 					/* msleep(10); */
@@ -912,6 +1237,15 @@ static s32 xmitframe_addmic(struct adapter *padapter, struct xmit_frame *pxmitfr
 					/* msleep(10); */
 					return _FAIL;
 				}
+=======
+				if (!memcmp(psecuritypriv->dot118021XGrptxmickey[psecuritypriv->dot118021XGrpKeyid].skey, null_key, 16))
+					return _FAIL;
+				/* start to calculate the mic code */
+				rtw_secmicsetkey(&micdata, psecuritypriv->dot118021XGrptxmickey[psecuritypriv->dot118021XGrpKeyid].skey);
+			} else {
+				if (!memcmp(&pattrib->dot11tkiptxmickey.skey[0], null_key, 16))
+					return _FAIL;
+>>>>>>> upstream/android-13
 				/* start to calculate the mic code */
 				rtw_secmicsetkey(&micdata, &pattrib->dot11tkiptxmickey.skey[0]);
 			}
@@ -921,13 +1255,18 @@ static s32 xmitframe_addmic(struct adapter *padapter, struct xmit_frame *pxmitfr
 				if (pframe[1]&2)  /* From Ds == 1 */
 					rtw_secmicappend(&micdata, &pframe[24], 6);
 				else
+<<<<<<< HEAD
 				rtw_secmicappend(&micdata, &pframe[10], 6);
+=======
+					rtw_secmicappend(&micdata, &pframe[10], 6);
+>>>>>>> upstream/android-13
 			} else {	/* ToDS == 0 */
 				rtw_secmicappend(&micdata, &pframe[4], 6);   /* DA */
 				if (pframe[1]&2)  /* From Ds == 1 */
 					rtw_secmicappend(&micdata, &pframe[16], 6);
 				else
 					rtw_secmicappend(&micdata, &pframe[10], 6);
+<<<<<<< HEAD
 
 			}
 
@@ -936,21 +1275,35 @@ static s32 xmitframe_addmic(struct adapter *padapter, struct xmit_frame *pxmitfr
 				priority[0] = (u8)pxmitframe->attrib.priority;
 
 
+=======
+			}
+
+			if (pattrib->qos_en)
+				priority[0] = (u8)pxmitframe->attrib.priority;
+
+>>>>>>> upstream/android-13
 			rtw_secmicappend(&micdata, &priority[0], 4);
 
 			payload = pframe;
 
 			for (curfragnum = 0; curfragnum < pattrib->nr_frags; curfragnum++) {
+<<<<<<< HEAD
 				payload = (u8 *)RND4((SIZE_PTR)(payload));
 				RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("===curfragnum =%d, pframe = 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x, 0x%.2x,!!!\n",
 					curfragnum, *payload, *(payload+1), *(payload+2), *(payload+3), *(payload+4), *(payload+5), *(payload+6), *(payload+7)));
 
 				payload = payload+pattrib->hdrlen+pattrib->iv_len;
 				RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("curfragnum =%d pattrib->hdrlen =%d pattrib->iv_len =%d", curfragnum, pattrib->hdrlen, pattrib->iv_len));
+=======
+				payload = (u8 *)round_up((SIZE_PTR)(payload), 4);
+				payload = payload+pattrib->hdrlen+pattrib->iv_len;
+
+>>>>>>> upstream/android-13
 				if ((curfragnum+1) == pattrib->nr_frags) {
 					length = pattrib->last_txcmdsz-pattrib->hdrlen-pattrib->iv_len-((pattrib->bswenc) ? pattrib->icv_len : 0);
 					rtw_secmicappend(&micdata, payload, length);
 					payload = payload+length;
+<<<<<<< HEAD
 				} else{
 					length = pxmitpriv->frag_len-pattrib->hdrlen-pattrib->iv_len-((pattrib->bswenc) ? pattrib->icv_len : 0);
 					rtw_secmicappend(&micdata, payload, length);
@@ -981,12 +1334,27 @@ static s32 xmitframe_addmic(struct adapter *padapter, struct xmit_frame *pxmitfr
 				RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("xmitframe_addmic: rtw_get_stainfo == NULL!!!\n"));
 			}
 */
+=======
+				} else {
+					length = pxmitpriv->frag_len-pattrib->hdrlen-pattrib->iv_len-((pattrib->bswenc) ? pattrib->icv_len : 0);
+					rtw_secmicappend(&micdata, payload, length);
+					payload = payload+length+pattrib->icv_len;
+				}
+			}
+			rtw_secgetmic(&micdata, &mic[0]);
+			/* add mic code  and add the mic code length in last_txcmdsz */
+
+			memcpy(payload, &mic[0], 8);
+			pattrib->last_txcmdsz += 8;
+			}
+>>>>>>> upstream/android-13
 	}
 	return _SUCCESS;
 }
 
 static s32 xmitframe_swencrypt(struct adapter *padapter, struct xmit_frame *pxmitframe)
 {
+<<<<<<< HEAD
 
 	struct	pkt_attrib	 *pattrib = &pxmitframe->attrib;
 	/* struct	security_priv *psecuritypriv =&padapter->securitypriv; */
@@ -995,6 +1363,11 @@ static s32 xmitframe_swencrypt(struct adapter *padapter, struct xmit_frame *pxmi
 	if (pattrib->bswenc) {
 		/* DBG_871X("start xmitframe_swencrypt\n"); */
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_alert_, ("### xmitframe_swencrypt\n"));
+=======
+	struct	pkt_attrib	 *pattrib = &pxmitframe->attrib;
+
+	if (pattrib->bswenc) {
+>>>>>>> upstream/android-13
 		switch (pattrib->encrypt) {
 		case _WEP40_:
 		case _WEP104_:
@@ -1009,9 +1382,13 @@ static s32 xmitframe_swencrypt(struct adapter *padapter, struct xmit_frame *pxmi
 		default:
 				break;
 		}
+<<<<<<< HEAD
 
 	} else
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_notice_, ("### xmitframe_hwencrypt\n"));
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return _SUCCESS;
 }
@@ -1024,7 +1401,11 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct qos_priv *pqospriv = &pmlmepriv->qospriv;
 	u8 qos_option = false;
+<<<<<<< HEAD
 	sint res = _SUCCESS;
+=======
+	signed int res = _SUCCESS;
+>>>>>>> upstream/android-13
 	__le16 *fctrl = &pwlanhdr->frame_control;
 
 	memset(hdr, 0, WLANHDR_OFFSET);
@@ -1032,7 +1413,11 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 	SetFrameSubType(fctrl, pattrib->subtype);
 
 	if (pattrib->subtype & WIFI_DATA_TYPE) {
+<<<<<<< HEAD
 		if ((check_fwstate(pmlmepriv,  WIFI_STATION_STATE) == true)) {
+=======
+		if (check_fwstate(pmlmepriv,  WIFI_STATION_STATE) == true) {
+>>>>>>> upstream/android-13
 			/* to_ds = 1, fr_ds = 0; */
 
 			{
@@ -1046,8 +1431,12 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 
 			if (pqospriv->qos_option)
 				qos_option = true;
+<<<<<<< HEAD
 
 		} else if ((check_fwstate(pmlmepriv,  WIFI_AP_STATE) == true)) {
+=======
+		} else if (check_fwstate(pmlmepriv,  WIFI_AP_STATE) == true) {
+>>>>>>> upstream/android-13
 			/* to_ds = 0, fr_ds = 1; */
 			SetFrDs(fctrl);
 			memcpy(pwlanhdr->addr1, pattrib->dst, ETH_ALEN);
@@ -1065,7 +1454,10 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 			if (pattrib->qos_en)
 				qos_option = true;
 		} else {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("fw_state:%x is not allowed to xmit frame\n", get_fwstate(pmlmepriv)));
+=======
+>>>>>>> upstream/android-13
 			res = _FAIL;
 			goto exit;
 		}
@@ -1092,6 +1484,7 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 		/* Update Seq Num will be handled by f/w */
 		{
 			struct sta_info *psta;
+<<<<<<< HEAD
 			psta = rtw_get_stainfo(&padapter->stapriv, pattrib->ra);
 			if (pattrib->psta != psta) {
 				DBG_871X("%s, pattrib->psta(%p) != psta(%p)\n", __func__, pattrib->psta, psta);
@@ -1108,6 +1501,18 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 				return _FAIL;
 			}
 
+=======
+
+			psta = rtw_get_stainfo(&padapter->stapriv, pattrib->ra);
+			if (pattrib->psta != psta)
+				return _FAIL;
+
+			if (!psta)
+				return _FAIL;
+
+			if (!(psta->state & _FW_LINKED))
+				return _FAIL;
+>>>>>>> upstream/android-13
 
 			if (psta) {
 				psta->sta_xmitpriv.txseq_tid[pattrib->priority]++;
@@ -1121,7 +1526,10 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 					if (psta->htpriv.agg_enable_bitmap & BIT(pattrib->priority))
 						pattrib->ampdu_en = true;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 				/* re-check if enable ampdu by BA_starting_seqctrl */
 				if (pattrib->ampdu_en == true) {
 					u16 tx_seq;
@@ -1130,12 +1538,16 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 
 					/* check BA_starting_seqctrl */
 					if (SN_LESS(pattrib->seqnum, tx_seq)) {
+<<<<<<< HEAD
 						/* DBG_871X("tx ampdu seqnum(%d) < tx_seq(%d)\n", pattrib->seqnum, tx_seq); */
+=======
+>>>>>>> upstream/android-13
 						pattrib->ampdu_en = false;/* AGG BK */
 					} else if (SN_EQUAL(pattrib->seqnum, tx_seq)) {
 						psta->BA_starting_seqctrl[pattrib->priority & 0x0f] = (tx_seq+1)&0xfff;
 
 						pattrib->ampdu_en = true;/* AGG EN */
+<<<<<<< HEAD
 					} else{
 						/* DBG_871X("tx ampdu over run\n"); */
 						psta->BA_starting_seqctrl[pattrib->priority & 0x0f] = (pattrib->seqnum+1)&0xfff;
@@ -1148,6 +1560,16 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
 
 	} else{
 
+=======
+					} else {
+						psta->BA_starting_seqctrl[pattrib->priority & 0x0f] = (pattrib->seqnum+1)&0xfff;
+						pattrib->ampdu_en = true;/* AGG EN */
+					}
+				}
+			}
+		}
+	} else {
+>>>>>>> upstream/android-13
 	}
 
 exit:
@@ -1183,6 +1605,7 @@ u32 rtw_calculate_wlan_pkt_size_by_attribue(struct pkt_attrib *pattrib)
 }
 
 /*
+<<<<<<< HEAD
 
 This sub-routine will perform all the following:
 
@@ -1195,6 +1618,17 @@ This sub-routine will perform all the following:
 
 */
 s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe)
+=======
+ * This sub-routine will perform all the following:
+ * 1. remove 802.3 header.
+ * 2. create wlan_header, based on the info in pxmitframe
+ * 3. append sta's iv/ext-iv
+ * 4. append LLC
+ * 5. move frag chunk from pframe to pxmitframe->mem
+ * 6. apply sw-encrypt, if necessary.
+ */
+s32 rtw_xmitframe_coalesce(struct adapter *padapter, struct sk_buff *pkt, struct xmit_frame *pxmitframe)
+>>>>>>> upstream/android-13
 {
 	struct pkt_file pktfile;
 
@@ -1205,9 +1639,12 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 	u8 *pframe, *mem_start;
 	u8 hw_hdr_offset;
 
+<<<<<<< HEAD
 	/* struct sta_info 	*psta; */
 	/* struct sta_priv 	*pstapriv = &padapter->stapriv; */
 	/* struct mlme_priv *pmlmepriv = &padapter->mlmepriv; */
+=======
+>>>>>>> upstream/android-13
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
 
 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
@@ -1217,6 +1654,7 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 	s32 bmcst = IS_MCAST(pattrib->ra);
 	s32 res = _SUCCESS;
 
+<<<<<<< HEAD
 /*
 	if (pattrib->psta)
 	{
@@ -1245,6 +1683,10 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 		DBG_8192C("==> %s buf_addr == NULL\n", __func__);
 		return _FAIL;
 	}
+=======
+	if (!pxmitframe->buf_addr)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	pbuf_start = pxmitframe->buf_addr;
 
@@ -1252,8 +1694,11 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 	mem_start = pbuf_start +	hw_hdr_offset;
 
 	if (rtw_make_wlanhdr(padapter, mem_start, pattrib) == _FAIL) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("rtw_xmitframe_coalesce: rtw_make_wlanhdr fail; drop pkt\n"));
 		DBG_8192C("rtw_xmitframe_coalesce: rtw_make_wlanhdr fail; drop pkt\n");
+=======
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
@@ -1280,10 +1725,13 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 		if (pattrib->iv_len) {
 			memcpy(pframe, pattrib->iv, pattrib->iv_len);
 
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_xmit_c_, _drv_notice_,
 				 ("rtw_xmitframe_coalesce: keyid =%d pattrib->iv[3]=%.2x pframe =%.2x %.2x %.2x %.2x\n",
 				  padapter->securitypriv.dot11PrivacyKeyIndex, pattrib->iv[3], *pframe, *(pframe+1), *(pframe+2), *(pframe+3)));
 
+=======
+>>>>>>> upstream/android-13
 			pframe += pattrib->iv_len;
 
 			mpdu_len -= pattrib->iv_len;
@@ -1295,6 +1743,7 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 			mpdu_len -= llc_sz;
 		}
 
+<<<<<<< HEAD
 		if ((pattrib->icv_len > 0) && (pattrib->bswenc)) {
 			mpdu_len -= pattrib->icv_len;
 		}
@@ -1302,6 +1751,13 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 
 		if (bmcst) {
 			/*  don't do fragment to broadcat/multicast packets */
+=======
+		if ((pattrib->icv_len > 0) && (pattrib->bswenc))
+			mpdu_len -= pattrib->icv_len;
+
+		if (bmcst) {
+			/*  don't do fragment to broadcast/multicast packets */
+>>>>>>> upstream/android-13
 			mem_sz = _rtw_pktfile_read(&pktfile, pframe, pattrib->pktlen);
 		} else {
 			mem_sz = _rtw_pktfile_read(&pktfile, pframe, mpdu_len);
@@ -1325,6 +1781,7 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 			ClearMFrag(mem_start);
 
 			break;
+<<<<<<< HEAD
 		} else
 			RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("%s: There're still something in packet!\n", __func__));
 
@@ -1338,6 +1795,17 @@ s32 rtw_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_fram
 	if (xmitframe_addmic(padapter, pxmitframe) == _FAIL) {
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("xmitframe_addmic(padapter, pxmitframe) == _FAIL\n"));
 		DBG_8192C("xmitframe_addmic(padapter, pxmitframe) == _FAIL\n");
+=======
+		}
+
+		addr = (SIZE_PTR)(pframe);
+
+		mem_start = (unsigned char *)round_up(addr, 4) + hw_hdr_offset;
+		memcpy(mem_start, pbuf_start + hw_hdr_offset, pattrib->hdrlen);
+	}
+
+	if (xmitframe_addmic(padapter, pxmitframe) == _FAIL) {
+>>>>>>> upstream/android-13
 		res = _FAIL;
 		goto exit;
 	}
@@ -1354,12 +1822,21 @@ exit:
 }
 
 /* broadcast or multicast management pkt use BIP, unicast management pkt use CCMP encryption */
+<<<<<<< HEAD
 s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe)
 {
 	u8 *pframe, *mem_start = NULL, *tmp_buf = NULL;
 	u8 subtype;
 	struct sta_info 	*psta = NULL;
 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
+=======
+s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, struct sk_buff *pkt, struct xmit_frame *pxmitframe)
+{
+	u8 *pframe, *mem_start = NULL, *tmp_buf = NULL;
+	u8 subtype;
+	struct sta_info *psta = NULL;
+	struct pkt_attrib *pattrib = &pxmitframe->attrib;
+>>>>>>> upstream/android-13
 	s32 bmcst = IS_MCAST(pattrib->ra);
 	u8 *BIP_AAD = NULL;
 	u8 *MGMT_body = NULL;
@@ -1369,6 +1846,10 @@ s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit
 	struct ieee80211_hdr	*pwlanhdr;
 	u8 MME[_MME_IE_LENGTH_];
 	u32 ori_len;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	mem_start = pframe = (u8 *)(pxmitframe->buf_addr) + TXDESC_OFFSET;
 	pwlanhdr = (struct ieee80211_hdr *)pframe;
 
@@ -1376,7 +1857,11 @@ s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit
 	tmp_buf = BIP_AAD = rtw_zmalloc(ori_len);
 	subtype = GetFrameSubType(pframe); /* bit(7)~bit(2) */
 
+<<<<<<< HEAD
 	if (BIP_AAD == NULL)
+=======
+	if (!BIP_AAD)
+>>>>>>> upstream/android-13
 		return _FAIL;
 
 	spin_lock_bh(&padapter->security_key_mutex);
@@ -1386,10 +1871,16 @@ s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit
 		goto xmitframe_coalesce_success;
 
 	/* IGTK key is not install, it may not support 802.11w */
+<<<<<<< HEAD
 	if (padapter->securitypriv.binstallBIPkey != true) {
 		DBG_871X("no instll BIP key\n");
 		goto xmitframe_coalesce_success;
 	}
+=======
+	if (!padapter->securitypriv.binstallBIPkey)
+		goto xmitframe_coalesce_success;
+
+>>>>>>> upstream/android-13
 	/* station mode doesn't need TX BIP, just ready the code */
 	if (bmcst) {
 		int frame_body_len;
@@ -1412,7 +1903,12 @@ s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit
 		pmlmeext->mgnt_80211w_IPN++;
 
 		/* add MME IE with MIC all zero, MME string doesn't include element id and length */
+<<<<<<< HEAD
 		pframe = rtw_set_ie(pframe, _MME_IE_, 16, MME, &(pattrib->pktlen));
+=======
+		pframe = rtw_set_ie(pframe, WLAN_EID_MMIE, 16,
+				    MME, &pattrib->pktlen);
+>>>>>>> upstream/android-13
 		pattrib->last_txcmdsz = pattrib->pktlen;
 		/*  total frame length - header length */
 		frame_body_len = pattrib->pktlen - sizeof(struct ieee80211_hdr_3addr);
@@ -1442,6 +1938,7 @@ s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit
 			else
 				psta = rtw_get_stainfo(&padapter->stapriv, pattrib->ra);
 
+<<<<<<< HEAD
 			if (psta == NULL) {
 
 				DBG_871X("%s, psta ==NUL\n", __func__);
@@ -1454,6 +1951,14 @@ s32 rtw_mgmt_xmitframe_coalesce(struct adapter *padapter, _pkt *pkt, struct xmit
 			}
 
 			/* DBG_871X("%s, action frame category =%d\n", __func__, pframe[WLAN_HDR_A3_LEN]); */
+=======
+			if (!psta)
+				goto xmitframe_coalesce_fail;
+
+			if (!(psta->state & _FW_LINKED) || !pxmitframe->buf_addr)
+				goto xmitframe_coalesce_fail;
+
+>>>>>>> upstream/android-13
 			/* according 802.11-2012 standard, these five types are not robust types */
 			if (subtype == WIFI_ACTION &&
 			(pframe[WLAN_HDR_A3_LEN] == RTW_WLAN_CATEGORY_PUBLIC ||
@@ -1552,10 +2057,16 @@ s32 rtw_put_snap(u8 *data, u16 h_proto)
 
 void rtw_update_protection(struct adapter *padapter, u8 *ie, uint ie_len)
 {
+<<<<<<< HEAD
 
 	uint	protection;
 	u8 *perp;
 	sint	 erp_len;
+=======
+	uint	protection;
+	u8 *perp;
+	signed int	 erp_len;
+>>>>>>> upstream/android-13
 	struct	xmit_priv *pxmitpriv = &padapter->xmitpriv;
 	struct	registry_priv *pregistrypriv = &padapter->registrypriv;
 
@@ -1569,22 +2080,38 @@ void rtw_update_protection(struct adapter *padapter, u8 *ie, uint ie_len)
 
 	case AUTO_VCS:
 	default:
+<<<<<<< HEAD
 		perp = rtw_get_ie(ie, _ERPINFO_IE_, &erp_len, ie_len);
 		if (perp == NULL)
 			pxmitpriv->vcs = NONE_VCS;
 		else{
+=======
+		perp = rtw_get_ie(ie, WLAN_EID_ERP_INFO, &erp_len, ie_len);
+		if (!perp) {
+			pxmitpriv->vcs = NONE_VCS;
+		} else {
+>>>>>>> upstream/android-13
 			protection = (*(perp + 2)) & BIT(1);
 			if (protection) {
 				if (pregistrypriv->vcs_type == RTS_CTS)
 					pxmitpriv->vcs = RTS_CTS;
 				else
 					pxmitpriv->vcs = CTS_TO_SELF;
+<<<<<<< HEAD
 			} else
 				pxmitpriv->vcs = NONE_VCS;
 		}
 
 		break;
 
+=======
+			} else {
+				pxmitpriv->vcs = NONE_VCS;
+			}
+		}
+
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1622,7 +2149,11 @@ static struct xmit_buf *__rtw_alloc_cmd_xmitbuf(struct xmit_priv *pxmitpriv,
 	struct xmit_buf *pxmitbuf =  NULL;
 
 	pxmitbuf = &pxmitpriv->pcmd_xmitbuf[buf_type];
+<<<<<<< HEAD
 	if (pxmitbuf !=  NULL) {
+=======
+	if (pxmitbuf) {
+>>>>>>> upstream/android-13
 		pxmitbuf->priv_data = NULL;
 
 		pxmitbuf->len = 0;
@@ -1630,12 +2161,18 @@ static struct xmit_buf *__rtw_alloc_cmd_xmitbuf(struct xmit_priv *pxmitpriv,
 		pxmitbuf->agg_num = 0;
 		pxmitbuf->pg_num = 0;
 
+<<<<<<< HEAD
 		if (pxmitbuf->sctx) {
 			DBG_871X("%s pxmitbuf->sctx is not NULL\n", __func__);
 			rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_ALLOC);
 		}
 	} else
 		DBG_871X("%s fail, no xmitbuf available !!!\n", __func__);
+=======
+		if (pxmitbuf->sctx)
+			rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_ALLOC);
+	}
+>>>>>>> upstream/android-13
 
 	return pxmitbuf;
 }
@@ -1647,6 +2184,7 @@ struct xmit_frame *__rtw_alloc_cmdxmitframe(struct xmit_priv *pxmitpriv,
 	struct xmit_buf		*pxmitbuf;
 
 	pcmdframe = rtw_alloc_xmitframe(pxmitpriv);
+<<<<<<< HEAD
 	if (pcmdframe == NULL) {
 		DBG_871X("%s, alloc xmitframe fail\n", __func__);
 		return NULL;
@@ -1655,6 +2193,13 @@ struct xmit_frame *__rtw_alloc_cmdxmitframe(struct xmit_priv *pxmitpriv,
 	pxmitbuf = __rtw_alloc_cmd_xmitbuf(pxmitpriv, buf_type);
 	if (pxmitbuf == NULL) {
 		DBG_871X("%s, alloc xmitbuf fail\n", __func__);
+=======
+	if (!pcmdframe)
+		return NULL;
+
+	pxmitbuf = __rtw_alloc_cmd_xmitbuf(pxmitpriv, buf_type);
+	if (!pxmitbuf) {
+>>>>>>> upstream/android-13
 		rtw_free_xmitframe(pxmitpriv, pcmdframe);
 		return NULL;
 	}
@@ -1668,12 +2213,19 @@ struct xmit_frame *__rtw_alloc_cmdxmitframe(struct xmit_priv *pxmitpriv,
 	pxmitbuf->priv_data = pcmdframe;
 
 	return pcmdframe;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 struct xmit_buf *rtw_alloc_xmitbuf_ext(struct xmit_priv *pxmitpriv)
 {
+<<<<<<< HEAD
 	_irqL irqL;
+=======
+	unsigned long irqL;
+>>>>>>> upstream/android-13
 	struct xmit_buf *pxmitbuf =  NULL;
 	struct list_head *plist, *phead;
 	struct __queue *pfree_queue = &pxmitpriv->free_xmit_extbuf_queue;
@@ -1683,11 +2235,15 @@ struct xmit_buf *rtw_alloc_xmitbuf_ext(struct xmit_priv *pxmitpriv)
 	if (list_empty(&pfree_queue->queue)) {
 		pxmitbuf = NULL;
 	} else {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		phead = get_list_head(pfree_queue);
 
 		plist = get_next(phead);
 
+<<<<<<< HEAD
 		pxmitbuf = LIST_CONTAINOR(plist, struct xmit_buf, list);
 
 		list_del_init(&(pxmitbuf->list));
@@ -1699,6 +2255,15 @@ struct xmit_buf *rtw_alloc_xmitbuf_ext(struct xmit_priv *pxmitpriv)
 		DBG_871X("DBG_XMIT_BUF_EXT ALLOC no =%d,  free_xmit_extbuf_cnt =%d\n", pxmitbuf->no, pxmitpriv->free_xmit_extbuf_cnt);
 		#endif
 
+=======
+		pxmitbuf = container_of(plist, struct xmit_buf, list);
+
+		list_del_init(&pxmitbuf->list);
+	}
+
+	if (pxmitbuf) {
+		pxmitpriv->free_xmit_extbuf_cnt--;
+>>>>>>> upstream/android-13
 
 		pxmitbuf->priv_data = NULL;
 
@@ -1706,11 +2271,16 @@ struct xmit_buf *rtw_alloc_xmitbuf_ext(struct xmit_priv *pxmitpriv)
 		pxmitbuf->pdata = pxmitbuf->ptail = pxmitbuf->phead;
 		pxmitbuf->agg_num = 1;
 
+<<<<<<< HEAD
 		if (pxmitbuf->sctx) {
 			DBG_871X("%s pxmitbuf->sctx is not NULL\n", __func__);
 			rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_ALLOC);
 		}
 
+=======
+		if (pxmitbuf->sctx)
+			rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_ALLOC);
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_irqrestore(&pfree_queue->lock, irqL);
@@ -1720,21 +2290,33 @@ struct xmit_buf *rtw_alloc_xmitbuf_ext(struct xmit_priv *pxmitpriv)
 
 s32 rtw_free_xmitbuf_ext(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
 {
+<<<<<<< HEAD
 	_irqL irqL;
 	struct __queue *pfree_queue = &pxmitpriv->free_xmit_extbuf_queue;
 
 	if (pxmitbuf == NULL)
+=======
+	unsigned long irqL;
+	struct __queue *pfree_queue = &pxmitpriv->free_xmit_extbuf_queue;
+
+	if (!pxmitbuf)
+>>>>>>> upstream/android-13
 		return _FAIL;
 
 	spin_lock_irqsave(&pfree_queue->lock, irqL);
 
 	list_del_init(&pxmitbuf->list);
 
+<<<<<<< HEAD
 	list_add_tail(&(pxmitbuf->list), get_list_head(pfree_queue));
 	pxmitpriv->free_xmit_extbuf_cnt++;
 	#ifdef DBG_XMIT_BUF_EXT
 	DBG_871X("DBG_XMIT_BUF_EXT FREE no =%d, free_xmit_extbuf_cnt =%d\n", pxmitbuf->no, pxmitpriv->free_xmit_extbuf_cnt);
 	#endif
+=======
+	list_add_tail(&pxmitbuf->list, get_list_head(pfree_queue));
+	pxmitpriv->free_xmit_extbuf_cnt++;
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&pfree_queue->lock, irqL);
 
@@ -1743,23 +2325,34 @@ s32 rtw_free_xmitbuf_ext(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
 
 struct xmit_buf *rtw_alloc_xmitbuf(struct xmit_priv *pxmitpriv)
 {
+<<<<<<< HEAD
 	_irqL irqL;
+=======
+	unsigned long irqL;
+>>>>>>> upstream/android-13
 	struct xmit_buf *pxmitbuf =  NULL;
 	struct list_head *plist, *phead;
 	struct __queue *pfree_xmitbuf_queue = &pxmitpriv->free_xmitbuf_queue;
 
+<<<<<<< HEAD
 	/* DBG_871X("+rtw_alloc_xmitbuf\n"); */
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&pfree_xmitbuf_queue->lock, irqL);
 
 	if (list_empty(&pfree_xmitbuf_queue->queue)) {
 		pxmitbuf = NULL;
 	} else {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		phead = get_list_head(pfree_xmitbuf_queue);
 
 		plist = get_next(phead);
 
+<<<<<<< HEAD
 		pxmitbuf = LIST_CONTAINOR(plist, struct xmit_buf, list);
 
 		list_del_init(&(pxmitbuf->list));
@@ -1771,6 +2364,15 @@ struct xmit_buf *rtw_alloc_xmitbuf(struct xmit_priv *pxmitpriv)
 		DBG_871X("DBG_XMIT_BUF ALLOC no =%d,  free_xmitbuf_cnt =%d\n", pxmitbuf->no, pxmitpriv->free_xmitbuf_cnt);
 		#endif
 		/* DBG_871X("alloc, free_xmitbuf_cnt =%d\n", pxmitpriv->free_xmitbuf_cnt); */
+=======
+		pxmitbuf = container_of(plist, struct xmit_buf, list);
+
+		list_del_init(&pxmitbuf->list);
+	}
+
+	if (pxmitbuf) {
+		pxmitpriv->free_xmitbuf_cnt--;
+>>>>>>> upstream/android-13
 
 		pxmitbuf->priv_data = NULL;
 
@@ -1779,6 +2381,7 @@ struct xmit_buf *rtw_alloc_xmitbuf(struct xmit_priv *pxmitpriv)
 		pxmitbuf->agg_num = 0;
 		pxmitbuf->pg_num = 0;
 
+<<<<<<< HEAD
 		if (pxmitbuf->sctx) {
 			DBG_871X("%s pxmitbuf->sctx is not NULL\n", __func__);
 			rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_ALLOC);
@@ -1788,6 +2391,11 @@ struct xmit_buf *rtw_alloc_xmitbuf(struct xmit_priv *pxmitpriv)
 	else
 		DBG_871X("DBG_XMIT_BUF rtw_alloc_xmitbuf return NULL\n");
 	#endif
+=======
+		if (pxmitbuf->sctx)
+			rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_ALLOC);
+	}
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&pfree_xmitbuf_queue->lock, irqL);
 
@@ -1796,6 +2404,7 @@ struct xmit_buf *rtw_alloc_xmitbuf(struct xmit_priv *pxmitpriv)
 
 s32 rtw_free_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
 {
+<<<<<<< HEAD
 	_irqL irqL;
 	struct __queue *pfree_xmitbuf_queue = &pxmitpriv->free_xmitbuf_queue;
 
@@ -1808,15 +2417,30 @@ s32 rtw_free_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
 		DBG_871X("%s pxmitbuf->sctx is not NULL\n", __func__);
 		rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_FREE);
 	}
+=======
+	unsigned long irqL;
+	struct __queue *pfree_xmitbuf_queue = &pxmitpriv->free_xmitbuf_queue;
+
+	if (!pxmitbuf)
+		return _FAIL;
+
+	if (pxmitbuf->sctx)
+		rtw_sctx_done_err(&pxmitbuf->sctx, RTW_SCTX_DONE_BUF_FREE);
+>>>>>>> upstream/android-13
 
 	if (pxmitbuf->buf_tag == XMITBUF_CMD) {
 	} else if (pxmitbuf->buf_tag == XMITBUF_MGNT) {
 		rtw_free_xmitbuf_ext(pxmitpriv, pxmitbuf);
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&pfree_xmitbuf_queue->lock, irqL);
 
 		list_del_init(&pxmitbuf->list);
 
+<<<<<<< HEAD
 		list_add_tail(&(pxmitbuf->list), get_list_head(pfree_xmitbuf_queue));
 
 		pxmitpriv->free_xmitbuf_cnt++;
@@ -1824,6 +2448,12 @@ s32 rtw_free_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
 		#ifdef DBG_XMIT_BUF
 		DBG_871X("DBG_XMIT_BUF FREE no =%d, free_xmitbuf_cnt =%d\n", pxmitbuf->no, pxmitpriv->free_xmitbuf_cnt);
 		#endif
+=======
+		list_add_tail(&pxmitbuf->list,
+			      get_list_head(pfree_xmitbuf_queue));
+
+		pxmitpriv->free_xmitbuf_cnt++;
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&pfree_xmitbuf_queue->lock, irqL);
 	}
 	return _SUCCESS;
@@ -1831,12 +2461,19 @@ s32 rtw_free_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
 
 static void rtw_init_xmitframe(struct xmit_frame *pxframe)
 {
+<<<<<<< HEAD
 	if (pxframe !=  NULL) { /* default value setting */
+=======
+	if (pxframe) { /* default value setting */
+>>>>>>> upstream/android-13
 		pxframe->buf_addr = NULL;
 		pxframe->pxmitbuf = NULL;
 
 		memset(&pxframe->attrib, 0, sizeof(struct pkt_attrib));
+<<<<<<< HEAD
 		/* pxframe->attrib.psta = NULL; */
+=======
+>>>>>>> upstream/android-13
 
 		pxframe->frame_tag = DATA_FRAMETAG;
 
@@ -1847,6 +2484,7 @@ static void rtw_init_xmitframe(struct xmit_frame *pxframe)
 }
 
 /*
+<<<<<<< HEAD
 Calling context:
 1. OS_TXENTRY
 2. RXENTRY (rx_thread or RX_ISR/RX_CallBack)
@@ -1864,6 +2502,24 @@ struct xmit_frame *rtw_alloc_xmitframe(struct xmit_priv *pxmitpriv)/* _queue *pf
 		and lock/unlock or _enter/_exit critical to protect
 		pfree_xmit_queue
 	*/
+=======
+ * Calling context:
+ * 1. OS_TXENTRY
+ * 2. RXENTRY (rx_thread or RX_ISR/RX_CallBack)
+ *
+ * If we turn on USE_RXTHREAD, then, no need for critical section.
+ * Otherwise, we must use _enter/_exit critical to protect free_xmit_queue...
+ *
+ * Must be very, very cautious...
+ */
+struct xmit_frame *rtw_alloc_xmitframe(struct xmit_priv *pxmitpriv)/* _queue *pfree_xmit_queue) */
+{
+	/*
+	 *	Please remember to use all the osdep_service api,
+	 *	and lock/unlock or _enter/_exit critical to protect
+	 *	pfree_xmit_queue
+	 */
+>>>>>>> upstream/android-13
 
 	struct xmit_frame *pxframe = NULL;
 	struct list_head *plist, *phead;
@@ -1872,18 +2528,28 @@ struct xmit_frame *rtw_alloc_xmitframe(struct xmit_priv *pxmitpriv)/* _queue *pf
 	spin_lock_bh(&pfree_xmit_queue->lock);
 
 	if (list_empty(&pfree_xmit_queue->queue)) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_alloc_xmitframe:%d\n", pxmitpriv->free_xmitframe_cnt));
+=======
+>>>>>>> upstream/android-13
 		pxframe =  NULL;
 	} else {
 		phead = get_list_head(pfree_xmit_queue);
 
 		plist = get_next(phead);
 
+<<<<<<< HEAD
 		pxframe = LIST_CONTAINOR(plist, struct xmit_frame, list);
 
 		list_del_init(&(pxframe->list));
 		pxmitpriv->free_xmitframe_cnt--;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_alloc_xmitframe():free_xmitframe_cnt =%d\n", pxmitpriv->free_xmitframe_cnt));
+=======
+		pxframe = container_of(plist, struct xmit_frame, list);
+
+		list_del_init(&pxframe->list);
+		pxmitpriv->free_xmitframe_cnt--;
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_bh(&pfree_xmit_queue->lock);
@@ -1901,16 +2567,26 @@ struct xmit_frame *rtw_alloc_xmitframe_ext(struct xmit_priv *pxmitpriv)
 	spin_lock_bh(&queue->lock);
 
 	if (list_empty(&queue->queue)) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_alloc_xmitframe_ext:%d\n", pxmitpriv->free_xframe_ext_cnt));
+=======
+>>>>>>> upstream/android-13
 		pxframe =  NULL;
 	} else {
 		phead = get_list_head(queue);
 		plist = get_next(phead);
+<<<<<<< HEAD
 		pxframe = LIST_CONTAINOR(plist, struct xmit_frame, list);
 
 		list_del_init(&(pxframe->list));
 		pxmitpriv->free_xframe_ext_cnt--;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_alloc_xmitframe_ext():free_xmitframe_cnt =%d\n", pxmitpriv->free_xframe_ext_cnt));
+=======
+		pxframe = container_of(plist, struct xmit_frame, list);
+
+		list_del_init(&pxframe->list);
+		pxmitpriv->free_xframe_ext_cnt--;
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_bh(&queue->lock);
@@ -1927,7 +2603,11 @@ struct xmit_frame *rtw_alloc_xmitframe_once(struct xmit_priv *pxmitpriv)
 
 	alloc_addr = rtw_zmalloc(sizeof(struct xmit_frame) + 4);
 
+<<<<<<< HEAD
 	if (alloc_addr == NULL)
+=======
+	if (!alloc_addr)
+>>>>>>> upstream/android-13
 		goto exit;
 
 	pxframe = (struct xmit_frame *)N_BYTE_ALIGMENT((SIZE_PTR)(alloc_addr), 4);
@@ -1943,8 +2623,11 @@ struct xmit_frame *rtw_alloc_xmitframe_once(struct xmit_priv *pxmitpriv)
 
 	rtw_init_xmitframe(pxframe);
 
+<<<<<<< HEAD
 	DBG_871X("################## %s ##################\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 exit:
 	return pxframe;
 }
@@ -1953,12 +2636,19 @@ s32 rtw_free_xmitframe(struct xmit_priv *pxmitpriv, struct xmit_frame *pxmitfram
 {
 	struct __queue *queue = NULL;
 	struct adapter *padapter = pxmitpriv->adapter;
+<<<<<<< HEAD
 	_pkt *pndis_pkt = NULL;
 
 	if (pxmitframe == NULL) {
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("======rtw_free_xmitframe():pxmitframe == NULL!!!!!!!!!!\n"));
 		goto exit;
 	}
+=======
+	struct sk_buff *pndis_pkt = NULL;
+
+	if (!pxmitframe)
+		goto exit;
+>>>>>>> upstream/android-13
 
 	if (pxmitframe->pkt) {
 		pndis_pkt = pxmitframe->pkt;
@@ -1966,7 +2656,10 @@ s32 rtw_free_xmitframe(struct xmit_priv *pxmitpriv, struct xmit_frame *pxmitfram
 	}
 
 	if (pxmitframe->alloc_addr) {
+<<<<<<< HEAD
 		DBG_871X("################## %s with alloc_addr ##################\n", __func__);
+=======
+>>>>>>> upstream/android-13
 		kfree(pxmitframe->alloc_addr);
 		goto check_pkt_complete;
 	}
@@ -1976,13 +2669,17 @@ s32 rtw_free_xmitframe(struct xmit_priv *pxmitpriv, struct xmit_frame *pxmitfram
 	else if (pxmitframe->ext_tag == 1)
 		queue = &pxmitpriv->free_xframe_ext_queue;
 	else {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_bh(&queue->lock);
 
 	list_del_init(&pxmitframe->list);
 	list_add_tail(&pxmitframe->list, get_list_head(queue));
+<<<<<<< HEAD
 	if (pxmitframe->ext_tag == 0) {
 		pxmitpriv->free_xmitframe_cnt++;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_debug_, ("rtw_free_xmitframe():free_xmitframe_cnt =%d\n", pxmitpriv->free_xmitframe_cnt));
@@ -1991,6 +2688,12 @@ s32 rtw_free_xmitframe(struct xmit_priv *pxmitpriv, struct xmit_frame *pxmitfram
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_debug_, ("rtw_free_xmitframe():free_xframe_ext_cnt =%d\n", pxmitpriv->free_xframe_ext_cnt));
 	} else {
 	}
+=======
+	if (pxmitframe->ext_tag == 0)
+		pxmitpriv->free_xmitframe_cnt++;
+	else if (pxmitframe->ext_tag == 1)
+		pxmitpriv->free_xframe_ext_cnt++;
+>>>>>>> upstream/android-13
 
 	spin_unlock_bh(&queue->lock);
 
@@ -2005,6 +2708,7 @@ exit:
 
 void rtw_free_xmitframe_queue(struct xmit_priv *pxmitpriv, struct __queue *pframequeue)
 {
+<<<<<<< HEAD
 	struct list_head	*plist, *phead;
 	struct	xmit_frame	*pxmitframe;
 
@@ -2023,10 +2727,25 @@ void rtw_free_xmitframe_queue(struct xmit_priv *pxmitpriv, struct __queue *pfram
 
 	}
 	spin_unlock_bh(&(pframequeue->lock));
+=======
+	struct list_head *plist, *phead, *tmp;
+	struct	xmit_frame	*pxmitframe;
+
+	spin_lock_bh(&pframequeue->lock);
+
+	phead = get_list_head(pframequeue);
+	list_for_each_safe(plist, tmp, phead) {
+		pxmitframe = list_entry(plist, struct xmit_frame, list);
+
+		rtw_free_xmitframe(pxmitpriv, pxmitframe);
+	}
+	spin_unlock_bh(&pframequeue->lock);
+>>>>>>> upstream/android-13
 }
 
 s32 rtw_xmitframe_enqueue(struct adapter *padapter, struct xmit_frame *pxmitframe)
 {
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->tx_logs.core_tx_enqueue);
 	if (rtw_xmit_classifier(padapter, pxmitframe) == _FAIL) {
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_,
@@ -2034,44 +2753,73 @@ s32 rtw_xmitframe_enqueue(struct adapter *padapter, struct xmit_frame *pxmitfram
 /* 		pxmitframe->pkt = NULL; */
 		return _FAIL;
 	}
+=======
+	if (rtw_xmit_classifier(padapter, pxmitframe) == _FAIL)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	return _SUCCESS;
 }
 
+<<<<<<< HEAD
 struct tx_servq *rtw_get_sta_pending(struct adapter *padapter, struct sta_info *psta, sint up, u8 *ac)
+=======
+struct tx_servq *rtw_get_sta_pending(struct adapter *padapter, struct sta_info *psta, signed int up, u8 *ac)
+>>>>>>> upstream/android-13
 {
 	struct tx_servq *ptxservq = NULL;
 
 	switch (up) {
 	case 1:
 	case 2:
+<<<<<<< HEAD
 		ptxservq = &(psta->sta_xmitpriv.bk_q);
 		*(ac) = 3;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_get_sta_pending : BK\n"));
+=======
+		ptxservq = &psta->sta_xmitpriv.bk_q;
+		*(ac) = 3;
+>>>>>>> upstream/android-13
 		break;
 
 	case 4:
 	case 5:
+<<<<<<< HEAD
 		ptxservq = &(psta->sta_xmitpriv.vi_q);
 		*(ac) = 1;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_get_sta_pending : VI\n"));
+=======
+		ptxservq = &psta->sta_xmitpriv.vi_q;
+		*(ac) = 1;
+>>>>>>> upstream/android-13
 		break;
 
 	case 6:
 	case 7:
+<<<<<<< HEAD
 		ptxservq = &(psta->sta_xmitpriv.vo_q);
 		*(ac) = 0;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_get_sta_pending : VO\n"));
+=======
+		ptxservq = &psta->sta_xmitpriv.vo_q;
+		*(ac) = 0;
+>>>>>>> upstream/android-13
 		break;
 
 	case 0:
 	case 3:
 	default:
+<<<<<<< HEAD
 		ptxservq = &(psta->sta_xmitpriv.be_q);
 		*(ac) = 2;
 		RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("rtw_get_sta_pending : BE\n"));
 	break;
 
+=======
+		ptxservq = &psta->sta_xmitpriv.be_q;
+		*(ac) = 2;
+	break;
+>>>>>>> upstream/android-13
 	}
 
 	return ptxservq;
@@ -2083,12 +2831,16 @@ struct tx_servq *rtw_get_sta_pending(struct adapter *padapter, struct sta_info *
  */
 s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
 {
+<<<<<<< HEAD
 	/* _irqL irqL0; */
+=======
+>>>>>>> upstream/android-13
 	u8 ac_index;
 	struct sta_info *psta;
 	struct tx_servq	*ptxservq;
 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
 	struct hw_xmit	*phwxmits =  padapter->xmitpriv.hwxmits;
+<<<<<<< HEAD
 	sint res = _SUCCESS;
 
 	DBG_COUNTER(padapter->tx_logs.core_tx_enqueue_class);
@@ -2132,15 +2884,38 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
 	}
 
 	/* spin_lock_irqsave(&ptxservq->sta_pending.lock, irqL1); */
+=======
+	signed int res = _SUCCESS;
+
+	psta = rtw_get_stainfo(&padapter->stapriv, pattrib->ra);
+	if (pattrib->psta != psta)
+		return _FAIL;
+
+	if (!psta) {
+		res = _FAIL;
+		goto exit;
+	}
+
+	if (!(psta->state & _FW_LINKED))
+		return _FAIL;
+
+	ptxservq = rtw_get_sta_pending(padapter, psta, pattrib->priority, (u8 *)(&ac_index));
+
+	if (list_empty(&ptxservq->tx_pending))
+		list_add_tail(&ptxservq->tx_pending, get_list_head(phwxmits[ac_index].sta_queue));
+>>>>>>> upstream/android-13
 
 	list_add_tail(&pxmitframe->list, get_list_head(&ptxservq->sta_pending));
 	ptxservq->qcnt++;
 	phwxmits[ac_index].accnt++;
 
+<<<<<<< HEAD
 	/* spin_unlock_irqrestore(&ptxservq->sta_pending.lock, irqL1); */
 
 	/* spin_unlock_irqrestore(&pstapending->lock, irqL0); */
 
+=======
+>>>>>>> upstream/android-13
 exit:
 
 	return res;
@@ -2163,6 +2938,7 @@ s32 rtw_alloc_hwxmits(struct adapter *padapter)
 	hwxmits = pxmitpriv->hwxmits;
 
 	if (pxmitpriv->hwxmit_entry == 5) {
+<<<<<<< HEAD
 		/* pxmitpriv->bmc_txqueue.head = 0; */
 		/* hwxmits[0] .phwtxqueue = &pxmitpriv->bmc_txqueue; */
 		hwxmits[0] .sta_queue = &pxmitpriv->bm_pending;
@@ -2202,6 +2978,26 @@ s32 rtw_alloc_hwxmits(struct adapter *padapter)
 		hwxmits[3] .sta_queue = &pxmitpriv->bk_pending;
 	} else {
 
+=======
+		hwxmits[0] .sta_queue = &pxmitpriv->bm_pending;
+
+		hwxmits[1] .sta_queue = &pxmitpriv->vo_pending;
+
+		hwxmits[2] .sta_queue = &pxmitpriv->vi_pending;
+
+		hwxmits[3] .sta_queue = &pxmitpriv->bk_pending;
+
+		hwxmits[4] .sta_queue = &pxmitpriv->be_pending;
+	} else if (pxmitpriv->hwxmit_entry == 4) {
+		hwxmits[0] .sta_queue = &pxmitpriv->vo_pending;
+
+		hwxmits[1] .sta_queue = &pxmitpriv->vi_pending;
+
+		hwxmits[2] .sta_queue = &pxmitpriv->be_pending;
+
+		hwxmits[3] .sta_queue = &pxmitpriv->bk_pending;
+	} else {
+>>>>>>> upstream/android-13
 	}
 
 	return _SUCCESS;
@@ -2209,6 +3005,7 @@ s32 rtw_alloc_hwxmits(struct adapter *padapter)
 
 void rtw_free_hwxmits(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	struct hw_xmit *hwxmits;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
 
@@ -2227,6 +3024,19 @@ void rtw_init_hwxmits(struct hw_xmit *phwxmit, sint entry)
 		/* phwxmit->txcmdcnt = 0; */
 		phwxmit->accnt = 0;
 	}
+=======
+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+
+	kfree(pxmitpriv->hwxmits);
+}
+
+void rtw_init_hwxmits(struct hw_xmit *phwxmit, signed int entry)
+{
+	signed int i;
+
+	for (i = 0; i < entry; i++, phwxmit++)
+		phwxmit->accnt = 0;
+>>>>>>> upstream/android-13
 }
 
 u32 rtw_get_ff_hwaddr(struct xmit_frame *pxmitframe)
@@ -2261,11 +3071,17 @@ u32 rtw_get_ff_hwaddr(struct xmit_frame *pxmitframe)
 	default:
 		addr = MGT_QUEUE_INX;
 		break;
+<<<<<<< HEAD
 
 	}
 
 	return addr;
 
+=======
+	}
+
+	return addr;
+>>>>>>> upstream/android-13
 }
 
 static void do_queue_select(struct adapter	*padapter, struct pkt_attrib *pattrib)
@@ -2273,7 +3089,10 @@ static void do_queue_select(struct adapter	*padapter, struct pkt_attrib *pattrib
 	u8 qsel;
 
 	qsel = pattrib->priority;
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("### do_queue_select priority =%d , qsel = %d\n", pattrib->priority, qsel));
+=======
+>>>>>>> upstream/android-13
 
 	pattrib->qsel = qsel;
 }
@@ -2286,7 +3105,11 @@ static void do_queue_select(struct adapter	*padapter, struct pkt_attrib *pattrib
  *0	success, hardware will handle this xmit frame(packet)
  *<0	fail
  */
+<<<<<<< HEAD
 s32 rtw_xmit(struct adapter *padapter, _pkt **ppkt)
+=======
+s32 rtw_xmit(struct adapter *padapter, struct sk_buff **ppkt)
+>>>>>>> upstream/android-13
 {
 	static unsigned long start;
 	static u32 drop_cnt;
@@ -2296,34 +3119,48 @@ s32 rtw_xmit(struct adapter *padapter, _pkt **ppkt)
 
 	s32 res;
 
+<<<<<<< HEAD
 	DBG_COUNTER(padapter->tx_logs.core_tx);
 
+=======
+>>>>>>> upstream/android-13
 	if (start == 0)
 		start = jiffies;
 
 	pxmitframe = rtw_alloc_xmitframe(pxmitpriv);
 
 	if (jiffies_to_msecs(jiffies - start) > 2000) {
+<<<<<<< HEAD
 		if (drop_cnt)
 			DBG_871X("DBG_TX_DROP_FRAME %s no more pxmitframe, drop_cnt:%u\n", __func__, drop_cnt);
+=======
+>>>>>>> upstream/android-13
 		start = jiffies;
 		drop_cnt = 0;
 	}
 
+<<<<<<< HEAD
 	if (pxmitframe == NULL) {
 		drop_cnt++;
 		RT_TRACE(_module_xmit_osdep_c_, _drv_err_, ("rtw_xmit: no more pxmitframe\n"));
 		DBG_COUNTER(padapter->tx_logs.core_tx_err_pxmitframe);
+=======
+	if (!pxmitframe) {
+		drop_cnt++;
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
 	res = update_attrib(padapter, *ppkt, &pxmitframe->attrib);
 
 	if (res == _FAIL) {
+<<<<<<< HEAD
 		RT_TRACE(_module_xmit_osdep_c_, _drv_err_, ("rtw_xmit: update attrib fail\n"));
 		#ifdef DBG_TX_DROP_FRAME
 		DBG_871X("DBG_TX_DROP_FRAME %s update attrib fail\n", __func__);
 		#endif
+=======
+>>>>>>> upstream/android-13
 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
 		return -1;
 	}
@@ -2334,7 +3171,10 @@ s32 rtw_xmit(struct adapter *padapter, _pkt **ppkt)
 	spin_lock_bh(&pxmitpriv->lock);
 	if (xmitframe_enqueue_for_sleeping_sta(padapter, pxmitframe) == true) {
 		spin_unlock_bh(&pxmitpriv->lock);
+<<<<<<< HEAD
 		DBG_COUNTER(padapter->tx_logs.core_tx_ap_enqueue);
+=======
+>>>>>>> upstream/android-13
 		return 1;
 	}
 	spin_unlock_bh(&pxmitpriv->lock);
@@ -2357,6 +3197,7 @@ inline bool xmitframe_hiq_filter(struct xmit_frame *xmitframe)
 	struct registry_priv *registry = &adapter->registrypriv;
 
 	if (registry->hiq_filter == RTW_HIQ_FILTER_ALLOW_SPECIAL) {
+<<<<<<< HEAD
 
 		struct pkt_attrib *attrib = &xmitframe->attrib;
 
@@ -2368,6 +3209,16 @@ inline bool xmitframe_hiq_filter(struct xmit_frame *xmitframe)
 				, attrib->ether_type, attrib->dhcp_pkt?" DHCP":"");
 			allow = true;
 		}
+=======
+		struct pkt_attrib *attrib = &xmitframe->attrib;
+
+		if (attrib->ether_type == 0x0806 ||
+		    attrib->ether_type == 0x888e ||
+		    attrib->dhcp_pkt
+		)
+			allow = true;
+
+>>>>>>> upstream/android-13
 	} else if (registry->hiq_filter == RTW_HIQ_FILTER_ALLOW_ALL)
 		allow = true;
 	else if (registry->hiq_filter == RTW_HIQ_FILTER_DENY_ALL) {
@@ -2377,13 +3228,20 @@ inline bool xmitframe_hiq_filter(struct xmit_frame *xmitframe)
 	return allow;
 }
 
+<<<<<<< HEAD
 sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_frame *pxmitframe)
 {
 	sint ret = false;
+=======
+signed int xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_frame *pxmitframe)
+{
+	signed int ret = false;
+>>>>>>> upstream/android-13
 	struct sta_info *psta = NULL;
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct pkt_attrib *pattrib = &pxmitframe->attrib;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+<<<<<<< HEAD
 	sint bmcst = IS_MCAST(pattrib->ra);
 	bool update_tim = false;
 
@@ -2427,12 +3285,34 @@ sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_fr
 
 		/* pattrib->triggered = 0; */
 		if (bmcst && xmitframe_hiq_filter(pxmitframe) == true)
+=======
+	signed int bmcst = IS_MCAST(pattrib->ra);
+	bool update_tim = false;
+
+	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) == false)
+		return ret;
+	psta = rtw_get_stainfo(&padapter->stapriv, pattrib->ra);
+	if (pattrib->psta != psta)
+		return false;
+
+	if (!psta)
+		return false;
+
+	if (!(psta->state & _FW_LINKED))
+		return false;
+
+	if (pattrib->triggered == 1) {
+		if (bmcst && xmitframe_hiq_filter(pxmitframe))
+>>>>>>> upstream/android-13
 			pattrib->qsel = 0x11;/* HIQ */
 
 		return ret;
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (bmcst) {
 		spin_lock_bh(&psta->sleep_q.lock);
 
@@ -2441,8 +3321,11 @@ sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_fr
 
 			list_del_init(&pxmitframe->list);
 
+<<<<<<< HEAD
 			/* spin_lock_bh(&psta->sleep_q.lock); */
 
+=======
+>>>>>>> upstream/android-13
 			list_add_tail(&pxmitframe->list, get_list_head(&psta->sleep_q));
 
 			psta->sleepq_len++;
@@ -2450,6 +3333,7 @@ sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_fr
 			if (!(pstapriv->tim_bitmap & BIT(0)))
 				update_tim = true;
 
+<<<<<<< HEAD
 			pstapriv->tim_bitmap |= BIT(0);/*  */
 			pstapriv->sta_dz_bitmap |= BIT(0);
 
@@ -2467,15 +3351,31 @@ sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_fr
 
 			DBG_COUNTER(padapter->tx_logs.core_tx_ap_enqueue_mcast);
 
+=======
+			pstapriv->tim_bitmap |= BIT(0);
+			pstapriv->sta_dz_bitmap |= BIT(0);
+
+			if (update_tim)
+				update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+			else
+				chk_bmc_sleepq_cmd(padapter);
+
+			ret = true;
+>>>>>>> upstream/android-13
 		}
 
 		spin_unlock_bh(&psta->sleep_q.lock);
 
 		return ret;
+<<<<<<< HEAD
 
 	}
 
 
+=======
+	}
+
+>>>>>>> upstream/android-13
 	spin_lock_bh(&psta->sleep_q.lock);
 
 	if (psta->state&WIFI_SLEEP_STATE) {
@@ -2484,8 +3384,11 @@ sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_fr
 		if (pstapriv->sta_dz_bitmap & BIT(psta->aid)) {
 			list_del_init(&pxmitframe->list);
 
+<<<<<<< HEAD
 			/* spin_lock_bh(&psta->sleep_q.lock); */
 
+=======
+>>>>>>> upstream/android-13
 			list_add_tail(&pxmitframe->list, get_list_head(&psta->sleep_q));
 
 			psta->sleepq_len++;
@@ -2519,6 +3422,7 @@ sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_fr
 
 				pstapriv->tim_bitmap |= BIT(psta->aid);
 
+<<<<<<< HEAD
 				/* DBG_871X("enqueue, sq_len =%d, tim =%x\n", psta->sleepq_len, pstapriv->tim_bitmap); */
 
 				if (update_tim == true)
@@ -2539,18 +3443,35 @@ sint xmitframe_enqueue_for_sleeping_sta(struct adapter *padapter, struct xmit_fr
 			DBG_COUNTER(padapter->tx_logs.core_tx_ap_enqueue_ucast);
 		}
 
+=======
+				if (update_tim)
+					/* update BCN for TIM IE */
+					update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+			}
+
+			ret = true;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_bh(&psta->sleep_q.lock);
 
 	return ret;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 static void dequeue_xmitframes_to_sleeping_queue(struct adapter *padapter, struct sta_info *psta, struct __queue *pframequeue)
 {
+<<<<<<< HEAD
 	sint ret;
 	struct list_head	*plist, *phead;
+=======
+	signed int ret;
+	struct list_head *plist, *phead, *tmp;
+>>>>>>> upstream/android-13
 	u8 ac_index;
 	struct tx_servq	*ptxservq;
 	struct pkt_attrib	*pattrib;
@@ -2558,12 +3479,17 @@ static void dequeue_xmitframes_to_sleeping_queue(struct adapter *padapter, struc
 	struct hw_xmit *phwxmits =  padapter->xmitpriv.hwxmits;
 
 	phead = get_list_head(pframequeue);
+<<<<<<< HEAD
 	plist = get_next(phead);
 
 	while (phead != plist) {
 		pxmitframe = LIST_CONTAINOR(plist, struct xmit_frame, list);
 
 		plist = get_next(plist);
+=======
+	list_for_each_safe(plist, tmp, phead) {
+		pxmitframe = list_entry(plist, struct xmit_frame, list);
+>>>>>>> upstream/android-13
 
 		pattrib = &pxmitframe->attrib;
 
@@ -2577,11 +3503,16 @@ static void dequeue_xmitframes_to_sleeping_queue(struct adapter *padapter, struc
 			ptxservq->qcnt--;
 			phwxmits[ac_index].accnt--;
 		} else {
+<<<<<<< HEAD
 			/* DBG_871X("xmitframe_enqueue_for_sleeping_sta return false\n"); */
 		}
 
 	}
 
+=======
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 void stop_sta_xmit(struct adapter *padapter, struct sta_info *psta)
@@ -2596,13 +3527,17 @@ void stop_sta_xmit(struct adapter *padapter, struct sta_info *psta)
 	/* for BC/MC Frames */
 	psta_bmc = rtw_get_bcmc_stainfo(padapter);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_bh(&pxmitpriv->lock);
 
 	psta->state |= WIFI_SLEEP_STATE;
 
 	pstapriv->sta_dz_bitmap |= BIT(psta->aid);
 
+<<<<<<< HEAD
 
 
 	dequeue_xmitframes_to_sleeping_queue(padapter, psta, &pstaxmitpriv->vo_q.sta_pending);
@@ -2619,11 +3554,28 @@ void stop_sta_xmit(struct adapter *padapter, struct sta_info *psta)
 
 	dequeue_xmitframes_to_sleeping_queue(padapter, psta, &pstaxmitpriv->bk_q.sta_pending);
 	list_del_init(&(pstaxmitpriv->bk_q.tx_pending));
+=======
+	dequeue_xmitframes_to_sleeping_queue(padapter, psta, &pstaxmitpriv->vo_q.sta_pending);
+	list_del_init(&pstaxmitpriv->vo_q.tx_pending);
+
+	dequeue_xmitframes_to_sleeping_queue(padapter, psta, &pstaxmitpriv->vi_q.sta_pending);
+	list_del_init(&pstaxmitpriv->vi_q.tx_pending);
+
+	dequeue_xmitframes_to_sleeping_queue(padapter, psta, &pstaxmitpriv->be_q.sta_pending);
+	list_del_init(&pstaxmitpriv->be_q.tx_pending);
+
+	dequeue_xmitframes_to_sleeping_queue(padapter, psta, &pstaxmitpriv->bk_q.sta_pending);
+	list_del_init(&pstaxmitpriv->bk_q.tx_pending);
+>>>>>>> upstream/android-13
 
 	/* for BC/MC Frames */
 	pstaxmitpriv = &psta_bmc->sta_xmitpriv;
 	dequeue_xmitframes_to_sleeping_queue(padapter, psta_bmc, &pstaxmitpriv->be_q.sta_pending);
+<<<<<<< HEAD
 	list_del_init(&(pstaxmitpriv->be_q.tx_pending));
+=======
+	list_del_init(&pstaxmitpriv->be_q.tx_pending);
+>>>>>>> upstream/android-13
 
 	spin_unlock_bh(&pxmitpriv->lock);
 }
@@ -2632,13 +3584,18 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 {
 	u8 update_mask = 0, wmmps_ac = 0;
 	struct sta_info *psta_bmc;
+<<<<<<< HEAD
 	struct list_head	*xmitframe_plist, *xmitframe_phead;
+=======
+	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
+>>>>>>> upstream/android-13
 	struct xmit_frame *pxmitframe = NULL;
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
 
 	psta_bmc = rtw_get_bcmc_stainfo(padapter);
 
+<<<<<<< HEAD
 
 	/* spin_lock_bh(&psta->sleep_q.lock); */
 	spin_lock_bh(&pxmitpriv->lock);
@@ -2650,6 +3607,14 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 		pxmitframe = LIST_CONTAINOR(xmitframe_plist, struct xmit_frame, list);
 
 		xmitframe_plist = get_next(xmitframe_plist);
+=======
+	spin_lock_bh(&pxmitpriv->lock);
+
+	xmitframe_phead = get_list_head(&psta->sleep_q);
+	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
+		pxmitframe = list_entry(xmitframe_plist, struct xmit_frame,
+					list);
+>>>>>>> upstream/android-13
 
 		list_del_init(&pxmitframe->list);
 
@@ -2684,7 +3649,11 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 			if (psta->sleepq_ac_len > 0) {
 				pxmitframe->attrib.mdata = 1;
 				pxmitframe->attrib.eosp = 0;
+<<<<<<< HEAD
 			} else{
+=======
+			} else {
+>>>>>>> upstream/android-13
 				pxmitframe->attrib.mdata = 0;
 				pxmitframe->attrib.eosp = 1;
 			}
@@ -2692,6 +3661,7 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 
 		pxmitframe->attrib.triggered = 1;
 
+<<<<<<< HEAD
 /*
 		spin_unlock_bh(&psta->sleep_q.lock);
 		if (rtw_hal_xmit(padapter, pxmitframe) == true)
@@ -2712,6 +3682,14 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 			/* update_BCNTIM(padapter); */
 			update_mask = BIT(0);
 		}
+=======
+		rtw_hal_xmitframe_enqueue(padapter, pxmitframe);
+	}
+
+	if (psta->sleepq_len == 0) {
+		if (pstapriv->tim_bitmap & BIT(psta->aid))
+			update_mask = BIT(0);
+>>>>>>> upstream/android-13
 
 		pstapriv->tim_bitmap &= ~BIT(psta->aid);
 
@@ -2719,7 +3697,10 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 			psta->state ^= WIFI_SLEEP_STATE;
 
 		if (psta->state & WIFI_STA_ALIVE_CHK_STATE) {
+<<<<<<< HEAD
 			DBG_871X("%s alive check\n", __func__);
+=======
+>>>>>>> upstream/android-13
 			psta->expire_to = pstapriv->expire_to;
 			psta->state ^= WIFI_STA_ALIVE_CHK_STATE;
 		}
@@ -2733,12 +3714,18 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 
 	if ((pstapriv->sta_dz_bitmap&0xfffe) == 0x0) { /* no any sta in ps mode */
 		xmitframe_phead = get_list_head(&psta_bmc->sleep_q);
+<<<<<<< HEAD
 		xmitframe_plist = get_next(xmitframe_phead);
 
 		while (xmitframe_phead != xmitframe_plist) {
 			pxmitframe = LIST_CONTAINOR(xmitframe_plist, struct xmit_frame, list);
 
 			xmitframe_plist = get_next(xmitframe_plist);
+=======
+		list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
+			pxmitframe = list_entry(xmitframe_plist,
+						struct xmit_frame, list);
+>>>>>>> upstream/android-13
 
 			list_del_init(&pxmitframe->list);
 
@@ -2748,6 +3735,7 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 			else
 				pxmitframe->attrib.mdata = 0;
 
+<<<<<<< HEAD
 
 			pxmitframe->attrib.triggered = 1;
 /*
@@ -2774,10 +3762,24 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
 			pstapriv->sta_dz_bitmap &= ~BIT(0);
 		}
 
+=======
+			pxmitframe->attrib.triggered = 1;
+			rtw_hal_xmitframe_enqueue(padapter, pxmitframe);
+		}
+
+		if (psta_bmc->sleepq_len == 0) {
+			if (pstapriv->tim_bitmap & BIT(0))
+				update_mask |= BIT(1);
+
+			pstapriv->tim_bitmap &= ~BIT(0);
+			pstapriv->sta_dz_bitmap &= ~BIT(0);
+		}
+>>>>>>> upstream/android-13
 	}
 
 _exit:
 
+<<<<<<< HEAD
 	/* spin_unlock_bh(&psta_bmc->sleep_q.lock); */
 	spin_unlock_bh(&pxmitpriv->lock);
 
@@ -2786,16 +3788,27 @@ _exit:
 		/* printk("%s => call update_beacon\n", __func__); */
 		update_beacon(padapter, _TIM_IE_, NULL, true);
 
+=======
+	spin_unlock_bh(&pxmitpriv->lock);
+
+	if (update_mask)
+		update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+>>>>>>> upstream/android-13
 }
 
 void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *psta)
 {
 	u8 wmmps_ac = 0;
+<<<<<<< HEAD
 	struct list_head	*xmitframe_plist, *xmitframe_phead;
+=======
+	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
+>>>>>>> upstream/android-13
 	struct xmit_frame *pxmitframe = NULL;
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
 
+<<<<<<< HEAD
 
 	/* spin_lock_bh(&psta->sleep_q.lock); */
 	spin_lock_bh(&pxmitpriv->lock);
@@ -2807,6 +3820,14 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
 		pxmitframe = LIST_CONTAINOR(xmitframe_plist, struct xmit_frame, list);
 
 		xmitframe_plist = get_next(xmitframe_plist);
+=======
+	spin_lock_bh(&pxmitpriv->lock);
+
+	xmitframe_phead = get_list_head(&psta->sleep_q);
+	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
+		pxmitframe = list_entry(xmitframe_plist, struct xmit_frame,
+					list);
+>>>>>>> upstream/android-13
 
 		switch (pxmitframe->attrib.priority) {
 		case 1:
@@ -2839,7 +3860,11 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
 		if (psta->sleepq_ac_len > 0) {
 			pxmitframe->attrib.mdata = 1;
 			pxmitframe->attrib.eosp = 0;
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			pxmitframe->attrib.mdata = 0;
 			pxmitframe->attrib.eosp = 1;
 		}
@@ -2850,6 +3875,7 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
 		if ((psta->sleepq_ac_len == 0) && (!psta->has_legacy_ac) && (wmmps_ac)) {
 			pstapriv->tim_bitmap &= ~BIT(psta->aid);
 
+<<<<<<< HEAD
 			/* DBG_871X("wakeup to xmit, qlen == 0, update_BCNTIM, tim =%x\n", pstapriv->tim_bitmap); */
 			/* upate BCN for TIM IE */
 			/* update_BCNTIM(padapter); */
@@ -2868,6 +3894,16 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
 void enqueue_pending_xmitbuf(
 	struct xmit_priv *pxmitpriv,
 	struct xmit_buf *pxmitbuf)
+=======
+			update_beacon(padapter, WLAN_EID_TIM, NULL, true);
+		}
+	}
+
+	spin_unlock_bh(&pxmitpriv->lock);
+}
+
+void enqueue_pending_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
+>>>>>>> upstream/android-13
 {
 	struct __queue *pqueue;
 	struct adapter *pri_adapter = pxmitpriv->adapter;
@@ -2879,12 +3915,19 @@ void enqueue_pending_xmitbuf(
 	list_add_tail(&pxmitbuf->list, get_list_head(pqueue));
 	spin_unlock_bh(&pqueue->lock);
 
+<<<<<<< HEAD
 	up(&(pri_adapter->xmitpriv.xmit_sema));
 }
 
 void enqueue_pending_xmitbuf_to_head(
 	struct xmit_priv *pxmitpriv,
 	struct xmit_buf *pxmitbuf)
+=======
+	complete(&pri_adapter->xmitpriv.xmit_comp);
+}
+
+void enqueue_pending_xmitbuf_to_head(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
+>>>>>>> upstream/android-13
 {
 	struct __queue *pqueue;
 
@@ -2896,13 +3939,20 @@ void enqueue_pending_xmitbuf_to_head(
 	spin_unlock_bh(&pqueue->lock);
 }
 
+<<<<<<< HEAD
 struct xmit_buf *dequeue_pending_xmitbuf(
 	struct xmit_priv *pxmitpriv)
+=======
+struct xmit_buf *dequeue_pending_xmitbuf(struct xmit_priv *pxmitpriv)
+>>>>>>> upstream/android-13
 {
 	struct xmit_buf *pxmitbuf;
 	struct __queue *pqueue;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	pxmitbuf = NULL;
 	pqueue = &pxmitpriv->pending_xmitbuf_queue;
 
@@ -2913,7 +3963,11 @@ struct xmit_buf *dequeue_pending_xmitbuf(
 
 		phead = get_list_head(pqueue);
 		plist = get_next(phead);
+<<<<<<< HEAD
 		pxmitbuf = LIST_CONTAINOR(plist, struct xmit_buf, list);
+=======
+		pxmitbuf = container_of(plist, struct xmit_buf, list);
+>>>>>>> upstream/android-13
 		list_del_init(&pxmitbuf->list);
 	}
 
@@ -2922,13 +3976,20 @@ struct xmit_buf *dequeue_pending_xmitbuf(
 	return pxmitbuf;
 }
 
+<<<<<<< HEAD
 struct xmit_buf *dequeue_pending_xmitbuf_under_survey(
 	struct xmit_priv *pxmitpriv)
+=======
+struct xmit_buf *dequeue_pending_xmitbuf_under_survey(struct xmit_priv *pxmitpriv)
+>>>>>>> upstream/android-13
 {
 	struct xmit_buf *pxmitbuf;
 	struct __queue *pqueue;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	pxmitbuf = NULL;
 	pqueue = &pxmitpriv->pending_xmitbuf_queue;
 
@@ -2945,7 +4006,11 @@ struct xmit_buf *dequeue_pending_xmitbuf_under_survey(
 			if (plist == phead)
 				break;
 
+<<<<<<< HEAD
 			pxmitbuf = LIST_CONTAINOR(plist, struct xmit_buf, list);
+=======
+			pxmitbuf = container_of(plist, struct xmit_buf, list);
+>>>>>>> upstream/android-13
 
 			type = GetFrameSubType(pxmitbuf->pbuf + TXDESC_OFFSET);
 
@@ -2964,11 +4029,18 @@ struct xmit_buf *dequeue_pending_xmitbuf_under_survey(
 	return pxmitbuf;
 }
 
+<<<<<<< HEAD
 sint check_pending_xmitbuf(
 	struct xmit_priv *pxmitpriv)
 {
 	struct __queue *pqueue;
 	sint	ret = false;
+=======
+signed int check_pending_xmitbuf(struct xmit_priv *pxmitpriv)
+{
+	struct __queue *pqueue;
+	signed int	ret = false;
+>>>>>>> upstream/android-13
 
 	pqueue = &pxmitpriv->pending_xmitbuf_queue;
 
@@ -2987,7 +4059,10 @@ int rtw_xmit_thread(void *context)
 	s32 err;
 	struct adapter *padapter;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	err = _SUCCESS;
 	padapter = context;
 
@@ -2996,9 +4071,15 @@ int rtw_xmit_thread(void *context)
 	do {
 		err = rtw_hal_xmit_thread_handler(padapter);
 		flush_signals_thread();
+<<<<<<< HEAD
 	} while (_SUCCESS == err);
 
 	up(&padapter->xmitpriv.terminate_xmitthread_sema);
+=======
+	} while (err == _SUCCESS);
+
+	complete(&padapter->xmitpriv.terminate_xmitthread_comp);
+>>>>>>> upstream/android-13
 
 	thread_exit();
 }
@@ -3011,13 +4092,18 @@ void rtw_sctx_init(struct submit_ctx *sctx, int timeout_ms)
 	sctx->status = RTW_SCTX_SUBMITTED;
 }
 
+<<<<<<< HEAD
 int rtw_sctx_wait(struct submit_ctx *sctx, const char *msg)
+=======
+int rtw_sctx_wait(struct submit_ctx *sctx)
+>>>>>>> upstream/android-13
 {
 	int ret = _FAIL;
 	unsigned long expire;
 	int status = 0;
 
 	expire = sctx->timeout_ms ? msecs_to_jiffies(sctx->timeout_ms) : MAX_SCHEDULE_TIMEOUT;
+<<<<<<< HEAD
 	if (!wait_for_completion_timeout(&sctx->done, expire)) {
 		/* timeout, do something?? */
 		status = RTW_SCTX_DONE_TIMEOUT;
@@ -3029,10 +4115,21 @@ int rtw_sctx_wait(struct submit_ctx *sctx, const char *msg)
 	if (status == RTW_SCTX_DONE_SUCCESS) {
 		ret = _SUCCESS;
 	}
+=======
+	if (!wait_for_completion_timeout(&sctx->done, expire))
+		/* timeout, do something?? */
+		status = RTW_SCTX_DONE_TIMEOUT;
+	else
+		status = sctx->status;
+
+	if (status == RTW_SCTX_DONE_SUCCESS)
+		ret = _SUCCESS;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool rtw_sctx_chk_waring_status(int status)
 {
 	switch (status) {
@@ -3053,6 +4150,11 @@ void rtw_sctx_done_err(struct submit_ctx **sctx, int status)
 	if (*sctx) {
 		if (rtw_sctx_chk_waring_status(status))
 			DBG_871X("%s status:%d\n", __func__, status);
+=======
+void rtw_sctx_done_err(struct submit_ctx **sctx, int status)
+{
+	if (*sctx) {
+>>>>>>> upstream/android-13
 		(*sctx)->status = status;
 		complete(&((*sctx)->done));
 		*sctx = NULL;
@@ -3072,16 +4174,25 @@ int rtw_ack_tx_wait(struct xmit_priv *pxmitpriv, u32 timeout_ms)
 	pack_tx_ops->timeout_ms = timeout_ms;
 	pack_tx_ops->status = RTW_SCTX_SUBMITTED;
 
+<<<<<<< HEAD
 	return rtw_sctx_wait(pack_tx_ops, __func__);
+=======
+	return rtw_sctx_wait(pack_tx_ops);
+>>>>>>> upstream/android-13
 }
 
 void rtw_ack_tx_done(struct xmit_priv *pxmitpriv, int status)
 {
 	struct submit_ctx *pack_tx_ops = &pxmitpriv->ack_tx_ops;
 
+<<<<<<< HEAD
 	if (pxmitpriv->ack_tx) {
 		rtw_sctx_done_err(&pack_tx_ops, status);
 	} else {
 		DBG_871X("%s ack_tx not set\n", __func__);
 	}
+=======
+	if (pxmitpriv->ack_tx)
+		rtw_sctx_done_err(&pack_tx_ops, status);
+>>>>>>> upstream/android-13
 }

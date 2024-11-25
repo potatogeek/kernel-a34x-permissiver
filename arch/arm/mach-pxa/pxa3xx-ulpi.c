@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-pxa/pxa3xx-ulpi.c
  *
@@ -7,10 +11,13 @@
  *
  * 2010-13-07: Igor Grinberg <grinberg@compulab.co.il>
  *             initial version: pxa310 USB Host mode support
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

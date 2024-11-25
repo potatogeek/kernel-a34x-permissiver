@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Common code for mac80211 Prism54 drivers
  *
@@ -10,10 +14,13 @@
  *   Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
  * - stlc45xx driver
  *   Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -121,8 +128,13 @@ static int p54_assign_address(struct p54_common *priv, struct sk_buff *skb)
 	}
 	if (unlikely(!target_skb)) {
 		if (priv->rx_end - last_addr >= len) {
+<<<<<<< HEAD
 			target_skb = priv->tx_queue.prev;
 			if (!skb_queue_empty(&priv->tx_queue)) {
+=======
+			target_skb = skb_peek_tail(&priv->tx_queue);
+			if (target_skb) {
+>>>>>>> upstream/android-13
 				info = IEEE80211_SKB_CB(target_skb);
 				range = (void *)info->rate_driver_data;
 				target_addr = range->end_addr;
@@ -142,7 +154,14 @@ static int p54_assign_address(struct p54_common *priv, struct sk_buff *skb)
 	    unlikely(GET_HW_QUEUE(skb) == P54_QUEUE_BEACON))
 		priv->beacon_req_id = data->req_id;
 
+<<<<<<< HEAD
 	__skb_queue_after(&priv->tx_queue, target_skb, skb);
+=======
+	if (target_skb)
+		__skb_queue_after(&priv->tx_queue, target_skb, skb);
+	else
+		__skb_queue_head(&priv->tx_queue, skb);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&priv->tx_queue.lock, flags);
 	return 0;
 }
@@ -331,6 +350,10 @@ static int p54_rx_data(struct p54_common *priv, struct sk_buff *skb)
 	u16 freq = le16_to_cpu(hdr->freq);
 	size_t header_len = sizeof(*hdr);
 	u32 tsf32;
+<<<<<<< HEAD
+=======
+	__le16 fc;
+>>>>>>> upstream/android-13
 	u8 rate = hdr->rate & 0xf;
 
 	/*
@@ -379,6 +402,14 @@ static int p54_rx_data(struct p54_common *priv, struct sk_buff *skb)
 
 	skb_pull(skb, header_len);
 	skb_trim(skb, le16_to_cpu(hdr->len));
+<<<<<<< HEAD
+=======
+
+	fc = ((struct ieee80211_hdr *)skb->data)->frame_control;
+	if (ieee80211_is_probe_resp(fc) || ieee80211_is_beacon(fc))
+		rx_status->boottime_ns = ktime_get_boottime_ns();
+
+>>>>>>> upstream/android-13
 	if (unlikely(priv->hw->conf.flags & IEEE80211_CONF_PS))
 		p54_pspoll_workaround(priv, skb);
 

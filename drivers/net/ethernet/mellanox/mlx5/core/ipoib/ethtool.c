@@ -39,7 +39,11 @@ static void mlx5i_get_drvinfo(struct net_device *dev,
 	struct mlx5e_priv *priv = mlx5i_epriv(dev);
 
 	mlx5e_ethtool_get_drvinfo(priv, drvinfo);
+<<<<<<< HEAD
 	strlcpy(drvinfo->driver, DRIVER_NAME "[ib_ipoib]",
+=======
+	strlcpy(drvinfo->driver, KBUILD_MODNAME "[ib_ipoib]",
+>>>>>>> upstream/android-13
 		sizeof(drvinfo->driver));
 }
 
@@ -99,7 +103,13 @@ static void mlx5i_get_channels(struct net_device *dev,
 }
 
 static int mlx5i_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *coal)
+=======
+			      struct ethtool_coalesce *coal,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct mlx5e_priv *priv = mlx5i_epriv(netdev);
 
@@ -107,7 +117,13 @@ static int mlx5i_set_coalesce(struct net_device *netdev,
 }
 
 static int mlx5i_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *coal)
+=======
+			      struct ethtool_coalesce *coal,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct mlx5e_priv *priv = mlx5i_epriv(netdev);
 
@@ -130,6 +146,7 @@ static int mlx5i_flash_device(struct net_device *netdev,
 	return mlx5e_ethtool_flash_device(priv, flash);
 }
 
+<<<<<<< HEAD
 enum mlx5_ptys_width {
 	MLX5_PTYS_WIDTH_1X	= 1 << 0,
 	MLX5_PTYS_WIDTH_2X	= 1 << 1,
@@ -138,6 +155,8 @@ enum mlx5_ptys_width {
 	MLX5_PTYS_WIDTH_12X	= 1 << 4,
 };
 
+=======
+>>>>>>> upstream/android-13
 static inline int mlx5_ptys_width_enum_to_int(enum mlx5_ptys_width width)
 {
 	switch (width) {
@@ -158,6 +177,10 @@ enum mlx5_ptys_rate {
 	MLX5_PTYS_RATE_FDR	= 1 << 4,
 	MLX5_PTYS_RATE_EDR	= 1 << 5,
 	MLX5_PTYS_RATE_HDR	= 1 << 6,
+<<<<<<< HEAD
+=======
+	MLX5_PTYS_RATE_NDR	= 1 << 7,
+>>>>>>> upstream/android-13
 };
 
 static inline int mlx5_ptys_rate_enum_to_int(enum mlx5_ptys_rate rate)
@@ -170,10 +193,15 @@ static inline int mlx5_ptys_rate_enum_to_int(enum mlx5_ptys_rate rate)
 	case MLX5_PTYS_RATE_FDR:   return 14000;
 	case MLX5_PTYS_RATE_EDR:   return 25000;
 	case MLX5_PTYS_RATE_HDR:   return 50000;
+<<<<<<< HEAD
+=======
+	case MLX5_PTYS_RATE_NDR:   return 100000;
+>>>>>>> upstream/android-13
 	default:		   return -1;
 	}
 }
 
+<<<<<<< HEAD
 static int mlx5i_get_port_settings(struct net_device *netdev,
 				   u16 *ib_link_width_oper, u16 *ib_proto_oper)
 {
@@ -192,6 +220,8 @@ static int mlx5i_get_port_settings(struct net_device *netdev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mlx5i_get_speed_settings(u16 ib_link_width_oper, u16 ib_proto_oper)
 {
 	int rate, width;
@@ -209,11 +239,21 @@ static int mlx5i_get_speed_settings(u16 ib_link_width_oper, u16 ib_proto_oper)
 static int mlx5i_get_link_ksettings(struct net_device *netdev,
 				    struct ethtool_link_ksettings *link_ksettings)
 {
+<<<<<<< HEAD
+=======
+	struct mlx5e_priv *priv = mlx5i_epriv(netdev);
+	struct mlx5_core_dev *mdev = priv->mdev;
+>>>>>>> upstream/android-13
 	u16 ib_link_width_oper;
 	u16 ib_proto_oper;
 	int speed, ret;
 
+<<<<<<< HEAD
 	ret = mlx5i_get_port_settings(netdev, &ib_link_width_oper, &ib_proto_oper);
+=======
+	ret = mlx5_query_ib_port_oper(mdev, &ib_link_width_oper, &ib_proto_oper,
+				      1);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -235,6 +275,12 @@ static int mlx5i_get_link_ksettings(struct net_device *netdev,
 }
 
 const struct ethtool_ops mlx5i_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES |
+				     ETHTOOL_COALESCE_USE_ADAPTIVE,
+>>>>>>> upstream/android-13
 	.get_drvinfo        = mlx5i_get_drvinfo,
 	.get_strings        = mlx5i_get_strings,
 	.get_sset_count     = mlx5i_get_sset_count,

@@ -37,15 +37,24 @@ struct watchdog_governor;
  *
  * The watchdog_ops structure contains a list of low-level operations
  * that control a watchdog device. It also contains the module that owns
+<<<<<<< HEAD
  * these operations. The start and stop function are mandatory, all other
+=======
+ * these operations. The start function is mandatory, all other
+>>>>>>> upstream/android-13
  * functions are optional.
  */
 struct watchdog_ops {
 	struct module *owner;
 	/* mandatory operations */
 	int (*start)(struct watchdog_device *);
+<<<<<<< HEAD
 	int (*stop)(struct watchdog_device *);
 	/* optional operations */
+=======
+	/* optional operations */
+	int (*stop)(struct watchdog_device *);
+>>>>>>> upstream/android-13
 	int (*ping)(struct watchdog_device *);
 	unsigned int (*status)(struct watchdog_device *);
 	int (*set_timeout)(struct watchdog_device *, unsigned int);
@@ -90,9 +99,12 @@ struct watchdog_ops {
  *
  * The driver-data field may not be accessed directly. It must be accessed
  * via the watchdog_set_drvdata and watchdog_get_drvdata helpers.
+<<<<<<< HEAD
  *
  * The lock field is for watchdog core internal use only and should not be
  * touched.
+=======
+>>>>>>> upstream/android-13
  */
 struct watchdog_device {
 	int id;
@@ -110,6 +122,10 @@ struct watchdog_device {
 	unsigned int max_hw_heartbeat_ms;
 	struct notifier_block reboot_nb;
 	struct notifier_block restart_nb;
+<<<<<<< HEAD
+=======
+	struct notifier_block pm_nb;
+>>>>>>> upstream/android-13
 	void *driver_data;
 	struct watchdog_core_data *wd_data;
 	unsigned long status;
@@ -119,6 +135,10 @@ struct watchdog_device {
 #define WDOG_STOP_ON_REBOOT	2	/* Should be stopped on reboot */
 #define WDOG_HW_RUNNING		3	/* True if HW watchdog running */
 #define WDOG_STOP_ON_UNREGISTER	4	/* Should be stopped on unregister */
+<<<<<<< HEAD
+=======
+#define WDOG_NO_PING_ON_SUSPEND	5	/* Ping worker should be stopped on suspend */
+>>>>>>> upstream/android-13
 	struct list_head deferred;
 };
 
@@ -159,6 +179,15 @@ static inline void watchdog_stop_on_unregister(struct watchdog_device *wdd)
 	set_bit(WDOG_STOP_ON_UNREGISTER, &wdd->status);
 }
 
+<<<<<<< HEAD
+=======
+/* Use the following function to stop the wdog ping worker when suspending */
+static inline void watchdog_stop_ping_on_suspend(struct watchdog_device *wdd)
+{
+	set_bit(WDOG_NO_PING_ON_SUSPEND, &wdd->status);
+}
+
+>>>>>>> upstream/android-13
 /* Use the following function to check if a timeout value is invalid */
 static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
 {
@@ -212,6 +241,13 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
 				  unsigned int timeout_parm, struct device *dev);
 extern int watchdog_register_device(struct watchdog_device *);
 extern void watchdog_unregister_device(struct watchdog_device *);
+<<<<<<< HEAD
+=======
+int watchdog_dev_suspend(struct watchdog_device *wdd);
+int watchdog_dev_resume(struct watchdog_device *wdd);
+
+int watchdog_set_last_hw_keepalive(struct watchdog_device *, unsigned int);
+>>>>>>> upstream/android-13
 
 /* devres register variant */
 int devm_watchdog_register_device(struct device *dev, struct watchdog_device *);

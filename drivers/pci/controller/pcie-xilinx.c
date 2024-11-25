@@ -21,6 +21,10 @@
 #include <linux/of_platform.h>
 #include <linux/of_irq.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
+=======
+#include <linux/pci-ecam.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 
 #include "../pci.h"
@@ -86,37 +90,55 @@
 /* Phy Status/Control Register definitions */
 #define XILINX_PCIE_REG_PSCR_LNKUP	BIT(11)
 
+<<<<<<< HEAD
 /* ECAM definitions */
 #define ECAM_BUS_NUM_SHIFT		20
 #define ECAM_DEV_NUM_SHIFT		12
 
+=======
+>>>>>>> upstream/android-13
 /* Number of MSI IRQs */
 #define XILINX_NUM_MSI_IRQS		128
 
 /**
  * struct xilinx_pcie_port - PCIe port information
  * @reg_base: IO Mapped Register Base
+<<<<<<< HEAD
  * @irq: Interrupt number
  * @msi_pages: MSI pages
  * @root_busno: Root Bus number
  * @dev: Device pointer
+=======
+ * @dev: Device pointer
+ * @msi_map: Bitmap of allocated MSIs
+ * @map_lock: Mutex protecting the MSI allocation
+>>>>>>> upstream/android-13
  * @msi_domain: MSI IRQ domain pointer
  * @leg_domain: Legacy IRQ domain pointer
  * @resources: Bus Resources
  */
 struct xilinx_pcie_port {
 	void __iomem *reg_base;
+<<<<<<< HEAD
 	u32 irq;
 	unsigned long msi_pages;
 	u8 root_busno;
 	struct device *dev;
+=======
+	struct device *dev;
+	unsigned long msi_map[BITS_TO_LONGS(XILINX_NUM_MSI_IRQS)];
+	struct mutex map_lock;
+>>>>>>> upstream/android-13
 	struct irq_domain *msi_domain;
 	struct irq_domain *leg_domain;
 	struct list_head resources;
 };
 
+<<<<<<< HEAD
 static DECLARE_BITMAP(msi_irq_in_use, XILINX_NUM_MSI_IRQS);
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 pcie_read(struct xilinx_pcie_port *port, u32 reg)
 {
 	return readl(port->reg_base + reg);
@@ -162,6 +184,7 @@ static bool xilinx_pcie_valid_device(struct pci_bus *bus, unsigned int devfn)
 	struct xilinx_pcie_port *port = bus->sysdata;
 
 	/* Check if link is up when trying to access downstream ports */
+<<<<<<< HEAD
 	if (bus->number != port->root_busno)
 		if (!xilinx_pcie_link_up(port))
 			return false;
@@ -170,6 +193,15 @@ static bool xilinx_pcie_valid_device(struct pci_bus *bus, unsigned int devfn)
 	if (bus->number == port->root_busno && devfn > 0)
 		return false;
 
+=======
+	if (!pci_is_root_bus(bus)) {
+		if (!xilinx_pcie_link_up(port))
+			return false;
+	} else if (devfn > 0) {
+		/* Only one device down on each root port */
+		return false;
+	}
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -186,15 +218,22 @@ static void __iomem *xilinx_pcie_map_bus(struct pci_bus *bus,
 					 unsigned int devfn, int where)
 {
 	struct xilinx_pcie_port *port = bus->sysdata;
+<<<<<<< HEAD
 	int relbus;
+=======
+>>>>>>> upstream/android-13
 
 	if (!xilinx_pcie_valid_device(bus, devfn))
 		return NULL;
 
+<<<<<<< HEAD
 	relbus = (bus->number << ECAM_BUS_NUM_SHIFT) |
 		 (devfn << ECAM_DEV_NUM_SHIFT);
 
 	return port->reg_base + relbus + where;
+=======
+	return port->reg_base + PCIE_ECAM_OFFSET(bus->number, devfn, where);
+>>>>>>> upstream/android-13
 }
 
 /* PCIe operations */
@@ -206,6 +245,7 @@ static struct pci_ops xilinx_pcie_ops = {
 
 /* MSI functions */
 
+<<<<<<< HEAD
 /**
  * xilinx_pcie_destroy_msi - Free MSI number
  * @irq: IRQ to be freed
@@ -291,10 +331,67 @@ static int xilinx_pcie_msi_setup_irq(struct msi_controller *chip,
 	msg.data = irq;
 
 	pci_write_msi_msg(irq, &msg);
+=======
+static void xilinx_msi_top_irq_ack(struct irq_data *d)
+{
+	/*
+	 * xilinx_pcie_intr_handler() will have performed the Ack.
+	 * Eventually, this should be fixed and the Ack be moved in
+	 * the respective callbacks for INTx and MSI.
+	 */
+}
+
+static struct irq_chip xilinx_msi_top_chip = {
+	.name		= "PCIe MSI",
+	.irq_ack	= xilinx_msi_top_irq_ack,
+};
+
+static int xilinx_msi_set_affinity(struct irq_data *d, const struct cpumask *mask, bool force)
+{
+	return -EINVAL;
+}
+
+static void xilinx_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+{
+	struct xilinx_pcie_port *pcie = irq_data_get_irq_chip_data(data);
+	phys_addr_t pa = ALIGN_DOWN(virt_to_phys(pcie), SZ_4K);
+
+	msg->address_lo = lower_32_bits(pa);
+	msg->address_hi = upper_32_bits(pa);
+	msg->data = data->hwirq;
+}
+
+static struct irq_chip xilinx_msi_bottom_chip = {
+	.name			= "Xilinx MSI",
+	.irq_set_affinity 	= xilinx_msi_set_affinity,
+	.irq_compose_msi_msg	= xilinx_compose_msi_msg,
+};
+
+static int xilinx_msi_domain_alloc(struct irq_domain *domain, unsigned int virq,
+				  unsigned int nr_irqs, void *args)
+{
+	struct xilinx_pcie_port *port = domain->host_data;
+	int hwirq, i;
+
+	mutex_lock(&port->map_lock);
+
+	hwirq = bitmap_find_free_region(port->msi_map, XILINX_NUM_MSI_IRQS, order_base_2(nr_irqs));
+
+	mutex_unlock(&port->map_lock);
+
+	if (hwirq < 0)
+		return -ENOSPC;
+
+	for (i = 0; i < nr_irqs; i++)
+		irq_domain_set_info(domain, virq + i, hwirq + i,
+				    &xilinx_msi_bottom_chip, domain->host_data,
+				    handle_edge_irq, NULL, NULL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /* MSI Chip Descriptor */
 static struct msi_controller xilinx_pcie_msi_chip = {
 	.setup_irq = xilinx_pcie_msi_setup_irq,
@@ -347,10 +444,65 @@ static int xilinx_pcie_enable_msi(struct xilinx_pcie_port *port)
 	msg_addr = virt_to_phys((void *)port->msi_pages);
 	pcie_write(port, 0x0, XILINX_PCIE_REG_MSIBASE1);
 	pcie_write(port, msg_addr, XILINX_PCIE_REG_MSIBASE2);
+=======
+static void xilinx_msi_domain_free(struct irq_domain *domain, unsigned int virq,
+				  unsigned int nr_irqs)
+{
+	struct irq_data *d = irq_domain_get_irq_data(domain, virq);
+	struct xilinx_pcie_port *port = domain->host_data;
+
+	mutex_lock(&port->map_lock);
+
+	bitmap_release_region(port->msi_map, d->hwirq, order_base_2(nr_irqs));
+
+	mutex_unlock(&port->map_lock);
+}
+
+static const struct irq_domain_ops xilinx_msi_domain_ops = {
+	.alloc	= xilinx_msi_domain_alloc,
+	.free	= xilinx_msi_domain_free,
+};
+
+static struct msi_domain_info xilinx_msi_info = {
+	.flags	= (MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS),
+	.chip	= &xilinx_msi_top_chip,
+};
+
+static int xilinx_allocate_msi_domains(struct xilinx_pcie_port *pcie)
+{
+	struct fwnode_handle *fwnode = dev_fwnode(pcie->dev);
+	struct irq_domain *parent;
+
+	parent = irq_domain_create_linear(fwnode, XILINX_NUM_MSI_IRQS,
+					  &xilinx_msi_domain_ops, pcie);
+	if (!parent) {
+		dev_err(pcie->dev, "failed to create IRQ domain\n");
+		return -ENOMEM;
+	}
+	irq_domain_update_bus_token(parent, DOMAIN_BUS_NEXUS);
+
+	pcie->msi_domain = pci_msi_create_irq_domain(fwnode, &xilinx_msi_info, parent);
+	if (!pcie->msi_domain) {
+		dev_err(pcie->dev, "failed to create MSI domain\n");
+		irq_domain_remove(parent);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void xilinx_free_msi_domains(struct xilinx_pcie_port *pcie)
+{
+	struct irq_domain *parent = pcie->msi_domain->parent;
+
+	irq_domain_remove(pcie->msi_domain);
+	irq_domain_remove(parent);
+}
+
+>>>>>>> upstream/android-13
 /* INTx Functions */
 
 /**
@@ -430,6 +582,11 @@ static irqreturn_t xilinx_pcie_intr_handler(int irq, void *data)
 	}
 
 	if (status & (XILINX_PCIE_INTR_INTX | XILINX_PCIE_INTR_MSI)) {
+<<<<<<< HEAD
+=======
+		struct irq_domain *domain;
+
+>>>>>>> upstream/android-13
 		val = pcie_read(port, XILINX_PCIE_REG_RPIFR1);
 
 		/* Check whether interrupt valid */
@@ -442,20 +599,32 @@ static irqreturn_t xilinx_pcie_intr_handler(int irq, void *data)
 		if (val & XILINX_PCIE_RPIFR1_MSI_INTR) {
 			val = pcie_read(port, XILINX_PCIE_REG_RPIFR2) &
 				XILINX_PCIE_RPIFR2_MSG_DATA;
+<<<<<<< HEAD
 		} else {
 			val = (val & XILINX_PCIE_RPIFR1_INTR_MASK) >>
 				XILINX_PCIE_RPIFR1_INTR_SHIFT;
 			val = irq_find_mapping(port->leg_domain, val);
+=======
+			domain = port->msi_domain->parent;
+		} else {
+			val = (val & XILINX_PCIE_RPIFR1_INTR_MASK) >>
+				XILINX_PCIE_RPIFR1_INTR_SHIFT;
+			domain = port->leg_domain;
+>>>>>>> upstream/android-13
 		}
 
 		/* Clear interrupt FIFO register 1 */
 		pcie_write(port, XILINX_PCIE_RPIFR1_ALL_MASK,
 			   XILINX_PCIE_REG_RPIFR1);
 
+<<<<<<< HEAD
 		/* Handle the interrupt */
 		if (IS_ENABLED(CONFIG_PCI_MSI) ||
 		    !(val & XILINX_PCIE_RPIFR1_MSI_INTR))
 			generic_handle_irq(val);
+=======
+		generic_handle_domain_irq(domain, val);
+>>>>>>> upstream/android-13
 	}
 
 	if (status & XILINX_PCIE_INTR_SLV_UNSUPP)
@@ -501,12 +670,19 @@ error:
 static int xilinx_pcie_init_irq_domain(struct xilinx_pcie_port *port)
 {
 	struct device *dev = port->dev;
+<<<<<<< HEAD
 	struct device_node *node = dev->of_node;
+=======
+>>>>>>> upstream/android-13
 	struct device_node *pcie_intc_node;
 	int ret;
 
 	/* Setup INTx */
+<<<<<<< HEAD
 	pcie_intc_node = of_get_next_child(node, NULL);
+=======
+	pcie_intc_node = of_get_next_child(dev->of_node, NULL);
+>>>>>>> upstream/android-13
 	if (!pcie_intc_node) {
 		dev_err(dev, "No PCIe Intc node found\n");
 		return -ENODEV;
@@ -523,6 +699,7 @@ static int xilinx_pcie_init_irq_domain(struct xilinx_pcie_port *port)
 
 	/* Setup MSI */
 	if (IS_ENABLED(CONFIG_PCI_MSI)) {
+<<<<<<< HEAD
 		port->msi_domain = irq_domain_add_linear(node,
 							 XILINX_NUM_MSI_IRQS,
 							 &msi_domain_ops,
@@ -535,6 +712,16 @@ static int xilinx_pcie_init_irq_domain(struct xilinx_pcie_port *port)
 		ret = xilinx_pcie_enable_msi(port);
 		if (ret)
 			return ret;
+=======
+		phys_addr_t pa = ALIGN_DOWN(virt_to_phys(port), SZ_4K);
+
+		ret = xilinx_allocate_msi_domains(port);
+		if (ret)
+			return ret;
+
+		pcie_write(port, upper_32_bits(pa), XILINX_PCIE_REG_MSIBASE1);
+		pcie_write(port, lower_32_bits(pa), XILINX_PCIE_REG_MSIBASE2);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -582,6 +769,7 @@ static int xilinx_pcie_parse_dt(struct xilinx_pcie_port *port)
 	struct device *dev = port->dev;
 	struct device_node *node = dev->of_node;
 	struct resource regs;
+<<<<<<< HEAD
 	const char *type;
 	int err;
 
@@ -591,6 +779,11 @@ static int xilinx_pcie_parse_dt(struct xilinx_pcie_port *port)
 		return -EINVAL;
 	}
 
+=======
+	unsigned int irq;
+	int err;
+
+>>>>>>> upstream/android-13
 	err = of_address_to_resource(node, 0, &regs);
 	if (err) {
 		dev_err(dev, "missing \"reg\" property\n");
@@ -601,12 +794,21 @@ static int xilinx_pcie_parse_dt(struct xilinx_pcie_port *port)
 	if (IS_ERR(port->reg_base))
 		return PTR_ERR(port->reg_base);
 
+<<<<<<< HEAD
 	port->irq = irq_of_parse_and_map(node, 0);
 	err = devm_request_irq(dev, port->irq, xilinx_pcie_intr_handler,
 			       IRQF_SHARED | IRQF_NO_THREAD,
 			       "xilinx-pcie", port);
 	if (err) {
 		dev_err(dev, "unable to request irq %d\n", port->irq);
+=======
+	irq = irq_of_parse_and_map(node, 0);
+	err = devm_request_irq(dev, irq, xilinx_pcie_intr_handler,
+			       IRQF_SHARED | IRQF_NO_THREAD,
+			       "xilinx-pcie", port);
+	if (err) {
+		dev_err(dev, "unable to request irq %d\n", irq);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -623,11 +825,16 @@ static int xilinx_pcie_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct xilinx_pcie_port *port;
+<<<<<<< HEAD
 	struct pci_bus *bus, *child;
 	struct pci_host_bridge *bridge;
 	int err;
 	resource_size_t iobase = 0;
 	LIST_HEAD(res);
+=======
+	struct pci_host_bridge *bridge;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!dev->of_node)
 		return -ENODEV;
@@ -637,7 +844,11 @@ static int xilinx_pcie_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	port = pci_host_bridge_priv(bridge);
+<<<<<<< HEAD
 
+=======
+	mutex_init(&port->map_lock);
+>>>>>>> upstream/android-13
 	port->dev = dev;
 
 	err = xilinx_pcie_parse_dt(port);
@@ -654,6 +865,7 @@ static int xilinx_pcie_probe(struct platform_device *pdev)
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = devm_of_pci_get_host_bridge_resources(dev, 0, 0xff, &res,
 						    &iobase);
 	if (err) {
@@ -692,6 +904,15 @@ static int xilinx_pcie_probe(struct platform_device *pdev)
 
 error:
 	pci_free_resource_list(&res);
+=======
+	bridge->sysdata = port;
+	bridge->ops = &xilinx_pcie_ops;
+
+	err = pci_host_probe(bridge);
+	if (err)
+		xilinx_free_msi_domains(port);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 

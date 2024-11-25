@@ -2,6 +2,7 @@
 #include "qcom-ipq8064-v1.0.dtsi"
 
 / {
+<<<<<<< HEAD
 	model = "Qualcomm IPQ8064/AP148";
 	compatible = "qcom,ipq8064-ap148", "qcom,ipq8064";
 
@@ -22,6 +23,10 @@
 			no-map;
 		};
 	};
+=======
+	model = "Qualcomm Technologies, Inc. IPQ8064/AP-148";
+	compatible = "qcom,ipq8064-ap148";
+>>>>>>> upstream/android-13
 
 	soc {
 		pinmux@800000 {
@@ -31,17 +36,26 @@
 				bias-disable;
 			};
 
+<<<<<<< HEAD
 			spi_pins: spi_pins {
 				mux {
 					pins = "gpio18", "gpio19", "gpio21";
 					function = "gsbi5";
 					drive-strength = <10>;
 					bias-none;
+=======
+			buttons_pins: buttons_pins {
+				mux {
+					pins = "gpio54", "gpio65";
+					drive-strength = <2>;
+					bias-pull-up;
+>>>>>>> upstream/android-13
 				};
 			};
 		};
 
 		gsbi@16300000 {
+<<<<<<< HEAD
 			qcom,mode = <GSBI_PROT_I2C_UART>;
 			status = "ok";
 			serial@16340000 {
@@ -53,10 +67,16 @@
 
 				clock-frequency = <200000>;
 
+=======
+			i2c@16380000 {
+				status = "okay";
+				clock-frequency = <200000>;
+>>>>>>> upstream/android-13
 				pinctrl-0 = <&i2c4_pins>;
 				pinctrl-names = "default";
 			};
 		};
+<<<<<<< HEAD
 
 		gsbi5: gsbi@1a200000 {
 			qcom,mode = <GSBI_PROT_SPI>;
@@ -99,5 +119,7 @@
 			ports-implemented = <0x1>;
 			status = "ok";
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 };

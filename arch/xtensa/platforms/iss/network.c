@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * arch/xtensa/platforms/iss/network.c
@@ -8,12 +12,15 @@
  * Based on work form the UML team.
  *
  * Copyright 2005 Tensilica Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
@@ -30,7 +37,11 @@
 #include <linux/etherdevice.h>
 #include <linux/interrupt.h>
 #include <linux/ioctl.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/ethtool.h>
 #include <linux/rtnetlink.h>
 #include <linux/platform_device.h>
@@ -460,7 +471,11 @@ static void iss_net_set_multicast_list(struct net_device *dev)
 {
 }
 
+<<<<<<< HEAD
 static void iss_net_tx_timeout(struct net_device *dev)
+=======
+static void iss_net_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -646,7 +661,11 @@ static int __init iss_net_setup(char *str)
 		return 1;
 	}
 
+<<<<<<< HEAD
 	new = alloc_bootmem(sizeof(*new));
+=======
+	new = memblock_alloc(sizeof(*new), SMP_CACHE_BYTES);
+>>>>>>> upstream/android-13
 	if (new == NULL) {
 		pr_err("Alloc_bootmem failed\n");
 		return 1;

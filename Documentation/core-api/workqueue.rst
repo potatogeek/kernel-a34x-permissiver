@@ -396,3 +396,8 @@ Kernel Inline Documentations Reference
 ======================================
 
 .. kernel-doc:: include/linux/workqueue.h
+<<<<<<< HEAD
+=======
+
+.. kernel-doc:: kernel/workqueue.c
+>>>>>>> upstream/android-13

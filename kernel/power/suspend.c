@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kernel/power/suspend.c - Suspend to RAM and standby functionality.
  *
  * Copyright (c) 2003 Patrick Mochel
  * Copyright (c) 2003 Open Source Development Lab
  * Copyright (c) 2009 Rafael J. Wysocki <rjw@sisk.pl>, Novell Inc.
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "PM: " fmt
@@ -17,7 +24,10 @@
 #include <linux/console.h>
 #include <linux/cpu.h>
 #include <linux/cpuidle.h>
+<<<<<<< HEAD
 #include <linux/syscalls.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/gfp.h>
 #include <linux/io.h>
 #include <linux/kernel.h>
@@ -33,6 +43,7 @@
 #include <linux/compiler.h>
 #include <linux/moduleparam.h>
 #include <linux/wakeup_reason.h>
+<<<<<<< HEAD
 
 #include "power.h"
 
@@ -42,6 +53,16 @@
 
 #define MTK_SOLUTION 1
 
+=======
+#include <linux/sec_debug.h>
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+#include <linux/rtc.h>
+#include <linux/regulator/machine.h>
+#endif
+
+#include "power.h"
+
+>>>>>>> upstream/android-13
 const char * const pm_labels[] = {
 	[PM_SUSPEND_TO_IDLE] = "freeze",
 	[PM_SUSPEND_STANDBY] = "standby",
@@ -70,11 +91,25 @@ static DECLARE_SWAIT_QUEUE_HEAD(s2idle_wait_head);
 enum s2idle_states __read_mostly s2idle_state;
 static DEFINE_RAW_SPINLOCK(s2idle_lock);
 
+<<<<<<< HEAD
 bool pm_suspend_via_s2idle(void)
 {
 	return mem_sleep_current == PM_SUSPEND_TO_IDLE;
 }
 EXPORT_SYMBOL_GPL(pm_suspend_via_s2idle);
+=======
+/**
+ * pm_suspend_default_s2idle - Check if suspend-to-idle is the default suspend.
+ *
+ * Return 'true' if suspend-to-idle has been selected as the default system
+ * suspend method.
+ */
+bool pm_suspend_default_s2idle(void)
+{
+	return mem_sleep_current == PM_SUSPEND_TO_IDLE;
+}
+EXPORT_SYMBOL_GPL(pm_suspend_default_s2idle);
+>>>>>>> upstream/android-13
 
 void s2idle_set_ops(const struct platform_s2idle_ops *ops)
 {
@@ -82,7 +117,10 @@ void s2idle_set_ops(const struct platform_s2idle_ops *ops)
 	s2idle_ops = ops;
 	unlock_system_sleep();
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(s2idle_set_ops);
+=======
+>>>>>>> upstream/android-13
 
 static void s2idle_begin(void)
 {
@@ -100,7 +138,11 @@ static void s2idle_enter(void)
 	s2idle_state = S2IDLE_STATE_ENTER;
 	raw_spin_unlock_irq(&s2idle_lock);
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	cpuidle_resume();
 
 	/* Push all the CPUs into the idle loop. */
@@ -110,7 +152,11 @@ static void s2idle_enter(void)
 		    s2idle_state == S2IDLE_STATE_WAKE);
 
 	cpuidle_pause();
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	raw_spin_lock_irq(&s2idle_lock);
 
@@ -125,6 +171,7 @@ static void s2idle_loop(void)
 {
 	pm_pr_dbg("suspend-to-idle\n");
 
+<<<<<<< HEAD
 	for (;;) {
 		int error;
 
@@ -163,6 +210,27 @@ static void s2idle_loop(void)
 
 		pm_wakeup_clear(false);
 		clear_wakeup_reasons();
+=======
+	/*
+	 * Suspend-to-idle equals:
+	 * frozen processes + suspended devices + idle processors.
+	 * Thus s2idle_enter() should be called right after all devices have
+	 * been suspended.
+	 *
+	 * Wakeups during the noirq suspend of devices may be spurious, so try
+	 * to avoid them upfront.
+	 */
+	for (;;) {
+		if (s2idle_ops && s2idle_ops->wake) {
+			if (s2idle_ops->wake())
+				break;
+		} else if (pm_wakeup_pending()) {
+			break;
+		}
+
+		clear_wakeup_reasons();
+		s2idle_enter();
+>>>>>>> upstream/android-13
 	}
 
 	pm_pr_dbg("resume from suspend-to-idle\n");
@@ -246,6 +314,10 @@ EXPORT_SYMBOL_GPL(suspend_set_ops);
 
 /**
  * suspend_valid_only_mem - Generic memory-only valid callback.
+<<<<<<< HEAD
+=======
+ * @state: Target system sleep state.
+>>>>>>> upstream/android-13
  *
  * Platform drivers that implement mem suspend only and only need to check for
  * that in their .valid() callback can use this instead of rolling their own
@@ -276,14 +348,31 @@ static int platform_suspend_prepare_late(suspend_state_t state)
 
 static int platform_suspend_prepare_noirq(suspend_state_t state)
 {
+<<<<<<< HEAD
 	return state != PM_SUSPEND_TO_IDLE && suspend_ops->prepare_late ?
 		suspend_ops->prepare_late() : 0;
+=======
+	if (state == PM_SUSPEND_TO_IDLE)
+		return s2idle_ops && s2idle_ops->prepare_late ?
+			s2idle_ops->prepare_late() : 0;
+
+	return suspend_ops->prepare_late ? suspend_ops->prepare_late() : 0;
+>>>>>>> upstream/android-13
 }
 
 static void platform_resume_noirq(suspend_state_t state)
 {
+<<<<<<< HEAD
 	if (state != PM_SUSPEND_TO_IDLE && suspend_ops->wake)
 		suspend_ops->wake();
+=======
+	if (state == PM_SUSPEND_TO_IDLE) {
+		if (s2idle_ops && s2idle_ops->restore_early)
+			s2idle_ops->restore_early();
+	} else if (suspend_ops->wake) {
+		suspend_ops->wake();
+	}
+>>>>>>> upstream/android-13
 }
 
 static void platform_resume_early(suspend_state_t state)
@@ -350,6 +439,10 @@ static int suspend_test(int level)
 
 /**
  * suspend_prepare - Prepare for entering system sleep state.
+<<<<<<< HEAD
+=======
+ * @state: Target system sleep state.
+>>>>>>> upstream/android-13
  *
  * Common code run for every system sleep state that can be entered (except for
  * hibernation).  Run suspend notifiers, allocate the "suspend" console and
@@ -357,18 +450,28 @@ static int suspend_test(int level)
  */
 static int suspend_prepare(suspend_state_t state)
 {
+<<<<<<< HEAD
 	int error, nr_calls = 0;
+=======
+	int error;
+>>>>>>> upstream/android-13
 
 	if (!sleep_state_supported(state))
 		return -EPERM;
 
 	pm_prepare_console();
 
+<<<<<<< HEAD
 	error = __pm_notifier_call_chain(PM_SUSPEND_PREPARE, -1, &nr_calls);
 	if (error) {
 		nr_calls--;
 		goto Finish;
 	}
+=======
+	error = pm_notifier_call_chain_robust(PM_SUSPEND_PREPARE, PM_POST_SUSPEND);
+	if (error)
+		goto Restore;
+>>>>>>> upstream/android-13
 
 	trace_suspend_resume(TPS("freeze_processes"), 0, true);
 	error = suspend_freeze_processes();
@@ -379,8 +482,13 @@ static int suspend_prepare(suspend_state_t state)
 	log_suspend_abort_reason("One or more tasks refusing to freeze");
 	suspend_stats.failed_freeze++;
 	dpm_save_failed_step(SUSPEND_FREEZE);
+<<<<<<< HEAD
  Finish:
 	__pm_notifier_call_chain(PM_POST_SUSPEND, nr_calls, NULL);
+=======
+	pm_notifier_call_chain(PM_POST_SUSPEND);
+ Restore:
+>>>>>>> upstream/android-13
 	pm_restore_console();
 	return error;
 }
@@ -408,6 +516,7 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 {
 	int error, last_dev;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_GPIO_DVS
 	/************************ Caution !!! ****************************/
 	/* This function must be located in appropriate SLEEP position
@@ -417,6 +526,8 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	gpio_dvs_check_sleepgpio();
 #endif /* CONFIG_SEC_GPIO_DVS  */
 
+=======
+>>>>>>> upstream/android-13
 	error = platform_suspend_prepare(state);
 	if (error)
 		goto Platform_finish;
@@ -430,15 +541,26 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 					 suspend_stats.failed_devs[last_dev]);
 		goto Platform_finish;
 	}
+<<<<<<< HEAD
+=======
+
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+	regulator_show_enabled();
+#endif /* CONFIG_SEC_PM_DEBUG */
+
+>>>>>>> upstream/android-13
 	error = platform_suspend_prepare_late(state);
 	if (error)
 		goto Devices_early_resume;
 
+<<<<<<< HEAD
 	if (state == PM_SUSPEND_TO_IDLE && pm_test_level != TEST_PLATFORM) {
 		s2idle_loop();
 		goto Platform_early_resume;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	error = dpm_suspend_noirq(PMSG_SUSPEND);
 	if (error) {
 		last_dev = suspend_stats.last_failed_dev + REC_FAILED_NUM - 1;
@@ -455,7 +577,16 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	if (suspend_test(TEST_PLATFORM))
 		goto Platform_wake;
 
+<<<<<<< HEAD
 	error = disable_nonboot_cpus();
+=======
+	if (state == PM_SUSPEND_TO_IDLE) {
+		s2idle_loop();
+		goto Platform_wake;
+	}
+
+	error = suspend_disable_secondary_cpus();
+>>>>>>> upstream/android-13
 	if (error || suspend_test(TEST_CPUS)) {
 		log_suspend_abort_reason("Disabling non-boot cpus failed");
 		goto Enable_cpus;
@@ -487,7 +618,11 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	BUG_ON(irqs_disabled());
 
  Enable_cpus:
+<<<<<<< HEAD
 	enable_nonboot_cpus();
+=======
+	suspend_enable_secondary_cpus();
+>>>>>>> upstream/android-13
 
  Platform_wake:
 	platform_resume_noirq(state);
@@ -518,6 +653,12 @@ int suspend_devices_and_enter(suspend_state_t state)
 
 	pm_suspend_target_state = state;
 
+<<<<<<< HEAD
+=======
+	if (state == PM_SUSPEND_TO_IDLE)
+		pm_set_suspend_no_platform();
+
+>>>>>>> upstream/android-13
 	error = platform_suspend_begin(state);
 	if (error)
 		goto Close;
@@ -570,6 +711,7 @@ static void suspend_finish(void)
 	pm_restore_console();
 }
 
+<<<<<<< HEAD
 #if MTK_SOLUTION
 
 #define SYS_SYNC_TIMEOUT 2000
@@ -626,6 +768,8 @@ int suspend_syssync_enqueue(void)
 #endif
 
 
+=======
+>>>>>>> upstream/android-13
 /**
  * enter_state - Do common work needed to enter system sleep state.
  * @state: System sleep state to enter.
@@ -655,6 +799,7 @@ static int enter_state(suspend_state_t state)
 	if (state == PM_SUSPEND_TO_IDLE)
 		s2idle_begin();
 
+<<<<<<< HEAD
 #ifndef CONFIG_SUSPEND_SKIP_SYNC
 	trace_suspend_resume(TPS("sync_filesystems"), 0, true);
 	pr_info("Syncing filesystems ... ");
@@ -670,6 +815,13 @@ static int enter_state(suspend_state_t state)
 	pr_cont("done.\n");
 	trace_suspend_resume(TPS("sync_filesystems"), 0, false);
 #endif
+=======
+	if (sync_on_suspend_enabled) {
+		trace_suspend_resume(TPS("sync_filesystems"), 0, true);
+		ksys_sync_helper();
+		trace_suspend_resume(TPS("sync_filesystems"), 0, false);
+	}
+>>>>>>> upstream/android-13
 
 	pm_pr_dbg("Preparing system for sleep (%s)\n", mem_sleep_labels[state]);
 	pm_suspend_clear_flags();
@@ -695,6 +847,23 @@ static int enter_state(suspend_state_t state)
 	return error;
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+static void pm_suspend_marker(char *annotation)
+{
+	struct timespec64 ts;
+	struct rtc_time tm;
+
+	ktime_get_real_ts64(&ts);
+	rtc_time64_to_tm(ts.tv_sec, &tm);
+	pr_info("suspend %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+		annotation, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+}
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * pm_suspend - Externally visible function for suspending the system.
  * @state: System sleep state to enter.
@@ -709,7 +878,16 @@ int pm_suspend(suspend_state_t state)
 	if (state <= PM_SUSPEND_ON || state >= PM_SUSPEND_MAX)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	pr_info("suspend entry (%s)\n", mem_sleep_labels[state]);
+=======
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+	pm_suspend_marker("entry");
+#else
+	pr_info("suspend entry (%s)\n", mem_sleep_labels[state]);
+#endif /* CONFIG_SEC_PM_DEBUG */
+	secdbg_base_built_set_task_in_pm_suspend(current);
+>>>>>>> upstream/android-13
 	error = enter_state(state);
 	if (error) {
 		suspend_stats.fail++;
@@ -717,7 +895,16 @@ int pm_suspend(suspend_state_t state)
 	} else {
 		suspend_stats.success++;
 	}
+<<<<<<< HEAD
 	pr_info("suspend exit\n");
+=======
+	secdbg_base_built_set_task_in_pm_suspend(NULL);
+#if IS_ENABLED(CONFIG_SEC_PM_DEBUG)
+	pm_suspend_marker("exit");
+#else
+	pr_info("suspend exit\n");
+#endif
+>>>>>>> upstream/android-13
 	return error;
 }
 EXPORT_SYMBOL(pm_suspend);

@@ -15,6 +15,7 @@
 #define	PACKET_ARP				2
 #define	PACKET_EAPOL			3
 
+<<<<<<< HEAD
 void rtw_btcoex_Initialize(struct adapter *);
 void rtw_btcoex_PowerOnSetting(struct adapter *padapter);
 void rtw_btcoex_HAL_Initialize(struct adapter *padapter, u8 bWifiOnly);
@@ -45,6 +46,10 @@ void rtw_btcoex_RecordPwrMode(struct adapter *, u8 *pCmdBuf, u8 cmdLen);
 void rtw_btcoex_DisplayBtCoexInfo(struct adapter *, u8 *pbuf, u32 bufsize);
 void rtw_btcoex_SetDBG(struct adapter *, u32 *pDbgModule);
 u32 rtw_btcoex_GetDBG(struct adapter *, u8 *pStrBuf, u32 bufSize);
+=======
+void rtw_btcoex_MediaStatusNotify(struct adapter *, u8 mediaStatus);
+void rtw_btcoex_HaltNotify(struct adapter *);
+>>>>>>> upstream/android-13
 
 /*  ================================================== */
 /*  Below Functions are called by BT-Coex */

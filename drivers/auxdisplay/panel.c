@@ -55,9 +55,14 @@
 #include <linux/io.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #include <misc/charlcd.h>
 
 #define KEYPAD_MINOR		185
+=======
+#include "charlcd.h"
+#include "hd44780_common.h"
+>>>>>>> upstream/android-13
 
 #define LCD_MAXBYTES		256	/* max burst write */
 
@@ -155,10 +160,16 @@ struct logical_input {
 			int release_data;
 		} std;
 		struct {	/* valid when type == INPUT_TYPE_KBD */
+<<<<<<< HEAD
 			/* strings can be non null-terminated */
 			char press_str[sizeof(void *) + sizeof(int)];
 			char repeat_str[sizeof(void *) + sizeof(int)];
 			char release_str[sizeof(void *) + sizeof(int)];
+=======
+			char press_str[sizeof(void *) + sizeof(int)] __nonstring;
+			char repeat_str[sizeof(void *) + sizeof(int)] __nonstring;
+			char release_str[sizeof(void *) + sizeof(int)] __nonstring;
+>>>>>>> upstream/android-13
 		} kbd;
 	} u;
 };
@@ -301,8 +312,11 @@ static unsigned char lcd_bits[LCD_PORTS][LCD_BITS][BIT_STATES];
 #define DEFAULT_LCD_TYPE        LCD_TYPE_OLD
 #define DEFAULT_LCD_HEIGHT      2
 #define DEFAULT_LCD_WIDTH       40
+<<<<<<< HEAD
 #define DEFAULT_LCD_BWIDTH      40
 #define DEFAULT_LCD_HWIDTH      64
+=======
+>>>>>>> upstream/android-13
 #define DEFAULT_LCD_CHARSET     LCD_CHARSET_NORMAL
 #define DEFAULT_LCD_PROTO       LCD_PROTO_PARALLEL
 
@@ -711,7 +725,11 @@ static void lcd_send_serial(int byte)
 }
 
 /* turn the backlight on or off */
+<<<<<<< HEAD
 static void lcd_backlight(struct charlcd *charlcd, int on)
+=======
+static void lcd_backlight(struct charlcd *charlcd, enum charlcd_onoff on)
+>>>>>>> upstream/android-13
 {
 	if (lcd.pins.bl == PIN_NONE)
 		return;
@@ -727,7 +745,11 @@ static void lcd_backlight(struct charlcd *charlcd, int on)
 }
 
 /* send a command to the LCD panel in serial mode */
+<<<<<<< HEAD
 static void lcd_write_cmd_s(struct charlcd *charlcd, int cmd)
+=======
+static void lcd_write_cmd_s(struct hd44780_common *hdc, int cmd)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&pprt_lock);
 	lcd_send_serial(0x1F);	/* R/W=W, RS=0 */
@@ -738,7 +760,11 @@ static void lcd_write_cmd_s(struct charlcd *charlcd, int cmd)
 }
 
 /* send data to the LCD panel in serial mode */
+<<<<<<< HEAD
 static void lcd_write_data_s(struct charlcd *charlcd, int data)
+=======
+static void lcd_write_data_s(struct hd44780_common *hdc, int data)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&pprt_lock);
 	lcd_send_serial(0x5F);	/* R/W=W, RS=1 */
@@ -749,7 +775,11 @@ static void lcd_write_data_s(struct charlcd *charlcd, int data)
 }
 
 /* send a command to the LCD panel in 8 bits parallel mode */
+<<<<<<< HEAD
 static void lcd_write_cmd_p8(struct charlcd *charlcd, int cmd)
+=======
+static void lcd_write_cmd_p8(struct hd44780_common *hdc, int cmd)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&pprt_lock);
 	/* present the data to the data port */
@@ -771,7 +801,11 @@ static void lcd_write_cmd_p8(struct charlcd *charlcd, int cmd)
 }
 
 /* send data to the LCD panel in 8 bits parallel mode */
+<<<<<<< HEAD
 static void lcd_write_data_p8(struct charlcd *charlcd, int data)
+=======
+static void lcd_write_data_p8(struct hd44780_common *hdc, int data)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&pprt_lock);
 	/* present the data to the data port */
@@ -793,7 +827,11 @@ static void lcd_write_data_p8(struct charlcd *charlcd, int data)
 }
 
 /* send a command to the TI LCD panel */
+<<<<<<< HEAD
 static void lcd_write_cmd_tilcd(struct charlcd *charlcd, int cmd)
+=======
+static void lcd_write_cmd_tilcd(struct hd44780_common *hdc, int cmd)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&pprt_lock);
 	/* present the data to the control port */
@@ -803,7 +841,11 @@ static void lcd_write_cmd_tilcd(struct charlcd *charlcd, int cmd)
 }
 
 /* send data to the TI LCD panel */
+<<<<<<< HEAD
 static void lcd_write_data_tilcd(struct charlcd *charlcd, int data)
+=======
+static void lcd_write_data_tilcd(struct hd44780_common *hdc, int data)
+>>>>>>> upstream/android-13
 {
 	spin_lock_irq(&pprt_lock);
 	/* present the data to the data port */
@@ -812,6 +854,7 @@ static void lcd_write_data_tilcd(struct charlcd *charlcd, int data)
 	spin_unlock_irq(&pprt_lock);
 }
 
+<<<<<<< HEAD
 /* fills the display with spaces and resets X/Y */
 static void lcd_clear_fast_s(struct charlcd *charlcd)
 {
@@ -892,25 +935,65 @@ static const struct charlcd_ops charlcd_tilcd_ops = {
 	.write_data	= lcd_write_data_tilcd,
 	.clear_fast	= lcd_clear_fast_tilcd,
 	.backlight	= lcd_backlight,
+=======
+static const struct charlcd_ops charlcd_ops = {
+	.backlight	= lcd_backlight,
+	.print		= hd44780_common_print,
+	.gotoxy		= hd44780_common_gotoxy,
+	.home		= hd44780_common_home,
+	.clear_display	= hd44780_common_clear_display,
+	.init_display	= hd44780_common_init_display,
+	.shift_cursor	= hd44780_common_shift_cursor,
+	.shift_display	= hd44780_common_shift_display,
+	.display	= hd44780_common_display,
+	.cursor		= hd44780_common_cursor,
+	.blink		= hd44780_common_blink,
+	.fontsize	= hd44780_common_fontsize,
+	.lines		= hd44780_common_lines,
+	.redefine_char	= hd44780_common_redefine_char,
+>>>>>>> upstream/android-13
 };
 
 /* initialize the LCD driver */
 static void lcd_init(void)
 {
 	struct charlcd *charlcd;
+<<<<<<< HEAD
 
 	charlcd = charlcd_alloc(0);
 	if (!charlcd)
 		return;
 
+=======
+	struct hd44780_common *hdc;
+
+	hdc = hd44780_common_alloc();
+	if (!hdc)
+		return;
+
+	charlcd = charlcd_alloc();
+	if (!charlcd) {
+		kfree(hdc);
+		return;
+	}
+
+	hdc->hd44780 = &lcd;
+	charlcd->drvdata = hdc;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Init lcd struct with load-time values to preserve exact
 	 * current functionality (at least for now).
 	 */
 	charlcd->height = lcd_height;
 	charlcd->width = lcd_width;
+<<<<<<< HEAD
 	charlcd->bwidth = lcd_bwidth;
 	charlcd->hwidth = lcd_hwidth;
+=======
+	hdc->bwidth = lcd_bwidth;
+	hdc->hwidth = lcd_hwidth;
+>>>>>>> upstream/android-13
 
 	switch (selected_lcd_type) {
 	case LCD_TYPE_OLD:
@@ -921,8 +1004,13 @@ static void lcd_init(void)
 		lcd.pins.rs = PIN_AUTOLF;
 
 		charlcd->width = 40;
+<<<<<<< HEAD
 		charlcd->bwidth = 40;
 		charlcd->hwidth = 64;
+=======
+		hdc->bwidth = 40;
+		hdc->hwidth = 64;
+>>>>>>> upstream/android-13
 		charlcd->height = 2;
 		break;
 	case LCD_TYPE_KS0074:
@@ -934,8 +1022,13 @@ static void lcd_init(void)
 		lcd.pins.da = PIN_D0;
 
 		charlcd->width = 16;
+<<<<<<< HEAD
 		charlcd->bwidth = 40;
 		charlcd->hwidth = 16;
+=======
+		hdc->bwidth = 40;
+		hdc->hwidth = 16;
+>>>>>>> upstream/android-13
 		charlcd->height = 2;
 		break;
 	case LCD_TYPE_NEXCOM:
@@ -947,8 +1040,13 @@ static void lcd_init(void)
 		lcd.pins.rw = PIN_INITP;
 
 		charlcd->width = 16;
+<<<<<<< HEAD
 		charlcd->bwidth = 40;
 		charlcd->hwidth = 64;
+=======
+		hdc->bwidth = 40;
+		hdc->hwidth = 64;
+>>>>>>> upstream/android-13
 		charlcd->height = 2;
 		break;
 	case LCD_TYPE_CUSTOM:
@@ -966,8 +1064,13 @@ static void lcd_init(void)
 		lcd.pins.rs = PIN_SELECP;
 
 		charlcd->width = 16;
+<<<<<<< HEAD
 		charlcd->bwidth = 40;
 		charlcd->hwidth = 64;
+=======
+		hdc->bwidth = 40;
+		hdc->hwidth = 64;
+>>>>>>> upstream/android-13
 		charlcd->height = 2;
 		break;
 	}
@@ -978,9 +1081,15 @@ static void lcd_init(void)
 	if (lcd_width != NOT_SET)
 		charlcd->width = lcd_width;
 	if (lcd_bwidth != NOT_SET)
+<<<<<<< HEAD
 		charlcd->bwidth = lcd_bwidth;
 	if (lcd_hwidth != NOT_SET)
 		charlcd->hwidth = lcd_hwidth;
+=======
+		hdc->bwidth = lcd_bwidth;
+	if (lcd_hwidth != NOT_SET)
+		hdc->hwidth = lcd_hwidth;
+>>>>>>> upstream/android-13
 	if (lcd_charset != NOT_SET)
 		lcd.charset = lcd_charset;
 	if (lcd_proto != NOT_SET)
@@ -1001,15 +1110,28 @@ static void lcd_init(void)
 	/* this is used to catch wrong and default values */
 	if (charlcd->width <= 0)
 		charlcd->width = DEFAULT_LCD_WIDTH;
+<<<<<<< HEAD
 	if (charlcd->bwidth <= 0)
 		charlcd->bwidth = DEFAULT_LCD_BWIDTH;
 	if (charlcd->hwidth <= 0)
 		charlcd->hwidth = DEFAULT_LCD_HWIDTH;
+=======
+	if (hdc->bwidth <= 0)
+		hdc->bwidth = DEFAULT_LCD_BWIDTH;
+	if (hdc->hwidth <= 0)
+		hdc->hwidth = DEFAULT_LCD_HWIDTH;
+>>>>>>> upstream/android-13
 	if (charlcd->height <= 0)
 		charlcd->height = DEFAULT_LCD_HEIGHT;
 
 	if (lcd.proto == LCD_PROTO_SERIAL) {	/* SERIAL */
+<<<<<<< HEAD
 		charlcd->ops = &charlcd_serial_ops;
+=======
+		charlcd->ops = &charlcd_ops;
+		hdc->write_data = lcd_write_data_s;
+		hdc->write_cmd = lcd_write_cmd_s;
+>>>>>>> upstream/android-13
 
 		if (lcd.pins.cl == PIN_NOT_SET)
 			lcd.pins.cl = DEFAULT_LCD_PIN_SCL;
@@ -1017,7 +1139,13 @@ static void lcd_init(void)
 			lcd.pins.da = DEFAULT_LCD_PIN_SDA;
 
 	} else if (lcd.proto == LCD_PROTO_PARALLEL) {	/* PARALLEL */
+<<<<<<< HEAD
 		charlcd->ops = &charlcd_parallel_ops;
+=======
+		charlcd->ops = &charlcd_ops;
+		hdc->write_data = lcd_write_data_p8;
+		hdc->write_cmd = lcd_write_cmd_p8;
+>>>>>>> upstream/android-13
 
 		if (lcd.pins.e == PIN_NOT_SET)
 			lcd.pins.e = DEFAULT_LCD_PIN_E;
@@ -1026,7 +1154,13 @@ static void lcd_init(void)
 		if (lcd.pins.rw == PIN_NOT_SET)
 			lcd.pins.rw = DEFAULT_LCD_PIN_RW;
 	} else {
+<<<<<<< HEAD
 		charlcd->ops = &charlcd_tilcd_ops;
+=======
+		charlcd->ops = &charlcd_ops;
+		hdc->write_data = lcd_write_data_tilcd;
+		hdc->write_cmd = lcd_write_cmd_tilcd;
+>>>>>>> upstream/android-13
 	}
 
 	if (lcd.pins.bl == PIN_NOT_SET)
@@ -1368,7 +1502,11 @@ static void panel_process_inputs(void)
 				break;
 			input->rise_timer = 0;
 			input->state = INPUT_ST_RISING;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case INPUT_ST_RISING:
 			if ((phys_curr & input->mask) != input->value) {
 				input->state = INPUT_ST_LOW;
@@ -1381,11 +1519,19 @@ static void panel_process_inputs(void)
 			}
 			input->high_timer = 0;
 			input->state = INPUT_ST_HIGH;
+<<<<<<< HEAD
 			/* fall through */
 		case INPUT_ST_HIGH:
 			if (input_state_high(input))
 				break;
 			/* fall through */
+=======
+			fallthrough;
+		case INPUT_ST_HIGH:
+			if (input_state_high(input))
+				break;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case INPUT_ST_FALLING:
 			input_state_falling(input);
 		}
@@ -1650,6 +1796,10 @@ static void panel_detach(struct parport *port)
 	if (lcd.enabled) {
 		charlcd_unregister(lcd.charlcd);
 		lcd.initialized = false;
+<<<<<<< HEAD
+=======
+		kfree(lcd.charlcd->drvdata);
+>>>>>>> upstream/android-13
 		kfree(lcd.charlcd);
 		lcd.charlcd = NULL;
 	}
@@ -1789,6 +1939,7 @@ module_init(panel_init_module);
 module_exit(panel_cleanup_module);
 MODULE_AUTHOR("Willy Tarreau");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 
 /*
  * Local variables:
@@ -1796,3 +1947,5 @@ MODULE_LICENSE("GPL");
  *  tab-width: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

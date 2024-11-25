@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Mac80211 SDIO driver for ST-Ericsson CW1200 device
  *
  * Copyright (c) 2010, ST-Ericsson
  * Author: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -17,6 +24,10 @@
 #include <linux/mmc/sdio_func.h>
 #include <linux/mmc/card.h>
 #include <linux/mmc/sdio.h>
+<<<<<<< HEAD
+=======
+#include <linux/mmc/sdio_ids.h>
+>>>>>>> upstream/android-13
 #include <net/mac80211.h>
 
 #include "cw1200.h"
@@ -51,6 +62,7 @@ struct hwbus_priv {
 	const struct cw1200_platform_data_sdio *pdata;
 };
 
+<<<<<<< HEAD
 #ifndef SDIO_VENDOR_ID_STE
 #define SDIO_VENDOR_ID_STE		0x0020
 #endif
@@ -59,10 +71,16 @@ struct hwbus_priv {
 #define SDIO_DEVICE_ID_STE_CW1200	0x2280
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static const struct sdio_device_id cw1200_sdio_ids[] = {
 	{ SDIO_DEVICE(SDIO_VENDOR_ID_STE, SDIO_DEVICE_ID_STE_CW1200) },
 	{ /* end: all zeroes */			},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(sdio, cw1200_sdio_ids);
+>>>>>>> upstream/android-13
 
 /* hwbus_ops implemetation */
 

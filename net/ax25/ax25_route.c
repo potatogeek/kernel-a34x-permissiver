@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) Alan Cox GW4PTS (alan@lxorguk.ukuu.org.uk)
  * Copyright (C) Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
@@ -78,11 +83,21 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
 	ax25_dev *ax25_dev;
 	int i;
 
+<<<<<<< HEAD
 	if ((ax25_dev = ax25_addr_ax25dev(&route->port_addr)) == NULL)
 		return -EINVAL;
 	if (route->digi_count > AX25_MAX_DIGIS)
 		return -EINVAL;
 
+=======
+	if (route->digi_count > AX25_MAX_DIGIS)
+		return -EINVAL;
+
+	ax25_dev = ax25_addr_ax25dev(&route->port_addr);
+	if (!ax25_dev)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	write_lock_bh(&ax25_route_lock);
 
 	ax25_rt = ax25_route_list;
@@ -94,6 +109,10 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
 			if (route->digi_count != 0) {
 				if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
 					write_unlock_bh(&ax25_route_lock);
+<<<<<<< HEAD
+=======
+					ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 					return -ENOMEM;
 				}
 				ax25_rt->digipeat->lastrepeat = -1;
@@ -104,6 +123,10 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
 				}
 			}
 			write_unlock_bh(&ax25_route_lock);
+<<<<<<< HEAD
+=======
+			ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 			return 0;
 		}
 		ax25_rt = ax25_rt->next;
@@ -111,6 +134,10 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
 
 	if ((ax25_rt = kmalloc(sizeof(ax25_route), GFP_ATOMIC)) == NULL) {
 		write_unlock_bh(&ax25_route_lock);
+<<<<<<< HEAD
+=======
+		ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -123,6 +150,10 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
 		if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
 			write_unlock_bh(&ax25_route_lock);
 			kfree(ax25_rt);
+<<<<<<< HEAD
+=======
+			ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 		ax25_rt->digipeat->lastrepeat = -1;
@@ -135,6 +166,10 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
 	ax25_rt->next   = ax25_route_list;
 	ax25_route_list = ax25_rt;
 	write_unlock_bh(&ax25_route_lock);
+<<<<<<< HEAD
+=======
+	ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -176,6 +211,10 @@ static int ax25_rt_del(struct ax25_routes_struct *route)
 		}
 	}
 	write_unlock_bh(&ax25_route_lock);
+<<<<<<< HEAD
+=======
+	ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -218,6 +257,10 @@ static int ax25_rt_opt(struct ax25_route_opt_struct *rt_option)
 
 out:
 	write_unlock_bh(&ax25_route_lock);
+<<<<<<< HEAD
+=======
+	ax25_dev_put(ax25_dev);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -444,12 +487,16 @@ put:
 struct sk_buff *ax25_rt_build_path(struct sk_buff *skb, ax25_address *src,
 	ax25_address *dest, ax25_digi *digi)
 {
+<<<<<<< HEAD
 	struct sk_buff *skbn;
+=======
+>>>>>>> upstream/android-13
 	unsigned char *bp;
 	int len;
 
 	len = digi->ndigi * AX25_ADDR_LEN;
 
+<<<<<<< HEAD
 	if (skb_headroom(skb) < len) {
 		if ((skbn = skb_realloc_headroom(skb, len)) == NULL) {
 			printk(KERN_CRIT "AX.25: ax25_dg_build_path - out of memory\n");
@@ -462,6 +509,14 @@ struct sk_buff *ax25_rt_build_path(struct sk_buff *skb, ax25_address *src,
 		consume_skb(skb);
 
 		skb = skbn;
+=======
+	if (unlikely(skb_headroom(skb) < len)) {
+		skb = skb_expand_head(skb, len);
+		if (!skb) {
+			printk(KERN_CRIT "AX.25: ax25_dg_build_path - out of memory\n");
+			return NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	bp = skb_push(skb, len);

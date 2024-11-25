@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *	(C)Copyright 1998,1999 SysKonnect,
@@ -5,11 +9,14 @@
  *
  *	See the file "skfddi.c" for further information.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
@@ -30,7 +37,10 @@
  * 	The following external HW dependent functions are referenced :
  * 		sm_pm_control()
  *		sm_ph_linestate()
+<<<<<<< HEAD
  *		sm_pm_ls_latch()
+=======
+>>>>>>> upstream/android-13
  *
  * 	The following HW dependent events are required :
  *		PC_QLS
@@ -50,10 +60,13 @@
 #define KERNEL
 #include "h/smtstate.h"
 
+<<<<<<< HEAD
 #ifndef	lint
 static const char ID_sccs[] = "@(#)pcmplc.c	2.55 99/08/05 (C) SK " ;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef	FDDI_MIB
 extern int snmp_fddi_trap(
 #ifdef	ANSIC
@@ -852,6 +865,10 @@ static void pcm_fsm(struct s_smc *smc, struct s_phy *phy, int cmd)
 
 	case ACTIONS(PC5_SIGNAL) :
 		ACTIONS_DONE() ;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PC5_SIGNAL :
 		if ((cmd != PC_SIGNAL) && (cmd != PC_TIMEOUT_LCT))
 			break ;
@@ -950,7 +967,11 @@ static void pcm_fsm(struct s_smc *smc, struct s_phy *phy, int cmd)
 		SETMASK(PLC(np,PL_CNTRL_B),PL_PC_JOIN,PL_PC_JOIN) ;
 		ACTIONS_DONE() ;
 		cmd = 0 ;
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PC6_JOIN :
 		switch (plc->p_state) {
 		case PS_ACTIVE:
@@ -1248,6 +1269,7 @@ static void sm_ph_lem_stop(struct s_smc *smc, int np)
 	CLEAR(PLC(np,PL_INTR_MASK),PL_LE_CTR) ;
 }
 
+<<<<<<< HEAD
 /* ARGSUSED */
 void sm_pm_ls_latch(struct s_smc *smc, int phy, int on_off)
 /* int on_off;	en- or disable ident. ls */
@@ -1258,6 +1280,8 @@ void sm_pm_ls_latch(struct s_smc *smc, int phy, int on_off)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * PCM pseudo code
  * receive actions are called AFTER the bit n is received,

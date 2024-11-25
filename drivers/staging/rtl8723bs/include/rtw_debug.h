@@ -7,6 +7,7 @@
 #ifndef __RTW_DEBUG_H__
 #define __RTW_DEBUG_H__
 
+<<<<<<< HEAD
 #include <linux/trace_seq.h>
 
 #define _drv_always_		1
@@ -343,5 +344,10 @@ int proc_get_int_logs(struct seq_file *m, void *v);
 #endif
 
 #endif /* PROC_DEBUG */
+=======
+void mac_reg_dump(struct adapter *adapter);
+void bb_reg_dump(struct adapter *adapter);
+void rf_reg_dump(struct adapter *adapter);
+>>>>>>> upstream/android-13
 
 #endif	/* __RTW_DEBUG_H__ */

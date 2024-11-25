@@ -22,7 +22,11 @@
 #include <linux/ptrace.h>
 #include <linux/mman.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/swap.h>
 #include <linux/proc_fs.h>
@@ -32,16 +36,25 @@
 #include <linux/kcore.h>
 #include <linux/initrd.h>
 
+<<<<<<< HEAD
 #include <asm/asm-offsets.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/bootinfo.h>
 #include <asm/cachectl.h>
 #include <asm/cpu.h>
 #include <asm/dma.h>
+<<<<<<< HEAD
 #include <asm/kmap_types.h>
 #include <asm/maar.h>
 #include <asm/mmu_context.h>
 #include <asm/sections.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/maar.h>
+#include <asm/mmu_context.h>
+#include <asm/sections.h>
+>>>>>>> upstream/android-13
 #include <asm/pgalloc.h>
 #include <asm/tlb.h>
 #include <asm/fixmap.h>
@@ -85,6 +98,10 @@ void setup_zero_pages(void)
 static void *__kmap_pgprot(struct page *page, unsigned long addr, pgprot_t prot)
 {
 	enum fixed_addresses idx;
+<<<<<<< HEAD
+=======
+	unsigned int old_mmid;
+>>>>>>> upstream/android-13
 	unsigned long vaddr, flags, entrylo;
 	unsigned long old_ctx;
 	pte_t pte;
@@ -111,6 +128,13 @@ static void *__kmap_pgprot(struct page *page, unsigned long addr, pgprot_t prot)
 	write_c0_entryhi(vaddr & (PAGE_MASK << 1));
 	write_c0_entrylo0(entrylo);
 	write_c0_entrylo1(entrylo);
+<<<<<<< HEAD
+=======
+	if (cpu_has_mmid) {
+		old_mmid = read_c0_memorymapid();
+		write_c0_memorymapid(MMID_KERNEL_WIRED);
+	}
+>>>>>>> upstream/android-13
 #ifdef CONFIG_XPA
 	if (cpu_has_xpa) {
 		entrylo = (pte.pte_low & _PFNX_MASK);
@@ -125,6 +149,11 @@ static void *__kmap_pgprot(struct page *page, unsigned long addr, pgprot_t prot)
 	tlb_write_indexed();
 	tlbw_use_hazard();
 	write_c0_entryhi(old_ctx);
+<<<<<<< HEAD
+=======
+	if (cpu_has_mmid)
+		write_c0_memorymapid(old_mmid);
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 
 	return (void*) vaddr;
@@ -233,9 +262,15 @@ void __init fixrange_init(unsigned long start, unsigned long end,
 	unsigned long vaddr;
 
 	vaddr = start;
+<<<<<<< HEAD
 	i = __pgd_offset(vaddr);
 	j = __pud_offset(vaddr);
 	k = __pmd_offset(vaddr);
+=======
+	i = pgd_index(vaddr);
+	j = pud_index(vaddr);
+	k = pmd_index(vaddr);
+>>>>>>> upstream/android-13
 	pgd = pgd_base + i;
 
 	for ( ; (i < PTRS_PER_PGD) && (vaddr < end); pgd++, i++) {
@@ -244,7 +279,17 @@ void __init fixrange_init(unsigned long start, unsigned long end,
 			pmd = (pmd_t *)pud;
 			for (; (k < PTRS_PER_PMD) && (vaddr < end); pmd++, k++) {
 				if (pmd_none(*pmd)) {
+<<<<<<< HEAD
 					pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+=======
+					pte = (pte_t *) memblock_alloc_low(PAGE_SIZE,
+									   PAGE_SIZE);
+					if (!pte)
+						panic("%s: Failed to allocate %lu bytes align=%lx\n",
+						      __func__, PAGE_SIZE,
+						      PAGE_SIZE);
+
+>>>>>>> upstream/android-13
 					set_pmd(pmd, __pmd((unsigned long)pte));
 					BUG_ON(pte != pte_offset_kernel(pmd, 0));
 				}
@@ -257,6 +302,7 @@ void __init fixrange_init(unsigned long start, unsigned long end,
 #endif
 }
 
+<<<<<<< HEAD
 unsigned __weak platform_maar_init(unsigned num_pairs)
 {
 	struct maar_config cfg[BOOT_MEM_MAP_MAX];
@@ -288,6 +334,48 @@ unsigned __weak platform_maar_init(unsigned num_pairs)
 	if (num_configured < num_cfg)
 		pr_warn("Not enough MAAR pairs (%u) for all bootmem regions (%u)\n",
 			num_pairs, num_cfg);
+=======
+struct maar_walk_info {
+	struct maar_config cfg[16];
+	unsigned int num_cfg;
+};
+
+static int maar_res_walk(unsigned long start_pfn, unsigned long nr_pages,
+			 void *data)
+{
+	struct maar_walk_info *wi = data;
+	struct maar_config *cfg = &wi->cfg[wi->num_cfg];
+	unsigned int maar_align;
+
+	/* MAAR registers hold physical addresses right shifted by 4 bits */
+	maar_align = BIT(MIPS_MAAR_ADDR_SHIFT + 4);
+
+	/* Fill in the MAAR config entry */
+	cfg->lower = ALIGN(PFN_PHYS(start_pfn), maar_align);
+	cfg->upper = ALIGN_DOWN(PFN_PHYS(start_pfn + nr_pages), maar_align) - 1;
+	cfg->attrs = MIPS_MAAR_S;
+
+	/* Ensure we don't overflow the cfg array */
+	if (!WARN_ON(wi->num_cfg >= ARRAY_SIZE(wi->cfg)))
+		wi->num_cfg++;
+
+	return 0;
+}
+
+
+unsigned __weak platform_maar_init(unsigned num_pairs)
+{
+	unsigned int num_configured;
+	struct maar_walk_info wi;
+
+	wi.num_cfg = 0;
+	walk_system_ram_range(0, max_pfn, &wi, maar_res_walk);
+
+	num_configured = maar_config(wi.cfg, wi.num_cfg, num_pairs);
+	if (num_configured < wi.num_cfg)
+		pr_warn("Not enough MAAR pairs (%u) for all memory regions (%u)\n",
+			num_pairs, wi.num_cfg);
+>>>>>>> upstream/android-13
 
 	return num_configured;
 }
@@ -337,17 +425,33 @@ void maar_init(void)
 		write_c0_maari(i);
 		back_to_back_c0_hazard();
 		upper = read_c0_maar();
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XPA
+		upper |= (phys_addr_t)readx_c0_maar() << MIPS_MAARX_ADDR_SHIFT;
+#endif
+>>>>>>> upstream/android-13
 
 		write_c0_maari(i + 1);
 		back_to_back_c0_hazard();
 		lower = read_c0_maar();
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XPA
+		lower |= (phys_addr_t)readx_c0_maar() << MIPS_MAARX_ADDR_SHIFT;
+#endif
+>>>>>>> upstream/android-13
 
 		attr = lower & upper;
 		lower = (lower & MIPS_MAAR_ADDR) << 4;
 		upper = ((upper & MIPS_MAAR_ADDR) << 4) | 0xffff;
 
 		pr_info("  [%d]: ", i / 2);
+<<<<<<< HEAD
 		if (!(attr & MIPS_MAAR_VL)) {
+=======
+		if ((attr & MIPS_MAAR_V) != MIPS_MAAR_V) {
+>>>>>>> upstream/android-13
 			pr_cont("disabled\n");
 			continue;
 		}
@@ -369,6 +473,7 @@ void maar_init(void)
 	}
 }
 
+<<<<<<< HEAD
 #ifndef CONFIG_NEED_MULTIPLE_NODES
 int page_is_ram(unsigned long pagenr)
 {
@@ -397,15 +502,21 @@ int page_is_ram(unsigned long pagenr)
 	return 0;
 }
 
+=======
+#ifndef CONFIG_NUMA
+>>>>>>> upstream/android-13
 void __init paging_init(void)
 {
 	unsigned long max_zone_pfns[MAX_NR_ZONES];
 
 	pagetable_init();
 
+<<<<<<< HEAD
 #ifdef CONFIG_HIGHMEM
 	kmap_init();
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ZONE_DMA
 	max_zone_pfns[ZONE_DMA] = MAX_DMA_PFN;
 #endif
@@ -424,14 +535,22 @@ void __init paging_init(void)
 	}
 #endif
 
+<<<<<<< HEAD
 	free_area_init_nodes(max_zone_pfns);
+=======
+	free_area_init(max_zone_pfns);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_64BIT
 static struct kcore_list kcore_kseg0;
 #endif
 
+<<<<<<< HEAD
 static inline void mem_init_free_highmem(void)
+=======
+static inline void __init mem_init_free_highmem(void)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_HIGHMEM
 	unsigned long tmp;
@@ -442,7 +561,11 @@ static inline void mem_init_free_highmem(void)
 	for (tmp = highstart_pfn; tmp < highend_pfn; tmp++) {
 		struct page *page = pfn_to_page(tmp);
 
+<<<<<<< HEAD
 		if (!page_is_ram(tmp))
+=======
+		if (!memblock_is_memory(PFN_PHYS(tmp)))
+>>>>>>> upstream/android-13
 			SetPageReserved(page);
 		else
 			free_highmem_page(page);
@@ -452,10 +575,20 @@ static inline void mem_init_free_highmem(void)
 
 void __init mem_init(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_HIGHMEM
 #ifdef CONFIG_DISCONTIGMEM
 #error "CONFIG_HIGHMEM and CONFIG_DISCONTIGMEM dont work together yet"
 #endif
+=======
+	/*
+	 * When _PFN_SHIFT is greater than PAGE_SHIFT we won't have enough PTE
+	 * bits to hold a full 32b physical address on MIPS32 systems.
+	 */
+	BUILD_BUG_ON(IS_ENABLED(CONFIG_32BIT) && (_PFN_SHIFT > PAGE_SHIFT));
+
+#ifdef CONFIG_HIGHMEM
+>>>>>>> upstream/android-13
 	max_mapnr = highend_pfn ? highend_pfn : max_low_pfn;
 #else
 	max_mapnr = max_low_pfn;
@@ -463,10 +596,16 @@ void __init mem_init(void)
 	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
 
 	maar_init();
+<<<<<<< HEAD
 	free_all_bootmem();
 	setup_zero_pages();	/* Setup zeroed pages.  */
 	mem_init_free_highmem();
 	mem_init_print_info(NULL);
+=======
+	memblock_free_all();
+	setup_zero_pages();	/* Setup zeroed pages.  */
+	mem_init_free_highmem();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_64BIT
 	if ((unsigned long) &_text > (unsigned long) CKSEG0)
@@ -476,7 +615,11 @@ void __init mem_init(void)
 				0x80000000 - 4, KCORE_TEXT);
 #endif
 }
+<<<<<<< HEAD
 #endif /* !CONFIG_NEED_MULTIPLE_NODES */
+=======
+#endif /* !CONFIG_NUMA */
+>>>>>>> upstream/android-13
 
 void free_init_pages(const char *what, unsigned long begin, unsigned long end)
 {
@@ -492,6 +635,7 @@ void free_init_pages(const char *what, unsigned long begin, unsigned long end)
 	printk(KERN_INFO "Freeing %s: %ldk freed\n", what, (end - begin) >> 10);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_INITRD
 void free_initrd_mem(unsigned long start, unsigned long end)
 {
@@ -502,6 +646,15 @@ void free_initrd_mem(unsigned long start, unsigned long end)
 
 void (*free_init_pages_eva)(void *begin, void *end) = NULL;
 
+=======
+void (*free_init_pages_eva)(void *begin, void *end) = NULL;
+
+void __weak __init prom_free_prom_memory(void)
+{
+	/* nothing to do */
+}
+
+>>>>>>> upstream/android-13
 void __ref free_initmem(void)
 {
 	prom_free_prom_memory();
@@ -516,22 +669,77 @@ void __ref free_initmem(void)
 		free_initmem_default(POISON_FREE_INITMEM);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAVE_SETUP_PER_CPU_AREA
+unsigned long __per_cpu_offset[NR_CPUS] __read_mostly;
+EXPORT_SYMBOL(__per_cpu_offset);
+
+static int __init pcpu_cpu_distance(unsigned int from, unsigned int to)
+{
+	return node_distance(cpu_to_node(from), cpu_to_node(to));
+}
+
+static void * __init pcpu_fc_alloc(unsigned int cpu, size_t size,
+				       size_t align)
+{
+	return memblock_alloc_try_nid(size, align, __pa(MAX_DMA_ADDRESS),
+				      MEMBLOCK_ALLOC_ACCESSIBLE,
+				      cpu_to_node(cpu));
+}
+
+static void __init pcpu_fc_free(void *ptr, size_t size)
+{
+	memblock_free_early(__pa(ptr), size);
+}
+
+void __init setup_per_cpu_areas(void)
+{
+	unsigned long delta;
+	unsigned int cpu;
+	int rc;
+
+	/*
+	 * Always reserve area for module percpu variables.  That's
+	 * what the legacy allocator did.
+	 */
+	rc = pcpu_embed_first_chunk(PERCPU_MODULE_RESERVE,
+				    PERCPU_DYNAMIC_RESERVE, PAGE_SIZE,
+				    pcpu_cpu_distance,
+				    pcpu_fc_alloc, pcpu_fc_free);
+	if (rc < 0)
+		panic("Failed to initialize percpu areas.");
+
+	delta = (unsigned long)pcpu_base_addr - (unsigned long)__per_cpu_start;
+	for_each_possible_cpu(cpu)
+		__per_cpu_offset[cpu] = delta + pcpu_unit_offsets[cpu];
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifndef CONFIG_MIPS_PGD_C0_CONTEXT
 unsigned long pgd_current[NR_CPUS];
 #endif
 
 /*
+<<<<<<< HEAD
  * gcc 3.3 and older have trouble determining that PTRS_PER_PGD and PGD_ORDER
  * are constants.  So we use the variants from asm-offset.h until that gcc
  * will officially be retired.
  *
+=======
+>>>>>>> upstream/android-13
  * Align swapper_pg_dir in to 64K, allows its address to be loaded
  * with a single LUI instruction in the TLB handlers.  If we used
  * __aligned(64K), its size would get rounded up to the alignment
  * size, and waste space.  So we place it in its own section and align
  * it in the linker script.
  */
+<<<<<<< HEAD
 pgd_t swapper_pg_dir[_PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+=======
+pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(".bss..swapper_pg_dir");
+>>>>>>> upstream/android-13
 #ifndef __PAGETABLE_PUD_FOLDED
 pud_t invalid_pud_table[PTRS_PER_PUD] __page_aligned_bss;
 #endif

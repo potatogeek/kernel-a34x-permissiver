@@ -6,7 +6,10 @@
 
 obj-$(CONFIG_TABLET_USB_ACECAD)	+= acecad.o
 obj-$(CONFIG_TABLET_USB_AIPTEK)	+= aiptek.o
+<<<<<<< HEAD
 obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
 obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
 obj-$(CONFIG_TABLET_USB_PEGASUS) += pegasus_notetaker.o

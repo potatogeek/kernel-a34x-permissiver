@@ -36,6 +36,10 @@
 #include <linux/scatterlist.h>
 #include <asm/byteorder.h>
 #include <crypto/scatterwalk.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 
 /*
@@ -435,10 +439,15 @@ static int vmac_setkey(struct crypto_shash *tfm,
 	unsigned int i;
 	int err;
 
+<<<<<<< HEAD
 	if (keylen != VMAC_KEY_LEN) {
 		crypto_shash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (keylen != VMAC_KEY_LEN)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	err = crypto_cipher_setkey(tctx->cipher, key, keylen);
 	if (err)
@@ -598,7 +607,11 @@ static int vmac_final(struct shash_desc *desc, u8 *out)
 static int vmac_init_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_instance *inst = crypto_tfm_alg_instance(tfm);
+<<<<<<< HEAD
 	struct crypto_spawn *spawn = crypto_instance_ctx(inst);
+=======
+	struct crypto_cipher_spawn *spawn = crypto_instance_ctx(inst);
+>>>>>>> upstream/android-13
 	struct vmac_tfm_ctx *tctx = crypto_tfm_ctx(tfm);
 	struct crypto_cipher *cipher;
 
@@ -620,6 +633,7 @@ static void vmac_exit_tfm(struct crypto_tfm *tfm)
 static int vmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 {
 	struct shash_instance *inst;
+<<<<<<< HEAD
 	struct crypto_alg *alg;
 	int err;
 
@@ -646,6 +660,35 @@ static int vmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 			CRYPTO_ALG_TYPE_MASK);
 	if (err)
 		goto out_free_inst;
+=======
+	struct crypto_cipher_spawn *spawn;
+	struct crypto_alg *alg;
+	u32 mask;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SHASH, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	spawn = shash_instance_ctx(inst);
+
+	err = crypto_grab_cipher(spawn, shash_crypto_instance(inst),
+				 crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	alg = crypto_spawn_cipher_alg(spawn);
+
+	err = -EINVAL;
+	if (alg->cra_blocksize != VMAC_NONCEBYTES)
+		goto err_free_inst;
+
+	err = crypto_inst_setname(shash_crypto_instance(inst), tmpl->name, alg);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	inst->alg.base.cra_priority = alg->cra_priority;
 	inst->alg.base.cra_blocksize = alg->cra_blocksize;
@@ -662,6 +705,7 @@ static int vmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 	inst->alg.final = vmac_final;
 	inst->alg.setkey = vmac_setkey;
 
+<<<<<<< HEAD
 	err = shash_register_instance(tmpl, inst);
 	if (err) {
 out_free_inst:
@@ -670,13 +714,25 @@ out_free_inst:
 
 out_put_alg:
 	crypto_mod_put(alg);
+=======
+	inst->free = shash_free_singlespawn_instance;
+
+	err = shash_register_instance(tmpl, inst);
+	if (err) {
+err_free_inst:
+		shash_free_singlespawn_instance(inst);
+	}
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static struct crypto_template vmac64_tmpl = {
 	.name = "vmac64",
 	.create = vmac_create,
+<<<<<<< HEAD
 	.free = shash_free_instance,
+=======
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 };
 
@@ -690,9 +746,17 @@ static void __exit vmac_module_exit(void)
 	crypto_unregister_template(&vmac64_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(vmac_module_init);
+=======
+subsys_initcall(vmac_module_init);
+>>>>>>> upstream/android-13
 module_exit(vmac_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("VMAC hash algorithm");
 MODULE_ALIAS_CRYPTO("vmac64");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

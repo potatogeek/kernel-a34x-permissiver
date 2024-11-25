@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control. LM75 sensor
  *
  * (c) Copyright 2005 Benjamin Herrenschmidt, IBM Corp.
  *                    <benh@kernel.crashing.org>
+<<<<<<< HEAD
  *
  * Released under the term of the GNU GPL v2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -153,8 +160,11 @@ static int wf_lm75_remove(struct i2c_client *client)
 {
 	struct wf_lm75_sensor *lm = i2c_get_clientdata(client);
 
+<<<<<<< HEAD
 	DBG("wf_lm75: i2c detatch called for %s\n", lm->sens.name);
 
+=======
+>>>>>>> upstream/android-13
 	/* Mark client detached */
 	lm->i2c = NULL;
 

@@ -7,6 +7,10 @@ Required Properties:
 
 - compatible: Should be one of:
 	- "mediatek,mt2712-mcucfg", "syscon"
+<<<<<<< HEAD
+=======
+	- "mediatek,mt8183-mcucfg", "syscon"
+>>>>>>> upstream/android-13
 - #clock-cells: Must be 1
 
 The mcucfg controller uses the common clk binding from

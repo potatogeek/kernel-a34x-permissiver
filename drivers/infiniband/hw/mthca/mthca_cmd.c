@@ -292,12 +292,15 @@ static int mthca_cmd_post(struct mthca_dev *dev,
 		err = mthca_cmd_post_hcr(dev, in_param, out_param, in_modifier,
 					 op_modifier, op, token, event);
 
+<<<<<<< HEAD
 	/*
 	 * Make sure that our HCR writes don't get mixed in with
 	 * writes from another CPU starting a FW command.
 	 */
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->cmd.hcr_mutex);
 	return err;
 }

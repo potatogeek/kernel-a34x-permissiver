@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * LMAC Interface specific definitions for mac80211 Prism54 drivers
  *
@@ -10,10 +14,13 @@
  *
  * - LMAC API interface header file for STLC4560 (lmac_longbow.h)
  *   Copyright (C) 2007 Conexant Systems, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef LMAC_H
@@ -84,7 +91,11 @@ struct p54_hdr {
 	__le16 type;	/* enum p54_control_frame_types */
 	u8 rts_tries;
 	u8 tries;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define GET_REQ_ID(skb)							\
@@ -179,7 +190,11 @@ struct p54_rx_data {
 	u8 rssi_raw;
 	__le32 tsf32;
 	__le32 unalloc0;
+<<<<<<< HEAD
 	u8 align[0];
+=======
+	u8 align[];
+>>>>>>> upstream/android-13
 } __packed;
 
 enum p54_trap_type {
@@ -270,7 +285,11 @@ struct p54_tx_data {
 		} __packed normal;
 	} __packed;
 	u8 unalloc2[2];
+<<<<<<< HEAD
 	u8 align[0];
+=======
+	u8 align[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* unit is ms */

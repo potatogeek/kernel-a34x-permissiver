@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /**
  * ldm - Part of the Linux-NTFS project.
  *
@@ -6,6 +10,7 @@
  * Copyright (C) 2001,2002 Jakob Kemi <jakob.kemi@telia.com>
  *
  * Documentation is available at http://www.linux-ntfs.org/doku.php?id=downloads 
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,6 +26,8 @@
  * along with this program (in the main directory of the Linux-NTFS source
  * in the file COPYING); if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _FS_PT_LDM_H_
@@ -98,16 +105,23 @@ struct parsed_partitions;
 #define TOC_BITMAP1		"config"	/* Names of the two defined */
 #define TOC_BITMAP2		"log"		/* bitmaps in the TOCBLOCK. */
 
+<<<<<<< HEAD
 /* Borrowed from msdos.c */
 #define SYS_IND(p)		(get_unaligned(&(p)->sys_ind))
 
+=======
+>>>>>>> upstream/android-13
 struct frag {				/* VBLK Fragment handling */
 	struct list_head list;
 	u32		group;
 	u8		num;		/* Total number of records */
 	u8		rec;		/* This is record number n */
 	u8		map;		/* Which portions are in use */
+<<<<<<< HEAD
 	u8		data[0];
+=======
+	u8		data[];
+>>>>>>> upstream/android-13
 };
 
 /* In memory LDM database structures. */
@@ -207,7 +221,10 @@ struct ldmdb {				/* Cache of the database */
 	struct list_head v_part;
 };
 
+<<<<<<< HEAD
 int ldm_partition(struct parsed_partitions *state);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _FS_PT_LDM_H_ */
 

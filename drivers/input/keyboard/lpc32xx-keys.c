@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NXP LPC32xx SoC Key Scan Interface
  *
@@ -8,6 +12,7 @@
  * Copyright (C) 2010 NXP Semiconductors
  * Copyright (C) 2012 Roland Stigge
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  * GNU General Public License for more details.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This controller supports square key matrices from 1x1 up to 8x8
  */
 
@@ -182,10 +189,15 @@ static int lpc32xx_kscan_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "failed to get platform irq\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	kscandat = devm_kzalloc(&pdev->dev, sizeof(*kscandat),
 				GFP_KERNEL);
@@ -285,7 +297,11 @@ static int lpc32xx_kscan_suspend(struct device *dev)
 
 	mutex_lock(&input->mutex);
 
+<<<<<<< HEAD
 	if (input->users) {
+=======
+	if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		/* Clear IRQ and disable clock */
 		writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
 		clk_disable_unprepare(kscandat->clk);
@@ -304,7 +320,11 @@ static int lpc32xx_kscan_resume(struct device *dev)
 
 	mutex_lock(&input->mutex);
 
+<<<<<<< HEAD
 	if (input->users) {
+=======
+	if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		/* Enable clock and clear IRQ */
 		retval = clk_prepare_enable(kscandat->clk);
 		if (retval == 0)

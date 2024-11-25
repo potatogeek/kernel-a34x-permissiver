@@ -15,6 +15,10 @@
 #include "reiserfs.h"
 #include <linux/init.h>
 #include <linux/proc_fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 
 /*
  * LOCKING:
@@ -63,7 +67,10 @@ static int show_version(struct seq_file *m, void *unused)
 #define MAP( i ) D4C( objectid_map( sb, rs )[ i ] )
 
 #define DJF( x ) le32_to_cpu( rs -> x )
+<<<<<<< HEAD
 #define DJV( x ) le32_to_cpu( s_v1 -> x )
+=======
+>>>>>>> upstream/android-13
 #define DJP( x ) le32_to_cpu( jp -> x )
 #define JF( x ) ( r -> s_journal -> x )
 
@@ -488,6 +495,7 @@ int reiserfs_proc_info_global_done(void)
  * (available at http://www.namesys.com/legalese.html)
  *
  */
+<<<<<<< HEAD
 
 /*
  * Make Linus happy.
@@ -498,3 +506,5 @@ int reiserfs_proc_info_global_done(void)
  * tab-width: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

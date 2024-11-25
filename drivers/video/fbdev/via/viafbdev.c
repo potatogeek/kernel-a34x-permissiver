@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 1998-2009 VIA Technologies, Inc. All Rights Reserved.
  * Copyright 2001-2008 S3 Graphics, Inc. All Rights Reserved.
 
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation;
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compiler.h>
@@ -1158,7 +1165,11 @@ static ssize_t viafb_dvp0_proc_write(struct file *file,
 		if (value != NULL) {
 			if (kstrtou8(value, 0, &reg_val) < 0)
 				return -EINVAL;
+<<<<<<< HEAD
 			DEBUG_MSG(KERN_INFO "DVP0:reg_val[%l]=:%x\n", i,
+=======
+			DEBUG_MSG(KERN_INFO "DVP0:reg_val[%lu]=:%x\n", i,
+>>>>>>> upstream/android-13
 				  reg_val);
 			switch (i) {
 			case 0:
@@ -1187,6 +1198,7 @@ static ssize_t viafb_dvp0_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations viafb_dvp0_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= viafb_dvp0_proc_open,
@@ -1194,6 +1206,14 @@ static const struct file_operations viafb_dvp0_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= viafb_dvp0_proc_write,
+=======
+static const struct proc_ops viafb_dvp0_proc_ops = {
+	.proc_open	= viafb_dvp0_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= viafb_dvp0_proc_write,
+>>>>>>> upstream/android-13
 };
 
 static int viafb_dvp1_proc_show(struct seq_file *m, void *v)
@@ -1252,6 +1272,7 @@ static ssize_t viafb_dvp1_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations viafb_dvp1_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= viafb_dvp1_proc_open,
@@ -1259,6 +1280,14 @@ static const struct file_operations viafb_dvp1_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= viafb_dvp1_proc_write,
+=======
+static const struct proc_ops viafb_dvp1_proc_ops = {
+	.proc_open	= viafb_dvp1_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= viafb_dvp1_proc_write,
+>>>>>>> upstream/android-13
 };
 
 static int viafb_dfph_proc_show(struct seq_file *m, void *v)
@@ -1287,6 +1316,7 @@ static ssize_t viafb_dfph_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations viafb_dfph_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= viafb_dfph_proc_open,
@@ -1294,6 +1324,14 @@ static const struct file_operations viafb_dfph_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= viafb_dfph_proc_write,
+=======
+static const struct proc_ops viafb_dfph_proc_ops = {
+	.proc_open	= viafb_dfph_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= viafb_dfph_proc_write,
+>>>>>>> upstream/android-13
 };
 
 static int viafb_dfpl_proc_show(struct seq_file *m, void *v)
@@ -1322,6 +1360,7 @@ static ssize_t viafb_dfpl_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations viafb_dfpl_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= viafb_dfpl_proc_open,
@@ -1329,6 +1368,14 @@ static const struct file_operations viafb_dfpl_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= viafb_dfpl_proc_write,
+=======
+static const struct proc_ops viafb_dfpl_proc_ops = {
+	.proc_open	= viafb_dfpl_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= viafb_dfpl_proc_write,
+>>>>>>> upstream/android-13
 };
 
 static int viafb_vt1636_proc_show(struct seq_file *m, void *v)
@@ -1458,6 +1505,7 @@ static ssize_t viafb_vt1636_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations viafb_vt1636_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= viafb_vt1636_proc_open,
@@ -1465,6 +1513,14 @@ static const struct file_operations viafb_vt1636_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= viafb_vt1636_proc_write,
+=======
+static const struct proc_ops viafb_vt1636_proc_ops = {
+	.proc_open	= viafb_vt1636_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= viafb_vt1636_proc_write,
+>>>>>>> upstream/android-13
 };
 
 #endif /* CONFIG_FB_VIA_DIRECT_PROCFS */
@@ -1536,6 +1592,7 @@ static ssize_t viafb_iga1_odev_proc_write(struct file *file,
 	return res;
 }
 
+<<<<<<< HEAD
 static const struct file_operations viafb_iga1_odev_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= viafb_iga1_odev_proc_open,
@@ -1543,6 +1600,14 @@ static const struct file_operations viafb_iga1_odev_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= viafb_iga1_odev_proc_write,
+=======
+static const struct proc_ops viafb_iga1_odev_proc_ops = {
+	.proc_open	= viafb_iga1_odev_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= viafb_iga1_odev_proc_write,
+>>>>>>> upstream/android-13
 };
 
 static int viafb_iga2_odev_proc_show(struct seq_file *m, void *v)
@@ -1576,6 +1641,7 @@ static ssize_t viafb_iga2_odev_proc_write(struct file *file,
 	return res;
 }
 
+<<<<<<< HEAD
 static const struct file_operations viafb_iga2_odev_proc_fops = {
 	.owner		= THIS_MODULE,
 	.open		= viafb_iga2_odev_proc_open,
@@ -1583,6 +1649,14 @@ static const struct file_operations viafb_iga2_odev_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= viafb_iga2_odev_proc_write,
+=======
+static const struct proc_ops viafb_iga2_odev_proc_ops = {
+	.proc_open	= viafb_iga2_odev_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= viafb_iga2_odev_proc_write,
+>>>>>>> upstream/android-13
 };
 
 #define IS_VT1636(lvds_chip)	((lvds_chip).lvds_chip_name == VT1636_LVDS)
@@ -1594,6 +1668,7 @@ static void viafb_init_proc(struct viafb_shared *shared)
 	shared->proc_entry = viafb_entry;
 	if (viafb_entry) {
 #ifdef CONFIG_FB_VIA_DIRECT_PROCFS
+<<<<<<< HEAD
 		proc_create("dvp0", 0, viafb_entry, &viafb_dvp0_proc_fops);
 		proc_create("dvp1", 0, viafb_entry, &viafb_dvp1_proc_fops);
 		proc_create("dfph", 0, viafb_entry, &viafb_dfph_proc_fops);
@@ -1602,6 +1677,16 @@ static void viafb_init_proc(struct viafb_shared *shared)
 			|| IS_VT1636(shared->chip_info.lvds_chip_info2))
 			proc_create("vt1636", 0, viafb_entry,
 				&viafb_vt1636_proc_fops);
+=======
+		proc_create("dvp0", 0, viafb_entry, &viafb_dvp0_proc_ops);
+		proc_create("dvp1", 0, viafb_entry, &viafb_dvp1_proc_ops);
+		proc_create("dfph", 0, viafb_entry, &viafb_dfph_proc_ops);
+		proc_create("dfpl", 0, viafb_entry, &viafb_dfpl_proc_ops);
+		if (IS_VT1636(shared->chip_info.lvds_chip_info)
+			|| IS_VT1636(shared->chip_info.lvds_chip_info2))
+			proc_create("vt1636", 0, viafb_entry,
+				    &viafb_vt1636_proc_ops);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_FB_VIA_DIRECT_PROCFS */
 
 		proc_create_single("supported_output_devices", 0, viafb_entry,
@@ -1609,11 +1694,19 @@ static void viafb_init_proc(struct viafb_shared *shared)
 		iga1_entry = proc_mkdir("iga1", viafb_entry);
 		shared->iga1_proc_entry = iga1_entry;
 		proc_create("output_devices", 0, iga1_entry,
+<<<<<<< HEAD
 			&viafb_iga1_odev_proc_fops);
 		iga2_entry = proc_mkdir("iga2", viafb_entry);
 		shared->iga2_proc_entry = iga2_entry;
 		proc_create("output_devices", 0, iga2_entry,
 			&viafb_iga2_odev_proc_fops);
+=======
+			    &viafb_iga1_odev_proc_ops);
+		iga2_entry = proc_mkdir("iga2", viafb_entry);
+		shared->iga2_proc_entry = iga2_entry;
+		proc_create("output_devices", 0, iga2_entry,
+			    &viafb_iga2_odev_proc_ops);
+>>>>>>> upstream/android-13
 	}
 }
 static void viafb_remove_proc(struct viafb_shared *shared)
@@ -1756,10 +1849,15 @@ int via_fb_pci_probe(struct viafb_dev *vdev)
 	viafbinfo = framebuffer_alloc(viafb_par_length +
 		ALIGN(sizeof(struct viafb_shared), BITS_PER_LONG/8),
 		&vdev->pdev->dev);
+<<<<<<< HEAD
 	if (!viafbinfo) {
 		printk(KERN_ERR"Could not allocate memory for viafb_info.\n");
 		return -ENOMEM;
 	}
+=======
+	if (!viafbinfo)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	viaparinfo = (struct viafb_par *)viafbinfo->par;
 	viaparinfo->shared = viafbinfo->par + viafb_par_length;
@@ -1834,8 +1932,11 @@ int via_fb_pci_probe(struct viafb_dev *vdev)
 		viafbinfo1 = framebuffer_alloc(viafb_par_length,
 				&vdev->pdev->dev);
 		if (!viafbinfo1) {
+<<<<<<< HEAD
 			printk(KERN_ERR
 			"allocate the second framebuffer struct error\n");
+=======
+>>>>>>> upstream/android-13
 			rc = -ENOMEM;
 			goto out_fb_release;
 		}
@@ -2110,7 +2211,11 @@ MODULE_PARM_DESC(viafb_lcd_panel_id,
 
 module_param(viafb_lcd_dsp_method, int, S_IRUSR);
 MODULE_PARM_DESC(viafb_lcd_dsp_method,
+<<<<<<< HEAD
 	"Set Flat Panel display scaling method.(Default=Expandsion)");
+=======
+	"Set Flat Panel display scaling method.(Default=Expansion)");
+>>>>>>> upstream/android-13
 
 module_param(viafb_SAMM_ON, int, S_IRUSR);
 MODULE_PARM_DESC(viafb_SAMM_ON,

@@ -4,6 +4,10 @@
 #
 
 obj-$(CONFIG_B44) += b44.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_BCM4908_ENET) += bcm4908_enet.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_BCM63XX_ENET) += bcm63xx_enet.o
 obj-$(CONFIG_BCMGENET) += genet/
 obj-$(CONFIG_BNX2) += bnx2.o

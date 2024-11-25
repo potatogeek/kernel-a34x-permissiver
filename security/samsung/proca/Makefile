@@ -13,6 +13,7 @@ obj-$(CONFIG_PROCA) += proca_identity.o proca_fcntl.o \
                                proca_task_descr.o proca_certificate-asn1.o \
                                proca_certificate.o proca_table.o \
                                proca_config.o
+<<<<<<< HEAD
 
 $(obj)/proca_certificate_db-asn1.o: $(obj)/proca_certificate_db-asn1.c \
                                $(obj)/proca_certificate_db-asn1.h
@@ -20,16 +21,23 @@ $(obj)/proca_certificate_db-asn1.o: $(obj)/proca_certificate_db-asn1.c \
 $(obj)/s_os/proca_certificate_db.o: $(obj)/proca_certificate_db-asn1.h
 
 obj-$(CONFIG_PROCA_CERTIFICATES_DB) += proca_certificate_db-asn1.o
+=======
+>>>>>>> upstream/android-13
 else
 $(obj)/proca_certificate.asn1.o: $(obj)/proca_certificate.asn1.c \
                                $(obj)/proca_certificate.asn1.h
 
 $(obj)/proca_certificate.o: $(obj)/proca_certificate.asn1.h
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PROCA) += proca_identity.o proca_fcntl.o \
                                proca_task_descr.o proca_certificate.asn1.o \
                                proca_certificate.o proca_table.o \
                                proca_config.o
+<<<<<<< HEAD
 
 $(obj)/proca_certificate_db.asn1.o: $(obj)/proca_certificate_db.asn1.c \
                                $(obj)/proca_certificate_db.asn1.h
@@ -62,12 +70,25 @@ ccflags-y += -Isecurity/samsung/proca/s_os
 else
 obj-$(CONFIG_PROCA) += proca_lsm.o
 endif # CONFIG_PROCA_S_OS
+=======
+endif
+
+ccflags-y += -I$(srctree)/security/samsung/proca/
+ccflags-y += -I$(srctree)/security/samsung/five/
+
+ifdef CONFIG_PROCA_S_OS
+obj-$(CONFIG_PROCA) += s_os/proca_lsm.o
+else
+obj-$(CONFIG_PROCA) += proca_lsm.o
+endif
+>>>>>>> upstream/android-13
 
 # clean-files is given relative to the current directory,
 # so don't use (obj)/ prefix here.
 # Look at file ../../scripts/Makefile.clean for details.
 ifeq ($(KERNEL),4_14)
 clean-files += proca_certificate-asn1.c proca_certificate-asn1.h
+<<<<<<< HEAD
 ifdef CONFIG_PROCA_CERTIFICATES_DB
 clean-files += proca_certificate_db-asn1.c proca_certificate_db-asn1.h
 endif
@@ -76,6 +97,10 @@ clean-files += proca_certificate.asn1.c proca_certificate.asn1.h
 ifdef CONFIG_PROCA_CERTIFICATES_DB
 clean-files += proca_certificate_db.asn1.c proca_certificate_db.asn1.h
 endif
+=======
+else
+clean-files += proca_certificate.asn1.c proca_certificate.asn1.h
+>>>>>>> upstream/android-13
 endif
 
 subdir-ccflags-y += -Wformat

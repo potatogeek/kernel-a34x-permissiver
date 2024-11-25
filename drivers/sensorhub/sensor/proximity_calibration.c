@@ -42,6 +42,7 @@ void report_event_proximity_calibration(void)
 		chipset_funcs->pre_report_event_proximity();
 }
 
+<<<<<<< HEAD
 
 static struct sensor_funcs proximity_calibration_sensor_funcs = {
 	.report_event = report_event_proximity_calibration,
@@ -50,12 +51,17 @@ static struct sensor_funcs proximity_calibration_sensor_funcs = {
 int init_proximity_calibration(bool en)
 {
 	int ret = 0;
+=======
+int init_proximity_calibration(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_PROXIMITY_CALIBRATION);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "proximity_calibration", 4, 0, sizeof(struct prox_cal_event));
 		sensor->hal_sensor = false;
 		sensor->data = get_sensor(SENSOR_TYPE_PROXIMITY)->data;
@@ -65,4 +71,39 @@ int init_proximity_calibration(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "proximity_calibration");
+		sensor->hal_sensor = false;
+
+		sensor->receive_event_size = 4;
+		sensor->report_event_size = 0;
+		sensor->event_buffer.value = kzalloc(sizeof(struct prox_cal_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->data = get_sensor(SENSOR_TYPE_PROXIMITY)->data;
+		sensor->funcs->report_event = report_event_proximity_calibration;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+	}
+
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

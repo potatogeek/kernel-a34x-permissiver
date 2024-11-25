@@ -1,11 +1,18 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010-2013 Bluecherry, LLC <http://www.bluecherrydvr.com>
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2010-2013 Bluecherry, LLC <https://www.bluecherrydvr.com>
+>>>>>>> upstream/android-13
  *
  * Original author:
  * Ben Collins <bcollins@ubuntu.com>
  *
  * Additional work by:
  * John Brooks <john.brooks@bluecherry.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOLO6X10_OFFSETS_H

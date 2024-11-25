@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  QLogic FCoE Offload Driver
  *  Copyright (c) 2016-2018 Cavium Inc.
@@ -5,6 +6,12 @@
  *  This software is available under the terms of the GNU General Public License
  *  (GPL) Version 2, available from the file COPYING in the main directory of
  *  this source tree.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  QLogic FCoE Offload Driver
+ *  Copyright (c) 2016-2018 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 #include "qedf_dbg.h"
 #include <linux/vmalloc.h>
@@ -15,10 +22,13 @@ qedf_dbg_err(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 {
 	va_list va;
 	struct va_format vaf;
+<<<<<<< HEAD
 	char nfunc[32];
 
 	memset(nfunc, 0, sizeof(nfunc));
 	memcpy(nfunc, func, sizeof(nfunc) - 1);
+=======
+>>>>>>> upstream/android-13
 
 	va_start(va, fmt);
 
@@ -27,9 +37,15 @@ qedf_dbg_err(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 
 	if (likely(qedf) && likely(qedf->pdev))
 		pr_err("[%s]:[%s:%d]:%d: %pV", dev_name(&(qedf->pdev->dev)),
+<<<<<<< HEAD
 			nfunc, line, qedf->host_no, &vaf);
 	else
 		pr_err("[0000:00:00.0]:[%s:%d]: %pV", nfunc, line, &vaf);
+=======
+			func, line, qedf->host_no, &vaf);
+	else
+		pr_err("[0000:00:00.0]:[%s:%d]: %pV", func, line, &vaf);
+>>>>>>> upstream/android-13
 
 	va_end(va);
 }
@@ -40,10 +56,13 @@ qedf_dbg_warn(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 {
 	va_list va;
 	struct va_format vaf;
+<<<<<<< HEAD
 	char nfunc[32];
 
 	memset(nfunc, 0, sizeof(nfunc));
 	memcpy(nfunc, func, sizeof(nfunc) - 1);
+=======
+>>>>>>> upstream/android-13
 
 	va_start(va, fmt);
 
@@ -55,9 +74,15 @@ qedf_dbg_warn(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 
 	if (likely(qedf) && likely(qedf->pdev))
 		pr_warn("[%s]:[%s:%d]:%d: %pV", dev_name(&(qedf->pdev->dev)),
+<<<<<<< HEAD
 			nfunc, line, qedf->host_no, &vaf);
 	else
 		pr_warn("[0000:00:00.0]:[%s:%d]: %pV", nfunc, line, &vaf);
+=======
+			func, line, qedf->host_no, &vaf);
+	else
+		pr_warn("[0000:00:00.0]:[%s:%d]: %pV", func, line, &vaf);
+>>>>>>> upstream/android-13
 
 ret:
 	va_end(va);
@@ -69,10 +94,13 @@ qedf_dbg_notice(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 {
 	va_list va;
 	struct va_format vaf;
+<<<<<<< HEAD
 	char nfunc[32];
 
 	memset(nfunc, 0, sizeof(nfunc));
 	memcpy(nfunc, func, sizeof(nfunc) - 1);
+=======
+>>>>>>> upstream/android-13
 
 	va_start(va, fmt);
 
@@ -84,10 +112,17 @@ qedf_dbg_notice(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 
 	if (likely(qedf) && likely(qedf->pdev))
 		pr_notice("[%s]:[%s:%d]:%d: %pV",
+<<<<<<< HEAD
 			  dev_name(&(qedf->pdev->dev)), nfunc, line,
 			  qedf->host_no, &vaf);
 	else
 		pr_notice("[0000:00:00.0]:[%s:%d]: %pV", nfunc, line, &vaf);
+=======
+			  dev_name(&(qedf->pdev->dev)), func, line,
+			  qedf->host_no, &vaf);
+	else
+		pr_notice("[0000:00:00.0]:[%s:%d]: %pV", func, line, &vaf);
+>>>>>>> upstream/android-13
 
 ret:
 	va_end(va);
@@ -99,10 +134,13 @@ qedf_dbg_info(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 {
 	va_list va;
 	struct va_format vaf;
+<<<<<<< HEAD
 	char nfunc[32];
 
 	memset(nfunc, 0, sizeof(nfunc));
 	memcpy(nfunc, func, sizeof(nfunc) - 1);
+=======
+>>>>>>> upstream/android-13
 
 	va_start(va, fmt);
 
@@ -114,9 +152,15 @@ qedf_dbg_info(struct qedf_dbg_ctx *qedf, const char *func, u32 line,
 
 	if (likely(qedf) && likely(qedf->pdev))
 		pr_info("[%s]:[%s:%d]:%d: %pV", dev_name(&(qedf->pdev->dev)),
+<<<<<<< HEAD
 			nfunc, line, qedf->host_no, &vaf);
 	else
 		pr_info("[0000:00:00.0]:[%s:%d]: %pV", nfunc, line, &vaf);
+=======
+			func, line, qedf->host_no, &vaf);
+	else
+		pr_info("[0000:00:00.0]:[%s:%d]: %pV", func, line, &vaf);
+>>>>>>> upstream/android-13
 
 ret:
 	va_end(va);
@@ -125,11 +169,18 @@ ret:
 int
 qedf_alloc_grc_dump_buf(u8 **buf, uint32_t len)
 {
+<<<<<<< HEAD
 		*buf = vmalloc(len);
 		if (!(*buf))
 			return -ENOMEM;
 
 		memset(*buf, 0, len);
+=======
+		*buf = vzalloc(len);
+		if (!(*buf))
+			return -ENOMEM;
+
+>>>>>>> upstream/android-13
 		return 0;
 }
 

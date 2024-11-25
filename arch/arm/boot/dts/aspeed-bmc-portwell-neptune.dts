@@ -14,7 +14,11 @@
 	};
 	chosen {
 		stdout-path = &uart5;
+<<<<<<< HEAD
 		bootargs = "console=ttyS4,115200 earlyprintk";
+=======
+		bootargs = "console=ttyS4,115200 earlycon";
+>>>>>>> upstream/android-13
 	};
 
 	memory@80000000 {
@@ -80,12 +84,24 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_rmii1_default
 		     &pinctrl_mdio1_default>;
+<<<<<<< HEAD
+=======
+	clocks = <&syscon ASPEED_CLK_GATE_MAC1CLK>,
+		 <&syscon ASPEED_CLK_MAC1RCLK>;
+	clock-names = "MACCLK", "RCLK";
+>>>>>>> upstream/android-13
 };
 
 &mac1 {
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_rmii2_default>;
+<<<<<<< HEAD
+=======
+	clocks = <&syscon ASPEED_CLK_GATE_MAC2CLK>,
+		 <&syscon ASPEED_CLK_MAC2RCLK>;
+	clock-names = "MACCLK", "RCLK";
+>>>>>>> upstream/android-13
 	use-ncsi;
 };
 
@@ -115,6 +131,11 @@
 	pca9555@27 {
 		compatible = "nxp,pca9555";
 		reg = <0x27>;
+<<<<<<< HEAD
+=======
+		gpio-controller;
+		#gpio-cells = <2>;
+>>>>>>> upstream/android-13
 	};
 };
 

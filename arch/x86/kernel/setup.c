@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 1995  Linus Torvalds
  *
@@ -124,6 +125,67 @@
  *
  * The direct mapping only covers E820_TYPE_RAM regions, so the ranges and gaps are
  * represented by pfn_mapped
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 1995  Linus Torvalds
+ *
+ * This file contains the setup_arch() code, which handles the architecture-dependent
+ * parts of early kernel initialization.
+ */
+#include <linux/acpi.h>
+#include <linux/console.h>
+#include <linux/crash_dump.h>
+#include <linux/dma-map-ops.h>
+#include <linux/dmi.h>
+#include <linux/efi.h>
+#include <linux/init_ohci1394_dma.h>
+#include <linux/initrd.h>
+#include <linux/iscsi_ibft.h>
+#include <linux/memblock.h>
+#include <linux/panic_notifier.h>
+#include <linux/pci.h>
+#include <linux/root_dev.h>
+#include <linux/hugetlb.h>
+#include <linux/tboot.h>
+#include <linux/usb/xhci-dbgp.h>
+#include <linux/static_call.h>
+#include <linux/swiotlb.h>
+
+#include <uapi/linux/mount.h>
+
+#include <xen/xen.h>
+
+#include <asm/apic.h>
+#include <asm/numa.h>
+#include <asm/bios_ebda.h>
+#include <asm/bugs.h>
+#include <asm/cpu.h>
+#include <asm/efi.h>
+#include <asm/gart.h>
+#include <asm/hypervisor.h>
+#include <asm/io_apic.h>
+#include <asm/kasan.h>
+#include <asm/kaslr.h>
+#include <asm/mce.h>
+#include <asm/mtrr.h>
+#include <asm/realmode.h>
+#include <asm/olpc_ofw.h>
+#include <asm/pci-direct.h>
+#include <asm/prom.h>
+#include <asm/proto.h>
+#include <asm/thermal.h>
+#include <asm/unwind.h>
+#include <asm/vsyscall.h>
+#include <linux/vmalloc.h>
+
+/*
+ * max_low_pfn_mapped: highest directly mapped pfn < 4 GB
+ * max_pfn_mapped:     highest directly mapped pfn > 4 GB
+ *
+ * The direct mapping only covers E820_TYPE_RAM regions, so the ranges and gaps are
+ * represented by pfn_mapped[].
+>>>>>>> upstream/android-13
  */
 unsigned long max_low_pfn_mapped;
 unsigned long max_pfn_mapped;
@@ -133,14 +195,39 @@ RESERVE_BRK(dmi_alloc, 65536);
 #endif
 
 
+<<<<<<< HEAD
 static __initdata unsigned long _brk_start = (unsigned long)__brk_base;
 unsigned long _brk_end = (unsigned long)__brk_base;
+=======
+/*
+ * Range of the BSS area. The size of the BSS area is determined
+ * at link time, with RESERVE_BRK() facility reserving additional
+ * chunks.
+ */
+unsigned long _brk_start = (unsigned long)__brk_base;
+unsigned long _brk_end   = (unsigned long)__brk_base;
+>>>>>>> upstream/android-13
 
 struct boot_params boot_params;
 
 /*
+<<<<<<< HEAD
  * Machine setup..
  */
+=======
+ * These are the four main kernel memory regions, we put them into
+ * the resource tree so that kdump tools and other debugging tools
+ * recover it:
+ */
+
+static struct resource rodata_resource = {
+	.name	= "Kernel rodata",
+	.start	= 0,
+	.end	= 0,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM
+};
+
+>>>>>>> upstream/android-13
 static struct resource data_resource = {
 	.name	= "Kernel data",
 	.start	= 0,
@@ -164,20 +251,30 @@ static struct resource bss_resource = {
 
 
 #ifdef CONFIG_X86_32
+<<<<<<< HEAD
 /* cpu data as detected by the assembly code in head_32.S */
 struct cpuinfo_x86 new_cpu_data;
 
 /* common cpu data for all cpus */
+=======
+/* CPU data as detected by the assembly code in head_32.S */
+struct cpuinfo_x86 new_cpu_data;
+
+/* Common CPU data for all CPUs */
+>>>>>>> upstream/android-13
 struct cpuinfo_x86 boot_cpu_data __read_mostly;
 EXPORT_SYMBOL(boot_cpu_data);
 
 unsigned int def_to_bigsmp;
 
+<<<<<<< HEAD
 /* for MCA, but anyone else can use it if they want */
 unsigned int machine_id;
 unsigned int machine_submodel_id;
 unsigned int BIOS_revision;
 
+=======
+>>>>>>> upstream/android-13
 struct apm_info apm_info;
 EXPORT_SYMBOL(apm_info);
 
@@ -295,6 +392,12 @@ static u64 __init get_ramdisk_image(void)
 
 	ramdisk_image |= (u64)boot_params.ext_ramdisk_image << 32;
 
+<<<<<<< HEAD
+=======
+	if (ramdisk_image == 0)
+		ramdisk_image = phys_initrd_start;
+
+>>>>>>> upstream/android-13
 	return ramdisk_image;
 }
 static u64 __init get_ramdisk_size(void)
@@ -303,6 +406,12 @@ static u64 __init get_ramdisk_size(void)
 
 	ramdisk_size |= (u64)boot_params.ext_ramdisk_size << 32;
 
+<<<<<<< HEAD
+=======
+	if (ramdisk_size == 0)
+		ramdisk_size = phys_initrd_size;
+
+>>>>>>> upstream/android-13
 	return ramdisk_size;
 }
 
@@ -314,16 +423,24 @@ static void __init relocate_initrd(void)
 	u64 area_size     = PAGE_ALIGN(ramdisk_size);
 
 	/* We need to move the initrd down into directly mapped mem */
+<<<<<<< HEAD
 	relocated_ramdisk = memblock_find_in_range(0, PFN_PHYS(max_pfn_mapped),
 						   area_size, PAGE_SIZE);
 
+=======
+	relocated_ramdisk = memblock_phys_alloc_range(area_size, PAGE_SIZE, 0,
+						      PFN_PHYS(max_pfn_mapped));
+>>>>>>> upstream/android-13
 	if (!relocated_ramdisk)
 		panic("Cannot find place for new RAMDISK of size %lld\n",
 		      ramdisk_size);
 
+<<<<<<< HEAD
 	/* Note: this includes all the mem currently occupied by
 	   the initrd, we rely on that fact to keep the data intact. */
 	memblock_reserve(relocated_ramdisk, area_size);
+=======
+>>>>>>> upstream/android-13
 	initrd_start = relocated_ramdisk + PAGE_OFFSET;
 	initrd_end   = initrd_start + ramdisk_size;
 	printk(KERN_INFO "Allocated new RAMDISK: [mem %#010llx-%#010llx]\n",
@@ -350,13 +467,20 @@ static void __init early_reserve_initrd(void)
 
 	memblock_reserve(ramdisk_image, ramdisk_end - ramdisk_image);
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static void __init reserve_initrd(void)
 {
 	/* Assume only end is not page aligned */
 	u64 ramdisk_image = get_ramdisk_image();
 	u64 ramdisk_size  = get_ramdisk_size();
 	u64 ramdisk_end   = PAGE_ALIGN(ramdisk_image + ramdisk_size);
+<<<<<<< HEAD
 	u64 mapped_size;
+=======
+>>>>>>> upstream/android-13
 
 	if (!boot_params.hdr.type_of_loader ||
 	    !ramdisk_image || !ramdisk_size)
@@ -364,12 +488,15 @@ static void __init reserve_initrd(void)
 
 	initrd_start = 0;
 
+<<<<<<< HEAD
 	mapped_size = memblock_mem_size(max_pfn_mapped);
 	if (ramdisk_size >= (mapped_size>>1))
 		panic("initrd too large to handle, "
 		       "disabling initrd (%lld needed, %lld available)\n",
 		       ramdisk_size, mapped_size>>1);
 
+=======
+>>>>>>> upstream/android-13
 	printk(KERN_INFO "RAMDISK: [mem %#010llx-%#010llx]\n", ramdisk_image,
 			ramdisk_end - 1);
 
@@ -429,15 +556,52 @@ static void __init parse_setup_data(void)
 
 static void __init memblock_x86_reserve_range_setup_data(void)
 {
+<<<<<<< HEAD
 	struct setup_data *data;
 	u64 pa_data;
+=======
+	struct setup_indirect *indirect;
+	struct setup_data *data;
+	u64 pa_data, pa_next;
+	u32 len;
+>>>>>>> upstream/android-13
 
 	pa_data = boot_params.hdr.setup_data;
 	while (pa_data) {
 		data = early_memremap(pa_data, sizeof(*data));
+<<<<<<< HEAD
 		memblock_reserve(pa_data, sizeof(*data) + data->len);
 		pa_data = data->next;
 		early_memunmap(data, sizeof(*data));
+=======
+		if (!data) {
+			pr_warn("setup: failed to memremap setup_data entry\n");
+			return;
+		}
+
+		len = sizeof(*data);
+		pa_next = data->next;
+
+		memblock_reserve(pa_data, sizeof(*data) + data->len);
+
+		if (data->type == SETUP_INDIRECT) {
+			len += data->len;
+			early_memunmap(data, sizeof(*data));
+			data = early_memremap(pa_data, len);
+			if (!data) {
+				pr_warn("setup: failed to memremap indirect setup_data\n");
+				return;
+			}
+
+			indirect = (struct setup_indirect *)data->data;
+
+			if (indirect->type != SETUP_INDIRECT)
+				memblock_reserve(indirect->addr, indirect->len);
+		}
+
+		pa_data = pa_next;
+		early_memunmap(data, len);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -448,6 +612,7 @@ static void __init memblock_x86_reserve_range_setup_data(void)
 #ifdef CONFIG_KEXEC_CORE
 
 /* 16M alignment for crash kernel regions */
+<<<<<<< HEAD
 #define CRASH_ALIGN		(16 << 20)
 
 /*
@@ -461,12 +626,36 @@ static void __init memblock_x86_reserve_range_setup_data(void)
 #else
 # define CRASH_ADDR_LOW_MAX	(896UL << 20)
 # define CRASH_ADDR_HIGH_MAX	MAXMEM
+=======
+#define CRASH_ALIGN		SZ_16M
+
+/*
+ * Keep the crash kernel below this limit.
+ *
+ * Earlier 32-bits kernels would limit the kernel to the low 512 MB range
+ * due to mapping restrictions.
+ *
+ * 64-bit kdump kernels need to be restricted to be under 64 TB, which is
+ * the upper limit of system RAM in 4-level paging mode. Since the kdump
+ * jump could be from 5-level paging to 4-level paging, the jump will fail if
+ * the kernel is put above 64 TB, and during the 1st kernel bootup there's
+ * no good way to detect the paging mode of the target kernel which will be
+ * loaded for dumping.
+ */
+#ifdef CONFIG_X86_32
+# define CRASH_ADDR_LOW_MAX	SZ_512M
+# define CRASH_ADDR_HIGH_MAX	SZ_512M
+#else
+# define CRASH_ADDR_LOW_MAX	SZ_4G
+# define CRASH_ADDR_HIGH_MAX	SZ_64T
+>>>>>>> upstream/android-13
 #endif
 
 static int __init reserve_crashkernel_low(void)
 {
 #ifdef CONFIG_X86_64
 	unsigned long long base, low_base = 0, low_size = 0;
+<<<<<<< HEAD
 	unsigned long total_low_mem;
 	int ret;
 
@@ -477,6 +666,18 @@ static int __init reserve_crashkernel_low(void)
 	if (ret) {
 		/*
 		 * two parts from lib/swiotlb.c:
+=======
+	unsigned long low_mem_limit;
+	int ret;
+
+	low_mem_limit = min(memblock_phys_mem_size(), CRASH_ADDR_LOW_MAX);
+
+	/* crashkernel=Y,low */
+	ret = parse_crashkernel_low(boot_command_line, low_mem_limit, &low_size, &base);
+	if (ret) {
+		/*
+		 * two parts from kernel/dma/swiotlb.c:
+>>>>>>> upstream/android-13
 		 * -swiotlb size: user-specified with swiotlb= or default.
 		 *
 		 * -swiotlb overflow buffer: now hardcoded to 32k. We round it
@@ -491,13 +692,18 @@ static int __init reserve_crashkernel_low(void)
 			return 0;
 	}
 
+<<<<<<< HEAD
 	low_base = memblock_find_in_range(0, 1ULL << 32, low_size, CRASH_ALIGN);
+=======
+	low_base = memblock_phys_alloc_range(low_size, CRASH_ALIGN, 0, CRASH_ADDR_LOW_MAX);
+>>>>>>> upstream/android-13
 	if (!low_base) {
 		pr_err("Cannot reserve %ldMB crashkernel low memory, please try smaller size.\n",
 		       (unsigned long)(low_size >> 20));
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	ret = memblock_reserve(low_base, low_size);
 	if (ret) {
 		pr_err("%s: Error reserving crashkernel low memblock.\n", __func__);
@@ -508,6 +714,12 @@ static int __init reserve_crashkernel_low(void)
 		(unsigned long)(low_size >> 20),
 		(unsigned long)(low_base >> 20),
 		(unsigned long)(total_low_mem >> 20));
+=======
+	pr_info("Reserving %ldMB of low memory at %ldMB for crashkernel (low RAM limit: %ldMB)\n",
+		(unsigned long)(low_size >> 20),
+		(unsigned long)(low_base >> 20),
+		(unsigned long)(low_mem_limit >> 20));
+>>>>>>> upstream/android-13
 
 	crashk_low_res.start = low_base;
 	crashk_low_res.end   = low_base + low_size - 1;
@@ -541,6 +753,7 @@ static void __init reserve_crashkernel(void)
 	}
 
 	/* 0 means: find the address automatically */
+<<<<<<< HEAD
 	if (crash_base <= 0) {
 		/*
 		 * Set CRASH_ADDR_LOW_MAX upper bound for crash memory,
@@ -551,10 +764,30 @@ static void __init reserve_crashkernel(void)
 						    high ? CRASH_ADDR_HIGH_MAX
 							 : CRASH_ADDR_LOW_MAX,
 						    crash_size, CRASH_ALIGN);
+=======
+	if (!crash_base) {
+		/*
+		 * Set CRASH_ADDR_LOW_MAX upper bound for crash memory,
+		 * crashkernel=x,high reserves memory over 4G, also allocates
+		 * 256M extra low memory for DMA buffers and swiotlb.
+		 * But the extra memory is not required for all machines.
+		 * So try low memory first and fall back to high memory
+		 * unless "crashkernel=size[KMG],high" is specified.
+		 */
+		if (!high)
+			crash_base = memblock_phys_alloc_range(crash_size,
+						CRASH_ALIGN, CRASH_ALIGN,
+						CRASH_ADDR_LOW_MAX);
+		if (!crash_base)
+			crash_base = memblock_phys_alloc_range(crash_size,
+						CRASH_ALIGN, CRASH_ALIGN,
+						CRASH_ADDR_HIGH_MAX);
+>>>>>>> upstream/android-13
 		if (!crash_base) {
 			pr_info("crashkernel reservation failed - No suitable area found.\n");
 			return;
 		}
+<<<<<<< HEAD
 
 	} else {
 		unsigned long long start;
@@ -562,16 +795,26 @@ static void __init reserve_crashkernel(void)
 		start = memblock_find_in_range(crash_base,
 					       crash_base + crash_size,
 					       crash_size, 1 << 20);
+=======
+	} else {
+		unsigned long long start;
+
+		start = memblock_phys_alloc_range(crash_size, SZ_1M, crash_base,
+						  crash_base + crash_size);
+>>>>>>> upstream/android-13
 		if (start != crash_base) {
 			pr_info("crashkernel reservation failed - memory is in use.\n");
 			return;
 		}
 	}
+<<<<<<< HEAD
 	ret = memblock_reserve(crash_base, crash_size);
 	if (ret) {
 		pr_err("%s: Error reserving crashkernel memblock.\n", __func__);
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (crash_base >= (1ULL << 32) && reserve_crashkernel_low()) {
 		memblock_free(crash_base, crash_size);
@@ -626,6 +869,7 @@ void __init reserve_standard_io_resources(void)
 
 }
 
+<<<<<<< HEAD
 static __init void reserve_ibft_region(void)
 {
 	unsigned long addr, size = 0;
@@ -636,6 +880,8 @@ static __init void reserve_ibft_region(void)
 		memblock_reserve(addr, size);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool __init snb_gfx_workaround_needed(void)
 {
 #ifdef CONFIG_PCI
@@ -689,11 +935,24 @@ static void __init trim_snb_memory(void)
 	printk(KERN_DEBUG "reserving inaccessible SNB gfx pages\n");
 
 	/*
+<<<<<<< HEAD
 	 * Reserve all memory below the 1 MB mark that has not
 	 * already been reserved.
 	 */
 	memblock_reserve(0, 1<<20);
 	
+=======
+	 * SandyBridge integrated graphics devices have a bug that prevents
+	 * them from accessing certain memory ranges, namely anything below
+	 * 1M and in the pages listed in bad_pages[] above.
+	 *
+	 * To avoid these pages being ever accessed by SNB gfx devices reserve
+	 * bad_pages that have not already been reserved at boot time.
+	 * All memory below the 1 MB mark is anyway reserved later during
+	 * setup_arch(), so there is no need to reserve it here.
+	 */
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(bad_pages); i++) {
 		if (memblock_reserve(bad_pages[i], PAGE_SIZE))
 			printk(KERN_WARNING "failed to reserve 0x%08lx\n",
@@ -701,6 +960,7 @@ static void __init trim_snb_memory(void)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * Here we put platform-specific memory range workarounds, i.e.
  * memory known to be corrupt or otherwise in need to be reserved on
@@ -713,6 +973,8 @@ static void __init trim_platform_memory_ranges(void)
 	trim_snb_memory();
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init trim_bios_range(void)
 {
 	/*
@@ -727,8 +989,13 @@ static void __init trim_bios_range(void)
 	e820__range_update(0, PAGE_SIZE, E820_TYPE_RAM, E820_TYPE_RESERVED);
 
 	/*
+<<<<<<< HEAD
 	 * special case: Some BIOSen report the PC BIOS
 	 * area (640->1Mb) as ram even though it is not.
+=======
+	 * special case: Some BIOSes report the PC BIOS
+	 * area (640Kb -> 1Mb) as RAM even though it is not.
+>>>>>>> upstream/android-13
 	 * take them out.
 	 */
 	e820__range_remove(BIOS_BEGIN, BIOS_END - BIOS_BEGIN, E820_TYPE_RAM, 1);
@@ -757,6 +1024,7 @@ static void __init e820_add_kernel_range(void)
 	e820__range_add(start, size, E820_TYPE_RAM);
 }
 
+<<<<<<< HEAD
 static unsigned reserve_low = CONFIG_X86_RESERVE_LOW << 10;
 
 static int __init parse_reservelow(char *p)
@@ -786,6 +1054,41 @@ static void __init trim_low_memory_range(void)
 	memblock_reserve(0, ALIGN(reserve_low, PAGE_SIZE));
 }
 	
+=======
+static void __init early_reserve_memory(void)
+{
+	/*
+	 * Reserve the memory occupied by the kernel between _text and
+	 * __end_of_kernel_reserve symbols. Any kernel sections after the
+	 * __end_of_kernel_reserve symbol must be explicitly reserved with a
+	 * separate memblock_reserve() or they will be discarded.
+	 */
+	memblock_reserve(__pa_symbol(_text),
+			 (unsigned long)__end_of_kernel_reserve - (unsigned long)_text);
+
+	/*
+	 * The first 4Kb of memory is a BIOS owned area, but generally it is
+	 * not listed as such in the E820 table.
+	 *
+	 * Reserve the first 64K of memory since some BIOSes are known to
+	 * corrupt low memory. After the real mode trampoline is allocated the
+	 * rest of the memory below 640k is reserved.
+	 *
+	 * In addition, make sure page 0 is always reserved because on
+	 * systems with L1TF its contents can be leaked to user processes.
+	 */
+	memblock_reserve(0, SZ_64K);
+
+	early_reserve_initrd();
+
+	memblock_x86_reserve_range_setup_data();
+
+	reserve_ibft_region();
+	reserve_bios_regions();
+	trim_snb_memory();
+}
+
+>>>>>>> upstream/android-13
 /*
  * Dump out kernel offset information on panic.
  */
@@ -820,6 +1123,7 @@ dump_kernel_offset(struct notifier_block *self, unsigned long v, void *p)
 
 void __init setup_arch(char **cmdline_p)
 {
+<<<<<<< HEAD
 	memblock_reserve(__pa_symbol(_text),
 			 (unsigned long)__bss_stop - (unsigned long)_text);
 
@@ -837,6 +1141,8 @@ void __init setup_arch(char **cmdline_p)
 	 * RAM in e820. All other memory is free game.
 	 */
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_32
 	memcpy(&boot_cpu_data, &new_cpu_data, sizeof(new_cpu_data));
 
@@ -852,7 +1158,11 @@ void __init setup_arch(char **cmdline_p)
 	/*
 	 * Note: Quark X1000 CPUs advertise PGE incorrectly and require
 	 * a cr3 based tlb flush, so the following __flush_tlb_all()
+<<<<<<< HEAD
 	 * will not flush anything because the cpu quirk which clears
+=======
+	 * will not flush anything because the CPU quirk which clears
+>>>>>>> upstream/android-13
 	 * X86_FEATURE_PGE has not been invoked yet. Though due to the
 	 * load_cr3() above the TLB has been flushed already. The
 	 * quirk is invoked before subsequent calls to __flush_tlb_all()
@@ -872,8 +1182,13 @@ void __init setup_arch(char **cmdline_p)
 
 	idt_setup_early_traps();
 	early_cpu_init();
+<<<<<<< HEAD
 	arch_init_ideal_nops();
 	jump_label_init();
+=======
+	jump_label_init();
+	static_call_init();
+>>>>>>> upstream/android-13
 	early_ioremap_init();
 
 	setup_olpc_ofw_pgd();
@@ -896,8 +1211,11 @@ void __init setup_arch(char **cmdline_p)
 
 #ifdef CONFIG_BLK_DEV_RAM
 	rd_image_start = boot_params.hdr.ram_size & RAMDISK_IMAGE_START_MASK;
+<<<<<<< HEAD
 	rd_prompt = ((boot_params.hdr.ram_size & RAMDISK_PROMPT_FLAG) != 0);
 	rd_doload = ((boot_params.hdr.ram_size & RAMDISK_LOAD_FLAG) != 0);
+=======
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_EFI
 	if (!strncmp((char *)&boot_params.efi_info.efi_loader_signature,
@@ -912,6 +1230,23 @@ void __init setup_arch(char **cmdline_p)
 
 	x86_init.oem.arch_setup();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Do some memory reservations *before* memory is added to memblock, so
+	 * memblock allocations won't overwrite it.
+	 *
+	 * After this point, everything still needed from the boot loader or
+	 * firmware or kernel text should be early reserved or marked not RAM in
+	 * e820. All other memory is free game.
+	 *
+	 * This call needs to happen before e820__memory_setup() which calls the
+	 * xen_memory_setup() on Xen dom0 which relies on the fact that those
+	 * early reservations have happened already.
+	 */
+	early_reserve_memory();
+
+>>>>>>> upstream/android-13
 	iomem_resource.end = (1ULL << boot_cpu_data.x86_phys_bits) - 1;
 	e820__memory_setup();
 	parse_setup_data();
@@ -920,6 +1255,7 @@ void __init setup_arch(char **cmdline_p)
 
 	if (!boot_params.hdr.root_flags)
 		root_mountflags &= ~MS_RDONLY;
+<<<<<<< HEAD
 	init_mm.start_code = (unsigned long) _text;
 	init_mm.end_code = (unsigned long) _etext;
 	init_mm.end_data = (unsigned long) _edata;
@@ -930,6 +1266,15 @@ void __init setup_arch(char **cmdline_p)
 	code_resource.start = __pa_symbol(_text);
 	code_resource.end = __pa_symbol(_etext)-1;
 	data_resource.start = __pa_symbol(_etext);
+=======
+	setup_initial_init_mm(_text, _etext, _edata, (void *)_brk_end);
+
+	code_resource.start = __pa_symbol(_text);
+	code_resource.end = __pa_symbol(_etext)-1;
+	rodata_resource.start = __pa_symbol(__start_rodata);
+	rodata_resource.end = __pa_symbol(__end_rodata)-1;
+	data_resource.start = __pa_symbol(_sdata);
+>>>>>>> upstream/android-13
 	data_resource.end = __pa_symbol(_edata)-1;
 	bss_resource.start = __pa_symbol(__bss_start);
 	bss_resource.end = __pa_symbol(__bss_stop)-1;
@@ -963,6 +1308,10 @@ void __init setup_arch(char **cmdline_p)
 
 	if (efi_enabled(EFI_BOOT))
 		efi_memblock_x86_reserve_range();
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MEMORY_HOTPLUG
 	/*
 	 * Memory used by the kernel cannot be hot-removed because Linux
@@ -989,9 +1338,12 @@ void __init setup_arch(char **cmdline_p)
 
 	x86_report_nx();
 
+<<<<<<< HEAD
 	/* after early param, so could get panic from serial */
 	memblock_x86_reserve_range_setup_data();
 
+=======
+>>>>>>> upstream/android-13
 	if (acpi_mps_check()) {
 #ifdef CONFIG_X86_LOCAL_APIC
 		disable_apic = 1;
@@ -1005,6 +1357,7 @@ void __init setup_arch(char **cmdline_p)
 	if (efi_enabled(EFI_BOOT))
 		efi_init();
 
+<<<<<<< HEAD
 	dmi_scan_machine();
 	dmi_memdev_walk();
 	dmi_set_dump_stack_arch_desc();
@@ -1012,6 +1365,13 @@ void __init setup_arch(char **cmdline_p)
 	/*
 	 * VMware detection requires dmi to be available, so this
 	 * needs to be done after dmi_scan_machine(), for the boot CPU.
+=======
+	dmi_setup();
+
+	/*
+	 * VMware detection requires dmi to be available, so this
+	 * needs to be done after dmi_setup(), for the boot CPU.
+>>>>>>> upstream/android-13
 	 */
 	init_hypervisor_platform();
 
@@ -1020,6 +1380,10 @@ void __init setup_arch(char **cmdline_p)
 
 	/* after parse_early_param, so could debug it */
 	insert_resource(&iomem_resource, &code_resource);
+<<<<<<< HEAD
+=======
+	insert_resource(&iomem_resource, &rodata_resource);
+>>>>>>> upstream/android-13
 	insert_resource(&iomem_resource, &data_resource);
 	insert_resource(&iomem_resource, &bss_resource);
 
@@ -1084,14 +1448,22 @@ void __init setup_arch(char **cmdline_p)
 	 */
 	find_smp_config();
 
+<<<<<<< HEAD
 	reserve_ibft_region();
 
+=======
+>>>>>>> upstream/android-13
 	early_alloc_pgt_buf();
 
 	/*
 	 * Need to conclude brk, before e820__memblock_setup()
+<<<<<<< HEAD
 	 *  it could use memblock_find_in_range, could overlap with
 	 *  brk area.
+=======
+	 * it could use memblock_find_in_range, could overlap with
+	 * brk area.
+>>>>>>> upstream/android-13
 	 */
 	reserve_brk();
 
@@ -1100,6 +1472,7 @@ void __init setup_arch(char **cmdline_p)
 	memblock_set_current_limit(ISA_END_ADDRESS);
 	e820__memblock_setup();
 
+<<<<<<< HEAD
 	reserve_bios_regions();
 
 	if (efi_enabled(EFI_MEMMAP)) {
@@ -1113,6 +1486,24 @@ void __init setup_arch(char **cmdline_p)
 		 */
 		efi_reserve_boot_services();
 	}
+=======
+	/*
+	 * Needs to run after memblock setup because it needs the physical
+	 * memory size.
+	 */
+	sev_setup_arch();
+
+	efi_fake_memmap();
+	efi_find_mirror();
+	efi_esrt_init();
+	efi_mokvar_table_init();
+
+	/*
+	 * The EFI specification says that boot service code won't be
+	 * called after ExitBootServices(). This is, in fact, a lie.
+	 */
+	efi_reserve_boot_services();
+>>>>>>> upstream/android-13
 
 	/* preallocate 4k for mptable mpc */
 	e820__memblock_alloc_reserved_mpc_new();
@@ -1126,11 +1517,30 @@ void __init setup_arch(char **cmdline_p)
 			(max_pfn_mapped<<PAGE_SHIFT) - 1);
 #endif
 
+<<<<<<< HEAD
 	reserve_real_mode();
 
 	trim_platform_memory_ranges();
 	trim_low_memory_range();
 
+=======
+	/*
+	 * Find free memory for the real mode trampoline and place it there. If
+	 * there is not enough free memory under 1M, on EFI-enabled systems
+	 * there will be additional attempt to reclaim the memory for the real
+	 * mode trampoline at efi_free_boot_services().
+	 *
+	 * Unconditionally reserve the entire first 1M of RAM because BIOSes
+	 * are known to corrupt low memory and several hundred kilobytes are not
+	 * worth complex detection what memory gets clobbered. Windows does the
+	 * same thing for very similar reasons.
+	 *
+	 * Moreover, on machines with SandyBridge graphics or in setups that use
+	 * crashkernel the entire 1M is reserved anyway.
+	 */
+	reserve_real_mode();
+
+>>>>>>> upstream/android-13
 	init_mem_mapping();
 
 	idt_setup_early_pf();
@@ -1190,6 +1600,12 @@ void __init setup_arch(char **cmdline_p)
 	initmem_init();
 	dma_contiguous_reserve(max_pfn_mapped << PAGE_SHIFT);
 
+<<<<<<< HEAD
+=======
+	if (boot_cpu_has(X86_FEATURE_GBPAGES))
+		hugetlb_cma_reserve(PUD_SHIFT - PAGE_SHIFT);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Reserve memory for crash kernel after SRAT is parsed so that it
 	 * won't consume hotpluggable memory.
@@ -1225,7 +1641,10 @@ void __init setup_arch(char **cmdline_p)
 	 * Read APIC and some other early information from ACPI tables.
 	 */
 	acpi_boot_init();
+<<<<<<< HEAD
 	sfi_init();
+=======
+>>>>>>> upstream/android-13
 	x86_dtb_init();
 
 	/*
@@ -1242,6 +1661,10 @@ void __init setup_arch(char **cmdline_p)
 	prefill_possible_map();
 
 	init_cpu_to_node();
+<<<<<<< HEAD
+=======
+	init_gi_nodes();
+>>>>>>> upstream/android-13
 
 	io_apic_init_mappings();
 
@@ -1258,14 +1681,28 @@ void __init setup_arch(char **cmdline_p)
 #if defined(CONFIG_VGA_CONSOLE)
 	if (!efi_enabled(EFI_BOOT) || (efi_mem_type(0xa0000) != EFI_CONVENTIONAL_MEMORY))
 		conswitchp = &vga_con;
+<<<<<<< HEAD
 #elif defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
+=======
+>>>>>>> upstream/android-13
 #endif
 #endif
 	x86_init.oem.banner();
 
 	x86_init.timers.wallclock_init();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * This needs to run before setup_local_APIC() which soft-disables the
+	 * local APIC temporarily and that masks the thermal LVT interrupt,
+	 * leading to softlockups on machines which have configured SMI
+	 * interrupt delivery.
+	 */
+	therm_lvt_init();
+
+>>>>>>> upstream/android-13
 	mcheck_init();
 
 	register_refined_jiffies(CLOCK_TICK_RATE);

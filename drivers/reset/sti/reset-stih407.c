@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 STMicroelectronics (R&D) Limited
  * Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 STMicroelectronics (R&D) Limited
+ * Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/of.h>

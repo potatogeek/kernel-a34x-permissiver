@@ -12,8 +12,13 @@
  */
 
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <variant/core.h>
 #include <asm/asmmacro.h>
+=======
+#include <asm/asmmacro.h>
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 /*
  * size_t __strnlen_user(const char *s, size_t len)
@@ -45,7 +50,11 @@
 .text
 ENTRY(__strnlen_user)
 
+<<<<<<< HEAD
 	entry	sp, 16		# minimal stack frame
+=======
+	abi_entry_default
+>>>>>>> upstream/android-13
 	# a2/ s, a3/ len
 	addi	a4, a2, -4	# because we overincrement at the end;
 				# we compensate with load offsets of 4
@@ -96,7 +105,11 @@ EX(10f)	l32i	a9, a4, 4	# load 4 bytes for remaining checks
 	addi	a4, a4, 1	# advance string pointer
 .L101:
 	sub	a2, a4, a2	# compute length
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 # NOTE that in several places below, we point to the byte just after
 # the zero byte in order to include the NULL terminator in the count.
@@ -106,6 +119,7 @@ EX(10f)	l32i	a9, a4, 4	# load 4 bytes for remaining checks
 .Lz0:	# byte 0 is zero
 	addi	a4, a4, 1	# point just beyond zero byte
 	sub	a2, a4, a2	# subtract to get length
+<<<<<<< HEAD
 	retw
 .Lz1:	# byte 1 is zero
 	addi	a4, a4, 1+1	# point just beyond zero byte
@@ -115,6 +129,17 @@ EX(10f)	l32i	a9, a4, 4	# load 4 bytes for remaining checks
 	addi	a4, a4, 2+1	# point just beyond zero byte
 	sub	a2, a4, a2	# subtract to get length
 	retw
+=======
+	abi_ret_default
+.Lz1:	# byte 1 is zero
+	addi	a4, a4, 1+1	# point just beyond zero byte
+	sub	a2, a4, a2	# subtract to get length
+	abi_ret_default
+.Lz2:	# byte 2 is zero
+	addi	a4, a4, 2+1	# point just beyond zero byte
+	sub	a2, a4, a2	# subtract to get length
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 .L1mod2:	# address is odd
 EX(10f)	l8ui	a9, a4, 4		# get byte 0
@@ -130,7 +155,11 @@ EX(10f)	l32i	a9, a4, 0	# get word with first two bytes of string
 	# byte 3 is zero
 	addi	a4, a4, 3+1	# point just beyond zero byte
 	sub	a2, a4, a2	# subtract to get length
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 ENDPROC(__strnlen_user)
 
@@ -138,4 +167,8 @@ ENDPROC(__strnlen_user)
 	.align	4
 10:
 	movi	a2, 0
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Fujitsu MB86A16 DVB-S/DSS DC Receiver driver
 
 	Copyright (C) Manu Abraham (abraham.manu@gmail.com)
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/init.h>
@@ -1464,11 +1471,16 @@ static int mb86a16_set_fe(struct mb86a16_state *state)
 							wait_t = (786432 + state->srate / 2) / state->srate;
 						else
 							wait_t = (1572864 + state->srate / 2) / state->srate;
+<<<<<<< HEAD
 						if (state->srate < 5000)
 							/* FIXME ! , should be a long wait ! */
 							msleep_interruptible(wait_t);
 						else
 							msleep_interruptible(wait_t);
+=======
+
+						msleep_interruptible(wait_t);
+>>>>>>> upstream/android-13
 
 						if (sync_chk(state, &junk) == 0) {
 							iq_vt_set(state, 1);

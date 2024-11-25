@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011  Intel Corporation. All rights reserved.
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2011  Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "llcp: %s: " fmt, __func__
@@ -122,6 +128,10 @@ static int llcp_sock_bind(struct socket *sock, struct sockaddr *addr, int alen)
 	if (!llcp_sock->service_name) {
 		nfc_llcp_local_put(llcp_sock->local);
 		llcp_sock->local = NULL;
+<<<<<<< HEAD
+=======
+		llcp_sock->dev = NULL;
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto put_dev;
 	}
@@ -131,6 +141,10 @@ static int llcp_sock_bind(struct socket *sock, struct sockaddr *addr, int alen)
 		llcp_sock->local = NULL;
 		kfree(llcp_sock->service_name);
 		llcp_sock->service_name = NULL;
+<<<<<<< HEAD
+=======
+		llcp_sock->dev = NULL;
+>>>>>>> upstream/android-13
 		ret = -EADDRINUSE;
 		goto put_dev;
 	}
@@ -234,7 +248,11 @@ error:
 }
 
 static int nfc_llcp_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			       char __user *optval, unsigned int optlen)
+=======
+			       sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	struct nfc_llcp_sock *llcp_sock = nfc_llcp_sock(sk);
@@ -257,7 +275,11 @@ static int nfc_llcp_setsockopt(struct socket *sock, int level, int optname,
 			break;
 		}
 
+<<<<<<< HEAD
 		if (get_user(opt, (u32 __user *) optval)) {
+=======
+		if (copy_from_sockptr(&opt, optval, sizeof(u32))) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -279,7 +301,11 @@ static int nfc_llcp_setsockopt(struct socket *sock, int level, int optname,
 			break;
 		}
 
+<<<<<<< HEAD
 		if (get_user(opt, (u32 __user *) optval)) {
+=======
+		if (copy_from_sockptr(&opt, optval, sizeof(u32))) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -741,6 +767,13 @@ static int llcp_sock_connect(struct socket *sock, struct sockaddr *_addr,
 	llcp_sock->service_name = kmemdup(addr->service_name,
 					  llcp_sock->service_name_len,
 					  GFP_KERNEL);
+<<<<<<< HEAD
+=======
+	if (!llcp_sock->service_name) {
+		ret = -ENOMEM;
+		goto sock_llcp_release;
+	}
+>>>>>>> upstream/android-13
 
 	nfc_llcp_sock_link(&local->connecting_sockets, sk);
 
@@ -760,14 +793,25 @@ static int llcp_sock_connect(struct socket *sock, struct sockaddr *_addr,
 	return ret;
 
 sock_unlink:
+<<<<<<< HEAD
 	nfc_llcp_put_ssap(local, llcp_sock->ssap);
 	nfc_llcp_local_put(llcp_sock->local);
 	llcp_sock->local = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	nfc_llcp_sock_unlink(&local->connecting_sockets, sk);
 	kfree(llcp_sock->service_name);
 	llcp_sock->service_name = NULL;
 
+<<<<<<< HEAD
+=======
+sock_llcp_release:
+	nfc_llcp_put_ssap(local, llcp_sock->ssap);
+	nfc_llcp_local_put(llcp_sock->local);
+	llcp_sock->local = NULL;
+
+>>>>>>> upstream/android-13
 put_dev:
 	nfc_put_device(dev);
 
@@ -794,6 +838,14 @@ static int llcp_sock_sendmsg(struct socket *sock, struct msghdr *msg,
 
 	lock_sock(sk);
 
+<<<<<<< HEAD
+=======
+	if (!llcp_sock->local) {
+		release_sock(sk);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	if (sk->sk_type == SOCK_DGRAM) {
 		DECLARE_SOCKADDR(struct sockaddr_nfc_llcp *, addr,
 				 msg->msg_name);
@@ -942,8 +994,11 @@ static const struct proto_ops llcp_rawsock_ops = {
 	.ioctl          = sock_no_ioctl,
 	.listen         = sock_no_listen,
 	.shutdown       = sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt     = sock_no_setsockopt,
 	.getsockopt     = sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.sendmsg        = sock_no_sendmsg,
 	.recvmsg        = llcp_sock_recvmsg,
 	.mmap           = sock_no_mmap,

@@ -1,12 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/spinlock.h>
 #include <linux/sock_diag.h>
 #include <linux/unix_diag.h>
 #include <linux/skbuff.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <net/netlink.h>
 #include <net/af_unix.h>
 #include <net/tcp_states.h>
+=======
+#include <linux/uidgid.h>
+#include <net/netlink.h>
+#include <net/af_unix.h>
+#include <net/tcp_states.h>
+#include <net/sock.h>
+>>>>>>> upstream/android-13
 
 static int sk_diag_dump_name(struct sock *sk, struct sk_buff *nlskb)
 {
@@ -110,6 +122,15 @@ static int sk_diag_show_rqlen(struct sock *sk, struct sk_buff *nlskb)
 	return nla_put(nlskb, UNIX_DIAG_RQLEN, sizeof(rql), &rql);
 }
 
+<<<<<<< HEAD
+=======
+static int sk_diag_dump_uid(struct sock *sk, struct sk_buff *nlskb)
+{
+	uid_t uid = from_kuid_munged(sk_user_ns(nlskb->sk), sock_i_uid(sk));
+	return nla_put(nlskb, UNIX_DIAG_UID, sizeof(uid_t), &uid);
+}
+
+>>>>>>> upstream/android-13
 static int sk_diag_fill(struct sock *sk, struct sk_buff *skb, struct unix_diag_req *req,
 		u32 portid, u32 seq, u32 flags, int sk_ino)
 {
@@ -156,6 +177,13 @@ static int sk_diag_fill(struct sock *sk, struct sk_buff *skb, struct unix_diag_r
 	if (nla_put_u8(skb, UNIX_DIAG_SHUTDOWN, sk->sk_shutdown))
 		goto out_nlmsg_trim;
 
+<<<<<<< HEAD
+=======
+	if ((req->udiag_show & UDIAG_SHOW_UID) &&
+	    sk_diag_dump_uid(sk, skb))
+		goto out_nlmsg_trim;
+
+>>>>>>> upstream/android-13
 	nlmsg_end(skb, nlh);
 	return 0;
 
@@ -282,10 +310,15 @@ again:
 
 		goto again;
 	}
+<<<<<<< HEAD
 	err = netlink_unicast(net->diag_nlsk, rep, NETLINK_CB(in_skb).portid,
 			      MSG_DONTWAIT);
 	if (err > 0)
 		err = 0;
+=======
+	err = nlmsg_unicast(net->diag_nlsk, rep, NETLINK_CB(in_skb).portid);
+
+>>>>>>> upstream/android-13
 out:
 	if (sk)
 		sock_put(sk);

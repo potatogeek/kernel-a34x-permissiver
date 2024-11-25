@@ -20,6 +20,10 @@
  */
 
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/mount.h>
+>>>>>>> upstream/android-13
 #include <linux/time.h>
 #include <linux/highuid.h>
 #include <linux/pagemap.h>
@@ -49,10 +53,13 @@
 #include <trace/events/ext4.h>
 #include <trace/events/android_fs.h>
 
+<<<<<<< HEAD
 #include <mt-plat/mtk_blocktag.h>
 
 #define MPAGE_DA_EXTENT_TAIL 0x01
 
+=======
+>>>>>>> upstream/android-13
 static __u32 ext4_inode_csum(struct inode *inode, struct ext4_inode *raw,
 			      struct ext4_inode_info *ei)
 {
@@ -106,8 +113,13 @@ static int ext4_inode_csum_verify(struct inode *inode, struct ext4_inode *raw,
 	return provided == calculated;
 }
 
+<<<<<<< HEAD
 static void ext4_inode_csum_set(struct inode *inode, struct ext4_inode *raw,
 				struct ext4_inode_info *ei)
+=======
+void ext4_inode_csum_set(struct inode *inode, struct ext4_inode *raw,
+			 struct ext4_inode_info *ei)
+>>>>>>> upstream/android-13
 {
 	__u32 csum;
 
@@ -143,7 +155,10 @@ static inline int ext4_begin_ordered_truncate(struct inode *inode,
 static void ext4_invalidatepage(struct page *page, unsigned int offset,
 				unsigned int length);
 static int __ext4_journalled_writepage(struct page *page, unsigned int len);
+<<<<<<< HEAD
 static int ext4_bh_delay_or_unwritten(handle_t *handle, struct buffer_head *bh);
+=======
+>>>>>>> upstream/android-13
 static int ext4_meta_trans_blocks(struct inode *inode, int lblocks,
 				  int pextents);
 
@@ -167,6 +182,7 @@ int ext4_inode_is_fast_symlink(struct inode *inode)
 }
 
 /*
+<<<<<<< HEAD
  * Restart the transaction associated with *handle.  This does a commit,
  * so before we call here everything must be consistently dirtied against
  * this transaction.
@@ -193,6 +209,8 @@ int ext4_truncate_restart_trans(handle_t *handle, struct inode *inode,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Called at the last iput() if i_nlink is zero.
  */
 void ext4_evict_inode(struct inode *inode)
@@ -253,6 +271,19 @@ void ext4_evict_inode(struct inode *inode)
 	truncate_inode_pages_final(&inode->i_data);
 
 	/*
+<<<<<<< HEAD
+=======
+	 * For inodes with journalled data, transaction commit could have
+	 * dirtied the inode. Flush worker is ignoring it because of I_FREEING
+	 * flag but we still need to remove the inode from the writeback lists.
+	 */
+	if (!list_empty_careful(&inode->i_io_list)) {
+		WARN_ON_ONCE(!ext4_should_journal_data(inode));
+		inode_io_list_del(inode);
+	}
+
+	/*
+>>>>>>> upstream/android-13
 	 * Protect us against freezing - iput() caller didn't have to have any
 	 * protection against it. When we are in a running transaction though,
 	 * we are already protected against freezing and we cannot grab further
@@ -307,9 +338,15 @@ void ext4_evict_inode(struct inode *inode)
 	if (inode->i_blocks) {
 		err = ext4_truncate(inode);
 		if (err) {
+<<<<<<< HEAD
 			ext4_error(inode->i_sb,
 				   "couldn't truncate inode %lu (err %d)",
 				   inode->i_ino, err);
+=======
+			ext4_error_err(inode->i_sb, -err,
+				       "couldn't truncate inode %lu (err %d)",
+				       inode->i_ino, err);
+>>>>>>> upstream/android-13
 			goto stop_handle;
 		}
 	}
@@ -357,6 +394,11 @@ stop_handle:
 	ext4_xattr_inode_array_free(ea_inode_array);
 	return;
 no_delete:
+<<<<<<< HEAD
+=======
+	if (!list_empty(&EXT4_I(inode)->i_fc_list))
+		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM, NULL);
+>>>>>>> upstream/android-13
 	ext4_clear_inode(inode);	/* We must guarantee clearing of inode... */
 }
 
@@ -392,7 +434,11 @@ void ext4_da_update_reserve_space(struct inode *inode,
 	ei->i_reserved_data_blocks -= used;
 	percpu_counter_sub(&sbi->s_dirtyclusters_counter, used);
 
+<<<<<<< HEAD
 	spin_unlock(&EXT4_I(inode)->i_block_reservation_lock);
+=======
+	spin_unlock(&ei->i_block_reservation_lock);
+>>>>>>> upstream/android-13
 
 	/* Update quota subsystem for data blocks */
 	if (quota_claim)
@@ -412,8 +458,13 @@ void ext4_da_update_reserve_space(struct inode *inode,
 	 * inode's preallocations.
 	 */
 	if ((ei->i_reserved_data_blocks == 0) &&
+<<<<<<< HEAD
 	    (atomic_read(&inode->i_writecount) == 0))
 		ext4_discard_preallocations(inode);
+=======
+	    !inode_is_open_for_write(inode))
+		ext4_discard_preallocations(inode, 0);
+>>>>>>> upstream/android-13
 }
 
 static int __check_block_validity(struct inode *inode, const char *func,
@@ -425,9 +476,12 @@ static int __check_block_validity(struct inode *inode, const char *func,
 	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
 		return 0;
 	if (!ext4_inode_block_valid(inode, map->m_pblk, map->m_len)) {
+<<<<<<< HEAD
 		printk(KERN_ERR "printing inode..\n");
 		print_block_data(inode->i_sb, 0, (unsigned char *)inode, 0,
 			EXT4_INODE_SIZE(inode->i_sb));
+=======
+>>>>>>> upstream/android-13
 		ext4_error_inode(inode, func, line, map->m_pblk,
 				 "lblock %lu mapped to illegal pblock %llu "
 				 "(length %d)", (unsigned long) map->m_lblk,
@@ -442,7 +496,11 @@ int ext4_issue_zeroout(struct inode *inode, ext4_lblk_t lblk, ext4_fsblk_t pblk,
 {
 	int ret;
 
+<<<<<<< HEAD
 	if (IS_ENCRYPTED(inode))
+=======
+	if (IS_ENCRYPTED(inode) && S_ISREG(inode->i_mode))
+>>>>>>> upstream/android-13
 		return fscrypt_zeroout_range(inode, lblk, pblk, len);
 
 	ret = sb_issue_zeroout(inode->i_sb, pblk, len, GFP_NOFS);
@@ -474,11 +532,17 @@ static void ext4_map_blocks_es_recheck(handle_t *handle,
 	 */
 	down_read(&EXT4_I(inode)->i_data_sem);
 	if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)) {
+<<<<<<< HEAD
 		retval = ext4_ext_map_blocks(handle, inode, map, flags &
 					     EXT4_GET_BLOCKS_KEEP_SIZE);
 	} else {
 		retval = ext4_ind_map_blocks(handle, inode, map, flags &
 					     EXT4_GET_BLOCKS_KEEP_SIZE);
+=======
+		retval = ext4_ext_map_blocks(handle, inode, map, 0);
+	} else {
+		retval = ext4_ind_map_blocks(handle, inode, map, 0);
+>>>>>>> upstream/android-13
 	}
 	up_read((&EXT4_I(inode)->i_data_sem));
 
@@ -535,9 +599,14 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 #endif
 
 	map->m_flags = 0;
+<<<<<<< HEAD
 	ext_debug("ext4_map_blocks(): inode %lu, flag %d, max_blocks %u,"
 		  "logical block %lu\n", inode->i_ino, flags, map->m_len,
 		  (unsigned long) map->m_lblk);
+=======
+	ext_debug(inode, "flag 0x%x, max_blocks %u, logical block %lu\n",
+		  flags, map->m_len, (unsigned long) map->m_lblk);
+>>>>>>> upstream/android-13
 
 	/*
 	 * ext4_map_blocks returns an int, and m_len is an unsigned int
@@ -550,7 +619,12 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 		return -EFSCORRUPTED;
 
 	/* Lookup extent status tree firstly */
+<<<<<<< HEAD
 	if (ext4_es_lookup_extent(inode, map->m_lblk, &es)) {
+=======
+	if (!(EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY) &&
+	    ext4_es_lookup_extent(inode, map->m_lblk, NULL, &es)) {
+>>>>>>> upstream/android-13
 		if (ext4_es_is_written(&es) || ext4_es_is_unwritten(&es)) {
 			map->m_pblk = ext4_es_pblock(&es) +
 					map->m_lblk - es.es_lblk;
@@ -568,7 +642,11 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 			map->m_len = retval;
 			retval = 0;
 		} else {
+<<<<<<< HEAD
 			BUG_ON(1);
+=======
+			BUG();
+>>>>>>> upstream/android-13
 		}
 #ifdef ES_AGGRESSIVE_TEST
 		ext4_map_blocks_es_recheck(handle, inode, map,
@@ -583,11 +661,17 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 	 */
 	down_read(&EXT4_I(inode)->i_data_sem);
 	if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)) {
+<<<<<<< HEAD
 		retval = ext4_ext_map_blocks(handle, inode, map, flags &
 					     EXT4_GET_BLOCKS_KEEP_SIZE);
 	} else {
 		retval = ext4_ind_map_blocks(handle, inode, map, flags &
 					     EXT4_GET_BLOCKS_KEEP_SIZE);
+=======
+		retval = ext4_ext_map_blocks(handle, inode, map, 0);
+	} else {
+		retval = ext4_ind_map_blocks(handle, inode, map, 0);
+>>>>>>> upstream/android-13
 	}
 	if (retval > 0) {
 		unsigned int status;
@@ -604,8 +688,13 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 				EXTENT_STATUS_UNWRITTEN : EXTENT_STATUS_WRITTEN;
 		if (!(flags & EXT4_GET_BLOCKS_DELALLOC_RESERVE) &&
 		    !(status & EXTENT_STATUS_WRITTEN) &&
+<<<<<<< HEAD
 		    ext4_find_delalloc_range(inode, map->m_lblk,
 					     map->m_lblk + map->m_len - 1))
+=======
+		    ext4_es_scan_range(inode, &ext4_es_is_delayed, map->m_lblk,
+				       map->m_lblk + map->m_len - 1))
+>>>>>>> upstream/android-13
 			status |= EXTENT_STATUS_DELAYED;
 		ret = ext4_es_insert_extent(inode, map->m_lblk,
 					    map->m_len, map->m_pblk, status);
@@ -705,8 +794,11 @@ found:
 		if (flags & EXT4_GET_BLOCKS_ZERO &&
 		    map->m_flags & EXT4_MAP_MAPPED &&
 		    map->m_flags & EXT4_MAP_NEW) {
+<<<<<<< HEAD
 			clean_bdev_aliases(inode->i_sb->s_bdev, map->m_pblk,
 					   map->m_len);
+=======
+>>>>>>> upstream/android-13
 			ret = ext4_issue_zeroout(inode, map->m_lblk,
 						 map->m_pblk, map->m_len);
 			if (ret) {
@@ -720,7 +812,11 @@ found:
 		 * extent status tree.
 		 */
 		if ((flags & EXT4_GET_BLOCKS_PRE_IO) &&
+<<<<<<< HEAD
 		    ext4_es_lookup_extent(inode, map->m_lblk, &es)) {
+=======
+		    ext4_es_lookup_extent(inode, map->m_lblk, NULL, &es)) {
+>>>>>>> upstream/android-13
 			if (ext4_es_is_written(&es))
 				goto out_sem;
 		}
@@ -728,8 +824,13 @@ found:
 				EXTENT_STATUS_UNWRITTEN : EXTENT_STATUS_WRITTEN;
 		if (!(flags & EXT4_GET_BLOCKS_DELALLOC_RESERVE) &&
 		    !(status & EXTENT_STATUS_WRITTEN) &&
+<<<<<<< HEAD
 		    ext4_find_delalloc_range(inode, map->m_lblk,
 					     map->m_lblk + map->m_len - 1))
+=======
+		    ext4_es_scan_range(inode, &ext4_es_is_delayed, map->m_lblk,
+				       map->m_lblk + map->m_len - 1))
+>>>>>>> upstream/android-13
 			status |= EXTENT_STATUS_DELAYED;
 		ret = ext4_es_insert_extent(inode, map->m_lblk, map->m_len,
 					    map->m_pblk, status);
@@ -770,6 +871,15 @@ out_sem:
 				return ret;
 		}
 	}
+<<<<<<< HEAD
+=======
+	if (retval > 0 && (map->m_flags & EXT4_MAP_UNWRITTEN ||
+				map->m_flags & EXT4_MAP_MAPPED))
+		ext4_fc_track_range(handle, inode, map->m_lblk,
+					map->m_lblk + map->m_len - 1);
+	if (retval < 0)
+		ext_debug(inode, "failed with err %d\n", retval);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -852,6 +962,7 @@ int ext4_get_block_unwritten(struct inode *inode, sector_t iblock,
 #define DIO_MAX_BLOCKS 4096
 
 /*
+<<<<<<< HEAD
  * Get blocks function for the cases that need to start a transaction -
  * generally difference cases of direct IO and DAX IO. It also handles retries
  * in case of ENOSPC.
@@ -982,6 +1093,8 @@ static int ext4_dio_get_block_overwrite(struct inode *inode, sector_t iblock,
 
 
 /*
+=======
+>>>>>>> upstream/android-13
  * `handle' can be NULL if create is zero
  */
 struct buffer_head *ext4_getblk(handle_t *handle, struct inode *inode,
@@ -992,7 +1105,12 @@ struct buffer_head *ext4_getblk(handle_t *handle, struct inode *inode,
 	int create = map_flags & EXT4_GET_BLOCKS_CREATE;
 	int err;
 
+<<<<<<< HEAD
 	J_ASSERT(handle != NULL || create == 0);
+=======
+	ASSERT((EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
+		    || handle != NULL || create == 0);
+>>>>>>> upstream/android-13
 
 	map.m_lblk = block;
 	map.m_len = 1;
@@ -1007,8 +1125,14 @@ struct buffer_head *ext4_getblk(handle_t *handle, struct inode *inode,
 	if (unlikely(!bh))
 		return ERR_PTR(-ENOMEM);
 	if (map.m_flags & EXT4_MAP_NEW) {
+<<<<<<< HEAD
 		J_ASSERT(create != 0);
 		J_ASSERT(handle != NULL);
+=======
+		ASSERT(create != 0);
+		ASSERT((EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
+			    || (handle != NULL));
+>>>>>>> upstream/android-13
 
 		/*
 		 * Now that we do not always journal data, we should
@@ -1019,7 +1143,12 @@ struct buffer_head *ext4_getblk(handle_t *handle, struct inode *inode,
 		 */
 		lock_buffer(bh);
 		BUFFER_TRACE(bh, "call get_create_access");
+<<<<<<< HEAD
 		err = ext4_journal_get_create_access(handle, bh);
+=======
+		err = ext4_journal_get_create_access(handle, inode->i_sb, bh,
+						     EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (unlikely(err)) {
 			unlock_buffer(bh);
 			goto errout;
@@ -1045,10 +1174,15 @@ struct buffer_head *ext4_bread(handle_t *handle, struct inode *inode,
 			       ext4_lblk_t block, int map_flags)
 {
 	struct buffer_head *bh;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	bh = ext4_getblk(handle, inode, block, map_flags);
 	if (IS_ERR(bh))
 		return bh;
+<<<<<<< HEAD
 	if (!bh || buffer_uptodate(bh))
 		return bh;
 	ll_rw_block(REQ_OP_READ, REQ_META | REQ_PRIO, 1, &bh);
@@ -1057,6 +1191,17 @@ struct buffer_head *ext4_bread(handle_t *handle, struct inode *inode,
 		return bh;
 	put_bh(bh);
 	return ERR_PTR(-EIO);
+=======
+	if (!bh || ext4_buffer_uptodate(bh))
+		return bh;
+
+	ret = ext4_read_bh_lock(bh, REQ_META | REQ_PRIO, true);
+	if (ret) {
+		put_bh(bh);
+		return ERR_PTR(ret);
+	}
+	return bh;
+>>>>>>> upstream/android-13
 }
 
 /* Read a contiguous batch of blocks. */
@@ -1076,9 +1221,14 @@ int ext4_bread_batch(struct inode *inode, ext4_lblk_t block, int bh_count,
 
 	for (i = 0; i < bh_count; i++)
 		/* Note that NULL bhs[i] is valid because of holes. */
+<<<<<<< HEAD
 		if (bhs[i] && !buffer_uptodate(bhs[i]))
 			ll_rw_block(REQ_OP_READ, REQ_META | REQ_PRIO, 1,
 				    &bhs[i]);
+=======
+		if (bhs[i] && !ext4_buffer_uptodate(bhs[i]))
+			ext4_read_bh_lock(bhs[i], REQ_META | REQ_PRIO, false);
+>>>>>>> upstream/android-13
 
 	if (!wait)
 		return 0;
@@ -1103,12 +1253,20 @@ out_brelse:
 	return err;
 }
 
+<<<<<<< HEAD
 int ext4_walk_page_buffers(handle_t *handle,
+=======
+int ext4_walk_page_buffers(handle_t *handle, struct inode *inode,
+>>>>>>> upstream/android-13
 			   struct buffer_head *head,
 			   unsigned from,
 			   unsigned to,
 			   int *partial,
+<<<<<<< HEAD
 			   int (*fn)(handle_t *handle,
+=======
+			   int (*fn)(handle_t *handle, struct inode *inode,
+>>>>>>> upstream/android-13
 				     struct buffer_head *bh))
 {
 	struct buffer_head *bh;
@@ -1127,7 +1285,11 @@ int ext4_walk_page_buffers(handle_t *handle,
 				*partial = 1;
 			continue;
 		}
+<<<<<<< HEAD
 		err = (*fn)(handle, bh);
+=======
+		err = (*fn)(handle, inode, bh);
+>>>>>>> upstream/android-13
 		if (!ret)
 			ret = err;
 	}
@@ -1158,7 +1320,11 @@ int ext4_walk_page_buffers(handle_t *handle,
  * is elevated.  We'll still have enough credits for the tiny quotafile
  * write.
  */
+<<<<<<< HEAD
 int do_journal_get_write_access(handle_t *handle,
+=======
+int do_journal_get_write_access(handle_t *handle, struct inode *inode,
+>>>>>>> upstream/android-13
 				struct buffer_head *bh)
 {
 	int dirty = buffer_dirty(bh);
@@ -1177,7 +1343,12 @@ int do_journal_get_write_access(handle_t *handle,
 	if (dirty)
 		clear_buffer_dirty(bh);
 	BUFFER_TRACE(bh, "get write access");
+<<<<<<< HEAD
 	ret = ext4_journal_get_write_access(handle, bh);
+=======
+	ret = ext4_journal_get_write_access(handle, inode->i_sb, bh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (!ret && dirty)
 		ret = ext4_handle_dirty_metadata(handle, NULL, bh);
 	return ret;
@@ -1195,8 +1366,14 @@ static int ext4_block_write_begin(struct page *page, loff_t pos, unsigned len,
 	int err = 0;
 	unsigned blocksize = inode->i_sb->s_blocksize;
 	unsigned bbits;
+<<<<<<< HEAD
 	struct buffer_head *bh, *head, *wait[2], **wait_bh = wait;
 	bool decrypt = false;
+=======
+	struct buffer_head *bh, *head, *wait[2];
+	int nr_wait = 0;
+	int i;
+>>>>>>> upstream/android-13
 
 	BUG_ON(!PageLocked(page));
 	BUG_ON(from > PAGE_SIZE);
@@ -1214,8 +1391,12 @@ static int ext4_block_write_begin(struct page *page, loff_t pos, unsigned len,
 		block_end = block_start + blocksize;
 		if (block_end <= from || block_start >= to) {
 			if (PageUptodate(page)) {
+<<<<<<< HEAD
 				if (!buffer_uptodate(bh))
 					set_buffer_uptodate(bh);
+=======
+				set_buffer_uptodate(bh);
+>>>>>>> upstream/android-13
 			}
 			continue;
 		}
@@ -1227,7 +1408,10 @@ static int ext4_block_write_begin(struct page *page, loff_t pos, unsigned len,
 			if (err)
 				break;
 			if (buffer_new(bh)) {
+<<<<<<< HEAD
 				clean_bdev_bh_alias(bh);
+=======
+>>>>>>> upstream/android-13
 				if (PageUptodate(page)) {
 					clear_buffer_new(bh);
 					set_buffer_uptodate(bh);
@@ -1241,21 +1425,31 @@ static int ext4_block_write_begin(struct page *page, loff_t pos, unsigned len,
 			}
 		}
 		if (PageUptodate(page)) {
+<<<<<<< HEAD
 			if (!buffer_uptodate(bh))
 				set_buffer_uptodate(bh);
+=======
+			set_buffer_uptodate(bh);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		if (!buffer_uptodate(bh) && !buffer_delay(bh) &&
 		    !buffer_unwritten(bh) &&
 		    (block_start < from || block_end > to)) {
+<<<<<<< HEAD
 			ll_rw_block(REQ_OP_READ, 0, 1, &bh);
 			*wait_bh++ = bh;
 			decrypt = fscrypt_inode_uses_fs_layer_crypto(inode);
+=======
+			ext4_read_bh_lock(bh, 0, false);
+			wait[nr_wait++] = bh;
+>>>>>>> upstream/android-13
 		}
 	}
 	/*
 	 * If we issued read requests, let them complete.
 	 */
+<<<<<<< HEAD
 	while (wait_bh > wait) {
 		wait_on_buffer(*--wait_bh);
 		if (!buffer_uptodate(*wait_bh))
@@ -1265,6 +1459,28 @@ static int ext4_block_write_begin(struct page *page, loff_t pos, unsigned len,
 		page_zero_new_buffers(page, from, to);
 	else if (decrypt)
 		err = fscrypt_decrypt_pagecache_blocks(page, PAGE_SIZE, 0);
+=======
+	for (i = 0; i < nr_wait; i++) {
+		wait_on_buffer(wait[i]);
+		if (!buffer_uptodate(wait[i]))
+			err = -EIO;
+	}
+	if (unlikely(err)) {
+		page_zero_new_buffers(page, from, to);
+	} else if (fscrypt_inode_uses_fs_layer_crypto(inode)) {
+		for (i = 0; i < nr_wait; i++) {
+			int err2;
+
+			err2 = fscrypt_decrypt_pagecache_blocks(page, blocksize,
+								bh_offset(wait[i]));
+			if (err2) {
+				clear_buffer_uptodate(wait[i]);
+				err = err2;
+			}
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return err;
 }
 #endif
@@ -1359,8 +1575,13 @@ retry_journal:
 		ret = __block_write_begin(page, pos, len, ext4_get_block);
 #endif
 	if (!ret && ext4_should_journal_data(inode)) {
+<<<<<<< HEAD
 		ret = ext4_walk_page_buffers(handle, page_buffers(page),
 					     from, to, NULL,
+=======
+		ret = ext4_walk_page_buffers(handle, inode,
+					     page_buffers(page), from, to, NULL,
+>>>>>>> upstream/android-13
 					     do_journal_get_write_access);
 	}
 
@@ -1400,12 +1621,20 @@ retry_journal:
 		return ret;
 	}
 	*pagep = page;
+<<<<<<< HEAD
 	mtk_btag_pidlog_set_pid(page, PIDLOG_MODE_FS_WRITE_BEGIN, true);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /* For write_end() in data=journal mode */
+<<<<<<< HEAD
 static int write_end_fn(handle_t *handle, struct buffer_head *bh)
+=======
+static int write_end_fn(handle_t *handle, struct inode *inode,
+			struct buffer_head *bh)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	if (!buffer_mapped(bh) || buffer_freed(bh))
@@ -1434,11 +1663,15 @@ static int ext4_write_end(struct file *file,
 	loff_t old_size = inode->i_size;
 	int ret = 0, ret2;
 	int i_size_changed = 0;
+<<<<<<< HEAD
 	int inline_data = ext4_has_inline_data(inode);
+=======
+>>>>>>> upstream/android-13
 	bool verity = ext4_verity_in_progress(inode);
 
 	trace_android_fs_datawrite_end(inode, pos, len);
 	trace_ext4_write_end(inode, pos, len, copied);
+<<<<<<< HEAD
 	if (inline_data) {
 		ret = ext4_write_inline_data_end(inode, pos, len,
 						 copied, page);
@@ -1451,6 +1684,13 @@ static int ext4_write_end(struct file *file,
 	} else
 		copied = block_write_end(file, mapping, pos,
 					 len, copied, page, fsdata);
+=======
+
+	if (ext4_has_inline_data(inode))
+		return ext4_write_inline_data_end(inode, pos, len, copied, page);
+
+	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
+>>>>>>> upstream/android-13
 	/*
 	 * it's important to update i_size while still holding page lock:
 	 * page writeout could otherwise come in and zero beyond i_size.
@@ -1471,8 +1711,13 @@ static int ext4_write_end(struct file *file,
 	 * ordering of page lock and transaction start for journaling
 	 * filesystems.
 	 */
+<<<<<<< HEAD
 	if (i_size_changed || inline_data)
 		ext4_mark_inode_dirty(handle, inode);
+=======
+	if (i_size_changed)
+		ret = ext4_mark_inode_dirty(handle, inode);
+>>>>>>> upstream/android-13
 
 	if (pos + len > inode->i_size && !verity && ext4_can_truncate(inode))
 		/* if we have allocated more blocks and copied
@@ -1480,7 +1725,11 @@ static int ext4_write_end(struct file *file,
 		 * inode->i_size. So truncate them
 		 */
 		ext4_orphan_add(handle, inode);
+<<<<<<< HEAD
 errout:
+=======
+
+>>>>>>> upstream/android-13
 	ret2 = ext4_journal_stop(handle);
 	if (!ret)
 		ret = ret2;
@@ -1505,6 +1754,10 @@ errout:
  * to call ext4_handle_dirty_metadata() instead.
  */
 static void ext4_journalled_zero_new_buffers(handle_t *handle,
+<<<<<<< HEAD
+=======
+					    struct inode *inode,
+>>>>>>> upstream/android-13
 					    struct page *page,
 					    unsigned from, unsigned to)
 {
@@ -1523,7 +1776,11 @@ static void ext4_journalled_zero_new_buffers(handle_t *handle,
 					size = min(to, block_end) - start;
 
 					zero_user(page, start, size);
+<<<<<<< HEAD
 					write_end_fn(handle, bh);
+=======
+					write_end_fn(handle, inode, bh);
+>>>>>>> upstream/android-13
 				}
 				clear_buffer_new(bh);
 			}
@@ -1545,7 +1802,10 @@ static int ext4_journalled_write_end(struct file *file,
 	int partial = 0;
 	unsigned from, to;
 	int size_changed = 0;
+<<<<<<< HEAD
 	int inline_data = ext4_has_inline_data(inode);
+=======
+>>>>>>> upstream/android-13
 	bool verity = ext4_verity_in_progress(inode);
 
 	trace_android_fs_datawrite_end(inode, pos, len);
@@ -1555,6 +1815,7 @@ static int ext4_journalled_write_end(struct file *file,
 
 	BUG_ON(!ext4_handle_valid(handle));
 
+<<<<<<< HEAD
 	if (inline_data) {
 		ret = ext4_write_inline_data_end(inode, pos, len,
 						 copied, page);
@@ -1573,6 +1834,20 @@ static int ext4_journalled_write_end(struct file *file,
 							 from + copied, to);
 		ret = ext4_walk_page_buffers(handle, page_buffers(page), from,
 					     from + copied, &partial,
+=======
+	if (ext4_has_inline_data(inode))
+		return ext4_write_inline_data_end(inode, pos, len, copied, page);
+
+	if (unlikely(copied < len) && !PageUptodate(page)) {
+		copied = 0;
+		ext4_journalled_zero_new_buffers(handle, inode, page, from, to);
+	} else {
+		if (unlikely(copied < len))
+			ext4_journalled_zero_new_buffers(handle, inode, page,
+							 from + copied, to);
+		ret = ext4_walk_page_buffers(handle, inode, page_buffers(page),
+					     from, from + copied, &partial,
+>>>>>>> upstream/android-13
 					     write_end_fn);
 		if (!partial)
 			SetPageUptodate(page);
@@ -1587,7 +1862,11 @@ static int ext4_journalled_write_end(struct file *file,
 	if (old_size < pos && !verity)
 		pagecache_isize_extended(inode, old_size, pos);
 
+<<<<<<< HEAD
 	if (size_changed || inline_data) {
+=======
+	if (size_changed) {
+>>>>>>> upstream/android-13
 		ret2 = ext4_mark_inode_dirty(handle, inode);
 		if (!ret)
 			ret = ret2;
@@ -1600,7 +1879,10 @@ static int ext4_journalled_write_end(struct file *file,
 		 */
 		ext4_orphan_add(handle, inode);
 
+<<<<<<< HEAD
 errout:
+=======
+>>>>>>> upstream/android-13
 	ret2 = ext4_journal_stop(handle);
 	if (!ret)
 		ret = ret2;
@@ -1649,7 +1931,11 @@ static int ext4_da_reserve_space(struct inode *inode)
 	return 0;       /* success */
 }
 
+<<<<<<< HEAD
 static void ext4_da_release_space(struct inode *inode, int to_free)
+=======
+void ext4_da_release_space(struct inode *inode, int to_free)
+>>>>>>> upstream/android-13
 {
 	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
 	struct ext4_inode_info *ei = EXT4_I(inode);
@@ -1684,6 +1970,7 @@ static void ext4_da_release_space(struct inode *inode, int to_free)
 	dquot_release_reservation_block(inode, EXT4_C2B(sbi, to_free));
 }
 
+<<<<<<< HEAD
 static void ext4_da_page_release_reservation(struct page *page,
 					     unsigned int offset,
 					     unsigned int length)
@@ -1742,6 +2029,8 @@ static void ext4_da_page_release_reservation(struct page *page,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Delayed allocation stuff
  */
@@ -1761,6 +2050,10 @@ struct mpage_da_data {
 	struct ext4_map_blocks map;
 	struct ext4_io_submit io_submit;	/* IO submission data */
 	unsigned int do_map:1;
+<<<<<<< HEAD
+=======
+	unsigned int scanned_until_end:1;
+>>>>>>> upstream/android-13
 };
 
 static void mpage_release_unused_pages(struct mpage_da_data *mpd,
@@ -1776,6 +2069,10 @@ static void mpage_release_unused_pages(struct mpage_da_data *mpd,
 	if (mpd->first_page >= mpd->next_page)
 		return;
 
+<<<<<<< HEAD
+=======
+	mpd->scanned_until_end = 0;
+>>>>>>> upstream/android-13
 	index = mpd->first_page;
 	end   = mpd->next_page - 1;
 	if (invalidate) {
@@ -1829,12 +2126,84 @@ static void ext4_print_free_blocks(struct inode *inode)
 	return;
 }
 
+<<<<<<< HEAD
 static int ext4_bh_delay_or_unwritten(handle_t *handle, struct buffer_head *bh)
+=======
+static int ext4_bh_delay_or_unwritten(handle_t *handle, struct inode *inode,
+				      struct buffer_head *bh)
+>>>>>>> upstream/android-13
 {
 	return (buffer_delay(bh) || buffer_unwritten(bh)) && buffer_dirty(bh);
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * ext4_insert_delayed_block - adds a delayed block to the extents status
+ *                             tree, incrementing the reserved cluster/block
+ *                             count or making a pending reservation
+ *                             where needed
+ *
+ * @inode - file containing the newly added block
+ * @lblk - logical block to be added
+ *
+ * Returns 0 on success, negative error code on failure.
+ */
+static int ext4_insert_delayed_block(struct inode *inode, ext4_lblk_t lblk)
+{
+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+	int ret;
+	bool allocated = false;
+	bool reserved = false;
+
+	/*
+	 * If the cluster containing lblk is shared with a delayed,
+	 * written, or unwritten extent in a bigalloc file system, it's
+	 * already been accounted for and does not need to be reserved.
+	 * A pending reservation must be made for the cluster if it's
+	 * shared with a written or unwritten extent and doesn't already
+	 * have one.  Written and unwritten extents can be purged from the
+	 * extents status tree if the system is under memory pressure, so
+	 * it's necessary to examine the extent tree if a search of the
+	 * extents status tree doesn't get a match.
+	 */
+	if (sbi->s_cluster_ratio == 1) {
+		ret = ext4_da_reserve_space(inode);
+		if (ret != 0)   /* ENOSPC */
+			goto errout;
+		reserved = true;
+	} else {   /* bigalloc */
+		if (!ext4_es_scan_clu(inode, &ext4_es_is_delonly, lblk)) {
+			if (!ext4_es_scan_clu(inode,
+					      &ext4_es_is_mapped, lblk)) {
+				ret = ext4_clu_mapped(inode,
+						      EXT4_B2C(sbi, lblk));
+				if (ret < 0)
+					goto errout;
+				if (ret == 0) {
+					ret = ext4_da_reserve_space(inode);
+					if (ret != 0)   /* ENOSPC */
+						goto errout;
+					reserved = true;
+				} else {
+					allocated = true;
+				}
+			} else {
+				allocated = true;
+			}
+		}
+	}
+
+	ret = ext4_es_insert_delayed_block(inode, lblk, allocated);
+	if (ret && reserved)
+		ext4_da_release_space(inode, 1);
+
+errout:
+	return ret;
+}
+
+/*
+>>>>>>> upstream/android-13
  * This function is grabs code from the very beginning of
  * ext4_map_blocks, but assumes that the caller is from delayed write
  * time. This function looks up the requested blocks and sets the
@@ -1857,12 +2226,20 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
 		invalid_block = ~0;
 
 	map->m_flags = 0;
+<<<<<<< HEAD
 	ext_debug("ext4_da_map_blocks(): inode %lu, max_blocks %u,"
 		  "logical block %lu\n", inode->i_ino, map->m_len,
 		  (unsigned long) map->m_lblk);
 
 	/* Lookup extent status tree firstly */
 	if (ext4_es_lookup_extent(inode, iblock, &es)) {
+=======
+	ext_debug(inode, "max_blocks %u, logical block %lu\n", map->m_len,
+		  (unsigned long) map->m_lblk);
+
+	/* Lookup extent status tree firstly */
+	if (ext4_es_lookup_extent(inode, iblock, NULL, &es)) {
+>>>>>>> upstream/android-13
 		if (ext4_es_is_hole(&es)) {
 			retval = 0;
 			down_read(&EXT4_I(inode)->i_data_sem);
@@ -1890,7 +2267,11 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
 		else if (ext4_es_is_unwritten(&es))
 			map->m_flags |= EXT4_MAP_UNWRITTEN;
 		else
+<<<<<<< HEAD
 			BUG_ON(1);
+=======
+			BUG();
+>>>>>>> upstream/android-13
 
 #ifdef ES_AGGRESSIVE_TEST
 		ext4_map_blocks_es_recheck(NULL, inode, map, &orig_map, 0);
@@ -1913,10 +2294,15 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
 add_delayed:
 	if (retval == 0) {
 		int ret;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		/*
 		 * XXX: __block_prepare_write() unmaps passed block,
 		 * is it OK?
 		 */
+<<<<<<< HEAD
 		/*
 		 * If the block was allocated from previously allocated cluster,
 		 * then we don't need to reserve it again. However we still need
@@ -1935,6 +2321,11 @@ add_delayed:
 		ret = ext4_es_insert_extent(inode, map->m_lblk, map->m_len,
 					    ~0, EXTENT_STATUS_DELAYED);
 		if (ret) {
+=======
+
+		ret = ext4_insert_delayed_block(inode, map->m_lblk);
+		if (ret != 0) {
+>>>>>>> upstream/android-13
 			retval = ret;
 			goto out_unlock;
 		}
@@ -2017,6 +2408,7 @@ int ext4_da_get_block_prep(struct inode *inode, sector_t iblock,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bget_one(handle_t *handle, struct buffer_head *bh)
 {
 	get_bh(bh);
@@ -2029,16 +2421,25 @@ static int bput_one(handle_t *handle, struct buffer_head *bh)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __ext4_journalled_writepage(struct page *page,
 				       unsigned int len)
 {
 	struct address_space *mapping = page->mapping;
 	struct inode *inode = mapping->host;
+<<<<<<< HEAD
 	struct buffer_head *page_bufs = NULL;
+=======
+>>>>>>> upstream/android-13
 	handle_t *handle = NULL;
 	int ret = 0, err = 0;
 	int inline_data = ext4_has_inline_data(inode);
 	struct buffer_head *inode_bh = NULL;
+<<<<<<< HEAD
+=======
+	loff_t size;
+>>>>>>> upstream/android-13
 
 	ClearPageChecked(page);
 
@@ -2048,6 +2449,7 @@ static int __ext4_journalled_writepage(struct page *page,
 		inode_bh = ext4_journalled_write_inline_data(inode, len, page);
 		if (inode_bh == NULL)
 			goto out;
+<<<<<<< HEAD
 	} else {
 		page_bufs = page_buffers(page);
 		if (!page_bufs) {
@@ -2056,6 +2458,8 @@ static int __ext4_journalled_writepage(struct page *page,
 		}
 		ext4_walk_page_buffers(handle, page_bufs, 0, len,
 				       NULL, bget_one);
+=======
+>>>>>>> upstream/android-13
 	}
 	/*
 	 * We need to release the page lock before we start the
@@ -2076,7 +2480,12 @@ static int __ext4_journalled_writepage(struct page *page,
 
 	lock_page(page);
 	put_page(page);
+<<<<<<< HEAD
 	if (page->mapping != mapping) {
+=======
+	size = i_size_read(inode);
+	if (page->mapping != mapping || page_offset(page) > size) {
+>>>>>>> upstream/android-13
 		/* The page got truncated from under us */
 		ext4_journal_stop(handle);
 		ret = 0;
@@ -2086,6 +2495,7 @@ static int __ext4_journalled_writepage(struct page *page,
 	if (inline_data) {
 		ret = ext4_mark_inode_dirty(handle, inode);
 	} else {
+<<<<<<< HEAD
 		ret = ext4_walk_page_buffers(handle, page_bufs, 0, len, NULL,
 					     do_journal_get_write_access);
 
@@ -2094,6 +2504,26 @@ static int __ext4_journalled_writepage(struct page *page,
 	}
 	if (ret == 0)
 		ret = err;
+=======
+		struct buffer_head *page_bufs = page_buffers(page);
+
+		if (page->index == size >> PAGE_SHIFT)
+			len = size & ~PAGE_MASK;
+		else
+			len = PAGE_SIZE;
+
+		ret = ext4_walk_page_buffers(handle, inode, page_bufs, 0, len,
+					     NULL, do_journal_get_write_access);
+
+		err = ext4_walk_page_buffers(handle, inode, page_bufs, 0, len,
+					     NULL, write_end_fn);
+	}
+	if (ret == 0)
+		ret = err;
+	err = ext4_jbd2_inode_add_write(handle, inode, page_offset(page), len);
+	if (ret == 0)
+		ret = err;
+>>>>>>> upstream/android-13
 	EXT4_I(inode)->i_datasync_tid = handle->h_transaction->t_tid;
 	err = ext4_journal_stop(handle);
 	if (!ret)
@@ -2103,9 +2533,12 @@ static int __ext4_journalled_writepage(struct page *page,
 out:
 	unlock_page(page);
 out_no_pagelock:
+<<<<<<< HEAD
 	if (!inline_data && page_bufs)
 		ext4_walk_page_buffers(NULL, page_bufs, 0, len,
 				       NULL, bput_one);
+=======
+>>>>>>> upstream/android-13
 	brelse(inode_bh);
 	return ret;
 }
@@ -2176,6 +2609,18 @@ static int ext4_writepage(struct page *page,
 	else
 		len = PAGE_SIZE;
 
+<<<<<<< HEAD
+=======
+	/* Should never happen but for bugs in other kernel subsystems */
+	if (!page_has_buffers(page)) {
+		ext4_warning_inode(inode,
+		   "page %lu does not have buffers attached", page->index);
+		ClearPageDirty(page);
+		unlock_page(page);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	page_bufs = page_buffers(page);
 	/*
 	 * We cannot do block allocation or other extent handling in this
@@ -2194,7 +2639,11 @@ static int ext4_writepage(struct page *page,
 	 * for the extremely common case, this is an optimization that
 	 * skips a useless round trip through ext4_bio_write_page().
 	 */
+<<<<<<< HEAD
 	if (ext4_walk_page_buffers(NULL, page_bufs, 0, len, NULL,
+=======
+	if (ext4_walk_page_buffers(NULL, inode, page_bufs, 0, len, NULL,
+>>>>>>> upstream/android-13
 				   ext4_bh_delay_or_unwritten)) {
 		redirty_page_for_writepage(wbc, page);
 		if ((current->flags & PF_MEMALLOC) ||
@@ -2226,7 +2675,11 @@ static int ext4_writepage(struct page *page,
 		unlock_page(page);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	ret = ext4_bio_write_page(&io_submit, page, len, wbc, keep_towrite);
+=======
+	ret = ext4_bio_write_page(&io_submit, page, len, keep_towrite);
+>>>>>>> upstream/android-13
 	ext4_io_submit(&io_submit);
 	/* Drop io_end reference we got from init */
 	ext4_put_io_end_defer(io_submit.io_end);
@@ -2260,7 +2713,11 @@ static int mpage_submit_page(struct mpage_da_data *mpd, struct page *page)
 		len = size & ~PAGE_MASK;
 	else
 		len = PAGE_SIZE;
+<<<<<<< HEAD
 	err = ext4_bio_write_page(&mpd->io_submit, page, len, mpd->wbc, false);
+=======
+	err = ext4_bio_write_page(&mpd->io_submit, page, len, false);
+>>>>>>> upstream/android-13
 	if (!err)
 		mpd->wbc->nr_to_write--;
 	mpd->first_page++;
@@ -2268,7 +2725,11 @@ static int mpage_submit_page(struct mpage_da_data *mpd, struct page *page)
 	return err;
 }
 
+<<<<<<< HEAD
 #define BH_FLAGS ((1 << BH_Unwritten) | (1 << BH_Delay))
+=======
+#define BH_FLAGS (BIT(BH_Unwritten) | BIT(BH_Delay))
+>>>>>>> upstream/android-13
 
 /*
  * mballoc gives us at most this number of blocks...
@@ -2378,7 +2839,88 @@ static int mpage_process_page_bufs(struct mpage_da_data *mpd,
 		if (err < 0)
 			return err;
 	}
+<<<<<<< HEAD
 	return lblk < blocks;
+=======
+	if (lblk >= blocks) {
+		mpd->scanned_until_end = 1;
+		return 0;
+	}
+	return 1;
+}
+
+/*
+ * mpage_process_page - update page buffers corresponding to changed extent and
+ *		       may submit fully mapped page for IO
+ *
+ * @mpd		- description of extent to map, on return next extent to map
+ * @m_lblk	- logical block mapping.
+ * @m_pblk	- corresponding physical mapping.
+ * @map_bh	- determines on return whether this page requires any further
+ *		  mapping or not.
+ * Scan given page buffers corresponding to changed extent and update buffer
+ * state according to new extent state.
+ * We map delalloc buffers to their physical location, clear unwritten bits.
+ * If the given page is not fully mapped, we update @map to the next extent in
+ * the given page that needs mapping & return @map_bh as true.
+ */
+static int mpage_process_page(struct mpage_da_data *mpd, struct page *page,
+			      ext4_lblk_t *m_lblk, ext4_fsblk_t *m_pblk,
+			      bool *map_bh)
+{
+	struct buffer_head *head, *bh;
+	ext4_io_end_t *io_end = mpd->io_submit.io_end;
+	ext4_lblk_t lblk = *m_lblk;
+	ext4_fsblk_t pblock = *m_pblk;
+	int err = 0;
+	int blkbits = mpd->inode->i_blkbits;
+	ssize_t io_end_size = 0;
+	struct ext4_io_end_vec *io_end_vec = ext4_last_io_end_vec(io_end);
+
+	bh = head = page_buffers(page);
+	do {
+		if (lblk < mpd->map.m_lblk)
+			continue;
+		if (lblk >= mpd->map.m_lblk + mpd->map.m_len) {
+			/*
+			 * Buffer after end of mapped extent.
+			 * Find next buffer in the page to map.
+			 */
+			mpd->map.m_len = 0;
+			mpd->map.m_flags = 0;
+			io_end_vec->size += io_end_size;
+			io_end_size = 0;
+
+			err = mpage_process_page_bufs(mpd, head, bh, lblk);
+			if (err > 0)
+				err = 0;
+			if (!err && mpd->map.m_len && mpd->map.m_lblk > lblk) {
+				io_end_vec = ext4_alloc_io_end_vec(io_end);
+				if (IS_ERR(io_end_vec)) {
+					err = PTR_ERR(io_end_vec);
+					goto out;
+				}
+				io_end_vec->offset = (loff_t)mpd->map.m_lblk << blkbits;
+			}
+			*map_bh = true;
+			goto out;
+		}
+		if (buffer_delay(bh)) {
+			clear_buffer_delay(bh);
+			bh->b_blocknr = pblock++;
+		}
+		clear_buffer_unwritten(bh);
+		io_end_size += (1 << blkbits);
+	} while (lblk++, (bh = bh->b_this_page) != head);
+
+	io_end_vec->size += io_end_size;
+	io_end_size = 0;
+	*map_bh = false;
+out:
+	*m_lblk = lblk;
+	*m_pblk = pblock;
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2400,12 +2942,21 @@ static int mpage_map_and_submit_buffers(struct mpage_da_data *mpd)
 	struct pagevec pvec;
 	int nr_pages, i;
 	struct inode *inode = mpd->inode;
+<<<<<<< HEAD
 	struct buffer_head *head, *bh;
 	int bpp_bits = PAGE_SHIFT - inode->i_blkbits;
 	pgoff_t start, end;
 	ext4_lblk_t lblk;
 	sector_t pblock;
 	int err;
+=======
+	int bpp_bits = PAGE_SHIFT - inode->i_blkbits;
+	pgoff_t start, end;
+	ext4_lblk_t lblk;
+	ext4_fsblk_t pblock;
+	int err;
+	bool map_bh = false;
+>>>>>>> upstream/android-13
 
 	start = mpd->map.m_lblk >> bpp_bits;
 	end = (mpd->map.m_lblk + mpd->map.m_len - 1) >> bpp_bits;
@@ -2421,6 +2972,7 @@ static int mpage_map_and_submit_buffers(struct mpage_da_data *mpd)
 		for (i = 0; i < nr_pages; i++) {
 			struct page *page = pvec.pages[i];
 
+<<<<<<< HEAD
 			bh = head = page_buffers(page);
 			do {
 				if (lblk < mpd->map.m_lblk)
@@ -2465,6 +3017,21 @@ static int mpage_map_and_submit_buffers(struct mpage_da_data *mpd)
 				pagevec_release(&pvec);
 				return err;
 			}
+=======
+			err = mpage_process_page(mpd, page, &lblk, &pblock,
+						 &map_bh);
+			/*
+			 * If map_bh is true, means page may require further bh
+			 * mapping, or maybe the page was submitted for IO.
+			 * So we return to call further extent mapping.
+			 */
+			if (err < 0 || map_bh)
+				goto out;
+			/* Page fully mapped - let IO run! */
+			err = mpage_submit_page(mpd, page);
+			if (err < 0)
+				goto out;
+>>>>>>> upstream/android-13
 		}
 		pagevec_release(&pvec);
 	}
@@ -2472,6 +3039,12 @@ static int mpage_map_and_submit_buffers(struct mpage_da_data *mpd)
 	mpd->map.m_len = 0;
 	mpd->map.m_flags = 0;
 	return 0;
+<<<<<<< HEAD
+=======
+out:
+	pagevec_release(&pvec);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int mpage_map_one_extent(handle_t *handle, struct mpage_da_data *mpd)
@@ -2503,7 +3076,11 @@ static int mpage_map_one_extent(handle_t *handle, struct mpage_da_data *mpd)
 	dioread_nolock = ext4_should_dioread_nolock(inode);
 	if (dioread_nolock)
 		get_blocks_flags |= EXT4_GET_BLOCKS_IO_CREATE_EXT;
+<<<<<<< HEAD
 	if (map->m_flags & (1 << BH_Delay))
+=======
+	if (map->m_flags & BIT(BH_Delay))
+>>>>>>> upstream/android-13
 		get_blocks_flags |= EXT4_GET_BLOCKS_DELALLOC_RESERVE;
 
 	err = ext4_map_blocks(handle, inode, map, get_blocks_flags);
@@ -2519,10 +3096,13 @@ static int mpage_map_one_extent(handle_t *handle, struct mpage_da_data *mpd)
 	}
 
 	BUG_ON(map->m_len == 0);
+<<<<<<< HEAD
 	if (map->m_flags & EXT4_MAP_NEW) {
 		clean_bdev_aliases(inode->i_sb->s_bdev, map->m_pblk,
 				   map->m_len);
 	}
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2555,16 +3135,30 @@ static int mpage_map_and_submit_extent(handle_t *handle,
 	int err;
 	loff_t disksize;
 	int progress = 0;
+<<<<<<< HEAD
 
 	mpd->io_submit.io_end->offset =
 				((loff_t)map->m_lblk) << inode->i_blkbits;
+=======
+	ext4_io_end_t *io_end = mpd->io_submit.io_end;
+	struct ext4_io_end_vec *io_end_vec;
+
+	io_end_vec = ext4_alloc_io_end_vec(io_end);
+	if (IS_ERR(io_end_vec))
+		return PTR_ERR(io_end_vec);
+	io_end_vec->offset = ((loff_t)map->m_lblk) << inode->i_blkbits;
+>>>>>>> upstream/android-13
 	do {
 		err = mpage_map_one_extent(handle, mpd);
 		if (err < 0) {
 			struct super_block *sb = inode->i_sb;
 
 			if (ext4_forced_shutdown(EXT4_SB(sb)) ||
+<<<<<<< HEAD
 			    EXT4_SB(sb)->s_mount_flags & EXT4_MF_FS_ABORTED)
+=======
+			    ext4_test_mount_flag(sb, EXT4_MF_FS_ABORTED))
+>>>>>>> upstream/android-13
 				goto invalidate_dirty_pages;
 			/*
 			 * Let the uper layers retry transient errors.
@@ -2621,10 +3215,18 @@ update_disksize:
 			EXT4_I(inode)->i_disksize = disksize;
 		up_write(&EXT4_I(inode)->i_data_sem);
 		err2 = ext4_mark_inode_dirty(handle, inode);
+<<<<<<< HEAD
 		if (err2)
 			ext4_error(inode->i_sb,
 				   "Failed to mark inode %lu dirty",
 				   inode->i_ino);
+=======
+		if (err2) {
+			ext4_error_err(inode->i_sb, -err2,
+				       "Failed to mark inode %lu dirty",
+				       inode->i_ino);
+		}
+>>>>>>> upstream/android-13
 		if (!err)
 			err = err2;
 	}
@@ -2672,7 +3274,11 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
 	long left = mpd->wbc->nr_to_write;
 	pgoff_t index = mpd->first_page;
 	pgoff_t end = mpd->last_page;
+<<<<<<< HEAD
 	int tag;
+=======
+	xa_mark_t tag;
+>>>>>>> upstream/android-13
 	int i, err = 0;
 	int blkbits = mpd->inode->i_blkbits;
 	ext4_lblk_t lblk;
@@ -2690,7 +3296,11 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
 		nr_pages = pagevec_lookup_range_tag(&pvec, mapping, &index, end,
 				tag);
 		if (nr_pages == 0)
+<<<<<<< HEAD
 			goto out;
+=======
+			break;
+>>>>>>> upstream/android-13
 
 		for (i = 0; i < nr_pages; i++) {
 			struct page *page = pvec.pages[i];
@@ -2729,6 +3339,25 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
 			wait_on_page_writeback(page);
 			BUG_ON(PageWriteback(page));
 
+<<<<<<< HEAD
+=======
+			/*
+			 * Should never happen but for buggy code in
+			 * other subsystems that call
+			 * set_page_dirty() without properly warning
+			 * the file system first.  See [1] for more
+			 * information.
+			 *
+			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
+			 */
+			if (!page_has_buffers(page)) {
+				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
+				ClearPageDirty(page);
+				unlock_page(page);
+				continue;
+			}
+
+>>>>>>> upstream/android-13
 			if (mpd->map.m_len == 0)
 				mpd->first_page = page->index;
 			mpd->next_page = page->index + 1;
@@ -2745,6 +3374,10 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
 		pagevec_release(&pvec);
 		cond_resched();
 	}
+<<<<<<< HEAD
+=======
+	mpd->scanned_until_end = 1;
+>>>>>>> upstream/android-13
 	return 0;
 out:
 	pagevec_release(&pvec);
@@ -2763,7 +3396,10 @@ static int ext4_writepages(struct address_space *mapping,
 	struct inode *inode = mapping->host;
 	int needed_blocks, rsv_blocks = 0, ret = 0;
 	struct ext4_sb_info *sbi = EXT4_SB(mapping->host->i_sb);
+<<<<<<< HEAD
 	bool done;
+=======
+>>>>>>> upstream/android-13
 	struct blk_plug plug;
 	bool give_up_on_write = false;
 
@@ -2797,11 +3433,16 @@ static int ext4_writepages(struct address_space *mapping,
 	 * the stack trace.
 	 */
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(mapping->host->i_sb)) ||
+<<<<<<< HEAD
 		     sbi->s_mount_flags & EXT4_MF_FS_ABORTED)) {
+=======
+		     ext4_test_mount_flag(inode->i_sb, EXT4_MF_FS_ABORTED))) {
+>>>>>>> upstream/android-13
 		ret = -EROFS;
 		goto out_writepages;
 	}
 
+<<<<<<< HEAD
 	if (ext4_should_dioread_nolock(inode)) {
 		/*
 		 * We may need to convert up to one extent per block in
@@ -2811,6 +3452,8 @@ static int ext4_writepages(struct address_space *mapping,
 						PAGE_SIZE >> inode->i_blkbits);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If we have inline data and arrive here, it means that
 	 * we will soon create the block for the 1st page, so
@@ -2829,6 +3472,18 @@ static int ext4_writepages(struct address_space *mapping,
 		ext4_journal_stop(handle);
 	}
 
+<<<<<<< HEAD
+=======
+	if (ext4_should_dioread_nolock(inode)) {
+		/*
+		 * We may need to convert up to one extent per block in
+		 * the page and we may dirty the inode.
+		 */
+		rsv_blocks = 1 + ext4_chunk_trans_blocks(inode,
+						PAGE_SIZE >> inode->i_blkbits);
+	}
+
+>>>>>>> upstream/android-13
 	if (wbc->range_start == 0 && wbc->range_end == LLONG_MAX)
 		range_whole = 1;
 
@@ -2849,7 +3504,10 @@ static int ext4_writepages(struct address_space *mapping,
 retry:
 	if (wbc->sync_mode == WB_SYNC_ALL || wbc->tagged_writepages)
 		tag_pages_for_writeback(mapping, mpd.first_page, mpd.last_page);
+<<<<<<< HEAD
 	done = false;
+=======
+>>>>>>> upstream/android-13
 	blk_start_plug(&plug);
 
 	/*
@@ -2859,22 +3517,38 @@ retry:
 	 * started.
 	 */
 	mpd.do_map = 0;
+<<<<<<< HEAD
+=======
+	mpd.scanned_until_end = 0;
+>>>>>>> upstream/android-13
 	mpd.io_submit.io_end = ext4_init_io_end(inode, GFP_KERNEL);
 	if (!mpd.io_submit.io_end) {
 		ret = -ENOMEM;
 		goto unplug;
 	}
 	ret = mpage_prepare_extent_to_map(&mpd);
+<<<<<<< HEAD
+=======
+	/* Unlock pages we didn't use */
+	mpage_release_unused_pages(&mpd, false);
+>>>>>>> upstream/android-13
 	/* Submit prepared bio */
 	ext4_io_submit(&mpd.io_submit);
 	ext4_put_io_end_defer(mpd.io_submit.io_end);
 	mpd.io_submit.io_end = NULL;
+<<<<<<< HEAD
 	/* Unlock pages we didn't use */
 	mpage_release_unused_pages(&mpd, false);
 	if (ret < 0)
 		goto unplug;
 
 	while (!done && mpd.first_page <= mpd.last_page) {
+=======
+	if (ret < 0)
+		goto unplug;
+
+	while (!mpd.scanned_until_end && wbc->nr_to_write > 0) {
+>>>>>>> upstream/android-13
 		/* For each extent of pages we use new io_end */
 		mpd.io_submit.io_end = ext4_init_io_end(inode, GFP_KERNEL);
 		if (!mpd.io_submit.io_end) {
@@ -2909,6 +3583,7 @@ retry:
 
 		trace_ext4_da_write_pages(inode, mpd.first_page, mpd.wbc);
 		ret = mpage_prepare_extent_to_map(&mpd);
+<<<<<<< HEAD
 		if (!ret) {
 			if (mpd.map.m_len)
 				ret = mpage_map_and_submit_extent(handle, &mpd,
@@ -2923,12 +3598,21 @@ retry:
 				done = true;
 			}
 		}
+=======
+		if (!ret && mpd.map.m_len)
+			ret = mpage_map_and_submit_extent(handle, &mpd,
+					&give_up_on_write);
+>>>>>>> upstream/android-13
 		/*
 		 * Caution: If the handle is synchronous,
 		 * ext4_journal_stop() can wait for transaction commit
 		 * to finish which may depend on writeback of pages to
 		 * complete or on page lock to be released.  In that
+<<<<<<< HEAD
 		 * case, we have to wait until after after we have
+=======
+		 * case, we have to wait until after we have
+>>>>>>> upstream/android-13
 		 * submitted all the IO, released page locks we hold,
 		 * and dropped io_end reference (for extent conversion
 		 * to be able to complete) before stopping the handle.
@@ -2938,10 +3622,18 @@ retry:
 			handle = NULL;
 			mpd.do_map = 0;
 		}
+<<<<<<< HEAD
 		/* Submit prepared bio */
 		ext4_io_submit(&mpd.io_submit);
 		/* Unlock pages we didn't use */
 		mpage_release_unused_pages(&mpd, give_up_on_write);
+=======
+		/* Unlock pages we didn't use */
+		mpage_release_unused_pages(&mpd, give_up_on_write);
+		/* Submit prepared bio */
+		ext4_io_submit(&mpd.io_submit);
+
+>>>>>>> upstream/android-13
 		/*
 		 * Drop our io_end reference we got from init. We have
 		 * to be careful and use deferred io_end finishing if
@@ -3008,7 +3700,11 @@ static int ext4_dax_writepages(struct address_space *mapping,
 	percpu_down_read(&sbi->s_writepages_rwsem);
 	trace_ext4_writepages(inode, wbc);
 
+<<<<<<< HEAD
 	ret = dax_writeback_mapping_range(mapping, inode->i_sb->s_bdev, wbc);
+=======
+	ret = dax_writeback_mapping_range(mapping, sbi->s_daxdev, wbc);
+>>>>>>> upstream/android-13
 	trace_ext4_writepages_result(inode, wbc, ret,
 				     nr_to_write - wbc->nr_to_write);
 	percpu_up_read(&sbi->s_writepages_rwsem);
@@ -3049,6 +3745,7 @@ static int ext4_nonda_switch(struct super_block *sb)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* We always reserve for an inode update; the superblock could be there too */
 static int ext4_da_write_credits(struct inode *inode, loff_t pos, unsigned len)
 {
@@ -3062,6 +3759,8 @@ static int ext4_da_write_credits(struct inode *inode, loff_t pos, unsigned len)
 	return 2;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ext4_da_write_begin(struct file *file, struct address_space *mapping,
 			       loff_t pos, unsigned len, unsigned flags,
 			       struct page **pagep, void **fsdata)
@@ -3070,7 +3769,10 @@ static int ext4_da_write_begin(struct file *file, struct address_space *mapping,
 	struct page *page;
 	pgoff_t index;
 	struct inode *inode = mapping->host;
+<<<<<<< HEAD
 	handle_t *handle;
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
 		return -EIO;
@@ -3106,6 +3808,7 @@ static int ext4_da_write_begin(struct file *file, struct address_space *mapping,
 			return 0;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * grab_cache_page_write_begin() can take a long time if the
 	 * system is thrashing due to memory pressure, or if the page
@@ -3141,6 +3844,13 @@ retry_journal:
 		ext4_journal_stop(handle);
 		goto retry_grab;
 	}
+=======
+retry:
+	page = grab_cache_page_write_begin(mapping, index, flags);
+	if (!page)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	/* In case writeback began while the page was unlocked */
 	wait_for_stable_page(page);
 
@@ -3152,20 +3862,32 @@ retry_journal:
 #endif
 	if (ret < 0) {
 		unlock_page(page);
+<<<<<<< HEAD
 		ext4_journal_stop(handle);
 		/*
 		 * block_write_begin may have instantiated a few blocks
 		 * outside i_size.  Trim these off again. Don't need
 		 * i_size_read because we hold i_mutex.
+=======
+		put_page(page);
+		/*
+		 * block_write_begin may have instantiated a few blocks
+		 * outside i_size.  Trim these off again. Don't need
+		 * i_size_read because we hold inode lock.
+>>>>>>> upstream/android-13
 		 */
 		if (pos + len > inode->i_size)
 			ext4_truncate_failed_write(inode);
 
 		if (ret == -ENOSPC &&
 		    ext4_should_retry_alloc(inode->i_sb, &retries))
+<<<<<<< HEAD
 			goto retry_journal;
 
 		put_page(page);
+=======
+			goto retry;
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -3202,8 +3924,11 @@ static int ext4_da_write_end(struct file *file,
 			     struct page *page, void *fsdata)
 {
 	struct inode *inode = mapping->host;
+<<<<<<< HEAD
 	int ret = 0, ret2;
 	handle_t *handle = ext4_journal_current_handle();
+=======
+>>>>>>> upstream/android-13
 	loff_t new_i_size;
 	unsigned long start, end;
 	int write_mode = (int)(unsigned long)fsdata;
@@ -3214,6 +3939,7 @@ static int ext4_da_write_end(struct file *file,
 
 	trace_android_fs_datawrite_end(inode, pos, len);
 	trace_ext4_da_write_end(inode, pos, len, copied);
+<<<<<<< HEAD
 	start = pos & (PAGE_SIZE - 1);
 	end = start + copied - 1;
 
@@ -3234,10 +3960,13 @@ static int ext4_da_write_end(struct file *file,
 			ext4_mark_inode_dirty(handle, inode);
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (write_mode != CONVERT_INLINE_DATA &&
 	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA) &&
 	    ext4_has_inline_data(inode))
+<<<<<<< HEAD
 		ret2 = ext4_da_write_inline_data_end(inode, pos, len, copied,
 						     page);
 	else
@@ -3270,6 +3999,34 @@ out:
 	ext4_invalidatepage(page, offset, length);
 
 	return;
+=======
+		return ext4_write_inline_data_end(inode, pos, len, copied, page);
+
+	start = pos & (PAGE_SIZE - 1);
+	end = start + copied - 1;
+
+	/*
+	 * Since we are holding inode lock, we are sure i_disksize <=
+	 * i_size. We also know that if i_disksize < i_size, there are
+	 * delalloc writes pending in the range upto i_size. If the end of
+	 * the current write is <= i_size, there's no need to touch
+	 * i_disksize since writeback will push i_disksize upto i_size
+	 * eventually. If the end of the current write is > i_size and
+	 * inside an allocated block (ext4_da_should_update_i_disksize()
+	 * check), we need to update i_disksize here as neither
+	 * ext4_writepage() nor certain ext4_writepages() paths not
+	 * allocating blocks update i_disksize.
+	 *
+	 * Note that we defer inode dirtying to generic_write_end() /
+	 * ext4_da_write_inline_data_end().
+	 */
+	new_i_size = pos + copied;
+	if (copied && new_i_size > inode->i_size &&
+	    ext4_da_should_update_i_disksize(page, end))
+		ext4_update_i_disksize(inode, new_i_size);
+
+	return generic_write_end(file, mapping, pos, len, copied, page, fsdata);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3375,14 +4132,22 @@ static sector_t ext4_bmap(struct address_space *mapping, sector_t block)
 		ext4_clear_inode_state(inode, EXT4_STATE_JDATA);
 		journal = EXT4_JOURNAL(inode);
 		jbd2_journal_lock_updates(journal);
+<<<<<<< HEAD
 		err = jbd2_journal_flush(journal);
+=======
+		err = jbd2_journal_flush(journal, 0);
+>>>>>>> upstream/android-13
 		jbd2_journal_unlock_updates(journal);
 
 		if (err)
 			return 0;
 	}
 
+<<<<<<< HEAD
 	return generic_block_bmap(mapping, block, ext4_get_block);
+=======
+	return iomap_bmap(mapping, block, &ext4_iomap_ops);
+>>>>>>> upstream/android-13
 }
 
 static int ext4_readpage(struct file *file, struct page *page)
@@ -3396,12 +4161,17 @@ static int ext4_readpage(struct file *file, struct page *page)
 		ret = ext4_readpage_inline(inode, page);
 
 	if (ret == -EAGAIN)
+<<<<<<< HEAD
 		return ext4_mpage_readpages(page->mapping, NULL, page, 1,
 						false);
+=======
+		return ext4_mpage_readpages(inode, NULL, page);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int
 ext4_readpages(struct file *file, struct address_space *mapping,
 		struct list_head *pages, unsigned nr_pages)
@@ -3413,6 +4183,17 @@ ext4_readpages(struct file *file, struct address_space *mapping,
 		return 0;
 
 	return ext4_mpage_readpages(mapping, pages, NULL, nr_pages, true);
+=======
+static void ext4_readahead(struct readahead_control *rac)
+{
+	struct inode *inode = rac->mapping->host;
+
+	/* If the file has inline data, no need to do readahead. */
+	if (ext4_has_inline_data(inode))
+		return;
+
+	ext4_mpage_readpages(inode, rac, NULL);
+>>>>>>> upstream/android-13
 }
 
 static void ext4_invalidatepage(struct page *page, unsigned int offset,
@@ -3461,7 +4242,11 @@ static int ext4_releasepage(struct page *page, gfp_t wait)
 	if (PageChecked(page))
 		return 0;
 	if (journal)
+<<<<<<< HEAD
 		return jbd2_journal_try_to_free_buffers(journal, page, wait);
+=======
+		return jbd2_journal_try_to_free_buffers(journal, page);
+>>>>>>> upstream/android-13
 	else
 		return try_to_free_buffers(page);
 }
@@ -3470,15 +4255,28 @@ static bool ext4_inode_datasync_dirty(struct inode *inode)
 {
 	journal_t *journal = EXT4_SB(inode->i_sb)->s_journal;
 
+<<<<<<< HEAD
 	if (journal)
 		return !jbd2_transaction_committed(journal,
 					EXT4_I(inode)->i_datasync_tid);
+=======
+	if (journal) {
+		if (jbd2_transaction_committed(journal,
+			EXT4_I(inode)->i_datasync_tid))
+			return false;
+		if (test_opt2(inode->i_sb, JOURNAL_FAST_COMMIT))
+			return !list_empty(&EXT4_I(inode)->i_fc_list);
+		return true;
+	}
+
+>>>>>>> upstream/android-13
 	/* Any metadata buffers to write? */
 	if (!list_empty(&inode->i_mapping->private_list))
 		return true;
 	return inode->i_state & I_DIRTY_DATASYNC;
 }
 
+<<<<<<< HEAD
 static int ext4_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
 			    unsigned flags, struct iomap *iomap)
 {
@@ -3599,11 +4397,24 @@ retry:
 	 * Writes that span EOF might trigger an I/O size update on completion,
 	 * so consider them to be dirty for the purposes of O_DSYNC, even if
 	 * there is no other metadata changes being made or are pending here.
+=======
+static void ext4_set_iomap(struct inode *inode, struct iomap *iomap,
+			   struct ext4_map_blocks *map, loff_t offset,
+			   loff_t length)
+{
+	u8 blkbits = inode->i_blkbits;
+
+	/*
+	 * Writes that span EOF might trigger an I/O size update on completion,
+	 * so consider them to be dirty for the purpose of O_DSYNC, even if
+	 * there is no other metadata changes being made or are pending.
+>>>>>>> upstream/android-13
 	 */
 	iomap->flags = 0;
 	if (ext4_inode_datasync_dirty(inode) ||
 	    offset + length > i_size_read(inode))
 		iomap->flags |= IOMAP_F_DIRTY;
+<<<<<<< HEAD
 	iomap->bdev = inode->i_sb->s_bdev;
 	iomap->dax_dev = sbi->s_daxdev;
 	iomap->offset = (u64)first_block << blkbits;
@@ -3680,6 +4491,186 @@ orphan_del:
 			ext4_orphan_del(NULL, inode);
 	}
 	return ret;
+=======
+
+	if (map->m_flags & EXT4_MAP_NEW)
+		iomap->flags |= IOMAP_F_NEW;
+
+	iomap->bdev = inode->i_sb->s_bdev;
+	iomap->dax_dev = EXT4_SB(inode->i_sb)->s_daxdev;
+	iomap->offset = (u64) map->m_lblk << blkbits;
+	iomap->length = (u64) map->m_len << blkbits;
+
+	if ((map->m_flags & EXT4_MAP_MAPPED) &&
+	    !ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
+		iomap->flags |= IOMAP_F_MERGED;
+
+	/*
+	 * Flags passed to ext4_map_blocks() for direct I/O writes can result
+	 * in m_flags having both EXT4_MAP_MAPPED and EXT4_MAP_UNWRITTEN bits
+	 * set. In order for any allocated unwritten extents to be converted
+	 * into written extents correctly within the ->end_io() handler, we
+	 * need to ensure that the iomap->type is set appropriately. Hence, the
+	 * reason why we need to check whether the EXT4_MAP_UNWRITTEN bit has
+	 * been set first.
+	 */
+	if (map->m_flags & EXT4_MAP_UNWRITTEN) {
+		iomap->type = IOMAP_UNWRITTEN;
+		iomap->addr = (u64) map->m_pblk << blkbits;
+	} else if (map->m_flags & EXT4_MAP_MAPPED) {
+		iomap->type = IOMAP_MAPPED;
+		iomap->addr = (u64) map->m_pblk << blkbits;
+	} else {
+		iomap->type = IOMAP_HOLE;
+		iomap->addr = IOMAP_NULL_ADDR;
+	}
+}
+
+static int ext4_iomap_alloc(struct inode *inode, struct ext4_map_blocks *map,
+			    unsigned int flags)
+{
+	handle_t *handle;
+	u8 blkbits = inode->i_blkbits;
+	int ret, dio_credits, m_flags = 0, retries = 0;
+
+	/*
+	 * Trim the mapping request to the maximum value that we can map at
+	 * once for direct I/O.
+	 */
+	if (map->m_len > DIO_MAX_BLOCKS)
+		map->m_len = DIO_MAX_BLOCKS;
+	dio_credits = ext4_chunk_trans_blocks(inode, map->m_len);
+
+retry:
+	/*
+	 * Either we allocate blocks and then don't get an unwritten extent, so
+	 * in that case we have reserved enough credits. Or, the blocks are
+	 * already allocated and unwritten. In that case, the extent conversion
+	 * fits into the credits as well.
+	 */
+	handle = ext4_journal_start(inode, EXT4_HT_MAP_BLOCKS, dio_credits);
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+
+	/*
+	 * DAX and direct I/O are the only two operations that are currently
+	 * supported with IOMAP_WRITE.
+	 */
+	WARN_ON(!IS_DAX(inode) && !(flags & IOMAP_DIRECT));
+	if (IS_DAX(inode))
+		m_flags = EXT4_GET_BLOCKS_CREATE_ZERO;
+	/*
+	 * We use i_size instead of i_disksize here because delalloc writeback
+	 * can complete at any point during the I/O and subsequently push the
+	 * i_disksize out to i_size. This could be beyond where direct I/O is
+	 * happening and thus expose allocated blocks to direct I/O reads.
+	 */
+	else if (((loff_t)map->m_lblk << blkbits) >= i_size_read(inode))
+		m_flags = EXT4_GET_BLOCKS_CREATE;
+	else if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
+		m_flags = EXT4_GET_BLOCKS_IO_CREATE_EXT;
+
+	ret = ext4_map_blocks(handle, inode, map, m_flags);
+
+	/*
+	 * We cannot fill holes in indirect tree based inodes as that could
+	 * expose stale data in the case of a crash. Use the magic error code
+	 * to fallback to buffered I/O.
+	 */
+	if (!m_flags && !ret)
+		ret = -ENOTBLK;
+
+	ext4_journal_stop(handle);
+	if (ret == -ENOSPC && ext4_should_retry_alloc(inode->i_sb, &retries))
+		goto retry;
+
+	return ret;
+}
+
+
+static int ext4_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+		unsigned flags, struct iomap *iomap, struct iomap *srcmap)
+{
+	int ret;
+	struct ext4_map_blocks map;
+	u8 blkbits = inode->i_blkbits;
+
+	if ((offset >> blkbits) > EXT4_MAX_LOGICAL_BLOCK)
+		return -EINVAL;
+
+	if (WARN_ON_ONCE(ext4_has_inline_data(inode)))
+		return -ERANGE;
+
+	/*
+	 * Calculate the first and last logical blocks respectively.
+	 */
+	map.m_lblk = offset >> blkbits;
+	map.m_len = min_t(loff_t, (offset + length - 1) >> blkbits,
+			  EXT4_MAX_LOGICAL_BLOCK) - map.m_lblk + 1;
+
+	if (flags & IOMAP_WRITE) {
+		/*
+		 * We check here if the blocks are already allocated, then we
+		 * don't need to start a journal txn and we can directly return
+		 * the mapping information. This could boost performance
+		 * especially in multi-threaded overwrite requests.
+		 */
+		if (offset + length <= i_size_read(inode)) {
+			ret = ext4_map_blocks(NULL, inode, &map, 0);
+			if (ret > 0 && (map.m_flags & EXT4_MAP_MAPPED))
+				goto out;
+		}
+		ret = ext4_iomap_alloc(inode, &map, flags);
+	} else {
+		ret = ext4_map_blocks(NULL, inode, &map, 0);
+	}
+
+	if (ret < 0)
+		return ret;
+out:
+	/*
+	 * When inline encryption is enabled, sometimes I/O to an encrypted file
+	 * has to be broken up to guarantee DUN contiguity.  Handle this by
+	 * limiting the length of the mapping returned.
+	 */
+	map.m_len = fscrypt_limit_io_blocks(inode, map.m_lblk, map.m_len);
+
+	ext4_set_iomap(inode, iomap, &map, offset, length);
+
+	return 0;
+}
+
+static int ext4_iomap_overwrite_begin(struct inode *inode, loff_t offset,
+		loff_t length, unsigned flags, struct iomap *iomap,
+		struct iomap *srcmap)
+{
+	int ret;
+
+	/*
+	 * Even for writes we don't need to allocate blocks, so just pretend
+	 * we are reading to save overhead of starting a transaction.
+	 */
+	flags &= ~IOMAP_WRITE;
+	ret = ext4_iomap_begin(inode, offset, length, flags, iomap, srcmap);
+	WARN_ON_ONCE(iomap->type != IOMAP_MAPPED);
+	return ret;
+}
+
+static int ext4_iomap_end(struct inode *inode, loff_t offset, loff_t length,
+			  ssize_t written, unsigned flags, struct iomap *iomap)
+{
+	/*
+	 * Check to see whether an error occurred while writing out the data to
+	 * the allocated blocks. If so, return the magic error code so that we
+	 * fallback to buffered I/O and attempt to complete the remainder of
+	 * the I/O. Any blocks that may have been allocated in preparation for
+	 * the direct I/O will be reused during buffered I/O.
+	 */
+	if (flags & (IOMAP_WRITE | IOMAP_DIRECT) && written == 0)
+		return -ENOTBLK;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 const struct iomap_ops ext4_iomap_ops = {
@@ -3687,6 +4678,7 @@ const struct iomap_ops ext4_iomap_ops = {
 	.iomap_end		= ext4_iomap_end,
 };
 
+<<<<<<< HEAD
 static int ext4_end_io_dio(struct kiocb *iocb, loff_t offset,
 			    ssize_t size, void *private)
 {
@@ -3711,10 +4703,94 @@ static int ext4_end_io_dio(struct kiocb *iocb, loff_t offset,
 	io_end->offset = offset;
 	io_end->size = size;
 	ext4_put_io_end(io_end);
+=======
+const struct iomap_ops ext4_iomap_overwrite_ops = {
+	.iomap_begin		= ext4_iomap_overwrite_begin,
+	.iomap_end		= ext4_iomap_end,
+};
+
+static bool ext4_iomap_is_delalloc(struct inode *inode,
+				   struct ext4_map_blocks *map)
+{
+	struct extent_status es;
+	ext4_lblk_t offset = 0, end = map->m_lblk + map->m_len - 1;
+
+	ext4_es_find_extent_range(inode, &ext4_es_is_delayed,
+				  map->m_lblk, end, &es);
+
+	if (!es.es_len || es.es_lblk > end)
+		return false;
+
+	if (es.es_lblk > map->m_lblk) {
+		map->m_len = es.es_lblk - map->m_lblk;
+		return false;
+	}
+
+	offset = map->m_lblk - es.es_lblk;
+	map->m_len = es.es_len - offset;
+
+	return true;
+}
+
+static int ext4_iomap_begin_report(struct inode *inode, loff_t offset,
+				   loff_t length, unsigned int flags,
+				   struct iomap *iomap, struct iomap *srcmap)
+{
+	int ret;
+	bool delalloc = false;
+	struct ext4_map_blocks map;
+	u8 blkbits = inode->i_blkbits;
+
+	if ((offset >> blkbits) > EXT4_MAX_LOGICAL_BLOCK)
+		return -EINVAL;
+
+	if (ext4_has_inline_data(inode)) {
+		ret = ext4_inline_data_iomap(inode, iomap);
+		if (ret != -EAGAIN) {
+			if (ret == 0 && offset >= iomap->length)
+				ret = -ENOENT;
+			return ret;
+		}
+	}
+
+	/*
+	 * Calculate the first and last logical block respectively.
+	 */
+	map.m_lblk = offset >> blkbits;
+	map.m_len = min_t(loff_t, (offset + length - 1) >> blkbits,
+			  EXT4_MAX_LOGICAL_BLOCK) - map.m_lblk + 1;
+
+	/*
+	 * Fiemap callers may call for offset beyond s_bitmap_maxbytes.
+	 * So handle it here itself instead of querying ext4_map_blocks().
+	 * Since ext4_map_blocks() will warn about it and will return
+	 * -EIO error.
+	 */
+	if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
+		struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+
+		if (offset >= sbi->s_bitmap_maxbytes) {
+			map.m_flags = 0;
+			goto set_iomap;
+		}
+	}
+
+	ret = ext4_map_blocks(NULL, inode, &map, 0);
+	if (ret < 0)
+		return ret;
+	if (ret == 0)
+		delalloc = ext4_iomap_is_delalloc(inode, &map);
+
+set_iomap:
+	ext4_set_iomap(inode, iomap, &map, offset, length);
+	if (delalloc && iomap->type == IOMAP_HOLE)
+		iomap->type = IOMAP_DELALLOC;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Handling of direct IO writes.
  *
@@ -3991,6 +5067,11 @@ static ssize_t ext4_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
 
 	return ret;
 }
+=======
+const struct iomap_ops ext4_iomap_report_ops = {
+	.iomap_begin = ext4_iomap_begin_report,
+};
+>>>>>>> upstream/android-13
 
 /*
  * Pages can be marked dirty completely asynchronously from ext4's journalling
@@ -4018,9 +5099,22 @@ static int ext4_set_page_dirty(struct page *page)
 	return __set_page_dirty_buffers(page);
 }
 
+<<<<<<< HEAD
 static const struct address_space_operations ext4_aops = {
 	.readpage		= ext4_readpage,
 	.readpages		= ext4_readpages,
+=======
+static int ext4_iomap_swap_activate(struct swap_info_struct *sis,
+				    struct file *file, sector_t *span)
+{
+	return iomap_swapfile_activate(sis, file, span,
+				       &ext4_iomap_report_ops);
+}
+
+static const struct address_space_operations ext4_aops = {
+	.readpage		= ext4_readpage,
+	.readahead		= ext4_readahead,
+>>>>>>> upstream/android-13
 	.writepage		= ext4_writepage,
 	.writepages		= ext4_writepages,
 	.write_begin		= ext4_write_begin,
@@ -4029,15 +5123,27 @@ static const struct address_space_operations ext4_aops = {
 	.bmap			= ext4_bmap,
 	.invalidatepage		= ext4_invalidatepage,
 	.releasepage		= ext4_releasepage,
+<<<<<<< HEAD
 	.direct_IO		= ext4_direct_IO,
 	.migratepage		= buffer_migrate_page,
 	.is_partially_uptodate  = block_is_partially_uptodate,
 	.error_remove_page	= generic_error_remove_page,
+=======
+	.direct_IO		= noop_direct_IO,
+	.migratepage		= buffer_migrate_page,
+	.is_partially_uptodate  = block_is_partially_uptodate,
+	.error_remove_page	= generic_error_remove_page,
+	.swap_activate		= ext4_iomap_swap_activate,
+>>>>>>> upstream/android-13
 };
 
 static const struct address_space_operations ext4_journalled_aops = {
 	.readpage		= ext4_readpage,
+<<<<<<< HEAD
 	.readpages		= ext4_readpages,
+=======
+	.readahead		= ext4_readahead,
+>>>>>>> upstream/android-13
 	.writepage		= ext4_writepage,
 	.writepages		= ext4_writepages,
 	.write_begin		= ext4_write_begin,
@@ -4046,34 +5152,62 @@ static const struct address_space_operations ext4_journalled_aops = {
 	.bmap			= ext4_bmap,
 	.invalidatepage		= ext4_journalled_invalidatepage,
 	.releasepage		= ext4_releasepage,
+<<<<<<< HEAD
 	.direct_IO		= ext4_direct_IO,
 	.is_partially_uptodate  = block_is_partially_uptodate,
 	.error_remove_page	= generic_error_remove_page,
+=======
+	.direct_IO		= noop_direct_IO,
+	.is_partially_uptodate  = block_is_partially_uptodate,
+	.error_remove_page	= generic_error_remove_page,
+	.swap_activate		= ext4_iomap_swap_activate,
+>>>>>>> upstream/android-13
 };
 
 static const struct address_space_operations ext4_da_aops = {
 	.readpage		= ext4_readpage,
+<<<<<<< HEAD
 	.readpages		= ext4_readpages,
+=======
+	.readahead		= ext4_readahead,
+>>>>>>> upstream/android-13
 	.writepage		= ext4_writepage,
 	.writepages		= ext4_writepages,
 	.write_begin		= ext4_da_write_begin,
 	.write_end		= ext4_da_write_end,
 	.set_page_dirty		= ext4_set_page_dirty,
 	.bmap			= ext4_bmap,
+<<<<<<< HEAD
 	.invalidatepage		= ext4_da_invalidatepage,
 	.releasepage		= ext4_releasepage,
 	.direct_IO		= ext4_direct_IO,
 	.migratepage		= buffer_migrate_page,
 	.is_partially_uptodate  = block_is_partially_uptodate,
 	.error_remove_page	= generic_error_remove_page,
+=======
+	.invalidatepage		= ext4_invalidatepage,
+	.releasepage		= ext4_releasepage,
+	.direct_IO		= noop_direct_IO,
+	.migratepage		= buffer_migrate_page,
+	.is_partially_uptodate  = block_is_partially_uptodate,
+	.error_remove_page	= generic_error_remove_page,
+	.swap_activate		= ext4_iomap_swap_activate,
+>>>>>>> upstream/android-13
 };
 
 static const struct address_space_operations ext4_dax_aops = {
 	.writepages		= ext4_dax_writepages,
 	.direct_IO		= noop_direct_IO,
+<<<<<<< HEAD
 	.set_page_dirty		= noop_set_page_dirty,
 	.bmap			= ext4_bmap,
 	.invalidatepage		= noop_invalidatepage,
+=======
+	.set_page_dirty		= __set_page_dirty_no_writeback,
+	.bmap			= ext4_bmap,
+	.invalidatepage		= noop_invalidatepage,
+	.swap_activate		= ext4_iomap_swap_activate,
+>>>>>>> upstream/android-13
 };
 
 void ext4_set_aops(struct inode *inode)
@@ -4147,23 +5281,42 @@ static int __ext4_block_zero_page_range(handle_t *handle,
 		set_buffer_uptodate(bh);
 
 	if (!buffer_uptodate(bh)) {
+<<<<<<< HEAD
 		err = -EIO;
 		ll_rw_block(REQ_OP_READ, 0, 1, &bh);
 		wait_on_buffer(bh);
 		/* Uhhuh. Read error. Complain and punt. */
 		if (!buffer_uptodate(bh))
+=======
+		err = ext4_read_bh_lock(bh, 0, true);
+		if (err)
+>>>>>>> upstream/android-13
 			goto unlock;
 		if (fscrypt_inode_uses_fs_layer_crypto(inode)) {
 			/* We expect the key to be set. */
 			BUG_ON(!fscrypt_has_encryption_key(inode));
+<<<<<<< HEAD
 			BUG_ON(blocksize != PAGE_SIZE);
 			WARN_ON_ONCE(fscrypt_decrypt_pagecache_blocks(
 						page, PAGE_SIZE, 0));
+=======
+			err = fscrypt_decrypt_pagecache_blocks(page, blocksize,
+							       bh_offset(bh));
+			if (err) {
+				clear_buffer_uptodate(bh);
+				goto unlock;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	if (ext4_should_journal_data(inode)) {
 		BUFFER_TRACE(bh, "get write access");
+<<<<<<< HEAD
 		err = ext4_journal_get_write_access(handle, bh);
+=======
+		err = ext4_journal_get_write_access(handle, inode->i_sb, bh,
+						    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (err)
 			goto unlock;
 	}
@@ -4191,7 +5344,11 @@ unlock:
  * starting from file offset 'from'.  The range to be zero'd must
  * be contained with in one block.  If the specified range exceeds
  * the end of the block it will be shortened to end of the block
+<<<<<<< HEAD
  * that cooresponds to 'from'
+=======
+ * that corresponds to 'from'
+>>>>>>> upstream/android-13
  */
 static int ext4_block_zero_page_range(handle_t *handle,
 		struct address_space *mapping, loff_t from, loff_t length)
@@ -4298,6 +5455,11 @@ int ext4_update_disksize_before_punch(struct inode *inode, loff_t offset,
 				      loff_t len)
 {
 	handle_t *handle;
+<<<<<<< HEAD
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	loff_t size = i_size_read(inode);
 
 	WARN_ON(!inode_is_locked(inode));
@@ -4311,6 +5473,7 @@ int ext4_update_disksize_before_punch(struct inode *inode, loff_t offset,
 	if (IS_ERR(handle))
 		return PTR_ERR(handle);
 	ext4_update_i_disksize(inode, size);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, inode);
 	ext4_journal_stop(handle);
 
@@ -4322,15 +5485,35 @@ static void ext4_wait_dax_page(struct ext4_inode_info *ei)
 	up_write(&ei->i_mmap_sem);
 	schedule();
 	down_write(&ei->i_mmap_sem);
+=======
+	ret = ext4_mark_inode_dirty(handle, inode);
+	ext4_journal_stop(handle);
+
+	return ret;
+}
+
+static void ext4_wait_dax_page(struct inode *inode)
+{
+	filemap_invalidate_unlock(inode->i_mapping);
+	schedule();
+	filemap_invalidate_lock(inode->i_mapping);
+>>>>>>> upstream/android-13
 }
 
 int ext4_break_layouts(struct inode *inode)
 {
+<<<<<<< HEAD
 	struct ext4_inode_info *ei = EXT4_I(inode);
 	struct page *page;
 	int error;
 
 	if (WARN_ON_ONCE(!rwsem_is_locked(&ei->i_mmap_sem)))
+=======
+	struct page *page;
+	int error;
+
+	if (WARN_ON_ONCE(!rwsem_is_locked(&inode->i_mapping->invalidate_lock)))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	do {
@@ -4341,7 +5524,11 @@ int ext4_break_layouts(struct inode *inode)
 		error = ___wait_var_event(&page->_refcount,
 				atomic_read(&page->_refcount) == 1,
 				TASK_INTERRUPTIBLE, 0, 0,
+<<<<<<< HEAD
 				ext4_wait_dax_page(ei));
+=======
+				ext4_wait_dax_page(inode));
+>>>>>>> upstream/android-13
 	} while (error == 0);
 
 	return error;
@@ -4358,6 +5545,7 @@ int ext4_break_layouts(struct inode *inode)
  * Returns: 0 on success or negative on failure
  */
 
+<<<<<<< HEAD
 int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 {
 	struct super_block *sb = inode->i_sb;
@@ -4370,14 +5558,33 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 
 	if (!S_ISREG(inode->i_mode))
 		return -EOPNOTSUPP;
+=======
+int ext4_punch_hole(struct file *file, loff_t offset, loff_t length)
+{
+	struct inode *inode = file_inode(file);
+	struct super_block *sb = inode->i_sb;
+	ext4_lblk_t first_block, stop_block;
+	struct address_space *mapping = inode->i_mapping;
+	loff_t first_block_offset, last_block_offset, max_length;
+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+	handle_t *handle;
+	unsigned int credits;
+	int ret = 0, ret2 = 0;
+>>>>>>> upstream/android-13
 
 	trace_ext4_punch_hole(inode, offset, length, 0);
 
 	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
 	if (ext4_has_inline_data(inode)) {
+<<<<<<< HEAD
 		down_write(&EXT4_I(inode)->i_mmap_sem);
 		ret = ext4_convert_inline_data(inode);
 		up_write(&EXT4_I(inode)->i_mmap_sem);
+=======
+		filemap_invalidate_lock(mapping);
+		ret = ext4_convert_inline_data(inode);
+		filemap_invalidate_unlock(mapping);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -4409,6 +5616,17 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 		   offset;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * For punch hole the length + offset needs to be within one block
+	 * before last range. Adjust the length if it goes beyond that limit.
+	 */
+	max_length = sbi->s_bitmap_maxbytes - inode->i_sb->s_blocksize;
+	if (offset + length > max_length)
+		length = max_length - offset;
+
+>>>>>>> upstream/android-13
 	if (offset & (sb->s_blocksize - 1) ||
 	    (offset + length) & (sb->s_blocksize - 1)) {
 		/*
@@ -4424,11 +5642,22 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 	/* Wait all existing dio workers, newcomers will block on i_mutex */
 	inode_dio_wait(inode);
 
+<<<<<<< HEAD
+=======
+	ret = file_modified(file);
+	if (ret)
+		goto out_mutex;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Prevent page faults from reinstantiating pages we have released from
 	 * page cache.
 	 */
+<<<<<<< HEAD
 	down_write(&EXT4_I(inode)->i_mmap_sem);
+=======
+	filemap_invalidate_lock(mapping);
+>>>>>>> upstream/android-13
 
 	ret = ext4_break_layouts(inode);
 	if (ret)
@@ -4470,7 +5699,11 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 	if (stop_block > first_block) {
 
 		down_write(&EXT4_I(inode)->i_data_sem);
+<<<<<<< HEAD
 		ext4_discard_preallocations(inode);
+=======
+		ext4_discard_preallocations(inode, 0);
+>>>>>>> upstream/android-13
 
 		ret = ext4_es_remove_extent(inode, first_block,
 					    stop_block - first_block);
@@ -4488,17 +5721,31 @@ int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 
 		up_write(&EXT4_I(inode)->i_data_sem);
 	}
+<<<<<<< HEAD
+=======
+	ext4_fc_track_range(handle, inode, first_block, stop_block);
+>>>>>>> upstream/android-13
 	if (IS_SYNC(inode))
 		ext4_handle_sync(handle);
 
 	inode->i_mtime = inode->i_ctime = current_time(inode);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, inode);
+=======
+	ret2 = ext4_mark_inode_dirty(handle, inode);
+	if (unlikely(ret2))
+		ret = ret2;
+>>>>>>> upstream/android-13
 	if (ret >= 0)
 		ext4_update_inode_fsync_trans(handle, inode, 1);
 out_stop:
 	ext4_journal_stop(handle);
 out_dio:
+<<<<<<< HEAD
 	up_write(&EXT4_I(inode)->i_mmap_sem);
+=======
+	filemap_invalidate_unlock(mapping);
+>>>>>>> upstream/android-13
 out_mutex:
 	inode_unlock(inode);
 	return ret;
@@ -4561,7 +5808,11 @@ int ext4_truncate(struct inode *inode)
 {
 	struct ext4_inode_info *ei = EXT4_I(inode);
 	unsigned int credits;
+<<<<<<< HEAD
 	int err = 0;
+=======
+	int err = 0, err2;
+>>>>>>> upstream/android-13
 	handle_t *handle;
 	struct address_space *mapping = inode->i_mapping;
 
@@ -4575,9 +5826,13 @@ int ext4_truncate(struct inode *inode)
 	trace_ext4_truncate_enter(inode);
 
 	if (!ext4_can_truncate(inode))
+<<<<<<< HEAD
 		return 0;
 
 	ext4_clear_inode_flag(inode, EXT4_INODE_EOFBLOCKS);
+=======
+		goto out_trace;
+>>>>>>> upstream/android-13
 
 	if (inode->i_size == 0 && !test_opt(inode->i_sb, NO_AUTO_DA_ALLOC))
 		ext4_set_inode_state(inode, EXT4_STATE_DA_ALLOC_CLOSE);
@@ -4586,16 +5841,25 @@ int ext4_truncate(struct inode *inode)
 		int has_inline = 1;
 
 		err = ext4_inline_data_truncate(inode, &has_inline);
+<<<<<<< HEAD
 		if (err)
 			return err;
 		if (has_inline)
 			return 0;
+=======
+		if (err || has_inline)
+			goto out_trace;
+>>>>>>> upstream/android-13
 	}
 
 	/* If we zero-out tail of the page, we have to create jinode for jbd2 */
 	if (inode->i_size & (inode->i_sb->s_blocksize - 1)) {
 		if (ext4_inode_attach_jinode(inode) < 0)
+<<<<<<< HEAD
 			return 0;
+=======
+			goto out_trace;
+>>>>>>> upstream/android-13
 	}
 
 	if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
@@ -4604,8 +5868,15 @@ int ext4_truncate(struct inode *inode)
 		credits = ext4_blocks_for_truncate(inode);
 
 	handle = ext4_journal_start(inode, EXT4_HT_TRUNCATE, credits);
+<<<<<<< HEAD
 	if (IS_ERR(handle))
 		return PTR_ERR(handle);
+=======
+	if (IS_ERR(handle)) {
+		err = PTR_ERR(handle);
+		goto out_trace;
+	}
+>>>>>>> upstream/android-13
 
 	if (inode->i_size & (inode->i_sb->s_blocksize - 1))
 		ext4_block_truncate_page(handle, mapping, inode->i_size);
@@ -4625,7 +5896,11 @@ int ext4_truncate(struct inode *inode)
 
 	down_write(&EXT4_I(inode)->i_data_sem);
 
+<<<<<<< HEAD
 	ext4_discard_preallocations(inode);
+=======
+	ext4_discard_preallocations(inode, 0);
+>>>>>>> upstream/android-13
 
 	if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
 		err = ext4_ext_truncate(handle, inode);
@@ -4651,9 +5926,18 @@ out_stop:
 		ext4_orphan_del(handle, inode);
 
 	inode->i_mtime = inode->i_ctime = current_time(inode);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, inode);
 	ext4_journal_stop(handle);
 
+=======
+	err2 = ext4_mark_inode_dirty(handle, inode);
+	if (unlikely(err2 && !err))
+		err = err2;
+	ext4_journal_stop(handle);
+
+out_trace:
+>>>>>>> upstream/android-13
 	trace_ext4_truncate_exit(inode);
 	return err;
 }
@@ -4664,6 +5948,7 @@ out_stop:
  * data in memory that is needed to recreate the on-disk version of this
  * inode.
  */
+<<<<<<< HEAD
 static int __ext4_get_inode_loc(struct inode *inode,
 				struct ext4_iloc *iloc, int in_mem)
 {
@@ -4679,6 +5964,24 @@ static int __ext4_get_inode_loc(struct inode *inode,
 		return -EFSCORRUPTED;
 
 	iloc->block_group = (inode->i_ino - 1) / EXT4_INODES_PER_GROUP(sb);
+=======
+static int __ext4_get_inode_loc(struct super_block *sb, unsigned long ino,
+				struct ext4_iloc *iloc, int in_mem,
+				ext4_fsblk_t *ret_block)
+{
+	struct ext4_group_desc	*gdp;
+	struct buffer_head	*bh;
+	ext4_fsblk_t		block;
+	struct blk_plug		plug;
+	int			inodes_per_block, inode_offset;
+
+	iloc->bh = NULL;
+	if (ino < EXT4_ROOT_INO ||
+	    ino > le32_to_cpu(EXT4_SB(sb)->s_es->s_inodes_count))
+		return -EFSCORRUPTED;
+
+	iloc->block_group = (ino - 1) / EXT4_INODES_PER_GROUP(sb);
+>>>>>>> upstream/android-13
 	gdp = ext4_get_group_desc(sb, iloc->block_group, NULL);
 	if (!gdp)
 		return -EIO;
@@ -4687,7 +5990,11 @@ static int __ext4_get_inode_loc(struct inode *inode,
 	 * Figure out the offset within the block group inode table
 	 */
 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
+<<<<<<< HEAD
 	inode_offset = ((inode->i_ino - 1) %
+=======
+	inode_offset = ((ino - 1) %
+>>>>>>> upstream/android-13
 			EXT4_INODES_PER_GROUP(sb));
 	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
@@ -4695,6 +6002,7 @@ static int __ext4_get_inode_loc(struct inode *inode,
 	bh = sb_getblk(sb, block);
 	if (unlikely(!bh))
 		return -ENOMEM;
+<<<<<<< HEAD
 	if (!buffer_uptodate(bh)) {
 		lock_buffer(bh);
 
@@ -4796,12 +6104,108 @@ make_io:
 			brelse(bh);
 			return -EIO;
 		}
+=======
+	if (ext4_buffer_uptodate(bh))
+		goto has_buffer;
+
+	lock_buffer(bh);
+	if (ext4_buffer_uptodate(bh)) {
+		/* Someone brought it uptodate while we waited */
+		unlock_buffer(bh);
+		goto has_buffer;
+	}
+
+	/*
+	 * If we have all information of the inode in memory and this
+	 * is the only valid inode in the block, we need not read the
+	 * block.
+	 */
+	if (in_mem) {
+		struct buffer_head *bitmap_bh;
+		int i, start;
+
+		start = inode_offset & ~(inodes_per_block - 1);
+
+		/* Is the inode bitmap in cache? */
+		bitmap_bh = sb_getblk(sb, ext4_inode_bitmap(sb, gdp));
+		if (unlikely(!bitmap_bh))
+			goto make_io;
+
+		/*
+		 * If the inode bitmap isn't in cache then the
+		 * optimisation may end up performing two reads instead
+		 * of one, so skip it.
+		 */
+		if (!buffer_uptodate(bitmap_bh)) {
+			brelse(bitmap_bh);
+			goto make_io;
+		}
+		for (i = start; i < start + inodes_per_block; i++) {
+			if (i == inode_offset)
+				continue;
+			if (ext4_test_bit(i, bitmap_bh->b_data))
+				break;
+		}
+		brelse(bitmap_bh);
+		if (i == start + inodes_per_block) {
+			/* all other inodes are free, so skip I/O */
+			memset(bh->b_data, 0, bh->b_size);
+			set_buffer_uptodate(bh);
+			unlock_buffer(bh);
+			goto has_buffer;
+		}
+	}
+
+make_io:
+	/*
+	 * If we need to do any I/O, try to pre-readahead extra
+	 * blocks from the inode table.
+	 */
+	blk_start_plug(&plug);
+	if (EXT4_SB(sb)->s_inode_readahead_blks) {
+		ext4_fsblk_t b, end, table;
+		unsigned num;
+		__u32 ra_blks = EXT4_SB(sb)->s_inode_readahead_blks;
+
+		table = ext4_inode_table(sb, gdp);
+		/* s_inode_readahead_blks is always a power of 2 */
+		b = block & ~((ext4_fsblk_t) ra_blks - 1);
+		if (table > b)
+			b = table;
+		end = b + ra_blks;
+		num = EXT4_INODES_PER_GROUP(sb);
+		if (ext4_has_group_desc_csum(sb))
+			num -= ext4_itable_unused_count(sb, gdp);
+		table += num / inodes_per_block;
+		if (end > table)
+			end = table;
+		while (b <= end)
+			ext4_sb_breadahead_unmovable(sb, b++);
+	}
+
+	/*
+	 * There are other valid inodes in the buffer, this inode
+	 * has in-inode xattrs, or we don't have this inode in memory.
+	 * Read the block from disk.
+	 */
+	trace_ext4_load_inode(sb, ino);
+	ext4_read_bh_nowait(bh, REQ_META | REQ_PRIO, NULL);
+	blk_finish_plug(&plug);
+	wait_on_buffer(bh);
+	ext4_simulate_fail_bh(sb, bh, EXT4_SIM_INODE_EIO);
+	if (!buffer_uptodate(bh)) {
+		if (ret_block)
+			*ret_block = block;
+		brelse(bh);
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 has_buffer:
 	iloc->bh = bh;
 	return 0;
 }
 
+<<<<<<< HEAD
 int ext4_get_inode_loc(struct inode *inode, struct ext4_iloc *iloc)
 {
 	/* We have all inode data except xattrs in memory here. */
@@ -4812,6 +6216,52 @@ int ext4_get_inode_loc(struct inode *inode, struct ext4_iloc *iloc)
 static bool ext4_should_use_dax(struct inode *inode)
 {
 	if (!test_opt(inode->i_sb, DAX))
+=======
+static int __ext4_get_inode_loc_noinmem(struct inode *inode,
+					struct ext4_iloc *iloc)
+{
+	ext4_fsblk_t err_blk = 0;
+	int ret;
+
+	ret = __ext4_get_inode_loc(inode->i_sb, inode->i_ino, iloc, 0,
+					&err_blk);
+
+	if (ret == -EIO)
+		ext4_error_inode_block(inode, err_blk, EIO,
+					"unable to read itable block");
+
+	return ret;
+}
+
+int ext4_get_inode_loc(struct inode *inode, struct ext4_iloc *iloc)
+{
+	ext4_fsblk_t err_blk = 0;
+	int ret;
+
+	/* We have all inode data except xattrs in memory here. */
+	ret = __ext4_get_inode_loc(inode->i_sb, inode->i_ino, iloc,
+		!ext4_test_inode_state(inode, EXT4_STATE_XATTR), &err_blk);
+
+	if (ret == -EIO)
+		ext4_error_inode_block(inode, err_blk, EIO,
+					"unable to read itable block");
+
+	return ret;
+}
+
+
+int ext4_get_fc_inode_loc(struct super_block *sb, unsigned long ino,
+			  struct ext4_iloc *iloc)
+{
+	return __ext4_get_inode_loc(sb, ino, iloc, 0, NULL);
+}
+
+static bool ext4_should_enable_dax(struct inode *inode)
+{
+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+
+	if (test_opt2(inode->i_sb, DAX_NEVER))
+>>>>>>> upstream/android-13
 		return false;
 	if (!S_ISREG(inode->i_mode))
 		return false;
@@ -4823,14 +6273,31 @@ static bool ext4_should_use_dax(struct inode *inode)
 		return false;
 	if (ext4_test_inode_flag(inode, EXT4_INODE_VERITY))
 		return false;
+<<<<<<< HEAD
 	return true;
 }
 
 void ext4_set_inode_flags(struct inode *inode)
+=======
+	if (!test_bit(EXT4_FLAGS_BDEV_IS_DAX, &sbi->s_ext4_flags))
+		return false;
+	if (test_opt(inode->i_sb, DAX_ALWAYS))
+		return true;
+
+	return ext4_test_inode_flag(inode, EXT4_INODE_DAX);
+}
+
+void ext4_set_inode_flags(struct inode *inode, bool init)
+>>>>>>> upstream/android-13
 {
 	unsigned int flags = EXT4_I(inode)->i_flags;
 	unsigned int new_fl = 0;
 
+<<<<<<< HEAD
+=======
+	WARN_ON_ONCE(IS_DAX(inode) && init);
+
+>>>>>>> upstream/android-13
 	if (flags & EXT4_SYNC_FL)
 		new_fl |= S_SYNC;
 	if (flags & EXT4_APPEND_FL)
@@ -4841,8 +6308,18 @@ void ext4_set_inode_flags(struct inode *inode)
 		new_fl |= S_NOATIME;
 	if (flags & EXT4_DIRSYNC_FL)
 		new_fl |= S_DIRSYNC;
+<<<<<<< HEAD
 	if (ext4_should_use_dax(inode))
 		new_fl |= S_DAX;
+=======
+
+	/* Because of the way inode_set_flags() works we must preserve S_DAX
+	 * here if already set. */
+	new_fl |= (inode->i_flags & S_DAX);
+	if (init && ext4_should_enable_dax(inode))
+		new_fl |= S_DAX;
+
+>>>>>>> upstream/android-13
 	if (flags & EXT4_ENCRYPT_FL)
 		new_fl |= S_ENCRYPTED;
 	if (flags & EXT4_CASEFOLD_FL)
@@ -4928,6 +6405,10 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 	struct ext4_iloc iloc;
 	struct ext4_inode *raw_inode;
 	struct ext4_inode_info *ei;
+<<<<<<< HEAD
+=======
+	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
+>>>>>>> upstream/android-13
 	struct inode *inode;
 	journal_t *journal = EXT4_SB(sb)->s_journal;
 	long ret;
@@ -4938,12 +6419,25 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 	projid_t i_projid;
 
 	if ((!(flags & EXT4_IGET_SPECIAL) &&
+<<<<<<< HEAD
 	     (ino < EXT4_FIRST_INO(sb) && ino != EXT4_ROOT_INO)) ||
 	    (ino < EXT4_ROOT_INO) ||
 	    (ino > le32_to_cpu(EXT4_SB(sb)->s_es->s_inodes_count))) {
 		if (flags & EXT4_IGET_HANDLE)
 			return ERR_PTR(-ESTALE);
 		__ext4_error(sb, function, line,
+=======
+	     ((ino < EXT4_FIRST_INO(sb) && ino != EXT4_ROOT_INO) ||
+	      ino == le32_to_cpu(es->s_usr_quota_inum) ||
+	      ino == le32_to_cpu(es->s_grp_quota_inum) ||
+	      ino == le32_to_cpu(es->s_prj_quota_inum) ||
+	      ino == le32_to_cpu(es->s_orphan_file_inum))) ||
+	    (ino < EXT4_ROOT_INO) ||
+	    (ino > le32_to_cpu(es->s_inodes_count))) {
+		if (flags & EXT4_IGET_HANDLE)
+			return ERR_PTR(-ESTALE);
+		__ext4_error(sb, function, line, false, EFSCORRUPTED, 0,
+>>>>>>> upstream/android-13
 			     "inode #%lu: comm %s: iget: illegal inode #",
 			     ino, current->comm);
 		return ERR_PTR(-EFSCORRUPTED);
@@ -4958,13 +6452,20 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 	ei = EXT4_I(inode);
 	iloc.bh = NULL;
 
+<<<<<<< HEAD
 	ret = __ext4_get_inode_loc(inode, &iloc, 0);
+=======
+	ret = __ext4_get_inode_loc_noinmem(inode, &iloc);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto bad_inode;
 	raw_inode = ext4_raw_inode(&iloc);
 
 	if ((ino == EXT4_ROOT_INO) && (raw_inode->i_links_count == 0)) {
+<<<<<<< HEAD
 		print_iloc_info(sb, iloc);
+=======
+>>>>>>> upstream/android-13
 		ext4_error_inode(inode, function, line, 0,
 				 "iget: root inode unallocated");
 		ret = -EFSCORRUPTED;
@@ -4982,7 +6483,10 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 		if (EXT4_GOOD_OLD_INODE_SIZE + ei->i_extra_isize >
 			EXT4_INODE_SIZE(inode->i_sb) ||
 		    (ei->i_extra_isize & 3)) {
+<<<<<<< HEAD
 			print_iloc_info(sb, iloc);
+=======
+>>>>>>> upstream/android-13
 			ext4_error_inode(inode, function, line, 0,
 					 "iget: bad extra_isize %u "
 					 "(inode size %u)",
@@ -5006,10 +6510,18 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 					      sizeof(gen));
 	}
 
+<<<<<<< HEAD
 	if (!ext4_inode_csum_verify(inode, raw_inode, ei)) {
 		print_iloc_info(sb, iloc);
 		ext4_error_inode(inode, function, line, 0,
 				 "iget: checksum invalid");
+=======
+	if ((!ext4_inode_csum_verify(inode, raw_inode, ei) ||
+	    ext4_simulate_fail(sb, EXT4_SIM_INODE_CRC)) &&
+	     (!(EXT4_SB(sb)->s_mount_state & EXT4_FC_REPLAY))) {
+		ext4_error_inode_err(inode, function, line, 0,
+				EFSBADCRC, "iget: checksum invalid");
+>>>>>>> upstream/android-13
 		ret = -EFSBADCRC;
 		goto bad_inode;
 	}
@@ -5048,7 +6560,10 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 		    ino != EXT4_BOOT_LOADER_INO) {
 			/* this inode is deleted */
 			ret = -ESTALE;
+<<<<<<< HEAD
 			print_iloc_info(sb, iloc);
+=======
+>>>>>>> upstream/android-13
 			goto bad_inode;
 		}
 		/* The only unlinked inodes we let through here have
@@ -5059,7 +6574,11 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 		 * not initialized on a new filesystem. */
 	}
 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
+<<<<<<< HEAD
 	ext4_set_inode_flags(inode);
+=======
+	ext4_set_inode_flags(inode, true);
+>>>>>>> upstream/android-13
 	inode->i_blocks = ext4_inode_blocks(raw_inode, ei);
 	ei->i_file_acl = le32_to_cpu(raw_inode->i_file_acl_lo);
 	if (ext4_has_feature_64bit(sb))
@@ -5067,7 +6586,10 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 			((__u64)le16_to_cpu(raw_inode->i_file_acl_high)) << 32;
 	inode->i_size = ext4_isize(sb, raw_inode);
 	if ((size = i_size_read(inode)) < 0) {
+<<<<<<< HEAD
 		print_iloc_info(sb, iloc);
+=======
+>>>>>>> upstream/android-13
 		ext4_error_inode(inode, function, line, 0,
 				 "iget: bad i_size value: %lld", size);
 		ret = -EFSCORRUPTED;
@@ -5099,6 +6621,10 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 	for (block = 0; block < EXT4_N_BLOCKS; block++)
 		ei->i_data[block] = raw_inode->i_block[block];
 	INIT_LIST_HEAD(&ei->i_orphan);
+<<<<<<< HEAD
+=======
+	ext4_fc_init_inode(&ei->vfs_inode);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set transaction id's of transactions that have to be committed
@@ -5164,19 +6690,31 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 		goto bad_inode;
 	} else if (!ext4_has_inline_data(inode)) {
 		/* validate the block references in the inode */
+<<<<<<< HEAD
 		if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
 		   (S_ISLNK(inode->i_mode) &&
 		    !ext4_inode_is_fast_symlink(inode))) {
+=======
+		if (!(EXT4_SB(sb)->s_mount_state & EXT4_FC_REPLAY) &&
+			(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+			(S_ISLNK(inode->i_mode) &&
+			!ext4_inode_is_fast_symlink(inode)))) {
+>>>>>>> upstream/android-13
 			if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
 				ret = ext4_ext_check_inode(inode);
 			else
 				ret = ext4_ind_check_inode(inode);
 		}
 	}
+<<<<<<< HEAD
 	if (ret) {
 		print_iloc_info(sb, iloc);
 		goto bad_inode;
 	}
+=======
+	if (ret)
+		goto bad_inode;
+>>>>>>> upstream/android-13
 
 	if (S_ISREG(inode->i_mode)) {
 		inode->i_op = &ext4_file_inode_operations;
@@ -5188,7 +6726,10 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 	} else if (S_ISLNK(inode->i_mode)) {
 		/* VFS does not allow setting these so must be corruption */
 		if (IS_APPEND(inode) || IS_IMMUTABLE(inode)) {
+<<<<<<< HEAD
 			print_iloc_info(sb, iloc);
+=======
+>>>>>>> upstream/android-13
 			ext4_error_inode(inode, function, line, 0,
 					 "iget: immutable or append flags "
 					 "not allowed on symlinks");
@@ -5221,13 +6762,20 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 		make_bad_inode(inode);
 	} else {
 		ret = -EFSCORRUPTED;
+<<<<<<< HEAD
 		print_iloc_info(sb, iloc);
+=======
+>>>>>>> upstream/android-13
 		ext4_error_inode(inode, function, line, 0,
 				 "iget: bogus i_mode (%o)", inode->i_mode);
 		goto bad_inode;
 	}
 	if (IS_CASEFOLDED(inode) && !ext4_has_feature_casefold(inode->i_sb))
+<<<<<<< HEAD
 		EXT4_ERROR_INODE(inode,
+=======
+		ext4_error_inode(inode, function, line, 0,
+>>>>>>> upstream/android-13
 				 "casefold flag without casefold feature");
 	brelse(iloc.bh);
 
@@ -5258,8 +6806,19 @@ static int ext4_inode_blocks_set(handle_t *handle,
 		ext4_clear_inode_flag(inode, EXT4_INODE_HUGE_FILE);
 		return 0;
 	}
+<<<<<<< HEAD
 	if (!ext4_has_feature_huge_file(sb))
 		return -EFBIG;
+=======
+
+	/*
+	 * This should never happen since sb->s_maxbytes should not have
+	 * allowed this, sb->s_maxbytes was set according to the huge_file
+	 * feature in ext4_fill_super().
+	 */
+	if (!ext4_has_feature_huge_file(sb))
+		return -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 
 	if (i_blocks <= 0xffffffffffffULL) {
 		/*
@@ -5279,6 +6838,7 @@ static int ext4_inode_blocks_set(handle_t *handle,
 	return 0;
 }
 
+<<<<<<< HEAD
 struct other_inode {
 	unsigned long		orig_ino;
 	struct ext4_inode	*raw_inode;
@@ -5298,12 +6858,31 @@ static int other_inode_match(struct inode * inode, unsigned long ino,
 	if (((inode->i_state & (I_FREEING | I_WILL_FREE | I_NEW |
 				I_DIRTY_INODE)) == 0) &&
 	    (inode->i_state & I_DIRTY_TIME)) {
+=======
+static void __ext4_update_other_inode_time(struct super_block *sb,
+					   unsigned long orig_ino,
+					   unsigned long ino,
+					   struct ext4_inode *raw_inode)
+{
+	struct inode *inode;
+
+	inode = find_inode_by_ino_rcu(sb, ino);
+	if (!inode)
+		return;
+
+	if (!inode_is_dirtytime_only(inode))
+		return;
+
+	spin_lock(&inode->i_lock);
+	if (inode_is_dirtytime_only(inode)) {
+>>>>>>> upstream/android-13
 		struct ext4_inode_info	*ei = EXT4_I(inode);
 
 		inode->i_state &= ~I_DIRTY_TIME;
 		spin_unlock(&inode->i_lock);
 
 		spin_lock(&ei->i_raw_lock);
+<<<<<<< HEAD
 		EXT4_INODE_SET_XTIME(i_ctime, inode, oi->raw_inode);
 		EXT4_INODE_SET_XTIME(i_mtime, inode, oi->raw_inode);
 		EXT4_INODE_SET_XTIME(i_atime, inode, oi->raw_inode);
@@ -5314,6 +6893,17 @@ static int other_inode_match(struct inode * inode, unsigned long ino,
 	}
 	spin_unlock(&inode->i_lock);
 	return -1;
+=======
+		EXT4_INODE_SET_XTIME(i_ctime, inode, raw_inode);
+		EXT4_INODE_SET_XTIME(i_mtime, inode, raw_inode);
+		EXT4_INODE_SET_XTIME(i_atime, inode, raw_inode);
+		ext4_inode_csum_set(inode, raw_inode, ei);
+		spin_unlock(&ei->i_raw_lock);
+		trace_ext4_other_inode_update_time(inode, orig_ino);
+		return;
+	}
+	spin_unlock(&inode->i_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -5323,24 +6913,41 @@ static int other_inode_match(struct inode * inode, unsigned long ino,
 static void ext4_update_other_inodes_time(struct super_block *sb,
 					  unsigned long orig_ino, char *buf)
 {
+<<<<<<< HEAD
 	struct other_inode oi;
+=======
+>>>>>>> upstream/android-13
 	unsigned long ino;
 	int i, inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
 	int inode_size = EXT4_INODE_SIZE(sb);
 
+<<<<<<< HEAD
 	oi.orig_ino = orig_ino;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Calculate the first inode in the inode table block.  Inode
 	 * numbers are one-based.  That is, the first inode in a block
 	 * (assuming 4k blocks and 256 byte inodes) is (n*16 + 1).
 	 */
 	ino = ((orig_ino - 1) & ~(inodes_per_block - 1)) + 1;
+<<<<<<< HEAD
 	for (i = 0; i < inodes_per_block; i++, ino++, buf += inode_size) {
 		if (ino == orig_ino)
 			continue;
 		oi.raw_inode = (struct ext4_inode *) buf;
 		(void) find_inode_nowait(sb, ino, other_inode_match, &oi);
 	}
+=======
+	rcu_read_lock();
+	for (i = 0; i < inodes_per_block; i++, ino++, buf += inode_size) {
+		if (ino == orig_ino)
+			continue;
+		__ext4_update_other_inode_time(sb, orig_ino, ino,
+					       (struct ext4_inode *)buf);
+	}
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -5366,16 +6973,26 @@ static int ext4_do_update_inode(handle_t *handle,
 
 	spin_lock(&ei->i_raw_lock);
 
+<<<<<<< HEAD
 	/* For fields not tracked in the in-memory inode,
 	 * initialise them to zero for new inodes. */
+=======
+	/*
+	 * For fields not tracked in the in-memory inode, initialise them
+	 * to zero for new inodes.
+	 */
+>>>>>>> upstream/android-13
 	if (ext4_test_inode_state(inode, EXT4_STATE_NEW))
 		memset(raw_inode, 0, EXT4_SB(inode->i_sb)->s_inode_size);
 
 	err = ext4_inode_blocks_set(handle, raw_inode, ei);
+<<<<<<< HEAD
 	if (err) {
 		spin_unlock(&ei->i_raw_lock);
 		goto out_brelse;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
 	i_uid = i_uid_read(inode);
@@ -5384,10 +7001,18 @@ static int ext4_do_update_inode(handle_t *handle,
 	if (!(test_opt(inode->i_sb, NO_UID32))) {
 		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(i_uid));
 		raw_inode->i_gid_low = cpu_to_le16(low_16_bits(i_gid));
+<<<<<<< HEAD
 /*
  * Fix up interoperability with old kernels. Otherwise, old inodes get
  * re-used with the upper 16 bits of the uid/gid intact
  */
+=======
+		/*
+		 * Fix up interoperability with old kernels. Otherwise,
+		 * old inodes get re-used with the upper 16 bits of the
+		 * uid/gid intact.
+		 */
+>>>>>>> upstream/android-13
 		if (ei->i_dtime && list_empty(&ei->i_orphan)) {
 			raw_inode->i_uid_high = 0;
 			raw_inode->i_gid_high = 0;
@@ -5456,8 +7081,14 @@ static int ext4_do_update_inode(handle_t *handle,
 		}
 	}
 
+<<<<<<< HEAD
 	BUG_ON(!ext4_has_feature_project(inode->i_sb) &&
 	       i_projid != EXT4_DEF_PROJID);
+=======
+	if (i_projid != EXT4_DEF_PROJID &&
+	    !ext4_has_feature_project(inode->i_sb))
+		err = err ?: -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 
 	if (EXT4_INODE_SIZE(inode->i_sb) > EXT4_GOOD_OLD_INODE_SIZE &&
 	    EXT4_FITS_IN_INODE(raw_inode, ei, i_projid))
@@ -5465,6 +7096,14 @@ static int ext4_do_update_inode(handle_t *handle,
 
 	ext4_inode_csum_set(inode, raw_inode, ei);
 	spin_unlock(&ei->i_raw_lock);
+<<<<<<< HEAD
+=======
+	if (err) {
+		EXT4_ERROR_INODE(inode, "corrupted inode contents");
+		goto out_brelse;
+	}
+
+>>>>>>> upstream/android-13
 	if (inode->i_sb->s_flags & SB_LAZYTIME)
 		ext4_update_other_inodes_time(inode->i_sb, inode->i_ino,
 					      bh->b_data);
@@ -5472,6 +7111,7 @@ static int ext4_do_update_inode(handle_t *handle,
 	BUFFER_TRACE(bh, "call ext4_handle_dirty_metadata");
 	err = ext4_handle_dirty_metadata(handle, NULL, bh);
 	if (err)
+<<<<<<< HEAD
 		goto out_brelse;
 	ext4_clear_inode_state(inode, EXT4_STATE_NEW);
 	if (set_large_file) {
@@ -5487,6 +7127,30 @@ static int ext4_do_update_inode(handle_t *handle,
 out_brelse:
 	brelse(bh);
 	ext4_std_error(inode->i_sb, err);
+=======
+		goto out_error;
+	ext4_clear_inode_state(inode, EXT4_STATE_NEW);
+	if (set_large_file) {
+		BUFFER_TRACE(EXT4_SB(sb)->s_sbh, "get write access");
+		err = ext4_journal_get_write_access(handle, sb,
+						    EXT4_SB(sb)->s_sbh,
+						    EXT4_JTR_NONE);
+		if (err)
+			goto out_error;
+		lock_buffer(EXT4_SB(sb)->s_sbh);
+		ext4_set_feature_large_file(sb);
+		ext4_superblock_csum_set(sb);
+		unlock_buffer(EXT4_SB(sb)->s_sbh);
+		ext4_handle_sync(handle);
+		err = ext4_handle_dirty_metadata(handle, NULL,
+						 EXT4_SB(sb)->s_sbh);
+	}
+	ext4_update_inode_fsync_trans(handle, inode, need_datasync);
+out_error:
+	ext4_std_error(inode->i_sb, err);
+out_brelse:
+	brelse(bh);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -5550,12 +7214,20 @@ int ext4_write_inode(struct inode *inode, struct writeback_control *wbc)
 		if (wbc->sync_mode != WB_SYNC_ALL || wbc->for_sync)
 			return 0;
 
+<<<<<<< HEAD
 		err = jbd2_complete_transaction(EXT4_SB(inode->i_sb)->s_journal,
+=======
+		err = ext4_fc_commit(EXT4_SB(inode->i_sb)->s_journal,
+>>>>>>> upstream/android-13
 						EXT4_I(inode)->i_sync_tid);
 	} else {
 		struct ext4_iloc iloc;
 
+<<<<<<< HEAD
 		err = __ext4_get_inode_loc(inode, &iloc, 0);
+=======
+		err = __ext4_get_inode_loc_noinmem(inode, &iloc);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 		/*
@@ -5565,8 +7237,13 @@ int ext4_write_inode(struct inode *inode, struct writeback_control *wbc)
 		if (wbc->sync_mode == WB_SYNC_ALL && !wbc->for_sync)
 			sync_dirty_buffer(iloc.bh);
 		if (buffer_req(iloc.bh) && !buffer_uptodate(iloc.bh)) {
+<<<<<<< HEAD
 			EXT4_ERROR_INODE_BLOCK(inode, iloc.bh->b_blocknr,
 					 "IO error syncing inode");
+=======
+			ext4_error_inode_block(inode, iloc.bh->b_blocknr, EIO,
+					       "IO error syncing inode");
+>>>>>>> upstream/android-13
 			err = -EIO;
 		}
 		brelse(iloc.bh);
@@ -5644,7 +7321,12 @@ static void ext4_wait_for_tail_page_commit(struct inode *inode)
  *
  * Called with inode->i_mutex down.
  */
+<<<<<<< HEAD
 int ext4_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+int ext4_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		 struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	int error, rc = 0;
@@ -5662,7 +7344,11 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 				  ATTR_GID | ATTR_TIMES_SET))))
 		return -EPERM;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr);
+=======
+	error = setattr_prepare(mnt_userns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -5679,6 +7365,10 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 		if (error)
 			return error;
 	}
+<<<<<<< HEAD
+=======
+	ext4_fc_start_update(inode);
+>>>>>>> upstream/android-13
 	if ((ia_valid & ATTR_UID && !uid_eq(attr->ia_uid, inode->i_uid)) ||
 	    (ia_valid & ATTR_GID && !gid_eq(attr->ia_gid, inode->i_gid))) {
 		handle_t *handle;
@@ -5702,6 +7392,10 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 
 		if (error) {
 			ext4_journal_stop(handle);
+<<<<<<< HEAD
+=======
+			ext4_fc_stop_update(inode);
+>>>>>>> upstream/android-13
 			return error;
 		}
 		/* Update corresponding info in inode so that everything is in
@@ -5712,25 +7406,49 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 			inode->i_gid = attr->ia_gid;
 		error = ext4_mark_inode_dirty(handle, inode);
 		ext4_journal_stop(handle);
+<<<<<<< HEAD
+=======
+		if (unlikely(error)) {
+			ext4_fc_stop_update(inode);
+			return error;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (attr->ia_valid & ATTR_SIZE) {
 		handle_t *handle;
 		loff_t oldsize = inode->i_size;
+<<<<<<< HEAD
 		int shrink = (attr->ia_size <= inode->i_size);
+=======
+		int shrink = (attr->ia_size < inode->i_size);
+>>>>>>> upstream/android-13
 
 		if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))) {
 			struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
 
+<<<<<<< HEAD
 			if (attr->ia_size > sbi->s_bitmap_maxbytes)
 				return -EFBIG;
 		}
 		if (!S_ISREG(inode->i_mode))
 			return -EINVAL;
+=======
+			if (attr->ia_size > sbi->s_bitmap_maxbytes) {
+				ext4_fc_stop_update(inode);
+				return -EFBIG;
+			}
+		}
+		if (!S_ISREG(inode->i_mode)) {
+			ext4_fc_stop_update(inode);
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 
 		if (IS_I_VERSION(inode) && attr->ia_size != inode->i_size)
 			inode_inc_iversion(inode);
 
+<<<<<<< HEAD
 		if (ext4_should_order_data(inode) &&
 		    (attr->ia_size < inode->i_size)) {
 			error = ext4_begin_ordered_truncate(inode,
@@ -5738,11 +7456,39 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 			if (error)
 				goto err_out;
 		}
+=======
+		if (shrink) {
+			if (ext4_should_order_data(inode)) {
+				error = ext4_begin_ordered_truncate(inode,
+							    attr->ia_size);
+				if (error)
+					goto err_out;
+			}
+			/*
+			 * Blocks are going to be removed from the inode. Wait
+			 * for dio in flight.
+			 */
+			inode_dio_wait(inode);
+		}
+
+		filemap_invalidate_lock(inode->i_mapping);
+
+		rc = ext4_break_layouts(inode);
+		if (rc) {
+			filemap_invalidate_unlock(inode->i_mapping);
+			goto err_out;
+		}
+
+>>>>>>> upstream/android-13
 		if (attr->ia_size != inode->i_size) {
 			handle = ext4_journal_start(inode, EXT4_HT_INODE, 3);
 			if (IS_ERR(handle)) {
 				error = PTR_ERR(handle);
+<<<<<<< HEAD
 				goto err_out;
+=======
+				goto out_mmap_sem;
+>>>>>>> upstream/android-13
 			}
 			if (ext4_handle_valid(handle) && shrink) {
 				error = ext4_orphan_add(handle, inode);
@@ -5756,6 +7502,23 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 				inode->i_mtime = current_time(inode);
 				inode->i_ctime = inode->i_mtime;
 			}
+<<<<<<< HEAD
+=======
+
+			if (shrink)
+				ext4_fc_track_range(handle, inode,
+					(attr->ia_size > 0 ? attr->ia_size - 1 : 0) >>
+					inode->i_sb->s_blocksize_bits,
+					EXT_MAX_BLOCKS - 1);
+			else
+				ext4_fc_track_range(
+					handle, inode,
+					(oldsize > 0 ? oldsize - 1 : oldsize) >>
+					inode->i_sb->s_blocksize_bits,
+					(attr->ia_size > 0 ? attr->ia_size - 1 : 0) >>
+					inode->i_sb->s_blocksize_bits);
+
+>>>>>>> upstream/android-13
 			down_write(&EXT4_I(inode)->i_data_sem);
 			EXT4_I(inode)->i_disksize = attr->ia_size;
 			rc = ext4_mark_inode_dirty(handle, inode);
@@ -5770,6 +7533,7 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 				i_size_write(inode, attr->ia_size);
 			up_write(&EXT4_I(inode)->i_data_sem);
 			ext4_journal_stop(handle);
+<<<<<<< HEAD
 			if (error) {
 				if (orphan && inode->i_nlink)
 					ext4_orphan_del(NULL, inode);
@@ -5795,22 +7559,50 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 			error = rc;
 			goto err_out;
 		}
+=======
+			if (error)
+				goto out_mmap_sem;
+			if (!shrink) {
+				pagecache_isize_extended(inode, oldsize,
+							 inode->i_size);
+			} else if (ext4_should_journal_data(inode)) {
+				ext4_wait_for_tail_page_commit(inode);
+			}
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * Truncate pagecache after we've waited for commit
 		 * in data=journal mode to make pages freeable.
 		 */
 		truncate_pagecache(inode, inode->i_size);
+<<<<<<< HEAD
 		if (shrink) {
+=======
+		/*
+		 * Call ext4_truncate() even if i_size didn't change to
+		 * truncate possible preallocated blocks.
+		 */
+		if (attr->ia_size <= oldsize) {
+>>>>>>> upstream/android-13
 			rc = ext4_truncate(inode);
 			if (rc)
 				error = rc;
 		}
+<<<<<<< HEAD
 		up_write(&EXT4_I(inode)->i_mmap_sem);
 	}
 
 	if (!error) {
 		setattr_copy(inode, attr);
+=======
+out_mmap_sem:
+		filemap_invalidate_unlock(inode->i_mapping);
+	}
+
+	if (!error) {
+		setattr_copy(mnt_userns, inode, attr);
+>>>>>>> upstream/android-13
 		mark_inode_dirty(inode);
 	}
 
@@ -5822,6 +7614,7 @@ int ext4_setattr(struct dentry *dentry, struct iattr *attr)
 		ext4_orphan_del(NULL, inode);
 
 	if (!error && (ia_valid & ATTR_MODE))
+<<<<<<< HEAD
 		rc = posix_acl_chmod(inode, inode->i_mode);
 
 err_out:
@@ -5833,13 +7626,33 @@ err_out:
 
 int ext4_getattr(const struct path *path, struct kstat *stat,
 		 u32 request_mask, unsigned int query_flags)
+=======
+		rc = posix_acl_chmod(mnt_userns, inode, inode->i_mode);
+
+err_out:
+	if  (error)
+		ext4_std_error(inode->i_sb, error);
+	if (!error)
+		error = rc;
+	ext4_fc_stop_update(inode);
+	return error;
+}
+
+int ext4_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		 struct kstat *stat, u32 request_mask, unsigned int query_flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(path->dentry);
 	struct ext4_inode *raw_inode;
 	struct ext4_inode_info *ei = EXT4_I(inode);
 	unsigned int flags;
 
+<<<<<<< HEAD
 	if (EXT4_FITS_IN_INODE(raw_inode, ei, i_crtime)) {
+=======
+	if ((request_mask & STATX_BTIME) &&
+	    EXT4_FITS_IN_INODE(raw_inode, ei, i_crtime)) {
+>>>>>>> upstream/android-13
 		stat->result_mask |= STATX_BTIME;
 		stat->btime.tv_sec = ei->i_crtime.tv_sec;
 		stat->btime.tv_nsec = ei->i_crtime.tv_nsec;
@@ -5866,17 +7679,30 @@ int ext4_getattr(const struct path *path, struct kstat *stat,
 				  STATX_ATTR_NODUMP |
 				  STATX_ATTR_VERITY);
 
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
 	return 0;
 }
 
 int ext4_file_getattr(const struct path *path, struct kstat *stat,
+=======
+	generic_fillattr(mnt_userns, inode, stat);
+	return 0;
+}
+
+int ext4_file_getattr(struct user_namespace *mnt_userns,
+		      const struct path *path, struct kstat *stat,
+>>>>>>> upstream/android-13
 		      u32 request_mask, unsigned int query_flags)
 {
 	struct inode *inode = d_inode(path->dentry);
 	u64 delalloc_blocks;
 
+<<<<<<< HEAD
 	ext4_getattr(path, stat, request_mask, query_flags);
+=======
+	ext4_getattr(mnt_userns, path, stat, request_mask, query_flags);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If there is inline data in the inode, the inode will normally not
@@ -6008,6 +7834,11 @@ int ext4_mark_iloc_dirty(handle_t *handle,
 		put_bh(iloc->bh);
 		return -EIO;
 	}
+<<<<<<< HEAD
+=======
+	ext4_fc_track_inode(handle, inode);
+
+>>>>>>> upstream/android-13
 	if (IS_I_VERSION(inode))
 		inode_inc_iversion(inode);
 
@@ -6037,7 +7868,12 @@ ext4_reserve_inode_write(handle_t *handle, struct inode *inode,
 	err = ext4_get_inode_loc(inode, iloc);
 	if (!err) {
 		BUFFER_TRACE(iloc->bh, "get_write_access");
+<<<<<<< HEAD
 		err = ext4_journal_get_write_access(handle, iloc->bh);
+=======
+		err = ext4_journal_get_write_access(handle, inode->i_sb,
+						    iloc->bh, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (err) {
 			brelse(iloc->bh);
 			iloc->bh = NULL;
@@ -6122,9 +7958,14 @@ static int ext4_try_to_expand_extra_isize(struct inode *inode,
 	 * If this is felt to be critical, then e2fsck should be run to
 	 * force a large enough s_min_extra_isize.
 	 */
+<<<<<<< HEAD
 	if (ext4_handle_valid(handle) &&
 	    jbd2_journal_extend(handle,
 				EXT4_DATA_TRANS_BLOCKS(inode->i_sb)) != 0)
+=======
+	if (ext4_journal_extend(handle,
+				EXT4_DATA_TRANS_BLOCKS(inode->i_sb), 0) != 0)
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 
 	if (ext4_write_trylock_xattr(inode, &no_expand) == 0)
@@ -6161,7 +8002,12 @@ int ext4_expand_extra_isize(struct inode *inode,
 	ext4_write_lock_xattr(inode, &no_expand);
 
 	BUFFER_TRACE(iloc->bh, "get_write_access");
+<<<<<<< HEAD
 	error = ext4_journal_get_write_access(handle, iloc->bh);
+=======
+	error = ext4_journal_get_write_access(handle, inode->i_sb, iloc->bh,
+					      EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (error) {
 		brelse(iloc->bh);
 		goto out_unlock;
@@ -6193,7 +8039,12 @@ out_unlock:
  * Whenever the user wants stuff synced (sys_sync, sys_msync, sys_fsync)
  * we start and wait on commits.
  */
+<<<<<<< HEAD
 int ext4_mark_inode_dirty(handle_t *handle, struct inode *inode)
+=======
+int __ext4_mark_inode_dirty(handle_t *handle, struct inode *inode,
+				const char *func, unsigned int line)
+>>>>>>> upstream/android-13
 {
 	struct ext4_iloc iloc;
 	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
@@ -6203,13 +8054,26 @@ int ext4_mark_inode_dirty(handle_t *handle, struct inode *inode)
 	trace_ext4_mark_inode_dirty(inode, _RET_IP_);
 	err = ext4_reserve_inode_write(handle, inode, &iloc);
 	if (err)
+<<<<<<< HEAD
 		return err;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (EXT4_I(inode)->i_extra_isize < sbi->s_want_extra_isize)
 		ext4_try_to_expand_extra_isize(inode, sbi->s_want_extra_isize,
 					       iloc, handle);
 
+<<<<<<< HEAD
 	return ext4_mark_iloc_dirty(handle, inode, &iloc);
+=======
+	err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+out:
+	if (unlikely(err))
+		ext4_error_inode_err(inode, func, line, 0, err,
+					"mark_inode_dirty error");
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -6225,15 +8089,19 @@ int ext4_mark_inode_dirty(handle_t *handle, struct inode *inode)
  * If the inode is marked synchronous, we don't honour that here - doing
  * so would cause a commit on atime updates, which we don't bother doing.
  * We handle synchronous inodes at the highest possible level.
+<<<<<<< HEAD
  *
  * If only the I_DIRTY_TIME flag is set, we can skip everything.  If
  * I_DIRTY_TIME and I_DIRTY_SYNC is set, the only inode fields we need
  * to copy into the on-disk inode structure are the timestamp files.
+=======
+>>>>>>> upstream/android-13
  */
 void ext4_dirty_inode(struct inode *inode, int flags)
 {
 	handle_t *handle;
 
+<<<<<<< HEAD
 	if (flags == I_DIRTY_TIME)
 		return;
 	handle = ext4_journal_start(inode, EXT4_HT_INODE, 2);
@@ -6277,6 +8145,15 @@ static int ext4_pin_inode(handle_t *handle, struct inode *inode)
 }
 #endif
 
+=======
+	handle = ext4_journal_start(inode, EXT4_HT_INODE, 2);
+	if (IS_ERR(handle))
+		return;
+	ext4_mark_inode_dirty(handle, inode);
+	ext4_journal_stop(handle);
+}
+
+>>>>>>> upstream/android-13
 int ext4_change_inode_journal_flag(struct inode *inode, int val)
 {
 	journal_t *journal;
@@ -6312,10 +8189,17 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
 	 * data (and journalled aops don't know how to handle these cases).
 	 */
 	if (val) {
+<<<<<<< HEAD
 		down_write(&EXT4_I(inode)->i_mmap_sem);
 		err = filemap_write_and_wait(inode->i_mapping);
 		if (err < 0) {
 			up_write(&EXT4_I(inode)->i_mmap_sem);
+=======
+		filemap_invalidate_lock(inode->i_mapping);
+		err = filemap_write_and_wait(inode->i_mapping);
+		if (err < 0) {
+			filemap_invalidate_unlock(inode->i_mapping);
+>>>>>>> upstream/android-13
 			return err;
 		}
 	}
@@ -6334,7 +8218,11 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
 	if (val)
 		ext4_set_inode_flag(inode, EXT4_INODE_JOURNAL_DATA);
 	else {
+<<<<<<< HEAD
 		err = jbd2_journal_flush(journal);
+=======
+		err = jbd2_journal_flush(journal, 0);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			jbd2_journal_unlock_updates(journal);
 			percpu_up_write(&sbi->s_writepages_rwsem);
@@ -6348,7 +8236,11 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
 	percpu_up_write(&sbi->s_writepages_rwsem);
 
 	if (val)
+<<<<<<< HEAD
 		up_write(&EXT4_I(inode)->i_mmap_sem);
+=======
+		filemap_invalidate_unlock(inode->i_mapping);
+>>>>>>> upstream/android-13
 
 	/* Finally we can mark the inode as dirty. */
 
@@ -6356,6 +8248,11 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
 	if (IS_ERR(handle))
 		return PTR_ERR(handle);
 
+<<<<<<< HEAD
+=======
+	ext4_fc_mark_ineligible(inode->i_sb,
+		EXT4_FC_REASON_JOURNAL_FLAG_CHANGE, handle);
+>>>>>>> upstream/android-13
 	err = ext4_mark_inode_dirty(handle, inode);
 	ext4_handle_sync(handle);
 	ext4_journal_stop(handle);
@@ -6364,18 +8261,32 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
 	return err;
 }
 
+<<<<<<< HEAD
 static int ext4_bh_unmapped(handle_t *handle, struct buffer_head *bh)
+=======
+static int ext4_bh_unmapped(handle_t *handle, struct inode *inode,
+			    struct buffer_head *bh)
+>>>>>>> upstream/android-13
 {
 	return !buffer_mapped(bh);
 }
 
+<<<<<<< HEAD
 int ext4_page_mkwrite(struct vm_fault *vmf)
+=======
+vm_fault_t ext4_page_mkwrite(struct vm_fault *vmf)
+>>>>>>> upstream/android-13
 {
 	struct vm_area_struct *vma = vmf->vma;
 	struct page *page = vmf->page;
 	loff_t size;
 	unsigned long len;
+<<<<<<< HEAD
 	int ret;
+=======
+	int err;
+	vm_fault_t ret;
+>>>>>>> upstream/android-13
 	struct file *file = vma->vm_file;
 	struct inode *inode = file_inode(file);
 	struct address_space *mapping = inode->i_mapping;
@@ -6389,6 +8300,7 @@ int ext4_page_mkwrite(struct vm_fault *vmf)
 	sb_start_pagefault(inode->i_sb);
 	file_update_time(vma->vm_file);
 
+<<<<<<< HEAD
 	down_read(&EXT4_I(inode)->i_mmap_sem);
 
 	ret = ext4_convert_inline_data(inode);
@@ -6403,6 +8315,30 @@ int ext4_page_mkwrite(struct vm_fault *vmf)
 			ret = block_page_mkwrite(vma, vmf,
 						   ext4_da_get_block_prep);
 		} while (ret == -ENOSPC &&
+=======
+	filemap_invalidate_lock_shared(mapping);
+
+	err = ext4_convert_inline_data(inode);
+	if (err)
+		goto out_ret;
+
+	/*
+	 * On data journalling we skip straight to the transaction handle:
+	 * there's no delalloc; page truncated will be checked later; the
+	 * early return w/ all buffers mapped (calculates size/len) can't
+	 * be used; and there's no dioread_nolock, so only ext4_get_block.
+	 */
+	if (ext4_should_journal_data(inode))
+		goto retry_alloc;
+
+	/* Delalloc case is easy... */
+	if (test_opt(inode->i_sb, DELALLOC) &&
+	    !ext4_nonda_switch(inode->i_sb)) {
+		do {
+			err = block_page_mkwrite(vma, vmf,
+						   ext4_da_get_block_prep);
+		} while (err == -ENOSPC &&
+>>>>>>> upstream/android-13
 		       ext4_should_retry_alloc(inode->i_sb, &retries));
 		goto out_ret;
 	}
@@ -6423,9 +8359,18 @@ int ext4_page_mkwrite(struct vm_fault *vmf)
 	/*
 	 * Return if we have all the buffers mapped. This avoids the need to do
 	 * journal_start/journal_stop which can block and take a long time
+<<<<<<< HEAD
 	 */
 	if (page_has_buffers(page)) {
 		if (!ext4_walk_page_buffers(NULL, page_buffers(page),
+=======
+	 *
+	 * This cannot be done for data journalling, as we have to add the
+	 * inode to the transaction's list to writeprotect pages on commit.
+	 */
+	if (page_has_buffers(page)) {
+		if (!ext4_walk_page_buffers(NULL, inode, page_buffers(page),
+>>>>>>> upstream/android-13
 					    0, len, NULL,
 					    ext4_bh_unmapped)) {
 			/* Wait so that we don't change page under IO */
@@ -6447,6 +8392,7 @@ retry_alloc:
 		ret = VM_FAULT_SIGBUS;
 		goto out;
 	}
+<<<<<<< HEAD
 	ret = block_page_mkwrite(vma, vmf, get_block);
 	if (!ret && ext4_should_journal_data(inode)) {
 		if (ext4_walk_page_buffers(handle, page_buffers(page), 0,
@@ -6479,4 +8425,59 @@ int ext4_filemap_fault(struct vm_fault *vmf)
 	up_read(&EXT4_I(inode)->i_mmap_sem);
 
 	return err;
+=======
+	/*
+	 * Data journalling can't use block_page_mkwrite() because it
+	 * will set_buffer_dirty() before do_journal_get_write_access()
+	 * thus might hit warning messages for dirty metadata buffers.
+	 */
+	if (!ext4_should_journal_data(inode)) {
+		err = block_page_mkwrite(vma, vmf, get_block);
+	} else {
+		lock_page(page);
+		size = i_size_read(inode);
+		/* Page got truncated from under us? */
+		if (page->mapping != mapping || page_offset(page) > size) {
+			ret = VM_FAULT_NOPAGE;
+			goto out_error;
+		}
+
+		if (page->index == size >> PAGE_SHIFT)
+			len = size & ~PAGE_MASK;
+		else
+			len = PAGE_SIZE;
+
+		err = __block_write_begin(page, 0, len, ext4_get_block);
+		if (!err) {
+			ret = VM_FAULT_SIGBUS;
+			if (ext4_walk_page_buffers(handle, inode,
+					page_buffers(page), 0, len, NULL,
+					do_journal_get_write_access))
+				goto out_error;
+			if (ext4_walk_page_buffers(handle, inode,
+					page_buffers(page), 0, len, NULL,
+					write_end_fn))
+				goto out_error;
+			if (ext4_jbd2_inode_add_write(handle, inode,
+						      page_offset(page), len))
+				goto out_error;
+			ext4_set_inode_state(inode, EXT4_STATE_JDATA);
+		} else {
+			unlock_page(page);
+		}
+	}
+	ext4_journal_stop(handle);
+	if (err == -ENOSPC && ext4_should_retry_alloc(inode->i_sb, &retries))
+		goto retry_alloc;
+out_ret:
+	ret = block_page_mkwrite_return(err);
+out:
+	filemap_invalidate_unlock_shared(mapping);
+	sb_end_pagefault(inode->i_sb);
+	return ret;
+out_error:
+	unlock_page(page);
+	ext4_journal_stop(handle);
+	goto out;
+>>>>>>> upstream/android-13
 }

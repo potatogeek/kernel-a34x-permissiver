@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config JFS_FS
 	tristate "JFS filesystem support"
 	select NLS
 	select CRC32
 	help
 	  This is a port of IBM's Journaled Filesystem .  More information is
+<<<<<<< HEAD
 	  available in the file <file:Documentation/filesystems/jfs.txt>.
+=======
+	  available in the file <file:Documentation/admin-guide/jfs.rst>.
+>>>>>>> upstream/android-13
 
 	  If you do not intend to use the JFS filesystem, say N.
 

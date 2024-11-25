@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Per-device information from the pin control system.
  * This is the stuff that get included into the device
@@ -8,8 +12,11 @@
  * This interface is used in the core to keep track of pins.
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef PINCTRL_DEVINFO_H

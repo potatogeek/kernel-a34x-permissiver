@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support for HP iPAQ hx4700 PDAs.
  *
@@ -7,11 +11,14 @@
  *    Copyright (c) 2004 Hewlett-Packard Company.
  *    Copyright (c) 2005 SDG Systems, LLC
  *    Copyright (c) 2006 Anton Vorontsov <cbou@mail.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -19,6 +26,10 @@
 #include <linux/platform_device.h>
 #include <linux/delay.h>
 #include <linux/fb.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio.h>
 #include <linux/gpio_keys.h>
 #include <linux/input.h>
@@ -37,7 +48,10 @@
 #include <linux/spi/ads7846.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/pxa2xx_spi.h>
+<<<<<<< HEAD
 #include <linux/usb/gpio_vbus.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_data/i2c-pxa.h>
 
 #include <mach/hardware.h>
@@ -560,7 +574,10 @@ static struct platform_device hx4700_lcd = {
 static struct platform_pwm_backlight_data backlight_data = {
 	.max_brightness = 200,
 	.dft_brightness = 100,
+<<<<<<< HEAD
 	.enable_gpio    = -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device backlight = {
@@ -581,18 +598,37 @@ static struct pwm_lookup hx4700_pwm_lookup[] = {
  * USB "Transceiver"
  */
 
+<<<<<<< HEAD
 static struct gpio_vbus_mach_info gpio_vbus_info = {
 	.gpio_pullup        = GPIO76_HX4700_USBC_PUEN,
 	.gpio_vbus          = GPIOD14_nUSBC_DETECT,
 	.gpio_vbus_inverted = 1,
+=======
+static struct gpiod_lookup_table gpio_vbus_gpiod_table = {
+	.dev_id = "gpio-vbus",
+	.table = {
+		/* This GPIO is on ASIC3 */
+		GPIO_LOOKUP("asic3",
+			    /* Convert to a local offset on the ASIC3 */
+			    GPIOD14_nUSBC_DETECT - HX4700_ASIC3_GPIO_BASE,
+			    "vbus", GPIO_ACTIVE_LOW),
+		/* This one is on the primary SOC GPIO */
+		GPIO_LOOKUP("gpio-pxa", GPIO76_HX4700_USBC_PUEN,
+			    "pullup", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device gpio_vbus = {
 	.name          = "gpio-vbus",
 	.id            = -1,
+<<<<<<< HEAD
 	.dev = {
 		.platform_data = &gpio_vbus_info,
 	},
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct pxa2xx_udc_mach_info hx4700_udc_info;
@@ -629,7 +665,11 @@ static struct spi_board_info tsc2046_board_info[] __initdata = {
 	},
 };
 
+<<<<<<< HEAD
 static struct pxa2xx_spi_master pxa_ssp2_master_info = {
+=======
+static struct pxa2xx_spi_controller pxa_ssp2_master_info = {
+>>>>>>> upstream/android-13
 	.num_chipselect = 1,
 	.enable_dma     = 1,
 };
@@ -702,9 +742,13 @@ static struct regulator_init_data bq24022_init_data = {
 	.consumer_supplies      = bq24022_consumers,
 };
 
+<<<<<<< HEAD
 static struct gpio bq24022_gpios[] = {
 	{ GPIO96_HX4700_BQ24022_ISET2, GPIOF_OUT_INIT_LOW, "bq24022_iset2" },
 };
+=======
+static enum gpiod_flags bq24022_gpiod_gflags[] = { GPIOD_OUT_LOW };
+>>>>>>> upstream/android-13
 
 static struct gpio_regulator_state bq24022_states[] = {
 	{ .value = 100000, .gpios = (0 << 0) },
@@ -714,12 +758,19 @@ static struct gpio_regulator_state bq24022_states[] = {
 static struct gpio_regulator_config bq24022_info = {
 	.supply_name = "bq24022",
 
+<<<<<<< HEAD
 	.enable_gpio = GPIO72_HX4700_BQ24022_nCHARGE_EN,
 	.enable_high = 0,
 	.enabled_at_boot = 0,
 
 	.gpios = bq24022_gpios,
 	.nr_gpios = ARRAY_SIZE(bq24022_gpios),
+=======
+	.enabled_at_boot = 0,
+
+	.gflags = bq24022_gpiod_gflags,
+	.ngpios = ARRAY_SIZE(bq24022_gpiod_gflags),
+>>>>>>> upstream/android-13
 
 	.states = bq24022_states,
 	.nr_states = ARRAY_SIZE(bq24022_states),
@@ -736,6 +787,20 @@ static struct platform_device bq24022 = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table bq24022_gpiod_table = {
+	.dev_id = "gpio-regulator",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO96_HX4700_BQ24022_ISET2,
+			    NULL, GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP("gpio-pxa", GPIO72_HX4700_BQ24022_nCHARGE_EN,
+			    "enable", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 /*
  * StrataFlash
  */
@@ -878,6 +943,11 @@ static void __init hx4700_init(void)
 	pxa_set_btuart_info(NULL);
 	pxa_set_stuart_info(NULL);
 
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&bq24022_gpiod_table);
+	gpiod_add_lookup_table(&gpio_vbus_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(devices, ARRAY_SIZE(devices));
 	pwm_add_table(hx4700_pwm_lookup, ARRAY_SIZE(hx4700_pwm_lookup));
 

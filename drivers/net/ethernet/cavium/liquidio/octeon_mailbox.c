@@ -28,7 +28,11 @@
 
 /**
  * octeon_mbox_read:
+<<<<<<< HEAD
  * @oct: Pointer mailbox
+=======
+ * @mbox: Pointer mailbox
+>>>>>>> upstream/android-13
  *
  * Reads the 8-bytes of data from the mbox register
  * Writes back the acknowldgement inidcating completion of read
@@ -260,9 +264,13 @@ static int octeon_mbox_process_cmd(struct octeon_mbox *mbox,
 		dev_info(&oct->pci_dev->dev,
 			 "got a request for FLR from VF that owns DPI ring %u\n",
 			 mbox->q_no);
+<<<<<<< HEAD
 		pcie_capability_set_word(
 			oct->sriov_info.dpiring_to_vfpcidev_lut[mbox->q_no],
 			PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_BCR_FLR);
+=======
+		pcie_flr(oct->sriov_info.dpiring_to_vfpcidev_lut[mbox->q_no]);
+>>>>>>> upstream/android-13
 		break;
 
 	case OCTEON_PF_CHANGED_VF_MACADDR:
@@ -287,7 +295,12 @@ static int octeon_mbox_process_cmd(struct octeon_mbox *mbox,
 }
 
 /**
+<<<<<<< HEAD
  *octeon_mbox_process_message:
+=======
+ * octeon_mbox_process_message
+ * @mbox: mailbox
+>>>>>>> upstream/android-13
  *
  * Process the received mbox message.
  */

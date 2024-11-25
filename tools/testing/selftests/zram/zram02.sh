@@ -1,4 +1,5 @@
 #!/bin/bash
+<<<<<<< HEAD
 # Copyright (c) 2015 Oracle and/or its affiliates. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or
@@ -11,6 +12,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
+=======
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2015 Oracle and/or its affiliates. All Rights Reserved.
+#
+>>>>>>> upstream/android-13
 # Test checks that we can create swap zram device.
 #
 # Author: Alexey Kodanev <alexey.kodanev@oracle.com>
@@ -45,7 +51,10 @@ zram_set_memlimit
 zram_makeswap
 zram_swapoff
 zram_cleanup
+<<<<<<< HEAD
 zram_unload
+=======
+>>>>>>> upstream/android-13
 
 if [ $ERR_CODE -ne 0 ]; then
 	echo "$TCID : [FAIL]"

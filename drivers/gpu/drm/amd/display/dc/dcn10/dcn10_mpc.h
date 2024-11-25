@@ -39,11 +39,20 @@
 	SRII(MPCC_BG_G_Y, MPCC, inst),\
 	SRII(MPCC_BG_R_CR, MPCC, inst),\
 	SRII(MPCC_BG_B_CB, MPCC, inst),\
+<<<<<<< HEAD
 	SRII(MPCC_BG_B_CB, MPCC, inst),\
 	SRII(MPCC_SM_CONTROL, MPCC, inst)
 
 #define MPC_OUT_MUX_COMMON_REG_LIST_DCN1_0(inst) \
 	SRII(MUX, MPC_OUT, inst)
+=======
+	SRII(MPCC_SM_CONTROL, MPCC, inst),\
+	SRII(MPCC_UPDATE_LOCK_SEL, MPCC, inst)
+
+#define MPC_OUT_MUX_COMMON_REG_LIST_DCN1_0(inst) \
+	SRII(MUX, MPC_OUT, inst),\
+	VUPDATE_SRII(CUR, VUPDATE_LOCK_SET, inst)
+>>>>>>> upstream/android-13
 
 #define MPC_COMMON_REG_VARIABLE_LIST \
 	uint32_t MPCC_TOP_SEL[MAX_MPCC]; \
@@ -55,7 +64,13 @@
 	uint32_t MPCC_BG_R_CR[MAX_MPCC]; \
 	uint32_t MPCC_BG_B_CB[MAX_MPCC]; \
 	uint32_t MPCC_SM_CONTROL[MAX_MPCC]; \
+<<<<<<< HEAD
 	uint32_t MUX[MAX_OPP];
+=======
+	uint32_t MUX[MAX_OPP]; \
+	uint32_t MPCC_UPDATE_LOCK_SEL[MAX_MPCC]; \
+	uint32_t CUR[MAX_OPP];
+>>>>>>> upstream/android-13
 
 #define MPC_COMMON_MASK_SH_LIST_DCN1_0(mask_sh)\
 	SF(MPCC0_MPCC_TOP_SEL, MPCC_TOP_SEL, mask_sh),\
@@ -78,7 +93,12 @@
 	SF(MPCC0_MPCC_SM_CONTROL, MPCC_SM_FIELD_ALT, mask_sh),\
 	SF(MPCC0_MPCC_SM_CONTROL, MPCC_SM_FORCE_NEXT_FRAME_POL, mask_sh),\
 	SF(MPCC0_MPCC_SM_CONTROL, MPCC_SM_FORCE_NEXT_TOP_POL, mask_sh),\
+<<<<<<< HEAD
 	SF(MPC_OUT0_MUX, MPC_OUT_MUX, mask_sh)
+=======
+	SF(MPC_OUT0_MUX, MPC_OUT_MUX, mask_sh),\
+	SF(MPCC0_MPCC_UPDATE_LOCK_SEL, MPCC_UPDATE_LOCK_SEL, mask_sh)
+>>>>>>> upstream/android-13
 
 #define MPC_REG_FIELD_LIST(type) \
 	type MPCC_TOP_SEL;\
@@ -101,7 +121,13 @@
 	type MPCC_SM_FIELD_ALT;\
 	type MPCC_SM_FORCE_NEXT_FRAME_POL;\
 	type MPCC_SM_FORCE_NEXT_TOP_POL;\
+<<<<<<< HEAD
 	type MPC_OUT_MUX;
+=======
+	type MPC_OUT_MUX;\
+	type MPCC_UPDATE_LOCK_SEL;\
+	type CUR_VUPDATE_LOCK_SET;
+>>>>>>> upstream/android-13
 
 struct dcn_mpc_registers {
 	MPC_COMMON_REG_VARIABLE_LIST
@@ -149,6 +175,13 @@ void mpc1_remove_mpcc(
 void mpc1_mpc_init(
 	struct mpc *mpc);
 
+<<<<<<< HEAD
+=======
+void mpc1_mpc_init_single_inst(
+	struct mpc *mpc,
+	unsigned int mpcc_id);
+
+>>>>>>> upstream/android-13
 void mpc1_assert_idle_mpcc(
 	struct mpc *mpc,
 	int id);
@@ -188,4 +221,10 @@ void mpc1_read_mpcc_state(
 		int mpcc_inst,
 		struct mpcc_state *s);
 
+<<<<<<< HEAD
+=======
+void mpc1_cursor_lock(struct mpc *mpc, int opp_id, bool lock);
+
+unsigned int mpc1_get_mpc_out_mux(struct mpc *mpc, int opp_id);
+>>>>>>> upstream/android-13
 #endif

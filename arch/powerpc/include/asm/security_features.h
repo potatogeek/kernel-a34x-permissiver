@@ -9,7 +9,11 @@
 #define _ASM_POWERPC_SECURITY_FEATURES_H
 
 
+<<<<<<< HEAD
 extern unsigned long powerpc_security_features;
+=======
+extern u64 powerpc_security_features;
+>>>>>>> upstream/android-13
 extern bool rfi_flush;
 
 /* These are bit flags */
@@ -24,21 +28,41 @@ void setup_stf_barrier(void);
 void do_stf_barrier_fixups(enum stf_barrier_type types);
 void setup_count_cache_flush(void);
 
+<<<<<<< HEAD
 static inline void security_ftr_set(unsigned long feature)
+=======
+static inline void security_ftr_set(u64 feature)
+>>>>>>> upstream/android-13
 {
 	powerpc_security_features |= feature;
 }
 
+<<<<<<< HEAD
 static inline void security_ftr_clear(unsigned long feature)
+=======
+static inline void security_ftr_clear(u64 feature)
+>>>>>>> upstream/android-13
 {
 	powerpc_security_features &= ~feature;
 }
 
+<<<<<<< HEAD
 static inline bool security_ftr_enabled(unsigned long feature)
+=======
+static inline bool security_ftr_enabled(u64 feature)
+>>>>>>> upstream/android-13
 {
 	return !!(powerpc_security_features & feature);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_BOOK3S_64
+enum stf_barrier_type stf_barrier_type_get(void);
+#else
+static inline enum stf_barrier_type stf_barrier_type_get(void) { return STF_BARRIER_NONE; }
+#endif
+>>>>>>> upstream/android-13
 
 // Features indicating support for Spectre/Meltdown mitigations
 
@@ -63,6 +87,11 @@ static inline bool security_ftr_enabled(unsigned long feature)
 // bcctr 2,0,0 triggers a hardware assisted count cache flush
 #define SEC_FTR_BCCTR_FLUSH_ASSIST	0x0000000000000800ull
 
+<<<<<<< HEAD
+=======
+// bcctr 2,0,0 triggers a hardware assisted link stack flush
+#define SEC_FTR_BCCTR_LINK_FLUSH_ASSIST	0x0000000000002000ull
+>>>>>>> upstream/android-13
 
 // Features indicating need for Spectre/Meltdown mitigations
 
@@ -90,6 +119,12 @@ static inline bool security_ftr_enabled(unsigned long feature)
 // The L1-D cache should be flushed after user accesses from the kernel
 #define SEC_FTR_L1D_FLUSH_UACCESS	0x0000000000008000ull
 
+<<<<<<< HEAD
+=======
+// The STF flush should be executed on privilege state switch
+#define SEC_FTR_STF_BARRIER		0x0000000000010000ull
+
+>>>>>>> upstream/android-13
 // Features enabled by default
 #define SEC_FTR_DEFAULT \
 	(SEC_FTR_L1D_FLUSH_HV | \
@@ -97,6 +132,10 @@ static inline bool security_ftr_enabled(unsigned long feature)
 	 SEC_FTR_BNDS_CHK_SPEC_BAR | \
 	 SEC_FTR_L1D_FLUSH_ENTRY | \
 	 SEC_FTR_L1D_FLUSH_UACCESS | \
+<<<<<<< HEAD
+=======
+	 SEC_FTR_STF_BARRIER | \
+>>>>>>> upstream/android-13
 	 SEC_FTR_FAVOUR_SECURITY)
 
 #endif /* _ASM_POWERPC_SECURITY_FEATURES_H */

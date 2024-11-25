@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007 PA Semi, Inc
  *
@@ -8,6 +12,7 @@
  *
  * Based on arch/powerpc/platforms/cell/cbe_cpufreq.c:
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpufreq.h>
@@ -36,6 +43,11 @@
 #include <asm/time.h>
 #include <asm/smp.h>
 
+<<<<<<< HEAD
+=======
+#include <platforms/pasemi/pasemi.h>
+
+>>>>>>> upstream/android-13
 #define SDCASR_REG		0x0100
 #define SDCASR_REG_STRIDE	0x1000
 #define SDCPWR_CFGA0_REG	0x0100
@@ -208,7 +220,12 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
 	policy->cur = pas_freqs[cur_astate].frequency;
 	ppc_proc_freq = policy->cur * 1000ul;
 
+<<<<<<< HEAD
 	return cpufreq_generic_init(policy, pas_freqs, get_gizmo_latency());
+=======
+	cpufreq_generic_init(policy, pas_freqs, get_gizmo_latency());
+	return 0;
+>>>>>>> upstream/android-13
 
 out_unmap_sdcasr:
 	iounmap(sdcasr_mapbase);

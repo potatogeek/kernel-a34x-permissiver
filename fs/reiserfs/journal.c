@@ -32,7 +32,11 @@
  *                      to disk for all backgrounded commits that have been
  *                      around too long.
  *		     -- Note, if you call this as an immediate flush from
+<<<<<<< HEAD
  *		        from within kupdate, it will ignore the immediate flag
+=======
+ *		        within kupdate, it will ignore the immediate flag
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -56,8 +60,11 @@
 /* gets a struct reiserfs_journal_list * from a list head */
 #define JOURNAL_LIST_ENTRY(h) (list_entry((h), struct reiserfs_journal_list, \
                                j_list))
+<<<<<<< HEAD
 #define JOURNAL_WORK_ENTRY(h) (list_entry((h), struct reiserfs_journal_list, \
                                j_working_list))
+=======
+>>>>>>> upstream/android-13
 
 /* must be correct to keep the desc and commit structs at 4k */
 #define JOURNAL_TRANS_HALF 1018
@@ -94,7 +101,11 @@ static int journal_join(struct reiserfs_transaction_handle *th,
 			struct super_block *sb);
 static void release_journal_dev(struct super_block *super,
 			       struct reiserfs_journal *journal);
+<<<<<<< HEAD
 static int dirty_one_transaction(struct super_block *s,
+=======
+static void dirty_one_transaction(struct super_block *s,
+>>>>>>> upstream/android-13
 				 struct reiserfs_journal_list *jl);
 static void flush_async_commits(struct work_struct *work);
 static void queue_log_writer(struct super_block *s);
@@ -463,7 +474,10 @@ int reiserfs_in_journal(struct super_block *sb,
 			b_blocknr_t * next_zero_bit)
 {
 	struct reiserfs_journal *journal = SB_JOURNAL(sb);
+<<<<<<< HEAD
 	struct reiserfs_journal_cnode *cn;
+=======
+>>>>>>> upstream/android-13
 	struct reiserfs_list_bitmap *jb;
 	int i;
 	unsigned long bl;
@@ -499,13 +513,21 @@ int reiserfs_in_journal(struct super_block *sb,
 	bl = bmap_nr * (sb->s_blocksize << 3) + bit_nr;
 	/* is it in any old transactions? */
 	if (search_all
+<<<<<<< HEAD
 	    && (cn =
 		get_journal_hash_dev(sb, journal->j_list_hash_table, bl))) {
+=======
+	    && (get_journal_hash_dev(sb, journal->j_list_hash_table, bl))) {
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	/* is it in the current transaction.  This should never happen */
+<<<<<<< HEAD
 	if ((cn = get_journal_hash_dev(sb, journal->j_hash_table, bl))) {
+=======
+	if ((get_journal_hash_dev(sb, journal->j_hash_table, bl))) {
+>>>>>>> upstream/android-13
 		BUG();
 		return 1;
 	}
@@ -891,7 +913,10 @@ static int flush_older_commits(struct super_block *s,
 	struct list_head *entry;
 	unsigned int trans_id = jl->j_trans_id;
 	unsigned int other_trans_id;
+<<<<<<< HEAD
 	unsigned int first_trans_id;
+=======
+>>>>>>> upstream/android-13
 
 find_first:
 	/*
@@ -914,8 +939,11 @@ find_first:
 		return 0;
 	}
 
+<<<<<<< HEAD
 	first_trans_id = first_jl->j_trans_id;
 
+=======
+>>>>>>> upstream/android-13
 	entry = &first_jl->j_list;
 	while (1) {
 		other_jl = JOURNAL_LIST_ENTRY(entry);
@@ -1351,7 +1379,11 @@ static int flush_journal_list(struct super_block *s,
 			      struct reiserfs_journal_list *jl, int flushall)
 {
 	struct reiserfs_journal_list *pjl;
+<<<<<<< HEAD
 	struct reiserfs_journal_cnode *cn, *last;
+=======
+	struct reiserfs_journal_cnode *cn;
+>>>>>>> upstream/android-13
 	int count;
 	int was_jwait = 0;
 	int was_dirty = 0;
@@ -1509,7 +1541,10 @@ static int flush_journal_list(struct super_block *s,
 					 b_blocknr, __func__);
 		}
 free_cnode:
+<<<<<<< HEAD
 		last = cn;
+=======
+>>>>>>> upstream/android-13
 		cn = cn->next;
 		if (saved_bh) {
 			/*
@@ -1682,12 +1717,19 @@ next:
 }
 
 /* used by flush_commit_list */
+<<<<<<< HEAD
 static int dirty_one_transaction(struct super_block *s,
+=======
+static void dirty_one_transaction(struct super_block *s,
+>>>>>>> upstream/android-13
 				 struct reiserfs_journal_list *jl)
 {
 	struct reiserfs_journal_cnode *cn;
 	struct reiserfs_journal_list *pjl;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	jl->j_state |= LIST_DIRTY;
 	cn = jl->j_realblock;
@@ -1716,7 +1758,10 @@ static int dirty_one_transaction(struct super_block *s,
 		}
 		cn = cn->next;
 	}
+<<<<<<< HEAD
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int kupdate_transactions(struct super_block *s,
@@ -1794,7 +1839,10 @@ static int flush_used_journal_lists(struct super_block *s,
 {
 	unsigned long len = 0;
 	unsigned long cur_len;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	int i;
 	int limit = 256;
 	struct reiserfs_journal_list *tjl;
@@ -1831,9 +1879,15 @@ static int flush_used_journal_lists(struct super_block *s,
 	 * transactions, but only bother if we've actually spanned
 	 * across multiple lists
 	 */
+<<<<<<< HEAD
 	if (flush_jl != jl) {
 		ret = kupdate_transactions(s, jl, &tjl, &trans_id, len, i);
 	}
+=======
+	if (flush_jl != jl)
+		kupdate_transactions(s, jl, &tjl, &trans_id, len, i);
+
+>>>>>>> upstream/android-13
 	flush_journal_list(s, flush_jl, 1);
 	put_journal_list(s, flush_jl);
 	put_journal_list(s, jl);
@@ -1844,7 +1898,11 @@ static int flush_used_journal_lists(struct super_block *s,
  * removes any nodes in table with name block and dev as bh.
  * only touchs the hnext and hprev pointers.
  */
+<<<<<<< HEAD
 void remove_journal_hash(struct super_block *sb,
+=======
+static void remove_journal_hash(struct super_block *sb,
+>>>>>>> upstream/android-13
 			 struct reiserfs_journal_cnode **table,
 			 struct reiserfs_journal_list *jl,
 			 unsigned long block, int remove_freed)
@@ -1913,7 +1971,10 @@ static int do_journal_release(struct reiserfs_transaction_handle *th,
 			      struct super_block *sb, int error)
 {
 	struct reiserfs_transaction_handle myth;
+<<<<<<< HEAD
 	int flushed = 0;
+=======
+>>>>>>> upstream/android-13
 	struct reiserfs_journal *journal = SB_JOURNAL(sb);
 
 	/*
@@ -1935,7 +1996,10 @@ static int do_journal_release(struct reiserfs_transaction_handle *th,
 						     1);
 			journal_mark_dirty(&myth, SB_BUFFER_WITH_SB(sb));
 			do_journal_end(&myth, FLUSH_ALL);
+<<<<<<< HEAD
 			flushed = 1;
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2610,7 +2674,10 @@ static int journal_init_dev(struct super_block *super,
 	int result;
 	dev_t jdev;
 	fmode_t blkdev_mode = FMODE_READ | FMODE_WRITE | FMODE_EXCL;
+<<<<<<< HEAD
 	char b[BDEVNAME_SIZE];
+=======
+>>>>>>> upstream/android-13
 
 	result = 0;
 
@@ -2632,8 +2699,13 @@ static int journal_init_dev(struct super_block *super,
 			result = PTR_ERR(journal->j_dev_bd);
 			journal->j_dev_bd = NULL;
 			reiserfs_warning(super, "sh-458",
+<<<<<<< HEAD
 					 "cannot init journal device '%s': %i",
 					 __bdevname(jdev, b), result);
+=======
+					 "cannot init journal device unknown-block(%u,%u): %i",
+					 MAJOR(jdev), MINOR(jdev), result);
+>>>>>>> upstream/android-13
 			return result;
 		} else if (jdev != super->s_dev)
 			set_blocksize(journal->j_dev_bd, super->s_blocksize);
@@ -2772,6 +2844,23 @@ int journal_init(struct super_block *sb, const char *j_dev_name,
 		goto free_and_return;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Sanity check to see if journal first block is correct.
+	 * If journal first block is invalid it can cause
+	 * zeroing important superblock members.
+	 */
+	if (!SB_ONDISK_JOURNAL_DEVICE(sb) &&
+	    SB_ONDISK_JOURNAL_1st_BLOCK(sb) < SB_JOURNAL_1st_RESERVED_BLOCK(sb)) {
+		reiserfs_warning(sb, "journal-1393",
+				 "journal 1st super block is invalid: 1st reserved block %d, but actual 1st block is %d",
+				 SB_JOURNAL_1st_RESERVED_BLOCK(sb),
+				 SB_ONDISK_JOURNAL_1st_BLOCK(sb));
+		goto free_and_return;
+	}
+
+>>>>>>> upstream/android-13
 	if (journal_init_dev(sb, journal, j_dev_name) != 0) {
 		reiserfs_warning(sb, "sh-462",
 				 "unable to initialize journal device");
@@ -3446,9 +3535,14 @@ static int remove_from_transaction(struct super_block *sb,
 	if (cn == journal->j_last) {
 		journal->j_last = cn->prev;
 	}
+<<<<<<< HEAD
 	if (bh)
 		remove_journal_hash(sb, journal->j_hash_table, NULL,
 				    bh->b_blocknr, 0);
+=======
+	remove_journal_hash(sb, journal->j_hash_table, NULL,
+			    bh->b_blocknr, 0);
+>>>>>>> upstream/android-13
 	clear_buffer_journaled(bh);	/* don't log this one */
 
 	if (!already_cleaned) {
@@ -3990,7 +4084,10 @@ static int do_journal_end(struct reiserfs_transaction_handle *th, int flags)
 	struct buffer_head *c_bh;	/* commit bh */
 	struct buffer_head *d_bh;	/* desc bh */
 	int cur_write_start = 0;	/* start index of current log write */
+<<<<<<< HEAD
 	int old_start;
+=======
+>>>>>>> upstream/android-13
 	int i;
 	int flush;
 	int wait_on_commit;
@@ -4247,7 +4344,10 @@ static int do_journal_end(struct reiserfs_transaction_handle *th, int flags)
 	journal->j_num_work_lists++;
 
 	/* reset journal values for the next transaction */
+<<<<<<< HEAD
 	old_start = journal->j_start;
+=======
+>>>>>>> upstream/android-13
 	journal->j_start =
 	    (journal->j_start + journal->j_len +
 	     2) % SB_ONDISK_JOURNAL_SIZE(sb);

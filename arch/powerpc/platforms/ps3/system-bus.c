@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PS3 system bus driver.
  *
  *  Copyright (C) 2006 Sony Computer Entertainment Inc.
  *  Copyright 2006 Sony Corp.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,12 +21,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/slab.h>
 
@@ -37,12 +48,20 @@ static struct device ps3_system_bus = {
 };
 
 /* FIXME: need device usage counters! */
+<<<<<<< HEAD
 struct {
+=======
+static struct {
+>>>>>>> upstream/android-13
 	struct mutex mutex;
 	int sb_11; /* usb 0 */
 	int sb_12; /* usb 0 */
 	int gpu;
+<<<<<<< HEAD
 } static usage_hack;
+=======
+} usage_hack;
+>>>>>>> upstream/android-13
 
 static int ps3_is_device(struct ps3_system_bus_device *dev, u64 bus_id,
 			 u64 dev_id)
@@ -76,9 +95,16 @@ static int ps3_open_hv_device_sb(struct ps3_system_bus_device *dev)
 	result = lv1_open_device(dev->bus_id, dev->dev_id, 0);
 
 	if (result) {
+<<<<<<< HEAD
 		pr_debug("%s:%d: lv1_open_device failed: %s\n", __func__,
 			__LINE__, ps3_result(result));
 			result = -EPERM;
+=======
+		pr_warn("%s:%d: lv1_open_device dev=%u.%u(%s) failed: %s\n",
+			__func__, __LINE__, dev->match_id, dev->match_sub_id,
+			dev_name(&dev->core), ps3_result(result));
+		result = -EPERM;
+>>>>>>> upstream/android-13
 	}
 
 done:
@@ -132,7 +158,11 @@ static int ps3_open_hv_device_gpu(struct ps3_system_bus_device *dev)
 	result = lv1_gpu_open(0);
 
 	if (result) {
+<<<<<<< HEAD
 		pr_debug("%s:%d: lv1_gpu_open failed: %s\n", __func__,
+=======
+		pr_warn("%s:%d: lv1_gpu_open failed: %s\n", __func__,
+>>>>>>> upstream/android-13
 			__LINE__, ps3_result(result));
 			result = -EPERM;
 	}
@@ -392,9 +422,14 @@ static int ps3_system_bus_probe(struct device *_dev)
 	return result;
 }
 
+<<<<<<< HEAD
 static int ps3_system_bus_remove(struct device *_dev)
 {
 	int result = 0;
+=======
+static void ps3_system_bus_remove(struct device *_dev)
+{
+>>>>>>> upstream/android-13
 	struct ps3_system_bus_device *dev = ps3_dev_to_system_bus_dev(_dev);
 	struct ps3_system_bus_driver *drv;
 
@@ -405,13 +440,20 @@ static int ps3_system_bus_remove(struct device *_dev)
 	BUG_ON(!drv);
 
 	if (drv->remove)
+<<<<<<< HEAD
 		result = drv->remove(dev);
+=======
+		drv->remove(dev);
+>>>>>>> upstream/android-13
 	else
 		dev_dbg(&dev->core, "%s:%d %s: no remove method\n",
 			__func__, __LINE__, drv->core.name);
 
 	pr_debug(" <- %s:%d: %s\n", __func__, __LINE__, dev_name(&dev->core));
+<<<<<<< HEAD
 	return result;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void ps3_system_bus_shutdown(struct device *_dev)
@@ -675,7 +717,11 @@ static int ps3_ioc0_map_sg(struct device *_dev, struct scatterlist *sg,
 			   unsigned long attrs)
 {
 	BUG();
+<<<<<<< HEAD
 	return 0;
+=======
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static void ps3_sb_unmap_sg(struct device *_dev, struct scatterlist *sg,
@@ -698,20 +744,32 @@ static int ps3_dma_supported(struct device *_dev, u64 mask)
 	return mask >= DMA_BIT_MASK(32);
 }
 
+<<<<<<< HEAD
 static u64 ps3_dma_get_required_mask(struct device *_dev)
 {
 	return DMA_BIT_MASK(32);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct dma_map_ops ps3_sb_dma_ops = {
 	.alloc = ps3_alloc_coherent,
 	.free = ps3_free_coherent,
 	.map_sg = ps3_sb_map_sg,
 	.unmap_sg = ps3_sb_unmap_sg,
 	.dma_supported = ps3_dma_supported,
+<<<<<<< HEAD
 	.get_required_mask = ps3_dma_get_required_mask,
 	.map_page = ps3_sb_map_page,
 	.unmap_page = ps3_unmap_page,
+=======
+	.map_page = ps3_sb_map_page,
+	.unmap_page = ps3_unmap_page,
+	.mmap = dma_common_mmap,
+	.get_sgtable = dma_common_get_sgtable,
+	.alloc_pages = dma_common_alloc_pages,
+	.free_pages = dma_common_free_pages,
+>>>>>>> upstream/android-13
 };
 
 static const struct dma_map_ops ps3_ioc0_dma_ops = {
@@ -720,9 +778,18 @@ static const struct dma_map_ops ps3_ioc0_dma_ops = {
 	.map_sg = ps3_ioc0_map_sg,
 	.unmap_sg = ps3_ioc0_unmap_sg,
 	.dma_supported = ps3_dma_supported,
+<<<<<<< HEAD
 	.get_required_mask = ps3_dma_get_required_mask,
 	.map_page = ps3_ioc0_map_page,
 	.unmap_page = ps3_unmap_page,
+=======
+	.map_page = ps3_ioc0_map_page,
+	.unmap_page = ps3_unmap_page,
+	.mmap = dma_common_mmap,
+	.get_sgtable = dma_common_get_sgtable,
+	.alloc_pages = dma_common_alloc_pages,
+	.free_pages = dma_common_free_pages,
+>>>>>>> upstream/android-13
 };
 
 /**

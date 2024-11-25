@@ -2,12 +2,21 @@
 #ifdef CONFIG_MMU
 #include <linux/list.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 /* the upper-most page table pointer */
 extern pmd_t *top_pmd;
 
+<<<<<<< HEAD
+=======
+extern int icache_size;
+
+>>>>>>> upstream/android-13
 /*
  * 0xffff8000 to 0xffffffff is reserved for any ARM architecture
  * specific hacks for copying pages efficiently, while 0xffff4000
@@ -34,11 +43,14 @@ static inline pte_t get_top_pte(unsigned long va)
 	return *ptep;
 }
 
+<<<<<<< HEAD
 static inline pmd_t *pmd_off_k(unsigned long virt)
 {
 	return pmd_offset(pud_offset(pgd_offset_k(virt), virt), virt);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct mem_type {
 	pteval_t prot_pte;
 	pteval_t prot_pte_s2;
@@ -68,9 +80,12 @@ extern void __flush_dcache_page(struct address_space *mapping, struct page *page
 #define VM_ARM_MTYPE(mt)		((mt) << 20)
 #define VM_ARM_MTYPE_MASK	(0x1f << 20)
 
+<<<<<<< HEAD
 /* consistent regions used by dma_alloc_attrs() */
 #define VM_ARM_DMA_CONSISTENT	0x20000000
 
+=======
+>>>>>>> upstream/android-13
 
 struct static_vm {
 	struct vm_struct vm;

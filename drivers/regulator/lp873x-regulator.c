@@ -1,7 +1,11 @@
 /*
  * Regulator driver for LP873X PMIC
  *
+<<<<<<< HEAD
  * Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2016 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2 as
@@ -39,6 +43,13 @@
 			.ramp_delay		= _delay,		\
 			.linear_ranges		= _lr,			\
 			.n_linear_ranges	= ARRAY_SIZE(_lr),	\
+<<<<<<< HEAD
+=======
+			.curr_table	= lp873x_buck_uA,		\
+			.n_current_limits = ARRAY_SIZE(lp873x_buck_uA),	\
+			.csel_reg	= (_cr),			\
+			.csel_mask	= LP873X_BUCK0_CTRL_2_BUCK0_ILIM,\
+>>>>>>> upstream/android-13
 		},							\
 		.ctrl2_reg = _cr,					\
 	}
@@ -50,18 +61,30 @@ struct lp873x_regulator {
 
 static const struct lp873x_regulator regulators[];
 
+<<<<<<< HEAD
 static const struct regulator_linear_range buck0_buck1_ranges[] = {
+=======
+static const struct linear_range buck0_buck1_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(0, 0x0, 0x13, 0),
 	REGULATOR_LINEAR_RANGE(700000, 0x14, 0x17, 10000),
 	REGULATOR_LINEAR_RANGE(735000, 0x18, 0x9d, 5000),
 	REGULATOR_LINEAR_RANGE(1420000, 0x9e, 0xff, 20000),
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range ldo0_ldo1_ranges[] = {
 	REGULATOR_LINEAR_RANGE(800000, 0x0, 0x19, 100000),
 };
 
 static unsigned int lp873x_buck_ramp_delay[] = {
+=======
+static const struct linear_range ldo0_ldo1_ranges[] = {
+	REGULATOR_LINEAR_RANGE(800000, 0x0, 0x19, 100000),
+};
+
+static const unsigned int lp873x_buck_ramp_delay[] = {
+>>>>>>> upstream/android-13
 	30000, 15000, 10000, 7500, 3800, 1900, 940, 470
 };
 
@@ -108,6 +131,7 @@ static int lp873x_buck_set_ramp_delay(struct regulator_dev *rdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lp873x_buck_set_current_limit(struct regulator_dev *rdev,
 					 int min_uA, int max_uA)
 {
@@ -147,6 +171,10 @@ static int lp873x_buck_get_current_limit(struct regulator_dev *rdev)
 
 /* Operations permitted on BUCK0, BUCK1 */
 static struct regulator_ops lp873x_buck01_ops = {
+=======
+/* Operations permitted on BUCK0, BUCK1 */
+static const struct regulator_ops lp873x_buck01_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= regulator_enable_regmap,
 	.disable		= regulator_disable_regmap,
@@ -156,12 +184,21 @@ static struct regulator_ops lp873x_buck01_ops = {
 	.map_voltage		= regulator_map_voltage_linear_range,
 	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
 	.set_ramp_delay		= lp873x_buck_set_ramp_delay,
+<<<<<<< HEAD
 	.set_current_limit	= lp873x_buck_set_current_limit,
 	.get_current_limit	= lp873x_buck_get_current_limit,
 };
 
 /* Operations permitted on LDO0 and LDO1 */
 static struct regulator_ops lp873x_ldo01_ops = {
+=======
+	.set_current_limit	= regulator_set_current_limit_regmap,
+	.get_current_limit	= regulator_get_current_limit_regmap,
+};
+
+/* Operations permitted on LDO0 and LDO1 */
+static const struct regulator_ops lp873x_ldo01_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= regulator_enable_regmap,
 	.disable		= regulator_disable_regmap,

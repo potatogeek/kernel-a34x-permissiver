@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for pcf857x, pca857x, and pca967x I2C GPIO expanders
  *
  * Copyright (C) 2007 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gpio/driver.h>
@@ -89,7 +96,10 @@ struct pcf857x {
 	struct mutex		lock;		/* protect 'out' */
 	unsigned		out;		/* software latch */
 	unsigned		status;		/* current status */
+<<<<<<< HEAD
 	unsigned int		irq_parent;
+=======
+>>>>>>> upstream/android-13
 	unsigned		irq_enabled;	/* enabled irqs */
 
 	int (*write)(struct i2c_client *client, unsigned data);
@@ -211,6 +221,7 @@ static int pcf857x_irq_set_wake(struct irq_data *data, unsigned int on)
 {
 	struct pcf857x *gpio = irq_data_get_irq_chip_data(data);
 
+<<<<<<< HEAD
 	int error = 0;
 
 	if (gpio->irq_parent) {
@@ -223,6 +234,9 @@ static int pcf857x_irq_set_wake(struct irq_data *data, unsigned int on)
 		}
 	}
 	return error;
+=======
+	return irq_set_irq_wake(gpio->client->irq, on);
+>>>>>>> upstream/android-13
 }
 
 static void pcf857x_irq_enable(struct irq_data *data)
@@ -359,6 +373,7 @@ static int pcf857x_probe(struct i2c_client *client,
 	gpio->out = ~n_latch;
 	gpio->status = gpio->read(gpio->client);
 
+<<<<<<< HEAD
 	status = devm_gpiochip_add_data(&client->dev, &gpio->chip, gpio);
 	if (status < 0)
 		goto fail;
@@ -382,6 +397,21 @@ static int pcf857x_probe(struct i2c_client *client,
 			dev_err(&client->dev, "cannot add irqchip\n");
 			goto fail;
 		}
+=======
+	/* Enable irqchip if we have an interrupt */
+	if (client->irq) {
+		struct gpio_irq_chip *girq;
+
+		gpio->irqchip.name = "pcf857x";
+		gpio->irqchip.irq_enable = pcf857x_irq_enable;
+		gpio->irqchip.irq_disable = pcf857x_irq_disable;
+		gpio->irqchip.irq_ack = noop;
+		gpio->irqchip.irq_mask = noop;
+		gpio->irqchip.irq_unmask = noop;
+		gpio->irqchip.irq_set_wake = pcf857x_irq_set_wake;
+		gpio->irqchip.irq_bus_lock = pcf857x_irq_bus_lock;
+		gpio->irqchip.irq_bus_sync_unlock = pcf857x_irq_bus_sync_unlock;
+>>>>>>> upstream/android-13
 
 		status = devm_request_threaded_irq(&client->dev, client->irq,
 					NULL, pcf857x_irq, IRQF_ONESHOT |
@@ -390,11 +420,29 @@ static int pcf857x_probe(struct i2c_client *client,
 		if (status)
 			goto fail;
 
+<<<<<<< HEAD
 		gpiochip_set_nested_irqchip(&gpio->chip, &gpio->irqchip,
 					    client->irq);
 		gpio->irq_parent = client->irq;
 	}
 
+=======
+		girq = &gpio->chip.irq;
+		girq->chip = &gpio->irqchip;
+		/* This will let us handle the parent IRQ in the driver */
+		girq->parent_handler = NULL;
+		girq->num_parents = 0;
+		girq->parents = NULL;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_level_irq;
+		girq->threaded = true;
+	}
+
+	status = devm_gpiochip_add_data(&client->dev, &gpio->chip, gpio);
+	if (status < 0)
+		goto fail;
+
+>>>>>>> upstream/android-13
 	/* Let platform code set up the GPIOs and their users.
 	 * Now is the first time anyone could use them.
 	 */

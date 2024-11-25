@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ssi_protocol.c
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2013 Sebastian Reichel <sre@kernel.org>
  *
  * Contact: Carlos Chinea <carlos.chinea@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -194,7 +201,12 @@ static void ssip_skb_to_msg(struct sk_buff *skb, struct hsi_msg *msg)
 		sg = sg_next(sg);
 		BUG_ON(!sg);
 		frag = &skb_shinfo(skb)->frags[i];
+<<<<<<< HEAD
 		sg_set_page(sg, frag->page.p, frag->size, frag->page_offset);
+=======
+		sg_set_page(sg, skb_frag_page(frag), skb_frag_size(frag),
+				skb_frag_off(frag));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -303,7 +315,11 @@ static void ssip_set_rxstate(struct ssi_protocol *ssi, unsigned int state)
 		/* CMT speech workaround */
 		if (atomic_read(&ssi->tx_usecnt))
 			break;
+<<<<<<< HEAD
 		/* Otherwise fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RECEIVING:
 		mod_timer(&ssi->keep_alive, jiffies +
 						msecs_to_jiffies(SSIP_KATOUT));
@@ -478,9 +494,16 @@ static void ssip_keep_alive(struct timer_list *t)
 		case SEND_READY:
 			if (atomic_read(&ssi->tx_usecnt) == 0)
 				break;
+<<<<<<< HEAD
 			/*
 			 * Fall through. Workaround for cmt-speech
 			 * in that case we relay on audio timers.
+=======
+			fallthrough;
+			/*
+			 * Workaround for cmt-speech in that case
+			 * we relay on audio timers.
+>>>>>>> upstream/android-13
 			 */
 		case SEND_IDLE:
 			spin_unlock(&ssi->lock);
@@ -679,7 +702,11 @@ static void ssip_rx_bootinforeq(struct hsi_client *cl, u32 cmd)
 	case ACTIVE:
 		dev_err(&cl->device, "Boot info req on active state\n");
 		ssip_error(cl);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case INIT:
 	case HANDSHAKE:
 		spin_lock_bh(&ssi->lock);

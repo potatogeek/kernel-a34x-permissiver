@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HID Driver for ELAN Touchpad
  *
  * Currently only supports touchpad found on HP Pavilion X2 10
  *
  * Copyright (c) 2016 Alexandrov Stanislav <neko@nya.ai>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/hid.h>
@@ -395,7 +402,11 @@ static int elan_start_multitouch(struct hid_device *hdev)
 	 * This byte sequence will enable multitouch mode and disable
 	 * mouse emulation
 	 */
+<<<<<<< HEAD
 	const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
+=======
+	static const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
+>>>>>>> upstream/android-13
 	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
 
 	if (!dmabuf)
@@ -414,6 +425,7 @@ static int elan_start_multitouch(struct hid_device *hdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static enum led_brightness elan_mute_led_get_brigtness(struct led_classdev *led_cdev)
 {
 	struct device *dev = led_cdev->dev->parent;
@@ -423,6 +435,8 @@ static enum led_brightness elan_mute_led_get_brigtness(struct led_classdev *led_
 	return drvdata->mute_led_state;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int elan_mute_led_set_brigtness(struct led_classdev *led_cdev,
 				       enum led_brightness value)
 {
@@ -449,8 +463,14 @@ static int elan_mute_led_set_brigtness(struct led_classdev *led_cdev,
 	kfree(dmabuf);
 
 	if (ret != ELAN_LED_REPORT_SIZE) {
+<<<<<<< HEAD
 		hid_err(hdev, "Failed to set mute led brightness: %d\n", ret);
 		return ret;
+=======
+		if (ret != -ENODEV)
+			hid_err(hdev, "Failed to set mute led brightness: %d\n", ret);
+		return ret < 0 ? ret : -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	drvdata->mute_led_state = led_state;
@@ -463,9 +483,16 @@ static int elan_init_mute_led(struct hid_device *hdev)
 	struct led_classdev *mute_led = &drvdata->mute_led;
 
 	mute_led->name = "elan:red:mute";
+<<<<<<< HEAD
 	mute_led->brightness_get = elan_mute_led_get_brigtness;
 	mute_led->brightness_set_blocking = elan_mute_led_set_brigtness;
 	mute_led->max_brightness = LED_ON;
+=======
+	mute_led->default_trigger = "audio-mute";
+	mute_led->brightness_set_blocking = elan_mute_led_set_brigtness;
+	mute_led->max_brightness = LED_ON;
+	mute_led->flags = LED_HW_PLUGGABLE;
+>>>>>>> upstream/android-13
 	mute_led->dev = &hdev->dev;
 
 	return devm_led_classdev_register(&hdev->dev, mute_led);
@@ -499,7 +526,11 @@ static int elan_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		return 0;
 
 	if (!drvdata->input) {
+<<<<<<< HEAD
 		hid_err(hdev, "Input device is not registred\n");
+=======
+		hid_err(hdev, "Input device is not registered\n");
+>>>>>>> upstream/android-13
 		ret = -ENAVAIL;
 		goto err;
 	}

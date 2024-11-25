@@ -23,7 +23,11 @@ extern struct mm_struct *mm_alloc(void);
  * will still exist later on and mmget_not_zero() has to be used before
  * accessing it.
  *
+<<<<<<< HEAD
  * This is a preferred way to to pin @mm for a longer/unbounded amount
+=======
+ * This is a preferred way to pin @mm for a longer/unbounded amount
+>>>>>>> upstream/android-13
  * of time.
  *
  * Use mmdrop() to release the reference acquired by mmgrab().
@@ -49,6 +53,7 @@ static inline void mmdrop(struct mm_struct *mm)
 		__mmdrop(mm);
 }
 
+<<<<<<< HEAD
 void mmdrop(struct mm_struct *mm);
 
 /*
@@ -76,6 +81,8 @@ static inline bool mmget_still_valid(struct mm_struct *mm)
 	return likely(!mm->core_state);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * mmget() - Pin the address space associated with a &struct mm_struct.
  * @mm: The address space to pin.
@@ -133,6 +140,17 @@ static inline void mm_update_next_owner(struct mm_struct *mm)
 #endif /* CONFIG_MEMCG */
 
 #ifdef CONFIG_MMU
+<<<<<<< HEAD
+=======
+#ifndef arch_get_mmap_end
+#define arch_get_mmap_end(addr)	(TASK_SIZE)
+#endif
+
+#ifndef arch_get_mmap_base
+#define arch_get_mmap_base(addr, base) (base)
+#endif
+
+>>>>>>> upstream/android-13
 extern void arch_pick_mmap_layout(struct mm_struct *mm,
 				  struct rlimit *rlim_stack);
 extern unsigned long
@@ -178,16 +196,27 @@ static inline bool in_vfork(struct task_struct *tsk)
  * Applies per-task gfp context to the given allocation flags.
  * PF_MEMALLOC_NOIO implies GFP_NOIO
  * PF_MEMALLOC_NOFS implies GFP_NOFS
+<<<<<<< HEAD
  * PF_MEMALLOC_NOCMA implies no allocation from CMA region.
  */
 static inline gfp_t current_gfp_context(gfp_t flags)
 {
 	if (unlikely(current->flags &
 		     (PF_MEMALLOC_NOIO | PF_MEMALLOC_NOFS | PF_MEMALLOC_NOCMA))) {
+=======
+ * PF_MEMALLOC_PIN  implies !GFP_MOVABLE
+ */
+static inline gfp_t current_gfp_context(gfp_t flags)
+{
+	unsigned int pflags = READ_ONCE(current->flags);
+
+	if (unlikely(pflags & (PF_MEMALLOC_NOIO | PF_MEMALLOC_NOFS | PF_MEMALLOC_PIN))) {
+>>>>>>> upstream/android-13
 		/*
 		 * NOIO implies both NOIO and NOFS and it is a weaker context
 		 * so always make sure it makes precedence
 		 */
+<<<<<<< HEAD
 		if (current->flags & PF_MEMALLOC_NOIO)
 			flags &= ~(__GFP_IO | __GFP_FS);
 		else if (current->flags & PF_MEMALLOC_NOFS)
@@ -196,11 +225,21 @@ static inline gfp_t current_gfp_context(gfp_t flags)
 		if (current->flags & PF_MEMALLOC_NOCMA)
 			flags &= ~__GFP_MOVABLE;
 #endif
+=======
+		if (pflags & PF_MEMALLOC_NOIO)
+			flags &= ~(__GFP_IO | __GFP_FS);
+		else if (pflags & PF_MEMALLOC_NOFS)
+			flags &= ~__GFP_FS;
+
+		if (pflags & PF_MEMALLOC_PIN)
+			flags &= ~__GFP_MOVABLE;
+>>>>>>> upstream/android-13
 	}
 	return flags;
 }
 
 #ifdef CONFIG_LOCKDEP
+<<<<<<< HEAD
 extern void __fs_reclaim_acquire(void);
 extern void __fs_reclaim_release(void);
 extern void fs_reclaim_acquire(gfp_t gfp_mask);
@@ -208,11 +247,39 @@ extern void fs_reclaim_release(gfp_t gfp_mask);
 #else
 static inline void __fs_reclaim_acquire(void) { }
 static inline void __fs_reclaim_release(void) { }
+=======
+extern void __fs_reclaim_acquire(unsigned long ip);
+extern void __fs_reclaim_release(unsigned long ip);
+extern void fs_reclaim_acquire(gfp_t gfp_mask);
+extern void fs_reclaim_release(gfp_t gfp_mask);
+#else
+static inline void __fs_reclaim_acquire(unsigned long ip) { }
+static inline void __fs_reclaim_release(unsigned long ip) { }
+>>>>>>> upstream/android-13
 static inline void fs_reclaim_acquire(gfp_t gfp_mask) { }
 static inline void fs_reclaim_release(gfp_t gfp_mask) { }
 #endif
 
 /**
+<<<<<<< HEAD
+=======
+ * might_alloc - Mark possible allocation sites
+ * @gfp_mask: gfp_t flags that would be used to allocate
+ *
+ * Similar to might_sleep() and other annotations, this can be used in functions
+ * that might allocate, but often don't. Compiles to nothing without
+ * CONFIG_LOCKDEP. Includes a conditional might_sleep() if @gfp allows blocking.
+ */
+static inline void might_alloc(gfp_t gfp_mask)
+{
+	fs_reclaim_acquire(gfp_mask);
+	fs_reclaim_release(gfp_mask);
+
+	might_sleep_if(gfpflags_allow_blocking(gfp_mask));
+}
+
+/**
+>>>>>>> upstream/android-13
  * memalloc_noio_save - Marks implicit GFP_NOIO allocation scope.
  *
  * This functions marks the beginning of the GFP_NOIO allocation scope.
@@ -235,7 +302,11 @@ static inline unsigned int memalloc_noio_save(void)
  * @flags: Flags to restore.
  *
  * Ends the implicit GFP_NOIO scope started by memalloc_noio_save function.
+<<<<<<< HEAD
  * Always make sure that that the given flags is the return value from the
+=======
+ * Always make sure that the given flags is the return value from the
+>>>>>>> upstream/android-13
  * pairing memalloc_noio_save call.
  */
 static inline void memalloc_noio_restore(unsigned int flags)
@@ -266,7 +337,11 @@ static inline unsigned int memalloc_nofs_save(void)
  * @flags: Flags to restore.
  *
  * Ends the implicit GFP_NOFS scope started by memalloc_nofs_save function.
+<<<<<<< HEAD
  * Always make sure that that the given flags is the return value from the
+=======
+ * Always make sure that the given flags is the return value from the
+>>>>>>> upstream/android-13
  * pairing memalloc_nofs_save call.
  */
 static inline void memalloc_nofs_restore(unsigned int flags)
@@ -286,6 +361,7 @@ static inline void memalloc_noreclaim_restore(unsigned int flags)
 	current->flags = (current->flags & ~PF_MEMALLOC) | flags;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_CMA
 static inline unsigned int memalloc_nocma_save(void)
 {
@@ -313,12 +389,32 @@ static inline void memalloc_nocma_restore(unsigned int flags)
 #ifdef CONFIG_MEMCG
 /**
  * memalloc_use_memcg - Starts the remote memcg charging scope.
+=======
+static inline unsigned int memalloc_pin_save(void)
+{
+	unsigned int flags = current->flags & PF_MEMALLOC_PIN;
+
+	current->flags |= PF_MEMALLOC_PIN;
+	return flags;
+}
+
+static inline void memalloc_pin_restore(unsigned int flags)
+{
+	current->flags = (current->flags & ~PF_MEMALLOC_PIN) | flags;
+}
+
+#ifdef CONFIG_MEMCG
+DECLARE_PER_CPU(struct mem_cgroup *, int_active_memcg);
+/**
+ * set_active_memcg - Starts the remote memcg charging scope.
+>>>>>>> upstream/android-13
  * @memcg: memcg to charge.
  *
  * This function marks the beginning of the remote memcg charging scope. All the
  * __GFP_ACCOUNT allocations till the end of the scope will be charged to the
  * given memcg.
  *
+<<<<<<< HEAD
  * NOTE: This function is not nesting safe.
  */
 static inline void memalloc_use_memcg(struct mem_cgroup *memcg)
@@ -344,6 +440,31 @@ static inline void memalloc_use_memcg(struct mem_cgroup *memcg)
 
 static inline void memalloc_unuse_memcg(void)
 {
+=======
+ * NOTE: This function can nest. Users must save the return value and
+ * reset the previous value after their own charging scope is over.
+ */
+static inline struct mem_cgroup *
+set_active_memcg(struct mem_cgroup *memcg)
+{
+	struct mem_cgroup *old;
+
+	if (!in_task()) {
+		old = this_cpu_read(int_active_memcg);
+		this_cpu_write(int_active_memcg, memcg);
+	} else {
+		old = current->active_memcg;
+		current->active_memcg = memcg;
+	}
+
+	return old;
+}
+#else
+static inline struct mem_cgroup *
+set_active_memcg(struct mem_cgroup *memcg)
+{
+	return NULL;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -355,10 +476,19 @@ enum {
 	MEMBARRIER_STATE_GLOBAL_EXPEDITED			= (1U << 3),
 	MEMBARRIER_STATE_PRIVATE_EXPEDITED_SYNC_CORE_READY	= (1U << 4),
 	MEMBARRIER_STATE_PRIVATE_EXPEDITED_SYNC_CORE		= (1U << 5),
+<<<<<<< HEAD
+=======
+	MEMBARRIER_STATE_PRIVATE_EXPEDITED_RSEQ_READY		= (1U << 6),
+	MEMBARRIER_STATE_PRIVATE_EXPEDITED_RSEQ			= (1U << 7),
+>>>>>>> upstream/android-13
 };
 
 enum {
 	MEMBARRIER_FLAG_SYNC_CORE	= (1U << 0),
+<<<<<<< HEAD
+=======
+	MEMBARRIER_FLAG_RSEQ		= (1U << 1),
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_ARCH_HAS_MEMBARRIER_CALLBACKS
@@ -375,10 +505,17 @@ static inline void membarrier_mm_sync_core_before_usermode(struct mm_struct *mm)
 	sync_core_before_usermode();
 }
 
+<<<<<<< HEAD
 static inline void membarrier_execve(struct task_struct *t)
 {
 	atomic_set(&t->mm->membarrier_state, 0);
 }
+=======
+extern void membarrier_exec_mmap(struct mm_struct *mm);
+
+extern void membarrier_update_current_mm(struct mm_struct *next_mm);
+
+>>>>>>> upstream/android-13
 #else
 #ifdef CONFIG_ARCH_HAS_MEMBARRIER_CALLBACKS
 static inline void membarrier_arch_switch_mm(struct mm_struct *prev,
@@ -387,12 +524,22 @@ static inline void membarrier_arch_switch_mm(struct mm_struct *prev,
 {
 }
 #endif
+<<<<<<< HEAD
 static inline void membarrier_execve(struct task_struct *t)
+=======
+static inline void membarrier_exec_mmap(struct mm_struct *mm)
+>>>>>>> upstream/android-13
 {
 }
 static inline void membarrier_mm_sync_core_before_usermode(struct mm_struct *mm)
 {
 }
+<<<<<<< HEAD
+=======
+static inline void membarrier_update_current_mm(struct mm_struct *next_mm)
+{
+}
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* _LINUX_SCHED_MM_H */

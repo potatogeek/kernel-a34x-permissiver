@@ -611,7 +611,11 @@ static u32 ptys_get_active_port(struct mlx4_ptys_reg *ptys_reg)
 }
 
 #define MLX4_LINK_MODES_SZ \
+<<<<<<< HEAD
 	(FIELD_SIZEOF(struct mlx4_ptys_reg, eth_proto_cap) * 8)
+=======
+	(sizeof_field(struct mlx4_ptys_reg, eth_proto_cap) * 8)
+>>>>>>> upstream/android-13
 
 enum ethtool_report {
 	SUPPORTED = 0,
@@ -639,7 +643,11 @@ static unsigned long *ptys2ethtool_link_mode(struct ptys2ethtool_config *cfg,
 #define MLX4_BUILD_PTYS2ETHTOOL_CONFIG(reg_, speed_, ...)		\
 	({								\
 		struct ptys2ethtool_config *cfg;			\
+<<<<<<< HEAD
 		const unsigned int modes[] = { __VA_ARGS__ };		\
+=======
+		static const unsigned int modes[] = { __VA_ARGS__ };	\
+>>>>>>> upstream/android-13
 		unsigned int i;						\
 		cfg = &ptys2ethtool_map[reg_];				\
 		cfg->speed = speed_;					\
@@ -663,7 +671,11 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
+<<<<<<< HEAD
 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
+=======
+				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
+>>>>>>> upstream/android-13
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
@@ -675,9 +687,15 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
+<<<<<<< HEAD
 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
+=======
+				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
+	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
+				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
+>>>>>>> upstream/android-13
 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
@@ -998,7 +1016,13 @@ mlx4_en_set_link_ksettings(struct net_device *dev,
 }
 
 static int mlx4_en_get_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *coal)
+=======
+				struct ethtool_coalesce *coal,
+				struct kernel_ethtool_coalesce *kernel_coal,
+				struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
 
@@ -1020,7 +1044,13 @@ static int mlx4_en_get_coalesce(struct net_device *dev,
 }
 
 static int mlx4_en_set_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *coal)
+=======
+				struct ethtool_coalesce *coal,
+				struct kernel_ethtool_coalesce *kernel_coal,
+				struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_en_priv *priv = netdev_priv(dev);
 
@@ -1106,6 +1136,27 @@ static int mlx4_en_set_pauseparam(struct net_device *dev,
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static void mlx4_en_get_pause_stats(struct net_device *dev,
+				    struct ethtool_pause_stats *stats)
+{
+	struct mlx4_en_priv *priv = netdev_priv(dev);
+	struct bitmap_iterator it;
+
+	bitmap_iterator_init(&it, priv->stats_bitmap.bitmap, NUM_ALL_STATS);
+
+	spin_lock_bh(&priv->stats_lock);
+	if (test_bit(FLOW_PRIORITY_STATS_IDX_TX_FRAMES,
+		     priv->stats_bitmap.bitmap))
+		stats->tx_pause_frames = priv->tx_flowstats.tx_pause;
+	if (test_bit(FLOW_PRIORITY_STATS_IDX_RX_FRAMES,
+		     priv->stats_bitmap.bitmap))
+		stats->rx_pause_frames = priv->rx_flowstats.rx_pause;
+	spin_unlock_bh(&priv->stats_lock);
+}
+
+>>>>>>> upstream/android-13
 static void mlx4_en_get_pauseparam(struct net_device *dev,
 				 struct ethtool_pauseparam *pause)
 {
@@ -1235,7 +1286,10 @@ static int mlx4_en_get_rxfh(struct net_device *dev, u32 *ring_index, u8 *key,
 	struct mlx4_en_priv *priv = netdev_priv(dev);
 	u32 n = mlx4_en_get_rxfh_indir_size(dev);
 	u32 i, rss_rings;
+<<<<<<< HEAD
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 
 	rss_rings = priv->prof->rss_rings ?: n;
 	rss_rings = rounddown_pow_of_two(rss_rings);
@@ -1249,7 +1303,11 @@ static int mlx4_en_get_rxfh(struct net_device *dev, u32 *ring_index, u8 *key,
 		memcpy(key, priv->rss_key, MLX4_EN_RSS_KEY_SIZE);
 	if (hfunc)
 		*hfunc = priv->rss_hash_fn;
+<<<<<<< HEAD
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int mlx4_en_set_rxfh(struct net_device *dev, const u32 *ring_index,
@@ -1393,7 +1451,10 @@ static int mlx4_en_ethtool_add_mac_rule(struct ethtool_rxnfc *cmd,
 					struct mlx4_spec_list *spec_l2,
 					unsigned char *mac)
 {
+<<<<<<< HEAD
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 	__be64 mac_msk = cpu_to_be64(MLX4_MAC_MASK << 16);
 
 	spec_l2->id = MLX4_NET_TRANS_RULE_ID_ETH;
@@ -1408,7 +1469,11 @@ static int mlx4_en_ethtool_add_mac_rule(struct ethtool_rxnfc *cmd,
 
 	list_add_tail(&spec_l2->list, rule_list_h);
 
+<<<<<<< HEAD
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int mlx4_en_ethtool_add_mac_rule_by_ipv4(struct mlx4_en_priv *priv,
@@ -2011,8 +2076,11 @@ static int mlx4_en_set_tunable(struct net_device *dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 #define MLX4_EEPROM_PAGE_LEN 256
 
+=======
+>>>>>>> upstream/android-13
 static int mlx4_en_get_module_info(struct net_device *dev,
 				   struct ethtool_modinfo *modinfo)
 {
@@ -2047,7 +2115,11 @@ static int mlx4_en_get_module_info(struct net_device *dev,
 		break;
 	case MLX4_MODULE_ID_SFP:
 		modinfo->type = ETH_MODULE_SFF_8472;
+<<<<<<< HEAD
 		modinfo->eeprom_len = MLX4_EEPROM_PAGE_LEN;
+=======
+		modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -2121,6 +2193,13 @@ static int mlx4_en_set_phys_id(struct net_device *dev,
 }
 
 const struct ethtool_ops mlx4_en_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES |
+				     ETHTOOL_COALESCE_TX_MAX_FRAMES_IRQ |
+				     ETHTOOL_COALESCE_PKT_RATE_RX_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo = mlx4_en_get_drvinfo,
 	.get_link_ksettings = mlx4_en_get_link_ksettings,
 	.set_link_ksettings = mlx4_en_set_link_ksettings,
@@ -2136,6 +2215,10 @@ const struct ethtool_ops mlx4_en_ethtool_ops = {
 	.set_msglevel = mlx4_en_set_msglevel,
 	.get_coalesce = mlx4_en_get_coalesce,
 	.set_coalesce = mlx4_en_set_coalesce,
+<<<<<<< HEAD
+=======
+	.get_pause_stats = mlx4_en_get_pause_stats,
+>>>>>>> upstream/android-13
 	.get_pauseparam = mlx4_en_get_pauseparam,
 	.set_pauseparam = mlx4_en_set_pauseparam,
 	.get_ringparam = mlx4_en_get_ringparam,

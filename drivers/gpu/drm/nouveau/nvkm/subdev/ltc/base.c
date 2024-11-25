@@ -33,10 +33,17 @@ nvkm_ltc_tags_clear(struct nvkm_device *device, u32 first, u32 count)
 
 	BUG_ON((first > limit) || (limit >= ltc->num_tags));
 
+<<<<<<< HEAD
 	mutex_lock(&ltc->subdev.mutex);
 	ltc->func->cbc_clear(ltc, first, limit);
 	ltc->func->cbc_wait(ltc);
 	mutex_unlock(&ltc->subdev.mutex);
+=======
+	mutex_lock(&ltc->mutex);
+	ltc->func->cbc_clear(ltc, first, limit);
+	ltc->func->cbc_wait(ltc);
+	mutex_unlock(&ltc->mutex);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -113,6 +120,10 @@ nvkm_ltc_dtor(struct nvkm_subdev *subdev)
 {
 	struct nvkm_ltc *ltc = nvkm_ltc(subdev);
 	nvkm_memory_unref(&ltc->tag_ram);
+<<<<<<< HEAD
+=======
+	mutex_destroy(&ltc->mutex);
+>>>>>>> upstream/android-13
 	return ltc;
 }
 
@@ -126,15 +137,25 @@ nvkm_ltc = {
 
 int
 nvkm_ltc_new_(const struct nvkm_ltc_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_ltc **pltc)
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_ltc **pltc)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_ltc *ltc;
 
 	if (!(ltc = *pltc = kzalloc(sizeof(*ltc), GFP_KERNEL)))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	nvkm_subdev_ctor(&nvkm_ltc, device, index, &ltc->subdev);
 	ltc->func = func;
+=======
+	nvkm_subdev_ctor(&nvkm_ltc, device, type, inst, &ltc->subdev);
+	ltc->func = func;
+	mutex_init(&ltc->mutex);
+>>>>>>> upstream/android-13
 	ltc->zbc_min = 1; /* reserve 0 for disabled */
 	ltc->zbc_max = min(func->zbc, NVKM_LTC_MAX_ZBC_CNT) - 1;
 	return 0;

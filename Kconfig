@@ -1,12 +1,19 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 # For a description of the syntax of this configuration file,
+<<<<<<< HEAD
 # see Documentation/kbuild/kconfig-language.txt.
 #
 mainmenu "Linux/$(ARCH) $(KERNELVERSION) Kernel Configuration"
 
 comment "Compiler: $(CC_VERSION_TEXT)"
 
+=======
+# see Documentation/kbuild/kconfig-language.rst.
+#
+mainmenu "Linux/$(ARCH) $(KERNELVERSION) Kernel Configuration"
+
+>>>>>>> upstream/android-13
 source "scripts/Kconfig.include"
 
 source "init/Kconfig"
@@ -30,3 +37,11 @@ source "crypto/Kconfig"
 source "lib/Kconfig"
 
 source "lib/Kconfig.debug"
+<<<<<<< HEAD
+=======
+
+source "Documentation/Kconfig"
+
+# ANDROID: Set KCONFIG_EXT_PREFIX to decend into an external project.
+source "$(KCONFIG_EXT_PREFIX)Kconfig.ext"
+>>>>>>> upstream/android-13

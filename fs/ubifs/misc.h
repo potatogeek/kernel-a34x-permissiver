@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
  */
@@ -133,7 +140,11 @@ static inline const char *ubifs_compr_name(struct ubifs_info *c, int compr_type)
  * ubifs_wbuf_sync - synchronize write-buffer.
  * @wbuf: write-buffer to synchronize
  *
+<<<<<<< HEAD
  * This is the same as as 'ubifs_wbuf_sync_nolock()' but it does not assume
+=======
+ * This is the same as 'ubifs_wbuf_sync_nolock()' but it does not assume
+>>>>>>> upstream/android-13
  * that the write-buffer is already locked.
  */
 static inline int ubifs_wbuf_sync(struct ubifs_wbuf *wbuf)
@@ -197,7 +208,12 @@ static inline int ubifs_return_leb(struct ubifs_info *c, int lnum)
  */
 static inline int ubifs_idx_node_sz(const struct ubifs_info *c, int child_cnt)
 {
+<<<<<<< HEAD
 	return UBIFS_IDX_NODE_SZ + (UBIFS_BRANCH_SZ + c->key_len) * child_cnt;
+=======
+	return UBIFS_IDX_NODE_SZ + (UBIFS_BRANCH_SZ + c->key_len + c->hash_len)
+				   * child_cnt;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -212,7 +228,11 @@ struct ubifs_branch *ubifs_idx_branch(const struct ubifs_info *c,
 				      int bnum)
 {
 	return (struct ubifs_branch *)((void *)idx->branches +
+<<<<<<< HEAD
 				       (UBIFS_BRANCH_SZ + c->key_len) * bnum);
+=======
+			(UBIFS_BRANCH_SZ + c->key_len + c->hash_len) * bnum);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -287,6 +307,17 @@ static inline int ubifs_next_log_lnum(const struct ubifs_info *c, int lnum)
 	return lnum;
 }
 
+<<<<<<< HEAD
+=======
+static inline int ubifs_xattr_max_cnt(struct ubifs_info *c)
+{
+	int max_xattrs = (c->leb_size / 2) / UBIFS_INO_NODE_SZ;
+
+	ubifs_assert(c, max_xattrs < c->max_orphans);
+	return max_xattrs;
+}
+
+>>>>>>> upstream/android-13
 const char *ubifs_assert_action_name(struct ubifs_info *c);
 
 #endif /* __UBIFS_MISC_H__ */

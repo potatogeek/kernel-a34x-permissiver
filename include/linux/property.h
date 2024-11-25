@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * property.h - Unified device property interface.
  *
  * Copyright (C) 2014, Intel Corporation
  * Authors: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
  *          Mika Westerberg <mika.westerberg@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_PROPERTY_H_
 #define _LINUX_PROPERTY_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/fwnode.h>
 #include <linux/types.h>
 
@@ -24,7 +35,11 @@ enum dev_prop_type {
 	DEV_PROP_U32,
 	DEV_PROP_U64,
 	DEV_PROP_STRING,
+<<<<<<< HEAD
 	DEV_PROP_MAX,
+=======
+	DEV_PROP_REF,
+>>>>>>> upstream/android-13
 };
 
 enum dev_dma_attr {
@@ -78,9 +93,27 @@ int fwnode_property_get_reference_args(const struct fwnode_handle *fwnode,
 				       unsigned int nargs, unsigned int index,
 				       struct fwnode_reference_args *args);
 
+<<<<<<< HEAD
 struct fwnode_handle *fwnode_get_parent(const struct fwnode_handle *fwnode);
 struct fwnode_handle *fwnode_get_next_parent(
 	struct fwnode_handle *fwnode);
+=======
+struct fwnode_handle *fwnode_find_reference(const struct fwnode_handle *fwnode,
+					    const char *name,
+					    unsigned int index);
+
+const char *fwnode_get_name(const struct fwnode_handle *fwnode);
+const char *fwnode_get_name_prefix(const struct fwnode_handle *fwnode);
+struct fwnode_handle *fwnode_get_parent(const struct fwnode_handle *fwnode);
+struct fwnode_handle *fwnode_get_next_parent(
+	struct fwnode_handle *fwnode);
+struct device *fwnode_get_next_parent_dev(struct fwnode_handle *fwnode);
+unsigned int fwnode_count_parents(const struct fwnode_handle *fwn);
+struct fwnode_handle *fwnode_get_nth_parent(struct fwnode_handle *fwn,
+					    unsigned int depth);
+bool fwnode_is_ancestor_of(struct fwnode_handle *test_ancestor,
+				  struct fwnode_handle *test_child);
+>>>>>>> upstream/android-13
 struct fwnode_handle *fwnode_get_next_child_node(
 	const struct fwnode_handle *fwnode, struct fwnode_handle *child);
 struct fwnode_handle *fwnode_get_next_available_child_node(
@@ -109,7 +142,11 @@ struct fwnode_handle *device_get_named_child_node(struct device *dev,
 struct fwnode_handle *fwnode_handle_get(struct fwnode_handle *fwnode);
 void fwnode_handle_put(struct fwnode_handle *fwnode);
 
+<<<<<<< HEAD
 int fwnode_irq_get(struct fwnode_handle *fwnode, unsigned int index);
+=======
+int fwnode_irq_get(const struct fwnode_handle *fwnode, unsigned int index);
+>>>>>>> upstream/android-13
 
 unsigned int device_get_child_node_count(struct device *dev);
 
@@ -163,6 +200,15 @@ static inline int device_property_count_u64(struct device *dev, const char *prop
 	return device_property_read_u64_array(dev, propname, NULL, 0);
 }
 
+<<<<<<< HEAD
+=======
+static inline int device_property_string_array_count(struct device *dev,
+						     const char *propname)
+{
+	return device_property_read_string_array(dev, propname, NULL, 0);
+}
+
+>>>>>>> upstream/android-13
 static inline bool fwnode_property_read_bool(const struct fwnode_handle *fwnode,
 					     const char *propname)
 {
@@ -217,18 +263,57 @@ static inline int fwnode_property_count_u64(const struct fwnode_handle *fwnode,
 	return fwnode_property_read_u64_array(fwnode, propname, NULL, 0);
 }
 
+<<<<<<< HEAD
+=======
+static inline int
+fwnode_property_string_array_count(const struct fwnode_handle *fwnode,
+				   const char *propname)
+{
+	return fwnode_property_read_string_array(fwnode, propname, NULL, 0);
+}
+
+struct software_node;
+
+/**
+ * struct software_node_ref_args - Reference property with additional arguments
+ * @node: Reference to a software node
+ * @nargs: Number of elements in @args array
+ * @args: Integer arguments
+ */
+struct software_node_ref_args {
+	const struct software_node *node;
+	unsigned int nargs;
+	u64 args[NR_FWNODE_REFERENCE_ARGS];
+};
+
+#define SOFTWARE_NODE_REFERENCE(_ref_, ...)			\
+(const struct software_node_ref_args) {				\
+	.node = _ref_,						\
+	.nargs = ARRAY_SIZE(((u64[]){ 0, ##__VA_ARGS__ })) - 1,	\
+	.args = { __VA_ARGS__ },				\
+}
+
+>>>>>>> upstream/android-13
 /**
  * struct property_entry - "Built-in" device property representation.
  * @name: Name of the property.
  * @length: Length of data making up the value.
+<<<<<<< HEAD
  * @is_array: True when the property is an array.
  * @type: Type of the data in unions.
  * @pointer: Pointer to the property (an array of items of the given type).
  * @value: Value of the property (when it is a single item of the given type).
+=======
+ * @is_inline: True when the property value is stored inline.
+ * @type: Type of the data in unions.
+ * @pointer: Pointer to the property when it is not stored inline.
+ * @value: Value of the property when it is stored inline.
+>>>>>>> upstream/android-13
  */
 struct property_entry {
 	const char *name;
 	size_t length;
+<<<<<<< HEAD
 	bool is_array;
 	enum dev_prop_type type;
 	union {
@@ -245,16 +330,33 @@ struct property_entry {
 			u32 u32_data;
 			u64 u64_data;
 			const char *str;
+=======
+	bool is_inline;
+	enum dev_prop_type type;
+	union {
+		const void *pointer;
+		union {
+			u8 u8_data[sizeof(u64) / sizeof(u8)];
+			u16 u16_data[sizeof(u64) / sizeof(u16)];
+			u32 u32_data[sizeof(u64) / sizeof(u32)];
+			u64 u64_data[sizeof(u64) / sizeof(u64)];
+			const char *str[sizeof(u64) / sizeof(char *)];
+>>>>>>> upstream/android-13
 		} value;
 	};
 };
 
 /*
+<<<<<<< HEAD
  * Note: the below four initializers for the anonymous union are carefully
+=======
+ * Note: the below initializers for the anonymous union are carefully
+>>>>>>> upstream/android-13
  * crafted to avoid gcc-4.4.4's problems with initialization of anon unions
  * and structs.
  */
 
+<<<<<<< HEAD
 #define PROPERTY_ENTRY_INTEGER_ARRAY(_name_, _type_, _Type_, _val_)	\
 (struct property_entry) {						\
 	.name = _name_,							\
@@ -306,10 +408,88 @@ struct property_entry {
 	.type = DEV_PROP_STRING,			\
 	{ .value = { .str = _val_ } },			\
 }
+=======
+#define __PROPERTY_ENTRY_ELEMENT_SIZE(_elem_)				\
+	sizeof(((struct property_entry *)NULL)->value._elem_[0])
+
+#define __PROPERTY_ENTRY_ARRAY_ELSIZE_LEN(_name_, _elsize_, _Type_,	\
+					  _val_, _len_)			\
+(struct property_entry) {						\
+	.name = _name_,							\
+	.length = (_len_) * (_elsize_),					\
+	.type = DEV_PROP_##_Type_,					\
+	{ .pointer = _val_ },						\
+}
+
+#define __PROPERTY_ENTRY_ARRAY_LEN(_name_, _elem_, _Type_, _val_, _len_)\
+	__PROPERTY_ENTRY_ARRAY_ELSIZE_LEN(_name_,			\
+				__PROPERTY_ENTRY_ELEMENT_SIZE(_elem_),	\
+				_Type_, _val_, _len_)
+
+#define PROPERTY_ENTRY_U8_ARRAY_LEN(_name_, _val_, _len_)		\
+	__PROPERTY_ENTRY_ARRAY_LEN(_name_, u8_data, U8, _val_, _len_)
+#define PROPERTY_ENTRY_U16_ARRAY_LEN(_name_, _val_, _len_)		\
+	__PROPERTY_ENTRY_ARRAY_LEN(_name_, u16_data, U16, _val_, _len_)
+#define PROPERTY_ENTRY_U32_ARRAY_LEN(_name_, _val_, _len_)		\
+	__PROPERTY_ENTRY_ARRAY_LEN(_name_, u32_data, U32, _val_, _len_)
+#define PROPERTY_ENTRY_U64_ARRAY_LEN(_name_, _val_, _len_)		\
+	__PROPERTY_ENTRY_ARRAY_LEN(_name_, u64_data, U64, _val_, _len_)
+#define PROPERTY_ENTRY_STRING_ARRAY_LEN(_name_, _val_, _len_)		\
+	__PROPERTY_ENTRY_ARRAY_LEN(_name_, str, STRING, _val_, _len_)
+#define PROPERTY_ENTRY_REF_ARRAY_LEN(_name_, _val_, _len_)		\
+	__PROPERTY_ENTRY_ARRAY_ELSIZE_LEN(_name_,			\
+				sizeof(struct software_node_ref_args),	\
+				REF, _val_, _len_)
+
+#define PROPERTY_ENTRY_U8_ARRAY(_name_, _val_)				\
+	PROPERTY_ENTRY_U8_ARRAY_LEN(_name_, _val_, ARRAY_SIZE(_val_))
+#define PROPERTY_ENTRY_U16_ARRAY(_name_, _val_)				\
+	PROPERTY_ENTRY_U16_ARRAY_LEN(_name_, _val_, ARRAY_SIZE(_val_))
+#define PROPERTY_ENTRY_U32_ARRAY(_name_, _val_)				\
+	PROPERTY_ENTRY_U32_ARRAY_LEN(_name_, _val_, ARRAY_SIZE(_val_))
+#define PROPERTY_ENTRY_U64_ARRAY(_name_, _val_)				\
+	PROPERTY_ENTRY_U64_ARRAY_LEN(_name_, _val_, ARRAY_SIZE(_val_))
+#define PROPERTY_ENTRY_STRING_ARRAY(_name_, _val_)			\
+	PROPERTY_ENTRY_STRING_ARRAY_LEN(_name_, _val_, ARRAY_SIZE(_val_))
+#define PROPERTY_ENTRY_REF_ARRAY(_name_, _val_)			\
+	PROPERTY_ENTRY_REF_ARRAY_LEN(_name_, _val_, ARRAY_SIZE(_val_))
+
+#define __PROPERTY_ENTRY_ELEMENT(_name_, _elem_, _Type_, _val_)		\
+(struct property_entry) {						\
+	.name = _name_,							\
+	.length = __PROPERTY_ENTRY_ELEMENT_SIZE(_elem_),		\
+	.is_inline = true,						\
+	.type = DEV_PROP_##_Type_,					\
+	{ .value = { ._elem_[0] = _val_ } },				\
+}
+
+#define PROPERTY_ENTRY_U8(_name_, _val_)				\
+	__PROPERTY_ENTRY_ELEMENT(_name_, u8_data, U8, _val_)
+#define PROPERTY_ENTRY_U16(_name_, _val_)				\
+	__PROPERTY_ENTRY_ELEMENT(_name_, u16_data, U16, _val_)
+#define PROPERTY_ENTRY_U32(_name_, _val_)				\
+	__PROPERTY_ENTRY_ELEMENT(_name_, u32_data, U32, _val_)
+#define PROPERTY_ENTRY_U64(_name_, _val_)				\
+	__PROPERTY_ENTRY_ELEMENT(_name_, u64_data, U64, _val_)
+#define PROPERTY_ENTRY_STRING(_name_, _val_)				\
+	__PROPERTY_ENTRY_ELEMENT(_name_, str, STRING, _val_)
+>>>>>>> upstream/android-13
 
 #define PROPERTY_ENTRY_BOOL(_name_)		\
 (struct property_entry) {			\
 	.name = _name_,				\
+<<<<<<< HEAD
+=======
+	.is_inline = true,			\
+}
+
+#define PROPERTY_ENTRY_REF(_name_, _ref_, ...)				\
+(struct property_entry) {						\
+	.name = _name_,							\
+	.length = sizeof(struct software_node_ref_args),		\
+	.type = DEV_PROP_REF,						\
+	{ .pointer = &SOFTWARE_NODE_REFERENCE(_ref_, ##__VA_ARGS__), },	\
+>>>>>>> upstream/android-13
 }
 
 struct property_entry *
@@ -348,6 +528,31 @@ struct fwnode_handle *
 fwnode_graph_get_remote_node(const struct fwnode_handle *fwnode, u32 port,
 			     u32 endpoint);
 
+<<<<<<< HEAD
+=======
+static inline bool fwnode_graph_is_endpoint(struct fwnode_handle *fwnode)
+{
+	return fwnode_property_present(fwnode, "remote-endpoint");
+}
+
+/*
+ * Fwnode lookup flags
+ *
+ * @FWNODE_GRAPH_ENDPOINT_NEXT: In the case of no exact match, look for the
+ *				closest endpoint ID greater than the specified
+ *				one.
+ * @FWNODE_GRAPH_DEVICE_DISABLED: That the device to which the remote
+ *				  endpoint of the given endpoint belongs to,
+ *				  may be disabled.
+ */
+#define FWNODE_GRAPH_ENDPOINT_NEXT	BIT(0)
+#define FWNODE_GRAPH_DEVICE_DISABLED	BIT(1)
+
+struct fwnode_handle *
+fwnode_graph_get_endpoint_by_id(const struct fwnode_handle *fwnode,
+				u32 port, u32 endpoint, unsigned long flags);
+
+>>>>>>> upstream/android-13
 #define fwnode_graph_for_each_endpoint(fwnode, child)			\
 	for (child = NULL;						\
 	     (child = fwnode_graph_get_next_endpoint(fwnode, child)); )
@@ -355,4 +560,66 @@ fwnode_graph_get_remote_node(const struct fwnode_handle *fwnode, u32 port,
 int fwnode_graph_parse_endpoint(const struct fwnode_handle *fwnode,
 				struct fwnode_endpoint *endpoint);
 
+<<<<<<< HEAD
+=======
+typedef void *(*devcon_match_fn_t)(struct fwnode_handle *fwnode, const char *id,
+				   void *data);
+
+void *fwnode_connection_find_match(struct fwnode_handle *fwnode,
+				   const char *con_id, void *data,
+				   devcon_match_fn_t match);
+
+static inline void *device_connection_find_match(struct device *dev,
+						 const char *con_id, void *data,
+						 devcon_match_fn_t match)
+{
+	return fwnode_connection_find_match(dev_fwnode(dev), con_id, data, match);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Software fwnode support - when HW description is incomplete or missing */
+
+/**
+ * struct software_node - Software node description
+ * @name: Name of the software node
+ * @parent: Parent of the software node
+ * @properties: Array of device properties
+ */
+struct software_node {
+	const char *name;
+	const struct software_node *parent;
+	const struct property_entry *properties;
+};
+
+bool is_software_node(const struct fwnode_handle *fwnode);
+const struct software_node *
+to_software_node(const struct fwnode_handle *fwnode);
+struct fwnode_handle *software_node_fwnode(const struct software_node *node);
+
+const struct software_node *
+software_node_find_by_name(const struct software_node *parent,
+			   const char *name);
+
+int software_node_register_nodes(const struct software_node *nodes);
+void software_node_unregister_nodes(const struct software_node *nodes);
+
+int software_node_register_node_group(const struct software_node **node_group);
+void software_node_unregister_node_group(const struct software_node **node_group);
+
+int software_node_register(const struct software_node *node);
+void software_node_unregister(const struct software_node *node);
+
+struct fwnode_handle *
+fwnode_create_software_node(const struct property_entry *properties,
+			    const struct fwnode_handle *parent);
+void fwnode_remove_software_node(struct fwnode_handle *fwnode);
+
+int device_add_software_node(struct device *dev, const struct software_node *node);
+void device_remove_software_node(struct device *dev);
+
+int device_create_managed_software_node(struct device *dev,
+					const struct property_entry *properties,
+					const struct software_node *parent);
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_PROPERTY_H_ */

@@ -32,6 +32,7 @@
 #include <linux/console.h>
 #include <linux/dma-buf.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/sysrq.h>
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -44,6 +45,24 @@
 
 #include "drm_crtc_internal.h"
 #include "drm_crtc_helper_internal.h"
+=======
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/sysrq.h>
+#include <linux/vmalloc.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_print.h>
+#include <drm/drm_vblank.h>
+
+#include "drm_crtc_helper_internal.h"
+#include "drm_internal.h"
+>>>>>>> upstream/android-13
 
 static bool drm_fbdev_emulation = true;
 module_param_named(fbdev_emulation, drm_fbdev_emulation, bool, 0600);
@@ -71,7 +90,11 @@ MODULE_PARM_DESC(drm_fbdev_overalloc,
 #if IS_ENABLED(CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM)
 static bool drm_leak_fbdev_smem = false;
 module_param_unsafe(drm_leak_fbdev_smem, bool, 0600);
+<<<<<<< HEAD
 MODULE_PARM_DESC(fbdev_emulation,
+=======
+MODULE_PARM_DESC(drm_leak_fbdev_smem,
+>>>>>>> upstream/android-13
 		 "Allow unsafe leaking fbdev physical smem address [default=false]");
 #endif
 
@@ -88,6 +111,7 @@ static DEFINE_MUTEX(kernel_fb_helper_lock);
  *
  * Drivers that support a dumb buffer with a virtual address and mmap support,
  * should try out the generic fbdev emulation using drm_fbdev_generic_setup().
+<<<<<<< HEAD
  *
  * Setup fbdev emulation by calling drm_fb_helper_fbdev_setup() and tear it
  * down by calling drm_fb_helper_fbdev_teardown().
@@ -97,6 +121,10 @@ static DEFINE_MUTEX(kernel_fb_helper_lock);
  * drm_fb_helper_prepare(), drm_fb_helper_init(),
  * drm_fb_helper_single_add_all_connectors(), enable hotplugging and
  * drm_fb_helper_initial_config() to avoid a possible race window.
+=======
+ * It will automatically set up deferred I/O if the driver requires a shadow
+ * buffer.
+>>>>>>> upstream/android-13
  *
  * At runtime drivers should restore the fbdev console by using
  * drm_fb_helper_lastclose() as their &drm_driver.lastclose callback.
@@ -120,8 +148,12 @@ static DEFINE_MUTEX(kernel_fb_helper_lock);
  * encoders and connectors. To finish up the fbdev helper initialization, the
  * drm_fb_helper_init() function is called. To probe for all attached displays
  * and set up an initial configuration using the detected hardware, drivers
+<<<<<<< HEAD
  * should call drm_fb_helper_single_add_all_connectors() followed by
  * drm_fb_helper_initial_config().
+=======
+ * should call drm_fb_helper_initial_config().
+>>>>>>> upstream/android-13
  *
  * If &drm_framebuffer_funcs.dirty is set, the
  * drm_fb_helper_{cfb,sys}_{write,fillrect,copyarea,imageblit} functions will
@@ -130,6 +162,7 @@ static DEFINE_MUTEX(kernel_fb_helper_lock);
  * always run in process context since the fb_*() function could be running in
  * atomic context. If drm_fb_helper_deferred_io() is used as the deferred_io
  * callback it will also schedule dirty_work with the damage collected from the
+<<<<<<< HEAD
  * mmap page writes. Drivers can use drm_fb_helper_defio_init() to setup
  * deferred I/O (coupled with drm_fb_helper_fbdev_teardown()).
  */
@@ -292,6 +325,13 @@ int drm_fb_helper_remove_one_connector(struct drm_fb_helper *fb_helper,
 	return err;
 }
 EXPORT_SYMBOL(drm_fb_helper_remove_one_connector);
+=======
+ * mmap page writes.
+ *
+ * Deferred I/O is not compatible with SHMEM. Such drivers should request an
+ * fbdev shadow buffer and call drm_fbdev_generic_setup() instead.
+ */
+>>>>>>> upstream/android-13
 
 static void drm_fb_helper_restore_lut_atomic(struct drm_crtc *crtc)
 {
@@ -316,6 +356,7 @@ int drm_fb_helper_debug_enter(struct fb_info *info)
 {
 	struct drm_fb_helper *helper = info->par;
 	const struct drm_crtc_helper_funcs *funcs;
+<<<<<<< HEAD
 	int i;
 
 	list_for_each_entry(helper, &kernel_fb_helper_list, kernel_fb_list) {
@@ -323,6 +364,13 @@ int drm_fb_helper_debug_enter(struct fb_info *info)
 			struct drm_mode_set *mode_set =
 				&helper->crtc_info[i].mode_set;
 
+=======
+	struct drm_mode_set *mode_set;
+
+	list_for_each_entry(helper, &kernel_fb_helper_list, kernel_fb_list) {
+		mutex_lock(&helper->client.modeset_mutex);
+		drm_client_for_each_modeset(mode_set, &helper->client) {
+>>>>>>> upstream/android-13
 			if (!mode_set->crtc->enabled)
 				continue;
 
@@ -339,6 +387,10 @@ int drm_fb_helper_debug_enter(struct fb_info *info)
 						    mode_set->y,
 						    ENTER_ATOMIC_MODE_SET);
 		}
+<<<<<<< HEAD
+=======
+		mutex_unlock(&helper->client.modeset_mutex);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -352,6 +404,7 @@ EXPORT_SYMBOL(drm_fb_helper_debug_enter);
 int drm_fb_helper_debug_leave(struct fb_info *info)
 {
 	struct drm_fb_helper *helper = info->par;
+<<<<<<< HEAD
 	struct drm_crtc *crtc;
 	const struct drm_crtc_helper_funcs *funcs;
 	struct drm_framebuffer *fb;
@@ -360,6 +413,17 @@ int drm_fb_helper_debug_leave(struct fb_info *info)
 	for (i = 0; i < helper->crtc_count; i++) {
 		struct drm_mode_set *mode_set = &helper->crtc_info[i].mode_set;
 
+=======
+	struct drm_client_dev *client = &helper->client;
+	struct drm_device *dev = helper->dev;
+	struct drm_crtc *crtc;
+	const struct drm_crtc_helper_funcs *funcs;
+	struct drm_mode_set *mode_set;
+	struct drm_framebuffer *fb;
+
+	mutex_lock(&client->modeset_mutex);
+	drm_client_for_each_modeset(mode_set, client) {
+>>>>>>> upstream/android-13
 		crtc = mode_set->crtc;
 		if (drm_drv_uses_atomic_modeset(crtc->dev))
 			continue;
@@ -371,7 +435,11 @@ int drm_fb_helper_debug_leave(struct fb_info *info)
 			continue;
 
 		if (!fb) {
+<<<<<<< HEAD
 			DRM_ERROR("no fb to restore??\n");
+=======
+			drm_err(dev, "no fb to restore?\n");
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -382,11 +450,16 @@ int drm_fb_helper_debug_leave(struct fb_info *info)
 		funcs->mode_set_base_atomic(mode_set->crtc, fb, crtc->x,
 					    crtc->y, LEAVE_ATOMIC_MODE_SET);
 	}
+<<<<<<< HEAD
+=======
+	mutex_unlock(&client->modeset_mutex);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 EXPORT_SYMBOL(drm_fb_helper_debug_leave);
 
+<<<<<<< HEAD
 static int restore_fbdev_mode_atomic(struct drm_fb_helper *fb_helper, bool active)
 {
 	struct drm_device *dev = fb_helper->dev;
@@ -517,6 +590,42 @@ static int restore_fbdev_mode(struct drm_fb_helper *fb_helper)
 		return restore_fbdev_mode_atomic(fb_helper, true);
 	else
 		return restore_fbdev_mode_legacy(fb_helper);
+=======
+static int
+__drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper,
+					    bool force)
+{
+	bool do_delayed;
+	int ret;
+
+	if (!drm_fbdev_emulation || !fb_helper)
+		return -ENODEV;
+
+	if (READ_ONCE(fb_helper->deferred_setup))
+		return 0;
+
+	mutex_lock(&fb_helper->lock);
+	if (force) {
+		/*
+		 * Yes this is the _locked version which expects the master lock
+		 * to be held. But for forced restores we're intentionally
+		 * racing here, see drm_fb_helper_set_par().
+		 */
+		ret = drm_client_modeset_commit_locked(&fb_helper->client);
+	} else {
+		ret = drm_client_modeset_commit(&fb_helper->client);
+	}
+
+	do_delayed = fb_helper->delayed_hotplug;
+	if (do_delayed)
+		fb_helper->delayed_hotplug = false;
+	mutex_unlock(&fb_helper->lock);
+
+	if (do_delayed)
+		drm_fb_helper_hotplug_event(fb_helper);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -532,6 +641,7 @@ static int restore_fbdev_mode(struct drm_fb_helper *fb_helper)
  */
 int drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper)
 {
+<<<<<<< HEAD
 	bool do_delayed;
 	int ret;
 
@@ -597,6 +707,19 @@ static bool drm_fb_helper_force_kernel_mode(void)
 	if (list_empty(&kernel_fb_helper_list))
 		return false;
 
+=======
+	return __drm_fb_helper_restore_fbdev_mode_unlocked(fb_helper, false);
+}
+EXPORT_SYMBOL(drm_fb_helper_restore_fbdev_mode_unlocked);
+
+#ifdef CONFIG_MAGIC_SYSRQ
+/* emergency restore, don't bother with error reporting */
+static void drm_fb_helper_restore_work_fn(struct work_struct *ignored)
+{
+	struct drm_fb_helper *helper;
+
+	mutex_lock(&kernel_fb_helper_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(helper, &kernel_fb_helper_list, kernel_fb_list) {
 		struct drm_device *dev = helper->dev;
 
@@ -604,6 +727,7 @@ static bool drm_fb_helper_force_kernel_mode(void)
 			continue;
 
 		mutex_lock(&helper->lock);
+<<<<<<< HEAD
 		ret = restore_fbdev_mode(helper);
 		if (ret)
 			error = true;
@@ -620,6 +744,14 @@ static void drm_fb_helper_restore_work_fn(struct work_struct *ignored)
 	if (ret == true)
 		DRM_ERROR("Failed to restore crtc configuration\n");
 }
+=======
+		drm_client_modeset_commit_locked(&helper->client);
+		mutex_unlock(&helper->lock);
+	}
+	mutex_unlock(&kernel_fb_helper_lock);
+}
+
+>>>>>>> upstream/android-13
 static DECLARE_WORK(drm_fb_helper_restore_work, drm_fb_helper_restore_work_fn);
 
 static void drm_fb_helper_sysrq(int dummy1)
@@ -627,6 +759,7 @@ static void drm_fb_helper_sysrq(int dummy1)
 	schedule_work(&drm_fb_helper_restore_work);
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_drm_fb_helper_restore_op = {
 	.handler = drm_fb_helper_sysrq,
 	.help_msg = "force-fb(V)",
@@ -661,10 +794,22 @@ static void dpms_legacy(struct drm_fb_helper *fb_helper, int dpms_mode)
 	drm_modeset_unlock_all(dev);
 }
 
+=======
+static const struct sysrq_key_op sysrq_drm_fb_helper_restore_op = {
+	.handler = drm_fb_helper_sysrq,
+	.help_msg = "force-fb(v)",
+	.action_msg = "Restore framebuffer console",
+};
+#else
+static const struct sysrq_key_op sysrq_drm_fb_helper_restore_op = { };
+#endif
+
+>>>>>>> upstream/android-13
 static void drm_fb_helper_dpms(struct fb_info *info, int dpms_mode)
 {
 	struct drm_fb_helper *fb_helper = info->par;
 
+<<<<<<< HEAD
 	/*
 	 * For each CRTC in this fb, turn the connectors on/off.
 	 */
@@ -678,6 +823,10 @@ static void drm_fb_helper_dpms(struct fb_info *info, int dpms_mode)
 		restore_fbdev_mode_atomic(fb_helper, dpms_mode == DRM_MODE_DPMS_ON);
 	else
 		dpms_legacy(fb_helper, dpms_mode);
+=======
+	mutex_lock(&fb_helper->lock);
+	drm_client_modeset_dpms(&fb_helper->client, dpms_mode);
+>>>>>>> upstream/android-13
 	mutex_unlock(&fb_helper->lock);
 }
 
@@ -717,6 +866,7 @@ int drm_fb_helper_blank(int blank, struct fb_info *info)
 }
 EXPORT_SYMBOL(drm_fb_helper_blank);
 
+<<<<<<< HEAD
 static void drm_fb_helper_modeset_release(struct drm_fb_helper *helper,
 					  struct drm_mode_set *modeset)
 {
@@ -754,6 +904,8 @@ static void drm_fb_helper_crtc_free(struct drm_fb_helper *helper)
 	kfree(helper->crtc_info);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void drm_fb_helper_resume_worker(struct work_struct *work)
 {
 	struct drm_fb_helper *helper = container_of(work, struct drm_fb_helper,
@@ -764,6 +916,7 @@ static void drm_fb_helper_resume_worker(struct work_struct *work)
 	console_unlock();
 }
 
+<<<<<<< HEAD
 static void drm_fb_helper_dirty_blit_real(struct drm_fb_helper *fb_helper,
 					  struct drm_clip_rect *clip)
 {
@@ -803,6 +956,108 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
 			drm_fb_helper_dirty_blit_real(helper, &clip_copy);
 		helper->fb->funcs->dirty(helper->fb, NULL, 0, 0, &clip_copy, 1);
 	}
+=======
+static void drm_fb_helper_damage_blit_real(struct drm_fb_helper *fb_helper,
+					   struct drm_clip_rect *clip,
+					   struct dma_buf_map *dst)
+{
+	struct drm_framebuffer *fb = fb_helper->fb;
+	unsigned int cpp = fb->format->cpp[0];
+	size_t offset = clip->y1 * fb->pitches[0] + clip->x1 * cpp;
+	void *src = fb_helper->fbdev->screen_buffer + offset;
+	size_t len = (clip->x2 - clip->x1) * cpp;
+	unsigned int y;
+
+	dma_buf_map_incr(dst, offset); /* go to first pixel within clip rect */
+
+	for (y = clip->y1; y < clip->y2; y++) {
+		dma_buf_map_memcpy_to(dst, src, len);
+		dma_buf_map_incr(dst, fb->pitches[0]);
+		src += fb->pitches[0];
+	}
+}
+
+static int drm_fb_helper_damage_blit(struct drm_fb_helper *fb_helper,
+				     struct drm_clip_rect *clip)
+{
+	struct drm_client_buffer *buffer = fb_helper->buffer;
+	struct dma_buf_map map, dst;
+	int ret;
+
+	/*
+	 * We have to pin the client buffer to its current location while
+	 * flushing the shadow buffer. In the general case, concurrent
+	 * modesetting operations could try to move the buffer and would
+	 * fail. The modeset has to be serialized by acquiring the reservation
+	 * object of the underlying BO here.
+	 *
+	 * For fbdev emulation, we only have to protect against fbdev modeset
+	 * operations. Nothing else will involve the client buffer's BO. So it
+	 * is sufficient to acquire struct drm_fb_helper.lock here.
+	 */
+	mutex_lock(&fb_helper->lock);
+
+	ret = drm_client_buffer_vmap(buffer, &map);
+	if (ret)
+		goto out;
+
+	dst = map;
+	drm_fb_helper_damage_blit_real(fb_helper, clip, &dst);
+
+	drm_client_buffer_vunmap(buffer);
+
+out:
+	mutex_unlock(&fb_helper->lock);
+
+	return ret;
+}
+
+static void drm_fb_helper_damage_work(struct work_struct *work)
+{
+	struct drm_fb_helper *helper = container_of(work, struct drm_fb_helper,
+						    damage_work);
+	struct drm_device *dev = helper->dev;
+	struct drm_clip_rect *clip = &helper->damage_clip;
+	struct drm_clip_rect clip_copy;
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&helper->damage_lock, flags);
+	clip_copy = *clip;
+	clip->x1 = clip->y1 = ~0;
+	clip->x2 = clip->y2 = 0;
+	spin_unlock_irqrestore(&helper->damage_lock, flags);
+
+	/* Call damage handlers only if necessary */
+	if (!(clip_copy.x1 < clip_copy.x2 && clip_copy.y1 < clip_copy.y2))
+		return;
+
+	if (helper->buffer) {
+		ret = drm_fb_helper_damage_blit(helper, &clip_copy);
+		if (drm_WARN_ONCE(dev, ret, "Damage blitter failed: ret=%d\n", ret))
+			goto err;
+	}
+
+	if (helper->fb->funcs->dirty) {
+		ret = helper->fb->funcs->dirty(helper->fb, NULL, 0, 0, &clip_copy, 1);
+		if (drm_WARN_ONCE(dev, ret, "Dirty helper failed: ret=%d\n", ret))
+			goto err;
+	}
+
+	return;
+
+err:
+	/*
+	 * Restore damage clip rectangle on errors. The next run
+	 * of the damage worker will perform the update.
+	 */
+	spin_lock_irqsave(&helper->damage_lock, flags);
+	clip->x1 = min_t(u32, clip->x1, clip_copy.x1);
+	clip->y1 = min_t(u32, clip->y1, clip_copy.y1);
+	clip->x2 = max_t(u32, clip->x2, clip_copy.x2);
+	clip->y2 = max_t(u32, clip->y2, clip_copy.y2);
+	spin_unlock_irqrestore(&helper->damage_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -818,10 +1073,17 @@ void drm_fb_helper_prepare(struct drm_device *dev, struct drm_fb_helper *helper,
 			   const struct drm_fb_helper_funcs *funcs)
 {
 	INIT_LIST_HEAD(&helper->kernel_fb_list);
+<<<<<<< HEAD
 	spin_lock_init(&helper->dirty_lock);
 	INIT_WORK(&helper->resume_work, drm_fb_helper_resume_worker);
 	INIT_WORK(&helper->dirty_work, drm_fb_helper_dirty_work);
 	helper->dirty_clip.x1 = helper->dirty_clip.y1 = ~0;
+=======
+	spin_lock_init(&helper->damage_lock);
+	INIT_WORK(&helper->resume_work, drm_fb_helper_resume_worker);
+	INIT_WORK(&helper->damage_work, drm_fb_helper_damage_work);
+	helper->damage_clip.x1 = helper->damage_clip.y1 = ~0;
+>>>>>>> upstream/android-13
 	mutex_init(&helper->lock);
 	helper->funcs = funcs;
 	helper->dev = dev;
@@ -832,7 +1094,10 @@ EXPORT_SYMBOL(drm_fb_helper_prepare);
  * drm_fb_helper_init - initialize a &struct drm_fb_helper
  * @dev: drm device
  * @fb_helper: driver-allocated fbdev helper structure to initialize
+<<<<<<< HEAD
  * @max_conn_count: max connector count
+=======
+>>>>>>> upstream/android-13
  *
  * This allocates the structures for the fbdev helper with the given limits.
  * Note that this won't yet touch the hardware (through the driver interfaces)
@@ -845,18 +1110,25 @@ EXPORT_SYMBOL(drm_fb_helper_prepare);
  * Zero if everything went ok, nonzero otherwise.
  */
 int drm_fb_helper_init(struct drm_device *dev,
+<<<<<<< HEAD
 		       struct drm_fb_helper *fb_helper,
 		       int max_conn_count)
 {
 	struct drm_crtc *crtc;
 	struct drm_mode_config *config = &dev->mode_config;
 	int i;
+=======
+		       struct drm_fb_helper *fb_helper)
+{
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!drm_fbdev_emulation) {
 		dev->fb_helper = fb_helper;
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (!max_conn_count)
 		return -EINVAL;
 
@@ -889,14 +1161,27 @@ int drm_fb_helper_init(struct drm_device *dev,
 	drm_for_each_crtc(crtc, dev) {
 		fb_helper->crtc_info[i].mode_set.crtc = crtc;
 		i++;
+=======
+	/*
+	 * If this is not the generic fbdev client, initialize a drm_client
+	 * without callbacks so we can use the modesets.
+	 */
+	if (!fb_helper->client.funcs) {
+		ret = drm_client_init(dev, &fb_helper->client, "drm_fb_helper", NULL);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	dev->fb_helper = fb_helper;
 
 	return 0;
+<<<<<<< HEAD
 out_free:
 	drm_fb_helper_crtc_free(fb_helper);
 	return -ENOMEM;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_fb_helper_init);
 
@@ -927,6 +1212,17 @@ struct fb_info *drm_fb_helper_alloc_fbi(struct drm_fb_helper *fb_helper)
 	if (ret)
 		goto err_release;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * TODO: We really should be smarter here and alloc an aperture
+	 * for each IORESOURCE_MEM resource helper->dev->dev has and also
+	 * init the ranges of the appertures based on the resources.
+	 * Note some drivers currently count on there being only 1 empty
+	 * aperture and fill this themselves, these will need to be dealt
+	 * with somehow when fixing this.
+	 */
+>>>>>>> upstream/android-13
 	info->apertures = alloc_apertures(1);
 	if (!info->apertures) {
 		ret = -ENOMEM;
@@ -934,6 +1230,10 @@ struct fb_info *drm_fb_helper_alloc_fbi(struct drm_fb_helper *fb_helper)
 	}
 
 	fb_helper->fbdev = info;
+<<<<<<< HEAD
+=======
+	info->skip_vt_switch = true;
+>>>>>>> upstream/android-13
 
 	return info;
 
@@ -964,8 +1264,12 @@ EXPORT_SYMBOL(drm_fb_helper_unregister_fbi);
  * drm_fb_helper_fini - finialize a &struct drm_fb_helper
  * @fb_helper: driver-allocated fbdev helper, can be NULL
  *
+<<<<<<< HEAD
  * This cleans up all remaining resources associated with @fb_helper. Must be
  * called after drm_fb_helper_unlink_fbi() was called.
+=======
+ * This cleans up all remaining resources associated with @fb_helper.
+>>>>>>> upstream/android-13
  */
 void drm_fb_helper_fini(struct drm_fb_helper *fb_helper)
 {
@@ -980,7 +1284,11 @@ void drm_fb_helper_fini(struct drm_fb_helper *fb_helper)
 		return;
 
 	cancel_work_sync(&fb_helper->resume_work);
+<<<<<<< HEAD
 	cancel_work_sync(&fb_helper->dirty_work);
+=======
+	cancel_work_sync(&fb_helper->damage_work);
+>>>>>>> upstream/android-13
 
 	info = fb_helper->fbdev;
 	if (info) {
@@ -999,6 +1307,7 @@ void drm_fb_helper_fini(struct drm_fb_helper *fb_helper)
 	mutex_unlock(&kernel_fb_helper_lock);
 
 	mutex_destroy(&fb_helper->lock);
+<<<<<<< HEAD
 	drm_fb_helper_crtc_free(fb_helper);
 
 }
@@ -1028,19 +1337,58 @@ static void drm_fb_helper_dirty(struct fb_info *info, u32 x, u32 y,
 		return;
 
 	spin_lock_irqsave(&helper->dirty_lock, flags);
+=======
+
+	if (!fb_helper->client.funcs)
+		drm_client_release(&fb_helper->client);
+}
+EXPORT_SYMBOL(drm_fb_helper_fini);
+
+static bool drm_fbdev_use_shadow_fb(struct drm_fb_helper *fb_helper)
+{
+	struct drm_device *dev = fb_helper->dev;
+	struct drm_framebuffer *fb = fb_helper->fb;
+
+	return dev->mode_config.prefer_shadow_fbdev ||
+	       dev->mode_config.prefer_shadow ||
+	       fb->funcs->dirty;
+}
+
+static void drm_fb_helper_damage(struct fb_info *info, u32 x, u32 y,
+				 u32 width, u32 height)
+{
+	struct drm_fb_helper *helper = info->par;
+	struct drm_clip_rect *clip = &helper->damage_clip;
+	unsigned long flags;
+
+	if (!drm_fbdev_use_shadow_fb(helper))
+		return;
+
+	spin_lock_irqsave(&helper->damage_lock, flags);
+>>>>>>> upstream/android-13
 	clip->x1 = min_t(u32, clip->x1, x);
 	clip->y1 = min_t(u32, clip->y1, y);
 	clip->x2 = max_t(u32, clip->x2, x + width);
 	clip->y2 = max_t(u32, clip->y2, y + height);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&helper->dirty_lock, flags);
 
 	schedule_work(&helper->dirty_work);
+=======
+	spin_unlock_irqrestore(&helper->damage_lock, flags);
+
+	schedule_work(&helper->damage_work);
+>>>>>>> upstream/android-13
 }
 
 /**
  * drm_fb_helper_deferred_io() - fbdev deferred_io callback function
  * @info: fb_info struct pointer
+<<<<<<< HEAD
  * @pagelist: list of dirty mmap framebuffer pages
+=======
+ * @pagelist: list of mmap framebuffer pages that have to be flushed
+>>>>>>> upstream/android-13
  *
  * This function is used as the &fb_deferred_io.deferred_io
  * callback function for flushing the fbdev mmap writes.
@@ -1065,12 +1413,17 @@ void drm_fb_helper_deferred_io(struct fb_info *info,
 		y1 = min / info->fix.line_length;
 		y2 = min_t(u32, DIV_ROUND_UP(max, info->fix.line_length),
 			   info->var.yres);
+<<<<<<< HEAD
 		drm_fb_helper_dirty(info, 0, y1, info->var.xres, y2 - y1);
+=======
+		drm_fb_helper_damage(info, 0, y1, info->var.xres, y2 - y1);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(drm_fb_helper_deferred_io);
 
 /**
+<<<<<<< HEAD
  * drm_fb_helper_defio_init - fbdev deferred I/O initialization
  * @fb_helper: driver-allocated fbdev helper
  *
@@ -1114,6 +1467,8 @@ int drm_fb_helper_defio_init(struct drm_fb_helper *fb_helper)
 EXPORT_SYMBOL(drm_fb_helper_defio_init);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * drm_fb_helper_sys_read - wrapper around fb_sys_read
  * @info: fb_info struct pointer
  * @buf: userspace buffer to read from framebuffer memory
@@ -1145,8 +1500,12 @@ ssize_t drm_fb_helper_sys_write(struct fb_info *info, const char __user *buf,
 
 	ret = fb_sys_write(info, buf, count, ppos);
 	if (ret > 0)
+<<<<<<< HEAD
 		drm_fb_helper_dirty(info, 0, 0, info->var.xres,
 				    info->var.yres);
+=======
+		drm_fb_helper_damage(info, 0, 0, info->var.xres, info->var.yres);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1163,8 +1522,12 @@ void drm_fb_helper_sys_fillrect(struct fb_info *info,
 				const struct fb_fillrect *rect)
 {
 	sys_fillrect(info, rect);
+<<<<<<< HEAD
 	drm_fb_helper_dirty(info, rect->dx, rect->dy,
 			    rect->width, rect->height);
+=======
+	drm_fb_helper_damage(info, rect->dx, rect->dy, rect->width, rect->height);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_fb_helper_sys_fillrect);
 
@@ -1179,8 +1542,12 @@ void drm_fb_helper_sys_copyarea(struct fb_info *info,
 				const struct fb_copyarea *area)
 {
 	sys_copyarea(info, area);
+<<<<<<< HEAD
 	drm_fb_helper_dirty(info, area->dx, area->dy,
 			    area->width, area->height);
+=======
+	drm_fb_helper_damage(info, area->dx, area->dy, area->width, area->height);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_fb_helper_sys_copyarea);
 
@@ -1195,8 +1562,12 @@ void drm_fb_helper_sys_imageblit(struct fb_info *info,
 				 const struct fb_image *image)
 {
 	sys_imageblit(info, image);
+<<<<<<< HEAD
 	drm_fb_helper_dirty(info, image->dx, image->dy,
 			    image->width, image->height);
+=======
+	drm_fb_helper_damage(info, image->dx, image->dy, image->width, image->height);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_fb_helper_sys_imageblit);
 
@@ -1211,8 +1582,12 @@ void drm_fb_helper_cfb_fillrect(struct fb_info *info,
 				const struct fb_fillrect *rect)
 {
 	cfb_fillrect(info, rect);
+<<<<<<< HEAD
 	drm_fb_helper_dirty(info, rect->dx, rect->dy,
 			    rect->width, rect->height);
+=======
+	drm_fb_helper_damage(info, rect->dx, rect->dy, rect->width, rect->height);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_fb_helper_cfb_fillrect);
 
@@ -1227,8 +1602,12 @@ void drm_fb_helper_cfb_copyarea(struct fb_info *info,
 				const struct fb_copyarea *area)
 {
 	cfb_copyarea(info, area);
+<<<<<<< HEAD
 	drm_fb_helper_dirty(info, area->dx, area->dy,
 			    area->width, area->height);
+=======
+	drm_fb_helper_damage(info, area->dx, area->dy, area->width, area->height);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_fb_helper_cfb_copyarea);
 
@@ -1243,8 +1622,12 @@ void drm_fb_helper_cfb_imageblit(struct fb_info *info,
 				 const struct fb_image *image)
 {
 	cfb_imageblit(info, image);
+<<<<<<< HEAD
 	drm_fb_helper_dirty(info, image->dx, image->dy,
 			    image->width, image->height);
+=======
+	drm_fb_helper_damage(info, image->dx, image->dy, image->width, image->height);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(drm_fb_helper_cfb_imageblit);
 
@@ -1345,6 +1728,7 @@ static int setcmap_pseudo_palette(struct fb_cmap *cmap, struct fb_info *info)
 static int setcmap_legacy(struct fb_cmap *cmap, struct fb_info *info)
 {
 	struct drm_fb_helper *fb_helper = info->par;
+<<<<<<< HEAD
 	struct drm_crtc *crtc;
 	u16 *r, *g, *b;
 	int i, ret = 0;
@@ -1357,6 +1741,25 @@ static int setcmap_legacy(struct fb_cmap *cmap, struct fb_info *info)
 
 		if (cmap->start + cmap->len > crtc->gamma_size)
 			return -EINVAL;
+=======
+	struct drm_mode_set *modeset;
+	struct drm_crtc *crtc;
+	u16 *r, *g, *b;
+	int ret = 0;
+
+	drm_modeset_lock_all(fb_helper->dev);
+	drm_client_for_each_modeset(modeset, &fb_helper->client) {
+		crtc = modeset->crtc;
+		if (!crtc->funcs->gamma_set || !crtc->gamma_size) {
+			ret = -EINVAL;
+			goto out;
+		}
+
+		if (cmap->start + cmap->len > crtc->gamma_size) {
+			ret = -EINVAL;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 
 		r = crtc->gamma_store;
 		g = r + crtc->gamma_size;
@@ -1369,8 +1772,14 @@ static int setcmap_legacy(struct fb_cmap *cmap, struct fb_info *info)
 		ret = crtc->funcs->gamma_set(crtc, r, g, b,
 					     crtc->gamma_size, NULL);
 		if (ret)
+<<<<<<< HEAD
 			return ret;
 	}
+=======
+			goto out;
+	}
+out:
+>>>>>>> upstream/android-13
 	drm_modeset_unlock_all(fb_helper->dev);
 
 	return ret;
@@ -1427,10 +1836,18 @@ static int setcmap_atomic(struct fb_cmap *cmap, struct fb_info *info)
 	struct drm_modeset_acquire_ctx ctx;
 	struct drm_crtc_state *crtc_state;
 	struct drm_atomic_state *state;
+<<<<<<< HEAD
 	struct drm_crtc *crtc;
 	u16 *r, *g, *b;
 	int i, ret = 0;
 	bool replaced;
+=======
+	struct drm_mode_set *modeset;
+	struct drm_crtc *crtc;
+	u16 *r, *g, *b;
+	bool replaced;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	drm_modeset_acquire_init(&ctx, 0);
 
@@ -1442,8 +1859,13 @@ static int setcmap_atomic(struct fb_cmap *cmap, struct fb_info *info)
 
 	state->acquire_ctx = &ctx;
 retry:
+<<<<<<< HEAD
 	for (i = 0; i < fb_helper->crtc_count; i++) {
 		crtc = fb_helper->crtc_info[i].mode_set.crtc;
+=======
+	drm_client_for_each_modeset(modeset, &fb_helper->client) {
+		crtc = modeset->crtc;
+>>>>>>> upstream/android-13
 
 		if (!gamma_lut)
 			gamma_lut = setcmap_new_gamma_lut(crtc, cmap);
@@ -1459,6 +1881,14 @@ retry:
 			goto out_state;
 		}
 
+<<<<<<< HEAD
+=======
+		/*
+		 * FIXME: This always uses gamma_lut. Some HW have only
+		 * degamma_lut, in which case we should reset gamma_lut and set
+		 * degamma_lut. See drm_crtc_legacy_gamma_set().
+		 */
+>>>>>>> upstream/android-13
 		replaced  = drm_property_replace_blob(&crtc_state->degamma_lut,
 						      NULL);
 		replaced |= drm_property_replace_blob(&crtc_state->ctm, NULL);
@@ -1471,8 +1901,13 @@ retry:
 	if (ret)
 		goto out_state;
 
+<<<<<<< HEAD
 	for (i = 0; i < fb_helper->crtc_count; i++) {
 		crtc = fb_helper->crtc_info[i].mode_set.crtc;
+=======
+	drm_client_for_each_modeset(modeset, &fb_helper->client) {
+		crtc = modeset->crtc;
+>>>>>>> upstream/android-13
 
 		r = crtc->gamma_store;
 		g = r + crtc->gamma_size;
@@ -1509,6 +1944,10 @@ backoff:
 int drm_fb_helper_setcmap(struct fb_cmap *cmap, struct fb_info *info)
 {
 	struct drm_fb_helper *fb_helper = info->par;
+<<<<<<< HEAD
+=======
+	struct drm_device *dev = fb_helper->dev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (oops_in_progress)
@@ -1516,19 +1955,35 @@ int drm_fb_helper_setcmap(struct fb_cmap *cmap, struct fb_info *info)
 
 	mutex_lock(&fb_helper->lock);
 
+<<<<<<< HEAD
 	if (!drm_fb_helper_is_bound(fb_helper)) {
 		ret = -EBUSY;
 		goto out;
 	}
 
+=======
+	if (!drm_master_internal_acquire(dev)) {
+		ret = -EBUSY;
+		goto unlock;
+	}
+
+	mutex_lock(&fb_helper->client.modeset_mutex);
+>>>>>>> upstream/android-13
 	if (info->fix.visual == FB_VISUAL_TRUECOLOR)
 		ret = setcmap_pseudo_palette(cmap, info);
 	else if (drm_drv_uses_atomic_modeset(fb_helper->dev))
 		ret = setcmap_atomic(cmap, info);
 	else
 		ret = setcmap_legacy(cmap, info);
+<<<<<<< HEAD
 
 out:
+=======
+	mutex_unlock(&fb_helper->client.modeset_mutex);
+
+	drm_master_internal_release(dev);
+unlock:
+>>>>>>> upstream/android-13
 	mutex_unlock(&fb_helper->lock);
 
 	return ret;
@@ -1548,12 +2003,20 @@ int drm_fb_helper_ioctl(struct fb_info *info, unsigned int cmd,
 			unsigned long arg)
 {
 	struct drm_fb_helper *fb_helper = info->par;
+<<<<<<< HEAD
 	struct drm_mode_set *mode_set;
+=======
+	struct drm_device *dev = fb_helper->dev;
+>>>>>>> upstream/android-13
 	struct drm_crtc *crtc;
 	int ret = 0;
 
 	mutex_lock(&fb_helper->lock);
+<<<<<<< HEAD
 	if (!drm_fb_helper_is_bound(fb_helper)) {
+=======
+	if (!drm_master_internal_acquire(dev)) {
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 		goto unlock;
 	}
@@ -1576,8 +2039,12 @@ int drm_fb_helper_ioctl(struct fb_info *info, unsigned int cmd,
 		 * make. If we're not smart enough here, one should
 		 * just consider switch the userspace to KMS.
 		 */
+<<<<<<< HEAD
 		mode_set = &fb_helper->crtc_info[0].mode_set;
 		crtc = mode_set->crtc;
+=======
+		crtc = fb_helper->client.modesets[0].crtc;
+>>>>>>> upstream/android-13
 
 		/*
 		 * Only wait for a vblank event if the CRTC is
@@ -1591,11 +2058,19 @@ int drm_fb_helper_ioctl(struct fb_info *info, unsigned int cmd,
 		}
 
 		ret = 0;
+<<<<<<< HEAD
 		goto unlock;
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		ret = -ENOTTY;
 	}
 
+<<<<<<< HEAD
+=======
+	drm_master_internal_release(dev);
+>>>>>>> upstream/android-13
 unlock:
 	mutex_unlock(&fb_helper->lock);
 	return ret;
@@ -1689,15 +2164,30 @@ int drm_fb_helper_check_var(struct fb_var_screeninfo *var,
 {
 	struct drm_fb_helper *fb_helper = info->par;
 	struct drm_framebuffer *fb = fb_helper->fb;
+<<<<<<< HEAD
+=======
+	struct drm_device *dev = fb_helper->dev;
+>>>>>>> upstream/android-13
 
 	if (in_dbg_master())
 		return -EINVAL;
 
 	if (var->pixclock != 0) {
+<<<<<<< HEAD
 		DRM_DEBUG("fbdev emulation doesn't support changing the pixel clock, value of pixclock is ignored\n");
 		var->pixclock = 0;
 	}
 
+=======
+		drm_dbg_kms(dev, "fbdev emulation doesn't support changing the pixel clock, value of pixclock is ignored\n");
+		var->pixclock = 0;
+	}
+
+	if ((drm_format_info_block_width(fb->format, 0) > 1) ||
+	    (drm_format_info_block_height(fb->format, 0) > 1))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Changes struct fb_var_screeninfo are currently not pushed back
 	 * to KMS, hence fail if different settings are requested.
@@ -1705,7 +2195,11 @@ int drm_fb_helper_check_var(struct fb_var_screeninfo *var,
 	if (var->bits_per_pixel > fb->format->cpp[0] * 8 ||
 	    var->xres > fb->width || var->yres > fb->height ||
 	    var->xres_virtual > fb->width || var->yres_virtual > fb->height) {
+<<<<<<< HEAD
 		DRM_DEBUG("fb requested width/height/bpp can't fit in current fb "
+=======
+		drm_dbg_kms(dev, "fb requested width/height/bpp can't fit in current fb "
+>>>>>>> upstream/android-13
 			  "request %dx%d-%d (virtual %dx%d) > %dx%d-%d\n",
 			  var->xres, var->yres, var->bits_per_pixel,
 			  var->xres_virtual, var->yres_virtual,
@@ -1737,7 +2231,11 @@ int drm_fb_helper_check_var(struct fb_var_screeninfo *var,
 	 * so reject all pixel format changing requests.
 	 */
 	if (!drm_fb_pixel_format_equal(var, &info->var)) {
+<<<<<<< HEAD
 		DRM_DEBUG("fbdev emulation doesn't support changing the pixel format\n");
+=======
+		drm_dbg_kms(dev, "fbdev emulation doesn't support changing the pixel format\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1757,16 +2255,46 @@ int drm_fb_helper_set_par(struct fb_info *info)
 {
 	struct drm_fb_helper *fb_helper = info->par;
 	struct fb_var_screeninfo *var = &info->var;
+<<<<<<< HEAD
+=======
+	bool force;
+>>>>>>> upstream/android-13
 
 	if (oops_in_progress)
 		return -EBUSY;
 
 	if (var->pixclock != 0) {
+<<<<<<< HEAD
 		DRM_ERROR("PIXEL CLOCK SET\n");
 		return -EINVAL;
 	}
 
 	drm_fb_helper_restore_fbdev_mode_unlocked(fb_helper);
+=======
+		drm_err(fb_helper->dev, "PIXEL CLOCK SET\n");
+		return -EINVAL;
+	}
+
+	/*
+	 * Normally we want to make sure that a kms master takes precedence over
+	 * fbdev, to avoid fbdev flickering and occasionally stealing the
+	 * display status. But Xorg first sets the vt back to text mode using
+	 * the KDSET IOCTL with KD_TEXT, and only after that drops the master
+	 * status when exiting.
+	 *
+	 * In the past this was caught by drm_fb_helper_lastclose(), but on
+	 * modern systems where logind always keeps a drm fd open to orchestrate
+	 * the vt switching, this doesn't work.
+	 *
+	 * To not break the userspace ABI we have this special case here, which
+	 * is only used for the above case. Everything else uses the normal
+	 * commit function, which ensures that we never steal the display from
+	 * an active drm master.
+	 */
+	force = var->activate & FB_ACTIVATE_KD_TEXT;
+
+	__drm_fb_helper_restore_fbdev_mode_unlocked(fb_helper, force);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1774,6 +2302,7 @@ EXPORT_SYMBOL(drm_fb_helper_set_par);
 
 static void pan_set(struct drm_fb_helper *fb_helper, int x, int y)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < fb_helper->crtc_count; i++) {
@@ -1784,6 +2313,16 @@ static void pan_set(struct drm_fb_helper *fb_helper, int x, int y)
 		mode_set->x = x;
 		mode_set->y = y;
 	}
+=======
+	struct drm_mode_set *mode_set;
+
+	mutex_lock(&fb_helper->client.modeset_mutex);
+	drm_client_for_each_modeset(mode_set, &fb_helper->client) {
+		mode_set->x = x;
+		mode_set->y = y;
+	}
+	mutex_unlock(&fb_helper->client.modeset_mutex);
+>>>>>>> upstream/android-13
 }
 
 static int pan_display_atomic(struct fb_var_screeninfo *var,
@@ -1794,7 +2333,11 @@ static int pan_display_atomic(struct fb_var_screeninfo *var,
 
 	pan_set(fb_helper, var->xoffset, var->yoffset);
 
+<<<<<<< HEAD
 	ret = restore_fbdev_mode_atomic(fb_helper, true);
+=======
+	ret = drm_client_modeset_commit_locked(&fb_helper->client);
+>>>>>>> upstream/android-13
 	if (!ret) {
 		info->var.xoffset = var->xoffset;
 		info->var.yoffset = var->yoffset;
@@ -1808,6 +2351,7 @@ static int pan_display_legacy(struct fb_var_screeninfo *var,
 			      struct fb_info *info)
 {
 	struct drm_fb_helper *fb_helper = info->par;
+<<<<<<< HEAD
 	struct drm_mode_set *modeset;
 	int ret = 0;
 	int i;
@@ -1816,6 +2360,15 @@ static int pan_display_legacy(struct fb_var_screeninfo *var,
 	for (i = 0; i < fb_helper->crtc_count; i++) {
 		modeset = &fb_helper->crtc_info[i].mode_set;
 
+=======
+	struct drm_client_dev *client = &fb_helper->client;
+	struct drm_mode_set *modeset;
+	int ret = 0;
+
+	mutex_lock(&client->modeset_mutex);
+	drm_modeset_lock_all(fb_helper->dev);
+	drm_client_for_each_modeset(modeset, client) {
+>>>>>>> upstream/android-13
 		modeset->x = var->xoffset;
 		modeset->y = var->yoffset;
 
@@ -1828,6 +2381,10 @@ static int pan_display_legacy(struct fb_var_screeninfo *var,
 		}
 	}
 	drm_modeset_unlock_all(fb_helper->dev);
+<<<<<<< HEAD
+=======
+	mutex_unlock(&client->modeset_mutex);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1848,15 +2405,27 @@ int drm_fb_helper_pan_display(struct fb_var_screeninfo *var,
 		return -EBUSY;
 
 	mutex_lock(&fb_helper->lock);
+<<<<<<< HEAD
 	if (!drm_fb_helper_is_bound(fb_helper)) {
 		mutex_unlock(&fb_helper->lock);
 		return -EBUSY;
+=======
+	if (!drm_master_internal_acquire(dev)) {
+		ret = -EBUSY;
+		goto unlock;
+>>>>>>> upstream/android-13
 	}
 
 	if (drm_drv_uses_atomic_modeset(dev))
 		ret = pan_display_atomic(var, info);
 	else
 		ret = pan_display_legacy(var, info);
+<<<<<<< HEAD
+=======
+
+	drm_master_internal_release(dev);
+unlock:
+>>>>>>> upstream/android-13
 	mutex_unlock(&fb_helper->lock);
 
 	return ret;
@@ -1870,11 +2439,24 @@ EXPORT_SYMBOL(drm_fb_helper_pan_display);
 static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 					 int preferred_bpp)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	int crtc_count = 0;
 	int i;
 	struct drm_fb_helper_surface_size sizes;
 	int gamma_size = 0;
+=======
+	struct drm_client_dev *client = &fb_helper->client;
+	struct drm_device *dev = fb_helper->dev;
+	struct drm_mode_config *config = &dev->mode_config;
+	int ret = 0;
+	int crtc_count = 0;
+	struct drm_connector_list_iter conn_iter;
+	struct drm_fb_helper_surface_size sizes;
+	struct drm_connector *connector;
+	struct drm_mode_set *mode_set;
+	int best_depth = 0;
+>>>>>>> upstream/android-13
 
 	memset(&sizes, 0, sizeof(struct drm_fb_helper_surface_size));
 	sizes.surface_depth = 24;
@@ -1882,6 +2464,7 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 	sizes.fb_width = (u32)-1;
 	sizes.fb_height = (u32)-1;
 
+<<<<<<< HEAD
 	/* if driver picks 8 or 16 by default use that for both depth/bpp */
 	if (preferred_bpp != sizes.surface_bpp)
 		sizes.surface_depth = sizes.surface_bpp = preferred_bpp;
@@ -1892,6 +2475,20 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 		struct drm_cmdline_mode *cmdline_mode;
 
 		cmdline_mode = &fb_helper_conn->connector->cmdline_mode;
+=======
+	/*
+	 * If driver picks 8 or 16 by default use that for both depth/bpp
+	 * to begin with
+	 */
+	if (preferred_bpp != sizes.surface_bpp)
+		sizes.surface_depth = sizes.surface_bpp = preferred_bpp;
+
+	drm_connector_list_iter_begin(fb_helper->dev, &conn_iter);
+	drm_client_for_each_connector_iter(connector, &conn_iter) {
+		struct drm_cmdline_mode *cmdline_mode;
+
+		cmdline_mode = &connector->cmdline_mode;
+>>>>>>> upstream/android-13
 
 		if (cmdline_mode->bpp_specified) {
 			switch (cmdline_mode->bpp) {
@@ -1916,11 +2513,69 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 			break;
 		}
 	}
+<<<<<<< HEAD
 
 	crtc_count = 0;
 	for (i = 0; i < fb_helper->crtc_count; i++) {
 		struct drm_display_mode *desired_mode;
 		struct drm_mode_set *mode_set;
+=======
+	drm_connector_list_iter_end(&conn_iter);
+
+	/*
+	 * If we run into a situation where, for example, the primary plane
+	 * supports RGBA5551 (16 bpp, depth 15) but not RGB565 (16 bpp, depth
+	 * 16) we need to scale down the depth of the sizes we request.
+	 */
+	mutex_lock(&client->modeset_mutex);
+	drm_client_for_each_modeset(mode_set, client) {
+		struct drm_crtc *crtc = mode_set->crtc;
+		struct drm_plane *plane = crtc->primary;
+		int j;
+
+		drm_dbg_kms(dev, "test CRTC %u primary plane\n", drm_crtc_index(crtc));
+
+		for (j = 0; j < plane->format_count; j++) {
+			const struct drm_format_info *fmt;
+
+			fmt = drm_format_info(plane->format_types[j]);
+
+			/*
+			 * Do not consider YUV or other complicated formats
+			 * for framebuffers. This means only legacy formats
+			 * are supported (fmt->depth is a legacy field) but
+			 * the framebuffer emulation can only deal with such
+			 * formats, specifically RGB/BGA formats.
+			 */
+			if (fmt->depth == 0)
+				continue;
+
+			/* We found a perfect fit, great */
+			if (fmt->depth == sizes.surface_depth) {
+				best_depth = fmt->depth;
+				break;
+			}
+
+			/* Skip depths above what we're looking for */
+			if (fmt->depth > sizes.surface_depth)
+				continue;
+
+			/* Best depth found so far */
+			if (fmt->depth > best_depth)
+				best_depth = fmt->depth;
+		}
+	}
+	if (sizes.surface_depth != best_depth && best_depth) {
+		drm_info(dev, "requested bpp %d, scaled depth down to %d",
+			 sizes.surface_bpp, best_depth);
+		sizes.surface_depth = best_depth;
+	}
+
+	/* first up get a count of crtcs now in use and new min/maxes width/heights */
+	crtc_count = 0;
+	drm_client_for_each_modeset(mode_set, client) {
+		struct drm_display_mode *desired_mode;
+>>>>>>> upstream/android-13
 		int x, y, j;
 		/* in case of tile group, are we the last tile vert or horiz?
 		 * If no tile group you are always the last one both vertically
@@ -1928,19 +2583,28 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 		 */
 		bool lastv = true, lasth = true;
 
+<<<<<<< HEAD
 		desired_mode = fb_helper->crtc_info[i].desired_mode;
 		mode_set = &fb_helper->crtc_info[i].mode_set;
+=======
+		desired_mode = mode_set->mode;
+>>>>>>> upstream/android-13
 
 		if (!desired_mode)
 			continue;
 
 		crtc_count++;
 
+<<<<<<< HEAD
 		x = fb_helper->crtc_info[i].x;
 		y = fb_helper->crtc_info[i].y;
 
 		if (gamma_size == 0)
 			gamma_size = fb_helper->crtc_info[i].mode_set.crtc->gamma_size;
+=======
+		x = mode_set->x;
+		y = mode_set->y;
+>>>>>>> upstream/android-13
 
 		sizes.surface_width  = max_t(u32, desired_mode->hdisplay + x, sizes.surface_width);
 		sizes.surface_height = max_t(u32, desired_mode->vdisplay + y, sizes.surface_height);
@@ -1948,7 +2612,13 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 		for (j = 0; j < mode_set->num_connectors; j++) {
 			struct drm_connector *connector = mode_set->connectors[j];
 
+<<<<<<< HEAD
 			if (connector->has_tile) {
+=======
+			if (connector->has_tile &&
+			    desired_mode->hdisplay == connector->tile_h_size &&
+			    desired_mode->vdisplay == connector->tile_v_size) {
+>>>>>>> upstream/android-13
 				lasth = (connector->tile_h_loc == (connector->num_h_tile - 1));
 				lastv = (connector->tile_v_loc == (connector->num_v_tile - 1));
 				/* cloning to multiple tiles is just crazy-talk, so: */
@@ -1961,6 +2631,7 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 		if (lastv)
 			sizes.fb_height = min_t(u32, desired_mode->vdisplay + y, sizes.fb_height);
 	}
+<<<<<<< HEAD
 
 	if (crtc_count == 0 || sizes.fb_width == -1 || sizes.fb_height == -1) {
 		DRM_INFO("Cannot find any crtc or sizes\n");
@@ -1968,12 +2639,30 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 		/* First time: disable all crtc's.. */
 		if (!fb_helper->deferred_setup && !READ_ONCE(fb_helper->dev->master))
 			restore_fbdev_mode(fb_helper);
+=======
+	mutex_unlock(&client->modeset_mutex);
+
+	if (crtc_count == 0 || sizes.fb_width == -1 || sizes.fb_height == -1) {
+		drm_info(dev, "Cannot find any crtc or sizes\n");
+
+		/* First time: disable all crtc's.. */
+		if (!fb_helper->deferred_setup)
+			drm_client_modeset_commit(client);
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 	}
 
 	/* Handle our overallocation */
 	sizes.surface_height *= drm_fbdev_overalloc;
 	sizes.surface_height /= 100;
+<<<<<<< HEAD
+=======
+	if (sizes.surface_height > config->max_height) {
+		drm_dbg_kms(dev, "Fbdev over-allocation too large; clamping height to %d\n",
+			    config->max_height);
+		sizes.surface_height = config->max_height;
+	}
+>>>>>>> upstream/android-13
 
 	/* push down into drivers */
 	ret = (*fb_helper->funcs->fb_probe)(fb_helper, &sizes);
@@ -1984,6 +2673,7 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * drm_fb_helper_fill_fix - initializes fixed fbdev information
  * @info: fbdev registered by the helper
@@ -1999,6 +2689,10 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
  */
 void drm_fb_helper_fill_fix(struct fb_info *info, uint32_t pitch,
 			    uint32_t depth)
+=======
+static void drm_fb_helper_fill_fix(struct fb_info *info, uint32_t pitch,
+				   uint32_t depth)
+>>>>>>> upstream/android-13
 {
 	info->fix.type = FB_TYPE_PACKED_PIXELS;
 	info->fix.visual = depth == 8 ? FB_VISUAL_PSEUDOCOLOR :
@@ -2013,6 +2707,7 @@ void drm_fb_helper_fill_fix(struct fb_info *info, uint32_t pitch,
 
 	info->fix.line_length = pitch;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_fb_helper_fill_fix);
 
 /**
@@ -2034,6 +2729,17 @@ void drm_fb_helper_fill_var(struct fb_info *info, struct drm_fb_helper *fb_helpe
 {
 	struct drm_framebuffer *fb = fb_helper->fb;
 
+=======
+
+static void drm_fb_helper_fill_var(struct fb_info *info,
+				   struct drm_fb_helper *fb_helper,
+				   uint32_t fb_width, uint32_t fb_height)
+{
+	struct drm_framebuffer *fb = fb_helper->fb;
+
+	WARN_ON((drm_format_info_block_width(fb->format, 0) > 1) ||
+		(drm_format_info_block_height(fb->format, 0) > 1));
+>>>>>>> upstream/android-13
 	info->pseudo_palette = fb_helper->pseudo_palette;
 	info->var.xres_virtual = fb->width;
 	info->var.yres_virtual = fb->height;
@@ -2048,6 +2754,7 @@ void drm_fb_helper_fill_var(struct fb_info *info, struct drm_fb_helper *fb_helpe
 	info->var.xres = fb_width;
 	info->var.yres = fb_height;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_fb_helper_fill_var);
 
 static int drm_fb_helper_probe_connector_modes(struct drm_fb_helper *fb_helper,
@@ -2598,6 +3305,44 @@ out:
 	kfree(offsets);
 	kfree(enabled);
 }
+=======
+
+/**
+ * drm_fb_helper_fill_info - initializes fbdev information
+ * @info: fbdev instance to set up
+ * @fb_helper: fb helper instance to use as template
+ * @sizes: describes fbdev size and scanout surface size
+ *
+ * Sets up the variable and fixed fbdev metainformation from the given fb helper
+ * instance and the drm framebuffer allocated in &drm_fb_helper.fb.
+ *
+ * Drivers should call this (or their equivalent setup code) from their
+ * &drm_fb_helper_funcs.fb_probe callback after having allocated the fbdev
+ * backing storage framebuffer.
+ */
+void drm_fb_helper_fill_info(struct fb_info *info,
+			     struct drm_fb_helper *fb_helper,
+			     struct drm_fb_helper_surface_size *sizes)
+{
+	struct drm_framebuffer *fb = fb_helper->fb;
+
+	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
+	drm_fb_helper_fill_var(info, fb_helper,
+			       sizes->fb_width, sizes->fb_height);
+
+	info->par = fb_helper;
+	/*
+	 * The DRM drivers fbdev emulation device name can be confusing if the
+	 * driver name also has a "drm" suffix on it. Leading to names such as
+	 * "simpledrmdrmfb" in /proc/fb. Unfortunately, it's an uAPI and can't
+	 * be changed due user-space tools (e.g: pm-utils) matching against it.
+	 */
+	snprintf(info->fix.id, sizeof(info->fix.id), "%sdrmfb",
+		 fb_helper->dev->driver->name);
+
+}
+EXPORT_SYMBOL(drm_fb_helper_fill_info);
+>>>>>>> upstream/android-13
 
 /*
  * This is a continuation of drm_setup_crtcs() that sets up anything related
@@ -2608,6 +3353,7 @@ out:
  */
 static void drm_setup_crtcs_fb(struct drm_fb_helper *fb_helper)
 {
+<<<<<<< HEAD
 	struct fb_info *info = fb_helper->fbdev;
 	int i;
 
@@ -2619,6 +3365,32 @@ static void drm_setup_crtcs_fb(struct drm_fb_helper *fb_helper)
 	drm_fb_helper_for_each_connector(fb_helper, i) {
 		struct drm_connector *connector =
 					fb_helper->connector_info[i]->connector;
+=======
+	struct drm_client_dev *client = &fb_helper->client;
+	struct drm_connector_list_iter conn_iter;
+	struct fb_info *info = fb_helper->fbdev;
+	unsigned int rotation, sw_rotations = 0;
+	struct drm_connector *connector;
+	struct drm_mode_set *modeset;
+
+	mutex_lock(&client->modeset_mutex);
+	drm_client_for_each_modeset(modeset, client) {
+		if (!modeset->num_connectors)
+			continue;
+
+		modeset->fb = fb_helper->fb;
+
+		if (drm_client_rotation(modeset, &rotation))
+			/* Rotating in hardware, fbcon should not rotate */
+			sw_rotations |= DRM_MODE_ROTATE_0;
+		else
+			sw_rotations |= rotation;
+	}
+	mutex_unlock(&client->modeset_mutex);
+
+	drm_connector_list_iter_begin(fb_helper->dev, &conn_iter);
+	drm_client_for_each_connector_iter(connector, &conn_iter) {
+>>>>>>> upstream/android-13
 
 		/* use first connected connector for the physical dimensions */
 		if (connector->status == connector_status_connected) {
@@ -2627,9 +3399,15 @@ static void drm_setup_crtcs_fb(struct drm_fb_helper *fb_helper)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	mutex_unlock(&fb_helper->dev->mode_config.mutex);
 
 	switch (fb_helper->sw_rotations) {
+=======
+	drm_connector_list_iter_end(&conn_iter);
+
+	switch (sw_rotations) {
+>>>>>>> upstream/android-13
 	case DRM_MODE_ROTATE_0:
 		info->fbcon_rotate_hint = FB_ROTATE_UR;
 		break;
@@ -2665,7 +3443,11 @@ __drm_fb_helper_initial_config_and_unlock(struct drm_fb_helper *fb_helper,
 	width = dev->mode_config.max_width;
 	height = dev->mode_config.max_height;
 
+<<<<<<< HEAD
 	drm_setup_crtcs(fb_helper, width, height);
+=======
+	drm_client_modeset_probe(&fb_helper->client, width, height);
+>>>>>>> upstream/android-13
 	ret = drm_fb_helper_single_fb_probe(fb_helper, bpp_sel);
 	if (ret < 0) {
 		if (ret == -EAGAIN) {
@@ -2683,6 +3465,15 @@ __drm_fb_helper_initial_config_and_unlock(struct drm_fb_helper *fb_helper,
 
 	info = fb_helper->fbdev;
 	info->var.pixclock = 0;
+<<<<<<< HEAD
+=======
+	/* Shamelessly allow physical address leaking to userspace */
+#if IS_ENABLED(CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM)
+	if (!drm_leak_fbdev_smem)
+#endif
+		/* don't leak any physical addresses to userspace */
+		info->flags |= FBINFO_HIDE_SMEM_START;
+>>>>>>> upstream/android-13
 
 	/* Need to drop locks to avoid recursive deadlock in
 	 * register_framebuffer. This is ok because the only thing left to do is
@@ -2693,7 +3484,11 @@ __drm_fb_helper_initial_config_and_unlock(struct drm_fb_helper *fb_helper,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	dev_info(dev->dev, "fb%d: %s frame buffer device\n",
+=======
+	drm_info(dev, "fb%d: %s frame buffer device\n",
+>>>>>>> upstream/android-13
 		 info->node, info->fix.id);
 
 	mutex_lock(&kernel_fb_helper_lock);
@@ -2720,9 +3515,14 @@ __drm_fb_helper_initial_config_and_unlock(struct drm_fb_helper *fb_helper,
  *
  * This function will call down into the &drm_fb_helper_funcs.fb_probe callback
  * to let the driver allocate and initialize the fbdev info structure and the
+<<<<<<< HEAD
  * drm framebuffer used to back the fbdev. drm_fb_helper_fill_var() and
  * drm_fb_helper_fill_fix() are provided as helpers to setup simple default
  * values for the fbdev info structure.
+=======
+ * drm framebuffer used to back the fbdev. drm_fb_helper_fill_info() is provided
+ * as a helper to setup simple default values for the fbdev info structure.
+>>>>>>> upstream/android-13
  *
  * HANG DEBUGGING:
  *
@@ -2797,15 +3597,27 @@ int drm_fb_helper_hotplug_event(struct drm_fb_helper *fb_helper)
 		return err;
 	}
 
+<<<<<<< HEAD
 	if (!fb_helper->fb || !drm_fb_helper_is_bound(fb_helper)) {
+=======
+	if (!fb_helper->fb || !drm_master_internal_acquire(fb_helper->dev)) {
+>>>>>>> upstream/android-13
 		fb_helper->delayed_hotplug = true;
 		mutex_unlock(&fb_helper->lock);
 		return err;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("\n");
 
 	drm_setup_crtcs(fb_helper, fb_helper->fb->width, fb_helper->fb->height);
+=======
+	drm_master_internal_release(fb_helper->dev);
+
+	drm_dbg_kms(fb_helper->dev, "\n");
+
+	drm_client_modeset_probe(&fb_helper->client, fb_helper->fb->width, fb_helper->fb->height);
+>>>>>>> upstream/android-13
 	drm_setup_crtcs_fb(fb_helper);
 	mutex_unlock(&fb_helper->lock);
 
@@ -2816,6 +3628,7 @@ int drm_fb_helper_hotplug_event(struct drm_fb_helper *fb_helper)
 EXPORT_SYMBOL(drm_fb_helper_hotplug_event);
 
 /**
+<<<<<<< HEAD
  * drm_fb_helper_fbdev_setup() - Setup fbdev emulation
  * @dev: DRM device
  * @fb_helper: fbdev helper structure to set up
@@ -2930,6 +3743,8 @@ void drm_fb_helper_fbdev_teardown(struct drm_device *dev)
 EXPORT_SYMBOL(drm_fb_helper_fbdev_teardown);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * drm_fb_helper_lastclose - DRM driver lastclose helper for fbdev emulation
  * @dev: DRM device
  *
@@ -2982,24 +3797,42 @@ static int drm_fbdev_fb_release(struct fb_info *info, int user)
 static void drm_fbdev_cleanup(struct drm_fb_helper *fb_helper)
 {
 	struct fb_info *fbi = fb_helper->fbdev;
+<<<<<<< HEAD
 	struct fb_ops *fbops = NULL;
+=======
+>>>>>>> upstream/android-13
 	void *shadow = NULL;
 
 	if (!fb_helper->dev)
 		return;
 
+<<<<<<< HEAD
 	if (fbi && fbi->fbdefio) {
 		fb_deferred_io_cleanup(fbi);
 		shadow = fbi->screen_buffer;
 		fbops = fbi->fbops;
+=======
+	if (fbi) {
+		if (fbi->fbdefio)
+			fb_deferred_io_cleanup(fbi);
+		if (drm_fbdev_use_shadow_fb(fb_helper))
+			shadow = fbi->screen_buffer;
+>>>>>>> upstream/android-13
 	}
 
 	drm_fb_helper_fini(fb_helper);
 
+<<<<<<< HEAD
 	if (shadow) {
 		vfree(shadow);
 		kfree(fbops);
 	}
+=======
+	if (shadow)
+		vfree(shadow);
+	else if (fb_helper->buffer)
+		drm_client_buffer_vunmap(fb_helper->buffer);
+>>>>>>> upstream/android-13
 
 	drm_client_framebuffer_delete(fb_helper->buffer);
 }
@@ -3007,6 +3840,7 @@ static void drm_fbdev_cleanup(struct drm_fb_helper *fb_helper)
 static void drm_fbdev_release(struct drm_fb_helper *fb_helper)
 {
 	drm_fbdev_cleanup(fb_helper);
+<<<<<<< HEAD
 
 	/*
 	 * FIXME:
@@ -3017,6 +3851,10 @@ static void drm_fbdev_release(struct drm_fb_helper *fb_helper)
 		drm_client_release(&fb_helper->client);
 		kfree(fb_helper);
 	}
+=======
+	drm_client_release(&fb_helper->client);
+	kfree(fb_helper);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3038,18 +3876,226 @@ static int drm_fbdev_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 		return -ENODEV;
 }
 
+<<<<<<< HEAD
 static struct fb_ops drm_fbdev_fb_ops = {
+=======
+static bool drm_fbdev_use_iomem(struct fb_info *info)
+{
+	struct drm_fb_helper *fb_helper = info->par;
+	struct drm_client_buffer *buffer = fb_helper->buffer;
+
+	return !drm_fbdev_use_shadow_fb(fb_helper) && buffer->map.is_iomem;
+}
+
+static ssize_t fb_read_screen_base(struct fb_info *info, char __user *buf, size_t count,
+				   loff_t pos)
+{
+	const char __iomem *src = info->screen_base + pos;
+	size_t alloc_size = min_t(size_t, count, PAGE_SIZE);
+	ssize_t ret = 0;
+	int err = 0;
+	char *tmp;
+
+	tmp = kmalloc(alloc_size, GFP_KERNEL);
+	if (!tmp)
+		return -ENOMEM;
+
+	while (count) {
+		size_t c = min_t(size_t, count, alloc_size);
+
+		memcpy_fromio(tmp, src, c);
+		if (copy_to_user(buf, tmp, c)) {
+			err = -EFAULT;
+			break;
+		}
+
+		src += c;
+		buf += c;
+		ret += c;
+		count -= c;
+	}
+
+	kfree(tmp);
+
+	return ret ? ret : err;
+}
+
+static ssize_t fb_read_screen_buffer(struct fb_info *info, char __user *buf, size_t count,
+				     loff_t pos)
+{
+	const char *src = info->screen_buffer + pos;
+
+	if (copy_to_user(buf, src, count))
+		return -EFAULT;
+
+	return count;
+}
+
+static ssize_t drm_fbdev_fb_read(struct fb_info *info, char __user *buf,
+				 size_t count, loff_t *ppos)
+{
+	loff_t pos = *ppos;
+	size_t total_size;
+	ssize_t ret;
+
+	if (info->screen_size)
+		total_size = info->screen_size;
+	else
+		total_size = info->fix.smem_len;
+
+	if (pos >= total_size)
+		return 0;
+	if (count >= total_size)
+		count = total_size;
+	if (total_size - count < pos)
+		count = total_size - pos;
+
+	if (drm_fbdev_use_iomem(info))
+		ret = fb_read_screen_base(info, buf, count, pos);
+	else
+		ret = fb_read_screen_buffer(info, buf, count, pos);
+
+	if (ret > 0)
+		*ppos += ret;
+
+	return ret;
+}
+
+static ssize_t fb_write_screen_base(struct fb_info *info, const char __user *buf, size_t count,
+				    loff_t pos)
+{
+	char __iomem *dst = info->screen_base + pos;
+	size_t alloc_size = min_t(size_t, count, PAGE_SIZE);
+	ssize_t ret = 0;
+	int err = 0;
+	u8 *tmp;
+
+	tmp = kmalloc(alloc_size, GFP_KERNEL);
+	if (!tmp)
+		return -ENOMEM;
+
+	while (count) {
+		size_t c = min_t(size_t, count, alloc_size);
+
+		if (copy_from_user(tmp, buf, c)) {
+			err = -EFAULT;
+			break;
+		}
+		memcpy_toio(dst, tmp, c);
+
+		dst += c;
+		buf += c;
+		ret += c;
+		count -= c;
+	}
+
+	kfree(tmp);
+
+	return ret ? ret : err;
+}
+
+static ssize_t fb_write_screen_buffer(struct fb_info *info, const char __user *buf, size_t count,
+				      loff_t pos)
+{
+	char *dst = info->screen_buffer + pos;
+
+	if (copy_from_user(dst, buf, count))
+		return -EFAULT;
+
+	return count;
+}
+
+static ssize_t drm_fbdev_fb_write(struct fb_info *info, const char __user *buf,
+				  size_t count, loff_t *ppos)
+{
+	loff_t pos = *ppos;
+	size_t total_size;
+	ssize_t ret;
+	int err = 0;
+
+	if (info->screen_size)
+		total_size = info->screen_size;
+	else
+		total_size = info->fix.smem_len;
+
+	if (pos > total_size)
+		return -EFBIG;
+	if (count > total_size) {
+		err = -EFBIG;
+		count = total_size;
+	}
+	if (total_size - count < pos) {
+		if (!err)
+			err = -ENOSPC;
+		count = total_size - pos;
+	}
+
+	/*
+	 * Copy to framebuffer even if we already logged an error. Emulates
+	 * the behavior of the original fbdev implementation.
+	 */
+	if (drm_fbdev_use_iomem(info))
+		ret = fb_write_screen_base(info, buf, count, pos);
+	else
+		ret = fb_write_screen_buffer(info, buf, count, pos);
+
+	if (ret > 0)
+		*ppos += ret;
+
+	if (ret > 0)
+		drm_fb_helper_damage(info, 0, 0, info->var.xres_virtual, info->var.yres_virtual);
+
+	return ret ? ret : err;
+}
+
+static void drm_fbdev_fb_fillrect(struct fb_info *info,
+				  const struct fb_fillrect *rect)
+{
+	if (drm_fbdev_use_iomem(info))
+		drm_fb_helper_cfb_fillrect(info, rect);
+	else
+		drm_fb_helper_sys_fillrect(info, rect);
+}
+
+static void drm_fbdev_fb_copyarea(struct fb_info *info,
+				  const struct fb_copyarea *area)
+{
+	if (drm_fbdev_use_iomem(info))
+		drm_fb_helper_cfb_copyarea(info, area);
+	else
+		drm_fb_helper_sys_copyarea(info, area);
+}
+
+static void drm_fbdev_fb_imageblit(struct fb_info *info,
+				   const struct fb_image *image)
+{
+	if (drm_fbdev_use_iomem(info))
+		drm_fb_helper_cfb_imageblit(info, image);
+	else
+		drm_fb_helper_sys_imageblit(info, image);
+}
+
+static const struct fb_ops drm_fbdev_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 	.fb_open	= drm_fbdev_fb_open,
 	.fb_release	= drm_fbdev_fb_release,
 	.fb_destroy	= drm_fbdev_fb_destroy,
 	.fb_mmap	= drm_fbdev_fb_mmap,
+<<<<<<< HEAD
 	.fb_read	= drm_fb_helper_sys_read,
 	.fb_write	= drm_fb_helper_sys_write,
 	.fb_fillrect	= drm_fb_helper_sys_fillrect,
 	.fb_copyarea	= drm_fb_helper_sys_copyarea,
 	.fb_imageblit	= drm_fb_helper_sys_imageblit,
+=======
+	.fb_read	= drm_fbdev_fb_read,
+	.fb_write	= drm_fbdev_fb_write,
+	.fb_fillrect	= drm_fbdev_fb_fillrect,
+	.fb_copyarea	= drm_fbdev_fb_copyarea,
+	.fb_imageblit	= drm_fbdev_fb_imageblit,
+>>>>>>> upstream/android-13
 };
 
 static struct fb_deferred_io drm_fbdev_defio = {
@@ -3057,6 +4103,7 @@ static struct fb_deferred_io drm_fbdev_defio = {
 	.deferred_io	= drm_fb_helper_deferred_io,
 };
 
+<<<<<<< HEAD
 /**
  * drm_fb_helper_generic_probe - Generic fbdev emulation probe helper
  * @fb_helper: fbdev helper structure
@@ -3074,14 +4121,36 @@ int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
 				struct drm_fb_helper_surface_size *sizes)
 {
 	struct drm_client_dev *client = &fb_helper->client;
+=======
+/*
+ * This function uses the client API to create a framebuffer backed by a dumb buffer.
+ *
+ * The _sys_ versions are used for &fb_ops.fb_read, fb_write, fb_fillrect,
+ * fb_copyarea, fb_imageblit.
+ */
+static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
+				       struct drm_fb_helper_surface_size *sizes)
+{
+	struct drm_client_dev *client = &fb_helper->client;
+	struct drm_device *dev = fb_helper->dev;
+>>>>>>> upstream/android-13
 	struct drm_client_buffer *buffer;
 	struct drm_framebuffer *fb;
 	struct fb_info *fbi;
 	u32 format;
+<<<<<<< HEAD
 
 	DRM_DEBUG_KMS("surface width(%d), height(%d) and bpp(%d)\n",
 		      sizes->surface_width, sizes->surface_height,
 		      sizes->surface_bpp);
+=======
+	struct dma_buf_map map;
+	int ret;
+
+	drm_dbg_kms(dev, "surface width(%d), height(%d) and bpp(%d)\n",
+		    sizes->surface_width, sizes->surface_height,
+		    sizes->surface_bpp);
+>>>>>>> upstream/android-13
 
 	format = drm_mode_legacy_fb_format(sizes->surface_bpp, sizes->surface_depth);
 	buffer = drm_client_framebuffer_create(client, sizes->surface_width,
@@ -3097,6 +4166,7 @@ int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
 	if (IS_ERR(fbi))
 		return PTR_ERR(fbi);
 
+<<<<<<< HEAD
 	fbi->par = fb_helper;
 	fbi->fbops = &drm_fbdev_fb_ops;
 	fbi->screen_size = fb->height * fb->pitches[0];
@@ -3135,11 +4205,54 @@ int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
 		fbi->fbdefio = &drm_fbdev_defio;
 
 		fb_deferred_io_init(fbi);
+=======
+	fbi->fbops = &drm_fbdev_fb_ops;
+	fbi->screen_size = fb->height * fb->pitches[0];
+	fbi->fix.smem_len = fbi->screen_size;
+	fbi->flags = FBINFO_DEFAULT;
+
+	drm_fb_helper_fill_info(fbi, fb_helper, sizes);
+
+	if (drm_fbdev_use_shadow_fb(fb_helper)) {
+		fbi->screen_buffer = vzalloc(fbi->screen_size);
+		if (!fbi->screen_buffer)
+			return -ENOMEM;
+		fbi->flags |= FBINFO_VIRTFB | FBINFO_READS_FAST;
+
+		fbi->fbdefio = &drm_fbdev_defio;
+		fb_deferred_io_init(fbi);
+	} else {
+		/* buffer is mapped for HW framebuffer */
+		ret = drm_client_buffer_vmap(fb_helper->buffer, &map);
+		if (ret)
+			return ret;
+		if (map.is_iomem) {
+			fbi->screen_base = map.vaddr_iomem;
+		} else {
+			fbi->screen_buffer = map.vaddr;
+			fbi->flags |= FBINFO_VIRTFB;
+		}
+
+		/*
+		 * Shamelessly leak the physical address to user-space. As
+		 * page_to_phys() is undefined for I/O memory, warn in this
+		 * case.
+		 */
+#if IS_ENABLED(CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM)
+		if (drm_leak_fbdev_smem && fbi->fix.smem_start == 0 &&
+		    !drm_WARN_ON_ONCE(dev, map.is_iomem))
+			fbi->fix.smem_start =
+				page_to_phys(virt_to_page(fbi->screen_buffer));
+#endif
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_fb_helper_generic_probe);
+=======
+>>>>>>> upstream/android-13
 
 static const struct drm_fb_helper_funcs drm_fb_helper_generic_funcs = {
 	.fb_probe = drm_fb_helper_generic_probe,
@@ -3176,6 +4289,7 @@ static int drm_fbdev_client_hotplug(struct drm_client_dev *client)
 	if (dev->fb_helper)
 		return drm_fb_helper_hotplug_event(dev->fb_helper);
 
+<<<<<<< HEAD
 	if (!dev->mode_config.num_connector)
 		return 0;
 
@@ -3189,6 +4303,19 @@ static int drm_fbdev_client_hotplug(struct drm_client_dev *client)
 	if (ret)
 		goto err_cleanup;
 
+=======
+	if (!dev->mode_config.num_connector) {
+		drm_dbg_kms(dev, "No connectors found, will not create framebuffer!\n");
+		return 0;
+	}
+
+	drm_fb_helper_prepare(dev, fb_helper, &drm_fb_helper_generic_funcs);
+
+	ret = drm_fb_helper_init(dev, fb_helper);
+	if (ret)
+		goto err;
+
+>>>>>>> upstream/android-13
 	if (!drm_drv_uses_atomic_modeset(dev))
 		drm_helper_disable_unused_functions(dev);
 
@@ -3204,7 +4331,11 @@ err:
 	fb_helper->dev = NULL;
 	fb_helper->fbdev = NULL;
 
+<<<<<<< HEAD
 	DRM_DEV_ERROR(dev->dev, "fbdev: Failed to setup generic emulation (ret=%d)\n", ret);
+=======
+	drm_err(dev, "fbdev: Failed to setup generic emulation (ret=%d)\n", ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -3217,13 +4348,22 @@ static const struct drm_client_funcs drm_fbdev_client_funcs = {
 };
 
 /**
+<<<<<<< HEAD
  * drm_fb_helper_generic_fbdev_setup() - Setup generic fbdev emulation
+=======
+ * drm_fbdev_generic_setup() - Setup generic fbdev emulation
+>>>>>>> upstream/android-13
  * @dev: DRM device
  * @preferred_bpp: Preferred bits per pixel for the device.
  *                 @dev->mode_config.preferred_depth is used if this is zero.
  *
  * This function sets up generic fbdev emulation for drivers that supports
  * dumb buffers with a virtual address and that can be mmap'ed.
+<<<<<<< HEAD
+=======
+ * drm_fbdev_generic_setup() shall be called after the DRM driver registered
+ * the new DRM device with drm_dev_register().
+>>>>>>> upstream/android-13
  *
  * Restore, hotplug events and teardown are all taken care of. Drivers that do
  * suspend/resume need to call drm_fb_helper_set_suspend_unlocked() themselves.
@@ -3231,38 +4371,79 @@ static const struct drm_client_funcs drm_fbdev_client_funcs = {
  *
  * Drivers that set the dirty callback on their framebuffer will get a shadow
  * fbdev buffer that is blitted onto the real buffer. This is done in order to
+<<<<<<< HEAD
  * make deferred I/O work with all kinds of buffers.
+=======
+ * make deferred I/O work with all kinds of buffers. A shadow buffer can be
+ * requested explicitly by setting struct drm_mode_config.prefer_shadow or
+ * struct drm_mode_config.prefer_shadow_fbdev to true beforehand. This is
+ * required to use generic fbdev emulation with SHMEM helpers.
+>>>>>>> upstream/android-13
  *
  * This function is safe to call even when there are no connectors present.
  * Setup will be retried on the next hotplug event.
  *
+<<<<<<< HEAD
  * Returns:
  * Zero on success or negative error code on failure.
  */
 int drm_fbdev_generic_setup(struct drm_device *dev, unsigned int preferred_bpp)
+=======
+ * The fbdev is destroyed by drm_dev_unregister().
+ */
+void drm_fbdev_generic_setup(struct drm_device *dev,
+			     unsigned int preferred_bpp)
+>>>>>>> upstream/android-13
 {
 	struct drm_fb_helper *fb_helper;
 	int ret;
 
+<<<<<<< HEAD
 	if (!drm_fbdev_emulation)
 		return 0;
 
 	fb_helper = kzalloc(sizeof(*fb_helper), GFP_KERNEL);
 	if (!fb_helper)
 		return -ENOMEM;
+=======
+	drm_WARN(dev, !dev->registered, "Device has not been registered.\n");
+	drm_WARN(dev, dev->fb_helper, "fb_helper is already set!\n");
+
+	if (!drm_fbdev_emulation)
+		return;
+
+	fb_helper = kzalloc(sizeof(*fb_helper), GFP_KERNEL);
+	if (!fb_helper) {
+		drm_err(dev, "Failed to allocate fb_helper\n");
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	ret = drm_client_init(dev, &fb_helper->client, "fbdev", &drm_fbdev_client_funcs);
 	if (ret) {
 		kfree(fb_helper);
+<<<<<<< HEAD
 		return ret;
 	}
 
+=======
+		drm_err(dev, "Failed to register client: %d\n", ret);
+		return;
+	}
+
+	/*
+	 * FIXME: This mixes up depth with bpp, which results in a glorious
+	 * mess, resulting in some drivers picking wrong fbdev defaults and
+	 * others wrong preferred_depth defaults.
+	 */
+>>>>>>> upstream/android-13
 	if (!preferred_bpp)
 		preferred_bpp = dev->mode_config.preferred_depth;
 	if (!preferred_bpp)
 		preferred_bpp = 32;
 	fb_helper->preferred_bpp = preferred_bpp;
 
+<<<<<<< HEAD
 	drm_fbdev_client_hotplug(&fb_helper->client);
 
 	drm_client_add(&fb_helper->client);
@@ -3291,3 +4472,12 @@ int __init drm_fb_helper_modinit(void)
 	return 0;
 }
 EXPORT_SYMBOL(drm_fb_helper_modinit);
+=======
+	ret = drm_fbdev_client_hotplug(&fb_helper->client);
+	if (ret)
+		drm_dbg_kms(dev, "client hotplug ret=%d\n", ret);
+
+	drm_client_register(&fb_helper->client);
+}
+EXPORT_SYMBOL(drm_fbdev_generic_setup);
+>>>>>>> upstream/android-13

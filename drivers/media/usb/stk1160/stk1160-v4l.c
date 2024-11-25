@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * STK1160 driver
  *
@@ -7,6 +11,7 @@
  * Based on Easycap driver by R.M. Thomas
  *	Copyright (C) 2010 R.M. Thomas
  *	<rmthomas--a.t--sciolus.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -56,7 +63,10 @@ struct stk1160_decimate_ctrl {
 /* supported video standards */
 static struct stk1160_fmt format[] = {
 	{
+<<<<<<< HEAD
 		.name     = "16 bpp YUY2, 4:2:2, packed",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_UYVY,
 		.depth    = 16,
 	}
@@ -269,7 +279,11 @@ out_uninit:
 	stk1160_uninit_isoc(dev);
 out_stop_hw:
 	usb_set_interface(dev->udev, 0, 0);
+<<<<<<< HEAD
 	stk1160_clear_queue(dev);
+=======
+	stk1160_clear_queue(dev, VB2_BUF_STATE_QUEUED);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&dev->v4l_lock);
 
@@ -317,7 +331,11 @@ static int stk1160_stop_streaming(struct stk1160 *dev)
 
 	stk1160_stop_hw(dev);
 
+<<<<<<< HEAD
 	stk1160_clear_queue(dev);
+=======
+	stk1160_clear_queue(dev, VB2_BUF_STATE_ERROR);
+>>>>>>> upstream/android-13
 
 	stk1160_dbg("streaming stopped\n");
 
@@ -344,6 +362,7 @@ static int vidioc_querycap(struct file *file,
 {
 	struct stk1160 *dev = video_drvdata(file);
 
+<<<<<<< HEAD
 	strcpy(cap->driver, "stk1160");
 	strcpy(cap->card, "stk1160");
 	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
@@ -352,6 +371,11 @@ static int vidioc_querycap(struct file *file,
 		V4L2_CAP_STREAMING |
 		V4L2_CAP_READWRITE;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, "stk1160", sizeof(cap->driver));
+	strscpy(cap->card, "stk1160", sizeof(cap->card));
+	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -361,7 +385,10 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 	if (f->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, format[f->index].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = format[f->index].fourcc;
 	return 0;
 }
@@ -762,7 +789,11 @@ static const struct video_device v4l_template = {
 /********************************************************************/
 
 /* Must be called with both v4l_lock and vb_queue_lock hold */
+<<<<<<< HEAD
 void stk1160_clear_queue(struct stk1160 *dev)
+=======
+void stk1160_clear_queue(struct stk1160 *dev, enum vb2_buffer_state vb2_state)
+>>>>>>> upstream/android-13
 {
 	struct stk1160_buffer *buf;
 	unsigned long flags;
@@ -773,7 +804,11 @@ void stk1160_clear_queue(struct stk1160 *dev)
 		buf = list_first_entry(&dev->avail_bufs,
 			struct stk1160_buffer, list);
 		list_del(&buf->list);
+<<<<<<< HEAD
 		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
+=======
+		vb2_buffer_done(&buf->vb.vb2_buf, vb2_state);
+>>>>>>> upstream/android-13
 		stk1160_dbg("buffer [%p/%d] aborted\n",
 			    buf, buf->vb.vb2_buf.index);
 	}
@@ -783,7 +818,11 @@ void stk1160_clear_queue(struct stk1160 *dev)
 		buf = dev->isoc_ctl.buf;
 		dev->isoc_ctl.buf = NULL;
 
+<<<<<<< HEAD
 		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
+=======
+		vb2_buffer_done(&buf->vb.vb2_buf, vb2_state);
+>>>>>>> upstream/android-13
 		stk1160_dbg("buffer [%p/%d] aborted\n",
 			    buf, buf->vb.vb2_buf.index);
 	}
@@ -831,6 +870,11 @@ int stk1160_video_register(struct stk1160 *dev)
 
 	/* This will be used to set video_device parent */
 	dev->vdev.v4l2_dev = &dev->v4l2_dev;
+<<<<<<< HEAD
+=======
+	dev->vdev.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING |
+				V4L2_CAP_READWRITE;
+>>>>>>> upstream/android-13
 
 	/* NTSC is default */
 	dev->norm = V4L2_STD_NTSC_M;
@@ -845,7 +889,11 @@ int stk1160_video_register(struct stk1160 *dev)
 			dev->norm);
 
 	video_set_drvdata(&dev->vdev, dev);
+<<<<<<< HEAD
 	rc = video_register_device(&dev->vdev, VFL_TYPE_GRABBER, -1);
+=======
+	rc = video_register_device(&dev->vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (rc < 0) {
 		stk1160_err("video_register_device failed (%d)\n", rc);
 		return rc;

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
 
   Copyright(c) 2003 - 2006 Intel Corporation. All rights reserved.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
   published by the Free Software Foundation.
@@ -17,6 +22,8 @@
 
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
+=======
+>>>>>>> upstream/android-13
 
   Contact Information:
   Intel Linux Wireless <ilw@linux.intel.com>
@@ -462,7 +469,11 @@ struct tfd_command {
 	u8 index;
 	u8 length;
 	__le16 reserved;
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct tfd_data {
@@ -689,7 +700,11 @@ struct ipw_rx_frame {
 	// is identical)
 	u8 rtscts_seen;		// 0x1 RTS seen ; 0x2 CTS seen
 	__le16 length;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct ipw_rx_header {
@@ -1016,7 +1031,11 @@ struct ipw_cmd {	 /* XXX */
    * Incoming parameters listed 1-st, followed by outcoming params.
    * nParams=(len+3)/4+status_len
    */
+<<<<<<< HEAD
 	u32 param[0];
+=======
+	u32 param[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define STATUS_HCMD_ACTIVE      (1<<0)	/**< host command in progress */
@@ -1122,7 +1141,11 @@ struct ipw_fw_error {	 /* XXX */
 	u32 log_len;
 	struct ipw_error_elem *elem;
 	struct ipw_event *log;
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #ifdef CONFIG_IPW2200_PROMISCUOUS
@@ -1167,7 +1190,11 @@ struct ipw_rt_hdr {
 	s8 rt_dbmsignal;	/* signal in dbM, kluged to signed */
 	s8 rt_dbmnoise;
 	u8 rt_antenna;	/* antenna number */
+<<<<<<< HEAD
 	u8 payload[0];  /* payload... */
+=======
+	u8 payload[];  /* payload... */
+>>>>>>> upstream/android-13
 } __packed;
 #endif
 
@@ -1343,7 +1370,11 @@ struct ipw_priv {
 
 	s8 tx_power;
 
+<<<<<<< HEAD
 	/* Track time in suspend using CLOCK_BOOTIME */
+=======
+	/* Track time in suspend using CLOCK_BOOTTIME */
+>>>>>>> upstream/android-13
 	time64_t suspend_at;
 	time64_t suspend_time;
 
@@ -1396,14 +1427,22 @@ BIT_ARG16(x)
 
 #define IPW_DEBUG(level, fmt, args...) \
 do { if (ipw_debug_level & (level)) \
+<<<<<<< HEAD
   printk(KERN_DEBUG DRV_NAME": %c %s " fmt, \
          in_interrupt() ? 'I' : 'U', __func__ , ## args); } while (0)
+=======
+  printk(KERN_DEBUG DRV_NAME": %s " fmt, __func__ , ## args); } while (0)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IPW2200_DEBUG
 #define IPW_LL_DEBUG(level, fmt, args...) \
 do { if (ipw_debug_level & (level)) \
+<<<<<<< HEAD
   printk(KERN_DEBUG DRV_NAME": %c %s " fmt, \
          in_interrupt() ? 'I' : 'U', __func__ , ## args); } while (0)
+=======
+  printk(KERN_DEBUG DRV_NAME": %s " fmt, __func__ , ## args); } while (0)
+>>>>>>> upstream/android-13
 #else
 #define IPW_LL_DEBUG(level, fmt, args...) do {} while (0)
 #endif				/* CONFIG_IPW2200_DEBUG */

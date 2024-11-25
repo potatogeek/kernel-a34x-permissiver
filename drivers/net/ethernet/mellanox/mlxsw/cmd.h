@@ -317,6 +317,21 @@ MLXSW_ITEM64(cmd_mbox, query_fw, doorbell_page_offset, 0x40, 0, 64);
  */
 MLXSW_ITEM32(cmd_mbox, query_fw, doorbell_page_bar, 0x48, 30, 2);
 
+<<<<<<< HEAD
+=======
+/* cmd_mbox_query_fw_free_running_clock_offset
+ * The offset of the free running clock page
+ */
+MLXSW_ITEM64(cmd_mbox, query_fw, free_running_clock_offset, 0x50, 0, 64);
+
+/* cmd_mbox_query_fw_fr_rn_clk_bar
+ * PCI base address register (BAR) of the free running clock page
+ * 0: BAR 0
+ * 1: 64 bit BAR
+ */
+MLXSW_ITEM32(cmd_mbox, query_fw, fr_rn_clk_bar, 0x58, 30, 2);
+
+>>>>>>> upstream/android-13
 /* QUERY_BOARDINFO - Query Board Information
  * -----------------------------------------
  * OpMod == 0 (N/A), INMmod == 0 (N/A)
@@ -331,6 +346,26 @@ static inline int mlxsw_cmd_boardinfo(struct mlxsw_core *mlxsw_core,
 				  0, 0, false, out_mbox, MLXSW_CMD_MBOX_SIZE);
 }
 
+<<<<<<< HEAD
+=======
+/* cmd_mbox_xm_num_local_ports
+ * Number of local_ports connected to the xm.
+ * Each local port is a 4x
+ * Spectrum-2/3: 25G
+ * Spectrum-4: 50G
+ */
+MLXSW_ITEM32(cmd_mbox, boardinfo, xm_num_local_ports, 0x00, 4, 3);
+
+/* cmd_mbox_xm_exists
+ * An XM (eXtanded Mezanine, e.g. used for the XLT) is connected on the board.
+ */
+MLXSW_ITEM32(cmd_mbox, boardinfo, xm_exists, 0x00, 0, 1);
+
+/* cmd_mbox_xm_local_port_entry
+ */
+MLXSW_ITEM_BIT_ARRAY(cmd_mbox, boardinfo, xm_local_port_entry, 0x04, 4, 8);
+
+>>>>>>> upstream/android-13
 /* cmd_mbox_boardinfo_intapin
  * When PCIe interrupt messages are being used, this value is used for clearing
  * an interrupt. When using MSI-X, this register is not used.
@@ -645,6 +680,15 @@ MLXSW_ITEM32(cmd_mbox, config_profile, set_kvd_hash_double_size, 0x0C, 26, 1);
  */
 MLXSW_ITEM32(cmd_mbox, config_profile, set_cqe_version, 0x08, 0, 1);
 
+<<<<<<< HEAD
+=======
+/* cmd_mbox_config_set_kvh_xlt_cache_mode
+ * Capability bit. Setting a bit to 1 configures the profile
+ * according to the mailbox contents.
+ */
+MLXSW_ITEM32(cmd_mbox, config_profile, set_kvh_xlt_cache_mode, 0x08, 3, 1);
+
+>>>>>>> upstream/android-13
 /* cmd_mbox_config_profile_max_vepa_channels
  * Maximum number of VEPA channels per port (0 through 16)
  * 0 - multi-channel VEPA is disabled
@@ -771,6 +815,16 @@ MLXSW_ITEM32(cmd_mbox, config_profile, adaptive_routing_group_cap, 0x4C, 0, 16);
  */
 MLXSW_ITEM32(cmd_mbox, config_profile, arn, 0x50, 31, 1);
 
+<<<<<<< HEAD
+=======
+/* cmd_mbox_config_profile_kvh_xlt_cache_mode
+ * KVH XLT cache mode:
+ * 0 - XLT can use all KVH as best-effort
+ * 1 - XLT cache uses 1/2 KVH
+ */
+MLXSW_ITEM32(cmd_mbox, config_profile, kvh_xlt_cache_mode, 0x50, 8, 4);
+
+>>>>>>> upstream/android-13
 /* cmd_mbox_config_kvd_linear_size
  * KVD Linear Size
  * Valid for Spectrum only
@@ -893,6 +947,21 @@ static inline int mlxsw_cmd_sw2hw_rdq(struct mlxsw_core *mlxsw_core,
  */
 MLXSW_ITEM32(cmd_mbox, sw2hw_dq, cq, 0x00, 24, 8);
 
+<<<<<<< HEAD
+=======
+enum mlxsw_cmd_mbox_sw2hw_dq_sdq_lp {
+	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE,
+	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE,
+};
+
+/* cmd_mbox_sw2hw_dq_sdq_lp
+ * SDQ local Processing
+ * 0: local processing by wqe.lp
+ * 1: local processing (ignoring wqe.lp)
+ */
+MLXSW_ITEM32(cmd_mbox, sw2hw_dq, sdq_lp, 0x00, 23, 1);
+
+>>>>>>> upstream/android-13
 /* cmd_mbox_sw2hw_dq_sdq_tclass
  * SDQ: CPU Egress TClass
  * RDQ: Reserved

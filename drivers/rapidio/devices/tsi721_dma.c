@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DMA Engine support for Tsi721 PCIExpress-to-SRIO bridge
  *
  * Copyright (c) 2011-2014 Integrated Device Technology, Inc.
  * Alexandre Bounine <alexandre.bounine@idt.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,6 +21,8 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -90,9 +97,15 @@ static int tsi721_bdma_ch_init(struct tsi721_bdma_chan *bdma_chan, int bd_num)
 	 * Allocate space for DMA descriptors
 	 * (add an extra element for link descriptor)
 	 */
+<<<<<<< HEAD
 	bd_ptr = dma_zalloc_coherent(dev,
 				(bd_num + 1) * sizeof(struct tsi721_dma_desc),
 				&bd_phys, GFP_ATOMIC);
+=======
+	bd_ptr = dma_alloc_coherent(dev,
+				    (bd_num + 1) * sizeof(struct tsi721_dma_desc),
+				    &bd_phys, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!bd_ptr)
 		return -ENOMEM;
 
@@ -108,7 +121,11 @@ static int tsi721_bdma_ch_init(struct tsi721_bdma_chan *bdma_chan, int bd_num)
 	sts_size = ((bd_num + 1) >= TSI721_DMA_MINSTSSZ) ?
 					(bd_num + 1) : TSI721_DMA_MINSTSSZ;
 	sts_size = roundup_pow_of_two(sts_size);
+<<<<<<< HEAD
 	sts_ptr = dma_zalloc_coherent(dev,
+=======
+	sts_ptr = dma_alloc_coherent(dev,
+>>>>>>> upstream/android-13
 				     sts_size * sizeof(struct tsi721_dma_sts),
 				     &sts_phys, GFP_ATOMIC);
 	if (!sts_ptr) {

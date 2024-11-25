@@ -30,7 +30,11 @@
 #include <linux/ktime.h>
 #include <linux/spinlock.h>
 
+<<<<<<< HEAD
 #define RPC_IOSTATS_VERS	"1.0"
+=======
+#define RPC_IOSTATS_VERS	"1.1"
+>>>>>>> upstream/android-13
 
 struct rpc_iostats {
 	spinlock_t		om_lock;
@@ -66,6 +70,14 @@ struct rpc_iostats {
 	ktime_t			om_queue,	/* queued for xmit */
 				om_rtt,		/* RPC RTT */
 				om_execute;	/* RPC execution */
+<<<<<<< HEAD
+=======
+	/*
+	 * The count of operations that complete with tk_status < 0.
+	 * These statuses usually indicate error conditions.
+	 */
+	unsigned long           om_error_status;
+>>>>>>> upstream/android-13
 } ____cacheline_aligned;
 
 struct rpc_task;

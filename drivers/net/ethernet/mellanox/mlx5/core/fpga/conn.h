@@ -65,7 +65,11 @@ struct mlx5_fpga_conn {
 		int sgid_index;
 		struct mlx5_wq_qp wq;
 		struct mlx5_wq_ctrl wq_ctrl;
+<<<<<<< HEAD
 		struct mlx5_core_qp mqp;
+=======
+		u32 qpn;
+>>>>>>> upstream/android-13
 		struct {
 			spinlock_t lock; /* Protects all SQ state */
 			unsigned int pc;

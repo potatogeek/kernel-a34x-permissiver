@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Elo serial touchscreen driver
  *
  * Copyright (c) 2004 Vojtech Pavlik
  */
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+>>>>>>> upstream/android-13
 
 /*
  * This driver can handle serial Elo touchscreens using either the Elo standard
@@ -354,7 +361,11 @@ static int elo_connect(struct serio *serio, struct serio_driver *drv)
 
 	case 1: /* 6-byte protocol */
 		input_set_abs_params(input_dev, ABS_PRESSURE, 0, 15, 0, 0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 2: /* 4-byte protocol */
 		input_set_abs_params(input_dev, ABS_X, 96, 4000, 0, 0);

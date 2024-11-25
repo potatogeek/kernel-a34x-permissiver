@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    cx231xx-video.c - driver for Conexant Cx23100/101/102
 		     USB video capture devices
@@ -7,6 +11,7 @@
 	Based on cx23885 driver
 	Based on cx88 driver
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx231xx.h"
@@ -70,10 +77,17 @@ MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
 MODULE_VERSION(CX231XX_VERSION);
 
+<<<<<<< HEAD
 static unsigned int card[]     = {[0 ... (CX231XX_MAXBOARDS - 1)] = UNSET };
 static unsigned int video_nr[] = {[0 ... (CX231XX_MAXBOARDS - 1)] = UNSET };
 static unsigned int vbi_nr[]   = {[0 ... (CX231XX_MAXBOARDS - 1)] = UNSET };
 static unsigned int radio_nr[] = {[0 ... (CX231XX_MAXBOARDS - 1)] = UNSET };
+=======
+static unsigned int card[]     = {[0 ... (CX231XX_MAXBOARDS - 1)] = -1U };
+static unsigned int video_nr[] = {[0 ... (CX231XX_MAXBOARDS - 1)] = -1U };
+static unsigned int vbi_nr[]   = {[0 ... (CX231XX_MAXBOARDS - 1)] = -1U };
+static unsigned int radio_nr[] = {[0 ... (CX231XX_MAXBOARDS - 1)] = -1U };
+>>>>>>> upstream/android-13
 
 module_param_array(card, int, NULL, 0444);
 module_param_array(video_nr, int, NULL, 0444);
@@ -92,7 +106,10 @@ MODULE_PARM_DESC(video_debug, "enable debug messages [video]");
 /* supported video standards */
 static struct cx231xx_fmt format[] = {
 	{
+<<<<<<< HEAD
 	 .name = "16bpp YUY2, 4:2:2, packed",
+=======
+>>>>>>> upstream/android-13
 	 .fourcc = V4L2_PIX_FMT_YUYV,
 	 .depth = 16,
 	 .reg = 0,
@@ -179,18 +196,31 @@ static inline void buffer_filled(struct cx231xx *dev,
 				 struct cx231xx_buffer *buf)
 {
 	/* Advice that buffer was filled */
+<<<<<<< HEAD
 	cx231xx_isocdbg("[%p/%d] wakeup\n", buf, buf->vb.i);
 	buf->vb.state = VIDEOBUF_DONE;
 	buf->vb.field_count++;
 	v4l2_get_timestamp(&buf->vb.ts);
+=======
+	cx231xx_isocdbg("[%p/%d] wakeup\n", buf, buf->vb.vb2_buf.index);
+	buf->vb.sequence = dma_q->sequence++;
+	buf->vb.field = V4L2_FIELD_INTERLACED;
+	buf->vb.vb2_buf.timestamp = ktime_get_ns();
+	vb2_set_plane_payload(&buf->vb.vb2_buf, 0, dev->size);
+>>>>>>> upstream/android-13
 
 	if (dev->USE_ISO)
 		dev->video_mode.isoc_ctl.buf = NULL;
 	else
 		dev->video_mode.bulk_ctl.buf = NULL;
 
+<<<<<<< HEAD
 	list_del(&buf->vb.queue);
 	wake_up(&buf->vb.done);
+=======
+	list_del(&buf->list);
+	vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 }
 
 static inline void print_err_status(struct cx231xx *dev, int packet, int status)
@@ -254,11 +284,19 @@ static inline void get_next_buf(struct cx231xx_dmaqueue *dma_q,
 	}
 
 	/* Get the next buffer */
+<<<<<<< HEAD
 	*buf = list_entry(dma_q->active.next, struct cx231xx_buffer, vb.queue);
 
 	/* Cleans up buffer - Useful for testing for frame/URB loss */
 	outp = videobuf_to_vmalloc(&(*buf)->vb);
 	memset(outp, 0, (*buf)->vb.size);
+=======
+	*buf = list_entry(dma_q->active.next, struct cx231xx_buffer, list);
+
+	/* Cleans up buffer - Useful for testing for frame/URB loss */
+	outp = vb2_plane_vaddr(&(*buf)->vb.vb2_buf, 0);
+	memset(outp, 0, dev->size);
+>>>>>>> upstream/android-13
 
 	if (dev->USE_ISO)
 		dev->video_mode.isoc_ctl.buf = *buf;
@@ -666,7 +704,11 @@ int cx231xx_do_copy(struct cx231xx *dev, struct cx231xx_dmaqueue *dma_q,
 	if (buf == NULL)
 		return -1;
 
+<<<<<<< HEAD
 	p_out_buffer = videobuf_to_vmalloc(&buf->vb);
+=======
+	p_out_buffer = vb2_plane_vaddr(&buf->vb.vb2_buf, 0);
+>>>>>>> upstream/android-13
 
 	current_line_bytes_copied = _line_size - dma_q->bytes_left_in_line;
 
@@ -685,7 +727,11 @@ int cx231xx_do_copy(struct cx231xx *dev, struct cx231xx_dmaqueue *dma_q,
 	lencopy = dma_q->bytes_left_in_line > bytes_to_copy ?
 		  bytes_to_copy : dma_q->bytes_left_in_line;
 
+<<<<<<< HEAD
 	if ((u8 *)(startwrite + lencopy) > (u8 *)(p_out_buffer + buf->vb.size))
+=======
+	if ((u8 *)(startwrite + lencopy) > (u8 *)(p_out_buffer + dev->size))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* The below copies the UYVY data straight into video buffer */
@@ -721,6 +767,7 @@ u8 cx231xx_is_buffer_done(struct cx231xx *dev, struct cx231xx_dmaqueue *dma_q)
 	Videobuf operations
    ------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static int
 buffer_setup(struct videobuf_queue *vq, unsigned int *count, unsigned int *size)
 {
@@ -736,10 +783,28 @@ buffer_setup(struct videobuf_queue *vq, unsigned int *count, unsigned int *size)
 
 
 	cx231xx_enable_analog_tuner(dev);
+=======
+static int queue_setup(struct vb2_queue *vq,
+		       unsigned int *nbuffers, unsigned int *nplanes,
+		       unsigned int sizes[], struct device *alloc_devs[])
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+
+	dev->size = (dev->width * dev->height * dev->format->depth + 7) >> 3;
+
+	if (vq->num_buffers + *nbuffers < CX231XX_MIN_BUF)
+		*nbuffers = CX231XX_MIN_BUF - vq->num_buffers;
+
+	if (*nplanes)
+		return sizes[0] < dev->size ? -EINVAL : 0;
+	*nplanes = 1;
+	sizes[0] = dev->size;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /* This is called *without* dev->slock held; please keep it that way */
 static void free_buffer(struct videobuf_queue *vq, struct cx231xx_buffer *buf)
 {
@@ -864,6 +929,81 @@ static const struct videobuf_queue_ops cx231xx_video_qops = {
 	.buf_prepare = buffer_prepare,
 	.buf_queue = buffer_queue,
 	.buf_release = buffer_release,
+=======
+static void buffer_queue(struct vb2_buffer *vb)
+{
+	struct cx231xx_buffer *buf =
+	    container_of(vb, struct cx231xx_buffer, vb.vb2_buf);
+	struct cx231xx *dev = vb2_get_drv_priv(vb->vb2_queue);
+	struct cx231xx_dmaqueue *vidq = &dev->video_mode.vidq;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->video_mode.slock, flags);
+	list_add_tail(&buf->list, &vidq->active);
+	spin_unlock_irqrestore(&dev->video_mode.slock, flags);
+}
+
+static void return_all_buffers(struct cx231xx *dev,
+			       enum vb2_buffer_state state)
+{
+	struct cx231xx_dmaqueue *vidq = &dev->video_mode.vidq;
+	struct cx231xx_buffer *buf, *node;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->video_mode.slock, flags);
+	if (dev->USE_ISO)
+		dev->video_mode.isoc_ctl.buf = NULL;
+	else
+		dev->video_mode.bulk_ctl.buf = NULL;
+	list_for_each_entry_safe(buf, node, &vidq->active, list) {
+		list_del(&buf->list);
+		vb2_buffer_done(&buf->vb.vb2_buf, state);
+	}
+	spin_unlock_irqrestore(&dev->video_mode.slock, flags);
+}
+
+static int start_streaming(struct vb2_queue *vq, unsigned int count)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+	struct cx231xx_dmaqueue *vidq = &dev->video_mode.vidq;
+	int ret = 0;
+
+	vidq->sequence = 0;
+	dev->mode_tv = 0;
+
+	cx231xx_enable_analog_tuner(dev);
+	if (dev->USE_ISO)
+		ret = cx231xx_init_isoc(dev, CX231XX_NUM_PACKETS,
+					CX231XX_NUM_BUFS,
+					dev->video_mode.max_pkt_size,
+					cx231xx_isoc_copy);
+	else
+		ret = cx231xx_init_bulk(dev, CX231XX_NUM_PACKETS,
+					CX231XX_NUM_BUFS,
+					dev->video_mode.max_pkt_size,
+					cx231xx_bulk_copy);
+	if (ret)
+		return_all_buffers(dev, VB2_BUF_STATE_QUEUED);
+	call_all(dev, video, s_stream, 1);
+	return ret;
+}
+
+static void stop_streaming(struct vb2_queue *vq)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+
+	call_all(dev, video, s_stream, 0);
+	return_all_buffers(dev, VB2_BUF_STATE_ERROR);
+}
+
+static struct vb2_ops cx231xx_video_qops = {
+	.queue_setup		= queue_setup,
+	.buf_queue		= buffer_queue,
+	.start_streaming	= start_streaming,
+	.stop_streaming		= stop_streaming,
+	.wait_prepare		= vb2_ops_wait_prepare,
+	.wait_finish		= vb2_ops_wait_finish,
+>>>>>>> upstream/android-13
 };
 
 /*********************  v4l2 interface  **************************************/
@@ -885,6 +1025,7 @@ void video_mux(struct cx231xx *dev, int index)
 	cx231xx_do_mode_ctrl_overrides(dev);
 }
 
+<<<<<<< HEAD
 /* Usage lock check functions */
 static int res_get(struct cx231xx_fh *fh)
 {
@@ -937,6 +1078,8 @@ static int check_dev(struct cx231xx *dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------------
 	IOCTL vidioc handling
    ------------------------------------------------------------------*/
@@ -944,8 +1087,12 @@ static int check_dev(struct cx231xx *dev)
 static int vidioc_g_fmt_vid_cap(struct file *file, void *priv,
 				struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	f->fmt.pix.width = dev->width;
 	f->fmt.pix.height = dev->height;
@@ -973,8 +1120,12 @@ static struct cx231xx_fmt *format_by_fourcc(unsigned int fourcc)
 static int vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 				  struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 	unsigned int width = f->fmt.pix.width;
 	unsigned int height = f->fmt.pix.height;
 	unsigned int maxw = norm_maxw(dev);
@@ -1006,6 +1157,7 @@ static int vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
 				struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
 	int rc;
@@ -1025,10 +1177,24 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
 		return -EINVAL;
 
 	if (videobuf_queue_is_busy(&fh->vb_vidq)) {
+=======
+	struct cx231xx *dev = video_drvdata(file);
+	struct v4l2_subdev_format format = {
+		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+	};
+	int rc;
+
+	rc = vidioc_try_fmt_vid_cap(file, priv, f);
+	if (rc)
+		return rc;
+
+	if (vb2_is_busy(&dev->vidq)) {
+>>>>>>> upstream/android-13
 		dev_err(dev->dev, "%s: queue busy\n", __func__);
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	if (dev->stream_on && !fh->stream_on) {
 		dev_err(dev->dev,
 			"%s: device in use by another fh\n", __func__);
@@ -1039,6 +1205,12 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
 	dev->width = f->fmt.pix.width;
 	dev->height = f->fmt.pix.height;
 	dev->format = fmt;
+=======
+	/* set new image size */
+	dev->width = f->fmt.pix.width;
+	dev->height = f->fmt.pix.height;
+	dev->format = format_by_fourcc(f->fmt.pix.pixelformat);
+>>>>>>> upstream/android-13
 
 	v4l2_fill_mbus_format(&format.format, &f->fmt.pix, MEDIA_BUS_FMT_FIXED);
 	call_all(dev, pad, set_fmt, NULL, &format);
@@ -1049,8 +1221,12 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
 
 static int vidioc_g_std(struct file *file, void *priv, v4l2_std_id *id)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	*id = dev->norm;
 	return 0;
@@ -1058,6 +1234,7 @@ static int vidioc_g_std(struct file *file, void *priv, v4l2_std_id *id)
 
 static int vidioc_s_std(struct file *file, void *priv, v4l2_std_id norm)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
 	struct v4l2_subdev_format format = {
@@ -1068,11 +1245,21 @@ static int vidioc_s_std(struct file *file, void *priv, v4l2_std_id norm)
 	rc = check_dev(dev);
 	if (rc < 0)
 		return rc;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+	struct v4l2_subdev_format format = {
+		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+	};
+>>>>>>> upstream/android-13
 
 	if (dev->norm == norm)
 		return 0;
 
+<<<<<<< HEAD
 	if (videobuf_queue_is_busy(&fh->vb_vidq))
+=======
+	if (vb2_is_busy(&dev->vidq))
+>>>>>>> upstream/android-13
 		return -EBUSY;
 
 	dev->norm = norm;
@@ -1134,7 +1321,11 @@ void cx231xx_v4l2_create_entities(struct cx231xx *dev)
 			/* The DVB core will handle it */
 			if (dev->tuner_type == TUNER_ABSENT)
 				continue;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default: /* just to shut up a gcc warning */
 			ent->function = MEDIA_ENT_F_CONN_RF;
 			break;
@@ -1154,8 +1345,12 @@ void cx231xx_v4l2_create_entities(struct cx231xx *dev)
 int cx231xx_enum_input(struct file *file, void *priv,
 			     struct v4l2_input *i)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 	u32 gen_stat;
 	unsigned int n;
 	int ret;
@@ -1169,7 +1364,11 @@ int cx231xx_enum_input(struct file *file, void *priv,
 	i->index = n;
 	i->type = V4L2_INPUT_TYPE_CAMERA;
 
+<<<<<<< HEAD
 	strcpy(i->name, iname[INPUT(n)->type]);
+=======
+	strscpy(i->name, iname[INPUT(n)->type], sizeof(i->name));
+>>>>>>> upstream/android-13
 
 	if ((CX231XX_VMUX_TELEVISION == INPUT(n)->type) ||
 	    (CX231XX_VMUX_CABLE == INPUT(n)->type))
@@ -1194,8 +1393,12 @@ int cx231xx_enum_input(struct file *file, void *priv,
 
 int cx231xx_g_input(struct file *file, void *priv, unsigned int *i)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	*i = dev->video_input;
 
@@ -1204,6 +1407,7 @@ int cx231xx_g_input(struct file *file, void *priv, unsigned int *i)
 
 int cx231xx_s_input(struct file *file, void *priv, unsigned int i)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
 	int rc;
@@ -1212,6 +1416,11 @@ int cx231xx_s_input(struct file *file, void *priv, unsigned int i)
 	rc = check_dev(dev);
 	if (rc < 0)
 		return rc;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+
+	dev->mode_tv = 0;
+>>>>>>> upstream/android-13
 
 	if (i >= MAX_CX231XX_INPUT)
 		return -EINVAL;
@@ -1233,6 +1442,7 @@ int cx231xx_s_input(struct file *file, void *priv, unsigned int i)
 
 int cx231xx_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
 	int rc;
@@ -1240,11 +1450,18 @@ int cx231xx_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t)
 	rc = check_dev(dev);
 	if (rc < 0)
 		return rc;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	if (0 != t->index)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(t->name, "Tuner");
+=======
+	strscpy(t->name, "Tuner", sizeof(t->name));
+>>>>>>> upstream/android-13
 
 	t->type = V4L2_TUNER_ANALOG_TV;
 	t->capability = V4L2_TUNER_CAP_NORM;
@@ -1257,6 +1474,7 @@ int cx231xx_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t)
 
 int cx231xx_s_tuner(struct file *file, void *priv, const struct v4l2_tuner *t)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
 	int rc;
@@ -1270,14 +1488,22 @@ int cx231xx_s_tuner(struct file *file, void *priv, const struct v4l2_tuner *t)
 #if 0
 	call_all(dev, tuner, s_tuner, t);
 #endif
+=======
+	if (0 != t->index)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int cx231xx_g_frequency(struct file *file, void *priv,
 			      struct v4l2_frequency *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	if (f->tuner)
 		return -EINVAL;
@@ -1290,34 +1516,69 @@ int cx231xx_g_frequency(struct file *file, void *priv,
 int cx231xx_s_frequency(struct file *file, void *priv,
 			      const struct v4l2_frequency *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
 	struct v4l2_frequency new_freq = *f;
 	int rc;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+	struct v4l2_frequency new_freq = *f;
+	int rc, need_if_freq = 0;
+>>>>>>> upstream/android-13
 	u32 if_frequency = 5400000;
 
 	dev_dbg(dev->dev,
 		"Enter vidioc_s_frequency()f->frequency=%d;f->type=%d\n",
 		f->frequency, f->type);
 
+<<<<<<< HEAD
 	rc = check_dev(dev);
 	if (rc < 0)
 		return rc;
 
+=======
+>>>>>>> upstream/android-13
 	if (0 != f->tuner)
 		return -EINVAL;
 
 	/* set pre channel change settings in DIF first */
 	rc = cx231xx_tuner_pre_channel_change(dev);
 
+<<<<<<< HEAD
 	call_all(dev, tuner, s_frequency, f);
 	call_all(dev, tuner, g_frequency, &new_freq);
 	dev->ctl_freq = new_freq.frequency;
+=======
+	switch (dev->model) { /* i2c device tuners */
+	case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
+	case CX231XX_BOARD_HAUPPAUGE_935C:
+	case CX231XX_BOARD_HAUPPAUGE_955Q:
+	case CX231XX_BOARD_HAUPPAUGE_975:
+	case CX231XX_BOARD_EVROMEDIA_FULL_HYBRID_FULLHD:
+		if (dev->cx231xx_set_analog_freq)
+			dev->cx231xx_set_analog_freq(dev, f->frequency);
+		dev->ctl_freq = f->frequency;
+		need_if_freq = 1;
+		break;
+	default:
+		call_all(dev, tuner, s_frequency, f);
+		call_all(dev, tuner, g_frequency, &new_freq);
+		dev->ctl_freq = new_freq.frequency;
+		break;
+	}
+
+	pr_debug("%s() %u  :  %u\n", __func__, f->frequency, dev->ctl_freq);
+>>>>>>> upstream/android-13
 
 	/* set post channel change settings in DIF first */
 	rc = cx231xx_tuner_post_channel_change(dev);
 
+<<<<<<< HEAD
 	if (dev->tuner_type == TUNER_NXP_TDA18271) {
+=======
+	if (need_if_freq || dev->tuner_type == TUNER_NXP_TDA18271) {
+>>>>>>> upstream/android-13
 		if (dev->norm & (V4L2_STD_MN | V4L2_STD_NTSC_443))
 			if_frequency = 5400000;  /*5.4MHz	*/
 		else if (dev->norm & V4L2_STD_B)
@@ -1354,6 +1615,7 @@ int cx231xx_g_chip_info(struct file *file, void *fh,
 	case 0:	/* Cx231xx - internal registers */
 		return 0;
 	case 1:	/* AFE - read byte */
+<<<<<<< HEAD
 		strlcpy(chip->name, "AFE (byte)", sizeof(chip->name));
 		return 0;
 	case 2:	/* Video Block - read byte */
@@ -1370,6 +1632,24 @@ int cx231xx_g_chip_info(struct file *file, void *fh,
 		return 0;
 	case 6: /* I2S Block - read dword */
 		strlcpy(chip->name, "I2S (dword)", sizeof(chip->name));
+=======
+		strscpy(chip->name, "AFE (byte)", sizeof(chip->name));
+		return 0;
+	case 2:	/* Video Block - read byte */
+		strscpy(chip->name, "Video (byte)", sizeof(chip->name));
+		return 0;
+	case 3:	/* I2S block - read byte */
+		strscpy(chip->name, "I2S (byte)", sizeof(chip->name));
+		return 0;
+	case 4: /* AFE - read dword */
+		strscpy(chip->name, "AFE (dword)", sizeof(chip->name));
+		return 0;
+	case 5: /* Video Block - read dword */
+		strscpy(chip->name, "Video (dword)", sizeof(chip->name));
+		return 0;
+	case 6: /* I2S Block - read dword */
+		strscpy(chip->name, "I2S (dword)", sizeof(chip->name));
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	return -EINVAL;
@@ -1378,8 +1658,12 @@ int cx231xx_g_chip_info(struct file *file, void *fh,
 int cx231xx_g_register(struct file *file, void *priv,
 			     struct v4l2_dbg_register *reg)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 	int ret;
 	u8 value[4] = { 0, 0, 0, 0 };
 	u32 data = 0;
@@ -1437,8 +1721,12 @@ int cx231xx_g_register(struct file *file, void *priv,
 int cx231xx_s_register(struct file *file, void *priv,
 			     const struct v4l2_dbg_register *reg)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 	int ret;
 	u8 data[4] = { 0, 0, 0, 0 };
 
@@ -1482,6 +1770,7 @@ int cx231xx_s_register(struct file *file, void *priv,
 }
 #endif
 
+<<<<<<< HEAD
 static int vidioc_cropcap(struct file *file, void *priv,
 			  struct v4l2_cropcap *cc)
 {
@@ -1499,10 +1788,24 @@ static int vidioc_cropcap(struct file *file, void *priv,
 	cc->defrect = cc->bounds;
 	cc->pixelaspect.numerator = is_50hz ? 54 : 11;
 	cc->pixelaspect.denominator = is_50hz ? 59 : 10;
+=======
+static int vidioc_g_pixelaspect(struct file *file, void *priv,
+				int type, struct v4l2_fract *f)
+{
+	struct cx231xx *dev = video_drvdata(file);
+	bool is_50hz = dev->norm & V4L2_STD_625_50;
+
+	if (type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	f->numerator = is_50hz ? 54 : 11;
+	f->denominator = is_50hz ? 59 : 10;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vidioc_streamon(struct file *file, void *priv,
 			   enum v4l2_buf_type type)
 {
@@ -1543,12 +1846,34 @@ static int vidioc_streamoff(struct file *file, void *priv,
 	videobuf_streamoff(&fh->vb_vidq);
 	res_free(fh);
 
+=======
+static int vidioc_g_selection(struct file *file, void *priv,
+			      struct v4l2_selection *s)
+{
+	struct cx231xx *dev = video_drvdata(file);
+
+	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+		s->r.left = 0;
+		s->r.top = 0;
+		s->r.width = dev->width;
+		s->r.height = dev->height;
+		break;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int cx231xx_querycap(struct file *file, void *priv,
 			   struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	struct video_device *vdev = video_devdata(file);
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
@@ -1569,11 +1894,35 @@ int cx231xx_querycap(struct file *file, void *priv,
 	if (dev->tuner_type != TUNER_ABSENT)
 		cap->device_caps |= V4L2_CAP_TUNER;
 	cap->capabilities = cap->device_caps | V4L2_CAP_READWRITE |
+=======
+	struct cx231xx *dev = video_drvdata(file);
+
+	strscpy(cap->driver, "cx231xx", sizeof(cap->driver));
+	strscpy(cap->card, cx231xx_boards[dev->model].name, sizeof(cap->card));
+	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
+	cap->capabilities = V4L2_CAP_READWRITE |
+>>>>>>> upstream/android-13
 		V4L2_CAP_VBI_CAPTURE | V4L2_CAP_VIDEO_CAPTURE |
 		V4L2_CAP_STREAMING | V4L2_CAP_DEVICE_CAPS;
 	if (video_is_registered(&dev->radio_dev))
 		cap->capabilities |= V4L2_CAP_RADIO;
 
+<<<<<<< HEAD
+=======
+	switch (dev->model) {
+	case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
+	case CX231XX_BOARD_HAUPPAUGE_935C:
+	case CX231XX_BOARD_HAUPPAUGE_955Q:
+	case CX231XX_BOARD_HAUPPAUGE_975:
+	case CX231XX_BOARD_EVROMEDIA_FULL_HYBRID_FULLHD:
+		cap->capabilities |= V4L2_CAP_TUNER;
+		break;
+	default:
+		if (dev->tuner_type != TUNER_ABSENT)
+			cap->capabilities |= V4L2_CAP_TUNER;
+		break;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1583,7 +1932,10 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void *priv,
 	if (unlikely(f->index >= ARRAY_SIZE(format)))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, format[f->index].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = format[f->index].fourcc;
 
 	return 0;
@@ -1594,8 +1946,12 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void *priv,
 static int vidioc_g_fmt_vbi_cap(struct file *file, void *priv,
 				struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	f->fmt.vbi.sampling_rate = 6750000 * 4;
 	f->fmt.vbi.samples_per_line = VBI_LINE_LENGTH;
@@ -1617,8 +1973,12 @@ static int vidioc_g_fmt_vbi_cap(struct file *file, void *priv,
 static int vidioc_try_fmt_vbi_cap(struct file *file, void *priv,
 				  struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	f->fmt.vbi.sampling_rate = 6750000 * 4;
 	f->fmt.vbi.samples_per_line = VBI_LINE_LENGTH;
@@ -1641,6 +2001,7 @@ static int vidioc_try_fmt_vbi_cap(struct file *file, void *priv,
 static int vidioc_s_fmt_vbi_cap(struct file *file, void *priv,
 				  struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = priv;
 	struct cx231xx *dev = fh->dev;
 
@@ -1705,18 +2066,31 @@ static int vidioc_dqbuf(struct file *file, void *priv, struct v4l2_buffer *b)
 	return videobuf_dqbuf(&fh->vb_vidq, b, file->f_flags & O_NONBLOCK);
 }
 
+=======
+	return vidioc_try_fmt_vbi_cap(file, priv, f);
+}
+
+>>>>>>> upstream/android-13
 /* ----------------------------------------------------------- */
 /* RADIO ESPECIFIC IOCTLS                                      */
 /* ----------------------------------------------------------- */
 
 static int radio_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t)
 {
+<<<<<<< HEAD
 	struct cx231xx *dev = ((struct cx231xx_fh *)priv)->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	if (t->index)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(t->name, "Radio");
+=======
+	strscpy(t->name, "Radio", sizeof(t->name));
+>>>>>>> upstream/android-13
 
 	call_all(dev, tuner, g_tuner, t);
 
@@ -1724,7 +2098,11 @@ static int radio_g_tuner(struct file *file, void *priv, struct v4l2_tuner *t)
 }
 static int radio_s_tuner(struct file *file, void *priv, const struct v4l2_tuner *t)
 {
+<<<<<<< HEAD
 	struct cx231xx *dev = ((struct cx231xx_fh *)priv)->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	if (t->index)
 		return -EINVAL;
@@ -1740,6 +2118,7 @@ static int radio_s_tuner(struct file *file, void *priv, const struct v4l2_tuner 
  */
 static int cx231xx_v4l2_open(struct file *filp)
 {
+<<<<<<< HEAD
 	int radio = 0;
 	struct video_device *vdev = video_devdata(filp);
 	struct cx231xx *dev = video_drvdata(filp);
@@ -1786,6 +2165,22 @@ static int cx231xx_v4l2_open(struct file *filp)
 	v4l2_fh_init(&fh->fh, vdev);
 
 	if (fh->type == V4L2_BUF_TYPE_VIDEO_CAPTURE && dev->users == 0) {
+=======
+	struct video_device *vdev = video_devdata(filp);
+	struct cx231xx *dev = video_drvdata(filp);
+	int ret;
+
+	if (mutex_lock_interruptible(&dev->lock))
+		return -ERESTARTSYS;
+
+	ret = v4l2_fh_open(filp);
+	if (ret) {
+		mutex_unlock(&dev->lock);
+		return ret;
+	}
+
+	if (dev->users++ == 0) {
+>>>>>>> upstream/android-13
 		/* Power up in Analog TV mode */
 		if (dev->board.external_av)
 			cx231xx_set_power_mode(dev,
@@ -1793,10 +2188,13 @@ static int cx231xx_v4l2_open(struct file *filp)
 		else
 			cx231xx_set_power_mode(dev, POLARIS_AVMODE_ANALOGT_TV);
 
+<<<<<<< HEAD
 #if 0
 		cx231xx_set_mode(dev, CX231XX_ANALOG_MODE);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 		/* set video alternate setting */
 		cx231xx_set_video_alternate(dev);
 
@@ -1806,15 +2204,22 @@ static int cx231xx_v4l2_open(struct file *filp)
 
 		/* device needs to be initialized before isoc transfer */
 		dev->video_input = dev->video_input > 2 ? 2 : dev->video_input;
+<<<<<<< HEAD
 
 	}
 	if (radio) {
+=======
+	}
+
+	if (vdev->vfl_type == VFL_TYPE_RADIO) {
+>>>>>>> upstream/android-13
 		cx231xx_videodbg("video_open: setting radio device\n");
 
 		/* cx231xx_start_radio(dev); */
 
 		call_all(dev, tuner, s_radio);
 	}
+<<<<<<< HEAD
 
 	dev->users++;
 
@@ -1838,13 +2243,25 @@ static int cx231xx_v4l2_open(struct file *filp)
 	mutex_unlock(&dev->lock);
 	v4l2_fh_add(&fh->fh);
 
+=======
+	if (vdev->vfl_type == VFL_TYPE_VBI) {
+		/* Set the required alternate setting  VBI interface works in
+		   Bulk mode only */
+		cx231xx_set_alt_setting(dev, INDEX_VANC, 0);
+	}
+	mutex_unlock(&dev->lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /*
  * cx231xx_realease_resources()
  * unregisters the v4l2,i2c and usb devices
+<<<<<<< HEAD
  * called when the device gets disconected or at module unload
+=======
+ * called when the device gets disconnected or at module unload
+>>>>>>> upstream/android-13
 */
 void cx231xx_release_analog_resources(struct cx231xx *dev)
 {
@@ -1878,6 +2295,7 @@ void cx231xx_release_analog_resources(struct cx231xx *dev)
  */
 static int cx231xx_close(struct file *filp)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = filp->private_data;
 	struct cx231xx *dev = fh->dev;
 
@@ -1940,6 +2358,14 @@ static int cx231xx_close(struct file *filp)
 			return 0;
 		}
 
+=======
+	struct cx231xx *dev = video_drvdata(filp);
+	struct video_device *vdev = video_devdata(filp);
+
+	_vb2_fop_release(filp, NULL);
+
+	if (--dev->users == 0) {
+>>>>>>> upstream/android-13
 		/* Save some power by putting tuner to sleep */
 		call_all(dev, tuner, standby);
 
@@ -1949,20 +2375,54 @@ static int cx231xx_close(struct file *filp)
 		else
 			cx231xx_uninit_bulk(dev);
 		cx231xx_set_mode(dev, CX231XX_SUSPEND);
+<<<<<<< HEAD
 
 		/* set alternate 0 */
 		cx231xx_set_alt_setting(dev, INDEX_VIDEO, 0);
 	}
 	v4l2_fh_exit(&fh->fh);
 	kfree(fh);
+=======
+	}
+
+	/*
+	 * To workaround error number=-71 on EP0 for VideoGrabber,
+	 *	 need exclude following.
+	 * FIXME: It is probably safe to remove most of these, as we're
+	 * now avoiding the alternate setting for INDEX_VANC
+	 */
+	if (!dev->board.no_alt_vanc && vdev->vfl_type == VFL_TYPE_VBI) {
+		/* do this before setting alternate! */
+		cx231xx_uninit_vbi_isoc(dev);
+
+		/* set alternate 0 */
+		if (!dev->vbi_or_sliced_cc_mode)
+			cx231xx_set_alt_setting(dev, INDEX_VANC, 0);
+		else
+			cx231xx_set_alt_setting(dev, INDEX_HANC, 0);
+
+		wake_up_interruptible_nr(&dev->open, 1);
+		return 0;
+	}
+
+	if (dev->users == 0) {
+		/* set alternate 0 */
+		cx231xx_set_alt_setting(dev, INDEX_VIDEO, 0);
+	}
+
+>>>>>>> upstream/android-13
 	wake_up_interruptible(&dev->open);
 	return 0;
 }
 
 static int cx231xx_v4l2_close(struct file *filp)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh *fh = filp->private_data;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(filp);
+>>>>>>> upstream/android-13
 	int rc;
 
 	mutex_lock(&dev->lock);
@@ -1971,6 +2431,7 @@ static int cx231xx_v4l2_close(struct file *filp)
 	return rc;
 }
 
+<<<<<<< HEAD
 /*
  * cx231xx_v4l2_read()
  * will allocate buffers when called for the first time
@@ -2074,13 +2535,21 @@ static int cx231xx_v4l2_mmap(struct file *filp, struct vm_area_struct *vma)
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct v4l2_file_operations cx231xx_v4l_fops = {
 	.owner   = THIS_MODULE,
 	.open    = cx231xx_v4l2_open,
 	.release = cx231xx_v4l2_close,
+<<<<<<< HEAD
 	.read    = cx231xx_v4l2_read,
 	.poll    = cx231xx_v4l2_poll,
 	.mmap    = cx231xx_v4l2_mmap,
+=======
+	.read    = vb2_fop_read,
+	.poll    = vb2_fop_poll,
+	.mmap    = vb2_fop_mmap,
+>>>>>>> upstream/android-13
 	.unlocked_ioctl   = video_ioctl2,
 };
 
@@ -2093,18 +2562,32 @@ static const struct v4l2_ioctl_ops video_ioctl_ops = {
 	.vidioc_g_fmt_vbi_cap          = vidioc_g_fmt_vbi_cap,
 	.vidioc_try_fmt_vbi_cap        = vidioc_try_fmt_vbi_cap,
 	.vidioc_s_fmt_vbi_cap          = vidioc_s_fmt_vbi_cap,
+<<<<<<< HEAD
 	.vidioc_cropcap                = vidioc_cropcap,
 	.vidioc_reqbufs                = vidioc_reqbufs,
 	.vidioc_querybuf               = vidioc_querybuf,
 	.vidioc_qbuf                   = vidioc_qbuf,
 	.vidioc_dqbuf                  = vidioc_dqbuf,
+=======
+	.vidioc_g_pixelaspect          = vidioc_g_pixelaspect,
+	.vidioc_g_selection            = vidioc_g_selection,
+	.vidioc_reqbufs                = vb2_ioctl_reqbufs,
+	.vidioc_querybuf               = vb2_ioctl_querybuf,
+	.vidioc_qbuf                   = vb2_ioctl_qbuf,
+	.vidioc_dqbuf                  = vb2_ioctl_dqbuf,
+>>>>>>> upstream/android-13
 	.vidioc_s_std                  = vidioc_s_std,
 	.vidioc_g_std                  = vidioc_g_std,
 	.vidioc_enum_input             = cx231xx_enum_input,
 	.vidioc_g_input                = cx231xx_g_input,
 	.vidioc_s_input                = cx231xx_s_input,
+<<<<<<< HEAD
 	.vidioc_streamon               = vidioc_streamon,
 	.vidioc_streamoff              = vidioc_streamoff,
+=======
+	.vidioc_streamon               = vb2_ioctl_streamon,
+	.vidioc_streamoff              = vb2_ioctl_streamoff,
+>>>>>>> upstream/android-13
 	.vidioc_g_tuner                = cx231xx_g_tuner,
 	.vidioc_s_tuner                = cx231xx_s_tuner,
 	.vidioc_g_frequency            = cx231xx_g_frequency,
@@ -2172,15 +2655,36 @@ static void cx231xx_vdev_init(struct cx231xx *dev,
 
 	video_set_drvdata(vfd, dev);
 	if (dev->tuner_type == TUNER_ABSENT) {
+<<<<<<< HEAD
 		v4l2_disable_ioctl(vfd, VIDIOC_G_FREQUENCY);
 		v4l2_disable_ioctl(vfd, VIDIOC_S_FREQUENCY);
 		v4l2_disable_ioctl(vfd, VIDIOC_G_TUNER);
 		v4l2_disable_ioctl(vfd, VIDIOC_S_TUNER);
+=======
+		switch (dev->model) {
+		case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
+		case CX231XX_BOARD_HAUPPAUGE_935C:
+		case CX231XX_BOARD_HAUPPAUGE_955Q:
+		case CX231XX_BOARD_HAUPPAUGE_975:
+		case CX231XX_BOARD_EVROMEDIA_FULL_HYBRID_FULLHD:
+			break;
+		default:
+			v4l2_disable_ioctl(vfd, VIDIOC_G_FREQUENCY);
+			v4l2_disable_ioctl(vfd, VIDIOC_S_FREQUENCY);
+			v4l2_disable_ioctl(vfd, VIDIOC_G_TUNER);
+			v4l2_disable_ioctl(vfd, VIDIOC_S_TUNER);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
 int cx231xx_register_analog_devices(struct cx231xx *dev)
 {
+<<<<<<< HEAD
+=======
+	struct vb2_queue *q;
+>>>>>>> upstream/android-13
 	int ret;
 
 	dev_info(dev->dev, "v4l2 driver version %s\n", CX231XX_VERSION);
@@ -2227,8 +2731,45 @@ int cx231xx_register_analog_devices(struct cx231xx *dev)
 		dev_err(dev->dev, "failed to initialize video media entity!\n");
 #endif
 	dev->vdev.ctrl_handler = &dev->ctrl_handler;
+<<<<<<< HEAD
 	/* register v4l2 video video_device */
 	ret = video_register_device(&dev->vdev, VFL_TYPE_GRABBER,
+=======
+
+	q = &dev->vidq;
+	q->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	q->io_modes = VB2_USERPTR | VB2_MMAP | VB2_DMABUF | VB2_READ;
+	q->drv_priv = dev;
+	q->buf_struct_size = sizeof(struct cx231xx_buffer);
+	q->ops = &cx231xx_video_qops;
+	q->mem_ops = &vb2_vmalloc_memops;
+	q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+	q->min_buffers_needed = 1;
+	q->lock = &dev->lock;
+	ret = vb2_queue_init(q);
+	if (ret)
+		return ret;
+	dev->vdev.queue = q;
+	dev->vdev.device_caps = V4L2_CAP_READWRITE | V4L2_CAP_STREAMING |
+				V4L2_CAP_VIDEO_CAPTURE;
+
+	switch (dev->model) { /* i2c device tuners */
+	case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
+	case CX231XX_BOARD_HAUPPAUGE_935C:
+	case CX231XX_BOARD_HAUPPAUGE_955Q:
+	case CX231XX_BOARD_HAUPPAUGE_975:
+	case CX231XX_BOARD_EVROMEDIA_FULL_HYBRID_FULLHD:
+		dev->vdev.device_caps |= V4L2_CAP_TUNER;
+		break;
+	default:
+		if (dev->tuner_type != TUNER_ABSENT)
+			dev->vdev.device_caps |= V4L2_CAP_TUNER;
+		break;
+	}
+
+	/* register v4l2 video video_device */
+	ret = video_register_device(&dev->vdev, VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 				    video_nr[dev->devno]);
 	if (ret) {
 		dev_err(dev->dev,
@@ -2242,7 +2783,12 @@ int cx231xx_register_analog_devices(struct cx231xx *dev)
 
 	/* Initialize VBI template */
 	cx231xx_vbi_template = cx231xx_video_template;
+<<<<<<< HEAD
 	strcpy(cx231xx_vbi_template.name, "cx231xx-vbi");
+=======
+	strscpy(cx231xx_vbi_template.name, "cx231xx-vbi",
+		sizeof(cx231xx_vbi_template.name));
+>>>>>>> upstream/android-13
 
 	/* Allocate and fill vbi video_device struct */
 	cx231xx_vdev_init(dev, &dev->vbi_dev, &cx231xx_vbi_template, "vbi");
@@ -2254,6 +2800,39 @@ int cx231xx_register_analog_devices(struct cx231xx *dev)
 		dev_err(dev->dev, "failed to initialize vbi media entity!\n");
 #endif
 	dev->vbi_dev.ctrl_handler = &dev->ctrl_handler;
+<<<<<<< HEAD
+=======
+
+	q = &dev->vbiq;
+	q->type = V4L2_BUF_TYPE_VBI_CAPTURE;
+	q->io_modes = VB2_USERPTR | VB2_MMAP | VB2_DMABUF | VB2_READ;
+	q->drv_priv = dev;
+	q->buf_struct_size = sizeof(struct cx231xx_buffer);
+	q->ops = &cx231xx_vbi_qops;
+	q->mem_ops = &vb2_vmalloc_memops;
+	q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+	q->min_buffers_needed = 1;
+	q->lock = &dev->lock;
+	ret = vb2_queue_init(q);
+	if (ret)
+		return ret;
+	dev->vbi_dev.queue = q;
+	dev->vbi_dev.device_caps = V4L2_CAP_READWRITE | V4L2_CAP_STREAMING |
+				   V4L2_CAP_VBI_CAPTURE;
+	switch (dev->model) { /* i2c device tuners */
+	case CX231XX_BOARD_HAUPPAUGE_930C_HD_1114xx:
+	case CX231XX_BOARD_HAUPPAUGE_935C:
+	case CX231XX_BOARD_HAUPPAUGE_955Q:
+	case CX231XX_BOARD_HAUPPAUGE_975:
+	case CX231XX_BOARD_EVROMEDIA_FULL_HYBRID_FULLHD:
+		dev->vbi_dev.device_caps |= V4L2_CAP_TUNER;
+		break;
+	default:
+		if (dev->tuner_type != TUNER_ABSENT)
+			dev->vbi_dev.device_caps |= V4L2_CAP_TUNER;
+	}
+
+>>>>>>> upstream/android-13
 	/* register v4l2 vbi video_device */
 	ret = video_register_device(&dev->vbi_dev, VFL_TYPE_VBI,
 				    vbi_nr[dev->devno]);
@@ -2269,6 +2848,10 @@ int cx231xx_register_analog_devices(struct cx231xx *dev)
 		cx231xx_vdev_init(dev, &dev->radio_dev,
 				&cx231xx_radio_template, "radio");
 		dev->radio_dev.ctrl_handler = &dev->radio_ctrl_handler;
+<<<<<<< HEAD
+=======
+		dev->radio_dev.device_caps = V4L2_CAP_RADIO | V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 		ret = video_register_device(&dev->radio_dev, VFL_TYPE_RADIO,
 					    radio_nr[dev->devno]);
 		if (ret < 0) {

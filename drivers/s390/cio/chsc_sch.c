@@ -100,7 +100,11 @@ static int chsc_subchannel_probe(struct subchannel *sch)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int chsc_subchannel_remove(struct subchannel *sch)
+=======
+static void chsc_subchannel_remove(struct subchannel *sch)
+>>>>>>> upstream/android-13
 {
 	struct chsc_private *private;
 
@@ -112,7 +116,10 @@ static int chsc_subchannel_remove(struct subchannel *sch)
 		put_device(&sch->dev);
 	}
 	kfree(private);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void chsc_subchannel_shutdown(struct subchannel *sch)
@@ -120,6 +127,7 @@ static void chsc_subchannel_shutdown(struct subchannel *sch)
 	cio_disable_subchannel(sch);
 }
 
+<<<<<<< HEAD
 static int chsc_subchannel_prepare(struct subchannel *sch)
 {
 	int cc;
@@ -145,6 +153,8 @@ static int chsc_subchannel_restore(struct subchannel *sch)
 	return cio_enable_subchannel(sch, (u32)(unsigned long)sch);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct css_device_id chsc_subchannel_ids[] = {
 	{ .match_flags = 0x1, .type =SUBCHANNEL_TYPE_CHSC, },
 	{ /* end of list */ },
@@ -161,10 +171,13 @@ static struct css_driver chsc_subchannel_driver = {
 	.probe = chsc_subchannel_probe,
 	.remove = chsc_subchannel_remove,
 	.shutdown = chsc_subchannel_shutdown,
+<<<<<<< HEAD
 	.prepare = chsc_subchannel_prepare,
 	.freeze = chsc_subchannel_freeze,
 	.thaw = chsc_subchannel_restore,
 	.restore = chsc_subchannel_restore,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init chsc_init_dbfs(void)
@@ -203,7 +216,11 @@ static void chsc_cleanup_sch_driver(void)
 
 static DEFINE_SPINLOCK(chsc_lock);
 
+<<<<<<< HEAD
 static int chsc_subchannel_match_next_free(struct device *dev, void *data)
+=======
+static int chsc_subchannel_match_next_free(struct device *dev, const void *data)
+>>>>>>> upstream/android-13
 {
 	struct subchannel *sch = to_subchannel(dev);
 

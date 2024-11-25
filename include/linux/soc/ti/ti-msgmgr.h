@@ -1,7 +1,11 @@
 /*
  * Texas Instruments' Message Manager
  *
+<<<<<<< HEAD
  * Copyright (C) 2015-2016 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2015-2016 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *	Nishanth Menon
  *
  * This program is free software; you can redistribute it and/or modify

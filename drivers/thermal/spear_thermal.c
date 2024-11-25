@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPEAr thermal driver.
  *
  * Copyright (C) 2011-2012 ST Microelectronics
  * Author: Vincenzo Frascino <vincenzo.frascino@st.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -56,8 +63,12 @@ static struct thermal_zone_device_ops ops = {
 
 static int __maybe_unused spear_thermal_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct thermal_zone_device *spear_thermal = platform_get_drvdata(pdev);
+=======
+	struct thermal_zone_device *spear_thermal = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct spear_thermal_dev *stdev = spear_thermal->devdata;
 	unsigned int actual_mask = 0;
 
@@ -73,15 +84,23 @@ static int __maybe_unused spear_thermal_suspend(struct device *dev)
 
 static int __maybe_unused spear_thermal_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct thermal_zone_device *spear_thermal = platform_get_drvdata(pdev);
+=======
+	struct thermal_zone_device *spear_thermal = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct spear_thermal_dev *stdev = spear_thermal->devdata;
 	unsigned int actual_mask = 0;
 	int ret = 0;
 
 	ret = clk_enable(stdev->clk);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Can't enable clock\n");
+=======
+		dev_err(dev, "Can't enable clock\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -142,6 +161,14 @@ static int spear_thermal_probe(struct platform_device *pdev)
 		ret = PTR_ERR(spear_thermal);
 		goto disable_clk;
 	}
+<<<<<<< HEAD
+=======
+	ret = thermal_zone_device_enable(spear_thermal);
+	if (ret) {
+		dev_err(&pdev->dev, "Cannot enable thermal zone\n");
+		goto unregister_tzd;
+	}
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, spear_thermal);
 
@@ -150,6 +177,11 @@ static int spear_thermal_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+unregister_tzd:
+	thermal_zone_device_unregister(spear_thermal);
+>>>>>>> upstream/android-13
 disable_clk:
 	clk_disable(stdev->clk);
 

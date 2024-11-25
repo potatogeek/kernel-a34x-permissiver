@@ -27,15 +27,26 @@
 #include <linux/usb/gadget.h>
 
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 #include "emxx_udc.h"
 
 #define	DRIVER_DESC	"EMXX UDC driver"
 #define	DMA_ADDR_INVALID	(~(dma_addr_t)0)
 
+<<<<<<< HEAD
 static const char	driver_name[] = "emxx_udc";
 static const char	driver_desc[] = DRIVER_DESC;
+=======
+static struct gpio_desc *vbus_gpio;
+static int vbus_irq;
+
+static const char	driver_name[] = "emxx_udc";
+>>>>>>> upstream/android-13
 
 /*===========================================================================*/
 /* Prototype */
@@ -56,25 +67,41 @@ static void _nbu2ss_fifo_flush(struct nbu2ss_udc *, struct nbu2ss_ep *);
 
 /*===========================================================================*/
 /* Global */
+<<<<<<< HEAD
 struct nbu2ss_udc udc_controller;
 
 /*-------------------------------------------------------------------------*/
 /* Read */
 static inline u32 _nbu2ss_readl(void *address)
+=======
+static struct nbu2ss_udc udc_controller;
+
+/*-------------------------------------------------------------------------*/
+/* Read */
+static inline u32 _nbu2ss_readl(void __iomem *address)
+>>>>>>> upstream/android-13
 {
 	return __raw_readl(address);
 }
 
 /*-------------------------------------------------------------------------*/
 /* Write */
+<<<<<<< HEAD
 static inline void _nbu2ss_writel(void *address, u32 udata)
+=======
+static inline void _nbu2ss_writel(void __iomem *address, u32 udata)
+>>>>>>> upstream/android-13
 {
 	__raw_writel(udata, address);
 }
 
 /*-------------------------------------------------------------------------*/
 /* Set Bit */
+<<<<<<< HEAD
 static inline void _nbu2ss_bitset(void *address, u32 udata)
+=======
+static inline void _nbu2ss_bitset(void __iomem *address, u32 udata)
+>>>>>>> upstream/android-13
 {
 	u32	reg_dt = __raw_readl(address) | (udata);
 
@@ -83,7 +110,11 @@ static inline void _nbu2ss_bitset(void *address, u32 udata)
 
 /*-------------------------------------------------------------------------*/
 /* Clear Bit */
+<<<<<<< HEAD
 static inline void _nbu2ss_bitclr(void *address, u32 udata)
+=======
+static inline void _nbu2ss_bitclr(void __iomem *address, u32 udata)
+>>>>>>> upstream/android-13
 {
 	u32	reg_dt = __raw_readl(address) & ~(udata);
 
@@ -108,6 +139,7 @@ static void _nbu2ss_dump_register(struct nbu2ss_udc *udc)
 
 	dev_dbg(&udc->dev, "\n-USB REG-\n");
 	for (i = 0x0 ; i < USB_BASE_SIZE ; i += 16) {
+<<<<<<< HEAD
 		reg_data =   _nbu2ss_readl(
 			(u32 *)IO_ADDRESS(USB_BASE_ADDRESS + i));
 		dev_dbg(&udc->dev, "USB%04x =%08x", i, (int)reg_data);
@@ -122,6 +154,18 @@ static void _nbu2ss_dump_register(struct nbu2ss_udc *udc)
 
 		reg_data =  _nbu2ss_readl(
 			(u32 *)IO_ADDRESS(USB_BASE_ADDRESS + i + 12));
+=======
+		reg_data = _nbu2ss_readl(IO_ADDRESS(USB_BASE_ADDRESS + i));
+		dev_dbg(&udc->dev, "USB%04x =%08x", i, (int)reg_data);
+
+		reg_data = _nbu2ss_readl(IO_ADDRESS(USB_BASE_ADDRESS + i + 4));
+		dev_dbg(&udc->dev, " %08x", (int)reg_data);
+
+		reg_data = _nbu2ss_readl(IO_ADDRESS(USB_BASE_ADDRESS + i + 8));
+		dev_dbg(&udc->dev, " %08x", (int)reg_data);
+
+		reg_data = _nbu2ss_readl(IO_ADDRESS(USB_BASE_ADDRESS + i + 12));
+>>>>>>> upstream/android-13
 		dev_dbg(&udc->dev, " %08x\n", (int)reg_data);
 	}
 
@@ -135,11 +179,19 @@ static void _nbu2ss_ep0_complete(struct usb_ep *_ep, struct usb_request *_req)
 {
 	u8		recipient;
 	u16		selector;
+<<<<<<< HEAD
+=======
+	u16		wIndex;
+>>>>>>> upstream/android-13
 	u32		test_mode;
 	struct usb_ctrlrequest	*p_ctrl;
 	struct nbu2ss_udc *udc;
 
+<<<<<<< HEAD
 	if ((!_ep) || (!_req))
+=======
+	if (!_ep || !_req)
+>>>>>>> upstream/android-13
 		return;
 
 	udc = (struct nbu2ss_udc *)_req->context;
@@ -149,10 +201,18 @@ static void _nbu2ss_ep0_complete(struct usb_ep *_ep, struct usb_request *_req)
 			/*-------------------------------------------------*/
 			/* SET_FEATURE */
 			recipient = (u8)(p_ctrl->bRequestType & USB_RECIP_MASK);
+<<<<<<< HEAD
 			selector  = p_ctrl->wValue;
 			if ((recipient == USB_RECIP_DEVICE) &&
 			    (selector == USB_DEVICE_TEST_MODE)) {
 				test_mode = (u32)(p_ctrl->wIndex >> 8);
+=======
+			selector  = le16_to_cpu(p_ctrl->wValue);
+			if ((recipient == USB_RECIP_DEVICE) &&
+			    (selector == USB_DEVICE_TEST_MODE)) {
+				wIndex = le16_to_cpu(p_ctrl->wIndex);
+				test_mode = (u32)(wIndex >> 8);
+>>>>>>> upstream/android-13
 				_nbu2ss_set_test_mode(udc, test_mode);
 			}
 		}
@@ -161,16 +221,25 @@ static void _nbu2ss_ep0_complete(struct usb_ep *_ep, struct usb_request *_req)
 
 /*-------------------------------------------------------------------------*/
 /* Initialization usb_request */
+<<<<<<< HEAD
 static void _nbu2ss_create_ep0_packet(
 	struct nbu2ss_udc *udc,
 	void *p_buf,
 	unsigned length
 )
+=======
+static void _nbu2ss_create_ep0_packet(struct nbu2ss_udc *udc,
+				      void *p_buf, unsigned int length)
+>>>>>>> upstream/android-13
 {
 	udc->ep0_req.req.buf		= p_buf;
 	udc->ep0_req.req.length		= length;
 	udc->ep0_req.req.dma		= 0;
+<<<<<<< HEAD
 	udc->ep0_req.req.zero		= TRUE;
+=======
+	udc->ep0_req.req.zero		= true;
+>>>>>>> upstream/android-13
 	udc->ep0_req.req.complete	= _nbu2ss_ep0_complete;
 	udc->ep0_req.req.status		= -EINPROGRESS;
 	udc->ep0_req.req.context	= udc;
@@ -184,7 +253,11 @@ static u32 _nbu2ss_get_begin_ram_address(struct nbu2ss_udc *udc)
 	u32		num, buf_type;
 	u32		data, last_ram_adr, use_ram_size;
 
+<<<<<<< HEAD
 	struct ep_regs *p_ep_regs;
+=======
+	struct ep_regs __iomem *p_ep_regs;
+>>>>>>> upstream/android-13
 
 	last_ram_adr = (D_RAM_SIZE_CTRL / sizeof(u32)) * 2;
 	use_ram_size = 0;
@@ -377,7 +450,11 @@ static void _nbu2ss_ep_dma_exit(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep)
 {
 	u32		num;
 	u32		data;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (udc->vbus_active == 0)
 		return;		/* VBUS OFF */
@@ -408,7 +485,11 @@ static void _nbu2ss_ep_dma_exit(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep)
 /* Abort DMA */
 static void _nbu2ss_ep_dma_abort(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep)
 {
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	_nbu2ss_bitclr(&preg->EP_DCR[ep->epnum - 1].EP_DCR1, DCR1_EPN_REQEN);
 	mdelay(DMA_DISABLE_TIME);	/* DCR1_EPN_REQEN Clear */
@@ -417,6 +498,7 @@ static void _nbu2ss_ep_dma_abort(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep)
 
 /*-------------------------------------------------------------------------*/
 /* Start IN Transfer */
+<<<<<<< HEAD
 static void _nbu2ss_ep_in_end(
 	struct nbu2ss_udc *udc,
 	u32 epnum,
@@ -427,6 +509,14 @@ static void _nbu2ss_ep_in_end(
 	u32		data;
 	u32		num;
 	struct fc_regs	*preg = udc->p_regs;
+=======
+static void _nbu2ss_ep_in_end(struct nbu2ss_udc *udc,
+			      u32 epnum, u32 data32, u32 length)
+{
+	u32		data;
+	u32		num;
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (length >= sizeof(u32))
 		return;
@@ -460,45 +550,75 @@ static void _nbu2ss_ep_in_end(
 
 #ifdef USE_DMA
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static void _nbu2ss_dma_map_single(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req,
 	u8		direct
 )
+=======
+static void _nbu2ss_dma_map_single(struct nbu2ss_udc *udc,
+				   struct nbu2ss_ep *ep,
+				   struct nbu2ss_req *req, u8 direct)
+>>>>>>> upstream/android-13
 {
 	if (req->req.dma == DMA_ADDR_INVALID) {
 		if (req->unaligned) {
 			req->req.dma = ep->phys_buf;
 		} else {
+<<<<<<< HEAD
 			req->req.dma = dma_map_single(
 				udc->gadget.dev.parent,
 				req->req.buf,
 				req->req.length,
 				(direct == USB_DIR_IN)
 				? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+=======
+			req->req.dma = dma_map_single(udc->gadget.dev.parent,
+						      req->req.buf,
+						      req->req.length,
+						      (direct == USB_DIR_IN)
+						      ? DMA_TO_DEVICE
+						      : DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		}
 		req->mapped = 1;
 	} else {
 		if (!req->unaligned)
+<<<<<<< HEAD
 			dma_sync_single_for_device(
 				udc->gadget.dev.parent,
 				req->req.dma,
 				req->req.length,
 				(direct == USB_DIR_IN)
 				? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+=======
+			dma_sync_single_for_device(udc->gadget.dev.parent,
+						   req->req.dma,
+						   req->req.length,
+						   (direct == USB_DIR_IN)
+						   ? DMA_TO_DEVICE
+						   : DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		req->mapped = 0;
 	}
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static void _nbu2ss_dma_unmap_single(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req,
 	u8		direct
 )
+=======
+static void _nbu2ss_dma_unmap_single(struct nbu2ss_udc *udc,
+				     struct nbu2ss_ep *ep,
+				     struct nbu2ss_req *req, u8 direct)
+>>>>>>> upstream/android-13
 {
 	u8		data[4];
 	u8		*p;
@@ -669,10 +789,15 @@ static int EP0_receive_NULL(struct nbu2ss_udc *udc, bool pid_flag)
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_ep0_in_transfer(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_req *req
 )
+=======
+static int _nbu2ss_ep0_in_transfer(struct nbu2ss_udc *udc,
+				   struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	u8		*p_buffer;			/* IN Data Buffer */
 	u32		data;
@@ -685,7 +810,11 @@ static int _nbu2ss_ep0_in_transfer(
 		if ((req->req.actual % EP0_PACKETSIZE) == 0) {
 			if (req->zero) {
 				req->zero = false;
+<<<<<<< HEAD
 				EP0_send_NULL(udc, FALSE);
+=======
+				EP0_send_NULL(udc, false);
+>>>>>>> upstream/android-13
 				return 1;
 			}
 		}
@@ -712,7 +841,11 @@ static int _nbu2ss_ep0_in_transfer(
 	i_remain_size -= result;
 
 	if (i_remain_size == 0) {
+<<<<<<< HEAD
 		EP0_send_NULL(udc, FALSE);
+=======
+		EP0_send_NULL(udc, false);
+>>>>>>> upstream/android-13
 		return result;
 	}
 
@@ -726,10 +859,15 @@ static int _nbu2ss_ep0_in_transfer(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_ep0_out_transfer(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_req *req
 )
+=======
+static int _nbu2ss_ep0_out_transfer(struct nbu2ss_udc *udc,
+				    struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	u8		*p_buffer;
 	u32		i_remain_size;
@@ -773,7 +911,11 @@ static int _nbu2ss_ep0_out_transfer(
 		if ((req->req.actual % EP0_PACKETSIZE) == 0) {
 			if (req->zero) {
 				req->zero = false;
+<<<<<<< HEAD
 				EP0_receive_NULL(udc, FALSE);
+=======
+				EP0_receive_NULL(udc, false);
+>>>>>>> upstream/android-13
 				return 1;
 			}
 		}
@@ -803,12 +945,17 @@ static int _nbu2ss_ep0_out_transfer(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_out_dma(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_req *req,
 	u32		num,
 	u32		length
 )
+=======
+static int _nbu2ss_out_dma(struct nbu2ss_udc *udc, struct nbu2ss_req *req,
+			   u32 num, u32 length)
+>>>>>>> upstream/android-13
 {
 	dma_addr_t	p_buffer;
 	u32		mpkt;
@@ -816,13 +963,22 @@ static int _nbu2ss_out_dma(
 	u32		dmacnt;
 	u32		burst = 1;
 	u32		data;
+<<<<<<< HEAD
 	int		result = -EINVAL;
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	int		result;
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (req->dma_flag)
 		return 1;		/* DMA is forwarded */
 
+<<<<<<< HEAD
 	req->dma_flag = TRUE;
+=======
+	req->dma_flag = true;
+>>>>>>> upstream/android-13
 	p_buffer = req->req.dma;
 	p_buffer += req->req.actual;
 
@@ -866,12 +1022,17 @@ static int _nbu2ss_out_dma(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_epn_out_pio(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req,
 	u32		length
 )
+=======
+static int _nbu2ss_epn_out_pio(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep,
+			       struct nbu2ss_req *req, u32 length)
+>>>>>>> upstream/android-13
 {
 	u8		*p_buffer;
 	u32		i;
@@ -880,7 +1041,11 @@ static int _nbu2ss_epn_out_pio(
 	union usb_reg_access	temp_32;
 	union usb_reg_access	*p_buf_32;
 	int		result = 0;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (req->dma_flag)
 		return 1;		/* DMA is forwarded */
@@ -925,12 +1090,17 @@ static int _nbu2ss_epn_out_pio(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_epn_out_data(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req,
 	u32		data_size
 )
+=======
+static int _nbu2ss_epn_out_data(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep,
+				struct nbu2ss_req *req, u32 data_size)
+>>>>>>> upstream/android-13
 {
 	u32		num;
 	u32		i_buf_size;
@@ -955,16 +1125,26 @@ static int _nbu2ss_epn_out_data(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_epn_out_transfer(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req
 )
+=======
+static int _nbu2ss_epn_out_transfer(struct nbu2ss_udc *udc,
+				    struct nbu2ss_ep *ep,
+				    struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	u32		num;
 	u32		i_recv_length;
 	int		result = 1;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (ep->epnum == 0)
 		return -EINVAL;
@@ -973,8 +1153,13 @@ static int _nbu2ss_epn_out_transfer(
 
 	/*-------------------------------------------------------------*/
 	/* Receive Length */
+<<<<<<< HEAD
 	i_recv_length
 		= _nbu2ss_readl(&preg->EP_REGS[num].EP_LEN_DCNT) & EPN_LDATA;
+=======
+	i_recv_length =
+		_nbu2ss_readl(&preg->EP_REGS[num].EP_LEN_DCNT) & EPN_LDATA;
+>>>>>>> upstream/android-13
 
 	if (i_recv_length != 0) {
 		result = _nbu2ss_epn_out_data(udc, ep, req, i_recv_length);
@@ -1011,6 +1196,7 @@ static int _nbu2ss_epn_out_transfer(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_in_dma(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
@@ -1018,6 +1204,10 @@ static int _nbu2ss_in_dma(
 	u32		num,
 	u32		length
 )
+=======
+static int _nbu2ss_in_dma(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep,
+			  struct nbu2ss_req *req, u32 num, u32 length)
+>>>>>>> upstream/android-13
 {
 	dma_addr_t	p_buffer;
 	u32		mpkt;		/* MaxPacketSize */
@@ -1026,7 +1216,11 @@ static int _nbu2ss_in_dma(
 	u32		i_write_length;
 	u32		data;
 	int		result = -EINVAL;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (req->dma_flag)
 		return 1;		/* DMA is forwarded */
@@ -1035,7 +1229,11 @@ static int _nbu2ss_in_dma(
 	if (req->req.actual == 0)
 		_nbu2ss_dma_map_single(udc, ep, req, USB_DIR_IN);
 #endif
+<<<<<<< HEAD
 	req->dma_flag = TRUE;
+=======
+	req->dma_flag = true;
+>>>>>>> upstream/android-13
 
 	/* MAX Packet Size */
 	mpkt = _nbu2ss_readl(&preg->EP_REGS[num].EP_PCKT_ADRS) & EPN_MPKT;
@@ -1087,12 +1285,17 @@ static int _nbu2ss_in_dma(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_epn_in_pio(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req,
 	u32		length
 )
+=======
+static int _nbu2ss_epn_in_pio(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep,
+			      struct nbu2ss_req *req, u32 length)
+>>>>>>> upstream/android-13
 {
 	u8		*p_buffer;
 	u32		i;
@@ -1101,7 +1304,11 @@ static int _nbu2ss_epn_in_pio(
 	union usb_reg_access	temp_32;
 	union usb_reg_access	*p_buf_32 = NULL;
 	int		result = 0;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (req->dma_flag)
 		return 1;		/* DMA is forwarded */
@@ -1113,10 +1320,15 @@ static int _nbu2ss_epn_in_pio(
 		i_word_length = length / sizeof(u32);
 		if (i_word_length > 0) {
 			for (i = 0; i < i_word_length; i++) {
+<<<<<<< HEAD
 				_nbu2ss_writel(
 					&preg->EP_REGS[ep->epnum - 1].EP_WRITE
 					, p_buf_32->dw
 				);
+=======
+				_nbu2ss_writel(&preg->EP_REGS[ep->epnum - 1].EP_WRITE,
+					       p_buf_32->dw);
+>>>>>>> upstream/android-13
 
 				p_buf_32++;
 			}
@@ -1140,12 +1352,17 @@ static int _nbu2ss_epn_in_pio(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_epn_in_data(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req,
 	u32		data_size
 )
+=======
+static int _nbu2ss_epn_in_data(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep,
+			       struct nbu2ss_req *req, u32 data_size)
+>>>>>>> upstream/android-13
 {
 	u32		num;
 	int		nret = 1;
@@ -1167,11 +1384,16 @@ static int _nbu2ss_epn_in_data(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_epn_in_transfer(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req
 )
+=======
+static int _nbu2ss_epn_in_transfer(struct nbu2ss_udc *udc,
+				   struct nbu2ss_ep *ep, struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	u32		num;
 	u32		i_buf_size;
@@ -1208,6 +1430,7 @@ static int _nbu2ss_epn_in_transfer(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_start_transfer(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
@@ -1217,6 +1440,16 @@ static int _nbu2ss_start_transfer(
 	int		nret = -EINVAL;
 
 	req->dma_flag = FALSE;
+=======
+static int _nbu2ss_start_transfer(struct nbu2ss_udc *udc,
+				  struct nbu2ss_ep *ep,
+				  struct nbu2ss_req *req,
+				  bool	bflag)
+{
+	int		nret = -EINVAL;
+
+	req->dma_flag = false;
+>>>>>>> upstream/android-13
 	req->div_len = 0;
 
 	if (req->req.length == 0) {
@@ -1240,7 +1473,11 @@ static int _nbu2ss_start_transfer(
 			break;
 
 		case EP0_IN_STATUS_PHASE:
+<<<<<<< HEAD
 			nret = EP0_send_NULL(udc, TRUE);
+=======
+			nret = EP0_send_NULL(udc, true);
+>>>>>>> upstream/android-13
 			break;
 
 		default:
@@ -1266,7 +1503,11 @@ static int _nbu2ss_start_transfer(
 static void _nbu2ss_restert_transfer(struct nbu2ss_ep *ep)
 {
 	u32		length;
+<<<<<<< HEAD
 	bool	bflag = FALSE;
+=======
+	bool	bflag = false;
+>>>>>>> upstream/android-13
 	struct nbu2ss_req *req;
 
 	req = list_first_entry_or_null(&ep->queue, struct nbu2ss_req, queue);
@@ -1274,12 +1515,20 @@ static void _nbu2ss_restert_transfer(struct nbu2ss_ep *ep)
 		return;
 
 	if (ep->epnum > 0) {
+<<<<<<< HEAD
 		length = _nbu2ss_readl(
 			&ep->udc->p_regs->EP_REGS[ep->epnum - 1].EP_LEN_DCNT);
 
 		length &= EPN_LDATA;
 		if (length < ep->ep.maxpacket)
 			bflag = TRUE;
+=======
+		length = _nbu2ss_readl(&ep->udc->p_regs->EP_REGS[ep->epnum - 1].EP_LEN_DCNT);
+
+		length &= EPN_LDATA;
+		if (length < ep->ep.maxpacket)
+			bflag = true;
+>>>>>>> upstream/android-13
 	}
 
 	_nbu2ss_start_transfer(ep->udc, ep, req, bflag);
@@ -1287,9 +1536,13 @@ static void _nbu2ss_restert_transfer(struct nbu2ss_ep *ep)
 
 /*-------------------------------------------------------------------------*/
 /*	Endpoint Toggle Reset */
+<<<<<<< HEAD
 static void _nbu2ss_endpoint_toggle_reset(
 	struct nbu2ss_udc *udc,
 	u8 ep_adrs)
+=======
+static void _nbu2ss_endpoint_toggle_reset(struct nbu2ss_udc *udc, u8 ep_adrs)
+>>>>>>> upstream/android-13
 {
 	u8		num;
 	u32		data;
@@ -1309,15 +1562,24 @@ static void _nbu2ss_endpoint_toggle_reset(
 
 /*-------------------------------------------------------------------------*/
 /*	Endpoint STALL set */
+<<<<<<< HEAD
 static void _nbu2ss_set_endpoint_stall(
 	struct nbu2ss_udc *udc,
 	u8 ep_adrs,
 	bool bstall)
+=======
+static void _nbu2ss_set_endpoint_stall(struct nbu2ss_udc *udc,
+				       u8 ep_adrs, bool bstall)
+>>>>>>> upstream/android-13
 {
 	u8		num, epnum;
 	u32		data;
 	struct nbu2ss_ep *ep;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if ((ep_adrs == 0) || (ep_adrs == 0x80)) {
 		if (bstall) {
@@ -1334,7 +1596,11 @@ static void _nbu2ss_set_endpoint_stall(
 
 		if (bstall) {
 			/* Set STALL */
+<<<<<<< HEAD
 			ep->halted = TRUE;
+=======
+			ep->halted = true;
+>>>>>>> upstream/android-13
 
 			if (ep_adrs & USB_DIR_IN)
 				data = EPN_BCLR | EPN_ISTL;
@@ -1343,8 +1609,11 @@ static void _nbu2ss_set_endpoint_stall(
 
 			_nbu2ss_bitset(&preg->EP_REGS[num].EP_CONTROL, data);
 		} else {
+<<<<<<< HEAD
 			/* Clear STALL */
 			ep->stalled = FALSE;
+=======
+>>>>>>> upstream/android-13
 			if (ep_adrs & USB_DIR_IN) {
 				_nbu2ss_bitclr(&preg->EP_REGS[num].EP_CONTROL
 						, EPN_ISTL);
@@ -1359,9 +1628,16 @@ static void _nbu2ss_set_endpoint_stall(
 						, data);
 			}
 
+<<<<<<< HEAD
 			ep->stalled = FALSE;
 			if (ep->halted) {
 				ep->halted = FALSE;
+=======
+			/* Clear STALL */
+			ep->stalled = false;
+			if (ep->halted) {
+				ep->halted = false;
+>>>>>>> upstream/android-13
 				_nbu2ss_restert_transfer(ep);
 			}
 		}
@@ -1369,6 +1645,7 @@ static void _nbu2ss_set_endpoint_stall(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 /* Device Descriptor */
 static struct usb_device_descriptor device_desc = {
 	.bLength              = sizeof(device_desc),
@@ -1388,6 +1665,8 @@ static struct usb_device_descriptor device_desc = {
 };
 
 /*-------------------------------------------------------------------------*/
+=======
+>>>>>>> upstream/android-13
 static void _nbu2ss_set_test_mode(struct nbu2ss_udc *udc, u32 mode)
 {
 	u32		data;
@@ -1406,11 +1685,16 @@ static void _nbu2ss_set_test_mode(struct nbu2ss_udc *udc, u32 mode)
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int _nbu2ss_set_feature_device(
 	struct nbu2ss_udc *udc,
 	u16 selector,
 	u16 wIndex
 )
+=======
+static int _nbu2ss_set_feature_device(struct nbu2ss_udc *udc,
+				      u16 selector, u16 wIndex)
+>>>>>>> upstream/android-13
 {
 	int	result = -EOPNOTSUPP;
 
@@ -1440,7 +1724,11 @@ static int _nbu2ss_get_ep_stall(struct nbu2ss_udc *udc, u8 ep_adrs)
 {
 	u8		epnum;
 	u32		data = 0, bit_data;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	epnum = ep_adrs & ~USB_ENDPOINT_DIR_MASK;
 	if (epnum == 0) {
@@ -1468,8 +1756,13 @@ static inline int _nbu2ss_req_feature(struct nbu2ss_udc *udc, bool bset)
 {
 	u8	recipient = (u8)(udc->ctrl.bRequestType & USB_RECIP_MASK);
 	u8	direction = (u8)(udc->ctrl.bRequestType & USB_DIR_IN);
+<<<<<<< HEAD
 	u16	selector  = udc->ctrl.wValue;
 	u16	wIndex    = udc->ctrl.wIndex;
+=======
+	u16	selector  = le16_to_cpu(udc->ctrl.wValue);
+	u16	wIndex    = le16_to_cpu(udc->ctrl.wIndex);
+>>>>>>> upstream/android-13
 	u8	ep_adrs;
 	int	result = -EOPNOTSUPP;
 
@@ -1490,12 +1783,20 @@ static inline int _nbu2ss_req_feature(struct nbu2ss_udc *udc, bool bset)
 			if (selector == USB_ENDPOINT_HALT) {
 				ep_adrs = wIndex & 0xFF;
 				if (!bset) {
+<<<<<<< HEAD
 					_nbu2ss_endpoint_toggle_reset(
 						udc, ep_adrs);
 				}
 
 				_nbu2ss_set_endpoint_stall(
 					udc, ep_adrs, bset);
+=======
+					_nbu2ss_endpoint_toggle_reset(udc,
+								      ep_adrs);
+				}
+
+				_nbu2ss_set_endpoint_stall(udc, ep_adrs, bset);
+>>>>>>> upstream/android-13
 
 				result = 0;
 			}
@@ -1526,23 +1827,36 @@ static inline enum usb_device_speed _nbu2ss_get_speed(struct nbu2ss_udc *udc)
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static void _nbu2ss_epn_set_stall(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep
 )
+=======
+static void _nbu2ss_epn_set_stall(struct nbu2ss_udc *udc,
+				  struct nbu2ss_ep *ep)
+>>>>>>> upstream/android-13
 {
 	u8	ep_adrs;
 	u32	regdata;
 	int	limit_cnt = 0;
 
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (ep->direct == USB_DIR_IN) {
 		for (limit_cnt = 0
 			; limit_cnt < IN_DATA_EMPTY_COUNT
 			; limit_cnt++) {
+<<<<<<< HEAD
 			regdata = _nbu2ss_readl(
 				&preg->EP_REGS[ep->epnum - 1].EP_STATUS);
+=======
+			regdata = _nbu2ss_readl(&preg->EP_REGS[ep->epnum - 1].EP_STATUS);
+>>>>>>> upstream/android-13
 
 			if ((regdata & EPN_IN_DATA) == 0)
 				break;
@@ -1568,28 +1882,49 @@ static int std_req_get_status(struct nbu2ss_udc *udc)
 	if ((udc->ctrl.wValue != 0x0000) || (direction != USB_DIR_IN))
 		return result;
 
+<<<<<<< HEAD
 	length = min_t(u16, udc->ctrl.wLength, sizeof(status_data));
 
+=======
+	length =
+		min_t(u16, le16_to_cpu(udc->ctrl.wLength), sizeof(status_data));
+>>>>>>> upstream/android-13
 	switch (recipient) {
 	case USB_RECIP_DEVICE:
 		if (udc->ctrl.wIndex == 0x0000) {
 			if (udc->gadget.is_selfpowered)
+<<<<<<< HEAD
 				status_data |= (1 << USB_DEVICE_SELF_POWERED);
 
 			if (udc->remote_wakeup)
 				status_data |= (1 << USB_DEVICE_REMOTE_WAKEUP);
+=======
+				status_data |= BIT(USB_DEVICE_SELF_POWERED);
+
+			if (udc->remote_wakeup)
+				status_data |= BIT(USB_DEVICE_REMOTE_WAKEUP);
+>>>>>>> upstream/android-13
 
 			result = 0;
 		}
 		break;
 
 	case USB_RECIP_ENDPOINT:
+<<<<<<< HEAD
 		if (0x0000 == (udc->ctrl.wIndex & 0xFF70)) {
 			ep_adrs = (u8)(udc->ctrl.wIndex & 0xFF);
 			result = _nbu2ss_get_ep_stall(udc, ep_adrs);
 
 			if (result > 0)
 				status_data |= (1 << USB_ENDPOINT_HALT);
+=======
+		if (0x0000 == (le16_to_cpu(udc->ctrl.wIndex) & 0xFF70)) {
+			ep_adrs = (u8)(le16_to_cpu(udc->ctrl.wIndex) & 0xFF);
+			result = _nbu2ss_get_ep_stall(udc, ep_adrs);
+
+			if (result > 0)
+				status_data |= BIT(USB_ENDPOINT_HALT);
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -1612,20 +1947,32 @@ static int std_req_get_status(struct nbu2ss_udc *udc)
 /*-------------------------------------------------------------------------*/
 static int std_req_clear_feature(struct nbu2ss_udc *udc)
 {
+<<<<<<< HEAD
 	return _nbu2ss_req_feature(udc, FALSE);
+=======
+	return _nbu2ss_req_feature(udc, false);
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------------------------------------------------------*/
 static int std_req_set_feature(struct nbu2ss_udc *udc)
 {
+<<<<<<< HEAD
 	return _nbu2ss_req_feature(udc, TRUE);
+=======
+	return _nbu2ss_req_feature(udc, true);
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------------------------------------------------------*/
 static int std_req_set_address(struct nbu2ss_udc *udc)
 {
 	int		result = 0;
+<<<<<<< HEAD
 	u32		wValue = udc->ctrl.wValue;
+=======
+	u32		wValue = le16_to_cpu(udc->ctrl.wValue);
+>>>>>>> upstream/android-13
 
 	if ((udc->ctrl.bRequestType != 0x00)	||
 	    (udc->ctrl.wIndex != 0x0000)	||
@@ -1647,7 +1994,11 @@ static int std_req_set_address(struct nbu2ss_udc *udc)
 /*-------------------------------------------------------------------------*/
 static int std_req_set_configuration(struct nbu2ss_udc *udc)
 {
+<<<<<<< HEAD
 	u32 config_value = (u32)(udc->ctrl.wValue & 0x00ff);
+=======
+	u32 config_value = (u32)(le16_to_cpu(udc->ctrl.wValue) & 0x00ff);
+>>>>>>> upstream/android-13
 
 	if ((udc->ctrl.wIndex != 0x0000)	||
 	    (udc->ctrl.wLength != 0x0000)	||
@@ -1680,7 +2031,11 @@ static inline void _nbu2ss_read_request_data(struct nbu2ss_udc *udc, u32 *pdata)
 /*-------------------------------------------------------------------------*/
 static inline int _nbu2ss_decode_request(struct nbu2ss_udc *udc)
 {
+<<<<<<< HEAD
 	bool			bcall_back = TRUE;
+=======
+	bool			bcall_back = true;
+>>>>>>> upstream/android-13
 	int			nret = -EINVAL;
 	struct usb_ctrlrequest	*p_ctrl;
 
@@ -1702,22 +2057,38 @@ static inline int _nbu2ss_decode_request(struct nbu2ss_udc *udc)
 		switch (p_ctrl->bRequest) {
 		case USB_REQ_GET_STATUS:
 			nret = std_req_get_status(udc);
+<<<<<<< HEAD
 			bcall_back = FALSE;
+=======
+			bcall_back = false;
+>>>>>>> upstream/android-13
 			break;
 
 		case USB_REQ_CLEAR_FEATURE:
 			nret = std_req_clear_feature(udc);
+<<<<<<< HEAD
 			bcall_back = FALSE;
+=======
+			bcall_back = false;
+>>>>>>> upstream/android-13
 			break;
 
 		case USB_REQ_SET_FEATURE:
 			nret = std_req_set_feature(udc);
+<<<<<<< HEAD
 			bcall_back = FALSE;
+=======
+			bcall_back = false;
+>>>>>>> upstream/android-13
 			break;
 
 		case USB_REQ_SET_ADDRESS:
 			nret = std_req_set_address(udc);
+<<<<<<< HEAD
 			bcall_back = FALSE;
+=======
+			bcall_back = false;
+>>>>>>> upstream/android-13
 			break;
 
 		case USB_REQ_SET_CONFIGURATION:
@@ -1734,7 +2105,11 @@ static inline int _nbu2ss_decode_request(struct nbu2ss_udc *udc)
 			if (nret >= 0) {
 				/*--------------------------------------*/
 				/* Status Stage */
+<<<<<<< HEAD
 				nret = EP0_send_NULL(udc, TRUE);
+=======
+				nret = EP0_send_NULL(udc, true);
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -1767,7 +2142,11 @@ static inline int _nbu2ss_ep0_in_data_stage(struct nbu2ss_udc *udc)
 	nret = _nbu2ss_ep0_in_transfer(udc, req);
 	if (nret == 0) {
 		udc->ep0state = EP0_OUT_STATUS_PAHSE;
+<<<<<<< HEAD
 		EP0_receive_NULL(udc, TRUE);
+=======
+		EP0_receive_NULL(udc, true);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1787,7 +2166,11 @@ static inline int _nbu2ss_ep0_out_data_stage(struct nbu2ss_udc *udc)
 	nret = _nbu2ss_ep0_out_transfer(udc, req);
 	if (nret == 0) {
 		udc->ep0state = EP0_IN_STATUS_PHASE;
+<<<<<<< HEAD
 		EP0_send_NULL(udc, TRUE);
+=======
+		EP0_send_NULL(udc, true);
+>>>>>>> upstream/android-13
 
 	} else if (nret < 0) {
 		_nbu2ss_bitset(&udc->p_regs->EP0_CONTROL, EP0_BCLR);
@@ -1896,15 +2279,25 @@ static inline void _nbu2ss_ep0_int(struct nbu2ss_udc *udc)
 
 	if (nret < 0) {
 		/* Send Stall */
+<<<<<<< HEAD
 		_nbu2ss_set_endpoint_stall(udc, 0, TRUE);
+=======
+		_nbu2ss_set_endpoint_stall(udc, 0, true);
+>>>>>>> upstream/android-13
 	}
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static void _nbu2ss_ep_done(
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req,
 	int status)
+=======
+static void _nbu2ss_ep_done(struct nbu2ss_ep *ep,
+			    struct nbu2ss_req *req,
+			    int status)
+>>>>>>> upstream/android-13
 {
 	struct nbu2ss_udc *udc = ep->udc;
 
@@ -1935,15 +2328,25 @@ static void _nbu2ss_ep_done(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static inline void _nbu2ss_epn_in_int(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req)
+=======
+static inline void _nbu2ss_epn_in_int(struct nbu2ss_udc *udc,
+				      struct nbu2ss_ep *ep,
+				      struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	int	result = 0;
 	u32	status;
 
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (req->dma_flag)
 		return;		/* DMA is forwarded */
@@ -1979,10 +2382,16 @@ static inline void _nbu2ss_epn_in_int(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static inline void _nbu2ss_epn_out_int(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req)
+=======
+static inline void _nbu2ss_epn_out_int(struct nbu2ss_udc *udc,
+				       struct nbu2ss_ep *ep,
+				       struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	int	result;
 
@@ -1992,10 +2401,16 @@ static inline void _nbu2ss_epn_out_int(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static inline void _nbu2ss_epn_in_dma_int(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req)
+=======
+static inline void _nbu2ss_epn_in_dma_int(struct nbu2ss_udc *udc,
+					  struct nbu2ss_ep *ep,
+					  struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	u32		mpkt;
 	u32		size;
@@ -2008,7 +2423,11 @@ static inline void _nbu2ss_epn_in_dma_int(
 
 	preq->actual += req->div_len;
 	req->div_len = 0;
+<<<<<<< HEAD
 	req->dma_flag = FALSE;
+=======
+	req->dma_flag = false;
+>>>>>>> upstream/android-13
 
 #ifdef USE_DMA
 	_nbu2ss_dma_unmap_single(udc, ep, req, USB_DIR_IN);
@@ -2029,23 +2448,37 @@ static inline void _nbu2ss_epn_in_dma_int(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static inline void _nbu2ss_epn_out_dma_int(
 	struct nbu2ss_udc *udc,
 	struct nbu2ss_ep *ep,
 	struct nbu2ss_req *req)
+=======
+static inline void _nbu2ss_epn_out_dma_int(struct nbu2ss_udc *udc,
+					   struct nbu2ss_ep *ep,
+					   struct nbu2ss_req *req)
+>>>>>>> upstream/android-13
 {
 	int		i;
 	u32		num;
 	u32		dmacnt, ep_dmacnt;
 	u32		mpkt;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	num = ep->epnum - 1;
 
 	if (req->req.actual == req->req.length) {
 		if ((req->req.length % ep->ep.maxpacket) && !req->zero) {
 			req->div_len = 0;
+<<<<<<< HEAD
 			req->dma_flag = FALSE;
+=======
+			req->dma_flag = false;
+>>>>>>> upstream/android-13
 			_nbu2ss_ep_done(ep, req, 0);
 			return;
 		}
@@ -2074,7 +2507,11 @@ static inline void _nbu2ss_epn_out_dma_int(
 	if ((req->req.actual % ep->ep.maxpacket) > 0) {
 		if (req->req.actual == req->div_len) {
 			req->div_len = 0;
+<<<<<<< HEAD
 			req->dma_flag = FALSE;
+=======
+			req->dma_flag = false;
+>>>>>>> upstream/android-13
 			_nbu2ss_ep_done(ep, req, 0);
 			return;
 		}
@@ -2082,7 +2519,11 @@ static inline void _nbu2ss_epn_out_dma_int(
 
 	req->req.actual += req->div_len;
 	req->div_len = 0;
+<<<<<<< HEAD
 	req->dma_flag = FALSE;
+=======
+	req->dma_flag = false;
+>>>>>>> upstream/android-13
 
 	_nbu2ss_epn_out_int(udc, ep, req);
 }
@@ -2148,7 +2589,11 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
 			struct nbu2ss_ep *ep,
 			int status)
 {
+<<<<<<< HEAD
 	struct nbu2ss_req *req;
+=======
+	struct nbu2ss_req *req, *n;
+>>>>>>> upstream/android-13
 
 	/* Endpoint Disable */
 	_nbu2ss_epn_exit(udc, ep);
@@ -2160,7 +2605,11 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
 		return 0;
 
 	/* called with irqs blocked */
+<<<<<<< HEAD
 	list_for_each_entry(req, &ep->queue, queue) {
+=======
+	list_for_each_entry_safe(req, n, &ep->queue, queue) {
+>>>>>>> upstream/android-13
 		_nbu2ss_ep_done(ep, req, status);
 	}
 
@@ -2214,7 +2663,11 @@ static int _nbu2ss_pullup(struct nbu2ss_udc *udc, int is_on)
 /*-------------------------------------------------------------------------*/
 static void _nbu2ss_fifo_flush(struct nbu2ss_udc *udc, struct nbu2ss_ep *ep)
 {
+<<<<<<< HEAD
 	struct fc_regs	*p = udc->p_regs;
+=======
+	struct fc_regs __iomem *p = udc->p_regs;
+>>>>>>> upstream/android-13
 
 	if (udc->vbus_active == 0)
 		return;
@@ -2249,8 +2702,13 @@ static int _nbu2ss_enable_controller(struct nbu2ss_udc *udc)
 
 	_nbu2ss_writel(&udc->p_regs->AHBSCTR, WAIT_MODE);
 
+<<<<<<< HEAD
 		_nbu2ss_writel(&udc->p_regs->AHBMCTR,
 			       HBUSREQ_MODE | HTRANS_MODE | WBURST_TYPE);
+=======
+	_nbu2ss_writel(&udc->p_regs->AHBMCTR,
+		       HBUSREQ_MODE | HTRANS_MODE | WBURST_TYPE);
+>>>>>>> upstream/android-13
 
 	while (!(_nbu2ss_readl(&udc->p_regs->EPCTR) & PLL_LOCK)) {
 		waitcnt++;
@@ -2261,7 +2719,11 @@ static int _nbu2ss_enable_controller(struct nbu2ss_udc *udc)
 		}
 	}
 
+<<<<<<< HEAD
 		_nbu2ss_bitset(&udc->p_regs->UTMI_CHARACTER_1, USB_SQUSET);
+=======
+	_nbu2ss_bitset(&udc->p_regs->UTMI_CHARACTER_1, USB_SQUSET);
+>>>>>>> upstream/android-13
 
 	_nbu2ss_bitset(&udc->p_regs->USB_CONTROL, (INT_SEL | SOF_RCV));
 
@@ -2271,7 +2733,11 @@ static int _nbu2ss_enable_controller(struct nbu2ss_udc *udc)
 	/* USB Interrupt Enable */
 	_nbu2ss_bitset(&udc->p_regs->USB_INT_ENA, USB_INT_EN_BIT);
 
+<<<<<<< HEAD
 	udc->udc_enabled = TRUE;
+=======
+	udc->udc_enabled = true;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2287,7 +2753,11 @@ static void _nbu2ss_reset_controller(struct nbu2ss_udc *udc)
 static void _nbu2ss_disable_controller(struct nbu2ss_udc *udc)
 {
 	if (udc->udc_enabled) {
+<<<<<<< HEAD
 		udc->udc_enabled = FALSE;
+=======
+		udc->udc_enabled = false;
+>>>>>>> upstream/android-13
 		_nbu2ss_reset_controller(udc);
 		_nbu2ss_bitset(&udc->p_regs->EPCTR, (DIRPD | EPC_RST));
 	}
@@ -2303,7 +2773,11 @@ static inline void _nbu2ss_check_vbus(struct nbu2ss_udc *udc)
 	mdelay(VBUS_CHATTERING_MDELAY);		/* wait (ms) */
 
 	/* VBUS ON Check*/
+<<<<<<< HEAD
 	reg_dt = gpio_get_value(VBUS_VALUE);
+=======
+	reg_dt = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 	if (reg_dt == 0) {
 		udc->linux_suspended = 0;
 
@@ -2330,7 +2804,11 @@ static inline void _nbu2ss_check_vbus(struct nbu2ss_udc *udc)
 		}
 	} else {
 		mdelay(5);		/* wait (5ms) */
+<<<<<<< HEAD
 		reg_dt = gpio_get_value(VBUS_VALUE);
+=======
+		reg_dt = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 		if (reg_dt == 0)
 			return;
 
@@ -2394,7 +2872,11 @@ static inline void _nbu2ss_int_usb_suspend(struct nbu2ss_udc *udc)
 	u32	reg_dt;
 
 	if (udc->usb_suspended == 0) {
+<<<<<<< HEAD
 		reg_dt = gpio_get_value(VBUS_VALUE);
+=======
+		reg_dt = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 
 		if (reg_dt == 0)
 			return;
@@ -2432,9 +2914,15 @@ static irqreturn_t _nbu2ss_udc_irq(int irq, void *_udc)
 	u32	epnum, int_bit;
 
 	struct nbu2ss_udc	*udc = (struct nbu2ss_udc *)_udc;
+<<<<<<< HEAD
 	struct fc_regs	*preg = udc->p_regs;
 
 	if (gpio_get_value(VBUS_VALUE) == 0) {
+=======
+	struct fc_regs __iomem *preg = udc->p_regs;
+
+	if (gpiod_get_value(vbus_gpio) == 0) {
+>>>>>>> upstream/android-13
 		_nbu2ss_writel(&preg->USB_INT_STA, ~USB_INT_STA_RW);
 		_nbu2ss_writel(&preg->USB_INT_ENA, 0);
 		return IRQ_HANDLED;
@@ -2443,7 +2931,11 @@ static irqreturn_t _nbu2ss_udc_irq(int irq, void *_udc)
 	spin_lock(&udc->lock);
 
 	for (;;) {
+<<<<<<< HEAD
 		if (gpio_get_value(VBUS_VALUE) == 0) {
+=======
+		if (gpiod_get_value(vbus_gpio) == 0) {
+>>>>>>> upstream/android-13
 			_nbu2ss_writel(&preg->USB_INT_STA, ~USB_INT_STA_RW);
 			_nbu2ss_writel(&preg->USB_INT_ENA, 0);
 			status = 0;
@@ -2497,9 +2989,14 @@ static irqreturn_t _nbu2ss_udc_irq(int irq, void *_udc)
 
 /*-------------------------------------------------------------------------*/
 /* usb_ep_ops */
+<<<<<<< HEAD
 static int nbu2ss_ep_enable(
 	struct usb_ep *_ep,
 	const struct usb_endpoint_descriptor *desc)
+=======
+static int nbu2ss_ep_enable(struct usb_ep *_ep,
+			    const struct usb_endpoint_descriptor *desc)
+>>>>>>> upstream/android-13
 {
 	u8		ep_type;
 	unsigned long	flags;
@@ -2507,13 +3004,21 @@ static int nbu2ss_ep_enable(
 	struct nbu2ss_ep	*ep;
 	struct nbu2ss_udc	*udc;
 
+<<<<<<< HEAD
 	if ((!_ep) || (!desc)) {
+=======
+	if (!_ep || !desc) {
+>>>>>>> upstream/android-13
 		pr_err(" *** %s, bad param\n", __func__);
 		return -EINVAL;
 	}
 
 	ep = container_of(_ep, struct nbu2ss_ep, ep);
+<<<<<<< HEAD
 	if ((!ep) || (!ep->udc)) {
+=======
+	if (!ep->udc) {
+>>>>>>> upstream/android-13
 		pr_err(" *** %s, ep == NULL !!\n", __func__);
 		return -EINVAL;
 	}
@@ -2541,8 +3046,13 @@ static int nbu2ss_ep_enable(
 	ep->direct = desc->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
 	ep->ep_type = ep_type;
 	ep->wedged = 0;
+<<<<<<< HEAD
 	ep->halted = FALSE;
 	ep->stalled = FALSE;
+=======
+	ep->halted = false;
+	ep->stalled = false;
+>>>>>>> upstream/android-13
 
 	ep->ep.maxpacket = le16_to_cpu(desc->wMaxPacketSize);
 
@@ -2570,7 +3080,11 @@ static int nbu2ss_ep_disable(struct usb_ep *_ep)
 	}
 
 	ep = container_of(_ep, struct nbu2ss_ep, ep);
+<<<<<<< HEAD
 	if ((!ep) || (!ep->udc)) {
+=======
+	if (!ep->udc) {
+>>>>>>> upstream/android-13
 		pr_err("udc: *** %s, ep == NULL !!\n", __func__);
 		return -EINVAL;
 	}
@@ -2587,9 +3101,14 @@ static int nbu2ss_ep_disable(struct usb_ep *_ep)
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static struct usb_request *nbu2ss_ep_alloc_request(
 	struct usb_ep *ep,
 	gfp_t gfp_flags)
+=======
+static struct usb_request *nbu2ss_ep_alloc_request(struct usb_ep *ep,
+						   gfp_t gfp_flags)
+>>>>>>> upstream/android-13
 {
 	struct nbu2ss_req *req;
 
@@ -2606,9 +3125,14 @@ static struct usb_request *nbu2ss_ep_alloc_request(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static void nbu2ss_ep_free_request(
 	struct usb_ep *_ep,
 	struct usb_request *_req)
+=======
+static void nbu2ss_ep_free_request(struct usb_ep *_ep,
+				   struct usb_request *_req)
+>>>>>>> upstream/android-13
 {
 	struct nbu2ss_req *req;
 
@@ -2620,10 +3144,15 @@ static void nbu2ss_ep_free_request(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int nbu2ss_ep_queue(
 	struct usb_ep *_ep,
 	struct usb_request *_req,
 	gfp_t gfp_flags)
+=======
+static int nbu2ss_ep_queue(struct usb_ep *_ep,
+			   struct usb_request *_req, gfp_t gfp_flags)
+>>>>>>> upstream/android-13
 {
 	struct nbu2ss_req	*req;
 	struct nbu2ss_ep	*ep;
@@ -2633,7 +3162,11 @@ static int nbu2ss_ep_queue(
 	int			result = -EINVAL;
 
 	/* catch various bogus parameters */
+<<<<<<< HEAD
 	if ((!_ep) || (!_req)) {
+=======
+	if (!_ep || !_req) {
+>>>>>>> upstream/android-13
 		if (!_ep)
 			pr_err("udc: %s --- _ep == NULL\n", __func__);
 
@@ -2677,6 +3210,7 @@ static int nbu2ss_ep_queue(
 
 #ifdef USE_DMA
 	if ((uintptr_t)req->req.buf & 0x3)
+<<<<<<< HEAD
 		req->unaligned = TRUE;
 	else
 		req->unaligned = FALSE;
@@ -2686,6 +3220,17 @@ static int nbu2ss_ep_queue(
 			ep->virt_buf = dma_alloc_coherent(
 				NULL, PAGE_SIZE,
 				&ep->phys_buf, GFP_ATOMIC | GFP_DMA);
+=======
+		req->unaligned = true;
+	else
+		req->unaligned = false;
+
+	if (req->unaligned) {
+		if (!ep->virt_buf)
+			ep->virt_buf = dma_alloc_coherent(udc->dev, PAGE_SIZE,
+							  &ep->phys_buf,
+							  GFP_ATOMIC | GFP_DMA);
+>>>>>>> upstream/android-13
 		if (ep->epnum > 0)  {
 			if (ep->direct == USB_DIR_IN)
 				memcpy(ep->virt_buf, req->req.buf,
@@ -2705,7 +3250,11 @@ static int nbu2ss_ep_queue(
 	list_add_tail(&req->queue, &ep->queue);
 
 	if (bflag && !ep->stalled) {
+<<<<<<< HEAD
 		result = _nbu2ss_start_transfer(udc, ep, req, FALSE);
+=======
+		result = _nbu2ss_start_transfer(udc, ep, req, false);
+>>>>>>> upstream/android-13
 		if (result < 0) {
 			dev_err(udc->dev, " *** %s, result = %d\n", __func__,
 				result);
@@ -2727,9 +3276,13 @@ static int nbu2ss_ep_queue(
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int nbu2ss_ep_dequeue(
 	struct usb_ep *_ep,
 	struct usb_request *_req)
+=======
+static int nbu2ss_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
+>>>>>>> upstream/android-13
 {
 	struct nbu2ss_req	*req;
 	struct nbu2ss_ep	*ep;
@@ -2737,16 +3290,23 @@ static int nbu2ss_ep_dequeue(
 	unsigned long flags;
 
 	/* catch various bogus parameters */
+<<<<<<< HEAD
 	if ((!_ep) || (!_req)) {
+=======
+	if (!_ep || !_req) {
+>>>>>>> upstream/android-13
 		/* pr_err("%s, bad param(1)\n", __func__); */
 		return -EINVAL;
 	}
 
 	ep = container_of(_ep, struct nbu2ss_ep, ep);
+<<<<<<< HEAD
 	if (!ep) {
 		pr_err("%s, ep == NULL !!\n", __func__);
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	udc = ep->udc;
 	if (!udc)
@@ -2756,6 +3316,7 @@ static int nbu2ss_ep_dequeue(
 
 	/* make sure it's actually queued on this endpoint */
 	list_for_each_entry(req, &ep->queue, queue) {
+<<<<<<< HEAD
 		if (&req->req == _req)
 			break;
 	}
@@ -2770,6 +3331,20 @@ static int nbu2ss_ep_dequeue(
 	spin_unlock_irqrestore(&udc->lock, flags);
 
 	return 0;
+=======
+		if (&req->req == _req) {
+			_nbu2ss_ep_done(ep, req, -ECONNRESET);
+			spin_unlock_irqrestore(&udc->lock, flags);
+			return 0;
+		}
+	}
+
+	spin_unlock_irqrestore(&udc->lock, flags);
+
+	pr_debug("%s no queue(EINVAL)\n", __func__);
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------------------------------------------------------*/
@@ -2787,10 +3362,13 @@ static int nbu2ss_ep_set_halt(struct usb_ep *_ep, int value)
 	}
 
 	ep = container_of(_ep, struct nbu2ss_ep, ep);
+<<<<<<< HEAD
 	if (!ep) {
 		pr_err("%s, bad ep\n", __func__);
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	udc = ep->udc;
 	if (!udc) {
@@ -2803,12 +3381,20 @@ static int nbu2ss_ep_set_halt(struct usb_ep *_ep, int value)
 	ep_adrs = ep->epnum | ep->direct;
 	if (value == 0) {
 		_nbu2ss_set_endpoint_stall(udc, ep_adrs, value);
+<<<<<<< HEAD
 		ep->stalled = FALSE;
+=======
+		ep->stalled = false;
+>>>>>>> upstream/android-13
 	} else {
 		if (list_empty(&ep->queue))
 			_nbu2ss_epn_set_stall(udc, ep);
 		else
+<<<<<<< HEAD
 			ep->stalled = TRUE;
+=======
+			ep->stalled = true;
+>>>>>>> upstream/android-13
 	}
 
 	if (value == 0)
@@ -2831,7 +3417,11 @@ static int nbu2ss_ep_fifo_status(struct usb_ep *_ep)
 	struct nbu2ss_ep	*ep;
 	struct nbu2ss_udc	*udc;
 	unsigned long		flags;
+<<<<<<< HEAD
 	struct fc_regs		*preg;
+=======
+	struct fc_regs	__iomem *preg;
+>>>>>>> upstream/android-13
 
 	if (!_ep) {
 		pr_err("%s, bad param\n", __func__);
@@ -2839,10 +3429,13 @@ static int nbu2ss_ep_fifo_status(struct usb_ep *_ep)
 	}
 
 	ep = container_of(_ep, struct nbu2ss_ep, ep);
+<<<<<<< HEAD
 	if (!ep) {
 		pr_err("%s, bad ep\n", __func__);
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	udc = ep->udc;
 	if (!udc) {
@@ -2852,7 +3445,11 @@ static int nbu2ss_ep_fifo_status(struct usb_ep *_ep)
 
 	preg = udc->p_regs;
 
+<<<<<<< HEAD
 	data = gpio_get_value(VBUS_VALUE);
+=======
+	data = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 	if (data == 0)
 		return -EINVAL;
 
@@ -2885,10 +3482,13 @@ static void  nbu2ss_ep_fifo_flush(struct usb_ep *_ep)
 	}
 
 	ep = container_of(_ep, struct nbu2ss_ep, ep);
+<<<<<<< HEAD
 	if (!ep) {
 		pr_err("udc: %s, bad ep\n", __func__);
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	udc = ep->udc;
 	if (!udc) {
@@ -2896,7 +3496,11 @@ static void  nbu2ss_ep_fifo_flush(struct usb_ep *_ep)
 		return;
 	}
 
+<<<<<<< HEAD
 	data = gpio_get_value(VBUS_VALUE);
+=======
+	data = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 	if (data == 0)
 		return;
 
@@ -2938,7 +3542,11 @@ static int nbu2ss_gad_get_frame(struct usb_gadget *pgadget)
 	}
 
 	udc = container_of(pgadget, struct nbu2ss_udc, gadget);
+<<<<<<< HEAD
 	data = gpio_get_value(VBUS_VALUE);
+=======
+	data = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 	if (data == 0)
 		return -EINVAL;
 
@@ -2959,12 +3567,17 @@ static int nbu2ss_gad_wakeup(struct usb_gadget *pgadget)
 	}
 
 	udc = container_of(pgadget, struct nbu2ss_udc, gadget);
+<<<<<<< HEAD
 	if (!udc) {
 		dev_err(&pgadget->dev, "%s, udc == NULL\n", __func__);
 		return -EINVAL;
 	}
 
 	data = gpio_get_value(VBUS_VALUE);
+=======
+
+	data = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 	if (data == 0) {
 		dev_warn(&pgadget->dev, "VBUS LEVEL = %d\n", data);
 		return -EINVAL;
@@ -3060,10 +3673,15 @@ static int nbu2ss_gad_pullup(struct usb_gadget *pgadget, int is_on)
 }
 
 /*-------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int nbu2ss_gad_ioctl(
 	struct usb_gadget *pgadget,
 	unsigned int code,
 	unsigned long param)
+=======
+static int nbu2ss_gad_ioctl(struct usb_gadget *pgadget,
+			    unsigned int code, unsigned long param)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -3152,9 +3770,14 @@ static void nbu2ss_drv_ep_init(struct nbu2ss_udc *udc)
 
 /*-------------------------------------------------------------------------*/
 /* platform_driver */
+<<<<<<< HEAD
 static int nbu2ss_drv_contest_init(
 	struct platform_device *pdev,
 	struct nbu2ss_udc *udc)
+=======
+static int nbu2ss_drv_contest_init(struct platform_device *pdev,
+				   struct nbu2ss_udc *udc)
+>>>>>>> upstream/android-13
 {
 	spin_lock_init(&udc->lock);
 	udc->dev = &pdev->dev;
@@ -3190,9 +3813,14 @@ static int nbu2ss_drv_contest_init(
  */
 static int nbu2ss_drv_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int	status = -ENODEV;
 	struct nbu2ss_udc	*udc;
 	struct resource *r;
+=======
+	int status;
+	struct nbu2ss_udc *udc;
+>>>>>>> upstream/android-13
 	int irq;
 	void __iomem *mmio_base;
 
@@ -3202,21 +3830,34 @@ static int nbu2ss_drv_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, udc);
 
 	/* require I/O memory and IRQ to be provided as resources */
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mmio_base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	mmio_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mmio_base))
 		return PTR_ERR(mmio_base);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "failed to get IRQ\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 	status = devm_request_irq(&pdev->dev, irq, _nbu2ss_udc_irq,
 				  0, driver_name, udc);
 
 	/* IO Memory */
+<<<<<<< HEAD
 	udc->p_regs = (struct fc_regs *)mmio_base;
+=======
+	udc->p_regs = (struct fc_regs __iomem *)mmio_base;
+>>>>>>> upstream/android-13
 
 	/* USB Function Controller Interrupt */
 	if (status != 0) {
@@ -3232,12 +3873,22 @@ static int nbu2ss_drv_probe(struct platform_device *pdev)
 	}
 
 	/* VBUS Interrupt */
+<<<<<<< HEAD
 	irq_set_irq_type(INT_VBUS, IRQ_TYPE_EDGE_BOTH);
 	status = request_irq(INT_VBUS,
 			     _nbu2ss_vbus_irq, IRQF_SHARED, driver_name, udc);
 
 	if (status != 0) {
 		dev_err(udc->dev, "request_irq(INT_VBUS) failed\n");
+=======
+	vbus_irq = gpiod_to_irq(vbus_gpio);
+	irq_set_irq_type(vbus_irq, IRQ_TYPE_EDGE_BOTH);
+	status = request_irq(vbus_irq,
+			     _nbu2ss_vbus_irq, IRQF_SHARED, driver_name, udc);
+
+	if (status != 0) {
+		dev_err(udc->dev, "request_irq(vbus_irq) failed\n");
+>>>>>>> upstream/android-13
 		return status;
 	}
 
@@ -3268,12 +3919,20 @@ static int nbu2ss_drv_remove(struct platform_device *pdev)
 	for (i = 0; i < NUM_ENDPOINTS; i++) {
 		ep = &udc->ep[i];
 		if (ep->virt_buf)
+<<<<<<< HEAD
 			dma_free_coherent(NULL, PAGE_SIZE, (void *)ep->virt_buf,
+=======
+			dma_free_coherent(udc->dev, PAGE_SIZE, (void *)ep->virt_buf,
+>>>>>>> upstream/android-13
 					  ep->phys_buf);
 	}
 
 	/* Interrupt Handler - Release */
+<<<<<<< HEAD
 	free_irq(INT_VBUS, udc);
+=======
+	free_irq(vbus_irq, udc);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3314,7 +3973,11 @@ static int nbu2ss_drv_resume(struct platform_device *pdev)
 	if (!udc)
 		return 0;
 
+<<<<<<< HEAD
 	data = gpio_get_value(VBUS_VALUE);
+=======
+	data = gpiod_get_value(vbus_gpio);
+>>>>>>> upstream/android-13
 	if (data) {
 		udc->vbus_active = 1;
 		udc->devstate = USB_STATE_POWERED;

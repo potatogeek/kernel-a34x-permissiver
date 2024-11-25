@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 Amazon.com, Inc. or its affiliates.
  *
@@ -28,6 +29,11 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright 2015-2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef ENA_COM
@@ -37,6 +43,11 @@
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+#include <linux/prefetch.h>
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/sizes.h>
 #include <linux/spinlock.h>
@@ -52,9 +63,15 @@
 #undef pr_fmt
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+<<<<<<< HEAD
 #define ENA_MAX_NUM_IO_QUEUES		128U
 /* We need to queues for each IO (on for Tx and one for Rx) */
 #define ENA_TOTAL_NUM_QUEUES		(2 * (ENA_MAX_NUM_IO_QUEUES))
+=======
+#define ENA_MAX_NUM_IO_QUEUES 128U
+/* We need to queues for each IO (on for Tx and one for Rx) */
+#define ENA_TOTAL_NUM_QUEUES (2 * (ENA_MAX_NUM_IO_QUEUES))
+>>>>>>> upstream/android-13
 
 #define ENA_MAX_HANDLERS 256
 
@@ -71,6 +88,7 @@
 /*****************************************************************************/
 /* ENA adaptive interrupt moderation settings */
 
+<<<<<<< HEAD
 #define ENA_INTR_LOWEST_USECS           (0)
 #define ENA_INTR_LOWEST_PKTS            (3)
 #define ENA_INTR_LOWEST_BYTES           (2 * 1524)
@@ -113,6 +131,24 @@ struct ena_intr_moder_entry {
 	unsigned int intr_moder_interval;
 	unsigned int pkts_per_interval;
 	unsigned int bytes_per_interval;
+=======
+#define ENA_INTR_INITIAL_TX_INTERVAL_USECS 64
+#define ENA_INTR_INITIAL_RX_INTERVAL_USECS 0
+#define ENA_DEFAULT_INTR_DELAY_RESOLUTION 1
+
+#define ENA_HASH_KEY_SIZE 40
+
+#define ENA_HW_HINTS_NO_TIMEOUT	0xFFFF
+
+#define ENA_FEATURE_MAX_QUEUE_EXT_VER 1
+
+struct ena_llq_configurations {
+	enum ena_admin_llq_header_location llq_header_location;
+	enum ena_admin_llq_ring_entry_size llq_ring_entry_size;
+	enum ena_admin_llq_stride_ctrl  llq_stride_ctrl;
+	enum ena_admin_llq_num_descs_before_header llq_num_decs_before_header;
+	u16 llq_ring_entry_size_value;
+>>>>>>> upstream/android-13
 };
 
 enum queue_direction {
@@ -143,6 +179,20 @@ struct ena_com_tx_meta {
 	u16 l4_hdr_len; /* In words */
 };
 
+<<<<<<< HEAD
+=======
+struct ena_com_llq_info {
+	u16 header_location_ctrl;
+	u16 desc_stride_ctrl;
+	u16 desc_list_entry_size_ctrl;
+	u16 desc_list_entry_size;
+	u16 descs_num_before_header;
+	u16 descs_per_entry;
+	u16 max_entries_in_tx_burst;
+	bool disable_meta_caching;
+};
+
+>>>>>>> upstream/android-13
 struct ena_com_io_cq {
 	struct ena_com_io_desc_addr cdesc_addr;
 
@@ -164,7 +214,11 @@ struct ena_com_io_cq {
 
 	/* holds the number of cdesc of the current packet */
 	u16 cur_rx_pkt_cdesc_count;
+<<<<<<< HEAD
 	/* save the firt cdesc idx of the current packet */
+=======
+	/* save the first cdesc idx of the current packet */
+>>>>>>> upstream/android-13
 	u16 cur_rx_pkt_cdesc_start_idx;
 
 	u16 q_depth;
@@ -180,6 +234,23 @@ struct ena_com_io_cq {
 
 } ____cacheline_aligned;
 
+<<<<<<< HEAD
+=======
+struct ena_com_io_bounce_buffer_control {
+	u8 *base_buffer;
+	u16 next_to_use;
+	u16 buffer_size;
+	u16 buffers_num;  /* Must be a power of 2 */
+};
+
+/* This struct is to keep tracking the current location of the next llq entry */
+struct ena_com_llq_pkt_ctrl {
+	u8 *curr_bounce_buf;
+	u16 idx;
+	u16 descs_left_in_line;
+};
+
+>>>>>>> upstream/android-13
 struct ena_com_io_sq {
 	struct ena_com_io_desc_addr desc_addr;
 
@@ -189,8 +260,18 @@ struct ena_com_io_sq {
 	enum queue_direction direction;
 	enum ena_admin_placement_policy_type mem_queue_type;
 
+<<<<<<< HEAD
 	u32 msix_vector;
 	struct ena_com_tx_meta cached_tx_meta;
+=======
+	bool disable_meta_caching;
+
+	u32 msix_vector;
+	struct ena_com_tx_meta cached_tx_meta;
+	struct ena_com_llq_info llq_info;
+	struct ena_com_llq_pkt_ctrl llq_buf_ctrl;
+	struct ena_com_io_bounce_buffer_control bounce_buf_ctrl;
+>>>>>>> upstream/android-13
 
 	u16 q_depth;
 	u16 qid;
@@ -198,10 +279,18 @@ struct ena_com_io_sq {
 	u16 idx;
 	u16 tail;
 	u16 next_to_comp;
+<<<<<<< HEAD
+=======
+	u16 llq_last_copy_tail;
+>>>>>>> upstream/android-13
 	u32 tx_max_header_size;
 	u8 phase;
 	u8 desc_entry_size;
 	u8 dma_addr_bits;
+<<<<<<< HEAD
+=======
+	u16 entries_in_tx_burst_left;
+>>>>>>> upstream/android-13
 } ____cacheline_aligned;
 
 struct ena_com_admin_cq {
@@ -225,15 +314,27 @@ struct ena_com_admin_sq {
 };
 
 struct ena_com_stats_admin {
+<<<<<<< HEAD
 	u32 aborted_cmd;
 	u32 submitted_cmd;
 	u32 completed_cmd;
 	u32 out_of_space;
 	u32 no_completion;
+=======
+	u64 aborted_cmd;
+	u64 submitted_cmd;
+	u64 completed_cmd;
+	u64 out_of_space;
+	u64 no_completion;
+>>>>>>> upstream/android-13
 };
 
 struct ena_com_admin_queue {
 	void *q_dmadev;
+<<<<<<< HEAD
+=======
+	struct ena_com_dev *ena_dev;
+>>>>>>> upstream/android-13
 	spinlock_t q_lock; /* spinlock for the admin queue */
 
 	struct ena_comp_ctx *comp_ctx;
@@ -245,6 +346,12 @@ struct ena_com_admin_queue {
 	/* Indicate if the admin queue should poll for completion */
 	bool polling;
 
+<<<<<<< HEAD
+=======
+	/* Define if fallback to polling mode should occur */
+	bool auto_polling;
+
+>>>>>>> upstream/android-13
 	u16 curr_cmd_id;
 
 	/* Indicate that the ena was initialized and can
@@ -318,6 +425,10 @@ struct ena_com_dev {
 	u8 __iomem *reg_bar;
 	void __iomem *mem_bar;
 	void *dmadev;
+<<<<<<< HEAD
+=======
+	struct net_device *net_device;
+>>>>>>> upstream/android-13
 
 	enum ena_admin_placement_policy_type tx_mem_queue_type;
 	u32 tx_max_header_size;
@@ -333,16 +444,39 @@ struct ena_com_dev {
 	struct ena_host_attribute host_attr;
 	bool adaptive_coalescing;
 	u16 intr_delay_resolution;
+<<<<<<< HEAD
 	u32 intr_moder_tx_interval;
 	struct ena_intr_moder_entry *intr_moder_tbl;
+=======
+
+	/* interrupt moderation intervals are in usec divided by
+	 * intr_delay_resolution, which is supplied by the device.
+	 */
+	u32 intr_moder_tx_interval;
+	u32 intr_moder_rx_interval;
+
+	struct ena_intr_moder_entry *intr_moder_tbl;
+
+	struct ena_com_llq_info llq_info;
+
+	u32 ena_min_poll_delay_us;
+>>>>>>> upstream/android-13
 };
 
 struct ena_com_dev_get_features_ctx {
 	struct ena_admin_queue_feature_desc max_queues;
+<<<<<<< HEAD
+=======
+	struct ena_admin_queue_ext_feature_desc max_queue_ext;
+>>>>>>> upstream/android-13
 	struct ena_admin_device_attr_feature_desc dev_attr;
 	struct ena_admin_feature_aenq_desc aenq;
 	struct ena_admin_feature_offload_desc offload;
 	struct ena_admin_ena_hw_hints hw_hints;
+<<<<<<< HEAD
+=======
+	struct ena_admin_feature_llq_desc llq;
+>>>>>>> upstream/android-13
 };
 
 struct ena_com_create_io_ctx {
@@ -377,7 +511,11 @@ struct ena_aenq_handlers {
  */
 int ena_com_mmio_reg_read_request_init(struct ena_com_dev *ena_dev);
 
+<<<<<<< HEAD
 /* ena_com_set_mmio_read_mode - Enable/disable the mmio reg read mechanism
+=======
+/* ena_com_set_mmio_read_mode - Enable/disable the indirect mmio reg read mechanism
+>>>>>>> upstream/android-13
  * @ena_dev: ENA communication layer struct
  * @readless_supported: readless mode (enable/disable)
  */
@@ -398,8 +536,11 @@ void ena_com_mmio_reg_read_request_destroy(struct ena_com_dev *ena_dev);
 /* ena_com_admin_init - Init the admin and the async queues
  * @ena_dev: ENA communication layer struct
  * @aenq_handlers: Those handlers to be called upon event.
+<<<<<<< HEAD
  * @init_spinlock: Indicate if this method should init the admin spinlock or
  * the spinlock was init before (for example, in a case of FLR).
+=======
+>>>>>>> upstream/android-13
  *
  * Initialize the admin submission and completion queues.
  * Initialize the asynchronous events notification queues.
@@ -407,8 +548,12 @@ void ena_com_mmio_reg_read_request_destroy(struct ena_com_dev *ena_dev);
  * @return - 0 on success, negative value on failure.
  */
 int ena_com_admin_init(struct ena_com_dev *ena_dev,
+<<<<<<< HEAD
 		       struct ena_aenq_handlers *aenq_handlers,
 		       bool init_spinlock);
+=======
+		       struct ena_aenq_handlers *aenq_handlers);
+>>>>>>> upstream/android-13
 
 /* ena_com_admin_destroy - Destroy the admin and the async events queues.
  * @ena_dev: ENA communication layer struct
@@ -488,6 +633,7 @@ bool ena_com_get_admin_running_state(struct ena_com_dev *ena_dev);
  */
 void ena_com_set_admin_polling_mode(struct ena_com_dev *ena_dev, bool polling);
 
+<<<<<<< HEAD
 /* ena_com_set_admin_polling_mode - Get the admin completion queue polling mode
  * @ena_dev: ENA communication layer struct
  *
@@ -499,11 +645,27 @@ void ena_com_set_admin_polling_mode(struct ena_com_dev *ena_dev, bool polling);
  * @return state
  */
 bool ena_com_get_ena_admin_polling_mode(struct ena_com_dev *ena_dev);
+=======
+/* ena_com_set_admin_auto_polling_mode - Enable autoswitch to polling mode
+ * @ena_dev: ENA communication layer struct
+ * @polling: Enable/Disable polling mode
+ *
+ * Set the autopolling mode.
+ * If autopolling is on:
+ * In case of missing interrupt when data is available switch to polling.
+ */
+void ena_com_set_admin_auto_polling_mode(struct ena_com_dev *ena_dev,
+					 bool polling);
+>>>>>>> upstream/android-13
 
 /* ena_com_admin_q_comp_intr_handler - admin queue interrupt handler
  * @ena_dev: ENA communication layer struct
  *
+<<<<<<< HEAD
  * This method go over the admin completion queue and wake up all the pending
+=======
+ * This method goes over the admin completion queue and wakes up all the pending
+>>>>>>> upstream/android-13
  * threads that wait on the commands wait event.
  *
  * @note: Should be called after MSI-X interrupt.
@@ -513,10 +675,17 @@ void ena_com_admin_q_comp_intr_handler(struct ena_com_dev *ena_dev);
 /* ena_com_aenq_intr_handler - AENQ interrupt handler
  * @ena_dev: ENA communication layer struct
  *
+<<<<<<< HEAD
  * This method go over the async event notification queue and call the proper
  * aenq handler.
  */
 void ena_com_aenq_intr_handler(struct ena_com_dev *dev, void *data);
+=======
+ * This method goes over the async event notification queue and calls the proper
+ * aenq handler.
+ */
+void ena_com_aenq_intr_handler(struct ena_com_dev *ena_dev, void *data);
+>>>>>>> upstream/android-13
 
 /* ena_com_abort_admin_commands - Abort all the outstanding admin commands.
  * @ena_dev: ENA communication layer struct
@@ -530,14 +699,22 @@ void ena_com_abort_admin_commands(struct ena_com_dev *ena_dev);
 /* ena_com_wait_for_abort_completion - Wait for admin commands abort.
  * @ena_dev: ENA communication layer struct
  *
+<<<<<<< HEAD
  * This method wait until all the outstanding admin commands will be completed.
+=======
+ * This method waits until all the outstanding admin commands are completed.
+>>>>>>> upstream/android-13
  */
 void ena_com_wait_for_abort_completion(struct ena_com_dev *ena_dev);
 
 /* ena_com_validate_version - Validate the device parameters
  * @ena_dev: ENA communication layer struct
  *
+<<<<<<< HEAD
  * This method validate the device parameters are the same as the saved
+=======
+ * This method verifies the device parameters are the same as the saved
+>>>>>>> upstream/android-13
  * parameters in ena_dev.
  * This method is useful after device reset, to validate the device mac address
  * and the device offloads are the same as before the reset.
@@ -596,13 +773,29 @@ int ena_com_get_dev_attr_feat(struct ena_com_dev *ena_dev,
 int ena_com_get_dev_basic_stats(struct ena_com_dev *ena_dev,
 				struct ena_admin_basic_stats *stats);
 
+<<<<<<< HEAD
+=======
+/* ena_com_get_eni_stats - Get extended network interface statistics
+ * @ena_dev: ENA communication layer struct
+ * @stats: stats return value
+ *
+ * @return: 0 on Success and negative value otherwise.
+ */
+int ena_com_get_eni_stats(struct ena_com_dev *ena_dev,
+			  struct ena_admin_eni_stats *stats);
+
+>>>>>>> upstream/android-13
 /* ena_com_set_dev_mtu - Configure the device mtu.
  * @ena_dev: ENA communication layer struct
  * @mtu: mtu value
  *
  * @return: 0 on Success and negative value otherwise.
  */
+<<<<<<< HEAD
 int ena_com_set_dev_mtu(struct ena_com_dev *ena_dev, int mtu);
+=======
+int ena_com_set_dev_mtu(struct ena_com_dev *ena_dev, u32 mtu);
+>>>>>>> upstream/android-13
 
 /* ena_com_get_offload_settings - Retrieve the device offloads capabilities
  * @ena_dev: ENA communication layer struct
@@ -671,6 +864,7 @@ int ena_com_fill_hash_function(struct ena_com_dev *ena_dev,
  */
 int ena_com_set_hash_function(struct ena_com_dev *ena_dev);
 
+<<<<<<< HEAD
 /* ena_com_get_hash_function - Retrieve the hash function and the hash key
  * from the device.
  * @ena_dev: ENA communication layer struct
@@ -680,14 +874,40 @@ int ena_com_set_hash_function(struct ena_com_dev *ena_dev);
  * Retrieve the hash function and the hash key from the device.
  *
  * @note: If the caller called ena_com_fill_hash_function but didn't flash
+=======
+/* ena_com_get_hash_function - Retrieve the hash function from the device.
+ * @ena_dev: ENA communication layer struct
+ * @func: hash function
+ *
+ * Retrieve the hash function from the device.
+ *
+ * @note: If the caller called ena_com_fill_hash_function but didn't flush
+>>>>>>> upstream/android-13
  * it to the device, the new configuration will be lost.
  *
  * @return: 0 on Success and negative value otherwise.
  */
 int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
+<<<<<<< HEAD
 			      enum ena_admin_hash_functions *func,
 			      u8 *key);
 
+=======
+			      enum ena_admin_hash_functions *func);
+
+/* ena_com_get_hash_key - Retrieve the hash key
+ * @ena_dev: ENA communication layer struct
+ * @key: hash key
+ *
+ * Retrieve the hash key.
+ *
+ * @note: If the caller called ena_com_fill_hash_key but didn't flush
+ * it to the device, the new configuration will be lost.
+ *
+ * @return: 0 on Success and negative value otherwise.
+ */
+int ena_com_get_hash_key(struct ena_com_dev *ena_dev, u8 *key);
+>>>>>>> upstream/android-13
 /* ena_com_fill_hash_ctrl - Fill RSS hash control
  * @ena_dev: ENA communication layer struct.
  * @proto: The protocol to configure.
@@ -722,7 +942,11 @@ int ena_com_set_hash_ctrl(struct ena_com_dev *ena_dev);
  *
  * Retrieve the hash control from the device.
  *
+<<<<<<< HEAD
  * @note, If the caller called ena_com_fill_hash_ctrl but didn't flash
+=======
+ * @note: If the caller called ena_com_fill_hash_ctrl but didn't flush
+>>>>>>> upstream/android-13
  * it to the device, the new configuration will be lost.
  *
  * @return: 0 on Success and negative value otherwise.
@@ -774,7 +998,11 @@ int ena_com_indirect_table_set(struct ena_com_dev *ena_dev);
  *
  * Retrieve the RSS indirection table from the device.
  *
+<<<<<<< HEAD
  * @note: If the caller called ena_com_indirect_table_fill_entry but didn't flash
+=======
+ * @note: If the caller called ena_com_indirect_table_fill_entry but didn't flush
+>>>>>>> upstream/android-13
  * it to the device, the new configuration will be lost.
  *
  * @return: 0 on Success and negative value otherwise.
@@ -800,14 +1028,22 @@ int ena_com_allocate_debug_area(struct ena_com_dev *ena_dev,
 /* ena_com_delete_debug_area - Free the debug area resources.
  * @ena_dev: ENA communication layer struct
  *
+<<<<<<< HEAD
  * Free the allocate debug area.
+=======
+ * Free the allocated debug area.
+>>>>>>> upstream/android-13
  */
 void ena_com_delete_debug_area(struct ena_com_dev *ena_dev);
 
 /* ena_com_delete_host_info - Free the host info resources.
  * @ena_dev: ENA communication layer struct
  *
+<<<<<<< HEAD
  * Free the allocate host info.
+=======
+ * Free the allocated host info.
+>>>>>>> upstream/android-13
  */
 void ena_com_delete_host_info(struct ena_com_dev *ena_dev);
 
@@ -848,9 +1084,15 @@ int ena_com_destroy_io_cq(struct ena_com_dev *ena_dev,
  * @cmd_completion: command completion return value.
  * @cmd_comp_size: command completion size.
 
+<<<<<<< HEAD
  * Submit an admin command and then wait until the device will return a
  * completion.
  * The completion will be copyed into cmd_comp.
+=======
+ * Submit an admin command and then wait until the device returns a
+ * completion.
+ * The completion will be copied into cmd_comp.
+>>>>>>> upstream/android-13
  *
  * @return - 0 on success, negative value on failure.
  */
@@ -867,11 +1109,14 @@ int ena_com_execute_admin_command(struct ena_com_admin_queue *admin_queue,
  */
 int ena_com_init_interrupt_moderation(struct ena_com_dev *ena_dev);
 
+<<<<<<< HEAD
 /* ena_com_destroy_interrupt_moderation - Destroy interrupt moderation resources
  * @ena_dev: ENA communication layer struct
  */
 void ena_com_destroy_interrupt_moderation(struct ena_com_dev *ena_dev);
 
+=======
+>>>>>>> upstream/android-13
 /* ena_com_interrupt_moderation_supported - Return if interrupt moderation
  * capability is supported by the device.
  *
@@ -879,12 +1124,15 @@ void ena_com_destroy_interrupt_moderation(struct ena_com_dev *ena_dev);
  */
 bool ena_com_interrupt_moderation_supported(struct ena_com_dev *ena_dev);
 
+<<<<<<< HEAD
 /* ena_com_config_default_interrupt_moderation_table - Restore the interrupt
  * moderation table back to the default parameters.
  * @ena_dev: ENA communication layer struct
  */
 void ena_com_config_default_interrupt_moderation_table(struct ena_com_dev *ena_dev);
 
+=======
+>>>>>>> upstream/android-13
 /* ena_com_update_nonadaptive_moderation_interval_tx - Update the
  * non-adaptive interval in Tx direction.
  * @ena_dev: ENA communication layer struct
@@ -921,6 +1169,7 @@ unsigned int ena_com_get_nonadaptive_moderation_interval_tx(struct ena_com_dev *
  */
 unsigned int ena_com_get_nonadaptive_moderation_interval_rx(struct ena_com_dev *ena_dev);
 
+<<<<<<< HEAD
 /* ena_com_init_intr_moderation_entry - Update a single entry in the interrupt
  * moderation table.
  * @ena_dev: ENA communication layer struct
@@ -943,6 +1192,37 @@ void ena_com_init_intr_moderation_entry(struct ena_com_dev *ena_dev,
 void ena_com_get_intr_moderation_entry(struct ena_com_dev *ena_dev,
 				       enum ena_intr_moder_level level,
 				       struct ena_intr_moder_entry *entry);
+=======
+/* ena_com_config_dev_mode - Configure the placement policy of the device.
+ * @ena_dev: ENA communication layer struct
+ * @llq_features: LLQ feature descriptor, retrieve via
+ *		   ena_com_get_dev_attr_feat.
+ * @ena_llq_config: The default driver LLQ parameters configurations
+ */
+int ena_com_config_dev_mode(struct ena_com_dev *ena_dev,
+			    struct ena_admin_feature_llq_desc *llq_features,
+			    struct ena_llq_configurations *llq_default_config);
+
+/* ena_com_io_sq_to_ena_dev - Extract ena_com_dev using contained field io_sq.
+ * @io_sq: IO submit queue struct
+ *
+ * @return - ena_com_dev struct extracted from io_sq
+ */
+static inline struct ena_com_dev *ena_com_io_sq_to_ena_dev(struct ena_com_io_sq *io_sq)
+{
+	return container_of(io_sq, struct ena_com_dev, io_sq_queues[io_sq->qid]);
+}
+
+/* ena_com_io_cq_to_ena_dev - Extract ena_com_dev using contained field io_cq.
+ * @io_sq: IO submit queue struct
+ *
+ * @return - ena_com_dev struct extracted from io_sq
+ */
+static inline struct ena_com_dev *ena_com_io_cq_to_ena_dev(struct ena_com_io_cq *io_cq)
+{
+	return container_of(io_cq, struct ena_com_dev, io_cq_queues[io_cq->qid]);
+}
+>>>>>>> upstream/android-13
 
 static inline bool ena_com_get_adaptive_moderation_enabled(struct ena_com_dev *ena_dev)
 {
@@ -959,6 +1239,7 @@ static inline void ena_com_disable_adaptive_moderation(struct ena_com_dev *ena_d
 	ena_dev->adaptive_coalescing = false;
 }
 
+<<<<<<< HEAD
 /* ena_com_calculate_interrupt_delay - Calculate new interrupt delay
  * @ena_dev: ENA communication layer struct
  * @pkts: Number of packets since the last update
@@ -1028,11 +1309,17 @@ static inline void ena_com_calculate_interrupt_delay(struct ena_com_dev *ena_dev
 	*moder_tbl_idx = new_moder_idx;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* ena_com_update_intr_reg - Prepare interrupt register
  * @intr_reg: interrupt register to update.
  * @rx_delay_interval: Rx interval in usecs
  * @tx_delay_interval: Tx interval in usecs
+<<<<<<< HEAD
  * @unmask: unask enable/disable
+=======
+ * @unmask: unmask enable/disable
+>>>>>>> upstream/android-13
  *
  * Prepare interrupt update register with the supplied parameters.
  */
@@ -1053,4 +1340,24 @@ static inline void ena_com_update_intr_reg(struct ena_eth_io_intr_reg *intr_reg,
 		intr_reg->intr_control |= ENA_ETH_IO_INTR_REG_INTR_UNMASK_MASK;
 }
 
+<<<<<<< HEAD
+=======
+static inline u8 *ena_com_get_next_bounce_buffer(struct ena_com_io_bounce_buffer_control *bounce_buf_ctrl)
+{
+	u16 size, buffers_num;
+	u8 *buf;
+
+	size = bounce_buf_ctrl->buffer_size;
+	buffers_num = bounce_buf_ctrl->buffers_num;
+
+	buf = bounce_buf_ctrl->base_buffer +
+		(bounce_buf_ctrl->next_to_use++ & (buffers_num - 1)) * size;
+
+	prefetchw(bounce_buf_ctrl->base_buffer +
+		(bounce_buf_ctrl->next_to_use & (buffers_num - 1)) * size);
+
+	return buf;
+}
+
+>>>>>>> upstream/android-13
 #endif /* !(ENA_COM) */

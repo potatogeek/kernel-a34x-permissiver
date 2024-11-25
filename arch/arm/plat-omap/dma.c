@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/plat-omap/dma.c
  *
@@ -15,6 +19,7 @@
  *
  * Support functions for the OMAP internal DMA channels.
  *
+<<<<<<< HEAD
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
  * Converted DMA library into DMA platform driver.
  *	- G, Manjunath Kondaiah <manjugk@ti.com>
@@ -23,6 +28,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+ * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
+ * Converted DMA library into DMA platform driver.
+ *	- G, Manjunath Kondaiah <manjugk@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -69,6 +79,7 @@ enum { DMA_CHAIN_STARTED, DMA_CHAIN_NOTSTARTED };
 static struct omap_system_dma_plat_info *p;
 static struct omap_dma_dev_attr *d;
 static void omap_clear_dma(int lch);
+<<<<<<< HEAD
 static int omap_dma_set_prio_lch(int lch, unsigned char read_prio,
 				 unsigned char write_prio);
 static int enable_1510_mode;
@@ -81,6 +92,11 @@ static struct omap_dma_global_context_registers {
 	u32 dma_gcr;
 } omap_dma_global_context;
 
+=======
+static int enable_1510_mode;
+static u32 errata;
+
+>>>>>>> upstream/android-13
 struct dma_link_info {
 	int *linked_dmach_q;
 	int no_of_lchs_linked;
@@ -94,6 +110,7 @@ struct dma_link_info {
 
 };
 
+<<<<<<< HEAD
 static struct dma_link_info *dma_linked_lch;
 
 #ifndef CONFIG_ARCH_OMAP1
@@ -130,20 +147,29 @@ static struct dma_link_info *dma_linked_lch;
 	} while (0)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int dma_lch_count;
 static int dma_chan_count;
 static int omap_dma_reserve_channels;
 
+<<<<<<< HEAD
 static spinlock_t dma_chan_lock;
+=======
+static DEFINE_SPINLOCK(dma_chan_lock);
+>>>>>>> upstream/android-13
 static struct omap_dma_lch *dma_chan;
 
 static inline void disable_lnk(int lch);
 static void omap_disable_channel_irq(int lch);
 static inline void omap_enable_channel_irq(int lch);
 
+<<<<<<< HEAD
 #define REVISIT_24XX()		printk(KERN_ERR "FIXME: no %s on 24xx\n", \
 						__func__);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARCH_OMAP15XX
 /* Returns 1 if the DMA module is in OMAP1510-compatible mode, 0 otherwise */
 static int omap_dma_in_1510_mode(void)
@@ -282,6 +308,7 @@ void omap_set_dma_transfer_params(int lch, int data_type, int elem_count,
 }
 EXPORT_SYMBOL(omap_set_dma_transfer_params);
 
+<<<<<<< HEAD
 void omap_set_dma_write_mode(int lch, enum omap_dma_write_mode mode)
 {
 	if (dma_omap2plus()) {
@@ -295,6 +322,8 @@ void omap_set_dma_write_mode(int lch, enum omap_dma_write_mode mode)
 }
 EXPORT_SYMBOL(omap_set_dma_write_mode);
 
+=======
+>>>>>>> upstream/android-13
 void omap_set_dma_channel_mode(int lch, enum omap_dma_channel_mode mode)
 {
 	if (dma_omap1() && !dma_omap15xx()) {
@@ -336,6 +365,7 @@ void omap_set_dma_src_params(int lch, int src_port, int src_amode,
 }
 EXPORT_SYMBOL(omap_set_dma_src_params);
 
+<<<<<<< HEAD
 void omap_set_dma_params(int lch, struct omap_dma_channel_params *params)
 {
 	omap_set_dma_transfer_params(lch, params->data_type,
@@ -355,6 +385,8 @@ void omap_set_dma_params(int lch, struct omap_dma_channel_params *params)
 }
 EXPORT_SYMBOL(omap_set_dma_params);
 
+=======
+>>>>>>> upstream/android-13
 void omap_set_dma_src_data_pack(int lch, int enable)
 {
 	u32 l;
@@ -392,17 +424,27 @@ void omap_set_dma_src_burst_mode(int lch, enum omap_dma_burst_mode burst_mode)
 		/*
 		 * not supported by current hardware on OMAP1
 		 * w |= (0x03 << 7);
+<<<<<<< HEAD
 		 * fall through
 		 */
+=======
+		 */
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OMAP_DMA_DATA_BURST_16:
 		if (dma_omap2plus()) {
 			burst = 0x3;
 			break;
 		}
+<<<<<<< HEAD
 		/*
 		 * OMAP1 don't support burst 16
 		 * fall through
 		 */
+=======
+		/* OMAP1 don't support burst 16 */
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 	}
@@ -478,10 +520,15 @@ void omap_set_dma_dest_burst_mode(int lch, enum omap_dma_burst_mode burst_mode)
 			burst = 0x3;
 			break;
 		}
+<<<<<<< HEAD
 		/*
 		 * OMAP1 don't support burst 16
 		 * fall through
 		 */
+=======
+		/* OMAP1 don't support burst 16 */
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		printk(KERN_ERR "Invalid DMA burst mode\n");
 		BUG();
@@ -515,12 +562,15 @@ static inline void omap_disable_channel_irq(int lch)
 		p->dma_write(OMAP2_DMA_CSR_CLEAR_MASK, CSR, lch);
 }
 
+<<<<<<< HEAD
 void omap_enable_dma_irq(int lch, u16 bits)
 {
 	dma_chan[lch].enabled_irqs |= bits;
 }
 EXPORT_SYMBOL(omap_enable_dma_irq);
 
+=======
+>>>>>>> upstream/android-13
 void omap_disable_dma_irq(int lch, u16 bits)
 {
 	dma_chan[lch].enabled_irqs &= ~bits;
@@ -540,12 +590,15 @@ static inline void enable_lnk(int lch)
 	if (dma_chan[lch].next_lch != -1)
 		l = dma_chan[lch].next_lch | (1 << 15);
 
+<<<<<<< HEAD
 #ifndef CONFIG_ARCH_OMAP1
 	if (dma_omap2plus())
 		if (dma_chan[lch].next_linked_ch != -1)
 			l = dma_chan[lch].next_linked_ch | (1 << 15);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	p->dma_write(l, CLNK_CTRL, lch);
 }
 
@@ -572,6 +625,7 @@ static inline void disable_lnk(int lch)
 	dma_chan[lch].flags &= ~OMAP_DMA_ACTIVE;
 }
 
+<<<<<<< HEAD
 static inline void omap2_enable_irq_lch(int lch)
 {
 	u32 val;
@@ -608,6 +662,8 @@ static inline void omap2_disable_irq_lch(int lch)
 	spin_unlock_irqrestore(&dma_chan_lock, flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 int omap_request_dma(int dev_id, const char *dev_name,
 		     void (*callback)(int lch, u16 ch_status, void *data),
 		     void *data, int *dma_ch_out)
@@ -636,9 +692,12 @@ int omap_request_dma(int dev_id, const char *dev_name,
 	if (p->clear_lch_regs)
 		p->clear_lch_regs(free_ch);
 
+<<<<<<< HEAD
 	if (dma_omap2plus())
 		omap_clear_dma(free_ch);
 
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dma_chan_lock, flags);
 
 	chan->dev_name = dev_name;
@@ -646,6 +705,7 @@ int omap_request_dma(int dev_id, const char *dev_name,
 	chan->data = data;
 	chan->flags = 0;
 
+<<<<<<< HEAD
 #ifndef CONFIG_ARCH_OMAP1
 	if (dma_omap2plus()) {
 		chan->chain_id = -1;
@@ -653,13 +713,18 @@ int omap_request_dma(int dev_id, const char *dev_name,
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	chan->enabled_irqs = OMAP_DMA_DROP_IRQ | OMAP_DMA_BLOCK_IRQ;
 
 	if (dma_omap1())
 		chan->enabled_irqs |= OMAP1_DMA_TOUT_IRQ;
+<<<<<<< HEAD
 	else if (dma_omap2plus())
 		chan->enabled_irqs |= OMAP2_DMA_MISALIGNED_ERR_IRQ |
 			OMAP2_DMA_TRANS_ERR_IRQ;
+=======
+>>>>>>> upstream/android-13
 
 	if (dma_omap16xx()) {
 		/* If the sync device is set, configure it dynamically. */
@@ -676,11 +741,14 @@ int omap_request_dma(int dev_id, const char *dev_name,
 		p->dma_write(dev_id, CCR, free_ch);
 	}
 
+<<<<<<< HEAD
 	if (dma_omap2plus()) {
 		omap_enable_channel_irq(free_ch);
 		omap2_enable_irq_lch(free_ch);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	*dma_ch_out = free_ch;
 
 	return 0;
@@ -697,20 +765,26 @@ void omap_free_dma(int lch)
 		return;
 	}
 
+<<<<<<< HEAD
 	/* Disable interrupt for logical channel */
 	if (dma_omap2plus())
 		omap2_disable_irq_lch(lch);
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable all DMA interrupts for the channel. */
 	omap_disable_channel_irq(lch);
 
 	/* Make sure the DMA transfer is stopped. */
 	p->dma_write(0, CCR, lch);
 
+<<<<<<< HEAD
 	/* Clear registers */
 	if (dma_omap2plus())
 		omap_clear_dma(lch);
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&dma_chan_lock, flags);
 	dma_chan[lch].dev_id = -1;
 	dma_chan[lch].next_lch = -1;
@@ -719,6 +793,7 @@ void omap_free_dma(int lch)
 }
 EXPORT_SYMBOL(omap_free_dma);
 
+<<<<<<< HEAD
 /**
  * @brief omap_dma_set_global_params : Set global priority settings for dma
  *
@@ -784,6 +859,8 @@ omap_dma_set_prio_lch(int lch, unsigned char read_prio,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Clears any DMA state so the DMA engine is ready to restart with new buffers
  * through omap_start_dma(). Any buffers in flight are discarded.
@@ -934,6 +1011,7 @@ EXPORT_SYMBOL(omap_stop_dma);
  * Allows changing the DMA callback function or data. This may be needed if
  * the driver shares a single DMA channel for multiple dma triggers.
  */
+<<<<<<< HEAD
 int omap_set_dma_callback(int lch,
 			  void (*callback)(int lch, u16 ch_status, void *data),
 			  void *data)
@@ -957,6 +1035,8 @@ int omap_set_dma_callback(int lch,
 }
 EXPORT_SYMBOL(omap_set_dma_callback);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Returns current physical source address for the given DMA channel.
  * If the channel is running the caller must disable interrupts prior calling
@@ -1056,6 +1136,7 @@ int omap_dma_running(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * lch_queue DMA will start right after lch_head one is finished.
  * For this DMA link to start, you still need to start (see omap_start_dma)
@@ -1084,6 +1165,8 @@ void omap_dma_link_lch(int lch_head, int lch_queue)
 }
 EXPORT_SYMBOL(omap_dma_link_lch);
 
+=======
+>>>>>>> upstream/android-13
 /*----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_ARCH_OMAP1
@@ -1144,6 +1227,7 @@ static irqreturn_t omap1_dma_irq_handler(int irq, void *dev_id)
 #define omap1_dma_irq_handler	NULL
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_OMAP2PLUS
 
 static int omap2_dma_handle_ch(int ch)
@@ -1283,6 +1367,8 @@ void omap_dma_global_context_restore(void)
 			omap_clear_dma(ch);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct omap_system_dma_plat_info *omap_get_plat_info(void)
 {
 	return p;
@@ -1294,7 +1380,10 @@ static int omap_system_dma_probe(struct platform_device *pdev)
 	int ch, ret = 0;
 	int dma_irq;
 	char irq_name[4];
+<<<<<<< HEAD
 	int irq_rel;
+=======
+>>>>>>> upstream/android-13
 
 	p = pdev->dev.platform_data;
 	if (!p) {
@@ -1320,6 +1409,7 @@ static int omap_system_dma_probe(struct platform_device *pdev)
 	if (!dma_chan)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (dma_omap2plus()) {
 		dma_linked_lch = kcalloc(dma_lch_count,
 					 sizeof(*dma_linked_lch),
@@ -1335,6 +1425,10 @@ static int omap_system_dma_probe(struct platform_device *pdev)
 		omap_clear_dma(ch);
 		if (dma_omap2plus())
 			omap2_disable_irq_lch(ch);
+=======
+	for (ch = 0; ch < dma_chan_count; ch++) {
+		omap_clear_dma(ch);
+>>>>>>> upstream/android-13
 
 		dma_chan[ch].dev_id = -1;
 		dma_chan[ch].next_lch = -1;
@@ -1367,6 +1461,7 @@ static int omap_system_dma_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	if (d->dev_caps & IS_RW_PRIORITY)
 		omap_dma_set_global_params(DMA_DEFAULT_ARB_RATE,
 				DMA_DEFAULT_FIFO_DEPTH, 0);
@@ -1387,6 +1482,8 @@ static int omap_system_dma_probe(struct platform_device *pdev)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* reserve dma channels 0 and 1 in high security devices on 34xx */
 	if (d->dev_caps & HS_CHANNELS_RESERVED) {
 		pr_info("Reserving DMA channels 0 and 1 for HS ROM code\n");
@@ -1397,6 +1494,7 @@ static int omap_system_dma_probe(struct platform_device *pdev)
 	return 0;
 
 exit_dma_irq_fail:
+<<<<<<< HEAD
 	dev_err(&pdev->dev, "unable to request IRQ %d for DMA (error %d)\n",
 		dma_irq, ret);
 	for (irq_rel = 0; irq_rel < ch;	irq_rel++) {
@@ -1405,11 +1503,14 @@ exit_dma_irq_fail:
 	}
 
 exit_dma_lch_fail:
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int omap_system_dma_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int dma_irq;
 
 	if (dma_omap2plus()) {
@@ -1425,6 +1526,18 @@ static int omap_system_dma_remove(struct platform_device *pdev)
 			free_irq(dma_irq, (void *)(irq_rel + 1));
 		}
 	}
+=======
+	int dma_irq, irq_rel = 0;
+
+	if (dma_omap2plus())
+		return 0;
+
+	for ( ; irq_rel < dma_chan_count; irq_rel++) {
+		dma_irq = platform_get_irq(pdev, irq_rel);
+		free_irq(dma_irq, (void *)(irq_rel + 1));
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1449,7 +1562,10 @@ static void __exit omap_system_dma_exit(void)
 
 MODULE_DESCRIPTION("OMAP SYSTEM DMA DRIVER");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_ALIAS("platform:" DRIVER_NAME);
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Texas Instruments Inc");
 
 /*

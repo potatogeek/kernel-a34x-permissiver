@@ -4,10 +4,13 @@
 
 #define	BUILD_VDSO32
 
+<<<<<<< HEAD
 #ifndef	CONFIG_CC_OPTIMIZE_FOR_SIZE
 #undef	CONFIG_OPTIMIZE_INLINING
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef	CONFIG_SPARC64
 
 /*

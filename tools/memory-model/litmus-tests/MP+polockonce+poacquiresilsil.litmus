@@ -10,17 +10,27 @@ C MP+polockonce+poacquiresilsil
  * speaking).
  *)
 
+<<<<<<< HEAD
 {
 }
 
 P0(spinlock_t *lo, int *x)
+=======
+{}
+
+P0(spinlock_t *lo, int *x) // Producer
+>>>>>>> upstream/android-13
 {
 	spin_lock(lo);
 	WRITE_ONCE(*x, 1);
 	spin_unlock(lo);
 }
 
+<<<<<<< HEAD
 P1(spinlock_t *lo, int *x)
+=======
+P1(spinlock_t *lo, int *x) // Consumer
+>>>>>>> upstream/android-13
 {
 	int r1;
 	int r2;
@@ -31,4 +41,8 @@ P1(spinlock_t *lo, int *x)
 	r3 = spin_is_locked(lo);
 }
 
+<<<<<<< HEAD
 exists (1:r1=1 /\ 1:r2=0 /\ 1:r3=1)
+=======
+exists (1:r1=1 /\ 1:r2=0 /\ 1:r3=1) (* Bad outcome. *)
+>>>>>>> upstream/android-13

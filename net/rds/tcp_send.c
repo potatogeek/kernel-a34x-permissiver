@@ -38,23 +38,34 @@
 #include "rds.h"
 #include "tcp.h"
 
+<<<<<<< HEAD
 static void rds_tcp_cork(struct socket *sock, int val)
 {
 	kernel_setsockopt(sock, SOL_TCP, TCP_CORK, (void *)&val, sizeof(val));
 }
 
+=======
+>>>>>>> upstream/android-13
 void rds_tcp_xmit_path_prepare(struct rds_conn_path *cp)
 {
 	struct rds_tcp_connection *tc = cp->cp_transport_data;
 
+<<<<<<< HEAD
 	rds_tcp_cork(tc->t_sock, 1);
+=======
+	tcp_sock_set_cork(tc->t_sock->sk, true);
+>>>>>>> upstream/android-13
 }
 
 void rds_tcp_xmit_path_complete(struct rds_conn_path *cp)
 {
 	struct rds_tcp_connection *tc = cp->cp_transport_data;
 
+<<<<<<< HEAD
 	rds_tcp_cork(tc->t_sock, 0);
+=======
+	tcp_sock_set_cork(tc->t_sock->sk, false);
+>>>>>>> upstream/android-13
 }
 
 /* the core send_sem serializes this with other xmit and shutdown */

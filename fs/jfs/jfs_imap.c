@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2004
  *
@@ -14,6 +15,11 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2004
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -116,10 +122,15 @@ int diMount(struct inode *ipimap)
 	 */
 	/* allocate the in-memory inode map control structure. */
 	imap = kmalloc(sizeof(struct inomap), GFP_KERNEL);
+<<<<<<< HEAD
 	if (imap == NULL) {
 		jfs_err("diMount: kmalloc returned NULL!");
 		return -ENOMEM;
 	}
+=======
+	if (imap == NULL)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* read the on-disk inode map control structure. */
 
@@ -776,7 +787,11 @@ int diWrite(tid_t tid, struct inode *ip)
 		lv = & dilinelock->lv[dilinelock->index];
 		lv->offset = (dioffset + 2 * 128) >> L2INODESLOTSIZE;
 		lv->length = 2;
+<<<<<<< HEAD
 		memcpy(&dp->di_fastsymlink, jfs_ip->i_inline, IDATASIZE);
+=======
+		memcpy(&dp->di_inline_all, jfs_ip->i_inline_all, IDATASIZE);
+>>>>>>> upstream/android-13
 		dilinelock->index++;
 	}
 	/*
@@ -3097,7 +3112,11 @@ static int copy_from_dinode(struct dinode * dip, struct inode *ip)
 	}
 
 	if (S_ISDIR(ip->i_mode)) {
+<<<<<<< HEAD
 		memcpy(&jfs_ip->i_dirtable, &dip->di_dirtable, 384);
+=======
+		memcpy(&jfs_ip->u.dir, &dip->u._dir, 384);
+>>>>>>> upstream/android-13
 	} else if (S_ISREG(ip->i_mode) || S_ISLNK(ip->i_mode)) {
 		memcpy(&jfs_ip->i_xtroot, &dip->di_xtroot, 288);
 	} else

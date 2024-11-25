@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Au1000/Au1500/Au1100 I2S controller driver for ASoC
  *
@@ -209,7 +213,11 @@ static const struct snd_soc_dai_ops au1xi2s_dai_ops = {
 };
 
 static struct snd_soc_dai_driver au1xi2s_dai_driver = {
+<<<<<<< HEAD
 	.symmetric_rates	= 1,
+=======
+	.symmetric_rate		= 1,
+>>>>>>> upstream/android-13
 	.playback = {
 		.rates		= AU1XI2SC_RATES,
 		.formats	= AU1XI2SC_FMTS,
@@ -247,7 +255,11 @@ static int au1xi2s_drvprobe(struct platform_device *pdev)
 				     pdev->name))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	ctx->mmio = devm_ioremap_nocache(&pdev->dev, iores->start,
+=======
+	ctx->mmio = devm_ioremap(&pdev->dev, iores->start,
+>>>>>>> upstream/android-13
 					 resource_size(iores));
 	if (!ctx->mmio)
 		return -EBUSY;

@@ -59,7 +59,11 @@
 #define DWC2_UNRESERVE_DELAY (msecs_to_jiffies(5))
 
 /* If we get a NAK, wait this long before retrying */
+<<<<<<< HEAD
 #define DWC2_RETRY_WAIT_DELAY 1*1E6L
+=======
+#define DWC2_RETRY_WAIT_DELAY (1 * NSEC_PER_MSEC)
+>>>>>>> upstream/android-13
 
 /**
  * dwc2_periodic_channel_available() - Checks that a channel is available for a
@@ -675,7 +679,11 @@ static int dwc2_hs_pmap_schedule(struct dwc2_hsotg *hsotg, struct dwc2_qh *qh,
 }
 
 /**
+<<<<<<< HEAD
  * dwc2_ls_pmap_unschedule() - Undo work done by dwc2_hs_pmap_schedule()
+=======
+ * dwc2_hs_pmap_unschedule() - Undo work done by dwc2_hs_pmap_schedule()
+>>>>>>> upstream/android-13
  *
  * @hsotg:       The HCD state structure for the DWC OTG controller.
  * @qh:          QH for the periodic transfer.

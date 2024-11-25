@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * A sensor driver for the magnetometer AK8975.
  *
  * Magnetic compass sensor driver for monitoring magnetic flux information.
  *
  * Copyright (c) 2010, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,12 @@
  */
 
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
@@ -29,9 +40,13 @@
 #include <linux/mutex.h>
 #include <linux/delay.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
 #include <linux/acpi.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/pm_runtime.h>
 
@@ -42,8 +57,11 @@
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
 
+<<<<<<< HEAD
 #include <linux/iio/magnetometer/ak8975.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Register definitions, as well as various shifts and masks to get at the
  * individual fields of the registers.
@@ -219,11 +237,18 @@ static long ak09912_raw_to_gauss(u16 data)
 
 /* Compatible Asahi Kasei Compass parts */
 enum asahi_compass_chipset {
+<<<<<<< HEAD
+=======
+	AKXXXX		= 0,
+>>>>>>> upstream/android-13
 	AK8975,
 	AK8963,
 	AK09911,
 	AK09912,
+<<<<<<< HEAD
 	AK_MAX_TYPE
+=======
+>>>>>>> upstream/android-13
 };
 
 enum ak_ctrl_reg_addr {
@@ -261,7 +286,11 @@ struct ak_def {
 	u8 data_regs[3];
 };
 
+<<<<<<< HEAD
 static const struct ak_def ak_def_array[AK_MAX_TYPE] = {
+=======
+static const struct ak_def ak_def_array[] = {
+>>>>>>> upstream/android-13
 	{
 		.type = AK8975,
 		.raw_to_gauss = ak8975_raw_to_gauss,
@@ -373,7 +402,12 @@ struct ak8975_data {
 	struct mutex		lock;
 	u8			asa[3];
 	long			raw_to_gauss[3];
+<<<<<<< HEAD
 	int			eoc_gpio;
+=======
+	struct gpio_desc	*eoc_gpiod;
+	struct gpio_desc	*reset_gpiod;
+>>>>>>> upstream/android-13
 	int			eoc_irq;
 	wait_queue_head_t	data_ready_queue;
 	unsigned long		flags;
@@ -404,12 +438,25 @@ static int ak8975_power_on(const struct ak8975_data *data)
 	if (ret) {
 		dev_warn(&data->client->dev,
 			 "Failed to enable specified Vid supply\n");
+<<<<<<< HEAD
 		return ret;
 	}
 	/*
 	 * According to the datasheet the power supply rise time i 200us
 	 * and the minimum wait time before mode setting is 100us, in
 	 * total 300 us. Add some margin and say minimum 500us here.
+=======
+		regulator_disable(data->vdd);
+		return ret;
+	}
+
+	gpiod_set_value_cansleep(data->reset_gpiod, 0);
+
+	/*
+	 * According to the datasheet the power supply rise time is 200us
+	 * and the minimum wait time before mode setting is 100us, in
+	 * total 300us. Add some margin and say minimum 500us here.
+>>>>>>> upstream/android-13
 	 */
 	usleep_range(500, 1000);
 	return 0;
@@ -418,6 +465,11 @@ static int ak8975_power_on(const struct ak8975_data *data)
 /* Disable attached power regulator if any. */
 static void ak8975_power_off(const struct ak8975_data *data)
 {
+<<<<<<< HEAD
+=======
+	gpiod_set_value_cansleep(data->reset_gpiod, 1);
+
+>>>>>>> upstream/android-13
 	regulator_disable(data->vid);
 	regulator_disable(data->vdd);
 }
@@ -517,15 +569,23 @@ static int ak8975_setup_irq(struct ak8975_data *data)
 	if (client->irq)
 		irq = client->irq;
 	else
+<<<<<<< HEAD
 		irq = gpio_to_irq(data->eoc_gpio);
+=======
+		irq = gpiod_to_irq(data->eoc_gpiod);
+>>>>>>> upstream/android-13
 
 	rc = devm_request_irq(&client->dev, irq, ak8975_irq_handler,
 			      IRQF_TRIGGER_RISING | IRQF_ONESHOT,
 			      dev_name(&client->dev), data);
 	if (rc < 0) {
+<<<<<<< HEAD
 		dev_err(&client->dev,
 			"irq %d request failed, (gpio %d): %d\n",
 			irq, data->eoc_gpio, rc);
+=======
+		dev_err(&client->dev, "irq %d request failed: %d\n", irq, rc);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -568,7 +628,11 @@ static int ak8975_setup(struct i2c_client *client)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (data->eoc_gpio > 0 || client->irq > 0) {
+=======
+	if (data->eoc_gpiod || client->irq > 0) {
+>>>>>>> upstream/android-13
 		ret = ak8975_setup_irq(data);
 		if (ret < 0) {
 			dev_err(&client->dev,
@@ -593,7 +657,11 @@ static int wait_conversion_complete_gpio(struct ak8975_data *data)
 	/* Wait for the conversion to complete. */
 	while (timeout_ms) {
 		msleep(AK8975_CONVERSION_DONE_POLL_TIME);
+<<<<<<< HEAD
 		if (gpio_get_value(data->eoc_gpio))
+=======
+		if (gpiod_get_value(data->eoc_gpiod))
+>>>>>>> upstream/android-13
 			break;
 		timeout_ms -= AK8975_CONVERSION_DONE_POLL_TIME;
 	}
@@ -665,7 +733,11 @@ static int ak8975_start_read_axis(struct ak8975_data *data,
 	/* Wait for the conversion to complete. */
 	if (data->eoc_irq)
 		ret = wait_conversion_complete_interrupt(data);
+<<<<<<< HEAD
 	else if (gpio_is_valid(data->eoc_gpio))
+=======
+	else if (data->eoc_gpiod)
+>>>>>>> upstream/android-13
 		ret = wait_conversion_complete_gpio(data);
 	else
 		ret = wait_conversion_complete_polled(data);
@@ -752,12 +824,22 @@ static const struct iio_mount_matrix *
 ak8975_get_mount_matrix(const struct iio_dev *indio_dev,
 			const struct iio_chan_spec *chan)
 {
+<<<<<<< HEAD
 	return &((struct ak8975_data *)iio_priv(indio_dev))->orientation;
+=======
+	struct ak8975_data *data = iio_priv(indio_dev);
+
+	return &data->orientation;
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_chan_spec_ext_info ak8975_ext_info[] = {
 	IIO_MOUNT_MATRIX(IIO_SHARED_BY_DIR, ak8975_get_mount_matrix),
+<<<<<<< HEAD
 	{ },
+=======
+	{ }
+>>>>>>> upstream/android-13
 };
 
 #define AK8975_CHANNEL(axis, index)					\
@@ -789,13 +871,17 @@ static const struct iio_info ak8975_info = {
 	.read_raw = &ak8975_read_raw,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI
+=======
+>>>>>>> upstream/android-13
 static const struct acpi_device_id ak_acpi_match[] = {
 	{"AK8975", AK8975},
 	{"AK8963", AK8963},
 	{"INVN6500", AK8963},
 	{"AK009911", AK09911},
 	{"AK09911", AK09911},
+<<<<<<< HEAD
 	{"AK09912", AK09912},
 	{ },
 };
@@ -814,6 +900,13 @@ static const char *ak8975_match_acpi_device(struct device *dev,
 
 	return dev_name(dev);
 }
+=======
+	{"AKM9911", AK09911},
+	{"AK09912", AK09912},
+	{ }
+};
+MODULE_DEVICE_TABLE(acpi, ak_acpi_match);
+>>>>>>> upstream/android-13
 
 static void ak8975_fill_buffer(struct iio_dev *indio_dev)
 {
@@ -872,6 +965,7 @@ static int ak8975_probe(struct i2c_client *client,
 {
 	struct ak8975_data *data;
 	struct iio_dev *indio_dev;
+<<<<<<< HEAD
 	int eoc_gpio;
 	int err;
 	const char *name = NULL;
@@ -902,6 +996,36 @@ static int ak8975_probe(struct i2c_client *client,
 			return err;
 		}
 	}
+=======
+	struct gpio_desc *eoc_gpiod;
+	struct gpio_desc *reset_gpiod;
+	const void *match;
+	unsigned int i;
+	int err;
+	enum asahi_compass_chipset chipset;
+	const char *name = NULL;
+
+	/*
+	 * Grab and set up the supplied GPIO.
+	 * We may not have a GPIO based IRQ to scan, that is fine, we will
+	 * poll if so.
+	 */
+	eoc_gpiod = devm_gpiod_get_optional(&client->dev, NULL, GPIOD_IN);
+	if (IS_ERR(eoc_gpiod))
+		return PTR_ERR(eoc_gpiod);
+	if (eoc_gpiod)
+		gpiod_set_consumer_name(eoc_gpiod, "ak_8975");
+
+	/*
+	 * According to AK09911 datasheet, if reset GPIO is provided then
+	 * deassert reset on ak8975_power_on() and assert reset on
+	 * ak8975_power_off().
+	 */
+	reset_gpiod = devm_gpiod_get_optional(&client->dev,
+					      "reset", GPIOD_OUT_HIGH);
+	if (IS_ERR(reset_gpiod))
+		return PTR_ERR(reset_gpiod);
+>>>>>>> upstream/android-13
 
 	/* Register with IIO */
 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
@@ -912,6 +1036,7 @@ static int ak8975_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, indio_dev);
 
 	data->client = client;
+<<<<<<< HEAD
 	data->eoc_gpio = eoc_gpio;
 	data->eoc_irq = 0;
 
@@ -936,12 +1061,42 @@ static int ak8975_probe(struct i2c_client *client,
 		return -ENOSYS;
 
 	if (chipset >= AK_MAX_TYPE) {
+=======
+	data->eoc_gpiod = eoc_gpiod;
+	data->reset_gpiod = reset_gpiod;
+	data->eoc_irq = 0;
+
+	err = iio_read_mount_matrix(&client->dev, &data->orientation);
+	if (err)
+		return err;
+
+	/* id will be NULL when enumerated via ACPI */
+	match = device_get_match_data(&client->dev);
+	if (match) {
+		chipset = (enum asahi_compass_chipset)(match);
+		name = dev_name(&client->dev);
+	} else if (id) {
+		chipset = (enum asahi_compass_chipset)(id->driver_data);
+		name = id->name;
+	} else
+		return -ENOSYS;
+
+	for (i = 0; i < ARRAY_SIZE(ak_def_array); i++)
+		if (ak_def_array[i].type == chipset)
+			break;
+
+	if (i == ARRAY_SIZE(ak_def_array)) {
+>>>>>>> upstream/android-13
 		dev_err(&client->dev, "AKM device type unsupported: %d\n",
 			chipset);
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	data->def = &ak_def_array[chipset];
+=======
+	data->def = &ak_def_array[i];
+>>>>>>> upstream/android-13
 
 	/* Fetch the regulators */
 	data->vdd = devm_regulator_get(&client->dev, "vdd");
@@ -970,7 +1125,10 @@ static int ak8975_probe(struct i2c_client *client,
 	}
 
 	mutex_init(&data->lock);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = ak8975_channels;
 	indio_dev->num_channels = ARRAY_SIZE(ak8975_channels);
 	indio_dev->info = &ak8975_info;
@@ -1106,8 +1264,13 @@ static struct i2c_driver ak8975_driver = {
 	.driver = {
 		.name	= "ak8975",
 		.pm = &ak8975_dev_pm_ops,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ak8975_of_match),
 		.acpi_match_table = ACPI_PTR(ak_acpi_match),
+=======
+		.of_match_table = ak8975_of_match,
+		.acpi_match_table = ak_acpi_match,
+>>>>>>> upstream/android-13
 	},
 	.probe		= ak8975_probe,
 	.remove		= ak8975_remove,

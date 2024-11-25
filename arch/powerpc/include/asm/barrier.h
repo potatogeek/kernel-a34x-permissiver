@@ -7,6 +7,13 @@
 
 #include <asm/asm-const.h>
 
+<<<<<<< HEAD
+=======
+#ifndef __ASSEMBLY__
+#include <asm/ppc-opcode.h>
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Memory barrier.
  * The sync instruction guarantees that all memory accesses initiated
@@ -18,8 +25,11 @@
  * mb() prevents loads and stores being reordered across this point.
  * rmb() prevents loads being reordered across this point.
  * wmb() prevents stores being reordered across this point.
+<<<<<<< HEAD
  * read_barrier_depends() prevents data-dependent loads being reordered
  *	across this point (nop on PPC).
+=======
+>>>>>>> upstream/android-13
  *
  * *mb() variants without smp_ prefix must order all types of memory
  * operations with one another. sync is the only instruction sufficient
@@ -38,12 +48,21 @@
 #define wmb()  __asm__ __volatile__ ("sync" : : : "memory")
 
 /* The sub-arch has lwsync */
+<<<<<<< HEAD
 #if defined(__powerpc64__) || defined(CONFIG_PPC_E500MC)
+=======
+#if defined(CONFIG_PPC64) || defined(CONFIG_PPC_E500MC)
+>>>>>>> upstream/android-13
 #    define SMPWMB      LWSYNC
 #else
 #    define SMPWMB      eieio
 #endif
 
+<<<<<<< HEAD
+=======
+/* clang defines this macro for a builtin, which will not work with runtime patching */
+#undef __lwsync
+>>>>>>> upstream/android-13
 #define __lwsync()	__asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
 #define dma_rmb()	__lwsync()
 #define dma_wmb()	__asm__ __volatile__ (stringify_in_c(SMPWMB) : : :"memory")
@@ -99,6 +118,18 @@ do {									\
 #define barrier_nospec()
 #endif /* CONFIG_PPC_BARRIER_NOSPEC */
 
+<<<<<<< HEAD
+=======
+/*
+ * pmem_wmb() ensures that all stores for which the modification
+ * are written to persistent storage by preceding dcbfps/dcbstps
+ * instructions have updated persistent storage before any data
+ * access or data transfer caused by subsequent instructions is
+ * initiated.
+ */
+#define pmem_wmb() __asm__ __volatile__(PPC_PHWSYNC ::: "memory")
+
+>>>>>>> upstream/android-13
 #include <asm-generic/barrier.h>
 
 #endif /* _ASM_POWERPC_BARRIER_H */

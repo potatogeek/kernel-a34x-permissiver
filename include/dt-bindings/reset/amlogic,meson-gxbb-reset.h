@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This file is provided under a dual BSD/GPLv2 license.  When using or
  * redistributing this file, you may do so under either license.
@@ -51,6 +52,12 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (c) 2016 BayLibre, SAS.
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+>>>>>>> upstream/android-13
  */
 #ifndef _DT_BINDINGS_AMLOGIC_MESON_GXBB_RESET_H
 #define _DT_BINDINGS_AMLOGIC_MESON_GXBB_RESET_H
@@ -118,7 +125,11 @@
 #define RESET_SYS_CPU_L2		58
 #define RESET_SYS_CPU_P			59
 #define RESET_SYS_CPU_MBIST		60
+<<<<<<< HEAD
 /*					61	*/
+=======
+#define RESET_ACODEC			61
+>>>>>>> upstream/android-13
 /*					62	*/
 /*					63	*/
 /*	RESET2					*/

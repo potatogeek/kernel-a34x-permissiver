@@ -8,7 +8,10 @@
 
 #ifdef CONFIG_SMP
 
+<<<<<<< HEAD
 #include <linux/spinlock.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/atomic.h>
 #include <asm/current.h>
 #include <asm/percpu.h>
@@ -72,7 +75,11 @@ struct of_cpu_method {
 
 #define CPU_METHOD_OF_DECLARE(name, _method, _ops)			\
 	static const struct of_cpu_method __cpu_method_of_table_##name	\
+<<<<<<< HEAD
 		__used __section(__cpu_method_of_table)			\
+=======
+		__used __section("__cpu_method_of_table")		\
+>>>>>>> upstream/android-13
 		= { .method = _method, .ops = _ops }
 
 #else

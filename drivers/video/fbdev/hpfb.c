@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	HP300 Topcat framebuffer support (derived from macfb of all things)
  *	Phil Blundell <philb@gnu.org> 1998
@@ -183,7 +187,11 @@ static int hpfb_sync(struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops hpfb_ops = {
+=======
+static const struct fb_ops hpfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_setcolreg	= hpfb_setcolreg,
 	.fb_blank	= hpfb_blank,
@@ -401,7 +409,11 @@ int __init hpfb_init(void)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = probe_kernel_read(&i, (unsigned char *)INTFBVADDR + DIO_IDOFF, 1);
+=======
+	err = copy_from_kernel_nofault(&i, (unsigned char *)INTFBVADDR + DIO_IDOFF, 1);
+>>>>>>> upstream/android-13
 
 	if (!err && (i == DIO_ID_FBUFFER) && topcat_sid_ok(sid = DIO_SECID(INTFBVADDR))) {
 		if (!request_mem_region(INTFBPADDR, DIO_DEVSIZE, "Internal Topcat"))

@@ -12,7 +12,11 @@
 #include <linux/if_vlan.h>
 #include <linux/ip.h>
 #include <linux/ipv6.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <net/ip_fib.h>
 
@@ -42,6 +46,7 @@ struct direct_map {
 };
 
 /* Map for trie implementation*/
+<<<<<<< HEAD
 struct bpf_map_def SEC("maps") lpm_map = {
 	.type = BPF_MAP_TYPE_LPM_TRIE,
 	.key_size = 8,
@@ -80,6 +85,46 @@ struct bpf_map_def SEC("maps") tx_port = {
 	.value_size = sizeof(int),
 	.max_entries = 100,
 };
+=======
+struct {
+	__uint(type, BPF_MAP_TYPE_LPM_TRIE);
+	__uint(key_size, 8);
+	__uint(value_size, sizeof(struct trie_value));
+	__uint(max_entries, 50);
+	__uint(map_flags, BPF_F_NO_PREALLOC);
+} lpm_map SEC(".maps");
+
+/* Map for counter*/
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__type(key, u32);
+	__type(value, u64);
+	__uint(max_entries, 256);
+} rxcnt SEC(".maps");
+
+/* Map for ARP table*/
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, __be32);
+	__type(value, __be64);
+	__uint(max_entries, 50);
+} arp_table SEC(".maps");
+
+/* Map to keep the exact match entries in the route table*/
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, __be32);
+	__type(value, struct direct_map);
+	__uint(max_entries, 50);
+} exact_match SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_DEVMAP);
+	__uint(key_size, sizeof(int));
+	__uint(value_size, sizeof(int));
+	__uint(max_entries, 100);
+} tx_port SEC(".maps");
+>>>>>>> upstream/android-13
 
 /* Function to set source and destination mac of the packet */
 static inline void set_src_dst_mac(void *data, void *src, void *dst)

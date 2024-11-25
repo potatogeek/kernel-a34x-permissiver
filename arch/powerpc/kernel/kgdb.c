@@ -26,6 +26,10 @@
 #include <asm/debug.h>
 #include <asm/code-patching.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 /*
  * This table contains the mapping between PowerPC hardware trap types, and
@@ -117,14 +121,22 @@ int kgdb_skipexception(int exception, struct pt_regs *regs)
 	return kgdb_isremovedbreak(regs->nip);
 }
 
+<<<<<<< HEAD
 static int kgdb_call_nmi_hook(struct pt_regs *regs)
+=======
+static int kgdb_debugger_ipi(struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	kgdb_nmicallback(raw_smp_processor_id(), regs);
 	return 0;
 }
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 void kgdb_roundup_cpus(unsigned long flags)
+=======
+void kgdb_roundup_cpus(void)
+>>>>>>> upstream/android-13
 {
 	smp_send_debugger_break();
 }
@@ -146,11 +158,16 @@ static int kgdb_handle_breakpoint(struct pt_regs *regs)
 		return 0;
 
 	if (*(u32 *)regs->nip == BREAK_INSTR)
+<<<<<<< HEAD
 		regs->nip += BREAK_INSTR_SIZE;
+=======
+		regs_add_return_ip(regs, BREAK_INSTR_SIZE);
+>>>>>>> upstream/android-13
 
 	return 1;
 }
 
+<<<<<<< HEAD
 static DEFINE_PER_CPU(struct thread_info, kgdb_thread_info);
 static int kgdb_singlestep(struct pt_regs *regs)
 {
@@ -186,6 +203,15 @@ static int kgdb_singlestep(struct pt_regs *regs)
 		/* Restore current_thread_info lastly. */
 		memcpy(exception_thread_info, backup_current_thread_info, sizeof *thread_info);
 
+=======
+static int kgdb_singlestep(struct pt_regs *regs)
+{
+	if (user_mode(regs))
+		return 0;
+
+	kgdb_handle_exception(0, SIGTRAP, 0, regs);
+
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -399,11 +425,19 @@ int dbg_set_reg(int regno, void *mem, struct pt_regs *regs)
 
 void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long pc)
 {
+<<<<<<< HEAD
 	regs->nip = pc;
 }
 
 /*
  * This function does PowerPC specific procesing for interfacing to gdb.
+=======
+	regs_set_return_ip(regs, pc);
+}
+
+/*
+ * This function does PowerPC specific processing for interfacing to gdb.
+>>>>>>> upstream/android-13
  */
 int kgdb_arch_handle_exception(int vector, int signo, int err_code,
 			       char *remcom_in_buffer, char *remcom_out_buffer,
@@ -421,7 +455,11 @@ int kgdb_arch_handle_exception(int vector, int signo, int err_code,
 	case 'c':
 		/* handle the optional parameter */
 		if (kgdb_hex2long(&ptr, &addr))
+<<<<<<< HEAD
 			linux_regs->nip = addr;
+=======
+			regs_set_return_ip(linux_regs, addr);
+>>>>>>> upstream/android-13
 
 		atomic_set(&kgdb_cpu_doing_single_step, -1);
 		/* set the trace bit if we're stepping */
@@ -429,9 +467,15 @@ int kgdb_arch_handle_exception(int vector, int signo, int err_code,
 #ifdef CONFIG_PPC_ADV_DEBUG_REGS
 			mtspr(SPRN_DBCR0,
 			      mfspr(SPRN_DBCR0) | DBCR0_IC | DBCR0_IDM);
+<<<<<<< HEAD
 			linux_regs->msr |= MSR_DE;
 #else
 			linux_regs->msr |= MSR_SE;
+=======
+			regs_set_return_msr(linux_regs, linux_regs->msr | MSR_DE);
+#else
+			regs_set_return_msr(linux_regs, linux_regs->msr | MSR_SE);
+>>>>>>> upstream/android-13
 #endif
 			atomic_set(&kgdb_cpu_doing_single_step,
 				   raw_smp_processor_id());
@@ -444,6 +488,7 @@ int kgdb_arch_handle_exception(int vector, int signo, int err_code,
 
 int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
 {
+<<<<<<< HEAD
 	int err;
 	unsigned int instr;
 	unsigned int *addr = (unsigned int *)bpt->bpt_addr;
@@ -457,6 +502,20 @@ int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
 		return -EFAULT;
 
 	*(unsigned int *)bpt->saved_instr = instr;
+=======
+	u32 instr, *addr = (u32 *)bpt->bpt_addr;
+	int err;
+
+	err = get_kernel_nofault(instr, addr);
+	if (err)
+		return err;
+
+	err = patch_instruction(addr, ppc_inst(BREAK_INSTR));
+	if (err)
+		return -EFAULT;
+
+	*(u32 *)bpt->saved_instr = instr;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -465,9 +524,15 @@ int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
 {
 	int err;
 	unsigned int instr = *(unsigned int *)bpt->saved_instr;
+<<<<<<< HEAD
 	unsigned int *addr = (unsigned int *)bpt->bpt_addr;
 
 	err = patch_instruction(addr, instr);
+=======
+	u32 *addr = (u32 *)bpt->bpt_addr;
+
+	err = patch_instruction(addr, ppc_inst(instr));
+>>>>>>> upstream/android-13
 	if (err)
 		return -EFAULT;
 
@@ -477,7 +542,11 @@ int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
 /*
  * Global data
  */
+<<<<<<< HEAD
 struct kgdb_arch arch_kgdb_ops;
+=======
+const struct kgdb_arch arch_kgdb_ops;
+>>>>>>> upstream/android-13
 
 static int kgdb_not_implemented(struct pt_regs *regs)
 {
@@ -502,7 +571,11 @@ int kgdb_arch_init(void)
 	old__debugger_break_match = __debugger_break_match;
 	old__debugger_fault_handler = __debugger_fault_handler;
 
+<<<<<<< HEAD
 	__debugger_ipi = kgdb_call_nmi_hook;
+=======
+	__debugger_ipi = kgdb_debugger_ipi;
+>>>>>>> upstream/android-13
 	__debugger = kgdb_debugger;
 	__debugger_bpt = kgdb_handle_breakpoint;
 	__debugger_sstep = kgdb_singlestep;

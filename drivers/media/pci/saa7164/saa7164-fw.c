@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the NXP SAA7164 PCIe bridge
  *
  *  Copyright (c) 2010-2015 Steven Toth <stoth@kernellabs.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/firmware.h>
@@ -409,7 +416,11 @@ int saa7164_downloadfirmware(struct saa7164_dev *dev)
 		(version & 0x0000001f),
 		(version & 0xffff0000) >> 16);
 
+<<<<<<< HEAD
 	/* Load the firmwware from the disk if required */
+=======
+	/* Load the firmware from the disk if required */
+>>>>>>> upstream/android-13
 	if (version == 0) {
 
 		printk(KERN_INFO "%s() Waiting for firmware upload (%s)\n",

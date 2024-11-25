@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Linaro Ltd
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Linaro Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/interrupt-controller/irq.h>
@@ -14,10 +20,38 @@
 #include <dt-bindings/mfd/dbx500-prcmu.h>
 #include <dt-bindings/arm/ux500_pm_domains.h>
 #include <dt-bindings/gpio/gpio.h>
+<<<<<<< HEAD
 #include <dt-bindings/clock/ste-ab8500.h>
 #include "skeleton.dtsi"
 
 / {
+=======
+#include <dt-bindings/thermal/thermal.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	/* This stablilizes the device enumeration */
+	aliases {
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		spi0 = &spi0;
+		spi1 = &spi1;
+		spi2 = &spi2;
+		spi3 = &spi3;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+	};
+
+	chosen {
+	};
+
+>>>>>>> upstream/android-13
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -37,6 +71,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <0x300>;
+<<<<<<< HEAD
 			/* cpufreq controls */
 			operating-points = <998400 0
 					    800000 0
@@ -45,6 +80,12 @@
 			clocks = <&prcmu_clk PRCMU_ARMSS>;
 			clock-names = "cpu";
 			clock-latency = <20000>;
+=======
+			clocks = <&prcmu_clk PRCMU_ARMSS>;
+			clock-names = "cpu";
+			clock-latency = <20000>;
+			#cooling-cells = <2>;
+>>>>>>> upstream/android-13
 		};
 		CPU1: cpu@301 {
 			device_type = "cpu";
@@ -53,10 +94,54 @@
 		};
 	};
 
+<<<<<<< HEAD
 	soc {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "stericsson,db8500";
+=======
+	thermal-zones {
+		/*
+		 * Thermal zone for the SoC, using the thermal sensor in the
+		 * PRCMU for temperature and the cpufreq driver for passive
+		 * cooling.
+		 */
+		cpu_thermal: cpu-thermal {
+			polling-delay-passive = <250>;
+			/*
+			 * This sensor fires interrupts to update the thermal
+			 * zone, so no polling is needed.
+			 */
+			polling-delay = <0>;
+
+			thermal-sensors = <&thermal>;
+
+			trips {
+				cpu_alert: cpu-alert {
+					temperature = <70000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+				cpu-crit {
+					temperature = <85000>;
+					hysteresis = <0>;
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				trip = <&cpu_alert>;
+				cooling-device = <&CPU0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+				contribution = <100>;
+			};
+		};
+	};
+
+	soc {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "stericsson,db8500", "simple-bus";
+>>>>>>> upstream/android-13
 		interrupt-parent = <&intc>;
 		ranges;
 
@@ -67,9 +152,17 @@
 			clocks = <&prcmu_clk PRCMU_APETRACECLK>, <&prcmu_clk PRCMU_APEATCLK>;
 			clock-names = "apb_pclk", "atclk";
 			cpu = <&CPU0>;
+<<<<<<< HEAD
 			port {
 				ptm0_out_port: endpoint {
 					remote-endpoint = <&funnel_in_port0>;
+=======
+			out-ports {
+				port {
+					ptm0_out_port: endpoint {
+						remote-endpoint = <&funnel_in_port0>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -81,19 +174,32 @@
 			clocks = <&prcmu_clk PRCMU_APETRACECLK>, <&prcmu_clk PRCMU_APEATCLK>;
 			clock-names = "apb_pclk", "atclk";
 			cpu = <&CPU1>;
+<<<<<<< HEAD
 			port {
 				ptm1_out_port: endpoint {
 					remote-endpoint = <&funnel_in_port1>;
+=======
+			out-ports {
+				port {
+					ptm1_out_port: endpoint {
+						remote-endpoint = <&funnel_in_port1>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
 
 		funnel@801a6000 {
+<<<<<<< HEAD
 			compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+			compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 			reg = <0x801a6000 0x1000>;
 
 			clocks = <&prcmu_clk PRCMU_APETRACECLK>, <&prcmu_clk PRCMU_APEATCLK>;
 			clock-names = "apb_pclk", "atclk";
+<<<<<<< HEAD
 			ports {
 				#address-cells = <1>;
 				#size-cells = <0>;
@@ -101,25 +207,47 @@
 				/* funnel output ports */
 				port@0 {
 					reg = <0>;
+=======
+			out-ports {
+				port {
+>>>>>>> upstream/android-13
 					funnel_out_port: endpoint {
 						remote-endpoint =
 							<&replicator_in_port0>;
 					};
 				};
+<<<<<<< HEAD
 
 				/* funnel input ports */
 				port@1 {
 					reg = <0>;
 					funnel_in_port0: endpoint {
 						slave-mode;
+=======
+			};
+
+			in-ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+					funnel_in_port0: endpoint {
+>>>>>>> upstream/android-13
 						remote-endpoint = <&ptm0_out_port>;
 					};
 				};
 
+<<<<<<< HEAD
 				port@2 {
 					reg = <1>;
 					funnel_in_port1: endpoint {
 						slave-mode;
+=======
+				port@1 {
+					reg = <1>;
+					funnel_in_port1: endpoint {
+>>>>>>> upstream/android-13
 						remote-endpoint = <&ptm1_out_port>;
 					};
 				};
@@ -127,6 +255,7 @@
 		};
 
 		replicator {
+<<<<<<< HEAD
 			compatible = "arm,coresight-replicator";
 			clocks = <&prcmu_clk PRCMU_APEATCLK>;
 			clock-names = "atclk";
@@ -136,6 +265,16 @@
 				#size-cells = <0>;
 
 				/* replicator output ports */
+=======
+			compatible = "arm,coresight-static-replicator";
+			clocks = <&prcmu_clk PRCMU_APEATCLK>;
+			clock-names = "atclk";
+
+			out-ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+>>>>>>> upstream/android-13
 				port@0 {
 					reg = <0>;
 					replicator_out_port0: endpoint {
@@ -148,12 +287,20 @@
 						remote-endpoint = <&etb_in_port>;
 					};
 				};
+<<<<<<< HEAD
 
 				/* replicator input port */
 				port@2 {
 					reg = <0>;
 					replicator_in_port0: endpoint {
 						slave-mode;
+=======
+			};
+
+			in-ports {
+				port {
+					replicator_in_port0: endpoint {
+>>>>>>> upstream/android-13
 						remote-endpoint = <&funnel_out_port>;
 					};
 				};
@@ -166,10 +313,18 @@
 
 			clocks = <&prcmu_clk PRCMU_APETRACECLK>, <&prcmu_clk PRCMU_APEATCLK>;
 			clock-names = "apb_pclk", "atclk";
+<<<<<<< HEAD
 			port {
 				tpiu_in_port: endpoint {
 					slave-mode;
 					remote-endpoint = <&replicator_out_port0>;
+=======
+			in-ports {
+				port {
+					tpiu_in_port: endpoint {
+						remote-endpoint = <&replicator_out_port0>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -180,10 +335,18 @@
 
 			clocks = <&prcmu_clk PRCMU_APETRACECLK>, <&prcmu_clk PRCMU_APEATCLK>;
 			clock-names = "apb_pclk", "atclk";
+<<<<<<< HEAD
 			port {
 				etb_in_port: endpoint {
 					slave-mode;
 					remote-endpoint = <&replicator_out_port1>;
+=======
+			in-ports {
+				port {
+					etb_in_port: endpoint {
+						remote-endpoint = <&replicator_out_port1>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -211,7 +374,11 @@
 			reg = <0x80150000 0x2000>;
 		};
 
+<<<<<<< HEAD
 		L2: l2-cache {
+=======
+		L2: cache-controller {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl310-cache";
 			reg = <0xa0412000 0x1000>;
 			interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
@@ -286,7 +453,11 @@
 		};
 
 		rtc@80154000 {
+<<<<<<< HEAD
 			compatible = "arm,rtc-pl031", "arm,primecell";
+=======
+			compatible = "arm,pl031", "arm,primecell";
+>>>>>>> upstream/android-13
 			reg = <0x80154000 0x1000>;
 			interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
 
@@ -487,7 +658,11 @@
 		};
 
 		prcmu: prcmu@80157000 {
+<<<<<<< HEAD
 			compatible = "stericsson,db8500-prcmu";
+=======
+			compatible = "stericsson,db8500-prcmu", "syscon";
+>>>>>>> upstream/android-13
 			reg = <0x80157000 0x2000>, <0x801b0000 0x8000>, <0x801b8000 0x1000>;
 			reg-names = "prcmu", "prcmu-tcpm", "prcmu-tcdm";
 			interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
@@ -502,6 +677,7 @@
 				reg = <0x80157450 0xC>;
 			};
 
+<<<<<<< HEAD
 			thermal@801573c0 {
 				compatible = "stericsson,db8500-thermal";
 				reg = <0x801573c0 0x40>;
@@ -509,6 +685,16 @@
 					     <22 IRQ_TYPE_LEVEL_HIGH>;
 				interrupt-names = "IRQ_HOTMON_LOW", "IRQ_HOTMON_HIGH";
 				status = "disabled";
+=======
+			thermal: thermal@801573c0 {
+				compatible = "stericsson,db8500-thermal";
+				reg = <0x801573c0 0x40>;
+				interrupt-parent = <&prcmu>;
+				interrupts = <21 IRQ_TYPE_LEVEL_HIGH>,
+					     <22 IRQ_TYPE_LEVEL_HIGH>;
+				interrupt-names = "IRQ_HOTMON_LOW", "IRQ_HOTMON_HIGH";
+				#thermal-sensor-cells = <0>;
+>>>>>>> upstream/android-13
 			};
 
 			db8500-prcmu-regulators {
@@ -597,6 +783,7 @@
 				db8500_esram34_ret_reg: db8500_esram34_ret {
 				};
 			};
+<<<<<<< HEAD
 
 			ab8500 {
 				compatible = "stericsson,ab8500";
@@ -800,6 +987,11 @@
 		};
 
 		i2c@80004000 {
+=======
+		};
+
+		i2c0: i2c@80004000 {
+>>>>>>> upstream/android-13
 			compatible = "stericsson,db8500-i2c", "st,nomadik-i2c", "arm,primecell";
 			reg = <0x80004000 0x1000>;
 			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
@@ -812,9 +1004,17 @@
 			clocks = <&prcc_kclk 3 3>, <&prcc_pclk 3 3>;
 			clock-names = "i2cclk", "apb_pclk";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		i2c@80122000 {
+=======
+
+			status = "disabled";
+		};
+
+		i2c1: i2c@80122000 {
+>>>>>>> upstream/android-13
 			compatible = "stericsson,db8500-i2c", "st,nomadik-i2c", "arm,primecell";
 			reg = <0x80122000 0x1000>;
 			interrupts = <GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>;
@@ -828,9 +1028,17 @@
 			clocks = <&prcc_kclk 1 2>, <&prcc_pclk 1 2>;
 			clock-names = "i2cclk", "apb_pclk";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		i2c@80128000 {
+=======
+
+			status = "disabled";
+		};
+
+		i2c2: i2c@80128000 {
+>>>>>>> upstream/android-13
 			compatible = "stericsson,db8500-i2c", "st,nomadik-i2c", "arm,primecell";
 			reg = <0x80128000 0x1000>;
 			interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
@@ -844,9 +1052,17 @@
 			clocks = <&prcc_kclk 1 6>, <&prcc_pclk 1 6>;
 			clock-names = "i2cclk", "apb_pclk";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		i2c@80110000 {
+=======
+
+			status = "disabled";
+		};
+
+		i2c3: i2c@80110000 {
+>>>>>>> upstream/android-13
 			compatible = "stericsson,db8500-i2c", "st,nomadik-i2c", "arm,primecell";
 			reg = <0x80110000 0x1000>;
 			interrupts = <GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>;
@@ -860,9 +1076,17 @@
 			clocks = <&prcc_kclk 2 0>, <&prcc_pclk 2 0>;
 			clock-names = "i2cclk", "apb_pclk";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		i2c@8012a000 {
+=======
+
+			status = "disabled";
+		};
+
+		i2c4: i2c@8012a000 {
+>>>>>>> upstream/android-13
 			compatible = "stericsson,db8500-i2c", "st,nomadik-i2c", "arm,primecell";
 			reg = <0x8012a000 0x1000>;
 			interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>;
@@ -876,9 +1100,17 @@
 			clocks = <&prcc_kclk 1 9>, <&prcc_pclk 1 10>;
 			clock-names = "i2cclk", "apb_pclk";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		spi@80002000 {
+=======
+
+			status = "disabled";
+		};
+
+		ssp0: spi@80002000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl022", "arm,primecell";
 			reg = <0x80002000 0x1000>;
 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
@@ -890,9 +1122,17 @@
 			       <&dma 8 0 0x0>; /* Logical - MemToDev */
 			dma-names = "rx", "tx";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		spi@80003000 {
+=======
+
+			status = "disabled";
+		};
+
+		ssp1: spi@80003000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl022", "arm,primecell";
 			reg = <0x80003000 0x1000>;
 			interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
@@ -904,9 +1144,17 @@
 			       <&dma 9 0 0x0>; /* Logical - MemToDev */
 			dma-names = "rx", "tx";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		spi@8011a000 {
+=======
+
+			status = "disabled";
+		};
+
+		spi0: spi@8011a000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl022", "arm,primecell";
 			reg = <0x8011a000 0x1000>;
 			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
@@ -919,9 +1167,17 @@
 			       <&dma 0 0 0x0>; /* Logical - MemToDev */
 			dma-names = "rx", "tx";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		spi@80112000 {
+=======
+
+			status = "disabled";
+		};
+
+		spi1: spi@80112000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl022", "arm,primecell";
 			reg = <0x80112000 0x1000>;
 			interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
@@ -934,9 +1190,17 @@
 			       <&dma 35 0 0x0>; /* Logical - MemToDev */
 			dma-names = "rx", "tx";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		spi@80111000 {
+=======
+
+			status = "disabled";
+		};
+
+		spi2: spi@80111000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl022", "arm,primecell";
 			reg = <0x80111000 0x1000>;
 			interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
@@ -949,9 +1213,17 @@
 			       <&dma 33 0 0x0>; /* Logical - MemToDev */
 			dma-names = "rx", "tx";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		spi@80129000 {
+=======
+
+			status = "disabled";
+		};
+
+		spi3: spi@80129000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl022", "arm,primecell";
 			reg = <0x80129000 0x1000>;
 			interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
@@ -964,9 +1236,17 @@
 			       <&dma 40 0 0x0>; /* Logical - MemToDev */
 			dma-names = "rx", "tx";
 			power-domains = <&pm_domains DOMAIN_VAPE>;
+<<<<<<< HEAD
 		};
 
 		ux500_serial0: uart@80120000 {
+=======
+
+			status = "disabled";
+		};
+
+		serial0: uart@80120000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl011", "arm,primecell";
 			reg = <0x80120000 0x1000>;
 			interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
@@ -981,7 +1261,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		ux500_serial1: uart@80121000 {
+=======
+		serial1: uart@80121000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl011", "arm,primecell";
 			reg = <0x80121000 0x1000>;
 			interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
@@ -996,7 +1280,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		ux500_serial2: uart@80007000 {
+=======
+		serial2: uart@80007000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl011", "arm,primecell";
 			reg = <0x80007000 0x1000>;
 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
@@ -1011,7 +1299,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		sdi0_per1@80126000 {
+=======
+		mmc@80126000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl18x", "arm,primecell";
 			reg = <0x80126000 0x1000>;
 			interrupts = <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
@@ -1027,7 +1319,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		sdi1_per2@80118000 {
+=======
+		mmc@80118000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl18x", "arm,primecell";
 			reg = <0x80118000 0x1000>;
 			interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
@@ -1043,7 +1339,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		sdi2_per3@80005000 {
+=======
+		mmc@80005000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl18x", "arm,primecell";
 			reg = <0x80005000 0x1000>;
 			interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
@@ -1059,7 +1359,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		sdi3_per2@80119000 {
+=======
+		mmc@80119000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl18x", "arm,primecell";
 			reg = <0x80119000 0x1000>;
 			interrupts = <GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>;
@@ -1075,7 +1379,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		sdi4_per2@80114000 {
+=======
+		mmc@80114000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl18x", "arm,primecell";
 			reg = <0x80114000 0x1000>;
 			interrupts = <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
@@ -1091,7 +1399,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		sdi5_per3@80008000 {
+=======
+		mmc@80008000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl18x", "arm,primecell";
 			reg = <0x80008000 0x1000>;
 			interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
@@ -1110,9 +1422,12 @@
 		sound {
 			compatible = "stericsson,snd-soc-mop500";
 			stericsson,cpu-dai = <&msp1 &msp3>;
+<<<<<<< HEAD
 			stericsson,audio-codec = <&codec>;
 			clocks = <&prcmu_clk PRCMU_SYSCLK>, <&ab8500_clock AB8500_SYSCLK_ULP>, <&ab8500_clock AB8500_SYSCLK_INT>;
 			clock-names = "sysclk", "ulpclk", "intclk";
+=======
+>>>>>>> upstream/android-13
 		};
 
 		msp0: msp@80123000 {
@@ -1190,6 +1505,7 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		mcde@a0350000 {
 			compatible = "stericsson,mcde";
 			reg = <0xa0350000 0x1000>, /* MCDE */
@@ -1205,6 +1521,71 @@
 				 <&prcmu_clk PRCMU_DSI0ESCCLK>, /* TVout clock 0 */
 				 <&prcmu_clk PRCMU_DSI1ESCCLK>, /* TVout clock 1 */
 				 <&prcmu_clk PRCMU_DSI2ESCCLK>; /* TVout clock 2 */
+=======
+		gpu@a0300000 {
+			/*
+			 * This block is referred to as "Smart Graphics Adapter SGA500"
+			 * in documentation but is in practice a pretty straight-forward
+			 * MALI-400 GPU block.
+			 */
+			compatible = "stericsson,db8500-mali", "arm,mali-400";
+			reg = <0xa0300000 0x10000>;
+			interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 114 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 113 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "gp",
+					  "gpmmu",
+					  "pp0",
+					  "ppmmu0",
+					  "combined";
+			clocks = <&prcmu_clk PRCMU_ACLK>, <&prcmu_clk PRCMU_SGACLK>;
+			clock-names = "bus", "core";
+			mali-supply = <&db8500_sga_reg>;
+			power-domains = <&pm_domains DOMAIN_VAPE>;
+		};
+
+		mcde@a0350000 {
+			compatible = "ste,mcde";
+			reg = <0xa0350000 0x1000>;
+			interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
+			epod-supply = <&db8500_b2r2_mcde_reg>;
+			clocks = <&prcmu_clk PRCMU_MCDECLK>, /* Main MCDE clock */
+				 <&prcmu_clk PRCMU_LCDCLK>, /* LCD clock */
+				 <&prcmu_clk PRCMU_PLLDSI>; /* HDMI clock */
+			clock-names = "mcde", "lcd", "hdmi";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+			status = "disabled";
+
+			dsi0: dsi@a0351000 {
+				compatible = "ste,mcde-dsi";
+				reg = <0xa0351000 0x1000>;
+				clocks = <&prcmu_clk PRCMU_DSI0CLK>, <&prcmu_clk PRCMU_DSI0ESCCLK>;
+				clock-names = "hs", "lp";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+			dsi1: dsi@a0352000 {
+				compatible = "ste,mcde-dsi";
+				reg = <0xa0352000 0x1000>;
+				clocks = <&prcmu_clk PRCMU_DSI1CLK>, <&prcmu_clk PRCMU_DSI1ESCCLK>;
+				clock-names = "hs", "lp";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+			dsi2: dsi@a0353000 {
+				compatible = "ste,mcde-dsi";
+				reg = <0xa0353000 0x1000>;
+				/* This DSI port only has the Low Power / Energy Save clock */
+				clocks = <&prcmu_clk PRCMU_DSI2ESCCLK>;
+				clock-names = "lp";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+>>>>>>> upstream/android-13
 		};
 
 		cryp@a03cb000 {

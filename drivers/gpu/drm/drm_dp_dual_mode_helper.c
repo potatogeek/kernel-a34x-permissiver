@@ -20,13 +20,24 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/export.h>
 #include <linux/i2c.h>
 #include <linux/slab.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <drm/drm_dp_dual_mode_helper.h>
 #include <drm/drmP.h>
+=======
+
+#include <drm/drm_device.h>
+#include <drm/drm_dp_dual_mode_helper.h>
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 
 /**
  * DOC: dp dual mode helpers
@@ -163,6 +174,10 @@ static bool is_lspcon_adaptor(const char hdmi_id[DP_DUAL_MODE_HDMI_ID_LEN],
 
 /**
  * drm_dp_dual_mode_detect - Identify the DP dual mode adaptor
+<<<<<<< HEAD
+=======
+ * @dev: &drm_device to use
+>>>>>>> upstream/android-13
  * @adapter: I2C adapter for the DDC bus
  *
  * Attempt to identify the type of the DP dual mode adaptor used.
@@ -176,7 +191,12 @@ static bool is_lspcon_adaptor(const char hdmi_id[DP_DUAL_MODE_HDMI_ID_LEN],
  * Returns:
  * The type of the DP dual mode adaptor used
  */
+<<<<<<< HEAD
 enum drm_dp_dual_mode_type drm_dp_dual_mode_detect(struct i2c_adapter *adapter)
+=======
+enum drm_dp_dual_mode_type drm_dp_dual_mode_detect(const struct drm_device *dev,
+						   struct i2c_adapter *adapter)
+>>>>>>> upstream/android-13
 {
 	char hdmi_id[DP_DUAL_MODE_HDMI_ID_LEN] = {};
 	uint8_t adaptor_id = 0x00;
@@ -198,8 +218,13 @@ enum drm_dp_dual_mode_type drm_dp_dual_mode_detect(struct i2c_adapter *adapter)
 	 */
 	ret = drm_dp_dual_mode_read(adapter, DP_DUAL_MODE_HDMI_ID,
 				    hdmi_id, sizeof(hdmi_id));
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("DP dual mode HDMI ID: %*pE (err %zd)\n",
 		      ret ? 0 : (int)sizeof(hdmi_id), hdmi_id, ret);
+=======
+	drm_dbg_kms(dev, "DP dual mode HDMI ID: %*pE (err %zd)\n",
+		    ret ? 0 : (int)sizeof(hdmi_id), hdmi_id, ret);
+>>>>>>> upstream/android-13
 	if (ret)
 		return DRM_DP_DUAL_MODE_UNKNOWN;
 
@@ -217,8 +242,12 @@ enum drm_dp_dual_mode_type drm_dp_dual_mode_detect(struct i2c_adapter *adapter)
 	 */
 	ret = drm_dp_dual_mode_read(adapter, DP_DUAL_MODE_ADAPTOR_ID,
 				    &adaptor_id, sizeof(adaptor_id));
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("DP dual mode adaptor ID: %02x (err %zd)\n",
 		      adaptor_id, ret);
+=======
+	drm_dbg_kms(dev, "DP dual mode adaptor ID: %02x (err %zd)\n", adaptor_id, ret);
+>>>>>>> upstream/android-13
 	if (ret == 0) {
 		if (is_lspcon_adaptor(hdmi_id, adaptor_id))
 			return DRM_DP_DUAL_MODE_LSPCON;
@@ -234,8 +263,12 @@ enum drm_dp_dual_mode_type drm_dp_dual_mode_detect(struct i2c_adapter *adapter)
 		 * that we may have misdetected the type.
 		 */
 		if (!is_type1_adaptor(adaptor_id) && adaptor_id != hdmi_id[0])
+<<<<<<< HEAD
 			DRM_ERROR("Unexpected DP dual mode adaptor ID %02x\n",
 				  adaptor_id);
+=======
+			drm_err(dev, "Unexpected DP dual mode adaptor ID %02x\n", adaptor_id);
+>>>>>>> upstream/android-13
 
 	}
 
@@ -248,6 +281,10 @@ EXPORT_SYMBOL(drm_dp_dual_mode_detect);
 
 /**
  * drm_dp_dual_mode_max_tmds_clock - Max TMDS clock for DP dual mode adaptor
+<<<<<<< HEAD
+=======
+ * @dev: &drm_device to use
+>>>>>>> upstream/android-13
  * @type: DP dual mode adaptor type
  * @adapter: I2C adapter for the DDC bus
  *
@@ -261,7 +298,11 @@ EXPORT_SYMBOL(drm_dp_dual_mode_detect);
  * Returns:
  * Maximum supported TMDS clock rate for the DP dual mode adaptor in kHz.
  */
+<<<<<<< HEAD
 int drm_dp_dual_mode_max_tmds_clock(enum drm_dp_dual_mode_type type,
+=======
+int drm_dp_dual_mode_max_tmds_clock(const struct drm_device *dev, enum drm_dp_dual_mode_type type,
+>>>>>>> upstream/android-13
 				    struct i2c_adapter *adapter)
 {
 	uint8_t max_tmds_clock;
@@ -281,7 +322,11 @@ int drm_dp_dual_mode_max_tmds_clock(enum drm_dp_dual_mode_type type,
 	ret = drm_dp_dual_mode_read(adapter, DP_DUAL_MODE_MAX_TMDS_CLOCK,
 				    &max_tmds_clock, sizeof(max_tmds_clock));
 	if (ret || max_tmds_clock == 0x00 || max_tmds_clock == 0xff) {
+<<<<<<< HEAD
 		DRM_DEBUG_KMS("Failed to query max TMDS clock\n");
+=======
+		drm_dbg_kms(dev, "Failed to query max TMDS clock\n");
+>>>>>>> upstream/android-13
 		return 165000;
 	}
 
@@ -291,6 +336,10 @@ EXPORT_SYMBOL(drm_dp_dual_mode_max_tmds_clock);
 
 /**
  * drm_dp_dual_mode_get_tmds_output - Get the state of the TMDS output buffers in the DP dual mode adaptor
+<<<<<<< HEAD
+=======
+ * @dev: &drm_device to use
+>>>>>>> upstream/android-13
  * @type: DP dual mode adaptor type
  * @adapter: I2C adapter for the DDC bus
  * @enabled: current state of the TMDS output buffers
@@ -305,8 +354,13 @@ EXPORT_SYMBOL(drm_dp_dual_mode_max_tmds_clock);
  * Returns:
  * 0 on success, negative error code on failure
  */
+<<<<<<< HEAD
 int drm_dp_dual_mode_get_tmds_output(enum drm_dp_dual_mode_type type,
 				     struct i2c_adapter *adapter,
+=======
+int drm_dp_dual_mode_get_tmds_output(const struct drm_device *dev,
+				     enum drm_dp_dual_mode_type type, struct i2c_adapter *adapter,
+>>>>>>> upstream/android-13
 				     bool *enabled)
 {
 	uint8_t tmds_oen;
@@ -320,7 +374,11 @@ int drm_dp_dual_mode_get_tmds_output(enum drm_dp_dual_mode_type type,
 	ret = drm_dp_dual_mode_read(adapter, DP_DUAL_MODE_TMDS_OEN,
 				    &tmds_oen, sizeof(tmds_oen));
 	if (ret) {
+<<<<<<< HEAD
 		DRM_DEBUG_KMS("Failed to query state of TMDS output buffers\n");
+=======
+		drm_dbg_kms(dev, "Failed to query state of TMDS output buffers\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -332,6 +390,10 @@ EXPORT_SYMBOL(drm_dp_dual_mode_get_tmds_output);
 
 /**
  * drm_dp_dual_mode_set_tmds_output - Enable/disable TMDS output buffers in the DP dual mode adaptor
+<<<<<<< HEAD
+=======
+ * @dev: &drm_device to use
+>>>>>>> upstream/android-13
  * @type: DP dual mode adaptor type
  * @adapter: I2C adapter for the DDC bus
  * @enable: enable (as opposed to disable) the TMDS output buffers
@@ -345,7 +407,11 @@ EXPORT_SYMBOL(drm_dp_dual_mode_get_tmds_output);
  * Returns:
  * 0 on success, negative error code on failure
  */
+<<<<<<< HEAD
 int drm_dp_dual_mode_set_tmds_output(enum drm_dp_dual_mode_type type,
+=======
+int drm_dp_dual_mode_set_tmds_output(const struct drm_device *dev, enum drm_dp_dual_mode_type type,
+>>>>>>> upstream/android-13
 				     struct i2c_adapter *adapter, bool enable)
 {
 	uint8_t tmds_oen = enable ? 0 : DP_DUAL_MODE_TMDS_DISABLE;
@@ -365,18 +431,29 @@ int drm_dp_dual_mode_set_tmds_output(enum drm_dp_dual_mode_type type,
 		ret = drm_dp_dual_mode_write(adapter, DP_DUAL_MODE_TMDS_OEN,
 					     &tmds_oen, sizeof(tmds_oen));
 		if (ret) {
+<<<<<<< HEAD
 			DRM_DEBUG_KMS("Failed to %s TMDS output buffers (%d attempts)\n",
 				      enable ? "enable" : "disable",
 				      retry + 1);
+=======
+			drm_dbg_kms(dev, "Failed to %s TMDS output buffers (%d attempts)\n",
+				    enable ? "enable" : "disable", retry + 1);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 
 		ret = drm_dp_dual_mode_read(adapter, DP_DUAL_MODE_TMDS_OEN,
 					    &tmp, sizeof(tmp));
 		if (ret) {
+<<<<<<< HEAD
 			DRM_DEBUG_KMS("I2C read failed during TMDS output buffer %s (%d attempts)\n",
 				      enable ? "enabling" : "disabling",
 				      retry + 1);
+=======
+			drm_dbg_kms(dev,
+				    "I2C read failed during TMDS output buffer %s (%d attempts)\n",
+				    enable ? "enabling" : "disabling", retry + 1);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 
@@ -384,8 +461,13 @@ int drm_dp_dual_mode_set_tmds_output(enum drm_dp_dual_mode_type type,
 			return 0;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("I2C write value mismatch during TMDS output buffer %s\n",
 		      enable ? "enabling" : "disabling");
+=======
+	drm_dbg_kms(dev, "I2C write value mismatch during TMDS output buffer %s\n",
+		    enable ? "enabling" : "disabling");
+>>>>>>> upstream/android-13
 
 	return -EIO;
 }
@@ -423,6 +505,10 @@ EXPORT_SYMBOL(drm_dp_get_dual_mode_type_name);
 /**
  * drm_lspcon_get_mode: Get LSPCON's current mode of operation by
  * reading offset (0x80, 0x41)
+<<<<<<< HEAD
+=======
+ * @dev: &drm_device to use
+>>>>>>> upstream/android-13
  * @adapter: I2C-over-aux adapter
  * @mode: current lspcon mode of operation output variable
  *
@@ -430,7 +516,11 @@ EXPORT_SYMBOL(drm_dp_get_dual_mode_type_name);
  * 0 on success, sets the current_mode value to appropriate mode
  * -error on failure
  */
+<<<<<<< HEAD
 int drm_lspcon_get_mode(struct i2c_adapter *adapter,
+=======
+int drm_lspcon_get_mode(const struct drm_device *dev, struct i2c_adapter *adapter,
+>>>>>>> upstream/android-13
 			enum drm_lspcon_mode *mode)
 {
 	u8 data;
@@ -438,7 +528,11 @@ int drm_lspcon_get_mode(struct i2c_adapter *adapter,
 	int retry;
 
 	if (!mode) {
+<<<<<<< HEAD
 		DRM_ERROR("NULL input\n");
+=======
+		drm_err(dev, "NULL input\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -455,7 +549,11 @@ int drm_lspcon_get_mode(struct i2c_adapter *adapter,
 	}
 
 	if (ret < 0) {
+<<<<<<< HEAD
 		DRM_DEBUG_KMS("LSPCON read(0x80, 0x41) failed\n");
+=======
+		drm_dbg_kms(dev, "LSPCON read(0x80, 0x41) failed\n");
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -470,13 +568,21 @@ EXPORT_SYMBOL(drm_lspcon_get_mode);
 /**
  * drm_lspcon_set_mode: Change LSPCON's mode of operation by
  * writing offset (0x80, 0x40)
+<<<<<<< HEAD
+=======
+ * @dev: &drm_device to use
+>>>>>>> upstream/android-13
  * @adapter: I2C-over-aux adapter
  * @mode: required mode of operation
  *
  * Returns:
  * 0 on success, -error on failure/timeout
  */
+<<<<<<< HEAD
 int drm_lspcon_set_mode(struct i2c_adapter *adapter,
+=======
+int drm_lspcon_set_mode(const struct drm_device *dev, struct i2c_adapter *adapter,
+>>>>>>> upstream/android-13
 			enum drm_lspcon_mode mode)
 {
 	u8 data = 0;
@@ -491,7 +597,11 @@ int drm_lspcon_set_mode(struct i2c_adapter *adapter,
 	ret = drm_dp_dual_mode_write(adapter, DP_DUAL_MODE_LSPCON_MODE_CHANGE,
 				     &data, sizeof(data));
 	if (ret < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("LSPCON mode change failed\n");
+=======
+		drm_err(dev, "LSPCON mode change failed\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -501,24 +611,39 @@ int drm_lspcon_set_mode(struct i2c_adapter *adapter,
 	 * so wait and retry until time out or done.
 	 */
 	do {
+<<<<<<< HEAD
 		ret = drm_lspcon_get_mode(adapter, &current_mode);
 		if (ret) {
 			DRM_ERROR("can't confirm LSPCON mode change\n");
+=======
+		ret = drm_lspcon_get_mode(dev, adapter, &current_mode);
+		if (ret) {
+			drm_err(dev, "can't confirm LSPCON mode change\n");
+>>>>>>> upstream/android-13
 			return ret;
 		} else {
 			if (current_mode != mode) {
 				msleep(10);
 				time_out -= 10;
 			} else {
+<<<<<<< HEAD
 				DRM_DEBUG_KMS("LSPCON mode changed to %s\n",
 						mode == DRM_LSPCON_MODE_LS ?
 						"LS" : "PCON");
+=======
+				drm_dbg_kms(dev, "LSPCON mode changed to %s\n",
+					    mode == DRM_LSPCON_MODE_LS ? "LS" : "PCON");
+>>>>>>> upstream/android-13
 				return 0;
 			}
 		}
 	} while (time_out);
 
+<<<<<<< HEAD
 	DRM_ERROR("LSPCON mode change timed out\n");
+=======
+	drm_err(dev, "LSPCON mode change timed out\n");
+>>>>>>> upstream/android-13
 	return -ETIMEDOUT;
 }
 EXPORT_SYMBOL(drm_lspcon_set_mode);

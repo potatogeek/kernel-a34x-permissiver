@@ -1,6 +1,21 @@
+<<<<<<< HEAD
 #
 # Allwinner sunXi SoC drivers
 #
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Allwinner sunXi SoC drivers
+#
+
+config SUNXI_MBUS
+	bool
+	default ARCH_SUNXI
+	help
+	  Say y to enable the fixups needed to support the Allwinner
+	  MBUS DMA quirks.
+
+>>>>>>> upstream/android-13
 config SUNXI_SRAM
 	bool
 	default ARCH_SUNXI

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Free Electrons
  * Copyright (C) 2014 Atmel
  *
  * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -21,6 +26,24 @@
 
 /**
  * Atmel HLCDC Plane state structure.
+=======
+ */
+
+#include <linux/dmapool.h>
+#include <linux/mfd/atmel-hlcdc.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_plane_helper.h>
+
+#include "atmel_hlcdc_dc.h"
+
+/**
+ * struct atmel_hlcdc_plane_state - Atmel HLCDC Plane state structure.
+>>>>>>> upstream/android-13
  *
  * @base: DRM plane state
  * @crtc_x: x position of the plane relative to the CRTC
@@ -35,6 +58,10 @@
  * @disc_y: y discard position
  * @disc_w: discard width
  * @disc_h: discard height
+<<<<<<< HEAD
+=======
+ * @ahb_id: AHB identification number
+>>>>>>> upstream/android-13
  * @bpp: bytes per pixel deduced from pixel_format
  * @offsets: offsets to apply to the GEM buffers
  * @xstride: value to add to the pixel pointer between each line
@@ -281,8 +308,13 @@ atmel_hlcdc_plane_scaler_set_phicoeff(struct atmel_hlcdc_plane *plane,
 					    coeff_tab[i]);
 }
 
+<<<<<<< HEAD
 void atmel_hlcdc_plane_setup_scaler(struct atmel_hlcdc_plane *plane,
 				    struct atmel_hlcdc_plane_state *state)
+=======
+static void atmel_hlcdc_plane_setup_scaler(struct atmel_hlcdc_plane *plane,
+					   struct atmel_hlcdc_plane_state *state)
+>>>>>>> upstream/android-13
 {
 	const struct atmel_hlcdc_layer_desc *desc = plane->layer.desc;
 	u32 xfactor, yfactor;
@@ -372,7 +404,11 @@ atmel_hlcdc_plane_update_general_settings(struct atmel_hlcdc_plane *plane,
 	atmel_hlcdc_layer_write_cfg(&plane->layer, ATMEL_HLCDC_LAYER_DMA_CFG,
 				    cfg);
 
+<<<<<<< HEAD
 	cfg = ATMEL_HLCDC_LAYER_DMA;
+=======
+	cfg = ATMEL_HLCDC_LAYER_DMA | ATMEL_HLCDC_LAYER_REP;
+>>>>>>> upstream/android-13
 
 	if (plane->base.type != DRM_PLANE_TYPE_PRIMARY) {
 		cfg |= ATMEL_HLCDC_LAYER_OVR | ATMEL_HLCDC_LAYER_ITER2BL |
@@ -549,7 +585,12 @@ atmel_hlcdc_plane_prepare_disc_area(struct drm_crtc_state *c_state)
 
 		ovl_state = drm_plane_state_to_atmel_hlcdc_plane_state(ovl_s);
 
+<<<<<<< HEAD
 		if (!ovl_s->fb ||
+=======
+		if (!ovl_s->visible ||
+		    !ovl_s->fb ||
+>>>>>>> upstream/android-13
 		    ovl_s->fb->format->has_alpha ||
 		    ovl_s->alpha != DRM_BLEND_ALPHA_OPAQUE)
 			continue;
@@ -592,6 +633,7 @@ atmel_hlcdc_plane_update_disc_area(struct atmel_hlcdc_plane *plane,
 }
 
 static int atmel_hlcdc_plane_atomic_check(struct drm_plane *p,
+<<<<<<< HEAD
 					  struct drm_plane_state *s)
 {
 	struct atmel_hlcdc_plane *plane = drm_plane_to_atmel_hlcdc_plane(p);
@@ -761,11 +803,127 @@ static int atmel_hlcdc_plane_atomic_check(struct drm_plane *p,
 
 	if (state->crtc_w + state->crtc_x > mode->hdisplay ||
 	    state->crtc_h + state->crtc_y > mode->vdisplay)
+=======
+					  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *s = drm_atomic_get_new_plane_state(state, p);
+	struct atmel_hlcdc_plane *plane = drm_plane_to_atmel_hlcdc_plane(p);
+	struct atmel_hlcdc_plane_state *hstate =
+				drm_plane_state_to_atmel_hlcdc_plane_state(s);
+	const struct atmel_hlcdc_layer_desc *desc = plane->layer.desc;
+	struct drm_framebuffer *fb = hstate->base.fb;
+	const struct drm_display_mode *mode;
+	struct drm_crtc_state *crtc_state;
+	int ret;
+	int i;
+
+	if (!hstate->base.crtc || WARN_ON(!fb))
+		return 0;
+
+	crtc_state = drm_atomic_get_existing_crtc_state(state, s->crtc);
+	mode = &crtc_state->adjusted_mode;
+
+	ret = drm_atomic_helper_check_plane_state(s, crtc_state,
+						  (1 << 16) / 2048,
+						  INT_MAX, true, true);
+	if (ret || !s->visible)
+		return ret;
+
+	hstate->src_x = s->src.x1;
+	hstate->src_y = s->src.y1;
+	hstate->src_w = drm_rect_width(&s->src);
+	hstate->src_h = drm_rect_height(&s->src);
+	hstate->crtc_x = s->dst.x1;
+	hstate->crtc_y = s->dst.y1;
+	hstate->crtc_w = drm_rect_width(&s->dst);
+	hstate->crtc_h = drm_rect_height(&s->dst);
+
+	if ((hstate->src_x | hstate->src_y | hstate->src_w | hstate->src_h) &
+	    SUBPIXEL_MASK)
+		return -EINVAL;
+
+	hstate->src_x >>= 16;
+	hstate->src_y >>= 16;
+	hstate->src_w >>= 16;
+	hstate->src_h >>= 16;
+
+	hstate->nplanes = fb->format->num_planes;
+	if (hstate->nplanes > ATMEL_HLCDC_LAYER_MAX_PLANES)
+		return -EINVAL;
+
+	for (i = 0; i < hstate->nplanes; i++) {
+		unsigned int offset = 0;
+		int xdiv = i ? fb->format->hsub : 1;
+		int ydiv = i ? fb->format->vsub : 1;
+
+		hstate->bpp[i] = fb->format->cpp[i];
+		if (!hstate->bpp[i])
+			return -EINVAL;
+
+		switch (hstate->base.rotation & DRM_MODE_ROTATE_MASK) {
+		case DRM_MODE_ROTATE_90:
+			offset = (hstate->src_y / ydiv) *
+				 fb->pitches[i];
+			offset += ((hstate->src_x + hstate->src_w - 1) /
+				   xdiv) * hstate->bpp[i];
+			hstate->xstride[i] = -(((hstate->src_h - 1) / ydiv) *
+					    fb->pitches[i]) -
+					  (2 * hstate->bpp[i]);
+			hstate->pstride[i] = fb->pitches[i] - hstate->bpp[i];
+			break;
+		case DRM_MODE_ROTATE_180:
+			offset = ((hstate->src_y + hstate->src_h - 1) /
+				  ydiv) * fb->pitches[i];
+			offset += ((hstate->src_x + hstate->src_w - 1) /
+				   xdiv) * hstate->bpp[i];
+			hstate->xstride[i] = ((((hstate->src_w - 1) / xdiv) - 1) *
+					   hstate->bpp[i]) - fb->pitches[i];
+			hstate->pstride[i] = -2 * hstate->bpp[i];
+			break;
+		case DRM_MODE_ROTATE_270:
+			offset = ((hstate->src_y + hstate->src_h - 1) /
+				  ydiv) * fb->pitches[i];
+			offset += (hstate->src_x / xdiv) * hstate->bpp[i];
+			hstate->xstride[i] = ((hstate->src_h - 1) / ydiv) *
+					  fb->pitches[i];
+			hstate->pstride[i] = -fb->pitches[i] - hstate->bpp[i];
+			break;
+		case DRM_MODE_ROTATE_0:
+		default:
+			offset = (hstate->src_y / ydiv) * fb->pitches[i];
+			offset += (hstate->src_x / xdiv) * hstate->bpp[i];
+			hstate->xstride[i] = fb->pitches[i] -
+					  ((hstate->src_w / xdiv) *
+					   hstate->bpp[i]);
+			hstate->pstride[i] = 0;
+			break;
+		}
+
+		hstate->offsets[i] = offset + fb->offsets[i];
+	}
+
+	/*
+	 * Swap width and size in case of 90 or 270 degrees rotation
+	 */
+	if (drm_rotation_90_or_270(hstate->base.rotation)) {
+		swap(hstate->src_w, hstate->src_h);
+	}
+
+	if (!desc->layout.size &&
+	    (mode->hdisplay != hstate->crtc_w ||
+	     mode->vdisplay != hstate->crtc_h))
+		return -EINVAL;
+
+	if ((hstate->crtc_h != hstate->src_h || hstate->crtc_w != hstate->src_w) &&
+	    (!desc->layout.memsize ||
+	     hstate->base.fb->format->has_alpha))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void atmel_hlcdc_plane_atomic_update(struct drm_plane *p,
 					    struct drm_plane_state *old_s)
 {
@@ -800,6 +958,10 @@ static void atmel_hlcdc_plane_atomic_update(struct drm_plane *p,
 
 static void atmel_hlcdc_plane_atomic_disable(struct drm_plane *p,
 					     struct drm_plane_state *old_state)
+=======
+static void atmel_hlcdc_plane_atomic_disable(struct drm_plane *p,
+					     struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct atmel_hlcdc_plane *plane = drm_plane_to_atmel_hlcdc_plane(p);
 
@@ -817,6 +979,48 @@ static void atmel_hlcdc_plane_atomic_disable(struct drm_plane *p,
 	atmel_hlcdc_layer_read_reg(&plane->layer, ATMEL_HLCDC_LAYER_ISR);
 }
 
+<<<<<<< HEAD
+=======
+static void atmel_hlcdc_plane_atomic_update(struct drm_plane *p,
+					    struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_s = drm_atomic_get_new_plane_state(state,
+								       p);
+	struct atmel_hlcdc_plane *plane = drm_plane_to_atmel_hlcdc_plane(p);
+	struct atmel_hlcdc_plane_state *hstate =
+			drm_plane_state_to_atmel_hlcdc_plane_state(new_s);
+	u32 sr;
+
+	if (!new_s->crtc || !new_s->fb)
+		return;
+
+	if (!hstate->base.visible) {
+		atmel_hlcdc_plane_atomic_disable(p, state);
+		return;
+	}
+
+	atmel_hlcdc_plane_update_pos_and_size(plane, hstate);
+	atmel_hlcdc_plane_update_general_settings(plane, hstate);
+	atmel_hlcdc_plane_update_format(plane, hstate);
+	atmel_hlcdc_plane_update_clut(plane, hstate);
+	atmel_hlcdc_plane_update_buffers(plane, hstate);
+	atmel_hlcdc_plane_update_disc_area(plane, hstate);
+
+	/* Enable the overrun interrupts. */
+	atmel_hlcdc_layer_write_reg(&plane->layer, ATMEL_HLCDC_LAYER_IER,
+				    ATMEL_HLCDC_LAYER_OVR_IRQ(0) |
+				    ATMEL_HLCDC_LAYER_OVR_IRQ(1) |
+				    ATMEL_HLCDC_LAYER_OVR_IRQ(2));
+
+	/* Apply the new config at the next SOF event. */
+	sr = atmel_hlcdc_layer_read_reg(&plane->layer, ATMEL_HLCDC_LAYER_CHSR);
+	atmel_hlcdc_layer_write_reg(&plane->layer, ATMEL_HLCDC_LAYER_CHER,
+			ATMEL_HLCDC_LAYER_UPDATE |
+			(sr & ATMEL_HLCDC_LAYER_EN ?
+			 ATMEL_HLCDC_LAYER_A2Q : ATMEL_HLCDC_LAYER_EN));
+}
+
+>>>>>>> upstream/android-13
 static int atmel_hlcdc_plane_init_properties(struct atmel_hlcdc_plane *plane)
 {
 	const struct atmel_hlcdc_layer_desc *desc = plane->layer.desc;
@@ -942,10 +1146,14 @@ static void atmel_hlcdc_plane_reset(struct drm_plane *p)
 				"Failed to allocate initial plane state\n");
 			return;
 		}
+<<<<<<< HEAD
 
 		p->state = &state->base;
 		p->state->alpha = DRM_BLEND_ALPHA_OPAQUE;
 		p->state->plane = p;
+=======
+		__drm_atomic_helper_plane_reset(p, &state->base);
+>>>>>>> upstream/android-13
 	}
 }
 

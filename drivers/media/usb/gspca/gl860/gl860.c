@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* GSPCA subdrivers for Genesys Logic webcams with the GL860 chip
  * Subdriver core
  *
  * 2009/09/24 Olivier Lorin <o.lorin@laposte.net>
  * GSPCA by Jean-Francois Moine <http://moinejf.free.fr>
  * Thanks BUGabundo and Malmostoso for your amazing help!
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -573,8 +580,13 @@ int gl860_RTx(struct gspca_dev *gspca_dev,
 					len, 400 + 200 * (len > 1));
 			memcpy(pdata, gspca_dev->usb_buf, len);
 		} else {
+<<<<<<< HEAD
 			r = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
 					req, pref, val, index, NULL, len, 400);
+=======
+			gspca_err(gspca_dev, "zero-length read request\n");
+			r = -EINVAL;
+>>>>>>> upstream/android-13
 		}
 	}
 

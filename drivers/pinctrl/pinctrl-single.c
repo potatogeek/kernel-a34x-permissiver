@@ -42,6 +42,10 @@
  * struct pcs_func_vals - mux function register offset and value pair
  * @reg:	register virtual address
  * @val:	register value
+<<<<<<< HEAD
+=======
+ * @mask:	mask
+>>>>>>> upstream/android-13
  */
 struct pcs_func_vals {
 	void __iomem *reg;
@@ -83,6 +87,11 @@ struct pcs_conf_type {
  * @nvals:	number of entries in vals array
  * @pgnames:	array of pingroup names the function uses
  * @npgnames:	number of pingroup names the function uses
+<<<<<<< HEAD
+=======
+ * @conf:	array of pin configurations
+ * @nconfs:	number of pin configurations available
+>>>>>>> upstream/android-13
  * @node:	list node
  */
 struct pcs_function {
@@ -267,20 +276,57 @@ static void __maybe_unused pcs_writel(unsigned val, void __iomem *reg)
 	writel(val, reg);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int pcs_pin_reg_offset_get(struct pcs_device *pcs,
+					   unsigned int pin)
+{
+	unsigned int mux_bytes = pcs->width / BITS_PER_BYTE;
+
+	if (pcs->bits_per_mux) {
+		unsigned int pin_offset_bytes;
+
+		pin_offset_bytes = (pcs->bits_per_pin * pin) / BITS_PER_BYTE;
+		return (pin_offset_bytes / mux_bytes) * mux_bytes;
+	}
+
+	return pin * mux_bytes;
+}
+
+static unsigned int pcs_pin_shift_reg_get(struct pcs_device *pcs,
+					  unsigned int pin)
+{
+	return (pin % (pcs->width / pcs->bits_per_pin)) * pcs->bits_per_pin;
+}
+
+>>>>>>> upstream/android-13
 static void pcs_pin_dbg_show(struct pinctrl_dev *pctldev,
 					struct seq_file *s,
 					unsigned pin)
 {
 	struct pcs_device *pcs;
+<<<<<<< HEAD
 	unsigned val, mux_bytes;
+=======
+	unsigned int val;
+>>>>>>> upstream/android-13
 	unsigned long offset;
 	size_t pa;
 
 	pcs = pinctrl_dev_get_drvdata(pctldev);
 
+<<<<<<< HEAD
 	mux_bytes = pcs->width / BITS_PER_BYTE;
 	offset = pin * mux_bytes;
 	val = pcs->read(pcs->base + offset);
+=======
+	offset = pcs_pin_reg_offset_get(pcs, pin);
+	val = pcs->read(pcs->base + offset);
+
+	if (pcs->bits_per_mux)
+		val &= pcs->fmask << pcs_pin_shift_reg_get(pcs, pin);
+
+>>>>>>> upstream/android-13
 	pa = pcs->res->start + offset;
 
 	seq_printf(s, "%zx %08x %s ", pa, val, DRIVER_NAME);
@@ -381,7 +427,10 @@ static int pcs_request_gpio(struct pinctrl_dev *pctldev,
 	struct pcs_device *pcs = pinctrl_dev_get_drvdata(pctldev);
 	struct pcs_gpiofunc_range *frange = NULL;
 	struct list_head *pos, *tmp;
+<<<<<<< HEAD
 	int mux_bytes = 0;
+=======
+>>>>>>> upstream/android-13
 	unsigned data;
 
 	/* If function mask is null, return directly. */
@@ -389,10 +438,16 @@ static int pcs_request_gpio(struct pinctrl_dev *pctldev,
 		return -ENOTSUPP;
 
 	list_for_each_safe(pos, tmp, &pcs->gpiofuncs) {
+<<<<<<< HEAD
+=======
+		u32 offset;
+
+>>>>>>> upstream/android-13
 		frange = list_entry(pos, struct pcs_gpiofunc_range, node);
 		if (pin >= frange->offset + frange->npins
 			|| pin < frange->offset)
 			continue;
+<<<<<<< HEAD
 		mux_bytes = pcs->width / BITS_PER_BYTE;
 
 		if (pcs->bits_per_mux) {
@@ -402,16 +457,30 @@ static int pcs_request_gpio(struct pinctrl_dev *pctldev,
 			offset = (byte_num / mux_bytes) * mux_bytes;
 			pin_shift = pin % (pcs->width / pcs->bits_per_pin) *
 				    pcs->bits_per_pin;
+=======
+
+		offset = pcs_pin_reg_offset_get(pcs, pin);
+
+		if (pcs->bits_per_mux) {
+			int pin_shift = pcs_pin_shift_reg_get(pcs, pin);
+>>>>>>> upstream/android-13
 
 			data = pcs->read(pcs->base + offset);
 			data &= ~(pcs->fmask << pin_shift);
 			data |= frange->gpiofunc << pin_shift;
 			pcs->write(data, pcs->base + offset);
 		} else {
+<<<<<<< HEAD
 			data = pcs->read(pcs->base + pin * mux_bytes);
 			data &= ~pcs->fmask;
 			data |= frange->gpiofunc;
 			pcs->write(data, pcs->base + pin * mux_bytes);
+=======
+			data = pcs->read(pcs->base + offset);
+			data &= ~pcs->fmask;
+			data |= frange->gpiofunc;
+			pcs->write(data, pcs->base + offset);
+>>>>>>> upstream/android-13
 		}
 		break;
 	}
@@ -509,7 +578,12 @@ static int pcs_pinconf_get(struct pinctrl_dev *pctldev,
 			break;
 		case PIN_CONFIG_DRIVE_STRENGTH:
 		case PIN_CONFIG_SLEW_RATE:
+<<<<<<< HEAD
 		case PIN_CONFIG_LOW_POWER_MODE:
+=======
+		case PIN_CONFIG_MODE_LOW_POWER:
+		case PIN_CONFIG_INPUT_ENABLE:
+>>>>>>> upstream/android-13
 		default:
 			*config = data;
 			break;
@@ -547,7 +621,12 @@ static int pcs_pinconf_set(struct pinctrl_dev *pctldev,
 			case PIN_CONFIG_INPUT_SCHMITT:
 			case PIN_CONFIG_DRIVE_STRENGTH:
 			case PIN_CONFIG_SLEW_RATE:
+<<<<<<< HEAD
 			case PIN_CONFIG_LOW_POWER_MODE:
+=======
+			case PIN_CONFIG_MODE_LOW_POWER:
+			case PIN_CONFIG_INPUT_ENABLE:
+>>>>>>> upstream/android-13
 				shift = ffs(func->conf[i].mask) - 1;
 				data &= ~func->conf[i].mask;
 				data |= (arg << shift) & func->conf[i].mask;
@@ -560,7 +639,11 @@ static int pcs_pinconf_set(struct pinctrl_dev *pctldev,
 			case PIN_CONFIG_BIAS_PULL_UP:
 				if (arg)
 					pcs_pinconf_clear_bias(pctldev, pin);
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
 				data &= ~func->conf[i].mask;
 				if (arg)
@@ -654,8 +737,12 @@ static const struct pinconf_ops pcs_pinconf_ops = {
  * @pcs: pcs driver instance
  * @offset: register offset from base
  */
+<<<<<<< HEAD
 static int pcs_add_pin(struct pcs_device *pcs, unsigned offset,
 		unsigned pin_pos)
+=======
+static int pcs_add_pin(struct pcs_device *pcs, unsigned int offset)
+>>>>>>> upstream/android-13
 {
 	struct pcs_soc_data *pcs_soc = &pcs->socdata;
 	struct pinctrl_pin_desc *pin;
@@ -699,14 +786,20 @@ static int pcs_add_pin(struct pcs_device *pcs, unsigned offset,
 static int pcs_allocate_pin_table(struct pcs_device *pcs)
 {
 	int mux_bytes, nr_pins, i;
+<<<<<<< HEAD
 	int num_pins_in_register = 0;
+=======
+>>>>>>> upstream/android-13
 
 	mux_bytes = pcs->width / BITS_PER_BYTE;
 
 	if (pcs->bits_per_mux) {
 		pcs->bits_per_pin = fls(pcs->fmask);
 		nr_pins = (pcs->size * BITS_PER_BYTE) / pcs->bits_per_pin;
+<<<<<<< HEAD
 		num_pins_in_register = pcs->width / pcs->bits_per_pin;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		nr_pins = pcs->size / mux_bytes;
 	}
@@ -724,6 +817,7 @@ static int pcs_allocate_pin_table(struct pcs_device *pcs)
 	for (i = 0; i < pcs->desc.npins; i++) {
 		unsigned offset;
 		int res;
+<<<<<<< HEAD
 		int byte_num;
 		int pin_pos = 0;
 
@@ -735,6 +829,11 @@ static int pcs_allocate_pin_table(struct pcs_device *pcs)
 			offset = i * mux_bytes;
 		}
 		res = pcs_add_pin(pcs, offset, pin_pos);
+=======
+
+		offset = pcs_pin_reg_offset_get(pcs, i);
+		res = pcs_add_pin(pcs, offset);
+>>>>>>> upstream/android-13
 		if (res < 0) {
 			dev_err(pcs->dev, "error adding pins: %i\n", res);
 			return res;
@@ -773,6 +872,10 @@ static int pcs_add_function(struct pcs_device *pcs,
 
 	function->vals = vals;
 	function->nvals = nvals;
+<<<<<<< HEAD
+=======
+	function->name = name;
+>>>>>>> upstream/android-13
 
 	selector = pinmux_generic_add_function(pcs->pctl, name,
 					       pgnames, npgnames,
@@ -904,8 +1007,14 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
 	static const struct pcs_conf_type prop2[] = {
 		{ "pinctrl-single,drive-strength", PIN_CONFIG_DRIVE_STRENGTH, },
 		{ "pinctrl-single,slew-rate", PIN_CONFIG_SLEW_RATE, },
+<<<<<<< HEAD
 		{ "pinctrl-single,input-schmitt", PIN_CONFIG_INPUT_SCHMITT, },
 		{ "pinctrl-single,low-power-mode", PIN_CONFIG_LOW_POWER_MODE, },
+=======
+		{ "pinctrl-single,input-enable", PIN_CONFIG_INPUT_ENABLE, },
+		{ "pinctrl-single,input-schmitt", PIN_CONFIG_INPUT_SCHMITT, },
+		{ "pinctrl-single,low-power-mode", PIN_CONFIG_MODE_LOW_POWER, },
+>>>>>>> upstream/android-13
 	};
 	static const struct pcs_conf_type prop4[] = {
 		{ "pinctrl-single,bias-pullup", PIN_CONFIG_BIAS_PULL_UP, },
@@ -958,8 +1067,12 @@ static int pcs_parse_pinconf(struct pcs_device *pcs, struct device_node *np,
 }
 
 /**
+<<<<<<< HEAD
  * smux_parse_one_pinctrl_entry() - parses a device tree mux entry
  * @pctldev: pin controller device
+=======
+ * pcs_parse_one_pinctrl_entry() - parses a device tree mux entry
+>>>>>>> upstream/android-13
  * @pcs: pinctrl driver instance
  * @np: device node of the mux entry
  * @map: map entry
@@ -1011,12 +1124,17 @@ static int pcs_parse_one_pinctrl_entry(struct pcs_device *pcs,
 		if (res)
 			return res;
 
+<<<<<<< HEAD
 		if (pinctrl_spec.args_count < 2) {
+=======
+		if (pinctrl_spec.args_count < 2 || pinctrl_spec.args_count > 3) {
+>>>>>>> upstream/android-13
 			dev_err(pcs->dev, "invalid args_count for spec: %i\n",
 				pinctrl_spec.args_count);
 			break;
 		}
 
+<<<<<<< HEAD
 		/* Index plus one value cell */
 		offset = pinctrl_spec.args[0];
 		vals[found].reg = pcs->base + offset;
@@ -1024,12 +1142,33 @@ static int pcs_parse_one_pinctrl_entry(struct pcs_device *pcs,
 
 		dev_dbg(pcs->dev, "%s index: 0x%x value: 0x%x\n",
 			pinctrl_spec.np->name, offset, pinctrl_spec.args[1]);
+=======
+		offset = pinctrl_spec.args[0];
+		vals[found].reg = pcs->base + offset;
+
+		switch (pinctrl_spec.args_count) {
+		case 2:
+			vals[found].val = pinctrl_spec.args[1];
+			break;
+		case 3:
+			vals[found].val = (pinctrl_spec.args[1] | pinctrl_spec.args[2]);
+			break;
+		}
+
+		dev_dbg(pcs->dev, "%pOFn index: 0x%x value: 0x%x\n",
+			pinctrl_spec.np, offset, vals[found].val);
+>>>>>>> upstream/android-13
 
 		pin = pcs_get_pin_by_offset(pcs, offset);
 		if (pin < 0) {
 			dev_err(pcs->dev,
+<<<<<<< HEAD
 				"could not add functions for %s %ux\n",
 				np->name, offset);
+=======
+				"could not add functions for %pOFn %ux\n",
+				np, offset);
+>>>>>>> upstream/android-13
 			break;
 		}
 		pins[found++] = pin;
@@ -1092,7 +1231,11 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
 {
 	const char *name = "pinctrl-single,bits";
 	struct pcs_func_vals *vals;
+<<<<<<< HEAD
 	int rows, *pins, found = 0, res = -ENOMEM, i, fsel, gsel;
+=======
+	int rows, *pins, found = 0, res = -ENOMEM, i, fsel;
+>>>>>>> upstream/android-13
 	int npins_in_row;
 	struct pcs_function *function = NULL;
 
@@ -1102,6 +1245,14 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (PCS_HAS_PINCONF) {
+		dev_err(pcs->dev, "pinconf not supported\n");
+		return -ENOTSUPP;
+	}
+
+>>>>>>> upstream/android-13
 	npins_in_row = pcs->width / pcs->bits_per_pin;
 
 	vals = devm_kzalloc(pcs->dev,
@@ -1138,8 +1289,13 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
 		val = pinctrl_spec.args[1];
 		mask = pinctrl_spec.args[2];
 
+<<<<<<< HEAD
 		dev_dbg(pcs->dev, "%s index: 0x%x value: 0x%x mask: 0x%x\n",
 			pinctrl_spec.np->name, offset, val, mask);
+=======
+		dev_dbg(pcs->dev, "%pOFn index: 0x%x value: 0x%x mask: 0x%x\n",
+			pinctrl_spec.np, offset, val, mask);
+>>>>>>> upstream/android-13
 
 		/* Parse pins in each row from LSB */
 		while (mask) {
@@ -1151,8 +1307,13 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
 
 			if ((mask & mask_pos) == 0) {
 				dev_err(pcs->dev,
+<<<<<<< HEAD
 					"Invalid mask for %s at 0x%x\n",
 					np->name, offset);
+=======
+					"Invalid mask for %pOFn at 0x%x\n",
+					np, offset);
+>>>>>>> upstream/android-13
 				break;
 			}
 
@@ -1160,8 +1321,13 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
 
 			if (submask != mask_pos) {
 				dev_warn(pcs->dev,
+<<<<<<< HEAD
 						"Invalid submask 0x%x for %s at 0x%x\n",
 						submask, np->name, offset);
+=======
+						"Invalid submask 0x%x for %pOFn at 0x%x\n",
+						submask, np, offset);
+>>>>>>> upstream/android-13
 				continue;
 			}
 
@@ -1172,8 +1338,13 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
 			pin = pcs_get_pin_by_offset(pcs, offset);
 			if (pin < 0) {
 				dev_err(pcs->dev,
+<<<<<<< HEAD
 					"could not add functions for %s %ux\n",
 					np->name, offset);
+=======
+					"could not add functions for %pOFn %ux\n",
+					np, offset);
+>>>>>>> upstream/android-13
 				break;
 			}
 			pins[found++] = pin + pin_num_from_lsb;
@@ -1189,29 +1360,41 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
 		goto free_pins;
 	}
 
+<<<<<<< HEAD
 	gsel = pinctrl_generic_add_group(pcs->pctl, np->name, pins, found, pcs);
 	if (gsel < 0) {
 		res = gsel;
 		goto free_function;
 	}
+=======
+	res = pinctrl_generic_add_group(pcs->pctl, np->name, pins, found, pcs);
+	if (res < 0)
+		goto free_function;
+>>>>>>> upstream/android-13
 
 	(*map)->type = PIN_MAP_TYPE_MUX_GROUP;
 	(*map)->data.mux.group = np->name;
 	(*map)->data.mux.function = np->name;
 
+<<<<<<< HEAD
 	if (PCS_HAS_PINCONF) {
 		dev_err(pcs->dev, "pinconf not supported\n");
 		goto free_pingroups;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	*num_maps = 1;
 	mutex_unlock(&pcs->mutex);
 
 	return 0;
 
+<<<<<<< HEAD
 free_pingroups:
 	pinctrl_generic_remove_group(pcs->pctl, gsel);
 	*num_maps = 1;
+=======
+>>>>>>> upstream/android-13
 free_function:
 	pinmux_generic_remove_function(pcs->pctl, fsel);
 free_pins:
@@ -1257,16 +1440,26 @@ static int pcs_dt_node_to_map(struct pinctrl_dev *pctldev,
 		ret = pcs_parse_bits_in_pinctrl_entry(pcs, np_config, map,
 				num_maps, pgnames);
 		if (ret < 0) {
+<<<<<<< HEAD
 			dev_err(pcs->dev, "no pins entries for %s\n",
 				np_config->name);
+=======
+			dev_err(pcs->dev, "no pins entries for %pOFn\n",
+				np_config);
+>>>>>>> upstream/android-13
 			goto free_pgnames;
 		}
 	} else {
 		ret = pcs_parse_one_pinctrl_entry(pcs, np_config, map,
 				num_maps, pgnames);
 		if (ret < 0) {
+<<<<<<< HEAD
 			dev_err(pcs->dev, "no pins entries for %s\n",
 				np_config->name);
+=======
+			dev_err(pcs->dev, "no pins entries for %pOFn\n",
+				np_config);
+>>>>>>> upstream/android-13
 			goto free_pgnames;
 		}
 	}
@@ -1346,7 +1539,13 @@ static int pcs_add_gpio_func(struct device_node *node, struct pcs_device *pcs)
 	}
 	return ret;
 }
+<<<<<<< HEAD
 /**
+=======
+
+/**
+ * struct pcs_interrupt
+>>>>>>> upstream/android-13
  * @reg:	virtual address of interrupt register
  * @hwirq:	hardware irq number
  * @irq:	virtual irq number
@@ -1361,6 +1560,12 @@ struct pcs_interrupt {
 
 /**
  * pcs_irq_set() - enables or disables an interrupt
+<<<<<<< HEAD
+=======
+ * @pcs_soc: SoC specific settings
+ * @irq: interrupt
+ * @enable: enable or disable the interrupt
+>>>>>>> upstream/android-13
  *
  * Note that this currently assumes one interrupt per pinctrl
  * register that is typically used for wake-up events.
@@ -1441,7 +1646,11 @@ static int pcs_irq_set_wake(struct irq_data *d, unsigned int state)
 
 /**
  * pcs_irq_handle() - common interrupt handler
+<<<<<<< HEAD
  * @pcs_irq: interrupt data
+=======
+ * @pcs_soc: SoC specific settings
+>>>>>>> upstream/android-13
  *
  * Note that this currently assumes we have one interrupt bit per
  * mux register. This interrupt is typically used for wake-up events.
@@ -1463,8 +1672,13 @@ static int pcs_irq_handle(struct pcs_soc_data *pcs_soc)
 		mask = pcs->read(pcswi->reg);
 		raw_spin_unlock(&pcs->lock);
 		if (mask & pcs_soc->irq_status_mask) {
+<<<<<<< HEAD
 			generic_handle_irq(irq_find_mapping(pcs->domain,
 							    pcswi->hwirq));
+=======
+			generic_handle_domain_irq(pcs->domain,
+						  pcswi->hwirq);
+>>>>>>> upstream/android-13
 			count++;
 		}
 	}
@@ -1488,8 +1702,12 @@ static irqreturn_t pcs_irq_handler(int irq, void *d)
 }
 
 /**
+<<<<<<< HEAD
  * pcs_irq_handle() - handler for the dedicated chained interrupt case
  * @irq: interrupt
+=======
+ * pcs_irq_chain_handler() - handler for the dedicated chained interrupt case
+>>>>>>> upstream/android-13
  * @desc: interrupt descriptor
  *
  * Use this if you have a separate interrupt for each

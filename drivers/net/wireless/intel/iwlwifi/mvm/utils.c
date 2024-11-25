@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -66,6 +67,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+ * Copyright (C) 2015-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <net/mac80211.h>
 
 #include "iwl-debug.h"
@@ -74,6 +83,10 @@
 #include "iwl-csr.h"
 #include "mvm.h"
 #include "fw/api/rs.h"
+<<<<<<< HEAD
+=======
+#include "fw/img.h"
+>>>>>>> upstream/android-13
 
 /*
  * Will return 0 even if the cmd failed when RFKILL is asserted unless
@@ -93,6 +106,7 @@ int iwl_mvm_send_cmd(struct iwl_mvm *mvm, struct iwl_host_cmd *cmd)
 	 * the mutex, this ensures we don't try to send two
 	 * (or more) synchronous commands at a time.
 	 */
+<<<<<<< HEAD
 	if (!(cmd->flags & CMD_ASYNC)) {
 		lockdep_assert_held(&mvm->mutex);
 		if (!(cmd->flags & CMD_SEND_IN_IDLE))
@@ -104,6 +118,13 @@ int iwl_mvm_send_cmd(struct iwl_mvm *mvm, struct iwl_host_cmd *cmd)
 	if (!(cmd->flags & (CMD_ASYNC | CMD_SEND_IN_IDLE)))
 		iwl_mvm_unref(mvm, IWL_MVM_REF_SENDING_CMD);
 
+=======
+	if (!(cmd->flags & CMD_ASYNC))
+		lockdep_assert_held(&mvm->mutex);
+
+	ret = iwl_trans_send_cmd(mvm->trans, cmd);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If the caller wants the SKB, then don't hide any problems, the
 	 * caller might access the response buffer which will be NULL if
@@ -112,8 +133,16 @@ int iwl_mvm_send_cmd(struct iwl_mvm *mvm, struct iwl_host_cmd *cmd)
 	if (cmd->flags & CMD_WANT_SKB)
 		return ret;
 
+<<<<<<< HEAD
 	/* Silently ignore failures if RFKILL is asserted */
 	if (!ret || ret == -ERFKILL)
+=======
+	/*
+	 * Silently ignore failures if RFKILL is asserted or
+	 * we are in suspend\resume process
+	 */
+	if (!ret || ret == -ERFKILL || ret == -EHOSTDOWN)
+>>>>>>> upstream/android-13
 		return 0;
 	return ret;
 }
@@ -228,7 +257,11 @@ int iwl_mvm_legacy_rate_to_mac80211_idx(u32 rate_n_flags,
 	int band_offset = 0;
 
 	/* Legacy rate format, search for match in table */
+<<<<<<< HEAD
 	if (band == NL80211_BAND_5GHZ)
+=======
+	if (band != NL80211_BAND_2GHZ)
+>>>>>>> upstream/android-13
 		band_offset = IWL_FIRST_OFDM_RATE;
 	for (idx = band_offset; idx < IWL_RATE_COUNT_LEGACY; idx++)
 		if (fw_rate_idx_to_plcp[idx] == rate)
@@ -243,6 +276,21 @@ u8 iwl_mvm_mac80211_idx_to_hwrate(int rate_idx)
 	return fw_rate_idx_to_plcp[rate_idx];
 }
 
+<<<<<<< HEAD
+=======
+u8 iwl_mvm_mac80211_ac_to_ucode_ac(enum ieee80211_ac_numbers ac)
+{
+	static const u8 mac80211_ac_to_ucode_ac[] = {
+		AC_VO,
+		AC_VI,
+		AC_BE,
+		AC_BK
+	};
+
+	return mac80211_ac_to_ucode_ac[ac];
+}
+
+>>>>>>> upstream/android-13
 void iwl_mvm_rx_fw_error(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 {
 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
@@ -253,7 +301,11 @@ void iwl_mvm_rx_fw_error(struct iwl_mvm *mvm, struct iwl_rx_cmd_buffer *rxb)
 	IWL_ERR(mvm, "FW Error notification: seq 0x%04X service 0x%08X\n",
 		le16_to_cpu(err_resp->bad_cmd_seq_num),
 		le32_to_cpu(err_resp->error_service));
+<<<<<<< HEAD
 	IWL_ERR(mvm, "FW Error notification: timestamp 0x%16llX\n",
+=======
+	IWL_ERR(mvm, "FW Error notification: timestamp 0x%016llX\n",
+>>>>>>> upstream/android-13
 		le64_to_cpu(err_resp->timestamp));
 }
 
@@ -290,6 +342,7 @@ u8 iwl_mvm_next_antenna(struct iwl_mvm *mvm, u8 valid, u8 last_idx)
 	return last_idx;
 }
 
+<<<<<<< HEAD
 static const struct {
 	const char *name;
 	u8 num;
@@ -635,6 +688,8 @@ int iwl_mvm_find_free_queue(struct iwl_mvm *mvm, u8 sta_id, u8 minq, u8 maxq)
 	return -ENOSPC;
 }
 
+=======
+>>>>>>> upstream/android-13
 int iwl_mvm_reconfig_scd(struct iwl_mvm *mvm, int queue, int fifo, int sta_id,
 			 int tid, int frame_limit, u16 ssn)
 {
@@ -654,6 +709,7 @@ int iwl_mvm_reconfig_scd(struct iwl_mvm *mvm, int queue, int fifo, int sta_id,
 	if (WARN_ON(iwl_mvm_has_new_tx_api(mvm)))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	spin_lock_bh(&mvm->queue_info_lock);
 	if (WARN(mvm->queue_info[queue].hw_queue_refcount == 0,
 		 "Trying to reconfig unallocated queue %d\n", queue)) {
@@ -661,6 +717,11 @@ int iwl_mvm_reconfig_scd(struct iwl_mvm *mvm, int queue, int fifo, int sta_id,
 		return -ENXIO;
 	}
 	spin_unlock_bh(&mvm->queue_info_lock);
+=======
+	if (WARN(mvm->queue_info[queue].tid_bitmap == 0,
+		 "Trying to reconfig unallocated queue %d\n", queue))
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	IWL_DEBUG_TX_QUEUES(mvm, "Reconfig SCD for TXQ #%d\n", queue);
 
@@ -671,6 +732,7 @@ int iwl_mvm_reconfig_scd(struct iwl_mvm *mvm, int queue, int fifo, int sta_id,
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool iwl_mvm_update_txq_mapping(struct iwl_mvm *mvm, int queue,
 				       int mac80211_queue, u8 sta_id, u8 tid)
 {
@@ -901,18 +963,32 @@ int iwl_mvm_disable_txq(struct iwl_mvm *mvm, int queue, int mac80211_queue,
 /**
  * iwl_mvm_send_lq_cmd() - Send link quality command
  * @sync: This command can be sent synchronously.
+=======
+/**
+ * iwl_mvm_send_lq_cmd() - Send link quality command
+ * @mvm: Driver data.
+ * @lq: Link quality command to send.
+>>>>>>> upstream/android-13
  *
  * The link quality command is sent as the last step of station creation.
  * This is the special case in which init is set and we call a callback in
  * this case to clear the state indicating that station creation is in
  * progress.
  */
+<<<<<<< HEAD
 int iwl_mvm_send_lq_cmd(struct iwl_mvm *mvm, struct iwl_lq_cmd *lq, bool sync)
+=======
+int iwl_mvm_send_lq_cmd(struct iwl_mvm *mvm, struct iwl_lq_cmd *lq)
+>>>>>>> upstream/android-13
 {
 	struct iwl_host_cmd cmd = {
 		.id = LQ_CMD,
 		.len = { sizeof(struct iwl_lq_cmd), },
+<<<<<<< HEAD
 		.flags = sync ? 0 : CMD_ASYNC,
+=======
+		.flags = CMD_ASYNC,
+>>>>>>> upstream/android-13
 		.data = { lq, },
 	};
 
@@ -925,8 +1001,15 @@ int iwl_mvm_send_lq_cmd(struct iwl_mvm *mvm, struct iwl_lq_cmd *lq, bool sync)
 
 /**
  * iwl_mvm_update_smps - Get a request to change the SMPS mode
+<<<<<<< HEAD
  * @req_type: The part of the driver who call for a change.
  * @smps_requests: The request to change the SMPS mode.
+=======
+ * @mvm: Driver data.
+ * @vif: Pointer to the ieee80211_vif structure
+ * @req_type: The part of the driver who call for a change.
+ * @smps_request: The request to change the SMPS mode.
+>>>>>>> upstream/android-13
  *
  * Get a requst to change the SMPS mode,
  * and change it according to all other requests in the driver.
@@ -936,7 +1019,11 @@ void iwl_mvm_update_smps(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 			 enum ieee80211_smps_mode smps_request)
 {
 	struct iwl_mvm_vif *mvmvif;
+<<<<<<< HEAD
 	enum ieee80211_smps_mode smps_mode;
+=======
+	enum ieee80211_smps_mode smps_mode = IEEE80211_SMPS_AUTOMATIC;
+>>>>>>> upstream/android-13
 	int i;
 
 	lockdep_assert_held(&mvm->mutex);
@@ -945,10 +1032,15 @@ void iwl_mvm_update_smps(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 	if (num_of_ant(iwl_mvm_get_valid_rx_ant(mvm)) == 1)
 		return;
 
+<<<<<<< HEAD
 	if (vif->type == NL80211_IFTYPE_AP)
 		smps_mode = IEEE80211_SMPS_OFF;
 	else
 		smps_mode = IEEE80211_SMPS_AUTOMATIC;
+=======
+	if (vif->type != NL80211_IFTYPE_STATION)
+		return;
+>>>>>>> upstream/android-13
 
 	mvmvif = iwl_mvm_vif_from_mac80211(vif);
 	mvmvif->smps_requests[req_type] = smps_request;
@@ -998,10 +1090,19 @@ void iwl_mvm_accu_radio_stats(struct iwl_mvm *mvm)
 	mvm->accu_radio_stats.on_time_scan += mvm->radio_stats.on_time_scan;
 }
 
+<<<<<<< HEAD
+=======
+struct iwl_mvm_diversity_iter_data {
+	struct iwl_mvm_phy_ctxt *ctxt;
+	bool result;
+};
+
+>>>>>>> upstream/android-13
 static void iwl_mvm_diversity_iter(void *_data, u8 *mac,
 				   struct ieee80211_vif *vif)
 {
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+<<<<<<< HEAD
 	bool *result = _data;
 	int i;
 
@@ -1018,6 +1119,36 @@ bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
 
 	lockdep_assert_held(&mvm->mutex);
 
+=======
+	struct iwl_mvm_diversity_iter_data *data = _data;
+	int i;
+
+	if (mvmvif->phy_ctxt != data->ctxt)
+		return;
+
+	for (i = 0; i < NUM_IWL_MVM_SMPS_REQ; i++) {
+		if (mvmvif->smps_requests[i] == IEEE80211_SMPS_STATIC ||
+		    mvmvif->smps_requests[i] == IEEE80211_SMPS_DYNAMIC) {
+			data->result = false;
+			break;
+		}
+	}
+}
+
+bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm,
+				  struct iwl_mvm_phy_ctxt *ctxt)
+{
+	struct iwl_mvm_diversity_iter_data data = {
+		.ctxt = ctxt,
+		.result = true,
+	};
+
+	lockdep_assert_held(&mvm->mutex);
+
+	if (iwlmvm_mod_params.power_scheme != IWL_POWER_SCHEME_CAM)
+		return false;
+
+>>>>>>> upstream/android-13
 	if (num_of_ant(iwl_mvm_get_valid_rx_ant(mvm)) == 1)
 		return false;
 
@@ -1026,9 +1157,38 @@ bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
 
 	ieee80211_iterate_active_interfaces_atomic(
 			mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
+<<<<<<< HEAD
 			iwl_mvm_diversity_iter, &result);
 
 	return result;
+=======
+			iwl_mvm_diversity_iter, &data);
+
+	return data.result;
+}
+
+void iwl_mvm_send_low_latency_cmd(struct iwl_mvm *mvm,
+				  bool low_latency, u16 mac_id)
+{
+	struct iwl_mac_low_latency_cmd cmd = {
+		.mac_id = cpu_to_le32(mac_id)
+	};
+
+	if (!fw_has_capa(&mvm->fw->ucode_capa,
+			 IWL_UCODE_TLV_CAPA_DYNAMIC_QUOTA))
+		return;
+
+	if (low_latency) {
+		/* currently we don't care about the direction */
+		cmd.low_latency_rx = 1;
+		cmd.low_latency_tx = 1;
+	}
+
+	if (iwl_mvm_send_cmd_pdu(mvm, iwl_cmd_id(LOW_LATENCY_CMD,
+						 MAC_CONF_GROUP, 0),
+				 0, sizeof(cmd), &cmd))
+		IWL_ERR(mvm, "Failed to send low latency command\n");
+>>>>>>> upstream/android-13
 }
 
 int iwl_mvm_update_low_latency(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
@@ -1049,6 +1209,7 @@ int iwl_mvm_update_low_latency(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 	if (low_latency == prev)
 		return 0;
 
+<<<<<<< HEAD
 	if (fw_has_capa(&mvm->fw->ucode_capa,
 			IWL_UCODE_TLV_CAPA_DYNAMIC_QUOTA)) {
 		struct iwl_mac_low_latency_cmd cmd = {
@@ -1067,6 +1228,9 @@ int iwl_mvm_update_low_latency(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 		if (res)
 			IWL_ERR(mvm, "Failed to send low latency command\n");
 	}
+=======
+	iwl_mvm_send_low_latency_cmd(mvm, low_latency, mvmvif->id);
+>>>>>>> upstream/android-13
 
 	res = iwl_mvm_update_quotas(mvm, false, NULL);
 	if (res)
@@ -1158,6 +1322,39 @@ struct ieee80211_vif *iwl_mvm_get_bss_vif(struct iwl_mvm *mvm)
 	return bss_iter_data.vif;
 }
 
+<<<<<<< HEAD
+=======
+struct iwl_bss_find_iter_data {
+	struct ieee80211_vif *vif;
+	u32 macid;
+};
+
+static void iwl_mvm_bss_find_iface_iterator(void *_data, u8 *mac,
+					    struct ieee80211_vif *vif)
+{
+	struct iwl_bss_find_iter_data *data = _data;
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+
+	if (mvmvif->id == data->macid)
+		data->vif = vif;
+}
+
+struct ieee80211_vif *iwl_mvm_get_vif_by_macid(struct iwl_mvm *mvm, u32 macid)
+{
+	struct iwl_bss_find_iter_data data = {
+		.macid = macid,
+	};
+
+	lockdep_assert_held(&mvm->mutex);
+
+	ieee80211_iterate_active_interfaces_atomic(
+		mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
+		iwl_mvm_bss_find_iface_iterator, &data);
+
+	return data.vif;
+}
+
+>>>>>>> upstream/android-13
 struct iwl_sta_iter_data {
 	bool assoc;
 };
@@ -1193,8 +1390,14 @@ unsigned int iwl_mvm_get_wd_timeout(struct iwl_mvm *mvm,
 {
 	struct iwl_fw_dbg_trigger_tlv *trigger;
 	struct iwl_fw_dbg_trigger_txq_timer *txq_timer;
+<<<<<<< HEAD
 	unsigned int default_timeout =
 		cmd_q ? IWL_DEF_WD_TIMEOUT : mvm->cfg->base_params->wd_timeout;
+=======
+	unsigned int default_timeout = cmd_q ?
+		IWL_DEF_WD_TIMEOUT :
+		mvm->trans->trans_cfg->base_params->wd_timeout;
+>>>>>>> upstream/android-13
 
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_TXQ_TIMERS)) {
 		/*
@@ -1205,8 +1408,12 @@ unsigned int iwl_mvm_get_wd_timeout(struct iwl_mvm *mvm,
 				IWL_UCODE_TLV_CAPA_STA_PM_NOTIF) &&
 		    vif && vif->type == NL80211_IFTYPE_AP)
 			return IWL_WATCHDOG_DISABLED;
+<<<<<<< HEAD
 		return iwlmvm_mod_params.tfd_q_hang_detect ?
 			default_timeout : IWL_WATCHDOG_DISABLED;
+=======
+		return default_timeout;
+>>>>>>> upstream/android-13
 	}
 
 	trigger = iwl_fw_dbg_get_trigger(mvm->fw, FW_DBG_TRIGGER_TXQ_TIMERS);
@@ -1238,7 +1445,11 @@ unsigned int iwl_mvm_get_wd_timeout(struct iwl_mvm *mvm,
 		return default_timeout;
 	default:
 		WARN_ON(1);
+<<<<<<< HEAD
 		return mvm->cfg->base_params->wd_timeout;
+=======
+		return mvm->trans->trans_cfg->base_params->wd_timeout;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1248,6 +1459,7 @@ void iwl_mvm_connection_loss(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_mlme *trig_mlme;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_MLME))
 		goto out;
 
@@ -1256,6 +1468,14 @@ void iwl_mvm_connection_loss(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt,
 					   ieee80211_vif_to_wdev(vif), trig))
 		goto out;
+=======
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, ieee80211_vif_to_wdev(vif),
+				     FW_DBG_TRIGGER_MLME);
+	if (!trig)
+		goto out;
+
+	trig_mlme = (void *)trig->data;
+>>>>>>> upstream/android-13
 
 	if (trig_mlme->stop_connection_loss &&
 	    --trig_mlme->stop_connection_loss)
@@ -1267,6 +1487,7 @@ out:
 	ieee80211_connection_loss(vif);
 }
 
+<<<<<<< HEAD
 /*
  * Remove inactive TIDs of a given queue.
  * If all queue TIDs are inactive - mark the queue as inactive
@@ -1432,6 +1653,8 @@ void iwl_mvm_inactivity_check(struct iwl_mvm *mvm)
 	rcu_read_unlock();
 }
 
+=======
+>>>>>>> upstream/android-13
 void iwl_mvm_event_frame_timeout_callback(struct iwl_mvm *mvm,
 					  struct ieee80211_vif *vif,
 					  const struct ieee80211_sta *sta,
@@ -1440,6 +1663,7 @@ void iwl_mvm_event_frame_timeout_callback(struct iwl_mvm *mvm,
 	struct iwl_fw_dbg_trigger_tlv *trig;
 	struct iwl_fw_dbg_trigger_ba *ba_trig;
 
+<<<<<<< HEAD
 	if (!iwl_fw_dbg_trigger_enabled(mvm->fw, FW_DBG_TRIGGER_BA))
 		return;
 
@@ -1448,6 +1672,14 @@ void iwl_mvm_event_frame_timeout_callback(struct iwl_mvm *mvm,
 	if (!iwl_fw_dbg_trigger_check_stop(&mvm->fwrt,
 					   ieee80211_vif_to_wdev(vif), trig))
 		return;
+=======
+	trig = iwl_fw_dbg_trigger_on(&mvm->fwrt, ieee80211_vif_to_wdev(vif),
+				     FW_DBG_TRIGGER_BA);
+	if (!trig)
+		return;
+
+	ba_trig = (void *)trig->data;
+>>>>>>> upstream/android-13
 
 	if (!(le16_to_cpu(ba_trig->frame_timeout) & BIT(tid)))
 		return;
@@ -1478,6 +1710,7 @@ iwl_mvm_tcm_load(struct iwl_mvm *mvm, u32 airtime, unsigned long elapsed)
 	return IWL_MVM_TRAFFIC_LOW;
 }
 
+<<<<<<< HEAD
 struct iwl_mvm_tcm_iter_data {
 	struct iwl_mvm *mvm;
 	bool any_sent;
@@ -1487,6 +1720,11 @@ static void iwl_mvm_tcm_iter(void *_data, u8 *mac, struct ieee80211_vif *vif)
 {
 	struct iwl_mvm_tcm_iter_data *data = _data;
 	struct iwl_mvm *mvm = data->mvm;
+=======
+static void iwl_mvm_tcm_iter(void *_data, u8 *mac, struct ieee80211_vif *vif)
+{
+	struct iwl_mvm *mvm = _data;
+>>>>>>> upstream/android-13
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
 	bool low_latency, prev = mvmvif->low_latency & LOW_LATENCY_TRAFFIC;
 
@@ -1508,22 +1746,32 @@ static void iwl_mvm_tcm_iter(void *_data, u8 *mac, struct ieee80211_vif *vif)
 	} else {
 		iwl_mvm_update_quotas(mvm, false, NULL);
 	}
+<<<<<<< HEAD
 
 	data->any_sent = true;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_tcm_results(struct iwl_mvm *mvm)
 {
+<<<<<<< HEAD
 	struct iwl_mvm_tcm_iter_data data = {
 		.mvm = mvm,
 		.any_sent = false,
 	};
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&mvm->mutex);
 
 	ieee80211_iterate_active_interfaces(
 		mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
+<<<<<<< HEAD
 		iwl_mvm_tcm_iter, &data);
+=======
+		iwl_mvm_tcm_iter, mvm);
+>>>>>>> upstream/android-13
 
 	if (fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_UMAC_SCAN))
 		iwl_mvm_config_scan(mvm);
@@ -1556,19 +1804,29 @@ static void iwl_mvm_tcm_uapsd_nonagg_detected_wk(struct work_struct *wk)
 				"AP isn't using AMPDU with uAPSD enabled");
 }
 
+<<<<<<< HEAD
 static void iwl_mvm_uapsd_agg_disconnect_iter(void *data, u8 *mac,
 					      struct ieee80211_vif *vif)
 {
 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
 	struct iwl_mvm *mvm = mvmvif->mvm;
 	int *mac_id = data;
+=======
+static void iwl_mvm_uapsd_agg_disconnect(struct iwl_mvm *mvm,
+					 struct ieee80211_vif *vif)
+{
+	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+>>>>>>> upstream/android-13
 
 	if (vif->type != NL80211_IFTYPE_STATION)
 		return;
 
+<<<<<<< HEAD
 	if (mvmvif->id != *mac_id)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	if (!vif->bss_conf.assoc)
 		return;
 
@@ -1578,10 +1836,17 @@ static void iwl_mvm_uapsd_agg_disconnect_iter(void *data, u8 *mac,
 	    !mvmvif->queue_params[IEEE80211_AC_BK].uapsd)
 		return;
 
+<<<<<<< HEAD
 	if (mvm->tcm.data[*mac_id].uapsd_nonagg_detect.detected)
 		return;
 
 	mvm->tcm.data[*mac_id].uapsd_nonagg_detect.detected = true;
+=======
+	if (mvm->tcm.data[mvmvif->id].uapsd_nonagg_detect.detected)
+		return;
+
+	mvm->tcm.data[mvmvif->id].uapsd_nonagg_detect.detected = true;
+>>>>>>> upstream/android-13
 	IWL_INFO(mvm,
 		 "detected AP should do aggregation but isn't, likely due to U-APSD\n");
 	schedule_delayed_work(&mvmvif->uapsd_nonagg_detected_wk, 15 * HZ);
@@ -1594,6 +1859,10 @@ static void iwl_mvm_check_uapsd_agg_expected_tpt(struct iwl_mvm *mvm,
 	u64 bytes = mvm->tcm.data[mac].uapsd_nonagg_detect.rx_bytes;
 	u64 tpt;
 	unsigned long rate;
+<<<<<<< HEAD
+=======
+	struct ieee80211_vif *vif;
+>>>>>>> upstream/android-13
 
 	rate = ewma_rate_read(&mvm->tcm.data[mac].uapsd_nonagg_detect.rate);
 
@@ -1622,9 +1891,17 @@ static void iwl_mvm_check_uapsd_agg_expected_tpt(struct iwl_mvm *mvm,
 			return;
 	}
 
+<<<<<<< HEAD
 	ieee80211_iterate_active_interfaces_atomic(
 		mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
 		iwl_mvm_uapsd_agg_disconnect_iter, &mac);
+=======
+	rcu_read_lock();
+	vif = rcu_dereference(mvm->vif_id_to_mac[mac]);
+	if (vif)
+		iwl_mvm_uapsd_agg_disconnect(mvm, vif);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 static void iwl_mvm_tcm_iterator(void *_data, u8 *mac,
@@ -1707,7 +1984,10 @@ static unsigned long iwl_mvm_calc_tcm_stats(struct iwl_mvm *mvm,
 	}
 
 	load = iwl_mvm_tcm_load(mvm, total_airtime, elapsed);
+<<<<<<< HEAD
 	mvm->tcm.result.global_change = load != mvm->tcm.result.global_load;
+=======
+>>>>>>> upstream/android-13
 	mvm->tcm.result.global_load = load;
 
 	for (i = 0; i < NUM_NL80211_BANDS; i++) {
@@ -1851,8 +2131,24 @@ void iwl_mvm_tcm_rm_vif(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
 	cancel_delayed_work_sync(&mvmvif->uapsd_nonagg_detected_wk);
 }
 
+<<<<<<< HEAD
 
 void iwl_mvm_get_sync_time(struct iwl_mvm *mvm, u32 *gp2, u64 *boottime)
+=======
+u32 iwl_mvm_get_systime(struct iwl_mvm *mvm)
+{
+	u32 reg_addr = DEVICE_SYSTEM_TIME_REG;
+
+	if (mvm->trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_22000 &&
+	    mvm->trans->cfg->gp2_reg_addr)
+		reg_addr = mvm->trans->cfg->gp2_reg_addr;
+
+	return iwl_read_prph(mvm->trans, reg_addr);
+}
+
+void iwl_mvm_get_sync_time(struct iwl_mvm *mvm, int clock_type,
+			   u32 *gp2, u64 *boottime, ktime_t *realtime)
+>>>>>>> upstream/android-13
 {
 	bool ps_disabled;
 
@@ -1865,8 +2161,17 @@ void iwl_mvm_get_sync_time(struct iwl_mvm *mvm, u32 *gp2, u64 *boottime)
 		iwl_mvm_power_update_device(mvm);
 	}
 
+<<<<<<< HEAD
 	*gp2 = iwl_read_prph(mvm->trans, DEVICE_SYSTEM_TIME_REG);
 	*boottime = ktime_get_boot_ns();
+=======
+	*gp2 = iwl_mvm_get_systime(mvm);
+
+	if (clock_type == CLOCK_BOOTTIME && boottime)
+		*boottime = ktime_get_boottime_ns();
+	else if (clock_type == CLOCK_REALTIME && realtime)
+		*realtime = ktime_get_real();
+>>>>>>> upstream/android-13
 
 	if (!ps_disabled) {
 		mvm->ps_disabled = ps_disabled;

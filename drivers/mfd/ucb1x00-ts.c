@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Touchscreen driver for UCB1x00-based touchscreens
  *
  *  Copyright (C) 2001 Russell King, All Rights Reserved.
  *  Copyright (C) 2005 Pavel Machek
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * 21-Jan-2002 <jco@ict.es> :
  *
  * Added support for synchronous A/D mode. This mode is useful to

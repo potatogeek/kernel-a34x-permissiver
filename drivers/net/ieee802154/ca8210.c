@@ -53,6 +53,10 @@
 #include <linux/delay.h>
 #include <linux/gpio.h>
 #include <linux/ieee802154.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kfifo.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
@@ -315,6 +319,10 @@ struct cas_control {
  * struct ca8210_test - ca8210 test interface structure
  * @ca8210_dfs_spi_int: pointer to the entry in the debug fs for this device
  * @up_fifo:            fifo for upstream messages
+<<<<<<< HEAD
+=======
+ * @readq:              read wait queue
+>>>>>>> upstream/android-13
  *
  * This structure stores all the data pertaining to the debug interface
  */
@@ -345,12 +353,21 @@ struct ca8210_test {
  * @ca8210_is_awake:        nonzero if ca8210 is initialised, ready for comms
  * @sync_down:              counts number of downstream synchronous commands
  * @sync_up:                counts number of upstream synchronous commands
+<<<<<<< HEAD
  * @spi_transfer_complete   completion object for a single spi_transfer
  * @sync_exchange_complete  completion object for a complete synchronous API
  *                           exchange
  * @promiscuous             whether the ca8210 is in promiscuous mode or not
  * @retries:                records how many times the current pending spi
  *                           transfer has been retried
+=======
+ * @spi_transfer_complete:  completion object for a single spi_transfer
+ * @sync_exchange_complete: completion object for a complete synchronous API
+ *                          exchange
+ * @promiscuous:            whether the ca8210 is in promiscuous mode or not
+ * @retries:                records how many times the current pending spi
+ *                          transfer has been retried
+>>>>>>> upstream/android-13
  */
 struct ca8210_priv {
 	struct spi_device *spi;
@@ -419,8 +436,13 @@ struct fulladdr {
 
 /**
  * union macaddr: generic MAC address container
+<<<<<<< HEAD
  * @short_addr:   16-bit short address
  * @ieee_address: 64-bit extended address as LE byte array
+=======
+ * @short_address: 16-bit short address
+ * @ieee_address:  64-bit extended address as LE byte array
+>>>>>>> upstream/android-13
  *
  */
 union macaddr {
@@ -713,7 +735,11 @@ static void ca8210_mlme_reset_worker(struct work_struct *work)
 /**
  * ca8210_rx_done() - Calls various message dispatches responding to a received
  *                    command
+<<<<<<< HEAD
  * @arg:  Pointer to the cas_control object for the relevant spi transfer
+=======
+ * @cas_ctl: Pointer to the cas_control object for the relevant spi transfer
+>>>>>>> upstream/android-13
  *
  * Presents a received SAP command from the ca8210 to the Cascoda EVBME, test
  * interface and network driver.
@@ -945,7 +971,12 @@ static int ca8210_spi_transfer(
 	cas_ctl->transfer.bits_per_word = 0; /* Use device setting */
 	cas_ctl->transfer.tx_buf = cas_ctl->tx_buf;
 	cas_ctl->transfer.rx_buf = cas_ctl->tx_in_buf;
+<<<<<<< HEAD
 	cas_ctl->transfer.delay_usecs = 0;
+=======
+	cas_ctl->transfer.delay.value = 0;
+	cas_ctl->transfer.delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 	cas_ctl->transfer.cs_change = 0;
 	cas_ctl->transfer.len = sizeof(struct mac_message);
 	cas_ctl->msg.complete = ca8210_spi_transfer_complete;
@@ -1275,7 +1306,10 @@ static u8 tdme_channelinit(u8 channel, void *device_ref)
  * @pib_attribute:        Attribute Number
  * @pib_attribute_length: Attribute length
  * @pib_attribute_value:  Pointer to Attribute Value
+<<<<<<< HEAD
  * @device_ref:           Nondescript pointer to target device
+=======
+>>>>>>> upstream/android-13
  *
  * Return: 802.15.4 status code of checks
  */
@@ -1769,6 +1803,10 @@ static int ca8210_async_xmit_complete(
 			status
 		);
 		if (status != MAC_TRANSACTION_OVERFLOW) {
+<<<<<<< HEAD
+=======
+			dev_kfree_skb_any(priv->tx_skb);
+>>>>>>> upstream/android-13
 			ieee802154_wake_queue(priv->hw);
 			return 0;
 		}
@@ -2974,8 +3012,13 @@ static void ca8210_hw_setup(struct ieee802154_hw *ca8210_hw)
 	ca8210_hw->phy->cca.opt = NL802154_CCA_OPT_ENERGY_CARRIER_AND;
 	ca8210_hw->phy->cca_ed_level = -9800;
 	ca8210_hw->phy->symbol_duration = 16;
+<<<<<<< HEAD
 	ca8210_hw->phy->lifs_period = 40;
 	ca8210_hw->phy->sifs_period = 12;
+=======
+	ca8210_hw->phy->lifs_period = 40 * ca8210_hw->phy->symbol_duration;
+	ca8210_hw->phy->sifs_period = 12 * ca8210_hw->phy->symbol_duration;
+>>>>>>> upstream/android-13
 	ca8210_hw->flags =
 		IEEE802154_HW_AFILT |
 		IEEE802154_HW_OMIT_CKSUM |
@@ -3019,6 +3062,7 @@ static int ca8210_test_interface_init(struct ca8210_priv *priv)
 		priv,
 		&test_int_fops
 	);
+<<<<<<< HEAD
 	if (IS_ERR(test->ca8210_dfs_spi_int)) {
 		dev_err(
 			&priv->spi->dev,
@@ -3027,6 +3071,9 @@ static int ca8210_test_interface_init(struct ca8210_priv *priv)
 		);
 		return PTR_ERR(test->ca8210_dfs_spi_int);
 	}
+=======
+
+>>>>>>> upstream/android-13
 	debugfs_create_symlink("ca8210", NULL, node_name);
 	init_waitqueue_head(&test->readq);
 	return kfifo_alloc(
@@ -3051,7 +3098,11 @@ static void ca8210_test_interface_clear(struct ca8210_priv *priv)
 
 /**
  * ca8210_remove() - Shut down a ca8210 upon being disconnected
+<<<<<<< HEAD
  * @priv:  Pointer to private data structure
+=======
+ * @spi_device:  Pointer to spi device data structure
+>>>>>>> upstream/android-13
  *
  * Return: 0 or linux error code
  */
@@ -3101,7 +3152,11 @@ static int ca8210_remove(struct spi_device *spi_device)
 
 /**
  * ca8210_probe() - Set up a connected ca8210 upon being detected by the system
+<<<<<<< HEAD
  * @priv:  Pointer to private data structure
+=======
+ * @spi_device:  Pointer to spi device data structure
+>>>>>>> upstream/android-13
  *
  * Return: 0 or linux error code
  */

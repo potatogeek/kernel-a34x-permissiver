@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * linux/sound/soc/codecs/tlv320aic32x4-spi.c
  *
@@ -16,6 +17,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * Copyright 2011-2019 NW Digital Radio
+ *
+ * Author: Annaliese McDermond <nh6z@nh6z.net>
+ *
+ * Based on sound/soc/codecs/wm8974 and TI driver for kernel 2.6.27.
+ *
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spi/spi.h>
@@ -26,6 +37,11 @@
 
 #include "tlv320aic32x4.h"
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id aic32x4_of_id[];
+
+>>>>>>> upstream/android-13
 static int aic32x4_spi_probe(struct spi_device *spi)
 {
 	struct regmap *regmap;
@@ -38,6 +54,22 @@ static int aic32x4_spi_probe(struct spi_device *spi)
 	config.read_flag_mask = 0x01;
 
 	regmap = devm_regmap_init_spi(spi, &config);
+<<<<<<< HEAD
+=======
+
+	if (spi->dev.of_node) {
+		const struct of_device_id *oid;
+
+		oid = of_match_node(aic32x4_of_id, spi->dev.of_node);
+		dev_set_drvdata(&spi->dev, (void *)oid->data);
+	} else {
+		const struct spi_device_id *id_entry;
+
+		id_entry = spi_get_device_id(spi);
+		dev_set_drvdata(&spi->dev, (void *)id_entry->driver_data);
+	}
+
+>>>>>>> upstream/android-13
 	return aic32x4_probe(&spi->dev, regmap);
 }
 
@@ -47,15 +79,25 @@ static int aic32x4_spi_remove(struct spi_device *spi)
 }
 
 static const struct spi_device_id aic32x4_spi_id[] = {
+<<<<<<< HEAD
 	{ "tlv320aic32x4", 0 },
 	{ "tlv320aic32x6", 1 },
+=======
+	{ "tlv320aic32x4", (kernel_ulong_t)AIC32X4_TYPE_AIC32X4 },
+	{ "tlv320aic32x6", (kernel_ulong_t)AIC32X4_TYPE_AIC32X6 },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(spi, aic32x4_spi_id);
 
 static const struct of_device_id aic32x4_of_id[] = {
+<<<<<<< HEAD
 	{ .compatible = "ti,tlv320aic32x4", },
 	{ .compatible = "ti,tlv320aic32x6", },
+=======
+	{ .compatible = "ti,tlv320aic32x4", .data = (void *)AIC32X4_TYPE_AIC32X4 },
+	{ .compatible = "ti,tlv320aic32x6", .data = (void *)AIC32X4_TYPE_AIC32X6 },
+>>>>>>> upstream/android-13
 	{ /* senitel */ }
 };
 MODULE_DEVICE_TABLE(of, aic32x4_of_id);
@@ -74,5 +116,9 @@ static struct spi_driver aic32x4_spi_driver = {
 module_spi_driver(aic32x4_spi_driver);
 
 MODULE_DESCRIPTION("ASoC TLV320AIC32x4 codec driver SPI");
+<<<<<<< HEAD
 MODULE_AUTHOR("Jeremy McDermond <nh6z@nh6z.net>");
+=======
+MODULE_AUTHOR("Annaliese McDermond <nh6z@nh6z.net>");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

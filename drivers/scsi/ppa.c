@@ -590,7 +590,11 @@ static int ppa_completion(struct scsi_cmnd *cmd)
 		if (cmd->SCp.buffer && !cmd->SCp.this_residual) {
 			/* if scatter/gather, advance to the next segment */
 			if (cmd->SCp.buffers_residual--) {
+<<<<<<< HEAD
 				cmd->SCp.buffer++;
+=======
+				cmd->SCp.buffer = sg_next(cmd->SCp.buffer);
+>>>>>>> upstream/android-13
 				cmd->SCp.this_residual =
 				    cmd->SCp.buffer->length;
 				cmd->SCp.ptr = sg_virt(cmd->SCp.buffer);
@@ -717,6 +721,10 @@ static int ppa_engine(ppa_struct *dev, struct scsi_cmnd *cmd)
 			}
 			cmd->SCp.phase++;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 2:		/* Phase 2 - We are now talking to the scsi bus */
 		if (!ppa_select(dev, scmd_id(cmd))) {
@@ -724,7 +732,11 @@ static int ppa_engine(ppa_struct *dev, struct scsi_cmnd *cmd)
 			return 0;
 		}
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 3:		/* Phase 3 - Ready to accept a command */
 		w_ctr(ppb, 0x0c);
@@ -734,7 +746,11 @@ static int ppa_engine(ppa_struct *dev, struct scsi_cmnd *cmd)
 		if (!ppa_send_command(cmd))
 			return 0;
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 4:		/* Phase 4 - Setup scatter/gather buffers */
 		if (scsi_bufflen(cmd)) {
@@ -748,7 +764,11 @@ static int ppa_engine(ppa_struct *dev, struct scsi_cmnd *cmd)
 		}
 		cmd->SCp.buffers_residual = scsi_sg_count(cmd) - 1;
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 5:		/* Phase 5 - Data transfer stage */
 		w_ctr(ppb, 0x0c);
@@ -761,7 +781,11 @@ static int ppa_engine(ppa_struct *dev, struct scsi_cmnd *cmd)
 		if (retv == 0)
 			return 1;
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 6:		/* Phase 6 - Read status/message */
 		cmd->result = DID_OK << 16;
@@ -778,7 +802,10 @@ static int ppa_engine(ppa_struct *dev, struct scsi_cmnd *cmd)
 			    (DID_OK << 16) + (h << 8) + (l & STATUS_MASK);
 		}
 		return 0;	/* Finished */
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 
 	default:
 		printk(KERN_ERR "ppa: Invalid scsi phase\n");
@@ -846,10 +873,15 @@ static int ppa_abort(struct scsi_cmnd *cmd)
 	case 1:		/* Have not connected to interface */
 		dev->cur_cmd = NULL;	/* Forget the problem */
 		return SUCCESS;
+<<<<<<< HEAD
 		break;
 	default:		/* SCSI command sent, can not abort */
 		return FAILED;
 		break;
+=======
+	default:		/* SCSI command sent, can not abort */
+		return FAILED;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -978,7 +1010,10 @@ static struct scsi_host_template ppa_template = {
 	.bios_param		= ppa_biosparam,
 	.this_id		= -1,
 	.sg_tablesize		= SG_ALL,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.can_queue		= 1,
 	.slave_alloc		= ppa_adjust_queue,
 };
@@ -1151,6 +1186,7 @@ static struct parport_driver ppa_driver = {
 	.detach		= ppa_detach,
 	.devmodel	= true,
 };
+<<<<<<< HEAD
 
 static int __init ppa_driver_init(void)
 {
@@ -1165,4 +1201,8 @@ static void __exit ppa_driver_exit(void)
 
 module_init(ppa_driver_init);
 module_exit(ppa_driver_exit);
+=======
+module_parport_driver(ppa_driver);
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

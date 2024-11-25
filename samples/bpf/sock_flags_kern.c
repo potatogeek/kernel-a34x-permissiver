@@ -3,7 +3,11 @@
 #include <linux/net.h>
 #include <uapi/linux/in.h>
 #include <uapi/linux/in6.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+>>>>>>> upstream/android-13
 
 SEC("cgroup/sock1")
 int bpf_prog1(struct bpf_sock *sk)

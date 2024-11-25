@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * bpf_jit64.h: BPF JIT compiler for PPC64
  *
  * Copyright 2016 Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
  *		  IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _BPF_JIT64_H
 #define _BPF_JIT64_H
@@ -20,18 +27,30 @@
  * with our redzone usage.
  *
  *		[	prev sp		] <-------------
+<<<<<<< HEAD
  *		[   nv gpr save area	] 6*8		|
  *		[    tail_call_cnt	] 8		|
  *		[    local_tmp_var	] 8		|
+=======
+ *		[   nv gpr save area	] 5*8		|
+ *		[    tail_call_cnt	] 8		|
+ *		[    local_tmp_var	] 16		|
+>>>>>>> upstream/android-13
  * fp (r31) -->	[   ebpf stack space	] upto 512	|
  *		[     frame header	] 32/112	|
  * sp (r1) --->	[    stack pointer	] --------------
  */
 
 /* for gpr non volatile registers BPG_REG_6 to 10 */
+<<<<<<< HEAD
 #define BPF_PPC_STACK_SAVE	(6*8)
 /* for bpf JIT code internal usage */
 #define BPF_PPC_STACK_LOCALS	16
+=======
+#define BPF_PPC_STACK_SAVE	(5*8)
+/* for bpf JIT code internal usage */
+#define BPF_PPC_STACK_LOCALS	24
+>>>>>>> upstream/android-13
 /* stack frame excluding BPF stack, ensure this is quadword aligned */
 #define BPF_PPC_STACKFRAME	(STACK_FRAME_MIN_SIZE + \
 				 BPF_PPC_STACK_LOCALS + BPF_PPC_STACK_SAVE)
@@ -43,7 +62,11 @@
 #define TMP_REG_2	(MAX_BPF_JIT_REG + 1)
 
 /* BPF to ppc register mappings */
+<<<<<<< HEAD
 static const int b2p[] = {
+=======
+const int b2p[MAX_BPF_JIT_REG + 2] = {
+>>>>>>> upstream/android-13
 	/* function return value */
 	[BPF_REG_0] = 8,
 	/* function arguments */
@@ -74,6 +97,7 @@ static const int b2p[] = {
  */
 #define PPC_BPF_LL(r, base, i) do {					      \
 				if ((i) % 4) {				      \
+<<<<<<< HEAD
 					PPC_LI(b2p[TMP_REG_2], (i));	      \
 					PPC_LDX(r, base, b2p[TMP_REG_2]);     \
 				} else					      \
@@ -106,6 +130,23 @@ struct codegen_context {
 	unsigned int idx;
 	unsigned int stack_size;
 };
+=======
+					EMIT(PPC_RAW_LI(b2p[TMP_REG_2], (i)));\
+					EMIT(PPC_RAW_LDX(r, base,	      \
+							b2p[TMP_REG_2]));     \
+				} else					      \
+					EMIT(PPC_RAW_LD(r, base, i));	      \
+				} while(0)
+#define PPC_BPF_STL(r, base, i) do {					      \
+				if ((i) % 4) {				      \
+					EMIT(PPC_RAW_LI(b2p[TMP_REG_2], (i)));\
+					EMIT(PPC_RAW_STDX(r, base,	      \
+							b2p[TMP_REG_2]));     \
+				} else					      \
+					EMIT(PPC_RAW_STD(r, base, i));	      \
+				} while(0)
+#define PPC_BPF_STLU(r, base, i) do { EMIT(PPC_RAW_STDU(r, base, i)); } while(0)
+>>>>>>> upstream/android-13
 
 #endif /* !__ASSEMBLY__ */
 

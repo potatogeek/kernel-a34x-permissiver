@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	X.25 Packet Layer release 002
  *
@@ -6,12 +10,15 @@
  *
  *	This code REQUIRES 2.1.15 or higher
  *
+<<<<<<< HEAD
  *	This module:
  *		This module is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	History
  *	X.25 001	Jonathan Naylor	Started coding.
  *      2000-09-04	Henner Eisen	Prevent freeing a dangling skb.
@@ -60,7 +67,11 @@ static int x25_receive_data(struct sk_buff *skb, struct x25_neigh *nb)
 		if (!sock_owned_by_user(sk)) {
 			queued = x25_process_rx_frame(sk, skb);
 		} else {
+<<<<<<< HEAD
 			queued = !sk_add_backlog(sk, skb, sk->sk_rcvbuf);
+=======
+			queued = !sk_add_backlog(sk, skb, READ_ONCE(sk->sk_rcvbuf));
+>>>>>>> upstream/android-13
 		}
 		bh_unlock_sock(sk);
 		sock_put(sk);
@@ -165,10 +176,13 @@ void x25_establish_link(struct x25_neigh *nb)
 		*ptr = X25_IFACE_CONNECT;
 		break;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_LLC)
 	case ARPHRD_ETHER:
 		return;
 #endif
+=======
+>>>>>>> upstream/android-13
 	default:
 		return;
 	}
@@ -184,10 +198,13 @@ void x25_terminate_link(struct x25_neigh *nb)
 	struct sk_buff *skb;
 	unsigned char *ptr;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_LLC)
 	if (nb->dev->type == ARPHRD_ETHER)
 		return;
 #endif
+=======
+>>>>>>> upstream/android-13
 	if (nb->dev->type != ARPHRD_X25)
 		return;
 
@@ -217,11 +234,14 @@ void x25_send_frame(struct sk_buff *skb, struct x25_neigh *nb)
 		*dptr = X25_IFACE_DATA;
 		break;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_LLC)
 	case ARPHRD_ETHER:
 		kfree_skb(skb);
 		return;
 #endif
+=======
+>>>>>>> upstream/android-13
 	default:
 		kfree_skb(skb);
 		return;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver for NAND Flash Translation Layer
  *
  * Copyright © 1999 Machine Vision Holdings, Inc.
  * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #define PRERELEASE
@@ -632,7 +639,10 @@ static inline u16 NFTL_findwriteunit(struct NFTLrecord *nftl, unsigned block)
 				return BLOCK_NIL;
 			}
 			//printk("Restarting scan\n");
+<<<<<<< HEAD
 			lastEUN = BLOCK_NIL;
+=======
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -810,6 +820,7 @@ static struct mtd_blktrans_ops nftl_tr = {
 	.owner		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
 static int __init init_nftl(void)
 {
 	return register_mtd_blktrans(&nftl_tr);
@@ -822,6 +833,9 @@ static void __exit cleanup_nftl(void)
 
 module_init(init_nftl);
 module_exit(cleanup_nftl);
+=======
+module_mtd_blktrans(nftl_tr);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org>, Fabrice Bellard <fabrice.bellard@netgem.com> et al.");

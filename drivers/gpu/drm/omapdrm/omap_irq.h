@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * omap_irq.h -- OMAP DRM IRQ Handling
  *
  * Copyright (C) 2011 Texas Instruments
  * Author: Rob Clark <rob@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OMAPDRM_IRQ_H__
@@ -27,6 +34,10 @@ struct drm_device;
 struct omap_irq_wait;
 
 int omap_irq_enable_vblank(struct drm_crtc *crtc);
+<<<<<<< HEAD
+=======
+int omap_irq_enable_framedone(struct drm_crtc *crtc, bool enable);
+>>>>>>> upstream/android-13
 void omap_irq_disable_vblank(struct drm_crtc *crtc);
 void omap_drm_irq_uninstall(struct drm_device *dev);
 int omap_drm_irq_install(struct drm_device *dev);

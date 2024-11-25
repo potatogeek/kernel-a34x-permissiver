@@ -67,7 +67,10 @@ struct raw3270 {
 #define RAW3270_FLAGS_14BITADDR	0	/* 14-bit buffer addresses */
 #define RAW3270_FLAGS_BUSY	1	/* Device busy, leave it alone */
 #define RAW3270_FLAGS_CONSOLE	2	/* Device is the console. */
+<<<<<<< HEAD
 #define RAW3270_FLAGS_FROZEN	3	/* set if 3270 is frozen for suspend */
+=======
+>>>>>>> upstream/android-13
 
 /* Semaphore to protect global data of raw3270 (devices, views, etc). */
 static DEFINE_MUTEX(raw3270_mutex);
@@ -260,8 +263,12 @@ raw3270_view_active(struct raw3270_view *view)
 {
 	struct raw3270 *rp = view->dev;
 
+<<<<<<< HEAD
 	return rp && rp->view == view &&
 		!test_bit(RAW3270_FLAGS_FROZEN, &rp->flags);
+=======
+	return rp && rp->view == view;
+>>>>>>> upstream/android-13
 }
 
 int
@@ -273,8 +280,12 @@ raw3270_start(struct raw3270_view *view, struct raw3270_request *rq)
 
 	spin_lock_irqsave(get_ccwdev_lock(view->dev->cdev), flags);
 	rp = view->dev;
+<<<<<<< HEAD
 	if (!rp || rp->view != view ||
 	    test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
+=======
+	if (!rp || rp->view != view)
+>>>>>>> upstream/android-13
 		rc = -EACCES;
 	else if (!raw3270_state_ready(rp))
 		rc = -EBUSY;
@@ -291,8 +302,12 @@ raw3270_start_locked(struct raw3270_view *view, struct raw3270_request *rq)
 	int rc;
 
 	rp = view->dev;
+<<<<<<< HEAD
 	if (!rp || rp->view != view ||
 	    test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
+=======
+	if (!rp || rp->view != view)
+>>>>>>> upstream/android-13
 		rc = -EACCES;
 	else if (!raw3270_state_ready(rp))
 		rc = -EBUSY;
@@ -629,8 +644,12 @@ raw3270_reset(struct raw3270_view *view)
 	int rc;
 
 	rp = view->dev;
+<<<<<<< HEAD
 	if (!rp || rp->view != view ||
 	    test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
+=======
+	if (!rp || rp->view != view)
+>>>>>>> upstream/android-13
 		rc = -EACCES;
 	else if (!raw3270_state_ready(rp))
 		rc = -EBUSY;
@@ -854,8 +873,11 @@ raw3270_activate_view(struct raw3270_view *view)
 		rc = 0;
 	else if (!raw3270_state_ready(rp))
 		rc = -EBUSY;
+<<<<<<< HEAD
 	else if (test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
 		rc = -EACCES;
+=======
+>>>>>>> upstream/android-13
 	else {
 		oldview = NULL;
 		if (rp->view && rp->view->fn->deactivate) {
@@ -903,8 +925,12 @@ raw3270_deactivate_view(struct raw3270_view *view)
 		list_del_init(&view->list);
 		list_add_tail(&view->list, &rp->view_list);
 		/* Try to activate another view. */
+<<<<<<< HEAD
 		if (raw3270_state_ready(rp) &&
 		    !test_bit(RAW3270_FLAGS_FROZEN, &rp->flags)) {
+=======
+		if (raw3270_state_ready(rp)) {
+>>>>>>> upstream/android-13
 			list_for_each_entry(view, &rp->view_list, list) {
 				rp->view = view;
 				if (view->fn->activate(view) == 0)
@@ -999,8 +1025,12 @@ raw3270_del_view(struct raw3270_view *view)
 		rp->view = NULL;
 	}
 	list_del_init(&view->list);
+<<<<<<< HEAD
 	if (!rp->view && raw3270_state_ready(rp) &&
 	    !test_bit(RAW3270_FLAGS_FROZEN, &rp->flags)) {
+=======
+	if (!rp->view && raw3270_state_ready(rp)) {
+>>>>>>> upstream/android-13
 		/* Try to activate another view. */
 		list_for_each_entry(nv, &rp->view_list, list) {
 			if (nv->fn->activate(nv) == 0) {
@@ -1215,6 +1245,7 @@ raw3270_set_offline (struct ccw_device *cdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int raw3270_pm_stop(struct ccw_device *cdev)
 {
 	struct raw3270 *rp;
@@ -1269,6 +1300,8 @@ void raw3270_pm_unfreeze(struct raw3270_view *view)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct ccw_device_id raw3270_id[] = {
 	{ CCW_DEVICE(0x3270, 0) },
 	{ CCW_DEVICE(0x3271, 0) },
@@ -1294,9 +1327,12 @@ static struct ccw_driver raw3270_ccw_driver = {
 	.remove		= &raw3270_remove,
 	.set_online	= &raw3270_set_online,
 	.set_offline	= &raw3270_set_offline,
+<<<<<<< HEAD
 	.freeze		= &raw3270_pm_stop,
 	.thaw		= &raw3270_pm_start,
 	.restore	= &raw3270_pm_start,
+=======
+>>>>>>> upstream/android-13
 	.int_class	= IRQIO_C70,
 };
 

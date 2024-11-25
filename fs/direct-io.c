@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fs/direct-io.c
  *
@@ -23,7 +27,10 @@
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/fscrypt.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/slab.h>
 #include <linux/highmem.h>
@@ -39,6 +46,11 @@
 #include <linux/atomic.h>
 #include <linux/prefetch.h>
 
+<<<<<<< HEAD
+=======
+#include "internal.h"
+
+>>>>>>> upstream/android-13
 /*
  * How many user pages to map in one call to get_user_pages().  This determines
  * the size of a structure in the slab cache
@@ -221,6 +233,7 @@ static inline struct page *dio_get_page(struct dio *dio,
 }
 
 /*
+<<<<<<< HEAD
  * Warn about a page cache invalidation failure during a direct io write.
  */
 void dio_warn_stale_pagecache(struct file *filp)
@@ -244,6 +257,9 @@ void dio_warn_stale_pagecache(struct file *filp)
 /**
  * dio_complete() - called when all DIO BIO I/O has been completed
  * @offset: the byte offset in the file of the completed operation
+=======
+ * dio_complete() - called when all DIO BIO I/O has been completed
+>>>>>>> upstream/android-13
  *
  * This drops i_dio_count, lets interested parties know that a DIO operation
  * has completed, and calculates the resulting return code for the operation.
@@ -406,6 +422,7 @@ static void dio_bio_end_io(struct bio *bio)
 	spin_unlock_irqrestore(&dio->bio_lock, flags);
 }
 
+<<<<<<< HEAD
 /**
  * dio_end_io - handle the end io action for the given bio
  * @bio: The direct io bio thats being completed
@@ -425,13 +442,18 @@ void dio_end_io(struct bio *bio)
 }
 EXPORT_SYMBOL_GPL(dio_end_io);
 
+=======
+>>>>>>> upstream/android-13
 static inline void
 dio_bio_alloc(struct dio *dio, struct dio_submit *sdio,
 	      struct block_device *bdev,
 	      sector_t first_sector, int nr_vecs)
 {
 	struct bio *bio;
+<<<<<<< HEAD
 	struct inode *inode = dio->inode;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * bio_alloc() is guaranteed to return a bio when allowed to sleep and
@@ -439,9 +461,12 @@ dio_bio_alloc(struct dio *dio, struct dio_submit *sdio,
 	 */
 	bio = bio_alloc(GFP_KERNEL, nr_vecs);
 
+<<<<<<< HEAD
 	fscrypt_set_bio_crypt_ctx(bio, inode,
 				  sdio->cur_page_fs_offset >> inode->i_blkbits,
 				  GFP_KERNEL);
+=======
+>>>>>>> upstream/android-13
 	bio_set_dev(bio, bdev);
 	bio->bi_iter.bi_sector = first_sector;
 	bio_set_op_attrs(bio, dio->op, dio->op_flags);
@@ -469,6 +494,11 @@ static inline void dio_bio_submit(struct dio *dio, struct dio_submit *sdio)
 	unsigned long flags;
 
 	bio->bi_private = dio;
+<<<<<<< HEAD
+=======
+	/* don't account direct I/O as memory stall */
+	bio_clear_flag(bio, BIO_WORKINGSET);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&dio->bio_lock, flags);
 	dio->refcount++;
@@ -477,7 +507,11 @@ static inline void dio_bio_submit(struct dio *dio, struct dio_submit *sdio)
 	if (dio->is_async && dio->op == REQ_OP_READ && dio->should_dirty)
 		bio_set_pages_dirty(bio);
 
+<<<<<<< HEAD
 	dio->bio_disk = bio->bi_disk;
+=======
+	dio->bio_disk = bio->bi_bdev->bd_disk;
+>>>>>>> upstream/android-13
 
 	if (sdio->submit_io) {
 		sdio->submit_io(bio, dio->inode, sdio->logical_offset_in_bio);
@@ -503,7 +537,11 @@ static inline void dio_cleanup(struct dio *dio, struct dio_submit *sdio)
  * Wait for the next BIO to complete.  Remove it and return it.  NULL is
  * returned once all BIOs have been completed.  This must only be called once
  * all bios have been issued so that dio->refcount can only decrease.  This
+<<<<<<< HEAD
  * requires that that the caller hold a reference on the dio.
+=======
+ * requires that the caller hold a reference on the dio.
+>>>>>>> upstream/android-13
  */
 static struct bio *dio_await_one(struct dio *dio)
 {
@@ -523,8 +561,13 @@ static struct bio *dio_await_one(struct dio *dio)
 		dio->waiter = current;
 		spin_unlock_irqrestore(&dio->bio_lock, flags);
 		if (!(dio->iocb->ki_flags & IOCB_HIPRI) ||
+<<<<<<< HEAD
 		    !blk_poll(dio->bio_disk->queue, dio->bio_cookie))
 			io_schedule();
+=======
+		    !blk_poll(dio->bio_disk->queue, dio->bio_cookie, true))
+			blk_io_schedule();
+>>>>>>> upstream/android-13
 		/* wake up sets us TASK_RUNNING */
 		spin_lock_irqsave(&dio->bio_lock, flags);
 		dio->waiter = NULL;
@@ -542,9 +585,14 @@ static struct bio *dio_await_one(struct dio *dio)
  */
 static blk_status_t dio_bio_complete(struct dio *dio, struct bio *bio)
 {
+<<<<<<< HEAD
 	struct bio_vec *bvec;
 	unsigned i;
 	blk_status_t err = bio->bi_status;
+=======
+	blk_status_t err = bio->bi_status;
+	bool should_dirty = dio->op == REQ_OP_READ && dio->should_dirty;
+>>>>>>> upstream/android-13
 
 	if (err) {
 		if (err == BLK_STS_AGAIN && (bio->bi_opf & REQ_NOWAIT))
@@ -553,6 +601,7 @@ static blk_status_t dio_bio_complete(struct dio *dio, struct bio *bio)
 			dio->io_error = -EIO;
 	}
 
+<<<<<<< HEAD
 	if (dio->is_async && dio->op == REQ_OP_READ && dio->should_dirty) {
 		bio_check_pages_dirty(bio);	/* transfers ownership */
 	} else {
@@ -564,6 +613,12 @@ static blk_status_t dio_bio_complete(struct dio *dio, struct bio *bio)
 				set_page_dirty_lock(page);
 			put_page(page);
 		}
+=======
+	if (dio->is_async && should_dirty) {
+		bio_check_pages_dirty(bio);	/* transfers ownership */
+	} else {
+		bio_release_pages(bio, should_dirty);
+>>>>>>> upstream/android-13
 		bio_put(bio);
 	}
 	return err;
@@ -744,7 +799,11 @@ static inline int dio_new_bio(struct dio *dio, struct dio_submit *sdio,
 	if (ret)
 		goto out;
 	sector = start_sector << (sdio->blkbits - 9);
+<<<<<<< HEAD
 	nr_pages = min(sdio->pages_in_io, BIO_MAX_PAGES);
+=======
+	nr_pages = bio_max_segs(sdio->pages_in_io);
+>>>>>>> upstream/android-13
 	BUG_ON(nr_pages <= 0);
 	dio_bio_alloc(dio, sdio, map_bh->b_bdev, sector, nr_pages);
 	sdio->boundary = 0;
@@ -814,6 +873,7 @@ static inline int dio_send_cur_page(struct dio *dio, struct dio_submit *sdio,
 		 * current logical offset in the file does not equal what would
 		 * be the next logical offset in the bio, submit the bio we
 		 * have.
+<<<<<<< HEAD
 		 *
 		 * When fscrypt inline encryption is used, data unit number
 		 * (DUN) contiguity is also required.  Normally that's implied
@@ -825,6 +885,11 @@ static inline int dio_send_cur_page(struct dio *dio, struct dio_submit *sdio,
 		    cur_offset != bio_next_offset ||
 		    !fscrypt_mergeable_bio(sdio->bio, dio->inode,
 					   cur_offset >> dio->inode->i_blkbits))
+=======
+		 */
+		if (sdio->final_block_in_bio != sdio->cur_page_block ||
+		    cur_offset != bio_next_offset)
+>>>>>>> upstream/android-13
 			dio_bio_submit(dio, sdio);
 	}
 
@@ -1206,6 +1271,7 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	 * the early prefetch in the caller enough time.
 	 */
 
+<<<<<<< HEAD
 	if (align & blocksize_mask) {
 		if (bdev)
 			blkbits = blksize_bits(bdev_logical_block_size(bdev));
@@ -1214,14 +1280,21 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 			goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* watch out for a 0 len io from a tricksy fs */
 	if (iov_iter_rw(iter) == READ && !count)
 		return 0;
 
 	dio = kmem_cache_alloc(dio_cache, GFP_KERNEL);
+<<<<<<< HEAD
 	retval = -ENOMEM;
 	if (!dio)
 		goto out;
+=======
+	if (!dio)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	/*
 	 * Believe it or not, zeroing out the page array caused a .5%
 	 * performance regression in a database benchmark.  So, we take
@@ -1230,6 +1303,7 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	memset(dio, 0, offsetof(struct dio, pages));
 
 	dio->flags = flags;
+<<<<<<< HEAD
 	if (dio->flags & DIO_LOCKING) {
 		if (iov_iter_rw(iter) == READ) {
 			struct address_space *mapping =
@@ -1246,16 +1320,42 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 				goto out;
 			}
 		}
+=======
+	if (dio->flags & DIO_LOCKING && iov_iter_rw(iter) == READ) {
+		/* will be released by direct_io_worker */
+		inode_lock(inode);
+>>>>>>> upstream/android-13
 	}
 
 	/* Once we sampled i_size check for reads beyond EOF */
 	dio->i_size = i_size_read(inode);
 	if (iov_iter_rw(iter) == READ && offset >= dio->i_size) {
+<<<<<<< HEAD
 		if (dio->flags & DIO_LOCKING)
 			inode_unlock(inode);
 		kmem_cache_free(dio_cache, dio);
 		retval = 0;
 		goto out;
+=======
+		retval = 0;
+		goto fail_dio;
+	}
+
+	if (align & blocksize_mask) {
+		if (bdev)
+			blkbits = blksize_bits(bdev_logical_block_size(bdev));
+		blocksize_mask = (1 << blkbits) - 1;
+		if (align & blocksize_mask)
+			goto fail_dio;
+	}
+
+	if (dio->flags & DIO_LOCKING && iov_iter_rw(iter) == READ) {
+		struct address_space *mapping = iocb->ki_filp->f_mapping;
+
+		retval = filemap_write_and_wait_range(mapping, offset, end - 1);
+		if (retval)
+			goto fail_dio;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1280,6 +1380,11 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	} else {
 		dio->op = REQ_OP_READ;
 	}
+<<<<<<< HEAD
+=======
+	if (iocb->ki_flags & IOCB_HIPRI)
+		dio->op_flags |= REQ_HIPRI;
+>>>>>>> upstream/android-13
 
 	/*
 	 * For AIO O_(D)SYNC writes we need to defer completions to a workqueue
@@ -1297,6 +1402,7 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 			 */
 			retval = sb_init_dio_done_wq(dio->inode->i_sb);
 		}
+<<<<<<< HEAD
 		if (retval) {
 			/*
 			 * We grab i_mutex only for reads so we don't have
@@ -1305,6 +1411,10 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 			kmem_cache_free(dio_cache, dio);
 			goto out;
 		}
+=======
+		if (retval)
+			goto fail_dio;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1328,7 +1438,11 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	spin_lock_init(&dio->bio_lock);
 	dio->refcount = 1;
 
+<<<<<<< HEAD
 	dio->should_dirty = (iter->type == ITER_IOVEC);
+=======
+	dio->should_dirty = iter_is_iovec(iter) && iov_iter_rw(iter) == READ;
+>>>>>>> upstream/android-13
 	sdio.iter = iter;
 	sdio.final_block_in_request = end >> blkbits;
 
@@ -1350,7 +1464,11 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	if (retval == -ENOTBLK) {
 		/*
 		 * The remaining part of the request will be
+<<<<<<< HEAD
 		 * be handled by buffered I/O when we return
+=======
+		 * handled by buffered I/O when we return
+>>>>>>> upstream/android-13
 		 */
 		retval = 0;
 	}
@@ -1407,7 +1525,17 @@ do_blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	} else
 		BUG_ON(retval != -EIOCBQUEUED);
 
+<<<<<<< HEAD
 out:
+=======
+	return retval;
+
+fail_dio:
+	if (dio->flags & DIO_LOCKING && iov_iter_rw(iter) == READ)
+		inode_unlock(inode);
+
+	kmem_cache_free(dio_cache, dio);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -1426,14 +1554,23 @@ ssize_t __blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 	 * Attempt to prefetch the pieces we likely need later.
 	 */
 	prefetch(&bdev->bd_disk->part_tbl);
+<<<<<<< HEAD
 	prefetch(bdev->bd_queue);
 	prefetch((char *)bdev->bd_queue + SMP_CACHE_BYTES);
+=======
+	prefetch(bdev->bd_disk->queue);
+	prefetch((char *)bdev->bd_disk->queue + SMP_CACHE_BYTES);
+>>>>>>> upstream/android-13
 
 	return do_blockdev_direct_IO(iocb, inode, bdev, iter, get_block,
 				     end_io, submit_io, flags);
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(__blockdev_direct_IO);
+=======
+EXPORT_SYMBOL_NS(__blockdev_direct_IO, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 static __init int dio_init(void)
 {

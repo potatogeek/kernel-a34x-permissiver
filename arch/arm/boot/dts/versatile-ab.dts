@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
+<<<<<<< HEAD
 /include/ "skeleton.dtsi"
+=======
+>>>>>>> upstream/android-13
 
 / {
 	model = "ARM Versatile AB";
@@ -21,6 +24,10 @@
 	};
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x0 0x08000000>;
 	};
 
@@ -161,6 +168,12 @@
 		compatible = "arm,versatile-flash", "cfi-flash";
 		reg = <0x34000000 0x04000000>;
 		bank-width = <4>;
+<<<<<<< HEAD
+=======
+		partitions {
+			compatible = "arm,arm-firmware-suite";
+		};
+>>>>>>> upstream/android-13
 	};
 
 	i2c0: i2c@10002000 {
@@ -192,16 +205,27 @@
 		#size-cells = <1>;
 		ranges;
 
+<<<<<<< HEAD
 		vic: intc@10140000 {
+=======
+		vic: interrupt-controller@10140000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,versatile-vic";
 			interrupt-controller;
 			#interrupt-cells = <1>;
 			reg = <0x10140000 0x1000>;
+<<<<<<< HEAD
 			clear-mask = <0xffffffff>;
 			valid-mask = <0xffffffff>;
 		};
 
 		sic: intc@10003000 {
+=======
+			valid-mask = <0xffffffff>;
+		};
+
+		sic: interrupt-controller@10003000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,versatile-sic";
 			interrupt-controller;
 			#interrupt-cells = <1>;

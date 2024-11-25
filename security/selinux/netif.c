@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Network interface table.
  *
@@ -9,10 +13,13 @@
  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
  * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
  *		      Paul Moore <paul@paul-moore.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/types.h>
@@ -39,7 +46,10 @@ struct sel_netif {
 };
 
 static u32 sel_netif_total;
+<<<<<<< HEAD
 static LIST_HEAD(sel_netif_list);
+=======
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(sel_netif_lock);
 static struct list_head sel_netif_hash[SEL_NETIF_HASH_SIZE];
 
@@ -127,7 +137,11 @@ static void sel_netif_destroy(struct sel_netif *netif)
  * @sid: interface SID
  *
  * Description:
+<<<<<<< HEAD
  * This function determines the SID of a network interface by quering the
+=======
+ * This function determines the SID of a network interface by querying the
+>>>>>>> upstream/android-13
  * security policy.  The result is added to the network interface table to
  * speedup future queries.  Returns zero on success, negative values on
  * failure.
@@ -135,9 +149,15 @@ static void sel_netif_destroy(struct sel_netif *netif)
  */
 static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
 {
+<<<<<<< HEAD
 	int ret;
 	struct sel_netif *netif;
 	struct sel_netif *new = NULL;
+=======
+	int ret = 0;
+	struct sel_netif *netif;
+	struct sel_netif *new;
+>>>>>>> upstream/android-13
 	struct net_device *dev;
 
 	/* NOTE: we always use init's network namespace since we don't
@@ -154,6 +174,7 @@ static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
 	netif = sel_netif_find(ns, ifindex);
 	if (netif != NULL) {
 		*sid = netif->nsec.sid;
+<<<<<<< HEAD
 		ret = 0;
 		goto out;
 	}
@@ -171,15 +192,37 @@ static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
 	if (ret != 0)
 		goto out;
 	*sid = new->nsec.sid;
+=======
+		goto out;
+	}
+
+	ret = security_netif_sid(&selinux_state, dev->name, sid);
+	if (ret != 0)
+		goto out;
+	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+	if (new) {
+		new->nsec.ns = ns;
+		new->nsec.ifindex = ifindex;
+		new->nsec.sid = *sid;
+		if (sel_netif_insert(new))
+			kfree(new);
+	}
+>>>>>>> upstream/android-13
 
 out:
 	spin_unlock_bh(&sel_netif_lock);
 	dev_put(dev);
+<<<<<<< HEAD
 	if (unlikely(ret)) {
 		pr_warn("SELinux: failure in %s(), unable to determine network interface label (%d)\n",
 			__func__, ifindex);
 		kfree(new);
 	}
+=======
+	if (unlikely(ret))
+		pr_warn("SELinux: failure in %s(), unable to determine network interface label (%d)\n",
+			__func__, ifindex);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -273,6 +316,7 @@ static struct notifier_block sel_netif_netdev_notifier = {
 static __init int sel_netif_init(void)
 {
 	int i;
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
 	selinux_enabled = 1;
@@ -280,6 +324,10 @@ static __init int sel_netif_init(void)
 // ] SEC_SELINUX_PORTING_COMMON
 
 	if (!selinux_enabled)
+=======
+
+	if (!selinux_enabled_boot)
+>>>>>>> upstream/android-13
 		return 0;
 
 	for (i = 0; i < SEL_NETIF_HASH_SIZE; i++)

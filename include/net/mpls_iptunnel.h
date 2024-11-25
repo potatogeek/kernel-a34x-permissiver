@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Cumulus Networks, Inc.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015 Cumulus Networks, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_MPLS_IPTUNNEL_H
@@ -19,7 +25,11 @@ struct mpls_iptunnel_encap {
 	u8	ttl_propagate;
 	u8	default_ttl;
 	u8	reserved1;
+<<<<<<< HEAD
 	u32	label[0];
+=======
+	u32	label[];
+>>>>>>> upstream/android-13
 };
 
 static inline struct mpls_iptunnel_encap *mpls_lwtunnel_encap(struct lwtunnel_state *lwtstate)

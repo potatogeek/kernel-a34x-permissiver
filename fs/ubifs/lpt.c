@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -287,7 +294,11 @@ uint32_t ubifs_unpack_bits(const struct ubifs_info *c, uint8_t **addr, int *pos,
 	const int k = 32 - nrbits;
 	uint8_t *p = *addr;
 	int b = *pos;
+<<<<<<< HEAD
 	uint32_t uninitialized_var(val);
+=======
+	uint32_t val;
+>>>>>>> upstream/android-13
 	const int bytes = (nrbits + b + 7) >> 3;
 
 	ubifs_assert(c, nrbits > 0);
@@ -604,11 +615,19 @@ static int calc_pnode_num_from_parent(const struct ubifs_info *c,
  * @lpt_first: LEB number of first LPT LEB
  * @lpt_lebs: number of LEBs for LPT is passed and returned here
  * @big_lpt: use big LPT model is passed and returned here
+<<<<<<< HEAD
+=======
+ * @hash: hash of the LPT is returned here
+>>>>>>> upstream/android-13
  *
  * This function returns %0 on success and a negative error code on failure.
  */
 int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
+<<<<<<< HEAD
 			  int *lpt_lebs, int *big_lpt)
+=======
+			  int *lpt_lebs, int *big_lpt, u8 *hash)
+>>>>>>> upstream/android-13
 {
 	int lnum, err = 0, node_sz, iopos, i, j, cnt, len, alen, row;
 	int blnum, boffs, bsz, bcnt;
@@ -617,6 +636,10 @@ int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
 	void *buf = NULL, *p;
 	struct ubifs_lpt_lprops *ltab = NULL;
 	int *lsave = NULL;
+<<<<<<< HEAD
+=======
+	struct shash_desc *desc;
+>>>>>>> upstream/android-13
 
 	err = calc_dflt_lpt_geom(c, main_lebs, big_lpt);
 	if (err)
@@ -630,6 +653,13 @@ int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
 	/* Needed by 'ubifs_pack_lsave()' */
 	c->main_first = c->leb_cnt - *main_lebs;
 
+<<<<<<< HEAD
+=======
+	desc = ubifs_hash_get_desc(c);
+	if (IS_ERR(desc))
+		return PTR_ERR(desc);
+
+>>>>>>> upstream/android-13
 	lsave = kmalloc_array(c->lsave_cnt, sizeof(int), GFP_KERNEL);
 	pnode = kzalloc(sizeof(struct ubifs_pnode), GFP_KERNEL);
 	nnode = kzalloc(sizeof(struct ubifs_nnode), GFP_KERNEL);
@@ -677,6 +707,13 @@ int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
 
 	/* Add first pnode */
 	ubifs_pack_pnode(c, p, pnode);
+<<<<<<< HEAD
+=======
+	err = ubifs_shash_update(c, desc, p, c->pnode_sz);
+	if (err)
+		goto out;
+
+>>>>>>> upstream/android-13
 	p += c->pnode_sz;
 	len = c->pnode_sz;
 	pnode->num += 1;
@@ -711,6 +748,13 @@ int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
 			len = 0;
 		}
 		ubifs_pack_pnode(c, p, pnode);
+<<<<<<< HEAD
+=======
+		err = ubifs_shash_update(c, desc, p, c->pnode_sz);
+		if (err)
+			goto out;
+
+>>>>>>> upstream/android-13
 		p += c->pnode_sz;
 		len += c->pnode_sz;
 		/*
@@ -830,6 +874,13 @@ int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	err = ubifs_shash_final(c, desc, hash);
+	if (err)
+		goto out;
+
+>>>>>>> upstream/android-13
 	c->nhead_lnum = lnum;
 	c->nhead_offs = ALIGN(len, c->min_io_size);
 
@@ -845,7 +896,11 @@ int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
 	dbg_lp("lsave_sz %d", c->lsave_sz);
 	dbg_lp("lsave_cnt %d", c->lsave_cnt);
 	dbg_lp("lpt_hght %d", c->lpt_hght);
+<<<<<<< HEAD
 	dbg_lp("big_lpt %d", c->big_lpt);
+=======
+	dbg_lp("big_lpt %u", c->big_lpt);
+>>>>>>> upstream/android-13
 	dbg_lp("LPT root is at %d:%d", c->lpt_lnum, c->lpt_offs);
 	dbg_lp("LPT head is at %d:%d", c->nhead_lnum, c->nhead_offs);
 	dbg_lp("LPT ltab is at %d:%d", c->ltab_lnum, c->ltab_offs);
@@ -853,6 +908,10 @@ int ubifs_create_dflt_lpt(struct ubifs_info *c, int *main_lebs, int lpt_first,
 		dbg_lp("LPT lsave is at %d:%d", c->lsave_lnum, c->lsave_offs);
 out:
 	c->ltab = NULL;
+<<<<<<< HEAD
+=======
+	kfree(desc);
+>>>>>>> upstream/android-13
 	kfree(lsave);
 	vfree(ltab);
 	vfree(buf);
@@ -1439,6 +1498,7 @@ struct ubifs_pnode *ubifs_get_pnode(struct ubifs_info *c,
 }
 
 /**
+<<<<<<< HEAD
  * ubifs_lpt_lookup - lookup LEB properties in the LPT.
  * @c: UBIFS file-system description object
  * @lnum: LEB number to lookup
@@ -1451,14 +1511,32 @@ struct ubifs_lprops *ubifs_lpt_lookup(struct ubifs_info *c, int lnum)
 	int err, i, h, iip, shft;
 	struct ubifs_nnode *nnode;
 	struct ubifs_pnode *pnode;
+=======
+ * ubifs_pnode_lookup - lookup a pnode in the LPT.
+ * @c: UBIFS file-system description object
+ * @i: pnode number (0 to (main_lebs - 1) / UBIFS_LPT_FANOUT)
+ *
+ * This function returns a pointer to the pnode on success or a negative
+ * error code on failure.
+ */
+struct ubifs_pnode *ubifs_pnode_lookup(struct ubifs_info *c, int i)
+{
+	int err, h, iip, shft;
+	struct ubifs_nnode *nnode;
+>>>>>>> upstream/android-13
 
 	if (!c->nroot) {
 		err = ubifs_read_nnode(c, NULL, 0);
 		if (err)
 			return ERR_PTR(err);
 	}
+<<<<<<< HEAD
 	nnode = c->nroot;
 	i = lnum - c->main_first;
+=======
+	i <<= UBIFS_LPT_FANOUT_SHIFT;
+	nnode = c->nroot;
+>>>>>>> upstream/android-13
 	shft = c->lpt_hght * UBIFS_LPT_FANOUT_SHIFT;
 	for (h = 1; h < c->lpt_hght; h++) {
 		iip = ((i >> shft) & (UBIFS_LPT_FANOUT - 1));
@@ -1468,7 +1546,28 @@ struct ubifs_lprops *ubifs_lpt_lookup(struct ubifs_info *c, int lnum)
 			return ERR_CAST(nnode);
 	}
 	iip = ((i >> shft) & (UBIFS_LPT_FANOUT - 1));
+<<<<<<< HEAD
 	pnode = ubifs_get_pnode(c, nnode, iip);
+=======
+	return ubifs_get_pnode(c, nnode, iip);
+}
+
+/**
+ * ubifs_lpt_lookup - lookup LEB properties in the LPT.
+ * @c: UBIFS file-system description object
+ * @lnum: LEB number to lookup
+ *
+ * This function returns a pointer to the LEB properties on success or a
+ * negative error code on failure.
+ */
+struct ubifs_lprops *ubifs_lpt_lookup(struct ubifs_info *c, int lnum)
+{
+	int i, iip;
+	struct ubifs_pnode *pnode;
+
+	i = lnum - c->main_first;
+	pnode = ubifs_pnode_lookup(c, i >> UBIFS_LPT_FANOUT_SHIFT);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pnode))
 		return ERR_CAST(pnode);
 	iip = (i & (UBIFS_LPT_FANOUT - 1));
@@ -1620,6 +1719,134 @@ struct ubifs_lprops *ubifs_lpt_lookup_dirty(struct ubifs_info *c, int lnum)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * ubifs_lpt_calc_hash - Calculate hash of the LPT pnodes
+ * @c: UBIFS file-system description object
+ * @hash: the returned hash of the LPT pnodes
+ *
+ * This function iterates over the LPT pnodes and creates a hash over them.
+ * Returns 0 for success or a negative error code otherwise.
+ */
+int ubifs_lpt_calc_hash(struct ubifs_info *c, u8 *hash)
+{
+	struct ubifs_nnode *nnode, *nn;
+	struct ubifs_cnode *cnode;
+	struct shash_desc *desc;
+	int iip = 0, i;
+	int bufsiz = max_t(int, c->nnode_sz, c->pnode_sz);
+	void *buf;
+	int err;
+
+	if (!ubifs_authenticated(c))
+		return 0;
+
+	if (!c->nroot) {
+		err = ubifs_read_nnode(c, NULL, 0);
+		if (err)
+			return err;
+	}
+
+	desc = ubifs_hash_get_desc(c);
+	if (IS_ERR(desc))
+		return PTR_ERR(desc);
+
+	buf = kmalloc(bufsiz, GFP_NOFS);
+	if (!buf) {
+		err = -ENOMEM;
+		goto out;
+	}
+
+	cnode = (struct ubifs_cnode *)c->nroot;
+
+	while (cnode) {
+		nnode = cnode->parent;
+		nn = (struct ubifs_nnode *)cnode;
+		if (cnode->level > 1) {
+			while (iip < UBIFS_LPT_FANOUT) {
+				if (nn->nbranch[iip].lnum == 0) {
+					/* Go right */
+					iip++;
+					continue;
+				}
+
+				nnode = ubifs_get_nnode(c, nn, iip);
+				if (IS_ERR(nnode)) {
+					err = PTR_ERR(nnode);
+					goto out;
+				}
+
+				/* Go down */
+				iip = 0;
+				cnode = (struct ubifs_cnode *)nnode;
+				break;
+			}
+			if (iip < UBIFS_LPT_FANOUT)
+				continue;
+		} else {
+			struct ubifs_pnode *pnode;
+
+			for (i = 0; i < UBIFS_LPT_FANOUT; i++) {
+				if (nn->nbranch[i].lnum == 0)
+					continue;
+				pnode = ubifs_get_pnode(c, nn, i);
+				if (IS_ERR(pnode)) {
+					err = PTR_ERR(pnode);
+					goto out;
+				}
+
+				ubifs_pack_pnode(c, buf, pnode);
+				err = ubifs_shash_update(c, desc, buf,
+							 c->pnode_sz);
+				if (err)
+					goto out;
+			}
+		}
+		/* Go up and to the right */
+		iip = cnode->iip + 1;
+		cnode = (struct ubifs_cnode *)nnode;
+	}
+
+	err = ubifs_shash_final(c, desc, hash);
+out:
+	kfree(desc);
+	kfree(buf);
+
+	return err;
+}
+
+/**
+ * lpt_check_hash - check the hash of the LPT.
+ * @c: UBIFS file-system description object
+ *
+ * This function calculates a hash over all pnodes in the LPT and compares it with
+ * the hash stored in the master node. Returns %0 on success and a negative error
+ * code on failure.
+ */
+static int lpt_check_hash(struct ubifs_info *c)
+{
+	int err;
+	u8 hash[UBIFS_HASH_ARR_SZ];
+
+	if (!ubifs_authenticated(c))
+		return 0;
+
+	err = ubifs_lpt_calc_hash(c, hash);
+	if (err)
+		return err;
+
+	if (ubifs_check_hash(c, c->mst_node->hash_lpt, hash)) {
+		err = -EPERM;
+		ubifs_err(c, "Failed to authenticate LPT");
+	} else {
+		err = 0;
+	}
+
+	return err;
+}
+
+/**
+>>>>>>> upstream/android-13
  * lpt_init_rd - initialize the LPT for reading.
  * @c: UBIFS file-system description object
  *
@@ -1660,6 +1887,13 @@ static int lpt_init_rd(struct ubifs_info *c)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	err = lpt_check_hash(c);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	dbg_lp("space_bits %d", c->space_bits);
 	dbg_lp("lpt_lnum_bits %d", c->lpt_lnum_bits);
 	dbg_lp("lpt_offs_bits %d", c->lpt_offs_bits);
@@ -1672,7 +1906,11 @@ static int lpt_init_rd(struct ubifs_info *c)
 	dbg_lp("lsave_sz %d", c->lsave_sz);
 	dbg_lp("lsave_cnt %d", c->lsave_cnt);
 	dbg_lp("lpt_hght %d", c->lpt_hght);
+<<<<<<< HEAD
 	dbg_lp("big_lpt %d", c->big_lpt);
+=======
+	dbg_lp("big_lpt %u", c->big_lpt);
+>>>>>>> upstream/android-13
 	dbg_lp("LPT root is at %d:%d", c->lpt_lnum, c->lpt_offs);
 	dbg_lp("LPT head is at %d:%d", c->nhead_lnum, c->nhead_offs);
 	dbg_lp("LPT ltab is at %d:%d", c->ltab_lnum, c->ltab_offs);

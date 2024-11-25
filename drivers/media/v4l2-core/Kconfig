@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Generic video config states
 #
@@ -10,23 +14,48 @@ config VIDEO_V4L2
 	select VIDEOBUF2_V4L2 if VIDEOBUF2_CORE
 	default (I2C || I2C=n) && VIDEO_DEV
 
+<<<<<<< HEAD
 config VIDEO_ADV_DEBUG
 	bool "Enable advanced debug functionality on V4L2 drivers"
 	default n
 	---help---
+=======
+config VIDEO_V4L2_I2C
+	bool
+	depends on I2C && VIDEO_V4L2
+	default y
+
+config VIDEO_V4L2_SUBDEV_API
+	bool "V4L2 sub-device userspace API"
+	depends on VIDEO_DEV && MEDIA_CONTROLLER
+	help
+	  Enables the V4L2 sub-device pad-level userspace API used to configure
+	  video format, size and frame rate between hardware blocks.
+
+	  This API is mostly used by camera interfaces in embedded platforms.
+
+config VIDEO_ADV_DEBUG
+	bool "Enable advanced debug functionality on V4L2 drivers"
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to enable advanced debugging functionality on some
 	  V4L devices.
 	  In doubt, say N.
 
 config VIDEO_FIXED_MINOR_RANGES
 	bool "Enable old-style fixed minor ranges on drivers/video devices"
+<<<<<<< HEAD
 	default n
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to enable the old-style fixed-range minor assignments.
 	  Only useful if you rely on the old behavior and use mknod instead of udev.
 
 	  When in doubt, say N.
 
+<<<<<<< HEAD
 config VIDEO_PCI_SKELETON
 	tristate "Skeleton PCI V4L2 driver"
 	depends on PCI
@@ -36,10 +65,23 @@ config VIDEO_PCI_SKELETON
 	  Enable build of the skeleton PCI driver, used as a reference
 	  when developing new drivers.
 
+=======
+>>>>>>> upstream/android-13
 # Used by drivers that need tuner.ko
 config VIDEO_TUNER
 	tristate
 
+<<<<<<< HEAD
+=======
+# Used by drivers that need v4l2-jpeg.ko
+config V4L2_JPEG_HELPER
+	tristate
+
+# Used by drivers that need v4l2-h264.ko
+config V4L2_H264
+	tristate
+
+>>>>>>> upstream/android-13
 # Used by drivers that need v4l2-mem2mem.ko
 config V4L2_MEM2MEM_DEV
 	tristate
@@ -50,7 +92,12 @@ config V4L2_FLASH_LED_CLASS
 	tristate "V4L2 flash API for LED flash class devices"
 	depends on VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
 	depends on LEDS_CLASS_FLASH
+<<<<<<< HEAD
 	---help---
+=======
+	select V4L2_ASYNC
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to enable V4L2 flash API support for LED flash
 	  class drivers.
 
@@ -58,6 +105,13 @@ config V4L2_FLASH_LED_CLASS
 
 config V4L2_FWNODE
 	tristate
+<<<<<<< HEAD
+=======
+	select V4L2_ASYNC
+
+config V4L2_ASYNC
+	tristate
+>>>>>>> upstream/android-13
 
 # Used by drivers that need Videobuf modules
 config VIDEOBUF_GEN

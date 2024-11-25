@@ -29,8 +29,11 @@
 
 #include <asm/irq.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/oplib.h>
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
@@ -350,7 +353,10 @@ static void sparc_start_secondary(void *arg)
 	 */
 	arch_cpu_pre_starting(arg);
 
+<<<<<<< HEAD
 	preempt_disable();
+=======
+>>>>>>> upstream/android-13
 	cpu = smp_processor_id();
 
 	notify_cpu_starting(cpu);

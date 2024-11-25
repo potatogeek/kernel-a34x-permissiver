@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 
 #include <linux/inet_diag.h>
@@ -86,6 +90,7 @@ out_unlock:
 	return sk ? sk : ERR_PTR(-ENOENT);
 }
 
+<<<<<<< HEAD
 static int raw_diag_dump_one(struct sk_buff *in_skb,
 			     const struct nlmsghdr *nlh,
 			     const struct inet_diag_req_v2 *r)
@@ -95,6 +100,18 @@ static int raw_diag_dump_one(struct sk_buff *in_skb,
 	struct sock *sk;
 	int err;
 
+=======
+static int raw_diag_dump_one(struct netlink_callback *cb,
+			     const struct inet_diag_req_v2 *r)
+{
+	struct sk_buff *in_skb = cb->skb;
+	struct sk_buff *rep;
+	struct sock *sk;
+	struct net *net;
+	int err;
+
+	net = sock_net(in_skb->sk);
+>>>>>>> upstream/android-13
 	sk = raw_sock_get(net, r);
 	if (IS_ERR(sk))
 		return PTR_ERR(sk);
@@ -108,10 +125,14 @@ static int raw_diag_dump_one(struct sk_buff *in_skb,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	err = inet_sk_diag_fill(sk, NULL, rep, r,
 				sk_user_ns(NETLINK_CB(in_skb).sk),
 				NETLINK_CB(in_skb).portid,
 				nlh->nlmsg_seq, 0, nlh,
+=======
+	err = inet_sk_diag_fill(sk, NULL, rep, cb, r, 0,
+>>>>>>> upstream/android-13
 				netlink_net_capable(in_skb, CAP_NET_ADMIN));
 	sock_put(sk);
 
@@ -120,11 +141,16 @@ static int raw_diag_dump_one(struct sk_buff *in_skb,
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = netlink_unicast(net->diag_nlsk, rep,
 			      NETLINK_CB(in_skb).portid,
 			      MSG_DONTWAIT);
 	if (err > 0)
 		err = 0;
+=======
+	err = nlmsg_unicast(net->diag_nlsk, rep, NETLINK_CB(in_skb).portid);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -136,6 +162,7 @@ static int sk_diag_dump(struct sock *sk, struct sk_buff *skb,
 	if (!inet_diag_bc_sk(bc, sk))
 		return 0;
 
+<<<<<<< HEAD
 	return inet_sk_diag_fill(sk, NULL, skb, r,
 				 sk_user_ns(NETLINK_CB(cb->skb).sk),
 				 NETLINK_CB(cb->skb).portid,
@@ -145,16 +172,35 @@ static int sk_diag_dump(struct sock *sk, struct sk_buff *skb,
 
 static void raw_diag_dump(struct sk_buff *skb, struct netlink_callback *cb,
 			  const struct inet_diag_req_v2 *r, struct nlattr *bc)
+=======
+	return inet_sk_diag_fill(sk, NULL, skb, cb, r, NLM_F_MULTI, net_admin);
+}
+
+static void raw_diag_dump(struct sk_buff *skb, struct netlink_callback *cb,
+			  const struct inet_diag_req_v2 *r)
+>>>>>>> upstream/android-13
 {
 	bool net_admin = netlink_net_capable(cb->skb, CAP_NET_ADMIN);
 	struct raw_hashinfo *hashinfo = raw_get_hashinfo(r);
 	struct net *net = sock_net(skb->sk);
+<<<<<<< HEAD
 	int num, s_num, slot, s_slot;
 	struct sock *sk = NULL;
+=======
+	struct inet_diag_dump_data *cb_data;
+	int num, s_num, slot, s_slot;
+	struct sock *sk = NULL;
+	struct nlattr *bc;
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(hashinfo))
 		return;
 
+<<<<<<< HEAD
+=======
+	cb_data = cb->data;
+	bc = cb_data->inet_diag_nla_bc;
+>>>>>>> upstream/android-13
 	s_slot = cb->args[0];
 	num = s_num = cb->args[1];
 

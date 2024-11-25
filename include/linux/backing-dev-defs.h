@@ -13,6 +13,10 @@
 #include <linux/workqueue.h>
 #include <linux/kref.h>
 #include <linux/refcount.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct page;
 struct device;
@@ -33,8 +37,11 @@ enum wb_congested_state {
 	WB_sync_congested,	/* The sync queue is getting full */
 };
 
+<<<<<<< HEAD
 typedef int (congested_fn)(void *, int);
 
+=======
+>>>>>>> upstream/android-13
 enum wb_stat_item {
 	WB_RECLAIMABLE,
 	WB_WRITEBACK,
@@ -54,7 +61,10 @@ enum wb_reason {
 	WB_REASON_SYNC,
 	WB_REASON_PERIODIC,
 	WB_REASON_LAPTOP_TIMER,
+<<<<<<< HEAD
 	WB_REASON_FREE_MORE_MEM,
+=======
+>>>>>>> upstream/android-13
 	WB_REASON_FS_FREE_SPACE,
 	/*
 	 * There is no bdi forker thread any more and works are done
@@ -63,10 +73,15 @@ enum wb_reason {
 	 * so it has a mismatch name.
 	 */
 	WB_REASON_FORKER_THREAD,
+<<<<<<< HEAD
+=======
+	WB_REASON_FOREIGN_FLUSH,
+>>>>>>> upstream/android-13
 
 	WB_REASON_MAX,
 };
 
+<<<<<<< HEAD
 /*
  * For cgroup writeback, multiple wb's may map to the same blkcg.  Those
  * wb's can operate mostly independently but should share the congested
@@ -87,6 +102,28 @@ struct bdi_writeback_congested {
 #endif
 };
 
+=======
+struct wb_completion {
+	atomic_t		cnt;
+	wait_queue_head_t	*waitq;
+};
+
+#define __WB_COMPLETION_INIT(_waitq)	\
+	(struct wb_completion){ .cnt = ATOMIC_INIT(1), .waitq = (_waitq) }
+
+/*
+ * If one wants to wait for one or more wb_writeback_works, each work's
+ * ->done should be set to a wb_completion defined using the following
+ * macro.  Once all work items are issued with wb_queue_work(), the caller
+ * can wait for the completion of all using wb_wait_for_completion().  Work
+ * items which are waited upon aren't freed automatically on completion.
+ */
+#define WB_COMPLETION_INIT(bdi)		__WB_COMPLETION_INIT(&(bdi)->wb_waitq)
+
+#define DEFINE_WB_COMPLETION(cmpl, bdi)	\
+	struct wb_completion cmpl = WB_COMPLETION_INIT(bdi)
+
+>>>>>>> upstream/android-13
 /*
  * Each wb (bdi_writeback) can perform writeback operations, is measured
  * and throttled, independently.  Without cgroup writeback, each bdi
@@ -118,9 +155,16 @@ struct bdi_writeback {
 	struct list_head b_dirty_time;	/* time stamps are dirty */
 	spinlock_t list_lock;		/* protects the b_* lists */
 
+<<<<<<< HEAD
 	struct percpu_counter stat[NR_WB_STAT_ITEMS];
 
 	struct bdi_writeback_congested *congested;
+=======
+	atomic_t writeback_inodes;	/* number of inodes under writeback */
+	struct percpu_counter stat[NR_WB_STAT_ITEMS];
+
+	unsigned long congested;	/* WB_[a]sync_congested flags */
+>>>>>>> upstream/android-13
 
 	unsigned long bw_time_stamp;	/* last time write bw is updated */
 	unsigned long dirtied_stamp;
@@ -144,6 +188,10 @@ struct bdi_writeback {
 	spinlock_t work_lock;		/* protects work_list & dwork scheduling */
 	struct list_head work_list;
 	struct delayed_work dwork;	/* work item used for writeback */
+<<<<<<< HEAD
+=======
+	struct delayed_work bw_dwork;	/* work item used for bandwidth estimate */
+>>>>>>> upstream/android-13
 
 	unsigned long dirty_sleep;	/* last wait */
 
@@ -156,12 +204,18 @@ struct bdi_writeback {
 	struct cgroup_subsys_state *blkcg_css; /* and blkcg */
 	struct list_head memcg_node;	/* anchored at memcg->cgwb_list */
 	struct list_head blkcg_node;	/* anchored at blkcg->cgwb_list */
+<<<<<<< HEAD
+=======
+	struct list_head b_attached;	/* attached inodes, protected by list_lock */
+	struct list_head offline_node;	/* anchored at offline_cgwbs */
+>>>>>>> upstream/android-13
 
 	union {
 		struct work_struct release_work;
 		struct rcu_head rcu;
 	};
 #endif
+<<<<<<< HEAD
 };
 
 struct backing_dev_info {
@@ -172,17 +226,33 @@ struct backing_dev_info {
 	void *congested_data;	/* Pointer to aux data for congested func */
 
 	const char *name;
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+};
+
+struct backing_dev_info {
+	u64 id;
+	struct rb_node rb_node; /* keyed by ->id */
+	struct list_head bdi_list;
+	unsigned long ra_pages;	/* max readahead in PAGE_SIZE units */
+	unsigned long io_pages;	/* max allowed IO size */
+>>>>>>> upstream/android-13
 
 	struct kref refcnt;	/* Reference counter for the structure */
 	unsigned int capabilities; /* Device capabilities */
 	unsigned int min_ratio;
 	unsigned int max_ratio, max_prop_frac;
 
+<<<<<<< HEAD
 	/* approximate write throttle statistics - updated at each throttling */
 	unsigned long last_thresh;  /* global/bdi thresh at the last throttle */
 	unsigned long last_nr_dirty; /* global/bdi dirty at the last throttle */
 	unsigned long paused_total; /* approximated sum of pauses. in jiffies */
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Sum of avg_write_bw of wbs with dirty inodes.  > 0 if there are
 	 * any dirty wbs, which is depended upon by bdi_has_dirty().
@@ -193,23 +263,39 @@ struct backing_dev_info {
 	struct list_head wb_list; /* list of all wbs */
 #ifdef CONFIG_CGROUP_WRITEBACK
 	struct radix_tree_root cgwb_tree; /* radix tree of active cgroup wbs */
+<<<<<<< HEAD
 	struct rb_root cgwb_congested_tree; /* their congested states */
 	struct mutex cgwb_release_mutex;  /* protect shutdown of wb structs */
 	struct rw_semaphore wb_switch_rwsem; /* no cgwb switch while syncing */
 #else
 	struct bdi_writeback_congested *wb_congested;
+=======
+	struct mutex cgwb_release_mutex;  /* protect shutdown of wb structs */
+	struct rw_semaphore wb_switch_rwsem; /* no cgwb switch while syncing */
+>>>>>>> upstream/android-13
 #endif
 	wait_queue_head_t wb_waitq;
 
 	struct device *dev;
+<<<<<<< HEAD
+=======
+	char dev_name[64];
+>>>>>>> upstream/android-13
 	struct device *owner;
 
 	struct timer_list laptop_mode_wb_timer;
 
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *debug_dir;
+<<<<<<< HEAD
 	struct dentry *debug_stats;
 #endif
+=======
+#endif
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 #define BDI_BDP_DEBUG_ENTRY 20
@@ -247,6 +333,7 @@ enum {
 	BLK_RW_SYNC	= 1,
 };
 
+<<<<<<< HEAD
 void clear_wb_congested(struct bdi_writeback_congested *congested, int sync);
 void set_wb_congested(struct bdi_writeback_congested *congested, int sync);
 
@@ -259,6 +346,10 @@ static inline void set_bdi_congested(struct backing_dev_info *bdi, int sync)
 {
 	set_wb_congested(bdi->wb.congested, sync);
 }
+=======
+void clear_bdi_congested(struct backing_dev_info *bdi, int sync);
+void set_bdi_congested(struct backing_dev_info *bdi, int sync);
+>>>>>>> upstream/android-13
 
 struct wb_lock_cookie {
 	bool locked;
@@ -291,8 +382,14 @@ static inline void wb_get(struct bdi_writeback *wb)
 /**
  * wb_put - decrement a wb's refcount
  * @wb: bdi_writeback to put
+<<<<<<< HEAD
  */
 static inline void wb_put(struct bdi_writeback *wb)
+=======
+ * @nr: number of references to put
+ */
+static inline void wb_put_many(struct bdi_writeback *wb, unsigned long nr)
+>>>>>>> upstream/android-13
 {
 	if (WARN_ON_ONCE(!wb->bdi)) {
 		/*
@@ -303,7 +400,20 @@ static inline void wb_put(struct bdi_writeback *wb)
 	}
 
 	if (wb != &wb->bdi->wb)
+<<<<<<< HEAD
 		percpu_ref_put(&wb->refcnt);
+=======
+		percpu_ref_put_many(&wb->refcnt, nr);
+}
+
+/**
+ * wb_put - decrement a wb's refcount
+ * @wb: bdi_writeback to put
+ */
+static inline void wb_put(struct bdi_writeback *wb)
+{
+	wb_put_many(wb, 1);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -332,6 +442,13 @@ static inline void wb_put(struct bdi_writeback *wb)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline void wb_put_many(struct bdi_writeback *wb, unsigned long nr)
+{
+}
+
+>>>>>>> upstream/android-13
 static inline bool wb_dying(struct bdi_writeback *wb)
 {
 	return false;

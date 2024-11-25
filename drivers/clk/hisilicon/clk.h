@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Hisilicon Hi3620 clock gate driver
  *
@@ -6,6 +10,7 @@
  *
  * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
  *	   Xin Li <li.xin@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef	__HISI_CLK_H
@@ -64,7 +71,11 @@ struct hisi_mux_clock {
 	u8			shift;
 	u8			width;
 	u8			mux_flags;
+<<<<<<< HEAD
 	u32			*table;
+=======
+	const u32		*table;
+>>>>>>> upstream/android-13
 	const char		*alias;
 };
 

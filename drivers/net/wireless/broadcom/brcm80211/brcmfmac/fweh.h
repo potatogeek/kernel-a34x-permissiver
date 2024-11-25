@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 
@@ -266,7 +272,11 @@ struct brcmf_event {
  * @status: status information.
  * @reason: reason code.
  * @auth_type: authentication type.
+<<<<<<< HEAD
  * @datalen: lenght of event data buffer.
+=======
+ * @datalen: length of event data buffer.
+>>>>>>> upstream/android-13
  * @addr: ether address.
  * @ifname: interface name.
  * @ifidx: interface index.
@@ -330,11 +340,20 @@ void brcmf_fweh_unregister(struct brcmf_pub *drvr,
 int brcmf_fweh_activate_events(struct brcmf_if *ifp);
 void brcmf_fweh_process_event(struct brcmf_pub *drvr,
 			      struct brcmf_event *event_packet,
+<<<<<<< HEAD
 			      u32 packet_len);
 void brcmf_fweh_p2pdev_setup(struct brcmf_if *ifp, bool ongoing);
 
 static inline void brcmf_fweh_process_skb(struct brcmf_pub *drvr,
 					  struct sk_buff *skb, u16 stype)
+=======
+			      u32 packet_len, gfp_t gfp);
+void brcmf_fweh_p2pdev_setup(struct brcmf_if *ifp, bool ongoing);
+
+static inline void brcmf_fweh_process_skb(struct brcmf_pub *drvr,
+					  struct sk_buff *skb, u16 stype,
+					  gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct brcmf_event *event_packet;
 	u16 subtype, usr_stype;
@@ -365,7 +384,11 @@ static inline void brcmf_fweh_process_skb(struct brcmf_pub *drvr,
 	if (usr_stype != BCMILCP_BCM_SUBTYPE_EVENT)
 		return;
 
+<<<<<<< HEAD
 	brcmf_fweh_process_event(drvr, event_packet, skb->len + ETH_HLEN);
+=======
+	brcmf_fweh_process_event(drvr, event_packet, skb->len + ETH_HLEN, gfp);
+>>>>>>> upstream/android-13
 }
 
 #endif /* FWEH_H_ */

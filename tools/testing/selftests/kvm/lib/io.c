@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tools/testing/selftests/kvm/lib/io.c
  *
  * Copyright (C) 2018, Google LLC.
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "test_util.h"
@@ -62,9 +69,15 @@ ssize_t test_write(int fd, const void *buf, size_t count)
 			continue;
 
 		case 0:
+<<<<<<< HEAD
 			TEST_ASSERT(false, "Unexpected EOF,\n"
 				    "  rc: %zi num_written: %zi num_left: %zu",
 				    rc, num_written, num_left);
+=======
+			TEST_FAIL("Unexpected EOF,\n"
+				  "  rc: %zi num_written: %zi num_left: %zu",
+				  rc, num_written, num_left);
+>>>>>>> upstream/android-13
 			break;
 
 		default:
@@ -139,9 +152,15 @@ ssize_t test_read(int fd, void *buf, size_t count)
 			break;
 
 		case 0:
+<<<<<<< HEAD
 			TEST_ASSERT(false, "Unexpected EOF,\n"
 				    "  rc: %zi num_read: %zi num_left: %zu",
 				    rc, num_read, num_left);
+=======
+			TEST_FAIL("Unexpected EOF,\n"
+				  "   rc: %zi num_read: %zi num_left: %zu",
+				  rc, num_read, num_left);
+>>>>>>> upstream/android-13
 			break;
 
 		default:

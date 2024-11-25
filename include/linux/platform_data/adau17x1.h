@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for ADAU1361/ADAU1461/ADAU1761/ADAU1961/ADAU1381/ADAU1781 codecs
  *
  * Copyright 2011-2014 Analog Devices Inc.
  * Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_PLATFORM_DATA_ADAU17X1_H__

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
+<<<<<<< HEAD
 /**************************************************************************
  *
  *  BRIEF MODULE DESCRIPTION
@@ -28,6 +29,14 @@
  *
  *
  **************************************************************************
+=======
+/*
+ * BRIEF MODULE DESCRIPTION
+ *     PCI init for Ralink RT2880 solution
+ *
+ * Copyright 2007 Ralink Inc. (bruce_chang@ralinktech.com.tw)
+ *
+>>>>>>> upstream/android-13
  * May 2007 Bruce Chang
  * Initial Release
  *
@@ -36,13 +45,17 @@
  *
  * May 2011 Bruce Chang
  * support RT6855/MT7620 PCIe
+<<<<<<< HEAD
  *
  **************************************************************************
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
 #include <linux/clk.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
@@ -83,11 +96,40 @@
 
 #define RALINK_PCI_BAR0SETUP_ADDR	0x0010
 #define RALINK_PCI_IMBASEBAR0_ADDR	0x0018
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/of_pci.h>
+#include <linux/of_platform.h>
+#include <linux/pci.h>
+#include <linux/phy/phy.h>
+#include <linux/platform_device.h>
+#include <linux/reset.h>
+#include <linux/sys_soc.h>
+
+/* MediaTek specific configuration registers */
+#define PCIE_FTS_NUM			0x70c
+#define PCIE_FTS_NUM_MASK		GENMASK(15, 8)
+#define PCIE_FTS_NUM_L0(x)		(((x) & 0xff) << 8)
+
+/* Host-PCI bridge registers */
+#define RALINK_PCI_PCICFG_ADDR		0x0000
+#define RALINK_PCI_PCIMSK_ADDR		0x000C
+#define RALINK_PCI_CONFIG_ADDR		0x0020
+#define RALINK_PCI_CONFIG_DATA		0x0024
+#define RALINK_PCI_MEMBASE		0x0028
+#define RALINK_PCI_IOBASE		0x002C
+
+/* PCIe RC control registers */
+>>>>>>> upstream/android-13
 #define RALINK_PCI_ID			0x0030
 #define RALINK_PCI_CLASS		0x0034
 #define RALINK_PCI_SUBID		0x0038
 #define RALINK_PCI_STATUS		0x0050
 
+<<<<<<< HEAD
 #define RALINK_PCIEPHY_P0P1_CTL_OFFSET	0x9000
 #define RALINK_PCIEPHY_P2_CTL_OFFSET	0xA000
 
@@ -130,27 +172,68 @@ static int pcie_link_status = 0;
  * @list: port list
  * @pcie: pointer to PCIe host info
  * @reset: pointer to port reset control
+=======
+/* Some definition values */
+#define PCIE_REVISION_ID		BIT(0)
+#define PCIE_CLASS_CODE			(0x60400 << 8)
+#define PCIE_BAR_MAP_MAX		GENMASK(30, 16)
+#define PCIE_BAR_ENABLE			BIT(0)
+#define PCIE_PORT_INT_EN(x)		BIT(20 + (x))
+#define PCIE_PORT_LINKUP		BIT(0)
+#define PCIE_PORT_CNT			3
+
+#define PERST_DELAY_MS			100
+
+/**
+ * struct mt7621_pcie_port - PCIe port information
+ * @base: I/O mapped register base
+ * @list: port list
+ * @pcie: pointer to PCIe host info
+ * @clk: pointer to the port clock gate
+ * @phy: pointer to PHY control block
+ * @pcie_rst: pointer to port reset control
+ * @gpio_rst: gpio reset
+ * @slot: port slot
+ * @enabled: indicates if port is enabled
+>>>>>>> upstream/android-13
  */
 struct mt7621_pcie_port {
 	void __iomem *base;
 	struct list_head list;
 	struct mt7621_pcie *pcie;
+<<<<<<< HEAD
 	struct reset_control *reset;
+=======
+	struct clk *clk;
+	struct phy *phy;
+	struct reset_control *pcie_rst;
+	struct gpio_desc *gpio_rst;
+	u32 slot;
+	bool enabled;
+>>>>>>> upstream/android-13
 };
 
 /**
  * struct mt7621_pcie - PCIe host information
  * @base: IO Mapped Register Base
+<<<<<<< HEAD
  * @io: IO resource
  * @mem: non-prefetchable memory resource
  * @busn: bus range
  * @offset: IO / Memory offset
  * @dev: Pointer to PCIe device
  * @ports: pointer to PCIe port information
+=======
+ * @dev: Pointer to PCIe device
+ * @ports: pointer to PCIe port information
+ * @resets_inverted: depends on chip revision
+ * reset lines are inverted.
+>>>>>>> upstream/android-13
  */
 struct mt7621_pcie {
 	void __iomem *base;
 	struct device *dev;
+<<<<<<< HEAD
 	struct resource io;
 	struct resource mem;
 	struct resource busn;
@@ -159,16 +242,48 @@ struct mt7621_pcie {
 		resource_size_t io;
 	} offset;
 	struct list_head ports;
+=======
+	struct list_head ports;
+	bool resets_inverted;
+>>>>>>> upstream/android-13
 };
 
 static inline u32 pcie_read(struct mt7621_pcie *pcie, u32 reg)
 {
+<<<<<<< HEAD
 	return readl(pcie->base + reg);
+=======
+	return readl_relaxed(pcie->base + reg);
+>>>>>>> upstream/android-13
 }
 
 static inline void pcie_write(struct mt7621_pcie *pcie, u32 val, u32 reg)
 {
+<<<<<<< HEAD
 	writel(val, pcie->base + reg);
+=======
+	writel_relaxed(val, pcie->base + reg);
+}
+
+static inline void pcie_rmw(struct mt7621_pcie *pcie, u32 reg, u32 clr, u32 set)
+{
+	u32 val = readl_relaxed(pcie->base + reg);
+
+	val &= ~clr;
+	val |= set;
+	writel_relaxed(val, pcie->base + reg);
+}
+
+static inline u32 pcie_port_read(struct mt7621_pcie_port *port, u32 reg)
+{
+	return readl_relaxed(port->base + reg);
+}
+
+static inline void pcie_port_write(struct mt7621_pcie_port *port,
+				   u32 val, u32 reg)
+{
+	writel_relaxed(val, port->base + reg);
+>>>>>>> upstream/android-13
 }
 
 static inline u32 mt7621_pci_get_cfgaddr(unsigned int bus, unsigned int slot,
@@ -185,7 +300,11 @@ static void __iomem *mt7621_pcie_map_bus(struct pci_bus *bus,
 	u32 address = mt7621_pci_get_cfgaddr(bus->number, PCI_SLOT(devfn),
 					     PCI_FUNC(devfn), where);
 
+<<<<<<< HEAD
 	writel(address, pcie->base + RALINK_PCI_CONFIG_ADDR);
+=======
+	writel_relaxed(address, pcie->base + RALINK_PCI_CONFIG_ADDR);
+>>>>>>> upstream/android-13
 
 	return pcie->base + RALINK_PCI_CONFIG_DATA + (where & 3);
 }
@@ -196,8 +315,12 @@ struct pci_ops mt7621_pci_ops = {
 	.write		= pci_generic_config_write,
 };
 
+<<<<<<< HEAD
 static u32
 read_config(struct mt7621_pcie *pcie, unsigned int dev, u32 reg)
+=======
+static u32 read_config(struct mt7621_pcie *pcie, unsigned int dev, u32 reg)
+>>>>>>> upstream/android-13
 {
 	u32 address = mt7621_pci_get_cfgaddr(0, dev, 0, reg);
 
@@ -205,8 +328,13 @@ read_config(struct mt7621_pcie *pcie, unsigned int dev, u32 reg)
 	return pcie_read(pcie, RALINK_PCI_CONFIG_DATA);
 }
 
+<<<<<<< HEAD
 static void
 write_config(struct mt7621_pcie *pcie, unsigned int dev, u32 reg, u32 val)
+=======
+static void write_config(struct mt7621_pcie *pcie, unsigned int dev,
+			 u32 reg, u32 val)
+>>>>>>> upstream/android-13
 {
 	u32 address = mt7621_pci_get_cfgaddr(0, dev, 0, reg);
 
@@ -214,6 +342,7 @@ write_config(struct mt7621_pcie *pcie, unsigned int dev, u32 reg, u32 val)
 	pcie_write(pcie, val, RALINK_PCI_CONFIG_DATA);
 }
 
+<<<<<<< HEAD
 void
 set_pcie_phy(struct mt7621_pcie *pcie, u32 offset,
 	     int start_b, int bits, int val)
@@ -377,11 +506,77 @@ static int mt7621_pci_parse_request_of_pci_ranges(struct mt7621_pcie *pcie)
 		pcie->busn.start = 0;
 		pcie->busn.end = 0xff;
 		pcie->busn.flags = IORESOURCE_BUS;
+=======
+static inline void mt7621_rst_gpio_pcie_assert(struct mt7621_pcie_port *port)
+{
+	if (port->gpio_rst)
+		gpiod_set_value(port->gpio_rst, 1);
+}
+
+static inline void mt7621_rst_gpio_pcie_deassert(struct mt7621_pcie_port *port)
+{
+	if (port->gpio_rst)
+		gpiod_set_value(port->gpio_rst, 0);
+}
+
+static inline bool mt7621_pcie_port_is_linkup(struct mt7621_pcie_port *port)
+{
+	return (pcie_port_read(port, RALINK_PCI_STATUS) & PCIE_PORT_LINKUP) != 0;
+}
+
+static inline void mt7621_control_assert(struct mt7621_pcie_port *port)
+{
+	struct mt7621_pcie *pcie = port->pcie;
+
+	if (pcie->resets_inverted)
+		reset_control_assert(port->pcie_rst);
+	else
+		reset_control_deassert(port->pcie_rst);
+}
+
+static inline void mt7621_control_deassert(struct mt7621_pcie_port *port)
+{
+	struct mt7621_pcie *pcie = port->pcie;
+
+	if (pcie->resets_inverted)
+		reset_control_deassert(port->pcie_rst);
+	else
+		reset_control_assert(port->pcie_rst);
+}
+
+static int setup_cm_memory_region(struct pci_host_bridge *host)
+{
+	struct mt7621_pcie *pcie = pci_host_bridge_priv(host);
+	struct device *dev = pcie->dev;
+	struct resource_entry *entry;
+	resource_size_t mask;
+
+	entry = resource_list_first_type(&host->windows, IORESOURCE_MEM);
+	if (!entry) {
+		dev_err(dev, "Cannot get memory resource\n");
+		return -EINVAL;
+	}
+
+	if (mips_cps_numiocu(0)) {
+		/*
+		 * FIXME: hardware doesn't accept mask values with 1s after
+		 * 0s (e.g. 0xffef), so it would be great to warn if that's
+		 * about to happen
+		 */
+		mask = ~(entry->res->end - entry->res->start);
+
+		write_gcr_reg1_base(entry->res->start);
+		write_gcr_reg1_mask(mask | CM_GCR_REGn_MASK_CMTGT_IOCU0);
+		dev_info(dev, "PCI coherence region base: 0x%08llx, mask/settings: 0x%08llx\n",
+			 (unsigned long long)read_gcr_reg1_base(),
+			 (unsigned long long)read_gcr_reg1_mask());
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mt7621_pcie_parse_dt(struct mt7621_pcie *pcie)
 {
 	struct device *dev = pcie->dev;
@@ -422,10 +617,126 @@ static int mt7621_pcie_request_resources(struct mt7621_pcie *pcie,
 	err = devm_request_pci_bus_resources(dev, res);
 	if (err < 0)
 		return err;
+=======
+static int mt7621_pcie_parse_port(struct mt7621_pcie *pcie,
+				  struct device_node *node,
+				  int slot)
+{
+	struct mt7621_pcie_port *port;
+	struct device *dev = pcie->dev;
+	struct platform_device *pdev = to_platform_device(dev);
+	char name[10];
+	int err;
+
+	port = devm_kzalloc(dev, sizeof(*port), GFP_KERNEL);
+	if (!port)
+		return -ENOMEM;
+
+	port->base = devm_platform_ioremap_resource(pdev, slot + 1);
+	if (IS_ERR(port->base))
+		return PTR_ERR(port->base);
+
+	port->clk = devm_get_clk_from_child(dev, node, NULL);
+	if (IS_ERR(port->clk)) {
+		dev_err(dev, "failed to get pcie%d clock\n", slot);
+		return PTR_ERR(port->clk);
+	}
+
+	port->pcie_rst = of_reset_control_get_exclusive(node, NULL);
+	if (PTR_ERR(port->pcie_rst) == -EPROBE_DEFER) {
+		dev_err(dev, "failed to get pcie%d reset control\n", slot);
+		return PTR_ERR(port->pcie_rst);
+	}
+
+	snprintf(name, sizeof(name), "pcie-phy%d", slot);
+	port->phy = devm_of_phy_get(dev, node, name);
+	if (IS_ERR(port->phy)) {
+		dev_err(dev, "failed to get pcie-phy%d\n", slot);
+		err = PTR_ERR(port->phy);
+		goto remove_reset;
+	}
+
+	port->gpio_rst = devm_gpiod_get_index_optional(dev, "reset", slot,
+						       GPIOD_OUT_LOW);
+	if (IS_ERR(port->gpio_rst)) {
+		dev_err(dev, "Failed to get GPIO for PCIe%d\n", slot);
+		err = PTR_ERR(port->gpio_rst);
+		goto remove_reset;
+	}
+
+	port->slot = slot;
+	port->pcie = pcie;
+
+	INIT_LIST_HEAD(&port->list);
+	list_add_tail(&port->list, &pcie->ports);
+
+	return 0;
+
+remove_reset:
+	reset_control_put(port->pcie_rst);
+	return err;
+}
+
+static int mt7621_pcie_parse_dt(struct mt7621_pcie *pcie)
+{
+	struct device *dev = pcie->dev;
+	struct platform_device *pdev = to_platform_device(dev);
+	struct device_node *node = dev->of_node, *child;
+	int err;
+
+	pcie->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(pcie->base))
+		return PTR_ERR(pcie->base);
+
+	for_each_available_child_of_node(node, child) {
+		int slot;
+
+		err = of_pci_get_devfn(child);
+		if (err < 0) {
+			of_node_put(child);
+			dev_err(dev, "failed to parse devfn: %d\n", err);
+			return err;
+		}
+
+		slot = PCI_SLOT(err);
+
+		err = mt7621_pcie_parse_port(pcie, child, slot);
+		if (err) {
+			of_node_put(child);
+			return err;
+		}
+	}
 
 	return 0;
 }
 
+static int mt7621_pcie_init_port(struct mt7621_pcie_port *port)
+{
+	struct mt7621_pcie *pcie = port->pcie;
+	struct device *dev = pcie->dev;
+	u32 slot = port->slot;
+	int err;
+
+	err = phy_init(port->phy);
+	if (err) {
+		dev_err(dev, "failed to initialize port%d phy\n", slot);
+		return err;
+	}
+
+	err = phy_power_on(port->phy);
+	if (err) {
+		dev_err(dev, "failed to power on port%d phy\n", slot);
+		phy_exit(port->phy);
+		return err;
+	}
+
+	port->enabled = true;
+>>>>>>> upstream/android-13
+
+	return 0;
+}
+
+<<<<<<< HEAD
 static int mt7621_pcie_register_host(struct pci_host_bridge *host,
 				     struct list_head *res)
 {
@@ -450,25 +761,205 @@ static int mt7621_pci_probe(struct platform_device *pdev)
 	int err;
 	u32 val = 0;
 	LIST_HEAD(res);
+=======
+static void mt7621_pcie_reset_assert(struct mt7621_pcie *pcie)
+{
+	struct mt7621_pcie_port *port;
+
+	list_for_each_entry(port, &pcie->ports, list) {
+		/* PCIe RC reset assert */
+		mt7621_control_assert(port);
+
+		/* PCIe EP reset assert */
+		mt7621_rst_gpio_pcie_assert(port);
+	}
+
+	msleep(PERST_DELAY_MS);
+}
+
+static void mt7621_pcie_reset_rc_deassert(struct mt7621_pcie *pcie)
+{
+	struct mt7621_pcie_port *port;
+
+	list_for_each_entry(port, &pcie->ports, list)
+		mt7621_control_deassert(port);
+}
+
+static void mt7621_pcie_reset_ep_deassert(struct mt7621_pcie *pcie)
+{
+	struct mt7621_pcie_port *port;
+
+	list_for_each_entry(port, &pcie->ports, list)
+		mt7621_rst_gpio_pcie_deassert(port);
+
+	msleep(PERST_DELAY_MS);
+}
+
+static int mt7621_pcie_init_ports(struct mt7621_pcie *pcie)
+{
+	struct device *dev = pcie->dev;
+	struct mt7621_pcie_port *port, *tmp;
+	u8 num_disabled = 0;
+	int err;
+
+	mt7621_pcie_reset_assert(pcie);
+	mt7621_pcie_reset_rc_deassert(pcie);
+
+	list_for_each_entry_safe(port, tmp, &pcie->ports, list) {
+		u32 slot = port->slot;
+
+		if (slot == 1) {
+			port->enabled = true;
+			continue;
+		}
+
+		err = mt7621_pcie_init_port(port);
+		if (err) {
+			dev_err(dev, "Initiating port %d failed\n", slot);
+			list_del(&port->list);
+		}
+	}
+
+	mt7621_pcie_reset_ep_deassert(pcie);
+
+	tmp = NULL;
+	list_for_each_entry(port, &pcie->ports, list) {
+		u32 slot = port->slot;
+
+		if (!mt7621_pcie_port_is_linkup(port)) {
+			dev_err(dev, "pcie%d no card, disable it (RST & CLK)\n",
+				slot);
+			mt7621_control_assert(port);
+			port->enabled = false;
+			num_disabled++;
+
+			if (slot == 0) {
+				tmp = port;
+				continue;
+			}
+
+			if (slot == 1 && tmp && !tmp->enabled)
+				phy_power_off(tmp->phy);
+		}
+	}
+
+	return (num_disabled != PCIE_PORT_CNT) ? 0 : -ENODEV;
+}
+
+static void mt7621_pcie_enable_port(struct mt7621_pcie_port *port)
+{
+	struct mt7621_pcie *pcie = port->pcie;
+	u32 slot = port->slot;
+	u32 val;
+
+	/* enable pcie interrupt */
+	val = pcie_read(pcie, RALINK_PCI_PCIMSK_ADDR);
+	val |= PCIE_PORT_INT_EN(slot);
+	pcie_write(pcie, val, RALINK_PCI_PCIMSK_ADDR);
+
+	/* map 2G DDR region */
+	pcie_port_write(port, PCIE_BAR_MAP_MAX | PCIE_BAR_ENABLE,
+			PCI_BASE_ADDRESS_0);
+
+	/* configure class code and revision ID */
+	pcie_port_write(port, PCIE_CLASS_CODE | PCIE_REVISION_ID,
+			RALINK_PCI_CLASS);
+
+	/* configure RC FTS number to 250 when it leaves L0s */
+	val = read_config(pcie, slot, PCIE_FTS_NUM);
+	val &= ~PCIE_FTS_NUM_MASK;
+	val |= PCIE_FTS_NUM_L0(0x50);
+	write_config(pcie, slot, PCIE_FTS_NUM, val);
+}
+
+static int mt7621_pcie_enable_ports(struct pci_host_bridge *host)
+{
+	struct mt7621_pcie *pcie = pci_host_bridge_priv(host);
+	struct device *dev = pcie->dev;
+	struct mt7621_pcie_port *port;
+	struct resource_entry *entry;
+	int err;
+
+	entry = resource_list_first_type(&host->windows, IORESOURCE_IO);
+	if (!entry) {
+		dev_err(dev, "Cannot get io resource\n");
+		return -EINVAL;
+	}
+
+	/* Setup MEMWIN and IOWIN */
+	pcie_write(pcie, 0xffffffff, RALINK_PCI_MEMBASE);
+	pcie_write(pcie, entry->res->start, RALINK_PCI_IOBASE);
+
+	list_for_each_entry(port, &pcie->ports, list) {
+		if (port->enabled) {
+			err = clk_prepare_enable(port->clk);
+			if (err) {
+				dev_err(dev, "enabling clk pcie%d\n",
+					port->slot);
+				return err;
+			}
+
+			mt7621_pcie_enable_port(port);
+			dev_info(dev, "PCIE%d enabled\n", port->slot);
+		}
+	}
+
+	return 0;
+}
+
+static int mt7621_pcie_register_host(struct pci_host_bridge *host)
+{
+	struct mt7621_pcie *pcie = pci_host_bridge_priv(host);
+
+	host->ops = &mt7621_pci_ops;
+	host->sysdata = pcie;
+	return pci_host_probe(host);
+}
+
+static const struct soc_device_attribute mt7621_pci_quirks_match[] = {
+	{ .soc_id = "mt7621", .revision = "E2" }
+};
+
+static int mt7621_pci_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	const struct soc_device_attribute *attr;
+	struct mt7621_pcie_port *port;
+	struct mt7621_pcie *pcie;
+	struct pci_host_bridge *bridge;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!dev->of_node)
 		return -ENODEV;
 
 	bridge = devm_pci_alloc_host_bridge(dev, sizeof(*pcie));
 	if (!bridge)
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	pcie = pci_host_bridge_priv(bridge);
 	pcie->dev = dev;
 	platform_set_drvdata(pdev, pcie);
 	INIT_LIST_HEAD(&pcie->ports);
 
+<<<<<<< HEAD
+=======
+	attr = soc_device_match(mt7621_pci_quirks_match);
+	if (attr)
+		pcie->resets_inverted = true;
+
+>>>>>>> upstream/android-13
 	err = mt7621_pcie_parse_dt(pcie);
 	if (err) {
 		dev_err(dev, "Parsing DT failed\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	/* set resources limits */
 	iomem_resource.start = 0;
 	iomem_resource.end = ~0UL; /* no limit */
@@ -696,6 +1187,42 @@ pcie(2/1/0) link status	pcie2_num	pcie1_num	pcie0_num
 		dev_err(dev, "Error registering host\n");
 		return err;
 	}
+=======
+	err = mt7621_pcie_init_ports(pcie);
+	if (err) {
+		dev_err(dev, "Nothing connected in virtual bridges\n");
+		return 0;
+	}
+
+	err = mt7621_pcie_enable_ports(bridge);
+	if (err) {
+		dev_err(dev, "Error enabling pcie ports\n");
+		goto remove_resets;
+	}
+
+	err = setup_cm_memory_region(bridge);
+	if (err) {
+		dev_err(dev, "Error setting up iocu mem regions\n");
+		goto remove_resets;
+	}
+
+	return mt7621_pcie_register_host(bridge);
+
+remove_resets:
+	list_for_each_entry(port, &pcie->ports, list)
+		reset_control_put(port->pcie_rst);
+
+	return err;
+}
+
+static int mt7621_pci_remove(struct platform_device *pdev)
+{
+	struct mt7621_pcie *pcie = platform_get_drvdata(pdev);
+	struct mt7621_pcie_port *port;
+
+	list_for_each_entry(port, &pcie->ports, list)
+		reset_control_put(port->pcie_rst);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -708,11 +1235,16 @@ MODULE_DEVICE_TABLE(of, mt7621_pci_ids);
 
 static struct platform_driver mt7621_pci_driver = {
 	.probe = mt7621_pci_probe,
+<<<<<<< HEAD
+=======
+	.remove = mt7621_pci_remove,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "mt7621-pci",
 		.of_match_table = of_match_ptr(mt7621_pci_ids),
 	},
 };
+<<<<<<< HEAD
 
 static int __init mt7621_pci_init(void)
 {
@@ -720,3 +1252,6 @@ static int __init mt7621_pci_init(void)
 }
 
 arch_initcall(mt7621_pci_init);
+=======
+builtin_platform_driver(mt7621_pci_driver);
+>>>>>>> upstream/android-13

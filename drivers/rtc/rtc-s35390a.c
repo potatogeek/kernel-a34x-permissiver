@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Seiko Instruments S-35390A RTC Driver
  *
  * Copyright (c) 2007 Byron Bradley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -36,6 +43,7 @@
 #define S35390A_ALRM_BYTE_MINS	2
 
 /* flags for STATUS1 */
+<<<<<<< HEAD
 #define S35390A_FLAG_POC	0x01
 #define S35390A_FLAG_BLD	0x02
 #define S35390A_FLAG_INT2	0x04
@@ -51,6 +59,24 @@
 #define S35390A_INT2_MODE_FREQ		0x10
 #define S35390A_INT2_MODE_ALARM		0x40
 #define S35390A_INT2_MODE_PMIN_EDG	0x20
+=======
+#define S35390A_FLAG_POC	BIT(0)
+#define S35390A_FLAG_BLD	BIT(1)
+#define S35390A_FLAG_INT2	BIT(2)
+#define S35390A_FLAG_24H	BIT(6)
+#define S35390A_FLAG_RESET	BIT(7)
+
+/* flag for STATUS2 */
+#define S35390A_FLAG_TEST	BIT(0)
+
+/* INT2 pin output mode */
+#define S35390A_INT2_MODE_MASK		0x0E
+#define S35390A_INT2_MODE_NOINTR	0x00
+#define S35390A_INT2_MODE_ALARM		BIT(1) /* INT2AE */
+#define S35390A_INT2_MODE_PMIN_EDG	BIT(2) /* INT2ME */
+#define S35390A_INT2_MODE_FREQ		BIT(3) /* INT2FE */
+#define S35390A_INT2_MODE_PMIN		(BIT(3) | BIT(2)) /* INT2FE | INT2ME */
+>>>>>>> upstream/android-13
 
 static const struct i2c_device_id s35390a_id[] = {
 	{ "s35390a", 0 },
@@ -58,7 +84,11 @@ static const struct i2c_device_id s35390a_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, s35390a_id);
 
+<<<<<<< HEAD
 static const struct of_device_id s35390a_of_match[] = {
+=======
+static const __maybe_unused struct of_device_id s35390a_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "s35390a" },
 	{ .compatible = "sii,s35390a" },
 	{ }
@@ -288,6 +318,12 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 		alm->time.tm_min, alm->time.tm_hour, alm->time.tm_mday,
 		alm->time.tm_mon, alm->time.tm_year, alm->time.tm_wday);
 
+<<<<<<< HEAD
+=======
+	if (alm->time.tm_sec != 0)
+		dev_warn(&client->dev, "Alarms are only supported on a per minute basis!\n");
+
+>>>>>>> upstream/android-13
 	/* disable interrupt (which deasserts the irq line) */
 	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
 	if (err < 0)
@@ -303,9 +339,12 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 	else
 		sts = S35390A_INT2_MODE_NOINTR;
 
+<<<<<<< HEAD
 	/* This chip expects the bits of each byte to be in reverse order */
 	sts = bitrev8(sts);
 
+=======
+>>>>>>> upstream/android-13
 	/* set interupt mode*/
 	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
 	if (err < 0)
@@ -343,7 +382,11 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	if ((bitrev8(sts) & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
+=======
+	if ((sts & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
+>>>>>>> upstream/android-13
 		/*
 		 * When the alarm isn't enabled, the register to configure
 		 * the alarm time isn't accessible.
@@ -426,8 +469,11 @@ static const struct rtc_class_ops s35390a_rtc_ops = {
 	.ioctl          = s35390a_rtc_ioctl,
 };
 
+<<<<<<< HEAD
 static struct i2c_driver s35390a_driver;
 
+=======
+>>>>>>> upstream/android-13
 static int s35390a_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
@@ -435,6 +481,7 @@ static int s35390a_probe(struct i2c_client *client,
 	unsigned int i;
 	struct s35390a *s35390a;
 	char buf, status1;
+<<<<<<< HEAD
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		err = -ENODEV;
@@ -447,12 +494,23 @@ static int s35390a_probe(struct i2c_client *client,
 		err = -ENOMEM;
 		goto exit;
 	}
+=======
+	struct device *dev = &client->dev;
+
+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+		return -ENODEV;
+
+	s35390a = devm_kzalloc(dev, sizeof(struct s35390a), GFP_KERNEL);
+	if (!s35390a)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	s35390a->client[0] = client;
 	i2c_set_clientdata(client, s35390a);
 
 	/* This chip uses multiple addresses, use dummy devices for them */
 	for (i = 1; i < 8; ++i) {
+<<<<<<< HEAD
 		s35390a->client[i] = i2c_new_dummy(client->adapter,
 					client->addr + i);
 		if (!s35390a->client[i]) {
@@ -468,6 +526,26 @@ static int s35390a_probe(struct i2c_client *client,
 		err = err_read;
 		dev_err(&client->dev, "error resetting chip\n");
 		goto exit_dummy;
+=======
+		s35390a->client[i] = devm_i2c_new_dummy_device(dev,
+							       client->adapter,
+							       client->addr + i);
+		if (IS_ERR(s35390a->client[i])) {
+			dev_err(dev, "Address %02x unavailable\n",
+				client->addr + i);
+			return PTR_ERR(s35390a->client[i]);
+		}
+	}
+
+	s35390a->rtc = devm_rtc_allocate_device(dev);
+	if (IS_ERR(s35390a->rtc))
+		return PTR_ERR(s35390a->rtc);
+
+	err_read = s35390a_read_status(s35390a, &status1);
+	if (err_read < 0) {
+		dev_err(dev, "error resetting chip\n");
+		return err_read;
+>>>>>>> upstream/android-13
 	}
 
 	if (status1 & S35390A_FLAG_24H)
@@ -480,12 +558,18 @@ static int s35390a_probe(struct i2c_client *client,
 		buf = 0;
 		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
 		if (err < 0) {
+<<<<<<< HEAD
 			dev_err(&client->dev, "error disabling alarm");
 			goto exit_dummy;
+=======
+			dev_err(dev, "error disabling alarm");
+			return err;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		err = s35390a_disable_test_mode(s35390a);
 		if (err < 0) {
+<<<<<<< HEAD
 			dev_err(&client->dev, "error disabling test mode\n");
 			goto exit_dummy;
 		}
@@ -501,10 +585,26 @@ static int s35390a_probe(struct i2c_client *client,
 		err = PTR_ERR(s35390a->rtc);
 		goto exit_dummy;
 	}
+=======
+			dev_err(dev, "error disabling test mode\n");
+			return err;
+		}
+	}
+
+	device_set_wakeup_capable(dev, 1);
+
+	s35390a->rtc->ops = &s35390a_rtc_ops;
+	s35390a->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+	s35390a->rtc->range_max = RTC_TIMESTAMP_END_2099;
+
+	/* supports per-minute alarms only, therefore set uie_unsupported */
+	s35390a->rtc->uie_unsupported = 1;
+>>>>>>> upstream/android-13
 
 	if (status1 & S35390A_FLAG_INT2)
 		rtc_update_irq(s35390a->rtc, 1, RTC_AF);
 
+<<<<<<< HEAD
 	return 0;
 
 exit_dummy:
@@ -526,6 +626,9 @@ static int s35390a_remove(struct i2c_client *client)
 			i2c_unregister_device(s35390a->client[i]);
 
 	return 0;
+=======
+	return devm_rtc_register_device(s35390a->rtc);
+>>>>>>> upstream/android-13
 }
 
 static struct i2c_driver s35390a_driver = {
@@ -534,7 +637,10 @@ static struct i2c_driver s35390a_driver = {
 		.of_match_table = of_match_ptr(s35390a_of_match),
 	},
 	.probe		= s35390a_probe,
+<<<<<<< HEAD
 	.remove		= s35390a_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table	= s35390a_id,
 };
 

@@ -238,7 +238,14 @@ your new subkey::
     work.
 
     If for some reason you prefer to stay with RSA subkeys, just replace
+<<<<<<< HEAD
     "ed25519" with "rsa2048" in the above command.
+=======
+    "ed25519" with "rsa2048" in the above command. Additionally, if you
+    plan to use a hardware device that does not support ED25519 ECC
+    keys, like Nitrokey Pro or a Yubikey, then you should use
+    "nistp256" instead or "ed25519."
+>>>>>>> upstream/android-13
 
 
 Back up your master key for disaster recovery
@@ -432,6 +439,7 @@ Available smartcard devices
 
 Unless all your laptops and workstations have smartcard readers, the
 easiest is to get a specialized USB device that implements smartcard
+<<<<<<< HEAD
 functionality.  There are several options available:
 
 - `Nitrokey Start`_: Open hardware and Free Software, based on FSI
@@ -449,6 +457,25 @@ functionality.  There are several options available:
 `LWN has a good review`_ of some of the above models, as well as several
 others. If you want to use ECC keys, your best bet among commercially
 available devices is the Nitrokey Start.
+=======
+functionality. There are several options available:
+
+- `Nitrokey Start`_: Open hardware and Free Software, based on FSI
+  Japan's `Gnuk`_. One of the few available commercial devices that
+  support ED25519 ECC keys, but offer fewest security features (such as
+  resistance to tampering or some side-channel attacks).
+- `Nitrokey Pro 2`_: Similar to the Nitrokey Start, but more
+  tamper-resistant and offers more security features. Pro 2 supports ECC
+  cryptography (NISTP).
+- `Yubikey 5`_: proprietary hardware and software, but cheaper than
+  Nitrokey Pro and comes available in the USB-C form that is more useful
+  with newer laptops. Offers additional security features such as FIDO
+  U2F, among others, and now finally supports ECC keys (NISTP).
+
+`LWN has a good review`_ of some of the above models, as well as several
+others. Your choice will depend on cost, shipping availability in your
+geographical region, and open/proprietary hardware considerations.
+>>>>>>> upstream/android-13
 
 .. note::
 
@@ -457,9 +484,15 @@ available devices is the Nitrokey Start.
     Foundation.
 
 .. _`Nitrokey Start`: https://shop.nitrokey.com/shop/product/nitrokey-start-6
+<<<<<<< HEAD
 .. _`Nitrokey Pro`: https://shop.nitrokey.com/shop/product/nitrokey-pro-3
 .. _`Yubikey 4`: https://www.yubico.com/product/yubikey-4-series/
 .. _Gnuk: http://www.fsij.org/doc-gnuk/
+=======
+.. _`Nitrokey Pro 2`: https://shop.nitrokey.com/shop/product/nitrokey-pro-2-3
+.. _`Yubikey 5`: https://www.yubico.com/products/yubikey-5-overview/
+.. _Gnuk: https://www.fsij.org/doc-gnuk/
+>>>>>>> upstream/android-13
 .. _`LWN has a good review`: https://lwn.net/Articles/736231/
 .. _`qualify for a free Nitrokey Start`: https://www.kernel.org/nitrokey-digital-tokens-for-kernel-developers.html
 
@@ -941,12 +974,20 @@ have on your keyring::
     uid           [ unknown] Linus Torvalds <torvalds@kernel.org>
     sub   rsa2048 2011-09-20 [E]
 
+<<<<<<< HEAD
 Next, open the `PGP pathfinder`_. In the "From" field, paste the key
 fingerprint of Linus Torvalds from the output above. In the "To" field,
 paste they key-id you found via ``gpg --search`` of the unknown key, and
 check the results:
 
 - `Finding paths to Linus`_
+=======
+Next, find a trust path from Linus Torvalds to the key-id you found via ``gpg
+--search`` of the unknown key.  For this, you can use several tools including
+https://github.com/mricon/wotmate,
+https://git.kernel.org/pub/scm/docs/kernel/pgpkeys.git/tree/graphs, and
+https://the.earth.li/~noodles/pathfind.html.
+>>>>>>> upstream/android-13
 
 If you get a few decent trust paths, then it's a pretty good indication
 that it is a valid key. You can add it to your keyring from the
@@ -959,6 +1000,9 @@ administrators of the PGP Pathfinder service to not be malicious (in
 fact, this goes against :ref:`devs_not_infra`). However, if you
 do not carefully maintain your own web of trust, then it is a marked
 improvement over blindly trusting keyservers.
+<<<<<<< HEAD
 
 .. _`PGP pathfinder`: https://pgp.cs.uu.nl/
 .. _`Finding paths to Linus`: https://pgp.cs.uu.nl/paths/79BE3E4300411886/to/C94035C21B4F2AEB.html
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * QE USB routines
  *
@@ -6,11 +10,14 @@
  *               Jerry Huang <Chang-Ming.Huang@freescale.com>
  * Copyright (c) MontaVista Software, Inc. 2008.
  *               Anton Vorontsov <avorontsov@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -47,7 +54,11 @@ int qe_usb_clock_set(enum qe_clock clk, int rate)
 
 	spin_lock_irqsave(&cmxgcr_lock, flags);
 
+<<<<<<< HEAD
 	clrsetbits_be32(&mux->cmxgcr, QE_CMXGCR_USBCS, val);
+=======
+	qe_clrsetbits_be32(&mux->cmxgcr, QE_CMXGCR_USBCS, val);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&cmxgcr_lock, flags);
 

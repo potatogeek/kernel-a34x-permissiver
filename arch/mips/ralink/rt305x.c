@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Parts of this file are based on Ralink's 2.6.21 BSP
  *
@@ -18,6 +23,7 @@
 #include <asm/mipsregs.h>
 #include <asm/mach-ralink/ralink_regs.h>
 #include <asm/mach-ralink/rt305x.h>
+<<<<<<< HEAD
 #include <asm/mach-ralink/pinmux.h>
 
 #include "common.h"
@@ -90,6 +96,11 @@ static struct rt2880_pmx_group rt5350_pinmux_data[] = {
 	{ 0 }
 };
 
+=======
+
+#include "common.h"
+
+>>>>>>> upstream/android-13
 static unsigned long rt5350_get_mem_size(void)
 {
 	void __iomem *sysc = (void __iomem *) KSEG1ADDR(RT305X_SYSC_BASE);
@@ -211,7 +222,11 @@ void __init ralink_of_remap(void)
 		panic("Failed to remap core resources");
 }
 
+<<<<<<< HEAD
 void prom_soc_init(struct ralink_soc_info *soc_info)
+=======
+void __init prom_soc_init(struct ralink_soc_info *soc_info)
+>>>>>>> upstream/android-13
 {
 	void __iomem *sysc = (void __iomem *) KSEG1ADDR(RT305X_SYSC_BASE);
 	unsigned char *name;
@@ -262,6 +277,7 @@ void prom_soc_init(struct ralink_soc_info *soc_info)
 	soc_info->mem_base = RT305X_SDRAM_BASE;
 	if (soc_is_rt5350()) {
 		soc_info->mem_size = rt5350_get_mem_size();
+<<<<<<< HEAD
 		rt2880_pinmux_data = rt5350_pinmux_data;
 	} else if (soc_is_rt305x() || soc_is_rt3350()) {
 		soc_info->mem_size_min = RT305X_MEM_SIZE_MIN;
@@ -271,5 +287,13 @@ void prom_soc_init(struct ralink_soc_info *soc_info)
 		soc_info->mem_size_min = RT3352_MEM_SIZE_MIN;
 		soc_info->mem_size_max = RT3352_MEM_SIZE_MAX;
 		rt2880_pinmux_data = rt3352_pinmux_data;
+=======
+	} else if (soc_is_rt305x() || soc_is_rt3350()) {
+		soc_info->mem_size_min = RT305X_MEM_SIZE_MIN;
+		soc_info->mem_size_max = RT305X_MEM_SIZE_MAX;
+	} else if (soc_is_rt3352()) {
+		soc_info->mem_size_min = RT3352_MEM_SIZE_MIN;
+		soc_info->mem_size_max = RT3352_MEM_SIZE_MAX;
+>>>>>>> upstream/android-13
 	}
 }

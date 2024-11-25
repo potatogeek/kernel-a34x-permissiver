@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* binfmt_elf_fdpic.c: FDPIC ELF binary format
  *
  * Copyright (C) 2003, 2004, 2006 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
  * Derived from binfmt_elf.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -39,10 +46,17 @@
 #include <linux/elfcore.h>
 #include <linux/coredump.h>
 #include <linux/dax.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
 #include <asm/param.h>
 #include <asm/pgalloc.h>
+=======
+#include <linux/regset.h>
+
+#include <linux/uaccess.h>
+#include <asm/param.h>
+>>>>>>> upstream/android-13
 
 typedef char *elf_caddr_t;
 
@@ -342,7 +356,11 @@ static int load_elf_fdpic_binary(struct linux_binprm *bprm)
 		interp_params.flags |= ELF_FDPIC_FLAG_CONSTDISP;
 
 	/* flush all traces of the currently running executable */
+<<<<<<< HEAD
 	retval = flush_old_exec(bprm);
+=======
+	retval = begin_new_exec(bprm);
+>>>>>>> upstream/android-13
 	if (retval)
 		goto error;
 
@@ -438,7 +456,10 @@ static int load_elf_fdpic_binary(struct linux_binprm *bprm)
 	current->mm->start_stack = current->mm->start_brk + stack_size;
 #endif
 
+<<<<<<< HEAD
 	install_exec_creds(bprm);
+=======
+>>>>>>> upstream/android-13
 	if (create_elf_fdpic_tables(bprm, current->mm,
 				    &exec_params, &interp_params) < 0)
 		goto error;
@@ -511,6 +532,10 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 	char __user *u_platform, *u_base_platform, *p;
 	int loop;
 	int nr;	/* reset for each csp adjustment */
+<<<<<<< HEAD
+=======
+	unsigned long flags = 0;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MMU
 	/* In some cases (e.g. Hyper-Threading), we want to avoid L1 evictions
@@ -541,7 +566,11 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 		platform_len = strlen(k_platform) + 1;
 		sp -= platform_len;
 		u_platform = (char __user *) sp;
+<<<<<<< HEAD
 		if (__copy_to_user(u_platform, k_platform, platform_len) != 0)
+=======
+		if (copy_to_user(u_platform, k_platform, platform_len) != 0)
+>>>>>>> upstream/android-13
 			return -EFAULT;
 	}
 
@@ -556,7 +585,11 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 		platform_len = strlen(k_base_platform) + 1;
 		sp -= platform_len;
 		u_base_platform = (char __user *) sp;
+<<<<<<< HEAD
 		if (__copy_to_user(u_base_platform, k_base_platform, platform_len) != 0)
+=======
+		if (copy_to_user(u_base_platform, k_base_platform, platform_len) != 0)
+>>>>>>> upstream/android-13
 			return -EFAULT;
 	}
 
@@ -593,7 +626,11 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 	nitems = 1 + DLINFO_ITEMS + (k_platform ? 1 : 0) +
 		(k_base_platform ? 1 : 0) + AT_VECTOR_SIZE_ARCH;
 
+<<<<<<< HEAD
 	if (bprm->interp_flags & BINPRM_FLAGS_EXECFD)
+=======
+	if (bprm->have_execfd)
+>>>>>>> upstream/android-13
 		nitems++;
 
 	csp = sp;
@@ -608,11 +645,21 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 	/* put the ELF interpreter info on the stack */
 #define NEW_AUX_ENT(id, val)						\
 	do {								\
+<<<<<<< HEAD
 		struct { unsigned long _id, _val; } __user *ent;	\
 									\
 		ent = (void __user *) csp;				\
 		__put_user((id), &ent[nr]._id);				\
 		__put_user((val), &ent[nr]._val);			\
+=======
+		struct { unsigned long _id, _val; } __user *ent, v;	\
+									\
+		ent = (void __user *) csp;				\
+		v._id = (id);						\
+		v._val = (val);						\
+		if (copy_to_user(ent + nr, &v, sizeof(v)))		\
+			return -EFAULT;					\
+>>>>>>> upstream/android-13
 		nr++;							\
 	} while (0)
 
@@ -633,10 +680,17 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 			    (elf_addr_t) (unsigned long) u_base_platform);
 	}
 
+<<<<<<< HEAD
 	if (bprm->interp_flags & BINPRM_FLAGS_EXECFD) {
 		nr = 0;
 		csp -= 2 * sizeof(unsigned long);
 		NEW_AUX_ENT(AT_EXECFD, bprm->interp_data);
+=======
+	if (bprm->have_execfd) {
+		nr = 0;
+		csp -= 2 * sizeof(unsigned long);
+		NEW_AUX_ENT(AT_EXECFD, bprm->execfd);
+>>>>>>> upstream/android-13
 	}
 
 	nr = 0;
@@ -651,7 +705,13 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 	NEW_AUX_ENT(AT_PHENT,	sizeof(struct elf_phdr));
 	NEW_AUX_ENT(AT_PHNUM,	exec_params->hdr.e_phnum);
 	NEW_AUX_ENT(AT_BASE,	interp_params->elfhdr_addr);
+<<<<<<< HEAD
 	NEW_AUX_ENT(AT_FLAGS,	0);
+=======
+	if (bprm->interp_flags & BINPRM_FLAGS_PRESERVE_ARGV0)
+		flags |= AT_FLAGS_PRESERVE_ARGV0;
+	NEW_AUX_ENT(AT_FLAGS,	flags);
+>>>>>>> upstream/android-13
 	NEW_AUX_ENT(AT_ENTRY,	exec_params->entry_addr);
 	NEW_AUX_ENT(AT_UID,	(elf_addr_t) from_kuid_munged(cred->user_ns, cred->uid));
 	NEW_AUX_ENT(AT_EUID,	(elf_addr_t) from_kuid_munged(cred->user_ns, cred->euid));
@@ -679,7 +739,12 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 
 	/* stack argc */
 	csp -= sizeof(unsigned long);
+<<<<<<< HEAD
 	__put_user(bprm->argc, (unsigned long __user *) csp);
+=======
+	if (put_user(bprm->argc, (unsigned long __user *) csp))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 
 	BUG_ON(csp != sp);
 
@@ -693,25 +758,45 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
 
 	p = (char __user *) current->mm->arg_start;
 	for (loop = bprm->argc; loop > 0; loop--) {
+<<<<<<< HEAD
 		__put_user((elf_caddr_t) p, argv++);
+=======
+		if (put_user((elf_caddr_t) p, argv++))
+			return -EFAULT;
+>>>>>>> upstream/android-13
 		len = strnlen_user(p, MAX_ARG_STRLEN);
 		if (!len || len > MAX_ARG_STRLEN)
 			return -EINVAL;
 		p += len;
 	}
+<<<<<<< HEAD
 	__put_user(NULL, argv);
+=======
+	if (put_user(NULL, argv))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	current->mm->arg_end = (unsigned long) p;
 
 	/* fill in the envv[] array */
 	current->mm->env_start = (unsigned long) p;
 	for (loop = bprm->envc; loop > 0; loop--) {
+<<<<<<< HEAD
 		__put_user((elf_caddr_t)(unsigned long) p, envp++);
+=======
+		if (put_user((elf_caddr_t)(unsigned long) p, envp++))
+			return -EFAULT;
+>>>>>>> upstream/android-13
 		len = strnlen_user(p, MAX_ARG_STRLEN);
 		if (!len || len > MAX_ARG_STRLEN)
 			return -EINVAL;
 		p += len;
 	}
+<<<<<<< HEAD
 	__put_user(NULL, envp);
+=======
+	if (put_user(NULL, envp))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	current->mm->env_end = (unsigned long) p;
 
 	mm->start_stack = (unsigned long) sp;
@@ -853,8 +938,13 @@ static int elf_fdpic_map_file(struct elf_fdpic_params *params,
 
 				tmp = phdr->p_memsz / sizeof(Elf32_Dyn);
 				dyn = (Elf32_Dyn __user *)params->dynamic_addr;
+<<<<<<< HEAD
 				__get_user(d_tag, &dyn[tmp - 1].d_tag);
 				if (d_tag != 0)
+=======
+				if (get_user(d_tag, &dyn[tmp - 1].d_tag) ||
+				    d_tag != 0)
+>>>>>>> upstream/android-13
 					goto dynamic_error;
 				break;
 			}
@@ -923,7 +1013,11 @@ static int elf_fdpic_map_file_constdisp_on_uclinux(
 {
 	struct elf32_fdpic_loadseg *seg;
 	struct elf32_phdr *phdr;
+<<<<<<< HEAD
 	unsigned long load_addr, base = ULONG_MAX, top = 0, maddr = 0, mflags;
+=======
+	unsigned long load_addr, base = ULONG_MAX, top = 0, maddr = 0;
+>>>>>>> upstream/android-13
 	int loop, ret;
 
 	load_addr = params->load_addr;
@@ -943,12 +1037,17 @@ static int elf_fdpic_map_file_constdisp_on_uclinux(
 	}
 
 	/* allocate one big anon block for everything */
+<<<<<<< HEAD
 	mflags = MAP_PRIVATE;
 	if (params->flags & ELF_FDPIC_FLAG_EXECUTABLE)
 		mflags |= MAP_EXECUTABLE;
 
 	maddr = vm_mmap(NULL, load_addr, top - base,
 			PROT_READ | PROT_WRITE | PROT_EXEC, mflags, 0);
+=======
+	maddr = vm_mmap(NULL, load_addr, top - base,
+			PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR_VALUE(maddr))
 		return (int) maddr;
 
@@ -1040,10 +1139,14 @@ static int elf_fdpic_map_file_by_direct_mmap(struct elf_fdpic_params *params,
 		if (phdr->p_flags & PF_W) prot |= PROT_WRITE;
 		if (phdr->p_flags & PF_X) prot |= PROT_EXEC;
 
+<<<<<<< HEAD
 		flags = MAP_PRIVATE | MAP_DENYWRITE;
 		if (params->flags & ELF_FDPIC_FLAG_EXECUTABLE)
 			flags |= MAP_EXECUTABLE;
 
+=======
+		flags = MAP_PRIVATE;
+>>>>>>> upstream/android-13
 		maddr = 0;
 
 		switch (params->flags & ELF_FDPIC_FLAG_ARRANGEMENT) {
@@ -1187,6 +1290,7 @@ static int elf_fdpic_map_file_by_direct_mmap(struct elf_fdpic_params *params,
  */
 #ifdef CONFIG_ELF_CORE
 
+<<<<<<< HEAD
 /*
  * Decide whether a segment is worth dumping; default is yes to be
  * sure (missing info is worse than too much; etc).
@@ -1256,6 +1360,22 @@ static int maydump(struct vm_area_struct *vma, unsigned long mm_flags)
 	       dump_ok ? "yes" : "no");
 	return dump_ok;
 }
+=======
+struct elf_prstatus_fdpic
+{
+	struct elf_prstatus_common	common;
+	elf_gregset_t pr_reg;	/* GP registers */
+	/* When using FDPIC, the loadmap addresses need to be communicated
+	 * to GDB in order for GDB to do the necessary relocations.  The
+	 * fields (below) used to communicate this information are placed
+	 * immediately after ``pr_reg'', so that the loadmap addresses may
+	 * be viewed as part of the register set if so desired.
+	 */
+	unsigned long pr_exec_fdpic_loadmap;
+	unsigned long pr_interp_fdpic_loadmap;
+	int pr_fpvalid;		/* True if math co-processor being used.  */
+};
+>>>>>>> upstream/android-13
 
 /* An ELF note in memory */
 struct memelfnote
@@ -1343,7 +1463,11 @@ static inline void fill_note(struct memelfnote *note, const char *name, int type
  * fill up all the fields in prstatus from the given task struct, except
  * registers which need to be filled up separately.
  */
+<<<<<<< HEAD
 static void fill_prstatus(struct elf_prstatus *prstatus,
+=======
+static void fill_prstatus(struct elf_prstatus_common *prstatus,
+>>>>>>> upstream/android-13
 			  struct task_struct *p, long signr)
 {
 	prstatus->pr_info.si_signo = prstatus->pr_cursig = signr;
@@ -1363,12 +1487,18 @@ static void fill_prstatus(struct elf_prstatus *prstatus,
 		 * group-wide total, not its individual thread total.
 		 */
 		thread_group_cputime(p, &cputime);
+<<<<<<< HEAD
 		prstatus->pr_utime = ns_to_timeval(cputime.utime);
 		prstatus->pr_stime = ns_to_timeval(cputime.stime);
+=======
+		prstatus->pr_utime = ns_to_kernel_old_timeval(cputime.utime);
+		prstatus->pr_stime = ns_to_kernel_old_timeval(cputime.stime);
+>>>>>>> upstream/android-13
 	} else {
 		u64 utime, stime;
 
 		task_cputime(p, &utime, &stime);
+<<<<<<< HEAD
 		prstatus->pr_utime = ns_to_timeval(utime);
 		prstatus->pr_stime = ns_to_timeval(stime);
 	}
@@ -1377,6 +1507,13 @@ static void fill_prstatus(struct elf_prstatus *prstatus,
 
 	prstatus->pr_exec_fdpic_loadmap = p->mm->context.exec_fdpic_loadmap;
 	prstatus->pr_interp_fdpic_loadmap = p->mm->context.interp_fdpic_loadmap;
+=======
+		prstatus->pr_utime = ns_to_kernel_old_timeval(utime);
+		prstatus->pr_stime = ns_to_kernel_old_timeval(stime);
+	}
+	prstatus->pr_cutime = ns_to_kernel_old_timeval(p->signal->cutime);
+	prstatus->pr_cstime = ns_to_kernel_old_timeval(p->signal->cstime);
+>>>>>>> upstream/android-13
 }
 
 static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
@@ -1384,6 +1521,10 @@ static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
 {
 	const struct cred *cred;
 	unsigned int i, len;
+<<<<<<< HEAD
+=======
+	unsigned int state;
+>>>>>>> upstream/android-13
 
 	/* first copy the parameters from user space */
 	memset(psinfo, 0, sizeof(struct elf_prpsinfo));
@@ -1406,7 +1547,12 @@ static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
 	psinfo->pr_pgrp = task_pgrp_vnr(p);
 	psinfo->pr_sid = task_session_vnr(p);
 
+<<<<<<< HEAD
 	i = p->state ? ffz(~p->state) + 1 : 0;
+=======
+	state = READ_ONCE(p->__state);
+	i = state ? ffz(~state) + 1 : 0;
+>>>>>>> upstream/android-13
 	psinfo->pr_state = i;
 	psinfo->pr_sname = (i > 5) ? '.' : "RSDTZW"[i];
 	psinfo->pr_zomb = psinfo->pr_sname == 'Z';
@@ -1425,6 +1571,7 @@ static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
 /* Here is the structure in which status of each thread is captured. */
 struct elf_thread_status
 {
+<<<<<<< HEAD
 	struct list_head list;
 	struct elf_prstatus prstatus;	/* NT_PRSTATUS */
 	elf_fpregset_t fpu;		/* NT_PRFPREG */
@@ -1433,6 +1580,12 @@ struct elf_thread_status
 	elf_fpxregset_t xfpu;		/* ELF_CORE_XFPREG_TYPE */
 #endif
 	struct memelfnote notes[3];
+=======
+	struct elf_thread_status *next;
+	struct elf_prstatus_fdpic prstatus;	/* NT_PRSTATUS */
+	elf_fpregset_t fpu;		/* NT_PRFPREG */
+	struct memelfnote notes[2];
+>>>>>>> upstream/android-13
 	int num_notes;
 };
 
@@ -1441,6 +1594,7 @@ struct elf_thread_status
  * we need to keep a linked list of every thread's pr_status and then create
  * a single section for them in the final core file.
  */
+<<<<<<< HEAD
 static int elf_dump_thread_status(long signr, struct elf_thread_status *t)
 {
 	struct task_struct *p = t->thread;
@@ -1450,17 +1604,52 @@ static int elf_dump_thread_status(long signr, struct elf_thread_status *t)
 
 	fill_prstatus(&t->prstatus, p, signr);
 	elf_core_copy_task_regs(p, &t->prstatus.pr_reg);
+=======
+static struct elf_thread_status *elf_dump_thread_status(long signr, struct task_struct *p, int *sz)
+{
+	const struct user_regset_view *view = task_user_regset_view(p);
+	struct elf_thread_status *t;
+	int i, ret;
+
+	t = kzalloc(sizeof(struct elf_thread_status), GFP_KERNEL);
+	if (!t)
+		return t;
+
+	fill_prstatus(&t->prstatus.common, p, signr);
+	t->prstatus.pr_exec_fdpic_loadmap = p->mm->context.exec_fdpic_loadmap;
+	t->prstatus.pr_interp_fdpic_loadmap = p->mm->context.interp_fdpic_loadmap;
+	regset_get(p, &view->regsets[0],
+		   sizeof(t->prstatus.pr_reg), &t->prstatus.pr_reg);
+>>>>>>> upstream/android-13
 
 	fill_note(&t->notes[0], "CORE", NT_PRSTATUS, sizeof(t->prstatus),
 		  &t->prstatus);
 	t->num_notes++;
+<<<<<<< HEAD
 	sz += notesize(&t->notes[0]);
 
 	t->prstatus.pr_fpvalid = elf_core_copy_task_fpregs(p, NULL, &t->fpu);
+=======
+	*sz += notesize(&t->notes[0]);
+
+	for (i = 1; i < view->n; ++i) {
+		const struct user_regset *regset = &view->regsets[i];
+		if (regset->core_note_type != NT_PRFPREG)
+			continue;
+		if (regset->active && regset->active(p, regset) <= 0)
+			continue;
+		ret = regset_get(p, regset, sizeof(t->fpu), &t->fpu);
+		if (ret >= 0)
+			t->prstatus.pr_fpvalid = 1;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if (t->prstatus.pr_fpvalid) {
 		fill_note(&t->notes[1], "CORE", NT_PRFPREG, sizeof(t->fpu),
 			  &t->fpu);
 		t->num_notes++;
+<<<<<<< HEAD
 		sz += notesize(&t->notes[1]);
 	}
 
@@ -1473,6 +1662,11 @@ static int elf_dump_thread_status(long signr, struct elf_thread_status *t)
 	}
 #endif
 	return sz;
+=======
+		*sz += notesize(&t->notes[1]);
+	}
+	return t;
+>>>>>>> upstream/android-13
 }
 
 static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum,
@@ -1494,6 +1688,7 @@ static void fill_extnum_info(struct elfhdr *elf, struct elf_shdr *shdr4extnum,
 /*
  * dump the segments for an MMU process
  */
+<<<<<<< HEAD
 static bool elf_fdpic_dump_segments(struct coredump_params *cprm)
 {
 	struct vm_area_struct *vma;
@@ -1527,10 +1722,24 @@ static bool elf_fdpic_dump_segments(struct coredump_params *cprm)
 				vma->vm_end - vma->vm_start))
 			return false;
 #endif
+=======
+static bool elf_fdpic_dump_segments(struct coredump_params *cprm,
+				    struct core_vma_metadata *vma_meta,
+				    int vma_count)
+{
+	int i;
+
+	for (i = 0; i < vma_count; i++) {
+		struct core_vma_metadata *meta = vma_meta + i;
+
+		if (!dump_user_range(cprm, meta->start, meta->dump_size))
+			return false;
+>>>>>>> upstream/android-13
 	}
 	return true;
 }
 
+<<<<<<< HEAD
 static size_t elf_core_vma_data_size(unsigned long mm_flags)
 {
 	struct vm_area_struct *vma;
@@ -1542,6 +1751,8 @@ static size_t elf_core_vma_data_size(unsigned long mm_flags)
 	return size;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Actual dumper
  *
@@ -1551,6 +1762,7 @@ static size_t elf_core_vma_data_size(unsigned long mm_flags)
  */
 static int elf_fdpic_core_dump(struct coredump_params *cprm)
 {
+<<<<<<< HEAD
 #define	NUM_NOTES	6
 	int has_dumped = 0;
 	mm_segment_t fs;
@@ -1569,6 +1781,16 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 #ifdef ELF_CORE_COPY_XFPREGS
 	elf_fpxregset_t *xfpu = NULL;
 #endif
+=======
+	int has_dumped = 0;
+	int segs;
+	int i;
+	struct elfhdr *elf = NULL;
+	loff_t offset = 0, dataoff;
+	struct memelfnote psinfo_note, auxv_note;
+	struct elf_prpsinfo *psinfo = NULL;	/* NT_PRPSINFO */
+	struct elf_thread_status *thread_list = NULL;
+>>>>>>> upstream/android-13
 	int thread_status_size = 0;
 	elf_addr_t *auxv;
 	struct elf_phdr *phdr4note = NULL;
@@ -1578,6 +1800,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 	struct core_thread *ct;
 	struct elf_thread_status *tmp;
 
+<<<<<<< HEAD
 	/*
 	 * We no longer stop all VM operations.
 	 *
@@ -1638,6 +1861,36 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 
 	segs = current->mm->map_count;
 	segs += elf_core_extra_phdrs();
+=======
+	/* alloc memory for large data structures: too large to be on stack */
+	elf = kmalloc(sizeof(*elf), GFP_KERNEL);
+	if (!elf)
+		goto end_coredump;
+	psinfo = kmalloc(sizeof(*psinfo), GFP_KERNEL);
+	if (!psinfo)
+		goto end_coredump;
+
+	for (ct = current->mm->core_state->dumper.next;
+					ct; ct = ct->next) {
+		tmp = elf_dump_thread_status(cprm->siginfo->si_signo,
+					     ct->task, &thread_status_size);
+		if (!tmp)
+			goto end_coredump;
+
+		tmp->next = thread_list;
+		thread_list = tmp;
+	}
+
+	/* now collect the dump for the current */
+	tmp = elf_dump_thread_status(cprm->siginfo->si_signo,
+				     current, &thread_status_size);
+	if (!tmp)
+		goto end_coredump;
+	tmp->next = thread_list;
+	thread_list = tmp;
+
+	segs = cprm->vma_count + elf_core_extra_phdrs();
+>>>>>>> upstream/android-13
 
 	/* for notes section */
 	segs++;
@@ -1656,6 +1909,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 	 * with info from their /proc.
 	 */
 
+<<<<<<< HEAD
 	fill_note(notes + 0, "CORE", NT_PRSTATUS, sizeof(*prstatus), prstatus);
 	fill_psinfo(psinfo, current->group_leader, current->mm);
 	fill_note(notes + 1, "CORE", NT_PRPSINFO, sizeof(*psinfo), psinfo);
@@ -1664,10 +1918,18 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 
 	auxv = (elf_addr_t *) current->mm->saved_auxv;
 
+=======
+	fill_psinfo(psinfo, current->group_leader, current->mm);
+	fill_note(&psinfo_note, "CORE", NT_PRPSINFO, sizeof(*psinfo), psinfo);
+	thread_status_size += notesize(&psinfo_note);
+
+	auxv = (elf_addr_t *) current->mm->saved_auxv;
+>>>>>>> upstream/android-13
 	i = 0;
 	do
 		i += 2;
 	while (auxv[i - 2] != AT_NULL);
+<<<<<<< HEAD
 	fill_note(&notes[numnote++], "CORE", NT_AUXV,
 		  i * sizeof(elf_addr_t), auxv);
 
@@ -1704,11 +1966,30 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 		fill_elf_note_phdr(phdr4note, sz, offset);
 		offset += sz;
 	}
+=======
+	fill_note(&auxv_note, "CORE", NT_AUXV, i * sizeof(elf_addr_t), auxv);
+	thread_status_size += notesize(&auxv_note);
+
+	offset = sizeof(*elf);				/* Elf header */
+	offset += segs * sizeof(struct elf_phdr);	/* Program headers */
+
+	/* Write notes phdr entry */
+	phdr4note = kmalloc(sizeof(*phdr4note), GFP_KERNEL);
+	if (!phdr4note)
+		goto end_coredump;
+
+	fill_elf_note_phdr(phdr4note, thread_status_size, offset);
+	offset += thread_status_size;
+>>>>>>> upstream/android-13
 
 	/* Page-align dumped data */
 	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
 
+<<<<<<< HEAD
 	offset += elf_core_vma_data_size(cprm->mm_flags);
+=======
+	offset += cprm->vma_data_size;
+>>>>>>> upstream/android-13
 	offset += elf_core_extra_data_size();
 	e_shoff = offset;
 
@@ -1728,6 +2009,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 		goto end_coredump;
 
 	/* write program headers for segments dump */
+<<<<<<< HEAD
 	for (vma = current->mm->mmap; vma; vma = vma->vm_next) {
 		struct elf_phdr phdr;
 		size_t sz;
@@ -1745,6 +2027,28 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 		if (vma->vm_flags & VM_WRITE)
 			phdr.p_flags |= PF_W;
 		if (vma->vm_flags & VM_EXEC)
+=======
+	for (i = 0; i < cprm->vma_count; i++) {
+		struct core_vma_metadata *meta = cprm->vma_meta + i;
+		struct elf_phdr phdr;
+		size_t sz;
+
+		sz = meta->end - meta->start;
+
+		phdr.p_type = PT_LOAD;
+		phdr.p_offset = offset;
+		phdr.p_vaddr = meta->start;
+		phdr.p_paddr = 0;
+		phdr.p_filesz = meta->dump_size;
+		phdr.p_memsz = sz;
+		offset += phdr.p_filesz;
+		phdr.p_flags = 0;
+		if (meta->flags & VM_READ)
+			phdr.p_flags |= PF_R;
+		if (meta->flags & VM_WRITE)
+			phdr.p_flags |= PF_W;
+		if (meta->flags & VM_EXEC)
+>>>>>>> upstream/android-13
 			phdr.p_flags |= PF_X;
 		phdr.p_align = ELF_EXEC_PAGESIZE;
 
@@ -1756,6 +2060,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 		goto end_coredump;
 
  	/* write out the notes section */
+<<<<<<< HEAD
 	for (i = 0; i < numnote; i++)
 		if (!writenote(notes + i, cprm))
 			goto end_coredump;
@@ -1765,15 +2070,35 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 		struct elf_thread_status *tmp =
 				list_entry(t, struct elf_thread_status, list);
 
+=======
+	if (!writenote(thread_list->notes, cprm))
+		goto end_coredump;
+	if (!writenote(&psinfo_note, cprm))
+		goto end_coredump;
+	if (!writenote(&auxv_note, cprm))
+		goto end_coredump;
+	for (i = 1; i < thread_list->num_notes; i++)
+		if (!writenote(thread_list->notes + i, cprm))
+			goto end_coredump;
+
+	/* write out the thread status notes section */
+	for (tmp = thread_list->next; tmp; tmp = tmp->next) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < tmp->num_notes; i++)
 			if (!writenote(&tmp->notes[i], cprm))
 				goto end_coredump;
 	}
 
+<<<<<<< HEAD
 	if (!dump_skip(cprm, dataoff - cprm->pos))
 		goto end_coredump;
 
 	if (!elf_fdpic_dump_segments(cprm))
+=======
+	dump_skip_to(cprm, dataoff);
+
+	if (!elf_fdpic_dump_segments(cprm, cprm->vma_meta, cprm->vma_count))
+>>>>>>> upstream/android-13
 		goto end_coredump;
 
 	if (!elf_core_write_extra_data(cprm))
@@ -1792,6 +2117,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
 	}
 
 end_coredump:
+<<<<<<< HEAD
 	set_fs(fs);
 
 cleanup:
@@ -1812,6 +2138,18 @@ cleanup:
 #endif
 	return has_dumped;
 #undef NUM_NOTES
+=======
+	while (thread_list) {
+		tmp = thread_list;
+		thread_list = thread_list->next;
+		kfree(tmp);
+	}
+	kfree(phdr4note);
+	kfree(elf);
+	kfree(psinfo);
+	kfree(shdr4extnum);
+	return has_dumped;
+>>>>>>> upstream/android-13
 }
 
 #endif		/* CONFIG_ELF_CORE */

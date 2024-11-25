@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic OPP debugfs interface
  *
  * Copyright (C) 2015-2016 Viresh Kumar <viresh.kumar@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -13,6 +20,10 @@
 #include <linux/debugfs.h>
 #include <linux/device.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/limits.h>
 #include <linux/slab.h>
@@ -35,7 +46,52 @@ void opp_debug_remove_one(struct dev_pm_opp *opp)
 	debugfs_remove_recursive(opp->dentry);
 }
 
+<<<<<<< HEAD
 static bool opp_debug_create_supplies(struct dev_pm_opp *opp,
+=======
+static ssize_t bw_name_read(struct file *fp, char __user *userbuf,
+			    size_t count, loff_t *ppos)
+{
+	struct icc_path *path = fp->private_data;
+	char buf[64];
+	int i;
+
+	i = scnprintf(buf, sizeof(buf), "%.62s\n", icc_get_name(path));
+
+	return simple_read_from_buffer(userbuf, count, ppos, buf, i);
+}
+
+static const struct file_operations bw_name_fops = {
+	.open = simple_open,
+	.read = bw_name_read,
+	.llseek = default_llseek,
+};
+
+static void opp_debug_create_bw(struct dev_pm_opp *opp,
+				struct opp_table *opp_table,
+				struct dentry *pdentry)
+{
+	struct dentry *d;
+	char name[11];
+	int i;
+
+	for (i = 0; i < opp_table->path_count; i++) {
+		snprintf(name, sizeof(name), "icc-path-%.1d", i);
+
+		/* Create per-path directory */
+		d = debugfs_create_dir(name, pdentry);
+
+		debugfs_create_file("name", S_IRUGO, d, opp_table->paths[i],
+				    &bw_name_fops);
+		debugfs_create_u32("peak_bw", S_IRUGO, d,
+				   &opp->bandwidth[i].peak);
+		debugfs_create_u32("avg_bw", S_IRUGO, d,
+				   &opp->bandwidth[i].avg);
+	}
+}
+
+static void opp_debug_create_supplies(struct dev_pm_opp *opp,
+>>>>>>> upstream/android-13
 				      struct opp_table *opp_table,
 				      struct dentry *pdentry)
 {
@@ -50,6 +106,7 @@ static bool opp_debug_create_supplies(struct dev_pm_opp *opp,
 		/* Create per-opp directory */
 		d = debugfs_create_dir(name, pdentry);
 
+<<<<<<< HEAD
 		if (!d)
 			return false;
 
@@ -74,6 +131,23 @@ static bool opp_debug_create_supplies(struct dev_pm_opp *opp,
 }
 
 int opp_debug_create_one(struct dev_pm_opp *opp, struct opp_table *opp_table)
+=======
+		debugfs_create_ulong("u_volt_target", S_IRUGO, d,
+				     &opp->supplies[i].u_volt);
+
+		debugfs_create_ulong("u_volt_min", S_IRUGO, d,
+				     &opp->supplies[i].u_volt_min);
+
+		debugfs_create_ulong("u_volt_max", S_IRUGO, d,
+				     &opp->supplies[i].u_volt_max);
+
+		debugfs_create_ulong("u_amp", S_IRUGO, d,
+				     &opp->supplies[i].u_amp);
+	}
+}
+
+void opp_debug_create_one(struct dev_pm_opp *opp, struct opp_table *opp_table)
+>>>>>>> upstream/android-13
 {
 	struct dentry *pdentry = opp_table->dentry;
 	struct dentry *d;
@@ -95,6 +169,7 @@ int opp_debug_create_one(struct dev_pm_opp *opp, struct opp_table *opp_table)
 
 	/* Create per-opp directory */
 	d = debugfs_create_dir(name, pdentry);
+<<<<<<< HEAD
 	if (!d)
 		return -ENOMEM;
 
@@ -129,6 +204,30 @@ int opp_debug_create_one(struct dev_pm_opp *opp, struct opp_table *opp_table)
 
 static int opp_list_debug_create_dir(struct opp_device *opp_dev,
 				     struct opp_table *opp_table)
+=======
+
+	debugfs_create_bool("available", S_IRUGO, d, &opp->available);
+	debugfs_create_bool("dynamic", S_IRUGO, d, &opp->dynamic);
+	debugfs_create_bool("turbo", S_IRUGO, d, &opp->turbo);
+	debugfs_create_bool("suspend", S_IRUGO, d, &opp->suspend);
+	debugfs_create_u32("performance_state", S_IRUGO, d, &opp->pstate);
+	debugfs_create_ulong("rate_hz", S_IRUGO, d, &opp->rate);
+	debugfs_create_u32("level", S_IRUGO, d, &opp->level);
+	debugfs_create_ulong("clock_latency_ns", S_IRUGO, d,
+			     &opp->clock_latency_ns);
+
+	opp->of_name = of_node_full_name(opp->np);
+	debugfs_create_str("of_name", S_IRUGO, d, (char **)&opp->of_name);
+
+	opp_debug_create_supplies(opp, opp_table, d);
+	opp_debug_create_bw(opp, opp_table, d);
+
+	opp->dentry = d;
+}
+
+static void opp_list_debug_create_dir(struct opp_device *opp_dev,
+				      struct opp_table *opp_table)
+>>>>>>> upstream/android-13
 {
 	const struct device *dev = opp_dev->dev;
 	struct dentry *d;
@@ -137,6 +236,7 @@ static int opp_list_debug_create_dir(struct opp_device *opp_dev,
 
 	/* Create device specific directory */
 	d = debugfs_create_dir(opp_table->dentry_name, rootdir);
+<<<<<<< HEAD
 	if (!d) {
 		dev_err(dev, "%s: Failed to create debugfs dir\n", __func__);
 		return -ENOMEM;
@@ -154,10 +254,22 @@ static int opp_list_debug_create_link(struct opp_device *opp_dev,
 	const struct device *dev = opp_dev->dev;
 	char name[NAME_MAX];
 	struct dentry *d;
+=======
+
+	opp_dev->dentry = d;
+	opp_table->dentry = d;
+}
+
+static void opp_list_debug_create_link(struct opp_device *opp_dev,
+				       struct opp_table *opp_table)
+{
+	char name[NAME_MAX];
+>>>>>>> upstream/android-13
 
 	opp_set_dev_name(opp_dev->dev, name);
 
 	/* Create device specific directory link */
+<<<<<<< HEAD
 	d = debugfs_create_symlink(name, rootdir, opp_table->dentry_name);
 	if (!d) {
 		dev_err(dev, "%s: Failed to create link\n", __func__);
@@ -167,6 +279,10 @@ static int opp_list_debug_create_link(struct opp_device *opp_dev,
 	opp_dev->dentry = d;
 
 	return 0;
+=======
+	opp_dev->dentry = debugfs_create_symlink(name, rootdir,
+						 opp_table->dentry_name);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -177,6 +293,7 @@ static int opp_list_debug_create_link(struct opp_device *opp_dev,
  * Dynamically adds device specific directory in debugfs 'opp' directory. If the
  * device-opp is shared with other devices, then links will be created for all
  * devices except the first.
+<<<<<<< HEAD
  *
  * Return: 0 on success, otherwise negative error.
  */
@@ -191,6 +308,15 @@ int opp_debug_register(struct opp_device *opp_dev, struct opp_table *opp_table)
 		return opp_list_debug_create_link(opp_dev, opp_table);
 
 	return opp_list_debug_create_dir(opp_dev, opp_table);
+=======
+ */
+void opp_debug_register(struct opp_device *opp_dev, struct opp_table *opp_table)
+{
+	if (opp_table->dentry)
+		opp_list_debug_create_link(opp_dev, opp_table);
+	else
+		opp_list_debug_create_dir(opp_dev, opp_table);
+>>>>>>> upstream/android-13
 }
 
 static void opp_migrate_dentry(struct opp_device *opp_dev,
@@ -252,10 +378,13 @@ static int __init opp_debug_init(void)
 {
 	/* Create /sys/kernel/debug/opp directory */
 	rootdir = debugfs_create_dir("opp", NULL);
+<<<<<<< HEAD
 	if (!rootdir) {
 		pr_err("%s: Failed to create root directory\n", __func__);
 		return -ENOMEM;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

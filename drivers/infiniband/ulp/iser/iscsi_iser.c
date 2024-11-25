@@ -89,6 +89,7 @@ int iser_debug_level = 0;
 module_param_named(debug_level, iser_debug_level, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(debug_level, "Enable debug tracing if > 0 (default:disabled)");
 
+<<<<<<< HEAD
 static unsigned int iscsi_max_lun = 512;
 module_param_named(max_lun, iscsi_max_lun, uint, S_IRUGO);
 MODULE_PARM_DESC(max_lun, "Max LUNs to allow per session (default:512");
@@ -96,6 +97,22 @@ MODULE_PARM_DESC(max_lun, "Max LUNs to allow per session (default:512");
 unsigned int iser_max_sectors = ISER_DEF_MAX_SECTORS;
 module_param_named(max_sectors, iser_max_sectors, uint, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(max_sectors, "Max number of sectors in a single scsi command (default:1024");
+=======
+static int iscsi_iser_set(const char *val, const struct kernel_param *kp);
+static const struct kernel_param_ops iscsi_iser_size_ops = {
+	.set = iscsi_iser_set,
+	.get = param_get_uint,
+};
+
+static unsigned int iscsi_max_lun = 512;
+module_param_cb(max_lun, &iscsi_iser_size_ops, &iscsi_max_lun, S_IRUGO);
+MODULE_PARM_DESC(max_lun, "Max LUNs to allow per session, should > 0 (default:512)");
+
+unsigned int iser_max_sectors = ISER_DEF_MAX_SECTORS;
+module_param_cb(max_sectors, &iscsi_iser_size_ops, &iser_max_sectors,
+		S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(max_sectors, "Max number of sectors in a single scsi command, should > 0 (default:1024)");
+>>>>>>> upstream/android-13
 
 bool iser_always_reg = true;
 module_param_named(always_register, iser_always_reg, bool, S_IRUGO);
@@ -110,6 +127,21 @@ int iser_pi_guard;
 module_param_named(pi_guard, iser_pi_guard, int, S_IRUGO);
 MODULE_PARM_DESC(pi_guard, "T10-PI guard_type [deprecated]");
 
+<<<<<<< HEAD
+=======
+static int iscsi_iser_set(const char *val, const struct kernel_param *kp)
+{
+	int ret;
+	unsigned int n = 0;
+
+	ret = kstrtouint(val, 10, &n);
+	if (ret != 0 || n == 0)
+		return -EINVAL;
+
+	return param_set_uint(val, kp);
+}
+
+>>>>>>> upstream/android-13
 /*
  * iscsi_iser_recv() - Process a successful recv completion
  * @conn:         iscsi connection
@@ -187,6 +219,7 @@ iser_initialize_task_headers(struct iscsi_task *task,
 	struct iser_device *device = iser_conn->ib_conn.device;
 	struct iscsi_iser_task *iser_task = task->dd_data;
 	u64 dma_addr;
+<<<<<<< HEAD
 	const bool mgmt_task = !task->sc && !in_interrupt();
 	int ret = 0;
 
@@ -206,6 +239,19 @@ iser_initialize_task_headers(struct iscsi_task *task,
 	}
 
 	tx_desc->wr_idx = 0;
+=======
+
+	if (unlikely(iser_conn->state != ISER_CONN_UP))
+		return -ENODEV;
+
+	dma_addr = ib_dma_map_single(device->ib_device, (void *)tx_desc,
+				ISER_HEADERS_LEN, DMA_TO_DEVICE);
+	if (ib_dma_mapping_error(device->ib_device, dma_addr))
+		return -ENOMEM;
+
+	tx_desc->inv_wr.next = NULL;
+	tx_desc->reg_wr.wr.next = NULL;
+>>>>>>> upstream/android-13
 	tx_desc->mapped = true;
 	tx_desc->dma_addr = dma_addr;
 	tx_desc->tx_sg[0].addr   = tx_desc->dma_addr;
@@ -213,11 +259,16 @@ iser_initialize_task_headers(struct iscsi_task *task,
 	tx_desc->tx_sg[0].lkey   = device->pd->local_dma_lkey;
 
 	iser_task->iser_conn = iser_conn;
+<<<<<<< HEAD
 out:
 	if (unlikely(mgmt_task))
 		mutex_unlock(&iser_conn->state_mutex);
 
 	return ret;
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -406,6 +457,7 @@ static u8
 iscsi_iser_check_protection(struct iscsi_task *task, sector_t *sector)
 {
 	struct iscsi_iser_task *iser_task = task->dd_data;
+<<<<<<< HEAD
 
 	if (iser_task->dir[ISER_DIR_IN])
 		return iser_check_task_pi_status(iser_task, ISER_DIR_IN,
@@ -413,6 +465,12 @@ iscsi_iser_check_protection(struct iscsi_task *task, sector_t *sector)
 	else
 		return iser_check_task_pi_status(iser_task, ISER_DIR_OUT,
 						 sector);
+=======
+	enum iser_data_dir dir = iser_task->dir[ISER_DIR_IN] ?
+					ISER_DIR_IN : ISER_DIR_OUT;
+
+	return iser_check_task_pi_status(iser_task, dir, sector);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -501,6 +559,10 @@ iscsi_iser_conn_bind(struct iscsi_cls_session *cls_session,
 	iser_conn->iscsi_conn = conn;
 
 out:
+<<<<<<< HEAD
+=======
+	iscsi_put_endpoint(ep);
+>>>>>>> upstream/android-13
 	mutex_unlock(&iser_conn->state_mutex);
 	return error;
 }
@@ -585,6 +647,7 @@ iscsi_iser_session_destroy(struct iscsi_cls_session *cls_session)
 static inline unsigned int
 iser_dif_prot_caps(int prot_caps)
 {
+<<<<<<< HEAD
 	return ((prot_caps & IB_PROT_T10DIF_TYPE_1) ?
 		SHOST_DIF_TYPE1_PROTECTION | SHOST_DIX_TYPE0_PROTECTION |
 		SHOST_DIX_TYPE1_PROTECTION : 0) |
@@ -592,6 +655,22 @@ iser_dif_prot_caps(int prot_caps)
 		SHOST_DIF_TYPE2_PROTECTION | SHOST_DIX_TYPE2_PROTECTION : 0) |
 	       ((prot_caps & IB_PROT_T10DIF_TYPE_3) ?
 		SHOST_DIF_TYPE3_PROTECTION | SHOST_DIX_TYPE3_PROTECTION : 0);
+=======
+	int ret = 0;
+
+	if (prot_caps & IB_PROT_T10DIF_TYPE_1)
+		ret |= SHOST_DIF_TYPE1_PROTECTION |
+		       SHOST_DIX_TYPE0_PROTECTION |
+		       SHOST_DIX_TYPE1_PROTECTION;
+	if (prot_caps & IB_PROT_T10DIF_TYPE_2)
+		ret |= SHOST_DIF_TYPE2_PROTECTION |
+		       SHOST_DIX_TYPE2_PROTECTION;
+	if (prot_caps & IB_PROT_T10DIF_TYPE_3)
+		ret |= SHOST_DIF_TYPE3_PROTECTION |
+		       SHOST_DIX_TYPE3_PROTECTION;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -613,6 +692,10 @@ iscsi_iser_session_create(struct iscsi_endpoint *ep,
 	struct Scsi_Host *shost;
 	struct iser_conn *iser_conn = NULL;
 	struct ib_conn *ib_conn;
+<<<<<<< HEAD
+=======
+	struct ib_device *ib_dev;
+>>>>>>> upstream/android-13
 	u32 max_fr_sectors;
 
 	shost = iscsi_host_alloc(&iscsi_iser_sht, 0, 0);
@@ -643,8 +726,14 @@ iscsi_iser_session_create(struct iscsi_endpoint *ep,
 		}
 
 		ib_conn = &iser_conn->ib_conn;
+<<<<<<< HEAD
 		if (ib_conn->pi_support) {
 			u32 sig_caps = ib_conn->device->ib_device->attrs.sig_prot_cap;
+=======
+		ib_dev = ib_conn->device->ib_device;
+		if (ib_conn->pi_support) {
+			u32 sig_caps = ib_dev->attrs.sig_prot_cap;
+>>>>>>> upstream/android-13
 
 			shost->sg_prot_tablesize = shost->sg_tablesize;
 			scsi_host_set_prot(shost, iser_dif_prot_caps(sig_caps));
@@ -652,8 +741,15 @@ iscsi_iser_session_create(struct iscsi_endpoint *ep,
 						   SHOST_DIX_GUARD_CRC);
 		}
 
+<<<<<<< HEAD
 		if (iscsi_host_add(shost,
 				   ib_conn->device->ib_device->dev.parent)) {
+=======
+		if (!(ib_dev->attrs.device_cap_flags & IB_DEVICE_SG_GAPS_REG))
+			shost->virt_boundary_mask = SZ_4K - 1;
+
+		if (iscsi_host_add(shost, ib_dev->dev.parent)) {
+>>>>>>> upstream/android-13
 			mutex_unlock(&iser_conn->state_mutex);
 			goto free_host;
 		}
@@ -737,7 +833,11 @@ iscsi_iser_set_param(struct iscsi_cls_conn *cls_conn,
 }
 
 /**
+<<<<<<< HEAD
  * iscsi_iser_set_param() - set class connection parameter
+=======
+ * iscsi_iser_conn_get_stats() - get iscsi connection statistics
+>>>>>>> upstream/android-13
  * @cls_conn:    iscsi class connection
  * @stats:       iscsi stats to output
  *
@@ -764,7 +864,10 @@ static int iscsi_iser_get_ep_param(struct iscsi_endpoint *ep,
 				   enum iscsi_param param, char *buf)
 {
 	struct iser_conn *iser_conn = ep->dd_data;
+<<<<<<< HEAD
 	int len;
+=======
+>>>>>>> upstream/android-13
 
 	switch (param) {
 	case ISCSI_PARAM_CONN_PORT:
@@ -775,19 +878,30 @@ static int iscsi_iser_get_ep_param(struct iscsi_endpoint *ep,
 		return iscsi_conn_get_addr_param((struct sockaddr_storage *)
 				&iser_conn->ib_conn.cma_id->route.addr.dst_addr,
 				param, buf);
+<<<<<<< HEAD
 		break;
 	default:
 		return -ENOSYS;
 	}
 
 	return len;
+=======
+	default:
+		break;
+	}
+	return -ENOSYS;
+>>>>>>> upstream/android-13
 }
 
 /**
  * iscsi_iser_ep_connect() - Initiate iSER connection establishment
  * @shost:          scsi_host
  * @dst_addr:       destination address
+<<<<<<< HEAD
  * @non-blocking:   indicate if routine can block
+=======
+ * @non_blocking:   indicate if routine can block
+>>>>>>> upstream/android-13
  *
  * Allocate an iscsi endpoint, an iser_conn structure and bind them.
  * After that start RDMA connection establishment via rdma_cm. We
@@ -962,6 +1076,7 @@ static umode_t iser_attr_is_visible(int param_type, int param)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int iscsi_iser_slave_alloc(struct scsi_device *sdev)
 {
 	struct iscsi_session *session;
@@ -986,6 +1101,8 @@ static int iscsi_iser_slave_alloc(struct scsi_device *sdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct scsi_host_template iscsi_iser_sht = {
 	.module                 = THIS_MODULE,
 	.name                   = "iSCSI Initiator over iSER",
@@ -998,8 +1115,11 @@ static struct scsi_host_template iscsi_iser_sht = {
 	.eh_device_reset_handler= iscsi_eh_device_reset,
 	.eh_target_reset_handler = iscsi_eh_recover_target,
 	.target_alloc		= iscsi_target_alloc,
+<<<<<<< HEAD
 	.use_clustering         = ENABLE_CLUSTERING,
 	.slave_alloc            = iscsi_iser_slave_alloc,
+=======
+>>>>>>> upstream/android-13
 	.proc_name              = "iscsi_iser",
 	.this_id                = -1,
 	.track_queue_depth	= 1,
@@ -1015,6 +1135,10 @@ static struct iscsi_transport iscsi_iser_transport = {
 	/* connection management */
 	.create_conn            = iscsi_iser_conn_create,
 	.bind_conn              = iscsi_iser_conn_bind,
+<<<<<<< HEAD
+=======
+	.unbind_conn		= iscsi_conn_unbind,
+>>>>>>> upstream/android-13
 	.destroy_conn           = iscsi_conn_teardown,
 	.attr_is_visible	= iser_attr_is_visible,
 	.set_param              = iscsi_iser_set_param,
@@ -1048,11 +1172,14 @@ static int __init iser_init(void)
 
 	iser_dbg("Starting iSER datamover...\n");
 
+<<<<<<< HEAD
 	if (iscsi_max_lun < 1) {
 		iser_err("Invalid max_lun value of %u\n", iscsi_max_lun);
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	memset(&ig, 0, sizeof(struct iser_global));
 
 	ig.desc_cache = kmem_cache_create("iser_descriptors",

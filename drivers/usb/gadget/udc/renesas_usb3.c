@@ -352,6 +352,11 @@ struct renesas_usb3 {
 	int disabled_count;
 
 	struct usb_request *ep0_req;
+<<<<<<< HEAD
+=======
+
+	enum usb_role connection_state;
+>>>>>>> upstream/android-13
 	u16 test_mode;
 	u8 ep0_buf[USB3_EP0_BUF_SIZE];
 	bool softconnect;
@@ -360,6 +365,10 @@ struct renesas_usb3 {
 	bool extcon_usb;		/* check vbus and set EXTCON_USB */
 	bool forced_b_device;
 	bool start_to_connect;
+<<<<<<< HEAD
+=======
+	bool role_sw_by_connector;
+>>>>>>> upstream/android-13
 };
 
 #define gadget_to_renesas_usb3(_gadget)	\
@@ -700,8 +709,16 @@ static void usb3_mode_config(struct renesas_usb3 *usb3, bool host, bool a_dev)
 	unsigned long flags;
 
 	spin_lock_irqsave(&usb3->lock, flags);
+<<<<<<< HEAD
 	usb3_set_mode_by_role_sw(usb3, host);
 	usb3_vbus_out(usb3, a_dev);
+=======
+	if (!usb3->role_sw_by_connector ||
+	    usb3->connection_state != USB_ROLE_NONE) {
+		usb3_set_mode_by_role_sw(usb3, host);
+		usb3_vbus_out(usb3, a_dev);
+	}
+>>>>>>> upstream/android-13
 	/* for A-Peripheral or forced B-device mode */
 	if ((!host && a_dev) || usb3->start_to_connect)
 		usb3_connect(usb3);
@@ -717,7 +734,12 @@ static void usb3_check_id(struct renesas_usb3 *usb3)
 {
 	usb3->extcon_host = usb3_is_a_device(usb3);
 
+<<<<<<< HEAD
 	if (usb3->extcon_host && !usb3->forced_b_device)
+=======
+	if ((!usb3->role_sw_by_connector && usb3->extcon_host &&
+	     !usb3->forced_b_device) || usb3->connection_state == USB_ROLE_HOST)
+>>>>>>> upstream/android-13
 		usb3_mode_config(usb3, true, true);
 	else
 		usb3_mode_config(usb3, false, false);
@@ -768,6 +790,21 @@ static void usb3_irq_epc_int_1_resume(struct renesas_usb3 *usb3)
 	usb3_transition_to_default_state(usb3, false);
 }
 
+<<<<<<< HEAD
+=======
+static void usb3_irq_epc_int_1_suspend(struct renesas_usb3 *usb3)
+{
+	usb3_disable_irq_1(usb3, USB_INT_1_B2_SPND);
+
+	if (usb3->gadget.speed != USB_SPEED_UNKNOWN &&
+	    usb3->gadget.state != USB_STATE_NOTATTACHED) {
+		if (usb3->driver && usb3->driver->suspend)
+			usb3->driver->suspend(&usb3->gadget);
+		usb_gadget_set_state(&usb3->gadget, USB_STATE_SUSPENDED);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void usb3_irq_epc_int_1_disable(struct renesas_usb3 *usb3)
 {
 	usb3_stop_usb3_connection(usb3);
@@ -853,6 +890,12 @@ static void usb3_irq_epc_int_1(struct renesas_usb3 *usb3, u32 int_sta_1)
 	if (int_sta_1 & USB_INT_1_B2_RSUM)
 		usb3_irq_epc_int_1_resume(usb3);
 
+<<<<<<< HEAD
+=======
+	if (int_sta_1 & USB_INT_1_B2_SPND)
+		usb3_irq_epc_int_1_suspend(usb3);
+
+>>>>>>> upstream/android-13
 	if (int_sta_1 & USB_INT_1_SPEED)
 		usb3_irq_epc_int_1_speed(usb3);
 
@@ -1162,7 +1205,11 @@ static void usb3_set_status_stage(struct renesas_usb3_ep *usb3_ep,
 static void usb3_p0_xfer(struct renesas_usb3_ep *usb3_ep,
 			 struct renesas_usb3_request *usb3_req)
 {
+<<<<<<< HEAD
 	int ret = -EAGAIN;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (usb3_ep->dir_in)
 		ret = usb3_write_pipe(usb3_ep, usb3_req, USB3_P0_WRITE);
@@ -1466,7 +1513,11 @@ static void usb3_start_pipen(struct renesas_usb3_ep *usb3_ep,
 			     struct renesas_usb3_request *usb3_req)
 {
 	struct renesas_usb3 *usb3 = usb3_ep_to_usb3(usb3_ep);
+<<<<<<< HEAD
 	struct renesas_usb3_request *usb3_req_first = usb3_get_request(usb3_ep);
+=======
+	struct renesas_usb3_request *usb3_req_first;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret = -EAGAIN;
 	u32 enable_bits = 0;
@@ -1474,7 +1525,12 @@ static void usb3_start_pipen(struct renesas_usb3_ep *usb3_ep,
 	spin_lock_irqsave(&usb3->lock, flags);
 	if (usb3_ep->halt || usb3_ep->started)
 		goto out;
+<<<<<<< HEAD
 	if (usb3_req != usb3_req_first)
+=======
+	usb3_req_first = __usb3_get_request(usb3_ep);
+	if (!usb3_req_first || usb3_req != usb3_req_first)
+>>>>>>> upstream/android-13
 		goto out;
 
 	if (usb3_pn_change(usb3, usb3_ep->num) < 0)
@@ -1537,10 +1593,17 @@ static void usb3_set_device_address(struct renesas_usb3 *usb3, u16 addr)
 static bool usb3_std_req_set_address(struct renesas_usb3 *usb3,
 				     struct usb_ctrlrequest *ctrl)
 {
+<<<<<<< HEAD
 	if (ctrl->wValue >= 128)
 		return true;	/* stall */
 
 	usb3_set_device_address(usb3, ctrl->wValue);
+=======
+	if (le16_to_cpu(ctrl->wValue) >= 128)
+		return true;	/* stall */
+
+	usb3_set_device_address(usb3, le16_to_cpu(ctrl->wValue));
+>>>>>>> upstream/android-13
 	usb3_set_p0_con_for_no_data(usb3);
 
 	return false;
@@ -1575,6 +1638,10 @@ static bool usb3_std_req_get_status(struct renesas_usb3 *usb3,
 	struct renesas_usb3_ep *usb3_ep;
 	int num;
 	u16 status = 0;
+<<<<<<< HEAD
+=======
+	__le16 tx_data;
+>>>>>>> upstream/android-13
 
 	switch (ctrl->bRequestType & USB_RECIP_MASK) {
 	case USB_RECIP_DEVICE:
@@ -1597,10 +1664,17 @@ static bool usb3_std_req_get_status(struct renesas_usb3 *usb3,
 	}
 
 	if (!stall) {
+<<<<<<< HEAD
 		status = cpu_to_le16(status);
 		dev_dbg(usb3_to_dev(usb3), "get_status: req = %p\n",
 			usb_req_to_usb3_req(usb3->ep0_req));
 		usb3_pipe0_internal_xfer(usb3, &status, sizeof(status),
+=======
+		tx_data = cpu_to_le16(status);
+		dev_dbg(usb3_to_dev(usb3), "get_status: req = %p\n",
+			usb_req_to_usb3_req(usb3->ep0_req));
+		usb3_pipe0_internal_xfer(usb3, &tx_data, sizeof(tx_data),
+>>>>>>> upstream/android-13
 					 usb3_pipe0_get_status_completion);
 	}
 
@@ -1765,7 +1839,11 @@ static bool usb3_std_req_set_sel(struct renesas_usb3 *usb3,
 static bool usb3_std_req_set_configuration(struct renesas_usb3 *usb3,
 					   struct usb_ctrlrequest *ctrl)
 {
+<<<<<<< HEAD
 	if (ctrl->wValue > 0)
+=======
+	if (le16_to_cpu(ctrl->wValue) > 0)
+>>>>>>> upstream/android-13
 		usb3_set_bit(usb3, USB_COM_CON_CONF, USB3_USB_COM_CON);
 	else
 		usb3_clear_bit(usb3, USB_COM_CON_CONF, USB3_USB_COM_CON);
@@ -2332,6 +2410,7 @@ static const struct usb_gadget_ops renesas_usb3_gadget_ops = {
 	.set_selfpowered	= renesas_usb3_set_selfpowered,
 };
 
+<<<<<<< HEAD
 static enum usb_role renesas_usb3_role_switch_get(struct device *dev)
 {
 	struct renesas_usb3 *usb3 = dev_get_drvdata(dev);
@@ -2340,10 +2419,21 @@ static enum usb_role renesas_usb3_role_switch_get(struct device *dev)
 	pm_runtime_get_sync(dev);
 	cur_role = usb3_is_host(usb3) ? USB_ROLE_HOST : USB_ROLE_DEVICE;
 	pm_runtime_put(dev);
+=======
+static enum usb_role renesas_usb3_role_switch_get(struct usb_role_switch *sw)
+{
+	struct renesas_usb3 *usb3 = usb_role_switch_get_drvdata(sw);
+	enum usb_role cur_role;
+
+	pm_runtime_get_sync(usb3_to_dev(usb3));
+	cur_role = usb3_is_host(usb3) ? USB_ROLE_HOST : USB_ROLE_DEVICE;
+	pm_runtime_put(usb3_to_dev(usb3));
+>>>>>>> upstream/android-13
 
 	return cur_role;
 }
 
+<<<<<<< HEAD
 static int renesas_usb3_role_switch_set(struct device *dev,
 					enum usb_role role)
 {
@@ -2352,6 +2442,69 @@ static int renesas_usb3_role_switch_set(struct device *dev,
 	enum usb_role cur_role = renesas_usb3_role_switch_get(dev);
 
 	pm_runtime_get_sync(dev);
+=======
+static void handle_ext_role_switch_states(struct device *dev,
+					    enum usb_role role)
+{
+	struct renesas_usb3 *usb3 = dev_get_drvdata(dev);
+	struct device *host = usb3->host_dev;
+	enum usb_role cur_role = renesas_usb3_role_switch_get(usb3->role_sw);
+
+	switch (role) {
+	case USB_ROLE_NONE:
+		usb3->connection_state = USB_ROLE_NONE;
+		if (cur_role == USB_ROLE_HOST)
+			device_release_driver(host);
+		if (usb3->driver)
+			usb3_disconnect(usb3);
+		usb3_vbus_out(usb3, false);
+		break;
+	case USB_ROLE_DEVICE:
+		if (usb3->connection_state == USB_ROLE_NONE) {
+			usb3->connection_state = USB_ROLE_DEVICE;
+			usb3_set_mode(usb3, false);
+			if (usb3->driver)
+				usb3_connect(usb3);
+		} else if (cur_role == USB_ROLE_HOST)  {
+			device_release_driver(host);
+			usb3_set_mode(usb3, false);
+			if (usb3->driver)
+				usb3_connect(usb3);
+		}
+		usb3_vbus_out(usb3, false);
+		break;
+	case USB_ROLE_HOST:
+		if (usb3->connection_state == USB_ROLE_NONE) {
+			if (usb3->driver)
+				usb3_disconnect(usb3);
+
+			usb3->connection_state = USB_ROLE_HOST;
+			usb3_set_mode(usb3, true);
+			usb3_vbus_out(usb3, true);
+			if (device_attach(host) < 0)
+				dev_err(dev, "device_attach(host) failed\n");
+		} else if (cur_role == USB_ROLE_DEVICE) {
+			usb3_disconnect(usb3);
+			/* Must set the mode before device_attach of the host */
+			usb3_set_mode(usb3, true);
+			/* This device_attach() might sleep */
+			if (device_attach(host) < 0)
+				dev_err(dev, "device_attach(host) failed\n");
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+static void handle_role_switch_states(struct device *dev,
+					    enum usb_role role)
+{
+	struct renesas_usb3 *usb3 = dev_get_drvdata(dev);
+	struct device *host = usb3->host_dev;
+	enum usb_role cur_role = renesas_usb3_role_switch_get(usb3->role_sw);
+
+>>>>>>> upstream/android-13
 	if (cur_role == USB_ROLE_HOST && role == USB_ROLE_DEVICE) {
 		device_release_driver(host);
 		usb3_set_mode(usb3, false);
@@ -2362,7 +2515,25 @@ static int renesas_usb3_role_switch_set(struct device *dev,
 		if (device_attach(host) < 0)
 			dev_err(dev, "device_attach(host) failed\n");
 	}
+<<<<<<< HEAD
 	pm_runtime_put(dev);
+=======
+}
+
+static int renesas_usb3_role_switch_set(struct usb_role_switch *sw,
+					enum usb_role role)
+{
+	struct renesas_usb3 *usb3 = usb_role_switch_get_drvdata(sw);
+
+	pm_runtime_get_sync(usb3_to_dev(usb3));
+
+	if (usb3->role_sw_by_connector)
+		handle_ext_role_switch_states(usb3_to_dev(usb3), role);
+	else
+		handle_role_switch_states(usb3_to_dev(usb3), role);
+
+	pm_runtime_put(usb3_to_dev(usb3));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2463,7 +2634,11 @@ static const struct file_operations renesas_usb3_b_device_fops = {
 static void renesas_usb3_debugfs_init(struct renesas_usb3 *usb3,
 				      struct device *dev)
 {
+<<<<<<< HEAD
 	usb3->dentry = debugfs_create_dir(dev_name(dev), NULL);
+=======
+	usb3->dentry = debugfs_create_dir(dev_name(dev), usb_debug_root);
+>>>>>>> upstream/android-13
 
 	debugfs_create_file("b_device", 0644, usb3->dentry, usb3,
 			    &renesas_usb3_b_device_fops);
@@ -2609,12 +2784,33 @@ static const struct renesas_usb3_priv renesas_usb3_priv_gen3 = {
 	.ramsize_per_pipe = SZ_4K,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id usb3_of_match[] = {
 	{
 		.compatible = "renesas,r8a7795-usb3-peri",
 		.data = &renesas_usb3_priv_gen3,
 	},
 	{
+=======
+static const struct renesas_usb3_priv renesas_usb3_priv_r8a77990 = {
+	.ramsize_per_ramif = SZ_16K,
+	.num_ramif = 4,
+	.ramsize_per_pipe = SZ_4K,
+	.workaround_for_vbus = true,
+};
+
+static const struct of_device_id usb3_of_match[] = {
+	{
+		.compatible = "renesas,r8a774c0-usb3-peri",
+		.data = &renesas_usb3_priv_r8a77990,
+	}, {
+		.compatible = "renesas,r8a7795-usb3-peri",
+		.data = &renesas_usb3_priv_gen3,
+	}, {
+		.compatible = "renesas,r8a77990-usb3-peri",
+		.data = &renesas_usb3_priv_r8a77990,
+	}, {
+>>>>>>> upstream/android-13
 		.compatible = "renesas,rcar-gen3-usb3-peri",
 		.data = &renesas_usb3_priv_gen3,
 	},
@@ -2636,7 +2832,11 @@ static const unsigned int renesas_usb3_cable[] = {
 	EXTCON_NONE,
 };
 
+<<<<<<< HEAD
 static const struct usb_role_switch_desc renesas_usb3_role_switch_desc = {
+=======
+static struct usb_role_switch_desc renesas_usb3_role_switch_desc = {
+>>>>>>> upstream/android-13
 	.set = renesas_usb3_role_switch_set,
 	.get = renesas_usb3_role_switch_get,
 	.allow_userspace_control = true,
@@ -2645,7 +2845,10 @@ static const struct usb_role_switch_desc renesas_usb3_role_switch_desc = {
 static int renesas_usb3_probe(struct platform_device *pdev)
 {
 	struct renesas_usb3 *usb3;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int irq, ret;
 	const struct renesas_usb3_priv *priv;
 	const struct soc_device_attribute *attr;
@@ -2657,17 +2860,26 @@ static int renesas_usb3_probe(struct platform_device *pdev)
 		priv = of_device_get_match_data(&pdev->dev);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "Failed to get IRQ: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	usb3 = devm_kzalloc(&pdev->dev, sizeof(*usb3), GFP_KERNEL);
 	if (!usb3)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	usb3->reg = devm_ioremap_resource(&pdev->dev, res);
+=======
+	usb3->reg = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(usb3->reg))
 		return PTR_ERR(usb3->reg);
 
@@ -2727,6 +2939,16 @@ static int renesas_usb3_probe(struct platform_device *pdev)
 	if (ret < 0)
 		goto err_dev_create;
 
+<<<<<<< HEAD
+=======
+	if (device_property_read_bool(&pdev->dev, "usb-role-switch")) {
+		usb3->role_sw_by_connector = true;
+		renesas_usb3_role_switch_desc.fwnode = dev_fwnode(&pdev->dev);
+	}
+
+	renesas_usb3_role_switch_desc.driver_data = usb3;
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&usb3->role_work, renesas_usb3_role_work);
 	usb3->role_sw = usb_role_switch_register(&pdev->dev,
 					&renesas_usb3_role_switch_desc);
@@ -2802,7 +3024,11 @@ static struct platform_driver renesas_usb3_driver = {
 	.probe		= renesas_usb3_probe,
 	.remove		= renesas_usb3_remove,
 	.driver		= {
+<<<<<<< HEAD
 		.name =	(char *)udc_name,
+=======
+		.name =	udc_name,
+>>>>>>> upstream/android-13
 		.pm		= &renesas_usb3_pm_ops,
 		.of_match_table = of_match_ptr(usb3_of_match),
 	},

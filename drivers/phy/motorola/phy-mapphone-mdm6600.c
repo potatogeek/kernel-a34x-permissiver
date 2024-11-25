@@ -16,6 +16,10 @@
 #include <linux/gpio/consumer.h>
 #include <linux/of_platform.h>
 #include <linux/phy/phy.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/consumer.h>
+>>>>>>> upstream/android-13
 
 #define PHY_MDM6600_PHY_DELAY_MS	4000	/* PHY enable 2.2s to 3.5s */
 #define PHY_MDM6600_ENABLED_DELAY_MS	8000	/* 8s more total for MDM6600 */
@@ -121,12 +125,30 @@ static int phy_mdm6600_power_on(struct phy *x)
 {
 	struct phy_mdm6600 *ddata = phy_get_drvdata(x);
 	struct gpio_desc *enable_gpio = ddata->ctrl_gpios[PHY_MDM6600_ENABLE];
+<<<<<<< HEAD
+=======
+	int error;
+>>>>>>> upstream/android-13
 
 	if (!ddata->enabled)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	gpiod_set_value_cansleep(enable_gpio, 1);
 
+=======
+	error = pinctrl_pm_select_default_state(ddata->dev);
+	if (error)
+		dev_warn(ddata->dev, "%s: error with default_state: %i\n",
+			 __func__, error);
+
+	gpiod_set_value_cansleep(enable_gpio, 1);
+
+	/* Allow aggressive PM for USB, it's only needed for n_gsm port */
+	if (pm_runtime_enabled(&x->dev))
+		phy_pm_runtime_put(x);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -134,12 +156,34 @@ static int phy_mdm6600_power_off(struct phy *x)
 {
 	struct phy_mdm6600 *ddata = phy_get_drvdata(x);
 	struct gpio_desc *enable_gpio = ddata->ctrl_gpios[PHY_MDM6600_ENABLE];
+<<<<<<< HEAD
+=======
+	int error;
+>>>>>>> upstream/android-13
 
 	if (!ddata->enabled)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	gpiod_set_value_cansleep(enable_gpio, 0);
 
+=======
+	/* Paired with phy_pm_runtime_put() in phy_mdm6600_power_on() */
+	if (pm_runtime_enabled(&x->dev)) {
+		error = phy_pm_runtime_get(x);
+		if (error < 0 && error != -EINPROGRESS)
+			dev_warn(ddata->dev, "%s: phy_pm_runtime_get: %i\n",
+				 __func__, error);
+	}
+
+	gpiod_set_value_cansleep(enable_gpio, 0);
+
+	error = pinctrl_pm_select_sleep_state(ddata->dev);
+	if (error)
+		dev_warn(ddata->dev, "%s: error with sleep_state: %i\n",
+			 __func__, error);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -153,11 +197,16 @@ static const struct phy_ops gpio_usb_ops = {
 /**
  * phy_mdm6600_cmd() - send a command request to mdm6600
  * @ddata: device driver data
+<<<<<<< HEAD
+=======
+ * @val: value of cmd to be set
+>>>>>>> upstream/android-13
  *
  * Configures the three command request GPIOs to the specified value.
  */
 static void phy_mdm6600_cmd(struct phy_mdm6600 *ddata, int val)
 {
+<<<<<<< HEAD
 	int values[PHY_MDM6600_NR_CMD_LINES];
 	int i;
 
@@ -167,28 +216,51 @@ static void phy_mdm6600_cmd(struct phy_mdm6600 *ddata, int val)
 
 	gpiod_set_array_value_cansleep(PHY_MDM6600_NR_CMD_LINES,
 				       ddata->cmd_gpios->desc, values);
+=======
+	DECLARE_BITMAP(values, PHY_MDM6600_NR_CMD_LINES);
+
+	values[0] = val;
+
+	gpiod_set_array_value_cansleep(PHY_MDM6600_NR_CMD_LINES,
+				       ddata->cmd_gpios->desc,
+				       ddata->cmd_gpios->info, values);
+>>>>>>> upstream/android-13
 }
 
 /**
  * phy_mdm6600_status() - read mdm6600 status lines
+<<<<<<< HEAD
  * @ddata: device driver data
+=======
+ * @work: work structure
+>>>>>>> upstream/android-13
  */
 static void phy_mdm6600_status(struct work_struct *work)
 {
 	struct phy_mdm6600 *ddata;
 	struct device *dev;
+<<<<<<< HEAD
 	int values[PHY_MDM6600_NR_STATUS_LINES];
 	int error, i, val = 0;
+=======
+	DECLARE_BITMAP(values, PHY_MDM6600_NR_STATUS_LINES);
+	int error;
+>>>>>>> upstream/android-13
 
 	ddata = container_of(work, struct phy_mdm6600, status_work.work);
 	dev = ddata->dev;
 
 	error = gpiod_get_array_value_cansleep(PHY_MDM6600_NR_STATUS_LINES,
 					       ddata->status_gpios->desc,
+<<<<<<< HEAD
+=======
+					       ddata->status_gpios->info,
+>>>>>>> upstream/android-13
 					       values);
 	if (error)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < PHY_MDM6600_NR_STATUS_LINES; i++) {
 		val |= values[i] << i;
 		dev_dbg(ddata->dev, "XXX %s: i: %i values[i]: %i val: %i\n",
@@ -199,6 +271,13 @@ static void phy_mdm6600_status(struct work_struct *work)
 	dev_info(dev, "modem status: %i %s\n",
 		 ddata->status,
 		 phy_mdm6600_status_name[ddata->status & 7]);
+=======
+	ddata->status = values[0] & ((1 << PHY_MDM6600_NR_STATUS_LINES) - 1);
+
+	dev_info(dev, "modem status: %i %s\n",
+		 ddata->status,
+		 phy_mdm6600_status_name[ddata->status]);
+>>>>>>> upstream/android-13
 	complete(&ddata->ack);
 }
 
@@ -551,11 +630,21 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
 	ddata->dev = &pdev->dev;
 	platform_set_drvdata(pdev, ddata);
 
+<<<<<<< HEAD
+=======
+	/* Active state selected in phy_mdm6600_power_on() */
+	error = pinctrl_pm_select_sleep_state(ddata->dev);
+	if (error)
+		dev_warn(ddata->dev, "%s: error with sleep_state: %i\n",
+			 __func__, error);
+
+>>>>>>> upstream/android-13
 	error = phy_mdm6600_init_lines(ddata);
 	if (error)
 		return error;
 
 	phy_mdm6600_init_irq(ddata);
+<<<<<<< HEAD
 
 	ddata->generic_phy = devm_phy_create(ddata->dev, NULL, &gpio_usb_ops);
 	if (IS_ERR(ddata->generic_phy)) {
@@ -573,6 +662,8 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
 		goto cleanup;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	schedule_delayed_work(&ddata->bootup_work, 0);
 
 	/*
@@ -596,6 +687,7 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
 	if (error < 0) {
 		dev_warn(ddata->dev, "failed to wake modem: %i\n", error);
 		pm_runtime_put_noidle(ddata->dev);
+<<<<<<< HEAD
 	}
 	pm_runtime_mark_last_busy(ddata->dev);
 	pm_runtime_put_autosuspend(ddata->dev);
@@ -604,6 +696,34 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
 
 cleanup:
 	phy_mdm6600_device_power_off(ddata);
+=======
+		goto cleanup;
+	}
+
+	ddata->generic_phy = devm_phy_create(ddata->dev, NULL, &gpio_usb_ops);
+	if (IS_ERR(ddata->generic_phy)) {
+		error = PTR_ERR(ddata->generic_phy);
+		goto idle;
+	}
+
+	phy_set_drvdata(ddata->generic_phy, ddata);
+
+	ddata->phy_provider =
+		devm_of_phy_provider_register(ddata->dev,
+					      of_phy_simple_xlate);
+	if (IS_ERR(ddata->phy_provider))
+		error = PTR_ERR(ddata->phy_provider);
+
+idle:
+	pm_runtime_mark_last_busy(ddata->dev);
+	pm_runtime_put_autosuspend(ddata->dev);
+
+cleanup:
+	if (error < 0)
+		phy_mdm6600_device_power_off(ddata);
+	pm_runtime_disable(ddata->dev);
+	pm_runtime_dont_use_autosuspend(ddata->dev);
+>>>>>>> upstream/android-13
 	return error;
 }
 

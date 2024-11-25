@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for TI ADC128D818 System Monitor with Temperature Sensor
  *
@@ -6,6 +10,7 @@
  * Derived from lm80.c
  * Copyright (C) 1998, 1999  Frodo Looijaard <frodol@dds.nl>
  *			     and Philip Edelbrock <phil@netroedge.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -153,8 +160,13 @@ done:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t adc128_show_in(struct device *dev, struct device_attribute *attr,
 			      char *buf)
+=======
+static ssize_t adc128_in_show(struct device *dev,
+			      struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct adc128_data *data = adc128_update_device(dev);
 	int index = to_sensor_dev_attr_2(attr)->index;
@@ -168,8 +180,14 @@ static ssize_t adc128_show_in(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%d\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t adc128_set_in(struct device *dev, struct device_attribute *attr,
 			     const char *buf, size_t count)
+=======
+static ssize_t adc128_in_store(struct device *dev,
+			       struct device_attribute *attr, const char *buf,
+			       size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adc128_data *data = dev_get_drvdata(dev);
 	int index = to_sensor_dev_attr_2(attr)->index;
@@ -193,7 +211,11 @@ static ssize_t adc128_set_in(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t adc128_show_temp(struct device *dev,
+=======
+static ssize_t adc128_temp_show(struct device *dev,
+>>>>>>> upstream/android-13
 				struct device_attribute *attr, char *buf)
 {
 	struct adc128_data *data = adc128_update_device(dev);
@@ -207,9 +229,15 @@ static ssize_t adc128_show_temp(struct device *dev,
 	return sprintf(buf, "%d\n", temp * 500);/* 0.5 degrees C resolution */
 }
 
+<<<<<<< HEAD
 static ssize_t adc128_set_temp(struct device *dev,
 			       struct device_attribute *attr,
 			       const char *buf, size_t count)
+=======
+static ssize_t adc128_temp_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adc128_data *data = dev_get_drvdata(dev);
 	int index = to_sensor_dev_attr(attr)->index;
@@ -233,7 +261,11 @@ static ssize_t adc128_set_temp(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t adc128_show_alarm(struct device *dev,
+=======
+static ssize_t adc128_alarm_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *attr, char *buf)
 {
 	struct adc128_data *data = adc128_update_device(dev);
@@ -256,7 +288,11 @@ static ssize_t adc128_show_alarm(struct device *dev,
 static umode_t adc128_is_visible(struct kobject *kobj,
 				 struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct adc128_data *data = dev_get_drvdata(dev);
 
 	if (index < ADC128_ATTR_NUM_VOLT) {
@@ -272,6 +308,7 @@ static umode_t adc128_is_visible(struct kobject *kobj,
 	return attr->mode;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR_2(in0_input, S_IRUGO,
 			    adc128_show_in, NULL, 0, 0);
 static SENSOR_DEVICE_ATTR_2(in0_min, S_IWUSR | S_IRUGO,
@@ -343,6 +380,53 @@ static SENSOR_DEVICE_ATTR(in5_alarm, S_IRUGO, adc128_show_alarm, NULL, 5);
 static SENSOR_DEVICE_ATTR(in6_alarm, S_IRUGO, adc128_show_alarm, NULL, 6);
 static SENSOR_DEVICE_ATTR(in7_alarm, S_IRUGO, adc128_show_alarm, NULL, 7);
 static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO, adc128_show_alarm, NULL, 7);
+=======
+static SENSOR_DEVICE_ATTR_2_RO(in0_input, adc128_in, 0, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in0_min, adc128_in, 0, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in0_max, adc128_in, 0, 2);
+
+static SENSOR_DEVICE_ATTR_2_RO(in1_input, adc128_in, 1, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in1_min, adc128_in, 1, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in1_max, adc128_in, 1, 2);
+
+static SENSOR_DEVICE_ATTR_2_RO(in2_input, adc128_in, 2, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in2_min, adc128_in, 2, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in2_max, adc128_in, 2, 2);
+
+static SENSOR_DEVICE_ATTR_2_RO(in3_input, adc128_in, 3, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in3_min, adc128_in, 3, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in3_max, adc128_in, 3, 2);
+
+static SENSOR_DEVICE_ATTR_2_RO(in4_input, adc128_in, 4, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in4_min, adc128_in, 4, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in4_max, adc128_in, 4, 2);
+
+static SENSOR_DEVICE_ATTR_2_RO(in5_input, adc128_in, 5, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in5_min, adc128_in, 5, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in5_max, adc128_in, 5, 2);
+
+static SENSOR_DEVICE_ATTR_2_RO(in6_input, adc128_in, 6, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in6_min, adc128_in, 6, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in6_max, adc128_in, 6, 2);
+
+static SENSOR_DEVICE_ATTR_2_RO(in7_input, adc128_in, 7, 0);
+static SENSOR_DEVICE_ATTR_2_RW(in7_min, adc128_in, 7, 1);
+static SENSOR_DEVICE_ATTR_2_RW(in7_max, adc128_in, 7, 2);
+
+static SENSOR_DEVICE_ATTR_RO(temp1_input, adc128_temp, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, adc128_temp, 1);
+static SENSOR_DEVICE_ATTR_RW(temp1_max_hyst, adc128_temp, 2);
+
+static SENSOR_DEVICE_ATTR_RO(in0_alarm, adc128_alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(in1_alarm, adc128_alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(in2_alarm, adc128_alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(in3_alarm, adc128_alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(in4_alarm, adc128_alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(in5_alarm, adc128_alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(in6_alarm, adc128_alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(in7_alarm, adc128_alarm, 7);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, adc128_alarm, 7);
+>>>>>>> upstream/android-13
 
 static struct attribute *adc128_attrs[] = {
 	&sensor_dev_attr_in0_alarm.dev_attr.attr,
@@ -427,6 +511,10 @@ static int adc128_init_client(struct adc128_data *data)
 {
 	struct i2c_client *client = data->client;
 	int err;
+<<<<<<< HEAD
+=======
+	u8 regval = 0x0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Reset chip to defaults.
@@ -437,10 +525,24 @@ static int adc128_init_client(struct adc128_data *data)
 		return err;
 
 	/* Set operation mode, if non-default */
+<<<<<<< HEAD
 	if (data->mode != 0) {
 		err = i2c_smbus_write_byte_data(client,
 						ADC128_REG_CONFIG_ADV,
 						data->mode << 1);
+=======
+	if (data->mode != 0)
+		regval |= data->mode << 1;
+
+	/* If external vref is selected, configure the chip to use it */
+	if (data->regulator)
+		regval |= 0x01;
+
+	/* Write advanced configuration register */
+	if (regval != 0x0) {
+		err = i2c_smbus_write_byte_data(client, ADC128_REG_CONFIG_ADV,
+						regval);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -450,6 +552,7 @@ static int adc128_init_client(struct adc128_data *data)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	/* If external vref is selected, configure the chip to use it */
 	if (data->regulator) {
 		err = i2c_smbus_write_byte_data(client,
@@ -463,6 +566,12 @@ static int adc128_init_client(struct adc128_data *data)
 
 static int adc128_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+	return 0;
+}
+
+static int adc128_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct regulator *regulator;
@@ -546,7 +655,11 @@ static const struct i2c_device_id adc128_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, adc128_id);
 
+<<<<<<< HEAD
 static const struct of_device_id adc128_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused adc128_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "ti,adc128d818" },
 	{ },
 };
@@ -558,7 +671,11 @@ static struct i2c_driver adc128_driver = {
 		.name	= "adc128d818",
 		.of_match_table = of_match_ptr(adc128_of_match),
 	},
+<<<<<<< HEAD
 	.probe		= adc128_probe,
+=======
+	.probe_new	= adc128_probe,
+>>>>>>> upstream/android-13
 	.remove		= adc128_remove,
 	.id_table	= adc128_id,
 	.detect		= adc128_detect,

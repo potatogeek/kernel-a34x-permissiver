@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * PIC32 RTC driver
  *
  * Joshua Henderson <joshua.henderson@microchip.com>
  * Copyright (C) 2016 Microchip Technology Inc.  All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,6 +18,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -170,9 +177,13 @@ static int pic32_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
 
 	rtc_tm->tm_year += 100;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "read time %04d.%02d.%02d %02d:%02d:%02d\n",
 		1900 + rtc_tm->tm_year, rtc_tm->tm_mon, rtc_tm->tm_mday,
 		rtc_tm->tm_hour, rtc_tm->tm_min, rtc_tm->tm_sec);
+=======
+	dev_dbg(dev, "read time %ptR\n", rtc_tm);
+>>>>>>> upstream/android-13
 
 	clk_disable(pdata->clk);
 	return 0;
@@ -182,6 +193,7 @@ static int pic32_rtc_settime(struct device *dev, struct rtc_time *tm)
 {
 	struct pic32_rtc_dev *pdata = dev_get_drvdata(dev);
 	void __iomem *base = pdata->reg_base;
+<<<<<<< HEAD
 	int year = tm->tm_year - 100;
 
 	dev_dbg(dev, "set time %04d.%02d.%02d %02d:%02d:%02d\n",
@@ -192,6 +204,10 @@ static int pic32_rtc_settime(struct device *dev, struct rtc_time *tm)
 		dev_err(dev, "rtc only supports 100 years\n");
 		return -EINVAL;
 	}
+=======
+
+	dev_dbg(dev, "set time %ptR\n", tm);
+>>>>>>> upstream/android-13
 
 	clk_enable(pdata->clk);
 	writeb(bin2bcd(tm->tm_sec),  base + PIC32_RTCSEC);
@@ -199,7 +215,11 @@ static int pic32_rtc_settime(struct device *dev, struct rtc_time *tm)
 	writeb(bin2bcd(tm->tm_hour), base + PIC32_RTCHOUR);
 	writeb(bin2bcd(tm->tm_mday), base + PIC32_RTCDAY);
 	writeb(bin2bcd(tm->tm_mon + 1), base + PIC32_RTCMON);
+<<<<<<< HEAD
 	writeb(bin2bcd(year), base + PIC32_RTCYEAR);
+=======
+	writeb(bin2bcd(tm->tm_year - 100), base + PIC32_RTCYEAR);
+>>>>>>> upstream/android-13
 	clk_disable(pdata->clk);
 
 	return 0;
@@ -224,10 +244,14 @@ static int pic32_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
 
 	alrm->enabled = (alm_en & PIC32_RTCALRM_ALRMEN) ? 1 : 0;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "getalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
 		alm_en,
 		1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
 		alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
+=======
+	dev_dbg(dev, "getalarm: %d, %ptR\n", alm_en, alm_tm);
+>>>>>>> upstream/android-13
 
 	alm_tm->tm_sec = bcd2bin(alm_tm->tm_sec);
 	alm_tm->tm_min = bcd2bin(alm_tm->tm_min);
@@ -247,10 +271,14 @@ static int pic32_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
 	void __iomem *base = pdata->reg_base;
 
 	clk_enable(pdata->clk);
+<<<<<<< HEAD
 	dev_dbg(dev, "setalarm: %d, %04d.%02d.%02d %02d:%02d:%02d\n",
 		alrm->enabled,
 		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "setalarm: %d, %ptR\n", alrm->enabled, tm);
+>>>>>>> upstream/android-13
 
 	writel(0x00, base + PIC32_ALRMTIME);
 	writel(0x00, base + PIC32_ALRMDATE);
@@ -322,7 +350,10 @@ static int pic32_rtc_remove(struct platform_device *pdev)
 static int pic32_rtc_probe(struct platform_device *pdev)
 {
 	struct pic32_rtc_dev *pdata;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
@@ -332,6 +363,7 @@ static int pic32_rtc_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, pdata);
 
 	pdata->alarm_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (pdata->alarm_irq < 0) {
 		dev_err(&pdev->dev, "no irq for alarm\n");
 		return pdata->alarm_irq;
@@ -339,6 +371,12 @@ static int pic32_rtc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pdata->reg_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	if (pdata->alarm_irq < 0)
+		return pdata->alarm_irq;
+
+	pdata->reg_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pdata->reg_base))
 		return PTR_ERR(pdata->reg_base);
 
@@ -358,6 +396,7 @@ static int pic32_rtc_probe(struct platform_device *pdev)
 
 	device_init_wakeup(&pdev->dev, 1);
 
+<<<<<<< HEAD
 	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
 						 &pic32_rtcops,
 						 THIS_MODULE);
@@ -365,6 +404,19 @@ static int pic32_rtc_probe(struct platform_device *pdev)
 		ret = PTR_ERR(pdata->rtc);
 		goto err_nortc;
 	}
+=======
+	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(pdata->rtc))
+		return PTR_ERR(pdata->rtc);
+
+	pdata->rtc->ops = &pic32_rtcops;
+	pdata->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+	pdata->rtc->range_max = RTC_TIMESTAMP_END_2099;
+
+	ret = devm_rtc_register_device(pdata->rtc);
+	if (ret)
+		goto err_nortc;
+>>>>>>> upstream/android-13
 
 	pdata->rtc->max_user_freq = 128;
 

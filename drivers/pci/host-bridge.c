@@ -23,6 +23,10 @@ struct pci_host_bridge *pci_find_host_bridge(struct pci_bus *bus)
 
 	return to_pci_host_bridge(root_bus->bridge);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(pci_find_host_bridge);
+>>>>>>> upstream/android-13
 
 struct device *pci_get_host_bridge_device(struct pci_dev *dev)
 {

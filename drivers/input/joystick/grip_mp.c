@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Gravis Grip Multiport, a gamepad "hub" that
  *  connects up to four 9-pin digital gamepads/joysticks.

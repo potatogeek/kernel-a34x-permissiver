@@ -273,7 +273,11 @@ struct intelfb_vsync {
 
 struct intelfb_info {
 	struct fb_info *info;
+<<<<<<< HEAD
 	struct fb_ops  *fbops;
+=======
+	const struct fb_ops *fbops;
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev;
 
 	struct intelfb_hwstate save_state;

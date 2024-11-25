@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include "ipvlan.h"
 #include <linux/if_vlan.h>

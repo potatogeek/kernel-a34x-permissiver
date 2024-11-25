@@ -48,9 +48,14 @@
 #include <linux/list.h>
 #include <linux/printk.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
+=======
+#include <linux/slab.h>
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include "gcov.h"
 
 typedef void (*llvm_gcov_callback)(void);
@@ -70,12 +75,18 @@ struct gcov_fn_info {
 
 	u32 ident;
 	u32 checksum;
+<<<<<<< HEAD
 	u8 use_extra_checksum;
+=======
+>>>>>>> upstream/android-13
 	u32 cfg_checksum;
 
 	u32 num_counters;
 	u64 *counters;
+<<<<<<< HEAD
 	const char *function_name;
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct gcov_info *current_info;
@@ -105,17 +116,28 @@ void llvm_gcov_init(llvm_gcov_callback writeout, llvm_gcov_callback flush)
 }
 EXPORT_SYMBOL(llvm_gcov_init);
 
+<<<<<<< HEAD
 void llvm_gcda_start_file(const char *orig_filename, const char version[4],
 		u32 checksum)
 {
 	current_info->filename = orig_filename;
 	memcpy(&current_info->version, version, sizeof(current_info->version));
+=======
+void llvm_gcda_start_file(const char *orig_filename, u32 version, u32 checksum)
+{
+	current_info->filename = orig_filename;
+	current_info->version = version;
+>>>>>>> upstream/android-13
 	current_info->checksum = checksum;
 }
 EXPORT_SYMBOL(llvm_gcda_start_file);
 
+<<<<<<< HEAD
 void llvm_gcda_emit_function(u32 ident, const char *function_name,
 		u32 func_checksum, u8 use_extra_checksum, u32 cfg_checksum)
+=======
+void llvm_gcda_emit_function(u32 ident, u32 func_checksum, u32 cfg_checksum)
+>>>>>>> upstream/android-13
 {
 	struct gcov_fn_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
 
@@ -125,11 +147,15 @@ void llvm_gcda_emit_function(u32 ident, const char *function_name,
 	INIT_LIST_HEAD(&info->head);
 	info->ident = ident;
 	info->checksum = func_checksum;
+<<<<<<< HEAD
 	info->use_extra_checksum = use_extra_checksum;
 	info->cfg_checksum = cfg_checksum;
 	if (function_name)
 		info->function_name = kstrdup(function_name, GFP_KERNEL);
 
+=======
+	info->cfg_checksum = cfg_checksum;
+>>>>>>> upstream/android-13
 	list_add_tail(&info->head, &current_info->functions);
 }
 EXPORT_SYMBOL(llvm_gcda_emit_function);
@@ -262,10 +288,14 @@ int gcov_info_is_compatible(struct gcov_info *info1, struct gcov_info *info2)
 		!list_is_last(&fn_ptr2->head, &info2->functions)) {
 		if (fn_ptr1->checksum != fn_ptr2->checksum)
 			return false;
+<<<<<<< HEAD
 		if (fn_ptr1->use_extra_checksum != fn_ptr2->use_extra_checksum)
 			return false;
 		if (fn_ptr1->use_extra_checksum &&
 			fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
+=======
+		if (fn_ptr1->cfg_checksum != fn_ptr2->cfg_checksum)
+>>>>>>> upstream/android-13
 			return false;
 		fn_ptr1 = list_next_entry(fn_ptr1, head);
 		fn_ptr2 = list_next_entry(fn_ptr2, head);
@@ -304,6 +334,7 @@ static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
 		return NULL;
 	INIT_LIST_HEAD(&fn_dup->head);
 
+<<<<<<< HEAD
 	fn_dup->function_name = kstrdup(fn->function_name, GFP_KERNEL);
 	if (!fn_dup->function_name)
 		goto err_name;
@@ -321,6 +352,18 @@ err_counters:
 err_name:
 	kfree(fn_dup);
 	return NULL;
+=======
+	cv_size = fn->num_counters * sizeof(fn->counters[0]);
+	fn_dup->counters = kvmalloc(cv_size, GFP_KERNEL);
+	if (!fn_dup->counters) {
+		kfree(fn_dup);
+		return NULL;
+	}
+
+	memcpy(fn_dup->counters, fn->counters, cv_size);
+
+	return fn_dup;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -367,8 +410,12 @@ void gcov_info_free(struct gcov_info *info)
 	struct gcov_fn_info *fn, *tmp;
 
 	list_for_each_entry_safe(fn, tmp, &info->functions, head) {
+<<<<<<< HEAD
 		kfree(fn->function_name);
 		vfree(fn->counters);
+=======
+		kvfree(fn->counters);
+>>>>>>> upstream/android-13
 		list_del(&fn->head);
 		kfree(fn);
 	}
@@ -376,6 +423,7 @@ void gcov_info_free(struct gcov_info *info)
 	kfree(info);
 }
 
+<<<<<<< HEAD
 #define ITER_STRIDE	PAGE_SIZE
 
 /**
@@ -441,6 +489,8 @@ static size_t store_gcov_u64(void *buffer, size_t off, u64 v)
 	return sizeof(*data) * 2;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * convert_to_gcda - convert profiling data set to gcda file format
  * @buffer: the buffer to store file data or %NULL if no data should be stored
@@ -448,7 +498,11 @@ static size_t store_gcov_u64(void *buffer, size_t off, u64 v)
  *
  * Returns the number of bytes that were/would have been stored into the buffer.
  */
+<<<<<<< HEAD
 static size_t convert_to_gcda(char *buffer, struct gcov_info *info)
+=======
+size_t convert_to_gcda(char *buffer, struct gcov_info *info)
+>>>>>>> upstream/android-13
 {
 	struct gcov_fn_info *fi_ptr;
 	size_t pos = 0;
@@ -460,6 +514,7 @@ static size_t convert_to_gcda(char *buffer, struct gcov_info *info)
 
 	list_for_each_entry(fi_ptr, &info->functions, head) {
 		u32 i;
+<<<<<<< HEAD
 		u32 len = 2;
 
 		if (fi_ptr->use_extra_checksum)
@@ -478,10 +533,23 @@ static size_t convert_to_gcda(char *buffer, struct gcov_info *info)
 		for (i = 0; i < fi_ptr->num_counters; i++)
 			pos += store_gcov_u64(buffer, pos,
 					fi_ptr->counters[i]);
+=======
+
+		pos += store_gcov_u32(buffer, pos, GCOV_TAG_FUNCTION);
+		pos += store_gcov_u32(buffer, pos, 3);
+		pos += store_gcov_u32(buffer, pos, fi_ptr->ident);
+		pos += store_gcov_u32(buffer, pos, fi_ptr->checksum);
+		pos += store_gcov_u32(buffer, pos, fi_ptr->cfg_checksum);
+		pos += store_gcov_u32(buffer, pos, GCOV_TAG_COUNTER_BASE);
+		pos += store_gcov_u32(buffer, pos, fi_ptr->num_counters * 2);
+		for (i = 0; i < fi_ptr->num_counters; i++)
+			pos += store_gcov_u64(buffer, pos, fi_ptr->counters[i]);
+>>>>>>> upstream/android-13
 	}
 
 	return pos;
 }
+<<<<<<< HEAD
 
 /**
  * gcov_iter_new - allocate and initialize profiling data iterator
@@ -581,3 +649,5 @@ int gcov_iter_write(struct gcov_iterator *iter, struct seq_file *seq)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

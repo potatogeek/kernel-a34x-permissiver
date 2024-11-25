@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Chen-Yu Tsai. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Chen-Yu Tsai. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -254,8 +260,12 @@ static int sun9i_a80_de_clk_probe(struct platform_device *pdev)
 		goto err_disable_clk;
 	}
 
+<<<<<<< HEAD
 	ret = sunxi_ccu_probe(pdev->dev.of_node, reg,
 			      &sun9i_a80_de_clk_desc);
+=======
+	ret = devm_sunxi_ccu_probe(&pdev->dev, reg, &sun9i_a80_de_clk_desc);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_assert_reset;
 

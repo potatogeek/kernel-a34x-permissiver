@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+
+>>>>>>> upstream/android-13
 /*
  * Xen leaves the responsibility for maintaining p2m mappings to the
  * guests themselves, but it must also access and update the p2m array
@@ -65,7 +70,11 @@
 #include <linux/hash.h>
 #include <linux/sched.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
@@ -96,8 +105,13 @@ EXPORT_SYMBOL_GPL(xen_p2m_size);
 unsigned long xen_max_p2m_pfn __read_mostly;
 EXPORT_SYMBOL_GPL(xen_max_p2m_pfn);
 
+<<<<<<< HEAD
 #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG_LIMIT
 #define P2M_LIMIT CONFIG_XEN_BALLOON_MEMORY_HOTPLUG_LIMIT
+=======
+#ifdef CONFIG_XEN_MEMORY_HOTPLUG_LIMIT
+#define P2M_LIMIT CONFIG_XEN_MEMORY_HOTPLUG_LIMIT
+>>>>>>> upstream/android-13
 #else
 #define P2M_LIMIT 0
 #endif
@@ -179,8 +193,20 @@ static void p2m_init_identity(unsigned long *p2m, unsigned long pfn)
 
 static void * __ref alloc_p2m_page(void)
 {
+<<<<<<< HEAD
 	if (unlikely(!slab_is_available()))
 		return alloc_bootmem_align(PAGE_SIZE, PAGE_SIZE);
+=======
+	if (unlikely(!slab_is_available())) {
+		void *ptr = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+
+		if (!ptr)
+			panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+			      __func__, PAGE_SIZE, PAGE_SIZE);
+
+		return ptr;
+	}
+>>>>>>> upstream/android-13
 
 	return (void *)__get_free_page(GFP_KERNEL);
 }
@@ -188,7 +214,11 @@ static void * __ref alloc_p2m_page(void)
 static void __ref free_p2m_page(void *p)
 {
 	if (unlikely(!slab_is_available())) {
+<<<<<<< HEAD
 		free_bootmem((unsigned long)p, PAGE_SIZE);
+=======
+		memblock_free((unsigned long)p, PAGE_SIZE);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -370,12 +400,17 @@ static void __init xen_rebuild_p2m_list(unsigned long *p2m)
 
 		if (type == P2M_TYPE_PFN || i < chunk) {
 			/* Use initial p2m page contents. */
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 			mfns = alloc_p2m_page();
 			copy_page(mfns, xen_p2m_addr + pfn);
 #else
 			mfns = xen_p2m_addr + pfn;
 #endif
+=======
+			mfns = alloc_p2m_page();
+			copy_page(mfns, xen_p2m_addr + pfn);
+>>>>>>> upstream/android-13
 			ptep = populate_extra_pte((unsigned long)(p2m + pfn));
 			set_pte(ptep,
 				pfn_pte(PFN_DOWN(__pa(mfns)), PAGE_KERNEL));
@@ -458,7 +493,11 @@ EXPORT_SYMBOL_GPL(get_phys_to_machine);
  * Allocate new pmd(s). It is checked whether the old pmd is still in place.
  * If not, nothing is changed. This is okay as the only reason for allocating
  * a new pmd is to replace p2m_missing_pte or p2m_identity_pte by a individual
+<<<<<<< HEAD
  * pmd. In case of PAE/x86-32 there are multiple pmds to allocate!
+=======
+ * pmd.
+>>>>>>> upstream/android-13
  */
 static pte_t *alloc_p2m_pmd(unsigned long addr, pte_t *pte_pg)
 {
@@ -613,8 +652,13 @@ int xen_alloc_p2m_entry(unsigned long pfn)
 	}
 
 	/* Expanded the p2m? */
+<<<<<<< HEAD
 	if (pfn > xen_p2m_last_pfn) {
 		xen_p2m_last_pfn = pfn;
+=======
+	if (pfn >= xen_p2m_last_pfn) {
+		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
+>>>>>>> upstream/android-13
 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
 	}
 
@@ -647,6 +691,7 @@ bool __set_phys_to_machine(unsigned long pfn, unsigned long mfn)
 	pte_t *ptep;
 	unsigned int level;
 
+<<<<<<< HEAD
 	if (unlikely(pfn >= xen_p2m_size)) {
 		BUG_ON(mfn != INVALID_P2M_ENTRY);
 		return true;
@@ -656,6 +701,15 @@ bool __set_phys_to_machine(unsigned long pfn, unsigned long mfn)
 	 * The interface requires atomic updates on p2m elements.
 	 * xen_safe_write_ulong() is using __put_user which does an atomic
 	 * store via asm().
+=======
+	/* Only invalid entries allowed above the highest p2m covered frame. */
+	if (unlikely(pfn >= xen_p2m_size))
+		return mfn == INVALID_P2M_ENTRY;
+
+	/*
+	 * The interface requires atomic updates on p2m elements.
+	 * xen_safe_write_ulong() is using an atomic store via asm().
+>>>>>>> upstream/android-13
 	 */
 	if (likely(!xen_safe_write_ulong(xen_p2m_addr + pfn, mfn)))
 		return true;
@@ -735,7 +789,11 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
 		map_ops[i].status = GNTST_general_error;
 		unmap[0].host_addr = map_ops[i].host_addr,
 		unmap[0].handle = map_ops[i].handle;
+<<<<<<< HEAD
 		map_ops[i].handle = ~0;
+=======
+		map_ops[i].handle = INVALID_GRANT_HANDLE;
+>>>>>>> upstream/android-13
 		if (map_ops[i].flags & GNTMAP_device_map)
 			unmap[0].dev_bus_addr = map_ops[i].dev_bus_addr;
 		else
@@ -745,7 +803,11 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
 			kmap_ops[i].status = GNTST_general_error;
 			unmap[1].host_addr = kmap_ops[i].host_addr,
 			unmap[1].handle = kmap_ops[i].handle;
+<<<<<<< HEAD
 			kmap_ops[i].handle = ~0;
+=======
+			kmap_ops[i].handle = INVALID_GRANT_HANDLE;
+>>>>>>> upstream/android-13
 			if (kmap_ops[i].flags & GNTMAP_device_map)
 				unmap[1].dev_bus_addr = kmap_ops[i].dev_bus_addr;
 			else
@@ -770,7 +832,10 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
 out:
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(set_foreign_p2m_mapping);
+=======
+>>>>>>> upstream/android-13
 
 int clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
 			      struct gnttab_unmap_grant_ref *kunmap_ops,
@@ -796,7 +861,10 @@ int clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_XEN_DEBUG_FS
 #include <linux/debugfs.h>
@@ -828,6 +896,7 @@ static int p2m_dump_show(struct seq_file *m, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int p2m_dump_open(struct inode *inode, struct file *filp)
 {
 	return single_open(filp, p2m_dump_show, NULL);
@@ -839,6 +908,9 @@ static const struct file_operations p2m_dump_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(p2m_dump);
+>>>>>>> upstream/android-13
 
 static struct dentry *d_mmu_debug;
 
@@ -846,9 +918,12 @@ static int __init xen_p2m_debugfs(void)
 {
 	struct dentry *d_xen = xen_init_debugfs();
 
+<<<<<<< HEAD
 	if (d_xen == NULL)
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	d_mmu_debug = debugfs_create_dir("mmu", d_xen);
 
 	debugfs_create_file("p2m", 0600, d_mmu_debug, NULL, &p2m_dump_fops);

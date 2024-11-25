@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for AMD7930 sound chips found on Sparcs.
  * Copyright (C) 2002, 2008 David S. Miller <davem@davemloft.net>
@@ -61,7 +65,10 @@ MODULE_PARM_DESC(enable, "Enable Sun AMD7930 soundcard.");
 MODULE_AUTHOR("Thomas K. Dyas and David S. Miller");
 MODULE_DESCRIPTION("Sun AMD7930");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Sun,AMD7930}}");
+=======
+>>>>>>> upstream/android-13
 
 /* Device register layout.  */
 
@@ -722,6 +729,7 @@ static int snd_amd7930_capture_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_amd7930_hw_params(struct snd_pcm_substream *substream,
 				    struct snd_pcm_hw_params *hw_params)
 {
@@ -739,6 +747,11 @@ static const struct snd_pcm_ops snd_amd7930_playback_ops = {
 	.ioctl		=	snd_pcm_lib_ioctl,
 	.hw_params	=	snd_amd7930_hw_params,
 	.hw_free	=	snd_amd7930_hw_free,
+=======
+static const struct snd_pcm_ops snd_amd7930_playback_ops = {
+	.open		=	snd_amd7930_playback_open,
+	.close		=	snd_amd7930_playback_close,
+>>>>>>> upstream/android-13
 	.prepare	=	snd_amd7930_playback_prepare,
 	.trigger	=	snd_amd7930_playback_trigger,
 	.pointer	=	snd_amd7930_playback_pointer,
@@ -747,9 +760,12 @@ static const struct snd_pcm_ops snd_amd7930_playback_ops = {
 static const struct snd_pcm_ops snd_amd7930_capture_ops = {
 	.open		=	snd_amd7930_capture_open,
 	.close		=	snd_amd7930_capture_close,
+<<<<<<< HEAD
 	.ioctl		=	snd_pcm_lib_ioctl,
 	.hw_params	=	snd_amd7930_hw_params,
 	.hw_free	=	snd_amd7930_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare	=	snd_amd7930_capture_prepare,
 	.trigger	=	snd_amd7930_capture_trigger,
 	.pointer	=	snd_amd7930_capture_pointer,
@@ -775,9 +791,14 @@ static int snd_amd7930_pcm(struct snd_amd7930 *amd)
 	strcpy(pcm->name, amd->card->shortname);
 	amd->pcm = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
 					      snd_dma_continuous_data(GFP_KERNEL),
 					      64*1024, 64*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
+				       NULL, 64*1024, 64*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -854,7 +875,11 @@ static int snd_amd7930_put_volume(struct snd_kcontrol *kctl, struct snd_ctl_elem
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new amd7930_controls[] = {
+=======
+static const struct snd_kcontrol_new amd7930_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface		=	SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name		=	"Monitor Volume",
@@ -929,7 +954,11 @@ static int snd_amd7930_dev_free(struct snd_device *device)
 	return snd_amd7930_free(amd);
 }
 
+<<<<<<< HEAD
 static struct snd_device_ops snd_amd7930_dev_ops = {
+=======
+static const struct snd_device_ops snd_amd7930_dev_ops = {
+>>>>>>> upstream/android-13
 	.dev_free	=	snd_amd7930_dev_free,
 };
 
@@ -993,8 +1022,14 @@ static int snd_amd7930_create(struct snd_card *card,
 
 	spin_unlock_irqrestore(&amd->lock, flags);
 
+<<<<<<< HEAD
 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL,
 				  amd, &snd_amd7930_dev_ops)) < 0) {
+=======
+	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL,
+			     amd, &snd_amd7930_dev_ops);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_amd7930_free(amd);
 		return err;
 	}
@@ -1037,6 +1072,7 @@ static int amd7930_sbus_probe(struct platform_device *op)
 				      irq, dev_num, &amd)) < 0)
 		goto out_err;
 
+<<<<<<< HEAD
 	if ((err = snd_amd7930_pcm(amd)) < 0)
 		goto out_err;
 
@@ -1044,6 +1080,18 @@ static int amd7930_sbus_probe(struct platform_device *op)
 		goto out_err;
 
 	if ((err = snd_card_register(card)) < 0)
+=======
+	err = snd_amd7930_pcm(amd);
+	if (err < 0)
+		goto out_err;
+
+	err = snd_amd7930_mixer(amd);
+	if (err < 0)
+		goto out_err;
+
+	err = snd_card_register(card);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto out_err;
 
 	amd->next = amd7930_list;

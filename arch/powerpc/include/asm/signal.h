@@ -6,4 +6,10 @@
 #include <uapi/asm/signal.h>
 #include <uapi/asm/ptrace.h>
 
+<<<<<<< HEAD
+=======
+struct pt_regs;
+void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags);
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_POWERPC_SIGNAL_H */

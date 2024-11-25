@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/pci.h>
 #include <linux/aer.h>
@@ -86,7 +91,11 @@ void adf_reset_sbr(struct adf_accel_dev *accel_dev)
 {
 	struct pci_dev *pdev = accel_to_pci_dev(accel_dev);
 	struct pci_dev *parent = pdev->bus->self;
+<<<<<<< HEAD
 	uint16_t bridge_ctl = 0;
+=======
+	u16 bridge_ctl = 0;
+>>>>>>> upstream/android-13
 
 	if (!parent)
 		parent = pdev;
@@ -198,7 +207,10 @@ static pci_ers_result_t adf_slot_reset(struct pci_dev *pdev)
 		pr_err("QAT: Can't find acceleration device\n");
 		return PCI_ERS_RESULT_DISCONNECT;
 	}
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
+=======
+>>>>>>> upstream/android-13
 	if (adf_dev_aer_schedule_reset(accel_dev, ADF_DEV_RESET_SYNC))
 		return PCI_ERS_RESULT_DISCONNECT;
 
@@ -220,7 +232,10 @@ static const struct pci_error_handlers adf_err_handler = {
 /**
  * adf_enable_aer() - Enable Advance Error Reporting for acceleration device
  * @accel_dev:  Pointer to acceleration device.
+<<<<<<< HEAD
  * @adf:        PCI device driver owning the given acceleration device.
+=======
+>>>>>>> upstream/android-13
  *
  * Function enables PCI Advance Error Reporting for the
  * QAT acceleration device accel_dev.
@@ -228,18 +243,31 @@ static const struct pci_error_handlers adf_err_handler = {
  *
  * Return: 0 on success, error code otherwise.
  */
+<<<<<<< HEAD
 int adf_enable_aer(struct adf_accel_dev *accel_dev, struct pci_driver *adf)
 {
 	struct pci_dev *pdev = accel_to_pci_dev(accel_dev);
 
 	adf->err_handler = &adf_err_handler;
+=======
+int adf_enable_aer(struct adf_accel_dev *accel_dev)
+{
+	struct pci_dev *pdev = accel_to_pci_dev(accel_dev);
+	struct pci_driver *pdrv = pdev->driver;
+
+	pdrv->err_handler = &adf_err_handler;
+>>>>>>> upstream/android-13
 	pci_enable_pcie_error_reporting(pdev);
 	return 0;
 }
 EXPORT_SYMBOL_GPL(adf_enable_aer);
 
 /**
+<<<<<<< HEAD
  * adf_disable_aer() - Enable Advance Error Reporting for acceleration device
+=======
+ * adf_disable_aer() - Disable Advance Error Reporting for acceleration device
+>>>>>>> upstream/android-13
  * @accel_dev:  Pointer to acceleration device.
  *
  * Function disables PCI Advance Error Reporting for the

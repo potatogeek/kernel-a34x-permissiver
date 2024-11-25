@@ -7,6 +7,7 @@
  */
 #include "builtin.h"
 
+<<<<<<< HEAD
 #include "perf.h"
 
 #include "util/cache.h"
@@ -15,6 +16,15 @@
 #include "util/debug.h"
 #include "util/config.h"
 #include <linux/string.h>
+=======
+#include "util/cache.h"
+#include <subcmd/parse-options.h>
+#include "util/debug.h"
+#include "util/config.h"
+#include <linux/string.h>
+#include <stdio.h>
+#include <stdlib.h>
+>>>>>>> upstream/android-13
 
 static bool use_system_config, use_user_config;
 
@@ -196,6 +206,10 @@ int cmd_config(int argc, const char **argv)
 			pr_err("Error: takes no arguments\n");
 			parse_options_usage(config_usage, config_options, "l", 1);
 		} else {
+<<<<<<< HEAD
+=======
+do_action_list:
+>>>>>>> upstream/android-13
 			if (show_config(set) < 0) {
 				pr_err("Nothing configured, "
 				       "please check your %s \n", config_filename);
@@ -204,10 +218,15 @@ int cmd_config(int argc, const char **argv)
 		}
 		break;
 	default:
+<<<<<<< HEAD
 		if (!argc) {
 			usage_with_options(config_usage, config_options);
 			break;
 		}
+=======
+		if (!argc)
+			goto do_action_list;
+>>>>>>> upstream/android-13
 
 		for (i = 0; argv[i]; i++) {
 			char *var, *value;

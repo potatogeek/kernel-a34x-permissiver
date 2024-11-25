@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2003 - 2009 NetXen, Inc.
  * Copyright (C) 2009 - QLogic Corporation.
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * The full GNU General Public License is included in this distribution
  * in the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NETXEN_NIC_H_
@@ -1205,9 +1212,12 @@ typedef struct {
 #define NX_FORCE_FW_RESET               0xdeaddead
 
 
+<<<<<<< HEAD
 /* Fw dump levels */
 static const u32 FW_DUMP_LEVELS[] = { 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f, 0xff };
 
+=======
+>>>>>>> upstream/android-13
 /* Flash read/write address */
 #define NX_FW_DUMP_REG1         0x00130060
 #define NX_FW_DUMP_REG2         0x001e0000
@@ -1332,7 +1342,11 @@ struct netxen_minidump_template_hdr {
 	u32 driver_info_word4;
 	u32 saved_state_array[NX_DUMP_STATE_ARRAY_LEN];
 	u32 capture_size_array[NX_DUMP_CAP_SIZE_ARRAY_LEN];
+<<<<<<< HEAD
 	u32 rsvd[0];
+=======
+	u32 rsvd[];
+>>>>>>> upstream/android-13
 };
 
 /* Common Entry Header:  Common to All Entry Types */
@@ -1882,7 +1896,10 @@ static inline u32 netxen_tx_avail(struct nx_host_tx_ring *tx_ring)
 int netxen_get_flash_mac_addr(struct netxen_adapter *adapter, u64 *mac);
 int netxen_p3_get_mac_addr(struct netxen_adapter *adapter, u64 *mac);
 void netxen_change_ringparam(struct netxen_adapter *adapter);
+<<<<<<< HEAD
 int netxen_rom_fast_read(struct netxen_adapter *adapter, int addr, int *valp);
+=======
+>>>>>>> upstream/android-13
 
 extern const struct ethtool_ops netxen_nic_ethtool_ops;
 

@@ -237,7 +237,11 @@ static ssize_t selftest_show(struct device *dev, struct device_attribute *attr, 
 
 	for (j = 0; j < 3; j++) {
 		if (unlikely(abs(avg[j]) > bias_thresh)) {
+<<<<<<< HEAD
 			shub_errf("Gyro bias %s(%ld) exceeded threshold (threshold = %d LSB)\n",
+=======
+			shub_errf("Gyro bias (%ld) exceeded threshold (threshold = %d LSB)\n",
+>>>>>>> upstream/android-13
 				  a_name[j], avg[j], bias_thresh);
 			ret_val |= 1 << (3 + j);
 		}
@@ -295,10 +299,17 @@ static ssize_t selftest_show(struct device *dev, struct device_attribute *attr, 
 		data->cal_data.z = 0;
 	}
 exit:
+<<<<<<< HEAD
 	shub_dbg("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 		 gyro_fifo_avg[0], gyro_fifo_avg[1], gyro_fifo_avg[2], gyro_self_zro[0], gyro_self_zro[1],
 		 gyro_self_zro[2], gyro_self_bias[0], gyro_self_bias[1], gyro_self_bias[2], gyro_self_diff[0],
 		 gyro_self_diff[1], gyro_self_diff[2], fifo_ret, cal_ret, hw_result);
+=======
+	shub_dbg("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+		 gyro_fifo_avg[0], gyro_fifo_avg[1], gyro_fifo_avg[2], gyro_self_zro[0], gyro_self_zro[1],
+		 gyro_self_zro[2], gyro_self_bias[0], gyro_self_bias[1], gyro_self_bias[2], gyro_self_diff[0],
+		 gyro_self_diff[1], gyro_self_diff[2], fifo_ret, cal_ret);
+>>>>>>> upstream/android-13
 
 	/* Gyro Calibration pass / fail, buffer 1~6 values. */
 	if ((fifo_ret == 0) || (cal_ret == 0)) {
@@ -307,8 +318,11 @@ exit:
 		return ret;
 	}
 
+<<<<<<< HEAD
 	fifo_ret = hw_result;
 
+=======
+>>>>>>> upstream/android-13
 	ret = sprintf(buf, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 		      gyro_fifo_avg[0], gyro_fifo_avg[1], gyro_fifo_avg[2], gyro_self_zro[0], gyro_self_zro[1],
 		      gyro_self_zro[2], gyro_self_bias[0], gyro_self_bias[1], gyro_self_bias[2], gyro_self_diff[0],

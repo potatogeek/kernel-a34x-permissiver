@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	phy-mvebu-sata.c: SATA Phy driver for the Marvell mvebu SoCs.
  *
  *	Copyright (C) 2013 Andrew Lunn <andrew@lunn.ch>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -11,6 +16,12 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/kernel.h>
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/phy/phy.h>
 #include <linux/io.h>
@@ -84,7 +95,10 @@ static const struct phy_ops phy_mvebu_sata_ops = {
 static int phy_mvebu_sata_probe(struct platform_device *pdev)
 {
 	struct phy_provider *phy_provider;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct priv *priv;
 	struct phy *phy;
 
@@ -92,8 +106,12 @@ static int phy_mvebu_sata_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
@@ -122,7 +140,10 @@ static const struct of_device_id phy_mvebu_sata_of_match[] = {
 	{ .compatible = "marvell,mvebu-sata-phy" },
 	{ },
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(of, phy_mvebu_sata_of_match);
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver phy_mvebu_sata_driver = {
 	.probe	= phy_mvebu_sata_probe,
@@ -131,8 +152,12 @@ static struct platform_driver phy_mvebu_sata_driver = {
 		.of_match_table	= phy_mvebu_sata_of_match,
 	}
 };
+<<<<<<< HEAD
 module_platform_driver(phy_mvebu_sata_driver);
 
 MODULE_AUTHOR("Andrew Lunn <andrew@lunn.ch>");
 MODULE_DESCRIPTION("Marvell MVEBU SATA PHY driver");
 MODULE_LICENSE("GPL v2");
+=======
+builtin_platform_driver(phy_mvebu_sata_driver);
+>>>>>>> upstream/android-13

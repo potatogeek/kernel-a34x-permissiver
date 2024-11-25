@@ -4,10 +4,14 @@
  * All Rights Reserved.
  */
 #include "xfs.h"
+<<<<<<< HEAD
 #include <linux/sysctl.h>
 #include <linux/proc_fs.h>
 #include "xfs_error.h"
 #include "xfs_stats.h"
+=======
+#include "xfs_error.h"
+>>>>>>> upstream/android-13
 
 static struct ctl_table_header *xfs_table_header;
 
@@ -16,7 +20,11 @@ STATIC int
 xfs_stats_clear_proc_handler(
 	struct ctl_table	*ctl,
 	int			write,
+<<<<<<< HEAD
 	void			__user *buffer,
+=======
+	void			*buffer,
+>>>>>>> upstream/android-13
 	size_t			*lenp,
 	loff_t			*ppos)
 {
@@ -36,7 +44,11 @@ STATIC int
 xfs_panic_mask_proc_handler(
 	struct ctl_table	*ctl,
 	int			write,
+<<<<<<< HEAD
 	void			__user *buffer,
+=======
+	void			*buffer,
+>>>>>>> upstream/android-13
 	size_t			*lenp,
 	loff_t			*ppos)
 {
@@ -53,13 +65,36 @@ xfs_panic_mask_proc_handler(
 }
 #endif /* CONFIG_PROC_FS */
 
+<<<<<<< HEAD
+=======
+STATIC int
+xfs_deprecated_dointvec_minmax(
+	struct ctl_table	*ctl,
+	int			write,
+	void			*buffer,
+	size_t			*lenp,
+	loff_t			*ppos)
+{
+	if (write) {
+		printk_ratelimited(KERN_WARNING
+				"XFS: %s sysctl option is deprecated.\n",
+				ctl->procname);
+	}
+	return proc_dointvec_minmax(ctl, write, buffer, lenp, ppos);
+}
+
+>>>>>>> upstream/android-13
 static struct ctl_table xfs_table[] = {
 	{
 		.procname	= "irix_sgid_inherit",
 		.data		= &xfs_params.sgid_inherit.val,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
+<<<<<<< HEAD
 		.proc_handler	= proc_dointvec_minmax,
+=======
+		.proc_handler	= xfs_deprecated_dointvec_minmax,
+>>>>>>> upstream/android-13
 		.extra1		= &xfs_params.sgid_inherit.min,
 		.extra2		= &xfs_params.sgid_inherit.max
 	},
@@ -68,7 +103,11 @@ static struct ctl_table xfs_table[] = {
 		.data		= &xfs_params.symlink_mode.val,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
+<<<<<<< HEAD
 		.proc_handler	= proc_dointvec_minmax,
+=======
+		.proc_handler	= xfs_deprecated_dointvec_minmax,
+>>>>>>> upstream/android-13
 		.extra1		= &xfs_params.symlink_mode.min,
 		.extra2		= &xfs_params.symlink_mode.max
 	},
@@ -165,6 +204,7 @@ static struct ctl_table xfs_table[] = {
 	},
 	{
 		.procname	= "speculative_prealloc_lifetime",
+<<<<<<< HEAD
 		.data		= &xfs_params.eofb_timer.val,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
@@ -180,6 +220,23 @@ static struct ctl_table xfs_table[] = {
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &xfs_params.cowb_timer.min,
 		.extra2		= &xfs_params.cowb_timer.max,
+=======
+		.data		= &xfs_params.blockgc_timer.val,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &xfs_params.blockgc_timer.min,
+		.extra2		= &xfs_params.blockgc_timer.max,
+	},
+	{
+		.procname	= "speculative_cow_prealloc_lifetime",
+		.data		= &xfs_params.blockgc_timer.val,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= xfs_deprecated_dointvec_minmax,
+		.extra1		= &xfs_params.blockgc_timer.min,
+		.extra2		= &xfs_params.blockgc_timer.max,
+>>>>>>> upstream/android-13
 	},
 	/* please keep this the last entry */
 #ifdef CONFIG_PROC_FS

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * devfreq_cooling: Thermal cooling device implementation for devices using
  *                  devfreq
  *
  * Copyright (C) 2014-2015 ARM Limited
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -13,6 +18,8 @@
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *    - If OPPs are added or removed after devfreq cooling has
  *      registered, the devfreq cooling won't react to it.
@@ -20,6 +27,7 @@
 
 #include <linux/devfreq.h>
 #include <linux/devfreq_cooling.h>
+<<<<<<< HEAD
 #include <linux/export.h>
 #include <linux/idr.h>
 #include <linux/slab.h>
@@ -35,10 +43,27 @@ static DEFINE_IDA(devfreq_ida);
 /**
  * struct devfreq_cooling_device - Devfreq cooling device
  * @id:		unique integer value corresponding to each
+=======
+#include <linux/energy_model.h>
+#include <linux/export.h>
+#include <linux/slab.h>
+#include <linux/pm_opp.h>
+#include <linux/pm_qos.h>
+#include <linux/thermal.h>
+#include <linux/units.h>
+
+#include <trace/events/thermal.h>
+
+#define SCALE_ERROR_MITIGATION	100
+
+/**
+ * struct devfreq_cooling_device - Devfreq cooling device
+>>>>>>> upstream/android-13
  *		devfreq_cooling_device registered.
  * @cdev:	Pointer to associated thermal cooling device.
  * @devfreq:	Pointer to associated devfreq device.
  * @cooling_state:	Current cooling state.
+<<<<<<< HEAD
  * @power_table:	Pointer to table with maximum power draw for each
  *			cooling state. State is the index into the table, and
  *			the power is in mW.
@@ -108,12 +133,47 @@ static int partition_enable_opps(struct devfreq_cooling_device *dfc,
 	return 0;
 }
 
+=======
+ * @freq_table:	Pointer to a table with the frequencies sorted in descending
+ *		order.  You can index the table by cooling device state
+ * @max_state:	It is the last index, that is, one less than the number of the
+ *		OPPs
+ * @power_ops:	Pointer to devfreq_cooling_power, a more precised model.
+ * @res_util:	Resource utilization scaling factor for the power.
+ *		It is multiplied by 100 to minimize the error. It is used
+ *		for estimation of the power budget instead of using
+ *		'utilization' (which is	'busy_time' / 'total_time').
+ *		The 'res_util' range is from 100 to power * 100	for the
+ *		corresponding 'state'.
+ * @capped_state:	index to cooling state with in dynamic power budget
+ * @req_max_freq:	PM QoS request for limiting the maximum frequency
+ *			of the devfreq device.
+ * @em_pd:		Energy Model for the associated Devfreq device
+ */
+struct devfreq_cooling_device {
+	struct thermal_cooling_device *cdev;
+	struct devfreq *devfreq;
+	unsigned long cooling_state;
+	u32 *freq_table;
+	size_t max_state;
+	struct devfreq_cooling_power *power_ops;
+	u32 res_util;
+	int capped_state;
+	struct dev_pm_qos_request req_max_freq;
+	struct em_perf_domain *em_pd;
+};
+
+>>>>>>> upstream/android-13
 static int devfreq_cooling_get_max_state(struct thermal_cooling_device *cdev,
 					 unsigned long *state)
 {
 	struct devfreq_cooling_device *dfc = cdev->devdata;
 
+<<<<<<< HEAD
 	*state = dfc->freq_table_size - 1;
+=======
+	*state = dfc->max_state;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -134,19 +194,39 @@ static int devfreq_cooling_set_cur_state(struct thermal_cooling_device *cdev,
 	struct devfreq_cooling_device *dfc = cdev->devdata;
 	struct devfreq *df = dfc->devfreq;
 	struct device *dev = df->dev.parent;
+<<<<<<< HEAD
 	int ret;
+=======
+	unsigned long freq;
+	int perf_idx;
+>>>>>>> upstream/android-13
 
 	if (state == dfc->cooling_state)
 		return 0;
 
 	dev_dbg(dev, "Setting cooling state %lu\n", state);
 
+<<<<<<< HEAD
 	if (state >= dfc->freq_table_size)
 		return -EINVAL;
 
 	ret = partition_enable_opps(dfc, state);
 	if (ret)
 		return ret;
+=======
+	if (state > dfc->max_state)
+		return -EINVAL;
+
+	if (dfc->em_pd) {
+		perf_idx = dfc->max_state - state;
+		freq = dfc->em_pd->table[perf_idx].frequency * 1000;
+	} else {
+		freq = dfc->freq_table[state];
+	}
+
+	dev_pm_qos_update_request(&dfc->req_max_freq,
+				  DIV_ROUND_UP(freq, HZ_PER_KHZ));
+>>>>>>> upstream/android-13
 
 	dfc->cooling_state = state;
 
@@ -154,6 +234,7 @@ static int devfreq_cooling_set_cur_state(struct thermal_cooling_device *cdev,
 }
 
 /**
+<<<<<<< HEAD
  * freq_get_state() - get the cooling state corresponding to a frequency
  * @dfc:	Pointer to devfreq cooling device
  * @freq:	frequency in Hz
@@ -172,6 +253,25 @@ freq_get_state(struct devfreq_cooling_device *dfc, unsigned long freq)
 	}
 
 	return THERMAL_CSTATE_INVALID;
+=======
+ * get_perf_idx() - get the performance index corresponding to a frequency
+ * @em_pd:	Pointer to device's Energy Model
+ * @freq:	frequency in kHz
+ *
+ * Return: the performance index associated with the @freq, or
+ * -EINVAL if it wasn't found.
+ */
+static int get_perf_idx(struct em_perf_domain *em_pd, unsigned long freq)
+{
+	int i;
+
+	for (i = 0; i < em_pd->nr_perf_states; i++) {
+		if (em_pd->table[i].frequency == freq)
+			return i;
+	}
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long get_voltage(struct devfreq *df, unsigned long freq)
@@ -202,6 +302,7 @@ static unsigned long get_voltage(struct devfreq *df, unsigned long freq)
 	return voltage;
 }
 
+<<<<<<< HEAD
 /**
  * get_static_power() - calculate the static power
  * @dfc:	Pointer to devfreq cooling device
@@ -272,10 +373,28 @@ static inline unsigned long get_total_power(struct devfreq_cooling_device *dfc,
 
 static int devfreq_cooling_get_requested_power(struct thermal_cooling_device *cdev,
 					       struct thermal_zone_device *tz,
+=======
+static void _normalize_load(struct devfreq_dev_status *status)
+{
+	if (status->total_time > 0xfffff) {
+		status->total_time >>= 10;
+		status->busy_time >>= 10;
+	}
+
+	status->busy_time <<= 10;
+	status->busy_time /= status->total_time ? : 1;
+
+	status->busy_time = status->busy_time ? : 1;
+	status->total_time = 1024;
+}
+
+static int devfreq_cooling_get_requested_power(struct thermal_cooling_device *cdev,
+>>>>>>> upstream/android-13
 					       u32 *power)
 {
 	struct devfreq_cooling_device *dfc = cdev->devdata;
 	struct devfreq *df = dfc->devfreq;
+<<<<<<< HEAD
 	struct devfreq_dev_status *status = &df->last_status;
 	unsigned long state;
 	unsigned long freq = status->current_frequency;
@@ -291,6 +410,21 @@ static int devfreq_cooling_get_requested_power(struct thermal_cooling_device *cd
 	}
 
 	if (dfc->power_ops->get_real_power) {
+=======
+	struct devfreq_dev_status status;
+	unsigned long state;
+	unsigned long freq;
+	unsigned long voltage;
+	int res, perf_idx;
+
+	mutex_lock(&df->lock);
+	status = df->last_status;
+	mutex_unlock(&df->lock);
+
+	freq = status.current_frequency;
+
+	if (dfc->power_ops && dfc->power_ops->get_real_power) {
+>>>>>>> upstream/android-13
 		voltage = get_voltage(df, freq);
 		if (voltage == 0) {
 			res = -EINVAL;
@@ -300,7 +434,11 @@ static int devfreq_cooling_get_requested_power(struct thermal_cooling_device *cd
 		res = dfc->power_ops->get_real_power(df, power, freq, voltage);
 		if (!res) {
 			state = dfc->capped_state;
+<<<<<<< HEAD
 			dfc->res_util = dfc->power_table[state];
+=======
+			dfc->res_util = dfc->em_pd->table[state].power;
+>>>>>>> upstream/android-13
 			dfc->res_util *= SCALE_ERROR_MITIGATION;
 
 			if (*power > 1)
@@ -309,6 +447,7 @@ static int devfreq_cooling_get_requested_power(struct thermal_cooling_device *cd
 			goto fail;
 		}
 	} else {
+<<<<<<< HEAD
 		dyn_power = dfc->power_table[state];
 
 		/* Scale dynamic power for utilization */
@@ -322,6 +461,24 @@ static int devfreq_cooling_get_requested_power(struct thermal_cooling_device *cd
 
 	trace_thermal_power_devfreq_get_power(cdev, status, freq, dyn_power,
 					      static_power, *power);
+=======
+		/* Energy Model frequencies are in kHz */
+		perf_idx = get_perf_idx(dfc->em_pd, freq / 1000);
+		if (perf_idx < 0) {
+			res = -EAGAIN;
+			goto fail;
+		}
+
+		_normalize_load(&status);
+
+		/* Scale power for utilization */
+		*power = dfc->em_pd->table[perf_idx].power;
+		*power *= status.busy_time;
+		*power >>= 10;
+	}
+
+	trace_thermal_power_devfreq_get_power(cdev, &status, freq, *power);
+>>>>>>> upstream/android-13
 
 	return 0;
 fail:
@@ -331,6 +488,7 @@ fail:
 }
 
 static int devfreq_cooling_state2power(struct thermal_cooling_device *cdev,
+<<<<<<< HEAD
 				       struct thermal_zone_device *tz,
 				       unsigned long state,
 				       u32 *power)
@@ -346,15 +504,32 @@ static int devfreq_cooling_state2power(struct thermal_cooling_device *cdev,
 	static_power = get_static_power(dfc, freq);
 
 	*power = dfc->power_table[state] + static_power;
+=======
+				       unsigned long state, u32 *power)
+{
+	struct devfreq_cooling_device *dfc = cdev->devdata;
+	int perf_idx;
+
+	if (state > dfc->max_state)
+		return -EINVAL;
+
+	perf_idx = dfc->max_state - state;
+	*power = dfc->em_pd->table[perf_idx].power;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int devfreq_cooling_power2state(struct thermal_cooling_device *cdev,
+<<<<<<< HEAD
 				       struct thermal_zone_device *tz,
+=======
+>>>>>>> upstream/android-13
 				       u32 power, unsigned long *state)
 {
 	struct devfreq_cooling_device *dfc = cdev->devdata;
 	struct devfreq *df = dfc->devfreq;
+<<<<<<< HEAD
 	struct devfreq_dev_status *status = &df->last_status;
 	unsigned long freq = status->current_frequency;
 	unsigned long busy_time;
@@ -364,10 +539,25 @@ static int devfreq_cooling_power2state(struct thermal_cooling_device *cdev,
 	int i;
 
 	if (dfc->power_ops->get_real_power) {
+=======
+	struct devfreq_dev_status status;
+	unsigned long freq;
+	s32 est_power;
+	int i;
+
+	mutex_lock(&df->lock);
+	status = df->last_status;
+	mutex_unlock(&df->lock);
+
+	freq = status.current_frequency;
+
+	if (dfc->power_ops && dfc->power_ops->get_real_power) {
+>>>>>>> upstream/android-13
 		/* Scale for resource utilization */
 		est_power = power * dfc->res_util;
 		est_power /= SCALE_ERROR_MITIGATION;
 	} else {
+<<<<<<< HEAD
 		static_power = get_static_power(dfc, freq);
 
 		dyn_power = power - static_power;
@@ -376,10 +566,17 @@ static int devfreq_cooling_power2state(struct thermal_cooling_device *cdev,
 		/* Scale dynamic power for utilization */
 		busy_time = status->busy_time ?: 1;
 		est_power = (dyn_power * status->total_time) / busy_time;
+=======
+		/* Scale dynamic power for utilization */
+		_normalize_load(&status);
+		est_power = power << 10;
+		est_power /= status.busy_time;
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * Find the first cooling state that is within the power
+<<<<<<< HEAD
 	 * budget for dynamic power.
 	 */
 	for (i = 0; i < dfc->freq_table_size - 1; i++)
@@ -388,6 +585,17 @@ static int devfreq_cooling_power2state(struct thermal_cooling_device *cdev,
 
 	*state = i;
 	dfc->capped_state = i;
+=======
+	 * budget. The EM power table is sorted ascending.
+	 */
+	for (i = dfc->max_state; i > 0; i--)
+		if (est_power >= dfc->em_pd->table[i].power)
+			break;
+
+	*state = dfc->max_state - i;
+	dfc->capped_state = *state;
+
+>>>>>>> upstream/android-13
 	trace_thermal_power_devfreq_limit(cdev, freq, *state, power);
 	return 0;
 }
@@ -399,6 +607,7 @@ static struct thermal_cooling_device_ops devfreq_cooling_ops = {
 };
 
 /**
+<<<<<<< HEAD
  * devfreq_cooling_gen_tables() - Generate power and freq tables.
  * @dfc: Pointer to devfreq cooling device.
  *
@@ -444,10 +653,37 @@ static int devfreq_cooling_gen_tables(struct devfreq_cooling_device *dfc)
 
 	for (i = 0, freq = ULONG_MAX; i < num_opps; i++, freq--) {
 		unsigned long power, voltage;
+=======
+ * devfreq_cooling_gen_tables() - Generate frequency table.
+ * @dfc:	Pointer to devfreq cooling device.
+ * @num_opps:	Number of OPPs
+ *
+ * Generate frequency table which holds the frequencies in descending
+ * order. That way its indexed by cooling device state. This is for
+ * compatibility with drivers which do not register Energy Model.
+ *
+ * Return: 0 on success, negative error code on failure.
+ */
+static int devfreq_cooling_gen_tables(struct devfreq_cooling_device *dfc,
+				      int num_opps)
+{
+	struct devfreq *df = dfc->devfreq;
+	struct device *dev = df->dev.parent;
+	unsigned long freq;
+	int i;
+
+	dfc->freq_table = kcalloc(num_opps, sizeof(*dfc->freq_table),
+			     GFP_KERNEL);
+	if (!dfc->freq_table)
+		return -ENOMEM;
+
+	for (i = 0, freq = ULONG_MAX; i < num_opps; i++, freq--) {
+>>>>>>> upstream/android-13
 		struct dev_pm_opp *opp;
 
 		opp = dev_pm_opp_find_freq_floor(dev, &freq);
 		if (IS_ERR(opp)) {
+<<<<<<< HEAD
 			ret = PTR_ERR(opp);
 			goto free_tables;
 		}
@@ -484,6 +720,17 @@ free_power_table:
 	kfree(power_table);
 
 	return ret;
+=======
+			kfree(dfc->freq_table);
+			return PTR_ERR(opp);
+		}
+
+		dev_pm_opp_put(opp);
+		dfc->freq_table[i] = freq;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -506,9 +753,16 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
 				  struct devfreq_cooling_power *dfc_power)
 {
 	struct thermal_cooling_device *cdev;
+<<<<<<< HEAD
 	struct devfreq_cooling_device *dfc;
 	char dev_name[THERMAL_NAME_LENGTH];
 	int err;
+=======
+	struct device *dev = df->dev.parent;
+	struct devfreq_cooling_device *dfc;
+	char *name;
+	int err, num_opps;
+>>>>>>> upstream/android-13
 
 	dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
 	if (!dfc)
@@ -516,13 +770,19 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
 
 	dfc->devfreq = df;
 
+<<<<<<< HEAD
 	if (dfc_power) {
 		dfc->power_ops = dfc_power;
 
+=======
+	dfc->em_pd = em_pd_get(dev);
+	if (dfc->em_pd) {
+>>>>>>> upstream/android-13
 		devfreq_cooling_ops.get_requested_power =
 			devfreq_cooling_get_requested_power;
 		devfreq_cooling_ops.state2power = devfreq_cooling_state2power;
 		devfreq_cooling_ops.power2state = devfreq_cooling_power2state;
+<<<<<<< HEAD
 	}
 
 	err = devfreq_cooling_gen_tables(dfc);
@@ -544,16 +804,68 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
 			"Failed to register devfreq cooling device (%d)\n",
 			err);
 		goto release_ida;
+=======
+
+		dfc->power_ops = dfc_power;
+
+		num_opps = em_pd_nr_perf_states(dfc->em_pd);
+	} else {
+		/* Backward compatibility for drivers which do not use IPA */
+		dev_dbg(dev, "missing EM for cooling device\n");
+
+		num_opps = dev_pm_opp_get_opp_count(dev);
+
+		err = devfreq_cooling_gen_tables(dfc, num_opps);
+		if (err)
+			goto free_dfc;
+	}
+
+	if (num_opps <= 0) {
+		err = -EINVAL;
+		goto free_dfc;
+	}
+
+	/* max_state is an index, not a counter */
+	dfc->max_state = num_opps - 1;
+
+	err = dev_pm_qos_add_request(dev, &dfc->req_max_freq,
+				     DEV_PM_QOS_MAX_FREQUENCY,
+				     PM_QOS_MAX_FREQUENCY_DEFAULT_VALUE);
+	if (err < 0)
+		goto free_table;
+
+	err = -ENOMEM;
+	name = kasprintf(GFP_KERNEL, "devfreq-%s", dev_name(dev));
+	if (!name)
+		goto remove_qos_req;
+
+	cdev = thermal_of_cooling_device_register(np, name, dfc,
+						  &devfreq_cooling_ops);
+	kfree(name);
+
+	if (IS_ERR(cdev)) {
+		err = PTR_ERR(cdev);
+		dev_err(dev,
+			"Failed to register devfreq cooling device (%d)\n",
+			err);
+		goto remove_qos_req;
+>>>>>>> upstream/android-13
 	}
 
 	dfc->cdev = cdev;
 
 	return cdev;
 
+<<<<<<< HEAD
 release_ida:
 	ida_simple_remove(&devfreq_ida, dfc->id);
 free_tables:
 	kfree(dfc->power_table);
+=======
+remove_qos_req:
+	dev_pm_qos_remove_request(&dfc->req_max_freq);
+free_table:
+>>>>>>> upstream/android-13
 	kfree(dfc->freq_table);
 free_dfc:
 	kfree(dfc);
@@ -586,12 +898,64 @@ struct thermal_cooling_device *devfreq_cooling_register(struct devfreq *df)
 EXPORT_SYMBOL_GPL(devfreq_cooling_register);
 
 /**
+<<<<<<< HEAD
  * devfreq_cooling_unregister() - Unregister devfreq cooling device.
  * @dfc: Pointer to devfreq cooling device to unregister.
+=======
+ * devfreq_cooling_em_register() - Register devfreq cooling device with
+ *		power information and automatically register Energy Model (EM)
+ * @df:		Pointer to devfreq device.
+ * @dfc_power:	Pointer to devfreq_cooling_power.
+ *
+ * Register a devfreq cooling device and automatically register EM. The
+ * available OPPs must be registered for the device.
+ *
+ * If @dfc_power is provided, the cooling device is registered with the
+ * power extensions. It is using the simple Energy Model which requires
+ * "dynamic-power-coefficient" a devicetree property. To not break drivers
+ * which miss that DT property, the function won't bail out when the EM
+ * registration failed. The cooling device will be registered if everything
+ * else is OK.
+ */
+struct thermal_cooling_device *
+devfreq_cooling_em_register(struct devfreq *df,
+			    struct devfreq_cooling_power *dfc_power)
+{
+	struct thermal_cooling_device *cdev;
+	struct device *dev;
+	int ret;
+
+	if (IS_ERR_OR_NULL(df))
+		return ERR_PTR(-EINVAL);
+
+	dev = df->dev.parent;
+
+	ret = dev_pm_opp_of_register_em(dev, NULL);
+	if (ret)
+		dev_dbg(dev, "Unable to register EM for devfreq cooling device (%d)\n",
+			ret);
+
+	cdev = of_devfreq_cooling_register_power(dev->of_node, df, dfc_power);
+
+	if (IS_ERR_OR_NULL(cdev))
+		em_dev_unregister_perf_domain(dev);
+
+	return cdev;
+}
+EXPORT_SYMBOL_GPL(devfreq_cooling_em_register);
+
+/**
+ * devfreq_cooling_unregister() - Unregister devfreq cooling device.
+ * @cdev: Pointer to devfreq cooling device to unregister.
+ *
+ * Unregisters devfreq cooling device and related Energy Model if it was
+ * present.
+>>>>>>> upstream/android-13
  */
 void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
 {
 	struct devfreq_cooling_device *dfc;
+<<<<<<< HEAD
 
 	if (!cdev)
 		return;
@@ -603,6 +967,22 @@ void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
 	kfree(dfc->power_table);
 	kfree(dfc->freq_table);
 
+=======
+	struct device *dev;
+
+	if (IS_ERR_OR_NULL(cdev))
+		return;
+
+	dfc = cdev->devdata;
+	dev = dfc->devfreq->dev.parent;
+
+	thermal_cooling_device_unregister(dfc->cdev);
+	dev_pm_qos_remove_request(&dfc->req_max_freq);
+
+	em_dev_unregister_perf_domain(dev);
+
+	kfree(dfc->freq_table);
+>>>>>>> upstream/android-13
 	kfree(dfc);
 }
 EXPORT_SYMBOL_GPL(devfreq_cooling_unregister);

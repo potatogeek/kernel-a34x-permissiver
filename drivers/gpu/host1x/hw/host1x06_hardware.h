@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Tegra host1x Register Offsets for Tegra186
  *
  * Copyright (c) 2017 NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HOST1X_HOST1X06_HARDWARE_H
@@ -22,6 +29,10 @@
 #include <linux/types.h>
 #include <linux/bitops.h>
 
+<<<<<<< HEAD
+=======
+#include "hw_host1x06_channel.h"
+>>>>>>> upstream/android-13
 #include "hw_host1x06_uclass.h"
 #include "hw_host1x06_vm.h"
 #include "hw_host1x06_hypervisor.h"
@@ -137,6 +148,14 @@ static inline u32 host1x_opcode_gather_incr(unsigned offset, unsigned count)
 	return (6 << 28) | (offset << 16) | BIT(15) | BIT(14) | count;
 }
 
+<<<<<<< HEAD
+=======
+static inline u32 host1x_opcode_gather_wide(unsigned count)
+{
+	return (12 << 28) | count;
+}
+
+>>>>>>> upstream/android-13
 #define HOST1X_OPCODE_NOP host1x_opcode_nonincr(0, 0)
 
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef DEF_RDMAVT_INCCQ_H
 #define DEF_RDMAVT_INCCQ_H
 
@@ -53,6 +54,19 @@
 
 #include <linux/kthread.h>
 #include <rdma/ib_user_verbs.h>
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright(c) 2016 - 2018 Intel Corporation.
+ */
+
+#ifndef DEF_RDMAVT_INCCQ_H
+#define DEF_RDMAVT_INCCQ_H
+
+#include <linux/kthread.h>
+#include <rdma/ib_user_verbs.h>
+#include <rdma/ib_verbs.h>
+>>>>>>> upstream/android-13
 
 /*
  * Define an ib_cq_notify value that is not valid so we know when CQ
@@ -61,10 +75,27 @@
 #define RVT_CQ_NONE      (IB_CQ_NEXT_COMP + 1)
 
 /*
+<<<<<<< HEAD
+=======
+ * Define read macro that apply smp_load_acquire memory barrier
+ * when reading indice of circular buffer that mmaped to user space.
+ */
+#define RDMA_READ_UAPI_ATOMIC(member) smp_load_acquire(&(member).val)
+
+/*
+ * Define write macro that uses smp_store_release memory barrier
+ * when writing indice of circular buffer that mmaped to user space.
+ */
+#define RDMA_WRITE_UAPI_ATOMIC(member, x) smp_store_release(&(member).val, x)
+#include <rdma/rvt-abi.h>
+
+/*
+>>>>>>> upstream/android-13
  * This structure is used to contain the head pointer, tail pointer,
  * and completion queue entries as a single memory allocation so
  * it can be mmap'ed into user space.
  */
+<<<<<<< HEAD
 struct rvt_cq_wc {
 	u32 head;               /* index of next entry to fill */
 	u32 tail;               /* index of next ib_poll_cq() entry */
@@ -73,6 +104,12 @@ struct rvt_cq_wc {
 		struct ib_uverbs_wc uqueue[0];
 		struct ib_wc kqueue[0];
 	};
+=======
+struct rvt_k_cq_wc {
+	u32 head;               /* index of next entry to fill */
+	u32 tail;               /* index of next ib_poll_cq() entry */
+	struct ib_wc kqueue[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -84,10 +121,18 @@ struct rvt_cq {
 	spinlock_t lock; /* protect changes in this struct */
 	u8 notify;
 	u8 triggered;
+<<<<<<< HEAD
+=======
+	u8 cq_full;
+>>>>>>> upstream/android-13
 	int comp_vector_cpu;
 	struct rvt_dev_info *rdi;
 	struct rvt_cq_wc *queue;
 	struct rvt_mmap_info *ip;
+<<<<<<< HEAD
+=======
+	struct rvt_k_cq_wc *kqueue;
+>>>>>>> upstream/android-13
 };
 
 static inline struct rvt_cq *ibcq_to_rvtcq(struct ib_cq *ibcq)
@@ -95,6 +140,10 @@ static inline struct rvt_cq *ibcq_to_rvtcq(struct ib_cq *ibcq)
 	return container_of(ibcq, struct rvt_cq, ibcq);
 }
 
+<<<<<<< HEAD
 void rvt_cq_enter(struct rvt_cq *cq, struct ib_wc *entry, bool solicited);
+=======
+bool rvt_cq_enter(struct rvt_cq *cq, struct ib_wc *entry, bool solicited);
+>>>>>>> upstream/android-13
 
 #endif          /* DEF_RDMAVT_INCCQH */

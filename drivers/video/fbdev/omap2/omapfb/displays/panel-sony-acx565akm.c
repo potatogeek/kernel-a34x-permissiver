@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Sony ACX565AKM LCD Panel driver
  *
@@ -6,6 +10,7 @@
  * Original Driver Author: Imre Deak <imre.deak@nokia.com>
  * Based on panel-generic.c by Tomi Valkeinen <tomi.valkeinen@nokia.com>
  * Adapted to new DSS2 framework: Roger Quadros <roger.quadros@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -487,7 +494,11 @@ static ssize_t show_cabc_available_modes(struct device *dev,
 	int i;
 
 	if (!ddata->has_cabc)
+<<<<<<< HEAD
 		return snprintf(buf, PAGE_SIZE, "%s\n", cabc_modes[0]);
+=======
+		return sysfs_emit(buf, "%s\n", cabc_modes[0]);
+>>>>>>> upstream/android-13
 
 	for (i = 0, len = 0;
 	     len < PAGE_SIZE && i < ARRAY_SIZE(cabc_modes); i++)
@@ -517,16 +528,23 @@ static int acx565akm_connect(struct omap_dss_device *dssdev)
 {
 	struct panel_drv_data *ddata = to_panel_data(dssdev);
 	struct omap_dss_device *in = ddata->in;
+<<<<<<< HEAD
 	int r;
+=======
+>>>>>>> upstream/android-13
 
 	if (omapdss_device_is_connected(dssdev))
 		return 0;
 
+<<<<<<< HEAD
 	r = in->ops.sdi->connect(in, dssdev);
 	if (r)
 		return r;
 
 	return 0;
+=======
+	return in->ops.sdi->connect(in, dssdev);
+>>>>>>> upstream/android-13
 }
 
 static void acx565akm_disconnect(struct omap_dss_device *dssdev)

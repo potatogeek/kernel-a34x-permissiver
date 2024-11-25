@@ -47,6 +47,10 @@
 ****************************************************************/
 #include "bitstream.h"
 #include "fse.h"
+<<<<<<< HEAD
+=======
+#include "zstd_internal.h"
+>>>>>>> upstream/android-13
 #include <linux/compiler.h>
 #include <linux/kernel.h>
 #include <linux/string.h> /* memcpy, memset */
@@ -60,6 +64,7 @@
 		enum { FSE_static_assert = 1 / (int)(!!(c)) }; \
 	} /* use only *after* variable declarations */
 
+<<<<<<< HEAD
 /* check and forward error code */
 #define CHECK_F(f)                  \
 	{                           \
@@ -68,6 +73,8 @@
 			return e;   \
 	}
 
+=======
+>>>>>>> upstream/android-13
 /* **************************************************************
 *  Templates
 ****************************************************************/

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Makefile for the Lan Media 21140 based WAN cards
 # Specifically the 1000,1200,5200,5245
@@ -14,4 +18,8 @@ lmc-objs := lmc_debug.o lmc_media.o lmc_main.o lmc_proto.o
 # -DDEBUG \
 # -DLMC_PACKET_LOG
 
+<<<<<<< HEAD
 ccflags-y := -I. $(DBGDEF)
+=======
+ccflags-y := $(DBGDEF)
+>>>>>>> upstream/android-13

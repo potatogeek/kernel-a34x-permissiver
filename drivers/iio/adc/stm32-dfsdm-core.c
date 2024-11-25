@@ -12,6 +12,11 @@
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/consumer.h>
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/slab.h>
 
@@ -90,6 +95,38 @@ struct dfsdm_priv {
 	struct clk *aclk; /* audio clock */
 };
 
+<<<<<<< HEAD
+=======
+static inline struct dfsdm_priv *to_stm32_dfsdm_priv(struct stm32_dfsdm *dfsdm)
+{
+	return container_of(dfsdm, struct dfsdm_priv, dfsdm);
+}
+
+static int stm32_dfsdm_clk_prepare_enable(struct stm32_dfsdm *dfsdm)
+{
+	struct dfsdm_priv *priv = to_stm32_dfsdm_priv(dfsdm);
+	int ret;
+
+	ret = clk_prepare_enable(priv->clk);
+	if (ret || !priv->aclk)
+		return ret;
+
+	ret = clk_prepare_enable(priv->aclk);
+	if (ret)
+		clk_disable_unprepare(priv->clk);
+
+	return ret;
+}
+
+static void stm32_dfsdm_clk_disable_unprepare(struct stm32_dfsdm *dfsdm)
+{
+	struct dfsdm_priv *priv = to_stm32_dfsdm_priv(dfsdm);
+
+	clk_disable_unprepare(priv->aclk);
+	clk_disable_unprepare(priv->clk);
+}
+
+>>>>>>> upstream/android-13
 /**
  * stm32_dfsdm_start_dfsdm - start global dfsdm interface.
  *
@@ -98,12 +135,17 @@ struct dfsdm_priv {
  */
 int stm32_dfsdm_start_dfsdm(struct stm32_dfsdm *dfsdm)
 {
+<<<<<<< HEAD
 	struct dfsdm_priv *priv = container_of(dfsdm, struct dfsdm_priv, dfsdm);
+=======
+	struct dfsdm_priv *priv = to_stm32_dfsdm_priv(dfsdm);
+>>>>>>> upstream/android-13
 	struct device *dev = &priv->pdev->dev;
 	unsigned int clk_div = priv->spi_clk_out_div, clk_src;
 	int ret;
 
 	if (atomic_inc_return(&priv->n_active_ch) == 1) {
+<<<<<<< HEAD
 		ret = clk_prepare_enable(priv->clk);
 		if (ret < 0) {
 			dev_err(dev, "Failed to start clock\n");
@@ -116,6 +158,11 @@ int stm32_dfsdm_start_dfsdm(struct stm32_dfsdm *dfsdm)
 				goto disable_clk;
 			}
 		}
+=======
+		ret = pm_runtime_resume_and_get(dev);
+		if (ret < 0)
+			goto error_ret;
+>>>>>>> upstream/android-13
 
 		/* select clock source, e.g. 0 for "dfsdm" or 1 for "audio" */
 		clk_src = priv->aclk ? 1 : 0;
@@ -123,21 +170,33 @@ int stm32_dfsdm_start_dfsdm(struct stm32_dfsdm *dfsdm)
 					 DFSDM_CHCFGR1_CKOUTSRC_MASK,
 					 DFSDM_CHCFGR1_CKOUTSRC(clk_src));
 		if (ret < 0)
+<<<<<<< HEAD
 			goto disable_aclk;
+=======
+			goto pm_put;
+>>>>>>> upstream/android-13
 
 		/* Output the SPI CLKOUT (if clk_div == 0 clock if OFF) */
 		ret = regmap_update_bits(dfsdm->regmap, DFSDM_CHCFGR1(0),
 					 DFSDM_CHCFGR1_CKOUTDIV_MASK,
 					 DFSDM_CHCFGR1_CKOUTDIV(clk_div));
 		if (ret < 0)
+<<<<<<< HEAD
 			goto disable_aclk;
+=======
+			goto pm_put;
+>>>>>>> upstream/android-13
 
 		/* Global enable of DFSDM interface */
 		ret = regmap_update_bits(dfsdm->regmap, DFSDM_CHCFGR1(0),
 					 DFSDM_CHCFGR1_DFSDMEN_MASK,
 					 DFSDM_CHCFGR1_DFSDMEN(1));
 		if (ret < 0)
+<<<<<<< HEAD
 			goto disable_aclk;
+=======
+			goto pm_put;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(dev, "%s: n_active_ch %d\n", __func__,
@@ -145,11 +204,16 @@ int stm32_dfsdm_start_dfsdm(struct stm32_dfsdm *dfsdm)
 
 	return 0;
 
+<<<<<<< HEAD
 disable_aclk:
 	clk_disable_unprepare(priv->aclk);
 disable_clk:
 	clk_disable_unprepare(priv->clk);
 
+=======
+pm_put:
+	pm_runtime_put_sync(dev);
+>>>>>>> upstream/android-13
 error_ret:
 	atomic_dec(&priv->n_active_ch);
 
@@ -165,7 +229,11 @@ EXPORT_SYMBOL_GPL(stm32_dfsdm_start_dfsdm);
  */
 int stm32_dfsdm_stop_dfsdm(struct stm32_dfsdm *dfsdm)
 {
+<<<<<<< HEAD
 	struct dfsdm_priv *priv = container_of(dfsdm, struct dfsdm_priv, dfsdm);
+=======
+	struct dfsdm_priv *priv = to_stm32_dfsdm_priv(dfsdm);
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (atomic_dec_and_test(&priv->n_active_ch)) {
@@ -183,9 +251,13 @@ int stm32_dfsdm_stop_dfsdm(struct stm32_dfsdm *dfsdm)
 		if (ret < 0)
 			return ret;
 
+<<<<<<< HEAD
 		clk_disable_unprepare(priv->clk);
 		if (priv->aclk)
 			clk_disable_unprepare(priv->aclk);
+=======
+		pm_runtime_put_sync(&priv->pdev->dev);
+>>>>>>> upstream/android-13
 	}
 	dev_dbg(&priv->pdev->dev, "%s: n_active_ch %d\n", __func__,
 		atomic_read(&priv->n_active_ch));
@@ -199,13 +271,18 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
 {
 	struct device_node *node = pdev->dev.of_node;
 	struct resource *res;
+<<<<<<< HEAD
 	unsigned long clk_freq;
+=======
+	unsigned long clk_freq, divider;
+>>>>>>> upstream/android-13
 	unsigned int spi_freq, rem;
 	int ret;
 
 	if (!node)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		dev_err(&pdev->dev, "Failed to get memory resource\n");
@@ -216,6 +293,15 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
 	if (IS_ERR(priv->dfsdm.base))
 		return PTR_ERR(priv->dfsdm.base);
 
+=======
+	priv->dfsdm.base = devm_platform_get_and_ioremap_resource(pdev, 0,
+							&res);
+	if (IS_ERR(priv->dfsdm.base))
+		return PTR_ERR(priv->dfsdm.base);
+
+	priv->dfsdm.phys_base = res->start;
+
+>>>>>>> upstream/android-13
 	/*
 	 * "dfsdm" clock is mandatory for DFSDM peripheral clocking.
 	 * "dfsdm" or "audio" clocks can be used as source clock for
@@ -223,12 +309,18 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
 	 * on use case.
 	 */
 	priv->clk = devm_clk_get(&pdev->dev, "dfsdm");
+<<<<<<< HEAD
 	if (IS_ERR(priv->clk)) {
 		ret = PTR_ERR(priv->clk);
 		if (ret != -EPROBE_DEFER)
 			dev_err(&pdev->dev, "Failed to get clock (%d)\n", ret);
 		return ret;
 	}
+=======
+	if (IS_ERR(priv->clk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->clk),
+				     "Failed to get clock\n");
+>>>>>>> upstream/android-13
 
 	priv->aclk = devm_clk_get(&pdev->dev, "audio");
 	if (IS_ERR(priv->aclk))
@@ -247,6 +339,7 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	priv->spi_clk_out_div = div_u64_rem(clk_freq, spi_freq, &rem) - 1;
 	if (!priv->spi_clk_out_div) {
 		/* spi_clk_out_div == 0 means ckout is OFF */
@@ -254,6 +347,22 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
 		return -EINVAL;
 	}
 	priv->dfsdm.spi_master_freq = spi_freq;
+=======
+	divider = div_u64_rem(clk_freq, spi_freq, &rem);
+	/* Round up divider when ckout isn't precise, not to exceed spi_freq */
+	if (rem)
+		divider++;
+
+	/* programmable divider is in range of [2:256] */
+	if (divider < 2 || divider > 256) {
+		dev_err(&pdev->dev, "spi-max-frequency not achievable\n");
+		return -EINVAL;
+	}
+
+	/* SPI clock output divider is: divider = CKOUTDIV + 1 */
+	priv->spi_clk_out_div = divider - 1;
+	priv->dfsdm.spi_master_freq = clk_freq / (priv->spi_clk_out_div + 1);
+>>>>>>> upstream/android-13
 
 	if (rem) {
 		dev_warn(&pdev->dev, "SPI clock not accurate\n");
@@ -322,6 +431,7 @@ static int stm32_dfsdm_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, dfsdm);
 
+<<<<<<< HEAD
 	return devm_of_platform_populate(&pdev->dev);
 }
 
@@ -330,6 +440,113 @@ static struct platform_driver stm32_dfsdm_driver = {
 	.driver = {
 		.name = "stm32-dfsdm",
 		.of_match_table = stm32_dfsdm_of_match,
+=======
+	ret = stm32_dfsdm_clk_prepare_enable(dfsdm);
+	if (ret) {
+		dev_err(&pdev->dev, "Failed to start clock\n");
+		return ret;
+	}
+
+	pm_runtime_get_noresume(&pdev->dev);
+	pm_runtime_set_active(&pdev->dev);
+	pm_runtime_enable(&pdev->dev);
+
+	ret = of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
+	if (ret)
+		goto pm_put;
+
+	pm_runtime_put(&pdev->dev);
+
+	return 0;
+
+pm_put:
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_put_noidle(&pdev->dev);
+	stm32_dfsdm_clk_disable_unprepare(dfsdm);
+
+	return ret;
+}
+
+static int stm32_dfsdm_core_remove(struct platform_device *pdev)
+{
+	struct stm32_dfsdm *dfsdm = platform_get_drvdata(pdev);
+
+	pm_runtime_get_sync(&pdev->dev);
+	of_platform_depopulate(&pdev->dev);
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_put_noidle(&pdev->dev);
+	stm32_dfsdm_clk_disable_unprepare(dfsdm);
+
+	return 0;
+}
+
+static int __maybe_unused stm32_dfsdm_core_suspend(struct device *dev)
+{
+	struct stm32_dfsdm *dfsdm = dev_get_drvdata(dev);
+	struct dfsdm_priv *priv = to_stm32_dfsdm_priv(dfsdm);
+	int ret;
+
+	ret = pm_runtime_force_suspend(dev);
+	if (ret)
+		return ret;
+
+	/* Balance devm_regmap_init_mmio_clk() clk_prepare() */
+	clk_unprepare(priv->clk);
+
+	return pinctrl_pm_select_sleep_state(dev);
+}
+
+static int __maybe_unused stm32_dfsdm_core_resume(struct device *dev)
+{
+	struct stm32_dfsdm *dfsdm = dev_get_drvdata(dev);
+	struct dfsdm_priv *priv = to_stm32_dfsdm_priv(dfsdm);
+	int ret;
+
+	ret = pinctrl_pm_select_default_state(dev);
+	if (ret)
+		return ret;
+
+	ret = clk_prepare(priv->clk);
+	if (ret)
+		return ret;
+
+	return pm_runtime_force_resume(dev);
+}
+
+static int __maybe_unused stm32_dfsdm_core_runtime_suspend(struct device *dev)
+{
+	struct stm32_dfsdm *dfsdm = dev_get_drvdata(dev);
+
+	stm32_dfsdm_clk_disable_unprepare(dfsdm);
+
+	return 0;
+}
+
+static int __maybe_unused stm32_dfsdm_core_runtime_resume(struct device *dev)
+{
+	struct stm32_dfsdm *dfsdm = dev_get_drvdata(dev);
+
+	return stm32_dfsdm_clk_prepare_enable(dfsdm);
+}
+
+static const struct dev_pm_ops stm32_dfsdm_core_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(stm32_dfsdm_core_suspend,
+				stm32_dfsdm_core_resume)
+	SET_RUNTIME_PM_OPS(stm32_dfsdm_core_runtime_suspend,
+			   stm32_dfsdm_core_runtime_resume,
+			   NULL)
+};
+
+static struct platform_driver stm32_dfsdm_driver = {
+	.probe = stm32_dfsdm_probe,
+	.remove = stm32_dfsdm_core_remove,
+	.driver = {
+		.name = "stm32-dfsdm",
+		.of_match_table = stm32_dfsdm_of_match,
+		.pm = &stm32_dfsdm_core_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 

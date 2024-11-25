@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2009-2010 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright (C) 2014 Oleksij Rempel <linux@rempel-privat.de>
  *	Add Alphascale ASM9260 support.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -71,7 +78,11 @@ struct icoll_priv {
 static struct icoll_priv icoll_priv;
 static struct irq_domain *icoll_domain;
 
+<<<<<<< HEAD
 /* calculate bit offset depending on number of intterupt per register */
+=======
+/* calculate bit offset depending on number of interrupt per register */
+>>>>>>> upstream/android-13
 static u32 icoll_intr_bitshift(struct irq_data *d, u32 bit)
 {
 	/*
@@ -81,7 +92,11 @@ static u32 icoll_intr_bitshift(struct irq_data *d, u32 bit)
 	return bit << ((d->hwirq & 3) << 3);
 }
 
+<<<<<<< HEAD
 /* calculate mem offset depending on number of intterupt per register */
+=======
+/* calculate mem offset depending on number of interrupt per register */
+>>>>>>> upstream/android-13
 static void __iomem *icoll_intr_reg(struct irq_data *d)
 {
 	/* offset = hwirq / intr_per_reg * 0x10 */

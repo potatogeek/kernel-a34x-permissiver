@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ACPI support for int340x thermal drivers
  *
  * Copyright (C) 2014, Intel Corporation
  * Authors: Zhang Rui <rui.zhang@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include "internal.h"
+=======
+#include "../internal.h"
+>>>>>>> upstream/android-13
 
 #define INT3401_DEVICE 0X01
 static const struct acpi_device_id int340x_thermal_device_ids[] = {
@@ -27,6 +38,22 @@ static const struct acpi_device_id int340x_thermal_device_ids[] = {
 	{"INT3409"},
 	{"INT340A"},
 	{"INT340B"},
+<<<<<<< HEAD
+=======
+	{"INT3532"},
+	{"INTC1040"},
+	{"INTC1041"},
+	{"INTC1043"},
+	{"INTC1044"},
+	{"INTC1045"},
+	{"INTC1046"},
+	{"INTC1047"},
+	{"INTC1048"},
+	{"INTC1049"},
+	{"INTC1050"},
+	{"INTC1060"},
+	{"INTC1061"},
+>>>>>>> upstream/android-13
 	{""},
 };
 

@@ -10,15 +10,27 @@
 #define SMCD_ISM_H
 
 #include <linux/uio.h>
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 
 #include "smc.h"
 
 struct smcd_dev_list {	/* List of SMCD devices */
 	struct list_head list;
+<<<<<<< HEAD
 	spinlock_t lock;	/* Protects list of devices */
 };
 
 extern struct smcd_dev_list	smcd_dev_list; /* list of smcd devices */
+=======
+	struct mutex mutex;	/* Protects list of devices */
+};
+
+extern struct smcd_dev_list	smcd_dev_list;	/* list of smcd devices */
+>>>>>>> upstream/android-13
 
 struct smc_ism_vlanid {			/* VLAN id set on ISM device */
 	struct list_head list;
@@ -45,4 +57,13 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
 int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
 int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
 		  void *data, size_t len);
+<<<<<<< HEAD
+=======
+int smc_ism_signal_shutdown(struct smc_link_group *lgr);
+void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
+u16 smc_ism_get_chid(struct smcd_dev *dev);
+bool smc_ism_is_v2_capable(void);
+void smc_ism_init(void);
+int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+>>>>>>> upstream/android-13
 #endif

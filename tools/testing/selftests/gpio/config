@@ -1,2 +1,6 @@
 CONFIG_GPIOLIB=y
+<<<<<<< HEAD
+=======
+CONFIG_GPIO_CDEV=y
+>>>>>>> upstream/android-13
 CONFIG_GPIO_MOCKUP=m

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hardware monitoring driver for PMBus devices
  *
  * Copyright (c) 2010, 2011 Ericsson AB.
  * Copyright (c) 2012 Guenter Roeck
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -29,7 +36,10 @@
 #include <linux/i2c.h>
 #include <linux/hwmon.h>
 #include <linux/hwmon-sysfs.h>
+<<<<<<< HEAD
 #include <linux/jiffies.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pmbus.h>
 #include <linux/regulator/driver.h>
 #include <linux/regulator/machine.h>
@@ -40,6 +50,7 @@
  * with each call to krealloc
  */
 #define PMBUS_ATTR_ALLOC_SIZE	32
+<<<<<<< HEAD
 
 /*
  * Index into status register array, per status register group
@@ -55,6 +66,8 @@
 
 #define PB_NUM_STATUS_REG	(PB_STATUS_VMON_BASE + 1)
 
+=======
+>>>>>>> upstream/android-13
 #define PMBUS_NAME_SIZE		24
 
 struct pmbus_sensor {
@@ -62,6 +75,10 @@ struct pmbus_sensor {
 	char name[PMBUS_NAME_SIZE];	/* sysfs sensor name */
 	struct device_attribute attribute;
 	u8 page;		/* page number */
+<<<<<<< HEAD
+=======
+	u8 phase;		/* phase number, 0xff for all phases */
+>>>>>>> upstream/android-13
 	u16 reg;		/* register */
 	enum pmbus_sensor_classes class;	/* sensor class */
 	bool update;		/* runtime sensor update needed */
@@ -89,6 +106,24 @@ struct pmbus_label {
 #define to_pmbus_label(_attr) \
 	container_of(_attr, struct pmbus_label, attribute)
 
+<<<<<<< HEAD
+=======
+/* Macros for converting between sensor index and register/page/status mask */
+
+#define PB_STATUS_MASK	0xffff
+#define PB_REG_SHIFT	16
+#define PB_REG_MASK	0x3ff
+#define PB_PAGE_SHIFT	26
+#define PB_PAGE_MASK	0x3f
+
+#define pb_reg_to_index(page, reg, mask)	(((page) << PB_PAGE_SHIFT) | \
+						 ((reg) << PB_REG_SHIFT) | (mask))
+
+#define pb_index_to_page(index)			(((index) >> PB_PAGE_SHIFT) & PB_PAGE_MASK)
+#define pb_index_to_reg(index)			(((index) >> PB_REG_SHIFT) & PB_REG_MASK)
+#define pb_index_to_mask(index)			((index) & PB_STATUS_MASK)
+
+>>>>>>> upstream/android-13
 struct pmbus_data {
 	struct device *dev;
 	struct device *hwmon_dev;
@@ -103,12 +138,17 @@ struct pmbus_data {
 	int max_attributes;
 	int num_attributes;
 	struct attribute_group group;
+<<<<<<< HEAD
 	const struct attribute_group *groups[2];
+=======
+	const struct attribute_group **groups;
+>>>>>>> upstream/android-13
 	struct dentry *debugfs;		/* debugfs device directory */
 
 	struct pmbus_sensor *sensors;
 
 	struct mutex update_lock;
+<<<<<<< HEAD
 	bool valid;
 	unsigned long last_updated;	/* in jiffies */
 
@@ -117,11 +157,18 @@ struct pmbus_data {
 	 * so we keep them all together.
 	 */
 	u16 status[PB_NUM_STATUS_REG];
+=======
+>>>>>>> upstream/android-13
 
 	bool has_status_word;		/* device uses STATUS_WORD register */
 	int (*read_status)(struct i2c_client *client, int page);
 
+<<<<<<< HEAD
 	u8 currpage;
+=======
+	s16 currpage;	/* current page, -1 for unknown/unset */
+	s16 currphase;	/* current phase, 0xff for all, -1 for unknown/unset */
+>>>>>>> upstream/android-13
 };
 
 struct pmbus_debugfs_entry {
@@ -154,20 +201,50 @@ static const int pmbus_fan_command_registers[] = {
 void pmbus_clear_cache(struct i2c_client *client)
 {
 	struct pmbus_data *data = i2c_get_clientdata(client);
+<<<<<<< HEAD
 
 	data->valid = false;
 }
 EXPORT_SYMBOL_GPL(pmbus_clear_cache);
 
 int pmbus_set_page(struct i2c_client *client, int page)
+=======
+	struct pmbus_sensor *sensor;
+
+	for (sensor = data->sensors; sensor; sensor = sensor->next)
+		sensor->data = -ENODATA;
+}
+EXPORT_SYMBOL_NS_GPL(pmbus_clear_cache, PMBUS);
+
+void pmbus_set_update(struct i2c_client *client, u8 reg, bool update)
+{
+	struct pmbus_data *data = i2c_get_clientdata(client);
+	struct pmbus_sensor *sensor;
+
+	for (sensor = data->sensors; sensor; sensor = sensor->next)
+		if (sensor->reg == reg)
+			sensor->update = update;
+}
+EXPORT_SYMBOL_NS_GPL(pmbus_set_update, PMBUS);
+
+int pmbus_set_page(struct i2c_client *client, int page, int phase)
+>>>>>>> upstream/android-13
 {
 	struct pmbus_data *data = i2c_get_clientdata(client);
 	int rv;
 
+<<<<<<< HEAD
 	if (page < 0 || page == data->currpage)
 		return 0;
 
 	if (!(data->info->func[page] & PMBUS_PAGE_VIRTUAL)) {
+=======
+	if (page < 0)
+		return 0;
+
+	if (!(data->info->func[page] & PMBUS_PAGE_VIRTUAL) &&
+	    data->info->pages > 1 && page != data->currpage) {
+>>>>>>> upstream/android-13
 		rv = i2c_smbus_write_byte_data(client, PMBUS_PAGE, page);
 		if (rv < 0)
 			return rv;
@@ -179,24 +256,49 @@ int pmbus_set_page(struct i2c_client *client, int page)
 		if (rv != page)
 			return -EIO;
 	}
+<<<<<<< HEAD
 
 	data->currpage = page;
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(pmbus_set_page);
+=======
+	data->currpage = page;
+
+	if (data->info->phases[page] && data->currphase != phase &&
+	    !(data->info->func[page] & PMBUS_PHASE_VIRTUAL)) {
+		rv = i2c_smbus_write_byte_data(client, PMBUS_PHASE,
+					       phase);
+		if (rv)
+			return rv;
+	}
+	data->currphase = phase;
+
+	return 0;
+}
+EXPORT_SYMBOL_NS_GPL(pmbus_set_page, PMBUS);
+>>>>>>> upstream/android-13
 
 int pmbus_write_byte(struct i2c_client *client, int page, u8 value)
 {
 	int rv;
 
+<<<<<<< HEAD
 	rv = pmbus_set_page(client, page);
+=======
+	rv = pmbus_set_page(client, page, 0xff);
+>>>>>>> upstream/android-13
 	if (rv < 0)
 		return rv;
 
 	return i2c_smbus_write_byte(client, value);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_write_byte);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_write_byte, PMBUS);
+>>>>>>> upstream/android-13
 
 /*
  * _pmbus_write_byte() is similar to pmbus_write_byte(), but checks if
@@ -221,13 +323,21 @@ int pmbus_write_word_data(struct i2c_client *client, int page, u8 reg,
 {
 	int rv;
 
+<<<<<<< HEAD
 	rv = pmbus_set_page(client, page);
+=======
+	rv = pmbus_set_page(client, page, 0xff);
+>>>>>>> upstream/android-13
 	if (rv < 0)
 		return rv;
 
 	return i2c_smbus_write_word_data(client, reg, word);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_write_word_data);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_write_word_data, PMBUS);
+>>>>>>> upstream/android-13
 
 
 static int pmbus_write_virt_reg(struct i2c_client *client, int page, int reg,
@@ -297,6 +407,7 @@ int pmbus_update_fan(struct i2c_client *client, int page, int id,
 	return _pmbus_write_word_data(client, page,
 				      pmbus_fan_command_registers[id], command);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_update_fan);
 
 int pmbus_read_word_data(struct i2c_client *client, int page, u8 reg)
@@ -304,12 +415,25 @@ int pmbus_read_word_data(struct i2c_client *client, int page, u8 reg)
 	int rv;
 
 	rv = pmbus_set_page(client, page);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_update_fan, PMBUS);
+
+int pmbus_read_word_data(struct i2c_client *client, int page, int phase, u8 reg)
+{
+	int rv;
+
+	rv = pmbus_set_page(client, page, phase);
+>>>>>>> upstream/android-13
 	if (rv < 0)
 		return rv;
 
 	return i2c_smbus_read_word_data(client, reg);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_read_word_data);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_read_word_data, PMBUS);
+>>>>>>> upstream/android-13
 
 static int pmbus_read_virt_reg(struct i2c_client *client, int page, int reg)
 {
@@ -333,14 +457,23 @@ static int pmbus_read_virt_reg(struct i2c_client *client, int page, int reg)
  * _pmbus_read_word_data() is similar to pmbus_read_word_data(), but checks if
  * a device specific mapping function exists and calls it if necessary.
  */
+<<<<<<< HEAD
 static int _pmbus_read_word_data(struct i2c_client *client, int page, int reg)
+=======
+static int _pmbus_read_word_data(struct i2c_client *client, int page,
+				 int phase, int reg)
+>>>>>>> upstream/android-13
 {
 	struct pmbus_data *data = i2c_get_clientdata(client);
 	const struct pmbus_driver_info *info = data->info;
 	int status;
 
 	if (info->read_word_data) {
+<<<<<<< HEAD
 		status = info->read_word_data(client, page, reg);
+=======
+		status = info->read_word_data(client, page, phase, reg);
+>>>>>>> upstream/android-13
 		if (status != -ENODATA)
 			return status;
 	}
@@ -348,32 +481,58 @@ static int _pmbus_read_word_data(struct i2c_client *client, int page, int reg)
 	if (reg >= PMBUS_VIRT_BASE)
 		return pmbus_read_virt_reg(client, page, reg);
 
+<<<<<<< HEAD
 	return pmbus_read_word_data(client, page, reg);
+=======
+	return pmbus_read_word_data(client, page, phase, reg);
+}
+
+/* Same as above, but without phase parameter, for use in check functions */
+static int __pmbus_read_word_data(struct i2c_client *client, int page, int reg)
+{
+	return _pmbus_read_word_data(client, page, 0xff, reg);
+>>>>>>> upstream/android-13
 }
 
 int pmbus_read_byte_data(struct i2c_client *client, int page, u8 reg)
 {
 	int rv;
 
+<<<<<<< HEAD
 	rv = pmbus_set_page(client, page);
+=======
+	rv = pmbus_set_page(client, page, 0xff);
+>>>>>>> upstream/android-13
 	if (rv < 0)
 		return rv;
 
 	return i2c_smbus_read_byte_data(client, reg);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_read_byte_data);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_read_byte_data, PMBUS);
+>>>>>>> upstream/android-13
 
 int pmbus_write_byte_data(struct i2c_client *client, int page, u8 reg, u8 value)
 {
 	int rv;
 
+<<<<<<< HEAD
 	rv = pmbus_set_page(client, page);
+=======
+	rv = pmbus_set_page(client, page, 0xff);
+>>>>>>> upstream/android-13
 	if (rv < 0)
 		return rv;
 
 	return i2c_smbus_write_byte_data(client, reg, value);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_write_byte_data);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_write_byte_data, PMBUS);
+>>>>>>> upstream/android-13
 
 int pmbus_update_byte_data(struct i2c_client *client, int page, u8 reg,
 			   u8 mask, u8 value)
@@ -392,7 +551,11 @@ int pmbus_update_byte_data(struct i2c_client *client, int page, u8 reg,
 
 	return rv;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_update_byte_data);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_update_byte_data, PMBUS);
+>>>>>>> upstream/android-13
 
 /*
  * _pmbus_read_byte_data() is similar to pmbus_read_byte_data(), but checks if
@@ -453,7 +616,11 @@ static int pmbus_get_fan_rate(struct i2c_client *client, int page, int id,
 
 	have_rpm = !!(config & pmbus_fan_rpm_mask[id]);
 	if (want_rpm == have_rpm)
+<<<<<<< HEAD
 		return pmbus_read_word_data(client, page,
+=======
+		return pmbus_read_word_data(client, page, 0xff,
+>>>>>>> upstream/android-13
 					    pmbus_fan_command_registers[id]);
 
 	/* Can't sensibly map between RPM and PWM, just return zero */
@@ -465,14 +632,22 @@ int pmbus_get_fan_rate_device(struct i2c_client *client, int page, int id,
 {
 	return pmbus_get_fan_rate(client, page, id, mode, false);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_get_fan_rate_device);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_get_fan_rate_device, PMBUS);
+>>>>>>> upstream/android-13
 
 int pmbus_get_fan_rate_cached(struct i2c_client *client, int page, int id,
 			      enum pmbus_fan_mode mode)
 {
 	return pmbus_get_fan_rate(client, page, id, mode, true);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_get_fan_rate_cached);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_get_fan_rate_cached, PMBUS);
+>>>>>>> upstream/android-13
 
 static void pmbus_clear_fault_page(struct i2c_client *client, int page)
 {
@@ -487,7 +662,11 @@ void pmbus_clear_faults(struct i2c_client *client)
 	for (i = 0; i < data->info->pages; i++)
 		pmbus_clear_fault_page(client, i);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_clear_faults);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_clear_faults, PMBUS);
+>>>>>>> upstream/android-13
 
 static int pmbus_check_status_cml(struct i2c_client *client)
 {
@@ -514,6 +693,11 @@ static bool pmbus_check_register(struct i2c_client *client,
 	rv = func(client, page, reg);
 	if (rv >= 0 && !(data->flags & PMBUS_SKIP_STATUS_CHECK))
 		rv = pmbus_check_status_cml(client);
+<<<<<<< HEAD
+=======
+	if (rv < 0 && (data->flags & PMBUS_READ_STATUS_AFTER_FAILED_CHECK))
+		data->read_status(client, -1);
+>>>>>>> upstream/android-13
 	pmbus_clear_fault_page(client, -1);
 	return rv >= 0;
 }
@@ -539,6 +723,7 @@ bool pmbus_check_byte_register(struct i2c_client *client, int page, int reg)
 {
 	return pmbus_check_register(client, _pmbus_read_byte_data, page, reg);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_check_byte_register);
 
 bool pmbus_check_word_register(struct i2c_client *client, int page, int reg)
@@ -546,6 +731,15 @@ bool pmbus_check_word_register(struct i2c_client *client, int page, int reg)
 	return pmbus_check_register(client, _pmbus_read_word_data, page, reg);
 }
 EXPORT_SYMBOL_GPL(pmbus_check_word_register);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_check_byte_register, PMBUS);
+
+bool pmbus_check_word_register(struct i2c_client *client, int page, int reg)
+{
+	return pmbus_check_register(client, __pmbus_read_word_data, page, reg);
+}
+EXPORT_SYMBOL_NS_GPL(pmbus_check_word_register, PMBUS);
+>>>>>>> upstream/android-13
 
 const struct pmbus_driver_info *pmbus_get_driver_info(struct i2c_client *client)
 {
@@ -553,6 +747,7 @@ const struct pmbus_driver_info *pmbus_get_driver_info(struct i2c_client *client)
 
 	return data->info;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_get_driver_info);
 
 static struct _pmbus_status {
@@ -616,18 +811,54 @@ static struct pmbus_data *pmbus_update_device(struct device *dev)
 	}
 	mutex_unlock(&data->update_lock);
 	return data;
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_get_driver_info, PMBUS);
+
+static int pmbus_get_status(struct i2c_client *client, int page, int reg)
+{
+	struct pmbus_data *data = i2c_get_clientdata(client);
+	int status;
+
+	switch (reg) {
+	case PMBUS_STATUS_WORD:
+		status = data->read_status(client, page);
+		break;
+	default:
+		status = _pmbus_read_byte_data(client, page, reg);
+		break;
+	}
+	if (status < 0)
+		pmbus_clear_faults(client);
+	return status;
+}
+
+static void pmbus_update_sensor_data(struct i2c_client *client, struct pmbus_sensor *sensor)
+{
+	if (sensor->data < 0 || sensor->update)
+		sensor->data = _pmbus_read_word_data(client, sensor->page,
+						     sensor->phase, sensor->reg);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Convert linear sensor values to milli- or micro-units
  * depending on sensor type.
  */
+<<<<<<< HEAD
 static long pmbus_reg2data_linear(struct pmbus_data *data,
 				  struct pmbus_sensor *sensor)
 {
 	s16 exponent;
 	s32 mantissa;
 	long val;
+=======
+static s64 pmbus_reg2data_linear(struct pmbus_data *data,
+				 struct pmbus_sensor *sensor)
+{
+	s16 exponent;
+	s32 mantissa;
+	s64 val;
+>>>>>>> upstream/android-13
 
 	if (sensor->class == PSC_VOLTAGE_OUT) {	/* LINEAR16 */
 		exponent = data->exponent[sensor->page];
@@ -641,11 +872,19 @@ static long pmbus_reg2data_linear(struct pmbus_data *data,
 
 	/* scale result to milli-units for all sensors except fans */
 	if (sensor->class != PSC_FAN)
+<<<<<<< HEAD
 		val = val * 1000L;
 
 	/* scale result to micro-units for power sensors */
 	if (sensor->class == PSC_POWER)
 		val = val * 1000L;
+=======
+		val = val * 1000LL;
+
+	/* scale result to micro-units for power sensors */
+	if (sensor->class == PSC_POWER)
+		val = val * 1000LL;
+>>>>>>> upstream/android-13
 
 	if (exponent >= 0)
 		val <<= exponent;
@@ -659,8 +898,13 @@ static long pmbus_reg2data_linear(struct pmbus_data *data,
  * Convert direct sensor values to milli- or micro-units
  * depending on sensor type.
  */
+<<<<<<< HEAD
 static long pmbus_reg2data_direct(struct pmbus_data *data,
 				  struct pmbus_sensor *sensor)
+=======
+static s64 pmbus_reg2data_direct(struct pmbus_data *data,
+				 struct pmbus_sensor *sensor)
+>>>>>>> upstream/android-13
 {
 	s64 b, val = (s16)sensor->data;
 	s32 m, R;
@@ -696,20 +940,33 @@ static long pmbus_reg2data_direct(struct pmbus_data *data,
 	}
 
 	val = div_s64(val - b, m);
+<<<<<<< HEAD
 	return clamp_val(val, LONG_MIN, LONG_MAX);
+=======
+	return val;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Convert VID sensor values to milli- or micro-units
  * depending on sensor type.
  */
+<<<<<<< HEAD
 static long pmbus_reg2data_vid(struct pmbus_data *data,
 			       struct pmbus_sensor *sensor)
+=======
+static s64 pmbus_reg2data_vid(struct pmbus_data *data,
+			      struct pmbus_sensor *sensor)
+>>>>>>> upstream/android-13
 {
 	long val = sensor->data;
 	long rv = 0;
 
+<<<<<<< HEAD
 	switch (data->info->vrm_version) {
+=======
+	switch (data->info->vrm_version[sensor->page]) {
+>>>>>>> upstream/android-13
 	case vr11:
 		if (val >= 0x02 && val <= 0xb2)
 			rv = DIV_ROUND_CLOSEST(160000 - (val - 2) * 625, 100);
@@ -722,13 +979,30 @@ static long pmbus_reg2data_vid(struct pmbus_data *data,
 		if (val >= 0x01)
 			rv = 500 + (val - 1) * 10;
 		break;
+<<<<<<< HEAD
+=======
+	case imvp9:
+		if (val >= 0x01)
+			rv = 200 + (val - 1) * 10;
+		break;
+	case amd625mv:
+		if (val >= 0x0 && val <= 0xd8)
+			rv = DIV_ROUND_CLOSEST(155000 - val * 625, 100);
+		break;
+>>>>>>> upstream/android-13
 	}
 	return rv;
 }
 
+<<<<<<< HEAD
 static long pmbus_reg2data(struct pmbus_data *data, struct pmbus_sensor *sensor)
 {
 	long val;
+=======
+static s64 pmbus_reg2data(struct pmbus_data *data, struct pmbus_sensor *sensor)
+{
+	s64 val;
+>>>>>>> upstream/android-13
 
 	if (!sensor->convert)
 		return sensor->data;
@@ -752,7 +1026,11 @@ static long pmbus_reg2data(struct pmbus_data *data, struct pmbus_sensor *sensor)
 #define MIN_MANTISSA	(511 * 1000)
 
 static u16 pmbus_data2reg_linear(struct pmbus_data *data,
+<<<<<<< HEAD
 				 struct pmbus_sensor *sensor, long val)
+=======
+				 struct pmbus_sensor *sensor, s64 val)
+>>>>>>> upstream/android-13
 {
 	s16 exponent = 0, mantissa;
 	bool negative = false;
@@ -774,8 +1052,13 @@ static u16 pmbus_data2reg_linear(struct pmbus_data *data,
 			val <<= -data->exponent[sensor->page];
 		else
 			val >>= data->exponent[sensor->page];
+<<<<<<< HEAD
 		val = DIV_ROUND_CLOSEST(val, 1000);
 		return val & 0xffff;
+=======
+		val = DIV_ROUND_CLOSEST_ULL(val, 1000);
+		return clamp_val(val, 0, 0xffff);
+>>>>>>> upstream/android-13
 	}
 
 	if (val < 0) {
@@ -785,14 +1068,22 @@ static u16 pmbus_data2reg_linear(struct pmbus_data *data,
 
 	/* Power is in uW. Convert to mW before converting. */
 	if (sensor->class == PSC_POWER)
+<<<<<<< HEAD
 		val = DIV_ROUND_CLOSEST(val, 1000L);
+=======
+		val = DIV_ROUND_CLOSEST_ULL(val, 1000);
+>>>>>>> upstream/android-13
 
 	/*
 	 * For simplicity, convert fan data to milli-units
 	 * before calculating the exponent.
 	 */
 	if (sensor->class == PSC_FAN)
+<<<<<<< HEAD
 		val = val * 1000;
+=======
+		val = val * 1000LL;
+>>>>>>> upstream/android-13
 
 	/* Reduce large mantissa until it fits into 10 bit */
 	while (val >= MAX_MANTISSA && exponent < 15) {
@@ -806,11 +1097,15 @@ static u16 pmbus_data2reg_linear(struct pmbus_data *data,
 	}
 
 	/* Convert mantissa from milli-units to units */
+<<<<<<< HEAD
 	mantissa = DIV_ROUND_CLOSEST(val, 1000);
 
 	/* Ensure that resulting number is within range */
 	if (mantissa > 0x3ff)
 		mantissa = 0x3ff;
+=======
+	mantissa = clamp_val(DIV_ROUND_CLOSEST_ULL(val, 1000), 0, 0x3ff);
+>>>>>>> upstream/android-13
 
 	/* restore sign */
 	if (negative)
@@ -821,9 +1116,15 @@ static u16 pmbus_data2reg_linear(struct pmbus_data *data,
 }
 
 static u16 pmbus_data2reg_direct(struct pmbus_data *data,
+<<<<<<< HEAD
 				 struct pmbus_sensor *sensor, long val)
 {
 	s64 b, val64 = val;
+=======
+				 struct pmbus_sensor *sensor, s64 val)
+{
+	s64 b;
+>>>>>>> upstream/android-13
 	s32 m, R;
 
 	m = data->info->m[sensor->class];
@@ -841,6 +1142,7 @@ static u16 pmbus_data2reg_direct(struct pmbus_data *data,
 		R -= 3;		/* Adjust R and b for data in milli-units */
 		b *= 1000;
 	}
+<<<<<<< HEAD
 	val64 = val64 * m + b;
 
 	while (R > 0) {
@@ -865,6 +1167,32 @@ static u16 pmbus_data2reg_vid(struct pmbus_data *data,
 
 static u16 pmbus_data2reg(struct pmbus_data *data,
 			  struct pmbus_sensor *sensor, long val)
+=======
+	val = val * m + b;
+
+	while (R > 0) {
+		val *= 10;
+		R--;
+	}
+	while (R < 0) {
+		val = div_s64(val + 5LL, 10L);  /* round closest */
+		R++;
+	}
+
+	return (u16)clamp_val(val, S16_MIN, S16_MAX);
+}
+
+static u16 pmbus_data2reg_vid(struct pmbus_data *data,
+			      struct pmbus_sensor *sensor, s64 val)
+{
+	val = clamp_val(val, 500, 1600);
+
+	return 2 + DIV_ROUND_CLOSEST_ULL((1600LL - val) * 100LL, 625);
+}
+
+static u16 pmbus_data2reg(struct pmbus_data *data,
+			  struct pmbus_sensor *sensor, s64 val)
+>>>>>>> upstream/android-13
 {
 	u16 regval;
 
@@ -909,6 +1237,7 @@ static u16 pmbus_data2reg(struct pmbus_data *data,
  * If a negative value is stored in any of the referenced registers, this value
  * reflects an error code which will be returned.
  */
+<<<<<<< HEAD
 static int pmbus_get_boolean(struct pmbus_data *data, struct pmbus_boolean *b,
 			     int index)
 {
@@ -936,11 +1265,62 @@ static int pmbus_get_boolean(struct pmbus_data *data, struct pmbus_boolean *b,
 			return s1->data;
 		if (s2->data < 0)
 			return s2->data;
+=======
+static int pmbus_get_boolean(struct i2c_client *client, struct pmbus_boolean *b,
+			     int index)
+{
+	struct pmbus_data *data = i2c_get_clientdata(client);
+	struct pmbus_sensor *s1 = b->s1;
+	struct pmbus_sensor *s2 = b->s2;
+	u16 mask = pb_index_to_mask(index);
+	u8 page = pb_index_to_page(index);
+	u16 reg = pb_index_to_reg(index);
+	int ret, status;
+	u16 regval;
+
+	mutex_lock(&data->update_lock);
+	status = pmbus_get_status(client, page, reg);
+	if (status < 0) {
+		ret = status;
+		goto unlock;
+	}
+
+	if (s1)
+		pmbus_update_sensor_data(client, s1);
+	if (s2)
+		pmbus_update_sensor_data(client, s2);
+
+	regval = status & mask;
+	if (regval) {
+		ret = pmbus_write_byte_data(client, page, reg, regval);
+		if (ret)
+			goto unlock;
+	}
+	if (s1 && s2) {
+		s64 v1, v2;
+
+		if (s1->data < 0) {
+			ret = s1->data;
+			goto unlock;
+		}
+		if (s2->data < 0) {
+			ret = s2->data;
+			goto unlock;
+		}
+>>>>>>> upstream/android-13
 
 		v1 = pmbus_reg2data(data, s1);
 		v2 = pmbus_reg2data(data, s2);
 		ret = !!(regval && v1 >= v2);
+<<<<<<< HEAD
 	}
+=======
+	} else {
+		ret = !!regval;
+	}
+unlock:
+	mutex_unlock(&data->update_lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -949,6 +1329,7 @@ static ssize_t pmbus_show_boolean(struct device *dev,
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct pmbus_boolean *boolean = to_pmbus_boolean(attr);
+<<<<<<< HEAD
 	struct pmbus_data *data = pmbus_update_device(dev);
 	int val;
 
@@ -956,11 +1337,21 @@ static ssize_t pmbus_show_boolean(struct device *dev,
 	if (val < 0)
 		return val;
 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
+=======
+	struct i2c_client *client = to_i2c_client(dev->parent);
+	int val;
+
+	val = pmbus_get_boolean(client, boolean, attr->index);
+	if (val < 0)
+		return val;
+	return sysfs_emit(buf, "%d\n", val);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t pmbus_show_sensor(struct device *dev,
 				 struct device_attribute *devattr, char *buf)
 {
+<<<<<<< HEAD
 	struct pmbus_data *data = pmbus_update_device(dev);
 	struct pmbus_sensor *sensor = to_pmbus_sensor(devattr);
 
@@ -968,6 +1359,21 @@ static ssize_t pmbus_show_sensor(struct device *dev,
 		return sensor->data;
 
 	return snprintf(buf, PAGE_SIZE, "%ld\n", pmbus_reg2data(data, sensor));
+=======
+	struct i2c_client *client = to_i2c_client(dev->parent);
+	struct pmbus_sensor *sensor = to_pmbus_sensor(devattr);
+	struct pmbus_data *data = i2c_get_clientdata(client);
+	ssize_t ret;
+
+	mutex_lock(&data->update_lock);
+	pmbus_update_sensor_data(client, sensor);
+	if (sensor->data < 0)
+		ret = sensor->data;
+	else
+		ret = sysfs_emit(buf, "%lld\n", pmbus_reg2data(data, sensor));
+	mutex_unlock(&data->update_lock);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t pmbus_set_sensor(struct device *dev,
@@ -978,11 +1384,19 @@ static ssize_t pmbus_set_sensor(struct device *dev,
 	struct pmbus_data *data = i2c_get_clientdata(client);
 	struct pmbus_sensor *sensor = to_pmbus_sensor(devattr);
 	ssize_t rv = count;
+<<<<<<< HEAD
 	long val = 0;
 	int ret;
 	u16 regval;
 
 	if (kstrtol(buf, 10, &val) < 0)
+=======
+	s64 val;
+	int ret;
+	u16 regval;
+
+	if (kstrtos64(buf, 10, &val) < 0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	mutex_lock(&data->update_lock);
@@ -991,7 +1405,11 @@ static ssize_t pmbus_set_sensor(struct device *dev,
 	if (ret < 0)
 		rv = ret;
 	else
+<<<<<<< HEAD
 		sensor->data = regval;
+=======
+		sensor->data = -ENODATA;
+>>>>>>> upstream/android-13
 	mutex_unlock(&data->update_lock);
 	return rv;
 }
@@ -1001,16 +1419,26 @@ static ssize_t pmbus_show_label(struct device *dev,
 {
 	struct pmbus_label *label = to_pmbus_label(da);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%s\n", label->label);
+=======
+	return sysfs_emit(buf, "%s\n", label->label);
+>>>>>>> upstream/android-13
 }
 
 static int pmbus_add_attribute(struct pmbus_data *data, struct attribute *attr)
 {
 	if (data->num_attributes >= data->max_attributes - 1) {
 		int new_max_attrs = data->max_attributes + PMBUS_ATTR_ALLOC_SIZE;
+<<<<<<< HEAD
 		void *new_attrs = krealloc(data->group.attrs,
 					   new_max_attrs * sizeof(void *),
 					   GFP_KERNEL);
+=======
+		void *new_attrs = devm_krealloc(data->dev, data->group.attrs,
+						new_max_attrs * sizeof(void *),
+						GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!new_attrs)
 			return -ENOMEM;
 		data->group.attrs = new_attrs;
@@ -1058,11 +1486,21 @@ static int pmbus_add_boolean(struct pmbus_data *data,
 			     const char *name, const char *type, int seq,
 			     struct pmbus_sensor *s1,
 			     struct pmbus_sensor *s2,
+<<<<<<< HEAD
 			     u16 reg, u16 mask)
+=======
+			     u8 page, u16 reg, u16 mask)
+>>>>>>> upstream/android-13
 {
 	struct pmbus_boolean *boolean;
 	struct sensor_device_attribute *a;
 
+<<<<<<< HEAD
+=======
+	if (WARN((s1 && !s2) || (!s1 && s2), "Bad s1/s2 parameters\n"))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	boolean = devm_kzalloc(data->dev, sizeof(*boolean), GFP_KERNEL);
 	if (!boolean)
 		return -ENOMEM;
@@ -1073,15 +1511,25 @@ static int pmbus_add_boolean(struct pmbus_data *data,
 		 name, seq, type);
 	boolean->s1 = s1;
 	boolean->s2 = s2;
+<<<<<<< HEAD
 	pmbus_attr_init(a, boolean->name, S_IRUGO, pmbus_show_boolean, NULL,
 			(reg << 16) | mask);
+=======
+	pmbus_attr_init(a, boolean->name, 0444, pmbus_show_boolean, NULL,
+			pb_reg_to_index(page, reg, mask));
+>>>>>>> upstream/android-13
 
 	return pmbus_add_attribute(data, &a->dev_attr.attr);
 }
 
 static struct pmbus_sensor *pmbus_add_sensor(struct pmbus_data *data,
 					     const char *name, const char *type,
+<<<<<<< HEAD
 					     int seq, int page, int reg,
+=======
+					     int seq, int page, int phase,
+					     int reg,
+>>>>>>> upstream/android-13
 					     enum pmbus_sensor_classes class,
 					     bool update, bool readonly,
 					     bool convert)
@@ -1101,13 +1549,27 @@ static struct pmbus_sensor *pmbus_add_sensor(struct pmbus_data *data,
 		snprintf(sensor->name, sizeof(sensor->name), "%s%d",
 			 name, seq);
 
+<<<<<<< HEAD
 	sensor->page = page;
+=======
+	if (data->flags & PMBUS_WRITE_PROTECTED)
+		readonly = true;
+
+	sensor->page = page;
+	sensor->phase = phase;
+>>>>>>> upstream/android-13
 	sensor->reg = reg;
 	sensor->class = class;
 	sensor->update = update;
 	sensor->convert = convert;
+<<<<<<< HEAD
 	pmbus_dev_attr_init(a, sensor->name,
 			    readonly ? S_IRUGO : S_IRUGO | S_IWUSR,
+=======
+	sensor->data = -ENODATA;
+	pmbus_dev_attr_init(a, sensor->name,
+			    readonly ? 0444 : 0644,
+>>>>>>> upstream/android-13
 			    pmbus_show_sensor, pmbus_set_sensor);
 
 	if (pmbus_add_attribute(data, &a->attr))
@@ -1121,7 +1583,11 @@ static struct pmbus_sensor *pmbus_add_sensor(struct pmbus_data *data,
 
 static int pmbus_add_label(struct pmbus_data *data,
 			   const char *name, int seq,
+<<<<<<< HEAD
 			   const char *lstring, int index)
+=======
+			   const char *lstring, int index, int phase)
+>>>>>>> upstream/android-13
 {
 	struct pmbus_label *label;
 	struct device_attribute *a;
@@ -1133,6 +1599,7 @@ static int pmbus_add_label(struct pmbus_data *data,
 	a = &label->attribute;
 
 	snprintf(label->name, sizeof(label->name), "%s%d_label", name, seq);
+<<<<<<< HEAD
 	if (!index)
 		strncpy(label->label, lstring, sizeof(label->label) - 1);
 	else
@@ -1140,6 +1607,25 @@ static int pmbus_add_label(struct pmbus_data *data,
 			 index);
 
 	pmbus_dev_attr_init(a, label->name, S_IRUGO, pmbus_show_label, NULL);
+=======
+	if (!index) {
+		if (phase == 0xff)
+			strncpy(label->label, lstring,
+				sizeof(label->label) - 1);
+		else
+			snprintf(label->label, sizeof(label->label), "%s.%d",
+				 lstring, phase);
+	} else {
+		if (phase == 0xff)
+			snprintf(label->label, sizeof(label->label), "%s%d",
+				 lstring, index);
+		else
+			snprintf(label->label, sizeof(label->label), "%s%d.%d",
+				 lstring, index, phase);
+	}
+
+	pmbus_dev_attr_init(a, label->name, 0444, pmbus_show_label, NULL);
+>>>>>>> upstream/android-13
 	return pmbus_add_attribute(data, &a->attr);
 }
 
@@ -1176,7 +1662,11 @@ struct pmbus_sensor_attr {
 	bool compare;			/* true if compare function needed */
 	u32 func;			/* sensor mask */
 	u32 sfunc;			/* sensor status mask */
+<<<<<<< HEAD
 	int sbase;			/* status base register */
+=======
+	int sreg;			/* status register */
+>>>>>>> upstream/android-13
 	const struct pmbus_limit_attr *limit;/* limit registers */
 };
 
@@ -1202,7 +1692,11 @@ static int pmbus_add_limit_attrs(struct i2c_client *client,
 	for (i = 0; i < nlimit; i++) {
 		if (pmbus_check_word_register(client, page, l->reg)) {
 			curr = pmbus_add_sensor(data, name, l->attr, index,
+<<<<<<< HEAD
 						page, l->reg, attr->class,
+=======
+						page, 0xff, l->reg, attr->class,
+>>>>>>> upstream/android-13
 						attr->update || l->update,
 						false, true);
 			if (!curr)
@@ -1214,7 +1708,11 @@ static int pmbus_add_limit_attrs(struct i2c_client *client,
 						      : NULL,
 					attr->compare ? l->low ? base : curr
 						      : NULL,
+<<<<<<< HEAD
 					attr->sbase + page, l->sbit);
+=======
+					page, attr->sreg, l->sbit);
+>>>>>>> upstream/android-13
 				if (ret)
 					return ret;
 				have_alarm = 1;
@@ -1229,7 +1727,11 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
 				      struct pmbus_data *data,
 				      const struct pmbus_driver_info *info,
 				      const char *name,
+<<<<<<< HEAD
 				      int index, int page,
+=======
+				      int index, int page, int phase,
+>>>>>>> upstream/android-13
 				      const struct pmbus_sensor_attr *attr,
 				      bool paged)
 {
@@ -1239,6 +1741,7 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
 
 	if (attr->label) {
 		ret = pmbus_add_label(data, name, index, attr->label,
+<<<<<<< HEAD
 				      paged ? page + 1 : 0);
 		if (ret)
 			return ret;
@@ -1248,6 +1751,18 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
 	if (!base)
 		return -ENOMEM;
 	if (attr->sfunc) {
+=======
+				      paged ? page + 1 : 0, phase);
+		if (ret)
+			return ret;
+	}
+	base = pmbus_add_sensor(data, name, "input", index, page, phase,
+				attr->reg, attr->class, true, true, true);
+	if (!base)
+		return -ENOMEM;
+	/* No limit and alarm attributes for phase specific sensors */
+	if (attr->sfunc && phase == 0xff) {
+>>>>>>> upstream/android-13
 		ret = pmbus_add_limit_attrs(client, data, info, name,
 					    index, page, base, attr);
 		if (ret < 0)
@@ -1259,11 +1774,19 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
 		 * which global bit is set) for this page is accessible.
 		 */
 		if (!ret && attr->gbit &&
+<<<<<<< HEAD
 		    (!upper || (upper && data->has_status_word)) &&
 		    pmbus_check_status_register(client, page)) {
 			ret = pmbus_add_boolean(data, name, "alarm", index,
 						NULL, NULL,
 						PB_STATUS_BASE + page,
+=======
+		    (!upper || data->has_status_word) &&
+		    pmbus_check_status_register(client, page)) {
+			ret = pmbus_add_boolean(data, name, "alarm", index,
+						NULL, NULL,
+						page, PMBUS_STATUS_WORD,
+>>>>>>> upstream/android-13
 						attr->gbit);
 			if (ret)
 				return ret;
@@ -1313,6 +1836,7 @@ static int pmbus_add_sensor_attrs(struct i2c_client *client,
 
 		pages = paged ? info->pages : 1;
 		for (page = 0; page < pages; page++) {
+<<<<<<< HEAD
 			if (!(info->func[page] & attrs->func))
 				continue;
 			ret = pmbus_add_sensor_attrs_one(client, data, info,
@@ -1321,6 +1845,31 @@ static int pmbus_add_sensor_attrs(struct i2c_client *client,
 			if (ret)
 				return ret;
 			index++;
+=======
+			if (info->func[page] & attrs->func) {
+				ret = pmbus_add_sensor_attrs_one(client, data, info,
+								 name, index, page,
+								 0xff, attrs, paged);
+				if (ret)
+					return ret;
+				index++;
+			}
+			if (info->phases[page]) {
+				int phase;
+
+				for (phase = 0; phase < info->phases[page];
+				     phase++) {
+					if (!(info->pfunc[phase] & attrs->func))
+						continue;
+					ret = pmbus_add_sensor_attrs_one(client,
+						data, info, name, index, page,
+						phase, attrs, paged);
+					if (ret)
+						return ret;
+					index++;
+				}
+			}
+>>>>>>> upstream/android-13
 		}
 		attrs++;
 	}
@@ -1337,7 +1886,11 @@ static const struct pmbus_limit_attr vin_limit_attrs[] = {
 		.reg = PMBUS_VIN_UV_FAULT_LIMIT,
 		.attr = "lcrit",
 		.alarm = "lcrit_alarm",
+<<<<<<< HEAD
 		.sbit = PB_VOLTAGE_UV_FAULT,
+=======
+		.sbit = PB_VOLTAGE_UV_FAULT | PB_VOLTAGE_VIN_OFF,
+>>>>>>> upstream/android-13
 	}, {
 		.reg = PMBUS_VIN_OV_WARN_LIMIT,
 		.attr = "max",
@@ -1363,6 +1916,15 @@ static const struct pmbus_limit_attr vin_limit_attrs[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_VIN_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
+=======
+	}, {
+		.reg = PMBUS_MFR_VIN_MIN,
+		.attr = "rated_min",
+	}, {
+		.reg = PMBUS_MFR_VIN_MAX,
+		.attr = "rated_max",
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -1426,7 +1988,17 @@ static const struct pmbus_limit_attr vout_limit_attrs[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_VOUT_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_VOUT_MIN,
+		.attr = "rated_min",
+	}, {
+		.reg = PMBUS_MFR_VOUT_MAX,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_sensor_attr voltage_attributes[] = {
@@ -1436,7 +2008,11 @@ static const struct pmbus_sensor_attr voltage_attributes[] = {
 		.label = "vin",
 		.func = PMBUS_HAVE_VIN,
 		.sfunc = PMBUS_HAVE_STATUS_INPUT,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_INPUT_BASE,
+=======
+		.sreg = PMBUS_STATUS_INPUT,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_VIN_UV,
 		.limit = vin_limit_attrs,
 		.nlimit = ARRAY_SIZE(vin_limit_attrs),
@@ -1446,7 +2022,11 @@ static const struct pmbus_sensor_attr voltage_attributes[] = {
 		.label = "vmon",
 		.func = PMBUS_HAVE_VMON,
 		.sfunc = PMBUS_HAVE_STATUS_VMON,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_VMON_BASE,
+=======
+		.sreg = PMBUS_VIRT_STATUS_VMON,
+>>>>>>> upstream/android-13
 		.limit = vmon_limit_attrs,
 		.nlimit = ARRAY_SIZE(vmon_limit_attrs),
 	}, {
@@ -1461,7 +2041,11 @@ static const struct pmbus_sensor_attr voltage_attributes[] = {
 		.paged = true,
 		.func = PMBUS_HAVE_VOUT,
 		.sfunc = PMBUS_HAVE_STATUS_VOUT,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_VOUT_BASE,
+=======
+		.sreg = PMBUS_STATUS_VOUT,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_VOUT_OV,
 		.limit = vout_limit_attrs,
 		.nlimit = ARRAY_SIZE(vout_limit_attrs),
@@ -1496,7 +2080,14 @@ static const struct pmbus_limit_attr iin_limit_attrs[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_IIN_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_IIN_MAX,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_limit_attr iout_limit_attrs[] = {
@@ -1530,7 +2121,14 @@ static const struct pmbus_limit_attr iout_limit_attrs[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_IOUT_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_IOUT_MAX,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_sensor_attr current_attributes[] = {
@@ -1540,7 +2138,11 @@ static const struct pmbus_sensor_attr current_attributes[] = {
 		.label = "iin",
 		.func = PMBUS_HAVE_IIN,
 		.sfunc = PMBUS_HAVE_STATUS_INPUT,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_INPUT_BASE,
+=======
+		.sreg = PMBUS_STATUS_INPUT,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_INPUT,
 		.limit = iin_limit_attrs,
 		.nlimit = ARRAY_SIZE(iin_limit_attrs),
@@ -1551,7 +2153,11 @@ static const struct pmbus_sensor_attr current_attributes[] = {
 		.paged = true,
 		.func = PMBUS_HAVE_IOUT,
 		.sfunc = PMBUS_HAVE_STATUS_IOUT,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_IOUT_BASE,
+=======
+		.sreg = PMBUS_STATUS_IOUT,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_IOUT_OC,
 		.limit = iout_limit_attrs,
 		.nlimit = ARRAY_SIZE(iout_limit_attrs),
@@ -1581,7 +2187,14 @@ static const struct pmbus_limit_attr pin_limit_attrs[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_PIN_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_PIN_MAX,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_limit_attr pout_limit_attrs[] = {
@@ -1615,7 +2228,14 @@ static const struct pmbus_limit_attr pout_limit_attrs[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_POUT_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_POUT_MAX,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_sensor_attr power_attributes[] = {
@@ -1625,7 +2245,11 @@ static const struct pmbus_sensor_attr power_attributes[] = {
 		.label = "pin",
 		.func = PMBUS_HAVE_PIN,
 		.sfunc = PMBUS_HAVE_STATUS_INPUT,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_INPUT_BASE,
+=======
+		.sreg = PMBUS_STATUS_INPUT,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_INPUT,
 		.limit = pin_limit_attrs,
 		.nlimit = ARRAY_SIZE(pin_limit_attrs),
@@ -1636,7 +2260,11 @@ static const struct pmbus_sensor_attr power_attributes[] = {
 		.paged = true,
 		.func = PMBUS_HAVE_POUT,
 		.sfunc = PMBUS_HAVE_STATUS_IOUT,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_IOUT_BASE,
+=======
+		.sreg = PMBUS_STATUS_IOUT,
+>>>>>>> upstream/android-13
 		.limit = pout_limit_attrs,
 		.nlimit = ARRAY_SIZE(pout_limit_attrs),
 	}
@@ -1679,7 +2307,14 @@ static const struct pmbus_limit_attr temp_limit_attrs[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_TEMP_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_MAX_TEMP_1,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_limit_attr temp_limit_attrs2[] = {
@@ -1717,7 +2352,14 @@ static const struct pmbus_limit_attr temp_limit_attrs2[] = {
 	}, {
 		.reg = PMBUS_VIRT_RESET_TEMP2_HISTORY,
 		.attr = "reset_history",
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_MAX_TEMP_2,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_limit_attr temp_limit_attrs3[] = {
@@ -1743,7 +2385,14 @@ static const struct pmbus_limit_attr temp_limit_attrs3[] = {
 		.attr = "crit",
 		.alarm = "crit_alarm",
 		.sbit = PB_TEMP_OT_FAULT,
+<<<<<<< HEAD
 	}
+=======
+	}, {
+		.reg = PMBUS_MFR_MAX_TEMP_3,
+		.attr = "rated_max",
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct pmbus_sensor_attr temp_attributes[] = {
@@ -1755,7 +2404,11 @@ static const struct pmbus_sensor_attr temp_attributes[] = {
 		.compare = true,
 		.func = PMBUS_HAVE_TEMP,
 		.sfunc = PMBUS_HAVE_STATUS_TEMP,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_TEMP_BASE,
+=======
+		.sreg = PMBUS_STATUS_TEMPERATURE,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_TEMPERATURE,
 		.limit = temp_limit_attrs,
 		.nlimit = ARRAY_SIZE(temp_limit_attrs),
@@ -1767,7 +2420,11 @@ static const struct pmbus_sensor_attr temp_attributes[] = {
 		.compare = true,
 		.func = PMBUS_HAVE_TEMP2,
 		.sfunc = PMBUS_HAVE_STATUS_TEMP,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_TEMP_BASE,
+=======
+		.sreg = PMBUS_STATUS_TEMPERATURE,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_TEMPERATURE,
 		.limit = temp_limit_attrs2,
 		.nlimit = ARRAY_SIZE(temp_limit_attrs2),
@@ -1779,7 +2436,11 @@ static const struct pmbus_sensor_attr temp_attributes[] = {
 		.compare = true,
 		.func = PMBUS_HAVE_TEMP3,
 		.sfunc = PMBUS_HAVE_STATUS_TEMP,
+<<<<<<< HEAD
 		.sbase = PB_STATUS_TEMP_BASE,
+=======
+		.sreg = PMBUS_STATUS_TEMPERATURE,
+>>>>>>> upstream/android-13
 		.gbit = PB_STATUS_TEMPERATURE,
 		.limit = temp_limit_attrs3,
 		.nlimit = ARRAY_SIZE(temp_limit_attrs3),
@@ -1824,7 +2485,11 @@ static int pmbus_add_fan_ctrl(struct i2c_client *client,
 	struct pmbus_sensor *sensor;
 
 	sensor = pmbus_add_sensor(data, "fan", "target", index, page,
+<<<<<<< HEAD
 				  PMBUS_VIRT_FAN_TARGET_1 + id, PSC_FAN,
+=======
+				  0xff, PMBUS_VIRT_FAN_TARGET_1 + id, PSC_FAN,
+>>>>>>> upstream/android-13
 				  false, false, true);
 
 	if (!sensor)
@@ -1835,14 +2500,22 @@ static int pmbus_add_fan_ctrl(struct i2c_client *client,
 		return 0;
 
 	sensor = pmbus_add_sensor(data, "pwm", NULL, index, page,
+<<<<<<< HEAD
 				  PMBUS_VIRT_PWM_1 + id, PSC_PWM,
+=======
+				  0xff, PMBUS_VIRT_PWM_1 + id, PSC_PWM,
+>>>>>>> upstream/android-13
 				  false, false, true);
 
 	if (!sensor)
 		return -ENOMEM;
 
 	sensor = pmbus_add_sensor(data, "pwm", "enable", index, page,
+<<<<<<< HEAD
 				  PMBUS_VIRT_PWM_ENABLE_1 + id, PSC_PWM,
+=======
+				  0xff, PMBUS_VIRT_PWM_ENABLE_1 + id, PSC_PWM,
+>>>>>>> upstream/android-13
 				  true, false, false);
 
 	if (!sensor)
@@ -1884,7 +2557,11 @@ static int pmbus_add_fan_attributes(struct i2c_client *client,
 				continue;
 
 			if (pmbus_add_sensor(data, "fan", "input", index,
+<<<<<<< HEAD
 					     page, pmbus_fan_registers[f],
+=======
+					     page, 0xff, pmbus_fan_registers[f],
+>>>>>>> upstream/android-13
 					     PSC_FAN, true, true, true) == NULL)
 				return -ENOMEM;
 
@@ -1904,6 +2581,7 @@ static int pmbus_add_fan_attributes(struct i2c_client *client,
 			if ((info->func[page] & pmbus_fan_status_flags[f]) &&
 			    pmbus_check_byte_register(client,
 					page, pmbus_fan_status_registers[f])) {
+<<<<<<< HEAD
 				int base;
 
 				if (f > 1)	/* fan 3, 4 */
@@ -1912,11 +2590,25 @@ static int pmbus_add_fan_attributes(struct i2c_client *client,
 					base = PB_STATUS_FAN_BASE + page;
 				ret = pmbus_add_boolean(data, "fan",
 					"alarm", index, NULL, NULL, base,
+=======
+				int reg;
+
+				if (f > 1)	/* fan 3, 4 */
+					reg = PMBUS_STATUS_FAN_34;
+				else
+					reg = PMBUS_STATUS_FAN_12;
+				ret = pmbus_add_boolean(data, "fan",
+					"alarm", index, NULL, NULL, page, reg,
+>>>>>>> upstream/android-13
 					PB_FAN_FAN1_WARNING >> (f & 1));
 				if (ret)
 					return ret;
 				ret = pmbus_add_boolean(data, "fan",
+<<<<<<< HEAD
 					"fault", index, NULL, NULL, base,
+=======
+					"fault", index, NULL, NULL, page, reg,
+>>>>>>> upstream/android-13
 					PB_FAN_FAN1_FAULT >> (f & 1));
 				if (ret)
 					return ret;
@@ -1927,6 +2619,121 @@ static int pmbus_add_fan_attributes(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+struct pmbus_samples_attr {
+	int reg;
+	char *name;
+};
+
+struct pmbus_samples_reg {
+	int page;
+	struct pmbus_samples_attr *attr;
+	struct device_attribute dev_attr;
+};
+
+static struct pmbus_samples_attr pmbus_samples_registers[] = {
+	{
+		.reg = PMBUS_VIRT_SAMPLES,
+		.name = "samples",
+	}, {
+		.reg = PMBUS_VIRT_IN_SAMPLES,
+		.name = "in_samples",
+	}, {
+		.reg = PMBUS_VIRT_CURR_SAMPLES,
+		.name = "curr_samples",
+	}, {
+		.reg = PMBUS_VIRT_POWER_SAMPLES,
+		.name = "power_samples",
+	}, {
+		.reg = PMBUS_VIRT_TEMP_SAMPLES,
+		.name = "temp_samples",
+	}
+};
+
+#define to_samples_reg(x) container_of(x, struct pmbus_samples_reg, dev_attr)
+
+static ssize_t pmbus_show_samples(struct device *dev,
+				  struct device_attribute *devattr, char *buf)
+{
+	int val;
+	struct i2c_client *client = to_i2c_client(dev->parent);
+	struct pmbus_samples_reg *reg = to_samples_reg(devattr);
+	struct pmbus_data *data = i2c_get_clientdata(client);
+
+	mutex_lock(&data->update_lock);
+	val = _pmbus_read_word_data(client, reg->page, 0xff, reg->attr->reg);
+	mutex_unlock(&data->update_lock);
+	if (val < 0)
+		return val;
+
+	return sysfs_emit(buf, "%d\n", val);
+}
+
+static ssize_t pmbus_set_samples(struct device *dev,
+				 struct device_attribute *devattr,
+				 const char *buf, size_t count)
+{
+	int ret;
+	long val;
+	struct i2c_client *client = to_i2c_client(dev->parent);
+	struct pmbus_samples_reg *reg = to_samples_reg(devattr);
+	struct pmbus_data *data = i2c_get_clientdata(client);
+
+	if (kstrtol(buf, 0, &val) < 0)
+		return -EINVAL;
+
+	mutex_lock(&data->update_lock);
+	ret = _pmbus_write_word_data(client, reg->page, reg->attr->reg, val);
+	mutex_unlock(&data->update_lock);
+
+	return ret ? : count;
+}
+
+static int pmbus_add_samples_attr(struct pmbus_data *data, int page,
+				  struct pmbus_samples_attr *attr)
+{
+	struct pmbus_samples_reg *reg;
+
+	reg = devm_kzalloc(data->dev, sizeof(*reg), GFP_KERNEL);
+	if (!reg)
+		return -ENOMEM;
+
+	reg->attr = attr;
+	reg->page = page;
+
+	pmbus_dev_attr_init(&reg->dev_attr, attr->name, 0644,
+			    pmbus_show_samples, pmbus_set_samples);
+
+	return pmbus_add_attribute(data, &reg->dev_attr.attr);
+}
+
+static int pmbus_add_samples_attributes(struct i2c_client *client,
+					struct pmbus_data *data)
+{
+	const struct pmbus_driver_info *info = data->info;
+	int s;
+
+	if (!(info->func[0] & PMBUS_HAVE_SAMPLES))
+		return 0;
+
+	for (s = 0; s < ARRAY_SIZE(pmbus_samples_registers); s++) {
+		struct pmbus_samples_attr *attr;
+		int ret;
+
+		attr = &pmbus_samples_registers[s];
+		if (!pmbus_check_word_register(client, 0, attr->reg))
+			continue;
+
+		ret = pmbus_add_samples_attr(data, 0, attr);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int pmbus_find_attributes(struct i2c_client *client,
 				 struct pmbus_data *data)
 {
@@ -1958,10 +2765,125 @@ static int pmbus_find_attributes(struct i2c_client *client,
 
 	/* Fans */
 	ret = pmbus_add_fan_attributes(client, data);
+<<<<<<< HEAD
+=======
+	if (ret)
+		return ret;
+
+	ret = pmbus_add_samples_attributes(client, data);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * The pmbus_class_attr_map structure maps one sensor class to
+ * it's corresponding sensor attributes array.
+ */
+struct pmbus_class_attr_map {
+	enum pmbus_sensor_classes class;
+	int nattr;
+	const struct pmbus_sensor_attr *attr;
+};
+
+static const struct pmbus_class_attr_map class_attr_map[] = {
+	{
+		.class = PSC_VOLTAGE_IN,
+		.attr = voltage_attributes,
+		.nattr = ARRAY_SIZE(voltage_attributes),
+	}, {
+		.class = PSC_VOLTAGE_OUT,
+		.attr = voltage_attributes,
+		.nattr = ARRAY_SIZE(voltage_attributes),
+	}, {
+		.class = PSC_CURRENT_IN,
+		.attr = current_attributes,
+		.nattr = ARRAY_SIZE(current_attributes),
+	}, {
+		.class = PSC_CURRENT_OUT,
+		.attr = current_attributes,
+		.nattr = ARRAY_SIZE(current_attributes),
+	}, {
+		.class = PSC_POWER,
+		.attr = power_attributes,
+		.nattr = ARRAY_SIZE(power_attributes),
+	}, {
+		.class = PSC_TEMPERATURE,
+		.attr = temp_attributes,
+		.nattr = ARRAY_SIZE(temp_attributes),
+	}
+};
+
+/*
+ * Read the coefficients for direct mode.
+ */
+static int pmbus_read_coefficients(struct i2c_client *client,
+				   struct pmbus_driver_info *info,
+				   const struct pmbus_sensor_attr *attr)
+{
+	int rv;
+	union i2c_smbus_data data;
+	enum pmbus_sensor_classes class = attr->class;
+	s8 R;
+	s16 m, b;
+
+	data.block[0] = 2;
+	data.block[1] = attr->reg;
+	data.block[2] = 0x01;
+
+	rv = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+			    I2C_SMBUS_WRITE, PMBUS_COEFFICIENTS,
+			    I2C_SMBUS_BLOCK_PROC_CALL, &data);
+
+	if (rv < 0)
+		return rv;
+
+	if (data.block[0] != 5)
+		return -EIO;
+
+	m = data.block[1] | (data.block[2] << 8);
+	b = data.block[3] | (data.block[4] << 8);
+	R = data.block[5];
+	info->m[class] = m;
+	info->b[class] = b;
+	info->R[class] = R;
+
+	return rv;
+}
+
+static int pmbus_init_coefficients(struct i2c_client *client,
+				   struct pmbus_driver_info *info)
+{
+	int i, n, ret = -EINVAL;
+	const struct pmbus_class_attr_map *map;
+	const struct pmbus_sensor_attr *attr;
+
+	for (i = 0; i < ARRAY_SIZE(class_attr_map); i++) {
+		map = &class_attr_map[i];
+		if (info->format[map->class] != direct)
+			continue;
+		for (n = 0; n < map->nattr; n++) {
+			attr = &map->attr[n];
+			if (map->class != attr->class)
+				continue;
+			ret = pmbus_read_coefficients(client, info, attr);
+			if (ret >= 0)
+				break;
+		}
+		if (ret < 0) {
+			dev_err(&client->dev,
+				"No coefficients found for sensor class %d\n",
+				map->class);
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Identify chip parameters.
  * This function is called for all chips.
  */
@@ -2009,7 +2931,11 @@ static int pmbus_read_status_byte(struct i2c_client *client, int page)
 
 static int pmbus_read_status_word(struct i2c_client *client, int page)
 {
+<<<<<<< HEAD
 	return _pmbus_read_word_data(client, page, PMBUS_STATUS_WORD);
+=======
+	return _pmbus_read_word_data(client, page, 0xff, PMBUS_STATUS_WORD);
+>>>>>>> upstream/android-13
 }
 
 static int pmbus_init_common(struct i2c_client *client, struct pmbus_data *data,
@@ -2036,10 +2962,36 @@ static int pmbus_init_common(struct i2c_client *client, struct pmbus_data *data,
 		data->has_status_word = true;
 	}
 
+<<<<<<< HEAD
 	/* Enable PEC if the controller supports it */
 	ret = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
 	if (ret >= 0 && (ret & PB_CAPABILITY_ERROR_CHECK))
 		client->flags |= I2C_CLIENT_PEC;
+=======
+	/* Make sure PEC is disabled, will be enabled later if needed */
+	client->flags &= ~I2C_CLIENT_PEC;
+
+	/* Enable PEC if the controller and bus supports it */
+	if (!(data->flags & PMBUS_NO_CAPABILITY)) {
+		ret = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
+		if (ret >= 0 && (ret & PB_CAPABILITY_ERROR_CHECK)) {
+			if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_PEC)) {
+				client->flags |= I2C_CLIENT_PEC;
+			}
+		}
+	}
+
+	/*
+	 * Check if the chip is write protected. If it is, we can not clear
+	 * faults, and we should not try it. Also, in that case, writes into
+	 * limit registers need to be disabled.
+	 */
+	if (!(data->flags & PMBUS_NO_WRITE_PROTECT)) {
+		ret = i2c_smbus_read_byte_data(client, PMBUS_WRITE_PROTECT);
+		if (ret > 0 && (ret & PB_WP_ANY))
+			data->flags |= PMBUS_WRITE_PROTECTED | PMBUS_SKIP_STATUS_CHECK;
+	}
+>>>>>>> upstream/android-13
 
 	if (data->info->pages)
 		pmbus_clear_faults(client);
@@ -2066,6 +3018,20 @@ static int pmbus_init_common(struct i2c_client *client, struct pmbus_data *data,
 			return ret;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	if (data->flags & PMBUS_USE_COEFFICIENTS_CMD) {
+		if (!i2c_check_functionality(client->adapter,
+					     I2C_FUNC_SMBUS_BLOCK_PROC_CALL))
+			return -ENODEV;
+
+		ret = pmbus_init_coefficients(client, info);
+		if (ret < 0)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2074,10 +3040,21 @@ static int pmbus_regulator_is_enabled(struct regulator_dev *rdev)
 {
 	struct device *dev = rdev_get_dev(rdev);
 	struct i2c_client *client = to_i2c_client(dev->parent);
+<<<<<<< HEAD
 	u8 page = rdev_get_id(rdev);
 	int ret;
 
 	ret = pmbus_read_byte_data(client, page, PMBUS_OPERATION);
+=======
+	struct pmbus_data *data = i2c_get_clientdata(client);
+	u8 page = rdev_get_id(rdev);
+	int ret;
+
+	mutex_lock(&data->update_lock);
+	ret = pmbus_read_byte_data(client, page, PMBUS_OPERATION);
+	mutex_unlock(&data->update_lock);
+
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -2088,11 +3065,25 @@ static int _pmbus_regulator_on_off(struct regulator_dev *rdev, bool enable)
 {
 	struct device *dev = rdev_get_dev(rdev);
 	struct i2c_client *client = to_i2c_client(dev->parent);
+<<<<<<< HEAD
 	u8 page = rdev_get_id(rdev);
 
 	return pmbus_update_byte_data(client, page, PMBUS_OPERATION,
 				      PB_OPERATION_CONTROL_ON,
 				      enable ? PB_OPERATION_CONTROL_ON : 0);
+=======
+	struct pmbus_data *data = i2c_get_clientdata(client);
+	u8 page = rdev_get_id(rdev);
+	int ret;
+
+	mutex_lock(&data->update_lock);
+	ret = pmbus_update_byte_data(client, page, PMBUS_OPERATION,
+				     PB_OPERATION_CONTROL_ON,
+				     enable ? PB_OPERATION_CONTROL_ON : 0);
+	mutex_unlock(&data->update_lock);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int pmbus_regulator_enable(struct regulator_dev *rdev)
@@ -2110,7 +3101,11 @@ const struct regulator_ops pmbus_regulator_ops = {
 	.disable = pmbus_regulator_disable,
 	.is_enabled = pmbus_regulator_is_enabled,
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_regulator_ops);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_regulator_ops, PMBUS);
+>>>>>>> upstream/android-13
 
 static int pmbus_regulator_register(struct pmbus_data *data)
 {
@@ -2183,6 +3178,52 @@ static int pmbus_debugfs_get_status(void *data, u64 *val)
 DEFINE_DEBUGFS_ATTRIBUTE(pmbus_debugfs_ops_status, pmbus_debugfs_get_status,
 			 NULL, "0x%04llx\n");
 
+<<<<<<< HEAD
+=======
+static int pmbus_debugfs_get_pec(void *data, u64 *val)
+{
+	struct i2c_client *client = data;
+
+	*val = !!(client->flags & I2C_CLIENT_PEC);
+
+	return 0;
+}
+
+static int pmbus_debugfs_set_pec(void *data, u64 val)
+{
+	int rc;
+	struct i2c_client *client = data;
+
+	if (!val) {
+		client->flags &= ~I2C_CLIENT_PEC;
+		return 0;
+	}
+
+	if (val != 1)
+		return -EINVAL;
+
+	rc = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
+	if (rc < 0)
+		return rc;
+
+	if (!(rc & PB_CAPABILITY_ERROR_CHECK))
+		return -EOPNOTSUPP;
+
+	client->flags |= I2C_CLIENT_PEC;
+
+	return 0;
+}
+DEFINE_DEBUGFS_ATTRIBUTE(pmbus_debugfs_ops_pec, pmbus_debugfs_get_pec,
+			 pmbus_debugfs_set_pec, "%llu\n");
+
+static void pmbus_remove_debugfs(void *data)
+{
+	struct dentry *entry = data;
+
+	debugfs_remove_recursive(entry);
+}
+
+>>>>>>> upstream/android-13
 static int pmbus_init_debugfs(struct i2c_client *client,
 			      struct pmbus_data *data)
 {
@@ -2211,6 +3252,12 @@ static int pmbus_init_debugfs(struct i2c_client *client,
 	if (!entries)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	debugfs_create_file("pec", 0664, data->debugfs, client,
+			    &pmbus_debugfs_ops_pec);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < data->info->pages; ++i) {
 		/* Check accessibility of status register if it's not page 0 */
 		if (!i || pmbus_check_status_register(client, i)) {
@@ -2315,7 +3362,12 @@ static int pmbus_init_debugfs(struct i2c_client *client,
 		}
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return devm_add_action_or_reset(data->dev,
+					pmbus_remove_debugfs, data->debugfs);
+>>>>>>> upstream/android-13
 }
 #else
 static int pmbus_init_debugfs(struct i2c_client *client,
@@ -2325,13 +3377,23 @@ static int pmbus_init_debugfs(struct i2c_client *client,
 }
 #endif	/* IS_ENABLED(CONFIG_DEBUG_FS) */
 
+<<<<<<< HEAD
 int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
 		   struct pmbus_driver_info *info)
+=======
+int pmbus_do_probe(struct i2c_client *client, struct pmbus_driver_info *info)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	const struct pmbus_platform_data *pdata = dev_get_platdata(dev);
 	struct pmbus_data *data;
+<<<<<<< HEAD
 	int ret;
+=======
+	size_t groups_num = 0;
+	int ret;
+	char *name;
+>>>>>>> upstream/android-13
 
 	if (!info)
 		return -ENODEV;
@@ -2345,6 +3407,18 @@ int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	if (info->groups)
+		while (info->groups[groups_num])
+			groups_num++;
+
+	data->groups = devm_kcalloc(dev, groups_num + 2, sizeof(void *),
+				    GFP_KERNEL);
+	if (!data->groups)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	i2c_set_clientdata(client, data);
 	mutex_init(&data->update_lock);
 	data->dev = dev;
@@ -2352,6 +3426,11 @@ int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
 	if (pdata)
 		data->flags = pdata->flags;
 	data->info = info;
+<<<<<<< HEAD
+=======
+	data->currpage = -1;
+	data->currphase = -1;
+>>>>>>> upstream/android-13
 
 	ret = pmbus_init_common(client, data, info);
 	if (ret < 0)
@@ -2359,7 +3438,11 @@ int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
 
 	ret = pmbus_find_attributes(client, data);
 	if (ret)
+<<<<<<< HEAD
 		goto out_kfree;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If there are no attributes, something is wrong.
@@ -2367,6 +3450,7 @@ int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
 	 */
 	if (!data->num_attributes) {
 		dev_err(dev, "No attributes found\n");
+<<<<<<< HEAD
 		ret = -ENODEV;
 		goto out_kfree;
 	}
@@ -2378,17 +3462,39 @@ int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
 		ret = PTR_ERR(data->hwmon_dev);
 		dev_err(dev, "Failed to register hwmon device\n");
 		goto out_kfree;
+=======
+		return -ENODEV;
+	}
+
+	name = devm_kstrdup(dev, client->name, GFP_KERNEL);
+	if (!name)
+		return -ENOMEM;
+	strreplace(name, '-', '_');
+
+	data->groups[0] = &data->group;
+	memcpy(data->groups + 1, info->groups, sizeof(void *) * groups_num);
+	data->hwmon_dev = devm_hwmon_device_register_with_groups(dev,
+					name, data, data->groups);
+	if (IS_ERR(data->hwmon_dev)) {
+		dev_err(dev, "Failed to register hwmon device\n");
+		return PTR_ERR(data->hwmon_dev);
+>>>>>>> upstream/android-13
 	}
 
 	ret = pmbus_regulator_register(data);
 	if (ret)
+<<<<<<< HEAD
 		goto out_unregister;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = pmbus_init_debugfs(client, data);
 	if (ret)
 		dev_warn(dev, "Failed to register debugfs\n");
 
 	return 0;
+<<<<<<< HEAD
 
 out_unregister:
 	hwmon_device_unregister(data->hwmon_dev);
@@ -2409,6 +3515,10 @@ int pmbus_do_remove(struct i2c_client *client)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(pmbus_do_remove);
+=======
+}
+EXPORT_SYMBOL_NS_GPL(pmbus_do_probe, PMBUS);
+>>>>>>> upstream/android-13
 
 struct dentry *pmbus_get_debugfs_dir(struct i2c_client *client)
 {
@@ -2416,7 +3526,11 @@ struct dentry *pmbus_get_debugfs_dir(struct i2c_client *client)
 
 	return data->debugfs;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(pmbus_get_debugfs_dir);
+=======
+EXPORT_SYMBOL_NS_GPL(pmbus_get_debugfs_dir, PMBUS);
+>>>>>>> upstream/android-13
 
 static int __init pmbus_core_init(void)
 {

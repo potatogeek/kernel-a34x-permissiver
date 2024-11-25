@@ -33,7 +33,10 @@ struct nfs_fhbase_old {
 
 /*
  * This is the new flexible, extensible style NFSv2/v3/v4 file handle.
+<<<<<<< HEAD
  * by Neil Brown <neilb@cse.unsw.edu.au> - March 2000
+=======
+>>>>>>> upstream/android-13
  *
  * The file handle starts with a sequence of four-byte words.
  * The first word contains a version number (1) and three descriptor bytes
@@ -64,6 +67,7 @@ struct nfs_fhbase_old {
  *   in include/linux/exportfs.h for currently registered values.
  */
 struct nfs_fhbase_new {
+<<<<<<< HEAD
 	__u8		fb_version;	/* == 1, even => nfs_fhbase_old */
 	__u8		fb_auth_type;
 	__u8		fb_fsid_type;
@@ -71,6 +75,26 @@ struct nfs_fhbase_new {
 	__u32		fb_auth[1];
 /*	__u32		fb_fsid[0]; floating */
 /*	__u32		fb_fileid[0]; floating */
+=======
+	union {
+		struct {
+			__u8		fb_version_aux;	/* == 1, even => nfs_fhbase_old */
+			__u8		fb_auth_type_aux;
+			__u8		fb_fsid_type_aux;
+			__u8		fb_fileid_type_aux;
+			__u32		fb_auth[1];
+			/*	__u32		fb_fsid[0]; floating */
+			/*	__u32		fb_fileid[0]; floating */
+		};
+		struct {
+			__u8		fb_version;	/* == 1, even => nfs_fhbase_old */
+			__u8		fb_auth_type;
+			__u8		fb_fsid_type;
+			__u8		fb_fileid_type;
+			__u32		fb_auth_flex[]; /* flexible-array member */
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 struct knfsd_fh {
@@ -97,7 +121,11 @@ struct knfsd_fh {
 #define	fh_fsid_type		fh_base.fh_new.fb_fsid_type
 #define	fh_auth_type		fh_base.fh_new.fb_auth_type
 #define	fh_fileid_type		fh_base.fh_new.fb_fileid_type
+<<<<<<< HEAD
 #define	fh_fsid			fh_base.fh_new.fb_auth
+=======
+#define	fh_fsid			fh_base.fh_new.fb_auth_flex
+>>>>>>> upstream/android-13
 
 /* Do not use, provided for userspace compatiblity. */
 #define	fh_auth			fh_base.fh_new.fb_auth

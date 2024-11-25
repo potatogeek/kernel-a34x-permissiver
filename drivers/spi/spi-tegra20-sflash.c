@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI driver for Nvidia's Tegra20 Serial Flash Controller.
  *
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -352,10 +359,17 @@ static int tegra_sflash_transfer_one_message(struct spi_master *master,
 			goto exit;
 		}
 		msg->actual_length += xfer->len;
+<<<<<<< HEAD
 		if (xfer->cs_change && xfer->delay_usecs) {
 			tegra_sflash_writel(tsd, tsd->def_command_reg,
 					SPI_COMMAND);
 			udelay(xfer->delay_usecs);
+=======
+		if (xfer->cs_change && xfer->delay.value) {
+			tegra_sflash_writel(tsd, tsd->def_command_reg,
+					SPI_COMMAND);
+			spi_transfer_delay_exec(xfer);
+>>>>>>> upstream/android-13
 		}
 	}
 	ret = 0;
@@ -369,9 +383,14 @@ exit:
 static irqreturn_t handle_cpu_based_xfer(struct tegra_sflash_data *tsd)
 {
 	struct spi_transfer *t = tsd->curr_xfer;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&tsd->lock, flags);
+=======
+
+	spin_lock(&tsd->lock);
+>>>>>>> upstream/android-13
 	if (tsd->tx_status || tsd->rx_status || (tsd->status_reg & SPI_BSY)) {
 		dev_err(tsd->dev,
 			"CpuXfer ERROR bit set 0x%x\n", tsd->status_reg);
@@ -401,7 +420,11 @@ static irqreturn_t handle_cpu_based_xfer(struct tegra_sflash_data *tsd)
 	tegra_sflash_calculate_curr_xfer_param(tsd->cur_spi, tsd, t);
 	tegra_sflash_start_cpu_based_transfer(tsd, t);
 exit:
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&tsd->lock, flags);
+=======
+	spin_unlock(&tsd->lock);
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -430,7 +453,10 @@ static int tegra_sflash_probe(struct platform_device *pdev)
 {
 	struct spi_master	*master;
 	struct tegra_sflash_data	*tsd;
+<<<<<<< HEAD
 	struct resource		*r;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	const struct of_device_id *match;
 
@@ -462,8 +488,12 @@ static int tegra_sflash_probe(struct platform_device *pdev)
 				 &master->max_speed_hz))
 		master->max_speed_hz = 25000000; /* 25MHz */
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	tsd->base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	tsd->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tsd->base)) {
 		ret = PTR_ERR(tsd->base);
 		goto exit_free_master;
@@ -503,6 +533,10 @@ static int tegra_sflash_probe(struct platform_device *pdev)
 	ret = pm_runtime_get_sync(&pdev->dev);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
+<<<<<<< HEAD
+=======
+		pm_runtime_put_noidle(&pdev->dev);
+>>>>>>> upstream/android-13
 		goto exit_pm_disable;
 	}
 

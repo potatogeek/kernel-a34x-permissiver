@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2006-2008, Michael Ellerman, IBM Corporation.
  *
@@ -6,13 +7,22 @@
  * as published by the Free Software Foundation; version 2 of the
  * License.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2006-2008, Michael Ellerman, IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
 #include <linux/kernel.h>
 #include <linux/kmemleak.h>
 #include <linux/bitmap.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <asm/msi_bitmap.h>
 #include <asm/setup.h>
 
@@ -128,7 +138,14 @@ int __ref msi_bitmap_alloc(struct msi_bitmap *bmp, unsigned int irq_count,
 	if (bmp->bitmap_from_slab)
 		bmp->bitmap = kzalloc(size, GFP_KERNEL);
 	else {
+<<<<<<< HEAD
 		bmp->bitmap = memblock_virt_alloc(size, 0);
+=======
+		bmp->bitmap = memblock_alloc(size, SMP_CACHE_BYTES);
+		if (!bmp->bitmap)
+			panic("%s: Failed to allocate %u bytes\n", __func__,
+			      size);
+>>>>>>> upstream/android-13
 		/* the bitmap won't be freed from memblock allocator */
 		kmemleak_not_leak(bmp->bitmap);
 	}

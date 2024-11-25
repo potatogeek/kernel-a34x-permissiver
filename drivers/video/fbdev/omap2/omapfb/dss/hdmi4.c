@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HDMI interface DSS driver for TI's OMAP4 family of SoCs.
  * Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com/
@@ -15,6 +16,14 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HDMI interface DSS driver for TI's OMAP4 family of SoCs.
+ * Copyright (C) 2010-2011 Texas Instruments Incorporated - https://www.ti.com/
+ * Authors: Yong Zhi
+ *	Mythri pk <mythripk@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "HDMI"
@@ -30,7 +39,11 @@
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/component.h>
 #include <video/omapfb_dss.h>
@@ -467,11 +480,17 @@ static void hdmi_disconnect(struct omap_dss_device *dssdev,
 static int hdmi_read_edid(struct omap_dss_device *dssdev,
 		u8 *edid, int len)
 {
+<<<<<<< HEAD
 	bool need_enable;
 	int r;
 
 	need_enable = hdmi.core_enabled == false;
 
+=======
+	bool need_enable = !hdmi.core_enabled;
+	int r;
+
+>>>>>>> upstream/android-13
 	if (need_enable) {
 		r = hdmi_core_enable(dssdev);
 		if (r)
@@ -685,7 +704,11 @@ static int hdmi4_bind(struct device *dev, struct device *master, void *data)
 	int irq;
 
 	hdmi.pdev = pdev;
+<<<<<<< HEAD
 	dev_set_drvdata(&pdev->dev, &hdmi);
+=======
+	platform_set_drvdata(pdev, &hdmi);
+>>>>>>> upstream/android-13
 
 	mutex_init(&hdmi.lock);
 	spin_lock_init(&hdmi.audio_playing_lock);

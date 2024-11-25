@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Media device node
  *
@@ -6,6 +10,7 @@
  * Contacts: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	     Sakari Ailus <sakari.ailus@iki.fi>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * --
  *
  * Common functions for media-related drivers to register and unregister media
@@ -47,7 +54,11 @@ struct media_device;
  * @poll: pointer to the function that implements poll() syscall
  * @ioctl: pointer to the function that implements ioctl() syscall
  * @compat_ioctl: pointer to the function that will handle 32 bits userspace
+<<<<<<< HEAD
  *	calls to the the ioctl() syscall on a Kernel compiled with 64 bits.
+=======
+ *	calls to the ioctl() syscall on a Kernel compiled with 64 bits.
+>>>>>>> upstream/android-13
  * @open: pointer to the function that implements open() syscall
  * @release: pointer to the function that will release the resources allocated
  *	by the @open function.

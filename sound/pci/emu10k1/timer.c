@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Lee Revell <rlrevell@joe-job.com>
  *                   Clemens Ladisch <clemens@ladisch.de>
@@ -8,6 +12,7 @@
  *
  *  TODO:
  *    --
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -66,7 +73,11 @@ static int snd_emu10k1_timer_precise_resolution(struct snd_timer *timer,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_timer_hardware snd_emu10k1_timer_hw = {
+=======
+static const struct snd_timer_hardware snd_emu10k1_timer_hw = {
+>>>>>>> upstream/android-13
 	.flags = SNDRV_TIMER_HW_AUTO,
 	.resolution = 20833, /* 1 sample @ 48KHZ = 20.833...us */
 	.ticks = 1024,
@@ -86,7 +97,12 @@ int snd_emu10k1_timer(struct snd_emu10k1 *emu, int device)
 	tid.card = emu->card->number;
 	tid.device = device;
 	tid.subdevice = 0;
+<<<<<<< HEAD
 	if ((err = snd_timer_new(emu->card, "EMU10K1", &tid, &timer)) >= 0) {
+=======
+	err = snd_timer_new(emu->card, "EMU10K1", &tid, &timer);
+	if (err >= 0) {
+>>>>>>> upstream/android-13
 		strcpy(timer->name, "EMU10K1 timer");
 		timer->private_data = emu;
 		timer->hw = snd_emu10k1_timer_hw;

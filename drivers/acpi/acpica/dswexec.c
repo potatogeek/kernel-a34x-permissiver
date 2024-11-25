@@ -4,7 +4,11 @@
  * Module Name: dswexec - Dispatcher method execution callbacks;
  *                        dispatch to interpreter.
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -16,6 +20,12 @@
 #include "acinterp.h"
 #include "acnamesp.h"
 #include "acdebug.h"
+<<<<<<< HEAD
+=======
+#ifdef ACPI_EXEC_APP
+#include "aecommon.h"
+#endif
+>>>>>>> upstream/android-13
 
 #define _COMPONENT          ACPI_DISPATCHER
 ACPI_MODULE_NAME("dswexec")
@@ -329,6 +339,13 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
 	u32 op_class;
 	union acpi_parse_object *next_op;
 	union acpi_parse_object *first_arg;
+<<<<<<< HEAD
+=======
+#ifdef ACPI_EXEC_APP
+	char *namepath;
+	union acpi_operand_object *obj_desc;
+#endif
+>>>>>>> upstream/android-13
 
 	ACPI_FUNCTION_TRACE_PTR(ds_exec_end_op, walk_state);
 
@@ -537,6 +554,34 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
 
 			status =
 			    acpi_ds_eval_buffer_field_operands(walk_state, op);
+<<<<<<< HEAD
+=======
+			if (ACPI_FAILURE(status)) {
+				break;
+			}
+#ifdef ACPI_EXEC_APP
+			/*
+			 * acpi_exec support for namespace initialization file (initialize
+			 * buffer_fields in this code.)
+			 */
+			namepath =
+			    acpi_ns_get_external_pathname(op->common.node);
+			status = ae_lookup_init_file_entry(namepath, &obj_desc);
+			if (ACPI_SUCCESS(status)) {
+				status =
+				    acpi_ex_write_data_to_field(obj_desc,
+								op->common.
+								node->object,
+								NULL);
+				if (ACPI_FAILURE(status)) {
+					ACPI_EXCEPTION((AE_INFO, status,
+							"While writing to buffer field"));
+				}
+			}
+			ACPI_FREE(namepath);
+			status = AE_OK;
+#endif
+>>>>>>> upstream/android-13
 			break;
 
 		case AML_TYPE_CREATE_OBJECT:
@@ -565,8 +610,12 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
 					break;
 				}
 
+<<<<<<< HEAD
 				/* Fall through */
 				/*lint -fallthrough */
+=======
+				ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 			case AML_INT_EVAL_SUBTREE_OP:
 

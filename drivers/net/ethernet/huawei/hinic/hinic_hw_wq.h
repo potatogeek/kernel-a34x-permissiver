@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #ifndef HINIC_HW_WQ_H
@@ -35,11 +42,20 @@ struct hinic_wq {
 	int             block_idx;
 
 	u16             wqebb_size;
+<<<<<<< HEAD
 	u16             wq_page_size;
 	u16             q_depth;
 	u16             max_wqe_size;
 	u16             num_wqebbs_per_page;
 
+=======
+	u32             wq_page_size;
+	u16             q_depth;
+	u16             max_wqe_size;
+	u16             num_wqebbs_per_page;
+	u16		wqebbs_per_page_shift;
+	u16		wqebb_size_shift;
+>>>>>>> upstream/android-13
 	/* The addresses are 64 bit in the HW */
 	u64             block_paddr;
 	void            **shadow_block_vaddr;
@@ -84,7 +100,11 @@ struct hinic_cmdq_pages {
 
 int hinic_wqs_cmdq_alloc(struct hinic_cmdq_pages *cmdq_pages,
 			 struct hinic_wq *wq, struct hinic_hwif *hwif,
+<<<<<<< HEAD
 			 int cmdq_blocks, u16 wqebb_size, u16 wq_page_size,
+=======
+			 int cmdq_blocks, u16 wqebb_size, u32 wq_page_size,
+>>>>>>> upstream/android-13
 			 u16 q_depth, u16 max_wqe_size);
 
 void hinic_wqs_cmdq_free(struct hinic_cmdq_pages *cmdq_pages,
@@ -96,7 +116,11 @@ int hinic_wqs_alloc(struct hinic_wqs *wqs, int num_wqs,
 void hinic_wqs_free(struct hinic_wqs *wqs);
 
 int hinic_wq_allocate(struct hinic_wqs *wqs, struct hinic_wq *wq,
+<<<<<<< HEAD
 		      u16 wqebb_size, u16 wq_page_size, u16 q_depth,
+=======
+		      u16 wqebb_size, u32 wq_page_size, u16 q_depth,
+>>>>>>> upstream/android-13
 		      u16 max_wqe_size);
 
 void hinic_wq_free(struct hinic_wqs *wqs, struct hinic_wq *wq);
@@ -104,6 +128,11 @@ void hinic_wq_free(struct hinic_wqs *wqs, struct hinic_wq *wq);
 struct hinic_hw_wqe *hinic_get_wqe(struct hinic_wq *wq, unsigned int wqe_size,
 				   u16 *prod_idx);
 
+<<<<<<< HEAD
+=======
+void hinic_return_wqe(struct hinic_wq *wq, unsigned int wqe_size);
+
+>>>>>>> upstream/android-13
 void hinic_put_wqe(struct hinic_wq *wq, unsigned int wqe_size);
 
 struct hinic_hw_wqe *hinic_read_wqe(struct hinic_wq *wq, unsigned int wqe_size,

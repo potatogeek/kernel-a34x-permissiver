@@ -215,6 +215,12 @@ static void fw_cfg_io_cleanup(void)
 #  define FW_CFG_CTRL_OFF 0x08
 #  define FW_CFG_DATA_OFF 0x00
 #  define FW_CFG_DMA_OFF 0x10
+<<<<<<< HEAD
+=======
+# elif defined(CONFIG_PARISC)	/* parisc */
+#  define FW_CFG_CTRL_OFF 0x00
+#  define FW_CFG_DATA_OFF 0x04
+>>>>>>> upstream/android-13
 # elif (defined(CONFIG_PPC_PMAC) || defined(CONFIG_SPARC32)) /* ppc/mac,sun4m */
 #  define FW_CFG_CTRL_OFF 0x00
 #  define FW_CFG_DATA_OFF 0x02
@@ -296,15 +302,24 @@ static int fw_cfg_do_platform_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t fw_cfg_showrev(struct kobject *k, struct attribute *a, char *buf)
+=======
+static ssize_t fw_cfg_showrev(struct kobject *k, struct kobj_attribute *a,
+			      char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%u\n", fw_cfg_rev);
 }
 
+<<<<<<< HEAD
 static const struct {
 	struct attribute attr;
 	ssize_t (*show)(struct kobject *k, struct attribute *a, char *buf);
 } fw_cfg_rev_attr = {
+=======
+static const struct kobj_attribute fw_cfg_rev_attr = {
+>>>>>>> upstream/android-13
 	.attr = { .name = "rev", .mode = S_IRUSR },
 	.show = fw_cfg_showrev,
 };
@@ -387,9 +402,13 @@ static void fw_cfg_sysfs_cache_cleanup(void)
 	struct fw_cfg_sysfs_entry *entry, *next;
 
 	list_for_each_entry_safe(entry, next, &fw_cfg_entry_cache, list) {
+<<<<<<< HEAD
 		/* will end up invoking fw_cfg_sysfs_cache_delist()
 		 * via each object's release() method (i.e. destructor)
 		 */
+=======
+		fw_cfg_sysfs_cache_delist(entry);
+>>>>>>> upstream/android-13
 		kobject_put(&entry->kobj);
 	}
 }
@@ -447,7 +466,10 @@ static void fw_cfg_sysfs_release_entry(struct kobject *kobj)
 {
 	struct fw_cfg_sysfs_entry *entry = to_entry(kobj);
 
+<<<<<<< HEAD
 	fw_cfg_sysfs_cache_delist(entry);
+=======
+>>>>>>> upstream/android-13
 	kfree(entry);
 }
 
@@ -600,20 +622,33 @@ static int fw_cfg_register_file(const struct fw_cfg_file *f)
 	/* set file entry information */
 	entry->size = be32_to_cpu(f->size);
 	entry->select = be16_to_cpu(f->select);
+<<<<<<< HEAD
 	memcpy(entry->name, f->name, FW_CFG_MAX_FILE_PATH);
+=======
+	strscpy(entry->name, f->name, FW_CFG_MAX_FILE_PATH);
+>>>>>>> upstream/android-13
 
 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
 				   fw_cfg_sel_ko, "%d", entry->select);
+<<<<<<< HEAD
 	if (err) {
 		kobject_put(&entry->kobj);
 		return err;
 	}
+=======
+	if (err)
+		goto err_put_entry;
+>>>>>>> upstream/android-13
 
 	/* add raw binary content access */
 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
 	if (err)
+<<<<<<< HEAD
 		goto err_add_raw;
+=======
+		goto err_del_entry;
+>>>>>>> upstream/android-13
 
 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->name);
@@ -622,9 +657,16 @@ static int fw_cfg_register_file(const struct fw_cfg_file *f)
 	fw_cfg_sysfs_cache_enlist(entry);
 	return 0;
 
+<<<<<<< HEAD
 err_add_raw:
 	kobject_del(&entry->kobj);
 	kfree(entry);
+=======
+err_del_entry:
+	kobject_del(&entry->kobj);
+err_put_entry:
+	kobject_put(&entry->kobj);
+>>>>>>> upstream/android-13
 	return err;
 }
 

@@ -3,6 +3,7 @@
 #include <linux/export.h>
 #include <linux/uaccess.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 
 #include <asm/word-at-a-time.h>
 
@@ -13,6 +14,12 @@
 #  define aligned_byte_mask(n) (~0xfful << (BITS_PER_LONG - 8 - 8*(n)))
 #endif
 
+=======
+#include <linux/bitops.h>
+
+#include <asm/word-at-a-time.h>
+
+>>>>>>> upstream/android-13
 /*
  * Do a strnlen, return length of string *with* final '\0'.
  * 'count' is the user-supplied count, while 'max' is the
@@ -115,9 +122,15 @@ long strnlen_user(const char __user *str, long count)
 		if (max > count)
 			max = count;
 
+<<<<<<< HEAD
 		if (user_access_begin(VERIFY_READ, str, max)) {
 			retval = do_strnlen_user(str, count, max);
 			user_access_end();
+=======
+		if (user_read_access_begin(str, max)) {
+			retval = do_strnlen_user(str, count, max);
+			user_read_access_end();
+>>>>>>> upstream/android-13
 			return retval;
 		}
 	}

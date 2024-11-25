@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Synopsys, Inc. (www.synopsys.com)
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -95,7 +101,11 @@ void arc_init_IRQ(void)
 
 	/* setup status32, don't enable intr yet as kernel doesn't want */
 	tmp = read_aux_reg(ARC_REG_STATUS32);
+<<<<<<< HEAD
 	tmp |= STATUS_AD_MASK | (ARCV2_IRQ_DEF_PRIO << 1);
+=======
+	tmp |= ARCV2_IRQ_DEF_PRIO << 1;
+>>>>>>> upstream/android-13
 	tmp &= ~STATUS_IE_MASK;
 	asm volatile("kflag %0	\n"::"r"(tmp));
 }

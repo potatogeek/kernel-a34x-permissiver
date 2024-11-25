@@ -34,14 +34,22 @@ NESTED(handle_sys, PT_SIZE, sp)
 	ld	t1, PT_EPC(sp)		# skip syscall on return
 
 	dsubu	t0, v0, __NR_O32_Linux	# check syscall number
+<<<<<<< HEAD
 	sltiu	t0, t0, __NR_O32_Linux_syscalls + 1
+=======
+	sltiu	t0, t0, __NR_O32_Linux_syscalls
+>>>>>>> upstream/android-13
 	daddiu	t1, 4			# skip to next instruction
 	sd	t1, PT_EPC(sp)
 	beqz	t0, not_o32_scall
 #if 0
  SAVE_ALL
  move a1, v0
+<<<<<<< HEAD
  PRINT("Scall %ld\n")
+=======
+ ASM_PRINT("Scall %ld\n")
+>>>>>>> upstream/android-13
  RESTORE_ALL
 #endif
 
@@ -73,10 +81,17 @@ load_a7: lw	a7, 28(t0)		# argument #8 from usp
 loads_done:
 
 	.section __ex_table,"a"
+<<<<<<< HEAD
 	PTR	load_a4, bad_stack_a4
 	PTR	load_a5, bad_stack_a5
 	PTR	load_a6, bad_stack_a6
 	PTR	load_a7, bad_stack_a7
+=======
+	PTR_WD	load_a4, bad_stack_a4
+	PTR_WD	load_a5, bad_stack_a5
+	PTR_WD	load_a6, bad_stack_a6
+	PTR_WD	load_a7, bad_stack_a7
+>>>>>>> upstream/android-13
 	.previous
 
 	li	t1, _TIF_WORK_SYSCALL_ENTRY
@@ -144,7 +159,11 @@ trace_a_syscall:
 	ld	a7, PT_R11(sp)		# For indirect syscalls
 
 	dsubu	t0, v0, __NR_O32_Linux	# check (new) syscall number
+<<<<<<< HEAD
 	sltiu	t0, t0, __NR_O32_Linux_syscalls + 1
+=======
+	sltiu	t0, t0, __NR_O32_Linux_syscalls
+>>>>>>> upstream/android-13
 	beqz	t0, not_o32_scall
 
 	j	syscall_common
@@ -193,7 +212,11 @@ not_o32_scall:
 
 LEAF(sys32_syscall)
 	subu	t0, a0, __NR_O32_Linux	# check syscall number
+<<<<<<< HEAD
 	sltiu	v0, t0, __NR_O32_Linux_syscalls + 1
+=======
+	sltiu	v0, t0, __NR_O32_Linux_syscalls
+>>>>>>> upstream/android-13
 	beqz	t0, einval		# do not recurse
 	dsll	t1, t0, 3
 	beqz	v0, einval
@@ -213,6 +236,7 @@ einval: li	v0, -ENOSYS
 	jr	ra
 	END(sys32_syscall)
 
+<<<<<<< HEAD
 	.align	3
 	.type	sys32_call_table,@object
 EXPORT(sys32_call_table)
@@ -586,3 +610,11 @@ EXPORT(sys32_call_table)
 	PTR	sys_rseq
 	PTR	compat_sys_io_pgetevents
 	.size	sys32_call_table,.-sys32_call_table
+=======
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, compat)
+#define __SYSCALL(nr, entry)	PTR_WD entry
+	.align	3
+	.type	sys32_call_table,@object
+EXPORT(sys32_call_table)
+#include <asm/syscall_table_o32.h>
+>>>>>>> upstream/android-13

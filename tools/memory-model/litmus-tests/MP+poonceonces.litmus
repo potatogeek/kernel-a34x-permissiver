@@ -1,7 +1,11 @@
 C MP+poonceonces
 
 (*
+<<<<<<< HEAD
  * Result: Maybe
+=======
+ * Result: Sometimes
+>>>>>>> upstream/android-13
  *
  * Can the counter-intuitive message-passing outcome be prevented with
  * no ordering at all?
@@ -9,6 +13,7 @@ C MP+poonceonces
 
 {}
 
+<<<<<<< HEAD
 P0(int *x, int *y)
 {
 	WRITE_ONCE(*x, 1);
@@ -16,12 +21,29 @@ P0(int *x, int *y)
 }
 
 P1(int *x, int *y)
+=======
+P0(int *buf, int *flag) // Producer
+{
+	WRITE_ONCE(*buf, 1);
+	WRITE_ONCE(*flag, 1);
+}
+
+P1(int *buf, int *flag) // Consumer
+>>>>>>> upstream/android-13
 {
 	int r0;
 	int r1;
 
+<<<<<<< HEAD
 	r0 = READ_ONCE(*y);
 	r1 = READ_ONCE(*x);
 }
 
 exists (1:r0=1 /\ 1:r1=0)
+=======
+	r0 = READ_ONCE(*flag);
+	r1 = READ_ONCE(*buf);
+}
+
+exists (1:r0=1 /\ 1:r1=0) (* Bad outcome. *)
+>>>>>>> upstream/android-13

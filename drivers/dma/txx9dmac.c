@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the TXx9 SoC DMA Controller
  *
  * Copyright (C) 2009 Atsushi Nemoto
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/dma-mapping.h>
 #include <linux/init.h>
@@ -327,7 +334,10 @@ static void txx9dmac_reset_chan(struct txx9dmac_chan *dc)
 	channel_writel(dc, SAIR, 0);
 	channel_writel(dc, DAIR, 0);
 	channel_writel(dc, CCR, 0);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Called with dc->lock held and bh disabled */
@@ -605,13 +615,21 @@ scan_done:
 	}
 }
 
+<<<<<<< HEAD
 static void txx9dmac_chan_tasklet(unsigned long data)
+=======
+static void txx9dmac_chan_tasklet(struct tasklet_struct *t)
+>>>>>>> upstream/android-13
 {
 	int irq;
 	u32 csr;
 	struct txx9dmac_chan *dc;
 
+<<<<<<< HEAD
 	dc = (struct txx9dmac_chan *)data;
+=======
+	dc = from_tasklet(dc, t, tasklet);
+>>>>>>> upstream/android-13
 	csr = channel_readl(dc, CSR);
 	dev_vdbg(chan2dev(&dc->chan), "tasklet: status=%x\n", csr);
 
@@ -642,13 +660,21 @@ static irqreturn_t txx9dmac_chan_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void txx9dmac_tasklet(unsigned long data)
+=======
+static void txx9dmac_tasklet(struct tasklet_struct *t)
+>>>>>>> upstream/android-13
 {
 	int irq;
 	u32 csr;
 	struct txx9dmac_chan *dc;
 
+<<<<<<< HEAD
 	struct txx9dmac_dev *ddev = (struct txx9dmac_dev *)data;
+=======
+	struct txx9dmac_dev *ddev = from_tasklet(ddev, t, tasklet);
+>>>>>>> upstream/android-13
 	u32 mcr;
 	int i;
 
@@ -954,7 +980,10 @@ static void txx9dmac_chain_dynamic(struct txx9dmac_chan *dc,
 	dma_sync_single_for_device(chan2parent(&dc->chan),
 				   prev->txd.phys, ddev->descsize,
 				   DMA_TO_DEVICE);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	if (!(channel_readl(dc, CSR) & TXX9_DMA_CSR_CHNEN) &&
 	    channel_read_CHAR(dc) == prev->txd.phys)
 		/* Restart chain DMA */
@@ -1080,7 +1109,10 @@ static void txx9dmac_free_chan_resources(struct dma_chan *chan)
 static void txx9dmac_off(struct txx9dmac_dev *ddev)
 {
 	dma_writel(ddev, MCR, 0);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __init txx9dmac_chan_probe(struct platform_device *pdev)
@@ -1119,8 +1151,12 @@ static int __init txx9dmac_chan_probe(struct platform_device *pdev)
 		irq = platform_get_irq(pdev, 0);
 		if (irq < 0)
 			return irq;
+<<<<<<< HEAD
 		tasklet_init(&dc->tasklet, txx9dmac_chan_tasklet,
 				(unsigned long)dc);
+=======
+		tasklet_setup(&dc->tasklet, txx9dmac_chan_tasklet);
+>>>>>>> upstream/android-13
 		dc->irq = irq;
 		err = devm_request_irq(&pdev->dev, dc->irq,
 			txx9dmac_chan_interrupt, 0, dev_name(&pdev->dev), dc);
@@ -1206,8 +1242,12 @@ static int __init txx9dmac_probe(struct platform_device *pdev)
 
 	ddev->irq = platform_get_irq(pdev, 0);
 	if (ddev->irq >= 0) {
+<<<<<<< HEAD
 		tasklet_init(&ddev->tasklet, txx9dmac_tasklet,
 				(unsigned long)ddev);
+=======
+		tasklet_setup(&ddev->tasklet, txx9dmac_tasklet);
+>>>>>>> upstream/android-13
 		err = devm_request_irq(&pdev->dev, ddev->irq,
 			txx9dmac_interrupt, 0, dev_name(&pdev->dev), ddev);
 		if (err)

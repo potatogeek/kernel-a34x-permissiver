@@ -58,7 +58,11 @@ static int store_sensor_dump(int sensor_type, u16 length, u8 *buf)
 	}
 
 	for (i = 0; i < length; i++) {
+<<<<<<< HEAD
 		tmp_ch = ((i % NUM_LINE_ITEM == NUM_LINE_ITEM - 1) || (i == length - 1)) ? '\n' : ' ';
+=======
+		tmp_ch = ((i % NUM_LINE_ITEM == NUM_LINE_ITEM - 1) || (i - 1 == length)) ? '\n' : ' ';
+>>>>>>> upstream/android-13
 		snprintf(contents + i * LENGTH_1BYTE_HEXA_WITH_BLANK, dump_len - i * LENGTH_1BYTE_HEXA_WITH_BLANK,
 			 "%02x%c", buf[i], tmp_ch);
 	}
@@ -73,11 +77,14 @@ static int store_sensor_dump(int sensor_type, u16 length, u8 *buf)
 	return ret;
 }
 
+<<<<<<< HEAD
 void clear_sensor_dump(void)
 {
 	memset(sensor_dump, 0, sizeof(sensor_dump));
 }
 
+=======
+>>>>>>> upstream/android-13
 int send_sensor_dump_command(u8 sensor_type)
 {
 	int ret = 0;
@@ -89,7 +96,11 @@ int send_sensor_dump_command(u8 sensor_type)
 		return -EINVAL;
 	} else if (!get_sensor_probe_state(sensor_type)) {
 		shub_errf("%u is not connected", sensor_type);
+<<<<<<< HEAD
 		return ret;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (!is_support_registerdump(sensor_type)) {

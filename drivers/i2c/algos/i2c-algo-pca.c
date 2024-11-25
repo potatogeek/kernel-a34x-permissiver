@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  i2c-algo-pca.c i2c driver algorithms for PCA9564 adapters
  *    Copyright (C) 2004 Arcom Control Systems
  *    Copyright (C) 2008 Pengutronix
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -484,17 +491,29 @@ static int pca_init(struct i2c_adapter *adap)
 		/* To avoid integer overflow, use clock/100 for calculations */
 		clock = pca_clock(pca_data) / 100;
 
+<<<<<<< HEAD
 		if (pca_data->i2c_clock > 1000000) {
+=======
+		if (pca_data->i2c_clock > I2C_MAX_FAST_MODE_PLUS_FREQ) {
+>>>>>>> upstream/android-13
 			mode = I2C_PCA_MODE_TURBO;
 			min_tlow = 14;
 			min_thi  = 5;
 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
+<<<<<<< HEAD
 		} else if (pca_data->i2c_clock > 400000) {
+=======
+		} else if (pca_data->i2c_clock > I2C_MAX_FAST_MODE_FREQ) {
+>>>>>>> upstream/android-13
 			mode = I2C_PCA_MODE_FASTP;
 			min_tlow = 17;
 			min_thi  = 9;
 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
+<<<<<<< HEAD
 		} else if (pca_data->i2c_clock > 100000) {
+=======
+		} else if (pca_data->i2c_clock > I2C_MAX_STANDARD_MODE_FREQ) {
+>>>>>>> upstream/android-13
 			mode = I2C_PCA_MODE_FAST;
 			min_tlow = 44;
 			min_thi  = 20;
@@ -562,8 +581,13 @@ int i2c_pca_add_numbered_bus(struct i2c_adapter *adap)
 }
 EXPORT_SYMBOL(i2c_pca_add_numbered_bus);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Ian Campbell <icampbell@arcom.com>, "
 	"Wolfram Sang <w.sang@pengutronix.de>");
+=======
+MODULE_AUTHOR("Ian Campbell <icampbell@arcom.com>");
+MODULE_AUTHOR("Wolfram Sang <kernel@pengutronix.de>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("I2C-Bus PCA9564/PCA9665 algorithm");
 MODULE_LICENSE("GPL");
 

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Author: Kumar Gala <galak@kernel.crashing.org>
  *
  * Copyright 2009 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -16,6 +23,7 @@
 #include <linux/hardirq.h>
 
 #include <asm/dbell.h>
+<<<<<<< HEAD
 #include <asm/irq_regs.h>
 #include <asm/kvm_ppc.h>
 
@@ -81,6 +89,20 @@ void doorbell_exception(struct pt_regs *regs)
 	struct pt_regs *old_regs = set_irq_regs(regs);
 
 	irq_enter();
+=======
+#include <asm/interrupt.h>
+#include <asm/irq_regs.h>
+#include <asm/kvm_ppc.h>
+#include <asm/trace.h>
+
+#ifdef CONFIG_SMP
+
+DEFINE_INTERRUPT_HANDLER_ASYNC(doorbell_exception)
+{
+	struct pt_regs *old_regs = set_irq_regs(regs);
+
+	trace_doorbell_entry(regs);
+>>>>>>> upstream/android-13
 
 	ppc_msgsync();
 
@@ -91,13 +113,25 @@ void doorbell_exception(struct pt_regs *regs)
 
 	smp_ipi_demux_relaxed(); /* already performed the barrier */
 
+<<<<<<< HEAD
 	irq_exit();
 	set_irq_regs(old_regs);
 }
 #else /* CONFIG_SMP */
 void doorbell_exception(struct pt_regs *regs)
+=======
+	trace_doorbell_exit(regs);
+
+	set_irq_regs(old_regs);
+}
+#else /* CONFIG_SMP */
+DEFINE_INTERRUPT_HANDLER_ASYNC(doorbell_exception)
+>>>>>>> upstream/android-13
 {
 	printk(KERN_WARNING "Received doorbell on non-smp system\n");
 }
 #endif /* CONFIG_SMP */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

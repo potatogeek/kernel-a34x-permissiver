@@ -262,7 +262,11 @@ u16 c67x00_ll_get_usb_ctl(struct c67x00_sie *sie)
 	return hpi_read_word(sie->dev, USB_CTL_REG(sie->sie_num));
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * c67x00_ll_usb_clear_status - clear the USB status bits
  */
 void c67x00_ll_usb_clear_status(struct c67x00_sie *sie, u16 bits)
@@ -395,7 +399,11 @@ int c67x00_ll_reset(struct c67x00_device *dev)
 
 /* -------------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * c67x00_ll_write_mem_le16 - write into c67x00 memory
  * Only data is little endian, addr has cpu endianess.
  */
@@ -434,7 +442,11 @@ void c67x00_ll_write_mem_le16(struct c67x00_device *dev, u16 addr,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * c67x00_ll_read_mem_le16 - read from c67x00 memory
  * Only data is little endian, addr has cpu endianess.
  */

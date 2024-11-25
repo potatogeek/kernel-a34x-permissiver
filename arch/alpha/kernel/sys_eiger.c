@@ -23,7 +23,10 @@
 #include <asm/irq.h>
 #include <asm/mmu_context.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/core_tsunami.h>
 #include <asm/hwrpb.h>
 #include <asm/tlbflush.h>
@@ -176,7 +179,11 @@ eiger_swizzle(struct pci_dev *dev, u8 *pinp)
 	   case 0x03: bridge_count = 2; break; /* 2 */
 	   case 0x07: bridge_count = 3; break; /* 3 */
 	   case 0x0f: bridge_count = 4; break; /* 4 */
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	slot = PCI_SLOT(dev->devfn);
 	while (dev->bus->self) {

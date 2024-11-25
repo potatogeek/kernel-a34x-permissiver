@@ -15,6 +15,10 @@
 
 #include "blocklayoutxdr.h"
 #include "pnfs.h"
+<<<<<<< HEAD
+=======
+#include "filecache.h"
+>>>>>>> upstream/android-13
 
 #define NFSDDBG_FACILITY	NFSDDBG_PNFS
 
@@ -82,13 +86,21 @@ nfsd4_block_proc_layoutget(struct inode *inode, const struct svc_fh *fhp,
 			bex->soff = iomap.addr;
 			break;
 		}
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IOMAP_HOLE:
 		if (seg->iomode == IOMODE_READ) {
 			bex->es = PNFS_BLOCK_NONE_DATA;
 			break;
 		}
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IOMAP_DELALLOC:
 	default:
 		WARN(1, "pnfsd: filesystem returned %d extent\n", iomap.type);
@@ -121,6 +133,7 @@ nfsd4_block_commit_blocks(struct inode *inode, struct nfsd4_layoutcommit *lcp,
 {
 	loff_t new_size = lcp->lc_last_wr + 1;
 	struct iattr iattr = { .ia_valid = 0 };
+<<<<<<< HEAD
 	struct timespec ts;
 	int error;
 
@@ -130,6 +143,15 @@ nfsd4_block_commit_blocks(struct inode *inode, struct nfsd4_layoutcommit *lcp,
 		lcp->lc_mtime = timespec64_to_timespec(current_time(inode));
 	iattr.ia_valid |= ATTR_ATIME | ATTR_CTIME | ATTR_MTIME;
 	iattr.ia_atime = iattr.ia_ctime = iattr.ia_mtime = timespec_to_timespec64(lcp->lc_mtime);
+=======
+	int error;
+
+	if (lcp->lc_mtime.tv_nsec == UTIME_NOW ||
+	    timespec64_compare(&lcp->lc_mtime, &inode->i_mtime) < 0)
+		lcp->lc_mtime = current_time(inode);
+	iattr.ia_valid |= ATTR_ATIME | ATTR_CTIME | ATTR_MTIME;
+	iattr.ia_atime = iattr.ia_ctime = iattr.ia_mtime = lcp->lc_mtime;
+>>>>>>> upstream/android-13
 
 	if (new_size > i_size_read(inode)) {
 		iattr.ia_valid |= ATTR_SIZE;
@@ -171,7 +193,11 @@ nfsd4_block_proc_getdeviceinfo(struct super_block *sb,
 		struct nfs4_client *clp,
 		struct nfsd4_getdeviceinfo *gdp)
 {
+<<<<<<< HEAD
 	if (sb->s_bdev != sb->s_bdev->bd_contains)
+=======
+	if (bdev_is_partition(sb->s_bdev))
+>>>>>>> upstream/android-13
 		return nfserr_inval;
 	return nfserrno(nfsd4_block_get_device_info_simple(sb, gdp));
 }
@@ -237,7 +263,11 @@ again:
 	if (!buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rq = blk_get_request(q, REQ_OP_SCSI_IN, 0);
+=======
+	rq = blk_get_request(q, REQ_OP_DRV_IN, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rq)) {
 		error = -ENOMEM;
 		goto out_free_buf;
@@ -255,7 +285,11 @@ again:
 	req->cmd[4] = bufflen & 0xff;
 	req->cmd_len = COMMAND_SIZE(INQUIRY);
 
+<<<<<<< HEAD
 	blk_execute_rq(rq->q, NULL, rq, 1);
+=======
+	blk_execute_rq(NULL, rq, 1);
+>>>>>>> upstream/android-13
 	if (req->result) {
 		pr_err("pNFS: INQUIRY 0x83 failed with: %x\n",
 			req->result);
@@ -383,7 +417,11 @@ nfsd4_scsi_proc_getdeviceinfo(struct super_block *sb,
 		struct nfs4_client *clp,
 		struct nfsd4_getdeviceinfo *gdp)
 {
+<<<<<<< HEAD
 	if (sb->s_bdev != sb->s_bdev->bd_contains)
+=======
+	if (bdev_is_partition(sb->s_bdev))
+>>>>>>> upstream/android-13
 		return nfserr_inval;
 	return nfserrno(nfsd4_block_get_device_info_scsi(sb, clp, gdp));
 }
@@ -406,7 +444,11 @@ static void
 nfsd4_scsi_fence_client(struct nfs4_layout_stateid *ls)
 {
 	struct nfs4_client *clp = ls->ls_stid.sc_client;
+<<<<<<< HEAD
 	struct block_device *bdev = ls->ls_file->f_path.mnt->mnt_sb->s_bdev;
+=======
+	struct block_device *bdev = ls->ls_file->nf_file->f_path.mnt->mnt_sb->s_bdev;
+>>>>>>> upstream/android-13
 
 	bdev->bd_disk->fops->pr_ops->pr_preempt(bdev, NFSD_MDS_PR_KEY,
 			nfsd4_scsi_pr_key(clp), 0, true);

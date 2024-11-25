@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * shmob_drm_kms.c  --  SH Mobile DRM Mode Setting
  *
  * Copyright (C) 2012 Renesas Electronics Corporation
  *
  * Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +17,19 @@
  */
 
 #include <drm/drmP.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_cma_helper.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "shmob_drm_crtc.h"
 #include "shmob_drm_drv.h"
@@ -130,7 +143,15 @@ static const struct drm_mode_config_funcs shmob_drm_mode_config_funcs = {
 
 int shmob_drm_modeset_init(struct shmob_drm_device *sdev)
 {
+<<<<<<< HEAD
 	drm_mode_config_init(sdev->ddev);
+=======
+	int ret;
+
+	ret = drmm_mode_config_init(sdev->ddev);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	shmob_drm_crtc_create(sdev);
 	shmob_drm_encoder_create(sdev);

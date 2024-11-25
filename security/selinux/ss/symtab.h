@@ -13,12 +13,22 @@
 #include "hashtab.h"
 
 struct symtab {
+<<<<<<< HEAD
 	struct hashtab *table;	/* hash table (keyed on a string) */
+=======
+	struct hashtab table;	/* hash table (keyed on a string) */
+>>>>>>> upstream/android-13
 	u32 nprim;		/* number of primary names in table */
 };
 
 int symtab_init(struct symtab *s, unsigned int size);
 
+<<<<<<< HEAD
+=======
+int symtab_insert(struct symtab *s, char *name, void *datum);
+void *symtab_search(struct symtab *s, const char *name);
+
+>>>>>>> upstream/android-13
 #endif	/* _SS_SYMTAB_H_ */
 
 

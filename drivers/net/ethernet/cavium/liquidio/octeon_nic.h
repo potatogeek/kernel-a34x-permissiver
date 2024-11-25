@@ -52,20 +52,27 @@ struct octnic_ctrl_pkt {
 	/** Input queue to use to send this command. */
 	u64 iq_no;
 
+<<<<<<< HEAD
 	/** Time to wait for Octeon software to respond to this control command.
 	 *  If wait_time is 0, OSI assumes no response is expected.
 	 */
 	size_t wait_time;
 
+=======
+>>>>>>> upstream/android-13
 	/** The network device that issued the control command. */
 	u64 netpndev;
 
 	/** Callback function called when the command has been fetched */
 	octnic_ctrl_pkt_cb_fn_t cb_fn;
 
+<<<<<<< HEAD
 	u32 status;
 	u16 *response_code;
 	struct completion *completion;
+=======
+	u32 sc_status;
+>>>>>>> upstream/android-13
 };
 
 #define MAX_UDD_SIZE(nctrl) (sizeof((nctrl)->udd))

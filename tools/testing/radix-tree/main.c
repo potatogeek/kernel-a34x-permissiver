@@ -214,7 +214,11 @@ void copy_tag_check(void)
 	}
 
 //	printf("\ncopying tags...\n");
+<<<<<<< HEAD
 	tagged = tag_tagged_items(&tree, NULL, start, end, ITEMS, 0, 1);
+=======
+	tagged = tag_tagged_items(&tree, start, end, ITEMS, XA_MARK_0, XA_MARK_1);
+>>>>>>> upstream/android-13
 
 //	printf("checking copied tags\n");
 	assert(tagged == count);
@@ -223,7 +227,11 @@ void copy_tag_check(void)
 	/* Copy tags in several rounds */
 //	printf("\ncopying tags...\n");
 	tmp = rand() % (count / 10 + 2);
+<<<<<<< HEAD
 	tagged = tag_tagged_items(&tree, NULL, start, end, tmp, 0, 2);
+=======
+	tagged = tag_tagged_items(&tree, start, end, tmp, XA_MARK_0, XA_MARK_2);
+>>>>>>> upstream/android-13
 	assert(tagged == count);
 
 //	printf("%lu %lu %lu\n", tagged, tmp, count);
@@ -236,6 +244,7 @@ void copy_tag_check(void)
 	item_kill_tree(&tree);
 }
 
+<<<<<<< HEAD
 static void __locate_check(struct radix_tree_root *tree, unsigned long index,
 			unsigned order)
 {
@@ -293,6 +302,8 @@ static void locate_check(void)
 	item_kill_tree(&tree);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void single_thread_tests(bool long_run)
 {
 	int i;
@@ -303,10 +314,13 @@ static void single_thread_tests(bool long_run)
 	rcu_barrier();
 	printv(2, "after multiorder_check: %d allocated, preempt %d\n",
 		nr_allocated, preempt_count);
+<<<<<<< HEAD
 	locate_check();
 	rcu_barrier();
 	printv(2, "after locate_check: %d allocated, preempt %d\n",
 		nr_allocated, preempt_count);
+=======
+>>>>>>> upstream/android-13
 	tag_check();
 	rcu_barrier();
 	printv(2, "after tag_check: %d allocated, preempt %d\n",
@@ -365,11 +379,22 @@ int main(int argc, char **argv)
 	rcu_register_thread();
 	radix_tree_init();
 
+<<<<<<< HEAD
 	regression1_test();
 	regression2_test();
 	regression3_test();
 	iteration_test(0, 10 + 90 * long_run);
 	iteration_test(7, 10 + 90 * long_run);
+=======
+	xarray_tests();
+	regression1_test();
+	regression2_test();
+	regression3_test();
+	regression4_test();
+	iteration_test(0, 10 + 90 * long_run);
+	iteration_test(7, 10 + 90 * long_run);
+	iteration_test2(10 + 90 * long_run);
+>>>>>>> upstream/android-13
 	single_thread_tests(long_run);
 
 	/* Free any remaining preallocated nodes */

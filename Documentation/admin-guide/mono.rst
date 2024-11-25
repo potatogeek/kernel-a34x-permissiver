@@ -12,11 +12,19 @@ other program after you have done the following:
    a binary package, a source tarball or by installing from Git. Binary
    packages for several distributions can be found at:
 
+<<<<<<< HEAD
 	http://www.mono-project.com/download/
 
    Instructions for compiling Mono can be found at:
 
 	http://www.mono-project.com/docs/compiling-mono/linux/
+=======
+	https://www.mono-project.com/download/
+
+   Instructions for compiling Mono can be found at:
+
+	https://www.mono-project.com/docs/compiling-mono/linux/
+>>>>>>> upstream/android-13
 
    Once the Mono CLR support has been installed, just check that
    ``/usr/bin/mono`` (which could be located elsewhere, for example

@@ -448,7 +448,11 @@ static int bt3c_load_firmware(struct bt3c_info *info,
 {
 	char *ptr = (char *) firmware;
 	char b[9];
+<<<<<<< HEAD
 	unsigned int iobase, tmp;
+=======
+	unsigned int iobase, tmp, tn;
+>>>>>>> upstream/android-13
 	unsigned long size, addr, fcs;
 	int i, err = 0;
 
@@ -490,7 +494,13 @@ static int bt3c_load_firmware(struct bt3c_info *info,
 		memset(b, 0, sizeof(b));
 		for (tmp = 0, i = 0; i < size; i++) {
 			memcpy(b, ptr + (i * 2) + 2, 2);
+<<<<<<< HEAD
 			tmp += simple_strtol(b, NULL, 16);
+=======
+			if (kstrtouint(b, 16, &tn))
+				return -EINVAL;
+			tmp += tn;
+>>>>>>> upstream/android-13
 		}
 
 		if (((tmp + fcs) & 0xff) != 0xff) {
@@ -505,7 +515,12 @@ static int bt3c_load_firmware(struct bt3c_info *info,
 			memset(b, 0, sizeof(b));
 			for (i = 0; i < (size - 4) / 2; i++) {
 				memcpy(b, ptr + (i * 4) + 12, 4);
+<<<<<<< HEAD
 				tmp = simple_strtoul(b, NULL, 16);
+=======
+				if (kstrtouint(b, 16, &tmp))
+					return -EINVAL;
+>>>>>>> upstream/android-13
 				bt3c_put(iobase, tmp);
 			}
 		}

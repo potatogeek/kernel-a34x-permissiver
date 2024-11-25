@@ -2,12 +2,24 @@
 #ifndef __PERF_KVM_STAT_H
 #define __PERF_KVM_STAT_H
 
+<<<<<<< HEAD
 #include "../perf.h"
 #include "evsel.h"
 #include "evlist.h"
 #include "session.h"
 #include "tool.h"
 #include "stat.h"
+=======
+#ifdef HAVE_KVM_STAT_SUPPORT
+
+#include "tool.h"
+#include "stat.h"
+#include "record.h"
+
+struct evsel;
+struct evlist;
+struct perf_session;
+>>>>>>> upstream/android-13
 
 struct event_key {
 	#define INVALID_KEY     (~0ULL)
@@ -44,17 +56,28 @@ struct kvm_event_key {
 struct perf_kvm_stat;
 
 struct child_event_ops {
+<<<<<<< HEAD
 	void (*get_key)(struct perf_evsel *evsel,
+=======
+	void (*get_key)(struct evsel *evsel,
+>>>>>>> upstream/android-13
 			struct perf_sample *sample,
 			struct event_key *key);
 	const char *name;
 };
 
 struct kvm_events_ops {
+<<<<<<< HEAD
 	bool (*is_begin_event)(struct perf_evsel *evsel,
 			       struct perf_sample *sample,
 			       struct event_key *key);
 	bool (*is_end_event)(struct perf_evsel *evsel,
+=======
+	bool (*is_begin_event)(struct evsel *evsel,
+			       struct perf_sample *sample,
+			       struct event_key *key);
+	bool (*is_end_event)(struct evsel *evsel,
+>>>>>>> upstream/android-13
 			     struct perf_sample *sample, struct event_key *key);
 	struct child_event_ops *child_ops;
 	void (*decode_key)(struct perf_kvm_stat *kvm, struct event_key *key,
@@ -73,7 +96,11 @@ struct exit_reasons_table {
 struct perf_kvm_stat {
 	struct perf_tool    tool;
 	struct record_opts  opts;
+<<<<<<< HEAD
 	struct perf_evlist  *evlist;
+=======
+	struct evlist  *evlist;
+>>>>>>> upstream/android-13
 	struct perf_session *session;
 
 	const char *file_name;
@@ -108,6 +135,7 @@ struct kvm_reg_events_ops {
 	struct kvm_events_ops *ops;
 };
 
+<<<<<<< HEAD
 void exit_event_get_key(struct perf_evsel *evsel,
 			struct perf_sample *sample,
 			struct event_key *key);
@@ -115,14 +143,28 @@ bool exit_event_begin(struct perf_evsel *evsel,
 		      struct perf_sample *sample,
 		      struct event_key *key);
 bool exit_event_end(struct perf_evsel *evsel,
+=======
+void exit_event_get_key(struct evsel *evsel,
+			struct perf_sample *sample,
+			struct event_key *key);
+bool exit_event_begin(struct evsel *evsel,
+		      struct perf_sample *sample,
+		      struct event_key *key);
+bool exit_event_end(struct evsel *evsel,
+>>>>>>> upstream/android-13
 		    struct perf_sample *sample,
 		    struct event_key *key);
 void exit_event_decode_key(struct perf_kvm_stat *kvm,
 			   struct event_key *key,
 			   char *decode);
 
+<<<<<<< HEAD
 bool kvm_exit_event(struct perf_evsel *evsel);
 bool kvm_entry_event(struct perf_evsel *evsel);
+=======
+bool kvm_exit_event(struct evsel *evsel);
+bool kvm_entry_event(struct evsel *evsel);
+>>>>>>> upstream/android-13
 int setup_kvm_events_tp(struct perf_kvm_stat *kvm);
 
 #define define_exit_reasons_table(name, symbols)	\
@@ -143,5 +185,11 @@ extern const int decode_str_len;
 extern const char *kvm_exit_reason;
 extern const char *kvm_entry_trace;
 extern const char *kvm_exit_trace;
+<<<<<<< HEAD
 
+=======
+#endif /* HAVE_KVM_STAT_SUPPORT */
+
+extern int kvm_add_default_arch_event(int *argc, const char **argv);
+>>>>>>> upstream/android-13
 #endif /* __PERF_KVM_STAT_H */

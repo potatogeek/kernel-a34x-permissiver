@@ -3,7 +3,11 @@
  *
  * Module Name: tbutils - ACPI Table utilities
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -332,9 +336,15 @@ acpi_tb_parse_root_table(acpi_physical_address rsdp_address)
 							&table_index);
 
 		if (ACPI_SUCCESS(status) &&
+<<<<<<< HEAD
 		    ACPI_COMPARE_NAME(&acpi_gbl_root_table_list.
 				      tables[table_index].signature,
 				      ACPI_SIG_FADT)) {
+=======
+		    ACPI_COMPARE_NAMESEG(&acpi_gbl_root_table_list.
+					 tables[table_index].signature,
+					 ACPI_SIG_FADT)) {
+>>>>>>> upstream/android-13
 			acpi_gbl_fadt_index = table_index;
 			acpi_tb_parse_fadt();
 		}

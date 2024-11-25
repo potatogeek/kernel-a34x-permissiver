@@ -27,7 +27,11 @@
 /*-****************************************
 *  Compiler specifics
 ******************************************/
+<<<<<<< HEAD
 #define ZSTD_STATIC static __inline __attribute__((unused))
+=======
+#define ZSTD_STATIC static inline
+>>>>>>> upstream/android-13
 
 /*-**************************************************************
 *  Basic Types

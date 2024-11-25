@@ -63,7 +63,11 @@ static int s3d_setcolreg(unsigned regno,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops s3d_ops = {
+=======
+static const struct fb_ops s3d_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= s3d_setcolreg,
 	.fb_fillrect		= cfb_fillrect,
@@ -132,7 +136,10 @@ static int s3d_pci_register(struct pci_dev *pdev,
 
 	info = framebuffer_alloc(sizeof(struct s3d_info), &pdev->dev);
 	if (!info) {
+<<<<<<< HEAD
 		printk(KERN_ERR "s3d: Cannot allocate fb_info\n");
+=======
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto err_disable;
 	}

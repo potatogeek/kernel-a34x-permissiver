@@ -249,8 +249,11 @@ static struct scsi_host_template driver_template = {
 	.cmd_per_lun			=
 		ESAS2R_DEFAULT_CMD_PER_LUN,
 	.present			= 0,
+<<<<<<< HEAD
 	.unchecked_isa_dma		= 0,
 	.use_clustering			= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.emulated			= 0,
 	.proc_name			= ESAS2R_DRVR_NAME,
 	.change_queue_depth		= scsi_change_queue_depth,
@@ -347,8 +350,12 @@ static struct pci_driver
 	.id_table	= esas2r_pci_table,
 	.probe		= esas2r_probe,
 	.remove		= esas2r_remove,
+<<<<<<< HEAD
 	.suspend	= esas2r_suspend,
 	.resume		= esas2r_resume,
+=======
+	.driver.pm	= &esas2r_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int esas2r_probe(struct pci_dev *pcid,
@@ -614,17 +621,36 @@ static int __init esas2r_init(void)
 
 /* Handle ioctl calls to "/proc/scsi/esas2r/ATTOnode" */
 static const struct file_operations esas2r_proc_fops = {
+<<<<<<< HEAD
 	.compat_ioctl	= esas2r_proc_ioctl,
 	.unlocked_ioctl = esas2r_proc_ioctl,
 };
 
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+	.unlocked_ioctl = esas2r_proc_ioctl,
+};
+
+static const struct proc_ops esas2r_proc_ops = {
+	.proc_lseek		= default_llseek,
+	.proc_ioctl		= esas2r_proc_ioctl,
+#ifdef CONFIG_COMPAT
+	.proc_compat_ioctl	= compat_ptr_ioctl,
+#endif
+};
+
+>>>>>>> upstream/android-13
 static struct Scsi_Host *esas2r_proc_host;
 static int esas2r_proc_major;
 
 long esas2r_proc_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 {
 	return esas2r_ioctl_handler(esas2r_proc_host->hostdata,
+<<<<<<< HEAD
 				    (int)cmd, (void __user *)arg);
+=======
+				    cmd, (void __user *)arg);
+>>>>>>> upstream/android-13
 }
 
 static void __exit esas2r_exit(void)
@@ -729,7 +755,11 @@ const char *esas2r_info(struct Scsi_Host *sh)
 
 			pde = proc_create(ATTONODE_NAME, 0,
 					  sh->hostt->proc_dir,
+<<<<<<< HEAD
 					  &esas2r_proc_fops);
+=======
+					  &esas2r_proc_ops);
+>>>>>>> upstream/android-13
 
 			if (!pde) {
 				esas2r_log_dev(ESAS2R_LOG_WARN,
@@ -888,6 +918,7 @@ static void complete_task_management_request(struct esas2r_adapter *a,
 	esas2r_free_request(a, rq);
 }
 
+<<<<<<< HEAD
 /**
  * Searches the specified queue for the specified queue for the command
  * to abort.
@@ -897,6 +928,13 @@ static void complete_task_management_request(struct esas2r_adapter *a,
  * @param [in] cmd
  * t
  * @return 0 on failure, 1 if command was not found, 2 if command was found
+=======
+/*
+ * Searches the specified queue for the specified queue for the command
+ * to abort.
+ *
+ * Return 0 on failure, 1 if command was not found, 2 if command was found
+>>>>>>> upstream/android-13
  */
 static int esas2r_check_active_queue(struct esas2r_adapter *a,
 				     struct esas2r_request **abort_request,
@@ -1524,7 +1562,11 @@ void esas2r_complete_request_cb(struct esas2r_adapter *a,
 
 		rq->cmd->result =
 			((esas2r_req_status_to_error(rq->req_stat) << 16)
+<<<<<<< HEAD
 			 | (rq->func_rsp.scsi_rsp.scsi_stat & STATUS_MASK));
+=======
+			 | rq->func_rsp.scsi_rsp.scsi_stat);
+>>>>>>> upstream/android-13
 
 		if (rq->req_stat == RS_UNDERRUN)
 			scsi_set_resid(rq->cmd,

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_CLIENT_H__
 #define __NVKM_CLIENT_H__
 #define nvkm_client(p) container_of((p), struct nvkm_client, object)
@@ -13,7 +17,10 @@ struct nvkm_client {
 	struct nvkm_client_notify *notify[32];
 	struct rb_root objroot;
 
+<<<<<<< HEAD
 	bool super;
+=======
+>>>>>>> upstream/android-13
 	void *data;
 	int (*ntfy)(const void *, u32, const void *, u32);
 

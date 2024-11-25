@@ -23,12 +23,25 @@
  *          Alon Levy
  */
 
+<<<<<<< HEAD
 #include "qxl_drv.h"
 
 irqreturn_t qxl_irq_handler(int irq, void *arg)
 {
 	struct drm_device *dev = (struct drm_device *) arg;
 	struct qxl_device *qdev = (struct qxl_device *)dev->dev_private;
+=======
+#include <linux/pci.h>
+
+#include <drm/drm_drv.h>
+
+#include "qxl_drv.h"
+
+static irqreturn_t qxl_irq_handler(int irq, void *arg)
+{
+	struct drm_device *dev = (struct drm_device *) arg;
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	uint32_t pending;
 
 	pending = xchg(&qdev->ram_header->int_pending, 0);
@@ -77,11 +90,20 @@ static void qxl_client_monitors_config_work_func(struct work_struct *work)
 
 int qxl_irq_init(struct qxl_device *qdev)
 {
+<<<<<<< HEAD
+=======
+	struct drm_device *ddev = &qdev->ddev;
+	struct pci_dev *pdev = to_pci_dev(ddev->dev);
+>>>>>>> upstream/android-13
 	int ret;
 
 	init_waitqueue_head(&qdev->display_event);
 	init_waitqueue_head(&qdev->cursor_event);
 	init_waitqueue_head(&qdev->io_cmd_event);
+<<<<<<< HEAD
+=======
+	init_waitqueue_head(&qdev->release_event);
+>>>>>>> upstream/android-13
 	INIT_WORK(&qdev->client_monitors_config_work,
 		  qxl_client_monitors_config_work_func);
 	atomic_set(&qdev->irq_received, 0);
@@ -89,7 +111,11 @@ int qxl_irq_init(struct qxl_device *qdev)
 	atomic_set(&qdev->irq_received_cursor, 0);
 	atomic_set(&qdev->irq_received_io_cmd, 0);
 	qdev->irq_received_error = 0;
+<<<<<<< HEAD
 	ret = drm_irq_install(&qdev->ddev, qdev->ddev.pdev->irq);
+=======
+	ret = request_irq(pdev->irq, qxl_irq_handler, IRQF_SHARED, ddev->driver->name, ddev);
+>>>>>>> upstream/android-13
 	qdev->ram_header->int_mask = QXL_INTERRUPT_MASK;
 	if (unlikely(ret != 0)) {
 		DRM_ERROR("Failed installing irq: %d\n", ret);

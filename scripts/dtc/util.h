@@ -2,6 +2,10 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+<<<<<<< HEAD
+=======
+#include <stdlib.h>
+>>>>>>> upstream/android-13
 #include <stdarg.h>
 #include <stdbool.h>
 #include <getopt.h>
@@ -12,7 +16,15 @@
  */
 
 #ifdef __GNUC__
+<<<<<<< HEAD
 #define PRINTF(i, j)	__attribute__((format (printf, i, j)))
+=======
+#ifdef __clang__
+#define PRINTF(i, j)	__attribute__((format (printf, i, j)))
+#else
+#define PRINTF(i, j)	__attribute__((format (gnu_printf, i, j)))
+#endif
+>>>>>>> upstream/android-13
 #define NORETURN	__attribute__((noreturn))
 #else
 #define PRINTF(i, j)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OPAL Operator Panel Display Driver
  *
@@ -74,6 +78,10 @@ static int __op_panel_update_display(void)
 				rc);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case OPAL_SUCCESS:
 		break;
 	default:

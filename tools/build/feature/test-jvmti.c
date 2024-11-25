@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <jvmti.h>
+<<<<<<< HEAD
 #include <jvmticmlr.h>
+=======
+>>>>>>> upstream/android-13
 
 int main(void)
 {

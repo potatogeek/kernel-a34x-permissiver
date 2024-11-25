@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Anders K. Pedersen <akp@cohaesio.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Anders K. Pedersen <akp@cohaesio.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -18,7 +24,11 @@
 
 struct nft_rt {
 	enum nft_rt_keys	key:8;
+<<<<<<< HEAD
 	enum nft_registers	dreg:8;
+=======
+	u8			dreg;
+>>>>>>> upstream/android-13
 };
 
 static u16 get_tcpmss(const struct nft_pktinfo *pkt, const struct dst_entry *skbdst)
@@ -53,9 +63,15 @@ static u16 get_tcpmss(const struct nft_pktinfo *pkt, const struct dst_entry *skb
 	return mtu - minlen;
 }
 
+<<<<<<< HEAD
 static void nft_rt_get_eval(const struct nft_expr *expr,
 			    struct nft_regs *regs,
 			    const struct nft_pktinfo *pkt)
+=======
+void nft_rt_get_eval(const struct nft_expr *expr,
+		     struct nft_regs *regs,
+		     const struct nft_pktinfo *pkt)
+>>>>>>> upstream/android-13
 {
 	const struct nft_rt *priv = nft_expr_priv(expr);
 	const struct sk_buff *skb = pkt->skb;
@@ -90,6 +106,14 @@ static void nft_rt_get_eval(const struct nft_expr *expr,
 	case NFT_RT_TCPMSS:
 		nft_reg_store16(dest, get_tcpmss(pkt, dst));
 		break;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XFRM
+	case NFT_RT_XFRM:
+		nft_reg_store8(dest, !!dst->xfrm);
+		break;
+#endif
+>>>>>>> upstream/android-13
 	default:
 		WARN_ON(1);
 		goto err;
@@ -130,13 +154,26 @@ static int nft_rt_get_init(const struct nft_ctx *ctx,
 	case NFT_RT_TCPMSS:
 		len = sizeof(u16);
 		break;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XFRM
+	case NFT_RT_XFRM:
+		len = sizeof(u8);
+		break;
+#endif
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	priv->dreg = nft_parse_register(tb[NFTA_RT_DREG]);
 	return nft_validate_register_store(ctx, priv->dreg, NULL,
 					   NFT_DATA_VALUE, len);
+=======
+	return nft_parse_register_store(ctx, tb[NFTA_RT_DREG], &priv->dreg,
+					NULL, NFT_DATA_VALUE, len);
+>>>>>>> upstream/android-13
 }
 
 static int nft_rt_get_dump(struct sk_buff *skb,
@@ -164,6 +201,10 @@ static int nft_rt_validate(const struct nft_ctx *ctx, const struct nft_expr *exp
 	case NFT_RT_NEXTHOP4:
 	case NFT_RT_NEXTHOP6:
 	case NFT_RT_CLASSID:
+<<<<<<< HEAD
+=======
+	case NFT_RT_XFRM:
+>>>>>>> upstream/android-13
 		return 0;
 	case NFT_RT_TCPMSS:
 		hooks = (1 << NF_INET_FORWARD) |

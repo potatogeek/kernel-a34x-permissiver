@@ -41,5 +41,9 @@
 #define   OCXL_DVSEC_VENDOR_CFG_VERS            0x0C
 #define   OCXL_DVSEC_VENDOR_TLX_VERS            0x10
 #define   OCXL_DVSEC_VENDOR_DLX_VERS            0x20
+<<<<<<< HEAD
+=======
+#define   OCXL_DVSEC_VENDOR_RESET_RELOAD        0x38
+>>>>>>> upstream/android-13
 
 #endif /* _OCXL_CONFIG_H_ */

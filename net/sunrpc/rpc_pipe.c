@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * net/sunrpc/rpc_pipe.c
  *
@@ -13,6 +17,10 @@
 #include <linux/string.h>
 #include <linux/pagemap.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/namei.h>
 #include <linux/fsnotify.h>
 #include <linux/kernel.h>
@@ -49,7 +57,11 @@ static BLOCKING_NOTIFIER_HEAD(rpc_pipefs_notifier_list);
 
 int rpc_pipefs_notifier_register(struct notifier_block *nb)
 {
+<<<<<<< HEAD
 	return blocking_notifier_chain_cond_register(&rpc_pipefs_notifier_list, nb);
+=======
+	return blocking_notifier_chain_register(&rpc_pipefs_notifier_list, nb);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rpc_pipefs_notifier_register);
 
@@ -202,6 +214,7 @@ rpc_alloc_inode(struct super_block *sb)
 }
 
 static void
+<<<<<<< HEAD
 rpc_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -214,6 +227,13 @@ rpc_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, rpc_i_callback);
 }
 
+=======
+rpc_free_inode(struct inode *inode)
+{
+	kmem_cache_free(rpc_inode_cachep, RPC_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static int
 rpc_pipe_open(struct inode *inode, struct file *filp)
 {
@@ -428,7 +448,11 @@ rpc_info_open(struct inode *inode, struct file *file)
 		spin_lock(&file->f_path.dentry->d_lock);
 		if (!d_unhashed(file->f_path.dentry))
 			clnt = RPC_I(inode)->private;
+<<<<<<< HEAD
 		if (clnt != NULL && atomic_inc_not_zero(&clnt->cl_count)) {
+=======
+		if (clnt != NULL && refcount_inc_not_zero(&clnt->cl_count)) {
+>>>>>>> upstream/android-13
 			spin_unlock(&file->f_path.dentry->d_lock);
 			m->private = clnt;
 		} else {
@@ -483,6 +507,10 @@ rpc_get_inode(struct super_block *sb, umode_t mode)
 		inode->i_fop = &simple_dir_operations;
 		inode->i_op = &simple_dir_inode_operations;
 		inc_nlink(inode);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -604,7 +632,13 @@ static int __rpc_rmdir(struct inode *dir, struct dentry *dentry)
 
 	dget(dentry);
 	ret = simple_rmdir(dir, dentry);
+<<<<<<< HEAD
 	d_delete(dentry);
+=======
+	d_drop(dentry);
+	if (!ret)
+		fsnotify_rmdir(dir, dentry);
+>>>>>>> upstream/android-13
 	dput(dentry);
 	return ret;
 }
@@ -615,7 +649,13 @@ static int __rpc_unlink(struct inode *dir, struct dentry *dentry)
 
 	dget(dentry);
 	ret = simple_unlink(dir, dentry);
+<<<<<<< HEAD
 	d_delete(dentry);
+=======
+	d_drop(dentry);
+	if (!ret)
+		fsnotify_unlink(dir, dentry);
+>>>>>>> upstream/android-13
 	dput(dentry);
 	return ret;
 }
@@ -782,7 +822,12 @@ static int rpc_rmdir_depopulate(struct dentry *dentry,
 }
 
 /**
+<<<<<<< HEAD
  * rpc_mkpipe - make an rpc_pipefs file for kernel<->userspace communication
+=======
+ * rpc_mkpipe_dentry - make an rpc_pipefs file for kernel<->userspace
+ *		       communication
+>>>>>>> upstream/android-13
  * @parent: dentry of directory to create new "pipe" in
  * @name: name of pipe
  * @private: private data to associate with the pipe, for the caller's use
@@ -1123,7 +1168,11 @@ void rpc_remove_cache_dir(struct dentry *dentry)
  */
 static const struct super_operations s_ops = {
 	.alloc_inode	= rpc_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= rpc_destroy_inode,
+=======
+	.free_inode	= rpc_free_inode,
+>>>>>>> upstream/android-13
 	.statfs		= simple_statfs,
 };
 
@@ -1266,7 +1315,11 @@ static const struct rpc_pipe_ops gssd_dummy_pipe_ops = {
  * that this file will be there and have a certain format.
  */
 static int
+<<<<<<< HEAD
 rpc_show_dummy_info(struct seq_file *m, void *v)
+=======
+rpc_dummy_info_show(struct seq_file *m, void *v)
+>>>>>>> upstream/android-13
 {
 	seq_printf(m, "RPC server: %s\n", utsname()->nodename);
 	seq_printf(m, "service: foo (1) version 0\n");
@@ -1275,6 +1328,7 @@ rpc_show_dummy_info(struct seq_file *m, void *v)
 	seq_printf(m, "port: 0\n");
 	return 0;
 }
+<<<<<<< HEAD
 
 static int
 rpc_dummy_info_open(struct inode *inode, struct file *file)
@@ -1289,11 +1343,18 @@ static const struct file_operations rpc_dummy_info_operations = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(rpc_dummy_info);
+>>>>>>> upstream/android-13
 
 static const struct rpc_filelist gssd_dummy_info_file[] = {
 	[0] = {
 		.name = "info",
+<<<<<<< HEAD
 		.i_fop = &rpc_dummy_info_operations,
+=======
+		.i_fop = &rpc_dummy_info_fops,
+>>>>>>> upstream/android-13
 		.mode = S_IFREG | 0400,
 	},
 };
@@ -1368,11 +1429,19 @@ rpc_gssd_dummy_depopulate(struct dentry *pipe_dentry)
 }
 
 static int
+<<<<<<< HEAD
 rpc_fill_super(struct super_block *sb, void *data, int silent)
 {
 	struct inode *inode;
 	struct dentry *root, *gssd_dentry;
 	struct net *net = get_net(sb->s_fs_info);
+=======
+rpc_fill_super(struct super_block *sb, struct fs_context *fc)
+{
+	struct inode *inode;
+	struct dentry *root, *gssd_dentry;
+	struct net *net = sb->s_fs_info;
+>>>>>>> upstream/android-13
 	struct sunrpc_net *sn = net_generic(net, sunrpc_net_id);
 	int err;
 
@@ -1429,12 +1498,37 @@ gssd_running(struct net *net)
 }
 EXPORT_SYMBOL_GPL(gssd_running);
 
+<<<<<<< HEAD
 static struct dentry *
 rpc_mount(struct file_system_type *fs_type,
 		int flags, const char *dev_name, void *data)
 {
 	struct net *net = current->nsproxy->net_ns;
 	return mount_ns(fs_type, flags, data, net, net->user_ns, rpc_fill_super);
+=======
+static int rpc_fs_get_tree(struct fs_context *fc)
+{
+	return get_tree_keyed(fc, rpc_fill_super, get_net(fc->net_ns));
+}
+
+static void rpc_fs_free_fc(struct fs_context *fc)
+{
+	if (fc->s_fs_info)
+		put_net(fc->s_fs_info);
+}
+
+static const struct fs_context_operations rpc_fs_context_ops = {
+	.free		= rpc_fs_free_fc,
+	.get_tree	= rpc_fs_get_tree,
+};
+
+static int rpc_init_fs_context(struct fs_context *fc)
+{
+	put_user_ns(fc->user_ns);
+	fc->user_ns = get_user_ns(fc->net_ns->user_ns);
+	fc->ops = &rpc_fs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void rpc_kill_sb(struct super_block *sb)
@@ -1462,7 +1556,11 @@ out:
 static struct file_system_type rpc_pipe_fs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "rpc_pipefs",
+<<<<<<< HEAD
 	.mount		= rpc_mount,
+=======
+	.init_fs_context = rpc_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= rpc_kill_sb,
 };
 MODULE_ALIAS_FS("rpc_pipefs");
@@ -1508,6 +1606,11 @@ err_notifier:
 void unregister_rpc_pipefs(void)
 {
 	rpc_clients_notifier_unregister();
+<<<<<<< HEAD
 	kmem_cache_destroy(rpc_inode_cachep);
 	unregister_filesystem(&rpc_pipe_fs_type);
+=======
+	unregister_filesystem(&rpc_pipe_fs_type);
+	kmem_cache_destroy(rpc_inode_cachep);
+>>>>>>> upstream/android-13
 }

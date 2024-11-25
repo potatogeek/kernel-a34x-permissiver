@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Qualcomm External Bus Interface 2 (EBI2) driver
  * an older version of the Qualcomm Parallel Interface Controller (QPIC)
@@ -6,10 +10,13 @@
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * See the device tree bindings for this block for more details on the
  * hardware.
  */
@@ -21,7 +28,10 @@
 #include <linux/of.h>
 #include <linux/of_platform.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/io.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/platform_device.h>
 #include <linux/bitops.h>
@@ -106,8 +116,13 @@
 /**
  * struct cs_data - struct with info on a chipselect setting
  * @enable_mask: mask to enable the chipselect in the EBI2 config
+<<<<<<< HEAD
  * @slow_cfg0: offset to XMEMC slow CS config
  * @fast_cfg1: offset to XMEMC fast CS config
+=======
+ * @slow_cfg: offset to XMEMC slow CS config
+ * @fast_cfg: offset to XMEMC fast CS config
+>>>>>>> upstream/android-13
  */
 struct cs_data {
 	u32 enable_mask;

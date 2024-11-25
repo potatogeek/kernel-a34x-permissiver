@@ -26,6 +26,10 @@ static u32 ibs_caps;
 #include <linux/hardirq.h>
 
 #include <asm/nmi.h>
+<<<<<<< HEAD
+=======
+#include <asm/amd-ibs.h>
+>>>>>>> upstream/android-13
 
 #define IBS_FETCH_CONFIG_MASK	(IBS_FETCH_RAND_EN | IBS_FETCH_MAX_CNT)
 #define IBS_OP_CONFIG_MASK	IBS_OP_MAX_CNT
@@ -90,6 +94,10 @@ struct perf_ibs {
 	unsigned long			offset_mask[1];
 	int				offset_max;
 	unsigned int			fetch_count_reset_broken : 1;
+<<<<<<< HEAD
+=======
+	unsigned int			fetch_ignore_if_zero_rip : 1;
+>>>>>>> upstream/android-13
 	struct cpu_perf_ibs __percpu	*pcpu;
 
 	struct attribute		**format_attrs;
@@ -99,6 +107,7 @@ struct perf_ibs {
 	u64				(*get_count)(u64 config);
 };
 
+<<<<<<< HEAD
 struct perf_ibs_data {
 	u32		size;
 	union {
@@ -108,6 +117,8 @@ struct perf_ibs_data {
 	u64		regs[MSR_AMD64_IBS_REG_COUNT_MAX];
 };
 
+=======
+>>>>>>> upstream/android-13
 static int
 perf_event_set_period(struct hw_perf_event *hwc, u64 min, u64 max, u64 *hw_period)
 {
@@ -254,6 +265,7 @@ static int perf_ibs_precise_event(struct perf_event *event, u64 *config)
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
 static const struct perf_event_attr ibs_notsupp = {
 	.exclude_user	= 1,
 	.exclude_kernel	= 1,
@@ -263,6 +275,8 @@ static const struct perf_event_attr ibs_notsupp = {
 	.exclude_guest	= 1,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int perf_ibs_init(struct perf_event *event)
 {
 	struct hw_perf_event *hwc = &event->hw;
@@ -283,9 +297,12 @@ static int perf_ibs_init(struct perf_event *event)
 	if (event->pmu != &perf_ibs->pmu)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	if (perf_flags(&event->attr) & perf_flags(&ibs_notsupp))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (config & ~perf_ibs->config_mask)
 		return -EINVAL;
 
@@ -340,11 +357,21 @@ static int perf_ibs_set_period(struct perf_ibs *perf_ibs,
 
 static u64 get_ibs_fetch_count(u64 config)
 {
+<<<<<<< HEAD
 	return (config & IBS_FETCH_CNT) >> 12;
+=======
+	union ibs_fetch_ctl fetch_ctl = (union ibs_fetch_ctl)config;
+
+	return fetch_ctl.fetch_cnt << 4;
+>>>>>>> upstream/android-13
 }
 
 static u64 get_ibs_op_count(u64 config)
 {
+<<<<<<< HEAD
+=======
+	union ibs_op_ctl op_ctl = (union ibs_op_ctl)config;
+>>>>>>> upstream/android-13
 	u64 count = 0;
 
 	/*
@@ -352,10 +379,20 @@ static u64 get_ibs_op_count(u64 config)
 	 * and the lower 7 bits of CurCnt are randomized.
 	 * Otherwise CurCnt has the full 27-bit current counter value.
 	 */
+<<<<<<< HEAD
 	if (config & IBS_OP_VAL)
 		count = (config & IBS_OP_MAX_CNT) << 4;
 	else if (ibs_caps & IBS_CAPS_RDWROPCNT)
 		count = (config & IBS_OP_CUR_CNT) >> 32;
+=======
+	if (op_ctl.op_val) {
+		count = op_ctl.opmaxcnt << 4;
+		if (ibs_caps & IBS_CAPS_OPCNTEXT)
+			count += op_ctl.opmaxcnt_ext << 20;
+	} else if (ibs_caps & IBS_CAPS_RDWROPCNT) {
+		count = op_ctl.opcurcnt;
+	}
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -416,7 +453,11 @@ static void perf_ibs_start(struct perf_event *event, int flags)
 	struct hw_perf_event *hwc = &event->hw;
 	struct perf_ibs *perf_ibs = container_of(event->pmu, struct perf_ibs, pmu);
 	struct cpu_perf_ibs *pcpu = this_cpu_ptr(perf_ibs->pcpu);
+<<<<<<< HEAD
 	u64 period;
+=======
+	u64 period, config = 0;
+>>>>>>> upstream/android-13
 
 	if (WARN_ON_ONCE(!(hwc->state & PERF_HES_STOPPED)))
 		return;
@@ -425,13 +466,26 @@ static void perf_ibs_start(struct perf_event *event, int flags)
 	hwc->state = 0;
 
 	perf_ibs_set_period(perf_ibs, hwc, &period);
+<<<<<<< HEAD
+=======
+	if (perf_ibs == &perf_ibs_op && (ibs_caps & IBS_CAPS_OPCNTEXT)) {
+		config |= period & IBS_OP_MAX_CNT_EXT_MASK;
+		period &= ~IBS_OP_MAX_CNT_EXT_MASK;
+	}
+	config |= period >> 4;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Set STARTED before enabling the hardware, such that a subsequent NMI
 	 * must observe it.
 	 */
 	set_bit(IBS_STARTED,    pcpu->state);
 	clear_bit(IBS_STOPPING, pcpu->state);
+<<<<<<< HEAD
 	perf_ibs_enable_event(perf_ibs, hwc, period >> 4);
+=======
+	perf_ibs_enable_event(perf_ibs, hwc, config);
+>>>>>>> upstream/android-13
 
 	perf_event_update_userpage(event);
 }
@@ -548,6 +602,10 @@ static struct perf_ibs perf_ibs_fetch = {
 		.start		= perf_ibs_start,
 		.stop		= perf_ibs_stop,
 		.read		= perf_ibs_read,
+<<<<<<< HEAD
+=======
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	},
 	.msr			= MSR_AMD64_IBSFETCHCTL,
 	.config_mask		= IBS_FETCH_CONFIG_MASK,
@@ -572,6 +630,10 @@ static struct perf_ibs perf_ibs_op = {
 		.start		= perf_ibs_start,
 		.stop		= perf_ibs_stop,
 		.read		= perf_ibs_read,
+<<<<<<< HEAD
+=======
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	},
 	.msr			= MSR_AMD64_IBSOPCTL,
 	.config_mask		= IBS_OP_CONFIG_MASK,
@@ -598,7 +660,11 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
 	struct perf_ibs_data ibs_data;
 	int offset, size, check_rip, offset_max, throttle = 0;
 	unsigned int msr;
+<<<<<<< HEAD
 	u64 *buf, *config, period;
+=======
+	u64 *buf, *config, period, new_config = 0;
+>>>>>>> upstream/android-13
 
 	if (!test_bit(IBS_STARTED, pcpu->state)) {
 fail:
@@ -674,6 +740,13 @@ fail:
 	if (check_rip && (ibs_data.regs[2] & IBS_RIP_INVALID)) {
 		regs.flags &= ~PERF_EFLAGS_EXACT;
 	} else {
+<<<<<<< HEAD
+=======
+		/* Workaround for erratum #1197 */
+		if (perf_ibs->fetch_ignore_if_zero_rip && !(ibs_data.regs[1]))
+			goto out;
+
+>>>>>>> upstream/android-13
 		set_linear_ip(&regs, ibs_data.regs[1]);
 		regs.flags |= PERF_EFLAGS_EXACT;
 	}
@@ -693,6 +766,7 @@ out:
 	if (throttle) {
 		perf_ibs_stop(event, 0);
 	} else {
+<<<<<<< HEAD
 		period >>= 4;
 
 		if ((ibs_caps & IBS_CAPS_RDWROPCNT) &&
@@ -700,6 +774,19 @@ out:
 			period |= *config & IBS_OP_CUR_CNT_RAND;
 
 		perf_ibs_enable_event(perf_ibs, hwc, period);
+=======
+		if (perf_ibs == &perf_ibs_op) {
+			if (ibs_caps & IBS_CAPS_OPCNTEXT) {
+				new_config = period & IBS_OP_MAX_CNT_EXT_MASK;
+				period &= ~IBS_OP_MAX_CNT_EXT_MASK;
+			}
+			if ((ibs_caps & IBS_CAPS_RDWROPCNT) && (*config & IBS_OP_CNT_CTL))
+				new_config |= *config & IBS_OP_CUR_CNT_RAND;
+		}
+		new_config |= period >> 4;
+
+		perf_ibs_enable_event(perf_ibs, hwc, new_config);
+>>>>>>> upstream/android-13
 	}
 
 	perf_event_update_userpage(event);
@@ -767,12 +854,28 @@ static __init void perf_event_ibs_init(void)
 	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
 		perf_ibs_fetch.fetch_count_reset_broken = 1;
 
+<<<<<<< HEAD
+=======
+	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
+		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
+
+>>>>>>> upstream/android-13
 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
 
 	if (ibs_caps & IBS_CAPS_OPCNT) {
 		perf_ibs_op.config_mask |= IBS_OP_CNT_CTL;
 		*attr++ = &format_attr_cnt_ctl.attr;
 	}
+<<<<<<< HEAD
+=======
+
+	if (ibs_caps & IBS_CAPS_OPCNTEXT) {
+		perf_ibs_op.max_period  |= IBS_OP_MAX_CNT_EXT_MASK;
+		perf_ibs_op.config_mask	|= IBS_OP_MAX_CNT_EXT_MASK;
+		perf_ibs_op.cnt_mask    |= IBS_OP_MAX_CNT_EXT_MASK;
+	}
+
+>>>>>>> upstream/android-13
 	perf_ibs_pmu_init(&perf_ibs_op, "ibs_op");
 
 	register_nmi_handler(NMI_LOCAL, perf_ibs_nmi_handler, 0, "perf_ibs");

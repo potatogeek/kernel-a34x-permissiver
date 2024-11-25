@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,6 +61,14 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_tdls_h__
 #define __iwl_fw_api_tdls_h__
 
@@ -111,6 +120,20 @@ struct iwl_tdls_channel_switch_frame {
 } __packed; /* TDLS_STA_CHANNEL_SWITCH_FRAME_API_S_VER_1 */
 
 /**
+<<<<<<< HEAD
+=======
+ * struct iwl_tdls_channel_switch_cmd_tail - tail of iwl_tdls_channel_switch_cmd
+ *
+ * @timing: timing related data for command
+ * @frame: channel-switch request/response template, depending to switch_type
+ */
+struct iwl_tdls_channel_switch_cmd_tail {
+	struct iwl_tdls_channel_switch_timing timing;
+	struct iwl_tdls_channel_switch_frame frame;
+} __packed;
+
+/**
+>>>>>>> upstream/android-13
  * struct iwl_tdls_channel_switch_cmd - TDLS channel switch command
  *
  * The command is sent to initiate a channel switch and also in response to
@@ -119,15 +142,23 @@ struct iwl_tdls_channel_switch_frame {
  * @switch_type: see &enum iwl_tdls_channel_switch_type
  * @peer_sta_id: station id of TDLS peer
  * @ci: channel we switch to
+<<<<<<< HEAD
  * @timing: timing related data for command
  * @frame: channel-switch request/response template, depending to switch_type
+=======
+ * @tail: command tail
+>>>>>>> upstream/android-13
  */
 struct iwl_tdls_channel_switch_cmd {
 	u8 switch_type;
 	__le32 peer_sta_id;
 	struct iwl_fw_channel_info ci;
+<<<<<<< HEAD
 	struct iwl_tdls_channel_switch_timing timing;
 	struct iwl_tdls_channel_switch_frame frame;
+=======
+	struct iwl_tdls_channel_switch_cmd_tail tail;
+>>>>>>> upstream/android-13
 } __packed; /* TDLS_STA_CHANNEL_SWITCH_CMD_API_S_VER_1 */
 
 /**

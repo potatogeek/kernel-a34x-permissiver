@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 David George <david.george@ska.ac.za>
  *
  * based on adm1021.c
  * some credit to Christoph Scheurer, but largely a rewrite
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -404,8 +411,14 @@ static int max1668_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int max1668_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id max1668_id[];
+
+static int max1668_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct device *dev = &client->dev;
@@ -420,7 +433,11 @@ static int max1668_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	data->client = client;
+<<<<<<< HEAD
 	data->type = id->driver_data;
+=======
+	data->type = i2c_match_id(max1668_id, client)->driver_data;
+>>>>>>> upstream/android-13
 	mutex_init(&data->update_lock);
 
 	/* sysfs hooks */
@@ -447,7 +464,11 @@ static struct i2c_driver max1668_driver = {
 	.driver = {
 		  .name	= "max1668",
 		  },
+<<<<<<< HEAD
 	.probe = max1668_probe,
+=======
+	.probe_new = max1668_probe,
+>>>>>>> upstream/android-13
 	.id_table = max1668_id,
 	.detect	= max1668_detect,
 	.address_list = max1668_addr_list,

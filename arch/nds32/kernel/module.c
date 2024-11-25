@@ -5,7 +5,11 @@
 #include <linux/elf.h>
 #include <linux/vmalloc.h>
 #include <linux/moduleloader.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 void *module_alloc(unsigned long size)
 {

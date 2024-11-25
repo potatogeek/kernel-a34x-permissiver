@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/media/i2c/adp1653.c
  *
@@ -10,6 +14,7 @@
  *	Tuukka Toivonen <tuukkat76@gmail.com>
  *	Pavel Machek <pavel@ucw.cz>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
@@ -19,11 +24,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  * - fault interrupt handling
  * - hardware strobe
  * - power doesn't need to be ON if all lights are off
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -388,8 +398,12 @@ static const struct v4l2_subdev_internal_ops adp1653_internal_ops = {
 
 static int adp1653_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *subdev = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *subdev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct adp1653_flash *flash = to_adp1653_flash(subdev);
 
 	if (!flash->power_count)
@@ -400,8 +414,12 @@ static int adp1653_suspend(struct device *dev)
 
 static int adp1653_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct i2c_client *client = to_i2c_client(dev);
 	struct v4l2_subdev *subdev = i2c_get_clientdata(client);
+=======
+	struct v4l2_subdev *subdev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct adp1653_flash *flash = to_adp1653_flash(subdev);
 
 	if (!flash->power_count)

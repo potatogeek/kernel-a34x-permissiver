@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/dreamcast/irq.c
  *
@@ -6,11 +10,17 @@
  * Copyright (c) 2001, 2002 M. R. Brown <mrbrown@0xd6.org>
  *
  * This file is part of the LinuxDC project (www.linuxdc.org)
+<<<<<<< HEAD
  * Released under the terms of the GNU GPL v2.0
  */
 #include <linux/irq.h>
 #include <linux/io.h>
 #include <linux/irq.h>
+=======
+ */
+#include <linux/irq.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/err.h>
 #include <mach/sysasic.h>

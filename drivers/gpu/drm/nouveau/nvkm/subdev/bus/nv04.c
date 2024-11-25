@@ -26,8 +26,11 @@
 
 #include <subdev/gpio.h>
 
+<<<<<<< HEAD
 #include <subdev/gpio.h>
 
+=======
+>>>>>>> upstream/android-13
 static void
 nv04_bus_intr(struct nvkm_bus *bus)
 {
@@ -70,7 +73,14 @@ nv04_bus = {
 };
 
 int
+<<<<<<< HEAD
 nv04_bus_new(struct nvkm_device *device, int index, struct nvkm_bus **pbus)
 {
 	return nvkm_bus_new_(&nv04_bus, device, index, pbus);
+=======
+nv04_bus_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	     struct nvkm_bus **pbus)
+{
+	return nvkm_bus_new_(&nv04_bus, device, type, inst, pbus);
+>>>>>>> upstream/android-13
 }

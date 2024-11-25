@@ -166,6 +166,7 @@ ia64_mremap (unsigned long addr, unsigned long old_len, unsigned long new_len, u
 		force_successful_syscall_return();
 	return addr;
 }
+<<<<<<< HEAD
 
 #ifndef CONFIG_PCI
 
@@ -184,3 +185,5 @@ sys_pciconfig_write (unsigned long bus, unsigned long dfn, unsigned long off, un
 }
 
 #endif /* CONFIG_PCI */
+=======
+>>>>>>> upstream/android-13

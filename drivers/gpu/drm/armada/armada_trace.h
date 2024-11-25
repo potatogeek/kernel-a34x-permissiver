@@ -3,7 +3,14 @@
 #define ARMADA_TRACE_H
 
 #include <linux/tracepoint.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+struct drm_crtc;
+struct drm_framebuffer;
+struct drm_plane;
+>>>>>>> upstream/android-13
 
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM armada

@@ -43,10 +43,18 @@
  */
 
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <asm/ptrace.h>
 #include <asm/current.h>
 #include <asm/asm-offsets.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/asmmacro.h>
+#include <asm/ptrace.h>
+#include <asm/current.h>
+#include <asm/asm-offsets.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/page.h>
 #include <asm/thread_info.h>
@@ -477,7 +485,10 @@ _DoubleExceptionVector_handle_exception:
 
 ENDPROC(_DoubleExceptionVector)
 
+<<<<<<< HEAD
 	.text
+=======
+>>>>>>> upstream/android-13
 /*
  * Fixup handler for TLB miss in double exception handler for window owerflow.
  * We get here with windowbase set to the window that was being spilled and
@@ -505,6 +516,10 @@ ENDPROC(_DoubleExceptionVector)
  * a3: exctable, original value in excsave1
  */
 
+<<<<<<< HEAD
+=======
+	__XTENSA_HANDLER
+>>>>>>> upstream/android-13
 	.literal_position
 
 ENTRY(window_overflow_restore_a0_fixup)

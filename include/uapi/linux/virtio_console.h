@@ -45,6 +45,7 @@
 
 struct virtio_console_config {
 	/* colums of the screens */
+<<<<<<< HEAD
 	__u16 cols;
 	/* rows of the screens */
 	__u16 rows;
@@ -52,6 +53,15 @@ struct virtio_console_config {
 	__u32 max_nr_ports;
 	/* emergency write register */
 	__u32 emerg_wr;
+=======
+	__virtio16 cols;
+	/* rows of the screens */
+	__virtio16 rows;
+	/* max. number of ports this device can hold */
+	__virtio32 max_nr_ports;
+	/* emergency write register */
+	__virtio32 emerg_wr;
+>>>>>>> upstream/android-13
 } __attribute__((packed));
 
 /*

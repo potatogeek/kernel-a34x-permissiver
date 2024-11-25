@@ -40,5 +40,9 @@ void user_enable_single_step(struct task_struct *child)
 asmlinkage void trace_trap(unsigned long bp)
 {
 	(void)bp;
+<<<<<<< HEAD
 	force_sig(SIGTRAP, current);
+=======
+	force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 }

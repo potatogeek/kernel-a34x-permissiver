@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Apple USB Touchpad (for post-February 2005 PowerBooks and MacBooks) driver
  *
@@ -11,6 +15,7 @@
  * Copyright (C) 2007-2008 Sven Anders (anders@anduras.de)
  *
  * Thanks to Alex Harper <basilisk@foobox.net> for his inputs.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +31,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -472,7 +479,11 @@ static int atp_status_check(struct urb *urb)
 				dev->info->datalen, dev->urb->actual_length);
 			dev->overflow_warned = true;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -ECONNRESET:
 	case -ENOENT:
 	case -ESHUTDOWN:
@@ -930,6 +941,11 @@ static int atp_probe(struct usb_interface *iface,
 	set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
 	set_bit(BTN_LEFT, input_dev->keybit);
 
+<<<<<<< HEAD
+=======
+	INIT_WORK(&dev->work, atp_reinit);
+
+>>>>>>> upstream/android-13
 	error = input_register_device(dev->input);
 	if (error)
 		goto err_free_buffer;
@@ -937,8 +953,11 @@ static int atp_probe(struct usb_interface *iface,
 	/* save our data pointer in this interface device */
 	usb_set_intfdata(iface, dev);
 
+<<<<<<< HEAD
 	INIT_WORK(&dev->work, atp_reinit);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
  err_free_buffer:

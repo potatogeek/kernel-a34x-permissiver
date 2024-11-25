@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2008-2009 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +25,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __WLCORE_I_H__
@@ -226,6 +233,10 @@ struct wl1271_ap_key {
 	u8 hlid;
 	u32 tx_seq_32;
 	u16 tx_seq_16;
+<<<<<<< HEAD
+=======
+	bool is_pairwise;
+>>>>>>> upstream/android-13
 };
 
 enum wl12xx_flags {

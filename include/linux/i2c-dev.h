@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
     i2c-dev.h - i2c-bus driver, char device interface
 
     Copyright (C) 1995-97 Simon G. Vogl
     Copyright (C) 1998-99 Frodo Looijaard <frodol@dds.nl>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
     MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
 */
 #ifndef _LINUX_I2C_DEV_H
 #define _LINUX_I2C_DEV_H

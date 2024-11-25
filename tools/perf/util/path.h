@@ -2,6 +2,12 @@
 #ifndef _PERF_PATH_H
 #define _PERF_PATH_H
 
+<<<<<<< HEAD
+=======
+#include <stddef.h>
+#include <stdbool.h>
+
+>>>>>>> upstream/android-13
 struct dirent;
 
 int path__join(char *bf, size_t size, const char *path1, const char *path2);

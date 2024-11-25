@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * lib/hexdump.c
  *
@@ -5,12 +6,21 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. See README and COPYING for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * lib/hexdump.c
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
 #include <linux/ctype.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/minmax.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <asm/unaligned.h>
 
@@ -25,6 +35,7 @@ EXPORT_SYMBOL(hex_asc_upper);
  *
  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
  * input.
+<<<<<<< HEAD
  */
 int hex_to_bin(char ch)
 {
@@ -34,6 +45,43 @@ int hex_to_bin(char ch)
 	if ((ch >= 'a') && (ch <= 'f'))
 		return ch - 'a' + 10;
 	return -1;
+=======
+ *
+ * This function is used to load cryptographic keys, so it is coded in such a
+ * way that there are no conditions or memory accesses that depend on data.
+ *
+ * Explanation of the logic:
+ * (ch - '9' - 1) is negative if ch <= '9'
+ * ('0' - 1 - ch) is negative if ch >= '0'
+ * we "and" these two values, so the result is negative if ch is in the range
+ *	'0' ... '9'
+ * we are only interested in the sign, so we do a shift ">> 8"; note that right
+ *	shift of a negative value is implementation-defined, so we cast the
+ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
+ *	the range '0' ... '9', 0 otherwise
+ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
+ *	in the range '0' ... '9', 0 otherwise
+ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
+ *	... '9', -1 otherwise
+ * the next line is similar to the previous one, but we need to decode both
+ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
+ *	lowercase to uppercase
+ */
+/*
+ * perserve abi due to 15b78a8e38e8 ("hex2bin: make the function hex_to_bin
+ * constant-time"
+ */
+#ifdef __GENKSYMS__
+int hex_to_bin(char ch)
+#else
+int hex_to_bin(unsigned char ch)
+#endif
+{
+	unsigned char cu = ch & 0xdf;
+	return -1 +
+		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
+		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(hex_to_bin);
 
@@ -48,10 +96,20 @@ EXPORT_SYMBOL(hex_to_bin);
 int hex2bin(u8 *dst, const char *src, size_t count)
 {
 	while (count--) {
+<<<<<<< HEAD
 		int hi = hex_to_bin(*src++);
 		int lo = hex_to_bin(*src++);
 
 		if ((hi < 0) || (lo < 0))
+=======
+		int hi, lo;
+
+		hi = hex_to_bin(*src++);
+		if (unlikely(hi < 0))
+			return -EINVAL;
+		lo = hex_to_bin(*src++);
+		if (unlikely(lo < 0))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		*dst++ = (hi << 4) | lo;
@@ -274,6 +332,7 @@ void print_hex_dump(const char *level, const char *prefix_str, int prefix_type,
 }
 EXPORT_SYMBOL(print_hex_dump);
 
+<<<<<<< HEAD
 #if !defined(CONFIG_DYNAMIC_DEBUG)
 /**
  * print_hex_dump_bytes - shorthand form of print_hex_dump() with default params
@@ -295,4 +354,6 @@ void print_hex_dump_bytes(const char *prefix_str, int prefix_type,
 }
 EXPORT_SYMBOL(print_hex_dump_bytes);
 #endif /* !defined(CONFIG_DYNAMIC_DEBUG) */
+=======
+>>>>>>> upstream/android-13
 #endif /* defined(CONFIG_PRINTK) */

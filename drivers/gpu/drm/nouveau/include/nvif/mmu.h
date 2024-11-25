@@ -7,6 +7,10 @@ struct nvif_mmu {
 	u8  dmabits;
 	u8  heap_nr;
 	u8  type_nr;
+<<<<<<< HEAD
+=======
+	u8  kind_inv;
+>>>>>>> upstream/android-13
 	u16 kind_nr;
 	s32 mem;
 
@@ -30,15 +34,26 @@ struct nvif_mmu {
 	u8 *kind;
 };
 
+<<<<<<< HEAD
 int nvif_mmu_init(struct nvif_object *, s32 oclass, struct nvif_mmu *);
 void nvif_mmu_fini(struct nvif_mmu *);
+=======
+int nvif_mmu_ctor(struct nvif_object *, const char *name, s32 oclass,
+		  struct nvif_mmu *);
+void nvif_mmu_dtor(struct nvif_mmu *);
+>>>>>>> upstream/android-13
 
 static inline bool
 nvif_mmu_kind_valid(struct nvif_mmu *mmu, u8 kind)
 {
+<<<<<<< HEAD
 	const u8 invalid = mmu->kind_nr - 1;
 	if (kind) {
 		if (kind >= mmu->kind_nr || mmu->kind[kind] == invalid)
+=======
+	if (kind) {
+		if (kind >= mmu->kind_nr || mmu->kind[kind] == mmu->kind_inv)
+>>>>>>> upstream/android-13
 			return false;
 	}
 	return true;

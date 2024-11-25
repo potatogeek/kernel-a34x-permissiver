@@ -21,7 +21,11 @@
  *
  * Authors: Dave Airlie
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/radeon_drm.h>
 #include "radeon.h"
 #include "nid.h"

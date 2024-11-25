@@ -7,6 +7,12 @@
 
 void *memdup(const void *src, size_t len);
 
+<<<<<<< HEAD
+=======
+char **argv_split(const char *str, int *argcp);
+void argv_free(char **argv);
+
+>>>>>>> upstream/android-13
 int strtobool(const char *s, bool *res);
 
 /*
@@ -27,6 +33,11 @@ extern size_t strlcpy(char *dest, const char *src, size_t size);
 
 char *str_error_r(int errnum, char *buf, size_t buflen);
 
+<<<<<<< HEAD
+=======
+char *strreplace(char *s, char old, char new);
+
+>>>>>>> upstream/android-13
 /**
  * strstarts - does @str start with @prefix?
  * @str: string to examine
@@ -37,4 +48,13 @@ static inline bool strstarts(const char *str, const char *prefix)
 	return strncmp(str, prefix, strlen(prefix)) == 0;
 }
 
+<<<<<<< HEAD
 #endif /* _LINUX_STRING_H_ */
+=======
+extern char * __must_check skip_spaces(const char *);
+
+extern char *strim(char *);
+
+extern void *memchr_inv(const void *start, int c, size_t bytes);
+#endif /* _TOOLS_LINUX_STRING_H_ */
+>>>>>>> upstream/android-13

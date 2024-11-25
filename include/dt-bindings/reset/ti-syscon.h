@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * TI Syscon Reset definitions
  *
@@ -12,6 +13,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * TI Syscon Reset definitions
+ *
+ * Copyright (C) 2015-2016 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_RESET_TI_SYSCON_H__

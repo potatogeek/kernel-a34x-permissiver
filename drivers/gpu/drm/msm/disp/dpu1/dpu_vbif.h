@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DPU_VBIF_H__
@@ -78,6 +83,7 @@ void dpu_vbif_clear_errors(struct dpu_kms *dpu_kms);
  */
 void dpu_vbif_init_memtypes(struct dpu_kms *dpu_kms);
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 int dpu_debugfs_vbif_init(struct dpu_kms *dpu_kms, struct dentry *debugfs_root);
 void dpu_debugfs_vbif_destroy(struct dpu_kms *dpu_kms);
@@ -91,4 +97,8 @@ static inline void dpu_debugfs_vbif_destroy(struct dpu_kms *dpu_kms)
 {
 }
 #endif
+=======
+void dpu_debugfs_vbif_init(struct dpu_kms *dpu_kms, struct dentry *debugfs_root);
+
+>>>>>>> upstream/android-13
 #endif /* __DPU_VBIF_H__ */

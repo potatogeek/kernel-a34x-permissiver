@@ -687,7 +687,10 @@ static int qib_sd7220_reg_mod(struct qib_devdata *dd, int sdnum, u32 loc,
 		spin_unlock_irqrestore(&dd->cspec->sdepb_lock, flags);
 		return -1;
 	}
+<<<<<<< HEAD
 	ret = 0;
+=======
+>>>>>>> upstream/android-13
 	for (tries = EPB_TRANS_TRIES; tries; --tries) {
 		transval = qib_read_kreg32(dd, trans);
 		if (transval & EPB_TRANS_RDY)
@@ -1068,7 +1071,10 @@ static int qib_sd_setvals(struct qib_devdata *dd)
 	for (idx = 0; idx < NUM_DDS_REGS; ++idx) {
 		data = ((dds_reg_map & 0xF) << 4) | TX_FAST_ELT;
 		writeq(data, iaddr + idx);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		qib_read_kreg32(dd, kr_scratch);
 		dds_reg_map >>= 4;
 		for (midx = 0; midx < DDS_ROWS; ++midx) {
@@ -1076,7 +1082,10 @@ static int qib_sd_setvals(struct qib_devdata *dd)
 
 			data = dds_init_vals[midx].reg_vals[idx];
 			writeq(data, daddr);
+<<<<<<< HEAD
 			mmiowb();
+=======
+>>>>>>> upstream/android-13
 			qib_read_kreg32(dd, kr_scratch);
 		} /* End inner for (vals for this reg, each row) */
 	} /* end outer for (regs to be stored) */
@@ -1098,13 +1107,19 @@ static int qib_sd_setvals(struct qib_devdata *dd)
 		didx = idx + min_idx;
 		/* Store the next RXEQ register address */
 		writeq(rxeq_init_vals[idx].rdesc, iaddr + didx);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		qib_read_kreg32(dd, kr_scratch);
 		/* Iterate through RXEQ values */
 		for (vidx = 0; vidx < 4; vidx++) {
 			data = rxeq_init_vals[idx].rdata[vidx];
 			writeq(data, taddr + (vidx << 6) + idx);
+<<<<<<< HEAD
 			mmiowb();
+=======
+>>>>>>> upstream/android-13
 			qib_read_kreg32(dd, kr_scratch);
 		}
 	} /* end outer for (Reg-writes for RXEQ) */

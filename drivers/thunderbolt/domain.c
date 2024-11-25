@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Thunderbolt bus support
  *
  * Copyright (C) 2017, Intel Corporation
+<<<<<<< HEAD
  * Author:  Mika Westerberg <mika.westerberg@linux.intel.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -11,6 +16,15 @@
 
 #include <linux/device.h>
 #include <linux/idr.h>
+=======
+ * Author: Mika Westerberg <mika.westerberg@linux.intel.com>
+ */
+
+#include <linux/device.h>
+#include <linux/dmar.h>
+#include <linux/idr.h>
+#include <linux/iommu.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
 #include <linux/slab.h>
@@ -87,7 +101,11 @@ static int tb_service_probe(struct device *dev)
 	return driver->probe(svc, id);
 }
 
+<<<<<<< HEAD
 static int tb_service_remove(struct device *dev)
+=======
+static void tb_service_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tb_service *svc = tb_to_service(dev);
 	struct tb_service_driver *driver;
@@ -95,8 +113,11 @@ static int tb_service_remove(struct device *dev)
 	driver = container_of(dev->driver, struct tb_service_driver, driver);
 	if (driver->remove)
 		driver->remove(svc);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void tb_service_shutdown(struct device *dev)
@@ -119,6 +140,10 @@ static const char * const tb_security_names[] = {
 	[TB_SECURITY_SECURE] = "secure",
 	[TB_SECURITY_DPONLY] = "dponly",
 	[TB_SECURITY_USBONLY] = "usbonly",
+<<<<<<< HEAD
+=======
+	[TB_SECURITY_NOPCIE] = "nopcie",
+>>>>>>> upstream/android-13
 };
 
 static ssize_t boot_acl_show(struct device *dev, struct device_attribute *attr,
@@ -148,10 +173,17 @@ static ssize_t boot_acl_show(struct device *dev, struct device_attribute *attr,
 
 	for (ret = 0, i = 0; i < tb->nboot_acl; i++) {
 		if (!uuid_is_null(&uuids[i]))
+<<<<<<< HEAD
 			ret += snprintf(buf + ret, PAGE_SIZE - ret, "%pUb",
 					&uuids[i]);
 
 		ret += snprintf(buf + ret, PAGE_SIZE - ret, "%s",
+=======
+			ret += scnprintf(buf + ret, PAGE_SIZE - ret, "%pUb",
+					&uuids[i]);
+
+		ret += scnprintf(buf + ret, PAGE_SIZE - ret, "%s",
+>>>>>>> upstream/android-13
 			       i < tb->nboot_acl - 1 ? "," : "\n");
 	}
 
@@ -239,6 +271,39 @@ err_free_str:
 }
 static DEVICE_ATTR_RW(boot_acl);
 
+<<<<<<< HEAD
+=======
+static ssize_t deauthorization_show(struct device *dev,
+				    struct device_attribute *attr,
+				    char *buf)
+{
+	const struct tb *tb = container_of(dev, struct tb, dev);
+	bool deauthorization = false;
+
+	/* Only meaningful if authorization is supported */
+	if (tb->security_level == TB_SECURITY_USER ||
+	    tb->security_level == TB_SECURITY_SECURE)
+		deauthorization = !!tb->cm_ops->disapprove_switch;
+
+	return sprintf(buf, "%d\n", deauthorization);
+}
+static DEVICE_ATTR_RO(deauthorization);
+
+static ssize_t iommu_dma_protection_show(struct device *dev,
+					 struct device_attribute *attr,
+					 char *buf)
+{
+	/*
+	 * Kernel DMA protection is a feature where Thunderbolt security is
+	 * handled natively using IOMMU. It is enabled when IOMMU is
+	 * enabled and ACPI DMAR table has DMAR_PLATFORM_OPT_IN set.
+	 */
+	return sprintf(buf, "%d\n",
+		       iommu_present(&pci_bus_type) && dmar_platform_optin());
+}
+static DEVICE_ATTR_RO(iommu_dma_protection);
+
+>>>>>>> upstream/android-13
 static ssize_t security_show(struct device *dev, struct device_attribute *attr,
 			     char *buf)
 {
@@ -254,6 +319,11 @@ static DEVICE_ATTR_RO(security);
 
 static struct attribute *domain_attrs[] = {
 	&dev_attr_boot_acl.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_deauthorization.attr,
+	&dev_attr_iommu_dma_protection.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_security.attr,
 	NULL,
 };
@@ -261,7 +331,11 @@ static struct attribute *domain_attrs[] = {
 static umode_t domain_attr_is_visible(struct kobject *kobj,
 				      struct attribute *attr, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct tb *tb = container_of(dev, struct tb, dev);
 
 	if (attr == &dev_attr_boot_acl.attr) {
@@ -275,7 +349,11 @@ static umode_t domain_attr_is_visible(struct kobject *kobj,
 	return attr->mode;
 }
 
+<<<<<<< HEAD
 static struct attribute_group domain_attr_group = {
+=======
+static const struct attribute_group domain_attr_group = {
+>>>>>>> upstream/android-13
 	.is_visible = domain_attr_is_visible,
 	.attrs = domain_attrs,
 };
@@ -309,9 +387,40 @@ struct device_type tb_domain_type = {
 	.release = tb_domain_release,
 };
 
+<<<<<<< HEAD
 /**
  * tb_domain_alloc() - Allocate a domain
  * @nhi: Pointer to the host controller
+=======
+static bool tb_domain_event_cb(void *data, enum tb_cfg_pkg_type type,
+			       const void *buf, size_t size)
+{
+	struct tb *tb = data;
+
+	if (!tb->cm_ops->handle_event) {
+		tb_warn(tb, "domain does not have event handler\n");
+		return true;
+	}
+
+	switch (type) {
+	case TB_CFG_PKG_XDOMAIN_REQ:
+	case TB_CFG_PKG_XDOMAIN_RESP:
+		if (tb_is_xdomain_enabled())
+			return tb_xdomain_handle_request(tb, type, buf, size);
+		break;
+
+	default:
+		tb->cm_ops->handle_event(tb, type, buf, size);
+	}
+
+	return true;
+}
+
+/**
+ * tb_domain_alloc() - Allocate a domain
+ * @nhi: Pointer to the host controller
+ * @timeout_msec: Control channel timeout for non-raw messages
+>>>>>>> upstream/android-13
  * @privsize: Size of the connection manager private data
  *
  * Allocates and initializes a new Thunderbolt domain. Connection
@@ -323,7 +432,11 @@ struct device_type tb_domain_type = {
  *
  * Return: allocated domain structure on %NULL in case of error
  */
+<<<<<<< HEAD
 struct tb *tb_domain_alloc(struct tb_nhi *nhi, size_t privsize)
+=======
+struct tb *tb_domain_alloc(struct tb_nhi *nhi, int timeout_msec, size_t privsize)
+>>>>>>> upstream/android-13
 {
 	struct tb *tb;
 
@@ -350,6 +463,13 @@ struct tb *tb_domain_alloc(struct tb_nhi *nhi, size_t privsize)
 	if (!tb->wq)
 		goto err_remove_ida;
 
+<<<<<<< HEAD
+=======
+	tb->ctl = tb_ctl_alloc(nhi, timeout_msec, tb_domain_event_cb, tb);
+	if (!tb->ctl)
+		goto err_destroy_wq;
+
+>>>>>>> upstream/android-13
 	tb->dev.parent = &nhi->pdev->dev;
 	tb->dev.bus = &tb_bus_type;
 	tb->dev.type = &tb_domain_type;
@@ -359,6 +479,11 @@ struct tb *tb_domain_alloc(struct tb_nhi *nhi, size_t privsize)
 
 	return tb;
 
+<<<<<<< HEAD
+=======
+err_destroy_wq:
+	destroy_workqueue(tb->wq);
+>>>>>>> upstream/android-13
 err_remove_ida:
 	ida_simple_remove(&tb_domain_ida, tb->index);
 err_free:
@@ -367,6 +492,7 @@ err_free:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static bool tb_domain_event_cb(void *data, enum tb_cfg_pkg_type type,
 			       const void *buf, size_t size)
 {
@@ -389,6 +515,8 @@ static bool tb_domain_event_cb(void *data, enum tb_cfg_pkg_type type,
 	return true;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * tb_domain_add() - Add domain to the system
  * @tb: Domain to add
@@ -408,6 +536,7 @@ int tb_domain_add(struct tb *tb)
 		return -EINVAL;
 
 	mutex_lock(&tb->lock);
+<<<<<<< HEAD
 
 	tb->ctl = tb_ctl_alloc(tb->nhi, tb_domain_event_cb, tb);
 	if (!tb->ctl) {
@@ -415,6 +544,8 @@ int tb_domain_add(struct tb *tb)
 		goto err_unlock;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * tb_schedule_hotplug_handler may be called as soon as the config
 	 * channel is started. Thats why we have to hold the lock here.
@@ -427,6 +558,12 @@ int tb_domain_add(struct tb *tb)
 			goto err_ctl_stop;
 	}
 
+<<<<<<< HEAD
+=======
+	tb_dbg(tb, "security level set to %s\n",
+	       tb_security_names[tb->security_level]);
+
+>>>>>>> upstream/android-13
 	ret = device_add(&tb->dev);
 	if (ret)
 		goto err_ctl_stop;
@@ -441,6 +578,11 @@ int tb_domain_add(struct tb *tb)
 	/* This starts event processing */
 	mutex_unlock(&tb->lock);
 
+<<<<<<< HEAD
+=======
+	device_init_wakeup(&tb->dev, true);
+
+>>>>>>> upstream/android-13
 	pm_runtime_no_callbacks(&tb->dev);
 	pm_runtime_set_active(&tb->dev);
 	pm_runtime_enable(&tb->dev);
@@ -454,7 +596,10 @@ err_domain_del:
 	device_del(&tb->dev);
 err_ctl_stop:
 	tb_ctl_stop(tb->ctl);
+<<<<<<< HEAD
 err_unlock:
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&tb->lock);
 
 	return ret;
@@ -530,6 +675,36 @@ int tb_domain_suspend(struct tb *tb)
 	return tb->cm_ops->suspend ? tb->cm_ops->suspend(tb) : 0;
 }
 
+<<<<<<< HEAD
+=======
+int tb_domain_freeze_noirq(struct tb *tb)
+{
+	int ret = 0;
+
+	mutex_lock(&tb->lock);
+	if (tb->cm_ops->freeze_noirq)
+		ret = tb->cm_ops->freeze_noirq(tb);
+	if (!ret)
+		tb_ctl_stop(tb->ctl);
+	mutex_unlock(&tb->lock);
+
+	return ret;
+}
+
+int tb_domain_thaw_noirq(struct tb *tb)
+{
+	int ret = 0;
+
+	mutex_lock(&tb->lock);
+	tb_ctl_start(tb->ctl);
+	if (tb->cm_ops->thaw_noirq)
+		ret = tb->cm_ops->thaw_noirq(tb);
+	mutex_unlock(&tb->lock);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 void tb_domain_complete(struct tb *tb)
 {
 	if (tb->cm_ops->complete)
@@ -559,13 +734,38 @@ int tb_domain_runtime_resume(struct tb *tb)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * tb_domain_disapprove_switch() - Disapprove switch
+ * @tb: Domain the switch belongs to
+ * @sw: Switch to disapprove
+ *
+ * This will disconnect PCIe tunnel from parent to this @sw.
+ *
+ * Return: %0 on success and negative errno in case of failure.
+ */
+int tb_domain_disapprove_switch(struct tb *tb, struct tb_switch *sw)
+{
+	if (!tb->cm_ops->disapprove_switch)
+		return -EPERM;
+
+	return tb->cm_ops->disapprove_switch(tb, sw);
+}
+
+/**
+>>>>>>> upstream/android-13
  * tb_domain_approve_switch() - Approve switch
  * @tb: Domain the switch belongs to
  * @sw: Switch to approve
  *
  * This will approve switch by connection manager specific means. In
+<<<<<<< HEAD
  * case of success the connection manager will create tunnels for all
  * supported protocols.
+=======
+ * case of success the connection manager will create PCIe tunnel from
+ * parent to @sw.
+>>>>>>> upstream/android-13
  */
 int tb_domain_approve_switch(struct tb *tb, struct tb_switch *sw)
 {
@@ -664,7 +864,10 @@ int tb_domain_challenge_switch_key(struct tb *tb, struct tb_switch *sw)
 	}
 
 	shash->tfm = tfm;
+<<<<<<< HEAD
 	shash->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	memset(hmac, 0, sizeof(hmac));
 	ret = crypto_shash_digest(shash, challenge, sizeof(hmac), hmac);
@@ -711,6 +914,13 @@ int tb_domain_disconnect_pcie_paths(struct tb *tb)
  * tb_domain_approve_xdomain_paths() - Enable DMA paths for XDomain
  * @tb: Domain enabling the DMA paths
  * @xd: XDomain DMA paths are created to
+<<<<<<< HEAD
+=======
+ * @transmit_path: HopID we are using to send out packets
+ * @transmit_ring: DMA ring used to send out packets
+ * @receive_path: HopID the other end is using to send packets to us
+ * @receive_ring: DMA ring used to receive packets from @receive_path
+>>>>>>> upstream/android-13
  *
  * Calls connection manager specific method to enable DMA paths to the
  * XDomain in question.
@@ -719,18 +929,36 @@ int tb_domain_disconnect_pcie_paths(struct tb *tb)
  * particular returns %-ENOTSUPP if the connection manager
  * implementation does not support XDomains.
  */
+<<<<<<< HEAD
 int tb_domain_approve_xdomain_paths(struct tb *tb, struct tb_xdomain *xd)
+=======
+int tb_domain_approve_xdomain_paths(struct tb *tb, struct tb_xdomain *xd,
+				    int transmit_path, int transmit_ring,
+				    int receive_path, int receive_ring)
+>>>>>>> upstream/android-13
 {
 	if (!tb->cm_ops->approve_xdomain_paths)
 		return -ENOTSUPP;
 
+<<<<<<< HEAD
 	return tb->cm_ops->approve_xdomain_paths(tb, xd);
+=======
+	return tb->cm_ops->approve_xdomain_paths(tb, xd, transmit_path,
+			transmit_ring, receive_path, receive_ring);
+>>>>>>> upstream/android-13
 }
 
 /**
  * tb_domain_disconnect_xdomain_paths() - Disable DMA paths for XDomain
  * @tb: Domain disabling the DMA paths
  * @xd: XDomain whose DMA paths are disconnected
+<<<<<<< HEAD
+=======
+ * @transmit_path: HopID we are using to send out packets
+ * @transmit_ring: DMA ring used to send out packets
+ * @receive_path: HopID the other end is using to send packets to us
+ * @receive_ring: DMA ring used to receive packets from @receive_path
+>>>>>>> upstream/android-13
  *
  * Calls connection manager specific method to disconnect DMA paths to
  * the XDomain in question.
@@ -739,12 +967,23 @@ int tb_domain_approve_xdomain_paths(struct tb *tb, struct tb_xdomain *xd)
  * particular returns %-ENOTSUPP if the connection manager
  * implementation does not support XDomains.
  */
+<<<<<<< HEAD
 int tb_domain_disconnect_xdomain_paths(struct tb *tb, struct tb_xdomain *xd)
+=======
+int tb_domain_disconnect_xdomain_paths(struct tb *tb, struct tb_xdomain *xd,
+				       int transmit_path, int transmit_ring,
+				       int receive_path, int receive_ring)
+>>>>>>> upstream/android-13
 {
 	if (!tb->cm_ops->disconnect_xdomain_paths)
 		return -ENOTSUPP;
 
+<<<<<<< HEAD
 	return tb->cm_ops->disconnect_xdomain_paths(tb, xd);
+=======
+	return tb->cm_ops->disconnect_xdomain_paths(tb, xd, transmit_path,
+			transmit_ring, receive_path, receive_ring);
+>>>>>>> upstream/android-13
 }
 
 static int disconnect_xdomain(struct device *dev, void *data)
@@ -755,7 +994,11 @@ static int disconnect_xdomain(struct device *dev, void *data)
 
 	xd = tb_to_xdomain(dev);
 	if (xd && xd->tb == tb)
+<<<<<<< HEAD
 		ret = tb_xdomain_disable_paths(xd);
+=======
+		ret = tb_xdomain_disable_all_paths(xd);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -785,12 +1028,34 @@ int tb_domain_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = tb_xdomain_init();
 	if (ret)
 		return ret;
 	ret = bus_register(&tb_bus_type);
 	if (ret)
 		tb_xdomain_exit();
+=======
+	tb_test_init();
+	tb_debugfs_init();
+	tb_acpi_init();
+
+	ret = tb_xdomain_init();
+	if (ret)
+		goto err_acpi;
+	ret = bus_register(&tb_bus_type);
+	if (ret)
+		goto err_xdomain;
+
+	return 0;
+
+err_xdomain:
+	tb_xdomain_exit();
+err_acpi:
+	tb_acpi_exit();
+	tb_debugfs_exit();
+	tb_test_exit();
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -799,6 +1064,14 @@ void tb_domain_exit(void)
 {
 	bus_unregister(&tb_bus_type);
 	ida_destroy(&tb_domain_ida);
+<<<<<<< HEAD
 	tb_switch_exit();
 	tb_xdomain_exit();
+=======
+	tb_nvm_exit();
+	tb_xdomain_exit();
+	tb_acpi_exit();
+	tb_debugfs_exit();
+	tb_test_exit();
+>>>>>>> upstream/android-13
 }

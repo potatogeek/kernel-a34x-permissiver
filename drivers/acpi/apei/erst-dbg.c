@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * APEI Error Record Serialization Table debug support
  *
@@ -8,6 +12,7 @@
  *
  * Copyright 2010 Intel Corp.
  *   Author: Huang Ying <ying.huang@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -126,9 +133,14 @@ retry:
 	if (rc < 0)
 		goto out;
 	if (len > ERST_DBG_RECORD_LEN_MAX) {
+<<<<<<< HEAD
 		pr_warning(ERST_DBG_PFX
 			   "Record (ID: 0x%llx) length is too long: %zd\n",
 			   id, len);
+=======
+		pr_warn(ERST_DBG_PFX
+			"Record (ID: 0x%llx) length is too long: %zd\n", id, len);
+>>>>>>> upstream/android-13
 		rc = -EIO;
 		goto out;
 	}

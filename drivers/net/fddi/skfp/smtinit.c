@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *	(C)Copyright 1998,1999 SysKonnect,
@@ -5,11 +9,14 @@
  *
  *	See the file "skfddi.c" for further information.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
@@ -23,10 +30,13 @@
 #include "h/fddi.h"
 #include "h/smc.h"
 
+<<<<<<< HEAD
 #ifndef	lint
 static const char ID_sccs[] = "@(#)smtinit.c	1.15 97/05/06 (C) SK " ;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void init_fddi_driver(struct s_smc *smc, u_char *mac_addr);
 
 /* define global debug variable */

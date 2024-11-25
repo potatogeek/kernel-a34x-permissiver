@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2010-2011 Calxeda, Inc.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2010-2011 Calxeda, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
@@ -722,7 +728,11 @@ static void xgmac_rx_refill(struct xgmac_priv *priv)
 }
 
 /**
+<<<<<<< HEAD
  * init_xgmac_dma_desc_rings - init the RX/TX descriptor rings
+=======
+ * xgmac_dma_desc_rings_init - init the RX/TX descriptor rings
+>>>>>>> upstream/android-13
  * @dev: net device structure
  * Description:  this function initializes the DMA RX/TX descriptors
  * and allocates the socket buffers.
@@ -870,7 +880,11 @@ static void xgmac_free_dma_desc_rings(struct xgmac_priv *priv)
 }
 
 /**
+<<<<<<< HEAD
  * xgmac_tx:
+=======
+ * xgmac_tx_complete:
+>>>>>>> upstream/android-13
  * @priv: private driver structure
  * Description: it reclaims resources after transmission completes.
  */
@@ -1051,7 +1065,11 @@ static int xgmac_open(struct net_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  *  xgmac_release - close entry point of the driver
+=======
+ *  xgmac_stop - close entry point of the driver
+>>>>>>> upstream/android-13
  *  @dev : device pointer.
  *  Description:
  *  This is the stop entry point of the driver.
@@ -1115,7 +1133,11 @@ static netdev_tx_t xgmac_xmit(struct sk_buff *skb, struct net_device *dev)
 	for (i = 0; i < nfrags; i++) {
 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
 
+<<<<<<< HEAD
 		len = frag->size;
+=======
+		len = skb_frag_size(frag);
+>>>>>>> upstream/android-13
 
 		paddr = skb_frag_dma_map(priv->device, frag, 0, len,
 					 DMA_TO_DEVICE);
@@ -1257,12 +1279,21 @@ static int xgmac_poll(struct napi_struct *napi, int budget)
 /**
  *  xgmac_tx_timeout
  *  @dev : Pointer to net device structure
+<<<<<<< HEAD
+=======
+ *  @txqueue: index of the hung transmit queue
+ *
+>>>>>>> upstream/android-13
  *  Description: this function is called when a packet transmission fails to
  *   complete within a reasonable tmrate. The driver will mark the error in the
  *   netdev structure and arrange for the device to be reset to a sane state
  *   in order to transmit a new packet.
  */
+<<<<<<< HEAD
 static void xgmac_tx_timeout(struct net_device *dev)
+=======
+static void xgmac_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct xgmac_priv *priv = netdev_priv(dev);
 	schedule_work(&priv->tx_timeout_work);
@@ -1821,7 +1852,11 @@ err_alloc:
 }
 
 /**
+<<<<<<< HEAD
  * xgmac_dvr_remove
+=======
+ * xgmac_remove
+>>>>>>> upstream/android-13
  * @pdev: platform device pointer
  * Description: this function resets the TX/RX processes, disables the MAC RX/TX
  * changes the link status, releases the DMA descriptor rings,
@@ -1866,7 +1901,11 @@ static void xgmac_pmt(void __iomem *ioaddr, unsigned long mode)
 
 static int xgmac_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct net_device *ndev = platform_get_drvdata(to_platform_device(dev));
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct xgmac_priv *priv = netdev_priv(ndev);
 	u32 value;
 
@@ -1892,7 +1931,11 @@ static int xgmac_suspend(struct device *dev)
 
 static int xgmac_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct net_device *ndev = platform_get_drvdata(to_platform_device(dev));
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct xgmac_priv *priv = netdev_priv(ndev);
 	void __iomem *ioaddr = priv->base;
 
@@ -1925,10 +1968,17 @@ static struct platform_driver xgmac_driver = {
 	.driver = {
 		.name = "calxedaxgmac",
 		.of_match_table = xgmac_of_match,
+<<<<<<< HEAD
 	},
 	.probe = xgmac_probe,
 	.remove = xgmac_remove,
 	.driver.pm = &xgmac_pm_ops,
+=======
+		.pm = &xgmac_pm_ops,
+	},
+	.probe = xgmac_probe,
+	.remove = xgmac_remove,
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(xgmac_driver);

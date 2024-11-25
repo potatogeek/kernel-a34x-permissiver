@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2005 The University of Waikato, Hamilton, New Zealand.
  *  Copyright (c) 2005 Ian McDonald <ian.mcdonald@jandi.co.nz>
  *  Copyright (c) 2005 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *  Copyright (c) 2003 Nils-Erik Mattsson, Joacim Haggmark, Magnus Erixzon
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -692,6 +699,10 @@ u32 tfrc_calc_x_reverse_lookup(u32 fvalue)
 
 /**
  * tfrc_invert_loss_event_rate  -  Compute p so that 10^6 corresponds to 100%
+<<<<<<< HEAD
+=======
+ * @loss_event_rate: loss event rate to invert
+>>>>>>> upstream/android-13
  * When @loss_event_rate is large, there is a chance that p is truncated to 0.
  * To avoid re-entering slow-start in that case, we set p = TFRC_SMALLEST_P > 0.
  */

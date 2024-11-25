@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * kvm eventfd support - use eventfd objects to signal various KVM events
  *
@@ -6,6 +10,7 @@
  *
  * Author:
  *	Gregory Haskins <ghaskins@novell.com>
+<<<<<<< HEAD
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kvm_host.h>
@@ -128,7 +135,11 @@ irqfd_shutdown(struct work_struct *work)
 	struct kvm *kvm = irqfd->kvm;
 	u64 cnt;
 
+<<<<<<< HEAD
 	/* Make sure irqfd has been initalized in assign path. */
+=======
+	/* Make sure irqfd has been initialized in assign path. */
+>>>>>>> upstream/android-13
 	synchronize_srcu(&kvm->irq_srcu);
 
 	/*
@@ -203,8 +214,17 @@ irqfd_wakeup(wait_queue_entry_t *wait, unsigned mode, int sync, void *key)
 	struct kvm *kvm = irqfd->kvm;
 	unsigned seq;
 	int idx;
+<<<<<<< HEAD
 
 	if (flags & EPOLLIN) {
+=======
+	int ret = 0;
+
+	if (flags & EPOLLIN) {
+		u64 cnt;
+		eventfd_ctx_do_read(irqfd->eventfd, &cnt);
+
+>>>>>>> upstream/android-13
 		idx = srcu_read_lock(&kvm->irq_srcu);
 		do {
 			seq = read_seqcount_begin(&irqfd->irq_entry_sc);
@@ -216,13 +236,23 @@ irqfd_wakeup(wait_queue_entry_t *wait, unsigned mode, int sync, void *key)
 					      false) == -EWOULDBLOCK)
 			schedule_work(&irqfd->inject);
 		srcu_read_unlock(&kvm->irq_srcu, idx);
+<<<<<<< HEAD
+=======
+		ret = 1;
+>>>>>>> upstream/android-13
 	}
 
 	if (flags & EPOLLHUP) {
 		/* The eventfd is closing, detach from KVM */
+<<<<<<< HEAD
 		unsigned long flags;
 
 		spin_lock_irqsave(&kvm->irqfds.lock, flags);
+=======
+		unsigned long iflags;
+
+		spin_lock_irqsave(&kvm->irqfds.lock, iflags);
+>>>>>>> upstream/android-13
 
 		/*
 		 * We must check if someone deactivated the irqfd before
@@ -236,10 +266,17 @@ irqfd_wakeup(wait_queue_entry_t *wait, unsigned mode, int sync, void *key)
 		if (irqfd_is_active(irqfd))
 			irqfd_deactivate(irqfd);
 
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&kvm->irqfds.lock, flags);
 	}
 
 	return 0;
+=======
+		spin_unlock_irqrestore(&kvm->irqfds.lock, iflags);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -248,7 +285,11 @@ irqfd_ptable_queue_proc(struct file *file, wait_queue_head_t *wqh,
 {
 	struct kvm_kernel_irqfd *irqfd =
 		container_of(pt, struct kvm_kernel_irqfd, pt);
+<<<<<<< HEAD
 	add_wait_queue(wqh, &irqfd->wait);
+=======
+	add_wait_queue_priority(wqh, &irqfd->wait);
+>>>>>>> upstream/android-13
 }
 
 /* Must be called under irqfds.lock */
@@ -306,7 +347,11 @@ kvm_irqfd_assign(struct kvm *kvm, struct kvm_irqfd *args)
 	if (!kvm_arch_irqfd_allowed(kvm, args))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	irqfd = kzalloc(sizeof(*irqfd), GFP_KERNEL);
+=======
+	irqfd = kzalloc(sizeof(*irqfd), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!irqfd)
 		return -ENOMEM;
 
@@ -315,7 +360,11 @@ kvm_irqfd_assign(struct kvm *kvm, struct kvm_irqfd *args)
 	INIT_LIST_HEAD(&irqfd->list);
 	INIT_WORK(&irqfd->inject, irqfd_inject);
 	INIT_WORK(&irqfd->shutdown, irqfd_shutdown);
+<<<<<<< HEAD
 	seqcount_init(&irqfd->irq_entry_sc);
+=======
+	seqcount_spinlock_init(&irqfd->irq_entry_sc, &kvm->irqfds.lock);
+>>>>>>> upstream/android-13
 
 	f = fdget(args->fd);
 	if (!f.file) {
@@ -354,7 +403,12 @@ kvm_irqfd_assign(struct kvm *kvm, struct kvm_irqfd *args)
 		}
 
 		if (!irqfd->resampler) {
+<<<<<<< HEAD
 			resampler = kzalloc(sizeof(*resampler), GFP_KERNEL);
+=======
+			resampler = kzalloc(sizeof(*resampler),
+					    GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 			if (!resampler) {
 				ret = -ENOMEM;
 				mutex_unlock(&kvm->irqfds.resampler_lock);
@@ -462,8 +516,13 @@ bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
 	idx = srcu_read_lock(&kvm->irq_srcu);
 	gsi = kvm_irq_map_chip_pin(kvm, irqchip, pin);
 	if (gsi != -1)
+<<<<<<< HEAD
 		hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
 					 link)
+=======
+		hlist_for_each_entry_srcu(kian, &kvm->irq_ack_notifier_list,
+					  link, srcu_read_lock_held(&kvm->irq_srcu))
+>>>>>>> upstream/android-13
 			if (kian->gsi == gsi) {
 				srcu_read_unlock(&kvm->irq_srcu, idx);
 				return true;
@@ -479,8 +538,13 @@ void kvm_notify_acked_gsi(struct kvm *kvm, int gsi)
 {
 	struct kvm_irq_ack_notifier *kian;
 
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
 				 link)
+=======
+	hlist_for_each_entry_srcu(kian, &kvm->irq_ack_notifier_list,
+				  link, srcu_read_lock_held(&kvm->irq_srcu))
+>>>>>>> upstream/android-13
 		if (kian->gsi == gsi)
 			kian->irq_acked(kian);
 }
@@ -732,7 +796,11 @@ ioeventfd_in_range(struct _ioeventfd *p, gpa_t addr, int len, const void *val)
 		return false;
 	}
 
+<<<<<<< HEAD
 	return _val == p->datamatch ? true : false;
+=======
+	return _val == p->datamatch;
+>>>>>>> upstream/android-13
 }
 
 /* MMIO/PIO writes trigger an event if the addr/val match */
@@ -806,7 +874,11 @@ static int kvm_assign_ioeventfd_idx(struct kvm *kvm,
 	if (IS_ERR(eventfd))
 		return PTR_ERR(eventfd);
 
+<<<<<<< HEAD
 	p = kzalloc(sizeof(*p), GFP_KERNEL);
+=======
+	p = kzalloc(sizeof(*p), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!p) {
 		ret = -ENOMEM;
 		goto fail;
@@ -864,15 +936,27 @@ kvm_deassign_ioeventfd_idx(struct kvm *kvm, enum kvm_bus bus_idx,
 	struct eventfd_ctx       *eventfd;
 	struct kvm_io_bus	 *bus;
 	int                       ret = -ENOENT;
+<<<<<<< HEAD
+=======
+	bool                      wildcard;
+>>>>>>> upstream/android-13
 
 	eventfd = eventfd_ctx_fdget(args->fd);
 	if (IS_ERR(eventfd))
 		return PTR_ERR(eventfd);
 
+<<<<<<< HEAD
 	mutex_lock(&kvm->slots_lock);
 
 	list_for_each_entry_safe(p, tmp, &kvm->ioeventfds, list) {
 		bool wildcard = !(args->flags & KVM_IOEVENTFD_FLAG_DATAMATCH);
+=======
+	wildcard = !(args->flags & KVM_IOEVENTFD_FLAG_DATAMATCH);
+
+	mutex_lock(&kvm->slots_lock);
+
+	list_for_each_entry_safe(p, tmp, &kvm->ioeventfds, list) {
+>>>>>>> upstream/android-13
 
 		if (p->bus_idx != bus_idx ||
 		    p->eventfd != eventfd  ||

@@ -5,6 +5,10 @@
 
 #include <linux/fs.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <linux/pseudo_fs.h>
+>>>>>>> upstream/android-13
 #include <linux/magic.h>
 #include "btrfs-tests.h"
 #include "../ctree.h"
@@ -14,25 +18,57 @@
 #include "../volumes.h"
 #include "../disk-io.h"
 #include "../qgroup.h"
+<<<<<<< HEAD
 
 static struct vfsmount *test_mnt = NULL;
 
+=======
+#include "../block-group.h"
+
+static struct vfsmount *test_mnt = NULL;
+
+const char *test_error[] = {
+	[TEST_ALLOC_FS_INFO]	     = "cannot allocate fs_info",
+	[TEST_ALLOC_ROOT]	     = "cannot allocate root",
+	[TEST_ALLOC_EXTENT_BUFFER]   = "cannot extent buffer",
+	[TEST_ALLOC_PATH]	     = "cannot allocate path",
+	[TEST_ALLOC_INODE]	     = "cannot allocate inode",
+	[TEST_ALLOC_BLOCK_GROUP]     = "cannot allocate block group",
+	[TEST_ALLOC_EXTENT_MAP]      = "cannot allocate extent map",
+};
+
+>>>>>>> upstream/android-13
 static const struct super_operations btrfs_test_super_ops = {
 	.alloc_inode	= btrfs_alloc_inode,
 	.destroy_inode	= btrfs_test_destroy_inode,
 };
 
+<<<<<<< HEAD
 static struct dentry *btrfs_test_mount(struct file_system_type *fs_type,
 				       int flags, const char *dev_name,
 				       void *data)
 {
 	return mount_pseudo(fs_type, "btrfs_test:", &btrfs_test_super_ops,
 			    NULL, BTRFS_TEST_MAGIC);
+=======
+
+static int btrfs_test_init_fs_context(struct fs_context *fc)
+{
+	struct pseudo_fs_context *ctx = init_pseudo(fc, BTRFS_TEST_MAGIC);
+	if (!ctx)
+		return -ENOMEM;
+	ctx->ops = &btrfs_test_super_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type test_type = {
 	.name		= "btrfs_test_fs",
+<<<<<<< HEAD
 	.mount		= btrfs_test_mount,
+=======
+	.init_fs_context = btrfs_test_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_anon_super,
 };
 
@@ -41,8 +77,19 @@ struct inode *btrfs_new_test_inode(void)
 	struct inode *inode;
 
 	inode = new_inode(test_mnt->mnt_sb);
+<<<<<<< HEAD
 	if (inode)
 		inode_init_owner(inode, NULL, S_IFREG);
+=======
+	if (!inode)
+		return NULL;
+
+	inode->i_mode = S_IFREG;
+	BTRFS_I(inode)->location.type = BTRFS_INODE_ITEM_KEY;
+	BTRFS_I(inode)->location.objectid = BTRFS_FIRST_FREE_OBJECTID;
+	BTRFS_I(inode)->location.offset = 0;
+	inode_init_owner(&init_user_ns, inode, NULL, S_IFREG);
+>>>>>>> upstream/android-13
 
 	return inode;
 }
@@ -72,6 +119,30 @@ static void btrfs_destroy_test_fs(void)
 	unregister_filesystem(&test_type);
 }
 
+<<<<<<< HEAD
+=======
+struct btrfs_device *btrfs_alloc_dummy_device(struct btrfs_fs_info *fs_info)
+{
+	struct btrfs_device *dev;
+
+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+	if (!dev)
+		return ERR_PTR(-ENOMEM);
+
+	extent_io_tree_init(NULL, &dev->alloc_state, 0, NULL);
+	INIT_LIST_HEAD(&dev->dev_list);
+	list_add(&dev->dev_list, &fs_info->fs_devices->devices);
+
+	return dev;
+}
+
+static void btrfs_free_dummy_device(struct btrfs_device *dev)
+{
+	extent_io_tree_release(&dev->alloc_state);
+	kfree(dev);
+}
+
+>>>>>>> upstream/android-13
 struct btrfs_fs_info *btrfs_alloc_dummy_fs_info(u32 nodesize, u32 sectorsize)
 {
 	struct btrfs_fs_info *fs_info = kzalloc(sizeof(struct btrfs_fs_info),
@@ -85,6 +156,11 @@ struct btrfs_fs_info *btrfs_alloc_dummy_fs_info(u32 nodesize, u32 sectorsize)
 		kfree(fs_info);
 		return NULL;
 	}
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&fs_info->fs_devices->devices);
+
+>>>>>>> upstream/android-13
 	fs_info->super_copy = kzalloc(sizeof(struct btrfs_super_block),
 				      GFP_KERNEL);
 	if (!fs_info->super_copy) {
@@ -93,6 +169,7 @@ struct btrfs_fs_info *btrfs_alloc_dummy_fs_info(u32 nodesize, u32 sectorsize)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	fs_info->nodesize = nodesize;
 	fs_info->sectorsize = sectorsize;
 
@@ -123,6 +200,13 @@ struct btrfs_fs_info *btrfs_alloc_dummy_fs_info(u32 nodesize, u32 sectorsize)
 	extent_io_tree_init(&fs_info->freed_extents[0], NULL);
 	extent_io_tree_init(&fs_info->freed_extents[1], NULL);
 	fs_info->pinned_extents = &fs_info->freed_extents[0];
+=======
+	btrfs_init_fs_info(fs_info);
+
+	fs_info->nodesize = nodesize;
+	fs_info->sectorsize = sectorsize;
+	fs_info->sectorsize_bits = ilog2(sectorsize);
+>>>>>>> upstream/android-13
 	set_bit(BTRFS_FS_STATE_DUMMY_FS_INFO, &fs_info->fs_state);
 
 	test_mnt->mnt_sb->s_fs_info = fs_info;
@@ -134,6 +218,10 @@ void btrfs_free_dummy_fs_info(struct btrfs_fs_info *fs_info)
 {
 	struct radix_tree_iter iter;
 	void **slot;
+<<<<<<< HEAD
+=======
+	struct btrfs_device *dev, *tmp;
+>>>>>>> upstream/android-13
 
 	if (!fs_info)
 		return;
@@ -164,10 +252,23 @@ void btrfs_free_dummy_fs_info(struct btrfs_fs_info *fs_info)
 	}
 	spin_unlock(&fs_info->buffer_lock);
 
+<<<<<<< HEAD
 	btrfs_free_qgroup_config(fs_info);
 	btrfs_free_fs_roots(fs_info);
 	cleanup_srcu_struct(&fs_info->subvol_srcu);
 	kfree(fs_info->super_copy);
+=======
+	btrfs_mapping_tree_free(&fs_info->mapping_tree);
+	list_for_each_entry_safe(dev, tmp, &fs_info->fs_devices->devices,
+				 dev_list) {
+		btrfs_free_dummy_device(dev);
+	}
+	btrfs_free_qgroup_config(fs_info);
+	btrfs_free_fs_roots(fs_info);
+	kfree(fs_info->super_copy);
+	btrfs_check_leaked_roots(fs_info);
+	btrfs_extent_buffer_leak_debug_check(fs_info);
+>>>>>>> upstream/android-13
 	kfree(fs_info->fs_devices);
 	kfree(fs_info);
 }
@@ -179,6 +280,7 @@ void btrfs_free_dummy_root(struct btrfs_root *root)
 	/* Will be freed by btrfs_free_fs_roots */
 	if (WARN_ON(test_bit(BTRFS_ROOT_IN_RADIX, &root->state)))
 		return;
+<<<<<<< HEAD
 	if (root->node)
 		free_extent_buffer(root->node);
 	kfree(root);
@@ -189,6 +291,16 @@ btrfs_alloc_dummy_block_group(struct btrfs_fs_info *fs_info,
 			      unsigned long length)
 {
 	struct btrfs_block_group_cache *cache;
+=======
+	btrfs_put_root(root);
+}
+
+struct btrfs_block_group *
+btrfs_alloc_dummy_block_group(struct btrfs_fs_info *fs_info,
+			      unsigned long length)
+{
+	struct btrfs_block_group *cache;
+>>>>>>> upstream/android-13
 
 	cache = kzalloc(sizeof(*cache), GFP_KERNEL);
 	if (!cache)
@@ -200,22 +312,35 @@ btrfs_alloc_dummy_block_group(struct btrfs_fs_info *fs_info,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	cache->key.objectid = 0;
 	cache->key.offset = length;
 	cache->key.type = BTRFS_BLOCK_GROUP_ITEM_KEY;
+=======
+	cache->start = 0;
+	cache->length = length;
+>>>>>>> upstream/android-13
 	cache->full_stripe_len = fs_info->sectorsize;
 	cache->fs_info = fs_info;
 
 	INIT_LIST_HEAD(&cache->list);
 	INIT_LIST_HEAD(&cache->cluster_list);
 	INIT_LIST_HEAD(&cache->bg_list);
+<<<<<<< HEAD
 	btrfs_init_free_space_ctl(cache);
+=======
+	btrfs_init_free_space_ctl(cache, cache->free_space_ctl);
+>>>>>>> upstream/android-13
 	mutex_init(&cache->free_space_lock);
 
 	return cache;
 }
 
+<<<<<<< HEAD
 void btrfs_free_dummy_block_group(struct btrfs_block_group_cache *cache)
+=======
+void btrfs_free_dummy_block_group(struct btrfs_block_group *cache)
+>>>>>>> upstream/android-13
 {
 	if (!cache)
 		return;

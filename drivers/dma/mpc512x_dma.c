@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Freescale Semicondutor, Inc. 2007, 2008.
  * Copyright (C) Semihalf 2009
@@ -11,6 +15,7 @@
  *
  * Approved as OSADL project by a majority of OSADL members and funded
  * by OSADL membership fees in 2009;  for details see www.osadl.org.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,6 +29,8 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -426,9 +433,15 @@ static void mpc_dma_process_completed(struct mpc_dma *mdma)
 }
 
 /* DMA Tasklet */
+<<<<<<< HEAD
 static void mpc_dma_tasklet(unsigned long data)
 {
 	struct mpc_dma *mdma = (void *)data;
+=======
+static void mpc_dma_tasklet(struct tasklet_struct *t)
+{
+	struct mpc_dma *mdma = from_tasklet(mdma, t, tasklet);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	uint es;
 
@@ -825,6 +838,10 @@ inline bool is_buswidth_valid(u8 buswidth, bool is_mpc8308)
 	case 16:
 		if (is_mpc8308)
 			return false;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case 1:
 	case 2:
 	case 4:
@@ -1021,7 +1038,11 @@ static int mpc_dma_probe(struct platform_device *op)
 		list_add_tail(&mchan->chan.device_node, &dma->channels);
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&mdma->tasklet, mpc_dma_tasklet, (unsigned long)mdma);
+=======
+	tasklet_setup(&mdma->tasklet, mpc_dma_tasklet);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Configure DMA Engine:

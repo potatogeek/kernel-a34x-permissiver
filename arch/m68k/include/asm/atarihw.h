@@ -32,6 +32,15 @@ extern int atari_dont_touch_floppy_select;
 
 extern int atari_SCC_reset_done;
 
+<<<<<<< HEAD
+=======
+extern ssize_t atari_nvram_read(char *, size_t, loff_t *);
+extern ssize_t atari_nvram_write(char *, size_t, loff_t *);
+extern ssize_t atari_nvram_get_size(void);
+extern long atari_nvram_set_checksum(void);
+extern long atari_nvram_initialize(void);
+
+>>>>>>> upstream/android-13
 /* convenience macros for testing machine type */
 #define MACH_IS_ST	((atari_mch_cookie >> 16) == ATARI_MCH_ST)
 #define MACH_IS_STE	((atari_mch_cookie >> 16) == ATARI_MCH_STE && \
@@ -155,7 +164,11 @@ static inline void dma_cache_maintenance( unsigned long paddr,
 #define TT_HIGH 6
 
 #define SHF_BAS (0xffff8200)
+<<<<<<< HEAD
 struct SHIFTER
+=======
+struct SHIFTER_ST
+>>>>>>> upstream/android-13
  {
 	u_char pad1;
 	u_char bas_hi;
@@ -172,7 +185,11 @@ struct SHIFTER
 	u_char pad7;
 	u_char bas_lo;
  };
+<<<<<<< HEAD
 # define shifter ((*(volatile struct SHIFTER *)SHF_BAS))
+=======
+# define shifter_st ((*(volatile struct SHIFTER_ST *)SHF_BAS))
+>>>>>>> upstream/android-13
 
 #define SHF_FBAS (0xffff820e)
 struct SHIFTER_F030

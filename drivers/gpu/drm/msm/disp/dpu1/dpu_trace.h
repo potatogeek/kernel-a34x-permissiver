@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #if !defined(_DPU_TRACE_H_) || defined(TRACE_HEADER_MULTI_READ)
@@ -99,6 +104,7 @@ TRACE_EVENT(dpu_perf_set_ot,
 			__entry->vbif_idx)
 )
 
+<<<<<<< HEAD
 TRACE_EVENT(dpu_perf_update_bus,
 	TP_PROTO(int client, unsigned long long ab_quota,
 	unsigned long long ib_quota),
@@ -120,6 +126,8 @@ TRACE_EVENT(dpu_perf_update_bus,
 )
 
 
+=======
+>>>>>>> upstream/android-13
 TRACE_EVENT(dpu_cmd_release_bw,
 	TP_PROTO(u32 crtc_id),
 	TP_ARGS(crtc_id),
@@ -167,6 +175,7 @@ TRACE_EVENT(dpu_trace_counter,
 )
 
 TRACE_EVENT(dpu_perf_crtc_update,
+<<<<<<< HEAD
 	TP_PROTO(u32 crtc, u64 bw_ctl_mnoc, u64 bw_ctl_llcc,
 			u64 bw_ctl_ebi, u32 core_clk_rate,
 			bool stop_req, u32 update_bus, u32 update_clk),
@@ -177,6 +186,14 @@ TRACE_EVENT(dpu_perf_crtc_update,
 			__field(u64, bw_ctl_mnoc)
 			__field(u64, bw_ctl_llcc)
 			__field(u64, bw_ctl_ebi)
+=======
+	TP_PROTO(u32 crtc, u64 bw_ctl, u32 core_clk_rate,
+			bool stop_req, bool update_bus, bool update_clk),
+	TP_ARGS(crtc, bw_ctl, core_clk_rate, stop_req, update_bus, update_clk),
+	TP_STRUCT__entry(
+			__field(u32, crtc)
+			__field(u64, bw_ctl)
+>>>>>>> upstream/android-13
 			__field(u32, core_clk_rate)
 			__field(bool, stop_req)
 			__field(u32, update_bus)
@@ -184,20 +201,30 @@ TRACE_EVENT(dpu_perf_crtc_update,
 	),
 	TP_fast_assign(
 			__entry->crtc = crtc;
+<<<<<<< HEAD
 			__entry->bw_ctl_mnoc = bw_ctl_mnoc;
 			__entry->bw_ctl_llcc = bw_ctl_llcc;
 			__entry->bw_ctl_ebi = bw_ctl_ebi;
+=======
+			__entry->bw_ctl = bw_ctl;
+>>>>>>> upstream/android-13
 			__entry->core_clk_rate = core_clk_rate;
 			__entry->stop_req = stop_req;
 			__entry->update_bus = update_bus;
 			__entry->update_clk = update_clk;
 	),
 	 TP_printk(
+<<<<<<< HEAD
 		"crtc=%d bw_mnoc=%llu bw_llcc=%llu bw_ebi=%llu clk_rate=%u stop_req=%d u_bus=%d u_clk=%d",
 			__entry->crtc,
 			__entry->bw_ctl_mnoc,
 			__entry->bw_ctl_llcc,
 			__entry->bw_ctl_ebi,
+=======
+		"crtc=%d bw_ctl=%llu clk_rate=%u stop_req=%d u_bus=%d u_clk=%d",
+			__entry->crtc,
+			__entry->bw_ctl,
+>>>>>>> upstream/android-13
 			__entry->core_clk_rate,
 			__entry->stop_req,
 			__entry->update_bus,
@@ -205,6 +232,7 @@ TRACE_EVENT(dpu_perf_crtc_update,
 );
 
 DECLARE_EVENT_CLASS(dpu_enc_irq_template,
+<<<<<<< HEAD
 	TP_PROTO(uint32_t drm_id, enum dpu_intr_idx intr_idx, int hw_idx,
 		 int irq_idx),
 	TP_ARGS(drm_id, intr_idx, hw_idx, irq_idx),
@@ -212,11 +240,20 @@ DECLARE_EVENT_CLASS(dpu_enc_irq_template,
 		__field(	uint32_t,		drm_id		)
 		__field(	enum dpu_intr_idx,	intr_idx	)
 		__field(	int,			hw_idx		)
+=======
+	TP_PROTO(uint32_t drm_id, enum dpu_intr_idx intr_idx,
+		 int irq_idx),
+	TP_ARGS(drm_id, intr_idx, irq_idx),
+	TP_STRUCT__entry(
+		__field(	uint32_t,		drm_id		)
+		__field(	enum dpu_intr_idx,	intr_idx	)
+>>>>>>> upstream/android-13
 		__field(	int,			irq_idx		)
 	),
 	TP_fast_assign(
 		__entry->drm_id = drm_id;
 		__entry->intr_idx = intr_idx;
+<<<<<<< HEAD
 		__entry->hw_idx = hw_idx;
 		__entry->irq_idx = irq_idx;
 	),
@@ -243,6 +280,32 @@ TRACE_EVENT(dpu_enc_irq_wait_success,
 		__field(	uint32_t,		drm_id		)
 		__field(	enum dpu_intr_idx,	intr_idx	)
 		__field(	int,			hw_idx		)
+=======
+		__entry->irq_idx = irq_idx;
+	),
+	TP_printk("id=%u, intr=%d, irq=%d",
+		  __entry->drm_id, __entry->intr_idx,
+		  __entry->irq_idx)
+);
+DEFINE_EVENT(dpu_enc_irq_template, dpu_enc_irq_register_success,
+	TP_PROTO(uint32_t drm_id, enum dpu_intr_idx intr_idx,
+		 int irq_idx),
+	TP_ARGS(drm_id, intr_idx, irq_idx)
+);
+DEFINE_EVENT(dpu_enc_irq_template, dpu_enc_irq_unregister_success,
+	TP_PROTO(uint32_t drm_id, enum dpu_intr_idx intr_idx,
+		 int irq_idx),
+	TP_ARGS(drm_id, intr_idx, irq_idx)
+);
+
+TRACE_EVENT(dpu_enc_irq_wait_success,
+	TP_PROTO(uint32_t drm_id, enum dpu_intr_idx intr_idx,
+		 int irq_idx, enum dpu_pingpong pp_idx, int atomic_cnt),
+	TP_ARGS(drm_id, intr_idx, irq_idx, pp_idx, atomic_cnt),
+	TP_STRUCT__entry(
+		__field(	uint32_t,		drm_id		)
+		__field(	enum dpu_intr_idx,	intr_idx	)
+>>>>>>> upstream/android-13
 		__field(	int,			irq_idx		)
 		__field(	enum dpu_pingpong,	pp_idx		)
 		__field(	int,			atomic_cnt	)
@@ -250,13 +313,21 @@ TRACE_EVENT(dpu_enc_irq_wait_success,
 	TP_fast_assign(
 		__entry->drm_id = drm_id;
 		__entry->intr_idx = intr_idx;
+<<<<<<< HEAD
 		__entry->hw_idx = hw_idx;
+=======
+>>>>>>> upstream/android-13
 		__entry->irq_idx = irq_idx;
 		__entry->pp_idx = pp_idx;
 		__entry->atomic_cnt = atomic_cnt;
 	),
+<<<<<<< HEAD
 	TP_printk("id=%u, intr=%d, hw=%d, irq=%d, pp=%d, atomic_cnt=%d",
 		  __entry->drm_id, __entry->intr_idx, __entry->hw_idx,
+=======
+	TP_printk("id=%u, intr=%d, irq=%d, pp=%d, atomic_cnt=%d",
+		  __entry->drm_id, __entry->intr_idx,
+>>>>>>> upstream/android-13
 		  __entry->irq_idx, __entry->pp_idx, __entry->atomic_cnt)
 );
 
@@ -319,6 +390,13 @@ DEFINE_EVENT(dpu_drm_obj_template, dpu_kms_wait_for_commit_done,
 	TP_PROTO(uint32_t drm_id),
 	TP_ARGS(drm_id)
 );
+<<<<<<< HEAD
+=======
+DEFINE_EVENT(dpu_drm_obj_template, dpu_crtc_runtime_resume,
+	TP_PROTO(uint32_t drm_id),
+	TP_ARGS(drm_id)
+);
+>>>>>>> upstream/android-13
 
 TRACE_EVENT(dpu_enc_enable,
 	TP_PROTO(uint32_t drm_id, int hdisplay, int vdisplay),
@@ -360,20 +438,34 @@ DEFINE_EVENT(dpu_enc_keyval_template, dpu_enc_trigger_start,
 );
 
 TRACE_EVENT(dpu_enc_atomic_check_flags,
+<<<<<<< HEAD
 	TP_PROTO(uint32_t drm_id, unsigned int flags, int private_flags),
 	TP_ARGS(drm_id, flags, private_flags),
 	TP_STRUCT__entry(
 		__field(	uint32_t,		drm_id		)
 		__field(	unsigned int,		flags		)
 		__field(	int,			private_flags	)
+=======
+	TP_PROTO(uint32_t drm_id, unsigned int flags),
+	TP_ARGS(drm_id, flags),
+	TP_STRUCT__entry(
+		__field(	uint32_t,		drm_id		)
+		__field(	unsigned int,		flags		)
+>>>>>>> upstream/android-13
 	),
 	TP_fast_assign(
 		__entry->drm_id = drm_id;
 		__entry->flags = flags;
+<<<<<<< HEAD
 		__entry->private_flags = private_flags;
 	),
 	TP_printk("id=%u, flags=%u, private_flags=%d",
 		  __entry->drm_id, __entry->flags, __entry->private_flags)
+=======
+	),
+	TP_printk("id=%u, flags=%u",
+		  __entry->drm_id, __entry->flags)
+>>>>>>> upstream/android-13
 );
 
 DECLARE_EVENT_CLASS(dpu_enc_id_enable_template,
@@ -425,7 +517,11 @@ TRACE_EVENT(dpu_enc_rc,
 		__entry->rc_state = rc_state;
 		__assign_str(stage_str, stage);
 	),
+<<<<<<< HEAD
 	TP_printk("%s: id:%u, sw_event:%d, idle_pc_supported:%s, rc_state:%d\n",
+=======
+	TP_printk("%s: id:%u, sw_event:%d, idle_pc_supported:%s, rc_state:%d",
+>>>>>>> upstream/android-13
 		  __get_str(stage_str), __entry->drm_id, __entry->sw_event,
 		  __entry->idle_pc_supported ? "true" : "false",
 		  __entry->rc_state)
@@ -468,14 +564,25 @@ TRACE_EVENT(dpu_enc_frame_done_cb,
 
 TRACE_EVENT(dpu_enc_trigger_flush,
 	TP_PROTO(uint32_t drm_id, enum dpu_intf intf_idx,
+<<<<<<< HEAD
 		 int pending_kickoff_cnt, int ctl_idx, u32 pending_flush_ret),
 	TP_ARGS(drm_id, intf_idx, pending_kickoff_cnt, ctl_idx,
 		pending_flush_ret),
+=======
+		 int pending_kickoff_cnt, int ctl_idx, u32 extra_flush_bits,
+		 u32 pending_flush_ret),
+	TP_ARGS(drm_id, intf_idx, pending_kickoff_cnt, ctl_idx,
+		extra_flush_bits, pending_flush_ret),
+>>>>>>> upstream/android-13
 	TP_STRUCT__entry(
 		__field(	uint32_t,	drm_id			)
 		__field(	enum dpu_intf,	intf_idx		)
 		__field(	int,		pending_kickoff_cnt	)
 		__field(	int,		ctl_idx			)
+<<<<<<< HEAD
+=======
+		__field(	u32,		extra_flush_bits	)
+>>>>>>> upstream/android-13
 		__field(	u32,		pending_flush_ret	)
 	),
 	TP_fast_assign(
@@ -483,12 +590,23 @@ TRACE_EVENT(dpu_enc_trigger_flush,
 		__entry->intf_idx = intf_idx;
 		__entry->pending_kickoff_cnt = pending_kickoff_cnt;
 		__entry->ctl_idx = ctl_idx;
+<<<<<<< HEAD
 		__entry->pending_flush_ret = pending_flush_ret;
 	),
 	TP_printk("id=%u, intf_idx=%d, pending_kickoff_cnt=%d ctl_idx=%d "
 		  "pending_flush_ret=%u", __entry->drm_id,
 		  __entry->intf_idx, __entry->pending_kickoff_cnt,
 		  __entry->ctl_idx, __entry->pending_flush_ret)
+=======
+		__entry->extra_flush_bits = extra_flush_bits;
+		__entry->pending_flush_ret = pending_flush_ret;
+	),
+	TP_printk("id=%u, intf_idx=%d, pending_kickoff_cnt=%d ctl_idx=%d "
+		  "extra_flush_bits=0x%x pending_flush_ret=0x%x",
+		  __entry->drm_id, __entry->intf_idx,
+		  __entry->pending_kickoff_cnt, __entry->ctl_idx,
+		  __entry->extra_flush_bits, __entry->pending_flush_ret)
+>>>>>>> upstream/android-13
 );
 
 DECLARE_EVENT_CLASS(dpu_enc_ktime_template,
@@ -535,10 +653,13 @@ DEFINE_EVENT(dpu_id_event_template, dpu_crtc_frame_event_cb,
 	TP_PROTO(uint32_t drm_id, u32 event),
 	TP_ARGS(drm_id, event)
 );
+<<<<<<< HEAD
 DEFINE_EVENT(dpu_id_event_template, dpu_crtc_handle_power_event,
 	TP_PROTO(uint32_t drm_id, u32 event),
 	TP_ARGS(drm_id, event)
 );
+=======
+>>>>>>> upstream/android-13
 DEFINE_EVENT(dpu_id_event_template, dpu_crtc_frame_event_done,
 	TP_PROTO(uint32_t drm_id, u32 event),
 	TP_ARGS(drm_id, event)
@@ -549,12 +670,21 @@ DEFINE_EVENT(dpu_id_event_template, dpu_crtc_frame_event_more_pending,
 );
 
 TRACE_EVENT(dpu_enc_wait_event_timeout,
+<<<<<<< HEAD
 	TP_PROTO(uint32_t drm_id, int32_t hw_id, int rc, s64 time,
 		 s64 expected_time, int atomic_cnt),
 	TP_ARGS(drm_id, hw_id, rc, time, expected_time, atomic_cnt),
 	TP_STRUCT__entry(
 		__field(	uint32_t,	drm_id		)
 		__field(	int32_t,	hw_id		)
+=======
+	TP_PROTO(uint32_t drm_id, int irq_idx, int rc, s64 time,
+		 s64 expected_time, int atomic_cnt),
+	TP_ARGS(drm_id, irq_idx, rc, time, expected_time, atomic_cnt),
+	TP_STRUCT__entry(
+		__field(	uint32_t,	drm_id		)
+		__field(	int,		irq_idx		)
+>>>>>>> upstream/android-13
 		__field(	int,		rc		)
 		__field(	s64,		time		)
 		__field(	s64,		expected_time	)
@@ -562,14 +692,23 @@ TRACE_EVENT(dpu_enc_wait_event_timeout,
 	),
 	TP_fast_assign(
 		__entry->drm_id = drm_id;
+<<<<<<< HEAD
 		__entry->hw_id = hw_id;
+=======
+		__entry->irq_idx = irq_idx;
+>>>>>>> upstream/android-13
 		__entry->rc = rc;
 		__entry->time = time;
 		__entry->expected_time = expected_time;
 		__entry->atomic_cnt = atomic_cnt;
 	),
+<<<<<<< HEAD
 	TP_printk("id=%u, hw_id=%d, rc=%d, time=%lld, expected=%lld cnt=%d",
 		  __entry->drm_id, __entry->hw_id, __entry->rc, __entry->time,
+=======
+	TP_printk("id=%u, irq_idx=%d, rc=%d, time=%lld, expected=%lld cnt=%d",
+		  __entry->drm_id, __entry->irq_idx, __entry->rc, __entry->time,
+>>>>>>> upstream/android-13
 		  __entry->expected_time, __entry->atomic_cnt)
 );
 
@@ -682,16 +821,28 @@ TRACE_EVENT(dpu_crtc_setup_mixer,
 	TP_STRUCT__entry(
 		__field(	uint32_t,		crtc_id		)
 		__field(	uint32_t,		plane_id	)
+<<<<<<< HEAD
 		__field(	struct drm_plane_state*,state		)
 		__field(	struct dpu_plane_state*,pstate		)
 		__field(	uint32_t,		stage_idx	)
 		__field(	enum dpu_sspp,		sspp		)
+=======
+		__field(	uint32_t,		fb_id		)
+		__field_struct(	struct drm_rect,	src_rect	)
+		__field_struct(	struct drm_rect,	dst_rect	)
+		__field(	uint32_t,		stage_idx	)
+		__field(	enum dpu_stage,		stage		)
+		__field(	enum dpu_sspp,		sspp		)
+		__field(	uint32_t,		multirect_idx	)
+		__field(	uint32_t,		multirect_mode	)
+>>>>>>> upstream/android-13
 		__field(	uint32_t,		pixel_format	)
 		__field(	uint64_t,		modifier	)
 	),
 	TP_fast_assign(
 		__entry->crtc_id = crtc_id;
 		__entry->plane_id = plane_id;
+<<<<<<< HEAD
 		__entry->state = state;
 		__entry->pstate = pstate;
 		__entry->stage_idx = stage_idx;
@@ -713,6 +864,29 @@ TRACE_EVENT(dpu_crtc_setup_mixer,
 		  __entry->pstate->multirect_index,
 		  __entry->pstate->multirect_mode, __entry->pixel_format,
 		  __entry->modifier)
+=======
+		__entry->fb_id = state ? state->fb->base.id : 0;
+		__entry->src_rect = drm_plane_state_src(state);
+		__entry->dst_rect = drm_plane_state_dest(state);
+		__entry->stage_idx = stage_idx;
+		__entry->stage = pstate->stage;
+		__entry->sspp = sspp;
+		__entry->multirect_idx = pstate->multirect_index;
+		__entry->multirect_mode = pstate->multirect_mode;
+		__entry->pixel_format = pixel_format;
+		__entry->modifier = modifier;
+	),
+	TP_printk("crtc_id:%u plane_id:%u fb_id:%u src:" DRM_RECT_FP_FMT
+		  " dst:" DRM_RECT_FMT " stage_idx:%u stage:%d, sspp:%d "
+		  "multirect_index:%d multirect_mode:%u pix_format:%u "
+		  "modifier:%llu",
+		  __entry->crtc_id, __entry->plane_id, __entry->fb_id,
+		  DRM_RECT_FP_ARG(&__entry->src_rect),
+		  DRM_RECT_ARG(&__entry->dst_rect),
+		  __entry->stage_idx, __entry->stage, __entry->sspp,
+		  __entry->multirect_idx, __entry->multirect_mode,
+		  __entry->pixel_format, __entry->modifier)
+>>>>>>> upstream/android-13
 );
 
 TRACE_EVENT(dpu_crtc_setup_lm_bounds,
@@ -721,15 +895,26 @@ TRACE_EVENT(dpu_crtc_setup_lm_bounds,
 	TP_STRUCT__entry(
 		__field(	uint32_t,		drm_id	)
 		__field(	int,			mixer	)
+<<<<<<< HEAD
 		__field(	struct drm_rect *,	bounds	)
+=======
+		__field_struct(	struct drm_rect,	bounds	)
+>>>>>>> upstream/android-13
 	),
 	TP_fast_assign(
 		__entry->drm_id = drm_id;
 		__entry->mixer = mixer;
+<<<<<<< HEAD
 		__entry->bounds = bounds;
 	),
 	TP_printk("id:%u mixer:%d bounds:" DRM_RECT_FMT, __entry->drm_id,
 		  __entry->mixer, DRM_RECT_ARG(__entry->bounds))
+=======
+		__entry->bounds = *bounds;
+	),
+	TP_printk("id:%u mixer:%d bounds:" DRM_RECT_FMT, __entry->drm_id,
+		  __entry->mixer, DRM_RECT_ARG(&__entry->bounds))
+>>>>>>> upstream/android-13
 );
 
 TRACE_EVENT(dpu_crtc_vblank_enable,
@@ -740,12 +925,17 @@ TRACE_EVENT(dpu_crtc_vblank_enable,
 		__field(	uint32_t,		drm_id	)
 		__field(	uint32_t,		enc_id	)
 		__field(	bool,			enable	)
+<<<<<<< HEAD
 		__field(	struct dpu_crtc *,	crtc	)
+=======
+		__field(	bool,			enabled )
+>>>>>>> upstream/android-13
 	),
 	TP_fast_assign(
 		__entry->drm_id = drm_id;
 		__entry->enc_id = enc_id;
 		__entry->enable = enable;
+<<<<<<< HEAD
 		__entry->crtc = crtc;
 	),
 	TP_printk("id:%u encoder:%u enable:%s state{enabled:%s suspend:%s "
@@ -755,6 +945,14 @@ TRACE_EVENT(dpu_crtc_vblank_enable,
 		  __entry->crtc->enabled ? "true" : "false",
 		  __entry->crtc->suspend ? "true" : "false",
 		  __entry->crtc->vblank_requested ? "true" : "false")
+=======
+		__entry->enabled = crtc->enabled;
+	),
+	TP_printk("id:%u encoder:%u enable:%s state{enabled:%s}",
+		  __entry->drm_id, __entry->enc_id,
+		  __entry->enable ? "true" : "false",
+		  __entry->enabled ? "true" : "false")
+>>>>>>> upstream/android-13
 );
 
 DECLARE_EVENT_CLASS(dpu_crtc_enable_template,
@@ -763,11 +961,16 @@ DECLARE_EVENT_CLASS(dpu_crtc_enable_template,
 	TP_STRUCT__entry(
 		__field(	uint32_t,		drm_id	)
 		__field(	bool,			enable	)
+<<<<<<< HEAD
 		__field(	struct dpu_crtc *,	crtc	)
+=======
+		__field(	bool,			enabled )
+>>>>>>> upstream/android-13
 	),
 	TP_fast_assign(
 		__entry->drm_id = drm_id;
 		__entry->enable = enable;
+<<<<<<< HEAD
 		__entry->crtc = crtc;
 	),
 	TP_printk("id:%u enable:%s state{enabled:%s suspend:%s vblank_req:%s}",
@@ -779,6 +982,13 @@ DECLARE_EVENT_CLASS(dpu_crtc_enable_template,
 DEFINE_EVENT(dpu_crtc_enable_template, dpu_crtc_set_suspend,
 	TP_PROTO(uint32_t drm_id, bool enable, struct dpu_crtc *crtc),
 	TP_ARGS(drm_id, enable, crtc)
+=======
+		__entry->enabled = crtc->enabled;
+	),
+	TP_printk("id:%u enable:%s state{enabled:%s}",
+		  __entry->drm_id, __entry->enable ? "true" : "false",
+		  __entry->enabled ? "true" : "false")
+>>>>>>> upstream/android-13
 );
 DEFINE_EVENT(dpu_crtc_enable_template, dpu_crtc_enable,
 	TP_PROTO(uint32_t drm_id, bool enable, struct dpu_crtc *crtc),
@@ -814,11 +1024,16 @@ TRACE_EVENT(dpu_plane_set_scanout,
 	TP_ARGS(index, layout, multirect_index),
 	TP_STRUCT__entry(
 		__field(	enum dpu_sspp,			index	)
+<<<<<<< HEAD
 		__field(	struct dpu_hw_fmt_layout*,	layout	)
+=======
+		__field_struct(	struct dpu_hw_fmt_layout,	layout	)
+>>>>>>> upstream/android-13
 		__field(	enum dpu_sspp_multirect_index,	multirect_index)
 	),
 	TP_fast_assign(
 		__entry->index = index;
+<<<<<<< HEAD
 		__entry->layout = layout;
 		__entry->multirect_index = multirect_index;
 	),
@@ -832,6 +1047,21 @@ TRACE_EVENT(dpu_plane_set_scanout,
 		  __entry->layout->plane_size[2],
 		  __entry->layout->plane_addr[3],
 		  __entry->layout->plane_size[3], __entry->multirect_index)
+=======
+		__entry->layout = *layout;
+		__entry->multirect_index = multirect_index;
+	),
+	TP_printk("index:%d layout:{%ux%u @ [%u/%u, %u/%u, %u/%u, %u/%u]} "
+		  "multirect_index:%d", __entry->index, __entry->layout.width,
+		  __entry->layout.height, __entry->layout.plane_addr[0],
+		  __entry->layout.plane_size[0],
+		  __entry->layout.plane_addr[1],
+		  __entry->layout.plane_size[1],
+		  __entry->layout.plane_addr[2],
+		  __entry->layout.plane_size[2],
+		  __entry->layout.plane_addr[3],
+		  __entry->layout.plane_size[3], __entry->multirect_index)
+>>>>>>> upstream/android-13
 );
 
 TRACE_EVENT(dpu_plane_disable,
@@ -853,15 +1083,23 @@ TRACE_EVENT(dpu_plane_disable,
 );
 
 DECLARE_EVENT_CLASS(dpu_rm_iter_template,
+<<<<<<< HEAD
 	TP_PROTO(uint32_t id, enum dpu_hw_blk_type type, uint32_t enc_id),
 	TP_ARGS(id, type, enc_id),
 	TP_STRUCT__entry(
 		__field(	uint32_t,		id	)
 		__field(	enum dpu_hw_blk_type,	type	)
+=======
+	TP_PROTO(uint32_t id, uint32_t enc_id),
+	TP_ARGS(id, enc_id),
+	TP_STRUCT__entry(
+		__field(	uint32_t,		id	)
+>>>>>>> upstream/android-13
 		__field(	uint32_t,		enc_id	)
 	),
 	TP_fast_assign(
 		__entry->id = id;
+<<<<<<< HEAD
 		__entry->type = type;
 		__entry->enc_id = enc_id;
 	),
@@ -888,17 +1126,45 @@ TRACE_EVENT(dpu_rm_reserve_lms,
 	TP_STRUCT__entry(
 		__field(	uint32_t,		id	)
 		__field(	enum dpu_hw_blk_type,	type	)
+=======
+		__entry->enc_id = enc_id;
+	),
+	TP_printk("id:%d enc_id:%u", __entry->id, __entry->enc_id)
+);
+DEFINE_EVENT(dpu_rm_iter_template, dpu_rm_reserve_intf,
+	TP_PROTO(uint32_t id, uint32_t enc_id),
+	TP_ARGS(id, enc_id)
+);
+DEFINE_EVENT(dpu_rm_iter_template, dpu_rm_reserve_ctls,
+	TP_PROTO(uint32_t id, uint32_t enc_id),
+	TP_ARGS(id, enc_id)
+);
+
+TRACE_EVENT(dpu_rm_reserve_lms,
+	TP_PROTO(uint32_t id, uint32_t enc_id, uint32_t pp_id),
+	TP_ARGS(id, enc_id, pp_id),
+	TP_STRUCT__entry(
+		__field(	uint32_t,		id	)
+>>>>>>> upstream/android-13
 		__field(	uint32_t,		enc_id	)
 		__field(	uint32_t,		pp_id	)
 	),
 	TP_fast_assign(
 		__entry->id = id;
+<<<<<<< HEAD
 		__entry->type = type;
 		__entry->enc_id = enc_id;
 		__entry->pp_id = pp_id;
 	),
 	TP_printk("id:%d type:%d enc_id:%u pp_id:%u", __entry->id,
 		  __entry->type, __entry->enc_id, __entry->pp_id)
+=======
+		__entry->enc_id = enc_id;
+		__entry->pp_id = pp_id;
+	),
+	TP_printk("id:%d enc_id:%u pp_id:%u", __entry->id,
+		  __entry->enc_id, __entry->pp_id)
+>>>>>>> upstream/android-13
 );
 
 TRACE_EVENT(dpu_vbif_wait_xin_halt_fail,
@@ -929,6 +1195,7 @@ TRACE_EVENT(dpu_pp_connect_ext_te,
 	TP_printk("pp:%d cfg:%u", __entry->pp, __entry->cfg)
 );
 
+<<<<<<< HEAD
 DECLARE_EVENT_CLASS(dpu_core_irq_idx_cnt_template,
 	TP_PROTO(int irq_idx, int enable_count),
 	TP_ARGS(irq_idx, enable_count),
@@ -952,6 +1219,8 @@ DEFINE_EVENT(dpu_core_irq_idx_cnt_template, dpu_core_irq_disable_idx,
 	TP_ARGS(irq_idx, enable_count)
 );
 
+=======
+>>>>>>> upstream/android-13
 DECLARE_EVENT_CLASS(dpu_core_irq_callback_template,
 	TP_PROTO(int irq_idx, struct dpu_irq_callback *callback),
 	TP_ARGS(irq_idx, callback),
@@ -979,11 +1248,16 @@ TRACE_EVENT(dpu_core_perf_update_clk,
 	TP_PROTO(struct drm_device *dev, bool stop_req, u64 clk_rate),
 	TP_ARGS(dev, stop_req, clk_rate),
 	TP_STRUCT__entry(
+<<<<<<< HEAD
 		__field(	struct drm_device *,	dev		)
+=======
+		__string(	dev_name,		dev->unique	)
+>>>>>>> upstream/android-13
 		__field(	bool,			stop_req	)
 		__field(	u64,			clk_rate	)
 	),
 	TP_fast_assign(
+<<<<<<< HEAD
 		__entry->dev = dev;
 		__entry->stop_req = stop_req;
 		__entry->clk_rate = clk_rate;
@@ -992,6 +1266,63 @@ TRACE_EVENT(dpu_core_perf_update_clk,
 		  __entry->stop_req ? "true" : "false", __entry->clk_rate)
 );
 
+=======
+		__assign_str(dev_name, dev->unique);
+		__entry->stop_req = stop_req;
+		__entry->clk_rate = clk_rate;
+	),
+	TP_printk("dev:%s stop_req:%s clk_rate:%llu", __get_str(dev_name),
+		  __entry->stop_req ? "true" : "false", __entry->clk_rate)
+);
+
+TRACE_EVENT(dpu_hw_ctl_update_pending_flush,
+	TP_PROTO(u32 new_bits, u32 pending_mask),
+	TP_ARGS(new_bits, pending_mask),
+	TP_STRUCT__entry(
+		__field(	u32,			new_bits	)
+		__field(	u32,			pending_mask	)
+	),
+	TP_fast_assign(
+		__entry->new_bits = new_bits;
+		__entry->pending_mask = pending_mask;
+	),
+	TP_printk("new=%x existing=%x", __entry->new_bits,
+		  __entry->pending_mask)
+);
+
+DECLARE_EVENT_CLASS(dpu_hw_ctl_pending_flush_template,
+	TP_PROTO(u32 pending_mask, u32 ctl_flush),
+	TP_ARGS(pending_mask, ctl_flush),
+	TP_STRUCT__entry(
+		__field(	u32,			pending_mask	)
+		__field(	u32,			ctl_flush	)
+	),
+	TP_fast_assign(
+		__entry->pending_mask = pending_mask;
+		__entry->ctl_flush = ctl_flush;
+	),
+	TP_printk("pending_mask=%x CTL_FLUSH=%x", __entry->pending_mask,
+		  __entry->ctl_flush)
+);
+DEFINE_EVENT(dpu_hw_ctl_pending_flush_template, dpu_hw_ctl_clear_pending_flush,
+	TP_PROTO(u32 pending_mask, u32 ctl_flush),
+	TP_ARGS(pending_mask, ctl_flush)
+);
+DEFINE_EVENT(dpu_hw_ctl_pending_flush_template,
+	     dpu_hw_ctl_trigger_pending_flush,
+	TP_PROTO(u32 pending_mask, u32 ctl_flush),
+	TP_ARGS(pending_mask, ctl_flush)
+);
+DEFINE_EVENT(dpu_hw_ctl_pending_flush_template, dpu_hw_ctl_trigger_prepare,
+	TP_PROTO(u32 pending_mask, u32 ctl_flush),
+	TP_ARGS(pending_mask, ctl_flush)
+);
+DEFINE_EVENT(dpu_hw_ctl_pending_flush_template, dpu_hw_ctl_trigger_start,
+	TP_PROTO(u32 pending_mask, u32 ctl_flush),
+	TP_ARGS(pending_mask, ctl_flush)
+);
+
+>>>>>>> upstream/android-13
 #define DPU_ATRACE_END(name) trace_tracing_mark_write(current->tgid, name, 0)
 #define DPU_ATRACE_BEGIN(name) trace_tracing_mark_write(current->tgid, name, 1)
 #define DPU_ATRACE_FUNC() DPU_ATRACE_BEGIN(__func__)

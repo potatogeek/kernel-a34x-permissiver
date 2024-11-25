@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * LocalPlus Bus FIFO driver for the Freescale MPC52xx.
  *
  * Copyright (C) 2009 Secret Lab Technologies Ltd.
  *
+<<<<<<< HEAD
  * This file is released under the GPLv2
  *
+=======
+>>>>>>> upstream/android-13
  * Todo:
  * - Add support for multiple requests to be queued.
  */
@@ -230,7 +237,11 @@ static irqreturn_t mpc52xx_lpbfifo_irq(int irq, void *dev_id)
 	int dma, write, poll_dma;
 
 	spin_lock_irqsave(&lpbfifo.lock, flags);
+<<<<<<< HEAD
 	ts = get_tbl();
+=======
+	ts = mftb();
+>>>>>>> upstream/android-13
 
 	req = lpbfifo.req;
 	if (!req) {
@@ -308,7 +319,11 @@ static irqreturn_t mpc52xx_lpbfifo_irq(int irq, void *dev_id)
 	if (irq != 0) /* don't increment on polled case */
 		req->irq_count++;
 
+<<<<<<< HEAD
 	req->irq_ticks += get_tbl() - ts;
+=======
+	req->irq_ticks += mftb() - ts;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&lpbfifo.lock, flags);
 
 	/* Spinlock is released; it is now safe to call the callback */
@@ -331,7 +346,11 @@ static irqreturn_t mpc52xx_lpbfifo_bcom_irq(int irq, void *dev_id)
 	u32 ts;
 
 	spin_lock_irqsave(&lpbfifo.lock, flags);
+<<<<<<< HEAD
 	ts = get_tbl();
+=======
+	ts = mftb();
+>>>>>>> upstream/android-13
 
 	req = lpbfifo.req;
 	if (!req || (req->flags & MPC52XX_LPBFIFO_FLAG_NO_DMA)) {
@@ -362,7 +381,11 @@ static irqreturn_t mpc52xx_lpbfifo_bcom_irq(int irq, void *dev_id)
 	lpbfifo.req = NULL;
 
 	/* Release the lock before calling out to the callback. */
+<<<<<<< HEAD
 	req->irq_ticks += get_tbl() - ts;
+=======
+	req->irq_ticks += mftb() - ts;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&lpbfifo.lock, flags);
 
 	if (req->callback)

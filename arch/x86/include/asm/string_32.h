@@ -209,6 +209,7 @@ static inline void *__memset_generic(void *s, char c, size_t count)
 /* we might want to write optimized versions of these later */
 #define __constant_count_memset(s, c, count) __memset_generic((s), (c), (count))
 
+<<<<<<< HEAD
 /*
  * memset(x, 0, y) is a reasonably common thing to do, so we want to fill
  * things 32 bits at a time even when we don't know the size of the
@@ -232,6 +233,8 @@ void *__constant_c_memset(void *s, unsigned long c, size_t count)
 	return s;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Added by Gertjan van Wingerde to make minix and sysv module work */
 #define __HAVE_ARCH_STRNLEN
 extern size_t strnlen(const char *s, size_t count);
@@ -240,6 +243,7 @@ extern size_t strnlen(const char *s, size_t count);
 #define __HAVE_ARCH_STRSTR
 extern char *strstr(const char *cs, const char *ct);
 
+<<<<<<< HEAD
 /*
  * This looks horribly ugly, but the compiler can optimize it totally,
  * as we by now know that both pattern and count is constant..
@@ -301,6 +305,8 @@ void *__constant_c_and_count_memset(void *s, unsigned long pattern,
 	 ? __constant_c_and_count_memset((s), (c), (count))	\
 	 : __constant_c_memset((s), (c), (count)))
 
+=======
+>>>>>>> upstream/android-13
 #define __memset(s, c, count)				\
 	(__builtin_constant_p(count)			\
 	 ? __constant_count_memset((s), (c), (count))	\

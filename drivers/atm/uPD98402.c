@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/atm/uPD98402.c - NEC uPD98402 (PHY) declarations */
  
 /* Written 1995-2000 by Werner Almesberger, EPFL LRC/ICA */

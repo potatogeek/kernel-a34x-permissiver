@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Battery driver for Maxim MAX8925
  *
  * Copyright (c) 2009-2010 Marvell International Ltd.
  *	Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -124,6 +131,10 @@ static irqreturn_t max8925_charger_handler(int irq, void *data)
 	case MAX8925_IRQ_VCHG_THM_OK_F:
 		/* Battery is not ready yet */
 		dev_dbg(chip->dev, "Battery temperature is out of range\n");
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MAX8925_IRQ_VCHG_DC_OVP:
 		dev_dbg(chip->dev, "Error detection\n");
 		__set_charger(info, 0);

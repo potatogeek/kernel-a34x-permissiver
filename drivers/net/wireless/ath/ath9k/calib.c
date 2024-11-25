@@ -176,6 +176,10 @@ void ath9k_hw_reset_calibration(struct ath_hw *ah,
 
 	ath9k_hw_setup_calibration(ah, currCal);
 
+<<<<<<< HEAD
+=======
+	ah->cal_start_time = jiffies;
+>>>>>>> upstream/android-13
 	currCal->calState = CAL_RUNNING;
 
 	for (i = 0; i < AR5416_MAX_CHAINS; i++) {
@@ -209,6 +213,7 @@ bool ath9k_hw_reset_calvalid(struct ath_hw *ah)
 		return true;
 	}
 
+<<<<<<< HEAD
 	if (!(ah->supp_cals & currCal->calData->calType))
 		return true;
 
@@ -217,6 +222,19 @@ bool ath9k_hw_reset_calvalid(struct ath_hw *ah)
 
 	ah->caldata->CalValid &= ~currCal->calData->calType;
 	currCal->calState = CAL_WAITING;
+=======
+	currCal = ah->cal_list;
+	do {
+		ath_dbg(common, CALIBRATE, "Resetting Cal %d state for channel %u\n",
+			currCal->calData->calType,
+			ah->curchan->chan->center_freq);
+
+		ah->caldata->CalValid &= ~currCal->calData->calType;
+		currCal->calState = CAL_WAITING;
+
+		currCal = currCal->calNext;
+	} while (currCal != ah->cal_list);
+>>>>>>> upstream/android-13
 
 	return false;
 }

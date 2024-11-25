@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Gateworks Corporation, Inc. All Rights Reserved.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Gateworks Corporation, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/i2c.h>
 #include <linux/init.h>
@@ -230,7 +236,11 @@ static const struct regulator_ops ltc3676_fixed_regulator_ops = {
 #define LTC3676_FIXED_REG(_id, _name, _en_reg, _en_bit)                \
 	LTC3676_REG(_id, _name, fixed, LTC3676_ ## _en_reg, _en_bit, 0, 0)
 
+<<<<<<< HEAD
 static struct regulator_desc ltc3676_regulators[LTC3676_NUM_REGULATORS] = {
+=======
+static const struct regulator_desc ltc3676_regulators[LTC3676_NUM_REGULATORS] = {
+>>>>>>> upstream/android-13
 	LTC3676_LINEAR_REG(SW1, sw1, BUCK1, DVB1A),
 	LTC3676_LINEAR_REG(SW2, sw2, BUCK2, DVB2A),
 	LTC3676_LINEAR_REG(SW3, sw3, BUCK3, DVB3A),
@@ -241,6 +251,7 @@ static struct regulator_desc ltc3676_regulators[LTC3676_NUM_REGULATORS] = {
 	LTC3676_FIXED_REG(LDO4, ldo4, LDOB, 2),
 };
 
+<<<<<<< HEAD
 static bool ltc3676_writeable_reg(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
@@ -296,6 +307,12 @@ static bool ltc3676_readable_reg(struct device *dev, unsigned int reg)
 	case LTC3676_MSKIRQ:
 	case LTC3676_MSKPG:
 	case LTC3676_USER:
+=======
+static bool ltc3676_readable_writeable_reg(struct device *dev, unsigned int reg)
+{
+	switch (reg) {
+	case LTC3676_BUCK1 ... LTC3676_IRQSTAT:
+>>>>>>> upstream/android-13
 	case LTC3676_HRST:
 	case LTC3676_CLIRQ:
 		return true;
@@ -306,9 +323,13 @@ static bool ltc3676_readable_reg(struct device *dev, unsigned int reg)
 static bool ltc3676_volatile_reg(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
+<<<<<<< HEAD
 	case LTC3676_IRQSTAT:
 	case LTC3676_PGSTATL:
 	case LTC3676_PGSTATRT:
+=======
+	case LTC3676_IRQSTAT ... LTC3676_PGSTATRT:
+>>>>>>> upstream/android-13
 		return true;
 	}
 	return false;
@@ -317,11 +338,20 @@ static bool ltc3676_volatile_reg(struct device *dev, unsigned int reg)
 static const struct regmap_config ltc3676_regmap_config = {
 	.reg_bits = 8,
 	.val_bits = 8,
+<<<<<<< HEAD
 	.writeable_reg = ltc3676_writeable_reg,
 	.readable_reg = ltc3676_readable_reg,
 	.volatile_reg = ltc3676_volatile_reg,
 	.max_register = LTC3676_CLIRQ,
 	.use_single_rw = true,
+=======
+	.writeable_reg = ltc3676_readable_writeable_reg,
+	.readable_reg = ltc3676_readable_writeable_reg,
+	.volatile_reg = ltc3676_volatile_reg,
+	.max_register = LTC3676_CLIRQ,
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 	.cache_type = REGCACHE_RBTREE,
 };
 
@@ -356,8 +386,12 @@ static irqreturn_t ltc3676_isr(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int ltc3676_regulator_probe(struct i2c_client *client,
 				    const struct i2c_device_id *id)
+=======
+static int ltc3676_regulator_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct regulator_init_data *init_data = dev_get_platdata(dev);
@@ -424,7 +458,11 @@ static const struct i2c_device_id ltc3676_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, ltc3676_i2c_id);
 
+<<<<<<< HEAD
 static const struct of_device_id ltc3676_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused ltc3676_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "lltc,ltc3676" },
 	{ },
 };
@@ -435,11 +473,19 @@ static struct i2c_driver ltc3676_driver = {
 		.name = DRIVER_NAME,
 		.of_match_table = of_match_ptr(ltc3676_of_match),
 	},
+<<<<<<< HEAD
 	.probe = ltc3676_regulator_probe,
+=======
+	.probe_new = ltc3676_regulator_probe,
+>>>>>>> upstream/android-13
 	.id_table = ltc3676_i2c_id,
 };
 module_i2c_driver(ltc3676_driver);
 
 MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Regulator driver for Linear Technology LTC1376");
+=======
+MODULE_DESCRIPTION("Regulator driver for Linear Technology LTC3676");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

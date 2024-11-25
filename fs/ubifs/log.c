@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
  */
@@ -236,6 +243,10 @@ int ubifs_add_bud_to_log(struct ubifs_info *c, int jhead, int lnum, int offs)
 	bud->lnum = lnum;
 	bud->start = offs;
 	bud->jhead = jhead;
+<<<<<<< HEAD
+=======
+	bud->log_hash = NULL;
+>>>>>>> upstream/android-13
 
 	ref->ch.node_type = UBIFS_REF_NODE;
 	ref->lnum = cpu_to_le32(bud->lnum);
@@ -275,6 +286,17 @@ int ubifs_add_bud_to_log(struct ubifs_info *c, int jhead, int lnum, int offs)
 	if (err)
 		goto out_unlock;
 
+<<<<<<< HEAD
+=======
+	err = ubifs_shash_update(c, c->log_hash, ref, UBIFS_REF_NODE_SZ);
+	if (err)
+		goto out_unlock;
+
+	err = ubifs_shash_copy_state(c, c->log_hash, c->jheads[jhead].log_hash);
+	if (err)
+		goto out_unlock;
+
+>>>>>>> upstream/android-13
 	c->lhead_offs += c->ref_node_alsz;
 
 	ubifs_add_bud(c, bud);
@@ -377,6 +399,17 @@ int ubifs_log_start_commit(struct ubifs_info *c, int *ltail_lnum)
 	cs->cmt_no = cpu_to_le64(c->cmt_no);
 	ubifs_prepare_node(c, cs, UBIFS_CS_NODE_SZ, 0);
 
+<<<<<<< HEAD
+=======
+	err = ubifs_shash_init(c, c->log_hash);
+	if (err)
+		goto out;
+
+	err = ubifs_shash_update(c, c->log_hash, cs, UBIFS_CS_NODE_SZ);
+	if (err < 0)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Note, we do not lock 'c->log_mutex' because this is the commit start
 	 * phase and we are exclusively using the log. And we do not lock
@@ -402,6 +435,15 @@ int ubifs_log_start_commit(struct ubifs_info *c, int *ltail_lnum)
 
 		ubifs_prepare_node(c, ref, UBIFS_REF_NODE_SZ, 0);
 		len += UBIFS_REF_NODE_SZ;
+<<<<<<< HEAD
+=======
+
+		err = ubifs_shash_update(c, c->log_hash, ref,
+					 UBIFS_REF_NODE_SZ);
+		if (err)
+			goto out;
+		ubifs_shash_copy_state(c, c->log_hash, c->jheads[i].log_hash);
+>>>>>>> upstream/android-13
 	}
 
 	ubifs_pad(c, buf + len, ALIGN(len, c->min_io_size) - len);
@@ -427,10 +469,14 @@ int ubifs_log_start_commit(struct ubifs_info *c, int *ltail_lnum)
 	*ltail_lnum = c->lhead_lnum;
 
 	c->lhead_offs += len;
+<<<<<<< HEAD
 	if (c->lhead_offs == c->leb_size) {
 		c->lhead_lnum = ubifs_next_log_lnum(c, c->lhead_lnum);
 		c->lhead_offs = 0;
 	}
+=======
+	ubifs_assert(c, c->lhead_offs < c->leb_size);
+>>>>>>> upstream/android-13
 
 	remove_buds(c);
 
@@ -516,6 +562,10 @@ int ubifs_log_post_commit(struct ubifs_info *c, int old_ltail_lnum)
 		if (err)
 			return err;
 		list_del(&bud->list);
+<<<<<<< HEAD
+=======
+		kfree(bud->log_hash);
+>>>>>>> upstream/android-13
 		kfree(bud);
 	}
 	mutex_lock(&c->log_mutex);

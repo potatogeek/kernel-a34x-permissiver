@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * gpio-fan.c - Hwmon driver for fans connected to GPIO lines.
  *
  * Copyright (C) 2010 LaCie
  *
  * Author: Simon Guinot <sguinot@lacie.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -67,8 +74,13 @@ static void fan_alarm_notify(struct work_struct *ws)
 	struct gpio_fan_data *fan_data =
 		container_of(ws, struct gpio_fan_data, alarm_work);
 
+<<<<<<< HEAD
 	sysfs_notify(&fan_data->dev->kobj, NULL, "fan1_alarm");
 	kobject_uevent(&fan_data->dev->kobj, KOBJ_CHANGE);
+=======
+	sysfs_notify(&fan_data->hwmon_dev->kobj, NULL, "fan1_alarm");
+	kobject_uevent(&fan_data->hwmon_dev->kobj, KOBJ_CHANGE);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t fan_alarm_irq_handler(int irq, void *dev_id)
@@ -307,12 +319,20 @@ static DEVICE_ATTR_RO(pwm1_mode);
 static DEVICE_ATTR_RO(fan1_min);
 static DEVICE_ATTR_RO(fan1_max);
 static DEVICE_ATTR_RO(fan1_input);
+<<<<<<< HEAD
 static DEVICE_ATTR(fan1_target, S_IRUGO | S_IWUSR, fan1_input_show, set_rpm);
+=======
+static DEVICE_ATTR(fan1_target, 0644, fan1_input_show, set_rpm);
+>>>>>>> upstream/android-13
 
 static umode_t gpio_fan_is_visible(struct kobject *kobj,
 				   struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct gpio_fan_data *data = dev_get_drvdata(dev);
 
 	if (index == 0 && !data->alarm_gpio)
@@ -498,6 +518,14 @@ static const struct of_device_id of_gpio_fan_match[] = {
 };
 MODULE_DEVICE_TABLE(of, of_gpio_fan_match);
 
+<<<<<<< HEAD
+=======
+static void gpio_fan_stop(void *data)
+{
+	set_fan_speed(data, 0);
+}
+
+>>>>>>> upstream/android-13
 static int gpio_fan_probe(struct platform_device *pdev)
 {
 	int err;
@@ -518,6 +546,7 @@ static int gpio_fan_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, fan_data);
 	mutex_init(&fan_data->lock);
 
+<<<<<<< HEAD
 	/* Configure alarm GPIO if available. */
 	if (fan_data->alarm_gpio) {
 		err = fan_alarm_init(fan_data);
@@ -525,6 +554,8 @@ static int gpio_fan_probe(struct platform_device *pdev)
 			return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Configure control GPIOs if available. */
 	if (fan_data->gpios && fan_data->num_gpios > 0) {
 		if (!fan_data->speed || fan_data->num_speed <= 1)
@@ -532,6 +563,12 @@ static int gpio_fan_probe(struct platform_device *pdev)
 		err = fan_ctrl_init(fan_data);
 		if (err)
 			return err;
+<<<<<<< HEAD
+=======
+		err = devm_add_action_or_reset(dev, gpio_fan_stop, fan_data);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	/* Make this driver part of hwmon class. */
@@ -542,17 +579,31 @@ static int gpio_fan_probe(struct platform_device *pdev)
 	if (IS_ERR(fan_data->hwmon_dev))
 		return PTR_ERR(fan_data->hwmon_dev);
 
+<<<<<<< HEAD
 	/* Optional cooling device register for Device tree platforms */
 	fan_data->cdev = thermal_of_cooling_device_register(np,
 							    "gpio-fan",
 							    fan_data,
 							    &gpio_fan_cool_ops);
+=======
+	/* Configure alarm GPIO if available. */
+	if (fan_data->alarm_gpio) {
+		err = fan_alarm_init(fan_data);
+		if (err)
+			return err;
+	}
+
+	/* Optional cooling device register for Device tree platforms */
+	fan_data->cdev = devm_thermal_of_cooling_device_register(dev, np,
+				"gpio-fan", fan_data, &gpio_fan_cool_ops);
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "GPIO fan initialized\n");
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int gpio_fan_remove(struct platform_device *pdev)
 {
 	struct gpio_fan_data *fan_data = platform_get_drvdata(pdev);
@@ -569,6 +620,14 @@ static int gpio_fan_remove(struct platform_device *pdev)
 static void gpio_fan_shutdown(struct platform_device *pdev)
 {
 	gpio_fan_remove(pdev);
+=======
+static void gpio_fan_shutdown(struct platform_device *pdev)
+{
+	struct gpio_fan_data *fan_data = platform_get_drvdata(pdev);
+
+	if (fan_data->gpios)
+		set_fan_speed(fan_data, 0);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -602,7 +661,10 @@ static SIMPLE_DEV_PM_OPS(gpio_fan_pm, gpio_fan_suspend, gpio_fan_resume);
 
 static struct platform_driver gpio_fan_driver = {
 	.probe		= gpio_fan_probe,
+<<<<<<< HEAD
 	.remove		= gpio_fan_remove,
+=======
+>>>>>>> upstream/android-13
 	.shutdown	= gpio_fan_shutdown,
 	.driver	= {
 		.name	= "gpio-fan",

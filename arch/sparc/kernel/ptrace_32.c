@@ -23,7 +23,10 @@
 #include <linux/elf.h>
 #include <linux/tracehook.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <asm/cacheflush.h>
 
@@ -84,16 +87,24 @@ static int regwindow32_set(struct task_struct *target,
 
 static int genregs32_get(struct task_struct *target,
 			 const struct user_regset *regset,
+<<<<<<< HEAD
 			 unsigned int pos, unsigned int count,
 			 void *kbuf, void __user *ubuf)
 {
 	const struct pt_regs *regs = target->thread.kregs;
 	u32 uregs[16];
 	int ret;
+=======
+			 struct membuf to)
+{
+	const struct pt_regs *regs = target->thread.kregs;
+	u32 uregs[16];
+>>>>>>> upstream/android-13
 
 	if (target == current)
 		flush_user_windows();
 
+<<<<<<< HEAD
 	ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				  regs->u_regs,
 				  0, 16 * sizeof(u32));
@@ -119,6 +130,19 @@ static int genregs32_get(struct task_struct *target,
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				  uregs,
 				  32 * sizeof(u32), 38 * sizeof(u32));
+=======
+	membuf_write(&to, regs->u_regs, 16 * sizeof(u32));
+	if (!to.left)
+		return 0;
+	if (regwindow32_get(target, regs, uregs))
+		return -EFAULT;
+	membuf_write(&to, uregs, 16 * sizeof(u32));
+	membuf_store(&to, regs->psr);
+	membuf_store(&to, regs->pc);
+	membuf_store(&to, regs->npc);
+	membuf_store(&to, regs->y);
+	return membuf_zero(&to, 2 * sizeof(u32));
+>>>>>>> upstream/android-13
 }
 
 static int genregs32_set(struct task_struct *target,
@@ -140,6 +164,7 @@ static int genregs32_set(struct task_struct *target,
 	if (ret || !count)
 		return ret;
 
+<<<<<<< HEAD
 	if (pos < 32 * sizeof(u32)) {
 		if (regwindow32_get(target, regs, uregs))
 			return -EFAULT;
@@ -153,6 +178,20 @@ static int genregs32_set(struct task_struct *target,
 		if (!count)
 			return 0;
 	}
+=======
+	if (regwindow32_get(target, regs, uregs))
+		return -EFAULT;
+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+				 uregs,
+				 16 * sizeof(u32), 32 * sizeof(u32));
+	if (ret)
+		return ret;
+	if (regwindow32_set(target, regs, uregs))
+		return -EFAULT;
+	if (!count)
+		return 0;
+
+>>>>>>> upstream/android-13
 	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
 				 &psr,
 				 32 * sizeof(u32), 33 * sizeof(u32));
@@ -183,17 +222,23 @@ static int genregs32_set(struct task_struct *target,
 
 static int fpregs32_get(struct task_struct *target,
 			const struct user_regset *regset,
+<<<<<<< HEAD
 			unsigned int pos, unsigned int count,
 			void *kbuf, void __user *ubuf)
 {
 	const unsigned long *fpregs = target->thread.float_regs;
 	int ret = 0;
 
+=======
+			struct membuf to)
+{
+>>>>>>> upstream/android-13
 #if 0
 	if (target == current)
 		save_and_clear_fpu();
 #endif
 
+<<<<<<< HEAD
 	ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				  fpregs,
 				  0, 32 * sizeof(u32));
@@ -223,6 +268,13 @@ static int fpregs32_get(struct task_struct *target,
 					       35 * sizeof(u32), -1);
 
 	return ret;
+=======
+	membuf_write(&to, target->thread.float_regs, 32 * sizeof(u32));
+	membuf_zero(&to, sizeof(u32));
+	membuf_write(&to, &target->thread.fsr, sizeof(u32));
+	membuf_store(&to, (u32)((1 << 8) | (8 << 16)));
+	return membuf_zero(&to, 64 * sizeof(u32));
+>>>>>>> upstream/android-13
 }
 
 static int fpregs32_set(struct task_struct *target,
@@ -244,13 +296,20 @@ static int fpregs32_set(struct task_struct *target,
 		user_regset_copyin_ignore(&pos, &count, &kbuf, &ubuf,
 					  32 * sizeof(u32),
 					  33 * sizeof(u32));
+<<<<<<< HEAD
 	if (!ret && count > 0) {
+=======
+	if (!ret)
+>>>>>>> upstream/android-13
 		ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
 					 &target->thread.fsr,
 					 33 * sizeof(u32),
 					 34 * sizeof(u32));
+<<<<<<< HEAD
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!ret)
 		ret = user_regset_copyin_ignore(&pos, &count, &kbuf, &ubuf,
 						34 * sizeof(u32), -1);
@@ -269,7 +328,11 @@ static const struct user_regset sparc32_regsets[] = {
 		.core_note_type = NT_PRSTATUS,
 		.n = 38,
 		.size = sizeof(u32), .align = sizeof(u32),
+<<<<<<< HEAD
 		.get = genregs32_get, .set = genregs32_set
+=======
+		.regset_get = genregs32_get, .set = genregs32_set
+>>>>>>> upstream/android-13
 	},
 	/* Format is:
 	 *	F0 --> F31
@@ -285,10 +348,111 @@ static const struct user_regset sparc32_regsets[] = {
 		.core_note_type = NT_PRFPREG,
 		.n = 99,
 		.size = sizeof(u32), .align = sizeof(u32),
+<<<<<<< HEAD
 		.get = fpregs32_get, .set = fpregs32_set
 	},
 };
 
+=======
+		.regset_get = fpregs32_get, .set = fpregs32_set
+	},
+};
+
+static int getregs_get(struct task_struct *target,
+			 const struct user_regset *regset,
+			 struct membuf to)
+{
+	const struct pt_regs *regs = target->thread.kregs;
+
+	if (target == current)
+		flush_user_windows();
+
+	membuf_store(&to, regs->psr);
+	membuf_store(&to, regs->pc);
+	membuf_store(&to, regs->npc);
+	membuf_store(&to, regs->y);
+	return membuf_write(&to, regs->u_regs + 1, 15 * sizeof(u32));
+}
+
+static int setregs_set(struct task_struct *target,
+			 const struct user_regset *regset,
+			 unsigned int pos, unsigned int count,
+			 const void *kbuf, const void __user *ubuf)
+{
+	struct pt_regs *regs = target->thread.kregs;
+	u32 v[4];
+	int ret;
+
+	if (target == current)
+		flush_user_windows();
+
+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+				 v,
+				 0, 4 * sizeof(u32));
+	if (ret)
+		return ret;
+	regs->psr = (regs->psr & ~(PSR_ICC | PSR_SYSCALL)) |
+		    (v[0] & (PSR_ICC | PSR_SYSCALL));
+	regs->pc = v[1];
+	regs->npc = v[2];
+	regs->y = v[3];
+	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+				 regs->u_regs + 1,
+				 4 * sizeof(u32) , 19 * sizeof(u32));
+}
+
+static int getfpregs_get(struct task_struct *target,
+			const struct user_regset *regset,
+			struct membuf to)
+{
+#if 0
+	if (target == current)
+		save_and_clear_fpu();
+#endif
+	membuf_write(&to, &target->thread.float_regs, 32 * sizeof(u32));
+	membuf_write(&to, &target->thread.fsr, sizeof(u32));
+	return membuf_zero(&to, 35 * sizeof(u32));
+}
+
+static int setfpregs_set(struct task_struct *target,
+			const struct user_regset *regset,
+			unsigned int pos, unsigned int count,
+			const void *kbuf, const void __user *ubuf)
+{
+	unsigned long *fpregs = target->thread.float_regs;
+	int ret;
+
+#if 0
+	if (target == current)
+		save_and_clear_fpu();
+#endif
+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+				 fpregs,
+				 0, 32 * sizeof(u32));
+	if (ret)
+		return ret;
+	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+				 &target->thread.fsr,
+				 32 * sizeof(u32),
+				 33 * sizeof(u32));
+}
+
+static const struct user_regset ptrace32_regsets[] = {
+	[REGSET_GENERAL] = {
+		.n = 19, .size = sizeof(u32),
+		.regset_get = getregs_get, .set = setregs_set,
+	},
+	[REGSET_FP] = {
+		.n = 68, .size = sizeof(u32),
+		.regset_get = getfpregs_get, .set = setfpregs_set,
+	},
+};
+
+static const struct user_regset_view ptrace32_view = {
+	.regsets = ptrace32_regsets, .n = ARRAY_SIZE(ptrace32_regsets)
+};
+
+>>>>>>> upstream/android-13
 static const struct user_regset_view user_sparc32_view = {
 	.name = "sparc", .e_machine = EM_SPARC,
 	.regsets = sparc32_regsets, .n = ARRAY_SIZE(sparc32_regsets)
@@ -316,18 +480,25 @@ long arch_ptrace(struct task_struct *child, long request,
 {
 	unsigned long addr2 = current->thread.kregs->u_regs[UREG_I4];
 	void __user *addr2p;
+<<<<<<< HEAD
 	const struct user_regset_view *view;
+=======
+>>>>>>> upstream/android-13
 	struct pt_regs __user *pregs;
 	struct fps __user *fps;
 	int ret;
 
+<<<<<<< HEAD
 	view = task_user_regset_view(current);
+=======
+>>>>>>> upstream/android-13
 	addr2p = (void __user *) addr2;
 	pregs = (struct pt_regs __user *) addr;
 	fps = (struct fps __user *) addr;
 
 	switch(request) {
 	case PTRACE_GETREGS: {
+<<<<<<< HEAD
 		ret = copy_regset_to_user(child, view, REGSET_GENERAL,
 					  32 * sizeof(u32),
 					  4 * sizeof(u32),
@@ -337,10 +508,17 @@ long arch_ptrace(struct task_struct *child, long request,
 					    1 * sizeof(u32),
 					    15 * sizeof(u32),
 					    &pregs->u_regs[0]);
+=======
+		ret = copy_regset_to_user(child, &ptrace32_view,
+					  REGSET_GENERAL, 0,
+					  19 * sizeof(u32),
+					  pregs);
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	case PTRACE_SETREGS: {
+<<<<<<< HEAD
 		ret = copy_regset_from_user(child, view, REGSET_GENERAL,
 					    32 * sizeof(u32),
 					    4 * sizeof(u32),
@@ -350,10 +528,17 @@ long arch_ptrace(struct task_struct *child, long request,
 					      1 * sizeof(u32),
 					      15 * sizeof(u32),
 					      &pregs->u_regs[0]);
+=======
+		ret = copy_regset_from_user(child, &ptrace32_view,
+					    REGSET_GENERAL, 0,
+					    19 * sizeof(u32),
+					    pregs);
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	case PTRACE_GETFPREGS: {
+<<<<<<< HEAD
 		ret = copy_regset_to_user(child, view, REGSET_FP,
 					  0 * sizeof(u32),
 					  32 * sizeof(u32),
@@ -371,10 +556,17 @@ long arch_ptrace(struct task_struct *child, long request,
 			    clear_user(fps->fpq, sizeof(fps->fpq)))
 				ret = -EFAULT;
 		}
+=======
+		ret = copy_regset_to_user(child, &ptrace32_view,
+					  REGSET_FP, 0,
+					  68 * sizeof(u32),
+					  fps);
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	case PTRACE_SETFPREGS: {
+<<<<<<< HEAD
 		ret = copy_regset_from_user(child, view, REGSET_FP,
 					    0 * sizeof(u32),
 					    32 * sizeof(u32),
@@ -384,6 +576,12 @@ long arch_ptrace(struct task_struct *child, long request,
 						    33 * sizeof(u32),
 						    1 * sizeof(u32),
 						    &fps->fsr);
+=======
+		ret = copy_regset_from_user(child, &ptrace32_view,
+					  REGSET_FP, 0,
+					  33 * sizeof(u32),
+					  fps);
+>>>>>>> upstream/android-13
 		break;
 	}
 

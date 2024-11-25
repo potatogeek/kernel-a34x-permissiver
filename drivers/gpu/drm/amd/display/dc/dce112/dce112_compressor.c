@@ -23,6 +23,12 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 #include "dce/dce_11_2_d.h"

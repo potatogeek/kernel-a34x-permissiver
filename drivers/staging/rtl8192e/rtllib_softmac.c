@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /* IEEE 802.11 SoftMAC layer
  * Copyright (c) 2005 Andrea Merello <andrea.merello@gmail.com>
  *
@@ -9,11 +13,15 @@
  *
  * WPA code stolen from the ipw2200 driver.
  * Copyright who own it's copyright.
+<<<<<<< HEAD
  *
  * released under the GPL
  */
 
 
+=======
+ */
+>>>>>>> upstream/android-13
 #include "rtllib.h"
 
 #include <linux/random.h>
@@ -564,7 +572,11 @@ out:
 
 	if (ieee->state >= RTLLIB_LINKED) {
 		if (IS_DOT11D_ENABLE(ieee))
+<<<<<<< HEAD
 			DOT11D_ScanComplete(ieee);
+=======
+			dot11d_scan_complete(ieee);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&ieee->scan_mutex);
 
@@ -623,7 +635,11 @@ static void rtllib_softmac_scan_wq(void *data)
 
 out:
 	if (IS_DOT11D_ENABLE(ieee))
+<<<<<<< HEAD
 		DOT11D_ScanComplete(ieee);
+=======
+		dot11d_scan_complete(ieee);
+>>>>>>> upstream/android-13
 	ieee->current_network.channel = last_channel;
 
 out1:
@@ -733,7 +749,10 @@ EXPORT_SYMBOL(rtllib_act_scanning);
 /* called with ieee->lock held */
 static void rtllib_start_scan(struct rtllib_device *ieee)
 {
+<<<<<<< HEAD
 	RT_TRACE(COMP_DBG, "===>%s()\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	if (ieee->rtllib_ips_leave_wq != NULL)
 		ieee->rtllib_ips_leave_wq(ieee->dev);
 
@@ -1355,9 +1374,14 @@ rtllib_association_req(struct rtllib_network *beacon,
 		rtllib_WMM_Info(ieee, &tag);
 	}
 
+<<<<<<< HEAD
 	if (wps_ie_len && ieee->wps_ie) {
 		skb_put_data(skb, ieee->wps_ie, wps_ie_len);
 	}
+=======
+	if (wps_ie_len && ieee->wps_ie)
+		skb_put_data(skb, ieee->wps_ie, wps_ie_len);
+>>>>>>> upstream/android-13
 
 	if (turbo_info_len) {
 		tag = skb_put(skb, turbo_info_len);
@@ -1385,6 +1409,7 @@ rtllib_association_req(struct rtllib_network *beacon,
 	ieee->assocreq_ies = NULL;
 	ies = &(hdr->info_element[0].id);
 	ieee->assocreq_ies_len = (skb->data + skb->len) - ies;
+<<<<<<< HEAD
 	ieee->assocreq_ies = kmalloc(ieee->assocreq_ies_len, GFP_ATOMIC);
 	if (ieee->assocreq_ies)
 		memcpy(ieee->assocreq_ies, ies, ieee->assocreq_ies_len);
@@ -1394,6 +1419,12 @@ rtllib_association_req(struct rtllib_network *beacon,
 			    __func__);
 		ieee->assocreq_ies_len = 0;
 	}
+=======
+	ieee->assocreq_ies = kmemdup(ies, ieee->assocreq_ies_len, GFP_ATOMIC);
+	if (!ieee->assocreq_ies)
+		ieee->assocreq_ies_len = 0;
+
+>>>>>>> upstream/android-13
 	return skb;
 }
 
@@ -1680,6 +1711,7 @@ inline void rtllib_softmac_new_net(struct rtllib_device *ieee,
 		   (ssidbroad && !ssidset) || (!ssidbroad && ssidset))) ||
 		   (!apset && ssidset && ssidbroad && ssidmatch) ||
 		   (ieee->is_roaming && ssidset && ssidbroad && ssidmatch)) {
+<<<<<<< HEAD
 			/* if the essid is hidden replace it with the
 			 * essid provided by the user.
 			 */
@@ -1693,6 +1725,21 @@ inline void rtllib_softmac_new_net(struct rtllib_device *ieee,
 			if (!ssidbroad) {
 				strncpy(ieee->current_network.ssid, tmp_ssid,
 					IW_ESSID_MAX_SIZE);
+=======
+			/* Save the essid so that if it is hidden, it is
+			 * replaced with the essid provided by the user.
+			 */
+			if (!ssidbroad) {
+				memcpy(tmp_ssid, ieee->current_network.ssid,
+				       ieee->current_network.ssid_len);
+				tmp_ssid_len = ieee->current_network.ssid_len;
+			}
+			memcpy(&ieee->current_network, net,
+				sizeof(ieee->current_network));
+			if (!ssidbroad) {
+				memcpy(ieee->current_network.ssid, tmp_ssid,
+				       tmp_ssid_len);
+>>>>>>> upstream/android-13
 				ieee->current_network.ssid_len = tmp_ssid_len;
 			}
 			netdev_info(ieee->dev,
@@ -1701,7 +1748,11 @@ inline void rtllib_softmac_new_net(struct rtllib_device *ieee,
 				    ieee->current_network.channel,
 				    ieee->current_network.qos_data.supported,
 				    ieee->pHTInfo->bEnableHT,
+<<<<<<< HEAD
 				    ieee->current_network.bssht.bdSupportHT,
+=======
+				    ieee->current_network.bssht.bd_support_ht,
+>>>>>>> upstream/android-13
 				    ieee->current_network.mode,
 				    ieee->current_network.flags);
 
@@ -1715,7 +1766,11 @@ inline void rtllib_softmac_new_net(struct rtllib_device *ieee,
 				/* Join the network for the first time */
 				ieee->AsocRetryCount = 0;
 				if ((ieee->current_network.qos_data.supported == 1) &&
+<<<<<<< HEAD
 				    ieee->current_network.bssht.bdSupportHT)
+=======
+				    ieee->current_network.bssht.bd_support_ht)
+>>>>>>> upstream/android-13
 					HTResetSelfAndSavePeerSetting(ieee,
 						 &(ieee->current_network));
 				else
@@ -2052,8 +2107,14 @@ static short rtllib_sta_ps_sleep(struct rtllib_device *ieee, u64 *time)
 
 }
 
+<<<<<<< HEAD
 static inline void rtllib_sta_ps(struct rtllib_device *ieee)
 {
+=======
+static inline void rtllib_sta_ps(struct tasklet_struct *t)
+{
+	struct rtllib_device *ieee = from_tasklet(ieee, t, ps_task);
+>>>>>>> upstream/android-13
 	u64 time;
 	short sleep;
 	unsigned long flags, flags2;
@@ -2246,11 +2307,19 @@ rtllib_rx_assoc_resp(struct rtllib_device *ieee, struct sk_buff *skb,
 					return 1;
 				}
 				memcpy(ieee->pHTInfo->PeerHTCapBuf,
+<<<<<<< HEAD
 				       network->bssht.bdHTCapBuf,
 				       network->bssht.bdHTCapLen);
 				memcpy(ieee->pHTInfo->PeerHTInfoBuf,
 				       network->bssht.bdHTInfoBuf,
 				       network->bssht.bdHTInfoLen);
+=======
+				       network->bssht.bd_ht_cap_buf,
+				       network->bssht.bd_ht_cap_len);
+				memcpy(ieee->pHTInfo->PeerHTInfoBuf,
+				       network->bssht.bd_ht_info_buf,
+				       network->bssht.bd_ht_info_len);
+>>>>>>> upstream/android-13
 				if (ieee->handle_assoc_response != NULL)
 					ieee->handle_assoc_response(ieee->dev,
 						 (struct rtllib_assoc_response_frame *)header,
@@ -2262,6 +2331,7 @@ rtllib_rx_assoc_resp(struct rtllib_device *ieee, struct sk_buff *skb,
 			ieee->assocresp_ies = NULL;
 			ies = &(assoc_resp->info_element[0].id);
 			ieee->assocresp_ies_len = (skb->data + skb->len) - ies;
+<<<<<<< HEAD
 			ieee->assocresp_ies = kmalloc(ieee->assocresp_ies_len,
 						      GFP_ATOMIC);
 			if (ieee->assocresp_ies)
@@ -2273,6 +2343,14 @@ rtllib_rx_assoc_resp(struct rtllib_device *ieee, struct sk_buff *skb,
 					    __func__);
 				ieee->assocresp_ies_len = 0;
 			}
+=======
+			ieee->assocresp_ies = kmemdup(ies,
+						      ieee->assocresp_ies_len,
+						      GFP_ATOMIC);
+			if (!ieee->assocresp_ies)
+				ieee->assocresp_ies_len = 0;
+
+>>>>>>> upstream/android-13
 			rtllib_associate_complete(ieee);
 		} else {
 			/* aid could not been allocated */
@@ -2456,7 +2534,11 @@ inline int rtllib_rx_frame_softmac(struct rtllib_device *ieee,
  * N = MAX_PACKET_SIZE / MIN_FRAG_TRESHOLD
  * In this way you need just one and the 802.11 stack
  * will take care of buffering fragments and pass them to
+<<<<<<< HEAD
  * to the driver later, when it wakes the queue.
+=======
+ * the driver later, when it wakes the queue.
+>>>>>>> upstream/android-13
  */
 void rtllib_softmac_xmit(struct rtllib_txb *txb, struct rtllib_device *ieee)
 {
@@ -2596,7 +2678,12 @@ static void rtllib_start_ibss_wq(void *data)
 	mutex_lock(&ieee->wx_mutex);
 
 	if (ieee->current_network.ssid_len == 0) {
+<<<<<<< HEAD
 		strcpy(ieee->current_network.ssid, RTLLIB_DEFAULT_TX_ESSID);
+=======
+		strscpy(ieee->current_network.ssid, RTLLIB_DEFAULT_TX_ESSID,
+			sizeof(ieee->current_network.ssid));
+>>>>>>> upstream/android-13
 		ieee->current_network.ssid_len = strlen(RTLLIB_DEFAULT_TX_ESSID);
 		ieee->ssid_set = 1;
 	}
@@ -2627,7 +2714,11 @@ static void rtllib_start_ibss_wq(void *data)
 	/* the network definitively is not here.. create a new cell */
 	if (ieee->state == RTLLIB_NOLINK) {
 		netdev_info(ieee->dev, "creating new IBSS cell\n");
+<<<<<<< HEAD
 		ieee->current_network.channel = ieee->IbssStartChnl;
+=======
+		ieee->current_network.channel = ieee->bss_start_channel;
+>>>>>>> upstream/android-13
 		if (!ieee->wap_set)
 			eth_random_addr(ieee->current_network.bssid);
 
@@ -2719,7 +2810,11 @@ static void rtllib_start_bss(struct rtllib_device *ieee)
 	unsigned long flags;
 
 	if (IS_DOT11D_ENABLE(ieee) && !IS_COUNTRY_IE_VALID(ieee)) {
+<<<<<<< HEAD
 		if (!ieee->bGlobalDomain)
+=======
+		if (!ieee->global_domain)
+>>>>>>> upstream/android-13
 			return;
 	}
 	/* check if we have already found the net we
@@ -2759,7 +2854,11 @@ void rtllib_disassociate(struct rtllib_device *ieee)
 	if (ieee->data_hard_stop)
 		ieee->data_hard_stop(ieee->dev);
 	if (IS_DOT11D_ENABLE(ieee))
+<<<<<<< HEAD
 		Dot11d_Reset(ieee);
+=======
+		dot11d_reset(ieee);
+>>>>>>> upstream/android-13
 	ieee->state = RTLLIB_NOLINK;
 	ieee->is_set_key = false;
 	ieee->wap_set = 0;
@@ -2965,7 +3064,11 @@ void rtllib_start_protocol(struct rtllib_device *ieee)
 	}
 }
 
+<<<<<<< HEAD
 void rtllib_softmac_init(struct rtllib_device *ieee)
+=======
+int rtllib_softmac_init(struct rtllib_device *ieee)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -2974,9 +3077,16 @@ void rtllib_softmac_init(struct rtllib_device *ieee)
 	ieee->state = RTLLIB_NOLINK;
 	for (i = 0; i < 5; i++)
 		ieee->seq_ctrl[i] = 0;
+<<<<<<< HEAD
 	ieee->pDot11dInfo = kzalloc(sizeof(struct rt_dot11d_info), GFP_ATOMIC);
 	if (!ieee->pDot11dInfo)
 		netdev_err(ieee->dev, "Can't alloc memory for DOT11D\n");
+=======
+	ieee->dot11d_info = kzalloc(sizeof(struct rt_dot11d_info), GFP_ATOMIC);
+	if (!ieee->dot11d_info)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	ieee->LinkDetectInfo.SlotIndex = 0;
 	ieee->LinkDetectInfo.SlotNum = 2;
 	ieee->LinkDetectInfo.NumRecvBcnInPeriod = 0;
@@ -3040,17 +3150,28 @@ void rtllib_softmac_init(struct rtllib_device *ieee)
 	spin_lock_init(&ieee->mgmt_tx_lock);
 	spin_lock_init(&ieee->beacon_lock);
 
+<<<<<<< HEAD
 	tasklet_init(&ieee->ps_task,
 	     (void(*)(unsigned long)) rtllib_sta_ps,
 	     (unsigned long)ieee);
 
+=======
+	tasklet_setup(&ieee->ps_task, rtllib_sta_ps);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void rtllib_softmac_free(struct rtllib_device *ieee)
 {
 	mutex_lock(&ieee->wx_mutex);
+<<<<<<< HEAD
 	kfree(ieee->pDot11dInfo);
 	ieee->pDot11dInfo = NULL;
+=======
+	kfree(ieee->dot11d_info);
+	ieee->dot11d_info = NULL;
+>>>>>>> upstream/android-13
 	del_timer_sync(&ieee->associate_timer);
 
 	cancel_delayed_work_sync(&ieee->associate_retry_wq);

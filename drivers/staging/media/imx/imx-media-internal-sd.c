@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Media driver for Freescale i.MX5/6 SOC
  *
@@ -9,10 +10,20 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Media driver for Freescale i.MX5/6 SOC
+ *
+ * Adds the IPU internal subdevices and the media links between them.
+ *
+ * Copyright (c) 2016 Mentor Graphics Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include "imx-media.h"
 
+<<<<<<< HEAD
 enum isd_enum {
 	isd_csi0 = 0,
 	isd_csi1,
@@ -68,11 +79,14 @@ struct internal_link {
 	int remote_pad;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* max pads per internal-sd */
 #define MAX_INTERNAL_PADS   8
 /* max links per internal-sd pad */
 #define MAX_INTERNAL_LINKS  8
 
+<<<<<<< HEAD
 struct internal_pad {
 	struct internal_link link[MAX_INTERNAL_LINKS];
 };
@@ -92,12 +106,52 @@ static const struct internal_subdev {
 				}, {
 					.local_pad = CSI_SRC_PAD_DIRECT,
 					.remote = &int_subdev[isd_vdic],
+=======
+struct internal_subdev;
+
+struct internal_link {
+	int remote;
+	int local_pad;
+	int remote_pad;
+};
+
+struct internal_pad {
+	int num_links;
+	struct internal_link link[MAX_INTERNAL_LINKS];
+};
+
+struct internal_subdev {
+	u32 grp_id;
+	struct internal_pad pad[MAX_INTERNAL_PADS];
+
+	struct v4l2_subdev * (*sync_register)(struct v4l2_device *v4l2_dev,
+					      struct device *ipu_dev,
+					      struct ipu_soc *ipu,
+					      u32 grp_id);
+	int (*sync_unregister)(struct v4l2_subdev *sd);
+};
+
+static const struct internal_subdev int_subdev[NUM_IPU_SUBDEVS] = {
+	[IPU_CSI0] = {
+		.grp_id = IMX_MEDIA_GRP_ID_IPU_CSI0,
+		.pad[CSI_SRC_PAD_DIRECT] = {
+			.num_links = 2,
+			.link = {
+				{
+					.local_pad = CSI_SRC_PAD_DIRECT,
+					.remote = IPU_IC_PRP,
+					.remote_pad = PRP_SINK_PAD,
+				}, {
+					.local_pad = CSI_SRC_PAD_DIRECT,
+					.remote = IPU_VDIC,
+>>>>>>> upstream/android-13
 					.remote_pad = VDIC_SINK_PAD_DIRECT,
 				},
 			},
 		},
 	},
 
+<<<<<<< HEAD
 	[isd_csi1] = {
 		.id = &isd_id[isd_csi1],
 		.pad[CSI_SRC_PAD_DIRECT] = {
@@ -109,12 +163,27 @@ static const struct internal_subdev {
 				}, {
 					.local_pad = CSI_SRC_PAD_DIRECT,
 					.remote = &int_subdev[isd_vdic],
+=======
+	[IPU_CSI1] = {
+		.grp_id = IMX_MEDIA_GRP_ID_IPU_CSI1,
+		.pad[CSI_SRC_PAD_DIRECT] = {
+			.num_links = 2,
+			.link = {
+				{
+					.local_pad = CSI_SRC_PAD_DIRECT,
+					.remote = IPU_IC_PRP,
+					.remote_pad = PRP_SINK_PAD,
+				}, {
+					.local_pad = CSI_SRC_PAD_DIRECT,
+					.remote = IPU_VDIC,
+>>>>>>> upstream/android-13
 					.remote_pad = VDIC_SINK_PAD_DIRECT,
 				},
 			},
 		},
 	},
 
+<<<<<<< HEAD
 	[isd_vdic] = {
 		.id = &isd_id[isd_vdic],
 		.pad[VDIC_SRC_PAD_DIRECT] = {
@@ -122,12 +191,25 @@ static const struct internal_subdev {
 				{
 					.local_pad = VDIC_SRC_PAD_DIRECT,
 					.remote = &int_subdev[isd_ic_prp],
+=======
+	[IPU_VDIC] = {
+		.grp_id = IMX_MEDIA_GRP_ID_IPU_VDIC,
+		.sync_register = imx_media_vdic_register,
+		.sync_unregister = imx_media_vdic_unregister,
+		.pad[VDIC_SRC_PAD_DIRECT] = {
+			.num_links = 1,
+			.link = {
+				{
+					.local_pad = VDIC_SRC_PAD_DIRECT,
+					.remote = IPU_IC_PRP,
+>>>>>>> upstream/android-13
 					.remote_pad = PRP_SINK_PAD,
 				},
 			},
 		},
 	},
 
+<<<<<<< HEAD
 	[isd_ic_prp] = {
 		.id = &isd_id[isd_ic_prp],
 		.pad[PRP_SRC_PAD_PRPENC] = {
@@ -136,20 +218,43 @@ static const struct internal_subdev {
 					.local_pad = PRP_SRC_PAD_PRPENC,
 					.remote = &int_subdev[isd_ic_prpenc],
 					.remote_pad = 0,
+=======
+	[IPU_IC_PRP] = {
+		.grp_id = IMX_MEDIA_GRP_ID_IPU_IC_PRP,
+		.sync_register = imx_media_ic_register,
+		.sync_unregister = imx_media_ic_unregister,
+		.pad[PRP_SRC_PAD_PRPENC] = {
+			.num_links = 1,
+			.link = {
+				{
+					.local_pad = PRP_SRC_PAD_PRPENC,
+					.remote = IPU_IC_PRPENC,
+					.remote_pad = PRPENCVF_SINK_PAD,
+>>>>>>> upstream/android-13
 				},
 			},
 		},
 		.pad[PRP_SRC_PAD_PRPVF] = {
+<<<<<<< HEAD
 			.link = {
 				{
 					.local_pad = PRP_SRC_PAD_PRPVF,
 					.remote = &int_subdev[isd_ic_prpvf],
 					.remote_pad = 0,
+=======
+			.num_links = 1,
+			.link = {
+				{
+					.local_pad = PRP_SRC_PAD_PRPVF,
+					.remote = IPU_IC_PRPVF,
+					.remote_pad = PRPENCVF_SINK_PAD,
+>>>>>>> upstream/android-13
 				},
 			},
 		},
 	},
 
+<<<<<<< HEAD
 	[isd_ic_prpenc] = {
 		.id = &isd_id[isd_ic_prpenc],
 	},
@@ -219,29 +324,74 @@ static int create_ipu_internal_link(struct imx_media_dev *imxmd,
 	v4l2_info(&imxmd->v4l2_dev, "%s:%d -> %s:%d\n",
 		  src->name, link->local_pad,
 		  sink->name, link->remote_pad);
+=======
+	[IPU_IC_PRPENC] = {
+		.grp_id = IMX_MEDIA_GRP_ID_IPU_IC_PRPENC,
+		.sync_register = imx_media_ic_register,
+		.sync_unregister = imx_media_ic_unregister,
+	},
+
+	[IPU_IC_PRPVF] = {
+		.grp_id = IMX_MEDIA_GRP_ID_IPU_IC_PRPVF,
+		.sync_register = imx_media_ic_register,
+		.sync_unregister = imx_media_ic_unregister,
+	},
+};
+
+static int create_internal_link(struct imx_media_dev *imxmd,
+				struct v4l2_subdev *src,
+				struct v4l2_subdev *sink,
+				const struct internal_link *link)
+{
+	int ret;
+
+	/* skip if this link already created */
+	if (media_entity_find_link(&src->entity.pads[link->local_pad],
+				   &sink->entity.pads[link->remote_pad]))
+		return 0;
+
+	dev_dbg(imxmd->md.dev, "%s:%d -> %s:%d\n",
+		src->name, link->local_pad,
+		sink->name, link->remote_pad);
+>>>>>>> upstream/android-13
 
 	ret = media_create_pad_link(&src->entity, link->local_pad,
 				    &sink->entity, link->remote_pad, 0);
 	if (ret)
+<<<<<<< HEAD
 		v4l2_err(&imxmd->v4l2_dev,
 			 "create_pad_link failed: %d\n", ret);
+=======
+		v4l2_err(&imxmd->v4l2_dev, "%s failed: %d\n", __func__, ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 int imx_media_create_internal_links(struct imx_media_dev *imxmd,
 				    struct v4l2_subdev *sd)
 {
 	const struct internal_subdev *intsd;
+=======
+static int create_ipu_internal_links(struct imx_media_dev *imxmd,
+				     const struct internal_subdev *intsd,
+				     struct v4l2_subdev *sd,
+				     int ipu_id)
+{
+>>>>>>> upstream/android-13
 	const struct internal_pad *intpad;
 	const struct internal_link *link;
 	struct media_pad *pad;
 	int i, j, ret;
 
+<<<<<<< HEAD
 	intsd = find_intsd_by_grp_id(sd->grp_id);
 	if (!intsd)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	/* create the source->sink links */
 	for (i = 0; i < sd->entity.num_pads; i++) {
 		intpad = &intsd->pad[i];
@@ -250,6 +400,7 @@ int imx_media_create_internal_links(struct imx_media_dev *imxmd,
 		if (!(pad->flags & MEDIA_PAD_FL_SOURCE))
 			continue;
 
+<<<<<<< HEAD
 		for (j = 0; ; j++) {
 			link = &intpad->link[j];
 
@@ -257,6 +408,15 @@ int imx_media_create_internal_links(struct imx_media_dev *imxmd,
 				break;
 
 			ret = create_ipu_internal_link(imxmd, sd, link);
+=======
+		for (j = 0; j < intpad->num_links; j++) {
+			struct v4l2_subdev *sink;
+
+			link = &intpad->link[j];
+			sink = imxmd->sync_sd[ipu_id][link->remote];
+
+			ret = create_internal_link(imxmd, sd, sink, link);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 		}
@@ -265,6 +425,7 @@ int imx_media_create_internal_links(struct imx_media_dev *imxmd,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* register an internal subdev as a platform device */
 static int add_internal_subdev(struct imx_media_dev *imxmd,
 			       const struct internal_subdev *isd,
@@ -357,4 +518,122 @@ void imx_media_remove_internal_subdevs(struct imx_media_dev *imxmd)
 
 		platform_device_unregister(imxasd->pdev);
 	}
+=======
+int imx_media_register_ipu_internal_subdevs(struct imx_media_dev *imxmd,
+					    struct v4l2_subdev *csi)
+{
+	struct device *ipu_dev = csi->dev->parent;
+	const struct internal_subdev *intsd;
+	struct v4l2_subdev *sd;
+	struct ipu_soc *ipu;
+	int i, ipu_id, ret;
+
+	ipu = dev_get_drvdata(ipu_dev);
+	if (!ipu) {
+		v4l2_err(&imxmd->v4l2_dev, "invalid IPU device!\n");
+		return -ENODEV;
+	}
+
+	ipu_id = ipu_get_num(ipu);
+	if (ipu_id > 1) {
+		v4l2_err(&imxmd->v4l2_dev, "invalid IPU id %d!\n", ipu_id);
+		return -ENODEV;
+	}
+
+	mutex_lock(&imxmd->mutex);
+
+	/* record this IPU */
+	if (!imxmd->ipu[ipu_id])
+		imxmd->ipu[ipu_id] = ipu;
+
+	/* register the synchronous subdevs */
+	for (i = 0; i < NUM_IPU_SUBDEVS; i++) {
+		intsd = &int_subdev[i];
+
+		sd = imxmd->sync_sd[ipu_id][i];
+
+		/*
+		 * skip if this sync subdev already registered or its
+		 * not a sync subdev (one of the CSIs)
+		 */
+		if (sd || !intsd->sync_register)
+			continue;
+
+		mutex_unlock(&imxmd->mutex);
+		sd = intsd->sync_register(&imxmd->v4l2_dev, ipu_dev, ipu,
+					  intsd->grp_id);
+		mutex_lock(&imxmd->mutex);
+		if (IS_ERR(sd)) {
+			ret = PTR_ERR(sd);
+			goto err_unwind;
+		}
+
+		imxmd->sync_sd[ipu_id][i] = sd;
+	}
+
+	/*
+	 * all the sync subdevs are registered, create the media links
+	 * between them.
+	 */
+	for (i = 0; i < NUM_IPU_SUBDEVS; i++) {
+		intsd = &int_subdev[i];
+
+		if (intsd->grp_id == csi->grp_id) {
+			sd = csi;
+		} else {
+			sd = imxmd->sync_sd[ipu_id][i];
+			if (!sd)
+				continue;
+		}
+
+		ret = create_ipu_internal_links(imxmd, intsd, sd, ipu_id);
+		if (ret) {
+			mutex_unlock(&imxmd->mutex);
+			imx_media_unregister_ipu_internal_subdevs(imxmd);
+			return ret;
+		}
+	}
+
+	mutex_unlock(&imxmd->mutex);
+	return 0;
+
+err_unwind:
+	while (--i >= 0) {
+		intsd = &int_subdev[i];
+		sd = imxmd->sync_sd[ipu_id][i];
+		if (!sd || !intsd->sync_unregister)
+			continue;
+		mutex_unlock(&imxmd->mutex);
+		intsd->sync_unregister(sd);
+		mutex_lock(&imxmd->mutex);
+	}
+
+	mutex_unlock(&imxmd->mutex);
+	return ret;
+}
+
+void imx_media_unregister_ipu_internal_subdevs(struct imx_media_dev *imxmd)
+{
+	const struct internal_subdev *intsd;
+	struct v4l2_subdev *sd;
+	int i, j;
+
+	mutex_lock(&imxmd->mutex);
+
+	for (i = 0; i < 2; i++) {
+		for (j = 0; j < NUM_IPU_SUBDEVS; j++) {
+			intsd = &int_subdev[j];
+			sd = imxmd->sync_sd[i][j];
+
+			if (!sd || !intsd->sync_unregister)
+				continue;
+
+			mutex_unlock(&imxmd->mutex);
+			intsd->sync_unregister(sd);
+			mutex_lock(&imxmd->mutex);
+		}
+	}
+
+	mutex_unlock(&imxmd->mutex);
+>>>>>>> upstream/android-13
 }

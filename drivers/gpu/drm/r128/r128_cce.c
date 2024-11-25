@@ -29,6 +29,7 @@
  *    Gareth Hughes <gareth@valinux.com>
  */
 
+<<<<<<< HEAD
 #include <linux/firmware.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
@@ -36,6 +37,22 @@
 
 #include <drm/drmP.h>
 #include <drm/r128_drm.h>
+=======
+#include <linux/delay.h>
+#include <linux/dma-mapping.h>
+#include <linux/firmware.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+#include <linux/slab.h>
+#include <linux/uaccess.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+#include <drm/drm_legacy.h>
+#include <drm/drm_print.h>
+#include <drm/r128_drm.h>
+
+>>>>>>> upstream/android-13
 #include "r128_drv.h"
 
 #define R128_FIFO_DEBUG		0
@@ -85,7 +102,11 @@ static int r128_do_pixcache_flush(drm_r128_private_t *dev_priv)
 	for (i = 0; i < dev_priv->usec_timeout; i++) {
 		if (!(R128_READ(R128_PC_NGUI_CTLSTAT) & R128_PC_BUSY))
 			return 0;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 #if R128_FIFO_DEBUG
@@ -102,7 +123,11 @@ static int r128_do_wait_for_fifo(drm_r128_private_t *dev_priv, int entries)
 		int slots = R128_READ(R128_GUI_STAT) & R128_GUI_FIFOCNT_MASK;
 		if (slots >= entries)
 			return 0;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 #if R128_FIFO_DEBUG
@@ -124,7 +149,11 @@ static int r128_do_wait_for_idle(drm_r128_private_t *dev_priv)
 			r128_do_pixcache_flush(dev_priv);
 			return 0;
 		}
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 #if R128_FIFO_DEBUG
@@ -211,7 +240,11 @@ int r128_do_cce_idle(drm_r128_private_t *dev_priv)
 				return r128_do_pixcache_flush(dev_priv);
 			}
 		}
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 #if R128_FIFO_DEBUG
@@ -560,11 +593,20 @@ static int r128_do_init_cce(struct drm_device *dev, drm_r128_init_t *init)
 		dev_priv->gart_info.addr = NULL;
 		dev_priv->gart_info.bus_addr = 0;
 		dev_priv->gart_info.gart_reg_if = DRM_ATI_GART_PCI;
+<<<<<<< HEAD
 		if (!drm_ati_pcigart_init(dev, &dev_priv->gart_info)) {
 			DRM_ERROR("failed to init PCI GART!\n");
 			dev->dev_private = (void *)dev_priv;
 			r128_do_cleanup_cce(dev);
 			return -ENOMEM;
+=======
+		rc = drm_ati_pcigart_init(dev, &dev_priv->gart_info);
+		if (rc) {
+			DRM_ERROR("failed to init PCI GART!\n");
+			dev->dev_private = (void *)dev_priv;
+			r128_do_cleanup_cce(dev);
+			return rc;
+>>>>>>> upstream/android-13
 		}
 		R128_WRITE(R128_PCI_GART_PAGE, dev_priv->gart_info.bus_addr);
 #if IS_ENABLED(CONFIG_AGP)
@@ -594,7 +636,11 @@ int r128_do_cleanup_cce(struct drm_device *dev)
 	 * is freed, it's too late.
 	 */
 	if (dev->irq_enabled)
+<<<<<<< HEAD
 		drm_irq_uninstall(dev);
+=======
+		drm_legacy_irq_uninstall(dev);
+>>>>>>> upstream/android-13
 
 	if (dev->dev_private) {
 		drm_r128_private_t *dev_priv = dev->dev_private;
@@ -837,7 +883,11 @@ static struct drm_buf *r128_freelist_get(struct drm_device * dev)
 				return buf;
 			}
 		}
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 	DRM_DEBUG("returning NULL!\n");
@@ -869,7 +919,11 @@ int r128_wait_ring(drm_r128_private_t *dev_priv, int n)
 		r128_update_ring_snapshot(dev_priv);
 		if (ring->space >= n)
 			return 0;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 	/* FIXME: This is being ignored... */
@@ -915,7 +969,11 @@ int r128_cce_buffers(struct drm_device *dev, void *data, struct drm_file *file_p
 	 */
 	if (d->send_count != 0) {
 		DRM_ERROR("Process %d trying to send %d buffers via drmDMA\n",
+<<<<<<< HEAD
 			  DRM_CURRENTPID, d->send_count);
+=======
+			  task_pid_nr(current), d->send_count);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -923,7 +981,11 @@ int r128_cce_buffers(struct drm_device *dev, void *data, struct drm_file *file_p
 	 */
 	if (d->request_count < 0 || d->request_count > dma->buf_count) {
 		DRM_ERROR("Process %d trying to get %d buffers (of %d max)\n",
+<<<<<<< HEAD
 			  DRM_CURRENTPID, d->request_count, dma->buf_count);
+=======
+			  task_pid_nr(current), d->request_count, dma->buf_count);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 

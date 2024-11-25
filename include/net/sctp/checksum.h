@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* SCTP kernel reference Implementation
  * Copyright (c) 1999-2001 Motorola, Inc.
  * Copyright (c) 2001-2003 International Business Machines, Corp.
@@ -6,6 +10,7 @@
  *
  * SCTP Checksum functions
  *
+<<<<<<< HEAD
  * The SCTP reference implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -58,19 +65,35 @@ static inline __wsum sctp_csum_combine(__wsum csum, __wsum csum2,
 						   (__force __u32)csum2, len);
 }
 
+<<<<<<< HEAD
+=======
+static const struct skb_checksum_ops sctp_csum_ops = {
+	.update  = sctp_csum_update,
+	.combine = sctp_csum_combine,
+};
+
+>>>>>>> upstream/android-13
 static inline __le32 sctp_compute_cksum(const struct sk_buff *skb,
 					unsigned int offset)
 {
 	struct sctphdr *sh = (struct sctphdr *)(skb->data + offset);
+<<<<<<< HEAD
 	const struct skb_checksum_ops ops = {
 		.update  = sctp_csum_update,
 		.combine = sctp_csum_combine,
 	};
+=======
+>>>>>>> upstream/android-13
 	__le32 old = sh->checksum;
 	__wsum new;
 
 	sh->checksum = 0;
+<<<<<<< HEAD
 	new = ~__skb_checksum(skb, offset, skb->len - offset, ~(__wsum)0, &ops);
+=======
+	new = ~__skb_checksum(skb, offset, skb->len - offset, ~(__wsum)0,
+			      &sctp_csum_ops);
+>>>>>>> upstream/android-13
 	sh->checksum = old;
 
 	return cpu_to_le32((__force __u32)new);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ALSA Soc Audio Layer - I2S core for newer Samsung SoCs.
  *
  * Copyright (c) 2006 Wolfson Microelectronics PLC.
@@ -13,6 +14,19 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// ALSA Soc Audio Layer - I2S core for newer Samsung SoCs.
+//
+// Copyright (c) 2006 Wolfson Microelectronics PLC.
+//	Graeme Gregory graeme.gregory@wolfsonmicro.com
+//	linux@wolfsonmicro.com
+//
+// Copyright (c) 2008, 2007, 2004-2005 Simtec Electronics
+//	http://armlinux.simtec.co.uk/
+//	Ben Dooks <ben@simtec.co.uk>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -383,8 +397,13 @@ static int s3c_i2sv2_set_sysclk(struct snd_soc_dai *cpu_dai,
 static int s3c2412_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
 			       struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct s3c_i2sv2_info *i2s = to_info(rtd->cpu_dai);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct s3c_i2sv2_info *i2s = to_info(asoc_rtd_to_cpu(rtd, 0));
+>>>>>>> upstream/android-13
 	int capture = (substream->stream == SNDRV_PCM_STREAM_CAPTURE);
 	unsigned long irqs;
 	int ret = 0;
@@ -620,8 +639,12 @@ int s3c_i2sv2_iis_calc_rate(struct s3c_i2sv2_rate_calc *info,
 EXPORT_SYMBOL_GPL(s3c_i2sv2_iis_calc_rate);
 
 int s3c_i2sv2_probe(struct snd_soc_dai *dai,
+<<<<<<< HEAD
 		    struct s3c_i2sv2_info *i2s,
 		    unsigned long base)
+=======
+		    struct s3c_i2sv2_info *i2s)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = dai->dev;
 	unsigned int iismod;
@@ -660,6 +683,7 @@ void s3c_i2sv2_cleanup(struct snd_soc_dai *dai,
 }
 EXPORT_SYMBOL_GPL(s3c_i2sv2_cleanup);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int s3c2412_i2s_suspend(struct snd_soc_dai *dai)
 {
@@ -714,6 +738,8 @@ static int s3c2412_i2s_resume(struct snd_soc_dai *dai)
 #define s3c2412_i2s_resume  NULL
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int s3c_i2sv2_register_component(struct device *dev, int id,
 			   const struct snd_soc_component_driver *cmp_drv,
 			   struct snd_soc_dai_driver *dai_drv)
@@ -731,9 +757,12 @@ int s3c_i2sv2_register_component(struct device *dev, int id,
 	if (!ops->delay)
 		ops->delay = s3c2412_i2s_delay;
 
+<<<<<<< HEAD
 	dai_drv->suspend = s3c2412_i2s_suspend;
 	dai_drv->resume = s3c2412_i2s_resume;
 
+=======
+>>>>>>> upstream/android-13
 	return devm_snd_soc_register_component(dev, cmp_drv, dai_drv, 1);
 }
 EXPORT_SYMBOL_GPL(s3c_i2sv2_register_component);

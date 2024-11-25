@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright Altera Corporation (C) <2014>. All rights reserved
  *
@@ -12,11 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright Altera Corporation (C) <2014>. All rights reserved
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_NIOS2_SYSCALL_H__
 #define __ASM_NIOS2_SYSCALL_H__
 
+<<<<<<< HEAD
+=======
+#include <uapi/linux/audit.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/sched.h>
 
@@ -58,6 +68,7 @@ static inline void syscall_set_return_value(struct task_struct *task,
 }
 
 static inline void syscall_get_arguments(struct task_struct *task,
+<<<<<<< HEAD
 	struct pt_regs *regs, unsigned int i, unsigned int n,
 	unsigned long *args)
 {
@@ -133,6 +144,32 @@ static inline void syscall_set_arguments(struct task_struct *task,
 	default:
 		BUG();
 	}
+=======
+	struct pt_regs *regs, unsigned long *args)
+{
+	*args++ = regs->r4;
+	*args++ = regs->r5;
+	*args++ = regs->r6;
+	*args++ = regs->r7;
+	*args++ = regs->r8;
+	*args   = regs->r9;
+}
+
+static inline void syscall_set_arguments(struct task_struct *task,
+	struct pt_regs *regs, const unsigned long *args)
+{
+	regs->r4 = *args++;
+	regs->r5 = *args++;
+	regs->r6 = *args++;
+	regs->r7 = *args++;
+	regs->r8 = *args++;
+	regs->r9 = *args;
+}
+
+static inline int syscall_get_arch(struct task_struct *task)
+{
+	return AUDIT_ARCH_NIOS2;
+>>>>>>> upstream/android-13
 }
 
 #endif

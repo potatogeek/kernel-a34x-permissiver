@@ -16,10 +16,19 @@
 
 #ifndef _BRCM_LED_H_
 #define _BRCM_LED_H_
+<<<<<<< HEAD
 struct brcms_led {
 	char name[32];
 	unsigned gpio;
 	bool active_low;
+=======
+
+struct gpio_desc;
+
+struct brcms_led {
+	char name[32];
+	struct gpio_desc *gpiod;
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_BCMA_DRIVER_GPIO

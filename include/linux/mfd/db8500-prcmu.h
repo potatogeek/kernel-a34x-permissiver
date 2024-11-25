@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) STMicroelectronics 2009
  * Copyright (C) ST-Ericsson SA 2010
  *
+<<<<<<< HEAD
  * License Terms: GNU General Public License v2
+=======
+>>>>>>> upstream/android-13
  * Author: Kumar Sanghvi <kumar.sanghvi@stericsson.com>
  *
  * PRCMU f/w APIs
@@ -489,7 +496,11 @@ struct prcmu_auto_pm_config {
 
 #ifdef CONFIG_MFD_DB8500_PRCMU
 
+<<<<<<< HEAD
 void db8500_prcmu_early_init(u32 phy_base, u32 size);
+=======
+void db8500_prcmu_early_init(void);
+>>>>>>> upstream/android-13
 int prcmu_set_rc_a2p(enum romcode_write);
 enum romcode_read prcmu_get_rc_p2a(void);
 enum ap_pwrst prcmu_get_xp70_current_state(void);
@@ -525,9 +536,12 @@ u8 db8500_prcmu_get_power_state_result(void);
 void db8500_prcmu_enable_wakeups(u32 wakeups);
 int db8500_prcmu_set_epod(u16 epod_id, u8 epod_state);
 int db8500_prcmu_request_clock(u8 clock, bool enable);
+<<<<<<< HEAD
 int db8500_prcmu_set_display_clocks(void);
 int db8500_prcmu_disable_dsipll(void);
 int db8500_prcmu_enable_dsipll(void);
+=======
+>>>>>>> upstream/android-13
 void db8500_prcmu_config_abb_event_readout(u32 abb_events);
 void db8500_prcmu_get_abb_event_buffer(void __iomem **buf);
 int db8500_prcmu_config_esram0_deep_sleep(u8 state);
@@ -546,7 +560,11 @@ void db8500_prcmu_write_masked(unsigned int reg, u32 mask, u32 value);
 
 #else /* !CONFIG_MFD_DB8500_PRCMU */
 
+<<<<<<< HEAD
 static inline void db8500_prcmu_early_init(u32 phy_base, u32 size) {}
+=======
+static inline void db8500_prcmu_early_init(void) {}
+>>>>>>> upstream/android-13
 
 static inline int prcmu_set_rc_a2p(enum romcode_write code)
 {
@@ -682,6 +700,7 @@ static inline int db8500_prcmu_request_clock(u8 clock, bool enable)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int db8500_prcmu_set_display_clocks(void)
 {
 	return 0;
@@ -697,6 +716,8 @@ static inline int db8500_prcmu_enable_dsipll(void)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int db8500_prcmu_config_esram0_deep_sleep(u8 state)
 {
 	return 0;
@@ -738,7 +759,11 @@ static inline int db8500_prcmu_load_a9wdog(u8 id, u32 val)
 
 static inline bool db8500_prcmu_is_ac_wake_requested(void)
 {
+<<<<<<< HEAD
 	return 0;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static inline int db8500_prcmu_set_arm_opp(u8 opp)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -6,11 +10,14 @@
  *		Support for INET connection oriented protocols.
  *
  * Authors:	See the TCP sources
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or(at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -139,10 +146,25 @@ static int inet_csk_bind_conflict(const struct sock *sk,
 				  bool relax, bool reuseport_ok)
 {
 	struct sock *sk2;
+<<<<<<< HEAD
 	bool reuse = sk->sk_reuse;
 	bool reuseport = !!sk->sk_reuseport && reuseport_ok;
 	kuid_t uid = sock_i_uid((struct sock *)sk);
 
+=======
+	bool reuseport_cb_ok;
+	bool reuse = sk->sk_reuse;
+	bool reuseport = !!sk->sk_reuseport;
+	struct sock_reuseport *reuseport_cb;
+	kuid_t uid = sock_i_uid((struct sock *)sk);
+
+	rcu_read_lock();
+	reuseport_cb = rcu_dereference(sk->sk_reuseport_cb);
+	/* paired with WRITE_ONCE() in __reuseport_(add|detach)_closed_sock */
+	reuseport_cb_ok = !reuseport_cb || READ_ONCE(reuseport_cb->num_closed_socks);
+	rcu_read_unlock();
+
+>>>>>>> upstream/android-13
 	/*
 	 * Unlike other sk lookup places we do not check
 	 * for sk_net here, since _all_ the socks listed
@@ -155,6 +177,7 @@ static int inet_csk_bind_conflict(const struct sock *sk,
 		    (!sk->sk_bound_dev_if ||
 		     !sk2->sk_bound_dev_if ||
 		     sk->sk_bound_dev_if == sk2->sk_bound_dev_if)) {
+<<<<<<< HEAD
 			if ((!reuse || !sk2->sk_reuse ||
 			    sk2->sk_state == TCP_LISTEN) &&
 			    (!reuseport || !sk2->sk_reuseport ||
@@ -166,6 +189,23 @@ static int inet_csk_bind_conflict(const struct sock *sk,
 			}
 			if (!relax && reuse && sk2->sk_reuse &&
 			    sk2->sk_state != TCP_LISTEN) {
+=======
+			if (reuse && sk2->sk_reuse &&
+			    sk2->sk_state != TCP_LISTEN) {
+				if ((!relax ||
+				     (!reuseport_ok &&
+				      reuseport && sk2->sk_reuseport &&
+				      reuseport_cb_ok &&
+				      (sk2->sk_state == TCP_TIME_WAIT ||
+				       uid_eq(uid, sock_i_uid(sk2))))) &&
+				    inet_rcv_saddr_equal(sk, sk2, true))
+					break;
+			} else if (!reuseport_ok ||
+				   !reuseport || !sk2->sk_reuseport ||
+				   !reuseport_cb_ok ||
+				   (sk2->sk_state != TCP_TIME_WAIT &&
+				    !uid_eq(uid, sock_i_uid(sk2)))) {
+>>>>>>> upstream/android-13
 				if (inet_rcv_saddr_equal(sk, sk2, true))
 					break;
 			}
@@ -185,10 +225,21 @@ inet_csk_find_open_port(struct sock *sk, struct inet_bind_bucket **tb_ret, int *
 	int port = 0;
 	struct inet_bind_hashbucket *head;
 	struct net *net = sock_net(sk);
+<<<<<<< HEAD
 	int i, low, high, attempt_half;
 	struct inet_bind_bucket *tb;
 	u32 remaining, offset;
 
+=======
+	bool relax = false;
+	int i, low, high, attempt_half;
+	struct inet_bind_bucket *tb;
+	u32 remaining, offset;
+	int l3mdev;
+
+	l3mdev = inet_sk_bound_l3mdev(sk);
+ports_exhausted:
+>>>>>>> upstream/android-13
 	attempt_half = (sk->sk_reuse == SK_CAN_REUSE) ? 1 : 0;
 other_half_scan:
 	inet_get_local_port_range(net, &low, &high);
@@ -224,8 +275,14 @@ other_parity_scan:
 						  hinfo->bhash_size)];
 		spin_lock_bh(&head->lock);
 		inet_bind_bucket_for_each(tb, &head->chain)
+<<<<<<< HEAD
 			if (net_eq(ib_net(tb), net) && tb->port == port) {
 				if (!inet_csk_bind_conflict(sk, tb, false, false))
+=======
+			if (net_eq(ib_net(tb), net) && tb->l3mdev == l3mdev &&
+			    tb->port == port) {
+				if (!inet_csk_bind_conflict(sk, tb, relax, false))
+>>>>>>> upstream/android-13
 					goto success;
 				goto next_port;
 			}
@@ -245,6 +302,15 @@ next_port:
 		attempt_half = 2;
 		goto other_half_scan;
 	}
+<<<<<<< HEAD
+=======
+
+	if (net->ipv4.sysctl_ip_autobind_reuse && !relax) {
+		/* We still have a chance to connect to different destinations */
+		relax = true;
+		goto ports_exhausted;
+	}
+>>>>>>> upstream/android-13
 	return NULL;
 success:
 	*port_ret = port;
@@ -348,6 +414,12 @@ int inet_csk_get_port(struct sock *sk, unsigned short snum)
 	struct inet_bind_hashbucket *head;
 	struct net *net = sock_net(sk);
 	struct inet_bind_bucket *tb = NULL;
+<<<<<<< HEAD
+=======
+	int l3mdev;
+
+	l3mdev = inet_sk_bound_l3mdev(sk);
+>>>>>>> upstream/android-13
 
 	if (!port) {
 		head = inet_csk_find_open_port(sk, &tb, &port);
@@ -361,11 +433,20 @@ int inet_csk_get_port(struct sock *sk, unsigned short snum)
 					  hinfo->bhash_size)];
 	spin_lock_bh(&head->lock);
 	inet_bind_bucket_for_each(tb, &head->chain)
+<<<<<<< HEAD
 		if (net_eq(ib_net(tb), net) && tb->port == port)
 			goto tb_found;
 tb_not_found:
 	tb = inet_bind_bucket_create(hinfo->bind_bucket_cachep,
 				     net, head, port);
+=======
+		if (net_eq(ib_net(tb), net) && tb->l3mdev == l3mdev &&
+		    tb->port == port)
+			goto tb_found;
+tb_not_found:
+	tb = inet_bind_bucket_create(hinfo->bind_bucket_cachep,
+				     net, head, port, l3mdev);
+>>>>>>> upstream/android-13
 	if (!tb)
 		goto fail_unlock;
 tb_found:
@@ -511,7 +592,12 @@ out:
 				   atomic_read(&newsk->sk_rmem_alloc));
 		mem_cgroup_sk_alloc(newsk);
 		if (newsk->sk_memcg && amt)
+<<<<<<< HEAD
 			mem_cgroup_charge_skmem(newsk->sk_memcg, amt);
+=======
+			mem_cgroup_charge_skmem(newsk->sk_memcg, amt,
+						GFP_KERNEL | __GFP_NOFAIL);
+>>>>>>> upstream/android-13
 
 		release_sock(newsk);
 	}
@@ -549,7 +635,11 @@ void inet_csk_clear_xmit_timers(struct sock *sk)
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
 
+<<<<<<< HEAD
 	icsk->icsk_pending = icsk->icsk_ack.pending = icsk->icsk_ack.blocked = 0;
+=======
+	icsk->icsk_pending = icsk->icsk_ack.pending = 0;
+>>>>>>> upstream/android-13
 
 	sk_stop_timer(sk, &icsk->icsk_retransmit_timer);
 	sk_stop_timer(sk, &icsk->icsk_delack_timer);
@@ -587,7 +677,11 @@ struct dst_entry *inet_csk_route_req(const struct sock *sk,
 			   (opt && opt->opt.srr) ? opt->opt.faddr : ireq->ir_rmt_addr,
 			   ireq->ir_loc_addr, ireq->ir_rmt_port,
 			   htons(ireq->ir_num), sk->sk_uid);
+<<<<<<< HEAD
 	security_req_classify_flow(req, flowi4_to_flowi(fl4));
+=======
+	security_req_classify_flow(req, flowi4_to_flowi_common(fl4));
+>>>>>>> upstream/android-13
 	rt = ip_route_output_flow(net, fl4, sk);
 	if (IS_ERR(rt))
 		goto no_route;
@@ -625,7 +719,11 @@ struct dst_entry *inet_csk_route_child_sock(const struct sock *sk,
 			   (opt && opt->opt.srr) ? opt->opt.faddr : ireq->ir_rmt_addr,
 			   ireq->ir_loc_addr, ireq->ir_rmt_port,
 			   htons(ireq->ir_num), sk->sk_uid);
+<<<<<<< HEAD
 	security_req_classify_flow(req, flowi4_to_flowi(fl4));
+=======
+	security_req_classify_flow(req, flowi4_to_flowi_common(fl4));
+>>>>>>> upstream/android-13
 	rt = ip_route_output_flow(net, fl4, sk);
 	if (IS_ERR(rt))
 		goto no_route;
@@ -641,6 +739,7 @@ no_route:
 }
 EXPORT_SYMBOL_GPL(inet_csk_route_child_sock);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_IPV6)
 #define AF_INET_FAMILY(fam) ((fam) == AF_INET)
 #else
@@ -662,6 +761,22 @@ static inline void syn_ack_recalc(struct request_sock *req, const int thresh,
 		  (!inet_rsk(req)->acked || req->num_timeout >= max_retries);
 	/*
 	 * Do not resend while waiting for data after ACK,
+=======
+/* Decide when to expire the request and when to resend SYN-ACK */
+static void syn_ack_recalc(struct request_sock *req,
+			   const int max_syn_ack_retries,
+			   const u8 rskq_defer_accept,
+			   int *expire, int *resend)
+{
+	if (!rskq_defer_accept) {
+		*expire = req->num_timeout >= max_syn_ack_retries;
+		*resend = 1;
+		return;
+	}
+	*expire = req->num_timeout >= max_syn_ack_retries &&
+		  (!inet_rsk(req)->acked || req->num_timeout >= rskq_defer_accept);
+	/* Do not resend while waiting for data after ACK,
+>>>>>>> upstream/android-13
 	 * start to resend on end of deferring period to give
 	 * last chance for data or ACK to create established socket.
 	 */
@@ -679,9 +794,74 @@ int inet_rtx_syn_ack(const struct sock *parent, struct request_sock *req)
 }
 EXPORT_SYMBOL(inet_rtx_syn_ack);
 
+<<<<<<< HEAD
 /* return true if req was found in the ehash table */
 static bool reqsk_queue_unlink(struct request_sock_queue *queue,
 			       struct request_sock *req)
+=======
+static struct request_sock *inet_reqsk_clone(struct request_sock *req,
+					     struct sock *sk)
+{
+	struct sock *req_sk, *nreq_sk;
+	struct request_sock *nreq;
+
+	nreq = kmem_cache_alloc(req->rsk_ops->slab, GFP_ATOMIC | __GFP_NOWARN);
+	if (!nreq) {
+		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPMIGRATEREQFAILURE);
+
+		/* paired with refcount_inc_not_zero() in reuseport_migrate_sock() */
+		sock_put(sk);
+		return NULL;
+	}
+
+	req_sk = req_to_sk(req);
+	nreq_sk = req_to_sk(nreq);
+
+	memcpy(nreq_sk, req_sk,
+	       offsetof(struct sock, sk_dontcopy_begin));
+	memcpy(&nreq_sk->sk_dontcopy_end, &req_sk->sk_dontcopy_end,
+	       req->rsk_ops->obj_size - offsetof(struct sock, sk_dontcopy_end));
+
+	sk_node_init(&nreq_sk->sk_node);
+	nreq_sk->sk_tx_queue_mapping = req_sk->sk_tx_queue_mapping;
+#ifdef CONFIG_SOCK_RX_QUEUE_MAPPING
+	nreq_sk->sk_rx_queue_mapping = req_sk->sk_rx_queue_mapping;
+#endif
+	nreq_sk->sk_incoming_cpu = req_sk->sk_incoming_cpu;
+
+	nreq->rsk_listener = sk;
+
+	/* We need not acquire fastopenq->lock
+	 * because the child socket is locked in inet_csk_listen_stop().
+	 */
+	if (sk->sk_protocol == IPPROTO_TCP && tcp_rsk(nreq)->tfo_listener)
+		rcu_assign_pointer(tcp_sk(nreq->sk)->fastopen_rsk, nreq);
+
+	return nreq;
+}
+
+static void reqsk_queue_migrated(struct request_sock_queue *queue,
+				 const struct request_sock *req)
+{
+	if (req->num_timeout == 0)
+		atomic_inc(&queue->young);
+	atomic_inc(&queue->qlen);
+}
+
+static void reqsk_migrate_reset(struct request_sock *req)
+{
+	req->saved_syn = NULL;
+#if IS_ENABLED(CONFIG_IPV6)
+	inet_rsk(req)->ipv6_opt = NULL;
+	inet_rsk(req)->pktopts = NULL;
+#else
+	inet_rsk(req)->ireq_opt = NULL;
+#endif
+}
+
+/* return true if req was found in the ehash table */
+static bool reqsk_queue_unlink(struct request_sock *req)
+>>>>>>> upstream/android-13
 {
 	struct inet_hashinfo *hashinfo = req_to_sk(req)->sk_prot->h.hashinfo;
 	bool found = false;
@@ -700,7 +880,11 @@ static bool reqsk_queue_unlink(struct request_sock_queue *queue,
 
 bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req)
 {
+<<<<<<< HEAD
 	bool unlinked = reqsk_queue_unlink(&inet_csk(sk)->icsk_accept_queue, req);
+=======
+	bool unlinked = reqsk_queue_unlink(req);
+>>>>>>> upstream/android-13
 
 	if (unlinked) {
 		reqsk_queue_removed(&inet_csk(sk)->icsk_accept_queue, req);
@@ -720,6 +904,7 @@ EXPORT_SYMBOL(inet_csk_reqsk_queue_drop_and_put);
 static void reqsk_timer_handler(struct timer_list *t)
 {
 	struct request_sock *req = from_timer(req, t, rsk_timer);
+<<<<<<< HEAD
 	struct sock *sk_listener = req->rsk_listener;
 	struct net *net = sock_net(sk_listener);
 	struct inet_connection_sock *icsk = inet_csk(sk_listener);
@@ -733,6 +918,42 @@ static void reqsk_timer_handler(struct timer_list *t)
 
 	max_retries = icsk->icsk_syn_retries ? : net->ipv4.sysctl_tcp_synack_retries;
 	thresh = max_retries;
+=======
+	struct request_sock *nreq = NULL, *oreq = req;
+	struct sock *sk_listener = req->rsk_listener;
+	struct inet_connection_sock *icsk;
+	struct request_sock_queue *queue;
+	struct net *net;
+	int max_syn_ack_retries, qlen, expire = 0, resend = 0;
+
+	if (inet_sk_state_load(sk_listener) != TCP_LISTEN) {
+		struct sock *nsk;
+
+		nsk = reuseport_migrate_sock(sk_listener, req_to_sk(req), NULL);
+		if (!nsk)
+			goto drop;
+
+		nreq = inet_reqsk_clone(req, nsk);
+		if (!nreq)
+			goto drop;
+
+		/* The new timer for the cloned req can decrease the 2
+		 * by calling inet_csk_reqsk_queue_drop_and_put(), so
+		 * hold another count to prevent use-after-free and
+		 * call reqsk_put() just before return.
+		 */
+		refcount_set(&nreq->rsk_refcnt, 2 + 1);
+		timer_setup(&nreq->rsk_timer, reqsk_timer_handler, TIMER_PINNED);
+		reqsk_queue_migrated(&inet_csk(nsk)->icsk_accept_queue, req);
+
+		req = nreq;
+		sk_listener = nsk;
+	}
+
+	icsk = inet_csk(sk_listener);
+	net = sock_net(sk_listener);
+	max_syn_ack_retries = icsk->icsk_syn_retries ? : net->ipv4.sysctl_tcp_synack_retries;
+>>>>>>> upstream/android-13
 	/* Normally all the openreqs are young and become mature
 	 * (i.e. converted to established socket) for first timeout.
 	 * If synack was not acknowledged for 1 second, it means
@@ -750,6 +971,7 @@ static void reqsk_timer_handler(struct timer_list *t)
 	 * embrions; and abort old ones without pity, if old
 	 * ones are about to clog our table.
 	 */
+<<<<<<< HEAD
 	qlen = reqsk_queue_len(queue);
 	if ((qlen << 1) > max(8U, sk_listener->sk_max_ack_backlog)) {
 		int young = reqsk_queue_len_young(queue) << 1;
@@ -765,6 +987,21 @@ static void reqsk_timer_handler(struct timer_list *t)
 	if (defer_accept)
 		max_retries = defer_accept;
 	syn_ack_recalc(req, thresh, max_retries, defer_accept,
+=======
+	queue = &icsk->icsk_accept_queue;
+	qlen = reqsk_queue_len(queue);
+	if ((qlen << 1) > max(8U, READ_ONCE(sk_listener->sk_max_ack_backlog))) {
+		int young = reqsk_queue_len_young(queue) << 1;
+
+		while (max_syn_ack_retries > 2) {
+			if (qlen < young)
+				break;
+			max_syn_ack_retries--;
+			young <<= 1;
+		}
+	}
+	syn_ack_recalc(req, max_syn_ack_retries, READ_ONCE(queue->rskq_defer_accept),
+>>>>>>> upstream/android-13
 		       &expire, &resend);
 	req->rsk_ops->syn_ack_timeout(req);
 	if (!expire &&
@@ -777,15 +1014,52 @@ static void reqsk_timer_handler(struct timer_list *t)
 			atomic_dec(&queue->young);
 		timeo = min(TCP_TIMEOUT_INIT << req->num_timeout, TCP_RTO_MAX);
 		mod_timer(&req->rsk_timer, jiffies + timeo);
+<<<<<<< HEAD
 		return;
 	}
 drop:
 	inet_csk_reqsk_queue_drop_and_put(sk_listener, req);
+=======
+
+		if (!nreq)
+			return;
+
+		if (!inet_ehash_insert(req_to_sk(nreq), req_to_sk(oreq), NULL)) {
+			/* delete timer */
+			inet_csk_reqsk_queue_drop(sk_listener, nreq);
+			goto no_ownership;
+		}
+
+		__NET_INC_STATS(net, LINUX_MIB_TCPMIGRATEREQSUCCESS);
+		reqsk_migrate_reset(oreq);
+		reqsk_queue_removed(&inet_csk(oreq->rsk_listener)->icsk_accept_queue, oreq);
+		reqsk_put(oreq);
+
+		reqsk_put(nreq);
+		return;
+	}
+
+	/* Even if we can clone the req, we may need not retransmit any more
+	 * SYN+ACKs (nreq->num_timeout > max_syn_ack_retries, etc), or another
+	 * CPU may win the "own_req" race so that inet_ehash_insert() fails.
+	 */
+	if (nreq) {
+		__NET_INC_STATS(net, LINUX_MIB_TCPMIGRATEREQFAILURE);
+no_ownership:
+		reqsk_migrate_reset(nreq);
+		reqsk_queue_removed(queue, nreq);
+		__reqsk_free(nreq);
+	}
+
+drop:
+	inet_csk_reqsk_queue_drop_and_put(oreq->rsk_listener, oreq);
+>>>>>>> upstream/android-13
 }
 
 static void reqsk_queue_hash_req(struct request_sock *req,
 				 unsigned long timeout)
 {
+<<<<<<< HEAD
 	req->num_retrans = 0;
 	req->num_timeout = 0;
 	req->sk = NULL;
@@ -794,6 +1068,12 @@ static void reqsk_queue_hash_req(struct request_sock *req,
 	mod_timer(&req->rsk_timer, jiffies + timeout);
 
 	inet_ehash_insert(req_to_sk(req), NULL);
+=======
+	timer_setup(&req->rsk_timer, reqsk_timer_handler, TIMER_PINNED);
+	mod_timer(&req->rsk_timer, jiffies + timeout);
+
+	inet_ehash_insert(req_to_sk(req), NULL, NULL);
+>>>>>>> upstream/android-13
 	/* before letting lookups find us, make sure all req fields
 	 * are committed to memory and refcnt initialized.
 	 */
@@ -809,6 +1089,21 @@ void inet_csk_reqsk_queue_hash_add(struct sock *sk, struct request_sock *req,
 }
 EXPORT_SYMBOL_GPL(inet_csk_reqsk_queue_hash_add);
 
+<<<<<<< HEAD
+=======
+static void inet_clone_ulp(const struct request_sock *req, struct sock *newsk,
+			   const gfp_t priority)
+{
+	struct inet_connection_sock *icsk = inet_csk(newsk);
+
+	if (!icsk->icsk_ulp_ops)
+		return;
+
+	if (icsk->icsk_ulp_ops->clone)
+		icsk->icsk_ulp_ops->clone(req, newsk, priority);
+}
+
+>>>>>>> upstream/android-13
 /**
  *	inet_csk_clone_lock - clone an inet socket, and lock its clone
  *	@sk: the socket to clone
@@ -845,10 +1140,19 @@ struct sock *inet_csk_clone_lock(const struct sock *sk,
 		newicsk->icsk_retransmits = 0;
 		newicsk->icsk_backoff	  = 0;
 		newicsk->icsk_probes_out  = 0;
+<<<<<<< HEAD
+=======
+		newicsk->icsk_probes_tstamp = 0;
+>>>>>>> upstream/android-13
 
 		/* Deinitialize accept_queue to trap illegal accesses. */
 		memset(&newicsk->icsk_accept_queue, 0, sizeof(newicsk->icsk_accept_queue));
 
+<<<<<<< HEAD
+=======
+		inet_clone_ulp(req, newsk, priority);
+
+>>>>>>> upstream/android-13
 		security_inet_csk_clone(newsk, req);
 	}
 	return newsk;
@@ -880,7 +1184,11 @@ void inet_csk_destroy_sock(struct sock *sk)
 
 	sk_refcnt_debug_release(sk);
 
+<<<<<<< HEAD
 	percpu_counter_dec(sk->sk_prot->orphan_count);
+=======
+	this_cpu_dec(*sk->sk_prot->orphan_count);
+>>>>>>> upstream/android-13
 
 	sock_put(sk);
 }
@@ -895,10 +1203,14 @@ void inet_csk_prepare_forced_close(struct sock *sk)
 	/* sk_clone_lock locked the socket and set refcnt to 2 */
 	bh_unlock_sock(sk);
 	sock_put(sk);
+<<<<<<< HEAD
 
 	/* The below has to be done to allow calling inet_csk_destroy_sock */
 	sock_set_flag(sk, SOCK_DEAD);
 	percpu_counter_inc(sk->sk_prot->orphan_count);
+=======
+	inet_csk_prepare_for_destroy_sock(sk);
+>>>>>>> upstream/android-13
 	inet_sk(sk)->inet_num = 0;
 }
 EXPORT_SYMBOL(inet_csk_prepare_forced_close);
@@ -911,7 +1223,10 @@ int inet_csk_listen_start(struct sock *sk, int backlog)
 
 	reqsk_queue_alloc(&icsk->icsk_accept_queue);
 
+<<<<<<< HEAD
 	sk->sk_max_ack_backlog = backlog;
+=======
+>>>>>>> upstream/android-13
 	sk->sk_ack_backlog = 0;
 	inet_csk_delack_init(sk);
 
@@ -943,10 +1258,17 @@ static void inet_child_forget(struct sock *sk, struct request_sock *req,
 
 	sock_orphan(child);
 
+<<<<<<< HEAD
 	percpu_counter_inc(sk->sk_prot->orphan_count);
 
 	if (sk->sk_protocol == IPPROTO_TCP && tcp_rsk(req)->tfo_listener) {
 		BUG_ON(tcp_sk(child)->fastopen_rsk != req);
+=======
+	this_cpu_inc(*sk->sk_prot->orphan_count);
+
+	if (sk->sk_protocol == IPPROTO_TCP && tcp_rsk(req)->tfo_listener) {
+		BUG_ON(rcu_access_pointer(tcp_sk(child)->fastopen_rsk) != req);
+>>>>>>> upstream/android-13
 		BUG_ON(sk != req->rsk_listener);
 
 		/* Paranoid, to prevent race condition if
@@ -955,7 +1277,11 @@ static void inet_child_forget(struct sock *sk, struct request_sock *req,
 		 * Also to satisfy an assertion in
 		 * tcp_v4_destroy_sock().
 		 */
+<<<<<<< HEAD
 		tcp_sk(child)->fastopen_rsk = NULL;
+=======
+		RCU_INIT_POINTER(tcp_sk(child)->fastopen_rsk, NULL);
+>>>>>>> upstream/android-13
 	}
 	inet_csk_destroy_sock(child);
 }
@@ -989,12 +1315,51 @@ struct sock *inet_csk_complete_hashdance(struct sock *sk, struct sock *child,
 					 struct request_sock *req, bool own_req)
 {
 	if (own_req) {
+<<<<<<< HEAD
 		inet_csk_reqsk_queue_drop(sk, req);
 		reqsk_queue_removed(&inet_csk(sk)->icsk_accept_queue, req);
 		if (inet_csk_reqsk_queue_add(sk, req, child))
 			return child;
 	}
 	/* Too bad, another child took ownership of the request, undo. */
+=======
+		inet_csk_reqsk_queue_drop(req->rsk_listener, req);
+		reqsk_queue_removed(&inet_csk(req->rsk_listener)->icsk_accept_queue, req);
+
+		if (sk != req->rsk_listener) {
+			/* another listening sk has been selected,
+			 * migrate the req to it.
+			 */
+			struct request_sock *nreq;
+
+			/* hold a refcnt for the nreq->rsk_listener
+			 * which is assigned in inet_reqsk_clone()
+			 */
+			sock_hold(sk);
+			nreq = inet_reqsk_clone(req, sk);
+			if (!nreq) {
+				inet_child_forget(sk, req, child);
+				goto child_put;
+			}
+
+			refcount_set(&nreq->rsk_refcnt, 1);
+			if (inet_csk_reqsk_queue_add(sk, nreq, child)) {
+				__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPMIGRATEREQSUCCESS);
+				reqsk_migrate_reset(req);
+				reqsk_put(req);
+				return child;
+			}
+
+			__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPMIGRATEREQFAILURE);
+			reqsk_migrate_reset(nreq);
+			__reqsk_free(nreq);
+		} else if (inet_csk_reqsk_queue_add(sk, req, child)) {
+			return child;
+		}
+	}
+	/* Too bad, another child took ownership of the request, undo. */
+child_put:
+>>>>>>> upstream/android-13
 	bh_unlock_sock(child);
 	sock_put(child);
 	return NULL;
@@ -1020,14 +1385,48 @@ void inet_csk_listen_stop(struct sock *sk)
 	 * of the variants now.			--ANK
 	 */
 	while ((req = reqsk_queue_remove(queue, sk)) != NULL) {
+<<<<<<< HEAD
 		struct sock *child = req->sk;
+=======
+		struct sock *child = req->sk, *nsk;
+		struct request_sock *nreq;
+>>>>>>> upstream/android-13
 
 		local_bh_disable();
 		bh_lock_sock(child);
 		WARN_ON(sock_owned_by_user(child));
 		sock_hold(child);
 
+<<<<<<< HEAD
 		inet_child_forget(sk, req, child);
+=======
+		nsk = reuseport_migrate_sock(sk, child, NULL);
+		if (nsk) {
+			nreq = inet_reqsk_clone(req, nsk);
+			if (nreq) {
+				refcount_set(&nreq->rsk_refcnt, 1);
+
+				if (inet_csk_reqsk_queue_add(nsk, nreq, child)) {
+					__NET_INC_STATS(sock_net(nsk),
+							LINUX_MIB_TCPMIGRATEREQSUCCESS);
+					reqsk_migrate_reset(req);
+				} else {
+					__NET_INC_STATS(sock_net(nsk),
+							LINUX_MIB_TCPMIGRATEREQFAILURE);
+					reqsk_migrate_reset(nreq);
+					__reqsk_free(nreq);
+				}
+
+				/* inet_csk_reqsk_queue_add() has already
+				 * called inet_child_forget() on failure case.
+				 */
+				goto skip_child_forget;
+			}
+		}
+
+		inet_child_forget(sk, req, child);
+skip_child_forget:
+>>>>>>> upstream/android-13
 		reqsk_put(req);
 		bh_unlock_sock(child);
 		local_bh_enable();
@@ -1062,6 +1461,7 @@ void inet_csk_addr2sockaddr(struct sock *sk, struct sockaddr *uaddr)
 }
 EXPORT_SYMBOL_GPL(inet_csk_addr2sockaddr);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 int inet_csk_compat_getsockopt(struct sock *sk, int level, int optname,
 			       char __user *optval, int __user *optlen)
@@ -1090,6 +1490,8 @@ int inet_csk_compat_setsockopt(struct sock *sk, int level, int optname,
 EXPORT_SYMBOL_GPL(inet_csk_compat_setsockopt);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static struct dst_entry *inet_csk_rebuild_route(struct sock *sk, struct flowi *fl)
 {
 	const struct inet_sock *inet = inet_sk(sk);

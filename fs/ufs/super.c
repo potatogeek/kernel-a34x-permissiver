@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/ufs/super.c
  *
@@ -69,7 +73,11 @@
 #include <linux/module.h>
 #include <linux/bitops.h>
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 
 #include <linux/uaccess.h>
 
@@ -127,10 +135,16 @@ static struct dentry *ufs_fh_to_parent(struct super_block *sb, struct fid *fid,
 
 static struct dentry *ufs_get_parent(struct dentry *child)
 {
+<<<<<<< HEAD
 	struct qstr dot_dot = QSTR_INIT("..", 2);
 	ino_t ino;
 
 	ino = ufs_inode_by_name(d_inode(child), &dot_dot);
+=======
+	ino_t ino;
+
+	ino = ufs_inode_by_name(d_inode(child), &dotdot_name);
+>>>>>>> upstream/android-13
 	if (!ino)
 		return ERR_PTR(-ENOENT);
 	return d_obtain_alias(ufs_iget(child->d_sb, ino));
@@ -842,6 +856,13 @@ static int ufs_fill_super(struct super_block *sb, void *data, int silent)
 
 	sb->s_maxbytes = MAX_LFS_FILESIZE;
 
+<<<<<<< HEAD
+=======
+	sb->s_time_gran = NSEC_PER_SEC;
+	sb->s_time_min = S32_MIN;
+	sb->s_time_max = S32_MAX;
+
+>>>>>>> upstream/android-13
 	switch (sbi->s_mount_opt & UFS_MOUNT_UFSTYPE) {
 	case UFS_MOUNT_UFSTYPE_44BSD:
 		UFSD("ufstype=44bsd\n");
@@ -860,6 +881,12 @@ static int ufs_fill_super(struct super_block *sb, void *data, int silent)
 		uspi->s_fshift = 9;
 		uspi->s_sbsize = super_block_size = 1536;
 		uspi->s_sbbase =  0;
+<<<<<<< HEAD
+=======
+		sb->s_time_gran = 1;
+		sb->s_time_min = S64_MIN;
+		sb->s_time_max = S64_MAX;
+>>>>>>> upstream/android-13
 		flags |= UFS_TYPE_UFS2 | UFS_DE_44BSD | UFS_UID_44BSD | UFS_ST_44BSD | UFS_CG_44BSD;
 		break;
 		
@@ -1406,11 +1433,17 @@ static int ufs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	struct super_block *sb = dentry->d_sb;
 	struct ufs_sb_private_info *uspi= UFS_SB(sb)->s_uspi;
 	unsigned  flags = UFS_SB(sb)->s_flags;
+<<<<<<< HEAD
 	struct ufs_super_block_third *usb3;
 	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
 
 	mutex_lock(&UFS_SB(sb)->s_lock);
 	usb3 = ubh_get_usb_third(uspi);
+=======
+	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
+
+	mutex_lock(&UFS_SB(sb)->s_lock);
+>>>>>>> upstream/android-13
 	
 	if ((flags & UFS_TYPE_MASK) == UFS_TYPE_UFS2)
 		buf->f_type = UFS2_MAGIC;
@@ -1425,8 +1458,12 @@ static int ufs_statfs(struct dentry *dentry, struct kstatfs *buf)
 		? (buf->f_bfree - uspi->s_root_blocks) : 0;
 	buf->f_files = uspi->s_ncg * uspi->s_ipg;
 	buf->f_namelen = UFS_MAXNAMLEN;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&UFS_SB(sb)->s_lock);
 
@@ -1449,6 +1486,7 @@ static struct inode *ufs_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void ufs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -1460,6 +1498,13 @@ static void ufs_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, ufs_i_callback);
 }
 
+=======
+static void ufs_free_in_core_inode(struct inode *inode)
+{
+	kmem_cache_free(ufs_inode_cachep, UFS_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct ufs_inode_info *ei = (struct ufs_inode_info *) foo;
@@ -1494,7 +1539,11 @@ static void destroy_inodecache(void)
 
 static const struct super_operations ufs_super_ops = {
 	.alloc_inode	= ufs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= ufs_destroy_inode,
+=======
+	.free_inode	= ufs_free_in_core_inode,
+>>>>>>> upstream/android-13
 	.write_inode	= ufs_write_inode,
 	.evict_inode	= ufs_evict_inode,
 	.put_super	= ufs_put_super,
@@ -1543,3 +1592,7 @@ static void __exit exit_ufs_fs(void)
 module_init(init_ufs_fs)
 module_exit(exit_ufs_fs)
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

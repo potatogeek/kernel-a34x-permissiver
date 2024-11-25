@@ -185,13 +185,21 @@ restore_sigcontext(struct pt_regs *regs, struct rt_sigframe __user *frame)
 	COPY(sar);
 #undef COPY
 
+<<<<<<< HEAD
 	/* All registers were flushed to stack. Start with a prestine frame. */
+=======
+	/* All registers were flushed to stack. Start with a pristine frame. */
+>>>>>>> upstream/android-13
 
 	regs->wmask = 1;
 	regs->windowbase = 0;
 	regs->windowstart = 1;
 
+<<<<<<< HEAD
 	regs->syscall = -1;		/* disable syscall checks */
+=======
+	regs->syscall = NO_SYSCALL;	/* disable syscall checks */
+>>>>>>> upstream/android-13
 
 	/* For PS, restore only PS.CALLINC.
 	 * Assume that all other bits are either the same as for the signal
@@ -236,9 +244,15 @@ restore_sigcontext(struct pt_regs *regs, struct rt_sigframe __user *frame)
  * Do a signal return; undo the signal stack.
  */
 
+<<<<<<< HEAD
 asmlinkage long xtensa_rt_sigreturn(long a0, long a1, long a2, long a3,
 				    long a4, long a5, struct pt_regs *regs)
 {
+=======
+asmlinkage long xtensa_rt_sigreturn(void)
+{
+	struct pt_regs *regs = current_pt_regs();
+>>>>>>> upstream/android-13
 	struct rt_sigframe __user *frame;
 	sigset_t set;
 	int ret;
@@ -251,7 +265,11 @@ asmlinkage long xtensa_rt_sigreturn(long a0, long a1, long a2, long a3,
 
 	frame = (struct rt_sigframe __user *) regs->areg[1];
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
@@ -270,7 +288,11 @@ asmlinkage long xtensa_rt_sigreturn(long a0, long a1, long a2, long a3,
 	return ret;
 
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -335,7 +357,12 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 {
 	struct rt_sigframe *frame;
 	int err = 0, sig = ksig->sig;
+<<<<<<< HEAD
 	unsigned long sp, ra, tp;
+=======
+	unsigned long sp, ra, tp, ps;
+	unsigned int base;
+>>>>>>> upstream/android-13
 
 	sp = regs->areg[1];
 
@@ -348,7 +375,11 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 	if (regs->depc > 64)
 		panic ("Double exception sys_sigreturn\n");
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame))) {
+=======
+	if (!access_ok(frame, sizeof(*frame))) {
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -385,6 +416,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 
 	/* Set up registers for signal handler; preserve the threadptr */
 	tp = regs->threadptr;
+<<<<<<< HEAD
 	start_thread(regs, (unsigned long) ksig->ka.sa.sa_handler,
 		     (unsigned long) frame);
 
@@ -396,6 +428,28 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 	regs->areg[7] = (unsigned long) &frame->info;
 	regs->areg[8] = (unsigned long) &frame->uc;
 	regs->threadptr = tp;
+=======
+	ps = regs->ps;
+	start_thread(regs, (unsigned long) ksig->ka.sa.sa_handler,
+		     (unsigned long) frame);
+
+	/* Set up a stack frame for a call4 if userspace uses windowed ABI */
+	if (ps & PS_WOE_MASK) {
+		base = 4;
+		regs->areg[base] =
+			(((unsigned long) ra) & 0x3fffffff) | 0x40000000;
+		ps = (ps & ~(PS_CALLINC_MASK | PS_OWB_MASK)) |
+			(1 << PS_CALLINC_SHIFT);
+	} else {
+		base = 0;
+		regs->areg[base] = (unsigned long) ra;
+	}
+	regs->areg[base + 2] = (unsigned long) sig;
+	regs->areg[base + 3] = (unsigned long) &frame->info;
+	regs->areg[base + 4] = (unsigned long) &frame->uc;
+	regs->threadptr = tp;
+	regs->ps = ps;
+>>>>>>> upstream/android-13
 
 	pr_debug("SIG rt deliver (%s:%d): signal=%d sp=%p pc=%08lx\n",
 		 current->comm, current->pid, sig, frame, regs->pc);
@@ -423,7 +477,11 @@ static void do_signal(struct pt_regs *regs)
 
 		/* Are we from a system call? */
 
+<<<<<<< HEAD
 		if ((signed)regs->syscall >= 0) {
+=======
+		if (regs->syscall != NO_SYSCALL) {
+>>>>>>> upstream/android-13
 
 			/* If so, check system call restarting.. */
 
@@ -438,7 +496,11 @@ static void do_signal(struct pt_regs *regs)
 						regs->areg[2] = -EINTR;
 						break;
 					}
+<<<<<<< HEAD
 					/* fallthrough */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case -ERESTARTNOINTR:
 					regs->areg[2] = regs->syscall;
 					regs->pc -= 3;
@@ -462,7 +524,11 @@ static void do_signal(struct pt_regs *regs)
 	}
 
 	/* Did we come from a system call? */
+<<<<<<< HEAD
 	if ((signed) regs->syscall >= 0) {
+=======
+	if (regs->syscall != NO_SYSCALL) {
+>>>>>>> upstream/android-13
 		/* Restart the system call - no handlers present */
 		switch (regs->areg[2]) {
 		case -ERESTARTNOHAND:
@@ -488,9 +554,17 @@ static void do_signal(struct pt_regs *regs)
 
 void do_notify_resume(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	if (test_thread_flag(TIF_SIGPENDING))
 		do_signal(regs);
 
 	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
+=======
+	if (test_thread_flag(TIF_SIGPENDING) ||
+	    test_thread_flag(TIF_NOTIFY_SIGNAL))
+		do_signal(regs);
+
+	if (test_thread_flag(TIF_NOTIFY_RESUME))
+>>>>>>> upstream/android-13
 		tracehook_notify_resume(regs);
 }

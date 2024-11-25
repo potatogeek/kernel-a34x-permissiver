@@ -129,13 +129,21 @@ struct xgbe_stats {
 
 #define XGMAC_MMC_STAT(_string, _var)				\
 	{ _string,						\
+<<<<<<< HEAD
 	  FIELD_SIZEOF(struct xgbe_mmc_stats, _var),		\
+=======
+	  sizeof_field(struct xgbe_mmc_stats, _var),		\
+>>>>>>> upstream/android-13
 	  offsetof(struct xgbe_prv_data, mmc_stats._var),	\
 	}
 
 #define XGMAC_EXT_STAT(_string, _var)				\
 	{ _string,						\
+<<<<<<< HEAD
 	  FIELD_SIZEOF(struct xgbe_ext_stats, _var),		\
+=======
+	  sizeof_field(struct xgbe_ext_stats, _var),		\
+>>>>>>> upstream/android-13
 	  offsetof(struct xgbe_prv_data, ext_stats._var),	\
 	}
 
@@ -405,7 +413,10 @@ static void xgbe_get_drvinfo(struct net_device *netdev,
 	struct xgbe_hw_features *hw_feat = &pdata->hw_feat;
 
 	strlcpy(drvinfo->driver, XGBE_DRV_NAME, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, XGBE_DRV_VERSION, sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(drvinfo->bus_info, dev_name(pdata->dev),
 		sizeof(drvinfo->bus_info));
 	snprintf(drvinfo->fw_version, sizeof(drvinfo->fw_version), "%d.%d.%d",
@@ -429,7 +440,13 @@ static void xgbe_set_msglevel(struct net_device *netdev, u32 msglevel)
 }
 
 static int xgbe_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			     struct ethtool_coalesce *ec)
+=======
+			     struct ethtool_coalesce *ec,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
 
@@ -444,13 +461,20 @@ static int xgbe_get_coalesce(struct net_device *netdev,
 }
 
 static int xgbe_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			     struct ethtool_coalesce *ec)
+=======
+			     struct ethtool_coalesce *ec,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
 	struct xgbe_hw_if *hw_if = &pdata->hw_if;
 	unsigned int rx_frames, rx_riwt, rx_usecs;
 	unsigned int tx_frames;
 
+<<<<<<< HEAD
 	/* Check for not supported parameters  */
 	if ((ec->rx_coalesce_usecs_irq) ||
 	    (ec->rx_max_coalesced_frames_irq) ||
@@ -475,6 +499,8 @@ static int xgbe_set_coalesce(struct net_device *netdev,
 		return -EOPNOTSUPP;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	rx_riwt = hw_if->usec_to_riwt(pdata, ec->rx_coalesce_usecs);
 	rx_usecs = ec->rx_coalesce_usecs;
 	rx_frames = ec->rx_max_coalesced_frames;
@@ -838,6 +864,11 @@ out:
 }
 
 static const struct ethtool_ops xgbe_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo = xgbe_get_drvinfo,
 	.get_msglevel = xgbe_get_msglevel,
 	.set_msglevel = xgbe_set_msglevel,

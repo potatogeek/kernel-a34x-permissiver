@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Parav Pandit <pandit.parav@gmail.com>
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Parav Pandit <pandit.parav@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include "core_priv.h"
@@ -21,12 +27,20 @@
  * Register with the rdma cgroup. Should be called before
  * exposing rdma device to user space applications to avoid
  * resource accounting leak.
+<<<<<<< HEAD
  * Returns 0 on success or otherwise failure code.
  */
 int ib_device_register_rdmacg(struct ib_device *device)
 {
 	device->cg_device.name = device->name;
 	return rdmacg_register_device(&device->cg_device);
+=======
+ */
+void ib_device_register_rdmacg(struct ib_device *device)
+{
+	device->cg_device.name = device->name;
+	rdmacg_register_device(&device->cg_device);
+>>>>>>> upstream/android-13
 }
 
 /**

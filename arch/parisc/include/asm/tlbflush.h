@@ -8,6 +8,7 @@
 #include <linux/sched.h>
 #include <asm/mmu_context.h>
 
+<<<<<<< HEAD
 
 /* This is for the serialisation of PxTLB broadcasts.  At least on the
  * N class systems, only one PxTLB inter processor broadcast can be
@@ -23,6 +24,8 @@ extern spinlock_t pa_tlb_lock;
 #define purge_tlb_start(flags)	spin_lock_irqsave(&pa_tlb_lock, flags)
 #define purge_tlb_end(flags)	spin_unlock_irqrestore(&pa_tlb_lock, flags)
 
+=======
+>>>>>>> upstream/android-13
 extern void flush_tlb_all(void);
 extern void flush_tlb_all_local(void *);
 
@@ -79,6 +82,7 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
 static inline void flush_tlb_page(struct vm_area_struct *vma,
 	unsigned long addr)
 {
+<<<<<<< HEAD
 	unsigned long flags, sid;
 
 	sid = vma->vm_mm->context;
@@ -88,5 +92,8 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
 	if (unlikely(split_tlb))
 		pitlb(addr);
 	purge_tlb_end(flags);
+=======
+	purge_tlb_entries(vma->vm_mm, addr);
+>>>>>>> upstream/android-13
 }
 #endif

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the BSD Socket
  *		interface as the means of communication with the user level.
  *
  * Authors:	Lotsa people, from code originally in tcp
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _INET6_HASHTABLES_H
@@ -89,9 +96,14 @@ static inline struct sock *__inet6_lookup_skb(struct inet_hashinfo *hashinfo,
 					      int iif, int sdif,
 					      bool *refcounted)
 {
+<<<<<<< HEAD
 	struct sock *sk = skb_steal_sock(skb);
 
 	*refcounted = true;
+=======
+	struct sock *sk = skb_steal_sock(skb, refcounted);
+
+>>>>>>> upstream/android-13
 	if (sk)
 		return sk;
 
@@ -115,9 +127,14 @@ int inet6_hash(struct sock *sk);
 	 ((__sk)->sk_family == AF_INET6)			&&	\
 	 ipv6_addr_equal(&(__sk)->sk_v6_daddr, (__saddr))		&&	\
 	 ipv6_addr_equal(&(__sk)->sk_v6_rcv_saddr, (__daddr))	&&	\
+<<<<<<< HEAD
 	 (!(__sk)->sk_bound_dev_if	||				\
 	   ((__sk)->sk_bound_dev_if == (__dif))	||			\
 	   ((__sk)->sk_bound_dev_if == (__sdif)))		&&	\
+=======
+	 (((__sk)->sk_bound_dev_if == (__dif))	||			\
+	  ((__sk)->sk_bound_dev_if == (__sdif)))		&&	\
+>>>>>>> upstream/android-13
 	 net_eq(sock_net(__sk), (__net)))
 
 #endif /* _INET6_HASHTABLES_H */

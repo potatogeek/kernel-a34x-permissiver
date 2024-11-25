@@ -1,13 +1,25 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved. */
 
+=======
+/* Copyright (c) 2016-2018, 2020, The Linux Foundation. All rights reserved. */
+
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
+<<<<<<< HEAD
 #include <linux/of_platform.h>
 #include <linux/of_reserved_mem.h>
 #include <linux/platform_device.h>
+=======
+#include <linux/of_reserved_mem.h>
+#include <linux/platform_device.h>
+#include <linux/seq_file.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 #include <soc/qcom/cmd-db.h>
@@ -102,8 +114,12 @@ static bool cmd_db_magic_matches(const struct cmd_db_header *header)
 
 static struct cmd_db_header *cmd_db_header;
 
+<<<<<<< HEAD
 
 static inline void *rsc_to_entry_header(struct rsc_hdr *hdr)
+=======
+static inline const void *rsc_to_entry_header(const struct rsc_hdr *hdr)
+>>>>>>> upstream/android-13
 {
 	u16 offset = le16_to_cpu(hdr->header_offset);
 
@@ -111,7 +127,11 @@ static inline void *rsc_to_entry_header(struct rsc_hdr *hdr)
 }
 
 static inline void *
+<<<<<<< HEAD
 rsc_offset(struct rsc_hdr *hdr, struct entry_header *ent)
+=======
+rsc_offset(const struct rsc_hdr *hdr, const struct entry_header *ent)
+>>>>>>> upstream/android-13
 {
 	u16 offset = le16_to_cpu(hdr->data_offset);
 	u16 loffset = le16_to_cpu(ent->offset);
@@ -135,11 +155,19 @@ int cmd_db_ready(void)
 }
 EXPORT_SYMBOL(cmd_db_ready);
 
+<<<<<<< HEAD
 static int cmd_db_get_header(const char *id, struct entry_header *eh,
 			     struct rsc_hdr *rh)
 {
 	struct rsc_hdr *rsc_hdr;
 	struct entry_header *ent;
+=======
+static int cmd_db_get_header(const char *id, const struct entry_header **eh,
+			     const struct rsc_hdr **rh)
+{
+	const struct rsc_hdr *rsc_hdr;
+	const struct entry_header *ent;
+>>>>>>> upstream/android-13
 	int ret, i, j;
 	u8 query[8];
 
@@ -147,9 +175,12 @@ static int cmd_db_get_header(const char *id, struct entry_header *eh,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (!eh || !rh)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/* Pad out query string to same length as in DB */
 	strncpy(query, id, sizeof(query));
 
@@ -160,6 +191,7 @@ static int cmd_db_get_header(const char *id, struct entry_header *eh,
 
 		ent = rsc_to_entry_header(rsc_hdr);
 		for (j = 0; j < le16_to_cpu(rsc_hdr->cnt); j++, ent++) {
+<<<<<<< HEAD
 			if (memcmp(ent->id, query, sizeof(ent->id)) == 0)
 				break;
 		}
@@ -168,6 +200,15 @@ static int cmd_db_get_header(const char *id, struct entry_header *eh,
 			memcpy(eh, ent, sizeof(*ent));
 			memcpy(rh, rsc_hdr, sizeof(*rh));
 			return 0;
+=======
+			if (memcmp(ent->id, query, sizeof(ent->id)) == 0) {
+				if (eh)
+					*eh = ent;
+				if (rh)
+					*rh = rsc_hdr;
+				return 0;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -187,18 +228,27 @@ static int cmd_db_get_header(const char *id, struct entry_header *eh,
 u32 cmd_db_read_addr(const char *id)
 {
 	int ret;
+<<<<<<< HEAD
 	struct entry_header ent;
 	struct rsc_hdr rsc_hdr;
 
 	ret = cmd_db_get_header(id, &ent, &rsc_hdr);
 
 	return ret < 0 ? 0 : le32_to_cpu(ent.addr);
+=======
+	const struct entry_header *ent;
+
+	ret = cmd_db_get_header(id, &ent, NULL);
+
+	return ret < 0 ? 0 : le32_to_cpu(ent->addr);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(cmd_db_read_addr);
 
 /**
  * cmd_db_read_aux_data() - Query command db for aux data.
  *
+<<<<<<< HEAD
  *  @id: Resource to retrieve AUX Data on.
  *  @data: Data buffer to copy returned aux data to. Returns size on NULL
  *  @len: Caller provides size of data buffer passed in.
@@ -227,10 +277,32 @@ int cmd_db_read_aux_data(const char *id, u8 *data, size_t len)
 	memcpy(data, rsc_offset(&rsc_hdr, &ent), len);
 
 	return len;
+=======
+ *  @id: Resource to retrieve AUX Data on
+ *  @len: size of data buffer returned
+ *
+ *  Return: pointer to data on success, error pointer otherwise
+ */
+const void *cmd_db_read_aux_data(const char *id, size_t *len)
+{
+	int ret;
+	const struct entry_header *ent;
+	const struct rsc_hdr *rsc_hdr;
+
+	ret = cmd_db_get_header(id, &ent, &rsc_hdr);
+	if (ret)
+		return ERR_PTR(ret);
+
+	if (len)
+		*len = le16_to_cpu(ent->len);
+
+	return rsc_offset(rsc_hdr, ent);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(cmd_db_read_aux_data);
 
 /**
+<<<<<<< HEAD
  * cmd_db_read_aux_data_len - Get the length of the auxiliary data stored in DB.
  *
  * @id: Resource to retrieve AUX Data.
@@ -250,6 +322,8 @@ size_t cmd_db_read_aux_data_len(const char *id)
 EXPORT_SYMBOL(cmd_db_read_aux_data_len);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * cmd_db_read_slave_id - Get the slave ID for a given resource address
  *
  * @id: Resource id to query the DB for version
@@ -259,6 +333,7 @@ EXPORT_SYMBOL(cmd_db_read_aux_data_len);
 enum cmd_db_hw_type cmd_db_read_slave_id(const char *id)
 {
 	int ret;
+<<<<<<< HEAD
 	struct entry_header ent;
 	struct rsc_hdr rsc_hdr;
 	u32 addr;
@@ -268,10 +343,94 @@ enum cmd_db_hw_type cmd_db_read_slave_id(const char *id)
 		return CMD_DB_HW_INVALID;
 
 	addr = le32_to_cpu(ent.addr);
+=======
+	const struct entry_header *ent;
+	u32 addr;
+
+	ret = cmd_db_get_header(id, &ent, NULL);
+	if (ret < 0)
+		return CMD_DB_HW_INVALID;
+
+	addr = le32_to_cpu(ent->addr);
+>>>>>>> upstream/android-13
 	return (addr >> SLAVE_ID_SHIFT) & SLAVE_ID_MASK;
 }
 EXPORT_SYMBOL(cmd_db_read_slave_id);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DEBUG_FS
+static int cmd_db_debugfs_dump(struct seq_file *seq, void *p)
+{
+	int i, j;
+	const struct rsc_hdr *rsc;
+	const struct entry_header *ent;
+	const char *name;
+	u16 len, version;
+	u8 major, minor;
+
+	seq_puts(seq, "Command DB DUMP\n");
+
+	for (i = 0; i < MAX_SLV_ID; i++) {
+		rsc = &cmd_db_header->header[i];
+		if (!rsc->slv_id)
+			break;
+
+		switch (le16_to_cpu(rsc->slv_id)) {
+		case CMD_DB_HW_ARC:
+			name = "ARC";
+			break;
+		case CMD_DB_HW_VRM:
+			name = "VRM";
+			break;
+		case CMD_DB_HW_BCM:
+			name = "BCM";
+			break;
+		default:
+			name = "Unknown";
+			break;
+		}
+
+		version = le16_to_cpu(rsc->version);
+		major = version >> 8;
+		minor = version;
+
+		seq_printf(seq, "Slave %s (v%u.%u)\n", name, major, minor);
+		seq_puts(seq, "-------------------------\n");
+
+		ent = rsc_to_entry_header(rsc);
+		for (j = 0; j < le16_to_cpu(rsc->cnt); j++, ent++) {
+			seq_printf(seq, "0x%05x: %*pEp", le32_to_cpu(ent->addr),
+				   (int)sizeof(ent->id), ent->id);
+
+			len = le16_to_cpu(ent->len);
+			if (len) {
+				seq_printf(seq, " [%*ph]",
+					   len, rsc_offset(rsc, ent));
+			}
+			seq_putc(seq, '\n');
+		}
+	}
+
+	return 0;
+}
+
+static int open_cmd_db_debugfs(struct inode *inode, struct file *file)
+{
+	return single_open(file, cmd_db_debugfs_dump, inode->i_private);
+}
+#endif
+
+static const struct file_operations cmd_db_debugfs_ops = {
+#ifdef CONFIG_DEBUG_FS
+	.open = open_cmd_db_debugfs,
+#endif
+	.read = seq_read,
+	.llseek = seq_lseek,
+	.release = single_release,
+};
+
+>>>>>>> upstream/android-13
 static int cmd_db_dev_probe(struct platform_device *pdev)
 {
 	struct reserved_mem *rmem;
@@ -295,19 +454,34 @@ static int cmd_db_dev_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	debugfs_create_file("cmd-db", 0400, NULL, NULL, &cmd_db_debugfs_ops);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static const struct of_device_id cmd_db_match_table[] = {
 	{ .compatible = "qcom,cmd-db" },
+<<<<<<< HEAD
 	{ },
 };
+=======
+	{ }
+};
+MODULE_DEVICE_TABLE(of, cmd_db_match_table);
+>>>>>>> upstream/android-13
 
 static struct platform_driver cmd_db_dev_driver = {
 	.probe  = cmd_db_dev_probe,
 	.driver = {
 		   .name = "cmd-db",
 		   .of_match_table = cmd_db_match_table,
+<<<<<<< HEAD
+=======
+		   .suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -316,5 +490,10 @@ static int __init cmd_db_device_init(void)
 	return platform_driver_register(&cmd_db_dev_driver);
 }
 arch_initcall(cmd_db_device_init);
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Qualcomm Command DB");
+=======
+
+MODULE_DESCRIPTION("Qualcomm Technologies, Inc. Command DB Driver");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

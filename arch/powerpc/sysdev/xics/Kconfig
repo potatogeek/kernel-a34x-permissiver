@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 config PPC_XICS
+<<<<<<< HEAD
        def_bool n
        select PPC_SMP_MUXED_IPI
        select HARDIRQS_SW_RESEND
@@ -13,3 +14,20 @@ config PPC_ICP_HV
 config PPC_ICS_RTAS
        def_bool n
 
+=======
+	def_bool n
+	select PPC_SMP_MUXED_IPI
+	select HARDIRQS_SW_RESEND
+
+config PPC_ICP_NATIVE
+	def_bool n
+
+config PPC_ICP_HV
+	def_bool n
+
+config PPC_ICS_RTAS
+	def_bool n
+
+config PPC_ICS_NATIVE
+	def_bool n
+>>>>>>> upstream/android-13

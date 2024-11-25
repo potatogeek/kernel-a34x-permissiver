@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Pengutronix, Juergen Borleis <kernel@pengutronix.de>
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2017 Pengutronix, Juergen Borleis <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -76,6 +82,7 @@ static int lan9303_i2c_probe(struct i2c_client *client,
 
 static int lan9303_i2c_remove(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	struct lan9303_i2c *sw_dev;
 
 	sw_dev = i2c_get_clientdata(client);
@@ -83,6 +90,30 @@ static int lan9303_i2c_remove(struct i2c_client *client)
 		return -ENODEV;
 
 	return lan9303_remove(&sw_dev->chip);
+=======
+	struct lan9303_i2c *sw_dev = i2c_get_clientdata(client);
+
+	if (!sw_dev)
+		return 0;
+
+	lan9303_remove(&sw_dev->chip);
+
+	i2c_set_clientdata(client, NULL);
+
+	return 0;
+}
+
+static void lan9303_i2c_shutdown(struct i2c_client *client)
+{
+	struct lan9303_i2c *sw_dev = i2c_get_clientdata(client);
+
+	if (!sw_dev)
+		return;
+
+	lan9303_shutdown(&sw_dev->chip);
+
+	i2c_set_clientdata(client, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------------------------------------------------------*/
@@ -106,6 +137,10 @@ static struct i2c_driver lan9303_i2c_driver = {
 	},
 	.probe = lan9303_i2c_probe,
 	.remove = lan9303_i2c_remove,
+<<<<<<< HEAD
+=======
+	.shutdown = lan9303_i2c_shutdown,
+>>>>>>> upstream/android-13
 	.id_table = lan9303_i2c_id,
 };
 module_i2c_driver(lan9303_i2c_driver);

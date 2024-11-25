@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig CAN_C_CAN
 	tristate "Bosch C_CAN/D_CAN devices"
 	depends on HAS_IOMEM
@@ -6,7 +10,11 @@ if CAN_C_CAN
 
 config CAN_C_CAN_PLATFORM
 	tristate "Generic Platform Bus based C_CAN/D_CAN driver"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver adds support for the C_CAN/D_CAN chips connected
 	  to the "platform bus" (Linux abstraction for directly to the
 	  processor attached devices) which can be found on various
@@ -17,7 +25,11 @@ config CAN_C_CAN_PLATFORM
 config CAN_C_CAN_PCI
 	tristate "Generic PCI Bus based C_CAN/D_CAN driver"
 	depends on PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver adds support for the C_CAN/D_CAN chips connected
 	  to the PCI bus.
 endif

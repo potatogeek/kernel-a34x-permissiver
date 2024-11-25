@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010 Cisco Systems, Inc.
  *
@@ -9,6 +13,7 @@
  * Copyright (c) 2009 Rising Tide, Inc.
  * Copyright (c) 2009 Linux-iSCSI.org
  * Copyright (c) 2009 Nicholas A. Bellinger <nab@linux-iscsi.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -22,6 +27,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* XXX TBD some includes may be extraneous */
@@ -40,7 +47,10 @@
 #include <linux/ratelimit.h>
 #include <asm/unaligned.h>
 #include <scsi/libfc.h>
+<<<<<<< HEAD
 #include <scsi/fc_encode.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <target/target_core_base.h>
 #include <target/target_core_fabric.h>
@@ -148,8 +158,12 @@ int ft_queue_data_in(struct se_cmd *se_cmd)
 					   page, off_in_page, tlen);
 			fr_len(fp) += tlen;
 			fp_skb(fp)->data_len += tlen;
+<<<<<<< HEAD
 			fp_skb(fp)->truesize +=
 					PAGE_SIZE << compound_order(page);
+=======
+			fp_skb(fp)->truesize += page_size(page);
+>>>>>>> upstream/android-13
 		} else {
 			BUG_ON(!page);
 			from = kmap_atomic(page + (mem_off >> PAGE_SHIFT));
@@ -234,7 +248,10 @@ void ft_recv_write_data(struct ft_cmd *cmd, struct fc_frame *fp)
 	ep = fc_seq_exch(seq);
 	lport = ep->lp;
 	if (cmd->was_ddp_setup) {
+<<<<<<< HEAD
 		BUG_ON(!ep);
+=======
+>>>>>>> upstream/android-13
 		BUG_ON(!lport);
 		/*
 		 * Since DDP (Large Rx offload) was setup for this request,

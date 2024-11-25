@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43 wireless driver
@@ -10,6 +14,7 @@
   Copyright (C) 2005 Danny van Dyk <kugelfang@gentoo.org>
   Copyright (C) 2005 Andreas Jaggi <andreas.jaggi@waterwave.ch>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -435,10 +442,17 @@ int b43_generate_txhdr(struct b43_wldev *dev,
 	if ((rates[0].flags & IEEE80211_TX_RC_USE_RTS_CTS) ||
 	    (rates[0].flags & IEEE80211_TX_RC_USE_CTS_PROTECT)) {
 		unsigned int len;
+<<<<<<< HEAD
 		struct ieee80211_hdr *uninitialized_var(hdr);
 		int rts_rate, rts_rate_fb;
 		int rts_rate_ofdm, rts_rate_fb_ofdm;
 		struct b43_plcp_hdr6 *uninitialized_var(plcp);
+=======
+		struct ieee80211_hdr *hdr;
+		int rts_rate, rts_rate_fb;
+		int rts_rate_ofdm, rts_rate_fb_ofdm;
+		struct b43_plcp_hdr6 *plcp;
+>>>>>>> upstream/android-13
 		struct ieee80211_rate *rts_cts_rate;
 
 		rts_cts_rate = ieee80211_get_rts_cts_rate(dev->wl->hw, info);
@@ -449,7 +463,11 @@ int b43_generate_txhdr(struct b43_wldev *dev,
 		rts_rate_fb_ofdm = b43_is_ofdm_rate(rts_rate_fb);
 
 		if (rates[0].flags & IEEE80211_TX_RC_USE_CTS_PROTECT) {
+<<<<<<< HEAD
 			struct ieee80211_cts *uninitialized_var(cts);
+=======
+			struct ieee80211_cts *cts;
+>>>>>>> upstream/android-13
 
 			switch (dev->fw.hdr_format) {
 			case B43_FW_HDR_598:
@@ -471,7 +489,11 @@ int b43_generate_txhdr(struct b43_wldev *dev,
 			mac_ctl |= B43_TXH_MAC_SENDCTS;
 			len = sizeof(struct ieee80211_cts);
 		} else {
+<<<<<<< HEAD
 			struct ieee80211_rts *uninitialized_var(rts);
+=======
+			struct ieee80211_rts *rts;
+>>>>>>> upstream/android-13
 
 			switch (dev->fw.hdr_format) {
 			case B43_FW_HDR_598:
@@ -642,6 +664,7 @@ static s8 b43_rssi_postprocess(struct b43_wldev *dev,
 	return (s8) tmp;
 }
 
+<<<<<<< HEAD
 //TODO
 #if 0
 static s8 b43_rssinoise_postprocess(struct b43_wldev *dev, u8 in_rssi)
@@ -655,6 +678,8 @@ static s8 b43_rssinoise_postprocess(struct b43_wldev *dev, u8 in_rssi)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void b43_rx(struct b43_wldev *dev, struct sk_buff *skb, const void *_rxhdr)
 {
 	struct ieee80211_rx_status status;
@@ -663,8 +688,13 @@ void b43_rx(struct b43_wldev *dev, struct sk_buff *skb, const void *_rxhdr)
 	const struct b43_rxhdr_fw4 *rxhdr = _rxhdr;
 	__le16 fctl;
 	u16 phystat0, phystat3;
+<<<<<<< HEAD
 	u16 uninitialized_var(chanstat), uninitialized_var(mactime);
 	u32 uninitialized_var(macstat);
+=======
+	u16 chanstat, mactime;
+	u32 macstat;
+>>>>>>> upstream/android-13
 	u16 chanid;
 	int padding, rate_idx;
 

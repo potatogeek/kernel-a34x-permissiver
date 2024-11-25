@@ -24,6 +24,11 @@
 #define DRV_VERSION "1.2"
 
 static int pio_mask = 1;
+<<<<<<< HEAD
+=======
+module_param(pio_mask, int, 0);
+MODULE_PARM_DESC(pio_mask, "PIO modes supported, mode 0 only by default");
+>>>>>>> upstream/android-13
 
 /*
  * Provide our own set_mode() as we don't want to change anything that has
@@ -47,6 +52,7 @@ static struct scsi_host_template pata_platform_sht = {
 	ATA_PIO_SHT(DRV_NAME),
 };
 
+<<<<<<< HEAD
 static struct ata_port_operations pata_platform_port_ops = {
 	.inherits		= &ata_sff_port_ops,
 	.sff_data_xfer		= ata_sff_data_xfer32,
@@ -54,6 +60,8 @@ static struct ata_port_operations pata_platform_port_ops = {
 	.set_mode		= pata_platform_set_mode,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void pata_platform_setup_port(struct ata_ioports *ioaddr,
 				     unsigned int shift)
 {
@@ -79,6 +87,10 @@ static void pata_platform_setup_port(struct ata_ioports *ioaddr,
  *	@ioport_shift: I/O port shift
  *	@__pio_mask: PIO mask
  *	@sht: scsi_host_template to use when registering
+<<<<<<< HEAD
+=======
+ *	@use16bit: Flag to indicate 16-bit IO instead of 32-bit
+>>>>>>> upstream/android-13
  *
  *	Register a platform bus IDE interface. Such interfaces are PIO and we
  *	assume do not support IRQ sharing.
@@ -101,7 +113,11 @@ static void pata_platform_setup_port(struct ata_ioports *ioaddr,
 int __pata_platform_probe(struct device *dev, struct resource *io_res,
 			  struct resource *ctl_res, struct resource *irq_res,
 			  unsigned int ioport_shift, int __pio_mask,
+<<<<<<< HEAD
 			  struct scsi_host_template *sht)
+=======
+			  struct scsi_host_template *sht, bool use16bit)
+>>>>>>> upstream/android-13
 {
 	struct ata_host *host;
 	struct ata_port *ap;
@@ -120,7 +136,11 @@ int __pata_platform_probe(struct device *dev, struct resource *io_res,
 	 */
 	if (irq_res && irq_res->start > 0) {
 		irq = irq_res->start;
+<<<<<<< HEAD
 		irq_flags = irq_res->flags & IRQF_TRIGGER_MASK;
+=======
+		irq_flags = (irq_res->flags & IRQF_TRIGGER_MASK) | IRQF_SHARED;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -131,7 +151,19 @@ int __pata_platform_probe(struct device *dev, struct resource *io_res,
 		return -ENOMEM;
 	ap = host->ports[0];
 
+<<<<<<< HEAD
 	ap->ops = &pata_platform_port_ops;
+=======
+	ap->ops = devm_kzalloc(dev, sizeof(*ap->ops), GFP_KERNEL);
+	ap->ops->inherits = &ata_sff_port_ops;
+	ap->ops->cable_detect = ata_cable_unknown;
+	ap->ops->set_mode = pata_platform_set_mode;
+	if (use16bit)
+		ap->ops->sff_data_xfer = ata_sff_data_xfer;
+	else
+		ap->ops->sff_data_xfer = ata_sff_data_xfer32;
+
+>>>>>>> upstream/android-13
 	ap->pio_mask = __pio_mask;
 	ap->flags |= ATA_FLAG_SLAVE_POSS;
 
@@ -218,7 +250,11 @@ static int pata_platform_probe(struct platform_device *pdev)
 
 	return __pata_platform_probe(&pdev->dev, io_res, ctl_res, irq_res,
 				     pp_info ? pp_info->ioport_shift : 0,
+<<<<<<< HEAD
 				     pio_mask, &pata_platform_sht);
+=======
+				     pio_mask, &pata_platform_sht, false);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver pata_platform_driver = {
@@ -231,8 +267,11 @@ static struct platform_driver pata_platform_driver = {
 
 module_platform_driver(pata_platform_driver);
 
+<<<<<<< HEAD
 module_param(pio_mask, int, 0);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Paul Mundt");
 MODULE_DESCRIPTION("low-level driver for platform device ATA");
 MODULE_LICENSE("GPL");

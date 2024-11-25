@@ -13,6 +13,7 @@ C MP+polocks
 
 {}
 
+<<<<<<< HEAD
 P0(int *x, int *y, spinlock_t *mylock)
 {
 	WRITE_ONCE(*x, 1);
@@ -22,14 +23,34 @@ P0(int *x, int *y, spinlock_t *mylock)
 }
 
 P1(int *x, int *y, spinlock_t *mylock)
+=======
+P0(int *buf, int *flag, spinlock_t *mylock) // Producer
+{
+	WRITE_ONCE(*buf, 1);
+	spin_lock(mylock);
+	WRITE_ONCE(*flag, 1);
+	spin_unlock(mylock);
+}
+
+P1(int *buf, int *flag, spinlock_t *mylock) // Consumer
+>>>>>>> upstream/android-13
 {
 	int r0;
 	int r1;
 
 	spin_lock(mylock);
+<<<<<<< HEAD
 	r0 = READ_ONCE(*y);
 	spin_unlock(mylock);
 	r1 = READ_ONCE(*x);
 }
 
 exists (1:r0=1 /\ 1:r1=0)
+=======
+	r0 = READ_ONCE(*flag);
+	spin_unlock(mylock);
+	r1 = READ_ONCE(*buf);
+}
+
+exists (1:r0=1 /\ 1:r1=0) (* Bad outcome. *)
+>>>>>>> upstream/android-13

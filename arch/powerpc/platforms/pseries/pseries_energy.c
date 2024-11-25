@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * POWER platform energy management driver
  * Copyright (C) 2010 IBM Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This pseries platform device driver provides access to
  * platform energy management capabilities.
  */
@@ -39,6 +46,10 @@ static int sysfs_entries;
 static u32 cpu_to_drc_index(int cpu)
 {
 	struct device_node *dn = NULL;
+<<<<<<< HEAD
+=======
+	struct property *info;
+>>>>>>> upstream/android-13
 	int thread_index;
 	int rc = 1;
 	u32 ret = 0;
@@ -50,13 +61,19 @@ static u32 cpu_to_drc_index(int cpu)
 	/* Convert logical cpu number to core number */
 	thread_index = cpu_core_index_of_thread(cpu);
 
+<<<<<<< HEAD
 	if (firmware_has_feature(FW_FEATURE_DRC_INFO)) {
 		struct property *info = NULL;
+=======
+	info = of_find_property(dn, "ibm,drc-info", NULL);
+	if (info) {
+>>>>>>> upstream/android-13
 		struct of_drc_info drc;
 		int j;
 		u32 num_set_entries;
 		const __be32 *value;
 
+<<<<<<< HEAD
 		info = of_find_property(dn, "ibm,drc-info", NULL);
 		if (info == NULL)
 			goto err_of_node_put;
@@ -64,6 +81,13 @@ static u32 cpu_to_drc_index(int cpu)
 		value = of_prop_next_u32(info, NULL, &num_set_entries);
 		if (!value)
 			goto err_of_node_put;
+=======
+		value = of_prop_next_u32(info, NULL, &num_set_entries);
+		if (!value)
+			goto err_of_node_put;
+		else
+			value++;
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < num_set_entries; j++) {
 
@@ -113,6 +137,10 @@ err:
 static int drc_index_to_cpu(u32 drc_index)
 {
 	struct device_node *dn = NULL;
+<<<<<<< HEAD
+=======
+	struct property *info;
+>>>>>>> upstream/android-13
 	const int *indexes;
 	int thread_index = 0, cpu = 0;
 	int rc = 1;
@@ -120,14 +148,20 @@ static int drc_index_to_cpu(u32 drc_index)
 	dn = of_find_node_by_path("/cpus");
 	if (dn == NULL)
 		goto err;
+<<<<<<< HEAD
 
 	if (firmware_has_feature(FW_FEATURE_DRC_INFO)) {
 		struct property *info = NULL;
+=======
+	info = of_find_property(dn, "ibm,drc-info", NULL);
+	if (info) {
+>>>>>>> upstream/android-13
 		struct of_drc_info drc;
 		int j;
 		u32 num_set_entries;
 		const __be32 *value;
 
+<<<<<<< HEAD
 		info = of_find_property(dn, "ibm,drc-info", NULL);
 		if (info == NULL)
 			goto err_of_node_put;
@@ -135,6 +169,13 @@ static int drc_index_to_cpu(u32 drc_index)
 		value = of_prop_next_u32(info, NULL, &num_set_entries);
 		if (!value)
 			goto err_of_node_put;
+=======
+		value = of_prop_next_u32(info, NULL, &num_set_entries);
+		if (!value)
+			goto err_of_node_put;
+		else
+			value++;
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < num_set_entries; j++) {
 

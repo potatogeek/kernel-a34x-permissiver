@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *                   Creative Labs, Inc.
@@ -8,12 +12,16 @@
  *  	Added EMU 1010 support.
  *  	General bug fixes and enhancements.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  BUGS:
  *    --
  *
  *  TODO:
  *    --
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,6 +37,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -115,7 +125,11 @@ void snd_emu10k1_voice_init(struct snd_emu10k1 *emu, int ch)
 	}
 }
 
+<<<<<<< HEAD
 static unsigned int spi_dac_init[] = {
+=======
+static const unsigned int spi_dac_init[] = {
+>>>>>>> upstream/android-13
 		0x00ff,
 		0x02ff,
 		0x0400,
@@ -139,7 +153,11 @@ static unsigned int spi_dac_init[] = {
 		0x1400,
 };
 
+<<<<<<< HEAD
 static unsigned int i2c_adc_init[][2] = {
+=======
+static const unsigned int i2c_adc_init[][2] = {
+>>>>>>> upstream/android-13
 	{ 0x17, 0x00 }, /* Reset */
 	{ 0x07, 0x00 }, /* Timeout */
 	{ 0x0b, 0x22 },  /* Interface control */
@@ -638,7 +656,11 @@ static int snd_emu10k1_ecard_init(struct snd_emu10k1 *emu)
 static int snd_emu10k1_cardbus_init(struct snd_emu10k1 *emu)
 {
 	unsigned long special_port;
+<<<<<<< HEAD
 	unsigned int value;
+=======
+	__always_unused unsigned int value;
+>>>>>>> upstream/android-13
 
 	/* Special initialisation routine
 	 * before the rest of the IO-Ports become active.
@@ -668,7 +690,11 @@ static int snd_emu1010_load_firmware_entry(struct snd_emu10k1 *emu,
 	int n, i;
 	int reg;
 	int value;
+<<<<<<< HEAD
 	unsigned int write_post;
+=======
+	__always_unused unsigned int write_post;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	if (!fw_entry)
@@ -1257,8 +1283,15 @@ static int alloc_pm_buffer(struct snd_emu10k1 *emu);
 static void free_pm_buffer(struct snd_emu10k1 *emu);
 #endif
 
+<<<<<<< HEAD
 static int snd_emu10k1_free(struct snd_emu10k1 *emu)
 {
+=======
+static void snd_emu10k1_free(struct snd_card *card)
+{
+	struct snd_emu10k1 *emu = card->private_data;
+
+>>>>>>> upstream/android-13
 	if (emu->port) {	/* avoid access to already used hardware */
 		snd_emu10k1_fx8010_tram_setup(emu, 0);
 		snd_emu10k1_done(emu);
@@ -1271,8 +1304,11 @@ static int snd_emu10k1_free(struct snd_emu10k1 *emu)
 	cancel_delayed_work_sync(&emu->emu1010.firmware_work);
 	release_firmware(emu->firmware);
 	release_firmware(emu->dock_fw);
+<<<<<<< HEAD
 	if (emu->irq >= 0)
 		free_irq(emu->irq, emu);
+=======
+>>>>>>> upstream/android-13
 	snd_util_memhdr_free(emu->memhdr);
 	if (emu->silent_page.area)
 		snd_dma_free_pages(&emu->silent_page);
@@ -1283,6 +1319,7 @@ static int snd_emu10k1_free(struct snd_emu10k1 *emu)
 #ifdef CONFIG_PM_SLEEP
 	free_pm_buffer(emu);
 #endif
+<<<<<<< HEAD
 	if (emu->port)
 		pci_release_regions(emu->pci);
 	if (emu->card_capabilities->ca0151_chip) /* P16V */
@@ -1299,6 +1336,11 @@ static int snd_emu10k1_dev_free(struct snd_device *device)
 }
 
 static struct snd_emu_chip_details emu_chip_details[] = {
+=======
+}
+
+static const struct snd_emu_chip_details emu_chip_details[] = {
+>>>>>>> upstream/android-13
 	/* Audigy 5/Rx SB1550 */
 	/* Tested by michael@gernoth.net 28 Mar 2015 */
 	/* DSP: CA10300-IAT LF
@@ -1797,6 +1839,7 @@ int snd_emu10k1_create(struct snd_card *card,
 		       unsigned short extout_mask,
 		       long max_cache_bytes,
 		       int enable_ir,
+<<<<<<< HEAD
 		       uint subsystem,
 		       struct snd_emu10k1 **remu)
 {
@@ -1822,6 +1865,24 @@ int snd_emu10k1_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+		       uint subsystem)
+{
+	struct snd_emu10k1 *emu = card->private_data;
+	int idx, err;
+	int is_audigy;
+	size_t page_table_size;
+	__le32 *pgtbl;
+	unsigned int silent_page;
+	const struct snd_emu_chip_details *c;
+
+	/* enable PCI device */
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+	card->private_free = snd_emu10k1_free;
+>>>>>>> upstream/android-13
 	emu->card = card;
 	spin_lock_init(&emu->reg_lock);
 	spin_lock_init(&emu->emu_lock);
@@ -1864,8 +1925,11 @@ int snd_emu10k1_create(struct snd_card *card,
 	}
 	if (c->vendor == 0) {
 		dev_err(card->dev, "emu10k1: Card not recognised\n");
+<<<<<<< HEAD
 		kfree(emu);
 		pci_disable_device(pci);
+=======
+>>>>>>> upstream/android-13
 		return -ENOENT;
 	}
 	emu->card_capabilities = c;
@@ -1882,6 +1946,7 @@ int snd_emu10k1_create(struct snd_card *card,
 			c->name, pci->vendor, pci->device,
 			emu->serial);
 
+<<<<<<< HEAD
 	if (!*card->id && c->id) {
 		int i, n = 0;
 		strlcpy(card->id, c->id, sizeof(card->id));
@@ -1898,6 +1963,10 @@ int snd_emu10k1_create(struct snd_card *card,
 			snprintf(card->id, sizeof(card->id), "%s_%d", c->id, n);
 		}
 	}
+=======
+	if (!*card->id && c->id)
+		strscpy(card->id, c->id, sizeof(card->id));
+>>>>>>> upstream/android-13
 
 	is_audigy = emu->audigy = c->emu10k2_chip;
 
@@ -1911,8 +1980,11 @@ int snd_emu10k1_create(struct snd_card *card,
 		dev_err(card->dev,
 			"architecture does not support PCI busmaster DMA with mask 0x%lx\n",
 			emu->dma_mask);
+<<<<<<< HEAD
 		kfree(emu);
 		pci_disable_device(pci);
+=======
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 	if (is_audigy)
@@ -1921,11 +1993,16 @@ int snd_emu10k1_create(struct snd_card *card,
 		emu->gpr_base = FXGPREGBASE;
 
 	err = pci_request_regions(pci, "EMU10K1");
+<<<<<<< HEAD
 	if (err < 0) {
 		kfree(emu);
 		pci_disable_device(pci);
 		return err;
 	}
+=======
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	emu->port = pci_resource_start(pci, 0);
 
 	emu->max_cache_pages = max_cache_bytes >> PAGE_SHIFT;
@@ -1933,10 +2010,15 @@ int snd_emu10k1_create(struct snd_card *card,
 	page_table_size = sizeof(u32) * (emu->address_mode ? MAXPAGES1 :
 					 MAXPAGES0);
 	if (snd_emu10k1_alloc_pages_maybe_wider(emu, page_table_size,
+<<<<<<< HEAD
 						&emu->ptb_pages) < 0) {
 		err = -ENOMEM;
 		goto error;
 	}
+=======
+						&emu->ptb_pages) < 0)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	dev_dbg(card->dev, "page table address range is %.8lx:%.8lx\n",
 		(unsigned long)emu->ptb_pages.addr,
 		(unsigned long)(emu->ptb_pages.addr + emu->ptb_pages.bytes));
@@ -1945,6 +2027,7 @@ int snd_emu10k1_create(struct snd_card *card,
 						 emu->max_cache_pages));
 	emu->page_addr_table = vmalloc(array_size(sizeof(unsigned long),
 						  emu->max_cache_pages));
+<<<<<<< HEAD
 	if (emu->page_ptr_table == NULL || emu->page_addr_table == NULL) {
 		err = -ENOMEM;
 		goto error;
@@ -1955,16 +2038,29 @@ int snd_emu10k1_create(struct snd_card *card,
 		err = -ENOMEM;
 		goto error;
 	}
+=======
+	if (!emu->page_ptr_table || !emu->page_addr_table)
+		return -ENOMEM;
+
+	if (snd_emu10k1_alloc_pages_maybe_wider(emu, EMUPAGESIZE,
+						&emu->silent_page) < 0)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	dev_dbg(card->dev, "silent page range is %.8lx:%.8lx\n",
 		(unsigned long)emu->silent_page.addr,
 		(unsigned long)(emu->silent_page.addr +
 				emu->silent_page.bytes));
 
 	emu->memhdr = snd_util_memhdr_new(emu->max_cache_pages * PAGE_SIZE);
+<<<<<<< HEAD
 	if (emu->memhdr == NULL) {
 		err = -ENOMEM;
 		goto error;
 	}
+=======
+	if (!emu->memhdr)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	emu->memhdr->block_extra_size = sizeof(struct snd_emu10k1_memblk) -
 		sizeof(struct snd_util_memblk);
 
@@ -1982,11 +2078,16 @@ int snd_emu10k1_create(struct snd_card *card,
 	if (emu->card_capabilities->ca_cardbus_chip) {
 		err = snd_emu10k1_cardbus_init(emu);
 		if (err < 0)
+<<<<<<< HEAD
 			goto error;
+=======
+			return err;
+>>>>>>> upstream/android-13
 	}
 	if (emu->card_capabilities->ecard) {
 		err = snd_emu10k1_ecard_init(emu);
 		if (err < 0)
+<<<<<<< HEAD
 			goto error;
 	} else if (emu->card_capabilities->emu_model) {
 		err = snd_emu10k1_emu1010_init(emu);
@@ -1994,6 +2095,13 @@ int snd_emu10k1_create(struct snd_card *card,
 			snd_emu10k1_free(emu);
 			return err;
 		}
+=======
+			return err;
+	} else if (emu->card_capabilities->emu_model) {
+		err = snd_emu10k1_emu1010_init(emu);
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 	} else {
 		/* 5.1: Enable the additional AC97 Slots. If the emu10k1 version
 			does not support this, it shouldn't do any harm */
@@ -2007,12 +2115,20 @@ int snd_emu10k1_create(struct snd_card *card,
 	emu->fx8010.etram_pages.bytes = 0;
 
 	/* irq handler must be registered after I/O ports are activated */
+<<<<<<< HEAD
 	if (request_irq(pci->irq, snd_emu10k1_interrupt, IRQF_SHARED,
 			KBUILD_MODNAME, emu)) {
 		err = -EBUSY;
 		goto error;
 	}
 	emu->irq = pci->irq;
+=======
+	if (devm_request_irq(&pci->dev, pci->irq, snd_emu10k1_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, emu))
+		return -EBUSY;
+	emu->irq = pci->irq;
+	card->sync_irq = emu->irq;
+>>>>>>> upstream/android-13
 
 	/*
 	 *  Init to 0x02109204 :
@@ -2037,8 +2153,14 @@ int snd_emu10k1_create(struct snd_card *card,
 	/* Clear silent pages and set up pointers */
 	memset(emu->silent_page.area, 0, emu->silent_page.bytes);
 	silent_page = emu->silent_page.addr << emu->address_mode;
+<<<<<<< HEAD
 	for (idx = 0; idx < (emu->address_mode ? MAXPAGES1 : MAXPAGES0); idx++)
 		((u32 *)emu->ptb_pages.area)[idx] = cpu_to_le32(silent_page | idx);
+=======
+	pgtbl = (__le32 *)emu->ptb_pages.area;
+	for (idx = 0; idx < (emu->address_mode ? MAXPAGES1 : MAXPAGES0); idx++)
+		pgtbl[idx] = cpu_to_le32(silent_page | idx);
+>>>>>>> upstream/android-13
 
 	/* set up voice indices */
 	for (idx = 0; idx < NUM_G; idx++) {
@@ -2048,16 +2170,25 @@ int snd_emu10k1_create(struct snd_card *card,
 
 	err = snd_emu10k1_init(emu, enable_ir, 0);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
 #ifdef CONFIG_PM_SLEEP
 	err = alloc_pm_buffer(emu);
 	if (err < 0)
 		goto error;
+=======
+		return err;
+#ifdef CONFIG_PM_SLEEP
+	err = alloc_pm_buffer(emu);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 #endif
 
 	/*  Initialize the effect engine */
 	err = snd_emu10k1_init_efx(emu);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
 	snd_emu10k1_audio_enable(emu);
 
@@ -2079,6 +2210,19 @@ int snd_emu10k1_create(struct snd_card *card,
 
 #ifdef CONFIG_PM_SLEEP
 static unsigned char saved_regs[] = {
+=======
+		return err;
+	snd_emu10k1_audio_enable(emu);
+
+#ifdef CONFIG_SND_PROC_FS
+	snd_emu10k1_proc_init(emu);
+#endif
+	return 0;
+}
+
+#ifdef CONFIG_PM_SLEEP
+static const unsigned char saved_regs[] = {
+>>>>>>> upstream/android-13
 	CPF, PTRX, CVCF, VTFT, Z1, Z2, PSST, DSL, CCCA, CCR, CLP,
 	FXRT, MAPA, MAPB, ENVVOL, ATKHLDV, DCYSUSV, LFOVAL1, ENVVAL,
 	ATKHLDM, DCYSUSM, LFOVAL2, IP, IFATN, PEFE, FMMOD, TREMFRQ, FM2FRQ2,
@@ -2087,7 +2231,11 @@ static unsigned char saved_regs[] = {
 	SPBYPASS, AC97SLOT, CDSRCS, GPSRCS, ZVSRCS, MICIDX, ADCIDX, FXIDX,
 	0xff /* end */
 };
+<<<<<<< HEAD
 static unsigned char saved_regs_audigy[] = {
+=======
+static const unsigned char saved_regs_audigy[] = {
+>>>>>>> upstream/android-13
 	A_ADCIDX, A_MICIDX, A_FXWC1, A_FXWC2, A_SAMPLE_RATE,
 	A_FXRT2, A_SENDAMOUNTS, A_FXRT1,
 	0xff /* end */
@@ -2122,7 +2270,11 @@ static void free_pm_buffer(struct snd_emu10k1 *emu)
 void snd_emu10k1_suspend_regs(struct snd_emu10k1 *emu)
 {
 	int i;
+<<<<<<< HEAD
 	unsigned char *reg;
+=======
+	const unsigned char *reg;
+>>>>>>> upstream/android-13
 	unsigned int *val;
 
 	val = emu->saved_ptr;
@@ -2155,7 +2307,11 @@ void snd_emu10k1_resume_init(struct snd_emu10k1 *emu)
 void snd_emu10k1_resume_regs(struct snd_emu10k1 *emu)
 {
 	int i;
+<<<<<<< HEAD
 	unsigned char *reg;
+=======
+	const unsigned char *reg;
+>>>>>>> upstream/android-13
 	unsigned int *val;
 
 	snd_emu10k1_audio_enable(emu);

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Sample fifo dma implementation
  *
  * Copyright (C) 2010 Stefani Seibold <stefani@seibold.net>
+<<<<<<< HEAD
  *
  * Released under the GPL version 2 only.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

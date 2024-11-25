@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -9,15 +10,28 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk/tegra.h>
 #include <linux/genalloc.h>
 #include <linux/mailbox_client.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm.h>
+>>>>>>> upstream/android-13
 #include <linux/semaphore.h>
 #include <linux/sched/clock.h>
 
@@ -25,8 +39,16 @@
 #include <soc/tegra/bpmp-abi.h>
 #include <soc/tegra/ivc.h>
 
+<<<<<<< HEAD
 #define MSG_ACK		BIT(0)
 #define MSG_RING	BIT(1)
+=======
+#include "bpmp-private.h"
+
+#define MSG_ACK		BIT(0)
+#define MSG_RING	BIT(1)
+#define TAG_SZ		32
+>>>>>>> upstream/android-13
 
 static inline struct tegra_bpmp *
 mbox_client_to_bpmp(struct mbox_client *client)
@@ -34,6 +56,17 @@ mbox_client_to_bpmp(struct mbox_client *client)
 	return container_of(client, struct tegra_bpmp, mbox.client);
 }
 
+<<<<<<< HEAD
+=======
+static inline const struct tegra_bpmp_ops *
+channel_to_ops(struct tegra_bpmp_channel *channel)
+{
+	struct tegra_bpmp *bpmp = channel->bpmp;
+
+	return bpmp->soc->ops;
+}
+
+>>>>>>> upstream/android-13
 struct tegra_bpmp *tegra_bpmp_get(struct device *dev)
 {
 	struct platform_device *pdev;
@@ -94,6 +127,7 @@ static bool tegra_bpmp_message_valid(const struct tegra_bpmp_message *msg)
 	       (msg->rx.size == 0 || msg->rx.data);
 }
 
+<<<<<<< HEAD
 static bool tegra_bpmp_master_acked(struct tegra_bpmp_channel *channel)
 {
 	void *frame;
@@ -110,6 +144,23 @@ static bool tegra_bpmp_master_acked(struct tegra_bpmp_channel *channel)
 }
 
 static int tegra_bpmp_wait_ack(struct tegra_bpmp_channel *channel)
+=======
+static bool tegra_bpmp_is_response_ready(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->is_response_ready(channel);
+}
+
+static bool tegra_bpmp_is_request_ready(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->is_request_ready(channel);
+}
+
+static int tegra_bpmp_wait_response(struct tegra_bpmp_channel *channel)
+>>>>>>> upstream/android-13
 {
 	unsigned long timeout = channel->bpmp->soc->channels.cpu_tx.timeout;
 	ktime_t end;
@@ -117,13 +168,18 @@ static int tegra_bpmp_wait_ack(struct tegra_bpmp_channel *channel)
 	end = ktime_add_us(ktime_get(), timeout);
 
 	do {
+<<<<<<< HEAD
 		if (tegra_bpmp_master_acked(channel))
+=======
+		if (tegra_bpmp_is_response_ready(channel))
+>>>>>>> upstream/android-13
 			return 0;
 	} while (ktime_before(ktime_get(), end));
 
 	return -ETIMEDOUT;
 }
 
+<<<<<<< HEAD
 static bool tegra_bpmp_master_free(struct tegra_bpmp_channel *channel)
 {
 	void *frame;
@@ -140,6 +196,40 @@ static bool tegra_bpmp_master_free(struct tegra_bpmp_channel *channel)
 }
 
 static int tegra_bpmp_wait_master_free(struct tegra_bpmp_channel *channel)
+=======
+static int tegra_bpmp_ack_response(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->ack_response(channel);
+}
+
+static int tegra_bpmp_ack_request(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->ack_request(channel);
+}
+
+static bool
+tegra_bpmp_is_request_channel_free(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->is_request_channel_free(channel);
+}
+
+static bool
+tegra_bpmp_is_response_channel_free(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->is_response_channel_free(channel);
+}
+
+static int
+tegra_bpmp_wait_request_channel_free(struct tegra_bpmp_channel *channel)
+>>>>>>> upstream/android-13
 {
 	unsigned long timeout = channel->bpmp->soc->channels.cpu_tx.timeout;
 	ktime_t start, now;
@@ -147,7 +237,11 @@ static int tegra_bpmp_wait_master_free(struct tegra_bpmp_channel *channel)
 	start = ns_to_ktime(local_clock());
 
 	do {
+<<<<<<< HEAD
 		if (tegra_bpmp_master_free(channel))
+=======
+		if (tegra_bpmp_is_request_channel_free(channel))
+>>>>>>> upstream/android-13
 			return 0;
 
 		now = ns_to_ktime(local_clock());
@@ -156,6 +250,28 @@ static int tegra_bpmp_wait_master_free(struct tegra_bpmp_channel *channel)
 	return -ETIMEDOUT;
 }
 
+<<<<<<< HEAD
+=======
+static int tegra_bpmp_post_request(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->post_request(channel);
+}
+
+static int tegra_bpmp_post_response(struct tegra_bpmp_channel *channel)
+{
+	const struct tegra_bpmp_ops *ops = channel_to_ops(channel);
+
+	return ops->post_response(channel);
+}
+
+static int tegra_bpmp_ring_doorbell(struct tegra_bpmp *bpmp)
+{
+	return bpmp->soc->ops->ring_doorbell(bpmp);
+}
+
+>>>>>>> upstream/android-13
 static ssize_t __tegra_bpmp_channel_read(struct tegra_bpmp_channel *channel,
 					 void *data, size_t size, int *ret)
 {
@@ -164,7 +280,11 @@ static ssize_t __tegra_bpmp_channel_read(struct tegra_bpmp_channel *channel,
 	if (data && size > 0)
 		memcpy(data, channel->ib->data, size);
 
+<<<<<<< HEAD
 	err = tegra_ivc_read_advance(channel->ivc);
+=======
+	err = tegra_bpmp_ack_response(channel);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -208,7 +328,11 @@ static ssize_t __tegra_bpmp_channel_write(struct tegra_bpmp_channel *channel,
 	if (data && size > 0)
 		memcpy(channel->ob->data, data, size);
 
+<<<<<<< HEAD
 	return tegra_ivc_write_advance(channel->ivc);
+=======
+	return tegra_bpmp_post_request(channel);
+>>>>>>> upstream/android-13
 }
 
 static struct tegra_bpmp_channel *
@@ -236,7 +360,11 @@ tegra_bpmp_write_threaded(struct tegra_bpmp *bpmp, unsigned int mrq,
 
 	channel = &bpmp->threaded_channels[index];
 
+<<<<<<< HEAD
 	if (!tegra_bpmp_master_free(channel)) {
+=======
+	if (!tegra_bpmp_is_request_channel_free(channel)) {
+>>>>>>> upstream/android-13
 		err = -EBUSY;
 		goto unlock;
 	}
@@ -268,7 +396,11 @@ static ssize_t tegra_bpmp_channel_write(struct tegra_bpmp_channel *channel,
 {
 	int err;
 
+<<<<<<< HEAD
 	err = tegra_bpmp_wait_master_free(channel);
+=======
+	err = tegra_bpmp_wait_request_channel_free(channel);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -300,6 +432,7 @@ int tegra_bpmp_transfer_atomic(struct tegra_bpmp *bpmp,
 
 	spin_unlock(&bpmp->atomic_tx_lock);
 
+<<<<<<< HEAD
 	err = mbox_send_message(bpmp->mbox.channel, NULL);
 	if (err < 0)
 		return err;
@@ -307,6 +440,13 @@ int tegra_bpmp_transfer_atomic(struct tegra_bpmp *bpmp,
 	mbox_client_txdone(bpmp->mbox.channel, 0);
 
 	err = tegra_bpmp_wait_ack(channel);
+=======
+	err = tegra_bpmp_ring_doorbell(bpmp);
+	if (err < 0)
+		return err;
+
+	err = tegra_bpmp_wait_response(channel);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -333,12 +473,19 @@ int tegra_bpmp_transfer(struct tegra_bpmp *bpmp,
 	if (IS_ERR(channel))
 		return PTR_ERR(channel);
 
+<<<<<<< HEAD
 	err = mbox_send_message(bpmp->mbox.channel, NULL);
 	if (err < 0)
 		return err;
 
 	mbox_client_txdone(bpmp->mbox.channel, 0);
 
+=======
+	err = tegra_bpmp_ring_doorbell(bpmp);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	timeout = usecs_to_jiffies(bpmp->soc->channels.thread.timeout);
 
 	err = wait_for_completion_timeout(&channel->completion, timeout);
@@ -367,19 +514,27 @@ void tegra_bpmp_mrq_return(struct tegra_bpmp_channel *channel, int code,
 {
 	unsigned long flags = channel->ib->flags;
 	struct tegra_bpmp *bpmp = channel->bpmp;
+<<<<<<< HEAD
 	struct tegra_bpmp_mb_data *frame;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	if (WARN_ON(size > MSG_DATA_MIN_SZ))
 		return;
 
+<<<<<<< HEAD
 	err = tegra_ivc_read_advance(channel->ivc);
+=======
+	err = tegra_bpmp_ack_request(channel);
+>>>>>>> upstream/android-13
 	if (WARN_ON(err < 0))
 		return;
 
 	if ((flags & MSG_ACK) == 0)
 		return;
 
+<<<<<<< HEAD
 	frame = tegra_ivc_write_get_next_frame(channel->ivc);
 	if (WARN_ON(IS_ERR(frame)))
 		return;
@@ -390,15 +545,32 @@ void tegra_bpmp_mrq_return(struct tegra_bpmp_channel *channel, int code,
 		memcpy(frame->data, data, size);
 
 	err = tegra_ivc_write_advance(channel->ivc);
+=======
+	if (WARN_ON(!tegra_bpmp_is_response_channel_free(channel)))
+		return;
+
+	channel->ob->code = code;
+
+	if (data && size > 0)
+		memcpy(channel->ob->data, data, size);
+
+	err = tegra_bpmp_post_response(channel);
+>>>>>>> upstream/android-13
 	if (WARN_ON(err < 0))
 		return;
 
 	if (flags & MSG_RING) {
+<<<<<<< HEAD
 		err = mbox_send_message(bpmp->mbox.channel, NULL);
 		if (WARN_ON(err < 0))
 			return;
 
 		mbox_client_txdone(bpmp->mbox.channel, 0);
+=======
+		err = tegra_bpmp_ring_doorbell(bpmp);
+		if (WARN_ON(err < 0))
+			return;
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL_GPL(tegra_bpmp_mrq_return);
@@ -469,6 +641,34 @@ unlock:
 }
 EXPORT_SYMBOL_GPL(tegra_bpmp_free_mrq);
 
+<<<<<<< HEAD
+=======
+bool tegra_bpmp_mrq_is_supported(struct tegra_bpmp *bpmp, unsigned int mrq)
+{
+	struct mrq_query_abi_request req = { .mrq = cpu_to_le32(mrq) };
+	struct mrq_query_abi_response resp;
+	struct tegra_bpmp_message msg = {
+		.mrq = MRQ_QUERY_ABI,
+		.tx = {
+			.data = &req,
+			.size = sizeof(req),
+		},
+		.rx = {
+			.data = &resp,
+			.size = sizeof(resp),
+		},
+	};
+	int err;
+
+	err = tegra_bpmp_transfer(bpmp, &msg);
+	if (err || msg.rx.ret)
+		return false;
+
+	return resp.status == 0;
+}
+EXPORT_SYMBOL_GPL(tegra_bpmp_mrq_is_supported);
+
+>>>>>>> upstream/android-13
 static void tegra_bpmp_mrq_handle_ping(unsigned int mrq,
 				       struct tegra_bpmp_channel *channel,
 				       void *data)
@@ -520,8 +720,14 @@ static int tegra_bpmp_ping(struct tegra_bpmp *bpmp)
 	return err;
 }
 
+<<<<<<< HEAD
 static int tegra_bpmp_get_firmware_tag(struct tegra_bpmp *bpmp, char *tag,
 				       size_t size)
+=======
+/* deprecated version of tag query */
+static int tegra_bpmp_get_firmware_tag_old(struct tegra_bpmp *bpmp, char *tag,
+					   size_t size)
+>>>>>>> upstream/android-13
 {
 	struct mrq_query_tag_request request;
 	struct tegra_bpmp_message msg;
@@ -530,7 +736,14 @@ static int tegra_bpmp_get_firmware_tag(struct tegra_bpmp *bpmp, char *tag,
 	void *virt;
 	int err;
 
+<<<<<<< HEAD
 	virt = dma_alloc_coherent(bpmp->dev, MSG_DATA_MIN_SZ, &phys,
+=======
+	if (size != TAG_SZ)
+		return -EINVAL;
+
+	virt = dma_alloc_coherent(bpmp->dev, TAG_SZ, &phys,
+>>>>>>> upstream/android-13
 				  GFP_KERNEL | GFP_DMA32);
 	if (!virt)
 		return -ENOMEM;
@@ -548,13 +761,53 @@ static int tegra_bpmp_get_firmware_tag(struct tegra_bpmp *bpmp, char *tag,
 	local_irq_restore(flags);
 
 	if (err == 0)
+<<<<<<< HEAD
 		strlcpy(tag, virt, size);
 
 	dma_free_coherent(bpmp->dev, MSG_DATA_MIN_SZ, virt, phys);
+=======
+		memcpy(tag, virt, TAG_SZ);
+
+	dma_free_coherent(bpmp->dev, TAG_SZ, virt, phys);
+>>>>>>> upstream/android-13
 
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int tegra_bpmp_get_firmware_tag(struct tegra_bpmp *bpmp, char *tag,
+				       size_t size)
+{
+	if (tegra_bpmp_mrq_is_supported(bpmp, MRQ_QUERY_FW_TAG)) {
+		struct mrq_query_fw_tag_response resp;
+		struct tegra_bpmp_message msg = {
+			.mrq = MRQ_QUERY_FW_TAG,
+			.rx = {
+				.data = &resp,
+				.size = sizeof(resp),
+			},
+		};
+		int err;
+
+		if (size != sizeof(resp.tag))
+			return -EINVAL;
+
+		err = tegra_bpmp_transfer(bpmp, &msg);
+
+		if (err)
+			return err;
+		if (msg.rx.ret < 0)
+			return -EINVAL;
+
+		memcpy(tag, resp.tag, sizeof(resp.tag));
+		return 0;
+	}
+
+	return tegra_bpmp_get_firmware_tag_old(bpmp, tag, size);
+}
+
+>>>>>>> upstream/android-13
 static void tegra_bpmp_channel_signal(struct tegra_bpmp_channel *channel)
 {
 	unsigned long flags = channel->ob->flags;
@@ -565,9 +818,14 @@ static void tegra_bpmp_channel_signal(struct tegra_bpmp_channel *channel)
 	complete(&channel->completion);
 }
 
+<<<<<<< HEAD
 static void tegra_bpmp_handle_rx(struct mbox_client *client, void *data)
 {
 	struct tegra_bpmp *bpmp = mbox_client_to_bpmp(client);
+=======
+void tegra_bpmp_handle_rx(struct tegra_bpmp *bpmp)
+{
+>>>>>>> upstream/android-13
 	struct tegra_bpmp_channel *channel;
 	unsigned int i, count;
 	unsigned long *busy;
@@ -576,7 +834,11 @@ static void tegra_bpmp_handle_rx(struct mbox_client *client, void *data)
 	count = bpmp->soc->channels.thread.count;
 	busy = bpmp->threaded.busy;
 
+<<<<<<< HEAD
 	if (tegra_bpmp_master_acked(channel))
+=======
+	if (tegra_bpmp_is_request_ready(channel))
+>>>>>>> upstream/android-13
 		tegra_bpmp_handle_mrq(bpmp, channel->ib->code, channel);
 
 	spin_lock(&bpmp->lock);
@@ -586,7 +848,11 @@ static void tegra_bpmp_handle_rx(struct mbox_client *client, void *data)
 
 		channel = &bpmp->threaded_channels[i];
 
+<<<<<<< HEAD
 		if (tegra_bpmp_master_acked(channel)) {
+=======
+		if (tegra_bpmp_is_response_ready(channel)) {
+>>>>>>> upstream/android-13
 			tegra_bpmp_channel_signal(channel);
 			clear_bit(i, busy);
 		}
@@ -595,6 +861,7 @@ static void tegra_bpmp_handle_rx(struct mbox_client *client, void *data)
 	spin_unlock(&bpmp->lock);
 }
 
+<<<<<<< HEAD
 static void tegra_bpmp_ivc_notify(struct tegra_ivc *ivc, void *data)
 {
 	struct tegra_bpmp *bpmp = data;
@@ -664,6 +931,12 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 	struct tegra_bpmp *bpmp;
 	unsigned int i;
 	char tag[32];
+=======
+static int tegra_bpmp_probe(struct platform_device *pdev)
+{
+	struct tegra_bpmp *bpmp;
+	char tag[TAG_SZ];
+>>>>>>> upstream/android-13
 	size_t size;
 	int err;
 
@@ -674,6 +947,7 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 	bpmp->soc = of_device_get_match_data(&pdev->dev);
 	bpmp->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	bpmp->tx.pool = of_gen_pool_get(pdev->dev.of_node, "shmem", 0);
 	if (!bpmp->tx.pool) {
 		dev_err(&pdev->dev, "TX shmem pool not found\n");
@@ -700,6 +974,8 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 		goto free_tx;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&bpmp->mrqs);
 	spin_lock_init(&bpmp->lock);
 
@@ -709,6 +985,7 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 	size = BITS_TO_LONGS(bpmp->threaded.count) * sizeof(long);
 
 	bpmp->threaded.allocated = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!bpmp->threaded.allocated) {
 		err = -ENOMEM;
 		goto free_rx;
@@ -719,10 +996,19 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 		err = -ENOMEM;
 		goto free_rx;
 	}
+=======
+	if (!bpmp->threaded.allocated)
+		return -ENOMEM;
+
+	bpmp->threaded.busy = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
+	if (!bpmp->threaded.busy)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&bpmp->atomic_tx_lock);
 	bpmp->tx_channel = devm_kzalloc(&pdev->dev, sizeof(*bpmp->tx_channel),
 					GFP_KERNEL);
+<<<<<<< HEAD
 	if (!bpmp->tx_channel) {
 		err = -ENOMEM;
 		goto free_rx;
@@ -734,10 +1020,20 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 		err = -ENOMEM;
 		goto free_rx;
 	}
+=======
+	if (!bpmp->tx_channel)
+		return -ENOMEM;
+
+	bpmp->rx_channel = devm_kzalloc(&pdev->dev, sizeof(*bpmp->rx_channel),
+	                                GFP_KERNEL);
+	if (!bpmp->rx_channel)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	bpmp->threaded_channels = devm_kcalloc(&pdev->dev, bpmp->threaded.count,
 					       sizeof(*bpmp->threaded_channels),
 					       GFP_KERNEL);
+<<<<<<< HEAD
 	if (!bpmp->threaded_channels) {
 		err = -ENOMEM;
 		goto free_rx;
@@ -779,11 +1075,23 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 	tegra_bpmp_channel_reset(bpmp->rx_channel);
 	for (i = 0; i < bpmp->threaded.count; i++)
 		tegra_bpmp_channel_reset(&bpmp->threaded_channels[i]);
+=======
+	if (!bpmp->threaded_channels)
+		return -ENOMEM;
+
+	err = bpmp->soc->ops->init(bpmp);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	err = tegra_bpmp_request_mrq(bpmp, MRQ_PING,
 				     tegra_bpmp_mrq_handle_ping, bpmp);
 	if (err < 0)
+<<<<<<< HEAD
 		goto free_mbox;
+=======
+		goto deinit;
+>>>>>>> upstream/android-13
 
 	err = tegra_bpmp_ping(bpmp);
 	if (err < 0) {
@@ -791,13 +1099,21 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 		goto free_mrq;
 	}
 
+<<<<<<< HEAD
 	err = tegra_bpmp_get_firmware_tag(bpmp, tag, sizeof(tag) - 1);
+=======
+	err = tegra_bpmp_get_firmware_tag(bpmp, tag, sizeof(tag));
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(&pdev->dev, "failed to get firmware tag: %d\n", err);
 		goto free_mrq;
 	}
 
+<<<<<<< HEAD
 	dev_info(&pdev->dev, "firmware: %s\n", tag);
+=======
+	dev_info(&pdev->dev, "firmware: %.*s\n", (int)sizeof(tag), tag);
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, bpmp);
 
@@ -805,6 +1121,7 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 	if (err < 0)
 		goto free_mrq;
 
+<<<<<<< HEAD
 	err = tegra_bpmp_init_clocks(bpmp);
 	if (err < 0)
 		goto free_mrq;
@@ -816,6 +1133,25 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 	err = tegra_bpmp_init_powergates(bpmp);
 	if (err < 0)
 		goto free_mrq;
+=======
+	if (of_find_property(pdev->dev.of_node, "#clock-cells", NULL)) {
+		err = tegra_bpmp_init_clocks(bpmp);
+		if (err < 0)
+			goto free_mrq;
+	}
+
+	if (of_find_property(pdev->dev.of_node, "#reset-cells", NULL)) {
+		err = tegra_bpmp_init_resets(bpmp);
+		if (err < 0)
+			goto free_mrq;
+	}
+
+	if (of_find_property(pdev->dev.of_node, "#power-domain-cells", NULL)) {
+		err = tegra_bpmp_init_powergates(bpmp);
+		if (err < 0)
+			goto free_mrq;
+	}
+>>>>>>> upstream/android-13
 
 	err = tegra_bpmp_init_debugfs(bpmp);
 	if (err < 0)
@@ -825,6 +1161,7 @@ static int tegra_bpmp_probe(struct platform_device *pdev)
 
 free_mrq:
 	tegra_bpmp_free_mrq(bpmp, MRQ_PING, bpmp);
+<<<<<<< HEAD
 free_mbox:
 	mbox_free_channel(bpmp->mbox.channel);
 cleanup_threaded_channels:
@@ -843,6 +1180,32 @@ free_tx:
 	return err;
 }
 
+=======
+deinit:
+	if (bpmp->soc->ops->deinit)
+		bpmp->soc->ops->deinit(bpmp);
+
+	return err;
+}
+
+static int __maybe_unused tegra_bpmp_resume(struct device *dev)
+{
+	struct tegra_bpmp *bpmp = dev_get_drvdata(dev);
+
+	if (bpmp->soc->ops->resume)
+		return bpmp->soc->ops->resume(bpmp);
+	else
+		return 0;
+}
+
+static const struct dev_pm_ops tegra_bpmp_pm_ops = {
+	.resume_noirq = tegra_bpmp_resume,
+};
+
+#if IS_ENABLED(CONFIG_ARCH_TEGRA_186_SOC) || \
+    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC) || \
+    IS_ENABLED(CONFIG_ARCH_TEGRA_234_SOC)
+>>>>>>> upstream/android-13
 static const struct tegra_bpmp_soc tegra186_soc = {
 	.channels = {
 		.cpu_tx = {
@@ -859,11 +1222,51 @@ static const struct tegra_bpmp_soc tegra186_soc = {
 			.timeout = 0,
 		},
 	},
+<<<<<<< HEAD
 	.num_resets = 193,
 };
 
 static const struct of_device_id tegra_bpmp_match[] = {
 	{ .compatible = "nvidia,tegra186-bpmp", .data = &tegra186_soc },
+=======
+	.ops = &tegra186_bpmp_ops,
+	.num_resets = 193,
+};
+#endif
+
+#if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
+static const struct tegra_bpmp_soc tegra210_soc = {
+	.channels = {
+		.cpu_tx = {
+			.offset = 0,
+			.count = 1,
+			.timeout = 60 * USEC_PER_SEC,
+		},
+		.thread = {
+			.offset = 4,
+			.count = 1,
+			.timeout = 600 * USEC_PER_SEC,
+		},
+		.cpu_rx = {
+			.offset = 8,
+			.count = 1,
+			.timeout = 0,
+		},
+	},
+	.ops = &tegra210_bpmp_ops,
+};
+#endif
+
+static const struct of_device_id tegra_bpmp_match[] = {
+#if IS_ENABLED(CONFIG_ARCH_TEGRA_186_SOC) || \
+    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC) || \
+    IS_ENABLED(CONFIG_ARCH_TEGRA_234_SOC)
+	{ .compatible = "nvidia,tegra186-bpmp", .data = &tegra186_soc },
+#endif
+#if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
+	{ .compatible = "nvidia,tegra210-bpmp", .data = &tegra210_soc },
+#endif
+>>>>>>> upstream/android-13
 	{ }
 };
 
@@ -871,6 +1274,7 @@ static struct platform_driver tegra_bpmp_driver = {
 	.driver = {
 		.name = "tegra-bpmp",
 		.of_match_table = tegra_bpmp_match,
+<<<<<<< HEAD
 	},
 	.probe = tegra_bpmp_probe,
 };
@@ -880,3 +1284,11 @@ static int __init tegra_bpmp_init(void)
 	return platform_driver_register(&tegra_bpmp_driver);
 }
 core_initcall(tegra_bpmp_init);
+=======
+		.pm = &tegra_bpmp_pm_ops,
+		.suppress_bind_attrs = true,
+	},
+	.probe = tegra_bpmp_probe,
+};
+builtin_platform_driver(tegra_bpmp_driver);
+>>>>>>> upstream/android-13

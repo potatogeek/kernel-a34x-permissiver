@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* exynos_drm_gem.c
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
  * Author: Inki Dae <inki.dae@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -15,10 +20,22 @@
 #include <linux/shmem_fs.h>
 #include <linux/dma-buf.h>
 #include <linux/pfn_t.h>
+=======
+ */
+
+
+#include <linux/dma-buf.h>
+#include <linux/pfn_t.h>
+#include <linux/shmem_fs.h>
+
+#include <drm/drm_prime.h>
+#include <drm/drm_vma_manager.h>
+>>>>>>> upstream/android-13
 #include <drm/exynos_drm.h>
 
 #include "exynos_drm_drv.h"
 #include "exynos_drm_gem.h"
+<<<<<<< HEAD
 #include "exynos_drm_iommu.h"
 
 static int exynos_drm_alloc_buf(struct exynos_drm_gem *exynos_gem)
@@ -36,13 +53,30 @@ static int exynos_drm_alloc_buf(struct exynos_drm_gem *exynos_gem)
 
 	exynos_gem->dma_attrs = 0;
 
+=======
+
+static int exynos_drm_alloc_buf(struct exynos_drm_gem *exynos_gem, bool kvmap)
+{
+	struct drm_device *dev = exynos_gem->base.dev;
+	unsigned long attr = 0;
+
+	if (exynos_gem->dma_addr) {
+		DRM_DEV_DEBUG_KMS(to_dma_dev(dev), "already allocated.\n");
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * if EXYNOS_BO_CONTIG, fully physically contiguous memory
 	 * region will be allocated else physically contiguous
 	 * as possible.
 	 */
 	if (!(exynos_gem->flags & EXYNOS_BO_NONCONTIG))
+<<<<<<< HEAD
 		exynos_gem->dma_attrs |= DMA_ATTR_FORCE_CONTIGUOUS;
+=======
+		attr |= DMA_ATTR_FORCE_CONTIGUOUS;
+>>>>>>> upstream/android-13
 
 	/*
 	 * if EXYNOS_BO_WC or EXYNOS_BO_NONCACHABLE, writecombine mapping
@@ -50,6 +84,7 @@ static int exynos_drm_alloc_buf(struct exynos_drm_gem *exynos_gem)
 	 */
 	if (exynos_gem->flags & EXYNOS_BO_WC ||
 			!(exynos_gem->flags & EXYNOS_BO_CACHABLE))
+<<<<<<< HEAD
 		attr = DMA_ATTR_WRITE_COMBINE;
 	else
 		attr = DMA_ATTR_NON_CONSISTENT;
@@ -66,10 +101,20 @@ static int exynos_drm_alloc_buf(struct exynos_drm_gem *exynos_gem)
 		return -ENOMEM;
 	}
 
+=======
+		attr |= DMA_ATTR_WRITE_COMBINE;
+
+	/* FBDev emulation requires kernel mapping */
+	if (!kvmap)
+		attr |= DMA_ATTR_NO_KERNEL_MAPPING;
+
+	exynos_gem->dma_attrs = attr;
+>>>>>>> upstream/android-13
 	exynos_gem->cookie = dma_alloc_attrs(to_dma_dev(dev), exynos_gem->size,
 					     &exynos_gem->dma_addr, GFP_KERNEL,
 					     exynos_gem->dma_attrs);
 	if (!exynos_gem->cookie) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to allocate buffer.\n");
 		goto err_free;
 	}
@@ -105,6 +150,18 @@ err_free:
 	kvfree(exynos_gem->pages);
 
 	return ret;
+=======
+		DRM_DEV_ERROR(to_dma_dev(dev), "failed to allocate buffer.\n");
+		return -ENOMEM;
+	}
+
+	if (kvmap)
+		exynos_gem->kvaddr = exynos_gem->cookie;
+
+	DRM_DEV_DEBUG_KMS(to_dma_dev(dev), "dma_addr(0x%lx), size(0x%lx)\n",
+			(unsigned long)exynos_gem->dma_addr, exynos_gem->size);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void exynos_drm_free_buf(struct exynos_drm_gem *exynos_gem)
@@ -112,18 +169,29 @@ static void exynos_drm_free_buf(struct exynos_drm_gem *exynos_gem)
 	struct drm_device *dev = exynos_gem->base.dev;
 
 	if (!exynos_gem->dma_addr) {
+<<<<<<< HEAD
 		DRM_DEBUG_KMS("dma_addr is invalid.\n");
 		return;
 	}
 
 	DRM_DEBUG_KMS("dma_addr(0x%lx), size(0x%lx)\n",
+=======
+		DRM_DEV_DEBUG_KMS(dev->dev, "dma_addr is invalid.\n");
+		return;
+	}
+
+	DRM_DEV_DEBUG_KMS(dev->dev, "dma_addr(0x%lx), size(0x%lx)\n",
+>>>>>>> upstream/android-13
 			(unsigned long)exynos_gem->dma_addr, exynos_gem->size);
 
 	dma_free_attrs(to_dma_dev(dev), exynos_gem->size, exynos_gem->cookie,
 			(dma_addr_t)exynos_gem->dma_addr,
 			exynos_gem->dma_attrs);
+<<<<<<< HEAD
 
 	kvfree(exynos_gem->pages);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int exynos_drm_gem_handle_create(struct drm_gem_object *obj,
@@ -140,10 +208,17 @@ static int exynos_drm_gem_handle_create(struct drm_gem_object *obj,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("gem handle = 0x%x\n", *handle);
 
 	/* drop reference from allocate - handle holds it now. */
 	drm_gem_object_put_unlocked(obj);
+=======
+	DRM_DEV_DEBUG_KMS(to_dma_dev(obj->dev), "gem handle = 0x%x\n", *handle);
+
+	/* drop reference from allocate - handle holds it now. */
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -152,7 +227,12 @@ void exynos_drm_gem_destroy(struct exynos_drm_gem *exynos_gem)
 {
 	struct drm_gem_object *obj = &exynos_gem->base;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("handle count = %d\n", obj->handle_count);
+=======
+	DRM_DEV_DEBUG_KMS(to_dma_dev(obj->dev), "handle count = %d\n",
+			  obj->handle_count);
+>>>>>>> upstream/android-13
 
 	/*
 	 * do not release memory region from exporter.
@@ -171,6 +251,20 @@ void exynos_drm_gem_destroy(struct exynos_drm_gem *exynos_gem)
 	kfree(exynos_gem);
 }
 
+<<<<<<< HEAD
+=======
+static const struct vm_operations_struct exynos_drm_gem_vm_ops = {
+	.open = drm_gem_vm_open,
+	.close = drm_gem_vm_close,
+};
+
+static const struct drm_gem_object_funcs exynos_drm_gem_object_funcs = {
+	.free = exynos_drm_gem_free_object,
+	.get_sg_table = exynos_drm_gem_prime_get_sg_table,
+	.vm_ops = &exynos_drm_gem_vm_ops,
+};
+
+>>>>>>> upstream/android-13
 static struct exynos_drm_gem *exynos_drm_gem_init(struct drm_device *dev,
 						  unsigned long size)
 {
@@ -185,9 +279,17 @@ static struct exynos_drm_gem *exynos_drm_gem_init(struct drm_device *dev,
 	exynos_gem->size = size;
 	obj = &exynos_gem->base;
 
+<<<<<<< HEAD
 	ret = drm_gem_object_init(dev, obj, size);
 	if (ret < 0) {
 		DRM_ERROR("failed to initialize gem object\n");
+=======
+	obj->funcs = &exynos_drm_gem_object_funcs;
+
+	ret = drm_gem_object_init(dev, obj, size);
+	if (ret < 0) {
+		DRM_DEV_ERROR(dev->dev, "failed to initialize gem object\n");
+>>>>>>> upstream/android-13
 		kfree(exynos_gem);
 		return ERR_PTR(ret);
 	}
@@ -199,25 +301,43 @@ static struct exynos_drm_gem *exynos_drm_gem_init(struct drm_device *dev,
 		return ERR_PTR(ret);
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("created file object = %pK\n", obj->filp);
+=======
+	DRM_DEV_DEBUG_KMS(dev->dev, "created file object = %pK\n", obj->filp);
+>>>>>>> upstream/android-13
 
 	return exynos_gem;
 }
 
 struct exynos_drm_gem *exynos_drm_gem_create(struct drm_device *dev,
 					     unsigned int flags,
+<<<<<<< HEAD
 					     unsigned long size)
+=======
+					     unsigned long size,
+					     bool kvmap)
+>>>>>>> upstream/android-13
 {
 	struct exynos_drm_gem *exynos_gem;
 	int ret;
 
 	if (flags & ~(EXYNOS_BO_MASK)) {
+<<<<<<< HEAD
 		DRM_ERROR("invalid GEM buffer flags: %u\n", flags);
+=======
+		DRM_DEV_ERROR(dev->dev,
+			      "invalid GEM buffer flags: %u\n", flags);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
 	if (!size) {
+<<<<<<< HEAD
 		DRM_ERROR("invalid GEM buffer size: %lu\n", size);
+=======
+		DRM_DEV_ERROR(dev->dev, "invalid GEM buffer size: %lu\n", size);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -239,7 +359,11 @@ struct exynos_drm_gem *exynos_drm_gem_create(struct drm_device *dev,
 	/* set memory type and cache attribute from user side. */
 	exynos_gem->flags = flags;
 
+<<<<<<< HEAD
 	ret = exynos_drm_alloc_buf(exynos_gem);
+=======
+	ret = exynos_drm_alloc_buf(exynos_gem, kvmap);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		drm_gem_object_release(&exynos_gem->base);
 		kfree(exynos_gem);
@@ -256,7 +380,11 @@ int exynos_drm_gem_create_ioctl(struct drm_device *dev, void *data,
 	struct exynos_drm_gem *exynos_gem;
 	int ret;
 
+<<<<<<< HEAD
 	exynos_gem = exynos_drm_gem_create(dev, args->flags, args->size);
+=======
+	exynos_gem = exynos_drm_gem_create(dev, args->flags, args->size, false);
+>>>>>>> upstream/android-13
 	if (IS_ERR(exynos_gem))
 		return PTR_ERR(exynos_gem);
 
@@ -326,7 +454,11 @@ int exynos_drm_gem_get_ioctl(struct drm_device *dev, void *data,
 
 	obj = drm_gem_object_lookup(file_priv, args->handle);
 	if (!obj) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to lookup gem object.\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to lookup gem object.\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -335,7 +467,11 @@ int exynos_drm_gem_get_ioctl(struct drm_device *dev, void *data,
 	args->flags = exynos_gem->flags;
 	args->size = exynos_gem->size;
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -367,7 +503,11 @@ int exynos_drm_gem_dumb_create(struct drm_file *file_priv,
 	else
 		flags = EXYNOS_BO_CONTIG | EXYNOS_BO_WC;
 
+<<<<<<< HEAD
 	exynos_gem = exynos_drm_gem_create(dev, flags, args->size);
+=======
+	exynos_gem = exynos_drm_gem_create(dev, flags, args->size, false);
+>>>>>>> upstream/android-13
 	if (IS_ERR(exynos_gem)) {
 		dev_warn(dev->dev, "FB allocation failed.\n");
 		return PTR_ERR(exynos_gem);
@@ -383,6 +523,7 @@ int exynos_drm_gem_dumb_create(struct drm_file *file_priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 vm_fault_t exynos_drm_gem_fault(struct vm_fault *vmf)
 {
 	struct vm_area_struct *vma = vmf->vma;
@@ -403,13 +544,20 @@ vm_fault_t exynos_drm_gem_fault(struct vm_fault *vmf)
 			__pfn_to_pfn_t(pfn, PFN_DEV));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int exynos_drm_gem_mmap_obj(struct drm_gem_object *obj,
 				   struct vm_area_struct *vma)
 {
 	struct exynos_drm_gem *exynos_gem = to_exynos_gem(obj);
 	int ret;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("flags = 0x%x\n", exynos_gem->flags);
+=======
+	DRM_DEV_DEBUG_KMS(to_dma_dev(obj->dev), "flags = 0x%x\n",
+			  exynos_gem->flags);
+>>>>>>> upstream/android-13
 
 	/* non-cachable as default. */
 	if (exynos_gem->flags & EXYNOS_BO_CACHABLE)
@@ -463,11 +611,32 @@ struct drm_gem_object *exynos_drm_gem_prime_import(struct drm_device *dev,
 struct sg_table *exynos_drm_gem_prime_get_sg_table(struct drm_gem_object *obj)
 {
 	struct exynos_drm_gem *exynos_gem = to_exynos_gem(obj);
+<<<<<<< HEAD
 	int npages;
 
 	npages = exynos_gem->size >> PAGE_SHIFT;
 
 	return drm_prime_pages_to_sg(exynos_gem->pages, npages);
+=======
+	struct drm_device *drm_dev = obj->dev;
+	struct sg_table *sgt;
+	int ret;
+
+	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
+	if (!sgt)
+		return ERR_PTR(-ENOMEM);
+
+	ret = dma_get_sgtable_attrs(to_dma_dev(drm_dev), sgt, exynos_gem->cookie,
+				    exynos_gem->dma_addr, exynos_gem->size,
+				    exynos_gem->dma_attrs);
+	if (ret) {
+		DRM_ERROR("failed to get sgtable, %d\n", ret);
+		kfree(sgt);
+		return ERR_PTR(ret);
+	}
+
+	return sgt;
+>>>>>>> upstream/android-13
 }
 
 struct drm_gem_object *
@@ -476,6 +645,7 @@ exynos_drm_gem_prime_import_sg_table(struct drm_device *dev,
 				     struct sg_table *sgt)
 {
 	struct exynos_drm_gem *exynos_gem;
+<<<<<<< HEAD
 	int npages;
 	int ret;
 
@@ -532,6 +702,32 @@ void *exynos_drm_gem_prime_vmap(struct drm_gem_object *obj)
 void exynos_drm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
 {
 	/* Nothing to do */
+=======
+
+	/* check if the entries in the sg_table are contiguous */
+	if (drm_prime_get_contiguous_size(sgt) < attach->dmabuf->size) {
+		DRM_ERROR("buffer chunks must be mapped contiguously");
+		return ERR_PTR(-EINVAL);
+	}
+
+	exynos_gem = exynos_drm_gem_init(dev, attach->dmabuf->size);
+	if (IS_ERR(exynos_gem))
+		return ERR_CAST(exynos_gem);
+
+	/*
+	 * Buffer has been mapped as contiguous into DMA address space,
+	 * but if there is IOMMU, it can be either CONTIG or NONCONTIG.
+	 * We assume a simplified logic below:
+	 */
+	if (is_drm_iommu_supported(dev))
+		exynos_gem->flags |= EXYNOS_BO_NONCONTIG;
+	else
+		exynos_gem->flags |= EXYNOS_BO_CONTIG;
+
+	exynos_gem->dma_addr = sg_dma_address(sgt->sgl);
+	exynos_gem->sgt = sgt;
+	return &exynos_gem->base;
+>>>>>>> upstream/android-13
 }
 
 int exynos_drm_gem_prime_mmap(struct drm_gem_object *obj,

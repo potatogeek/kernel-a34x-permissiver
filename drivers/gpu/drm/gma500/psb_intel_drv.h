@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2009-2011, Intel Corporation.
  *
@@ -14,6 +15,11 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2009-2011, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __INTEL_DRV_H__
@@ -24,7 +30,12 @@
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_encoder.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 #include "gma_display.h"
 
 /*
@@ -67,6 +78,7 @@
 #define INTEL_OUTPUT_DISPLAYPORT 9
 #define INTEL_OUTPUT_EDP 10
 
+<<<<<<< HEAD
 #define INTEL_MODE_PIXEL_MULTIPLIER_SHIFT (0x0)
 #define INTEL_MODE_PIXEL_MULTIPLIER_MASK (0xf << INTEL_MODE_PIXEL_MULTIPLIER_SHIFT)
 
@@ -86,6 +98,8 @@ psb_intel_mode_get_pixel_multiplier(const struct drm_display_mode *mode)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Hold information useally put on the device driver privates here,
  * since it needs to be shared across multiple of devices drivers privates.
@@ -194,6 +208,11 @@ struct gma_crtc {
 	struct psb_intel_crtc_state *crtc_state;
 
 	const struct gma_clock_funcs *clock_funcs;
+<<<<<<< HEAD
+=======
+
+	struct drm_pending_vblank_event *page_flip_event;
+>>>>>>> upstream/android-13
 };
 
 #define to_gma_crtc(x)	\
@@ -261,7 +280,10 @@ extern int psb_intel_lvds_set_property(struct drm_connector *connector,
 					struct drm_property *property,
 					uint64_t value);
 extern void psb_intel_lvds_destroy(struct drm_connector *connector);
+<<<<<<< HEAD
 extern const struct drm_encoder_funcs psb_intel_lvds_enc_funcs;
+=======
+>>>>>>> upstream/android-13
 
 /* intel_gmbus.c */
 extern void gma_intel_i2c_reset(struct drm_device *dev);

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Authors: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
  * Authors: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>

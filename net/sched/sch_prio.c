@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/sch_prio.c	Simple 3-band priority "scheduler".
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/sch_prio.c	Simple 3-band priority "scheduler".
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  * Fixes:       19990609: J Hadi Salim <hadi@nortelnetworks.com>:
  *              Init --  EINVAL when opt undefined
@@ -43,14 +50,22 @@ prio_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
 	*qerr = NET_XMIT_SUCCESS | __NET_XMIT_BYPASS;
 	if (TC_H_MAJ(skb->priority) != sch->handle) {
 		fl = rcu_dereference_bh(q->filter_list);
+<<<<<<< HEAD
 		err = tcf_classify(skb, fl, &res, false);
+=======
+		err = tcf_classify(skb, NULL, fl, &res, false);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_CLS_ACT
 		switch (err) {
 		case TC_ACT_STOLEN:
 		case TC_ACT_QUEUED:
 		case TC_ACT_TRAP:
 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_ACT_SHOT:
 			return NULL;
 		}
@@ -72,6 +87,10 @@ prio_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
 static int
 prio_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 {
+<<<<<<< HEAD
+=======
+	unsigned int len = qdisc_pkt_len(skb);
+>>>>>>> upstream/android-13
 	struct Qdisc *qdisc;
 	int ret;
 
@@ -88,7 +107,11 @@ prio_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 
 	ret = qdisc_enqueue(skb, qdisc, to_free);
 	if (ret == NET_XMIT_SUCCESS) {
+<<<<<<< HEAD
 		qdisc_qstats_backlog_inc(sch, skb);
+=======
+		sch->qstats.backlog += len;
+>>>>>>> upstream/android-13
 		sch->q.qlen++;
 		return NET_XMIT_SUCCESS;
 	}
@@ -175,7 +198,11 @@ prio_destroy(struct Qdisc *sch)
 	tcf_block_put(q->block);
 	prio_offload(sch, NULL);
 	for (prio = 0; prio < q->bands; prio++)
+<<<<<<< HEAD
 		qdisc_destroy(q->queues[prio]);
+=======
+		qdisc_put(q->queues[prio]);
+>>>>>>> upstream/android-13
 }
 
 static int prio_tune(struct Qdisc *sch, struct nlattr *opt,
@@ -205,7 +232,11 @@ static int prio_tune(struct Qdisc *sch, struct nlattr *opt,
 					      extack);
 		if (!queues[i]) {
 			while (i > oldbands)
+<<<<<<< HEAD
 				qdisc_destroy(queues[--i]);
+=======
+				qdisc_put(queues[--i]);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 	}
@@ -215,6 +246,7 @@ static int prio_tune(struct Qdisc *sch, struct nlattr *opt,
 	q->bands = qopt->bands;
 	memcpy(q->prio2band, qopt->priomap, TC_PRIO_MAX+1);
 
+<<<<<<< HEAD
 	for (i = q->bands; i < oldbands; i++) {
 		struct Qdisc *child = q->queues[i];
 
@@ -222,6 +254,10 @@ static int prio_tune(struct Qdisc *sch, struct nlattr *opt,
 					  child->qstats.backlog);
 		qdisc_destroy(child);
 	}
+=======
+	for (i = q->bands; i < oldbands; i++)
+		qdisc_tree_flush_backlog(q->queues[i]);
+>>>>>>> upstream/android-13
 
 	for (i = oldbands; i < q->bands; i++) {
 		q->queues[i] = queues[i];
@@ -230,6 +266,12 @@ static int prio_tune(struct Qdisc *sch, struct nlattr *opt,
 	}
 
 	sch_tree_unlock(sch);
+<<<<<<< HEAD
+=======
+
+	for (i = q->bands; i < oldbands; i++)
+		qdisc_put(q->queues[i]);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -251,7 +293,10 @@ static int prio_init(struct Qdisc *sch, struct nlattr *opt,
 
 static int prio_dump_offload(struct Qdisc *sch)
 {
+<<<<<<< HEAD
 	struct net_device *dev = qdisc_dev(sch);
+=======
+>>>>>>> upstream/android-13
 	struct tc_prio_qopt_offload hw_stats = {
 		.command = TC_PRIO_STATS,
 		.handle = sch->handle,
@@ -263,6 +308,7 @@ static int prio_dump_offload(struct Qdisc *sch)
 			},
 		},
 	};
+<<<<<<< HEAD
 	int err;
 
 	sch->flags &= ~TCQ_F_OFFLOADED;
@@ -278,6 +324,10 @@ static int prio_dump_offload(struct Qdisc *sch)
 		sch->flags |= TCQ_F_OFFLOADED;
 
 	return err;
+=======
+
+	return qdisc_offload_dump_helper(sch, TC_SETUP_QDISC_PRIO, &hw_stats);
+>>>>>>> upstream/android-13
 }
 
 static int prio_dump(struct Qdisc *sch, struct sk_buff *skb)
@@ -309,10 +359,14 @@ static int prio_graft(struct Qdisc *sch, unsigned long arg, struct Qdisc *new,
 {
 	struct prio_sched_data *q = qdisc_priv(sch);
 	struct tc_prio_qopt_offload graft_offload;
+<<<<<<< HEAD
 	struct net_device *dev = qdisc_dev(sch);
 	unsigned long band = arg - 1;
 	bool any_qdisc_is_offloaded;
 	int err;
+=======
+	unsigned long band = arg - 1;
+>>>>>>> upstream/android-13
 
 	if (!new) {
 		new = qdisc_create_dflt(sch->dev_queue, &pfifo_qdisc_ops,
@@ -325,15 +379,19 @@ static int prio_graft(struct Qdisc *sch, unsigned long arg, struct Qdisc *new,
 
 	*old = qdisc_replace(sch, new, &q->queues[band]);
 
+<<<<<<< HEAD
 	if (!tc_can_offload(dev))
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	graft_offload.handle = sch->handle;
 	graft_offload.parent = sch->parent;
 	graft_offload.graft_params.band = band;
 	graft_offload.graft_params.child_handle = new->handle;
 	graft_offload.command = TC_PRIO_GRAFT;
 
+<<<<<<< HEAD
 	err = dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_PRIO,
 					    &graft_offload);
 
@@ -352,6 +410,11 @@ static int prio_graft(struct Qdisc *sch, unsigned long arg, struct Qdisc *new,
 			NL_SET_ERR_MSG(extack, "Offloading graft operation failed.");
 	}
 
+=======
+	qdisc_offload_graft_helper(qdisc_dev(sch), sch, new, *old,
+				   TC_SETUP_QDISC_PRIO, &graft_offload,
+				   extack);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -403,7 +466,11 @@ static int prio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
 	cl_q = q->queues[cl - 1];
 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
 				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
+<<<<<<< HEAD
 	    gnet_stats_copy_queue(d, NULL, &cl_q->qstats, cl_q->q.qlen) < 0)
+=======
+	    qdisc_qstats_copy(d, cl_q) < 0)
+>>>>>>> upstream/android-13
 		return -1;
 
 	return 0;

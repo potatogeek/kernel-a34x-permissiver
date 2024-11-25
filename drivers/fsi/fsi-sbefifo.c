@@ -325,7 +325,12 @@ static int sbefifo_up_write(struct sbefifo *sbefifo, __be32 word)
 static int sbefifo_request_reset(struct sbefifo *sbefifo)
 {
 	struct device *dev = &sbefifo->fsi_dev->dev;
+<<<<<<< HEAD
 	u32 status, timeout;
+=======
+	unsigned long end_time;
+	u32 status;
+>>>>>>> upstream/android-13
 	int rc;
 
 	dev_dbg(dev, "Requesting FIFO reset\n");
@@ -341,7 +346,12 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
 	}
 
 	/* Wait for it to complete */
+<<<<<<< HEAD
 	for (timeout = 0; timeout < SBEFIFO_RESET_TIMEOUT; timeout++) {
+=======
+	end_time = jiffies + msecs_to_jiffies(SBEFIFO_RESET_TIMEOUT);
+	while (!time_after(jiffies, end_time)) {
+>>>>>>> upstream/android-13
 		rc = sbefifo_regr(sbefifo, SBEFIFO_UP | SBEFIFO_STS, &status);
 		if (rc) {
 			dev_err(dev, "Failed to read UP fifo status during reset"
@@ -355,7 +365,11 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
 			return 0;
 		}
 
+<<<<<<< HEAD
 		msleep(1);
+=======
+		cond_resched();
+>>>>>>> upstream/android-13
 	}
 	dev_err(dev, "FIFO reset timed out\n");
 
@@ -400,7 +414,11 @@ static int sbefifo_cleanup_hw(struct sbefifo *sbefifo)
 	/* The FIFO already contains a reset request from the SBE ? */
 	if (down_status & SBEFIFO_STS_RESET_REQ) {
 		dev_info(dev, "Cleanup: FIFO reset request set, resetting\n");
+<<<<<<< HEAD
 		rc = sbefifo_regw(sbefifo, SBEFIFO_UP, SBEFIFO_PERFORM_RESET);
+=======
+		rc = sbefifo_regw(sbefifo, SBEFIFO_DOWN, SBEFIFO_PERFORM_RESET);
+>>>>>>> upstream/android-13
 		if (rc) {
 			sbefifo->broken = true;
 			dev_err(dev, "Cleanup: Reset reg write failed, rc=%d\n", rc);
@@ -638,7 +656,11 @@ static void sbefifo_collect_async_ffdc(struct sbefifo *sbefifo)
 	}
         ffdc_iov.iov_base = ffdc;
 	ffdc_iov.iov_len = SBEFIFO_MAX_FFDC_SIZE;
+<<<<<<< HEAD
         iov_iter_kvec(&ffdc_iter, WRITE | ITER_KVEC, &ffdc_iov, 1, SBEFIFO_MAX_FFDC_SIZE);
+=======
+        iov_iter_kvec(&ffdc_iter, WRITE, &ffdc_iov, 1, SBEFIFO_MAX_FFDC_SIZE);
+>>>>>>> upstream/android-13
 	cmd[0] = cpu_to_be32(2);
 	cmd[1] = cpu_to_be32(SBEFIFO_CMD_GET_SBE_FFDC);
 	rc = sbefifo_do_command(sbefifo, cmd, 2, &ffdc_iter);
@@ -735,7 +757,11 @@ int sbefifo_submit(struct device *dev, const __be32 *command, size_t cmd_len,
 	rbytes = (*resp_len) * sizeof(__be32);
 	resp_iov.iov_base = response;
 	resp_iov.iov_len = rbytes;
+<<<<<<< HEAD
         iov_iter_kvec(&resp_iter, WRITE | ITER_KVEC, &resp_iov, 1, rbytes);
+=======
+        iov_iter_kvec(&resp_iter, WRITE, &resp_iov, 1, rbytes);
+>>>>>>> upstream/android-13
 
 	/* Perform the command */
 	mutex_lock(&sbefifo->lock);
@@ -1028,7 +1054,11 @@ static int sbefifo_remove(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fsi_device_id sbefifo_ids[] = {
+=======
+static const struct fsi_device_id sbefifo_ids[] = {
+>>>>>>> upstream/android-13
 	{
 		.engine_type = FSI_ENGID_SBE,
 		.version = FSI_VERSION_ANY,

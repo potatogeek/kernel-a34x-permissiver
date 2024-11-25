@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Cisco Systems, Inc.
  *
@@ -13,6 +14,11 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2010 Cisco Systems, Inc.
+>>>>>>> upstream/android-13
  */
 #ifndef __TCM_FC_H__
 #define __TCM_FC_H__
@@ -158,7 +164,10 @@ void ft_release_cmd(struct se_cmd *);
 int ft_queue_status(struct se_cmd *);
 int ft_queue_data_in(struct se_cmd *);
 int ft_write_pending(struct se_cmd *);
+<<<<<<< HEAD
 int ft_write_pending_status(struct se_cmd *);
+=======
+>>>>>>> upstream/android-13
 int ft_get_cmd_state(struct se_cmd *);
 void ft_queue_tm_resp(struct se_cmd *);
 void ft_aborted_task(struct se_cmd *);

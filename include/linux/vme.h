@@ -122,7 +122,11 @@ struct vme_driver {
 	const char *name;
 	int (*match)(struct vme_dev *);
 	int (*probe)(struct vme_dev *);
+<<<<<<< HEAD
 	int (*remove)(struct vme_dev *);
+=======
+	void (*remove)(struct vme_dev *);
+>>>>>>> upstream/android-13
 	struct device_driver driver;
 	struct list_head devices;
 };

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/skbuff.h>
@@ -45,6 +52,7 @@
 #include "rxe_net.h"
 #include "rxe_loc.h"
 
+<<<<<<< HEAD
 static LIST_HEAD(rxe_dev_list);
 static DEFINE_SPINLOCK(dev_list_lock); /* spinlock for device list */
 
@@ -96,6 +104,10 @@ struct device *rxe_dma_device(struct rxe_dev *rxe)
 	return ndev->dev.parent;
 }
 
+=======
+static struct rxe_recv_sockets recv_sockets;
+
+>>>>>>> upstream/android-13
 int rxe_mcast_add(struct rxe_dev *rxe, union ib_gid *mgid)
 {
 	int err;
@@ -157,7 +169,11 @@ static struct dst_entry *rxe_find_route6(struct net_device *ndev,
 	ndst = ipv6_stub->ipv6_dst_lookup_flow(sock_net(recv_sockets.sk6->sk),
 					       recv_sockets.sk6->sk, &fl6,
 					       NULL);
+<<<<<<< HEAD
 	if (unlikely(IS_ERR(ndst))) {
+=======
+	if (IS_ERR(ndst)) {
+>>>>>>> upstream/android-13
 		pr_err_ratelimited("no route to %pI6\n", daddr);
 		return NULL;
 	}
@@ -184,6 +200,7 @@ static struct dst_entry *rxe_find_route6(struct net_device *ndev,
 
 #endif
 
+<<<<<<< HEAD
 static struct dst_entry *rxe_find_route(struct rxe_dev *rxe,
 					struct rxe_qp *qp,
 					struct rxe_av *av)
@@ -197,6 +214,13 @@ static struct dst_entry *rxe_find_route(struct rxe_dev *rxe,
 	if (IS_ERR(attr))
 		return NULL;
 	ndev = attr->ndev;
+=======
+static struct dst_entry *rxe_find_route(struct net_device *ndev,
+					struct rxe_qp *qp,
+					struct rxe_av *av)
+{
+	struct dst_entry *dst = NULL;
+>>>>>>> upstream/android-13
 
 	if (qp_type(qp) == IB_QPT_RC)
 		dst = sk_dst_get(qp->sk->sk);
@@ -205,14 +229,22 @@ static struct dst_entry *rxe_find_route(struct rxe_dev *rxe,
 		if (dst)
 			dst_release(dst);
 
+<<<<<<< HEAD
 		if (av->network_type == RDMA_NETWORK_IPV4) {
+=======
+		if (av->network_type == RXE_NETWORK_TYPE_IPV4) {
+>>>>>>> upstream/android-13
 			struct in_addr *saddr;
 			struct in_addr *daddr;
 
 			saddr = &av->sgid_addr._sockaddr_in.sin_addr;
 			daddr = &av->dgid_addr._sockaddr_in.sin_addr;
 			dst = rxe_find_route4(ndev, saddr, daddr);
+<<<<<<< HEAD
 		} else if (av->network_type == RDMA_NETWORK_IPV6) {
+=======
+		} else if (av->network_type == RXE_NETWORK_TYPE_IPV6) {
+>>>>>>> upstream/android-13
 			struct in6_addr *saddr6;
 			struct in6_addr *daddr6;
 
@@ -231,13 +263,17 @@ static struct dst_entry *rxe_find_route(struct rxe_dev *rxe,
 			sk_dst_set(qp->sk->sk, dst);
 		}
 	}
+<<<<<<< HEAD
 	rdma_put_gid_attr(attr);
+=======
+>>>>>>> upstream/android-13
 	return dst;
 }
 
 static int rxe_udp_encap_recv(struct sock *sk, struct sk_buff *skb)
 {
 	struct udphdr *udph;
+<<<<<<< HEAD
 	struct net_device *ndev = skb->dev;
 	struct net_device *rdev = ndev;
 	struct rxe_dev *rxe = net_to_rxe(ndev);
@@ -247,11 +283,27 @@ static int rxe_udp_encap_recv(struct sock *sk, struct sk_buff *skb)
 		rdev = vlan_dev_real_dev(ndev);
 		rxe = net_to_rxe(rdev);
 	}
+=======
+	struct rxe_dev *rxe;
+	struct net_device *ndev = skb->dev;
+	struct rxe_pkt_info *pkt = SKB_TO_PKT(skb);
+
+	/* takes a reference on rxe->ib_dev
+	 * drop when skb is freed
+	 */
+	rxe = rxe_get_dev_from_net(ndev);
+	if (!rxe && is_vlan_dev(ndev))
+		rxe = rxe_get_dev_from_net(vlan_dev_real_dev(ndev));
+>>>>>>> upstream/android-13
 	if (!rxe)
 		goto drop;
 
 	if (skb_linearize(skb)) {
 		pr_err("skb_linearize failed\n");
+<<<<<<< HEAD
+=======
+		ib_device_put(&rxe->ib_dev);
+>>>>>>> upstream/android-13
 		goto drop;
 	}
 
@@ -290,10 +342,15 @@ static struct socket *rxe_setup_udp_tunnel(struct net *net, __be16 port,
 
 	/* Create UDP socket */
 	err = udp_sock_create(net, &udp_cfg, &sock);
+<<<<<<< HEAD
 	if (err < 0) {
 		pr_err("failed to create udp socket. err = %d\n", err);
 		return ERR_PTR(err);
 	}
+=======
+	if (err < 0)
+		return ERR_PTR(err);
+>>>>>>> upstream/android-13
 
 	tnl_cfg.encap_type = 1;
 	tnl_cfg.encap_rcv = rxe_udp_encap_recv;
@@ -344,6 +401,10 @@ static void prepare_ipv4_hdr(struct dst_entry *dst, struct sk_buff *skb,
 
 	iph->version	=	IPVERSION;
 	iph->ihl	=	sizeof(struct iphdr) >> 2;
+<<<<<<< HEAD
+=======
+	iph->tot_len	=	htons(skb->len);
+>>>>>>> upstream/android-13
 	iph->frag_off	=	df;
 	iph->protocol	=	proto;
 	iph->tos	=	tos;
@@ -352,8 +413,11 @@ static void prepare_ipv4_hdr(struct dst_entry *dst, struct sk_buff *skb,
 	iph->ttl	=	ttl;
 	__ip_select_ident(dev_net(dst->dev), iph,
 			  skb_shinfo(skb)->gso_segs ?: 1);
+<<<<<<< HEAD
 	iph->tot_len = htons(skb->len);
 	ip_send_check(iph);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void prepare_ipv6_hdr(struct dst_entry *dst, struct sk_buff *skb,
@@ -379,27 +443,44 @@ static void prepare_ipv6_hdr(struct dst_entry *dst, struct sk_buff *skb,
 	ip6h->payload_len = htons(skb->len - sizeof(*ip6h));
 }
 
+<<<<<<< HEAD
 static int prepare4(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 		    struct sk_buff *skb, struct rxe_av *av)
+=======
+static int prepare4(struct rxe_pkt_info *pkt, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct rxe_qp *qp = pkt->qp;
 	struct dst_entry *dst;
 	bool xnet = false;
 	__be16 df = htons(IP_DF);
+<<<<<<< HEAD
 	struct in_addr *saddr = &av->sgid_addr._sockaddr_in.sin_addr;
 	struct in_addr *daddr = &av->dgid_addr._sockaddr_in.sin_addr;
 
 	dst = rxe_find_route(rxe, qp, av);
+=======
+	struct rxe_av *av = rxe_get_av(pkt);
+	struct in_addr *saddr = &av->sgid_addr._sockaddr_in.sin_addr;
+	struct in_addr *daddr = &av->dgid_addr._sockaddr_in.sin_addr;
+
+	dst = rxe_find_route(skb->dev, qp, av);
+>>>>>>> upstream/android-13
 	if (!dst) {
 		pr_err("Host not reachable\n");
 		return -EHOSTUNREACH;
 	}
 
+<<<<<<< HEAD
 	if (!memcmp(saddr, daddr, sizeof(*daddr)))
 		pkt->mask |= RXE_LOOPBACK_MASK;
 
 	prepare_udp_hdr(skb, htons(RXE_ROCE_V2_SPORT),
 			htons(ROCE_V2_UDP_DPORT));
+=======
+	prepare_udp_hdr(skb, cpu_to_be16(qp->src_port),
+			cpu_to_be16(ROCE_V2_UDP_DPORT));
+>>>>>>> upstream/android-13
 
 	prepare_ipv4_hdr(dst, skb, saddr->s_addr, daddr->s_addr, IPPROTO_UDP,
 			 av->grh.traffic_class, av->grh.hop_limit, df, xnet);
@@ -408,6 +489,7 @@ static int prepare4(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int prepare6(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 		    struct sk_buff *skb, struct rxe_av *av)
 {
@@ -417,16 +499,32 @@ static int prepare6(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 	struct in6_addr *daddr = &av->dgid_addr._sockaddr_in6.sin6_addr;
 
 	dst = rxe_find_route(rxe, qp, av);
+=======
+static int prepare6(struct rxe_pkt_info *pkt, struct sk_buff *skb)
+{
+	struct rxe_qp *qp = pkt->qp;
+	struct dst_entry *dst;
+	struct rxe_av *av = rxe_get_av(pkt);
+	struct in6_addr *saddr = &av->sgid_addr._sockaddr_in6.sin6_addr;
+	struct in6_addr *daddr = &av->dgid_addr._sockaddr_in6.sin6_addr;
+
+	dst = rxe_find_route(skb->dev, qp, av);
+>>>>>>> upstream/android-13
 	if (!dst) {
 		pr_err("Host not reachable\n");
 		return -EHOSTUNREACH;
 	}
 
+<<<<<<< HEAD
 	if (!memcmp(saddr, daddr, sizeof(*daddr)))
 		pkt->mask |= RXE_LOOPBACK_MASK;
 
 	prepare_udp_hdr(skb, htons(RXE_ROCE_V2_SPORT),
 			htons(ROCE_V2_UDP_DPORT));
+=======
+	prepare_udp_hdr(skb, cpu_to_be16(qp->src_port),
+			cpu_to_be16(ROCE_V2_UDP_DPORT));
+>>>>>>> upstream/android-13
 
 	prepare_ipv6_hdr(dst, skb, saddr, daddr, IPPROTO_UDP,
 			 av->grh.traffic_class,
@@ -436,6 +534,7 @@ static int prepare6(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 	return 0;
 }
 
+<<<<<<< HEAD
 int rxe_prepare(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 		struct sk_buff *skb, u32 *crc)
 {
@@ -448,6 +547,19 @@ int rxe_prepare(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
 		err = prepare6(rxe, pkt, skb, av);
 
 	*crc = rxe_icrc_hdr(pkt, skb);
+=======
+int rxe_prepare(struct rxe_pkt_info *pkt, struct sk_buff *skb)
+{
+	int err = 0;
+
+	if (skb->protocol == htons(ETH_P_IP))
+		err = prepare4(pkt, skb);
+	else if (skb->protocol == htons(ETH_P_IPV6))
+		err = prepare6(pkt, skb);
+
+	if (ether_addr_equal(skb->dev->dev_addr, rxe_get_av(pkt)->dmac))
+		pkt->mask |= RXE_LOOPBACK_MASK;
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -465,6 +577,7 @@ static void rxe_skb_tx_dtor(struct sk_buff *skb)
 	rxe_drop_ref(qp);
 }
 
+<<<<<<< HEAD
 int rxe_send(struct rxe_pkt_info *pkt, struct sk_buff *skb)
 {
 	struct rxe_av *av;
@@ -472,18 +585,33 @@ int rxe_send(struct rxe_pkt_info *pkt, struct sk_buff *skb)
 
 	av = rxe_get_av(pkt);
 
+=======
+static int rxe_send(struct sk_buff *skb, struct rxe_pkt_info *pkt)
+{
+	int err;
+
+>>>>>>> upstream/android-13
 	skb->destructor = rxe_skb_tx_dtor;
 	skb->sk = pkt->qp->sk->sk;
 
 	rxe_add_ref(pkt->qp);
 	atomic_inc(&pkt->qp->skb_out);
 
+<<<<<<< HEAD
 	if (av->network_type == RDMA_NETWORK_IPV4) {
 		err = ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
 	} else if (av->network_type == RDMA_NETWORK_IPV6) {
 		err = ip6_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
 	} else {
 		pr_err("Unknown layer 3 protocol: %d\n", av->network_type);
+=======
+	if (skb->protocol == htons(ETH_P_IP)) {
+		err = ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
+	} else if (skb->protocol == htons(ETH_P_IPV6)) {
+		err = ip6_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
+	} else {
+		pr_err("Unknown layer 3 protocol: %d\n", skb->protocol);
+>>>>>>> upstream/android-13
 		atomic_dec(&pkt->qp->skb_out);
 		rxe_drop_ref(pkt->qp);
 		kfree_skb(skb);
@@ -498,26 +626,92 @@ int rxe_send(struct rxe_pkt_info *pkt, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
 void rxe_loopback(struct sk_buff *skb)
 {
+=======
+/* fix up a send packet to match the packets
+ * received from UDP before looping them back
+ */
+static int rxe_loopback(struct sk_buff *skb, struct rxe_pkt_info *pkt)
+{
+	memcpy(SKB_TO_PKT(skb), pkt, sizeof(*pkt));
+
+>>>>>>> upstream/android-13
 	if (skb->protocol == htons(ETH_P_IP))
 		skb_pull(skb, sizeof(struct iphdr));
 	else
 		skb_pull(skb, sizeof(struct ipv6hdr));
 
+<<<<<<< HEAD
 	rxe_rcv(skb);
 }
 
 static inline int addr_same(struct rxe_dev *rxe, struct rxe_av *av)
 {
 	return rxe->port.port_guid == av->grh.dgid.global.interface_id;
+=======
+	if (WARN_ON(!ib_device_try_get(&pkt->rxe->ib_dev))) {
+		kfree_skb(skb);
+		return -EIO;
+	}
+
+	rxe_rcv(skb);
+
+	return 0;
+}
+
+int rxe_xmit_packet(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
+		    struct sk_buff *skb)
+{
+	int err;
+	int is_request = pkt->mask & RXE_REQ_MASK;
+	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
+
+	if ((is_request && (qp->req.state != QP_STATE_READY)) ||
+	    (!is_request && (qp->resp.state != QP_STATE_READY))) {
+		pr_info("Packet dropped. QP is not in ready state\n");
+		goto drop;
+	}
+
+	rxe_icrc_generate(skb, pkt);
+
+	if (pkt->mask & RXE_LOOPBACK_MASK)
+		err = rxe_loopback(skb, pkt);
+	else
+		err = rxe_send(skb, pkt);
+	if (err) {
+		rxe->xmit_errors++;
+		rxe_counter_inc(rxe, RXE_CNT_SEND_ERR);
+		return err;
+	}
+
+	if ((qp_type(qp) != IB_QPT_RC) &&
+	    (pkt->mask & RXE_END_MASK)) {
+		pkt->wqe->state = wqe_state_done;
+		rxe_run_task(&qp->comp.task, 1);
+	}
+
+	rxe_counter_inc(rxe, RXE_CNT_SENT_PKTS);
+	goto done;
+
+drop:
+	kfree_skb(skb);
+	err = 0;
+done:
+	return err;
+>>>>>>> upstream/android-13
 }
 
 struct sk_buff *rxe_init_packet(struct rxe_dev *rxe, struct rxe_av *av,
 				int paylen, struct rxe_pkt_info *pkt)
 {
 	unsigned int hdr_len;
+<<<<<<< HEAD
 	struct sk_buff *skb;
+=======
+	struct sk_buff *skb = NULL;
+>>>>>>> upstream/android-13
 	struct net_device *ndev;
 	const struct ib_gid_attr *attr;
 	const int port_num = 1;
@@ -525,33 +719,64 @@ struct sk_buff *rxe_init_packet(struct rxe_dev *rxe, struct rxe_av *av,
 	attr = rdma_get_gid_attr(&rxe->ib_dev, port_num, av->grh.sgid_index);
 	if (IS_ERR(attr))
 		return NULL;
+<<<<<<< HEAD
 	ndev = attr->ndev;
 
 	if (av->network_type == RDMA_NETWORK_IPV4)
+=======
+
+	if (av->network_type == RXE_NETWORK_TYPE_IPV4)
+>>>>>>> upstream/android-13
 		hdr_len = ETH_HLEN + sizeof(struct udphdr) +
 			sizeof(struct iphdr);
 	else
 		hdr_len = ETH_HLEN + sizeof(struct udphdr) +
 			sizeof(struct ipv6hdr);
 
+<<<<<<< HEAD
 	skb = alloc_skb(paylen + hdr_len + LL_RESERVED_SPACE(ndev),
 			GFP_ATOMIC);
 
 	if (unlikely(!skb))
 		goto out;
+=======
+	rcu_read_lock();
+	ndev = rdma_read_gid_attr_ndev_rcu(attr);
+	if (IS_ERR(ndev)) {
+		rcu_read_unlock();
+		goto out;
+	}
+	skb = alloc_skb(paylen + hdr_len + LL_RESERVED_SPACE(ndev),
+			GFP_ATOMIC);
+
+	if (unlikely(!skb)) {
+		rcu_read_unlock();
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	skb_reserve(skb, hdr_len + LL_RESERVED_SPACE(ndev));
 
 	/* FIXME: hold reference to this netdev until life of this skb. */
 	skb->dev	= ndev;
+<<<<<<< HEAD
 	if (av->network_type == RDMA_NETWORK_IPV4)
+=======
+	rcu_read_unlock();
+
+	if (av->network_type == RXE_NETWORK_TYPE_IPV4)
+>>>>>>> upstream/android-13
 		skb->protocol = htons(ETH_P_IP);
 	else
 		skb->protocol = htons(ETH_P_IPV6);
 
 	pkt->rxe	= rxe;
 	pkt->port_num	= port_num;
+<<<<<<< HEAD
 	pkt->hdr	= skb_put_zero(skb, paylen);
+=======
+	pkt->hdr	= skb_put(skb, paylen);
+>>>>>>> upstream/android-13
 	pkt->mask	|= RXE_GRH_MASK;
 
 out:
@@ -568,16 +793,21 @@ const char *rxe_parent_name(struct rxe_dev *rxe, unsigned int port_num)
 	return rxe->ndev->name;
 }
 
+<<<<<<< HEAD
 enum rdma_link_layer rxe_link_layer(struct rxe_dev *rxe, unsigned int port_num)
 {
 	return IB_LINK_LAYER_ETHERNET;
 }
 
 struct rxe_dev *rxe_net_add(struct net_device *ndev)
+=======
+int rxe_net_add(const char *ibdev_name, struct net_device *ndev)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct rxe_dev *rxe = NULL;
 
+<<<<<<< HEAD
 	rxe = (struct rxe_dev *)ib_alloc_device(sizeof(*rxe));
 	if (!rxe)
 		return NULL;
@@ -609,6 +839,21 @@ void rxe_remove_all(void)
 		spin_lock_bh(&dev_list_lock);
 	}
 	spin_unlock_bh(&dev_list_lock);
+=======
+	rxe = ib_alloc_device(rxe_dev, ib_dev);
+	if (!rxe)
+		return -ENOMEM;
+
+	rxe->ndev = ndev;
+
+	err = rxe_add(rxe, ndev->mtu, ibdev_name);
+	if (err) {
+		ib_dealloc_device(&rxe->ib_dev);
+		return err;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void rxe_port_event(struct rxe_dev *rxe,
@@ -630,10 +875,16 @@ void rxe_port_up(struct rxe_dev *rxe)
 
 	port = &rxe->port;
 	port->attr.state = IB_PORT_ACTIVE;
+<<<<<<< HEAD
 	port->attr.phys_state = IB_PHYS_STATE_LINK_UP;
 
 	rxe_port_event(rxe, IB_EVENT_PORT_ACTIVE);
 	pr_info("set %s active\n", rxe->ib_dev.name);
+=======
+
+	rxe_port_event(rxe, IB_EVENT_PORT_ACTIVE);
+	dev_info(&rxe->ib_dev.dev, "set active\n");
+>>>>>>> upstream/android-13
 }
 
 /* Caller must hold net_info_lock */
@@ -643,10 +894,25 @@ void rxe_port_down(struct rxe_dev *rxe)
 
 	port = &rxe->port;
 	port->attr.state = IB_PORT_DOWN;
+<<<<<<< HEAD
 	port->attr.phys_state = IB_PHYS_STATE_LINK_DOWN;
 
 	rxe_port_event(rxe, IB_EVENT_PORT_ERR);
 	pr_info("set %s down\n", rxe->ib_dev.name);
+=======
+
+	rxe_port_event(rxe, IB_EVENT_PORT_ERR);
+	rxe_counter_inc(rxe, RXE_CNT_LINK_DOWNED);
+	dev_info(&rxe->ib_dev.dev, "set down\n");
+}
+
+void rxe_set_port_state(struct rxe_dev *rxe)
+{
+	if (netif_running(rxe->ndev) && netif_carrier_ok(rxe->ndev))
+		rxe_port_up(rxe);
+	else
+		rxe_port_down(rxe);
+>>>>>>> upstream/android-13
 }
 
 static int rxe_notify(struct notifier_block *not_blk,
@@ -654,6 +920,7 @@ static int rxe_notify(struct notifier_block *not_blk,
 		      void *arg)
 {
 	struct net_device *ndev = netdev_notifier_info_to_dev(arg);
+<<<<<<< HEAD
 	struct rxe_dev *rxe = net_to_rxe(ndev);
 
 	if (!rxe)
@@ -663,6 +930,16 @@ static int rxe_notify(struct notifier_block *not_blk,
 	case NETDEV_UNREGISTER:
 		list_del(&rxe->list);
 		rxe_remove(rxe);
+=======
+	struct rxe_dev *rxe = rxe_get_dev_from_net(ndev);
+
+	if (!rxe)
+		return NOTIFY_OK;
+
+	switch (event) {
+	case NETDEV_UNREGISTER:
+		ib_unregister_device_queued(&rxe->ib_dev);
+>>>>>>> upstream/android-13
 		break;
 	case NETDEV_UP:
 		rxe_port_up(rxe);
@@ -675,10 +952,14 @@ static int rxe_notify(struct notifier_block *not_blk,
 		rxe_set_mtu(rxe, ndev->mtu);
 		break;
 	case NETDEV_CHANGE:
+<<<<<<< HEAD
 		if (netif_running(ndev) && netif_carrier_ok(ndev))
 			rxe_port_up(rxe);
 		else
 			rxe_port_down(rxe);
+=======
+		rxe_set_port_state(rxe);
+>>>>>>> upstream/android-13
 		break;
 	case NETDEV_REBOOT:
 	case NETDEV_GOING_DOWN:
@@ -690,7 +971,12 @@ static int rxe_notify(struct notifier_block *not_blk,
 			event, ndev->name);
 		break;
 	}
+<<<<<<< HEAD
 out:
+=======
+
+	ib_device_put(&rxe->ib_dev);
+>>>>>>> upstream/android-13
 	return NOTIFY_OK;
 }
 
@@ -717,6 +1003,15 @@ static int rxe_net_ipv6_init(void)
 
 	recv_sockets.sk6 = rxe_setup_udp_tunnel(&init_net,
 						htons(ROCE_V2_UDP_DPORT), true);
+<<<<<<< HEAD
+=======
+	if (PTR_ERR(recv_sockets.sk6) == -EAFNOSUPPORT) {
+		recv_sockets.sk6 = NULL;
+		pr_warn("IPv6 is not supported, can not create a UDPv6 socket\n");
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (IS_ERR(recv_sockets.sk6)) {
 		recv_sockets.sk6 = NULL;
 		pr_err("Failed to create IPv6 UDP tunnel\n");

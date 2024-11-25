@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Adapted from arm64 version.
  *
  * Copyright (C) 2012 ARM Limited
  * Copyright (C) 2015 Mentor Graphics Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cache.h>
@@ -34,6 +41,11 @@
 #include <asm/vdso.h>
 #include <asm/vdso_datapage.h>
 #include <clocksource/arm_arch_timer.h>
+<<<<<<< HEAD
+=======
+#include <vdso/helpers.h>
+#include <vdso/vsyscall.h>
+>>>>>>> upstream/android-13
 
 #define MAX_SYMNAME	64
 
@@ -48,7 +60,11 @@ unsigned int vdso_total_pages __ro_after_init;
  * The VDSO data page.
  */
 static union vdso_data_store vdso_data_store __page_aligned_data;
+<<<<<<< HEAD
 static struct vdso_data *vdso_data = &vdso_data_store.data;
+=======
+struct vdso_data *vdso_data = vdso_data_store.data;
+>>>>>>> upstream/android-13
 
 static struct page *vdso_data_page __ro_after_init;
 static const struct vm_special_mapping vdso_data_mapping = {
@@ -59,6 +75,7 @@ static const struct vm_special_mapping vdso_data_mapping = {
 static int vdso_mremap(const struct vm_special_mapping *sm,
 		struct vm_area_struct *new_vma)
 {
+<<<<<<< HEAD
 	unsigned long new_size = new_vma->vm_end - new_vma->vm_start;
 	unsigned long vdso_size;
 
@@ -68,6 +85,8 @@ static int vdso_mremap(const struct vm_special_mapping *sm,
 	if (vdso_size != new_size)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	current->mm->context.vdso = new_vma->vm_start;
 
 	return 0;
@@ -88,7 +107,11 @@ struct elfinfo {
 /* Cached result of boot-time check for whether the arch timer exists,
  * and if so, whether the virtual counter is useable.
  */
+<<<<<<< HEAD
 static bool cntvct_ok __ro_after_init;
+=======
+bool cntvct_ok __ro_after_init;
+>>>>>>> upstream/android-13
 
 static bool __init cntvct_functional(void)
 {
@@ -193,6 +216,10 @@ static void __init patch_vdso(void *ehdr)
 	if (!cntvct_ok) {
 		vdso_nullpatch_one(&einfo, "__vdso_gettimeofday");
 		vdso_nullpatch_one(&einfo, "__vdso_clock_gettime");
+<<<<<<< HEAD
+=======
+		vdso_nullpatch_one(&einfo, "__vdso_clock_gettime64");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -249,7 +276,11 @@ static int install_vvar(struct mm_struct *mm, unsigned long addr)
 	return PTR_ERR_OR_ZERO(vma);
 }
 
+<<<<<<< HEAD
 /* assumes mmap_sem is write-locked */
+=======
+/* assumes mmap_lock is write-locked */
+>>>>>>> upstream/android-13
 void arm_install_vdso(struct mm_struct *mm, unsigned long addr)
 {
 	struct vm_area_struct *vma;
@@ -275,6 +306,7 @@ void arm_install_vdso(struct mm_struct *mm, unsigned long addr)
 		mm->context.vdso = addr;
 }
 
+<<<<<<< HEAD
 static void vdso_write_begin(struct vdso_data *vdata)
 {
 	++vdso_data->seq_count;
@@ -356,3 +388,5 @@ void update_vsyscall_tz(void)
 	vdso_data->tz_dsttime		= sys_tz.tz_dsttime;
 	flush_dcache_page(virt_to_page(vdso_data));
 }
+=======
+>>>>>>> upstream/android-13

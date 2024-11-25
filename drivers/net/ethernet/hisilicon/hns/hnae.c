@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dma-mapping.h>
@@ -274,7 +280,11 @@ static void hnae_fini_queue(struct hnae_queue *q)
 	hnae_fini_ring(&q->rx_ring);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ae_chain - define ae chain head
  */
 static RAW_NOTIFIER_HEAD(ae_chain);
@@ -442,7 +452,11 @@ EXPORT_SYMBOL(hnae_ae_register);
 
 /**
  * hnae_ae_unregister - unregisters a HNAE AE engine
+<<<<<<< HEAD
  * @cdev: the device to unregister
+=======
+ * @hdev: the device to unregister
+>>>>>>> upstream/android-13
  */
 void hnae_ae_unregister(struct hnae_ae_dev *hdev)
 {

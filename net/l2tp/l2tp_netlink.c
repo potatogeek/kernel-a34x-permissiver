@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * L2TP netlink layer, for management
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* L2TP netlink layer, for management
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2008,2009,2010 Katalix Systems Ltd
  *
@@ -8,10 +13,13 @@
  * Copyright (c) 2007 Samuel Ortiz <samuel@sortiz.org>
  * which is in turn partly based on the wireless netlink code:
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -30,7 +38,10 @@
 
 #include "l2tp_core.h"
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct genl_family l2tp_nl_family;
 
 static const struct genl_multicast_group l2tp_multicast_group[] = {
@@ -160,16 +171,50 @@ static int l2tp_session_notify(struct genl_family *family,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int l2tp_nl_cmd_tunnel_create_get_addr(struct nlattr **attrs, struct l2tp_tunnel_cfg *cfg)
+{
+	if (attrs[L2TP_ATTR_UDP_SPORT])
+		cfg->local_udp_port = nla_get_u16(attrs[L2TP_ATTR_UDP_SPORT]);
+	if (attrs[L2TP_ATTR_UDP_DPORT])
+		cfg->peer_udp_port = nla_get_u16(attrs[L2TP_ATTR_UDP_DPORT]);
+	cfg->use_udp_checksums = nla_get_flag(attrs[L2TP_ATTR_UDP_CSUM]);
+
+	/* Must have either AF_INET or AF_INET6 address for source and destination */
+#if IS_ENABLED(CONFIG_IPV6)
+	if (attrs[L2TP_ATTR_IP6_SADDR] && attrs[L2TP_ATTR_IP6_DADDR]) {
+		cfg->local_ip6 = nla_data(attrs[L2TP_ATTR_IP6_SADDR]);
+		cfg->peer_ip6 = nla_data(attrs[L2TP_ATTR_IP6_DADDR]);
+		cfg->udp6_zero_tx_checksums = nla_get_flag(attrs[L2TP_ATTR_UDP_ZERO_CSUM6_TX]);
+		cfg->udp6_zero_rx_checksums = nla_get_flag(attrs[L2TP_ATTR_UDP_ZERO_CSUM6_RX]);
+		return 0;
+	}
+#endif
+	if (attrs[L2TP_ATTR_IP_SADDR] && attrs[L2TP_ATTR_IP_DADDR]) {
+		cfg->local_ip.s_addr = nla_get_in_addr(attrs[L2TP_ATTR_IP_SADDR]);
+		cfg->peer_ip.s_addr = nla_get_in_addr(attrs[L2TP_ATTR_IP_DADDR]);
+		return 0;
+	}
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 static int l2tp_nl_cmd_tunnel_create(struct sk_buff *skb, struct genl_info *info)
 {
 	u32 tunnel_id;
 	u32 peer_tunnel_id;
 	int proto_version;
+<<<<<<< HEAD
 	int fd;
+=======
+	int fd = -1;
+>>>>>>> upstream/android-13
 	int ret = 0;
 	struct l2tp_tunnel_cfg cfg = { 0, };
 	struct l2tp_tunnel *tunnel;
 	struct net *net = genl_info_net(info);
+<<<<<<< HEAD
 
 	if (!info->attrs[L2TP_ATTR_CONN_ID]) {
 		ret = -EINVAL;
@@ -236,11 +281,55 @@ static int l2tp_nl_cmd_tunnel_create(struct sk_buff *skb, struct genl_info *info
 	if (info->attrs[L2TP_ATTR_DEBUG])
 		cfg.debug = nla_get_u32(info->attrs[L2TP_ATTR_DEBUG]);
 
+=======
+	struct nlattr **attrs = info->attrs;
+
+	if (!attrs[L2TP_ATTR_CONN_ID]) {
+		ret = -EINVAL;
+		goto out;
+	}
+	tunnel_id = nla_get_u32(attrs[L2TP_ATTR_CONN_ID]);
+
+	if (!attrs[L2TP_ATTR_PEER_CONN_ID]) {
+		ret = -EINVAL;
+		goto out;
+	}
+	peer_tunnel_id = nla_get_u32(attrs[L2TP_ATTR_PEER_CONN_ID]);
+
+	if (!attrs[L2TP_ATTR_PROTO_VERSION]) {
+		ret = -EINVAL;
+		goto out;
+	}
+	proto_version = nla_get_u8(attrs[L2TP_ATTR_PROTO_VERSION]);
+
+	if (!attrs[L2TP_ATTR_ENCAP_TYPE]) {
+		ret = -EINVAL;
+		goto out;
+	}
+	cfg.encap = nla_get_u16(attrs[L2TP_ATTR_ENCAP_TYPE]);
+
+	/* Managed tunnels take the tunnel socket from userspace.
+	 * Unmanaged tunnels must call out the source and destination addresses
+	 * for the kernel to create the tunnel socket itself.
+	 */
+	if (attrs[L2TP_ATTR_FD]) {
+		fd = nla_get_u32(attrs[L2TP_ATTR_FD]);
+	} else {
+		ret = l2tp_nl_cmd_tunnel_create_get_addr(attrs, &cfg);
+		if (ret < 0)
+			goto out;
+	}
+
+>>>>>>> upstream/android-13
 	ret = -EINVAL;
 	switch (cfg.encap) {
 	case L2TP_ENCAPTYPE_UDP:
 	case L2TP_ENCAPTYPE_IP:
+<<<<<<< HEAD
 		ret = l2tp_tunnel_create(net, fd, proto_version, tunnel_id,
+=======
+		ret = l2tp_tunnel_create(fd, proto_version, tunnel_id,
+>>>>>>> upstream/android-13
 					 peer_tunnel_id, &cfg, &tunnel);
 		break;
 	}
@@ -311,9 +400,12 @@ static int l2tp_nl_cmd_tunnel_modify(struct sk_buff *skb, struct genl_info *info
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (info->attrs[L2TP_ATTR_DEBUG])
 		tunnel->debug = nla_get_u32(info->attrs[L2TP_ATTR_DEBUG]);
 
+=======
+>>>>>>> upstream/android-13
 	ret = l2tp_tunnel_notify(&l2tp_nl_family, info,
 				 tunnel, L2TP_CMD_TUNNEL_MODIFY);
 
@@ -323,16 +415,90 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IPV6)
+static int l2tp_nl_tunnel_send_addr6(struct sk_buff *skb, struct sock *sk,
+				     enum l2tp_encap_type encap)
+{
+	struct inet_sock *inet = inet_sk(sk);
+	struct ipv6_pinfo *np = inet6_sk(sk);
+
+	switch (encap) {
+	case L2TP_ENCAPTYPE_UDP:
+		if (udp_get_no_check6_tx(sk) &&
+		    nla_put_flag(skb, L2TP_ATTR_UDP_ZERO_CSUM6_TX))
+			return -1;
+		if (udp_get_no_check6_rx(sk) &&
+		    nla_put_flag(skb, L2TP_ATTR_UDP_ZERO_CSUM6_RX))
+			return -1;
+		if (nla_put_u16(skb, L2TP_ATTR_UDP_SPORT, ntohs(inet->inet_sport)) ||
+		    nla_put_u16(skb, L2TP_ATTR_UDP_DPORT, ntohs(inet->inet_dport)))
+			return -1;
+		fallthrough;
+	case L2TP_ENCAPTYPE_IP:
+		if (nla_put_in6_addr(skb, L2TP_ATTR_IP6_SADDR, &np->saddr) ||
+		    nla_put_in6_addr(skb, L2TP_ATTR_IP6_DADDR, &sk->sk_v6_daddr))
+			return -1;
+		break;
+	}
+	return 0;
+}
+#endif
+
+static int l2tp_nl_tunnel_send_addr4(struct sk_buff *skb, struct sock *sk,
+				     enum l2tp_encap_type encap)
+{
+	struct inet_sock *inet = inet_sk(sk);
+
+	switch (encap) {
+	case L2TP_ENCAPTYPE_UDP:
+		if (nla_put_u8(skb, L2TP_ATTR_UDP_CSUM, !sk->sk_no_check_tx) ||
+		    nla_put_u16(skb, L2TP_ATTR_UDP_SPORT, ntohs(inet->inet_sport)) ||
+		    nla_put_u16(skb, L2TP_ATTR_UDP_DPORT, ntohs(inet->inet_dport)))
+			return -1;
+		fallthrough;
+	case L2TP_ENCAPTYPE_IP:
+		if (nla_put_in_addr(skb, L2TP_ATTR_IP_SADDR, inet->inet_saddr) ||
+		    nla_put_in_addr(skb, L2TP_ATTR_IP_DADDR, inet->inet_daddr))
+			return -1;
+		break;
+	}
+
+	return 0;
+}
+
+/* Append attributes for the tunnel address, handling the different attribute types
+ * used for different tunnel encapsulation and AF_INET v.s. AF_INET6.
+ */
+static int l2tp_nl_tunnel_send_addr(struct sk_buff *skb, struct l2tp_tunnel *tunnel)
+{
+	struct sock *sk = tunnel->sock;
+
+	if (!sk)
+		return 0;
+
+#if IS_ENABLED(CONFIG_IPV6)
+	if (sk->sk_family == AF_INET6)
+		return l2tp_nl_tunnel_send_addr6(skb, sk, tunnel->encap);
+#endif
+	return l2tp_nl_tunnel_send_addr4(skb, sk, tunnel->encap);
+}
+
+>>>>>>> upstream/android-13
 static int l2tp_nl_tunnel_send(struct sk_buff *skb, u32 portid, u32 seq, int flags,
 			       struct l2tp_tunnel *tunnel, u8 cmd)
 {
 	void *hdr;
 	struct nlattr *nest;
+<<<<<<< HEAD
 	struct sock *sk = NULL;
 	struct inet_sock *inet;
 #if IS_ENABLED(CONFIG_IPV6)
 	struct ipv6_pinfo *np = NULL;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	hdr = genlmsg_put(skb, portid, seq, &l2tp_nl_family, flags, cmd);
 	if (!hdr)
@@ -341,12 +507,21 @@ static int l2tp_nl_tunnel_send(struct sk_buff *skb, u32 portid, u32 seq, int fla
 	if (nla_put_u8(skb, L2TP_ATTR_PROTO_VERSION, tunnel->version) ||
 	    nla_put_u32(skb, L2TP_ATTR_CONN_ID, tunnel->tunnel_id) ||
 	    nla_put_u32(skb, L2TP_ATTR_PEER_CONN_ID, tunnel->peer_tunnel_id) ||
+<<<<<<< HEAD
 	    nla_put_u32(skb, L2TP_ATTR_DEBUG, tunnel->debug) ||
 	    nla_put_u16(skb, L2TP_ATTR_ENCAP_TYPE, tunnel->encap))
 		goto nla_put_failure;
 
 	nest = nla_nest_start(skb, L2TP_ATTR_STATS);
 	if (nest == NULL)
+=======
+	    nla_put_u32(skb, L2TP_ATTR_DEBUG, 0) ||
+	    nla_put_u16(skb, L2TP_ATTR_ENCAP_TYPE, tunnel->encap))
+		goto nla_put_failure;
+
+	nest = nla_nest_start_noflag(skb, L2TP_ATTR_STATS);
+	if (!nest)
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	if (nla_put_u64_64bit(skb, L2TP_ATTR_TX_PACKETS,
@@ -367,15 +542,28 @@ static int l2tp_nl_tunnel_send(struct sk_buff *skb, u32 portid, u32 seq, int fla
 	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_SEQ_DISCARDS,
 			      atomic_long_read(&tunnel->stats.rx_seq_discards),
 			      L2TP_ATTR_STATS_PAD) ||
+<<<<<<< HEAD
+=======
+	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_COOKIE_DISCARDS,
+			      atomic_long_read(&tunnel->stats.rx_cookie_discards),
+			      L2TP_ATTR_STATS_PAD) ||
+>>>>>>> upstream/android-13
 	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_OOS_PACKETS,
 			      atomic_long_read(&tunnel->stats.rx_oos_packets),
 			      L2TP_ATTR_STATS_PAD) ||
 	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_ERRORS,
 			      atomic_long_read(&tunnel->stats.rx_errors),
+<<<<<<< HEAD
+=======
+			      L2TP_ATTR_STATS_PAD) ||
+	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_INVALID,
+			      atomic_long_read(&tunnel->stats.rx_invalid),
+>>>>>>> upstream/android-13
 			      L2TP_ATTR_STATS_PAD))
 		goto nla_put_failure;
 	nla_nest_end(skb, nest);
 
+<<<<<<< HEAD
 	sk = tunnel->sock;
 	if (!sk)
 		goto out;
@@ -428,6 +616,11 @@ static int l2tp_nl_tunnel_send(struct sk_buff *skb, u32 portid, u32 seq, int fla
 	}
 
 out:
+=======
+	if (l2tp_nl_tunnel_send_addr(skb, tunnel))
+		goto nla_put_failure;
+
+>>>>>>> upstream/android-13
 	genlmsg_end(skb, hdr);
 	return 0;
 
@@ -488,7 +681,11 @@ static int l2tp_nl_cmd_tunnel_dump(struct sk_buff *skb, struct netlink_callback 
 
 	for (;;) {
 		tunnel = l2tp_tunnel_get_nth(net, ti);
+<<<<<<< HEAD
 		if (tunnel == NULL)
+=======
+		if (!tunnel)
+>>>>>>> upstream/android-13
 			goto out;
 
 		if (l2tp_nl_tunnel_send(skb, NETLINK_CB(cb->skb).portid,
@@ -573,6 +770,10 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
 
 		if (info->attrs[L2TP_ATTR_COOKIE]) {
 			u16 len = nla_len(info->attrs[L2TP_ATTR_COOKIE]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (len > 8) {
 				ret = -EINVAL;
 				goto out_tunnel;
@@ -582,6 +783,10 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
 		}
 		if (info->attrs[L2TP_ATTR_PEER_COOKIE]) {
 			u16 len = nla_len(info->attrs[L2TP_ATTR_PEER_COOKIE]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (len > 8) {
 				ret = -EINVAL;
 				goto out_tunnel;
@@ -593,9 +798,12 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
 			cfg.ifname = nla_data(info->attrs[L2TP_ATTR_IFNAME]);
 	}
 
+<<<<<<< HEAD
 	if (info->attrs[L2TP_ATTR_DEBUG])
 		cfg.debug = nla_get_u32(info->attrs[L2TP_ATTR_DEBUG]);
 
+=======
+>>>>>>> upstream/android-13
 	if (info->attrs[L2TP_ATTR_RECV_SEQ])
 		cfg.recv_seq = nla_get_u8(info->attrs[L2TP_ATTR_RECV_SEQ]);
 
@@ -609,14 +817,22 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
 		cfg.reorder_timeout = nla_get_msecs(info->attrs[L2TP_ATTR_RECV_TIMEOUT]);
 
 #ifdef CONFIG_MODULES
+<<<<<<< HEAD
 	if (l2tp_nl_cmd_ops[cfg.pw_type] == NULL) {
+=======
+	if (!l2tp_nl_cmd_ops[cfg.pw_type]) {
+>>>>>>> upstream/android-13
 		genl_unlock();
 		request_module("net-l2tp-type-%u", cfg.pw_type);
 		genl_lock();
 	}
 #endif
+<<<<<<< HEAD
 	if ((l2tp_nl_cmd_ops[cfg.pw_type] == NULL) ||
 	    (l2tp_nl_cmd_ops[cfg.pw_type]->session_create == NULL)) {
+=======
+	if (!l2tp_nl_cmd_ops[cfg.pw_type] || !l2tp_nl_cmd_ops[cfg.pw_type]->session_create) {
+>>>>>>> upstream/android-13
 		ret = -EPROTONOSUPPORT;
 		goto out_tunnel;
 	}
@@ -648,7 +864,11 @@ static int l2tp_nl_cmd_session_delete(struct sk_buff *skb, struct genl_info *inf
 	u16 pw_type;
 
 	session = l2tp_nl_session_get(info);
+<<<<<<< HEAD
 	if (session == NULL) {
+=======
+	if (!session) {
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto out;
 	}
@@ -659,7 +879,11 @@ static int l2tp_nl_cmd_session_delete(struct sk_buff *skb, struct genl_info *inf
 	pw_type = session->pwtype;
 	if (pw_type < __L2TP_PWTYPE_MAX)
 		if (l2tp_nl_cmd_ops[pw_type] && l2tp_nl_cmd_ops[pw_type]->session_delete)
+<<<<<<< HEAD
 			ret = (*l2tp_nl_cmd_ops[pw_type]->session_delete)(session);
+=======
+			l2tp_nl_cmd_ops[pw_type]->session_delete(session);
+>>>>>>> upstream/android-13
 
 	l2tp_session_dec_refcount(session);
 
@@ -673,14 +897,21 @@ static int l2tp_nl_cmd_session_modify(struct sk_buff *skb, struct genl_info *inf
 	struct l2tp_session *session;
 
 	session = l2tp_nl_session_get(info);
+<<<<<<< HEAD
 	if (session == NULL) {
+=======
+	if (!session) {
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (info->attrs[L2TP_ATTR_DEBUG])
 		session->debug = nla_get_u32(info->attrs[L2TP_ATTR_DEBUG]);
 
+=======
+>>>>>>> upstream/android-13
 	if (info->attrs[L2TP_ATTR_RECV_SEQ])
 		session->recv_seq = nla_get_u8(info->attrs[L2TP_ATTR_RECV_SEQ]);
 
@@ -718,20 +949,31 @@ static int l2tp_nl_session_send(struct sk_buff *skb, u32 portid, u32 seq, int fl
 	if (nla_put_u32(skb, L2TP_ATTR_CONN_ID, tunnel->tunnel_id) ||
 	    nla_put_u32(skb, L2TP_ATTR_SESSION_ID, session->session_id) ||
 	    nla_put_u32(skb, L2TP_ATTR_PEER_CONN_ID, tunnel->peer_tunnel_id) ||
+<<<<<<< HEAD
 	    nla_put_u32(skb, L2TP_ATTR_PEER_SESSION_ID,
 			session->peer_session_id) ||
 	    nla_put_u32(skb, L2TP_ATTR_DEBUG, session->debug) ||
+=======
+	    nla_put_u32(skb, L2TP_ATTR_PEER_SESSION_ID, session->peer_session_id) ||
+	    nla_put_u32(skb, L2TP_ATTR_DEBUG, 0) ||
+>>>>>>> upstream/android-13
 	    nla_put_u16(skb, L2TP_ATTR_PW_TYPE, session->pwtype))
 		goto nla_put_failure;
 
 	if ((session->ifname[0] &&
 	     nla_put_string(skb, L2TP_ATTR_IFNAME, session->ifname)) ||
 	    (session->cookie_len &&
+<<<<<<< HEAD
 	     nla_put(skb, L2TP_ATTR_COOKIE, session->cookie_len,
 		     &session->cookie[0])) ||
 	    (session->peer_cookie_len &&
 	     nla_put(skb, L2TP_ATTR_PEER_COOKIE, session->peer_cookie_len,
 		     &session->peer_cookie[0])) ||
+=======
+	     nla_put(skb, L2TP_ATTR_COOKIE, session->cookie_len, session->cookie)) ||
+	    (session->peer_cookie_len &&
+	     nla_put(skb, L2TP_ATTR_PEER_COOKIE, session->peer_cookie_len, session->peer_cookie)) ||
+>>>>>>> upstream/android-13
 	    nla_put_u8(skb, L2TP_ATTR_RECV_SEQ, session->recv_seq) ||
 	    nla_put_u8(skb, L2TP_ATTR_SEND_SEQ, session->send_seq) ||
 	    nla_put_u8(skb, L2TP_ATTR_LNS_MODE, session->lns_mode) ||
@@ -742,8 +984,13 @@ static int l2tp_nl_session_send(struct sk_buff *skb, u32 portid, u32 seq, int fl
 			   session->reorder_timeout, L2TP_ATTR_PAD)))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, L2TP_ATTR_STATS);
 	if (nest == NULL)
+=======
+	nest = nla_nest_start_noflag(skb, L2TP_ATTR_STATS);
+	if (!nest)
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	if (nla_put_u64_64bit(skb, L2TP_ATTR_TX_PACKETS,
@@ -764,11 +1011,23 @@ static int l2tp_nl_session_send(struct sk_buff *skb, u32 portid, u32 seq, int fl
 	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_SEQ_DISCARDS,
 			      atomic_long_read(&session->stats.rx_seq_discards),
 			      L2TP_ATTR_STATS_PAD) ||
+<<<<<<< HEAD
+=======
+	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_COOKIE_DISCARDS,
+			      atomic_long_read(&session->stats.rx_cookie_discards),
+			      L2TP_ATTR_STATS_PAD) ||
+>>>>>>> upstream/android-13
 	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_OOS_PACKETS,
 			      atomic_long_read(&session->stats.rx_oos_packets),
 			      L2TP_ATTR_STATS_PAD) ||
 	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_ERRORS,
 			      atomic_long_read(&session->stats.rx_errors),
+<<<<<<< HEAD
+=======
+			      L2TP_ATTR_STATS_PAD) ||
+	    nla_put_u64_64bit(skb, L2TP_ATTR_RX_INVALID,
+			      atomic_long_read(&session->stats.rx_invalid),
+>>>>>>> upstream/android-13
 			      L2TP_ATTR_STATS_PAD))
 		goto nla_put_failure;
 	nla_nest_end(skb, nest);
@@ -788,7 +1047,11 @@ static int l2tp_nl_cmd_session_get(struct sk_buff *skb, struct genl_info *info)
 	int ret;
 
 	session = l2tp_nl_session_get(info);
+<<<<<<< HEAD
 	if (session == NULL) {
+=======
+	if (!session) {
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto err;
 	}
@@ -827,14 +1090,24 @@ static int l2tp_nl_cmd_session_dump(struct sk_buff *skb, struct netlink_callback
 	int si = cb->args[1];
 
 	for (;;) {
+<<<<<<< HEAD
 		if (tunnel == NULL) {
 			tunnel = l2tp_tunnel_get_nth(net, ti);
 			if (tunnel == NULL)
+=======
+		if (!tunnel) {
+			tunnel = l2tp_tunnel_get_nth(net, ti);
+			if (!tunnel)
+>>>>>>> upstream/android-13
 				goto out;
 		}
 
 		session = l2tp_session_get_nth(tunnel, si);
+<<<<<<< HEAD
 		if (session == NULL) {
+=======
+		if (!session) {
+>>>>>>> upstream/android-13
 			ti++;
 			l2tp_tunnel_dec_refcount(tunnel);
 			tunnel = NULL;
@@ -912,15 +1185,24 @@ static const struct nla_policy l2tp_nl_policy[L2TP_ATTR_MAX + 1] = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct genl_ops l2tp_nl_ops[] = {
 	{
 		.cmd = L2TP_CMD_NOOP,
 		.doit = l2tp_nl_cmd_noop,
 		.policy = l2tp_nl_policy,
+=======
+static const struct genl_small_ops l2tp_nl_ops[] = {
+	{
+		.cmd = L2TP_CMD_NOOP,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_noop,
+>>>>>>> upstream/android-13
 		/* can be retrieved by unprivileged users */
 	},
 	{
 		.cmd = L2TP_CMD_TUNNEL_CREATE,
+<<<<<<< HEAD
 		.doit = l2tp_nl_cmd_tunnel_create,
 		.policy = l2tp_nl_policy,
 		.flags = GENL_ADMIN_PERM,
@@ -968,6 +1250,55 @@ static const struct genl_ops l2tp_nl_ops[] = {
 		.dumpit = l2tp_nl_cmd_session_dump,
 		.policy = l2tp_nl_policy,
 		.flags = GENL_ADMIN_PERM,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_tunnel_create,
+		.flags = GENL_UNS_ADMIN_PERM,
+	},
+	{
+		.cmd = L2TP_CMD_TUNNEL_DELETE,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_tunnel_delete,
+		.flags = GENL_UNS_ADMIN_PERM,
+	},
+	{
+		.cmd = L2TP_CMD_TUNNEL_MODIFY,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_tunnel_modify,
+		.flags = GENL_UNS_ADMIN_PERM,
+	},
+	{
+		.cmd = L2TP_CMD_TUNNEL_GET,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_tunnel_get,
+		.dumpit = l2tp_nl_cmd_tunnel_dump,
+		.flags = GENL_UNS_ADMIN_PERM,
+	},
+	{
+		.cmd = L2TP_CMD_SESSION_CREATE,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_session_create,
+		.flags = GENL_UNS_ADMIN_PERM,
+	},
+	{
+		.cmd = L2TP_CMD_SESSION_DELETE,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_session_delete,
+		.flags = GENL_UNS_ADMIN_PERM,
+	},
+	{
+		.cmd = L2TP_CMD_SESSION_MODIFY,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_session_modify,
+		.flags = GENL_UNS_ADMIN_PERM,
+	},
+	{
+		.cmd = L2TP_CMD_SESSION_GET,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = l2tp_nl_cmd_session_get,
+		.dumpit = l2tp_nl_cmd_session_dump,
+		.flags = GENL_UNS_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -976,10 +1307,18 @@ static struct genl_family l2tp_nl_family __ro_after_init = {
 	.version	= L2TP_GENL_VERSION,
 	.hdrsize	= 0,
 	.maxattr	= L2TP_ATTR_MAX,
+<<<<<<< HEAD
 	.netnsok	= true,
 	.module		= THIS_MODULE,
 	.ops		= l2tp_nl_ops,
 	.n_ops		= ARRAY_SIZE(l2tp_nl_ops),
+=======
+	.policy = l2tp_nl_policy,
+	.netnsok	= true,
+	.module		= THIS_MODULE,
+	.small_ops	= l2tp_nl_ops,
+	.n_small_ops	= ARRAY_SIZE(l2tp_nl_ops),
+>>>>>>> upstream/android-13
 	.mcgrps		= l2tp_multicast_group,
 	.n_mcgrps	= ARRAY_SIZE(l2tp_multicast_group),
 };

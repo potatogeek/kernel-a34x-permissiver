@@ -99,7 +99,11 @@ ASoC Core API
 .. kernel-doc:: include/sound/soc.h
 .. kernel-doc:: sound/soc/soc-core.c
 .. kernel-doc:: sound/soc/soc-devres.c
+<<<<<<< HEAD
 .. kernel-doc:: sound/soc/soc-io.c
+=======
+.. kernel-doc:: sound/soc/soc-component.c
+>>>>>>> upstream/android-13
 .. kernel-doc:: sound/soc/soc-pcm.c
 .. kernel-doc:: sound/soc/soc-ops.c
 .. kernel-doc:: sound/soc/soc-compress.c
@@ -132,3 +136,7 @@ ISA DMA Helpers
 Other Helper Macros
 -------------------
 .. kernel-doc:: include/sound/core.h
+<<<<<<< HEAD
+=======
+.. kernel-doc:: sound/sound_core.c
+>>>>>>> upstream/android-13

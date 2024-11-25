@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* ir-xmp-decoder.c - handle XMP IR Pulse/Space protocol
  *
  * Copyright (C) 2014 by Marcel Mol
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation version 2 of the License.
@@ -11,6 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * - Based on info from http://www.hifi-remote.com
  * - Ignore Toggle=9 frames
  * - Ignore XMP-1 XMP-2 difference, always store 16 bit OBC
@@ -20,11 +27,20 @@
 #include <linux/module.h>
 #include "rc-core-priv.h"
 
+<<<<<<< HEAD
 #define XMP_UNIT		  136000 /* ns */
 #define XMP_LEADER		  210000 /* ns */
 #define XMP_NIBBLE_PREFIX	  760000 /* ns */
 #define	XMP_HALFFRAME_SPACE	13800000 /* ns */
 #define	XMP_TRAILER_SPACE	20000000 /* should be 80ms but not all dureation supliers can go that high */
+=======
+#define XMP_UNIT		  136 /* us */
+#define XMP_LEADER		  210 /* us */
+#define XMP_NIBBLE_PREFIX	  760 /* us */
+#define	XMP_HALFFRAME_SPACE	13800 /* us */
+/* should be 80ms but not all duration supliers can go that high */
+#define	XMP_TRAILER_SPACE	20000
+>>>>>>> upstream/android-13
 
 enum xmp_state {
 	STATE_INACTIVE,
@@ -50,7 +66,11 @@ static int ir_xmp_decode(struct rc_dev *dev, struct ir_raw_event ev)
 	}
 
 	dev_dbg(&dev->dev, "XMP decode started at state %d %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->state, data->count, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->state, data->count, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 
 	switch (data->state) {
 
@@ -94,7 +114,11 @@ static int ir_xmp_decode(struct rc_dev *dev, struct ir_raw_event ev)
 			n = data->durations;
 			/*
 			 * the 4th nibble should be 15 so base the divider on this
+<<<<<<< HEAD
 			 * to transform durations into nibbles. Substract 2000 from
+=======
+			 * to transform durations into nibbles. Subtract 2000 from
+>>>>>>> upstream/android-13
 			 * the divider to compensate for fluctuations in the signal
 			 */
 			divider = (n[3] - XMP_NIBBLE_PREFIX) / 15 - 2000;
@@ -174,7 +198,11 @@ static int ir_xmp_decode(struct rc_dev *dev, struct ir_raw_event ev)
 		} else if (geq_margin(ev.duration, XMP_NIBBLE_PREFIX, XMP_UNIT)) {
 			/* store nibble raw data, decode after trailer */
 			if (data->count == 16) {
+<<<<<<< HEAD
 				dev_dbg(&dev->dev, "to many pulses (%d) ignoring: %u\n",
+=======
+				dev_dbg(&dev->dev, "too many pulses (%d) ignoring: %u\n",
+>>>>>>> upstream/android-13
 					data->count, ev.duration);
 				data->state = STATE_INACTIVE;
 				return -EINVAL;
@@ -191,7 +219,11 @@ static int ir_xmp_decode(struct rc_dev *dev, struct ir_raw_event ev)
 	}
 
 	dev_dbg(&dev->dev, "XMP decode failed at count %d state %d (%uus %s)\n",
+<<<<<<< HEAD
 		data->count, data->state, TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		data->count, data->state, ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 	data->state = STATE_INACTIVE;
 	return -EINVAL;
 }

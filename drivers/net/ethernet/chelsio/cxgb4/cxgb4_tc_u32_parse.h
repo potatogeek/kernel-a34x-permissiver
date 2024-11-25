@@ -331,6 +331,10 @@ struct cxgb4_link {
 
 struct cxgb4_tc_u32_table {
 	unsigned int size;          /* number of entries in table */
+<<<<<<< HEAD
 	struct cxgb4_link table[0]; /* Jump table */
+=======
+	struct cxgb4_link table[]; /* Jump table */
+>>>>>>> upstream/android-13
 };
 #endif /* __CXGB4_TC_U32_PARSE_H */

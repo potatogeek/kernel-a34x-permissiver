@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Apple Onboard Audio definitions
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * GPL v2, can be found in COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AOA_H
@@ -117,7 +124,11 @@ struct aoa_card {
 };
         
 extern int aoa_snd_device_new(enum snd_device_type type,
+<<<<<<< HEAD
 	void * device_data, struct snd_device_ops * ops);
+=======
+	void *device_data, const struct snd_device_ops *ops);
+>>>>>>> upstream/android-13
 extern struct snd_card *aoa_get_card(void);
 extern int aoa_snd_ctl_add(struct snd_kcontrol* control);
 

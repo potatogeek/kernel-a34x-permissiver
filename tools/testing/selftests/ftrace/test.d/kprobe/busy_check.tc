@@ -1,15 +1,24 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: Kprobe dynamic event - busy event check
+<<<<<<< HEAD
 
 [ -f kprobe_events ] || exit_unsupported
 
 echo 0 > events/enable
 echo > kprobe_events
 echo p:myevent _do_fork > kprobe_events
+=======
+# requires: kprobe_events
+
+echo p:myevent $FUNCTION_FORK > kprobe_events
+>>>>>>> upstream/android-13
 test -d events/kprobes/myevent
 echo 1 > events/kprobes/myevent/enable
 echo > kprobe_events && exit_fail # this must fail
 echo 0 > events/kprobes/myevent/enable
 echo > kprobe_events # this must succeed
+<<<<<<< HEAD
 clear_trace
+=======
+>>>>>>> upstream/android-13

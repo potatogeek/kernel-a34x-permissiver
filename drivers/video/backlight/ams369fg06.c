@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ams369fg06 AMOLED LCD panel driver.
  *
@@ -5,17 +9,23 @@
  * Author: Jingoo Han  <jg1.han@samsung.com>
  *
  * Derived from drivers/video/s6e63m0.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/backlight.h>
 #include <linux/delay.h>
 #include <linux/fb.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/lcd.h>
 #include <linux/module.h>
 #include <linux/spi/spi.h>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -44,9 +51,15 @@
 #define CDU_VALIDATION_DEFAULT_CFG	61
 
 static u16 con_region_offsets[3][NUM_OF_CONNECTION_TYPES_E4] = {
+<<<<<<< HEAD
 	{400, 336, 352, 304, 304, 384, 416, 352},	/* region 3 offsets */
 	{528, 496, 416, 448, 448, 512, 544, 480},	/* region 4 offsets */
 	{608, 544, 496, 512, 576, 592, 624, 560}	/* region 5 offsets */
+=======
+	{400, 336, 352, 368, 304, 384, 416, 352},	/* region 3 offsets */
+	{528, 496, 416, 512, 448, 512, 544, 480},	/* region 4 offsets */
+	{608, 544, 496, 576, 576, 592, 624, 560}	/* region 5 offsets */
+>>>>>>> upstream/android-13
 };
 
 static u16 task_region_offsets[1][NUM_OF_CONNECTION_TYPES_E4] = {
@@ -61,6 +74,12 @@ static u16 task_region_offsets[1][NUM_OF_CONNECTION_TYPES_E4] = {
 								0x100) - 1 : 0)
 #define QM_INVALID_PQ_ID		0xffff
 
+<<<<<<< HEAD
+=======
+/* Max link speed (in Mbps) */
+#define QM_MAX_LINK_SPEED               100000
+
+>>>>>>> upstream/android-13
 /* Feature enable */
 #define QM_BYPASS_EN	1
 #define QM_BYTE_CRD_EN	1
@@ -128,8 +147,11 @@ static u16 task_region_offsets[1][NUM_OF_CONNECTION_TYPES_E4] = {
 /* Pure LB CmdQ lines (+spare) */
 #define PBF_CMDQ_PURE_LB_LINES	150
 
+<<<<<<< HEAD
 #define PBF_CMDQ_LINES_E5_RSVD_RATIO	8
 
+=======
+>>>>>>> upstream/android-13
 #define PBF_CMDQ_LINES_RT_OFFSET(ext_voq) \
 	(PBF_REG_YCMD_QS_NUM_LINES_VOQ0_RT_OFFSET + \
 	 (ext_voq) * (PBF_REG_YCMD_QS_NUM_LINES_VOQ1_RT_OFFSET - \
@@ -140,6 +162,12 @@ static u16 task_region_offsets[1][NUM_OF_CONNECTION_TYPES_E4] = {
 	 (ext_voq) * (PBF_REG_BTB_GUARANTEED_VOQ1_RT_OFFSET - \
 		PBF_REG_BTB_GUARANTEED_VOQ0_RT_OFFSET))
 
+<<<<<<< HEAD
+=======
+/* Returns the VOQ line credit for the specified number of PBF command lines.
+ * PBF lines are specified in 256b units.
+ */
+>>>>>>> upstream/android-13
 #define QM_VOQ_LINE_CRD(pbf_cmd_lines) \
 	((((pbf_cmd_lines) - 4) * 2) | QM_LINE_CRD_REG_SIGN_BIT)
 
@@ -178,6 +206,7 @@ static u16 task_region_offsets[1][NUM_OF_CONNECTION_TYPES_E4] = {
 		  cmd ## _ ## field, \
 		  value)
 
+<<<<<<< HEAD
 #define QM_INIT_TX_PQ_MAP(p_hwfn, map, chip, pq_id, rl_valid, vp_pq_id, rl_id, \
 			  ext_voq, wrr) \
 	do { \
@@ -195,14 +224,44 @@ static u16 task_region_offsets[1][NUM_OF_CONNECTION_TYPES_E4] = {
 		STORE_RT_REG(p_hwfn, QM_REG_TXPQMAP_RT_OFFSET + (pq_id), \
 			     *((u32 *)&__map)); \
 		(map) = __map; \
+=======
+#define QM_INIT_TX_PQ_MAP(p_hwfn, map, chip, pq_id, vp_pq_id, rl_valid,	      \
+			  rl_id, ext_voq, wrr)				      \
+	do {								      \
+		u32 __reg = 0;						      \
+									      \
+		BUILD_BUG_ON(sizeof((map).reg) != sizeof(__reg));	      \
+									      \
+		SET_FIELD(__reg, QM_RF_PQ_MAP_##chip##_PQ_VALID, 1);	      \
+		SET_FIELD(__reg, QM_RF_PQ_MAP_##chip##_RL_VALID,	      \
+			  !!(rl_valid));				      \
+		SET_FIELD(__reg, QM_RF_PQ_MAP_##chip##_VP_PQ_ID, (vp_pq_id)); \
+		SET_FIELD(__reg, QM_RF_PQ_MAP_##chip##_RL_ID, (rl_id));	      \
+		SET_FIELD(__reg, QM_RF_PQ_MAP_##chip##_VOQ, (ext_voq));	      \
+		SET_FIELD(__reg, QM_RF_PQ_MAP_##chip##_WRR_WEIGHT_GROUP,      \
+			  (wrr));					      \
+									      \
+		STORE_RT_REG((p_hwfn), QM_REG_TXPQMAP_RT_OFFSET + (pq_id),    \
+			     __reg);					      \
+		(map).reg = cpu_to_le32(__reg);				      \
+>>>>>>> upstream/android-13
 	} while (0)
 
 #define WRITE_PQ_INFO_TO_RAM	1
 #define PQ_INFO_ELEMENT(vp, pf, tc, port, rl_valid, rl) \
 	(((vp) << 0) | ((pf) << 12) | ((tc) << 16) | ((port) << 20) | \
+<<<<<<< HEAD
 	((rl_valid) << 22) | ((rl) << 24))
 #define PQ_INFO_RAM_GRC_ADDRESS(pq_id) \
 	(XSEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM + 21776 + (pq_id) * 4)
+=======
+	((rl_valid ? 1 : 0) << 22) | (((rl) & 255) << 24) | \
+	(((rl) >> 8) << 9))
+
+#define PQ_INFO_RAM_GRC_ADDRESS(pq_id) \
+	XSEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM + \
+	XSTORM_PQ_INFO_OFFSET(pq_id)
+>>>>>>> upstream/android-13
 
 /******************** INTERNAL IMPLEMENTATION *********************/
 
@@ -228,9 +287,12 @@ static void qed_enable_pf_rl(struct qed_hwfn *p_hwfn, bool pf_rl_en)
 		STORE_RT_REG(p_hwfn,
 			     QM_REG_RLPFVOQENABLE_RT_OFFSET,
 			     (u32)voq_bit_mask);
+<<<<<<< HEAD
 		if (num_ext_voqs >= 32)
 			STORE_RT_REG(p_hwfn, QM_REG_RLPFVOQENABLE_MSB_RT_OFFSET,
 				     (u32)(voq_bit_mask >> 32));
+=======
+>>>>>>> upstream/android-13
 
 		/* Write RL period */
 		STORE_RT_REG(p_hwfn,
@@ -259,12 +321,21 @@ static void qed_enable_pf_wfq(struct qed_hwfn *p_hwfn, bool pf_wfq_en)
 			     QM_WFQ_UPPER_BOUND);
 }
 
+<<<<<<< HEAD
 /* Prepare VPORT RL enable/disable runtime init values */
 static void qed_enable_vport_rl(struct qed_hwfn *p_hwfn, bool vport_rl_en)
 {
 	STORE_RT_REG(p_hwfn, QM_REG_RLGLBLENABLE_RT_OFFSET,
 		     vport_rl_en ? 1 : 0);
 	if (vport_rl_en) {
+=======
+/* Prepare global RL enable/disable runtime init values */
+static void qed_enable_global_rl(struct qed_hwfn *p_hwfn, bool global_rl_en)
+{
+	STORE_RT_REG(p_hwfn, QM_REG_RLGLBLENABLE_RT_OFFSET,
+		     global_rl_en ? 1 : 0);
+	if (global_rl_en) {
+>>>>>>> upstream/android-13
 		/* Write RL period (use timer 0 only) */
 		STORE_RT_REG(p_hwfn,
 			     QM_REG_RLGLBLPERIOD_0_RT_OFFSET,
@@ -331,8 +402,12 @@ static void qed_cmdq_lines_rt_init(
 			continue;
 
 		/* Find number of command queue lines to divide between the
+<<<<<<< HEAD
 		 * active physical TCs. In E5, 1/8 of the lines are reserved.
 		 * the lines for pure LB TC are subtracted.
+=======
+		 * active physical TCs.
+>>>>>>> upstream/android-13
 		 */
 		phys_lines = port_params[port_id].num_pbf_cmd_lines;
 		phys_lines -= PBF_CMDQ_PURE_LB_LINES;
@@ -361,11 +436,38 @@ static void qed_cmdq_lines_rt_init(
 		ext_voq = qed_get_ext_voq(p_hwfn,
 					  port_id,
 					  PURE_LB_TC, max_phys_tcs_per_port);
+<<<<<<< HEAD
 		qed_cmdq_lines_voq_rt_init(p_hwfn,
 					   ext_voq, PBF_CMDQ_PURE_LB_LINES);
 	}
 }
 
+=======
+		qed_cmdq_lines_voq_rt_init(p_hwfn, ext_voq,
+					   PBF_CMDQ_PURE_LB_LINES);
+	}
+}
+
+/* Prepare runtime init values to allocate guaranteed BTB blocks for the
+ * specified port. The guaranteed BTB space is divided between the TCs as
+ * follows (shared space Is currently not used):
+ * 1. Parameters:
+ *    B - BTB blocks for this port
+ *    C - Number of physical TCs for this port
+ * 2. Calculation:
+ *    a. 38 blocks (9700B jumbo frame) are allocated for global per port
+ *	 headroom.
+ *    b. B = B - 38 (remainder after global headroom allocation).
+ *    c. MAX(38,B/(C+0.7)) blocks are allocated for the pure LB VOQ.
+ *    d. B = B - MAX(38, B/(C+0.7)) (remainder after pure LB allocation).
+ *    e. B/C blocks are allocated for each physical TC.
+ * Assumptions:
+ * - MTU is up to 9700 bytes (38 blocks)
+ * - All TCs are considered symmetrical (same rate and packet size)
+ * - No optimization for lossy TC (all are considered lossless). Shared space
+ *   is not enabled and allocated for each TC.
+ */
+>>>>>>> upstream/android-13
 static void qed_btb_blocks_rt_init(
 	struct qed_hwfn *p_hwfn,
 	u8 max_ports_per_engine,
@@ -424,6 +526,37 @@ static void qed_btb_blocks_rt_init(
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* Prepare runtime init values for the specified RL.
+ * Set max link speed (100Gbps) per rate limiter.
+ * Return -1 on error.
+ */
+static int qed_global_rl_rt_init(struct qed_hwfn *p_hwfn)
+{
+	u32 upper_bound = QM_VP_RL_UPPER_BOUND(QM_MAX_LINK_SPEED) |
+			  (u32)QM_RL_CRD_REG_SIGN_BIT;
+	u32 inc_val;
+	u16 rl_id;
+
+	/* Go over all global RLs */
+	for (rl_id = 0; rl_id < MAX_QM_GLOBAL_RLS; rl_id++) {
+		inc_val = QM_RL_INC_VAL(QM_MAX_LINK_SPEED);
+
+		STORE_RT_REG(p_hwfn,
+			     QM_REG_RLGLBLCRD_RT_OFFSET + rl_id,
+			     (u32)QM_RL_CRD_REG_SIGN_BIT);
+		STORE_RT_REG(p_hwfn,
+			     QM_REG_RLGLBLUPPERBOUND_RT_OFFSET + rl_id,
+			     upper_bound);
+		STORE_RT_REG(p_hwfn,
+			     QM_REG_RLGLBLINCVAL_RT_OFFSET + rl_id, inc_val);
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Prepare Tx PQ mapping runtime init values for the specified PF */
 static void qed_tx_pq_map_rt_init(struct qed_hwfn *p_hwfn,
 				  struct qed_ptt *p_ptt,
@@ -460,18 +593,29 @@ static void qed_tx_pq_map_rt_init(struct qed_hwfn *p_hwfn,
 
 	/* Go over all Tx PQs */
 	for (i = 0, pq_id = p_params->start_pq; i < num_pqs; i++, pq_id++) {
+<<<<<<< HEAD
 		u8 ext_voq, vport_id_in_pf, tc_id = pq_params[i].tc_id;
 		u32 max_qm_global_rls = MAX_QM_GLOBAL_RLS;
 		struct qm_rf_pq_map_e4 tx_pq_map;
 		bool is_vf_pq, rl_valid;
 		u16 *p_first_tx_pq_id;
+=======
+		u16 *p_first_tx_pq_id, vport_id_in_pf;
+		struct qm_rf_pq_map_e4 tx_pq_map;
+		u8 tc_id = pq_params[i].tc_id;
+		bool is_vf_pq;
+		u8 ext_voq;
+>>>>>>> upstream/android-13
 
 		ext_voq = qed_get_ext_voq(p_hwfn,
 					  pq_params[i].port_id,
 					  tc_id,
 					  p_params->max_phys_tcs_per_port);
 		is_vf_pq = (i >= p_params->num_pf_pqs);
+<<<<<<< HEAD
 		rl_valid = pq_params[i].rl_valid > 0;
+=======
+>>>>>>> upstream/android-13
 
 		/* Update first Tx PQ of VPORT/TC */
 		vport_id_in_pf = pq_params[i].vport_id - p_params->start_vport;
@@ -492,6 +636,7 @@ static void qed_tx_pq_map_rt_init(struct qed_hwfn *p_hwfn,
 				     map_val);
 		}
 
+<<<<<<< HEAD
 		/* Check RL ID */
 		if (rl_valid && pq_params[i].vport_id >= max_qm_global_rls) {
 			DP_NOTICE(p_hwfn,
@@ -499,14 +644,22 @@ static void qed_tx_pq_map_rt_init(struct qed_hwfn *p_hwfn,
 			rl_valid = false;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		/* Prepare PQ map entry */
 		QM_INIT_TX_PQ_MAP(p_hwfn,
 				  tx_pq_map,
 				  E4,
 				  pq_id,
+<<<<<<< HEAD
 				  rl_valid ? 1 : 0,
 				  *p_first_tx_pq_id,
 				  rl_valid ? pq_params[i].vport_id : 0,
+=======
+				  *p_first_tx_pq_id,
+				  pq_params[i].rl_valid,
+				  pq_params[i].rl_id,
+>>>>>>> upstream/android-13
 				  ext_voq, pq_params[i].wrr_group);
 
 		/* Set PQ base address */
@@ -529,9 +682,14 @@ static void qed_tx_pq_map_rt_init(struct qed_hwfn *p_hwfn,
 						  p_params->pf_id,
 						  tc_id,
 						  pq_params[i].port_id,
+<<<<<<< HEAD
 						  rl_valid ? 1 : 0,
 						  rl_valid ?
 						  pq_params[i].vport_id : 0);
+=======
+						  pq_params[i].rl_valid,
+						  pq_params[i].rl_id);
+>>>>>>> upstream/android-13
 			qed_wr(p_hwfn, p_ptt, PQ_INFO_RAM_GRC_ADDRESS(pq_id),
 			       pq_info);
 		}
@@ -669,6 +827,7 @@ static int qed_pf_rl_rt_init(struct qed_hwfn *p_hwfn, u8 pf_id, u32 pf_rl)
  * Return -1 on error.
  */
 static int qed_vp_wfq_rt_init(struct qed_hwfn *p_hwfn,
+<<<<<<< HEAD
 			      u8 num_vports,
 			      struct init_qm_vport_params *vport_params)
 {
@@ -682,6 +841,21 @@ static int qed_vp_wfq_rt_init(struct qed_hwfn *p_hwfn,
 			continue;
 
 		inc_val = QM_WFQ_INC_VAL(vport_params[i].vport_wfq);
+=======
+			      u16 num_vports,
+			      struct init_qm_vport_params *vport_params)
+{
+	u16 vport_pq_id, i;
+	u32 inc_val;
+	u8 tc;
+
+	/* Go over all PF VPORTs */
+	for (i = 0; i < num_vports; i++) {
+		if (!vport_params[i].wfq)
+			continue;
+
+		inc_val = QM_WFQ_INC_VAL(vport_params[i].wfq);
+>>>>>>> upstream/android-13
 		if (inc_val > QM_WFQ_MAX_INC_VAL) {
 			DP_NOTICE(p_hwfn,
 				  "Invalid VPORT WFQ weight configuration\n");
@@ -706,6 +880,7 @@ static int qed_vp_wfq_rt_init(struct qed_hwfn *p_hwfn,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Prepare VPORT RL runtime init values for the specified VPORTs.
  * Return -1 on error.
  */
@@ -748,6 +923,8 @@ static int qed_vport_rl_rt_init(struct qed_hwfn *p_hwfn,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool qed_poll_on_qm_cmd_ready(struct qed_hwfn *p_hwfn,
 				     struct qed_ptt *p_ptt)
 {
@@ -799,6 +976,7 @@ u32 qed_qm_pf_mem_size(u32 num_pf_cids,
 int qed_qm_common_rt_init(struct qed_hwfn *p_hwfn,
 			  struct qed_qm_common_rt_init_params *p_params)
 {
+<<<<<<< HEAD
 	/* Init AFullOprtnstcCrdMask */
 	u32 mask = (QM_OPPOR_LINE_VOQ_DEF <<
 		    QM_RF_OPPORTUNISTIC_MASK_LINEVOQ_SHIFT) |
@@ -816,6 +994,22 @@ int qed_qm_common_rt_init(struct qed_hwfn *p_hwfn,
 		   (QM_OPPOR_PQ_EMPTY_DEF <<
 		    QM_RF_OPPORTUNISTIC_MASK_QUEUEEMPTY_SHIFT);
 
+=======
+	u32 mask = 0;
+
+	/* Init AFullOprtnstcCrdMask */
+	SET_FIELD(mask, QM_RF_OPPORTUNISTIC_MASK_LINEVOQ,
+		  QM_OPPOR_LINE_VOQ_DEF);
+	SET_FIELD(mask, QM_RF_OPPORTUNISTIC_MASK_BYTEVOQ, QM_BYTE_CRD_EN);
+	SET_FIELD(mask, QM_RF_OPPORTUNISTIC_MASK_PFWFQ, p_params->pf_wfq_en);
+	SET_FIELD(mask, QM_RF_OPPORTUNISTIC_MASK_VPWFQ, p_params->vport_wfq_en);
+	SET_FIELD(mask, QM_RF_OPPORTUNISTIC_MASK_PFRL, p_params->pf_rl_en);
+	SET_FIELD(mask, QM_RF_OPPORTUNISTIC_MASK_VPQCNRL,
+		  p_params->global_rl_en);
+	SET_FIELD(mask, QM_RF_OPPORTUNISTIC_MASK_FWPAUSE, QM_OPPOR_FW_STOP_DEF);
+	SET_FIELD(mask,
+		  QM_RF_OPPORTUNISTIC_MASK_QUEUEEMPTY, QM_OPPOR_PQ_EMPTY_DEF);
+>>>>>>> upstream/android-13
 	STORE_RT_REG(p_hwfn, QM_REG_AFULLOPRTNSTCCRDMASK_RT_OFFSET, mask);
 
 	/* Enable/disable PF RL */
@@ -824,8 +1018,13 @@ int qed_qm_common_rt_init(struct qed_hwfn *p_hwfn,
 	/* Enable/disable PF WFQ */
 	qed_enable_pf_wfq(p_hwfn, p_params->pf_wfq_en);
 
+<<<<<<< HEAD
 	/* Enable/disable VPORT RL */
 	qed_enable_vport_rl(p_hwfn, p_params->vport_rl_en);
+=======
+	/* Enable/disable global RL */
+	qed_enable_global_rl(p_hwfn, p_params->global_rl_en);
+>>>>>>> upstream/android-13
 
 	/* Enable/disable VPORT WFQ */
 	qed_enable_vport_wfq(p_hwfn, p_params->vport_wfq_en);
@@ -842,6 +1041,11 @@ int qed_qm_common_rt_init(struct qed_hwfn *p_hwfn,
 			       p_params->max_phys_tcs_per_port,
 			       p_params->port_params);
 
+<<<<<<< HEAD
+=======
+	qed_global_rl_rt_init(p_hwfn);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -853,7 +1057,13 @@ int qed_qm_pf_rt_init(struct qed_hwfn *p_hwfn,
 	u32 other_mem_size_4kb = QM_PQ_MEM_4KB(p_params->num_pf_cids +
 					       p_params->num_tids) *
 				 QM_OTHER_PQS_PER_PF;
+<<<<<<< HEAD
 	u8 tc, i;
+=======
+	u16 i;
+	u8 tc;
+
+>>>>>>> upstream/android-13
 
 	/* Clear first Tx PQ ID array for each VPORT */
 	for (i = 0; i < p_params->num_vports; i++)
@@ -878,6 +1088,7 @@ int qed_qm_pf_rt_init(struct qed_hwfn *p_hwfn,
 	if (qed_pf_rl_rt_init(p_hwfn, p_params->pf_id, p_params->pf_rl))
 		return -1;
 
+<<<<<<< HEAD
 	/* Set VPORT WFQ */
 	if (qed_vp_wfq_rt_init(p_hwfn, p_params->num_vports, vport_params))
 		return -1;
@@ -888,6 +1099,12 @@ int qed_qm_pf_rt_init(struct qed_hwfn *p_hwfn,
 				 vport_params))
 		return -1;
 
+=======
+	/* Init VPORT WFQ */
+	if (qed_vp_wfq_rt_init(p_hwfn, p_params->num_vports, vport_params))
+		return -1;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -925,18 +1142,32 @@ int qed_init_pf_rl(struct qed_hwfn *p_hwfn,
 
 int qed_init_vport_wfq(struct qed_hwfn *p_hwfn,
 		       struct qed_ptt *p_ptt,
+<<<<<<< HEAD
 		       u16 first_tx_pq_id[NUM_OF_TCS], u16 vport_wfq)
+=======
+		       u16 first_tx_pq_id[NUM_OF_TCS], u16 wfq)
+>>>>>>> upstream/android-13
 {
 	u16 vport_pq_id;
 	u32 inc_val;
 	u8 tc;
 
+<<<<<<< HEAD
 	inc_val = QM_WFQ_INC_VAL(vport_wfq);
 	if (!inc_val || inc_val > QM_WFQ_MAX_INC_VAL) {
 		DP_NOTICE(p_hwfn, "Invalid VPORT WFQ weight configuration\n");
 		return -1;
 	}
 
+=======
+	inc_val = QM_WFQ_INC_VAL(wfq);
+	if (!inc_val || inc_val > QM_WFQ_MAX_INC_VAL) {
+		DP_NOTICE(p_hwfn, "Invalid VPORT WFQ configuration.\n");
+		return -1;
+	}
+
+	/* A VPORT can have several VPORT PQ IDs for various TCs */
+>>>>>>> upstream/android-13
 	for (tc = 0; tc < NUM_OF_TCS; tc++) {
 		vport_pq_id = first_tx_pq_id[tc];
 		if (vport_pq_id != QM_INVALID_PQ_ID)
@@ -948,6 +1179,7 @@ int qed_init_vport_wfq(struct qed_hwfn *p_hwfn,
 	return 0;
 }
 
+<<<<<<< HEAD
 int qed_init_vport_rl(struct qed_hwfn *p_hwfn,
 		      struct qed_ptt *p_ptt,
 		      u8 vport_id, u32 vport_rl, u32 link_speed)
@@ -970,6 +1202,22 @@ int qed_init_vport_rl(struct qed_hwfn *p_hwfn,
 	       p_ptt,
 	       QM_REG_RLGLBLCRD + vport_id * 4, (u32)QM_RL_CRD_REG_SIGN_BIT);
 	qed_wr(p_hwfn, p_ptt, QM_REG_RLGLBLINCVAL + vport_id * 4, inc_val);
+=======
+int qed_init_global_rl(struct qed_hwfn *p_hwfn,
+		       struct qed_ptt *p_ptt, u16 rl_id, u32 rate_limit)
+{
+	u32 inc_val;
+
+	inc_val = QM_RL_INC_VAL(rate_limit);
+	if (inc_val > QM_VP_RL_MAX_INC_VAL(rate_limit)) {
+		DP_NOTICE(p_hwfn, "Invalid rate limit configuration.\n");
+		return -1;
+	}
+
+	qed_wr(p_hwfn, p_ptt,
+	       QM_REG_RLGLBLCRD + rl_id * 4, (u32)QM_RL_CRD_REG_SIGN_BIT);
+	qed_wr(p_hwfn, p_ptt, QM_REG_RLGLBLINCVAL + rl_id * 4, inc_val);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1013,7 +1261,10 @@ bool qed_send_qm_stop_cmd(struct qed_hwfn *p_hwfn,
 	return true;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define SET_TUNNEL_TYPE_ENABLE_BIT(var, offset, enable) \
 	do { \
 		typeof(var) *__p_var = &(var); \
@@ -1021,8 +1272,72 @@ bool qed_send_qm_stop_cmd(struct qed_hwfn *p_hwfn,
 		*__p_var = (*__p_var & ~BIT(__offset)) | \
 			   ((enable) ? BIT(__offset) : 0); \
 	} while (0)
+<<<<<<< HEAD
 #define PRS_ETH_TUNN_OUTPUT_FORMAT        -188897008
 #define PRS_ETH_OUTPUT_FORMAT             -46832
+=======
+
+#define PRS_ETH_TUNN_OUTPUT_FORMAT     0xF4DAB910
+#define PRS_ETH_OUTPUT_FORMAT          0xFFFF4910
+
+#define ARR_REG_WR(dev, ptt, addr, arr,	arr_size) \
+	do { \
+		u32 i; \
+		\
+		for (i = 0; i < (arr_size); i++) \
+			qed_wr(dev, ptt, \
+			       ((addr) + (4 * i)), \
+			       ((u32 *)&(arr))[i]); \
+	} while (0)
+
+/**
+ * qed_dmae_to_grc() - Internal function for writing from host to
+ * wide-bus registers (split registers are not supported yet).
+ *
+ * @p_hwfn: HW device data.
+ * @p_ptt: PTT window used for writing the registers.
+ * @p_data: Pointer to source data.
+ * @addr: Destination register address.
+ * @len_in_dwords: Data length in dwords (u32).
+ *
+ * Return: Length of the written data in dwords (u32) or -1 on invalid
+ *         input.
+ */
+static int qed_dmae_to_grc(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt,
+			   __le32 *p_data, u32 addr, u32 len_in_dwords)
+{
+	struct qed_dmae_params params = {};
+	u32 *data_cpu;
+	int rc;
+
+	if (!p_data)
+		return -1;
+
+	/* Set DMAE params */
+	SET_FIELD(params.flags, QED_DMAE_PARAMS_COMPLETION_DST, 1);
+
+	/* Execute DMAE command */
+	rc = qed_dmae_host2grc(p_hwfn, p_ptt,
+			       (u64)(uintptr_t)(p_data),
+			       addr, len_in_dwords, &params);
+
+	/* If not read using DMAE, read using GRC */
+	if (rc) {
+		DP_VERBOSE(p_hwfn,
+			   QED_MSG_DEBUG,
+			   "Failed writing to chip using DMAE, using GRC instead\n");
+
+		/* Swap to CPU byteorder and write to registers using GRC */
+		data_cpu = (__force u32 *)p_data;
+		le32_to_cpu_array(data_cpu, len_in_dwords);
+
+		ARR_REG_WR(p_hwfn, p_ptt, addr, data_cpu, len_in_dwords);
+		cpu_to_le32_array(data_cpu, len_in_dwords);
+	}
+
+	return len_in_dwords;
+}
+>>>>>>> upstream/android-13
 
 void qed_set_vxlan_dest_port(struct qed_hwfn *p_hwfn,
 			     struct qed_ptt *p_ptt, u16 dest_port)
@@ -1166,8 +1481,13 @@ void qed_set_geneve_enable(struct qed_hwfn *p_hwfn,
 	       ip_geneve_enable ? 1 : 0);
 }
 
+<<<<<<< HEAD
 #define PRS_ETH_VXLAN_NO_L2_ENABLE_OFFSET   4
 #define PRS_ETH_VXLAN_NO_L2_OUTPUT_FORMAT      -927094512
+=======
+#define PRS_ETH_VXLAN_NO_L2_ENABLE_OFFSET      3
+#define PRS_ETH_VXLAN_NO_L2_OUTPUT_FORMAT   -925189872
+>>>>>>> upstream/android-13
 
 void qed_set_vxlan_no_l2_enable(struct qed_hwfn *p_hwfn,
 				struct qed_ptt *p_ptt, bool enable)
@@ -1208,6 +1528,11 @@ void qed_set_vxlan_no_l2_enable(struct qed_hwfn *p_hwfn,
 
 void qed_gft_disable(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt, u16 pf_id)
 {
+<<<<<<< HEAD
+=======
+	struct regpair ram_line = { };
+
+>>>>>>> upstream/android-13
 	/* Disable gft search for PF */
 	qed_wr(p_hwfn, p_ptt, PRS_REG_SEARCH_GFT, 0);
 
@@ -1217,12 +1542,18 @@ void qed_gft_disable(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt, u16 pf_id)
 	qed_wr(p_hwfn, p_ptt, PRS_REG_GFT_CAM + CAM_LINE_SIZE * pf_id, 0);
 
 	/* Zero ramline */
+<<<<<<< HEAD
 	qed_wr(p_hwfn,
 	       p_ptt, PRS_REG_GFT_PROFILE_MASK_RAM + RAM_LINE_SIZE * pf_id, 0);
 	qed_wr(p_hwfn,
 	       p_ptt,
 	       PRS_REG_GFT_PROFILE_MASK_RAM + RAM_LINE_SIZE * pf_id + REG_SIZE,
 	       0);
+=======
+	qed_dmae_to_grc(p_hwfn, p_ptt, &ram_line.lo,
+			PRS_REG_GFT_PROFILE_MASK_RAM + RAM_LINE_SIZE * pf_id,
+			sizeof(ram_line) / REG_SIZE);
+>>>>>>> upstream/android-13
 }
 
 void qed_gft_config(struct qed_hwfn *p_hwfn,
@@ -1232,7 +1563,14 @@ void qed_gft_config(struct qed_hwfn *p_hwfn,
 		    bool udp,
 		    bool ipv4, bool ipv6, enum gft_profile_type profile_type)
 {
+<<<<<<< HEAD
 	u32 reg_val, cam_line, ram_line_lo, ram_line_hi, search_non_ip_as_gft;
+=======
+	struct regpair ram_line;
+	u32 search_non_ip_as_gft;
+	u32 reg_val, cam_line;
+	u32 lo = 0, hi = 0;
+>>>>>>> upstream/android-13
 
 	if (!ipv6 && !ipv4)
 		DP_NOTICE(p_hwfn,
@@ -1298,13 +1636,17 @@ void qed_gft_config(struct qed_hwfn *p_hwfn,
 	    qed_rd(p_hwfn, p_ptt, PRS_REG_GFT_CAM + CAM_LINE_SIZE * pf_id);
 
 	/* Write line to RAM - compare to filter 4 tuple */
+<<<<<<< HEAD
 	ram_line_lo = 0;
 	ram_line_hi = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* Search no IP as GFT */
 	search_non_ip_as_gft = 0;
 
 	/* Tunnel type */
+<<<<<<< HEAD
 	SET_FIELD(ram_line_lo, GFT_RAM_LINE_TUNNEL_DST_PORT, 1);
 	SET_FIELD(ram_line_lo, GFT_RAM_LINE_TUNNEL_OVER_IP_PROTOCOL, 1);
 
@@ -1327,11 +1669,36 @@ void qed_gft_config(struct qed_hwfn *p_hwfn,
 		SET_FIELD(ram_line_lo, GFT_RAM_LINE_ETHERTYPE, 1);
 	} else if (profile_type == GFT_PROFILE_TYPE_TUNNEL_TYPE) {
 		SET_FIELD(ram_line_lo, GFT_RAM_LINE_TUNNEL_ETHERTYPE, 1);
+=======
+	SET_FIELD(lo, GFT_RAM_LINE_TUNNEL_DST_PORT, 1);
+	SET_FIELD(lo, GFT_RAM_LINE_TUNNEL_OVER_IP_PROTOCOL, 1);
+
+	if (profile_type == GFT_PROFILE_TYPE_4_TUPLE) {
+		SET_FIELD(hi, GFT_RAM_LINE_DST_IP, 1);
+		SET_FIELD(hi, GFT_RAM_LINE_SRC_IP, 1);
+		SET_FIELD(hi, GFT_RAM_LINE_OVER_IP_PROTOCOL, 1);
+		SET_FIELD(lo, GFT_RAM_LINE_ETHERTYPE, 1);
+		SET_FIELD(lo, GFT_RAM_LINE_SRC_PORT, 1);
+		SET_FIELD(lo, GFT_RAM_LINE_DST_PORT, 1);
+	} else if (profile_type == GFT_PROFILE_TYPE_L4_DST_PORT) {
+		SET_FIELD(hi, GFT_RAM_LINE_OVER_IP_PROTOCOL, 1);
+		SET_FIELD(lo, GFT_RAM_LINE_ETHERTYPE, 1);
+		SET_FIELD(lo, GFT_RAM_LINE_DST_PORT, 1);
+	} else if (profile_type == GFT_PROFILE_TYPE_IP_DST_ADDR) {
+		SET_FIELD(hi, GFT_RAM_LINE_DST_IP, 1);
+		SET_FIELD(lo, GFT_RAM_LINE_ETHERTYPE, 1);
+	} else if (profile_type == GFT_PROFILE_TYPE_IP_SRC_ADDR) {
+		SET_FIELD(hi, GFT_RAM_LINE_SRC_IP, 1);
+		SET_FIELD(lo, GFT_RAM_LINE_ETHERTYPE, 1);
+	} else if (profile_type == GFT_PROFILE_TYPE_TUNNEL_TYPE) {
+		SET_FIELD(lo, GFT_RAM_LINE_TUNNEL_ETHERTYPE, 1);
+>>>>>>> upstream/android-13
 
 		/* Allow tunneled traffic without inner IP */
 		search_non_ip_as_gft = 1;
 	}
 
+<<<<<<< HEAD
 	qed_wr(p_hwfn,
 	       p_ptt, PRS_REG_SEARCH_NON_IP_AS_GFT, search_non_ip_as_gft);
 	qed_wr(p_hwfn,
@@ -1352,6 +1719,24 @@ void qed_gft_config(struct qed_hwfn *p_hwfn,
 	       p_ptt,
 	       PRS_REG_GFT_PROFILE_MASK_RAM + RAM_LINE_SIZE *
 	       PRS_GFT_CAM_LINES_NO_MATCH + REG_SIZE, 0x3ff);
+=======
+	ram_line.lo = cpu_to_le32(lo);
+	ram_line.hi = cpu_to_le32(hi);
+
+	qed_wr(p_hwfn,
+	       p_ptt, PRS_REG_SEARCH_NON_IP_AS_GFT, search_non_ip_as_gft);
+	qed_dmae_to_grc(p_hwfn, p_ptt, &ram_line.lo,
+			PRS_REG_GFT_PROFILE_MASK_RAM + RAM_LINE_SIZE * pf_id,
+			sizeof(ram_line) / REG_SIZE);
+
+	/* Set default profile so that no filter match will happen */
+	ram_line.lo = cpu_to_le32(0xffffffff);
+	ram_line.hi = cpu_to_le32(0x3ff);
+	qed_dmae_to_grc(p_hwfn, p_ptt, &ram_line.lo,
+			PRS_REG_GFT_PROFILE_MASK_RAM + RAM_LINE_SIZE *
+			PRS_GFT_CAM_LINES_NO_MATCH,
+			sizeof(ram_line) / REG_SIZE);
+>>>>>>> upstream/android-13
 
 	/* Enable gft search */
 	qed_wr(p_hwfn, p_ptt, PRS_REG_SEARCH_GFT, 1);
@@ -1366,7 +1751,11 @@ static u8 qed_calc_cdu_validation_byte(u8 conn_type, u8 region, u32 cid)
 	u8 crc, validation_byte = 0;
 	static u8 crc8_table_valid; /* automatically initialized to 0 */
 	u32 validation_string = 0;
+<<<<<<< HEAD
 	u32 data_to_crc;
+=======
+	__be32 data_to_crc;
+>>>>>>> upstream/android-13
 
 	if (!crc8_table_valid) {
 		crc8_populate_msb(cdu_crc8_table, 0x07);
@@ -1388,10 +1777,16 @@ static u8 qed_calc_cdu_validation_byte(u8 conn_type, u8 region, u32 cid)
 		validation_string |= (conn_type & 0xF);
 
 	/* Convert to big-endian and calculate CRC8 */
+<<<<<<< HEAD
 	data_to_crc = be32_to_cpu(validation_string);
 
 	crc = crc8(cdu_crc8_table,
 		   (u8 *)&data_to_crc, sizeof(data_to_crc), CRC8_INIT_VALUE);
+=======
+	data_to_crc = cpu_to_be32(validation_string);
+	crc = crc8(cdu_crc8_table, (u8 *)&data_to_crc, sizeof(data_to_crc),
+		   CRC8_INIT_VALUE);
+>>>>>>> upstream/android-13
 
 	/* The validation byte [7:0] is composed:
 	 * for type A validation
@@ -1544,3 +1939,147 @@ void qed_set_rdma_error_level(struct qed_hwfn *p_hwfn,
 		qed_wr(p_hwfn, p_ptt, ram_addr, assert_level[storm_id]);
 	}
 }
+<<<<<<< HEAD
+=======
+
+#define PHYS_ADDR_DWORDS        DIV_ROUND_UP(sizeof(dma_addr_t), 4)
+#define OVERLAY_HDR_SIZE_DWORDS (sizeof(struct fw_overlay_buf_hdr) / 4)
+
+static u32 qed_get_overlay_addr_ram_addr(struct qed_hwfn *p_hwfn, u8 storm_id)
+{
+	switch (storm_id) {
+	case 0:
+		return TSEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM +
+		    TSTORM_OVERLAY_BUF_ADDR_OFFSET;
+	case 1:
+		return MSEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM +
+		    MSTORM_OVERLAY_BUF_ADDR_OFFSET;
+	case 2:
+		return USEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM +
+		    USTORM_OVERLAY_BUF_ADDR_OFFSET;
+	case 3:
+		return XSEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM +
+		    XSTORM_OVERLAY_BUF_ADDR_OFFSET;
+	case 4:
+		return YSEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM +
+		    YSTORM_OVERLAY_BUF_ADDR_OFFSET;
+	case 5:
+		return PSEM_REG_FAST_MEMORY + SEM_FAST_REG_INT_RAM +
+		    PSTORM_OVERLAY_BUF_ADDR_OFFSET;
+
+	default:
+		return 0;
+	}
+}
+
+struct phys_mem_desc *qed_fw_overlay_mem_alloc(struct qed_hwfn *p_hwfn,
+					       const u32 * const
+					       fw_overlay_in_buf,
+					       u32 buf_size_in_bytes)
+{
+	u32 buf_size = buf_size_in_bytes / sizeof(u32), buf_offset = 0;
+	struct phys_mem_desc *allocated_mem;
+
+	if (!buf_size)
+		return NULL;
+
+	allocated_mem = kcalloc(NUM_STORMS, sizeof(struct phys_mem_desc),
+				GFP_KERNEL);
+	if (!allocated_mem)
+		return NULL;
+
+	memset(allocated_mem, 0, NUM_STORMS * sizeof(struct phys_mem_desc));
+
+	/* For each Storm, set physical address in RAM */
+	while (buf_offset < buf_size) {
+		struct phys_mem_desc *storm_mem_desc;
+		struct fw_overlay_buf_hdr *hdr;
+		u32 storm_buf_size;
+		u8 storm_id;
+
+		hdr =
+		    (struct fw_overlay_buf_hdr *)&fw_overlay_in_buf[buf_offset];
+		storm_buf_size = GET_FIELD(hdr->data,
+					   FW_OVERLAY_BUF_HDR_BUF_SIZE);
+		storm_id = GET_FIELD(hdr->data, FW_OVERLAY_BUF_HDR_STORM_ID);
+		storm_mem_desc = allocated_mem + storm_id;
+		storm_mem_desc->size = storm_buf_size * sizeof(u32);
+
+		/* Allocate physical memory for Storm's overlays buffer */
+		storm_mem_desc->virt_addr =
+		    dma_alloc_coherent(&p_hwfn->cdev->pdev->dev,
+				       storm_mem_desc->size,
+				       &storm_mem_desc->phys_addr, GFP_KERNEL);
+		if (!storm_mem_desc->virt_addr)
+			break;
+
+		/* Skip overlays buffer header */
+		buf_offset += OVERLAY_HDR_SIZE_DWORDS;
+
+		/* Copy Storm's overlays buffer to allocated memory */
+		memcpy(storm_mem_desc->virt_addr,
+		       &fw_overlay_in_buf[buf_offset], storm_mem_desc->size);
+
+		/* Advance to next Storm */
+		buf_offset += storm_buf_size;
+	}
+
+	/* If memory allocation has failed, free all allocated memory */
+	if (buf_offset < buf_size) {
+		qed_fw_overlay_mem_free(p_hwfn, allocated_mem);
+		return NULL;
+	}
+
+	return allocated_mem;
+}
+
+void qed_fw_overlay_init_ram(struct qed_hwfn *p_hwfn,
+			     struct qed_ptt *p_ptt,
+			     struct phys_mem_desc *fw_overlay_mem)
+{
+	u8 storm_id;
+
+	for (storm_id = 0; storm_id < NUM_STORMS; storm_id++) {
+		struct phys_mem_desc *storm_mem_desc =
+		    (struct phys_mem_desc *)fw_overlay_mem + storm_id;
+		u32 ram_addr, i;
+
+		/* Skip Storms with no FW overlays */
+		if (!storm_mem_desc->virt_addr)
+			continue;
+
+		/* Calculate overlay RAM GRC address of current PF */
+		ram_addr = qed_get_overlay_addr_ram_addr(p_hwfn, storm_id) +
+			   sizeof(dma_addr_t) * p_hwfn->rel_pf_id;
+
+		/* Write Storm's overlay physical address to RAM */
+		for (i = 0; i < PHYS_ADDR_DWORDS; i++, ram_addr += sizeof(u32))
+			qed_wr(p_hwfn, p_ptt, ram_addr,
+			       ((u32 *)&storm_mem_desc->phys_addr)[i]);
+	}
+}
+
+void qed_fw_overlay_mem_free(struct qed_hwfn *p_hwfn,
+			     struct phys_mem_desc *fw_overlay_mem)
+{
+	u8 storm_id;
+
+	if (!fw_overlay_mem)
+		return;
+
+	for (storm_id = 0; storm_id < NUM_STORMS; storm_id++) {
+		struct phys_mem_desc *storm_mem_desc =
+		    (struct phys_mem_desc *)fw_overlay_mem + storm_id;
+
+		/* Free Storm's physical memory */
+		if (storm_mem_desc->virt_addr)
+			dma_free_coherent(&p_hwfn->cdev->pdev->dev,
+					  storm_mem_desc->size,
+					  storm_mem_desc->virt_addr,
+					  storm_mem_desc->phys_addr);
+	}
+
+	/* Free allocated virtual memory */
+	kfree(fw_overlay_mem);
+}
+>>>>>>> upstream/android-13

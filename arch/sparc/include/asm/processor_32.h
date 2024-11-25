@@ -7,12 +7,15 @@
 #ifndef __ASM_SPARC_PROCESSOR_H
 #define __ASM_SPARC_PROCESSOR_H
 
+<<<<<<< HEAD
 /*
  * Sparc32 implementation of macro that returns current
  * instruction pointer ("program counter").
  */
 #define current_text_addr() ({ void *pc; __asm__("sethi %%hi(1f), %0; or %0, %%lo(1f), %0;\n1:" : "=r" (pc)); pc; })
 
+=======
+>>>>>>> upstream/android-13
 #include <asm/psr.h>
 #include <asm/ptrace.h>
 #include <asm/head.h>
@@ -56,6 +59,7 @@ struct thread_struct {
 	unsigned long   fsr;
 	unsigned long   fpqdepth;
 	struct fpq	fpqueue[16];
+<<<<<<< HEAD
 	unsigned long flags;
 	mm_segment_t current_ds;
 };
@@ -66,6 +70,14 @@ struct thread_struct {
 #define INIT_THREAD  { \
 	.flags = SPARC_FLAG_KTHREAD, \
 	.current_ds = KERNEL_DS, \
+=======
+	mm_segment_t current_ds;
+};
+
+#define INIT_THREAD  { \
+	.current_ds = KERNEL_DS, \
+	.kregs = (struct pt_regs *)(init_stack+THREAD_SIZE)-1 \
+>>>>>>> upstream/android-13
 }
 
 /* Do necessary setup to start up a newly executed thread. */

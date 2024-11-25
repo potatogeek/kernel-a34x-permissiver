@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 Broadcom
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2016 Broadcom
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -49,6 +55,7 @@ enum spu2_proto_sel {
 	SPU2_DTLS_AEAD = 10
 };
 
+<<<<<<< HEAD
 char *spu2_cipher_type_names[] = { "None", "AES128", "AES192", "AES256",
 	"DES", "3DES"
 };
@@ -58,12 +65,27 @@ char *spu2_cipher_mode_names[] = { "ECB", "CBC", "CTR", "CFB", "OFB", "XTS",
 };
 
 char *spu2_hash_type_names[] = { "None", "AES128", "AES192", "AES256",
+=======
+static char *spu2_cipher_type_names[] = { "None", "AES128", "AES192", "AES256",
+	"DES", "3DES"
+};
+
+static char *spu2_cipher_mode_names[] = { "ECB", "CBC", "CTR", "CFB", "OFB",
+	"XTS", "CCM", "GCM"
+};
+
+static char *spu2_hash_type_names[] = { "None", "AES128", "AES192", "AES256",
+>>>>>>> upstream/android-13
 	"Reserved", "Reserved", "MD5", "SHA1", "SHA224", "SHA256", "SHA384",
 	"SHA512", "SHA512/224", "SHA512/256", "SHA3-224", "SHA3-256",
 	"SHA3-384", "SHA3-512"
 };
 
+<<<<<<< HEAD
 char *spu2_hash_mode_names[] = { "CMAC", "CBC-MAC", "XCBC-MAC", "HMAC",
+=======
+static char *spu2_hash_mode_names[] = { "CMAC", "CBC-MAC", "XCBC-MAC", "HMAC",
+>>>>>>> upstream/android-13
 	"Rabin", "CCM", "GCM", "Reserved"
 };
 
@@ -553,8 +575,14 @@ void spu2_dump_msg_hdr(u8 *buf, unsigned int buf_len)
 
 /**
  * spu2_fmd_init() - At setkey time, initialize the fixed meta data for
+<<<<<<< HEAD
  * subsequent ablkcipher requests for this context.
  * @spu2_cipher_type:  Cipher algorithm
+=======
+ * subsequent skcipher requests for this context.
+ * @fmd:               Start of FMD field to be written
+ * @spu2_type:         Cipher algorithm
+>>>>>>> upstream/android-13
  * @spu2_mode:         Cipher mode
  * @cipher_key_len:    Length of cipher key, in bytes
  * @cipher_iv_len:     Length of cipher initialization vector, in bytes
@@ -609,7 +637,11 @@ static int spu2_fmd_init(struct SPU2_FMD *fmd,
  * SPU request packet.
  * @fmd:            Start of FMD field to be written
  * @is_inbound:     true if decrypting. false if encrypting.
+<<<<<<< HEAD
  * @authFirst:      true if alg authenticates before encrypting
+=======
+ * @auth_first:     true if alg authenticates before encrypting
+>>>>>>> upstream/android-13
  * @protocol:       protocol selector
  * @cipher_type:    cipher algorithm
  * @cipher_mode:    cipher mode
@@ -651,6 +683,10 @@ static void spu2_fmd_ctrl0_write(struct SPU2_FMD *fmd,
  * spu2_fmd_ctrl1_write() - Write ctrl1 field in fixed metadata (FMD) field of
  * SPU request packet.
  * @fmd:            Start of FMD field to be written
+<<<<<<< HEAD
+=======
+ * @is_inbound:     true if decrypting. false if encrypting.
+>>>>>>> upstream/android-13
  * @assoc_size:     Length of additional associated data, in bytes
  * @auth_key_len:   Length of authentication key, in bytes
  * @cipher_key_len: Length of cipher key, in bytes
@@ -804,7 +840,11 @@ u32 spu2_ctx_max_payload(enum spu_cipher_alg cipher_alg,
 }
 
 /**
+<<<<<<< HEAD
  * spu_payload_length() -  Given a SPU2 message header, extract the payload
+=======
+ * spu2_payload_length() -  Given a SPU2 message header, extract the payload
+>>>>>>> upstream/android-13
  * length.
  * @spu_hdr:  Start of SPU message header (FMD)
  *
@@ -823,10 +863,18 @@ u32 spu2_payload_length(u8 *spu_hdr)
 }
 
 /**
+<<<<<<< HEAD
  * spu_response_hdr_len() - Determine the expected length of a SPU response
  * header.
  * @auth_key_len:  Length of authentication key, in bytes
  * @enc_key_len:   Length of encryption key, in bytes
+=======
+ * spu2_response_hdr_len() - Determine the expected length of a SPU response
+ * header.
+ * @auth_key_len:  Length of authentication key, in bytes
+ * @enc_key_len:   Length of encryption key, in bytes
+ * @is_hash:       Unused
+>>>>>>> upstream/android-13
  *
  * For SPU2, includes just FMD. OMD is never requested.
  *
@@ -838,7 +886,11 @@ u16 spu2_response_hdr_len(u16 auth_key_len, u16 enc_key_len, bool is_hash)
 }
 
 /**
+<<<<<<< HEAD
  * spu_hash_pad_len() - Calculate the length of hash padding required to extend
+=======
+ * spu2_hash_pad_len() - Calculate the length of hash padding required to extend
+>>>>>>> upstream/android-13
  * data to a full block size.
  * @hash_alg:        hash algorithm
  * @hash_mode:       hash mode
@@ -856,8 +908,15 @@ u16 spu2_hash_pad_len(enum hash_alg hash_alg, enum hash_mode hash_mode,
 }
 
 /**
+<<<<<<< HEAD
  * spu2_gcm_ccm_padlen() -  Determine the length of GCM/CCM padding for either
  * the AAD field or the data.
+=======
+ * spu2_gcm_ccm_pad_len() -  Determine the length of GCM/CCM padding for either
+ * the AAD field or the data.
+ * @cipher_mode:  Unused
+ * @data_size:    Unused
+>>>>>>> upstream/android-13
  *
  * Return:  0. Unlike SPU-M, SPU2 hardware does any GCM/CCM padding required.
  */
@@ -868,7 +927,11 @@ u32 spu2_gcm_ccm_pad_len(enum spu_cipher_mode cipher_mode,
 }
 
 /**
+<<<<<<< HEAD
  * spu_assoc_resp_len() - Determine the size of the AAD2 buffer needed to catch
+=======
+ * spu2_assoc_resp_len() - Determine the size of the AAD2 buffer needed to catch
+>>>>>>> upstream/android-13
  * associated data in a SPU2 output packet.
  * @cipher_mode:   cipher mode
  * @assoc_len:     length of additional associated data, in bytes
@@ -889,11 +952,19 @@ u32 spu2_assoc_resp_len(enum spu_cipher_mode cipher_mode,
 	return resp_len;
 }
 
+<<<<<<< HEAD
 /*
  * spu_aead_ivlen() - Calculate the length of the AEAD IV to be included
  * in a SPU request after the AAD and before the payload.
  * @cipher_mode:  cipher mode
  * @iv_ctr_len:   initialization vector length in bytes
+=======
+/**
+ * spu2_aead_ivlen() - Calculate the length of the AEAD IV to be included
+ * in a SPU request after the AAD and before the payload.
+ * @cipher_mode:  cipher mode
+ * @iv_len:   initialization vector length in bytes
+>>>>>>> upstream/android-13
  *
  * For SPU2, AEAD IV is included in OMD and does not need to be repeated
  * prior to the payload.
@@ -920,9 +991,15 @@ enum hash_type spu2_hash_type(u32 src_sent)
 /**
  * spu2_digest_size() - Determine the size of a hash digest to expect the SPU to
  * return.
+<<<<<<< HEAD
  * alg_digest_size: Number of bytes in the final digest for the given algo
  * alg:             The hash algorithm
  * htype:           Type of hash operation (init, update, full, etc)
+=======
+ * @alg_digest_size: Number of bytes in the final digest for the given algo
+ * @alg:             The hash algorithm
+ * @htype:           Type of hash operation (init, update, full, etc)
+>>>>>>> upstream/android-13
  *
  */
 u32 spu2_digest_size(u32 alg_digest_size, enum hash_alg alg,
@@ -932,7 +1009,11 @@ u32 spu2_digest_size(u32 alg_digest_size, enum hash_alg alg,
 }
 
 /**
+<<<<<<< HEAD
  * spu_create_request() - Build a SPU2 request message header, includint FMD and
+=======
+ * spu2_create_request() - Build a SPU2 request message header, includint FMD and
+>>>>>>> upstream/android-13
  * OMD.
  * @spu_hdr: Start of buffer where SPU request header is to be written
  * @req_opts: SPU request message options
@@ -975,7 +1056,10 @@ u32 spu2_create_request(u8 *spu_hdr,
 	unsigned int cipher_offset = aead_parms->assoc_size +
 			aead_parms->aad_pad_len + aead_parms->iv_len;
 
+<<<<<<< HEAD
 #ifdef DEBUG
+=======
+>>>>>>> upstream/android-13
 	/* total size of the data following OMD (without STAT word padding) */
 	unsigned int real_db_size = spu_real_db_size(aead_parms->assoc_size,
 						 aead_parms->iv_len,
@@ -984,7 +1068,10 @@ u32 spu2_create_request(u8 *spu_hdr,
 						 aead_parms->aad_pad_len,
 						 aead_parms->data_pad_len,
 						 hash_parms->pad_len);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 	unsigned int assoc_size = aead_parms->assoc_size;
 
 	if (req_opts->is_aead &&
@@ -1118,13 +1205,21 @@ u32 spu2_create_request(u8 *spu_hdr,
 }
 
 /**
+<<<<<<< HEAD
  * spu_cipher_req_init() - Build an ablkcipher SPU2 request message header,
+=======
+ * spu2_cipher_req_init() - Build an skcipher SPU2 request message header,
+>>>>>>> upstream/android-13
  * including FMD and OMD.
  * @spu_hdr:       Location of start of SPU request (FMD field)
  * @cipher_parms:  Parameters describing cipher request
  *
  * Called at setkey time to initialize a msg header that can be reused for all
+<<<<<<< HEAD
  * subsequent ablkcipher requests. Construct the message starting at spu_hdr.
+=======
+ * subsequent skcipher requests. Construct the message starting at spu_hdr.
+>>>>>>> upstream/android-13
  * Caller should allocate this buffer in DMA-able memory at least
  * SPU_HEADER_ALLOC_LEN bytes long.
  *
@@ -1175,6 +1270,7 @@ u16 spu2_cipher_req_init(u8 *spu_hdr, struct spu_cipher_parms *cipher_parms)
 }
 
 /**
+<<<<<<< HEAD
  * spu_cipher_req_finish() - Finish building a SPU request message header for a
  * block cipher request.
  * @spu_hdr:         Start of the request message header (MH field)
@@ -1182,20 +1278,35 @@ u16 spu2_cipher_req_init(u8 *spu_hdr, struct spu_cipher_parms *cipher_parms)
  * @isInbound:       0 encrypt, 1 decrypt
  * @cipher_parms:    Parameters describing cipher operation to be performed
  * @update_key:      If true, rewrite the cipher key in SCTX
+=======
+ * spu2_cipher_req_finish() - Finish building a SPU request message header for a
+ * block cipher request.
+ * @spu_hdr:         Start of the request message header (MH field)
+ * @spu_req_hdr_len: Length in bytes of the SPU request header
+ * @is_inbound:      0 encrypt, 1 decrypt
+ * @cipher_parms:    Parameters describing cipher operation to be performed
+>>>>>>> upstream/android-13
  * @data_size:       Length of the data in the BD field
  *
  * Assumes much of the header was already filled in at setkey() time in
  * spu_cipher_req_init().
+<<<<<<< HEAD
  * spu_cipher_req_init() fills in the encryption key. For RC4, when submitting a
  * request for a non-first chunk, we use the 260-byte SUPDT field from the
  * previous response as the key. update_key is true for this case. Unused in all
  * other cases.
+=======
+ * spu_cipher_req_init() fills in the encryption key.
+>>>>>>> upstream/android-13
  */
 void spu2_cipher_req_finish(u8 *spu_hdr,
 			    u16 spu_req_hdr_len,
 			    unsigned int is_inbound,
 			    struct spu_cipher_parms *cipher_parms,
+<<<<<<< HEAD
 			    bool update_key,
+=======
+>>>>>>> upstream/android-13
 			    unsigned int data_size)
 {
 	struct SPU2_FMD *fmd;
@@ -1207,11 +1318,14 @@ void spu2_cipher_req_finish(u8 *spu_hdr,
 	flow_log(" in: %u\n", is_inbound);
 	flow_log(" cipher alg: %u, cipher_type: %u\n", cipher_parms->alg,
 		 cipher_parms->type);
+<<<<<<< HEAD
 	if (update_key) {
 		flow_log(" cipher key len: %u\n", cipher_parms->key_len);
 		flow_dump("  key: ", cipher_parms->key_buf,
 			  cipher_parms->key_len);
 	}
+=======
+>>>>>>> upstream/android-13
 	flow_log(" iv len: %d\n", cipher_parms->iv_len);
 	flow_dump("    iv: ", cipher_parms->iv_buf, cipher_parms->iv_len);
 	flow_log(" data_size: %u\n", data_size);
@@ -1245,7 +1359,11 @@ void spu2_cipher_req_finish(u8 *spu_hdr,
 }
 
 /**
+<<<<<<< HEAD
  * spu_request_pad() - Create pad bytes at the end of the data.
+=======
+ * spu2_request_pad() - Create pad bytes at the end of the data.
+>>>>>>> upstream/android-13
  * @pad_start:      Start of buffer where pad bytes are to be written
  * @gcm_padding:    Length of GCM padding, in bytes
  * @hash_pad_len:   Number of bytes of padding extend data to full block
@@ -1284,9 +1402,15 @@ void spu2_request_pad(u8 *pad_start, u32 gcm_padding, u32 hash_pad_len,
 
 		/* add the size at the end as required per alg */
 		if (auth_alg == HASH_ALG_MD5)
+<<<<<<< HEAD
 			*(u64 *)ptr = cpu_to_le64((u64)total_sent * 8);
 		else		/* SHA1, SHA2-224, SHA2-256 */
 			*(u64 *)ptr = cpu_to_be64((u64)total_sent * 8);
+=======
+			*(__le64 *)ptr = cpu_to_le64(total_sent * 8ull);
+		else		/* SHA1, SHA2-224, SHA2-256 */
+			*(__be64 *)ptr = cpu_to_be64(total_sent * 8ull);
+>>>>>>> upstream/android-13
 		ptr += sizeof(u64);
 	}
 
@@ -1334,7 +1458,11 @@ u8 spu2_rx_status_len(void)
 }
 
 /**
+<<<<<<< HEAD
  * spu_status_process() - Process the status from a SPU response message.
+=======
+ * spu2_status_process() - Process the status from a SPU response message.
+>>>>>>> upstream/android-13
  * @statp:  start of STATUS word
  *
  * Return:  0 - if status is good and response should be processed

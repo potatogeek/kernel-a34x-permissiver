@@ -4,6 +4,7 @@
 Traduzione italiana
 ===================
 
+<<<<<<< HEAD
 L'obiettivo di questa traduzione è di rendere più facile la lettura e
 la comprensione per chi preferisce leggere in lingua italiana.
 Tenete presente che la documentazione di riferimento rimane comunque
@@ -24,6 +25,55 @@ manutentore. Se avete problemi a scrivere in inglese, potete comunque
 riportare il problema al manutentore della traduzione italiana.
 
 Manutentore della traduzione italiana: Federico Vaga <federico.vaga@vaga.pv.it>
+=======
+.. raw:: latex
+
+	\kerneldocCJKoff
+
+:manutentore: Federico Vaga <federico.vaga@vaga.pv.it>
+
+.. _it_disclaimer:
+
+Avvertenze
+==========
+
+L'obiettivo di questa traduzione è di rendere più facile la lettura e
+la comprensione per chi non capisce l'inglese o ha dubbi sulla sua
+interpretazione, oppure semplicemente per chi preferisce leggere in lingua
+italiana. Tuttavia, tenete ben presente che l'*unica* documentazione
+ufficiale è quella in lingua inglese: :ref:`linux_doc`
+
+La propagazione simultanea a tutte le traduzioni di una modifica in
+:ref:`linux_doc` è altamente improbabile. I manutentori delle traduzioni -
+e i contributori - seguono l'evolversi della documentazione ufficiale e
+cercano di mantenere le rispettive traduzioni allineate nel limite del
+possibile.  Per questo motivo non c'è garanzia che una traduzione sia
+aggiornata all'ultima modifica.  Se quello che leggete in una traduzione
+non corrisponde a quello che leggete nel codice, informate il manutentore
+della traduzione e - se potete - verificate anche la documentazione in
+inglese.
+
+Una traduzione non è un *fork* della documentazione ufficiale, perciò gli
+utenti non vi troveranno alcuna informazione diversa rispetto alla versione
+ufficiale.  Ogni aggiunta, rimozione o modifica dei contenuti deve essere
+fatta prima nei documenti in inglese. In seguito, e quando è possibile, la
+stessa modifica dovrebbe essere applicata anche alle traduzioni.  I manutentori
+delle traduzioni accettano contributi che interessano prettamente l'attività
+di traduzione (per esempio, nuove traduzioni, aggiornamenti, correzioni).
+
+Le traduzioni cercano di essere il più possibile accurate ma non è possibile
+mappare direttamente una lingua in un'altra. Ogni lingua ha la sua grammatica
+e una sua cultura alle spalle, quindi la traduzione di una frase in inglese
+potrebbe essere modificata per adattarla all'italiano. Per questo motivo,
+quando leggete questa traduzione, potreste trovare alcune differenze di forma
+ma che trasmettono comunque il messaggio originale.  Nonostante la grande
+diffusione di inglesismi nella lingua parlata, quando possibile, questi
+verranno sostituiti dalle corrispettive parole italiane
+
+Se avete bisogno d'aiuto per comunicare con la comunità Linux ma non vi sentite
+a vostro agio nello scrivere in inglese, potete chiedere aiuto al manutentore
+della traduzione.
+>>>>>>> upstream/android-13
 
 La documentazione del kernel Linux
 ==================================
@@ -47,9 +97,13 @@ I seguenti documenti descrivono la licenza usata nei sorgenti del kernel Linux
 (GPLv2), come licenziare i singoli file; inoltre troverete i riferimenti al
 testo integrale della licenza.
 
+<<<<<<< HEAD
 .. warning::
 
     TODO ancora da tradurre
+=======
+* :ref:`it_kernel_licensing`
+>>>>>>> upstream/android-13
 
 Documentazione per gli utenti
 -----------------------------
@@ -86,6 +140,7 @@ vostre modifiche molto più semplice
 .. toctree::
    :maxdepth: 2
 
+<<<<<<< HEAD
    doc-guide/index
    kernel-hacking/index
 
@@ -93,6 +148,12 @@ vostre modifiche molto più semplice
 
     TODO ancora da tradurre
 
+=======
+   process/index
+   doc-guide/index
+   kernel-hacking/index
+
+>>>>>>> upstream/android-13
 Documentazione della API del kernel
 -----------------------------------
 
@@ -103,9 +164,16 @@ file sorgenti, informazioni aggiuntive vengono aggiunte solo se necessarie
 (o almeno ci proviamo — probabilmente *non* tutto quello che è davvero
 necessario).
 
+<<<<<<< HEAD
 .. warning::
 
     TODO ancora da tradurre
+=======
+.. toctree::
+   :maxdepth: 2
+
+   core-api/index
+>>>>>>> upstream/android-13
 
 Documentazione specifica per architettura
 -----------------------------------------

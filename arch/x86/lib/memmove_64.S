@@ -8,7 +8,11 @@
  */
 #include <linux/linkage.h>
 #include <asm/cpufeatures.h>
+<<<<<<< HEAD
 #include <asm/alternative-asm.h>
+=======
+#include <asm/alternative.h>
+>>>>>>> upstream/android-13
 #include <asm/export.h>
 
 #undef memmove
@@ -24,6 +28,7 @@
  * Output:
  * rax: dest
  */
+<<<<<<< HEAD
 .weak memmove
 .p2align 4, 0x90
 memmove:
@@ -33,6 +38,12 @@ ENTRY(__memmove)
 	mov %rdi, %rax
 	cmp $0x20, %rdx
 	jb	1f
+=======
+SYM_FUNC_START_WEAK(memmove)
+SYM_FUNC_START(__memmove)
+
+	mov %rdi, %rax
+>>>>>>> upstream/android-13
 
 	/* Decide forward/backward copy mode */
 	cmp %rdi, %rsi
@@ -42,8 +53,15 @@ ENTRY(__memmove)
 	cmp %rdi, %r8
 	jg 2f
 
+<<<<<<< HEAD
 .Lmemmove_begin_forward:
 	ALTERNATIVE "", "movq %rdx, %rcx; rep movsb; retq", X86_FEATURE_ERMS
+=======
+	/* FSRM implies ERMS => no length checks, do the copy directly */
+.Lmemmove_begin_forward:
+	ALTERNATIVE "cmp $0x20, %rdx; jb 1f", "", X86_FEATURE_FSRM
+	ALTERNATIVE "", __stringify(movq %rdx, %rcx; rep movsb; RET), X86_FEATURE_ERMS
+>>>>>>> upstream/android-13
 
 	/*
 	 * movsq instruction have many startup latency
@@ -114,6 +132,11 @@ ENTRY(__memmove)
 	 */
 	.p2align 4
 2:
+<<<<<<< HEAD
+=======
+	cmp $0x20, %rdx
+	jb 1f
+>>>>>>> upstream/android-13
 	cmp $680, %rdx
 	jb 6f
 	cmp %dil, %sil
@@ -206,8 +229,14 @@ ENTRY(__memmove)
 	movb (%rsi), %r11b
 	movb %r11b, (%rdi)
 13:
+<<<<<<< HEAD
 	retq
 ENDPROC(__memmove)
 ENDPROC(memmove)
+=======
+	RET
+SYM_FUNC_END(__memmove)
+SYM_FUNC_END_ALIAS(memmove)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(__memmove)
 EXPORT_SYMBOL(memmove)

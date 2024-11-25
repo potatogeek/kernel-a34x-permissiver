@@ -8,12 +8,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "debug.h"
+<<<<<<< HEAD
 #include "tests.h"
 #include "machine.h"
 #include "thread_map.h"
 #include "symbol.h"
 #include "thread.h"
 #include "util.h"
+=======
+#include "event.h"
+#include "tests.h"
+#include "machine.h"
+#include "thread_map.h"
+#include "map.h"
+#include "symbol.h"
+#include "util/synthetic-events.h"
+#include "thread.h"
+#include <internal/lib.h> // page_size
+>>>>>>> upstream/android-13
 
 #define THREADS 4
 
@@ -132,21 +144,35 @@ static int synth_all(struct machine *machine)
 {
 	return perf_event__synthesize_threads(NULL,
 					      perf_event__process,
+<<<<<<< HEAD
 					      machine, 0, 500, 1);
+=======
+					      machine, 0, 1);
+>>>>>>> upstream/android-13
 }
 
 static int synth_process(struct machine *machine)
 {
+<<<<<<< HEAD
 	struct thread_map *map;
+=======
+	struct perf_thread_map *map;
+>>>>>>> upstream/android-13
 	int err;
 
 	map = thread_map__new_by_pid(getpid());
 
 	err = perf_event__synthesize_thread_map(NULL, map,
 						perf_event__process,
+<<<<<<< HEAD
 						machine, 0, 500);
 
 	thread_map__put(map);
+=======
+						machine, 0);
+
+	perf_thread_map__put(map);
+>>>>>>> upstream/android-13
 	return err;
 }
 

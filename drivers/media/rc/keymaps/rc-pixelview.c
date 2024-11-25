@@ -25,6 +25,7 @@ static struct rc_map_table pixelview[] = {
 	{ 0x19, KEY_ZOOM },		/* zoom */
 	{ 0x0f, KEY_TEXT },		/* min */
 
+<<<<<<< HEAD
 	{ 0x01, KEY_1 },
 	{ 0x0b, KEY_2 },
 	{ 0x1b, KEY_3 },
@@ -35,6 +36,18 @@ static struct rc_map_table pixelview[] = {
 	{ 0x0a, KEY_8 },
 	{ 0x12, KEY_9 },
 	{ 0x02, KEY_0 },
+=======
+	{ 0x01, KEY_NUMERIC_1 },
+	{ 0x0b, KEY_NUMERIC_2 },
+	{ 0x1b, KEY_NUMERIC_3 },
+	{ 0x05, KEY_NUMERIC_4 },
+	{ 0x09, KEY_NUMERIC_5 },
+	{ 0x15, KEY_NUMERIC_6 },
+	{ 0x06, KEY_NUMERIC_7 },
+	{ 0x0a, KEY_NUMERIC_8 },
+	{ 0x12, KEY_NUMERIC_9 },
+	{ 0x02, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x10, KEY_LAST },		/* +100 */
 	{ 0x13, KEY_LIST },		/* recall */
 

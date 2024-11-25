@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * STi Mailbox
  *
@@ -7,11 +11,14 @@
  *
  * Based on the original driver written by;
  *   Alexandre Torgue, Olivier Lebreton and Loic Pallardy
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -40,12 +47,16 @@
 #define MBOX_BASE(mdev, inst)   ((mdev)->base + ((inst) * 4))
 
 /**
+<<<<<<< HEAD
  * STi Mailbox device data
  *
  * An IP Mailbox is currently composed of 4 instances
  * Each instance is currently composed of 32 channels
  * This means that we have 128 channels per Mailbox
  * A channel an be used for TX or RX
+=======
+ * struct sti_mbox_device - STi Mailbox device data
+>>>>>>> upstream/android-13
  *
  * @dev:	Device to which it is attached
  * @mbox:	Representation of a communication channel controller
@@ -53,6 +64,14 @@
  * @name:	Name of the mailbox
  * @enabled:	Local copy of enabled channels
  * @lock:	Mutex protecting enabled status
+<<<<<<< HEAD
+=======
+ *
+ * An IP Mailbox is currently composed of 4 instances
+ * Each instance is currently composed of 32 channels
+ * This means that we have 128 channels per Mailbox
+ * A channel an be used for TX or RX
+>>>>>>> upstream/android-13
  */
 struct sti_mbox_device {
 	struct device		*dev;
@@ -64,7 +83,11 @@ struct sti_mbox_device {
 };
 
 /**
+<<<<<<< HEAD
  * STi Mailbox platform specific configuration
+=======
+ * struct sti_mbox_pdata - STi Mailbox platform specific configuration
+>>>>>>> upstream/android-13
  *
  * @num_inst:	Maximum number of instances in one HW Mailbox
  * @num_chan:	Maximum number of channel per instance
@@ -75,7 +98,11 @@ struct sti_mbox_pdata {
 };
 
 /**
+<<<<<<< HEAD
  * STi Mailbox allocated channel information
+=======
+ * struct sti_channel - STi Mailbox allocated channel information
+>>>>>>> upstream/android-13
  *
  * @mdev:	Pointer to parent Mailbox device
  * @instance:	Instance number channel resides in
@@ -462,7 +489,11 @@ static int sti_mbox_probe(struct platform_device *pdev)
 	mbox->chans		= chans;
 	mbox->num_chans		= STI_MBOX_CHAN_MAX;
 
+<<<<<<< HEAD
 	ret = mbox_controller_register(mbox);
+=======
+	ret = devm_mbox_controller_register(&pdev->dev, mbox);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -480,7 +511,10 @@ static int sti_mbox_probe(struct platform_device *pdev)
 					IRQF_ONESHOT, mdev->name, mdev);
 	if (ret) {
 		dev_err(&pdev->dev, "Can't claim IRQ %d\n", irq);
+<<<<<<< HEAD
 		mbox_controller_unregister(mbox);
+=======
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -489,6 +523,7 @@ static int sti_mbox_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sti_mbox_remove(struct platform_device *pdev)
 {
 	struct sti_mbox_device *mdev = platform_get_drvdata(pdev);
@@ -501,6 +536,10 @@ static int sti_mbox_remove(struct platform_device *pdev)
 static struct platform_driver sti_mbox_driver = {
 	.probe = sti_mbox_probe,
 	.remove = sti_mbox_remove,
+=======
+static struct platform_driver sti_mbox_driver = {
+	.probe = sti_mbox_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "sti-mailbox",
 		.of_match_table = sti_mailbox_match,

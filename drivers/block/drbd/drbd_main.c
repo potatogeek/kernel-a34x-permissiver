@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    drbd.c
 
@@ -10,6 +14,7 @@
    Thanks to Carter Burden, Bart Grantham and Gennadiy Nerubayev
    from Logicworks, Inc. for making SDP replication support possible.
 
+<<<<<<< HEAD
    drbd is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -23,6 +28,8 @@
    You should have received a copy of the GNU General Public License
    along with drbd; see the file COPYING.  If not, write to
    the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
  */
 
@@ -137,13 +144,18 @@ struct bio_set drbd_io_bio_set;
 	 member of struct page.
  */
 struct page *drbd_pp_pool;
+<<<<<<< HEAD
 spinlock_t   drbd_pp_lock;
+=======
+DEFINE_SPINLOCK(drbd_pp_lock);
+>>>>>>> upstream/android-13
 int          drbd_pp_vacant;
 wait_queue_head_t drbd_pp_wait;
 
 DEFINE_RATELIMIT_STATE(drbd_ratelimit_state, 5 * HZ, 5);
 
 static const struct block_device_operations drbd_ops = {
+<<<<<<< HEAD
 	.owner =   THIS_MODULE,
 	.open =    drbd_open,
 	.release = drbd_release,
@@ -162,6 +174,14 @@ struct bio *bio_alloc_drbd(gfp_t gfp_mask)
 	return bio;
 }
 
+=======
+	.owner		= THIS_MODULE,
+	.submit_bio	= drbd_submit_bio,
+	.open		= drbd_open,
+	.release	= drbd_release,
+};
+
+>>>>>>> upstream/android-13
 #ifdef __CHECKER__
 /* When checking with sparse, and this is an inline function, sparse will
    give tons of false positives. When this is a real functions sparse works.
@@ -292,7 +312,11 @@ void tl_restart(struct drbd_connection *connection, enum drbd_req_event what)
 
 /**
  * tl_clear() - Clears all requests and &struct drbd_tl_epoch objects out of the TL
+<<<<<<< HEAD
  * @device:	DRBD device.
+=======
+ * @connection:	DRBD connection.
+>>>>>>> upstream/android-13
  *
  * This is called after the connection to the peer was lost. The storage covered
  * by the requests on the transfer gets marked as our of sync. Called from the
@@ -441,7 +465,11 @@ int drbd_thread_start(struct drbd_thread *thi)
 		thi->t_state = RESTARTING;
 		drbd_info(resource, "Restarting %s thread (from %s [%d])\n",
 				thi->name, current->comm, current->pid);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RUNNING:
 	case RESTARTING:
 	default:
@@ -479,7 +507,11 @@ void _drbd_thread_stop(struct drbd_thread *thi, int restart, int wait)
 		smp_mb();
 		init_completion(&thi->stop);
 		if (thi->task != current)
+<<<<<<< HEAD
 			force_sig(DRBD_SIGKILL, thi->task);
+=======
+			send_sig(DRBD_SIGKILL, thi->task, 1);
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_irqrestore(&thi->t_lock, flags);
@@ -503,7 +535,11 @@ int conn_lowest_minor(struct drbd_connection *connection)
 }
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * drbd_calc_cpu_mask() - Generate CPU masks, spread over all CPUs
  *
  * Forces all threads of a resource onto the same CPU. This is beneficial for
@@ -542,7 +578,10 @@ static void drbd_calc_cpu_mask(cpumask_var_t *cpu_mask)
 
 /**
  * drbd_thread_current_set_cpu() - modifies the cpu mask of the _current_ thread
+<<<<<<< HEAD
  * @device:	DRBD device.
+=======
+>>>>>>> upstream/android-13
  * @thi:	drbd_thread object
  *
  * call in the "main loop" of _all_ threads, no need for any mutex, current won't die
@@ -562,7 +601,11 @@ void drbd_thread_current_set_cpu(struct drbd_thread *thi)
 #define drbd_calc_cpu_mask(A) ({})
 #endif
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * drbd_header_size  -  size of a packet header
  *
  * The header size is a multiple of 8, so any payload following the header is
@@ -672,7 +715,11 @@ static int __send_command(struct drbd_connection *connection, int vnr,
 	/* DRBD protocol "pings" are latency critical.
 	 * This is supposed to trigger tcp_push_pending_frames() */
 	if (!err && (cmd == P_PING || cmd == P_PING_ACK))
+<<<<<<< HEAD
 		drbd_tcp_nodelay(sock->socket);
+=======
+		tcp_sock_set_nodelay(sock->socket->sk);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -995,7 +1042,14 @@ int drbd_send_sizes(struct drbd_peer_device *peer_device, int trigger_reply, enu
 
 	p->d_size = cpu_to_be64(d_size);
 	p->u_size = cpu_to_be64(u_size);
+<<<<<<< HEAD
 	p->c_size = cpu_to_be64(trigger_reply ? 0 : drbd_get_capacity(device->this_bdev));
+=======
+	if (trigger_reply)
+		p->c_size = 0;
+	else
+		p->c_size = cpu_to_be64(get_capacity(device->vdisk));
+>>>>>>> upstream/android-13
 	p->max_bio_size = cpu_to_be32(max_bio_size);
 	p->queue_order_type = cpu_to_be16(q_order_type);
 	p->dds_flags = cpu_to_be16(flags);
@@ -1214,7 +1268,11 @@ static int fill_bitmap_rle_bits(struct drbd_device *device,
 	return len;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * send_bitmap_rle_or_plain
  *
  * Return 0 when done, 1 when another iteration is needed, and a negative error
@@ -1345,11 +1403,19 @@ void drbd_send_b_ack(struct drbd_connection *connection, u32 barrier_nr, u32 set
 
 /**
  * _drbd_send_ack() - Sends an ack packet
+<<<<<<< HEAD
  * @device:	DRBD device.
  * @cmd:	Packet command code.
  * @sector:	sector, needs to be in big endian byte order
  * @blksize:	size in byte, needs to be in big endian byte order
  * @block_id:	Id, big endian byte order
+=======
+ * @peer_device:	DRBD peer device.
+ * @cmd:		Packet command code.
+ * @sector:		sector, needs to be in big endian byte order
+ * @blksize:		size in byte, needs to be in big endian byte order
+ * @block_id:		Id, big endian byte order
+>>>>>>> upstream/android-13
  */
 static int _drbd_send_ack(struct drbd_peer_device *peer_device, enum drbd_packet cmd,
 			  u64 sector, u32 blksize, u64 block_id)
@@ -1378,7 +1444,11 @@ void drbd_send_ack_dp(struct drbd_peer_device *peer_device, enum drbd_packet cmd
 		      struct p_data *dp, int data_size)
 {
 	if (peer_device->connection->peer_integrity_tfm)
+<<<<<<< HEAD
 		data_size -= crypto_ahash_digestsize(peer_device->connection->peer_integrity_tfm);
+=======
+		data_size -= crypto_shash_digestsize(peer_device->connection->peer_integrity_tfm);
+>>>>>>> upstream/android-13
 	_drbd_send_ack(peer_device, cmd, dp->sector, cpu_to_be32(data_size),
 		       dp->block_id);
 }
@@ -1391,9 +1461,15 @@ void drbd_send_ack_rp(struct drbd_peer_device *peer_device, enum drbd_packet cmd
 
 /**
  * drbd_send_ack() - Sends an ack packet
+<<<<<<< HEAD
  * @device:	DRBD device
  * @cmd:	packet command code
  * @peer_req:	peer request
+=======
+ * @peer_device:	DRBD peer device
+ * @cmd:		packet command code
+ * @peer_req:		peer request
+>>>>>>> upstream/android-13
  */
 int drbd_send_ack(struct drbd_peer_device *peer_device, enum drbd_packet cmd,
 		  struct drbd_peer_request *peer_req)
@@ -1564,7 +1640,11 @@ static int _drbd_send_page(struct drbd_peer_device *peer_device, struct page *pa
 	 * put_page(); and would cause either a VM_BUG directly, or
 	 * __page_cache_release a page that would actually still be referenced
 	 * by someone, leading to some obscure delayed Oops somewhere else. */
+<<<<<<< HEAD
 	if (drbd_disable_sendpage || (page_count(page) < 1) || PageSlab(page))
+=======
+	if (drbd_disable_sendpage || !sendpage_ok(page))
+>>>>>>> upstream/android-13
 		return _drbd_no_send_page(peer_device, page, offset, size, msg_flags);
 
 	msg_flags |= MSG_NOSIGNAL;
@@ -1669,12 +1749,24 @@ static u32 bio_flags_to_wire(struct drbd_connection *connection,
 			(bio->bi_opf & REQ_PREFLUSH ? DP_FLUSH : 0) |
 			(bio_op(bio) == REQ_OP_WRITE_SAME ? DP_WSAME : 0) |
 			(bio_op(bio) == REQ_OP_DISCARD ? DP_DISCARD : 0) |
+<<<<<<< HEAD
 			(bio_op(bio) == REQ_OP_WRITE_ZEROES ? DP_DISCARD : 0);
+=======
+			(bio_op(bio) == REQ_OP_WRITE_ZEROES ?
+			  ((connection->agreed_features & DRBD_FF_WZEROES) ?
+			   (DP_ZEROES |(!(bio->bi_opf & REQ_NOUNMAP) ? DP_DISCARD : 0))
+			   : DP_DISCARD)
+			: 0);
+>>>>>>> upstream/android-13
 	else
 		return bio->bi_opf & REQ_SYNC ? DP_RW_SYNC : 0;
 }
 
+<<<<<<< HEAD
 /* Used to send write or TRIM aka REQ_DISCARD requests
+=======
+/* Used to send write or TRIM aka REQ_OP_DISCARD requests
+>>>>>>> upstream/android-13
  * R_PRIMARY -> Peer	(P_DATA, P_TRIM)
  */
 int drbd_send_dblock(struct drbd_peer_device *peer_device, struct drbd_request *req)
@@ -1691,7 +1783,11 @@ int drbd_send_dblock(struct drbd_peer_device *peer_device, struct drbd_request *
 	sock = &peer_device->connection->data;
 	p = drbd_prepare_command(peer_device, sock);
 	digest_size = peer_device->connection->integrity_tfm ?
+<<<<<<< HEAD
 		      crypto_ahash_digestsize(peer_device->connection->integrity_tfm) : 0;
+=======
+		      crypto_shash_digestsize(peer_device->connection->integrity_tfm) : 0;
+>>>>>>> upstream/android-13
 
 	if (!p)
 		return -EIO;
@@ -1713,10 +1809,18 @@ int drbd_send_dblock(struct drbd_peer_device *peer_device, struct drbd_request *
 	}
 	p->dp_flags = cpu_to_be32(dp_flags);
 
+<<<<<<< HEAD
 	if (dp_flags & DP_DISCARD) {
 		struct p_trim *t = (struct p_trim*)p;
 		t->size = cpu_to_be32(req->i.size);
 		err = __send_command(peer_device->connection, device->vnr, sock, P_TRIM, sizeof(*t), NULL, 0);
+=======
+	if (dp_flags & (DP_DISCARD|DP_ZEROES)) {
+		enum drbd_packet cmd = (dp_flags & DP_ZEROES) ? P_ZEROES : P_TRIM;
+		struct p_trim *t = (struct p_trim*)p;
+		t->size = cpu_to_be32(req->i.size);
+		err = __send_command(peer_device->connection, device->vnr, sock, cmd, sizeof(*t), NULL, 0);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	if (dp_flags & DP_WSAME) {
@@ -1797,7 +1901,11 @@ int drbd_send_block(struct drbd_peer_device *peer_device, enum drbd_packet cmd,
 	p = drbd_prepare_command(peer_device, sock);
 
 	digest_size = peer_device->connection->integrity_tfm ?
+<<<<<<< HEAD
 		      crypto_ahash_digestsize(peer_device->connection->integrity_tfm) : 0;
+=======
+		      crypto_shash_digestsize(peer_device->connection->integrity_tfm) : 0;
+>>>>>>> upstream/android-13
 
 	if (!p)
 		return -EIO;
@@ -1857,7 +1965,11 @@ int drbd_send(struct drbd_connection *connection, struct socket *sock,
 
 	/* THINK  if (signal_pending) return ... ? */
 
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, WRITE | ITER_KVEC, &iov, 1, size);
+=======
+	iov_iter_kvec(&msg.msg_iter, WRITE, &iov, 1, size);
+>>>>>>> upstream/android-13
 
 	if (sock == connection->data.socket) {
 		rcu_read_lock();
@@ -1898,7 +2010,11 @@ int drbd_send(struct drbd_connection *connection, struct socket *sock,
 	return sent;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * drbd_send_all  -  Send an entire buffer
  *
  * Returns 0 upon success and a negative error value otherwise.
@@ -2035,6 +2151,19 @@ void drbd_init_set_defaults(struct drbd_device *device)
 	device->local_max_bio_size = DRBD_MAX_BIO_SIZE_SAFE;
 }
 
+<<<<<<< HEAD
+=======
+void drbd_set_my_capacity(struct drbd_device *device, sector_t size)
+{
+	char ppb[10];
+
+	set_capacity_and_notify(device->vdisk, size);
+
+	drbd_info(device, "size = %s (%llu KB)\n",
+		ppsize(ppb, size>>1), (unsigned long long)size>>1);
+}
+
+>>>>>>> upstream/android-13
 void drbd_device_cleanup(struct drbd_device *device)
 {
 	int i;
@@ -2060,7 +2189,11 @@ void drbd_device_cleanup(struct drbd_device *device)
 	}
 	D_ASSERT(device, first_peer_device(device)->connection->net_conf == NULL);
 
+<<<<<<< HEAD
 	drbd_set_my_capacity(device, 0);
+=======
+	set_capacity_and_notify(device->vdisk, 0);
+>>>>>>> upstream/android-13
 	if (device->bitmap) {
 		/* maybe never allocated. */
 		drbd_bm_resize(device, 0, 1);
@@ -2167,9 +2300,12 @@ static int drbd_create_mempools(void)
 	if (ret)
 		goto Enomem;
 
+<<<<<<< HEAD
 	/* drbd's page pool */
 	spin_lock_init(&drbd_pp_lock);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < number; i++) {
 		page = alloc_page(GFP_HIGHUSER);
 		if (!page)
@@ -2227,9 +2363,12 @@ void drbd_destroy_device(struct kref *kref)
 	/* cleanup stuff that may have been allocated during
 	 * device (re-)configuration or state changes */
 
+<<<<<<< HEAD
 	if (device->this_bdev)
 		bdput(device->this_bdev);
 
+=======
+>>>>>>> upstream/android-13
 	drbd_backing_dev_free(device, device->ldev);
 	device->ldev = NULL;
 
@@ -2244,8 +2383,12 @@ void drbd_destroy_device(struct kref *kref)
 	if (device->bitmap) /* should no longer be there. */
 		drbd_bm_cleanup(device);
 	__free_page(device->md_io.page);
+<<<<<<< HEAD
 	put_disk(device->vdisk);
 	blk_cleanup_queue(device->rq_queue);
+=======
+	blk_cleanup_disk(device->vdisk);
+>>>>>>> upstream/android-13
 	kfree(device->rs_plan_s);
 
 	/* not for_each_connection(connection, resource):
@@ -2284,7 +2427,10 @@ static void do_retry(struct work_struct *ws)
 	list_for_each_entry_safe(req, tmp, &writes, tl_requests) {
 		struct drbd_device *device = req->device;
 		struct bio *bio = req->master_bio;
+<<<<<<< HEAD
 		unsigned long start_jif = req->start_jif;
+=======
+>>>>>>> upstream/android-13
 		bool expected;
 
 		expected =
@@ -2316,10 +2462,17 @@ static void do_retry(struct work_struct *ws)
 		 * workqueues instead.
 		 */
 
+<<<<<<< HEAD
 		/* We are not just doing generic_make_request(),
 		 * as we want to keep the start_time information. */
 		inc_ap_bio(device);
 		__drbd_make_request(device, bio, start_jif);
+=======
+		/* We are not just doing submit_bio_noacct(),
+		 * as we want to keep the start_time information. */
+		inc_ap_bio(device);
+		__drbd_make_request(device, bio);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2406,6 +2559,7 @@ static void drbd_cleanup(void)
 	pr_info("module cleanup done.\n");
 }
 
+<<<<<<< HEAD
 /**
  * drbd_congested() - Callback for the flusher thread
  * @congested_data:	User data
@@ -2462,6 +2616,8 @@ out:
 	return r;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void drbd_init_workqueue(struct drbd_work_queue* wq)
 {
 	spin_lock_init(&wq->q_lock);
@@ -2558,11 +2714,19 @@ void conn_free_crypto(struct drbd_connection *connection)
 {
 	drbd_free_sock(connection);
 
+<<<<<<< HEAD
 	crypto_free_ahash(connection->csums_tfm);
 	crypto_free_ahash(connection->verify_tfm);
 	crypto_free_shash(connection->cram_hmac_tfm);
 	crypto_free_ahash(connection->integrity_tfm);
 	crypto_free_ahash(connection->peer_integrity_tfm);
+=======
+	crypto_free_shash(connection->csums_tfm);
+	crypto_free_shash(connection->verify_tfm);
+	crypto_free_shash(connection->cram_hmac_tfm);
+	crypto_free_shash(connection->integrity_tfm);
+	crypto_free_shash(connection->peer_integrity_tfm);
+>>>>>>> upstream/android-13
 	kfree(connection->int_dig_in);
 	kfree(connection->int_dig_vv);
 
@@ -2771,7 +2935,10 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 	struct drbd_device *device;
 	struct drbd_peer_device *peer_device, *tmp_peer_device;
 	struct gendisk *disk;
+<<<<<<< HEAD
 	struct request_queue *q;
+=======
+>>>>>>> upstream/android-13
 	int id;
 	int vnr = adm_ctx->volume;
 	enum drbd_ret_code err = ERR_NOMEM;
@@ -2793,6 +2960,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 
 	drbd_init_set_defaults(device);
 
+<<<<<<< HEAD
 	q = blk_alloc_queue_node(GFP_KERNEL, NUMA_NO_NODE, &resource->req_lock);
 	if (!q)
 		goto out_no_q;
@@ -2809,10 +2977,25 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 	disk->queue = q;
 	disk->major = DRBD_MAJOR;
 	disk->first_minor = minor;
+=======
+	disk = blk_alloc_disk(NUMA_NO_NODE);
+	if (!disk)
+		goto out_no_disk;
+
+	device->vdisk = disk;
+	device->rq_queue = disk->queue;
+
+	set_disk_ro(disk, true);
+
+	disk->major = DRBD_MAJOR;
+	disk->first_minor = minor;
+	disk->minors = 1;
+>>>>>>> upstream/android-13
 	disk->fops = &drbd_ops;
 	sprintf(disk->disk_name, "drbd%d", minor);
 	disk->private_data = device;
 
+<<<<<<< HEAD
 	device->this_bdev = bdget(MKDEV(DRBD_MAJOR, minor));
 	/* we have no partitions. we contain only ourselves. */
 	device->this_bdev->bd_contains = device->this_bdev;
@@ -2825,6 +3008,13 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
 	/* Setting the max_hw_sectors to an odd value of 8kibyte here
 	   This triggers a max_bio_size message upon first attach or connect */
 	blk_queue_max_hw_sectors(q, DRBD_MAX_BIO_SIZE_SAFE >> 8);
+=======
+	blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, disk->queue);
+	blk_queue_write_cache(disk->queue, true, true);
+	/* Setting the max_hw_sectors to an odd value of 8kibyte here
+	   This triggers a max_bio_size message upon first attach or connect */
+	blk_queue_max_hw_sectors(disk->queue, DRBD_MAX_BIO_SIZE_SAFE >> 8);
+>>>>>>> upstream/android-13
 
 	device->md_io.page = alloc_page(GFP_KERNEL);
 	if (!device->md_io.page)
@@ -2913,10 +3103,15 @@ out_no_minor_idr:
 out_no_bitmap:
 	__free_page(device->md_io.page);
 out_no_io_page:
+<<<<<<< HEAD
 	put_disk(disk);
 out_no_disk:
 	blk_cleanup_queue(q);
 out_no_q:
+=======
+	blk_cleanup_disk(disk);
+out_no_disk:
+>>>>>>> upstream/android-13
 	kref_put(&resource->kref, drbd_destroy_resource);
 	kfree(device);
 	return err;
@@ -3002,8 +3197,12 @@ static int __init drbd_init(void)
 	spin_lock_init(&retry.lock);
 	INIT_LIST_HEAD(&retry.writes);
 
+<<<<<<< HEAD
 	if (drbd_debugfs_init())
 		pr_notice("failed to initialize debugfs -- will not be available\n");
+=======
+	drbd_debugfs_init();
+>>>>>>> upstream/android-13
 
 	pr_info("initialized. "
 	       "Version: " REL_VERSION " (api:%d/proto:%d-%d)\n",
@@ -3097,7 +3296,11 @@ void drbd_md_write(struct drbd_device *device, void *b)
 
 	memset(buffer, 0, sizeof(*buffer));
 
+<<<<<<< HEAD
 	buffer->la_size_sect = cpu_to_be64(drbd_get_capacity(device->this_bdev));
+=======
+	buffer->la_size_sect = cpu_to_be64(get_capacity(device->vdisk));
+>>>>>>> upstream/android-13
 	for (i = UI_CURRENT; i < UI_SIZE; i++)
 		buffer->uuid[i] = cpu_to_be64(device->ldev->md.uuid[i]);
 	buffer->flags = cpu_to_be32(device->ldev->md.flags);
@@ -3155,7 +3358,11 @@ void drbd_md_sync(struct drbd_device *device)
 
 	/* Update device->ldev->md.la_size_sect,
 	 * since we updated it on metadata. */
+<<<<<<< HEAD
 	device->ldev->md.la_size_sect = drbd_get_capacity(device->this_bdev);
+=======
+	device->ldev->md.la_size_sect = get_capacity(device->vdisk);
+>>>>>>> upstream/android-13
 
 	drbd_md_put_buffer(device);
 out:
@@ -3407,6 +3614,7 @@ int drbd_md_read(struct drbd_device *device, struct drbd_backing_dev *bdev)
  * the meta-data super block. This function sets MD_DIRTY, and starts a
  * timer that ensures that within five seconds you have to call drbd_md_sync().
  */
+<<<<<<< HEAD
 #ifdef DEBUG
 void drbd_md_mark_dirty_(struct drbd_device *device, unsigned int line, const char *func)
 {
@@ -3417,12 +3625,17 @@ void drbd_md_mark_dirty_(struct drbd_device *device, unsigned int line, const ch
 	}
 }
 #else
+=======
+>>>>>>> upstream/android-13
 void drbd_md_mark_dirty(struct drbd_device *device)
 {
 	if (!test_and_set_bit(MD_DIRTY, &device->flags))
 		mod_timer(&device->md_sync_timer, jiffies + 5*HZ);
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 void drbd_uuid_move_history(struct drbd_device *device) __must_hold(local)
 {
@@ -3596,6 +3809,10 @@ static int w_bitmap_io(struct drbd_work *w, int unused)
  * @io_fn:	IO callback to be called when bitmap IO is possible
  * @done:	callback to be called after the bitmap IO was performed
  * @why:	Descriptive text of the reason for doing the IO
+<<<<<<< HEAD
+=======
+ * @flags:	Bitmap flags
+>>>>>>> upstream/android-13
  *
  * While IO on the bitmap happens we freeze application IO thus we ensure
  * that drbd_set_out_of_sync() can not be called. This function MAY ONLY be
@@ -3641,6 +3858,10 @@ void drbd_queue_bitmap_io(struct drbd_device *device,
  * @device:	DRBD device.
  * @io_fn:	IO callback to be called when bitmap IO is possible
  * @why:	Descriptive text of the reason for doing the IO
+<<<<<<< HEAD
+=======
+ * @flags:	Bitmap flags
+>>>>>>> upstream/android-13
  *
  * freezes application IO while that the actual IO operations runs. This
  * functions MAY NOT be called from worker context.
@@ -3744,7 +3965,10 @@ const char *cmdname(enum drbd_packet cmd)
 		[P_RS_CANCEL]		= "RSCancel",
 		[P_CONN_ST_CHG_REQ]	= "conn_st_chg_req",
 		[P_CONN_ST_CHG_REPLY]	= "conn_st_chg_reply",
+<<<<<<< HEAD
 		[P_RETRY_WRITE]		= "retry_write",
+=======
+>>>>>>> upstream/android-13
 		[P_PROTOCOL_UPDATE]	= "protocol_update",
 		[P_RS_THIN_REQ]         = "rs_thin_req",
 		[P_RS_DEALLOCATED]      = "rs_deallocated",

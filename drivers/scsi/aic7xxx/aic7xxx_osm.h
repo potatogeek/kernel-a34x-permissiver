@@ -258,7 +258,11 @@ struct ahc_linux_device {
 	int			active;
 
 	/*
+<<<<<<< HEAD
 	 * The currently allowed number of 
+=======
+	 * The currently allowed number of
+>>>>>>> upstream/android-13
 	 * transactions that can be queued to
 	 * the device.  Must be signed for
 	 * conversion from tagged to untagged
@@ -272,7 +276,11 @@ struct ahc_linux_device {
 	 * device's queue is halted.
 	 */
 	u_int			qfrozen;
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Cumulative command counter.
 	 */
@@ -351,16 +359,28 @@ struct ahc_platform_data {
 	/*
 	 * Fields accessed from interrupt context.
 	 */
+<<<<<<< HEAD
 	struct scsi_target *starget[AHC_NUM_TARGETS]; 
+=======
+	struct scsi_target *starget[AHC_NUM_TARGETS];
+>>>>>>> upstream/android-13
 
 	spinlock_t		 spin_lock;
 	u_int			 qfrozen;
 	struct completion	*eh_done;
+<<<<<<< HEAD
 	struct Scsi_Host        *host;		/* pointer to scsi host */
 #define AHC_LINUX_NOIRQ	((uint32_t)~0)
 	uint32_t		 irq;		/* IRQ for this adapter */
 	uint32_t		 bios_address;
 	resource_size_t 	 mem_busaddr;	/* Mem Base Addr */
+=======
+	struct Scsi_Host	*host;		/* pointer to scsi host */
+#define AHC_LINUX_NOIRQ	((uint32_t)~0)
+	uint32_t		 irq;		/* IRQ for this adapter */
+	uint32_t		 bios_address;
+	resource_size_t		 mem_busaddr;	/* Mem Base Addr */
+>>>>>>> upstream/android-13
 };
 
 void ahc_delay(long);
@@ -515,6 +535,7 @@ int	ahc_linux_show_info(struct seq_file *, struct Scsi_Host *);
 
 /*************************** Domain Validation ********************************/
 /*********************** Transaction Access Wrappers *************************/
+<<<<<<< HEAD
 static inline void ahc_cmd_set_transaction_status(struct scsi_cmnd *, uint32_t);
 static inline void ahc_set_transaction_status(struct scb *, uint32_t);
 static inline void ahc_cmd_set_scsi_status(struct scsi_cmnd *, uint32_t);
@@ -538,6 +559,8 @@ static inline void ahc_notify_xfer_settings_change(struct ahc_softc *,
 static inline void ahc_platform_scb_free(struct ahc_softc *ahc,
 					   struct scb *scb);
 static inline void ahc_freeze_scb(struct scb *scb);
+=======
+>>>>>>> upstream/android-13
 
 static inline
 void ahc_cmd_set_transaction_status(struct scsi_cmnd *cmd, uint32_t status)
@@ -671,9 +694,15 @@ static inline void
 ahc_freeze_scb(struct scb *scb)
 {
 	if ((scb->io_ctx->result & (CAM_DEV_QFRZN << 16)) == 0) {
+<<<<<<< HEAD
                 scb->io_ctx->result |= CAM_DEV_QFRZN << 16;
                 scb->platform_data->dev->qfrozen++;
         }
+=======
+		scb->io_ctx->result |= CAM_DEV_QFRZN << 16;
+		scb->platform_data->dev->qfrozen++;
+	}
+>>>>>>> upstream/android-13
 }
 
 void	ahc_platform_set_tags(struct ahc_softc *ahc, struct scsi_device *sdev,

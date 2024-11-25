@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Queue read/write lock
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Queue read/write lock
+ *
+>>>>>>> upstream/android-13
  * (C) Copyright 2013-2014 Hewlett-Packard Development Company, L.P.
  *
  * Authors: Waiman Long <waiman.long@hp.com>
@@ -24,6 +31,11 @@
 
 #include <asm-generic/qrwlock_types.h>
 
+<<<<<<< HEAD
+=======
+/* Must be included from asm/spinlock.h after defining arch_spin_is_locked.  */
+
+>>>>>>> upstream/android-13
 /*
  * Writer states & reader shift and bias.
  */
@@ -46,7 +58,11 @@ extern void queued_write_lock_slowpath(struct qrwlock *lock);
  */
 static inline int queued_read_trylock(struct qrwlock *lock)
 {
+<<<<<<< HEAD
 	u32 cnts;
+=======
+	int cnts;
+>>>>>>> upstream/android-13
 
 	cnts = atomic_read(&lock->cnts);
 	if (likely(!(cnts & _QW_WMASK))) {
@@ -65,14 +81,23 @@ static inline int queued_read_trylock(struct qrwlock *lock)
  */
 static inline int queued_write_trylock(struct qrwlock *lock)
 {
+<<<<<<< HEAD
 	u32 cnts;
+=======
+	int cnts;
+>>>>>>> upstream/android-13
 
 	cnts = atomic_read(&lock->cnts);
 	if (unlikely(cnts))
 		return 0;
 
+<<<<<<< HEAD
 	return likely(atomic_cmpxchg_acquire(&lock->cnts,
 					     cnts, cnts | _QW_LOCKED) == cnts);
+=======
+	return likely(atomic_try_cmpxchg_acquire(&lock->cnts, &cnts,
+				_QW_LOCKED));
+>>>>>>> upstream/android-13
 }
 /**
  * queued_read_lock - acquire read lock of a queue rwlock
@@ -80,7 +105,11 @@ static inline int queued_write_trylock(struct qrwlock *lock)
  */
 static inline void queued_read_lock(struct qrwlock *lock)
 {
+<<<<<<< HEAD
 	u32 cnts;
+=======
+	int cnts;
+>>>>>>> upstream/android-13
 
 	cnts = atomic_add_return_acquire(_QR_BIAS, &lock->cnts);
 	if (likely(!(cnts & _QW_WMASK)))
@@ -96,8 +125,14 @@ static inline void queued_read_lock(struct qrwlock *lock)
  */
 static inline void queued_write_lock(struct qrwlock *lock)
 {
+<<<<<<< HEAD
 	/* Optimize for the unfair lock case where the fair flag is 0. */
 	if (atomic_cmpxchg_acquire(&lock->cnts, 0, _QW_LOCKED) == 0)
+=======
+	int cnts = 0;
+	/* Optimize for the unfair lock case where the fair flag is 0. */
+	if (likely(atomic_try_cmpxchg_acquire(&lock->cnts, &cnts, _QW_LOCKED)))
+>>>>>>> upstream/android-13
 		return;
 
 	queued_write_lock_slowpath(lock);
@@ -124,15 +159,38 @@ static inline void queued_write_unlock(struct qrwlock *lock)
 	smp_store_release(&lock->wlocked, 0);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * queued_rwlock_is_contended - check if the lock is contended
+ * @lock : Pointer to queue rwlock structure
+ * Return: 1 if lock contended, 0 otherwise
+ */
+static inline int queued_rwlock_is_contended(struct qrwlock *lock)
+{
+	return arch_spin_is_locked(&lock->wait_lock);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Remapping rwlock architecture specific functions to the corresponding
  * queue rwlock functions.
  */
+<<<<<<< HEAD
 #define arch_read_lock(l)	queued_read_lock(l)
 #define arch_write_lock(l)	queued_write_lock(l)
 #define arch_read_trylock(l)	queued_read_trylock(l)
 #define arch_write_trylock(l)	queued_write_trylock(l)
 #define arch_read_unlock(l)	queued_read_unlock(l)
 #define arch_write_unlock(l)	queued_write_unlock(l)
+=======
+#define arch_read_lock(l)		queued_read_lock(l)
+#define arch_write_lock(l)		queued_write_lock(l)
+#define arch_read_trylock(l)		queued_read_trylock(l)
+#define arch_write_trylock(l)		queued_write_trylock(l)
+#define arch_read_unlock(l)		queued_read_unlock(l)
+#define arch_write_unlock(l)		queued_write_unlock(l)
+#define arch_rwlock_is_contended(l)	queued_rwlock_is_contended(l)
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_GENERIC_QRWLOCK_H */

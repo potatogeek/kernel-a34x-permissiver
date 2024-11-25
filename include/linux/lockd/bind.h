@@ -27,7 +27,12 @@ struct rpc_task;
 struct nlmsvc_binding {
 	__be32			(*fopen)(struct svc_rqst *,
 						struct nfs_fh *,
+<<<<<<< HEAD
 						struct file **);
+=======
+						struct file **,
+						int mode);
+>>>>>>> upstream/android-13
 	void			(*fclose)(struct file *);
 };
 
@@ -46,6 +51,10 @@ struct nlmclnt_initdata {
 	int			noresvport;
 	struct net		*net;
 	const struct nlmclnt_operations	*nlmclnt_ops;
+<<<<<<< HEAD
+=======
+	const struct cred	*cred;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -75,7 +84,11 @@ struct nlmclnt_operations {
 };
 
 extern int	nlmclnt_proc(struct nlm_host *host, int cmd, struct file_lock *fl, void *data);
+<<<<<<< HEAD
 extern int	lockd_up(struct net *net);
+=======
+extern int	lockd_up(struct net *net, const struct cred *cred);
+>>>>>>> upstream/android-13
 extern void	lockd_down(struct net *net);
 
 #endif /* LINUX_LOCKD_BIND_H */

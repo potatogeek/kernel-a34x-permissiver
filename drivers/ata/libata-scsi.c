@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  libata-scsi.c - helper library for ATA
  *
@@ -24,15 +25,30 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  libata-scsi.c - helper library for ATA
+ *
+ *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
+ *  Copyright 2003-2004 Jeff Garzik
+ *
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Hardware documentation available from
  *  - http://www.t10.org/
  *  - http://www.t13.org/
+<<<<<<< HEAD
  *
  */
 
+=======
+ */
+
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/kernel.h>
 #include <linux/blkdev.h>
@@ -51,11 +67,19 @@
 #include <linux/suspend.h>
 #include <asm/unaligned.h>
 #include <linux/ioprio.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 
 #include "libata.h"
 #include "libata-transport.h"
 
+<<<<<<< HEAD
 #define ATA_SCSI_RBUF_SIZE	4096
+=======
+#define ATA_SCSI_RBUF_SIZE	576
+>>>>>>> upstream/android-13
 
 static DEFINE_SPINLOCK(ata_scsi_rbuf_lock);
 static u8 ata_scsi_rbuf[ATA_SCSI_RBUF_SIZE];
@@ -64,8 +88,11 @@ typedef unsigned int (*ata_xlat_func_t)(struct ata_queued_cmd *qc);
 
 static struct ata_device *__ata_scsi_find_dev(struct ata_port *ap,
 					const struct scsi_device *scsidev);
+<<<<<<< HEAD
 static struct ata_device *ata_scsi_find_dev(struct ata_port *ap,
 					    const struct scsi_device *scsidev);
+=======
+>>>>>>> upstream/android-13
 
 #define RW_RECOVERY_MPAGE 0x1
 #define RW_RECOVERY_MPAGE_LEN 12
@@ -105,6 +132,7 @@ static const u8 def_control_mpage[CONTROL_MPAGE_LEN] = {
 	0, 30	/* extended self test time, see 05-359r1 */
 };
 
+<<<<<<< HEAD
 static const char *ata_lpm_policy_names[] = {
 	[ATA_LPM_UNKNOWN]		= "max_performance",
 	[ATA_LPM_MAX_POWER]		= "max_performance",
@@ -170,6 +198,8 @@ DEVICE_ATTR(link_power_management_policy, S_IRUGO | S_IWUSR,
 	    ata_scsi_lpm_show, ata_scsi_lpm_store);
 EXPORT_SYMBOL_GPL(dev_attr_link_power_management_policy);
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t ata_scsi_park_show(struct device *device,
 				  struct device_attribute *attr, char *buf)
 {
@@ -178,7 +208,11 @@ static ssize_t ata_scsi_park_show(struct device *device,
 	struct ata_link *link;
 	struct ata_device *dev;
 	unsigned long now;
+<<<<<<< HEAD
 	unsigned int uninitialized_var(msecs);
+=======
+	unsigned int msecs;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	ap = ata_shost_to_port(sdev->host);
@@ -273,6 +307,7 @@ DEVICE_ATTR(unload_heads, S_IRUGO | S_IWUSR,
 	    ata_scsi_park_show, ata_scsi_park_store);
 EXPORT_SYMBOL_GPL(dev_attr_unload_heads);
 
+<<<<<<< HEAD
 static ssize_t ata_ncq_prio_enable_show(struct device *device,
 					struct device_attribute *attr,
 					char *buf)
@@ -350,6 +385,8 @@ DEVICE_ATTR(ncq_prio_enable, S_IRUGO | S_IWUSR,
 	    ata_ncq_prio_enable_show, ata_ncq_prio_enable_store);
 EXPORT_SYMBOL_GPL(dev_attr_ncq_prio_enable);
 
+=======
+>>>>>>> upstream/android-13
 void ata_scsi_set_sense(struct ata_device *dev, struct scsi_cmnd *cmd,
 			u8 sk, u8 asc, u8 ascq)
 {
@@ -358,9 +395,13 @@ void ata_scsi_set_sense(struct ata_device *dev, struct scsi_cmnd *cmd,
 	if (!cmd)
 		return;
 
+<<<<<<< HEAD
 	cmd->result = (DRIVER_SENSE << 24) | SAM_STAT_CHECK_CONDITION;
 
 	scsi_build_sense_buffer(d_sense, cmd->sense_buffer, sk, asc, ascq);
+=======
+	scsi_build_sense(cmd, d_sense, sk, asc, ascq);
+>>>>>>> upstream/android-13
 }
 
 void ata_scsi_set_sense_information(struct ata_device *dev,
@@ -398,6 +439,7 @@ static void ata_scsi_set_invalid_parameter(struct ata_device *dev,
 				     field, 0xff, 0);
 }
 
+<<<<<<< HEAD
 static ssize_t
 ata_scsi_em_message_store(struct device *dev, struct device_attribute *attr,
 			  const char *buf, size_t count)
@@ -482,6 +524,10 @@ EXPORT_SYMBOL_GPL(dev_attr_sw_activity);
 struct device_attribute *ata_common_sdev_attrs[] = {
 	&dev_attr_unload_heads,
 	&dev_attr_ncq_prio_enable,
+=======
+struct device_attribute *ata_common_sdev_attrs[] = {
+	&dev_attr_unload_heads,
+>>>>>>> upstream/android-13
 	NULL
 };
 EXPORT_SYMBOL_GPL(ata_common_sdev_attrs);
@@ -514,6 +560,10 @@ int ata_std_bios_param(struct scsi_device *sdev, struct block_device *bdev,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_std_bios_param);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_scsi_unlock_native_capacity - unlock native capacity
@@ -543,6 +593,10 @@ void ata_scsi_unlock_native_capacity(struct scsi_device *sdev)
 	spin_unlock_irqrestore(ap->lock, flags);
 	ata_port_wait_eh(ap);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_scsi_unlock_native_capacity);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_get_identity - Handler for HDIO_GET_IDENTITY ioctl
@@ -639,8 +693,13 @@ int ata_cmd_ioctl(struct scsi_device *scsidev, void __user *arg)
 	if (args[0] == ATA_CMD_SMART) { /* hack -- ide driver does this too */
 		scsi_cmd[6]  = args[3];
 		scsi_cmd[8]  = args[1];
+<<<<<<< HEAD
 		scsi_cmd[10] = 0x4f;
 		scsi_cmd[12] = 0xc2;
+=======
+		scsi_cmd[10] = ATA_SMART_LBAM_PASS;
+		scsi_cmd[12] = ATA_SMART_LBAH_PASS;
+>>>>>>> upstream/android-13
 	} else {
 		scsi_cmd[6]  = args[1];
 	}
@@ -651,6 +710,7 @@ int ata_cmd_ioctl(struct scsi_device *scsidev, void __user *arg)
 	cmd_result = scsi_execute(scsidev, scsi_cmd, data_dir, argbuf, argsize,
 				  sensebuf, &sshdr, (10*HZ), 5, 0, 0, NULL);
 
+<<<<<<< HEAD
 	if (driver_byte(cmd_result) == DRIVER_SENSE) {/* sense data available */
 		u8 *desc = sensebuf + 8;
 		cmd_result &= ~(0xFF<<24); /* DRIVER_SENSE is not an error */
@@ -658,6 +718,18 @@ int ata_cmd_ioctl(struct scsi_device *scsidev, void __user *arg)
 		/* If we set cc then ATA pass-through will cause a
 		 * check condition even if no error. Filter that. */
 		if (cmd_result & SAM_STAT_CHECK_CONDITION) {
+=======
+	if (cmd_result < 0) {
+		rc = cmd_result;
+		goto error;
+	}
+	if (scsi_sense_valid(&sshdr)) {/* sense data available */
+		u8 *desc = sensebuf + 8;
+
+		/* If we set cc then ATA pass-through will cause a
+		 * check condition even if no error. Filter that. */
+		if (scsi_status_is_check_condition(cmd_result)) {
+>>>>>>> upstream/android-13
 			if (sshdr.sense_key == RECOVERED_ERROR &&
 			    sshdr.asc == 0 && sshdr.ascq == 0x1d)
 				cmd_result &= ~SAM_STAT_CHECK_CONDITION;
@@ -732,9 +804,18 @@ int ata_task_ioctl(struct scsi_device *scsidev, void __user *arg)
 	cmd_result = scsi_execute(scsidev, scsi_cmd, DMA_NONE, NULL, 0,
 				sensebuf, &sshdr, (10*HZ), 5, 0, 0, NULL);
 
+<<<<<<< HEAD
 	if (driver_byte(cmd_result) == DRIVER_SENSE) {/* sense data available */
 		u8 *desc = sensebuf + 8;
 		cmd_result &= ~(0xFF<<24); /* DRIVER_SENSE is not an error */
+=======
+	if (cmd_result < 0) {
+		rc = cmd_result;
+		goto error;
+	}
+	if (scsi_sense_valid(&sshdr)) {/* sense data available */
+		u8 *desc = sensebuf + 8;
+>>>>>>> upstream/android-13
 
 		/* If we set cc then ATA pass-through will cause a
 		 * check condition even if no error. Filter that. */
@@ -777,8 +858,17 @@ static int ata_ioc32(struct ata_port *ap)
 	return 0;
 }
 
+<<<<<<< HEAD
 int ata_sas_scsi_ioctl(struct ata_port *ap, struct scsi_device *scsidev,
 		     int cmd, void __user *arg)
+=======
+/*
+ * This handles both native and compat commands, so anything added
+ * here must have a compatible argument, or check in_compat_syscall()
+ */
+int ata_sas_scsi_ioctl(struct ata_port *ap, struct scsi_device *scsidev,
+		     unsigned int cmd, void __user *arg)
+>>>>>>> upstream/android-13
 {
 	unsigned long val;
 	int rc = -EINVAL;
@@ -789,6 +879,13 @@ int ata_sas_scsi_ioctl(struct ata_port *ap, struct scsi_device *scsidev,
 		spin_lock_irqsave(ap->lock, flags);
 		val = ata_ioc32(ap);
 		spin_unlock_irqrestore(ap->lock, flags);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+		if (in_compat_syscall())
+			return put_user(val, (compat_ulong_t __user *)arg);
+#endif
+>>>>>>> upstream/android-13
 		return put_user(val, (unsigned long __user *)arg);
 
 	case HDIO_SET_32BIT:
@@ -829,7 +926,12 @@ int ata_sas_scsi_ioctl(struct ata_port *ap, struct scsi_device *scsidev,
 }
 EXPORT_SYMBOL_GPL(ata_sas_scsi_ioctl);
 
+<<<<<<< HEAD
 int ata_scsi_ioctl(struct scsi_device *scsidev, int cmd, void __user *arg)
+=======
+int ata_scsi_ioctl(struct scsi_device *scsidev, unsigned int cmd,
+		   void __user *arg)
+>>>>>>> upstream/android-13
 {
 	return ata_sas_scsi_ioctl(ata_shost_to_port(scsidev->host),
 				scsidev, cmd, arg);
@@ -860,7 +962,11 @@ static struct ata_queued_cmd *ata_scsi_qc_new(struct ata_device *dev,
 {
 	struct ata_queued_cmd *qc;
 
+<<<<<<< HEAD
 	qc = ata_qc_new_init(dev, cmd->request->tag);
+=======
+	qc = ata_qc_new_init(dev, scsi_cmd_to_rq(cmd)->tag);
+>>>>>>> upstream/android-13
 	if (qc) {
 		qc->scsicmd = cmd;
 		qc->scsidone = cmd->scsi_done;
@@ -868,10 +974,17 @@ static struct ata_queued_cmd *ata_scsi_qc_new(struct ata_device *dev,
 		qc->sg = scsi_sglist(cmd);
 		qc->n_elem = scsi_sg_count(cmd);
 
+<<<<<<< HEAD
 		if (cmd->request->rq_flags & RQF_QUIET)
 			qc->flags |= ATA_QCFLAG_QUIET;
 	} else {
 		cmd->result = (DID_OK << 16) | (QUEUE_FULL << 1);
+=======
+		if (scsi_cmd_to_rq(cmd)->rq_flags & RQF_QUIET)
+			qc->flags |= ATA_QCFLAG_QUIET;
+	} else {
+		cmd->result = (DID_OK << 16) | SAM_STAT_TASK_SET_FULL;
+>>>>>>> upstream/android-13
 		cmd->scsi_done(cmd);
 	}
 
@@ -882,7 +995,11 @@ static void ata_qc_set_pc_nbytes(struct ata_queued_cmd *qc)
 {
 	struct scsi_cmnd *scmd = qc->scsicmd;
 
+<<<<<<< HEAD
 	qc->extrabytes = scmd->request->extra_len;
+=======
+	qc->extrabytes = scmd->extra_len;
+>>>>>>> upstream/android-13
 	qc->nbytes = scsi_bufflen(scmd) + qc->extrabytes;
 }
 
@@ -1091,8 +1208,11 @@ static void ata_gen_passthru_sense(struct ata_queued_cmd *qc)
 
 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
 
+<<<<<<< HEAD
 	cmd->result = (DRIVER_SENSE << 24) | SAM_STAT_CHECK_CONDITION;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Use ata_to_sense_error() to map status register bits
 	 * onto sense key, asc & ascq.
@@ -1107,8 +1227,12 @@ static void ata_gen_passthru_sense(struct ata_queued_cmd *qc)
 		 * ATA PASS-THROUGH INFORMATION AVAILABLE
 		 * Always in descriptor format sense.
 		 */
+<<<<<<< HEAD
 		scsi_build_sense_buffer(1, cmd->sense_buffer,
 					RECOVERED_ERROR, 0, 0x1D);
+=======
+		scsi_build_sense(cmd, 1, RECOVERED_ERROR, 0, 0x1D);
+>>>>>>> upstream/android-13
 	}
 
 	if ((cmd->sense_buffer[0] & 0x7f) >= 0x72) {
@@ -1190,8 +1314,11 @@ static void ata_gen_ata_sense(struct ata_queued_cmd *qc)
 
 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
 
+<<<<<<< HEAD
 	cmd->result = (DRIVER_SENSE << 24) | SAM_STAT_CHECK_CONDITION;
 
+=======
+>>>>>>> upstream/android-13
 	if (ata_dev_disabled(dev)) {
 		/* Device disabled after error recovery */
 		/* LOGICAL UNIT NOT READY, HARD RESET REQUIRED */
@@ -1221,7 +1348,11 @@ static void ata_gen_ata_sense(struct ata_queued_cmd *qc)
 	scsi_set_sense_information(sb, SCSI_SENSE_BUFFERSIZE, block);
 }
 
+<<<<<<< HEAD
 static void ata_scsi_sdev_config(struct scsi_device *sdev)
+=======
+void ata_scsi_sdev_config(struct scsi_device *sdev)
+>>>>>>> upstream/android-13
 {
 	sdev->use_10_for_rw = 1;
 	sdev->use_10_for_ms = 1;
@@ -1236,7 +1367,11 @@ static void ata_scsi_sdev_config(struct scsi_device *sdev)
 }
 
 /**
+<<<<<<< HEAD
  *	atapi_drain_needed - Check whether data transfer may overflow
+=======
+ *	ata_scsi_dma_need_drain - Check whether data transfer may overflow
+>>>>>>> upstream/android-13
  *	@rq: request to be checked
  *
  *	ATAPI commands which transfer variable length data to host
@@ -1250,6 +1385,7 @@ static void ata_scsi_sdev_config(struct scsi_device *sdev)
  *	RETURNS:
  *	1 if ; otherwise, 0.
  */
+<<<<<<< HEAD
 static int atapi_drain_needed(struct request *rq)
 {
 	if (likely(!blk_rq_is_passthrough(rq)))
@@ -1263,6 +1399,15 @@ static int atapi_drain_needed(struct request *rq)
 
 static int ata_scsi_dev_config(struct scsi_device *sdev,
 			       struct ata_device *dev)
+=======
+bool ata_scsi_dma_need_drain(struct request *rq)
+{
+	return atapi_cmd_type(scsi_req(rq)->cmd[0]) == ATAPI_MISC;
+}
+EXPORT_SYMBOL_GPL(ata_scsi_dma_need_drain);
+
+int ata_scsi_dev_config(struct scsi_device *sdev, struct ata_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct request_queue *q = sdev->request_queue;
 
@@ -1273,13 +1418,17 @@ static int ata_scsi_dev_config(struct scsi_device *sdev,
 	blk_queue_max_hw_sectors(q, dev->max_sectors);
 
 	if (dev->class == ATA_DEV_ATAPI) {
+<<<<<<< HEAD
 		void *buf;
 
+=======
+>>>>>>> upstream/android-13
 		sdev->sector_size = ATA_SECT_SIZE;
 
 		/* set DMA padding */
 		blk_queue_update_dma_pad(q, ATA_DMA_PAD_SZ - 1);
 
+<<<<<<< HEAD
 		/* configure draining */
 		buf = kmalloc(ATAPI_MAX_DRAIN, q->bounce_gfp | GFP_KERNEL);
 		if (!buf) {
@@ -1288,6 +1437,17 @@ static int ata_scsi_dev_config(struct scsi_device *sdev,
 		}
 
 		blk_queue_dma_drain(q, atapi_drain_needed, buf, ATAPI_MAX_DRAIN);
+=======
+		/* make room for appending the drain */
+		blk_queue_max_segments(q, queue_max_segments(q) - 1);
+
+		sdev->dma_drain_len = ATAPI_MAX_DRAIN;
+		sdev->dma_drain_buf = kmalloc(sdev->dma_drain_len, GFP_NOIO);
+		if (!sdev->dma_drain_buf) {
+			ata_dev_err(dev, "drain buffer allocation failed\n");
+			return -ENOMEM;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		sdev->sector_size = ata_id_logical_sector_size(dev->id);
 		sdev->manage_start_stop = 1;
@@ -1318,8 +1478,11 @@ static int ata_scsi_dev_config(struct scsi_device *sdev,
 		scsi_change_queue_depth(sdev, depth);
 	}
 
+<<<<<<< HEAD
 	blk_queue_flush_queueable(q, false);
 
+=======
+>>>>>>> upstream/android-13
 	if (dev->flags & ATA_DFLAG_TRUSTED)
 		sdev->security_supported = 1;
 
@@ -1352,6 +1515,10 @@ int ata_scsi_slave_config(struct scsi_device *sdev)
 
 	return rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_scsi_slave_config);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_scsi_slave_destroy - SCSI device is about to be destroyed
@@ -1370,7 +1537,10 @@ int ata_scsi_slave_config(struct scsi_device *sdev)
 void ata_scsi_slave_destroy(struct scsi_device *sdev)
 {
 	struct ata_port *ap = ata_shost_to_port(sdev->host);
+<<<<<<< HEAD
 	struct request_queue *q = sdev->request_queue;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct ata_device *dev;
 
@@ -1387,6 +1557,7 @@ void ata_scsi_slave_destroy(struct scsi_device *sdev)
 	}
 	spin_unlock_irqrestore(ap->lock, flags);
 
+<<<<<<< HEAD
 	kfree(q->dma_drain_buffer);
 	q->dma_drain_buffer = NULL;
 	q->dma_drain_size = 0;
@@ -1456,6 +1627,11 @@ int ata_scsi_change_queue_depth(struct scsi_device *sdev, int queue_depth)
 
 	return __ata_change_queue_depth(ap, sdev, queue_depth);
 }
+=======
+	kfree(sdev->dma_drain_buf);
+}
+EXPORT_SYMBOL_GPL(ata_scsi_slave_destroy);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_scsi_start_stop_xlat - Translate SCSI START STOP UNIT command
@@ -1805,7 +1981,11 @@ nothing_to_do:
 
 static bool ata_check_nblocks(struct scsi_cmnd *scmd, u32 n_blocks)
 {
+<<<<<<< HEAD
 	struct request *rq = scmd->request;
+=======
+	struct request *rq = scsi_cmd_to_rq(scmd);
+>>>>>>> upstream/android-13
 	u32 req_blocks;
 
 	if (!blk_rq_is_passthrough(rq))
@@ -1840,7 +2020,11 @@ static unsigned int ata_scsi_rw_xlat(struct ata_queued_cmd *qc)
 {
 	struct scsi_cmnd *scmd = qc->scsicmd;
 	const u8 *cdb = scmd->cmnd;
+<<<<<<< HEAD
 	struct request *rq = scmd->request;
+=======
+	struct request *rq = scsi_cmd_to_rq(scmd);
+>>>>>>> upstream/android-13
 	int class = IOPRIO_PRIO_CLASS(req_get_ioprio(rq));
 	unsigned int tf_flags = 0;
 	u64 block;
@@ -2075,6 +2259,7 @@ struct ata_scsi_args {
 };
 
 /**
+<<<<<<< HEAD
  *	ata_scsi_rbuf_get - Map response buffer.
  *	@cmd: SCSI command containing buffer to be mapped.
  *	@flags: unsigned long variable to store irq enable status
@@ -2122,6 +2307,8 @@ static inline void ata_scsi_rbuf_put(struct scsi_cmnd *cmd, bool copy_out,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	ata_scsi_rbuf_fill - wrapper for SCSI command simulators
  *	@args: device IDENTIFY data / SCSI command of interest.
  *	@actor: Callback hook for desired SCSI command simulator
@@ -2139,14 +2326,29 @@ static inline void ata_scsi_rbuf_put(struct scsi_cmnd *cmd, bool copy_out,
 static void ata_scsi_rbuf_fill(struct ata_scsi_args *args,
 		unsigned int (*actor)(struct ata_scsi_args *args, u8 *rbuf))
 {
+<<<<<<< HEAD
 	u8 *rbuf;
+=======
+>>>>>>> upstream/android-13
 	unsigned int rc;
 	struct scsi_cmnd *cmd = args->cmd;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	rbuf = ata_scsi_rbuf_get(cmd, false, &flags);
 	rc = actor(args, rbuf);
 	ata_scsi_rbuf_put(cmd, rc == 0, &flags);
+=======
+	spin_lock_irqsave(&ata_scsi_rbuf_lock, flags);
+
+	memset(ata_scsi_rbuf, 0, ATA_SCSI_RBUF_SIZE);
+	rc = actor(args, ata_scsi_rbuf);
+	if (rc == 0)
+		sg_copy_from_buffer(scsi_sglist(cmd), scsi_sg_count(cmd),
+				    ata_scsi_rbuf, ATA_SCSI_RBUF_SIZE);
+
+	spin_unlock_irqrestore(&ata_scsi_rbuf_lock, flags);
+>>>>>>> upstream/android-13
 
 	if (rc == 0)
 		cmd->result = SAM_STAT_GOOD;
@@ -2362,10 +2564,13 @@ static unsigned int ata_scsiop_inq_83(struct ata_scsi_args *args, u8 *rbuf)
  */
 static unsigned int ata_scsiop_inq_89(struct ata_scsi_args *args, u8 *rbuf)
 {
+<<<<<<< HEAD
 	struct ata_taskfile tf;
 
 	memset(&tf, 0, sizeof(tf));
 
+=======
+>>>>>>> upstream/android-13
 	rbuf[1] = 0x89;			/* our page code */
 	rbuf[2] = (0x238 >> 8);		/* page size fixed at 238h */
 	rbuf[3] = (0x238 & 0xff);
@@ -2374,6 +2579,7 @@ static unsigned int ata_scsiop_inq_89(struct ata_scsi_args *args, u8 *rbuf)
 	memcpy(&rbuf[16], "libata          ", 16);
 	memcpy(&rbuf[32], DRV_VERSION, 4);
 
+<<<<<<< HEAD
 	/* we don't store the ATA device signature, so we fake it */
 
 	tf.command = ATA_DRDY;		/* really, this is Status reg */
@@ -2382,6 +2588,16 @@ static unsigned int ata_scsiop_inq_89(struct ata_scsi_args *args, u8 *rbuf)
 
 	ata_tf_to_fis(&tf, 0, 1, &rbuf[36]);	/* TODO: PMP? */
 	rbuf[36] = 0x34;		/* force D2H Reg FIS (34h) */
+=======
+	rbuf[36] = 0x34;		/* force D2H Reg FIS (34h) */
+	rbuf[37] = (1 << 7);		/* bit 7 indicates Command FIS */
+					/* TODO: PMP? */
+
+	/* we don't store the ATA device signature, so we fake it */
+	rbuf[38] = ATA_DRDY;		/* really, this is Status reg */
+	rbuf[40] = 0x1;
+	rbuf[48] = 0x1;
+>>>>>>> upstream/android-13
 
 	rbuf[56] = ATA_CMD_ID_ATA;
 
@@ -3017,7 +3233,11 @@ static unsigned int atapi_xlat(struct ata_queued_cmd *qc)
 	 * This inconsistency confuses several controllers which
 	 * perform PIO using DMA such as Intel AHCIs and sil3124/32.
 	 * These controllers use actual number of transferred bytes to
+<<<<<<< HEAD
 	 * update DMA poitner and transfer of 4n+2 bytes make those
+=======
+	 * update DMA pointer and transfer of 4n+2 bytes make those
+>>>>>>> upstream/android-13
 	 * controller push DMA pointer by 4n+4 bytes because SATA data
 	 * FISes are aligned to 4 bytes.  This causes data corruption
 	 * and buffer overrun.
@@ -3103,7 +3323,11 @@ static struct ata_device *__ata_scsi_find_dev(struct ata_port *ap,
  *	RETURNS:
  *	Associated ATA device, or %NULL if not found.
  */
+<<<<<<< HEAD
 static struct ata_device *
+=======
+struct ata_device *
+>>>>>>> upstream/android-13
 ata_scsi_find_dev(struct ata_port *ap, const struct scsi_device *scsidev)
 {
 	struct ata_device *dev = __ata_scsi_find_dev(ap, scsidev);
@@ -3181,8 +3405,24 @@ static unsigned int ata_scsi_pass_thru(struct ata_queued_cmd *qc)
 		goto invalid_fld;
 	}
 
+<<<<<<< HEAD
 	if (ata_is_ncq(tf->protocol) && (cdb[2 + cdb_offset] & 0x3) == 0)
 		tf->protocol = ATA_PROT_NCQ_NODATA;
+=======
+	if ((cdb[2 + cdb_offset] & 0x3) == 0) {
+		/*
+		 * When T_LENGTH is zero (No data is transferred), dir should
+		 * be DMA_NONE.
+		 */
+		if (scmd->sc_data_direction != DMA_NONE) {
+			fp = 2 + cdb_offset;
+			goto invalid_fld;
+		}
+
+		if (ata_is_ncq(tf->protocol))
+			tf->protocol = ATA_PROT_NCQ_NODATA;
+	}
+>>>>>>> upstream/android-13
 
 	/* enable LBA */
 	tf->flags |= ATA_TFLAG_LBA;
@@ -3494,7 +3734,11 @@ static unsigned int ata_scsi_write_same_xlat(struct ata_queued_cmd *qc)
 	 * as it modifies the DATA OUT buffer, which would corrupt user
 	 * memory for SG_IO commands.
 	 */
+<<<<<<< HEAD
 	if (unlikely(blk_rq_is_passthrough(scmd->request)))
+=======
+	if (unlikely(blk_rq_is_passthrough(scsi_cmd_to_rq(scmd))))
+>>>>>>> upstream/android-13
 		goto invalid_opcode;
 
 	if (unlikely(scmd->cmd_len < 16)) {
@@ -4316,8 +4560,12 @@ static inline ata_xlat_func_t ata_get_xlat_func(struct ata_device *dev, u8 cmd)
  *	Prints the contents of a SCSI command via printk().
  */
 
+<<<<<<< HEAD
 static inline void ata_scsi_dump_cdb(struct ata_port *ap,
 				     struct scsi_cmnd *cmd)
+=======
+void ata_scsi_dump_cdb(struct ata_port *ap, struct scsi_cmnd *cmd)
+>>>>>>> upstream/android-13
 {
 #ifdef ATA_VERBOSE_DEBUG
 	struct scsi_device *scsidev = cmd->device;
@@ -4329,8 +4577,12 @@ static inline void ata_scsi_dump_cdb(struct ata_port *ap,
 #endif
 }
 
+<<<<<<< HEAD
 static inline int __ata_scsi_queuecmd(struct scsi_cmnd *scmd,
 				      struct ata_device *dev)
+=======
+int __ata_scsi_queuecmd(struct scsi_cmnd *scmd, struct ata_device *dev)
+>>>>>>> upstream/android-13
 {
 	u8 scsi_op = scmd->cmnd[0];
 	ata_xlat_func_t xlat_func;
@@ -4424,6 +4676,10 @@ int ata_scsi_queuecmd(struct Scsi_Host *shost, struct scsi_cmnd *cmd)
 
 	return rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_scsi_queuecmd);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_scsi_simulate - simulate SCSI command on ATA device
@@ -4480,7 +4736,11 @@ void ata_scsi_simulate(struct ata_device *dev, struct scsi_cmnd *cmd)
 				ata_scsi_rbuf_fill(&args, ata_scsiop_inq_b6);
 				break;
 			}
+<<<<<<< HEAD
 			/* Fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			ata_scsi_set_invalid_field(dev, cmd, 2, 0xff);
 			break;
@@ -4509,14 +4769,21 @@ void ata_scsi_simulate(struct ata_device *dev, struct scsi_cmnd *cmd)
 
 	case REQUEST_SENSE:
 		ata_scsi_set_sense(dev, cmd, 0, 0, 0);
+<<<<<<< HEAD
 		cmd->result = (DRIVER_SENSE << 24);
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	/* if we reach this, then writeback caching is disabled,
 	 * turning this into a no-op.
 	 */
 	case SYNCHRONIZE_CACHE:
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/* no-op's, complete with success */
 	case REZERO_UNIT:
@@ -4596,6 +4863,37 @@ int ata_scsi_add_hosts(struct ata_host *host, struct scsi_host_template *sht)
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OF
+static void ata_scsi_assign_ofnode(struct ata_device *dev, struct ata_port *ap)
+{
+	struct scsi_device *sdev = dev->sdev;
+	struct device *d = ap->host->dev;
+	struct device_node *np = d->of_node;
+	struct device_node *child;
+
+	for_each_available_child_of_node(np, child) {
+		int ret;
+		u32 val;
+
+		ret = of_property_read_u32(child, "reg", &val);
+		if (ret)
+			continue;
+		if (val == dev->devno) {
+			dev_dbg(d, "found matching device node\n");
+			sdev->sdev_gendev.of_node = child;
+			return;
+		}
+	}
+}
+#else
+static void ata_scsi_assign_ofnode(struct ata_device *dev, struct ata_port *ap)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 void ata_scsi_scan_host(struct ata_port *ap, int sync)
 {
 	int tries = 5;
@@ -4621,6 +4919,10 @@ void ata_scsi_scan_host(struct ata_port *ap, int sync)
 						 NULL);
 			if (!IS_ERR(sdev)) {
 				dev->sdev = sdev;
+<<<<<<< HEAD
+=======
+				ata_scsi_assign_ofnode(dev, ap);
+>>>>>>> upstream/android-13
 				scsi_device_put(sdev);
 			} else {
 				dev->sdev = NULL;
@@ -4814,6 +5116,7 @@ void ata_scsi_hotplug(struct work_struct *work)
 		return;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * XXX - UGLY HACK
 	 *
@@ -4835,6 +5138,8 @@ void ata_scsi_hotplug(struct work_struct *work)
 		msleep(10);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	DPRINTK("ENTER\n");
 	mutex_lock(&ap->scsi_scan_mutex);
 
@@ -4964,6 +5269,7 @@ void ata_scsi_dev_rescan(struct work_struct *work)
 	spin_unlock_irqrestore(ap->lock, flags);
 	mutex_unlock(&ap->scsi_scan_mutex);
 }
+<<<<<<< HEAD
 
 /**
  *	ata_sas_port_alloc - Allocate port for a SAS attached SATA device
@@ -5175,3 +5481,5 @@ void ata_sas_free_tag(unsigned int tag, struct ata_port *ap)
 {
 	clear_bit(tag, &ap->sas_tag_allocated);
 }
+=======
+>>>>>>> upstream/android-13

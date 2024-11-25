@@ -13,7 +13,10 @@
  * estatus: memory buffer for error status block, allocated during
  * HEST parsing.
  */
+<<<<<<< HEAD
 #define GHES_TO_CLEAR		0x0001
+=======
+>>>>>>> upstream/android-13
 #define GHES_EXITING		0x0002
 
 struct ghes {
@@ -22,7 +25,10 @@ struct ghes {
 		struct acpi_hest_generic_v2 *generic_v2;
 	};
 	struct acpi_hest_generic_status *estatus;
+<<<<<<< HEAD
 	u64 buffer_paddr;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	union {
 		struct list_head list;
@@ -35,6 +41,12 @@ struct ghes_estatus_node {
 	struct llist_node llnode;
 	struct acpi_hest_generic *generic;
 	struct ghes *ghes;
+<<<<<<< HEAD
+=======
+
+	int task_work_cpu;
+	struct callback_head task_work;
+>>>>>>> upstream/android-13
 };
 
 struct ghes_estatus_cache {
@@ -52,6 +64,29 @@ enum {
 	GHES_SEV_PANIC = 0x3,
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI_APEI_GHES
+/**
+ * ghes_register_vendor_record_notifier - register a notifier for vendor
+ * records that the kernel would otherwise ignore.
+ * @nb: pointer to the notifier_block structure of the event handler.
+ *
+ * return 0 : SUCCESS, non-zero : FAIL
+ */
+int ghes_register_vendor_record_notifier(struct notifier_block *nb);
+
+/**
+ * ghes_unregister_vendor_record_notifier - unregister the previously
+ * registered vendor record notifier.
+ * @nb: pointer to the notifier_block structure of the vendor record handler.
+ */
+void ghes_unregister_vendor_record_notifier(struct notifier_block *nb);
+#endif
+
+int ghes_estatus_pool_init(int num_ghes);
+
+>>>>>>> upstream/android-13
 /* From drivers/edac/ghes_edac.c */
 
 #ifdef CONFIG_EDAC_GHES

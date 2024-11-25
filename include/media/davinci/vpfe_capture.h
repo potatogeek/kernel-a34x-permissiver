@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008-2009 Texas Instruments Inc
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2008-2009 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 
 #ifndef _VPFE_CAPTURE_H
@@ -41,7 +47,11 @@
 #define CAPTURE_DRV_NAME		"vpfe-capture"
 
 struct vpfe_pixel_format {
+<<<<<<< HEAD
 	struct v4l2_fmtdesc fmtdesc;
+=======
+	u32 pixelformat;
+>>>>>>> upstream/android-13
 	/* bytes per pixel */
 	int bpp;
 };

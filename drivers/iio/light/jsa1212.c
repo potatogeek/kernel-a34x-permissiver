@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * JSA1212 Ambient Light & Proximity Sensor Driver
  *
  * Copyright (c) 2014, Intel Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * JSA1212 I2C slave address: 0x44(ADDR tied to GND), 0x45(ADDR tied to VDD)
  *
  * TODO: Interrupt support, thresholds, range support.
@@ -346,7 +353,10 @@ static int jsa1212_probe(struct i2c_client *client,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = jsa1212_channels;
 	indio_dev->num_channels = ARRAY_SIZE(jsa1212_channels);
 	indio_dev->name = JSA1212_DRIVER_NAME;

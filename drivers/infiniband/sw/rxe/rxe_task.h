@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef RXE_TASK_H
@@ -60,7 +67,11 @@ struct rxe_task {
 /*
  * init rxe_task structure
  *	arg  => parameter to pass to fcn
+<<<<<<< HEAD
  *	fcn  => function to call until it returns != 0
+=======
+ *	func => function to call until it returns != 0
+>>>>>>> upstream/android-13
  */
 int rxe_init_task(void *obj, struct rxe_task *task,
 		  void *arg, int (*func)(void *), char *name);
@@ -80,7 +91,11 @@ int __rxe_do_task(struct rxe_task *task);
  * work to do someone must reschedule the task before
  * leaving
  */
+<<<<<<< HEAD
 void rxe_do_task(unsigned long data);
+=======
+void rxe_do_task(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 
 /* run a task, else schedule it to run as a tasklet, The decision
  * to run or schedule tasklet is based on the parameter sched.

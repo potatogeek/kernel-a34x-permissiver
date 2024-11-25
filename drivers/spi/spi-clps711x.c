@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  CLPS711X SPI bus driver
  *
  *  Copyright (C) 2012-2016 Alexander Shiyan <shc_work@mail.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
@@ -36,6 +47,7 @@ struct spi_clps711x_data {
 	int			len;
 };
 
+<<<<<<< HEAD
 static int spi_clps711x_setup(struct spi_device *spi)
 {
 	if (!spi->controller_state) {
@@ -55,6 +67,8 @@ static int spi_clps711x_setup(struct spi_device *spi)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int spi_clps711x_prepare_message(struct spi_master *master,
 					struct spi_message *msg)
 {
@@ -114,7 +128,10 @@ static int spi_clps711x_probe(struct platform_device *pdev)
 {
 	struct spi_clps711x_data *hw;
 	struct spi_master *master;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int irq, ret;
 
 	irq = platform_get_irq(pdev, 0);
@@ -125,11 +142,19 @@ static int spi_clps711x_probe(struct platform_device *pdev)
 	if (!master)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	master->bus_num = -1;
 	master->mode_bits = SPI_CPHA | SPI_CS_HIGH;
 	master->bits_per_word_mask =  SPI_BPW_RANGE_MASK(1, 8);
 	master->dev.of_node = pdev->dev.of_node;
 	master->setup = spi_clps711x_setup;
+=======
+	master->use_gpio_descriptors = true;
+	master->bus_num = -1;
+	master->mode_bits = SPI_CPHA | SPI_CS_HIGH;
+	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(1, 8);
+	master->dev.of_node = pdev->dev.of_node;
+>>>>>>> upstream/android-13
 	master->prepare_message = spi_clps711x_prepare_message;
 	master->transfer_one = spi_clps711x_transfer_one;
 
@@ -148,8 +173,12 @@ static int spi_clps711x_probe(struct platform_device *pdev)
 		goto err_out;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hw->syncio = devm_ioremap_resource(&pdev->dev, res);
+=======
+	hw->syncio = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hw->syncio)) {
 		ret = PTR_ERR(hw->syncio);
 		goto err_out;

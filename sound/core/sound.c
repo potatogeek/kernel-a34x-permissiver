@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Advanced Linux Sound Architecture
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Advanced Linux Sound Architecture
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -24,6 +31,10 @@
 #include <linux/time.h>
 #include <linux/device.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 #include <sound/core.h>
 #include <sound/minors.h>
 #include <sound/info.h>
@@ -54,6 +65,14 @@ MODULE_ALIAS_CHARDEV_MAJOR(CONFIG_SND_MAJOR);
 int snd_ecards_limit;
 EXPORT_SYMBOL(snd_ecards_limit);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SND_DEBUG
+struct dentry *sound_debugfs_root;
+EXPORT_SYMBOL_GPL(sound_debugfs_root);
+#endif
+
+>>>>>>> upstream/android-13
 static struct snd_minor *snd_minors[SNDRV_OS_MINORS];
 static DEFINE_MUTEX(sound_mutex);
 
@@ -134,8 +153,16 @@ static struct snd_minor *autoload_device(unsigned int minor)
 	if (dev == SNDRV_MINOR_CONTROL) {
 		/* /dev/aloadC? */
 		int card = SNDRV_MINOR_CARD(minor);
+<<<<<<< HEAD
 		if (snd_cards[card] == NULL)
 			snd_request_card(card);
+=======
+		struct snd_card *ref = snd_card_ref(card);
+		if (!ref)
+			snd_request_card(card);
+		else
+			snd_card_unref(ref);
+>>>>>>> upstream/android-13
 	} else if (dev == SNDRV_MINOR_GLOBAL) {
 		/* /dev/aloadSEQ */
 		snd_request_other(minor);
@@ -349,6 +376,11 @@ static const char *snd_device_type_name(int type)
 		return "sequencer";
 	case SNDRV_DEVICE_TYPE_TIMER:
 		return "timer";
+<<<<<<< HEAD
+=======
+	case SNDRV_DEVICE_TYPE_COMPRESS:
+		return "compress";
+>>>>>>> upstream/android-13
 	default:
 		return "?";
 	}
@@ -361,7 +393,12 @@ static void snd_minor_info_read(struct snd_info_entry *entry, struct snd_info_bu
 
 	mutex_lock(&sound_mutex);
 	for (minor = 0; minor < SNDRV_OS_MINORS; ++minor) {
+<<<<<<< HEAD
 		if (!(mptr = snd_minors[minor]))
+=======
+		mptr = snd_minors[minor];
+		if (!mptr)
+>>>>>>> upstream/android-13
 			continue;
 		if (mptr->card >= 0) {
 			if (mptr->device >= 0)
@@ -407,6 +444,13 @@ static int __init alsa_sound_init(void)
 		unregister_chrdev(major, "alsa");
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_SND_DEBUG
+	sound_debugfs_root = debugfs_create_dir("sound", NULL);
+#endif
+>>>>>>> upstream/android-13
 #ifndef MODULE
 	pr_info("Advanced Linux Sound Architecture Driver Initialized.\n");
 #endif
@@ -415,6 +459,12 @@ static int __init alsa_sound_init(void)
 
 static void __exit alsa_sound_exit(void)
 {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SND_DEBUG
+	debugfs_remove(sound_debugfs_root);
+#endif
+>>>>>>> upstream/android-13
 	snd_info_done();
 	unregister_chrdev(major, "alsa");
 }

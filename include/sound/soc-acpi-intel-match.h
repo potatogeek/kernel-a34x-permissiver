@@ -16,7 +16,10 @@
  */
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_haswell_machines[];
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_broadwell_machines[];
+<<<<<<< HEAD
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_baytrail_legacy_machines[];
+=======
+>>>>>>> upstream/android-13
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_baytrail_machines[];
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cherrytrail_machines[];
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_skl_machines[];
@@ -24,5 +27,28 @@ extern struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[];
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_bxt_machines[];
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_glk_machines[];
 extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cnl_machines[];
+<<<<<<< HEAD
+=======
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cfl_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cml_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_icl_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_tgl_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_ehl_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_jsl_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_adl_machines[];
+
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cnl_sdw_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cfl_sdw_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cml_sdw_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_icl_sdw_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_tgl_sdw_machines[];
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_adl_sdw_machines[];
+
+/*
+ * generic table used for HDA codec-based platforms, possibly with
+ * additional ACPI-enumerated codecs
+ */
+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_hda_machines[];
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_I2C_H
 #define __SOUND_I2C_H
 
 /*
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define SND_I2C_DEVICE_ADDRTEN	(1<<0)	/* 10-bit I2C address */

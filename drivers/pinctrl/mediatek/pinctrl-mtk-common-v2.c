@@ -14,11 +14,15 @@
 #include <linux/io.h>
 #include <linux/module.h>
 #include <linux/of_irq.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "mtk-eint.h"
 #include "pinctrl-mtk-common-v2.h"
 
+<<<<<<< HEAD
 /* Some SOC provide more control register other than value register.
  * Generally, a value register need read-modify-write is at offset 0xXXXXXXXX0.
  * A corresponding SET register is at offset 0xXXXXXXX4. Write 1s' to some bits
@@ -34,6 +38,8 @@
 #define CLR_OFFSET 0x8
 #define MWR_OFFSET 0xC
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct mtk_drive_desc - the structure that holds the information
  *			    of the driving current
@@ -73,11 +79,18 @@ static u32 mtk_r32(struct mtk_pinctrl *pctl, u8 i, u32 reg)
 void mtk_rmw(struct mtk_pinctrl *pctl, u8 i, u32 reg, u32 mask, u32 set)
 {
 	u32 val;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&pctl->lock, flags);
+>>>>>>> upstream/android-13
 
 	val = mtk_r32(pctl, i, reg);
 	val &= ~mask;
 	val |= set;
 	mtk_w32(pctl, i, reg, val);
+<<<<<<< HEAD
 }
 
 void mtk_hw_set_value_race_free(struct mtk_pinctrl *pctl,
@@ -109,18 +122,27 @@ void mtk_hw_set_mode_race_free(struct mtk_pinctrl *pctl,
 			value);
 	mtk_w32(pctl, pf->index, pf->offset + MWR_OFFSET,
 		value_new << pf->bitpos);
+=======
+
+	spin_unlock_irqrestore(&pctl->lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static int mtk_hw_pin_field_lookup(struct mtk_pinctrl *hw,
 				   const struct mtk_pin_desc *desc,
 				   int field, struct mtk_pin_field *pfd)
 {
+<<<<<<< HEAD
 	const struct mtk_pin_field_calc *c, *e;
+=======
+	const struct mtk_pin_field_calc *c;
+>>>>>>> upstream/android-13
 	const struct mtk_pin_reg_calc *rc;
 	int start = 0, end, check;
 	bool found = false;
 	u32 bits;
 
+<<<<<<< HEAD
 	if (hw->soc->reg_cal && hw->soc->reg_cal[field].range)
 		rc = &hw->soc->reg_cal[field];
 	else
@@ -129,6 +151,17 @@ static int mtk_hw_pin_field_lookup(struct mtk_pinctrl *hw,
 	end = rc->nranges - 1;
 	c = rc->range;
 	e = c + rc->nranges;
+=======
+	if (hw->soc->reg_cal && hw->soc->reg_cal[field].range) {
+		rc = &hw->soc->reg_cal[field];
+	} else {
+		dev_dbg(hw->dev,
+			"Not support field %d for this soc\n", field);
+		return -ENOTSUPP;
+	}
+
+	end = rc->nranges - 1;
+>>>>>>> upstream/android-13
 
 	while (start <= end) {
 		check = (start + end) >> 1;
@@ -144,8 +177,16 @@ static int mtk_hw_pin_field_lookup(struct mtk_pinctrl *hw,
 			start = check + 1;
 	}
 
+<<<<<<< HEAD
 	if (!found)
 		return -ENOTSUPP;
+=======
+	if (!found) {
+		dev_dbg(hw->dev, "Not support field %d for pin = %d (%s)\n",
+			field, desc->number, desc->name);
+		return -ENOTSUPP;
+	}
+>>>>>>> upstream/android-13
 
 	c = rc->range + check;
 
@@ -240,6 +281,7 @@ int mtk_hw_set_value(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 	if (value < 0 || value > pf.mask)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!pf.next) {
 		if (hw->soc->race_free_access) {
 			if (field == PINCTRL_PIN_REG_MODE)
@@ -250,6 +292,12 @@ int mtk_hw_set_value(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 			mtk_rmw(hw, pf.index, pf.offset, pf.mask << pf.bitpos,
 				(value & pf.mask) << pf.bitpos);
 	} else
+=======
+	if (!pf.next)
+		mtk_rmw(hw, pf.index, pf.offset, pf.mask << pf.bitpos,
+			(value & pf.mask) << pf.bitpos);
+	else
+>>>>>>> upstream/android-13
 		mtk_hw_write_cross_field(hw, &pf, value);
 
 	return 0;
@@ -276,6 +324,7 @@ int mtk_hw_get_value(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 }
 EXPORT_SYMBOL_GPL(mtk_hw_get_value);
 
+<<<<<<< HEAD
 void mtk_eh_ctrl(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 		 u16 mode)
 {
@@ -329,6 +378,8 @@ void mtk_eh_ctrl(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 	(void)mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DRV_EH, val);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mtk_xt_find_eint_num(struct mtk_pinctrl *hw, unsigned long eint_n)
 {
 	const struct mtk_pin_desc *desc;
@@ -345,11 +396,24 @@ static int mtk_xt_find_eint_num(struct mtk_pinctrl *hw, unsigned long eint_n)
 	return EINT_NA;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Virtual GPIO only used inside SOC and not being exported to outside SOC.
+ * Some modules use virtual GPIO as eint (e.g. pmif or usb).
+ * In MTK platform, external interrupt (EINT) and GPIO is 1-1 mapping
+ * and we can set GPIO as eint.
+ * But some modules use specific eint which doesn't have real GPIO pin.
+ * So we use virtual GPIO to map it.
+ */
+
+>>>>>>> upstream/android-13
 bool mtk_is_virt_gpio(struct mtk_pinctrl *hw, unsigned int gpio_n)
 {
 	const struct mtk_pin_desc *desc;
 	bool virt_gpio = false;
 
+<<<<<<< HEAD
 	if (gpio_n >= hw->soc->npins)
 		return virt_gpio;
 
@@ -357,6 +421,15 @@ bool mtk_is_virt_gpio(struct mtk_pinctrl *hw, unsigned int gpio_n)
 
 	if (desc->funcs &&
 	    (desc->funcs[desc->eint.eint_m].name == 0))
+=======
+	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio_n];
+
+	/* if the GPIO is not supported for eint mode */
+	if (desc->eint.eint_m == NO_EINT_SUPPORT)
+		return virt_gpio;
+
+	if (desc->funcs && !desc->funcs[desc->eint.eint_m].name)
+>>>>>>> upstream/android-13
 		virt_gpio = true;
 
 	return virt_gpio;
@@ -373,8 +446,17 @@ static int mtk_xt_get_gpio_n(void *data, unsigned long eint_n,
 	desc = (const struct mtk_pin_desc *)hw->soc->pins;
 	*gpio_chip = &hw->chip;
 
+<<<<<<< HEAD
 	/* Be greedy to guess first gpio_n is equal to eint_n */
 	if (desc[eint_n].eint.eint_n == eint_n)
+=======
+	/*
+	 * Be greedy to guess first gpio_n is equal to eint_n.
+	 * Only eint virtual eint number is greater than gpio number.
+	 */
+	if (hw->soc->npins > eint_n &&
+	    desc[eint_n].eint.eint_n == eint_n)
+>>>>>>> upstream/android-13
 		*gpio_n = eint_n;
 	else
 		*gpio_n = mtk_xt_find_eint_num(hw, eint_n);
@@ -424,8 +506,11 @@ static int mtk_xt_set_gpio_as_eint(void *data, unsigned long eint_n)
 			       desc->eint.eint_m);
 	if (err)
 		return err;
+<<<<<<< HEAD
 	if (hw->soc->eh_pin_pinmux)
 		mtk_eh_ctrl(hw, desc, desc->eint.eint_m);
+=======
+>>>>>>> upstream/android-13
 
 	err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DIR, MTK_INPUT);
 	if (err)
@@ -450,6 +535,7 @@ static const struct mtk_eint_xt mtk_eint_xt = {
 	.set_gpio_as_eint = mtk_xt_set_gpio_as_eint,
 };
 
+<<<<<<< HEAD
 static int mtk_eint_suspend(struct device *device)
 {
 	struct mtk_pinctrl *pctl = dev_get_drvdata(device);
@@ -473,6 +559,12 @@ int mtk_build_eint(struct mtk_pinctrl *hw, struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node, *node;
 	struct resource *res;
+=======
+int mtk_build_eint(struct mtk_pinctrl *hw, struct platform_device *pdev)
+{
+	struct device_node *np = pdev->dev.of_node;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!IS_ENABLED(CONFIG_EINT_MTK))
 		return 0;
@@ -484,6 +576,7 @@ int mtk_build_eint(struct mtk_pinctrl *hw, struct platform_device *pdev)
 	if (!hw->eint)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (hw->soc->nbase_names) {
 		res = platform_get_resource_byname(pdev,
 				IORESOURCE_MEM, "eint");
@@ -517,6 +610,24 @@ int mtk_build_eint(struct mtk_pinctrl *hw, struct platform_device *pdev)
 
 	if (!hw->soc->eint_hw)
 		return -ENODEV;
+=======
+	hw->eint->base = devm_platform_ioremap_resource_byname(pdev, "eint");
+	if (IS_ERR(hw->eint->base)) {
+		ret = PTR_ERR(hw->eint->base);
+		goto err_free_eint;
+	}
+
+	hw->eint->irq = irq_of_parse_and_map(np, 0);
+	if (!hw->eint->irq) {
+		ret = -EINVAL;
+		goto err_free_eint;
+	}
+
+	if (!hw->soc->eint_hw) {
+		ret = -ENODEV;
+		goto err_free_eint;
+	}
+>>>>>>> upstream/android-13
 
 	hw->eint->dev = &pdev->dev;
 	hw->eint->hw = hw->soc->eint_hw;
@@ -524,6 +635,14 @@ int mtk_build_eint(struct mtk_pinctrl *hw, struct platform_device *pdev)
 	hw->eint->gpio_xlate = &mtk_eint_xt;
 
 	return mtk_eint_do_init(hw->eint);
+<<<<<<< HEAD
+=======
+
+err_free_eint:
+	devm_kfree(hw->dev, hw->eint);
+	hw->eint = NULL;
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtk_build_eint);
 
@@ -614,6 +733,7 @@ EXPORT_SYMBOL_GPL(mtk_pinconf_bias_get);
 int mtk_pinconf_bias_disable_set_rev1(struct mtk_pinctrl *hw,
 				      const struct mtk_pin_desc *desc)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_PULLEN,
@@ -622,6 +742,10 @@ int mtk_pinconf_bias_disable_set_rev1(struct mtk_pinctrl *hw,
 		return err;
 
 	return 0;
+=======
+	return mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_PULLEN,
+				MTK_DISABLE);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtk_pinconf_bias_disable_set_rev1);
 
@@ -749,7 +873,11 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 int mtk_pinconf_bias_set_pupd_r1_r0(struct mtk_pinctrl *hw,
+=======
+static int mtk_pinconf_bias_set_pupd_r1_r0(struct mtk_pinctrl *hw,
+>>>>>>> upstream/android-13
 				const struct mtk_pin_desc *desc,
 				u32 pullup, u32 arg)
 {
@@ -787,7 +915,10 @@ int mtk_pinconf_bias_set_pupd_r1_r0(struct mtk_pinctrl *hw,
 out:
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mtk_pinconf_bias_set_pupd_r1_r0);
+=======
+>>>>>>> upstream/android-13
 
 static int mtk_pinconf_bias_get_pu_pd(struct mtk_pinctrl *hw,
 				const struct mtk_pin_desc *desc,
@@ -844,7 +975,10 @@ static int mtk_pinconf_bias_get_pupd_r1_r0(struct mtk_pinctrl *hw,
 	err = mtk_hw_get_value(hw, desc, PINCTRL_PIN_REG_PUPD, pullup);
 	if (err)
 		goto out;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* MTK HW PUPD bit: 1 for pull-down, 0 for pull-up */
 	*pullup = !(*pullup);
 
@@ -1055,7 +1189,13 @@ int mtk_pinconf_adv_pull_set(struct mtk_pinctrl *hw,
 			if (err)
 				return err;
 		} else {
+<<<<<<< HEAD
 			return -ENOTSUPP;
+=======
+			err = mtk_pinconf_bias_set_rev1(hw, desc, pullup);
+			if (err)
+				err = mtk_pinconf_bias_set(hw, desc, pullup);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1114,6 +1254,7 @@ int mtk_pinconf_adv_drive_set(struct mtk_pinctrl *hw,
 	int e0 = !!(arg & 2);
 	int e1 = !!(arg & 4);
 
+<<<<<<< HEAD
 	/*
 	 * Only one will be exist EH table or EN,E0,E1 table
 	 * Check EH table first
@@ -1122,6 +1263,8 @@ int mtk_pinconf_adv_drive_set(struct mtk_pinctrl *hw,
 	if (!err)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	err = mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DRV_EN, en);
 	if (err)
 		return err;
@@ -1147,6 +1290,7 @@ int mtk_pinconf_adv_drive_get(struct mtk_pinctrl *hw,
 	u32 en, e0, e1;
 	int err;
 
+<<<<<<< HEAD
 	/*
 	 * Only one will be exist EH table or EN,E0,E1 table
 	 * Check EH table first
@@ -1155,6 +1299,8 @@ int mtk_pinconf_adv_drive_get(struct mtk_pinctrl *hw,
 	if (!err)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	err = mtk_hw_get_value(hw, desc, PINCTRL_PIN_REG_DRV_EN, &en);
 	if (err)
 		return err;
@@ -1173,5 +1319,25 @@ int mtk_pinconf_adv_drive_get(struct mtk_pinctrl *hw,
 }
 EXPORT_SYMBOL_GPL(mtk_pinconf_adv_drive_get);
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("MediaTek Pinctrl Common Driver V2");
+=======
+int mtk_pinconf_adv_drive_set_raw(struct mtk_pinctrl *hw,
+				  const struct mtk_pin_desc *desc, u32 arg)
+{
+	return mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_DRV_ADV, arg);
+}
+EXPORT_SYMBOL_GPL(mtk_pinconf_adv_drive_set_raw);
+
+int mtk_pinconf_adv_drive_get_raw(struct mtk_pinctrl *hw,
+				  const struct mtk_pin_desc *desc, u32 *val)
+{
+	return mtk_hw_get_value(hw, desc, PINCTRL_PIN_REG_DRV_ADV, val);
+}
+EXPORT_SYMBOL_GPL(mtk_pinconf_adv_drive_get_raw);
+
+MODULE_LICENSE("GPL v2");
+MODULE_AUTHOR("Sean Wang <sean.wang@mediatek.com>");
+MODULE_DESCRIPTION("Pin configuration library module for mediatek SoCs");
+>>>>>>> upstream/android-13

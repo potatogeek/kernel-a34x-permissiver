@@ -1,17 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Regulators driver for Marvell 88PM8607
  *
  * Copyright (C) 2009 Marvell International Ltd.
  *	Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/i2c.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/regulator/of_regulator.h>
 #include <linux/platform_device.h>
@@ -22,12 +32,16 @@
 
 struct pm8607_regulator_info {
 	struct regulator_desc	desc;
+<<<<<<< HEAD
 	struct pm860x_chip	*chip;
 	struct regulator_dev	*regulator;
 	struct i2c_client	*i2c;
 	struct i2c_client	*i2c_8606;
 
 	unsigned int	*vol_table;
+=======
+
+>>>>>>> upstream/android-13
 	unsigned int	*vol_suspend;
 
 	int	slope_double;
@@ -210,6 +224,7 @@ static const unsigned int LDO14_suspend_table[] = {
 static int pm8607_list_voltage(struct regulator_dev *rdev, unsigned index)
 {
 	struct pm8607_regulator_info *info = rdev_get_drvdata(rdev);
+<<<<<<< HEAD
 	int ret = -EINVAL;
 
 	if (info->vol_table && (index < rdev->desc->n_voltages)) {
@@ -217,6 +232,17 @@ static int pm8607_list_voltage(struct regulator_dev *rdev, unsigned index)
 		if (info->slope_double)
 			ret <<= 1;
 	}
+=======
+	int ret;
+
+	ret = regulator_list_voltage_table(rdev, index);
+	if (ret < 0)
+		return ret;
+
+	if (info->slope_double)
+		ret <<= 1;
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -239,6 +265,11 @@ static const struct regulator_ops pm8606_preg_ops = {
 {									\
 	.desc	= {							\
 		.name	= "PREG",					\
+<<<<<<< HEAD
+=======
+		.of_match = of_match_ptr("PREG"),			\
+		.regulators_node = of_match_ptr("regulators"),		\
+>>>>>>> upstream/android-13
 		.ops	= &pm8606_preg_ops,				\
 		.type	= REGULATOR_CURRENT,				\
 		.id	= PM8606_ID_PREG,				\
@@ -253,10 +284,19 @@ static const struct regulator_ops pm8606_preg_ops = {
 {									\
 	.desc	= {							\
 		.name	= #vreg,					\
+<<<<<<< HEAD
+=======
+		.of_match = of_match_ptr(#vreg),			\
+		.regulators_node = of_match_ptr("regulators"),		\
+>>>>>>> upstream/android-13
 		.ops	= &pm8607_regulator_ops,			\
 		.type	= REGULATOR_VOLTAGE,				\
 		.id	= PM8607_ID_##vreg,				\
 		.owner	= THIS_MODULE,					\
+<<<<<<< HEAD
+=======
+		.volt_table = vreg##_table,				\
+>>>>>>> upstream/android-13
 		.n_voltages = ARRAY_SIZE(vreg##_table),			\
 		.vsel_reg = PM8607_##vreg,				\
 		.vsel_mask = ARRAY_SIZE(vreg##_table) - 1,		\
@@ -266,7 +306,10 @@ static const struct regulator_ops pm8606_preg_ops = {
 		.enable_mask = 1 << (ebit),				\
 	},								\
 	.slope_double	= (0),						\
+<<<<<<< HEAD
 	.vol_table	= (unsigned int *)&vreg##_table,		\
+=======
+>>>>>>> upstream/android-13
 	.vol_suspend	= (unsigned int *)&vreg##_suspend_table,	\
 }
 
@@ -274,10 +317,19 @@ static const struct regulator_ops pm8606_preg_ops = {
 {									\
 	.desc	= {							\
 		.name	= "LDO" #_id,					\
+<<<<<<< HEAD
+=======
+		.of_match = of_match_ptr("LDO" #_id),			\
+		.regulators_node = of_match_ptr("regulators"),		\
+>>>>>>> upstream/android-13
 		.ops	= &pm8607_regulator_ops,			\
 		.type	= REGULATOR_VOLTAGE,				\
 		.id	= PM8607_ID_LDO##_id,				\
 		.owner	= THIS_MODULE,					\
+<<<<<<< HEAD
+=======
+		.volt_table = LDO##_id##_table,				\
+>>>>>>> upstream/android-13
 		.n_voltages = ARRAY_SIZE(LDO##_id##_table),		\
 		.vsel_reg = PM8607_##vreg,				\
 		.vsel_mask = (ARRAY_SIZE(LDO##_id##_table) - 1) << (shift), \
@@ -285,7 +337,10 @@ static const struct regulator_ops pm8606_preg_ops = {
 		.enable_mask = 1 << (ebit),				\
 	},								\
 	.slope_double	= (0),						\
+<<<<<<< HEAD
 	.vol_table	= (unsigned int *)&LDO##_id##_table,		\
+=======
+>>>>>>> upstream/android-13
 	.vol_suspend	= (unsigned int *)&LDO##_id##_suspend_table,	\
 }
 
@@ -313,6 +368,7 @@ static struct pm8607_regulator_info pm8606_regulator_info[] = {
 	PM8606_PREG(PREREGULATORB, 5),
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static int pm8607_regulator_dt_init(struct platform_device *pdev,
 				    struct pm8607_regulator_info *info,
@@ -343,12 +399,18 @@ static int pm8607_regulator_dt_init(struct platform_device *pdev,
 #define pm8607_regulator_dt_init(x, y, z)	(-1)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int pm8607_regulator_probe(struct platform_device *pdev)
 {
 	struct pm860x_chip *chip = dev_get_drvdata(pdev->dev.parent);
 	struct pm8607_regulator_info *info = NULL;
 	struct regulator_init_data *pdata = dev_get_platdata(&pdev->dev);
 	struct regulator_config config = { };
+<<<<<<< HEAD
+=======
+	struct regulator_dev *rdev;
+>>>>>>> upstream/android-13
 	struct resource *res;
 	int i;
 
@@ -371,6 +433,7 @@ static int pm8607_regulator_probe(struct platform_device *pdev)
 		/* i is used to check regulator ID */
 		i = -1;
 	}
+<<<<<<< HEAD
 	info->i2c = (chip->id == CHIP_PM8607) ? chip->client : chip->companion;
 	info->i2c_8606 = (chip->id == CHIP_PM8607) ? chip->companion :
 			chip->client;
@@ -386,18 +449,38 @@ static int pm8607_regulator_probe(struct platform_device *pdev)
 	if (pm8607_regulator_dt_init(pdev, info, &config))
 		if (pdata)
 			config.init_data = pdata;
+=======
+
+	/* check DVC ramp slope double */
+	if ((i == PM8607_ID_BUCK3) && chip->buck3_double)
+		info->slope_double = 1;
+
+	config.dev = chip->dev;
+	config.driver_data = info;
+
+	if (pdata)
+		config.init_data = pdata;
+>>>>>>> upstream/android-13
 
 	if (chip->id == CHIP_PM8607)
 		config.regmap = chip->regmap;
 	else
 		config.regmap = chip->regmap_companion;
 
+<<<<<<< HEAD
 	info->regulator = devm_regulator_register(&pdev->dev, &info->desc,
 						  &config);
 	if (IS_ERR(info->regulator)) {
 		dev_err(&pdev->dev, "failed to register regulator %s\n",
 			info->desc.name);
 		return PTR_ERR(info->regulator);
+=======
+	rdev = devm_regulator_register(&pdev->dev, &info->desc, &config);
+	if (IS_ERR(rdev)) {
+		dev_err(&pdev->dev, "failed to register regulator %s\n",
+			info->desc.name);
+		return PTR_ERR(rdev);
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, info);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 1999 - 2010 Intel Corporation.
  * Copyright (C) 2010 LAPIS SEMICONDUCTOR CO., LTD.
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 1999 - 2010 Intel Corporation.
+ * Copyright (C) 2010 LAPIS SEMICONDUCTOR CO., LTD.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -472,7 +479,11 @@ static void pch_can_int_clr(struct pch_can_priv *priv, u32 mask)
 			       PCH_ID2_DIR | (0x7ff << 2));
 		iowrite32(0x0, &priv->regs->ifregs[1].id1);
 
+<<<<<<< HEAD
 		/* Claring NewDat, TxRqst & IntPnd */
+=======
+		/* Clearing NewDat, TxRqst & IntPnd */
+>>>>>>> upstream/android-13
 		pch_can_bit_clear(&priv->regs->ifregs[1].mcont,
 				  PCH_IF_MCONT_NEWDAT | PCH_IF_MCONT_INTPND |
 				  PCH_IF_MCONT_TXRQXT);
@@ -574,7 +585,11 @@ static void pch_can_error(struct net_device *ndev, u32 status)
 	netif_receive_skb(skb);
 
 	stats->rx_packets++;
+<<<<<<< HEAD
 	stats->rx_bytes += cf->can_dlc;
+=======
+	stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t pch_can_interrupt(int irq, void *dev_id)
@@ -694,20 +709,35 @@ static int pch_can_rx_normal(struct net_device *ndev, u32 obj_num, int quota)
 		if (id2 & PCH_ID2_DIR)
 			cf->can_id |= CAN_RTR_FLAG;
 
+<<<<<<< HEAD
 		cf->can_dlc = get_can_dlc((ioread32(&priv->regs->
 						    ifregs[0].mcont)) & 0xF);
 
 		for (i = 0; i < cf->can_dlc; i += 2) {
+=======
+		cf->len = can_cc_dlc2len((ioread32(&priv->regs->
+						    ifregs[0].mcont)) & 0xF);
+
+		for (i = 0; i < cf->len; i += 2) {
+>>>>>>> upstream/android-13
 			data_reg = ioread16(&priv->regs->ifregs[0].data[i / 2]);
 			cf->data[i] = data_reg;
 			cf->data[i + 1] = data_reg >> 8;
 		}
 
+<<<<<<< HEAD
 		netif_receive_skb(skb);
 		rcv_pkts++;
 		stats->rx_packets++;
 		quota--;
 		stats->rx_bytes += cf->can_dlc;
+=======
+		rcv_pkts++;
+		stats->rx_packets++;
+		quota--;
+		stats->rx_bytes += cf->len;
+		netif_receive_skb(skb);
+>>>>>>> upstream/android-13
 
 		pch_fifo_thresh(priv, obj_num);
 		obj_num++;
@@ -722,11 +752,19 @@ static void pch_can_tx_complete(struct net_device *ndev, u32 int_stat)
 	struct net_device_stats *stats = &(priv->ndev->stats);
 	u32 dlc;
 
+<<<<<<< HEAD
 	can_get_echo_skb(ndev, int_stat - PCH_RX_OBJ_END - 1);
 	iowrite32(PCH_CMASK_RX_TX_GET | PCH_CMASK_CLRINTPND,
 		  &priv->regs->ifregs[1].cmask);
 	pch_can_rw_msg_obj(&priv->regs->ifregs[1].creq, int_stat);
 	dlc = get_can_dlc(ioread32(&priv->regs->ifregs[1].mcont) &
+=======
+	can_get_echo_skb(ndev, int_stat - PCH_RX_OBJ_END - 1, NULL);
+	iowrite32(PCH_CMASK_RX_TX_GET | PCH_CMASK_CLRINTPND,
+		  &priv->regs->ifregs[1].cmask);
+	pch_can_rw_msg_obj(&priv->regs->ifregs[1].creq, int_stat);
+	dlc = can_cc_dlc2len(ioread32(&priv->regs->ifregs[1].mcont) &
+>>>>>>> upstream/android-13
 			  PCH_IF_MCONT_DLC);
 	stats->tx_bytes += dlc;
 	stats->tx_packets++;
@@ -845,7 +883,11 @@ static int pch_can_open(struct net_device *ndev)
 	struct pch_can_priv *priv = netdev_priv(ndev);
 	int retval;
 
+<<<<<<< HEAD
 	/* Regstering the interrupt. */
+=======
+	/* Registering the interrupt. */
+>>>>>>> upstream/android-13
 	retval = request_irq(priv->dev->irq, pch_can_interrupt, IRQF_SHARED,
 			     ndev->name, ndev);
 	if (retval) {
@@ -930,15 +972,26 @@ static netdev_tx_t pch_xmit(struct sk_buff *skb, struct net_device *ndev)
 	iowrite32(id2, &priv->regs->ifregs[1].id2);
 
 	/* Copy data to register */
+<<<<<<< HEAD
 	for (i = 0; i < cf->can_dlc; i += 2) {
+=======
+	for (i = 0; i < cf->len; i += 2) {
+>>>>>>> upstream/android-13
 		iowrite16(cf->data[i] | (cf->data[i + 1] << 8),
 			  &priv->regs->ifregs[1].data[i / 2]);
 	}
 
+<<<<<<< HEAD
 	can_put_echo_skb(skb, ndev, tx_obj_no - PCH_RX_OBJ_END - 1);
 
 	/* Set the size of the data. Update if2_mcont */
 	iowrite32(cf->can_dlc | PCH_IF_MCONT_NEWDAT | PCH_IF_MCONT_TXRQXT |
+=======
+	can_put_echo_skb(skb, ndev, tx_obj_no - PCH_RX_OBJ_END - 1, 0);
+
+	/* Set the size of the data. Update if2_mcont */
+	iowrite32(cf->len | PCH_IF_MCONT_NEWDAT | PCH_IF_MCONT_TXRQXT |
+>>>>>>> upstream/android-13
 		  PCH_IF_MCONT_TXIE, &priv->regs->ifregs[1].mcont);
 
 	pch_can_rw_msg_obj(&priv->regs->ifregs[1].creq, tx_obj_no);
@@ -968,8 +1021,12 @@ static void pch_can_remove(struct pci_dev *pdev)
 	free_candev(priv->ndev);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static void pch_can_set_int_custom(struct pch_can_priv *priv)
+=======
+static void __maybe_unused pch_can_set_int_custom(struct pch_can_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* Clearing the IE, SIE and EIE bits of Can control register. */
 	pch_can_bit_clear(&priv->regs->cont, PCH_CTRL_IE_SIE_EIE);
@@ -980,14 +1037,23 @@ static void pch_can_set_int_custom(struct pch_can_priv *priv)
 }
 
 /* This function retrieves interrupt enabled for the CAN device. */
+<<<<<<< HEAD
 static u32 pch_can_get_int_enables(struct pch_can_priv *priv)
+=======
+static u32 __maybe_unused pch_can_get_int_enables(struct pch_can_priv *priv)
+>>>>>>> upstream/android-13
 {
 	/* Obtaining the status of IE, SIE and EIE interrupt bits. */
 	return (ioread32(&priv->regs->cont) & PCH_CTRL_IE_SIE_EIE) >> 1;
 }
 
+<<<<<<< HEAD
 static u32 pch_can_get_rxtx_ir(struct pch_can_priv *priv, u32 buff_num,
 			       enum pch_ifreg dir)
+=======
+static u32 __maybe_unused pch_can_get_rxtx_ir(struct pch_can_priv *priv,
+					      u32 buff_num, enum pch_ifreg dir)
+>>>>>>> upstream/android-13
 {
 	u32 ie, enable;
 
@@ -1008,8 +1074,13 @@ static u32 pch_can_get_rxtx_ir(struct pch_can_priv *priv, u32 buff_num,
 	return enable;
 }
 
+<<<<<<< HEAD
 static void pch_can_set_rx_buffer_link(struct pch_can_priv *priv,
 				       u32 buffer_num, int set)
+=======
+static void __maybe_unused pch_can_set_rx_buffer_link(struct pch_can_priv *priv,
+						      u32 buffer_num, int set)
+>>>>>>> upstream/android-13
 {
 	iowrite32(PCH_CMASK_RX_TX_GET, &priv->regs->ifregs[0].cmask);
 	pch_can_rw_msg_obj(&priv->regs->ifregs[0].creq, buffer_num);
@@ -1024,7 +1095,12 @@ static void pch_can_set_rx_buffer_link(struct pch_can_priv *priv,
 	pch_can_rw_msg_obj(&priv->regs->ifregs[0].creq, buffer_num);
 }
 
+<<<<<<< HEAD
 static u32 pch_can_get_rx_buffer_link(struct pch_can_priv *priv, u32 buffer_num)
+=======
+static u32 __maybe_unused pch_can_get_rx_buffer_link(struct pch_can_priv *priv,
+						     u32 buffer_num)
+>>>>>>> upstream/android-13
 {
 	u32 link;
 
@@ -1038,12 +1114,17 @@ static u32 pch_can_get_rx_buffer_link(struct pch_can_priv *priv, u32 buffer_num)
 	return link;
 }
 
+<<<<<<< HEAD
 static int pch_can_get_buffer_status(struct pch_can_priv *priv)
+=======
+static int __maybe_unused pch_can_get_buffer_status(struct pch_can_priv *priv)
+>>>>>>> upstream/android-13
 {
 	return (ioread32(&priv->regs->treq1) & 0xffff) |
 	       (ioread32(&priv->regs->treq2) << 16);
 }
 
+<<<<<<< HEAD
 static int pch_can_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	int i;
@@ -1052,6 +1133,15 @@ static int pch_can_suspend(struct pci_dev *pdev, pm_message_t state)
 	int counter = PCH_COUNTER_LIMIT;
 
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused pch_can_suspend(struct device *dev_d)
+{
+	int i;
+	u32 buf_stat;	/* Variable for reading the transmit buffer status. */
+	int counter = PCH_COUNTER_LIMIT;
+
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct pch_can_priv *priv = netdev_priv(dev);
 
 	/* Stop the CAN controller */
@@ -1069,7 +1159,11 @@ static int pch_can_suspend(struct pci_dev *pdev, pm_message_t state)
 		udelay(1);
 	}
 	if (!counter)
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "%s -> Transmission time out.\n", __func__);
+=======
+		dev_err(dev_d, "%s -> Transmission time out.\n", __func__);
+>>>>>>> upstream/android-13
 
 	/* Save interrupt configuration and then disable them */
 	priv->int_enables = pch_can_get_int_enables(priv);
@@ -1092,6 +1186,7 @@ static int pch_can_suspend(struct pci_dev *pdev, pm_message_t state)
 
 	/* Disable all Receive buffers */
 	pch_can_set_rx_all(priv, 0);
+<<<<<<< HEAD
 	retval = pci_save_state(pdev);
 	if (retval) {
 		dev_err(&pdev->dev, "pci_save_state failed.\n");
@@ -1121,6 +1216,18 @@ static int pch_can_resume(struct pci_dev *pdev)
 
 	pci_enable_wake(pdev, PCI_D3hot, 0);
 
+=======
+
+	return 0;
+}
+
+static int __maybe_unused pch_can_resume(struct device *dev_d)
+{
+	int i;
+	struct net_device *dev = dev_get_drvdata(dev_d);
+	struct pch_can_priv *priv = netdev_priv(dev);
+
+>>>>>>> upstream/android-13
 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
 
 	/* Disabling all interrupts. */
@@ -1157,12 +1264,17 @@ static int pch_can_resume(struct pci_dev *pdev)
 	/* Restore Run Mode */
 	pch_can_set_run_mode(priv, PCH_CAN_RUN);
 
+<<<<<<< HEAD
 	return retval;
 }
 #else
 #define pch_can_suspend NULL
 #define pch_can_resume NULL
 #endif
+=======
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int pch_can_get_berr_counter(const struct net_device *dev,
 				    struct can_berr_counter *bec)
@@ -1263,13 +1375,24 @@ probe_exit_endev:
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(pch_can_pm_ops,
+			 pch_can_suspend,
+			 pch_can_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver pch_can_pci_driver = {
 	.name = "pch_can",
 	.id_table = pch_pci_tbl,
 	.probe = pch_can_probe,
 	.remove = pch_can_remove,
+<<<<<<< HEAD
 	.suspend = pch_can_suspend,
 	.resume = pch_can_resume,
+=======
+	.driver.pm = &pch_can_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(pch_can_pci_driver);

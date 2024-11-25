@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
@@ -99,13 +106,21 @@ err1:
 }
 
 int rxe_srq_from_init(struct rxe_dev *rxe, struct rxe_srq *srq,
+<<<<<<< HEAD
 		      struct ib_srq_init_attr *init,
 		      struct ib_ucontext *context,
+=======
+		      struct ib_srq_init_attr *init, struct ib_udata *udata,
+>>>>>>> upstream/android-13
 		      struct rxe_create_srq_resp __user *uresp)
 {
 	int err;
 	int srq_wqe_size;
 	struct rxe_queue *q;
+<<<<<<< HEAD
+=======
+	enum queue_type type;
+>>>>>>> upstream/android-13
 
 	srq->ibsrq.event_handler	= init->event_handler;
 	srq->ibsrq.srq_context		= init->srq_context;
@@ -113,14 +128,24 @@ int rxe_srq_from_init(struct rxe_dev *rxe, struct rxe_srq *srq,
 	srq->srq_num		= srq->pelem.index;
 	srq->rq.max_wr		= init->attr.max_wr;
 	srq->rq.max_sge		= init->attr.max_sge;
+<<<<<<< HEAD
+=======
+	srq->rq.is_user		= srq->is_user;
+>>>>>>> upstream/android-13
 
 	srq_wqe_size		= rcv_wqe_size(srq->rq.max_sge);
 
 	spin_lock_init(&srq->rq.producer_lock);
 	spin_lock_init(&srq->rq.consumer_lock);
 
+<<<<<<< HEAD
 	q = rxe_queue_init(rxe, &srq->rq.max_wr,
 			   srq_wqe_size);
+=======
+	type = uresp ? QUEUE_TYPE_FROM_USER : QUEUE_TYPE_KERNEL;
+	q = rxe_queue_init(rxe, &srq->rq.max_wr,
+			srq_wqe_size, type);
+>>>>>>> upstream/android-13
 	if (!q) {
 		pr_warn("unable to allocate queue for srq\n");
 		return -ENOMEM;
@@ -128,7 +153,11 @@ int rxe_srq_from_init(struct rxe_dev *rxe, struct rxe_srq *srq,
 
 	srq->rq.queue = q;
 
+<<<<<<< HEAD
 	err = do_mmap_info(rxe, uresp ? &uresp->mi : NULL, context, q->buf,
+=======
+	err = do_mmap_info(rxe, uresp ? &uresp->mi : NULL, udata, q->buf,
+>>>>>>> upstream/android-13
 			   q->buf_size, &q->ip);
 	if (err) {
 		vfree(q->buf);
@@ -149,7 +178,11 @@ int rxe_srq_from_init(struct rxe_dev *rxe, struct rxe_srq *srq,
 
 int rxe_srq_from_attr(struct rxe_dev *rxe, struct rxe_srq *srq,
 		      struct ib_srq_attr *attr, enum ib_srq_attr_mask mask,
+<<<<<<< HEAD
 		      struct rxe_modify_srq_cmd *ucmd)
+=======
+		      struct rxe_modify_srq_cmd *ucmd, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct rxe_queue *q = srq->rq.queue;
@@ -163,11 +196,16 @@ int rxe_srq_from_attr(struct rxe_dev *rxe, struct rxe_srq *srq,
 		mi = u64_to_user_ptr(ucmd->mmap_info_addr);
 
 		err = rxe_queue_resize(q, &attr->max_wr,
+<<<<<<< HEAD
 				       rcv_wqe_size(srq->rq.max_sge),
 				       srq->rq.queue->ip ?
 						srq->rq.queue->ip->context :
 						NULL,
 				       mi, &srq->rq.producer_lock,
+=======
+				       rcv_wqe_size(srq->rq.max_sge), udata, mi,
+				       &srq->rq.producer_lock,
+>>>>>>> upstream/android-13
 				       &srq->rq.consumer_lock);
 		if (err)
 			goto err2;

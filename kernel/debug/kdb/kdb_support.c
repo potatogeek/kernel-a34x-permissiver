@@ -10,7 +10,10 @@
  * 03/02/13    added new 2.5 kallsyms <xavier.bru@bull.net>
  */
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/sched.h>
 #include <linux/mm.h>
@@ -25,6 +28,10 @@
 #include <linux/uaccess.h>
 #include <linux/kdb.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 #include "kdb_private.h"
 
 /*
@@ -39,6 +46,7 @@
  */
 int kdbgetsymval(const char *symname, kdb_symtab_t *symtab)
 {
+<<<<<<< HEAD
 	if (KDB_DEBUG(AR))
 		kdb_printf("kdbgetsymval: symname=%s, symtab=%px\n", symname,
 			   symtab);
@@ -53,10 +61,22 @@ int kdbgetsymval(const char *symname, kdb_symtab_t *symtab)
 	}
 	if (KDB_DEBUG(AR))
 		kdb_printf("kdbgetsymval: returns 0\n");
+=======
+	kdb_dbg_printf(AR, "symname=%s, symtab=%px\n", symname, symtab);
+	memset(symtab, 0, sizeof(*symtab));
+	symtab->sym_start = kallsyms_lookup_name(symname);
+	if (symtab->sym_start) {
+		kdb_dbg_printf(AR, "returns 1, symtab->sym_start=0x%lx\n",
+			       symtab->sym_start);
+		return 1;
+	}
+	kdb_dbg_printf(AR, "returns 0\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(kdbgetsymval);
 
+<<<<<<< HEAD
 static char *kdb_name_table[100];	/* arbitrary size */
 
 /*
@@ -78,21 +98,56 @@ static char *kdb_name_table[100];	/* arbitrary size */
  *	last few unique strings.  The list is sized large enough to
  *	hold active strings, no kdb caller of kdbnearsym makes more
  *	than ~20 later calls before using a saved value.
+=======
+/**
+ * kdbnearsym() - Return the name of the symbol with the nearest address
+ *                less than @addr.
+ * @addr: Address to check for near symbol
+ * @symtab: Structure to receive results
+ *
+ * WARNING: This function may return a pointer to a single statically
+ * allocated buffer (namebuf). kdb's unusual calling context (single
+ * threaded, all other CPUs halted) provides us sufficient locking for
+ * this to be safe. The only constraint imposed by the static buffer is
+ * that the caller must consume any previous reply prior to another call
+ * to lookup a new symbol.
+ *
+ * Note that, strictly speaking, some architectures may re-enter the kdb
+ * trap if the system turns out to be very badly damaged and this breaks
+ * the single-threaded assumption above. In these circumstances successful
+ * continuation and exit from the inner trap is unlikely to work and any
+ * user attempting this receives a prominent warning before being allowed
+ * to progress. In these circumstances we remain memory safe because
+ * namebuf[KSYM_NAME_LEN-1] will never change from '\0' although we do
+ * tolerate the possibility of garbled symbol display from the outer kdb
+ * trap.
+ *
+ * Return:
+ * * 0 - No sections contain this address, symtab zero filled
+ * * 1 - Address mapped to module/symbol/section, data in symtab
+>>>>>>> upstream/android-13
  */
 int kdbnearsym(unsigned long addr, kdb_symtab_t *symtab)
 {
 	int ret = 0;
 	unsigned long symbolsize = 0;
 	unsigned long offset = 0;
+<<<<<<< HEAD
 #define knt1_size 128		/* must be >= kallsyms table size */
 	char *knt1 = NULL;
 
 	if (KDB_DEBUG(AR))
 		kdb_printf("kdbnearsym: addr=0x%lx, symtab=%px\n", addr, symtab);
+=======
+	static char namebuf[KSYM_NAME_LEN];
+
+	kdb_dbg_printf(AR, "addr=0x%lx, symtab=%px\n", addr, symtab);
+>>>>>>> upstream/android-13
 	memset(symtab, 0, sizeof(*symtab));
 
 	if (addr < 4096)
 		goto out;
+<<<<<<< HEAD
 	knt1 = debug_kmalloc(knt1_size, GFP_ATOMIC);
 	if (!knt1) {
 		kdb_printf("kdbnearsym: addr=0x%lx cannot kmalloc knt1\n",
@@ -101,6 +156,11 @@ int kdbnearsym(unsigned long addr, kdb_symtab_t *symtab)
 	}
 	symtab->sym_name = kallsyms_lookup(addr, &symbolsize , &offset,
 				(char **)(&symtab->mod_name), knt1);
+=======
+
+	symtab->sym_name = kallsyms_lookup(addr, &symbolsize , &offset,
+				(char **)(&symtab->mod_name), namebuf);
+>>>>>>> upstream/android-13
 	if (offset > 8*1024*1024) {
 		symtab->sym_name = NULL;
 		addr = offset = symbolsize = 0;
@@ -109,6 +169,7 @@ int kdbnearsym(unsigned long addr, kdb_symtab_t *symtab)
 	symtab->sym_end = symtab->sym_start + symbolsize;
 	ret = symtab->sym_name != NULL && *(symtab->sym_name) != '\0';
 
+<<<<<<< HEAD
 	if (ret) {
 		int i;
 		/* Another 2.6 kallsyms "feature".  Sometimes the sym_name is
@@ -169,6 +230,16 @@ void kdbnearsym_cleanup(void)
 	}
 }
 
+=======
+	if (symtab->mod_name == NULL)
+		symtab->mod_name = "kernel";
+	kdb_dbg_printf(AR, "returns %d symtab->sym_start=0x%lx, symtab->mod_name=%px, symtab->sym_name=%px (%s)\n",
+		       ret, symtab->sym_start, symtab->mod_name, symtab->sym_name, symtab->sym_name);
+out:
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static char ks_namebuf[KSYM_NAME_LEN+1], ks_namebuf_prev[KSYM_NAME_LEN+1];
 
 /*
@@ -192,7 +263,11 @@ int kallsyms_symbol_complete(char *prefix_name, int max_len)
 
 	while ((name = kdb_walk_kallsyms(&pos))) {
 		if (strncmp(name, prefix_name, prefix_len) == 0) {
+<<<<<<< HEAD
 			strcpy(ks_namebuf, name);
+=======
+			strscpy(ks_namebuf, name, sizeof(ks_namebuf));
+>>>>>>> upstream/android-13
 			/* Work out the longest name that matches the prefix */
 			if (++number == 1) {
 				prev_len = min_t(int, max_len-1,
@@ -325,10 +400,17 @@ char *kdb_strdup(const char *str, gfp_t type)
  */
 int kdb_getarea_size(void *res, unsigned long addr, size_t size)
 {
+<<<<<<< HEAD
 	int ret = probe_kernel_read((char *)res, (char *)addr, size);
 	if (ret) {
 		if (!KDB_STATE(SUPPRESS)) {
 			kdb_printf("kdb_getarea: Bad address 0x%lx\n", addr);
+=======
+	int ret = copy_from_kernel_nofault((char *)res, (char *)addr, size);
+	if (ret) {
+		if (!KDB_STATE(SUPPRESS)) {
+			kdb_func_printf("Bad address 0x%lx\n", addr);
+>>>>>>> upstream/android-13
 			KDB_STATE_SET(SUPPRESS);
 		}
 		ret = KDB_BADADDR;
@@ -350,10 +432,17 @@ int kdb_getarea_size(void *res, unsigned long addr, size_t size)
  */
 int kdb_putarea_size(unsigned long addr, void *res, size_t size)
 {
+<<<<<<< HEAD
 	int ret = probe_kernel_read((char *)addr, (char *)res, size);
 	if (ret) {
 		if (!KDB_STATE(SUPPRESS)) {
 			kdb_printf("kdb_putarea: Bad address 0x%lx\n", addr);
+=======
+	int ret = copy_to_kernel_nofault((char *)addr, (char *)res, size);
+	if (ret) {
+		if (!KDB_STATE(SUPPRESS)) {
+			kdb_func_printf("Bad address 0x%lx\n", addr);
+>>>>>>> upstream/android-13
 			KDB_STATE_SET(SUPPRESS);
 		}
 		ret = KDB_BADADDR;
@@ -432,10 +521,17 @@ int kdb_getphysword(unsigned long *word, unsigned long addr, size_t size)
 				*word = w8;
 			break;
 		}
+<<<<<<< HEAD
 		/* drop through */
 	default:
 		diag = KDB_BADWIDTH;
 		kdb_printf("kdb_getphysword: bad width %ld\n", (long) size);
+=======
+		fallthrough;
+	default:
+		diag = KDB_BADWIDTH;
+		kdb_func_printf("bad width %zu\n", size);
+>>>>>>> upstream/android-13
 	}
 	return diag;
 }
@@ -481,10 +577,17 @@ int kdb_getword(unsigned long *word, unsigned long addr, size_t size)
 				*word = w8;
 			break;
 		}
+<<<<<<< HEAD
 		/* drop through */
 	default:
 		diag = KDB_BADWIDTH;
 		kdb_printf("kdb_getword: bad width %ld\n", (long) size);
+=======
+		fallthrough;
+	default:
+		diag = KDB_BADWIDTH;
+		kdb_func_printf("bad width %zu\n", size);
+>>>>>>> upstream/android-13
 	}
 	return diag;
 }
@@ -525,14 +628,22 @@ int kdb_putword(unsigned long addr, unsigned long word, size_t size)
 			diag = kdb_putarea(addr, w8);
 			break;
 		}
+<<<<<<< HEAD
 		/* drop through */
 	default:
 		diag = KDB_BADWIDTH;
 		kdb_printf("kdb_putword: bad width %ld\n", (long) size);
+=======
+		fallthrough;
+	default:
+		diag = KDB_BADWIDTH;
+		kdb_func_printf("bad width %zu\n", size);
+>>>>>>> upstream/android-13
 	}
 	return diag;
 }
 
+<<<<<<< HEAD
 /*
  * kdb_task_state_string - Convert a string containing any of the
  *	letters DRSTCZEUIMA to a mask for the process state field and
@@ -610,6 +721,9 @@ unsigned long kdb_task_state_string(const char *s)
 	}
 	return res;
 }
+=======
+
+>>>>>>> upstream/android-13
 
 /*
  * kdb_task_state_char - Return the character that represents the task state.
@@ -620,6 +734,7 @@ unsigned long kdb_task_state_string(const char *s)
  */
 char kdb_task_state_char (const struct task_struct *p)
 {
+<<<<<<< HEAD
 	int cpu;
 	char state;
 	unsigned long tmp;
@@ -645,6 +760,28 @@ char kdb_task_state_char (const struct task_struct *p)
 		}
 	} else if (!p->mm && state == 'S') {
 		state = 'M';	/* sleeping system daemon */
+=======
+	unsigned long tmp;
+	char state;
+	int cpu;
+
+	if (!p ||
+	    copy_from_kernel_nofault(&tmp, (char *)p, sizeof(unsigned long)))
+		return 'E';
+
+	state = task_state_to_char((struct task_struct *) p);
+
+	if (is_idle_task(p)) {
+		/* Idle task.  Is it really idle, apart from the kdb
+		 * interrupt? */
+		cpu = kdb_process_cpu(p);
+		if (!kdb_task_has_cpu(p) || kgdb_info[cpu].irq_depth == 1) {
+			if (cpu != kdb_initial_cpu)
+				state = '-';	/* idle task */
+		}
+	} else if (!p->mm && strchr("IMS", state)) {
+		state = tolower(state);		/* sleeping system daemon */
+>>>>>>> upstream/android-13
 	}
 	return state;
 }
@@ -654,6 +791,7 @@ char kdb_task_state_char (const struct task_struct *p)
  *	given by the mask.
  * Inputs:
  *	p	struct task for the process
+<<<<<<< HEAD
  *	mask	mask from kdb_task_state_string to select processes
  * Returns:
  *	True if the process matches at least one criteria defined by the mask.
@@ -906,6 +1044,30 @@ void debug_kusage(void)
 			   __func__, h_used, h_used->size, h_used->caller);
 out:
 	spin_unlock(&dap_lock);
+=======
+ *	mask	set of characters used to select processes; both NULL
+ *	        and the empty string mean adopt a default filter, which
+ *	        is to suppress sleeping system daemons and the idle tasks
+ * Returns:
+ *	True if the process matches at least one criteria defined by the mask.
+ */
+bool kdb_task_state(const struct task_struct *p, const char *mask)
+{
+	char state = kdb_task_state_char(p);
+
+	/* If there is no mask, then we will filter code that runs when the
+	 * scheduler is idling and any system daemons that are currently
+	 * sleeping.
+	 */
+	if (!mask || mask[0] == '\0')
+		return !strchr("-ims", state);
+
+	/* A is a special case that matches all states */
+	if (strchr(mask, 'A'))
+		return true;
+
+	return strchr(mask, state);
+>>>>>>> upstream/android-13
 }
 
 /* Maintain a small stack of kdb_flags to allow recursion without disturbing

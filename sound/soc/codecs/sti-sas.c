@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) STMicroelectronics SA 2015
  * Authors: Arnaud Pouliquen <arnaud.pouliquen@st.com>
  *          for STMicroelectronics.
+<<<<<<< HEAD
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -51,14 +58,20 @@ static const struct reg_default stih407_sas_reg_defaults[] = {
 struct sti_dac_audio {
 	struct regmap *regmap;
 	struct regmap *virt_regmap;
+<<<<<<< HEAD
 	struct regmap_field  **field;
 	struct reset_control *rst;
+=======
+>>>>>>> upstream/android-13
 	int mclk;
 };
 
 struct sti_spdif_audio {
 	struct regmap *regmap;
+<<<<<<< HEAD
 	struct regmap_field  **field;
+=======
+>>>>>>> upstream/android-13
 	int mclk;
 };
 
@@ -411,6 +424,10 @@ static const struct of_device_id sti_sas_dev_match[] = {
 	},
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, sti_sas_dev_match);
+>>>>>>> upstream/android-13
 
 static int sti_sas_driver_probe(struct platform_device *pdev)
 {

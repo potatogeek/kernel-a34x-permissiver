@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Stateless NAT actions
  *
  * Copyright (c) 2007 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -21,6 +28,10 @@
 #include <linux/string.h>
 #include <linux/tc_act/tc_nat.h>
 #include <net/act_api.h>
+<<<<<<< HEAD
+=======
+#include <net/pkt_cls.h>
+>>>>>>> upstream/android-13
 #include <net/icmp.h>
 #include <net/ip.h>
 #include <net/netlink.h>
@@ -37,11 +48,21 @@ static const struct nla_policy nat_policy[TCA_NAT_MAX + 1] = {
 };
 
 static int tcf_nat_init(struct net *net, struct nlattr *nla, struct nlattr *est,
+<<<<<<< HEAD
 			struct tc_action **a, int ovr, int bind,
 			bool rtnl_held, struct netlink_ext_ack *extack)
 {
 	struct tc_action_net *tn = net_generic(net, nat_net_id);
 	struct nlattr *tb[TCA_NAT_MAX + 1];
+=======
+			struct tc_action **a, struct tcf_proto *tp,
+			u32 flags, struct netlink_ext_ack *extack)
+{
+	struct tc_action_net *tn = net_generic(net, nat_net_id);
+	bool bind = flags & TCA_ACT_FLAGS_BIND;
+	struct nlattr *tb[TCA_NAT_MAX + 1];
+	struct tcf_chain *goto_ch = NULL;
+>>>>>>> upstream/android-13
 	struct tc_nat *parm;
 	int ret = 0, err;
 	struct tcf_nat *p;
@@ -50,7 +71,12 @@ static int tcf_nat_init(struct net *net, struct nlattr *nla, struct nlattr *est,
 	if (nla == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_NAT_MAX, nla, nat_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_NAT_MAX, nla, nat_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -61,7 +87,11 @@ static int tcf_nat_init(struct net *net, struct nlattr *nla, struct nlattr *est,
 	err = tcf_idr_check_alloc(tn, &index, a, bind);
 	if (!err) {
 		ret = tcf_idr_create(tn, index, est, a,
+<<<<<<< HEAD
 				     &act_nat_ops, bind, false);
+=======
+				     &act_nat_ops, bind, false, 0);
+>>>>>>> upstream/android-13
 		if (ret) {
 			tcf_idr_cleanup(tn, index);
 			return ret;
@@ -70,13 +100,23 @@ static int tcf_nat_init(struct net *net, struct nlattr *nla, struct nlattr *est,
 	} else if (err > 0) {
 		if (bind)
 			return 0;
+<<<<<<< HEAD
 		if (!ovr) {
+=======
+		if (!(flags & TCA_ACT_FLAGS_REPLACE)) {
+>>>>>>> upstream/android-13
 			tcf_idr_release(*a, bind);
 			return -EEXIST;
 		}
 	} else {
 		return err;
 	}
+<<<<<<< HEAD
+=======
+	err = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+	if (err < 0)
+		goto release_idr;
+>>>>>>> upstream/android-13
 	p = to_tcf_nat(*a);
 
 	spin_lock_bh(&p->tcf_lock);
@@ -85,6 +125,7 @@ static int tcf_nat_init(struct net *net, struct nlattr *nla, struct nlattr *est,
 	p->mask = parm->mask;
 	p->flags = parm->flags;
 
+<<<<<<< HEAD
 	p->tcf_action = parm->action;
 	spin_unlock_bh(&p->tcf_lock);
 
@@ -92,6 +133,17 @@ static int tcf_nat_init(struct net *net, struct nlattr *nla, struct nlattr *est,
 		tcf_idr_insert(tn, *a);
 
 	return ret;
+=======
+	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
+	spin_unlock_bh(&p->tcf_lock);
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+
+	return ret;
+release_idr:
+	tcf_idr_release(*a, bind);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int tcf_nat_act(struct sk_buff *skb, const struct tc_action *a,
@@ -198,9 +250,13 @@ static int tcf_nat_act(struct sk_buff *skb, const struct tc_action *a,
 
 		icmph = (void *)(skb_network_header(skb) + ihl);
 
+<<<<<<< HEAD
 		if ((icmph->type != ICMP_DEST_UNREACH) &&
 		    (icmph->type != ICMP_TIME_EXCEEDED) &&
 		    (icmph->type != ICMP_PARAMETERPROB))
+=======
+		if (!icmp_is_err(icmph->type))
+>>>>>>> upstream/android-13
 			break;
 
 		if (!pskb_may_pull(skb, ihl + sizeof(*icmph) + sizeof(*iph) +
@@ -257,6 +313,7 @@ static int tcf_nat_dump(struct sk_buff *skb, struct tc_action *a,
 	unsigned char *b = skb_tail_pointer(skb);
 	struct tcf_nat *p = to_tcf_nat(a);
 	struct tc_nat opt = {
+<<<<<<< HEAD
 		.old_addr = p->old_addr,
 		.new_addr = p->new_addr,
 		.mask     = p->mask,
@@ -264,21 +321,42 @@ static int tcf_nat_dump(struct sk_buff *skb, struct tc_action *a,
 
 		.index    = p->tcf_index,
 		.action   = p->tcf_action,
+=======
+		.index    = p->tcf_index,
+>>>>>>> upstream/android-13
 		.refcnt   = refcount_read(&p->tcf_refcnt) - ref,
 		.bindcnt  = atomic_read(&p->tcf_bindcnt) - bind,
 	};
 	struct tcf_t t;
 
+<<<<<<< HEAD
+=======
+	spin_lock_bh(&p->tcf_lock);
+	opt.old_addr = p->old_addr;
+	opt.new_addr = p->new_addr;
+	opt.mask = p->mask;
+	opt.flags = p->flags;
+	opt.action = p->tcf_action;
+
+>>>>>>> upstream/android-13
 	if (nla_put(skb, TCA_NAT_PARMS, sizeof(opt), &opt))
 		goto nla_put_failure;
 
 	tcf_tm_dump(&t, &p->tcf_tm);
 	if (nla_put_64bit(skb, TCA_NAT_TM, sizeof(t), &t, TCA_NAT_PAD))
 		goto nla_put_failure;
+<<<<<<< HEAD
+=======
+	spin_unlock_bh(&p->tcf_lock);
+>>>>>>> upstream/android-13
 
 	return skb->len;
 
 nla_put_failure:
+<<<<<<< HEAD
+=======
+	spin_unlock_bh(&p->tcf_lock);
+>>>>>>> upstream/android-13
 	nlmsg_trim(skb, b);
 	return -1;
 }
@@ -293,8 +371,12 @@ static int tcf_nat_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_nat_search(struct net *net, struct tc_action **a, u32 index,
 			  struct netlink_ext_ack *extack)
+=======
+static int tcf_nat_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, nat_net_id);
 
@@ -303,7 +385,11 @@ static int tcf_nat_search(struct net *net, struct tc_action **a, u32 index,
 
 static struct tc_action_ops act_nat_ops = {
 	.kind		=	"nat",
+<<<<<<< HEAD
 	.type		=	TCA_ACT_NAT,
+=======
+	.id		=	TCA_ID_NAT,
+>>>>>>> upstream/android-13
 	.owner		=	THIS_MODULE,
 	.act		=	tcf_nat_act,
 	.dump		=	tcf_nat_dump,

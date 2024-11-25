@@ -8,6 +8,7 @@
 #include <linux/netdevice.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 struct bpf_map_def SEC("maps") my_map = {
@@ -16,6 +17,18 @@ struct bpf_map_def SEC("maps") my_map = {
 	.value_size = sizeof(long),
 	.max_entries = 1024,
 };
+=======
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+#include "trace_common.h"
+
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, long);
+	__type(value, long);
+	__uint(max_entries, 1024);
+} my_map SEC(".maps");
+>>>>>>> upstream/android-13
 
 /* kprobe is NOT a stable ABI. If kernel internals change this bpf+kprobe
  * example will no longer be meaningful
@@ -69,6 +82,7 @@ struct hist_key {
 	u64 index;
 };
 
+<<<<<<< HEAD
 struct bpf_map_def SEC("maps") my_hist_map = {
 	.type = BPF_MAP_TYPE_PERCPU_HASH,
 	.key_size = sizeof(struct hist_key),
@@ -77,6 +91,16 @@ struct bpf_map_def SEC("maps") my_hist_map = {
 };
 
 SEC("kprobe/sys_write")
+=======
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
+	__uint(key_size, sizeof(struct hist_key));
+	__uint(value_size, sizeof(long));
+	__uint(max_entries, 1024);
+} my_hist_map SEC(".maps");
+
+SEC("kprobe/" SYSCALL(sys_write))
+>>>>>>> upstream/android-13
 int bpf_prog3(struct pt_regs *ctx)
 {
 	long write_size = PT_REGS_PARM3(ctx);

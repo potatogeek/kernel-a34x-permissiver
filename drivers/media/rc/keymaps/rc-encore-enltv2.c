@@ -14,6 +14,7 @@
 static struct rc_map_table encore_enltv2[] = {
 	{ 0x4c, KEY_POWER2 },
 	{ 0x4a, KEY_TUNER },
+<<<<<<< HEAD
 	{ 0x40, KEY_1 },
 	{ 0x60, KEY_2 },
 	{ 0x50, KEY_3 },
@@ -24,6 +25,18 @@ static struct rc_map_table encore_enltv2[] = {
 	{ 0x78, KEY_8 },
 	{ 0x44, KEY_9 },
 	{ 0x54, KEY_0 },
+=======
+	{ 0x40, KEY_NUMERIC_1 },
+	{ 0x60, KEY_NUMERIC_2 },
+	{ 0x50, KEY_NUMERIC_3 },
+	{ 0x70, KEY_NUMERIC_4 },
+	{ 0x48, KEY_NUMERIC_5 },
+	{ 0x68, KEY_NUMERIC_6 },
+	{ 0x58, KEY_NUMERIC_7 },
+	{ 0x78, KEY_NUMERIC_8 },
+	{ 0x44, KEY_NUMERIC_9 },
+	{ 0x54, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	{ 0x64, KEY_LAST },		/* +100 */
 	{ 0x4e, KEY_AGAIN },		/* Recall */

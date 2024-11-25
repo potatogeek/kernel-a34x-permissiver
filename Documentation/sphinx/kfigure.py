@@ -29,7 +29,11 @@ u"""
 
     Used tools:
 
+<<<<<<< HEAD
     * ``dot(1)``: Graphviz (http://www.graphviz.org). If Graphviz is not
+=======
+    * ``dot(1)``: Graphviz (https://www.graphviz.org). If Graphviz is not
+>>>>>>> upstream/android-13
       available, the DOT language is inserted as literal-block.
 
     * SVG to PDF: To generate PDF, you need at least one of this tools:
@@ -41,7 +45,11 @@ u"""
     * generate PDF from SVG / used by PDF (LaTeX) builder
 
     * generate SVG (html-builder) and PDF (latex-builder) from DOT files.
+<<<<<<< HEAD
       DOT: see http://www.graphviz.org/content/dot-language
+=======
+      DOT: see https://www.graphviz.org/content/dot-language
+>>>>>>> upstream/android-13
 
     """
 
@@ -49,13 +57,17 @@ import os
 from os import path
 import subprocess
 from hashlib import sha1
+<<<<<<< HEAD
 import sys
 
+=======
+>>>>>>> upstream/android-13
 from docutils import nodes
 from docutils.statemachine import ViewList
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images
 import sphinx
+<<<<<<< HEAD
 
 from sphinx.util.nodes import clean_astext
 from six import iteritems
@@ -69,6 +81,11 @@ if PY3:
 else:
     _unicode = unicode
 
+=======
+from sphinx.util.nodes import clean_astext
+import kernellog
+
+>>>>>>> upstream/android-13
 # Get Sphinx version
 major, minor, patch = sphinx.version_info[:3]
 if major == 1 and minor > 3:
@@ -182,7 +199,11 @@ def setupTools(app):
         kernellog.verbose(app, "use dot(1) from: " + dot_cmd)
     else:
         kernellog.warn(app, "dot(1) not found, for better output quality install "
+<<<<<<< HEAD
                        "graphviz from http://www.graphviz.org")
+=======
+                       "graphviz from https://www.graphviz.org")
+>>>>>>> upstream/android-13
     if convert_cmd:
         kernellog.verbose(app, "use convert(1) from: " + convert_cmd)
     else:
@@ -540,7 +561,11 @@ def add_kernel_figure_to_std_domain(app, doctree):
     docname = app.env.docname
     labels = std.data["labels"]
 
+<<<<<<< HEAD
     for name, explicit in iteritems(doctree.nametypes):
+=======
+    for name, explicit in doctree.nametypes.items():
+>>>>>>> upstream/android-13
         if not explicit:
             continue
         labelid = doctree.nameids[name]

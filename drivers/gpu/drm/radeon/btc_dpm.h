@@ -23,6 +23,12 @@
 #ifndef __BTC_DPM_H__
 #define __BTC_DPM_H__
 
+<<<<<<< HEAD
+=======
+#include "radeon.h"
+#include "rv770_dpm.h"
+
+>>>>>>> upstream/android-13
 #define BTC_RLP_UVD_DFLT                              20
 #define BTC_RMP_UVD_DFLT                              50
 #define BTC_LHP_UVD_DFLT                              50

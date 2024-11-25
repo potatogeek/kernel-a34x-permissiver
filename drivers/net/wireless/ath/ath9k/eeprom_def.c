@@ -402,7 +402,11 @@ static u32 ath9k_hw_def_get_eeprom(struct ath_hw *ah,
 			return AR5416_PWR_TABLE_OFFSET_DB;
 	case EEP_ANTENNA_GAIN_2G:
 		band = 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EEP_ANTENNA_GAIN_5G:
 		return max_t(u8, max_t(u8,
 			pModal[band].antennaGainCh[0],

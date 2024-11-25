@@ -55,6 +55,10 @@ int tm_sigreturn(void)
 	uint64_t ret = 0;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 	SKIP_IF(!is_ppc64le());
 
 	memset(&sa, 0, sizeof(sa));

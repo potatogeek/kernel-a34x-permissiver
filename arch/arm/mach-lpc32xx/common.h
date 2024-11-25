@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-lpc32xx/common.h
  *
  * Author: Kevin Wells <kevin.wells@nxp.com>
  *
  * Copyright (C) 2009-2010 NXP Semiconductors
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LPC32XX_COMMON_H
@@ -32,7 +39,10 @@ extern void __init lpc32xx_serial_init(void);
  */
 extern void lpc32xx_get_uid(u32 devid[4]);
 
+<<<<<<< HEAD
 extern u32 lpc32xx_return_iram_size(void);
+=======
+>>>>>>> upstream/android-13
 /*
  * Pointers used for sizing and copying suspend function data
  */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2013, NVIDIA Corporation. All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2010-2013, NVIDIA Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MACH_TEGRA_SLEEP_H
@@ -125,12 +131,16 @@
 .endm
 
 #else
+<<<<<<< HEAD
 void tegra_pen_lock(void);
 void tegra_pen_unlock(void);
+=======
+>>>>>>> upstream/android-13
 void tegra_resume(void);
 int tegra_sleep_cpu_finish(unsigned long);
 void tegra_disable_clean_inv_dcache(u32 flag);
 
+<<<<<<< HEAD
 #ifdef CONFIG_HOTPLUG_CPU
 void tegra20_hotplug_shutdown(void);
 void tegra30_hotplug_shutdown(void);
@@ -148,6 +158,12 @@ static inline void tegra20_cpu_set_resettable_soon(void) {}
 int tegra20_sleep_cpu_secondary_finish(unsigned long);
 void tegra20_tear_down_cpu(void);
 int tegra30_sleep_cpu_secondary_finish(unsigned long);
+=======
+void tegra20_hotplug_shutdown(void);
+void tegra30_hotplug_shutdown(void);
+
+void tegra20_tear_down_cpu(void);
+>>>>>>> upstream/android-13
 void tegra30_tear_down_cpu(void);
 
 #endif

@@ -101,9 +101,14 @@ static void macio_gpio_init_one(struct macio_chip *macio)
 	 * Find the "gpio" parent node
 	 */
 
+<<<<<<< HEAD
 	for (gparent = NULL;
 	     (gparent = of_get_next_child(macio->of_node, gparent)) != NULL;)
 		if (strcmp(gparent->name, "gpio") == 0)
+=======
+	for_each_child_of_node(macio->of_node, gparent)
+		if (of_node_name_eq(gparent, "gpio"))
+>>>>>>> upstream/android-13
 			break;
 	if (gparent == NULL)
 		return;
@@ -115,7 +120,11 @@ static void macio_gpio_init_one(struct macio_chip *macio)
 	 * Ok, got one, we dont need anything special to track them down, so
 	 * we just create them all
 	 */
+<<<<<<< HEAD
 	for (gp = NULL; (gp = of_get_next_child(gparent, gp)) != NULL;) {
+=======
+	for_each_child_of_node(gparent, gp) {
+>>>>>>> upstream/android-13
 		const u32 *reg = of_get_property(gp, "reg", NULL);
 		unsigned long offset;
 		if (reg == NULL)
@@ -134,7 +143,11 @@ static void macio_gpio_init_one(struct macio_chip *macio)
 	    macio->of_node);
 
 	/* And now we run all the init ones */
+<<<<<<< HEAD
 	for (gp = NULL; (gp = of_get_next_child(gparent, gp)) != NULL;)
+=======
+	for_each_child_of_node(gparent, gp)
+>>>>>>> upstream/android-13
 		pmf_do_functions(gp, NULL, 0, PMF_FLAGS_ON_INIT, NULL);
 
 	/* Note: We do not at this point implement the "at sleep" or "at wake"
@@ -313,7 +326,11 @@ static void uninorth_install_pfunc(void)
 	 * Install handlers for the hwclock child if any
 	 */
 	for (np = NULL; (np = of_get_next_child(uninorth_node, np)) != NULL;)
+<<<<<<< HEAD
 		if (strcmp(np->name, "hw-clock") == 0) {
+=======
+		if (of_node_name_eq(np, "hw-clock")) {
+>>>>>>> upstream/android-13
 			unin_hwclock = np;
 			break;
 		}

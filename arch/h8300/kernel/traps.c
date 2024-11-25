@@ -39,10 +39,13 @@ void __init base_trap_init(void)
 {
 }
 
+<<<<<<< HEAD
 void __init trap_init(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 asmlinkage void set_esp0(unsigned long ssp)
 {
 	current->thread.esp0 = ssp;
@@ -115,7 +118,11 @@ void die(const char *str, struct pt_regs *fp, unsigned long err)
 
 static int kstack_depth_to_print = 24;
 
+<<<<<<< HEAD
 void show_stack(struct task_struct *task, unsigned long *esp)
+=======
+void show_stack(struct task_struct *task, unsigned long *esp, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long *stack,  addr;
 	int i;
@@ -125,17 +132,29 @@ void show_stack(struct task_struct *task, unsigned long *esp)
 
 	stack = esp;
 
+<<<<<<< HEAD
 	pr_info("Stack from %08lx:", (unsigned long)stack);
+=======
+	printk("%sStack from %08lx:", loglvl, (unsigned long)stack);
+>>>>>>> upstream/android-13
 	for (i = 0; i < kstack_depth_to_print; i++) {
 		if (((unsigned long)stack & (THREAD_SIZE - 1)) >=
 		    THREAD_SIZE-4)
 			break;
 		if (i % 8 == 0)
+<<<<<<< HEAD
 			pr_info(" ");
 		pr_cont(" %08lx", *stack++);
 	}
 
 	pr_info("\nCall Trace:\n");
+=======
+			printk("%s ", loglvl);
+		pr_cont(" %08lx", *stack++);
+	}
+
+	printk("%s\nCall Trace:\n", loglvl);
+>>>>>>> upstream/android-13
 	i = 0;
 	stack = esp;
 	while (((unsigned long)stack & (THREAD_SIZE - 1)) < THREAD_SIZE-4) {
@@ -150,10 +169,18 @@ void show_stack(struct task_struct *task, unsigned long *esp)
 		 */
 		if (check_kernel_text(addr)) {
 			if (i % 4 == 0)
+<<<<<<< HEAD
 				pr_info("       ");
+=======
+				printk("%s       ", loglvl);
+>>>>>>> upstream/android-13
 			pr_cont(" [<%08lx>]", addr);
 			i++;
 		}
 	}
+<<<<<<< HEAD
 	pr_info("\n");
+=======
+	printk("%s\n", loglvl);
+>>>>>>> upstream/android-13
 }

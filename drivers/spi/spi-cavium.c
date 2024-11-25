@@ -119,8 +119,12 @@ static int octeon_spi_do_transfer(struct octeon_spi *p,
 			*rx_buf++ = (u8)v;
 		}
 
+<<<<<<< HEAD
 	if (xfer->delay_usecs)
 		udelay(xfer->delay_usecs);
+=======
+	spi_transfer_delay_exec(xfer);
+>>>>>>> upstream/android-13
 
 	return xfer->len;
 }

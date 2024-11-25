@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright 2007-2010 Red Hat, Inc.
  *  by Peter Jones <pjones@redhat.com>
@@ -8,6 +12,7 @@
  *
  * This code exposes the iSCSI Boot Format Table to userland via sysfs.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
  * the Free Software Foundation
@@ -17,6 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Changelog:
  *
  *  06 Jan 2010 - Peter Jones <pjones@redhat.com>
@@ -63,7 +70,10 @@
  *
  *  27 Aug 2007 - Konrad Rzeszutek <konradr@linux.vnet.ibm.com>
  *   First version exposing iBFT data via a binary /sysfs. (v0.1)
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -93,9 +103,13 @@ MODULE_DESCRIPTION("sysfs interface to BIOS iBFT information");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(IBFT_ISCSI_VERSION);
 
+<<<<<<< HEAD
 #ifndef CONFIG_ISCSI_IBFT_FIND
 struct acpi_table_ibft *ibft_addr;
 #endif
+=======
+static struct acpi_table_ibft *ibft_addr;
+>>>>>>> upstream/android-13
 
 struct ibft_hdr {
 	u8 id;
@@ -113,6 +127,10 @@ struct ibft_control {
 	u16 tgt0_off;
 	u16 nic1_off;
 	u16 tgt1_off;
+<<<<<<< HEAD
+=======
+	u16 expansion[];
+>>>>>>> upstream/android-13
 } __attribute__((__packed__));
 
 struct ibft_initiator {
@@ -244,7 +262,11 @@ static int ibft_verify_hdr(char *t, struct ibft_hdr *hdr, int id, int length)
 				"found %d instead!\n", t, id, hdr->id);
 		return -ENODEV;
 	}
+<<<<<<< HEAD
 	if (hdr->length != length) {
+=======
+	if (length && hdr->length != length) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "iBFT error: We expected the %s " \
 				"field header.length to have %d but " \
 				"found %d instead!\n", t, length, hdr->length);
@@ -429,7 +451,11 @@ static ssize_t ibft_attr_show_acpitbl(void *data, int type, char *buf)
 
 	switch (type) {
 	case ISCSI_BOOT_ACPITBL_SIGNATURE:
+<<<<<<< HEAD
 		str += sprintf_string(str, ACPI_NAME_SIZE,
+=======
+		str += sprintf_string(str, ACPI_NAMESEG_SIZE,
+>>>>>>> upstream/android-13
 				      entry->header->header.signature);
 		break;
 	case ISCSI_BOOT_ACPITBL_OEM_ID:
@@ -758,16 +784,28 @@ static int __init ibft_register_kobjects(struct acpi_table_ibft *header)
 	control = (void *)header + sizeof(*header);
 	end = (void *)control + control->hdr.length;
 	eot_offset = (void *)header + header->header.length - (void *)control;
+<<<<<<< HEAD
 	rc = ibft_verify_hdr("control", (struct ibft_hdr *)control, id_control,
 			     sizeof(*control));
 
 	/* iBFT table safety checking */
 	rc |= ((control->hdr.index) ? -ENODEV : 0);
+=======
+	rc = ibft_verify_hdr("control", (struct ibft_hdr *)control, id_control, 0);
+
+	/* iBFT table safety checking */
+	rc |= ((control->hdr.index) ? -ENODEV : 0);
+	rc |= ((control->hdr.length < sizeof(*control)) ? -ENODEV : 0);
+>>>>>>> upstream/android-13
 	if (rc) {
 		printk(KERN_ERR "iBFT error: Control header is invalid!\n");
 		return rc;
 	}
+<<<<<<< HEAD
 	for (ptr = &control->initiator_off; ptr < end; ptr += sizeof(u16)) {
+=======
+	for (ptr = &control->initiator_off; ptr + sizeof(u16) <= end; ptr += sizeof(u16)) {
+>>>>>>> upstream/android-13
 		offset = *(u16 *)ptr;
 		if (offset && offset < header->header.length &&
 						offset < eot_offset) {
@@ -857,7 +895,25 @@ static void __init acpi_find_ibft_region(void)
 {
 }
 #endif
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_ISCSI_IBFT_FIND
+static int __init acpi_find_isa_region(void)
+{
+	if (ibft_phys_addr) {
+		ibft_addr = isa_bus_to_virt(ibft_phys_addr);
+		return 0;
+	}
+	return -ENODEV;
+}
+#else
+static int __init acpi_find_isa_region(void)
+{
+	return -ENODEV;
+}
+#endif
+>>>>>>> upstream/android-13
 /*
  * ibft_init() - creates sysfs tree entries for the iBFT data.
  */
@@ -866,11 +922,19 @@ static int __init ibft_init(void)
 	int rc = 0;
 
 	/*
+<<<<<<< HEAD
 	   As on UEFI systems the setup_arch()/find_ibft_region()
 	   is called before ACPI tables are parsed and it only does
 	   legacy finding.
 	*/
 	if (!ibft_addr)
+=======
+	   As on UEFI systems the setup_arch()/reserve_ibft_region()
+	   is called before ACPI tables are parsed and it only does
+	   legacy finding.
+	*/
+	if (acpi_find_isa_region())
+>>>>>>> upstream/android-13
 		acpi_find_ibft_region();
 
 	if (ibft_addr) {

@@ -13,6 +13,10 @@
 	};
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0x40000000>;
 	};
 
@@ -231,7 +235,11 @@
 };
 
 &ecspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio3 19 0>;
+=======
+	cs-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "okay";
@@ -264,6 +272,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
 	phy-mode = "rgmii";
+<<<<<<< HEAD
 	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
 	txen-skew-ps = <0>;
 	txc-skew-ps = <3000>;
@@ -277,10 +286,38 @@
 	txd1-skew-ps = <0>;
 	txd2-skew-ps = <0>;
 	txd3-skew-ps = <0>;
+=======
+	phy-handle = <&ethphy>;
+	phy-reset-gpios = <&gpio1 27 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
 			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
 	fsl,err006687-workaround-present;
 	status = "okay";
+<<<<<<< HEAD
+=======
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			txen-skew-ps = <0>;
+			txc-skew-ps = <3000>;
+			rxdv-skew-ps = <0>;
+			rxc-skew-ps = <3000>;
+			rxd0-skew-ps = <0>;
+			rxd1-skew-ps = <0>;
+			rxd2-skew-ps = <0>;
+			rxd3-skew-ps = <0>;
+			txd0-skew-ps = <0>;
+			txd1-skew-ps = <0>;
+			txd2-skew-ps = <0>;
+			txd3-skew-ps = <0>;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &hdmi {
@@ -595,6 +632,10 @@
 };
 
 &pwm1 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
 	status = "okay";
@@ -607,6 +648,10 @@
 };
 
 &pwm4 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm4>;
 	status = "okay";

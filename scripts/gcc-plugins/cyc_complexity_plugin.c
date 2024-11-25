@@ -5,7 +5,11 @@
  * Homepage:
  * https://github.com/ephox-gcc-plugins/cyclomatic_complexity
  *
+<<<<<<< HEAD
  * http://en.wikipedia.org/wiki/Cyclomatic_complexity
+=======
+ * https://en.wikipedia.org/wiki/Cyclomatic_complexity
+>>>>>>> upstream/android-13
  * The complexity M is then defined as:
  * M = E - N + 2P
  * where

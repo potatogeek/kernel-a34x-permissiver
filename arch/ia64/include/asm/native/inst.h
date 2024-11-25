@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /******************************************************************************
  * arch/ia64/include/asm/native/inst.h
  *
  * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
  *                    VA Linux Systems Japan K.K.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DO_SAVE_MIN		IA64_NATIVE_DO_SAVE_MIN

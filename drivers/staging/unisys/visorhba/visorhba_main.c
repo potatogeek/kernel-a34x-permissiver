@@ -6,10 +6,17 @@
 
 #include <linux/debugfs.h>
 #include <linux/kthread.h>
+<<<<<<< HEAD
 #include <linux/idr.h>
 #include <linux/module.h>
 #include <linux/seq_file.h>
 #include <linux/visorbus.h>
+=======
+#include <linux/module.h>
+#include <linux/seq_file.h>
+#include <linux/visorbus.h>
+#include <linux/xarray.h>
+>>>>>>> upstream/android-13
 #include <scsi/scsi.h>
 #include <scsi/scsi_host.h>
 #include <scsi/scsi_cmnd.h>
@@ -74,6 +81,7 @@ struct visorhba_devdata {
 	unsigned long long interrupts_notme;
 	unsigned long long interrupts_disabled;
 	u64 __iomem *flags_addr;
+<<<<<<< HEAD
 	atomic_t interrupt_rcvd;
 	wait_queue_head_t rsp_queue;
 	struct visordisk_info head;
@@ -82,12 +90,22 @@ struct visorhba_devdata {
 	struct task_struct *thread;
 	int thread_wait_ms;
 
+=======
+	struct visordisk_info head;
+	unsigned int max_buff_len;
+	int devnum;
+	struct uiscmdrsp *cmdrsp;
+>>>>>>> upstream/android-13
 	/*
 	 * allows us to pass int handles back-and-forth between us and
 	 * iovm, instead of raw pointers
 	 */
+<<<<<<< HEAD
 	struct idr idr;
 
+=======
+	struct xarray xa;
+>>>>>>> upstream/android-13
 	struct dentry *debugfs_dir;
 	struct dentry *debugfs_info;
 };
@@ -97,6 +115,7 @@ struct visorhba_devices_open {
 };
 
 /*
+<<<<<<< HEAD
  * visor_thread_start - Starts a thread for the device
  * @threadfn:   Function the thread starts
  * @thrcontext: Context to pass to the thread, i.e. devdata
@@ -130,6 +149,8 @@ static void visor_thread_stop(struct task_struct *task)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * add_scsipending_entry - Save off io command that is pending in
  *			   Service Partition
  * @devdata: Pointer to devdata
@@ -220,6 +241,7 @@ static struct uiscmdrsp *get_scsipending_cmdrsp(struct visorhba_devdata *ddata,
 }
 
 /*
+<<<<<<< HEAD
  * simple_idr_get - Associate a provided pointer with an int value
  *		    1 <= value <= INT_MAX, and return this int value;
  *		    the pointer value can be obtained later by passing
@@ -249,16 +271,23 @@ static unsigned int simple_idr_get(struct idr *idrtable, void *p,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * setup_scsitaskmgmt_handles - Stash the necessary handles so that the
  *				completion processing logic for a taskmgmt
  *				cmd will be able to find who to wake up
  *				and where to stash the result
+<<<<<<< HEAD
  * @idrtable: The data object maintaining the pointer<-->int mappings
  * @lock:     A spinlock used when exclusive access to idrtable is needed
+=======
+ * @xa:       The data object maintaining the pointer<-->int mappings
+>>>>>>> upstream/android-13
  * @cmdrsp:   Response from the IOVM
  * @event:    The event handle to associate with an id
  * @result:   The location to place the result of the event handle into
  */
+<<<<<<< HEAD
 static void setup_scsitaskmgmt_handles(struct idr *idrtable, spinlock_t *lock,
 				       struct uiscmdrsp *cmdrsp,
 				       wait_queue_head_t *event, int *result)
@@ -269,11 +298,33 @@ static void setup_scsitaskmgmt_handles(struct idr *idrtable, spinlock_t *lock,
 		simple_idr_get(idrtable, event, lock);
 	cmdrsp->scsitaskmgmt.notifyresult_handle =
 		simple_idr_get(idrtable, result, lock);
+=======
+static int setup_scsitaskmgmt_handles(struct xarray *xa, struct uiscmdrsp *cmdrsp,
+				       wait_queue_head_t *event, int *result)
+{
+	int ret;
+	u32 id;
+
+	/* specify the event that has to be triggered when this cmd is complete */
+	ret = xa_alloc_irq(xa, &id, event, xa_limit_32b, GFP_KERNEL);
+	if (ret)
+		return ret;
+	cmdrsp->scsitaskmgmt.notify_handle = id;
+	ret = xa_alloc_irq(xa, &id, result, xa_limit_32b, GFP_KERNEL);
+	if (ret) {
+		xa_erase_irq(xa, cmdrsp->scsitaskmgmt.notify_handle);
+		return ret;
+	}
+	cmdrsp->scsitaskmgmt.notifyresult_handle = id;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
  * cleanup_scsitaskmgmt_handles - Forget handles created by
  *				  setup_scsitaskmgmt_handles()
+<<<<<<< HEAD
  * @idrtable: The data object maintaining the pointer<-->int mappings
  * @cmdrsp:   Response from the IOVM
  */
@@ -284,6 +335,16 @@ static void cleanup_scsitaskmgmt_handles(struct idr *idrtable,
 		idr_remove(idrtable, cmdrsp->scsitaskmgmt.notify_handle);
 	if (cmdrsp->scsitaskmgmt.notifyresult_handle)
 		idr_remove(idrtable, cmdrsp->scsitaskmgmt.notifyresult_handle);
+=======
+ * @xa: The data object maintaining the pointer<-->int mappings
+ * @cmdrsp:   Response from the IOVM
+ */
+static void cleanup_scsitaskmgmt_handles(struct xarray *xa,
+					 struct uiscmdrsp *cmdrsp)
+{
+	xa_erase_irq(xa, cmdrsp->scsitaskmgmt.notify_handle);
+	xa_erase_irq(xa, cmdrsp->scsitaskmgmt.notifyresult_handle);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -292,7 +353,11 @@ static void cleanup_scsitaskmgmt_handles(struct idr *idrtable,
  * @tasktype: Type of taskmgmt command
  * @scsidev:  Scsidev that issued command
  *
+<<<<<<< HEAD
  * Create a cmdrsp packet and send it to the Serivce Partition
+=======
+ * Create a cmdrsp packet and send it to the Service Partition
+>>>>>>> upstream/android-13
  * that will service this request.
  *
  * Return: Int representing whether command was queued successfully or not
@@ -305,7 +370,12 @@ static int forward_taskmgmt_command(enum task_mgmt_types tasktype,
 		(struct visorhba_devdata *)scsidev->host->hostdata;
 	int notifyresult = 0xffff;
 	wait_queue_head_t notifyevent;
+<<<<<<< HEAD
 	int scsicmd_id = 0;
+=======
+	int scsicmd_id;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (devdata->serverdown || devdata->serverchangingstate)
 		return FAILED;
@@ -321,8 +391,19 @@ static int forward_taskmgmt_command(enum task_mgmt_types tasktype,
 
 	/* issue TASK_MGMT_ABORT_TASK */
 	cmdrsp->cmdtype = CMD_SCSITASKMGMT_TYPE;
+<<<<<<< HEAD
 	setup_scsitaskmgmt_handles(&devdata->idr, &devdata->privlock, cmdrsp,
 				   &notifyevent, &notifyresult);
+=======
+
+	ret = setup_scsitaskmgmt_handles(&devdata->xa, cmdrsp,
+					 &notifyevent, &notifyresult);
+	if (ret) {
+		dev_dbg(&scsidev->sdev_gendev,
+		        "visorhba: setup_scsitaskmgmt_handles returned %d\n", ret);
+		return FAILED;
+	}
+>>>>>>> upstream/android-13
 
 	/* save destination */
 	cmdrsp->scsitaskmgmt.tasktype = tasktype;
@@ -348,14 +429,22 @@ static int forward_taskmgmt_command(enum task_mgmt_types tasktype,
 	dev_dbg(&scsidev->sdev_gendev,
 		"visorhba: taskmgmt type=%d success; result=0x%x\n",
 		 tasktype, notifyresult);
+<<<<<<< HEAD
 	cleanup_scsitaskmgmt_handles(&devdata->idr, cmdrsp);
+=======
+	cleanup_scsitaskmgmt_handles(&devdata->xa, cmdrsp);
+>>>>>>> upstream/android-13
 	return SUCCESS;
 
 err_del_scsipending_ent:
 	dev_dbg(&scsidev->sdev_gendev,
 		"visorhba: taskmgmt type=%d not executed\n", tasktype);
 	del_scsipending_ent(devdata, scsicmd_id);
+<<<<<<< HEAD
 	cleanup_scsitaskmgmt_handles(&devdata->idr, cmdrsp);
+=======
+	cleanup_scsitaskmgmt_handles(&devdata->xa, cmdrsp);
+>>>>>>> upstream/android-13
 	return FAILED;
 }
 
@@ -645,7 +734,10 @@ static struct scsi_host_template visorhba_driver_template = {
 	.this_id = -1,
 	.slave_alloc = visorhba_slave_alloc,
 	.slave_destroy = visorhba_slave_destroy,
+<<<<<<< HEAD
 	.use_clustering = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -681,6 +773,7 @@ static int info_debugfs_show(struct seq_file *seq, void *v)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int info_debugfs_open(struct inode *inode, struct file *file)
 {
@@ -694,6 +787,9 @@ static const struct file_operations info_debugfs_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(info_debugfs);
+>>>>>>> upstream/android-13
 
 /*
  * complete_taskmgmt_command - Complete task management
@@ -704,6 +800,7 @@ static const struct file_operations info_debugfs_fops = {
  * Service Partition returned the result of the task management
  * command. Wake up anyone waiting for it.
  */
+<<<<<<< HEAD
 static void complete_taskmgmt_command(struct idr *idrtable,
 				      struct uiscmdrsp *cmdrsp, int result)
 {
@@ -711,6 +808,15 @@ static void complete_taskmgmt_command(struct idr *idrtable,
 		idr_find(idrtable, cmdrsp->scsitaskmgmt.notify_handle);
 	int *scsi_result_ptr =
 		idr_find(idrtable, cmdrsp->scsitaskmgmt.notifyresult_handle);
+=======
+static void complete_taskmgmt_command(struct xarray *xa,
+				      struct uiscmdrsp *cmdrsp, int result)
+{
+	wait_queue_head_t *wq =
+		xa_load(xa, cmdrsp->scsitaskmgmt.notify_handle);
+	int *scsi_result_ptr =
+		xa_load(xa, cmdrsp->scsitaskmgmt.notifyresult_handle);
+>>>>>>> upstream/android-13
 	if (unlikely(!(wq && scsi_result_ptr))) {
 		pr_err("visorhba: no completion context; cmd will time out\n");
 		return;
@@ -743,7 +849,11 @@ static void visorhba_serverdown_complete(struct visorhba_devdata *devdata)
 	/* Stop using the IOVM response queue (queue should be drained
 	 * by the end)
 	 */
+<<<<<<< HEAD
 	visor_thread_stop(devdata->thread);
+=======
+	visorbus_disable_channel_interrupts(devdata->dev);
+>>>>>>> upstream/android-13
 
 	/* Fail commands that weren't completed */
 	spin_lock_irqsave(&devdata->privlock, flags);
@@ -758,7 +868,11 @@ static void visorhba_serverdown_complete(struct visorhba_devdata *devdata)
 			break;
 		case CMD_SCSITASKMGMT_TYPE:
 			cmdrsp = pendingdel->sent;
+<<<<<<< HEAD
 			complete_taskmgmt_command(&devdata->idr, cmdrsp,
+=======
+			complete_taskmgmt_command(&devdata->xa, cmdrsp,
+>>>>>>> upstream/android-13
 						  TASK_MGMT_FAILED);
 			break;
 		default:
@@ -884,12 +998,20 @@ static void do_scsi_nolinuxstat(struct uiscmdrsp *cmdrsp,
 			return;
 		}
 
+<<<<<<< HEAD
 		sg = scsi_sglist(scsicmd);
 		for (i = 0; i < scsi_sg_count(scsicmd); i++) {
 			this_page_orig = kmap_atomic(sg_page(sg + i));
 			this_page = (void *)((unsigned long)this_page_orig |
 					     sg[i].offset);
 			memcpy(this_page, buf + bufind, sg[i].length);
+=======
+		scsi_for_each_sg(scsicmd, sg, scsi_sg_count(scsicmd), i) {
+			this_page_orig = kmap_atomic(sg_page(sg));
+			this_page = (void *)((unsigned long)this_page_orig |
+					     sg->offset);
+			memcpy(this_page, buf + bufind, sg->length);
+>>>>>>> upstream/android-13
 			kunmap_atomic(this_page_orig);
 		}
 		kfree(buf);
@@ -956,7 +1078,11 @@ static void drain_queue(struct uiscmdrsp *cmdrsp,
 			if (!del_scsipending_ent(devdata,
 						 cmdrsp->scsitaskmgmt.handle))
 				break;
+<<<<<<< HEAD
 			complete_taskmgmt_command(&devdata->idr, cmdrsp,
+=======
+			complete_taskmgmt_command(&devdata->xa, cmdrsp,
+>>>>>>> upstream/android-13
 						  cmdrsp->scsitaskmgmt.result);
 		} else if (cmdrsp->cmdtype == CMD_NOTIFYGUEST_TYPE)
 			dev_err_once(&devdata->dev->device,
@@ -966,6 +1092,7 @@ static void drain_queue(struct uiscmdrsp *cmdrsp,
 }
 
 /*
+<<<<<<< HEAD
  * process_incoming_rsps - Process responses from IOSP
  * @v:  Void pointer to visorhba_devdata
  *
@@ -997,6 +1124,20 @@ static int process_incoming_rsps(void *v)
 	}
 	kfree(cmdrsp);
 	return 0;
+=======
+ * This is used only when this driver is active as an hba driver in the
+ * client guest partition.  It is called periodically so we can obtain
+ * and process the command respond from the IO Service Partition periodically.
+ */
+static void visorhba_channel_interrupt(struct visor_device *dev)
+{
+	struct visorhba_devdata *devdata = dev_get_drvdata(&dev->device);
+
+	if (!devdata)
+		return;
+
+	drain_queue(devdata->cmdrsp, devdata);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1042,8 +1183,12 @@ static int visorhba_resume(struct visor_device *dev,
 	if (devdata->serverdown && !devdata->serverchangingstate)
 		devdata->serverchangingstate = true;
 
+<<<<<<< HEAD
 	devdata->thread = visor_thread_start(process_incoming_rsps, devdata,
 					     "vhba_incming");
+=======
+	visorbus_enable_channel_interrupts(dev);
+>>>>>>> upstream/android-13
 	devdata->serverdown = false;
 	devdata->serverchangingstate = false;
 
@@ -1109,7 +1254,10 @@ static int visorhba_probe(struct visor_device *dev)
 		goto err_debugfs_dir;
 	}
 
+<<<<<<< HEAD
 	init_waitqueue_head(&devdata->rsp_queue);
+=======
+>>>>>>> upstream/android-13
 	spin_lock_init(&devdata->privlock);
 	devdata->serverdown = false;
 	devdata->serverchangingstate = false;
@@ -1125,11 +1273,18 @@ static int visorhba_probe(struct visor_device *dev)
 	if (err)
 		goto err_debugfs_info;
 
+<<<<<<< HEAD
 	idr_init(&devdata->idr);
 
 	devdata->thread_wait_ms = 2;
 	devdata->thread = visor_thread_start(process_incoming_rsps, devdata,
 					     "vhba_incoming");
+=======
+	xa_init(&devdata->xa);
+
+	devdata->cmdrsp = kmalloc(sizeof(*devdata->cmdrsp), GFP_ATOMIC);
+	visorbus_enable_channel_interrupts(dev);
+>>>>>>> upstream/android-13
 
 	scsi_scan_host(scsihost);
 
@@ -1164,12 +1319,20 @@ static void visorhba_remove(struct visor_device *dev)
 		return;
 
 	scsihost = devdata->scsihost;
+<<<<<<< HEAD
 	visor_thread_stop(devdata->thread);
 	scsi_remove_host(scsihost);
 	scsi_host_put(scsihost);
 
 	idr_destroy(&devdata->idr);
 
+=======
+	kfree(devdata->cmdrsp);
+	visorbus_disable_channel_interrupts(dev);
+	scsi_remove_host(scsihost);
+	scsi_host_put(scsihost);
+
+>>>>>>> upstream/android-13
 	dev_set_drvdata(&dev->device, NULL);
 	debugfs_remove(devdata->debugfs_info);
 	debugfs_remove_recursive(devdata->debugfs_dir);
@@ -1187,7 +1350,11 @@ static struct visor_driver visorhba_driver = {
 	.remove = visorhba_remove,
 	.pause = visorhba_pause,
 	.resume = visorhba_resume,
+<<<<<<< HEAD
 	.channel_interrupt = NULL,
+=======
+	.channel_interrupt = visorhba_channel_interrupt,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1200,7 +1367,11 @@ static struct visor_driver visorhba_driver = {
  */
 static int visorhba_init(void)
 {
+<<<<<<< HEAD
 	int rc = -ENOMEM;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	visorhba_debugfs_dir = debugfs_create_dir("visorhba", NULL);
 	if (!visorhba_debugfs_dir)

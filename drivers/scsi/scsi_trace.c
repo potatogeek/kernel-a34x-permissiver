@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 FUJITSU LIMITED
  * Copyright (C) 2010 Tomohiro Kusumi <kusumi.tomohiro@jp.fujitsu.com>
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2010 FUJITSU LIMITED
+ * Copyright (C) 2010 Tomohiro Kusumi <kusumi.tomohiro@jp.fujitsu.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/trace_seq.h>
@@ -30,11 +37,17 @@ static const char *
 scsi_trace_rw6(struct trace_seq *p, unsigned char *cdb, int len)
 {
 	const char *ret = trace_seq_buffer_ptr(p);
+<<<<<<< HEAD
 	u32 lba = 0, txlen;
 
 	lba |= ((cdb[1] & 0x1F) << 16);
 	lba |=  (cdb[2] << 8);
 	lba |=   cdb[3];
+=======
+	u32 lba, txlen;
+
+	lba = get_unaligned_be24(&cdb[1]) & 0x1fffff;
+>>>>>>> upstream/android-13
 	/*
 	 * From SBC-2: a TRANSFER LENGTH field set to zero specifies that 256
 	 * logical blocks shall be read (READ(6)) or written (WRITE(6)).

@@ -37,7 +37,10 @@
 #define SCONTEXT_VALUE_PEDOMETER_USERGENDER           0x14
 #define SCONTEXT_VALUE_PEDOMETER_INFOUPDATETIME       0x15
 #define SCONTEXT_VALUE_LIBRARY_DATA                   0x17
+<<<<<<< HEAD
 #define SCONTEXT_VALUE_SCREEN_STATE                   0x47
+=======
+>>>>>>> upstream/android-13
 
 #define SCONTEXT_VALUE_CURRENTSTATUS                  0x01
 #define SCONTEXT_VALUE_CURRENTSTATUS_BATCH            0x02

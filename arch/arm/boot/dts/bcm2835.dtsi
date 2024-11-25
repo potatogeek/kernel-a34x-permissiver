@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "bcm283x.dtsi"
+<<<<<<< HEAD
+=======
+#include "bcm2835-common.dtsi"
+#include "bcm2835-rpi-common.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	compatible = "brcm,bcm2835";

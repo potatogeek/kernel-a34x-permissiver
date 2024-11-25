@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
+=======
+// SPDX-License-Identifier: MIT
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_device.h>
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 
 /*
@@ -421,17 +429,23 @@ static void radeon_legacy_write_tv_restarts(struct radeon_encoder *radeon_encode
 
 static bool radeon_legacy_tv_init_restarts(struct drm_encoder *encoder)
 {
+<<<<<<< HEAD
 	struct drm_device *dev = encoder->dev;
 	struct radeon_device *rdev = dev->dev_private;
 	struct radeon_encoder *radeon_encoder = to_radeon_encoder(encoder);
 	struct radeon_encoder_tv_dac *tv_dac = radeon_encoder->enc_priv;
 	struct radeon_crtc *radeon_crtc;
+=======
+	struct radeon_encoder *radeon_encoder = to_radeon_encoder(encoder);
+	struct radeon_encoder_tv_dac *tv_dac = radeon_encoder->enc_priv;
+>>>>>>> upstream/android-13
 	int restart;
 	unsigned int h_total, v_total, f_total;
 	int v_offset, h_offset;
 	u16 p1, p2, h_inc;
 	bool h_changed;
 	const struct radeon_tv_mode_constants *const_ptr;
+<<<<<<< HEAD
 	struct radeon_pll *pll;
 
 	radeon_crtc = to_radeon_crtc(radeon_encoder->base.crtc);
@@ -439,6 +453,8 @@ static bool radeon_legacy_tv_init_restarts(struct drm_encoder *encoder)
 		pll = &rdev->clock.p2pll;
 	else
 		pll = &rdev->clock.p1pll;
+=======
+>>>>>>> upstream/android-13
 
 	const_ptr = radeon_legacy_tv_get_std_mode(radeon_encoder, NULL);
 	if (!const_ptr)
@@ -545,7 +561,11 @@ void radeon_legacy_tv_mode_set(struct drm_encoder *encoder,
 	uint32_t tv_master_cntl, tv_rgb_cntl, tv_dac_cntl;
 	uint32_t tv_modulator_cntl1, tv_modulator_cntl2;
 	uint32_t tv_vscaler_cntl1, tv_vscaler_cntl2;
+<<<<<<< HEAD
 	uint32_t tv_pll_cntl, tv_pll_cntl1, tv_ftotal;
+=======
+	uint32_t tv_pll_cntl, tv_ftotal;
+>>>>>>> upstream/android-13
 	uint32_t tv_y_fall_cntl, tv_y_rise_cntl, tv_y_saw_tooth_cntl;
 	uint32_t m, n, p;
 	const uint16_t *hor_timing;
@@ -717,12 +737,15 @@ void radeon_legacy_tv_mode_set(struct drm_encoder *encoder,
 		(((n >> 9) & RADEON_TV_N0HI_MASK) << RADEON_TV_N0HI_SHIFT) |
 		((p & RADEON_TV_P_MASK) << RADEON_TV_P_SHIFT);
 
+<<<<<<< HEAD
 	tv_pll_cntl1 = (((4 & RADEON_TVPCP_MASK) << RADEON_TVPCP_SHIFT) |
 			((4 & RADEON_TVPVG_MASK) << RADEON_TVPVG_SHIFT) |
 			((1 & RADEON_TVPDC_MASK) << RADEON_TVPDC_SHIFT) |
 			RADEON_TVCLK_SRC_SEL_TVPLL |
 			RADEON_TVPLL_TEST_DIS);
 
+=======
+>>>>>>> upstream/android-13
 	tv_dac->tv.tv_uv_adr = 0xc8;
 
 	if (tv_dac->tv_std == TV_STD_NTSC ||

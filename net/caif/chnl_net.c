@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson AB 2010
  * Authors:	Sjur Brendeland
  *		Daniel Martensson
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ":%s(): " fmt, __func__
@@ -53,6 +60,7 @@ struct chnl_net {
 	enum caif_states state;
 };
 
+<<<<<<< HEAD
 static void robust_list_del(struct list_head *delete_node)
 {
 	struct list_head *list_node;
@@ -67,6 +75,8 @@ static void robust_list_del(struct list_head *delete_node)
 	WARN_ON(1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
 {
 	struct sk_buff *skb;
@@ -76,8 +86,11 @@ static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
 	u8 buf;
 
 	priv = container_of(layr, struct chnl_net, chnl);
+<<<<<<< HEAD
 	if (!priv)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	skb = (struct sk_buff *) cfpkt_tonative(pkt);
 
@@ -115,10 +128,14 @@ static int chnl_recv_cb(struct cflayer *layr, struct cfpkt *pkt)
 	else
 		skb->ip_summed = CHECKSUM_NONE;
 
+<<<<<<< HEAD
 	if (in_interrupt())
 		netif_rx(skb);
 	else
 		netif_rx_ni(skb);
+=======
+	netif_rx_any_context(skb);
+>>>>>>> upstream/android-13
 
 	/* Update statistics. */
 	priv->netdev->stats.rx_packets++;
@@ -211,7 +228,12 @@ static void chnl_flowctrl_cb(struct cflayer *layr, enum caif_ctrlcmd flow,
 	}
 }
 
+<<<<<<< HEAD
 static int chnl_net_start_xmit(struct sk_buff *skb, struct net_device *dev)
+=======
+static netdev_tx_t chnl_net_start_xmit(struct sk_buff *skb,
+				       struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct chnl_net *priv;
 	struct cfpkt *pkt = NULL;
@@ -368,6 +390,10 @@ static int chnl_net_init(struct net_device *dev)
 	ASSERT_RTNL();
 	priv = netdev_priv(dev);
 	strncpy(priv->name, dev->name, sizeof(priv->name));
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&priv->list_field);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -376,7 +402,11 @@ static void chnl_net_uninit(struct net_device *dev)
 	struct chnl_net *priv;
 	ASSERT_RTNL();
 	priv = netdev_priv(dev);
+<<<<<<< HEAD
 	robust_list_del(&priv->list_field);
+=======
+	list_del_init(&priv->list_field);
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops netdev_ops = {
@@ -541,7 +571,11 @@ static void __exit chnl_exit_module(void)
 	rtnl_lock();
 	list_for_each_safe(list_node, _tmp, &chnl_net_list) {
 		dev = list_entry(list_node, struct chnl_net, list_field);
+<<<<<<< HEAD
 		list_del(list_node);
+=======
+		list_del_init(list_node);
+>>>>>>> upstream/android-13
 		delete_device(dev);
 	}
 	rtnl_unlock();

@@ -570,7 +570,11 @@ struct phy_header {
 };
 struct ray_rx_msg {
     struct mac_header mac;
+<<<<<<< HEAD
     UCHAR  var[0];
+=======
+	UCHAR	var[];
+>>>>>>> upstream/android-13
 };
 
 struct tx_msg {

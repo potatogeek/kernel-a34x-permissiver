@@ -204,7 +204,10 @@ check_attr_tree_state_again:
 
 	buf = kzalloc(node_size, GFP_NOFS);
 	if (!buf) {
+<<<<<<< HEAD
 		pr_err("failed to allocate memory for header node\n");
+=======
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto end_attr_file_creation;
 	}
@@ -407,7 +410,11 @@ static int copy_name(char *buffer, const char *xattr_name, int name_len)
 	int offset = 0;
 
 	if (!is_known_namespace(xattr_name)) {
+<<<<<<< HEAD
 		strncpy(buffer, XATTR_MAC_OSX_PREFIX, XATTR_MAC_OSX_PREFIX_LEN);
+=======
+		memcpy(buffer, XATTR_MAC_OSX_PREFIX, XATTR_MAC_OSX_PREFIX_LEN);
+>>>>>>> upstream/android-13
 		offset += XATTR_MAC_OSX_PREFIX_LEN;
 		len += XATTR_MAC_OSX_PREFIX_LEN;
 	}
@@ -858,6 +865,10 @@ static int hfsplus_osx_getxattr(const struct xattr_handler *handler,
 }
 
 static int hfsplus_osx_setxattr(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				struct dentry *unused, struct inode *inode,
 				const char *name, const void *buffer,
 				size_t size, int flags)

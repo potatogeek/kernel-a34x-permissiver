@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #include "fm10k_pf.h"
 #include "fm10k_vf.h"
@@ -1148,11 +1152,19 @@ static void fm10k_iov_update_stats_pf(struct fm10k_hw *hw,
  *  @results: Pointer array to message, results[0] is pointer to message
  *  @mbx: Pointer to mailbox information structure
  *
+<<<<<<< HEAD
  *  This function is a default handler for MSI-X requests from the VF.  The
  *  assumption is that in this case it is acceptable to just directly
  *  hand off the message from the VF to the underlying shared code.
  **/
 s32 fm10k_iov_msg_msix_pf(struct fm10k_hw *hw, u32 **results,
+=======
+ *  This function is a default handler for MSI-X requests from the VF. The
+ *  assumption is that in this case it is acceptable to just directly
+ *  hand off the message from the VF to the underlying shared code.
+ **/
+s32 fm10k_iov_msg_msix_pf(struct fm10k_hw *hw, u32 __always_unused **results,
+>>>>>>> upstream/android-13
 			  struct fm10k_mbx_info *mbx)
 {
 	struct fm10k_vf_info *vf_info = (struct fm10k_vf_info *)mbx;
@@ -1317,6 +1329,7 @@ static u8 fm10k_iov_supported_xcast_mode_pf(struct fm10k_vf_info *vf_info,
 	case FM10K_XCAST_MODE_PROMISC:
 		if (vf_flags & FM10K_VF_FLAG_PROMISC_CAPABLE)
 			return FM10K_XCAST_MODE_PROMISC;
+<<<<<<< HEAD
 		/* fall through */
 	case FM10K_XCAST_MODE_ALLMULTI:
 		if (vf_flags & FM10K_VF_FLAG_ALLMULTI_CAPABLE)
@@ -1330,6 +1343,21 @@ static u8 fm10k_iov_supported_xcast_mode_pf(struct fm10k_vf_info *vf_info,
 		if (vf_flags & FM10K_VF_FLAG_NONE_CAPABLE)
 			return FM10K_XCAST_MODE_NONE;
 		/* fall through */
+=======
+		fallthrough;
+	case FM10K_XCAST_MODE_ALLMULTI:
+		if (vf_flags & FM10K_VF_FLAG_ALLMULTI_CAPABLE)
+			return FM10K_XCAST_MODE_ALLMULTI;
+		fallthrough;
+	case FM10K_XCAST_MODE_MULTI:
+		if (vf_flags & FM10K_VF_FLAG_MULTI_CAPABLE)
+			return FM10K_XCAST_MODE_MULTI;
+		fallthrough;
+	case FM10K_XCAST_MODE_NONE:
+		if (vf_flags & FM10K_VF_FLAG_NONE_CAPABLE)
+			return FM10K_XCAST_MODE_NONE;
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1352,7 +1380,10 @@ s32 fm10k_iov_msg_lport_state_pf(struct fm10k_hw *hw, u32 **results,
 				 struct fm10k_mbx_info *mbx)
 {
 	struct fm10k_vf_info *vf_info = (struct fm10k_vf_info *)mbx;
+<<<<<<< HEAD
 	u32 *result;
+=======
+>>>>>>> upstream/android-13
 	s32 err = 0;
 	u32 msg[2];
 	u8 mode = 0;
@@ -1362,7 +1393,11 @@ s32 fm10k_iov_msg_lport_state_pf(struct fm10k_hw *hw, u32 **results,
 		return FM10K_ERR_PARAM;
 
 	if (!!results[FM10K_LPORT_STATE_MSG_XCAST_MODE]) {
+<<<<<<< HEAD
 		result = results[FM10K_LPORT_STATE_MSG_XCAST_MODE];
+=======
+		u32 *result = results[FM10K_LPORT_STATE_MSG_XCAST_MODE];
+>>>>>>> upstream/android-13
 
 		/* XCAST mode update requested */
 		err = fm10k_tlv_attr_get_u8(result, &mode);
@@ -1418,7 +1453,11 @@ s32 fm10k_iov_msg_lport_state_pf(struct fm10k_hw *hw, u32 **results,
 }
 
 /**
+<<<<<<< HEAD
  *  fm10k_update_stats_hw_pf - Updates hardware related statistics of PF
+=======
+ *  fm10k_update_hw_stats_pf - Updates hardware related statistics of PF
+>>>>>>> upstream/android-13
  *  @hw: pointer to hardware structure
  *  @stats: pointer to the stats structure to update
  *
@@ -1566,7 +1605,11 @@ static s32 fm10k_get_fault_pf(struct fm10k_hw *hw, int type,
 	/* read remaining fields */
 	fault->address = fm10k_read_reg(hw, type + FM10K_FAULT_ADDR_HI);
 	fault->address <<= 32;
+<<<<<<< HEAD
 	fault->address = fm10k_read_reg(hw, type + FM10K_FAULT_ADDR_LO);
+=======
+	fault->address |= fm10k_read_reg(hw, type + FM10K_FAULT_ADDR_LO);
+>>>>>>> upstream/android-13
 	fault->specinfo = fm10k_read_reg(hw, type + FM10K_FAULT_SPECINFO);
 
 	/* clear valid bit to allow for next error */
@@ -1642,7 +1685,11 @@ const struct fm10k_tlv_attr fm10k_lport_map_msg_attr[] = {
  *  switch API.
  **/
 s32 fm10k_msg_lport_map_pf(struct fm10k_hw *hw, u32 **results,
+<<<<<<< HEAD
 			   struct fm10k_mbx_info *mbx)
+=======
+			   struct fm10k_mbx_info __always_unused *mbx)
+>>>>>>> upstream/android-13
 {
 	u16 glort, mask;
 	u32 dglort_map;
@@ -1685,7 +1732,11 @@ const struct fm10k_tlv_attr fm10k_update_pvid_msg_attr[] = {
  *  This handler configures the default VLAN for the PF
  **/
 static s32 fm10k_msg_update_pvid_pf(struct fm10k_hw *hw, u32 **results,
+<<<<<<< HEAD
 				    struct fm10k_mbx_info *mbx)
+=======
+				    struct fm10k_mbx_info __always_unused *mbx)
+>>>>>>> upstream/android-13
 {
 	u16 glort, pvid;
 	u32 pvid_update;
@@ -1746,7 +1797,11 @@ const struct fm10k_tlv_attr fm10k_err_msg_attr[] = {
  *  messages that the PF has sent.
  **/
 s32 fm10k_msg_err_pf(struct fm10k_hw *hw, u32 **results,
+<<<<<<< HEAD
 		     struct fm10k_mbx_info *mbx)
+=======
+		     struct fm10k_mbx_info __always_unused *mbx)
+>>>>>>> upstream/android-13
 {
 	struct fm10k_swapi_error err_msg;
 	s32 err;

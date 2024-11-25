@@ -19,7 +19,10 @@
 #include <linux/audit.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/fpu.h>
 
 #include "proto.h"

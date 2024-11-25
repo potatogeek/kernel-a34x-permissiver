@@ -29,6 +29,16 @@ static struct class *ilo_class;
 static unsigned int ilo_major;
 static unsigned int max_ccb = 16;
 static char ilo_hwdev[MAX_ILO_DEV];
+<<<<<<< HEAD
+=======
+static const struct pci_device_id ilo_blacklist[] = {
+	/* auxiliary iLO */
+	{PCI_DEVICE_SUB(PCI_VENDOR_ID_HP, 0x3307, PCI_VENDOR_ID_HP, 0x1979)},
+	/* CL */
+	{PCI_DEVICE_SUB(PCI_VENDOR_ID_HP, 0x3307, PCI_VENDOR_ID_HP_3PAR, 0x0289)},
+	{}
+};
+>>>>>>> upstream/android-13
 
 static inline int get_entry_id(int entry)
 {
@@ -200,7 +210,11 @@ static void ctrl_setup(struct ccb *ccb, int nr_desc, int l2desc_sz)
 static inline int fifo_sz(int nr_entry)
 {
 	/* size of a fifo is determined by the number of entries it contains */
+<<<<<<< HEAD
 	return (nr_entry * sizeof(u64)) + FIFOHANDLESIZE;
+=======
+	return nr_entry * sizeof(u64) + FIFOHANDLESIZE;
+>>>>>>> upstream/android-13
 }
 
 static void fifo_setup(void *base_addr, int nr_entry)
@@ -249,7 +263,12 @@ static void ilo_ccb_close(struct pci_dev *pdev, struct ccb_data *data)
 	memset_io(device_ccb, 0, sizeof(struct ccb));
 
 	/* free resources used to back send/recv queues */
+<<<<<<< HEAD
 	pci_free_consistent(pdev, data->dma_size, data->dma_va, data->dma_pa);
+=======
+	dma_free_coherent(&pdev->dev, data->dma_size, data->dma_va,
+			  data->dma_pa);
+>>>>>>> upstream/android-13
 }
 
 static int ilo_ccb_setup(struct ilo_hwinfo *hw, struct ccb_data *data, int slot)
@@ -265,16 +284,24 @@ static int ilo_ccb_setup(struct ilo_hwinfo *hw, struct ccb_data *data, int slot)
 			 2 * desc_mem_sz(NR_QENTRY) +
 			 ILO_START_ALIGN + ILO_CACHE_SZ;
 
+<<<<<<< HEAD
 	data->dma_va = pci_alloc_consistent(hw->ilo_dev, data->dma_size,
 					    &data->dma_pa);
+=======
+	data->dma_va = dma_alloc_coherent(&hw->ilo_dev->dev, data->dma_size,
+					  &data->dma_pa, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!data->dma_va)
 		return -ENOMEM;
 
 	dma_va = (char *)data->dma_va;
 	dma_pa = data->dma_pa;
 
+<<<<<<< HEAD
 	memset(dma_va, 0, data->dma_size);
 
+=======
+>>>>>>> upstream/android-13
 	dma_va = (char *)roundup((unsigned long)dma_va, ILO_START_ALIGN);
 	dma_pa = roundup(dma_pa, ILO_START_ALIGN);
 
@@ -687,6 +714,11 @@ static int ilo_map_device(struct pci_dev *pdev, struct ilo_hwinfo *hw)
 {
 	int bar;
 	unsigned long off;
+<<<<<<< HEAD
+=======
+	u8 pci_rev_id;
+	int rc;
+>>>>>>> upstream/android-13
 
 	/* map the memory mapped i/o registers */
 	hw->mmio_vaddr = pci_iomap(pdev, 1, 0);
@@ -696,7 +728,17 @@ static int ilo_map_device(struct pci_dev *pdev, struct ilo_hwinfo *hw)
 	}
 
 	/* map the adapter shared memory region */
+<<<<<<< HEAD
 	if (pdev->subsystem_device == 0x00E4) {
+=======
+	rc = pci_read_config_byte(pdev, PCI_REVISION_ID, &pci_rev_id);
+	if (rc != 0) {
+		dev_err(&pdev->dev, "Error reading PCI rev id: %d\n", rc);
+		goto out;
+	}
+
+	if (pci_rev_id >= PCI_REV_ID_NECHES) {
+>>>>>>> upstream/android-13
 		bar = 5;
 		/* Last 8k is reserved for CCBs */
 		off = pci_resource_len(pdev, bar) - 0x2000;
@@ -763,9 +805,16 @@ static int ilo_probe(struct pci_dev *pdev,
 	int devnum, minor, start, error = 0;
 	struct ilo_hwinfo *ilo_hw;
 
+<<<<<<< HEAD
 	/* Ignore subsystem_device = 0x1979 (set by BIOS)  */
 	if (pdev->subsystem_device == 0x1979)
 		return 0;
+=======
+	if (pci_match_id(ilo_blacklist, pdev)) {
+		dev_dbg(&pdev->dev, "Not supported on this device\n");
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 
 	if (max_ccb > MAX_CCB)
 		max_ccb = MAX_CCB;

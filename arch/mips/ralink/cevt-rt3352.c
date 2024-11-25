@@ -82,12 +82,15 @@ static struct systick_device systick = {
 	},
 };
 
+<<<<<<< HEAD
 static struct irqaction systick_irqaction = {
 	.handler = systick_interrupt,
 	.flags = IRQF_PERCPU | IRQF_TIMER,
 	.dev_id = &systick.dev,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int systick_shutdown(struct clock_event_device *evt)
 {
 	struct systick_device *sdev;
@@ -95,7 +98,11 @@ static int systick_shutdown(struct clock_event_device *evt)
 	sdev = container_of(evt, struct systick_device, dev);
 
 	if (sdev->irq_requested)
+<<<<<<< HEAD
 		free_irq(systick.dev.irq, &systick_irqaction);
+=======
+		free_irq(systick.dev.irq, &systick.dev);
+>>>>>>> upstream/android-13
 	sdev->irq_requested = 0;
 	iowrite32(0, systick.membase + SYSTICK_CONFIG);
 
@@ -104,12 +111,26 @@ static int systick_shutdown(struct clock_event_device *evt)
 
 static int systick_set_oneshot(struct clock_event_device *evt)
 {
+<<<<<<< HEAD
 	struct systick_device *sdev;
 
 	sdev = container_of(evt, struct systick_device, dev);
 
 	if (!sdev->irq_requested)
 		setup_irq(systick.dev.irq, &systick_irqaction);
+=======
+	const char *name = systick.dev.name;
+	struct systick_device *sdev;
+	int irq = systick.dev.irq;
+
+	sdev = container_of(evt, struct systick_device, dev);
+
+	if (!sdev->irq_requested) {
+		if (request_irq(irq, systick_interrupt,
+				IRQF_PERCPU | IRQF_TIMER, name, &systick.dev))
+			pr_err("Failed to request irq %d (%s)\n", irq, name);
+	}
+>>>>>>> upstream/android-13
 	sdev->irq_requested = 1;
 	iowrite32(CFG_EXT_STK_EN | CFG_CNT_EN,
 		  systick.membase + SYSTICK_CONFIG);
@@ -125,7 +146,10 @@ static int __init ralink_systick_init(struct device_node *np)
 	if (!systick.membase)
 		return -ENXIO;
 
+<<<<<<< HEAD
 	systick_irqaction.name = np->name;
+=======
+>>>>>>> upstream/android-13
 	systick.dev.name = np->name;
 	clockevents_calc_mult_shift(&systick.dev, SYSTICK_FREQ, 60);
 	systick.dev.max_delta_ns = clockevent_delta2ns(0x7fff, &systick.dev);
@@ -134,7 +158,11 @@ static int __init ralink_systick_init(struct device_node *np)
 	systick.dev.min_delta_ticks = 0x3;
 	systick.dev.irq = irq_of_parse_and_map(np, 0);
 	if (!systick.dev.irq) {
+<<<<<<< HEAD
 		pr_err("%s: request_irq failed", np->name);
+=======
+		pr_err("%pOFn: request_irq failed", np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -146,8 +174,13 @@ static int __init ralink_systick_init(struct device_node *np)
 
 	clockevents_register_device(&systick.dev);
 
+<<<<<<< HEAD
 	pr_info("%s: running - mult: %d, shift: %d\n",
 			np->name, systick.dev.mult, systick.dev.shift);
+=======
+	pr_info("%pOFn: running - mult: %d, shift: %d\n",
+			np, systick.dev.mult, systick.dev.shift);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

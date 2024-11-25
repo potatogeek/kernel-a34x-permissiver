@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Traphandler
  * Copyright (C) 2014 Free Electrons
@@ -5,6 +9,7 @@
  *
  * Author: Jean-Jacques Hiblot <jjhiblot@traphandler.com>
  * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -17,13 +22,31 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/irq.h>
 #include <linux/irqchip.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
+=======
+#include <linux/mfd/atmel-hlcdc.h>
+#include <linux/module.h>
+#include <linux/pm_runtime.h>
+#include <linux/platform_device.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "atmel_hlcdc_dc.h"
 
@@ -364,6 +387,106 @@ static const struct atmel_hlcdc_dc_desc atmel_hlcdc_dc_sama5d4 = {
 	.nlayers = ARRAY_SIZE(atmel_hlcdc_sama5d4_layers),
 	.layers = atmel_hlcdc_sama5d4_layers,
 };
+<<<<<<< HEAD
+=======
+
+static const struct atmel_hlcdc_layer_desc atmel_hlcdc_sam9x60_layers[] = {
+	{
+		.name = "base",
+		.formats = &atmel_hlcdc_plane_rgb_formats,
+		.regs_offset = 0x60,
+		.id = 0,
+		.type = ATMEL_HLCDC_BASE_LAYER,
+		.cfgs_offset = 0x2c,
+		.layout = {
+			.xstride = { 2 },
+			.default_color = 3,
+			.general_config = 4,
+			.disc_pos = 5,
+			.disc_size = 6,
+		},
+		.clut_offset = 0x600,
+	},
+	{
+		.name = "overlay1",
+		.formats = &atmel_hlcdc_plane_rgb_formats,
+		.regs_offset = 0x160,
+		.id = 1,
+		.type = ATMEL_HLCDC_OVERLAY_LAYER,
+		.cfgs_offset = 0x2c,
+		.layout = {
+			.pos = 2,
+			.size = 3,
+			.xstride = { 4 },
+			.pstride = { 5 },
+			.default_color = 6,
+			.chroma_key = 7,
+			.chroma_key_mask = 8,
+			.general_config = 9,
+		},
+		.clut_offset = 0xa00,
+	},
+	{
+		.name = "overlay2",
+		.formats = &atmel_hlcdc_plane_rgb_formats,
+		.regs_offset = 0x260,
+		.id = 2,
+		.type = ATMEL_HLCDC_OVERLAY_LAYER,
+		.cfgs_offset = 0x2c,
+		.layout = {
+			.pos = 2,
+			.size = 3,
+			.xstride = { 4 },
+			.pstride = { 5 },
+			.default_color = 6,
+			.chroma_key = 7,
+			.chroma_key_mask = 8,
+			.general_config = 9,
+		},
+		.clut_offset = 0xe00,
+	},
+	{
+		.name = "high-end-overlay",
+		.formats = &atmel_hlcdc_plane_rgb_and_yuv_formats,
+		.regs_offset = 0x360,
+		.id = 3,
+		.type = ATMEL_HLCDC_OVERLAY_LAYER,
+		.cfgs_offset = 0x4c,
+		.layout = {
+			.pos = 2,
+			.size = 3,
+			.memsize = 4,
+			.xstride = { 5, 7 },
+			.pstride = { 6, 8 },
+			.default_color = 9,
+			.chroma_key = 10,
+			.chroma_key_mask = 11,
+			.general_config = 12,
+			.scaler_config = 13,
+			.phicoeffs = {
+				.x = 17,
+				.y = 33,
+			},
+			.csc = 14,
+		},
+		.clut_offset = 0x1200,
+	},
+};
+
+static const struct atmel_hlcdc_dc_desc atmel_hlcdc_dc_sam9x60 = {
+	.min_width = 0,
+	.min_height = 0,
+	.max_width = 2048,
+	.max_height = 2048,
+	.max_spw = 0xff,
+	.max_vpw = 0xff,
+	.max_hpw = 0x3ff,
+	.fixed_clksrc = true,
+	.nlayers = ARRAY_SIZE(atmel_hlcdc_sam9x60_layers),
+	.layers = atmel_hlcdc_sam9x60_layers,
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id atmel_hlcdc_of_match[] = {
 	{
 		.compatible = "atmel,at91sam9n12-hlcdc",
@@ -385,6 +508,13 @@ static const struct of_device_id atmel_hlcdc_of_match[] = {
 		.compatible = "atmel,sama5d4-hlcdc",
 		.data = &atmel_hlcdc_dc_sama5d4,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible = "microchip,sam9x60-hlcdc",
+		.data = &atmel_hlcdc_dc_sam9x60,
+	},
+>>>>>>> upstream/android-13
 	{ /* sentinel */ },
 };
 MODULE_DEVICE_TABLE(of, atmel_hlcdc_of_match);
@@ -455,6 +585,7 @@ static irqreturn_t atmel_hlcdc_dc_irq_handler(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct drm_framebuffer *atmel_hlcdc_fb_create(struct drm_device *dev,
 		struct drm_file *file_priv, const struct drm_mode_fb_cmd2 *mode_cmd)
 {
@@ -559,6 +690,57 @@ static const struct drm_mode_config_funcs mode_config_funcs = {
 	.output_poll_changed = drm_fb_helper_output_poll_changed,
 	.atomic_check = drm_atomic_helper_check,
 	.atomic_commit = atmel_hlcdc_dc_atomic_commit,
+=======
+static void atmel_hlcdc_dc_irq_postinstall(struct drm_device *dev)
+{
+	struct atmel_hlcdc_dc *dc = dev->dev_private;
+	unsigned int cfg = 0;
+	int i;
+
+	/* Enable interrupts on activated layers */
+	for (i = 0; i < ATMEL_HLCDC_MAX_LAYERS; i++) {
+		if (dc->layers[i])
+			cfg |= ATMEL_HLCDC_LAYER_STATUS(i);
+	}
+
+	regmap_write(dc->hlcdc->regmap, ATMEL_HLCDC_IER, cfg);
+}
+
+static void atmel_hlcdc_dc_irq_disable(struct drm_device *dev)
+{
+	struct atmel_hlcdc_dc *dc = dev->dev_private;
+	unsigned int isr;
+
+	regmap_write(dc->hlcdc->regmap, ATMEL_HLCDC_IDR, 0xffffffff);
+	regmap_read(dc->hlcdc->regmap, ATMEL_HLCDC_ISR, &isr);
+}
+
+static int atmel_hlcdc_dc_irq_install(struct drm_device *dev, unsigned int irq)
+{
+	int ret;
+
+	atmel_hlcdc_dc_irq_disable(dev);
+
+	ret = devm_request_irq(dev->dev, irq, atmel_hlcdc_dc_irq_handler, 0,
+			       dev->driver->name, dev);
+	if (ret)
+		return ret;
+
+	atmel_hlcdc_dc_irq_postinstall(dev);
+
+	return 0;
+}
+
+static void atmel_hlcdc_dc_irq_uninstall(struct drm_device *dev)
+{
+	atmel_hlcdc_dc_irq_disable(dev);
+}
+
+static const struct drm_mode_config_funcs mode_config_funcs = {
+	.fb_create = drm_gem_fb_create,
+	.atomic_check = drm_atomic_helper_check,
+	.atomic_commit = drm_atomic_helper_commit,
+>>>>>>> upstream/android-13
 };
 
 static int atmel_hlcdc_dc_modeset_init(struct drm_device *dev)
@@ -591,6 +773,10 @@ static int atmel_hlcdc_dc_modeset_init(struct drm_device *dev)
 	dev->mode_config.max_width = dc->desc->max_width;
 	dev->mode_config.max_height = dc->desc->max_height;
 	dev->mode_config.funcs = &mode_config_funcs;
+<<<<<<< HEAD
+=======
+	dev->mode_config.async_page_flip = true;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -617,11 +803,14 @@ static int atmel_hlcdc_dc_load(struct drm_device *dev)
 	if (!dc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	dc->wq = alloc_ordered_workqueue("atmel-hlcdc-dc", 0);
 	if (!dc->wq)
 		return -ENOMEM;
 
 	init_waitqueue_head(&dc->commit.wait);
+=======
+>>>>>>> upstream/android-13
 	dc->desc = match->data;
 	dc->hlcdc = dev_get_drvdata(dev->dev->parent);
 	dev->dev_private = dc;
@@ -629,7 +818,11 @@ static int atmel_hlcdc_dc_load(struct drm_device *dev)
 	ret = clk_prepare_enable(dc->hlcdc->periph_clk);
 	if (ret) {
 		dev_err(dev->dev, "failed to enable periph_clk\n");
+<<<<<<< HEAD
 		goto err_destroy_wq;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	pm_runtime_enable(dev->dev);
@@ -649,7 +842,11 @@ static int atmel_hlcdc_dc_load(struct drm_device *dev)
 	drm_mode_config_reset(dev);
 
 	pm_runtime_get_sync(dev->dev);
+<<<<<<< HEAD
 	ret = drm_irq_install(dev, dc->hlcdc->irq);
+=======
+	ret = atmel_hlcdc_dc_irq_install(dev, dc->hlcdc->irq);
+>>>>>>> upstream/android-13
 	pm_runtime_put_sync(dev->dev);
 	if (ret < 0) {
 		dev_err(dev->dev, "failed to install IRQ handler\n");
@@ -658,8 +855,11 @@ static int atmel_hlcdc_dc_load(struct drm_device *dev)
 
 	platform_set_drvdata(pdev, dev);
 
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_init(dev, 24, 0);
 
+=======
+>>>>>>> upstream/android-13
 	drm_kms_helper_poll_init(dev);
 
 	return 0;
@@ -668,9 +868,12 @@ err_periph_clk_disable:
 	pm_runtime_disable(dev->dev);
 	clk_disable_unprepare(dc->hlcdc->periph_clk);
 
+<<<<<<< HEAD
 err_destroy_wq:
 	destroy_workqueue(dc->wq);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -678,20 +881,28 @@ static void atmel_hlcdc_dc_unload(struct drm_device *dev)
 {
 	struct atmel_hlcdc_dc *dc = dev->dev_private;
 
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(dev);
 	flush_workqueue(dc->wq);
+=======
+>>>>>>> upstream/android-13
 	drm_kms_helper_poll_fini(dev);
 	drm_atomic_helper_shutdown(dev);
 	drm_mode_config_cleanup(dev);
 
 	pm_runtime_get_sync(dev->dev);
+<<<<<<< HEAD
 	drm_irq_uninstall(dev);
+=======
+	atmel_hlcdc_dc_irq_uninstall(dev);
+>>>>>>> upstream/android-13
 	pm_runtime_put_sync(dev->dev);
 
 	dev->dev_private = NULL;
 
 	pm_runtime_disable(dev->dev);
 	clk_disable_unprepare(dc->hlcdc->periph_clk);
+<<<<<<< HEAD
 	destroy_workqueue(dc->wq);
 }
 
@@ -719,10 +930,13 @@ static void atmel_hlcdc_dc_irq_uninstall(struct drm_device *dev)
 
 	regmap_write(dc->hlcdc->regmap, ATMEL_HLCDC_IDR, 0xffffffff);
 	regmap_read(dc->hlcdc->regmap, ATMEL_HLCDC_ISR, &isr);
+=======
+>>>>>>> upstream/android-13
 }
 
 DEFINE_DRM_GEM_CMA_FOPS(fops);
 
+<<<<<<< HEAD
 static struct drm_driver atmel_hlcdc_dc_driver = {
 	.driver_features = DRIVER_HAVE_IRQ | DRIVER_GEM |
 			   DRIVER_MODESET | DRIVER_PRIME |
@@ -744,6 +958,11 @@ static struct drm_driver atmel_hlcdc_dc_driver = {
 	.gem_prime_vunmap = drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap = drm_gem_cma_prime_mmap,
 	.dumb_create = drm_gem_cma_dumb_create,
+=======
+static const struct drm_driver atmel_hlcdc_dc_driver = {
+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+	DRM_GEM_CMA_DRIVER_OPS,
+>>>>>>> upstream/android-13
 	.fops = &fops,
 	.name = "atmel-hlcdc",
 	.desc = "Atmel HLCD Controller DRM",
@@ -763,19 +982,33 @@ static int atmel_hlcdc_dc_drm_probe(struct platform_device *pdev)
 
 	ret = atmel_hlcdc_dc_load(ddev);
 	if (ret)
+<<<<<<< HEAD
 		goto err_unref;
+=======
+		goto err_put;
+>>>>>>> upstream/android-13
 
 	ret = drm_dev_register(ddev, 0);
 	if (ret)
 		goto err_unload;
 
+<<<<<<< HEAD
+=======
+	drm_fbdev_generic_setup(ddev, 24);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_unload:
 	atmel_hlcdc_dc_unload(ddev);
 
+<<<<<<< HEAD
 err_unref:
 	drm_dev_unref(ddev);
+=======
+err_put:
+	drm_dev_put(ddev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -786,7 +1019,11 @@ static int atmel_hlcdc_dc_drm_remove(struct platform_device *pdev)
 
 	drm_dev_unregister(ddev);
 	atmel_hlcdc_dc_unload(ddev);
+<<<<<<< HEAD
 	drm_dev_unref(ddev);
+=======
+	drm_dev_put(ddev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

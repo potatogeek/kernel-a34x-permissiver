@@ -44,10 +44,15 @@
 
 #include "nfsd.h"
 #include "vfs.h"
+<<<<<<< HEAD
+=======
+#include "filecache.h"
+>>>>>>> upstream/android-13
 #include "trace.h"
 
 #define NFSDDBG_FACILITY		NFSDDBG_FILEOP
 
+<<<<<<< HEAD
 
 /*
  * This is a cache of readahead params that help us choose the proper
@@ -76,6 +81,8 @@ struct raparm_hbucket {
 #define RAPARM_HASH_MASK	(RAPARM_HASH_SIZE-1)
 static struct raparm_hbucket	raparm_hash[RAPARM_HASH_SIZE];
 
+=======
+>>>>>>> upstream/android-13
 /* 
  * Called from nfsd_lookup and encode_dirent. Check if we have crossed 
  * a mount point.
@@ -271,7 +278,10 @@ out_nfserr:
  * returned. Otherwise the covered directory is returned.
  * NOTE: this mountpoint crossing is not supported properly by all
  *   clients and is explicitly disallowed for NFSv3
+<<<<<<< HEAD
  *      NeilBrown <neilb@cse.unsw.edu.au>
+=======
+>>>>>>> upstream/android-13
  */
 __be32
 nfsd_lookup(struct svc_rqst *rqstp, struct svc_fh *fhp, const char *name,
@@ -307,6 +317,7 @@ out:
  * Commit metadata changes to stable storage.
  */
 static int
+<<<<<<< HEAD
 commit_metadata(struct svc_fh *fhp)
 {
 	struct inode *inode = d_inode(fhp->fh_dentry);
@@ -315,11 +326,30 @@ commit_metadata(struct svc_fh *fhp)
 	if (!EX_ISSYNC(fhp->fh_export))
 		return 0;
 
+=======
+commit_inode_metadata(struct inode *inode)
+{
+	const struct export_operations *export_ops = inode->i_sb->s_export_op;
+
+>>>>>>> upstream/android-13
 	if (export_ops->commit_metadata)
 		return export_ops->commit_metadata(inode);
 	return sync_inode_metadata(inode, 1);
 }
 
+<<<<<<< HEAD
+=======
+static int
+commit_metadata(struct svc_fh *fhp)
+{
+	struct inode *inode = d_inode(fhp->fh_dentry);
+
+	if (!EX_ISSYNC(fhp->fh_export))
+		return 0;
+	return commit_inode_metadata(inode);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Go over the attributes and take care of the small differences between
  * NFS semantics and what Linux expects.
@@ -354,7 +384,10 @@ nfsd_get_write_access(struct svc_rqst *rqstp, struct svc_fh *fhp,
 		struct iattr *iap)
 {
 	struct inode *inode = d_inode(fhp->fh_dentry);
+<<<<<<< HEAD
 	int host_err;
+=======
+>>>>>>> upstream/android-13
 
 	if (iap->ia_size < inode->i_size) {
 		__be32 err;
@@ -364,6 +397,7 @@ nfsd_get_write_access(struct svc_rqst *rqstp, struct svc_fh *fhp,
 		if (err)
 			return err;
 	}
+<<<<<<< HEAD
 
 	host_err = get_write_access(inode);
 	if (host_err)
@@ -378,6 +412,9 @@ out_put_write_access:
 	put_write_access(inode);
 out_nfserrno:
 	return nfserrno(host_err);
+=======
+	return nfserrno(get_write_access(inode));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -385,7 +422,11 @@ out_nfserrno:
  */
 __be32
 nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
+<<<<<<< HEAD
 	     int check_guard, time_t guardtime)
+=======
+	     int check_guard, time64_t guardtime)
+>>>>>>> upstream/android-13
 {
 	struct dentry	*dentry;
 	struct inode	*inode;
@@ -404,7 +445,11 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
 	/*
 	 * If utimes(2) and friends are called with times not NULL, we should
 	 * not set NFSD_MAY_WRITE bit. Otherwise fh_verify->nfsd_permission
+<<<<<<< HEAD
 	 * will return EACCESS, when the caller's effective UID does not match
+=======
+	 * will return EACCES, when the caller's effective UID does not match
+>>>>>>> upstream/android-13
 	 * the owner of the file, and the caller is not privileged. In this
 	 * situation, we should return EPERM(notify_change will return this).
 	 */
@@ -469,7 +514,15 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
 			.ia_size	= iap->ia_size,
 		};
 
+<<<<<<< HEAD
 		host_err = notify_change(dentry, &size_attr, NULL);
+=======
+		host_err = -EFBIG;
+		if (iap->ia_size < 0)
+			goto out_unlock;
+
+		host_err = notify_change(&init_user_ns, dentry, &size_attr, NULL);
+>>>>>>> upstream/android-13
 		if (host_err)
 			goto out_unlock;
 		iap->ia_valid &= ~ATTR_SIZE;
@@ -484,7 +537,11 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
 	}
 
 	iap->ia_valid |= ATTR_CTIME;
+<<<<<<< HEAD
 	host_err = notify_change(dentry, iap, NULL);
+=======
+	host_err = notify_change(&init_user_ns, dentry, iap, NULL);
+>>>>>>> upstream/android-13
 
 out_unlock:
 	fh_unlock(fhp);
@@ -520,7 +577,12 @@ int nfsd4_is_junction(struct dentry *dentry)
 		return 0;
 	if (!(inode->i_mode & S_ISVTX))
 		return 0;
+<<<<<<< HEAD
 	if (vfs_getxattr(dentry, NFSD_JUNCTION_XATTR_NAME, NULL, 0) <= 0)
+=======
+	if (vfs_getxattr(&init_user_ns, dentry, NFSD_JUNCTION_XATTR_NAME,
+			 NULL, 0) <= 0)
+>>>>>>> upstream/android-13
 		return 0;
 	return 1;
 }
@@ -551,11 +613,47 @@ __be32 nfsd4_set_nfs4_label(struct svc_rqst *rqstp, struct svc_fh *fhp,
 }
 #endif
 
+<<<<<<< HEAD
 __be32 nfsd4_clone_file_range(struct file *src, u64 src_pos, struct file *dst,
 		u64 dst_pos, u64 count)
 {
 	return nfserrno(vfs_clone_file_range(src, src_pos, dst, dst_pos,
 					     count));
+=======
+__be32 nfsd4_clone_file_range(struct nfsd_file *nf_src, u64 src_pos,
+		struct nfsd_file *nf_dst, u64 dst_pos, u64 count, bool sync)
+{
+	struct file *src = nf_src->nf_file;
+	struct file *dst = nf_dst->nf_file;
+	loff_t cloned;
+	__be32 ret = 0;
+
+	down_write(&nf_dst->nf_rwsem);
+	cloned = vfs_clone_file_range(src, src_pos, dst, dst_pos, count, 0);
+	if (cloned < 0) {
+		ret = nfserrno(cloned);
+		goto out_err;
+	}
+	if (count && cloned != count) {
+		ret = nfserrno(-EINVAL);
+		goto out_err;
+	}
+	if (sync) {
+		loff_t dst_end = count ? dst_pos + count - 1 : LLONG_MAX;
+		int status = vfs_fsync_range(dst, dst_pos, dst_end, 0);
+
+		if (!status)
+			status = commit_inode_metadata(file_inode(src));
+		if (status < 0) {
+			nfsd_reset_boot_verifier(net_generic(nf_dst->nf_net,
+						 nfsd_net_id));
+			ret = nfserrno(status);
+		}
+	}
+out_err:
+	up_write(&nf_dst->nf_rwsem);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 ssize_t nfsd_copy_file_range(struct file *src, u64 src_pos, struct file *dst,
@@ -605,6 +703,15 @@ static struct accessmap	nfs3_regaccess[] = {
     {	NFS3_ACCESS_MODIFY,	NFSD_MAY_WRITE|NFSD_MAY_TRUNC	},
     {	NFS3_ACCESS_EXTEND,	NFSD_MAY_WRITE			},
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFSD_V4
+    {	NFS4_ACCESS_XAREAD,	NFSD_MAY_READ			},
+    {	NFS4_ACCESS_XAWRITE,	NFSD_MAY_WRITE			},
+    {	NFS4_ACCESS_XALIST,	NFSD_MAY_READ			},
+#endif
+
+>>>>>>> upstream/android-13
     {	0,			0				}
 };
 
@@ -615,6 +722,15 @@ static struct accessmap	nfs3_diraccess[] = {
     {	NFS3_ACCESS_EXTEND,	NFSD_MAY_EXEC|NFSD_MAY_WRITE	},
     {	NFS3_ACCESS_DELETE,	NFSD_MAY_REMOVE			},
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFSD_V4
+    {	NFS4_ACCESS_XAREAD,	NFSD_MAY_READ			},
+    {	NFS4_ACCESS_XAWRITE,	NFSD_MAY_WRITE			},
+    {	NFS4_ACCESS_XALIST,	NFSD_MAY_READ			},
+#endif
+
+>>>>>>> upstream/android-13
     {	0,			0				}
 };
 
@@ -693,7 +809,11 @@ nfsd_access(struct svc_rqst *rqstp, struct svc_fh *fhp, u32 *access, u32 *suppor
 }
 #endif /* CONFIG_NFSD_V3 */
 
+<<<<<<< HEAD
 static int nfsd_open_break_lease(struct inode *inode, int access)
+=======
+int nfsd_open_break_lease(struct inode *inode, int access)
+>>>>>>> upstream/android-13
 {
 	unsigned int mode;
 
@@ -709,8 +829,13 @@ static int nfsd_open_break_lease(struct inode *inode, int access)
  * and additional flags.
  * N.B. After this call fhp needs an fh_put
  */
+<<<<<<< HEAD
 __be32
 nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
+=======
+static __be32
+__nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
+>>>>>>> upstream/android-13
 			int may_flags, struct file **filp)
 {
 	struct path	path;
@@ -720,6 +845,7 @@ nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
 	__be32		err;
 	int		host_err = 0;
 
+<<<<<<< HEAD
 	validate_process_creds();
 
 	/*
@@ -739,6 +865,8 @@ nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
 	if (err)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	path.mnt = fhp->fh_export->ex_path.mnt;
 	path.dentry = fhp->fh_dentry;
 	inode = d_inode(path.dentry);
@@ -749,6 +877,7 @@ nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
 	err = nfserr_perm;
 	if (IS_APPEND(inode) && (may_flags & NFSD_MAY_WRITE))
 		goto out;
+<<<<<<< HEAD
 	/*
 	 * We must ignore files (but only files) which might have mandatory
 	 * locks on them because there is no way to know if the accesser has
@@ -756,6 +885,8 @@ nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
 	 */
 	if (S_ISREG((inode)->i_mode) && mandatory_lock(inode))
 		goto out;
+=======
+>>>>>>> upstream/android-13
 
 	if (!inode->i_fop)
 		goto out;
@@ -792,10 +923,40 @@ nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
 out_nfserr:
 	err = nfserrno(host_err);
 out:
+<<<<<<< HEAD
+=======
+	return err;
+}
+
+__be32
+nfsd_open(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
+		int may_flags, struct file **filp)
+{
+	__be32 err;
+
+	validate_process_creds();
+	/*
+	 * If we get here, then the client has already done an "open",
+	 * and (hopefully) checked permission - so allow OWNER_OVERRIDE
+	 * in case a chmod has now revoked permission.
+	 *
+	 * Arguably we should also allow the owner override for
+	 * directories, but we never have and it doesn't seem to have
+	 * caused anyone a problem.  If we were to change this, note
+	 * also that our filldir callbacks would need a variant of
+	 * lookup_one_len that doesn't check permissions.
+	 */
+	if (type == S_IFREG)
+		may_flags |= NFSD_MAY_OWNER_OVERRIDE;
+	err = fh_verify(rqstp, fhp, type, may_flags);
+	if (!err)
+		err = __nfsd_open(rqstp, fhp, type, may_flags, filp);
+>>>>>>> upstream/android-13
 	validate_process_creds();
 	return err;
 }
 
+<<<<<<< HEAD
 struct raparms *
 nfsd_init_raparms(struct file *file)
 {
@@ -853,6 +1014,18 @@ void nfsd_put_raparams(struct file *file, struct raparms *ra)
 	ra->p_set = 1;
 	ra->p_count--;
 	spin_unlock(&rab->pb_lock);
+=======
+__be32
+nfsd_open_verified(struct svc_rqst *rqstp, struct svc_fh *fhp, umode_t type,
+		int may_flags, struct file **filp)
+{
+	__be32 err;
+
+	validate_process_creds();
+	err = __nfsd_open(rqstp, fhp, type, may_flags, filp);
+	validate_process_creds();
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -867,6 +1040,7 @@ nfsd_splice_actor(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
 	struct svc_rqst *rqstp = sd->u.data;
 	struct page **pp = rqstp->rq_next_page;
 	struct page *page = buf->page;
+<<<<<<< HEAD
 	size_t size;
 
 	size = sd->len;
@@ -887,6 +1061,18 @@ nfsd_splice_actor(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
 		rqstp->rq_res.page_len += size;
 
 	return size;
+=======
+
+	if (rqstp->rq_res.page_len == 0) {
+		svc_rqst_replace_page(rqstp, page);
+		rqstp->rq_res.page_base = buf->offset;
+	} else if (page != pp[-1]) {
+		svc_rqst_replace_page(rqstp, page);
+	}
+	rqstp->rq_res.page_len += sd->len;
+
+	return sd->len;
+>>>>>>> upstream/android-13
 }
 
 static int nfsd_direct_splice_actor(struct pipe_inode_info *pipe,
@@ -895,12 +1081,32 @@ static int nfsd_direct_splice_actor(struct pipe_inode_info *pipe,
 	return __splice_from_pipe(pipe, sd, nfsd_splice_actor);
 }
 
+<<<<<<< HEAD
 static __be32 nfsd_finish_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
 			       struct file *file, loff_t offset,
 			       unsigned long *count, int host_err)
 {
 	if (host_err >= 0) {
 		nfsdstats.io_read += host_err;
+=======
+static u32 nfsd_eof_on_read(struct file *file, loff_t offset, ssize_t len,
+		size_t expected)
+{
+	if (expected != 0 && len == 0)
+		return 1;
+	if (offset+len >= i_size_read(file_inode(file)))
+		return 1;
+	return 0;
+}
+
+static __be32 nfsd_finish_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
+			       struct file *file, loff_t offset,
+			       unsigned long *count, u32 *eof, ssize_t host_err)
+{
+	if (host_err >= 0) {
+		nfsd_stats_io_read_add(fhp->fh_export, host_err);
+		*eof = nfsd_eof_on_read(file, offset, host_err, *count);
+>>>>>>> upstream/android-13
 		*count = host_err;
 		fsnotify_access(file);
 		trace_nfsd_read_io_done(rqstp, fhp, offset, *count);
@@ -912,7 +1118,12 @@ static __be32 nfsd_finish_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
 }
 
 __be32 nfsd_splice_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
+<<<<<<< HEAD
 			struct file *file, loff_t offset, unsigned long *count)
+=======
+			struct file *file, loff_t offset, unsigned long *count,
+			u32 *eof)
+>>>>>>> upstream/android-13
 {
 	struct splice_desc sd = {
 		.len		= 0,
@@ -920,16 +1131,25 @@ __be32 nfsd_splice_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
 		.pos		= offset,
 		.u.data		= rqstp,
 	};
+<<<<<<< HEAD
 	int host_err;
+=======
+	ssize_t host_err;
+>>>>>>> upstream/android-13
 
 	trace_nfsd_read_splice(rqstp, fhp, offset, *count);
 	rqstp->rq_next_page = rqstp->rq_respages + 1;
 	host_err = splice_direct_to_actor(file, &sd, nfsd_direct_splice_actor);
+<<<<<<< HEAD
 	return nfsd_finish_read(rqstp, fhp, file, offset, count, host_err);
+=======
+	return nfsd_finish_read(rqstp, fhp, file, offset, count, eof, host_err);
+>>>>>>> upstream/android-13
 }
 
 __be32 nfsd_readv(struct svc_rqst *rqstp, struct svc_fh *fhp,
 		  struct file *file, loff_t offset,
+<<<<<<< HEAD
 		  struct kvec *vec, int vlen, unsigned long *count)
 {
 	struct iov_iter iter;
@@ -939,6 +1159,19 @@ __be32 nfsd_readv(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	iov_iter_kvec(&iter, READ | ITER_KVEC, vec, vlen, *count);
 	host_err = vfs_iter_read(file, &iter, &offset, 0);
 	return nfsd_finish_read(rqstp, fhp, file, offset, count, host_err);
+=======
+		  struct kvec *vec, int vlen, unsigned long *count,
+		  u32 *eof)
+{
+	struct iov_iter iter;
+	loff_t ppos = offset;
+	ssize_t host_err;
+
+	trace_nfsd_read_vector(rqstp, fhp, offset, *count);
+	iov_iter_kvec(&iter, READ, vec, vlen, *count);
+	host_err = vfs_iter_read(file, &iter, &ppos, 0);
+	return nfsd_finish_read(rqstp, fhp, file, offset, count, eof, host_err);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -979,16 +1212,27 @@ static int wait_for_concurrent_writes(struct file *file)
 }
 
 __be32
+<<<<<<< HEAD
 nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file *file,
 				loff_t offset, struct kvec *vec, int vlen,
 				unsigned long *cnt, int stable)
 {
+=======
+nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfsd_file *nf,
+				loff_t offset, struct kvec *vec, int vlen,
+				unsigned long *cnt, int stable,
+				__be32 *verf)
+{
+	struct file		*file = nf->nf_file;
+	struct super_block	*sb = file_inode(file)->i_sb;
+>>>>>>> upstream/android-13
 	struct svc_export	*exp;
 	struct iov_iter		iter;
 	__be32			nfserr;
 	int			host_err;
 	int			use_wgather;
 	loff_t			pos = offset;
+<<<<<<< HEAD
 	unsigned int		pflags = current->flags;
 	rwf_t			flags = 0;
 
@@ -1002,6 +1246,30 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file *file,
 		 * the client's dirty pages or its congested queue.
 		 */
 		current->flags |= PF_LESS_THROTTLE;
+=======
+	unsigned long		exp_op_flags = 0;
+	unsigned int		pflags = current->flags;
+	rwf_t			flags = 0;
+	bool			restore_flags = false;
+
+	trace_nfsd_write_opened(rqstp, fhp, offset, *cnt);
+
+	if (sb->s_export_op)
+		exp_op_flags = sb->s_export_op->flags;
+
+	if (test_bit(RQ_LOCAL, &rqstp->rq_flags) &&
+	    !(exp_op_flags & EXPORT_OP_REMOTE_FS)) {
+		/*
+		 * We want throttling in balance_dirty_pages()
+		 * and shrink_inactive_list() to only consider
+		 * the backingdev we are writing to, so that nfs to
+		 * localhost doesn't cause nfsd to lock up due to all
+		 * the client's dirty pages or its congested queue.
+		 */
+		current->flags |= PF_LOCAL_THROTTLE;
+		restore_flags = true;
+	}
+>>>>>>> upstream/android-13
 
 	exp = fhp->fh_export;
 	use_wgather = (rqstp->rq_vers == 2) && EX_WGATHER(exp);
@@ -1012,6 +1280,7 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file *file,
 	if (stable && !use_wgather)
 		flags |= RWF_SYNC;
 
+<<<<<<< HEAD
 	iov_iter_kvec(&iter, WRITE | ITER_KVEC, vec, vlen, *cnt);
 	host_err = vfs_iter_write(file, &iter, &pos, flags);
 	if (host_err < 0)
@@ -1022,6 +1291,44 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file *file,
 
 	if (stable && use_wgather)
 		host_err = wait_for_concurrent_writes(file);
+=======
+	iov_iter_kvec(&iter, WRITE, vec, vlen, *cnt);
+	if (flags & RWF_SYNC) {
+		down_write(&nf->nf_rwsem);
+		if (verf)
+			nfsd_copy_boot_verifier(verf,
+					net_generic(SVC_NET(rqstp),
+					nfsd_net_id));
+		host_err = vfs_iter_write(file, &iter, &pos, flags);
+		if (host_err < 0)
+			nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+						 nfsd_net_id));
+		up_write(&nf->nf_rwsem);
+	} else {
+		down_read(&nf->nf_rwsem);
+		if (verf)
+			nfsd_copy_boot_verifier(verf,
+					net_generic(SVC_NET(rqstp),
+					nfsd_net_id));
+		host_err = vfs_iter_write(file, &iter, &pos, flags);
+		up_read(&nf->nf_rwsem);
+	}
+	if (host_err < 0) {
+		nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+					 nfsd_net_id));
+		goto out_nfserr;
+	}
+	*cnt = host_err;
+	nfsd_stats_io_write_add(exp, *cnt);
+	fsnotify_modify(file);
+
+	if (stable && use_wgather) {
+		host_err = wait_for_concurrent_writes(file);
+		if (host_err < 0)
+			nfsd_reset_boot_verifier(net_generic(SVC_NET(rqstp),
+						 nfsd_net_id));
+	}
+>>>>>>> upstream/android-13
 
 out_nfserr:
 	if (host_err >= 0) {
@@ -1031,8 +1338,13 @@ out_nfserr:
 		trace_nfsd_write_err(rqstp, fhp, offset, host_err);
 		nfserr = nfserrno(host_err);
 	}
+<<<<<<< HEAD
 	if (test_bit(RQ_LOCAL, &rqstp->rq_flags))
 		current_restore_flags(pflags, PF_LESS_THROTTLE);
+=======
+	if (restore_flags)
+		current_restore_flags(pflags, PF_LOCAL_THROTTLE);
+>>>>>>> upstream/android-13
 	return nfserr;
 }
 
@@ -1042,6 +1354,7 @@ out_nfserr:
  * N.B. After this call fhp needs an fh_put
  */
 __be32 nfsd_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
+<<<<<<< HEAD
 	loff_t offset, struct kvec *vec, int vlen, unsigned long *count)
 {
 	struct file *file;
@@ -1063,6 +1376,27 @@ __be32 nfsd_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	if (ra)
 		nfsd_put_raparams(file, ra);
 	fput(file);
+=======
+	loff_t offset, struct kvec *vec, int vlen, unsigned long *count,
+	u32 *eof)
+{
+	struct nfsd_file	*nf;
+	struct file *file;
+	__be32 err;
+
+	trace_nfsd_read_start(rqstp, fhp, offset, *count);
+	err = nfsd_file_acquire(rqstp, fhp, NFSD_MAY_READ, &nf);
+	if (err)
+		return err;
+
+	file = nf->nf_file;
+	if (file->f_op->splice_read && test_bit(RQ_SPLICE_OK, &rqstp->rq_flags))
+		err = nfsd_splice_read(rqstp, fhp, file, offset, count, eof);
+	else
+		err = nfsd_readv(rqstp, fhp, file, offset, vec, vlen, count, eof);
+
+	nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 
 	trace_nfsd_read_done(rqstp, fhp, offset, *count);
 
@@ -1076,6 +1410,7 @@ __be32 nfsd_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
  */
 __be32
 nfsd_write(struct svc_rqst *rqstp, struct svc_fh *fhp, loff_t offset,
+<<<<<<< HEAD
 	   struct kvec *vec, int vlen, unsigned long *cnt, int stable)
 {
 	struct file *file = NULL;
@@ -1089,12 +1424,45 @@ nfsd_write(struct svc_rqst *rqstp, struct svc_fh *fhp, loff_t offset,
 
 	err = nfsd_vfs_write(rqstp, fhp, file, offset, vec, vlen, cnt, stable);
 	fput(file);
+=======
+	   struct kvec *vec, int vlen, unsigned long *cnt, int stable,
+	   __be32 *verf)
+{
+	struct nfsd_file *nf;
+	__be32 err;
+
+	trace_nfsd_write_start(rqstp, fhp, offset, *cnt);
+
+	err = nfsd_file_acquire(rqstp, fhp, NFSD_MAY_WRITE, &nf);
+	if (err)
+		goto out;
+
+	err = nfsd_vfs_write(rqstp, fhp, nf, offset, vec,
+			vlen, cnt, stable, verf);
+	nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 out:
 	trace_nfsd_write_done(rqstp, fhp, offset, *cnt);
 	return err;
 }
 
 #ifdef CONFIG_NFSD_V3
+<<<<<<< HEAD
+=======
+static int
+nfsd_filemap_write_and_wait_range(struct nfsd_file *nf, loff_t offset,
+				  loff_t end)
+{
+	struct address_space *mapping = nf->nf_file->f_mapping;
+	int ret = filemap_fdatawrite_range(mapping, offset, end);
+
+	if (ret)
+		return ret;
+	filemap_fdatawait_range_keep_errors(mapping, offset, end);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Commit all pending writes to stable storage.
  *
@@ -1106,11 +1474,19 @@ out:
  */
 __be32
 nfsd_commit(struct svc_rqst *rqstp, struct svc_fh *fhp,
+<<<<<<< HEAD
                loff_t offset, unsigned long count)
 {
 	struct file	*file;
 	loff_t		end = LLONG_MAX;
 	__be32		err = nfserr_inval;
+=======
+               loff_t offset, unsigned long count, __be32 *verf)
+{
+	struct nfsd_file	*nf;
+	loff_t			end = LLONG_MAX;
+	__be32			err = nfserr_inval;
+>>>>>>> upstream/android-13
 
 	if (offset < 0)
 		goto out;
@@ -1120,6 +1496,7 @@ nfsd_commit(struct svc_rqst *rqstp, struct svc_fh *fhp,
 			goto out;
 	}
 
+<<<<<<< HEAD
 	err = nfsd_open(rqstp, fhp, S_IFREG,
 			NFSD_MAY_WRITE|NFSD_MAY_NOT_BREAK_LEASE, &file);
 	if (err)
@@ -1134,6 +1511,37 @@ nfsd_commit(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	}
 
 	fput(file);
+=======
+	err = nfsd_file_acquire(rqstp, fhp,
+			NFSD_MAY_WRITE|NFSD_MAY_NOT_BREAK_LEASE, &nf);
+	if (err)
+		goto out;
+	if (EX_ISSYNC(fhp->fh_export)) {
+		int err2 = nfsd_filemap_write_and_wait_range(nf, offset, end);
+
+		down_write(&nf->nf_rwsem);
+		if (!err2)
+			err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
+		switch (err2) {
+		case 0:
+			nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
+						nfsd_net_id));
+			break;
+		case -EINVAL:
+			err = nfserr_notsupp;
+			break;
+		default:
+			err = nfserrno(err2);
+			nfsd_reset_boot_verifier(net_generic(nf->nf_net,
+						 nfsd_net_id));
+		}
+		up_write(&nf->nf_rwsem);
+	} else
+		nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
+					nfsd_net_id));
+
+	nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -1155,7 +1563,11 @@ nfsd_create_setattr(struct svc_rqst *rqstp, struct svc_fh *resfhp,
 	if (!uid_eq(current_fsuid(), GLOBAL_ROOT_UID))
 		iap->ia_valid &= ~(ATTR_UID|ATTR_GID);
 	if (iap->ia_valid)
+<<<<<<< HEAD
 		return nfsd_setattr(rqstp, resfhp, iap, 0, (time_t)0);
+=======
+		return nfsd_setattr(rqstp, resfhp, iap, 0, (time64_t)0);
+>>>>>>> upstream/android-13
 	/* Callers expect file metadata to be committed here */
 	return nfserrno(commit_metadata(resfhp));
 }
@@ -1213,12 +1625,20 @@ nfsd_create_locked(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	host_err = 0;
 	switch (type) {
 	case S_IFREG:
+<<<<<<< HEAD
 		host_err = vfs_create(dirp, dchild, iap->ia_mode, true);
+=======
+		host_err = vfs_create(&init_user_ns, dirp, dchild, iap->ia_mode, true);
+>>>>>>> upstream/android-13
 		if (!host_err)
 			nfsd_check_ignore_resizing(iap);
 		break;
 	case S_IFDIR:
+<<<<<<< HEAD
 		host_err = vfs_mkdir(dirp, dchild, iap->ia_mode);
+=======
+		host_err = vfs_mkdir(&init_user_ns, dirp, dchild, iap->ia_mode);
+>>>>>>> upstream/android-13
 		if (!host_err && unlikely(d_unhashed(dchild))) {
 			struct dentry *d;
 			d = lookup_one_len(dchild->d_name.name,
@@ -1246,7 +1666,12 @@ nfsd_create_locked(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	case S_IFBLK:
 	case S_IFIFO:
 	case S_IFSOCK:
+<<<<<<< HEAD
 		host_err = vfs_mknod(dirp, dchild, iap->ia_mode, rdev);
+=======
+		host_err = vfs_mknod(&init_user_ns, dirp, dchild,
+				     iap->ia_mode, rdev);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		printk(KERN_WARNING "nfsd: bad file type %o in nfsd_create\n",
@@ -1293,7 +1718,10 @@ nfsd_create(struct svc_rqst *rqstp, struct svc_fh *fhp,
 		int type, dev_t rdev, struct svc_fh *resfhp)
 {
 	struct dentry	*dentry, *dchild = NULL;
+<<<<<<< HEAD
 	struct inode	*dirp;
+=======
+>>>>>>> upstream/android-13
 	__be32		err;
 	int		host_err;
 
@@ -1305,7 +1733,10 @@ nfsd_create(struct svc_rqst *rqstp, struct svc_fh *fhp,
 		return err;
 
 	dentry = fhp->fh_dentry;
+<<<<<<< HEAD
 	dirp = d_inode(dentry);
+=======
+>>>>>>> upstream/android-13
 
 	host_err = fh_want_write(fhp);
 	if (host_err)
@@ -1423,18 +1854,32 @@ do_nfsd_create(struct svc_rqst *rqstp, struct svc_fh *fhp,
 			    && d_inode(dchild)->i_atime.tv_sec == v_atime
 			    && d_inode(dchild)->i_size  == 0 ) {
 				if (created)
+<<<<<<< HEAD
 					*created = 1;
 				break;
 			}
+=======
+					*created = true;
+				break;
+			}
+			fallthrough;
+>>>>>>> upstream/android-13
 		case NFS4_CREATE_EXCLUSIVE4_1:
 			if (   d_inode(dchild)->i_mtime.tv_sec == v_mtime
 			    && d_inode(dchild)->i_atime.tv_sec == v_atime
 			    && d_inode(dchild)->i_size  == 0 ) {
 				if (created)
+<<<<<<< HEAD
 					*created = 1;
 				goto set_attr;
 			}
 			 /* fallthru */
+=======
+					*created = true;
+				goto set_attr;
+			}
+			fallthrough;
+>>>>>>> upstream/android-13
 		case NFS3_CREATE_GUARDED:
 			err = nfserr_exist;
 		}
@@ -1445,13 +1890,21 @@ do_nfsd_create(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	if (!IS_POSIXACL(dirp))
 		iap->ia_mode &= ~current_umask();
 
+<<<<<<< HEAD
 	host_err = vfs_create(dirp, dchild, iap->ia_mode, true);
+=======
+	host_err = vfs_create(&init_user_ns, dirp, dchild, iap->ia_mode, true);
+>>>>>>> upstream/android-13
 	if (host_err < 0) {
 		fh_drop_write(fhp);
 		goto out_nfserr;
 	}
 	if (created)
+<<<<<<< HEAD
 		*created = 1;
+=======
+		*created = true;
+>>>>>>> upstream/android-13
 
 	nfsd_check_ignore_resizing(iap);
 
@@ -1569,11 +2022,19 @@ nfsd_symlink(struct svc_rqst *rqstp, struct svc_fh *fhp,
 	if (IS_ERR(dnew))
 		goto out_nfserr;
 
+<<<<<<< HEAD
 	host_err = vfs_symlink(d_inode(dentry), dnew, path);
 	err = nfserrno(host_err);
 	if (!err)
 		err = nfserrno(commit_metadata(fhp));
 	fh_unlock(fhp);
+=======
+	host_err = vfs_symlink(&init_user_ns, d_inode(dentry), dnew, path);
+	err = nfserrno(host_err);
+	fh_unlock(fhp);
+	if (!err)
+		err = nfserrno(commit_metadata(fhp));
+>>>>>>> upstream/android-13
 
 	fh_drop_write(fhp);
 
@@ -1637,7 +2098,12 @@ nfsd_link(struct svc_rqst *rqstp, struct svc_fh *ffhp,
 	err = nfserr_noent;
 	if (d_really_is_negative(dold))
 		goto out_dput;
+<<<<<<< HEAD
 	host_err = vfs_link(dold, dirp, dnew, NULL);
+=======
+	host_err = vfs_link(dold, &init_user_ns, dirp, dnew, NULL);
+	fh_unlock(ffhp);
+>>>>>>> upstream/android-13
 	if (!host_err) {
 		err = nfserrno(commit_metadata(ffhp));
 		if (!err)
@@ -1661,6 +2127,29 @@ out_nfserr:
 	goto out_unlock;
 }
 
+<<<<<<< HEAD
+=======
+static void
+nfsd_close_cached_files(struct dentry *dentry)
+{
+	struct inode *inode = d_inode(dentry);
+
+	if (inode && S_ISREG(inode->i_mode))
+		nfsd_file_close_inode_sync(inode);
+}
+
+static bool
+nfsd_has_cached_files(struct dentry *dentry)
+{
+	bool		ret = false;
+	struct inode *inode = d_inode(dentry);
+
+	if (inode && S_ISREG(inode->i_mode))
+		ret = nfsd_file_is_cached(inode);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Rename a file
  * N.B. After this call _both_ ffhp and tfhp need an fh_put
@@ -1673,6 +2162,10 @@ nfsd_rename(struct svc_rqst *rqstp, struct svc_fh *ffhp, char *fname, int flen,
 	struct inode	*fdir, *tdir;
 	__be32		err;
 	int		host_err;
+<<<<<<< HEAD
+=======
+	bool		close_cached = false;
+>>>>>>> upstream/android-13
 
 	err = fh_verify(rqstp, ffhp, S_IFDIR, NFSD_MAY_REMOVE);
 	if (err)
@@ -1691,6 +2184,10 @@ nfsd_rename(struct svc_rqst *rqstp, struct svc_fh *ffhp, char *fname, int flen,
 	if (!flen || isdotent(fname, flen) || !tlen || isdotent(tname, tlen))
 		goto out;
 
+<<<<<<< HEAD
+=======
+retry:
+>>>>>>> upstream/android-13
 	host_err = fh_want_write(ffhp);
 	if (host_err) {
 		err = nfserrno(host_err);
@@ -1730,11 +2227,33 @@ nfsd_rename(struct svc_rqst *rqstp, struct svc_fh *ffhp, char *fname, int flen,
 	if (ffhp->fh_export->ex_path.dentry != tfhp->fh_export->ex_path.dentry)
 		goto out_dput_new;
 
+<<<<<<< HEAD
 	host_err = vfs_rename(fdir, odentry, tdir, ndentry, NULL, 0);
 	if (!host_err) {
 		host_err = commit_metadata(tfhp);
 		if (!host_err)
 			host_err = commit_metadata(ffhp);
+=======
+	if ((ndentry->d_sb->s_export_op->flags & EXPORT_OP_CLOSE_BEFORE_UNLINK) &&
+	    nfsd_has_cached_files(ndentry)) {
+		close_cached = true;
+		goto out_dput_old;
+	} else {
+		struct renamedata rd = {
+			.old_mnt_userns	= &init_user_ns,
+			.old_dir	= fdir,
+			.old_dentry	= odentry,
+			.new_mnt_userns	= &init_user_ns,
+			.new_dir	= tdir,
+			.new_dentry	= ndentry,
+		};
+		host_err = vfs_rename(&rd);
+		if (!host_err) {
+			host_err = commit_metadata(tfhp);
+			if (!host_err)
+				host_err = commit_metadata(ffhp);
+		}
+>>>>>>> upstream/android-13
 	}
  out_dput_new:
 	dput(ndentry);
@@ -1747,12 +2266,34 @@ nfsd_rename(struct svc_rqst *rqstp, struct svc_fh *ffhp, char *fname, int flen,
 	 * as that would do the wrong thing if the two directories
 	 * were the same, so again we do it by hand.
 	 */
+<<<<<<< HEAD
 	fill_post_wcc(ffhp);
 	fill_post_wcc(tfhp);
+=======
+	if (!close_cached) {
+		fill_post_wcc(ffhp);
+		fill_post_wcc(tfhp);
+	}
+>>>>>>> upstream/android-13
 	unlock_rename(tdentry, fdentry);
 	ffhp->fh_locked = tfhp->fh_locked = false;
 	fh_drop_write(ffhp);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If the target dentry has cached open files, then we need to try to
+	 * close them prior to doing the rename. Flushing delayed fput
+	 * shouldn't be done with locks held however, so we delay it until this
+	 * point and then reattempt the whole shebang.
+	 */
+	if (close_cached) {
+		close_cached = false;
+		nfsd_close_cached_files(ndentry);
+		dput(ndentry);
+		goto retry;
+	}
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -1767,6 +2308,10 @@ nfsd_unlink(struct svc_rqst *rqstp, struct svc_fh *fhp, int type,
 {
 	struct dentry	*dentry, *rdentry;
 	struct inode	*dirp;
+<<<<<<< HEAD
+=======
+	struct inode	*rinode;
+>>>>>>> upstream/android-13
 	__be32		err;
 	int		host_err;
 
@@ -1788,6 +2333,7 @@ nfsd_unlink(struct svc_rqst *rqstp, struct svc_fh *fhp, int type,
 	rdentry = lookup_one_len(fname, dentry, flen);
 	host_err = PTR_ERR(rdentry);
 	if (IS_ERR(rdentry))
+<<<<<<< HEAD
 		goto out_nfserr;
 
 	if (d_really_is_negative(rdentry)) {
@@ -1795,10 +2341,22 @@ nfsd_unlink(struct svc_rqst *rqstp, struct svc_fh *fhp, int type,
 		err = nfserr_noent;
 		goto out;
 	}
+=======
+		goto out_drop_write;
+
+	if (d_really_is_negative(rdentry)) {
+		dput(rdentry);
+		host_err = -ENOENT;
+		goto out_drop_write;
+	}
+	rinode = d_inode(rdentry);
+	ihold(rinode);
+>>>>>>> upstream/android-13
 
 	if (!type)
 		type = d_inode(rdentry)->i_mode & S_IFMT;
 
+<<<<<<< HEAD
 	if (type != S_IFDIR)
 		host_err = vfs_unlink(dirp, rdentry, NULL);
 	else
@@ -1809,6 +2367,36 @@ nfsd_unlink(struct svc_rqst *rqstp, struct svc_fh *fhp, int type,
 
 out_nfserr:
 	err = nfserrno(host_err);
+=======
+	if (type != S_IFDIR) {
+		if (rdentry->d_sb->s_export_op->flags & EXPORT_OP_CLOSE_BEFORE_UNLINK)
+			nfsd_close_cached_files(rdentry);
+		host_err = vfs_unlink(&init_user_ns, dirp, rdentry, NULL);
+	} else {
+		host_err = vfs_rmdir(&init_user_ns, dirp, rdentry);
+	}
+
+	fh_unlock(fhp);
+	if (!host_err)
+		host_err = commit_metadata(fhp);
+	dput(rdentry);
+	iput(rinode);    /* truncate the inode here */
+
+out_drop_write:
+	fh_drop_write(fhp);
+out_nfserr:
+	if (host_err == -EBUSY) {
+		/* name is mounted-on. There is no perfect
+		 * error status.
+		 */
+		if (nfsd_v4client(rqstp))
+			err = nfserr_file_open;
+		else
+			err = nfserr_acces;
+	} else {
+		err = nfserrno(host_err);
+	}
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -1860,8 +2448,14 @@ static int nfsd_buffered_filldir(struct dir_context *ctx, const char *name,
 	return 0;
 }
 
+<<<<<<< HEAD
 static __be32 nfsd_buffered_readdir(struct file *file, nfsd_filldir_t func,
 				    struct readdir_cd *cdp, loff_t *offsetp)
+=======
+static __be32 nfsd_buffered_readdir(struct file *file, struct svc_fh *fhp,
+				    nfsd_filldir_t func, struct readdir_cd *cdp,
+				    loff_t *offsetp)
+>>>>>>> upstream/android-13
 {
 	struct buffered_dirent *de;
 	int host_err;
@@ -1907,6 +2501,11 @@ static __be32 nfsd_buffered_readdir(struct file *file, nfsd_filldir_t func,
 			if (cdp->err != nfs_ok)
 				break;
 
+<<<<<<< HEAD
+=======
+			trace_nfsd_dirent(fhp, de->ino, de->name, de->namlen);
+
+>>>>>>> upstream/android-13
 			reclen = ALIGN(sizeof(*de) + de->namlen,
 				       sizeof(u64));
 			size -= reclen;
@@ -1954,7 +2553,11 @@ nfsd_readdir(struct svc_rqst *rqstp, struct svc_fh *fhp, loff_t *offsetp,
 		goto out_close;
 	}
 
+<<<<<<< HEAD
 	err = nfsd_buffered_readdir(file, func, cdp, offsetp);
+=======
+	err = nfsd_buffered_readdir(file, fhp, func, cdp, offsetp);
+>>>>>>> upstream/android-13
 
 	if (err == nfserr_eof || err == nfserr_toosmall)
 		err = nfs_ok; /* can still be found in ->err */
@@ -1990,6 +2593,239 @@ static int exp_rdonly(struct svc_rqst *rqstp, struct svc_export *exp)
 	return nfsexp_flags(rqstp, exp) & NFSEXP_READONLY;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFSD_V4
+/*
+ * Helper function to translate error numbers. In the case of xattr operations,
+ * some error codes need to be translated outside of the standard translations.
+ *
+ * ENODATA needs to be translated to nfserr_noxattr.
+ * E2BIG to nfserr_xattr2big.
+ *
+ * Additionally, vfs_listxattr can return -ERANGE. This means that the
+ * file has too many extended attributes to retrieve inside an
+ * XATTR_LIST_MAX sized buffer. This is a bug in the xattr implementation:
+ * filesystems will allow the adding of extended attributes until they hit
+ * their own internal limit. This limit may be larger than XATTR_LIST_MAX.
+ * So, at that point, the attributes are present and valid, but can't
+ * be retrieved using listxattr, since the upper level xattr code enforces
+ * the XATTR_LIST_MAX limit.
+ *
+ * This bug means that we need to deal with listxattr returning -ERANGE. The
+ * best mapping is to return TOOSMALL.
+ */
+static __be32
+nfsd_xattr_errno(int err)
+{
+	switch (err) {
+	case -ENODATA:
+		return nfserr_noxattr;
+	case -E2BIG:
+		return nfserr_xattr2big;
+	case -ERANGE:
+		return nfserr_toosmall;
+	}
+	return nfserrno(err);
+}
+
+/*
+ * Retrieve the specified user extended attribute. To avoid always
+ * having to allocate the maximum size (since we are not getting
+ * a maximum size from the RPC), do a probe + alloc. Hold a reader
+ * lock on i_rwsem to prevent the extended attribute from changing
+ * size while we're doing this.
+ */
+__be32
+nfsd_getxattr(struct svc_rqst *rqstp, struct svc_fh *fhp, char *name,
+	      void **bufp, int *lenp)
+{
+	ssize_t len;
+	__be32 err;
+	char *buf;
+	struct inode *inode;
+	struct dentry *dentry;
+
+	err = fh_verify(rqstp, fhp, 0, NFSD_MAY_READ);
+	if (err)
+		return err;
+
+	err = nfs_ok;
+	dentry = fhp->fh_dentry;
+	inode = d_inode(dentry);
+
+	inode_lock_shared(inode);
+
+	len = vfs_getxattr(&init_user_ns, dentry, name, NULL, 0);
+
+	/*
+	 * Zero-length attribute, just return.
+	 */
+	if (len == 0) {
+		*bufp = NULL;
+		*lenp = 0;
+		goto out;
+	}
+
+	if (len < 0) {
+		err = nfsd_xattr_errno(len);
+		goto out;
+	}
+
+	if (len > *lenp) {
+		err = nfserr_toosmall;
+		goto out;
+	}
+
+	buf = kvmalloc(len, GFP_KERNEL | GFP_NOFS);
+	if (buf == NULL) {
+		err = nfserr_jukebox;
+		goto out;
+	}
+
+	len = vfs_getxattr(&init_user_ns, dentry, name, buf, len);
+	if (len <= 0) {
+		kvfree(buf);
+		buf = NULL;
+		err = nfsd_xattr_errno(len);
+	}
+
+	*lenp = len;
+	*bufp = buf;
+
+out:
+	inode_unlock_shared(inode);
+
+	return err;
+}
+
+/*
+ * Retrieve the xattr names. Since we can't know how many are
+ * user extended attributes, we must get all attributes here,
+ * and have the XDR encode filter out the "user." ones.
+ *
+ * While this could always just allocate an XATTR_LIST_MAX
+ * buffer, that's a waste, so do a probe + allocate. To
+ * avoid any changes between the probe and allocate, wrap
+ * this in inode_lock.
+ */
+__be32
+nfsd_listxattr(struct svc_rqst *rqstp, struct svc_fh *fhp, char **bufp,
+	       int *lenp)
+{
+	ssize_t len;
+	__be32 err;
+	char *buf;
+	struct inode *inode;
+	struct dentry *dentry;
+
+	err = fh_verify(rqstp, fhp, 0, NFSD_MAY_READ);
+	if (err)
+		return err;
+
+	dentry = fhp->fh_dentry;
+	inode = d_inode(dentry);
+	*lenp = 0;
+
+	inode_lock_shared(inode);
+
+	len = vfs_listxattr(dentry, NULL, 0);
+	if (len <= 0) {
+		err = nfsd_xattr_errno(len);
+		goto out;
+	}
+
+	if (len > XATTR_LIST_MAX) {
+		err = nfserr_xattr2big;
+		goto out;
+	}
+
+	/*
+	 * We're holding i_rwsem - use GFP_NOFS.
+	 */
+	buf = kvmalloc(len, GFP_KERNEL | GFP_NOFS);
+	if (buf == NULL) {
+		err = nfserr_jukebox;
+		goto out;
+	}
+
+	len = vfs_listxattr(dentry, buf, len);
+	if (len <= 0) {
+		kvfree(buf);
+		err = nfsd_xattr_errno(len);
+		goto out;
+	}
+
+	*lenp = len;
+	*bufp = buf;
+
+	err = nfs_ok;
+out:
+	inode_unlock_shared(inode);
+
+	return err;
+}
+
+/*
+ * Removexattr and setxattr need to call fh_lock to both lock the inode
+ * and set the change attribute. Since the top-level vfs_removexattr
+ * and vfs_setxattr calls already do their own inode_lock calls, call
+ * the _locked variant. Pass in a NULL pointer for delegated_inode,
+ * and let the client deal with NFS4ERR_DELAY (same as with e.g.
+ * setattr and remove).
+ */
+__be32
+nfsd_removexattr(struct svc_rqst *rqstp, struct svc_fh *fhp, char *name)
+{
+	__be32 err;
+	int ret;
+
+	err = fh_verify(rqstp, fhp, 0, NFSD_MAY_WRITE);
+	if (err)
+		return err;
+
+	ret = fh_want_write(fhp);
+	if (ret)
+		return nfserrno(ret);
+
+	fh_lock(fhp);
+
+	ret = __vfs_removexattr_locked(&init_user_ns, fhp->fh_dentry,
+				       name, NULL);
+
+	fh_unlock(fhp);
+	fh_drop_write(fhp);
+
+	return nfsd_xattr_errno(ret);
+}
+
+__be32
+nfsd_setxattr(struct svc_rqst *rqstp, struct svc_fh *fhp, char *name,
+	      void *buf, u32 len, u32 flags)
+{
+	__be32 err;
+	int ret;
+
+	err = fh_verify(rqstp, fhp, 0, NFSD_MAY_WRITE);
+	if (err)
+		return err;
+
+	ret = fh_want_write(fhp);
+	if (ret)
+		return nfserrno(ret);
+	fh_lock(fhp);
+
+	ret = __vfs_setxattr_locked(&init_user_ns, fhp->fh_dentry, name, buf,
+				    len, flags, NULL);
+
+	fh_unlock(fhp);
+	fh_drop_write(fhp);
+
+	return nfsd_xattr_errno(ret);
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Check for a user's access permissions to this inode.
  */
@@ -2064,12 +2900,18 @@ nfsd_permission(struct svc_rqst *rqstp, struct svc_export *exp,
 		return 0;
 
 	/* This assumes  NFSD_MAY_{READ,WRITE,EXEC} == MAY_{READ,WRITE,EXEC} */
+<<<<<<< HEAD
 	err = inode_permission(inode, acc & (MAY_READ|MAY_WRITE|MAY_EXEC));
+=======
+	err = inode_permission(&init_user_ns, inode,
+			       acc & (MAY_READ | MAY_WRITE | MAY_EXEC));
+>>>>>>> upstream/android-13
 
 	/* Allow read access to binaries even when mode 111 */
 	if (err == -EACCES && S_ISREG(inode->i_mode) &&
 	     (acc == (NFSD_MAY_READ | NFSD_MAY_OWNER_OVERRIDE) ||
 	      acc == (NFSD_MAY_READ | NFSD_MAY_READ_IF_EXEC)))
+<<<<<<< HEAD
 		err = inode_permission(inode, MAY_EXEC);
 
 	return err? nfserrno(err) : 0;
@@ -2134,3 +2976,9 @@ out_nomem:
 	nfsd_racache_shutdown();
 	return -ENOMEM;
 }
+=======
+		err = inode_permission(&init_user_ns, inode, MAY_EXEC);
+
+	return err? nfserrno(err) : 0;
+}
+>>>>>>> upstream/android-13

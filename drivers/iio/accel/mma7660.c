@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Freescale MMA7660FC 3-Axis Accelerometer
  *
  * Copyright (c) 2016, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License. See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * IIO driver for Freescale MMA7660FC; 7-bit I2C address: 0x4c.
  */
 
@@ -191,7 +199,10 @@ static int mma7660_probe(struct i2c_client *client,
 	mutex_init(&data->lock);
 	data->mode = MMA7660_MODE_STANDBY;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &mma7660_info;
 	indio_dev->name = MMA7660_DRIVER_NAME;
 	indio_dev->modes = INDIO_DIRECT_MODE;

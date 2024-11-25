@@ -10,8 +10,13 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/pwm.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "gbphy.h"
 
 struct gb_pwm_chip {

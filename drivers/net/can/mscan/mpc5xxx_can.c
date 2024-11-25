@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * CAN bus driver for the Freescale MPC5xxx embedded CPU.
  *
  * Copyright (C) 2004-2005 Andrey Volkov <avolkov@varma-el.com>,
  *                         Varma Electronics Oy
  * Copyright (C) 2008-2009 Wolfgang Grandegger <wg@grandegger.com>
+<<<<<<< HEAD
  * Copyright (C) 2009 Wolfram Sang, Pengutronix <w.sang@pengutronix.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+ * Copyright (C) 2009 Wolfram Sang, Pengutronix <kernel@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -290,7 +298,10 @@ static u32 mpc512x_can_get_clock(struct platform_device *ofdev,
 static const struct of_device_id mpc5xxx_can_table[];
 static int mpc5xxx_can_probe(struct platform_device *ofdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *match;
+=======
+>>>>>>> upstream/android-13
 	const struct mpc5xxx_can_data *data;
 	struct device_node *np = ofdev->dev.of_node;
 	struct net_device *dev;
@@ -300,10 +311,16 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
 	int irq, mscan_clksrc = 0;
 	int err = -ENOMEM;
 
+<<<<<<< HEAD
 	match = of_match_device(mpc5xxx_can_table, &ofdev->dev);
 	if (!match)
 		return -EINVAL;
 	data = match->data;
+=======
+	data = of_device_get_match_data(&ofdev->dev);
+	if (!data)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	base = of_iomap(np, 0);
 	if (!base) {
@@ -330,7 +347,10 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
 
 	clock_name = of_get_property(np, "fsl,mscan-clock-source", NULL);
 
+<<<<<<< HEAD
 	BUG_ON(!data);
+=======
+>>>>>>> upstream/android-13
 	priv->type = data->type;
 	priv->can.clock.freq = data->get_clock(ofdev, clock_name,
 					       &mscan_clksrc);

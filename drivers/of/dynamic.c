@@ -27,7 +27,11 @@ static struct device_node *kobj_to_device_node(struct kobject *kobj)
  * @node:	Node to inc refcount, NULL is supported to simplify writing of
  *		callers
  *
+<<<<<<< HEAD
  * Returns node.
+=======
+ * Return: The node with refcount incremented.
+>>>>>>> upstream/android-13
  */
 struct device_node *of_node_get(struct device_node *node)
 {
@@ -104,7 +108,12 @@ int of_reconfig_notify(unsigned long action, struct of_reconfig_data *p)
  * @arg		- argument of the of notifier
  *
  * Returns the new state of a device based on the notifier used.
+<<<<<<< HEAD
  * Returns 0 on device going from enabled to disabled, 1 on device
+=======
+ *
+ * Return: 0 on device going from enabled to disabled, 1 on device
+>>>>>>> upstream/android-13
  * going from disabled to enabled and -1 on no change.
  */
 int of_reconfig_get_state_change(unsigned long action, struct of_reconfig_data *pr)
@@ -207,11 +216,16 @@ static void __of_attach_node(struct device_node *np)
 
 	if (!of_node_check_flag(np, OF_OVERLAY)) {
 		np->name = __of_get_property(np, "name", NULL);
+<<<<<<< HEAD
 		np->type = __of_get_property(np, "device_type", NULL);
 		if (!np->name)
 			np->name = "<NULL>";
 		if (!np->type)
 			np->type = "<NULL>";
+=======
+		if (!np->name)
+			np->name = "<NULL>";
+>>>>>>> upstream/android-13
 
 		phandle = __of_get_property(np, "phandle", &sz);
 		if (!phandle)
@@ -232,6 +246,10 @@ static void __of_attach_node(struct device_node *np)
 
 /**
  * of_attach_node() - Plug a device node into the tree and global list.
+<<<<<<< HEAD
+=======
+ * @np:		Pointer to the caller's Device Node
+>>>>>>> upstream/android-13
  */
 int of_attach_node(struct device_node *np)
 {
@@ -279,17 +297,28 @@ void __of_detach_node(struct device_node *np)
 	of_node_set_flag(np, OF_DETACHED);
 
 	/* race with of_find_node_by_phandle() prevented by devtree_lock */
+<<<<<<< HEAD
 	__of_free_phandle_cache_entry(np->phandle);
+=======
+	__of_phandle_cache_inv_entry(np->phandle);
+>>>>>>> upstream/android-13
 }
 
 /**
  * of_detach_node() - "Unplug" a node from the device tree.
+<<<<<<< HEAD
+=======
+ * @np:		Pointer to the caller's Device Node
+>>>>>>> upstream/android-13
  */
 int of_detach_node(struct device_node *np)
 {
 	struct of_reconfig_data rd;
 	unsigned long flags;
+<<<<<<< HEAD
 	int rc = 0;
+=======
+>>>>>>> upstream/android-13
 
 	memset(&rd, 0, sizeof(rd));
 	rd.dn = np;
@@ -304,7 +333,11 @@ int of_detach_node(struct device_node *np)
 
 	of_reconfig_notify(OF_RECONFIG_DETACH_NODE, &rd);
 
+<<<<<<< HEAD
 	return rc;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(of_detach_node);
 
@@ -322,7 +355,11 @@ static void property_list_free(struct property *prop_list)
 
 /**
  * of_node_release() - release a dynamically allocated node
+<<<<<<< HEAD
  * @kref: kref element of the node to be released
+=======
+ * @kobj: kernel object of the node to be released
+>>>>>>> upstream/android-13
  *
  * In of_node_put() this function is passed to kref_put() as the destructor.
  */
@@ -360,6 +397,10 @@ void of_node_release(struct kobject *kobj)
 
 	property_list_free(node->properties);
 	property_list_free(node->deadprops);
+<<<<<<< HEAD
+=======
+	fwnode_links_purge(of_fwnode_handle(node));
+>>>>>>> upstream/android-13
 
 	kfree(node->full_name);
 	kfree(node->data);
@@ -375,7 +416,12 @@ void of_node_release(struct kobject *kobj)
  * property structure and the property name & contents. The property's
  * flags have the OF_DYNAMIC bit set so that we can differentiate between
  * dynamically allocated properties and not.
+<<<<<<< HEAD
  * Returns the newly allocated property or NULL on out of memory error.
+=======
+ *
+ * Return: The newly allocated property or NULL on out of memory error.
+>>>>>>> upstream/android-13
  */
 struct property *__of_prop_dup(const struct property *prop, gfp_t allocflags)
 {
@@ -418,7 +464,11 @@ struct property *__of_prop_dup(const struct property *prop, gfp_t allocflags)
  * another node.  The node data are dynamically allocated and all the node
  * flags have the OF_DYNAMIC & OF_DETACHED bits set.
  *
+<<<<<<< HEAD
  * Returns the newly allocated node or NULL on out of memory error.
+=======
+ * Return: The newly allocated node or NULL on out of memory error.
+>>>>>>> upstream/android-13
  */
 struct device_node *__of_node_dup(const struct device_node *np,
 				  const char *full_name)
@@ -784,7 +834,12 @@ static int __of_changeset_apply(struct of_changeset *ocs)
  * Any side-effects of live tree state changes are applied here on
  * success, like creation/destruction of devices and side-effects
  * like creation of sysfs properties and directories.
+<<<<<<< HEAD
  * Returns 0 on success, a negative error value in case of an error.
+=======
+ *
+ * Return: 0 on success, a negative error value in case of an error.
+>>>>>>> upstream/android-13
  * On error the partially applied effects are reverted.
  */
 int of_changeset_apply(struct of_changeset *ocs)
@@ -878,7 +933,12 @@ static int __of_changeset_revert(struct of_changeset *ocs)
  * was before the application.
  * Any side-effects like creation/destruction of devices and
  * removal of sysfs properties and directories are applied.
+<<<<<<< HEAD
  * Returns 0 on success, a negative error value in case of an error.
+=======
+ *
+ * Return: 0 on success, a negative error value in case of an error.
+>>>>>>> upstream/android-13
  */
 int of_changeset_revert(struct of_changeset *ocs)
 {
@@ -906,7 +966,12 @@ EXPORT_SYMBOL_GPL(of_changeset_revert);
  * + OF_RECONFIG_ADD_PROPERTY
  * + OF_RECONFIG_REMOVE_PROPERTY,
  * + OF_RECONFIG_UPDATE_PROPERTY
+<<<<<<< HEAD
  * Returns 0 on success, a negative error value in case of an error.
+=======
+ *
+ * Return: 0 on success, a negative error value in case of an error.
+>>>>>>> upstream/android-13
  */
 int of_changeset_action(struct of_changeset *ocs, unsigned long action,
 		struct device_node *np, struct property *prop)

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2004 Steven J. Hill
  * Copyright (C) 2001,2002,2003 Broadcom Corporation
  * Copyright (C) 1995-2000 Simon G. Vogl
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -189,6 +196,11 @@ static void __exit i2c_sibyte_exit(void)
 module_init(i2c_sibyte_init);
 module_exit(i2c_sibyte_exit);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Kip Walker (Broadcom Corp.), Steven J. Hill <sjhill@realitydiluted.com>");
+=======
+MODULE_AUTHOR("Kip Walker (Broadcom Corp.)");
+MODULE_AUTHOR("Steven J. Hill <sjhill@realitydiluted.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("SMBus adapter routines for SiByte boards");
 MODULE_LICENSE("GPL");

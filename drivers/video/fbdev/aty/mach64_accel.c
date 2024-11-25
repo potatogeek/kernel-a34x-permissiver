@@ -37,7 +37,11 @@ static u32 rotation24bpp(u32 dx, u32 direction)
 	return ((rotation << 8) | DST_24_ROTATION_ENABLE);
 }
 
+<<<<<<< HEAD
 void aty_reset_engine(const struct atyfb_par *par)
+=======
+void aty_reset_engine(struct atyfb_par *par)
+>>>>>>> upstream/android-13
 {
 	/* reset engine */
 	aty_st_le32(GEN_TEST_CNTL,
@@ -50,6 +54,11 @@ void aty_reset_engine(const struct atyfb_par *par)
 	/* HOST errors */
 	aty_st_le32(BUS_CNTL,
 		aty_ld_le32(BUS_CNTL, par) | BUS_HOST_ERR_ACK | BUS_FIFO_ERR_ACK, par);
+<<<<<<< HEAD
+=======
+
+	par->fifo_space = 0;
+>>>>>>> upstream/android-13
 }
 
 static void reset_GTC_3D_engine(const struct atyfb_par *par)

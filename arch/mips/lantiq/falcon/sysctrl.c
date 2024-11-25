@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2011 Thomas Langer <thomas.langer@lantiq.com>
  * Copyright (C) 2011 John Crispin <john@phrozen.org>
@@ -223,16 +228,26 @@ void __init ltq_soc_init(void)
 				res_sys[2].name) < 0))
 		pr_err("Failed to request core resources");
 
+<<<<<<< HEAD
 	status_membase = ioremap_nocache(res_status.start,
 					resource_size(&res_status));
 	ltq_ebu_membase = ioremap_nocache(res_ebu.start,
+=======
+	status_membase = ioremap(res_status.start,
+					resource_size(&res_status));
+	ltq_ebu_membase = ioremap(res_ebu.start,
+>>>>>>> upstream/android-13
 					resource_size(&res_ebu));
 
 	if (!status_membase || !ltq_ebu_membase)
 		panic("Failed to remap core resources");
 
 	for (i = 0; i < 3; i++) {
+<<<<<<< HEAD
 		sysctl_membase[i] = ioremap_nocache(res_sys[i].start,
+=======
+		sysctl_membase[i] = ioremap(res_sys[i].start,
+>>>>>>> upstream/android-13
 						resource_size(&res_sys[i]));
 		if (!sysctl_membase[i])
 			panic("Failed to remap sysctrl resources");

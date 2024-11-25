@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -564,11 +571,19 @@ out:
  */
 int dbg_check_old_index(struct ubifs_info *c, struct ubifs_zbranch *zroot)
 {
+<<<<<<< HEAD
 	int lnum, offs, len, err = 0, uninitialized_var(last_level), child_cnt;
 	int first = 1, iip;
 	struct ubifs_debug_info *d = c->dbg;
 	union ubifs_key uninitialized_var(lower_key), upper_key, l_key, u_key;
 	unsigned long long uninitialized_var(last_sqnum);
+=======
+	int lnum, offs, len, err = 0, last_level, child_cnt;
+	int first = 1, iip;
+	struct ubifs_debug_info *d = c->dbg;
+	union ubifs_key lower_key, upper_key, l_key, u_key;
+	unsigned long long last_sqnum;
+>>>>>>> upstream/android-13
 	struct ubifs_idx_node *idx;
 	struct list_head list;
 	struct idx_node *i;
@@ -713,13 +728,21 @@ out:
 
 out_dump:
 	ubifs_err(c, "dumping index node (iip=%d)", i->iip);
+<<<<<<< HEAD
 	ubifs_dump_node(c, idx);
+=======
+	ubifs_dump_node(c, idx, ubifs_idx_node_sz(c, c->fanout));
+>>>>>>> upstream/android-13
 	list_del(&i->list);
 	kfree(i);
 	if (!list_empty(&list)) {
 		i = list_entry(list.prev, struct idx_node, list);
 		ubifs_err(c, "dumping parent index node");
+<<<<<<< HEAD
 		ubifs_dump_node(c, &i->idx);
+=======
+		ubifs_dump_node(c, &i->idx, ubifs_idx_node_sz(c, c->fanout));
+>>>>>>> upstream/android-13
 	}
 out_free:
 	while (!list_empty(&list)) {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "reg.h"
@@ -47,7 +52,11 @@ static void _rtl92s_get_powerbase(struct ieee80211_hw *hw, u8 *p_pwrlevel,
 
 	/* We only care about the path A for legacy. */
 	if (rtlefuse->eeprom_version < 2) {
+<<<<<<< HEAD
 		pwrbase0 = pwrlevel[0] + (rtlefuse->legacy_httxpowerdiff & 0xf);
+=======
+		pwrbase0 = pwrlevel[0] + (rtlefuse->legacy_ht_txpowerdiff & 0xf);
+>>>>>>> upstream/android-13
 	} else {
 		legacy_pwrdiff = rtlefuse->txpwr_legacyhtdiff
 						[RF90_PATH_A][chnl - 1];
@@ -117,6 +126,7 @@ static void _rtl92s_get_powerbase(struct ieee80211_hw *hw, u8 *p_pwrlevel,
 	}
 
 	if (rtlphy->current_chan_bw == HT_CHANNEL_WIDTH_20_40) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "40MHz finalpwr_idx (A / B) = 0x%x / 0x%x\n",
 			 p_final_pwridx[0], p_final_pwridx[1]);
@@ -124,6 +134,15 @@ static void _rtl92s_get_powerbase(struct ieee80211_hw *hw, u8 *p_pwrlevel,
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "20MHz finalpwr_idx (A / B) = 0x%x / 0x%x\n",
 			 p_final_pwridx[0], p_final_pwridx[1]);
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"40MHz finalpwr_idx (A / B) = 0x%x / 0x%x\n",
+			p_final_pwridx[0], p_final_pwridx[1]);
+	} else {
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"20MHz finalpwr_idx (A / B) = 0x%x / 0x%x\n",
+			p_final_pwridx[0], p_final_pwridx[1]);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -146,9 +165,15 @@ static void _rtl92s_set_antennadiff(struct ieee80211_hw *hw,
 		if (ant_pwr_diff < -8)
 			ant_pwr_diff = -8;
 
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "Antenna Diff from RF-B to RF-A = %d (0x%x)\n",
 			 ant_pwr_diff, ant_pwr_diff & 0xf);
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"Antenna Diff from RF-B to RF-A = %d (0x%x)\n",
+			ant_pwr_diff, ant_pwr_diff & 0xf);
+>>>>>>> upstream/android-13
 
 		ant_pwr_diff &= 0xf;
 	}
@@ -165,8 +190,13 @@ static void _rtl92s_set_antennadiff(struct ieee80211_hw *hw,
 	rtl_set_bbreg(hw, RFPGA0_TXGAINSTAGE, (BXBTXAGC | BXCTXAGC | BXDTXAGC),
 		      u4reg_val);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD, "Write BCD-Diff(0x%x) = 0x%x\n",
 		 RFPGA0_TXGAINSTAGE, u4reg_val);
+=======
+	rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD, "Write BCD-Diff(0x%x) = 0x%x\n",
+		RFPGA0_TXGAINSTAGE, u4reg_val);
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
@@ -191,8 +221,13 @@ static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
 		writeval = rtlphy->mcs_offset[chnlgroup][index] +
 				((index < 2) ? pwrbase0 : pwrbase1);
 
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "RTK better performance, writeval = 0x%x\n", writeval);
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"RTK better performance, writeval = 0x%x\n", writeval);
+>>>>>>> upstream/android-13
 		break;
 	case 1:
 		/* Realtek regulatory increase power diff defined
@@ -200,9 +235,15 @@ static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
 		if (rtlphy->current_chan_bw == HT_CHANNEL_WIDTH_20_40) {
 			writeval = ((index < 2) ? pwrbase0 : pwrbase1);
 
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 				 "Realtek regulatory, 40MHz, writeval = 0x%x\n",
 				 writeval);
+=======
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+				"Realtek regulatory, 40MHz, writeval = 0x%x\n",
+				writeval);
+>>>>>>> upstream/android-13
 		} else {
 			chnlgroup = 0;
 
@@ -221,16 +262,27 @@ static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
 					+ ((index < 2) ?
 					pwrbase0 : pwrbase1);
 
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 				 "Realtek regulatory, 20MHz, writeval = 0x%x\n",
 				 writeval);
+=======
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+				"Realtek regulatory, 20MHz, writeval = 0x%x\n",
+				writeval);
+>>>>>>> upstream/android-13
 		}
 		break;
 	case 2:
 		/* Better regulatory don't increase any power diff */
 		writeval = ((index < 2) ? pwrbase0 : pwrbase1);
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "Better regulatory, writeval = 0x%x\n", writeval);
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"Better regulatory, writeval = 0x%x\n", writeval);
+>>>>>>> upstream/android-13
 		break;
 	case 3:
 		/* Customer defined power diff. increase power diff
@@ -238,6 +290,7 @@ static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
 		chnlgroup = 0;
 
 		if (rtlphy->current_chan_bw == HT_CHANNEL_WIDTH_20_40) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 				 "customer's limit, 40MHz = 0x%x\n",
 				 rtlefuse->pwrgroup_ht40
@@ -247,6 +300,17 @@ static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
 				 "customer's limit, 20MHz = 0x%x\n",
 				 rtlefuse->pwrgroup_ht20
 				 [RF90_PATH_A][chnl - 1]);
+=======
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+				"customer's limit, 40MHz = 0x%x\n",
+				rtlefuse->pwrgroup_ht40
+				[RF90_PATH_A][chnl - 1]);
+		} else {
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+				"customer's limit, 20MHz = 0x%x\n",
+				rtlefuse->pwrgroup_ht20
+				[RF90_PATH_A][chnl - 1]);
+>>>>>>> upstream/android-13
 		}
 
 		for (i = 0; i < 4; i++) {
@@ -278,6 +342,7 @@ static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
 				(pwrdiff_limit[2] << 16) |
 				(pwrdiff_limit[1] << 8) |
 				(pwrdiff_limit[0]);
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "Customer's limit = 0x%x\n", customer_limit);
 
@@ -285,13 +350,27 @@ static void _rtl92s_get_txpower_writeval_byregulatory(struct ieee80211_hw *hw,
 					     pwrbase0 : pwrbase1);
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "Customer, writeval = 0x%x\n", writeval);
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"Customer's limit = 0x%x\n", customer_limit);
+
+		writeval = customer_limit + ((index < 2) ?
+					     pwrbase0 : pwrbase1);
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"Customer, writeval = 0x%x\n", writeval);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		chnlgroup = 0;
 		writeval = rtlphy->mcs_offset[chnlgroup][index] +
 				((index < 2) ? pwrbase0 : pwrbase1);
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD,
 			 "RTK better performance, writeval = 0x%x\n", writeval);
+=======
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD,
+			"RTK better performance, writeval = 0x%x\n", writeval);
+>>>>>>> upstream/android-13
 		break;
 	}
 

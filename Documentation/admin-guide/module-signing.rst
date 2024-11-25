@@ -106,7 +106,11 @@ This has a number of options available:
      certificate and a private key.
 
      If the PEM file containing the private key is encrypted, or if the
+<<<<<<< HEAD
      PKCS#11 token requries a PIN, this can be provided at build time by
+=======
+     PKCS#11 token requires a PIN, this can be provided at build time by
+>>>>>>> upstream/android-13
      means of the ``KBUILD_SIGN_PIN`` variable.
 
 

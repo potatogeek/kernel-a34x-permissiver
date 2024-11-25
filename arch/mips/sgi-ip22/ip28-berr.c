@@ -8,6 +8,10 @@
 
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/sched/debug.h>
 #include <linux/sched/signal.h>
@@ -300,6 +304,7 @@ static void print_buserr(const struct pt_regs *regs)
 	       field, regs->cp0_epc, field, regs->regs[31]);
 }
 
+<<<<<<< HEAD
 /*
  * Check, whether MC's (virtual) DMA address caused the bus error.
  * See "Virtual DMA Specification", Draft 1.5, Feb 13 1992, SGI
@@ -317,6 +322,8 @@ static int addr_is_ram(unsigned long addr, unsigned sz)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int check_microtlb(u32 hi, u32 lo, unsigned long vaddr)
 {
 	/* This is likely rather similar to correct code ;-) */
@@ -331,7 +338,11 @@ static int check_microtlb(u32 hi, u32 lo, unsigned long vaddr)
 			/* PTEIndex is VPN-low (bits [22:14]/[20:12] ?) */
 			unsigned long pte = (lo >> 6) << 12; /* PTEBase */
 			pte += 8*((vaddr >> pgsz) & 0x1ff);
+<<<<<<< HEAD
 			if (addr_is_ram(pte, 8)) {
+=======
+			if (page_is_ram(PFN_DOWN(pte))) {
+>>>>>>> upstream/android-13
 				/*
 				 * Note: Since DMA hardware does look up
 				 * translation on its own, this PTE *must*
@@ -462,9 +473,15 @@ void ip22_be_interrupt(int irq)
 	if (ip28_be_interrupt(regs) != MIPS_BE_DISCARD) {
 		/* Assume it would be too dangerous to continue ... */
 		die_if_kernel("Oops", regs);
+<<<<<<< HEAD
 		force_sig(SIGBUS, current);
 	} else if (debug_be_interrupt)
 		show_regs((struct pt_regs *)regs);
+=======
+		force_sig(SIGBUS);
+	} else if (debug_be_interrupt)
+		show_regs(regs);
+>>>>>>> upstream/android-13
 }
 
 static int ip28_be_handler(struct pt_regs *regs, int is_fixup)

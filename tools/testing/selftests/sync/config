@@ -1,4 +1,7 @@
 CONFIG_STAGING=y
 CONFIG_ANDROID=y
+<<<<<<< HEAD
 CONFIG_SYNC=y
+=======
+>>>>>>> upstream/android-13
 CONFIG_SW_SYNC=y

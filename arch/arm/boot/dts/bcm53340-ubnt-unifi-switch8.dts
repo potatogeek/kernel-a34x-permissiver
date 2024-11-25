@@ -20,6 +20,10 @@
 	};
 
 	memory@0 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x08000000>,
 		      <0x68000000 0x08000000>;
 	};

@@ -22,7 +22,12 @@ ssize_t nfs_dns_resolve_name(struct net *net, char *name, size_t namelen,
 	char *ip_addr = NULL;
 	int ip_len;
 
+<<<<<<< HEAD
 	ip_len = dns_query(NULL, name, namelen, NULL, &ip_addr, NULL);
+=======
+	ip_len = dns_query(net, NULL, name, namelen, NULL, &ip_addr, NULL,
+			   false);
+>>>>>>> upstream/android-13
 	if (ip_len > 0)
 		ret = rpc_pton(net, ip_addr, ip_len, sa, salen);
 	else
@@ -38,7 +43,10 @@ ssize_t nfs_dns_resolve_name(struct net *net, char *name, size_t namelen,
 #include <linux/string.h>
 #include <linux/kmod.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/socket.h>
 #include <linux/seq_file.h>
 #include <linux/inet.h>
@@ -65,6 +73,10 @@ struct nfs_dns_ent {
 
 	struct sockaddr_storage addr;
 	size_t addrlen;
+<<<<<<< HEAD
+=======
+	struct rcu_head rcu_head;
+>>>>>>> upstream/android-13
 };
 
 
@@ -91,7 +103,11 @@ static void nfs_dns_ent_init(struct cache_head *cnew,
 	key = container_of(ckey, struct nfs_dns_ent, h);
 
 	kfree(new->hostname);
+<<<<<<< HEAD
 	new->hostname = kstrndup(key->hostname, key->namelen, GFP_KERNEL);
+=======
+	new->hostname = kmemdup_nul(key->hostname, key->namelen, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (new->hostname) {
 		new->namelen = key->namelen;
 		nfs_dns_ent_update(cnew, ckey);
@@ -101,13 +117,29 @@ static void nfs_dns_ent_init(struct cache_head *cnew,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void nfs_dns_ent_free_rcu(struct rcu_head *head)
+{
+	struct nfs_dns_ent *item;
+
+	item = container_of(head, struct nfs_dns_ent, rcu_head);
+	kfree(item->hostname);
+	kfree(item);
+}
+
+>>>>>>> upstream/android-13
 static void nfs_dns_ent_put(struct kref *ref)
 {
 	struct nfs_dns_ent *item;
 
 	item = container_of(ref, struct nfs_dns_ent, h.ref);
+<<<<<<< HEAD
 	kfree(item->hostname);
 	kfree(item);
+=======
+	call_rcu(&item->rcu_head, nfs_dns_ent_free_rcu);
+>>>>>>> upstream/android-13
 }
 
 static struct cache_head *nfs_dns_ent_alloc(void)
@@ -142,12 +174,22 @@ static int nfs_dns_upcall(struct cache_detail *cd,
 		struct cache_head *ch)
 {
 	struct nfs_dns_ent *key = container_of(ch, struct nfs_dns_ent, h);
+<<<<<<< HEAD
 	int ret;
 
 	ret = nfs_cache_upcall(cd, key->hostname);
 	if (ret)
 		ret = sunrpc_cache_pipe_upcall(cd, ch);
 	return ret;
+=======
+
+	if (test_and_set_bit(CACHE_PENDING, &ch->flags))
+		return 0;
+	if (!nfs_cache_upcall(cd, key->hostname))
+		return 0;
+	clear_bit(CACHE_PENDING, &ch->flags);
+	return sunrpc_cache_pipe_upcall_timeout(cd, ch);
+>>>>>>> upstream/android-13
 }
 
 static int nfs_dns_match(struct cache_head *ca,
@@ -195,7 +237,11 @@ static struct nfs_dns_ent *nfs_dns_lookup(struct cache_detail *cd,
 {
 	struct cache_head *ch;
 
+<<<<<<< HEAD
 	ch = sunrpc_cache_lookup(cd,
+=======
+	ch = sunrpc_cache_lookup_rcu(cd,
+>>>>>>> upstream/android-13
 			&key->h,
 			nfs_dns_hash(key));
 	if (!ch)

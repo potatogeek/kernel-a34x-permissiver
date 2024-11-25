@@ -62,6 +62,7 @@ typedef unsigned long sigset_t;
 #define SIGRTMIN	32
 #define SIGRTMAX	_NSIG
 
+<<<<<<< HEAD
 /*
  * SA_FLAGS values:
  *
@@ -86,6 +87,8 @@ typedef unsigned long sigset_t;
 #define SA_NOMASK	SA_NODEFER
 #define SA_ONESHOT	SA_RESETHAND
 
+=======
+>>>>>>> upstream/android-13
 #define SA_RESTORER	0x04000000
 
 #define MINSIGSTKSZ	2048

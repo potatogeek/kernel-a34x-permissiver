@@ -158,8 +158,11 @@ void fw_node_event(struct fw_card *card, struct fw_node *node, int event);
 int fw_iso_buffer_alloc(struct fw_iso_buffer *buffer, int page_count);
 int fw_iso_buffer_map_dma(struct fw_iso_buffer *buffer, struct fw_card *card,
 			  enum dma_data_direction direction);
+<<<<<<< HEAD
 int fw_iso_buffer_map_vma(struct fw_iso_buffer *buffer,
 			  struct vm_area_struct *vma);
+=======
+>>>>>>> upstream/android-13
 
 
 /* -topology */
@@ -193,7 +196,11 @@ struct fw_node {
 	/* Upper layer specific data. */
 	void *data;
 
+<<<<<<< HEAD
 	struct fw_node *ports[0];
+=======
+	struct fw_node *ports[];
+>>>>>>> upstream/android-13
 };
 
 static inline struct fw_node *fw_node_get(struct fw_node *node)

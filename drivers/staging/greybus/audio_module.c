@@ -18,6 +18,7 @@
  */
 
 static int gbaudio_request_jack(struct gbaudio_module_info *module,
+<<<<<<< HEAD
 				  struct gb_audio_jack_event_request *req)
 {
 	int report;
@@ -28,6 +29,18 @@ static int gbaudio_request_jack(struct gbaudio_module_info *module,
 		dev_err_ratelimited(module->dev,
 			"Invalid jack event received:type: %u, event: %u\n",
 			req->jack_attribute, req->event);
+=======
+				struct gb_audio_jack_event_request *req)
+{
+	int report;
+	struct snd_jack *jack = module->headset.jack.jack;
+	struct snd_jack *btn_jack = module->button.jack.jack;
+
+	if (!jack) {
+		dev_err_ratelimited(module->dev,
+				    "Invalid jack event received:type: %u, event: %u\n",
+				    req->jack_attribute, req->event);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -38,11 +51,19 @@ static int gbaudio_request_jack(struct gbaudio_module_info *module,
 	if (req->event == GB_AUDIO_JACK_EVENT_REMOVAL) {
 		module->jack_type = 0;
 		if (btn_jack && module->button_status) {
+<<<<<<< HEAD
 			snd_soc_jack_report(&module->button_jack, 0,
 					    module->button_mask);
 			module->button_status = 0;
 		}
 		snd_soc_jack_report(&module->headset_jack, 0,
+=======
+			snd_soc_jack_report(&module->button.jack, 0,
+					    module->button_mask);
+			module->button_status = 0;
+		}
+		snd_soc_jack_report(&module->headset.jack, 0,
+>>>>>>> upstream/android-13
 				    module->jack_mask);
 		return 0;
 	}
@@ -50,8 +71,13 @@ static int gbaudio_request_jack(struct gbaudio_module_info *module,
 	report = req->jack_attribute & module->jack_mask;
 	if (!report) {
 		dev_err_ratelimited(module->dev,
+<<<<<<< HEAD
 			"Invalid jack event received:type: %u, event: %u\n",
 			req->jack_attribute, req->event);
+=======
+				    "Invalid jack event received:type: %u, event: %u\n",
+				    req->jack_attribute, req->event);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -61,7 +87,11 @@ static int gbaudio_request_jack(struct gbaudio_module_info *module,
 				     module->jack_type, report);
 
 	module->jack_type = report;
+<<<<<<< HEAD
 	snd_soc_jack_report(&module->headset_jack, report, module->jack_mask);
+=======
+	snd_soc_jack_report(&module->headset.jack, report, module->jack_mask);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -70,12 +100,21 @@ static int gbaudio_request_button(struct gbaudio_module_info *module,
 				  struct gb_audio_button_event_request *req)
 {
 	int soc_button_id, report;
+<<<<<<< HEAD
 	struct snd_jack *btn_jack = module->button_jack.jack;
 
 	if (!btn_jack) {
 		dev_err_ratelimited(module->dev,
 			"Invalid button event received:type: %u, event: %u\n",
 			req->button_id, req->event);
+=======
+	struct snd_jack *btn_jack = module->button.jack.jack;
+
+	if (!btn_jack) {
+		dev_err_ratelimited(module->dev,
+				    "Invalid button event received:type: %u, event: %u\n",
+				    req->button_id, req->event);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -124,7 +163,11 @@ static int gbaudio_request_button(struct gbaudio_module_info *module,
 
 	module->button_status = report;
 
+<<<<<<< HEAD
 	snd_soc_jack_report(&module->button_jack, report, module->button_mask);
+=======
+	snd_soc_jack_report(&module->button.jack, report, module->button_mask);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -175,8 +218,13 @@ static int gbaudio_codec_request_handler(struct gb_operation *op)
 }
 
 static int gb_audio_add_mgmt_connection(struct gbaudio_module_info *gbmodule,
+<<<<<<< HEAD
 				struct greybus_descriptor_cport *cport_desc,
 				struct gb_bundle *bundle)
+=======
+					struct greybus_descriptor_cport *cport_desc,
+					struct gb_bundle *bundle)
+>>>>>>> upstream/android-13
 {
 	struct gb_connection *connection;
 
@@ -199,8 +247,13 @@ static int gb_audio_add_mgmt_connection(struct gbaudio_module_info *gbmodule,
 }
 
 static int gb_audio_add_data_connection(struct gbaudio_module_info *gbmodule,
+<<<<<<< HEAD
 				struct greybus_descriptor_cport *cport_desc,
 				struct gb_bundle *bundle)
+=======
+					struct greybus_descriptor_cport *cport_desc,
+					struct gb_bundle *bundle)
+>>>>>>> upstream/android-13
 {
 	struct gb_connection *connection;
 	struct gbaudio_data_connection *dai;
@@ -210,8 +263,13 @@ static int gb_audio_add_data_connection(struct gbaudio_module_info *gbmodule,
 		return -ENOMEM;
 
 	connection = gb_connection_create_offloaded(bundle,
+<<<<<<< HEAD
 					le16_to_cpu(cport_desc->id),
 					GB_CONNECTION_FLAG_CSD);
+=======
+						    le16_to_cpu(cport_desc->id),
+						    GB_CONNECTION_FLAG_CSD);
+>>>>>>> upstream/android-13
 	if (IS_ERR(connection)) {
 		devm_kfree(gbmodule->dev, dai);
 		return PTR_ERR(connection);
@@ -219,7 +277,11 @@ static int gb_audio_add_data_connection(struct gbaudio_module_info *gbmodule,
 
 	greybus_set_drvdata(bundle, gbmodule);
 	dai->id = 0;
+<<<<<<< HEAD
 	dai->data_cport = connection->intf_cport_id;
+=======
+	dai->data_cport = cpu_to_le16(connection->intf_cport_id);
+>>>>>>> upstream/android-13
 	dai->connection = connection;
 	list_add(&dai->list, &gbmodule->data_list);
 
@@ -258,8 +320,14 @@ static int gb_audio_probe(struct gb_bundle *bundle,
 	INIT_LIST_HEAD(&gbmodule->widget_list);
 	INIT_LIST_HEAD(&gbmodule->ctl_list);
 	INIT_LIST_HEAD(&gbmodule->widget_ctl_list);
+<<<<<<< HEAD
 	gbmodule->dev = dev;
 	snprintf(gbmodule->name, NAME_SIZE, "%s.%s", dev->driver->name,
+=======
+	INIT_LIST_HEAD(&gbmodule->jack_list);
+	gbmodule->dev = dev;
+	snprintf(gbmodule->name, sizeof(gbmodule->name), "%s.%s", dev->driver->name,
+>>>>>>> upstream/android-13
 		 dev_name(dev));
 	greybus_set_drvdata(bundle, gbmodule);
 
@@ -317,7 +385,11 @@ static int gb_audio_probe(struct gb_bundle *bundle,
 	ret = gbaudio_tplg_parse_data(gbmodule, topology);
 	if (ret) {
 		dev_err(dev, "%d:Error while parsing topology data\n",
+<<<<<<< HEAD
 			  ret);
+=======
+			ret);
+>>>>>>> upstream/android-13
 		goto free_topology;
 	}
 	gbmodule->topology = topology;
@@ -328,7 +400,11 @@ static int gb_audio_probe(struct gb_bundle *bundle,
 		if (ret) {
 			dev_err(dev,
 				"%d:Error while enabling %d:data connection\n",
+<<<<<<< HEAD
 				ret, dai->data_cport);
+=======
+				ret, le16_to_cpu(dai->data_cport));
+>>>>>>> upstream/android-13
 			goto disable_data_connection;
 		}
 	}
@@ -341,7 +417,11 @@ static int gb_audio_probe(struct gb_bundle *bundle,
 	/* inform above layer for uevent */
 	dev_dbg(dev, "Inform set_event:%d to above layer\n", 1);
 	/* prepare for the audio manager */
+<<<<<<< HEAD
 	strlcpy(desc.name, gbmodule->name, GB_AUDIO_MANAGER_MODULE_NAME_LEN);
+=======
+	strscpy(desc.name, gbmodule->name, sizeof(desc.name));
+>>>>>>> upstream/android-13
 	desc.vid = 2; /* todo */
 	desc.pid = 3; /* todo */
 	desc.intf_id = gbmodule->dev_id;
@@ -450,7 +530,11 @@ static int gb_audio_resume(struct device *dev)
 		if (ret) {
 			dev_err(dev,
 				"%d:Error while enabling %d:data connection\n",
+<<<<<<< HEAD
 				ret, dai->data_cport);
+=======
+				ret, le16_to_cpu(dai->data_cport));
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}

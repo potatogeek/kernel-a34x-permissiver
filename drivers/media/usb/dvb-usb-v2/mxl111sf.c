@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010-2014 Michael Krufky (mkrufky@linuxtv.org)
  *
@@ -6,6 +7,13 @@
  *   Software Foundation, version 2.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2010-2014 Michael Krufky (mkrufky@linuxtv.org)
+ *
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
@@ -140,7 +148,11 @@ int mxl111sf_write_reg_mask(struct mxl111sf_state *state,
 	if (mask != 0xff) {
 		ret = mxl111sf_read_reg(state, addr, &val);
 #if 1
+<<<<<<< HEAD
 		/* dont know why this usually errors out on the first try */
+=======
+		/* don't know why this usually errors out on the first try */
+>>>>>>> upstream/android-13
 		if (mxl_fail(ret))
 			pr_err("error writing addr: 0x%02x, mask: 0x%02x, data: 0x%02x, retrying...",
 			       addr, mask, data);
@@ -783,7 +795,11 @@ static int mxl111sf_attach_demod(struct dvb_usb_adapter *adap, u8 fe_id)
 	if (mxl_fail(ret))
 		goto fail;
 
+<<<<<<< HEAD
 	/* dont care if this fails */
+=======
+	/* don't care if this fails */
+>>>>>>> upstream/android-13
 	mxl111sf_init_port_expander(state);
 
 	adap->fe[fe_id] = dvb_attach(mxl111sf_demod_attach, state,
@@ -892,11 +908,21 @@ static int mxl111sf_attach_tuner(struct dvb_usb_adapter *adap)
 #ifdef CONFIG_MEDIA_CONTROLLER_DVB
 	state->tuner.function = MEDIA_ENT_F_TUNER;
 	state->tuner.name = "mxl111sf tuner";
+<<<<<<< HEAD
 	state->tuner_pads[TUNER_PAD_RF_INPUT].flags = MEDIA_PAD_FL_SINK;
 	state->tuner_pads[TUNER_PAD_OUTPUT].flags = MEDIA_PAD_FL_SOURCE;
 
 	ret = media_entity_pads_init(&state->tuner,
 				     TUNER_NUM_PADS, state->tuner_pads);
+=======
+	state->tuner_pads[MXL111SF_PAD_RF_INPUT].flags = MEDIA_PAD_FL_SINK;
+	state->tuner_pads[MXL111SF_PAD_RF_INPUT].sig_type = PAD_SIGNAL_ANALOG;
+	state->tuner_pads[MXL111SF_PAD_OUTPUT].flags = MEDIA_PAD_FL_SOURCE;
+	state->tuner_pads[MXL111SF_PAD_OUTPUT].sig_type = PAD_SIGNAL_ANALOG;
+
+	ret = media_entity_pads_init(&state->tuner,
+				     MXL111SF_NUM_PADS, state->tuner_pads);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -932,8 +958,11 @@ static int mxl111sf_init(struct dvb_usb_device *d)
 		  .len = sizeof(eeprom), .buf = eeprom },
 	};
 
+<<<<<<< HEAD
 	mutex_init(&state->msg_lock);
 
+=======
+>>>>>>> upstream/android-13
 	ret = get_chip_info(state);
 	if (mxl_fail(ret))
 		pr_err("failed to get chip info during probe");
@@ -1075,6 +1104,17 @@ static int mxl111sf_get_stream_config_dvbt(struct dvb_frontend *fe,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int mxl111sf_probe(struct dvb_usb_device *dev)
+{
+	struct mxl111sf_state *state = d_to_priv(dev);
+
+	mutex_init(&state->msg_lock);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct dvb_usb_device_properties mxl111sf_props_dvbt = {
 	.driver_name = KBUILD_MODNAME,
 	.owner = THIS_MODULE,
@@ -1084,6 +1124,10 @@ static struct dvb_usb_device_properties mxl111sf_props_dvbt = {
 	.generic_bulk_ctrl_endpoint = 0x02,
 	.generic_bulk_ctrl_endpoint_response = 0x81,
 
+<<<<<<< HEAD
+=======
+	.probe             = mxl111sf_probe,
+>>>>>>> upstream/android-13
 	.i2c_algo          = &mxl111sf_i2c_algo,
 	.frontend_attach   = mxl111sf_frontend_attach_dvbt,
 	.tuner_attach      = mxl111sf_attach_tuner,
@@ -1125,6 +1169,10 @@ static struct dvb_usb_device_properties mxl111sf_props_atsc = {
 	.generic_bulk_ctrl_endpoint = 0x02,
 	.generic_bulk_ctrl_endpoint_response = 0x81,
 
+<<<<<<< HEAD
+=======
+	.probe             = mxl111sf_probe,
+>>>>>>> upstream/android-13
 	.i2c_algo          = &mxl111sf_i2c_algo,
 	.frontend_attach   = mxl111sf_frontend_attach_atsc,
 	.tuner_attach      = mxl111sf_attach_tuner,
@@ -1166,6 +1214,10 @@ static struct dvb_usb_device_properties mxl111sf_props_mh = {
 	.generic_bulk_ctrl_endpoint = 0x02,
 	.generic_bulk_ctrl_endpoint_response = 0x81,
 
+<<<<<<< HEAD
+=======
+	.probe             = mxl111sf_probe,
+>>>>>>> upstream/android-13
 	.i2c_algo          = &mxl111sf_i2c_algo,
 	.frontend_attach   = mxl111sf_frontend_attach_mh,
 	.tuner_attach      = mxl111sf_attach_tuner,
@@ -1234,6 +1286,10 @@ static struct dvb_usb_device_properties mxl111sf_props_atsc_mh = {
 	.generic_bulk_ctrl_endpoint = 0x02,
 	.generic_bulk_ctrl_endpoint_response = 0x81,
 
+<<<<<<< HEAD
+=======
+	.probe             = mxl111sf_probe,
+>>>>>>> upstream/android-13
 	.i2c_algo          = &mxl111sf_i2c_algo,
 	.frontend_attach   = mxl111sf_frontend_attach_atsc_mh,
 	.tuner_attach      = mxl111sf_attach_tuner,
@@ -1312,6 +1368,10 @@ static struct dvb_usb_device_properties mxl111sf_props_mercury = {
 	.generic_bulk_ctrl_endpoint = 0x02,
 	.generic_bulk_ctrl_endpoint_response = 0x81,
 
+<<<<<<< HEAD
+=======
+	.probe             = mxl111sf_probe,
+>>>>>>> upstream/android-13
 	.i2c_algo          = &mxl111sf_i2c_algo,
 	.frontend_attach   = mxl111sf_frontend_attach_mercury,
 	.tuner_attach      = mxl111sf_attach_tuner,
@@ -1382,6 +1442,10 @@ static struct dvb_usb_device_properties mxl111sf_props_mercury_mh = {
 	.generic_bulk_ctrl_endpoint = 0x02,
 	.generic_bulk_ctrl_endpoint_response = 0x81,
 
+<<<<<<< HEAD
+=======
+	.probe             = mxl111sf_probe,
+>>>>>>> upstream/android-13
 	.i2c_algo          = &mxl111sf_i2c_algo,
 	.frontend_attach   = mxl111sf_frontend_attach_mercury_mh,
 	.tuner_attach      = mxl111sf_attach_tuner,

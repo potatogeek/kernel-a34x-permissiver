@@ -223,12 +223,21 @@ g84_therm = {
 };
 
 int
+<<<<<<< HEAD
 g84_therm_new(struct nvkm_device *device, int index, struct nvkm_therm **ptherm)
+=======
+g84_therm_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_therm **ptherm)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_therm *therm;
 	int ret;
 
+<<<<<<< HEAD
 	ret = nvkm_therm_new_(&g84_therm, device, index, &therm);
+=======
+	ret = nvkm_therm_new_(&g84_therm, device, type, inst, &therm);
+>>>>>>> upstream/android-13
 	*ptherm = therm;
 	if (ret)
 		return ret;

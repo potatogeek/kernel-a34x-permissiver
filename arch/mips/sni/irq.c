@@ -27,7 +27,11 @@ asmlinkage void plat_irq_dispatch(void)
 }
 
 /* ISA irq handler */
+<<<<<<< HEAD
 static irqreturn_t sni_isa_irq_handler(int dummy, void *p)
+=======
+irqreturn_t sni_isa_irq_handler(int dummy, void *p)
+>>>>>>> upstream/android-13
 {
 	int irq;
 
@@ -39,12 +43,15 @@ static irqreturn_t sni_isa_irq_handler(int dummy, void *p)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 struct irqaction sni_isa_irq = {
 	.handler = sni_isa_irq_handler,
 	.name = "ISA",
 	.flags = IRQF_SHARED
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * On systems with i8259-style interrupt controllers we assume for
  * driver compatibility reasons interrupts 0 - 15 to be the i8295

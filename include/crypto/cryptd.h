@@ -18,6 +18,7 @@
 #include <crypto/hash.h>
 #include <crypto/skcipher.h>
 
+<<<<<<< HEAD
 struct cryptd_ablkcipher {
 	struct crypto_ablkcipher base;
 };
@@ -35,10 +36,16 @@ struct crypto_blkcipher *cryptd_ablkcipher_child(struct cryptd_ablkcipher *tfm);
 bool cryptd_ablkcipher_queued(struct cryptd_ablkcipher *tfm);
 void cryptd_free_ablkcipher(struct cryptd_ablkcipher *tfm);
 
+=======
+>>>>>>> upstream/android-13
 struct cryptd_skcipher {
 	struct crypto_skcipher base;
 };
 
+<<<<<<< HEAD
+=======
+/* alg_name should be algorithm to be cryptd-ed */
+>>>>>>> upstream/android-13
 struct cryptd_skcipher *cryptd_alloc_skcipher(const char *alg_name,
 					      u32 type, u32 mask);
 struct crypto_skcipher *cryptd_skcipher_child(struct cryptd_skcipher *tfm);

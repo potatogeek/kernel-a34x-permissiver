@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for AK4524 / AK4528 / AK4529 / AK4355 / AK4358 / AK4381
  *   AD and DA converters
  *
  *	Copyright (c) 2000-2004 Jaroslav Kysela <perex@perex.cz>,
  *				Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -876,6 +883,7 @@ static void proc_regs_read(struct snd_info_entry *entry,
 
 static int proc_init(struct snd_akm4xxx *ak)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	int err;
 	err = snd_card_proc_new(ak->card, ak->name, &entry);
@@ -883,6 +891,9 @@ static int proc_init(struct snd_akm4xxx *ak)
 		return err;
 	snd_info_set_text_ops(entry, ak, proc_regs_read);
 	return 0;
+=======
+	return snd_card_ro_proc_new(ak->card, ak->name, ak, proc_regs_read);
+>>>>>>> upstream/android-13
 }
 
 int snd_akm4xxx_build_controls(struct snd_akm4xxx *ak)

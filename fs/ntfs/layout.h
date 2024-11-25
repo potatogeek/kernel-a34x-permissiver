@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * layout.h - All NTFS associated on-disk structures. Part of the Linux-NTFS
  *	      project.
  *
  * Copyright (c) 2001-2005 Anton Altaparmakov
  * Copyright (c) 2002 Richard Russon
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -19,6 +24,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_NTFS_LAYOUT_H
@@ -717,7 +724,11 @@ typedef struct {
 /* 14*/	le16 instance;		/* The instance of this attribute record. This
 				   number is unique within this mft record (see
 				   MFT_RECORD/next_attribute_instance notes in
+<<<<<<< HEAD
 				   in mft.h for more details). */
+=======
+				   mft.h for more details). */
+>>>>>>> upstream/android-13
 /* 16*/	union {
 		/* Resident attributes. */
 		struct {
@@ -1852,7 +1863,11 @@ typedef struct {
  * Also, each security descriptor is stored twice in the $SDS stream with a
  * fixed offset of 0x40000 bytes (256kib, the Windows cache manager's max size)
  * between them; i.e. if a SDS_ENTRY specifies an offset of 0x51d0, then the
+<<<<<<< HEAD
  * the first copy of the security descriptor will be at offset 0x51d0 in the
+=======
+ * first copy of the security descriptor will be at offset 0x51d0 in the
+>>>>>>> upstream/android-13
  * $SDS data stream and the second copy will be at offset 0x451d0.
  */
 typedef struct {

@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * stack_o2cb.c
  *
  * Code which interfaces ocfs2 with the o2cb stack.
  *
  * Copyright (C) 2007 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -15,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -67,15 +75,19 @@ static inline int mode_to_o2dlm(int mode)
 	return mode;
 }
 
+<<<<<<< HEAD
 #define map_flag(_generic, _o2dlm)		\
 	if (flags & (_generic)) {		\
 		flags &= ~(_generic);		\
 		o2dlm_flags |= (_o2dlm);	\
 	}
+=======
+>>>>>>> upstream/android-13
 static int flags_to_o2dlm(u32 flags)
 {
 	int o2dlm_flags = 0;
 
+<<<<<<< HEAD
 	map_flag(DLM_LKF_NOQUEUE, LKM_NOQUEUE);
 	map_flag(DLM_LKF_CANCEL, LKM_CANCEL);
 	map_flag(DLM_LKF_CONVERT, LKM_CONVERT);
@@ -92,6 +104,29 @@ static int flags_to_o2dlm(u32 flags)
 	return o2dlm_flags;
 }
 #undef map_flag
+=======
+	if (flags & DLM_LKF_NOQUEUE)
+		o2dlm_flags |= LKM_NOQUEUE;
+	if (flags & DLM_LKF_CANCEL)
+		o2dlm_flags |= LKM_CANCEL;
+	if (flags & DLM_LKF_CONVERT)
+		o2dlm_flags |= LKM_CONVERT;
+	if (flags & DLM_LKF_VALBLK)
+		o2dlm_flags |= LKM_VALBLK;
+	if (flags & DLM_LKF_IVVALBLK)
+		o2dlm_flags |= LKM_INVVALBLK;
+	if (flags & DLM_LKF_ORPHAN)
+		o2dlm_flags |= LKM_ORPHAN;
+	if (flags & DLM_LKF_FORCEUNLOCK)
+		o2dlm_flags |= LKM_FORCE;
+	if (flags & DLM_LKF_TIMEOUT)
+		o2dlm_flags |= LKM_TIMEOUT;
+	if (flags & DLM_LKF_LOCAL)
+		o2dlm_flags |= LKM_LOCAL;
+
+	return o2dlm_flags;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Map an o2dlm status to standard errno values.

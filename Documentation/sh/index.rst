@@ -4,6 +4,18 @@ SuperH Interfaces Guide
 
 :Author: Paul Mundt
 
+<<<<<<< HEAD
+=======
+.. toctree::
+    :maxdepth: 1
+
+    booting
+    new-machine
+    register-banks
+
+    features
+
+>>>>>>> upstream/android-13
 Memory Management
 =================
 
@@ -16,6 +28,7 @@ Store Queue API
 .. kernel-doc:: arch/sh/kernel/cpu/sh4/sq.c
    :export:
 
+<<<<<<< HEAD
 SH-5
 ----
 
@@ -28,6 +41,8 @@ TLB Interfaces
 .. kernel-doc:: arch/sh/include/asm/tlb_64.h
    :internal:
 
+=======
+>>>>>>> upstream/android-13
 Machine Specific Interfaces
 ===========================
 

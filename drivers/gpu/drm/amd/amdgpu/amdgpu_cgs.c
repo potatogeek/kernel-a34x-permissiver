@@ -22,8 +22,14 @@
  *
  */
 #include <linux/list.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <drm/drmP.h>
+=======
+#include <linux/pci.h>
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include <linux/firmware.h>
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
@@ -59,8 +65,11 @@ static uint32_t amdgpu_cgs_read_ind_register(struct cgs_device *cgs_device,
 {
 	CGS_FUNC_ADEV;
 	switch (space) {
+<<<<<<< HEAD
 	case CGS_IND_REG__MMIO:
 		return RREG32_IDX(index);
+=======
+>>>>>>> upstream/android-13
 	case CGS_IND_REG__PCIE:
 		return RREG32_PCIE(index);
 	case CGS_IND_REG__SMC:
@@ -76,6 +85,11 @@ static uint32_t amdgpu_cgs_read_ind_register(struct cgs_device *cgs_device,
 	case CGS_IND_REG__AUDIO_ENDPT:
 		DRM_ERROR("audio endpt register access not implemented.\n");
 		return 0;
+<<<<<<< HEAD
+=======
+	default:
+		BUG();
+>>>>>>> upstream/android-13
 	}
 	WARN(1, "Invalid indirect register space");
 	return 0;
@@ -87,8 +101,11 @@ static void amdgpu_cgs_write_ind_register(struct cgs_device *cgs_device,
 {
 	CGS_FUNC_ADEV;
 	switch (space) {
+<<<<<<< HEAD
 	case CGS_IND_REG__MMIO:
 		return WREG32_IDX(index, value);
+=======
+>>>>>>> upstream/android-13
 	case CGS_IND_REG__PCIE:
 		return WREG32_PCIE(index, value);
 	case CGS_IND_REG__SMC:
@@ -104,6 +121,11 @@ static void amdgpu_cgs_write_ind_register(struct cgs_device *cgs_device,
 	case CGS_IND_REG__AUDIO_ENDPT:
 		DRM_ERROR("audio endpt register access not implemented.\n");
 		return;
+<<<<<<< HEAD
+=======
+	default:
+		BUG();
+>>>>>>> upstream/android-13
 	}
 	WARN(1, "Invalid indirect register space");
 }
@@ -351,6 +373,7 @@ static int amdgpu_cgs_get_firmware_info(struct cgs_device *cgs_device,
 				break;
 			case CHIP_POLARIS11:
 				if (type == CGS_UCODE_ID_SMU) {
+<<<<<<< HEAD
 					if (((adev->pdev->device == 0x67ef) &&
 					     ((adev->pdev->revision == 0xe0) ||
 					      (adev->pdev->revision == 0xe5))) ||
@@ -362,6 +385,12 @@ static int amdgpu_cgs_get_firmware_info(struct cgs_device *cgs_device,
 						strcpy(fw_name, "amdgpu/polaris11_k_smc.bin");
 					} else if ((adev->pdev->device == 0x67ef) &&
 						   (adev->pdev->revision == 0xe2)) {
+=======
+					if (ASICID_IS_P21(adev->pdev->device, adev->pdev->revision)) {
+						info->is_kicker = true;
+						strcpy(fw_name, "amdgpu/polaris11_k_smc.bin");
+					} else if (ASICID_IS_P31(adev->pdev->device, adev->pdev->revision)) {
+>>>>>>> upstream/android-13
 						info->is_kicker = true;
 						strcpy(fw_name, "amdgpu/polaris11_k2_smc.bin");
 					} else {
@@ -373,6 +402,7 @@ static int amdgpu_cgs_get_firmware_info(struct cgs_device *cgs_device,
 				break;
 			case CHIP_POLARIS10:
 				if (type == CGS_UCODE_ID_SMU) {
+<<<<<<< HEAD
 					if (((adev->pdev->device == 0x67df) &&
 					     ((adev->pdev->revision == 0xe0) ||
 					      (adev->pdev->revision == 0xe3) ||
@@ -388,6 +418,12 @@ static int amdgpu_cgs_get_firmware_info(struct cgs_device *cgs_device,
 					} else if ((adev->pdev->device == 0x67df) &&
 						   ((adev->pdev->revision == 0xe1) ||
 						    (adev->pdev->revision == 0xf7))) {
+=======
+					if (ASICID_IS_P20(adev->pdev->device, adev->pdev->revision)) {
+						info->is_kicker = true;
+						strcpy(fw_name, "amdgpu/polaris10_k_smc.bin");
+					} else if (ASICID_IS_P30(adev->pdev->device, adev->pdev->revision)) {
+>>>>>>> upstream/android-13
 						info->is_kicker = true;
 						strcpy(fw_name, "amdgpu/polaris10_k2_smc.bin");
 					} else {
@@ -398,6 +434,7 @@ static int amdgpu_cgs_get_firmware_info(struct cgs_device *cgs_device,
 				}
 				break;
 			case CHIP_POLARIS12:
+<<<<<<< HEAD
 				if (((adev->pdev->device == 0x6987) &&
 				     ((adev->pdev->revision == 0xc0) ||
 				      (adev->pdev->revision == 0xc3))) ||
@@ -405,6 +442,9 @@ static int amdgpu_cgs_get_firmware_info(struct cgs_device *cgs_device,
 				     ((adev->pdev->revision == 0x00) ||
 				      (adev->pdev->revision == 0x01) ||
 				      (adev->pdev->revision == 0x10)))) {
+=======
+				if (ASICID_IS_P23(adev->pdev->device, adev->pdev->revision)) {
+>>>>>>> upstream/android-13
 					info->is_kicker = true;
 					strcpy(fw_name, "amdgpu/polaris12_k_smc.bin");
 				} else {

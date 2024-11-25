@@ -45,8 +45,13 @@ struct wep_key {
  *	function prototypes
  */
 static int ks_wlan_open(struct net_device *dev);
+<<<<<<< HEAD
 static void ks_wlan_tx_timeout(struct net_device *dev);
 static int ks_wlan_start_xmit(struct sk_buff *skb, struct net_device *dev);
+=======
+static void ks_wlan_tx_timeout(struct net_device *dev, unsigned int txqueue);
+static netdev_tx_t ks_wlan_start_xmit(struct sk_buff *skb, struct net_device *dev);
+>>>>>>> upstream/android-13
 static int ks_wlan_close(struct net_device *dev);
 static void ks_wlan_set_rx_mode(struct net_device *dev);
 static struct net_device_stats *ks_wlan_get_stats(struct net_device *dev);
@@ -158,6 +163,7 @@ static int ks_wlan_get_name(struct net_device *dev,
 
 	/* for SLEEP MODE */
 	if (priv->dev_state < DEVICE_STATE_READY)
+<<<<<<< HEAD
 		strcpy(cwrq->name, "NOT READY!");
 	else if (priv->reg.phy_type == D_11B_ONLY_MODE)
 		strcpy(cwrq->name, "IEEE 802.11b");
@@ -165,6 +171,15 @@ static int ks_wlan_get_name(struct net_device *dev,
 		strcpy(cwrq->name, "IEEE 802.11g");
 	else
 		strcpy(cwrq->name, "IEEE 802.11b/g");
+=======
+		strscpy(cwrq->name, "NOT READY!", sizeof(cwrq->name));
+	else if (priv->reg.phy_type == D_11B_ONLY_MODE)
+		strscpy(cwrq->name, "IEEE 802.11b", sizeof(cwrq->name));
+	else if (priv->reg.phy_type == D_11G_ONLY_MODE)
+		strscpy(cwrq->name, "IEEE 802.11g", sizeof(cwrq->name));
+	else
+		strscpy(cwrq->name, "IEEE 802.11b/g", sizeof(cwrq->name));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -182,7 +197,11 @@ static int ks_wlan_set_freq(struct net_device *dev,
 	/* for SLEEP MODE */
 	/* If setting by frequency, convert to a channel */
 	if ((fwrq->freq.e == 1) &&
+<<<<<<< HEAD
 	    (fwrq->freq.m >= (int)2.412e8) && (fwrq->freq.m <= (int)2.487e8)) {
+=======
+	    (fwrq->freq.m >= 241200000) && (fwrq->freq.m <= 248700000)) {
+>>>>>>> upstream/android-13
 		int f = fwrq->freq.m / 100000;
 		int c = 0;
 
@@ -426,16 +445,28 @@ static int ks_wlan_set_rate(struct net_device *dev,
 					priv->reg.rate_set.body[3] =
 					    TX_RATE_11M;
 					i++;
+<<<<<<< HEAD
 					/* fall through */
 				case 5500000:
 					priv->reg.rate_set.body[2] = TX_RATE_5M;
 					i++;
 					/* fall through */
+=======
+					fallthrough;
+				case 5500000:
+					priv->reg.rate_set.body[2] = TX_RATE_5M;
+					i++;
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 2000000:
 					priv->reg.rate_set.body[1] =
 					    TX_RATE_2M | BASIC_RATE;
 					i++;
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 1000000:
 					priv->reg.rate_set.body[0] =
 					    TX_RATE_1M | BASIC_RATE;
@@ -491,17 +522,29 @@ static int ks_wlan_set_rate(struct net_device *dev,
 					priv->reg.rate_set.body[11] =
 					    TX_RATE_54M;
 					i++;
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 48000000:
 					priv->reg.rate_set.body[10] =
 					    TX_RATE_48M;
 					i++;
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 36000000:
 					priv->reg.rate_set.body[9] =
 					    TX_RATE_36M;
 					i++;
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 24000000:
 				case 18000000:
 				case 12000000:
@@ -578,17 +621,29 @@ static int ks_wlan_set_rate(struct net_device *dev,
 						    TX_RATE_6M | BASIC_RATE;
 						i++;
 					}
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 5500000:
 					priv->reg.rate_set.body[2] =
 					    TX_RATE_5M | BASIC_RATE;
 					i++;
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 2000000:
 					priv->reg.rate_set.body[1] =
 					    TX_RATE_2M | BASIC_RATE;
 					i++;
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 1000000:
 					priv->reg.rate_set.body[0] =
 					    TX_RATE_1M | BASIC_RATE;
@@ -1808,8 +1863,13 @@ static int ks_wlan_get_firmware_version(struct net_device *dev,
 {
 	struct ks_wlan_private *priv = netdev_priv(dev);
 
+<<<<<<< HEAD
 	strcpy(extra, priv->firmware_version);
 	dwrq->length = priv->version_size + 1;
+=======
+	dwrq->length = priv->version_size + 1;
+	strscpy(extra, priv->firmware_version, dwrq->length);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2500,7 +2560,11 @@ int ks_wlan_set_mac_address(struct net_device *dev, void *addr)
 }
 
 static
+<<<<<<< HEAD
 void ks_wlan_tx_timeout(struct net_device *dev)
+=======
+void ks_wlan_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ks_wlan_private *priv = netdev_priv(dev);
 
@@ -2513,7 +2577,11 @@ void ks_wlan_tx_timeout(struct net_device *dev)
 }
 
 static
+<<<<<<< HEAD
 int ks_wlan_start_xmit(struct sk_buff *skb, struct net_device *dev)
+=======
+netdev_tx_t ks_wlan_start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct ks_wlan_private *priv = netdev_priv(dev);
 	int ret;

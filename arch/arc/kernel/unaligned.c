@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011-2012 Synopsys (www.synopsys.com)
  *
@@ -9,6 +10,15 @@
  *  -Adapted (from .26 to .35)
  *  -original contribution by Tim.yao@amlogic.com
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011-2012 Synopsys (www.synopsys.com)
+ *
+ * vineetg : May 2011
+ *  -Adapted (from .26 to .35)
+ *  -original contribution by Tim.yao@amlogic.com
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>

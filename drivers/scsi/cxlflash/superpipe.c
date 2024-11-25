@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CXL Flash Device Driver
  *
@@ -5,11 +9,14 @@
  *             Matthew R. Ochs <mrochs@linux.vnet.ibm.com>, IBM Corporation
  *
  * Copyright (C) 2015 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -34,7 +41,11 @@ struct cxlflash_global global;
 
 /**
  * marshal_rele_to_resize() - translate release to resize structure
+<<<<<<< HEAD
  * @rele:	Source structure from which to translate/copy.
+=======
+ * @release:	Source structure from which to translate/copy.
+>>>>>>> upstream/android-13
  * @resize:	Destination structure for the translate/copy.
  */
 static void marshal_rele_to_resize(struct dk_cxlflash_release *release,
@@ -48,7 +59,11 @@ static void marshal_rele_to_resize(struct dk_cxlflash_release *release,
 /**
  * marshal_det_to_rele() - translate detach to release structure
  * @detach:	Destination structure for the translate/copy.
+<<<<<<< HEAD
  * @rele:	Source structure from which to translate/copy.
+=======
+ * @release:	Source structure from which to translate/copy.
+>>>>>>> upstream/android-13
  */
 static void marshal_det_to_rele(struct dk_cxlflash_detach *detach,
 				struct dk_cxlflash_release *release)
@@ -373,20 +388,31 @@ retry:
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (driver_byte(result) == DRIVER_SENSE) {
 		result &= ~(0xFF<<24); /* DRIVER_SENSE is not an error */
+=======
+	if (result > 0 && scsi_sense_valid(&sshdr)) {
+>>>>>>> upstream/android-13
 		if (result & SAM_STAT_CHECK_CONDITION) {
 			switch (sshdr.sense_key) {
 			case NO_SENSE:
 			case RECOVERED_ERROR:
+<<<<<<< HEAD
 				/* fall through */
+=======
+>>>>>>> upstream/android-13
 			case NOT_READY:
 				result &= ~SAM_STAT_CHECK_CONDITION;
 				break;
 			case UNIT_ATTENTION:
 				switch (sshdr.asc) {
 				case 0x29: /* Power on Reset or Device Reset */
+<<<<<<< HEAD
 					/* fall through */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case 0x2A: /* Device capacity changed */
 				case 0x3F: /* Report LUNs changed */
 					/* Retry the command once more */
@@ -522,7 +548,11 @@ void rhte_checkin(struct ctx_info *ctxi,
 }
 
 /**
+<<<<<<< HEAD
  * rhte_format1() - populates a RHTE for format 1
+=======
+ * rht_format1() - populates a RHTE for format 1
+>>>>>>> upstream/android-13
  * @rhte:	RHTE to populate.
  * @lun_id:	LUN ID of LUN associated with RHTE.
  * @perm:	Desired permissions for RHTE.
@@ -1795,13 +1825,20 @@ static int process_sense(struct scsi_device *sdev,
 	switch (sshdr.sense_key) {
 	case NO_SENSE:
 	case RECOVERED_ERROR:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case NOT_READY:
 		break;
 	case UNIT_ATTENTION:
 		switch (sshdr.asc) {
 		case 0x29: /* Power on Reset or Device Reset */
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0x2A: /* Device settings/capacity changed */
 			rc = read_cap16(sdev, lli);
 			if (rc) {
@@ -1924,7 +1961,11 @@ out:
  *
  * Return: A string identifying the decoded ioctl.
  */
+<<<<<<< HEAD
 static char *decode_ioctl(int cmd)
+=======
+static char *decode_ioctl(unsigned int cmd)
+>>>>>>> upstream/android-13
 {
 	switch (cmd) {
 	case DK_CXLFLASH_ATTACH:
@@ -2051,7 +2092,11 @@ err1:
  *
  * Return: 0 on success, -errno on failure
  */
+<<<<<<< HEAD
 static int ioctl_common(struct scsi_device *sdev, int cmd)
+=======
+static int ioctl_common(struct scsi_device *sdev, unsigned int cmd)
+>>>>>>> upstream/android-13
 {
 	struct cxlflash_cfg *cfg = shost_priv(sdev->host);
 	struct device *dev = &cfg->dev->dev;
@@ -2096,7 +2141,11 @@ out:
  *
  * Return: 0 on success, -errno on failure
  */
+<<<<<<< HEAD
 int cxlflash_ioctl(struct scsi_device *sdev, int cmd, void __user *arg)
+=======
+int cxlflash_ioctl(struct scsi_device *sdev, unsigned int cmd, void __user *arg)
+>>>>>>> upstream/android-13
 {
 	typedef int (*sioctl) (struct scsi_device *, void *);
 
@@ -2161,7 +2210,11 @@ int cxlflash_ioctl(struct scsi_device *sdev, int cmd, void __user *arg)
 		if (unlikely(rc))
 			goto cxlflash_ioctl_exit;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case DK_CXLFLASH_MANAGE_LUN:
 		known_ioctl = true;
@@ -2172,15 +2225,23 @@ int cxlflash_ioctl(struct scsi_device *sdev, int cmd, void __user *arg)
 		if (likely(do_ioctl))
 			break;
 
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		rc = -EINVAL;
 		goto cxlflash_ioctl_exit;
 	}
 
 	if (unlikely(copy_from_user(&buf, arg, size))) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: copy_from_user() fail "
 			"size=%lu cmd=%d (%s) arg=%p\n",
+=======
+		dev_err(dev, "%s: copy_from_user() fail size=%lu cmd=%u (%s) arg=%p\n",
+>>>>>>> upstream/android-13
 			__func__, size, cmd, decode_ioctl(cmd), arg);
 		rc = -EFAULT;
 		goto cxlflash_ioctl_exit;
@@ -2203,8 +2264,12 @@ int cxlflash_ioctl(struct scsi_device *sdev, int cmd, void __user *arg)
 	rc = do_ioctl(sdev, (void *)&buf);
 	if (likely(!rc))
 		if (unlikely(copy_to_user(arg, &buf, size))) {
+<<<<<<< HEAD
 			dev_err(dev, "%s: copy_to_user() fail "
 				"size=%lu cmd=%d (%s) arg=%p\n",
+=======
+			dev_err(dev, "%s: copy_to_user() fail size=%lu cmd=%u (%s) arg=%p\n",
+>>>>>>> upstream/android-13
 				__func__, size, cmd, decode_ioctl(cmd), arg);
 			rc = -EFAULT;
 		}

@@ -50,6 +50,10 @@ struct usb_ehci_pdata {
 	unsigned	no_io_watchdog:1;
 	unsigned	reset_on_resume:1;
 	unsigned	dma_mask_64:1;
+<<<<<<< HEAD
+=======
+	unsigned	spurious_oc:1;
+>>>>>>> upstream/android-13
 
 	/* Turn on all power and clocks */
 	int (*power_on)(struct platform_device *pdev);

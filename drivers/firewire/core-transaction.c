@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Core IEEE1394 transaction logic
  *
  * Copyright (C) 2004-2006 Kristian Hoegsberg <krh@bitplanet.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -86,6 +93,7 @@ static int try_cancel_split_timeout(struct fw_transaction *t)
 static int close_transaction(struct fw_transaction *transaction,
 			     struct fw_card *card, int rcode)
 {
+<<<<<<< HEAD
 	struct fw_transaction *t;
 	unsigned long flags;
 
@@ -98,12 +106,31 @@ static int close_transaction(struct fw_transaction *transaction,
 			}
 			list_del_init(&t->link);
 			card->tlabel_mask &= ~(1ULL << t->tlabel);
+=======
+	struct fw_transaction *t = NULL, *iter;
+	unsigned long flags;
+
+	spin_lock_irqsave(&card->lock, flags);
+	list_for_each_entry(iter, &card->transaction_list, link) {
+		if (iter == transaction) {
+			if (!try_cancel_split_timeout(iter)) {
+				spin_unlock_irqrestore(&card->lock, flags);
+				goto timed_out;
+			}
+			list_del_init(&iter->link);
+			card->tlabel_mask &= ~(1ULL << iter->tlabel);
+			t = iter;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 	spin_unlock_irqrestore(&card->lock, flags);
 
+<<<<<<< HEAD
 	if (&t->link != &card->transaction_list) {
+=======
+	if (t) {
+>>>>>>> upstream/android-13
 		t->callback(card, rcode, NULL, 0, t->callback_data);
 		return 0;
 	}
@@ -410,6 +437,17 @@ static void transaction_callback(struct fw_card *card, int rcode,
 
 /**
  * fw_run_transaction() - send request and sleep until transaction is completed
+<<<<<<< HEAD
+=======
+ * @card:		card interface for this request
+ * @tcode:		transaction code
+ * @destination_id:	destination node ID, consisting of bus_ID and phy_ID
+ * @generation:		bus generation in which request and response are valid
+ * @speed:		transmission speed
+ * @offset:		48bit wide offset into destination's address space
+ * @payload:		data payload for the request subaction
+ * @length:		length of the payload, in bytes
+>>>>>>> upstream/android-13
  *
  * Returns the RCODE.  See fw_send_request() for parameter documentation.
  * Unlike fw_send_request(), @data points to the payload of the request or/and
@@ -604,6 +642,10 @@ EXPORT_SYMBOL(fw_core_add_address_handler);
 
 /**
  * fw_core_remove_address_handler() - unregister an address handler
+<<<<<<< HEAD
+=======
+ * @handler: callback
+>>>>>>> upstream/android-13
  *
  * To be called in process context.
  *
@@ -624,7 +666,11 @@ struct fw_request {
 	u32 request_header[4];
 	int ack;
 	u32 length;
+<<<<<<< HEAD
 	u32 data[0];
+=======
+	u32 data[];
+>>>>>>> upstream/android-13
 };
 
 static void free_response_callback(struct fw_packet *packet,
@@ -828,6 +874,10 @@ EXPORT_SYMBOL(fw_send_response);
 
 /**
  * fw_get_request_speed() - returns speed at which the @request was received
+<<<<<<< HEAD
+=======
+ * @request: firewire request data
+>>>>>>> upstream/android-13
  */
 int fw_get_request_speed(struct fw_request *request)
 {
@@ -938,7 +988,11 @@ EXPORT_SYMBOL(fw_core_handle_request);
 
 void fw_core_handle_response(struct fw_card *card, struct fw_packet *p)
 {
+<<<<<<< HEAD
 	struct fw_transaction *t;
+=======
+	struct fw_transaction *t = NULL, *iter;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 *data;
 	size_t data_length;
@@ -950,6 +1004,7 @@ void fw_core_handle_response(struct fw_card *card, struct fw_packet *p)
 	rcode	= HEADER_GET_RCODE(p->header[1]);
 
 	spin_lock_irqsave(&card->lock, flags);
+<<<<<<< HEAD
 	list_for_each_entry(t, &card->transaction_list, link) {
 		if (t->node_id == source && t->tlabel == tlabel) {
 			if (!try_cancel_split_timeout(t)) {
@@ -958,12 +1013,27 @@ void fw_core_handle_response(struct fw_card *card, struct fw_packet *p)
 			}
 			list_del_init(&t->link);
 			card->tlabel_mask &= ~(1ULL << t->tlabel);
+=======
+	list_for_each_entry(iter, &card->transaction_list, link) {
+		if (iter->node_id == source && iter->tlabel == tlabel) {
+			if (!try_cancel_split_timeout(iter)) {
+				spin_unlock_irqrestore(&card->lock, flags);
+				goto timed_out;
+			}
+			list_del_init(&iter->link);
+			card->tlabel_mask &= ~(1ULL << iter->tlabel);
+			t = iter;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 	spin_unlock_irqrestore(&card->lock, flags);
 
+<<<<<<< HEAD
 	if (&t->link == &card->transaction_list) {
+=======
+	if (!t) {
+>>>>>>> upstream/android-13
  timed_out:
 		fw_notice(card, "unsolicited response (source %x, tlabel %x)\n",
 			  source, tlabel);
@@ -1100,14 +1170,22 @@ static void handle_registers(struct fw_card *card, struct fw_request *request,
 			rcode = RCODE_ADDRESS_ERROR;
 			break;
 		}
+<<<<<<< HEAD
 		/* else fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case CSR_NODE_IDS:
 		/*
 		 * per IEEE 1394-2008 8.3.22.3, not IEEE 1394.1-2004 3.2.8
 		 * and 9.6, but interoperable with IEEE 1394.1-2004 bridges
 		 */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case CSR_STATE_CLEAR:
 	case CSR_STATE_SET:

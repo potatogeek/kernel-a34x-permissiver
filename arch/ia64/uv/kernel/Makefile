@@ -10,4 +10,7 @@
 ccflags-y := -Iarch/ia64/sn/include
 
 obj-y				+= setup.o
+<<<<<<< HEAD
 obj-$(CONFIG_IA64_GENERIC)      += machvec.o
+=======
+>>>>>>> upstream/android-13

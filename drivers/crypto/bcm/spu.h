@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 Broadcom
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2016 Broadcom
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -28,7 +34,12 @@
 
 #include <linux/types.h>
 #include <linux/scatterlist.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 
 enum spu_cipher_alg {
 	CIPHER_ALG_NONE = 0x0,
@@ -262,7 +273,10 @@ void spum_cipher_req_finish(u8 *spu_hdr,
 			    u16 spu_req_hdr_len,
 			    unsigned int is_inbound,
 			    struct spu_cipher_parms *cipher_parms,
+<<<<<<< HEAD
 			    bool update_key,
+=======
+>>>>>>> upstream/android-13
 			    unsigned int data_size);
 
 void spum_request_pad(u8 *pad_start,

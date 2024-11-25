@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/smp.h
  *
  *  Copyright (C) 2004-2005 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_ARM_SMP_H
 #define __ASM_ARM_SMP_H
@@ -42,6 +49,7 @@ void handle_IPI(int ipinr, struct pt_regs *regs);
  */
 extern void smp_init_cpus(void);
 
+<<<<<<< HEAD
 
 /*
  * Provide a function to raise an IPI cross call on CPUs in callmap.
@@ -53,6 +61,12 @@ extern void set_smp_cross_call(void (*)(const struct cpumask *, unsigned int));
  * history.
  */
 extern void set_update_ipi_history_callback(void (*fn)(int));
+=======
+/*
+ * Register IPI interrupts with the arch SMP code
+ */
+extern void set_smp_ipi_range(int ipi_base, int nr_ipi);
+>>>>>>> upstream/android-13
 
 /*
  * Called from platform specific assembly code, this is the
@@ -73,7 +87,10 @@ struct secondary_data {
 	void *stack;
 };
 extern struct secondary_data secondary_data;
+<<<<<<< HEAD
 extern volatile int pen_release;
+=======
+>>>>>>> upstream/android-13
 extern void secondary_startup(void);
 extern void secondary_startup_arm(void);
 
@@ -123,7 +140,11 @@ struct of_cpu_method {
 
 #define CPU_METHOD_OF_DECLARE(name, _method, _ops)			\
 	static const struct of_cpu_method __cpu_method_of_table_##name	\
+<<<<<<< HEAD
 		__used __section(__cpu_method_of_table)			\
+=======
+		__used __section("__cpu_method_of_table")		\
+>>>>>>> upstream/android-13
 		= { .method = _method, .ops = _ops }
 /*
  * set platform specific SMP operations

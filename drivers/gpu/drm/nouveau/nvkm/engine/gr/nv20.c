@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 #include "nv20.h"
 #include "regs.h"
 
@@ -330,7 +334,11 @@ nv20_gr_dtor(struct nvkm_gr *base)
 
 int
 nv20_gr_new_(const struct nvkm_gr_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	     int index, struct nvkm_gr **pgr)
+=======
+	     enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+>>>>>>> upstream/android-13
 {
 	struct nv20_gr *gr;
 
@@ -338,7 +346,11 @@ nv20_gr_new_(const struct nvkm_gr_func *func, struct nvkm_device *device,
 		return -ENOMEM;
 	*pgr = &gr->base;
 
+<<<<<<< HEAD
 	return nvkm_gr_ctor(func, device, index, true, &gr->base);
+=======
+	return nvkm_gr_ctor(func, device, type, inst, true, &gr->base);
+>>>>>>> upstream/android-13
 }
 
 static const struct nvkm_gr_func
@@ -370,7 +382,13 @@ nv20_gr = {
 };
 
 int
+<<<<<<< HEAD
 nv20_gr_new(struct nvkm_device *device, int index, struct nvkm_gr **pgr)
 {
 	return nv20_gr_new_(&nv20_gr, device, index, pgr);
+=======
+nv20_gr_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+{
+	return nv20_gr_new_(&nv20_gr, device, type, inst, pgr);
+>>>>>>> upstream/android-13
 }

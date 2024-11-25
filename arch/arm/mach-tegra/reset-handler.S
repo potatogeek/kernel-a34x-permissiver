@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA Corporation. All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2012, NVIDIA Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -20,6 +26,10 @@
 #include <soc/tegra/flowctrl.h>
 #include <soc/tegra/fuse.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/assembler.h>
+>>>>>>> upstream/android-13
 #include <asm/asm-offsets.h>
 #include <asm/cache.h>
 
@@ -29,8 +39,11 @@
 
 #define PMC_SCRATCH41	0x140
 
+<<<<<<< HEAD
 #define RESET_DATA(x)	((TEGRA_RESET_##x)*4)
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 /*
  *	tegra_resume
@@ -78,6 +91,10 @@ ENTRY(tegra_resume)
 	orr	r1, r1, #1
 	str	r1, [r0]
 #endif
+<<<<<<< HEAD
+=======
+	bl	tegra_resume_trusted_foundations
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CACHE_L2X0
 	/* L2 cache resume & re-enable */
@@ -90,6 +107,38 @@ end_ca9_scu_l2_resume:
 
 	b	cpu_resume
 ENDPROC(tegra_resume)
+<<<<<<< HEAD
+=======
+
+/*
+ *	tegra_resume_trusted_foundations
+ *
+ *	  Trusted Foundations firmware initialization.
+ *
+ *	Doesn't return if firmware presents.
+ *	Corrupted registers: r1, r2
+ */
+ENTRY(tegra_resume_trusted_foundations)
+	/* Check whether Trusted Foundations firmware presents. */
+	mov32	r2, TEGRA_IRAM_BASE + TEGRA_IRAM_RESET_HANDLER_OFFSET
+	ldr	r1, =__tegra_cpu_reset_handler_data_offset + \
+							RESET_DATA(TF_PRESENT)
+	ldr	r1, [r2, r1]
+	cmp	r1, #0
+	reteq	lr
+
+ .arch_extension sec
+	/*
+	 * First call after suspend wakes firmware. No arguments required
+	 * for some firmware versions. Downstream kernel of ASUS TF300T uses
+	 * r0=3 for the wake-up notification.
+	 */
+	mov	r0, #3
+	smc	#0
+
+	b	cpu_resume
+ENDPROC(tegra_resume_trusted_foundations)
+>>>>>>> upstream/android-13
 #endif
 
 	.align L1_CACHE_SHIFT
@@ -115,12 +164,25 @@ ENTRY(__tegra_cpu_reset_handler_start)
  *       must be position-independent.
  */
 
+<<<<<<< HEAD
+=======
+	.arm
+>>>>>>> upstream/android-13
 	.align L1_CACHE_SHIFT
 ENTRY(__tegra_cpu_reset_handler)
 
 	cpsid	aif, 0x13			@ SVC mode, interrupts disabled
 
 	tegra_get_soc_id TEGRA_APB_MISC_BASE, r6
+<<<<<<< HEAD
+=======
+
+	adr	r12, __tegra_cpu_reset_handler_data
+	ldr	r5, [r12, #RESET_DATA(TF_PRESENT)]
+	cmp	r5, #0
+	bne	after_errata
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARCH_TEGRA_2x_SOC
 t20_check:
 	cmp	r6, #TEGRA20
@@ -155,7 +217,10 @@ after_errata:
 	and	r10, r10, #0x3			@ R10 = CPU number
 	mov	r11, #1
 	mov	r11, r11, lsl r10  		@ R11 = CPU mask
+<<<<<<< HEAD
 	adr	r12, __tegra_cpu_reset_handler_data
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 	/* Does the OS know about this CPU? */
@@ -164,6 +229,7 @@ after_errata:
 	bleq	__die				@ CPU not present (to OS)
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_TEGRA_2x_SOC
 	/* Are we on Tegra20? */
 	cmp	r6, #TEGRA20
@@ -176,6 +242,8 @@ after_errata:
 1:
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* Waking up from LP1? */
 	ldr	r8, [r12, #RESET_DATA(MASK_LP1)]
 	tst	r8, r11				@ if in_lp1
@@ -277,6 +345,7 @@ ENDPROC(__tegra_cpu_reset_handler)
 	.align L1_CACHE_SHIFT
 	.type	__tegra_cpu_reset_handler_data, %object
 	.globl	__tegra_cpu_reset_handler_data
+<<<<<<< HEAD
 __tegra_cpu_reset_handler_data:
 	.rept	TEGRA_RESET_DATA_SIZE
 	.long	0
@@ -285,6 +354,15 @@ __tegra_cpu_reset_handler_data:
 	.equ	__tegra20_cpu1_resettable_status_offset, \
 					. - __tegra_cpu_reset_handler_start
 	.byte	0
+=======
+	.globl	__tegra_cpu_reset_handler_data_offset
+	.equ	__tegra_cpu_reset_handler_data_offset, \
+					. - __tegra_cpu_reset_handler_start
+__tegra_cpu_reset_handler_data:
+	.rept   TEGRA_RESET_DATA_SIZE
+	.long   0
+	.endr
+>>>>>>> upstream/android-13
 	.align L1_CACHE_SHIFT
 
 ENTRY(__tegra_cpu_reset_handler_end)

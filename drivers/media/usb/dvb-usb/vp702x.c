@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* DVB USB compliant Linux driver for the TwinhanDTV StarBox USB2.0 DVB-S
  * receiver.
  *
@@ -8,11 +12,15 @@
  *
  * Thanks to Twinhan who kindly provided hardware and information.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the Free
  *	Software Foundation, version 2.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 #include "vp702x.h"
 #include <linux/mutex.h>
@@ -294,16 +302,34 @@ static int vp702x_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
 static int vp702x_read_mac_addr(struct dvb_usb_device *d,u8 mac[6])
 {
 	u8 i, *buf;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct vp702x_device_state *st = d->priv;
 
 	mutex_lock(&st->buf_mutex);
 	buf = st->buf;
+<<<<<<< HEAD
 	for (i = 6; i < 12; i++)
 		vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1, &buf[i - 6], 1);
 
 	memcpy(mac, buf, 6);
 	mutex_unlock(&st->buf_mutex);
 	return 0;
+=======
+	for (i = 6; i < 12; i++) {
+		ret = vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1,
+				       &buf[i - 6], 1);
+		if (ret < 0)
+			goto err;
+	}
+
+	memcpy(mac, buf, 6);
+err:
+	mutex_unlock(&st->buf_mutex);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int vp702x_frontend_attach(struct dvb_usb_adapter *adap)

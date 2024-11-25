@@ -1,14 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Marvell 88E6xxx Address Translation Unit (ATU) support
  *
  * Copyright (c) 2008 Marvell Semiconductor
  * Copyright (c) 2017 Savoir-faire Linux, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  */
+=======
+ */
+
+#include <linux/bitfield.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/irqdomain.h>
 
@@ -75,12 +85,53 @@ int mv88e6xxx_g1_atu_set_age_time(struct mv88e6xxx_chip *chip,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int mv88e6165_g1_atu_get_hash(struct mv88e6xxx_chip *chip, u8 *hash)
+{
+	int err;
+	u16 val;
+
+	err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_ATU_CTL, &val);
+	if (err)
+		return err;
+
+	*hash = val & MV88E6161_G1_ATU_CTL_HASH_MASK;
+
+	return 0;
+}
+
+int mv88e6165_g1_atu_set_hash(struct mv88e6xxx_chip *chip, u8 hash)
+{
+	int err;
+	u16 val;
+
+	if (hash & ~MV88E6161_G1_ATU_CTL_HASH_MASK)
+		return -EINVAL;
+
+	err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_ATU_CTL, &val);
+	if (err)
+		return err;
+
+	val &= ~MV88E6161_G1_ATU_CTL_HASH_MASK;
+	val |= hash;
+
+	return mv88e6xxx_g1_write(chip, MV88E6XXX_G1_ATU_CTL, val);
+}
+
+>>>>>>> upstream/android-13
 /* Offset 0x0B: ATU Operation Register */
 
 static int mv88e6xxx_g1_atu_op_wait(struct mv88e6xxx_chip *chip)
 {
+<<<<<<< HEAD
 	return mv88e6xxx_g1_wait(chip, MV88E6XXX_G1_ATU_OP,
 				 MV88E6XXX_G1_ATU_OP_BUSY);
+=======
+	int bit = __bf_shf(MV88E6XXX_G1_ATU_OP_BUSY);
+
+	return mv88e6xxx_g1_wait_bit(chip, MV88E6XXX_G1_ATU_OP, bit, 0);
+>>>>>>> upstream/android-13
 }
 
 static int mv88e6xxx_g1_atu_op(struct mv88e6xxx_chip *chip, u16 fid, u16 op)
@@ -94,7 +145,11 @@ static int mv88e6xxx_g1_atu_op(struct mv88e6xxx_chip *chip, u16 fid, u16 op)
 		if (err)
 			return err;
 	} else {
+<<<<<<< HEAD
 		if (mv88e6xxx_num_databases(chip) > 16) {
+=======
+		if (mv88e6xxx_num_databases(chip) > 64) {
+>>>>>>> upstream/android-13
 			/* ATU DBNum[7:4] are located in ATU Control 15:12 */
 			err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_ATU_CTL,
 						&val);
@@ -106,6 +161,12 @@ static int mv88e6xxx_g1_atu_op(struct mv88e6xxx_chip *chip, u16 fid, u16 op)
 						 val);
 			if (err)
 				return err;
+<<<<<<< HEAD
+=======
+		} else if (mv88e6xxx_num_databases(chip) > 16) {
+			/* ATU DBNum[5:4] are located in ATU Operation 9:8 */
+			op |= (fid & 0x30) << 4;
+>>>>>>> upstream/android-13
 		}
 
 		/* ATU DBNum[3:0] are located in ATU Operation 3:0 */
@@ -120,6 +181,14 @@ static int mv88e6xxx_g1_atu_op(struct mv88e6xxx_chip *chip, u16 fid, u16 op)
 	return mv88e6xxx_g1_atu_op_wait(chip);
 }
 
+<<<<<<< HEAD
+=======
+int mv88e6xxx_g1_atu_get_next(struct mv88e6xxx_chip *chip, u16 fid)
+{
+	return mv88e6xxx_g1_atu_op(chip, fid, MV88E6XXX_G1_ATU_OP_GET_NEXT_DB);
+}
+
+>>>>>>> upstream/android-13
 /* Offset 0x0C: ATU Data Register */
 
 static int mv88e6xxx_g1_atu_data_read(struct mv88e6xxx_chip *chip,
@@ -133,7 +202,11 @@ static int mv88e6xxx_g1_atu_data_read(struct mv88e6xxx_chip *chip,
 		return err;
 
 	entry->state = val & 0xf;
+<<<<<<< HEAD
 	if (entry->state != MV88E6XXX_G1_ATU_DATA_STATE_UNUSED) {
+=======
+	if (entry->state) {
+>>>>>>> upstream/android-13
 		entry->trunk = !!(val & MV88E6XXX_G1_ATU_DATA_TRUNK);
 		entry->portvec = (val >> 4) & mv88e6xxx_port_mask(chip);
 	}
@@ -146,7 +219,11 @@ static int mv88e6xxx_g1_atu_data_write(struct mv88e6xxx_chip *chip,
 {
 	u16 data = entry->state & 0xf;
 
+<<<<<<< HEAD
 	if (entry->state != MV88E6XXX_G1_ATU_DATA_STATE_UNUSED) {
+=======
+	if (entry->state) {
+>>>>>>> upstream/android-13
 		if (entry->trunk)
 			data |= MV88E6XXX_G1_ATU_DATA_TRUNK;
 
@@ -207,7 +284,11 @@ int mv88e6xxx_g1_atu_getnext(struct mv88e6xxx_chip *chip, u16 fid,
 		return err;
 
 	/* Write the MAC address to iterate from only once */
+<<<<<<< HEAD
 	if (entry->state == MV88E6XXX_G1_ATU_DATA_STATE_UNUSED) {
+=======
+	if (!entry->state) {
+>>>>>>> upstream/android-13
 		err = mv88e6xxx_g1_atu_mac_write(chip, entry);
 		if (err)
 			return err;
@@ -294,7 +375,11 @@ static int mv88e6xxx_g1_atu_move(struct mv88e6xxx_chip *chip, u16 fid,
 	mask = chip->info->atu_move_port_mask;
 	shift = bitmap_weight(&mask, 16);
 
+<<<<<<< HEAD
 	entry.state = 0xf, /* Full EntryState means Move */
+=======
+	entry.state = 0xf; /* Full EntryState means Move */
+>>>>>>> upstream/android-13
 	entry.portvec = from_port & mask;
 	entry.portvec |= (to_port & mask) << shift;
 
@@ -318,7 +403,11 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
 	int err;
 	u16 val;
 
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+>>>>>>> upstream/android-13
 
 	err = mv88e6xxx_g1_atu_op(chip, 0,
 				  MV88E6XXX_G1_ATU_OP_GET_CLR_VIOLATION);
@@ -365,12 +454,20 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
 				    entry.mac, entry.portvec, spid);
 		chip->ports[spid].atu_full_violation++;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 
 out:
+<<<<<<< HEAD
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	dev_err(chip->dev, "ATU problem: error %d while handling interrupt\n",
 		err);
@@ -386,9 +483,18 @@ int mv88e6xxx_g1_atu_prob_irq_setup(struct mv88e6xxx_chip *chip)
 	if (chip->atu_prob_irq < 0)
 		return chip->atu_prob_irq;
 
+<<<<<<< HEAD
 	err = request_threaded_irq(chip->atu_prob_irq, NULL,
 				   mv88e6xxx_g1_atu_prob_irq_thread_fn,
 				   IRQF_ONESHOT, "mv88e6xxx-g1-atu-prob",
+=======
+	snprintf(chip->atu_prob_irq_name, sizeof(chip->atu_prob_irq_name),
+		 "mv88e6xxx-%s-g1-atu-prob", dev_name(chip->dev));
+
+	err = request_threaded_irq(chip->atu_prob_irq, NULL,
+				   mv88e6xxx_g1_atu_prob_irq_thread_fn,
+				   IRQF_ONESHOT, chip->atu_prob_irq_name,
+>>>>>>> upstream/android-13
 				   chip);
 	if (err)
 		irq_dispose_mapping(chip->atu_prob_irq);

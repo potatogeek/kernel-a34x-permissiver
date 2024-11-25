@@ -96,7 +96,11 @@ struct rave_sp_deframer {
  * @data:	Buffer to store reply payload in
  * @code:	Expected reply code
  * @ackid:	Expected reply ACK ID
+<<<<<<< HEAD
  * @completion: Successful reply reception completion
+=======
+ * @received:   Successful reply reception completion
+>>>>>>> upstream/android-13
  */
 struct rave_sp_reply {
 	size_t length;
@@ -109,7 +113,11 @@ struct rave_sp_reply {
 /**
  * struct rave_sp_checksum - Variant specific checksum implementation details
  *
+<<<<<<< HEAD
  * @length:	Caculated checksum length
+=======
+ * @length:	Calculated checksum length
+>>>>>>> upstream/android-13
  * @subroutine:	Utilized checksum algorithm implementation
  */
 struct rave_sp_checksum {
@@ -270,7 +278,11 @@ static void *stuff(unsigned char *dest, const unsigned char *src, size_t n)
 		case RAVE_SP_ETX:
 		case RAVE_SP_DLE:
 			*dest++ = RAVE_SP_DLE;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			*dest++ = byte;
 		}
@@ -541,7 +553,11 @@ static int rave_sp_receive_buf(struct serdev_device *serdev,
 			 * deframer buffer
 			 */
 
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case RAVE_SP_EXPECT_ESCAPED_DATA:
 			if (deframer->length == sizeof(deframer->data)) {

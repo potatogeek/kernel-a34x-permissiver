@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Decoder for ASN.1 BER/DER/CER encoded bytestream
  *
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -385,6 +392,11 @@ next_op:
 	case ASN1_OP_END_SET_ACT:
 		if (unlikely(!(flags & FLAG_MATCHED)))
 			goto tag_mismatch;
+<<<<<<< HEAD
+=======
+		fallthrough;
+
+>>>>>>> upstream/android-13
 	case ASN1_OP_END_SEQ:
 	case ASN1_OP_END_SET_OF:
 	case ASN1_OP_END_SEQ_OF:
@@ -450,6 +462,11 @@ next_op:
 			pc += asn1_op_lengths[op];
 			goto next_op;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+
+>>>>>>> upstream/android-13
 	case ASN1_OP_ACT:
 		ret = actions[machine[pc + 1]](context, hdr, tag, data + tdp, len);
 		if (ret < 0)

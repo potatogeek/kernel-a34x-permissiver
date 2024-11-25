@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>>>>>>> upstream/android-13
 /*
  * Based on:
  *
@@ -14,22 +18,32 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
+<<<<<<< HEAD
 #include <stdio.h>
+=======
+>>>>>>> upstream/android-13
 #include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
 #include <string.h>
 #include <bfd.h>
 #include <dis-asm.h>
+<<<<<<< HEAD
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits.h>
+=======
+#include <sys/stat.h>
+#include <limits.h>
+#include <bpf/libbpf.h>
+>>>>>>> upstream/android-13
 
 #include "json_writer.h"
 #include "main.h"
 
 static void get_exec_path(char *tpath, size_t size)
 {
+<<<<<<< HEAD
 	ssize_t len;
 	char *path;
 
@@ -38,12 +52,19 @@ static void get_exec_path(char *tpath, size_t size)
 
 	path = strdup(tpath);
 	assert(path);
+=======
+	const char *path = "/proc/self/exe";
+	ssize_t len;
+>>>>>>> upstream/android-13
 
 	len = readlink(path, tpath, size - 1);
 	assert(len > 0);
 	tpath[len] = 0;
+<<<<<<< HEAD
 
 	free(path);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int oper_count;
@@ -51,11 +72,21 @@ static int fprintf_json(void *out, const char *fmt, ...)
 {
 	va_list ap;
 	char *s;
+<<<<<<< HEAD
 
 	va_start(ap, fmt);
 	if (vasprintf(&s, fmt, ap) < 0)
 		return -1;
 	va_end(ap);
+=======
+	int err;
+
+	va_start(ap, fmt);
+	err = vasprintf(&s, fmt, ap);
+	va_end(ap);
+	if (err < 0)
+		return -1;
+>>>>>>> upstream/android-13
 
 	if (!oper_count) {
 		int i;
@@ -80,10 +111,23 @@ static int fprintf_json(void *out, const char *fmt, ...)
 }
 
 void disasm_print_insn(unsigned char *image, ssize_t len, int opcodes,
+<<<<<<< HEAD
 		       const char *arch)
 {
 	disassembler_ftype disassemble;
 	struct disassemble_info info;
+=======
+		       const char *arch, const char *disassembler_options,
+		       const struct btf *btf,
+		       const struct bpf_prog_linfo *prog_linfo,
+		       __u64 func_ksym, unsigned int func_idx,
+		       bool linum)
+{
+	const struct bpf_line_info *linfo = NULL;
+	disassembler_ftype disassemble;
+	struct disassemble_info info;
+	unsigned int nr_skip = 0;
+>>>>>>> upstream/android-13
 	int count, i, pc = 0;
 	char tpath[PATH_MAX];
 	bfd *bfdf;
@@ -112,13 +156,22 @@ void disasm_print_insn(unsigned char *image, ssize_t len, int opcodes,
 		if (inf) {
 			bfdf->arch_info = inf;
 		} else {
+<<<<<<< HEAD
 			p_err("No libfd support for %s", arch);
+=======
+			p_err("No libbfd support for %s", arch);
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
 
 	info.arch = bfd_get_arch(bfdf);
 	info.mach = bfd_get_mach(bfdf);
+<<<<<<< HEAD
+=======
+	if (disassembler_options)
+		info.disassembler_options = disassembler_options;
+>>>>>>> upstream/android-13
 	info.buffer = image;
 	info.buffer_length = len;
 
@@ -137,12 +190,35 @@ void disasm_print_insn(unsigned char *image, ssize_t len, int opcodes,
 	if (json_output)
 		jsonw_start_array(json_wtr);
 	do {
+<<<<<<< HEAD
 		if (json_output) {
 			jsonw_start_object(json_wtr);
 			oper_count = 0;
 			jsonw_name(json_wtr, "pc");
 			jsonw_printf(json_wtr, "\"0x%x\"", pc);
 		} else {
+=======
+		if (prog_linfo) {
+			linfo = bpf_prog_linfo__lfind_addr_func(prog_linfo,
+								func_ksym + pc,
+								func_idx,
+								nr_skip);
+			if (linfo)
+				nr_skip++;
+		}
+
+		if (json_output) {
+			jsonw_start_object(json_wtr);
+			oper_count = 0;
+			if (linfo)
+				btf_dump_linfo_json(btf, linfo, linum);
+			jsonw_name(json_wtr, "pc");
+			jsonw_printf(json_wtr, "\"0x%x\"", pc);
+		} else {
+			if (linfo)
+				btf_dump_linfo_plain(btf, linfo, "; ",
+						     linum);
+>>>>>>> upstream/android-13
 			printf("%4x:\t", pc);
 		}
 
@@ -184,3 +260,12 @@ void disasm_print_insn(unsigned char *image, ssize_t len, int opcodes,
 
 	bfd_close(bfdf);
 }
+<<<<<<< HEAD
+=======
+
+int disasm_init(void)
+{
+	bfd_init();
+	return 0;
+}
+>>>>>>> upstream/android-13

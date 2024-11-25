@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -9,20 +13,28 @@
  * Copyright (c) Alan Smithee.
  * Copyright (c) Andrew McDonald <andrew@mcdonald.org.uk>
  * Copyright (c) Jean-Francois Dive <jef@linuxbe.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <crypto/internal/hash.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
 #include <linux/types.h>
 #include <crypto/sha.h>
+=======
+#include <linux/types.h>
+#include <crypto/sha1.h>
+>>>>>>> upstream/android-13
 #include <crypto/sha1_base.h>
 #include <asm/byteorder.h>
 
@@ -36,10 +48,17 @@ EXPORT_SYMBOL_GPL(sha1_zero_message_hash);
 static void sha1_generic_block_fn(struct sha1_state *sst, u8 const *src,
 				  int blocks)
 {
+<<<<<<< HEAD
 	u32 temp[SHA_WORKSPACE_WORDS];
 
 	while (blocks--) {
 		sha_transform(sst->state, src, temp);
+=======
+	u32 temp[SHA1_WORKSPACE_WORDS];
+
+	while (blocks--) {
+		sha1_transform(sst->state, src, temp);
+>>>>>>> upstream/android-13
 		src += SHA1_BLOCK_SIZE;
 	}
 	memzero_explicit(temp, sizeof(temp));
@@ -92,7 +111,11 @@ static void __exit sha1_generic_mod_fini(void)
 	crypto_unregister_shash(&alg);
 }
 
+<<<<<<< HEAD
 module_init(sha1_generic_mod_init);
+=======
+subsys_initcall(sha1_generic_mod_init);
+>>>>>>> upstream/android-13
 module_exit(sha1_generic_mod_fini);
 
 MODULE_LICENSE("GPL");

@@ -99,6 +99,7 @@
 #define PTR_HASH(c, k)							\
 	(((k)->ptr[0] >> c->bucket_bits) | PTR_GEN(k, 0))
 
+<<<<<<< HEAD
 #define insert_lock(s, b)	((b)->level <= (s)->lock)
 
 /*
@@ -163,6 +164,16 @@
 static inline struct bset *write_block(struct btree *b)
 {
 	return ((void *) btree_bset_first(b)) + b->written * block_bytes(b->c);
+=======
+static struct workqueue_struct *btree_io_wq;
+
+#define insert_lock(s, b)	((b)->level <= (s)->lock)
+
+
+static inline struct bset *write_block(struct btree *b)
+{
+	return ((void *) btree_bset_first(b)) + b->written * block_bytes(b->c->cache);
+>>>>>>> upstream/android-13
 }
 
 static void bch_btree_init_next(struct btree *b)
@@ -175,7 +186,11 @@ static void bch_btree_init_next(struct btree *b)
 
 	if (b->written < btree_blocks(b))
 		bch_bset_init_next(&b->keys, write_block(b),
+<<<<<<< HEAD
 				   bset_magic(&b->c->sb));
+=======
+				   bset_magic(&b->c->cache->sb));
+>>>>>>> upstream/android-13
 
 }
 
@@ -207,8 +222,18 @@ void bch_btree_node_read_done(struct btree *b)
 	struct bset *i = btree_bset_first(b);
 	struct btree_iter *iter;
 
+<<<<<<< HEAD
 	iter = mempool_alloc(&b->c->fill_iter, GFP_NOIO);
 	iter->size = b->c->sb.bucket_size / b->c->sb.block_size;
+=======
+	/*
+	 * c->fill_iter can allocate an iterator with more memory space
+	 * than static MAX_BSETS.
+	 * See the comment arount cache_set->fill_iter.
+	 */
+	iter = mempool_alloc(&b->c->fill_iter, GFP_NOIO);
+	iter->size = b->c->cache->sb.bucket_size / b->c->cache->sb.block_size;
+>>>>>>> upstream/android-13
 	iter->used = 0;
 
 #ifdef CONFIG_BCACHE_DEBUG
@@ -226,12 +251,20 @@ void bch_btree_node_read_done(struct btree *b)
 			goto err;
 
 		err = "bad btree header";
+<<<<<<< HEAD
 		if (b->written + set_blocks(i, block_bytes(b->c)) >
+=======
+		if (b->written + set_blocks(i, block_bytes(b->c->cache)) >
+>>>>>>> upstream/android-13
 		    btree_blocks(b))
 			goto err;
 
 		err = "bad magic";
+<<<<<<< HEAD
 		if (i->magic != bset_magic(&b->c->sb))
+=======
+		if (i->magic != bset_magic(&b->c->cache->sb))
+>>>>>>> upstream/android-13
 			goto err;
 
 		err = "bad checksum";
@@ -252,13 +285,21 @@ void bch_btree_node_read_done(struct btree *b)
 
 		bch_btree_iter_push(iter, i->start, bset_bkey_last(i));
 
+<<<<<<< HEAD
 		b->written += set_blocks(i, block_bytes(b->c));
+=======
+		b->written += set_blocks(i, block_bytes(b->c->cache));
+>>>>>>> upstream/android-13
 	}
 
 	err = "corrupted btree";
 	for (i = write_block(b);
 	     bset_sector_offset(&b->keys, i) < KEY_SIZE(&b->key);
+<<<<<<< HEAD
 	     i = ((void *) i) + block_bytes(b->c))
+=======
+	     i = ((void *) i) + block_bytes(b->c->cache))
+>>>>>>> upstream/android-13
 		if (i->seq == b->keys.set[0].data->seq)
 			goto err;
 
@@ -272,7 +313,11 @@ void bch_btree_node_read_done(struct btree *b)
 
 	if (b->written < btree_blocks(b))
 		bch_bset_init_next(&b->keys, write_block(b),
+<<<<<<< HEAD
 				   bset_magic(&b->c->sb));
+=======
+				   bset_magic(&b->c->cache->sb));
+>>>>>>> upstream/android-13
 out:
 	mempool_free(iter, &b->c->fill_iter);
 	return;
@@ -361,7 +406,11 @@ static void __btree_node_write_done(struct closure *cl)
 	btree_complete_write(b, w);
 
 	if (btree_node_dirty(b))
+<<<<<<< HEAD
 		schedule_delayed_work(&b->work, 30 * HZ);
+=======
+		queue_delayed_work(btree_io_wq, &b->work, 30 * HZ);
+>>>>>>> upstream/android-13
 
 	closure_return_with_destructor(cl, btree_node_write_unlock);
 }
@@ -400,7 +449,11 @@ static void do_btree_node_write(struct btree *b)
 
 	b->bio->bi_end_io	= btree_node_write_endio;
 	b->bio->bi_private	= cl;
+<<<<<<< HEAD
 	b->bio->bi_iter.bi_size	= roundup(set_bytes(i), block_bytes(b->c));
+=======
+	b->bio->bi_iter.bi_size	= roundup(set_bytes(i), block_bytes(b->c->cache));
+>>>>>>> upstream/android-13
 	b->bio->bi_opf		= REQ_OP_WRITE | REQ_META | REQ_FUA;
 	bch_bio_map(b->bio, i);
 
@@ -424,6 +477,7 @@ static void do_btree_node_write(struct btree *b)
 		       bset_sector_offset(&b->keys, i));
 
 	if (!bch_bio_alloc_pages(b->bio, __GFP_NOWARN|GFP_NOWAIT)) {
+<<<<<<< HEAD
 		int j;
 		struct bio_vec *bv;
 		void *base = (void *) ((unsigned long) i & ~(PAGE_SIZE - 1));
@@ -431,6 +485,16 @@ static void do_btree_node_write(struct btree *b)
 		bio_for_each_segment_all(bv, b->bio, j)
 			memcpy(page_address(bv->bv_page),
 			       base + j * PAGE_SIZE, PAGE_SIZE);
+=======
+		struct bio_vec *bv;
+		void *addr = (void *) ((unsigned long) i & ~(PAGE_SIZE - 1));
+		struct bvec_iter_all iter_all;
+
+		bio_for_each_segment_all(bv, b->bio, iter_all) {
+			memcpy(page_address(bv->bv_page), addr, PAGE_SIZE);
+			addr += PAGE_SIZE;
+		}
+>>>>>>> upstream/android-13
 
 		bch_submit_bbio(b->bio, b->c, &k.key, 0);
 
@@ -475,10 +539,17 @@ void __bch_btree_node_write(struct btree *b, struct closure *parent)
 
 	do_btree_node_write(b);
 
+<<<<<<< HEAD
 	atomic_long_add(set_blocks(i, block_bytes(b->c)) * b->c->sb.block_size,
 			&PTR_CACHE(b->c, &b->key, 0)->btree_sectors_written);
 
 	b->written += set_blocks(i, block_bytes(b->c));
+=======
+	atomic_long_add(set_blocks(i, block_bytes(b->c->cache)) * b->c->cache->sb.block_size,
+			&b->c->cache->btree_sectors_written);
+
+	b->written += set_blocks(i, block_bytes(b->c->cache));
+>>>>>>> upstream/android-13
 }
 
 void bch_btree_node_write(struct btree *b, struct closure *parent)
@@ -533,10 +604,22 @@ static void bch_btree_leaf_dirty(struct btree *b, atomic_t *journal_ref)
 	BUG_ON(!i->keys);
 
 	if (!btree_node_dirty(b))
+<<<<<<< HEAD
 		schedule_delayed_work(&b->work, 30 * HZ);
 
 	set_btree_node_dirty(b);
 
+=======
+		queue_delayed_work(btree_io_wq, &b->work, 30 * HZ);
+
+	set_btree_node_dirty(b);
+
+	/*
+	 * w->journal is always the oldest journal pin of all bkeys
+	 * in the leaf node, to make sure the oldest jset seq won't
+	 * be increased before this btree node is flushed.
+	 */
+>>>>>>> upstream/android-13
 	if (journal_ref) {
 		if (w->journal &&
 		    journal_pin_cmp(b->c, w->journal, journal_ref)) {
@@ -561,7 +644,11 @@ static void bch_btree_leaf_dirty(struct btree *b, atomic_t *journal_ref)
  * mca -> memory cache
  */
 
+<<<<<<< HEAD
 #define mca_reserve(c)	(((c->root && c->root->level)		\
+=======
+#define mca_reserve(c)	(((!IS_ERR_OR_NULL(c->root) && c->root->level) \
+>>>>>>> upstream/android-13
 			  ? c->root->level : 1) * 8 + 16)
 #define mca_can_free(c)						\
 	max_t(int, 0, c->btree_cache_used - mca_reserve(c))
@@ -607,6 +694,13 @@ static void mca_data_alloc(struct btree *b, struct bkey *k, gfp_t gfp)
 static struct btree *mca_bucket_alloc(struct cache_set *c,
 				      struct bkey *k, gfp_t gfp)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * kzalloc() is necessary here for initialization,
+	 * see code comments in bch_btree_keys_init().
+	 */
+>>>>>>> upstream/android-13
 	struct btree *b = kzalloc(sizeof(struct btree), gfp);
 
 	if (!b)
@@ -662,7 +756,11 @@ retry:
 	 * and BTREE_NODE_journal_flush bit cleared by btree_flush_write().
 	 */
 	if (btree_node_journal_flush(b)) {
+<<<<<<< HEAD
 		pr_debug("bnode %p is flushing by journal, retry", b);
+=======
+		pr_debug("bnode %p is flushing by journal, retry\n", b);
+>>>>>>> upstream/android-13
 		mutex_unlock(&b->write_lock);
 		udelay(1);
 		goto retry;
@@ -719,17 +817,26 @@ static unsigned long bch_mca_scan(struct shrinker *shrink,
 
 	i = 0;
 	btree_cache_used = c->btree_cache_used;
+<<<<<<< HEAD
 	list_for_each_entry_safe(b, t, &c->btree_cache_freeable, list) {
 		if (nr <= 0)
 			goto out;
 
 		if (++i > 3 &&
 		    !mca_reap(b, 0, false)) {
+=======
+	list_for_each_entry_safe_reverse(b, t, &c->btree_cache_freeable, list) {
+		if (nr <= 0)
+			goto out;
+
+		if (!mca_reap(b, 0, false)) {
+>>>>>>> upstream/android-13
 			mca_data_free(b);
 			rw_unlock(true, b);
 			freed++;
 		}
 		nr--;
+<<<<<<< HEAD
 	}
 
 	for (;  (nr--) && i < btree_cache_used; i++) {
@@ -741,12 +848,29 @@ static unsigned long bch_mca_scan(struct shrinker *shrink,
 
 		if (!b->accessed &&
 		    !mca_reap(b, 0, false)) {
+=======
+		i++;
+	}
+
+	list_for_each_entry_safe_reverse(b, t, &c->btree_cache, list) {
+		if (nr <= 0 || i >= btree_cache_used)
+			goto out;
+
+		if (!mca_reap(b, 0, false)) {
+>>>>>>> upstream/android-13
 			mca_bucket_free(b);
 			mca_data_free(b);
 			rw_unlock(true, b);
 			freed++;
+<<<<<<< HEAD
 		} else
 			b->accessed = 0;
+=======
+		}
+
+		nr--;
+		i++;
+>>>>>>> upstream/android-13
 	}
 out:
 	mutex_unlock(&c->bucket_lock);
@@ -783,7 +907,11 @@ void bch_btree_cache_free(struct cache_set *c)
 	if (c->verify_data)
 		list_move(&c->verify_data->list, &c->btree_cache);
 
+<<<<<<< HEAD
 	free_pages((unsigned long) c->verify_ondisk, ilog2(bucket_pages(c)));
+=======
+	free_pages((unsigned long) c->verify_ondisk, ilog2(meta_bucket_pages(&c->cache->sb)));
+>>>>>>> upstream/android-13
 #endif
 
 	list_splice(&c->btree_cache_freeable,
@@ -830,7 +958,20 @@ int bch_btree_cache_alloc(struct cache_set *c)
 	mutex_init(&c->verify_lock);
 
 	c->verify_ondisk = (void *)
+<<<<<<< HEAD
 		__get_free_pages(GFP_KERNEL|__GFP_COMP, ilog2(bucket_pages(c)));
+=======
+		__get_free_pages(GFP_KERNEL|__GFP_COMP,
+				 ilog2(meta_bucket_pages(&c->cache->sb)));
+	if (!c->verify_ondisk) {
+		/*
+		 * Don't worry about the mca_rereserve buckets
+		 * allocated in previous for-loop, they will be
+		 * handled properly in bch_cache_set_unregister().
+		 */
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	c->verify_data = mca_bucket_alloc(c, &ZERO_KEY, GFP_KERNEL);
 
@@ -847,7 +988,11 @@ int bch_btree_cache_alloc(struct cache_set *c)
 	c->shrink.batch = c->btree_pages * 2;
 
 	if (register_shrinker(&c->shrink))
+<<<<<<< HEAD
 		pr_warn("bcache: %s: could not register shrinker",
+=======
+		pr_warn("bcache: %s: could not register shrinker\n",
+>>>>>>> upstream/android-13
 				__func__);
 
 	return 0;
@@ -1004,7 +1149,11 @@ err:
  * bch_btree_node_get - find a btree node in the cache and lock it, reading it
  * in from disk if necessary.
  *
+<<<<<<< HEAD
  * If IO is necessary and running under generic_make_request, returns -EAGAIN.
+=======
+ * If IO is necessary and running under submit_bio_noacct, returns -EAGAIN.
+>>>>>>> upstream/android-13
  *
  * The btree node will have either a read or a write lock held, depending on
  * level and op->lock.
@@ -1054,7 +1203,10 @@ retry:
 	BUG_ON(!b->written);
 
 	b->parent = parent;
+<<<<<<< HEAD
 	b->accessed = 1;
+=======
+>>>>>>> upstream/android-13
 
 	for (; i <= b->keys.nsets && b->keys.set[i].size; i++) {
 		prefetch(b->keys.set[i].tree);
@@ -1100,7 +1252,11 @@ retry:
 	 */
 	if (btree_node_journal_flush(b)) {
 		mutex_unlock(&b->write_lock);
+<<<<<<< HEAD
 		pr_debug("bnode %p journal_flush set, retry", b);
+=======
+		pr_debug("bnode %p journal_flush set, retry\n", b);
+>>>>>>> upstream/android-13
 		udelay(1);
 		goto retry;
 	}
@@ -1129,7 +1285,11 @@ struct btree *__bch_btree_node_alloc(struct cache_set *c, struct btree_op *op,
 
 	mutex_lock(&c->bucket_lock);
 retry:
+<<<<<<< HEAD
 	if (__bch_bucket_alloc_set(c, RESERVE_BTREE, &k.key, 1, wait))
+=======
+	if (__bch_bucket_alloc_set(c, RESERVE_BTREE, &k.key, wait))
+>>>>>>> upstream/android-13
 		goto err;
 
 	bkey_put(c, &k.key);
@@ -1145,9 +1305,14 @@ retry:
 		goto retry;
 	}
 
+<<<<<<< HEAD
 	b->accessed = 1;
 	b->parent = parent;
 	bch_bset_init_next(&b->keys, b->keys.set->data, bset_magic(&b->c->sb));
+=======
+	b->parent = parent;
+	bch_bset_init_next(&b->keys, b->keys.set->data, bset_magic(&b->c->cache->sb));
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&c->bucket_lock);
 
@@ -1197,7 +1362,11 @@ static void make_btree_freeing_key(struct btree *b, struct bkey *k)
 
 	for (i = 0; i < KEY_PTRS(k); i++)
 		SET_PTR_GEN(k, i,
+<<<<<<< HEAD
 			    bch_inc_gen(PTR_CACHE(b->c, &b->key, i),
+=======
+			    bch_inc_gen(b->c->cache,
+>>>>>>> upstream/android-13
 					PTR_BUCKET(b->c, &b->key, i)));
 
 	mutex_unlock(&b->c->bucket_lock);
@@ -1206,6 +1375,7 @@ static void make_btree_freeing_key(struct btree *b, struct bkey *k)
 static int btree_check_reserve(struct btree *b, struct btree_op *op)
 {
 	struct cache_set *c = b->c;
+<<<<<<< HEAD
 	struct cache *ca;
 	unsigned int i, reserve = (c->root->level - b->level) * 2 + 1;
 
@@ -1219,6 +1389,20 @@ static int btree_check_reserve(struct btree *b, struct btree_op *op)
 			mutex_unlock(&c->bucket_lock);
 			return -EINTR;
 		}
+=======
+	struct cache *ca = c->cache;
+	unsigned int reserve = (c->root->level - b->level) * 2 + 1;
+
+	mutex_lock(&c->bucket_lock);
+
+	if (fifo_used(&ca->free[RESERVE_BTREE]) < reserve) {
+		if (op)
+			prepare_to_wait(&c->btree_cache_wait, &op->wait,
+					TASK_UNINTERRUPTIBLE);
+		mutex_unlock(&c->bucket_lock);
+		return -EINTR;
+	}
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&c->bucket_lock);
 
@@ -1384,7 +1568,11 @@ static int btree_gc_coalesce(struct btree *b, struct btree_op *op,
 
 	if (nodes < 2 ||
 	    __set_blocks(b->keys.set[0].data, keys,
+<<<<<<< HEAD
 			 block_bytes(b->c)) > blocks * (nodes - 1))
+=======
+			 block_bytes(b->c->cache)) > blocks * (nodes - 1))
+>>>>>>> upstream/android-13
 		return 0;
 
 	for (i = 0; i < nodes; i++) {
@@ -1418,7 +1606,11 @@ static int btree_gc_coalesce(struct btree *b, struct btree_op *op,
 			     k = bkey_next(k)) {
 				if (__set_blocks(n1, n1->keys + keys +
 						 bkey_u64s(k),
+<<<<<<< HEAD
 						 block_bytes(b->c)) > blocks)
+=======
+						 block_bytes(b->c->cache)) > blocks)
+>>>>>>> upstream/android-13
 					break;
 
 				last = k;
@@ -1434,7 +1626,11 @@ static int btree_gc_coalesce(struct btree *b, struct btree_op *op,
 			 * though)
 			 */
 			if (__set_blocks(n1, n1->keys + n2->keys,
+<<<<<<< HEAD
 					 block_bytes(b->c)) >
+=======
+					 block_bytes(b->c->cache)) >
+>>>>>>> upstream/android-13
 			    btree_blocks(new_nodes[i]))
 				goto out_unlock_nocoalesce;
 
@@ -1443,7 +1639,11 @@ static int btree_gc_coalesce(struct btree *b, struct btree_op *op,
 			last = &r->b->key;
 		}
 
+<<<<<<< HEAD
 		BUG_ON(__set_blocks(n1, n1->keys + keys, block_bytes(b->c)) >
+=======
+		BUG_ON(__set_blocks(n1, n1->keys + keys, block_bytes(b->c->cache)) >
+>>>>>>> upstream/android-13
 		       btree_blocks(new_nodes[i]));
 
 		if (last)
@@ -1517,11 +1717,18 @@ out_unlock_nocoalesce:
 
 out_nocoalesce:
 	closure_sync(&cl);
+<<<<<<< HEAD
 	bch_keylist_free(&keylist);
+=======
+>>>>>>> upstream/android-13
 
 	while ((k = bch_keylist_pop(&keylist)))
 		if (!bkey_cmp(k, &ZERO_KEY))
 			atomic_dec(&b->c->prio_blocked);
+<<<<<<< HEAD
+=======
+	bch_keylist_free(&keylist);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < nodes; i++)
 		if (!IS_ERR_OR_NULL(new_nodes[i])) {
@@ -1734,7 +1941,10 @@ static void btree_gc_start(struct cache_set *c)
 {
 	struct cache *ca;
 	struct bucket *b;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 
 	if (!c->gc_mark_valid)
 		return;
@@ -1744,6 +1954,7 @@ static void btree_gc_start(struct cache_set *c)
 	c->gc_mark_valid = 0;
 	c->gc_done = ZERO_KEY;
 
+<<<<<<< HEAD
 	for_each_cache(ca, c, i)
 		for_each_bucket(b, ca) {
 			b->last_gc = b->gen;
@@ -1752,6 +1963,16 @@ static void btree_gc_start(struct cache_set *c)
 				SET_GC_SECTORS_USED(b, 0);
 			}
 		}
+=======
+	ca = c->cache;
+	for_each_bucket(b, ca) {
+		b->last_gc = b->gen;
+		if (!atomic_read(&b->pin)) {
+			SET_GC_MARK(b, 0);
+			SET_GC_SECTORS_USED(b, 0);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&c->bucket_lock);
 }
@@ -1760,7 +1981,12 @@ static void bch_btree_gc_finish(struct cache_set *c)
 {
 	struct bucket *b;
 	struct cache *ca;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+	unsigned int i, j;
+	uint64_t *k;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&c->bucket_lock);
 
@@ -1778,7 +2004,10 @@ static void bch_btree_gc_finish(struct cache_set *c)
 		struct bcache_device *d = c->devices[i];
 		struct cached_dev *dc;
 		struct keybuf_key *w, *n;
+<<<<<<< HEAD
 		unsigned int j;
+=======
+>>>>>>> upstream/android-13
 
 		if (!d || UUID_FLASH_ONLY(&c->uuids[i]))
 			continue;
@@ -1795,6 +2024,7 @@ static void bch_btree_gc_finish(struct cache_set *c)
 	rcu_read_unlock();
 
 	c->avail_nbuckets = 0;
+<<<<<<< HEAD
 	for_each_cache(ca, c, i) {
 		uint64_t *i;
 
@@ -1818,6 +2048,29 @@ static void bch_btree_gc_finish(struct cache_set *c)
 			if (!GC_MARK(b) || GC_MARK(b) == GC_MARK_RECLAIMABLE)
 				c->avail_nbuckets++;
 		}
+=======
+
+	ca = c->cache;
+	ca->invalidate_needs_gc = 0;
+
+	for (k = ca->sb.d; k < ca->sb.d + ca->sb.keys; k++)
+		SET_GC_MARK(ca->buckets + *k, GC_MARK_METADATA);
+
+	for (k = ca->prio_buckets;
+	     k < ca->prio_buckets + prio_buckets(ca) * 2; k++)
+		SET_GC_MARK(ca->buckets + *k, GC_MARK_METADATA);
+
+	for_each_bucket(b, ca) {
+		c->need_gc	= max(c->need_gc, bucket_gc_gen(b));
+
+		if (atomic_read(&b->pin))
+			continue;
+
+		BUG_ON(!GC_MARK(b) && GC_SECTORS_USED(b));
+
+		if (!GC_MARK(b) || GC_MARK(b) == GC_MARK_RECLAIMABLE)
+			c->avail_nbuckets++;
+>>>>>>> upstream/android-13
 	}
 
 	mutex_unlock(&c->bucket_lock);
@@ -1841,7 +2094,11 @@ static void bch_btree_gc(struct cache_set *c)
 
 	/* if CACHE_SET_IO_DISABLE set, gc thread should stop too */
 	do {
+<<<<<<< HEAD
 		ret = btree_root(gc_root, c, &op, &writes, &stats);
+=======
+		ret = bcache_btree_root(gc_root, c, &op, &writes, &stats);
+>>>>>>> upstream/android-13
 		closure_sync(&writes);
 		cond_resched();
 
@@ -1849,7 +2106,11 @@ static void bch_btree_gc(struct cache_set *c)
 			schedule_timeout_interruptible(msecs_to_jiffies
 						       (GC_SLEEP_MS));
 		else if (ret)
+<<<<<<< HEAD
 			pr_warn("gc failed!");
+=======
+			pr_warn("gc failed!\n");
+>>>>>>> upstream/android-13
 	} while (ret && !test_bit(CACHE_SET_IO_DISABLE, &c->flags));
 
 	bch_btree_gc_finish(c);
@@ -1869,12 +2130,19 @@ static void bch_btree_gc(struct cache_set *c)
 
 static bool gc_should_run(struct cache_set *c)
 {
+<<<<<<< HEAD
 	struct cache *ca;
 	unsigned int i;
 
 	for_each_cache(ca, c, i)
 		if (ca->invalidate_needs_gc)
 			return true;
+=======
+	struct cache *ca = c->cache;
+
+	if (ca->invalidate_needs_gc)
+		return true;
+>>>>>>> upstream/android-13
 
 	if (atomic_read(&c->sectors_to_gc) < 0)
 		return true;
@@ -1939,7 +2207,11 @@ static int bch_btree_check_recurse(struct btree *b, struct btree_op *op)
 			}
 
 			if (p)
+<<<<<<< HEAD
 				ret = btree(check_recurse, p, b, op);
+=======
+				ret = bcache_btree(check_recurse, p, b, op);
+>>>>>>> upstream/android-13
 
 			p = k;
 		} while (p && !ret);
@@ -1948,6 +2220,7 @@ static int bch_btree_check_recurse(struct btree *b, struct btree_op *op)
 	return ret;
 }
 
+<<<<<<< HEAD
 int bch_btree_check(struct cache_set *c)
 {
 	struct btree_op op;
@@ -1955,13 +2228,190 @@ int bch_btree_check(struct cache_set *c)
 	bch_btree_op_init(&op, SHRT_MAX);
 
 	return btree_root(check_recurse, c, &op);
+=======
+
+static int bch_btree_check_thread(void *arg)
+{
+	int ret;
+	struct btree_check_info *info = arg;
+	struct btree_check_state *check_state = info->state;
+	struct cache_set *c = check_state->c;
+	struct btree_iter iter;
+	struct bkey *k, *p;
+	int cur_idx, prev_idx, skip_nr;
+
+	k = p = NULL;
+	cur_idx = prev_idx = 0;
+	ret = 0;
+
+	/* root node keys are checked before thread created */
+	bch_btree_iter_init(&c->root->keys, &iter, NULL);
+	k = bch_btree_iter_next_filter(&iter, &c->root->keys, bch_ptr_bad);
+	BUG_ON(!k);
+
+	p = k;
+	while (k) {
+		/*
+		 * Fetch a root node key index, skip the keys which
+		 * should be fetched by other threads, then check the
+		 * sub-tree indexed by the fetched key.
+		 */
+		spin_lock(&check_state->idx_lock);
+		cur_idx = check_state->key_idx;
+		check_state->key_idx++;
+		spin_unlock(&check_state->idx_lock);
+
+		skip_nr = cur_idx - prev_idx;
+
+		while (skip_nr) {
+			k = bch_btree_iter_next_filter(&iter,
+						       &c->root->keys,
+						       bch_ptr_bad);
+			if (k)
+				p = k;
+			else {
+				/*
+				 * No more keys to check in root node,
+				 * current checking threads are enough,
+				 * stop creating more.
+				 */
+				atomic_set(&check_state->enough, 1);
+				/* Update check_state->enough earlier */
+				smp_mb__after_atomic();
+				goto out;
+			}
+			skip_nr--;
+			cond_resched();
+		}
+
+		if (p) {
+			struct btree_op op;
+
+			btree_node_prefetch(c->root, p);
+			c->gc_stats.nodes++;
+			bch_btree_op_init(&op, 0);
+			ret = bcache_btree(check_recurse, p, c->root, &op);
+			if (ret)
+				goto out;
+		}
+		p = NULL;
+		prev_idx = cur_idx;
+		cond_resched();
+	}
+
+out:
+	info->result = ret;
+	/* update check_state->started among all CPUs */
+	smp_mb__before_atomic();
+	if (atomic_dec_and_test(&check_state->started))
+		wake_up(&check_state->wait);
+
+	return ret;
+}
+
+
+
+static int bch_btree_chkthread_nr(void)
+{
+	int n = num_online_cpus()/2;
+
+	if (n == 0)
+		n = 1;
+	else if (n > BCH_BTR_CHKTHREAD_MAX)
+		n = BCH_BTR_CHKTHREAD_MAX;
+
+	return n;
+}
+
+int bch_btree_check(struct cache_set *c)
+{
+	int ret = 0;
+	int i;
+	struct bkey *k = NULL;
+	struct btree_iter iter;
+	struct btree_check_state *check_state;
+	char name[32];
+
+	/* check and mark root node keys */
+	for_each_key_filter(&c->root->keys, k, &iter, bch_ptr_invalid)
+		bch_initial_mark_key(c, c->root->level, k);
+
+	bch_initial_mark_key(c, c->root->level + 1, &c->root->key);
+
+	if (c->root->level == 0)
+		return 0;
+
+	check_state = kzalloc(sizeof(struct btree_check_state), GFP_KERNEL);
+	if (!check_state)
+		return -ENOMEM;
+
+	check_state->c = c;
+	check_state->total_threads = bch_btree_chkthread_nr();
+	check_state->key_idx = 0;
+	spin_lock_init(&check_state->idx_lock);
+	atomic_set(&check_state->started, 0);
+	atomic_set(&check_state->enough, 0);
+	init_waitqueue_head(&check_state->wait);
+
+	/*
+	 * Run multiple threads to check btree nodes in parallel,
+	 * if check_state->enough is non-zero, it means current
+	 * running check threads are enough, unncessary to create
+	 * more.
+	 */
+	for (i = 0; i < check_state->total_threads; i++) {
+		/* fetch latest check_state->enough earlier */
+		smp_mb__before_atomic();
+		if (atomic_read(&check_state->enough))
+			break;
+
+		check_state->infos[i].result = 0;
+		check_state->infos[i].state = check_state;
+		snprintf(name, sizeof(name), "bch_btrchk[%u]", i);
+		atomic_inc(&check_state->started);
+
+		check_state->infos[i].thread =
+			kthread_run(bch_btree_check_thread,
+				    &check_state->infos[i],
+				    name);
+		if (IS_ERR(check_state->infos[i].thread)) {
+			pr_err("fails to run thread bch_btrchk[%d]\n", i);
+			for (--i; i >= 0; i--)
+				kthread_stop(check_state->infos[i].thread);
+			ret = -ENOMEM;
+			goto out;
+		}
+	}
+
+	/*
+	 * Must wait for all threads to stop.
+	 */
+	wait_event_interruptible(check_state->wait,
+				 atomic_read(&check_state->started) == 0);
+
+	for (i = 0; i < check_state->total_threads; i++) {
+		if (check_state->infos[i].result) {
+			ret = check_state->infos[i].result;
+			goto out;
+		}
+	}
+
+out:
+	kfree(check_state);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 void bch_initial_gc_finish(struct cache_set *c)
 {
+<<<<<<< HEAD
 	struct cache *ca;
 	struct bucket *b;
 	unsigned int i;
+=======
+	struct cache *ca = c->cache;
+	struct bucket *b;
+>>>>>>> upstream/android-13
 
 	bch_btree_gc_finish(c);
 
@@ -1976,6 +2426,7 @@ void bch_initial_gc_finish(struct cache_set *c)
 	 * This is only safe for buckets that have no live data in them, which
 	 * there should always be some of.
 	 */
+<<<<<<< HEAD
 	for_each_cache(ca, c, i) {
 		for_each_bucket(b, ca) {
 			if (fifo_full(&ca->free[RESERVE_PRIO]) &&
@@ -1990,6 +2441,20 @@ void bch_initial_gc_finish(struct cache_set *c)
 					fifo_push(&ca->free[RESERVE_BTREE],
 						  b - ca->buckets);
 			}
+=======
+	for_each_bucket(b, ca) {
+		if (fifo_full(&ca->free[RESERVE_PRIO]) &&
+		    fifo_full(&ca->free[RESERVE_BTREE]))
+			break;
+
+		if (bch_can_invalidate_bucket(ca, b) &&
+		    !GC_MARK(b)) {
+			__bch_invalidate_one_bucket(ca, b);
+			if (!fifo_push(&ca->free[RESERVE_PRIO],
+			   b - ca->buckets))
+				fifo_push(&ca->free[RESERVE_BTREE],
+					  b - ca->buckets);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2097,7 +2562,11 @@ static int btree_split(struct btree *b, struct btree_op *op,
 		goto err;
 
 	split = set_blocks(btree_bset_first(n1),
+<<<<<<< HEAD
 			   block_bytes(n1->c)) > (btree_blocks(b) * 4) / 5;
+=======
+			   block_bytes(n1->c->cache)) > (btree_blocks(b) * 4) / 5;
+>>>>>>> upstream/android-13
 
 	if (split) {
 		unsigned int keys = 0;
@@ -2344,7 +2813,11 @@ int bch_btree_insert(struct cache_set *c, struct keylist *keys,
 	if (ret) {
 		struct bkey *k;
 
+<<<<<<< HEAD
 		pr_err("error %i", ret);
+=======
+		pr_err("error %i\n", ret);
+>>>>>>> upstream/android-13
 
 		while ((k = bch_keylist_pop(keys)))
 			bkey_put(c, k);
@@ -2394,7 +2867,11 @@ static int bch_btree_map_nodes_recurse(struct btree *b, struct btree_op *op,
 
 		while ((k = bch_btree_iter_next_filter(&iter, &b->keys,
 						       bch_ptr_bad))) {
+<<<<<<< HEAD
 			ret = btree(map_nodes_recurse, k, b,
+=======
+			ret = bcache_btree(map_nodes_recurse, k, b,
+>>>>>>> upstream/android-13
 				    op, from, fn, flags);
 			from = NULL;
 
@@ -2412,10 +2889,17 @@ static int bch_btree_map_nodes_recurse(struct btree *b, struct btree_op *op,
 int __bch_btree_map_nodes(struct btree_op *op, struct cache_set *c,
 			  struct bkey *from, btree_map_nodes_fn *fn, int flags)
 {
+<<<<<<< HEAD
 	return btree_root(map_nodes_recurse, c, op, from, fn, flags);
 }
 
 static int bch_btree_map_keys_recurse(struct btree *b, struct btree_op *op,
+=======
+	return bcache_btree_root(map_nodes_recurse, c, op, from, fn, flags);
+}
+
+int bch_btree_map_keys_recurse(struct btree *b, struct btree_op *op,
+>>>>>>> upstream/android-13
 				      struct bkey *from, btree_map_keys_fn *fn,
 				      int flags)
 {
@@ -2428,7 +2912,12 @@ static int bch_btree_map_keys_recurse(struct btree *b, struct btree_op *op,
 	while ((k = bch_btree_iter_next_filter(&iter, &b->keys, bch_ptr_bad))) {
 		ret = !b->level
 			? fn(op, b, k)
+<<<<<<< HEAD
 			: btree(map_keys_recurse, k, b, op, from, fn, flags);
+=======
+			: bcache_btree(map_keys_recurse, k,
+				       b, op, from, fn, flags);
+>>>>>>> upstream/android-13
 		from = NULL;
 
 		if (ret != MAP_CONTINUE)
@@ -2445,7 +2934,11 @@ static int bch_btree_map_keys_recurse(struct btree *b, struct btree_op *op,
 int bch_btree_map_keys(struct btree_op *op, struct cache_set *c,
 		       struct bkey *from, btree_map_keys_fn *fn, int flags)
 {
+<<<<<<< HEAD
 	return btree_root(map_keys_recurse, c, op, from, fn, flags);
+=======
+	return bcache_btree_root(map_keys_recurse, c, op, from, fn, flags);
+>>>>>>> upstream/android-13
 }
 
 /* Keybuf code */
@@ -2631,7 +3124,11 @@ struct keybuf_key *bch_keybuf_next_rescan(struct cache_set *c,
 			break;
 
 		if (bkey_cmp(&buf->last_scanned, end) >= 0) {
+<<<<<<< HEAD
 			pr_debug("scan finished");
+=======
+			pr_debug("scan finished\n");
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -2649,3 +3146,21 @@ void bch_keybuf_init(struct keybuf *buf)
 	spin_lock_init(&buf->lock);
 	array_allocator_init(&buf->freelist);
 }
+<<<<<<< HEAD
+=======
+
+void bch_btree_exit(void)
+{
+	if (btree_io_wq)
+		destroy_workqueue(btree_io_wq);
+}
+
+int __init bch_btree_init(void)
+{
+	btree_io_wq = alloc_workqueue("bch_btree_io", WQ_MEM_RECLAIM, 0);
+	if (!btree_io_wq)
+		return -ENOMEM;
+
+	return 0;
+}
+>>>>>>> upstream/android-13

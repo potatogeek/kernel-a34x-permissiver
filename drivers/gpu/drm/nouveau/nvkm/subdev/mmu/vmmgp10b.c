@@ -28,6 +28,11 @@ gp10b_vmm = {
 	.aper = gk20a_vmm_aper,
 	.valid = gp100_vmm_valid,
 	.flush = gp100_vmm_flush,
+<<<<<<< HEAD
+=======
+	.mthd = gp100_vmm_mthd,
+	.invalidate_pdb = gp100_vmm_invalidate_pdb,
+>>>>>>> upstream/android-13
 	.page = {
 		{ 47, &gp100_vmm_desc_16[4], NVKM_VMM_PAGE_Sxxx },
 		{ 38, &gp100_vmm_desc_16[3], NVKM_VMM_PAGE_Sxxx },
@@ -40,10 +45,19 @@ gp10b_vmm = {
 };
 
 int
+<<<<<<< HEAD
 gp10b_vmm_new(struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	      struct lock_class_key *key, const char *name,
 	      struct nvkm_vmm **pvmm)
 {
 	return nv04_vmm_new_(&gp10b_vmm, mmu, 0, addr, size,
 			     argv, argc, key, name, pvmm);
+=======
+gp10b_vmm_new(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	      void *argv, u32 argc, struct lock_class_key *key,
+	      const char *name, struct nvkm_vmm **pvmm)
+{
+	return gp100_vmm_new_(&gp10b_vmm, mmu, managed, addr, size,
+			      argv, argc, key, name, pvmm);
+>>>>>>> upstream/android-13
 }

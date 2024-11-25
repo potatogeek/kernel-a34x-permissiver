@@ -20,7 +20,10 @@
  * zsmalloc mapping modes
  *
  * NOTE: These only make a difference when a mapped object spans pages.
+<<<<<<< HEAD
  * They also have no effect when PGTABLE_MAPPING is selected.
+=======
+>>>>>>> upstream/android-13
  */
 enum zs_mapmode {
 	ZS_MM_RW, /* normal read-write mapping */
@@ -57,7 +60,10 @@ unsigned long zs_get_total_pages(struct zs_pool *pool);
 unsigned long zs_compact(struct zs_pool *pool);
 
 void zs_pool_stats(struct zs_pool *pool, struct zs_pool_stats *stats);
+<<<<<<< HEAD
 
 void try_schedule_zs_compact(void);
 extern void register_on_app_mmput_callback(void (*callback)(void));
+=======
+>>>>>>> upstream/android-13
 #endif

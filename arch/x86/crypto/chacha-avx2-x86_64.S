@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * ChaCha 256-bit cipher algorithm, x64 AVX2 functions
  *
  * Copyright (C) 2015 Martin Willi
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -38,7 +45,11 @@ CTR4BL:	.octa 0x00000000000000000000000000000002
 
 .text
 
+<<<<<<< HEAD
 ENTRY(chacha_2block_xor_avx2)
+=======
+SYM_FUNC_START(chacha_2block_xor_avx2)
+>>>>>>> upstream/android-13
 	# %rdi: Input state matrix, s
 	# %rsi: up to 2 data blocks output, o
 	# %rdx: up to 2 data blocks input, i
@@ -197,7 +208,11 @@ ENTRY(chacha_2block_xor_avx2)
 
 .Ldone2:
 	vzeroupper
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lxorpart2:
 	# xor remaining bytes from partial register into output
@@ -228,9 +243,15 @@ ENTRY(chacha_2block_xor_avx2)
 	lea		-8(%r10),%rsp
 	jmp		.Ldone2
 
+<<<<<<< HEAD
 ENDPROC(chacha_2block_xor_avx2)
 
 ENTRY(chacha_4block_xor_avx2)
+=======
+SYM_FUNC_END(chacha_2block_xor_avx2)
+
+SYM_FUNC_START(chacha_4block_xor_avx2)
+>>>>>>> upstream/android-13
 	# %rdi: Input state matrix, s
 	# %rsi: up to 4 data blocks output, o
 	# %rdx: up to 4 data blocks input, i
@@ -502,7 +523,11 @@ ENTRY(chacha_4block_xor_avx2)
 
 .Ldone4:
 	vzeroupper
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lxorpart4:
 	# xor remaining bytes from partial register into output
@@ -533,9 +558,15 @@ ENTRY(chacha_4block_xor_avx2)
 	lea		-8(%r10),%rsp
 	jmp		.Ldone4
 
+<<<<<<< HEAD
 ENDPROC(chacha_4block_xor_avx2)
 
 ENTRY(chacha_8block_xor_avx2)
+=======
+SYM_FUNC_END(chacha_4block_xor_avx2)
+
+SYM_FUNC_START(chacha_8block_xor_avx2)
+>>>>>>> upstream/android-13
 	# %rdi: Input state matrix, s
 	# %rsi: up to 8 data blocks output, o
 	# %rdx: up to 8 data blocks input, i
@@ -996,7 +1027,11 @@ ENTRY(chacha_8block_xor_avx2)
 .Ldone8:
 	vzeroupper
 	lea		-8(%r10),%rsp
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lxorpart8:
 	# xor remaining bytes from partial register into output
@@ -1022,4 +1057,8 @@ ENTRY(chacha_8block_xor_avx2)
 
 	jmp		.Ldone8
 
+<<<<<<< HEAD
 ENDPROC(chacha_8block_xor_avx2)
+=======
+SYM_FUNC_END(chacha_8block_xor_avx2)
+>>>>>>> upstream/android-13

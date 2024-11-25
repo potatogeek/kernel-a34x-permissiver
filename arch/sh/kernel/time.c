@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  *  arch/sh/kernel/time.c
  *
@@ -5,10 +9,13 @@
  *  Copyright (C) 2000  Philipp Rumpf <prumpf@tux.org>
  *  Copyright (C) 2002 - 2009  Paul Mundt
  *  Copyright (C) 2002  M. R. Brown  <mrbrown@linux-sh.org>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -21,6 +28,7 @@
 #include <linux/rtc.h>
 #include <asm/clock.h>
 #include <asm/rtc.h>
+<<<<<<< HEAD
 
 /* Dummy RTC ops */
 static void null_rtc_get_time(struct timespec *tv)
@@ -92,6 +100,9 @@ static int __init rtc_generic_init(void)
 device_initcall(rtc_generic_init);
 
 void (*board_time_init)(void);
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 static void __init sh_late_time_init(void)
 {
@@ -104,14 +115,23 @@ static void __init sh_late_time_init(void)
 	 * clocksource and the jiffies clocksource is used transparently
 	 * instead. No error handling is necessary here.
 	 */
+<<<<<<< HEAD
 	early_platform_driver_register_all("earlytimer");
 	early_platform_driver_probe("earlytimer", 2, 0);
+=======
+	sh_early_platform_driver_register_all("earlytimer");
+	sh_early_platform_driver_probe("earlytimer", 2, 0);
+>>>>>>> upstream/android-13
 }
 
 void __init time_init(void)
 {
+<<<<<<< HEAD
 	if (board_time_init)
 		board_time_init();
+=======
+	timer_probe();
+>>>>>>> upstream/android-13
 
 	clk_init();
 

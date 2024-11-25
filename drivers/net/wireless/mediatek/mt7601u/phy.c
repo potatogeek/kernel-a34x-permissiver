@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (c) Copyright 2002-2010, Ralink Technology, Inc.
  * Copyright (C) 2014 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "mt7601u.h"
@@ -594,6 +601,12 @@ static void mt7601u_rxdc_cal(struct mt7601u_dev *dev)
 
 void mt7601u_phy_recalibrate_after_assoc(struct mt7601u_dev *dev)
 {
+<<<<<<< HEAD
+=======
+	if (test_bit(MT7601U_STATE_REMOVED, &dev->state))
+		return;
+
+>>>>>>> upstream/android-13
 	mt7601u_mcu_calibrate(dev, MCU_CAL_DPD, dev->curr_temp);
 
 	mt7601u_rxdc_cal(dev);
@@ -795,7 +808,11 @@ mt7601u_phy_rf_pa_mode_val(struct mt7601u_dev *dev, int phy_mode, int tx_rate)
 	switch (phy_mode) {
 	case MT_PHY_TYPE_OFDM:
 		tx_rate += 4;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MT_PHY_TYPE_CCK:
 		reg = dev->rf_pa_mode[0];
 		break;
@@ -1218,7 +1235,11 @@ void mt7601u_set_rx_path(struct mt7601u_dev *dev, u8 path)
 /**
  * mt7601u_set_tx_dac - set which tx DAC to use
  * @dev:	pointer to adapter structure
+<<<<<<< HEAD
  * @path:	DAC index, values are 0-based
+=======
+ * @dac:	DAC index, values are 0-based
+>>>>>>> upstream/android-13
  */
 void mt7601u_set_tx_dac(struct mt7601u_dev *dev, u8 dac)
 {

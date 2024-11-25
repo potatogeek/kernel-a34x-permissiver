@@ -15,7 +15,11 @@ Description:
 		to the fw_cfg device can be found in "docs/specs/fw_cfg.txt"
 		in the QEMU source tree.
 
+<<<<<<< HEAD
 		=== SysFS fw_cfg Interface ===
+=======
+		**SysFS fw_cfg Interface**
+>>>>>>> upstream/android-13
 
 		The fw_cfg sysfs interface described in this document is only
 		intended to display discoverable blobs (i.e., those registered
@@ -31,7 +35,11 @@ Description:
 
 			/sys/firmware/qemu_fw_cfg/rev
 
+<<<<<<< HEAD
 		--- Discoverable fw_cfg blobs by selector key ---
+=======
+		**Discoverable fw_cfg blobs by selector key**
+>>>>>>> upstream/android-13
 
 		All discoverable blobs listed in the fw_cfg file directory are
 		displayed as entries named after their unique selector key
@@ -45,6 +53,7 @@ Description:
 		Each such fw_cfg sysfs entry has the following values exported
 		as attributes:
 
+<<<<<<< HEAD
 		name  	: The 56-byte nul-terminated ASCII string used as the
 			  blob's 'file name' in the fw_cfg directory.
 		size  	: The length of the blob, as given in the fw_cfg
@@ -58,11 +67,32 @@ Description:
 			  register.
 
 		--- Listing fw_cfg blobs by file name ---
+=======
+		====	  ====================================================
+		name	  The 56-byte nul-terminated ASCII string used as the
+			  blob's 'file name' in the fw_cfg directory.
+		size	  The length of the blob, as given in the fw_cfg
+			  directory.
+		key	  The value of the blob's selector key as given in the
+			  fw_cfg directory. This value is the same as used in
+			  the parent directory name.
+		raw	  The raw bytes of the blob, obtained by selecting the
+			  entry via the control register, and reading a number
+			  of bytes equal to the blob size from the data
+			  register.
+		====	  ====================================================
+
+		**Listing fw_cfg blobs by file name**
+>>>>>>> upstream/android-13
 
 		While the fw_cfg device does not impose any specific naming
 		convention on the blobs registered in the file directory,
 		QEMU developers have traditionally used path name semantics
+<<<<<<< HEAD
 		to give each blob a descriptive name. For example:
+=======
+		to give each blob a descriptive name. For example::
+>>>>>>> upstream/android-13
 
 			"bootorder"
 			"genroms/kvmvapic.bin"
@@ -81,7 +111,11 @@ Description:
 		of directories matching the path name components of fw_cfg
 		blob names, ending in symlinks to the by_key entry for each
 		"basename", as illustrated below (assume current directory is
+<<<<<<< HEAD
 		/sys/firmware):
+=======
+		/sys/firmware)::
+>>>>>>> upstream/android-13
 
 		    qemu_fw_cfg/by_name/bootorder -> ../by_key/38
 		    qemu_fw_cfg/by_name/etc/e820 -> ../../by_key/35

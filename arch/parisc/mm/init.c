@@ -14,7 +14,10 @@
 
 #include <linux/module.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 #include <linux/gfp.h>
 #include <linux/delay.h>
@@ -27,7 +30,10 @@
 #include <linux/compat.h>
 
 #include <asm/pgalloc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlb.h>
 #include <asm/pdc_chassis.h>
 #include <asm/mmzone.h>
@@ -39,6 +45,7 @@ extern int  data_start;
 extern void parisc_kernel_start(void);	/* Kernel entry point in head.S */
 
 #if CONFIG_PGTABLE_LEVELS == 3
+<<<<<<< HEAD
 /* NOTE: This layout exactly conforms to the hybrid L2/L3 page table layout
  * with the first pmd adjacent to the pgd and below it. gcc doesn't actually
  * guarantee that global objects will be laid out in memory in the same order
@@ -49,6 +56,13 @@ pmd_t pmd0[PTRS_PER_PMD] __attribute__ ((__section__ (".data..vm0.pmd"), aligned
 
 pgd_t swapper_pg_dir[PTRS_PER_PGD] __attribute__ ((__section__ (".data..vm0.pgd"), aligned(PAGE_SIZE)));
 pte_t pg0[PT_INITIAL * PTRS_PER_PTE] __attribute__ ((__section__ (".data..vm0.pte"), aligned(PAGE_SIZE)));
+=======
+pmd_t pmd0[PTRS_PER_PMD] __section(".data..vm0.pmd") __attribute__ ((aligned(PAGE_SIZE)));
+#endif
+
+pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(".data..vm0.pgd") __attribute__ ((aligned(PAGE_SIZE)));
+pte_t pg0[PT_INITIAL * PTRS_PER_PTE] __section(".data..vm0.pte") __attribute__ ((aligned(PAGE_SIZE)));
+>>>>>>> upstream/android-13
 
 static struct resource data_resource = {
 	.name	= "Kernel data",
@@ -67,7 +81,11 @@ static struct resource pdcdata_resource = {
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM,
 };
 
+<<<<<<< HEAD
 static struct resource sysram_resources[MAX_PHYSMEM_RANGES] __read_mostly;
+=======
+static struct resource sysram_resources[MAX_PHYSMEM_RANGES] __ro_after_init;
+>>>>>>> upstream/android-13
 
 /* The following array is initialized from the firmware specific
  * information retrieved in kernel/inventory.c.
@@ -76,6 +94,7 @@ static struct resource sysram_resources[MAX_PHYSMEM_RANGES] __read_mostly;
 physmem_range_t pmem_ranges[MAX_PHYSMEM_RANGES] __initdata;
 int npmem_ranges __initdata;
 
+<<<<<<< HEAD
 /*
  * get_memblock() allocates pages via memblock.
  * We can't use memblock_find_in_range(0, KERNEL_INITIAL_SIZE) here since it
@@ -106,6 +125,8 @@ static void * __init get_memblock(unsigned long size)
 	return __va(phys);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_64BIT
 #define MAX_MEM         (1UL << MAX_PHYSMEM_BITS)
 #else /* !CONFIG_64BIT */
@@ -302,6 +323,16 @@ static void __init setup_bootmem(void)
 			max_pfn = start_pfn + npages;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * We can't use memblock top-down allocations because we only
+	 * created the initial mapping up to KERNEL_INITIAL_SIZE in
+	 * the assembly bootup code.
+	 */
+	memblock_set_bottom_up(true);
+
+>>>>>>> upstream/android-13
 	/* IOMMU is always used to access "high mem" on those boxes
 	 * that can support enough mem that a PCI device couldn't
 	 * directly DMA to any physical addresses.
@@ -369,6 +400,7 @@ static void __init setup_bootmem(void)
 	memblock_dump_all();
 }
 
+<<<<<<< HEAD
 static int __init parisc_text_address(unsigned long vaddr)
 {
 	static unsigned long head_ptr __initdata;
@@ -385,6 +417,14 @@ static void __init map_pages(unsigned long start_vaddr,
 			     pgprot_t pgprot, int force)
 {
 	pgd_t *pg_dir;
+=======
+static bool kernel_set_to_readonly;
+
+static void __ref map_pages(unsigned long start_vaddr,
+			    unsigned long start_paddr, unsigned long size,
+			    pgprot_t pgprot, int force)
+{
+>>>>>>> upstream/android-13
 	pmd_t *pmd;
 	pte_t *pg_table;
 	unsigned long end_paddr;
@@ -396,14 +436,23 @@ static void __init map_pages(unsigned long start_vaddr,
 	unsigned long vaddr;
 	unsigned long ro_start;
 	unsigned long ro_end;
+<<<<<<< HEAD
 	unsigned long kernel_end;
 
 	ro_start = __pa((unsigned long)_text);
 	ro_end   = __pa((unsigned long)&data_start);
+=======
+	unsigned long kernel_start, kernel_end;
+
+	ro_start = __pa((unsigned long)_text);
+	ro_end   = __pa((unsigned long)&data_start);
+	kernel_start = __pa((unsigned long)&__init_begin);
+>>>>>>> upstream/android-13
 	kernel_end  = __pa((unsigned long)&_end);
 
 	end_paddr = start_paddr + size;
 
+<<<<<<< HEAD
 	pg_dir = pgd_offset_k(start_vaddr);
 
 #if PTRS_PER_PMD == 1
@@ -411,11 +460,16 @@ static void __init map_pages(unsigned long start_vaddr,
 #else
 	start_pmd = ((start_vaddr >> PMD_SHIFT) & (PTRS_PER_PMD - 1));
 #endif
+=======
+	/* for 2-level configuration PTRS_PER_PMD is 0 so start_pmd will be 0 */
+	start_pmd = ((start_vaddr >> PMD_SHIFT) & (PTRS_PER_PMD - 1));
+>>>>>>> upstream/android-13
 	start_pte = ((start_vaddr >> PAGE_SHIFT) & (PTRS_PER_PTE - 1));
 
 	address = start_paddr;
 	vaddr = start_vaddr;
 	while (address < end_paddr) {
+<<<<<<< HEAD
 #if PTRS_PER_PMD == 1
 		pmd = (pmd_t *)__pa(pg_dir);
 #else
@@ -476,6 +530,58 @@ static void __init map_pages(unsigned long start_vaddr,
 					if (address >= ro_start && address < kernel_end)
 						pte = pte_mkhuge(pte);
 				}
+=======
+		pgd_t *pgd = pgd_offset_k(vaddr);
+		p4d_t *p4d = p4d_offset(pgd, vaddr);
+		pud_t *pud = pud_offset(p4d, vaddr);
+
+#if CONFIG_PGTABLE_LEVELS == 3
+		if (pud_none(*pud)) {
+			pmd = memblock_alloc(PAGE_SIZE << PMD_TABLE_ORDER,
+					     PAGE_SIZE << PMD_TABLE_ORDER);
+			if (!pmd)
+				panic("pmd allocation failed.\n");
+			pud_populate(NULL, pud, pmd);
+		}
+#endif
+
+		pmd = pmd_offset(pud, vaddr);
+		for (tmp1 = start_pmd; tmp1 < PTRS_PER_PMD; tmp1++, pmd++) {
+			if (pmd_none(*pmd)) {
+				pg_table = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+				if (!pg_table)
+					panic("page table allocation failed\n");
+				pmd_populate_kernel(NULL, pmd, pg_table);
+			}
+
+			pg_table = pte_offset_kernel(pmd, vaddr);
+			for (tmp2 = start_pte; tmp2 < PTRS_PER_PTE; tmp2++, pg_table++) {
+				pte_t pte;
+				pgprot_t prot;
+				bool huge = false;
+
+				if (force) {
+					prot = pgprot;
+				} else if (address < kernel_start || address >= kernel_end) {
+					/* outside kernel memory */
+					prot = PAGE_KERNEL;
+				} else if (!kernel_set_to_readonly) {
+					/* still initializing, allow writing to RO memory */
+					prot = PAGE_KERNEL_RWX;
+					huge = true;
+				} else if (address >= ro_start) {
+					/* Code (ro) and Data areas */
+					prot = (address < ro_end) ?
+						PAGE_KERNEL_EXEC : PAGE_KERNEL;
+					huge = true;
+				} else {
+					prot = PAGE_KERNEL;
+				}
+
+				pte = __mk_pte(address, prot);
+				if (huge)
+					pte = pte_mkhuge(pte);
+>>>>>>> upstream/android-13
 
 				if (address >= end_paddr)
 					break;
@@ -494,15 +600,44 @@ static void __init map_pages(unsigned long start_vaddr,
 	}
 }
 
+<<<<<<< HEAD
 void __ref free_initmem(void)
 {
 	unsigned long init_begin = (unsigned long)__init_begin;
 	unsigned long init_end = (unsigned long)__init_end;
+=======
+void __init set_kernel_text_rw(int enable_read_write)
+{
+	unsigned long start = (unsigned long) __init_begin;
+	unsigned long end   = (unsigned long) &data_start;
+
+	map_pages(start, __pa(start), end-start,
+		PAGE_KERNEL_RWX, enable_read_write ? 1:0);
+
+	/* force the kernel to see the new page table entries */
+	flush_cache_all();
+	flush_tlb_all();
+}
+
+void free_initmem(void)
+{
+	unsigned long init_begin = (unsigned long)__init_begin;
+	unsigned long init_end = (unsigned long)__init_end;
+	unsigned long kernel_end  = (unsigned long)&_end;
+
+	/* Remap kernel text and data, but do not touch init section yet. */
+	kernel_set_to_readonly = true;
+	map_pages(init_end, __pa(init_end), kernel_end - init_end,
+		  PAGE_KERNEL, 0);
+>>>>>>> upstream/android-13
 
 	/* The init text pages are marked R-X.  We have to
 	 * flush the icache and mark them RW-
 	 *
+<<<<<<< HEAD
 	 * This is tricky, because map_pages is in the init section.
+=======
+>>>>>>> upstream/android-13
 	 * Do a dummy remap of the data section first (the data
 	 * section is already PAGE_KERNEL) to pull in the TLB entries
 	 * for map_kernel */
@@ -514,7 +649,11 @@ void __ref free_initmem(void)
 		  PAGE_KERNEL, 1);
 
 	/* force the kernel to see the new TLB entries */
+<<<<<<< HEAD
 	__flush_tlb_range(0, init_begin, init_end);
+=======
+	__flush_tlb_range(0, init_begin, kernel_end);
+>>>>>>> upstream/android-13
 
 	/* finally dump all the instructions which were cached, since the
 	 * pages are no-longer executable */
@@ -532,8 +671,14 @@ void mark_rodata_ro(void)
 {
 	/* rodata memory was already mapped with KERNEL_RO access rights by
            pagetable_init() and map_pages(). No need to do additional stuff here */
+<<<<<<< HEAD
 	printk (KERN_INFO "Write protecting the kernel read-only data: %luk\n",
 		(unsigned long)(__end_rodata - __start_rodata) >> 10);
+=======
+	unsigned long roai_size = __end_ro_after_init - __start_ro_after_init;
+
+	pr_info("Write protected read-only-after-init data: %luk\n", roai_size >> 10);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -559,11 +704,19 @@ void mark_rodata_ro(void)
 #define SET_MAP_OFFSET(x) ((void *)(((unsigned long)(x) + VM_MAP_OFFSET) \
 				     & ~(VM_MAP_OFFSET-1)))
 
+<<<<<<< HEAD
 void *parisc_vmalloc_start __read_mostly;
 EXPORT_SYMBOL(parisc_vmalloc_start);
 
 #ifdef CONFIG_PA11
 unsigned long pcxl_dma_start __read_mostly;
+=======
+void *parisc_vmalloc_start __ro_after_init;
+EXPORT_SYMBOL(parisc_vmalloc_start);
+
+#ifdef CONFIG_PA11
+unsigned long pcxl_dma_start __ro_after_init;
+>>>>>>> upstream/android-13
 #endif
 
 void __init mem_init(void)
@@ -588,10 +741,22 @@ void __init mem_init(void)
 	BUILD_BUG_ON(PGD_ENTRY_SIZE != sizeof(pgd_t));
 	BUILD_BUG_ON(PAGE_SHIFT + BITS_PER_PTE + BITS_PER_PMD + BITS_PER_PGD
 			> BITS_PER_LONG);
+<<<<<<< HEAD
 
 	high_memory = __va((max_pfn << PAGE_SHIFT));
 	set_max_mapnr(max_low_pfn);
 	free_all_bootmem();
+=======
+#if CONFIG_PGTABLE_LEVELS == 3
+	BUILD_BUG_ON(PT_INITIAL > PTRS_PER_PMD);
+#else
+	BUILD_BUG_ON(PT_INITIAL > PTRS_PER_PGD);
+#endif
+
+	high_memory = __va((max_pfn << PAGE_SHIFT));
+	set_max_mapnr(max_low_pfn);
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PA11
 	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl) {
@@ -602,23 +767,41 @@ void __init mem_init(void)
 #endif
 		parisc_vmalloc_start = SET_MAP_OFFSET(MAP_START);
 
+<<<<<<< HEAD
 	mem_init_print_info(NULL);
 
+=======
+>>>>>>> upstream/android-13
 #if 0
 	/*
 	 * Do not expose the virtual kernel memory layout to userspace.
 	 * But keep code for debugging purposes.
 	 */
 	printk("virtual kernel memory layout:\n"
+<<<<<<< HEAD
 	       "    vmalloc : 0x%px - 0x%px   (%4ld MB)\n"
 	       "    memory  : 0x%px - 0x%px   (%4ld MB)\n"
 	       "      .init : 0x%px - 0x%px   (%4ld kB)\n"
 	       "      .data : 0x%px - 0x%px   (%4ld kB)\n"
 	       "      .text : 0x%px - 0x%px   (%4ld kB)\n",
+=======
+	       "     vmalloc : 0x%px - 0x%px   (%4ld MB)\n"
+	       "     fixmap  : 0x%px - 0x%px   (%4ld kB)\n"
+	       "     memory  : 0x%px - 0x%px   (%4ld MB)\n"
+	       "       .init : 0x%px - 0x%px   (%4ld kB)\n"
+	       "       .data : 0x%px - 0x%px   (%4ld kB)\n"
+	       "       .text : 0x%px - 0x%px   (%4ld kB)\n",
+>>>>>>> upstream/android-13
 
 	       (void*)VMALLOC_START, (void*)VMALLOC_END,
 	       (VMALLOC_END - VMALLOC_START) >> 20,
 
+<<<<<<< HEAD
+=======
+	       (void *)FIXMAP_START, (void *)(FIXMAP_START + FIXMAP_SIZE),
+	       (unsigned long)(FIXMAP_SIZE / 1024),
+
+>>>>>>> upstream/android-13
 	       __va(0), high_memory,
 	       ((unsigned long)high_memory - (unsigned long)__va(0)) >> 20,
 
@@ -633,7 +816,11 @@ void __init mem_init(void)
 #endif
 }
 
+<<<<<<< HEAD
 unsigned long *empty_zero_page __read_mostly;
+=======
+unsigned long *empty_zero_page __ro_after_init;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(empty_zero_page);
 
 /*
@@ -671,7 +858,14 @@ static void __init pagetable_init(void)
 	}
 #endif
 
+<<<<<<< HEAD
 	empty_zero_page = get_memblock(PAGE_SIZE);
+=======
+	empty_zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+	if (!empty_zero_page)
+		panic("zero page allocation failed.\n");
+
+>>>>>>> upstream/android-13
 }
 
 static void __init gateway_init(void)
@@ -696,6 +890,7 @@ static void __init gateway_init(void)
 
 static void __init parisc_bootmem_free(void)
 {
+<<<<<<< HEAD
 	unsigned long zones_size[MAX_NR_ZONES] = { 0, };
 	unsigned long holes_size[MAX_NR_ZONES] = { 0, };
 	unsigned long mem_start_pfn = ~0UL, mem_end_pfn = 0, mem_size_pfn = 0;
@@ -717,6 +912,13 @@ static void __init parisc_bootmem_free(void)
 	holes_size[0] = zones_size[0] - mem_size_pfn;
 
 	free_area_init_node(0, zones_size, mem_start_pfn, holes_size);
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0, };
+
+	max_zone_pfn[0] = memblock_end_of_DRAM();
+
+	free_area_init(max_zone_pfn);
+>>>>>>> upstream/android-13
 }
 
 void __init paging_init(void)
@@ -727,11 +929,14 @@ void __init paging_init(void)
 	flush_cache_all_local(); /* start with known state */
 	flush_tlb_all_local(NULL);
 
+<<<<<<< HEAD
 	/*
 	 * Mark all memblocks as present for sparsemem using
 	 * memory_present() and then initialize sparsemem.
 	 */
 	memblocks_present();
+=======
+>>>>>>> upstream/android-13
 	sparse_init();
 	parisc_bootmem_free();
 }
@@ -788,7 +993,11 @@ unsigned long alloc_sid(void)
 	free_space_ids--;
 
 	index = find_next_zero_bit(space_id, NR_SPACE_IDS, space_id_index);
+<<<<<<< HEAD
 	space_id[index >> SHIFT_PER_LONG] |= (1L << (index & (BITS_PER_LONG - 1)));
+=======
+	space_id[BIT_WORD(index)] |= BIT_MASK(index);
+>>>>>>> upstream/android-13
 	space_id_index = index;
 
 	spin_unlock(&sid_lock);
@@ -799,6 +1008,7 @@ unsigned long alloc_sid(void)
 void free_sid(unsigned long spaceid)
 {
 	unsigned long index = spaceid >> SPACEID_SHIFT;
+<<<<<<< HEAD
 	unsigned long *dirty_space_offset;
 
 	dirty_space_offset = dirty_space_id + (index >> SHIFT_PER_LONG);
@@ -809,6 +1019,18 @@ void free_sid(unsigned long spaceid)
 	BUG_ON(*dirty_space_offset & (1L << index)); /* attempt to free space id twice */
 
 	*dirty_space_offset |= (1L << index);
+=======
+	unsigned long *dirty_space_offset, mask;
+
+	dirty_space_offset = &dirty_space_id[BIT_WORD(index)];
+	mask = BIT_MASK(index);
+
+	spin_lock(&sid_lock);
+
+	BUG_ON(*dirty_space_offset & mask); /* attempt to free space id twice */
+
+	*dirty_space_offset |= mask;
+>>>>>>> upstream/android-13
 	dirty_space_ids++;
 
 	spin_unlock(&sid_lock);
@@ -887,9 +1109,15 @@ void flush_tlb_all(void)
 {
 	int do_recycle;
 
+<<<<<<< HEAD
 	__inc_irq_stat(irq_tlb_count);
 	do_recycle = 0;
 	spin_lock(&sid_lock);
+=======
+	do_recycle = 0;
+	spin_lock(&sid_lock);
+	__inc_irq_stat(irq_tlb_count);
+>>>>>>> upstream/android-13
 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
@@ -908,13 +1136,19 @@ void flush_tlb_all(void)
 #else
 void flush_tlb_all(void)
 {
+<<<<<<< HEAD
 	__inc_irq_stat(irq_tlb_count);
 	spin_lock(&sid_lock);
+=======
+	spin_lock(&sid_lock);
+	__inc_irq_stat(irq_tlb_count);
+>>>>>>> upstream/android-13
 	flush_tlb_all_local(NULL);
 	recycle_sids();
 	spin_unlock(&sid_lock);
 }
 #endif
+<<<<<<< HEAD
 
 #ifdef CONFIG_BLK_DEV_INITRD
 void free_initrd_mem(unsigned long start, unsigned long end)
@@ -922,3 +1156,5 @@ void free_initrd_mem(unsigned long start, unsigned long end)
 	free_reserved_area((void *)start, (void *)end, -1, "initrd");
 }
 #endif
+=======
+>>>>>>> upstream/android-13

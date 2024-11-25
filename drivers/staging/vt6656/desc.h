@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: desc.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose:The header file of descriptor
  *
  * Revision History:
@@ -18,6 +25,10 @@
 #ifndef __DESC_H__
 #define __DESC_H__
 
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/mm.h>
 
@@ -36,6 +47,7 @@
 /*
  * bits in the RSR register
  */
+<<<<<<< HEAD
 #define RSR_ADDRBROAD       0x80
 #define RSR_ADDRMULTI       0x40
 #define RSR_ADDRUNI         0x00
@@ -45,23 +57,49 @@
 #define RSR_CRCOK           0x04
 #define RSR_BCNSSIDOK       0x02
 #define RSR_ADDROK          0x01
+=======
+#define RSR_ADDRBROAD       BIT(7)
+#define RSR_ADDRMULTI       BIT(6)
+#define RSR_ADDRUNI         0x00
+#define RSR_IVLDTYP         BIT(5)	/* invalid packet type */
+#define RSR_IVLDLEN         BIT(4)	/* invalid len (> 2312 byte) */
+#define RSR_BSSIDOK         BIT(3)
+#define RSR_CRCOK           BIT(2)
+#define RSR_BCNSSIDOK       BIT(1)
+#define RSR_ADDROK          BIT(0)
+>>>>>>> upstream/android-13
 
 /*
  * bits in the new RSR register
  */
+<<<<<<< HEAD
 #define NEWRSR_DECRYPTOK    0x10
 #define NEWRSR_CFPIND       0x08
 #define NEWRSR_HWUTSF       0x04
 #define NEWRSR_BCNHITAID    0x02
 #define NEWRSR_BCNHITAID0   0x01
+=======
+#define NEWRSR_DECRYPTOK    BIT(4)
+#define NEWRSR_CFPIND       BIT(3)
+#define NEWRSR_HWUTSF       BIT(2)
+#define NEWRSR_BCNHITAID    BIT(1)
+#define NEWRSR_BCNHITAID0   BIT(0)
+>>>>>>> upstream/android-13
 
 /*
  * bits in the TSR register
  */
+<<<<<<< HEAD
 #define TSR_RETRYTMO        0x08
 #define TSR_TMO             0x04
 #define TSR_ACKDATA         0x02
 #define TSR_VALID           0x01
+=======
+#define TSR_RETRYTMO        BIT(3)
+#define TSR_TMO             BIT(2)
+#define TSR_ACKDATA         BIT(1)
+#define TSR_VALID           BIT(0)
+>>>>>>> upstream/android-13
 
 #define FIFOCTL_AUTO_FB_1   0x1000
 #define FIFOCTL_AUTO_FB_0   0x0800

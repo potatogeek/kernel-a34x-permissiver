@@ -3,7 +3,11 @@
  *
  * Module Name: utprint - Formatted printing routines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -332,7 +336,16 @@ int vsnprintf(char *string, acpi_size size, const char *format, va_list args)
 	int i;
 
 	pos = string;
+<<<<<<< HEAD
 	end = string + size;
+=======
+
+	if (size != ACPI_UINT32_MAX) {
+		end = string + size;
+	} else {
+		end = ACPI_CAST_PTR(char, ACPI_UINT32_MAX);
+	}
+>>>>>>> upstream/android-13
 
 	for (; *format; ++format) {
 		if (*format != '%') {
@@ -470,7 +483,11 @@ int vsnprintf(char *string, acpi_size size, const char *format, va_list args)
 		case 'X':
 
 			type |= ACPI_FORMAT_UPPER;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 		case 'x':
 

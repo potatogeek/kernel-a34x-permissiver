@@ -5,7 +5,11 @@ Boot time assembly of RAID arrays
 ---------------------------------
 
 Tools that manage md devices can be found at
+<<<<<<< HEAD
    http://www.kernel.org/pub/linux/utils/raid/
+=======
+   https://www.kernel.org/pub/linux/utils/raid/
+>>>>>>> upstream/android-13
 
 
 You can boot with your md device with the following kernel command
@@ -221,7 +225,11 @@ All md devices contain:
 
   layout
      The ``layout`` for the array for the particular level.  This is
+<<<<<<< HEAD
      simply a number that is interpretted differently by different
+=======
+     simply a number that is interpreted differently by different
+>>>>>>> upstream/android-13
      levels.  It can be written while assembling an array.
 
   array_size
@@ -426,6 +434,13 @@ All md devices contain:
      The accepted values when writing to this file are ``ppl`` and ``resync``,
      used to enable and disable PPL.
 
+<<<<<<< HEAD
+=======
+  uuid
+     This indicates the UUID of the array in the following format:
+     xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+>>>>>>> upstream/android-13
 
 As component devices are added to an md array, they appear in the ``md``
 directory as new directories named::
@@ -756,3 +771,9 @@ These currently include:
       The cache mode for raid5. raid5 could include an extra disk for
       caching. The mode can be "write-throuth" and "write-back". The
       default is "write-through".
+<<<<<<< HEAD
+=======
+
+  ppl_write_hint
+      NVMe stream ID to be set for each PPL write request.
+>>>>>>> upstream/android-13

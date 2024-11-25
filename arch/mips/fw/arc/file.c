@@ -13,6 +13,7 @@
 #include <asm/sgialib.h>
 
 LONG
+<<<<<<< HEAD
 ArcGetDirectoryEntry(ULONG FileID, struct linux_vdirent *Buffer,
 		     ULONG N, ULONG *Count)
 {
@@ -32,22 +33,28 @@ ArcClose(ULONG FileID)
 }
 
 LONG
+=======
+>>>>>>> upstream/android-13
 ArcRead(ULONG FileID, VOID *Buffer, ULONG N, ULONG *Count)
 {
 	return ARC_CALL4(read, FileID, Buffer, N, Count);
 }
 
 LONG
+<<<<<<< HEAD
 ArcGetReadStatus(ULONG FileID)
 {
 	return ARC_CALL1(get_rstatus, FileID);
 }
 
 LONG
+=======
+>>>>>>> upstream/android-13
 ArcWrite(ULONG FileID, PVOID Buffer, ULONG N, PULONG Count)
 {
 	return ARC_CALL4(write, FileID, Buffer, N, Count);
 }
+<<<<<<< HEAD
 
 LONG
 ArcSeek(ULONG FileID, struct linux_bigint *Position, enum linux_seekmode SeekMode)
@@ -72,3 +79,5 @@ LONG ArcSetFileInformation(ULONG FileID, ULONG AttributeFlags,
 {
 	return ARC_CALL3(set_finfo, FileID, AttributeFlags, AttributeMask);
 }
+=======
+>>>>>>> upstream/android-13

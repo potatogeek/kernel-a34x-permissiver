@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __NVKM_FALCON_H__
 #define __NVKM_FALCON_H__
+=======
+/* SPDX-License-Identifier: MIT */
+#ifndef __NVKM_FLCNEN_H__
+#define __NVKM_FLCNEN_H__
+>>>>>>> upstream/android-13
 #define nvkm_falcon(p) container_of((p), struct nvkm_falcon, engine)
 #include <core/engine.h>
 struct nvkm_fifo_chan;
@@ -23,12 +29,20 @@ struct nvkm_falcon {
 
 	struct mutex mutex;
 	struct mutex dmem_mutex;
+<<<<<<< HEAD
+=======
+	bool oneinit;
+
+>>>>>>> upstream/android-13
 	const struct nvkm_subdev *user;
 
 	u8 version;
 	u8 secret;
 	bool debug;
+<<<<<<< HEAD
 	bool has_emem;
+=======
+>>>>>>> upstream/android-13
 
 	struct nvkm_memory *core;
 	bool external;
@@ -63,7 +77,11 @@ int nvkm_falcon_get(struct nvkm_falcon *, const struct nvkm_subdev *);
 void nvkm_falcon_put(struct nvkm_falcon *, const struct nvkm_subdev *);
 
 int nvkm_falcon_new_(const struct nvkm_falcon_func *, struct nvkm_device *,
+<<<<<<< HEAD
 		     int index, bool enable, u32 addr, struct nvkm_engine **);
+=======
+		     enum nvkm_subdev_type, int inst, bool enable, u32 addr, struct nvkm_engine **);
+>>>>>>> upstream/android-13
 
 struct nvkm_falcon_func {
 	struct {
@@ -76,9 +94,20 @@ struct nvkm_falcon_func {
 	} data;
 	void (*init)(struct nvkm_falcon *);
 	void (*intr)(struct nvkm_falcon *, struct nvkm_fifo_chan *);
+<<<<<<< HEAD
 	void (*load_imem)(struct nvkm_falcon *, void *, u32, u32, u16, u8, bool);
 	void (*load_dmem)(struct nvkm_falcon *, void *, u32, u32, u8);
 	void (*read_dmem)(struct nvkm_falcon *, u32, u32, u8, void *);
+=======
+
+	u32 debug;
+	u32 fbif;
+
+	void (*load_imem)(struct nvkm_falcon *, void *, u32, u32, u16, u8, bool);
+	void (*load_dmem)(struct nvkm_falcon *, void *, u32, u32, u8);
+	void (*read_dmem)(struct nvkm_falcon *, u32, u32, u8, void *);
+	u32 emem_addr;
+>>>>>>> upstream/android-13
 	void (*bind_context)(struct nvkm_falcon *, struct nvkm_memory *);
 	int (*wait_for_halt)(struct nvkm_falcon *, u32);
 	int (*clear_interrupt)(struct nvkm_falcon *, u32);
@@ -86,6 +115,16 @@ struct nvkm_falcon_func {
 	void (*start)(struct nvkm_falcon *);
 	int (*enable)(struct nvkm_falcon *falcon);
 	void (*disable)(struct nvkm_falcon *falcon);
+<<<<<<< HEAD
+=======
+	int (*reset)(struct nvkm_falcon *);
+
+	struct {
+		u32 head;
+		u32 tail;
+		u32 stride;
+	} cmdq, msgq;
+>>>>>>> upstream/android-13
 
 	struct nvkm_sclass sclass[];
 };
@@ -122,5 +161,8 @@ int nvkm_falcon_clear_interrupt(struct nvkm_falcon *, u32);
 int nvkm_falcon_enable(struct nvkm_falcon *);
 void nvkm_falcon_disable(struct nvkm_falcon *);
 int nvkm_falcon_reset(struct nvkm_falcon *);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif

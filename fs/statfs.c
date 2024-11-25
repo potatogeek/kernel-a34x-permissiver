@@ -29,6 +29,11 @@ static int flags_by_mnt(int mnt_flags)
 		flags |= ST_NODIRATIME;
 	if (mnt_flags & MNT_RELATIME)
 		flags |= ST_RELATIME;
+<<<<<<< HEAD
+=======
+	if (mnt_flags & MNT_NOSYMFOLLOW)
+		flags |= ST_NOSYMFOLLOW;
+>>>>>>> upstream/android-13
 	return flags;
 }
 
@@ -67,6 +72,23 @@ static int statfs_by_dentry(struct dentry *dentry, struct kstatfs *buf)
 	return retval;
 }
 
+<<<<<<< HEAD
+=======
+int vfs_get_fsid(struct dentry *dentry, __kernel_fsid_t *fsid)
+{
+	struct kstatfs st;
+	int error;
+
+	error = statfs_by_dentry(dentry, &st);
+	if (error)
+		return error;
+
+	*fsid = st.f_fsid;
+	return 0;
+}
+EXPORT_SYMBOL(vfs_get_fsid);
+
+>>>>>>> upstream/android-13
 int vfs_statfs(const struct path *path, struct kstatfs *buf)
 {
 	int error;
@@ -219,7 +241,11 @@ SYSCALL_DEFINE3(fstatfs64, unsigned int, fd, size_t, sz, struct statfs64 __user 
 
 static int vfs_ustat(dev_t dev, struct kstatfs *sbuf)
 {
+<<<<<<< HEAD
 	struct super_block *s = user_get_super(dev);
+=======
+	struct super_block *s = user_get_super(dev, false);
+>>>>>>> upstream/android-13
 	int err;
 	if (!s)
 		return -EINVAL;
@@ -239,7 +265,14 @@ SYSCALL_DEFINE2(ustat, unsigned, dev, struct ustat __user *, ubuf)
 
 	memset(&tmp,0,sizeof(struct ustat));
 	tmp.f_tfree = sbuf.f_bfree;
+<<<<<<< HEAD
 	tmp.f_tinode = sbuf.f_ffree;
+=======
+	if (IS_ENABLED(CONFIG_ARCH_32BIT_USTAT_F_TINODE))
+		tmp.f_tinode = min_t(u64, sbuf.f_ffree, UINT_MAX);
+	else
+		tmp.f_tinode = sbuf.f_ffree;
+>>>>>>> upstream/android-13
 
 	return copy_to_user(ubuf, &tmp, sizeof(struct ustat)) ? -EFAULT : 0;
 }

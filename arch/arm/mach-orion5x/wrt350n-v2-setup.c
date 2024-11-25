@@ -18,7 +18,11 @@
 #include <linux/leds.h>
 #include <linux/gpio_keys.h>
 #include <linux/input.h>
+<<<<<<< HEAD
 #include <net/dsa.h>
+=======
+#include <linux/platform_data/dsa.h>
+>>>>>>> upstream/android-13
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/pci.h>

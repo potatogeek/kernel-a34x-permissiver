@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 1996-2000 Russell King - Converted to ARM.
  *  Original Copyright (C) 1995  Linus Torvalds
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 1996-2000 Russell King - Converted to ARM.
+ *  Original Copyright (C) 1995  Linus Torvalds
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/delay.h>
@@ -21,7 +28,10 @@ typedef void (*phys_reset_t)(unsigned long, bool);
 /*
  * Function pointers to optional machine specific functions
  */
+<<<<<<< HEAD
 void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+=======
+>>>>>>> upstream/android-13
 void (*pm_power_off)(void);
 EXPORT_SYMBOL(pm_power_off);
 
@@ -91,11 +101,19 @@ void soft_restart(unsigned long addr)
  * to execute e.g. a RAM-based pin loop is not sufficient. This allows the
  * kexec'd kernel to use any and all RAM as it sees fit, without having to
  * avoid any code or data used by any SW CPU pin loop. The CPU hotplug
+<<<<<<< HEAD
  * functionality embodied in disable_nonboot_cpus() to achieve this.
  */
 void machine_shutdown(void)
 {
 	disable_nonboot_cpus();
+=======
+ * functionality embodied in smp_shutdown_nonboot_cpus() to achieve this.
+ */
+void machine_shutdown(void)
+{
+	smp_shutdown_nonboot_cpus(reboot_cpu);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -141,10 +159,14 @@ void machine_restart(char *cmd)
 	local_irq_disable();
 	smp_send_stop();
 
+<<<<<<< HEAD
 	if (arm_pm_restart)
 		arm_pm_restart(reboot_mode, cmd);
 	else
 		do_kernel_restart(cmd);
+=======
+	do_kernel_restart(cmd);
+>>>>>>> upstream/android-13
 
 	/* Give a grace period for failure to restart of 1s */
 	mdelay(1000);

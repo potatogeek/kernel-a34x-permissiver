@@ -105,13 +105,23 @@
 ENTRY(crc32_le_vgfm_16)
 	larl	%r5,.Lconstants_CRC_32_LE
 	j	crc32_le_vgfm_generic
+<<<<<<< HEAD
+=======
+ENDPROC(crc32_le_vgfm_16)
+>>>>>>> upstream/android-13
 
 ENTRY(crc32c_le_vgfm_16)
 	larl	%r5,.Lconstants_CRC_32C_LE
 	j	crc32_le_vgfm_generic
+<<<<<<< HEAD
 
 
 crc32_le_vgfm_generic:
+=======
+ENDPROC(crc32c_le_vgfm_16)
+
+ENTRY(crc32_le_vgfm_generic)
+>>>>>>> upstream/android-13
 	/* Load CRC-32 constants */
 	VLM	CONST_PERM_LE2BE,CONST_CRC_POLY,0,%r5
 
@@ -267,5 +277,9 @@ crc32_le_vgfm_generic:
 .Ldone:
 	VLGVF	%r2,%v2,2
 	BR_EX	%r14
+<<<<<<< HEAD
+=======
+ENDPROC(crc32_le_vgfm_generic)
+>>>>>>> upstream/android-13
 
 .previous

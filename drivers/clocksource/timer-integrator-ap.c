@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Integrator/AP timer driver
  * Copyright (C) 2000-2003 Deep Blue Solutions Ltd
  * Copyright (c) 2014, Linaro Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -136,6 +143,7 @@ static struct clock_event_device integrator_clockevent = {
 	.rating			= 300,
 };
 
+<<<<<<< HEAD
 static struct irqaction integrator_timer_irq = {
 	.name		= "timer",
 	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
@@ -143,6 +151,8 @@ static struct irqaction integrator_timer_irq = {
 	.dev_id		= &integrator_clockevent,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int integrator_clockevent_init(unsigned long inrate,
 				      void __iomem *base, int irq)
 {
@@ -162,7 +172,13 @@ static int integrator_clockevent_init(unsigned long inrate,
 	timer_reload = rate / HZ;
 	writel(ctrl, clkevt_base + TIMER_CTRL);
 
+<<<<<<< HEAD
 	ret = setup_irq(irq, &integrator_timer_irq);
+=======
+	ret = request_irq(irq, integrator_timer_interrupt,
+			  IRQF_TIMER | IRQF_IRQPOLL, "timer",
+			  &integrator_clockevent);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -189,7 +205,11 @@ static int __init integrator_ap_timer_init_of(struct device_node *node)
 
 	clk = of_clk_get(node, 0);
 	if (IS_ERR(clk)) {
+<<<<<<< HEAD
 		pr_err("No clock for %s\n", node->name);
+=======
+		pr_err("No clock for %pOFn\n", node);
+>>>>>>> upstream/android-13
 		return PTR_ERR(clk);
 	}
 	clk_prepare_enable(clk);

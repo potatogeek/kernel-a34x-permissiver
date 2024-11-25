@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  skl-nhlt.c - Intel SKL Platform NHLT parsing
  *
@@ -5,6 +9,7 @@
  *  Author: Sanjiv Kumar <sanjiv.kumar@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -69,6 +74,15 @@ void skl_nhlt_free(struct nhlt_acpi_table *nhlt)
 	memunmap((void *) nhlt);
 }
 
+=======
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+#include <linux/pci.h>
+#include <sound/intel-nhlt.h>
+#include "skl.h"
+#include "skl-i2s.h"
+
+>>>>>>> upstream/android-13
 static struct nhlt_specific_cfg *skl_get_specific_cfg(
 		struct device *dev, struct nhlt_fmt *fmt,
 		u8 no_ch, u32 rate, u16 bps, u8 linktype)
@@ -135,7 +149,11 @@ static bool skl_check_ep_match(struct device *dev, struct nhlt_endpoint *epnt,
 }
 
 struct nhlt_specific_cfg
+<<<<<<< HEAD
 *skl_get_ep_blob(struct skl *skl, u32 instance, u8 link_type,
+=======
+*skl_get_ep_blob(struct skl_dev *skl, u32 instance, u8 link_type,
+>>>>>>> upstream/android-13
 			u8 s_fmt, u8 num_ch, u32 s_rate,
 			u8 dirn, u8 dev_type)
 {
@@ -171,6 +189,7 @@ struct nhlt_specific_cfg
 	return NULL;
 }
 
+<<<<<<< HEAD
 int skl_get_dmic_geo(struct skl *skl)
 {
 	struct nhlt_acpi_table *nhlt = (struct nhlt_acpi_table *)skl->nhlt;
@@ -210,6 +229,8 @@ int skl_get_dmic_geo(struct skl *skl)
 	return dmic_geo;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void skl_nhlt_trim_space(char *trim)
 {
 	char *s = trim;
@@ -225,7 +246,11 @@ static void skl_nhlt_trim_space(char *trim)
 	s[cnt] = '\0';
 }
 
+<<<<<<< HEAD
 int skl_nhlt_update_topology_bin(struct skl *skl)
+=======
+int skl_nhlt_update_topology_bin(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct nhlt_acpi_table *nhlt = (struct nhlt_acpi_table *)skl->nhlt;
 	struct hdac_bus *bus = skl_to_bus(skl);
@@ -244,12 +269,21 @@ int skl_nhlt_update_topology_bin(struct skl *skl)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t skl_nhlt_platform_id_show(struct device *dev,
 			struct device_attribute *attr, char *buf)
 {
 	struct pci_dev *pci = to_pci_dev(dev);
 	struct hdac_bus *bus = pci_get_drvdata(pci);
 	struct skl *skl = bus_to_skl(bus);
+=======
+static ssize_t platform_id_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct pci_dev *pci = to_pci_dev(dev);
+	struct hdac_bus *bus = pci_get_drvdata(pci);
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	struct nhlt_acpi_table *nhlt = (struct nhlt_acpi_table *)skl->nhlt;
 	char platform_id[32];
 
@@ -261,9 +295,15 @@ static ssize_t skl_nhlt_platform_id_show(struct device *dev,
 	return sprintf(buf, "%s\n", platform_id);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(platform_id, 0444, skl_nhlt_platform_id_show, NULL);
 
 int skl_nhlt_create_sysfs(struct skl *skl)
+=======
+static DEVICE_ATTR_RO(platform_id);
+
+int skl_nhlt_create_sysfs(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &skl->pci->dev;
 
@@ -273,11 +313,20 @@ int skl_nhlt_create_sysfs(struct skl *skl)
 	return 0;
 }
 
+<<<<<<< HEAD
 void skl_nhlt_remove_sysfs(struct skl *skl)
 {
 	struct device *dev = &skl->pci->dev;
 
 	sysfs_remove_file(&dev->kobj, &dev_attr_platform_id.attr);
+=======
+void skl_nhlt_remove_sysfs(struct skl_dev *skl)
+{
+	struct device *dev = &skl->pci->dev;
+
+	if (skl->nhlt)
+		sysfs_remove_file(&dev->kobj, &dev_attr_platform_id.attr);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -285,7 +334,11 @@ void skl_nhlt_remove_sysfs(struct skl *skl)
  * stores all possible rates supported in a rate table for the corresponding
  * sclk/sclkfs.
  */
+<<<<<<< HEAD
 static void skl_get_ssp_clks(struct skl *skl, struct skl_ssp_clk *ssp_clks,
+=======
+static void skl_get_ssp_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks,
+>>>>>>> upstream/android-13
 				struct nhlt_fmt *fmt, u8 id)
 {
 	struct skl_i2s_config_blob_ext *i2s_config_ext;
@@ -294,7 +347,11 @@ static void skl_get_ssp_clks(struct skl *skl, struct skl_ssp_clk *ssp_clks,
 	struct skl_ssp_clk *sclk, *sclkfs;
 	struct nhlt_fmt_cfg *fmt_cfg;
 	struct wav_fmt_ext *wav_fmt;
+<<<<<<< HEAD
 	unsigned long rate = 0;
+=======
+	unsigned long rate;
+>>>>>>> upstream/android-13
 	bool present = false;
 	int rate_index = 0;
 	u16 channels, bps;
@@ -383,7 +440,11 @@ static void skl_get_ssp_clks(struct skl *skl, struct skl_ssp_clk *ssp_clks,
 	}
 }
 
+<<<<<<< HEAD
 static void skl_get_mclk(struct skl *skl, struct skl_ssp_clk *mclk,
+=======
+static void skl_get_mclk(struct skl_dev *skl, struct skl_ssp_clk *mclk,
+>>>>>>> upstream/android-13
 				struct nhlt_fmt *fmt, u8 id)
 {
 	struct skl_i2s_config_blob_ext *i2s_config_ext;
@@ -427,7 +488,11 @@ static void skl_get_mclk(struct skl *skl, struct skl_ssp_clk *mclk,
 	mclk[id].parent_name = parent->name;
 }
 
+<<<<<<< HEAD
 void skl_get_clks(struct skl *skl, struct skl_ssp_clk *ssp_clks)
+=======
+void skl_get_clks(struct skl_dev *skl, struct skl_ssp_clk *ssp_clks)
+>>>>>>> upstream/android-13
 {
 	struct nhlt_acpi_table *nhlt = (struct nhlt_acpi_table *)skl->nhlt;
 	struct nhlt_endpoint *epnt;

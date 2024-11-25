@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2018 Felix Fietkau <nbd@nbd.name>
  *
@@ -16,6 +17,21 @@
 #include "mt76.h"
 
 #define REORDER_TIMEOUT (HZ / 10)
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (C) 2018 Felix Fietkau <nbd@nbd.name>
+ */
+#include "mt76.h"
+
+static unsigned long mt76_aggr_tid_to_timeo(u8 tidno)
+{
+	/* Currently voice traffic (AC_VO) always runs without aggregation,
+	 * no special handling is needed. AC_BE/AC_BK use tids 0-3. Just check
+	 * for non AC_BK/AC_BE and set smaller timeout for it. */
+	return HZ / (tidno >= 4 ? 25 : 10);
+}
+>>>>>>> upstream/android-13
 
 static void
 mt76_aggr_release(struct mt76_rx_tid *tid, struct sk_buff_head *frames, int idx)
@@ -34,8 +50,14 @@ mt76_aggr_release(struct mt76_rx_tid *tid, struct sk_buff_head *frames, int idx)
 }
 
 static void
+<<<<<<< HEAD
 mt76_rx_aggr_release_frames(struct mt76_rx_tid *tid, struct sk_buff_head *frames,
 			 u16 head)
+=======
+mt76_rx_aggr_release_frames(struct mt76_rx_tid *tid,
+			    struct sk_buff_head *frames,
+			    u16 head)
+>>>>>>> upstream/android-13
 {
 	int idx;
 
@@ -74,15 +96,25 @@ mt76_rx_aggr_check_release(struct mt76_rx_tid *tid, struct sk_buff_head *frames)
 	for (idx = (tid->head + 1) % tid->size;
 	     idx != start && nframes;
 	     idx = (idx + 1) % tid->size) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		skb = tid->reorder_buf[idx];
 		if (!skb)
 			continue;
 
 		nframes--;
+<<<<<<< HEAD
 		status = (struct mt76_rx_status *) skb->cb;
 		if (!time_after(jiffies, status->reorder_time +
 					 REORDER_TIMEOUT))
+=======
+		status = (struct mt76_rx_status *)skb->cb;
+		if (!time_after32(jiffies,
+				  status->reorder_time +
+				  mt76_aggr_tid_to_timeo(tid->num)))
+>>>>>>> upstream/android-13
 			continue;
 
 		mt76_rx_aggr_release_frames(tid, frames, status->seqno);
@@ -112,7 +144,11 @@ mt76_rx_aggr_reorder_work(struct work_struct *work)
 
 	if (nframes)
 		ieee80211_queue_delayed_work(tid->dev->hw, &tid->reorder_work,
+<<<<<<< HEAD
 					     REORDER_TIMEOUT);
+=======
+					     mt76_aggr_tid_to_timeo(tid->num));
+>>>>>>> upstream/android-13
 	mt76_rx_complete(dev, &frames, NULL);
 
 	rcu_read_unlock();
@@ -122,10 +158,18 @@ mt76_rx_aggr_reorder_work(struct work_struct *work)
 static void
 mt76_rx_aggr_check_ctl(struct sk_buff *skb, struct sk_buff_head *frames)
 {
+<<<<<<< HEAD
 	struct mt76_rx_status *status = (struct mt76_rx_status *) skb->cb;
 	struct ieee80211_bar *bar = (struct ieee80211_bar *) skb->data;
 	struct mt76_wcid *wcid = status->wcid;
 	struct mt76_rx_tid *tid;
+=======
+	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
+	struct ieee80211_bar *bar = mt76_skb_get_hdr(skb);
+	struct mt76_wcid *wcid = status->wcid;
+	struct mt76_rx_tid *tid;
+	u8 tidno = status->qos_ctl & IEEE80211_QOS_CTL_TID_MASK;
+>>>>>>> upstream/android-13
 	u16 seqno;
 
 	if (!ieee80211_is_ctl(bar->frame_control))
@@ -134,27 +178,48 @@ mt76_rx_aggr_check_ctl(struct sk_buff *skb, struct sk_buff_head *frames)
 	if (!ieee80211_is_back_req(bar->frame_control))
 		return;
 
+<<<<<<< HEAD
 	status->tid = le16_to_cpu(bar->control) >> 12;
 	seqno = le16_to_cpu(bar->start_seq_num) >> 4;
 	tid = rcu_dereference(wcid->aggr[status->tid]);
+=======
+	status->qos_ctl = tidno = le16_to_cpu(bar->control) >> 12;
+	seqno = IEEE80211_SEQ_TO_SN(le16_to_cpu(bar->start_seq_num));
+	tid = rcu_dereference(wcid->aggr[tidno]);
+>>>>>>> upstream/android-13
 	if (!tid)
 		return;
 
 	spin_lock_bh(&tid->lock);
+<<<<<<< HEAD
 	mt76_rx_aggr_release_frames(tid, frames, seqno);
 	mt76_rx_aggr_release_head(tid, frames);
+=======
+	if (!tid->stopped) {
+		mt76_rx_aggr_release_frames(tid, frames, seqno);
+		mt76_rx_aggr_release_head(tid, frames);
+	}
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&tid->lock);
 }
 
 void mt76_rx_aggr_reorder(struct sk_buff *skb, struct sk_buff_head *frames)
 {
+<<<<<<< HEAD
 	struct mt76_rx_status *status = (struct mt76_rx_status *) skb->cb;
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+=======
+	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
+>>>>>>> upstream/android-13
 	struct mt76_wcid *wcid = status->wcid;
 	struct ieee80211_sta *sta;
 	struct mt76_rx_tid *tid;
 	bool sn_less;
 	u16 seqno, head, size, idx;
+<<<<<<< HEAD
+=======
+	u8 tidno = status->qos_ctl & IEEE80211_QOS_CTL_TID_MASK;
+>>>>>>> upstream/android-13
 	u8 ackp;
 
 	__skb_queue_tail(frames, skb);
@@ -163,18 +228,30 @@ void mt76_rx_aggr_reorder(struct sk_buff *skb, struct sk_buff_head *frames)
 	if (!sta)
 		return;
 
+<<<<<<< HEAD
 	if (!status->aggr) {
+=======
+	if (!status->aggr && !(status->flag & RX_FLAG_8023)) {
+>>>>>>> upstream/android-13
 		mt76_rx_aggr_check_ctl(skb, frames);
 		return;
 	}
 
 	/* not part of a BA session */
+<<<<<<< HEAD
 	ackp = *ieee80211_get_qos_ctl(hdr) & IEEE80211_QOS_CTL_ACK_POLICY_MASK;
+=======
+	ackp = status->qos_ctl & IEEE80211_QOS_CTL_ACK_POLICY_MASK;
+>>>>>>> upstream/android-13
 	if (ackp != IEEE80211_QOS_CTL_ACK_POLICY_BLOCKACK &&
 	    ackp != IEEE80211_QOS_CTL_ACK_POLICY_NORMAL)
 		return;
 
+<<<<<<< HEAD
 	tid = rcu_dereference(wcid->aggr[status->tid]);
+=======
+	tid = rcu_dereference(wcid->aggr[tidno]);
+>>>>>>> upstream/android-13
 	if (!tid)
 		return;
 
@@ -233,7 +310,12 @@ void mt76_rx_aggr_reorder(struct sk_buff *skb, struct sk_buff_head *frames)
 	tid->nframes++;
 	mt76_rx_aggr_release_head(tid, frames);
 
+<<<<<<< HEAD
 	ieee80211_queue_delayed_work(tid->dev->hw, &tid->reorder_work, REORDER_TIMEOUT);
+=======
+	ieee80211_queue_delayed_work(tid->dev->hw, &tid->reorder_work,
+				     mt76_aggr_tid_to_timeo(tid->num));
+>>>>>>> upstream/android-13
 
 out:
 	spin_unlock_bh(&tid->lock);
@@ -253,6 +335,10 @@ int mt76_rx_aggr_start(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tidno,
 	tid->dev = dev;
 	tid->head = ssn;
 	tid->size = size;
+<<<<<<< HEAD
+=======
+	tid->num = tidno;
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&tid->reorder_work, mt76_rx_aggr_reorder_work);
 	spin_lock_init(&tid->lock);
 
@@ -267,8 +353,11 @@ static void mt76_rx_aggr_shutdown(struct mt76_dev *dev, struct mt76_rx_tid *tid)
 	u16 size = tid->size;
 	int i;
 
+<<<<<<< HEAD
 	cancel_delayed_work(&tid->reorder_work);
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_bh(&tid->lock);
 
 	tid->stopped = true;
@@ -284,10 +373,16 @@ static void mt76_rx_aggr_shutdown(struct mt76_dev *dev, struct mt76_rx_tid *tid)
 	}
 
 	spin_unlock_bh(&tid->lock);
+<<<<<<< HEAD
+=======
+
+	cancel_delayed_work_sync(&tid->reorder_work);
+>>>>>>> upstream/android-13
 }
 
 void mt76_rx_aggr_stop(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tidno)
 {
+<<<<<<< HEAD
 	struct mt76_rx_tid *tid;
 
 	rcu_read_lock();
@@ -300,5 +395,15 @@ void mt76_rx_aggr_stop(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tidno)
 	}
 
 	rcu_read_unlock();
+=======
+	struct mt76_rx_tid *tid = NULL;
+
+	tid = rcu_replace_pointer(wcid->aggr[tidno], tid,
+				  lockdep_is_held(&dev->mutex));
+	if (tid) {
+		mt76_rx_aggr_shutdown(dev, tid);
+		kfree_rcu(tid, rcu_head);
+	}
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mt76_rx_aggr_stop);

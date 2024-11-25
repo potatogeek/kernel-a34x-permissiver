@@ -79,6 +79,10 @@ test_span_gre_ttl()
 	mirror_test v$h1 192.0.2.1 192.0.2.2 $h3 77 0
 
 	ip link set dev $tundev type $type ttl 50
+<<<<<<< HEAD
+=======
+	sleep 2
+>>>>>>> upstream/android-13
 	mirror_test v$h1 192.0.2.1 192.0.2.2 $h3 77 10
 
 	ip link set dev $tundev type $type ttl 100

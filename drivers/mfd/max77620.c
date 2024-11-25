@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Maxim MAX77620 MFD Driver
  *
@@ -7,10 +11,13 @@
  *	Laxman Dewangan <ldewangan@nvidia.com>
  *	Chaitanya Bandi <bandik@nvidia.com>
  *	Mallikarjun Kasoju <mkasoju@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /****************** Teminology used in driver ********************
@@ -37,6 +44,11 @@
 #include <linux/regmap.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
+=======
+static struct max77620_chip *max77620_scratch;
+
+>>>>>>> upstream/android-13
 static const struct resource gpio_resources[] = {
 	DEFINE_RES_IRQ(MAX77620_IRQ_TOP_GPIO),
 };
@@ -111,6 +123,29 @@ static const struct mfd_cell max20024_children[] = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static const struct mfd_cell max77663_children[] = {
+	{ .name = "max77620-pinctrl", },
+	{ .name = "max77620-clock", },
+	{ .name = "max77663-pmic", },
+	{ .name = "max77620-watchdog", },
+	{
+		.name = "max77620-gpio",
+		.resources = gpio_resources,
+		.num_resources = ARRAY_SIZE(gpio_resources),
+	}, {
+		.name = "max77620-rtc",
+		.resources = rtc_resources,
+		.num_resources = ARRAY_SIZE(rtc_resources),
+	}, {
+		.name = "max77663-power",
+		.resources = power_resources,
+		.num_resources = ARRAY_SIZE(power_resources),
+	},
+};
+
+>>>>>>> upstream/android-13
 static const struct regmap_range max77620_readable_ranges[] = {
 	regmap_reg_range(MAX77620_REG_CNFGGLBL1, MAX77620_REG_DVSSD4),
 };
@@ -158,6 +193,10 @@ static const struct regmap_config max77620_regmap_config = {
 	.rd_table = &max77620_readable_table,
 	.wr_table = &max77620_writable_table,
 	.volatile_table = &max77620_volatile_table,
+<<<<<<< HEAD
+=======
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 
 static const struct regmap_config max20024_regmap_config = {
@@ -171,6 +210,38 @@ static const struct regmap_config max20024_regmap_config = {
 	.volatile_table = &max77620_volatile_table,
 };
 
+<<<<<<< HEAD
+=======
+static const struct regmap_range max77663_readable_ranges[] = {
+	regmap_reg_range(MAX77620_REG_CNFGGLBL1, MAX77620_REG_CID5),
+};
+
+static const struct regmap_access_table max77663_readable_table = {
+	.yes_ranges = max77663_readable_ranges,
+	.n_yes_ranges = ARRAY_SIZE(max77663_readable_ranges),
+};
+
+static const struct regmap_range max77663_writable_ranges[] = {
+	regmap_reg_range(MAX77620_REG_CNFGGLBL1, MAX77620_REG_CID5),
+};
+
+static const struct regmap_access_table max77663_writable_table = {
+	.yes_ranges = max77663_writable_ranges,
+	.n_yes_ranges = ARRAY_SIZE(max77663_writable_ranges),
+};
+
+static const struct regmap_config max77663_regmap_config = {
+	.name = "power-slave",
+	.reg_bits = 8,
+	.val_bits = 8,
+	.max_register = MAX77620_REG_CID5 + 1,
+	.cache_type = REGCACHE_RBTREE,
+	.rd_table = &max77663_readable_table,
+	.wr_table = &max77663_writable_table,
+	.volatile_table = &max77620_volatile_table,
+};
+
+>>>>>>> upstream/android-13
 /*
  * MAX77620 and MAX20024 has the following steps of the interrupt handling
  * for TOP interrupts:
@@ -240,6 +311,12 @@ static int max77620_get_fps_period_reg_value(struct max77620_chip *chip,
 	case MAX77620:
 		fps_min_period = MAX77620_FPS_PERIOD_MIN_US;
 		break;
+<<<<<<< HEAD
+=======
+	case MAX77663:
+		fps_min_period = MAX20024_FPS_PERIOD_MIN_US;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -274,18 +351,32 @@ static int max77620_config_fps(struct max77620_chip *chip,
 	case MAX77620:
 		fps_max_period = MAX77620_FPS_PERIOD_MAX_US;
 		break;
+<<<<<<< HEAD
+=======
+	case MAX77663:
+		fps_max_period = MAX20024_FPS_PERIOD_MAX_US;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
 
 	for (fps_id = 0; fps_id < MAX77620_FPS_COUNT; fps_id++) {
 		sprintf(fps_name, "fps%d", fps_id);
+<<<<<<< HEAD
 		if (!strcmp(fps_np->name, fps_name))
+=======
+		if (of_node_name_eq(fps_np, fps_name))
+>>>>>>> upstream/android-13
 			break;
 	}
 
 	if (fps_id == MAX77620_FPS_COUNT) {
+<<<<<<< HEAD
 		dev_err(dev, "FPS node name %s is not valid\n", fps_np->name);
+=======
+		dev_err(dev, "FPS node name %pOFn is not valid\n", fps_np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -362,8 +453,15 @@ static int max77620_initialise_fps(struct max77620_chip *chip)
 
 	for_each_child_of_node(fps_np, fps_child) {
 		ret = max77620_config_fps(chip, fps_child);
+<<<<<<< HEAD
 		if (ret < 0)
 			return ret;
+=======
+		if (ret < 0) {
+			of_node_put(fps_child);
+			return ret;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	config = chip->enable_global_lpm ? MAX77620_ONOFFCNFG2_SLP_LPM_MSK : 0;
@@ -375,6 +473,12 @@ static int max77620_initialise_fps(struct max77620_chip *chip)
 	}
 
 skip_fps:
+<<<<<<< HEAD
+=======
+	if (chip->chip_id == MAX77663)
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* Enable wake on EN0 pin */
 	ret = regmap_update_bits(chip->rmap, MAX77620_REG_ONOFFCNFG2,
 				 MAX77620_ONOFFCNFG2_WK_EN0,
@@ -423,6 +527,18 @@ static int max77620_read_es_version(struct max77620_chip *chip)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void max77620_pm_power_off(void)
+{
+	struct max77620_chip *chip = max77620_scratch;
+
+	regmap_update_bits(chip->rmap, MAX77620_REG_ONOFFCNFG1,
+			   MAX77620_ONOFFCNFG1_SFT_RST,
+			   MAX77620_ONOFFCNFG1_SFT_RST);
+}
+
+>>>>>>> upstream/android-13
 static int max77620_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
 {
@@ -430,6 +546,10 @@ static int max77620_probe(struct i2c_client *client,
 	struct max77620_chip *chip;
 	const struct mfd_cell *mfd_cells;
 	int n_mfd_cells;
+<<<<<<< HEAD
+=======
+	bool pm_off;
+>>>>>>> upstream/android-13
 	int ret;
 
 	chip = devm_kzalloc(&client->dev, sizeof(*chip), GFP_KERNEL);
@@ -438,7 +558,10 @@ static int max77620_probe(struct i2c_client *client,
 
 	i2c_set_clientdata(client, chip);
 	chip->dev = &client->dev;
+<<<<<<< HEAD
 	chip->irq_base = -1;
+=======
+>>>>>>> upstream/android-13
 	chip->chip_irq = client->irq;
 	chip->chip_id = (enum max77620_chip_id)id->driver_data;
 
@@ -453,6 +576,14 @@ static int max77620_probe(struct i2c_client *client,
 		n_mfd_cells = ARRAY_SIZE(max20024_children);
 		rmap_config = &max20024_regmap_config;
 		break;
+<<<<<<< HEAD
+=======
+	case MAX77663:
+		mfd_cells = max77663_children;
+		n_mfd_cells = ARRAY_SIZE(max77663_children);
+		rmap_config = &max77663_regmap_config;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(chip->dev, "ChipID is invalid %d\n", chip->chip_id);
 		return -EINVAL;
@@ -471,8 +602,13 @@ static int max77620_probe(struct i2c_client *client,
 
 	max77620_top_irq_chip.irq_drv_data = chip;
 	ret = devm_regmap_add_irq_chip(chip->dev, chip->rmap, client->irq,
+<<<<<<< HEAD
 				       IRQF_ONESHOT | IRQF_SHARED,
 				       chip->irq_base, &max77620_top_irq_chip,
+=======
+				       IRQF_ONESHOT | IRQF_SHARED, 0,
+				       &max77620_top_irq_chip,
+>>>>>>> upstream/android-13
 				       &chip->top_irq_data);
 	if (ret < 0) {
 		dev_err(chip->dev, "Failed to add regmap irq: %d\n", ret);
@@ -491,6 +627,15 @@ static int max77620_probe(struct i2c_client *client,
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	pm_off = of_device_is_system_power_controller(client->dev.of_node);
+	if (pm_off && !pm_power_off) {
+		max77620_scratch = chip;
+		pm_power_off = max77620_pm_power_off;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -546,6 +691,12 @@ static int max77620_i2c_suspend(struct device *dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	if (chip->chip_id == MAX77663)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/* Disable WK_EN0 */
 	ret = regmap_update_bits(chip->rmap, MAX77620_REG_ONOFFCNFG2,
 				 MAX77620_ONOFFCNFG2_WK_EN0, 0);
@@ -581,7 +732,11 @@ static int max77620_i2c_resume(struct device *dev)
 	 * For MAX20024: No need to configure WKEN0 on resume as
 	 * it is configured on Init.
 	 */
+<<<<<<< HEAD
 	if (chip->chip_id == MAX20024)
+=======
+	if (chip->chip_id == MAX20024 || chip->chip_id == MAX77663)
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* Enable WK_EN0 */
@@ -603,6 +758,10 @@ out:
 static const struct i2c_device_id max77620_id[] = {
 	{"max77620", MAX77620},
 	{"max20024", MAX20024},
+<<<<<<< HEAD
+=======
+	{"max77663", MAX77663},
+>>>>>>> upstream/android-13
 	{},
 };
 

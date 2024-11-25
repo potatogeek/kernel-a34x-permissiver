@@ -362,7 +362,11 @@ struct vio_driver {
 	struct list_head		node;
 	const struct vio_device_id	*id_table;
 	int (*probe)(struct vio_dev *dev, const struct vio_device_id *id);
+<<<<<<< HEAD
 	int (*remove)(struct vio_dev *dev);
+=======
+	void (*remove)(struct vio_dev *dev);
+>>>>>>> upstream/android-13
 	void (*shutdown)(struct vio_dev *dev);
 	unsigned long			driver_data;
 	struct device_driver		driver;

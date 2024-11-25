@@ -30,9 +30,17 @@
 #include <subdev/bios/dcb.h>
 
 #include <drm/drm_encoder_slave.h>
+<<<<<<< HEAD
 #include <drm/drm_dp_mst_helper.h>
 #include "dispnv04/disp.h"
 struct nv50_head_atom;
+=======
+#include <drm/drm_dp_helper.h>
+#include <drm/drm_dp_mst_helper.h>
+#include "dispnv04/disp.h"
+struct nv50_head_atom;
+struct nouveau_connector;
+>>>>>>> upstream/android-13
 
 #define NV_DPMS_CLEARED 0x80
 
@@ -53,6 +61,15 @@ struct nouveau_encoder {
 	struct drm_crtc *crtc;
 	u32 ctrl;
 
+<<<<<<< HEAD
+=======
+	/* Protected by nouveau_drm.audio.lock */
+	struct {
+		bool enabled;
+		struct drm_connector *connector;
+	} audio;
+
+>>>>>>> upstream/android-13
 	struct drm_display_mode mode;
 	int last_dpms;
 
@@ -63,15 +80,54 @@ struct nouveau_encoder {
 			struct nv50_mstm *mstm;
 			int link_nr;
 			int link_bw;
+<<<<<<< HEAD
 		} dp;
 	};
 
+=======
+
+			/* Protects DP state that needs to be accessed outside
+			 * connector reprobing contexts
+			 */
+			struct mutex hpd_irq_lock;
+
+			u8 dpcd[DP_RECEIVER_CAP_SIZE];
+			u8 downstream_ports[DP_MAX_DOWNSTREAM_PORTS];
+			struct drm_dp_desc desc;
+
+			u8 sink_count;
+		} dp;
+	};
+
+	struct {
+		bool dp_interlace : 1;
+	} caps;
+
+>>>>>>> upstream/android-13
 	void (*enc_save)(struct drm_encoder *encoder);
 	void (*enc_restore)(struct drm_encoder *encoder);
 	void (*update)(struct nouveau_encoder *, u8 head,
 		       struct nv50_head_atom *, u8 proto, u8 depth);
 };
 
+<<<<<<< HEAD
+=======
+struct nv50_mstm {
+	struct nouveau_encoder *outp;
+
+	struct drm_dp_mst_topology_mgr mgr;
+
+	/* Protected under nouveau_encoder->dp.hpd_irq_lock */
+	bool can_mst;
+	bool is_mst;
+	bool suspended;
+
+	bool modified;
+	bool disabled;
+	int links;
+};
+
+>>>>>>> upstream/android-13
 struct nouveau_encoder *
 find_encoder(struct drm_connector *connector, int type);
 
@@ -95,10 +151,15 @@ get_slave_funcs(struct drm_encoder *enc)
 
 /* nouveau_dp.c */
 enum nouveau_dp_status {
+<<<<<<< HEAD
+=======
+	NOUVEAU_DP_NONE,
+>>>>>>> upstream/android-13
 	NOUVEAU_DP_SST,
 	NOUVEAU_DP_MST,
 };
 
+<<<<<<< HEAD
 int nouveau_dp_detect(struct nouveau_encoder *);
 
 struct nouveau_connector *
@@ -107,4 +168,24 @@ nouveau_encoder_connector_get(struct nouveau_encoder *encoder);
 int nv50_mstm_detect(struct nv50_mstm *, u8 dpcd[8], int allow);
 void nv50_mstm_remove(struct nv50_mstm *);
 void nv50_mstm_service(struct nv50_mstm *);
+=======
+int nouveau_dp_detect(struct nouveau_connector *, struct nouveau_encoder *);
+void nouveau_dp_irq(struct nouveau_drm *drm,
+		    struct nouveau_connector *nv_connector);
+enum drm_mode_status nv50_dp_mode_valid(struct drm_connector *,
+					struct nouveau_encoder *,
+					const struct drm_display_mode *,
+					unsigned *clock);
+
+struct nouveau_connector *
+nv50_outp_get_new_connector(struct drm_atomic_state *state, struct nouveau_encoder *outp);
+struct nouveau_connector *
+nv50_outp_get_old_connector(struct drm_atomic_state *state, struct nouveau_encoder *outp);
+
+int nv50_mstm_detect(struct nouveau_encoder *encoder);
+void nv50_mstm_remove(struct nv50_mstm *mstm);
+bool nv50_mstm_service(struct nouveau_drm *drm,
+		       struct nouveau_connector *nv_connector,
+		       struct nv50_mstm *mstm);
+>>>>>>> upstream/android-13
 #endif /* __NOUVEAU_ENCODER_H__ */

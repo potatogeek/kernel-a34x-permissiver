@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019 MediaTek Inc.
+=======
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: PC Chen <pc.chen@mediatek.com>
+ *         Tiffany Lin <tiffany.lin@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -12,6 +18,7 @@
 #include "vdec_drv_base.h"
 #include "mtk_vcodec_dec_pm.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_VIDEO_MEDIATEK_VCU
 #include "mtk_vcu.h"
 const struct vdec_common_if *get_dec_common_if(void);
@@ -68,10 +75,26 @@ int vdec_if_init(struct mtk_vcodec_ctx *ctx, unsigned int fourcc)
 		break;
 	case V4L2_PIX_FMT_VP9:
 		ctx->dec_if = get_vp9_dec_comm_if();
+=======
+int vdec_if_init(struct mtk_vcodec_ctx *ctx, unsigned int fourcc)
+{
+	int ret = 0;
+
+	switch (fourcc) {
+	case V4L2_PIX_FMT_H264:
+		ctx->dec_if = &vdec_h264_if;
+		break;
+	case V4L2_PIX_FMT_VP8:
+		ctx->dec_if = &vdec_vp8_if;
+		break;
+	case V4L2_PIX_FMT_VP9:
+		ctx->dec_if = &vdec_vp9_if;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 #endif
 	if (!ctx->user_lock_hw) {
 		mtk_vdec_lock(ctx, MTK_VDEC_CORE);
@@ -82,11 +105,20 @@ int vdec_if_init(struct mtk_vcodec_ctx *ctx, unsigned int fourcc)
 		mtk_vcodec_dec_clock_off(&ctx->dev->pm, MTK_VDEC_CORE);
 		mtk_vdec_unlock(ctx, MTK_VDEC_CORE);
 	}
+=======
+
+	mtk_vdec_lock(ctx);
+	mtk_vcodec_dec_clock_on(&ctx->dev->pm);
+	ret = ctx->dec_if->init(ctx);
+	mtk_vcodec_dec_clock_off(&ctx->dev->pm);
+	mtk_vdec_unlock(ctx);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 int vdec_if_decode(struct mtk_vcodec_ctx *ctx, struct mtk_vcodec_mem *bs,
+<<<<<<< HEAD
 				   struct vdec_fb *fb, unsigned int *src_chg)
 {
 	int ret = 0;
@@ -94,11 +126,20 @@ int vdec_if_decode(struct mtk_vcodec_ctx *ctx, struct mtk_vcodec_mem *bs,
 
 	if (bs && !ctx->dec_params.svp_mode) {
 		if ((bs->dma_addr & 63UL) != 0UL) {
+=======
+		   struct vdec_fb *fb, bool *res_chg)
+{
+	int ret = 0;
+
+	if (bs) {
+		if ((bs->dma_addr & 63) != 0) {
+>>>>>>> upstream/android-13
 			mtk_v4l2_err("bs dma_addr should 64 byte align");
 			return -EINVAL;
 		}
 	}
 
+<<<<<<< HEAD
 	if (fb && !ctx->dec_params.svp_mode) {
 		for (i = 0; i < fb->num_planes; i++) {
 			if ((fb->fb_base[i].dma_addr & 511UL) != 0UL) {
@@ -117,11 +158,36 @@ int vdec_if_decode(struct mtk_vcodec_ctx *ctx, struct mtk_vcodec_mem *bs,
 
 	if (!ctx->user_lock_hw)
 		vdec_decode_unprepare(ctx, MTK_VDEC_CORE);
+=======
+	if (fb) {
+		if (((fb->base_y.dma_addr & 511) != 0) ||
+		    ((fb->base_c.dma_addr & 511) != 0)) {
+			mtk_v4l2_err("frame buffer dma_addr should 512 byte align");
+			return -EINVAL;
+		}
+	}
+
+	if (!ctx->drv_handle)
+		return -EIO;
+
+	mtk_vdec_lock(ctx);
+
+	mtk_vcodec_set_curr_ctx(ctx->dev, ctx);
+	mtk_vcodec_dec_clock_on(&ctx->dev->pm);
+	enable_irq(ctx->dev->dec_irq);
+	ret = ctx->dec_if->decode(ctx->drv_handle, bs, fb, res_chg);
+	disable_irq(ctx->dev->dec_irq);
+	mtk_vcodec_dec_clock_off(&ctx->dev->pm);
+	mtk_vcodec_set_curr_ctx(ctx->dev, NULL);
+
+	mtk_vdec_unlock(ctx);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 int vdec_if_get_param(struct mtk_vcodec_ctx *ctx, enum vdec_get_param_type type,
+<<<<<<< HEAD
 					  void *out)
 {
 	struct vdec_inst *inst = NULL;
@@ -160,12 +226,25 @@ int vdec_if_set_param(struct mtk_vcodec_ctx *ctx, enum vdec_set_param_type type,
 		return -EIO;
 
 	ret = ctx->dec_if->set_param(ctx->drv_handle, type, in);
+=======
+		      void *out)
+{
+	int ret = 0;
+
+	if (!ctx->drv_handle)
+		return -EIO;
+
+	mtk_vdec_lock(ctx);
+	ret = ctx->dec_if->get_param(ctx->drv_handle, type, out);
+	mtk_vdec_unlock(ctx);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 void vdec_if_deinit(struct mtk_vcodec_ctx *ctx)
 {
+<<<<<<< HEAD
 	if (ctx->drv_handle == 0)
 		return;
 	if (!ctx->user_lock_hw)
@@ -241,3 +320,16 @@ void vdec_check_release_lock(void *ctx_check)
 }
 EXPORT_SYMBOL_GPL(vdec_check_release_lock);
 
+=======
+	if (!ctx->drv_handle)
+		return;
+
+	mtk_vdec_lock(ctx);
+	mtk_vcodec_dec_clock_on(&ctx->dev->pm);
+	ctx->dec_if->deinit(ctx->drv_handle);
+	mtk_vcodec_dec_clock_off(&ctx->dev->pm);
+	mtk_vdec_unlock(ctx);
+
+	ctx->drv_handle = NULL;
+}
+>>>>>>> upstream/android-13

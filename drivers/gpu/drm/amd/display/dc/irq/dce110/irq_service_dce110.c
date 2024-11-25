@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 #include "include/logger_interface.h"
@@ -81,6 +86,14 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 	.ack = NULL
 };
 
+<<<<<<< HEAD
+=======
+static const struct irq_source_info_funcs vupdate_irq_info_funcs = {
+	.set = NULL,
+	.ack = NULL
+};
+
+>>>>>>> upstream/android-13
 #define hpd_int_entry(reg_num)\
 	[DC_IRQ_SOURCE_HPD1 + reg_num] = {\
 		.enable_reg = mmHPD ## reg_num ## _DC_HPD_INT_CONTROL,\
@@ -137,7 +150,11 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 		CRTC_V_UPDATE_INT_STATUS__CRTC_V_UPDATE_INT_CLEAR_MASK,\
 		.ack_value =\
 		CRTC_V_UPDATE_INT_STATUS__CRTC_V_UPDATE_INT_CLEAR_MASK,\
+<<<<<<< HEAD
 		.funcs = &vblank_irq_info_funcs\
+=======
+		.funcs = &vupdate_irq_info_funcs\
+>>>>>>> upstream/android-13
 	}
 
 #define vblank_int_entry(reg_num)\
@@ -197,7 +214,11 @@ bool dce110_vblank_set(struct irq_service *irq_service,
 		       bool enable)
 {
 	struct dc_context *dc_ctx = irq_service->ctx;
+<<<<<<< HEAD
 	struct dc *core_dc = irq_service->ctx->dc;
+=======
+	struct dc *dc = irq_service->ctx->dc;
+>>>>>>> upstream/android-13
 	enum dc_irq_source dal_irq_src =
 			dc_interrupt_to_irq_source(irq_service->ctx->dc,
 						   info->src_id,
@@ -205,7 +226,11 @@ bool dce110_vblank_set(struct irq_service *irq_service,
 	uint8_t pipe_offset = dal_irq_src - IRQ_TYPE_VBLANK;
 
 	struct timing_generator *tg =
+<<<<<<< HEAD
 			core_dc->current_state->res_ctx.pipe_ctx[pipe_offset].stream_res.tg;
+=======
+			dc->current_state->res_ctx.pipe_ctx[pipe_offset].stream_res.tg;
+>>>>>>> upstream/android-13
 
 	if (enable) {
 		if (!tg || !tg->funcs->arm_vert_intr(tg, 2)) {
@@ -396,7 +421,11 @@ static const struct irq_service_funcs irq_service_funcs_dce110 = {
 		.to_dal_irq_source = to_dal_irq_source_dce110
 };
 
+<<<<<<< HEAD
 static void construct(struct irq_service *irq_service,
+=======
+static void dce110_irq_construct(struct irq_service *irq_service,
+>>>>>>> upstream/android-13
 		      struct irq_service_init_data *init_data)
 {
 	dal_irq_service_construct(irq_service, init_data);
@@ -414,6 +443,10 @@ dal_irq_service_dce110_create(struct irq_service_init_data *init_data)
 	if (!irq_service)
 		return NULL;
 
+<<<<<<< HEAD
 	construct(irq_service, init_data);
+=======
+	dce110_irq_construct(irq_service, init_data);
+>>>>>>> upstream/android-13
 	return irq_service;
 }

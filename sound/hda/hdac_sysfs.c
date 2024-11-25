@@ -66,7 +66,11 @@ static struct attribute *hdac_dev_attrs[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group hdac_dev_attr_group = {
+=======
+static const struct attribute_group hdac_dev_attr_group = {
+>>>>>>> upstream/android-13
 	.attrs	= hdac_dev_attrs,
 };
 
@@ -395,6 +399,10 @@ static int widget_tree_create(struct hdac_device *codec)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* call with codec->widget_lock held */
+>>>>>>> upstream/android-13
 int hda_widget_sysfs_init(struct hdac_device *codec)
 {
 	int err;
@@ -411,11 +419,19 @@ int hda_widget_sysfs_init(struct hdac_device *codec)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* call with codec->widget_lock held */
+>>>>>>> upstream/android-13
 void hda_widget_sysfs_exit(struct hdac_device *codec)
 {
 	widget_tree_free(codec);
 }
 
+<<<<<<< HEAD
+=======
+/* call with codec->widget_lock held */
+>>>>>>> upstream/android-13
 int hda_widget_sysfs_reinit(struct hdac_device *codec,
 			    hda_nid_t start_nid, int num_nodes)
 {
@@ -425,7 +441,11 @@ int hda_widget_sysfs_reinit(struct hdac_device *codec,
 	int i;
 
 	if (!codec->widgets)
+<<<<<<< HEAD
 		return hda_widget_sysfs_init(codec);
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	tree = kmemdup(codec->widgets, sizeof(*tree), GFP_KERNEL);
 	if (!tree)

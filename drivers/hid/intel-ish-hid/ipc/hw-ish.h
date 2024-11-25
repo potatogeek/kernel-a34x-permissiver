@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * H/W layer of ISHTP provider device (ISH)
  *
  * Copyright (c) 2014-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ISHTP_HW_ISH_H_
@@ -31,6 +38,16 @@
 #define CNL_H_DEVICE_ID		0xA37C
 #define ICL_MOBILE_DEVICE_ID	0x34FC
 #define SPT_H_DEVICE_ID		0xA135
+<<<<<<< HEAD
+=======
+#define CML_LP_DEVICE_ID	0x02FC
+#define CMP_H_DEVICE_ID		0x06FC
+#define EHL_Ax_DEVICE_ID	0x4BB3
+#define TGL_LP_DEVICE_ID	0xA0FC
+#define TGL_H_DEVICE_ID		0x43FC
+#define ADL_S_DEVICE_ID		0x7AF8
+#define ADL_P_DEVICE_ID		0x51FC
+>>>>>>> upstream/android-13
 
 #define	REVISION_ID_CHT_A0	0x6
 #define	REVISION_ID_CHT_Ax_SI	0x0
@@ -84,5 +101,10 @@ irqreturn_t ish_irq_handler(int irq, void *dev_id);
 struct ishtp_device *ish_dev_init(struct pci_dev *pdev);
 int ish_hw_start(struct ishtp_device *dev);
 void ish_device_disable(struct ishtp_device *dev);
+<<<<<<< HEAD
+=======
+int ish_disable_dma(struct ishtp_device *dev);
+void ish_set_host_ready(struct ishtp_device *dev);
+>>>>>>> upstream/android-13
 
 #endif /* _ISHTP_HW_ISH_H_ */

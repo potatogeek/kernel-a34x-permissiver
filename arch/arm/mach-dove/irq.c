@@ -11,9 +11,18 @@
 #include <linux/irq.h>
 #include <linux/io.h>
 #include <asm/exception.h>
+<<<<<<< HEAD
 #include <plat/irq.h>
 #include <mach/bridge-regs.h>
 #include <plat/orion-gpio.h>
+=======
+
+#include <plat/irq.h>
+#include <plat/orion-gpio.h>
+
+#include "pm.h"
+#include "bridge-regs.h"
+>>>>>>> upstream/android-13
 #include "common.h"
 
 static int __initdata gpio0_irqs[4] = {

@@ -29,12 +29,22 @@ Contact:	linux-input@vger.kernel.org
 Description:
 		Threholds to override activation slack.
 
+<<<<<<< HEAD
 		activation_width:	(RW) Width threshold to immediately
 					start processing touch events.
 
 		activation_height:	(RW) Height threshold to immediately
 					start processing touch events.
 
+=======
+		=================	=====================================
+		activation_width	(RW) Width threshold to immediately
+					start processing touch events.
+
+		activation_height	(RW) Height threshold to immediately
+					start processing touch events.
+		=================	=====================================
+>>>>>>> upstream/android-13
 
 What:		/sys/bus/hid/drivers/ntrig/<dev>/min_width
 What:		/sys/bus/hid/drivers/ntrig/<dev>/min_height
@@ -44,11 +54,21 @@ Contact:	linux-input@vger.kernel.org
 Description:
 		Minimum size contact accepted.
 
+<<<<<<< HEAD
 		min_width:	(RW) Minimum touch contact width to decide
 				activation and activity.
 
 		min_height:	(RW) Minimum touch contact height to decide
 				activation and activity.
+=======
+		==========	===========================================
+		min_width	(RW) Minimum touch contact width to decide
+				activation and activity.
+
+		min_height	(RW) Minimum touch contact height to decide
+				activation and activity.
+		==========	===========================================
+>>>>>>> upstream/android-13
 
 
 What:		/sys/bus/hid/drivers/ntrig/<dev>/sensor_physical_width

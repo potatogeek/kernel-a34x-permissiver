@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015,2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018, The Linux Foundation. All rights reserved.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2015,2017 Qualcomm Atheros, Inc.
+ * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "wil6210.h"
@@ -73,6 +80,7 @@ int wil_fw_copy_crash_dump(struct wil6210_priv *wil, void *dest, u32 size)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	set_bit(wil_status_collecting_dumps, wil->status);
 	if (test_bit(wil_status_suspending, wil->status) ||
 	    test_bit(wil_status_suspended, wil->status) ||
@@ -80,6 +88,16 @@ int wil_fw_copy_crash_dump(struct wil6210_priv *wil, void *dest, u32 size)
 		wil_err(wil, "cannot collect fw dump during suspend/reset\n");
 		clear_bit(wil_status_collecting_dumps, wil->status);
 		return -EINVAL;
+=======
+	down_write(&wil->mem_lock);
+
+	if (test_bit(wil_status_suspending, wil->status) ||
+	    test_bit(wil_status_suspended, wil->status)) {
+		wil_err(wil,
+			"suspend/resume in progress. cannot copy crash dump\n");
+		up_write(&wil->mem_lock);
+		return -EBUSY;
+>>>>>>> upstream/android-13
 	}
 
 	/* copy to crash dump area */
@@ -101,7 +119,11 @@ int wil_fw_copy_crash_dump(struct wil6210_priv *wil, void *dest, u32 size)
 				     (const void __iomem * __force)data, len);
 	}
 
+<<<<<<< HEAD
 	clear_bit(wil_status_collecting_dumps, wil->status);
+=======
+	up_write(&wil->mem_lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

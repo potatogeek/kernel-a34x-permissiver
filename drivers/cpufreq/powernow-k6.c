@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  This file was based upon code in Powertweak Linux (http://powertweak.sf.net)
  *  (C) 2000-2003  Dave Jones, Arjan van de Ven, Janne Pänkälä,
  *                 Dominik Brodowski.
  *
+<<<<<<< HEAD
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  *  BIG FAT DISCLAIMER: Work in progress code. Possibly *dangerous*
  */
 
@@ -259,8 +266,13 @@ static struct cpufreq_driver powernow_k6_driver = {
 };
 
 static const struct x86_cpu_id powernow_k6_ids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_AMD, 5, 12 },
 	{ X86_VENDOR_AMD, 5, 13 },
+=======
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 5, 12, NULL),
+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 5, 13, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, powernow_k6_ids);

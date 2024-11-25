@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/blkdev.h>
 #include <linux/device.h>
@@ -33,6 +39,7 @@ static void nd_btt_release(struct device *dev)
 	kfree(nd_btt);
 }
 
+<<<<<<< HEAD
 static struct device_type nd_btt_device_type = {
 	.name = "nd_btt",
 	.release = nd_btt_release,
@@ -44,6 +51,8 @@ bool is_nd_btt(struct device *dev)
 }
 EXPORT_SYMBOL(is_nd_btt);
 
+=======
+>>>>>>> upstream/android-13
 struct nd_btt *to_nd_btt(struct device *dev)
 {
 	struct nd_btt *nd_btt = container_of(dev, struct nd_btt, dev);
@@ -70,14 +79,22 @@ static ssize_t sector_size_store(struct device *dev,
 	struct nd_btt *nd_btt = to_nd_btt(dev);
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	rc = nd_size_select_store(dev, buf, &nd_btt->lbasize,
 			btt_lbasize_supported);
 	dev_dbg(dev, "result: %zd wrote: %s%s", rc, buf,
 			buf[len - 1] == '\n' ? "" : "\n");
 	nvdimm_bus_unlock(dev);
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc ? rc : len;
 }
@@ -99,11 +116,19 @@ static ssize_t uuid_store(struct device *dev,
 	struct nd_btt *nd_btt = to_nd_btt(dev);
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
 	rc = nd_uuid_store(dev, &nd_btt->uuid, buf, len);
 	dev_dbg(dev, "result: %zd wrote: %s%s", rc, buf,
 			buf[len - 1] == '\n' ? "" : "\n");
 	device_unlock(dev);
+=======
+	nd_device_lock(dev);
+	rc = nd_uuid_store(dev, &nd_btt->uuid, buf, len);
+	dev_dbg(dev, "result: %zd wrote: %s%s", rc, buf,
+			buf[len - 1] == '\n' ? "" : "\n");
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc ? rc : len;
 }
@@ -128,13 +153,21 @@ static ssize_t namespace_store(struct device *dev,
 	struct nd_btt *nd_btt = to_nd_btt(dev);
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	rc = nd_namespace_store(dev, &nd_btt->ndns, buf, len);
 	dev_dbg(dev, "result: %zd wrote: %s%s", rc, buf,
 			buf[len - 1] == '\n' ? "" : "\n");
 	nvdimm_bus_unlock(dev);
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -146,14 +179,22 @@ static ssize_t size_show(struct device *dev,
 	struct nd_btt *nd_btt = to_nd_btt(dev);
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	if (dev->driver)
 		rc = sprintf(buf, "%llu\n", nd_btt->size);
 	else {
 		/* no size to convey if the btt instance is disabled */
 		rc = -ENXIO;
 	}
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -186,6 +227,21 @@ static const struct attribute_group *nd_btt_attribute_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
+=======
+static const struct device_type nd_btt_device_type = {
+	.name = "nd_btt",
+	.release = nd_btt_release,
+	.groups = nd_btt_attribute_groups,
+};
+
+bool is_nd_btt(struct device *dev)
+{
+	return dev->type == &nd_btt_device_type;
+}
+EXPORT_SYMBOL(is_nd_btt);
+
+>>>>>>> upstream/android-13
 static struct device *__nd_btt_create(struct nd_region *nd_region,
 		unsigned long lbasize, u8 *uuid,
 		struct nd_namespace_common *ndns)
@@ -212,7 +268,10 @@ static struct device *__nd_btt_create(struct nd_region *nd_region,
 	dev_set_name(dev, "btt%d.%d", nd_region->id, nd_btt->id);
 	dev->parent = &nd_region->dev;
 	dev->type = &nd_btt_device_type;
+<<<<<<< HEAD
 	dev->groups = nd_btt_attribute_groups;
+=======
+>>>>>>> upstream/android-13
 	device_initialize(&nd_btt->dev);
 	if (ndns && !__nd_attach_ndns(&nd_btt->dev, ndns, &nd_btt->ndns)) {
 		dev_dbg(&ndns->dev, "failed, already claimed by %s\n",

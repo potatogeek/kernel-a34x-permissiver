@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* General netfs cache on cache files internal defs
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifdef pr_fmt
@@ -154,6 +161,12 @@ extern int cachefiles_has_space(struct cachefiles_cache *cache,
  */
 extern const struct fscache_cache_ops cachefiles_cache_ops;
 
+<<<<<<< HEAD
+=======
+void cachefiles_put_object(struct fscache_object *_object,
+			   enum fscache_obj_ref_trace why);
+
+>>>>>>> upstream/android-13
 /*
  * key.c
  */
@@ -182,6 +195,7 @@ extern int cachefiles_check_in_use(struct cachefiles_cache *cache,
 				   struct dentry *dir, char *filename);
 
 /*
+<<<<<<< HEAD
  * proc.c
  */
 #ifdef CONFIG_CACHEFILES_HISTOGRAM
@@ -207,6 +221,8 @@ void cachefiles_hist(atomic_t histogram[], unsigned long start_jif)
 #endif
 
 /*
+=======
+>>>>>>> upstream/android-13
  * rdwr.c
  */
 extern int cachefiles_read_or_alloc_page(struct fscache_retrieval *,
@@ -222,6 +238,15 @@ extern int cachefiles_write_page(struct fscache_storage *, struct page *);
 extern void cachefiles_uncache_page(struct fscache_object *, struct page *);
 
 /*
+<<<<<<< HEAD
+=======
+ * rdwr2.c
+ */
+extern int cachefiles_begin_read_operation(struct netfs_read_request *,
+					   struct fscache_retrieval *);
+
+/*
+>>>>>>> upstream/android-13
  * security.c
  */
 extern int cachefiles_get_security_ID(struct cachefiles_cache *cache);

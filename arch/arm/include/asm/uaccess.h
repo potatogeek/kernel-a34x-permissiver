@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *  arch/arm/include/asm/uaccess.h
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  arch/arm/include/asm/uaccess.h
+>>>>>>> upstream/android-13
  */
 #ifndef _ASMARM_UACCESS_H
 #define _ASMARM_UACCESS_H
@@ -14,6 +20,10 @@
 #include <linux/string.h>
 #include <asm/memory.h>
 #include <asm/domain.h>
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 #include <asm/unified.h>
 #include <asm/compiler.h>
 
@@ -25,7 +35,11 @@
  * perform such accesses (eg, via list poison values) which could then
  * be exploited for priviledge escalation.
  */
+<<<<<<< HEAD
 static inline unsigned int uaccess_save_and_enable(void)
+=======
+static __always_inline unsigned int uaccess_save_and_enable(void)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_CPU_SW_DOMAIN_PAN
 	unsigned int old_domain = get_domain();
@@ -40,7 +54,11 @@ static inline unsigned int uaccess_save_and_enable(void)
 #endif
 }
 
+<<<<<<< HEAD
 static inline void uaccess_restore(unsigned int flags)
+=======
+static __always_inline void uaccess_restore(unsigned int flags)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_CPU_SW_DOMAIN_PAN
 	/* Restore the user access mask */
@@ -55,6 +73,7 @@ static inline void uaccess_restore(unsigned int flags)
 extern int __get_user_bad(void);
 extern int __put_user_bad(void);
 
+<<<<<<< HEAD
 /*
  * Note that this is actually 0x1,0000,0000
  */
@@ -89,6 +108,22 @@ static inline void set_fs(mm_segment_t fs)
 	__asm__("adds %1, %2, %3; sbcccs %1, %1, %0; movcc %0, #0" \
 		: "=&r" (flag), "=&r" (roksum) \
 		: "r" (addr), "Ir" (size), "0" (current_thread_info()->addr_limit) \
+=======
+#ifdef CONFIG_MMU
+
+/*
+ * We use 33-bit arithmetic here.  Success returns zero, failure returns
+ * addr_limit.  We take advantage that addr_limit will be zero for KERNEL_DS,
+ * so this will always return success in that case.
+ */
+#define __range_ok(addr, size) ({ \
+	unsigned long flag, roksum; \
+	__chk_user_ptr(addr);	\
+	__asm__(".syntax unified\n" \
+		"adds %1, %2, %3; sbcscc %1, %1, %0; movcc %0, #0" \
+		: "=&r" (flag), "=&r" (roksum) \
+		: "r" (addr), "Ir" (size), "0" (TASK_SIZE) \
+>>>>>>> upstream/android-13
 		: "cc"); \
 	flag; })
 
@@ -112,6 +147,7 @@ static inline void __user *__uaccess_mask_range_ptr(const void __user *ptr,
 	unsigned long tmp;
 
 	asm volatile(
+<<<<<<< HEAD
 	"	sub	%1, %3, #1\n"
 	"	subs	%1, %1, %0\n"
 	"	addhs	%1, %1, #1\n"
@@ -119,6 +155,16 @@ static inline void __user *__uaccess_mask_range_ptr(const void __user *ptr,
 	"	movlo	%0, #0\n"
 	: "+r" (safe_ptr), "=&r" (tmp)
 	: "r" (size), "r" (current_thread_info()->addr_limit)
+=======
+	"	.syntax unified\n"
+	"	sub	%1, %3, #1\n"
+	"	subs	%1, %1, %0\n"
+	"	addhs	%1, %1, #1\n"
+	"	subshs	%1, %1, %2\n"
+	"	movlo	%0, #0\n"
+	: "+r" (safe_ptr), "=&r" (tmp)
+	: "r" (size), "r" (TASK_SIZE)
+>>>>>>> upstream/android-13
 	: "cc");
 
 	csdb();
@@ -192,12 +238,20 @@ extern int __get_user_64t_4(void *);
 
 #define __get_user_check(x, p)						\
 	({								\
+<<<<<<< HEAD
 		unsigned long __limit = current_thread_info()->addr_limit - 1; \
+=======
+		unsigned long __limit = TASK_SIZE - 1; \
+>>>>>>> upstream/android-13
 		register typeof(*(p)) __user *__p asm("r0") = (p);	\
 		register __inttype(x) __r2 asm("r2");			\
 		register unsigned long __l asm("r1") = __limit;		\
 		register int __e asm("r0");				\
 		unsigned int __ua_flags = uaccess_save_and_enable();	\
+<<<<<<< HEAD
+=======
+		int __tmp_e;						\
+>>>>>>> upstream/android-13
 		switch (sizeof(*(__p))) {				\
 		case 1:							\
 			if (sizeof((x)) >= 8)				\
@@ -225,9 +279,16 @@ extern int __get_user_64t_4(void *);
 			break;						\
 		default: __e = __get_user_bad(); break;			\
 		}							\
+<<<<<<< HEAD
 		uaccess_restore(__ua_flags);				\
 		x = (typeof(*(p))) __r2;				\
 		__e;							\
+=======
+		__tmp_e = __e;						\
+		uaccess_restore(__ua_flags);				\
+		x = (typeof(*(p))) __r2;				\
+		__tmp_e;						\
+>>>>>>> upstream/android-13
 	})
 
 #define get_user(x, p)							\
@@ -243,7 +304,11 @@ extern int __put_user_8(void *, unsigned long long);
 
 #define __put_user_check(__pu_val, __ptr, __err, __s)			\
 	({								\
+<<<<<<< HEAD
 		unsigned long __limit = current_thread_info()->addr_limit - 1; \
+=======
+		unsigned long __limit = TASK_SIZE - 1; \
+>>>>>>> upstream/android-13
 		register typeof(__pu_val) __r2 asm("r2") = __pu_val;	\
 		register const void __user *__p asm("r0") = __ptr;	\
 		register unsigned long __l asm("r1") = __limit;		\
@@ -260,6 +325,7 @@ extern int __put_user_8(void *, unsigned long long);
 
 #else /* CONFIG_MMU */
 
+<<<<<<< HEAD
 /*
  * uClinux has only one addr space, so has simplified address limits.
  */
@@ -273,16 +339,24 @@ extern int __put_user_8(void *, unsigned long long);
 static inline void set_fs(mm_segment_t fs)
 {
 }
+=======
+#define __addr_ok(addr)		((void)(addr), 1)
+#define __range_ok(addr, size)	((void)(addr), 0)
+>>>>>>> upstream/android-13
 
 #define get_user(x, p)	__get_user(x, p)
 #define __put_user_check __put_user_nocheck
 
 #endif /* CONFIG_MMU */
 
+<<<<<<< HEAD
 #define access_ok(type, addr, size)	(__range_ok(addr, size) == 0)
 
 #define user_addr_max() \
 	(uaccess_kernel() ? ~0UL : get_fs())
+=======
+#define access_ok(addr, size)	(__range_ok(addr, size) == 0)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_SPECTRE
 /*
@@ -306,11 +380,19 @@ static inline void set_fs(mm_segment_t fs)
 #define __get_user(x, ptr)						\
 ({									\
 	long __gu_err = 0;						\
+<<<<<<< HEAD
 	__get_user_err((x), (ptr), __gu_err);				\
 	__gu_err;							\
 })
 
 #define __get_user_err(x, ptr, err)					\
+=======
+	__get_user_err((x), (ptr), __gu_err, TUSER());			\
+	__gu_err;							\
+})
+
+#define __get_user_err(x, ptr, err, __t)				\
+>>>>>>> upstream/android-13
 do {									\
 	unsigned long __gu_addr = (unsigned long)(ptr);			\
 	unsigned long __gu_val;						\
@@ -319,18 +401,32 @@ do {									\
 	might_fault();							\
 	__ua_flags = uaccess_save_and_enable();				\
 	switch (sizeof(*(ptr))) {					\
+<<<<<<< HEAD
 	case 1:	__get_user_asm_byte(__gu_val, __gu_addr, err);	break;	\
 	case 2:	__get_user_asm_half(__gu_val, __gu_addr, err);	break;	\
 	case 4:	__get_user_asm_word(__gu_val, __gu_addr, err);	break;	\
+=======
+	case 1:	__get_user_asm_byte(__gu_val, __gu_addr, err, __t); break;	\
+	case 2:	__get_user_asm_half(__gu_val, __gu_addr, err, __t); break;	\
+	case 4:	__get_user_asm_word(__gu_val, __gu_addr, err, __t); break;	\
+>>>>>>> upstream/android-13
 	default: (__gu_val) = __get_user_bad();				\
 	}								\
 	uaccess_restore(__ua_flags);					\
 	(x) = (__typeof__(*(ptr)))__gu_val;				\
 } while (0)
+<<<<<<< HEAD
 
 #define __get_user_asm(x, addr, err, instr)			\
 	__asm__ __volatile__(					\
 	"1:	" TUSER(instr) " %1, [%2], #0\n"		\
+=======
+#endif
+
+#define __get_user_asm(x, addr, err, instr)			\
+	__asm__ __volatile__(					\
+	"1:	" instr " %1, [%2], #0\n"			\
+>>>>>>> upstream/android-13
 	"2:\n"							\
 	"	.pushsection .text.fixup,\"ax\"\n"		\
 	"	.align	2\n"					\
@@ -346,6 +442,7 @@ do {									\
 	: "r" (addr), "i" (-EFAULT)				\
 	: "cc")
 
+<<<<<<< HEAD
 #define __get_user_asm_byte(x, addr, err)			\
 	__get_user_asm(x, addr, err, ldrb)
 
@@ -353,10 +450,20 @@ do {									\
 
 #define __get_user_asm_half(x, addr, err)			\
 	__get_user_asm(x, addr, err, ldrh)
+=======
+#define __get_user_asm_byte(x, addr, err, __t)			\
+	__get_user_asm(x, addr, err, "ldrb" __t)
+
+#if __LINUX_ARM_ARCH__ >= 6
+
+#define __get_user_asm_half(x, addr, err, __t)			\
+	__get_user_asm(x, addr, err, "ldrh" __t)
+>>>>>>> upstream/android-13
 
 #else
 
 #ifndef __ARMEB__
+<<<<<<< HEAD
 #define __get_user_asm_half(x, __gu_addr, err)			\
 ({								\
 	unsigned long __b1, __b2;				\
@@ -370,16 +477,36 @@ do {									\
 	unsigned long __b1, __b2;				\
 	__get_user_asm_byte(__b1, __gu_addr, err);		\
 	__get_user_asm_byte(__b2, __gu_addr + 1, err);		\
+=======
+#define __get_user_asm_half(x, __gu_addr, err, __t)		\
+({								\
+	unsigned long __b1, __b2;				\
+	__get_user_asm_byte(__b1, __gu_addr, err, __t);		\
+	__get_user_asm_byte(__b2, __gu_addr + 1, err, __t);	\
+	(x) = __b1 | (__b2 << 8);				\
+})
+#else
+#define __get_user_asm_half(x, __gu_addr, err, __t)		\
+({								\
+	unsigned long __b1, __b2;				\
+	__get_user_asm_byte(__b1, __gu_addr, err, __t);		\
+	__get_user_asm_byte(__b2, __gu_addr + 1, err, __t);	\
+>>>>>>> upstream/android-13
 	(x) = (__b1 << 8) | __b2;				\
 })
 #endif
 
 #endif /* __LINUX_ARM_ARCH__ >= 6 */
 
+<<<<<<< HEAD
 #define __get_user_asm_word(x, addr, err)			\
 	__get_user_asm(x, addr, err, ldr)
 #endif
 
+=======
+#define __get_user_asm_word(x, addr, err, __t)			\
+	__get_user_asm(x, addr, err, "ldr" __t)
+>>>>>>> upstream/android-13
 
 #define __put_user_switch(x, ptr, __err, __fn)				\
 	do {								\
@@ -423,7 +550,11 @@ do {									\
 #define __put_user_nocheck(x, __pu_ptr, __err, __size)			\
 	do {								\
 		unsigned long __pu_addr = (unsigned long)__pu_ptr;	\
+<<<<<<< HEAD
 		__put_user_nocheck_##__size(x, __pu_addr, __err);	\
+=======
+		__put_user_nocheck_##__size(x, __pu_addr, __err, TUSER());\
+>>>>>>> upstream/android-13
 	} while (0)
 
 #define __put_user_nocheck_1 __put_user_asm_byte
@@ -431,9 +562,17 @@ do {									\
 #define __put_user_nocheck_4 __put_user_asm_word
 #define __put_user_nocheck_8 __put_user_asm_dword
 
+<<<<<<< HEAD
 #define __put_user_asm(x, __pu_addr, err, instr)		\
 	__asm__ __volatile__(					\
 	"1:	" TUSER(instr) " %1, [%2], #0\n"		\
+=======
+#endif /* !CONFIG_CPU_SPECTRE */
+
+#define __put_user_asm(x, __pu_addr, err, instr)		\
+	__asm__ __volatile__(					\
+	"1:	" instr " %1, [%2], #0\n"		\
+>>>>>>> upstream/android-13
 	"2:\n"							\
 	"	.pushsection .text.fixup,\"ax\"\n"		\
 	"	.align	2\n"					\
@@ -448,6 +587,7 @@ do {									\
 	: "r" (x), "r" (__pu_addr), "i" (-EFAULT)		\
 	: "cc")
 
+<<<<<<< HEAD
 #define __put_user_asm_byte(x, __pu_addr, err)			\
 	__put_user_asm(x, __pu_addr, err, strb)
 
@@ -455,10 +595,20 @@ do {									\
 
 #define __put_user_asm_half(x, __pu_addr, err)			\
 	__put_user_asm(x, __pu_addr, err, strh)
+=======
+#define __put_user_asm_byte(x, __pu_addr, err, __t)		\
+	__put_user_asm(x, __pu_addr, err, "strb" __t)
+
+#if __LINUX_ARM_ARCH__ >= 6
+
+#define __put_user_asm_half(x, __pu_addr, err, __t)		\
+	__put_user_asm(x, __pu_addr, err, "strh" __t)
+>>>>>>> upstream/android-13
 
 #else
 
 #ifndef __ARMEB__
+<<<<<<< HEAD
 #define __put_user_asm_half(x, __pu_addr, err)			\
 ({								\
 	unsigned long __temp = (__force unsigned long)(x);	\
@@ -471,13 +621,32 @@ do {									\
 	unsigned long __temp = (__force unsigned long)(x);	\
 	__put_user_asm_byte(__temp >> 8, __pu_addr, err);	\
 	__put_user_asm_byte(__temp, __pu_addr + 1, err);	\
+=======
+#define __put_user_asm_half(x, __pu_addr, err, __t)		\
+({								\
+	unsigned long __temp = (__force unsigned long)(x);	\
+	__put_user_asm_byte(__temp, __pu_addr, err, __t);	\
+	__put_user_asm_byte(__temp >> 8, __pu_addr + 1, err, __t);\
+})
+#else
+#define __put_user_asm_half(x, __pu_addr, err, __t)		\
+({								\
+	unsigned long __temp = (__force unsigned long)(x);	\
+	__put_user_asm_byte(__temp >> 8, __pu_addr, err, __t);	\
+	__put_user_asm_byte(__temp, __pu_addr + 1, err, __t);	\
+>>>>>>> upstream/android-13
 })
 #endif
 
 #endif /* __LINUX_ARM_ARCH__ >= 6 */
 
+<<<<<<< HEAD
 #define __put_user_asm_word(x, __pu_addr, err)			\
 	__put_user_asm(x, __pu_addr, err, str)
+=======
+#define __put_user_asm_word(x, __pu_addr, err, __t)		\
+	__put_user_asm(x, __pu_addr, err, "str" __t)
+>>>>>>> upstream/android-13
 
 #ifndef __ARMEB__
 #define	__reg_oper0	"%R2"
@@ -487,12 +656,21 @@ do {									\
 #define	__reg_oper1	"%R2"
 #endif
 
+<<<<<<< HEAD
 #define __put_user_asm_dword(x, __pu_addr, err)			\
 	__asm__ __volatile__(					\
  ARM(	"1:	" TUSER(str) "	" __reg_oper1 ", [%1], #4\n"	) \
  ARM(	"2:	" TUSER(str) "	" __reg_oper0 ", [%1]\n"	) \
  THUMB(	"1:	" TUSER(str) "	" __reg_oper1 ", [%1]\n"	) \
  THUMB(	"2:	" TUSER(str) "	" __reg_oper0 ", [%1, #4]\n"	) \
+=======
+#define __put_user_asm_dword(x, __pu_addr, err, __t)		\
+	__asm__ __volatile__(					\
+ ARM(	"1:	str" __t "	" __reg_oper1 ", [%1], #4\n"  ) \
+ ARM(	"2:	str" __t "	" __reg_oper0 ", [%1]\n"      ) \
+ THUMB(	"1:	str" __t "	" __reg_oper1 ", [%1]\n"      ) \
+ THUMB(	"2:	str" __t "	" __reg_oper0 ", [%1, #4]\n"  ) \
+>>>>>>> upstream/android-13
 	"3:\n"							\
 	"	.pushsection .text.fixup,\"ax\"\n"		\
 	"	.align	2\n"					\
@@ -508,7 +686,58 @@ do {									\
 	: "r" (x), "i" (-EFAULT)				\
 	: "cc")
 
+<<<<<<< HEAD
 #endif /* !CONFIG_CPU_SPECTRE */
+=======
+#define HAVE_GET_KERNEL_NOFAULT
+
+#define __get_kernel_nofault(dst, src, type, err_label)			\
+do {									\
+	const type *__pk_ptr = (src);					\
+	unsigned long __src = (unsigned long)(__pk_ptr);		\
+	type __val;							\
+	int __err = 0;							\
+	switch (sizeof(type)) {						\
+	case 1:	__get_user_asm_byte(__val, __src, __err, ""); break;	\
+	case 2: __get_user_asm_half(__val, __src, __err, ""); break;	\
+	case 4: __get_user_asm_word(__val, __src, __err, ""); break;	\
+	case 8: {							\
+		u32 *__v32 = (u32*)&__val;				\
+		__get_user_asm_word(__v32[0], __src, __err, "");	\
+		if (__err)						\
+			break;						\
+		__get_user_asm_word(__v32[1], __src+4, __err, "");	\
+		break;							\
+	}								\
+	default: __err = __get_user_bad(); break;			\
+	}								\
+	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS))		\
+		put_unaligned(__val, (type *)(dst));			\
+	else								\
+		*(type *)(dst) = __val; /* aligned by caller */		\
+	if (__err)							\
+		goto err_label;						\
+} while (0)
+
+#define __put_kernel_nofault(dst, src, type, err_label)			\
+do {									\
+	const type *__pk_ptr = (dst);					\
+	unsigned long __dst = (unsigned long)__pk_ptr;			\
+	int __err = 0;							\
+	type __val = IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)	\
+		     ? get_unaligned((type *)(src))			\
+		     : *(type *)(src);	/* aligned by caller */		\
+	switch (sizeof(type)) {						\
+	case 1: __put_user_asm_byte(__val, __dst, __err, ""); break;	\
+	case 2:	__put_user_asm_half(__val, __dst, __err, ""); break;	\
+	case 4:	__put_user_asm_word(__val, __dst, __err, ""); break;	\
+	case 8:	__put_user_asm_dword(__val, __dst, __err, ""); break;	\
+	default: __err = __put_user_bad(); break;			\
+	}								\
+	if (__err)							\
+		goto err_label;						\
+} while (0)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MMU
 extern unsigned long __must_check
@@ -578,7 +807,11 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n)
 
 static inline unsigned long __must_check clear_user(void __user *to, unsigned long n)
 {
+<<<<<<< HEAD
 	if (access_ok(VERIFY_WRITE, to, n))
+=======
+	if (access_ok(to, n))
+>>>>>>> upstream/android-13
 		n = __clear_user(to, n);
 	return n;
 }

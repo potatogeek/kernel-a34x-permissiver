@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HP Quicksilver AGP GART routines
  *
@@ -6,11 +10,14 @@
  * Based on drivers/char/agpgart/hp-agp.c which is
  * (c) Copyright 2002, 2003 Hewlett-Packard Development Company, L.P.
  *	Bjorn Helgaas <bjorn.helgaas@hp.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -285,7 +292,11 @@ agp_ioc_init(void __iomem *ioc_regs)
         return 0;
 }
 
+<<<<<<< HEAD
 static int
+=======
+static int __init
+>>>>>>> upstream/android-13
 lba_find_capability(int cap)
 {
 	struct _parisc_agp_info *info = &parisc_agp_info;
@@ -370,7 +381,11 @@ fail:
 	return error;
 }
 
+<<<<<<< HEAD
 static int
+=======
+static int __init
+>>>>>>> upstream/android-13
 find_quicksilver(struct device *dev, void *data)
 {
 	struct parisc_device **lba = data;
@@ -382,7 +397,11 @@ find_quicksilver(struct device *dev, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
+=======
+static int __init
+>>>>>>> upstream/android-13
 parisc_agp_init(void)
 {
 	extern struct sba_device *sba_list;

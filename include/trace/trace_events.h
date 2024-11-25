@@ -2,7 +2,12 @@
 /*
  * Stage 1 of the trace events.
  *
+<<<<<<< HEAD
  * Override the macros in <trace/trace_events.h> to include the following:
+=======
+ * Override the macros in the event tracepoint header <trace/events/XXX.h>
+ * to include the following:
+>>>>>>> upstream/android-13
  *
  * struct trace_event_raw_<call> {
  *	struct trace_entry		ent;
@@ -44,7 +49,11 @@ TRACE_MAKE_SYSTEM_STR();
 		.eval_value = a				\
 	};						\
 	static struct trace_eval_map __used		\
+<<<<<<< HEAD
 	__attribute__((section("_ftrace_eval_map")))	\
+=======
+	__section("_ftrace_eval_map")			\
+>>>>>>> upstream/android-13
 	*TRACE_SYSTEM##_##a = &__##TRACE_SYSTEM##_##a
 
 #undef TRACE_DEFINE_SIZEOF
@@ -57,7 +66,11 @@ TRACE_MAKE_SYSTEM_STR();
 		.eval_value = sizeof(a)			\
 	};						\
 	static struct trace_eval_map __used		\
+<<<<<<< HEAD
 	__attribute__((section("_ftrace_eval_map")))	\
+=======
+	__section("_ftrace_eval_map")			\
+>>>>>>> upstream/android-13
 	*TRACE_SYSTEM##_##a = &__##TRACE_SYSTEM##_##a
 
 /*
@@ -101,6 +114,12 @@ TRACE_MAKE_SYSTEM_STR();
 #undef __string
 #define __string(item, src) __dynamic_array(char, item, -1)
 
+<<<<<<< HEAD
+=======
+#undef __string_len
+#define __string_len(item, src, len) __dynamic_array(char, item, -1)
+
+>>>>>>> upstream/android-13
 #undef __bitmask
 #define __bitmask(item, nr_bits) __dynamic_array(char, item, -1)
 
@@ -196,6 +215,12 @@ TRACE_MAKE_SYSTEM_STR();
 #undef __string
 #define __string(item, src) __dynamic_array(char, item, -1)
 
+<<<<<<< HEAD
+=======
+#undef __string_len
+#define __string_len(item, src, len) __dynamic_array(char, item, -1)
+
+>>>>>>> upstream/android-13
 #undef __bitmask
 #define __bitmask(item, nr_bits) __dynamic_array(unsigned long, item, -1)
 
@@ -209,8 +234,12 @@ TRACE_MAKE_SYSTEM_STR();
 #define DEFINE_EVENT(template, name, proto, args)
 
 #undef DEFINE_EVENT_PRINT
+<<<<<<< HEAD
 #define DEFINE_EVENT_PRINT(template, name, proto, args, print)	\
 	DEFINE_EVENT(template, name, PARAMS(proto), PARAMS(args))
+=======
+#define DEFINE_EVENT_PRINT(template, name, proto, args, print)
+>>>>>>> upstream/android-13
 
 #undef TRACE_EVENT_FLAGS
 #define TRACE_EVENT_FLAGS(event, flag)
@@ -223,16 +252,29 @@ TRACE_MAKE_SYSTEM_STR();
 /*
  * Stage 3 of the trace events.
  *
+<<<<<<< HEAD
  * Override the macros in <trace/trace_events.h> to include the following:
+=======
+ * Override the macros in the event tracepoint header <trace/events/XXX.h>
+ * to include the following:
+>>>>>>> upstream/android-13
  *
  * enum print_line_t
  * trace_raw_output_<call>(struct trace_iterator *iter, int flags)
  * {
  *	struct trace_seq *s = &iter->seq;
  *	struct trace_event_raw_<call> *field; <-- defined in stage 1
+<<<<<<< HEAD
  *	struct trace_entry *entry;
  *	struct trace_seq *p = &iter->tmp_seq;
  *	int ret;
+=======
+ *	struct trace_seq *p = &iter->tmp_seq;
+ *
+ * -------(for event)-------
+ *
+ *	struct trace_entry *entry;
+>>>>>>> upstream/android-13
  *
  *	entry = iter->ent;
  *
@@ -244,6 +286,7 @@ TRACE_MAKE_SYSTEM_STR();
  *	field = (typeof(field))entry;
  *
  *	trace_seq_init(p);
+<<<<<<< HEAD
  *	ret = trace_seq_printf(s, "%s: ", <call>);
  *	if (ret)
  *		ret = trace_seq_printf(s, <TP_printk> "\n");
@@ -252,6 +295,25 @@ TRACE_MAKE_SYSTEM_STR();
  *
  *	return TRACE_TYPE_HANDLED;
  * }
+=======
+ *	return trace_output_call(iter, <call>, <TP_printk> "\n");
+ *
+ * ------(or, for event class)------
+ *
+ *	int ret;
+ *
+ *	field = (typeof(field))iter->ent;
+ *
+ *	ret = trace_raw_output_prep(iter, trace_event);
+ *	if (ret != TRACE_TYPE_HANDLED)
+ *		return ret;
+ *
+ *	trace_event_printf(iter, <TP_printk> "\n");
+ *
+ *	return trace_handle_return(s);
+ * -------
+ *  }
+>>>>>>> upstream/android-13
  *
  * This is the method used to print the raw event to the trace
  * output format. Note, this is not needed if the data is read
@@ -340,6 +402,30 @@ TRACE_MAKE_SYSTEM_STR();
 		trace_print_array_seq(p, array, count, el_size);	\
 	})
 
+<<<<<<< HEAD
+=======
+#undef __print_hex_dump
+#define __print_hex_dump(prefix_str, prefix_type,			\
+			 rowsize, groupsize, buf, len, ascii)		\
+	trace_print_hex_dump_seq(p, prefix_str, prefix_type,		\
+				 rowsize, groupsize, buf, len, ascii)
+
+#undef __print_ns_to_secs
+#define __print_ns_to_secs(value)			\
+	({						\
+		u64 ____val = (u64)(value);		\
+		do_div(____val, NSEC_PER_SEC);		\
+		____val;				\
+	})
+
+#undef __print_ns_without_secs
+#define __print_ns_without_secs(value)			\
+	({						\
+		u64 ____val = (u64)(value);		\
+		(u32) do_div(____val, NSEC_PER_SEC);	\
+	})
+
+>>>>>>> upstream/android-13
 #undef DECLARE_EVENT_CLASS
 #define DECLARE_EVENT_CLASS(call, proto, args, tstruct, assign, print)	\
 static notrace enum print_line_t					\
@@ -357,7 +443,11 @@ trace_raw_output_##call(struct trace_iterator *iter, int flags,		\
 	if (ret != TRACE_TYPE_HANDLED)					\
 		return ret;						\
 									\
+<<<<<<< HEAD
 	trace_seq_printf(s, print);					\
+=======
+	trace_event_printf(iter, print);				\
+>>>>>>> upstream/android-13
 									\
 	return trace_handle_return(s);					\
 }									\
@@ -394,6 +484,7 @@ static struct trace_event_functions trace_event_type_funcs_##call = {	\
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
 
 #undef __field_ext
+<<<<<<< HEAD
 #define __field_ext(type, item, filter_type)				\
 	ret = trace_define_field(event_call, #type, #item,		\
 				 offsetof(typeof(field), item),		\
@@ -410,6 +501,18 @@ static struct trace_event_functions trace_event_type_funcs_##call = {	\
 				 0, filter_type);			\
 	if (ret)							\
 		return ret;
+=======
+#define __field_ext(_type, _item, _filter_type) {			\
+	.type = #_type, .name = #_item,					\
+	.size = sizeof(_type), .align = __alignof__(_type),		\
+	.is_signed = is_signed_type(_type), .filter_type = _filter_type },
+
+#undef __field_struct_ext
+#define __field_struct_ext(_type, _item, _filter_type) {		\
+	.type = #_type, .name = #_item,					\
+	.size = sizeof(_type), .align = __alignof__(_type),		\
+	0, .filter_type = _filter_type },
+>>>>>>> upstream/android-13
 
 #undef __field
 #define __field(type, item)	__field_ext(type, item, FILTER_OTHER)
@@ -418,6 +521,7 @@ static struct trace_event_functions trace_event_type_funcs_##call = {	\
 #define __field_struct(type, item) __field_struct_ext(type, item, FILTER_OTHER)
 
 #undef __array
+<<<<<<< HEAD
 #define __array(type, item, len)					\
 	do {								\
 		char *type_str = #type"["__stringify(len)"]";		\
@@ -437,15 +541,34 @@ static struct trace_event_functions trace_event_type_funcs_##call = {	\
 				 offsetof(typeof(field), __data_loc_##item),   \
 				 sizeof(field.__data_loc_##item),	       \
 				 is_signed_type(type), FILTER_OTHER);
+=======
+#define __array(_type, _item, _len) {					\
+	.type = #_type"["__stringify(_len)"]", .name = #_item,		\
+	.size = sizeof(_type[_len]), .align = __alignof__(_type),	\
+	.is_signed = is_signed_type(_type), .filter_type = FILTER_OTHER },
+
+#undef __dynamic_array
+#define __dynamic_array(_type, _item, _len) {				\
+	.type = "__data_loc " #_type "[]", .name = #_item,		\
+	.size = 4, .align = 4,						\
+	.is_signed = is_signed_type(_type), .filter_type = FILTER_OTHER },
+>>>>>>> upstream/android-13
 
 #undef __string
 #define __string(item, src) __dynamic_array(char, item, -1)
 
+<<<<<<< HEAD
+=======
+#undef __string_len
+#define __string_len(item, src, len) __dynamic_array(char, item, -1)
+
+>>>>>>> upstream/android-13
 #undef __bitmask
 #define __bitmask(item, nr_bits) __dynamic_array(unsigned long, item, -1)
 
 #undef DECLARE_EVENT_CLASS
 #define DECLARE_EVENT_CLASS(call, proto, args, tstruct, func, print)	\
+<<<<<<< HEAD
 static int notrace __init						\
 trace_event_define_fields_##call(struct trace_event_call *event_call)	\
 {									\
@@ -463,6 +586,14 @@ trace_event_define_fields_##call(struct trace_event_call *event_call)	\
 #undef DEFINE_EVENT_PRINT
 #define DEFINE_EVENT_PRINT(template, name, proto, args, print)	\
 	DEFINE_EVENT(template, name, PARAMS(proto), PARAMS(args))
+=======
+static struct trace_event_fields trace_event_fields_##call[] = {	\
+	tstruct								\
+	{} };
+
+#undef DEFINE_EVENT_PRINT
+#define DEFINE_EVENT_PRINT(template, name, proto, args, print)
+>>>>>>> upstream/android-13
 
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
 
@@ -500,6 +631,12 @@ trace_event_define_fields_##call(struct trace_event_call *event_call)	\
 #define __string(item, src) __dynamic_array(char, item,			\
 		    strlen((src) ? (const char *)(src) : "(null)") + 1)
 
+<<<<<<< HEAD
+=======
+#undef __string_len
+#define __string_len(item, src, len) __dynamic_array(char, item, (len) + 1)
+
+>>>>>>> upstream/android-13
 /*
  * __bitmask_size_in_bytes_raw is the number of bytes needed to hold
  * num_possible_cpus().
@@ -537,6 +674,7 @@ static inline notrace int trace_event_get_offsets_##call(		\
 	return __data_size;						\
 }
 
+<<<<<<< HEAD
 #undef DEFINE_EVENT
 #define DEFINE_EVENT(template, name, proto, args)
 
@@ -544,12 +682,19 @@ static inline notrace int trace_event_get_offsets_##call(		\
 #define DEFINE_EVENT_PRINT(template, name, proto, args, print)	\
 	DEFINE_EVENT(template, name, PARAMS(proto), PARAMS(args))
 
+=======
+>>>>>>> upstream/android-13
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
 
 /*
  * Stage 4 of the trace events.
  *
+<<<<<<< HEAD
  * Override the macros in <trace/trace_events.h> to include the following:
+=======
+ * Override the macros in the event tracepoint header <trace/events/XXX.h>
+ * to include the following:
+>>>>>>> upstream/android-13
  *
  * For those macros defined with TRACE_EVENT:
  *
@@ -564,7 +709,11 @@ static inline notrace int trace_event_get_offsets_##call(		\
  *	enum event_trigger_type __tt = ETT_NONE;
  *	struct ring_buffer_event *event;
  *	struct trace_event_raw_<call> *entry; <-- defined in stage 1
+<<<<<<< HEAD
  *	struct ring_buffer *buffer;
+=======
+ *	struct trace_buffer *buffer;
+>>>>>>> upstream/android-13
  *	unsigned long irq_flags;
  *	int __data_size;
  *	int pc;
@@ -613,7 +762,11 @@ static inline notrace int trace_event_get_offsets_##call(		\
  *
  * static struct trace_event_class __used event_class_<template> = {
  *	.system			= "<system>",
+<<<<<<< HEAD
  *	.define_fields		= trace_event_define_fields_<call>,
+=======
+ *	.fields_array		= trace_event_fields_<call>,
+>>>>>>> upstream/android-13
  *	.fields			= LIST_HEAD_INIT(event_class_##call.fields),
  *	.raw_init		= trace_event_raw_init,
  *	.probe			= trace_event_raw_event_##call,
@@ -632,7 +785,11 @@ static inline notrace int trace_event_get_offsets_##call(		\
  * // its only safe to use pointers when doing linker tricks to
  * // create an array.
  * static struct trace_event_call __used
+<<<<<<< HEAD
  * __attribute__((section("_ftrace_events"))) *__event_<call> = &event_<call>;
+=======
+ * __section("_ftrace_events") *__event_<call> = &event_<call>;
+>>>>>>> upstream/android-13
  *
  */
 
@@ -669,10 +826,26 @@ static inline notrace int trace_event_get_offsets_##call(		\
 #undef __string
 #define __string(item, src) __dynamic_array(char, item, -1)
 
+<<<<<<< HEAD
+=======
+#undef __string_len
+#define __string_len(item, src, len) __dynamic_array(char, item, -1)
+
+>>>>>>> upstream/android-13
 #undef __assign_str
 #define __assign_str(dst, src)						\
 	strcpy(__get_str(dst), (src) ? (const char *)(src) : "(null)");
 
+<<<<<<< HEAD
+=======
+#undef __assign_str_len
+#define __assign_str_len(dst, src, len)					\
+	do {								\
+		memcpy(__get_str(dst), (src), (len));			\
+		__get_str(dst)[len] = '\0';				\
+	} while(0)
+
+>>>>>>> upstream/android-13
 #undef __bitmask
 #define __bitmask(item, nr_bits) __dynamic_array(unsigned long, item, -1)
 
@@ -734,9 +907,12 @@ static inline void ftrace_test_probe_##call(void)			\
 	check_trace_callback_type_##call(trace_event_raw_event_##template); \
 }
 
+<<<<<<< HEAD
 #undef DEFINE_EVENT_PRINT
 #define DEFINE_EVENT_PRINT(template, name, proto, args, print)
 
+=======
+>>>>>>> upstream/android-13
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
 
 #undef __entry
@@ -751,6 +927,20 @@ static inline void ftrace_test_probe_##call(void)			\
 #undef __get_str
 #undef __get_bitmask
 #undef __print_array
+<<<<<<< HEAD
+=======
+#undef __print_hex_dump
+
+/*
+ * The below is not executed in the kernel. It is only what is
+ * displayed in the print format for userspace to parse.
+ */
+#undef __print_ns_to_secs
+#define __print_ns_to_secs(val) (val) / 1000000000UL
+
+#undef __print_ns_without_secs
+#define __print_ns_without_secs(val) (val) % 1000000000UL
+>>>>>>> upstream/android-13
 
 #undef TP_printk
 #define TP_printk(fmt, args...) "\"" fmt "\", "  __stringify(args)
@@ -761,7 +951,11 @@ _TRACE_PERF_PROTO(call, PARAMS(proto));					\
 static char print_fmt_##call[] = print;					\
 static struct trace_event_class __used __refdata event_class_##call = { \
 	.system			= TRACE_SYSTEM_STRING,			\
+<<<<<<< HEAD
 	.define_fields		= trace_event_define_fields_##call,	\
+=======
+	.fields_array		= trace_event_fields_##call,		\
+>>>>>>> upstream/android-13
 	.fields			= LIST_HEAD_INIT(event_class_##call.fields),\
 	.raw_init		= trace_event_raw_init,			\
 	.probe			= trace_event_raw_event_##call,		\
@@ -782,7 +976,11 @@ static struct trace_event_call __used event_##call = {			\
 	.flags			= TRACE_EVENT_FL_TRACEPOINT,		\
 };									\
 static struct trace_event_call __used					\
+<<<<<<< HEAD
 __attribute__((section("_ftrace_events"))) *__event_##call = &event_##call
+=======
+__section("_ftrace_events") *__event_##call = &event_##call
+>>>>>>> upstream/android-13
 
 #undef DEFINE_EVENT_PRINT
 #define DEFINE_EVENT_PRINT(template, call, proto, args, print)		\
@@ -799,6 +997,10 @@ static struct trace_event_call __used event_##call = {			\
 	.flags			= TRACE_EVENT_FL_TRACEPOINT,		\
 };									\
 static struct trace_event_call __used					\
+<<<<<<< HEAD
 __attribute__((section("_ftrace_events"))) *__event_##call = &event_##call
+=======
+__section("_ftrace_events") *__event_##call = &event_##call
+>>>>>>> upstream/android-13
 
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)

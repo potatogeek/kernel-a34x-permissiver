@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  net/dccp/output.c
  *
  *  An implementation of the DCCP protocol
  *  Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dccp.h>
@@ -66,7 +73,11 @@ static int dccp_transmit_skb(struct sock *sk, struct sk_buff *skb)
 		switch (dcb->dccpd_type) {
 		case DCCP_PKT_DATA:
 			set_ack = 0;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case DCCP_PKT_DATAACK:
 		case DCCP_PKT_RESET:
 			break;
@@ -76,12 +87,20 @@ static int dccp_transmit_skb(struct sock *sk, struct sk_buff *skb)
 			/* Use ISS on the first (non-retransmitted) Request. */
 			if (icsk->icsk_retransmits == 0)
 				dcb->dccpd_seq = dp->dccps_iss;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case DCCP_PKT_SYNC:
 		case DCCP_PKT_SYNCACK:
 			ackno = dcb->dccpd_ack_seq;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			/*
 			 * Set owner/destructor: some skbs are allocated via
@@ -147,6 +166,11 @@ static int dccp_transmit_skb(struct sock *sk, struct sk_buff *skb)
 
 /**
  * dccp_determine_ccmps  -  Find out about CCID-specific packet-size limits
+<<<<<<< HEAD
+=======
+ * @dp: socket to find packet size limits of
+ *
+>>>>>>> upstream/android-13
  * We only consider the HC-sender CCID for setting the CCMPS (RFC 4340, 14.),
  * since the RX CCID is restricted to feedback packets (Acks), which are small
  * in comparison with the data traffic. A value of 0 means "no current CCMPS".
@@ -240,6 +264,11 @@ static int dccp_wait_for_ccid(struct sock *sk, unsigned long delay)
 
 /**
  * dccp_xmit_packet  -  Send data packet under control of CCID
+<<<<<<< HEAD
+=======
+ * @sk: socket to send data packet on
+ *
+>>>>>>> upstream/android-13
  * Transmits next-queued payload and informs CCID to account for the packet.
  */
 static void dccp_xmit_packet(struct sock *sk)
@@ -300,6 +329,12 @@ static void dccp_xmit_packet(struct sock *sk)
 
 /**
  * dccp_flush_write_queue  -  Drain queue at end of connection
+<<<<<<< HEAD
+=======
+ * @sk: socket to be drained
+ * @time_budget: time allowed to drain the queue
+ *
+>>>>>>> upstream/android-13
  * Since dccp_sendmsg queues packets without waiting for them to be sent, it may
  * happen that the TX queue is not empty at the end of a connection. We give the
  * HC-sender CCID a grace period of up to @time_budget jiffies. If this function
@@ -371,6 +406,11 @@ void dccp_write_xmit(struct sock *sk)
 
 /**
  * dccp_retransmit_skb  -  Retransmit Request, Close, or CloseReq packets
+<<<<<<< HEAD
+=======
+ * @sk: socket to perform retransmit on
+ *
+>>>>>>> upstream/android-13
  * There are only four retransmittable packet types in DCCP:
  * - Request  in client-REQUEST  state (sec. 8.1.1),
  * - CloseReq in server-CLOSEREQ state (sec. 8.3),
@@ -485,7 +525,11 @@ struct sk_buff *dccp_ctl_make_reset(struct sock *sk, struct sk_buff *rcv_skb)
 	case DCCP_RESET_CODE_PACKET_ERROR:
 		dhr->dccph_reset_data[0] = rxdh->dccph_type;
 		break;
+<<<<<<< HEAD
 	case DCCP_RESET_CODE_OPTION_ERROR:	/* fall through */
+=======
+	case DCCP_RESET_CODE_OPTION_ERROR:
+>>>>>>> upstream/android-13
 	case DCCP_RESET_CODE_MANDATORY_ERROR:
 		memcpy(dhr->dccph_reset_data, dcb->dccpd_reset_data, 3);
 		break;

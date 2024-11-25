@@ -82,15 +82,23 @@ do {						\
 } while (0)
 
 
+<<<<<<< HEAD
 #define __alloc_zeroed_user_highpage(movableflags, vma, vaddr)		\
 ({									\
 	struct page *page = alloc_page_vma(				\
 		GFP_HIGHUSER | __GFP_ZERO | movableflags, vma, vaddr);	\
+=======
+#define alloc_zeroed_user_highpage_movable(vma, vaddr)			\
+({									\
+	struct page *page = alloc_page_vma(				\
+		GFP_HIGHUSER_MOVABLE | __GFP_ZERO, vma, vaddr);		\
+>>>>>>> upstream/android-13
 	if (page)							\
  		flush_dcache_page(page);				\
 	page;								\
 })
 
+<<<<<<< HEAD
 #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
 
 #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
@@ -120,6 +128,16 @@ extern struct page *vmem_map;
 extern unsigned long min_low_pfn;
 extern unsigned long max_low_pfn;
 # define pfn_valid(pfn)		(((pfn) >= min_low_pfn) && ((pfn) < max_low_pfn) && ia64_pfn_valid(pfn))
+=======
+#define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE_MOVABLE
+
+#define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
+
+#include <asm-generic/memory_model.h>
+
+#ifdef CONFIG_FLATMEM
+# define pfn_valid(pfn)		((pfn) < max_mapnr)
+>>>>>>> upstream/android-13
 #endif
 
 #define page_to_phys(page)	(page_to_pfn(page) << PAGE_SHIFT)
@@ -218,10 +236,14 @@ get_order (unsigned long size)
 
 #define PAGE_OFFSET			RGN_BASE(RGN_KERNEL)
 
+<<<<<<< HEAD
 #define VM_DATA_DEFAULT_FLAGS		(VM_READ | VM_WRITE |					\
 					 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC |		\
 					 (((current->personality & READ_IMPLIES_EXEC) != 0)	\
 					  ? VM_EXEC : 0))
+=======
+#define VM_DATA_DEFAULT_FLAGS	VM_DATA_FLAGS_TSK_EXEC
+>>>>>>> upstream/android-13
 
 #define GATE_ADDR		RGN_BASE(RGN_GATE)
 

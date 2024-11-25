@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _OPA_VNIC_H
 #define _OPA_VNIC_H
 /*
@@ -46,6 +47,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright(c) 2017 - 2020 Intel Corporation.
+ */
+
+#ifndef _OPA_VNIC_H
+#define _OPA_VNIC_H
+>>>>>>> upstream/android-13
 
 /*
  * This file contains Intel Omni-Path (OPA) Virtual Network Interface
@@ -75,7 +85,11 @@
 struct opa_vnic_rdma_netdev {
 	struct rdma_netdev rn;  /* keep this first */
 	/* followed by device private data */
+<<<<<<< HEAD
 	char *dev_priv[0];
+=======
+	char *dev_priv[];
+>>>>>>> upstream/android-13
 };
 
 static inline void *opa_vnic_priv(const struct net_device *dev)
@@ -132,7 +146,11 @@ struct opa_vnic_stats {
 static inline bool rdma_cap_opa_vnic(struct ib_device *device)
 {
 	return !!(device->attrs.device_cap_flags &
+<<<<<<< HEAD
 		  IB_DEVICE_RDMA_NETDEV_OPA_VNIC);
+=======
+		  IB_DEVICE_RDMA_NETDEV_OPA);
+>>>>>>> upstream/android-13
 }
 
 #endif /* _OPA_VNIC_H */

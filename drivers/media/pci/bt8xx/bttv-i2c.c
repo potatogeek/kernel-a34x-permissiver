@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
     bttv-i2c.c  --  all the i2c code is here
@@ -11,6 +15,7 @@
     (c) 2005 Mauro Carvalho Chehab <mchehab@kernel.org>
 	- Multituner support and i2c address binding
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -347,13 +354,21 @@ static void do_i2c_scan(char *name, struct i2c_client *c)
 /* init + register i2c adapter */
 int init_bttv_i2c(struct bttv *btv)
 {
+<<<<<<< HEAD
 	strlcpy(btv->i2c_client.name, "bttv internal", I2C_NAME_SIZE);
+=======
+	strscpy(btv->i2c_client.name, "bttv internal", I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 
 	if (i2c_hw)
 		btv->use_i2c_hw = 1;
 	if (btv->use_i2c_hw) {
 		/* bt878 */
+<<<<<<< HEAD
 		strlcpy(btv->c.i2c_adap.name, "bt878",
+=======
+		strscpy(btv->c.i2c_adap.name, "bt878",
+>>>>>>> upstream/android-13
 			sizeof(btv->c.i2c_adap.name));
 		btv->c.i2c_adap.algo = &bttv_algo;
 	} else {
@@ -362,7 +377,11 @@ int init_bttv_i2c(struct bttv *btv)
 		if (i2c_udelay<5)
 			i2c_udelay=5;
 
+<<<<<<< HEAD
 		strlcpy(btv->c.i2c_adap.name, "bttv",
+=======
+		strscpy(btv->c.i2c_adap.name, "bttv",
+>>>>>>> upstream/android-13
 			sizeof(btv->c.i2c_adap.name));
 		btv->i2c_algo = bttv_i2c_algo_bit_template;
 		btv->i2c_algo.udelay = i2c_udelay;

@@ -21,6 +21,7 @@
  *
  */
 
+<<<<<<< HEAD
 #include <linux/pci.h>
 #include <linux/acpi.h>
 #include <linux/slab.h>
@@ -32,6 +33,24 @@
 #include "radeon.h"
 #include "radeon_acpi.h"
 #include "atom.h"
+=======
+#include <linux/acpi.h>
+#include <linux/pci.h>
+#include <linux/pm_runtime.h>
+#include <linux/power_supply.h>
+#include <linux/slab.h>
+
+#include <acpi/acpi_bus.h>
+#include <acpi/video.h>
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_probe_helper.h>
+
+#include "atom.h"
+#include "radeon.h"
+#include "radeon_acpi.h"
+#include "radeon_pm.h"
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_VGA_SWITCHEROO)
 bool radeon_atpx_dgpu_req_power_for_displays(void);
@@ -41,8 +60,11 @@ static inline bool radeon_atpx_dgpu_req_power_for_displays(void) { return false;
 
 #define ACPI_AC_CLASS           "ac_adapter"
 
+<<<<<<< HEAD
 extern void radeon_pm_acpi_event_handler(struct radeon_device *rdev);
 
+=======
+>>>>>>> upstream/android-13
 struct atif_verify_interface {
 	u16 size;		/* structure size in bytes (includes size field) */
 	u16 version;		/* version */

@@ -105,13 +105,21 @@ static void free_pdev(struct xen_pcibk_device *pdev)
 }
 
 static int xen_pcibk_do_attach(struct xen_pcibk_device *pdev, int gnt_ref,
+<<<<<<< HEAD
 			     int remote_evtchn)
+=======
+			     evtchn_port_t remote_evtchn)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 	void *vaddr;
 
 	dev_dbg(&pdev->xdev->dev,
+<<<<<<< HEAD
 		"Attaching to frontend resources - gnt_ref=%d evtchn=%d\n",
+=======
+		"Attaching to frontend resources - gnt_ref=%d evtchn=%u\n",
+>>>>>>> upstream/android-13
 		gnt_ref, remote_evtchn);
 
 	err = xenbus_map_ring_valloc(pdev->xdev, &gnt_ref, 1, &vaddr);
@@ -124,7 +132,11 @@ static int xen_pcibk_do_attach(struct xen_pcibk_device *pdev, int gnt_ref,
 	pdev->sh_info = vaddr;
 
 	err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+<<<<<<< HEAD
 		pdev->xdev->otherend_id, remote_evtchn, xen_pcibk_handle_event,
+=======
+		pdev->xdev, remote_evtchn, xen_pcibk_handle_event,
+>>>>>>> upstream/android-13
 		0, DRV_NAME, pdev);
 	if (err < 0) {
 		xenbus_dev_fatal(pdev->xdev, err,
@@ -142,7 +154,12 @@ out:
 static int xen_pcibk_attach(struct xen_pcibk_device *pdev)
 {
 	int err = 0;
+<<<<<<< HEAD
 	int gnt_ref, remote_evtchn;
+=======
+	int gnt_ref;
+	evtchn_port_t remote_evtchn;
+>>>>>>> upstream/android-13
 	char *magic = NULL;
 
 
@@ -358,7 +375,12 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev)
+=======
+static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev,
+				 enum xenbus_state state)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 	int num_devs;
@@ -372,9 +394,13 @@ static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev)
 	dev_dbg(&pdev->xdev->dev, "Reconfiguring device ...\n");
 
 	mutex_lock(&pdev->dev_lock);
+<<<<<<< HEAD
 	/* Make sure we only reconfigure once */
 	if (xenbus_read_driver_state(pdev->xdev->nodename) !=
 	    XenbusStateReconfiguring)
+=======
+	if (xenbus_read_driver_state(pdev->xdev->nodename) != state)
+>>>>>>> upstream/android-13
 		goto out;
 
 	err = xenbus_scanf(XBT_NIL, pdev->xdev->nodename, "num_devs", "%d",
@@ -499,6 +525,13 @@ static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (state != XenbusStateReconfiguring)
+		/* Make sure we only reconfigure once. */
+		goto out;
+
+>>>>>>> upstream/android-13
 	err = xenbus_switch_state(pdev->xdev, XenbusStateReconfigured);
 	if (err) {
 		xenbus_dev_fatal(pdev->xdev, err,
@@ -524,7 +557,11 @@ static void xen_pcibk_frontend_changed(struct xenbus_device *xdev,
 		break;
 
 	case XenbusStateReconfiguring:
+<<<<<<< HEAD
 		xen_pcibk_reconfigure(pdev);
+=======
+		xen_pcibk_reconfigure(pdev, XenbusStateReconfiguring);
+>>>>>>> upstream/android-13
 		break;
 
 	case XenbusStateConnected:
@@ -544,7 +581,11 @@ static void xen_pcibk_frontend_changed(struct xenbus_device *xdev,
 		xenbus_switch_state(xdev, XenbusStateClosed);
 		if (xenbus_dev_is_online(xdev))
 			break;
+<<<<<<< HEAD
 		/* fall through if not online */
+=======
+		fallthrough;	/* if not online */
+>>>>>>> upstream/android-13
 	case XenbusStateUnknown:
 		dev_dbg(&xdev->dev, "frontend is gone! unregister device\n");
 		device_unregister(&xdev->dev);
@@ -663,6 +704,18 @@ static void xen_pcibk_be_watch(struct xenbus_watch *watch,
 		xen_pcibk_setup_backend(pdev);
 		break;
 
+<<<<<<< HEAD
+=======
+	case XenbusStateInitialised:
+		/*
+		 * We typically move to Initialised when the first device was
+		 * added. Hence subsequent devices getting added may need
+		 * reconfiguring.
+		 */
+		xen_pcibk_reconfigure(pdev, XenbusStateInitialised);
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -697,7 +750,11 @@ static int xen_pcibk_xenbus_probe(struct xenbus_device *dev,
 	/* We need to force a call to our callback here in case
 	 * xend already configured us!
 	 */
+<<<<<<< HEAD
 	xen_pcibk_be_watch(&pdev->be_watch, NULL, 0);
+=======
+	xen_pcibk_be_watch(&pdev->be_watch, NULL, NULL);
+>>>>>>> upstream/android-13
 
 out:
 	return err;

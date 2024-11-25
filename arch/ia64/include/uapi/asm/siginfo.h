@@ -9,8 +9,11 @@
 #define _UAPI_ASM_IA64_SIGINFO_H
 
 
+<<<<<<< HEAD
 #define __ARCH_SI_PREAMBLE_SIZE	(4 * sizeof(int))
 
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/siginfo.h>
 
 #define si_imm		_sifields._sigfault._imm	/* as per UNIX SysV ABI spec */

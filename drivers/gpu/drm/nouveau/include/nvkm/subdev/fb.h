@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_FB_H__
 #define __NVKM_FB_H__
 #include <core/subdev.h>
@@ -33,8 +37,19 @@ struct nvkm_fb {
 	const struct nvkm_fb_func *func;
 	struct nvkm_subdev subdev;
 
+<<<<<<< HEAD
 	struct nvkm_ram *ram;
 	struct nvkm_mm tags;
+=======
+	struct nvkm_blob vpr_scrubber;
+
+	struct nvkm_ram *ram;
+
+	struct {
+		struct mutex mutex; /* protects mm and nvkm_memory::tags */
+		struct nvkm_mm mm;
+	} tags;
+>>>>>>> upstream/android-13
 
 	struct {
 		struct nvkm_fb_tile region[16];
@@ -52,6 +67,7 @@ void nvkm_fb_tile_init(struct nvkm_fb *, int region, u32 addr, u32 size,
 void nvkm_fb_tile_fini(struct nvkm_fb *, int region, struct nvkm_fb_tile *);
 void nvkm_fb_tile_prog(struct nvkm_fb *, int region, struct nvkm_fb_tile *);
 
+<<<<<<< HEAD
 int nv04_fb_new(struct nvkm_device *, int, struct nvkm_fb **);
 int nv10_fb_new(struct nvkm_device *, int, struct nvkm_fb **);
 int nv1a_fb_new(struct nvkm_device *, int, struct nvkm_fb **);
@@ -84,6 +100,42 @@ int gp100_fb_new(struct nvkm_device *, int, struct nvkm_fb **);
 int gp102_fb_new(struct nvkm_device *, int, struct nvkm_fb **);
 int gp10b_fb_new(struct nvkm_device *, int, struct nvkm_fb **);
 int gv100_fb_new(struct nvkm_device *, int, struct nvkm_fb **);
+=======
+int nv04_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv10_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv1a_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv20_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv25_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv30_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv35_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv36_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv40_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv41_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv44_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv46_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv47_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv49_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv4e_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int nv50_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int g84_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gt215_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int mcp77_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int mcp89_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gf100_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gf108_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gk104_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gk110_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gk20a_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gm107_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gm200_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gm20b_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gp100_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gp102_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gp10b_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int gv100_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int ga100_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+int ga102_fb_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fb **);
+>>>>>>> upstream/android-13
 
 #include <subdev/bios.h>
 #include <subdev/bios/ramcfg.h>
@@ -105,7 +157,14 @@ enum nvkm_ram_type {
 	NVKM_RAM_TYPE_GDDR2,
 	NVKM_RAM_TYPE_GDDR3,
 	NVKM_RAM_TYPE_GDDR4,
+<<<<<<< HEAD
 	NVKM_RAM_TYPE_GDDR5
+=======
+	NVKM_RAM_TYPE_GDDR5,
+	NVKM_RAM_TYPE_GDDR5X,
+	NVKM_RAM_TYPE_GDDR6,
+	NVKM_RAM_TYPE_HBM2,
+>>>>>>> upstream/android-13
 };
 
 struct nvkm_ram {
@@ -121,6 +180,10 @@ struct nvkm_ram {
 #define NVKM_RAM_MM_MIXED  (NVKM_MM_HEAP_ANY + 3)
 	struct nvkm_mm vram;
 	u64 stolen;
+<<<<<<< HEAD
+=======
+	struct mutex mutex;
+>>>>>>> upstream/android-13
 
 	int ranks;
 	int parts;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     i2c-dev.c - i2c-bus driver, char device interface
 
@@ -5,6 +9,7 @@
     Copyright (C) 1998-99 Frodo Looijaard <frodol@dds.nl>
     Copyright (C) 2003 Greg Kroah-Hartman <greg@kroah.com>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 /* Note that this is a complete rewrite of Simon Vogl's i2c-dev module.
@@ -22,7 +29,14 @@
 
 /* The I2C_RDWR ioctl code is written by Kolja Waschk <waschk@telos.de> */
 
+<<<<<<< HEAD
 #include <linux/cdev.h>
+=======
+#define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
+
+#include <linux/cdev.h>
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/fs.h>
 #include <linux/i2c-dev.h>
@@ -35,7 +49,10 @@
 #include <linux/notifier.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/compat.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  * An i2c_dev represents an i2c_adapter ... an I2C or SMBus master, not a
@@ -52,7 +69,11 @@ struct i2c_dev {
 	struct cdev cdev;
 };
 
+<<<<<<< HEAD
 #define I2C_MINORS	MINORMASK
+=======
+#define I2C_MINORS	(MINORMASK + 1)
+>>>>>>> upstream/android-13
 static LIST_HEAD(i2c_dev_list);
 static DEFINE_SPINLOCK(i2c_dev_list_lock);
 
@@ -76,8 +97,12 @@ static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
 	struct i2c_dev *i2c_dev;
 
 	if (adap->nr >= I2C_MINORS) {
+<<<<<<< HEAD
 		printk(KERN_ERR "i2c-dev: Out of device minors (%d)\n",
 		       adap->nr);
+=======
+		pr_err("Out of device minors (%d)\n", adap->nr);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENODEV);
 	}
 
@@ -109,7 +134,11 @@ static ssize_t name_show(struct device *dev,
 
 	if (!i2c_dev)
 		return -ENODEV;
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", i2c_dev->adap->name);
+=======
+	return sysfs_emit(buf, "%s\n", i2c_dev->adap->name);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(name);
 
@@ -149,6 +178,7 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
 	if (count > 8192)
 		count = 8192;
 
+<<<<<<< HEAD
 	tmp = kmalloc(count, GFP_KERNEL);
 	if (tmp == NULL)
 		return -ENOMEM;
@@ -159,6 +189,18 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
 	ret = i2c_master_recv(client, tmp, count);
 	if (ret >= 0)
 		ret = copy_to_user(buf, tmp, count) ? -EFAULT : ret;
+=======
+	tmp = kzalloc(count, GFP_KERNEL);
+	if (tmp == NULL)
+		return -ENOMEM;
+
+	pr_debug("i2c-%d reading %zu bytes.\n", iminor(file_inode(file)), count);
+
+	ret = i2c_master_recv(client, tmp, count);
+	if (ret >= 0)
+		if (copy_to_user(buf, tmp, ret))
+			ret = -EFAULT;
+>>>>>>> upstream/android-13
 	kfree(tmp);
 	return ret;
 }
@@ -177,8 +219,12 @@ static ssize_t i2cdev_write(struct file *file, const char __user *buf,
 	if (IS_ERR(tmp))
 		return PTR_ERR(tmp);
 
+<<<<<<< HEAD
 	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
 		iminor(file_inode(file)), count);
+=======
+	pr_debug("i2c-%d writing %zu bytes.\n", iminor(file_inode(file)), count);
+>>>>>>> upstream/android-13
 
 	ret = i2c_master_send(client, tmp, count);
 	kfree(tmp);
@@ -534,7 +580,11 @@ static long compat_i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned lo
 		return put_user(funcs, (compat_ulong_t __user *)arg);
 	case I2C_RDWR: {
 		struct i2c_rdwr_ioctl_data32 rdwr_arg;
+<<<<<<< HEAD
 		struct i2c_msg32 *p;
+=======
+		struct i2c_msg32 __user *p;
+>>>>>>> upstream/android-13
 		struct i2c_msg *rdwr_pa;
 		int i;
 
@@ -543,6 +593,12 @@ static long compat_i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned lo
 				   sizeof(rdwr_arg)))
 			return -EFAULT;
 
+<<<<<<< HEAD
+=======
+		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
 			return -EINVAL;
 
@@ -673,6 +729,7 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
 	i2c_dev->dev.class = i2c_dev_class;
 	i2c_dev->dev.parent = &adap->dev;
 	i2c_dev->dev.release = i2cdev_dev_release;
+<<<<<<< HEAD
 	dev_set_name(&i2c_dev->dev, "i2c-%d", adap->nr);
 
 	res = cdev_device_add(&i2c_dev->cdev, &i2c_dev->dev);
@@ -684,6 +741,23 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
 	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
 		 adap->name, adap->nr);
 	return 0;
+=======
+
+	res = dev_set_name(&i2c_dev->dev, "i2c-%d", adap->nr);
+	if (res)
+		goto err_put_i2c_dev;
+
+	res = cdev_device_add(&i2c_dev->cdev, &i2c_dev->dev);
+	if (res)
+		goto err_put_i2c_dev;
+
+	pr_debug("adapter [%s] registered as minor %d\n", adap->name, adap->nr);
+	return 0;
+
+err_put_i2c_dev:
+	put_i2c_dev(i2c_dev, false);
+	return res;
+>>>>>>> upstream/android-13
 }
 
 static int i2cdev_detach_adapter(struct device *dev, void *dummy)
@@ -701,7 +775,11 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
 
 	put_i2c_dev(i2c_dev, true);
 
+<<<<<<< HEAD
 	pr_debug("i2c-dev: adapter [%s] unregistered\n", adap->name);
+=======
+	pr_debug("adapter [%s] unregistered\n", adap->name);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -734,7 +812,11 @@ static int __init i2c_dev_init(void)
 {
 	int res;
 
+<<<<<<< HEAD
 	printk(KERN_INFO "i2c /dev entries driver\n");
+=======
+	pr_info("i2c /dev entries driver\n");
+>>>>>>> upstream/android-13
 
 	res = register_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS, "i2c");
 	if (res)
@@ -762,7 +844,11 @@ out_unreg_class:
 out_unreg_chrdev:
 	unregister_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS);
 out:
+<<<<<<< HEAD
 	printk(KERN_ERR "%s: Driver Initialisation failed\n", __FILE__);
+=======
+	pr_err("Driver Initialisation failed\n");
+>>>>>>> upstream/android-13
 	return res;
 }
 
@@ -774,8 +860,13 @@ static void __exit i2c_dev_exit(void)
 	unregister_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS);
 }
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl> and "
 		"Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+=======
+MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>");
+MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("I2C /dev entries driver");
 MODULE_LICENSE("GPL");
 

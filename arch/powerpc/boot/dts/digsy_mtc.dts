@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Digsy MTC board Device Tree Source
  *
  * Copyright (C) 2009 Semihalf
  *
  * Based on the CM5200 by M. Balakowicz
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /include/ "mpc5200b.dtsi"
@@ -20,7 +27,11 @@
 	model = "intercontrol,digsy-mtc";
 	compatible = "intercontrol,digsy-mtc";
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x02000000>;	// 32MB
 	};
 

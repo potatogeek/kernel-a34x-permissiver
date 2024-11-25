@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/input/keyboard/omap-keypad.c
  *
@@ -8,6 +12,7 @@
  *
  * Added support for H2 & H3 Keypad
  * Copyright (C) 2004 Texas Instruments
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -59,7 +66,11 @@ struct omap_kp {
 	unsigned short keymap[];
 };
 
+<<<<<<< HEAD
 static DECLARE_TASKLET_DISABLED(kp_tasklet, omap_kp_tasklet, 0);
+=======
+static DECLARE_TASKLET_DISABLED_OLD(kp_tasklet, omap_kp_tasklet);
+>>>>>>> upstream/android-13
 
 static unsigned int *row_gpios;
 static unsigned int *col_gpios;

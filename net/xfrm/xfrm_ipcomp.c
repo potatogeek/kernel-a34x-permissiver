@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IP Payload Compression Protocol (IPComp) - RFC3173.
  *
  * Copyright (c) 2003 James Morris <jmorris@intercode.com.au>
  * Copyright (c) 2003-2008 Herbert Xu <herbert@gondor.apana.org.au>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Todo:
  *   - Tunable compression parameters.
  *   - Compression stats.
@@ -45,19 +52,31 @@ static int ipcomp_decompress(struct xfrm_state *x, struct sk_buff *skb)
 	const int plen = skb->len;
 	int dlen = IPCOMP_SCRATCH_SIZE;
 	const u8 *start = skb->data;
+<<<<<<< HEAD
 	const int cpu = get_cpu();
 	u8 *scratch = *per_cpu_ptr(ipcomp_scratches, cpu);
 	struct crypto_comp *tfm = *per_cpu_ptr(ipcd->tfms, cpu);
+=======
+	u8 *scratch = *this_cpu_ptr(ipcomp_scratches);
+	struct crypto_comp *tfm = *this_cpu_ptr(ipcd->tfms);
+>>>>>>> upstream/android-13
 	int err = crypto_comp_decompress(tfm, start, plen, scratch, &dlen);
 	int len;
 
 	if (err)
+<<<<<<< HEAD
 		goto out;
 
 	if (dlen < (plen + sizeof(struct ip_comp_hdr))) {
 		err = -EINVAL;
 		goto out;
 	}
+=======
+		return err;
+
+	if (dlen < (plen + sizeof(struct ip_comp_hdr)))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	len = dlen - plen;
 	if (len > skb_tailroom(skb))
@@ -72,16 +91,26 @@ static int ipcomp_decompress(struct xfrm_state *x, struct sk_buff *skb)
 		skb_frag_t *frag;
 		struct page *page;
 
+<<<<<<< HEAD
 		err = -EMSGSIZE;
 		if (WARN_ON(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS))
 			goto out;
+=======
+		if (WARN_ON(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS))
+			return -EMSGSIZE;
+>>>>>>> upstream/android-13
 
 		frag = skb_shinfo(skb)->frags + skb_shinfo(skb)->nr_frags;
 		page = alloc_page(GFP_ATOMIC);
 
+<<<<<<< HEAD
 		err = -ENOMEM;
 		if (!page)
 			goto out;
+=======
+		if (!page)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 
 		__skb_frag_set_page(frag, page);
 
@@ -89,7 +118,11 @@ static int ipcomp_decompress(struct xfrm_state *x, struct sk_buff *skb)
 		if (dlen < len)
 			len = dlen;
 
+<<<<<<< HEAD
 		frag->page_offset = 0;
+=======
+		skb_frag_off_set(frag, 0);
+>>>>>>> upstream/android-13
 		skb_frag_size_set(frag, len);
 		memcpy(skb_frag_address(frag), scratch, len);
 
@@ -100,11 +133,15 @@ static int ipcomp_decompress(struct xfrm_state *x, struct sk_buff *skb)
 		skb_shinfo(skb)->nr_frags++;
 	}
 
+<<<<<<< HEAD
 	err = 0;
 
 out:
 	put_cpu();
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int ipcomp_input(struct xfrm_state *x, struct sk_buff *skb)
@@ -254,7 +291,11 @@ static void ipcomp_free_tfms(struct crypto_comp * __percpu *tfms)
 			break;
 	}
 
+<<<<<<< HEAD
 	WARN_ON(!pos);
+=======
+	WARN_ON(list_entry_is_head(pos, &ipcomp_tfms_list, list));
+>>>>>>> upstream/android-13
 
 	if (--pos->users)
 		return;

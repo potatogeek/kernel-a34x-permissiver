@@ -52,22 +52,35 @@ static inline int fill_gva_list(u64 gva_list[], int offset,
 	return gva_n - offset;
 }
 
+<<<<<<< HEAD
 static void hyperv_flush_tlb_others(const struct cpumask *cpus,
 				    const struct flush_tlb_info *info)
+=======
+static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
+				   const struct flush_tlb_info *info)
+>>>>>>> upstream/android-13
 {
 	int cpu, vcpu, gva_n, max_gvas;
 	struct hv_tlb_flush **flush_pcpu;
 	struct hv_tlb_flush *flush;
+<<<<<<< HEAD
 	u64 status = U64_MAX;
 	unsigned long flags;
 
 	trace_hyperv_mmu_flush_tlb_others(cpus, info);
+=======
+	u64 status;
+	unsigned long flags;
+
+	trace_hyperv_mmu_flush_tlb_multi(cpus, info);
+>>>>>>> upstream/android-13
 
 	if (!hv_hypercall_pg)
 		goto do_native;
 
 	local_irq_save(flags);
 
+<<<<<<< HEAD
 	/*
 	 * Only check the mask _after_ interrupt has been disabled to avoid the
 	 * mask changing under our feet.
@@ -77,6 +90,8 @@ static void hyperv_flush_tlb_others(const struct cpumask *cpus,
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	flush_pcpu = (struct hv_tlb_flush **)
 		     this_cpu_ptr(hyperv_pcpu_input_arg);
 
@@ -115,7 +130,13 @@ static void hyperv_flush_tlb_others(const struct cpumask *cpus,
 		 * must. We will also check all VP numbers when walking the
 		 * supplied CPU set to remain correct in all cases.
 		 */
+<<<<<<< HEAD
 		if (hv_cpu_number_to_vp_number(cpumask_last(cpus)) >= 64)
+=======
+		cpu = cpumask_last(cpus);
+
+		if (cpu < nr_cpumask_bits && hv_cpu_number_to_vp_number(cpu) >= 64)
+>>>>>>> upstream/android-13
 			goto do_ex_hypercall;
 
 		for_each_cpu(cpu, cpus) {
@@ -131,6 +152,15 @@ static void hyperv_flush_tlb_others(const struct cpumask *cpus,
 			__set_bit(vcpu, (unsigned long *)
 				  &flush->processor_mask);
 		}
+<<<<<<< HEAD
+=======
+
+		/* nothing to flush if 'processor_mask' ends up being empty */
+		if (!flush->processor_mask) {
+			local_irq_restore(flags);
+			return;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -161,10 +191,17 @@ do_ex_hypercall:
 check_status:
 	local_irq_restore(flags);
 
+<<<<<<< HEAD
 	if (!(status & HV_HYPERCALL_RESULT_MASK))
 		return;
 do_native:
 	native_flush_tlb_others(cpus, info);
+=======
+	if (hv_result_success(status))
+		return;
+do_native:
+	native_flush_tlb_multi(cpus, info);
+>>>>>>> upstream/android-13
 }
 
 static u64 hyperv_flush_tlb_others_ex(const struct cpumask *cpus,
@@ -176,7 +213,11 @@ static u64 hyperv_flush_tlb_others_ex(const struct cpumask *cpus,
 	u64 status;
 
 	if (!(ms_hyperv.hints & HV_X64_EX_PROCESSOR_MASKS_RECOMMENDED))
+<<<<<<< HEAD
 		return U64_MAX;
+=======
+		return HV_STATUS_INVALID_PARAMETER;
+>>>>>>> upstream/android-13
 
 	flush_pcpu = (struct hv_tlb_flush_ex **)
 		     this_cpu_ptr(hyperv_pcpu_input_arg);
@@ -201,7 +242,11 @@ static u64 hyperv_flush_tlb_others_ex(const struct cpumask *cpus,
 	flush->hv_vp_set.format = HV_GENERIC_SET_SPARSE_4K;
 	nr_bank = cpumask_to_vpset(&(flush->hv_vp_set), cpus);
 	if (nr_bank < 0)
+<<<<<<< HEAD
 		return U64_MAX;
+=======
+		return HV_STATUS_INVALID_PARAMETER;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We can flush not more than max_gvas with one hypercall. Flush the
@@ -239,6 +284,11 @@ void hyperv_setup_mmu_ops(void)
 		return;
 
 	pr_info("Using hypercall for remote TLB flush\n");
+<<<<<<< HEAD
 	pv_mmu_ops.flush_tlb_others = hyperv_flush_tlb_others;
 	pv_mmu_ops.tlb_remove_table = tlb_remove_table;
+=======
+	pv_ops.mmu.flush_tlb_multi = hyperv_flush_tlb_multi;
+	pv_ops.mmu.tlb_remove_table = tlb_remove_table;
+>>>>>>> upstream/android-13
 }

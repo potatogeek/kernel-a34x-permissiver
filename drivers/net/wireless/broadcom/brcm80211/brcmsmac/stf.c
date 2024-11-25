@@ -304,9 +304,14 @@ int brcms_c_stf_txchain_set(struct brcms_c_info *wlc, s32 int_val, bool force)
  * update wlc->stf->ss_opmode which represents the operational stf_ss mode
  * we're using
  */
+<<<<<<< HEAD
 int brcms_c_stf_ss_update(struct brcms_c_info *wlc, struct brcms_band *band)
 {
 	int ret_code = 0;
+=======
+void brcms_c_stf_ss_update(struct brcms_c_info *wlc, struct brcms_band *band)
+{
+>>>>>>> upstream/android-13
 	u8 prev_stf_ss;
 	u8 upd_stf_ss;
 
@@ -325,7 +330,11 @@ int brcms_c_stf_ss_update(struct brcms_c_info *wlc, struct brcms_band *band)
 				    PHY_TXC1_MODE_SISO : PHY_TXC1_MODE_CDD;
 	} else {
 		if (wlc->band != band)
+<<<<<<< HEAD
 			return ret_code;
+=======
+			return;
+>>>>>>> upstream/android-13
 		upd_stf_ss = (wlc->stf->txstreams == 1) ?
 				PHY_TXC1_MODE_SISO : band->band_stf_ss_mode;
 	}
@@ -333,8 +342,11 @@ int brcms_c_stf_ss_update(struct brcms_c_info *wlc, struct brcms_band *band)
 		wlc->stf->ss_opmode = upd_stf_ss;
 		brcms_b_band_stf_ss_set(wlc->hw, upd_stf_ss);
 	}
+<<<<<<< HEAD
 
 	return ret_code;
+=======
+>>>>>>> upstream/android-13
 }
 
 int brcms_c_stf_attach(struct brcms_c_info *wlc)

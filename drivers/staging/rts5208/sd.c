@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
@@ -15,6 +16,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -109,9 +118,14 @@ static int sd_check_data0_status(struct rtsx_chip *chip)
 	u8 stat;
 
 	retval = rtsx_read_register(chip, REG_SD_STAT1, &stat);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	if (!(stat & SD_DAT0_STATUS)) {
 		sd_set_err_code(chip, SD_BUSY);
@@ -234,9 +248,14 @@ RTY_SEND_CMD:
 		if ((cmd_idx != SEND_RELATIVE_ADDR) &&
 		    (cmd_idx != SEND_IF_COND)) {
 			if (cmd_idx != STOP_TRANSMISSION) {
+<<<<<<< HEAD
 				if (ptr[1] & 0x80) {
 					return STATUS_FAIL;
 				}
+=======
+				if (ptr[1] & 0x80)
+					return STATUS_FAIL;
+>>>>>>> upstream/android-13
 			}
 #ifdef SUPPORT_SD_LOCK
 			if (ptr[1] & 0x7D) {
@@ -284,9 +303,14 @@ static int sd_read_data(struct rtsx_chip *chip,
 	if (!buf)
 		buf_len = 0;
 
+<<<<<<< HEAD
 	if (buf_len > 512) {
 		return STATUS_FAIL;
 	}
+=======
+	if (buf_len > 512)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -331,9 +355,14 @@ static int sd_read_data(struct rtsx_chip *chip,
 
 	if (buf && buf_len) {
 		retval = rtsx_read_ppbuf(chip, buf, buf_len);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -359,9 +388,14 @@ static int sd_write_data(struct rtsx_chip *chip, u8 trans_mode,
 
 	if (buf && buf_len) {
 		retval = rtsx_write_ppbuf(chip, buf, buf_len);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	rtsx_init_cmd(chip);
@@ -426,9 +460,14 @@ static int sd_check_csd(struct rtsx_chip *chip, char check_wp)
 			break;
 	}
 
+<<<<<<< HEAD
 	if (i == 6) {
 		return STATUS_FAIL;
 	}
+=======
+	if (i == 6)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	memcpy(sd_card->raw_csd, rsp + 1, 15);
 
@@ -543,9 +582,14 @@ static int sd_set_sample_push_timing(struct rtsx_chip *chip)
 	}
 
 	retval = rtsx_write_register(chip, REG_SD_CFG1, 0x1C, val);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -606,9 +650,14 @@ static int sd_set_clock_divider(struct rtsx_chip *chip, u8 clk_div)
 		val = 0x20;
 
 	retval = rtsx_write_register(chip, REG_SD_CFG1, mask, val);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -619,16 +668,26 @@ static int sd_set_init_para(struct rtsx_chip *chip)
 	int retval;
 
 	retval = sd_set_sample_push_timing(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	sd_choose_proper_clock(chip);
 
 	retval = switch_clock(chip, sd_card->sd_clock);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -651,9 +710,14 @@ int sd_select_card(struct rtsx_chip *chip, int select)
 	}
 
 	retval = sd_send_cmd_get_rsp(chip, cmd_idx, addr, cmd_type, NULL, 0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -667,9 +731,14 @@ static int sd_update_lock_status(struct rtsx_chip *chip)
 
 	retval = sd_send_cmd_get_rsp(chip, SEND_STATUS, sd_card->sd_addr,
 				     SD_RSP_TYPE_R1, rsp, 5);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (rsp[1] & 0x02)
 		sd_card->sd_lock_status |= SD_LOCKED;
@@ -679,9 +748,14 @@ static int sd_update_lock_status(struct rtsx_chip *chip)
 	dev_dbg(rtsx_dev(chip), "sd_card->sd_lock_status = 0x%x\n",
 		sd_card->sd_lock_status);
 
+<<<<<<< HEAD
 	if (rsp[1] & 0x01) {
 		return STATUS_FAIL;
 	}
+=======
+	if (rsp[1] & 0x01)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -698,9 +772,14 @@ static int sd_wait_state_data_ready(struct rtsx_chip *chip, u8 state,
 		retval = sd_send_cmd_get_rsp(chip, SEND_STATUS,
 					     sd_card->sd_addr, SD_RSP_TYPE_R1,
 					     rsp, 5);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		if (((rsp[3] & 0x1E) == state) &&
 		    ((rsp[3] & 0x01) == data_ready))
@@ -719,6 +798,7 @@ static int sd_change_bank_voltage(struct rtsx_chip *chip, u8 voltage)
 			retval = rtsx_write_phy_register(chip, 0x08,
 							 0x4FC0 |
 							 chip->phy_voltage);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
@@ -728,22 +808,41 @@ static int sd_change_bank_voltage(struct rtsx_chip *chip, u8 voltage)
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+		} else {
+			retval = rtsx_write_register(chip, SD_PAD_CTL,
+						     SD_IO_USING_1V8, 0);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 		}
 	} else if (voltage == SD_IO_1V8) {
 		if (chip->asic_code) {
 			retval = rtsx_write_phy_register(chip, 0x08,
 							 0x4C40 |
 							 chip->phy_voltage);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		} else {
 			retval = rtsx_write_register(chip, SD_PAD_CTL,
 						     SD_IO_USING_1V8,
 						     SD_IO_USING_1V8);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		return STATUS_FAIL;
@@ -760,6 +859,7 @@ static int sd_voltage_switch(struct rtsx_chip *chip)
 	retval = rtsx_write_register(chip, SD_BUS_STAT,
 				     SD_CLK_TOGGLE_EN | SD_CLK_FORCE_STOP,
 				     SD_CLK_TOGGLE_EN);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -769,13 +869,27 @@ static int sd_voltage_switch(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval)
+		return retval;
+
+	retval = sd_send_cmd_get_rsp(chip, VOLTAGE_SWITCH, 0, SD_RSP_TYPE_R1,
+				     NULL, 0);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	udelay(chip->sd_voltage_switch_delay);
 
 	retval = rtsx_read_register(chip, SD_BUS_STAT, &stat);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 	if (stat & (SD_CMD_STATUS | SD_DAT3_STATUS | SD_DAT2_STATUS |
 				SD_DAT1_STATUS | SD_DAT0_STATUS)) {
 		return STATUS_FAIL;
@@ -783,6 +897,7 @@ static int sd_voltage_switch(struct rtsx_chip *chip)
 
 	retval = rtsx_write_register(chip, SD_BUS_STAT, 0xFF,
 				     SD_CLK_FORCE_STOP);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -790,11 +905,19 @@ static int sd_voltage_switch(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval)
+		return retval;
+	retval = sd_change_bank_voltage(chip, SD_IO_1V8);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	wait_timeout(50);
 
 	retval = rtsx_write_register(chip, SD_BUS_STAT, 0xFF,
 				     SD_CLK_TOGGLE_EN);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -804,6 +927,15 @@ static int sd_voltage_switch(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+	wait_timeout(10);
+
+	retval = rtsx_read_register(chip, SD_BUS_STAT, &stat);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 	if ((stat & (SD_CMD_STATUS | SD_DAT3_STATUS | SD_DAT2_STATUS |
 				SD_DAT1_STATUS | SD_DAT0_STATUS)) !=
 			(SD_CMD_STATUS | SD_DAT3_STATUS | SD_DAT2_STATUS |
@@ -817,9 +949,14 @@ static int sd_voltage_switch(struct rtsx_chip *chip)
 
 	retval = rtsx_write_register(chip, SD_BUS_STAT,
 				     SD_CLK_TOGGLE_EN | SD_CLK_FORCE_STOP, 0);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -831,6 +968,7 @@ static int sd_reset_dcm(struct rtsx_chip *chip, u8 tune_dir)
 	if (tune_dir == TUNE_RX) {
 		retval = rtsx_write_register(chip, DCM_DRP_CTL, 0xFF,
 					     DCM_RESET | DCM_RX);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
@@ -848,6 +986,21 @@ static int sd_reset_dcm(struct rtsx_chip *chip, u8 tune_dir)
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, DCM_DRP_CTL, 0xFF, DCM_RX);
+		if (retval)
+			return retval;
+	} else {
+		retval = rtsx_write_register(chip, DCM_DRP_CTL, 0xFF,
+					     DCM_RESET | DCM_TX);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, DCM_DRP_CTL, 0xFF, DCM_TX);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -877,6 +1030,7 @@ static int sd_change_phase(struct rtsx_chip *chip, u8 sample_point, u8 tune_dir)
 	if (chip->asic_code) {
 		retval = rtsx_write_register(chip, CLK_CTL, CHANGE_CLK,
 					     CHANGE_CLK);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
@@ -899,6 +1053,25 @@ static int sd_change_phase(struct rtsx_chip *chip, u8 sample_point, u8 tune_dir)
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, SD_VP_CTL, 0x1F,
+					     sample_point);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, SD_VPCLK0_CTL,
+					     PHASE_NOT_RESET, 0);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, SD_VPCLK0_CTL,
+					     PHASE_NOT_RESET, PHASE_NOT_RESET);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, CLK_CTL, CHANGE_CLK, 0);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	} else {
 		rtsx_read_register(chip, SD_VP_CTL, &val);
 		dev_dbg(rtsx_dev(chip), "SD_VP_CTL: 0x%x\n", val);
@@ -909,14 +1082,20 @@ static int sd_change_phase(struct rtsx_chip *chip, u8 sample_point, u8 tune_dir)
 			retval = rtsx_write_register(chip, SD_VP_CTL,
 						     PHASE_CHANGE,
 						     PHASE_CHANGE);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 			udelay(50);
 			retval = rtsx_write_register(chip, SD_VP_CTL, 0xFF,
 						     PHASE_CHANGE |
 						     PHASE_NOT_RESET |
 						     sample_point);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
@@ -926,13 +1105,27 @@ static int sd_change_phase(struct rtsx_chip *chip, u8 sample_point, u8 tune_dir)
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+		} else {
+			retval = rtsx_write_register(chip, CLK_CTL,
+						     CHANGE_CLK, CHANGE_CLK);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 			udelay(50);
 			retval = rtsx_write_register(chip, SD_VP_CTL, 0xFF,
 						     PHASE_NOT_RESET |
 						     sample_point);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 		}
 		udelay(100);
 
@@ -942,6 +1135,7 @@ static int sd_change_phase(struct rtsx_chip *chip, u8 sample_point, u8 tune_dir)
 		rtsx_add_cmd(chip, CHECK_REG_CMD, SD_DCMPS_CTL,
 			     DCMPS_CHANGE_DONE, DCMPS_CHANGE_DONE);
 		retval = rtsx_send_cmd(chip, SD_CARD, 100);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto fail;
 		}
@@ -972,15 +1166,46 @@ static int sd_change_phase(struct rtsx_chip *chip, u8 sample_point, u8 tune_dir)
 			if (retval) {
 				return retval;
 			}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto fail;
+
+		val = *rtsx_get_cmd_data(chip);
+		if (val & DCMPS_ERROR)
+			goto fail;
+
+		if ((val & DCMPS_CURRENT_PHASE) != sample_point)
+			goto fail;
+
+		retval = rtsx_write_register(chip, SD_DCMPS_CTL,
+					     DCMPS_CHANGE, 0);
+		if (retval)
+			return retval;
+		if (ddr_rx) {
+			retval = rtsx_write_register(chip, SD_VP_CTL,
+						     PHASE_CHANGE, 0);
+			if (retval)
+				return retval;
+		} else {
+			retval = rtsx_write_register(chip, CLK_CTL,
+						     CHANGE_CLK, 0);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 		}
 
 		udelay(50);
 	}
 
 	retval = rtsx_write_register(chip, SD_CFG1, SD_ASYNC_FIFO_NOT_RST, 0);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 
@@ -1005,9 +1230,14 @@ static int sd_check_spec(struct rtsx_chip *chip, u8 bus_width)
 
 	retval = sd_send_cmd_get_rsp(chip, APP_CMD, sd_card->sd_addr,
 				     SD_RSP_TYPE_R1, NULL, 0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	cmd[0] = 0x40 | SEND_SCR;
 	cmd[1] = 0;
@@ -1024,9 +1254,14 @@ static int sd_check_spec(struct rtsx_chip *chip, u8 bus_width)
 
 	memcpy(sd_card->raw_scr, buf, 8);
 
+<<<<<<< HEAD
 	if ((buf[0] & 0x0F) == 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if ((buf[0] & 0x0F) == 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -1207,6 +1442,7 @@ static int sd_check_switch_mode(struct rtsx_chip *chip, u8 mode, u8 func_group,
 
 		dev_dbg(rtsx_dev(chip), "Maximum current consumption: %dmA\n",
 			cc);
+<<<<<<< HEAD
 		if ((cc == 0) || (cc > 800)) {
 			return STATUS_FAIL;
 		}
@@ -1216,11 +1452,21 @@ static int sd_check_switch_mode(struct rtsx_chip *chip, u8 mode, u8 func_group,
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if ((cc == 0) || (cc > 800))
+			return STATUS_FAIL;
+
+		retval = sd_query_switch_result(chip, func_group,
+						func_to_switch, buf, 64);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		if ((cc > 400) || (func_to_switch > CURRENT_LIMIT_400)) {
 			retval = rtsx_write_register(chip, OCPPARA2,
 						     SD_OCP_THD_MASK,
 						     chip->sd_800mA_ocp_thd);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
@@ -1230,6 +1476,15 @@ static int sd_check_switch_mode(struct rtsx_chip *chip, u8 mode, u8 func_group,
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+			retval = rtsx_write_register(chip, CARD_PWR_CTL,
+						     PMOS_STRG_MASK,
+						     PMOS_STRG_800mA);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1278,9 +1533,14 @@ static int sd_check_switch(struct rtsx_chip *chip,
 			}
 
 			retval = rtsx_read_register(chip, SD_STAT1, &stat);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 			if (stat & SD_CRC16_ERR) {
 				dev_dbg(rtsx_dev(chip), "SD CRC16 error when switching mode\n");
 				return STATUS_FAIL;
@@ -1293,9 +1553,14 @@ static int sd_check_switch(struct rtsx_chip *chip,
 		wait_timeout(20);
 	}
 
+<<<<<<< HEAD
 	if (!switch_good) {
 		return STATUS_FAIL;
 	}
+=======
+	if (!switch_good)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -1310,9 +1575,14 @@ static int sd_switch_function(struct rtsx_chip *chip, u8 bus_width)
 	/* Get supported functions */
 	retval = sd_check_switch_mode(chip, SD_CHECK_MODE, NO_ARGUMENT,
 				      NO_ARGUMENT, bus_width);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	sd_card->func_group1_mask &= ~(sd_card->sd_switch_fail);
 
@@ -1394,6 +1664,7 @@ static int sd_switch_function(struct rtsx_chip *chip, u8 bus_width)
 	if (CHK_SD_DDR50(sd_card)) {
 		retval = rtsx_write_register(chip, SD_PUSH_POINT_CTL, 0x06,
 					     0x04);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
@@ -1401,6 +1672,13 @@ static int sd_switch_function(struct rtsx_chip *chip, u8 bus_width)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval)
+			return retval;
+		retval = sd_set_sample_push_timing(chip);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	if (!func_to_switch || (func_to_switch == HS_SUPPORT)) {
@@ -1454,9 +1732,14 @@ static int sd_switch_function(struct rtsx_chip *chip, u8 bus_width)
 		retval = sd_check_switch(chip, SD_FUNC_GROUP_4, func_to_switch,
 					 bus_width);
 		if (retval != STATUS_SUCCESS) {
+<<<<<<< HEAD
 			if (sd_check_err_code(chip, SD_NO_CARD)) {
 				return STATUS_FAIL;
 			}
+=======
+			if (sd_check_err_code(chip, SD_NO_CARD))
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		}
 		dev_dbg(rtsx_dev(chip), "Switch current limit finished! (%d)\n",
 			retval);
@@ -1464,9 +1747,14 @@ static int sd_switch_function(struct rtsx_chip *chip, u8 bus_width)
 
 	if (CHK_SD_DDR50(sd_card)) {
 		retval = rtsx_write_register(chip, SD_PUSH_POINT_CTL, 0x06, 0);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -1480,9 +1768,14 @@ static int sd_wait_data_idle(struct rtsx_chip *chip)
 
 	for (i = 0; i < 100; i++) {
 		retval = rtsx_read_register(chip, SD_DATA_STATE, &val);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 		if (val & SD_DATA_IDLE) {
 			retval = STATUS_SUCCESS;
 			break;
@@ -1500,9 +1793,14 @@ static int sd_sdr_tuning_rx_cmd(struct rtsx_chip *chip, u8 sample_point)
 	u8 cmd[5];
 
 	retval = sd_change_phase(chip, sample_point, TUNE_RX);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	cmd[0] = 0x40 | SEND_TUNING_PATTERN;
 	cmd[1] = 0;
@@ -1529,17 +1827,27 @@ static int sd_ddr_tuning_rx_cmd(struct rtsx_chip *chip, u8 sample_point)
 	u8 cmd[5];
 
 	retval = sd_change_phase(chip, sample_point, TUNE_RX);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	dev_dbg(rtsx_dev(chip), "sd ddr tuning rx\n");
 
 	retval = sd_send_cmd_get_rsp(chip, APP_CMD, sd_card->sd_addr,
 				     SD_RSP_TYPE_R1, NULL, 0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	cmd[0] = 0x40 | SD_STATUS;
 	cmd[1] = 0;
@@ -1573,9 +1881,14 @@ static int mmc_ddr_tuning_rx_cmd(struct rtsx_chip *chip, u8 sample_point)
 		bus_width = SD_BUS_WIDTH_1;
 
 	retval = sd_change_phase(chip, sample_point, TUNE_RX);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	dev_dbg(rtsx_dev(chip), "mmc ddr tuning rx\n");
 
@@ -1603,6 +1916,7 @@ static int sd_sdr_tuning_tx_cmd(struct rtsx_chip *chip, u8 sample_point)
 	int retval;
 
 	retval = sd_change_phase(chip, sample_point, TUNE_TX);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -1612,6 +1926,15 @@ static int sd_sdr_tuning_tx_cmd(struct rtsx_chip *chip, u8 sample_point)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, SD_CFG3, SD_RSP_80CLK_TIMEOUT_EN,
+				     SD_RSP_80CLK_TIMEOUT_EN);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	retval = sd_send_cmd_get_rsp(chip, SEND_STATUS, sd_card->sd_addr,
 				     SD_RSP_TYPE_R1, NULL, 0);
@@ -1625,9 +1948,14 @@ static int sd_sdr_tuning_tx_cmd(struct rtsx_chip *chip, u8 sample_point)
 
 	retval = rtsx_write_register(chip, SD_CFG3, SD_RSP_80CLK_TIMEOUT_EN,
 				     0);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -1639,9 +1967,14 @@ static int sd_ddr_tuning_tx_cmd(struct rtsx_chip *chip, u8 sample_point)
 	u8 cmd[5], bus_width;
 
 	retval = sd_change_phase(chip, sample_point, TUNE_TX);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (CHK_SD(sd_card)) {
 		bus_width = SD_BUS_WIDTH_4;
@@ -1655,6 +1988,7 @@ static int sd_ddr_tuning_tx_cmd(struct rtsx_chip *chip, u8 sample_point)
 	}
 
 	retval = sd_wait_state_data_ready(chip, 0x08, 1, 1000);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -1664,6 +1998,15 @@ static int sd_ddr_tuning_tx_cmd(struct rtsx_chip *chip, u8 sample_point)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, SD_CFG3, SD_RSP_80CLK_TIMEOUT_EN,
+				     SD_RSP_80CLK_TIMEOUT_EN);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	cmd[0] = 0x40 | PROGRAM_CSD;
 	cmd[1] = 0;
@@ -1681,9 +2024,14 @@ static int sd_ddr_tuning_tx_cmd(struct rtsx_chip *chip, u8 sample_point)
 
 	retval = rtsx_write_register(chip, SD_CFG3, SD_RSP_80CLK_TIMEOUT_EN,
 				     0);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	sd_send_cmd_get_rsp(chip, SEND_STATUS, sd_card->sd_addr, SD_RSP_TYPE_R1,
 			    NULL, 0);
@@ -1826,11 +2174,18 @@ static int sd_tuning_rx(struct rtsx_chip *chip)
 			tuning_cmd = sd_sdr_tuning_rx_cmd;
 
 	} else {
+<<<<<<< HEAD
 		if (CHK_MMC_DDR52(sd_card)) {
 			tuning_cmd = mmc_ddr_tuning_rx_cmd;
 		} else {
 			return STATUS_FAIL;
 		}
+=======
+		if (CHK_MMC_DDR52(sd_card))
+			tuning_cmd = mmc_ddr_tuning_rx_cmd;
+		else
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < 3; i++) {
@@ -1855,6 +2210,7 @@ static int sd_tuning_rx(struct rtsx_chip *chip)
 	dev_dbg(rtsx_dev(chip), "RX phase_map = 0x%08x\n", phase_map);
 
 	final_phase = sd_search_final_phase(chip, phase_map, TUNE_RX);
+<<<<<<< HEAD
 	if (final_phase == 0xFF) {
 		return STATUS_FAIL;
 	}
@@ -1863,6 +2219,14 @@ static int sd_tuning_rx(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (final_phase == 0xFF)
+		return STATUS_FAIL;
+
+	retval = sd_change_phase(chip, final_phase, TUNE_RX);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -1877,9 +2241,14 @@ static int sd_ddr_pre_tuning_tx(struct rtsx_chip *chip)
 
 	retval = rtsx_write_register(chip, SD_CFG3, SD_RSP_80CLK_TIMEOUT_EN,
 				     SD_RSP_80CLK_TIMEOUT_EN);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	phase_map = 0;
 	for (i = MAX_PHASE; i >= 0; i--) {
@@ -1904,14 +2273,20 @@ static int sd_ddr_pre_tuning_tx(struct rtsx_chip *chip)
 
 	retval = rtsx_write_register(chip, SD_CFG3, SD_RSP_80CLK_TIMEOUT_EN,
 				     0);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	dev_dbg(rtsx_dev(chip), "DDR TX pre tune phase_map = 0x%08x\n",
 		phase_map);
 
 	final_phase = sd_search_final_phase(chip, phase_map, TUNE_TX);
+<<<<<<< HEAD
 	if (final_phase == 0xFF) {
 		return STATUS_FAIL;
 	}
@@ -1920,6 +2295,14 @@ static int sd_ddr_pre_tuning_tx(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (final_phase == 0xFF)
+		return STATUS_FAIL;
+
+	retval = sd_change_phase(chip, final_phase, TUNE_TX);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	dev_dbg(rtsx_dev(chip), "DDR TX pre tune phase: %d\n",
 		(int)final_phase);
@@ -1943,11 +2326,18 @@ static int sd_tuning_tx(struct rtsx_chip *chip)
 			tuning_cmd = sd_sdr_tuning_tx_cmd;
 
 	} else {
+<<<<<<< HEAD
 		if (CHK_MMC_DDR52(sd_card)) {
 			tuning_cmd = sd_ddr_tuning_tx_cmd;
 		} else {
 			return STATUS_FAIL;
 		}
+=======
+		if (CHK_MMC_DDR52(sd_card))
+			tuning_cmd = sd_ddr_tuning_tx_cmd;
+		else
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < 3; i++) {
@@ -1974,6 +2364,7 @@ static int sd_tuning_tx(struct rtsx_chip *chip)
 	dev_dbg(rtsx_dev(chip), "TX phase_map = 0x%08x\n", phase_map);
 
 	final_phase = sd_search_final_phase(chip, phase_map, TUNE_TX);
+<<<<<<< HEAD
 	if (final_phase == 0xFF) {
 		return STATUS_FAIL;
 	}
@@ -1982,6 +2373,14 @@ static int sd_tuning_tx(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (final_phase == 0xFF)
+		return STATUS_FAIL;
+
+	retval = sd_change_phase(chip, final_phase, TUNE_TX);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -1991,6 +2390,7 @@ static int sd_sdr_tuning(struct rtsx_chip *chip)
 	int retval;
 
 	retval = sd_tuning_tx(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -1999,6 +2399,14 @@ static int sd_sdr_tuning(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = sd_tuning_rx(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -2009,6 +2417,7 @@ static int sd_ddr_tuning(struct rtsx_chip *chip)
 
 	if (!(chip->sd_ctl & SD_DDR_TX_PHASE_SET_BY_USER)) {
 		retval = sd_ddr_pre_tuning_tx(chip);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
@@ -2030,6 +2439,25 @@ static int sd_ddr_tuning(struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	} else {
+		retval = sd_change_phase(chip, (u8)chip->sd_ddr_tx_phase,
+					 TUNE_TX);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	}
+
+	retval = sd_tuning_rx(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	if (!(chip->sd_ctl & SD_DDR_TX_PHASE_SET_BY_USER)) {
+		retval = sd_tuning_tx(chip);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -2041,6 +2469,7 @@ static int mmc_ddr_tuning(struct rtsx_chip *chip)
 
 	if (!(chip->sd_ctl & MMC_DDR_TX_PHASE_SET_BY_USER)) {
 		retval = sd_ddr_pre_tuning_tx(chip);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
@@ -2062,6 +2491,25 @@ static int mmc_ddr_tuning(struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	} else {
+		retval = sd_change_phase(chip, (u8)chip->mmc_ddr_tx_phase,
+					 TUNE_TX);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	}
+
+	retval = sd_tuning_rx(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	if (!(chip->sd_ctl & MMC_DDR_TX_PHASE_SET_BY_USER)) {
+		retval = sd_tuning_tx(chip);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -2074,6 +2522,7 @@ int sd_switch_clock(struct rtsx_chip *chip)
 	int re_tuning = 0;
 
 	retval = select_card(chip, SD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -2082,6 +2531,14 @@ int sd_switch_clock(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = switch_clock(chip, sd_card->sd_clock);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (re_tuning) {
 		if (CHK_SD(sd_card)) {
@@ -2094,9 +2551,14 @@ int sd_switch_clock(struct rtsx_chip *chip)
 				retval = mmc_ddr_tuning(chip);
 		}
 
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -2126,6 +2588,7 @@ static int sd_prepare_reset(struct rtsx_chip *chip)
 	chip->sd_io = 0;
 
 	retval = sd_set_init_para(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return retval;
 	}
@@ -2145,6 +2608,23 @@ static int sd_prepare_reset(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return retval;
+
+	retval = rtsx_write_register(chip, REG_SD_CFG1, 0xFF, 0x40);
+	if (retval)
+		return retval;
+
+	retval = rtsx_write_register(chip, CARD_STOP, SD_STOP | SD_CLR_ERR,
+				     SD_STOP | SD_CLR_ERR);
+	if (retval)
+		return retval;
+
+	retval = select_card(chip, SD_CARD);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -2157,6 +2637,7 @@ static int sd_pull_ctl_disable(struct rtsx_chip *chip)
 		retval = rtsx_write_register(chip, CARD_PULL_CTL1, 0xFF,
 					     XD_D3_PD | SD_D7_PD | SD_CLK_PD |
 					     SD_D5_PD);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
@@ -2189,10 +2670,39 @@ static int sd_pull_ctl_disable(struct rtsx_chip *chip)
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, CARD_PULL_CTL2, 0xFF,
+					     SD_D6_PD | SD_D0_PD | SD_D1_PD |
+					     XD_D5_PD);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, CARD_PULL_CTL3, 0xFF,
+					     SD_D4_PD | XD_CE_PD | XD_CLE_PD |
+					     XD_CD_PU);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, CARD_PULL_CTL4, 0xFF,
+					     XD_RDY_PD | SD_D3_PD | SD_D2_PD |
+					     XD_ALE_PD);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, CARD_PULL_CTL5, 0xFF,
+					     MS_INS_PU | SD_WP_PD | SD_CD_PU |
+					     SD_CMD_PD);
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, CARD_PULL_CTL6, 0xFF,
+					     MS_D5_PD | MS_D4_PD);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	} else if (CHECK_PID(chip, 0x5288)) {
 		if (CHECK_BARO_PKG(chip, QFN)) {
 			retval = rtsx_write_register(chip, CARD_PULL_CTL1,
 						     0xFF, 0x55);
+<<<<<<< HEAD
 			if (retval) {
 				return retval;
 			}
@@ -2211,6 +2721,22 @@ static int sd_pull_ctl_disable(struct rtsx_chip *chip)
 			if (retval) {
 				return retval;
 			}
+=======
+			if (retval)
+				return retval;
+			retval = rtsx_write_register(chip, CARD_PULL_CTL2,
+						     0xFF, 0x55);
+			if (retval)
+				return retval;
+			retval = rtsx_write_register(chip, CARD_PULL_CTL3,
+						     0xFF, 0x4B);
+			if (retval)
+				return retval;
+			retval = rtsx_write_register(chip, CARD_PULL_CTL4,
+						     0xFF, 0x69);
+			if (retval)
+				return retval;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2250,9 +2776,14 @@ int sd_pull_ctl_enable(struct rtsx_chip *chip)
 	}
 
 	retval = rtsx_send_cmd(chip, SD_CARD, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -2262,14 +2793,20 @@ static int sd_init_power(struct rtsx_chip *chip)
 	int retval;
 
 	retval = sd_power_off_card3v3(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (!chip->ft2_fast_mode)
 		wait_timeout(250);
 
 	retval = enable_card_clock(chip, SD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -2285,13 +2822,32 @@ static int sd_init_power(struct rtsx_chip *chip)
 		if (retval) {
 			return retval;
 		}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	if (chip->asic_code) {
+		retval = sd_pull_ctl_enable(chip);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	} else {
+		retval = rtsx_write_register(chip, FPGA_PULL_CTL,
+					     FPGA_SD_PULL_CTL_BIT | 0x20, 0);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	}
 
 	if (!chip->ft2_fast_mode) {
 		retval = card_power_on(chip, SD_CARD);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		wait_timeout(260);
 
@@ -2306,9 +2862,14 @@ static int sd_init_power(struct rtsx_chip *chip)
 
 	retval = rtsx_write_register(chip, CARD_OE, SD_OUTPUT_EN,
 				     SD_OUTPUT_EN);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -2318,6 +2879,7 @@ static int sd_dummy_clock(struct rtsx_chip *chip)
 	int retval;
 
 	retval = rtsx_write_register(chip, REG_SD_CFG3, 0x01, 0x01);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -2326,6 +2888,14 @@ static int sd_dummy_clock(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+	wait_timeout(5);
+	retval = rtsx_write_register(chip, REG_SD_CFG3, 0x01, 0);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -2373,9 +2943,14 @@ static int sd_check_wp_state(struct rtsx_chip *chip)
 
 	retval = sd_send_cmd_get_rsp(chip, APP_CMD, sd_card->sd_addr,
 				     SD_RSP_TYPE_R1, NULL, 0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	cmd[0] = 0x40 | SD_STATUS;
 	cmd[1] = 0;
@@ -2689,9 +3264,14 @@ SD_UNLOCK_ENTRY:
 
 		retval = rtsx_write_register(chip, SD30_DRIVE_SEL, 0x07,
 					     chip->sd30_drive_sel_1v8);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 
 		retval = sd_set_init_para(chip);
 		if (retval != STATUS_SUCCESS)
@@ -2703,6 +3283,7 @@ SD_UNLOCK_ENTRY:
 			retval = sd_sdr_tuning(chip);
 
 		if (retval != STATUS_SUCCESS) {
+<<<<<<< HEAD
 			if (sd20_mode) {
 				goto status_fail;
 			} else {
@@ -2714,6 +3295,15 @@ SD_UNLOCK_ENTRY:
 				sd20_mode = true;
 				goto switch_fail;
 			}
+=======
+			retval = sd_init_power(chip);
+			if (retval != STATUS_SUCCESS)
+				goto status_fail;
+
+			try_sdio = false;
+			sd20_mode = true;
+			goto switch_fail;
+>>>>>>> upstream/android-13
 		}
 
 		sd_send_cmd_get_rsp(chip, SEND_STATUS, sd_card->sd_addr,
@@ -2728,6 +3318,7 @@ SD_UNLOCK_ENTRY:
 		if (read_lba0) {
 			retval = sd_read_lba0(chip);
 			if (retval != STATUS_SUCCESS) {
+<<<<<<< HEAD
 				if (sd20_mode) {
 					goto status_fail;
 				} else {
@@ -2739,6 +3330,15 @@ SD_UNLOCK_ENTRY:
 					sd20_mode = true;
 					goto switch_fail;
 				}
+=======
+				retval = sd_init_power(chip);
+				if (retval != STATUS_SUCCESS)
+					goto status_fail;
+
+				try_sdio = false;
+				sd20_mode = true;
+				goto switch_fail;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -2753,6 +3353,7 @@ SD_UNLOCK_ENTRY:
 	if (sd_card->sd_lock_status & SD_UNLOCK_POW_ON) {
 		retval = rtsx_write_register(chip, REG_SD_BLOCK_CNT_H, 0xFF,
 					     0x02);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
@@ -2761,6 +3362,14 @@ SD_UNLOCK_ENTRY:
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, REG_SD_BLOCK_CNT_L, 0xFF,
+					     0x00);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -2780,9 +3389,14 @@ static int mmc_test_switch_bus(struct rtsx_chip *chip, u8 width)
 
 	retval = sd_send_cmd_get_rsp(chip, BUSTEST_W, 0, SD_RSP_TYPE_R1, NULL,
 				     0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return SWITCH_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return SWITCH_FAIL;
+>>>>>>> upstream/android-13
 
 	if (width == MMC_8BIT_BUS) {
 		buf[0] = 0x55;
@@ -2798,9 +3412,14 @@ static int mmc_test_switch_bus(struct rtsx_chip *chip, u8 width)
 	}
 
 	retval = rtsx_write_register(chip, REG_SD_CFG3, 0x02, 0x02);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return SWITCH_ERR;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return SWITCH_ERR;
+>>>>>>> upstream/android-13
 
 	retval = sd_write_data(chip, SD_TM_AUTO_WRITE_3, NULL, 0, byte_cnt, 1,
 			       bus_width, buf, len, 100);
@@ -2811,9 +3430,14 @@ static int mmc_test_switch_bus(struct rtsx_chip *chip, u8 width)
 	}
 
 	retval = rtsx_write_register(chip, REG_SD_CFG3, 0x02, 0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return SWITCH_ERR;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return SWITCH_ERR;
+>>>>>>> upstream/android-13
 
 	dev_dbg(rtsx_dev(chip), "SD/MMC CMD %d\n", BUSTEST_R);
 
@@ -2979,9 +3603,14 @@ static int mmc_switch_timing_bus(struct rtsx_chip *chip, bool switch_ddr)
 
 	sd_choose_proper_clock(chip);
 	retval = switch_clock(chip, sd_card->sd_clock);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	/* Test Bus Procedure */
 	retval = mmc_test_switch_bus(chip, MMC_8BIT_BUS);
@@ -3028,18 +3657,28 @@ static int reset_mmc(struct rtsx_chip *chip)
 
 switch_fail:
 	retval = sd_prepare_reset(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return retval;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return retval;
+>>>>>>> upstream/android-13
 
 	SET_MMC(sd_card);
 
 RTY_MMC_RST:
 	retval = sd_send_cmd_get_rsp(chip, GO_IDLE_STATE, 0, SD_RSP_TYPE_R0,
 				     NULL, 0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	do {
 		if (detect_card_cd(chip, SD_CARD) != STATUS_SUCCESS) {
@@ -3075,9 +3714,14 @@ RTY_MMC_RST:
 		i++;
 	} while (!(rsp[1] & 0x80) && (i < 255));
 
+<<<<<<< HEAD
 	if (i == 255) {
 		return STATUS_FAIL;
 	}
+=======
+	if (i == 255)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if ((rsp[1] & 0x60) == 0x40)
 		SET_MMC_SECTOR_MODE(sd_card);
@@ -3086,13 +3730,19 @@ RTY_MMC_RST:
 
 	retval = sd_send_cmd_get_rsp(chip, ALL_SEND_CID, 0, SD_RSP_TYPE_R2,
 				     NULL, 0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	sd_card->sd_addr = 0x00100000;
 	retval = sd_send_cmd_get_rsp(chip, SET_RELATIVE_ADDR, sd_card->sd_addr,
 				     SD_RSP_TYPE_R6, rsp, 5);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -3101,10 +3751,19 @@ RTY_MMC_RST:
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = sd_check_csd(chip, 1);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	spec_ver = (sd_card->raw_csd[0] & 0x3C) >> 2;
 
 	retval = sd_select_card(chip, 1);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -3114,10 +3773,20 @@ RTY_MMC_RST:
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = sd_send_cmd_get_rsp(chip, SET_BLOCKLEN, 0x200, SD_RSP_TYPE_R1,
+				     NULL, 0);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 #ifdef SUPPORT_SD_LOCK
 MMC_UNLOCK_ENTRY:
 	retval = sd_update_lock_status(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -3127,6 +3796,15 @@ MMC_UNLOCK_ENTRY:
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+#endif
+
+	retval = sd_set_clock_divider(chip, SD_CLK_DIVIDE_0);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	chip->card_bus_width[chip->card2lun[SD_CARD]] = 1;
 
@@ -3136,14 +3814,20 @@ MMC_UNLOCK_ENTRY:
 			retval = mmc_switch_timing_bus(chip, switch_ddr);
 			if (retval != STATUS_SUCCESS) {
 				retval = sd_init_power(chip);
+<<<<<<< HEAD
 				if (retval != STATUS_SUCCESS) {
 					return STATUS_FAIL;
 				}
+=======
+				if (retval != STATUS_SUCCESS)
+					return STATUS_FAIL;
+>>>>>>> upstream/android-13
 				sd_card->mmc_dont_switch_bus = 1;
 				goto switch_fail;
 			}
 		}
 
+<<<<<<< HEAD
 		if (CHK_MMC_SECTOR_MODE(sd_card) && (sd_card->capacity == 0)) {
 			return STATUS_FAIL;
 		}
@@ -3153,13 +3837,27 @@ MMC_UNLOCK_ENTRY:
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+		if (CHK_MMC_SECTOR_MODE(sd_card) && (sd_card->capacity == 0))
+			return STATUS_FAIL;
+
+		if (switch_ddr && CHK_MMC_DDR52(sd_card)) {
+			retval = sd_set_init_para(chip);
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 			retval = mmc_ddr_tuning(chip);
 			if (retval != STATUS_SUCCESS) {
 				retval = sd_init_power(chip);
+<<<<<<< HEAD
 				if (retval != STATUS_SUCCESS) {
 					return STATUS_FAIL;
 				}
+=======
+				if (retval != STATUS_SUCCESS)
+					return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 				switch_ddr = false;
 				goto switch_fail;
@@ -3170,9 +3868,14 @@ MMC_UNLOCK_ENTRY:
 				retval = sd_read_lba0(chip);
 				if (retval != STATUS_SUCCESS) {
 					retval = sd_init_power(chip);
+<<<<<<< HEAD
 					if (retval != STATUS_SUCCESS) {
 						return STATUS_FAIL;
 					}
+=======
+					if (retval != STATUS_SUCCESS)
+						return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 					switch_ddr = false;
 					goto switch_fail;
@@ -3185,6 +3888,7 @@ MMC_UNLOCK_ENTRY:
 	if (sd_card->sd_lock_status & SD_UNLOCK_POW_ON) {
 		retval = rtsx_write_register(chip, REG_SD_BLOCK_CNT_H, 0xFF,
 					     0x02);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
@@ -3193,6 +3897,14 @@ MMC_UNLOCK_ENTRY:
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+		retval = rtsx_write_register(chip, REG_SD_BLOCK_CNT_L, 0xFF,
+					     0x00);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -3214,21 +3926,32 @@ int reset_sd_card(struct rtsx_chip *chip)
 	chip->capacity[chip->card2lun[SD_CARD]] = 0;
 
 	retval = enable_card_clock(chip, SD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (chip->ignore_sd && CHK_SDIO_EXIST(chip) &&
 	    !CHK_SDIO_IGNORED(chip)) {
 		if (chip->asic_code) {
 			retval = sd_pull_ctl_enable(chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		} else {
 			retval = rtsx_write_register(chip, FPGA_PULL_CTL,
 						     FPGA_SD_PULL_CTL_BIT |
 						     0x20, 0);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
@@ -3237,19 +3960,33 @@ int reset_sd_card(struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+		}
+		retval = card_share_mode(chip, SD_CARD);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		chip->sd_io = 1;
 		return STATUS_FAIL;
 	}
 
 	retval = sd_init_power(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (chip->sd_ctl & RESET_MMC_FIRST) {
 		retval = reset_mmc(chip);
 		if (retval != STATUS_SUCCESS) {
+<<<<<<< HEAD
 			if (sd_check_err_code(chip, SD_NO_CARD)) {
 				return STATUS_FAIL;
 			}
@@ -3258,10 +3995,19 @@ int reset_sd_card(struct rtsx_chip *chip)
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+			if (sd_check_err_code(chip, SD_NO_CARD))
+				return STATUS_FAIL;
+
+			retval = reset_sd(chip);
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		retval = reset_sd(chip);
 		if (retval != STATUS_SUCCESS) {
+<<<<<<< HEAD
 			if (sd_check_err_code(chip, SD_NO_CARD)) {
 				return STATUS_FAIL;
 			}
@@ -3273,10 +4019,21 @@ int reset_sd_card(struct rtsx_chip *chip)
 			if (retval != STATUS_SUCCESS) {
 				return STATUS_FAIL;
 			}
+=======
+			if (sd_check_err_code(chip, SD_NO_CARD))
+				return STATUS_FAIL;
+
+			if (chip->sd_io)
+				return STATUS_FAIL;
+			retval = reset_mmc(chip);
+			if (retval != STATUS_SUCCESS)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	retval = sd_set_clock_divider(chip, SD_CLK_DIVIDE_0);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -3289,13 +4046,29 @@ int reset_sd_card(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, REG_SD_BYTE_CNT_L, 0xFF, 0);
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, REG_SD_BYTE_CNT_H, 0xFF, 2);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	chip->capacity[chip->card2lun[SD_CARD]] = sd_card->capacity;
 
 	retval = sd_set_init_para(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	dev_dbg(rtsx_dev(chip), "sd_card->sd_type = 0x%x\n", sd_card->sd_type);
 
@@ -3321,6 +4094,7 @@ static int reset_mmc_only(struct rtsx_chip *chip)
 	chip->capacity[chip->card2lun[SD_CARD]] = sd_card->capacity = 0;
 
 	retval = enable_card_clock(chip, SD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -3348,13 +4122,41 @@ static int reset_mmc_only(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = sd_init_power(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = reset_mmc(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = sd_set_clock_divider(chip, SD_CLK_DIVIDE_0);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, REG_SD_BYTE_CNT_L, 0xFF, 0);
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, REG_SD_BYTE_CNT_H, 0xFF, 2);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	chip->capacity[chip->card2lun[SD_CARD]] = sd_card->capacity;
 
 	retval = sd_set_init_para(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	dev_dbg(rtsx_dev(chip), "In %s, sd_card->sd_type = 0x%x\n",
 		__func__, sd_card->sd_type);
@@ -3380,9 +4182,14 @@ static int wait_data_buf_ready(struct rtsx_chip *chip)
 		retval = sd_send_cmd_get_rsp(chip, SEND_STATUS,
 					     sd_card->sd_addr, SD_RSP_TYPE_R1,
 					     NULL, 0);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		if (sd_card->sd_data_buf_ready) {
 			return sd_send_cmd_get_rsp(chip, SEND_STATUS,
@@ -3460,9 +4267,14 @@ static inline int sd_auto_tune_clock(struct rtsx_chip *chip)
 	}
 
 	retval = sd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -3756,11 +4568,14 @@ RW_FAIL:
 }
 
 #ifdef SUPPORT_CPRM
+<<<<<<< HEAD
 int soft_reset_sd_card(struct rtsx_chip *chip)
 {
 	return reset_sd(chip);
 }
 
+=======
+>>>>>>> upstream/android-13
 int ext_sd_send_cmd_get_rsp(struct rtsx_chip *chip, u8 cmd_idx, u32 arg,
 			    u8 rsp_type, u8 *rsp, int rsp_len,
 			    bool special_check)
@@ -3819,9 +4634,14 @@ RTY_SEND_CMD:
 
 			if (rsp_type & SD_WAIT_BUSY_END) {
 				retval = sd_check_data0_status(chip);
+<<<<<<< HEAD
 				if (retval != STATUS_SUCCESS) {
 					return retval;
 				}
+=======
+				if (retval != STATUS_SUCCESS)
+					return retval;
+>>>>>>> upstream/android-13
 			} else {
 				sd_set_err_code(chip, SD_TO_ERR);
 			}
@@ -3859,9 +4679,14 @@ RTY_SEND_CMD:
 	if ((cmd_idx == SELECT_CARD) || (cmd_idx == APP_CMD) ||
 	    (cmd_idx == SEND_STATUS) || (cmd_idx == STOP_TRANSMISSION)) {
 		if ((cmd_idx != STOP_TRANSMISSION) && !special_check) {
+<<<<<<< HEAD
 			if (ptr[1] & 0x80) {
 				return STATUS_FAIL;
 			}
+=======
+			if (ptr[1] & 0x80)
+				return STATUS_FAIL;
+>>>>>>> upstream/android-13
 		}
 #ifdef SUPPORT_SD_LOCK
 		if (ptr[1] & 0x7D) {
@@ -3870,6 +4695,7 @@ RTY_SEND_CMD:
 #endif
 			return STATUS_FAIL;
 		}
+<<<<<<< HEAD
 		if (ptr[2] & 0xF8) {
 			return STATUS_FAIL;
 		}
@@ -3879,6 +4705,15 @@ RTY_SEND_CMD:
 				if ((ptr[3] & 0x1E) != 0x04) {
 					return STATUS_FAIL;
 				}
+=======
+		if (ptr[2] & 0xF8)
+			return STATUS_FAIL;
+
+		if (cmd_idx == SELECT_CARD) {
+			if (rsp_type == SD_RSP_TYPE_R2) {
+				if ((ptr[3] & 0x1E) != 0x04)
+					return STATUS_FAIL;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -3915,9 +4750,14 @@ int ext_sd_get_rsp(struct rtsx_chip *chip, int len, u8 *rsp, u8 rsp_type)
 	rtsx_add_cmd(chip, READ_REG_CMD, REG_SD_CMD5, 0xFF, 0);
 
 	retval = rtsx_send_cmd(chip, SD_CARD, 100);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	if (rsp) {
 		int min_len = (rsp_len < len) ? rsp_len : len;
@@ -4057,9 +4897,14 @@ int sd_execute_no_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	retval = sd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 	if (sd_card->pre_cmd_err) {
 		sd_card->pre_cmd_err = 0;
@@ -4085,39 +4930,64 @@ int sd_execute_no_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	sd_card->last_rsp_type = rsp_type;
 
 	retval = sd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 #ifdef SUPPORT_SD_LOCK
 	if ((sd_card->sd_lock_status & SD_LOCK_1BIT_MODE) == 0) {
 		if (CHK_MMC_8BIT(sd_card)) {
 			retval = rtsx_write_register(chip, REG_SD_CFG1, 0x03,
 						     SD_BUS_WIDTH_8);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else if (CHK_SD(sd_card) || CHK_MMC_4BIT(sd_card)) {
 			retval = rtsx_write_register(chip, REG_SD_CFG1, 0x03,
 						     SD_BUS_WIDTH_4);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 		}
 	}
 #else
 	retval = rtsx_write_register(chip, REG_SD_CFG1, 0x03, SD_BUS_WIDTH_4);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 #endif
 
 	if (standby) {
 		retval = sd_select_card(chip, 0);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (acmd) {
@@ -4125,13 +4995,19 @@ int sd_execute_no_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 						 sd_card->sd_addr,
 						 SD_RSP_TYPE_R1, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	retval = ext_sd_send_cmd_get_rsp(chip, cmd_idx, arg, rsp_type,
 					 sd_card->rsp, rsp_len, false);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		goto sd_execute_cmd_failed;
 	}
@@ -4141,13 +5017,27 @@ int sd_execute_no_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_cmd_failed;
 		}
+=======
+	if (retval != STATUS_SUCCESS)
+		goto sd_execute_cmd_failed;
+
+	if (standby) {
+		retval = sd_select_card(chip, 1);
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 #ifdef SUPPORT_SD_LOCK
 	retval = sd_update_lock_status(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		goto sd_execute_cmd_failed;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		goto sd_execute_cmd_failed;
+>>>>>>> upstream/android-13
 #endif
 
 	scsi_set_resid(srb, 0);
@@ -4186,9 +5076,14 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	retval = sd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 	cmd_idx = srb->cmnd[2] & 0x3F;
 	if (srb->cmnd[1] & 0x04)
@@ -4211,9 +5106,14 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	sd_card->last_rsp_type = rsp_type;
 
 	retval = sd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 #ifdef SUPPORT_SD_LOCK
 	if ((sd_card->sd_lock_status & SD_LOCK_1BIT_MODE) == 0) {
@@ -4235,16 +5135,26 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		retval = ext_sd_send_cmd_get_rsp(chip, SET_BLOCKLEN, data_len,
 						 SD_RSP_TYPE_R1, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_read_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (standby) {
 		retval = sd_select_card(chip, 0);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_read_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (acmd) {
@@ -4252,9 +5162,14 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 						 sd_card->sd_addr,
 						 SD_RSP_TYPE_R1, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_read_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (data_len <= 512) {
@@ -4273,9 +5188,14 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		cmd[4] = srb->cmnd[6];
 
 		buf = kmalloc(data_len, GFP_KERNEL);
+<<<<<<< HEAD
 		if (!buf) {
 			return TRANSPORT_ERROR;
 		}
+=======
+		if (!buf)
+			return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 		retval = sd_read_data(chip, SD_TM_NORMAL_READ, cmd, 5, byte_cnt,
 				      blk_cnt, bus_width, buf, data_len, 2000);
@@ -4340,6 +5260,7 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	retval = ext_sd_get_rsp(chip, rsp_len, sd_card->rsp, rsp_type);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		goto sd_execute_read_cmd_failed;
 	}
@@ -4349,21 +5270,36 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_read_cmd_failed;
 		}
+=======
+	if (retval != STATUS_SUCCESS)
+		goto sd_execute_read_cmd_failed;
+
+	if (standby) {
+		retval = sd_select_card(chip, 1);
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (send_cmd12) {
 		retval = ext_sd_send_cmd_get_rsp(chip, STOP_TRANSMISSION, 0,
 						 SD_RSP_TYPE_R1b, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_read_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (data_len < 512) {
 		retval = ext_sd_send_cmd_get_rsp(chip, SET_BLOCKLEN, 0x200,
 						 SD_RSP_TYPE_R1, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_read_cmd_failed;
 		}
@@ -4377,6 +5313,18 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_read_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+
+		retval = rtsx_write_register(chip, SD_BYTE_CNT_H, 0xFF, 0x02);
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+
+		retval = rtsx_write_register(chip, SD_BYTE_CNT_L, 0xFF, 0x00);
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_read_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if ((srb->cmnd[1] & 0x02) || (srb->cmnd[1] & 0x04))
@@ -4390,9 +5338,14 @@ int sd_execute_read_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval == STATUS_SUCCESS)
 			break;
 	}
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		goto sd_execute_read_cmd_failed;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		goto sd_execute_read_cmd_failed;
+>>>>>>> upstream/android-13
 
 	scsi_set_resid(srb, 0);
 	return TRANSPORT_GOOD;
@@ -4438,9 +5391,14 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	retval = sd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 	cmd_idx = srb->cmnd[2] & 0x3F;
 	if (srb->cmnd[1] & 0x04)
@@ -4472,48 +5430,78 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	sd_card->last_rsp_type = rsp_type;
 
 	retval = sd_switch_clock(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 #ifdef SUPPORT_SD_LOCK
 	if ((sd_card->sd_lock_status & SD_LOCK_1BIT_MODE) == 0) {
 		if (CHK_MMC_8BIT(sd_card)) {
 			retval = rtsx_write_register(chip, REG_SD_CFG1, 0x03,
 						     SD_BUS_WIDTH_8);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else if (CHK_SD(sd_card) || CHK_MMC_4BIT(sd_card)) {
 			retval = rtsx_write_register(chip, REG_SD_CFG1, 0x03,
 						     SD_BUS_WIDTH_4);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 		}
 	}
 #else
 	retval = rtsx_write_register(chip, REG_SD_CFG1, 0x03, SD_BUS_WIDTH_4);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 #endif
 
 	if (data_len < 512) {
 		retval = ext_sd_send_cmd_get_rsp(chip, SET_BLOCKLEN, data_len,
 						 SD_RSP_TYPE_R1, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_write_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (standby) {
 		retval = sd_select_card(chip, 0);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_write_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (acmd) {
@@ -4521,25 +5509,40 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 						 sd_card->sd_addr,
 						 SD_RSP_TYPE_R1, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_write_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	retval = ext_sd_send_cmd_get_rsp(chip, cmd_idx, arg, rsp_type,
 					 sd_card->rsp, rsp_len, false);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		goto sd_execute_write_cmd_failed;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 
 	if (data_len <= 512) {
 		u16 i;
 		u8 *buf;
 
 		buf = kmalloc(data_len, GFP_KERNEL);
+<<<<<<< HEAD
 		if (!buf) {
 			return TRANSPORT_ERROR;
 		}
+=======
+		if (!buf)
+			return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 		rtsx_stor_get_xfer_buf(buf, data_len, srb);
 
@@ -4651,7 +5654,16 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		rtsx_init_cmd(chip);
 		rtsx_add_cmd(chip, CHECK_REG_CMD, 0xFD30, 0x02, 0x02);
 
+<<<<<<< HEAD
 		rtsx_send_cmd(chip, SD_CARD, 250);
+=======
+		retval = rtsx_send_cmd(chip, SD_CARD, 250);
+		if (retval < 0) {
+			write_err = true;
+			rtsx_clear_sd_error(chip);
+			goto sd_execute_write_cmd_failed;
+		}
+>>>>>>> upstream/android-13
 
 		retval = sd_update_lock_status(chip);
 		if (retval != STATUS_SUCCESS) {
@@ -4663,24 +5675,35 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	if (standby) {
 		retval = sd_select_card(chip, 1);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_write_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (send_cmd12) {
 		retval = ext_sd_send_cmd_get_rsp(chip, STOP_TRANSMISSION, 0,
 						 SD_RSP_TYPE_R1b, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_write_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if (data_len < 512) {
 		retval = ext_sd_send_cmd_get_rsp(chip, SET_BLOCKLEN, 0x200,
 						 SD_RSP_TYPE_R1, NULL, 0,
 						 false);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_write_cmd_failed;
 		}
@@ -4694,6 +5717,18 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			goto sd_execute_write_cmd_failed;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+
+		retval = rtsx_write_register(chip, SD_BYTE_CNT_H, 0xFF, 0x02);
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+
+		retval = rtsx_write_register(chip, SD_BYTE_CNT_L, 0xFF, 0x00);
+		if (retval != STATUS_SUCCESS)
+			goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 	}
 
 	if ((srb->cmnd[1] & 0x02) || (srb->cmnd[1] & 0x04))
@@ -4707,9 +5742,14 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval == STATUS_SUCCESS)
 			break;
 	}
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		goto sd_execute_write_cmd_failed;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		goto sd_execute_write_cmd_failed;
+>>>>>>> upstream/android-13
 
 #ifdef SUPPORT_SD_LOCK
 	if (cmd_idx == LOCK_UNLOCK) {
@@ -4727,6 +5767,7 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 			sd_lock_state, sd_card->sd_lock_status);
 		if (sd_lock_state ^ (sd_card->sd_lock_status & SD_LOCKED)) {
 			sd_card->sd_lock_notify = 1;
+<<<<<<< HEAD
 			if (sd_lock_state) {
 				if (sd_card->sd_lock_status & SD_LOCK_1BIT_MODE) {
 					sd_card->sd_lock_status |= (
@@ -4741,6 +5782,21 @@ int sd_execute_write_data(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 					sd_card->sd_lock_status &= ~(SD_UNLOCK_POW_ON | SD_SDR_RST);
 				}
+=======
+			if (sd_lock_state &&
+			    (sd_card->sd_lock_status & SD_LOCK_1BIT_MODE)) {
+				sd_card->sd_lock_status |= (
+					SD_UNLOCK_POW_ON | SD_SDR_RST);
+				if (CHK_SD(sd_card)) {
+					retval = reset_sd(chip);
+					if (retval != STATUS_SUCCESS) {
+						sd_card->sd_lock_status &= ~(SD_UNLOCK_POW_ON | SD_SDR_RST);
+						goto sd_execute_write_cmd_failed;
+					}
+				}
+
+				sd_card->sd_lock_status &= ~(SD_UNLOCK_POW_ON | SD_SDR_RST);
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -4854,7 +5910,11 @@ int sd_hw_rst(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		break;
 
 	case 1:
+<<<<<<< HEAD
 		retval = soft_reset_sd_card(chip);
+=======
+		retval = reset_sd(chip);
+>>>>>>> upstream/android-13
 		if (retval != STATUS_SUCCESS) {
 			set_sense_type(chip, lun, SENSE_TYPE_MEDIA_NOT_PRESENT);
 			sd_card->pre_cmd_err = 1;
@@ -4888,6 +5948,7 @@ int sd_power_off_card3v3(struct rtsx_chip *chip)
 	int retval;
 
 	retval = disable_card_clock(chip, SD_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -4902,22 +5963,45 @@ int sd_power_off_card3v3(struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, CARD_OE, SD_OUTPUT_EN, 0);
+	if (retval)
+		return retval;
+
+	if (!chip->ft2_fast_mode) {
+		retval = card_power_off(chip, SD_CARD);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 		mdelay(50);
 	}
 
 	if (chip->asic_code) {
 		retval = sd_pull_ctl_disable(chip);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	} else {
 		retval = rtsx_write_register(chip, FPGA_PULL_CTL,
 					     FPGA_SD_PULL_CTL_BIT | 0x20,
 					     FPGA_SD_PULL_CTL_BIT);
+<<<<<<< HEAD
 		if (retval) {
 			return retval;
 		}
+=======
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 	}
 
 	return STATUS_SUCCESS;
@@ -4944,9 +6028,14 @@ int release_sd_card(struct rtsx_chip *chip)
 	memset(sd_card->raw_scr, 0, 8);
 
 	retval = sd_power_off_card3v3(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }

@@ -222,6 +222,12 @@
 #define E1000_STATUS_PHYRA      0x00000400      /* PHY Reset Asserted */
 #define E1000_STATUS_GIO_MASTER_ENABLE	0x00080000	/* Master Req status */
 
+<<<<<<< HEAD
+=======
+/* PCIm function state */
+#define E1000_STATUS_PCIM_STATE	0x40000000
+
+>>>>>>> upstream/android-13
 #define HALF_DUPLEX 1
 #define FULL_DUPLEX 2
 

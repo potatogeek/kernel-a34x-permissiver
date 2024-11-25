@@ -28,7 +28,11 @@
 	print_hex_dump(KERN_DEBUG, str, DUMP_PREFIX_NONE, \
 			16, 1, buf, len, false)
 #else
+<<<<<<< HEAD
 #define NVEC_PHD(str, buf, len)
+=======
+#define NVEC_PHD(str, buf, len) do { } while (0)
+>>>>>>> upstream/android-13
 #endif
 
 enum ps2_subcmds {
@@ -112,8 +116,13 @@ static int nvec_mouse_probe(struct platform_device *pdev)
 	ser_dev->start = ps2_startstreaming;
 	ser_dev->stop = ps2_stopstreaming;
 
+<<<<<<< HEAD
 	strlcpy(ser_dev->name, "nvec mouse", sizeof(ser_dev->name));
 	strlcpy(ser_dev->phys, "nvec", sizeof(ser_dev->phys));
+=======
+	strscpy(ser_dev->name, "nvec mouse", sizeof(ser_dev->name));
+	strscpy(ser_dev->phys, "nvec", sizeof(ser_dev->phys));
+>>>>>>> upstream/android-13
 
 	ps2_dev.ser_dev = ser_dev;
 	ps2_dev.notifier.notifier_call = nvec_ps2_notifier;

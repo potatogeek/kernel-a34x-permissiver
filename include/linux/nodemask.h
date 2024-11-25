@@ -90,9 +90,15 @@
  * for such situations. See below and CPUMASK_ALLOC also.
  */
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/threads.h>
 #include <linux/bitmap.h>
+=======
+#include <linux/threads.h>
+#include <linux/bitmap.h>
+#include <linux/minmax.h>
+>>>>>>> upstream/android-13
 #include <linux/numa.h>
 
 typedef struct { DECLARE_BITMAP(bits, MAX_NUMNODES); } nodemask_t;
@@ -119,7 +125,11 @@ static inline const unsigned long *__nodemask_pr_bits(const nodemask_t *m)
  * The inline keyword gives the compiler room to decide to inline, or
  * not inline a function as it sees best.  However, as these functions
  * are called in both __init and non-__init functions, if they are not
+<<<<<<< HEAD
  * inlined we will end up with a section mis-match error (of the type of
+=======
+ * inlined we will end up with a section mismatch error (of the type of
+>>>>>>> upstream/android-13
  * freeable items not being freed).  So we must use __always_inline here
  * to fix the problem.  If other functions in the future also end up in
  * this situation they will also need to be annotated as __always_inline
@@ -399,6 +409,10 @@ enum node_states {
 #endif
 	N_MEMORY,		/* The node has memory(regular, high, movable) */
 	N_CPU,		/* The node has one or more cpus */
+<<<<<<< HEAD
+=======
+	N_GENERIC_INITIATOR,	/* The node has one or more Generic Initiators */
+>>>>>>> upstream/android-13
 	NR_NODE_STATES
 };
 
@@ -444,8 +458,13 @@ static inline int next_memory_node(int nid)
 	return next_node(nid, node_states[N_MEMORY]);
 }
 
+<<<<<<< HEAD
 extern int nr_node_ids;
 extern int nr_online_nodes;
+=======
+extern unsigned int nr_node_ids;
+extern unsigned int nr_online_nodes;
+>>>>>>> upstream/android-13
 
 static inline void node_set_online(int nid)
 {
@@ -485,8 +504,14 @@ static inline int num_node_state(enum node_states state)
 #define first_online_node	0
 #define first_memory_node	0
 #define next_online_node(nid)	(MAX_NUMNODES)
+<<<<<<< HEAD
 #define nr_node_ids		1
 #define nr_online_nodes		1
+=======
+#define next_memory_node(nid)	(MAX_NUMNODES)
+#define nr_node_ids		1U
+#define nr_online_nodes		1U
+>>>>>>> upstream/android-13
 
 #define node_set_online(node)	   node_set_state((node), N_ONLINE)
 #define node_set_offline(node)	   node_clear_state((node), N_ONLINE)
@@ -514,7 +539,11 @@ static inline int node_random(const nodemask_t *mask)
 #define for_each_online_node(node) for_each_node_state(node, N_ONLINE)
 
 /*
+<<<<<<< HEAD
  * For nodemask scrach area.
+=======
+ * For nodemask scratch area.
+>>>>>>> upstream/android-13
  * NODEMASK_ALLOC(type, name) allocates an object with a specified type and
  * name.
  */
@@ -527,7 +556,11 @@ static inline int node_random(const nodemask_t *mask)
 #define NODEMASK_FREE(m)			do {} while (0)
 #endif
 
+<<<<<<< HEAD
 /* A example struture for using NODEMASK_ALLOC, used in mempolicy. */
+=======
+/* Example structure for using NODEMASK_ALLOC, used in mempolicy. */
+>>>>>>> upstream/android-13
 struct nodemask_scratch {
 	nodemask_t	mask1;
 	nodemask_t	mask2;

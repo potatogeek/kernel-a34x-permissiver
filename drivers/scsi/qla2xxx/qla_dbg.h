@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include "qla_def.h"
@@ -12,6 +19,7 @@
  */
 
 struct qla2300_fw_dump {
+<<<<<<< HEAD
 	uint16_t hccr;
 	uint16_t pbiu_reg[8];
 	uint16_t risc_host_reg[8];
@@ -211,6 +219,208 @@ struct qla83xx_fw_dump {
 	uint32_t at0_array_reg[128];
 	uint32_t code_ram[0x2400];
 	uint32_t ext_mem[1];
+=======
+	__be16 hccr;
+	__be16 pbiu_reg[8];
+	__be16 risc_host_reg[8];
+	__be16 mailbox_reg[32];
+	__be16 resp_dma_reg[32];
+	__be16 dma_reg[48];
+	__be16 risc_hdw_reg[16];
+	__be16 risc_gp0_reg[16];
+	__be16 risc_gp1_reg[16];
+	__be16 risc_gp2_reg[16];
+	__be16 risc_gp3_reg[16];
+	__be16 risc_gp4_reg[16];
+	__be16 risc_gp5_reg[16];
+	__be16 risc_gp6_reg[16];
+	__be16 risc_gp7_reg[16];
+	__be16 frame_buf_hdw_reg[64];
+	__be16 fpm_b0_reg[64];
+	__be16 fpm_b1_reg[64];
+	__be16 risc_ram[0xf800];
+	__be16 stack_ram[0x1000];
+	__be16 data_ram[1];
+};
+
+struct qla2100_fw_dump {
+	__be16 hccr;
+	__be16 pbiu_reg[8];
+	__be16 mailbox_reg[32];
+	__be16 dma_reg[48];
+	__be16 risc_hdw_reg[16];
+	__be16 risc_gp0_reg[16];
+	__be16 risc_gp1_reg[16];
+	__be16 risc_gp2_reg[16];
+	__be16 risc_gp3_reg[16];
+	__be16 risc_gp4_reg[16];
+	__be16 risc_gp5_reg[16];
+	__be16 risc_gp6_reg[16];
+	__be16 risc_gp7_reg[16];
+	__be16 frame_buf_hdw_reg[16];
+	__be16 fpm_b0_reg[64];
+	__be16 fpm_b1_reg[64];
+	__be16 risc_ram[0xf000];
+	u8	queue_dump[];
+};
+
+struct qla24xx_fw_dump {
+	__be32	host_status;
+	__be32	host_reg[32];
+	__be32	shadow_reg[7];
+	__be16	mailbox_reg[32];
+	__be32	xseq_gp_reg[128];
+	__be32	xseq_0_reg[16];
+	__be32	xseq_1_reg[16];
+	__be32	rseq_gp_reg[128];
+	__be32	rseq_0_reg[16];
+	__be32	rseq_1_reg[16];
+	__be32	rseq_2_reg[16];
+	__be32	cmd_dma_reg[16];
+	__be32	req0_dma_reg[15];
+	__be32	resp0_dma_reg[15];
+	__be32	req1_dma_reg[15];
+	__be32	xmt0_dma_reg[32];
+	__be32	xmt1_dma_reg[32];
+	__be32	xmt2_dma_reg[32];
+	__be32	xmt3_dma_reg[32];
+	__be32	xmt4_dma_reg[32];
+	__be32	xmt_data_dma_reg[16];
+	__be32	rcvt0_data_dma_reg[32];
+	__be32	rcvt1_data_dma_reg[32];
+	__be32	risc_gp_reg[128];
+	__be32	lmc_reg[112];
+	__be32	fpm_hdw_reg[192];
+	__be32	fb_hdw_reg[176];
+	__be32	code_ram[0x2000];
+	__be32	ext_mem[1];
+};
+
+struct qla25xx_fw_dump {
+	__be32	host_status;
+	__be32	host_risc_reg[32];
+	__be32	pcie_regs[4];
+	__be32	host_reg[32];
+	__be32	shadow_reg[11];
+	__be32	risc_io_reg;
+	__be16	mailbox_reg[32];
+	__be32	xseq_gp_reg[128];
+	__be32	xseq_0_reg[48];
+	__be32	xseq_1_reg[16];
+	__be32	rseq_gp_reg[128];
+	__be32	rseq_0_reg[32];
+	__be32	rseq_1_reg[16];
+	__be32	rseq_2_reg[16];
+	__be32	aseq_gp_reg[128];
+	__be32	aseq_0_reg[32];
+	__be32	aseq_1_reg[16];
+	__be32	aseq_2_reg[16];
+	__be32	cmd_dma_reg[16];
+	__be32	req0_dma_reg[15];
+	__be32	resp0_dma_reg[15];
+	__be32	req1_dma_reg[15];
+	__be32	xmt0_dma_reg[32];
+	__be32	xmt1_dma_reg[32];
+	__be32	xmt2_dma_reg[32];
+	__be32	xmt3_dma_reg[32];
+	__be32	xmt4_dma_reg[32];
+	__be32	xmt_data_dma_reg[16];
+	__be32	rcvt0_data_dma_reg[32];
+	__be32	rcvt1_data_dma_reg[32];
+	__be32	risc_gp_reg[128];
+	__be32	lmc_reg[128];
+	__be32	fpm_hdw_reg[192];
+	__be32	fb_hdw_reg[192];
+	__be32	code_ram[0x2000];
+	__be32	ext_mem[1];
+};
+
+struct qla81xx_fw_dump {
+	__be32	host_status;
+	__be32	host_risc_reg[32];
+	__be32	pcie_regs[4];
+	__be32	host_reg[32];
+	__be32	shadow_reg[11];
+	__be32	risc_io_reg;
+	__be16	mailbox_reg[32];
+	__be32	xseq_gp_reg[128];
+	__be32	xseq_0_reg[48];
+	__be32	xseq_1_reg[16];
+	__be32	rseq_gp_reg[128];
+	__be32	rseq_0_reg[32];
+	__be32	rseq_1_reg[16];
+	__be32	rseq_2_reg[16];
+	__be32	aseq_gp_reg[128];
+	__be32	aseq_0_reg[32];
+	__be32	aseq_1_reg[16];
+	__be32	aseq_2_reg[16];
+	__be32	cmd_dma_reg[16];
+	__be32	req0_dma_reg[15];
+	__be32	resp0_dma_reg[15];
+	__be32	req1_dma_reg[15];
+	__be32	xmt0_dma_reg[32];
+	__be32	xmt1_dma_reg[32];
+	__be32	xmt2_dma_reg[32];
+	__be32	xmt3_dma_reg[32];
+	__be32	xmt4_dma_reg[32];
+	__be32	xmt_data_dma_reg[16];
+	__be32	rcvt0_data_dma_reg[32];
+	__be32	rcvt1_data_dma_reg[32];
+	__be32	risc_gp_reg[128];
+	__be32	lmc_reg[128];
+	__be32	fpm_hdw_reg[224];
+	__be32	fb_hdw_reg[208];
+	__be32	code_ram[0x2000];
+	__be32	ext_mem[1];
+};
+
+struct qla83xx_fw_dump {
+	__be32	host_status;
+	__be32	host_risc_reg[48];
+	__be32	pcie_regs[4];
+	__be32	host_reg[32];
+	__be32	shadow_reg[11];
+	__be32	risc_io_reg;
+	__be16	mailbox_reg[32];
+	__be32	xseq_gp_reg[256];
+	__be32	xseq_0_reg[48];
+	__be32	xseq_1_reg[16];
+	__be32	xseq_2_reg[16];
+	__be32	rseq_gp_reg[256];
+	__be32	rseq_0_reg[32];
+	__be32	rseq_1_reg[16];
+	__be32	rseq_2_reg[16];
+	__be32	rseq_3_reg[16];
+	__be32	aseq_gp_reg[256];
+	__be32	aseq_0_reg[32];
+	__be32	aseq_1_reg[16];
+	__be32	aseq_2_reg[16];
+	__be32	aseq_3_reg[16];
+	__be32	cmd_dma_reg[64];
+	__be32	req0_dma_reg[15];
+	__be32	resp0_dma_reg[15];
+	__be32	req1_dma_reg[15];
+	__be32	xmt0_dma_reg[32];
+	__be32	xmt1_dma_reg[32];
+	__be32	xmt2_dma_reg[32];
+	__be32	xmt3_dma_reg[32];
+	__be32	xmt4_dma_reg[32];
+	__be32	xmt_data_dma_reg[16];
+	__be32	rcvt0_data_dma_reg[32];
+	__be32	rcvt1_data_dma_reg[32];
+	__be32	risc_gp_reg[128];
+	__be32	lmc_reg[128];
+	__be32	fpm_hdw_reg[256];
+	__be32	rq0_array_reg[256];
+	__be32	rq1_array_reg[256];
+	__be32	rp0_array_reg[256];
+	__be32	rp1_array_reg[256];
+	__be32	queue_control_reg[16];
+	__be32	fb_hdw_reg[432];
+	__be32	at0_array_reg[128];
+	__be32	code_ram[0x2400];
+	__be32	ext_mem[1];
+>>>>>>> upstream/android-13
 };
 
 #define EFT_NUM_BUFFERS		4
@@ -223,6 +433,7 @@ struct qla83xx_fw_dump {
 #define fce_calc_size(b)	((FCE_BYTES_PER_BUFFER) * (b))
 
 struct qla2xxx_fce_chain {
+<<<<<<< HEAD
 	uint32_t type;
 	uint32_t chain_size;
 
@@ -230,10 +441,20 @@ struct qla2xxx_fce_chain {
 	uint32_t addr_l;
 	uint32_t addr_h;
 	uint32_t eregs[8];
+=======
+	__be32	type;
+	__be32	chain_size;
+
+	__be32	size;
+	__be32	addr_l;
+	__be32	addr_h;
+	__be32	eregs[8];
+>>>>>>> upstream/android-13
 };
 
 /* used by exchange off load and extended login offload */
 struct qla2xxx_offld_chain {
+<<<<<<< HEAD
 	uint32_t type;
 	uint32_t chain_size;
 
@@ -261,6 +482,36 @@ struct qla2xxx_mqueue_header {
 struct qla2xxx_mqueue_chain {
 	uint32_t type;
 	uint32_t chain_size;
+=======
+	__be32	type;
+	__be32	chain_size;
+
+	__be32	size;
+	__be32	reserved;
+	__be64	addr;
+};
+
+struct qla2xxx_mq_chain {
+	__be32	type;
+	__be32	chain_size;
+
+	__be32	count;
+	__be32	qregs[4 * QLA_MQ_SIZE];
+};
+
+struct qla2xxx_mqueue_header {
+	__be32	queue;
+#define TYPE_REQUEST_QUEUE	0x1
+#define TYPE_RESPONSE_QUEUE	0x2
+#define TYPE_ATIO_QUEUE		0x3
+	__be32	number;
+	__be32	size;
+};
+
+struct qla2xxx_mqueue_chain {
+	__be32	type;
+	__be32	chain_size;
+>>>>>>> upstream/android-13
 };
 
 #define DUMP_CHAIN_VARIANT	0x80000000
@@ -273,6 +524,7 @@ struct qla2xxx_mqueue_chain {
 
 struct qla2xxx_fw_dump {
 	uint8_t signature[4];
+<<<<<<< HEAD
 	uint32_t version;
 
 	uint32_t fw_major_version;
@@ -295,6 +547,30 @@ struct qla2xxx_fw_dump {
 	uint32_t eft_addr_h;
 
 	uint32_t header_size;
+=======
+	__be32	version;
+
+	__be32 fw_major_version;
+	__be32 fw_minor_version;
+	__be32 fw_subminor_version;
+	__be32 fw_attributes;
+
+	__be32 vendor;
+	__be32 device;
+	__be32 subsystem_vendor;
+	__be32 subsystem_device;
+
+	__be32	fixed_size;
+	__be32	mem_size;
+	__be32	req_q_size;
+	__be32	rsp_q_size;
+
+	__be32	eft_size;
+	__be32	eft_addr_l;
+	__be32	eft_addr_h;
+
+	__be32	header_size;
+>>>>>>> upstream/android-13
 
 	union {
 		struct qla2100_fw_dump isp21;
@@ -307,7 +583,11 @@ struct qla2xxx_fw_dump {
 };
 
 #define QL_MSGHDR "qla2xxx"
+<<<<<<< HEAD
 #define QL_DBG_DEFAULT1_MASK    0x1e400000
+=======
+#define QL_DBG_DEFAULT1_MASK    0x1e600000
+>>>>>>> upstream/android-13
 
 #define ql_log_fatal		0 /* display fatal errors */
 #define ql_log_warn		1 /* display critical errors */
@@ -318,20 +598,35 @@ struct qla2xxx_fw_dump {
 				   * as compared to other log levels.
 				   */
 
+<<<<<<< HEAD
 extern int ql_errlev;
 
 void __attribute__((format (printf, 4, 5)))
 ql_dbg(uint32_t, scsi_qla_host_t *vha, int32_t, const char *fmt, ...);
 void __attribute__((format (printf, 4, 5)))
 ql_dbg_pci(uint32_t, struct pci_dev *pdev, int32_t, const char *fmt, ...);
+=======
+extern uint ql_errlev;
+
+void __attribute__((format (printf, 4, 5)))
+ql_dbg(uint, scsi_qla_host_t *vha, uint, const char *fmt, ...);
+void __attribute__((format (printf, 4, 5)))
+ql_dbg_pci(uint, struct pci_dev *pdev, uint, const char *fmt, ...);
+>>>>>>> upstream/android-13
 void __attribute__((format (printf, 4, 5)))
 ql_dbg_qp(uint32_t, struct qla_qpair *, int32_t, const char *fmt, ...);
 
 
 void __attribute__((format (printf, 4, 5)))
+<<<<<<< HEAD
 ql_log(uint32_t, scsi_qla_host_t *vha, int32_t, const char *fmt, ...);
 void __attribute__((format (printf, 4, 5)))
 ql_log_pci(uint32_t, struct pci_dev *pdev, int32_t, const char *fmt, ...);
+=======
+ql_log(uint, scsi_qla_host_t *vha, uint, const char *fmt, ...);
+void __attribute__((format (printf, 4, 5)))
+ql_log_pci(uint, struct pci_dev *pdev, uint, const char *fmt, ...);
+>>>>>>> upstream/android-13
 
 void __attribute__((format (printf, 4, 5)))
 ql_log_qp(uint32_t, struct qla_qpair *, int32_t, const char *fmt, ...);
@@ -366,10 +661,18 @@ ql_log_qp(uint32_t, struct qla_qpair *, int32_t, const char *fmt, ...);
 #define ql_dbg_tgt_mgt	0x00002000 /* Target mode management */
 #define ql_dbg_tgt_tmr	0x00001000 /* Target mode task management */
 #define ql_dbg_tgt_dif  0x00000800 /* Target mode dif */
+<<<<<<< HEAD
 
 extern int qla27xx_dump_mpi_ram(struct qla_hw_data *, uint32_t, uint32_t *,
 	uint32_t, void **);
 extern int qla24xx_dump_ram(struct qla_hw_data *, uint32_t, uint32_t *,
+=======
+#define ql_dbg_edif	0x00000400 /* edif and purex debug */
+
+extern int qla27xx_dump_mpi_ram(struct qla_hw_data *, uint32_t, uint32_t *,
+	uint32_t, void **);
+extern int qla24xx_dump_ram(struct qla_hw_data *, uint32_t, __be32 *,
+>>>>>>> upstream/android-13
 	uint32_t, void **);
 extern void qla24xx_pause_risc(struct device_reg_24xx __iomem *,
 	struct qla_hw_data *);
@@ -378,5 +681,11 @@ extern int qla24xx_soft_reset(struct qla_hw_data *);
 static inline int
 ql_mask_match(uint level)
 {
+<<<<<<< HEAD
+=======
+	if (ql2xextended_error_logging == 1)
+		ql2xextended_error_logging = QL_DBG_DEFAULT1_MASK;
+
+>>>>>>> upstream/android-13
 	return (level & ql2xextended_error_logging) == level;
 }

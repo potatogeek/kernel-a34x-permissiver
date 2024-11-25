@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Nokia Corporation
  *
  * Written by Timo Kokkonen <timo.t.kokkonen at nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -70,10 +77,17 @@ static const struct watchdog_ops twl4030_wdt_ops = {
 
 static int twl4030_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	struct watchdog_device *wdt;
 
 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+=======
+	struct device *dev = &pdev->dev;
+	struct watchdog_device *wdt;
+
+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!wdt)
 		return -ENOMEM;
 
@@ -83,13 +97,18 @@ static int twl4030_wdt_probe(struct platform_device *pdev)
 	wdt->timeout		= 30;
 	wdt->min_timeout	= 1;
 	wdt->max_timeout	= 30;
+<<<<<<< HEAD
 	wdt->parent = &pdev->dev;
+=======
+	wdt->parent = dev;
+>>>>>>> upstream/android-13
 
 	watchdog_set_nowayout(wdt, nowayout);
 	platform_set_drvdata(pdev, wdt);
 
 	twl4030_wdt_stop(wdt);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdt);
 	if (ret)
 		return ret;
@@ -104,6 +123,9 @@ static int twl4030_wdt_remove(struct platform_device *pdev)
 	watchdog_unregister_device(wdt);
 
 	return 0;
+=======
+	return devm_watchdog_register_device(dev, wdt);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM
@@ -137,7 +159,10 @@ MODULE_DEVICE_TABLE(of, twl_wdt_of_match);
 
 static struct platform_driver twl4030_wdt_driver = {
 	.probe		= twl4030_wdt_probe,
+<<<<<<< HEAD
 	.remove		= twl4030_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.suspend	= twl4030_wdt_suspend,
 	.resume		= twl4030_wdt_resume,
 	.driver		= {

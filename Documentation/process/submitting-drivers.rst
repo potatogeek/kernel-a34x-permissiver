@@ -5,8 +5,13 @@ Submitting Drivers For The Linux Kernel
 
 This document is intended to explain how to submit device drivers to the
 various kernel trees. Note that if you are interested in video card drivers
+<<<<<<< HEAD
 you should probably talk to XFree86 (http://www.xfree86.org/) and/or X.Org
 (http://x.org/) instead.
+=======
+you should probably talk to XFree86 (https://www.xfree86.org/) and/or X.Org
+(https://x.org/) instead.
+>>>>>>> upstream/android-13
 
 .. note::
 
@@ -16,7 +21,12 @@ you should probably talk to XFree86 (http://www.xfree86.org/) and/or X.Org
 
    Oh, and we don't really recommend submitting changes to XFree86 :)
 
+<<<<<<< HEAD
 Also read the Documentation/process/submitting-patches.rst document.
+=======
+Also read the :ref:`Documentation/process/submitting-patches.rst <submittingpatches>`
+document.
+>>>>>>> upstream/android-13
 
 
 Allocating Device Numbers
@@ -24,10 +34,18 @@ Allocating Device Numbers
 
 Major and minor numbers for block and character devices are allocated
 by the Linux assigned name and number authority (currently this is
+<<<<<<< HEAD
 Torben Mathiasen). The site is http://www.lanana.org/. This
 also deals with allocating numbers for devices that are not going to
 be submitted to the mainstream kernel.
 See Documentation/admin-guide/devices.rst for more information on this.
+=======
+Torben Mathiasen). The site is https://www.lanana.org/. This
+also deals with allocating numbers for devices that are not going to
+be submitted to the mainstream kernel.
+See :ref:`Documentation/admin-guide/devices.rst <admin_devices>`
+for more information on this.
+>>>>>>> upstream/android-13
 
 If you don't use assigned numbers then when your device is submitted it will
 be given an assigned number even if that is different from values you may
@@ -58,10 +76,18 @@ What Criteria Determine Acceptance
 
 Licensing:
 		The code must be released to us under the
+<<<<<<< HEAD
 		GNU General Public License. We don't insist on any kind
 		of exclusive GPL licensing, and if you wish the driver
 		to be useful to other communities such as BSD you may well
 		wish to release under multiple licenses.
+=======
+		GNU General Public License. If you wish the driver to be
+		useful to other communities such as BSD you may release
+		under multiple licenses. If you choose to release under
+		licenses other than the GPL, you should include your
+		rationale for your license choices in your cover letter.
+>>>>>>> upstream/android-13
 		See accepted licenses at include/linux/module.h
 
 Copyright:
@@ -115,9 +141,15 @@ PM support:
 		implemented") error.  You should also try to make sure that your
 		driver uses as little power as possible when it's not doing
 		anything.  For the driver testing instructions see
+<<<<<<< HEAD
 		Documentation/power/drivers-testing.txt and for a relatively
 		complete overview of the power management issues related to
 		drivers see Documentation/driver-api/pm/devices.rst.
+=======
+		Documentation/power/drivers-testing.rst and for a relatively
+		complete overview of the power management issues related to
+		drivers see :ref:`Documentation/driver-api/pm/devices.rst <driverapi_pm_devices>`.
+>>>>>>> upstream/android-13
 
 Control:
 		In general if there is active maintenance of a driver by
@@ -153,13 +185,18 @@ Linux kernel master tree:
 	where *country_code* == your country code, such as
 	**us**, **uk**, **fr**, etc.
 
+<<<<<<< HEAD
 	http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git
+=======
+	https://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git
+>>>>>>> upstream/android-13
 
 Linux kernel mailing list:
 	linux-kernel@vger.kernel.org
 	[mail majordomo@vger.kernel.org to subscribe]
 
 Linux Device Drivers, Third Edition (covers 2.6.10):
+<<<<<<< HEAD
 	http://lwn.net/Kernel/LDD3/  (free version)
 
 LWN.net:
@@ -172,11 +209,29 @@ LWN.net:
 	Porting drivers from prior kernels to 2.6:
 
 		http://lwn.net/Articles/driver-porting/
+=======
+	https://lwn.net/Kernel/LDD3/  (free version)
+
+LWN.net:
+	Weekly summary of kernel development activity - https://lwn.net/
+
+	2.6 API changes:
+
+		https://lwn.net/Articles/2.6-kernel-api/
+
+	Porting drivers from prior kernels to 2.6:
+
+		https://lwn.net/Articles/driver-porting/
+>>>>>>> upstream/android-13
 
 KernelNewbies:
 	Documentation and assistance for new kernel programmers
 
+<<<<<<< HEAD
 		http://kernelnewbies.org/
+=======
+		https://kernelnewbies.org/
+>>>>>>> upstream/android-13
 
 Linux USB project:
 	http://www.linux-usb.org/
@@ -185,7 +240,14 @@ How to NOT write kernel driver by Arjan van de Ven:
 	http://www.fenrus.org/how-to-not-write-a-device-driver-paper.pdf
 
 Kernel Janitor:
+<<<<<<< HEAD
 	http://kernelnewbies.org/KernelJanitors
 
 GIT, Fast Version Control System:
 	http://git-scm.com/
+=======
+	https://kernelnewbies.org/KernelJanitors
+
+GIT, Fast Version Control System:
+	https://git-scm.com/
+>>>>>>> upstream/android-13

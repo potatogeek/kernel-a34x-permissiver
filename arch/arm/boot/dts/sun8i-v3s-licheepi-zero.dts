@@ -78,8 +78,11 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-0 = <&mmc0_pins>;
 	pinctrl-names = "default";
+=======
+>>>>>>> upstream/android-13
 	broken-cd;
 	bus-width = <4>;
 	vmmc-supply = <&reg_vcc3v3>;
@@ -98,6 +101,10 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	usb0_id_det-gpio = <&pio 5 6 GPIO_ACTIVE_HIGH>;
+=======
+	usb0_id_det-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };

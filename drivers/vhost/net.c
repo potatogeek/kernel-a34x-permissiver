@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /* Copyright (C) 2009 Red Hat, Inc.
  * Author: Michael S. Tsirkin <mst@redhat.com>
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (C) 2009 Red Hat, Inc.
+ * Author: Michael S. Tsirkin <mst@redhat.com>
+ *
+>>>>>>> upstream/android-13
  * virtio-net server in host kernel.
  */
 
@@ -74,7 +81,11 @@ enum {
 	VHOST_NET_FEATURES = VHOST_FEATURES |
 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+<<<<<<< HEAD
 			 (1ULL << VIRTIO_F_IOMMU_PLATFORM)
+=======
+			 (1ULL << VIRTIO_F_ACCESS_PLATFORM)
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -116,6 +127,11 @@ struct vhost_net_virtqueue {
 	 * For RX, number of batched heads
 	 */
 	int done_idx;
+<<<<<<< HEAD
+=======
+	/* Number of XDP frames batched */
+	int batched_xdp;
+>>>>>>> upstream/android-13
 	/* an array of userspace buffers info */
 	struct ubuf_info *ubuf_info;
 	/* Reference counting for outstanding ubufs.
@@ -123,6 +139,11 @@ struct vhost_net_virtqueue {
 	struct vhost_net_ubuf_ref *ubufs;
 	struct ptr_ring *rx_ring;
 	struct vhost_net_buf rxq;
+<<<<<<< HEAD
+=======
+	/* Batched XDP buffs */
+	struct xdp_buff *xdp;
+>>>>>>> upstream/android-13
 };
 
 struct vhost_net {
@@ -137,6 +158,13 @@ struct vhost_net {
 	unsigned tx_zcopy_err;
 	/* Flush in progress. Protected by tx vq lock. */
 	bool tx_flush;
+<<<<<<< HEAD
+=======
+	/* Private page frag */
+	struct page_frag page_frag;
+	/* Refcount bias of page frag */
+	int refcnt_bias;
+>>>>>>> upstream/android-13
 };
 
 static unsigned vhost_net_zcopy_mask __read_mostly;
@@ -338,6 +366,14 @@ static bool vhost_sock_zcopy(struct socket *sock)
 		sock_flag(sock->sk, SOCK_ZEROCOPY);
 }
 
+<<<<<<< HEAD
+=======
+static bool vhost_sock_xdp(struct socket *sock)
+{
+	return sock_flag(sock->sk, SOCK_XDP);
+}
+
+>>>>>>> upstream/android-13
 /* In case of DMA done not in order in lower device driver for some reason.
  * upend_idx is used to track end of used idx, done_idx is used to track head
  * of used idx. Once lower device DMA done contiguously, we will signal KVM
@@ -369,7 +405,12 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
 	}
 }
 
+<<<<<<< HEAD
 static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+=======
+static void vhost_zerocopy_callback(struct sk_buff *skb,
+				    struct ubuf_info *ubuf, bool success)
+>>>>>>> upstream/android-13
 {
 	struct vhost_net_ubuf_ref *ubufs = ubuf->ctx;
 	struct vhost_virtqueue *vq = ubufs->vq;
@@ -412,7 +453,11 @@ static void vhost_net_disable_vq(struct vhost_net *n,
 	struct vhost_net_virtqueue *nvq =
 		container_of(vq, struct vhost_net_virtqueue, vq);
 	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
+<<<<<<< HEAD
 	if (!vq->private_data)
+=======
+	if (!vhost_vq_get_backend(vq))
+>>>>>>> upstream/android-13
 		return;
 	vhost_poll_stop(poll);
 }
@@ -425,7 +470,11 @@ static int vhost_net_enable_vq(struct vhost_net *n,
 	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
 	struct socket *sock;
 
+<<<<<<< HEAD
 	sock = vq->private_data;
+=======
+	sock = vhost_vq_get_backend(vq);
+>>>>>>> upstream/android-13
 	if (!sock)
 		return 0;
 
@@ -444,6 +493,7 @@ static void vhost_net_signal_used(struct vhost_net_virtqueue *nvq)
 	nvq->done_idx = 0;
 }
 
+<<<<<<< HEAD
 static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
 				    struct vhost_net_virtqueue *nvq,
 				    unsigned int *out_num, unsigned int *in_num,
@@ -470,6 +520,140 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
 		}
 		preempt_enable();
 		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+=======
+static void vhost_tx_batch(struct vhost_net *net,
+			   struct vhost_net_virtqueue *nvq,
+			   struct socket *sock,
+			   struct msghdr *msghdr)
+{
+	struct tun_msg_ctl ctl = {
+		.type = TUN_MSG_PTR,
+		.num = nvq->batched_xdp,
+		.ptr = nvq->xdp,
+	};
+	int i, err;
+
+	if (nvq->batched_xdp == 0)
+		goto signal_used;
+
+	msghdr->msg_control = &ctl;
+	msghdr->msg_controllen = sizeof(ctl);
+	err = sock->ops->sendmsg(sock, msghdr, 0);
+	if (unlikely(err < 0)) {
+		vq_err(&nvq->vq, "Fail to batch sending packets\n");
+
+		/* free pages owned by XDP; since this is an unlikely error path,
+		 * keep it simple and avoid more complex bulk update for the
+		 * used pages
+		 */
+		for (i = 0; i < nvq->batched_xdp; ++i)
+			put_page(virt_to_head_page(nvq->xdp[i].data));
+		nvq->batched_xdp = 0;
+		nvq->done_idx = 0;
+		return;
+	}
+
+signal_used:
+	vhost_net_signal_used(nvq);
+	nvq->batched_xdp = 0;
+}
+
+static int sock_has_rx_data(struct socket *sock)
+{
+	if (unlikely(!sock))
+		return 0;
+
+	if (sock->ops->peek_len)
+		return sock->ops->peek_len(sock);
+
+	return skb_queue_empty(&sock->sk->sk_receive_queue);
+}
+
+static void vhost_net_busy_poll_try_queue(struct vhost_net *net,
+					  struct vhost_virtqueue *vq)
+{
+	if (!vhost_vq_avail_empty(&net->dev, vq)) {
+		vhost_poll_queue(&vq->poll);
+	} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+		vhost_disable_notify(&net->dev, vq);
+		vhost_poll_queue(&vq->poll);
+	}
+}
+
+static void vhost_net_busy_poll(struct vhost_net *net,
+				struct vhost_virtqueue *rvq,
+				struct vhost_virtqueue *tvq,
+				bool *busyloop_intr,
+				bool poll_rx)
+{
+	unsigned long busyloop_timeout;
+	unsigned long endtime;
+	struct socket *sock;
+	struct vhost_virtqueue *vq = poll_rx ? tvq : rvq;
+
+	/* Try to hold the vq mutex of the paired virtqueue. We can't
+	 * use mutex_lock() here since we could not guarantee a
+	 * consistenet lock ordering.
+	 */
+	if (!mutex_trylock(&vq->mutex))
+		return;
+
+	vhost_disable_notify(&net->dev, vq);
+	sock = vhost_vq_get_backend(rvq);
+
+	busyloop_timeout = poll_rx ? rvq->busyloop_timeout:
+				     tvq->busyloop_timeout;
+
+	preempt_disable();
+	endtime = busy_clock() + busyloop_timeout;
+
+	while (vhost_can_busy_poll(endtime)) {
+		if (vhost_has_work(&net->dev)) {
+			*busyloop_intr = true;
+			break;
+		}
+
+		if ((sock_has_rx_data(sock) &&
+		     !vhost_vq_avail_empty(&net->dev, rvq)) ||
+		    !vhost_vq_avail_empty(&net->dev, tvq))
+			break;
+
+		cpu_relax();
+	}
+
+	preempt_enable();
+
+	if (poll_rx || sock_has_rx_data(sock))
+		vhost_net_busy_poll_try_queue(net, vq);
+	else if (!poll_rx) /* On tx here, sock has no rx data. */
+		vhost_enable_notify(&net->dev, rvq);
+
+	mutex_unlock(&vq->mutex);
+}
+
+static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+				    struct vhost_net_virtqueue *tnvq,
+				    unsigned int *out_num, unsigned int *in_num,
+				    struct msghdr *msghdr, bool *busyloop_intr)
+{
+	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
+	struct vhost_virtqueue *rvq = &rnvq->vq;
+	struct vhost_virtqueue *tvq = &tnvq->vq;
+
+	int r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
+				  out_num, in_num, NULL, NULL);
+
+	if (r == tvq->num && tvq->busyloop_timeout) {
+		/* Flush batched packets first */
+		if (!vhost_sock_zcopy(vhost_vq_get_backend(tvq)))
+			vhost_tx_batch(net, tnvq,
+				       vhost_vq_get_backend(tvq),
+				       msghdr);
+
+		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, false);
+
+		r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
+>>>>>>> upstream/android-13
 				      out_num, in_num, NULL, NULL);
 	}
 
@@ -506,7 +690,11 @@ static int get_tx_bufs(struct vhost_net *net,
 	struct vhost_virtqueue *vq = &nvq->vq;
 	int ret;
 
+<<<<<<< HEAD
 	ret = vhost_net_tx_get_vq_desc(net, nvq, out, in, busyloop_intr);
+=======
+	ret = vhost_net_tx_get_vq_desc(net, nvq, out, in, msg, busyloop_intr);
+>>>>>>> upstream/android-13
 
 	if (ret < 0 || ret == vq->num)
 		return ret;
@@ -534,6 +722,120 @@ static bool tx_can_batch(struct vhost_virtqueue *vq, size_t total_len)
 	       !vhost_vq_avail_empty(vq->dev, vq);
 }
 
+<<<<<<< HEAD
+=======
+static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
+				       struct page_frag *pfrag, gfp_t gfp)
+{
+	if (pfrag->page) {
+		if (pfrag->offset + sz <= pfrag->size)
+			return true;
+		__page_frag_cache_drain(pfrag->page, net->refcnt_bias);
+	}
+
+	pfrag->offset = 0;
+	net->refcnt_bias = 0;
+	if (SKB_FRAG_PAGE_ORDER) {
+		/* Avoid direct reclaim but allow kswapd to wake */
+		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+					  __GFP_COMP | __GFP_NOWARN |
+					  __GFP_NORETRY,
+					  SKB_FRAG_PAGE_ORDER);
+		if (likely(pfrag->page)) {
+			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+			goto done;
+		}
+	}
+	pfrag->page = alloc_page(gfp);
+	if (likely(pfrag->page)) {
+		pfrag->size = PAGE_SIZE;
+		goto done;
+	}
+	return false;
+
+done:
+	net->refcnt_bias = USHRT_MAX;
+	page_ref_add(pfrag->page, USHRT_MAX - 1);
+	return true;
+}
+
+#define VHOST_NET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
+
+static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+			       struct iov_iter *from)
+{
+	struct vhost_virtqueue *vq = &nvq->vq;
+	struct vhost_net *net = container_of(vq->dev, struct vhost_net,
+					     dev);
+	struct socket *sock = vhost_vq_get_backend(vq);
+	struct page_frag *alloc_frag = &net->page_frag;
+	struct virtio_net_hdr *gso;
+	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
+	struct tun_xdp_hdr *hdr;
+	size_t len = iov_iter_count(from);
+	int headroom = vhost_sock_xdp(sock) ? XDP_PACKET_HEADROOM : 0;
+	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+	int pad = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + headroom + nvq->sock_hlen);
+	int sock_hlen = nvq->sock_hlen;
+	void *buf;
+	int copied;
+
+	if (unlikely(len < nvq->sock_hlen))
+		return -EFAULT;
+
+	if (SKB_DATA_ALIGN(len + pad) +
+	    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) > PAGE_SIZE)
+		return -ENOSPC;
+
+	buflen += SKB_DATA_ALIGN(len + pad);
+	alloc_frag->offset = ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
+	if (unlikely(!vhost_net_page_frag_refill(net, buflen,
+						 alloc_frag, GFP_KERNEL)))
+		return -ENOMEM;
+
+	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+	copied = copy_page_from_iter(alloc_frag->page,
+				     alloc_frag->offset +
+				     offsetof(struct tun_xdp_hdr, gso),
+				     sock_hlen, from);
+	if (copied != sock_hlen)
+		return -EFAULT;
+
+	hdr = buf;
+	gso = &hdr->gso;
+
+	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+	    vhost16_to_cpu(vq, gso->csum_start) +
+	    vhost16_to_cpu(vq, gso->csum_offset) + 2 >
+	    vhost16_to_cpu(vq, gso->hdr_len)) {
+		gso->hdr_len = cpu_to_vhost16(vq,
+			       vhost16_to_cpu(vq, gso->csum_start) +
+			       vhost16_to_cpu(vq, gso->csum_offset) + 2);
+
+		if (vhost16_to_cpu(vq, gso->hdr_len) > len)
+			return -EINVAL;
+	}
+
+	len -= sock_hlen;
+	copied = copy_page_from_iter(alloc_frag->page,
+				     alloc_frag->offset + pad,
+				     len, from);
+	if (copied != len)
+		return -EFAULT;
+
+	xdp_init_buff(xdp, buflen, NULL);
+	xdp_prepare_buff(xdp, buf, pad, len, true);
+	hdr->buflen = buflen;
+
+	--net->refcnt_bias;
+	alloc_frag->offset += buflen;
+
+	++nvq->batched_xdp;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
 {
 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
@@ -550,10 +852,20 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
 	size_t len, total_len = 0;
 	int err;
 	int sent_pkts = 0;
+<<<<<<< HEAD
+=======
+	bool sock_can_batch = (sock->sk->sk_sndbuf == INT_MAX);
+>>>>>>> upstream/android-13
 
 	do {
 		bool busyloop_intr = false;
 
+<<<<<<< HEAD
+=======
+		if (nvq->done_idx == VHOST_NET_BATCH)
+			vhost_tx_batch(net, nvq, sock, &msg);
+
+>>>>>>> upstream/android-13
 		head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
 				   &busyloop_intr);
 		/* On error, stop handling until the next kick. */
@@ -571,6 +883,7 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
 			break;
 		}
 
+<<<<<<< HEAD
 		vq->heads[nvq->done_idx].id = cpu_to_vhost32(vq, head);
 		vq->heads[nvq->done_idx].len = 0;
 
@@ -595,6 +908,55 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
 	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
 
 	vhost_net_signal_used(nvq);
+=======
+		total_len += len;
+
+		/* For simplicity, TX batching is only enabled if
+		 * sndbuf is unlimited.
+		 */
+		if (sock_can_batch) {
+			err = vhost_net_build_xdp(nvq, &msg.msg_iter);
+			if (!err) {
+				goto done;
+			} else if (unlikely(err != -ENOSPC)) {
+				vhost_tx_batch(net, nvq, sock, &msg);
+				vhost_discard_vq_desc(vq, 1);
+				vhost_net_enable_vq(net, vq);
+				break;
+			}
+
+			/* We can't build XDP buff, go for single
+			 * packet path but let's flush batched
+			 * packets.
+			 */
+			vhost_tx_batch(net, nvq, sock, &msg);
+			msg.msg_control = NULL;
+		} else {
+			if (tx_can_batch(vq, total_len))
+				msg.msg_flags |= MSG_MORE;
+			else
+				msg.msg_flags &= ~MSG_MORE;
+		}
+
+		err = sock->ops->sendmsg(sock, &msg, len);
+		if (unlikely(err < 0)) {
+			if (err == -EAGAIN || err == -ENOMEM || err == -ENOBUFS) {
+				vhost_discard_vq_desc(vq, 1);
+				vhost_net_enable_vq(net, vq);
+				break;
+			}
+			pr_debug("Fail to send packet: err %d", err);
+		} else if (unlikely(err != len))
+			pr_debug("Truncated TX packet: len %d != %zd\n",
+				 err, len);
+done:
+		vq->heads[nvq->done_idx].id = cpu_to_vhost32(vq, head);
+		vq->heads[nvq->done_idx].len = 0;
+		++nvq->done_idx;
+	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
+
+	vhost_tx_batch(net, nvq, sock, &msg);
+>>>>>>> upstream/android-13
 }
 
 static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
@@ -610,9 +972,16 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
 		.msg_controllen = 0,
 		.msg_flags = MSG_DONTWAIT,
 	};
+<<<<<<< HEAD
 	size_t len, total_len = 0;
 	int err;
 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+=======
+	struct tun_msg_ctl ctl;
+	size_t len, total_len = 0;
+	int err;
+	struct vhost_net_ubuf_ref *ubufs;
+>>>>>>> upstream/android-13
 	struct ubuf_info *ubuf;
 	bool zcopy_used;
 	int sent_pkts = 0;
@@ -652,9 +1021,18 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
 			ubuf->callback = vhost_zerocopy_callback;
 			ubuf->ctx = nvq->ubufs;
 			ubuf->desc = nvq->upend_idx;
+<<<<<<< HEAD
 			refcount_set(&ubuf->refcnt, 1);
 			msg.msg_control = ubuf;
 			msg.msg_controllen = sizeof(ubuf);
+=======
+			ubuf->flags = SKBFL_ZEROCOPY_FRAG;
+			refcount_set(&ubuf->refcnt, 1);
+			msg.msg_control = &ctl;
+			ctl.type = TUN_MSG_UBUF;
+			ctl.ptr = ubuf;
+			msg.msg_controllen = sizeof(ctl);
+>>>>>>> upstream/android-13
 			ubufs = nvq->ubufs;
 			atomic_inc(&ubufs->refcount);
 			nvq->upend_idx = (nvq->upend_idx + 1) % UIO_MAXIOV;
@@ -670,7 +1048,10 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
 			msg.msg_flags &= ~MSG_MORE;
 		}
 
+<<<<<<< HEAD
 		/* TODO: Check specific error and bomb out unless ENOBUFS? */
+=======
+>>>>>>> upstream/android-13
 		err = sock->ops->sendmsg(sock, &msg, len);
 		if (unlikely(err < 0)) {
 			if (zcopy_used) {
@@ -679,11 +1060,21 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
 					% UIO_MAXIOV;
 			}
+<<<<<<< HEAD
 			vhost_discard_vq_desc(vq, 1);
 			vhost_net_enable_vq(net, vq);
 			break;
 		}
 		if (err != len)
+=======
+			if (err == -EAGAIN || err == -ENOMEM || err == -ENOBUFS) {
+				vhost_discard_vq_desc(vq, 1);
+				vhost_net_enable_vq(net, vq);
+				break;
+			}
+			pr_debug("Fail to send packet: err %d", err);
+		} else if (unlikely(err != len))
+>>>>>>> upstream/android-13
 			pr_debug("Truncated TX packet: "
 				 " len %d != %zd\n", err, len);
 		if (!zcopy_used)
@@ -702,12 +1093,21 @@ static void handle_tx(struct vhost_net *net)
 	struct vhost_virtqueue *vq = &nvq->vq;
 	struct socket *sock;
 
+<<<<<<< HEAD
 	mutex_lock(&vq->mutex);
 	sock = vq->private_data;
 	if (!sock)
 		goto out;
 
 	if (!vq_iotlb_prefetch(vq))
+=======
+	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
+	sock = vhost_vq_get_backend(vq);
+	if (!sock)
+		goto out;
+
+	if (!vq_meta_prefetch(vq))
+>>>>>>> upstream/android-13
 		goto out;
 
 	vhost_disable_notify(&net->dev, vq);
@@ -743,6 +1143,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
 	return len;
 }
 
+<<<<<<< HEAD
 static int sk_has_rx_data(struct sock *sk)
 {
 	struct socket *sock = sk->sk_socket;
@@ -753,6 +1154,8 @@ static int sk_has_rx_data(struct sock *sk)
 	return skb_queue_empty(&sk->sk_receive_queue);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
 				      bool *busyloop_intr)
 {
@@ -760,6 +1163,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
 	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
 	struct vhost_virtqueue *rvq = &rnvq->vq;
 	struct vhost_virtqueue *tvq = &tnvq->vq;
+<<<<<<< HEAD
 	unsigned long uninitialized_var(endtime);
 	int len = peek_head_len(rnvq, sk);
 
@@ -795,6 +1199,15 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
 		}
 
 		mutex_unlock(&tvq->mutex);
+=======
+	int len = peek_head_len(rnvq, sk);
+
+	if (!len && rvq->busyloop_timeout) {
+		/* Flush batched heads first */
+		vhost_net_signal_used(rnvq);
+		/* Both tx vq and rx socket were polled here */
+		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, true);
+>>>>>>> upstream/android-13
 
 		len = peek_head_len(rnvq, sk);
 	}
@@ -828,7 +1241,11 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
 	/* len is always initialized before use since we are always called with
 	 * datalen > 0.
 	 */
+<<<<<<< HEAD
 	u32 uninitialized_var(len);
+=======
+	u32 len;
+>>>>>>> upstream/android-13
 
 	while (datalen > 0 && headcount < quota) {
 		if (unlikely(seg >= UIO_MAXIOV)) {
@@ -885,7 +1302,11 @@ static void handle_rx(struct vhost_net *net)
 {
 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_RX];
 	struct vhost_virtqueue *vq = &nvq->vq;
+<<<<<<< HEAD
 	unsigned uninitialized_var(in), log;
+=======
+	unsigned in, log;
+>>>>>>> upstream/android-13
 	struct vhost_log *vq_log;
 	struct msghdr msg = {
 		.msg_name = NULL,
@@ -909,12 +1330,21 @@ static void handle_rx(struct vhost_net *net)
 	__virtio16 num_buffers;
 	int recv_pkts = 0;
 
+<<<<<<< HEAD
 	mutex_lock_nested(&vq->mutex, 0);
 	sock = vq->private_data;
 	if (!sock)
 		goto out;
 
 	if (!vq_iotlb_prefetch(vq))
+=======
+	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
+	sock = vhost_vq_get_backend(vq);
+	if (!sock)
+		goto out;
+
+	if (!vq_meta_prefetch(vq))
+>>>>>>> upstream/android-13
 		goto out;
 
 	vhost_disable_notify(&net->dev, vq);
@@ -1065,6 +1495,10 @@ static int vhost_net_open(struct inode *inode, struct file *f)
 	struct vhost_dev *dev;
 	struct vhost_virtqueue **vqs;
 	void **queue;
+<<<<<<< HEAD
+=======
+	struct xdp_buff *xdp;
+>>>>>>> upstream/android-13
 	int i;
 
 	n = kvmalloc(sizeof *n, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
@@ -1085,6 +1519,18 @@ static int vhost_net_open(struct inode *inode, struct file *f)
 	}
 	n->vqs[VHOST_NET_VQ_RX].rxq.queue = queue;
 
+<<<<<<< HEAD
+=======
+	xdp = kmalloc_array(VHOST_NET_BATCH, sizeof(*xdp), GFP_KERNEL);
+	if (!xdp) {
+		kfree(vqs);
+		kvfree(n);
+		kfree(queue);
+		return -ENOMEM;
+	}
+	n->vqs[VHOST_NET_VQ_TX].xdp = xdp;
+
+>>>>>>> upstream/android-13
 	dev = &n->dev;
 	vqs[VHOST_NET_VQ_TX] = &n->vqs[VHOST_NET_VQ_TX].vq;
 	vqs[VHOST_NET_VQ_RX] = &n->vqs[VHOST_NET_VQ_RX].vq;
@@ -1095,6 +1541,10 @@ static int vhost_net_open(struct inode *inode, struct file *f)
 		n->vqs[i].ubuf_info = NULL;
 		n->vqs[i].upend_idx = 0;
 		n->vqs[i].done_idx = 0;
+<<<<<<< HEAD
+=======
+		n->vqs[i].batched_xdp = 0;
+>>>>>>> upstream/android-13
 		n->vqs[i].vhost_hlen = 0;
 		n->vqs[i].sock_hlen = 0;
 		n->vqs[i].rx_ring = NULL;
@@ -1102,12 +1552,22 @@ static int vhost_net_open(struct inode *inode, struct file *f)
 	}
 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
 		       UIO_MAXIOV + VHOST_NET_BATCH,
+<<<<<<< HEAD
 		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT);
+=======
+		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT, true,
+		       NULL);
+>>>>>>> upstream/android-13
 
 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, EPOLLOUT, dev);
 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev);
 
 	f->private_data = n;
+<<<<<<< HEAD
+=======
+	n->page_frag.page = NULL;
+	n->refcnt_bias = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1120,9 +1580,15 @@ static struct socket *vhost_net_stop_vq(struct vhost_net *n,
 		container_of(vq, struct vhost_net_virtqueue, vq);
 
 	mutex_lock(&vq->mutex);
+<<<<<<< HEAD
 	sock = vq->private_data;
 	vhost_net_disable_vq(n, vq);
 	vq->private_data = NULL;
+=======
+	sock = vhost_vq_get_backend(vq);
+	vhost_net_disable_vq(n, vq);
+	vhost_vq_set_backend(vq, NULL);
+>>>>>>> upstream/android-13
 	vhost_net_buf_unproduce(nvq);
 	nvq->rx_ring = NULL;
 	mutex_unlock(&vq->mutex);
@@ -1175,12 +1641,23 @@ static int vhost_net_release(struct inode *inode, struct file *f)
 	if (rx_sock)
 		sockfd_put(rx_sock);
 	/* Make sure no callbacks are outstanding */
+<<<<<<< HEAD
 	synchronize_rcu_bh();
+=======
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 	/* We do an extra flush before freeing memory,
 	 * since jobs can re-queue themselves. */
 	vhost_net_flush(n);
 	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
+<<<<<<< HEAD
 	kfree(n->dev.vqs);
+=======
+	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
+	kfree(n->dev.vqs);
+	if (n->page_frag.page)
+		__page_frag_cache_drain(n->page_frag.page, n->refcnt_bias);
+>>>>>>> upstream/android-13
 	kvfree(n);
 	return 0;
 }
@@ -1293,7 +1770,11 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
 	}
 
 	/* start polling new socket */
+<<<<<<< HEAD
 	oldsock = vq->private_data;
+=======
+	oldsock = vhost_vq_get_backend(vq);
+>>>>>>> upstream/android-13
 	if (sock != oldsock) {
 		ubufs = vhost_net_ubuf_alloc(vq,
 					     sock && vhost_sock_zcopy(sock));
@@ -1303,7 +1784,11 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
 		}
 
 		vhost_net_disable_vq(n, vq);
+<<<<<<< HEAD
 		vq->private_data = sock;
+=======
+		vhost_vq_set_backend(vq, sock);
+>>>>>>> upstream/android-13
 		vhost_net_buf_unproduce(nvq);
 		r = vhost_vq_init_access(vq);
 		if (r)
@@ -1340,7 +1825,11 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
 	return 0;
 
 err_used:
+<<<<<<< HEAD
 	vq->private_data = oldsock;
+=======
+	vhost_vq_set_backend(vq, oldsock);
+>>>>>>> upstream/android-13
 	vhost_net_enable_vq(n, vq);
 	if (ubufs)
 		vhost_net_ubuf_put_wait_and_free(ubufs);
@@ -1359,7 +1848,11 @@ static long vhost_net_reset_owner(struct vhost_net *n)
 	struct socket *tx_sock = NULL;
 	struct socket *rx_sock = NULL;
 	long err;
+<<<<<<< HEAD
 	struct vhost_umem *umem;
+=======
+	struct vhost_iotlb *umem;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&n->dev.mutex);
 	err = vhost_dev_check_owner(&n->dev);
@@ -1384,6 +1877,7 @@ done:
 	return err;
 }
 
+<<<<<<< HEAD
 static int vhost_net_set_backend_features(struct vhost_net *n, u64 features)
 {
 	int i;
@@ -1399,6 +1893,8 @@ static int vhost_net_set_backend_features(struct vhost_net *n, u64 features)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vhost_net_set_features(struct vhost_net *n, u64 features)
 {
 	size_t vhost_hlen, sock_hlen, hdr_len;
@@ -1422,7 +1918,11 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
 	    !vhost_log_access_ok(&n->dev))
 		goto out_unlock;
 
+<<<<<<< HEAD
 	if ((features & (1ULL << VIRTIO_F_IOMMU_PLATFORM))) {
+=======
+	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
+>>>>>>> upstream/android-13
 		if (vhost_init_device_iotlb(&n->dev, true))
 			goto out_unlock;
 	}
@@ -1499,7 +1999,12 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
 			return -EFAULT;
 		if (features & ~VHOST_NET_BACKEND_FEATURES)
 			return -EOPNOTSUPP;
+<<<<<<< HEAD
 		return vhost_net_set_backend_features(n, features);
+=======
+		vhost_set_backend_features(&n->dev, features);
+		return 0;
+>>>>>>> upstream/android-13
 	case VHOST_RESET_OWNER:
 		return vhost_net_reset_owner(n);
 	case VHOST_SET_OWNER:
@@ -1516,6 +2021,7 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long vhost_net_compat_ioctl(struct file *f, unsigned int ioctl,
 				   unsigned long arg)
@@ -1524,6 +2030,8 @@ static long vhost_net_compat_ioctl(struct file *f, unsigned int ioctl,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t vhost_net_chr_read_iter(struct kiocb *iocb, struct iov_iter *to)
 {
 	struct file *file = iocb->ki_filp;
@@ -1559,9 +2067,13 @@ static const struct file_operations vhost_net_fops = {
 	.write_iter     = vhost_net_chr_write_iter,
 	.poll           = vhost_net_chr_poll,
 	.unlocked_ioctl = vhost_net_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl   = vhost_net_compat_ioctl,
 #endif
+=======
+	.compat_ioctl   = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open           = vhost_net_open,
 	.llseek		= noop_llseek,
 };

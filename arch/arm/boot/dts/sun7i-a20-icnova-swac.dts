@@ -49,7 +49,12 @@
 
 / {
 	model = "ICnova-A20 SWAC";
+<<<<<<< HEAD
 	compatible = "swac,icnova-a20-swac", "incircuit,icnova-a20", "allwinner,sun7i-a20";
+=======
+	compatible = "incircuit,icnova-a20-swac", "incircuit,icnova-a20",
+		     "allwinner,sun7i-a20";
+>>>>>>> upstream/android-13
 
 	aliases {
 		serial0 = &uart0;
@@ -74,6 +79,7 @@
 
 &gmac {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&gmac_pins_mii_a>;
 	phy = <&phy1>;
 	phy-mode = "mii";
@@ -87,6 +93,15 @@
 &i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+	pinctrl-0 = <&gmac_mii_pins>;
+	phy-handle = <&phy1>;
+	phy-mode = "mii";
+	status = "okay";
+};
+
+&i2c0 {
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp209: pmic@34 {
@@ -97,6 +112,7 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
 	status = "okay";
@@ -105,6 +121,18 @@
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>;
+=======
+	status = "okay";
+};
+
+&gmac_mdio {
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&mmc0 {
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 8 5 GPIO_ACTIVE_LOW>; /* PI5 */
@@ -156,7 +184,11 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

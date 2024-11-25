@@ -10,6 +10,13 @@ Required properties:
 
 - interrupts : The CODEC's interrupt output.
 
+<<<<<<< HEAD
+=======
+- avdd-supply: Power supply for AVDD, providing 1.8V.
+
+- cpvdd-supply: Power supply for CPVDD, providing 3.5V.
+
+>>>>>>> upstream/android-13
 Optional properties:
 
 - "realtek,dc_offset_l_manual"
@@ -51,4 +58,9 @@ rt5663: codec@12 {
 	compatible = "realtek,rt5663";
 	reg = <0x12>;
 	interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
+<<<<<<< HEAD
+=======
+	avdd-supply = <&pp1800_a_alc5662>;
+	cpvdd-supply = <&pp3500_a_alc5662>;
+>>>>>>> upstream/android-13
 };

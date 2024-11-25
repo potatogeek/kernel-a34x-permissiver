@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,11 +23,19 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "wifi.h"
 #include "regd.h"
 
+<<<<<<< HEAD
 static struct country_code_to_enum_rd allCountries[] = {
+=======
+static struct country_code_to_enum_rd all_countries[] = {
+>>>>>>> upstream/android-13
 	{COUNTRY_CODE_FCC, "US"},
 	{COUNTRY_CODE_IC, "US"},
 	{COUNTRY_CODE_ETSI, "EC"},
@@ -63,7 +72,10 @@ static struct country_code_to_enum_rd allCountries[] = {
 	NL80211_RRF_PASSIVE_SCAN | \
 	NL80211_RRF_NO_OFDM)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* 5G chan 36 - chan 64*/
 #define RTL819x_5GHZ_5150_5350	\
 	REG_RULE(5150-10, 5350+10, 80, 0, 30, 0)
@@ -299,6 +311,7 @@ static void _rtl_reg_apply_world_flags(struct wiphy *wiphy,
 	return;
 }
 
+<<<<<<< HEAD
 static void _rtl_dump_channel_map(struct wiphy *wiphy)
 {
 	enum nl80211_band band;
@@ -315,6 +328,8 @@ static void _rtl_dump_channel_map(struct wiphy *wiphy)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int _rtl_reg_notifier_apply(struct wiphy *wiphy,
 				   struct regulatory_request *request,
 				   struct rtl_regulatory *reg)
@@ -332,8 +347,11 @@ static int _rtl_reg_notifier_apply(struct wiphy *wiphy,
 		break;
 	}
 
+<<<<<<< HEAD
 	_rtl_dump_channel_map(wiphy);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -391,9 +409,15 @@ static struct country_code_to_enum_rd *_rtl_regd_find_country(u16 countrycode)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(allCountries); i++) {
 		if (allCountries[i].countrycode == countrycode)
 			return &allCountries[i];
+=======
+	for (i = 0; i < ARRAY_SIZE(all_countries); i++) {
+		if (all_countries[i].countrycode == countrycode)
+			return &all_countries[i];
+>>>>>>> upstream/android-13
 	}
 	return NULL;
 }
@@ -434,6 +458,7 @@ int rtl_regd_init(struct ieee80211_hw *hw,
 	rtlpriv->regd.country_code =
 		channel_plan_to_country_code(rtlpriv->efuse.channel_plan);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_REGD, DBG_DMESG,
 		 "rtl: EEPROM regdomain: 0x%0x country code: %d\n",
 		 rtlpriv->efuse.channel_plan, rtlpriv->regd.country_code);
@@ -441,6 +466,15 @@ int rtl_regd_init(struct ieee80211_hw *hw,
 	if (rtlpriv->regd.country_code >= COUNTRY_CODE_MAX) {
 		RT_TRACE(rtlpriv, COMP_REGD, DBG_DMESG,
 			 "rtl: EEPROM indicates invalid country code, world wide 13 should be used\n");
+=======
+	rtl_dbg(rtlpriv, COMP_REGD, DBG_DMESG,
+		"rtl: EEPROM regdomain: 0x%0x country code: %d\n",
+		rtlpriv->efuse.channel_plan, rtlpriv->regd.country_code);
+
+	if (rtlpriv->regd.country_code >= COUNTRY_CODE_MAX) {
+		rtl_dbg(rtlpriv, COMP_REGD, DBG_DMESG,
+			"rtl: EEPROM indicates invalid country code, world wide 13 should be used\n");
+>>>>>>> upstream/android-13
 
 		rtlpriv->regd.country_code = COUNTRY_CODE_WORLD_WIDE_13;
 	}
@@ -455,9 +489,15 @@ int rtl_regd_init(struct ieee80211_hw *hw,
 		rtlpriv->regd.alpha2[1] = '0';
 	}
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_REGD, DBG_TRACE,
 		 "rtl: Country alpha2 being used: %c%c\n",
 		  rtlpriv->regd.alpha2[0], rtlpriv->regd.alpha2[1]);
+=======
+	rtl_dbg(rtlpriv, COMP_REGD, DBG_TRACE,
+		"rtl: Country alpha2 being used: %c%c\n",
+		rtlpriv->regd.alpha2[0], rtlpriv->regd.alpha2[1]);
+>>>>>>> upstream/android-13
 
 	_rtl_regd_init_wiphy(&rtlpriv->regd, wiphy, reg_notifier);
 
@@ -469,7 +509,11 @@ void rtl_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request)
 	struct ieee80211_hw *hw = wiphy_to_ieee80211_hw(wiphy);
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_REGD, DBG_LOUD, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_REGD, DBG_LOUD, "\n");
+>>>>>>> upstream/android-13
 
 	_rtl_reg_notifier_apply(wiphy, request, &rtlpriv->regd);
 }

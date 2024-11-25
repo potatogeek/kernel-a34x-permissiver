@@ -23,6 +23,10 @@
 #define CHP_OFFLINE 1
 #define CHP_VARY_ON 2
 #define CHP_VARY_OFF 3
+<<<<<<< HEAD
+=======
+#define CHP_FCES_EVENT 4
+>>>>>>> upstream/android-13
 
 struct chp_link {
 	struct chp_id chpid;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AMD Cryptographic Coprocessor (CCP) driver
  *
@@ -5,15 +9,21 @@
  *
  * Author: Tom Lendacky <thomas.lendacky@amd.com>
  * Author: Gary R Hook <gary.hook@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/pci.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kthread.h>
 #include <linux/interrupt.h>
 #include <linux/ccp.h>
@@ -382,7 +392,11 @@ static int ccp_init(struct ccp_device *ccp)
 	/* Find available queues */
 	ccp->qim = 0;
 	qmr = ioread32(ccp->io_regs + Q_MASK_REG);
+<<<<<<< HEAD
 	for (i = 0; i < MAX_HW_QUEUES; i++) {
+=======
+	for (i = 0; (i < MAX_HW_QUEUES) && (ccp->cmd_q_count < ccp->max_q_count); i++) {
+>>>>>>> upstream/android-13
 		if (!(qmr & (1 << i)))
 			continue;
 

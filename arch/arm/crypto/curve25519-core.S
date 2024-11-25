@@ -10,8 +10,13 @@
 #include <linux/linkage.h>
 
 .text
+<<<<<<< HEAD
 .fpu neon
 .arch armv7-a
+=======
+.arch armv7-a
+.fpu neon
+>>>>>>> upstream/android-13
 .align 4
 
 ENTRY(curve25519_neon)

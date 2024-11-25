@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2017 Intel Corporation.
  *
@@ -44,6 +45,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015 - 2017 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _HFI1_MAD_H
 #define _HFI1_MAD_H
 
@@ -165,7 +173,11 @@ struct opa_mad_notice_attr {
 		} __packed ntc_2048;
 
 	};
+<<<<<<< HEAD
 	u8	class_data[0];
+=======
+	u8	class_data[];
+>>>>>>> upstream/android-13
 };
 
 #define IB_VLARB_LOWPRI_0_31    1
@@ -436,7 +448,11 @@ struct sc2vlnt {
 		    COUNTER_MASK(1, 3) | \
 		    COUNTER_MASK(1, 4))
 
+<<<<<<< HEAD
 void hfi1_event_pkey_change(struct hfi1_devdata *dd, u8 port);
+=======
+void hfi1_event_pkey_change(struct hfi1_devdata *dd, u32 port);
+>>>>>>> upstream/android-13
 void hfi1_handle_trap_timer(struct timer_list *t);
 u16 tx_link_width(u16 link_width);
 u64 get_xmit_wait_counters(struct hfi1_pportdata *ppd, u16 link_width,

@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmlock.c
  *
  * underlying calls for lock creation
  *
  * Copyright (C) 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -40,9 +48,15 @@
 #include <linux/delay.h>
 
 
+<<<<<<< HEAD
 #include "cluster/heartbeat.h"
 #include "cluster/nodemanager.h"
 #include "cluster/tcp.h"
+=======
+#include "../cluster/heartbeat.h"
+#include "../cluster/nodemanager.h"
+#include "../cluster/tcp.h"
+>>>>>>> upstream/android-13
 
 #include "dlmapi.h"
 #include "dlmcommon.h"
@@ -50,7 +64,11 @@
 #include "dlmconvert.h"
 
 #define MLOG_MASK_PREFIX ML_DLM
+<<<<<<< HEAD
 #include "cluster/masklog.h"
+=======
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 static struct kmem_cache *dlm_lock_cache;
 

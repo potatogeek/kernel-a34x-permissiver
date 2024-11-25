@@ -28,6 +28,7 @@
 #ifndef __AST_DRV_H__
 #define __AST_DRV_H__
 
+<<<<<<< HEAD
 #include <drm/drm_encoder.h>
 #include <drm/drm_fb_helper.h>
 
@@ -41,6 +42,19 @@
 
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
+=======
+#include <linux/i2c.h>
+#include <linux/i2c-algo-bit.h>
+#include <linux/io.h>
+#include <linux/types.h>
+
+#include <drm/drm_connector.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_encoder.h>
+#include <drm/drm_mode.h>
+#include <drm/drm_framebuffer.h>
+#include <drm/drm_fb_helper.h>
+>>>>>>> upstream/android-13
 
 #define DRIVER_AUTHOR		"Dave Airlie"
 
@@ -54,7 +68,10 @@
 
 #define PCI_CHIP_AST2000 0x2000
 #define PCI_CHIP_AST2100 0x2010
+<<<<<<< HEAD
 #define PCI_CHIP_AST1180 0x1180
+=======
+>>>>>>> upstream/android-13
 
 
 enum ast_chip {
@@ -66,7 +83,11 @@ enum ast_chip {
 	AST2300,
 	AST2400,
 	AST2500,
+<<<<<<< HEAD
 	AST1180,
+=======
+	AST2600,
+>>>>>>> upstream/android-13
 };
 
 enum ast_tx_chip {
@@ -84,6 +105,7 @@ enum ast_tx_chip {
 #define AST_DRAM_4Gx16   7
 #define AST_DRAM_8Gx16   8
 
+<<<<<<< HEAD
 struct ast_fbdev;
 
 struct ast_private {
@@ -91,12 +113,85 @@ struct ast_private {
 
 	void __iomem *regs;
 	void __iomem *ioregs;
+=======
+/*
+ * Cursor plane
+ */
+
+#define AST_MAX_HWC_WIDTH	64
+#define AST_MAX_HWC_HEIGHT	64
+
+#define AST_HWC_SIZE		(AST_MAX_HWC_WIDTH * AST_MAX_HWC_HEIGHT * 2)
+#define AST_HWC_SIGNATURE_SIZE	32
+
+#define AST_DEFAULT_HWC_NUM	2
+
+/* define for signature structure */
+#define AST_HWC_SIGNATURE_CHECKSUM	0x00
+#define AST_HWC_SIGNATURE_SizeX		0x04
+#define AST_HWC_SIGNATURE_SizeY		0x08
+#define AST_HWC_SIGNATURE_X		0x0C
+#define AST_HWC_SIGNATURE_Y		0x10
+#define AST_HWC_SIGNATURE_HOTSPOTX	0x14
+#define AST_HWC_SIGNATURE_HOTSPOTY	0x18
+
+struct ast_cursor_plane {
+	struct drm_plane base;
+
+	struct {
+		struct drm_gem_vram_object *gbo;
+		struct dma_buf_map map;
+		u64 off;
+	} hwc[AST_DEFAULT_HWC_NUM];
+
+	unsigned int next_hwc_index;
+};
+
+static inline struct ast_cursor_plane *
+to_ast_cursor_plane(struct drm_plane *plane)
+{
+	return container_of(plane, struct ast_cursor_plane, base);
+}
+
+/*
+ * Connector with i2c channel
+ */
+
+struct ast_i2c_chan {
+	struct i2c_adapter adapter;
+	struct drm_device *dev;
+	struct i2c_algo_bit_data bit;
+};
+
+struct ast_connector {
+	struct drm_connector base;
+	struct ast_i2c_chan *i2c;
+};
+
+static inline struct ast_connector *
+to_ast_connector(struct drm_connector *connector)
+{
+	return container_of(connector, struct ast_connector, base);
+}
+
+/*
+ * Device
+ */
+
+struct ast_private {
+	struct drm_device base;
+
+	void __iomem *regs;
+	void __iomem *ioregs;
+	void __iomem *dp501_fw_buf;
+>>>>>>> upstream/android-13
 
 	enum ast_chip chip;
 	bool vga2_clone;
 	uint32_t dram_bus_width;
 	uint32_t dram_type;
 	uint32_t mclk;
+<<<<<<< HEAD
 	uint32_t vram_size;
 
 	struct ast_fbdev *fbdev;
@@ -115,6 +210,17 @@ struct ast_private {
 	 * we have. */
 	struct ttm_bo_kmap_obj cache_kmap;
 	int next_cursor;
+=======
+
+	int fb_mtrr;
+
+	struct drm_plane primary_plane;
+	struct ast_cursor_plane cursor_plane;
+	struct drm_crtc crtc;
+	struct drm_encoder encoder;
+	struct ast_connector connector;
+
+>>>>>>> upstream/android-13
 	bool support_wide_screen;
 	enum {
 		ast_use_p2a,
@@ -128,10 +234,21 @@ struct ast_private {
 	const struct firmware *dp501_fw;	/* dp501 fw */
 };
 
+<<<<<<< HEAD
 int ast_driver_load(struct drm_device *dev, unsigned long flags);
 void ast_driver_unload(struct drm_device *dev);
 
 struct ast_gem_object;
+=======
+static inline struct ast_private *to_ast_private(struct drm_device *dev)
+{
+	return container_of(dev, struct ast_private, base);
+}
+
+struct ast_private *ast_device_create(const struct drm_driver *drv,
+				      struct pci_dev *pdev,
+				      unsigned long flags);
+>>>>>>> upstream/android-13
 
 #define AST_IO_AR_PORT_WRITE		(0x40)
 #define AST_IO_MISC_PORT_WRITE		(0x42)
@@ -147,6 +264,14 @@ struct ast_gem_object;
 
 #define AST_IO_MM_OFFSET		(0x380)
 
+<<<<<<< HEAD
+=======
+#define AST_IO_VGAIR1_VREFRESH		BIT(3)
+
+#define AST_IO_VGACRCB_HWC_ENABLED     BIT(1)
+#define AST_IO_VGACRCB_HWC_16BPP       BIT(0) /* set: ARGB4444, cleared: 2bpp palette */
+
+>>>>>>> upstream/android-13
 #define __ast_read(x) \
 static inline u##x ast_read##x(struct ast_private *ast, u32 reg) { \
 u##x val = 0;\
@@ -215,6 +340,7 @@ static inline void ast_open_key(struct ast_private *ast)
 
 #define AST_VIDMEM_DEFAULT_SIZE AST_VIDMEM_SIZE_8M
 
+<<<<<<< HEAD
 #define AST_MAX_HWC_WIDTH 64
 #define AST_MAX_HWC_HEIGHT 64
 
@@ -275,6 +401,8 @@ struct ast_fbdev {
 #define to_ast_encoder(x) container_of(x, struct ast_encoder, base)
 #define to_ast_framebuffer(x) container_of(x, struct ast_framebuffer, base)
 
+=======
+>>>>>>> upstream/android-13
 struct ast_vbios_stdtable {
 	u8 misc;
 	u8 seq[4];
@@ -310,6 +438,7 @@ struct ast_vbios_mode_info {
 	const struct ast_vbios_enhtable *enh_table;
 };
 
+<<<<<<< HEAD
 extern int ast_mode_init(struct drm_device *dev);
 extern void ast_mode_fini(struct drm_device *dev);
 
@@ -341,10 +470,25 @@ ast_bo(struct ttm_buffer_object *bo)
 
 
 #define to_ast_obj(x) container_of(x, struct ast_gem_object, base)
+=======
+struct ast_crtc_state {
+	struct drm_crtc_state base;
+
+	/* Last known format of primary plane */
+	const struct drm_format_info *format;
+
+	struct ast_vbios_mode_info vbios_mode_info;
+};
+
+#define to_ast_crtc_state(state) container_of(state, struct ast_crtc_state, base)
+
+int ast_mode_config_init(struct ast_private *ast);
+>>>>>>> upstream/android-13
 
 #define AST_MM_ALIGN_SHIFT 4
 #define AST_MM_ALIGN_MASK ((1 << AST_MM_ALIGN_SHIFT) - 1)
 
+<<<<<<< HEAD
 extern int ast_dumb_create(struct drm_file *file,
 			   struct drm_device *dev,
 			   struct drm_mode_create_dumb *args);
@@ -391,6 +535,25 @@ static inline void ast_bo_unreserve(struct ast_bo *bo)
 void ast_ttm_placement(struct ast_bo *bo, int domain);
 int ast_bo_push_sysram(struct ast_bo *bo);
 int ast_mmap(struct file *filp, struct vm_area_struct *vma);
+=======
+#define AST_DP501_FW_VERSION_MASK	GENMASK(7, 4)
+#define AST_DP501_FW_VERSION_1		BIT(4)
+#define AST_DP501_PNP_CONNECTED		BIT(1)
+
+#define AST_DP501_DEFAULT_DCLK	65
+
+#define AST_DP501_GBL_VERSION	0xf000
+#define AST_DP501_PNPMONITOR	0xf010
+#define AST_DP501_LINKRATE	0xf014
+#define AST_DP501_EDID_DATA	0xf020
+
+/* Define for Soc scratched reg */
+#define AST_VRAM_INIT_STATUS_MASK	GENMASK(7, 6)
+//#define AST_VRAM_INIT_BY_BMC		BIT(7)
+//#define AST_VRAM_INIT_READY		BIT(6)
+
+int ast_mm_init(struct ast_private *ast);
+>>>>>>> upstream/android-13
 
 /* ast post */
 void ast_enable_vga(struct drm_device *dev);
@@ -399,11 +562,19 @@ bool ast_is_vga_enabled(struct drm_device *dev);
 void ast_post_gpu(struct drm_device *dev);
 u32 ast_mindwm(struct ast_private *ast, u32 r);
 void ast_moutdwm(struct ast_private *ast, u32 r, u32 v);
+<<<<<<< HEAD
+=======
+void ast_patch_ahb_2500(struct ast_private *ast);
+>>>>>>> upstream/android-13
 /* ast dp501 */
 void ast_set_dp501_video_output(struct drm_device *dev, u8 mode);
 bool ast_backup_fw(struct drm_device *dev, u8 *addr, u32 size);
 bool ast_dp501_read_edid(struct drm_device *dev, u8 *ediddata);
 u8 ast_get_dp501_max_clk(struct drm_device *dev);
 void ast_init_3rdtx(struct drm_device *dev);
+<<<<<<< HEAD
 void ast_release_firmware(struct drm_device *dev);
+=======
+
+>>>>>>> upstream/android-13
 #endif

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/page.h
  *
  *  Copyright (C) 1995-2003 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASMARM_PAGE_H
 #define _ASMARM_PAGE_H
@@ -162,6 +169,7 @@ extern int pfn_valid(unsigned long);
 
 #include <asm/memory.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 #define spf_access_check spf_access_check
 extern bool __access_error(unsigned long fsr, unsigned long vma_flags);
@@ -176,6 +184,11 @@ static inline bool spf_access_error(unsigned long fsr, unsigned long vma_flags)
 #define VM_DATA_DEFAULT_FLAGS \
 	(((current->personality & READ_IMPLIES_EXEC) ? VM_EXEC : 0) | \
 	 VM_READ | VM_WRITE | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+=======
+#endif /* !__ASSEMBLY__ */
+
+#define VM_DATA_DEFAULT_FLAGS	VM_DATA_FLAGS_TSK_EXEC
+>>>>>>> upstream/android-13
 
 #include <asm-generic/getorder.h>
 

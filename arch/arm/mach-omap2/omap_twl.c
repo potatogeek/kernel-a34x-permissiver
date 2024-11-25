@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * OMAP and TWL PMIC specific initializations.
  *
  * Copyright (C) 2010 Texas Instruments Incorporated.
@@ -7,10 +12,13 @@
  * Nishanth Menon
  * Copyright (C) 2009 Nokia Corporation
  * Paul Walmsley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -39,11 +47,14 @@
 #define OMAP4_VDD_CORE_SR_VOLT_REG	0x61
 #define OMAP4_VDD_CORE_SR_CMD_REG	0x62
 
+<<<<<<< HEAD
 #define OMAP4_VP_CONFIG_ERROROFFSET	0x00
 #define OMAP4_VP_VSTEPMIN_VSTEPMIN	0x01
 #define OMAP4_VP_VSTEPMAX_VSTEPMAX	0x04
 #define OMAP4_VP_VLIMITTO_TIMEOUT_US	200
 
+=======
+>>>>>>> upstream/android-13
 static bool is_offset_valid;
 static u8 smps_offset;
 
@@ -222,7 +233,12 @@ int __init omap4_twl_init(void)
 {
 	struct voltagedomain *voltdm;
 
+<<<<<<< HEAD
 	if (!cpu_is_omap44xx())
+=======
+	if (!cpu_is_omap44xx() ||
+	    of_find_compatible_node(NULL, NULL, "motorola,cpcap"))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	voltdm = voltdm_lookup("mpu");

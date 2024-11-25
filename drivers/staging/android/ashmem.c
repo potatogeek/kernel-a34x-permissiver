@@ -138,7 +138,12 @@ static inline bool page_range_in_range(struct ashmem_range *range,
 		page_range_subsumes_range(range, start, end);
 }
 
+<<<<<<< HEAD
 static inline bool range_before_page(struct ashmem_range *range, size_t page)
+=======
+static inline bool range_before_page(struct ashmem_range *range,
+				     size_t page)
+>>>>>>> upstream/android-13
 {
 	return range->pgend < page;
 }
@@ -178,6 +183,10 @@ static inline void lru_del(struct ashmem_range *range)
  * @purged:	   Initial purge status (ASMEM_NOT_PURGED or ASHMEM_WAS_PURGED)
  * @start:	   The starting page (inclusive)
  * @end:	   The ending page (inclusive)
+<<<<<<< HEAD
+=======
+ * @new_range:	   The placeholder for the new range
+>>>>>>> upstream/android-13
  *
  * This function is protected by ashmem_mutex.
  */
@@ -201,7 +210,11 @@ static void range_alloc(struct ashmem_area *asma,
 }
 
 /**
+<<<<<<< HEAD
  * range_del() - Deletes and dealloctes an ashmem_range structure
+=======
+ * range_del() - Deletes and deallocates an ashmem_range structure
+>>>>>>> upstream/android-13
  * @range:	 The associated ashmem_range that has previously been allocated
  */
 static void range_del(struct ashmem_range *range)
@@ -449,9 +462,15 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
 		vma_set_anonymous(vma);
 	}
 
+<<<<<<< HEAD
 	if (vma->vm_file)
 		fput(vma->vm_file);
 	vma->vm_file = asma->file;
+=======
+	vma_set_file(vma, asma->file);
+	/* XXX: merge this with the get_file() above if possible */
+	fput(asma->file);
+>>>>>>> upstream/android-13
 
 out:
 	mutex_unlock(&ashmem_mutex);
@@ -498,6 +517,7 @@ ashmem_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
 
 		freed += range_size(range);
 		mutex_unlock(&ashmem_mutex);
+<<<<<<< HEAD
 
 		lockdep_off();
 		/* test if corresponding inode is locked */
@@ -507,6 +527,11 @@ ashmem_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
 				   start, end - start);
 		lockdep_on();
 
+=======
+		f->f_op->fallocate(f,
+				   FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+				   start, end - start);
+>>>>>>> upstream/android-13
 		fput(f);
 		if (atomic_dec_and_test(&ashmem_shrink_inflight))
 			wake_up_all(&ashmem_shrink_wait);
@@ -572,24 +597,40 @@ static int set_name(struct ashmem_area *asma, void __user *name)
 
 	/*
 	 * Holding the ashmem_mutex while doing a copy_from_user might cause
+<<<<<<< HEAD
 	 * an data abort which would try to access mmap_sem. If another
 	 * thread has invoked ashmem_mmap then it will be holding the
 	 * semaphore and will be waiting for ashmem_mutex, there by leading to
 	 * deadlock. We'll release the mutex  and take the name to a local
+=======
+	 * an data abort which would try to access mmap_lock. If another
+	 * thread has invoked ashmem_mmap then it will be holding the
+	 * semaphore and will be waiting for ashmem_mutex, there by leading to
+	 * deadlock. We'll release the mutex and take the name to a local
+>>>>>>> upstream/android-13
 	 * variable that does not need protection and later copy the local
 	 * variable to the structure member with lock held.
 	 */
 	len = strncpy_from_user(local_name, name, ASHMEM_NAME_LEN);
 	if (len < 0)
 		return len;
+<<<<<<< HEAD
 	if (len == ASHMEM_NAME_LEN)
 		local_name[ASHMEM_NAME_LEN - 1] = '\0';
+=======
+
+>>>>>>> upstream/android-13
 	mutex_lock(&ashmem_mutex);
 	/* cannot change an existing mapping's name */
 	if (asma->file)
 		ret = -EINVAL;
 	else
+<<<<<<< HEAD
 		strcpy(asma->name + ASHMEM_NAME_PREFIX_LEN, local_name);
+=======
+		strscpy(asma->name + ASHMEM_NAME_PREFIX_LEN, local_name,
+			ASHMEM_NAME_LEN);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&ashmem_mutex);
 	return ret;
@@ -603,7 +644,11 @@ static int get_name(struct ashmem_area *asma, void __user *name)
 	 * Have a local variable to which we'll copy the content
 	 * from asma with the lock held. Later we can copy this to the user
 	 * space safely without holding any locks. So even if we proceed to
+<<<<<<< HEAD
 	 * wait for mmap_sem, it won't lead to deadlock.
+=======
+	 * wait for mmap_lock, it won't lead to deadlock.
+>>>>>>> upstream/android-13
 	 */
 	char local_name[ASHMEM_NAME_LEN];
 
@@ -899,6 +944,11 @@ static void ashmem_show_fdinfo(struct seq_file *m, struct file *file)
 		seq_printf(m, "name:\t%s\n",
 			   asma->name + ASHMEM_NAME_PREFIX_LEN);
 
+<<<<<<< HEAD
+=======
+	seq_printf(m, "size:\t%zu\n", asma->size);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&ashmem_mutex);
 }
 #endif
@@ -918,6 +968,18 @@ static const struct file_operations ashmem_fops = {
 #endif
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * is_ashmem_file - Check if struct file* is associated with ashmem
+ */
+int is_ashmem_file(struct file *file)
+{
+	return file->f_op == &ashmem_fops;
+}
+EXPORT_SYMBOL_GPL(is_ashmem_file);
+
+>>>>>>> upstream/android-13
 static struct miscdevice ashmem_misc = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = "ashmem",
@@ -938,7 +1000,11 @@ static int __init ashmem_init(void)
 
 	ashmem_range_cachep = kmem_cache_create("ashmem_range_cache",
 						sizeof(struct ashmem_range),
+<<<<<<< HEAD
 						0, 0, NULL);
+=======
+						0, SLAB_RECLAIM_ACCOUNT, NULL);
+>>>>>>> upstream/android-13
 	if (!ashmem_range_cachep) {
 		pr_err("failed to create slab cache\n");
 		goto out_free1;

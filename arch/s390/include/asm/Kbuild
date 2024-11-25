@@ -5,6 +5,7 @@ generated-y += syscall_table.h
 generated-y += unistd_nr.h
 
 generic-y += asm-offsets.h
+<<<<<<< HEAD
 generic-y += cacheflush.h
 generic-y += device.h
 generic-y += dma-contiguous.h
@@ -25,3 +26,8 @@ generic-y += rwsem.h
 generic-y += trace_clock.h
 generic-y += unaligned.h
 generic-y += word-at-a-time.h
+=======
+generic-y += export.h
+generic-y += kvm_types.h
+generic-y += mcs_spinlock.h
+>>>>>>> upstream/android-13

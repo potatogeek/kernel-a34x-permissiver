@@ -3,6 +3,7 @@
 #define __RK3288_CRYPTO_H__
 
 #include <crypto/aes.h>
+<<<<<<< HEAD
 #include <crypto/des.h>
 #include <crypto/algapi.h>
 #include <linux/interrupt.h>
@@ -11,6 +12,19 @@
 
 #include <crypto/md5.h>
 #include <crypto/sha.h>
+=======
+#include <crypto/internal/des.h>
+#include <crypto/algapi.h>
+#include <linux/interrupt.h>
+#include <linux/delay.h>
+#include <linux/scatterlist.h>
+#include <crypto/internal/hash.h>
+#include <crypto/internal/skcipher.h>
+
+#include <crypto/md5.h>
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 
 #define _SBF(v, f)			((v) << (f))
 
@@ -256,7 +270,11 @@ enum alg_type {
 struct rk_crypto_tmp {
 	struct rk_crypto_info		*dev;
 	union {
+<<<<<<< HEAD
 		struct crypto_alg	crypto;
+=======
+		struct skcipher_alg	skcipher;
+>>>>>>> upstream/android-13
 		struct ahash_alg	hash;
 	} alg;
 	enum alg_type			type;

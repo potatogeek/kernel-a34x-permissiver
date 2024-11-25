@@ -9,8 +9,18 @@
 	compatible = "raspberrypi,model-b", "brcm,bcm2835";
 	model = "Raspberry Pi Model B";
 
+<<<<<<< HEAD
 	leds {
 		act {
+=======
+	memory@0 {
+		device_type = "memory";
+		reg = <0 0x10000000>;
+	};
+
+	leds {
+		led-act {
+>>>>>>> upstream/android-13
 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -89,6 +99,11 @@
 
 &hdmi {
 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
+=======
+	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &pwm {
@@ -97,6 +112,16 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&sdhost {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdhost_gpio48>;
+	bus-width = <4>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_gpio14>;

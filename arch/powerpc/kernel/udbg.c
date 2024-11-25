@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * polling mode stateless debugging stuff, originally for NS16550 Serial Ports
  *
  * c 2001 PPC 64 Team, IBM Corp
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
@@ -10,6 +15,11 @@
  */
 
 #include <stdarg.h>
+=======
+ */
+
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/sched.h>
 #include <linux/console.h>
@@ -74,7 +84,11 @@ void __init udbg_early_init(void)
 #endif
 
 #ifdef CONFIG_PPC_EARLY_DEBUG
+<<<<<<< HEAD
 	console_loglevel = 10;
+=======
+	console_loglevel = CONSOLE_LOGLEVEL_DEBUG;
+>>>>>>> upstream/android-13
 
 	register_early_udbg_console();
 #endif
@@ -124,6 +138,7 @@ int udbg_write(const char *s, int n)
 #define UDBG_BUFSIZE 256
 void udbg_printf(const char *fmt, ...)
 {
+<<<<<<< HEAD
 	char buf[UDBG_BUFSIZE];
 	va_list args;
 
@@ -131,6 +146,17 @@ void udbg_printf(const char *fmt, ...)
 	vsnprintf(buf, UDBG_BUFSIZE, fmt, args);
 	udbg_puts(buf);
 	va_end(args);
+=======
+	if (udbg_putc) {
+		char buf[UDBG_BUFSIZE];
+		va_list args;
+
+		va_start(args, fmt);
+		vsnprintf(buf, UDBG_BUFSIZE, fmt, args);
+		udbg_puts(buf);
+		va_end(args);
+	}
+>>>>>>> upstream/android-13
 }
 
 void __init udbg_progress(char *s, unsigned short hex)

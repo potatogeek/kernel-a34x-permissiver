@@ -143,7 +143,11 @@
 #define CLK_AVS			110
 #define CLK_HDMI		111
 #define CLK_HDMI_DDC		112
+<<<<<<< HEAD
 
+=======
+#define CLK_MBUS		113
+>>>>>>> upstream/android-13
 #define CLK_GPU			114
 
 /* New clocks imported in H5 */

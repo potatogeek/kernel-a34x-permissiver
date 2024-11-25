@@ -155,6 +155,7 @@ static inline int set_av_attr(struct ocrdma_dev *dev, struct ocrdma_ah *ah,
 	return status;
 }
 
+<<<<<<< HEAD
 struct ib_ah *ocrdma_create_ah(struct ib_pd *ibpd, struct rdma_ah_attr *attr,
 			       struct ib_udata *udata)
 {
@@ -170,22 +171,50 @@ struct ib_ah *ocrdma_create_ah(struct ib_pd *ibpd, struct rdma_ah_attr *attr,
 	if ((attr->type != RDMA_AH_ATTR_TYPE_ROCE) ||
 	    !(rdma_ah_get_ah_flags(attr) & IB_AH_GRH))
 		return ERR_PTR(-EINVAL);
+=======
+int ocrdma_create_ah(struct ib_ah *ibah, struct rdma_ah_init_attr *init_attr,
+		     struct ib_udata *udata)
+{
+	u32 *ahid_addr;
+	int status;
+	struct ocrdma_ah *ah = get_ocrdma_ah(ibah);
+	bool isvlan = false;
+	u16 vlan_tag = 0xffff;
+	const struct ib_gid_attr *sgid_attr;
+	struct ocrdma_pd *pd = get_ocrdma_pd(ibah->pd);
+	struct rdma_ah_attr *attr = init_attr->ah_attr;
+	struct ocrdma_dev *dev = get_ocrdma_dev(ibah->device);
+
+	if ((attr->type != RDMA_AH_ATTR_TYPE_ROCE) ||
+	    !(rdma_ah_get_ah_flags(attr) & IB_AH_GRH))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (atomic_cmpxchg(&dev->update_sl, 1, 0))
 		ocrdma_init_service_level(dev);
 
+<<<<<<< HEAD
 	ah = kzalloc(sizeof(*ah), GFP_ATOMIC);
 	if (!ah)
 		return ERR_PTR(-ENOMEM);
+=======
+	sgid_attr = attr->grh.sgid_attr;
+	status = rdma_read_gid_l2_fields(sgid_attr, &vlan_tag, NULL);
+	if (status)
+		return status;
+>>>>>>> upstream/android-13
 
 	status = ocrdma_alloc_av(dev, ah);
 	if (status)
 		goto av_err;
 
+<<<<<<< HEAD
 	sgid_attr = attr->grh.sgid_attr;
 	if (is_vlan_dev(sgid_attr->ndev))
 		vlan_tag = vlan_dev_vlan_id(sgid_attr->ndev);
 
+=======
+>>>>>>> upstream/android-13
 	/* Get network header type for this GID */
 	ah->hdr_type = rdma_gid_attr_network_type(sgid_attr);
 
@@ -209,22 +238,36 @@ struct ib_ah *ocrdma_create_ah(struct ib_pd *ibpd, struct rdma_ah_attr *attr,
 				       OCRDMA_AH_VLAN_VALID_SHIFT);
 	}
 
+<<<<<<< HEAD
 	return &ah->ibah;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 av_conf_err:
 	ocrdma_free_av(dev, ah);
 av_err:
+<<<<<<< HEAD
 	kfree(ah);
 	return ERR_PTR(status);
 }
 
 int ocrdma_destroy_ah(struct ib_ah *ibah)
+=======
+	return status;
+}
+
+int ocrdma_destroy_ah(struct ib_ah *ibah, u32 flags)
+>>>>>>> upstream/android-13
 {
 	struct ocrdma_ah *ah = get_ocrdma_ah(ibah);
 	struct ocrdma_dev *dev = get_ocrdma_dev(ibah->device);
 
 	ocrdma_free_av(dev, ah);
+<<<<<<< HEAD
 	kfree(ah);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -253,6 +296,7 @@ int ocrdma_query_ah(struct ib_ah *ibah, struct rdma_ah_attr *attr)
 	return 0;
 }
 
+<<<<<<< HEAD
 int ocrdma_process_mad(struct ib_device *ibdev,
 		       int process_mad_flags,
 		       u8 port_num,
@@ -283,5 +327,22 @@ int ocrdma_process_mad(struct ib_device *ibdev,
 		status = IB_MAD_RESULT_SUCCESS;
 		break;
 	}
+=======
+int ocrdma_process_mad(struct ib_device *ibdev, int process_mad_flags,
+		       u32 port_num, const struct ib_wc *in_wc,
+		       const struct ib_grh *in_grh, const struct ib_mad *in,
+		       struct ib_mad *out, size_t *out_mad_size,
+		       u16 *out_mad_pkey_index)
+{
+	int status = IB_MAD_RESULT_SUCCESS;
+	struct ocrdma_dev *dev;
+
+	if (in->mad_hdr.mgmt_class == IB_MGMT_CLASS_PERF_MGMT) {
+		dev = get_ocrdma_dev(ibdev);
+		ocrdma_pma_counters(dev, out);
+		status |= IB_MAD_RESULT_REPLY;
+	}
+
+>>>>>>> upstream/android-13
 	return status;
 }

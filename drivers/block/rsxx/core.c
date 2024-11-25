@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /*
 * Filename: core.c
 *
 *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+* Filename: core.c
+*
+>>>>>>> upstream/android-13
 * Authors: Joshua Morris <josh.h.morris@us.ibm.com>
 *	Philip Kelleher <pjk1939@linux.vnet.ibm.com>
 *
 * (C) Copyright 2013 IBM Corporation
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -20,6 +28,8 @@
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software Foundation,
 * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/kernel.h>
@@ -406,7 +416,11 @@ static irqreturn_t rsxx_isr(int irq, void *pdata)
 }
 
 /*----------------- Card Event Handler -------------------*/
+<<<<<<< HEAD
 static const char * const rsxx_card_state_to_str(unsigned int state)
+=======
+static const char *rsxx_card_state_to_str(unsigned int state)
+>>>>>>> upstream/android-13
 {
 	static const char * const state_strings[] = {
 		"Unknown", "Shutdown", "Starting", "Formatting",
@@ -441,6 +455,10 @@ static void card_state_change(struct rsxx_cardinfo *card,
 		 * Fall through so the DMA devices can be attached and
 		 * the user can attempt to pull off their data.
 		 */
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CARD_STATE_GOOD:
 		st = rsxx_get_card_size8(card, &card->size8);
 		if (st)
@@ -454,7 +472,11 @@ static void card_state_change(struct rsxx_cardinfo *card,
 	case CARD_STATE_FAULT:
 		dev_crit(CARD_TO_DEV(card),
 			"Hardware Fault reported!\n");
+<<<<<<< HEAD
 		/* Fall through. */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/* Everything else, detach DMA interface if it's attached. */
 	case CARD_STATE_SHUTDOWN:
@@ -577,6 +599,7 @@ static int rsxx_eeh_frozen(struct pci_dev *dev)
 
 	for (i = 0; i < card->n_targets; i++) {
 		if (card->ctrl[i].status.buf)
+<<<<<<< HEAD
 			pci_free_consistent(card->dev, STATUS_BUFFER_SIZE8,
 					    card->ctrl[i].status.buf,
 					    card->ctrl[i].status.dma_addr);
@@ -584,6 +607,17 @@ static int rsxx_eeh_frozen(struct pci_dev *dev)
 			pci_free_consistent(card->dev, COMMAND_BUFFER_SIZE8,
 					    card->ctrl[i].cmd.buf,
 					    card->ctrl[i].cmd.dma_addr);
+=======
+			dma_free_coherent(&card->dev->dev,
+					  STATUS_BUFFER_SIZE8,
+					  card->ctrl[i].status.buf,
+					  card->ctrl[i].status.dma_addr);
+		if (card->ctrl[i].cmd.buf)
+			dma_free_coherent(&card->dev->dev,
+					  COMMAND_BUFFER_SIZE8,
+					  card->ctrl[i].cmd.buf,
+					  card->ctrl[i].cmd.dma_addr);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -640,7 +674,11 @@ static int rsxx_eeh_fifo_flush_poll(struct rsxx_cardinfo *card)
 }
 
 static pci_ers_result_t rsxx_error_detected(struct pci_dev *dev,
+<<<<<<< HEAD
 					    enum pci_channel_state error)
+=======
+					    pci_channel_state_t error)
+>>>>>>> upstream/android-13
 {
 	int st;
 
@@ -726,6 +764,7 @@ static pci_ers_result_t rsxx_slot_reset(struct pci_dev *dev)
 failed_hw_buffers_init:
 	for (i = 0; i < card->n_targets; i++) {
 		if (card->ctrl[i].status.buf)
+<<<<<<< HEAD
 			pci_free_consistent(card->dev,
 					STATUS_BUFFER_SIZE8,
 					card->ctrl[i].status.buf,
@@ -735,6 +774,17 @@ failed_hw_buffers_init:
 					COMMAND_BUFFER_SIZE8,
 					card->ctrl[i].cmd.buf,
 					card->ctrl[i].cmd.dma_addr);
+=======
+			dma_free_coherent(&card->dev->dev,
+					  STATUS_BUFFER_SIZE8,
+					  card->ctrl[i].status.buf,
+					  card->ctrl[i].status.dma_addr);
+		if (card->ctrl[i].cmd.buf)
+			dma_free_coherent(&card->dev->dev,
+					  COMMAND_BUFFER_SIZE8,
+					  card->ctrl[i].cmd.buf,
+					  card->ctrl[i].cmd.dma_addr);
+>>>>>>> upstream/android-13
 	}
 failed_hw_setup:
 	rsxx_eeh_failure(dev);
@@ -782,9 +832,14 @@ static int rsxx_pci_probe(struct pci_dev *dev,
 		goto failed_enable;
 
 	pci_set_master(dev);
+<<<<<<< HEAD
 	pci_set_dma_max_seg_size(dev, RSXX_HW_BLK_SIZE);
 
 	st = pci_set_dma_mask(dev, DMA_BIT_MASK(64));
+=======
+
+	st = dma_set_mask(&dev->dev, DMA_BIT_MASK(64));
+>>>>>>> upstream/android-13
 	if (st) {
 		dev_err(CARD_TO_DEV(card),
 			"No usable DMA configuration,aborting\n");

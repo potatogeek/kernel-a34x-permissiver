@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm831x-otp.c  --  OTP for Wolfson WM831x PMICs
  *
  * Copyright 2009 Wolfson Microelectronics PLC.
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -43,8 +50,13 @@ static int wm831x_unique_id_read(struct wm831x *wm831x, char *id)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t wm831x_unique_id_show(struct device *dev,
 				     struct device_attribute *attr, char *buf)
+=======
+static ssize_t unique_id_show(struct device *dev,
+			      struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct wm831x *wm831x = dev_get_drvdata(dev);
 	int rval;
@@ -57,7 +69,11 @@ static ssize_t wm831x_unique_id_show(struct device *dev,
 	return sprintf(buf, "%*phN\n", WM831X_UNIQUE_ID_LEN, id);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(unique_id, 0444, wm831x_unique_id_show, NULL);
+=======
+static DEVICE_ATTR_RO(unique_id);
+>>>>>>> upstream/android-13
 
 int wm831x_otp_init(struct wm831x *wm831x)
 {

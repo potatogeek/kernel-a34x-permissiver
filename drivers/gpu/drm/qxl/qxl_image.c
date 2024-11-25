@@ -136,6 +136,10 @@ qxl_image_init_helper(struct qxl_device *qdev,
 		int remain;
 		int page;
 		int size;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (stride == linesize && chunk_stride == stride) {
 			remain = linesize * height;
 			page = 0;
@@ -162,7 +166,12 @@ qxl_image_init_helper(struct qxl_device *qdev,
 				page++;
 			}
 		} else {
+<<<<<<< HEAD
 			unsigned page_base, page_offset, out_offset;
+=======
+			unsigned int page_base, page_offset, out_offset;
+
+>>>>>>> upstream/android-13
 			for (i = 0 ; i < height ; ++i) {
 				i_data = (void *)data + i * stride;
 				remain = linesize;
@@ -184,7 +193,11 @@ qxl_image_init_helper(struct qxl_device *qdev,
 			}
 		}
 	}
+<<<<<<< HEAD
 	qxl_bo_kunmap(chunk_bo);
+=======
+	qxl_bo_vunmap_locked(chunk_bo);
+>>>>>>> upstream/android-13
 
 	image_bo = dimage->bo;
 	ptr = qxl_bo_kmap_atomic_page(qdev, image_bo, 0);

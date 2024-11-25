@@ -32,6 +32,14 @@ struct _ddebug {
 #define _DPRINTK_FLAGS_INCL_FUNCNAME	(1<<2)
 #define _DPRINTK_FLAGS_INCL_LINENO	(1<<3)
 #define _DPRINTK_FLAGS_INCL_TID		(1<<4)
+<<<<<<< HEAD
+=======
+
+#define _DPRINTK_FLAGS_INCL_ANY		\
+	(_DPRINTK_FLAGS_INCL_MODNAME | _DPRINTK_FLAGS_INCL_FUNCNAME |\
+	 _DPRINTK_FLAGS_INCL_LINENO  | _DPRINTK_FLAGS_INCL_TID)
+
+>>>>>>> upstream/android-13
 #if defined DEBUG
 #define _DPRINTK_FLAGS_DEFAULT _DPRINTK_FLAGS_PRINT
 #else
@@ -47,6 +55,7 @@ struct _ddebug {
 } __attribute__((aligned(8)));
 
 
+<<<<<<< HEAD
 int ddebug_add_module(struct _ddebug *tab, unsigned int n,
 				const char *modname);
 
@@ -62,6 +71,18 @@ void __dynamic_pr_warn(struct _ddebug *descriptor, const char *fmt, ...);
 void __dynamic_pr_notice(struct _ddebug *descriptor, const char *fmt, ...);
 void __dynamic_pr_info(struct _ddebug *descriptor, const char *fmt, ...);
 #endif
+=======
+
+#if defined(CONFIG_DYNAMIC_DEBUG_CORE)
+
+/* exported for module authors to exercise >control */
+int dynamic_debug_exec_queries(const char *query, const char *modname);
+
+int ddebug_add_module(struct _ddebug *tab, unsigned int n,
+				const char *modname);
+extern int ddebug_remove_module(const char *mod_name);
+extern __printf(2, 3)
+>>>>>>> upstream/android-13
 void __dynamic_pr_debug(struct _ddebug *descriptor, const char *fmt, ...);
 
 extern int ddebug_dyndbg_module_param_cb(char *param, char *val,
@@ -80,44 +101,77 @@ void __dynamic_netdev_dbg(struct _ddebug *descriptor,
 			  const struct net_device *dev,
 			  const char *fmt, ...);
 
+<<<<<<< HEAD
 #define DEFINE_DYNAMIC_DEBUG_METADATA_KEY(name, fmt, key, init)	\
 	static struct _ddebug  __aligned(8)			\
 	__attribute__((section("__verbose"))) name = {		\
+=======
+struct ib_device;
+
+extern __printf(3, 4)
+void __dynamic_ibdev_dbg(struct _ddebug *descriptor,
+			 const struct ib_device *ibdev,
+			 const char *fmt, ...);
+
+#define DEFINE_DYNAMIC_DEBUG_METADATA(name, fmt)		\
+	static struct _ddebug  __aligned(8)			\
+	__section("__dyndbg") name = {				\
+>>>>>>> upstream/android-13
 		.modname = KBUILD_MODNAME,			\
 		.function = __func__,				\
 		.filename = __FILE__,				\
 		.format = (fmt),				\
 		.lineno = __LINE__,				\
 		.flags = _DPRINTK_FLAGS_DEFAULT,		\
+<<<<<<< HEAD
 		dd_key_init(key, init)				\
+=======
+		_DPRINTK_KEY_INIT				\
+>>>>>>> upstream/android-13
 	}
 
 #ifdef CONFIG_JUMP_LABEL
 
+<<<<<<< HEAD
 #define dd_key_init(key, init) key = (init)
 
 #ifdef DEBUG
 #define DEFINE_DYNAMIC_DEBUG_METADATA(name, fmt) \
 	DEFINE_DYNAMIC_DEBUG_METADATA_KEY(name, fmt, .key.dd_key_true, \
 					  (STATIC_KEY_TRUE_INIT))
+=======
+#ifdef DEBUG
+
+#define _DPRINTK_KEY_INIT .key.dd_key_true = (STATIC_KEY_TRUE_INIT)
+>>>>>>> upstream/android-13
 
 #define DYNAMIC_DEBUG_BRANCH(descriptor) \
 	static_branch_likely(&descriptor.key.dd_key_true)
 #else
+<<<<<<< HEAD
 #define DEFINE_DYNAMIC_DEBUG_METADATA(name, fmt) \
 	DEFINE_DYNAMIC_DEBUG_METADATA_KEY(name, fmt, .key.dd_key_false, \
 					  (STATIC_KEY_FALSE_INIT))
+=======
+#define _DPRINTK_KEY_INIT .key.dd_key_false = (STATIC_KEY_FALSE_INIT)
+>>>>>>> upstream/android-13
 
 #define DYNAMIC_DEBUG_BRANCH(descriptor) \
 	static_branch_unlikely(&descriptor.key.dd_key_false)
 #endif
 
+<<<<<<< HEAD
 #else
 
 #define dd_key_init(key, init)
 
 #define DEFINE_DYNAMIC_DEBUG_METADATA(name, fmt) \
 	DEFINE_DYNAMIC_DEBUG_METADATA_KEY(name, fmt, 0, 0)
+=======
+#else /* !CONFIG_JUMP_LABEL */
+
+#define _DPRINTK_KEY_INIT
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 #define DYNAMIC_DEBUG_BRANCH(descriptor) \
@@ -127,6 +181,7 @@ void __dynamic_netdev_dbg(struct _ddebug *descriptor,
 	unlikely(descriptor.flags & _DPRINTK_FLAGS_PRINT)
 #endif
 
+<<<<<<< HEAD
 #endif
 
 #ifdef CONFIG_LOG_TOO_MUCH_WARNING
@@ -268,6 +323,74 @@ do {								\
 
 #include <linux/string.h>
 #include <linux/errno.h>
+=======
+#endif /* CONFIG_JUMP_LABEL */
+
+#define __dynamic_func_call(id, fmt, func, ...) do {	\
+	DEFINE_DYNAMIC_DEBUG_METADATA(id, fmt);		\
+	if (DYNAMIC_DEBUG_BRANCH(id))			\
+		func(&id, ##__VA_ARGS__);		\
+} while (0)
+
+#define __dynamic_func_call_no_desc(id, fmt, func, ...) do {	\
+	DEFINE_DYNAMIC_DEBUG_METADATA(id, fmt);			\
+	if (DYNAMIC_DEBUG_BRANCH(id))				\
+		func(__VA_ARGS__);				\
+} while (0)
+
+/*
+ * "Factory macro" for generating a call to func, guarded by a
+ * DYNAMIC_DEBUG_BRANCH. The dynamic debug descriptor will be
+ * initialized using the fmt argument. The function will be called with
+ * the address of the descriptor as first argument, followed by all
+ * the varargs. Note that fmt is repeated in invocations of this
+ * macro.
+ */
+#define _dynamic_func_call(fmt, func, ...)				\
+	__dynamic_func_call(__UNIQUE_ID(ddebug), fmt, func, ##__VA_ARGS__)
+/*
+ * A variant that does the same, except that the descriptor is not
+ * passed as the first argument to the function; it is only called
+ * with precisely the macro's varargs.
+ */
+#define _dynamic_func_call_no_desc(fmt, func, ...)	\
+	__dynamic_func_call_no_desc(__UNIQUE_ID(ddebug), fmt, func, ##__VA_ARGS__)
+
+#define dynamic_pr_debug(fmt, ...)				\
+	_dynamic_func_call(fmt,	__dynamic_pr_debug,		\
+			   pr_fmt(fmt), ##__VA_ARGS__)
+
+#define dynamic_dev_dbg(dev, fmt, ...)				\
+	_dynamic_func_call(fmt,__dynamic_dev_dbg, 		\
+			   dev, fmt, ##__VA_ARGS__)
+
+#define dynamic_netdev_dbg(dev, fmt, ...)			\
+	_dynamic_func_call(fmt, __dynamic_netdev_dbg,		\
+			   dev, fmt, ##__VA_ARGS__)
+
+#define dynamic_ibdev_dbg(dev, fmt, ...)			\
+	_dynamic_func_call(fmt, __dynamic_ibdev_dbg,		\
+			   dev, fmt, ##__VA_ARGS__)
+
+#define dynamic_hex_dump(prefix_str, prefix_type, rowsize,		\
+			 groupsize, buf, len, ascii)			\
+	_dynamic_func_call_no_desc(__builtin_constant_p(prefix_str) ? prefix_str : "hexdump", \
+				   print_hex_dump,			\
+				   KERN_DEBUG, prefix_str, prefix_type,	\
+				   rowsize, groupsize, buf, len, ascii)
+
+#else /* !CONFIG_DYNAMIC_DEBUG_CORE */
+
+#include <linux/string.h>
+#include <linux/errno.h>
+#include <linux/printk.h>
+
+static inline int ddebug_add_module(struct _ddebug *tab, unsigned int n,
+				    const char *modname)
+{
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static inline int ddebug_remove_module(const char *mod)
 {
@@ -290,6 +413,23 @@ static inline int ddebug_dyndbg_module_param_cb(char *param, char *val,
 	do { if (0) printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__); } while (0)
 #define dynamic_dev_dbg(dev, fmt, ...)					\
 	do { if (0) dev_printk(KERN_DEBUG, dev, fmt, ##__VA_ARGS__); } while (0)
+<<<<<<< HEAD
 #endif
+=======
+#define dynamic_hex_dump(prefix_str, prefix_type, rowsize,		\
+			 groupsize, buf, len, ascii)			\
+	do { if (0)							\
+		print_hex_dump(KERN_DEBUG, prefix_str, prefix_type,	\
+				rowsize, groupsize, buf, len, ascii);	\
+	} while (0)
+
+static inline int dynamic_debug_exec_queries(const char *query, const char *modname)
+{
+	pr_warn("kernel not built with CONFIG_DYNAMIC_DEBUG_CORE\n");
+	return 0;
+}
+
+#endif /* !CONFIG_DYNAMIC_DEBUG_CORE */
+>>>>>>> upstream/android-13
 
 #endif

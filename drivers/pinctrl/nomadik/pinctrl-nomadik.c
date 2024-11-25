@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic GPIO driver for logic cells found in the Nomadik SoC
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2009 Alessandro Rubini <rubini@unipv.it>
  *   Rewritten based on work by Prafulla WADASKAR <prafulla.wadaskar@st.com>
  * Copyright (C) 2011-2013 Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -17,7 +24,11 @@
 #include <linux/io.h>
 #include <linux/clk.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
 #include <linux/slab.h>
@@ -203,7 +214,11 @@ typedef unsigned long pin_cfg_t;
 
 #define GPIO_BLOCK_SHIFT 5
 #define NMK_GPIO_PER_CHIP (1 << GPIO_BLOCK_SHIFT)
+<<<<<<< HEAD
 #define NMK_MAX_BANKS DIV_ROUND_UP(ARCH_NR_GPIOS, NMK_GPIO_PER_CHIP)
+=======
+#define NMK_MAX_BANKS DIV_ROUND_UP(512, NMK_GPIO_PER_CHIP)
+>>>>>>> upstream/android-13
 
 /* Register in the logic block */
 #define NMK_GPIO_DAT	0x00
@@ -251,9 +266,12 @@ struct nmk_gpio_chip {
 	void __iomem *addr;
 	struct clk *clk;
 	unsigned int bank;
+<<<<<<< HEAD
 	unsigned int parent_irq;
 	int latent_parent_irq;
 	u32 (*get_latent_status)(unsigned int bank);
+=======
+>>>>>>> upstream/android-13
 	void (*set_ioforce)(bool enable);
 	spinlock_t lock;
 	bool sleepmode;
@@ -805,6 +823,7 @@ static void nmk_gpio_irq_shutdown(struct irq_data *d)
 	clk_disable(nmk_chip->clk);
 }
 
+<<<<<<< HEAD
 static void __nmk_gpio_irq_handler(struct irq_desc *desc, u32 status)
 {
 	struct irq_chip *host_chip = irq_desc_get_chip(desc);
@@ -828,10 +847,22 @@ static void nmk_gpio_irq_handler(struct irq_desc *desc)
 	struct nmk_gpio_chip *nmk_chip = gpiochip_get_data(chip);
 	u32 status;
 
+=======
+static void nmk_gpio_irq_handler(struct irq_desc *desc)
+{
+	struct irq_chip *host_chip = irq_desc_get_chip(desc);
+	struct gpio_chip *chip = irq_desc_get_handler_data(desc);
+	struct nmk_gpio_chip *nmk_chip = gpiochip_get_data(chip);
+	u32 status;
+
+	chained_irq_enter(host_chip, desc);
+
+>>>>>>> upstream/android-13
 	clk_enable(nmk_chip->clk);
 	status = readl(nmk_chip->addr + NMK_GPIO_IS);
 	clk_disable(nmk_chip->clk);
 
+<<<<<<< HEAD
 	__nmk_gpio_irq_handler(desc, status);
 }
 
@@ -842,6 +873,16 @@ static void nmk_gpio_latent_irq_handler(struct irq_desc *desc)
 	u32 status = nmk_chip->get_latent_status(nmk_chip->bank);
 
 	__nmk_gpio_irq_handler(desc, status);
+=======
+	while (status) {
+		int bit = __ffs(status);
+
+		generic_handle_domain_irq(chip->irq.domain, bit);
+		status &= ~BIT(bit);
+	}
+
+	chained_irq_exit(host_chip, desc);
+>>>>>>> upstream/android-13
 }
 
 /* I/O Functions */
@@ -853,11 +894,22 @@ static int nmk_gpio_get_dir(struct gpio_chip *chip, unsigned offset)
 
 	clk_enable(nmk_chip->clk);
 
+<<<<<<< HEAD
 	dir = !(readl(nmk_chip->addr + NMK_GPIO_DIR) & BIT(offset));
 
 	clk_disable(nmk_chip->clk);
 
 	return dir;
+=======
+	dir = readl(nmk_chip->addr + NMK_GPIO_DIR) & BIT(offset);
+
+	clk_disable(nmk_chip->clk);
+
+	if (dir)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int nmk_gpio_make_input(struct gpio_chip *chip, unsigned offset)
@@ -950,11 +1002,14 @@ static void nmk_gpio_dbg_show_one(struct seq_file *s,
 		[NMK_GPIO_ALT_C+3]	= "altC3",
 		[NMK_GPIO_ALT_C+4]	= "altC4",
 	};
+<<<<<<< HEAD
 	const char *pulls[] = {
 		"none     ",
 		"pull down",
 		"pull up  ",
 	};
+=======
+>>>>>>> upstream/android-13
 
 	clk_enable(nmk_chip->clk);
 	is_out = !!(readl(nmk_chip->addr + NMK_GPIO_DIR) & BIT(offset));
@@ -965,12 +1020,17 @@ static void nmk_gpio_dbg_show_one(struct seq_file *s,
 		mode = nmk_prcm_gpiocr_get_mode(pctldev, gpio);
 
 	if (is_out) {
+<<<<<<< HEAD
 		seq_printf(s, " gpio-%-3d (%-20.20s) out %s        %s",
+=======
+		seq_printf(s, " gpio-%-3d (%-20.20s) out %s           %s",
+>>>>>>> upstream/android-13
 			   gpio,
 			   label ?: "(none)",
 			   data_out ? "hi" : "lo",
 			   (mode < 0) ? "unknown" : modes[mode]);
 	} else {
+<<<<<<< HEAD
 		int irq = gpio_to_irq(gpio);
 		struct irq_desc	*desc = irq_to_desc(irq);
 		int pullidx = 0;
@@ -978,6 +1038,15 @@ static void nmk_gpio_dbg_show_one(struct seq_file *s,
 
 		if (pull)
 			pullidx = data_out ? 2 : 1;
+=======
+		int irq = chip->to_irq(chip, offset);
+		const int pullidx = pull ? 1 : 0;
+		int val;
+		static const char * const pulls[] = {
+			"none        ",
+			"pull enabled",
+		};
+>>>>>>> upstream/android-13
 
 		seq_printf(s, " gpio-%-3d (%-20.20s) in  %s %s",
 			   gpio,
@@ -992,8 +1061,14 @@ static void nmk_gpio_dbg_show_one(struct seq_file *s,
 		 * This races with request_irq(), set_irq_type(),
 		 * and set_irq_wake() ... but those are "rare".
 		 */
+<<<<<<< HEAD
 		if (irq > 0 && desc && desc->action) {
 			char *trigger;
+=======
+		if (irq > 0 && irq_has_action(irq)) {
+			char *trigger;
+			bool wake;
+>>>>>>> upstream/android-13
 
 			if (nmk_chip->edge_rising & BIT(offset))
 				trigger = "edge-rising";
@@ -1002,10 +1077,17 @@ static void nmk_gpio_dbg_show_one(struct seq_file *s,
 			else
 				trigger = "edge-undefined";
 
+<<<<<<< HEAD
 			seq_printf(s, " irq-%d %s%s",
 				   irq, trigger,
 				   irqd_is_wakeup_set(&desc->irq_data)
 				   ? " wakeup" : "");
+=======
+			wake = !!(nmk_chip->real_wake & BIT(offset));
+
+			seq_printf(s, " irq-%d %s%s",
+				   irq, trigger, wake ? " wakeup" : "");
+>>>>>>> upstream/android-13
 		}
 	}
 	clk_disable(nmk_chip->clk);
@@ -1051,22 +1133,43 @@ static struct nmk_gpio_chip *nmk_gpio_populate_chip(struct device_node *np,
 
 	gpio_pdev = of_find_device_by_node(np);
 	if (!gpio_pdev) {
+<<<<<<< HEAD
 		pr_err("populate \"%s\": device not found\n", np->name);
+=======
+		pr_err("populate \"%pOFn\": device not found\n", np);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENODEV);
 	}
 	if (of_property_read_u32(np, "gpio-bank", &id)) {
 		dev_err(&pdev->dev, "populate: gpio-bank property not found\n");
+<<<<<<< HEAD
+=======
+		platform_device_put(gpio_pdev);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
 	/* Already populated? */
 	nmk_chip = nmk_gpio_chips[id];
+<<<<<<< HEAD
 	if (nmk_chip)
 		return nmk_chip;
 
 	nmk_chip = devm_kzalloc(&pdev->dev, sizeof(*nmk_chip), GFP_KERNEL);
 	if (!nmk_chip)
 		return ERR_PTR(-ENOMEM);
+=======
+	if (nmk_chip) {
+		platform_device_put(gpio_pdev);
+		return nmk_chip;
+	}
+
+	nmk_chip = devm_kzalloc(&pdev->dev, sizeof(*nmk_chip), GFP_KERNEL);
+	if (!nmk_chip) {
+		platform_device_put(gpio_pdev);
+		return ERR_PTR(-ENOMEM);
+	}
+>>>>>>> upstream/android-13
 
 	nmk_chip->bank = id;
 	chip = &nmk_chip->chip;
@@ -1077,6 +1180,7 @@ static struct nmk_gpio_chip *nmk_gpio_populate_chip(struct device_node *np,
 
 	res = platform_get_resource(gpio_pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);
+<<<<<<< HEAD
 	if (IS_ERR(base))
 		return ERR_CAST(base);
 	nmk_chip->addr = base;
@@ -1084,6 +1188,19 @@ static struct nmk_gpio_chip *nmk_gpio_populate_chip(struct device_node *np,
 	clk = clk_get(&gpio_pdev->dev, NULL);
 	if (IS_ERR(clk))
 		return (void *) clk;
+=======
+	if (IS_ERR(base)) {
+		platform_device_put(gpio_pdev);
+		return ERR_CAST(base);
+	}
+	nmk_chip->addr = base;
+
+	clk = clk_get(&gpio_pdev->dev, NULL);
+	if (IS_ERR(clk)) {
+		platform_device_put(gpio_pdev);
+		return (void *) clk;
+	}
+>>>>>>> upstream/android-13
 	clk_prepare(clk);
 	nmk_chip->clk = clk;
 
@@ -1097,8 +1214,13 @@ static int nmk_gpio_probe(struct platform_device *dev)
 	struct device_node *np = dev->dev.of_node;
 	struct nmk_gpio_chip *nmk_chip;
 	struct gpio_chip *chip;
+<<<<<<< HEAD
 	struct irq_chip *irqchip;
 	int latent_irq;
+=======
+	struct gpio_irq_chip *girq;
+	struct irq_chip *irqchip;
+>>>>>>> upstream/android-13
 	bool supports_sleepmode;
 	int irq;
 	int ret;
@@ -1119,15 +1241,21 @@ static int nmk_gpio_probe(struct platform_device *dev)
 	if (irq < 0)
 		return irq;
 
+<<<<<<< HEAD
 	/* It's OK for this IRQ not to be present */
 	latent_irq = platform_get_irq(dev, 1);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The virt address in nmk_chip->addr is in the nomadik register space,
 	 * so we can simply convert the resource address, without remapping
 	 */
+<<<<<<< HEAD
 	nmk_chip->parent_irq = irq;
 	nmk_chip->latent_parent_irq = latent_irq;
+=======
+>>>>>>> upstream/android-13
 	nmk_chip->sleepmode = supports_sleepmode;
 	spin_lock_init(&nmk_chip->lock);
 
@@ -1157,6 +1285,22 @@ static int nmk_gpio_probe(struct platform_device *dev)
 				  chip->base,
 				  chip->base + chip->ngpio - 1);
 
+<<<<<<< HEAD
+=======
+	girq = &chip->irq;
+	girq->chip = irqchip;
+	girq->parent_handler = nmk_gpio_irq_handler;
+	girq->num_parents = 1;
+	girq->parents = devm_kcalloc(&dev->dev, 1,
+				     sizeof(*girq->parents),
+				     GFP_KERNEL);
+	if (!girq->parents)
+		return -ENOMEM;
+	girq->parents[0] = irq;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+
+>>>>>>> upstream/android-13
 	clk_enable(nmk_chip->clk);
 	nmk_chip->lowemi = readl_relaxed(nmk_chip->addr + NMK_GPIO_LOWEMI);
 	clk_disable(nmk_chip->clk);
@@ -1168,6 +1312,7 @@ static int nmk_gpio_probe(struct platform_device *dev)
 
 	platform_set_drvdata(dev, nmk_chip);
 
+<<<<<<< HEAD
 	/*
 	 * Let the generic code handle this edge IRQ, the the chained
 	 * handler will perform the actual work of handling the parent
@@ -1195,6 +1340,9 @@ static int nmk_gpio_probe(struct platform_device *dev)
 					     nmk_gpio_latent_irq_handler);
 
 	dev_info(&dev->dev, "at address %p\n", nmk_chip->addr);
+=======
+	dev_info(&dev->dev, "chip registered\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1371,8 +1519,11 @@ static const struct nmk_cfg_param nmk_cfg_params[] = {
 
 static int nmk_dt_pin_config(int index, int val, unsigned long *config)
 {
+<<<<<<< HEAD
 	int ret = 0;
 
+=======
+>>>>>>> upstream/android-13
 	if (nmk_cfg_params[index].choice == NULL)
 		*config = nmk_cfg_params[index].config;
 	else {
@@ -1382,7 +1533,11 @@ static int nmk_dt_pin_config(int index, int val, unsigned long *config)
 				nmk_cfg_params[index].choice[val];
 		}
 	}
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const char *nmk_find_pin_name(struct pinctrl_dev *pctldev, const char *pin_name)
@@ -1502,6 +1657,10 @@ static int nmk_pinctrl_dt_node_to_map(struct pinctrl_dev *pctldev,
 				&reserved_maps, num_maps);
 		if (ret < 0) {
 			pinctrl_utils_free_map(pctldev, *map, *num_maps);
+<<<<<<< HEAD
+=======
+			of_node_put(np);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -1904,8 +2063,13 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
 		gpio_np = of_parse_phandle(np, "nomadik-gpio-chips", i);
 		if (gpio_np) {
 			dev_info(&pdev->dev,
+<<<<<<< HEAD
 				 "populate NMK GPIO %d \"%s\"\n",
 				 i, gpio_np->name);
+=======
+				 "populate NMK GPIO %d \"%pOFn\"\n",
+				 i, gpio_np);
+>>>>>>> upstream/android-13
 			nmk_chip = nmk_gpio_populate_chip(gpio_np, pdev);
 			if (IS_ERR(nmk_chip))
 				dev_err(&pdev->dev,
@@ -1916,8 +2080,15 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
 	}
 
 	prcm_np = of_parse_phandle(np, "prcm", 0);
+<<<<<<< HEAD
 	if (prcm_np)
 		npct->prcm_base = of_iomap(prcm_np, 0);
+=======
+	if (prcm_np) {
+		npct->prcm_base = of_iomap(prcm_np, 0);
+		of_node_put(prcm_np);
+	}
+>>>>>>> upstream/android-13
 	if (!npct->prcm_base) {
 		if (version == PINCTRL_NMK_STN8815) {
 			dev_info(&pdev->dev,

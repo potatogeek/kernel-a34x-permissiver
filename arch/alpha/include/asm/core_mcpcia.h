@@ -267,7 +267,11 @@ extern inline int __mcpcia_is_mmio(unsigned long addr)
 	return (addr & 0x80000000UL) == 0;
 }
 
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int mcpcia_ioread8(void __iomem *xaddr)
+=======
+__EXTERN_INLINE unsigned int mcpcia_ioread8(const void __iomem *xaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = (unsigned long)xaddr & MCPCIA_MEM_MASK;
 	unsigned long hose = (unsigned long)xaddr & ~MCPCIA_MEM_MASK;
@@ -291,7 +295,11 @@ __EXTERN_INLINE void mcpcia_iowrite8(u8 b, void __iomem *xaddr)
 	*(vuip) ((addr << 5) + hose + 0x00) = w;
 }
 
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int mcpcia_ioread16(void __iomem *xaddr)
+=======
+__EXTERN_INLINE unsigned int mcpcia_ioread16(const void __iomem *xaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = (unsigned long)xaddr & MCPCIA_MEM_MASK;
 	unsigned long hose = (unsigned long)xaddr & ~MCPCIA_MEM_MASK;
@@ -315,7 +323,11 @@ __EXTERN_INLINE void mcpcia_iowrite16(u16 b, void __iomem *xaddr)
 	*(vuip) ((addr << 5) + hose + 0x08) = w;
 }
 
+<<<<<<< HEAD
 __EXTERN_INLINE unsigned int mcpcia_ioread32(void __iomem *xaddr)
+=======
+__EXTERN_INLINE unsigned int mcpcia_ioread32(const void __iomem *xaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = (unsigned long)xaddr;
 

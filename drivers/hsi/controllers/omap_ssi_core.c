@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* OMAP SSI driver.
  *
  * Copyright (C) 2010 Nokia Corporation. All rights reserved.
  * Copyright (C) 2014 Sebastian Reichel <sre@kernel.org>
  *
  * Contact: Carlos Chinea <carlos.chinea@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compiler.h>
@@ -48,7 +55,11 @@
 static DEFINE_IDA(platform_omap_ssi_ida);
 
 #ifdef CONFIG_DEBUG_FS
+<<<<<<< HEAD
 static int ssi_debug_show(struct seq_file *m, void *p __maybe_unused)
+=======
+static int ssi_regs_show(struct seq_file *m, void *p __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	struct hsi_controller *ssi = m->private;
 	struct omap_ssi_controller *omap_ssi = hsi_controller_drvdata(ssi);
@@ -63,7 +74,11 @@ static int ssi_debug_show(struct seq_file *m, void *p __maybe_unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ssi_debug_gdd_show(struct seq_file *m, void *p __maybe_unused)
+=======
+static int ssi_gdd_regs_show(struct seq_file *m, void *p __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	struct hsi_controller *ssi = m->private;
 	struct omap_ssi_controller *omap_ssi = hsi_controller_drvdata(ssi);
@@ -117,6 +132,7 @@ static int ssi_debug_gdd_show(struct seq_file *m, void *p __maybe_unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ssi_regs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, ssi_debug_show, inode->i_private);
@@ -140,6 +156,10 @@ static const struct file_operations ssi_gdd_regs_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(ssi_regs);
+DEFINE_SHOW_ATTRIBUTE(ssi_gdd_regs);
+>>>>>>> upstream/android-13
 
 static int ssi_debug_add_ctrl(struct hsi_controller *ssi)
 {
@@ -330,7 +350,11 @@ static int ssi_clk_event(struct notifier_block *nb, unsigned long event,
 		break;
 	case ABORT_RATE_CHANGE:
 		dev_dbg(&ssi->device, "abort rate change\n");
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case POST_RATE_CHANGE:
 		dev_dbg(&ssi->device, "post rate change (%lu -> %lu)\n",
 			clk_data->old_rate, clk_data->new_rate);
@@ -404,10 +428,15 @@ static int ssi_add_controller(struct hsi_controller *ssi,
 	if (err < 0)
 		goto out_err;
 	err = platform_get_irq_byname(pd, "gdd_mpu");
+<<<<<<< HEAD
 	if (err < 0) {
 		dev_err(&pd->dev, "GDD IRQ resource missing\n");
 		goto out_err;
 	}
+=======
+	if (err < 0)
+		goto out_err;
+>>>>>>> upstream/android-13
 	omap_ssi->gdd_irq = err;
 	tasklet_init(&omap_ssi->gdd_tasklet, ssi_gdd_tasklet,
 							(unsigned long)ssi);
@@ -460,7 +489,11 @@ static int ssi_hw_init(struct hsi_controller *ssi)
 	struct omap_ssi_controller *omap_ssi = hsi_controller_drvdata(ssi);
 	int err;
 
+<<<<<<< HEAD
 	err = pm_runtime_get_sync(ssi->device.parent);
+=======
+	err = pm_runtime_resume_and_get(ssi->device.parent);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(&ssi->device, "runtime PM failed %d\n", err);
 		return err;

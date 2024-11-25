@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL8723E_PWRSEQ_H__
 #define __RTL8723E_PWRSEQ_H__
@@ -327,6 +332,7 @@ extern struct wlan_pwr_cfg rtl8723A_leave_lps_flow
 		[RTL8723A_TRANS_LPS_TO_ACT_STEPS + RTL8723A_TRANS_END_STEPS];
 
 /* RTL8723 Power Configuration CMDs for PCIe interface */
+<<<<<<< HEAD
 #define Rtl8723_NIC_PWR_ON_FLOW		rtl8723A_power_on_flow
 #define Rtl8723_NIC_RF_OFF_FLOW		rtl8723A_radio_off_flow
 #define Rtl8723_NIC_DISABLE_FLOW	rtl8723A_card_disable_flow
@@ -336,5 +342,16 @@ extern struct wlan_pwr_cfg rtl8723A_leave_lps_flow
 #define Rtl8723_NIC_PDN_FLOW		rtl8723A_hwpdn_flow
 #define Rtl8723_NIC_LPS_ENTER_FLOW	rtl8723A_enter_lps_flow
 #define Rtl8723_NIC_LPS_LEAVE_FLOW	rtl8723A_leave_lps_flow
+=======
+#define RTL8723_NIC_PWR_ON_FLOW		rtl8723A_power_on_flow
+#define RTL8723_NIC_RF_OFF_FLOW		rtl8723A_radio_off_flow
+#define RTL8723_NIC_DISABLE_FLOW	rtl8723A_card_disable_flow
+#define RTL8723_NIC_ENABLE_FLOW		rtl8723A_card_enable_flow
+#define RTL8723_NIC_SUSPEND_FLOW	rtl8723A_suspend_flow
+#define RTL8723_NIC_RESUME_FLOW		rtl8723A_resume_flow
+#define RTL8723_NIC_PDN_FLOW		rtl8723A_hwpdn_flow
+#define RTL8723_NIC_LPS_ENTER_FLOW	rtl8723A_enter_lps_flow
+#define RTL8723_NIC_LPS_LEAVE_FLOW	rtl8723A_leave_lps_flow
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -46,8 +50,14 @@ static struct device gio_bus = {
  * Used by a driver to check whether an of_device present in the
  * system is in its list of supported devices.
  */
+<<<<<<< HEAD
 const struct gio_device_id *gio_match_device(const struct gio_device_id *match,
 		     const struct gio_device *dev)
+=======
+static const struct gio_device_id *
+gio_match_device(const struct gio_device_id *match,
+		 const struct gio_device *dev)
+>>>>>>> upstream/android-13
 {
 	const struct gio_device_id *ids;
 
@@ -57,7 +67,10 @@ const struct gio_device_id *gio_match_device(const struct gio_device_id *match,
 
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(gio_match_device);
+=======
+>>>>>>> upstream/android-13
 
 struct gio_device *gio_dev_get(struct gio_device *dev)
 {
@@ -142,14 +155,21 @@ static int gio_device_probe(struct device *dev)
 	return error;
 }
 
+<<<<<<< HEAD
 static int gio_device_remove(struct device *dev)
+=======
+static void gio_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct gio_device *gio_dev = to_gio_device(dev);
 	struct gio_driver *drv = to_gio_driver(dev->driver);
 
 	if (dev->driver && drv->remove)
 		drv->remove(gio_dev);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void gio_device_shutdown(struct device *dev)

@@ -39,6 +39,7 @@ This is example of
 Playback: [MEM] -> [SRC2] -> [DVC0] -> [SSIU0/SSI0] -> [codec]
 Capture:  [MEM] <- [DVC1] <- [SRC3] <- [SSIU1/SSI1] <- [codec]
 
+<<<<<<< HEAD
 	&rcar_sound {
 		...
 		rcar_sound,dai {
@@ -48,6 +49,9 @@ Capture:  [MEM] <- [DVC1] <- [SRC3] <- [SSIU1/SSI1] <- [codec]
 			};
 		};
 	};
+=======
+see "Example: simple sound card"
+>>>>>>> upstream/android-13
 
 You can use below.
 ${LINUX}/arch/arm/boot/dts/r8a7790.dts can be good example.
@@ -83,6 +87,7 @@ SRC can convert [xx]Hz to [yy]Hz. Then, it has below 2 modes
 **     Asynchronous mode
 ------------------
 
+<<<<<<< HEAD
 You need to use "simple-scu-audio-card" sound card for it.
 example)
 
@@ -106,6 +111,10 @@ example)
 			...
 		};
 	};
+=======
+You need to use "simple-scu-audio-card" or "audio-graph-scu-card" for it.
+see "Example: simple sound card for Asynchronous mode"
+>>>>>>> upstream/android-13
 
 ------------------
 **     Synchronous mode
@@ -141,6 +150,7 @@ For more detail information, see below
 	${LINUX}/sound/soc/sh/rcar/ctu.c
 	 - comment of header
 
+<<<<<<< HEAD
 You need to use "simple-scu-audio-card" sound card for it.
 example)
 
@@ -161,6 +171,10 @@ example)
 			...
 		};
 	};
+=======
+You need to use "simple-scu-audio-card" or "audio-graph-scu-card" for it.
+see "Example: simple sound card for channel convert"
+>>>>>>> upstream/android-13
 
 Ex) Exchange output channel
  Input -> Output
@@ -190,12 +204,17 @@ and these sounds will be merged by MIX.
 	aplay -D plughw:0,0 xxxx.wav &
 	aplay -D plughw:0,1 yyyy.wav
 
+<<<<<<< HEAD
 You need to use "simple-scu-audio-card" sound card for it.
+=======
+You need to use "simple-scu-audio-card" or "audio-graph-scu-card" for it.
+>>>>>>> upstream/android-13
 Ex)
 	[MEM] -> [SRC1] -> [CTU02] -+-> [MIX0] -> [DVC0] -> [SSI0]
 	                            |
 	[MEM] -> [SRC2] -> [CTU03] -+
 
+<<<<<<< HEAD
 	sound {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -226,6 +245,9 @@ Ex)
 			};
 		};
 	};
+=======
+see "Example: simple sound card for MIXer"
+>>>>>>> upstream/android-13
 
 =============================================
 * DVC (Digital Volume and Mute Function)
@@ -257,6 +279,7 @@ Volume Ramp
 * SSIU (Serial Sound Interface Unit)
 =============================================
 
+<<<<<<< HEAD
 There is no DT settings for SSIU, because SSIU will be automatically
 selected via SSI.
 SSIU can avoid some under/over run error, because it has some buffer.
@@ -266,6 +289,33 @@ In DMA mode, you can select not to use SSIU by using "no-busif" on DT.
 	&ssi0 {
 		no-busif;
 	};
+=======
+SSIU can avoid some under/over run error, because it has some buffer.
+But you can't use it if SSI was PIO mode.
+In DMA mode, you can select not to use SSIU by using "no-busif" via SSI.
+
+SSIU handles BUSIF which will be used for TDM Split mode.
+This driver is assuming that audio-graph card will be used.
+
+TDM Split mode merges 4 sounds. You can see 4 sound interface on system,
+and these sounds will be merged SSIU/SSI.
+
+	aplay -D plughw:0,0 xxxx.wav &
+	aplay -D plughw:0,1 xxxx.wav &
+	aplay -D plughw:0,2 xxxx.wav &
+	aplay -D plughw:0,3 xxxx.wav
+
+	          2ch                     8ch
+	[MEM] -> [SSIU 30] -+-> [SSIU 3] --> [Codec]
+	          2ch       |
+	[MEM] -> [SSIU 31] -+
+	          2ch       |
+	[MEM] -> [SSIU 32] -+
+	          2ch       |
+	[MEM] -> [SSIU 33] -+
+
+see "Example: simple sound card for TDM Split"
+>>>>>>> upstream/android-13
 
 =============================================
 * SSI (Serial Sound Interface)
@@ -304,6 +354,7 @@ This is example if SSI1 want to share WS pin with SSI0
 You can use Multi-SSI.
 This is example of SSI0/SSI1/SSI2 (= for 6ch)
 
+<<<<<<< HEAD
 	&rcar_sound {
 		...
 		rcar_sound,dai {
@@ -312,6 +363,9 @@ This is example of SSI0/SSI1/SSI2 (= for 6ch)
 			};
 		};
 	};
+=======
+see "Example: simple sound card for Multi channel"
+>>>>>>> upstream/android-13
 
 ** TDM-SSI
 
@@ -319,6 +373,7 @@ You can use TDM with SSI.
 This is example of TDM 6ch.
 Driver can automatically switches TDM <-> stereo mode in this case.
 
+<<<<<<< HEAD
 	rsnd_tdm: sound {
 		compatible = "simple-audio-card";
 		...
@@ -682,3 +737,6 @@ Example: simple sound card for Multi channel
 		};
 	};
 };
+=======
+see "Example: simple sound card for TDM"
+>>>>>>> upstream/android-13

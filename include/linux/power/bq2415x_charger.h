@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * bq2415x charger driver
  *
@@ -16,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * bq2415x charger driver
+ *
+ * Copyright (C) 2011-2013  Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef BQ2415X_CHARGER_H
@@ -27,8 +35,13 @@
  * value is -1 then default chip value (specified in datasheet) will be
  * used.
  *
+<<<<<<< HEAD
  * Value resistor_sense is needed for for configuring charge and
  * termination current. It it is less or equal to zero, configuring charge
+=======
+ * Value resistor_sense is needed for configuring charge and
+ * termination current. If it is less or equal to zero, configuring charge
+>>>>>>> upstream/android-13
  * and termination current will not be possible.
  *
  * For automode support is needed to provide name of power supply device

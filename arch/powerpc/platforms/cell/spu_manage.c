@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * spu management operations for of based platforms
  *
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
  * Copyright 2006 Sony Corp.
  * (C) Copyright 2007 TOSHIBA CORPORATION
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -180,6 +187,7 @@ out:
 
 static int __init spu_map_interrupts(struct spu *spu, struct device_node *np)
 {
+<<<<<<< HEAD
 	struct of_phandle_args oirq;
 	int ret;
 	int i;
@@ -198,17 +206,33 @@ static int __init spu_map_interrupts(struct spu *spu, struct device_node *np)
 			pr_debug("spu_new: failed to map it !\n");
 			goto err;
 		}
+=======
+	int i;
+
+	for (i=0; i < 3; i++) {
+		spu->irqs[i] = irq_of_parse_and_map(np, i);
+		if (!spu->irqs[i])
+			goto err;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 
 err:
+<<<<<<< HEAD
 	pr_debug("failed to map irq %x for spu %s\n", *oirq.args,
 		spu->name);
+=======
+	pr_debug("failed to map irq %x for spu %s\n", i, spu->name);
+>>>>>>> upstream/android-13
 	for (; i >= 0; i--) {
 		if (spu->irqs[i])
 			irq_dispose_mapping(spu->irqs[i]);
 	}
+<<<<<<< HEAD
 	return ret;
+=======
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static int spu_map_resource(struct spu *spu, int nr,
@@ -295,8 +319,13 @@ static int __init of_enumerate_spus(int (*fn)(void *data))
 	for_each_node_by_type(node, "spe") {
 		ret = fn(node);
 		if (ret) {
+<<<<<<< HEAD
 			printk(KERN_WARNING "%s: Error initializing %s\n",
 				__func__, node->name);
+=======
+			printk(KERN_WARNING "%s: Error initializing %pOFn\n",
+				__func__, node);
+>>>>>>> upstream/android-13
 			of_node_put(node);
 			break;
 		}
@@ -471,7 +500,10 @@ static void init_affinity_node(int cbe)
 	struct device_node *vic_dn, *last_spu_dn;
 	phandle avoid_ph;
 	const phandle *vic_handles;
+<<<<<<< HEAD
 	const char *name;
+=======
+>>>>>>> upstream/android-13
 	int lenp, i, added;
 
 	last_spu = list_first_entry(&cbe_spu_info[cbe].spus, struct spu,
@@ -493,12 +525,16 @@ static void init_affinity_node(int cbe)
 			if (!vic_dn)
 				continue;
 
+<<<<<<< HEAD
 			/* a neighbour might be spe, mic-tm, or bif0 */
 			name = of_get_property(vic_dn, "name", NULL);
 			if (!name)
 				continue;
 
 			if (strcmp(name, "spe") == 0) {
+=======
+			if (of_node_name_eq(vic_dn, "spe") ) {
+>>>>>>> upstream/android-13
 				spu = devnode_spu(cbe, vic_dn);
 				avoid_ph = last_spu_dn->phandle;
 			} else {
@@ -511,7 +547,11 @@ static void init_affinity_node(int cbe)
 				spu = neighbour_spu(cbe, vic_dn, last_spu_dn);
 				if (!spu)
 					continue;
+<<<<<<< HEAD
 				if (!strcmp(name, "mic-tm")) {
+=======
+				if (of_node_name_eq(vic_dn, "mic-tm")) {
+>>>>>>> upstream/android-13
 					last_spu->has_mem_affinity = 1;
 					spu->has_mem_affinity = 1;
 				}

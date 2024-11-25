@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Voltage and current regulation for AD5398 and AD5821
  *
  * Copyright 2010 Analog Devices Inc.
  *
  * Enter bugs at http://blackfin.uclinux.org/
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

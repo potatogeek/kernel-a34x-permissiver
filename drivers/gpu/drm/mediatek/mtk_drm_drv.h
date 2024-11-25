@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015 MediaTek Inc.
+ */
+>>>>>>> upstream/android-13
 
 #ifndef MTK_DRM_DRV_H
 #define MTK_DRM_DRV_H
 
+<<<<<<< HEAD
 #include <drm/drm_fb_helper.h>
 #include <drm/mediatek_drm.h>
 #include <linux/types.h>
@@ -57,11 +65,19 @@
 #ifdef CONFIG_MTK_IOMMU_V2
 #define CONFIG_MTK_DISPLAY_M4U
 #endif
+=======
+#include <linux/io.h>
+#include "mtk_drm_ddp_comp.h"
+
+#define MAX_CRTC	3
+#define MAX_CONNECTOR	2
+>>>>>>> upstream/android-13
 
 struct device;
 struct device_node;
 struct drm_crtc;
 struct drm_device;
+<<<<<<< HEAD
 struct drm_property;
 struct regmap;
 struct mm_qos_request;
@@ -107,11 +123,27 @@ struct mtk_drm_lyeblob_ids {
 	int32_t free_cnt_mask;
 	int32_t lye_plane_blob_id[MAX_CRTC][OVL_LAYER_NR];
 	struct list_head list;
+=======
+struct drm_fb_helper;
+struct drm_property;
+struct regmap;
+
+struct mtk_mmsys_driver_data {
+	const enum mtk_ddp_comp_id *main_path;
+	unsigned int main_len;
+	const enum mtk_ddp_comp_id *ext_path;
+	unsigned int ext_len;
+	const enum mtk_ddp_comp_id *third_path;
+	unsigned int third_len;
+
+	bool shadow_register;
+>>>>>>> upstream/android-13
 };
 
 struct mtk_drm_private {
 	struct drm_device *drm;
 	struct device *dma_dev;
+<<<<<<< HEAD
 	struct device *mmsys_dev;
 #if defined(CONFIG_MTK_IOMMU_V2)
 	struct ion_client *client;
@@ -293,4 +325,27 @@ int lcm_fps_ctx_update(unsigned long long cur_ns,
 int mtk_mipi_clk_change(struct drm_crtc *crtc, unsigned int data_rate);
 void disp_drm_debug(const char *opt);
 extern int mtk_notifier_call_chain(unsigned long val, void *v);
+=======
+
+	unsigned int num_pipes;
+
+	struct device_node *mutex_node;
+	struct device *mutex_dev;
+	struct device *mmsys_dev;
+	struct device_node *comp_node[DDP_COMPONENT_ID_MAX];
+	struct mtk_ddp_comp ddp_comp[DDP_COMPONENT_ID_MAX];
+	const struct mtk_mmsys_driver_data *data;
+	struct drm_atomic_state *suspend_state;
+};
+
+extern struct platform_driver mtk_disp_aal_driver;
+extern struct platform_driver mtk_disp_ccorr_driver;
+extern struct platform_driver mtk_disp_color_driver;
+extern struct platform_driver mtk_disp_gamma_driver;
+extern struct platform_driver mtk_disp_ovl_driver;
+extern struct platform_driver mtk_disp_rdma_driver;
+extern struct platform_driver mtk_dpi_driver;
+extern struct platform_driver mtk_dsi_driver;
+
+>>>>>>> upstream/android-13
 #endif /* MTK_DRM_DRV_H */

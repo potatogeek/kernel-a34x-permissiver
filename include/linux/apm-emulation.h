@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* -*- linux-c -*-
  *
  * (C) 2003 zecke@handhelds.org
  *
+<<<<<<< HEAD
  * GPL version 2
  *
+=======
+>>>>>>> upstream/android-13
  * based on arch/arm/kernel/apm.c
  * factor out the information needed by architectures to provide
  * apm status

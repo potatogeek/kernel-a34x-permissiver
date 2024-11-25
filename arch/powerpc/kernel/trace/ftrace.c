@@ -27,6 +27,7 @@
 #include <asm/code-patching.h>
 #include <asm/ftrace.h>
 #include <asm/syscall.h>
+<<<<<<< HEAD
 
 
 #ifdef CONFIG_DYNAMIC_FTRACE
@@ -34,19 +35,49 @@ static unsigned int
 ftrace_call_replace(unsigned long ip, unsigned long addr, int link)
 {
 	unsigned int op;
+=======
+#include <asm/inst.h>
+
+
+#ifdef CONFIG_DYNAMIC_FTRACE
+
+/*
+ * We generally only have a single long_branch tramp and at most 2 or 3 plt
+ * tramps generated. But, we don't use the plt tramps currently. We also allot
+ * 2 tramps after .text and .init.text. So, we only end up with around 3 usable
+ * tramps in total. Set aside 8 just to be sure.
+ */
+#define	NUM_FTRACE_TRAMPS	8
+static unsigned long ftrace_tramps[NUM_FTRACE_TRAMPS];
+
+static struct ppc_inst
+ftrace_call_replace(unsigned long ip, unsigned long addr, int link)
+{
+	struct ppc_inst op;
+>>>>>>> upstream/android-13
 
 	addr = ppc_function_entry((void *)addr);
 
 	/* if (link) set op to 'bl' else 'b' */
+<<<<<<< HEAD
 	op = create_branch((unsigned int *)ip, addr, link ? 1 : 0);
+=======
+	create_branch(&op, (u32 *)ip, addr, link ? 1 : 0);
+>>>>>>> upstream/android-13
 
 	return op;
 }
 
 static int
+<<<<<<< HEAD
 ftrace_modify_code(unsigned long ip, unsigned int old, unsigned int new)
 {
 	unsigned int replaced;
+=======
+ftrace_modify_code(unsigned long ip, struct ppc_inst old, struct ppc_inst new)
+{
+	struct ppc_inst replaced;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note:
@@ -57,6 +88,7 @@ ftrace_modify_code(unsigned long ip, unsigned int old, unsigned int new)
 	 */
 
 	/* read the text we want to modify */
+<<<<<<< HEAD
 	if (probe_kernel_read(&replaced, (void *)ip, MCOUNT_INSN_SIZE))
 		return -EFAULT;
 
@@ -64,11 +96,24 @@ ftrace_modify_code(unsigned long ip, unsigned int old, unsigned int new)
 	if (replaced != old) {
 		pr_err("%p: replaced (%#x) != old (%#x)",
 		(void *)ip, replaced, old);
+=======
+	if (copy_inst_from_kernel_nofault(&replaced, (void *)ip))
+		return -EFAULT;
+
+	/* Make sure it is what we expect it to be */
+	if (!ppc_inst_equal(replaced, old)) {
+		pr_err("%p: replaced (%s) != old (%s)",
+		(void *)ip, ppc_inst_as_str(replaced), ppc_inst_as_str(old));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	/* replace the text with the new text */
+<<<<<<< HEAD
 	if (patch_instruction((unsigned int *)ip, new))
+=======
+	if (patch_instruction((u32 *)ip, new))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	return 0;
@@ -79,6 +124,7 @@ ftrace_modify_code(unsigned long ip, unsigned int old, unsigned int new)
  */
 static int test_24bit_addr(unsigned long ip, unsigned long addr)
 {
+<<<<<<< HEAD
 	addr = ppc_function_entry((void *)addr);
 
 	/* use the create_branch to verify that this offset can be branched */
@@ -97,6 +143,30 @@ static unsigned long find_bl_target(unsigned long ip, unsigned int op)
 	static int offset;
 
 	offset = (op & 0x03fffffc);
+=======
+	struct ppc_inst op;
+	addr = ppc_function_entry((void *)addr);
+
+	/* use the create_branch to verify that this offset can be branched */
+	return create_branch(&op, (u32 *)ip, addr, 0) == 0;
+}
+
+static int is_bl_op(struct ppc_inst op)
+{
+	return (ppc_inst_val(op) & 0xfc000003) == 0x48000001;
+}
+
+static int is_b_op(struct ppc_inst op)
+{
+	return (ppc_inst_val(op) & 0xfc000003) == 0x48000000;
+}
+
+static unsigned long find_bl_target(unsigned long ip, struct ppc_inst op)
+{
+	int offset;
+
+	offset = (ppc_inst_val(op) & 0x03fffffc);
+>>>>>>> upstream/android-13
 	/* make it signed */
 	if (offset & 0x02000000)
 		offset |= 0xfe000000;
@@ -104,6 +174,10 @@ static unsigned long find_bl_target(unsigned long ip, unsigned int op)
 	return ip + (long)offset;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MODULES
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC64
 static int
 __ftrace_make_nop(struct module *mod,
@@ -111,17 +185,28 @@ __ftrace_make_nop(struct module *mod,
 {
 	unsigned long entry, ptr, tramp;
 	unsigned long ip = rec->ip;
+<<<<<<< HEAD
 	unsigned int op, pop;
 
 	/* read where this goes */
 	if (probe_kernel_read(&op, (void *)ip, sizeof(int))) {
+=======
+	struct ppc_inst op, pop;
+
+	/* read where this goes */
+	if (copy_inst_from_kernel_nofault(&op, (void *)ip)) {
+>>>>>>> upstream/android-13
 		pr_err("Fetching opcode failed.\n");
 		return -EFAULT;
 	}
 
 	/* Make sure that that this is still a 24bit jump */
 	if (!is_bl_op(op)) {
+<<<<<<< HEAD
 		pr_err("Not expected bl: opcode is %x\n", op);
+=======
+		pr_err("Not expected bl: opcode is %s\n", ppc_inst_as_str(op));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -146,16 +231,29 @@ __ftrace_make_nop(struct module *mod,
 
 #ifdef CONFIG_MPROFILE_KERNEL
 	/* When using -mkernel_profile there is no load to jump over */
+<<<<<<< HEAD
 	pop = PPC_INST_NOP;
 
 	if (probe_kernel_read(&op, (void *)(ip - 4), 4)) {
+=======
+	pop = ppc_inst(PPC_RAW_NOP());
+
+	if (copy_inst_from_kernel_nofault(&op, (void *)(ip - 4))) {
+>>>>>>> upstream/android-13
 		pr_err("Fetching instruction at %lx failed.\n", ip - 4);
 		return -EFAULT;
 	}
 
 	/* We expect either a mflr r0, or a std r0, LRSAVE(r1) */
+<<<<<<< HEAD
 	if (op != PPC_INST_MFLR && op != PPC_INST_STD_LR) {
 		pr_err("Unexpected instruction %08x around bl _mcount\n", op);
+=======
+	if (!ppc_inst_equal(op, ppc_inst(PPC_RAW_MFLR(_R0))) &&
+	    !ppc_inst_equal(op, ppc_inst(PPC_INST_STD_LR))) {
+		pr_err("Unexpected instruction %s around bl _mcount\n",
+		       ppc_inst_as_str(op));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 #else
@@ -173,24 +271,41 @@ __ftrace_make_nop(struct module *mod,
 	 * Use a b +8 to jump over the load.
 	 */
 
+<<<<<<< HEAD
 	pop = PPC_INST_BRANCH | 8;	/* b +8 */
+=======
+	pop = ppc_inst(PPC_INST_BRANCH | 8);	/* b +8 */
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check what is in the next instruction. We can see ld r2,40(r1), but
 	 * on first pass after boot we will see mflr r0.
 	 */
+<<<<<<< HEAD
 	if (probe_kernel_read(&op, (void *)(ip+4), MCOUNT_INSN_SIZE)) {
+=======
+	if (copy_inst_from_kernel_nofault(&op, (void *)(ip + 4))) {
+>>>>>>> upstream/android-13
 		pr_err("Fetching op failed.\n");
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	if (op != PPC_INST_LD_TOC) {
 		pr_err("Expected %08x found %08x\n", PPC_INST_LD_TOC, op);
+=======
+	if (!ppc_inst_equal(op,  ppc_inst(PPC_INST_LD_TOC))) {
+		pr_err("Expected %08lx found %s\n", PPC_INST_LD_TOC, ppc_inst_as_str(op));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 #endif /* CONFIG_MPROFILE_KERNEL */
 
+<<<<<<< HEAD
 	if (patch_instruction((unsigned int *)ip, pop)) {
+=======
+	if (patch_instruction((u32 *)ip, pop)) {
+>>>>>>> upstream/android-13
 		pr_err("Patching NOP failed.\n");
 		return -EPERM;
 	}
@@ -203,17 +318,29 @@ static int
 __ftrace_make_nop(struct module *mod,
 		  struct dyn_ftrace *rec, unsigned long addr)
 {
+<<<<<<< HEAD
 	unsigned int op;
+=======
+	struct ppc_inst op;
+>>>>>>> upstream/android-13
 	unsigned int jmp[4];
 	unsigned long ip = rec->ip;
 	unsigned long tramp;
 
+<<<<<<< HEAD
 	if (probe_kernel_read(&op, (void *)ip, MCOUNT_INSN_SIZE))
+=======
+	if (copy_from_kernel_nofault(&op, (void *)ip, MCOUNT_INSN_SIZE))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	/* Make sure that that this is still a 24bit jump */
 	if (!is_bl_op(op)) {
+<<<<<<< HEAD
 		pr_err("Not expected bl: opcode is %x\n", op);
+=======
+		pr_err("Not expected bl: opcode is %s\n", ppc_inst_as_str(op));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -231,7 +358,11 @@ __ftrace_make_nop(struct module *mod,
 	pr_devel("ip:%lx jumps to %lx", ip, tramp);
 
 	/* Find where the trampoline jumps to */
+<<<<<<< HEAD
 	if (probe_kernel_read(jmp, (void *)tramp, sizeof(jmp))) {
+=======
+	if (copy_from_kernel_nofault(jmp, (void *)tramp, sizeof(jmp))) {
+>>>>>>> upstream/android-13
 		pr_err("Failed to read %lx\n", tramp);
 		return -EFAULT;
 	}
@@ -260,9 +391,15 @@ __ftrace_make_nop(struct module *mod,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	op = PPC_INST_NOP;
 
 	if (patch_instruction((unsigned int *)ip, op))
+=======
+	op = ppc_inst(PPC_RAW_NOP());
+
+	if (patch_instruction((u32 *)ip, op))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	return 0;
@@ -270,11 +407,162 @@ __ftrace_make_nop(struct module *mod,
 #endif /* PPC64 */
 #endif /* CONFIG_MODULES */
 
+<<<<<<< HEAD
+=======
+static unsigned long find_ftrace_tramp(unsigned long ip)
+{
+	int i;
+	struct ppc_inst instr;
+
+	/*
+	 * We have the compiler generated long_branch tramps at the end
+	 * and we prefer those
+	 */
+	for (i = NUM_FTRACE_TRAMPS - 1; i >= 0; i--)
+		if (!ftrace_tramps[i])
+			continue;
+		else if (create_branch(&instr, (void *)ip,
+				       ftrace_tramps[i], 0) == 0)
+			return ftrace_tramps[i];
+
+	return 0;
+}
+
+static int add_ftrace_tramp(unsigned long tramp)
+{
+	int i;
+
+	for (i = 0; i < NUM_FTRACE_TRAMPS; i++)
+		if (!ftrace_tramps[i]) {
+			ftrace_tramps[i] = tramp;
+			return 0;
+		}
+
+	return -1;
+}
+
+/*
+ * If this is a compiler generated long_branch trampoline (essentially, a
+ * trampoline that has a branch to _mcount()), we re-write the branch to
+ * instead go to ftrace_[regs_]caller() and note down the location of this
+ * trampoline.
+ */
+static int setup_mcount_compiler_tramp(unsigned long tramp)
+{
+	int i;
+	struct ppc_inst op;
+	unsigned long ptr;
+	struct ppc_inst instr;
+	static unsigned long ftrace_plt_tramps[NUM_FTRACE_TRAMPS];
+
+	/* Is this a known long jump tramp? */
+	for (i = 0; i < NUM_FTRACE_TRAMPS; i++)
+		if (!ftrace_tramps[i])
+			break;
+		else if (ftrace_tramps[i] == tramp)
+			return 0;
+
+	/* Is this a known plt tramp? */
+	for (i = 0; i < NUM_FTRACE_TRAMPS; i++)
+		if (!ftrace_plt_tramps[i])
+			break;
+		else if (ftrace_plt_tramps[i] == tramp)
+			return -1;
+
+	/* New trampoline -- read where this goes */
+	if (copy_inst_from_kernel_nofault(&op, (void *)tramp)) {
+		pr_debug("Fetching opcode failed.\n");
+		return -1;
+	}
+
+	/* Is this a 24 bit branch? */
+	if (!is_b_op(op)) {
+		pr_debug("Trampoline is not a long branch tramp.\n");
+		return -1;
+	}
+
+	/* lets find where the pointer goes */
+	ptr = find_bl_target(tramp, op);
+
+	if (ptr != ppc_global_function_entry((void *)_mcount)) {
+		pr_debug("Trampoline target %p is not _mcount\n", (void *)ptr);
+		return -1;
+	}
+
+	/* Let's re-write the tramp to go to ftrace_[regs_]caller */
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+	ptr = ppc_global_function_entry((void *)ftrace_regs_caller);
+#else
+	ptr = ppc_global_function_entry((void *)ftrace_caller);
+#endif
+	if (create_branch(&instr, (void *)tramp, ptr, 0)) {
+		pr_debug("%ps is not reachable from existing mcount tramp\n",
+				(void *)ptr);
+		return -1;
+	}
+
+	if (patch_branch((u32 *)tramp, ptr, 0)) {
+		pr_debug("REL24 out of range!\n");
+		return -1;
+	}
+
+	if (add_ftrace_tramp(tramp)) {
+		pr_debug("No tramp locations left\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+static int __ftrace_make_nop_kernel(struct dyn_ftrace *rec, unsigned long addr)
+{
+	unsigned long tramp, ip = rec->ip;
+	struct ppc_inst op;
+
+	/* Read where this goes */
+	if (copy_inst_from_kernel_nofault(&op, (void *)ip)) {
+		pr_err("Fetching opcode failed.\n");
+		return -EFAULT;
+	}
+
+	/* Make sure that that this is still a 24bit jump */
+	if (!is_bl_op(op)) {
+		pr_err("Not expected bl: opcode is %s\n", ppc_inst_as_str(op));
+		return -EINVAL;
+	}
+
+	/* Let's find where the pointer goes */
+	tramp = find_bl_target(ip, op);
+
+	pr_devel("ip:%lx jumps to %lx", ip, tramp);
+
+	if (setup_mcount_compiler_tramp(tramp)) {
+		/* Are other trampolines reachable? */
+		if (!find_ftrace_tramp(ip)) {
+			pr_err("No ftrace trampolines reachable from %ps\n",
+					(void *)ip);
+			return -EINVAL;
+		}
+	}
+
+	if (patch_instruction((u32 *)ip, ppc_inst(PPC_RAW_NOP()))) {
+		pr_err("Patching NOP failed.\n");
+		return -EPERM;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int ftrace_make_nop(struct module *mod,
 		    struct dyn_ftrace *rec, unsigned long addr)
 {
 	unsigned long ip = rec->ip;
+<<<<<<< HEAD
 	unsigned int old, new;
+=======
+	struct ppc_inst old, new;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the calling address is more that 24 bits away,
@@ -284,9 +572,16 @@ int ftrace_make_nop(struct module *mod,
 	if (test_24bit_addr(ip, addr)) {
 		/* within range */
 		old = ftrace_call_replace(ip, addr, 1);
+<<<<<<< HEAD
 		new = PPC_INST_NOP;
 		return ftrace_modify_code(ip, old, new);
 	}
+=======
+		new = ppc_inst(PPC_RAW_NOP());
+		return ftrace_modify_code(ip, old, new);
+	} else if (core_kernel_text(ip))
+		return __ftrace_make_nop_kernel(rec, addr);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MODULES
 	/*
@@ -326,7 +621,11 @@ int ftrace_make_nop(struct module *mod,
  */
 #ifndef CONFIG_MPROFILE_KERNEL
 static int
+<<<<<<< HEAD
 expected_nop_sequence(void *ip, unsigned int op0, unsigned int op1)
+=======
+expected_nop_sequence(void *ip, struct ppc_inst op0, struct ppc_inst op1)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * We expect to see:
@@ -337,16 +636,28 @@ expected_nop_sequence(void *ip, unsigned int op0, unsigned int op1)
 	 * The load offset is different depending on the ABI. For simplicity
 	 * just mask it out when doing the compare.
 	 */
+<<<<<<< HEAD
 	if ((op0 != 0x48000008) || ((op1 & 0xffff0000) != 0xe8410000))
+=======
+	if (!ppc_inst_equal(op0, ppc_inst(0x48000008)) ||
+	    (ppc_inst_val(op1) & 0xffff0000) != 0xe8410000)
+>>>>>>> upstream/android-13
 		return 0;
 	return 1;
 }
 #else
 static int
+<<<<<<< HEAD
 expected_nop_sequence(void *ip, unsigned int op0, unsigned int op1)
 {
 	/* look for patched "NOP" on ppc64 with -mprofile-kernel */
 	if (op0 != PPC_INST_NOP)
+=======
+expected_nop_sequence(void *ip, struct ppc_inst op0, struct ppc_inst op1)
+{
+	/* look for patched "NOP" on ppc64 with -mprofile-kernel */
+	if (!ppc_inst_equal(op0, ppc_inst(PPC_RAW_NOP())))
+>>>>>>> upstream/android-13
 		return 0;
 	return 1;
 }
@@ -355,18 +666,35 @@ expected_nop_sequence(void *ip, unsigned int op0, unsigned int op1)
 static int
 __ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 {
+<<<<<<< HEAD
 	unsigned int op[2];
+=======
+	struct ppc_inst op[2];
+	struct ppc_inst instr;
+>>>>>>> upstream/android-13
 	void *ip = (void *)rec->ip;
 	unsigned long entry, ptr, tramp;
 	struct module *mod = rec->arch.mod;
 
 	/* read where this goes */
+<<<<<<< HEAD
 	if (probe_kernel_read(op, ip, sizeof(op)))
 		return -EFAULT;
 
 	if (!expected_nop_sequence(ip, op[0], op[1])) {
 		pr_err("Unexpected call sequence at %p: %x %x\n",
 		ip, op[0], op[1]);
+=======
+	if (copy_inst_from_kernel_nofault(op, ip))
+		return -EFAULT;
+
+	if (copy_inst_from_kernel_nofault(op + 1, ip + 4))
+		return -EFAULT;
+
+	if (!expected_nop_sequence(ip, op[0], op[1])) {
+		pr_err("Unexpected call sequence at %p: %s %s\n",
+		ip, ppc_inst_as_str(op[0]), ppc_inst_as_str(op[1]));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -402,7 +730,11 @@ __ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 	}
 
 	/* Ensure branch is within 24 bits */
+<<<<<<< HEAD
 	if (!create_branch(ip, tramp, BRANCH_SET_LINK)) {
+=======
+	if (create_branch(&instr, ip, tramp, BRANCH_SET_LINK)) {
+>>>>>>> upstream/android-13
 		pr_err("Branch out of range\n");
 		return -EINVAL;
 	}
@@ -419,6 +751,7 @@ __ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 static int
 __ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 {
+<<<<<<< HEAD
 	unsigned int op;
 	unsigned long ip = rec->ip;
 
@@ -429,6 +762,19 @@ __ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 	/* It should be pointing to a nop */
 	if (op != PPC_INST_NOP) {
 		pr_err("Expected NOP but have %x\n", op);
+=======
+	int err;
+	struct ppc_inst op;
+	u32 *ip = (u32 *)rec->ip;
+
+	/* read where this goes */
+	if (copy_inst_from_kernel_nofault(&op, ip))
+		return -EFAULT;
+
+	/* It should be pointing to a nop */
+	if (!ppc_inst_equal(op,  ppc_inst(PPC_RAW_NOP()))) {
+		pr_err("Expected NOP but have %s\n", ppc_inst_as_str(op));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -439,16 +785,25 @@ __ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 	}
 
 	/* create the branch to the trampoline */
+<<<<<<< HEAD
 	op = create_branch((unsigned int *)ip,
 			   rec->arch.mod->arch.tramp, BRANCH_SET_LINK);
 	if (!op) {
+=======
+	err = create_branch(&op, ip, rec->arch.mod->arch.tramp, BRANCH_SET_LINK);
+	if (err) {
+>>>>>>> upstream/android-13
 		pr_err("REL24 out of range!\n");
 		return -EINVAL;
 	}
 
 	pr_devel("write to %lx\n", rec->ip);
 
+<<<<<<< HEAD
 	if (patch_instruction((unsigned int *)ip, op))
+=======
+	if (patch_instruction(ip, op))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	return 0;
@@ -456,10 +811,64 @@ __ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 #endif /* CONFIG_PPC64 */
 #endif /* CONFIG_MODULES */
 
+<<<<<<< HEAD
 int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 {
 	unsigned long ip = rec->ip;
 	unsigned int old, new;
+=======
+static int __ftrace_make_call_kernel(struct dyn_ftrace *rec, unsigned long addr)
+{
+	struct ppc_inst op;
+	void *ip = (void *)rec->ip;
+	unsigned long tramp, entry, ptr;
+
+	/* Make sure we're being asked to patch branch to a known ftrace addr */
+	entry = ppc_global_function_entry((void *)ftrace_caller);
+	ptr = ppc_global_function_entry((void *)addr);
+
+	if (ptr != entry) {
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+		entry = ppc_global_function_entry((void *)ftrace_regs_caller);
+		if (ptr != entry) {
+#endif
+			pr_err("Unknown ftrace addr to patch: %ps\n", (void *)ptr);
+			return -EINVAL;
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+		}
+#endif
+	}
+
+	/* Make sure we have a nop */
+	if (copy_inst_from_kernel_nofault(&op, ip)) {
+		pr_err("Unable to read ftrace location %p\n", ip);
+		return -EFAULT;
+	}
+
+	if (!ppc_inst_equal(op, ppc_inst(PPC_RAW_NOP()))) {
+		pr_err("Unexpected call sequence at %p: %s\n", ip, ppc_inst_as_str(op));
+		return -EINVAL;
+	}
+
+	tramp = find_ftrace_tramp((unsigned long)ip);
+	if (!tramp) {
+		pr_err("No ftrace trampolines reachable from %ps\n", ip);
+		return -EINVAL;
+	}
+
+	if (patch_branch(ip, tramp, BRANCH_SET_LINK)) {
+		pr_err("Error patching branch to ftrace tramp!\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+{
+	unsigned long ip = rec->ip;
+	struct ppc_inst old, new;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the calling address is more that 24 bits away,
@@ -468,10 +877,18 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
 	 */
 	if (test_24bit_addr(ip, addr)) {
 		/* within range */
+<<<<<<< HEAD
 		old = PPC_INST_NOP;
 		new = ftrace_call_replace(ip, addr, 1);
 		return ftrace_modify_code(ip, old, new);
 	}
+=======
+		old = ppc_inst(PPC_RAW_NOP());
+		new = ftrace_call_replace(ip, addr, 1);
+		return ftrace_modify_code(ip, old, new);
+	} else if (core_kernel_text(ip))
+		return __ftrace_make_call_kernel(rec, addr);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MODULES
 	/*
@@ -497,7 +914,11 @@ static int
 __ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 					unsigned long addr)
 {
+<<<<<<< HEAD
 	unsigned int op;
+=======
+	struct ppc_inst op;
+>>>>>>> upstream/android-13
 	unsigned long ip = rec->ip;
 	unsigned long entry, ptr, tramp;
 	struct module *mod = rec->arch.mod;
@@ -509,14 +930,22 @@ __ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 	}
 
 	/* read where this goes */
+<<<<<<< HEAD
 	if (probe_kernel_read(&op, (void *)ip, sizeof(int))) {
+=======
+	if (copy_inst_from_kernel_nofault(&op, (void *)ip)) {
+>>>>>>> upstream/android-13
 		pr_err("Fetching opcode failed.\n");
 		return -EFAULT;
 	}
 
 	/* Make sure that that this is still a 24bit jump */
 	if (!is_bl_op(op)) {
+<<<<<<< HEAD
 		pr_err("Not expected bl: opcode is %x\n", op);
+=======
+		pr_err("Not expected bl: opcode is %s\n", ppc_inst_as_str(op));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -545,7 +974,11 @@ __ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 	/* The new target may be within range */
 	if (test_24bit_addr(ip, addr)) {
 		/* within range */
+<<<<<<< HEAD
 		if (patch_branch((unsigned int *)ip, addr, BRANCH_SET_LINK)) {
+=======
+		if (patch_branch((u32 *)ip, addr, BRANCH_SET_LINK)) {
+>>>>>>> upstream/android-13
 			pr_err("REL24 out of range!\n");
 			return -EINVAL;
 		}
@@ -573,12 +1006,20 @@ __ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 	}
 
 	/* Ensure branch is within 24 bits */
+<<<<<<< HEAD
 	if (!create_branch((unsigned int *)ip, tramp, BRANCH_SET_LINK)) {
+=======
+	if (create_branch(&op, (u32 *)ip, tramp, BRANCH_SET_LINK)) {
+>>>>>>> upstream/android-13
 		pr_err("Branch out of range\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (patch_branch((unsigned int *)ip, tramp, BRANCH_SET_LINK)) {
+=======
+	if (patch_branch((u32 *)ip, tramp, BRANCH_SET_LINK)) {
+>>>>>>> upstream/android-13
 		pr_err("REL24 out of range!\n");
 		return -EINVAL;
 	}
@@ -591,7 +1032,11 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 			unsigned long addr)
 {
 	unsigned long ip = rec->ip;
+<<<<<<< HEAD
 	unsigned int old, new;
+=======
+	struct ppc_inst old, new;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the calling address is more that 24 bits away,
@@ -603,6 +1048,15 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 		old = ftrace_call_replace(ip, old_addr, 1);
 		new = ftrace_call_replace(ip, addr, 1);
 		return ftrace_modify_code(ip, old, new);
+<<<<<<< HEAD
+=======
+	} else if (core_kernel_text(ip)) {
+		/*
+		 * We always patch out of range locations to go to the regs
+		 * variant, so there is nothing to do here
+		 */
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 #ifdef CONFIG_MODULES
@@ -625,10 +1079,17 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
 int ftrace_update_ftrace_func(ftrace_func_t func)
 {
 	unsigned long ip = (unsigned long)(&ftrace_call);
+<<<<<<< HEAD
 	unsigned int old, new;
 	int ret;
 
 	old = *(unsigned int *)&ftrace_call;
+=======
+	struct ppc_inst old, new;
+	int ret;
+
+	old = ppc_inst_read((u32 *)&ftrace_call);
+>>>>>>> upstream/android-13
 	new = ftrace_call_replace(ip, (unsigned long)func, 1);
 	ret = ftrace_modify_code(ip, old, new);
 
@@ -636,7 +1097,11 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
 	/* Also update the regs callback function */
 	if (!ret) {
 		ip = (unsigned long)(&ftrace_regs_call);
+<<<<<<< HEAD
 		old = *(unsigned int *)&ftrace_regs_call;
+=======
+		old = ppc_inst_read((u32 *)&ftrace_regs_call);
+>>>>>>> upstream/android-13
 		new = ftrace_call_replace(ip, (unsigned long)func, 1);
 		ret = ftrace_modify_code(ip, old, new);
 	}
@@ -654,10 +1119,56 @@ void arch_ftrace_update_code(int command)
 	ftrace_modify_all_code(command);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC64
+#define PACATOC offsetof(struct paca_struct, kernel_toc)
+
+extern unsigned int ftrace_tramp_text[], ftrace_tramp_init[];
+
+int __init ftrace_dyn_arch_init(void)
+{
+	int i;
+	unsigned int *tramp[] = { ftrace_tramp_text, ftrace_tramp_init };
+	u32 stub_insns[] = {
+		0xe98d0000 | PACATOC,	/* ld      r12,PACATOC(r13)	*/
+		0x3d8c0000,		/* addis   r12,r12,<high>	*/
+		0x398c0000,		/* addi    r12,r12,<low>	*/
+		0x7d8903a6,		/* mtctr   r12			*/
+		0x4e800420,		/* bctr				*/
+	};
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+	unsigned long addr = ppc_global_function_entry((void *)ftrace_regs_caller);
+#else
+	unsigned long addr = ppc_global_function_entry((void *)ftrace_caller);
+#endif
+	long reladdr = addr - kernel_toc_addr();
+
+	if (reladdr > 0x7FFFFFFF || reladdr < -(0x80000000L)) {
+		pr_err("Address of %ps out of range of kernel_toc.\n",
+				(void *)addr);
+		return -1;
+	}
+
+	for (i = 0; i < 2; i++) {
+		memcpy(tramp[i], stub_insns, sizeof(stub_insns));
+		tramp[i][1] |= PPC_HA(reladdr);
+		tramp[i][2] |= PPC_LO(reladdr);
+		add_ftrace_tramp((unsigned long)tramp[i]);
+	}
+
+	return 0;
+}
+#else
+>>>>>>> upstream/android-13
 int __init ftrace_dyn_arch_init(void)
 {
 	return 0;
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 #endif /* CONFIG_DYNAMIC_FTRACE */
 
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
@@ -670,7 +1181,11 @@ int ftrace_enable_ftrace_graph_caller(void)
 	unsigned long ip = (unsigned long)(&ftrace_graph_call);
 	unsigned long addr = (unsigned long)(&ftrace_graph_caller);
 	unsigned long stub = (unsigned long)(&ftrace_graph_stub);
+<<<<<<< HEAD
 	unsigned int old, new;
+=======
+	struct ppc_inst old, new;
+>>>>>>> upstream/android-13
 
 	old = ftrace_call_replace(ip, stub, 0);
 	new = ftrace_call_replace(ip, addr, 0);
@@ -683,7 +1198,11 @@ int ftrace_disable_ftrace_graph_caller(void)
 	unsigned long ip = (unsigned long)(&ftrace_graph_call);
 	unsigned long addr = (unsigned long)(&ftrace_graph_caller);
 	unsigned long stub = (unsigned long)(&ftrace_graph_stub);
+<<<<<<< HEAD
 	unsigned int old, new;
+=======
+	struct ppc_inst old, new;
+>>>>>>> upstream/android-13
 
 	old = ftrace_call_replace(ip, addr, 0);
 	new = ftrace_call_replace(ip, stub, 0);
@@ -695,7 +1214,12 @@ int ftrace_disable_ftrace_graph_caller(void)
  * Hook the return address and push it in the stack of return addrs
  * in current thread info. Return the address we want to divert to.
  */
+<<<<<<< HEAD
 unsigned long prepare_ftrace_return(unsigned long parent, unsigned long ip)
+=======
+unsigned long prepare_ftrace_return(unsigned long parent, unsigned long ip,
+						unsigned long sp)
+>>>>>>> upstream/android-13
 {
 	unsigned long return_hooker;
 
@@ -707,13 +1231,18 @@ unsigned long prepare_ftrace_return(unsigned long parent, unsigned long ip)
 
 	return_hooker = ppc_function_entry(return_to_handler);
 
+<<<<<<< HEAD
 	if (!function_graph_enter(parent, ip, 0, NULL))
+=======
+	if (!function_graph_enter(parent, ip, 0, (unsigned long *)sp))
+>>>>>>> upstream/android-13
 		parent = return_hooker;
 out:
 	return parent;
 }
 #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
 
+<<<<<<< HEAD
 #if defined(CONFIG_FTRACE_SYSCALLS) && defined(CONFIG_PPC64)
 unsigned long __init arch_syscall_addr(int nr)
 {
@@ -721,6 +1250,8 @@ unsigned long __init arch_syscall_addr(int nr)
 }
 #endif /* CONFIG_FTRACE_SYSCALLS && CONFIG_PPC64 */
 
+=======
+>>>>>>> upstream/android-13
 #ifdef PPC64_ELF_ABI_v1
 char *arch_ftrace_match_adjust(char *str, const char *search)
 {

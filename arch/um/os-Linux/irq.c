@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 - Cambridge Greys Ltd
  * Copyright (C) 2011 - 2014 Cisco Systems Inc
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+<<<<<<< HEAD
  * Licensed under the GPL
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdlib.h>
@@ -45,7 +52,11 @@ int os_epoll_triggered(int index, int events)
  * access to the right includes/defines for EPOLL constants.
  */
 
+<<<<<<< HEAD
 int os_event_mask(int irq_type)
+=======
+int os_event_mask(enum um_irq_type irq_type)
+>>>>>>> upstream/android-13
 {
 	if (irq_type == IRQ_READ)
 		return EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP | EPOLLRDHUP;

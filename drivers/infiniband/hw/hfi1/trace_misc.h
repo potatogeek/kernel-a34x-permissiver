@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Copyright(c) 2015, 2016 Intel Corporation.
 *
@@ -44,6 +45,13 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+* Copyright(c) 2015, 2016 Intel Corporation.
+*/
+
+>>>>>>> upstream/android-13
 #if !defined(__HFI1_TRACE_MISC_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __HFI1_TRACE_MISC_H
 
@@ -63,7 +71,11 @@ TRACE_EVENT(hfi1_interrupt,
 			     __array(char, buf, 64)
 			     __field(int, src)
 			     ),
+<<<<<<< HEAD
 	    TP_fast_assign(DD_DEV_ASSIGN(dd)
+=======
+	    TP_fast_assign(DD_DEV_ASSIGN(dd);
+>>>>>>> upstream/android-13
 			   is_entry->is_name(__entry->buf, 64,
 					     src - is_entry->start);
 			   __entry->src = src;
@@ -100,7 +112,11 @@ TRACE_EVENT(hfi1_fault_opcode,
 			     __field(u32, qpn)
 			     __field(u8, opcode)
 			     ),
+<<<<<<< HEAD
 	    TP_fast_assign(DD_DEV_ASSIGN(dd_from_ibdev(qp->ibqp.device))
+=======
+	    TP_fast_assign(DD_DEV_ASSIGN(dd_from_ibdev(qp->ibqp.device));
+>>>>>>> upstream/android-13
 			   __entry->qpn = qp->ibqp.qp_num;
 			   __entry->opcode = opcode;
 			   ),

@@ -26,10 +26,14 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
 		u32 __user *uaddr)
 {
 	int oldval = 0, newval, ret;
+<<<<<<< HEAD
 	mm_segment_t old_fs;
 
 	old_fs = enable_sacf_uaccess();
 	pagefault_disable();
+=======
+
+>>>>>>> upstream/android-13
 	switch (op) {
 	case FUTEX_OP_SET:
 		__futex_atomic_op("lr %2,%5\n",
@@ -54,8 +58,11 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
 	default:
 		ret = -ENOSYS;
 	}
+<<<<<<< HEAD
 	pagefault_enable();
 	disable_sacf_uaccess(old_fs);
+=======
+>>>>>>> upstream/android-13
 
 	if (!ret)
 		*oval = oldval;
@@ -66,10 +73,15 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
 static inline int futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 						u32 oldval, u32 newval)
 {
+<<<<<<< HEAD
 	mm_segment_t old_fs;
 	int ret;
 
 	old_fs = enable_sacf_uaccess();
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	asm volatile(
 		"   sacf 256\n"
 		"0: cs   %1,%4,0(%5)\n"
@@ -79,7 +91,10 @@ static inline int futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 		: "=d" (ret), "+d" (oldval), "=m" (*uaddr)
 		: "0" (-EFAULT), "d" (newval), "a" (uaddr), "m" (*uaddr)
 		: "cc", "memory");
+<<<<<<< HEAD
 	disable_sacf_uaccess(old_fs);
+=======
+>>>>>>> upstream/android-13
 	*uval = oldval;
 	return ret;
 }

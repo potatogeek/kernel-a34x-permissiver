@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Cobalt button interface driver.
  *
  *  Copyright (C) 2007-2008  Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +23,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include <linux/input-polldev.h>
+=======
+ */
+#include <linux/input.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
@@ -39,16 +49,25 @@ static const unsigned short cobalt_map[] = {
 };
 
 struct buttons_dev {
+<<<<<<< HEAD
 	struct input_polled_dev *poll_dev;
+=======
+>>>>>>> upstream/android-13
 	unsigned short keymap[ARRAY_SIZE(cobalt_map)];
 	int count[ARRAY_SIZE(cobalt_map)];
 	void __iomem *reg;
 };
 
+<<<<<<< HEAD
 static void handle_buttons(struct input_polled_dev *dev)
 {
 	struct buttons_dev *bdev = dev->private;
 	struct input_dev *input = dev->input;
+=======
+static void handle_buttons(struct input_dev *input)
+{
+	struct buttons_dev *bdev = input_get_drvdata(input);
+>>>>>>> upstream/android-13
 	uint32_t status;
 	int i;
 
@@ -75,11 +94,15 @@ static void handle_buttons(struct input_polled_dev *dev)
 static int cobalt_buttons_probe(struct platform_device *pdev)
 {
 	struct buttons_dev *bdev;
+<<<<<<< HEAD
 	struct input_polled_dev *poll_dev;
+=======
+>>>>>>> upstream/android-13
 	struct input_dev *input;
 	struct resource *res;
 	int error, i;
 
+<<<<<<< HEAD
 	bdev = kzalloc(sizeof(struct buttons_dev), GFP_KERNEL);
 	poll_dev = input_allocate_polled_device();
 	if (!bdev || !poll_dev) {
@@ -98,6 +121,31 @@ static int cobalt_buttons_probe(struct platform_device *pdev)
 	input->phys = "cobalt/input0";
 	input->id.bustype = BUS_HOST;
 	input->dev.parent = &pdev->dev;
+=======
+	bdev = devm_kzalloc(&pdev->dev, sizeof(*bdev), GFP_KERNEL);
+	if (!bdev)
+		return -ENOMEM;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!res)
+		return -EBUSY;
+
+	bdev->reg = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+	if (!bdev->reg)
+		return -ENOMEM;
+
+	memcpy(bdev->keymap, cobalt_map, sizeof(bdev->keymap));
+
+	input = devm_input_allocate_device(&pdev->dev);
+	if (!input)
+		return -ENOMEM;
+
+	input_set_drvdata(input, bdev);
+
+	input->name = "Cobalt buttons";
+	input->phys = "cobalt/input0";
+	input->id.bustype = BUS_HOST;
+>>>>>>> upstream/android-13
 
 	input->keycode = bdev->keymap;
 	input->keycodemax = ARRAY_SIZE(bdev->keymap);
@@ -109,6 +157,7 @@ static int cobalt_buttons_probe(struct platform_device *pdev)
 		__set_bit(bdev->keymap[i], input->keybit);
 	__clear_bit(KEY_RESERVED, input->keybit);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		error = -EBUSY;
@@ -142,6 +191,18 @@ static int cobalt_buttons_remove(struct platform_device *pdev)
 	input_free_polled_device(bdev->poll_dev);
 	iounmap(bdev->reg);
 	kfree(bdev);
+=======
+
+	error = input_setup_polling(input, handle_buttons);
+	if (error)
+		return error;
+
+	input_set_poll_interval(input, BUTTONS_POLL_INTERVAL);
+
+	error = input_register_device(input);
+	if (error)
+		return error;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -154,7 +215,10 @@ MODULE_ALIAS("platform:Cobalt buttons");
 
 static struct platform_driver cobalt_buttons_driver = {
 	.probe	= cobalt_buttons_probe,
+<<<<<<< HEAD
 	.remove	= cobalt_buttons_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver	= {
 		.name	= "Cobalt buttons",
 	},

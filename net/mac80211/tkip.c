@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2002-2004, Instant802 Networks, Inc.
  * Copyright 2005, Devicescape Software, Inc.
  * Copyright (C) 2016 Intel Deutschland GmbH
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/bitops.h>
@@ -222,7 +229,11 @@ EXPORT_SYMBOL(ieee80211_get_tkip_p2k);
  * @payload_len is the length of payload (_not_ including IV/ICV length).
  * @ta is the transmitter addresses.
  */
+<<<<<<< HEAD
 int ieee80211_tkip_encrypt_data(struct crypto_cipher *tfm,
+=======
+int ieee80211_tkip_encrypt_data(struct arc4_ctx *ctx,
+>>>>>>> upstream/android-13
 				struct ieee80211_key *key,
 				struct sk_buff *skb,
 				u8 *payload, size_t payload_len)
@@ -231,7 +242,11 @@ int ieee80211_tkip_encrypt_data(struct crypto_cipher *tfm,
 
 	ieee80211_get_tkip_p2k(&key->conf, skb, rc4key);
 
+<<<<<<< HEAD
 	return ieee80211_wep_encrypt_data(tfm, rc4key, 16,
+=======
+	return ieee80211_wep_encrypt_data(ctx, rc4key, 16,
+>>>>>>> upstream/android-13
 					  payload, payload_len);
 }
 
@@ -239,7 +254,11 @@ int ieee80211_tkip_encrypt_data(struct crypto_cipher *tfm,
  * beginning of the buffer containing IEEE 802.11 header payload, i.e.,
  * including IV, Ext. IV, real data, Michael MIC, ICV. @payload_len is the
  * length of payload, including IV, Ext. IV, MIC, ICV.  */
+<<<<<<< HEAD
 int ieee80211_tkip_decrypt_data(struct crypto_cipher *tfm,
+=======
+int ieee80211_tkip_decrypt_data(struct arc4_ctx *ctx,
+>>>>>>> upstream/android-13
 				struct ieee80211_key *key,
 				u8 *payload, size_t payload_len, u8 *ta,
 				u8 *ra, int only_iv, int queue,
@@ -309,7 +328,11 @@ int ieee80211_tkip_decrypt_data(struct crypto_cipher *tfm,
 
 	tkip_mixing_phase2(tk, &rx_ctx->ctx, iv16, rc4key);
 
+<<<<<<< HEAD
 	res = ieee80211_wep_decrypt_data(tfm, rc4key, 16, pos, payload_len - 12);
+=======
+	res = ieee80211_wep_decrypt_data(ctx, rc4key, 16, pos, payload_len - 12);
+>>>>>>> upstream/android-13
  done:
 	if (res == TKIP_DECRYPT_OK) {
 		/*

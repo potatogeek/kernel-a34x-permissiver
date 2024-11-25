@@ -13,6 +13,7 @@
  * Copyright (C) 1997, 1998, 1999, 2000 Ingo Molnar
  */
 
+<<<<<<< HEAD
 /* I/O Unit Redirection Table */
 #define IO_APIC_REDIR_VECTOR_MASK	0x000FF
 #define IO_APIC_REDIR_DEST_LOGICAL	0x00800
@@ -22,6 +23,8 @@
 #define IO_APIC_REDIR_LEVEL_TRIGGER	(1 << 15)
 #define IO_APIC_REDIR_MASKED		(1 << 16)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The structure of the IO-APIC:
  */
@@ -65,6 +68,7 @@ union IO_APIC_reg_03 {
 };
 
 struct IO_APIC_route_entry {
+<<<<<<< HEAD
 	__u32	vector		:  8,
 		delivery_mode	:  3,	/* 000: FIXED
 					 * 001: lowest prio
@@ -94,11 +98,43 @@ struct IR_IO_APIC_route_entry {
 		reserved	: 31,
 		format		: 1,
 		index		: 15;
+=======
+	union {
+		struct {
+			u64	vector			:  8,
+				delivery_mode		:  3,
+				dest_mode_logical	:  1,
+				delivery_status		:  1,
+				active_low		:  1,
+				irr			:  1,
+				is_level		:  1,
+				masked			:  1,
+				reserved_0		: 15,
+				reserved_1		: 17,
+				virt_destid_8_14	:  7,
+				destid_0_7		:  8;
+		};
+		struct {
+			u64	ir_shared_0		:  8,
+				ir_zero			:  3,
+				ir_index_15		:  1,
+				ir_shared_1		:  5,
+				ir_reserved_0		: 31,
+				ir_format		:  1,
+				ir_index_0_14		: 15;
+		};
+		struct {
+			u64	w1			: 32,
+				w2			: 32;
+		};
+	};
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct irq_alloc_info;
 struct ioapic_domain_cfg;
 
+<<<<<<< HEAD
 #define IOAPIC_AUTO			-1
 #define IOAPIC_EDGE			0
 #define IOAPIC_LEVEL			1
@@ -112,6 +148,8 @@ struct ioapic_domain_cfg;
 #define IOAPIC_DEST_MODE_PHYSICAL	0
 #define IOAPIC_DEST_MODE_LOGICAL	1
 
+=======
+>>>>>>> upstream/android-13
 #define	IOAPIC_MAP_ALLOC		0x1
 #define	IOAPIC_MAP_CHECK		0x2
 

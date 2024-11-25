@@ -45,16 +45,23 @@ static int pagecache_read(struct inode *inode, void *buf, size_t count,
 		size_t n = min_t(size_t, count,
 				 PAGE_SIZE - offset_in_page(pos));
 		struct page *page;
+<<<<<<< HEAD
 		void *addr;
+=======
+>>>>>>> upstream/android-13
 
 		page = read_mapping_page(inode->i_mapping, pos >> PAGE_SHIFT,
 					 NULL);
 		if (IS_ERR(page))
 			return PTR_ERR(page);
 
+<<<<<<< HEAD
 		addr = kmap_atomic(page);
 		memcpy(buf, addr + offset_in_page(pos), n);
 		kunmap_atomic(addr);
+=======
+		memcpy_from_page(buf, page, offset_in_page(pos), n);
+>>>>>>> upstream/android-13
 
 		put_page(page);
 
@@ -80,7 +87,10 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
 				 PAGE_SIZE - offset_in_page(pos));
 		struct page *page;
 		void *fsdata;
+<<<<<<< HEAD
 		void *addr;
+=======
+>>>>>>> upstream/android-13
 		int res;
 
 		res = pagecache_write_begin(NULL, inode->i_mapping, pos, n, 0,
@@ -88,9 +98,13 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
 		if (res)
 			return res;
 
+<<<<<<< HEAD
 		addr = kmap_atomic(page);
 		memcpy(addr + offset_in_page(pos), buf, n);
 		kunmap_atomic(addr);
+=======
+		memcpy_to_page(page, offset_in_page(pos), buf, n);
+>>>>>>> upstream/android-13
 
 		res = pagecache_write_end(NULL, inode->i_mapping, pos, n, n,
 					  page, fsdata);
@@ -113,6 +127,12 @@ static int ext4_begin_enable_verity(struct file *filp)
 	handle_t *handle;
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (IS_DAX(inode) || ext4_test_inode_flag(inode, EXT4_INODE_DAX))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (ext4_verity_in_progress(inode))
 		return -EBUSY;
 
@@ -198,6 +218,7 @@ static int ext4_end_enable_verity(struct file *filp, const void *desc,
 	struct inode *inode = file_inode(filp);
 	const int credits = 2; /* superblock and inode for ext4_orphan_del() */
 	handle_t *handle;
+<<<<<<< HEAD
 	int err = 0;
 	int err2;
 
@@ -247,6 +268,78 @@ static int ext4_end_enable_verity(struct file *filp, const void *desc,
 out_stop:
 	ext4_journal_stop(handle);
 	return err ?: err2;
+=======
+	struct ext4_iloc iloc;
+	int err = 0;
+
+	/*
+	 * If an error already occurred (which fs/verity/ signals by passing
+	 * desc == NULL), then only clean-up is needed.
+	 */
+	if (desc == NULL)
+		goto cleanup;
+
+	/* Append the verity descriptor. */
+	err = ext4_write_verity_descriptor(inode, desc, desc_size,
+					   merkle_tree_size);
+	if (err)
+		goto cleanup;
+
+	/*
+	 * Write all pages (both data and verity metadata).  Note that this must
+	 * happen before clearing EXT4_STATE_VERITY_IN_PROGRESS; otherwise pages
+	 * beyond i_size won't be written properly.  For crash consistency, this
+	 * also must happen before the verity inode flag gets persisted.
+	 */
+	err = filemap_write_and_wait(inode->i_mapping);
+	if (err)
+		goto cleanup;
+
+	/*
+	 * Finally, set the verity inode flag and remove the inode from the
+	 * orphan list (in a single transaction).
+	 */
+
+	handle = ext4_journal_start(inode, EXT4_HT_INODE, credits);
+	if (IS_ERR(handle)) {
+		err = PTR_ERR(handle);
+		goto cleanup;
+	}
+
+	err = ext4_orphan_del(handle, inode);
+	if (err)
+		goto stop_and_cleanup;
+
+	err = ext4_reserve_inode_write(handle, inode, &iloc);
+	if (err)
+		goto stop_and_cleanup;
+
+	ext4_set_inode_flag(inode, EXT4_INODE_VERITY);
+	ext4_set_inode_flags(inode, false);
+	err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+	if (err)
+		goto stop_and_cleanup;
+
+	ext4_journal_stop(handle);
+
+	ext4_clear_inode_state(inode, EXT4_STATE_VERITY_IN_PROGRESS);
+	return 0;
+
+stop_and_cleanup:
+	ext4_journal_stop(handle);
+cleanup:
+	/*
+	 * Verity failed to be enabled, so clean up by truncating any verity
+	 * metadata that was written beyond i_size (both from cache and from
+	 * disk), removing the inode from the orphan list (if it wasn't done
+	 * already), and clearing EXT4_STATE_VERITY_IN_PROGRESS.
+	 */
+	truncate_inode_pages(inode->i_mapping, inode->i_size);
+	ext4_truncate(inode);
+	ext4_orphan_del(NULL, inode);
+	ext4_clear_inode_state(inode, EXT4_STATE_VERITY_IN_PROGRESS);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int ext4_get_verity_descriptor_location(struct inode *inode,
@@ -342,6 +435,7 @@ static int ext4_get_verity_descriptor(struct inode *inode, void *buf,
 	return desc_size;
 }
 
+<<<<<<< HEAD
 /*
  * Prefetch some pages from the file's Merkle tree.
  *
@@ -375,10 +469,16 @@ static void ext4_merkle_tree_readahead(struct address_space *mapping,
 	blk_finish_plug(&plug);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct page *ext4_read_merkle_tree_page(struct inode *inode,
 					       pgoff_t index,
 					       unsigned long num_ra_pages)
 {
+<<<<<<< HEAD
+=======
+	DEFINE_READAHEAD(ractl, NULL, NULL, inode->i_mapping, index);
+>>>>>>> upstream/android-13
 	struct page *page;
 
 	index += ext4_verity_metadata_pos(inode) >> PAGE_SHIFT;
@@ -388,8 +488,12 @@ static struct page *ext4_read_merkle_tree_page(struct inode *inode,
 		if (page)
 			put_page(page);
 		else if (num_ra_pages > 1)
+<<<<<<< HEAD
 			ext4_merkle_tree_readahead(inode->i_mapping, index,
 						   num_ra_pages);
+=======
+			page_cache_ra_unbounded(&ractl, num_ra_pages, 0);
+>>>>>>> upstream/android-13
 		page = read_mapping_page(inode->i_mapping, index, NULL);
 	}
 	return page;

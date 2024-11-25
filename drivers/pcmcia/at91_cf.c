@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * at91_cf.c -- AT91 CompactFlash controller driver
  *
  * Copyright (C) 2005 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -17,7 +24,10 @@
 #include <linux/interrupt.h>
 #include <linux/slab.h>
 #include <linux/gpio.h>
+<<<<<<< HEAD
 #include <linux/platform_data/atmel.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <linux/mfd/syscon.h>
@@ -39,6 +49,20 @@
 #define	CF_IO_PHYS	(1 << 23)
 #define	CF_MEM_PHYS	(0x017ff800)
 
+<<<<<<< HEAD
+=======
+struct at91_cf_data {
+	int	irq_pin;		/* I/O IRQ */
+	int	det_pin;		/* Card detect */
+	int	vcc_pin;		/* power switching */
+	int	rst_pin;		/* card reset */
+	u8	chipselect;		/* EBI Chip Select number */
+	u8	flags;
+#define AT91_CF_TRUE_IDE	0x01
+#define AT91_IDE_SWAP_A0_A2	0x02
+};
+
+>>>>>>> upstream/android-13
 struct regmap *mc;
 
 /*--------------------------------------------------------------------------*/
@@ -213,16 +237,28 @@ static struct pccard_operations at91_cf_ops = {
 
 /*--------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF)
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id at91_cf_dt_ids[] = {
 	{ .compatible = "atmel,at91rm9200-cf" },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, at91_cf_dt_ids);
 
+<<<<<<< HEAD
 static int at91_cf_dt_init(struct platform_device *pdev)
 {
 	struct at91_cf_data *board;
+=======
+static int at91_cf_probe(struct platform_device *pdev)
+{
+	struct at91_cf_socket	*cf;
+	struct at91_cf_data	*board;
+	struct resource		*io;
+	int			status;
+>>>>>>> upstream/android-13
 
 	board = devm_kzalloc(&pdev->dev, sizeof(*board), GFP_KERNEL);
 	if (!board)
@@ -233,6 +269,7 @@ static int at91_cf_dt_init(struct platform_device *pdev)
 	board->vcc_pin = of_get_gpio(pdev->dev.of_node, 2);
 	board->rst_pin = of_get_gpio(pdev->dev.of_node, 3);
 
+<<<<<<< HEAD
 	pdev->dev.platform_data = board;
 
 	mc = syscon_regmap_lookup_by_compatible("atmel,at91rm9200-sdramc");
@@ -260,6 +297,11 @@ static int at91_cf_probe(struct platform_device *pdev)
 
 		board = pdev->dev.platform_data;
 	}
+=======
+	mc = syscon_regmap_lookup_by_compatible("atmel,at91rm9200-sdramc");
+	if (IS_ERR(mc))
+		return PTR_ERR(mc);
+>>>>>>> upstream/android-13
 
 	if (!gpio_is_valid(board->det_pin) || !gpio_is_valid(board->rst_pin))
 		return -ENODEV;
@@ -403,7 +445,11 @@ static int at91_cf_resume(struct platform_device *pdev)
 static struct platform_driver at91_cf_driver = {
 	.driver = {
 		.name		= "at91_cf",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(at91_cf_dt_ids),
+=======
+		.of_match_table = at91_cf_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe		= at91_cf_probe,
 	.remove		= at91_cf_remove,

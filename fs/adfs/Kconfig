@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config ADFS_FS
 	tristate "ADFS file system support"
 	depends on BLOCK
@@ -11,7 +15,11 @@ config ADFS_FS
 
 	  The ADFS partition should be the first partition (i.e.,
 	  /dev/[hs]d?1) on each of your drives. Please read the file
+<<<<<<< HEAD
 	  <file:Documentation/filesystems/adfs.txt> for further details.
+=======
+	  <file:Documentation/filesystems/adfs.rst> for further details.
+>>>>>>> upstream/android-13
 
 	  To compile this code as a module, choose M here: the module will be
 	  called adfs.

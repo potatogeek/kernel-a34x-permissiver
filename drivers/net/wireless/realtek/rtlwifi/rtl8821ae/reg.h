@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2010  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2010  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL8821AE_REG_H__
 #define __RTL8821AE_REG_H__
@@ -696,7 +701,11 @@
 #define	EEPROM_CHANNEL_PLAN_TELEC		0x8
 #define	EEPROM_CHANNEL_PLAN_GLOBAL_DOMAIN	0x9
 #define	EEPROM_CHANNEL_PLAN_WORLD_WIDE_13	0xA
+<<<<<<< HEAD
 #define	EEPROM_CHANNEL_PLAN_NCC			0xB
+=======
+#define	EEPROM_CHANNEL_PLAN_NCC			0XB
+>>>>>>> upstream/android-13
 #define	EEPROM_CHANNEL_PLAN_BY_HW_MASK		0x80
 
 #define EEPROM_CID_DEFAULT			0x0
@@ -718,10 +727,17 @@
 
 #define	EEPROM_TX_PWR_INX			0x10
 
+<<<<<<< HEAD
 #define	EEPROM_CHANNELPLAN			0xB8
 #define	EEPROM_XTAL_8821AE			0xB9
 #define	EEPROM_THERMAL_METER			0xBA
 #define	EEPROM_IQK_LCK_88E			0xBB
+=======
+#define	EEPROM_CHANNELPLAN			0XB8
+#define	EEPROM_XTAL_8821AE			0XB9
+#define	EEPROM_THERMAL_METER			0XBA
+#define	EEPROM_IQK_LCK_88E			0XBB
+>>>>>>> upstream/android-13
 
 #define	EEPROM_RF_BOARD_OPTION			0xC1
 #define	EEPROM_RF_FEATURE_OPTION_88E		0xC2
@@ -1015,7 +1031,11 @@
 #define _LBMODE(x)				(((x) & 0xF) << 24)
 #define MASK_LBMODE				0xF000000
 #define LOOPBACK_NORMAL				0x0
+<<<<<<< HEAD
 #define LOOPBACK_IMMEDIATELY			0xB
+=======
+#define LOOPBACK_IMMEDIATELY			0XB
+>>>>>>> upstream/android-13
 #define LOOPBACK_MAC_DELAY			0x3
 #define LOOPBACK_PHY				0x1
 #define LOOPBACK_DMA				0x7
@@ -1430,7 +1450,11 @@
 #define	RCCK0_FACOUNTERUPPER		0xa58
 #define	RCCK0_CCA_CNT			0xa60
 
+<<<<<<< HEAD
 /* PageB(0xB00) */
+=======
+/* PageB(0XB00) */
+>>>>>>> upstream/android-13
 #define	RPDP_ANTA			0xb00
 #define	RPDP_ANTA_4			0xb04
 #define	RPDP_ANTA_8			0xb08
@@ -1477,6 +1501,7 @@
 #define	RPM_RX3_ANTB			0xbf8
 
 /*RSSI Dump*/
+<<<<<<< HEAD
 #define		RA_RSSI_DUMP		0xBF0
 #define		RB_RSSI_DUMP		0xBF1
 #define		RS1_RX_EVM_DUMP		0xBF4
@@ -1487,6 +1512,18 @@
 #define		RB_CFO_SHORT_DUMP	0xBFA
 #define		RA_CFO_LONG_DUMP	0xBEC
 #define		RB_CFO_LONG_DUMP	0xBEE
+=======
+#define		RA_RSSI_DUMP		0XBF0
+#define		RB_RSSI_DUMP		0XBF1
+#define		RS1_RX_EVM_DUMP		0XBF4
+#define		RS2_RX_EVM_DUMP		0XBF5
+#define		RA_RX_SNR_DUMP		0XBF6
+#define		RB_RX_SNR_DUMP		0XBF7
+#define		RA_CFO_SHORT_DUMP	0XBF8
+#define		RB_CFO_SHORT_DUMP	0XBFA
+#define		RA_CFO_LONG_DUMP	0XBEC
+#define		RB_CFO_LONG_DUMP	0XBEE
+>>>>>>> upstream/android-13
 
 /*Page C*/
 #define	ROFDM0_LSTF			0xc00

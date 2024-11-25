@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -24,6 +25,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "table.h"
 
@@ -475,10 +480,13 @@ u32 RTL8723E_RADIOA_1TARRAY[RTL8723ERADIOA_1TARRAYLENGTH] = {
 	0x000, 0x00030159,
 };
 
+<<<<<<< HEAD
 u32 RTL8723E_RADIOB_1TARRAY[RTL8723E_RADIOB_1TARRAYLENGTH] = {
 	0x0,
 };
 
+=======
+>>>>>>> upstream/android-13
 u32 RTL8723EMAC_ARRAY[RTL8723E_MACARRAYLENGTH] = {
 	0x420, 0x00000080,
 	0x423, 0x00000000,

@@ -5,13 +5,22 @@
 #include <linux/atomic.h>
 #include <linux/kernel.h>
 #include <asm/page.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_vendor.h>
+>>>>>>> upstream/android-13
 
 struct page_counter {
 	atomic_long_t usage;
 	unsigned long min;
 	unsigned long low;
+<<<<<<< HEAD
 	unsigned long max;
 	struct page_counter *parent;
+=======
+	unsigned long high;
+	unsigned long max;
+>>>>>>> upstream/android-13
 
 	/* effective memory.min and memory.min usage tracking */
 	unsigned long emin;
@@ -26,6 +35,18 @@ struct page_counter {
 	/* legacy */
 	unsigned long watermark;
 	unsigned long failcnt;
+<<<<<<< HEAD
+=======
+	ANDROID_VENDOR_DATA(1);
+
+	/*
+	 * 'parent' is placed here to be far from 'usage' to reduce
+	 * cache false sharing, as 'usage' is written mostly while
+	 * parent is frequently read for cgroup's hierarchical
+	 * counting nature.
+	 */
+	struct page_counter *parent;
+>>>>>>> upstream/android-13
 };
 
 #if BITS_PER_LONG == 32
@@ -55,6 +76,16 @@ bool page_counter_try_charge(struct page_counter *counter,
 void page_counter_uncharge(struct page_counter *counter, unsigned long nr_pages);
 void page_counter_set_min(struct page_counter *counter, unsigned long nr_pages);
 void page_counter_set_low(struct page_counter *counter, unsigned long nr_pages);
+<<<<<<< HEAD
+=======
+
+static inline void page_counter_set_high(struct page_counter *counter,
+					 unsigned long nr_pages)
+{
+	WRITE_ONCE(counter->high, nr_pages);
+}
+
+>>>>>>> upstream/android-13
 int page_counter_set_max(struct page_counter *counter, unsigned long nr_pages);
 int page_counter_memparse(const char *buf, const char *max,
 			  unsigned long *nr_pages);

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -25,13 +29,19 @@
 #include <linux/smp.h>
 #include <linux/smpboot.h>
 #include <linux/version.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "tzdev_internal.h"
 #include "core/iwservice.h"
 #include "core/kthread_pool.h"
 #include "core/log.h"
+<<<<<<< HEAD
 #include "core/mem.h"
+=======
+>>>>>>> upstream/android-13
 #include "core/notifier.h"
 #include "core/subsystem.h"
 #include "core/sysdep.h"
@@ -44,14 +54,18 @@ enum {
 	KTHREAD_SHOULD_PARK,
 };
 
+<<<<<<< HEAD
 #define HEARTBEAT_RETRY_MAX 0x10
 
+=======
+>>>>>>> upstream/android-13
 static atomic_t tz_kthread_pool_init_done = ATOMIC_INIT(0);
 
 static DEFINE_PER_CPU(struct task_struct *, worker);
 static DECLARE_WAIT_QUEUE_HEAD(tz_cmd_waitqueue);
 static atomic_t tz_nr_cmds = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 static struct task_struct *heartbeat_th;
 static int heartbeat_retry_cnt = 0;
 static cpumask_t tz_kthread_pool_cpu_mask;
@@ -73,11 +87,27 @@ static int tz_kthread_pool_heartbeat(void *data)
 	return 0;
 }
 
+=======
+static cpumask_t tz_kthread_pool_cpu_mask;
+
+>>>>>>> upstream/android-13
 static int tz_kthread_pool_cmd_get(void)
 {
 	return atomic_dec_if_positive(&tz_nr_cmds) >= 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int kthread_direct_hit(unsigned long cpu, cpumask_t cpu_mask)
+{
+#ifdef CONFIG_TZDEV_OFFLOAD_CPU0
+	return cpu_isset(cpu, cpu_mask) || cpu_isset(0, cpu_mask);
+#else
+	return cpu_isset(cpu, cpu_mask);
+#endif
+}
+
+>>>>>>> upstream/android-13
 static int tz_kthread_pool_should_wake(unsigned long cpu)
 {
 	unsigned long sk_cpu_mask;
@@ -109,7 +139,15 @@ static int tz_kthread_pool_should_wake(unsigned long cpu)
 		return KTHREAD_SHOULD_PARK;
 	}
 
+<<<<<<< HEAD
 	if (cpu_isset(cpu, cpu_mask)) {
+=======
+#ifdef CONFIG_TZDEV_OFFLOAD_CPU0
+	if (cpu == 0)
+		return KTHREAD_SHOULD_SLEEP;
+#endif
+	if (kthread_direct_hit(cpu, cpu_mask)) {
+>>>>>>> upstream/android-13
 		log_debug(tzdev_kthread, "Direct cpu hit = %lu\n", cpu);
 		tz_kthread_pool_cmd_get();
 		return KTHREAD_SHOULD_RUN;
@@ -238,6 +276,7 @@ int tz_kthread_pool_init(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	heartbeat_th = kthread_run(tz_kthread_pool_heartbeat, NULL, "tz_kthread_heartbeat");
 
 	if (IS_ERR(heartbeat_th)) {
@@ -246,6 +285,8 @@ int tz_kthread_pool_init(void)
 		return rc;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	rc = smpboot_register_percpu_thread(&tz_kthread_pool_smp_hotplug);
 	if (rc) {
 		log_error(tzdev_kthread, "Failed to create tzdev kthreads pool, error=%d\n", rc);
@@ -270,12 +311,20 @@ static void tz_kthread_pool_park_all(void)
 	unsigned int cpu;
 	struct task_struct *tz_worker;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	sysdep_get_online_cpus();
+>>>>>>> upstream/android-13
 	for_each_online_cpu(cpu) {
 		tz_worker = *per_cpu_ptr(tz_kthread_pool_smp_hotplug.store, cpu);
 		kthread_park(tz_worker);
 	}
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	sysdep_put_online_cpus();
+>>>>>>> upstream/android-13
 }
 
 tzdev_early_initcall(tz_kthread_pool_init);
@@ -302,6 +351,22 @@ void tz_kthread_pool_cmd_send(void)
 	tz_kthread_pool_wake_up_all();
 }
 
+<<<<<<< HEAD
+=======
+static inline int kthread_need_enter_swd(unsigned long cpu,
+		unsigned long sk_user_cpu_mask, cpumask_t requested_user_cpu_mask,
+		cpumask_t requested_cpu_mask)
+{
+#ifdef CONFIG_TZDEV_OFFLOAD_CPU0
+	return cpu != 0 && (!sk_user_cpu_mask || cpu_isset(cpu, requested_user_cpu_mask) ||
+			cpu_isset(cpu, requested_cpu_mask));
+#else
+	return !sk_user_cpu_mask || cpu_isset(cpu, requested_user_cpu_mask) ||
+			cpu_isset(cpu, requested_cpu_mask);
+#endif
+}
+
+>>>>>>> upstream/android-13
 void tz_kthread_pool_enter_swd(void)
 {
 #ifdef CONFIG_TZDEV_SK_MULTICORE
@@ -319,8 +384,14 @@ void tz_kthread_pool_enter_swd(void)
 	cpumask_copy(&requested_user_cpu_mask, to_cpumask(&sk_user_cpu_mask));
 
 	cpu = get_cpu();
+<<<<<<< HEAD
 	if (!sk_user_cpu_mask || cpu_isset(cpu, requested_user_cpu_mask) ||
 			cpu_isset(cpu, requested_cpu_mask)) {
+=======
+
+	if (kthread_need_enter_swd(cpu, sk_user_cpu_mask,
+			requested_user_cpu_mask, requested_cpu_mask)) {
+>>>>>>> upstream/android-13
 		tz_kthread_pool_wake_up_all_but(cpu);
 
 		log_debug(tzdev_kthread, "Enter SWd directly on cpu = %lu\n", cpu);

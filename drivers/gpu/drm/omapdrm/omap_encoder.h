@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * omap_encoder.h -- OMAP DRM Encoder
  *
  * Copyright (C) 2011 Texas Instruments
  * Author: Rob Clark <rob@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OMAPDRM_ENCODER_H__
@@ -25,9 +32,13 @@ struct drm_encoder;
 struct omap_dss_device;
 
 struct drm_encoder *omap_encoder_init(struct drm_device *dev,
+<<<<<<< HEAD
 		struct omap_dss_device *dssdev);
 
 /* map crtc to vblank mask */
 struct omap_dss_device *omap_encoder_get_dssdev(struct drm_encoder *encoder);
+=======
+				      struct omap_dss_device *output);
+>>>>>>> upstream/android-13
 
 #endif /* __OMAPDRM_ENCODER_H__ */

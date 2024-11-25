@@ -27,7 +27,11 @@
 #include <nvif/class.h>
 
 const u8 *
+<<<<<<< HEAD
 nv50_mmu_kind(struct nvkm_mmu *base, int *count)
+=======
+nv50_mmu_kind(struct nvkm_mmu *base, int *count, u8 *invalid)
+>>>>>>> upstream/android-13
 {
 	/* 0x01: no bank swizzle
 	 * 0x02: bank swizzled
@@ -57,6 +61,10 @@ nv50_mmu_kind(struct nvkm_mmu *base, int *count)
 		0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x7f, 0x7f
 	};
 	*count = ARRAY_SIZE(kind);
+<<<<<<< HEAD
+=======
+	*invalid = 0x7f;
+>>>>>>> upstream/android-13
 	return kind;
 }
 
@@ -70,7 +78,14 @@ nv50_mmu = {
 };
 
 int
+<<<<<<< HEAD
 nv50_mmu_new(struct nvkm_device *device, int index, struct nvkm_mmu **pmmu)
 {
 	return nvkm_mmu_new_(&nv50_mmu, device, index, pmmu);
+=======
+nv50_mmu_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	     struct nvkm_mmu **pmmu)
+{
+	return nvkm_mmu_new_(&nv50_mmu, device, type, inst, pmmu);
+>>>>>>> upstream/android-13
 }

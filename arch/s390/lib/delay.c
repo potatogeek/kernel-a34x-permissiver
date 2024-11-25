@@ -7,6 +7,7 @@
  *		 Heiko Carstens <heiko.carstens@de.ibm.com>,
  */
 
+<<<<<<< HEAD
 #include <linux/sched.h>
 #include <linux/delay.h>
 #include <linux/timex.h>
@@ -17,6 +18,12 @@
 #include <asm/vtimer.h>
 #include <asm/div64.h>
 #include <asm/idle.h>
+=======
+#include <linux/processor.h>
+#include <linux/delay.h>
+#include <asm/div64.h>
+#include <asm/timex.h>
+>>>>>>> upstream/android-13
 
 void __delay(unsigned long loops)
 {
@@ -31,6 +38,7 @@ void __delay(unsigned long loops)
 }
 EXPORT_SYMBOL(__delay);
 
+<<<<<<< HEAD
 static void __udelay_disabled(unsigned long long usecs)
 {
 	unsigned long cr0, cr0_new, psw_mask;
@@ -125,5 +133,27 @@ void __ndelay(unsigned long long nsecs)
 		__udelay(nsecs >> 12);
 	while (get_tod_clock_fast() < end)
 		barrier();
+=======
+static void delay_loop(unsigned long delta)
+{
+	unsigned long end;
+
+	end = get_tod_clock_monotonic() + delta;
+	while (!tod_after(get_tod_clock_monotonic(), end))
+		cpu_relax();
+}
+
+void __udelay(unsigned long usecs)
+{
+	delay_loop(usecs << 12);
+}
+EXPORT_SYMBOL(__udelay);
+
+void __ndelay(unsigned long nsecs)
+{
+	nsecs <<= 9;
+	do_div(nsecs, 125);
+	delay_loop(nsecs);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__ndelay);

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Setup code for SAMv7x
  *
  *  Copyright (C) 2013 Atmel,
  *                2016 Andras Szemzo <szemzo.andras@gmail.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/of.h>
 #include <linux/of_platform.h>

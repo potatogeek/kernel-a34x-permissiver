@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2003 - 2009 NetXen, Inc.
  * Copyright (C) 2009 - QLogic Corporation.
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * The full GNU General Public License is included in this distribution
  * in the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -65,7 +72,11 @@ static int netxen_nic_open(struct net_device *netdev);
 static int netxen_nic_close(struct net_device *netdev);
 static netdev_tx_t netxen_nic_xmit_frame(struct sk_buff *,
 					       struct net_device *);
+<<<<<<< HEAD
 static void netxen_tx_timeout(struct net_device *netdev);
+=======
+static void netxen_tx_timeout(struct net_device *netdev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void netxen_tx_timeout_task(struct work_struct *work);
 static void netxen_fw_poll_work(struct work_struct *work);
 static void netxen_schedule_work(struct netxen_adapter *adapter,
@@ -259,8 +270,13 @@ static int nx_set_dma_mask(struct netxen_adapter *adapter)
 		cmask = mask;
 	}
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, mask) == 0 &&
 		pci_set_consistent_dma_mask(pdev, cmask) == 0) {
+=======
+	if (dma_set_mask(&pdev->dev, mask) == 0 &&
+	    dma_set_coherent_mask(&pdev->dev, cmask) == 0) {
+>>>>>>> upstream/android-13
 		adapter->pci_using_dac = 1;
 		return 0;
 	}
@@ -293,13 +309,21 @@ nx_update_dma_mask(struct netxen_adapter *adapter)
 
 		mask = DMA_BIT_MASK(32+shift);
 
+<<<<<<< HEAD
 		err = pci_set_dma_mask(pdev, mask);
+=======
+		err = dma_set_mask(&pdev->dev, mask);
+>>>>>>> upstream/android-13
 		if (err)
 			goto err_out;
 
 		if (NX_IS_REVISION_P3(adapter->ahw.revision_id)) {
 
+<<<<<<< HEAD
 			err = pci_set_consistent_dma_mask(pdev, mask);
+=======
+			err = dma_set_coherent_mask(&pdev->dev, mask);
+>>>>>>> upstream/android-13
 			if (err)
 				goto err_out;
 		}
@@ -309,8 +333,13 @@ nx_update_dma_mask(struct netxen_adapter *adapter)
 	return 0;
 
 err_out:
+<<<<<<< HEAD
 	pci_set_dma_mask(pdev, old_mask);
 	pci_set_consistent_dma_mask(pdev, old_cmask);
+=======
+	dma_set_mask(&pdev->dev, old_mask);
+	dma_set_coherent_mask(&pdev->dev, old_cmask);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1618,6 +1647,11 @@ err_out_free_netdev:
 	free_netdev(netdev);
 
 err_out_free_res:
+<<<<<<< HEAD
+=======
+	if (NX_IS_REVISION_P3(pdev->revision))
+		pci_disable_pcie_error_reporting(pdev);
+>>>>>>> upstream/android-13
 	pci_release_regions(pdev);
 
 err_out_disable_pdev:
@@ -1706,12 +1740,17 @@ static void netxen_nic_detach_func(struct netxen_adapter *adapter)
 	clear_bit(__NX_RESETTING, &adapter->state);
 }
 
+<<<<<<< HEAD
 static int netxen_nic_attach_func(struct pci_dev *pdev)
+=======
+static int netxen_nic_attach_late_func(struct pci_dev *pdev)
+>>>>>>> upstream/android-13
 {
 	struct netxen_adapter *adapter = pci_get_drvdata(pdev);
 	struct net_device *netdev = adapter->netdev;
 	int err;
 
+<<<<<<< HEAD
 	err = pci_enable_device(pdev);
 	if (err)
 		return err;
@@ -1719,6 +1758,9 @@ static int netxen_nic_attach_func(struct pci_dev *pdev)
 	pci_set_power_state(pdev, PCI_D0);
 	pci_set_master(pdev);
 	pci_restore_state(pdev);
+=======
+	pci_set_master(pdev);
+>>>>>>> upstream/android-13
 
 	adapter->ahw.crb_win = -1;
 	adapter->ahw.ocm_win = -1;
@@ -1752,6 +1794,23 @@ err_out:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int netxen_nic_attach_func(struct pci_dev *pdev)
+{
+	int err;
+
+	err = pci_enable_device(pdev);
+	if (err)
+		return err;
+
+	pci_set_power_state(pdev, PCI_D0);
+	pci_restore_state(pdev);
+
+	return netxen_nic_attach_late_func(pdev);
+}
+
+>>>>>>> upstream/android-13
 static pci_ers_result_t netxen_io_error_detected(struct pci_dev *pdev,
 						pci_channel_state_t state)
 {
@@ -1779,11 +1838,14 @@ static pci_ers_result_t netxen_io_slot_reset(struct pci_dev *pdev)
 	return err ? PCI_ERS_RESULT_DISCONNECT : PCI_ERS_RESULT_RECOVERED;
 }
 
+<<<<<<< HEAD
 static void netxen_io_resume(struct pci_dev *pdev)
 {
 	pci_cleanup_aer_uncorrect_error_status(pdev);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void netxen_nic_shutdown(struct pci_dev *pdev)
 {
 	struct netxen_adapter *adapter = pci_get_drvdata(pdev);
@@ -1801,6 +1863,7 @@ static void netxen_nic_shutdown(struct pci_dev *pdev)
 	pci_disable_device(pdev);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int
 netxen_nic_suspend(struct pci_dev *pdev, pm_message_t state)
@@ -1821,16 +1884,35 @@ netxen_nic_suspend(struct pci_dev *pdev, pm_message_t state)
 
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+=======
+static int __maybe_unused
+netxen_nic_suspend(struct device *dev_d)
+{
+	struct netxen_adapter *adapter = dev_get_drvdata(dev_d);
+
+	netxen_nic_detach_func(adapter);
+
+	if (netxen_nic_wol_supported(adapter))
+		device_wakeup_enable(dev_d);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 netxen_nic_resume(struct pci_dev *pdev)
 {
 	return netxen_nic_attach_func(pdev);
 }
 #endif
+=======
+static int __maybe_unused
+netxen_nic_resume(struct device *dev_d)
+{
+	return netxen_nic_attach_late_func(to_pci_dev(dev_d));
+}
+>>>>>>> upstream/android-13
 
 static int netxen_nic_open(struct net_device *netdev)
 {
@@ -1996,16 +2078,26 @@ netxen_map_tx_skb(struct pci_dev *pdev,
 		struct sk_buff *skb, struct netxen_cmd_buffer *pbuf)
 {
 	struct netxen_skb_frag *nf;
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 	int i, nr_frags;
 	dma_addr_t map;
 
 	nr_frags = skb_shinfo(skb)->nr_frags;
 	nf = &pbuf->frag_array[0];
 
+<<<<<<< HEAD
 	map = pci_map_single(pdev, skb->data,
 			skb_headlen(skb), PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(pdev, map))
+=======
+	map = dma_map_single(&pdev->dev, skb->data, skb_headlen(skb),
+			     DMA_TO_DEVICE);
+	if (dma_mapping_error(&pdev->dev, map))
+>>>>>>> upstream/android-13
 		goto out_err;
 
 	nf->dma = map;
@@ -2029,12 +2121,20 @@ netxen_map_tx_skb(struct pci_dev *pdev,
 unwind:
 	while (--i >= 0) {
 		nf = &pbuf->frag_array[i+1];
+<<<<<<< HEAD
 		pci_unmap_page(pdev, nf->dma, nf->length, PCI_DMA_TODEVICE);
+=======
+		dma_unmap_page(&pdev->dev, nf->dma, nf->length, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		nf->dma = 0ULL;
 	}
 
 	nf = &pbuf->frag_array[0];
+<<<<<<< HEAD
 	pci_unmap_single(pdev, nf->dma, skb_headlen(skb), PCI_DMA_TODEVICE);
+=======
+	dma_unmap_single(&pdev->dev, nf->dma, skb_headlen(skb), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	nf->dma = 0ULL;
 
 out_err:
@@ -2059,7 +2159,11 @@ netxen_nic_xmit_frame(struct sk_buff *skb, struct net_device *netdev)
 	struct pci_dev *pdev;
 	int i, k;
 	int delta = 0;
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 
 	u32 producer;
 	int frag_count;
@@ -2238,7 +2342,11 @@ static void netxen_nic_handle_phy_intr(struct netxen_adapter *adapter)
 	netxen_advert_link_change(adapter, linkup);
 }
 
+<<<<<<< HEAD
 static void netxen_tx_timeout(struct net_device *netdev)
+=======
+static void netxen_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct netxen_adapter *adapter = netdev_priv(netdev);
 
@@ -3264,6 +3372,10 @@ netxen_config_indev_addr(struct netxen_adapter *adapter,
 		struct net_device *dev, unsigned long event)
 {
 	struct in_device *indev;
+<<<<<<< HEAD
+=======
+	struct in_ifaddr *ifa;
+>>>>>>> upstream/android-13
 
 	if (!netxen_destip_supported(adapter))
 		return;
@@ -3272,7 +3384,12 @@ netxen_config_indev_addr(struct netxen_adapter *adapter,
 	if (!indev)
 		return;
 
+<<<<<<< HEAD
 	for_ifa(indev) {
+=======
+	rcu_read_lock();
+	in_dev_for_each_ifa_rcu(ifa, indev) {
+>>>>>>> upstream/android-13
 		switch (event) {
 		case NETDEV_UP:
 			netxen_list_config_ip(adapter, ifa, NX_IP_UP);
@@ -3283,8 +3400,13 @@ netxen_config_indev_addr(struct netxen_adapter *adapter,
 		default:
 			break;
 		}
+<<<<<<< HEAD
 	} endfor_ifa(indev);
 
+=======
+	}
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	in_dev_put(indev);
 }
 
@@ -3460,18 +3582,31 @@ netxen_free_ip_list(struct netxen_adapter *adapter, bool master)
 static const struct pci_error_handlers netxen_err_handler = {
 	.error_detected = netxen_io_error_detected,
 	.slot_reset = netxen_io_slot_reset,
+<<<<<<< HEAD
 	.resume = netxen_io_resume,
 };
 
+=======
+};
+
+static SIMPLE_DEV_PM_OPS(netxen_nic_pm_ops,
+			 netxen_nic_suspend,
+			 netxen_nic_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver netxen_driver = {
 	.name = netxen_nic_driver_name,
 	.id_table = netxen_pci_tbl,
 	.probe = netxen_nic_probe,
 	.remove = netxen_nic_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = netxen_nic_suspend,
 	.resume = netxen_nic_resume,
 #endif
+=======
+	.driver.pm = &netxen_nic_pm_ops,
+>>>>>>> upstream/android-13
 	.shutdown = netxen_nic_shutdown,
 	.err_handler = &netxen_err_handler
 };

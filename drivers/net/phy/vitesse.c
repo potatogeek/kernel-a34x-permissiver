@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Driver for Vitesse PHYs
  *
  * Author: Kriston Carson
+<<<<<<< HEAD
  *
  * Copyright (c) 2005, 2009, 2011 Freescale Semiconductor, Inc.
  *
@@ -10,6 +15,8 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -47,6 +54,14 @@
 #define MII_VSC8244_ISTAT_SPEED		0x4000
 #define MII_VSC8244_ISTAT_LINK		0x2000
 #define MII_VSC8244_ISTAT_DUPLEX	0x1000
+<<<<<<< HEAD
+=======
+#define MII_VSC8244_ISTAT_MASK		(MII_VSC8244_ISTAT_SPEED | \
+					 MII_VSC8244_ISTAT_LINK | \
+					 MII_VSC8244_ISTAT_DUPLEX)
+
+#define MII_VSC8221_ISTAT_MASK		MII_VSC8244_ISTAT_LINK
+>>>>>>> upstream/android-13
 
 /* Vitesse Auxiliary Control/Status Register */
 #define MII_VSC8244_AUX_CONSTAT		0x1c
@@ -68,9 +83,13 @@
 
 #define PHY_ID_VSC8234			0x000fc620
 #define PHY_ID_VSC8244			0x000fc6c0
+<<<<<<< HEAD
 #define PHY_ID_VSC8514			0x00070670
 #define PHY_ID_VSC8572			0x000704d0
 #define PHY_ID_VSC8574			0x000704a0
+=======
+#define PHY_ID_VSC8572			0x000704d0
+>>>>>>> upstream/android-13
 #define PHY_ID_VSC8601			0x00070420
 #define PHY_ID_VSC7385			0x00070450
 #define PHY_ID_VSC7388			0x00070480
@@ -206,7 +225,11 @@ static int vsc738x_config_init(struct phy_device *phydev)
 
 	vsc73xx_config_init(phydev);
 
+<<<<<<< HEAD
 	return genphy_config_init(phydev);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int vsc739x_config_init(struct phy_device *phydev)
@@ -238,7 +261,11 @@ static int vsc739x_config_init(struct phy_device *phydev)
 
 	vsc73xx_config_init(phydev);
 
+<<<<<<< HEAD
 	return genphy_config_init(phydev);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int vsc73xx_config_aneg(struct phy_device *phydev)
@@ -253,7 +280,12 @@ static int vsc73xx_config_aneg(struct phy_device *phydev)
 
 /* This adds a skew for both TX and RX clocks, so the skew should only be
  * applied to "rgmii-id" interfaces. It may not work as expected
+<<<<<<< HEAD
  * on "rgmii-txid", "rgmii-rxid" or "rgmii" interfaces. */
+=======
+ * on "rgmii-txid", "rgmii-rxid" or "rgmii" interfaces.
+ */
+>>>>>>> upstream/android-13
 static int vsc8601_add_skew(struct phy_device *phydev)
 {
 	int ret;
@@ -276,6 +308,7 @@ static int vsc8601_config_init(struct phy_device *phydev)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	return genphy_config_init(phydev);
 }
 
@@ -291,6 +324,9 @@ static int vsc824x_ack_interrupt(struct phy_device *phydev)
 		err = phy_read(phydev, MII_VSC8244_ISTAT);
 
 	return (err < 0) ? err : 0;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int vsc82xx_config_intr(struct phy_device *phydev)
@@ -298,12 +334,22 @@ static int vsc82xx_config_intr(struct phy_device *phydev)
 	int err;
 
 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
+<<<<<<< HEAD
 		err = phy_write(phydev, MII_VSC8244_IMASK,
 			(phydev->drv->phy_id == PHY_ID_VSC8234 ||
 			 phydev->drv->phy_id == PHY_ID_VSC8244 ||
 			 phydev->drv->phy_id == PHY_ID_VSC8514 ||
 			 phydev->drv->phy_id == PHY_ID_VSC8572 ||
 			 phydev->drv->phy_id == PHY_ID_VSC8574 ||
+=======
+		/* Don't bother to ACK the interrupts since the 824x cannot
+		 * clear the interrupts if they are disabled.
+		 */
+		err = phy_write(phydev, MII_VSC8244_IMASK,
+			(phydev->drv->phy_id == PHY_ID_VSC8234 ||
+			 phydev->drv->phy_id == PHY_ID_VSC8244 ||
+			 phydev->drv->phy_id == PHY_ID_VSC8572 ||
+>>>>>>> upstream/android-13
 			 phydev->drv->phy_id == PHY_ID_VSC8601) ?
 				MII_VSC8244_IMASK_MASK :
 				MII_VSC8221_IMASK_MASK);
@@ -322,6 +368,34 @@ static int vsc82xx_config_intr(struct phy_device *phydev)
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static irqreturn_t vsc82xx_handle_interrupt(struct phy_device *phydev)
+{
+	int irq_status, irq_mask;
+
+	if (phydev->drv->phy_id == PHY_ID_VSC8244 ||
+	    phydev->drv->phy_id == PHY_ID_VSC8572 ||
+	    phydev->drv->phy_id == PHY_ID_VSC8601)
+		irq_mask = MII_VSC8244_ISTAT_MASK;
+	else
+		irq_mask = MII_VSC8221_ISTAT_MASK;
+
+	irq_status = phy_read(phydev, MII_VSC8244_ISTAT);
+	if (irq_status < 0) {
+		phy_error(phydev);
+		return IRQ_NONE;
+	}
+
+	if (!(irq_status & irq_mask))
+		return IRQ_NONE;
+
+	phy_trigger_machine(phydev);
+
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 static int vsc8221_config_init(struct phy_device *phydev)
 {
 	int err;
@@ -398,16 +472,25 @@ static struct phy_driver vsc82xx_driver[] = {
 	.phy_id         = PHY_ID_VSC8234,
 	.name           = "Vitesse VSC8234",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
 	.flags          = PHY_HAS_INTERRUPT,
 	.config_init    = &vsc824x_config_init,
 	.config_aneg    = &vsc82x4_config_aneg,
 	.ack_interrupt  = &vsc824x_ack_interrupt,
 	.config_intr    = &vsc82xx_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init    = &vsc824x_config_init,
+	.config_aneg    = &vsc82x4_config_aneg,
+	.config_intr    = &vsc82xx_config_intr,
+	.handle_interrupt = &vsc82xx_handle_interrupt,
+>>>>>>> upstream/android-13
 }, {
 	.phy_id		= PHY_ID_VSC8244,
 	.name		= "Vitesse VSC8244",
 	.phy_id_mask	= 0x000fffc0,
+<<<<<<< HEAD
 	.features	= PHY_GBIT_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
 	.config_init	= &vsc824x_config_init,
@@ -424,10 +507,18 @@ static struct phy_driver vsc82xx_driver[] = {
 	.config_aneg	= &vsc82x4_config_aneg,
 	.ack_interrupt	= &vsc824x_ack_interrupt,
 	.config_intr	= &vsc82xx_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init	= &vsc824x_config_init,
+	.config_aneg	= &vsc82x4_config_aneg,
+	.config_intr	= &vsc82xx_config_intr,
+	.handle_interrupt = &vsc82xx_handle_interrupt,
+>>>>>>> upstream/android-13
 }, {
 	.phy_id         = PHY_ID_VSC8572,
 	.name           = "Vitesse VSC8572",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
 	.flags          = PHY_HAS_INTERRUPT,
 	.config_init    = &vsc824x_config_init,
@@ -444,20 +535,38 @@ static struct phy_driver vsc82xx_driver[] = {
 	.config_aneg    = &vsc82x4_config_aneg,
 	.ack_interrupt  = &vsc824x_ack_interrupt,
 	.config_intr    = &vsc82xx_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init    = &vsc824x_config_init,
+	.config_aneg    = &vsc82x4_config_aneg,
+	.config_intr    = &vsc82xx_config_intr,
+	.handle_interrupt = &vsc82xx_handle_interrupt,
+>>>>>>> upstream/android-13
 }, {
 	.phy_id         = PHY_ID_VSC8601,
 	.name           = "Vitesse VSC8601",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
 	.flags          = PHY_HAS_INTERRUPT,
 	.config_init    = &vsc8601_config_init,
 	.ack_interrupt  = &vsc824x_ack_interrupt,
 	.config_intr    = &vsc82xx_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init    = &vsc8601_config_init,
+	.config_intr    = &vsc82xx_config_intr,
+	.handle_interrupt = &vsc82xx_handle_interrupt,
+>>>>>>> upstream/android-13
 }, {
 	.phy_id         = PHY_ID_VSC7385,
 	.name           = "Vitesse VSC7385",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
+=======
+	/* PHY_GBIT_FEATURES */
+>>>>>>> upstream/android-13
 	.config_init    = vsc738x_config_init,
 	.config_aneg    = vsc73xx_config_aneg,
 	.read_page      = vsc73xx_read_page,
@@ -466,7 +575,11 @@ static struct phy_driver vsc82xx_driver[] = {
 	.phy_id         = PHY_ID_VSC7388,
 	.name           = "Vitesse VSC7388",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
+=======
+	/* PHY_GBIT_FEATURES */
+>>>>>>> upstream/android-13
 	.config_init    = vsc738x_config_init,
 	.config_aneg    = vsc73xx_config_aneg,
 	.read_page      = vsc73xx_read_page,
@@ -475,7 +588,11 @@ static struct phy_driver vsc82xx_driver[] = {
 	.phy_id         = PHY_ID_VSC7395,
 	.name           = "Vitesse VSC7395",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
+=======
+	/* PHY_GBIT_FEATURES */
+>>>>>>> upstream/android-13
 	.config_init    = vsc739x_config_init,
 	.config_aneg    = vsc73xx_config_aneg,
 	.read_page      = vsc73xx_read_page,
@@ -484,7 +601,11 @@ static struct phy_driver vsc82xx_driver[] = {
 	.phy_id         = PHY_ID_VSC7398,
 	.name           = "Vitesse VSC7398",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
+=======
+	/* PHY_GBIT_FEATURES */
+>>>>>>> upstream/android-13
 	.config_init    = vsc739x_config_init,
 	.config_aneg    = vsc73xx_config_aneg,
 	.read_page      = vsc73xx_read_page,
@@ -493,32 +614,54 @@ static struct phy_driver vsc82xx_driver[] = {
 	.phy_id         = PHY_ID_VSC8662,
 	.name           = "Vitesse VSC8662",
 	.phy_id_mask    = 0x000ffff0,
+<<<<<<< HEAD
 	.features       = PHY_GBIT_FEATURES,
 	.flags          = PHY_HAS_INTERRUPT,
 	.config_init    = &vsc824x_config_init,
 	.config_aneg    = &vsc82x4_config_aneg,
 	.ack_interrupt  = &vsc824x_ack_interrupt,
 	.config_intr    = &vsc82xx_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init    = &vsc824x_config_init,
+	.config_aneg    = &vsc82x4_config_aneg,
+	.config_intr    = &vsc82xx_config_intr,
+	.handle_interrupt = &vsc82xx_handle_interrupt,
+>>>>>>> upstream/android-13
 }, {
 	/* Vitesse 8221 */
 	.phy_id		= PHY_ID_VSC8221,
 	.phy_id_mask	= 0x000ffff0,
 	.name		= "Vitesse VSC8221",
+<<<<<<< HEAD
 	.features	= PHY_GBIT_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
 	.config_init	= &vsc8221_config_init,
 	.ack_interrupt	= &vsc824x_ack_interrupt,
 	.config_intr	= &vsc82xx_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init	= &vsc8221_config_init,
+	.config_intr	= &vsc82xx_config_intr,
+	.handle_interrupt = &vsc82xx_handle_interrupt,
+>>>>>>> upstream/android-13
 }, {
 	/* Vitesse 8211 */
 	.phy_id		= PHY_ID_VSC8211,
 	.phy_id_mask	= 0x000ffff0,
 	.name		= "Vitesse VSC8211",
+<<<<<<< HEAD
 	.features	= PHY_GBIT_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
 	.config_init	= &vsc8221_config_init,
 	.ack_interrupt	= &vsc824x_ack_interrupt,
 	.config_intr	= &vsc82xx_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init	= &vsc8221_config_init,
+	.config_intr	= &vsc82xx_config_intr,
+	.handle_interrupt = &vsc82xx_handle_interrupt,
+>>>>>>> upstream/android-13
 } };
 
 module_phy_driver(vsc82xx_driver);
@@ -526,9 +669,13 @@ module_phy_driver(vsc82xx_driver);
 static struct mdio_device_id __maybe_unused vitesse_tbl[] = {
 	{ PHY_ID_VSC8234, 0x000ffff0 },
 	{ PHY_ID_VSC8244, 0x000fffc0 },
+<<<<<<< HEAD
 	{ PHY_ID_VSC8514, 0x000ffff0 },
 	{ PHY_ID_VSC8572, 0x000ffff0 },
 	{ PHY_ID_VSC8574, 0x000ffff0 },
+=======
+	{ PHY_ID_VSC8572, 0x000ffff0 },
+>>>>>>> upstream/android-13
 	{ PHY_ID_VSC7385, 0x000ffff0 },
 	{ PHY_ID_VSC7388, 0x000ffff0 },
 	{ PHY_ID_VSC7395, 0x000ffff0 },

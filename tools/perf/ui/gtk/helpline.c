@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <stdio.h>
 #include <string.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 
 #include "gtk.h"
 #include "../ui.h"
 #include "../helpline.h"
+<<<<<<< HEAD
 #include "../../util/debug.h"
+=======
+>>>>>>> upstream/android-13
 
 static void gtk_helpline_pop(void)
 {

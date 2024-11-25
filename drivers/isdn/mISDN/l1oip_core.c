@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
  * l1oip.c  low level driver for tunneling layer 1 over IP
@@ -5,6 +9,7 @@
  * NOTE: It is not compatible with TDMoIP nor "ISDN over IP".
  *
  * Author	Andreas Eversberg (jolly@eversberg.eu)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* module parameters:
@@ -214,7 +221,11 @@
 
  The complete socket opening and closing is done by a thread.
  When the thread opened a socket, the hc->socket descriptor is set. Whenever a
+<<<<<<< HEAD
  packet shall be sent to the socket, the hc->socket must be checked wheter not
+=======
+ packet shall be sent to the socket, the hc->socket must be checked whether not
+>>>>>>> upstream/android-13
  NULL. To prevent change in socket descriptor, the hc->socket_lock must be used.
  To change the socket, a recall of l1oip_socket_open() will safely kill the
  socket process and create a new one.
@@ -243,8 +254,13 @@
 static const char *l1oip_revision = "2.00";
 
 static int l1oip_cnt;
+<<<<<<< HEAD
 static spinlock_t l1oip_lock;
 static struct list_head l1oip_ilist;
+=======
+static DEFINE_SPINLOCK(l1oip_lock);
+static LIST_HEAD(l1oip_ilist);
+>>>>>>> upstream/android-13
 
 #define MAX_CARDS	16
 static u_int type[MAX_CARDS];
@@ -718,8 +734,12 @@ l1oip_socket_thread(void *data)
 		printk(KERN_DEBUG "%s: socket created and open\n",
 		       __func__);
 	while (!signal_pending(current)) {
+<<<<<<< HEAD
 		iov_iter_kvec(&msg.msg_iter, READ | ITER_KVEC, &iov, 1,
 				recvbuf_size);
+=======
+		iov_iter_kvec(&msg.msg_iter, READ, &iov, 1, recvbuf_size);
+>>>>>>> upstream/android-13
 		recvlen = sock_recvmsg(socket, &msg, 0);
 		if (recvlen > 0) {
 			l1oip_socket_parse(hc, &sin_rx, recvbuf, recvlen);
@@ -1269,8 +1289,12 @@ release_card(struct l1oip *hc)
 			mISDN_freebchannel(hc->chan[ch].bch);
 			kfree(hc->chan[ch].bch);
 #ifdef REORDER_DEBUG
+<<<<<<< HEAD
 			if (hc->chan[ch].disorder_skb)
 				dev_kfree_skb(hc->chan[ch].disorder_skb);
+=======
+			dev_kfree_skb(hc->chan[ch].disorder_skb);
+>>>>>>> upstream/android-13
 #endif
 		}
 	}
@@ -1456,9 +1480,12 @@ l1oip_init(void)
 	printk(KERN_INFO "mISDN: Layer-1-over-IP driver Rev. %s\n",
 	       l1oip_revision);
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&l1oip_ilist);
 	spin_lock_init(&l1oip_lock);
 
+=======
+>>>>>>> upstream/android-13
 	if (l1oip_4bit_alloc(ulaw))
 		return -ENOMEM;
 

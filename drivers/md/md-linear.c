@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    linear.c : Multiple Devices driver for Linux
 	      Copyright (C) 1994-96 Marc ZYNGIER
@@ -6,6 +10,7 @@
 
    Linear mode management functions.
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -14,6 +19,8 @@
    You should have received a copy of the GNU General Public License
    (for example /usr/src/linux/COPYING); if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/blkdev.h>
@@ -53,6 +60,7 @@ static inline struct dev_info *which_dev(struct mddev *mddev, sector_t sector)
 	return conf->disks + lo;
 }
 
+<<<<<<< HEAD
 /*
  * In linear_congested() conf->raid_disks is used as a copy of
  * mddev->raid_disks to iterate conf->disks[], because conf->raid_disks
@@ -76,6 +84,8 @@ static int linear_congested(struct mddev *mddev, int bits)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static sector_t linear_size(struct mddev *mddev, sector_t sectors, int raid_disks)
 {
 	struct linear_conf *conf;
@@ -96,8 +106,12 @@ static struct linear_conf *linear_conf(struct mddev *mddev, int raid_disks)
 	int i, cnt;
 	bool discard_supported = false;
 
+<<<<<<< HEAD
 	conf = kzalloc (sizeof (*conf) + raid_disks*sizeof(struct dev_info),
 			GFP_KERNEL);
+=======
+	conf = kzalloc(struct_size(conf, disks, raid_disks), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!conf)
 		return NULL;
 
@@ -231,9 +245,14 @@ static int linear_add(struct mddev *mddev, struct md_rdev *rdev)
 		"copied raid_disks doesn't match mddev->raid_disks");
 	rcu_assign_pointer(mddev->private, newconf);
 	md_set_array_sectors(mddev, linear_size(mddev, 0, 0));
+<<<<<<< HEAD
 	set_capacity(mddev->gendisk, mddev->array_sectors);
 	mddev_resume(mddev);
 	revalidate_disk(mddev->gendisk);
+=======
+	set_capacity_and_notify(mddev->gendisk, mddev->array_sectors);
+	mddev_resume(mddev);
+>>>>>>> upstream/android-13
 	kfree_rcu(oldconf, rcu);
 	return 0;
 }
@@ -265,12 +284,24 @@ static bool linear_make_request(struct mddev *mddev, struct bio *bio)
 		     bio_sector < start_sector))
 		goto out_of_bounds;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(is_mddev_broken(tmp_dev->rdev, "linear"))) {
+		bio_io_error(bio);
+		return true;
+	}
+
+>>>>>>> upstream/android-13
 	if (unlikely(bio_end_sector(bio) > end_sector)) {
 		/* This bio crosses a device boundary, so we have to split it */
 		struct bio *split = bio_split(bio, end_sector - bio_sector,
 					      GFP_NOIO, &mddev->bio_set);
 		bio_chain(split, bio);
+<<<<<<< HEAD
 		generic_make_request(bio);
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		bio = split;
 	}
 
@@ -279,17 +310,29 @@ static bool linear_make_request(struct mddev *mddev, struct bio *bio)
 		start_sector + data_offset;
 
 	if (unlikely((bio_op(bio) == REQ_OP_DISCARD) &&
+<<<<<<< HEAD
 		     !blk_queue_discard(bio->bi_disk->queue))) {
+=======
+		     !blk_queue_discard(bio->bi_bdev->bd_disk->queue))) {
+>>>>>>> upstream/android-13
 		/* Just ignore it */
 		bio_endio(bio);
 	} else {
 		if (mddev->gendisk)
+<<<<<<< HEAD
 			trace_block_bio_remap(bio->bi_disk->queue,
 					      bio, disk_devt(mddev->gendisk),
 					      bio_sector);
 		mddev_check_writesame(mddev, bio);
 		mddev_check_write_zeroes(mddev, bio);
 		generic_make_request(bio);
+=======
+			trace_block_bio_remap(bio, disk_devt(mddev->gendisk),
+					      bio_sector);
+		mddev_check_writesame(mddev, bio);
+		mddev_check_write_zeroes(mddev, bio);
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 	}
 	return true;
 
@@ -325,7 +368,10 @@ static struct md_personality linear_personality =
 	.hot_add_disk	= linear_add,
 	.size		= linear_size,
 	.quiesce	= linear_quiesce,
+<<<<<<< HEAD
 	.congested	= linear_congested,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init linear_init (void)
@@ -341,7 +387,11 @@ static void linear_exit (void)
 module_init(linear_init);
 module_exit(linear_exit);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Linear device concatenation personality for MD");
+=======
+MODULE_DESCRIPTION("Linear device concatenation personality for MD (deprecated)");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("md-personality-1"); /* LINEAR - deprecated*/
 MODULE_ALIAS("md-linear");
 MODULE_ALIAS("md-level--1");

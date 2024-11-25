@@ -1,21 +1,59 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm64/include/asm/ftrace.h
  *
  * Copyright (C) 2013 Linaro Limited
  * Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_FTRACE_H
 #define __ASM_FTRACE_H
 
 #include <asm/insn.h>
 
+<<<<<<< HEAD
 #define MCOUNT_ADDR		((unsigned long)_mcount)
 #define MCOUNT_INSN_SIZE	AARCH64_INSN_SIZE
 
+=======
+#define HAVE_FUNCTION_GRAPH_FP_TEST
+
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+#define ARCH_SUPPORTS_FTRACE_OPS 1
+#else
+#define MCOUNT_ADDR		((unsigned long)_mcount)
+#endif
+
+/* The BL at the callsite's adjusted rec->ip */
+#define MCOUNT_INSN_SIZE	AARCH64_INSN_SIZE
+
+#define FTRACE_PLT_IDX		0
+#define FTRACE_REGS_PLT_IDX	1
+#define NR_FTRACE_PLTS		2
+
+/*
+ * Currently, gcc tends to save the link register after the local variables
+ * on the stack. This causes the max stack tracer to report the function
+ * frame sizes for the wrong functions. By defining
+ * ARCH_FTRACE_SHIFT_STACK_TRACER, it will tell the stack tracer to expect
+ * to find the return address on the stack after the local variables have
+ * been set up.
+ *
+ * Note, this may change in the future, and we will need to deal with that
+ * if it were to happen.
+ */
+#define ARCH_FTRACE_SHIFT_STACK_TRACER 1
+
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 #include <linux/compat.h>
 
@@ -33,12 +71,30 @@ extern void return_to_handler(void);
 static inline unsigned long ftrace_call_adjust(unsigned long addr)
 {
 	/*
+<<<<<<< HEAD
+=======
+	 * Adjust addr to point at the BL in the callsite.
+	 * See ftrace_init_nop() for the callsite sequence.
+	 */
+	if (IS_ENABLED(CONFIG_DYNAMIC_FTRACE_WITH_REGS))
+		return addr + AARCH64_INSN_SIZE;
+	/*
+>>>>>>> upstream/android-13
 	 * addr is the address of the mcount call instruction.
 	 * recordmcount does the necessary offset calculation.
 	 */
 	return addr;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+struct dyn_ftrace;
+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
+#define ftrace_init_nop ftrace_init_nop
+#endif
+
+>>>>>>> upstream/android-13
 #define ftrace_return_address(n) return_address(n)
 
 /*

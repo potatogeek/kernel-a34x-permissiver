@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #if !defined(__RVT_TRACE_MR_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __RVT_TRACE_MR_H
@@ -54,6 +60,11 @@
 #include <rdma/rdma_vt.h>
 #include <rdma/rdmavt_mr.h>
 
+<<<<<<< HEAD
+=======
+#include "mr.h"
+
+>>>>>>> upstream/android-13
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM rvt_mr
 DECLARE_EVENT_CLASS(
@@ -64,8 +75,17 @@ DECLARE_EVENT_CLASS(
 		RDI_DEV_ENTRY(ib_to_rvt(mr->pd->device))
 		__field(void *, vaddr)
 		__field(struct page *, page)
+<<<<<<< HEAD
 		__field(size_t, len)
 		__field(u32, lkey)
+=======
+		__field(u64, iova)
+		__field(u64, user_base)
+		__field(size_t, len)
+		__field(size_t, length)
+		__field(u32, lkey)
+		__field(u32, offset)
+>>>>>>> upstream/android-13
 		__field(u16, m)
 		__field(u16, n)
 	),
@@ -73,6 +93,7 @@ DECLARE_EVENT_CLASS(
 		RDI_DEV_ASSIGN(ib_to_rvt(mr->pd->device));
 		__entry->vaddr = v;
 		__entry->page = virt_to_page(v);
+<<<<<<< HEAD
 		__entry->m = m;
 		__entry->n = n;
 		__entry->len = len;
@@ -85,6 +106,30 @@ DECLARE_EVENT_CLASS(
 		__entry->m,
 		__entry->n,
 		__entry->len
+=======
+		__entry->iova = mr->iova;
+		__entry->user_base = mr->user_base;
+		__entry->lkey = mr->lkey;
+		__entry->m = m;
+		__entry->n = n;
+		__entry->len = len;
+		__entry->length = mr->length;
+		__entry->offset = mr->offset;
+	),
+	TP_printk(
+		"[%s] lkey %x iova %llx user_base %llx mr_len %lu vaddr %llx page %p m %u n %u len %lu off %u",
+		__get_str(dev),
+		__entry->lkey,
+		__entry->iova,
+		__entry->user_base,
+		__entry->length,
+		(unsigned long long)__entry->vaddr,
+		__entry->page,
+		__entry->m,
+		__entry->n,
+		__entry->len,
+		__entry->offset
+>>>>>>> upstream/android-13
 	)
 );
 
@@ -165,6 +210,43 @@ DEFINE_EVENT(
 	TP_PROTO(struct rvt_sge *sge, struct ib_sge *isge),
 	TP_ARGS(sge, isge));
 
+<<<<<<< HEAD
+=======
+TRACE_EVENT(
+	rvt_map_mr_sg,
+	TP_PROTO(struct ib_mr *ibmr, int sg_nents, unsigned int *sg_offset),
+	TP_ARGS(ibmr, sg_nents, sg_offset),
+	TP_STRUCT__entry(
+		RDI_DEV_ENTRY(ib_to_rvt(to_imr(ibmr)->mr.pd->device))
+		__field(u64, iova)
+		__field(u64, ibmr_iova)
+		__field(u64, user_base)
+		__field(u64, ibmr_length)
+		__field(int, sg_nents)
+		__field(uint, sg_offset)
+	),
+	TP_fast_assign(
+		RDI_DEV_ASSIGN(ib_to_rvt(to_imr(ibmr)->mr.pd->device));
+		__entry->ibmr_iova = ibmr->iova;
+		__entry->iova = to_imr(ibmr)->mr.iova;
+		__entry->user_base = to_imr(ibmr)->mr.user_base;
+		__entry->ibmr_length = to_imr(ibmr)->mr.length;
+		__entry->sg_nents = sg_nents;
+		__entry->sg_offset = sg_offset ? *sg_offset : 0;
+	),
+	TP_printk(
+		"[%s] ibmr_iova %llx iova %llx user_base %llx length %llx sg_nents %d sg_offset %u",
+		__get_str(dev),
+		__entry->ibmr_iova,
+		__entry->iova,
+		__entry->user_base,
+		__entry->ibmr_length,
+		__entry->sg_nents,
+		__entry->sg_offset
+	)
+);
+
+>>>>>>> upstream/android-13
 #endif /* __RVT_TRACE_MR_H */
 
 #undef TRACE_INCLUDE_PATH

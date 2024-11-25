@@ -69,7 +69,11 @@ nfs4_ff_alloc_deviceid_node(struct nfs_server *server, struct pnfs_device *pdev,
 	INIT_LIST_HEAD(&dsaddrs);
 
 	xdr_init_decode_pages(&stream, &buf, pdev->pages, pdev->pglen);
+<<<<<<< HEAD
 	xdr_set_scratch_buffer(&stream, page_address(scratch), PAGE_SIZE);
+=======
+	xdr_set_scratch_page(&stream, scratch);
+>>>>>>> upstream/android-13
 
 	/* multipath count */
 	p = xdr_inline_decode(&stream, 4);
@@ -183,6 +187,7 @@ out_err:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void ff_layout_mark_devid_invalid(struct pnfs_layout_segment *lseg,
 		struct nfs4_deviceid_node *devid)
 {
@@ -233,6 +238,8 @@ outerr:
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void extend_ds_error(struct nfs4_ff_layout_ds_err *err,
 			    u64 offset, u64 length)
 {
@@ -326,6 +333,7 @@ int ff_layout_track_ds_error(struct nfs4_flexfile_layout *flo,
 	spin_lock(&flo->generic_hdr.plh_inode->i_lock);
 	ff_layout_add_ds_error_locked(flo, dserr);
 	spin_unlock(&flo->generic_hdr.plh_inode->i_lock);
+<<<<<<< HEAD
 
 	return 0;
 }
@@ -334,6 +342,15 @@ static struct rpc_cred *
 ff_layout_get_mirror_cred(struct nfs4_ff_layout_mirror *mirror, u32 iomode)
 {
 	struct rpc_cred *cred, __rcu **pcred;
+=======
+	return 0;
+}
+
+static const struct cred *
+ff_layout_get_mirror_cred(struct nfs4_ff_layout_mirror *mirror, u32 iomode)
+{
+	const struct cred *cred, __rcu **pcred;
+>>>>>>> upstream/android-13
 
 	if (iomode == IOMODE_READ)
 		pcred = &mirror->ro_cred;
@@ -346,13 +363,18 @@ ff_layout_get_mirror_cred(struct nfs4_ff_layout_mirror *mirror, u32 iomode)
 		if (!cred)
 			break;
 
+<<<<<<< HEAD
 		cred = get_rpccred_rcu(cred);
+=======
+		cred = get_cred_rcu(cred);
+>>>>>>> upstream/android-13
 	} while(!cred);
 	rcu_read_unlock();
 	return cred;
 }
 
 struct nfs_fh *
+<<<<<<< HEAD
 nfs4_ff_layout_select_ds_fh(struct pnfs_layout_segment *lseg, u32 mirror_idx)
 {
 	struct nfs4_ff_layout_mirror *mirror = FF_LAYOUT_COMP(lseg, mirror_idx);
@@ -387,12 +409,60 @@ nfs4_ff_layout_select_ds_stateid(struct pnfs_layout_segment *lseg,
 	return 1;
 out:
 	return 0;
+=======
+nfs4_ff_layout_select_ds_fh(struct nfs4_ff_layout_mirror *mirror)
+{
+	/* FIXME: For now assume there is only 1 version available for the DS */
+	return &mirror->fh_versions[0];
+}
+
+void
+nfs4_ff_layout_select_ds_stateid(const struct nfs4_ff_layout_mirror *mirror,
+		nfs4_stateid *stateid)
+{
+	if (nfs4_ff_layout_ds_version(mirror) == 4)
+		nfs4_stateid_copy(stateid, &mirror->stateid);
+}
+
+static bool
+ff_layout_init_mirror_ds(struct pnfs_layout_hdr *lo,
+			 struct nfs4_ff_layout_mirror *mirror)
+{
+	if (mirror == NULL)
+		goto outerr;
+	if (mirror->mirror_ds == NULL) {
+		struct nfs4_deviceid_node *node;
+		struct nfs4_ff_layout_ds *mirror_ds = ERR_PTR(-ENODEV);
+
+		node = nfs4_find_get_deviceid(NFS_SERVER(lo->plh_inode),
+				&mirror->devid, lo->plh_lc_cred,
+				GFP_KERNEL);
+		if (node)
+			mirror_ds = FF_LAYOUT_MIRROR_DS(node);
+
+		/* check for race with another call to this function */
+		if (cmpxchg(&mirror->mirror_ds, NULL, mirror_ds) &&
+		    mirror_ds != ERR_PTR(-ENODEV))
+			nfs4_put_deviceid_node(node);
+	}
+
+	if (IS_ERR(mirror->mirror_ds))
+		goto outerr;
+
+	return true;
+outerr:
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /**
  * nfs4_ff_layout_prepare_ds - prepare a DS connection for an RPC call
  * @lseg: the layout segment we're operating on
+<<<<<<< HEAD
  * @ds_idx: index of the DS to use
+=======
+ * @mirror: layout mirror describing the DS to use
+>>>>>>> upstream/android-13
  * @fail_return: return layout on connect failure?
  *
  * Try to prepare a DS connection to accept an RPC call. This involves
@@ -407,17 +477,26 @@ out:
  * Returns a pointer to a connected DS object on success or NULL on failure.
  */
 struct nfs4_pnfs_ds *
+<<<<<<< HEAD
 nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx,
 			  bool fail_return)
 {
 	struct nfs4_ff_layout_mirror *mirror = FF_LAYOUT_COMP(lseg, ds_idx);
 	struct nfs4_pnfs_ds *ds = NULL;
 	struct nfs4_deviceid_node *devid;
+=======
+nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg,
+			  struct nfs4_ff_layout_mirror *mirror,
+			  bool fail_return)
+{
+	struct nfs4_pnfs_ds *ds = NULL;
+>>>>>>> upstream/android-13
 	struct inode *ino = lseg->pls_layout->plh_inode;
 	struct nfs_server *s = NFS_SERVER(ino);
 	unsigned int max_payload;
 	int status;
 
+<<<<<<< HEAD
 	if (!ff_layout_mirror_valid(lseg, mirror, true)) {
 		pr_err_ratelimited("NFS: %s: No data server for offset index %d\n",
 			__func__, ds_idx);
@@ -433,12 +512,27 @@ nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx,
 	smp_rmb();
 	if (ds->ds_clp)
 		goto out;
+=======
+	if (!ff_layout_init_mirror_ds(lseg->pls_layout, mirror))
+		goto noconnect;
+
+	ds = mirror->mirror_ds->ds;
+	if (READ_ONCE(ds->ds_clp))
+		goto out;
+	/* matching smp_wmb() in _nfs4_pnfs_v3/4_ds_connect */
+	smp_rmb();
+>>>>>>> upstream/android-13
 
 	/* FIXME: For now we assume the server sent only one version of NFS
 	 * to use for the DS.
 	 */
+<<<<<<< HEAD
 	status = nfs4_pnfs_ds_connect(s, ds, devid, dataserver_timeo,
 			     dataserver_retrans,
+=======
+	status = nfs4_pnfs_ds_connect(s, ds, &mirror->mirror_ds->id_node,
+			     dataserver_timeo, dataserver_retrans,
+>>>>>>> upstream/android-13
 			     mirror->mirror_ds->ds_versions[0].version,
 			     mirror->mirror_ds->ds_versions[0].minor_version);
 
@@ -453,11 +547,19 @@ nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx,
 			mirror->mirror_ds->ds_versions[0].wsize = max_payload;
 		goto out;
 	}
+<<<<<<< HEAD
 out_fail:
+=======
+noconnect:
+>>>>>>> upstream/android-13
 	ff_layout_track_ds_error(FF_LAYOUT_FROM_HDR(lseg->pls_layout),
 				 mirror, lseg->pls_range.offset,
 				 lseg->pls_range.length, NFS4ERR_NXIO,
 				 OP_ILLEGAL, GFP_NOIO);
+<<<<<<< HEAD
+=======
+	ff_layout_send_layouterror(lseg);
+>>>>>>> upstream/android-13
 	if (fail_return || !ff_layout_has_available_ds(lseg))
 		pnfs_error_mark_layout_for_return(ino, lseg);
 	ds = NULL;
@@ -465,6 +567,7 @@ out:
 	return ds;
 }
 
+<<<<<<< HEAD
 struct rpc_cred *
 ff_layout_get_ds_cred(struct pnfs_layout_segment *lseg, u32 ds_idx,
 		      struct rpc_cred *mdscred)
@@ -478,11 +581,27 @@ ff_layout_get_ds_cred(struct pnfs_layout_segment *lseg, u32 ds_idx,
 			cred = get_rpccred(mdscred);
 	} else {
 		cred = get_rpccred(mdscred);
+=======
+const struct cred *
+ff_layout_get_ds_cred(struct nfs4_ff_layout_mirror *mirror,
+		      const struct pnfs_layout_range *range,
+		      const struct cred *mdscred)
+{
+	const struct cred *cred;
+
+	if (mirror && !mirror->mirror_ds->ds_versions[0].tightly_coupled) {
+		cred = ff_layout_get_mirror_cred(mirror, range->iomode);
+		if (!cred)
+			cred = get_cred(mdscred);
+	} else {
+		cred = get_cred(mdscred);
+>>>>>>> upstream/android-13
 	}
 	return cred;
 }
 
 /**
+<<<<<<< HEAD
 * Find or create a DS rpc client with th MDS server rpc client auth flavor
 * in the nfs_client cl_ds_clients list.
 */
@@ -492,6 +611,20 @@ nfs4_ff_find_or_create_ds_client(struct pnfs_layout_segment *lseg, u32 ds_idx,
 {
 	struct nfs4_ff_layout_mirror *mirror = FF_LAYOUT_COMP(lseg, ds_idx);
 
+=======
+ * nfs4_ff_find_or_create_ds_client - Find or create a DS rpc client
+ * @mirror: pointer to the mirror
+ * @ds_clp: nfs_client for the DS
+ * @inode: pointer to inode
+ *
+ * Find or create a DS rpc client with th MDS server rpc client auth flavor
+ * in the nfs_client cl_ds_clients list.
+ */
+struct rpc_clnt *
+nfs4_ff_find_or_create_ds_client(struct nfs4_ff_layout_mirror *mirror,
+				 struct nfs_client *ds_clp, struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	switch (mirror->mirror_ds->ds_versions[0].version) {
 	case 3:
 		/* For NFSv3 DS, flavor is set when creating DS connections */
@@ -608,7 +741,11 @@ static bool ff_read_layout_has_available_ds(struct pnfs_layout_segment *lseg)
 			if (IS_ERR(mirror->mirror_ds))
 				continue;
 			devid = &mirror->mirror_ds->id_node;
+<<<<<<< HEAD
 			if (!ff_layout_test_devid_unavailable(devid))
+=======
+			if (!nfs4_test_deviceid_unavailable(devid))
+>>>>>>> upstream/android-13
 				return true;
 		}
 	}
@@ -629,7 +766,11 @@ static bool ff_rw_layout_has_available_ds(struct pnfs_layout_segment *lseg)
 		if (!mirror->mirror_ds)
 			continue;
 		devid = &mirror->mirror_ds->id_node;
+<<<<<<< HEAD
 		if (ff_layout_test_devid_unavailable(devid))
+=======
+		if (nfs4_test_deviceid_unavailable(devid))
+>>>>>>> upstream/android-13
 			return false;
 	}
 

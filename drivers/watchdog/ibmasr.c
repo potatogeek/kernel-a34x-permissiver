@@ -323,7 +323,11 @@ static int asr_open(struct inode *inode, struct file *file)
 	asr_toggle();
 	asr_enable();
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int asr_release(struct inode *inode, struct file *file)
@@ -344,6 +348,10 @@ static const struct file_operations asr_fops = {
 	.llseek =		no_llseek,
 	.write =		asr_write,
 	.unlocked_ioctl =	asr_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl =		compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open =			asr_open,
 	.release =		asr_release,
 };

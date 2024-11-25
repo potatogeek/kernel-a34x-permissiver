@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for generic MPU-401 boards (UART mode only)
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Copyright (c) 2004 by Castet Matthieu <castet.matthieu@free.fr>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -74,8 +81,13 @@ static int snd_mpu401_create(struct device *devptr, int dev,
 		snd_printk(KERN_ERR "the uart_enter option is obsolete; remove it\n");
 
 	*rcard = NULL;
+<<<<<<< HEAD
 	err = snd_card_new(devptr, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
+=======
+	err = snd_devm_card_new(devptr, index[dev], id[dev], THIS_MODULE,
+				0, &card);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	strcpy(card->driver, "MPU-401 UART");
@@ -91,15 +103,22 @@ static int snd_mpu401_create(struct device *devptr, int dev,
 				  irq[dev], NULL);
 	if (err < 0) {
 		printk(KERN_ERR "MPU401 not detected at 0x%lx\n", port[dev]);
+<<<<<<< HEAD
 		goto _err;
+=======
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	*rcard = card;
 	return 0;
+<<<<<<< HEAD
 
  _err:
 	snd_card_free(card);
 	return err;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int snd_mpu401_probe(struct platform_device *devptr)
@@ -119,25 +138,37 @@ static int snd_mpu401_probe(struct platform_device *devptr)
 	err = snd_mpu401_create(&devptr->dev, dev, &card);
 	if (err < 0)
 		return err;
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	platform_set_drvdata(devptr, card);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_mpu401_remove(struct platform_device *devptr)
 {
 	snd_card_free(platform_get_drvdata(devptr));
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define SND_MPU401_DRIVER	"snd_mpu401"
 
 static struct platform_driver snd_mpu401_driver = {
 	.probe		= snd_mpu401_probe,
+<<<<<<< HEAD
 	.remove		= snd_mpu401_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= SND_MPU401_DRIVER,
 	},
@@ -197,10 +228,16 @@ static int snd_mpu401_pnp_probe(struct pnp_dev *pnp_dev,
 		err = snd_mpu401_create(&pnp_dev->dev, dev, &card);
 		if (err < 0)
 			return err;
+<<<<<<< HEAD
 		if ((err = snd_card_register(card)) < 0) {
 			snd_card_free(card);
 			return err;
 		}
+=======
+		err = snd_card_register(card);
+		if (err < 0)
+			return err;
+>>>>>>> upstream/android-13
 		pnp_set_drvdata(pnp_dev, card);
 		snd_mpu401_devices++;
 		++dev;
@@ -209,6 +246,7 @@ static int snd_mpu401_pnp_probe(struct pnp_dev *pnp_dev,
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static void snd_mpu401_pnp_remove(struct pnp_dev *dev)
 {
 	struct snd_card *card = (struct snd_card *) pnp_get_drvdata(dev);
@@ -217,11 +255,16 @@ static void snd_mpu401_pnp_remove(struct pnp_dev *dev)
 	snd_card_free_when_closed(card);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct pnp_driver snd_mpu401_pnp_driver = {
 	.name = "mpu401",
 	.id_table = snd_mpu401_pnpids,
 	.probe = snd_mpu401_pnp_probe,
+<<<<<<< HEAD
 	.remove = snd_mpu401_pnp_remove,
+=======
+>>>>>>> upstream/android-13
 };
 #else
 static struct pnp_driver snd_mpu401_pnp_driver;
@@ -242,7 +285,12 @@ static int __init alsa_card_mpu401_init(void)
 {
 	int i, err;
 
+<<<<<<< HEAD
 	if ((err = platform_driver_register(&snd_mpu401_driver)) < 0)
+=======
+	err = platform_driver_register(&snd_mpu401_driver);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	for (i = 0; i < SNDRV_CARDS; i++) {

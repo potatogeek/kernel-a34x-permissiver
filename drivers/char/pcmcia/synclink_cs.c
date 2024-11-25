@@ -530,8 +530,11 @@ static int mgslpc_probe(struct pcmcia_device *link)
 	info->port.ops = &mgslpc_port_ops;
 	INIT_WORK(&info->task, bh_handler);
 	info->max_frame_size = 4096;
+<<<<<<< HEAD
 	info->port.close_delay = 5*HZ/10;
 	info->port.closing_wait = 30*HZ;
+=======
+>>>>>>> upstream/android-13
 	init_waitqueue_head(&info->status_event_wait_q);
 	init_waitqueue_head(&info->event_wait_q);
 	spin_lock_init(&info->lock);
@@ -987,7 +990,11 @@ static void tx_done(MGSLPC_INFO *info, struct tty_struct *tty)
 	else
 #endif
 	{
+<<<<<<< HEAD
 		if (tty && (tty->stopped || tty->hw_stopped)) {
+=======
+		if (tty && (tty->flow.stopped || tty->hw_stopped)) {
+>>>>>>> upstream/android-13
 			tx_stop(info);
 			return;
 		}
@@ -1007,7 +1014,11 @@ static void tx_ready(MGSLPC_INFO *info, struct tty_struct *tty)
 		if (!info->tx_active)
 			return;
 	} else {
+<<<<<<< HEAD
 		if (tty && (tty->stopped || tty->hw_stopped)) {
+=======
+		if (tty && (tty->flow.stopped || tty->hw_stopped)) {
+>>>>>>> upstream/android-13
 			tx_stop(info);
 			return;
 		}
@@ -1421,6 +1432,7 @@ static void mgslpc_change_params(MGSLPC_INFO *info, struct tty_struct *tty)
 
 	/* byte size and parity */
 
+<<<<<<< HEAD
 	switch (cflag & CSIZE) {
 	case CS5: info->params.data_bits = 5; break;
 	case CS6: info->params.data_bits = 6; break;
@@ -1428,6 +1440,9 @@ static void mgslpc_change_params(MGSLPC_INFO *info, struct tty_struct *tty)
 	case CS8: info->params.data_bits = 8; break;
 	default:  info->params.data_bits = 7; break;
 	}
+=======
+	info->params.data_bits = tty_get_char_size(cflag);
+>>>>>>> upstream/android-13
 
 	if (cflag & CSTOPB)
 		info->params.stop_bits = 2;
@@ -1527,7 +1542,11 @@ static void mgslpc_flush_chars(struct tty_struct *tty)
 	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_flush_chars"))
 		return;
 
+<<<<<<< HEAD
 	if (info->tx_count <= 0 || tty->stopped ||
+=======
+	if (info->tx_count <= 0 || tty->flow.stopped ||
+>>>>>>> upstream/android-13
 	    tty->hw_stopped || !info->tx_buf)
 		return;
 
@@ -1596,7 +1615,11 @@ static int mgslpc_write(struct tty_struct * tty,
 		ret += c;
 	}
 start:
+<<<<<<< HEAD
 	if (info->tx_count && !tty->stopped && !tty->hw_stopped) {
+=======
+	if (info->tx_count && !tty->flow.stopped && !tty->hw_stopped) {
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&info->lock, flags);
 		if (!info->tx_active)
 			tx_start(info, tty);
@@ -1611,7 +1634,11 @@ cleanup:
 
 /* Return the count of free bytes in transmit buffer
  */
+<<<<<<< HEAD
 static int mgslpc_write_room(struct tty_struct *tty)
+=======
+static unsigned int mgslpc_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	MGSLPC_INFO *info = (MGSLPC_INFO *)tty->driver_data;
 	int ret;
@@ -1639,10 +1666,17 @@ static int mgslpc_write_room(struct tty_struct *tty)
 
 /* Return the count of bytes in transmit buffer
  */
+<<<<<<< HEAD
 static int mgslpc_chars_in_buffer(struct tty_struct *tty)
 {
 	MGSLPC_INFO *info = (MGSLPC_INFO *)tty->driver_data;
 	int rc;
+=======
+static unsigned int mgslpc_chars_in_buffer(struct tty_struct *tty)
+{
+	MGSLPC_INFO *info = (MGSLPC_INFO *)tty->driver_data;
+	unsigned int rc;
+>>>>>>> upstream/android-13
 
 	if (debug_level >= DEBUG_LEVEL_INFO)
 		printk("%s(%d):mgslpc_chars_in_buffer(%s)\n",
@@ -1657,7 +1691,11 @@ static int mgslpc_chars_in_buffer(struct tty_struct *tty)
 		rc = info->tx_count;
 
 	if (debug_level >= DEBUG_LEVEL_INFO)
+<<<<<<< HEAD
 		printk("%s(%d):mgslpc_chars_in_buffer(%s)=%d\n",
+=======
+		printk("%s(%d):mgslpc_chars_in_buffer(%s)=%u\n",
+>>>>>>> upstream/android-13
 			 __FILE__, __LINE__, info->device_name, rc);
 
 	return rc;
@@ -2237,8 +2275,12 @@ static int mgslpc_ioctl(struct tty_struct *tty,
 	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_ioctl"))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if ((cmd != TIOCGSERIAL) && (cmd != TIOCSSERIAL) &&
 	    (cmd != TIOCMIWAIT)) {
+=======
+	if (cmd != TIOCMIWAIT) {
+>>>>>>> upstream/android-13
 		if (tty_io_error(tty))
 		    return -EIO;
 	}
@@ -2495,8 +2537,11 @@ static int mgslpc_open(struct tty_struct *tty, struct file * filp)
 		printk("%s(%d):mgslpc_open(%s), old ref count = %d\n",
 			 __FILE__, __LINE__, tty->driver->name, port->count);
 
+<<<<<<< HEAD
 	port->low_latency = (port->flags & ASYNC_LOW_LATENCY) ? 1 : 0;
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&info->netlock, flags);
 	if (info->netcount) {
 		retval = -EBUSY;
@@ -2852,7 +2897,11 @@ static int __init synclink_cs_init(void)
 err_unreg_tty:
 	tty_unregister_driver(serial_driver);
 err_put_tty:
+<<<<<<< HEAD
 	put_tty_driver(serial_driver);
+=======
+	tty_driver_kref_put(serial_driver);
+>>>>>>> upstream/android-13
 err:
 	return rc;
 }
@@ -2861,7 +2910,11 @@ static void __exit synclink_cs_exit(void)
 {
 	pcmcia_unregister_driver(&mgslpc_driver);
 	tty_unregister_driver(serial_driver);
+<<<<<<< HEAD
 	put_tty_driver(serial_driver);
+=======
+	tty_driver_kref_put(serial_driver);
+>>>>>>> upstream/android-13
 }
 
 module_init(synclink_cs_init);
@@ -4061,6 +4114,7 @@ static int hdlcdev_close(struct net_device *dev)
  * called by network layer to process IOCTL call to network device
  *
  * dev  pointer to network device structure
+<<<<<<< HEAD
  * ifr  pointer to network interface request structure
  * cmd  IOCTL command code
  *
@@ -4071,6 +4125,17 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	const size_t size = sizeof(sync_serial_settings);
 	sync_serial_settings new_line;
 	sync_serial_settings __user *line = ifr->ifr_settings.ifs_ifsu.sync;
+=======
+ * ifs  pointer to network interface settings structure
+ *
+ * returns 0 if success, otherwise error code
+ */
+static int hdlcdev_wan_ioctl(struct net_device *dev, struct if_settings *ifs)
+{
+	const size_t size = sizeof(sync_serial_settings);
+	sync_serial_settings new_line;
+	sync_serial_settings __user *line = ifs->ifs_ifsu.sync;
+>>>>>>> upstream/android-13
 	MGSLPC_INFO *info = dev_to_port(dev);
 	unsigned int flags;
 
@@ -4081,6 +4146,7 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	if (info->port.count)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	if (cmd != SIOCWANDEV)
 		return hdlc_ioctl(dev, ifr, cmd);
 
@@ -4092,6 +4158,16 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		ifr->ifr_settings.type = IF_IFACE_SYNC_SERIAL;
 		if (ifr->ifr_settings.size < size) {
 			ifr->ifr_settings.size = size; /* data size wanted */
+=======
+	memset(&new_line, 0, size);
+
+	switch (ifs->type) {
+	case IF_GET_IFACE: /* return current sync_serial_settings */
+
+		ifs->type = IF_IFACE_SYNC_SERIAL;
+		if (ifs->size < size) {
+			ifs->size = size; /* data size wanted */
+>>>>>>> upstream/android-13
 			return -ENOBUFS;
 		}
 
@@ -4159,9 +4235,14 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 			tty_kref_put(tty);
 		}
 		return 0;
+<<<<<<< HEAD
 
 	default:
 		return hdlc_ioctl(dev, ifr, cmd);
+=======
+	default:
+		return hdlc_ioctl(dev, ifs);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -4170,7 +4251,11 @@ static int hdlcdev_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
  *
  * dev  pointer to network device structure
  */
+<<<<<<< HEAD
 static void hdlcdev_tx_timeout(struct net_device *dev)
+=======
+static void hdlcdev_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	MGSLPC_INFO *info = dev_to_port(dev);
 	unsigned long flags;
@@ -4236,7 +4321,11 @@ static const struct net_device_ops hdlcdev_ops = {
 	.ndo_open       = hdlcdev_open,
 	.ndo_stop       = hdlcdev_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = hdlcdev_ioctl,
+=======
+	.ndo_siocwandev = hdlcdev_wan_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout = hdlcdev_tx_timeout,
 };
 

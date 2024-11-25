@@ -2,6 +2,11 @@
 #ifndef __XFS_MESSAGE_H
 #define __XFS_MESSAGE_H 1
 
+<<<<<<< HEAD
+=======
+#include <linux/once_lite.h>
+
+>>>>>>> upstream/android-13
 struct xfs_mount;
 
 extern __printf(2, 3)
@@ -31,15 +36,28 @@ void xfs_debug(const struct xfs_mount *mp, const char *fmt, ...)
 }
 #endif
 
+<<<<<<< HEAD
 #define xfs_printk_ratelimited(func, dev, fmt, ...)		\
+=======
+#define xfs_printk_ratelimited(func, dev, fmt, ...)			\
+>>>>>>> upstream/android-13
 do {									\
 	static DEFINE_RATELIMIT_STATE(_rs,				\
 				      DEFAULT_RATELIMIT_INTERVAL,	\
 				      DEFAULT_RATELIMIT_BURST);		\
 	if (__ratelimit(&_rs))						\
+<<<<<<< HEAD
 		func(dev, fmt, ##__VA_ARGS__);			\
 } while (0)
 
+=======
+		func(dev, fmt, ##__VA_ARGS__);				\
+} while (0)
+
+#define xfs_printk_once(func, dev, fmt, ...)			\
+	DO_ONCE_LITE(func, dev, fmt, ##__VA_ARGS__)
+
+>>>>>>> upstream/android-13
 #define xfs_emerg_ratelimited(dev, fmt, ...)				\
 	xfs_printk_ratelimited(xfs_emerg, dev, fmt, ##__VA_ARGS__)
 #define xfs_alert_ratelimited(dev, fmt, ...)				\
@@ -57,9 +75,26 @@ do {									\
 #define xfs_debug_ratelimited(dev, fmt, ...)				\
 	xfs_printk_ratelimited(xfs_debug, dev, fmt, ##__VA_ARGS__)
 
+<<<<<<< HEAD
 extern void assfail(char *expr, char *f, int l);
 extern void asswarn(char *expr, char *f, int l);
 
 extern void xfs_hex_dump(void *p, int length);
+=======
+#define xfs_warn_once(dev, fmt, ...)				\
+	xfs_printk_once(xfs_warn, dev, fmt, ##__VA_ARGS__)
+#define xfs_notice_once(dev, fmt, ...)				\
+	xfs_printk_once(xfs_notice, dev, fmt, ##__VA_ARGS__)
+#define xfs_info_once(dev, fmt, ...)				\
+	xfs_printk_once(xfs_info, dev, fmt, ##__VA_ARGS__)
+
+void assfail(struct xfs_mount *mp, char *expr, char *f, int l);
+void asswarn(struct xfs_mount *mp, char *expr, char *f, int l);
+
+extern void xfs_hex_dump(const void *p, int length);
+
+void xfs_buf_alert_ratelimited(struct xfs_buf *bp, const char *rlmsg,
+			       const char *fmt, ...);
+>>>>>>> upstream/android-13
 
 #endif	/* __XFS_MESSAGE_H */

@@ -15,7 +15,17 @@
 #include <drm/drm_encoder.h>
 #include <linux/workqueue.h>
 
+<<<<<<< HEAD
 struct drm_writeback_connector {
+=======
+/**
+ * struct drm_writeback_connector - DRM writeback connector
+ */
+struct drm_writeback_connector {
+	/**
+	 * @base: base drm_connector object
+	 */
+>>>>>>> upstream/android-13
 	struct drm_connector base;
 
 	/**
@@ -78,8 +88,30 @@ struct drm_writeback_connector {
 	char timeline_name[32];
 };
 
+<<<<<<< HEAD
 struct drm_writeback_job {
 	/**
+=======
+/**
+ * struct drm_writeback_job - DRM writeback job
+ */
+struct drm_writeback_job {
+	/**
+	 * @connector:
+	 *
+	 * Back-pointer to the writeback connector associated with the job
+	 */
+	struct drm_writeback_connector *connector;
+
+	/**
+	 * @prepared:
+	 *
+	 * Set when the job has been prepared with drm_writeback_prepare_job()
+	 */
+	bool prepared;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @cleanup_work:
 	 *
 	 * Used to allow drm_writeback_signal_completion to defer dropping the
@@ -98,7 +130,11 @@ struct drm_writeback_job {
 	 * @fb:
 	 *
 	 * Framebuffer to be written to by the writeback connector. Do not set
+<<<<<<< HEAD
 	 * directly, use drm_atomic_set_writeback_fb_for_connector()
+=======
+	 * directly, use drm_writeback_set_fb()
+>>>>>>> upstream/android-13
 	 */
 	struct drm_framebuffer *fb;
 
@@ -108,6 +144,16 @@ struct drm_writeback_job {
 	 * Fence which will signal once the writeback has completed
 	 */
 	struct dma_fence *out_fence;
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @priv:
+	 *
+	 * Driver-private data
+	 */
+	void *priv;
+>>>>>>> upstream/android-13
 };
 
 static inline struct drm_writeback_connector *
@@ -122,8 +168,18 @@ int drm_writeback_connector_init(struct drm_device *dev,
 				 const struct drm_encoder_helper_funcs *enc_helper_funcs,
 				 const u32 *formats, int n_formats);
 
+<<<<<<< HEAD
 void drm_writeback_queue_job(struct drm_writeback_connector *wb_connector,
 			     struct drm_writeback_job *job);
+=======
+int drm_writeback_set_fb(struct drm_connector_state *conn_state,
+			 struct drm_framebuffer *fb);
+
+int drm_writeback_prepare_job(struct drm_writeback_job *job);
+
+void drm_writeback_queue_job(struct drm_writeback_connector *wb_connector,
+			     struct drm_connector_state *conn_state);
+>>>>>>> upstream/android-13
 
 void drm_writeback_cleanup_job(struct drm_writeback_job *job);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006 PA Semi, Inc
  *
@@ -7,6 +11,7 @@
  * Maintained by: Olof Johansson <olof@lixom.net>
  *
  * Based on arch/powerpc/platforms/maple/pci.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -27,6 +34,10 @@
 #include <linux/pci.h>
 
 #include <asm/pci-bridge.h>
+<<<<<<< HEAD
+=======
+#include <asm/isa-bridge.h>
+>>>>>>> upstream/android-13
 #include <asm/machdep.h>
 
 #include <asm/ppc-pci.h>
@@ -108,6 +119,64 @@ static int workaround_5945(struct pci_bus *bus, unsigned int devfn,
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_PASEMI_NEMO
+#define PXP_ERR_CFG_REG	0x4
+#define PXP_IGNORE_PCIE_ERRORS	0x800
+#define SB600_BUS 5
+
+static void sb600_set_flag(int bus)
+{
+	static void __iomem *iob_mapbase = NULL;
+	struct resource res;
+	struct device_node *dn;
+	int err;
+
+	if (iob_mapbase == NULL) {
+		dn = of_find_compatible_node(NULL, "isa", "pasemi,1682m-iob");
+		if (!dn) {
+			pr_crit("NEMO SB600 missing iob node\n");
+			return;
+		}
+
+		err = of_address_to_resource(dn, 0, &res);
+		of_node_put(dn);
+
+		if (err) {
+			pr_crit("NEMO SB600 missing resource\n");
+			return;
+		}
+
+		pr_info("NEMO SB600 IOB base %08llx\n",res.start);
+
+		iob_mapbase = ioremap(res.start + 0x100, 0x94);
+	}
+
+	if (iob_mapbase != NULL) {
+		if (bus == SB600_BUS) {
+			/*
+			 * This is the SB600's bus, tell the PCI-e root port
+			 * to allow non-zero devices to enumerate.
+			 */
+			out_le32(iob_mapbase + PXP_ERR_CFG_REG, in_le32(iob_mapbase + PXP_ERR_CFG_REG) | PXP_IGNORE_PCIE_ERRORS);
+		} else {
+			/*
+			 * Only scan device 0 on other busses
+			 */
+			out_le32(iob_mapbase + PXP_ERR_CFG_REG, in_le32(iob_mapbase + PXP_ERR_CFG_REG) & ~PXP_IGNORE_PCIE_ERRORS);
+		}
+	}
+}
+
+#else
+
+static void sb600_set_flag(int bus)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 static int pa_pxp_read_config(struct pci_bus *bus, unsigned int devfn,
 			      int offset, int len, u32 *val)
 {
@@ -126,6 +195,11 @@ static int pa_pxp_read_config(struct pci_bus *bus, unsigned int devfn,
 
 	addr = pa_pxp_cfg_addr(hose, bus->number, devfn, offset);
 
+<<<<<<< HEAD
+=======
+	sb600_set_flag(bus->number);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Note: the caller has already checked that offset is
 	 * suitably aligned and that len is 1, 2 or 4.
@@ -160,6 +234,11 @@ static int pa_pxp_write_config(struct pci_bus *bus, unsigned int devfn,
 
 	addr = pa_pxp_cfg_addr(hose, bus->number, devfn, offset);
 
+<<<<<<< HEAD
+=======
+	sb600_set_flag(bus->number);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Note: the caller has already checked that offset is
 	 * suitably aligned and that len is 1, 2 or 4.
@@ -210,6 +289,15 @@ static int __init pas_add_bridge(struct device_node *dev)
 	/* Interpret the "ranges" property */
 	pci_process_bridge_OF_ranges(hose, dev, 1);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Scan for an isa bridge. This is needed to find the SB600 on the nemo
+	 * and does nothing on machines without one.
+	 */
+	isa_bridge_find_early(hose);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

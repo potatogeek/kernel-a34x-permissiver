@@ -14,12 +14,16 @@
  * Routines used by ia64 machines with contiguous (or virtually contiguous)
  * memory.
  */
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/efi.h>
 #include <linux/memblock.h>
 #include <linux/mm.h>
 #include <linux/nmi.h>
 #include <linux/swap.h>
+<<<<<<< HEAD
 
 #include <asm/meminit.h>
 #include <asm/pgalloc.h>
@@ -31,6 +35,15 @@
 static unsigned long max_gap;
 #endif
 
+=======
+#include <linux/sizes.h>
+
+#include <asm/efi.h>
+#include <asm/meminit.h>
+#include <asm/sections.h>
+#include <asm/mca.h>
+
+>>>>>>> upstream/android-13
 /* physical address where the bootmem map is located */
 unsigned long bootmap_start;
 
@@ -85,8 +98,18 @@ skip:
 static inline void
 alloc_per_cpu_data(void)
 {
+<<<<<<< HEAD
 	cpu_data = __alloc_bootmem(PERCPU_PAGE_SIZE * num_possible_cpus(),
 				   PERCPU_PAGE_SIZE, __pa(MAX_DMA_ADDRESS));
+=======
+	size_t size = PERCPU_PAGE_SIZE * num_possible_cpus();
+
+	cpu_data = memblock_alloc_from(size, PERCPU_PAGE_SIZE,
+				       __pa(MAX_DMA_ADDRESS));
+	if (!cpu_data)
+		panic("%s: Failed to allocate %lu bytes align=%lx from=%lx\n",
+		      __func__, size, PERCPU_PAGE_SIZE, __pa(MAX_DMA_ADDRESS));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -104,7 +127,10 @@ setup_per_cpu_areas(void)
 	struct pcpu_group_info *gi;
 	unsigned int cpu;
 	ssize_t static_size, reserved_size, dyn_size;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	ai = pcpu_alloc_alloc_info(1, num_possible_cpus());
 	if (!ai)
@@ -130,10 +156,14 @@ setup_per_cpu_areas(void)
 	ai->atom_size		= PAGE_SIZE;
 	ai->alloc_size		= PERCPU_PAGE_SIZE;
 
+<<<<<<< HEAD
 	rc = pcpu_setup_first_chunk(ai, __per_cpu_start + __per_cpu_offset[0]);
 	if (rc)
 		panic("failed to setup percpu area (err=%d)", rc);
 
+=======
+	pcpu_setup_first_chunk(ai, __per_cpu_start + __per_cpu_offset[0]);
+>>>>>>> upstream/android-13
 	pcpu_free_alloc_info(ai);
 }
 #else
@@ -157,17 +187,50 @@ find_memory (void)
 	efi_memmap_walk(find_max_min_low_pfn, NULL);
 	max_pfn = max_low_pfn;
 
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTUAL_MEM_MAP
 	efi_memmap_walk(filter_memory, register_active_ranges);
 #else
 	memblock_add_node(0, PFN_PHYS(max_low_pfn), 0);
 #endif
+=======
+	memblock_add_node(0, PFN_PHYS(max_low_pfn), 0);
+>>>>>>> upstream/android-13
 
 	find_initrd();
 
 	alloc_per_cpu_data();
 }
 
+<<<<<<< HEAD
+=======
+static int __init find_largest_hole(u64 start, u64 end, void *arg)
+{
+	u64 *max_gap = arg;
+
+	static u64 last_end = PAGE_OFFSET;
+
+	/* NOTE: this algorithm assumes efi memmap table is ordered */
+
+	if (*max_gap < (start - last_end))
+		*max_gap = start - last_end;
+	last_end = end;
+	return 0;
+}
+
+static void __init verify_gap_absence(void)
+{
+	unsigned long max_gap;
+
+	/* Forbid FLATMEM if hole is > than 1G */
+	efi_memmap_walk(find_largest_hole, (u64 *)&max_gap);
+	if (max_gap >= SZ_1G)
+		panic("Cannot use FLATMEM with %ldMB hole\n"
+		      "Please switch over to SPARSEMEM\n",
+		      (max_gap >> 20));
+}
+
+>>>>>>> upstream/android-13
 /*
  * Set up the page tables.
  */
@@ -179,6 +242,7 @@ paging_init (void)
 	unsigned long max_zone_pfns[MAX_NR_ZONES];
 
 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+<<<<<<< HEAD
 #ifdef CONFIG_ZONE_DMA32
 	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
 	max_zone_pfns[ZONE_DMA32] = max_dma;
@@ -211,5 +275,14 @@ paging_init (void)
 	}
 #endif /* !CONFIG_VIRTUAL_MEM_MAP */
 	free_area_init_nodes(max_zone_pfns);
+=======
+	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+	max_zone_pfns[ZONE_DMA32] = max_dma;
+	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+
+	verify_gap_absence();
+
+	free_area_init(max_zone_pfns);
+>>>>>>> upstream/android-13
 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
 }

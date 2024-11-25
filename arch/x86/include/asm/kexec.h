@@ -21,6 +21,10 @@
 #ifndef __ASSEMBLY__
 
 #include <linux/string.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 
 #include <asm/page.h>
 #include <asm/ptrace.h>
@@ -65,6 +69,7 @@ struct kimage;
 # define KEXEC_ARCH KEXEC_ARCH_X86_64
 #endif
 
+<<<<<<< HEAD
 /* Memory to backup during crash kdump */
 #define KEXEC_BACKUP_SRC_START	(0UL)
 #define KEXEC_BACKUP_SRC_END	(640 * 1024UL - 1)	/* 640K */
@@ -85,6 +90,8 @@ static inline void crash_fixup_ss_esp(struct pt_regs *newregs,
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This function is responsible for capturing register states if coming
  * via panic otherwise just fix up the ss and sp if coming via kernel
@@ -95,7 +102,10 @@ static inline void crash_setup_regs(struct pt_regs *newregs,
 {
 	if (oldregs) {
 		memcpy(newregs, oldregs, sizeof(*newregs));
+<<<<<<< HEAD
 		crash_fixup_ss_esp(newregs, oldregs);
+=======
+>>>>>>> upstream/android-13
 	} else {
 #ifdef CONFIG_X86_32
 		asm volatile("movl %%ebx,%0" : "=m"(newregs->bx));
@@ -132,7 +142,11 @@ static inline void crash_setup_regs(struct pt_regs *newregs,
 		asm volatile("movl %%cs, %%eax;" :"=a"(newregs->cs));
 		asm volatile("pushfq; popq %0" :"=m"(newregs->flags));
 #endif
+<<<<<<< HEAD
 		newregs->ip = (unsigned long)current_text_addr();
+=======
+		newregs->ip = _THIS_IP_;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -170,6 +184,7 @@ struct kimage_arch {
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
+<<<<<<< HEAD
 	/* Details of backup region */
 	unsigned long backup_src_start;
 	unsigned long backup_src_sz;
@@ -181,6 +196,8 @@ struct kimage_arch {
 	void *elf_headers;
 	unsigned long elf_headers_sz;
 	unsigned long elf_load_addr;
+=======
+>>>>>>> upstream/android-13
 };
 #endif /* CONFIG_X86_32 */
 

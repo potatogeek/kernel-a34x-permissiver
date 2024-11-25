@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2013-2014 Chelsio Communications.  All rights reserved.
  *
  *  Written by Anish Bhatt (anish@chelsio.com)
  *	       Casey Leedom (leedom@chelsio.com)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  *  The full GNU General Public License is included in this distribution in
  *  the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cxgb4.h"
@@ -114,6 +121,27 @@ void cxgb4_dcb_reset(struct net_device *dev)
 	cxgb4_dcb_state_init(dev);
 }
 
+<<<<<<< HEAD
+=======
+/* update the dcb port support, if version is IEEE then set it to
+ * FW_PORT_DCB_VER_IEEE and if DCB_CAP_DCBX_VER_CEE is already set then
+ * clear that. and if it is set to CEE then set dcb supported to
+ * DCB_CAP_DCBX_VER_CEE & if DCB_CAP_DCBX_VER_IEEE is set, clear it
+ */
+static inline void cxgb4_dcb_update_support(struct port_dcb_info *dcb)
+{
+	if (dcb->dcb_version == FW_PORT_DCB_VER_IEEE) {
+		if (dcb->supported & DCB_CAP_DCBX_VER_CEE)
+			dcb->supported &= ~DCB_CAP_DCBX_VER_CEE;
+		dcb->supported |= DCB_CAP_DCBX_VER_IEEE;
+	} else if (dcb->dcb_version == FW_PORT_DCB_VER_CEE1D01) {
+		if (dcb->supported & DCB_CAP_DCBX_VER_IEEE)
+			dcb->supported &= ~DCB_CAP_DCBX_VER_IEEE;
+		dcb->supported |= DCB_CAP_DCBX_VER_CEE;
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Finite State machine for Data Center Bridging.
  */
 void cxgb4_dcb_state_fsm(struct net_device *dev,
@@ -165,6 +193,18 @@ void cxgb4_dcb_state_fsm(struct net_device *dev,
 	}
 
 	case CXGB4_DCB_STATE_FW_INCOMPLETE: {
+<<<<<<< HEAD
+=======
+		if (transition_to != CXGB4_DCB_INPUT_FW_DISABLED) {
+			/* during this CXGB4_DCB_STATE_FW_INCOMPLETE state,
+			 * check if the dcb version is changed (there can be
+			 * mismatch in default config & the negotiated switch
+			 * configuration at FW, so update the dcb support
+			 * accordingly.
+			 */
+			cxgb4_dcb_update_support(dcb);
+		}
+>>>>>>> upstream/android-13
 		switch (transition_to) {
 		case CXGB4_DCB_INPUT_FW_ENABLED: {
 			/* we're alreaady in firmware DCB mode */

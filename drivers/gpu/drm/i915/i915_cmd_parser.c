@@ -25,8 +25,16 @@
  *
  */
 
+<<<<<<< HEAD
 #include "i915_drv.h"
 #include "intel_ringbuffer.h"
+=======
+#include "gt/intel_engine.h"
+#include "gt/intel_gpu_commands.h"
+
+#include "i915_drv.h"
+#include "i915_memcpy.h"
+>>>>>>> upstream/android-13
 
 /**
  * DOC: batch buffer command parser
@@ -233,7 +241,11 @@ static const struct drm_i915_cmd_descriptor gen7_common_cmds[] = {
 	/*
 	 * MI_BATCH_BUFFER_START requires some special handling. It's not
 	 * really a 'skip' action but it doesn't seem like it's worth adding
+<<<<<<< HEAD
 	 * a new action. See i915_parse_cmds().
+=======
+	 * a new action. See intel_engine_cmd_parser().
+>>>>>>> upstream/android-13
 	 */
 	CMD(  MI_BATCH_BUFFER_START,            SMI,   !F,  0xFF,   S  ),
 };
@@ -733,7 +745,11 @@ static u32 gen7_render_get_cmd_length_mask(u32 cmd_header)
 			return 0xFF;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG_DRIVER("CMD: Abnormal rcs cmd length! 0x%08X\n", cmd_header);
+=======
+	DRM_DEBUG("CMD: Abnormal rcs cmd length! 0x%08X\n", cmd_header);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -756,7 +772,11 @@ static u32 gen7_bsd_get_cmd_length_mask(u32 cmd_header)
 			return 0xFF;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG_DRIVER("CMD: Abnormal bsd cmd length! 0x%08X\n", cmd_header);
+=======
+	DRM_DEBUG("CMD: Abnormal bsd cmd length! 0x%08X\n", cmd_header);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -769,7 +789,11 @@ static u32 gen7_blt_get_cmd_length_mask(u32 cmd_header)
 	else if (client == INSTR_BC_CLIENT)
 		return 0xFF;
 
+<<<<<<< HEAD
 	DRM_DEBUG_DRIVER("CMD: Abnormal blt cmd length! 0x%08X\n", cmd_header);
+=======
+	DRM_DEBUG("CMD: Abnormal blt cmd length! 0x%08X\n", cmd_header);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -780,7 +804,11 @@ static u32 gen9_blt_get_cmd_length_mask(u32 cmd_header)
 	if (client == INSTR_MI_CLIENT || client == INSTR_BC_CLIENT)
 		return 0xFF;
 
+<<<<<<< HEAD
 	DRM_DEBUG_DRIVER("CMD: Abnormal blt cmd length! 0x%08X\n", cmd_header);
+=======
+	DRM_DEBUG("CMD: Abnormal blt cmd length! 0x%08X\n", cmd_header);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -805,10 +833,18 @@ static bool validate_cmds_sorted(const struct intel_engine_cs *engine,
 			u32 curr = desc->cmd.value & desc->cmd.mask;
 
 			if (curr < previous) {
+<<<<<<< HEAD
 				DRM_ERROR("CMD: %s [%d] command table not sorted: "
 					  "table=%d entry=%d cmd=0x%08X prev=0x%08X\n",
 					  engine->name, engine->id,
 					  i, j, curr, previous);
+=======
+				drm_err(&engine->i915->drm,
+					"CMD: %s [%d] command table not sorted: "
+					"table=%d entry=%d cmd=0x%08X prev=0x%08X\n",
+					engine->name, engine->id,
+					i, j, curr, previous);
+>>>>>>> upstream/android-13
 				ret = false;
 			}
 
@@ -831,10 +867,18 @@ static bool check_sorted(const struct intel_engine_cs *engine,
 		u32 curr = i915_mmio_reg_offset(reg_table[i].addr);
 
 		if (curr < previous) {
+<<<<<<< HEAD
 			DRM_ERROR("CMD: %s [%d] register table not sorted: "
 				  "entry=%d reg=0x%08X prev=0x%08X\n",
 				  engine->name, engine->id,
 				  i, curr, previous);
+=======
+			drm_err(&engine->i915->drm,
+				"CMD: %s [%d] register table not sorted: "
+				"entry=%d reg=0x%08X prev=0x%08X\n",
+				engine->name, engine->id,
+				i, curr, previous);
+>>>>>>> upstream/android-13
 			ret = false;
 		}
 
@@ -935,18 +979,31 @@ static void fini_hash_table(struct intel_engine_cs *engine)
  * struct intel_engine_cs based on whether the platform requires software
  * command parsing.
  */
+<<<<<<< HEAD
 void intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
+=======
+int intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
+>>>>>>> upstream/android-13
 {
 	const struct drm_i915_cmd_table *cmd_tables;
 	int cmd_table_count;
 	int ret;
 
+<<<<<<< HEAD
 	if (!IS_GEN7(engine->i915) && !(IS_GEN9(engine->i915) &&
 					engine->id == BCS))
 		return;
 
 	switch (engine->id) {
 	case RCS:
+=======
+	if (GRAPHICS_VER(engine->i915) != 7 && !(GRAPHICS_VER(engine->i915) == 9 &&
+						 engine->class == COPY_ENGINE_CLASS))
+		return 0;
+
+	switch (engine->class) {
+	case RENDER_CLASS:
+>>>>>>> upstream/android-13
 		if (IS_HASWELL(engine->i915)) {
 			cmd_tables = hsw_render_ring_cmd_table;
 			cmd_table_count =
@@ -965,14 +1022,24 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
 		}
 		engine->get_cmd_length_mask = gen7_render_get_cmd_length_mask;
 		break;
+<<<<<<< HEAD
 	case VCS:
+=======
+	case VIDEO_DECODE_CLASS:
+>>>>>>> upstream/android-13
 		cmd_tables = gen7_video_cmd_table;
 		cmd_table_count = ARRAY_SIZE(gen7_video_cmd_table);
 		engine->get_cmd_length_mask = gen7_bsd_get_cmd_length_mask;
 		break;
+<<<<<<< HEAD
 	case BCS:
 		engine->get_cmd_length_mask = gen7_blt_get_cmd_length_mask;
 		if (IS_GEN9(engine->i915)) {
+=======
+	case COPY_ENGINE_CLASS:
+		engine->get_cmd_length_mask = gen7_blt_get_cmd_length_mask;
+		if (GRAPHICS_VER(engine->i915) == 9) {
+>>>>>>> upstream/android-13
 			cmd_tables = gen9_blt_cmd_table;
 			cmd_table_count = ARRAY_SIZE(gen9_blt_cmd_table);
 			engine->get_cmd_length_mask =
@@ -988,7 +1055,11 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
 			cmd_table_count = ARRAY_SIZE(gen7_blt_cmd_table);
 		}
 
+<<<<<<< HEAD
 		if (IS_GEN9(engine->i915)) {
+=======
+		if (GRAPHICS_VER(engine->i915) == 9) {
+>>>>>>> upstream/android-13
 			engine->reg_tables = gen9_blt_reg_tables;
 			engine->reg_table_count =
 				ARRAY_SIZE(gen9_blt_reg_tables);
@@ -1000,13 +1071,18 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
 			engine->reg_table_count = ARRAY_SIZE(ivb_blt_reg_tables);
 		}
 		break;
+<<<<<<< HEAD
 	case VECS:
+=======
+	case VIDEO_ENHANCEMENT_CLASS:
+>>>>>>> upstream/android-13
 		cmd_tables = hsw_vebox_cmd_table;
 		cmd_table_count = ARRAY_SIZE(hsw_vebox_cmd_table);
 		/* VECS can use the same length_mask function as VCS */
 		engine->get_cmd_length_mask = gen7_bsd_get_cmd_length_mask;
 		break;
 	default:
+<<<<<<< HEAD
 		MISSING_CASE(engine->id);
 		return;
 	}
@@ -1019,16 +1095,49 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
 	if (!validate_regs_sorted(engine)) {
 		DRM_ERROR("%s: registers are not sorted\n", engine->name);
 		return;
+=======
+		MISSING_CASE(engine->class);
+		goto out;
+	}
+
+	if (!validate_cmds_sorted(engine, cmd_tables, cmd_table_count)) {
+		drm_err(&engine->i915->drm,
+			"%s: command descriptions are not sorted\n",
+			engine->name);
+		goto out;
+	}
+	if (!validate_regs_sorted(engine)) {
+		drm_err(&engine->i915->drm,
+			"%s: registers are not sorted\n", engine->name);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	ret = init_hash_table(engine, cmd_tables, cmd_table_count);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("%s: initialised failed!\n", engine->name);
 		fini_hash_table(engine);
 		return;
 	}
 
 	engine->flags |= I915_ENGINE_USING_CMD_PARSER;
+=======
+		drm_err(&engine->i915->drm,
+			"%s: initialised failed!\n", engine->name);
+		fini_hash_table(engine);
+		goto out;
+	}
+
+	engine->flags |= I915_ENGINE_USING_CMD_PARSER;
+
+out:
+	if (intel_engine_requires_cmd_parser(engine) &&
+	    !intel_engine_using_cmd_parser(engine))
+		return -EINVAL;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1129,8 +1238,12 @@ find_reg(const struct intel_engine_cs *engine, u32 addr)
 /* Returns a vmap'd pointer to dst_obj, which the caller must unmap */
 static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
 		       struct drm_i915_gem_object *src_obj,
+<<<<<<< HEAD
 		       u32 batch_start_offset,
 		       u32 batch_len,
+=======
+		       unsigned long offset, unsigned long length,
+>>>>>>> upstream/android-13
 		       bool *needs_clflush_after)
 {
 	unsigned int src_needs_clflush;
@@ -1138,6 +1251,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
 	void *dst, *src;
 	int ret;
 
+<<<<<<< HEAD
 	ret = i915_gem_obj_prepare_shmem_read(src_obj, &src_needs_clflush);
 	if (ret)
 		return ERR_PTR(ret);
@@ -1160,22 +1274,55 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
 			i915_memcpy_from_wc(dst,
 					    src + batch_start_offset,
 					    ALIGN(batch_len, 16));
+=======
+	ret = i915_gem_object_prepare_write(dst_obj, &dst_needs_clflush);
+	if (ret)
+		return ERR_PTR(ret);
+
+	dst = i915_gem_object_pin_map(dst_obj, I915_MAP_WB);
+	i915_gem_object_finish_access(dst_obj);
+	if (IS_ERR(dst))
+		return dst;
+
+	ret = i915_gem_object_prepare_read(src_obj, &src_needs_clflush);
+	if (ret) {
+		i915_gem_object_unpin_map(dst_obj);
+		return ERR_PTR(ret);
+	}
+
+	src = ERR_PTR(-ENODEV);
+	if (src_needs_clflush && i915_has_memcpy_from_wc()) {
+		src = i915_gem_object_pin_map(src_obj, I915_MAP_WC);
+		if (!IS_ERR(src)) {
+			i915_unaligned_memcpy_from_wc(dst,
+						      src + offset,
+						      length);
+>>>>>>> upstream/android-13
 			i915_gem_object_unpin_map(src_obj);
 		}
 	}
 	if (IS_ERR(src)) {
+<<<<<<< HEAD
 		void *ptr;
 		int offset, n;
 
 		offset = offset_in_page(batch_start_offset);
 
 		/* We can avoid clflushing partial cachelines before the write
+=======
+		unsigned long x, n, remain;
+		void *ptr;
+
+		/*
+		 * We can avoid clflushing partial cachelines before the write
+>>>>>>> upstream/android-13
 		 * if we only every write full cache-lines. Since we know that
 		 * both the source and destination are in multiples of
 		 * PAGE_SIZE, we can simply round up to the next cacheline.
 		 * We don't care about copying too much here as we only
 		 * validate up to the end of the batch.
 		 */
+<<<<<<< HEAD
 		if (dst_needs_clflush & CLFLUSH_BEFORE)
 			batch_len = roundup(batch_len,
 					    boot_cpu_data.x86_clflush_size);
@@ -1206,6 +1353,46 @@ unpin_src:
 	return dst;
 }
 
+=======
+		remain = length;
+		if (dst_needs_clflush & CLFLUSH_BEFORE)
+			remain = round_up(remain,
+					  boot_cpu_data.x86_clflush_size);
+
+		ptr = dst;
+		x = offset_in_page(offset);
+		for (n = offset >> PAGE_SHIFT; remain; n++) {
+			int len = min(remain, PAGE_SIZE - x);
+
+			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
+			if (src_needs_clflush)
+				drm_clflush_virt_range(src + x, len);
+			memcpy(ptr, src + x, len);
+			kunmap_atomic(src);
+
+			ptr += len;
+			remain -= len;
+			x = 0;
+		}
+	}
+
+	i915_gem_object_finish_access(src_obj);
+
+	memset32(dst + length, 0, (dst_obj->base.size - length) / sizeof(u32));
+
+	/* dst_obj is returned with vmap pinned */
+	*needs_clflush_after = dst_needs_clflush & CLFLUSH_AFTER;
+
+	return dst;
+}
+
+static inline bool cmd_desc_is(const struct drm_i915_cmd_descriptor * const desc,
+			       const u32 cmd)
+{
+	return desc->cmd.value == (cmd & desc->cmd.mask);
+}
+
+>>>>>>> upstream/android-13
 static bool check_cmd(const struct intel_engine_cs *engine,
 		      const struct drm_i915_cmd_descriptor *desc,
 		      const u32 *cmd, u32 length)
@@ -1214,7 +1401,11 @@ static bool check_cmd(const struct intel_engine_cs *engine,
 		return true;
 
 	if (desc->flags & CMD_DESC_REJECT) {
+<<<<<<< HEAD
 		DRM_DEBUG_DRIVER("CMD: Rejected command: 0x%08X\n", *cmd);
+=======
+		DRM_DEBUG("CMD: Rejected command: 0x%08X\n", *cmd);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -1234,8 +1425,13 @@ static bool check_cmd(const struct intel_engine_cs *engine,
 				find_reg(engine, reg_addr);
 
 			if (!reg) {
+<<<<<<< HEAD
 				DRM_DEBUG_DRIVER("CMD: Rejected register 0x%08X in command: 0x%08X (%s)\n",
 						 reg_addr, *cmd, engine->name);
+=======
+				DRM_DEBUG("CMD: Rejected register 0x%08X in command: 0x%08X (%s)\n",
+					  reg_addr, *cmd, engine->name);
+>>>>>>> upstream/android-13
 				return false;
 			}
 
@@ -1244,6 +1440,7 @@ static bool check_cmd(const struct intel_engine_cs *engine,
 			 * allowed mask/value pair given in the whitelist entry.
 			 */
 			if (reg->mask) {
+<<<<<<< HEAD
 				if (desc->cmd.value == MI_LOAD_REGISTER_MEM) {
 					DRM_DEBUG_DRIVER("CMD: Rejected LRM to masked register 0x%08X\n",
 							 reg_addr);
@@ -1261,6 +1458,25 @@ static bool check_cmd(const struct intel_engine_cs *engine,
 				     (cmd[offset + 1] & reg->mask) != reg->value)) {
 					DRM_DEBUG_DRIVER("CMD: Rejected LRI to masked register 0x%08X\n",
 							 reg_addr);
+=======
+				if (cmd_desc_is(desc, MI_LOAD_REGISTER_MEM)) {
+					DRM_DEBUG("CMD: Rejected LRM to masked register 0x%08X\n",
+						  reg_addr);
+					return false;
+				}
+
+				if (cmd_desc_is(desc, MI_LOAD_REGISTER_REG)) {
+					DRM_DEBUG("CMD: Rejected LRR to masked register 0x%08X\n",
+						  reg_addr);
+					return false;
+				}
+
+				if (cmd_desc_is(desc, MI_LOAD_REGISTER_IMM(1)) &&
+				    (offset + 2 > length ||
+				     (cmd[offset + 1] & reg->mask) != reg->value)) {
+					DRM_DEBUG("CMD: Rejected LRI to masked register 0x%08X\n",
+						  reg_addr);
+>>>>>>> upstream/android-13
 					return false;
 				}
 			}
@@ -1287,8 +1503,13 @@ static bool check_cmd(const struct intel_engine_cs *engine,
 			}
 
 			if (desc->bits[i].offset >= length) {
+<<<<<<< HEAD
 				DRM_DEBUG_DRIVER("CMD: Rejected command 0x%08X, too short to check bitmask (%s)\n",
 						 *cmd, engine->name);
+=======
+				DRM_DEBUG("CMD: Rejected command 0x%08X, too short to check bitmask (%s)\n",
+					  *cmd, engine->name);
+>>>>>>> upstream/android-13
 				return false;
 			}
 
@@ -1296,11 +1517,19 @@ static bool check_cmd(const struct intel_engine_cs *engine,
 				desc->bits[i].mask;
 
 			if (dword != desc->bits[i].expected) {
+<<<<<<< HEAD
 				DRM_DEBUG_DRIVER("CMD: Rejected command 0x%08X for bitmask 0x%08X (exp=0x%08X act=0x%08X) (%s)\n",
 						 *cmd,
 						 desc->bits[i].mask,
 						 desc->bits[i].expected,
 						 dword, engine->name);
+=======
+				DRM_DEBUG("CMD: Rejected command 0x%08X for bitmask 0x%08X (exp=0x%08X act=0x%08X) (%s)\n",
+					  *cmd,
+					  desc->bits[i].mask,
+					  desc->bits[i].expected,
+					  dword, engine->name);
+>>>>>>> upstream/android-13
 				return false;
 			}
 		}
@@ -1309,17 +1538,29 @@ static bool check_cmd(const struct intel_engine_cs *engine,
 	return true;
 }
 
+<<<<<<< HEAD
 static int check_bbstart(const struct i915_gem_context *ctx,
 			 u32 *cmd, u32 offset, u32 length,
 			 u32 batch_len,
 			 u64 batch_start,
 			 u64 shadow_batch_start)
+=======
+static int check_bbstart(u32 *cmd, u32 offset, u32 length,
+			 u32 batch_length,
+			 u64 batch_addr,
+			 u64 shadow_addr,
+			 const unsigned long *jump_whitelist)
+>>>>>>> upstream/android-13
 {
 	u64 jump_offset, jump_target;
 	u32 target_cmd_offset, target_cmd_index;
 
 	/* For igt compatibility on older platforms */
+<<<<<<< HEAD
 	if (CMDPARSER_USES_GGTT(ctx->i915)) {
+=======
+	if (!jump_whitelist) {
+>>>>>>> upstream/android-13
 		DRM_DEBUG("CMD: Rejecting BB_START for ggtt based submission\n");
 		return -EACCES;
 	}
@@ -1330,14 +1571,23 @@ static int check_bbstart(const struct i915_gem_context *ctx,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	jump_target = *(u64*)(cmd+1);
 	jump_offset = jump_target - batch_start;
+=======
+	jump_target = *(u64 *)(cmd + 1);
+	jump_offset = jump_target - batch_addr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Any underflow of jump_target is guaranteed to be outside the range
 	 * of a u32, so >= test catches both too large and too small
 	 */
+<<<<<<< HEAD
 	if (jump_offset >= batch_len) {
+=======
+	if (jump_offset >= batch_length) {
+>>>>>>> upstream/android-13
 		DRM_DEBUG("CMD: BB_START to 0x%llx jumps out of BB\n",
 			  jump_target);
 		return -EINVAL;
@@ -1345,20 +1595,35 @@ static int check_bbstart(const struct i915_gem_context *ctx,
 
 	/*
 	 * This cannot overflow a u32 because we already checked jump_offset
+<<<<<<< HEAD
 	 * is within the BB, and the batch_len is a u32
+=======
+	 * is within the BB, and the batch_length is a u32
+>>>>>>> upstream/android-13
 	 */
 	target_cmd_offset = lower_32_bits(jump_offset);
 	target_cmd_index = target_cmd_offset / sizeof(u32);
 
+<<<<<<< HEAD
 	*(u64*)(cmd + 1) = shadow_batch_start + target_cmd_offset;
+=======
+	*(u64 *)(cmd + 1) = shadow_addr + target_cmd_offset;
+>>>>>>> upstream/android-13
 
 	if (target_cmd_index == offset)
 		return 0;
 
+<<<<<<< HEAD
 	if (ctx->jump_whitelist_cmds <= target_cmd_index) {
 		DRM_DEBUG("CMD: Rejecting BB_START - truncated whitelist array\n");
 		return -EINVAL;
 	} else if (!test_bit(target_cmd_index, ctx->jump_whitelist)) {
+=======
+	if (IS_ERR(jump_whitelist))
+		return PTR_ERR(jump_whitelist);
+
+	if (!test_bit(target_cmd_index, jump_whitelist)) {
+>>>>>>> upstream/android-13
 		DRM_DEBUG("CMD: BB_START to 0x%llx not a previously executed cmd\n",
 			  jump_target);
 		return -EINVAL;
@@ -1367,6 +1632,7 @@ static int check_bbstart(const struct i915_gem_context *ctx,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void init_whitelist(struct i915_gem_context *ctx, u32 batch_len)
 {
 	const u32 batch_cmds = DIV_ROUND_UP(batch_len, sizeof(u32));
@@ -1401,11 +1667,31 @@ again:
 	bitmap_zero(ctx->jump_whitelist, ctx->jump_whitelist_cmds);
 
 	return;
+=======
+static unsigned long *alloc_whitelist(u32 batch_length)
+{
+	unsigned long *jmp;
+
+	/*
+	 * We expect batch_length to be less than 256KiB for known users,
+	 * i.e. we need at most an 8KiB bitmap allocation which should be
+	 * reasonably cheap due to kmalloc caches.
+	 */
+
+	/* Prefer to report transient allocation failure rather than hit oom */
+	jmp = bitmap_zalloc(DIV_ROUND_UP(batch_length, sizeof(u32)),
+			    GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_NOWARN);
+	if (!jmp)
+		return ERR_PTR(-ENOMEM);
+
+	return jmp;
+>>>>>>> upstream/android-13
 }
 
 #define LENGTH_BIAS 2
 
 /**
+<<<<<<< HEAD
  * i915_parse_cmds() - parse a submitted batch buffer for privilege violations
  * @ctx: the context in which the batch is to execute
  * @engine: the engine on which the batch is to execute
@@ -1415,6 +1701,15 @@ again:
  * @batch_len: length of the commands in batch_obj
  * @shadow_batch_obj: copy of the batch buffer in question
  * @shadow_batch_start: Canonical base address of shadow_batch_obj
+=======
+ * intel_engine_cmd_parser() - parse a batch buffer for privilege violations
+ * @engine: the engine on which the batch is to execute
+ * @batch: the batch buffer in question
+ * @batch_offset: byte offset in the batch at which execution starts
+ * @batch_length: length of the commands in batch_obj
+ * @shadow: validated copy of the batch buffer in question
+ * @trampoline: true if we need to trampoline into privileged execution
+>>>>>>> upstream/android-13
  *
  * Parses the specified batch buffer looking for privilege violations as
  * described in the overview.
@@ -1423,6 +1718,7 @@ again:
  * if the batch appears legal but should use hardware parsing
  */
 
+<<<<<<< HEAD
 int intel_engine_cmd_parser(struct i915_gem_context *ctx,
 			    struct intel_engine_cs *engine,
 			    struct drm_i915_gem_object *batch_obj,
@@ -1431,11 +1727,20 @@ int intel_engine_cmd_parser(struct i915_gem_context *ctx,
 			    u32 batch_len,
 			    struct drm_i915_gem_object *shadow_batch_obj,
 			    u64 shadow_batch_start)
+=======
+int intel_engine_cmd_parser(struct intel_engine_cs *engine,
+			    struct i915_vma *batch,
+			    unsigned long batch_offset,
+			    unsigned long batch_length,
+			    struct i915_vma *shadow,
+			    bool trampoline)
+>>>>>>> upstream/android-13
 {
 	u32 *cmd, *batch_end, offset = 0;
 	struct drm_i915_cmd_descriptor default_desc = noop_desc;
 	const struct drm_i915_cmd_descriptor *desc = &default_desc;
 	bool needs_clflush_after = false;
+<<<<<<< HEAD
 	int ret = 0;
 
 	cmd = copy_batch(shadow_batch_obj, batch_obj,
@@ -1447,13 +1752,44 @@ int intel_engine_cmd_parser(struct i915_gem_context *ctx,
 	}
 
 	init_whitelist(ctx, batch_len);
+=======
+	unsigned long *jump_whitelist;
+	u64 batch_addr, shadow_addr;
+	int ret = 0;
+
+	GEM_BUG_ON(!IS_ALIGNED(batch_offset, sizeof(*cmd)));
+	GEM_BUG_ON(!IS_ALIGNED(batch_length, sizeof(*cmd)));
+	GEM_BUG_ON(range_overflows_t(u64, batch_offset, batch_length,
+				     batch->size));
+	GEM_BUG_ON(!batch_length);
+
+	cmd = copy_batch(shadow->obj, batch->obj,
+			 batch_offset, batch_length,
+			 &needs_clflush_after);
+	if (IS_ERR(cmd)) {
+		DRM_DEBUG("CMD: Failed to copy batch\n");
+		return PTR_ERR(cmd);
+	}
+
+	jump_whitelist = NULL;
+	if (!trampoline)
+		/* Defer failure until attempted use */
+		jump_whitelist = alloc_whitelist(batch_length);
+
+	shadow_addr = gen8_canonical_addr(shadow->node.start);
+	batch_addr = gen8_canonical_addr(batch->node.start + batch_offset);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We use the batch length as size because the shadow object is as
 	 * large or larger and copy_batch() will write MI_NOPs to the extra
 	 * space. Parsing should be faster in some cases this way.
 	 */
+<<<<<<< HEAD
 	batch_end = cmd + (batch_len / sizeof(*batch_end));
+=======
+	batch_end = cmd + batch_length / sizeof(*batch_end);
+>>>>>>> upstream/android-13
 	do {
 		u32 length;
 
@@ -1462,15 +1798,22 @@ int intel_engine_cmd_parser(struct i915_gem_context *ctx,
 
 		desc = find_cmd(engine, *cmd, desc, &default_desc);
 		if (!desc) {
+<<<<<<< HEAD
 			DRM_DEBUG_DRIVER("CMD: Unrecognized command: 0x%08X\n",
 					 *cmd);
 			ret = -EINVAL;
 			goto err;
+=======
+			DRM_DEBUG("CMD: Unrecognized command: 0x%08X\n", *cmd);
+			ret = -EINVAL;
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		if (desc->flags & CMD_DESC_FIXED)
 			length = desc->length.fixed;
 		else
+<<<<<<< HEAD
 			length = ((*cmd & desc->length.mask) + LENGTH_BIAS);
 
 		if ((batch_end - cmd) < length) {
@@ -1480,10 +1823,22 @@ int intel_engine_cmd_parser(struct i915_gem_context *ctx,
 					 batch_end - cmd);
 			ret = -EINVAL;
 			goto err;
+=======
+			length = (*cmd & desc->length.mask) + LENGTH_BIAS;
+
+		if ((batch_end - cmd) < length) {
+			DRM_DEBUG("CMD: Command length exceeds batch length: 0x%08X length=%u batchlen=%td\n",
+				  *cmd,
+				  length,
+				  batch_end - cmd);
+			ret = -EINVAL;
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		if (!check_cmd(engine, desc, cmd, length)) {
 			ret = -EACCES;
+<<<<<<< HEAD
 			goto err;
 		}
 
@@ -1499,10 +1854,25 @@ int intel_engine_cmd_parser(struct i915_gem_context *ctx,
 
 		if (ctx->jump_whitelist_cmds > offset)
 			set_bit(offset, ctx->jump_whitelist);
+=======
+			break;
+		}
+
+		if (cmd_desc_is(desc, MI_BATCH_BUFFER_START)) {
+			ret = check_bbstart(cmd, offset, length, batch_length,
+					    batch_addr, shadow_addr,
+					    jump_whitelist);
+			break;
+		}
+
+		if (!IS_ERR_OR_NULL(jump_whitelist))
+			__set_bit(offset, jump_whitelist);
+>>>>>>> upstream/android-13
 
 		cmd += length;
 		offset += length;
 		if  (cmd >= batch_end) {
+<<<<<<< HEAD
 			DRM_DEBUG_DRIVER("CMD: Got to the end of the buffer w/o a BBE cmd!\n");
 			ret = -EINVAL;
 			goto err;
@@ -1517,6 +1887,57 @@ int intel_engine_cmd_parser(struct i915_gem_context *ctx,
 
 err:
 	i915_gem_object_unpin_map(shadow_batch_obj);
+=======
+			DRM_DEBUG("CMD: Got to the end of the buffer w/o a BBE cmd!\n");
+			ret = -EINVAL;
+			break;
+		}
+	} while (1);
+
+	if (trampoline) {
+		/*
+		 * With the trampoline, the shadow is executed twice.
+		 *
+		 *   1 - starting at offset 0, in privileged mode
+		 *   2 - starting at offset batch_len, as non-privileged
+		 *
+		 * Only if the batch is valid and safe to execute, do we
+		 * allow the first privileged execution to proceed. If not,
+		 * we terminate the first batch and use the second batchbuffer
+		 * entry to chain to the original unsafe non-privileged batch,
+		 * leaving it to the HW to validate.
+		 */
+		*batch_end = MI_BATCH_BUFFER_END;
+
+		if (ret) {
+			/* Batch unsafe to execute with privileges, cancel! */
+			cmd = page_mask_bits(shadow->obj->mm.mapping);
+			*cmd = MI_BATCH_BUFFER_END;
+
+			/* If batch is unsafe but valid, jump to the original */
+			if (ret == -EACCES) {
+				unsigned int flags;
+
+				flags = MI_BATCH_NON_SECURE_I965;
+				if (IS_HASWELL(engine->i915))
+					flags = MI_BATCH_NON_SECURE_HSW;
+
+				GEM_BUG_ON(!IS_GRAPHICS_VER(engine->i915, 6, 7));
+				__gen6_emit_bb_start(batch_end,
+						     batch_addr,
+						     flags);
+
+				ret = 0; /* allow execution */
+			}
+		}
+	}
+
+	i915_gem_object_flush_map(shadow->obj);
+
+	if (!IS_ERR_OR_NULL(jump_whitelist))
+		kfree(jump_whitelist);
+	i915_gem_object_unpin_map(shadow->obj);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1532,11 +1953,18 @@ err:
 int i915_cmd_parser_get_version(struct drm_i915_private *dev_priv)
 {
 	struct intel_engine_cs *engine;
+<<<<<<< HEAD
 	enum intel_engine_id id;
 	bool active = false;
 
 	/* If the command parser is not enabled, report 0 - unsupported */
 	for_each_engine(engine, dev_priv, id) {
+=======
+	bool active = false;
+
+	/* If the command parser is not enabled, report 0 - unsupported */
+	for_each_uabi_engine(engine, dev_priv) {
+>>>>>>> upstream/android-13
 		if (intel_engine_using_cmd_parser(engine)) {
 			active = true;
 			break;

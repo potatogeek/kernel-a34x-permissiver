@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* GPL HEADER START
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -21,6 +22,9 @@
  * GPL HEADER END
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2012 Xyratex Technology Limited
  */
@@ -60,10 +64,15 @@ static int crc32_setkey(struct crypto_shash *hash, const u8 *key,
 {
 	u32 *mctx = crypto_shash_ctx(hash);
 
+<<<<<<< HEAD
 	if (keylen != sizeof(u32)) {
 		crypto_shash_set_flags(hash, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+	if (keylen != sizeof(u32))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	*mctx = get_unaligned_le32(key);
 	return 0;
 }
@@ -146,7 +155,11 @@ static void __exit crc32_mod_fini(void)
 	crypto_unregister_shash(&alg);
 }
 
+<<<<<<< HEAD
 module_init(crc32_mod_init);
+=======
+subsys_initcall(crc32_mod_init);
+>>>>>>> upstream/android-13
 module_exit(crc32_mod_fini);
 
 MODULE_AUTHOR("Alexander Boyko <alexander_boyko@xyratex.com>");

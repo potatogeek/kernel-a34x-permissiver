@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (C) 1998-2008 Novell/SUSE
  * Copyright 2009-2012 Canonical Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AA_MATCH_H
@@ -41,6 +48,13 @@
 
 #define YYTH_MAGIC	0x1B5E783D
 #define YYTH_FLAG_DIFF_ENCODE	1
+<<<<<<< HEAD
+=======
+#define YYTH_FLAG_OOB_TRANS	2
+#define YYTH_FLAGS (YYTH_FLAG_DIFF_ENCODE | YYTH_FLAG_OOB_TRANS)
+
+#define MAX_OOB_SUPPORTED	1
+>>>>>>> upstream/android-13
 
 struct table_set_header {
 	u32 th_magic;		/* YYTH_MAGIC */
@@ -98,6 +112,10 @@ struct table_header {
 struct aa_dfa {
 	struct kref count;
 	u16 flags;
+<<<<<<< HEAD
+=======
+	u32 max_oob;
+>>>>>>> upstream/android-13
 	struct table_header *tables[YYTD_ID_TSIZE];
 };
 
@@ -131,6 +149,11 @@ unsigned int aa_dfa_match(struct aa_dfa *dfa, unsigned int start,
 			  const char *str);
 unsigned int aa_dfa_next(struct aa_dfa *dfa, unsigned int state,
 			 const char c);
+<<<<<<< HEAD
+=======
+unsigned int aa_dfa_outofband_transition(struct aa_dfa *dfa,
+					 unsigned int state);
+>>>>>>> upstream/android-13
 unsigned int aa_dfa_match_until(struct aa_dfa *dfa, unsigned int start,
 				const char *str, const char **retpos);
 unsigned int aa_dfa_matchn_until(struct aa_dfa *dfa, unsigned int start,
@@ -138,7 +161,11 @@ unsigned int aa_dfa_matchn_until(struct aa_dfa *dfa, unsigned int start,
 
 void aa_dfa_free_kref(struct kref *kref);
 
+<<<<<<< HEAD
 #define WB_HISTORY_SIZE 8
+=======
+#define WB_HISTORY_SIZE 24
+>>>>>>> upstream/android-13
 struct match_workbuf {
 	unsigned int count;
 	unsigned int pos;
@@ -151,7 +178,10 @@ struct match_workbuf N = {		\
 	.count = 0,			\
 	.pos = 0,			\
 	.len = 0,			\
+<<<<<<< HEAD
 	.size = WB_HISTORY_SIZE,			\
+=======
+>>>>>>> upstream/android-13
 }
 
 unsigned int aa_dfa_leftmatch(struct aa_dfa *dfa, unsigned int start,
@@ -186,5 +216,12 @@ static inline void aa_put_dfa(struct aa_dfa *dfa)
 
 #define MATCH_FLAG_DIFF_ENCODE 0x80000000
 #define MARK_DIFF_ENCODE 0x40000000
+<<<<<<< HEAD
+=======
+#define MATCH_FLAG_OOB_TRANSITION 0x20000000
+#define MATCH_FLAGS_MASK 0xff000000
+#define MATCH_FLAGS_VALID (MATCH_FLAG_DIFF_ENCODE | MATCH_FLAG_OOB_TRANSITION)
+#define MATCH_FLAGS_INVALID (MATCH_FLAGS_MASK & ~MATCH_FLAGS_VALID)
+>>>>>>> upstream/android-13
 
 #endif /* __AA_MATCH_H */

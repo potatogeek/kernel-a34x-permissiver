@@ -37,7 +37,11 @@ TTM initialization
     This section is outdated.
 
 Drivers wishing to support TTM must pass a filled :c:type:`ttm_bo_driver
+<<<<<<< HEAD
 <ttm_bo_driver>` structure to ttm_bo_device_init, together with an
+=======
+<ttm_bo_driver>` structure to ttm_device_init, together with an
+>>>>>>> upstream/android-13
 initialized global reference to the memory manager.  The ttm_bo_driver
 structure contains several fields with function pointers for
 initializing the TTM, allocating and freeing memory, waiting for command
@@ -72,17 +76,25 @@ object TTM to provide a pool for buffer object allocation by clients and
 the kernel itself. The type of this object should be
 TTM_GLOBAL_TTM_BO, and its size should be sizeof(struct
 ttm_bo_global). Again, driver-specific init and release functions may
+<<<<<<< HEAD
 be provided, likely eventually calling ttm_bo_global_init() and
 ttm_bo_global_release(), respectively. Also, like the previous
+=======
+be provided, likely eventually calling ttm_bo_global_ref_init() and
+ttm_bo_global_ref_release(), respectively. Also, like the previous
+>>>>>>> upstream/android-13
 object, ttm_global_item_ref() is used to create an initial reference
 count for the TTM, which will call your initialization function.
 
 See the radeon_ttm.c file for an example of usage.
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/drm_global.c
    :export:
 
 
+=======
+>>>>>>> upstream/android-13
 The Graphics Execution Manager (GEM)
 ====================================
 
@@ -153,19 +165,31 @@ struct :c:type:`struct drm_gem_object <drm_gem_object>`.
 To create a GEM object, a driver allocates memory for an instance of its
 specific GEM object type and initializes the embedded struct
 :c:type:`struct drm_gem_object <drm_gem_object>` with a call
+<<<<<<< HEAD
 to :c:func:`drm_gem_object_init()`. The function takes a pointer
+=======
+to drm_gem_object_init(). The function takes a pointer
+>>>>>>> upstream/android-13
 to the DRM device, a pointer to the GEM object and the buffer object
 size in bytes.
 
 GEM uses shmem to allocate anonymous pageable memory.
+<<<<<<< HEAD
 :c:func:`drm_gem_object_init()` will create an shmfs file of the
+=======
+drm_gem_object_init() will create an shmfs file of the
+>>>>>>> upstream/android-13
 requested size and store it into the struct :c:type:`struct
 drm_gem_object <drm_gem_object>` filp field. The memory is
 used as either main storage for the object when the graphics hardware
 uses system memory directly or as a backing store otherwise.
 
 Drivers are responsible for the actual physical pages allocation by
+<<<<<<< HEAD
 calling :c:func:`shmem_read_mapping_page_gfp()` for each page.
+=======
+calling shmem_read_mapping_page_gfp() for each page.
+>>>>>>> upstream/android-13
 Note that they can decide to allocate pages when initializing the GEM
 object, or to delay allocation until the memory is needed (for instance
 when a page fault occurs as a result of a userspace memory access or
@@ -174,15 +198,22 @@ when the driver needs to start a DMA transfer involving the memory).
 Anonymous pageable memory allocation is not always desired, for instance
 when the hardware requires physically contiguous system memory as is
 often the case in embedded devices. Drivers can create GEM objects with
+<<<<<<< HEAD
 no shmfs backing (called private GEM objects) by initializing them with
 a call to :c:func:`drm_gem_private_object_init()` instead of
 :c:func:`drm_gem_object_init()`. Storage for private GEM objects
 must be managed by drivers.
+=======
+no shmfs backing (called private GEM objects) by initializing them with a call
+to drm_gem_private_object_init() instead of drm_gem_object_init(). Storage for
+private GEM objects must be managed by drivers.
+>>>>>>> upstream/android-13
 
 GEM Objects Lifetime
 --------------------
 
 All GEM objects are reference-counted by the GEM core. References can be
+<<<<<<< HEAD
 acquired and release by :c:func:`calling drm_gem_object_get()` and
 :c:func:`drm_gem_object_put()` respectively. The caller must hold the
 :c:type:`struct drm_device <drm_device>` struct_mutex lock when calling
@@ -199,6 +230,20 @@ void (\*gem_free_object) (struct drm_gem_object \*obj); Drivers are
 responsible for freeing all GEM object resources. This includes the
 resources created by the GEM core, which need to be released with
 :c:func:`drm_gem_object_release()`.
+=======
+acquired and release by calling drm_gem_object_get() and drm_gem_object_put()
+respectively.
+
+When the last reference to a GEM object is released the GEM core calls
+the :c:type:`struct drm_gem_object_funcs <gem_object_funcs>` free
+operation. That operation is mandatory for GEM-enabled drivers and must
+free the GEM object and all associated resources.
+
+void (\*free) (struct drm_gem_object \*obj); Drivers are
+responsible for freeing all GEM object resources. This includes the
+resources created by the GEM core, which need to be released with
+drm_gem_object_release().
+>>>>>>> upstream/android-13
 
 GEM Objects Naming
 ------------------
@@ -214,6 +259,7 @@ to the GEM object in other standard or driver-specific ioctls. Closing a
 DRM file handle frees all its GEM handles and dereferences the
 associated GEM objects.
 
+<<<<<<< HEAD
 To create a handle for a GEM object drivers call
 :c:func:`drm_gem_handle_create()`. The function takes a pointer
 to the DRM file and the GEM object and returns a locally unique handle.
@@ -221,6 +267,13 @@ When the handle is no longer needed drivers delete it with a call to
 :c:func:`drm_gem_handle_delete()`. Finally the GEM object
 associated with a handle can be retrieved by a call to
 :c:func:`drm_gem_object_lookup()`.
+=======
+To create a handle for a GEM object drivers call drm_gem_handle_create(). The
+function takes a pointer to the DRM file and the GEM object and returns a
+locally unique handle.  When the handle is no longer needed drivers delete it
+with a call to drm_gem_handle_delete(). Finally the GEM object associated with a
+handle can be retrieved by a call to drm_gem_object_lookup().
+>>>>>>> upstream/android-13
 
 Handles don't take ownership of GEM objects, they only take a reference
 to the object that will be dropped when the handle is destroyed. To
@@ -262,7 +315,11 @@ The mmap system call can't be used directly to map GEM objects, as they
 don't have their own file handle. Two alternative methods currently
 co-exist to map GEM objects to userspace. The first method uses a
 driver-specific ioctl to perform the mapping operation, calling
+<<<<<<< HEAD
 :c:func:`do_mmap()` under the hood. This is often considered
+=======
+do_mmap() under the hood. This is often considered
+>>>>>>> upstream/android-13
 dubious, seems to be discouraged for new GEM-enabled drivers, and will
 thus not be described here.
 
@@ -271,12 +328,17 @@ The second method uses the mmap system call on the DRM file handle. void
 offset); DRM identifies the GEM object to be mapped by a fake offset
 passed through the mmap offset argument. Prior to being mapped, a GEM
 object must thus be associated with a fake offset. To do so, drivers
+<<<<<<< HEAD
 must call :c:func:`drm_gem_create_mmap_offset()` on the object.
+=======
+must call drm_gem_create_mmap_offset() on the object.
+>>>>>>> upstream/android-13
 
 Once allocated, the fake offset value must be passed to the application
 in a driver-specific way and can then be used as the mmap offset
 argument.
 
+<<<<<<< HEAD
 The GEM core provides a helper method :c:func:`drm_gem_mmap()` to
 handle object mapping. The method can be set directly as the mmap file
 operation handler. It will look up the GEM object based on the offset
@@ -288,6 +350,18 @@ relies on the driver-provided fault handler to map pages individually.
 To use :c:func:`drm_gem_mmap()`, drivers must fill the struct
 :c:type:`struct drm_driver <drm_driver>` gem_vm_ops field
 with a pointer to VM operations.
+=======
+The GEM core provides a helper method drm_gem_mmap() to
+handle object mapping. The method can be set directly as the mmap file
+operation handler. It will look up the GEM object based on the offset
+value and set the VMA operations to the :c:type:`struct drm_driver
+<drm_driver>` gem_vm_ops field. Note that drm_gem_mmap() doesn't map memory to
+userspace, but relies on the driver-provided fault handler to map pages
+individually.
+
+To use drm_gem_mmap(), drivers must fill the struct :c:type:`struct drm_driver
+<drm_driver>` gem_vm_ops field with a pointer to VM operations.
+>>>>>>> upstream/android-13
 
 The VM operations is a :c:type:`struct vm_operations_struct <vm_operations_struct>`
 made up of several fields, the more interesting ones being:
@@ -297,14 +371,23 @@ made up of several fields, the more interesting ones being:
 	struct vm_operations_struct {
 		void (*open)(struct vm_area_struct * area);
 		void (*close)(struct vm_area_struct * area);
+<<<<<<< HEAD
 		int (*fault)(struct vm_fault *vmf);
+=======
+		vm_fault_t (*fault)(struct vm_fault *vmf);
+>>>>>>> upstream/android-13
 	};
 
 
 The open and close operations must update the GEM object reference
+<<<<<<< HEAD
 count. Drivers can use the :c:func:`drm_gem_vm_open()` and
 :c:func:`drm_gem_vm_close()` helper functions directly as open
 and close handlers.
+=======
+count. Drivers can use the drm_gem_vm_open() and drm_gem_vm_close() helper
+functions directly as open and close handlers.
+>>>>>>> upstream/android-13
 
 The fault operation handler is responsible for mapping individual pages
 to userspace when a page fault occurs. Depending on the memory
@@ -316,6 +399,7 @@ Drivers that want to map the GEM object upfront instead of handling page
 faults can implement their own mmap file operation handler.
 
 For platforms without MMU the GEM core provides a helper method
+<<<<<<< HEAD
 :c:func:`drm_gem_cma_get_unmapped_area`. The mmap() routines will call
 this to get a proposed address for the mapping.
 
@@ -325,6 +409,17 @@ field with a pointer on :c:func:`drm_gem_cma_get_unmapped_area`.
 
 More detailed information about get_unmapped_area can be found in
 Documentation/nommu-mmap.txt
+=======
+drm_gem_cma_get_unmapped_area(). The mmap() routines will call this to get a
+proposed address for the mapping.
+
+To use drm_gem_cma_get_unmapped_area(), drivers must fill the struct
+:c:type:`struct file_operations <file_operations>` get_unmapped_area field with
+a pointer on drm_gem_cma_get_unmapped_area().
+
+More detailed information about get_unmapped_area can be found in
+Documentation/admin-guide/mm/nommu-mmap.rst
+>>>>>>> upstream/android-13
 
 Memory Coherency
 ----------------
@@ -383,6 +478,42 @@ GEM CMA Helper Functions Reference
 .. kernel-doc:: drivers/gpu/drm/drm_gem_cma_helper.c
    :export:
 
+<<<<<<< HEAD
+=======
+GEM SHMEM Helper Function Reference
+-----------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_shmem_helper.c
+   :doc: overview
+
+.. kernel-doc:: include/drm/drm_gem_shmem_helper.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_shmem_helper.c
+   :export:
+
+GEM VRAM Helper Functions Reference
+-----------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_vram_helper.c
+   :doc: overview
+
+.. kernel-doc:: include/drm/drm_gem_vram_helper.h
+   :internal:
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_vram_helper.c
+   :export:
+
+GEM TTM Helper Functions Reference
+-----------------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_ttm_helper.c
+   :doc: overview
+
+.. kernel-doc:: drivers/gpu/drm/drm_gem_ttm_helper.c
+   :export:
+
+>>>>>>> upstream/android-13
 VMA Offset Manager
 ==================
 
@@ -404,6 +535,7 @@ PRIME is the cross device buffer sharing framework in drm, originally
 created for the OPTIMUS range of multi-gpu platforms. To userspace PRIME
 buffers are dma-buf based file descriptors.
 
+<<<<<<< HEAD
 Overview and Driver Interface
 -----------------------------
 
@@ -441,6 +573,13 @@ struct drm_gem_object \*obj, int flags); struct drm_gem_object \*
 (\*gem_prime_import)(struct drm_device \*dev, struct dma_buf
 \*dma_buf); These two operations are mandatory for GEM drivers that
 support PRIME.
+=======
+Overview and Lifetime Rules
+---------------------------
+
+.. kernel-doc:: drivers/gpu/drm/drm_prime.c
+   :doc: overview and lifetime rules
+>>>>>>> upstream/android-13
 
 PRIME Helper Functions
 ----------------------
@@ -481,8 +620,13 @@ DRM MM Range Allocator Function References
 .. kernel-doc:: drivers/gpu/drm/drm_mm.c
    :export:
 
+<<<<<<< HEAD
 DRM Cache Handling
 ==================
+=======
+DRM Cache Handling and Fast WC memcpy()
+=======================================
+>>>>>>> upstream/android-13
 
 .. kernel-doc:: drivers/gpu/drm/drm_cache.c
    :export:
@@ -505,7 +649,11 @@ GPU Scheduler
 Overview
 --------
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/scheduler/gpu_scheduler.c
+=======
+.. kernel-doc:: drivers/gpu/drm/scheduler/sched_main.c
+>>>>>>> upstream/android-13
    :doc: Overview
 
 Scheduler Function References
@@ -514,5 +662,9 @@ Scheduler Function References
 .. kernel-doc:: include/drm/gpu_scheduler.h
    :internal:
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/gpu/drm/scheduler/gpu_scheduler.c
+=======
+.. kernel-doc:: drivers/gpu/drm/scheduler/sched_main.c
+>>>>>>> upstream/android-13
    :export:

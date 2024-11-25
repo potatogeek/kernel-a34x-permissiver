@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * mpc7448_hpc2.c
  *
@@ -11,11 +15,14 @@
  * 	Add Flat Device Tree support fot mpc7448hpc2 board
  *
  * Copyright 2004-2006 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -62,6 +69,7 @@ int mpc7448_hpc2_exclude_device(struct pci_controller *hose,
 		return PCIBIOS_SUCCESSFUL;
 }
 
+<<<<<<< HEAD
 static void __init mpc7448_hpc2_setup_arch(void)
 {
 	struct device_node *np;
@@ -72,6 +80,16 @@ static void __init mpc7448_hpc2_setup_arch(void)
 
 	/* setup PCI host bridge */
 #ifdef CONFIG_PCI
+=======
+static void __init mpc7448_hpc2_setup_pci(void)
+{
+#ifdef CONFIG_PCI
+	struct device_node *np;
+	if (ppc_md.progress)
+		ppc_md.progress("mpc7448_hpc2_setup_pci():set_bridge", 0);
+
+	/* setup PCI host bridge */
+>>>>>>> upstream/android-13
 	for_each_compatible_node(np, "pci", "tsi108-pci")
 		tsi108_setup_pci(np, MPC7448HPC2_PCI_CFG_PHYS, 0);
 
@@ -79,6 +97,14 @@ static void __init mpc7448_hpc2_setup_arch(void)
 	if (ppc_md.progress)
 		ppc_md.progress("tsi108: resources set", 0x100);
 #endif
+<<<<<<< HEAD
+=======
+}
+
+static void __init mpc7448_hpc2_setup_arch(void)
+{
+	tsi108_csr_vir_base = get_vir_csrbase();
+>>>>>>> upstream/android-13
 
 	printk(KERN_INFO "MPC7448HPC2 (TAIGA) Platform\n");
 	printk(KERN_INFO
@@ -151,7 +177,12 @@ static void __noreturn mpc7448_hpc2_restart(char *cmd)
 	local_irq_disable();
 
 	/* Set exception prefix high - to the firmware */
+<<<<<<< HEAD
 	_nmask_and_or_msr(0, MSR_IP);
+=======
+	mtmsr(mfmsr() | MSR_IP);
+	isync();
+>>>>>>> upstream/android-13
 
 	for (;;) ;		/* Spin until reset happens */
 }
@@ -173,8 +204,13 @@ static int mpc7448_machine_check_exception(struct pt_regs *regs)
 	/* Are we prepared to handle this fault */
 	if ((entry = search_exception_tables(regs->nip)) != NULL) {
 		tsi108_clear_pci_cfg_error();
+<<<<<<< HEAD
 		regs->msr |= MSR_RI;
 		regs->nip = extable_fixup(entry);
+=======
+		regs_set_recoverable(regs);
+		regs_set_return_ip(regs, extable_fixup(entry));
+>>>>>>> upstream/android-13
 		return 1;
 	}
 	return 0;
@@ -184,6 +220,10 @@ define_machine(mpc7448_hpc2){
 	.name 			= "MPC7448 HPC2",
 	.probe 			= mpc7448_hpc2_probe,
 	.setup_arch 		= mpc7448_hpc2_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs		= mpc7448_hpc2_setup_pci,
+>>>>>>> upstream/android-13
 	.init_IRQ 		= mpc7448_hpc2_init_IRQ,
 	.show_cpuinfo 		= mpc7448_hpc2_show_cpuinfo,
 	.get_irq 		= mpic_get_irq,

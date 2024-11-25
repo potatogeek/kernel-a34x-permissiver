@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      uvc_debugfs.c --  USB Video Class driver - Debugging support
  *
  *      Copyright (C) 2011
  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
  *      (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -78,12 +85,17 @@ static struct dentry *uvc_debugfs_root_dir;
 void uvc_debugfs_init_stream(struct uvc_streaming *stream)
 {
 	struct usb_device *udev = stream->dev->udev;
+<<<<<<< HEAD
 	struct dentry *dent;
 	char dir_name[32];
+=======
+	char dir_name[33];
+>>>>>>> upstream/android-13
 
 	if (uvc_debugfs_root_dir == NULL)
 		return;
 
+<<<<<<< HEAD
 	sprintf(dir_name, "%u-%u", udev->bus->busnum, udev->devnum);
 
 	dent = debugfs_create_dir(dir_name, uvc_debugfs_root_dir);
@@ -102,19 +114,33 @@ void uvc_debugfs_init_stream(struct uvc_streaming *stream)
 		uvc_debugfs_cleanup_stream(stream);
 		return;
 	}
+=======
+	snprintf(dir_name, sizeof(dir_name), "%u-%u-%u", udev->bus->busnum,
+		 udev->devnum, stream->intfnum);
+
+	stream->debugfs_dir = debugfs_create_dir(dir_name,
+						 uvc_debugfs_root_dir);
+
+	debugfs_create_file("stats", 0444, stream->debugfs_dir, stream,
+			    &uvc_debugfs_stats_fops);
+>>>>>>> upstream/android-13
 }
 
 void uvc_debugfs_cleanup_stream(struct uvc_streaming *stream)
 {
+<<<<<<< HEAD
 	if (stream->debugfs_dir == NULL)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	debugfs_remove_recursive(stream->debugfs_dir);
 	stream->debugfs_dir = NULL;
 }
 
 void uvc_debugfs_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *dir;
 
 	dir = debugfs_create_dir("uvcvideo", usb_debug_root);
@@ -124,10 +150,17 @@ void uvc_debugfs_init(void)
 	}
 
 	uvc_debugfs_root_dir = dir;
+=======
+	uvc_debugfs_root_dir = debugfs_create_dir("uvcvideo", usb_debug_root);
+>>>>>>> upstream/android-13
 }
 
 void uvc_debugfs_cleanup(void)
 {
+<<<<<<< HEAD
 	if (uvc_debugfs_root_dir != NULL)
 		debugfs_remove_recursive(uvc_debugfs_root_dir);
+=======
+	debugfs_remove_recursive(uvc_debugfs_root_dir);
+>>>>>>> upstream/android-13
 }

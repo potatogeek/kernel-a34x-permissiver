@@ -1,17 +1,31 @@
+<<<<<<< HEAD
 /*
  * r8a77970 Clock Pulse Generator / Module Standby and Software Reset
  *
  * Copyright (C) 2017 Cogent Embedded Inc.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * r8a77970 Clock Pulse Generator / Module Standby and Software Reset
+ *
+ * Copyright (C) 2017-2018 Cogent Embedded Inc.
+>>>>>>> upstream/android-13
  *
  * Based on r8a7795-cpg-mssr.c
  *
  * Copyright (C) 2015 Glider bvba
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  */
 
+=======
+ */
+
+#include <linux/clk-provider.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -22,6 +36,16 @@
 #include "renesas-cpg-mssr.h"
 #include "rcar-gen3-cpg.h"
 
+<<<<<<< HEAD
+=======
+#define CPG_SD0CKCR		0x0074
+
+enum r8a77970_clk_types {
+	CLK_TYPE_R8A77970_SD0H = CLK_TYPE_GEN3_SOC_BASE,
+	CLK_TYPE_R8A77970_SD0,
+};
+
+>>>>>>> upstream/android-13
 enum clk_ids {
 	/* Core Clock Outputs exported to DT */
 	LAST_DT_CORE_CLK = R8A77970_CLK_OSC,
@@ -42,6 +66,23 @@ enum clk_ids {
 	MOD_CLK_BASE
 };
 
+<<<<<<< HEAD
+=======
+static spinlock_t cpg_lock;
+
+static const struct clk_div_table cpg_sd0h_div_table[] = {
+	{  0,  2 }, {  1,  3 }, {  2,  4 }, {  3,  6 },
+	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
+	{  8, 24 }, { 10, 36 }, { 11, 48 }, {  0,  0 },
+};
+
+static const struct clk_div_table cpg_sd0_div_table[] = {
+	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
+	{  8, 24 }, { 10, 36 }, { 11, 48 }, { 12, 10 },
+	{  0,  0 },
+};
+
+>>>>>>> upstream/android-13
 static const struct cpg_core_clk r8a77970_core_clks[] __initconst = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",	CLK_EXTAL),
@@ -68,8 +109,21 @@ static const struct cpg_core_clk r8a77970_core_clks[] __initconst = {
 	DEF_FIXED("s2d2",	R8A77970_CLK_S2D2,  CLK_PLL1_DIV2, 12, 1),
 	DEF_FIXED("s2d4",	R8A77970_CLK_S2D4,  CLK_PLL1_DIV2, 24, 1),
 
+<<<<<<< HEAD
 	DEF_FIXED("cl",		R8A77970_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
 	DEF_FIXED("cp",		R8A77970_CLK_CP,    CLK_EXTAL,	    2, 1),
+=======
+	DEF_BASE("sd0h", R8A77970_CLK_SD0H, CLK_TYPE_R8A77970_SD0H,
+		 CLK_PLL1_DIV2),
+	DEF_BASE("sd0",	R8A77970_CLK_SD0, CLK_TYPE_R8A77970_SD0, CLK_PLL1_DIV2),
+
+	DEF_FIXED("rpc",	R8A77970_CLK_RPC,   CLK_PLL1_DIV2,  5, 1),
+	DEF_FIXED("rpcd2",	R8A77970_CLK_RPCD2, CLK_PLL1_DIV2, 10, 1),
+
+	DEF_FIXED("cl",		R8A77970_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
+	DEF_FIXED("cp",		R8A77970_CLK_CP,    CLK_EXTAL,	    2, 1),
+	DEF_FIXED("cpex",	R8A77970_CLK_CPEX,  CLK_EXTAL,	    2, 1),
+>>>>>>> upstream/android-13
 
 	DEF_DIV6P1("canfd",	R8A77970_CLK_CANFD, CLK_PLL1_DIV4, 0x244),
 	DEF_DIV6P1("mso",	R8A77970_CLK_MSO,   CLK_PLL1_DIV4, 0x014),
@@ -80,6 +134,14 @@ static const struct cpg_core_clk r8a77970_core_clks[] __initconst = {
 };
 
 static const struct mssr_mod_clk r8a77970_mod_clks[] __initconst = {
+<<<<<<< HEAD
+=======
+	DEF_MOD("tmu4",			 121,	R8A77970_CLK_S2D2),
+	DEF_MOD("tmu3",			 122,	R8A77970_CLK_S2D2),
+	DEF_MOD("tmu2",			 123,	R8A77970_CLK_S2D2),
+	DEF_MOD("tmu1",			 124,	R8A77970_CLK_S2D2),
+	DEF_MOD("tmu0",			 125,	R8A77970_CLK_CP),
+>>>>>>> upstream/android-13
 	DEF_MOD("ivcp1e",		 127,	R8A77970_CLK_S2D1),
 	DEF_MOD("scif4",		 203,	R8A77970_CLK_S2D4),
 	DEF_MOD("scif3",		 204,	R8A77970_CLK_S2D4),
@@ -92,6 +154,15 @@ static const struct mssr_mod_clk r8a77970_mod_clks[] __initconst = {
 	DEF_MOD("mfis",			 213,	R8A77970_CLK_S2D2),
 	DEF_MOD("sys-dmac2",		 217,	R8A77970_CLK_S2D1),
 	DEF_MOD("sys-dmac1",		 218,	R8A77970_CLK_S2D1),
+<<<<<<< HEAD
+=======
+	DEF_MOD("cmt3",			 300,	R8A77970_CLK_R),
+	DEF_MOD("cmt2",			 301,	R8A77970_CLK_R),
+	DEF_MOD("cmt1",			 302,	R8A77970_CLK_R),
+	DEF_MOD("cmt0",			 303,	R8A77970_CLK_R),
+	DEF_MOD("tpu0",			 304,	R8A77970_CLK_S2D4),
+	DEF_MOD("sd-if",		 314,	R8A77970_CLK_SD0),
+>>>>>>> upstream/android-13
 	DEF_MOD("rwdt",			 402,	R8A77970_CLK_R),
 	DEF_MOD("intc-ex",		 407,	R8A77970_CLK_CP),
 	DEF_MOD("intc-ap",		 408,	R8A77970_CLK_S2D1),
@@ -118,6 +189,10 @@ static const struct mssr_mod_clk r8a77970_mod_clks[] __initconst = {
 	DEF_MOD("gpio1",		 911,	R8A77970_CLK_CP),
 	DEF_MOD("gpio0",		 912,	R8A77970_CLK_CP),
 	DEF_MOD("can-fd",		 914,	R8A77970_CLK_S2D2),
+<<<<<<< HEAD
+=======
+	DEF_MOD("rpc-if",		 917,	R8A77970_CLK_RPC),
+>>>>>>> upstream/android-13
 	DEF_MOD("i2c4",			 927,	R8A77970_CLK_S2D2),
 	DEF_MOD("i2c3",			 928,	R8A77970_CLK_S2D2),
 	DEF_MOD("i2c2",			 929,	R8A77970_CLK_S2D2),
@@ -126,10 +201,17 @@ static const struct mssr_mod_clk r8a77970_mod_clks[] __initconst = {
 };
 
 static const unsigned int r8a77970_crit_mod_clks[] __initconst = {
+<<<<<<< HEAD
 	MOD_CLK_ID(408),	/* INTC-AP (GIC) */
 };
 
 
+=======
+	MOD_CLK_ID(402),	/* RWDT */
+	MOD_CLK_ID(408),	/* INTC-AP (GIC) */
+};
+
+>>>>>>> upstream/android-13
 /*
  * CPG Clock Data
  */
@@ -173,11 +255,52 @@ static int __init r8a77970_cpg_mssr_init(struct device *dev)
 	if (error)
 		return error;
 
+<<<<<<< HEAD
+=======
+	spin_lock_init(&cpg_lock);
+
+>>>>>>> upstream/android-13
 	cpg_pll_config = &cpg_pll_configs[CPG_PLL_CONFIG_INDEX(cpg_mode)];
 
 	return rcar_gen3_cpg_init(cpg_pll_config, CLK_EXTALR, cpg_mode);
 }
 
+<<<<<<< HEAD
+=======
+static struct clk * __init r8a77970_cpg_clk_register(struct device *dev,
+	const struct cpg_core_clk *core, const struct cpg_mssr_info *info,
+	struct clk **clks, void __iomem *base,
+	struct raw_notifier_head *notifiers)
+{
+	const struct clk_div_table *table;
+	const struct clk *parent;
+	unsigned int shift;
+
+	switch (core->type) {
+	case CLK_TYPE_R8A77970_SD0H:
+		table = cpg_sd0h_div_table;
+		shift = 8;
+		break;
+	case CLK_TYPE_R8A77970_SD0:
+		table = cpg_sd0_div_table;
+		shift = 4;
+		break;
+	default:
+		return rcar_gen3_cpg_clk_register(dev, core, info, clks, base,
+						  notifiers);
+	}
+
+	parent = clks[core->parent];
+	if (IS_ERR(parent))
+		return ERR_CAST(parent);
+
+	return clk_register_divider_table(NULL, core->name,
+					  __clk_get_name(parent), 0,
+					  base + CPG_SD0CKCR,
+					  shift, 4, 0, table, &cpg_lock);
+}
+
+>>>>>>> upstream/android-13
 const struct cpg_mssr_info r8a77970_cpg_mssr_info __initconst = {
 	/* Core Clocks */
 	.core_clks = r8a77970_core_clks,
@@ -196,5 +319,9 @@ const struct cpg_mssr_info r8a77970_cpg_mssr_info __initconst = {
 
 	/* Callbacks */
 	.init = r8a77970_cpg_mssr_init,
+<<<<<<< HEAD
 	.cpg_clk_register = rcar_gen3_cpg_clk_register,
+=======
+	.cpg_clk_register = r8a77970_cpg_clk_register,
+>>>>>>> upstream/android-13
 };

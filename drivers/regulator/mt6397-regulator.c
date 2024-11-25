@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MediaTek Inc.
  * Author: Flora Fu <flora.fu@mediatek.com>
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Copyright (c) 2014 MediaTek Inc.
+// Author: Flora Fu <flora.fu@mediatek.com>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/of.h>
@@ -22,9 +29,13 @@
 #include <linux/regulator/machine.h>
 #include <linux/regulator/mt6397-regulator.h>
 #include <linux/regulator/of_regulator.h>
+<<<<<<< HEAD
 
 #define MT6397_BUCK_MODE_AUTO	0
 #define MT6397_BUCK_MODE_FORCE_PWM	1
+=======
+#include <dt-bindings/regulator/mediatek,mt6397-regulator.h>
+>>>>>>> upstream/android-13
 
 /*
  * MT6397 regulators' information
@@ -43,7 +54,10 @@ struct mt6397_regulator_info {
 	u32 vselctrl_mask;
 	u32 modeset_reg;
 	u32 modeset_mask;
+<<<<<<< HEAD
 	u32 modeset_shift;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define MT6397_BUCK(match, vreg, min, max, step, volt_ranges, enreg,	\
@@ -64,6 +78,10 @@ struct mt6397_regulator_info {
 		.vsel_mask = vosel_mask,				\
 		.enable_reg = enreg,					\
 		.enable_mask = BIT(0),					\
+<<<<<<< HEAD
+=======
+		.of_map_mode = mt6397_map_mode,				\
+>>>>>>> upstream/android-13
 	},								\
 	.qi = BIT(13),							\
 	.vselon_reg = voselon,						\
@@ -71,7 +89,10 @@ struct mt6397_regulator_info {
 	.vselctrl_mask = BIT(1),					\
 	.modeset_reg = _modeset_reg,					\
 	.modeset_mask = BIT(_modeset_shift),				\
+<<<<<<< HEAD
 	.modeset_shift = _modeset_shift					\
+=======
+>>>>>>> upstream/android-13
 }
 
 #define MT6397_LDO(match, vreg, ldo_volt_table, enreg, enbit, vosel,	\
@@ -111,6 +132,7 @@ struct mt6397_regulator_info {
 	.qi = BIT(15),							\
 }
 
+<<<<<<< HEAD
 static const struct regulator_linear_range buck_volt_range1[] = {
 	REGULATOR_LINEAR_RANGE(700000, 0, 0x7f, 6250),
 };
@@ -155,6 +177,64 @@ static const u32 ldo_volt_table7[] = {
 	1300000, 1500000, 1800000, 2000000, 2500000, 2800000, 3000000, 3300000,
 };
 
+=======
+static const struct linear_range buck_volt_range1[] = {
+	REGULATOR_LINEAR_RANGE(700000, 0, 0x7f, 6250),
+};
+
+static const struct linear_range buck_volt_range2[] = {
+	REGULATOR_LINEAR_RANGE(800000, 0, 0x7f, 6250),
+};
+
+static const struct linear_range buck_volt_range3[] = {
+	REGULATOR_LINEAR_RANGE(1500000, 0, 0x1f, 20000),
+};
+
+static const unsigned int ldo_volt_table1[] = {
+	1500000, 1800000, 2500000, 2800000,
+};
+
+static const unsigned int ldo_volt_table2[] = {
+	1800000, 3300000,
+};
+
+static const unsigned int ldo_volt_table3[] = {
+	3000000, 3300000,
+};
+
+static const unsigned int ldo_volt_table4[] = {
+	1220000, 1300000, 1500000, 1800000, 2500000, 2800000, 3000000, 3300000,
+};
+
+static const unsigned int ldo_volt_table5[] = {
+	1200000, 1300000, 1500000, 1800000, 2500000, 2800000, 3000000, 3300000,
+};
+
+static const unsigned int ldo_volt_table5_v2[] = {
+	1200000, 1000000, 1500000, 1800000, 2500000, 2800000, 3000000, 3300000,
+};
+
+static const unsigned int ldo_volt_table6[] = {
+	1200000, 1300000, 1500000, 1800000, 2500000, 2800000, 3000000, 2000000,
+};
+
+static const unsigned int ldo_volt_table7[] = {
+	1300000, 1500000, 1800000, 2000000, 2500000, 2800000, 3000000, 3300000,
+};
+
+static unsigned int mt6397_map_mode(unsigned int mode)
+{
+	switch (mode) {
+	case MT6397_BUCK_MODE_AUTO:
+		return REGULATOR_MODE_NORMAL;
+	case MT6397_BUCK_MODE_FORCE_PWM:
+		return REGULATOR_MODE_FAST;
+	default:
+		return REGULATOR_MODE_INVALID;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int mt6397_regulator_set_mode(struct regulator_dev *rdev,
 				     unsigned int mode)
 {
@@ -173,11 +253,19 @@ static int mt6397_regulator_set_mode(struct regulator_dev *rdev,
 		goto err_mode;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&rdev->dev, "mt6397 buck set_mode %#x, %#x, %#x, %#x\n",
 		info->modeset_reg, info->modeset_mask,
 		info->modeset_shift, val);
 
 	val <<= info->modeset_shift;
+=======
+	dev_dbg(&rdev->dev, "mt6397 buck set_mode %#x, %#x, %#x\n",
+		info->modeset_reg, info->modeset_mask, val);
+
+	val <<= ffs(info->modeset_mask) - 1;
+
+>>>>>>> upstream/android-13
 	ret = regmap_update_bits(rdev->regmap, info->modeset_reg,
 				 info->modeset_mask, val);
 err_mode:
@@ -202,7 +290,14 @@ static unsigned int mt6397_regulator_get_mode(struct regulator_dev *rdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	switch ((regval & info->modeset_mask) >> info->modeset_shift) {
+=======
+	regval &= info->modeset_mask;
+	regval >>= ffs(info->modeset_mask) - 1;
+
+	switch (regval) {
+>>>>>>> upstream/android-13
 	case MT6397_BUCK_MODE_AUTO:
 		return REGULATOR_MODE_NORMAL;
 	case MT6397_BUCK_MODE_FORCE_PWM:

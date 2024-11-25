@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -8,6 +9,10 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2004 IDT Inc.
  *  Copyright (C) 2006 Felix Fietkau <nbd@openwrt.org>
@@ -15,8 +20,11 @@
 #ifndef __ASM_RC32434_RB_H
 #define __ASM_RC32434_RB_H
 
+<<<<<<< HEAD
 #include <linux/genhd.h>
 
+=======
+>>>>>>> upstream/android-13
 #define REGBASE		0x18000000
 #define IDT434_REG_BASE ((volatile void *) KSEG1ADDR(REGBASE))
 #define UART0BASE	0x58000
@@ -71,12 +79,15 @@ struct korina_device {
 	struct net_device *dev;
 };
 
+<<<<<<< HEAD
 struct cf_device {
 	int gpio_pin;
 	void *dev;
 	struct gendisk *gd;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mpmc_device {
 	unsigned char	state;
 	spinlock_t	lock;

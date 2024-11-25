@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_CFG_COMMON_H_
 #define ADF_CFG_COMMON_H_
 
@@ -76,11 +81,17 @@ enum adf_device_type {
 	DEV_C62X,
 	DEV_C62XVF,
 	DEV_C3XXX,
+<<<<<<< HEAD
 	DEV_C3XXXVF
+=======
+	DEV_C3XXXVF,
+	DEV_4XXX,
+>>>>>>> upstream/android-13
 };
 
 struct adf_dev_status_info {
 	enum adf_device_type type;
+<<<<<<< HEAD
 	u32 accel_id;
 	u32 instance_id;
 	uint8_t num_ae;
@@ -91,6 +102,18 @@ struct adf_dev_status_info {
 	uint8_t bus;
 	uint8_t dev;
 	uint8_t fun;
+=======
+	__u32 accel_id;
+	__u32 instance_id;
+	__u8 num_ae;
+	__u8 num_accel;
+	__u8 num_logical_accel;
+	__u8 banks_per_accel;
+	__u8 state;
+	__u8 bus;
+	__u8 dev;
+	__u8 fun;
+>>>>>>> upstream/android-13
 	char name[MAX_DEVICE_NAME_SIZE];
 };
 
@@ -101,6 +124,11 @@ struct adf_dev_status_info {
 		struct adf_user_cfg_ctl_data)
 #define IOCTL_START_ACCEL_DEV _IOW(ADF_CTL_IOC_MAGIC, 2, \
 		struct adf_user_cfg_ctl_data)
+<<<<<<< HEAD
 #define IOCTL_STATUS_ACCEL_DEV _IOW(ADF_CTL_IOC_MAGIC, 3, uint32_t)
 #define IOCTL_GET_NUM_DEVICES _IOW(ADF_CTL_IOC_MAGIC, 4, int32_t)
+=======
+#define IOCTL_STATUS_ACCEL_DEV _IOW(ADF_CTL_IOC_MAGIC, 3, __u32)
+#define IOCTL_GET_NUM_DEVICES _IOW(ADF_CTL_IOC_MAGIC, 4, __s32)
+>>>>>>> upstream/android-13
 #endif

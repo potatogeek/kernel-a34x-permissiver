@@ -1,5 +1,9 @@
 /*
  * Copyright 2013-2014 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
+=======
+ * Copyright 2018 NXP
+>>>>>>> upstream/android-13
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -50,6 +54,10 @@
 
 / {
 	model = "LS1021A TWR Board";
+<<<<<<< HEAD
+=======
+	compatible = "fsl,ls1021a-twr", "fsl,ls1021a";
+>>>>>>> upstream/android-13
 
 	aliases {
 		enet2_rgmii_phy = &rgmii_phy1;
@@ -203,6 +211,10 @@
 		#size-cells = <1>;
 		compatible = "cfi-flash";
 		reg = <0x0 0x0 0x8000000>;
+<<<<<<< HEAD
+=======
+		big-endian;
+>>>>>>> upstream/android-13
 		bank-width = <2>;
 		device-width = <1>;
 	};
@@ -239,6 +251,23 @@
         status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&qspi {
+	status = "okay";
+
+	n25q128a130: flash@0 {
+		compatible = "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
+	};
+};
+
+>>>>>>> upstream/android-13
 &sai1 {
 	status = "okay";
 };

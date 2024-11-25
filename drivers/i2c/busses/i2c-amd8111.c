@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SMBus 2.0 driver for AMD-8111 IO-Hub.
  *
  * Copyright (c) 2002 Vojtech Pavlik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -189,9 +196,15 @@ static int amd_ec_write(struct amd_smbus *smbus, unsigned char address,
 #define AMD_SMB_PRTCL_PEC		0x80
 
 
+<<<<<<< HEAD
 static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
 		unsigned short flags, char read_write, u8 command, int size,
 		union i2c_smbus_data * data)
+=======
+static s32 amd8111_access(struct i2c_adapter *adap, u16 addr,
+		unsigned short flags, char read_write, u8 command, int size,
+		union i2c_smbus_data *data)
+>>>>>>> upstream/android-13
 {
 	struct amd_smbus *smbus = adap->algo_data;
 	unsigned char protocol, len, pec, temp[2];
@@ -202,6 +215,7 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
 	pec = (flags & I2C_CLIENT_PEC) ? AMD_SMB_PRTCL_PEC : 0;
 
 	switch (size) {
+<<<<<<< HEAD
 		case I2C_SMBUS_QUICK:
 			protocol |= AMD_SMB_PRTCL_QUICK;
 			read_write = I2C_SMBUS_WRITE;
@@ -310,10 +324,65 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
 			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
 			if (status)
 				return status;
+=======
+	case I2C_SMBUS_QUICK:
+		protocol |= AMD_SMB_PRTCL_QUICK;
+		read_write = I2C_SMBUS_WRITE;
+		break;
+
+	case I2C_SMBUS_BYTE:
+		if (read_write == I2C_SMBUS_WRITE) {
+			status = amd_ec_write(smbus, AMD_SMB_CMD,
+						command);
+			if (status)
+				return status;
+		}
+		protocol |= AMD_SMB_PRTCL_BYTE;
+		break;
+
+	case I2C_SMBUS_BYTE_DATA:
+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
+		if (status)
+			return status;
+		if (read_write == I2C_SMBUS_WRITE) {
+			status = amd_ec_write(smbus, AMD_SMB_DATA,
+						data->byte);
+			if (status)
+				return status;
+		}
+		protocol |= AMD_SMB_PRTCL_BYTE_DATA;
+		break;
+
+	case I2C_SMBUS_WORD_DATA:
+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
+		if (status)
+			return status;
+		if (read_write == I2C_SMBUS_WRITE) {
+			status = amd_ec_write(smbus, AMD_SMB_DATA,
+						data->word & 0xff);
+			if (status)
+				return status;
+			status = amd_ec_write(smbus, AMD_SMB_DATA + 1,
+						data->word >> 8);
+			if (status)
+				return status;
+		}
+		protocol |= AMD_SMB_PRTCL_WORD_DATA | pec;
+		break;
+
+	case I2C_SMBUS_BLOCK_DATA:
+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
+		if (status)
+			return status;
+		if (read_write == I2C_SMBUS_WRITE) {
+			len = min_t(u8, data->block[0],
+					I2C_SMBUS_BLOCK_MAX);
+>>>>>>> upstream/android-13
 			status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
 			if (status)
 				return status;
 			for (i = 0; i < len; i++) {
+<<<<<<< HEAD
 				status = amd_ec_write(smbus, AMD_SMB_DATA + i,
 						      data->block[i + 1]);
 				if (status)
@@ -326,6 +395,76 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
 		default:
 			dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
 			return -EOPNOTSUPP;
+=======
+				status =
+					amd_ec_write(smbus, AMD_SMB_DATA + i,
+						data->block[i + 1]);
+				if (status)
+					return status;
+			}
+		}
+		protocol |= AMD_SMB_PRTCL_BLOCK_DATA | pec;
+		break;
+
+	case I2C_SMBUS_I2C_BLOCK_DATA:
+		len = min_t(u8, data->block[0],
+				I2C_SMBUS_BLOCK_MAX);
+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
+		if (status)
+			return status;
+		status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
+		if (status)
+			return status;
+		if (read_write == I2C_SMBUS_WRITE)
+			for (i = 0; i < len; i++) {
+				status =
+					amd_ec_write(smbus, AMD_SMB_DATA + i,
+						data->block[i + 1]);
+				if (status)
+					return status;
+			}
+		protocol |= AMD_SMB_PRTCL_I2C_BLOCK_DATA;
+		break;
+
+	case I2C_SMBUS_PROC_CALL:
+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
+		if (status)
+			return status;
+		status = amd_ec_write(smbus, AMD_SMB_DATA,
+					data->word & 0xff);
+		if (status)
+			return status;
+		status = amd_ec_write(smbus, AMD_SMB_DATA + 1,
+					data->word >> 8);
+		if (status)
+			return status;
+		protocol = AMD_SMB_PRTCL_PROC_CALL | pec;
+		read_write = I2C_SMBUS_READ;
+		break;
+
+	case I2C_SMBUS_BLOCK_PROC_CALL:
+		len = min_t(u8, data->block[0],
+				I2C_SMBUS_BLOCK_MAX - 1);
+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
+		if (status)
+			return status;
+		status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
+		if (status)
+			return status;
+		for (i = 0; i < len; i++) {
+			status = amd_ec_write(smbus, AMD_SMB_DATA + i,
+						data->block[i + 1]);
+			if (status)
+				return status;
+		}
+		protocol = AMD_SMB_PRTCL_BLOCK_PROC_CALL | pec;
+		read_write = I2C_SMBUS_READ;
+		break;
+
+	default:
+		dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	status = amd_ec_write(smbus, AMD_SMB_ADDR, addr << 1);
@@ -360,6 +499,7 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
 		return 0;
 
 	switch (size) {
+<<<<<<< HEAD
 		case I2C_SMBUS_BYTE:
 		case I2C_SMBUS_BYTE_DATA:
 			status = amd_ec_read(smbus, AMD_SMB_DATA, &data->byte);
@@ -394,6 +534,42 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
 			}
 			data->block[0] = len;
 			break;
+=======
+	case I2C_SMBUS_BYTE:
+	case I2C_SMBUS_BYTE_DATA:
+		status = amd_ec_read(smbus, AMD_SMB_DATA, &data->byte);
+		if (status)
+			return status;
+		break;
+
+	case I2C_SMBUS_WORD_DATA:
+	case I2C_SMBUS_PROC_CALL:
+		status = amd_ec_read(smbus, AMD_SMB_DATA, temp + 0);
+		if (status)
+			return status;
+		status = amd_ec_read(smbus, AMD_SMB_DATA + 1, temp + 1);
+		if (status)
+			return status;
+		data->word = (temp[1] << 8) | temp[0];
+		break;
+
+	case I2C_SMBUS_BLOCK_DATA:
+	case I2C_SMBUS_BLOCK_PROC_CALL:
+		status = amd_ec_read(smbus, AMD_SMB_BCNT, &len);
+		if (status)
+			return status;
+		len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
+		fallthrough;
+	case I2C_SMBUS_I2C_BLOCK_DATA:
+		for (i = 0; i < len; i++) {
+			status = amd_ec_read(smbus, AMD_SMB_DATA + i,
+						data->block + i + 1);
+			if (status)
+				return status;
+		}
+		data->block[0] = len;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

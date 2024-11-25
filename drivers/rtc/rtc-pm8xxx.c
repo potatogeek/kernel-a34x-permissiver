@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/of.h>
 #include <linux/module.h>
@@ -28,6 +33,10 @@
 /* RTC_CTRL register bit fields */
 #define PM8xxx_RTC_ENABLE		BIT(7)
 #define PM8xxx_RTC_ALARM_CLEAR		BIT(0)
+<<<<<<< HEAD
+=======
+#define PM8xxx_RTC_ALARM_ENABLE		BIT(7)
+>>>>>>> upstream/android-13
 
 #define NUM_8_BIT_RTC_REGS		0x4
 
@@ -57,7 +66,11 @@ struct pm8xxx_rtc_regs {
  * @regmap:		regmap used to access RTC registers
  * @allow_set_time:	indicates whether writing to the RTC is allowed
  * @rtc_alarm_irq:	rtc alarm irq number.
+<<<<<<< HEAD
  * @ctrl_reg:		rtc control register.
+=======
+ * @regs:		rtc registers description.
+>>>>>>> upstream/android-13
  * @rtc_dev:		device structure.
  * @ctrl_reg_lock:	spinlock protecting access to ctrl_reg.
  */
@@ -92,7 +105,11 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	if (!rtc_dd->allow_set_time)
 		return -EACCES;
 
+<<<<<<< HEAD
 	rtc_tm_to_time(tm, &secs);
+=======
+	secs = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
 
@@ -216,11 +233,17 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
 	       ((unsigned long)value[3] << 24);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(secs, tm);
 
 	dev_dbg(dev, "secs = %lu, h:m:s == %d:%d:%d, d/m/y = %d/%d/%d\n",
 		secs, tm->tm_hour, tm->tm_min, tm->tm_sec,
 		tm->tm_mday, tm->tm_mon, tm->tm_year);
+=======
+	rtc_time64_to_tm(secs, tm);
+
+	dev_dbg(dev, "secs = %lu, h:m:s == %ptRt, y-m-d = %ptRdr\n", secs, tm, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -234,7 +257,11 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
 
+<<<<<<< HEAD
 	rtc_tm_to_time(&alarm->time, &secs);
+=======
+	secs = rtc_tm_to_time64(&alarm->time);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
 		value[i] = secs & 0xFF;
@@ -265,10 +292,15 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 		goto rtc_rw_fail;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(dev, "Alarm Set for h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
 		alarm->time.tm_hour, alarm->time.tm_min,
 		alarm->time.tm_sec, alarm->time.tm_mday,
 		alarm->time.tm_mon, alarm->time.tm_year);
+=======
+	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
+		&alarm->time, &alarm->time);
+>>>>>>> upstream/android-13
 rtc_rw_fail:
 	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
 	return rc;
@@ -277,6 +309,10 @@ rtc_rw_fail:
 static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 {
 	int rc;
+<<<<<<< HEAD
+=======
+	unsigned int ctrl_reg;
+>>>>>>> upstream/android-13
 	u8 value[NUM_8_BIT_RTC_REGS];
 	unsigned long secs;
 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
@@ -292,6 +328,7 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
 	       ((unsigned long)value[3] << 24);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(secs, &alarm->time);
 
 	rc = rtc_valid_tm(&alarm->time);
@@ -304,6 +341,19 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 		alarm->time.tm_hour, alarm->time.tm_min,
 		alarm->time.tm_sec, alarm->time.tm_mday,
 		alarm->time.tm_mon, alarm->time.tm_year);
+=======
+	rtc_time64_to_tm(secs, &alarm->time);
+
+	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
+	if (rc) {
+		dev_err(dev, "Read from RTC alarm control register failed\n");
+		return rc;
+	}
+	alarm->enabled = !!(ctrl_reg & PM8xxx_RTC_ALARM_ENABLE);
+
+	dev_dbg(dev, "Alarm set for - h:m:s=%ptRt, y-m-d=%ptRdr\n",
+		&alarm->time, &alarm->time);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -315,6 +365,10 @@ static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
 	unsigned int ctrl_reg;
+<<<<<<< HEAD
+=======
+	u8 value[NUM_8_BIT_RTC_REGS] = {0};
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
 
@@ -333,6 +387,19 @@ static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
 		goto rtc_rw_fail;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Clear Alarm register */
+	if (!enable) {
+		rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
+				       sizeof(value));
+		if (rc) {
+			dev_err(dev, "Clear RTC ALARM register failed\n");
+			goto rtc_rw_fail;
+		}
+	}
+
+>>>>>>> upstream/android-13
 rtc_rw_fail:
 	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
 	return rc;
@@ -352,16 +419,27 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
 	unsigned int ctrl_reg;
 	int rc;
+<<<<<<< HEAD
 	unsigned long irq_flags;
 
 	rtc_update_irq(rtc_dd->rtc, 1, RTC_IRQF | RTC_AF);
 
 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+=======
+
+	rtc_update_irq(rtc_dd->rtc, 1, RTC_IRQF | RTC_AF);
+
+	spin_lock(&rtc_dd->ctrl_reg_lock);
+>>>>>>> upstream/android-13
 
 	/* Clear the alarm enable bit */
 	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
 	if (rc) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
+=======
+		spin_unlock(&rtc_dd->ctrl_reg_lock);
+>>>>>>> upstream/android-13
 		goto rtc_alarm_handled;
 	}
 
@@ -369,13 +447,21 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
 
 	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
 	if (rc) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
+=======
+		spin_unlock(&rtc_dd->ctrl_reg_lock);
+>>>>>>> upstream/android-13
 		dev_err(rtc_dd->rtc_dev,
 			"Write to alarm control register failed\n");
 		goto rtc_alarm_handled;
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
+=======
+	spin_unlock(&rtc_dd->ctrl_reg_lock);
+>>>>>>> upstream/android-13
 
 	/* Clear RTC alarm register */
 	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl2, &ctrl_reg);
@@ -446,6 +532,19 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
 	.alarm_en	= BIT(7),
 };
 
+<<<<<<< HEAD
+=======
+static const struct pm8xxx_rtc_regs pmk8350_regs = {
+	.ctrl		= 0x6146,
+	.write		= 0x6140,
+	.read		= 0x6148,
+	.alarm_rw	= 0x6240,
+	.alarm_ctrl	= 0x6246,
+	.alarm_ctrl2	= 0x6248,
+	.alarm_en	= BIT(7),
+};
+
+>>>>>>> upstream/android-13
 /*
  * Hardcoded RTC bases until IORESOURCE_REG mapping is figured out
  */
@@ -454,6 +553,10 @@ static const struct of_device_id pm8xxx_id_table[] = {
 	{ .compatible = "qcom,pm8018-rtc", .data = &pm8921_regs },
 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+<<<<<<< HEAD
+=======
+	{ .compatible = "qcom,pmk8350-rtc", .data = &pmk8350_regs },
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(of, pm8xxx_id_table);
@@ -482,10 +585,15 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
 	}
 
 	rtc_dd->rtc_alarm_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (rtc_dd->rtc_alarm_irq < 0) {
 		dev_err(&pdev->dev, "Alarm IRQ resource absent!\n");
 		return -ENXIO;
 	}
+=======
+	if (rtc_dd->rtc_alarm_irq < 0)
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	rtc_dd->allow_set_time = of_property_read_bool(pdev->dev.of_node,
 						      "allow-set-time");
@@ -502,6 +610,7 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
 	device_init_wakeup(&pdev->dev, 1);
 
 	/* Register the RTC device */
+<<<<<<< HEAD
 	rtc_dd->rtc = devm_rtc_device_register(&pdev->dev, "pm8xxx_rtc",
 					       &pm8xxx_rtc_ops, THIS_MODULE);
 	if (IS_ERR(rtc_dd->rtc)) {
@@ -509,6 +618,14 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
 			__func__, PTR_ERR(rtc_dd->rtc));
 		return PTR_ERR(rtc_dd->rtc);
 	}
+=======
+	rtc_dd->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc_dd->rtc))
+		return PTR_ERR(rtc_dd->rtc);
+
+	rtc_dd->rtc->ops = &pm8xxx_rtc_ops;
+	rtc_dd->rtc->range_max = U32_MAX;
+>>>>>>> upstream/android-13
 
 	/* Request the alarm IRQ */
 	rc = devm_request_any_context_irq(&pdev->dev, rtc_dd->rtc_alarm_irq,
@@ -520,9 +637,13 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
 		return rc;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&pdev->dev, "Probe success !!\n");
 
 	return 0;
+=======
+	return devm_rtc_register_device(rtc_dd->rtc);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP

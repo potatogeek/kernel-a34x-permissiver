@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Ptrace support for Hexagon
  *
  * Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -48,6 +55,7 @@ void user_disable_single_step(struct task_struct *child)
 
 static int genregs_get(struct task_struct *target,
 		   const struct user_regset *regset,
+<<<<<<< HEAD
 		   unsigned int pos, unsigned int count,
 		   void *kbuf, void __user *ubuf)
 {
@@ -59,12 +67,19 @@ static int genregs_get(struct task_struct *target,
 	if (!regs)
 		return -EIO;
 
+=======
+		   struct membuf to)
+{
+	struct pt_regs *regs = task_pt_regs(target);
+
+>>>>>>> upstream/android-13
 	/* The general idea here is that the copyout must happen in
 	 * exactly the same order in which the userspace expects these
 	 * regs. Now, the sequence in userspace does not match the
 	 * sequence in the kernel, so everything past the 32 gprs
 	 * happens one at a time.
 	 */
+<<<<<<< HEAD
 	ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				  &regs->r00, 0, 32*sizeof(unsigned long));
 
@@ -100,6 +115,30 @@ static int genregs_get(struct task_struct *target,
 		ret = user_regset_copyout_zero(&pos, &count, &kbuf, &ubuf,
 					offsetof(struct user_regs_struct, pad1), -1);
 	return ret;
+=======
+	membuf_write(&to, &regs->r00, 32*sizeof(unsigned long));
+	/* Must be exactly same sequence as struct user_regs_struct */
+	membuf_store(&to, regs->sa0);
+	membuf_store(&to, regs->lc0);
+	membuf_store(&to, regs->sa1);
+	membuf_store(&to, regs->lc1);
+	membuf_store(&to, regs->m0);
+	membuf_store(&to, regs->m1);
+	membuf_store(&to, regs->usr);
+	membuf_store(&to, regs->preds);
+	membuf_store(&to, regs->gp);
+	membuf_store(&to, regs->ugp);
+	membuf_store(&to, pt_elr(regs)); // pc
+	membuf_store(&to, (unsigned long)pt_cause(regs)); // cause
+	membuf_store(&to, pt_badva(regs)); // badva
+#if CONFIG_HEXAGON_ARCH_VERSION >=4
+	membuf_store(&to, regs->cs0);
+	membuf_store(&to, regs->cs1);
+	return membuf_zero(&to, sizeof(unsigned long));
+#else
+	return membuf_zero(&to, 3 * sizeof(unsigned long));
+#endif
+>>>>>>> upstream/android-13
 }
 
 static int genregs_set(struct task_struct *target,
@@ -172,7 +211,11 @@ static const struct user_regset hexagon_regsets[] = {
 		.n = ELF_NGREG,
 		.size = sizeof(unsigned long),
 		.align = sizeof(unsigned long),
+<<<<<<< HEAD
 		.get = genregs_get,
+=======
+		.regset_get = genregs_get,
+>>>>>>> upstream/android-13
 		.set = genregs_set,
 	},
 };

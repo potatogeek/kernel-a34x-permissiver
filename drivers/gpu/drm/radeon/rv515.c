@@ -25,6 +25,7 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <drm/drmP.h>
@@ -37,6 +38,22 @@
 /* This files gather functions specifics to: rv515 */
 static int rv515_debugfs_pipes_info_init(struct radeon_device *rdev);
 static int rv515_debugfs_ga_info_init(struct radeon_device *rdev);
+=======
+
+#include <linux/seq_file.h>
+#include <linux/slab.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+
+#include "atom.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "rv515_reg_safe.h"
+#include "rv515d.h"
+
+/* This files gather functions specifics to: rv515 */
+>>>>>>> upstream/android-13
 static void rv515_gpu_init(struct radeon_device *rdev);
 int rv515_mc_wait_for_idle(struct radeon_device *rdev);
 
@@ -46,6 +63,7 @@ static const u32 crtc_offsets[2] =
 	AVIVO_D2CRTC_H_TOTAL - AVIVO_D1CRTC_H_TOTAL
 };
 
+<<<<<<< HEAD
 void rv515_debugfs(struct radeon_device *rdev)
 {
 	if (r100_debugfs_rbbm_init(rdev)) {
@@ -59,6 +77,8 @@ void rv515_debugfs(struct radeon_device *rdev)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void rv515_ring_start(struct radeon_device *rdev, struct radeon_ring *ring)
 {
 	int r;
@@ -138,7 +158,11 @@ int rv515_mc_wait_for_idle(struct radeon_device *rdev)
 		if (tmp & MC_STATUS_IDLE) {
 			return 0;
 		}
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 	return -1;
 }
@@ -230,11 +254,17 @@ void rv515_mc_wreg(struct radeon_device *rdev, uint32_t reg, uint32_t v)
 }
 
 #if defined(CONFIG_DEBUG_FS)
+<<<<<<< HEAD
 static int rv515_debugfs_pipes_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
 	struct drm_device *dev = node->minor->dev;
 	struct radeon_device *rdev = dev->dev_private;
+=======
+static int rv515_debugfs_pipes_info_show(struct seq_file *m, void *unused)
+{
+	struct radeon_device *rdev = (struct radeon_device *)m->private;
+>>>>>>> upstream/android-13
 	uint32_t tmp;
 
 	tmp = RREG32(GB_PIPE_SELECT);
@@ -248,11 +278,17 @@ static int rv515_debugfs_pipes_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rv515_debugfs_ga_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
 	struct drm_device *dev = node->minor->dev;
 	struct radeon_device *rdev = dev->dev_private;
+=======
+static int rv515_debugfs_ga_info_show(struct seq_file *m, void *unused)
+{
+	struct radeon_device *rdev = (struct radeon_device *)m->private;
+>>>>>>> upstream/android-13
 	uint32_t tmp;
 
 	tmp = RREG32(0x2140);
@@ -263,6 +299,7 @@ static int rv515_debugfs_ga_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct drm_info_list rv515_pipes_info_list[] = {
 	{"rv515_pipes_info", rv515_debugfs_pipes_info, 0, NULL},
 };
@@ -288,6 +325,23 @@ static int rv515_debugfs_ga_info_init(struct radeon_device *rdev)
 #else
 	return 0;
 #endif
+=======
+DEFINE_SHOW_ATTRIBUTE(rv515_debugfs_pipes_info);
+DEFINE_SHOW_ATTRIBUTE(rv515_debugfs_ga_info);
+#endif
+
+void rv515_debugfs(struct radeon_device *rdev)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct dentry *root = rdev->ddev->primary->debugfs_root;
+
+	debugfs_create_file("rv515_pipes_info", 0444, root, rdev,
+			    &rv515_debugfs_pipes_info_fops);
+	debugfs_create_file("rv515_ga_info", 0444, root, rdev,
+			    &rv515_debugfs_ga_info_fops);
+#endif
+	r100_debugfs_rbbm_init(rdev);
+>>>>>>> upstream/android-13
 }
 
 void rv515_mc_stop(struct radeon_device *rdev, struct rv515_mc_save *save)
@@ -673,9 +727,13 @@ int rv515_init(struct radeon_device *rdev)
 	rv515_mc_init(rdev);
 	rv515_debugfs(rdev);
 	/* Fence driver */
+<<<<<<< HEAD
 	r = radeon_fence_driver_init(rdev);
 	if (r)
 		return r;
+=======
+	radeon_fence_driver_init(rdev);
+>>>>>>> upstream/android-13
 	/* Memory manager */
 	r = radeon_bo_init(rdev);
 	if (r)

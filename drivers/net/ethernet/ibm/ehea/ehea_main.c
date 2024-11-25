@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/net/ethernet/ibm/ehea/ehea_main.c
  *
@@ -9,6 +13,7 @@
  *	 Christoph Raisch <raisch@de.ibm.com>
  *	 Jan-Bernd Themann <themann@de.ibm.com>
  *	 Thomas Klein <tklein@de.ibm.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +29,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -123,6 +130,10 @@ static const struct of_device_id ehea_device_table[] = {
 	},
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, ehea_device_table);
+>>>>>>> upstream/android-13
 
 static struct platform_driver ehea_driver = {
 	.driver = {
@@ -778,12 +789,19 @@ static void check_sqs(struct ehea_port *port)
 {
 	struct ehea_swqe *swqe;
 	int swqe_index;
+<<<<<<< HEAD
 	int i, k;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < port->num_def_qps; i++) {
 		struct ehea_port_res *pr = &port->port_res[i];
 		int ret;
+<<<<<<< HEAD
 		k = 0;
+=======
+>>>>>>> upstream/android-13
 		swqe = ehea_get_swqe(pr->qp, &swqe_index);
 		memset(swqe, 0, SWQE_HEADER_SIZE);
 		atomic_dec(&pr->swqe_avail);
@@ -1227,9 +1245,15 @@ static void ehea_parse_eqe(struct ehea_adapter *adapter, u64 eqe)
 	}
 }
 
+<<<<<<< HEAD
 static void ehea_neq_tasklet(unsigned long data)
 {
 	struct ehea_adapter *adapter = (struct ehea_adapter *)data;
+=======
+static void ehea_neq_tasklet(struct tasklet_struct *t)
+{
+	struct ehea_adapter *adapter = from_tasklet(adapter, t, neq_tasklet);
+>>>>>>> upstream/android-13
 	struct ehea_eqe *eqe;
 	u64 event_mask;
 
@@ -1592,6 +1616,7 @@ static int ehea_clean_portres(struct ehea_port *port, struct ehea_port_res *pr)
 		ehea_destroy_eq(pr->eq);
 
 		for (i = 0; i < pr->rq1_skba.len; i++)
+<<<<<<< HEAD
 			if (pr->rq1_skba.arr[i])
 				dev_kfree_skb(pr->rq1_skba.arr[i]);
 
@@ -1606,6 +1631,18 @@ static int ehea_clean_portres(struct ehea_port *port, struct ehea_port_res *pr)
 		for (i = 0; i < pr->sq_skba.len; i++)
 			if (pr->sq_skba.arr[i])
 				dev_kfree_skb(pr->sq_skba.arr[i]);
+=======
+			dev_kfree_skb(pr->rq1_skba.arr[i]);
+
+		for (i = 0; i < pr->rq2_skba.len; i++)
+			dev_kfree_skb(pr->rq2_skba.arr[i]);
+
+		for (i = 0; i < pr->rq3_skba.len; i++)
+			dev_kfree_skb(pr->rq3_skba.arr[i]);
+
+		for (i = 0; i < pr->sq_skba.len; i++)
+			dev_kfree_skb(pr->sq_skba.arr[i]);
+>>>>>>> upstream/android-13
 
 		vfree(pr->rq1_skba.arr);
 		vfree(pr->rq2_skba.arr);
@@ -2636,10 +2673,15 @@ static int ehea_restart_qps(struct net_device *dev)
 	u16 dummy16 = 0;
 
 	cb0 = (void *)get_zeroed_page(GFP_KERNEL);
+<<<<<<< HEAD
 	if (!cb0) {
 		ret = -ENOMEM;
 		goto out;
 	}
+=======
+	if (!cb0)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < (port->num_def_qps); i++) {
 		struct ehea_port_res *pr =  &port->port_res[i];
@@ -2659,6 +2701,10 @@ static int ehea_restart_qps(struct net_device *dev)
 					    cb0);
 		if (hret != H_SUCCESS) {
 			netdev_err(dev, "query_ehea_qp failed (1)\n");
+<<<<<<< HEAD
+=======
+			ret = -EFAULT;
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
@@ -2671,6 +2717,10 @@ static int ehea_restart_qps(struct net_device *dev)
 					     &dummy64, &dummy16, &dummy16);
 		if (hret != H_SUCCESS) {
 			netdev_err(dev, "modify_ehea_qp failed (1)\n");
+<<<<<<< HEAD
+=======
+			ret = -EFAULT;
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
@@ -2679,6 +2729,10 @@ static int ehea_restart_qps(struct net_device *dev)
 					    cb0);
 		if (hret != H_SUCCESS) {
 			netdev_err(dev, "query_ehea_qp failed (2)\n");
+<<<<<<< HEAD
+=======
+			ret = -EFAULT;
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
@@ -2805,7 +2859,11 @@ out:
 	return;
 }
 
+<<<<<<< HEAD
 static void ehea_tx_watchdog(struct net_device *dev)
+=======
+static void ehea_tx_watchdog(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ehea_port *port = netdev_priv(dev);
 
@@ -2885,14 +2943,23 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t ehea_show_port_id(struct device *dev,
 				 struct device_attribute *attr, char *buf)
+=======
+static ssize_t log_port_id_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct ehea_port *port = container_of(dev, struct ehea_port, ofdev.dev);
 	return sprintf(buf, "%d", port->logical_port_id);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(log_port_id, 0444, ehea_show_port_id, NULL);
+=======
+static DEVICE_ATTR_RO(log_port_id);
+>>>>>>> upstream/android-13
 
 static void logical_port_release(struct device *dev)
 {
@@ -3131,7 +3198,11 @@ static struct device_node *ehea_get_eth_dn(struct ehea_adapter *adapter,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static ssize_t ehea_probe_port(struct device *dev,
+=======
+static ssize_t probe_port_store(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *attr,
 			       const char *buf, size_t count)
 {
@@ -3186,9 +3257,15 @@ static ssize_t ehea_probe_port(struct device *dev,
 	return (ssize_t) count;
 }
 
+<<<<<<< HEAD
 static ssize_t ehea_remove_port(struct device *dev,
 				struct device_attribute *attr,
 				const char *buf, size_t count)
+=======
+static ssize_t remove_port_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct ehea_adapter *adapter = dev_get_drvdata(dev);
 	struct ehea_port *port;
@@ -3221,8 +3298,13 @@ static ssize_t ehea_remove_port(struct device *dev,
 	return (ssize_t) count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(probe_port, 0200, NULL, ehea_probe_port);
 static DEVICE_ATTR(remove_port, 0200, NULL, ehea_remove_port);
+=======
+static DEVICE_ATTR_WO(probe_port);
+static DEVICE_ATTR_WO(remove_port);
+>>>>>>> upstream/android-13
 
 static int ehea_create_device_sysfs(struct platform_device *dev)
 {
@@ -3266,7 +3348,11 @@ static int ehea_mem_notifier(struct notifier_block *nb,
 	switch (action) {
 	case MEM_CANCEL_OFFLINE:
 		pr_info("memory offlining canceled");
+<<<<<<< HEAD
 		/* Fall through: re-add canceled memory block */
+=======
+		fallthrough;	/* re-add canceled memory block */
+>>>>>>> upstream/android-13
 
 	case MEM_ONLINE:
 		pr_info("memory is going online");
@@ -3436,8 +3522,12 @@ static int ehea_probe_adapter(struct platform_device *dev)
 		goto out_free_ad;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&adapter->neq_tasklet, ehea_neq_tasklet,
 		     (unsigned long)adapter);
+=======
+	tasklet_setup(&adapter->neq_tasklet, ehea_neq_tasklet);
+>>>>>>> upstream/android-13
 
 	ret = ehea_create_device_sysfs(dev);
 	if (ret)

@@ -21,16 +21,23 @@
 #include <linux/blk-mq.h>
 #include <linux/mount.h>
 #include <linux/dax.h>
+<<<<<<< HEAD
 #include <linux/bio.h>
 #include <linux/keyslot-manager.h>
 
 #define DM_MSG_PREFIX "table"
 
 #define MAX_DEPTH 16
+=======
+
+#define DM_MSG_PREFIX "table"
+
+>>>>>>> upstream/android-13
 #define NODE_SIZE L1_CACHE_BYTES
 #define KEYS_PER_NODE (NODE_SIZE / sizeof(sector_t))
 #define CHILDREN_PER_NODE (KEYS_PER_NODE + 1)
 
+<<<<<<< HEAD
 struct dm_table {
 	struct mapped_device *md;
 	enum dm_queue_mode type;
@@ -71,6 +78,8 @@ struct dm_table {
 	struct list_head target_callbacks;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Similar to ceiling(log_size(n))
  */
@@ -137,6 +146,7 @@ static int setup_btree_index(unsigned int l, struct dm_table *t)
 	return 0;
 }
 
+<<<<<<< HEAD
 void *dm_vcalloc(unsigned long nmemb, unsigned long elem_size)
 {
 	unsigned long size;
@@ -155,6 +165,8 @@ void *dm_vcalloc(unsigned long nmemb, unsigned long elem_size)
 }
 EXPORT_SYMBOL(dm_vcalloc);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * highs, and targets are managed as dynamic arrays during a
  * table load.
@@ -166,18 +178,28 @@ static int alloc_targets(struct dm_table *t, unsigned int num)
 
 	/*
 	 * Allocate both the target array and offset array at once.
+<<<<<<< HEAD
 	 * Append an empty entry to catch sectors beyond the end of
 	 * the device.
 	 */
 	n_highs = (sector_t *) dm_vcalloc(num + 1, sizeof(struct dm_target) +
 					  sizeof(sector_t));
+=======
+	 */
+	n_highs = kvcalloc(num, sizeof(struct dm_target) + sizeof(sector_t),
+			   GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!n_highs)
 		return -ENOMEM;
 
 	n_targets = (struct dm_target *) (n_highs + num);
 
 	memset(n_highs, -1, sizeof(*n_highs) * num);
+<<<<<<< HEAD
 	vfree(t->highs);
+=======
+	kvfree(t->highs);
+>>>>>>> upstream/android-13
 
 	t->num_allocated = num;
 	t->highs = n_highs;
@@ -195,7 +217,10 @@ int dm_table_create(struct dm_table **result, fmode_t mode,
 		return -ENOMEM;
 
 	INIT_LIST_HEAD(&t->devices);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&t->target_callbacks);
+=======
+>>>>>>> upstream/android-13
 
 	if (!num_targets)
 		num_targets = KEYS_PER_NODE;
@@ -233,6 +258,11 @@ static void free_devices(struct list_head *devices, struct mapped_device *md)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void dm_table_destroy_keyslot_manager(struct dm_table *t);
+
+>>>>>>> upstream/android-13
 void dm_table_destroy(struct dm_table *t)
 {
 	unsigned int i;
@@ -242,7 +272,11 @@ void dm_table_destroy(struct dm_table *t)
 
 	/* free the indexes */
 	if (t->depth >= 2)
+<<<<<<< HEAD
 		vfree(t->index[t->depth - 2]);
+=======
+		kvfree(t->index[t->depth - 2]);
+>>>>>>> upstream/android-13
 
 	/* free the targets */
 	for (i = 0; i < t->num_targets; i++) {
@@ -254,13 +288,22 @@ void dm_table_destroy(struct dm_table *t)
 		dm_put_target_type(tgt->type);
 	}
 
+<<<<<<< HEAD
 	vfree(t->highs);
+=======
+	kvfree(t->highs);
+>>>>>>> upstream/android-13
 
 	/* free the device list */
 	free_devices(&t->devices, t->md);
 
 	dm_free_md_mempools(t->mempools);
 
+<<<<<<< HEAD
+=======
+	dm_table_destroy_keyslot_manager(t);
+
+>>>>>>> upstream/android-13
 	kfree(t);
 }
 
@@ -284,7 +327,10 @@ static struct dm_dev_internal *find_device(struct list_head *l, dev_t dev)
 static int device_area_is_invalid(struct dm_target *ti, struct dm_dev *dev,
 				  sector_t start, sector_t len, void *data)
 {
+<<<<<<< HEAD
 	struct request_queue *q;
+=======
+>>>>>>> upstream/android-13
 	struct queue_limits *limits = data;
 	struct block_device *bdev = dev->bdev;
 	sector_t dev_size =
@@ -293,6 +339,7 @@ static int device_area_is_invalid(struct dm_target *ti, struct dm_dev *dev,
 		limits->logical_block_size >> SECTOR_SHIFT;
 	char b[BDEVNAME_SIZE];
 
+<<<<<<< HEAD
 	/*
 	 * Some devices exist without request functions,
 	 * such as loop devices not yet bound to backing files.
@@ -309,6 +356,8 @@ static int device_area_is_invalid(struct dm_target *ti, struct dm_dev *dev,
 		return 1;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!dev_size)
 		return 0;
 
@@ -326,7 +375,11 @@ static int device_area_is_invalid(struct dm_target *ti, struct dm_dev *dev,
 	 * If the target is mapped to zoned block device(s), check
 	 * that the zones are not partially mapped.
 	 */
+<<<<<<< HEAD
 	if (bdev_zoned_model(bdev) != BLK_ZONED_NONE) {
+=======
+	if (bdev_is_zoned(bdev)) {
+>>>>>>> upstream/android-13
 		unsigned int zone_sectors = bdev_zone_sectors(bdev);
 
 		if (start & (zone_sectors - 1)) {
@@ -383,7 +436,11 @@ static int device_area_is_invalid(struct dm_target *ti, struct dm_dev *dev,
  * This upgrades the mode on an already open dm_dev, being
  * careful to leave things as they were if we fail to reopen the
  * device and not to touch the existing bdev field in case
+<<<<<<< HEAD
  * it is accessed concurrently inside dm_table_any_congested().
+=======
+ * it is accessed concurrently.
+>>>>>>> upstream/android-13
  */
 static int upgrade_mode(struct dm_dev_internal *dd, fmode_t new_mode,
 			struct mapped_device *md)
@@ -410,6 +467,7 @@ static int upgrade_mode(struct dm_dev_internal *dd, fmode_t new_mode,
 dev_t dm_get_dev_t(const char *path)
 {
 	dev_t dev;
+<<<<<<< HEAD
 	struct block_device *bdev;
 
 	bdev = lookup_bdev(path);
@@ -420,6 +478,11 @@ dev_t dm_get_dev_t(const char *path)
 		bdput(bdev);
 	}
 
+=======
+
+	if (lookup_bdev(path, &dev))
+		dev = name_to_dev_t(path);
+>>>>>>> upstream/android-13
 	return dev;
 }
 EXPORT_SYMBOL_GPL(dm_get_dev_t);
@@ -492,7 +555,12 @@ static int dm_set_device_limits(struct dm_target *ti, struct dm_dev *dev,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (bdev_stack_limits(limits, bdev, start) < 0)
+=======
+	if (blk_stack_limits(limits, &q->limits,
+			get_start_sect(bdev) + start) < 0)
+>>>>>>> upstream/android-13
 		DMWARN("%s: adding target device %s caused an alignment inconsistency: "
 		       "physical_block_size=%u, logical_block_size=%u, "
 		       "alignment_offset=%u, start=%llu",
@@ -501,9 +569,12 @@ static int dm_set_device_limits(struct dm_target *ti, struct dm_dev *dev,
 		       q->limits.logical_block_size,
 		       q->limits.alignment_offset,
 		       (unsigned long long) start << SECTOR_SHIFT);
+<<<<<<< HEAD
 
 	limits->zoned = blk_queue_zoned_model(q);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -673,7 +744,11 @@ static int validate_hardware_logical_block_alignment(struct dm_table *table,
 	 */
 	unsigned short remaining = 0;
 
+<<<<<<< HEAD
 	struct dm_target *uninitialized_var(ti);
+=======
+	struct dm_target *ti;
+>>>>>>> upstream/android-13
 	struct queue_limits ti_limits;
 	unsigned i;
 
@@ -877,14 +952,22 @@ EXPORT_SYMBOL(dm_consume_args);
 static bool __table_type_bio_based(enum dm_queue_mode table_type)
 {
 	return (table_type == DM_TYPE_BIO_BASED ||
+<<<<<<< HEAD
 		table_type == DM_TYPE_DAX_BIO_BASED ||
 		table_type == DM_TYPE_NVME_BIO_BASED);
+=======
+		table_type == DM_TYPE_DAX_BIO_BASED);
+>>>>>>> upstream/android-13
 }
 
 static bool __table_type_request_based(enum dm_queue_mode table_type)
 {
+<<<<<<< HEAD
 	return (table_type == DM_TYPE_REQUEST_BASED ||
 		table_type == DM_TYPE_MQ_REQUEST_BASED);
+=======
+	return table_type == DM_TYPE_REQUEST_BASED;
+>>>>>>> upstream/android-13
 }
 
 void dm_table_set_type(struct dm_table *t, enum dm_queue_mode type)
@@ -893,6 +976,7 @@ void dm_table_set_type(struct dm_table *t, enum dm_queue_mode type)
 }
 EXPORT_SYMBOL_GPL(dm_table_set_type);
 
+<<<<<<< HEAD
 static int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
 			       sector_t start, sector_t len, void *data)
 {
@@ -900,6 +984,26 @@ static int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
 }
 
 static bool dm_table_supports_dax(struct dm_table *t)
+=======
+/* validate the dax capability of the target device span */
+int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
+			sector_t start, sector_t len, void *data)
+{
+	int blocksize = *(int *) data;
+
+	return !dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
+}
+
+/* Check devices support synchronous DAX */
+static int device_not_dax_synchronous_capable(struct dm_target *ti, struct dm_dev *dev,
+					      sector_t start, sector_t len, void *data)
+{
+	return !dev->dax_dev || !dax_synchronous(dev->dax_dev);
+}
+
+bool dm_table_supports_dax(struct dm_table *t,
+			   iterate_devices_callout_fn iterate_fn, int *blocksize)
+>>>>>>> upstream/android-13
 {
 	struct dm_target *ti;
 	unsigned i;
@@ -912,13 +1016,18 @@ static bool dm_table_supports_dax(struct dm_table *t)
 			return false;
 
 		if (!ti->type->iterate_devices ||
+<<<<<<< HEAD
 		    ti->type->iterate_devices(ti, device_not_dax_capable, NULL))
+=======
+		    ti->type->iterate_devices(ti, iterate_fn, blocksize))
+>>>>>>> upstream/android-13
 			return false;
 	}
 
 	return true;
 }
 
+<<<<<<< HEAD
 static bool dm_table_does_not_support_partial_completion(struct dm_table *t);
 
 struct verify_rq_based_data {
@@ -938,16 +1047,36 @@ static int device_is_rq_based(struct dm_target *ti, struct dm_dev *dev,
 		v->sq_count++;
 
 	return queue_is_rq_based(q);
+=======
+static int device_is_rq_stackable(struct dm_target *ti, struct dm_dev *dev,
+				  sector_t start, sector_t len, void *data)
+{
+	struct block_device *bdev = dev->bdev;
+	struct request_queue *q = bdev_get_queue(bdev);
+
+	/* request-based cannot stack on partitions! */
+	if (bdev_is_partition(bdev))
+		return false;
+
+	return queue_is_mq(q);
+>>>>>>> upstream/android-13
 }
 
 static int dm_table_determine_type(struct dm_table *t)
 {
 	unsigned i;
 	unsigned bio_based = 0, request_based = 0, hybrid = 0;
+<<<<<<< HEAD
 	struct verify_rq_based_data v = {.sq_count = 0, .mq_count = 0};
 	struct dm_target *tgt;
 	struct list_head *devices = dm_table_get_devices(t);
 	enum dm_queue_mode live_md_type = dm_get_md_type(t->md);
+=======
+	struct dm_target *tgt;
+	struct list_head *devices = dm_table_get_devices(t);
+	enum dm_queue_mode live_md_type = dm_get_md_type(t->md);
+	int page_size = PAGE_SIZE;
+>>>>>>> upstream/android-13
 
 	if (t->type != DM_TYPE_NONE) {
 		/* target already set the table's type */
@@ -956,7 +1085,10 @@ static int dm_table_determine_type(struct dm_table *t)
 			goto verify_bio_based;
 		}
 		BUG_ON(t->type == DM_TYPE_DAX_BIO_BASED);
+<<<<<<< HEAD
 		BUG_ON(t->type == DM_TYPE_NVME_BIO_BASED);
+=======
+>>>>>>> upstream/android-13
 		goto verify_rq_based;
 	}
 
@@ -992,6 +1124,7 @@ static int dm_table_determine_type(struct dm_table *t)
 verify_bio_based:
 		/* We must use this table as bio-based */
 		t->type = DM_TYPE_BIO_BASED;
+<<<<<<< HEAD
 		if (dm_table_supports_dax(t) ||
 		    (list_empty(devices) && live_md_type == DM_TYPE_DAX_BIO_BASED)) {
 			t->type = DM_TYPE_DAX_BIO_BASED;
@@ -1004,16 +1137,24 @@ verify_bio_based:
 			} else if (list_empty(devices) && live_md_type == DM_TYPE_NVME_BIO_BASED) {
 				t->type = DM_TYPE_NVME_BIO_BASED;
 			}
+=======
+		if (dm_table_supports_dax(t, device_not_dax_capable, &page_size) ||
+		    (list_empty(devices) && live_md_type == DM_TYPE_DAX_BIO_BASED)) {
+			t->type = DM_TYPE_DAX_BIO_BASED;
+>>>>>>> upstream/android-13
 		}
 		return 0;
 	}
 
 	BUG_ON(!request_based); /* No targets in this table */
 
+<<<<<<< HEAD
 	/*
 	 * The only way to establish DM_TYPE_MQ_REQUEST_BASED is by
 	 * having a compatible target use dm_table_set_type.
 	 */
+=======
+>>>>>>> upstream/android-13
 	t->type = DM_TYPE_REQUEST_BASED;
 
 verify_rq_based:
@@ -1024,8 +1165,12 @@ verify_rq_based:
 	 * (e.g. request completion process for partial completion.)
 	 */
 	if (t->num_targets > 1) {
+<<<<<<< HEAD
 		DMERR("%s DM doesn't support multiple targets",
 		      t->type == DM_TYPE_NVME_BIO_BASED ? "nvme bio-based" : "request-based");
+=======
+		DMERR("request-based DM doesn't support multiple targets");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1033,11 +1178,17 @@ verify_rq_based:
 		int srcu_idx;
 		struct dm_table *live_table = dm_get_live_table(t->md, &srcu_idx);
 
+<<<<<<< HEAD
 		/* inherit live table's type and all_blk_mq */
 		if (live_table) {
 			t->type = live_table->type;
 			t->all_blk_mq = live_table->all_blk_mq;
 		}
+=======
+		/* inherit live table's type */
+		if (live_table)
+			t->type = live_table->type;
+>>>>>>> upstream/android-13
 		dm_put_live_table(t->md, srcu_idx);
 		return 0;
 	}
@@ -1053,6 +1204,7 @@ verify_rq_based:
 
 	/* Non-request-stackable devices can't be used for request-based dm */
 	if (!tgt->type->iterate_devices ||
+<<<<<<< HEAD
 	    !tgt->type->iterate_devices(tgt, device_is_rq_based, &v)) {
 		DMERR("table load rejected: including non-request-stackable devices");
 		return -EINVAL;
@@ -1068,6 +1220,12 @@ verify_rq_based:
 		DMERR("table load rejected: all devices are not blk-mq request-stackable");
 		return -EINVAL;
 	}
+=======
+	    !tgt->type->iterate_devices(tgt, device_is_rq_stackable, NULL)) {
+		DMERR("table load rejected: including non-request-stackable devices");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1116,11 +1274,14 @@ bool dm_table_request_based(struct dm_table *t)
 	return __table_type_request_based(dm_table_get_type(t));
 }
 
+<<<<<<< HEAD
 bool dm_table_all_blk_mq_devices(struct dm_table *t)
 {
 	return t->all_blk_mq;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int dm_table_alloc_md_mempools(struct dm_table *t, struct mapped_device *md)
 {
 	enum dm_queue_mode type = dm_table_get_type(t);
@@ -1172,7 +1333,11 @@ static int setup_indexes(struct dm_table *t)
 		total += t->counts[i];
 	}
 
+<<<<<<< HEAD
 	indexes = (sector_t *) dm_vcalloc(total, (unsigned long) NODE_SIZE);
+=======
+	indexes = kvcalloc(total, NODE_SIZE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!indexes)
 		return -ENOMEM;
 
@@ -1302,6 +1467,290 @@ static int dm_table_register_integrity(struct dm_table *t)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_INLINE_ENCRYPTION
+
+struct dm_keyslot_manager {
+	struct blk_keyslot_manager ksm;
+	struct mapped_device *md;
+};
+
+struct dm_keyslot_evict_args {
+	const struct blk_crypto_key *key;
+	int err;
+};
+
+static int dm_keyslot_evict_callback(struct dm_target *ti, struct dm_dev *dev,
+				     sector_t start, sector_t len, void *data)
+{
+	struct dm_keyslot_evict_args *args = data;
+	int err;
+
+	err = blk_crypto_evict_key(bdev_get_queue(dev->bdev), args->key);
+	if (!args->err)
+		args->err = err;
+	/* Always try to evict the key from all devices. */
+	return 0;
+}
+
+/*
+ * When an inline encryption key is evicted from a device-mapper device, evict
+ * it from all the underlying devices.
+ */
+static int dm_keyslot_evict(struct blk_keyslot_manager *ksm,
+			    const struct blk_crypto_key *key, unsigned int slot)
+{
+	struct dm_keyslot_manager *dksm = container_of(ksm,
+						       struct dm_keyslot_manager,
+						       ksm);
+	struct mapped_device *md = dksm->md;
+	struct dm_keyslot_evict_args args = { key };
+	struct dm_table *t;
+	int srcu_idx;
+	int i;
+	struct dm_target *ti;
+
+	t = dm_get_live_table(md, &srcu_idx);
+	if (!t)
+		return 0;
+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+		ti = dm_table_get_target(t, i);
+		if (!ti->type->iterate_devices)
+			continue;
+		ti->type->iterate_devices(ti, dm_keyslot_evict_callback, &args);
+	}
+	dm_put_live_table(md, srcu_idx);
+	return args.err;
+}
+
+struct dm_derive_raw_secret_args {
+	const u8 *wrapped_key;
+	unsigned int wrapped_key_size;
+	u8 *secret;
+	unsigned int secret_size;
+	int err;
+};
+
+static int dm_derive_raw_secret_callback(struct dm_target *ti,
+					 struct dm_dev *dev, sector_t start,
+					 sector_t len, void *data)
+{
+	struct dm_derive_raw_secret_args *args = data;
+	struct request_queue *q = bdev_get_queue(dev->bdev);
+
+	if (!args->err)
+		return 0;
+
+	if (!q->ksm) {
+		args->err = -EOPNOTSUPP;
+		return 0;
+	}
+
+	args->err = blk_ksm_derive_raw_secret(q->ksm, args->wrapped_key,
+					      args->wrapped_key_size,
+					      args->secret,
+					      args->secret_size);
+	/* Try another device in case this fails. */
+	return 0;
+}
+
+/*
+ * Retrieve the raw_secret from the underlying device.  Given that only one
+ * raw_secret can exist for a particular wrappedkey, retrieve it only from the
+ * first device that supports derive_raw_secret().
+ */
+static int dm_derive_raw_secret(struct blk_keyslot_manager *ksm,
+				const u8 *wrapped_key,
+				unsigned int wrapped_key_size,
+				u8 *secret, unsigned int secret_size)
+{
+	struct dm_keyslot_manager *dksm = container_of(ksm,
+						       struct dm_keyslot_manager,
+						       ksm);
+	struct mapped_device *md = dksm->md;
+	struct dm_derive_raw_secret_args args = {
+		.wrapped_key = wrapped_key,
+		.wrapped_key_size = wrapped_key_size,
+		.secret = secret,
+		.secret_size = secret_size,
+		.err = -EOPNOTSUPP,
+	};
+	struct dm_table *t;
+	int srcu_idx;
+	int i;
+	struct dm_target *ti;
+
+	t = dm_get_live_table(md, &srcu_idx);
+	if (!t)
+		return -EOPNOTSUPP;
+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+		ti = dm_table_get_target(t, i);
+		if (!ti->type->iterate_devices)
+			continue;
+		ti->type->iterate_devices(ti, dm_derive_raw_secret_callback,
+					  &args);
+		if (!args.err)
+			break;
+	}
+	dm_put_live_table(md, srcu_idx);
+	return args.err;
+}
+
+
+static const struct blk_ksm_ll_ops dm_ksm_ll_ops = {
+	.keyslot_evict = dm_keyslot_evict,
+	.derive_raw_secret = dm_derive_raw_secret,
+};
+
+static int device_intersect_crypto_modes(struct dm_target *ti,
+					 struct dm_dev *dev, sector_t start,
+					 sector_t len, void *data)
+{
+	struct blk_keyslot_manager *parent = data;
+	struct blk_keyslot_manager *child = bdev_get_queue(dev->bdev)->ksm;
+
+	blk_ksm_intersect_modes(parent, child);
+	return 0;
+}
+
+void dm_destroy_keyslot_manager(struct blk_keyslot_manager *ksm)
+{
+	struct dm_keyslot_manager *dksm = container_of(ksm,
+						       struct dm_keyslot_manager,
+						       ksm);
+
+	if (!ksm)
+		return;
+
+	blk_ksm_destroy(ksm);
+	kfree(dksm);
+}
+
+static void dm_table_destroy_keyslot_manager(struct dm_table *t)
+{
+	dm_destroy_keyslot_manager(t->ksm);
+	t->ksm = NULL;
+}
+
+/*
+ * Constructs and initializes t->ksm with a keyslot manager that
+ * represents the common set of crypto capabilities of the devices
+ * described by the dm_table. However, if the constructed keyslot
+ * manager does not support a superset of the crypto capabilities
+ * supported by the current keyslot manager of the mapped_device,
+ * it returns an error instead, since we don't support restricting
+ * crypto capabilities on table changes. Finally, if the constructed
+ * keyslot manager doesn't actually support any crypto modes at all,
+ * it just returns NULL.
+ */
+static int dm_table_construct_keyslot_manager(struct dm_table *t)
+{
+	struct dm_keyslot_manager *dksm;
+	struct blk_keyslot_manager *ksm;
+	struct dm_target *ti;
+	unsigned int i;
+	bool ksm_is_empty = true;
+
+	dksm = kmalloc(sizeof(*dksm), GFP_KERNEL);
+	if (!dksm)
+		return -ENOMEM;
+	dksm->md = t->md;
+
+	ksm = &dksm->ksm;
+	blk_ksm_init_passthrough(ksm);
+	ksm->ksm_ll_ops = dm_ksm_ll_ops;
+	ksm->max_dun_bytes_supported = UINT_MAX;
+	memset(ksm->crypto_modes_supported, 0xFF,
+	       sizeof(ksm->crypto_modes_supported));
+	ksm->features = BLK_CRYPTO_FEATURE_STANDARD_KEYS |
+			BLK_CRYPTO_FEATURE_WRAPPED_KEYS;
+
+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+		ti = dm_table_get_target(t, i);
+
+		if (!dm_target_passes_crypto(ti->type)) {
+			blk_ksm_intersect_modes(ksm, NULL);
+			break;
+		}
+		if (!ti->type->iterate_devices)
+			continue;
+		ti->type->iterate_devices(ti, device_intersect_crypto_modes,
+					  ksm);
+	}
+
+	if (t->md->queue && !blk_ksm_is_superset(ksm, t->md->queue->ksm)) {
+		DMWARN("Inline encryption capabilities of new DM table were more restrictive than the old table's. This is not supported!");
+		dm_destroy_keyslot_manager(ksm);
+		return -EINVAL;
+	}
+
+	/*
+	 * If the new KSM doesn't actually support any crypto modes, we may as
+	 * well represent it with a NULL ksm.
+	 */
+	ksm_is_empty = true;
+	for (i = 0; i < ARRAY_SIZE(ksm->crypto_modes_supported); i++) {
+		if (ksm->crypto_modes_supported[i]) {
+			ksm_is_empty = false;
+			break;
+		}
+	}
+
+	if (ksm_is_empty) {
+		dm_destroy_keyslot_manager(ksm);
+		ksm = NULL;
+	}
+
+	/*
+	 * t->ksm is only set temporarily while the table is being set
+	 * up, and it gets set to NULL after the capabilities have
+	 * been transferred to the request_queue.
+	 */
+	t->ksm = ksm;
+
+	return 0;
+}
+
+static void dm_update_keyslot_manager(struct request_queue *q,
+				      struct dm_table *t)
+{
+	if (!t->ksm)
+		return;
+
+	/* Make the ksm less restrictive */
+	if (!q->ksm) {
+		blk_ksm_register(t->ksm, q);
+	} else {
+		blk_ksm_update_capabilities(q->ksm, t->ksm);
+		dm_destroy_keyslot_manager(t->ksm);
+	}
+	t->ksm = NULL;
+}
+
+#else /* CONFIG_BLK_INLINE_ENCRYPTION */
+
+static int dm_table_construct_keyslot_manager(struct dm_table *t)
+{
+	return 0;
+}
+
+void dm_destroy_keyslot_manager(struct blk_keyslot_manager *ksm)
+{
+}
+
+static void dm_table_destroy_keyslot_manager(struct dm_table *t)
+{
+}
+
+static void dm_update_keyslot_manager(struct request_queue *q,
+				      struct dm_table *t)
+{
+}
+
+#endif /* !CONFIG_BLK_INLINE_ENCRYPTION */
+
+>>>>>>> upstream/android-13
 /*
  * Prepares the table for use by building the indices,
  * setting the type, and allocating mempools.
@@ -1328,6 +1777,15 @@ int dm_table_complete(struct dm_table *t)
 		return r;
 	}
 
+<<<<<<< HEAD
+=======
+	r = dm_table_construct_keyslot_manager(t);
+	if (r) {
+		DMERR("could not construct keyslot manager.");
+		return r;
+	}
+
+>>>>>>> upstream/android-13
 	r = dm_table_alloc_md_mempools(t, t->md);
 	if (r)
 		DMERR("unable to allocate mempools");
@@ -1371,7 +1829,11 @@ struct dm_target *dm_table_get_target(struct dm_table *t, unsigned int index)
 /*
  * Search the btree for the correct target.
  *
+<<<<<<< HEAD
  * Caller should check returned pointer with dm_target_is_valid()
+=======
+ * Caller should check returned pointer for NULL
+>>>>>>> upstream/android-13
  * to trap I/O beyond end of device.
  */
 struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
@@ -1380,7 +1842,11 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
 	sector_t *node;
 
 	if (unlikely(sector >= dm_table_get_size(t)))
+<<<<<<< HEAD
 		return &t->targets[t->num_targets];
+=======
+		return NULL;
+>>>>>>> upstream/android-13
 
 	for (l = 0; l < t->depth; l++) {
 		n = get_child(n, k);
@@ -1476,9 +1942,22 @@ static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 	enum blk_zoned_model *zoned_model = data;
 
+<<<<<<< HEAD
 	return !q || blk_queue_zoned_model(q) != *zoned_model;
 }
 
+=======
+	return blk_queue_zoned_model(q) != *zoned_model;
+}
+
+/*
+ * Check the device zoned model based on the target feature flag. If the target
+ * has the DM_TARGET_ZONED_HM feature flag set, host-managed zoned devices are
+ * also accepted but all devices must have the same zoned model. If the target
+ * has the DM_TARGET_MIXED_ZONED_MODEL feature set, the devices can have any
+ * zoned model with all zoned devices having the same zone size.
+ */
+>>>>>>> upstream/android-13
 static bool dm_table_supports_zoned_model(struct dm_table *t,
 					  enum blk_zoned_model zoned_model)
 {
@@ -1488,6 +1967,7 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
 	for (i = 0; i < dm_table_get_num_targets(t); i++) {
 		ti = dm_table_get_target(t, i);
 
+<<<<<<< HEAD
 		if (zoned_model == BLK_ZONED_HM &&
 		    !dm_target_supports_zoned_hm(ti->type))
 			return false;
@@ -1495,6 +1975,17 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
 		if (!ti->type->iterate_devices ||
 		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
 			return false;
+=======
+		if (dm_target_supports_zoned_hm(ti->type)) {
+			if (!ti->type->iterate_devices ||
+			    ti->type->iterate_devices(ti, device_not_zoned_model,
+						      &zoned_model))
+				return false;
+		} else if (!dm_target_supports_mixed_zoned_model(ti->type)) {
+			if (zoned_model == BLK_ZONED_HM)
+				return false;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return true;
@@ -1506,9 +1997,23 @@ static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 	unsigned int *zone_sectors = data;
 
+<<<<<<< HEAD
 	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
 }
 
+=======
+	if (!blk_queue_is_zoned(q))
+		return 0;
+
+	return blk_queue_zone_sectors(q) != *zone_sectors;
+}
+
+/*
+ * Check consistency of zoned model and zone sectors across all targets. For
+ * zone sectors, if the destination device is a zoned block device, it shall
+ * have the specified zone_sectors.
+ */
+>>>>>>> upstream/android-13
 static int validate_hardware_zoned_model(struct dm_table *table,
 					 enum blk_zoned_model zoned_model,
 					 unsigned int zone_sectors)
@@ -1527,7 +2032,11 @@ static int validate_hardware_zoned_model(struct dm_table *table,
 		return -EINVAL;
 
 	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
+<<<<<<< HEAD
 		DMERR("%s: zone sectors is not consistent across all devices",
+=======
+		DMERR("%s: zone sectors is not consistent across all zoned devices",
+>>>>>>> upstream/android-13
 		      dm_device_name(table->md));
 		return -EINVAL;
 	}
@@ -1596,6 +2105,7 @@ combine_limits:
 			       dm_device_name(table->md),
 			       (unsigned long long) ti->begin,
 			       (unsigned long long) ti->len);
+<<<<<<< HEAD
 
 		/*
 		 * FIXME: this should likely be moved to blk_stack_limits(), would
@@ -1612,6 +2122,8 @@ combine_limits:
 			 */
 			limits->zoned = ti_limits.zoned;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1665,6 +2177,7 @@ static void dm_table_verify_integrity(struct dm_table *t)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_INLINE_ENCRYPTION
 static int device_intersect_crypto_modes(struct dm_target *ti,
 					 struct dm_dev *dev, sector_t start,
@@ -1713,13 +2226,19 @@ static inline void dm_calculate_supported_crypto_modes(struct dm_table *t,
 }
 #endif /* !CONFIG_BLK_INLINE_ENCRYPTION */
 
+=======
+>>>>>>> upstream/android-13
 static int device_flush_capable(struct dm_target *ti, struct dm_dev *dev,
 				sector_t start, sector_t len, void *data)
 {
 	unsigned long flush = (unsigned long) data;
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && (q->queue_flags & flush);
+=======
+	return (q->queue_flags & flush);
+>>>>>>> upstream/android-13
 }
 
 static bool dm_table_supports_flush(struct dm_table *t, unsigned long flush)
@@ -1769,7 +2288,11 @@ static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && !blk_queue_nonrot(q);
+=======
+	return !blk_queue_nonrot(q);
+>>>>>>> upstream/android-13
 }
 
 static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
@@ -1777,6 +2300,7 @@ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && !blk_queue_add_random(q);
 }
 
@@ -1800,6 +2324,9 @@ static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev
 static bool dm_table_does_not_support_partial_completion(struct dm_table *t)
 {
 	return !dm_table_any_dev_attr(t, device_is_partial_completion, NULL);
+=======
+	return !blk_queue_add_random(q);
+>>>>>>> upstream/android-13
 }
 
 static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
@@ -1807,7 +2334,11 @@ static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *de
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && !q->limits.max_write_same_sectors;
+=======
+	return !q->limits.max_write_same_sectors;
+>>>>>>> upstream/android-13
 }
 
 static bool dm_table_supports_write_same(struct dm_table *t)
@@ -1834,7 +2365,11 @@ static int device_not_write_zeroes_capable(struct dm_target *ti, struct dm_dev *
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && !q->limits.max_write_zeroes_sectors;
+=======
+	return !q->limits.max_write_zeroes_sectors;
+>>>>>>> upstream/android-13
 }
 
 static bool dm_table_supports_write_zeroes(struct dm_table *t)
@@ -1856,12 +2391,46 @@ static bool dm_table_supports_write_zeroes(struct dm_table *t)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static int device_not_nowait_capable(struct dm_target *ti, struct dm_dev *dev,
+				     sector_t start, sector_t len, void *data)
+{
+	struct request_queue *q = bdev_get_queue(dev->bdev);
+
+	return !blk_queue_nowait(q);
+}
+
+static bool dm_table_supports_nowait(struct dm_table *t)
+{
+	struct dm_target *ti;
+	unsigned i = 0;
+
+	while (i < dm_table_get_num_targets(t)) {
+		ti = dm_table_get_target(t, i++);
+
+		if (!dm_target_supports_nowait(ti->type))
+			return false;
+
+		if (!ti->type->iterate_devices ||
+		    ti->type->iterate_devices(ti, device_not_nowait_capable, NULL))
+			return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static int device_not_discard_capable(struct dm_target *ti, struct dm_dev *dev,
 				      sector_t start, sector_t len, void *data)
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && !blk_queue_discard(q);
+=======
+	return !blk_queue_discard(q);
+>>>>>>> upstream/android-13
 }
 
 static bool dm_table_supports_discards(struct dm_table *t)
@@ -1895,7 +2464,11 @@ static int device_not_secure_erase_capable(struct dm_target *ti,
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && !blk_queue_secure_erase(q);
+=======
+	return !blk_queue_secure_erase(q);
+>>>>>>> upstream/android-13
 }
 
 static bool dm_table_supports_secure_erase(struct dm_table *t)
@@ -1923,6 +2496,7 @@ static int device_requires_stable_pages(struct dm_target *ti,
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
 
+<<<<<<< HEAD
 	return q && bdi_cap_stable_pages_required(q->backing_dev_info);
 }
 
@@ -1930,12 +2504,31 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 			       struct queue_limits *limits)
 {
 	bool wc = false, fua = false;
+=======
+	return blk_queue_stable_writes(q);
+}
+
+int dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+			      struct queue_limits *limits)
+{
+	bool wc = false, fua = false;
+	int page_size = PAGE_SIZE;
+	int r;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Copy table's limits to the DM device's request_queue
 	 */
 	q->limits = *limits;
 
+<<<<<<< HEAD
+=======
+	if (dm_table_supports_nowait(t))
+		blk_queue_flag_set(QUEUE_FLAG_NOWAIT, q);
+	else
+		blk_queue_flag_clear(QUEUE_FLAG_NOWAIT, q);
+
+>>>>>>> upstream/android-13
 	if (!dm_table_supports_discards(t)) {
 		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
 		/* Must also clear discard limits... */
@@ -1957,8 +2550,16 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 	}
 	blk_queue_write_cache(q, wc, fua);
 
+<<<<<<< HEAD
 	if (dm_table_supports_dax(t))
 		blk_queue_flag_set(QUEUE_FLAG_DAX, q);
+=======
+	if (dm_table_supports_dax(t, device_not_dax_capable, &page_size)) {
+		blk_queue_flag_set(QUEUE_FLAG_DAX, q);
+		if (dm_table_supports_dax(t, device_not_dax_synchronous_capable, NULL))
+			set_dax_synchronous(t->md->dax_dev);
+	}
+>>>>>>> upstream/android-13
 	else
 		blk_queue_flag_clear(QUEUE_FLAG_DAX, q);
 
@@ -1976,6 +2577,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 	if (!dm_table_supports_write_zeroes(t))
 		q->limits.max_write_zeroes_sectors = 0;
 
+<<<<<<< HEAD
 	if (dm_table_any_dev_attr(t, queue_no_sg_merge, NULL))
 		blk_queue_flag_set(QUEUE_FLAG_NO_SG_MERGE, q);
 	else
@@ -1985,6 +2587,10 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 
 	dm_calculate_supported_crypto_modes(t, q);
 
+=======
+	dm_table_verify_integrity(t);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Some devices don't use blk_integrity but still want stable pages
 	 * because they do their own checksumming.
@@ -1993,9 +2599,15 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 	 * don't want error, zero, etc to require stable pages.
 	 */
 	if (dm_table_any_dev_attr(t, device_requires_stable_pages, NULL))
+<<<<<<< HEAD
 		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
 	else
 		q->backing_dev_info->capabilities &= ~BDI_CAP_STABLE_WRITES;
+=======
+		blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, q);
+	else
+		blk_queue_flag_clear(QUEUE_FLAG_STABLE_WRITES, q);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Determine whether or not this queue's I/O timings contribute
@@ -2007,8 +2619,25 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 	    dm_table_any_dev_attr(t, device_is_not_random, NULL))
 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
 
+<<<<<<< HEAD
 	/* io_pages is used for readahead */
 	q->backing_dev_info->io_pages = limits->max_sectors >> (PAGE_SHIFT - 9);
+=======
+	/*
+	 * For a zoned target, setup the zones related queue attributes
+	 * and resources necessary for zone append emulation if necessary.
+	 */
+	if (blk_queue_is_zoned(q)) {
+		r = dm_set_zones_restrictions(t, q);
+		if (r)
+			return r;
+	}
+
+	dm_update_keyslot_manager(q, t);
+	disk_update_readahead(t->md->disk);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 unsigned int dm_table_get_num_targets(struct dm_table *t)
@@ -2113,6 +2742,7 @@ int dm_table_resume_targets(struct dm_table *t)
 	return 0;
 }
 
+<<<<<<< HEAD
 void dm_table_add_target_callbacks(struct dm_table *t, struct dm_target_callbacks *cb)
 {
 	list_add(&cb->list, &t->target_callbacks);
@@ -2145,12 +2775,15 @@ int dm_table_any_congested(struct dm_table *t, int bdi_bits)
 	return r;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct mapped_device *dm_table_get_md(struct dm_table *t)
 {
 	return t->md;
 }
 EXPORT_SYMBOL(dm_table_get_md);
 
+<<<<<<< HEAD
 void dm_table_run_md_queue_async(struct dm_table *t)
 {
 	struct mapped_device *md;
@@ -2171,6 +2804,21 @@ void dm_table_run_md_queue_async(struct dm_table *t)
 			spin_unlock_irqrestore(queue->queue_lock, flags);
 		}
 	}
+=======
+const char *dm_table_device_name(struct dm_table *t)
+{
+	return dm_device_name(t->md);
+}
+EXPORT_SYMBOL_GPL(dm_table_device_name);
+
+void dm_table_run_md_queue_async(struct dm_table *t)
+{
+	if (!dm_table_request_based(t))
+		return;
+
+	if (t->md->queue)
+		blk_mq_run_hw_queues(t->md->queue, true);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(dm_table_run_md_queue_async);
 

@@ -56,6 +56,7 @@ bool drm_helper_encoder_in_use(struct drm_encoder *encoder);
 int drm_helper_connector_dpms(struct drm_connector *connector, int mode);
 
 void drm_helper_resume_force_mode(struct drm_device *dev);
+<<<<<<< HEAD
 
 int drm_helper_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode *mode,
 			     struct drm_display_mode *adjusted_mode, int x, int y,
@@ -78,5 +79,8 @@ void drm_kms_helper_hotplug_event(struct drm_device *dev);
 void drm_kms_helper_poll_disable(struct drm_device *dev);
 void drm_kms_helper_poll_enable(struct drm_device *dev);
 bool drm_kms_helper_is_poll_worker(void);
+=======
+int drm_helper_force_disable_all(struct drm_device *dev);
+>>>>>>> upstream/android-13
 
 #endif

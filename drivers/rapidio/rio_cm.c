@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * rio_cm - RapidIO Channelized Messaging Driver
  *
  * Copyright 2013-2016 Integrated Device Technology, Inc.
  * Copyright (c) 2015, Prodrive Technologies
  * Copyright (c) 2015, RapidIO Trade Association
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -14,6 +19,8 @@
  * BUT WITHOUT ANY WARRANTY; WITHOUT EVEN THE IMPLIED WARRANTY OF
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  SEE THE
  * GNU GENERAL PUBLIC LICENSE FOR MORE DETAILS.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -2136,6 +2143,17 @@ static int riocm_add_mport(struct device *dev,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
+	if (!cm->rx_wq) {
+		rio_release_inb_mbox(mport, cmbox);
+		rio_release_outb_mbox(mport, cmbox);
+		kfree(cm);
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Allocate and register inbound messaging buffers to be ready
 	 * to receive channel and system management requests
@@ -2146,6 +2164,7 @@ static int riocm_add_mport(struct device *dev,
 	cm->rx_slots = RIOCM_RX_RING_SIZE;
 	mutex_init(&cm->rx_lock);
 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
+<<<<<<< HEAD
 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
 	if (!cm->rx_wq) {
 		riocm_error("failed to allocate IBMBOX_%d on %s",
@@ -2155,6 +2174,8 @@ static int riocm_add_mport(struct device *dev,
 		return -ENOMEM;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
 
 	cm->tx_slot = 0;

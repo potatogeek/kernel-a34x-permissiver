@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/open.c
  *
@@ -33,6 +37,7 @@
 #include <linux/compat.h>
 
 #include "internal.h"
+<<<<<<< HEAD
 
 #ifdef CONFIG_SECURITY_DEFEX
 #include <linux/defex.h>
@@ -40,6 +45,12 @@
 
 int do_truncate2(struct vfsmount *mnt, struct dentry *dentry, loff_t length,
 		unsigned int time_attrs, struct file *filp)
+=======
+#include <trace/hooks/syscall_check.h>
+
+int do_truncate(struct user_namespace *mnt_userns, struct dentry *dentry,
+		loff_t length, unsigned int time_attrs, struct file *filp)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct iattr newattrs;
@@ -64,6 +75,7 @@ int do_truncate2(struct vfsmount *mnt, struct dentry *dentry, loff_t length,
 
 	inode_lock(dentry->d_inode);
 	/* Note any delegations or leases have already been broken: */
+<<<<<<< HEAD
 	ret = notify_change2(mnt, dentry, &newattrs, NULL);
 	inode_unlock(dentry->d_inode);
 	return ret;
@@ -82,6 +94,20 @@ long vfs_truncate(const struct path *path, loff_t length)
 
 	inode = path->dentry->d_inode;
 	mnt = path->mnt;
+=======
+	ret = notify_change(mnt_userns, dentry, &newattrs, NULL);
+	inode_unlock(dentry->d_inode);
+	return ret;
+}
+
+long vfs_truncate(const struct path *path, loff_t length)
+{
+	struct user_namespace *mnt_userns;
+	struct inode *inode;
+	long error;
+
+	inode = path->dentry->d_inode;
+>>>>>>> upstream/android-13
 
 	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
 	if (S_ISDIR(inode->i_mode))
@@ -93,7 +119,12 @@ long vfs_truncate(const struct path *path, loff_t length)
 	if (error)
 		goto out;
 
+<<<<<<< HEAD
 	error = inode_permission2(mnt, inode, MAY_WRITE);
+=======
+	mnt_userns = mnt_user_ns(path->mnt);
+	error = inode_permission(mnt_userns, inode, MAY_WRITE);
+>>>>>>> upstream/android-13
 	if (error)
 		goto mnt_drop_write_and_out;
 
@@ -113,11 +144,17 @@ long vfs_truncate(const struct path *path, loff_t length)
 	if (error)
 		goto put_write_and_out;
 
+<<<<<<< HEAD
 	error = locks_verify_truncate(inode, NULL, length);
 	if (!error)
 		error = security_path_truncate(path);
 	if (!error)
 		error = do_truncate2(mnt, path->dentry, length, 0, NULL);
+=======
+	error = security_path_truncate(path);
+	if (!error)
+		error = do_truncate(mnt_userns, path->dentry, length, 0, NULL);
+>>>>>>> upstream/android-13
 
 put_write_and_out:
 	put_write_access(inode);
@@ -166,7 +203,10 @@ long do_sys_ftruncate(unsigned int fd, loff_t length, int small)
 {
 	struct inode *inode;
 	struct dentry *dentry;
+<<<<<<< HEAD
 	struct vfsmount *mnt;
+=======
+>>>>>>> upstream/android-13
 	struct fd f;
 	int error;
 
@@ -183,7 +223,10 @@ long do_sys_ftruncate(unsigned int fd, loff_t length, int small)
 		small = 0;
 
 	dentry = f.file->f_path.dentry;
+<<<<<<< HEAD
 	mnt = f.file->f_path.mnt;
+=======
+>>>>>>> upstream/android-13
 	inode = dentry->d_inode;
 	error = -EINVAL;
 	if (!S_ISREG(inode->i_mode) || !(f.file->f_mode & FMODE_WRITE))
@@ -198,6 +241,7 @@ long do_sys_ftruncate(unsigned int fd, loff_t length, int small)
 	/* Check IS_APPEND on real upper inode */
 	if (IS_APPEND(file_inode(f.file)))
 		goto out_putf;
+<<<<<<< HEAD
 
 	sb_start_write(inode->i_sb);
 	error = locks_verify_truncate(inode, f.file, length);
@@ -205,6 +249,13 @@ long do_sys_ftruncate(unsigned int fd, loff_t length, int small)
 		error = security_path_truncate(&f.file->f_path);
 	if (!error)
 		error = do_truncate2(mnt, dentry, length, ATTR_MTIME|ATTR_CTIME, f.file);
+=======
+	sb_start_write(inode->i_sb);
+	error = security_path_truncate(&f.file->f_path);
+	if (!error)
+		error = do_truncate(file_mnt_user_ns(f.file), dentry, length,
+				    ATTR_MTIME | ATTR_CTIME, f.file);
+>>>>>>> upstream/android-13
 	sb_end_write(inode->i_sb);
 out_putf:
 	fdput(f);
@@ -357,6 +408,7 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
  * We do this by temporarily clearing all FS-related capabilities and
  * switching the fsuid/fsgid around to the real ones.
  */
+<<<<<<< HEAD
 long do_faccessat(int dfd, const char __user *filename, int mode)
 {
 	const struct cred *old_cred;
@@ -373,6 +425,16 @@ long do_faccessat(int dfd, const char __user *filename, int mode)
 	override_cred = prepare_creds();
 	if (!override_cred)
 		return -ENOMEM;
+=======
+static const struct cred *access_override_creds(void)
+{
+	const struct cred *old_cred;
+	struct cred *override_cred;
+
+	override_cred = prepare_creds();
+	if (!override_cred)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	override_cred->fsuid = override_cred->uid;
 	override_cred->fsgid = override_cred->gid;
@@ -407,13 +469,51 @@ long do_faccessat(int dfd, const char __user *filename, int mode)
 	override_cred->non_rcu = 1;
 
 	old_cred = override_creds(override_cred);
+<<<<<<< HEAD
+=======
+
+	/* override_cred() gets its own ref */
+	put_cred(override_cred);
+
+	return old_cred;
+}
+
+static long do_faccessat(int dfd, const char __user *filename, int mode, int flags)
+{
+	struct path path;
+	struct inode *inode;
+	int res;
+	unsigned int lookup_flags = LOOKUP_FOLLOW;
+	const struct cred *old_cred = NULL;
+
+	if (mode & ~S_IRWXO)	/* where's F_OK, X_OK, W_OK, R_OK? */
+		return -EINVAL;
+
+	if (flags & ~(AT_EACCESS | AT_SYMLINK_NOFOLLOW | AT_EMPTY_PATH))
+		return -EINVAL;
+
+	if (flags & AT_SYMLINK_NOFOLLOW)
+		lookup_flags &= ~LOOKUP_FOLLOW;
+	if (flags & AT_EMPTY_PATH)
+		lookup_flags |= LOOKUP_EMPTY;
+
+	if (!(flags & AT_EACCESS)) {
+		old_cred = access_override_creds();
+		if (!old_cred)
+			return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 retry:
 	res = user_path_at(dfd, filename, lookup_flags, &path);
 	if (res)
 		goto out;
 
 	inode = d_backing_inode(path.dentry);
+<<<<<<< HEAD
 	mnt = path.mnt;
+=======
+>>>>>>> upstream/android-13
 
 	if ((mode & MAY_EXEC) && S_ISREG(inode->i_mode)) {
 		/*
@@ -425,7 +525,11 @@ retry:
 			goto out_path_release;
 	}
 
+<<<<<<< HEAD
 	res = inode_permission2(mnt, inode, mode | MAY_ACCESS);
+=======
+	res = inode_permission(mnt_user_ns(path.mnt), inode, mode | MAY_ACCESS);
+>>>>>>> upstream/android-13
 	/* SuS v2 requires we report a read only fs too */
 	if (res || !(mode & S_IWOTH) || special_file(inode->i_mode))
 		goto out_path_release;
@@ -449,22 +553,45 @@ out_path_release:
 		goto retry;
 	}
 out:
+<<<<<<< HEAD
 	revert_creds(old_cred);
 	put_cred(override_cred);
+=======
+	if (old_cred)
+		revert_creds(old_cred);
+
+>>>>>>> upstream/android-13
 	return res;
 }
 
 SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
 {
+<<<<<<< HEAD
 	return do_faccessat(dfd, filename, mode);
+=======
+	return do_faccessat(dfd, filename, mode, 0);
+}
+
+SYSCALL_DEFINE4(faccessat2, int, dfd, const char __user *, filename, int, mode,
+		int, flags)
+{
+	return do_faccessat(dfd, filename, mode, flags);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE2(access, const char __user *, filename, int, mode)
 {
+<<<<<<< HEAD
 	return do_faccessat(AT_FDCWD, filename, mode);
 }
 
 int ksys_chdir(const char __user *filename)
+=======
+	return do_faccessat(AT_FDCWD, filename, mode, 0);
+}
+
+SYSCALL_DEFINE1(chdir, const char __user *, filename)
+>>>>>>> upstream/android-13
 {
 	struct path path;
 	int error;
@@ -474,7 +601,11 @@ retry:
 	if (error)
 		goto out;
 
+<<<<<<< HEAD
 	error = inode_permission2(path.mnt, path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+=======
+	error = path_permission(&path, MAY_EXEC | MAY_CHDIR);
+>>>>>>> upstream/android-13
 	if (error)
 		goto dput_and_out;
 
@@ -490,11 +621,14 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
 SYSCALL_DEFINE1(chdir, const char __user *, filename)
 {
 	return ksys_chdir(filename);
 }
 
+=======
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE1(fchdir, unsigned int, fd)
 {
 	struct fd f = fdget_raw(fd);
@@ -508,8 +642,12 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
 	if (!d_can_lookup(f.file->f_path.dentry))
 		goto out_putf;
 
+<<<<<<< HEAD
 	error = inode_permission2(f.file->f_path.mnt, file_inode(f.file),
 				MAY_EXEC | MAY_CHDIR);
+=======
+	error = file_permission(f.file, MAY_EXEC | MAY_CHDIR);
+>>>>>>> upstream/android-13
 	if (!error)
 		set_fs_pwd(current->fs, &f.file->f_path);
 out_putf:
@@ -518,7 +656,11 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
 int ksys_chroot(const char __user *filename)
+=======
+SYSCALL_DEFINE1(chroot, const char __user *, filename)
+>>>>>>> upstream/android-13
 {
 	struct path path;
 	int error;
@@ -528,7 +670,11 @@ retry:
 	if (error)
 		goto out;
 
+<<<<<<< HEAD
 	error = inode_permission2(path.mnt, path.dentry->d_inode, MAY_EXEC | MAY_CHDIR);
+=======
+	error = path_permission(&path, MAY_EXEC | MAY_CHDIR);
+>>>>>>> upstream/android-13
 	if (error)
 		goto dput_and_out;
 
@@ -551,12 +697,16 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
 SYSCALL_DEFINE1(chroot, const char __user *, filename)
 {
 	return ksys_chroot(filename);
 }
 
 static int chmod_common(const struct path *path, umode_t mode)
+=======
+int chmod_common(const struct path *path, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = path->dentry->d_inode;
 	struct inode *delegated_inode = NULL;
@@ -573,7 +723,12 @@ retry_deleg:
 		goto out_unlock;
 	newattrs.ia_mode = (mode & S_IALLUGO) | (inode->i_mode & ~S_IALLUGO);
 	newattrs.ia_valid = ATTR_MODE | ATTR_CTIME;
+<<<<<<< HEAD
 	error = notify_change2(path->mnt, path->dentry, &newattrs, &delegated_inode);
+=======
+	error = notify_change(mnt_user_ns(path->mnt), path->dentry,
+			      &newattrs, &delegated_inode);
+>>>>>>> upstream/android-13
 out_unlock:
 	inode_unlock(inode);
 	if (delegated_inode) {
@@ -585,25 +740,43 @@ out_unlock:
 	return error;
 }
 
+<<<<<<< HEAD
 int ksys_fchmod(unsigned int fd, umode_t mode)
+=======
+int vfs_fchmod(struct file *file, umode_t mode)
+{
+	audit_file(file);
+	return chmod_common(&file->f_path, mode);
+}
+
+SYSCALL_DEFINE2(fchmod, unsigned int, fd, umode_t, mode)
+>>>>>>> upstream/android-13
 {
 	struct fd f = fdget(fd);
 	int err = -EBADF;
 
 	if (f.file) {
+<<<<<<< HEAD
 		audit_file(f.file);
 		err = chmod_common(&f.file->f_path, mode);
+=======
+		err = vfs_fchmod(f.file, mode);
+>>>>>>> upstream/android-13
 		fdput(f);
 	}
 	return err;
 }
 
+<<<<<<< HEAD
 SYSCALL_DEFINE2(fchmod, unsigned int, fd, umode_t, mode)
 {
 	return ksys_fchmod(fd, mode);
 }
 
 int do_fchmodat(int dfd, const char __user *filename, umode_t mode)
+=======
+static int do_fchmodat(int dfd, const char __user *filename, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct path path;
 	int error;
@@ -632,8 +805,14 @@ SYSCALL_DEFINE2(chmod, const char __user *, filename, umode_t, mode)
 	return do_fchmodat(AT_FDCWD, filename, mode);
 }
 
+<<<<<<< HEAD
 static int chown_common(const struct path *path, uid_t user, gid_t group)
 {
+=======
+int chown_common(const struct path *path, uid_t user, gid_t group)
+{
+	struct user_namespace *mnt_userns;
+>>>>>>> upstream/android-13
 	struct inode *inode = path->dentry->d_inode;
 	struct inode *delegated_inode = NULL;
 	int error;
@@ -644,6 +823,13 @@ static int chown_common(const struct path *path, uid_t user, gid_t group)
 	uid = make_kuid(current_user_ns(), user);
 	gid = make_kgid(current_user_ns(), group);
 
+<<<<<<< HEAD
+=======
+	mnt_userns = mnt_user_ns(path->mnt);
+	uid = kuid_from_mnt(mnt_userns, uid);
+	gid = kgid_from_mnt(mnt_userns, gid);
+
+>>>>>>> upstream/android-13
 retry_deleg:
 	newattrs.ia_valid =  ATTR_CTIME;
 	if (user != (uid_t) -1) {
@@ -664,7 +850,12 @@ retry_deleg:
 	inode_lock(inode);
 	error = security_path_chown(path, uid, gid);
 	if (!error)
+<<<<<<< HEAD
 		error = notify_change2(path->mnt, path->dentry, &newattrs, &delegated_inode);
+=======
+		error = notify_change(mnt_userns, path->dentry, &newattrs,
+				      &delegated_inode);
+>>>>>>> upstream/android-13
 	inode_unlock(inode);
 	if (delegated_inode) {
 		error = break_deleg_wait(&delegated_inode);
@@ -723,11 +914,28 @@ SYSCALL_DEFINE3(lchown, const char __user *, filename, uid_t, user, gid_t, group
 			   AT_SYMLINK_NOFOLLOW);
 }
 
+<<<<<<< HEAD
+=======
+int vfs_fchown(struct file *file, uid_t user, gid_t group)
+{
+	int error;
+
+	error = mnt_want_write_file(file);
+	if (error)
+		return error;
+	audit_file(file);
+	error = chown_common(&file->f_path, user, group);
+	mnt_drop_write_file(file);
+	return error;
+}
+
+>>>>>>> upstream/android-13
 int ksys_fchown(unsigned int fd, uid_t user, gid_t group)
 {
 	struct fd f = fdget(fd);
 	int error = -EBADF;
 
+<<<<<<< HEAD
 	if (!f.file)
 		goto out;
 
@@ -740,6 +948,12 @@ int ksys_fchown(unsigned int fd, uid_t user, gid_t group)
 out_fput:
 	fdput(f);
 out:
+=======
+	if (f.file) {
+		error = vfs_fchown(f.file, user, group);
+		fdput(f);
+	}
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -758,9 +972,14 @@ static int do_dentry_open(struct file *f,
 	path_get(&f->f_path);
 	f->f_inode = inode;
 	f->f_mapping = inode->i_mapping;
+<<<<<<< HEAD
 
 	/* Ensure that we skip any errors that predate opening of the file */
 	f->f_wb_err = filemap_sample_wb_err(f->f_mapping);
+=======
+	f->f_wb_err = filemap_sample_wb_err(f->f_mapping);
+	f->f_sb_err = file_sample_sb_err(f);
+>>>>>>> upstream/android-13
 
 	if (unlikely(f->f_flags & O_PATH)) {
 		f->f_mode = FMODE_PATH | FMODE_OPENED;
@@ -768,12 +987,15 @@ static int do_dentry_open(struct file *f,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/* Any file opened for execve()/uselib() has to be a regular file. */
 	if (unlikely(f->f_flags & FMODE_EXEC && !S_ISREG(inode->i_mode))) {
 		error = -EACCES;
 		goto cleanup_file;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (f->f_mode & FMODE_WRITE && !special_file(inode->i_mode)) {
 		error = get_write_access(inode);
 		if (unlikely(error))
@@ -791,10 +1013,18 @@ static int do_dentry_open(struct file *f,
 		f->f_mode |= FMODE_ATOMIC_POS;
 
 	f->f_op = fops_get(inode->i_fop);
+<<<<<<< HEAD
 	if (unlikely(WARN_ON(!f->f_op))) {
 		error = -ENODEV;
 		goto cleanup_all;
 	}
+=======
+	if (WARN_ON(!f->f_op)) {
+		error = -ENODEV;
+		goto cleanup_all;
+	}
+	trace_android_vh_check_file_open(f);
+>>>>>>> upstream/android-13
 
 	error = security_file_open(f);
 	if (error)
@@ -833,6 +1063,38 @@ static int do_dentry_open(struct file *f,
 		if (!f->f_mapping->a_ops || !f->f_mapping->a_ops->direct_IO)
 			return -EINVAL;
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * XXX: Huge page cache doesn't support writing yet. Drop all page
+	 * cache for this file before processing writes.
+	 */
+	if (f->f_mode & FMODE_WRITE) {
+		/*
+		 * Paired with smp_mb() in collapse_file() to ensure nr_thps
+		 * is up to date and the update to i_writecount by
+		 * get_write_access() is visible. Ensures subsequent insertion
+		 * of THPs into the page cache will fail.
+		 */
+		smp_mb();
+		if (filemap_nr_thps(inode->i_mapping)) {
+			struct address_space *mapping = inode->i_mapping;
+
+			filemap_invalidate_lock(inode->i_mapping);
+			/*
+			 * unmap_mapping_range just need to be called once
+			 * here, because the private pages is not need to be
+			 * unmapped mapping (e.g. data segment of dynamic
+			 * shared libraries here).
+			 */
+			unmap_mapping_range(mapping, 0, 0, 0);
+			truncate_inode_pages(mapping, 0);
+			filemap_invalidate_unlock(inode->i_mapping);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 
 cleanup_all:
@@ -959,6 +1221,7 @@ struct file *open_with_fake_path(const struct path *path, int flags,
 }
 EXPORT_SYMBOL(open_with_fake_path);
 
+<<<<<<< HEAD
 static inline int build_open_flags(int flags, umode_t mode, struct open_flags *op)
 {
 	int lookup_flags = 0;
@@ -977,6 +1240,87 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 
 	/* Must never be set by userspace */
 	flags &= ~FMODE_NONOTIFY & ~O_CLOEXEC;
+=======
+#define WILL_CREATE(flags)	(flags & (O_CREAT | __O_TMPFILE))
+#define O_PATH_FLAGS		(O_DIRECTORY | O_NOFOLLOW | O_PATH | O_CLOEXEC)
+
+inline struct open_how build_open_how(int flags, umode_t mode)
+{
+	struct open_how how = {
+		.flags = flags & VALID_OPEN_FLAGS,
+		.mode = mode & S_IALLUGO,
+	};
+
+	/* O_PATH beats everything else. */
+	if (how.flags & O_PATH)
+		how.flags &= O_PATH_FLAGS;
+	/* Modes should only be set for create-like flags. */
+	if (!WILL_CREATE(how.flags))
+		how.mode = 0;
+	return how;
+}
+
+inline int build_open_flags(const struct open_how *how, struct open_flags *op)
+{
+	u64 flags = how->flags;
+	u64 strip = FMODE_NONOTIFY | O_CLOEXEC;
+	int lookup_flags = 0;
+	int acc_mode = ACC_MODE(flags);
+
+	BUILD_BUG_ON_MSG(upper_32_bits(VALID_OPEN_FLAGS),
+			 "struct open_flags doesn't yet handle flags > 32 bits");
+
+	/*
+	 * Strip flags that either shouldn't be set by userspace like
+	 * FMODE_NONOTIFY or that aren't relevant in determining struct
+	 * open_flags like O_CLOEXEC.
+	 */
+	flags &= ~strip;
+
+	/*
+	 * Older syscalls implicitly clear all of the invalid flags or argument
+	 * values before calling build_open_flags(), but openat2(2) checks all
+	 * of its arguments.
+	 */
+	if (flags & ~VALID_OPEN_FLAGS)
+		return -EINVAL;
+	if (how->resolve & ~VALID_RESOLVE_FLAGS)
+		return -EINVAL;
+
+	/* Scoping flags are mutually exclusive. */
+	if ((how->resolve & RESOLVE_BENEATH) && (how->resolve & RESOLVE_IN_ROOT))
+		return -EINVAL;
+
+	/* Deal with the mode. */
+	if (WILL_CREATE(flags)) {
+		if (how->mode & ~S_IALLUGO)
+			return -EINVAL;
+		op->mode = how->mode | S_IFREG;
+	} else {
+		if (how->mode != 0)
+			return -EINVAL;
+		op->mode = 0;
+	}
+
+	/*
+	 * In order to ensure programs get explicit errors when trying to use
+	 * O_TMPFILE on old kernels, O_TMPFILE is implemented such that it
+	 * looks like (O_DIRECTORY|O_RDWR & ~O_CREAT) to old kernels. But we
+	 * have to require userspace to explicitly set it.
+	 */
+	if (flags & __O_TMPFILE) {
+		if ((flags & O_TMPFILE_MASK) != O_TMPFILE)
+			return -EINVAL;
+		if (!(acc_mode & MAY_WRITE))
+			return -EINVAL;
+	}
+	if (flags & O_PATH) {
+		/* O_PATH only permits certain other flags to be set. */
+		if (flags & ~O_PATH_FLAGS)
+			return -EINVAL;
+		acc_mode = 0;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * O_SYNC is implemented as __O_SYNC|O_DSYNC.  As many places only
@@ -987,6 +1331,7 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 	if (flags & __O_SYNC)
 		flags |= O_DSYNC;
 
+<<<<<<< HEAD
 	if (flags & __O_TMPFILE) {
 		if ((flags & O_TMPFILE_MASK) != O_TMPFILE)
 			return -EINVAL;
@@ -1001,6 +1346,8 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 		acc_mode = 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	op->open_flag = flags;
 
 	/* O_TRUNC implies we need access checks for write permissions */
@@ -1018,14 +1365,42 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 
 	if (flags & O_CREAT) {
 		op->intent |= LOOKUP_CREATE;
+<<<<<<< HEAD
 		if (flags & O_EXCL)
 			op->intent |= LOOKUP_EXCL;
+=======
+		if (flags & O_EXCL) {
+			op->intent |= LOOKUP_EXCL;
+			flags |= O_NOFOLLOW;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (flags & O_DIRECTORY)
 		lookup_flags |= LOOKUP_DIRECTORY;
 	if (!(flags & O_NOFOLLOW))
 		lookup_flags |= LOOKUP_FOLLOW;
+<<<<<<< HEAD
+=======
+
+	if (how->resolve & RESOLVE_NO_XDEV)
+		lookup_flags |= LOOKUP_NO_XDEV;
+	if (how->resolve & RESOLVE_NO_MAGICLINKS)
+		lookup_flags |= LOOKUP_NO_MAGICLINKS;
+	if (how->resolve & RESOLVE_NO_SYMLINKS)
+		lookup_flags |= LOOKUP_NO_SYMLINKS;
+	if (how->resolve & RESOLVE_BENEATH)
+		lookup_flags |= LOOKUP_BENEATH;
+	if (how->resolve & RESOLVE_IN_ROOT)
+		lookup_flags |= LOOKUP_IN_ROOT;
+	if (how->resolve & RESOLVE_CACHED) {
+		/* Don't bother even trying for create/truncate/tmpfile open */
+		if (flags & (O_TRUNC | O_CREAT | O_TMPFILE))
+			return -EAGAIN;
+		lookup_flags |= LOOKUP_CACHED;
+	}
+
+>>>>>>> upstream/android-13
 	op->lookup_flags = lookup_flags;
 	return 0;
 }
@@ -1044,8 +1419,16 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
 struct file *file_open_name(struct filename *name, int flags, umode_t mode)
 {
 	struct open_flags op;
+<<<<<<< HEAD
 	int err = build_open_flags(flags, mode, &op);
 	return err ? ERR_PTR(err) : do_filp_open(AT_FDCWD, name, &op);
+=======
+	struct open_how how = build_open_how(flags, mode);
+	int err = build_open_flags(&how, &op);
+	if (err)
+		return ERR_PTR(err);
+	return do_filp_open(AT_FDCWD, name, &op);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1070,6 +1453,7 @@ struct file *filp_open(const char *filename, int flags, umode_t mode)
 	}
 	return file;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(filp_open);
 
 struct file *file_open_root(struct dentry *dentry, struct vfsmount *mnt,
@@ -1087,6 +1471,48 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 {
 	struct open_flags op;
 	int fd = build_open_flags(flags, mode, &op);
+=======
+EXPORT_SYMBOL_NS(filp_open, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+
+/* ANDROID: Allow drivers to open only block files from kernel mode */
+struct file *filp_open_block(const char *filename, int flags, umode_t mode)
+{
+	struct file *file;
+
+	file = filp_open(filename, flags, mode);
+	if (IS_ERR(file))
+		goto err_out;
+
+	/* Drivers should only be allowed to open block devices */
+	if (!S_ISBLK(file->f_mapping->host->i_mode)) {
+		filp_close(file, NULL);
+		file = ERR_PTR(-ENOTBLK);
+	}
+
+err_out:
+	return file;
+}
+EXPORT_SYMBOL_GPL(filp_open_block);
+
+struct file *file_open_root(const struct path *root,
+			    const char *filename, int flags, umode_t mode)
+{
+	struct open_flags op;
+	struct open_how how = build_open_how(flags, mode);
+	int err = build_open_flags(&how, &op);
+	if (err)
+		return ERR_PTR(err);
+	return do_file_open_root(root, filename, &op);
+}
+EXPORT_SYMBOL(file_open_root);
+
+static long do_sys_openat2(int dfd, const char __user *filename,
+			   struct open_how *how)
+{
+	struct open_flags op;
+	int fd = build_open_flags(how, &op);
+>>>>>>> upstream/android-13
 	struct filename *tmp;
 
 	if (fd)
@@ -1096,6 +1522,7 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 	if (IS_ERR(tmp))
 		return PTR_ERR(tmp);
 
+<<<<<<< HEAD
 	fd = get_unused_fd_flags(flags);
 	if (fd >= 0) {
 		struct file *f = do_filp_open(dfd, tmp, &op);
@@ -1106,6 +1533,11 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 			f = ERR_PTR(-EPERM);
 		}
 #endif
+=======
+	fd = get_unused_fd_flags(how->flags);
+	if (fd >= 0) {
+		struct file *f = do_filp_open(dfd, tmp, &op);
+>>>>>>> upstream/android-13
 		if (IS_ERR(f)) {
 			put_unused_fd(fd);
 			fd = PTR_ERR(f);
@@ -1118,11 +1550,24 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 	return fd;
 }
 
+<<<<<<< HEAD
+=======
+long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
+{
+	struct open_how how = build_open_how(flags, mode);
+	return do_sys_openat2(dfd, filename, &how);
+}
+
+
+>>>>>>> upstream/android-13
 SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)
 {
 	if (force_o_largefile())
 		flags |= O_LARGEFILE;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	return do_sys_open(AT_FDCWD, filename, flags, mode);
 }
 
@@ -1131,10 +1576,39 @@ SYSCALL_DEFINE4(openat, int, dfd, const char __user *, filename, int, flags,
 {
 	if (force_o_largefile())
 		flags |= O_LARGEFILE;
+<<<<<<< HEAD
 
 	return do_sys_open(dfd, filename, flags, mode);
 }
 
+=======
+	return do_sys_open(dfd, filename, flags, mode);
+}
+
+SYSCALL_DEFINE4(openat2, int, dfd, const char __user *, filename,
+		struct open_how __user *, how, size_t, usize)
+{
+	int err;
+	struct open_how tmp;
+
+	BUILD_BUG_ON(sizeof(struct open_how) < OPEN_HOW_SIZE_VER0);
+	BUILD_BUG_ON(sizeof(struct open_how) != OPEN_HOW_SIZE_LATEST);
+
+	if (unlikely(usize < OPEN_HOW_SIZE_VER0))
+		return -EINVAL;
+
+	err = copy_struct_from_user(&tmp, sizeof(tmp), how, usize);
+	if (err)
+		return err;
+
+	/* O_LARGEFILE is only allowed for non-O_PATH. */
+	if (!(tmp.flags & O_PATH) && force_o_largefile())
+		tmp.flags |= O_LARGEFILE;
+
+	return do_sys_openat2(dfd, filename, &tmp);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT
 /*
  * Exactly like sys_open(), except that it doesn't set the
@@ -1163,9 +1637,18 @@ COMPAT_SYSCALL_DEFINE4(openat, int, dfd, const char __user *, filename, int, fla
  */
 SYSCALL_DEFINE2(creat, const char __user *, pathname, umode_t, mode)
 {
+<<<<<<< HEAD
 	return ksys_open(pathname, O_CREAT | O_WRONLY | O_TRUNC, mode);
 }
 
+=======
+	int flags = O_CREAT | O_WRONLY | O_TRUNC;
+
+	if (force_o_largefile())
+		flags |= O_LARGEFILE;
+	return do_sys_open(AT_FDCWD, pathname, flags, mode);
+}
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -1201,7 +1684,11 @@ EXPORT_SYMBOL(filp_close);
  */
 SYSCALL_DEFINE1(close, unsigned int, fd)
 {
+<<<<<<< HEAD
 	int retval = __close_fd(current->files, fd);
+=======
+	int retval = close_fd(fd);
+>>>>>>> upstream/android-13
 
 	/* can't restart close syscall because file table entry was cleared */
 	if (unlikely(retval == -ERESTARTSYS ||
@@ -1213,6 +1700,26 @@ SYSCALL_DEFINE1(close, unsigned int, fd)
 	return retval;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * close_range() - Close all file descriptors in a given range.
+ *
+ * @fd:     starting file descriptor to close
+ * @max_fd: last file descriptor to close
+ * @flags:  reserved for future extensions
+ *
+ * This closes a range of file descriptors. All file descriptors
+ * from @fd up to and including @max_fd are closed.
+ * Currently, errors to close a given file descriptor are ignored.
+ */
+SYSCALL_DEFINE3(close_range, unsigned int, fd, unsigned int, max_fd,
+		unsigned int, flags)
+{
+	return __close_range(fd, max_fd, flags);
+}
+
+>>>>>>> upstream/android-13
 /*
  * This routine simulates a hangup on the tty, to arrange that users
  * are given clean terminals at login time.
@@ -1239,7 +1746,11 @@ int generic_file_open(struct inode * inode, struct file * filp)
 	return 0;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(generic_file_open);
+=======
+EXPORT_SYMBOL_NS(generic_file_open, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * This is used by subsystems that don't want seekable
@@ -1258,8 +1769,14 @@ EXPORT_SYMBOL(nonseekable_open);
 /*
  * stream_open is used by subsystems that want stream-like file descriptors.
  * Such file descriptors are not seekable and don't have notion of position
+<<<<<<< HEAD
  * (file.f_pos is always 0). Contrary to file descriptors of other regular
  * files, .read() and .write() can run simultaneously.
+=======
+ * (file.f_pos is always 0 and ppos passed to .read()/.write() is always NULL).
+ * Contrary to file descriptors of other regular files, .read() and .write()
+ * can run simultaneously.
+>>>>>>> upstream/android-13
  *
  * stream_open never fails and is marked to return int so that it could be
  * directly used as file_operations.open .

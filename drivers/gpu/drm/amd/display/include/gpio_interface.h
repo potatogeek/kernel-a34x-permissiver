@@ -59,6 +59,17 @@ enum gpio_result dal_gpio_change_mode(
 	struct gpio *gpio,
 	enum gpio_mode mode);
 
+<<<<<<< HEAD
+=======
+/* Lock Pin */
+enum gpio_result dal_gpio_lock_pin(
+	struct gpio *gpio);
+
+/* Unlock Pin */
+enum gpio_result dal_gpio_unlock_pin(
+	struct gpio *gpio);
+
+>>>>>>> upstream/android-13
 /* Get the GPIO id */
 enum gpio_id dal_gpio_get_id(
 	const struct gpio *gpio);
@@ -85,8 +96,23 @@ enum sync_source dal_gpio_get_sync_source(
 enum gpio_pin_output_state dal_gpio_get_output_state(
 	const struct gpio *gpio);
 
+<<<<<<< HEAD
+=======
+struct hw_ddc *dal_gpio_get_ddc(struct gpio *gpio);
+
+struct hw_hpd *dal_gpio_get_hpd(struct gpio *gpio);
+
+struct hw_generic *dal_gpio_get_generic(struct gpio *gpio);
+
+>>>>>>> upstream/android-13
 /* Close the handle */
 void dal_gpio_close(
 	struct gpio *gpio);
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> upstream/android-13
 #endif

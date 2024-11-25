@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+>>>>>>> upstream/android-13
 /*
  * Cubietech CubieBoard6
  *
  * Copyright (c) 2017 Andreas Färber
+<<<<<<< HEAD
  *
  * SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+=======
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -26,12 +33,15 @@
 		device_type = "memory";
 		reg = <0x0 0x80000000>;
 	};
+<<<<<<< HEAD
 
 	uart3_clk: uart3-clk {
 		compatible = "fixed-clock";
 		clock-frequency = <921600>;
 		#clock-cells = <0>;
 	};
+=======
+>>>>>>> upstream/android-13
 };
 
 &timer {
@@ -40,5 +50,8 @@
 
 &uart3 {
 	status = "okay";
+<<<<<<< HEAD
 	clocks = <&uart3_clk>;
+=======
+>>>>>>> upstream/android-13
 };

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/acorn/scsi/powertec.c
  *
  *  Copyright (C) 1997-2005 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/blkdev.h>
@@ -17,11 +24,18 @@
 #include <linux/interrupt.h>
 #include <linux/init.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/dma.h>
 #include <asm/ecard.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "../scsi.h"
 #include <scsi/scsi_host.h>
@@ -141,12 +155,22 @@ powertecscsi_dma_setup(struct Scsi_Host *host, struct scsi_pointer *SCp,
 
 		bufs = copy_SCp_to_sg(&info->sg[0], SCp, NR_SG);
 
+<<<<<<< HEAD
 		if (direction == DMA_OUT)
 			map_dir = DMA_TO_DEVICE,
 			dma_dir = DMA_MODE_WRITE;
 		else
 			map_dir = DMA_FROM_DEVICE,
 			dma_dir = DMA_MODE_READ;
+=======
+		if (direction == DMA_OUT) {
+			map_dir = DMA_TO_DEVICE;
+			dma_dir = DMA_MODE_WRITE;
+		} else {
+			map_dir = DMA_FROM_DEVICE;
+			dma_dir = DMA_MODE_READ;
+		}
+>>>>>>> upstream/android-13
 
 		dma_map_sg(dev, info->sg, bufs, map_dir);
 
@@ -294,7 +318,10 @@ static struct scsi_host_template powertecscsi_template = {
 	.sg_tablesize			= SG_MAX_SEGMENTS,
 	.dma_boundary			= IOMD_DMA_BOUNDARY,
 	.cmd_per_lun			= 2,
+<<<<<<< HEAD
 	.use_clustering			= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.proc_name			= "powertec",
 };
 

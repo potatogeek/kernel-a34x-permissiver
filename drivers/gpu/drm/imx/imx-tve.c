@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * i.MX drm driver - Television Encoder (TVEv2)
  *
  * Copyright (C) 2013 Philipp Zabel, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +32,27 @@
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <video/imx-ipu-v3.h>
+=======
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/i2c.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
+#include <linux/videodev2.h>
+
+#include <video/imx-ipu-v3.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_managed.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "imx-drm.h"
 
@@ -105,12 +131,23 @@ enum {
 	TVE_MODE_VGA,
 };
 
+<<<<<<< HEAD
 struct imx_tve {
 	struct drm_connector connector;
 	struct drm_encoder encoder;
 	struct device *dev;
 	spinlock_t lock;	/* register lock */
 	bool enabled;
+=======
+struct imx_tve_encoder {
+	struct drm_connector connector;
+	struct drm_encoder encoder;
+	struct imx_tve *tve;
+};
+
+struct imx_tve {
+	struct device *dev;
+>>>>>>> upstream/android-13
 	int mode;
 	int di_hsync_pin;
 	int di_vsync_pin;
@@ -126,11 +163,16 @@ struct imx_tve {
 
 static inline struct imx_tve *con_to_tve(struct drm_connector *c)
 {
+<<<<<<< HEAD
 	return container_of(c, struct imx_tve, connector);
+=======
+	return container_of(c, struct imx_tve_encoder, connector)->tve;
+>>>>>>> upstream/android-13
 }
 
 static inline struct imx_tve *enc_to_tve(struct drm_encoder *e)
 {
+<<<<<<< HEAD
 	return container_of(e, struct imx_tve, encoder);
 }
 
@@ -148,16 +190,24 @@ __releases(&tve->lock)
 	struct imx_tve *tve = __tve;
 
 	spin_unlock(&tve->lock);
+=======
+	return container_of(e, struct imx_tve_encoder, encoder)->tve;
+>>>>>>> upstream/android-13
 }
 
 static void tve_enable(struct imx_tve *tve)
 {
+<<<<<<< HEAD
 	if (!tve->enabled) {
 		tve->enabled = true;
 		clk_prepare_enable(tve->clk);
 		regmap_update_bits(tve->regmap, TVE_COM_CONF_REG,
 				   TVE_EN, TVE_EN);
 	}
+=======
+	clk_prepare_enable(tve->clk);
+	regmap_update_bits(tve->regmap, TVE_COM_CONF_REG, TVE_EN, TVE_EN);
+>>>>>>> upstream/android-13
 
 	/* clear interrupt status register */
 	regmap_write(tve->regmap, TVE_STAT_REG, 0xffffffff);
@@ -174,11 +224,16 @@ static void tve_enable(struct imx_tve *tve)
 
 static void tve_disable(struct imx_tve *tve)
 {
+<<<<<<< HEAD
 	if (tve->enabled) {
 		tve->enabled = false;
 		regmap_update_bits(tve->regmap, TVE_COM_CONF_REG, TVE_EN, 0);
 		clk_disable_unprepare(tve->clk);
 	}
+=======
+	regmap_update_bits(tve->regmap, TVE_COM_CONF_REG, TVE_EN, 0);
+	clk_disable_unprepare(tve->clk);
+>>>>>>> upstream/android-13
 }
 
 static int tve_setup_tvout(struct imx_tve *tve)
@@ -265,6 +320,7 @@ static int imx_tve_connector_mode_valid(struct drm_connector *connector,
 	return MODE_BAD;
 }
 
+<<<<<<< HEAD
 static struct drm_encoder *imx_tve_connector_best_encoder(
 		struct drm_connector *connector)
 {
@@ -273,6 +329,8 @@ static struct drm_encoder *imx_tve_connector_best_encoder(
 	return &tve->encoder;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void imx_tve_encoder_mode_set(struct drm_encoder *encoder,
 				     struct drm_display_mode *orig_mode,
 				     struct drm_display_mode *mode)
@@ -350,6 +408,7 @@ static const struct drm_connector_funcs imx_tve_connector_funcs = {
 
 static const struct drm_connector_helper_funcs imx_tve_connector_helper_funcs = {
 	.get_modes = imx_tve_connector_get_modes,
+<<<<<<< HEAD
 	.best_encoder = imx_tve_connector_best_encoder,
 	.mode_valid = imx_tve_connector_mode_valid,
 };
@@ -358,6 +417,11 @@ static const struct drm_encoder_funcs imx_tve_encoder_funcs = {
 	.destroy = imx_drm_encoder_destroy,
 };
 
+=======
+	.mode_valid = imx_tve_connector_mode_valid,
+};
+
+>>>>>>> upstream/android-13
 static const struct drm_encoder_helper_funcs imx_tve_encoder_helper_funcs = {
 	.mode_set = imx_tve_encoder_mode_set,
 	.enable = imx_tve_encoder_enable,
@@ -442,7 +506,11 @@ static int clk_tve_di_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct clk_ops clk_tve_di_ops = {
+=======
+static const struct clk_ops clk_tve_di_ops = {
+>>>>>>> upstream/android-13
 	.round_rate = clk_tve_di_round_rate,
 	.set_rate = clk_tve_di_set_rate,
 	.recalc_rate = clk_tve_di_recalc_rate,
@@ -462,7 +530,11 @@ static int tve_clk_init(struct imx_tve *tve, void __iomem *base)
 	init.parent_names = (const char **)&tve_di_parent;
 
 	tve->clk_hw_di.init = &init;
+<<<<<<< HEAD
 	tve->di_clk = clk_register(tve->dev, &tve->clk_hw_di);
+=======
+	tve->di_clk = devm_clk_register(tve->dev, &tve->clk_hw_di);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tve->di_clk)) {
 		dev_err(tve->dev, "failed to register TVE output clock: %ld\n",
 			PTR_ERR(tve->di_clk));
@@ -472,6 +544,7 @@ static int tve_clk_init(struct imx_tve *tve, void __iomem *base)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
 {
 	int encoder_type;
@@ -498,6 +571,8 @@ static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void imx_tve_disable_regulator(void *data)
 {
 	struct imx_tve *tve = data;
@@ -517,8 +592,12 @@ static struct regmap_config tve_regmap_config = {
 
 	.readable_reg = imx_tve_readable_reg,
 
+<<<<<<< HEAD
 	.lock = tve_lock,
 	.unlock = tve_unlock,
+=======
+	.fast_io = true,
+>>>>>>> upstream/android-13
 
 	.max_register = 0xdc,
 };
@@ -528,7 +607,11 @@ static const char * const imx_tve_modes[] = {
 	[TVE_MODE_VGA] = "vga",
 };
 
+<<<<<<< HEAD
 static const int of_get_tve_mode(struct device_node *np)
+=======
+static int of_get_tve_mode(struct device_node *np)
+>>>>>>> upstream/android-13
 {
 	const char *bm;
 	int ret, i;
@@ -546,8 +629,54 @@ static const int of_get_tve_mode(struct device_node *np)
 
 static int imx_tve_bind(struct device *dev, struct device *master, void *data)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct drm_device *drm = data;
+=======
+	struct drm_device *drm = data;
+	struct imx_tve *tve = dev_get_drvdata(dev);
+	struct imx_tve_encoder *tvee;
+	struct drm_encoder *encoder;
+	struct drm_connector *connector;
+	int encoder_type;
+	int ret;
+
+	encoder_type = tve->mode == TVE_MODE_VGA ?
+		       DRM_MODE_ENCODER_DAC : DRM_MODE_ENCODER_TVDAC;
+
+	tvee = drmm_simple_encoder_alloc(drm, struct imx_tve_encoder, encoder,
+					 encoder_type);
+	if (IS_ERR(tvee))
+		return PTR_ERR(tvee);
+
+	tvee->tve = tve;
+	encoder = &tvee->encoder;
+	connector = &tvee->connector;
+
+	ret = imx_drm_encoder_parse_of(drm, encoder, tve->dev->of_node);
+	if (ret)
+		return ret;
+
+	drm_encoder_helper_add(encoder, &imx_tve_encoder_helper_funcs);
+
+	drm_connector_helper_add(connector, &imx_tve_connector_helper_funcs);
+	ret = drm_connector_init_with_ddc(drm, connector,
+					  &imx_tve_connector_funcs,
+					  DRM_MODE_CONNECTOR_VGA, tve->ddc);
+	if (ret)
+		return ret;
+
+	return drm_connector_attach_encoder(connector, encoder);
+}
+
+static const struct component_ops imx_tve_ops = {
+	.bind	= imx_tve_bind,
+};
+
+static int imx_tve_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	struct device_node *np = dev->of_node;
 	struct device_node *ddc_node;
 	struct imx_tve *tve;
@@ -562,7 +691,10 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
 		return -ENOMEM;
 
 	tve->dev = dev;
+<<<<<<< HEAD
 	spin_lock_init(&tve->lock);
+=======
+>>>>>>> upstream/android-13
 
 	ddc_node = of_parse_phandle(np, "ddc-i2c-bus", 0);
 	if (ddc_node) {
@@ -609,10 +741,15 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "failed to get irq\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(dev, irq, NULL,
 					imx_tve_irq_handler, IRQF_ONESHOT,
@@ -669,6 +806,7 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = imx_tve_register(drm, tve);
 	if (ret)
 		return ret;
@@ -685,6 +823,11 @@ static const struct component_ops imx_tve_ops = {
 static int imx_tve_probe(struct platform_device *pdev)
 {
 	return component_add(&pdev->dev, &imx_tve_ops);
+=======
+	platform_set_drvdata(pdev, tve);
+
+	return component_add(dev, &imx_tve_ops);
+>>>>>>> upstream/android-13
 }
 
 static int imx_tve_remove(struct platform_device *pdev)

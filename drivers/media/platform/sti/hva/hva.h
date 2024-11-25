@@ -130,7 +130,11 @@ struct hva_frame {
 /**
  * struct hva_stream - hva stream buffer (capture)
  *
+<<<<<<< HEAD
  * @v4l2:       video buffer information for V4L2
+=======
+ * @vbuf:       video buffer information for V4L2
+>>>>>>> upstream/android-13
  * @list:       V4L2 m2m list that the frame belongs to
  * @paddr:      physical address (for hardware)
  * @vaddr:      virtual address (kernel can read/write)

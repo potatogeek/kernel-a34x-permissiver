@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2008 - 2011 Intel Corporation. All rights reserved.
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2008 - 2011 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 
@@ -22,6 +29,10 @@
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/crc32.h>
 #include <scsi/libfcoe.h>
@@ -320,7 +331,11 @@ EXPORT_SYMBOL_GPL(fcoe_get_wwn);
 u32 fcoe_fc_crc(struct fc_frame *fp)
 {
 	struct sk_buff *skb = fp_skb(fp);
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 	unsigned char *data;
 	unsigned long off, len, clen;
 	u32 crc;
@@ -330,7 +345,11 @@ u32 fcoe_fc_crc(struct fc_frame *fp)
 
 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
 		frag = &skb_shinfo(skb)->frags[i];
+<<<<<<< HEAD
 		off = frag->page_offset;
+=======
+		off = skb_frag_off(frag);
+>>>>>>> upstream/android-13
 		len = skb_frag_size(frag);
 		while (len > 0) {
 			clen = min(len, PAGE_SIZE - (off & ~PAGE_MASK));
@@ -394,6 +413,10 @@ EXPORT_SYMBOL_GPL(fcoe_clean_pending_queue);
 /**
  * fcoe_check_wait_queue() - Attempt to clear the transmit backlog
  * @lport: The local port whose backlog is to be cleared
+<<<<<<< HEAD
+=======
+ * @skb: The received FIP packet
+>>>>>>> upstream/android-13
  *
  * This empties the wait_queue, dequeues the head of the wait_queue queue
  * and calls fcoe_start_io() for each packet. If all skb have been
@@ -451,7 +474,11 @@ EXPORT_SYMBOL_GPL(fcoe_check_wait_queue);
 
 /**
  * fcoe_queue_timer() - The fcoe queue timer
+<<<<<<< HEAD
  * @lport: The local port
+=======
+ * @t: Timer context use to obtain the FCoE port
+>>>>>>> upstream/android-13
  *
  * Calls fcoe_check_wait_queue on timeout
  */
@@ -684,6 +711,10 @@ static void fcoe_del_netdev_mapping(struct net_device *netdev)
 /**
  * fcoe_netdev_map_lookup - find the fcoe transport that matches the netdev on which
  * it was created
+<<<<<<< HEAD
+=======
+ * @netdev: The net device that the FCoE interface is on
+>>>>>>> upstream/android-13
  *
  * Returns : ptr to the fcoe transport that supports this netdev or NULL
  * if not found.
@@ -855,7 +886,10 @@ out_nodev:
 	mutex_unlock(&ft_mutex);
 	return rc;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(fcoe_ctlr_destroy_store);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * fcoe_transport_create() - Create a fcoe interface
@@ -873,7 +907,11 @@ static int fcoe_transport_create(const char *buffer,
 	int rc = -ENODEV;
 	struct net_device *netdev = NULL;
 	struct fcoe_transport *ft = NULL;
+<<<<<<< HEAD
 	enum fip_mode fip_mode = (enum fip_mode)kp->arg;
+=======
+	enum fip_mode fip_mode = (enum fip_mode)(uintptr_t)kp->arg;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&ft_mutex);
 

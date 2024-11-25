@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2008 Ilya Yanok, Emcraft Systems
  *
@@ -6,6 +7,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 2008 Ilya Yanok, Emcraft Systems
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>

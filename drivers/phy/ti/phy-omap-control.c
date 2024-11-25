@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * omap-control-phy.c - The PHY part of control module.
  *
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+ * Author: Kishon Vijay Abraham I <kishon@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -278,7 +286,10 @@ MODULE_DEVICE_TABLE(of, omap_control_phy_id_table);
 
 static int omap_control_phy_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource	*res;
+=======
+>>>>>>> upstream/android-13
 	const struct of_device_id *of_id;
 	struct omap_control_phy *control_phy;
 
@@ -295,6 +306,7 @@ static int omap_control_phy_probe(struct platform_device *pdev)
 	control_phy->type = *(enum omap_control_phy_type *)of_id->data;
 
 	if (control_phy->type == OMAP_CTRL_TYPE_OTGHS) {
+<<<<<<< HEAD
 		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 			"otghs_control");
 		control_phy->otghs_control = devm_ioremap_resource(
@@ -305,6 +317,15 @@ static int omap_control_phy_probe(struct platform_device *pdev)
 		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 				"power");
 		control_phy->power = devm_ioremap_resource(&pdev->dev, res);
+=======
+		control_phy->otghs_control =
+			devm_platform_ioremap_resource_byname(pdev, "otghs_control");
+		if (IS_ERR(control_phy->otghs_control))
+			return PTR_ERR(control_phy->otghs_control);
+	} else {
+		control_phy->power =
+			devm_platform_ioremap_resource_byname(pdev, "power");
+>>>>>>> upstream/android-13
 		if (IS_ERR(control_phy->power)) {
 			dev_err(&pdev->dev, "Couldn't get power register\n");
 			return PTR_ERR(control_phy->power);
@@ -322,9 +343,14 @@ static int omap_control_phy_probe(struct platform_device *pdev)
 	}
 
 	if (control_phy->type == OMAP_CTRL_TYPE_PCIE) {
+<<<<<<< HEAD
 		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 						   "pcie_pcs");
 		control_phy->pcie_pcs = devm_ioremap_resource(&pdev->dev, res);
+=======
+		control_phy->pcie_pcs =
+			devm_platform_ioremap_resource_byname(pdev, "pcie_pcs");
+>>>>>>> upstream/android-13
 		if (IS_ERR(control_phy->pcie_pcs))
 			return PTR_ERR(control_phy->pcie_pcs);
 	}

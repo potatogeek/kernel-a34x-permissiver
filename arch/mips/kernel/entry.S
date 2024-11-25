@@ -19,7 +19,11 @@
 #include <asm/thread_info.h>
 #include <asm/war.h>
 
+<<<<<<< HEAD
 #ifndef CONFIG_PREEMPT
+=======
+#ifndef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 #define resume_kernel	restore_all
 #else
 #define __ret_from_irq	ret_from_exception
@@ -27,7 +31,11 @@
 
 	.text
 	.align	5
+<<<<<<< HEAD
 #ifndef CONFIG_PREEMPT
+=======
+#ifndef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 FEXPORT(ret_from_exception)
 	local_irq_disable			# preempt stop
 	b	__ret_from_irq
@@ -53,20 +61,32 @@ resume_userspace:
 	bnez	t0, work_pending
 	j	restore_all
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 resume_kernel:
 	local_irq_disable
 	lw	t0, TI_PRE_COUNT($28)
 	bnez	t0, restore_all
+<<<<<<< HEAD
 need_resched:
+=======
+>>>>>>> upstream/android-13
 	LONG_L	t0, TI_FLAGS($28)
 	andi	t1, t0, _TIF_NEED_RESCHED
 	beqz	t1, restore_all
 	LONG_L	t0, PT_STATUS(sp)		# Interrupts off?
 	andi	t0, 1
 	beqz	t0, restore_all
+<<<<<<< HEAD
 	jal	preempt_schedule_irq
 	b	need_resched
+=======
+	PTR_LA	ra, restore_all
+	j	preempt_schedule_irq
+>>>>>>> upstream/android-13
 #endif
 
 FEXPORT(ret_from_kernel_thread)
@@ -170,8 +190,13 @@ syscall_exit_work:
 	jal	syscall_trace_leave
 	b	resume_userspace
 
+<<<<<<< HEAD
 #if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR6) || \
     defined(CONFIG_MIPS_MT)
+=======
+#if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR5) || \
+    defined(CONFIG_CPU_MIPSR6) || defined(CONFIG_MIPS_MT)
+>>>>>>> upstream/android-13
 
 /*
  * MIPS32R2 Instruction Hazard Barrier - must be called
@@ -184,4 +209,8 @@ LEAF(mips_ihb)
 	nop
 	END(mips_ihb)
 
+<<<<<<< HEAD
 #endif /* CONFIG_CPU_MIPSR2 or CONFIG_CPU_MIPSR6 or CONFIG_MIPS_MT */
+=======
+#endif /* CONFIG_CPU_MIPSR2 - CONFIG_CPU_MIPSR6 or CONFIG_MIPS_MT */
+>>>>>>> upstream/android-13

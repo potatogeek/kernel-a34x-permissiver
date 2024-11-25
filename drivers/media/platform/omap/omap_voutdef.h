@@ -11,6 +11,10 @@
 #ifndef OMAP_VOUTDEF_H
 #define OMAP_VOUTDEF_H
 
+<<<<<<< HEAD
+=======
+#include <media/videobuf2-dma-contig.h>
+>>>>>>> upstream/android-13
 #include <media/v4l2-ctrls.h>
 #include <video/omapfb_dss.h>
 #include <video/omapvrfb.h>
@@ -37,7 +41,11 @@
 #define VID_MAX_WIDTH		1280	/* Largest width */
 #define VID_MAX_HEIGHT		720	/* Largest height */
 
+<<<<<<< HEAD
 /* Mimimum requirement is 2x2 for DSS */
+=======
+/* Minimum requirement is 2x2 for DSS */
+>>>>>>> upstream/android-13
 #define VID_MIN_WIDTH		2
 #define VID_MIN_HEIGHT		2
 
@@ -113,6 +121,23 @@ struct omap2video_device {
 	struct omap_overlay_manager *managers[MAX_MANAGERS];
 };
 
+<<<<<<< HEAD
+=======
+/* buffer for one video frame */
+struct omap_vout_buffer {
+	/* common v4l buffer stuff -- must be first */
+	struct vb2_v4l2_buffer		vbuf;
+	struct list_head		queue;
+};
+
+static inline struct omap_vout_buffer *vb2_to_omap_vout_buffer(struct vb2_buffer *vb)
+{
+	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+
+	return container_of(vbuf, struct omap_vout_buffer, vbuf);
+}
+
+>>>>>>> upstream/android-13
 /* per-device data structure */
 struct omap_vout_device {
 
@@ -121,6 +146,7 @@ struct omap_vout_device {
 	struct omap2video_device *vid_dev;
 	struct v4l2_ctrl_handler ctrl_handler;
 	int vid;
+<<<<<<< HEAD
 	int opened;
 
 	/* we don't allow to change image fmt/size once buffer has
@@ -144,6 +170,14 @@ struct omap_vout_device {
 
 	/* non-NULL means streaming is in progress. */
 	bool streaming;
+=======
+
+	/* allow to reuse previously allocated buffer which is big enough */
+	int buffer_size;
+	enum omap_color_mode dss_mode;
+
+	u32 sequence;
+>>>>>>> upstream/android-13
 
 	struct v4l2_pix_format pix;
 	struct v4l2_rect crop;
@@ -169,19 +203,28 @@ struct omap_vout_device {
 	unsigned char pos;
 
 	int ps, vr_ps, line_length, first_int, field_id;
+<<<<<<< HEAD
 	enum v4l2_memory memory;
 	struct videobuf_buffer *cur_frm, *next_frm;
+=======
+	struct omap_vout_buffer *cur_frm, *next_frm;
+	spinlock_t vbq_lock;            /* spinlock for dma_queue */
+>>>>>>> upstream/android-13
 	struct list_head dma_queue;
 	u8 *queued_buf_addr[VIDEO_MAX_FRAME];
 	u32 cropped_offset;
 	s32 tv_field1_offset;
 	void *isr_handle;
+<<<<<<< HEAD
 
 	/* Buffer queue variables */
 	struct omap_vout_device *vout;
 	enum v4l2_buf_type type;
 	struct videobuf_queue vbq;
 	int io_allowed;
+=======
+	struct vb2_queue vq;
+>>>>>>> upstream/android-13
 
 };
 

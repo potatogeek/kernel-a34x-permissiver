@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * arch/xtensa/platform-iss/setup.c
@@ -9,6 +13,7 @@
  *
  * Copyright 2001 - 2005 Tensilica Inc.
  * Copyright 2017 Cadence Design Systems Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -33,15 +38,29 @@
 
 #include <asm/platform.h>
 #include <asm/bootparam.h>
+=======
+ */
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/notifier.h>
+#include <linux/panic_notifier.h>
+#include <linux/printk.h>
+#include <linux/string.h>
+
+#include <asm/platform.h>
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 
 #include <platform/simcall.h>
 
 
+<<<<<<< HEAD
 void __init platform_init(bp_tag_t* bootparam)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 void platform_halt(void)
 {
 	pr_info(" ** Called platform_halt() **\n");
@@ -53,6 +72,10 @@ void platform_power_off(void)
 	pr_info(" ** Called platform_power_off() **\n");
 	simc_exit(0);
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 void platform_restart(void)
 {
 	/* Flush and reset the mmu, simulate a processor reset, and
@@ -61,10 +84,13 @@ void platform_restart(void)
 	/* control never gets here */
 }
 
+<<<<<<< HEAD
 void platform_heartbeat(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 iss_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
 {

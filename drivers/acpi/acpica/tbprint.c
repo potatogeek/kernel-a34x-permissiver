@@ -3,7 +3,11 @@
  *
  * Module Name: tbprint - Table output utilities
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -69,10 +73,17 @@ acpi_tb_cleanup_table_header(struct acpi_table_header *out_header,
 
 	memcpy(out_header, header, sizeof(struct acpi_table_header));
 
+<<<<<<< HEAD
 	acpi_tb_fix_string(out_header->signature, ACPI_NAME_SIZE);
 	acpi_tb_fix_string(out_header->oem_id, ACPI_OEM_ID_SIZE);
 	acpi_tb_fix_string(out_header->oem_table_id, ACPI_OEM_TABLE_ID_SIZE);
 	acpi_tb_fix_string(out_header->asl_compiler_id, ACPI_NAME_SIZE);
+=======
+	acpi_tb_fix_string(out_header->signature, ACPI_NAMESEG_SIZE);
+	acpi_tb_fix_string(out_header->oem_id, ACPI_OEM_ID_SIZE);
+	acpi_tb_fix_string(out_header->oem_table_id, ACPI_OEM_TABLE_ID_SIZE);
+	acpi_tb_fix_string(out_header->asl_compiler_id, ACPI_NAMESEG_SIZE);
+>>>>>>> upstream/android-13
 }
 
 /*******************************************************************************
@@ -94,7 +105,11 @@ acpi_tb_print_table_header(acpi_physical_address address,
 {
 	struct acpi_table_header local_header;
 
+<<<<<<< HEAD
 	if (ACPI_COMPARE_NAME(header->signature, ACPI_SIG_FACS)) {
+=======
+	if (ACPI_COMPARE_NAMESEG(header->signature, ACPI_SIG_FACS)) {
+>>>>>>> upstream/android-13
 
 		/* FACS only has signature and length fields */
 
@@ -158,8 +173,13 @@ acpi_status acpi_tb_verify_checksum(struct acpi_table_header *table, u32 length)
 	 * They are the odd tables, have no standard ACPI header and no checksum
 	 */
 
+<<<<<<< HEAD
 	if (ACPI_COMPARE_NAME(table->signature, ACPI_SIG_S3PT) ||
 	    ACPI_COMPARE_NAME(table->signature, ACPI_SIG_FACS)) {
+=======
+	if (ACPI_COMPARE_NAMESEG(table->signature, ACPI_SIG_S3PT) ||
+	    ACPI_COMPARE_NAMESEG(table->signature, ACPI_SIG_FACS)) {
+>>>>>>> upstream/android-13
 		return (AE_OK);
 	}
 

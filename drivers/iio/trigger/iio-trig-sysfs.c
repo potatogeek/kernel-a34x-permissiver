@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Analog Devices Inc.
  *
  * Licensed under the GPL-2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2011 Analog Devices Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -151,7 +157,11 @@ static int iio_sysfs_trigger_probe(int id)
 		goto out1;
 	}
 	t->id = id;
+<<<<<<< HEAD
 	t->trig = iio_trigger_alloc("sysfstrig%d", id);
+=======
+	t->trig = iio_trigger_alloc(&iio_sysfs_trig_dev, "sysfstrig%d", id);
+>>>>>>> upstream/android-13
 	if (!t->trig) {
 		ret = -ENOMEM;
 		goto free_t;
@@ -159,10 +169,16 @@ static int iio_sysfs_trigger_probe(int id)
 
 	t->trig->dev.groups = iio_sysfs_trigger_attr_groups;
 	t->trig->ops = &iio_sysfs_trigger_ops;
+<<<<<<< HEAD
 	t->trig->dev.parent = &iio_sysfs_trig_dev;
 	iio_trigger_set_drvdata(t->trig, t);
 
 	init_irq_work(&t->work, iio_sysfs_trigger_work);
+=======
+	iio_trigger_set_drvdata(t->trig, t);
+
+	t->work = IRQ_WORK_INIT_HARD(iio_sysfs_trigger_work);
+>>>>>>> upstream/android-13
 
 	ret = iio_trigger_register(t->trig);
 	if (ret)
@@ -222,7 +238,11 @@ static void __exit iio_sysfs_trig_exit(void)
 }
 module_exit(iio_sysfs_trig_exit);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Sysfs based trigger for the iio subsystem");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("platform:iio-trig-sysfs");

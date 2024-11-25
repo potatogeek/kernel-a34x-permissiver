@@ -400,8 +400,12 @@ static void plgpio_irq_handler(struct irq_desc *desc)
 
 			/* get correct irq line number */
 			pin = i * MAX_GPIO_PER_REG + pin;
+<<<<<<< HEAD
 			generic_handle_irq(
 				irq_find_mapping(gc->irq.domain, pin));
+=======
+			generic_handle_domain_irq(gc->irq.domain, pin);
+>>>>>>> upstream/android-13
 		}
 	}
 	chained_irq_exit(irqchip, desc);
@@ -515,15 +519,22 @@ end:
 static int plgpio_probe(struct platform_device *pdev)
 {
 	struct plgpio *plgpio;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret, irq;
 
 	plgpio = devm_kzalloc(&pdev->dev, sizeof(*plgpio), GFP_KERNEL);
 	if (!plgpio)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	plgpio->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	plgpio->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(plgpio->base))
 		return PTR_ERR(plgpio->base);
 
@@ -569,12 +580,37 @@ static int plgpio_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	irq = platform_get_irq(pdev, 0);
+	if (irq > 0) {
+		struct gpio_irq_chip *girq;
+
+		girq = &plgpio->chip.irq;
+		girq->chip = &plgpio_irqchip;
+		girq->parent_handler = plgpio_irq_handler;
+		girq->num_parents = 1;
+		girq->parents = devm_kcalloc(&pdev->dev, 1,
+					     sizeof(*girq->parents),
+					     GFP_KERNEL);
+		if (!girq->parents)
+			return -ENOMEM;
+		girq->parents[0] = irq;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_simple_irq;
+		dev_info(&pdev->dev, "PLGPIO registering with IRQs\n");
+	} else {
+		dev_info(&pdev->dev, "PLGPIO registering without IRQs\n");
+	}
+
+>>>>>>> upstream/android-13
 	ret = gpiochip_add_data(&plgpio->chip, plgpio);
 	if (ret) {
 		dev_err(&pdev->dev, "unable to add gpio chip\n");
 		goto unprepare_clk;
 	}
 
+<<<<<<< HEAD
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
 		dev_info(&pdev->dev, "PLGPIO registered without IRQs\n");
@@ -603,6 +639,10 @@ static int plgpio_probe(struct platform_device *pdev)
 remove_gpiochip:
 	dev_info(&pdev->dev, "Remove gpiochip\n");
 	gpiochip_remove(&plgpio->chip);
+=======
+	return 0;
+
+>>>>>>> upstream/android-13
 unprepare_clk:
 	if (!IS_ERR(plgpio->clk))
 		clk_unprepare(plgpio->clk);

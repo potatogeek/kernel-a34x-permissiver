@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics accelerometers driver
  *
  * Copyright 2012-2013 STMicroelectronics Inc.
  *
  * Denis Ciocca <denis.ciocca@st.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/iio/iio.h>
 
@@ -18,7 +29,10 @@
 #include <linux/iio/common/st_sensors_spi.h>
 #include "st_accel.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 /*
  * For new single-chip sensors use <device_name> as compatible string.
  * For old single-chip devices keep <device_name>-accel to maintain
@@ -90,6 +104,7 @@ static const struct of_device_id st_accel_of_match[] = {
 		.compatible = "st,lis3dhh",
 		.data = LIS3DHH_ACCEL_DEV_NAME,
 	},
+<<<<<<< HEAD
 	{}
 };
 MODULE_DEVICE_TABLE(of, st_accel_of_match);
@@ -103,11 +118,38 @@ static int st_accel_spi_probe(struct spi_device *spi)
 	struct st_sensor_data *adata;
 	int err;
 
+=======
+	{
+		.compatible = "st,lis3de",
+		.data = LIS3DE_ACCEL_DEV_NAME,
+	},
+	{}
+};
+MODULE_DEVICE_TABLE(of, st_accel_of_match);
+
+static int st_accel_spi_probe(struct spi_device *spi)
+{
+	const struct st_sensor_settings *settings;
+	struct st_sensor_data *adata;
+	struct iio_dev *indio_dev;
+	int err;
+
+	st_sensors_dev_name_probe(&spi->dev, spi->modalias, sizeof(spi->modalias));
+
+	settings = st_accel_get_settings(spi->modalias);
+	if (!settings) {
+		dev_err(&spi->dev, "device name %s not recognized.\n",
+			spi->modalias);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	indio_dev = devm_iio_device_alloc(&spi->dev, sizeof(*adata));
 	if (!indio_dev)
 		return -ENOMEM;
 
 	adata = iio_priv(indio_dev);
+<<<<<<< HEAD
 
 	st_sensors_of_name_probe(&spi->dev, st_accel_of_match,
 				 spi->modalias, sizeof(spi->modalias));
@@ -118,11 +160,41 @@ static int st_accel_spi_probe(struct spi_device *spi)
 		return err;
 
 	return 0;
+=======
+	adata->sensor_settings = (struct st_sensor_settings *)settings;
+
+	err = st_sensors_spi_configure(indio_dev, spi);
+	if (err < 0)
+		return err;
+
+	err = st_sensors_power_enable(indio_dev);
+	if (err)
+		return err;
+
+	err = st_accel_common_probe(indio_dev);
+	if (err < 0)
+		goto st_accel_power_off;
+
+	return 0;
+
+st_accel_power_off:
+	st_sensors_power_disable(indio_dev);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int st_accel_spi_remove(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	st_accel_common_remove(spi_get_drvdata(spi));
+=======
+	struct iio_dev *indio_dev = spi_get_drvdata(spi);
+
+	st_accel_common_remove(indio_dev);
+
+	st_sensors_power_disable(indio_dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -143,6 +215,10 @@ static const struct spi_device_id st_accel_id_table[] = {
 	{ LIS3LV02DL_ACCEL_DEV_NAME },
 	{ LIS2DW12_ACCEL_DEV_NAME },
 	{ LIS3DHH_ACCEL_DEV_NAME },
+<<<<<<< HEAD
+=======
+	{ LIS3DE_ACCEL_DEV_NAME },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(spi, st_accel_id_table);
@@ -150,7 +226,11 @@ MODULE_DEVICE_TABLE(spi, st_accel_id_table);
 static struct spi_driver st_accel_driver = {
 	.driver = {
 		.name = "st-accel-spi",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(st_accel_of_match),
+=======
+		.of_match_table = st_accel_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = st_accel_spi_probe,
 	.remove = st_accel_spi_remove,

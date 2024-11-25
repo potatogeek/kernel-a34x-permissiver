@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (C) 1998-2008 Novell/SUSE
  * Copyright 2009-2012 Canonical Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -211,6 +218,29 @@ static int verify_dfa(struct aa_dfa *dfa)
 		if (!(BASE_TABLE(dfa)[i] & MATCH_FLAG_DIFF_ENCODE) &&
 		    (DEFAULT_TABLE(dfa)[i] >= state_count))
 			goto out;
+<<<<<<< HEAD
+=======
+		if (BASE_TABLE(dfa)[i] & MATCH_FLAGS_INVALID) {
+			pr_err("AppArmor DFA state with invalid match flags");
+			goto out;
+		}
+		if ((BASE_TABLE(dfa)[i] & MATCH_FLAG_DIFF_ENCODE)) {
+			if (!(dfa->flags & YYTH_FLAG_DIFF_ENCODE)) {
+				pr_err("AppArmor DFA diff encoded transition state without header flag");
+				goto out;
+			}
+		}
+		if ((BASE_TABLE(dfa)[i] & MATCH_FLAG_OOB_TRANSITION)) {
+			if (base_idx(BASE_TABLE(dfa)[i]) < dfa->max_oob) {
+				pr_err("AppArmor DFA out of bad transition out of range");
+				goto out;
+			}
+			if (!(dfa->flags & YYTH_FLAG_OOB_TRANS)) {
+				pr_err("AppArmor DFA out of bad transition state without header flag");
+				goto out;
+			}
+		}
+>>>>>>> upstream/android-13
 		if (base_idx(BASE_TABLE(dfa)[i]) + 255 >= trans_count) {
 			pr_err("AppArmor DFA next/check upper bounds error\n");
 			goto out;
@@ -313,9 +343,29 @@ struct aa_dfa *aa_dfa_unpack(void *blob, size_t size, int flags)
 		goto fail;
 
 	dfa->flags = ntohs(*(__be16 *) (data + 12));
+<<<<<<< HEAD
 	if (dfa->flags != 0 && dfa->flags != YYTH_FLAG_DIFF_ENCODE)
 		goto fail;
 
+=======
+	if (dfa->flags & ~(YYTH_FLAGS))
+		goto fail;
+
+	/*
+	 * TODO: needed for dfa to support more than 1 oob
+	 * if (dfa->flags & YYTH_FLAGS_OOB_TRANS) {
+	 *	if (hsize < 16 + 4)
+	 *		goto fail;
+	 *	dfa->max_oob = ntol(*(__be32 *) (data + 16));
+	 *	if (dfa->max <= MAX_OOB_SUPPORTED) {
+	 *		pr_err("AppArmor DFA OOB greater than supported\n");
+	 *		goto fail;
+	 *	}
+	 * }
+	 */
+	dfa->max_oob = 1;
+
+>>>>>>> upstream/android-13
 	data += hsize;
 	size -= hsize;
 
@@ -504,6 +554,26 @@ unsigned int aa_dfa_next(struct aa_dfa *dfa, unsigned int state,
 	return state;
 }
 
+<<<<<<< HEAD
+=======
+unsigned int aa_dfa_outofband_transition(struct aa_dfa *dfa, unsigned int state)
+{
+	u16 *def = DEFAULT_TABLE(dfa);
+	u32 *base = BASE_TABLE(dfa);
+	u16 *next = NEXT_TABLE(dfa);
+	u16 *check = CHECK_TABLE(dfa);
+	u32 b = (base)[(state)];
+
+	if (!(b & MATCH_FLAG_OOB_TRANSITION))
+		return DFA_NOMATCH;
+
+	/* No Equivalence class remapping for outofband transitions */
+	match_char(state, def, base, next, check, -1);
+
+	return state;
+}
+
+>>>>>>> upstream/android-13
 /**
  * aa_dfa_match_until - traverse @dfa until accept state or end of input
  * @dfa: the dfa to match @str against  (NOT NULL)
@@ -625,8 +695,13 @@ unsigned int aa_dfa_matchn_until(struct aa_dfa *dfa, unsigned int start,
 
 #define inc_wb_pos(wb)						\
 do {								\
+<<<<<<< HEAD
 	wb->pos = (wb->pos + 1) & (wb->size - 1);		\
 	wb->len = (wb->len + 1) & (wb->size - 1);		\
+=======
+	wb->pos = (wb->pos + 1) & (WB_HISTORY_SIZE - 1);		\
+	wb->len = (wb->len + 1) & (WB_HISTORY_SIZE - 1);		\
+>>>>>>> upstream/android-13
 } while (0)
 
 /* For DFAs that don't support extended tagging of states */
@@ -645,7 +720,11 @@ static bool is_loop(struct match_workbuf *wb, unsigned int state,
 			return true;
 		}
 		if (pos == 0)
+<<<<<<< HEAD
 			pos = wb->size;
+=======
+			pos = WB_HISTORY_SIZE;
+>>>>>>> upstream/android-13
 		pos--;
 	}
 

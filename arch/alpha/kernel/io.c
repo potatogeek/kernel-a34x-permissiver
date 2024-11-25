@@ -14,7 +14,11 @@
    "generic", which bumps through the machine vector.  */
 
 unsigned int
+<<<<<<< HEAD
 ioread8(void __iomem *addr)
+=======
+ioread8(const void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned int ret;
 	mb();
@@ -23,7 +27,11 @@ ioread8(void __iomem *addr)
 	return ret;
 }
 
+<<<<<<< HEAD
 unsigned int ioread16(void __iomem *addr)
+=======
+unsigned int ioread16(const void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned int ret;
 	mb();
@@ -32,7 +40,11 @@ unsigned int ioread16(void __iomem *addr)
 	return ret;
 }
 
+<<<<<<< HEAD
 unsigned int ioread32(void __iomem *addr)
+=======
+unsigned int ioread32(const void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned int ret;
 	mb();
@@ -257,7 +269,11 @@ EXPORT_SYMBOL(readq_relaxed);
 /*
  * Read COUNT 8-bit bytes from port PORT into memory starting at SRC.
  */
+<<<<<<< HEAD
 void ioread8_rep(void __iomem *port, void *dst, unsigned long count)
+=======
+void ioread8_rep(const void __iomem *port, void *dst, unsigned long count)
+>>>>>>> upstream/android-13
 {
 	while ((unsigned long)dst & 0x3) {
 		if (!count)
@@ -300,7 +316,11 @@ EXPORT_SYMBOL(insb);
  * the interfaces seems to be slow: just using the inlined version
  * of the inw() breaks things.
  */
+<<<<<<< HEAD
 void ioread16_rep(void __iomem *port, void *dst, unsigned long count)
+=======
+void ioread16_rep(const void __iomem *port, void *dst, unsigned long count)
+>>>>>>> upstream/android-13
 {
 	if (unlikely((unsigned long)dst & 0x3)) {
 		if (!count)
@@ -340,7 +360,11 @@ EXPORT_SYMBOL(insw);
  * but the interfaces seems to be slow: just using the inlined version
  * of the inl() breaks things.
  */
+<<<<<<< HEAD
 void ioread32_rep(void __iomem *port, void *dst, unsigned long count)
+=======
+void ioread32_rep(const void __iomem *port, void *dst, unsigned long count)
+>>>>>>> upstream/android-13
 {
 	if (unlikely((unsigned long)dst & 0x3)) {
 		while (count--) {

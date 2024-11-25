@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_HW_LM_H
@@ -61,6 +66,7 @@ struct dpu_hw_lm_ops {
 	void (*setup_border_color)(struct dpu_hw_mixer *ctx,
 		struct dpu_mdss_color *color,
 		u8 border_en);
+<<<<<<< HEAD
 	/**
 	 * setup_gc : enable/disable gamma correction feature
 	 */
@@ -73,6 +79,8 @@ struct dpu_hw_lm_ops {
 
 	/* collect_misr: reads and stores MISR data from HW register */
 	u32 (*collect_misr)(struct dpu_hw_mixer *ctx);
+=======
+>>>>>>> upstream/android-13
 };
 
 struct dpu_hw_mixer {
@@ -111,7 +119,11 @@ static inline struct dpu_hw_mixer *to_dpu_hw_mixer(struct dpu_hw_blk *hw)
  */
 struct dpu_hw_mixer *dpu_hw_lm_init(enum dpu_lm idx,
 		void __iomem *addr,
+<<<<<<< HEAD
 		struct dpu_mdss_cfg *m);
+=======
+		const struct dpu_mdss_cfg *m);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_hw_lm_destroy(): Destroys layer mixer driver context

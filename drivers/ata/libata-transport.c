@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  *  Copyright 2008 ioogle, Inc.  All rights reserved.
  *	Released under GPL v2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright 2008 ioogle, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  *
  * Libata transport class.
  *
@@ -208,7 +214,11 @@ show_ata_port_##name(struct device *dev,				\
 {									\
 	struct ata_port *ap = transport_class_to_port(dev);		\
 									\
+<<<<<<< HEAD
 	return snprintf(buf, 20, format_string, cast ap->field);	\
+=======
+	return scnprintf(buf, 20, format_string, cast ap->field);	\
+>>>>>>> upstream/android-13
 }
 
 #define ata_port_simple_attr(field, name, format_string, type)		\
@@ -250,7 +260,11 @@ static int ata_tport_match(struct attribute_container *cont,
 
 /**
  * ata_tport_delete  --  remove ATA PORT
+<<<<<<< HEAD
  * @port:	ATA PORT to remove
+=======
+ * @ap:	ATA PORT to remove
+>>>>>>> upstream/android-13
  *
  * Removes the specified ATA PORT.  Remove the associated link as well.
  */
@@ -376,7 +390,11 @@ static int ata_tlink_match(struct attribute_container *cont,
 
 /**
  * ata_tlink_delete  --  remove ATA LINK
+<<<<<<< HEAD
  * @port:	ATA LINK to remove
+=======
+ * @link:	ATA LINK to remove
+>>>>>>> upstream/android-13
  *
  * Removes the specified ATA LINK.  remove associated ATA device(s) as well.
  */
@@ -479,7 +497,11 @@ show_ata_dev_##field(struct device *dev,				\
 {									\
 	struct ata_device *ata_dev = transport_class_to_dev(dev);	\
 									\
+<<<<<<< HEAD
 	return snprintf(buf, 20, format_string, cast ata_dev->field);	\
+=======
+	return scnprintf(buf, 20, format_string, cast ata_dev->field);	\
+>>>>>>> upstream/android-13
 }
 
 #define ata_dev_simple_attr(field, format_string, type)	\
@@ -533,7 +555,11 @@ show_ata_dev_id(struct device *dev,
 	if (ata_dev->class == ATA_DEV_PMP)
 		return 0;
 	for(i=0;i<ATA_ID_WORDS;i++)  {
+<<<<<<< HEAD
 		written += snprintf(buf+written, 20, "%04x%c",
+=======
+		written += scnprintf(buf+written, 20, "%04x%c",
+>>>>>>> upstream/android-13
 				    ata_dev->id[i],
 				    ((i+1) & 7) ? ' ' : '\n');
 	}
@@ -552,7 +578,11 @@ show_ata_dev_gscr(struct device *dev,
 	if (ata_dev->class != ATA_DEV_PMP)
 		return 0;
 	for(i=0;i<SATA_PMP_GSCR_DWORDS;i++)  {
+<<<<<<< HEAD
 		written += snprintf(buf+written, 20, "%08x%c",
+=======
+		written += scnprintf(buf+written, 20, "%08x%c",
+>>>>>>> upstream/android-13
 				    ata_dev->gscr[i],
 				    ((i+1) & 3) ? ' ' : '\n');
 	}
@@ -581,7 +611,11 @@ show_ata_dev_trim(struct device *dev,
 	else
 		mode = "unqueued";
 
+<<<<<<< HEAD
 	return snprintf(buf, 20, "%s\n", mode);
+=======
+	return scnprintf(buf, 20, "%s\n", mode);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(trim, S_IRUGO, show_ata_dev_trim, NULL);
@@ -632,7 +666,11 @@ static void ata_tdev_free(struct ata_device *dev)
 
 /**
  * ata_tdev_delete  --  remove ATA device
+<<<<<<< HEAD
  * @port:	ATA PORT to remove
+=======
+ * @ata_dev:	ATA device to remove
+>>>>>>> upstream/android-13
  *
  * Removes the specified ATA device.
  */

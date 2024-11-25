@@ -2,11 +2,18 @@
 #ifndef __OF_PCI_H
 #define __OF_PCI_H
 
+<<<<<<< HEAD
 #include <linux/pci.h>
 #include <linux/msi.h>
 
 struct pci_dev;
 struct of_phandle_args;
+=======
+#include <linux/types.h>
+#include <linux/errno.h>
+
+struct pci_dev;
+>>>>>>> upstream/android-13
 struct device_node;
 
 #if IS_ENABLED(CONFIG_OF) && IS_ENABLED(CONFIG_PCI)
@@ -14,9 +21,12 @@ struct device_node *of_pci_find_child_device(struct device_node *parent,
 					     unsigned int devfn);
 int of_pci_get_devfn(struct device_node *np);
 void of_pci_check_probe_only(void);
+<<<<<<< HEAD
 int of_pci_map_rid(struct device_node *np, u32 rid,
 		   const char *map_name, const char *map_mask_name,
 		   struct device_node **target, u32 *id_out);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline struct device_node *of_pci_find_child_device(struct device_node *parent,
 					     unsigned int devfn)
@@ -29,6 +39,7 @@ static inline int of_pci_get_devfn(struct device_node *np)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static inline int of_pci_map_rid(struct device_node *np, u32 rid,
 			const char *map_name, const char *map_mask_name,
 			struct device_node **target, u32 *id_out)
@@ -36,6 +47,8 @@ static inline int of_pci_map_rid(struct device_node *np, u32 rid,
 	return -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void of_pci_check_probe_only(void) { }
 #endif
 

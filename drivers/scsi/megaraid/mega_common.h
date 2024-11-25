@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *
  *			Linux MegaRAID device driver
  *
  * Copyright (c) 2003-2004  LSI Logic Corporation.
  *
+<<<<<<< HEAD
  *	   This program is free software; you can redistribute it and/or
  *	   modify it under the terms of the GNU General Public License
  *	   as published by the Free Software Foundation; either version
  *	   2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * FILE		: mega_common.h
  *
  * Libaray of common routine used by all low-level megaraid drivers
@@ -286,5 +293,8 @@ struct mraid_pci_blk {
 };
 
 #endif // _MEGA_COMMON_H_
+<<<<<<< HEAD
 
 // vim: set ts=8 sw=8 tw=78:
+=======
+>>>>>>> upstream/android-13

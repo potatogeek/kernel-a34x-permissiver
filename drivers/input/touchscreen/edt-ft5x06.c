@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Simon Budig, <simon.budig@kernelconcepts.de>
  * Daniel Wagener <daniel.wagener@kernelconcepts.de> (M09 firmware support)
  * Lothar Waßmann <LW@KARO-electronics.de> (DT support)
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -25,6 +32,7 @@
  *    http://www.glyn.com/Products/Displays
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/ratelimit.h>
 #include <linux/irq.h>
@@ -39,6 +47,25 @@
 #include <linux/input/mt.h>
 #include <linux/input/touchscreen.h>
 #include <linux/of_device.h>
+=======
+#include <linux/debugfs.h>
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+#include <linux/i2c.h>
+#include <linux/interrupt.h>
+#include <linux/input.h>
+#include <linux/input/mt.h>
+#include <linux/input/touchscreen.h>
+#include <linux/irq.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/ratelimit.h>
+#include <linux/regulator/consumer.h>
+#include <linux/slab.h>
+#include <linux/uaccess.h>
+
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 #define WORK_REGISTER_THRESHOLD		0x00
 #define WORK_REGISTER_REPORT_RATE	0x08
@@ -47,16 +74,34 @@
 #define WORK_REGISTER_NUM_X		0x33
 #define WORK_REGISTER_NUM_Y		0x34
 
+<<<<<<< HEAD
+=======
+#define PMOD_REGISTER_ACTIVE		0x00
+#define PMOD_REGISTER_HIBERNATE		0x03
+
+>>>>>>> upstream/android-13
 #define M09_REGISTER_THRESHOLD		0x80
 #define M09_REGISTER_GAIN		0x92
 #define M09_REGISTER_OFFSET		0x93
 #define M09_REGISTER_NUM_X		0x94
 #define M09_REGISTER_NUM_Y		0x95
 
+<<<<<<< HEAD
+=======
+#define EV_REGISTER_THRESHOLD		0x40
+#define EV_REGISTER_GAIN		0x41
+#define EV_REGISTER_OFFSET_Y		0x45
+#define EV_REGISTER_OFFSET_X		0x46
+
+>>>>>>> upstream/android-13
 #define NO_REGISTER			0xff
 
 #define WORK_REGISTER_OPMODE		0x3c
 #define FACTORY_REGISTER_OPMODE		0x01
+<<<<<<< HEAD
+=======
+#define PMOD_REGISTER_OPMODE		0xa5
+>>>>>>> upstream/android-13
 
 #define TOUCH_EVENT_DOWN		0x00
 #define TOUCH_EVENT_UP			0x01
@@ -69,10 +114,26 @@
 #define EDT_RAW_DATA_RETRIES		100
 #define EDT_RAW_DATA_DELAY		1000 /* usec */
 
+<<<<<<< HEAD
+=======
+#define EDT_DEFAULT_NUM_X		1024
+#define EDT_DEFAULT_NUM_Y		1024
+
+enum edt_pmode {
+	EDT_PMODE_NOT_SUPPORTED,
+	EDT_PMODE_HIBERNATE,
+	EDT_PMODE_POWEROFF,
+};
+
+>>>>>>> upstream/android-13
 enum edt_ver {
 	EDT_M06,
 	EDT_M09,
 	EDT_M12,
+<<<<<<< HEAD
+=======
+	EV_FT,
+>>>>>>> upstream/android-13
 	GENERIC_FT,
 };
 
@@ -81,6 +142,11 @@ struct edt_reg_addr {
 	int reg_report_rate;
 	int reg_gain;
 	int reg_offset;
+<<<<<<< HEAD
+=======
+	int reg_offset_x;
+	int reg_offset_y;
+>>>>>>> upstream/android-13
 	int reg_num_x;
 	int reg_num_y;
 };
@@ -91,6 +157,11 @@ struct edt_ft5x06_ts_data {
 	struct touchscreen_properties prop;
 	u16 num_x;
 	u16 num_y;
+<<<<<<< HEAD
+=======
+	struct regulator *vcc;
+	struct regulator *iovcc;
+>>>>>>> upstream/android-13
 
 	struct gpio_desc *reset_gpio;
 	struct gpio_desc *wake_gpio;
@@ -103,9 +174,18 @@ struct edt_ft5x06_ts_data {
 
 	struct mutex mutex;
 	bool factory_mode;
+<<<<<<< HEAD
 	int threshold;
 	int gain;
 	int offset;
+=======
+	enum edt_pmode suspend_mode;
+	int threshold;
+	int gain;
+	int offset;
+	int offset_x;
+	int offset_y;
+>>>>>>> upstream/android-13
 	int report_rate;
 	int max_support_points;
 
@@ -190,6 +270,10 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 
 	case EDT_M09:
 	case EDT_M12:
+<<<<<<< HEAD
+=======
+	case EV_FT:
+>>>>>>> upstream/android-13
 	case GENERIC_FT:
 		cmd = 0x0;
 		offset = 3;
@@ -229,7 +313,10 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 
 	for (i = 0; i < tsdata->max_support_points; i++) {
 		u8 *buf = &rdbuf[i * tplen + offset];
+<<<<<<< HEAD
 		bool down;
+=======
+>>>>>>> upstream/android-13
 
 		type = buf[0] >> 6;
 		/* ignore Reserved events */
@@ -240,6 +327,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 		if (tsdata->version == EDT_M06 && type == TOUCH_EVENT_DOWN)
 			continue;
 
+<<<<<<< HEAD
 		x = ((buf[0] << 8) | buf[1]) & 0x0fff;
 		y = ((buf[2] << 8) | buf[3]) & 0x0fff;
 		id = (buf[2] >> 4) & 0x0f;
@@ -253,6 +341,21 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 
 		touchscreen_report_pos(tsdata->input, &tsdata->prop, x, y,
 				       true);
+=======
+		x = get_unaligned_be16(buf) & 0x0fff;
+		y = get_unaligned_be16(buf + 2) & 0x0fff;
+		/* The FT5x26 send the y coordinate first */
+		if (tsdata->version == EV_FT)
+			swap(x, y);
+
+		id = (buf[2] >> 4) & 0x0f;
+
+		input_mt_slot(tsdata->input, id);
+		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
+					       type != TOUCH_EVENT_UP))
+			touchscreen_report_pos(tsdata->input, &tsdata->prop,
+					       x, y, true);
+>>>>>>> upstream/android-13
 	}
 
 	input_mt_report_pointer_emulation(tsdata->input, true);
@@ -275,8 +378,15 @@ static int edt_ft5x06_register_write(struct edt_ft5x06_ts_data *tsdata,
 		wrbuf[3] = wrbuf[0] ^ wrbuf[1] ^ wrbuf[2];
 		return edt_ft5x06_ts_readwrite(tsdata->client, 4,
 					wrbuf, 0, NULL);
+<<<<<<< HEAD
 	case EDT_M09:
 	case EDT_M12:
+=======
+
+	case EDT_M09:
+	case EDT_M12:
+	case EV_FT:
+>>>>>>> upstream/android-13
 	case GENERIC_FT:
 		wrbuf[0] = addr;
 		wrbuf[1] = value;
@@ -317,6 +427,10 @@ static int edt_ft5x06_register_read(struct edt_ft5x06_ts_data *tsdata,
 
 	case EDT_M09:
 	case EDT_M12:
+<<<<<<< HEAD
+=======
+	case EV_FT:
+>>>>>>> upstream/android-13
 	case GENERIC_FT:
 		wrbuf[0] = addr;
 		error = edt_ft5x06_ts_readwrite(tsdata->client, 1,
@@ -339,9 +453,16 @@ struct edt_ft5x06_attribute {
 	u8 limit_high;
 	u8 addr_m06;
 	u8 addr_m09;
+<<<<<<< HEAD
 };
 
 #define EDT_ATTR(_field, _mode, _addr_m06, _addr_m09,			\
+=======
+	u8 addr_ev;
+};
+
+#define EDT_ATTR(_field, _mode, _addr_m06, _addr_m09, _addr_ev,		\
+>>>>>>> upstream/android-13
 		_limit_low, _limit_high)				\
 	struct edt_ft5x06_attribute edt_ft5x06_attr_##_field = {	\
 		.dattr = __ATTR(_field, _mode,				\
@@ -350,6 +471,10 @@ struct edt_ft5x06_attribute {
 		.field_offset = offsetof(struct edt_ft5x06_ts_data, _field), \
 		.addr_m06 = _addr_m06,					\
 		.addr_m09 = _addr_m09,					\
+<<<<<<< HEAD
+=======
+		.addr_ev  = _addr_ev,					\
+>>>>>>> upstream/android-13
 		.limit_low = _limit_low,				\
 		.limit_high = _limit_high,				\
 	}
@@ -386,6 +511,13 @@ static ssize_t edt_ft5x06_setting_show(struct device *dev,
 		addr = attr->addr_m09;
 		break;
 
+<<<<<<< HEAD
+=======
+	case EV_FT:
+		addr = attr->addr_ev;
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		error = -ENODEV;
 		goto out;
@@ -457,6 +589,13 @@ static ssize_t edt_ft5x06_setting_store(struct device *dev,
 		addr = attr->addr_m09;
 		break;
 
+<<<<<<< HEAD
+=======
+	case EV_FT:
+		addr = attr->addr_ev;
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		error = -ENODEV;
 		goto out;
@@ -480,6 +619,7 @@ out:
 
 /* m06, m09: range 0-31, m12: range 0-5 */
 static EDT_ATTR(gain, S_IWUSR | S_IRUGO, WORK_REGISTER_GAIN,
+<<<<<<< HEAD
 		M09_REGISTER_GAIN, 0, 31);
 /* m06, m09: range 0-31, m12: range 0-16 */
 static EDT_ATTR(offset, S_IWUSR | S_IRUGO, WORK_REGISTER_OFFSET,
@@ -490,10 +630,33 @@ static EDT_ATTR(threshold, S_IWUSR | S_IRUGO, WORK_REGISTER_THRESHOLD,
 /* m06: range 3 to 14, m12: (0x64: 100Hz) */
 static EDT_ATTR(report_rate, S_IWUSR | S_IRUGO, WORK_REGISTER_REPORT_RATE,
 		NO_REGISTER, 0, 255);
+=======
+		M09_REGISTER_GAIN, EV_REGISTER_GAIN, 0, 31);
+/* m06, m09: range 0-31, m12: range 0-16 */
+static EDT_ATTR(offset, S_IWUSR | S_IRUGO, WORK_REGISTER_OFFSET,
+		M09_REGISTER_OFFSET, NO_REGISTER, 0, 31);
+/* m06, m09, m12: no supported, ev_ft: range 0-80 */
+static EDT_ATTR(offset_x, S_IWUSR | S_IRUGO, NO_REGISTER, NO_REGISTER,
+		EV_REGISTER_OFFSET_X, 0, 80);
+/* m06, m09, m12: no supported, ev_ft: range 0-80 */
+static EDT_ATTR(offset_y, S_IWUSR | S_IRUGO, NO_REGISTER, NO_REGISTER,
+		EV_REGISTER_OFFSET_Y, 0, 80);
+/* m06: range 20 to 80, m09: range 0 to 30, m12: range 1 to 255... */
+static EDT_ATTR(threshold, S_IWUSR | S_IRUGO, WORK_REGISTER_THRESHOLD,
+		M09_REGISTER_THRESHOLD, EV_REGISTER_THRESHOLD, 0, 255);
+/* m06: range 3 to 14, m12: (0x64: 100Hz) */
+static EDT_ATTR(report_rate, S_IWUSR | S_IRUGO, WORK_REGISTER_REPORT_RATE,
+		NO_REGISTER, NO_REGISTER, 0, 255);
+>>>>>>> upstream/android-13
 
 static struct attribute *edt_ft5x06_attrs[] = {
 	&edt_ft5x06_attr_gain.dattr.attr,
 	&edt_ft5x06_attr_offset.dattr.attr,
+<<<<<<< HEAD
+=======
+	&edt_ft5x06_attr_offset_x.dattr.attr,
+	&edt_ft5x06_attr_offset_y.dattr.attr,
+>>>>>>> upstream/android-13
 	&edt_ft5x06_attr_threshold.dattr.attr,
 	&edt_ft5x06_attr_report_rate.dattr.attr,
 	NULL
@@ -503,6 +666,32 @@ static const struct attribute_group edt_ft5x06_attr_group = {
 	.attrs = edt_ft5x06_attrs,
 };
 
+<<<<<<< HEAD
+=======
+static void edt_ft5x06_restore_reg_parameters(struct edt_ft5x06_ts_data *tsdata)
+{
+	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
+
+	edt_ft5x06_register_write(tsdata, reg_addr->reg_threshold,
+				  tsdata->threshold);
+	edt_ft5x06_register_write(tsdata, reg_addr->reg_gain,
+				  tsdata->gain);
+	if (reg_addr->reg_offset != NO_REGISTER)
+		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset,
+					  tsdata->offset);
+	if (reg_addr->reg_offset_x != NO_REGISTER)
+		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_x,
+					  tsdata->offset_x);
+	if (reg_addr->reg_offset_y != NO_REGISTER)
+		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_y,
+					  tsdata->offset_y);
+	if (reg_addr->reg_report_rate != NO_REGISTER)
+		edt_ft5x06_register_write(tsdata, reg_addr->reg_report_rate,
+				  tsdata->report_rate);
+
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
 {
@@ -568,7 +757,10 @@ static int edt_ft5x06_work_mode(struct edt_ft5x06_ts_data *tsdata)
 {
 	struct i2c_client *client = tsdata->client;
 	int retries = EDT_SWITCH_MODE_RETRIES;
+<<<<<<< HEAD
 	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	int error;
 
@@ -600,6 +792,7 @@ static int edt_ft5x06_work_mode(struct edt_ft5x06_ts_data *tsdata)
 	kfree(tsdata->raw_buffer);
 	tsdata->raw_buffer = NULL;
 
+<<<<<<< HEAD
 	/* restore parameters */
 	edt_ft5x06_register_write(tsdata, reg_addr->reg_threshold,
 				  tsdata->threshold);
@@ -611,6 +804,9 @@ static int edt_ft5x06_work_mode(struct edt_ft5x06_ts_data *tsdata)
 		edt_ft5x06_register_write(tsdata, reg_addr->reg_report_rate,
 				  tsdata->report_rate);
 
+=======
+	edt_ft5x06_restore_reg_parameters(tsdata);
+>>>>>>> upstream/android-13
 	enable_irq(client->irq);
 
 	return 0;
@@ -731,6 +927,7 @@ static const struct file_operations debugfs_raw_data_fops = {
 	.read = edt_ft5x06_debugfs_raw_data_read,
 };
 
+<<<<<<< HEAD
 static void
 edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
 			      const char *debugfs_name)
@@ -738,6 +935,12 @@ edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
 	tsdata->debug_dir = debugfs_create_dir(debugfs_name, NULL);
 	if (!tsdata->debug_dir)
 		return;
+=======
+static void edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
+					  const char *debugfs_name)
+{
+	tsdata->debug_dir = debugfs_create_dir(debugfs_name, NULL);
+>>>>>>> upstream/android-13
 
 	debugfs_create_u16("num_x", S_IRUSR, tsdata->debug_dir, &tsdata->num_x);
 	debugfs_create_u16("num_y", S_IRUSR, tsdata->debug_dir, &tsdata->num_y);
@@ -748,8 +951,12 @@ edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
 			    tsdata->debug_dir, tsdata, &debugfs_raw_data_fops);
 }
 
+<<<<<<< HEAD
 static void
 edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+=======
+static void edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+>>>>>>> upstream/android-13
 {
 	debugfs_remove_recursive(tsdata->debug_dir);
 	kfree(tsdata->raw_buffer);
@@ -757,6 +964,7 @@ edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
 
 #else
 
+<<<<<<< HEAD
 static inline void
 edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
 			      const char *debugfs_name)
@@ -765,6 +973,19 @@ edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
 
 static inline void
 edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+=======
+static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+{
+	return -ENOSYS;
+}
+
+static void edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
+					  const char *debugfs_name)
+{
+}
+
+static void edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -850,6 +1071,10 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
 		 * the identification registers.
 		 */
 		switch (rdbuf[0]) {
+<<<<<<< HEAD
+=======
+		case 0x11:   /* EDT EP0110M09 */
+>>>>>>> upstream/android-13
 		case 0x35:   /* EDT EP0350M09 */
 		case 0x43:   /* EDT EP0430M09 */
 		case 0x50:   /* EDT EP0500M09 */
@@ -867,6 +1092,19 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
 		case 0x5a:   /* Solomon Goldentek Display */
 			snprintf(model_name, EDT_NAME_LEN, "GKTW50SCED1R0");
 			break;
+<<<<<<< HEAD
+=======
+		case 0x59:  /* Evervision Display with FT5xx6 TS */
+			tsdata->version = EV_FT;
+			error = edt_ft5x06_ts_readwrite(client, 1, "\x53",
+							1, rdbuf);
+			if (error)
+				return error;
+			strlcpy(fw_version, rdbuf, 1);
+			snprintf(model_name, EDT_NAME_LEN,
+				 "EVERVISION-FT5726NEi");
+			break;
+>>>>>>> upstream/android-13
 		default:
 			snprintf(model_name, EDT_NAME_LEN,
 				 "generic ft5x06 (%02x)",
@@ -899,6 +1137,7 @@ static void edt_ft5x06_ts_get_defaults(struct device *dev,
 
 	error = device_property_read_u32(dev, "offset", &val);
 	if (!error) {
+<<<<<<< HEAD
 		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset, val);
 		tsdata->offset = val;
 	}
@@ -906,12 +1145,39 @@ static void edt_ft5x06_ts_get_defaults(struct device *dev,
 
 static void
 edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+=======
+		if (reg_addr->reg_offset != NO_REGISTER)
+			edt_ft5x06_register_write(tsdata,
+						  reg_addr->reg_offset, val);
+		tsdata->offset = val;
+	}
+
+	error = device_property_read_u32(dev, "offset-x", &val);
+	if (!error) {
+		if (reg_addr->reg_offset_x != NO_REGISTER)
+			edt_ft5x06_register_write(tsdata,
+						  reg_addr->reg_offset_x, val);
+		tsdata->offset_x = val;
+	}
+
+	error = device_property_read_u32(dev, "offset-y", &val);
+	if (!error) {
+		if (reg_addr->reg_offset_y != NO_REGISTER)
+			edt_ft5x06_register_write(tsdata,
+						  reg_addr->reg_offset_y, val);
+		tsdata->offset_y = val;
+	}
+}
+
+static void edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+>>>>>>> upstream/android-13
 {
 	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
 
 	tsdata->threshold = edt_ft5x06_register_read(tsdata,
 						     reg_addr->reg_threshold);
 	tsdata->gain = edt_ft5x06_register_read(tsdata, reg_addr->reg_gain);
+<<<<<<< HEAD
 	tsdata->offset = edt_ft5x06_register_read(tsdata, reg_addr->reg_offset);
 	if (reg_addr->reg_report_rate != NO_REGISTER)
 		tsdata->report_rate = edt_ft5x06_register_read(tsdata,
@@ -931,6 +1197,31 @@ edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
 
 static void
 edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+=======
+	if (reg_addr->reg_offset != NO_REGISTER)
+		tsdata->offset =
+			edt_ft5x06_register_read(tsdata, reg_addr->reg_offset);
+	if (reg_addr->reg_offset_x != NO_REGISTER)
+		tsdata->offset_x = edt_ft5x06_register_read(tsdata,
+						reg_addr->reg_offset_x);
+	if (reg_addr->reg_offset_y != NO_REGISTER)
+		tsdata->offset_y = edt_ft5x06_register_read(tsdata,
+						reg_addr->reg_offset_y);
+	if (reg_addr->reg_report_rate != NO_REGISTER)
+		tsdata->report_rate = edt_ft5x06_register_read(tsdata,
+						reg_addr->reg_report_rate);
+	tsdata->num_x = EDT_DEFAULT_NUM_X;
+	if (reg_addr->reg_num_x != NO_REGISTER)
+		tsdata->num_x = edt_ft5x06_register_read(tsdata,
+							 reg_addr->reg_num_x);
+	tsdata->num_y = EDT_DEFAULT_NUM_Y;
+	if (reg_addr->reg_num_y != NO_REGISTER)
+		tsdata->num_y = edt_ft5x06_register_read(tsdata,
+							 reg_addr->reg_num_y);
+}
+
+static void edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+>>>>>>> upstream/android-13
 {
 	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
 
@@ -940,6 +1231,11 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
 		reg_addr->reg_report_rate = WORK_REGISTER_REPORT_RATE;
 		reg_addr->reg_gain = WORK_REGISTER_GAIN;
 		reg_addr->reg_offset = WORK_REGISTER_OFFSET;
+<<<<<<< HEAD
+=======
+		reg_addr->reg_offset_x = NO_REGISTER;
+		reg_addr->reg_offset_y = NO_REGISTER;
+>>>>>>> upstream/android-13
 		reg_addr->reg_num_x = WORK_REGISTER_NUM_X;
 		reg_addr->reg_num_y = WORK_REGISTER_NUM_Y;
 		break;
@@ -950,19 +1246,59 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
 		reg_addr->reg_report_rate = NO_REGISTER;
 		reg_addr->reg_gain = M09_REGISTER_GAIN;
 		reg_addr->reg_offset = M09_REGISTER_OFFSET;
+<<<<<<< HEAD
+=======
+		reg_addr->reg_offset_x = NO_REGISTER;
+		reg_addr->reg_offset_y = NO_REGISTER;
+>>>>>>> upstream/android-13
 		reg_addr->reg_num_x = M09_REGISTER_NUM_X;
 		reg_addr->reg_num_y = M09_REGISTER_NUM_Y;
 		break;
 
+<<<<<<< HEAD
 	case GENERIC_FT:
 		/* this is a guesswork */
 		reg_addr->reg_threshold = M09_REGISTER_THRESHOLD;
 		reg_addr->reg_gain = M09_REGISTER_GAIN;
 		reg_addr->reg_offset = M09_REGISTER_OFFSET;
+=======
+	case EV_FT:
+		reg_addr->reg_threshold = EV_REGISTER_THRESHOLD;
+		reg_addr->reg_report_rate = NO_REGISTER;
+		reg_addr->reg_gain = EV_REGISTER_GAIN;
+		reg_addr->reg_offset = NO_REGISTER;
+		reg_addr->reg_offset_x = EV_REGISTER_OFFSET_X;
+		reg_addr->reg_offset_y = EV_REGISTER_OFFSET_Y;
+		reg_addr->reg_num_x = NO_REGISTER;
+		reg_addr->reg_num_y = NO_REGISTER;
+		break;
+
+	case GENERIC_FT:
+		/* this is a guesswork */
+		reg_addr->reg_threshold = M09_REGISTER_THRESHOLD;
+		reg_addr->reg_report_rate = NO_REGISTER;
+		reg_addr->reg_gain = M09_REGISTER_GAIN;
+		reg_addr->reg_offset = M09_REGISTER_OFFSET;
+		reg_addr->reg_offset_x = NO_REGISTER;
+		reg_addr->reg_offset_y = NO_REGISTER;
+		reg_addr->reg_num_x = NO_REGISTER;
+		reg_addr->reg_num_y = NO_REGISTER;
+>>>>>>> upstream/android-13
 		break;
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void edt_ft5x06_disable_regulators(void *arg)
+{
+	struct edt_ft5x06_ts_data *data = arg;
+
+	regulator_disable(data->vcc);
+	regulator_disable(data->iovcc);
+}
+
+>>>>>>> upstream/android-13
 static int edt_ft5x06_ts_probe(struct i2c_client *client,
 					 const struct i2c_device_id *id)
 {
@@ -982,7 +1318,11 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	chip_data = of_device_get_match_data(&client->dev);
+=======
+	chip_data = device_get_match_data(&client->dev);
+>>>>>>> upstream/android-13
 	if (!chip_data)
 		chip_data = (const struct edt_i2c_chip_data *)id->driver_data;
 	if (!chip_data || !chip_data->max_support_points) {
@@ -992,6 +1332,49 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 
 	tsdata->max_support_points = chip_data->max_support_points;
 
+<<<<<<< HEAD
+=======
+	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
+	if (IS_ERR(tsdata->vcc)) {
+		error = PTR_ERR(tsdata->vcc);
+		if (error != -EPROBE_DEFER)
+			dev_err(&client->dev,
+				"failed to request regulator: %d\n", error);
+		return error;
+	}
+
+	tsdata->iovcc = devm_regulator_get(&client->dev, "iovcc");
+	if (IS_ERR(tsdata->iovcc)) {
+		error = PTR_ERR(tsdata->iovcc);
+		if (error != -EPROBE_DEFER)
+			dev_err(&client->dev,
+				"failed to request iovcc regulator: %d\n", error);
+		return error;
+	}
+
+	error = regulator_enable(tsdata->iovcc);
+	if (error < 0) {
+		dev_err(&client->dev, "failed to enable iovcc: %d\n", error);
+		return error;
+	}
+
+	/* Delay enabling VCC for > 10us (T_ivd) after IOVCC */
+	usleep_range(10, 100);
+
+	error = regulator_enable(tsdata->vcc);
+	if (error < 0) {
+		dev_err(&client->dev, "failed to enable vcc: %d\n", error);
+		regulator_disable(tsdata->iovcc);
+		return error;
+	}
+
+	error = devm_add_action_or_reset(&client->dev,
+					 edt_ft5x06_disable_regulators,
+					 tsdata);
+	if (error)
+		return error;
+
+>>>>>>> upstream/android-13
 	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
 						     "reset", GPIOD_OUT_HIGH);
 	if (IS_ERR(tsdata->reset_gpio)) {
@@ -1010,6 +1393,22 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 		return error;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Check which sleep modes we can support. Power-off requieres the
+	 * reset-pin to ensure correct power-down/power-up behaviour. Start with
+	 * the EDT_PMODE_POWEROFF test since this is the deepest possible sleep
+	 * mode.
+	 */
+	if (tsdata->reset_gpio)
+		tsdata->suspend_mode = EDT_PMODE_POWEROFF;
+	else if (tsdata->wake_gpio)
+		tsdata->suspend_mode = EDT_PMODE_HIBERNATE;
+	else
+		tsdata->suspend_mode = EDT_PMODE_NOT_SUPPORTED;
+
+>>>>>>> upstream/android-13
 	if (tsdata->wake_gpio) {
 		usleep_range(5000, 6000);
 		gpiod_set_value_cansleep(tsdata->wake_gpio, 1);
@@ -1056,6 +1455,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 	input->id.bustype = BUS_I2C;
 	input->dev.parent = &client->dev;
 
+<<<<<<< HEAD
 	if (tsdata->version == EDT_M06 ||
 	    tsdata->version == EDT_M09 ||
 	    tsdata->version == EDT_M12) {
@@ -1070,6 +1470,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 		input_set_abs_params(input, ABS_MT_POSITION_Y,
 				     0, 65535, 0, 0);
 	}
+=======
+	input_set_abs_params(input, ABS_MT_POSITION_X,
+			     0, tsdata->num_x * 64 - 1, 0, 0);
+	input_set_abs_params(input, ABS_MT_POSITION_Y,
+			     0, tsdata->num_y * 64 - 1, 0, 0);
+>>>>>>> upstream/android-13
 
 	touchscreen_parse_properties(input, true, &tsdata->prop);
 
@@ -1104,7 +1510,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 		return error;
 
 	edt_ft5x06_ts_prepare_debugfs(tsdata, dev_driver_string(&client->dev));
+<<<<<<< HEAD
 	device_init_wakeup(&client->dev, 1);
+=======
+>>>>>>> upstream/android-13
 
 	dev_dbg(&client->dev,
 		"EDT FT5x06 initialized: IRQ %d, WAKE pin %d, Reset pin %d.\n",
@@ -1127,9 +1536,48 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
 static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
 {
 	struct i2c_client *client = to_i2c_client(dev);
+<<<<<<< HEAD
 
 	if (device_may_wakeup(dev))
 		enable_irq_wake(client->irq);
+=======
+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+	struct gpio_desc *reset_gpio = tsdata->reset_gpio;
+	int ret;
+
+	if (device_may_wakeup(dev))
+		return 0;
+
+	if (tsdata->suspend_mode == EDT_PMODE_NOT_SUPPORTED)
+		return 0;
+
+	/* Enter hibernate mode. */
+	ret = edt_ft5x06_register_write(tsdata, PMOD_REGISTER_OPMODE,
+					PMOD_REGISTER_HIBERNATE);
+	if (ret)
+		dev_warn(dev, "Failed to set hibernate mode\n");
+
+	if (tsdata->suspend_mode == EDT_PMODE_HIBERNATE)
+		return 0;
+
+	/*
+	 * Power-off according the datasheet. Cut the power may leaf the irq
+	 * line in an undefined state depending on the host pull resistor
+	 * settings. Disable the irq to avoid adjusting each host till the
+	 * device is back in a full functional state.
+	 */
+	disable_irq(tsdata->client->irq);
+
+	gpiod_set_value_cansleep(reset_gpio, 1);
+	usleep_range(1000, 2000);
+
+	ret = regulator_disable(tsdata->vcc);
+	if (ret)
+		dev_warn(dev, "Failed to disable vcc\n");
+	ret = regulator_disable(tsdata->iovcc);
+	if (ret)
+		dev_warn(dev, "Failed to disable iovcc\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1137,11 +1585,72 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
 static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
 {
 	struct i2c_client *client = to_i2c_client(dev);
+<<<<<<< HEAD
 
 	if (device_may_wakeup(dev))
 		disable_irq_wake(client->irq);
 
 	return 0;
+=======
+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+	int ret = 0;
+
+	if (device_may_wakeup(dev))
+		return 0;
+
+	if (tsdata->suspend_mode == EDT_PMODE_NOT_SUPPORTED)
+		return 0;
+
+	if (tsdata->suspend_mode == EDT_PMODE_POWEROFF) {
+		struct gpio_desc *reset_gpio = tsdata->reset_gpio;
+
+		/*
+		 * We can't check if the regulator is a dummy or a real
+		 * regulator. So we need to specify the 5ms reset time (T_rst)
+		 * here instead of the 100us T_rtp time. We also need to wait
+		 * 300ms in case it was a real supply and the power was cutted
+		 * of. Toggle the reset pin is also a way to exit the hibernate
+		 * mode.
+		 */
+		gpiod_set_value_cansleep(reset_gpio, 1);
+		usleep_range(5000, 6000);
+
+		ret = regulator_enable(tsdata->iovcc);
+		if (ret) {
+			dev_err(dev, "Failed to enable iovcc\n");
+			return ret;
+		}
+
+		/* Delay enabling VCC for > 10us (T_ivd) after IOVCC */
+		usleep_range(10, 100);
+
+		ret = regulator_enable(tsdata->vcc);
+		if (ret) {
+			dev_err(dev, "Failed to enable vcc\n");
+			regulator_disable(tsdata->iovcc);
+			return ret;
+		}
+
+		usleep_range(1000, 2000);
+		gpiod_set_value_cansleep(reset_gpio, 0);
+		msleep(300);
+
+		edt_ft5x06_restore_reg_parameters(tsdata);
+		enable_irq(tsdata->client->irq);
+
+		if (tsdata->factory_mode)
+			ret = edt_ft5x06_factory_mode(tsdata);
+	} else {
+		struct gpio_desc *wake_gpio = tsdata->wake_gpio;
+
+		gpiod_set_value_cansleep(wake_gpio, 0);
+		usleep_range(5000, 6000);
+		gpiod_set_value_cansleep(wake_gpio, 1);
+	}
+
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
@@ -1162,30 +1671,50 @@ static const struct edt_i2c_chip_data edt_ft6236_data = {
 static const struct i2c_device_id edt_ft5x06_ts_id[] = {
 	{ .name = "edt-ft5x06", .driver_data = (long)&edt_ft5x06_data },
 	{ .name = "edt-ft5506", .driver_data = (long)&edt_ft5506_data },
+<<<<<<< HEAD
+=======
+	{ .name = "ev-ft5726", .driver_data = (long)&edt_ft5506_data },
+>>>>>>> upstream/android-13
 	/* Note no edt- prefix for compatibility with the ft6236.c driver */
 	{ .name = "ft6236", .driver_data = (long)&edt_ft6236_data },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id edt_ft5x06_of_match[] = {
 	{ .compatible = "edt,edt-ft5206", .data = &edt_ft5x06_data },
 	{ .compatible = "edt,edt-ft5306", .data = &edt_ft5x06_data },
 	{ .compatible = "edt,edt-ft5406", .data = &edt_ft5x06_data },
 	{ .compatible = "edt,edt-ft5506", .data = &edt_ft5506_data },
+<<<<<<< HEAD
+=======
+	{ .compatible = "evervision,ev-ft5726", .data = &edt_ft5506_data },
+>>>>>>> upstream/android-13
 	/* Note focaltech vendor prefix for compatibility with ft6236.c */
 	{ .compatible = "focaltech,ft6236", .data = &edt_ft6236_data },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, edt_ft5x06_of_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver edt_ft5x06_ts_driver = {
 	.driver = {
 		.name = "edt_ft5x06",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(edt_ft5x06_of_match),
 		.pm = &edt_ft5x06_ts_pm_ops,
+=======
+		.of_match_table = edt_ft5x06_of_match,
+		.pm = &edt_ft5x06_ts_pm_ops,
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 	},
 	.id_table = edt_ft5x06_ts_id,
 	.probe    = edt_ft5x06_ts_probe,
@@ -1196,4 +1725,8 @@ module_i2c_driver(edt_ft5x06_ts_driver);
 
 MODULE_AUTHOR("Simon Budig <simon.budig@kernelconcepts.de>");
 MODULE_DESCRIPTION("EDT FT5x06 I2C Touchscreen Driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

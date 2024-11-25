@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef _fwil_h_
@@ -60,6 +66,11 @@
 #define BRCMF_C_GET_PM				85
 #define BRCMF_C_SET_PM				86
 #define BRCMF_C_GET_REVINFO			98
+<<<<<<< HEAD
+=======
+#define BRCMF_C_GET_MONITOR			107
+#define BRCMF_C_SET_MONITOR			108
+>>>>>>> upstream/android-13
 #define BRCMF_C_GET_CURR_RATESET		114
 #define BRCMF_C_GET_AP				117
 #define BRCMF_C_SET_AP				118
@@ -80,6 +91,10 @@
 #define BRCMF_C_SCB_DEAUTHENTICATE_FOR_REASON	201
 #define BRCMF_C_SET_ASSOC_PREFER		205
 #define BRCMF_C_GET_VALID_CHANNELS		217
+<<<<<<< HEAD
+=======
+#define BRCMF_C_SET_FAKEFRAG			219
+>>>>>>> upstream/android-13
 #define BRCMF_C_GET_KEY_PRIMARY			235
 #define BRCMF_C_SET_KEY_PRIMARY			236
 #define BRCMF_C_SET_SCAN_PASSIVE_TIME		258
@@ -105,5 +120,16 @@ s32 brcmf_fil_bsscfg_data_get(struct brcmf_if *ifp, char *name, void *data,
 			      u32 len);
 s32 brcmf_fil_bsscfg_int_set(struct brcmf_if *ifp, char *name, u32 data);
 s32 brcmf_fil_bsscfg_int_get(struct brcmf_if *ifp, char *name, u32 *data);
+<<<<<<< HEAD
+=======
+s32 brcmf_fil_xtlv_data_set(struct brcmf_if *ifp, char *name, u16 id,
+			    void *data, u32 len);
+s32 brcmf_fil_xtlv_data_get(struct brcmf_if *ifp, char *name, u16 id,
+			    void *data, u32 len);
+s32 brcmf_fil_xtlv_int_set(struct brcmf_if *ifp, char *name, u16 id, u32 data);
+s32 brcmf_fil_xtlv_int_get(struct brcmf_if *ifp, char *name, u16 id, u32 *data);
+s32 brcmf_fil_xtlv_int8_get(struct brcmf_if *ifp, char *name, u16 id, u8 *data);
+s32 brcmf_fil_xtlv_int16_get(struct brcmf_if *ifp, char *name, u16 id, u16 *data);
+>>>>>>> upstream/android-13
 
 #endif /* _fwil_h_ */

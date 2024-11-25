@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * irq_comm.c: Common API for in kernel interrupt controller
  * Copyright (c) 2007, Intel Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -14,6 +19,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307 USA.
+=======
+>>>>>>> upstream/android-13
  * Authors:
  *   Yaozu (Eddie) Dong <Eddie.dong@intel.com>
  *
@@ -27,8 +34,11 @@
 
 #include <trace/events/kvm.h>
 
+<<<<<<< HEAD
 #include <asm/msidef.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "irq.h"
 
 #include "ioapic.h"
@@ -63,15 +73,26 @@ int kvm_irq_delivery_to_apic(struct kvm *kvm, struct kvm_lapic *src,
 	unsigned long dest_vcpu_bitmap[BITS_TO_LONGS(KVM_MAX_VCPUS)];
 	unsigned int dest_vcpus = 0;
 
+<<<<<<< HEAD
 	if (irq->dest_mode == 0 && irq->dest_id == 0xff &&
 			kvm_lowest_prio_delivery(irq)) {
+=======
+	if (kvm_irq_delivery_to_apic_fast(kvm, src, irq, &r, dest_map))
+		return r;
+
+	if (irq->dest_mode == APIC_DEST_PHYSICAL &&
+	    irq->dest_id == 0xff && kvm_lowest_prio_delivery(irq)) {
+>>>>>>> upstream/android-13
 		printk(KERN_INFO "kvm: apic: phys broadcast and lowest prio\n");
 		irq->delivery_mode = APIC_DM_FIXED;
 	}
 
+<<<<<<< HEAD
 	if (kvm_irq_delivery_to_apic_fast(kvm, src, irq, &r, dest_map))
 		return r;
 
+=======
+>>>>>>> upstream/android-13
 	memset(dest_vcpu_bitmap, 0, sizeof(dest_vcpu_bitmap));
 
 	kvm_for_each_vcpu(i, vcpu, kvm) {
@@ -86,7 +107,11 @@ int kvm_irq_delivery_to_apic(struct kvm *kvm, struct kvm_lapic *src,
 			if (r < 0)
 				r = 0;
 			r += kvm_apic_set_irq(vcpu, irq, dest_map);
+<<<<<<< HEAD
 		} else if (kvm_lapic_enabled(vcpu)) {
+=======
+		} else if (kvm_apic_sw_enabled(vcpu->arch.apic)) {
+>>>>>>> upstream/android-13
 			if (!kvm_vector_hashing_enabled()) {
 				if (!lowest)
 					lowest = vcpu;
@@ -115,6 +140,7 @@ int kvm_irq_delivery_to_apic(struct kvm *kvm, struct kvm_lapic *src,
 void kvm_set_msi_irq(struct kvm *kvm, struct kvm_kernel_irq_routing_entry *e,
 		     struct kvm_lapic_irq *irq)
 {
+<<<<<<< HEAD
 	trace_kvm_msi_set_irq(e->msi.address_lo | (kvm->arch.x2apic_format ?
 	                                     (u64)e->msi.address_hi << 32 : 0),
 	                      e->msi.data);
@@ -132,6 +158,23 @@ void kvm_set_msi_irq(struct kvm *kvm, struct kvm_kernel_irq_routing_entry *e,
 		& MSI_ADDR_REDIRECTION_LOWPRI) > 0);
 	irq->level = 1;
 	irq->shorthand = 0;
+=======
+	struct msi_msg msg = { .address_lo = e->msi.address_lo,
+			       .address_hi = e->msi.address_hi,
+			       .data = e->msi.data };
+
+	trace_kvm_msi_set_irq(msg.address_lo | (kvm->arch.x2apic_format ?
+			      (u64)msg.address_hi << 32 : 0), msg.data);
+
+	irq->dest_id = x86_msi_msg_get_destid(&msg, kvm->arch.x2apic_format);
+	irq->vector = msg.arch_data.vector;
+	irq->dest_mode = kvm_lapic_irq_dest_mode(msg.arch_addr_lo.dest_mode_logical);
+	irq->trig_mode = msg.arch_data.is_level;
+	irq->delivery_mode = msg.arch_data.delivery_mode << 8;
+	irq->msi_redir_hint = msg.arch_addr_lo.redirect_hint;
+	irq->level = 1;
+	irq->shorthand = APIC_DEST_NOSHORT;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(kvm_set_msi_irq);
 
@@ -284,7 +327,11 @@ int kvm_set_routing_entry(struct kvm *kvm,
 			  const struct kvm_irq_routing_entry *ue)
 {
 	/* We can't check irqchip_in_kernel() here as some callers are
+<<<<<<< HEAD
 	 * currently inititalizing the irqchip. Other callers should therefore
+=======
+	 * currently initializing the irqchip. Other callers should therefore
+>>>>>>> upstream/android-13
 	 * check kvm_arch_can_set_irq_routing() before calling this function.
 	 */
 	switch (ue->type) {
@@ -295,7 +342,11 @@ int kvm_set_routing_entry(struct kvm *kvm,
 		switch (ue->u.irqchip.irqchip) {
 		case KVM_IRQCHIP_PIC_SLAVE:
 			e->irqchip.pin += PIC_NUM_PINS / 2;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case KVM_IRQCHIP_PIC_MASTER:
 			if (ue->u.irqchip.pin >= PIC_NUM_PINS / 2)
 				return -EINVAL;
@@ -427,7 +478,12 @@ void kvm_scan_ioapic_routes(struct kvm_vcpu *vcpu,
 
 			kvm_set_msi_irq(vcpu->kvm, entry, &irq);
 
+<<<<<<< HEAD
 			if (irq.trig_mode && kvm_apic_match_dest(vcpu, NULL, 0,
+=======
+			if (irq.trig_mode &&
+			    kvm_apic_match_dest(vcpu, NULL, APIC_DEST_NOSHORT,
+>>>>>>> upstream/android-13
 						irq.dest_id, irq.dest_mode))
 				__set_bit(irq.vector, ioapic_handled_vectors);
 		}

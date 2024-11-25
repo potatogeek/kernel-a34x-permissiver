@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  hdac_i915.c - routines for sync between HD-A core and i915 display driver
  *
@@ -10,6 +11,11 @@
  *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  *  for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  hdac_i915.c - routines for sync between HD-A core and i915 display driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -20,9 +26,13 @@
 #include <sound/hda_i915.h>
 #include <sound/hda_register.h>
 
+<<<<<<< HEAD
 static struct completion bind_complete;
 
 #define CONTROLLER_IN_GPU(pci) (((pci)->device == 0x0a0c) || \
+=======
+#define IS_HSW_CONTROLLER(pci) (((pci)->device == 0x0a0c) || \
+>>>>>>> upstream/android-13
 				((pci)->device == 0x0c0c) || \
 				((pci)->device == 0x0d0c) || \
 				((pci)->device == 0x160c))
@@ -50,7 +60,11 @@ void snd_hdac_i915_set_bclk(struct hdac_bus *bus)
 
 	if (!acomp || !acomp->ops || !acomp->ops->get_cdclk_freq)
 		return; /* only for i915 binding */
+<<<<<<< HEAD
 	if (!CONTROLLER_IN_GPU(pci))
+=======
+	if (!IS_HSW_CONTROLLER(pci))
+>>>>>>> upstream/android-13
 		return; /* only HSW/BDW */
 
 	cdclk_freq = acomp->ops->get_cdclk_freq(acomp->dev);
@@ -82,9 +96,55 @@ void snd_hdac_i915_set_bclk(struct hdac_bus *bus)
 }
 EXPORT_SYMBOL_GPL(snd_hdac_i915_set_bclk);
 
+<<<<<<< HEAD
 static int i915_component_master_match(struct device *dev, void *data)
 {
 	return !strcmp(dev->driver->name, "i915");
+=======
+/* returns true if the devices can be connected for audio */
+static bool connectivity_check(struct pci_dev *i915, struct pci_dev *hdac)
+{
+	struct pci_bus *bus_a = i915->bus, *bus_b = hdac->bus;
+
+	/* directly connected on the same bus */
+	if (bus_a == bus_b)
+		return true;
+
+	/*
+	 * on i915 discrete GPUs with embedded HDA audio, the two
+	 * devices are connected via 2nd level PCI bridge
+	 */
+	bus_a = bus_a->parent;
+	bus_b = bus_b->parent;
+	if (!bus_a || !bus_b)
+		return false;
+	bus_a = bus_a->parent;
+	bus_b = bus_b->parent;
+	if (bus_a && bus_a == bus_b)
+		return true;
+
+	return false;
+}
+
+static int i915_component_master_match(struct device *dev, int subcomponent,
+				       void *data)
+{
+	struct pci_dev *hdac_pci, *i915_pci;
+	struct hdac_bus *bus = data;
+
+	if (!dev_is_pci(dev))
+		return 0;
+
+	hdac_pci = to_pci_dev(bus->dev);
+	i915_pci = to_pci_dev(dev);
+
+	if (!strcmp(dev->driver->name, "i915") &&
+	    subcomponent == I915_COMPONENT_AUDIO &&
+	    connectivity_check(i915_pci, hdac_pci))
+		return 1;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* check whether intel graphics is present */
@@ -99,6 +159,7 @@ static bool i915_gfx_present(void)
 	return pci_dev_present(ids);
 }
 
+<<<<<<< HEAD
 static int i915_master_bind(struct device *dev,
 			    struct drm_audio_component *acomp)
 {
@@ -112,6 +173,8 @@ static const struct drm_audio_component_audio_ops i915_init_ops = {
 	.master_bind = i915_master_bind
 };
 
+=======
+>>>>>>> upstream/android-13
 /**
  * snd_hdac_i915_init - Initialize i915 audio component
  * @bus: HDA core bus
@@ -132,9 +195,13 @@ int snd_hdac_i915_init(struct hdac_bus *bus)
 	if (!i915_gfx_present())
 		return -ENODEV;
 
+<<<<<<< HEAD
 	init_completion(&bind_complete);
 
 	err = snd_hdac_acomp_init(bus, &i915_init_ops,
+=======
+	err = snd_hdac_acomp_init(bus, NULL,
+>>>>>>> upstream/android-13
 				  i915_component_master_match,
 				  sizeof(struct i915_audio_component) - sizeof(*acomp));
 	if (err < 0)
@@ -146,8 +213,13 @@ int snd_hdac_i915_init(struct hdac_bus *bus)
 		if (!IS_ENABLED(CONFIG_MODULES) ||
 		    !request_module("i915")) {
 			/* 60s timeout */
+<<<<<<< HEAD
 			wait_for_completion_timeout(&bind_complete,
 						   msecs_to_jiffies(60 * 1000));
+=======
+			wait_for_completion_timeout(&acomp->master_bind_complete,
+						    msecs_to_jiffies(60 * 1000));
+>>>>>>> upstream/android-13
 		}
 	}
 	if (!acomp->ops) {

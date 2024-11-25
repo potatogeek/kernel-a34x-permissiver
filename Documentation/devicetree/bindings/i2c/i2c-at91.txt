@@ -1,9 +1,22 @@
 I2C for Atmel platforms
 
 Required properties :
+<<<<<<< HEAD
 - compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2c",
      "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sam9g10-i2c",
      "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c" or "atmel,sama5d2-i2c"
+=======
+- compatible : Must be one of:
+	"atmel,at91rm9200-i2c",
+	"atmel,at91sam9261-i2c",
+	"atmel,at91sam9260-i2c",
+	"atmel,at91sam9g20-i2c",
+	"atmel,at91sam9g10-i2c",
+	"atmel,at91sam9x5-i2c",
+	"atmel,sama5d4-i2c",
+	"atmel,sama5d2-i2c",
+	"microchip,sam9x60-i2c".
+>>>>>>> upstream/android-13
 - reg: physical base address of the controller and length of memory mapped
      region.
 - interrupts: interrupt number to the cpu.
@@ -17,10 +30,24 @@ Optional properties:
 - dma-names: should contain "tx" and "rx".
 - atmel,fifo-size: maximum number of data the RX and TX FIFOs can store for FIFO
   capable I2C controllers.
+<<<<<<< HEAD
 - i2c-sda-hold-time-ns: TWD hold time, only available for "atmel,sama5d4-i2c"
   and "atmel,sama5d2-i2c".
 - Child nodes conforming to i2c bus binding
 
+=======
+- i2c-sda-hold-time-ns: TWD hold time, only available for:
+	"atmel,sama5d4-i2c",
+	"atmel,sama5d2-i2c",
+	"microchip,sam9x60-i2c".
+- scl-gpios: specify the gpio related to SCL pin
+- sda-gpios: specify the gpio related to SDA pin
+- pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
+  bus recovery, call it "gpio" state
+- Child nodes conforming to i2c bus binding
+
+
+>>>>>>> upstream/android-13
 Examples :
 
 i2c0: i2c@fff84000 {
@@ -33,7 +60,11 @@ i2c0: i2c@fff84000 {
 	clock-frequency = <400000>;
 
 	24c512@50 {
+<<<<<<< HEAD
 		compatible = "24c512";
+=======
+		compatible = "atmel,24c512";
+>>>>>>> upstream/android-13
 		reg = <0x50>;
 		pagesize = <128>;
 	}
@@ -55,6 +86,14 @@ i2c0: i2c@f8034600 {
 	clocks = <&flx0>;
 	atmel,fifo-size = <16>;
 	i2c-sda-hold-time-ns = <336>;
+<<<<<<< HEAD
+=======
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c0>;
+	pinctrl-1 = <&pinctrl_i2c0_gpio>;
+	sda-gpios = <&pioA 30 GPIO_ACTIVE_HIGH>;
+	scl-gpios = <&pioA 31 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+>>>>>>> upstream/android-13
 
 	wm8731: wm8731@1a {
 		compatible = "wm8731";

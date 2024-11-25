@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic HDLC support routines for Linux
  *
  * Copyright (C) 1999 - 2008 Krzysztof Halasa <khc@pm.waw.pl>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Currently supported:
  *	* raw IP-in-HDLC
  *	* Cisco HDLC
@@ -39,8 +46,12 @@
 #include <linux/slab.h>
 #include <net/net_namespace.h>
 
+<<<<<<< HEAD
 
 static const char* version = "HDLC support module revision 1.22";
+=======
+static const char *version = "HDLC support module revision 1.22";
+>>>>>>> upstream/android-13
 
 #undef DEBUG_LINK
 
@@ -77,25 +88,43 @@ netdev_tx_t hdlc_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	return hdlc->xmit(skb, dev); /* call hardware driver directly */
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(hdlc_start_xmit);
+>>>>>>> upstream/android-13
 
 static inline void hdlc_proto_start(struct net_device *dev)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (hdlc->proto->start)
 		hdlc->proto->start(dev);
 }
 
+<<<<<<< HEAD
 
 
 static inline void hdlc_proto_stop(struct net_device *dev)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
+=======
+static inline void hdlc_proto_stop(struct net_device *dev)
+{
+	hdlc_device *hdlc = dev_to_hdlc(dev);
+
+>>>>>>> upstream/android-13
 	if (hdlc->proto->stop)
 		hdlc->proto->stop(dev);
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int hdlc_device_event(struct notifier_block *this, unsigned long event,
 			     void *ptr)
 {
@@ -144,8 +173,11 @@ carrier_exit:
 	return NOTIFY_DONE;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 /* Must be called by hardware driver when HDLC device is being opened */
 int hdlc_open(struct net_device *dev)
 {
@@ -155,11 +187,19 @@ int hdlc_open(struct net_device *dev)
 	       hdlc->carrier, hdlc->open);
 #endif
 
+<<<<<<< HEAD
 	if (hdlc->proto == NULL)
+=======
+	if (!hdlc->proto)
+>>>>>>> upstream/android-13
 		return -ENOSYS;	/* no protocol attached */
 
 	if (hdlc->proto->open) {
 		int result = hdlc->proto->open(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (result)
 			return result;
 	}
@@ -169,16 +209,26 @@ int hdlc_open(struct net_device *dev)
 	if (hdlc->carrier) {
 		netdev_info(dev, "Carrier detected\n");
 		hdlc_proto_start(dev);
+<<<<<<< HEAD
 	} else
 		netdev_info(dev, "No carrier\n");
+=======
+	} else {
+		netdev_info(dev, "No carrier\n");
+	}
+>>>>>>> upstream/android-13
 
 	hdlc->open = 1;
 
 	spin_unlock_irq(&hdlc->state_lock);
 	return 0;
 }
+<<<<<<< HEAD
 
 
+=======
+EXPORT_SYMBOL(hdlc_open);
+>>>>>>> upstream/android-13
 
 /* Must be called by hardware driver when HDLC device is being closed */
 void hdlc_close(struct net_device *dev)
@@ -200,19 +250,30 @@ void hdlc_close(struct net_device *dev)
 	if (hdlc->proto->close)
 		hdlc->proto->close(dev);
 }
+<<<<<<< HEAD
 
 
 
 int hdlc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+EXPORT_SYMBOL(hdlc_close);
+
+int hdlc_ioctl(struct net_device *dev, struct if_settings *ifs)
+>>>>>>> upstream/android-13
 {
 	struct hdlc_proto *proto = first_proto;
 	int result;
 
+<<<<<<< HEAD
 	if (cmd != SIOCWANDEV)
 		return -EINVAL;
 
 	if (dev_to_hdlc(dev)->proto) {
 		result = dev_to_hdlc(dev)->proto->ioctl(dev, ifr);
+=======
+	if (dev_to_hdlc(dev)->proto) {
+		result = dev_to_hdlc(dev)->proto->ioctl(dev, ifs);
+>>>>>>> upstream/android-13
 		if (result != -EINVAL)
 			return result;
 	}
@@ -220,12 +281,21 @@ int hdlc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	/* Not handled by currently attached protocol (if any) */
 
 	while (proto) {
+<<<<<<< HEAD
 		if ((result = proto->ioctl(dev, ifr)) != -EINVAL)
+=======
+		result = proto->ioctl(dev, ifs);
+		if (result != -EINVAL)
+>>>>>>> upstream/android-13
 			return result;
 		proto = proto->next;
 	}
 	return -EINVAL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(hdlc_ioctl);
+>>>>>>> upstream/android-13
 
 static const struct header_ops hdlc_null_ops;
 
@@ -240,7 +310,12 @@ static void hdlc_setup_dev(struct net_device *dev)
 	dev->min_mtu		 = 68;
 	dev->max_mtu		 = HDLC_MAX_MTU;
 	dev->type		 = ARPHRD_RAWHDLC;
+<<<<<<< HEAD
 	dev->hard_header_len	 = 16;
+=======
+	dev->hard_header_len	 = 0;
+	dev->needed_headroom	 = 0;
+>>>>>>> upstream/android-13
 	dev->addr_len		 = 0;
 	dev->header_ops		 = &hdlc_null_ops;
 }
@@ -258,12 +333,20 @@ static void hdlc_setup(struct net_device *dev)
 struct net_device *alloc_hdlcdev(void *priv)
 {
 	struct net_device *dev;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	dev = alloc_netdev(sizeof(struct hdlc_device), "hdlc%d",
 			   NET_NAME_UNKNOWN, hdlc_setup);
 	if (dev)
 		dev_to_hdlc(dev)->priv = priv;
 	return dev;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(alloc_hdlcdev);
+>>>>>>> upstream/android-13
 
 void unregister_hdlc_device(struct net_device *dev)
 {
@@ -272,8 +355,12 @@ void unregister_hdlc_device(struct net_device *dev)
 	unregister_netdevice(dev);
 	rtnl_unlock();
 }
+<<<<<<< HEAD
 
 
+=======
+EXPORT_SYMBOL(unregister_hdlc_device);
+>>>>>>> upstream/android-13
 
 int attach_hdlc_protocol(struct net_device *dev, struct hdlc_proto *proto,
 			 size_t size)
@@ -289,7 +376,11 @@ int attach_hdlc_protocol(struct net_device *dev, struct hdlc_proto *proto,
 
 	if (size) {
 		dev_to_hdlc(dev)->state = kmalloc(size, GFP_KERNEL);
+<<<<<<< HEAD
 		if (dev_to_hdlc(dev)->state == NULL) {
+=======
+		if (!dev_to_hdlc(dev)->state) {
+>>>>>>> upstream/android-13
 			module_put(proto->module);
 			return -ENOBUFS;
 		}
@@ -298,7 +389,11 @@ int attach_hdlc_protocol(struct net_device *dev, struct hdlc_proto *proto,
 
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+EXPORT_SYMBOL(attach_hdlc_protocol);
+>>>>>>> upstream/android-13
 
 int detach_hdlc_protocol(struct net_device *dev)
 {
@@ -324,7 +419,11 @@ int detach_hdlc_protocol(struct net_device *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+EXPORT_SYMBOL(detach_hdlc_protocol);
+>>>>>>> upstream/android-13
 
 void register_hdlc_protocol(struct hdlc_proto *proto)
 {
@@ -333,7 +432,11 @@ void register_hdlc_protocol(struct hdlc_proto *proto)
 	first_proto = proto;
 	rtnl_unlock();
 }
+<<<<<<< HEAD
 
+=======
+EXPORT_SYMBOL(register_hdlc_protocol);
+>>>>>>> upstream/android-13
 
 void unregister_hdlc_protocol(struct hdlc_proto *proto)
 {
@@ -348,13 +451,18 @@ void unregister_hdlc_protocol(struct hdlc_proto *proto)
 	*p = proto->next;
 	rtnl_unlock();
 }
+<<<<<<< HEAD
 
 
+=======
+EXPORT_SYMBOL(unregister_hdlc_protocol);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Krzysztof Halasa <khc@pm.waw.pl>");
 MODULE_DESCRIPTION("HDLC support module");
 MODULE_LICENSE("GPL v2");
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(hdlc_start_xmit);
 EXPORT_SYMBOL(hdlc_open);
 EXPORT_SYMBOL(hdlc_close);
@@ -366,36 +474,55 @@ EXPORT_SYMBOL(unregister_hdlc_protocol);
 EXPORT_SYMBOL(attach_hdlc_protocol);
 EXPORT_SYMBOL(detach_hdlc_protocol);
 
+=======
+>>>>>>> upstream/android-13
 static struct packet_type hdlc_packet_type __read_mostly = {
 	.type = cpu_to_be16(ETH_P_HDLC),
 	.func = hdlc_rcv,
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct notifier_block hdlc_notifier = {
 	.notifier_call = hdlc_device_event,
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int __init hdlc_module_init(void)
 {
 	int result;
 
 	pr_info("%s\n", version);
+<<<<<<< HEAD
 	if ((result = register_netdevice_notifier(&hdlc_notifier)) != 0)
+=======
+	result = register_netdevice_notifier(&hdlc_notifier);
+	if (result)
+>>>>>>> upstream/android-13
 		return result;
 	dev_add_pack(&hdlc_packet_type);
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static void __exit hdlc_module_exit(void)
 {
 	dev_remove_pack(&hdlc_packet_type);
 	unregister_netdevice_notifier(&hdlc_notifier);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 module_init(hdlc_module_init);
 module_exit(hdlc_module_exit);

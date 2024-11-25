@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (C) 1999-2001 Paul `Rusty' Russell
  * (C) 2002-2006 Netfilter Core Team <coreteam@netfilter.org>
  * (C) 2011 Patrick McHardy <kaber@trash.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -14,7 +21,11 @@
 #include <linux/skbuff.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter/x_tables.h>
+<<<<<<< HEAD
 #include <net/netfilter/nf_nat_core.h>
+=======
+#include <net/netfilter/nf_nat.h>
+>>>>>>> upstream/android-13
 
 static int xt_nat_checkentry_v0(const struct xt_tgchk_param *par)
 {
@@ -247,3 +258,7 @@ MODULE_ALIAS("ipt_SNAT");
 MODULE_ALIAS("ipt_DNAT");
 MODULE_ALIAS("ip6t_SNAT");
 MODULE_ALIAS("ip6t_DNAT");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("SNAT and DNAT targets support");
+>>>>>>> upstream/android-13

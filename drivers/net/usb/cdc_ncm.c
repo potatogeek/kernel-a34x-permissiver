@@ -61,7 +61,11 @@ static bool prefer_mbim;
 module_param(prefer_mbim, bool, 0644);
 MODULE_PARM_DESC(prefer_mbim, "Prefer MBIM setting on dual NCM/MBIM functions");
 
+<<<<<<< HEAD
 static void cdc_ncm_txpath_bh(unsigned long param);
+=======
+static void cdc_ncm_txpath_bh(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 static void cdc_ncm_tx_timeout_start(struct cdc_ncm_ctx *ctx);
 static enum hrtimer_restart cdc_ncm_tx_timer_cb(struct hrtimer *hr_timer);
 static struct usb_driver cdc_ncm_driver;
@@ -133,6 +137,7 @@ static void cdc_ncm_get_strings(struct net_device __always_unused *netdev, u32 s
 static void cdc_ncm_update_rxtx_max(struct usbnet *dev, u32 new_rx, u32 new_tx);
 
 static const struct ethtool_ops cdc_ncm_ethtool_ops = {
+<<<<<<< HEAD
 	.get_link          = usbnet_get_link,
 	.nway_reset        = usbnet_nway_reset,
 	.get_drvinfo       = usbnet_get_drvinfo,
@@ -144,6 +149,19 @@ static const struct ethtool_ops cdc_ncm_ethtool_ops = {
 	.get_ethtool_stats = cdc_ncm_get_ethtool_stats,
 	.get_link_ksettings      = usbnet_get_link_ksettings,
 	.set_link_ksettings      = usbnet_set_link_ksettings,
+=======
+	.get_link		= usbnet_get_link,
+	.nway_reset		= usbnet_nway_reset,
+	.get_drvinfo		= usbnet_get_drvinfo,
+	.get_msglevel		= usbnet_get_msglevel,
+	.set_msglevel		= usbnet_set_msglevel,
+	.get_ts_info		= ethtool_op_get_ts_info,
+	.get_sset_count		= cdc_ncm_get_sset_count,
+	.get_strings		= cdc_ncm_get_strings,
+	.get_ethtool_stats	= cdc_ncm_get_ethtool_stats,
+	.get_link_ksettings	= usbnet_get_link_ksettings_internal,
+	.set_link_ksettings	= NULL,
+>>>>>>> upstream/android-13
 };
 
 static u32 cdc_ncm_check_rx_max(struct usbnet *dev, u32 new_rx)
@@ -175,8 +193,19 @@ static u32 cdc_ncm_check_tx_max(struct usbnet *dev, u32 new_tx)
 	u32 val, max, min;
 
 	/* clamp new_tx to sane values */
+<<<<<<< HEAD
 	min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth16);
 	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
+=======
+	if (ctx->is_ndp16)
+		min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth16);
+	else
+		min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth32);
+
+	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
+	if (max == 0)
+		max = CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
+>>>>>>> upstream/android-13
 
 	/* some devices set dwNtbOutMaxSize too low for the above default */
 	min = min(min, max);
@@ -188,7 +217,12 @@ static u32 cdc_ncm_check_tx_max(struct usbnet *dev, u32 new_tx)
 	return val;
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_show_min_tx_pkt(struct device *d, struct device_attribute *attr, char *buf)
+=======
+static ssize_t min_tx_pkt_show(struct device *d,
+			       struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -196,7 +230,12 @@ static ssize_t cdc_ncm_show_min_tx_pkt(struct device *d, struct device_attribute
 	return sprintf(buf, "%u\n", ctx->min_tx_pkt);
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_show_rx_max(struct device *d, struct device_attribute *attr, char *buf)
+=======
+static ssize_t rx_max_show(struct device *d,
+			   struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -204,7 +243,12 @@ static ssize_t cdc_ncm_show_rx_max(struct device *d, struct device_attribute *at
 	return sprintf(buf, "%u\n", ctx->rx_max);
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_show_tx_max(struct device *d, struct device_attribute *attr, char *buf)
+=======
+static ssize_t tx_max_show(struct device *d,
+			   struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -212,7 +256,12 @@ static ssize_t cdc_ncm_show_tx_max(struct device *d, struct device_attribute *at
 	return sprintf(buf, "%u\n", ctx->tx_max);
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_show_tx_timer_usecs(struct device *d, struct device_attribute *attr, char *buf)
+=======
+static ssize_t tx_timer_usecs_show(struct device *d,
+				   struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -220,7 +269,13 @@ static ssize_t cdc_ncm_show_tx_timer_usecs(struct device *d, struct device_attri
 	return sprintf(buf, "%u\n", ctx->timer_interval / (u32)NSEC_PER_USEC);
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_store_min_tx_pkt(struct device *d,  struct device_attribute *attr, const char *buf, size_t len)
+=======
+static ssize_t min_tx_pkt_store(struct device *d,
+				struct device_attribute *attr,
+				const char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -234,7 +289,13 @@ static ssize_t cdc_ncm_store_min_tx_pkt(struct device *d,  struct device_attribu
 	return len;
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_store_rx_max(struct device *d,  struct device_attribute *attr, const char *buf, size_t len)
+=======
+static ssize_t rx_max_store(struct device *d,
+			    struct device_attribute *attr,
+			    const char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -247,7 +308,13 @@ static ssize_t cdc_ncm_store_rx_max(struct device *d,  struct device_attribute *
 	return len;
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_store_tx_max(struct device *d,  struct device_attribute *attr, const char *buf, size_t len)
+=======
+static ssize_t tx_max_store(struct device *d,
+			    struct device_attribute *attr,
+			    const char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -260,7 +327,13 @@ static ssize_t cdc_ncm_store_tx_max(struct device *d,  struct device_attribute *
 	return len;
 }
 
+<<<<<<< HEAD
 static ssize_t cdc_ncm_store_tx_timer_usecs(struct device *d,  struct device_attribute *attr, const char *buf, size_t len)
+=======
+static ssize_t tx_timer_usecs_store(struct device *d,
+				    struct device_attribute *attr,
+				    const char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	struct usbnet *dev = netdev_priv(to_net_dev(d));
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
@@ -281,10 +354,17 @@ static ssize_t cdc_ncm_store_tx_timer_usecs(struct device *d,  struct device_att
 	return len;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(min_tx_pkt, 0644, cdc_ncm_show_min_tx_pkt, cdc_ncm_store_min_tx_pkt);
 static DEVICE_ATTR(rx_max, 0644, cdc_ncm_show_rx_max, cdc_ncm_store_rx_max);
 static DEVICE_ATTR(tx_max, 0644, cdc_ncm_show_tx_max, cdc_ncm_store_tx_max);
 static DEVICE_ATTR(tx_timer_usecs, 0644, cdc_ncm_show_tx_timer_usecs, cdc_ncm_store_tx_timer_usecs);
+=======
+static DEVICE_ATTR_RW(min_tx_pkt);
+static DEVICE_ATTR_RW(rx_max);
+static DEVICE_ATTR_RW(tx_max);
+static DEVICE_ATTR_RW(tx_timer_usecs);
+>>>>>>> upstream/android-13
 
 static ssize_t ndp_to_end_show(struct device *d, struct device_attribute *attr, char *buf)
 {
@@ -307,10 +387,24 @@ static ssize_t ndp_to_end_store(struct device *d,  struct device_attribute *attr
 	if (enable == (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END))
 		return len;
 
+<<<<<<< HEAD
 	if (enable && !ctx->delayed_ndp16) {
 		ctx->delayed_ndp16 = kzalloc(ctx->max_ndp_size, GFP_KERNEL);
 		if (!ctx->delayed_ndp16)
 			return -ENOMEM;
+=======
+	if (enable) {
+		if (ctx->is_ndp16 && !ctx->delayed_ndp16) {
+			ctx->delayed_ndp16 = kzalloc(ctx->max_ndp_size, GFP_KERNEL);
+			if (!ctx->delayed_ndp16)
+				return -ENOMEM;
+		}
+		if (!ctx->is_ndp16 && !ctx->delayed_ndp32) {
+			ctx->delayed_ndp32 = kzalloc(ctx->max_ndp_size, GFP_KERNEL);
+			if (!ctx->delayed_ndp32)
+				return -ENOMEM;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* flush pending data before changing flag */
@@ -512,6 +606,12 @@ static int cdc_ncm_init(struct usbnet *dev)
 			dev_err(&dev->intf->dev, "SET_CRC_MODE failed\n");
 	}
 
+<<<<<<< HEAD
+=======
+	/* use ndp16 by default */
+	ctx->is_ndp16 = 1;
+
+>>>>>>> upstream/android-13
 	/* set NTB format, if both formats are supported.
 	 *
 	 * "The host shall only send this command while the NCM Data
@@ -519,6 +619,7 @@ static int cdc_ncm_init(struct usbnet *dev)
 	 */
 	if (le16_to_cpu(ctx->ncm_parm.bmNtbFormatsSupported) &
 						USB_CDC_NCM_NTB32_SUPPORTED) {
+<<<<<<< HEAD
 		dev_dbg(&dev->intf->dev, "Setting NTB format to 16-bit\n");
 		err = usbnet_write_cmd(dev, USB_CDC_SET_NTB_FORMAT,
 				       USB_TYPE_CLASS | USB_DIR_OUT
@@ -527,6 +628,29 @@ static int cdc_ncm_init(struct usbnet *dev)
 				       iface_no, NULL, 0);
 		if (err < 0)
 			dev_err(&dev->intf->dev, "SET_NTB_FORMAT failed\n");
+=======
+		if (ctx->drvflags & CDC_NCM_FLAG_PREFER_NTB32) {
+			ctx->is_ndp16 = 0;
+			dev_dbg(&dev->intf->dev, "Setting NTB format to 32-bit\n");
+			err = usbnet_write_cmd(dev, USB_CDC_SET_NTB_FORMAT,
+					       USB_TYPE_CLASS | USB_DIR_OUT
+					       | USB_RECIP_INTERFACE,
+					       USB_CDC_NCM_NTB32_FORMAT,
+					       iface_no, NULL, 0);
+		} else {
+			ctx->is_ndp16 = 1;
+			dev_dbg(&dev->intf->dev, "Setting NTB format to 16-bit\n");
+			err = usbnet_write_cmd(dev, USB_CDC_SET_NTB_FORMAT,
+					       USB_TYPE_CLASS | USB_DIR_OUT
+					       | USB_RECIP_INTERFACE,
+					       USB_CDC_NCM_NTB16_FORMAT,
+					       iface_no, NULL, 0);
+		}
+		if (err < 0) {
+			ctx->is_ndp16 = 1;
+			dev_err(&dev->intf->dev, "SET_NTB_FORMAT failed\n");
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* set initial device values */
@@ -549,7 +673,14 @@ static int cdc_ncm_init(struct usbnet *dev)
 		ctx->tx_max_datagrams = CDC_NCM_DPT_DATAGRAMS_MAX;
 
 	/* set up maximum NDP size */
+<<<<<<< HEAD
 	ctx->max_ndp_size = sizeof(struct usb_cdc_ncm_ndp16) + (ctx->tx_max_datagrams + 1) * sizeof(struct usb_cdc_ncm_dpe16);
+=======
+	if (ctx->is_ndp16)
+		ctx->max_ndp_size = sizeof(struct usb_cdc_ncm_ndp16) + (ctx->tx_max_datagrams + 1) * sizeof(struct usb_cdc_ncm_dpe16);
+	else
+		ctx->max_ndp_size = sizeof(struct usb_cdc_ncm_ndp32) + (ctx->tx_max_datagrams + 1) * sizeof(struct usb_cdc_ncm_dpe32);
+>>>>>>> upstream/android-13
 
 	/* initial coalescing timer interval */
 	ctx->timer_interval = CDC_NCM_TIMER_INTERVAL_USEC * NSEC_PER_USEC;
@@ -598,7 +729,11 @@ out:
 	/* set MTU to max supported by the device if necessary */
 	dev->net->mtu = min_t(int, dev->net->mtu, ctx->max_datagram_size - cdc_ncm_eth_hlen(dev));
 
+<<<<<<< HEAD
 	/* do not exceed operater preferred MTU */
+=======
+	/* do not exceed operator preferred MTU */
+>>>>>>> upstream/android-13
 	if (ctx->mbim_extended_desc) {
 		mbim_mtu = le16_to_cpu(ctx->mbim_extended_desc->wMTU);
 		if (mbim_mtu != 0 && mbim_mtu < dev->net->mtu)
@@ -655,7 +790,11 @@ static int cdc_ncm_setup(struct usbnet *dev)
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
 	u32 def_rx, def_tx;
 
+<<<<<<< HEAD
 	/* be conservative when selecting intial buffer size to
+=======
+	/* be conservative when selecting initial buffer size to
+>>>>>>> upstream/android-13
 	 * increase the number of hosts this will work for
 	 */
 	def_rx = min_t(u32, CDC_NCM_NTB_DEF_SIZE_RX,
@@ -734,7 +873,14 @@ static void cdc_ncm_free(struct cdc_ncm_ctx *ctx)
 		ctx->tx_curr_skb = NULL;
 	}
 
+<<<<<<< HEAD
 	kfree(ctx->delayed_ndp16);
+=======
+	if (ctx->is_ndp16)
+		kfree(ctx->delayed_ndp16);
+	else
+		kfree(ctx->delayed_ndp32);
+>>>>>>> upstream/android-13
 
 	kfree(ctx);
 }
@@ -759,7 +905,12 @@ static const struct net_device_ops cdc_ncm_netdev_ops = {
 	.ndo_stop	     = usbnet_stop,
 	.ndo_start_xmit	     = usbnet_start_xmit,
 	.ndo_tx_timeout	     = usbnet_tx_timeout,
+<<<<<<< HEAD
 	.ndo_get_stats64     = usbnet_get_stats64,
+=======
+	.ndo_set_rx_mode     = usbnet_set_rx_mode,
+	.ndo_get_stats64     = dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu	     = cdc_ncm_change_mtu,
 	.ndo_set_mac_address = eth_mac_addr,
 	.ndo_validate_addr   = eth_validate_addr,
@@ -772,19 +923,32 @@ int cdc_ncm_bind_common(struct usbnet *dev, struct usb_interface *intf, u8 data_
 	u8 *buf;
 	int len;
 	int temp;
+<<<<<<< HEAD
 	int err;
 	u8 iface_no;
 	struct usb_cdc_parsed_header hdr;
 	__le16 curr_ntb_format;
+=======
+	u8 iface_no;
+	struct usb_cdc_parsed_header hdr;
+>>>>>>> upstream/android-13
 
 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	hrtimer_init(&ctx->tx_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	ctx->tx_timer.function = &cdc_ncm_tx_timer_cb;
 	ctx->bh.data = (unsigned long)dev;
 	ctx->bh.func = cdc_ncm_txpath_bh;
+=======
+	ctx->dev = dev;
+
+	hrtimer_init(&ctx->tx_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	ctx->tx_timer.function = &cdc_ncm_tx_timer_cb;
+	tasklet_setup(&ctx->bh, cdc_ncm_txpath_bh);
+>>>>>>> upstream/android-13
 	atomic_set(&ctx->stop, 0);
 	spin_lock_init(&ctx->mtx);
 
@@ -818,17 +982,29 @@ int cdc_ncm_bind_common(struct usbnet *dev, struct usb_interface *intf, u8 data_
 
 	/* check if we got everything */
 	if (!ctx->data) {
+<<<<<<< HEAD
 		dev_dbg(&intf->dev, "CDC Union missing and no IAD found\n");
+=======
+		dev_err(&intf->dev, "CDC Union missing and no IAD found\n");
+>>>>>>> upstream/android-13
 		goto error;
 	}
 	if (cdc_ncm_comm_intf_is_mbim(intf->cur_altsetting)) {
 		if (!ctx->mbim_desc) {
+<<<<<<< HEAD
 			dev_dbg(&intf->dev, "MBIM functional descriptor missing\n");
+=======
+			dev_err(&intf->dev, "MBIM functional descriptor missing\n");
+>>>>>>> upstream/android-13
 			goto error;
 		}
 	} else {
 		if (!ctx->ether_desc || !ctx->func_desc) {
+<<<<<<< HEAD
 			dev_dbg(&intf->dev, "NCM or ECM functional descriptors missing\n");
+=======
+			dev_err(&intf->dev, "NCM or ECM functional descriptors missing\n");
+>>>>>>> upstream/android-13
 			goto error;
 		}
 	}
@@ -837,7 +1013,11 @@ int cdc_ncm_bind_common(struct usbnet *dev, struct usb_interface *intf, u8 data_
 	if (ctx->data != ctx->control) {
 		temp = usb_driver_claim_interface(driver, ctx->data, dev);
 		if (temp) {
+<<<<<<< HEAD
 			dev_dbg(&intf->dev, "failed to claim data intf\n");
+=======
+			dev_err(&intf->dev, "failed to claim data intf\n");
+>>>>>>> upstream/android-13
 			goto error;
 		}
 	}
@@ -880,6 +1060,7 @@ int cdc_ncm_bind_common(struct usbnet *dev, struct usb_interface *intf, u8 data_
 		goto error2;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Some Huawei devices have been observed to come out of reset in NDP32 mode.
 	 * Let's check if this is the case, and set the device to NDP16 mode again if
@@ -906,6 +1087,8 @@ int cdc_ncm_bind_common(struct usbnet *dev, struct usb_interface *intf, u8 data_
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	cdc_ncm_find_endpoints(dev, ctx->data);
 	cdc_ncm_find_endpoints(dev, ctx->control);
 	if (!dev->in || !dev->out || !dev->status) {
@@ -913,13 +1096,20 @@ int cdc_ncm_bind_common(struct usbnet *dev, struct usb_interface *intf, u8 data_
 		goto error2;
 	}
 
+<<<<<<< HEAD
 	usb_set_intfdata(ctx->data, dev);
+=======
+>>>>>>> upstream/android-13
 	usb_set_intfdata(ctx->control, dev);
 
 	if (ctx->ether_desc) {
 		temp = usbnet_get_ethernet_addr(dev, ctx->ether_desc->iMACAddress);
 		if (temp) {
+<<<<<<< HEAD
 			dev_dbg(&intf->dev, "failed to get mac address\n");
+=======
+			dev_err(&intf->dev, "failed to get mac address\n");
+>>>>>>> upstream/android-13
 			goto error2;
 		}
 		dev_info(&intf->dev, "MAC-Address: %pM\n", dev->net->dev_addr);
@@ -930,9 +1120,21 @@ int cdc_ncm_bind_common(struct usbnet *dev, struct usb_interface *intf, u8 data_
 
 	/* Allocate the delayed NDP if needed. */
 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END) {
+<<<<<<< HEAD
 		ctx->delayed_ndp16 = kzalloc(ctx->max_ndp_size, GFP_KERNEL);
 		if (!ctx->delayed_ndp16)
 			goto error2;
+=======
+		if (ctx->is_ndp16) {
+			ctx->delayed_ndp16 = kzalloc(ctx->max_ndp_size, GFP_KERNEL);
+			if (!ctx->delayed_ndp16)
+				goto error2;
+		} else {
+			ctx->delayed_ndp32 = kzalloc(ctx->max_ndp_size, GFP_KERNEL);
+			if (!ctx->delayed_ndp32)
+				goto error2;
+		}
+>>>>>>> upstream/android-13
 		dev_info(&intf->dev, "NDP will be placed at end of frame for this device.");
 	}
 
@@ -1056,7 +1258,11 @@ static void cdc_ncm_align_tail(struct sk_buff *skb, size_t modulus, size_t remai
 /* return a pointer to a valid struct usb_cdc_ncm_ndp16 of type sign, possibly
  * allocating a new one within skb
  */
+<<<<<<< HEAD
 static struct usb_cdc_ncm_ndp16 *cdc_ncm_ndp(struct cdc_ncm_ctx *ctx, struct sk_buff *skb, __le32 sign, size_t reserve)
+=======
+static struct usb_cdc_ncm_ndp16 *cdc_ncm_ndp16(struct cdc_ncm_ctx *ctx, struct sk_buff *skb, __le32 sign, size_t reserve)
+>>>>>>> upstream/android-13
 {
 	struct usb_cdc_ncm_ndp16 *ndp16 = NULL;
 	struct usb_cdc_ncm_nth16 *nth16 = (void *)skb->data;
@@ -1111,12 +1317,81 @@ static struct usb_cdc_ncm_ndp16 *cdc_ncm_ndp(struct cdc_ncm_ctx *ctx, struct sk_
 	return ndp16;
 }
 
+<<<<<<< HEAD
+=======
+static struct usb_cdc_ncm_ndp32 *cdc_ncm_ndp32(struct cdc_ncm_ctx *ctx, struct sk_buff *skb, __le32 sign, size_t reserve)
+{
+	struct usb_cdc_ncm_ndp32 *ndp32 = NULL;
+	struct usb_cdc_ncm_nth32 *nth32 = (void *)skb->data;
+	size_t ndpoffset = le32_to_cpu(nth32->dwNdpIndex);
+
+	/* If NDP should be moved to the end of the NCM package, we can't follow the
+	 * NTH32 header as we would normally do. NDP isn't written to the SKB yet, and
+	 * the wNdpIndex field in the header is actually not consistent with reality. It will be later.
+	 */
+	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END) {
+		if (ctx->delayed_ndp32->dwSignature == sign)
+			return ctx->delayed_ndp32;
+
+		/* We can only push a single NDP to the end. Return
+		 * NULL to send what we've already got and queue this
+		 * skb for later.
+		 */
+		else if (ctx->delayed_ndp32->dwSignature)
+			return NULL;
+	}
+
+	/* follow the chain of NDPs, looking for a match */
+	while (ndpoffset) {
+		ndp32 = (struct usb_cdc_ncm_ndp32 *)(skb->data + ndpoffset);
+		if  (ndp32->dwSignature == sign)
+			return ndp32;
+		ndpoffset = le32_to_cpu(ndp32->dwNextNdpIndex);
+	}
+
+	/* align new NDP */
+	if (!(ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END))
+		cdc_ncm_align_tail(skb, ctx->tx_ndp_modulus, 0, ctx->tx_curr_size);
+
+	/* verify that there is room for the NDP and the datagram (reserve) */
+	if ((ctx->tx_curr_size - skb->len - reserve) < ctx->max_ndp_size)
+		return NULL;
+
+	/* link to it */
+	if (ndp32)
+		ndp32->dwNextNdpIndex = cpu_to_le32(skb->len);
+	else
+		nth32->dwNdpIndex = cpu_to_le32(skb->len);
+
+	/* push a new empty NDP */
+	if (!(ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END))
+		ndp32 = skb_put_zero(skb, ctx->max_ndp_size);
+	else
+		ndp32 = ctx->delayed_ndp32;
+
+	ndp32->dwSignature = sign;
+	ndp32->wLength = cpu_to_le16(sizeof(struct usb_cdc_ncm_ndp32) + sizeof(struct usb_cdc_ncm_dpe32));
+	return ndp32;
+}
+
+>>>>>>> upstream/android-13
 struct sk_buff *
 cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 {
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
+<<<<<<< HEAD
 	struct usb_cdc_ncm_nth16 *nth16;
 	struct usb_cdc_ncm_ndp16 *ndp16;
+=======
+	union {
+		struct usb_cdc_ncm_nth16 *nth16;
+		struct usb_cdc_ncm_nth32 *nth32;
+	} nth;
+	union {
+		struct usb_cdc_ncm_ndp16 *ndp16;
+		struct usb_cdc_ncm_ndp32 *ndp32;
+	} ndp;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb_out;
 	u16 n = 0, index, ndplen;
 	u8 ready2send = 0;
@@ -1183,11 +1458,27 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 			}
 			ctx->tx_low_mem_val--;
 		}
+<<<<<<< HEAD
 		/* fill out the initial 16-bit NTB header */
 		nth16 = skb_put_zero(skb_out, sizeof(struct usb_cdc_ncm_nth16));
 		nth16->dwSignature = cpu_to_le32(USB_CDC_NCM_NTH16_SIGN);
 		nth16->wHeaderLength = cpu_to_le16(sizeof(struct usb_cdc_ncm_nth16));
 		nth16->wSequence = cpu_to_le16(ctx->tx_seq++);
+=======
+		if (ctx->is_ndp16) {
+			/* fill out the initial 16-bit NTB header */
+			nth.nth16 = skb_put_zero(skb_out, sizeof(struct usb_cdc_ncm_nth16));
+			nth.nth16->dwSignature = cpu_to_le32(USB_CDC_NCM_NTH16_SIGN);
+			nth.nth16->wHeaderLength = cpu_to_le16(sizeof(struct usb_cdc_ncm_nth16));
+			nth.nth16->wSequence = cpu_to_le16(ctx->tx_seq++);
+		} else {
+			/* fill out the initial 32-bit NTB header */
+			nth.nth32 = skb_put_zero(skb_out, sizeof(struct usb_cdc_ncm_nth32));
+			nth.nth32->dwSignature = cpu_to_le32(USB_CDC_NCM_NTH32_SIGN);
+			nth.nth32->wHeaderLength = cpu_to_le16(sizeof(struct usb_cdc_ncm_nth32));
+			nth.nth32->wSequence = cpu_to_le16(ctx->tx_seq++);
+		}
+>>>>>>> upstream/android-13
 
 		/* count total number of frames in this NTB */
 		ctx->tx_curr_frame_num = 0;
@@ -1209,13 +1500,25 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 		}
 
 		/* get the appropriate NDP for this skb */
+<<<<<<< HEAD
 		ndp16 = cdc_ncm_ndp(ctx, skb_out, sign, skb->len + ctx->tx_modulus + ctx->tx_remainder);
+=======
+		if (ctx->is_ndp16)
+			ndp.ndp16 = cdc_ncm_ndp16(ctx, skb_out, sign, skb->len + ctx->tx_modulus + ctx->tx_remainder);
+		else
+			ndp.ndp32 = cdc_ncm_ndp32(ctx, skb_out, sign, skb->len + ctx->tx_modulus + ctx->tx_remainder);
+>>>>>>> upstream/android-13
 
 		/* align beginning of next frame */
 		cdc_ncm_align_tail(skb_out,  ctx->tx_modulus, ctx->tx_remainder, ctx->tx_curr_size);
 
 		/* check if we had enough room left for both NDP and frame */
+<<<<<<< HEAD
 		if (!ndp16 || skb_out->len + skb->len + delayed_ndp_size > ctx->tx_curr_size) {
+=======
+		if ((ctx->is_ndp16 && !ndp.ndp16) || (!ctx->is_ndp16 && !ndp.ndp32) ||
+		    skb_out->len + skb->len + delayed_ndp_size > ctx->tx_curr_size) {
+>>>>>>> upstream/android-13
 			if (n == 0) {
 				/* won't fit, MTU problem? */
 				dev_kfree_skb_any(skb);
@@ -1236,6 +1539,7 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 			break;
 		}
 
+<<<<<<< HEAD
 		/* calculate frame number withing this NDP */
 		ndplen = le16_to_cpu(ndp16->wLength);
 		index = (ndplen - sizeof(struct usb_cdc_ncm_ndp16)) / sizeof(struct usb_cdc_ncm_dpe16) - 1;
@@ -1244,6 +1548,25 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 		ndp16->dpe16[index].wDatagramLength = cpu_to_le16(skb->len);
 		ndp16->dpe16[index].wDatagramIndex = cpu_to_le16(skb_out->len);
 		ndp16->wLength = cpu_to_le16(ndplen + sizeof(struct usb_cdc_ncm_dpe16));
+=======
+		/* calculate frame number within this NDP */
+		if (ctx->is_ndp16) {
+			ndplen = le16_to_cpu(ndp.ndp16->wLength);
+			index = (ndplen - sizeof(struct usb_cdc_ncm_ndp16)) / sizeof(struct usb_cdc_ncm_dpe16) - 1;
+
+			/* OK, add this skb */
+			ndp.ndp16->dpe16[index].wDatagramLength = cpu_to_le16(skb->len);
+			ndp.ndp16->dpe16[index].wDatagramIndex = cpu_to_le16(skb_out->len);
+			ndp.ndp16->wLength = cpu_to_le16(ndplen + sizeof(struct usb_cdc_ncm_dpe16));
+		} else {
+			ndplen = le16_to_cpu(ndp.ndp32->wLength);
+			index = (ndplen - sizeof(struct usb_cdc_ncm_ndp32)) / sizeof(struct usb_cdc_ncm_dpe32) - 1;
+
+			ndp.ndp32->dpe32[index].dwDatagramLength = cpu_to_le32(skb->len);
+			ndp.ndp32->dpe32[index].dwDatagramIndex = cpu_to_le32(skb_out->len);
+			ndp.ndp32->wLength = cpu_to_le16(ndplen + sizeof(struct usb_cdc_ncm_dpe32));
+		}
+>>>>>>> upstream/android-13
 		skb_put_data(skb_out, skb->data, skb->len);
 		ctx->tx_curr_frame_payload += skb->len;	/* count real tx payload data */
 		dev_kfree_skb_any(skb);
@@ -1290,6 +1613,7 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 
 	/* If requested, put NDP at end of frame. */
 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END) {
+<<<<<<< HEAD
 		nth16 = (struct usb_cdc_ncm_nth16 *)skb_out->data;
 		cdc_ncm_align_tail(skb_out, ctx->tx_ndp_modulus, 0, ctx->tx_curr_size - ctx->max_ndp_size);
 		nth16->wNdpIndex = cpu_to_le16(skb_out->len);
@@ -1297,6 +1621,24 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 
 		/* Zero out delayed NDP - signature checking will naturally fail. */
 		ndp16 = memset(ctx->delayed_ndp16, 0, ctx->max_ndp_size);
+=======
+		if (ctx->is_ndp16) {
+			nth.nth16 = (struct usb_cdc_ncm_nth16 *)skb_out->data;
+			cdc_ncm_align_tail(skb_out, ctx->tx_ndp_modulus, 0, ctx->tx_curr_size - ctx->max_ndp_size);
+			nth.nth16->wNdpIndex = cpu_to_le16(skb_out->len);
+			skb_put_data(skb_out, ctx->delayed_ndp16, ctx->max_ndp_size);
+
+			/* Zero out delayed NDP - signature checking will naturally fail. */
+			ndp.ndp16 = memset(ctx->delayed_ndp16, 0, ctx->max_ndp_size);
+		} else {
+			nth.nth32 = (struct usb_cdc_ncm_nth32 *)skb_out->data;
+			cdc_ncm_align_tail(skb_out, ctx->tx_ndp_modulus, 0, ctx->tx_curr_size - ctx->max_ndp_size);
+			nth.nth32->dwNdpIndex = cpu_to_le32(skb_out->len);
+			skb_put_data(skb_out, ctx->delayed_ndp32, ctx->max_ndp_size);
+
+			ndp.ndp32 = memset(ctx->delayed_ndp32, 0, ctx->max_ndp_size);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* If collected data size is less or equal ctx->min_tx_pkt
@@ -1319,8 +1661,18 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev, struct sk_buff *skb, __le32 sign)
 	}
 
 	/* set final frame length */
+<<<<<<< HEAD
 	nth16 = (struct usb_cdc_ncm_nth16 *)skb_out->data;
 	nth16->wBlockLength = cpu_to_le16(skb_out->len);
+=======
+	if (ctx->is_ndp16) {
+		nth.nth16 = (struct usb_cdc_ncm_nth16 *)skb_out->data;
+		nth.nth16->wBlockLength = cpu_to_le16(skb_out->len);
+	} else {
+		nth.nth32 = (struct usb_cdc_ncm_nth32 *)skb_out->data;
+		nth.nth32->dwBlockLength = cpu_to_le32(skb_out->len);
+	}
+>>>>>>> upstream/android-13
 
 	/* return skb */
 	ctx->tx_curr_skb = NULL;
@@ -1365,10 +1717,17 @@ static enum hrtimer_restart cdc_ncm_tx_timer_cb(struct hrtimer *timer)
 	return HRTIMER_NORESTART;
 }
 
+<<<<<<< HEAD
 static void cdc_ncm_txpath_bh(unsigned long param)
 {
 	struct usbnet *dev = (struct usbnet *)param;
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
+=======
+static void cdc_ncm_txpath_bh(struct tasklet_struct *t)
+{
+	struct cdc_ncm_ctx *ctx = from_tasklet(ctx, t, bh);
+	struct usbnet *dev = ctx->dev;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&ctx->mtx);
 	if (ctx->tx_timer_pending != 0) {
@@ -1403,7 +1762,16 @@ cdc_ncm_tx_fixup(struct usbnet *dev, struct sk_buff *skb, gfp_t flags)
 		goto error;
 
 	spin_lock_bh(&ctx->mtx);
+<<<<<<< HEAD
 	skb_out = cdc_ncm_fill_tx_frame(dev, skb, cpu_to_le32(USB_CDC_NCM_NDP16_NOCRC_SIGN));
+=======
+
+	if (ctx->is_ndp16)
+		skb_out = cdc_ncm_fill_tx_frame(dev, skb, cpu_to_le32(USB_CDC_NCM_NDP16_NOCRC_SIGN));
+	else
+		skb_out = cdc_ncm_fill_tx_frame(dev, skb, cpu_to_le32(USB_CDC_NCM_NDP32_NOCRC_SIGN));
+
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&ctx->mtx);
 	return skb_out;
 
@@ -1464,6 +1832,57 @@ error:
 }
 EXPORT_SYMBOL_GPL(cdc_ncm_rx_verify_nth16);
 
+<<<<<<< HEAD
+=======
+int cdc_ncm_rx_verify_nth32(struct cdc_ncm_ctx *ctx, struct sk_buff *skb_in)
+{
+	struct usbnet *dev = netdev_priv(skb_in->dev);
+	struct usb_cdc_ncm_nth32 *nth32;
+	int len;
+	int ret = -EINVAL;
+
+	if (ctx == NULL)
+		goto error;
+
+	if (skb_in->len < (sizeof(struct usb_cdc_ncm_nth32) +
+					sizeof(struct usb_cdc_ncm_ndp32))) {
+		netif_dbg(dev, rx_err, dev->net, "frame too short\n");
+		goto error;
+	}
+
+	nth32 = (struct usb_cdc_ncm_nth32 *)skb_in->data;
+
+	if (nth32->dwSignature != cpu_to_le32(USB_CDC_NCM_NTH32_SIGN)) {
+		netif_dbg(dev, rx_err, dev->net,
+			  "invalid NTH32 signature <%#010x>\n",
+			  le32_to_cpu(nth32->dwSignature));
+		goto error;
+	}
+
+	len = le32_to_cpu(nth32->dwBlockLength);
+	if (len > ctx->rx_max) {
+		netif_dbg(dev, rx_err, dev->net,
+			  "unsupported NTB block length %u/%u\n", len,
+			  ctx->rx_max);
+		goto error;
+	}
+
+	if ((ctx->rx_seq + 1) != le16_to_cpu(nth32->wSequence) &&
+	    (ctx->rx_seq || le16_to_cpu(nth32->wSequence)) &&
+	    !((ctx->rx_seq == 0xffff) && !le16_to_cpu(nth32->wSequence))) {
+		netif_dbg(dev, rx_err, dev->net,
+			  "sequence number glitch prev=%d curr=%d\n",
+			  ctx->rx_seq, le16_to_cpu(nth32->wSequence));
+	}
+	ctx->rx_seq = le16_to_cpu(nth32->wSequence);
+
+	ret = le32_to_cpu(nth32->dwNdpIndex);
+error:
+	return ret;
+}
+EXPORT_SYMBOL_GPL(cdc_ncm_rx_verify_nth32);
+
+>>>>>>> upstream/android-13
 /* verify NDP header and return number of datagrams, or negative error */
 int cdc_ncm_rx_verify_ndp16(struct sk_buff *skb_in, int ndpoffset)
 {
@@ -1500,25 +1919,89 @@ error:
 }
 EXPORT_SYMBOL_GPL(cdc_ncm_rx_verify_ndp16);
 
+<<<<<<< HEAD
+=======
+/* verify NDP header and return number of datagrams, or negative error */
+int cdc_ncm_rx_verify_ndp32(struct sk_buff *skb_in, int ndpoffset)
+{
+	struct usbnet *dev = netdev_priv(skb_in->dev);
+	struct usb_cdc_ncm_ndp32 *ndp32;
+	int ret = -EINVAL;
+
+	if ((ndpoffset + sizeof(struct usb_cdc_ncm_ndp32)) > skb_in->len) {
+		netif_dbg(dev, rx_err, dev->net, "invalid NDP offset  <%u>\n",
+			  ndpoffset);
+		goto error;
+	}
+	ndp32 = (struct usb_cdc_ncm_ndp32 *)(skb_in->data + ndpoffset);
+
+	if (le16_to_cpu(ndp32->wLength) < USB_CDC_NCM_NDP32_LENGTH_MIN) {
+		netif_dbg(dev, rx_err, dev->net, "invalid DPT32 length <%u>\n",
+			  le16_to_cpu(ndp32->wLength));
+		goto error;
+	}
+
+	ret = ((le16_to_cpu(ndp32->wLength) -
+					sizeof(struct usb_cdc_ncm_ndp32)) /
+					sizeof(struct usb_cdc_ncm_dpe32));
+	ret--; /* we process NDP entries except for the last one */
+
+	if ((sizeof(struct usb_cdc_ncm_ndp32) +
+	     ret * (sizeof(struct usb_cdc_ncm_dpe32))) > skb_in->len) {
+		netif_dbg(dev, rx_err, dev->net, "Invalid nframes = %d\n", ret);
+		ret = -EINVAL;
+	}
+
+error:
+	return ret;
+}
+EXPORT_SYMBOL_GPL(cdc_ncm_rx_verify_ndp32);
+
+>>>>>>> upstream/android-13
 int cdc_ncm_rx_fixup(struct usbnet *dev, struct sk_buff *skb_in)
 {
 	struct sk_buff *skb;
 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
+<<<<<<< HEAD
 	int len;
 	int nframes;
 	int x;
 	int offset;
 	struct usb_cdc_ncm_ndp16 *ndp16;
 	struct usb_cdc_ncm_dpe16 *dpe16;
+=======
+	unsigned int len;
+	int nframes;
+	int x;
+	unsigned int offset;
+	union {
+		struct usb_cdc_ncm_ndp16 *ndp16;
+		struct usb_cdc_ncm_ndp32 *ndp32;
+	} ndp;
+	union {
+		struct usb_cdc_ncm_dpe16 *dpe16;
+		struct usb_cdc_ncm_dpe32 *dpe32;
+	} dpe;
+
+>>>>>>> upstream/android-13
 	int ndpoffset;
 	int loopcount = 50; /* arbitrary max preventing infinite loop */
 	u32 payload = 0;
 
+<<<<<<< HEAD
 	ndpoffset = cdc_ncm_rx_verify_nth16(ctx, skb_in);
+=======
+	if (ctx->is_ndp16)
+		ndpoffset = cdc_ncm_rx_verify_nth16(ctx, skb_in);
+	else
+		ndpoffset = cdc_ncm_rx_verify_nth32(ctx, skb_in);
+
+>>>>>>> upstream/android-13
 	if (ndpoffset < 0)
 		goto error;
 
 next_ndp:
+<<<<<<< HEAD
 	nframes = cdc_ncm_rx_verify_ndp16(skb_in, ndpoffset);
 	if (nframes < 0)
 		goto error;
@@ -1536,6 +2019,46 @@ next_ndp:
 	for (x = 0; x < nframes; x++, dpe16++) {
 		offset = le16_to_cpu(dpe16->wDatagramIndex);
 		len = le16_to_cpu(dpe16->wDatagramLength);
+=======
+	if (ctx->is_ndp16) {
+		nframes = cdc_ncm_rx_verify_ndp16(skb_in, ndpoffset);
+		if (nframes < 0)
+			goto error;
+
+		ndp.ndp16 = (struct usb_cdc_ncm_ndp16 *)(skb_in->data + ndpoffset);
+
+		if (ndp.ndp16->dwSignature != cpu_to_le32(USB_CDC_NCM_NDP16_NOCRC_SIGN)) {
+			netif_dbg(dev, rx_err, dev->net,
+				  "invalid DPT16 signature <%#010x>\n",
+				  le32_to_cpu(ndp.ndp16->dwSignature));
+			goto err_ndp;
+		}
+		dpe.dpe16 = ndp.ndp16->dpe16;
+	} else {
+		nframes = cdc_ncm_rx_verify_ndp32(skb_in, ndpoffset);
+		if (nframes < 0)
+			goto error;
+
+		ndp.ndp32 = (struct usb_cdc_ncm_ndp32 *)(skb_in->data + ndpoffset);
+
+		if (ndp.ndp32->dwSignature != cpu_to_le32(USB_CDC_NCM_NDP32_NOCRC_SIGN)) {
+			netif_dbg(dev, rx_err, dev->net,
+				  "invalid DPT32 signature <%#010x>\n",
+				  le32_to_cpu(ndp.ndp32->dwSignature));
+			goto err_ndp;
+		}
+		dpe.dpe32 = ndp.ndp32->dpe32;
+	}
+
+	for (x = 0; x < nframes; x++) {
+		if (ctx->is_ndp16) {
+			offset = le16_to_cpu(dpe.dpe16->wDatagramIndex);
+			len = le16_to_cpu(dpe.dpe16->wDatagramLength);
+		} else {
+			offset = le32_to_cpu(dpe.dpe32->dwDatagramIndex);
+			len = le32_to_cpu(dpe.dpe32->dwDatagramLength);
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * CDC NCM ch. 3.7
@@ -1547,8 +2070,13 @@ next_ndp:
 			break;
 		}
 
+<<<<<<< HEAD
 		/* sanity checking */
 		if (((offset + len) > skb_in->len) ||
+=======
+		/* sanity checking - watch out for integer wrap*/
+		if ((offset > skb_in->len) || (len > skb_in->len - offset) ||
+>>>>>>> upstream/android-13
 				(len > ctx->rx_max) || (len < ETH_HLEN)) {
 			netif_dbg(dev, rx_err, dev->net,
 				  "invalid frame detected (ignored) offset[%u]=%u, length=%u, skb=%p\n",
@@ -1566,10 +2094,26 @@ next_ndp:
 			usbnet_skb_return(dev, skb);
 			payload += len;	/* count payload bytes in this NTB */
 		}
+<<<<<<< HEAD
 	}
 err_ndp:
 	/* are there more NDPs to process? */
 	ndpoffset = le16_to_cpu(ndp16->wNextNdpIndex);
+=======
+
+		if (ctx->is_ndp16)
+			dpe.dpe16++;
+		else
+			dpe.dpe32++;
+	}
+err_ndp:
+	/* are there more NDPs to process? */
+	if (ctx->is_ndp16)
+		ndpoffset = le16_to_cpu(ndp.ndp16->wNextNdpIndex);
+	else
+		ndpoffset = le32_to_cpu(ndp.ndp32->dwNextNdpIndex);
+
+>>>>>>> upstream/android-13
 	if (ndpoffset && loopcount--)
 		goto next_ndp;
 
@@ -1587,6 +2131,7 @@ static void
 cdc_ncm_speed_change(struct usbnet *dev,
 		     struct usb_cdc_speed_change *data)
 {
+<<<<<<< HEAD
 	uint32_t rx_speed = le32_to_cpu(data->DLBitRRate);
 	uint32_t tx_speed = le32_to_cpu(data->ULBitRate);
 
@@ -1605,15 +2150,25 @@ cdc_ncm_speed_change(struct usbnet *dev,
 			   (unsigned int)(rx_speed / 1000U),
 			   (unsigned int)(tx_speed / 1000U));
 	}
+=======
+	/* RTL8156 shipped before 2021 sends notification about every 32ms. */
+	dev->rx_speed = le32_to_cpu(data->DLBitRRate);
+	dev->tx_speed = le32_to_cpu(data->ULBitRate);
+>>>>>>> upstream/android-13
 }
 
 static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
 {
+<<<<<<< HEAD
 	struct cdc_ncm_ctx *ctx;
 	struct usb_cdc_notification *event;
 
 	ctx = (struct cdc_ncm_ctx *)dev->data[0];
 
+=======
+	struct usb_cdc_notification *event;
+
+>>>>>>> upstream/android-13
 	if (urb->actual_length < sizeof(*event))
 		return;
 
@@ -1633,7 +2188,15 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
 		 */
+<<<<<<< HEAD
 		usbnet_link_change(dev, !!event->wValue, 0);
+=======
+		/* RTL8156 shipped before 2021 sends notification about
+		 * every 32ms. Don't forward notification if state is same.
+		 */
+		if (netif_carrier_ok(dev->net) != !!event->wValue)
+			usbnet_link_change(dev, !!event->wValue, 0);
+>>>>>>> upstream/android-13
 		break;
 
 	case USB_CDC_NOTIFY_SPEED_CHANGE:
@@ -1656,13 +2219,21 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
 static const struct driver_info cdc_ncm_info = {
 	.description = "CDC NCM",
 	.flags = FLAG_POINTTOPOINT | FLAG_NO_SETINT | FLAG_MULTI_PACKET
+<<<<<<< HEAD
 			| FLAG_LINK_INTR,
+=======
+			| FLAG_LINK_INTR | FLAG_ETHER,
+>>>>>>> upstream/android-13
 	.bind = cdc_ncm_bind,
 	.unbind = cdc_ncm_unbind,
 	.manage_power = usbnet_manage_power,
 	.status = cdc_ncm_status,
 	.rx_fixup = cdc_ncm_rx_fixup,
 	.tx_fixup = cdc_ncm_tx_fixup,
+<<<<<<< HEAD
+=======
+	.set_rx_mode = usbnet_cdc_update_filter,
+>>>>>>> upstream/android-13
 };
 
 /* Same as cdc_ncm_info, but with FLAG_WWAN */
@@ -1676,6 +2247,10 @@ static const struct driver_info wwan_info = {
 	.status = cdc_ncm_status,
 	.rx_fixup = cdc_ncm_rx_fixup,
 	.tx_fixup = cdc_ncm_tx_fixup,
+<<<<<<< HEAD
+=======
+	.set_rx_mode = usbnet_cdc_update_filter,
+>>>>>>> upstream/android-13
 };
 
 /* Same as wwan_info, but with FLAG_NOARP  */
@@ -1689,6 +2264,10 @@ static const struct driver_info wwan_noarp_info = {
 	.status = cdc_ncm_status,
 	.rx_fixup = cdc_ncm_rx_fixup,
 	.tx_fixup = cdc_ncm_tx_fixup,
+<<<<<<< HEAD
+=======
+	.set_rx_mode = usbnet_cdc_update_filter,
+>>>>>>> upstream/android-13
 };
 
 static const struct usb_device_id cdc_devs[] = {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * An implementation of the host initiated guest snapshot for Hyper-V.
  *
@@ -15,6 +16,14 @@
  * NON INFRINGEMENT.  See the GNU General Public License for more
  * details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * An implementation of the host initiated guest snapshot for Hyper-V.
+ *
+ * Copyright (C) 2013, Microsoft, Inc.
+ * Author : K. Y. Srinivasan <kys@microsoft.com>
+>>>>>>> upstream/android-13
  */
 
 
@@ -39,6 +48,11 @@
 #include <stdbool.h>
 #include <dirent.h>
 
+<<<<<<< HEAD
+=======
+static bool fs_frozen;
+
+>>>>>>> upstream/android-13
 /* Don't use syslog() in the function since that can cause write to disk */
 static int vss_do_freeze(char *dir, unsigned int cmd)
 {
@@ -53,7 +67,11 @@ static int vss_do_freeze(char *dir, unsigned int cmd)
 	 * If a partition is mounted more than once, only the first
 	 * FREEZE/THAW can succeed and the later ones will get
 	 * EBUSY/EINVAL respectively: there could be 2 cases:
+<<<<<<< HEAD
 	 * 1) a user may mount the same partition to differnt directories
+=======
+	 * 1) a user may mount the same partition to different directories
+>>>>>>> upstream/android-13
 	 *  by mistake or on purpose;
 	 * 2) The subvolume of btrfs appears to have the same partition
 	 * mounted more than once.
@@ -166,18 +184,39 @@ static int vss_operate(int operation)
 			continue;
 		}
 		error |= vss_do_freeze(ent->mnt_dir, cmd);
+<<<<<<< HEAD
 		if (error && operation == VSS_OP_FREEZE)
 			goto err;
+=======
+		if (operation == VSS_OP_FREEZE) {
+			if (error)
+				goto err;
+			fs_frozen = true;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	endmntent(mounts);
 
 	if (root_seen) {
 		error |= vss_do_freeze("/", cmd);
+<<<<<<< HEAD
 		if (error && operation == VSS_OP_FREEZE)
 			goto err;
 	}
 
+=======
+		if (operation == VSS_OP_FREEZE) {
+			if (error)
+				goto err;
+			fs_frozen = true;
+		}
+	}
+
+	if (operation == VSS_OP_THAW && !error)
+		fs_frozen = false;
+
+>>>>>>> upstream/android-13
 	goto out;
 err:
 	save_errno = errno;
@@ -186,6 +225,10 @@ err:
 		endmntent(mounts);
 	}
 	vss_operate(VSS_OP_THAW);
+<<<<<<< HEAD
+=======
+	fs_frozen = false;
+>>>>>>> upstream/android-13
 	/* Call syslog after we thaw all filesystems */
 	if (ent)
 		syslog(LOG_ERR, "FREEZE of %s failed; error:%d %s",
@@ -207,13 +250,21 @@ void print_usage(char *argv[])
 
 int main(int argc, char *argv[])
 {
+<<<<<<< HEAD
 	int vss_fd, len;
+=======
+	int vss_fd = -1, len;
+>>>>>>> upstream/android-13
 	int error;
 	struct pollfd pfd;
 	int	op;
 	struct hv_vss_msg vss_msg[1];
 	int daemonize = 1, long_index = 0, opt;
+<<<<<<< HEAD
 	int in_handshake = 1;
+=======
+	int in_handshake;
+>>>>>>> upstream/android-13
 	__u32 kernel_modver;
 
 	static struct option long_options[] = {
@@ -243,6 +294,21 @@ int main(int argc, char *argv[])
 	openlog("Hyper-V VSS", 0, LOG_USER);
 	syslog(LOG_INFO, "VSS starting; pid is:%d", getpid());
 
+<<<<<<< HEAD
+=======
+reopen_vss_fd:
+	if (vss_fd != -1)
+		close(vss_fd);
+	if (fs_frozen) {
+		if (vss_operate(VSS_OP_THAW) || fs_frozen) {
+			syslog(LOG_ERR, "failed to thaw file system: err=%d",
+			       errno);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	in_handshake = 1;
+>>>>>>> upstream/android-13
 	vss_fd = open("/dev/vmbus/hv_vss", O_RDWR);
 	if (vss_fd < 0) {
 		syslog(LOG_ERR, "open /dev/vmbus/hv_vss failed; error: %d %s",
@@ -295,8 +361,12 @@ int main(int argc, char *argv[])
 		if (len != sizeof(struct hv_vss_msg)) {
 			syslog(LOG_ERR, "read failed; error:%d %s",
 			       errno, strerror(errno));
+<<<<<<< HEAD
 			close(vss_fd);
 			return EXIT_FAILURE;
+=======
+			goto reopen_vss_fd;
+>>>>>>> upstream/android-13
 		}
 
 		op = vss_msg->vss_hdr.operation;
@@ -323,14 +393,27 @@ int main(int argc, char *argv[])
 		default:
 			syslog(LOG_ERR, "Illegal op:%d\n", op);
 		}
+<<<<<<< HEAD
+=======
+
+		/*
+		 * The write() may return an error due to the faked VSS_OP_THAW
+		 * message upon hibernation. Ignore the error by resetting the
+		 * dev file, i.e. closing and re-opening it.
+		 */
+>>>>>>> upstream/android-13
 		vss_msg->error = error;
 		len = write(vss_fd, vss_msg, sizeof(struct hv_vss_msg));
 		if (len != sizeof(struct hv_vss_msg)) {
 			syslog(LOG_ERR, "write failed; error: %d %s", errno,
 			       strerror(errno));
+<<<<<<< HEAD
 
 			if (op == VSS_OP_FREEZE)
 				vss_operate(VSS_OP_THAW);
+=======
+			goto reopen_vss_fd;
+>>>>>>> upstream/android-13
 		}
 	}
 

@@ -1,20 +1,34 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Hash Info: Hash algorithms information
  *
  * Copyright (c) 2013 Dmitry Kasatkin <d.kasatkin@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYPTO_HASH_INFO_H
 #define _CRYPTO_HASH_INFO_H
 
+<<<<<<< HEAD
 #include <crypto/sha.h>
 #include <crypto/md5.h>
+=======
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+#include <crypto/md5.h>
+#include <crypto/streebog.h>
+>>>>>>> upstream/android-13
 
 #include <uapi/linux/hash_info.h>
 

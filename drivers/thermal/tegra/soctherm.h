@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014-2016, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -29,6 +33,17 @@
 #define THERMCTL_THERMTRIP_CTL			0x80
 /* BITs are defined in device file */
 
+<<<<<<< HEAD
+=======
+#define THERMCTL_INTR_ENABLE			0x88
+#define THERMCTL_INTR_DISABLE			0x8c
+#define TH_INTR_UP_DN_EN			0x3
+#define THERM_IRQ_MEM_MASK			(TH_INTR_UP_DN_EN << 24)
+#define THERM_IRQ_GPU_MASK			(TH_INTR_UP_DN_EN << 16)
+#define THERM_IRQ_CPU_MASK			(TH_INTR_UP_DN_EN << 8)
+#define THERM_IRQ_TSENSE_MASK			(TH_INTR_UP_DN_EN << 0)
+
+>>>>>>> upstream/android-13
 #define SENSOR_PDIV				0x1c0
 #define SENSOR_PDIV_CPU_MASK			(0xf << 12)
 #define SENSOR_PDIV_GPU_MASK			(0xf << 8)
@@ -70,6 +85,10 @@ struct tegra_tsensor_group {
 	u32 thermtrip_enable_mask;
 	u32 thermtrip_any_en_mask;
 	u32 thermtrip_threshold_mask;
+<<<<<<< HEAD
+=======
+	u32 thermctl_isr_mask;
+>>>>>>> upstream/android-13
 	u16 thermctl_lvl0_offset;
 	u32 thermctl_lvl0_up_thresh_mask;
 	u32 thermctl_lvl0_dn_thresh_mask;
@@ -92,6 +111,14 @@ struct tegra_tsensor {
 	const struct tegra_tsensor_group *group;
 };
 
+<<<<<<< HEAD
+=======
+struct tsensor_group_thermtrips {
+	u8 id;
+	u32 temp;
+};
+
+>>>>>>> upstream/android-13
 struct tegra_soctherm_fuse {
 	u32 fuse_base_cp_mask, fuse_base_cp_shift;
 	u32 fuse_base_ft_mask, fuse_base_ft_shift;
@@ -113,6 +140,10 @@ struct tegra_soctherm_soc {
 	const int thresh_grain;
 	const unsigned int bptt;
 	const bool use_ccroc;
+<<<<<<< HEAD
+=======
+	struct tsensor_group_thermtrips *thermtrips;
+>>>>>>> upstream/android-13
 };
 
 int tegra_calc_shared_calib(const struct tegra_soctherm_fuse *tfuse,

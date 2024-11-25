@@ -2,7 +2,11 @@
 /* Copyright (C) 2000-2002 Joakim Axelsson <gozem@linux.nu>
  *                         Patrick Schaaf <bof@bof.de>
  *                         Martin Josefsson <gandalf@wlug.westbo.se>
+<<<<<<< HEAD
  * Copyright (C) 2003-2011 Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+=======
+ * Copyright (C) 2003-2011 Jozsef Kadlecsik <kadlec@netfilter.org>
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,8 +17,14 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 /* The protocol version */
 #define IPSET_PROTOCOL		6
+=======
+/* The protocol versions */
+#define IPSET_PROTOCOL		7
+#define IPSET_PROTOCOL_MIN	6
+>>>>>>> upstream/android-13
 
 /* The max length of strings including NUL: set and type identifiers */
 #define IPSET_MAXNAMELEN	32
@@ -38,6 +48,7 @@ enum ipset_cmd {
 	IPSET_CMD_TEST,		/* 11: Test an element in a set */
 	IPSET_CMD_HEADER,	/* 12: Get set header data only */
 	IPSET_CMD_TYPE,		/* 13: Get set type */
+<<<<<<< HEAD
 	IPSET_MSG_MAX,		/* Netlink message commands */
 
 	/* Commands in userspace: */
@@ -49,6 +60,21 @@ enum ipset_cmd {
 	IPSET_CMD_MAX,
 
 	IPSET_CMD_COMMIT = IPSET_CMD_MAX, /* 18: Commit buffered commands */
+=======
+	IPSET_CMD_GET_BYNAME,	/* 14: Get set index by name */
+	IPSET_CMD_GET_BYINDEX,	/* 15: Get set name by index */
+	IPSET_MSG_MAX,		/* Netlink message commands */
+
+	/* Commands in userspace: */
+	IPSET_CMD_RESTORE = IPSET_MSG_MAX, /* 16: Enter restore mode */
+	IPSET_CMD_HELP,		/* 17: Get help */
+	IPSET_CMD_VERSION,	/* 18: Get program version */
+	IPSET_CMD_QUIT,		/* 19: Quit from interactive mode */
+
+	IPSET_CMD_MAX,
+
+	IPSET_CMD_COMMIT = IPSET_CMD_MAX, /* 20: Commit buffered commands */
+>>>>>>> upstream/android-13
 };
 
 /* Attributes at command level */
@@ -66,6 +92,10 @@ enum {
 	IPSET_ATTR_LINENO,	/* 9: Restore lineno */
 	IPSET_ATTR_PROTOCOL_MIN, /* 10: Minimal supported version number */
 	IPSET_ATTR_REVISION_MIN	= IPSET_ATTR_PROTOCOL_MIN, /* type rev min */
+<<<<<<< HEAD
+=======
+	IPSET_ATTR_INDEX,	/* 11: Kernel index of set */
+>>>>>>> upstream/android-13
 	__IPSET_ATTR_CMD_MAX,
 };
 #define IPSET_ATTR_CMD_MAX	(__IPSET_ATTR_CMD_MAX - 1)
@@ -88,11 +118,19 @@ enum {
 	/* Reserve empty slots */
 	IPSET_ATTR_CADT_MAX = 16,
 	/* Create-only specific attributes */
+<<<<<<< HEAD
 	IPSET_ATTR_GC,
 	IPSET_ATTR_HASHSIZE,
 	IPSET_ATTR_MAXELEM,
 	IPSET_ATTR_NETMASK,
 	IPSET_ATTR_PROBES,
+=======
+	IPSET_ATTR_INITVAL,	/* was unused IPSET_ATTR_GC */
+	IPSET_ATTR_HASHSIZE,
+	IPSET_ATTR_MAXELEM,
+	IPSET_ATTR_NETMASK,
+	IPSET_ATTR_BUCKETSIZE,	/* was unused IPSET_ATTR_PROBES */
+>>>>>>> upstream/android-13
 	IPSET_ATTR_RESIZE,
 	IPSET_ATTR_SIZE,
 	/* Kernel-only */
@@ -201,6 +239,11 @@ enum ipset_cadt_flags {
 	IPSET_FLAG_WITH_FORCEADD = (1 << IPSET_FLAG_BIT_WITH_FORCEADD),
 	IPSET_FLAG_BIT_WITH_SKBINFO = 6,
 	IPSET_FLAG_WITH_SKBINFO = (1 << IPSET_FLAG_BIT_WITH_SKBINFO),
+<<<<<<< HEAD
+=======
+	IPSET_FLAG_BIT_IFACE_WILDCARD = 7,
+	IPSET_FLAG_IFACE_WILDCARD = (1 << IPSET_FLAG_BIT_IFACE_WILDCARD),
+>>>>>>> upstream/android-13
 	IPSET_FLAG_CADT_MAX	= 15,
 };
 
@@ -208,6 +251,11 @@ enum ipset_cadt_flags {
 enum ipset_create_flags {
 	IPSET_CREATE_FLAG_BIT_FORCEADD = 0,
 	IPSET_CREATE_FLAG_FORCEADD = (1 << IPSET_CREATE_FLAG_BIT_FORCEADD),
+<<<<<<< HEAD
+=======
+	IPSET_CREATE_FLAG_BIT_BUCKETSIZE = 1,
+	IPSET_CREATE_FLAG_BUCKETSIZE = (1 << IPSET_CREATE_FLAG_BIT_BUCKETSIZE),
+>>>>>>> upstream/android-13
 	IPSET_CREATE_FLAG_BIT_MAX = 7,
 };
 
@@ -223,6 +271,10 @@ enum ipset_adt {
 
 /* Sets are identified by an index in kernel space. Tweak with ip_set_id_t
  * and IPSET_INVALID_ID if you want to increase the max number of sets.
+<<<<<<< HEAD
+=======
+ * Also, IPSET_ATTR_INDEX must be changed.
+>>>>>>> upstream/android-13
  */
 typedef __u16 ip_set_id_t;
 

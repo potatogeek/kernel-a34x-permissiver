@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * xfrm algorithm interface
  *
  * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/hash.h>
@@ -241,7 +248,11 @@ static struct xfrm_algo_desc aalg_list[] = {
 
 	.uinfo = {
 		.auth = {
+<<<<<<< HEAD
 			.icv_truncbits = 128,
+=======
+			.icv_truncbits = IS_ENABLED(CONFIG_ANDROID) ? 128 : 96,
+>>>>>>> upstream/android-13
 			.icv_fullbits = 256,
 		}
 	},
@@ -630,8 +641,13 @@ static const struct xfrm_algo_list xfrm_aalg_list = {
 static const struct xfrm_algo_list xfrm_ealg_list = {
 	.algs = ealg_list,
 	.entries = ARRAY_SIZE(ealg_list),
+<<<<<<< HEAD
 	.type = CRYPTO_ALG_TYPE_BLKCIPHER,
 	.mask = CRYPTO_ALG_TYPE_BLKCIPHER_MASK,
+=======
+	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+	.mask = CRYPTO_ALG_TYPE_MASK,
+>>>>>>> upstream/android-13
 };
 
 static const struct xfrm_algo_list xfrm_calg_list = {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_MVEBU
 	bool "Marvell Engineering Business Unit (MVEBU) SoCs"
 	depends on ARCH_MULTI_V7 || ARCH_MULTI_V5
@@ -46,7 +50,10 @@ config MACH_ARMADA_375
 	select ARMADA_375_CLK
 	select HAVE_ARM_SCU
 	select HAVE_ARM_TWD if SMP
+<<<<<<< HEAD
 	select HAVE_SMP
+=======
+>>>>>>> upstream/android-13
 	select MACH_MVEBU_V7
 	select PINCTRL_ARMADA_375
 	help
@@ -65,7 +72,10 @@ config MACH_ARMADA_38X
 	select ARMADA_38X_CLK
 	select HAVE_ARM_SCU
 	select HAVE_ARM_TWD if SMP
+<<<<<<< HEAD
 	select HAVE_SMP
+=======
+>>>>>>> upstream/android-13
 	select MACH_MVEBU_V7
 	select PINCTRL_ARMADA_38X
 	help
@@ -81,7 +91,10 @@ config MACH_ARMADA_39X
 	select CACHE_L2X0
 	select HAVE_ARM_SCU
 	select HAVE_ARM_TWD if SMP
+<<<<<<< HEAD
 	select HAVE_SMP
+=======
+>>>>>>> upstream/android-13
 	select MACH_MVEBU_V7
 	select PINCTRL_ARMADA_39X
 	help
@@ -124,7 +137,11 @@ config MACH_KIRKWOOD
 	select MACH_MVEBU_ANY
 	select ORION_IRQCHIP
 	select ORION_TIMER
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PCI_QUIRKS
 	select PINCTRL_KIRKWOOD
 	help

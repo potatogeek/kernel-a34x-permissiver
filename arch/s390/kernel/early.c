@@ -29,9 +29,32 @@
 #include <asm/cpcmd.h>
 #include <asm/sclp.h>
 #include <asm/facility.h>
+<<<<<<< HEAD
 #include "entry.h"
 
 static void __init setup_boot_command_line(void);
+=======
+#include <asm/boot_data.h>
+#include <asm/switch_to.h>
+#include "entry.h"
+
+int __bootdata(is_full_image);
+
+static void __init reset_tod_clock(void)
+{
+	union tod_clock clk;
+
+	if (store_tod_clock_ext_cc(&clk) == 0)
+		return;
+	/* TOD clock not running. Set the clock to Unix Epoch. */
+	if (set_tod_clock(TOD_UNIX_EPOCH) || store_tod_clock_ext_cc(&clk))
+		disabled_wait();
+
+	memset(&tod_clock_base, 0, sizeof(tod_clock_base));
+	tod_clock_base.tod = TOD_UNIX_EPOCH;
+	S390_lowcore.last_update_clock = TOD_UNIX_EPOCH;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Initialize storage key for kernel pages
@@ -139,9 +162,15 @@ static void early_pgm_check_handler(void)
 	unsigned long addr;
 
 	addr = S390_lowcore.program_old_psw.addr;
+<<<<<<< HEAD
 	fixup = search_exception_tables(addr);
 	if (!fixup)
 		disabled_wait(0);
+=======
+	fixup = s390_search_extables(addr);
+	if (!fixup)
+		disabled_wait();
+>>>>>>> upstream/android-13
 	/* Disable low address protection before storing into lowcore. */
 	__ctl_store(cr0, 0, 0);
 	cr0_new = cr0 & ~(1UL << 28);
@@ -154,12 +183,19 @@ static noinline __init void setup_lowcore_early(void)
 {
 	psw_t psw;
 
+<<<<<<< HEAD
 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
 	if (IS_ENABLED(CONFIG_KASAN))
 		psw.mask |= PSW_MASK_DAT;
 	psw.addr = (unsigned long) s390_base_ext_handler;
 	S390_lowcore.external_new_psw = psw;
 	psw.addr = (unsigned long) s390_base_pgm_handler;
+=======
+	psw.addr = (unsigned long)s390_base_pgm_handler;
+	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
+	if (IS_ENABLED(CONFIG_KASAN))
+		psw.mask |= PSW_MASK_DAT;
+>>>>>>> upstream/android-13
 	S390_lowcore.program_new_psw = psw;
 	s390_base_pgm_handler_fn = early_pgm_check_handler;
 	S390_lowcore.preempt_count = INIT_PREEMPT_COUNT;
@@ -167,6 +203,7 @@ static noinline __init void setup_lowcore_early(void)
 
 static noinline __init void setup_facility_list(void)
 {
+<<<<<<< HEAD
 	stfle(S390_lowcore.stfle_fac_list,
 	      ARRAY_SIZE(S390_lowcore.stfle_fac_list));
 	memcpy(S390_lowcore.alt_stfle_fac_list,
@@ -174,6 +211,11 @@ static noinline __init void setup_facility_list(void)
 	       sizeof(S390_lowcore.alt_stfle_fac_list));
 	if (!IS_ENABLED(CONFIG_KERNEL_NOBP))
 		__clear_facility(82, S390_lowcore.alt_stfle_fac_list);
+=======
+	memcpy(alt_stfle_fac_list, stfle_fac_list, sizeof(alt_stfle_fac_list));
+	if (!IS_ENABLED(CONFIG_KERNEL_NOBP))
+		__clear_facility(82, alt_stfle_fac_list);
+>>>>>>> upstream/android-13
 }
 
 static __init void detect_diag9c(void)
@@ -193,6 +235,7 @@ static __init void detect_diag9c(void)
 		S390_lowcore.machine_flags |= MACHINE_FLAG_DIAG9C;
 }
 
+<<<<<<< HEAD
 static __init void detect_diag44(void)
 {
 	int rc;
@@ -208,6 +251,8 @@ static __init void detect_diag44(void)
 		S390_lowcore.machine_flags |= MACHINE_FLAG_DIAG44;
 }
 
+=======
+>>>>>>> upstream/android-13
 static __init void detect_machine_facilities(void)
 {
 	if (test_facility(8)) {
@@ -228,18 +273,33 @@ static __init void detect_machine_facilities(void)
 		S390_lowcore.machine_flags |= MACHINE_FLAG_VX;
 		__ctl_set_bit(0, 17);
 	}
+<<<<<<< HEAD
 	if (test_facility(130)) {
+=======
+	if (test_facility(130) && !noexec_disabled) {
+>>>>>>> upstream/android-13
 		S390_lowcore.machine_flags |= MACHINE_FLAG_NX;
 		__ctl_set_bit(0, 20);
 	}
 	if (test_facility(133))
 		S390_lowcore.machine_flags |= MACHINE_FLAG_GS;
+<<<<<<< HEAD
 	if (test_facility(139) && (tod_clock_base[1] & 0x80)) {
+=======
+	if (test_facility(139) && (tod_clock_base.tod >> 63)) {
+>>>>>>> upstream/android-13
 		/* Enabled signed clock comparator comparisons */
 		S390_lowcore.machine_flags |= MACHINE_FLAG_SCC;
 		clock_comparator_max = -1ULL >> 1;
 		__ctl_set_bit(0, 53);
 	}
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_PCI) && test_facility(153)) {
+		S390_lowcore.machine_flags |= MACHINE_FLAG_PCI_MIO;
+		/* the control bit is set during PCI initialization */
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline void save_vector_registers(void)
@@ -250,6 +310,27 @@ static inline void save_vector_registers(void)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static inline void setup_control_registers(void)
+{
+	unsigned long reg;
+
+	__ctl_store(reg, 0, 0);
+	reg |= CR0_LOW_ADDRESS_PROTECTION;
+	reg |= CR0_EMERGENCY_SIGNAL_SUBMASK;
+	reg |= CR0_EXTERNAL_CALL_SUBMASK;
+	__ctl_load(reg, 0, 0);
+}
+
+static inline void setup_access_registers(void)
+{
+	unsigned int acrs[NUM_ACRS] = { 0 };
+
+	restore_access_regs(acrs);
+}
+
+>>>>>>> upstream/android-13
 static int __init disable_vector_extension(char *str)
 {
 	S390_lowcore.machine_flags &= ~MACHINE_FLAG_VX;
@@ -258,6 +339,7 @@ static int __init disable_vector_extension(char *str)
 }
 early_param("novx", disable_vector_extension);
 
+<<<<<<< HEAD
 static int __init noexec_setup(char *str)
 {
 	bool enabled;
@@ -331,21 +413,40 @@ static void __init setup_boot_command_line(void)
 		append_to_cmdline(append_ipl_vmparm);
 
 	append_to_cmdline(append_ipl_scpdata);
+=======
+char __bootdata(early_command_line)[COMMAND_LINE_SIZE];
+static void __init setup_boot_command_line(void)
+{
+	/* copy arch command line */
+	strlcpy(boot_command_line, early_command_line, ARCH_COMMAND_LINE_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static void __init check_image_bootable(void)
 {
+<<<<<<< HEAD
 	if (!memcmp(EP_STRING, (void *)EP_OFFSET, strlen(EP_STRING)))
+=======
+	if (is_full_image)
+>>>>>>> upstream/android-13
 		return;
 
 	sclp_early_printk("Linux kernel boot failure: An attempt to boot a vmlinux ELF image failed.\n");
 	sclp_early_printk("This image does not contain all parts necessary for starting up. Use\n");
 	sclp_early_printk("bzImage or arch/s390/boot/compressed/vmlinux instead.\n");
+<<<<<<< HEAD
 	disabled_wait(0xbadb007);
+=======
+	disabled_wait();
+>>>>>>> upstream/android-13
 }
 
 void __init startup_init(void)
 {
+<<<<<<< HEAD
+=======
+	reset_tod_clock();
+>>>>>>> upstream/android-13
 	check_image_bootable();
 	time_early_init();
 	init_kernel_storage_key();
@@ -354,13 +455,23 @@ void __init startup_init(void)
 	setup_facility_list();
 	detect_machine_type();
 	setup_arch_string();
+<<<<<<< HEAD
 	ipl_store_parameters();
 	setup_boot_command_line();
 	detect_diag9c();
 	detect_diag44();
+=======
+	setup_boot_command_line();
+	detect_diag9c();
+>>>>>>> upstream/android-13
 	detect_machine_facilities();
 	save_vector_registers();
 	setup_topology();
 	sclp_early_detect();
+<<<<<<< HEAD
+=======
+	setup_control_registers();
+	setup_access_registers();
+>>>>>>> upstream/android-13
 	lockdep_on();
 }

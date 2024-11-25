@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Generic USB driver for report based interrupt in/out devices
  * like LD Didactic's USB devices. LD Didactic's USB devices are
  * HID devices which do not use HID report definitons (they use
@@ -117,7 +121,10 @@ MODULE_DEVICE_TABLE(usb, ld_usb_table);
 MODULE_AUTHOR("Michael Hund <mhund@ld-didactic.de>");
 MODULE_DESCRIPTION("LD USB Driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("LD USB Devices");
+=======
+>>>>>>> upstream/android-13
 
 /* All interrupt in transfers are collected in a ring buffer to
  * avoid racing conditions and get better performance of the driver.
@@ -184,7 +191,11 @@ struct ld_usb {
 
 static struct usb_driver ld_usb_driver;
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_abort_transfers
  *      aborts transfers and frees associated data structures
  */
@@ -199,7 +210,11 @@ static void ld_usb_abort_transfers(struct ld_usb *dev)
 		usb_kill_urb(dev->interrupt_out_urb);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_delete
  */
 static void ld_usb_delete(struct ld_usb *dev)
@@ -213,7 +228,11 @@ static void ld_usb_delete(struct ld_usb *dev)
 	kfree(dev);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_interrupt_in_callback
  */
 static void ld_usb_interrupt_in_callback(struct urb *urb)
@@ -274,7 +293,11 @@ exit:
 	wake_up_interruptible(&dev->read_wait);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_interrupt_out_callback
  */
 static void ld_usb_interrupt_out_callback(struct urb *urb)
@@ -294,7 +317,11 @@ static void ld_usb_interrupt_out_callback(struct urb *urb)
 	wake_up_interruptible(&dev->write_wait);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_open
  */
 static int ld_usb_open(struct inode *inode, struct file *file)
@@ -304,7 +331,11 @@ static int ld_usb_open(struct inode *inode, struct file *file)
 	int retval;
 	struct usb_interface *interface;
 
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 	subminor = iminor(inode);
 
 	interface = usb_find_interface(&ld_usb_driver, subminor);
@@ -365,7 +396,11 @@ unlock_exit:
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_release
  */
 static int ld_usb_release(struct inode *inode, struct file *file)
@@ -407,7 +442,11 @@ exit:
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_poll
  */
 static __poll_t ld_usb_poll(struct file *file, poll_table *wait)
@@ -431,7 +470,11 @@ static __poll_t ld_usb_poll(struct file *file, poll_table *wait)
 	return mask;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_read
  */
 static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
@@ -518,7 +561,11 @@ exit:
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_write
  */
 static ssize_t ld_usb_write(struct file *file, const char __user *buffer,
@@ -641,7 +688,11 @@ static struct usb_class_driver ld_usb_class = {
 	.minor_base =	USB_LD_MINOR_BASE,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_probe
  *
  *	Called by the usb core when a new device is connected that it thinks
@@ -745,7 +796,11 @@ error:
 	return retval;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	ld_usb_disconnect
  *
  *	Called by the usb core when the device is removed from the system.

@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * drivers/rtc/rtc-pcf85363.c
  *
  * Driver for NXP PCF85363 real-time clock.
  *
  * Copyright (C) 2017 Eric Nelson
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * Based loosely on rtc-8583 by Russell King, Wolfram Sang and Juergen Beisert
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/i2c.h>
@@ -112,14 +119,26 @@
 
 #define NVRAM_SIZE	0x40
 
+<<<<<<< HEAD
 static struct i2c_driver pcf85363_driver;
 
 struct pcf85363 {
 	struct device		*dev;
+=======
+struct pcf85363 {
+>>>>>>> upstream/android-13
 	struct rtc_device	*rtc;
 	struct regmap		*regmap;
 };
 
+<<<<<<< HEAD
+=======
+struct pcf85x63_config {
+	struct regmap_config regmap;
+	unsigned int num_nvram;
+};
+
+>>>>>>> upstream/android-13
 static int pcf85363_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
 	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
@@ -288,11 +307,14 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
 static const struct rtc_class_ops rtc_ops = {
 	.read_time	= pcf85363_rtc_read_time,
 	.set_time	= pcf85363_rtc_set_time,
+<<<<<<< HEAD
 };
 
 static const struct rtc_class_ops rtc_ops_alarm = {
 	.read_time	= pcf85363_rtc_read_time,
 	.set_time	= pcf85363_rtc_set_time,
+=======
+>>>>>>> upstream/android-13
 	.read_alarm	= pcf85363_rtc_read_alarm,
 	.set_alarm	= pcf85363_rtc_set_alarm,
 	.alarm_irq_enable = pcf85363_rtc_alarm_irq_enable,
@@ -316,16 +338,60 @@ static int pcf85363_nvram_write(void *priv, unsigned int offset, void *val,
 				 val, bytes);
 }
 
+<<<<<<< HEAD
 static const struct regmap_config regmap_config = {
 	.reg_bits = 8,
 	.val_bits = 8,
 	.max_register = 0x7f,
+=======
+static int pcf85x63_nvram_read(void *priv, unsigned int offset, void *val,
+			       size_t bytes)
+{
+	struct pcf85363 *pcf85363 = priv;
+	unsigned int tmp_val;
+	int ret;
+
+	ret = regmap_read(pcf85363->regmap, CTRL_RAMBYTE, &tmp_val);
+	(*(unsigned char *) val) = (unsigned char) tmp_val;
+
+	return ret;
+}
+
+static int pcf85x63_nvram_write(void *priv, unsigned int offset, void *val,
+				size_t bytes)
+{
+	struct pcf85363 *pcf85363 = priv;
+	unsigned char tmp_val;
+
+	tmp_val = *((unsigned char *)val);
+	return regmap_write(pcf85363->regmap, CTRL_RAMBYTE,
+				(unsigned int)tmp_val);
+}
+
+static const struct pcf85x63_config pcf_85263_config = {
+	.regmap = {
+		.reg_bits = 8,
+		.val_bits = 8,
+		.max_register = 0x2f,
+	},
+	.num_nvram = 1
+};
+
+static const struct pcf85x63_config pcf_85363_config = {
+	.regmap = {
+		.reg_bits = 8,
+		.val_bits = 8,
+		.max_register = 0x7f,
+	},
+	.num_nvram = 2
+>>>>>>> upstream/android-13
 };
 
 static int pcf85363_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
 {
 	struct pcf85363 *pcf85363;
+<<<<<<< HEAD
 	struct nvmem_config nvmem_cfg = {
 		.name = "pcf85363-",
 		.word_size = 1,
@@ -338,38 +404,84 @@ static int pcf85363_probe(struct i2c_client *client,
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
 		return -ENODEV;
+=======
+	const struct pcf85x63_config *config = &pcf_85363_config;
+	const void *data = of_device_get_match_data(&client->dev);
+	static struct nvmem_config nvmem_cfg[] = {
+		{
+			.name = "pcf85x63-",
+			.word_size = 1,
+			.stride = 1,
+			.size = 1,
+			.reg_read = pcf85x63_nvram_read,
+			.reg_write = pcf85x63_nvram_write,
+		}, {
+			.name = "pcf85363-",
+			.word_size = 1,
+			.stride = 1,
+			.size = NVRAM_SIZE,
+			.reg_read = pcf85363_nvram_read,
+			.reg_write = pcf85363_nvram_write,
+		},
+	};
+	int ret, i;
+
+	if (data)
+		config = data;
+>>>>>>> upstream/android-13
 
 	pcf85363 = devm_kzalloc(&client->dev, sizeof(struct pcf85363),
 				GFP_KERNEL);
 	if (!pcf85363)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	pcf85363->regmap = devm_regmap_init_i2c(client, &regmap_config);
+=======
+	pcf85363->regmap = devm_regmap_init_i2c(client, &config->regmap);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pcf85363->regmap)) {
 		dev_err(&client->dev, "regmap allocation failed\n");
 		return PTR_ERR(pcf85363->regmap);
 	}
 
+<<<<<<< HEAD
 	pcf85363->dev = &client->dev;
 	i2c_set_clientdata(client, pcf85363);
 
 	pcf85363->rtc = devm_rtc_allocate_device(pcf85363->dev);
+=======
+	i2c_set_clientdata(client, pcf85363);
+
+	pcf85363->rtc = devm_rtc_allocate_device(&client->dev);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pcf85363->rtc))
 		return PTR_ERR(pcf85363->rtc);
 
 	pcf85363->rtc->ops = &rtc_ops;
+<<<<<<< HEAD
+=======
+	pcf85363->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+	pcf85363->rtc->range_max = RTC_TIMESTAMP_END_2099;
+	clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+>>>>>>> upstream/android-13
 
 	if (client->irq > 0) {
 		regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
 		regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
 				   PIN_IO_INTA_OUT, PIN_IO_INTAPM);
+<<<<<<< HEAD
 		ret = devm_request_threaded_irq(pcf85363->dev, client->irq,
+=======
+		ret = devm_request_threaded_irq(&client->dev, client->irq,
+>>>>>>> upstream/android-13
 						NULL, pcf85363_rtc_handle_irq,
 						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
 						"pcf85363", client);
 		if (ret)
 			dev_warn(&client->dev, "unable to request IRQ, alarms disabled\n");
 		else
+<<<<<<< HEAD
 			pcf85363->rtc->ops = &rtc_ops_alarm;
 	}
 
@@ -377,13 +489,31 @@ static int pcf85363_probe(struct i2c_client *client,
 
 	nvmem_cfg.priv = pcf85363;
 	rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg);
+=======
+			set_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+	}
+
+	ret = devm_rtc_register_device(pcf85363->rtc);
+
+	for (i = 0; i < config->num_nvram; i++) {
+		nvmem_cfg[i].priv = pcf85363;
+		devm_rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg[i]);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id dev_ids[] = {
 	{ .compatible = "nxp,pcf85363" },
 	{}
+=======
+static const __maybe_unused struct of_device_id dev_ids[] = {
+	{ .compatible = "nxp,pcf85263", .data = &pcf_85263_config },
+	{ .compatible = "nxp,pcf85363", .data = &pcf_85363_config },
+	{ /* sentinel */ }
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(of, dev_ids);
 
@@ -398,5 +528,9 @@ static struct i2c_driver pcf85363_driver = {
 module_i2c_driver(pcf85363_driver);
 
 MODULE_AUTHOR("Eric Nelson");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("pcf85363 I2C RTC driver");
+=======
+MODULE_DESCRIPTION("pcf85263/pcf85363 I2C RTC driver");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

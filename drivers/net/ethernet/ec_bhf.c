@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
  /*
  * drivers/net/ethernet/ec_bhf.c
  *
  * Copyright (C) 2014 Darek Marcinkiewicz <reksio@newterm.pl>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* This is a driver for EtherCAT master module present on CCAT FPGA.
@@ -497,6 +504,7 @@ static int ec_bhf_probe(struct pci_dev *dev, const struct pci_device_id *id)
 
 	pci_set_master(dev);
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(dev, DMA_BIT_MASK(32));
 	if (err) {
 		dev_err(&dev->dev,
@@ -506,6 +514,9 @@ static int ec_bhf_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	}
 
 	err = pci_set_consistent_dma_mask(dev, DMA_BIT_MASK(32));
+=======
+	err = dma_set_mask_and_coherent(&dev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&dev->dev,
 			"Required dma mask not supported, failed to initialize device\n");
@@ -585,10 +596,19 @@ static void ec_bhf_remove(struct pci_dev *dev)
 	struct ec_bhf_priv *priv = netdev_priv(net_dev);
 
 	unregister_netdev(net_dev);
+<<<<<<< HEAD
 	free_netdev(net_dev);
 
 	pci_iounmap(dev, priv->dma_io);
 	pci_iounmap(dev, priv->io);
+=======
+
+	pci_iounmap(dev, priv->dma_io);
+	pci_iounmap(dev, priv->io);
+
+	free_netdev(net_dev);
+
+>>>>>>> upstream/android-13
 	pci_release_regions(dev);
 	pci_clear_master(dev);
 	pci_disable_device(dev);

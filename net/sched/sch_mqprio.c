@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * net/sched/sch_mqprio.c
  *
  * Copyright (c) 2010 John Fastabend <john.r.fastabend@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -40,7 +47,11 @@ static void mqprio_destroy(struct Qdisc *sch)
 		for (ntx = 0;
 		     ntx < dev->num_tx_queues && priv->qdiscs[ntx];
 		     ntx++)
+<<<<<<< HEAD
 			qdisc_destroy(priv->qdiscs[ntx]);
+=======
+			qdisc_put(priv->qdiscs[ntx]);
+>>>>>>> upstream/android-13
 		kfree(priv->qdiscs);
 	}
 
@@ -125,8 +136,14 @@ static int parse_attr(struct nlattr *tb[], int maxtype, struct nlattr *nla,
 	int nested_len = nla_len(nla) - NLA_ALIGN(len);
 
 	if (nested_len >= nla_attr_size(0))
+<<<<<<< HEAD
 		return nla_parse(tb, maxtype, nla_data(nla) + NLA_ALIGN(len),
 				 nested_len, policy, NULL);
+=======
+		return nla_parse_deprecated(tb, maxtype,
+					    nla_data(nla) + NLA_ALIGN(len),
+					    nested_len, policy, NULL);
+>>>>>>> upstream/android-13
 
 	memset(tb, 0, sizeof(struct nlattr *) * (maxtype + 1));
 	return 0;
@@ -300,7 +317,11 @@ static void mqprio_attach(struct Qdisc *sch)
 		qdisc = priv->qdiscs[ntx];
 		old = dev_graft_qdisc(qdisc->dev_queue, qdisc);
 		if (old)
+<<<<<<< HEAD
 			qdisc_destroy(old);
+=======
+			qdisc_put(old);
+>>>>>>> upstream/android-13
 		if (ntx < dev->real_num_tx_queues)
 			qdisc_hash_add(qdisc, false);
 	}
@@ -308,6 +329,31 @@ static void mqprio_attach(struct Qdisc *sch)
 	priv->qdiscs = NULL;
 }
 
+<<<<<<< HEAD
+=======
+static void mqprio_change_real_num_tx(struct Qdisc *sch,
+				      unsigned int new_real_tx)
+{
+	struct net_device *dev = qdisc_dev(sch);
+	struct Qdisc *qdisc;
+	unsigned int i;
+
+	for (i = new_real_tx; i < dev->real_num_tx_queues; i++) {
+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
+		/* Only update the default qdiscs we created,
+		 * qdiscs with handles are always hashed.
+		 */
+		if (qdisc != &noop_qdisc && !qdisc->handle)
+			qdisc_hash_del(qdisc);
+	}
+	for (i = dev->real_num_tx_queues; i < new_real_tx; i++) {
+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
+		if (qdisc != &noop_qdisc && !qdisc->handle)
+			qdisc_hash_add(qdisc, false);
+	}
+}
+
+>>>>>>> upstream/android-13
 static struct netdev_queue *mqprio_queue_get(struct Qdisc *sch,
 					     unsigned long cl)
 {
@@ -349,7 +395,11 @@ static int dump_rates(struct mqprio_sched *priv,
 	int i;
 
 	if (priv->flags & TC_MQPRIO_F_MIN_RATE) {
+<<<<<<< HEAD
 		nest = nla_nest_start(skb, TCA_MQPRIO_MIN_RATE64);
+=======
+		nest = nla_nest_start_noflag(skb, TCA_MQPRIO_MIN_RATE64);
+>>>>>>> upstream/android-13
 		if (!nest)
 			goto nla_put_failure;
 
@@ -363,7 +413,11 @@ static int dump_rates(struct mqprio_sched *priv,
 	}
 
 	if (priv->flags & TC_MQPRIO_F_MAX_RATE) {
+<<<<<<< HEAD
 		nest = nla_nest_start(skb, TCA_MQPRIO_MAX_RATE64);
+=======
+		nest = nla_nest_start_noflag(skb, TCA_MQPRIO_MAX_RATE64);
+>>>>>>> upstream/android-13
 		if (!nest)
 			goto nla_put_failure;
 
@@ -531,6 +585,7 @@ static int mqprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
 		for (i = tc.offset; i < tc.offset + tc.count; i++) {
 			struct netdev_queue *q = netdev_get_tx_queue(dev, i);
 			struct Qdisc *qdisc = rtnl_dereference(q->qdisc);
+<<<<<<< HEAD
 			struct gnet_stats_basic_cpu __percpu *cpu_bstats = NULL;
 			struct gnet_stats_queue __percpu *cpu_qstats = NULL;
 
@@ -547,6 +602,30 @@ static int mqprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
 						cpu_qstats,
 						&qdisc->qstats,
 						qlen);
+=======
+
+			spin_lock_bh(qdisc_lock(qdisc));
+
+			if (qdisc_is_percpu_stats(qdisc)) {
+				qlen = qdisc_qlen_sum(qdisc);
+
+				__gnet_stats_copy_basic(NULL, &bstats,
+							qdisc->cpu_bstats,
+							&qdisc->bstats);
+				__gnet_stats_copy_queue(&qstats,
+							qdisc->cpu_qstats,
+							&qdisc->qstats,
+							qlen);
+			} else {
+				qlen		+= qdisc->q.qlen;
+				bstats.bytes	+= qdisc->bstats.bytes;
+				bstats.packets	+= qdisc->bstats.packets;
+				qstats.backlog	+= qdisc->qstats.backlog;
+				qstats.drops	+= qdisc->qstats.drops;
+				qstats.requeues	+= qdisc->qstats.requeues;
+				qstats.overlimits += qdisc->qstats.overlimits;
+			}
+>>>>>>> upstream/android-13
 			spin_unlock_bh(qdisc_lock(qdisc));
 		}
 
@@ -562,8 +641,12 @@ static int mqprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
 		sch = dev_queue->qdisc_sleeping;
 		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch), d,
 					  sch->cpu_bstats, &sch->bstats) < 0 ||
+<<<<<<< HEAD
 		    gnet_stats_copy_queue(d, NULL,
 					  &sch->qstats, sch->q.qlen) < 0)
+=======
+		    qdisc_qstats_copy(d, sch) < 0)
+>>>>>>> upstream/android-13
 			return -1;
 	}
 	return 0;
@@ -626,6 +709,10 @@ static struct Qdisc_ops mqprio_qdisc_ops __read_mostly = {
 	.init		= mqprio_init,
 	.destroy	= mqprio_destroy,
 	.attach		= mqprio_attach,
+<<<<<<< HEAD
+=======
+	.change_real_num_tx = mqprio_change_real_num_tx,
+>>>>>>> upstream/android-13
 	.dump		= mqprio_dump,
 	.owner		= THIS_MODULE,
 };

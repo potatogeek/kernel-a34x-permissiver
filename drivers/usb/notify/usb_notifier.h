@@ -12,11 +12,20 @@
 #ifdef CONFIG_USB_DWC3
 extern int dwc3_exynos_id_event(struct device *dev, int state);
 extern int dwc3_exynos_vbus_event(struct device *dev, int state);
+<<<<<<< HEAD
+=======
+extern int exynos_usbdrd_ldo_manual_control(bool on);
+>>>>>>> upstream/android-13
 #else
 static inline int dwc3_exynos_id_event
 		(struct device *dev, int state) {return 0; }
 static inline int dwc3_exynos_vbus_event
 		(struct device *dev, int state) {return 0; }
+<<<<<<< HEAD
+=======
+static inline int exynos_usbdrd_ldo_manual_control
+		(bool on) {return 0; }
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_USB_S3C_OTGD
 extern int exynos_otg_vbus_event(struct platform_device *pdev, int state);

@@ -10,8 +10,13 @@ TBD
 Target core device interfaces
 =============================
 
+<<<<<<< HEAD
 .. kernel-doc:: drivers/target/target_core_device.c
     :export:
+=======
+This section is blank because no kerneldoc comments have been added to
+drivers/target/target_core_device.c.
+>>>>>>> upstream/android-13
 
 Target core transport interfaces
 ================================
@@ -41,6 +46,7 @@ iSCSI boot information
 .. kernel-doc:: drivers/scsi/iscsi_boot_sysfs.c
    :export:
 
+<<<<<<< HEAD
 
 iSCSI transport class
 =====================
@@ -53,6 +59,8 @@ connections.
    :export:
 
 
+=======
+>>>>>>> upstream/android-13
 iSCSI TCP interfaces
 ====================
 

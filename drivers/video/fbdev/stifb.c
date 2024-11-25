@@ -999,7 +999,11 @@ stifb_blank(int blank_mode, struct fb_info *info)
 	case S9000_ID_HCRX:
 		HYPER_ENABLE_DISABLE_DISPLAY(fb, enable);
 		break;
+<<<<<<< HEAD
 	case S9000_ID_A1659A:	/* fall through */
+=======
+	case S9000_ID_A1659A:
+>>>>>>> upstream/android-13
 	case S9000_ID_TIMBER:
 	case CRX24_OVERLAY_PLANES:
 	default:
@@ -1101,7 +1105,11 @@ stifb_init_display(struct stifb_info *fb)
 
 /* ------------ Interfaces to hardware functions ------------ */
 
+<<<<<<< HEAD
 static struct fb_ops stifb_ops = {
+=======
+static const struct fb_ops stifb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_setcolreg	= stifb_setcolreg,
 	.fb_blank	= stifb_blank,
@@ -1157,7 +1165,11 @@ static int __init stifb_init_fb(struct sti_struct *sti, int bpp_pref)
 			dev_name);
 		   goto out_err0;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case S9000_ID_ARTIST:
 	case S9000_ID_HCRX:
 	case S9000_ID_TIMBER:
@@ -1198,7 +1210,11 @@ static int __init stifb_init_fb(struct sti_struct *sti, int bpp_pref)
 	case S9000_ID_TOMCAT:	/* Dual CRX, behaves else like a CRX */
 		/* FIXME: TomCat supports two heads:
 		 * fb.iobase = REGION_BASE(fb_info,3);
+<<<<<<< HEAD
 		 * fb.screen_base = ioremap_nocache(REGION_BASE(fb_info,2),xxx);
+=======
+		 * fb.screen_base = ioremap(REGION_BASE(fb_info,2),xxx);
+>>>>>>> upstream/android-13
 		 * for now we only support the left one ! */
 		xres = fb->ngle_rom.x_size_visible;
 		yres = fb->ngle_rom.y_size_visible;
@@ -1291,7 +1307,11 @@ static int __init stifb_init_fb(struct sti_struct *sti, int bpp_pref)
 
 	strcpy(fix->id, "stifb");
 	info->fbops = &stifb_ops;
+<<<<<<< HEAD
 	info->screen_base = ioremap_nocache(REGION_BASE(fb,1), fix->smem_len);
+=======
+	info->screen_base = ioremap(REGION_BASE(fb,1), fix->smem_len);
+>>>>>>> upstream/android-13
 	if (!info->screen_base) {
 		printk(KERN_ERR "stifb: failed to map memory\n");
 		goto out_err0;

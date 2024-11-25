@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -11,6 +15,7 @@
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  * Copyright (c) 2013 Linaro Ltd.
  * Author: Thomas Abraham <thomas.ab@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef CLK_ROCKCHIP_CLK_H
@@ -130,6 +137,22 @@ struct clk;
 #define RK3288_EMMC_CON0		0x218
 #define RK3288_EMMC_CON1		0x21c
 
+<<<<<<< HEAD
+=======
+#define RK3308_PLL_CON(x)		RK2928_PLL_CON(x)
+#define RK3308_CLKSEL_CON(x)		((x) * 0x4 + 0x100)
+#define RK3308_CLKGATE_CON(x)		((x) * 0x4 + 0x300)
+#define RK3308_GLB_SRST_FST		0xb8
+#define RK3308_SOFTRST_CON(x)		((x) * 0x4 + 0x400)
+#define RK3308_MODE_CON			0xa0
+#define RK3308_SDMMC_CON0		0x480
+#define RK3308_SDMMC_CON1		0x484
+#define RK3308_SDIO_CON0		0x488
+#define RK3308_SDIO_CON1		0x48c
+#define RK3308_EMMC_CON0		0x490
+#define RK3308_EMMC_CON1		0x494
+
+>>>>>>> upstream/android-13
 #define RK3328_PLL_CON(x)		RK2928_PLL_CON(x)
 #define RK3328_CLKSEL_CON(x)		((x) * 0x4 + 0x100)
 #define RK3328_CLKGATE_CON(x)		((x) * 0x4 + 0x200)
@@ -184,6 +207,37 @@ struct clk;
 #define RK3399_PMU_CLKGATE_CON(x)	((x) * 0x4 + 0x100)
 #define RK3399_PMU_SOFTRST_CON(x)	((x) * 0x4 + 0x110)
 
+<<<<<<< HEAD
+=======
+#define RK3568_PLL_CON(x)		RK2928_PLL_CON(x)
+#define RK3568_MODE_CON0		0xc0
+#define RK3568_MISC_CON0		0xc4
+#define RK3568_MISC_CON1		0xc8
+#define RK3568_MISC_CON2		0xcc
+#define RK3568_GLB_CNT_TH		0xd0
+#define RK3568_GLB_SRST_FST		0xd4
+#define RK3568_GLB_SRST_SND		0xd8
+#define RK3568_GLB_RST_CON		0xdc
+#define RK3568_GLB_RST_ST		0xe0
+#define RK3568_CLKSEL_CON(x)		((x) * 0x4 + 0x100)
+#define RK3568_CLKGATE_CON(x)		((x) * 0x4 + 0x300)
+#define RK3568_SOFTRST_CON(x)		((x) * 0x4 + 0x400)
+#define RK3568_SDMMC0_CON0		0x580
+#define RK3568_SDMMC0_CON1		0x584
+#define RK3568_SDMMC1_CON0		0x588
+#define RK3568_SDMMC1_CON1		0x58c
+#define RK3568_SDMMC2_CON0		0x590
+#define RK3568_SDMMC2_CON1		0x594
+#define RK3568_EMMC_CON0		0x598
+#define RK3568_EMMC_CON1		0x59c
+
+#define RK3568_PMU_PLL_CON(x)		RK2928_PLL_CON(x)
+#define RK3568_PMU_MODE_CON0		0x80
+#define RK3568_PMU_CLKSEL_CON(x)	((x) * 0x4 + 0x100)
+#define RK3568_PMU_CLKGATE_CON(x)	((x) * 0x4 + 0x180)
+#define RK3568_PMU_SOFTRST_CON(x)	((x) * 0x4 + 0x200)
+
+>>>>>>> upstream/android-13
 enum rockchip_pll_type {
 	pll_rk3036,
 	pll_rk3066,
@@ -239,6 +293,7 @@ struct rockchip_clk_provider {
 
 struct rockchip_pll_rate_table {
 	unsigned long rate;
+<<<<<<< HEAD
 	unsigned int nr;
 	unsigned int nf;
 	unsigned int no;
@@ -250,6 +305,26 @@ struct rockchip_pll_rate_table {
 	unsigned int postdiv2;
 	unsigned int dsmpd;
 	unsigned int frac;
+=======
+	union {
+		struct {
+			/* for RK3066 */
+			unsigned int nr;
+			unsigned int nf;
+			unsigned int no;
+			unsigned int nb;
+		};
+		struct {
+			/* for RK3036/RK3399 */
+			unsigned int fbdiv;
+			unsigned int postdiv1;
+			unsigned int refdiv;
+			unsigned int postdiv2;
+			unsigned int dsmpd;
+			unsigned int frac;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -318,7 +393,12 @@ struct rockchip_cpuclk_clksel {
 	u32 val;
 };
 
+<<<<<<< HEAD
 #define ROCKCHIP_CPUCLK_NUM_DIVIDERS	2
+=======
+#define ROCKCHIP_CPUCLK_NUM_DIVIDERS	5
+#define ROCKCHIP_CPUCLK_MAX_CORES	4
+>>>>>>> upstream/android-13
 struct rockchip_cpuclk_rate_table {
 	unsigned long prate;
 	struct rockchip_cpuclk_clksel divs[ROCKCHIP_CPUCLK_NUM_DIVIDERS];
@@ -326,15 +406,23 @@ struct rockchip_cpuclk_rate_table {
 
 /**
  * struct rockchip_cpuclk_reg_data - register offsets and masks of the cpuclock
+<<<<<<< HEAD
  * @core_reg:		register offset of the core settings register
  * @div_core_shift:	core divider offset used to divide the pll value
  * @div_core_mask:	core divider mask
  * @mux_core_alt:	mux value to select alternate parent
+=======
+ * @core_reg[]:	register offset of the cores setting register
+ * @div_core_shift[]:	cores divider offset used to divide the pll value
+ * @div_core_mask[]:	cores divider mask
+ * @num_cores:	number of cpu cores
+>>>>>>> upstream/android-13
  * @mux_core_main:	mux value to select main parent of core
  * @mux_core_shift:	offset of the core multiplexer
  * @mux_core_mask:	core multiplexer mask
  */
 struct rockchip_cpuclk_reg_data {
+<<<<<<< HEAD
 	int		core_reg;
 	u8		div_core_shift;
 	u32		div_core_mask;
@@ -342,6 +430,16 @@ struct rockchip_cpuclk_reg_data {
 	u8		mux_core_main;
 	u8		mux_core_shift;
 	u32		mux_core_mask;
+=======
+	int	core_reg[ROCKCHIP_CPUCLK_MAX_CORES];
+	u8	div_core_shift[ROCKCHIP_CPUCLK_MAX_CORES];
+	u32	div_core_mask[ROCKCHIP_CPUCLK_MAX_CORES];
+	int	num_cores;
+	u8	mux_core_alt;
+	u8	mux_core_main;
+	u8	mux_core_shift;
+	u32	mux_core_mask;
+>>>>>>> upstream/android-13
 };
 
 struct clk *rockchip_clk_register_cpuclk(const char *name,
@@ -407,6 +505,10 @@ struct rockchip_clk_branch {
 	u8				mux_shift;
 	u8				mux_width;
 	u8				mux_flags;
+<<<<<<< HEAD
+=======
+	int				div_offset;
+>>>>>>> upstream/android-13
 	u8				div_shift;
 	u8				div_width;
 	u8				div_flags;
@@ -438,6 +540,31 @@ struct rockchip_clk_branch {
 		.gate_flags	= gf,				\
 	}
 
+<<<<<<< HEAD
+=======
+#define COMPOSITE_DIV_OFFSET(_id, cname, pnames, f, mo, ms, mw,	\
+			     mf, do, ds, dw, df, go, gs, gf)	\
+	{							\
+		.id		= _id,				\
+		.branch_type	= branch_composite,		\
+		.name		= cname,			\
+		.parent_names	= pnames,			\
+		.num_parents	= ARRAY_SIZE(pnames),		\
+		.flags		= f,				\
+		.muxdiv_offset	= mo,				\
+		.mux_shift	= ms,				\
+		.mux_width	= mw,				\
+		.mux_flags	= mf,				\
+		.div_offset	= do,				\
+		.div_shift	= ds,				\
+		.div_width	= dw,				\
+		.div_flags	= df,				\
+		.gate_offset	= go,				\
+		.gate_shift	= gs,				\
+		.gate_flags	= gf,				\
+	}
+
+>>>>>>> upstream/android-13
 #define COMPOSITE_NOMUX(_id, cname, pname, f, mo, ds, dw, df,	\
 			go, gs, gf)				\
 	{							\
@@ -797,6 +924,13 @@ struct rockchip_clk_branch {
 		.gate_offset	= -1,				\
 	}
 
+<<<<<<< HEAD
+=======
+/* SGRF clocks are only accessible from secure mode, so not controllable */
+#define SGRF_GATE(_id, cname, pname)				\
+		FACTOR(_id, cname, pname, 0, 1, 1)
+
+>>>>>>> upstream/android-13
 struct rockchip_clk_provider *rockchip_clk_init(struct device_node *np,
 			void __iomem *base, unsigned long nr_clks);
 void rockchip_clk_of_add_provider(struct device_node *np,

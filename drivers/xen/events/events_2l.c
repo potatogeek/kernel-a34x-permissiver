@@ -52,6 +52,7 @@ static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
 	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
 }
 
+<<<<<<< HEAD
 static void evtchn_2l_bind_to_cpu(struct irq_info *info, unsigned cpu)
 {
 	clear_bit(info->evtchn, BM(per_cpu(cpu_evtchn_mask, info->cpu)));
@@ -59,30 +60,56 @@ static void evtchn_2l_bind_to_cpu(struct irq_info *info, unsigned cpu)
 }
 
 static void evtchn_2l_clear_pending(unsigned port)
+=======
+static void evtchn_2l_bind_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
+				  unsigned int old_cpu)
+{
+	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, old_cpu)));
+	set_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
+}
+
+static void evtchn_2l_clear_pending(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	struct shared_info *s = HYPERVISOR_shared_info;
 	sync_clear_bit(port, BM(&s->evtchn_pending[0]));
 }
 
+<<<<<<< HEAD
 static void evtchn_2l_set_pending(unsigned port)
+=======
+static void evtchn_2l_set_pending(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	struct shared_info *s = HYPERVISOR_shared_info;
 	sync_set_bit(port, BM(&s->evtchn_pending[0]));
 }
 
+<<<<<<< HEAD
 static bool evtchn_2l_is_pending(unsigned port)
+=======
+static bool evtchn_2l_is_pending(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	struct shared_info *s = HYPERVISOR_shared_info;
 	return sync_test_bit(port, BM(&s->evtchn_pending[0]));
 }
 
+<<<<<<< HEAD
 static void evtchn_2l_mask(unsigned port)
+=======
+static void evtchn_2l_mask(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	struct shared_info *s = HYPERVISOR_shared_info;
 	sync_set_bit(port, BM(&s->evtchn_mask[0]));
 }
 
+<<<<<<< HEAD
 static void evtchn_2l_unmask(unsigned port)
+=======
+static void evtchn_2l_unmask(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	struct shared_info *s = HYPERVISOR_shared_info;
 	unsigned int cpu = get_cpu();
@@ -174,7 +201,11 @@ static void evtchn_2l_handle_events(unsigned cpu, struct evtchn_loop_ctrl *ctrl)
 	/* Timer interrupt has highest priority. */
 	irq = irq_from_virq(cpu, VIRQ_TIMER);
 	if (irq != -1) {
+<<<<<<< HEAD
 		unsigned int evtchn = evtchn_from_irq(irq);
+=======
+		evtchn_port_t evtchn = evtchn_from_irq(irq);
+>>>>>>> upstream/android-13
 		word_idx = evtchn / BITS_PER_LONG;
 		bit_idx = evtchn % BITS_PER_LONG;
 		if (active_evtchns(cpu, s, word_idx) & (1ULL << bit_idx))
@@ -229,7 +260,11 @@ static void evtchn_2l_handle_events(unsigned cpu, struct evtchn_loop_ctrl *ctrl)
 
 		do {
 			xen_ulong_t bits;
+<<<<<<< HEAD
 			int port;
+=======
+			evtchn_port_t port;
+>>>>>>> upstream/android-13
 
 			bits = MASK_LSBS(pending_bits, bit_idx);
 

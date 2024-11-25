@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OpenRISC Linux
  *
@@ -8,11 +12,14 @@
  * OpenRISC implementation:
  * Copyright (C) Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
  * et al.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_CACHEFLUSH_H
@@ -66,6 +73,7 @@ static inline void flush_dcache_page(struct page *page)
 	clear_bit(PG_dc_clean, &page->flags);
 }
 
+<<<<<<< HEAD
 /*
  * Other interfaces are not required since we do not have virtually
  * indexed or tagged caches. So we can use the default here.
@@ -92,5 +100,14 @@ static inline void flush_dcache_page(struct page *page)
 
 #define copy_from_user_page(vma, page, vaddr, dst, src, len)         \
 	memcpy(dst, src, len)
+=======
+#define flush_icache_user_page(vma, page, addr, len)	\
+do {							\
+	if (vma->vm_flags & VM_EXEC)			\
+		sync_icache_dcache(page);		\
+} while (0)
+
+#include <asm-generic/cacheflush.h>
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_CACHEFLUSH_H */

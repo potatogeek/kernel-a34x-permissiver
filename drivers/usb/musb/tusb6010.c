@@ -156,7 +156,11 @@ static u8 tusb_readb(void __iomem *addr, u32 offset)
 	return val;
 }
 
+<<<<<<< HEAD
 static void tusb_writeb(void __iomem *addr, unsigned offset, u8 data)
+=======
+static void tusb_writeb(void __iomem *addr, u32 offset, u8 data)
+>>>>>>> upstream/android-13
 {
 	u16 tmp;
 
@@ -190,6 +194,10 @@ tusb_fifo_write_unaligned(void __iomem *fifo, const u8 *buf, u16 len)
 	}
 	if (len > 0) {
 		/* Write the rest 1 - 3 bytes to FIFO */
+<<<<<<< HEAD
+=======
+		val = 0;
+>>>>>>> upstream/android-13
 		memcpy(&val, buf, len);
 		musb_writel(fifo, 0, val);
 	}
@@ -464,9 +472,16 @@ static void musb_do_idle(struct timer_list *t)
 			dev_dbg(musb->controller, "Nothing connected %s, turning off VBUS\n",
 					usb_otg_state_string(musb->xceiv->otg->state));
 		}
+<<<<<<< HEAD
 		/* FALLTHROUGH */
 	case OTG_STATE_A_IDLE:
 		tusb_musb_set_vbus(musb, 0);
+=======
+		fallthrough;
+	case OTG_STATE_A_IDLE:
+		tusb_musb_set_vbus(musb, 0);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1102,6 +1117,14 @@ static int tusb_musb_init(struct musb *musb)
 
 	/* dma address for async dma */
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+<<<<<<< HEAD
+=======
+	if (!mem) {
+		pr_debug("no async dma resource?\n");
+		ret = -ENODEV;
+		goto done;
+	}
+>>>>>>> upstream/android-13
 	musb->async = mem->start;
 
 	/* dma address for sync dma */

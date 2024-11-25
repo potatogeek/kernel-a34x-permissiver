@@ -2,13 +2,18 @@
 #ifndef _ASM_S390_BUG_H
 #define _ASM_S390_BUG_H
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
+=======
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_BUG
 
 #ifdef CONFIG_DEBUG_BUGVERBOSE
 
 #define __EMIT_BUG(x) do {					\
+<<<<<<< HEAD
 	asm volatile(						\
 		"0:	j	0b+2\n"				\
 		"1:\n"						\
@@ -19,6 +24,17 @@
 		"3:	.long	1b-3b,2b-3b\n"			\
 		"	.short	%0,%1\n"			\
 		"	.org	3b+%2\n"			\
+=======
+	asm_inline volatile(					\
+		"0:	mc	0,0\n"				\
+		".section .rodata.str,\"aMS\",@progbits,1\n"	\
+		"1:	.asciz	\""__FILE__"\"\n"		\
+		".previous\n"					\
+		".section __bug_table,\"awM\",@progbits,%2\n"	\
+		"2:	.long	0b-2b,1b-2b\n"			\
+		"	.short	%0,%1\n"			\
+		"	.org	2b+%2\n"			\
+>>>>>>> upstream/android-13
 		".previous\n"					\
 		: : "i" (__LINE__),				\
 		    "i" (x),					\
@@ -27,6 +43,7 @@
 
 #else /* CONFIG_DEBUG_BUGVERBOSE */
 
+<<<<<<< HEAD
 #define __EMIT_BUG(x) do {				\
 	asm volatile(					\
 		"0:	j	0b+2\n"			\
@@ -38,6 +55,18 @@
 		".previous\n"				\
 		: : "i" (x),				\
 		    "i" (sizeof(struct bug_entry)));	\
+=======
+#define __EMIT_BUG(x) do {					\
+	asm_inline volatile(					\
+		"0:	mc	0,0\n"				\
+		".section __bug_table,\"awM\",@progbits,%1\n"	\
+		"1:	.long	0b-1b\n"			\
+		"	.short	%0\n"				\
+		"	.org	1b+%1\n"			\
+		".previous\n"					\
+		: : "i" (x),					\
+		    "i" (sizeof(struct bug_entry)));		\
+>>>>>>> upstream/android-13
 } while (0)
 
 #endif /* CONFIG_DEBUG_BUGVERBOSE */

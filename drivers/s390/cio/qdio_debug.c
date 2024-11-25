@@ -58,12 +58,17 @@ static void qdio_clear_dbf_list(void)
 	mutex_unlock(&qdio_dbf_list_mutex);
 }
 
+<<<<<<< HEAD
 int qdio_allocate_dbf(struct qdio_initialize *init_data,
 		       struct qdio_irq *irq_ptr)
+=======
+int qdio_allocate_dbf(struct qdio_irq *irq_ptr)
+>>>>>>> upstream/android-13
 {
 	char text[QDIO_DBF_NAME_LEN];
 	struct qdio_dbf_entry *new_entry;
 
+<<<<<<< HEAD
 	DBF_EVENT("qfmt:%1d", init_data->q_format);
 	DBF_HEX(init_data->adapter_name, 8);
 	DBF_EVENT("qpff%4x", init_data->qib_param_field_format);
@@ -77,11 +82,17 @@ int qdio_allocate_dbf(struct qdio_initialize *init_data,
 	DBF_HEX(&init_data->int_parm, sizeof(long));
 	DBF_HEX(&init_data->input_sbal_addr_array, sizeof(void *));
 	DBF_HEX(&init_data->output_sbal_addr_array, sizeof(void *));
+=======
+>>>>>>> upstream/android-13
 	DBF_EVENT("irq:%8lx", (unsigned long)irq_ptr);
 
 	/* allocate trace view for the interface */
 	snprintf(text, QDIO_DBF_NAME_LEN, "qdio_%s",
+<<<<<<< HEAD
 					dev_name(&init_data->cdev->dev));
+=======
+		 dev_name(&irq_ptr->cdev->dev));
+>>>>>>> upstream/android-13
 	irq_ptr->debug_area = qdio_get_dbf_entry(text);
 	if (irq_ptr->debug_area)
 		DBF_DEV_EVENT(DBF_ERR, irq_ptr, "dbf reused");
@@ -119,6 +130,7 @@ static int qstat_show(struct seq_file *m, void *v)
 	if (!q)
 		return 0;
 
+<<<<<<< HEAD
 	seq_printf(m, "Timestamp: %Lx  Last AI: %Lx\n",
 		   q->timestamp, last_ai_time);
 	seq_printf(m, "nr_used: %d  ftc: %d  last_move: %d\n",
@@ -132,6 +144,20 @@ static int qstat_show(struct seq_file *m, void *v)
 			   *(u32 *)q->irq_ptr->dsci,
 			   test_bit(QDIO_QUEUE_IRQS_DISABLED,
 			   &q->u.in.queue_irq_state));
+=======
+	seq_printf(m, "Timestamp: %llx\n", q->timestamp);
+	seq_printf(m, "Last Data IRQ: %llx  Last AI: %llx\n",
+		   q->irq_ptr->last_data_irq_time, last_ai_time);
+	seq_printf(m, "nr_used: %d  ftc: %d\n",
+		   atomic_read(&q->nr_buf_used), q->first_to_check);
+	if (q->is_input_q) {
+		seq_printf(m, "batch start: %u  batch count: %u\n",
+			   q->u.in.batch_start, q->u.in.batch_count);
+		seq_printf(m, "DSCI: %x   IRQs disabled: %u\n",
+			   *(u8 *)q->irq_ptr->dsci,
+			   test_bit(QDIO_IRQ_DISABLED,
+				    &q->irq_ptr->poll_state));
+>>>>>>> upstream/android-13
 	}
 	seq_printf(m, "SBAL states:\n");
 	seq_printf(m, "|0      |8      |16     |24     |32     |40     |48     |56  63|\n");
@@ -181,7 +207,11 @@ static int qstat_show(struct seq_file *m, void *v)
 	}
 
 	seq_printf(m, "\n1          2..        4..        8..        "
+<<<<<<< HEAD
 		   "16..       32..       64..       127\n");
+=======
+		   "16..       32..       64..       128\n");
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(q->q_stats.nr_sbals); i++)
 		seq_printf(m, "%-10u ", q->q_stats.nr_sbals[i]);
 	seq_printf(m, "\nError      NOP        Total\n%-10u %-10u %-10u\n\n",
@@ -190,6 +220,7 @@ static int qstat_show(struct seq_file *m, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qstat_seq_open(struct inode *inode, struct file *filp)
 {
 	return single_open(filp, qstat_show,
@@ -203,24 +234,53 @@ static const struct file_operations debugfs_fops = {
 	.llseek  = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(qstat);
+
+static int ssqd_show(struct seq_file *m, void *v)
+{
+	struct ccw_device *cdev = m->private;
+	struct qdio_ssqd_desc ssqd;
+	int rc;
+
+	rc = qdio_get_ssqd_desc(cdev, &ssqd);
+	if (rc)
+		return rc;
+
+	seq_hex_dump(m, "", DUMP_PREFIX_NONE, 16, 4, &ssqd, sizeof(ssqd),
+		     false);
+	return 0;
+}
+
+DEFINE_SHOW_ATTRIBUTE(ssqd);
+>>>>>>> upstream/android-13
 
 static char *qperf_names[] = {
 	"Assumed adapter interrupts",
 	"QDIO interrupts",
+<<<<<<< HEAD
 	"Requested PCIs",
 	"Inbound tasklet runs",
 	"Inbound tasklet resched",
 	"Inbound tasklet resched2",
 	"Outbound tasklet runs",
+=======
+>>>>>>> upstream/android-13
 	"SIGA read",
 	"SIGA write",
 	"SIGA sync",
 	"Inbound calls",
+<<<<<<< HEAD
 	"Inbound handler",
 	"Inbound stop_polling",
 	"Inbound queue full",
 	"Outbound calls",
 	"Outbound handler",
+=======
+	"Inbound stop_polling",
+	"Inbound queue full",
+	"Outbound calls",
+>>>>>>> upstream/android-13
 	"Outbound queue full",
 	"Outbound fast_requeue",
 	"Outbound target_full",
@@ -298,13 +358,18 @@ static const struct file_operations debugfs_perf_fops = {
 	.release = single_release,
 };
 
+<<<<<<< HEAD
 static void setup_debugfs_entry(struct qdio_q *q)
+=======
+static void setup_debugfs_entry(struct dentry *parent, struct qdio_q *q)
+>>>>>>> upstream/android-13
 {
 	char name[QDIO_DEBUGFS_NAME_LEN];
 
 	snprintf(name, QDIO_DEBUGFS_NAME_LEN, "%s_%d",
 		 q->is_input_q ? "input" : "output",
 		 q->nr);
+<<<<<<< HEAD
 	q->debugfs_q = debugfs_create_file(name, S_IFREG | S_IRUGO | S_IWUSR,
 				q->irq_ptr->debugfs_dev, q, &debugfs_fops);
 	if (IS_ERR(q->debugfs_q))
@@ -312,10 +377,17 @@ static void setup_debugfs_entry(struct qdio_q *q)
 }
 
 void qdio_setup_debug_entries(struct qdio_irq *irq_ptr, struct ccw_device *cdev)
+=======
+	debugfs_create_file(name, 0444, parent, q, &qstat_fops);
+}
+
+void qdio_setup_debug_entries(struct qdio_irq *irq_ptr)
+>>>>>>> upstream/android-13
 {
 	struct qdio_q *q;
 	int i;
 
+<<<<<<< HEAD
 	irq_ptr->debugfs_dev = debugfs_create_dir(dev_name(&cdev->dev),
 						  debugfs_root);
 	if (IS_ERR(irq_ptr->debugfs_dev))
@@ -332,10 +404,24 @@ void qdio_setup_debug_entries(struct qdio_irq *irq_ptr, struct ccw_device *cdev)
 		setup_debugfs_entry(q);
 	for_each_output_queue(irq_ptr, q, i)
 		setup_debugfs_entry(q);
+=======
+	irq_ptr->debugfs_dev = debugfs_create_dir(dev_name(&irq_ptr->cdev->dev),
+						  debugfs_root);
+	debugfs_create_file("statistics", S_IFREG | S_IRUGO | S_IWUSR,
+			    irq_ptr->debugfs_dev, irq_ptr, &debugfs_perf_fops);
+	debugfs_create_file("ssqd", 0444, irq_ptr->debugfs_dev, irq_ptr->cdev,
+			    &ssqd_fops);
+
+	for_each_input_queue(irq_ptr, q, i)
+		setup_debugfs_entry(irq_ptr->debugfs_dev, q);
+	for_each_output_queue(irq_ptr, q, i)
+		setup_debugfs_entry(irq_ptr->debugfs_dev, q);
+>>>>>>> upstream/android-13
 }
 
 void qdio_shutdown_debug_entries(struct qdio_irq *irq_ptr)
 {
+<<<<<<< HEAD
 	struct qdio_q *q;
 	int i;
 
@@ -345,6 +431,9 @@ void qdio_shutdown_debug_entries(struct qdio_irq *irq_ptr)
 		debugfs_remove(q->debugfs_q);
 	debugfs_remove(irq_ptr->debugfs_perf);
 	debugfs_remove(irq_ptr->debugfs_dev);
+=======
+	debugfs_remove_recursive(irq_ptr->debugfs_dev);
+>>>>>>> upstream/android-13
 }
 
 int __init qdio_debug_init(void)
@@ -366,7 +455,11 @@ int __init qdio_debug_init(void)
 void qdio_debug_exit(void)
 {
 	qdio_clear_dbf_list();
+<<<<<<< HEAD
 	debugfs_remove(debugfs_root);
+=======
+	debugfs_remove_recursive(debugfs_root);
+>>>>>>> upstream/android-13
 	debug_unregister(qdio_dbf_setup);
 	debug_unregister(qdio_dbf_error);
 }

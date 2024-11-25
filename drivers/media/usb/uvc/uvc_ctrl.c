@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      uvc_ctrl.c  --  USB Video Class driver - Controls
  *
  *      Copyright (C) 2005-2010
  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
  *      (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -38,7 +45,11 @@
  * Controls
  */
 
+<<<<<<< HEAD
 static struct uvc_control_info uvc_ctrls[] = {
+=======
+static const struct uvc_control_info uvc_ctrls[] = {
+>>>>>>> upstream/android-13
 	{
 		.entity		= UVC_GUID_UVC_PROCESSING,
 		.selector	= UVC_PU_BRIGHTNESS_CONTROL,
@@ -352,15 +363,33 @@ static struct uvc_control_info uvc_ctrls[] = {
 				| UVC_CTRL_FLAG_RESTORE
 				| UVC_CTRL_FLAG_AUTO_UPDATE,
 	},
+<<<<<<< HEAD
 };
 
 static struct uvc_menu_info power_line_frequency_controls[] = {
+=======
+	{
+		.entity		= UVC_GUID_EXT_GPIO_CONTROLLER,
+		.selector	= UVC_CT_PRIVACY_CONTROL,
+		.index		= 0,
+		.size		= 1,
+		.flags		= UVC_CTRL_FLAG_GET_CUR
+				| UVC_CTRL_FLAG_AUTO_UPDATE,
+	},
+};
+
+static const struct uvc_menu_info power_line_frequency_controls[] = {
+>>>>>>> upstream/android-13
 	{ 0, "Disabled" },
 	{ 1, "50 Hz" },
 	{ 2, "60 Hz" },
 };
 
+<<<<<<< HEAD
 static struct uvc_menu_info exposure_auto_controls[] = {
+=======
+static const struct uvc_menu_info exposure_auto_controls[] = {
+>>>>>>> upstream/android-13
 	{ 2, "Auto Mode" },
 	{ 1, "Manual Mode" },
 	{ 4, "Shutter Priority Mode" },
@@ -421,7 +450,11 @@ static void uvc_ctrl_set_rel_speed(struct uvc_control_mapping *mapping,
 	data[first+1] = min_t(int, abs(value), 0xff);
 }
 
+<<<<<<< HEAD
 static struct uvc_control_mapping uvc_ctrl_mappings[] = {
+=======
+static const struct uvc_control_mapping uvc_ctrl_mappings[] = {
+>>>>>>> upstream/android-13
 	{
 		.id		= V4L2_CID_BRIGHTNESS,
 		.name		= "Brightness",
@@ -740,6 +773,19 @@ static struct uvc_control_mapping uvc_ctrl_mappings[] = {
 		.v4l2_type	= V4L2_CTRL_TYPE_BOOLEAN,
 		.data_type	= UVC_CTRL_DATA_TYPE_BOOLEAN,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.id		= V4L2_CID_PRIVACY,
+		.name		= "Privacy",
+		.entity		= UVC_GUID_EXT_GPIO_CONTROLLER,
+		.selector	= UVC_CT_PRIVACY_CONTROL,
+		.size		= 1,
+		.offset		= 0,
+		.v4l2_type	= V4L2_CTRL_TYPE_BOOLEAN,
+		.data_type	= UVC_CTRL_DATA_TYPE_BOOLEAN,
+	},
+>>>>>>> upstream/android-13
 };
 
 /* ------------------------------------------------------------------------
@@ -831,6 +877,7 @@ static void uvc_set_le_value(struct uvc_control_mapping *mapping,
  * Terminal and unit management
  */
 
+<<<<<<< HEAD
 static const u8 uvc_processing_guid[16] = UVC_GUID_UVC_PROCESSING;
 static const u8 uvc_camera_guid[16] = UVC_GUID_UVC_CAMERA;
 static const u8 uvc_media_transport_input_guid[16] =
@@ -856,6 +903,12 @@ static int uvc_entity_match_guid(const struct uvc_entity *entity,
 	default:
 		return 0;
 	}
+=======
+static int uvc_entity_match_guid(const struct uvc_entity *entity,
+				 const u8 guid[16])
+{
+	return memcmp(entity->guid, guid, sizeof(entity->guid)) == 0;
+>>>>>>> upstream/android-13
 }
 
 /* ------------------------------------------------------------------------
@@ -914,8 +967,13 @@ static struct uvc_control *uvc_find_control(struct uvc_video_chain *chain,
 	}
 
 	if (ctrl == NULL && !next)
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL, "Control 0x%08x not found.\n",
 				v4l2_id);
+=======
+		uvc_dbg(chain->dev, CONTROL, "Control 0x%08x not found\n",
+			v4l2_id);
+>>>>>>> upstream/android-13
 
 	return ctrl;
 }
@@ -982,7 +1040,11 @@ static s32 __uvc_ctrl_get_value(struct uvc_control_mapping *mapping,
 	s32 value = mapping->get(mapping, UVC_GET_CUR, data);
 
 	if (mapping->v4l2_type == V4L2_CTRL_TYPE_MENU) {
+<<<<<<< HEAD
 		struct uvc_menu_info *menu = mapping->menu_info;
+=======
+		const struct uvc_menu_info *menu = mapping->menu_info;
+>>>>>>> upstream/android-13
 		unsigned int i;
 
 		for (i = 0; i < mapping->menu_count; ++i, ++menu) {
@@ -1006,10 +1068,27 @@ static int __uvc_ctrl_get(struct uvc_video_chain *chain,
 		return -EACCES;
 
 	if (!ctrl->loaded) {
+<<<<<<< HEAD
 		ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR, ctrl->entity->id,
 				chain->dev->intfnum, ctrl->info.selector,
 				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
 				ctrl->info.size);
+=======
+		if (ctrl->entity->get_cur) {
+			ret = ctrl->entity->get_cur(chain->dev,
+				ctrl->entity,
+				ctrl->info.selector,
+				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
+				ctrl->info.size);
+		} else {
+			ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR,
+				ctrl->entity->id,
+				chain->dev->intfnum,
+				ctrl->info.selector,
+				uvc_ctrl_data(ctrl, UVC_CTRL_DATA_CURRENT),
+				ctrl->info.size);
+		}
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -1029,13 +1108,21 @@ static int __uvc_query_v4l2_ctrl(struct uvc_video_chain *chain,
 {
 	struct uvc_control_mapping *master_map = NULL;
 	struct uvc_control *master_ctrl = NULL;
+<<<<<<< HEAD
 	struct uvc_menu_info *menu;
+=======
+	const struct uvc_menu_info *menu;
+>>>>>>> upstream/android-13
 	unsigned int i;
 
 	memset(v4l2_ctrl, 0, sizeof(*v4l2_ctrl));
 	v4l2_ctrl->id = mapping->id;
 	v4l2_ctrl->type = mapping->v4l2_type;
+<<<<<<< HEAD
 	strlcpy(v4l2_ctrl->name, mapping->name, sizeof(v4l2_ctrl->name));
+=======
+	strscpy(v4l2_ctrl->name, mapping->name, sizeof(v4l2_ctrl->name));
+>>>>>>> upstream/android-13
 	v4l2_ctrl->flags = 0;
 
 	if (!(ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR))
@@ -1149,7 +1236,11 @@ done:
 int uvc_query_v4l2_menu(struct uvc_video_chain *chain,
 	struct v4l2_querymenu *query_menu)
 {
+<<<<<<< HEAD
 	struct uvc_menu_info *menu_info;
+=======
+	const struct uvc_menu_info *menu_info;
+>>>>>>> upstream/android-13
 	struct uvc_control_mapping *mapping;
 	struct uvc_control *ctrl;
 	u32 index = query_menu->index;
@@ -1195,7 +1286,11 @@ int uvc_query_v4l2_menu(struct uvc_video_chain *chain,
 		}
 	}
 
+<<<<<<< HEAD
 	strlcpy(query_menu->name, menu_info->name, sizeof(query_menu->name));
+=======
+	strscpy(query_menu->name, menu_info->name, sizeof(query_menu->name));
+>>>>>>> upstream/android-13
 
 done:
 	mutex_unlock(&chain->ctrl_mutex);
@@ -1280,6 +1375,7 @@ static void uvc_ctrl_send_slave_event(struct uvc_video_chain *chain,
 	uvc_ctrl_send_event(chain, handle, ctrl, mapping, val, changes);
 }
 
+<<<<<<< HEAD
 static void uvc_ctrl_status_event_work(struct work_struct *work)
 {
 	struct uvc_device *dev = container_of(work, struct uvc_device,
@@ -1291,6 +1387,14 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
 	struct uvc_fh *handle;
 	unsigned int i;
 	int ret;
+=======
+void uvc_ctrl_status_event(struct uvc_video_chain *chain,
+			   struct uvc_control *ctrl, const u8 *data)
+{
+	struct uvc_control_mapping *mapping;
+	struct uvc_fh *handle;
+	unsigned int i;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&chain->ctrl_mutex);
 
@@ -1298,7 +1402,11 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
 	ctrl->handle = NULL;
 
 	list_for_each_entry(mapping, &ctrl->info.mappings, list) {
+<<<<<<< HEAD
 		s32 value = __uvc_ctrl_get_value(mapping, w->data);
+=======
+		s32 value = __uvc_ctrl_get_value(mapping, data);
+>>>>>>> upstream/android-13
 
 		/*
 		 * handle may be NULL here if the device sends auto-update
@@ -1317,17 +1425,39 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
 	}
 
 	mutex_unlock(&chain->ctrl_mutex);
+<<<<<<< HEAD
+=======
+}
+
+static void uvc_ctrl_status_event_work(struct work_struct *work)
+{
+	struct uvc_device *dev = container_of(work, struct uvc_device,
+					      async_ctrl.work);
+	struct uvc_ctrl_work *w = &dev->async_ctrl;
+	int ret;
+
+	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
+>>>>>>> upstream/android-13
 
 	/* Resubmit the URB. */
 	w->urb->interval = dev->int_ep->desc.bInterval;
 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
 	if (ret < 0)
+<<<<<<< HEAD
 		uvc_printk(KERN_ERR, "Failed to resubmit status URB (%d).\n",
 			   ret);
 }
 
 bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
 			   struct uvc_control *ctrl, const u8 *data)
+=======
+		dev_err(&dev->udev->dev,
+			"Failed to resubmit status URB (%d).\n", ret);
+}
+
+bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
+				 struct uvc_control *ctrl, const u8 *data)
+>>>>>>> upstream/android-13
 {
 	struct uvc_device *dev = chain->dev;
 	struct uvc_ctrl_work *w = &dev->async_ctrl;
@@ -1613,8 +1743,13 @@ int uvc_ctrl_set(struct uvc_fh *handle,
 		if (step == 0)
 			step = 1;
 
+<<<<<<< HEAD
 		xctrl->value = min + ((u32)(xctrl->value - min) + step / 2)
 			     / step * step;
+=======
+		xctrl->value = min + DIV_ROUND_CLOSEST((u32)(xctrl->value - min),
+							step) * step;
+>>>>>>> upstream/android-13
 		if (mapping->data_type == UVC_CTRL_DATA_TYPE_SIGNED)
 			xctrl->value = clamp(xctrl->value, min, max);
 		else
@@ -1713,8 +1848,17 @@ static int uvc_ctrl_get_flags(struct uvc_device *dev,
 	if (data == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = uvc_query_ctrl(dev, UVC_GET_INFO, ctrl->entity->id, dev->intfnum,
 			     info->selector, data, 1);
+=======
+	if (ctrl->entity->get_info)
+		ret = ctrl->entity->get_info(dev, ctrl->entity,
+					     ctrl->info.selector, data);
+	else
+		ret = uvc_query_ctrl(dev, UVC_GET_INFO, ctrl->entity->id,
+				     dev->intfnum, info->selector, data, 1);
+>>>>>>> upstream/android-13
 	if (!ret)
 		info->flags |= (data[0] & UVC_CONTROL_CAP_GET ?
 				UVC_CTRL_FLAG_GET_CUR : 0)
@@ -1781,8 +1925,12 @@ static int uvc_ctrl_fill_xu_info(struct uvc_device *dev,
 	if (data == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memcpy(info->entity, ctrl->entity->extension.guidExtensionCode,
 	       sizeof(info->entity));
+=======
+	memcpy(info->entity, ctrl->entity->guid, sizeof(info->entity));
+>>>>>>> upstream/android-13
 	info->index = ctrl->index;
 	info->selector = ctrl->index + 1;
 
@@ -1790,9 +1938,15 @@ static int uvc_ctrl_fill_xu_info(struct uvc_device *dev,
 	ret = uvc_query_ctrl(dev, UVC_GET_LEN, ctrl->entity->id, dev->intfnum,
 			     info->selector, data, 2);
 	if (ret < 0) {
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL,
 			  "GET_LEN failed on control %pUl/%u (%d).\n",
 			   info->entity, info->selector, ret);
+=======
+		uvc_dbg(dev, CONTROL,
+			"GET_LEN failed on control %pUl/%u (%d)\n",
+			info->entity, info->selector, ret);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -1803,20 +1957,35 @@ static int uvc_ctrl_fill_xu_info(struct uvc_device *dev,
 
 	ret = uvc_ctrl_get_flags(dev, ctrl, info);
 	if (ret < 0) {
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL,
 			  "Failed to get flags for control %pUl/%u (%d).\n",
 			  info->entity, info->selector, ret);
+=======
+		uvc_dbg(dev, CONTROL,
+			"Failed to get flags for control %pUl/%u (%d)\n",
+			info->entity, info->selector, ret);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
 	uvc_ctrl_fixup_xu_info(dev, ctrl, info);
 
+<<<<<<< HEAD
 	uvc_trace(UVC_TRACE_CONTROL, "XU control %pUl/%u queried: len %u, "
 		  "flags { get %u set %u auto %u }.\n",
 		  info->entity, info->selector, info->size,
 		  (info->flags & UVC_CTRL_FLAG_GET_CUR) ? 1 : 0,
 		  (info->flags & UVC_CTRL_FLAG_SET_CUR) ? 1 : 0,
 		  (info->flags & UVC_CTRL_FLAG_AUTO_UPDATE) ? 1 : 0);
+=======
+	uvc_dbg(dev, CONTROL,
+		"XU control %pUl/%u queried: len %u, flags { get %u set %u auto %u }\n",
+		info->entity, info->selector, info->size,
+		(info->flags & UVC_CTRL_FLAG_GET_CUR) ? 1 : 0,
+		(info->flags & UVC_CTRL_FLAG_SET_CUR) ? 1 : 0,
+		(info->flags & UVC_CTRL_FLAG_AUTO_UPDATE) ? 1 : 0);
+>>>>>>> upstream/android-13
 
 done:
 	kfree(data);
@@ -1841,9 +2010,16 @@ static int uvc_ctrl_init_xu_ctrl(struct uvc_device *dev,
 
 	ret = uvc_ctrl_add_info(dev, ctrl, &info);
 	if (ret < 0)
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL, "Failed to initialize control "
 			  "%pUl/%u on device %s entity %u\n", info.entity,
 			  info.selector, dev->udev->devpath, ctrl->entity->id);
+=======
+		uvc_dbg(dev, CONTROL,
+			"Failed to initialize control %pUl/%u on device %s entity %u\n",
+			info.entity, info.selector, dev->udev->devpath,
+			ctrl->entity->id);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1871,7 +2047,11 @@ int uvc_xu_ctrl_query(struct uvc_video_chain *chain,
 	}
 
 	if (!found) {
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL, "Extension unit %u not found.\n",
+=======
+		uvc_dbg(chain->dev, CONTROL, "Extension unit %u not found\n",
+>>>>>>> upstream/android-13
 			xqry->unit);
 		return -ENOENT;
 	}
@@ -1887,8 +2067,13 @@ int uvc_xu_ctrl_query(struct uvc_video_chain *chain,
 	}
 
 	if (!found) {
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL, "Control %pUl/%u not found.\n",
 			entity->extension.guidExtensionCode, xqry->selector);
+=======
+		uvc_dbg(chain->dev, CONTROL, "Control %pUl/%u not found\n",
+			entity->guid, xqry->selector);
+>>>>>>> upstream/android-13
 		return -ENOENT;
 	}
 
@@ -2000,10 +2185,17 @@ int uvc_ctrl_restore_values(struct uvc_device *dev)
 			if (!ctrl->initialized || !ctrl->modified ||
 			    (ctrl->info.flags & UVC_CTRL_FLAG_RESTORE) == 0)
 				continue;
+<<<<<<< HEAD
 
 			printk(KERN_INFO "restoring control %pUl/%u/%u\n",
 				ctrl->info.entity, ctrl->info.index,
 				ctrl->info.selector);
+=======
+			dev_info(&dev->udev->dev,
+				 "restoring control %pUl/%u/%u\n",
+				 ctrl->info.entity, ctrl->info.index,
+				 ctrl->info.selector);
+>>>>>>> upstream/android-13
 			ctrl->dirty = 1;
 		}
 
@@ -2025,14 +2217,18 @@ int uvc_ctrl_restore_values(struct uvc_device *dev)
 static int uvc_ctrl_add_info(struct uvc_device *dev, struct uvc_control *ctrl,
 	const struct uvc_control_info *info)
 {
+<<<<<<< HEAD
 	int ret = 0;
 
+=======
+>>>>>>> upstream/android-13
 	ctrl->info = *info;
 	INIT_LIST_HEAD(&ctrl->info.mappings);
 
 	/* Allocate an array to save control values (cur, def, max, etc.) */
 	ctrl->uvc_data = kzalloc(ctrl->info.size * UVC_CTRL_DATA_LAST + 1,
 				 GFP_KERNEL);
+<<<<<<< HEAD
 	if (ctrl->uvc_data == NULL) {
 		ret = -ENOMEM;
 		goto done;
@@ -2048,6 +2244,18 @@ done:
 	if (ret < 0)
 		kfree(ctrl->uvc_data);
 	return ret;
+=======
+	if (!ctrl->uvc_data)
+		return -ENOMEM;
+
+	ctrl->initialized = 1;
+
+	uvc_dbg(dev, CONTROL, "Added control %pUl/%u to device %s entity %u\n",
+		ctrl->info.entity, ctrl->info.selector, dev->udev->devpath,
+		ctrl->entity->id);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2082,8 +2290,12 @@ static int __uvc_ctrl_add_mapping(struct uvc_device *dev,
 		map->set = uvc_set_le_value;
 
 	list_add_tail(&map->list, &ctrl->info.mappings);
+<<<<<<< HEAD
 	uvc_trace(UVC_TRACE_CONTROL,
 		"Adding mapping '%s' to control %pUl/%u.\n",
+=======
+	uvc_dbg(dev, CONTROL, "Adding mapping '%s' to control %pUl/%u\n",
+>>>>>>> upstream/android-13
 		map->name, ctrl->info.entity, ctrl->info.selector);
 
 	return 0;
@@ -2100,9 +2312,15 @@ int uvc_ctrl_add_mapping(struct uvc_video_chain *chain,
 	int ret;
 
 	if (mapping->id & ~V4L2_CTRL_ID_MASK) {
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL, "Can't add mapping '%s', control "
 			"id 0x%08x is invalid.\n", mapping->name,
 			mapping->id);
+=======
+		uvc_dbg(dev, CONTROL,
+			"Can't add mapping '%s', control id 0x%08x is invalid\n",
+			mapping->name, mapping->id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2147,8 +2365,13 @@ int uvc_ctrl_add_mapping(struct uvc_video_chain *chain,
 
 	list_for_each_entry(map, &ctrl->info.mappings, list) {
 		if (mapping->id == map->id) {
+<<<<<<< HEAD
 			uvc_trace(UVC_TRACE_CONTROL, "Can't add mapping '%s', "
 				"control id 0x%08x already exists.\n",
+=======
+			uvc_dbg(dev, CONTROL,
+				"Can't add mapping '%s', control id 0x%08x already exists\n",
+>>>>>>> upstream/android-13
 				mapping->name, mapping->id);
 			ret = -EEXIST;
 			goto done;
@@ -2158,9 +2381,15 @@ int uvc_ctrl_add_mapping(struct uvc_video_chain *chain,
 	/* Prevent excess memory consumption */
 	if (atomic_inc_return(&dev->nmappings) > UVC_MAX_CONTROL_MAPPINGS) {
 		atomic_dec(&dev->nmappings);
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL, "Can't add mapping '%s', maximum "
 			"mappings count (%u) exceeded.\n", mapping->name,
 			UVC_MAX_CONTROL_MAPPINGS);
+=======
+		uvc_dbg(dev, CONTROL,
+			"Can't add mapping '%s', maximum mappings count (%u) exceeded\n",
+			mapping->name, UVC_MAX_CONTROL_MAPPINGS);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto done;
 	}
@@ -2229,8 +2458,14 @@ static void uvc_ctrl_prune_entity(struct uvc_device *dev,
 		    !uvc_test_bit(controls, blacklist[i].index))
 			continue;
 
+<<<<<<< HEAD
 		uvc_trace(UVC_TRACE_CONTROL, "%u/%u control is black listed, "
 			"removing it.\n", entity->id, blacklist[i].index);
+=======
+		uvc_dbg(dev, CONTROL,
+			"%u/%u control is black listed, removing it\n",
+			entity->id, blacklist[i].index);
+>>>>>>> upstream/android-13
 
 		uvc_clear_bit(controls, blacklist[i].index);
 	}
@@ -2306,6 +2541,12 @@ int uvc_ctrl_init_device(struct uvc_device *dev)
 		} else if (UVC_ENTITY_TYPE(entity) == UVC_ITT_CAMERA) {
 			bmControls = entity->camera.bmControls;
 			bControlSize = entity->camera.bControlSize;
+<<<<<<< HEAD
+=======
+		} else if (UVC_ENTITY_TYPE(entity) == UVC_EXT_GPIO_UNIT) {
+			bmControls = entity->gpio.bmControls;
+			bControlSize = entity->gpio.bControlSize;
+>>>>>>> upstream/android-13
 		}
 
 		/* Remove bogus/blacklisted controls */

@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for simulating a mouse on GPIO lines.
  *
  * Copyright (C) 2007 Atmel Corporation
  * Copyright (C) 2017 Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+#include <linux/input.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/property.h>
 #include <linux/of.h>
@@ -46,10 +57,16 @@ struct gpio_mouse {
  * Timer function which is run every scan_ms ms when the device is opened.
  * The dev input variable is set to the the input_dev pointer.
  */
+<<<<<<< HEAD
 static void gpio_mouse_scan(struct input_polled_dev *dev)
 {
 	struct gpio_mouse *gpio = dev->private;
 	struct input_dev *input = dev->input;
+=======
+static void gpio_mouse_scan(struct input_dev *input)
+{
+	struct gpio_mouse *gpio = input_get_drvdata(input);
+>>>>>>> upstream/android-13
 	int x, y;
 
 	if (gpio->bleft)
@@ -74,18 +91,29 @@ static int gpio_mouse_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct gpio_mouse *gmouse;
+<<<<<<< HEAD
 	struct input_polled_dev *input_poll;
 	struct input_dev *input;
 	int ret;
+=======
+	struct input_dev *input;
+	int error;
+>>>>>>> upstream/android-13
 
 	gmouse = devm_kzalloc(dev, sizeof(*gmouse), GFP_KERNEL);
 	if (!gmouse)
 		return -ENOMEM;
 
 	/* Assign some default scanning time */
+<<<<<<< HEAD
 	ret = device_property_read_u32(dev, "scan-interval-ms",
 				       &gmouse->scan_ms);
 	if (ret || gmouse->scan_ms == 0) {
+=======
+	error = device_property_read_u32(dev, "scan-interval-ms",
+					 &gmouse->scan_ms);
+	if (error || gmouse->scan_ms == 0) {
+>>>>>>> upstream/android-13
 		dev_warn(dev, "invalid scan time, set to 50 ms\n");
 		gmouse->scan_ms = 50;
 	}
@@ -115,6 +143,7 @@ static int gpio_mouse_probe(struct platform_device *pdev)
 	if (IS_ERR(gmouse->bright))
 		return PTR_ERR(gmouse->bright);
 
+<<<<<<< HEAD
 	input_poll = devm_input_allocate_polled_device(dev);
 	if (!input_poll) {
 		dev_err(dev, "not enough memory for input device\n");
@@ -132,6 +161,16 @@ static int gpio_mouse_probe(struct platform_device *pdev)
 	input->name = pdev->name;
 	input->id.bustype = BUS_HOST;
 	input->dev.parent = &pdev->dev;
+=======
+	input = devm_input_allocate_device(dev);
+	if (!input)
+		return -ENOMEM;
+
+	input->name = pdev->name;
+	input->id.bustype = BUS_HOST;
+
+	input_set_drvdata(input, gmouse);
+>>>>>>> upstream/android-13
 
 	input_set_capability(input, EV_REL, REL_X);
 	input_set_capability(input, EV_REL, REL_Y);
@@ -142,10 +181,23 @@ static int gpio_mouse_probe(struct platform_device *pdev)
 	if (gmouse->bright)
 		input_set_capability(input, EV_KEY, BTN_RIGHT);
 
+<<<<<<< HEAD
 	ret = input_register_polled_device(input_poll);
 	if (ret) {
 		dev_err(dev, "could not register input device\n");
 		return ret;
+=======
+	error = input_setup_polling(input, gpio_mouse_scan);
+	if (error)
+		return error;
+
+	input_set_poll_interval(input, gmouse->scan_ms);
+
+	error = input_register_device(input);
+	if (error) {
+		dev_err(dev, "could not register input device\n");
+		return error;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(dev, "%d ms scan time, buttons: %s%s%s\n",

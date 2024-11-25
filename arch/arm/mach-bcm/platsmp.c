@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2015 Broadcom Corporation
  * Copyright 2014 Linaro Limited
@@ -10,6 +11,12 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2014-2015 Broadcom Corporation
+ * Copyright 2014 Linaro Limited
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpumask.h>
@@ -30,6 +37,11 @@
 #include <asm/smp_plat.h>
 #include <asm/smp_scu.h>
 
+<<<<<<< HEAD
+=======
+#include "platsmp.h"
+
+>>>>>>> upstream/android-13
 /* Size of mapped Cortex A9 SCU address space */
 #define CORTEX_A9_SCU_SIZE	0x58
 
@@ -111,7 +123,11 @@ static int nsp_write_lut(unsigned int cpu)
 	if (!secondary_boot_addr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	sku_rom_lut = ioremap_nocache((phys_addr_t)secondary_boot_addr,
+=======
+	sku_rom_lut = ioremap((phys_addr_t)secondary_boot_addr,
+>>>>>>> upstream/android-13
 				      sizeof(phys_addr_t));
 	if (!sku_rom_lut) {
 		pr_warn("unable to ioremap SKU-ROM LUT register for cpu %u\n", cpu);
@@ -180,7 +196,11 @@ static int kona_boot_secondary(unsigned int cpu, struct task_struct *idle)
 	if (!secondary_boot_addr)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	boot_reg = ioremap_nocache((phys_addr_t)secondary_boot_addr,
+=======
+	boot_reg = ioremap((phys_addr_t)secondary_boot_addr,
+>>>>>>> upstream/android-13
 				   sizeof(phys_addr_t));
 	if (!boot_reg) {
 		pr_err("unable to map boot register for cpu %u\n", cpu_id);

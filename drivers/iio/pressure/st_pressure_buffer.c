@@ -1,15 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics pressures driver
  *
  * Copyright 2013 STMicroelectronics Inc.
  *
  * Denis Ciocca <denis.ciocca@st.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/stat.h>
 #include <linux/interrupt.h>
@@ -18,6 +26,11 @@
 #include <linux/iio/iio.h>
 #include <linux/iio/buffer.h>
 #include <linux/iio/trigger_consumer.h>
+=======
+#include <linux/iio/iio.h>
+#include <linux/iio/buffer.h>
+#include <linux/iio/trigger.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/triggered_buffer.h>
 
 #include <linux/iio/common/st_sensors.h>
@@ -30,11 +43,16 @@ int st_press_trig_set_state(struct iio_trigger *trig, bool state)
 	return st_sensors_set_dataready_irq(indio_dev, state);
 }
 
+<<<<<<< HEAD
 static int st_press_buffer_preenable(struct iio_dev *indio_dev)
+=======
+static int st_press_buffer_postenable(struct iio_dev *indio_dev)
+>>>>>>> upstream/android-13
 {
 	return st_sensors_set_enable(indio_dev, true);
 }
 
+<<<<<<< HEAD
 static int st_press_buffer_postenable(struct iio_dev *indio_dev)
 {
 	int err;
@@ -76,12 +94,21 @@ st_press_buffer_predisable_error:
 
 static const struct iio_buffer_setup_ops st_press_buffer_setup_ops = {
 	.preenable = &st_press_buffer_preenable,
+=======
+static int st_press_buffer_predisable(struct iio_dev *indio_dev)
+{
+	return st_sensors_set_enable(indio_dev, false);
+}
+
+static const struct iio_buffer_setup_ops st_press_buffer_setup_ops = {
+>>>>>>> upstream/android-13
 	.postenable = &st_press_buffer_postenable,
 	.predisable = &st_press_buffer_predisable,
 };
 
 int st_press_allocate_ring(struct iio_dev *indio_dev)
 {
+<<<<<<< HEAD
 	return iio_triggered_buffer_setup(indio_dev, NULL,
 		&st_sensors_trigger_handler, &st_press_buffer_setup_ops);
 }
@@ -89,6 +116,10 @@ int st_press_allocate_ring(struct iio_dev *indio_dev)
 void st_press_deallocate_ring(struct iio_dev *indio_dev)
 {
 	iio_triggered_buffer_cleanup(indio_dev);
+=======
+	return devm_iio_triggered_buffer_setup(indio_dev->dev.parent, indio_dev,
+		NULL, &st_sensors_trigger_handler, &st_press_buffer_setup_ops);
+>>>>>>> upstream/android-13
 }
 
 MODULE_AUTHOR("Denis Ciocca <denis.ciocca@st.com>");

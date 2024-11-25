@@ -9,7 +9,11 @@
 #include <asm/nospec-branch.h>
 
 /* Provide __cpuidle; we can't safely include <linux/cpu.h> */
+<<<<<<< HEAD
 #define __cpuidle __attribute__((__section__(".cpuidle.text")))
+=======
+#define __cpuidle __section(".cpuidle.text")
+>>>>>>> upstream/android-13
 
 /*
  * Interrupt control:
@@ -17,7 +21,11 @@
 
 /* Declaration required for gcc < 4.9 to prevent -Werror=missing-prototypes */
 extern inline unsigned long native_save_fl(void);
+<<<<<<< HEAD
 extern inline unsigned long native_save_fl(void)
+=======
+extern __always_inline unsigned long native_save_fl(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
@@ -35,6 +43,7 @@ extern inline unsigned long native_save_fl(void)
 	return flags;
 }
 
+<<<<<<< HEAD
 extern inline void native_restore_fl(unsigned long flags);
 extern inline void native_restore_fl(unsigned long flags)
 {
@@ -45,11 +54,18 @@ extern inline void native_restore_fl(unsigned long flags)
 }
 
 static inline void native_irq_disable(void)
+=======
+static __always_inline void native_irq_disable(void)
+>>>>>>> upstream/android-13
 {
 	asm volatile("cli": : :"memory");
 }
 
+<<<<<<< HEAD
 static inline void native_irq_enable(void)
+=======
+static __always_inline void native_irq_enable(void)
+>>>>>>> upstream/android-13
 {
 	asm volatile("sti": : :"memory");
 }
@@ -68,28 +84,44 @@ static inline __cpuidle void native_halt(void)
 
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
+=======
+#ifdef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 #include <asm/paravirt.h>
 #else
 #ifndef __ASSEMBLY__
 #include <linux/types.h>
 
+<<<<<<< HEAD
 static inline notrace unsigned long arch_local_save_flags(void)
+=======
+static __always_inline unsigned long arch_local_save_flags(void)
+>>>>>>> upstream/android-13
 {
 	return native_save_fl();
 }
 
+<<<<<<< HEAD
 static inline notrace void arch_local_irq_restore(unsigned long flags)
 {
 	native_restore_fl(flags);
 }
 
 static inline notrace void arch_local_irq_disable(void)
+=======
+static __always_inline void arch_local_irq_disable(void)
+>>>>>>> upstream/android-13
 {
 	native_irq_disable();
 }
 
+<<<<<<< HEAD
 static inline notrace void arch_local_irq_enable(void)
+=======
+static __always_inline void arch_local_irq_enable(void)
+>>>>>>> upstream/android-13
 {
 	native_irq_enable();
 }
@@ -115,7 +147,11 @@ static inline __cpuidle void halt(void)
 /*
  * For spinlocks, etc:
  */
+<<<<<<< HEAD
 static inline notrace unsigned long arch_local_irq_save(void)
+=======
+static __always_inline unsigned long arch_local_irq_save(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags = arch_local_save_flags();
 	arch_local_irq_disable();
@@ -123,6 +159,7 @@ static inline notrace unsigned long arch_local_irq_save(void)
 }
 #else
 
+<<<<<<< HEAD
 #define ENABLE_INTERRUPTS(x)	sti
 #define DISABLE_INTERRUPTS(x)	cli
 
@@ -164,16 +201,37 @@ static inline notrace unsigned long arch_local_irq_save(void)
 
 #ifndef __ASSEMBLY__
 static inline int arch_irqs_disabled_flags(unsigned long flags)
+=======
+#ifdef CONFIG_X86_64
+#ifdef CONFIG_DEBUG_ENTRY
+#define SAVE_FLAGS		pushfq; popq %rax
+#endif
+
+#define INTERRUPT_RETURN	jmp native_iret
+
+#endif
+
+#endif /* __ASSEMBLY__ */
+#endif /* CONFIG_PARAVIRT_XXL */
+
+#ifndef __ASSEMBLY__
+static __always_inline int arch_irqs_disabled_flags(unsigned long flags)
+>>>>>>> upstream/android-13
 {
 	return !(flags & X86_EFLAGS_IF);
 }
 
+<<<<<<< HEAD
 static inline int arch_irqs_disabled(void)
+=======
+static __always_inline int arch_irqs_disabled(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags = arch_local_save_flags();
 
 	return arch_irqs_disabled_flags(flags);
 }
+<<<<<<< HEAD
 #endif /* !__ASSEMBLY__ */
 
 #ifdef __ASSEMBLY__
@@ -210,4 +268,22 @@ static inline int arch_irqs_disabled(void)
 #endif
 #endif /* __ASSEMBLY__ */
 
+=======
+
+static __always_inline void arch_local_irq_restore(unsigned long flags)
+{
+	if (!arch_irqs_disabled_flags(flags))
+		arch_local_irq_enable();
+}
+#else
+#ifdef CONFIG_X86_64
+#ifdef CONFIG_XEN_PV
+#define SWAPGS	ALTERNATIVE "swapgs", "", X86_FEATURE_XENPV
+#else
+#define SWAPGS	swapgs
+#endif
+#endif
+#endif /* !__ASSEMBLY__ */
+
+>>>>>>> upstream/android-13
 #endif

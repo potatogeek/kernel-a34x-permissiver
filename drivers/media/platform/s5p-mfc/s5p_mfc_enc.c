@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/media/platform/s5p-mfc/s5p_mfc_enc.c
  *
@@ -6,11 +10,14 @@
  *
  * Jeongtae Park	<jtp.park@samsung.com>
  * Kamil Debski		<k.debski@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -36,7 +43,10 @@
 
 static struct s5p_mfc_fmt formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "4:2:0 2 Planes 16x16 Tiles",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV12MT_16X16,
 		.codec_mode	= S5P_MFC_CODEC_NONE,
 		.type		= MFC_FMT_RAW,
@@ -44,7 +54,10 @@ static struct s5p_mfc_fmt formats[] = {
 		.versions	= MFC_V6_BIT | MFC_V7_BIT,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "4:2:0 2 Planes 64x32 Tiles",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV12MT,
 		.codec_mode	= S5P_MFC_CODEC_NONE,
 		.type		= MFC_FMT_RAW,
@@ -52,7 +65,10 @@ static struct s5p_mfc_fmt formats[] = {
 		.versions	= MFC_V5_BIT,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "4:2:0 2 Planes Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV12M,
 		.codec_mode	= S5P_MFC_CODEC_NONE,
 		.type		= MFC_FMT_RAW,
@@ -60,7 +76,10 @@ static struct s5p_mfc_fmt formats[] = {
 		.versions	= MFC_V5PLUS_BITS,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "4:2:0 2 Planes Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV21M,
 		.codec_mode	= S5P_MFC_CODEC_NONE,
 		.type		= MFC_FMT_RAW,
@@ -68,7 +87,10 @@ static struct s5p_mfc_fmt formats[] = {
 		.versions	= MFC_V6PLUS_BITS,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "H264 Encoded Stream",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_H264,
 		.codec_mode	= S5P_MFC_CODEC_H264_ENC,
 		.type		= MFC_FMT_ENC,
@@ -76,7 +98,10 @@ static struct s5p_mfc_fmt formats[] = {
 		.versions	= MFC_V5PLUS_BITS,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "MPEG4 Encoded Stream",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_MPEG4,
 		.codec_mode	= S5P_MFC_CODEC_MPEG4_ENC,
 		.type		= MFC_FMT_ENC,
@@ -84,7 +109,10 @@ static struct s5p_mfc_fmt formats[] = {
 		.versions	= MFC_V5PLUS_BITS,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "H263 Encoded Stream",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_H263,
 		.codec_mode	= S5P_MFC_CODEC_H263_ENC,
 		.type		= MFC_FMT_ENC,
@@ -92,7 +120,10 @@ static struct s5p_mfc_fmt formats[] = {
 		.versions	= MFC_V5PLUS_BITS,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "VP8 Encoded Stream",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_VP8,
 		.codec_mode	= S5P_MFC_CODEC_VP8_ENC,
 		.type		= MFC_FMT_ENC,
@@ -134,7 +165,11 @@ static struct mfc_control controls[] = {
 		.id = V4L2_CID_MPEG_VIDEO_MULTI_SLICE_MODE,
 		.type = V4L2_CTRL_TYPE_MENU,
 		.minimum = V4L2_MPEG_VIDEO_MULTI_SLICE_MODE_SINGLE,
+<<<<<<< HEAD
 		.maximum = V4L2_MPEG_VIDEO_MULTI_SICE_MODE_MAX_BYTES,
+=======
+		.maximum = V4L2_MPEG_VIDEO_MULTI_SLICE_MODE_MAX_BYTES,
+>>>>>>> upstream/android-13
 		.default_value = V4L2_MPEG_VIDEO_MULTI_SLICE_MODE_SINGLE,
 		.menu_skip_mask = 0,
 	},
@@ -274,6 +309,15 @@ static struct mfc_control controls[] = {
 		.default_value = V4L2_MPEG_MFC51_VIDEO_FRAME_SKIP_MODE_DISABLED,
 	},
 	{
+<<<<<<< HEAD
+=======
+		.id = V4L2_CID_MPEG_VIDEO_FRAME_SKIP_MODE,
+		.type = V4L2_CTRL_TYPE_MENU,
+		.maximum = V4L2_MPEG_VIDEO_FRAME_SKIP_MODE_BUF_LIMIT,
+		.default_value = V4L2_MPEG_VIDEO_FRAME_SKIP_MODE_DISABLED,
+	},
+	{
+>>>>>>> upstream/android-13
 		.id = V4L2_CID_MPEG_MFC51_VIDEO_RC_FIXED_TARGET_BIT,
 		.type = V4L2_CTRL_TYPE_BOOLEAN,
 		.name = "Fixed Target Bit Enable",
@@ -1313,6 +1357,7 @@ static int vidioc_querycap(struct file *file, void *priv,
 {
 	struct s5p_mfc_dev *dev = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, S5P_MFC_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, dev->vfd_enc->name, sizeof(cap->card));
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
@@ -1324,6 +1369,12 @@ static int vidioc_querycap(struct file *file, void *priv,
 	 */
 	cap->device_caps = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, S5P_MFC_NAME, sizeof(cap->driver));
+	strscpy(cap->card, dev->vfd_enc->name, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
+		 dev_name(&dev->plat_dev->dev));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1331,7 +1382,10 @@ static int vidioc_enum_fmt(struct file *file, struct v4l2_fmtdesc *f,
 							bool out)
 {
 	struct s5p_mfc_dev *dev = video_drvdata(file);
+<<<<<<< HEAD
 	struct s5p_mfc_fmt *fmt;
+=======
+>>>>>>> upstream/android-13
 	int i, j = 0;
 
 	for (i = 0; i < ARRAY_SIZE(formats); ++i) {
@@ -1343,10 +1397,14 @@ static int vidioc_enum_fmt(struct file *file, struct v4l2_fmtdesc *f,
 			continue;
 
 		if (j == f->index) {
+<<<<<<< HEAD
 			fmt = &formats[i];
 			strlcpy(f->description, fmt->name,
 				sizeof(f->description));
 			f->pixelformat = fmt->fourcc;
+=======
+			f->pixelformat = formats[i].fourcc;
+>>>>>>> upstream/android-13
 			return 0;
 		}
 		++j;
@@ -1354,14 +1412,24 @@ static int vidioc_enum_fmt(struct file *file, struct v4l2_fmtdesc *f,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int vidioc_enum_fmt_vid_cap_mplane(struct file *file, void *pirv,
 					  struct v4l2_fmtdesc *f)
+=======
+static int vidioc_enum_fmt_vid_cap(struct file *file, void *pirv,
+				   struct v4l2_fmtdesc *f)
+>>>>>>> upstream/android-13
 {
 	return vidioc_enum_fmt(file, f, false);
 }
 
+<<<<<<< HEAD
 static int vidioc_enum_fmt_vid_out_mplane(struct file *file, void *prov,
 					  struct v4l2_fmtdesc *f)
+=======
+static int vidioc_enum_fmt_vid_out(struct file *file, void *priv,
+				   struct v4l2_fmtdesc *f)
+>>>>>>> upstream/android-13
 {
 	return vidioc_enum_fmt(file, f, true);
 }
@@ -1872,6 +1940,10 @@ static int s5p_mfc_enc_s_ctrl(struct v4l2_ctrl *ctrl)
 		p->seq_hdr_mode = ctrl->val;
 		break;
 	case V4L2_CID_MPEG_MFC51_VIDEO_FRAME_SKIP_MODE:
+<<<<<<< HEAD
+=======
+	case V4L2_CID_MPEG_VIDEO_FRAME_SKIP_MODE:
+>>>>>>> upstream/android-13
 		p->frame_skip_mode = ctrl->val;
 		break;
 	case V4L2_CID_MPEG_MFC51_VIDEO_RC_FIXED_TARGET_BIT:
@@ -2343,8 +2415,13 @@ static int vidioc_subscribe_event(struct v4l2_fh *fh,
 
 static const struct v4l2_ioctl_ops s5p_mfc_enc_ioctl_ops = {
 	.vidioc_querycap = vidioc_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane = vidioc_enum_fmt_vid_cap_mplane,
 	.vidioc_enum_fmt_vid_out_mplane = vidioc_enum_fmt_vid_out_mplane,
+=======
+	.vidioc_enum_fmt_vid_cap = vidioc_enum_fmt_vid_cap,
+	.vidioc_enum_fmt_vid_out = vidioc_enum_fmt_vid_out,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_cap_mplane = vidioc_g_fmt,
 	.vidioc_g_fmt_vid_out_mplane = vidioc_g_fmt,
 	.vidioc_try_fmt_vid_cap_mplane = vidioc_try_fmt,
@@ -2630,7 +2707,11 @@ const struct v4l2_ioctl_ops *get_enc_v4l2_ioctl_ops(void)
 	return &s5p_mfc_enc_ioctl_ops;
 }
 
+<<<<<<< HEAD
 #define IS_MFC51_PRIV(x) ((V4L2_CTRL_ID2WHICH(x) == V4L2_CTRL_CLASS_MPEG) \
+=======
+#define IS_MFC51_PRIV(x) ((V4L2_CTRL_ID2WHICH(x) == V4L2_CTRL_CLASS_CODEC) \
+>>>>>>> upstream/android-13
 						&& V4L2_CTRL_DRIVER_PRIV(x))
 
 int s5p_mfc_enc_ctrls_setup(struct s5p_mfc_ctx *ctx)

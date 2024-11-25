@@ -396,8 +396,11 @@ static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
 	}
 }
 
+<<<<<<< HEAD
 #define mmiowb()
 
+=======
+>>>>>>> upstream/android-13
 #ifdef __KERNEL__
 
 /* On sparc64 we have the whole physical IO address space accessible
@@ -408,10 +411,20 @@ static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
 	return (void __iomem *)offset;
 }
 
+<<<<<<< HEAD
 #define ioremap_nocache(X,Y)		ioremap((X),(Y))
 #define ioremap_uc(X,Y)			ioremap((X),(Y))
 #define ioremap_wc(X,Y)			ioremap((X),(Y))
 #define ioremap_wt(X,Y)			ioremap((X),(Y))
+=======
+#define ioremap_uc(X,Y)			ioremap((X),(Y))
+#define ioremap_wc(X,Y)			ioremap((X),(Y))
+#define ioremap_wt(X,Y)			ioremap((X),(Y))
+static inline void __iomem *ioremap_np(unsigned long offset, unsigned long size)
+{
+	return NULL;
+}
+>>>>>>> upstream/android-13
 
 static inline void iounmap(volatile void __iomem *addr)
 {
@@ -453,11 +466,14 @@ void sbus_set_sbus64(struct device *, int);
  */
 #define xlate_dev_mem_ptr(p)	__va(p)
 
+<<<<<<< HEAD
 /*
  * Convert a virtual cached pointer to an uncached pointer
  */
 #define xlate_dev_kmem_ptr(p)	p
 
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* !(__SPARC64_IO_H) */

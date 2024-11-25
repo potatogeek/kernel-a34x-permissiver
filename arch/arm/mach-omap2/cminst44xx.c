@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP4 CM instance functions
  *
@@ -6,10 +10,13 @@
  * Paul Walmsley
  * Rajendra Nayak <rnayak@ti.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This is needed since CM instances can be in the PRM, PRCM_MPU, CM1,
  * or CM2 hardware modules.  For example, the EMU_CM CM instance is in
  * the PRM hardware module.  What a mess...

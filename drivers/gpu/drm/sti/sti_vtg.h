@@ -16,6 +16,10 @@
 #define VTG_SYNC_ID_DVO         4
 
 struct sti_vtg;
+<<<<<<< HEAD
+=======
+struct drm_crtc;
+>>>>>>> upstream/android-13
 struct drm_display_mode;
 struct notifier_block;
 

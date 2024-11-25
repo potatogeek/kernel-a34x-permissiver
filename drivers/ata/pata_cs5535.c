@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata-cs5535.c 	- CS5535 PATA for new ATA layer
  *			  (C) 2005-2006 Red Hat Inc
@@ -7,6 +11,7 @@
  * made readable and Linux style by Wolfgang Zuleger <wolfgang.zuleger@gmx.de>
  * and Alexander Kiausch <alex.kiausch@t-online.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  * Loosely based on the piix & svwks drivers.
  *
  * Documentation:

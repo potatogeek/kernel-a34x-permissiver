@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -65,7 +71,11 @@ static void dw_mci_rk3288_set_ios(struct dw_mci *host, struct mmc_ios *ios)
 	}
 
 	/* Make sure we use phases which we can enumerate with */
+<<<<<<< HEAD
 	if (!IS_ERR(priv->sample_clk))
+=======
+	if (!IS_ERR(priv->sample_clk) && ios->timing <= MMC_TIMING_SD_HS)
+>>>>>>> upstream/android-13
 		clk_set_phase(priv->sample_clk, priv->default_sample_phase);
 
 	/*
@@ -387,6 +397,10 @@ static struct platform_driver dw_mci_rockchip_pltfm_driver = {
 	.remove		= dw_mci_rockchip_remove,
 	.driver		= {
 		.name		= "dwmmc_rockchip",
+<<<<<<< HEAD
+=======
+		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table	= dw_mci_rockchip_match,
 		.pm		= &dw_mci_rockchip_dev_pm_ops,
 	},

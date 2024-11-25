@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM63xx SPI controller support
  *
  * Copyright (C) 2009-2012 Florian Fainelli <florian@openwrt.org>
  * Copyright (C) 2010 Tanguy Bouzeloc <tanguy.bouzeloc@efixo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,6 +34,10 @@
 #include <linux/err.h>
 #include <linux/pm_runtime.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 
 /* BCM 6338/6348 SPI core */
 #define SPI_6348_RSET_SIZE		64
@@ -377,7 +388,11 @@ static int bcm63xx_spi_transfer_one(struct spi_master *master,
 		}
 
 		/* CS will be deasserted directly after transfer */
+<<<<<<< HEAD
 		if (t->delay_usecs) {
+=======
+		if (t->delay.value) {
+>>>>>>> upstream/android-13
 			dev_err(&spi->dev, "unable to keep CS asserted after transfer\n");
 			status = -EINVAL;
 			goto exit;
@@ -502,6 +517,10 @@ static int bcm63xx_spi_probe(struct platform_device *pdev)
 	struct bcm63xx_spi *bs;
 	int ret;
 	u32 num_cs = BCM63XX_SPI_MAX_CS;
+<<<<<<< HEAD
+=======
+	struct reset_control *reset;
+>>>>>>> upstream/android-13
 
 	if (dev->of_node) {
 		const struct of_device_id *match;
@@ -529,10 +548,15 @@ static int bcm63xx_spi_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "no irq: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	clk = devm_clk_get(dev, "spi");
 	if (IS_ERR(clk)) {
@@ -540,6 +564,13 @@ static int bcm63xx_spi_probe(struct platform_device *pdev)
 		return PTR_ERR(clk);
 	}
 
+<<<<<<< HEAD
+=======
+	reset = devm_reset_control_get_optional_exclusive(dev, NULL);
+	if (IS_ERR(reset))
+		return PTR_ERR(reset);
+
+>>>>>>> upstream/android-13
 	master = spi_alloc_master(dev, sizeof(*bs));
 	if (!master) {
 		dev_err(dev, "out of memory\n");
@@ -590,13 +621,30 @@ static int bcm63xx_spi_probe(struct platform_device *pdev)
 	if (ret)
 		goto out_err;
 
+<<<<<<< HEAD
 	bcm_spi_writeb(bs, SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
 
+=======
+	ret = reset_control_reset(reset);
+	if (ret) {
+		dev_err(dev, "unable to reset device: %d\n", ret);
+		goto out_clk_disable;
+	}
+
+	bcm_spi_writeb(bs, SPI_INTR_CLEAR_ALL, SPI_INT_STATUS);
+
+	pm_runtime_enable(&pdev->dev);
+
+>>>>>>> upstream/android-13
 	/* register and we are done */
 	ret = devm_spi_register_master(dev, master);
 	if (ret) {
 		dev_err(dev, "spi register failed\n");
+<<<<<<< HEAD
 		goto out_clk_disable;
+=======
+		goto out_pm_disable;
+>>>>>>> upstream/android-13
 	}
 
 	dev_info(dev, "at %pr (irq %d, FIFOs size %d)\n",
@@ -604,6 +652,11 @@ static int bcm63xx_spi_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+out_pm_disable:
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 out_clk_disable:
 	clk_disable_unprepare(clk);
 out_err:

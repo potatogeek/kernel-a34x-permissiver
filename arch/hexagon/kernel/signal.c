@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Signal support for Hexagon processor
  *
  * Copyright (c) 2010-2012, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -115,7 +122,11 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 
 	frame = get_sigframe(ksig, regs, sizeof(struct rt_sigframe));
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, frame, sizeof(struct rt_sigframe)))
+=======
+	if (!access_ok(frame, sizeof(struct rt_sigframe)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	if (copy_siginfo_to_user(&frame->info, &ksig->info))
@@ -168,7 +179,11 @@ static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
 				regs->r00 = -EINTR;
 				break;
 			}
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -ERESTARTNOINTR:
 			regs->r06 = regs->syscall_nr;
 			pt_set_elr(regs, pt_elr(regs) - 4);
@@ -244,7 +259,11 @@ asmlinkage int sys_rt_sigreturn(void)
 	current->restart_block.fn = do_no_restart_syscall;
 
 	frame = (struct rt_sigframe __user *)pt_psp(regs);
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 	if (__copy_from_user(&blocked, &frame->uc.uc_sigmask, sizeof(blocked)))
 		goto badframe;
@@ -265,6 +284,10 @@ asmlinkage int sys_rt_sigreturn(void)
 	return regs->r00;
 
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return 0;
 }

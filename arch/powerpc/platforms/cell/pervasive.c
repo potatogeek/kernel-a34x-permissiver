@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CBE Pervasive Monitor and Debug
  *
@@ -5,6 +9,7 @@
  *
  * Authors: Maximino Aguilar (maguilar@us.ibm.com)
  *          Michael N. Day (mnday@us.ibm.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -28,16 +35,27 @@
 #include <linux/percpu.h>
 #include <linux/types.h>
 #include <linux/kallsyms.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <asm/machdep.h>
 #include <asm/prom.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/reg.h>
 #include <asm/cell-regs.h>
 #include <asm/cpu_has_feature.h>
 
 #include "pervasive.h"
+<<<<<<< HEAD
+=======
+#include "ras.h"
+>>>>>>> upstream/android-13
 
 static void cbe_power_save(void)
 {
@@ -90,6 +108,10 @@ static int cbe_system_reset_exception(struct pt_regs *regs)
 	switch (regs->msr & SRR1_WAKEMASK) {
 	case SRR1_WAKEDEC:
 		set_dec(1);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case SRR1_WAKEEE:
 		/*
 		 * Handle these when interrupts get re-enabled and we take

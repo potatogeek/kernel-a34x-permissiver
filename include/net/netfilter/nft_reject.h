@@ -2,6 +2,14 @@
 #ifndef _NFT_REJECT_H_
 #define _NFT_REJECT_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+#include <net/netlink.h>
+#include <net/netfilter/nf_tables.h>
+#include <uapi/linux/netfilter/nf_tables.h>
+
+>>>>>>> upstream/android-13
 struct nft_reject {
 	enum nft_reject_types	type:8;
 	u8			icmp_code;

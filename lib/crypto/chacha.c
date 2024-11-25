@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * The "hash function" used as the core of the ChaCha stream cipher (RFC7539)
  *
  * Copyright (C) 2015 Martin Willi
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -14,7 +21,10 @@
 #include <linux/export.h>
 #include <linux/bitops.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 #include <crypto/chacha.h>
 
@@ -69,7 +79,11 @@ static void chacha_permute(u32 *x, int nrounds)
 }
 
 /**
+<<<<<<< HEAD
  * chacha_block - generate one keystream block and increment block counter
+=======
+ * chacha_block_generic - generate one keystream block and increment block counter
+>>>>>>> upstream/android-13
  * @state: input state matrix (16 32-bit words)
  * @stream: output keystream block (64 bytes)
  * @nrounds: number of rounds (20 or 12; 20 is recommended)
@@ -97,7 +111,11 @@ EXPORT_SYMBOL(chacha_block_generic);
 /**
  * hchacha_block_generic - abbreviated ChaCha core, for XChaCha
  * @state: input state matrix (16 32-bit words)
+<<<<<<< HEAD
  * @out: output (8 32-bit words)
+=======
+ * @stream: output (8 32-bit words)
+>>>>>>> upstream/android-13
  * @nrounds: number of rounds (20 or 12; 20 is recommended)
  *
  * HChaCha is the ChaCha equivalent of HSalsa and is an intermediate step

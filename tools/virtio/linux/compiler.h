@@ -7,4 +7,8 @@
 
 #define READ_ONCE(var) (*((volatile typeof(var) *)(&(var))))
 
+<<<<<<< HEAD
+=======
+#define __aligned(x) __attribute((__aligned__(x)))
+>>>>>>> upstream/android-13
 #endif

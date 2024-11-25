@@ -83,14 +83,23 @@ const u8 tomoyo_index2category[TOMOYO_MAX_MAC_INDEX] = {
 /**
  * tomoyo_convert_time - Convert time_t to YYYY/MM/DD hh/mm/ss.
  *
+<<<<<<< HEAD
  * @time:  Seconds since 1970/01/01 00:00:00.
  * @stamp: Pointer to "struct tomoyo_time".
+=======
+ * @time64: Seconds since 1970/01/01 00:00:00.
+ * @stamp:  Pointer to "struct tomoyo_time".
+>>>>>>> upstream/android-13
  *
  * Returns nothing.
  */
 void tomoyo_convert_time(time64_t time64, struct tomoyo_time *stamp)
 {
 	struct tm tm;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	time64_to_tm(time64, 0, &tm);
 	stamp->sec = tm.tm_sec;
 	stamp->min = tm.tm_min;
@@ -106,13 +115,21 @@ void tomoyo_convert_time(time64_t time64, struct tomoyo_time *stamp)
  * @string: String representation for permissions in foo/bar/buz format.
  * @keyword: Keyword to find from @string/
  *
+<<<<<<< HEAD
  * Returns ture if @keyword was found in @string, false otherwise.
+=======
+ * Returns true if @keyword was found in @string, false otherwise.
+>>>>>>> upstream/android-13
  *
  * This function assumes that strncmp(w1, w2, strlen(w1)) != 0 if w1 != w2.
  */
 bool tomoyo_permstr(const char *string, const char *keyword)
 {
 	const char *cp = strstr(string, keyword);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (cp)
 		return cp == string || *(cp - 1) == '/';
 	return false;
@@ -132,6 +149,10 @@ char *tomoyo_read_token(struct tomoyo_acl_param *param)
 {
 	char *pos = param->data;
 	char *del = strchr(pos, ' ');
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (del)
 		*del++ = '\0';
 	else
@@ -140,6 +161,11 @@ char *tomoyo_read_token(struct tomoyo_acl_param *param)
 	return pos;
 }
 
+<<<<<<< HEAD
+=======
+static bool tomoyo_correct_path2(const char *filename, const size_t len);
+
+>>>>>>> upstream/android-13
 /**
  * tomoyo_get_domainname - Read a domainname from a line.
  *
@@ -152,11 +178,20 @@ const struct tomoyo_path_info *tomoyo_get_domainname
 {
 	char *start = param->data;
 	char *pos = start;
+<<<<<<< HEAD
 	while (*pos) {
 		if (*pos++ != ' ' || *pos++ == '/')
 			continue;
 		pos -= 2;
 		*pos++ = '\0';
+=======
+
+	while (*pos) {
+		if (*pos++ != ' ' ||
+		    tomoyo_correct_path2(pos, strchrnul(pos, ' ') - pos))
+			continue;
+		*(pos - 1) = '\0';
+>>>>>>> upstream/android-13
 		break;
 	}
 	param->data = pos;
@@ -181,8 +216,15 @@ u8 tomoyo_parse_ulong(unsigned long *result, char **str)
 	const char *cp = *str;
 	char *ep;
 	int base = 10;
+<<<<<<< HEAD
 	if (*cp == '0') {
 		char c = *(cp + 1);
+=======
+
+	if (*cp == '0') {
+		char c = *(cp + 1);
+
+>>>>>>> upstream/android-13
 		if (c == 'x' || c == 'X') {
 			base = 16;
 			cp += 2;
@@ -240,6 +282,10 @@ bool tomoyo_parse_name_union(struct tomoyo_acl_param *param,
 			     struct tomoyo_name_union *ptr)
 {
 	char *filename;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (param->data[0] == '@') {
 		param->data++;
 		ptr->group = tomoyo_get_group(param, TOMOYO_PATH_GROUP);
@@ -266,6 +312,10 @@ bool tomoyo_parse_number_union(struct tomoyo_acl_param *param,
 	char *data;
 	u8 type;
 	unsigned long v;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	memset(ptr, 0, sizeof(*ptr));
 	if (param->data[0] == '@') {
 		param->data++;
@@ -424,6 +474,7 @@ void tomoyo_normalize_line(unsigned char *buffer)
  */
 static bool tomoyo_correct_word2(const char *string, size_t len)
 {
+<<<<<<< HEAD
 	const char *const start = string;
 	bool in_repetition = false;
 	unsigned char c;
@@ -433,10 +484,22 @@ static bool tomoyo_correct_word2(const char *string, size_t len)
 		goto out;
 	while (len--) {
 		c = *string++;
+=======
+	u8 recursion = 20;
+	const char *const start = string;
+	bool in_repetition = false;
+
+	if (!len)
+		goto out;
+	while (len--) {
+		unsigned char c = *string++;
+
+>>>>>>> upstream/android-13
 		if (c == '\\') {
 			if (!len--)
 				goto out;
 			c = *string++;
+<<<<<<< HEAD
 			switch (c) {
 			case '\\':  /* "\\" */
 				continue;
@@ -454,10 +517,49 @@ static bool tomoyo_correct_word2(const char *string, size_t len)
 			case '{':   /* "/\{" */
 				if (string - 3 < start || *(string - 3) != '/')
 					break;
+=======
+			if (c >= '0' && c <= '3') {
+				unsigned char d;
+				unsigned char e;
+
+				if (!len-- || !len--)
+					goto out;
+				d = *string++;
+				e = *string++;
+				if (d < '0' || d > '7' || e < '0' || e > '7')
+					goto out;
+				c = tomoyo_make_byte(c, d, e);
+				if (c <= ' ' || c >= 127)
+					continue;
+				goto out;
+			}
+			switch (c) {
+			case '\\':  /* "\\" */
+			case '+':   /* "\+" */
+			case '?':   /* "\?" */
+			case 'x':   /* "\x" */
+			case 'a':   /* "\a" */
+			case '-':   /* "\-" */
+				continue;
+			}
+			if (!recursion--)
+				goto out;
+			switch (c) {
+			case '*':   /* "\*" */
+			case '@':   /* "\@" */
+			case '$':   /* "\$" */
+			case 'X':   /* "\X" */
+			case 'A':   /* "\A" */
+				continue;
+			case '{':   /* "/\{" */
+				if (string - 3 < start || *(string - 3) != '/')
+					goto out;
+>>>>>>> upstream/android-13
 				in_repetition = true;
 				continue;
 			case '}':   /* "\}/" */
 				if (*string != '/')
+<<<<<<< HEAD
 					break;
 				if (!in_repetition)
 					break;
@@ -476,6 +578,13 @@ static bool tomoyo_correct_word2(const char *string, size_t len)
 				c = tomoyo_make_byte(c, d, e);
 				if (c <= ' ' || c >= 127)
 					continue;
+=======
+					goto out;
+				if (!in_repetition)
+					goto out;
+				in_repetition = false;
+				continue;
+>>>>>>> upstream/android-13
 			}
 			goto out;
 		} else if (in_repetition && c == '/') {
@@ -505,6 +614,25 @@ bool tomoyo_correct_word(const char *string)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * tomoyo_correct_path2 - Check whether the given pathname follows the naming rules.
+ *
+ * @filename: The pathname to check.
+ * @len:      Length of @filename.
+ *
+ * Returns true if @filename follows the naming rules, false otherwise.
+ */
+static bool tomoyo_correct_path2(const char *filename, const size_t len)
+{
+	const char *cp1 = memchr(filename, '/', len);
+	const char *cp2 = memchr(filename, '.', len);
+
+	return cp1 && (!cp2 || (cp1 < cp2)) && tomoyo_correct_word2(filename, len);
+}
+
+/**
+>>>>>>> upstream/android-13
  * tomoyo_correct_path - Validate a pathname.
  *
  * @filename: The pathname to check.
@@ -514,7 +642,11 @@ bool tomoyo_correct_word(const char *string)
  */
 bool tomoyo_correct_path(const char *filename)
 {
+<<<<<<< HEAD
 	return *filename == '/' && tomoyo_correct_word(filename);
+=======
+	return tomoyo_correct_path2(filename, strlen(filename));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -533,10 +665,17 @@ bool tomoyo_correct_domain(const unsigned char *domainname)
 		return true;
 	while (1) {
 		const unsigned char *cp = strchr(domainname, ' ');
+<<<<<<< HEAD
 		if (!cp)
 			break;
 		if (*domainname != '/' ||
 		    !tomoyo_correct_word2(domainname, cp - domainname))
+=======
+
+		if (!cp)
+			break;
+		if (!tomoyo_correct_path2(domainname, cp - domainname))
+>>>>>>> upstream/android-13
 			return false;
 		domainname = cp + 1;
 	}
@@ -554,6 +693,10 @@ bool tomoyo_domain_def(const unsigned char *buffer)
 {
 	const unsigned char *cp;
 	int len;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (*buffer != '<')
 		return false;
 	cp = strchr(buffer, ' ');
@@ -583,7 +726,12 @@ struct tomoyo_domain_info *tomoyo_find_domain(const char *domainname)
 
 	name.name = domainname;
 	tomoyo_fill_path_info(&name);
+<<<<<<< HEAD
 	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list) {
+=======
+	list_for_each_entry_rcu(domain, &tomoyo_domain_list, list,
+				srcu_read_lock_held(&tomoyo_ss)) {
+>>>>>>> upstream/android-13
 		if (!domain->is_deleted &&
 		    !tomoyo_pathcmp(&name, domain->domainname))
 			return domain;
@@ -668,6 +816,12 @@ static bool tomoyo_file_matches_pattern2(const char *filename,
 {
 	while (filename < filename_end && pattern < pattern_end) {
 		char c;
+<<<<<<< HEAD
+=======
+		int i;
+		int j;
+
+>>>>>>> upstream/android-13
 		if (*pattern != '\\') {
 			if (*filename++ != *pattern++)
 				return false;
@@ -676,8 +830,11 @@ static bool tomoyo_file_matches_pattern2(const char *filename,
 		c = *filename;
 		pattern++;
 		switch (*pattern) {
+<<<<<<< HEAD
 			int i;
 			int j;
+=======
+>>>>>>> upstream/android-13
 		case '?':
 			if (c == '/') {
 				return false;
@@ -985,6 +1142,10 @@ int tomoyo_init_request_info(struct tomoyo_request_info *r,
 			     struct tomoyo_domain_info *domain, const u8 index)
 {
 	u8 profile;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	memset(r, 0, sizeof(*r));
 	if (!domain)
 		domain = tomoyo_domain();
@@ -1015,6 +1176,7 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
 		return false;
 	if (!domain)
 		return true;
+<<<<<<< HEAD
 	list_for_each_entry_rcu(ptr, &domain->acl_info_list, list) {
 		u16 perm;
 		u8 i;
@@ -1044,6 +1206,40 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
 		case TOMOYO_TYPE_UNIX_ACL:
 			perm = container_of(ptr, struct tomoyo_unix_acl,
 					    head)->perm;
+=======
+	if (READ_ONCE(domain->flags[TOMOYO_DIF_QUOTA_WARNED]))
+		return false;
+	list_for_each_entry_rcu(ptr, &domain->acl_info_list, list,
+				srcu_read_lock_held(&tomoyo_ss)) {
+		u16 perm;
+
+		if (ptr->is_deleted)
+			continue;
+		/*
+		 * Reading perm bitmap might race with tomoyo_merge_*() because
+		 * caller does not hold tomoyo_policy_lock mutex. But exceeding
+		 * max_learning_entry parameter by a few entries does not harm.
+		 */
+		switch (ptr->type) {
+		case TOMOYO_TYPE_PATH_ACL:
+			perm = data_race(container_of(ptr, struct tomoyo_path_acl, head)->perm);
+			break;
+		case TOMOYO_TYPE_PATH2_ACL:
+			perm = data_race(container_of(ptr, struct tomoyo_path2_acl, head)->perm);
+			break;
+		case TOMOYO_TYPE_PATH_NUMBER_ACL:
+			perm = data_race(container_of(ptr, struct tomoyo_path_number_acl, head)
+				  ->perm);
+			break;
+		case TOMOYO_TYPE_MKDEV_ACL:
+			perm = data_race(container_of(ptr, struct tomoyo_mkdev_acl, head)->perm);
+			break;
+		case TOMOYO_TYPE_INET_ACL:
+			perm = data_race(container_of(ptr, struct tomoyo_inet_acl, head)->perm);
+			break;
+		case TOMOYO_TYPE_UNIX_ACL:
+			perm = data_race(container_of(ptr, struct tomoyo_unix_acl, head)->perm);
+>>>>>>> upstream/android-13
 			break;
 		case TOMOYO_TYPE_MANUAL_TASK_ACL:
 			perm = 0;
@@ -1051,13 +1247,18 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
 		default:
 			perm = 1;
 		}
+<<<<<<< HEAD
 		for (i = 0; i < 16; i++)
 			if (perm & (1 << i))
 				count++;
+=======
+		count += hweight16(perm);
+>>>>>>> upstream/android-13
 	}
 	if (count < tomoyo_profile(domain->ns, domain->profile)->
 	    pref[TOMOYO_PREF_MAX_LEARNING_ENTRY])
 		return true;
+<<<<<<< HEAD
 	if (!domain->flags[TOMOYO_DIF_QUOTA_WARNED]) {
 		domain->flags[TOMOYO_DIF_QUOTA_WARNED] = true;
 		/* r->granted = false; */
@@ -1066,5 +1267,14 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
 		       "Domain '%s' has too many ACLs to hold. "
 		       "Stopped learning mode.\n", domain->domainname->name);
 	}
+=======
+	WRITE_ONCE(domain->flags[TOMOYO_DIF_QUOTA_WARNED], true);
+	/* r->granted = false; */
+	tomoyo_write_log(r, "%s", tomoyo_dif[TOMOYO_DIF_QUOTA_WARNED]);
+#ifndef CONFIG_SECURITY_TOMOYO_INSECURE_BUILTIN_SETTING
+	pr_warn("WARNING: Domain '%s' has too many ACLs to hold. Stopped learning mode.\n",
+		domain->domainname->name);
+#endif
+>>>>>>> upstream/android-13
 	return false;
 }

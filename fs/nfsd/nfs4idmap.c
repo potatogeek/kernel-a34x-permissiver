@@ -65,6 +65,10 @@ struct ent {
 	u32               id;
 	char              name[IDMAP_NAMESZ];
 	char              authname[IDMAP_NAMESZ];
+<<<<<<< HEAD
+=======
+	struct rcu_head	  rcu_head;
+>>>>>>> upstream/android-13
 };
 
 /* Common entry handling */
@@ -82,14 +86,22 @@ ent_init(struct cache_head *cnew, struct cache_head *citm)
 	new->type = itm->type;
 
 	strlcpy(new->name, itm->name, sizeof(new->name));
+<<<<<<< HEAD
 	strlcpy(new->authname, itm->authname, sizeof(new->name));
+=======
+	strlcpy(new->authname, itm->authname, sizeof(new->authname));
+>>>>>>> upstream/android-13
 }
 
 static void
 ent_put(struct kref *ref)
 {
 	struct ent *map = container_of(ref, struct ent, h.ref);
+<<<<<<< HEAD
 	kfree(map);
+=======
+	kfree_rcu(map, rcu_head);
+>>>>>>> upstream/android-13
 }
 
 static struct cache_head *
@@ -121,6 +133,15 @@ idtoname_hash(struct ent *ent)
 	return hash;
 }
 
+<<<<<<< HEAD
+=======
+static int
+idtoname_upcall(struct cache_detail *cd, struct cache_head *h)
+{
+	return sunrpc_cache_pipe_upcall_timeout(cd, h);
+}
+
+>>>>>>> upstream/android-13
 static void
 idtoname_request(struct cache_detail *cd, struct cache_head *ch, char **bpp,
     int *blen)
@@ -161,7 +182,11 @@ idtoname_show(struct seq_file *m, struct cache_detail *cd, struct cache_head *h)
 			ent->id);
 	if (test_bit(CACHE_VALID, &h->flags))
 		seq_printf(m, " %s", ent->name);
+<<<<<<< HEAD
 	seq_printf(m, "\n");
+=======
+	seq_putc(m, '\n');
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -183,6 +208,10 @@ static const struct cache_detail idtoname_cache_template = {
 	.hash_size	= ENT_HASHMAX,
 	.name		= "nfs4.idtoname",
 	.cache_put	= ent_put,
+<<<<<<< HEAD
+=======
+	.cache_upcall	= idtoname_upcall,
+>>>>>>> upstream/android-13
 	.cache_request	= idtoname_request,
 	.cache_parse	= idtoname_parse,
 	.cache_show	= idtoname_show,
@@ -264,8 +293,13 @@ out:
 static struct ent *
 idtoname_lookup(struct cache_detail *cd, struct ent *item)
 {
+<<<<<<< HEAD
 	struct cache_head *ch = sunrpc_cache_lookup(cd, &item->h,
 						    idtoname_hash(item));
+=======
+	struct cache_head *ch = sunrpc_cache_lookup_rcu(cd, &item->h,
+							idtoname_hash(item));
+>>>>>>> upstream/android-13
 	if (ch)
 		return container_of(ch, struct ent, h);
 	else
@@ -294,6 +328,15 @@ nametoid_hash(struct ent *ent)
 	return hash_str(ent->name, ENT_HASHBITS);
 }
 
+<<<<<<< HEAD
+=======
+static int
+nametoid_upcall(struct cache_detail *cd, struct cache_head *h)
+{
+	return sunrpc_cache_pipe_upcall_timeout(cd, h);
+}
+
+>>>>>>> upstream/android-13
 static void
 nametoid_request(struct cache_detail *cd, struct cache_head *ch, char **bpp,
     int *blen)
@@ -332,7 +375,11 @@ nametoid_show(struct seq_file *m, struct cache_detail *cd, struct cache_head *h)
 			ent->name);
 	if (test_bit(CACHE_VALID, &h->flags))
 		seq_printf(m, " %u", ent->id);
+<<<<<<< HEAD
 	seq_printf(m, "\n");
+=======
+	seq_putc(m, '\n');
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -346,6 +393,10 @@ static const struct cache_detail nametoid_cache_template = {
 	.hash_size	= ENT_HASHMAX,
 	.name		= "nfs4.nametoid",
 	.cache_put	= ent_put,
+<<<<<<< HEAD
+=======
+	.cache_upcall	= nametoid_upcall,
+>>>>>>> upstream/android-13
 	.cache_request	= nametoid_request,
 	.cache_parse	= nametoid_parse,
 	.cache_show	= nametoid_show,
@@ -422,8 +473,13 @@ out:
 static struct ent *
 nametoid_lookup(struct cache_detail *cd, struct ent *item)
 {
+<<<<<<< HEAD
 	struct cache_head *ch = sunrpc_cache_lookup(cd, &item->h,
 						    nametoid_hash(item));
+=======
+	struct cache_head *ch = sunrpc_cache_lookup_rcu(cd, &item->h,
+							nametoid_hash(item));
+>>>>>>> upstream/android-13
 	if (ch)
 		return container_of(ch, struct ent, h);
 	else
@@ -633,7 +689,11 @@ nfsd_map_name_to_uid(struct svc_rqst *rqstp, const char *name, size_t namelen,
 		return nfserr_inval;
 
 	status = do_name_to_id(rqstp, IDMAP_TYPE_USER, name, namelen, &id);
+<<<<<<< HEAD
 	*uid = make_kuid(&init_user_ns, id);
+=======
+	*uid = make_kuid(nfsd_user_namespace(rqstp), id);
+>>>>>>> upstream/android-13
 	if (!uid_valid(*uid))
 		status = nfserr_badowner;
 	return status;
@@ -650,7 +710,11 @@ nfsd_map_name_to_gid(struct svc_rqst *rqstp, const char *name, size_t namelen,
 		return nfserr_inval;
 
 	status = do_name_to_id(rqstp, IDMAP_TYPE_GROUP, name, namelen, &id);
+<<<<<<< HEAD
 	*gid = make_kgid(&init_user_ns, id);
+=======
+	*gid = make_kgid(nfsd_user_namespace(rqstp), id);
+>>>>>>> upstream/android-13
 	if (!gid_valid(*gid))
 		status = nfserr_badowner;
 	return status;
@@ -659,13 +723,21 @@ nfsd_map_name_to_gid(struct svc_rqst *rqstp, const char *name, size_t namelen,
 __be32 nfsd4_encode_user(struct xdr_stream *xdr, struct svc_rqst *rqstp,
 			 kuid_t uid)
 {
+<<<<<<< HEAD
 	u32 id = from_kuid(&init_user_ns, uid);
+=======
+	u32 id = from_kuid_munged(nfsd_user_namespace(rqstp), uid);
+>>>>>>> upstream/android-13
 	return encode_name_from_id(xdr, rqstp, IDMAP_TYPE_USER, id);
 }
 
 __be32 nfsd4_encode_group(struct xdr_stream *xdr, struct svc_rqst *rqstp,
 			  kgid_t gid)
 {
+<<<<<<< HEAD
 	u32 id = from_kgid(&init_user_ns, gid);
+=======
+	u32 id = from_kgid_munged(nfsd_user_namespace(rqstp), gid);
+>>>>>>> upstream/android-13
 	return encode_name_from_id(xdr, rqstp, IDMAP_TYPE_GROUP, id);
 }

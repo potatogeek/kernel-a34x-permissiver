@@ -1,13 +1,22 @@
+<<<<<<< HEAD
 /*
  * HDMI driver for OMAP5
  *
  * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HDMI driver for OMAP5
+ *
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * Authors:
  *	Yong Zhi
  *	Mythri pk
  *	Archit Taneja <archit@ti.com>
  *	Tomi Valkeinen <tomi.valkeinen@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -20,6 +29,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "HDMI"
@@ -35,13 +46,22 @@
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/component.h>
 #include <linux/of.h>
 #include <linux/of_graph.h>
 #include <sound/omap-hdmi-audio.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_state_helper.h>
+
+>>>>>>> upstream/android-13
 #include "omapdss.h"
 #include "hdmi5_core.h"
 #include "dss.h"
@@ -53,10 +73,17 @@ static int hdmi_runtime_get(struct omap_hdmi *hdmi)
 	DSSDBG("hdmi_runtime_get\n");
 
 	r = pm_runtime_get_sync(&hdmi->pdev->dev);
+<<<<<<< HEAD
 	WARN_ON(r < 0);
 	if (r < 0)
 		return r;
 
+=======
+	if (WARN_ON(r < 0)) {
+		pm_runtime_put_noidle(&hdmi->pdev->dev);
+		return r;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -117,6 +144,7 @@ static irqreturn_t hdmi_irq_handler(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int hdmi_init_regulator(struct omap_hdmi *hdmi)
 {
 	struct regulator *reg;
@@ -135,6 +163,8 @@ static int hdmi_init_regulator(struct omap_hdmi *hdmi)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hdmi_power_on_core(struct omap_hdmi *hdmi)
 {
 	int r;
@@ -171,7 +201,11 @@ static void hdmi_power_off_core(struct omap_hdmi *hdmi)
 static int hdmi_power_on_full(struct omap_hdmi *hdmi)
 {
 	int r;
+<<<<<<< HEAD
 	struct videomode *vm;
+=======
+	const struct videomode *vm;
+>>>>>>> upstream/android-13
 	struct dss_pll_clock_info hdmi_cinfo = { 0 };
 	unsigned int pc;
 
@@ -224,9 +258,12 @@ static int hdmi_power_on_full(struct omap_hdmi *hdmi)
 
 	hdmi5_configure(&hdmi->core, &hdmi->wp, &hdmi->cfg);
 
+<<<<<<< HEAD
 	/* tv size */
 	dss_mgr_set_timings(&hdmi->output, vm);
 
+=======
+>>>>>>> upstream/android-13
 	r = dss_mgr_enable(&hdmi->output);
 	if (r)
 		goto err_mgr_enable;
@@ -268,6 +305,7 @@ static void hdmi_power_off_full(struct omap_hdmi *hdmi)
 	hdmi_power_off_core(hdmi);
 }
 
+<<<<<<< HEAD
 static int hdmi_display_check_timing(struct omap_dss_device *dssdev,
 				     struct videomode *vm)
 {
@@ -301,6 +339,8 @@ static void hdmi_display_get_timings(struct omap_dss_device *dssdev,
 	*vm = hdmi->cfg.vm;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hdmi_dump_regs(struct seq_file *s, void *p)
 {
 	struct omap_hdmi *hdmi = s->private;
@@ -322,6 +362,7 @@ static int hdmi_dump_regs(struct seq_file *s, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int read_edid(struct omap_hdmi *hdmi, u8 *buf, int len)
 {
 	int r;
@@ -346,6 +387,8 @@ static int read_edid(struct omap_hdmi *hdmi, u8 *buf, int len)
 	return r;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void hdmi_start_audio_stream(struct omap_hdmi *hd)
 {
 	REG_FLD_MOD(hd->wp.base, HDMI_WP_SYSCONFIG, 1, 3, 2);
@@ -360,6 +403,7 @@ static void hdmi_stop_audio_stream(struct omap_hdmi *hd)
 	REG_FLD_MOD(hd->wp.base, HDMI_WP_SYSCONFIG, hd->wp_idlemode, 3, 2);
 }
 
+<<<<<<< HEAD
 static int hdmi_display_enable(struct omap_dss_device *dssdev)
 {
 	struct omap_hdmi *hdmi = dssdev_to_hdmi(dssdev);
@@ -426,6 +470,8 @@ static void hdmi_display_disable(struct omap_dss_device *dssdev)
 	mutex_unlock(&hdmi->lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hdmi_core_enable(struct omap_hdmi *hdmi)
 {
 	int r = 0;
@@ -459,6 +505,7 @@ static void hdmi_core_disable(struct omap_hdmi *hdmi)
 	mutex_unlock(&hdmi->lock);
 }
 
+<<<<<<< HEAD
 static int hdmi_connect(struct omap_dss_device *dssdev,
 		struct omap_dss_device *dst)
 {
@@ -504,6 +551,133 @@ static int hdmi_read_edid(struct omap_dss_device *dssdev,
 {
 	struct omap_hdmi *hdmi = dssdev_to_hdmi(dssdev);
 	bool need_enable;
+=======
+/* -----------------------------------------------------------------------------
+ * DRM Bridge Operations
+ */
+
+static int hdmi5_bridge_attach(struct drm_bridge *bridge,
+			       enum drm_bridge_attach_flags flags)
+{
+	struct omap_hdmi *hdmi = drm_bridge_to_hdmi(bridge);
+
+	if (!(flags & DRM_BRIDGE_ATTACH_NO_CONNECTOR))
+		return -EINVAL;
+
+	return drm_bridge_attach(bridge->encoder, hdmi->output.next_bridge,
+				 bridge, flags);
+}
+
+static void hdmi5_bridge_mode_set(struct drm_bridge *bridge,
+				  const struct drm_display_mode *mode,
+				  const struct drm_display_mode *adjusted_mode)
+{
+	struct omap_hdmi *hdmi = drm_bridge_to_hdmi(bridge);
+
+	mutex_lock(&hdmi->lock);
+
+	drm_display_mode_to_videomode(adjusted_mode, &hdmi->cfg.vm);
+
+	dispc_set_tv_pclk(hdmi->dss->dispc, adjusted_mode->clock * 1000);
+
+	mutex_unlock(&hdmi->lock);
+}
+
+static void hdmi5_bridge_enable(struct drm_bridge *bridge,
+				struct drm_bridge_state *bridge_state)
+{
+	struct omap_hdmi *hdmi = drm_bridge_to_hdmi(bridge);
+	struct drm_atomic_state *state = bridge_state->base.state;
+	struct drm_connector_state *conn_state;
+	struct drm_connector *connector;
+	struct drm_crtc_state *crtc_state;
+	unsigned long flags;
+	int ret;
+
+	/*
+	 * None of these should fail, as the bridge can't be enabled without a
+	 * valid CRTC to connector path with fully populated new states.
+	 */
+	connector = drm_atomic_get_new_connector_for_encoder(state,
+							     bridge->encoder);
+	if (WARN_ON(!connector))
+		return;
+	conn_state = drm_atomic_get_new_connector_state(state, connector);
+	if (WARN_ON(!conn_state))
+		return;
+	crtc_state = drm_atomic_get_new_crtc_state(state, conn_state->crtc);
+	if (WARN_ON(!crtc_state))
+		return;
+
+	hdmi->cfg.hdmi_dvi_mode = connector->display_info.is_hdmi
+				? HDMI_HDMI : HDMI_DVI;
+
+	if (connector->display_info.is_hdmi) {
+		const struct drm_display_mode *mode;
+		struct hdmi_avi_infoframe avi;
+
+		mode = &crtc_state->adjusted_mode;
+		ret = drm_hdmi_avi_infoframe_from_display_mode(&avi, connector,
+							       mode);
+		if (ret == 0)
+			hdmi->cfg.infoframe = avi;
+	}
+
+	mutex_lock(&hdmi->lock);
+
+	ret = hdmi_power_on_full(hdmi);
+	if (ret) {
+		DSSERR("failed to power on device\n");
+		goto done;
+	}
+
+	if (hdmi->audio_configured) {
+		ret = hdmi5_audio_config(&hdmi->core, &hdmi->wp,
+					 &hdmi->audio_config,
+					 hdmi->cfg.vm.pixelclock);
+		if (ret) {
+			DSSERR("Error restoring audio configuration: %d", ret);
+			hdmi->audio_abort_cb(&hdmi->pdev->dev);
+			hdmi->audio_configured = false;
+		}
+	}
+
+	spin_lock_irqsave(&hdmi->audio_playing_lock, flags);
+	if (hdmi->audio_configured && hdmi->audio_playing)
+		hdmi_start_audio_stream(hdmi);
+	hdmi->display_enabled = true;
+	spin_unlock_irqrestore(&hdmi->audio_playing_lock, flags);
+
+done:
+	mutex_unlock(&hdmi->lock);
+}
+
+static void hdmi5_bridge_disable(struct drm_bridge *bridge,
+				 struct drm_bridge_state *bridge_state)
+{
+	struct omap_hdmi *hdmi = drm_bridge_to_hdmi(bridge);
+	unsigned long flags;
+
+	mutex_lock(&hdmi->lock);
+
+	spin_lock_irqsave(&hdmi->audio_playing_lock, flags);
+	hdmi_stop_audio_stream(hdmi);
+	hdmi->display_enabled = false;
+	spin_unlock_irqrestore(&hdmi->audio_playing_lock, flags);
+
+	hdmi_power_off_full(hdmi);
+
+	mutex_unlock(&hdmi->lock);
+}
+
+static struct edid *hdmi5_bridge_get_edid(struct drm_bridge *bridge,
+					  struct drm_connector *connector)
+{
+	struct omap_hdmi *hdmi = drm_bridge_to_hdmi(bridge);
+	struct edid *edid;
+	bool need_enable;
+	int idlemode;
+>>>>>>> upstream/android-13
 	int r;
 
 	need_enable = hdmi->core_enabled == false;
@@ -511,14 +685,39 @@ static int hdmi_read_edid(struct omap_dss_device *dssdev,
 	if (need_enable) {
 		r = hdmi_core_enable(hdmi);
 		if (r)
+<<<<<<< HEAD
 			return r;
 	}
 
 	r = read_edid(hdmi, edid, len);
+=======
+			return NULL;
+	}
+
+	mutex_lock(&hdmi->lock);
+	r = hdmi_runtime_get(hdmi);
+	BUG_ON(r);
+
+	idlemode = REG_GET(hdmi->wp.base, HDMI_WP_SYSCONFIG, 3, 2);
+	/* No-idle mode */
+	REG_FLD_MOD(hdmi->wp.base, HDMI_WP_SYSCONFIG, 1, 3, 2);
+
+	hdmi5_core_ddc_init(&hdmi->core);
+
+	edid = drm_do_get_edid(connector, hdmi5_core_ddc_read, &hdmi->core);
+
+	hdmi5_core_ddc_uninit(&hdmi->core);
+
+	REG_FLD_MOD(hdmi->wp.base, HDMI_WP_SYSCONFIG, idlemode, 3, 2);
+
+	hdmi_runtime_put(hdmi);
+	mutex_unlock(&hdmi->lock);
+>>>>>>> upstream/android-13
 
 	if (need_enable)
 		hdmi_core_disable(hdmi);
 
+<<<<<<< HEAD
 	return r;
 }
 
@@ -602,6 +801,41 @@ err:
 }
 
 /* Audio callbacks */
+=======
+	return (struct edid *)edid;
+}
+
+static const struct drm_bridge_funcs hdmi5_bridge_funcs = {
+	.attach = hdmi5_bridge_attach,
+	.mode_set = hdmi5_bridge_mode_set,
+	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
+	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
+	.atomic_reset = drm_atomic_helper_bridge_reset,
+	.atomic_enable = hdmi5_bridge_enable,
+	.atomic_disable = hdmi5_bridge_disable,
+	.get_edid = hdmi5_bridge_get_edid,
+};
+
+static void hdmi5_bridge_init(struct omap_hdmi *hdmi)
+{
+	hdmi->bridge.funcs = &hdmi5_bridge_funcs;
+	hdmi->bridge.of_node = hdmi->pdev->dev.of_node;
+	hdmi->bridge.ops = DRM_BRIDGE_OP_EDID;
+	hdmi->bridge.type = DRM_MODE_CONNECTOR_HDMIA;
+
+	drm_bridge_add(&hdmi->bridge);
+}
+
+static void hdmi5_bridge_cleanup(struct omap_hdmi *hdmi)
+{
+	drm_bridge_remove(&hdmi->bridge);
+}
+
+/* -----------------------------------------------------------------------------
+ * Audio Callbacks
+ */
+
+>>>>>>> upstream/android-13
 static int hdmi_audio_startup(struct device *dev,
 			      void (*abort_cb)(struct device *dev))
 {
@@ -722,6 +956,7 @@ static int hdmi_audio_register(struct omap_hdmi *hdmi)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* HDMI HW IP initialisation */
 static int hdmi5_bind(struct device *dev, struct device *master, void *data)
 {
@@ -780,13 +1015,34 @@ static int hdmi5_bind(struct device *dev, struct device *master, void *data)
 	pm_runtime_enable(&pdev->dev);
 
 	hdmi_init_output(hdmi);
+=======
+/* -----------------------------------------------------------------------------
+ * Component Bind & Unbind
+ */
+
+static int hdmi5_bind(struct device *dev, struct device *master, void *data)
+{
+	struct dss_device *dss = dss_get_device(master);
+	struct omap_hdmi *hdmi = dev_get_drvdata(dev);
+	int r;
+
+	hdmi->dss = dss;
+
+	r = hdmi_pll_init(dss, hdmi->pdev, &hdmi->pll, &hdmi->wp);
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	r = hdmi_audio_register(hdmi);
 	if (r) {
 		DSSERR("Registering HDMI audio failed %d\n", r);
+<<<<<<< HEAD
 		hdmi_uninit_output(hdmi);
 		pm_runtime_disable(&pdev->dev);
 		return r;
+=======
+		goto err_pll_uninit;
+>>>>>>> upstream/android-13
 	}
 
 	hdmi->debugfs = dss_debugfs_create_file(dss, "hdmi", hdmi_dump_regs,
@@ -794,10 +1050,15 @@ static int hdmi5_bind(struct device *dev, struct device *master, void *data)
 
 	return 0;
 
+<<<<<<< HEAD
 err_pll:
 	hdmi_pll_uninit(&hdmi->pll);
 err_free:
 	kfree(hdmi);
+=======
+err_pll_uninit:
+	hdmi_pll_uninit(&hdmi->pll);
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -810,6 +1071,7 @@ static void hdmi5_unbind(struct device *dev, struct device *master, void *data)
 	if (hdmi->audio_pdev)
 		platform_device_unregister(hdmi->audio_pdev);
 
+<<<<<<< HEAD
 	hdmi_uninit_output(hdmi);
 
 	hdmi_pll_uninit(&hdmi->pll);
@@ -817,6 +1079,9 @@ static void hdmi5_unbind(struct device *dev, struct device *master, void *data)
 	pm_runtime_disable(dev);
 
 	kfree(hdmi);
+=======
+	hdmi_pll_uninit(&hdmi->pll);
+>>>>>>> upstream/android-13
 }
 
 static const struct component_ops hdmi5_component_ops = {
@@ -824,13 +1089,147 @@ static const struct component_ops hdmi5_component_ops = {
 	.unbind	= hdmi5_unbind,
 };
 
+<<<<<<< HEAD
 static int hdmi5_probe(struct platform_device *pdev)
 {
 	return component_add(&pdev->dev, &hdmi5_component_ops);
+=======
+/* -----------------------------------------------------------------------------
+ * Probe & Remove, Suspend & Resume
+ */
+
+static int hdmi5_init_output(struct omap_hdmi *hdmi)
+{
+	struct omap_dss_device *out = &hdmi->output;
+	int r;
+
+	hdmi5_bridge_init(hdmi);
+
+	out->dev = &hdmi->pdev->dev;
+	out->id = OMAP_DSS_OUTPUT_HDMI;
+	out->type = OMAP_DISPLAY_TYPE_HDMI;
+	out->name = "hdmi.0";
+	out->dispc_channel = OMAP_DSS_CHANNEL_DIGIT;
+	out->of_port = 0;
+
+	r = omapdss_device_init_output(out, &hdmi->bridge);
+	if (r < 0) {
+		hdmi5_bridge_cleanup(hdmi);
+		return r;
+	}
+
+	omapdss_device_register(out);
+
+	return 0;
+}
+
+static void hdmi5_uninit_output(struct omap_hdmi *hdmi)
+{
+	struct omap_dss_device *out = &hdmi->output;
+
+	omapdss_device_unregister(out);
+	omapdss_device_cleanup_output(out);
+
+	hdmi5_bridge_cleanup(hdmi);
+}
+
+static int hdmi5_probe_of(struct omap_hdmi *hdmi)
+{
+	struct platform_device *pdev = hdmi->pdev;
+	struct device_node *node = pdev->dev.of_node;
+	struct device_node *ep;
+	int r;
+
+	ep = of_graph_get_endpoint_by_regs(node, 0, 0);
+	if (!ep)
+		return 0;
+
+	r = hdmi_parse_lanes_of(pdev, ep, &hdmi->phy);
+	of_node_put(ep);
+	return r;
+}
+
+static int hdmi5_probe(struct platform_device *pdev)
+{
+	struct omap_hdmi *hdmi;
+	int irq;
+	int r;
+
+	hdmi = kzalloc(sizeof(*hdmi), GFP_KERNEL);
+	if (!hdmi)
+		return -ENOMEM;
+
+	hdmi->pdev = pdev;
+
+	dev_set_drvdata(&pdev->dev, hdmi);
+
+	mutex_init(&hdmi->lock);
+	spin_lock_init(&hdmi->audio_playing_lock);
+
+	r = hdmi5_probe_of(hdmi);
+	if (r)
+		goto err_free;
+
+	r = hdmi_wp_init(pdev, &hdmi->wp, 5);
+	if (r)
+		goto err_free;
+
+	r = hdmi_phy_init(pdev, &hdmi->phy, 5);
+	if (r)
+		goto err_free;
+
+	r = hdmi5_core_init(pdev, &hdmi->core);
+	if (r)
+		goto err_free;
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0) {
+		DSSERR("platform_get_irq failed\n");
+		r = -ENODEV;
+		goto err_free;
+	}
+
+	r = devm_request_threaded_irq(&pdev->dev, irq,
+			NULL, hdmi_irq_handler,
+			IRQF_ONESHOT, "OMAP HDMI", hdmi);
+	if (r) {
+		DSSERR("HDMI IRQ request failed\n");
+		goto err_free;
+	}
+
+	hdmi->vdda_reg = devm_regulator_get(&pdev->dev, "vdda");
+	if (IS_ERR(hdmi->vdda_reg)) {
+		r = PTR_ERR(hdmi->vdda_reg);
+		if (r != -EPROBE_DEFER)
+			DSSERR("can't get VDDA regulator\n");
+		goto err_free;
+	}
+
+	pm_runtime_enable(&pdev->dev);
+
+	r = hdmi5_init_output(hdmi);
+	if (r)
+		goto err_pm_disable;
+
+	r = component_add(&pdev->dev, &hdmi5_component_ops);
+	if (r)
+		goto err_uninit_output;
+
+	return 0;
+
+err_uninit_output:
+	hdmi5_uninit_output(hdmi);
+err_pm_disable:
+	pm_runtime_disable(&pdev->dev);
+err_free:
+	kfree(hdmi);
+	return r;
+>>>>>>> upstream/android-13
 }
 
 static int hdmi5_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	component_del(&pdev->dev, &hdmi5_component_ops);
 	return 0;
 }
@@ -861,6 +1260,20 @@ static const struct dev_pm_ops hdmi_pm_ops = {
 	.runtime_resume = hdmi_runtime_resume,
 };
 
+=======
+	struct omap_hdmi *hdmi = platform_get_drvdata(pdev);
+
+	component_del(&pdev->dev, &hdmi5_component_ops);
+
+	hdmi5_uninit_output(hdmi);
+
+	pm_runtime_disable(&pdev->dev);
+
+	kfree(hdmi);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct of_device_id hdmi_of_match[] = {
 	{ .compatible = "ti,omap5-hdmi", },
 	{ .compatible = "ti,dra7-hdmi", },
@@ -872,7 +1285,10 @@ struct platform_driver omapdss_hdmi5hw_driver = {
 	.remove		= hdmi5_remove,
 	.driver         = {
 		.name   = "omapdss_hdmi5",
+<<<<<<< HEAD
 		.pm	= &hdmi_pm_ops,
+=======
+>>>>>>> upstream/android-13
 		.of_match_table = hdmi_of_match,
 		.suppress_bind_attrs = true,
 	},

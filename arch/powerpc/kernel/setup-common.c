@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Common boot and setup code for both 32-bit and 64-bit.
  * Extracted from arch/powerpc/kernel/setup_64.c.
  *
  * Copyright (C) 2001 PPC64 Team, IBM Corp
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
 
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/sched.h>
 #include <linux/init.h>
@@ -35,13 +46,20 @@
 #include <linux/memblock.h>
 #include <linux/of_platform.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
 #include <asm/debugfs.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/paca.h>
 #include <asm/prom.h>
 #include <asm/processor.h>
 #include <asm/vdso_datapage.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/smp.h>
 #include <asm/elf.h>
 #include <asm/machdep.h>
@@ -67,11 +85,19 @@
 #include <asm/livepatch.h>
 #include <asm/mmu_context.h>
 #include <asm/cpu_has_feature.h>
+<<<<<<< HEAD
+=======
+#include <asm/kasan.h>
+#include <asm/mce.h>
+>>>>>>> upstream/android-13
 
 #include "setup.h"
 
 #ifdef DEBUG
+<<<<<<< HEAD
 #include <asm/udbg.h>
+=======
+>>>>>>> upstream/android-13
 #define DBG(fmt...) udbg_printf(fmt)
 #else
 #define DBG(fmt...)
@@ -93,10 +119,13 @@ EXPORT_SYMBOL_GPL(boot_cpuid);
  */
 int dcache_bsize;
 int icache_bsize;
+<<<<<<< HEAD
 int ucache_bsize;
 
 
 unsigned long klimit = (unsigned long) _end;
+=======
+>>>>>>> upstream/android-13
 
 /*
  * This still seems to be needed... -- paulus
@@ -133,13 +162,19 @@ int crashing_cpu = -1;
 /* also used by kexec */
 void machine_shutdown(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_FA_DUMP
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * if fadump is active, cleanup the fadump registration before we
 	 * shutdown.
 	 */
 	fadump_cleanup();
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	if (ppc_md.machine_shutdown)
 		ppc_md.machine_shutdown();
@@ -200,6 +235,7 @@ static void show_cpuinfo_summary(struct seq_file *m)
 {
 	struct device_node *root;
 	const char *model = NULL;
+<<<<<<< HEAD
 #if defined(CONFIG_SMP) && defined(CONFIG_PPC32)
 	unsigned long bogosum = 0;
 	int i;
@@ -208,6 +244,17 @@ static void show_cpuinfo_summary(struct seq_file *m)
 	seq_printf(m, "total bogomips\t: %lu.%02lu\n",
 		   bogosum/(500000/HZ), bogosum/(5000/HZ) % 100);
 #endif /* CONFIG_SMP && CONFIG_PPC32 */
+=======
+	unsigned long bogosum = 0;
+	int i;
+
+	if (IS_ENABLED(CONFIG_SMP) && IS_ENABLED(CONFIG_PPC32)) {
+		for_each_online_cpu(i)
+			bogosum += loops_per_jiffy;
+		seq_printf(m, "total bogomips\t: %lu.%02lu\n",
+			   bogosum / (500000 / HZ), bogosum / (5000 / HZ) % 100);
+	}
+>>>>>>> upstream/android-13
 	seq_printf(m, "timebase\t: %lu\n", ppc_tb_freq);
 	if (ppc_md.name)
 		seq_printf(m, "platform\t: %s\n", ppc_md.name);
@@ -221,11 +268,18 @@ static void show_cpuinfo_summary(struct seq_file *m)
 	if (ppc_md.show_cpuinfo != NULL)
 		ppc_md.show_cpuinfo(m);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 	/* Display the amount of memory */
 	seq_printf(m, "Memory\t\t: %d MB\n",
 		   (unsigned int)(total_memory / (1024 * 1024)));
 #endif
+=======
+	/* Display the amount of memory */
+	if (IS_ENABLED(CONFIG_PPC32))
+		seq_printf(m, "Memory\t\t: %d MB\n",
+			   (unsigned int)(total_memory / (1024 * 1024)));
+>>>>>>> upstream/android-13
 }
 
 static int show_cpuinfo(struct seq_file *m, void *v)
@@ -244,6 +298,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 	maj = (pvr >> 8) & 0xFF;
 	min = pvr & 0xFF;
 
+<<<<<<< HEAD
 	seq_printf(m, "processor\t: %lu\n", cpu_id);
 	seq_printf(m, "cpu\t\t: ");
 
@@ -272,6 +327,33 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 		seq_printf(m, "temperature \t: %u-%u C (uncalibrated)\n",
 			   temp & 0xff, temp >> 16);
 #endif
+=======
+	seq_printf(m, "processor\t: %lu\ncpu\t\t: ", cpu_id);
+
+	if (cur_cpu_spec->pvr_mask && cur_cpu_spec->cpu_name)
+		seq_puts(m, cur_cpu_spec->cpu_name);
+	else
+		seq_printf(m, "unknown (%08x)", pvr);
+
+	if (cpu_has_feature(CPU_FTR_ALTIVEC))
+		seq_puts(m, ", altivec supported");
+
+	seq_putc(m, '\n');
+
+#ifdef CONFIG_TAU
+	if (cpu_has_feature(CPU_FTR_TAU)) {
+		if (IS_ENABLED(CONFIG_TAU_AVERAGE)) {
+			/* more straightforward, but potentially misleading */
+			seq_printf(m,  "temperature \t: %u C (uncalibrated)\n",
+				   cpu_temp(cpu_id));
+		} else {
+			/* show the actual temp sensor range */
+			u32 temp;
+			temp = cpu_temp_both(cpu_id);
+			seq_printf(m, "temperature \t: %u-%u C (uncalibrated)\n",
+				   temp & 0xff, temp >> 16);
+		}
+>>>>>>> upstream/android-13
 	}
 #endif /* CONFIG_TAU */
 
@@ -313,15 +395,22 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 		}
 	} else {
 		switch (PVR_VER(pvr)) {
+<<<<<<< HEAD
 			case 0x0020:	/* 403 family */
 				maj = PVR_MAJ(pvr) + 1;
 				min = PVR_MIN(pvr);
 				break;
+=======
+>>>>>>> upstream/android-13
 			case 0x1008:	/* 740P/750P ?? */
 				maj = ((pvr >> 8) & 0xFF) - 1;
 				min = pvr & 0xFF;
 				break;
 			case 0x004e: /* POWER9 bits 12-15 give chip type */
+<<<<<<< HEAD
+=======
+			case 0x0080: /* POWER10 bit 12 gives SMT8/4 */
+>>>>>>> upstream/android-13
 				maj = (pvr >> 8) & 0x0F;
 				min = pvr & 0xFF;
 				break;
@@ -335,12 +424,20 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 	seq_printf(m, "revision\t: %hd.%hd (pvr %04x %04x)\n",
 		   maj, min, PVR_VER(pvr), PVR_REV(pvr));
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 	seq_printf(m, "bogomips\t: %lu.%02lu\n",
 		   loops_per_jiffy / (500000/HZ),
 		   (loops_per_jiffy / (5000/HZ)) % 100);
 #endif
 	seq_printf(m, "\n");
+=======
+	if (IS_ENABLED(CONFIG_PPC32))
+		seq_printf(m, "bogomips\t: %lu.%02lu\n", loops_per_jiffy / (500000 / HZ),
+			   (loops_per_jiffy / (5000 / HZ)) % 100);
+
+	seq_putc(m, '\n');
+>>>>>>> upstream/android-13
 
 	/* If this is the last cpu, print the summary */
 	if (cpumask_next(cpu_id, cpu_online_mask) >= nr_cpu_ids)
@@ -401,8 +498,13 @@ void __init check_for_initrd(void)
 
 #ifdef CONFIG_SMP
 
+<<<<<<< HEAD
 int threads_per_core, threads_per_subcore, threads_shift;
 cpumask_t threads_core_mask;
+=======
+int threads_per_core, threads_per_subcore, threads_shift __read_mostly;
+cpumask_t threads_core_mask __read_mostly;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(threads_per_core);
 EXPORT_SYMBOL_GPL(threads_per_subcore);
 EXPORT_SYMBOL_GPL(threads_shift);
@@ -459,9 +561,17 @@ void __init smp_setup_cpu_maps(void)
 
 	DBG("smp_setup_cpu_maps()\n");
 
+<<<<<<< HEAD
 	cpu_to_phys_id = __va(memblock_alloc(nr_cpu_ids * sizeof(u32),
 							__alignof__(u32)));
 	memset(cpu_to_phys_id, 0, nr_cpu_ids * sizeof(u32));
+=======
+	cpu_to_phys_id = memblock_alloc(nr_cpu_ids * sizeof(u32),
+					__alignof__(u32));
+	if (!cpu_to_phys_id)
+		panic("%s: Failed to allocate %zu bytes align=0x%zx\n",
+		      __func__, nr_cpu_ids * sizeof(u32), __alignof__(u32));
+>>>>>>> upstream/android-13
 
 	for_each_node_by_type(dn, "cpu") {
 		const __be32 *intserv;
@@ -635,7 +745,11 @@ void probe_machine(void)
 	}
 	/* What can we do if we didn't find ? */
 	if (machine_id >= &__machine_desc_end) {
+<<<<<<< HEAD
 		DBG("No suitable machine found !\n");
+=======
+		pr_err("No suitable machine description found !\n");
+>>>>>>> upstream/android-13
 		for (;;);
 	}
 
@@ -688,7 +802,11 @@ int check_legacy_ioport(unsigned long base_port)
 		return ret;
 	parent = of_get_parent(np);
 	if (parent) {
+<<<<<<< HEAD
 		if (strcmp(parent->type, "isa") == 0)
+=======
+		if (of_node_is_type(parent, "isa"))
+>>>>>>> upstream/android-13
 			ret = 0;
 		of_node_put(parent);
 	}
@@ -721,8 +839,33 @@ static struct notifier_block ppc_panic_block = {
 	.priority = INT_MIN /* may not return; must be done last */
 };
 
+<<<<<<< HEAD
 void __init setup_panic(void)
 {
+=======
+/*
+ * Dump out kernel offset information on panic.
+ */
+static int dump_kernel_offset(struct notifier_block *self, unsigned long v,
+			      void *p)
+{
+	pr_emerg("Kernel Offset: 0x%lx from 0x%lx\n",
+		 kaslr_offset(), KERNELBASE);
+
+	return 0;
+}
+
+static struct notifier_block kernel_offset_notifier = {
+	.notifier_call = dump_kernel_offset
+};
+
+void __init setup_panic(void)
+{
+	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE) && kaslr_offset() > 0)
+		atomic_notifier_chain_register(&panic_notifier_list,
+					       &kernel_offset_notifier);
+
+>>>>>>> upstream/android-13
 	/* PPC64 always does a hard irq disable in its panic handler */
 	if (!IS_ENABLED(CONFIG_PPC64) && !ppc_md.panic)
 		return;
@@ -738,23 +881,35 @@ void __init setup_panic(void)
  * BUG() in that case.
  */
 
+<<<<<<< HEAD
 #ifdef CONFIG_NOT_COHERENT_CACHE
 #define KERNEL_COHERENCY	0
 #else
 #define KERNEL_COHERENCY	1
 #endif
+=======
+#define KERNEL_COHERENCY	(!IS_ENABLED(CONFIG_NOT_COHERENT_CACHE))
+>>>>>>> upstream/android-13
 
 static int __init check_cache_coherency(void)
 {
 	struct device_node *np;
 	const void *prop;
+<<<<<<< HEAD
 	int devtree_coherency;
+=======
+	bool devtree_coherency;
+>>>>>>> upstream/android-13
 
 	np = of_find_node_by_path("/");
 	prop = of_get_property(np, "coherency-off", NULL);
 	of_node_put(np);
 
+<<<<<<< HEAD
 	devtree_coherency = prop ? 0 : 1;
+=======
+	devtree_coherency = prop ? false : true;
+>>>>>>> upstream/android-13
 
 	if (devtree_coherency != KERNEL_COHERENCY) {
 		printk(KERN_ERR
@@ -770,6 +925,7 @@ static int __init check_cache_coherency(void)
 late_initcall(check_cache_coherency);
 #endif /* CONFIG_CHECK_CACHE_COHERENCY */
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
 struct dentry *powerpc_debugfs_root;
 EXPORT_SYMBOL(powerpc_debugfs_root);
@@ -783,11 +939,14 @@ static int powerpc_debugfs_init(void)
 arch_initcall(powerpc_debugfs_init);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void ppc_printk_progress(char *s, unsigned short hex)
 {
 	pr_info("%s\n", s);
 }
 
+<<<<<<< HEAD
 void arch_setup_pdev_archdata(struct platform_device *pdev)
 {
 	pdev->archdata.dma_mask = DMA_BIT_MASK(32);
@@ -804,13 +963,21 @@ static __init void print_system_info(void)
 #ifdef CONFIG_PPC_STD_MMU_32
 	pr_info("Hash_size         = 0x%lx\n", Hash_size);
 #endif
+=======
+static __init void print_system_info(void)
+{
+	pr_info("-----------------------------------------------------\n");
+>>>>>>> upstream/android-13
 	pr_info("phys_mem_size     = 0x%llx\n",
 		(unsigned long long)memblock_phys_mem_size());
 
 	pr_info("dcache_bsize      = 0x%x\n", dcache_bsize);
 	pr_info("icache_bsize      = 0x%x\n", icache_bsize);
+<<<<<<< HEAD
 	if (ucache_bsize != 0)
 		pr_info("ucache_bsize      = 0x%x\n", ucache_bsize);
+=======
+>>>>>>> upstream/android-13
 
 	pr_info("cpu_features      = 0x%016lx\n", cur_cpu_spec->cpu_features);
 	pr_info("  possible        = 0x%016lx\n",
@@ -823,6 +990,7 @@ static __init void print_system_info(void)
 	pr_info("mmu_features      = 0x%08x\n", cur_cpu_spec->mmu_features);
 #ifdef CONFIG_PPC64
 	pr_info("firmware_features = 0x%016lx\n", powerpc_firmware_features);
+<<<<<<< HEAD
 #endif
 
 #ifdef CONFIG_PPC_BOOK3S_64
@@ -837,6 +1005,17 @@ static __init void print_system_info(void)
 	if (Hash_mask)
 		pr_info("Hash_mask         = 0x%lx\n", Hash_mask);
 #endif
+=======
+#ifdef CONFIG_PPC_BOOK3S
+	pr_info("vmalloc start     = 0x%lx\n", KERN_VIRT_START);
+	pr_info("IO start          = 0x%lx\n", KERN_IO_START);
+	pr_info("vmemmap start     = 0x%lx\n", (unsigned long)vmemmap);
+#endif
+#endif
+
+	if (!early_radix_enabled())
+		print_system_hash_info();
+>>>>>>> upstream/android-13
 
 	if (PHYSICAL_START > 0)
 		pr_info("physical_start    = 0x%llx\n",
@@ -845,7 +1024,11 @@ static __init void print_system_info(void)
 }
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 static void smp_setup_pacas(void)
+=======
+static void __init smp_setup_pacas(void)
+>>>>>>> upstream/android-13
 {
 	int cpu;
 
@@ -867,6 +1050,11 @@ static void smp_setup_pacas(void)
  */
 void __init setup_arch(char **cmdline_p)
 {
+<<<<<<< HEAD
+=======
+	kasan_init();
+
+>>>>>>> upstream/android-13
 	*cmdline_p = boot_command_line;
 
 	/* Set a half-reasonable default so udelay does something sensible */
@@ -937,6 +1125,7 @@ void __init setup_arch(char **cmdline_p)
 	/* Reserve large chunks of memory for use by CMA for KVM. */
 	kvm_cma_reserve();
 
+<<<<<<< HEAD
 	klp_init_thread_info(&init_thread_info);
 
 	init_mm.start_code = (unsigned long)_stext;
@@ -958,17 +1147,36 @@ void __init setup_arch(char **cmdline_p)
 #ifdef CONFIG_SPAPR_TCE_IOMMU
 	mm_iommu_init(&init_mm);
 #endif
+=======
+	/*  Reserve large chunks of memory for us by CMA for hugetlb */
+	gigantic_hugetlb_cma_reserve();
+
+	klp_init_thread_info(&init_task);
+
+	setup_initial_init_mm(_stext, _etext, _edata, _end);
+
+	mm_iommu_init(&init_mm);
+>>>>>>> upstream/android-13
 	irqstack_early_init();
 	exc_lvl_early_init();
 	emergency_stack_init();
 
+<<<<<<< HEAD
+=======
+	mce_init();
+>>>>>>> upstream/android-13
 	smp_release_cpus();
 
 	initmem_init();
 
+<<<<<<< HEAD
 #ifdef CONFIG_DUMMY_CONSOLE
 	conswitchp = &dummy_con;
 #endif
+=======
+	early_memtest(min_low_pfn << PAGE_SHIFT, max_low_pfn << PAGE_SHIFT);
+
+>>>>>>> upstream/android-13
 	if (ppc_md.setup_arch)
 		ppc_md.setup_arch();
 
@@ -980,10 +1188,17 @@ void __init setup_arch(char **cmdline_p)
 	/* Initialize the MMU context management stuff. */
 	mmu_context_init();
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 	/* Interrupt code needs to be 64K-aligned. */
 	if ((unsigned long)_stext & 0xffff)
 		panic("Kernelbase not 64K-aligned (0x%lx)!\n",
 		      (unsigned long)_stext);
 #endif
+=======
+	/* Interrupt code needs to be 64K-aligned. */
+	if (IS_ENABLED(CONFIG_PPC64) && (unsigned long)_stext & 0xffff)
+		panic("Kernelbase not 64K-aligned (0x%lx)!\n",
+		      (unsigned long)_stext);
+>>>>>>> upstream/android-13
 }

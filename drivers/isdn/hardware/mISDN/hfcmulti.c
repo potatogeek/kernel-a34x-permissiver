@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * hfcmulti.c  low level driver for hfc-4s/hfc-8s/hfc-e1 based cards
  *
@@ -10,6 +14,7 @@
  * Copyright 2008  by Karsten Keil (kkeil@suse.de)
  * Copyright 2008  by Andreas Eversberg (jolly@eversberg.eu)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -25,6 +30,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * Thanks to Cologne Chip AG for this great controller!
  */
 
@@ -187,13 +194,21 @@
 #define	MAX_FRAGS	(32 * MAX_CARDS)
 
 static LIST_HEAD(HFClist);
+<<<<<<< HEAD
 static spinlock_t HFClock; /* global hfc list lock */
+=======
+static DEFINE_SPINLOCK(HFClock); /* global hfc list lock */
+>>>>>>> upstream/android-13
 
 static void ph_state_change(struct dchannel *);
 
 static struct hfc_multi *syncmaster;
 static int plxsd_master; /* if we have a master card (yet) */
+<<<<<<< HEAD
 static spinlock_t plx_lock; /* may not acquire other lock inside */
+=======
+static DEFINE_SPINLOCK(plx_lock); /* may not acquire other lock inside */
+>>>>>>> upstream/android-13
 
 #define	TYP_E1		1
 #define	TYP_4S		4
@@ -2262,8 +2277,13 @@ next_frame:
 	if (bch) {
 		maxlen = bchannel_get_rxbuf(bch, Zsize);
 		if (maxlen < 0) {
+<<<<<<< HEAD
 			pr_warning("card%d.B%d: No bufferspace for %d bytes\n",
 				   hc->id + 1, bch->nr, Zsize);
+=======
+			pr_warn("card%d.B%d: No bufferspace for %d bytes\n",
+				hc->id + 1, bch->nr, Zsize);
+>>>>>>> upstream/android-13
 			return;
 		}
 		sp = &bch->rx_skb;
@@ -2274,8 +2294,13 @@ next_frame:
 		if (*sp == NULL) {
 			*sp = mI_alloc_skb(maxlen, GFP_ATOMIC);
 			if (*sp == NULL) {
+<<<<<<< HEAD
 				pr_warning("card%d: No mem for dch rx_skb\n",
 					   hc->id + 1);
+=======
+				pr_warn("card%d: No mem for dch rx_skb\n",
+					hc->id + 1);
+>>>>>>> upstream/android-13
 				return;
 			}
 		}
@@ -2762,8 +2787,11 @@ hfcmulti_interrupt(int intno, void *dev_id)
 		if (hc->ctype != HFC_TYPE_E1)
 			ph_state_irq(hc, r_irq_statech);
 	}
+<<<<<<< HEAD
 	if (status & V_EXT_IRQSTA)
 		; /* external IRQ */
+=======
+>>>>>>> upstream/android-13
 	if (status & V_LOST_STA) {
 		/* LOST IRQ */
 		HFC_outb(hc, R_INC_RES_FIFO, V_RES_LOST); /* clear irq! */
@@ -5496,9 +5524,12 @@ HFCmulti_init(void)
 	printk(KERN_DEBUG "%s: IRQ_DEBUG IS ENABLED!\n", __func__);
 #endif
 
+<<<<<<< HEAD
 	spin_lock_init(&HFClock);
 	spin_lock_init(&plx_lock);
 
+=======
+>>>>>>> upstream/android-13
 	if (debug & DEBUG_HFCMULTI_INIT)
 		printk(KERN_DEBUG "%s: init entered\n", __func__);
 

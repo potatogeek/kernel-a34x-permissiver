@@ -8,6 +8,9 @@
  */
 #ifndef SEC_DEBUG_HARD_RESET_HOOK_H
 #define SEC_DEBUG_HARD_RESET_HOOK_H
+<<<<<<< HEAD
 bool is_hard_reset_occurred(void);
+=======
+>>>>>>> upstream/android-13
 void hard_reset_delay(void);
 #endif

@@ -8,9 +8,21 @@
 #include <linux/netdevice.h>
 #include <uapi/linux/bpf.h>
 #include <linux/version.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 #define _(P) ({typeof(P) val = 0; bpf_probe_read(&val, sizeof(val), &P); val;})
+=======
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+
+#define _(P)                                                                   \
+	({                                                                     \
+		typeof(P) val = 0;                                             \
+		bpf_probe_read_kernel(&val, sizeof(val), &(P));                \
+		val;                                                           \
+	})
+>>>>>>> upstream/android-13
 
 /* kprobe is NOT a stable ABI
  * kernel functions can be removed, renamed or completely change semantics.
@@ -33,7 +45,11 @@ int bpf_prog1(struct pt_regs *ctx)
 	dev = _(skb->dev);
 	len = _(skb->len);
 
+<<<<<<< HEAD
 	bpf_probe_read(devname, sizeof(devname), dev->name);
+=======
+	bpf_probe_read_kernel(devname, sizeof(devname), dev->name);
+>>>>>>> upstream/android-13
 
 	if (devname[0] == 'l' && devname[1] == 'o') {
 		char fmt[] = "skb %p len %d\n";

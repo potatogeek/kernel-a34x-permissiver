@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2017 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015 - 2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define packettype_name(etype) { RHF_RCV_TYPE_##etype, #etype }
@@ -62,3 +68,8 @@ __print_symbolic(etype,                         \
 #include "trace_rx.h"
 #include "trace_tx.h"
 #include "trace_mmu.h"
+<<<<<<< HEAD
+=======
+#include "trace_iowait.h"
+#include "trace_tid.h"
+>>>>>>> upstream/android-13

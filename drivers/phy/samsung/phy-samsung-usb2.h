@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Samsung SoC USB 1.1/2.0 PHY driver
  *
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  * Author: Kamil Debski <k.debski@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PHY_EXYNOS_USB2_H
@@ -46,7 +53,11 @@ struct samsung_usb2_phy_driver {
 	struct regmap *reg_pmu;
 	struct regmap *reg_sys;
 	spinlock_t lock;
+<<<<<<< HEAD
 	struct samsung_usb2_phy_instance instances[0];
+=======
+	struct samsung_usb2_phy_instance instances[];
+>>>>>>> upstream/android-13
 };
 
 struct samsung_usb2_common_phy {
@@ -69,5 +80,9 @@ extern const struct samsung_usb2_phy_config exynos3250_usb2_phy_config;
 extern const struct samsung_usb2_phy_config exynos4210_usb2_phy_config;
 extern const struct samsung_usb2_phy_config exynos4x12_usb2_phy_config;
 extern const struct samsung_usb2_phy_config exynos5250_usb2_phy_config;
+<<<<<<< HEAD
+=======
+extern const struct samsung_usb2_phy_config exynos5420_usb2_phy_config;
+>>>>>>> upstream/android-13
 extern const struct samsung_usb2_phy_config s5pv210_usb2_phy_config;
 #endif

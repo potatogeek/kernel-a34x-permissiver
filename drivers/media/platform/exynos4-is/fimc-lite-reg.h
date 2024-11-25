@@ -1,14 +1,25 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Samsung Electronics Co., Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Samsung Electronics Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef FIMC_LITE_REG_H_
 #define FIMC_LITE_REG_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/bitops.h>
+
+>>>>>>> upstream/android-13
 #include "fimc-lite.h"
 
 /* Camera Source size */
@@ -30,6 +41,7 @@
 /* User defined formats. x = 0...15 */
 #define FLITE_REG_CIGCTRL_USER(x)		((0x30 + x - 1) << 24)
 #define FLITE_REG_CIGCTRL_FMT_MASK		(0x3f << 24)
+<<<<<<< HEAD
 #define FLITE_REG_CIGCTRL_SHADOWMASK_DISABLE	(1 << 21)
 #define FLITE_REG_CIGCTRL_ODMA_DISABLE		(1 << 20)
 #define FLITE_REG_CIGCTRL_SWRST_REQ		(1 << 19)
@@ -51,6 +63,29 @@
 #define FLITE_REG_CIIMGCPT			0x08
 #define FLITE_REG_CIIMGCPT_IMGCPTEN		(1 << 31)
 #define FLITE_REG_CIIMGCPT_CPT_FREN		(1 << 25)
+=======
+#define FLITE_REG_CIGCTRL_SHADOWMASK_DISABLE	BIT(21)
+#define FLITE_REG_CIGCTRL_ODMA_DISABLE		BIT(20)
+#define FLITE_REG_CIGCTRL_SWRST_REQ		BIT(19)
+#define FLITE_REG_CIGCTRL_SWRST_RDY		BIT(18)
+#define FLITE_REG_CIGCTRL_SWRST			BIT(17)
+#define FLITE_REG_CIGCTRL_TEST_PATTERN_COLORBAR	BIT(15)
+#define FLITE_REG_CIGCTRL_INVPOLPCLK		BIT(14)
+#define FLITE_REG_CIGCTRL_INVPOLVSYNC		BIT(13)
+#define FLITE_REG_CIGCTRL_INVPOLHREF		BIT(12)
+/* Interrupts mask bits (1 disables an interrupt) */
+#define FLITE_REG_CIGCTRL_IRQ_LASTEN		BIT(8)
+#define FLITE_REG_CIGCTRL_IRQ_ENDEN		BIT(7)
+#define FLITE_REG_CIGCTRL_IRQ_STARTEN		BIT(6)
+#define FLITE_REG_CIGCTRL_IRQ_OVFEN		BIT(5)
+#define FLITE_REG_CIGCTRL_IRQ_DISABLE_MASK	(0xf << 5)
+#define FLITE_REG_CIGCTRL_SELCAM_MIPI		BIT(3)
+
+/* Image Capture Enable */
+#define FLITE_REG_CIIMGCPT			0x08
+#define FLITE_REG_CIIMGCPT_IMGCPTEN		BIT(31)
+#define FLITE_REG_CIIMGCPT_CPT_FREN		BIT(25)
+>>>>>>> upstream/android-13
 #define FLITE_REG_CIIMGCPT_CPT_MOD_FRCNT	(1 << 18)
 #define FLITE_REG_CIIMGCPT_CPT_MOD_FREN		(0 << 18)
 
@@ -59,10 +94,17 @@
 
 /* Camera Window Offset */
 #define FLITE_REG_CIWDOFST			0x10
+<<<<<<< HEAD
 #define FLITE_REG_CIWDOFST_WINOFSEN		(1 << 31)
 #define FLITE_REG_CIWDOFST_CLROVIY		(1 << 31)
 #define FLITE_REG_CIWDOFST_CLROVFICB		(1 << 15)
 #define FLITE_REG_CIWDOFST_CLROVFICR		(1 << 14)
+=======
+#define FLITE_REG_CIWDOFST_WINOFSEN		BIT(31)
+#define FLITE_REG_CIWDOFST_CLROVIY		BIT(31)
+#define FLITE_REG_CIWDOFST_CLROVFICB		BIT(15)
+#define FLITE_REG_CIWDOFST_CLROVFICR		BIT(14)
+>>>>>>> upstream/android-13
 #define FLITE_REG_CIWDOFST_OFST_MASK		((0x1fff << 16) | 0x1fff)
 
 /* Camera Window Offset2 */
@@ -70,8 +112,13 @@
 
 /* Camera Output DMA Format */
 #define FLITE_REG_CIODMAFMT			0x18
+<<<<<<< HEAD
 #define FLITE_REG_CIODMAFMT_RAW_CON		(1 << 15)
 #define FLITE_REG_CIODMAFMT_PACK12		(1 << 14)
+=======
+#define FLITE_REG_CIODMAFMT_RAW_CON		BIT(15)
+#define FLITE_REG_CIODMAFMT_PACK12		BIT(14)
+>>>>>>> upstream/android-13
 #define FLITE_REG_CIODMAFMT_YCBYCR		(0 << 4)
 #define FLITE_REG_CIODMAFMT_YCRYCB		(1 << 4)
 #define FLITE_REG_CIODMAFMT_CBYCRY		(2 << 4)
@@ -91,6 +138,7 @@
 
 /* Camera Status */
 #define FLITE_REG_CISTATUS			0x40
+<<<<<<< HEAD
 #define FLITE_REG_CISTATUS_MIPI_VVALID		(1 << 22)
 #define FLITE_REG_CISTATUS_MIPI_HVALID		(1 << 21)
 #define FLITE_REG_CISTATUS_MIPI_DVALID		(1 << 20)
@@ -104,21 +152,49 @@
 #define FLITE_REG_CISTATUS_IRQ_SRC_FRMSTART	(1 << 5)
 #define FLITE_REG_CISTATUS_IRQ_SRC_FRMEND	(1 << 4)
 #define FLITE_REG_CISTATUS_IRQ_CAM		(1 << 0)
+=======
+#define FLITE_REG_CISTATUS_MIPI_VVALID		BIT(22)
+#define FLITE_REG_CISTATUS_MIPI_HVALID		BIT(21)
+#define FLITE_REG_CISTATUS_MIPI_DVALID		BIT(20)
+#define FLITE_REG_CISTATUS_ITU_VSYNC		BIT(14)
+#define FLITE_REG_CISTATUS_ITU_HREFF		BIT(13)
+#define FLITE_REG_CISTATUS_OVFIY		BIT(10)
+#define FLITE_REG_CISTATUS_OVFICB		BIT(9)
+#define FLITE_REG_CISTATUS_OVFICR		BIT(8)
+#define FLITE_REG_CISTATUS_IRQ_SRC_OVERFLOW	BIT(7)
+#define FLITE_REG_CISTATUS_IRQ_SRC_LASTCAPEND	BIT(6)
+#define FLITE_REG_CISTATUS_IRQ_SRC_FRMSTART	BIT(5)
+#define FLITE_REG_CISTATUS_IRQ_SRC_FRMEND	BIT(4)
+#define FLITE_REG_CISTATUS_IRQ_CAM		BIT(0)
+>>>>>>> upstream/android-13
 #define FLITE_REG_CISTATUS_IRQ_MASK		(0xf << 4)
 
 /* Camera Status2 */
 #define FLITE_REG_CISTATUS2			0x44
+<<<<<<< HEAD
 #define FLITE_REG_CISTATUS2_LASTCAPEND		(1 << 1)
 #define FLITE_REG_CISTATUS2_FRMEND		(1 << 0)
 
 /* Qos Threshold */
 #define FLITE_REG_CITHOLD			0xf0
 #define FLITE_REG_CITHOLD_W_QOS_EN		(1 << 30)
+=======
+#define FLITE_REG_CISTATUS2_LASTCAPEND		BIT(1)
+#define FLITE_REG_CISTATUS2_FRMEND		BIT(0)
+
+/* Qos Threshold */
+#define FLITE_REG_CITHOLD			0xf0
+#define FLITE_REG_CITHOLD_W_QOS_EN		BIT(30)
+>>>>>>> upstream/android-13
 
 /* Camera General Purpose */
 #define FLITE_REG_CIGENERAL			0xfc
 /* b0: 1 - camera B, 0 - camera A */
+<<<<<<< HEAD
 #define FLITE_REG_CIGENERAL_CAM_B		(1 << 0)
+=======
+#define FLITE_REG_CIGENERAL_CAM_B		BIT(0)
+>>>>>>> upstream/android-13
 
 #define FLITE_REG_CIFCNTSEQ			0x100
 #define FLITE_REG_CIOSAN(x)			(0x200 + (4 * (x)))

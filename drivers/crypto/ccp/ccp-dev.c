@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * AMD Cryptographic Coprocessor (CCP) driver
  *
@@ -11,6 +12,19 @@
  * published by the Free Software Foundation.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * AMD Cryptographic Coprocessor (CCP) driver
+ *
+ * Copyright (C) 2013,2019 Advanced Micro Devices, Inc.
+ *
+ * Author: Tom Lendacky <thomas.lendacky@amd.com>
+ * Author: Gary R Hook <gary.hook@amd.com>
+ */
+
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/kthread.h>
 #include <linux/sched.h>
@@ -22,6 +36,10 @@
 #include <linux/delay.h>
 #include <linux/hw_random.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
+=======
+#include <linux/atomic.h>
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86
 #include <asm/cpu_device_id.h>
 #endif
@@ -29,6 +47,22 @@
 
 #include "ccp-dev.h"
 
+<<<<<<< HEAD
+=======
+#define MAX_CCPS 32
+
+/* Limit CCP use to a specifed number of queues per device */
+static unsigned int nqueues = 0;
+module_param(nqueues, uint, 0444);
+MODULE_PARM_DESC(nqueues, "Number of queues per CCP (minimum 1; default: all available)");
+
+/* Limit the maximum number of configured CCPs */
+static atomic_t dev_count = ATOMIC_INIT(0);
+static unsigned int max_devs = MAX_CCPS;
+module_param(max_devs, uint, 0444);
+MODULE_PARM_DESC(max_devs, "Maximum number of CCPs to enable (default: all; 0 disables all CCPs)");
+
+>>>>>>> upstream/android-13
 struct ccp_tasklet_data {
 	struct completion completion;
 	struct ccp_cmd *cmd;
@@ -458,7 +492,11 @@ int ccp_cmd_queue_thread(void *data)
 /**
  * ccp_alloc_struct - allocate and initialize the ccp_device struct
  *
+<<<<<<< HEAD
  * @dev: device struct of the CCP
+=======
+ * @sp: sp_device struct of the CCP
+>>>>>>> upstream/android-13
  */
 struct ccp_device *ccp_alloc_struct(struct sp_device *sp)
 {
@@ -519,7 +557,10 @@ int ccp_trng_read(struct hwrng *rng, void *data, size_t max, bool wait)
 	return len;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
+=======
+>>>>>>> upstream/android-13
 bool ccp_queues_suspended(struct ccp_device *ccp)
 {
 	unsigned int suspended = 0;
@@ -537,7 +578,11 @@ bool ccp_queues_suspended(struct ccp_device *ccp)
 	return ccp->cmd_q_count == suspended;
 }
 
+<<<<<<< HEAD
 int ccp_dev_suspend(struct sp_device *sp, pm_message_t state)
+=======
+void ccp_dev_suspend(struct sp_device *sp)
+>>>>>>> upstream/android-13
 {
 	struct ccp_device *ccp = sp->ccp_data;
 	unsigned long flags;
@@ -545,7 +590,11 @@ int ccp_dev_suspend(struct sp_device *sp, pm_message_t state)
 
 	/* If there's no device there's nothing to do */
 	if (!ccp)
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&ccp->cmd_lock, flags);
 
@@ -561,11 +610,17 @@ int ccp_dev_suspend(struct sp_device *sp, pm_message_t state)
 	while (!ccp_queues_suspended(ccp))
 		wait_event_interruptible(ccp->suspend_queue,
 					 ccp_queues_suspended(ccp));
+<<<<<<< HEAD
 
 	return 0;
 }
 
 int ccp_dev_resume(struct sp_device *sp)
+=======
+}
+
+void ccp_dev_resume(struct sp_device *sp)
+>>>>>>> upstream/android-13
 {
 	struct ccp_device *ccp = sp->ccp_data;
 	unsigned long flags;
@@ -573,7 +628,11 @@ int ccp_dev_resume(struct sp_device *sp)
 
 	/* If there's no device there's nothing to do */
 	if (!ccp)
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&ccp->cmd_lock, flags);
 
@@ -586,10 +645,14 @@ int ccp_dev_resume(struct sp_device *sp)
 	}
 
 	spin_unlock_irqrestore(&ccp->cmd_lock, flags);
+<<<<<<< HEAD
 
 	return 0;
 }
 #endif
+=======
+}
+>>>>>>> upstream/android-13
 
 int ccp_dev_init(struct sp_device *sp)
 {
@@ -597,12 +660,30 @@ int ccp_dev_init(struct sp_device *sp)
 	struct ccp_device *ccp;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Check how many we have so far, and stop after reaching
+	 * that number
+	 */
+	if (atomic_inc_return(&dev_count) > max_devs)
+		return 0; /* don't fail the load */
+
+>>>>>>> upstream/android-13
 	ret = -ENOMEM;
 	ccp = ccp_alloc_struct(sp);
 	if (!ccp)
 		goto e_err;
 	sp->ccp_data = ccp;
 
+<<<<<<< HEAD
+=======
+	if (!nqueues || (nqueues > MAX_HW_QUEUES))
+		ccp->max_q_count = MAX_HW_QUEUES;
+	else
+		ccp->max_q_count = nqueues;
+
+>>>>>>> upstream/android-13
 	ccp->vdata = (struct ccp_vdata *)sp->dev_vdata->ccp_vdata;
 	if (!ccp->vdata || !ccp->vdata->version) {
 		ret = -ENODEV;
@@ -617,18 +698,39 @@ int ccp_dev_init(struct sp_device *sp)
 		ccp->vdata->setup(ccp);
 
 	ret = ccp->vdata->perform->init(ccp);
+<<<<<<< HEAD
 	if (ret)
 		goto e_err;
+=======
+	if (ret) {
+		/* A positive number means that the device cannot be initialized,
+		 * but no additional message is required.
+		 */
+		if (ret > 0)
+			goto e_quiet;
+
+		/* An unexpected problem occurred, and should be reported in the log */
+		goto e_err;
+	}
+>>>>>>> upstream/android-13
 
 	dev_notice(dev, "ccp enabled\n");
 
 	return 0;
 
 e_err:
+<<<<<<< HEAD
 	sp->ccp_data = NULL;
 
 	dev_notice(dev, "ccp initialization failed\n");
 
+=======
+	dev_notice(dev, "ccp initialization failed\n");
+
+e_quiet:
+	sp->ccp_data = NULL;
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 

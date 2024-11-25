@@ -308,7 +308,11 @@ static void __usbhsp_pid_try_nak_if_stall(struct usbhs_pipe *pipe)
 	switch (pid) {
 	case PID_STALL11:
 		usbhsp_pipectrl_set(pipe, PID_MASK, PID_STALL10);
+<<<<<<< HEAD
 		/* fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PID_STALL10:
 		usbhsp_pipectrl_set(pipe, PID_MASK, PID_NAK);
 	}

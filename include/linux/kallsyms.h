@@ -7,6 +7,10 @@
 #define _LINUX_KALLSYMS_H
 
 #include <linux/errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/buildid.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/stddef.h>
 #include <linux/mm.h>
@@ -15,8 +19,15 @@
 #include <asm/sections.h>
 
 #define KSYM_NAME_LEN 128
+<<<<<<< HEAD
 #define KSYM_SYMBOL_LEN (sizeof("%s+%#lx/%#lx [%s]") + (KSYM_NAME_LEN - 1) + \
 			 2*(BITS_PER_LONG*3/10) + (MODULE_NAME_LEN - 1) + 1)
+=======
+#define KSYM_SYMBOL_LEN (sizeof("%s+%#lx/%#lx [%s %s]") + \
+			(KSYM_NAME_LEN - 1) + \
+			2*(BITS_PER_LONG*3/10) + (MODULE_NAME_LEN - 1) + \
+			(BUILD_ID_SIZE_MAX * 2) + 1)
+>>>>>>> upstream/android-13
 
 struct cred;
 struct module;
@@ -71,15 +82,25 @@ static inline void *dereference_symbol_descriptor(void *ptr)
 	return ptr;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_KALLSYMS
 /* Lookup the address for a symbol. Returns 0 if not found. */
 unsigned long kallsyms_lookup_name(const char *name);
 
 /* Call a function on each kallsyms symbol in the core kernel */
+=======
+>>>>>>> upstream/android-13
 int kallsyms_on_each_symbol(int (*fn)(void *, const char *, struct module *,
 				      unsigned long),
 			    void *data);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KALLSYMS
+/* Lookup the address for a symbol. Returns 0 if not found. */
+unsigned long kallsyms_lookup_name(const char *name);
+
+>>>>>>> upstream/android-13
 extern int kallsyms_lookup_size_offset(unsigned long addr,
 				  unsigned long *symbolsize,
 				  unsigned long *offset);
@@ -92,8 +113,15 @@ const char *kallsyms_lookup(unsigned long addr,
 
 /* Look up a kernel symbol and return it in a text buffer. */
 extern int sprint_symbol(char *buffer, unsigned long address);
+<<<<<<< HEAD
 extern int sprint_symbol_no_offset(char *buffer, unsigned long address);
 extern int sprint_backtrace(char *buffer, unsigned long address);
+=======
+extern int sprint_symbol_build_id(char *buffer, unsigned long address);
+extern int sprint_symbol_no_offset(char *buffer, unsigned long address);
+extern int sprint_backtrace(char *buffer, unsigned long address);
+extern int sprint_backtrace_build_id(char *buffer, unsigned long address);
+>>>>>>> upstream/android-13
 
 int lookup_symbol_name(unsigned long addr, char *symname);
 int lookup_symbol_attrs(unsigned long addr, unsigned long *size, unsigned long *offset, char *modname, char *name);
@@ -108,6 +136,7 @@ static inline unsigned long kallsyms_lookup_name(const char *name)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int kallsyms_on_each_symbol(int (*fn)(void *, const char *,
 						    struct module *,
 						    unsigned long),
@@ -116,6 +145,8 @@ static inline int kallsyms_on_each_symbol(int (*fn)(void *, const char *,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int kallsyms_lookup_size_offset(unsigned long addr,
 					      unsigned long *symbolsize,
 					      unsigned long *offset)
@@ -137,6 +168,15 @@ static inline int sprint_symbol(char *buffer, unsigned long addr)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sprint_symbol_build_id(char *buffer, unsigned long address)
+{
+	*buffer = '\0';
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int sprint_symbol_no_offset(char *buffer, unsigned long addr)
 {
 	*buffer = '\0';
@@ -149,6 +189,15 @@ static inline int sprint_backtrace(char *buffer, unsigned long addr)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sprint_backtrace_build_id(char *buffer, unsigned long addr)
+{
+	*buffer = '\0';
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline int lookup_symbol_name(unsigned long addr, char *symname)
 {
 	return -ERANGE;
@@ -166,9 +215,15 @@ static inline bool kallsyms_show_value(const struct cred *cred)
 
 #endif /*CONFIG_KALLSYMS*/
 
+<<<<<<< HEAD
 static inline void print_ip_sym(unsigned long ip)
 {
 	printk("[<%px>] %pS\n", (void *) ip, (void *) ip);
+=======
+static inline void print_ip_sym(const char *loglvl, unsigned long ip)
+{
+	printk("%s[<%px>] %pS\n", loglvl, (void *) ip, (void *) ip);
+>>>>>>> upstream/android-13
 }
 
 #endif /*_LINUX_KALLSYMS_H*/

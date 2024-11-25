@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2016-2017  Realtek Corporation.
@@ -12,6 +13,11 @@
  * more details.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2016-2017  Realtek Corporation.*/
+
+>>>>>>> upstream/android-13
 #include "halbt_precomp.h"
 
 void ex_hal8822b_wifi_only_hw_config(struct wifi_only_cfg *wifionlycfg)

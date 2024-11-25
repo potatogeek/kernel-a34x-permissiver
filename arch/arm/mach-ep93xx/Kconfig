@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 if ARCH_EP93XX
 
 menu "Cirrus EP93xx Implementation Options"
@@ -8,11 +12,14 @@ config EP93XX_SOC_COMMON
 	select SOC_BUS
 	select LEDS_GPIO_REGISTER
 
+<<<<<<< HEAD
 config CRUNCH
 	bool "Support for MaverickCrunch"
 	help
 	  Enable kernel support for MaverickCrunch.
 
+=======
+>>>>>>> upstream/android-13
 comment "EP93xx Platforms"
 
 config MACH_ADSSPHERE

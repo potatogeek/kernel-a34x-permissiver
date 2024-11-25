@@ -56,7 +56,10 @@
 	{(1UL << GLF_REPLY_PENDING),		"r" },		\
 	{(1UL << GLF_INITIAL),			"I" },		\
 	{(1UL << GLF_FROZEN),			"F" },		\
+<<<<<<< HEAD
 	{(1UL << GLF_QUEUED),			"q" },		\
+=======
+>>>>>>> upstream/android-13
 	{(1UL << GLF_LRU),			"L" },		\
 	{(1UL << GLF_OBJECT),			"o" },		\
 	{(1UL << GLF_BLOCKING),			"b" })
@@ -388,15 +391,27 @@ TRACE_EVENT(gfs2_log_blocks,
 	TP_STRUCT__entry(
 		__field(        dev_t,  dev                     )
 		__field(	int,	blocks			)
+<<<<<<< HEAD
+=======
+		__field(	int,	blks_free		)
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(
 		__entry->dev		= sdp->sd_vfs->s_dev;
 		__entry->blocks		= blocks;
+<<<<<<< HEAD
 	),
 
 	TP_printk("%u,%u log reserve %d", MAJOR(__entry->dev),
 		  MINOR(__entry->dev), __entry->blocks)
+=======
+		__entry->blks_free	= atomic_read(&sdp->sd_log_blks_free);
+	),
+
+	TP_printk("%u,%u log reserve %d %d", MAJOR(__entry->dev),
+		  MINOR(__entry->dev), __entry->blocks, __entry->blks_free)
+>>>>>>> upstream/android-13
 );
 
 /* Writing back the AIL */
@@ -559,6 +574,10 @@ TRACE_EVENT(gfs2_block_alloc,
 		__field(	u8,	block_state		)
 		__field(        u64,	rd_addr			)
 		__field(        u32,	rd_free_clone		)
+<<<<<<< HEAD
+=======
+		__field(	u32,	rd_requested		)
+>>>>>>> upstream/android-13
 		__field(	u32,	rd_reserved		)
 	),
 
@@ -570,17 +589,31 @@ TRACE_EVENT(gfs2_block_alloc,
 		__entry->block_state	= block_state;
 		__entry->rd_addr	= rgd->rd_addr;
 		__entry->rd_free_clone	= rgd->rd_free_clone;
+<<<<<<< HEAD
 		__entry->rd_reserved	= rgd->rd_reserved;
 	),
 
 	TP_printk("%u,%u bmap %llu alloc %llu/%lu %s rg:%llu rf:%u rr:%lu",
+=======
+		__entry->rd_requested	= rgd->rd_requested;
+		__entry->rd_reserved	= rgd->rd_reserved;
+	),
+
+	TP_printk("%u,%u bmap %llu alloc %llu/%lu %s rg:%llu rf:%u rq:%u rr:%u",
+>>>>>>> upstream/android-13
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long long)__entry->inum,
 		  (unsigned long long)__entry->start,
 		  (unsigned long)__entry->len,
 		  block_state_name(__entry->block_state),
 		  (unsigned long long)__entry->rd_addr,
+<<<<<<< HEAD
 		  __entry->rd_free_clone, (unsigned long)__entry->rd_reserved)
+=======
+		  __entry->rd_free_clone,
+		  __entry->rd_requested,
+		  __entry->rd_reserved)
+>>>>>>> upstream/android-13
 );
 
 /* Keep track of multi-block reservations as they are allocated/freed */
@@ -594,14 +627,24 @@ TRACE_EVENT(gfs2_rs,
 		__field(        dev_t,  dev                     )
 		__field(	u64,	rd_addr			)
 		__field(	u32,	rd_free_clone		)
+<<<<<<< HEAD
 		__field(	u32,	rd_reserved		)
 		__field(	u64,	inum			)
 		__field(	u64,	start			)
 		__field(	u32,	free			)
+=======
+		__field(	u32,	rd_requested		)
+		__field(	u32,	rd_reserved		)
+		__field(	u64,	inum			)
+		__field(	u64,	start			)
+		__field(	u32,	requested		)
+		__field(	u32,	reserved		)
+>>>>>>> upstream/android-13
 		__field(	u8,	func			)
 	),
 
 	TP_fast_assign(
+<<<<<<< HEAD
 		__entry->dev		= rs->rs_rbm.rgd->rd_sbd->sd_vfs->s_dev;
 		__entry->rd_addr	= rs->rs_rbm.rgd->rd_addr;
 		__entry->rd_free_clone	= rs->rs_rbm.rgd->rd_free_clone;
@@ -614,13 +657,38 @@ TRACE_EVENT(gfs2_rs,
 	),
 
 	TP_printk("%u,%u bmap %llu resrv %llu rg:%llu rf:%lu rr:%lu %s f:%lu",
+=======
+		__entry->dev		= rs->rs_rgd->rd_sbd->sd_vfs->s_dev;
+		__entry->rd_addr	= rs->rs_rgd->rd_addr;
+		__entry->rd_free_clone	= rs->rs_rgd->rd_free_clone;
+		__entry->rd_requested	= rs->rs_rgd->rd_requested;
+		__entry->rd_reserved	= rs->rs_rgd->rd_reserved;
+		__entry->inum		= container_of(rs, struct gfs2_inode,
+						       i_res)->i_no_addr;
+		__entry->start		= rs->rs_start;
+		__entry->requested	= rs->rs_requested;
+		__entry->reserved	= rs->rs_reserved;
+		__entry->func		= func;
+	),
+
+	TP_printk("%u,%u bmap %llu resrv %llu rg:%llu rf:%u rq:%u rr:%u %s q:%u r:%u",
+>>>>>>> upstream/android-13
 		  MAJOR(__entry->dev), MINOR(__entry->dev),
 		  (unsigned long long)__entry->inum,
 		  (unsigned long long)__entry->start,
 		  (unsigned long long)__entry->rd_addr,
+<<<<<<< HEAD
 		  (unsigned long)__entry->rd_free_clone,
 		  (unsigned long)__entry->rd_reserved,
 		  rs_func_name(__entry->func), (unsigned long)__entry->free)
+=======
+		  __entry->rd_free_clone,
+		  __entry->rd_requested,
+		  __entry->rd_reserved,
+		  rs_func_name(__entry->func),
+		  __entry->requested,
+		  __entry->reserved)
+>>>>>>> upstream/android-13
 );
 
 #endif /* _TRACE_GFS2_H */

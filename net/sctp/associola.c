@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -9,6 +13,7 @@
  *
  * This module provides the abstraction for an SCTP association.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -69,7 +76,10 @@ static struct sctp_association *sctp_association_init(
 					const struct sock *sk,
 					enum sctp_scope scope, gfp_t gfp)
 {
+<<<<<<< HEAD
 	struct net *net = sock_net(sk);
+=======
+>>>>>>> upstream/android-13
 	struct sctp_sock *sp;
 	struct sctp_paramhdr *p;
 	int i;
@@ -102,7 +112,13 @@ static struct sctp_association *sctp_association_init(
 	 * socket values.
 	 */
 	asoc->max_retrans = sp->assocparams.sasoc_asocmaxrxt;
+<<<<<<< HEAD
 	asoc->pf_retrans  = net->sctp.pf_retrans;
+=======
+	asoc->pf_retrans  = sp->pf_retrans;
+	asoc->ps_retrans  = sp->ps_retrans;
+	asoc->pf_expose   = sp->pf_expose;
+>>>>>>> upstream/android-13
 
 	asoc->rto_initial = msecs_to_jiffies(sp->rtoinfo.srto_initial);
 	asoc->rto_max = msecs_to_jiffies(sp->rtoinfo.srto_max);
@@ -112,6 +128,12 @@ static struct sctp_association *sctp_association_init(
 	 * sock configured value.
 	 */
 	asoc->hbinterval = msecs_to_jiffies(sp->hbinterval);
+<<<<<<< HEAD
+=======
+	asoc->probe_interval = msecs_to_jiffies(sp->probe_interval);
+
+	asoc->encap_port = sp->encap_port;
+>>>>>>> upstream/android-13
 
 	/* Initialize path max retrans value. */
 	asoc->pathmaxrxt = sp->pathmaxrxt;
@@ -133,6 +155,11 @@ static struct sctp_association *sctp_association_init(
 	 */
 	asoc->max_burst = sp->max_burst;
 
+<<<<<<< HEAD
+=======
+	asoc->subscribe = sp->subscribe;
+
+>>>>>>> upstream/android-13
 	/* initialize association timers */
 	asoc->timeouts[SCTP_EVENT_TIMEOUT_T1_COOKIE] = asoc->rto_initial;
 	asoc->timeouts[SCTP_EVENT_TIMEOUT_T1_INIT] = asoc->rto_initial;
@@ -228,6 +255,7 @@ static struct sctp_association *sctp_association_init(
 	asoc->peer.sack_needed = 1;
 	asoc->peer.sack_generation = 1;
 
+<<<<<<< HEAD
 	/* Assume that the peer will tell us if he recognizes ASCONF
 	 * as part of INIT exchange.
 	 * The sctp_addip_noauth option is there for backward compatibility
@@ -236,6 +264,8 @@ static struct sctp_association *sctp_association_init(
 	if (net->sctp.addip_noauth)
 		asoc->peer.asconf_capable = 1;
 
+=======
+>>>>>>> upstream/android-13
 	/* Create an input queue.  */
 	sctp_inq_init(&asoc->base.inqueue);
 	sctp_inq_set_th_handler(&asoc->base.inqueue, sctp_assoc_bh_rcv);
@@ -275,8 +305,11 @@ static struct sctp_association *sctp_association_init(
 		goto stream_free;
 
 	asoc->active_key_id = ep->active_key_id;
+<<<<<<< HEAD
 	asoc->prsctp_enable = ep->prsctp_enable;
 	asoc->reconf_enable = ep->reconf_enable;
+=======
+>>>>>>> upstream/android-13
 	asoc->strreset_enable = ep->strreset_enable;
 
 	/* Save the hmacs and chunks list into this association */
@@ -349,7 +382,11 @@ void sctp_association_free(struct sctp_association *asoc)
 		 * socket.
 		 */
 		if (sctp_style(sk, TCP) && sctp_sstate(sk, LISTENING))
+<<<<<<< HEAD
 			sk->sk_ack_backlog--;
+=======
+			sk_acceptq_removed(sk);
+>>>>>>> upstream/android-13
 	}
 
 	/* Mark as dead, so other users can know this structure is
@@ -454,6 +491,11 @@ void sctp_assoc_set_primary(struct sctp_association *asoc,
 		changeover = 1 ;
 
 	asoc->peer.primary_path = transport;
+<<<<<<< HEAD
+=======
+	sctp_ulpevent_notify_peer_addr_change(transport,
+					      SCTP_ADDR_MADE_PRIM, 0);
+>>>>>>> upstream/android-13
 
 	/* Set a default msg_name for events. */
 	memcpy(&asoc->peer.primary_addr, &transport->ipaddr,
@@ -594,6 +636,10 @@ void sctp_assoc_rm_peer(struct sctp_association *asoc,
 
 	asoc->peer.transport_count--;
 
+<<<<<<< HEAD
+=======
+	sctp_ulpevent_notify_peer_addr_change(peer, SCTP_ADDR_REMOVED, 0);
+>>>>>>> upstream/android-13
 	sctp_transport_free(peer);
 }
 
@@ -603,7 +649,10 @@ struct sctp_transport *sctp_assoc_add_peer(struct sctp_association *asoc,
 					   const gfp_t gfp,
 					   const int peer_state)
 {
+<<<<<<< HEAD
 	struct net *net = sock_net(asoc->base.sk);
+=======
+>>>>>>> upstream/android-13
 	struct sctp_transport *peer;
 	struct sctp_sock *sp;
 	unsigned short port;
@@ -633,7 +682,11 @@ struct sctp_transport *sctp_assoc_add_peer(struct sctp_association *asoc,
 		return peer;
 	}
 
+<<<<<<< HEAD
 	peer = sctp_transport_new(net, addr, gfp);
+=======
+	peer = sctp_transport_new(asoc->base.net, addr, gfp);
+>>>>>>> upstream/android-13
 	if (!peer)
 		return NULL;
 
@@ -643,12 +696,23 @@ struct sctp_transport *sctp_assoc_add_peer(struct sctp_association *asoc,
 	 * association configured value.
 	 */
 	peer->hbinterval = asoc->hbinterval;
+<<<<<<< HEAD
+=======
+	peer->probe_interval = asoc->probe_interval;
+
+	peer->encap_port = asoc->encap_port;
+>>>>>>> upstream/android-13
 
 	/* Set the path max_retrans.  */
 	peer->pathmaxrxt = asoc->pathmaxrxt;
 
 	/* And the partial failure retrans threshold */
 	peer->pf_retrans = asoc->pf_retrans;
+<<<<<<< HEAD
+=======
+	/* And the primary path switchover retrans threshold */
+	peer->ps_retrans = asoc->ps_retrans;
+>>>>>>> upstream/android-13
 
 	/* Initialize the peer's SACK delay timeout based on the
 	 * association configured value.
@@ -728,10 +792,20 @@ struct sctp_transport *sctp_assoc_add_peer(struct sctp_association *asoc,
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	sctp_transport_pl_reset(peer);
+
+>>>>>>> upstream/android-13
 	/* Attach the remote transport to our asoc.  */
 	list_add_tail_rcu(&peer->transports, &asoc->peer.transport_addr_list);
 	asoc->peer.transport_count++;
 
+<<<<<<< HEAD
+=======
+	sctp_ulpevent_notify_peer_addr_change(peer, SCTP_ADDR_ADDED, 0);
+
+>>>>>>> upstream/android-13
 	/* If we do not yet have a primary path, set one.  */
 	if (!asoc->peer.primary_path) {
 		sctp_assoc_set_primary(asoc, peer);
@@ -806,9 +880,13 @@ void sctp_assoc_control_transport(struct sctp_association *asoc,
 				  enum sctp_transport_cmd command,
 				  sctp_sn_error_t error)
 {
+<<<<<<< HEAD
 	struct sctp_ulpevent *event;
 	struct sockaddr_storage addr;
 	int spc_state = 0;
+=======
+	int spc_state = SCTP_ADDR_AVAILABLE;
+>>>>>>> upstream/android-13
 	bool ulp_notify = true;
 
 	/* Record the transition on the transport.  */
@@ -818,6 +896,7 @@ void sctp_assoc_control_transport(struct sctp_association *asoc,
 		 * to heartbeat success, report the SCTP_ADDR_CONFIRMED
 		 * state to the user, otherwise report SCTP_ADDR_AVAILABLE.
 		 */
+<<<<<<< HEAD
 		if (SCTP_UNCONFIRMED == transport->state &&
 		    SCTP_HEARTBEAT_SUCCESS == error)
 			spc_state = SCTP_ADDR_CONFIRMED;
@@ -832,6 +911,17 @@ void sctp_assoc_control_transport(struct sctp_association *asoc,
 			transport->cwnd = asoc->pathmtu;
 		}
 		transport->state = SCTP_ACTIVE;
+=======
+		if (transport->state == SCTP_PF &&
+		    asoc->pf_expose != SCTP_PF_EXPOSE_ENABLE)
+			ulp_notify = false;
+		else if (transport->state == SCTP_UNCONFIRMED &&
+			 error == SCTP_HEARTBEAT_SUCCESS)
+			spc_state = SCTP_ADDR_CONFIRMED;
+
+		transport->state = SCTP_ACTIVE;
+		sctp_transport_pl_reset(transport);
+>>>>>>> upstream/android-13
 		break;
 
 	case SCTP_TRANSPORT_DOWN:
@@ -839,6 +929,7 @@ void sctp_assoc_control_transport(struct sctp_association *asoc,
 		 * to inactive state.  Also, release the cached route since
 		 * there may be a better route next time.
 		 */
+<<<<<<< HEAD
 		if (transport->state != SCTP_UNCONFIRMED)
 			transport->state = SCTP_INACTIVE;
 		else {
@@ -847,11 +938,28 @@ void sctp_assoc_control_transport(struct sctp_association *asoc,
 		}
 
 		spc_state = SCTP_ADDR_UNREACHABLE;
+=======
+		if (transport->state != SCTP_UNCONFIRMED) {
+			transport->state = SCTP_INACTIVE;
+			sctp_transport_pl_reset(transport);
+			spc_state = SCTP_ADDR_UNREACHABLE;
+		} else {
+			sctp_transport_dst_release(transport);
+			ulp_notify = false;
+		}
+>>>>>>> upstream/android-13
 		break;
 
 	case SCTP_TRANSPORT_PF:
 		transport->state = SCTP_PF;
+<<<<<<< HEAD
 		ulp_notify = false;
+=======
+		if (asoc->pf_expose != SCTP_PF_EXPOSE_ENABLE)
+			ulp_notify = false;
+		else
+			spc_state = SCTP_ADDR_POTENTIALLY_FAILED;
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -861,6 +969,7 @@ void sctp_assoc_control_transport(struct sctp_association *asoc,
 	/* Generate and send a SCTP_PEER_ADDR_CHANGE notification
 	 * to the user.
 	 */
+<<<<<<< HEAD
 	if (ulp_notify) {
 		memset(&addr, 0, sizeof(struct sockaddr_storage));
 		memcpy(&addr, &transport->ipaddr,
@@ -871,6 +980,11 @@ void sctp_assoc_control_transport(struct sctp_association *asoc,
 		if (event)
 			asoc->stream.si->enqueue_event(&asoc->ulpq, event);
 	}
+=======
+	if (ulp_notify)
+		sctp_ulpevent_notify_peer_addr_change(transport,
+						      spc_state, error);
+>>>>>>> upstream/android-13
 
 	/* Select new active and retran paths. */
 	sctp_select_active_and_retran_path(asoc);
@@ -1002,7 +1116,11 @@ static void sctp_assoc_bh_rcv(struct work_struct *work)
 	struct sctp_association *asoc =
 		container_of(work, struct sctp_association,
 			     base.inqueue.immediate);
+<<<<<<< HEAD
 	struct net *net = sock_net(asoc->base.sk);
+=======
+	struct net *net = asoc->base.net;
+>>>>>>> upstream/android-13
 	union sctp_subtype subtype;
 	struct sctp_endpoint *ep;
 	struct sctp_chunk *chunk;
@@ -1102,7 +1220,11 @@ void sctp_assoc_migrate(struct sctp_association *assoc, struct sock *newsk)
 
 	/* Decrement the backlog value for a TCP-style socket. */
 	if (sctp_style(oldsk, TCP))
+<<<<<<< HEAD
 		oldsk->sk_ack_backlog--;
+=======
+		sk_acceptq_removed(oldsk);
+>>>>>>> upstream/android-13
 
 	/* Release references to the old endpoint and the sock.  */
 	sctp_endpoint_put(assoc->ep);
@@ -1380,7 +1502,11 @@ static void sctp_select_active_and_retran_path(struct sctp_association *asoc)
 	}
 
 	/* We did not find anything useful for a possible retransmission
+<<<<<<< HEAD
 	 * path; either primary path that we found is the the same as
+=======
+	 * path; either primary path that we found is the same as
+>>>>>>> upstream/android-13
 	 * the current one, or we didn't generally find an active one.
 	 */
 	if (trans_sec == NULL)
@@ -1470,7 +1596,12 @@ void sctp_assoc_sync_pmtu(struct sctp_association *asoc)
 /* Should we send a SACK to update our peer? */
 static inline bool sctp_peer_needs_update(struct sctp_association *asoc)
 {
+<<<<<<< HEAD
 	struct net *net = sock_net(asoc->base.sk);
+=======
+	struct net *net = asoc->base.net;
+
+>>>>>>> upstream/android-13
 	switch (asoc->state) {
 	case SCTP_STATE_ESTABLISHED:
 	case SCTP_STATE_SHUTDOWN_PENDING:
@@ -1565,7 +1696,11 @@ void sctp_assoc_rwnd_decrease(struct sctp_association *asoc, unsigned int len)
 
 	/* If we've reached or overflowed our receive buffer, announce
 	 * a 0 rwnd if rwnd would still be positive.  Store the
+<<<<<<< HEAD
 	 * the potential pressure overflow so that the window can be restored
+=======
+	 * potential pressure overflow so that the window can be restored
+>>>>>>> upstream/android-13
 	 * back to original value.
 	 */
 	if (rx_count >= asoc->base.sk->sk_rcvbuf)
@@ -1607,7 +1742,11 @@ int sctp_assoc_set_bind_addr_from_ep(struct sctp_association *asoc,
 	if (asoc->peer.ipv6_address)
 		flags |= SCTP_ADDR6_PEERSUPP;
 
+<<<<<<< HEAD
 	return sctp_bind_addr_copy(sock_net(asoc->base.sk),
+=======
+	return sctp_bind_addr_copy(asoc->base.net,
+>>>>>>> upstream/android-13
 				   &asoc->base.bind_addr,
 				   &asoc->ep->base.bind_addr,
 				   scope, gfp, flags);
@@ -1653,8 +1792,16 @@ int sctp_assoc_set_id(struct sctp_association *asoc, gfp_t gfp)
 	if (preload)
 		idr_preload(gfp);
 	spin_lock_bh(&sctp_assocs_id_lock);
+<<<<<<< HEAD
 	/* 0 is not a valid assoc_id, must be >= 1 */
 	ret = idr_alloc_cyclic(&sctp_assocs_id, asoc, 1, 0, GFP_NOWAIT);
+=======
+	/* 0, 1, 2 are used as SCTP_FUTURE_ASSOC, SCTP_CURRENT_ASSOC and
+	 * SCTP_ALL_ASSOC, so an available id must be > SCTP_ALL_ASSOC.
+	 */
+	ret = idr_alloc_cyclic(&sctp_assocs_id, asoc, SCTP_ALL_ASSOC + 1, 0,
+			       GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&sctp_assocs_id_lock);
 	if (preload)
 		idr_preload_end();

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
@@ -30,11 +31,17 @@
  *    need to optimise it
  *
  * Amit Bhor, Sameer Dhavale: Codito Technologies 2004
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ARC_PGTABLE_H
 #define _ASM_ARC_PGTABLE_H
 
+<<<<<<< HEAD
 #include <linux/const.h>
 #define __ARCH_USE_5LEVEL_HACK
 #include <asm-generic/pgtable-nopmd.h>
@@ -223,6 +230,14 @@
 
 #define	PTRS_PER_PTE	_BITUL(BITS_FOR_PTE)
 #define	PTRS_PER_PGD	_BITUL(BITS_FOR_PGD)
+=======
+#include <linux/bits.h>
+
+#include <asm/pgtable-levels.h>
+#include <asm/pgtable-bits-arcv2.h>
+#include <asm/page.h>
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 
 /*
  * Number of entries a user land program use.
@@ -230,6 +245,7 @@
  */
 #define	USER_PTRS_PER_PGD	(TASK_SIZE / PGDIR_SIZE)
 
+<<<<<<< HEAD
 /*
  * No special requirements for lowest virtual address we permit any user space
  * mapping to be mapped at.
@@ -394,15 +410,26 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address,
 #endif
 
 #include <asm-generic/pgtable.h>
+=======
+#ifndef __ASSEMBLY__
+
+extern char empty_zero_page[PAGE_SIZE];
+#define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
+
+extern pgd_t swapper_pg_dir[] __aligned(PAGE_SIZE);
+>>>>>>> upstream/android-13
 
 /* to cope with aliasing VIPT cache */
 #define HAVE_ARCH_UNMAPPED_AREA
 
+<<<<<<< HEAD
 /*
  * No page table caches to initialise
  */
 #define pgtable_cache_init()   do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #endif

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SuperH Timer Support - MTU2
  *
  *  Copyright (C) 2009 Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -31,6 +38,13 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SUPERH
+#include <asm/platform_early.h>
+#endif
+
+>>>>>>> upstream/android-13
 struct sh_mtu2_device;
 
 struct sh_mtu2_channel {
@@ -301,12 +315,20 @@ static int sh_mtu2_clock_event_set_periodic(struct clock_event_device *ced)
 
 static void sh_mtu2_clock_event_suspend(struct clock_event_device *ced)
 {
+<<<<<<< HEAD
 	pm_genpd_syscore_poweroff(&ced_to_sh_mtu2(ced)->mtu->pdev->dev);
+=======
+	dev_pm_genpd_suspend(&ced_to_sh_mtu2(ced)->mtu->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static void sh_mtu2_clock_event_resume(struct clock_event_device *ced)
 {
+<<<<<<< HEAD
 	pm_genpd_syscore_poweron(&ced_to_sh_mtu2(ced)->mtu->pdev->dev);
+=======
+	dev_pm_genpd_resume(&ced_to_sh_mtu2(ced)->mtu->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static void sh_mtu2_register_clockevent(struct sh_mtu2_channel *ch,
@@ -336,12 +358,22 @@ static int sh_mtu2_register(struct sh_mtu2_channel *ch, const char *name)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sh_mtu2_setup_channel(struct sh_mtu2_channel *ch, unsigned int index,
 				 struct sh_mtu2_device *mtu)
 {
 	static const unsigned int channel_offsets[] = {
 		0x300, 0x380, 0x000,
 	};
+=======
+static const unsigned int sh_mtu2_channel_offsets[] = {
+	0x300, 0x380, 0x000,
+};
+
+static int sh_mtu2_setup_channel(struct sh_mtu2_channel *ch, unsigned int index,
+				 struct sh_mtu2_device *mtu)
+{
+>>>>>>> upstream/android-13
 	char name[6];
 	int irq;
 	int ret;
@@ -364,7 +396,11 @@ static int sh_mtu2_setup_channel(struct sh_mtu2_channel *ch, unsigned int index,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ch->base = mtu->mapbase + channel_offsets[index];
+=======
+	ch->base = mtu->mapbase + sh_mtu2_channel_offsets[index];
+>>>>>>> upstream/android-13
 	ch->index = index;
 
 	return sh_mtu2_register(ch, dev_name(&mtu->pdev->dev));
@@ -380,7 +416,11 @@ static int sh_mtu2_map_memory(struct sh_mtu2_device *mtu)
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	mtu->mapbase = ioremap_nocache(res->start, resource_size(res));
+=======
+	mtu->mapbase = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (mtu->mapbase == NULL)
 		return -ENXIO;
 
@@ -416,7 +456,16 @@ static int sh_mtu2_setup(struct sh_mtu2_device *mtu,
 	}
 
 	/* Allocate and setup the channels. */
+<<<<<<< HEAD
 	mtu->num_channels = 3;
+=======
+	ret = platform_irq_count(pdev);
+	if (ret < 0)
+		goto err_unmap;
+
+	mtu->num_channels = min_t(unsigned int, ret,
+				  ARRAY_SIZE(sh_mtu2_channel_offsets));
+>>>>>>> upstream/android-13
 
 	mtu->channels = kcalloc(mtu->num_channels, sizeof(*mtu->channels),
 				GFP_KERNEL);
@@ -450,7 +499,11 @@ static int sh_mtu2_probe(struct platform_device *pdev)
 	struct sh_mtu2_device *mtu = platform_get_drvdata(pdev);
 	int ret;
 
+<<<<<<< HEAD
 	if (!is_early_platform_device(pdev)) {
+=======
+	if (!is_sh_early_platform_device(pdev)) {
+>>>>>>> upstream/android-13
 		pm_runtime_set_active(&pdev->dev);
 		pm_runtime_enable(&pdev->dev);
 	}
@@ -470,7 +523,11 @@ static int sh_mtu2_probe(struct platform_device *pdev)
 		pm_runtime_idle(&pdev->dev);
 		return ret;
 	}
+<<<<<<< HEAD
 	if (is_early_platform_device(pdev))
+=======
+	if (is_sh_early_platform_device(pdev))
+>>>>>>> upstream/android-13
 		return 0;
 
  out:
@@ -519,7 +576,14 @@ static void __exit sh_mtu2_exit(void)
 	platform_driver_unregister(&sh_mtu2_device_driver);
 }
 
+<<<<<<< HEAD
 early_platform_init("earlytimer", &sh_mtu2_device_driver);
+=======
+#ifdef CONFIG_SUPERH
+sh_early_platform_init("earlytimer", &sh_mtu2_device_driver);
+#endif
+
+>>>>>>> upstream/android-13
 subsys_initcall(sh_mtu2_init);
 module_exit(sh_mtu2_exit);
 

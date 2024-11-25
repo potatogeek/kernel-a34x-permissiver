@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # RxRPC session sockets
 #
@@ -7,6 +11,10 @@ config AF_RXRPC
 	depends on INET
 	select CRYPTO
 	select KEYS
+<<<<<<< HEAD
+=======
+	select NET_UDP_TUNNEL
+>>>>>>> upstream/android-13
 	help
 	  Say Y or M here to include support for RxRPC session sockets (just
 	  the transport part, not the presentation part: (un)marshalling is
@@ -17,7 +25,13 @@ config AF_RXRPC
 	  This module at the moment only supports client operations and is
 	  currently incomplete.
 
+<<<<<<< HEAD
 	  See Documentation/networking/rxrpc.txt.
+=======
+	  See Documentation/networking/rxrpc.rst.
+
+if AF_RXRPC
+>>>>>>> upstream/android-13
 
 config AF_RXRPC_IPV6
 	bool "IPv6 support for RxRPC"
@@ -28,7 +42,10 @@ config AF_RXRPC_IPV6
 
 config AF_RXRPC_INJECT_LOSS
 	bool "Inject packet loss into RxRPC packet stream"
+<<<<<<< HEAD
 	depends on AF_RXRPC
+=======
+>>>>>>> upstream/android-13
 	help
 	  Say Y here to inject packet loss by discarding some received and some
 	  transmitted packets.
@@ -36,23 +53,42 @@ config AF_RXRPC_INJECT_LOSS
 
 config AF_RXRPC_DEBUG
 	bool "RxRPC dynamic debugging"
+<<<<<<< HEAD
 	depends on AF_RXRPC
 	help
 	  Say Y here to make runtime controllable debugging messages appear.
 
 	  See Documentation/networking/rxrpc.txt.
+=======
+	help
+	  Say Y here to make runtime controllable debugging messages appear.
+
+	  See Documentation/networking/rxrpc.rst.
+>>>>>>> upstream/android-13
 
 
 config RXKAD
 	bool "RxRPC Kerberos security"
+<<<<<<< HEAD
 	depends on AF_RXRPC
 	select CRYPTO
 	select CRYPTO_MANAGER
 	select CRYPTO_BLKCIPHER
+=======
+	select CRYPTO
+	select CRYPTO_MANAGER
+	select CRYPTO_SKCIPHER
+>>>>>>> upstream/android-13
 	select CRYPTO_PCBC
 	select CRYPTO_FCRYPT
 	help
 	  Provide kerberos 4 and AFS kaserver security handling for AF_RXRPC
 	  through the use of the key retention service.
 
+<<<<<<< HEAD
 	  See Documentation/networking/rxrpc.txt.
+=======
+	  See Documentation/networking/rxrpc.rst.
+
+endif
+>>>>>>> upstream/android-13

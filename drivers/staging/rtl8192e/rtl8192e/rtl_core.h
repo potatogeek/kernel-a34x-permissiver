@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /******************************************************************************
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+>>>>>>> upstream/android-13
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
  * Based on the r8180 driver, which is:
  * Copyright 2004-2005 Andrea Merello <andrea.merello@gmail.com>, et al.
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -19,6 +25,11 @@
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
 
+=======
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #ifndef _RTL_CORE_H
 #define _RTL_CORE_H
 
@@ -581,8 +592,13 @@ void rtl92e_writel(struct net_device *dev, int x, u32 y);
 
 void force_pci_posting(struct net_device *dev);
 
+<<<<<<< HEAD
 void rtl92e_rx_enable(struct net_device *);
 void rtl92e_tx_enable(struct net_device *);
+=======
+void rtl92e_rx_enable(struct net_device *dev);
+void rtl92e_tx_enable(struct net_device *dev);
+>>>>>>> upstream/android-13
 
 void rtl92e_hw_sleep_wq(void *data);
 void rtl92e_commit(struct net_device *dev);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/proc/net.c
  *
@@ -73,6 +77,7 @@ static int seq_release_net(struct inode *ino, struct file *f)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_net_seq_fops = {
 	.open		= seq_open_net,
 	.read		= seq_read,
@@ -81,6 +86,35 @@ static const struct file_operations proc_net_seq_fops = {
 	.release	= seq_release_net,
 };
 
+=======
+static const struct proc_ops proc_net_seq_ops = {
+	.proc_open	= seq_open_net,
+	.proc_read	= seq_read,
+	.proc_write	= proc_simple_write,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release_net,
+};
+
+int bpf_iter_init_seq_net(void *priv_data, struct bpf_iter_aux_info *aux)
+{
+#ifdef CONFIG_NET_NS
+	struct seq_net_private *p = priv_data;
+
+	p->net = get_net(current->nsproxy->net_ns);
+#endif
+	return 0;
+}
+
+void bpf_iter_fini_seq_net(void *priv_data)
+{
+#ifdef CONFIG_NET_NS
+	struct seq_net_private *p = priv_data;
+
+	put_net(p->net);
+#endif
+}
+
+>>>>>>> upstream/android-13
 struct proc_dir_entry *proc_create_net_data(const char *name, umode_t mode,
 		struct proc_dir_entry *parent, const struct seq_operations *ops,
 		unsigned int state_size, void *data)
@@ -91,7 +125,11 @@ struct proc_dir_entry *proc_create_net_data(const char *name, umode_t mode,
 	if (!p)
 		return NULL;
 	pde_force_lookup(p);
+<<<<<<< HEAD
 	p->proc_fops = &proc_net_seq_fops;
+=======
+	p->proc_ops = &proc_net_seq_ops;
+>>>>>>> upstream/android-13
 	p->seq_ops = ops;
 	p->state_size = state_size;
 	return proc_register(parent, p);
@@ -104,7 +142,11 @@ EXPORT_SYMBOL_GPL(proc_create_net_data);
  * @mode: The file's access mode.
  * @parent: The parent directory in which to create.
  * @ops: The seq_file ops with which to read the file.
+<<<<<<< HEAD
  * @write: The write method which which to 'modify' the file.
+=======
+ * @write: The write method with which to 'modify' the file.
+>>>>>>> upstream/android-13
  * @data: Data for retrieval by PDE_DATA().
  *
  * Create a network namespaced proc file in the @parent directory with the
@@ -135,7 +177,11 @@ struct proc_dir_entry *proc_create_net_data_write(const char *name, umode_t mode
 	if (!p)
 		return NULL;
 	pde_force_lookup(p);
+<<<<<<< HEAD
 	p->proc_fops = &proc_net_seq_fops;
+=======
+	p->proc_ops = &proc_net_seq_ops;
+>>>>>>> upstream/android-13
 	p->seq_ops = ops;
 	p->state_size = state_size;
 	p->write = write;
@@ -166,12 +212,21 @@ static int single_release_net(struct inode *ino, struct file *f)
 	return single_release(ino, f);
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_net_single_fops = {
 	.open		= single_open_net,
 	.read		= seq_read,
 	.write		= proc_simple_write,
 	.llseek		= seq_lseek,
 	.release	= single_release_net,
+=======
+static const struct proc_ops proc_net_single_ops = {
+	.proc_open	= single_open_net,
+	.proc_read	= seq_read,
+	.proc_write	= proc_simple_write,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release_net,
+>>>>>>> upstream/android-13
 };
 
 struct proc_dir_entry *proc_create_net_single(const char *name, umode_t mode,
@@ -184,7 +239,11 @@ struct proc_dir_entry *proc_create_net_single(const char *name, umode_t mode,
 	if (!p)
 		return NULL;
 	pde_force_lookup(p);
+<<<<<<< HEAD
 	p->proc_fops = &proc_net_single_fops;
+=======
+	p->proc_ops = &proc_net_single_ops;
+>>>>>>> upstream/android-13
 	p->single_show = show;
 	return proc_register(parent, p);
 }
@@ -196,7 +255,11 @@ EXPORT_SYMBOL_GPL(proc_create_net_single);
  * @mode: The file's access mode.
  * @parent: The parent directory in which to create.
  * @show: The seqfile show method with which to read the file.
+<<<<<<< HEAD
  * @write: The write method which which to 'modify' the file.
+=======
+ * @write: The write method with which to 'modify' the file.
+>>>>>>> upstream/android-13
  * @data: Data for retrieval by PDE_DATA().
  *
  * Create a network-namespaced proc file in the @parent directory with the
@@ -227,7 +290,11 @@ struct proc_dir_entry *proc_create_net_single_write(const char *name, umode_t mo
 	if (!p)
 		return NULL;
 	pde_force_lookup(p);
+<<<<<<< HEAD
 	p->proc_fops = &proc_net_single_fops;
+=======
+	p->proc_ops = &proc_net_single_ops;
+>>>>>>> upstream/android-13
 	p->single_show = show;
 	p->write = write;
 	return proc_register(parent, p);
@@ -269,7 +336,12 @@ static struct dentry *proc_tgid_net_lookup(struct inode *dir,
 	return de;
 }
 
+<<<<<<< HEAD
 static int proc_tgid_net_getattr(const struct path *path, struct kstat *stat,
+=======
+static int proc_tgid_net_getattr(struct user_namespace *mnt_userns,
+				 const struct path *path, struct kstat *stat,
+>>>>>>> upstream/android-13
 				 u32 request_mask, unsigned int query_flags)
 {
 	struct inode *inode = d_inode(path->dentry);
@@ -277,7 +349,11 @@ static int proc_tgid_net_getattr(const struct path *path, struct kstat *stat,
 
 	net = get_proc_task_net(inode);
 
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
+=======
+	generic_fillattr(&init_user_ns, inode, stat);
+>>>>>>> upstream/android-13
 
 	if (net != NULL) {
 		stat->nlink = net->proc_net->nlink;

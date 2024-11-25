@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 - 2017 Intel Corporation. All rights reserved.
  *
@@ -10,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2016-2018 Intel Corporation. All rights reserved. */
+#include <linux/memremap.h>
+>>>>>>> upstream/android-13
 #include <linux/pagemap.h>
 #include <linux/module.h>
 #include <linux/device.h>
@@ -21,6 +27,7 @@
 #include <linux/mm.h>
 #include <linux/mman.h>
 #include "dax-private.h"
+<<<<<<< HEAD
 #include "dax.h"
 
 static struct class *dax_class;
@@ -176,11 +183,17 @@ static const struct attribute_group *dax_attribute_groups[] = {
 	&dev_dax_attribute_group,
 	NULL,
 };
+=======
+#include "bus.h"
+>>>>>>> upstream/android-13
 
 static int check_vma(struct dev_dax *dev_dax, struct vm_area_struct *vma,
 		const char *func)
 {
+<<<<<<< HEAD
 	struct dax_region *dax_region = dev_dax->region;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = &dev_dax->dev;
 	unsigned long mask;
 
@@ -195,7 +208,11 @@ static int check_vma(struct dev_dax *dev_dax, struct vm_area_struct *vma,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mask = dax_region->align - 1;
+=======
+	mask = dev_dax->align - 1;
+>>>>>>> upstream/android-13
 	if (vma->vm_start & mask || vma->vm_end & mask) {
 		dev_info_ratelimited(dev,
 				"%s: %s: fail, unaligned vma (%#lx - %#lx, %#lx)\n",
@@ -204,6 +221,7 @@ static int check_vma(struct dev_dax *dev_dax, struct vm_area_struct *vma,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if ((dax_region->pfn_flags & (PFN_DEV|PFN_MAP)) == PFN_DEV
 			&& (vma->vm_flags & VM_DONTCOPY) == 0) {
 		dev_info_ratelimited(dev,
@@ -212,6 +230,8 @@ static int check_vma(struct dev_dax *dev_dax, struct vm_area_struct *vma,
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!vma_is_dax(vma)) {
 		dev_info_ratelimited(dev,
 				"%s: %s: fail, vma is not DAX capable\n",
@@ -226,6 +246,7 @@ static int check_vma(struct dev_dax *dev_dax, struct vm_area_struct *vma,
 __weak phys_addr_t dax_pgoff_to_phys(struct dev_dax *dev_dax, pgoff_t pgoff,
 		unsigned long size)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	/* gcc-4.6.3-nolibc for i386 complains that this is uninitialized */
 	phys_addr_t uninitialized_var(phys);
@@ -245,6 +266,24 @@ __weak phys_addr_t dax_pgoff_to_phys(struct dev_dax *dev_dax, pgoff_t pgoff,
 			return phys;
 	}
 
+=======
+	int i;
+
+	for (i = 0; i < dev_dax->nr_range; i++) {
+		struct dev_dax_range *dax_range = &dev_dax->ranges[i];
+		struct range *range = &dax_range->range;
+		unsigned long long pgoff_end;
+		phys_addr_t phys;
+
+		pgoff_end = dax_range->pgoff + PHYS_PFN(range_len(range)) - 1;
+		if (pgoff < dax_range->pgoff || pgoff > pgoff_end)
+			continue;
+		phys = PFN_PHYS(pgoff - dax_range->pgoff) + range->start;
+		if (phys + size - 1 <= range->end)
+			return phys;
+		break;
+	}
+>>>>>>> upstream/android-13
 	return -1;
 }
 
@@ -252,13 +291,17 @@ static vm_fault_t __dev_dax_pte_fault(struct dev_dax *dev_dax,
 				struct vm_fault *vmf, pfn_t *pfn)
 {
 	struct device *dev = &dev_dax->dev;
+<<<<<<< HEAD
 	struct dax_region *dax_region;
+=======
+>>>>>>> upstream/android-13
 	phys_addr_t phys;
 	unsigned int fault_size = PAGE_SIZE;
 
 	if (check_vma(dev_dax, vmf->vma, __func__))
 		return VM_FAULT_SIGBUS;
 
+<<<<<<< HEAD
 	dax_region = dev_dax->region;
 	if (dax_region->align > PAGE_SIZE) {
 		dev_dbg(dev, "alignment (%#x) > fault size (%#x)\n",
@@ -267,6 +310,15 @@ static vm_fault_t __dev_dax_pte_fault(struct dev_dax *dev_dax,
 	}
 
 	if (fault_size != dax_region->align)
+=======
+	if (dev_dax->align > PAGE_SIZE) {
+		dev_dbg(dev, "alignment (%#x) > fault size (%#x)\n",
+			dev_dax->align, fault_size);
+		return VM_FAULT_SIGBUS;
+	}
+
+	if (fault_size != dev_dax->align)
+>>>>>>> upstream/android-13
 		return VM_FAULT_SIGBUS;
 
 	phys = dax_pgoff_to_phys(dev_dax, vmf->pgoff, PAGE_SIZE);
@@ -275,7 +327,11 @@ static vm_fault_t __dev_dax_pte_fault(struct dev_dax *dev_dax,
 		return VM_FAULT_SIGBUS;
 	}
 
+<<<<<<< HEAD
 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
+=======
+	*pfn = phys_to_pfn_t(phys, PFN_DEV|PFN_MAP);
+>>>>>>> upstream/android-13
 
 	return vmf_insert_mixed(vmf->vma, vmf->address, *pfn);
 }
@@ -285,7 +341,10 @@ static vm_fault_t __dev_dax_pmd_fault(struct dev_dax *dev_dax,
 {
 	unsigned long pmd_addr = vmf->address & PMD_MASK;
 	struct device *dev = &dev_dax->dev;
+<<<<<<< HEAD
 	struct dax_region *dax_region;
+=======
+>>>>>>> upstream/android-13
 	phys_addr_t phys;
 	pgoff_t pgoff;
 	unsigned int fault_size = PMD_SIZE;
@@ -293,6 +352,7 @@ static vm_fault_t __dev_dax_pmd_fault(struct dev_dax *dev_dax,
 	if (check_vma(dev_dax, vmf->vma, __func__))
 		return VM_FAULT_SIGBUS;
 
+<<<<<<< HEAD
 	dax_region = dev_dax->region;
 	if (dax_region->align > PMD_SIZE) {
 		dev_dbg(dev, "alignment (%#x) > fault size (%#x)\n",
@@ -309,6 +369,17 @@ static vm_fault_t __dev_dax_pmd_fault(struct dev_dax *dev_dax,
 	if (fault_size < dax_region->align)
 		return VM_FAULT_SIGBUS;
 	else if (fault_size > dax_region->align)
+=======
+	if (dev_dax->align > PMD_SIZE) {
+		dev_dbg(dev, "alignment (%#x) > fault size (%#x)\n",
+			dev_dax->align, fault_size);
+		return VM_FAULT_SIGBUS;
+	}
+
+	if (fault_size < dev_dax->align)
+		return VM_FAULT_SIGBUS;
+	else if (fault_size > dev_dax->align)
+>>>>>>> upstream/android-13
 		return VM_FAULT_FALLBACK;
 
 	/* if we are outside of the VMA */
@@ -323,7 +394,11 @@ static vm_fault_t __dev_dax_pmd_fault(struct dev_dax *dev_dax,
 		return VM_FAULT_SIGBUS;
 	}
 
+<<<<<<< HEAD
 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
+=======
+	*pfn = phys_to_pfn_t(phys, PFN_DEV|PFN_MAP);
+>>>>>>> upstream/android-13
 
 	return vmf_insert_pfn_pmd(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
 }
@@ -334,7 +409,10 @@ static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
 {
 	unsigned long pud_addr = vmf->address & PUD_MASK;
 	struct device *dev = &dev_dax->dev;
+<<<<<<< HEAD
 	struct dax_region *dax_region;
+=======
+>>>>>>> upstream/android-13
 	phys_addr_t phys;
 	pgoff_t pgoff;
 	unsigned int fault_size = PUD_SIZE;
@@ -343,6 +421,7 @@ static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
 	if (check_vma(dev_dax, vmf->vma, __func__))
 		return VM_FAULT_SIGBUS;
 
+<<<<<<< HEAD
 	dax_region = dev_dax->region;
 	if (dax_region->align > PUD_SIZE) {
 		dev_dbg(dev, "alignment (%#x) > fault size (%#x)\n",
@@ -359,6 +438,17 @@ static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
 	if (fault_size < dax_region->align)
 		return VM_FAULT_SIGBUS;
 	else if (fault_size > dax_region->align)
+=======
+	if (dev_dax->align > PUD_SIZE) {
+		dev_dbg(dev, "alignment (%#x) > fault size (%#x)\n",
+			dev_dax->align, fault_size);
+		return VM_FAULT_SIGBUS;
+	}
+
+	if (fault_size < dev_dax->align)
+		return VM_FAULT_SIGBUS;
+	else if (fault_size > dev_dax->align)
+>>>>>>> upstream/android-13
 		return VM_FAULT_FALLBACK;
 
 	/* if we are outside of the VMA */
@@ -373,7 +463,11 @@ static vm_fault_t __dev_dax_pud_fault(struct dev_dax *dev_dax,
 		return VM_FAULT_SIGBUS;
 	}
 
+<<<<<<< HEAD
 	*pfn = phys_to_pfn_t(phys, dax_region->pfn_flags);
+=======
+	*pfn = phys_to_pfn_t(phys, PFN_DEV|PFN_MAP);
+>>>>>>> upstream/android-13
 
 	return vmf_insert_pfn_pud(vmf, *pfn, vmf->flags & FAULT_FLAG_WRITE);
 }
@@ -449,6 +543,7 @@ static vm_fault_t dev_dax_fault(struct vm_fault *vmf)
 	return dev_dax_huge_fault(vmf, PE_SIZE_PTE);
 }
 
+<<<<<<< HEAD
 static int dev_dax_split(struct vm_area_struct *vma, unsigned long addr)
 {
 	struct file *filp = vma->vm_file;
@@ -456,6 +551,14 @@ static int dev_dax_split(struct vm_area_struct *vma, unsigned long addr)
 	struct dax_region *dax_region = dev_dax->region;
 
 	if (!IS_ALIGNED(addr, dax_region->align))
+=======
+static int dev_dax_may_split(struct vm_area_struct *vma, unsigned long addr)
+{
+	struct file *filp = vma->vm_file;
+	struct dev_dax *dev_dax = filp->private_data;
+
+	if (!IS_ALIGNED(addr, dev_dax->align))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	return 0;
 }
@@ -464,15 +567,24 @@ static unsigned long dev_dax_pagesize(struct vm_area_struct *vma)
 {
 	struct file *filp = vma->vm_file;
 	struct dev_dax *dev_dax = filp->private_data;
+<<<<<<< HEAD
 	struct dax_region *dax_region = dev_dax->region;
 
 	return dax_region->align;
+=======
+
+	return dev_dax->align;
+>>>>>>> upstream/android-13
 }
 
 static const struct vm_operations_struct dax_vm_ops = {
 	.fault = dev_dax_fault,
 	.huge_fault = dev_dax_huge_fault,
+<<<<<<< HEAD
 	.split = dev_dax_split,
+=======
+	.may_split = dev_dax_may_split,
+>>>>>>> upstream/android-13
 	.pagesize = dev_dax_pagesize,
 };
 
@@ -505,13 +617,20 @@ static unsigned long dax_get_unmapped_area(struct file *filp,
 {
 	unsigned long off, off_end, off_align, len_align, addr_align, align;
 	struct dev_dax *dev_dax = filp ? filp->private_data : NULL;
+<<<<<<< HEAD
 	struct dax_region *dax_region;
+=======
+>>>>>>> upstream/android-13
 
 	if (!dev_dax || addr)
 		goto out;
 
+<<<<<<< HEAD
 	dax_region = dev_dax->region;
 	align = dax_region->align;
+=======
+	align = dev_dax->align;
+>>>>>>> upstream/android-13
 	off = pgoff << PAGE_SHIFT;
 	off_end = off + len;
 	off_align = round_up(off, align);
@@ -534,7 +653,11 @@ static unsigned long dax_get_unmapped_area(struct file *filp,
 }
 
 static const struct address_space_operations dev_dax_aops = {
+<<<<<<< HEAD
 	.set_page_dirty		= noop_set_page_dirty,
+=======
+	.set_page_dirty		= __set_page_dirty_no_writeback,
+>>>>>>> upstream/android-13
 	.invalidatepage		= noop_invalidatepage,
 };
 
@@ -550,6 +673,10 @@ static int dax_open(struct inode *inode, struct file *filp)
 	inode->i_mapping->a_ops = &dev_dax_aops;
 	filp->f_mapping = inode->i_mapping;
 	filp->f_wb_err = filemap_sample_wb_err(filp->f_mapping);
+<<<<<<< HEAD
+=======
+	filp->f_sb_err = file_sample_sb_err(filp);
+>>>>>>> upstream/android-13
 	filp->private_data = dev_dax;
 	inode->i_flags = S_DAX;
 
@@ -574,6 +701,7 @@ static const struct file_operations dax_fops = {
 	.mmap_supported_flags = MAP_SYNC,
 };
 
+<<<<<<< HEAD
 static void dev_dax_release(struct device *dev)
 {
 	struct dev_dax *dev_dax = to_dev_dax(dev);
@@ -667,10 +795,64 @@ struct dev_dax *devm_create_dev_dax(struct dax_region *dax_region,
 	/* from here on we're committed to teardown via dax_dev_release() */
 	dev = &dev_dax->dev;
 	device_initialize(dev);
+=======
+static void dev_dax_cdev_del(void *cdev)
+{
+	cdev_del(cdev);
+}
+
+static void dev_dax_kill(void *dev_dax)
+{
+	kill_dev_dax(dev_dax);
+}
+
+int dev_dax_probe(struct dev_dax *dev_dax)
+{
+	struct dax_device *dax_dev = dev_dax->dax_dev;
+	struct device *dev = &dev_dax->dev;
+	struct dev_pagemap *pgmap;
+	struct inode *inode;
+	struct cdev *cdev;
+	void *addr;
+	int rc, i;
+
+	pgmap = dev_dax->pgmap;
+	if (dev_WARN_ONCE(dev, pgmap && dev_dax->nr_range > 1,
+			"static pgmap / multi-range device conflict\n"))
+		return -EINVAL;
+
+	if (!pgmap) {
+		pgmap = devm_kzalloc(dev, sizeof(*pgmap) + sizeof(struct range)
+				* (dev_dax->nr_range - 1), GFP_KERNEL);
+		if (!pgmap)
+			return -ENOMEM;
+		pgmap->nr_range = dev_dax->nr_range;
+	}
+
+	for (i = 0; i < dev_dax->nr_range; i++) {
+		struct range *range = &dev_dax->ranges[i].range;
+
+		if (!devm_request_mem_region(dev, range->start,
+					range_len(range), dev_name(dev))) {
+			dev_warn(dev, "mapping%d: %#llx-%#llx could not reserve range\n",
+					i, range->start, range->end);
+			return -EBUSY;
+		}
+		/* don't update the range for static pgmap */
+		if (!dev_dax->pgmap)
+			pgmap->ranges[i] = *range;
+	}
+
+	pgmap->type = MEMORY_DEVICE_GENERIC;
+	addr = devm_memremap_pages(dev, pgmap);
+	if (IS_ERR(addr))
+		return PTR_ERR(addr);
+>>>>>>> upstream/android-13
 
 	inode = dax_inode(dax_dev);
 	cdev = inode->i_cdev;
 	cdev_init(cdev, &dax_fops);
+<<<<<<< HEAD
 	cdev->owner = parent->driver->owner;
 
 	dev_dax->num_resources = count;
@@ -712,14 +894,54 @@ static int __init dax_init(void)
 {
 	dax_class = class_create(THIS_MODULE, "dax");
 	return PTR_ERR_OR_ZERO(dax_class);
+=======
+	if (dev->class) {
+		/* for the CONFIG_DEV_DAX_PMEM_COMPAT case */
+		cdev->owner = dev->parent->driver->owner;
+	} else
+		cdev->owner = dev->driver->owner;
+	cdev_set_parent(cdev, &dev->kobj);
+	rc = cdev_add(cdev, dev->devt, 1);
+	if (rc)
+		return rc;
+
+	rc = devm_add_action_or_reset(dev, dev_dax_cdev_del, cdev);
+	if (rc)
+		return rc;
+
+	run_dax(dax_dev);
+	return devm_add_action_or_reset(dev, dev_dax_kill, dev_dax);
+}
+EXPORT_SYMBOL_GPL(dev_dax_probe);
+
+static struct dax_device_driver device_dax_driver = {
+	.probe = dev_dax_probe,
+	/* all probe actions are unwound by devm, so .remove isn't necessary */
+	.match_always = 1,
+};
+
+static int __init dax_init(void)
+{
+	return dax_driver_register(&device_dax_driver);
+>>>>>>> upstream/android-13
 }
 
 static void __exit dax_exit(void)
 {
+<<<<<<< HEAD
 	class_destroy(dax_class);
+=======
+	dax_driver_unregister(&device_dax_driver);
+>>>>>>> upstream/android-13
 }
 
 MODULE_AUTHOR("Intel Corporation");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 subsys_initcall(dax_init);
 module_exit(dax_exit);
+=======
+module_init(dax_init);
+module_exit(dax_exit);
+MODULE_ALIAS_DAX_DEVICE(0);
+>>>>>>> upstream/android-13

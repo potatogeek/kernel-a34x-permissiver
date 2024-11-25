@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright 2012 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
  */
@@ -66,13 +71,19 @@ static void reload_slb(struct kvm_vcpu *vcpu)
 /*
  * On POWER7, see if we can handle a machine check that occurred inside
  * the guest in real mode, without switching to the host partition.
+<<<<<<< HEAD
  *
  * Returns: 0 => exit guest, 1 => deliver machine check to guest
+=======
+>>>>>>> upstream/android-13
  */
 static long kvmppc_realmode_mc_power7(struct kvm_vcpu *vcpu)
 {
 	unsigned long srr1 = vcpu->arch.shregs.msr;
+<<<<<<< HEAD
 	struct machine_check_event mce_evt;
+=======
+>>>>>>> upstream/android-13
 	long handled = 1;
 
 	if (srr1 & SRR1_MC_LDSTERR) {
@@ -110,6 +121,7 @@ static long kvmppc_realmode_mc_power7(struct kvm_vcpu *vcpu)
 		handled = 0;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * See if we have already handled the condition in the linux host.
 	 * We assume that if the condition is recovered then linux host
@@ -157,6 +169,37 @@ out:
 long kvmppc_realmode_machine_check(struct kvm_vcpu *vcpu)
 {
 	return kvmppc_realmode_mc_power7(vcpu);
+=======
+	return handled;
+}
+
+void kvmppc_realmode_machine_check(struct kvm_vcpu *vcpu)
+{
+	struct machine_check_event mce_evt;
+	long handled;
+
+	if (vcpu->kvm->arch.fwnmi_enabled) {
+		/* FWNMI guests handle their own recovery */
+		handled = 0;
+	} else {
+		handled = kvmppc_realmode_mc_power7(vcpu);
+	}
+
+	/*
+	 * Now get the event and stash it in the vcpu struct so it can
+	 * be handled by the primary thread in virtual mode.  We can't
+	 * call machine_check_queue_event() here if we are running on
+	 * an offline secondary thread.
+	 */
+	if (get_mce_event(&mce_evt, MCE_EVENT_RELEASE)) {
+		if (handled && mce_evt.version == MCE_V1)
+			mce_evt.disposition = MCE_DISPOSITION_RECOVERED;
+	} else {
+		memset(&mce_evt, 0, sizeof(mce_evt));
+	}
+
+	vcpu->arch.mce_evt = mce_evt;
+>>>>>>> upstream/android-13
 }
 
 /* Check if dynamic split is in force and return subcore size accordingly. */
@@ -177,6 +220,10 @@ void kvmppc_subcore_enter_guest(void)
 
 	local_paca->sibling_subcore_state->in_guest[subcore_id] = 1;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(kvmppc_subcore_enter_guest);
+>>>>>>> upstream/android-13
 
 void kvmppc_subcore_exit_guest(void)
 {
@@ -187,6 +234,10 @@ void kvmppc_subcore_exit_guest(void)
 
 	local_paca->sibling_subcore_state->in_guest[subcore_id] = 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(kvmppc_subcore_exit_guest);
+>>>>>>> upstream/android-13
 
 static bool kvmppc_tb_resync_required(void)
 {
@@ -274,7 +325,11 @@ long kvmppc_realmode_hmi_handler(void)
 {
 	bool resync_req;
 
+<<<<<<< HEAD
 	__this_cpu_inc(irq_stat.hmi_exceptions);
+=======
+	local_paca->hmi_irqs++;
+>>>>>>> upstream/android-13
 
 	if (hmi_handle_debugtrig(NULL) >= 0)
 		return 1;
@@ -331,5 +386,16 @@ long kvmppc_realmode_hmi_handler(void)
 	} else {
 		wait_for_tb_resync();
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Reset tb_offset_applied so the guest exit code won't try
+	 * to subtract the previous timebase offset from the timebase.
+	 */
+	if (local_paca->kvm_hstate.kvm_vcore)
+		local_paca->kvm_hstate.kvm_vcore->tb_offset_applied = 0;
+
+>>>>>>> upstream/android-13
 	return 0;
 }

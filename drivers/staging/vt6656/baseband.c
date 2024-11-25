@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: baseband.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Implement functions to access baseband
  *
  * Author: Jerry Chen
@@ -22,12 +25,23 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+#include <linux/errno.h>
+#include <linux/kernel.h>
+#include "device.h"
+>>>>>>> upstream/android-13
 #include "mac.h"
 #include "baseband.h"
 #include "rf.h"
 #include "usbpipe.h"
 
+<<<<<<< HEAD
 static u8 vnt_vt3184_agc[] = {
+=======
+static const u8 vnt_vt3184_agc[] = {
+>>>>>>> upstream/android-13
 	0x00, 0x00, 0x02, 0x02, 0x04, 0x04, 0x06, 0x06,
 	0x08, 0x08, 0x0a, 0x0a, 0x0c, 0x0c, 0x0e, 0x0e, /* 0x0f */
 	0x10, 0x10, 0x12, 0x12, 0x14, 0x14, 0x16, 0x16,
@@ -74,7 +88,11 @@ static u8 vnt_vt3184_al2230[] = {
 };
 
 /* {{RobertYu:20060515, new BB setting for VT3226D0 */
+<<<<<<< HEAD
 static u8 vnt_vt3184_vt3226d0[] = {
+=======
+static const u8 vnt_vt3184_vt3226d0[] = {
+>>>>>>> upstream/android-13
 	0x31, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
 	0x70, 0x45, 0x2a, 0x76, 0x00, 0x00, 0x80, 0x00, /* 0x0f */
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -109,6 +127,7 @@ static u8 vnt_vt3184_vt3226d0[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  /* 0xff */
 };
 
+<<<<<<< HEAD
 static const u16 vnt_frame_time[MAX_RATE] = {
 	10, 20, 55, 110, 24, 36, 48, 72, 96, 144, 192, 216
 };
@@ -315,6 +334,87 @@ void vnt_get_phy_field(struct vnt_private *priv, u32 frame_length,
 		phy->len = cpu_to_le16((u16)frame_length);
 	}
 }
+=======
+struct vnt_threshold {
+	u8 bb_pre_ed_rssi;
+	u8 cr_201;
+	u8 cr_206;
+};
+
+static const struct vnt_threshold al2230_vnt_threshold[] = {
+	{0, 0x00, 0x30},	/* Max sensitivity */
+	{68, 0x00, 0x36},
+	{67, 0x00, 0x43},
+	{66, 0x00, 0x51},
+	{65, 0x00, 0x62},
+	{64, 0x00, 0x79},
+	{63, 0x00, 0x93},
+	{62, 0x00, 0xb9},
+	{61, 0x00, 0xe3},
+	{60, 0x01, 0x18},
+	{59, 0x01, 0x54},
+	{58, 0x01, 0xa0},
+	{57, 0x02, 0x20},
+	{56, 0x02, 0xa0},
+	{55, 0x03, 0x00},
+	{53, 0x06, 0x00},
+	{51, 0x09, 0x00},
+	{49, 0x0e, 0x00},
+	{47, 0x15, 0x00},
+	{46, 0x1a, 0x00},
+	{45, 0xff, 0x00}
+};
+
+static const struct vnt_threshold vt3226_vnt_threshold[] = {
+	{0, 0x00, 0x24},	/* Max sensitivity */
+	{68, 0x00, 0x2d},
+	{67, 0x00, 0x36},
+	{66, 0x00, 0x43},
+	{65, 0x00, 0x52},
+	{64, 0x00, 0x68},
+	{63, 0x00, 0x80},
+	{62, 0x00, 0x9c},
+	{61, 0x00, 0xc0},
+	{60, 0x00, 0xea},
+	{59, 0x01, 0x30},
+	{58, 0x01, 0x70},
+	{57, 0x01, 0xb0},
+	{56, 0x02, 0x30},
+	{55, 0x02, 0xc0},
+	{53, 0x04, 0x00},
+	{51, 0x07, 0x00},
+	{49, 0x0a, 0x00},
+	{47, 0x11, 0x00},
+	{45, 0x18, 0x00},
+	{43, 0x26, 0x00},
+	{42, 0x36, 0x00},
+	{41, 0xff, 0x00}
+};
+
+static const struct vnt_threshold vt3342_vnt_threshold[] = {
+	{0, 0x00, 0x38},	/* Max sensitivity */
+	{66, 0x00, 0x43},
+	{65, 0x00, 0x52},
+	{64, 0x00, 0x68},
+	{63, 0x00, 0x80},
+	{62, 0x00, 0x9c},
+	{61, 0x00, 0xc0},
+	{60, 0x00, 0xea},
+	{59, 0x01, 0x30},
+	{58, 0x01, 0x70},
+	{57, 0x01, 0xb0},
+	{56, 0x02, 0x30},
+	{55, 0x02, 0xc0},
+	{53, 0x04, 0x00},
+	{51, 0x07, 0x00},
+	{49, 0x0a, 0x00},
+	{47, 0x11, 0x00},
+	{45, 0x18, 0x00},
+	{43, 0x26, 0x00},
+	{42, 0x36, 0x00},
+	{41, 0xff, 0x00}
+};
+>>>>>>> upstream/android-13
 
 /*
  * Description: Set Antenna mode
@@ -329,7 +429,11 @@ void vnt_get_phy_field(struct vnt_private *priv, u32 frame_length,
  * Return Value: none
  *
  */
+<<<<<<< HEAD
 void vnt_set_antenna_mode(struct vnt_private *priv, u8 antenna_mode)
+=======
+int vnt_set_antenna_mode(struct vnt_private *priv, u8 antenna_mode)
+>>>>>>> upstream/android-13
 {
 	switch (antenna_mode) {
 	case ANT_TXA:
@@ -344,8 +448,13 @@ void vnt_set_antenna_mode(struct vnt_private *priv, u8 antenna_mode)
 		break;
 	}
 
+<<<<<<< HEAD
 	vnt_control_out(priv, MESSAGE_TYPE_SET_ANTMD,
 			(u16)antenna_mode, 0, 0, NULL);
+=======
+	return vnt_control_out(priv, MESSAGE_TYPE_SET_ANTMD,
+			       (u16)antenna_mode, 0, 0, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -364,6 +473,7 @@ void vnt_set_antenna_mode(struct vnt_private *priv, u8 antenna_mode)
 
 int vnt_vt3184_init(struct vnt_private *priv)
 {
+<<<<<<< HEAD
 	int status;
 	u16 length;
 	u8 *addr;
@@ -377,12 +487,25 @@ int vnt_vt3184_init(struct vnt_private *priv)
 						priv->eeprom);
 	if (status != STATUS_SUCCESS)
 		return false;
+=======
+	int ret;
+	u16 length;
+	u8 *addr = NULL;
+	const u8 *c_addr;
+	u8 data;
+
+	ret = vnt_control_in(priv, MESSAGE_TYPE_READ, 0, MESSAGE_REQUEST_EEPROM,
+			     EEP_MAX_CONTEXT_SIZE, priv->eeprom);
+	if (ret)
+		goto end;
+>>>>>>> upstream/android-13
 
 	priv->rf_type = priv->eeprom[EEP_OFS_RFTYPE];
 
 	dev_dbg(&priv->usb->dev, "RF Type %d\n", priv->rf_type);
 
 	if ((priv->rf_type == RF_AL2230) ||
+<<<<<<< HEAD
 	    (priv->rf_type == RF_AL2230S)) {
 		priv->bb_rx_conf = vnt_vt3184_al2230[10];
 		length = sizeof(vnt_vt3184_al2230);
@@ -403,6 +526,16 @@ int vnt_vt3184_init(struct vnt_private *priv)
 		length_agc = sizeof(vnt_vt3184_agc);
 
 		addr[0xd7] = 0x06;
+=======
+	    (priv->rf_type == RF_AL2230S) ||
+	    (priv->rf_type == RF_AIROHA7230)) {
+		priv->bb_rx_conf = vnt_vt3184_al2230[10];
+		length = sizeof(vnt_vt3184_al2230);
+		addr = vnt_vt3184_al2230;
+
+		if (priv->rf_type == RF_AIROHA7230)
+			addr[0xd7] = 0x06;
+>>>>>>> upstream/android-13
 
 		priv->bb_vga[0] = 0x1c;
 		priv->bb_vga[1] = 0x10;
@@ -410,12 +543,20 @@ int vnt_vt3184_init(struct vnt_private *priv)
 		priv->bb_vga[3] = 0x0;
 
 	} else if ((priv->rf_type == RF_VT3226) ||
+<<<<<<< HEAD
 			(priv->rf_type == RF_VT3226D0)) {
 		priv->bb_rx_conf = vnt_vt3184_vt3226d0[10];
 		length = sizeof(vnt_vt3184_vt3226d0);
 		addr = vnt_vt3184_vt3226d0;
 		agc = vnt_vt3184_agc;
 		length_agc = sizeof(vnt_vt3184_agc);
+=======
+		   (priv->rf_type == RF_VT3226D0) ||
+		   (priv->rf_type == RF_VT3342A0)) {
+		priv->bb_rx_conf = vnt_vt3184_vt3226d0[10];
+		length = sizeof(vnt_vt3184_vt3226d0);
+		c_addr = vnt_vt3184_vt3226d0;
+>>>>>>> upstream/android-13
 
 		priv->bb_vga[0] = 0x20;
 		priv->bb_vga[1] = 0x10;
@@ -423,6 +564,7 @@ int vnt_vt3184_init(struct vnt_private *priv)
 		priv->bb_vga[3] = 0x0;
 
 		/* Fix VT3226 DFC system timing issue */
+<<<<<<< HEAD
 		vnt_mac_reg_bits_on(priv, MAC_REG_SOFTPWRCTL2,
 				    SOFTPWRCTL_RFLEOPT);
 	} else if (priv->rf_type == RF_VT3342A0) {
@@ -480,6 +622,70 @@ int vnt_vt3184_init(struct vnt_private *priv)
 			MESSAGE_REQUEST_MEM, sizeof(data), &data);
 
 	return true;
+=======
+		ret = vnt_mac_reg_bits_on(priv, MAC_REG_SOFTPWRCTL2,
+					  SOFTPWRCTL_RFLEOPT);
+		if (ret)
+			goto end;
+	} else {
+		goto end;
+	}
+
+	if (addr)
+		c_addr = addr;
+
+	ret = vnt_control_out_blocks(priv, VNT_REG_BLOCK_SIZE,
+				     MESSAGE_REQUEST_BBREG, length, c_addr);
+	if (ret)
+		goto end;
+
+	ret = vnt_control_out(priv, MESSAGE_TYPE_WRITE, 0,
+			      MESSAGE_REQUEST_BBAGC,
+			      sizeof(vnt_vt3184_agc), vnt_vt3184_agc);
+	if (ret)
+		goto end;
+
+	if ((priv->rf_type == RF_VT3226) ||
+	    (priv->rf_type == RF_VT3342A0) ||
+	    (priv->rf_type == RF_VT3226D0)) {
+		data = (priv->rf_type == RF_VT3226D0) ? 0x11 : 0x23;
+
+		ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_MACREG,
+					 MAC_REG_ITRTMSET, data);
+		if (ret)
+			goto end;
+
+		ret = vnt_mac_reg_bits_on(priv, MAC_REG_PAPEDELAY, BIT(0));
+		if (ret)
+			goto end;
+	}
+
+	ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x04, 0x7f);
+	if (ret)
+		goto end;
+
+	ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0d, 0x01);
+	if (ret)
+		goto end;
+
+	ret = vnt_rf_table_download(priv);
+	if (ret)
+		goto end;
+
+	/* Fix for TX USB resets from vendors driver */
+	ret = vnt_control_in(priv, MESSAGE_TYPE_READ, USB_REG4,
+			     MESSAGE_REQUEST_MEM, sizeof(data), &data);
+	if (ret)
+		goto end;
+
+	data |= 0x2;
+
+	ret = vnt_control_out(priv, MESSAGE_TYPE_WRITE, USB_REG4,
+			      MESSAGE_REQUEST_MEM, sizeof(data), &data);
+
+end:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -494,8 +700,14 @@ int vnt_vt3184_init(struct vnt_private *priv)
  * Return Value: none
  *
  */
+<<<<<<< HEAD
 void vnt_set_short_slot_time(struct vnt_private *priv)
 {
+=======
+int vnt_set_short_slot_time(struct vnt_private *priv)
+{
+	int ret = 0;
+>>>>>>> upstream/android-13
 	u8 bb_vga = 0;
 
 	if (priv->short_slot_time)
@@ -503,17 +715,37 @@ void vnt_set_short_slot_time(struct vnt_private *priv)
 	else
 		priv->bb_rx_conf |= 0x20;
 
+<<<<<<< HEAD
 	vnt_control_in_u8(priv, MESSAGE_REQUEST_BBREG, 0xe7, &bb_vga);
+=======
+	ret = vnt_control_in_u8(priv, MESSAGE_REQUEST_BBREG, 0xe7, &bb_vga);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (bb_vga == priv->bb_vga[0])
 		priv->bb_rx_conf |= 0x20;
 
+<<<<<<< HEAD
 	vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0a, priv->bb_rx_conf);
 }
 
 void vnt_set_vga_gain_offset(struct vnt_private *priv, u8 data)
 {
 	vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0xE7, data);
+=======
+	return vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0a,
+				  priv->bb_rx_conf);
+}
+
+int vnt_set_vga_gain_offset(struct vnt_private *priv, u8 data)
+{
+	int ret;
+
+	ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0xE7, data);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* patch for 3253B0 Baseband with Cardbus module */
 	if (priv->short_slot_time)
@@ -521,7 +753,12 @@ void vnt_set_vga_gain_offset(struct vnt_private *priv, u8 data)
 	else
 		priv->bb_rx_conf |= 0x20; /* 0010 0000 */
 
+<<<<<<< HEAD
 	vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0a, priv->bb_rx_conf);
+=======
+	return vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0a,
+				  priv->bb_rx_conf);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -536,6 +773,7 @@ void vnt_set_vga_gain_offset(struct vnt_private *priv, u8 data)
  * Return Value: none
  *
  */
+<<<<<<< HEAD
 void vnt_set_deep_sleep(struct vnt_private *priv)
 {
 	vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0c, 0x17);/* CR12 */
@@ -552,11 +790,47 @@ void vnt_update_pre_ed_threshold(struct vnt_private *priv, int scanning)
 {
 	u8 cr_201 = 0x0, cr_206 = 0x0;
 	u8 ed_inx = priv->bb_pre_ed_index;
+=======
+int vnt_set_deep_sleep(struct vnt_private *priv)
+{
+	int ret = 0;
+
+	/* CR12 */
+	ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0c, 0x17);
+	if (ret)
+		return ret;
+
+	/* CR13 */
+	return vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0d, 0xB9);
+}
+
+int vnt_exit_deep_sleep(struct vnt_private *priv)
+{
+	int ret = 0;
+
+	/* CR12 */
+	ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0c, 0x00);
+	if (ret)
+		return ret;
+
+	/* CR13 */
+	return vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0x0d, 0x01);
+}
+
+int vnt_update_pre_ed_threshold(struct vnt_private *priv, int scanning)
+{
+	const struct vnt_threshold *threshold = NULL;
+	u8 length;
+	u8 cr_201, cr_206;
+	u8 ed_inx;
+	int ret;
+>>>>>>> upstream/android-13
 
 	switch (priv->rf_type) {
 	case RF_AL2230:
 	case RF_AL2230S:
 	case RF_AIROHA7230:
+<<<<<<< HEAD
 		if (scanning) { /* Max sensitivity */
 			ed_inx = 0;
 			cr_206 = 0x30;
@@ -632,10 +906,15 @@ void vnt_update_pre_ed_threshold(struct vnt_private *priv, int scanning)
 			ed_inx = 0;
 			cr_206 = 0x30;
 		}
+=======
+		threshold = al2230_vnt_threshold;
+		length = ARRAY_SIZE(al2230_vnt_threshold);
+>>>>>>> upstream/android-13
 		break;
 
 	case RF_VT3226:
 	case RF_VT3226D0:
+<<<<<<< HEAD
 		if (scanning)	{ /* Max sensitivity */
 			ed_inx = 0;
 			cr_206 = 0x24;
@@ -800,16 +1079,49 @@ void vnt_update_pre_ed_threshold(struct vnt_private *priv, int scanning)
 
 	if (ed_inx == priv->bb_pre_ed_index && !scanning)
 		return;
+=======
+		threshold = vt3226_vnt_threshold;
+		length = ARRAY_SIZE(vt3226_vnt_threshold);
+		break;
+
+	case RF_VT3342A0:
+		threshold = vt3342_vnt_threshold;
+		length = ARRAY_SIZE(vt3342_vnt_threshold);
+		break;
+	}
+
+	if (!threshold)
+		return -EINVAL;
+
+	for (ed_inx = scanning ? 0 : length - 1; ed_inx > 0; ed_inx--) {
+		if (priv->bb_pre_ed_rssi <= threshold[ed_inx].bb_pre_ed_rssi)
+			break;
+	}
+
+	cr_201 = threshold[ed_inx].cr_201;
+	cr_206 = threshold[ed_inx].cr_206;
+
+	if (ed_inx == priv->bb_pre_ed_index && !scanning)
+		return 0;
+>>>>>>> upstream/android-13
 
 	priv->bb_pre_ed_index = ed_inx;
 
 	dev_dbg(&priv->usb->dev, "%s bb_pre_ed_rssi %d\n",
 		__func__, priv->bb_pre_ed_rssi);
 
+<<<<<<< HEAD
 	if (!cr_201 && !cr_206)
 		return;
 
 	vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0xc9, cr_201);
 	vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0xce, cr_206);
+=======
+	ret = vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0xc9, cr_201);
+	if (ret)
+		return ret;
+
+	return vnt_control_out_u8(priv, MESSAGE_REQUEST_BBREG, 0xce, cr_206);
+>>>>>>> upstream/android-13
 }
 

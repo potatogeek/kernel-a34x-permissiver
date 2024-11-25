@@ -14,10 +14,13 @@
 
 #include <osdep_service_linux.h>
 
+<<<<<<< HEAD
 #ifndef BIT
 	#define BIT(x)	(1 << (x))
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define BIT0	0x00000001
 #define BIT1	0x00000002
 #define BIT2	0x00000004
@@ -58,6 +61,7 @@
 
 extern int RTW_STATUS_CODE(int error_code);
 
+<<<<<<< HEAD
 /* flags used for rtw_mstat_update() */
 enum mstat_f {
 	/* type: 0x00ff */
@@ -88,14 +92,20 @@ typedef enum mstat_status{
 
 #define rtw_mstat_update(flag, status, sz) do {} while (0)
 #define rtw_mstat_dump(sel) do {} while (0)
+=======
+>>>>>>> upstream/android-13
 void *_rtw_zmalloc(u32 sz);
 void *_rtw_malloc(u32 sz);
 void _kfree(u8 *pbuf, u32 sz);
 
 struct sk_buff *_rtw_skb_alloc(u32 sz);
 struct sk_buff *_rtw_skb_copy(const struct sk_buff *skb);
+<<<<<<< HEAD
 struct sk_buff *_rtw_skb_clone(struct sk_buff *skb);
 int _rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb);
+=======
+int _rtw_netif_rx(struct net_device *ndev, struct sk_buff *skb);
+>>>>>>> upstream/android-13
 
 #define rtw_malloc(sz)			_rtw_malloc((sz))
 #define rtw_zmalloc(sz)			_rtw_zmalloc((sz))
@@ -103,21 +113,35 @@ int _rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb);
 #define rtw_skb_alloc(size) _rtw_skb_alloc((size))
 #define rtw_skb_alloc_f(size, mstat_f)	_rtw_skb_alloc((size))
 #define rtw_skb_copy(skb)	_rtw_skb_copy((skb))
+<<<<<<< HEAD
 #define rtw_skb_clone(skb)	_rtw_skb_clone((skb))
 #define rtw_skb_copy_f(skb, mstat_f)	_rtw_skb_copy((skb))
 #define rtw_skb_clone_f(skb, mstat_f)	_rtw_skb_clone((skb))
+=======
+#define rtw_skb_copy_f(skb, mstat_f)	_rtw_skb_copy((skb))
+>>>>>>> upstream/android-13
 #define rtw_netif_rx(ndev, skb) _rtw_netif_rx(ndev, skb)
 
 extern void _rtw_init_queue(struct __queue	*pqueue);
 
+<<<<<<< HEAD
 static __inline void thread_enter(char *name)
+=======
+static inline void thread_enter(char *name)
+>>>>>>> upstream/android-13
 {
 	allow_signal(SIGTERM);
 }
 
+<<<<<<< HEAD
 __inline static void flush_signals_thread(void)
 {
 	if (signal_pending (current))
+=======
+static inline void flush_signals_thread(void)
+{
+	if (signal_pending(current))
+>>>>>>> upstream/android-13
 	{
 		flush_signals(current);
 	}
@@ -125,7 +149,11 @@ __inline static void flush_signals_thread(void)
 
 #define rtw_warn_on(condition) WARN_ON(condition)
 
+<<<<<<< HEAD
 __inline static int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *parg4)
+=======
+static inline int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *parg4)
+>>>>>>> upstream/android-13
 {
 	int ret = true;
 
@@ -134,6 +162,7 @@ __inline static int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *p
 }
 
 #define _RND(sz, r) ((((sz)+((r)-1))/(r))*(r))
+<<<<<<< HEAD
 #define RND4(x)	(((x >> 2) + (((x & 3) == 0) ?  0: 1)) << 2)
 
 __inline static u32 _RND4(u32 sz)
@@ -161,10 +190,14 @@ __inline static u32 _RND8(u32 sz)
 #ifndef MAC_FMT
 #define MAC_FMT "%pM"
 #endif
+=======
+
+>>>>>>> upstream/android-13
 #ifndef MAC_ARG
 #define MAC_ARG(x) (x)
 #endif
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_AP_WOWLAN
 extern void rtw_softap_lock_suspend(void);
@@ -246,6 +279,12 @@ extern u64 rtw_modular64(u64 x, u64 y);
 			 (((u64) (a)[3]) << 24) | (((u64) (a)[2]) << 16) | \
 			 (((u64) (a)[1]) << 8) | ((u64) (a)[0]))
 
+=======
+extern void rtw_free_netdev(struct net_device * netdev);
+
+/* Macros for handling unaligned memory accesses */
+
+>>>>>>> upstream/android-13
 void rtw_buf_free(u8 **buf, u32 *buf_len);
 void rtw_buf_update(u8 **buf, u32 *buf_len, u8 *src, u32 src_len);
 

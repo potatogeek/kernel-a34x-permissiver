@@ -294,9 +294,19 @@ static int em28xx_i2c_recv_bytes(struct em28xx *dev, u16 addr, u8 *buf, u16 len)
 			 "reading from i2c device at 0x%x failed (error=%i)\n",
 			 addr, ret);
 		return ret;
+<<<<<<< HEAD
 	}
 	/*
 	 * NOTE: some devices with two i2c busses have the bad habit to return 0
+=======
+	} else if (ret != len) {
+		dev_dbg(&dev->intf->dev,
+			"%i bytes read from i2c device at 0x%x requested, but %i bytes written\n",
+				ret, addr, len);
+	}
+	/*
+	 * NOTE: some devices with two i2c buses have the bad habit to return 0
+>>>>>>> upstream/android-13
 	 * bytes if we are on bus B AND there was no write attempt to the
 	 * specified slave address before AND no device is present at the
 	 * requested slave address.
@@ -329,7 +339,11 @@ static int em28xx_i2c_recv_bytes(struct em28xx *dev, u16 addr, u8 *buf, u16 len)
 	}
 
 	dev_warn(&dev->intf->dev,
+<<<<<<< HEAD
 		 "write to i2c device at 0x%x failed with unknown error (status=%i)\n",
+=======
+		 "read from i2c device at 0x%x failed with unknown error (status=%i)\n",
+>>>>>>> upstream/android-13
 		 addr, ret);
 	return -EIO;
 }
@@ -427,7 +441,11 @@ static int em25xx_bus_B_recv_bytes(struct em28xx *dev, u16 addr, u8 *buf,
 		return ret;
 	}
 	/*
+<<<<<<< HEAD
 	 * NOTE: some devices with two i2c busses have the bad habit to return 0
+=======
+	 * NOTE: some devices with two i2c buses have the bad habit to return 0
+>>>>>>> upstream/android-13
 	 * bytes if we are on bus B AND there was no write attempt to the
 	 * specified slave address before AND no device is present at the
 	 * requested slave address.
@@ -949,7 +967,11 @@ void em28xx_do_i2c_scan(struct em28xx *dev, unsigned int bus)
 	unsigned char buf;
 	int i, rc;
 
+<<<<<<< HEAD
 	memset(i2c_devicelist, 0, ARRAY_SIZE(i2c_devicelist));
+=======
+	memset(i2c_devicelist, 0, sizeof(i2c_devicelist));
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(i2c_devs); i++) {
 		dev->i2c_client[bus].addr = i;
@@ -964,7 +986,11 @@ void em28xx_do_i2c_scan(struct em28xx *dev, unsigned int bus)
 
 	if (bus == dev->def_i2c_bus)
 		dev->i2c_hash = em28xx_hash_mem(i2c_devicelist,
+<<<<<<< HEAD
 						ARRAY_SIZE(i2c_devicelist), 32);
+=======
+						sizeof(i2c_devicelist), 32);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -985,7 +1011,12 @@ int em28xx_i2c_register(struct em28xx *dev, unsigned int bus,
 
 	dev->i2c_adap[bus] = em28xx_adap_template;
 	dev->i2c_adap[bus].dev.parent = &dev->intf->dev;
+<<<<<<< HEAD
 	strcpy(dev->i2c_adap[bus].name, dev_name(&dev->intf->dev));
+=======
+	strscpy(dev->i2c_adap[bus].name, dev_name(&dev->intf->dev),
+		sizeof(dev->i2c_adap[bus].name));
+>>>>>>> upstream/android-13
 
 	dev->i2c_bus[bus].bus = bus;
 	dev->i2c_bus[bus].algo_type = algo_type;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * In-kernel rpcbind client supporting versions 2, 3, and 4 of the rpcbind
  * protocol
@@ -30,11 +34,17 @@
 #include <linux/sunrpc/sched.h>
 #include <linux/sunrpc/xprtsock.h>
 
+<<<<<<< HEAD
 #include "netns.h"
 
 #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
 # define RPCDBG_FACILITY	RPCDBG_BIND
 #endif
+=======
+#include <trace/events/sunrpc.h>
+
+#include "netns.h"
+>>>>>>> upstream/android-13
 
 #define RPCBIND_SOCK_PATHNAME	"/var/run/rpcbind.sock"
 
@@ -215,10 +225,13 @@ static void rpcb_set_local(struct net *net, struct rpc_clnt *clnt,
 	sn->rpcb_is_af_local = is_af_local ? 1 : 0;
 	smp_wmb();
 	sn->rpcb_users = 1;
+<<<<<<< HEAD
 	dprintk("RPC:       created new rpcb local clients (rpcb_local_clnt: "
 		"%p, rpcb_local_clnt4: %p) for net %x%s\n",
 		sn->rpcb_local_clnt, sn->rpcb_local_clnt4,
 		net->ns.inum, (net == &init_net) ? " (init_net)" : "");
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -240,6 +253,10 @@ static int rpcb_create_local_unix(struct net *net)
 		.program	= &rpcb_program,
 		.version	= RPCBVERS_2,
 		.authflavor	= RPC_AUTH_NULL,
+<<<<<<< HEAD
+=======
+		.cred		= current_cred(),
+>>>>>>> upstream/android-13
 		/*
 		 * We turn off the idle timeout to prevent the kernel
 		 * from automatically disconnecting the socket.
@@ -259,19 +276,27 @@ static int rpcb_create_local_unix(struct net *net)
 	 */
 	clnt = rpc_create(&args);
 	if (IS_ERR(clnt)) {
+<<<<<<< HEAD
 		dprintk("RPC:       failed to create AF_LOCAL rpcbind "
 				"client (errno %ld).\n", PTR_ERR(clnt));
+=======
+>>>>>>> upstream/android-13
 		result = PTR_ERR(clnt);
 		goto out;
 	}
 
 	clnt4 = rpc_bind_new_program(clnt, &rpcb_program, RPCBVERS_4);
+<<<<<<< HEAD
 	if (IS_ERR(clnt4)) {
 		dprintk("RPC:       failed to bind second program to "
 				"rpcbind v4 client (errno %ld).\n",
 				PTR_ERR(clnt4));
 		clnt4 = NULL;
 	}
+=======
+	if (IS_ERR(clnt4))
+		clnt4 = NULL;
+>>>>>>> upstream/android-13
 
 	rpcb_set_local(net, clnt, clnt4, true);
 
@@ -299,6 +324,10 @@ static int rpcb_create_local_net(struct net *net)
 		.program	= &rpcb_program,
 		.version	= RPCBVERS_2,
 		.authflavor	= RPC_AUTH_UNIX,
+<<<<<<< HEAD
+=======
+		.cred		= current_cred(),
+>>>>>>> upstream/android-13
 		.flags		= RPC_CLNT_CREATE_NOPING,
 	};
 	struct rpc_clnt *clnt, *clnt4;
@@ -306,8 +335,11 @@ static int rpcb_create_local_net(struct net *net)
 
 	clnt = rpc_create(&args);
 	if (IS_ERR(clnt)) {
+<<<<<<< HEAD
 		dprintk("RPC:       failed to create local rpcbind "
 				"client (errno %ld).\n", PTR_ERR(clnt));
+=======
+>>>>>>> upstream/android-13
 		result = PTR_ERR(clnt);
 		goto out;
 	}
@@ -318,12 +350,17 @@ static int rpcb_create_local_net(struct net *net)
 	 * v4 upcalls.
 	 */
 	clnt4 = rpc_bind_new_program(clnt, &rpcb_program, RPCBVERS_4);
+<<<<<<< HEAD
 	if (IS_ERR(clnt4)) {
 		dprintk("RPC:       failed to bind second program to "
 				"rpcbind v4 client (errno %ld).\n",
 				PTR_ERR(clnt4));
 		clnt4 = NULL;
 	}
+=======
+	if (IS_ERR(clnt4))
+		clnt4 = NULL;
+>>>>>>> upstream/android-13
 
 	rpcb_set_local(net, clnt, clnt4, false);
 
@@ -358,18 +395,32 @@ out:
 static struct rpc_clnt *rpcb_create(struct net *net, const char *nodename,
 				    const char *hostname,
 				    struct sockaddr *srvaddr, size_t salen,
+<<<<<<< HEAD
 				    int proto, u32 version)
+=======
+				    int proto, u32 version,
+				    const struct cred *cred,
+				    const struct rpc_timeout *timeo)
+>>>>>>> upstream/android-13
 {
 	struct rpc_create_args args = {
 		.net		= net,
 		.protocol	= proto,
 		.address	= srvaddr,
 		.addrsize	= salen,
+<<<<<<< HEAD
+=======
+		.timeout	= timeo,
+>>>>>>> upstream/android-13
 		.servername	= hostname,
 		.nodename	= nodename,
 		.program	= &rpcb_program,
 		.version	= version,
 		.authflavor	= RPC_AUTH_UNIX,
+<<<<<<< HEAD
+=======
+		.cred		= cred,
+>>>>>>> upstream/android-13
 		.flags		= (RPC_CLNT_CREATE_NOPING |
 					RPC_CLNT_CREATE_NONPRIVPORT),
 	};
@@ -398,11 +449,16 @@ static int rpcb_register_call(struct sunrpc_net *sn, struct rpc_clnt *clnt, stru
 	msg->rpc_resp = &result;
 
 	error = rpc_call_sync(clnt, msg, flags);
+<<<<<<< HEAD
 	if (error < 0) {
 		dprintk("RPC:       failed to contact local rpcbind "
 				"server (errno %d).\n", -error);
 		return error;
 	}
+=======
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 
 	if (!result)
 		return -EACCES;
@@ -456,9 +512,13 @@ int rpcb_register(struct net *net, u32 prog, u32 vers, int prot, unsigned short 
 	struct sunrpc_net *sn = net_generic(net, sunrpc_net_id);
 	bool is_set = false;
 
+<<<<<<< HEAD
 	dprintk("RPC:       %sregistering (%u, %u, %d, %u) with local "
 			"rpcbind\n", (port ? "" : "un"),
 			prog, vers, prot, port);
+=======
+	trace_pmap_register(prog, vers, prot, port);
+>>>>>>> upstream/android-13
 
 	msg.rpc_proc = &rpcb_procedures2[RPCBPROC_UNSET];
 	if (port != 0) {
@@ -484,11 +544,14 @@ static int rpcb_register_inet4(struct sunrpc_net *sn,
 
 	map->r_addr = rpc_sockaddr2uaddr(sap, GFP_KERNEL);
 
+<<<<<<< HEAD
 	dprintk("RPC:       %sregistering [%u, %u, %s, '%s'] with "
 		"local rpcbind\n", (port ? "" : "un"),
 			map->r_prog, map->r_vers,
 			map->r_addr, map->r_netid);
 
+=======
+>>>>>>> upstream/android-13
 	msg->rpc_proc = &rpcb_procedures4[RPCBPROC_UNSET];
 	if (port != 0) {
 		msg->rpc_proc = &rpcb_procedures4[RPCBPROC_SET];
@@ -515,11 +578,14 @@ static int rpcb_register_inet6(struct sunrpc_net *sn,
 
 	map->r_addr = rpc_sockaddr2uaddr(sap, GFP_KERNEL);
 
+<<<<<<< HEAD
 	dprintk("RPC:       %sregistering [%u, %u, %s, '%s'] with "
 		"local rpcbind\n", (port ? "" : "un"),
 			map->r_prog, map->r_vers,
 			map->r_addr, map->r_netid);
 
+=======
+>>>>>>> upstream/android-13
 	msg->rpc_proc = &rpcb_procedures4[RPCBPROC_UNSET];
 	if (port != 0) {
 		msg->rpc_proc = &rpcb_procedures4[RPCBPROC_SET];
@@ -536,9 +602,13 @@ static int rpcb_unregister_all_protofamilies(struct sunrpc_net *sn,
 {
 	struct rpcbind_args *map = msg->rpc_argp;
 
+<<<<<<< HEAD
 	dprintk("RPC:       unregistering [%u, %u, '%s'] with "
 		"local rpcbind\n",
 			map->r_prog, map->r_vers, map->r_netid);
+=======
+	trace_rpcb_unregister(map->r_prog, map->r_vers, map->r_netid);
+>>>>>>> upstream/android-13
 
 	map->r_addr = "";
 	msg->rpc_proc = &rpcb_procedures4[RPCBPROC_UNSET];
@@ -610,6 +680,11 @@ int rpcb_v4_register(struct net *net, const u32 program, const u32 version,
 	if (address == NULL)
 		return rpcb_unregister_all_protofamilies(sn, &msg);
 
+<<<<<<< HEAD
+=======
+	trace_rpcb_register(map.r_prog, map.r_vers, map.r_addr, map.r_netid);
+
+>>>>>>> upstream/android-13
 	switch (address->sa_family) {
 	case AF_INET:
 		return rpcb_register_inet4(sn, address, &msg);
@@ -688,6 +763,7 @@ void rpcb_getport_async(struct rpc_task *task)
 	rcu_read_unlock();
 	xprt = xprt_get(task->tk_xprt);
 
+<<<<<<< HEAD
 	dprintk("RPC: %5u %s(%s, %u, %u, %d)\n",
 		task->tk_pid, __func__,
 		xprt->servername, clnt->cl_prog, clnt->cl_vers, xprt->prot);
@@ -699,6 +775,14 @@ void rpcb_getport_async(struct rpc_task *task)
 	if (xprt_test_and_set_binding(xprt)) {
 		dprintk("RPC: %5u %s: waiting for another binder\n",
 			task->tk_pid, __func__);
+=======
+	/* Put self on the wait queue to ensure we get notified if
+	 * some other task is already attempting to bind the port */
+	rpc_sleep_on_timeout(&xprt->binding, task,
+			NULL, jiffies + xprt->bind_timeout);
+
+	if (xprt_test_and_set_binding(xprt)) {
+>>>>>>> upstream/android-13
 		xprt_put(xprt);
 		return;
 	}
@@ -706,8 +790,11 @@ void rpcb_getport_async(struct rpc_task *task)
 	/* Someone else may have bound if we slept */
 	if (xprt_bound(xprt)) {
 		status = 0;
+<<<<<<< HEAD
 		dprintk("RPC: %5u %s: already bound\n",
 			task->tk_pid, __func__);
+=======
+>>>>>>> upstream/android-13
 		goto bailout_nofree;
 	}
 
@@ -726,13 +813,17 @@ void rpcb_getport_async(struct rpc_task *task)
 		break;
 	default:
 		status = -EAFNOSUPPORT;
+<<<<<<< HEAD
 		dprintk("RPC: %5u %s: bad address family\n",
 				task->tk_pid, __func__);
+=======
+>>>>>>> upstream/android-13
 		goto bailout_nofree;
 	}
 	if (proc == NULL) {
 		xprt->bind_index = 0;
 		status = -EPFNOSUPPORT;
+<<<<<<< HEAD
 		dprintk("RPC: %5u %s: no more getport versions available\n",
 			task->tk_pid, __func__);
 		goto bailout_nofree;
@@ -740,10 +831,17 @@ void rpcb_getport_async(struct rpc_task *task)
 
 	dprintk("RPC: %5u %s: trying rpcbind version %u\n",
 		task->tk_pid, __func__, bind_version);
+=======
+		goto bailout_nofree;
+	}
+
+	trace_rpcb_getport(clnt, task, bind_version);
+>>>>>>> upstream/android-13
 
 	rpcb_clnt = rpcb_create(xprt->xprt_net,
 				clnt->cl_nodename,
 				xprt->servername, sap, salen,
+<<<<<<< HEAD
 				xprt->prot, bind_version);
 	if (IS_ERR(rpcb_clnt)) {
 		status = PTR_ERR(rpcb_clnt);
@@ -757,6 +855,19 @@ void rpcb_getport_async(struct rpc_task *task)
 		status = -ENOMEM;
 		dprintk("RPC: %5u %s: no memory available\n",
 			task->tk_pid, __func__);
+=======
+				xprt->prot, bind_version,
+				clnt->cl_cred,
+				task->tk_client->cl_timeout);
+	if (IS_ERR(rpcb_clnt)) {
+		status = PTR_ERR(rpcb_clnt);
+		goto bailout_nofree;
+	}
+
+	map = kzalloc(sizeof(struct rpcbind_args), GFP_NOFS);
+	if (!map) {
+		status = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto bailout_release_client;
 	}
 	map->r_prog = clnt->cl_prog;
@@ -770,11 +881,17 @@ void rpcb_getport_async(struct rpc_task *task)
 	case RPCBVERS_4:
 	case RPCBVERS_3:
 		map->r_netid = xprt->address_strings[RPC_DISPLAY_NETID];
+<<<<<<< HEAD
 		map->r_addr = rpc_sockaddr2uaddr(sap, GFP_ATOMIC);
 		if (!map->r_addr) {
 			status = -ENOMEM;
 			dprintk("RPC: %5u %s: no memory available\n",
 				task->tk_pid, __func__);
+=======
+		map->r_addr = rpc_sockaddr2uaddr(sap, GFP_NOFS);
+		if (!map->r_addr) {
+			status = -ENOMEM;
+>>>>>>> upstream/android-13
 			goto bailout_free_args;
 		}
 		map->r_owner = "";
@@ -788,12 +905,15 @@ void rpcb_getport_async(struct rpc_task *task)
 
 	child = rpcb_call_async(rpcb_clnt, map, proc);
 	rpc_release_client(rpcb_clnt);
+<<<<<<< HEAD
 	if (IS_ERR(child)) {
 		/* rpcb_map_release() has freed the arguments */
 		dprintk("RPC: %5u %s: rpc_run_task failed\n",
 			task->tk_pid, __func__);
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	xprt->stat.bind_count++;
 	rpc_put_task(child);
@@ -817,6 +937,7 @@ static void rpcb_getport_done(struct rpc_task *child, void *data)
 {
 	struct rpcbind_args *map = data;
 	struct rpc_xprt *xprt = map->r_xprt;
+<<<<<<< HEAD
 	int status = child->tk_status;
 
 	/* Garbage reply: retry with a lesser rpcbind version */
@@ -845,6 +966,35 @@ static void rpcb_getport_done(struct rpc_task *child, void *data)
 			child->tk_pid, status, map->r_port);
 
 	map->r_status = status;
+=======
+
+	map->r_status = child->tk_status;
+
+	/* Garbage reply: retry with a lesser rpcbind version */
+	if (map->r_status == -EIO)
+		map->r_status = -EPROTONOSUPPORT;
+
+	/* rpcbind server doesn't support this rpcbind protocol version */
+	if (map->r_status == -EPROTONOSUPPORT)
+		xprt->bind_index++;
+
+	if (map->r_status < 0) {
+		/* rpcbind server not available on remote host? */
+		map->r_port = 0;
+
+	} else if (map->r_port == 0) {
+		/* Requested RPC service wasn't registered on remote host */
+		map->r_status = -EACCES;
+	} else {
+		/* Succeeded */
+		map->r_status = 0;
+	}
+
+	trace_rpcb_setport(child, map->r_status, map->r_port);
+	xprt->ops->set_port(xprt, map->r_port);
+	if (map->r_port)
+		xprt_set_bound(xprt);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -857,11 +1007,14 @@ static void rpcb_enc_mapping(struct rpc_rqst *req, struct xdr_stream *xdr,
 	const struct rpcbind_args *rpcb = data;
 	__be32 *p;
 
+<<<<<<< HEAD
 	dprintk("RPC: %5u encoding PMAP_%s call (%u, %u, %d, %u)\n",
 			req->rq_task->tk_pid,
 			req->rq_task->tk_msg.rpc_proc->p_name,
 			rpcb->r_prog, rpcb->r_vers, rpcb->r_prot, rpcb->r_port);
 
+=======
+>>>>>>> upstream/android-13
 	p = xdr_reserve_space(xdr, RPCB_mappingargs_sz << 2);
 	*p++ = cpu_to_be32(rpcb->r_prog);
 	*p++ = cpu_to_be32(rpcb->r_vers);
@@ -883,8 +1036,11 @@ static int rpcb_dec_getport(struct rpc_rqst *req, struct xdr_stream *xdr,
 		return -EIO;
 
 	port = be32_to_cpup(p);
+<<<<<<< HEAD
 	dprintk("RPC: %5u PMAP_%s result: %lu\n", req->rq_task->tk_pid,
 			req->rq_task->tk_msg.rpc_proc->p_name, port);
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(port > USHRT_MAX))
 		return -EIO;
 
@@ -905,11 +1061,14 @@ static int rpcb_dec_set(struct rpc_rqst *req, struct xdr_stream *xdr,
 	*boolp = 0;
 	if (*p != xdr_zero)
 		*boolp = 1;
+<<<<<<< HEAD
 
 	dprintk("RPC: %5u RPCB_%s call %s\n",
 			req->rq_task->tk_pid,
 			req->rq_task->tk_msg.rpc_proc->p_name,
 			(*boolp ? "succeeded" : "failed"));
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -934,12 +1093,15 @@ static void rpcb_enc_getaddr(struct rpc_rqst *req, struct xdr_stream *xdr,
 	const struct rpcbind_args *rpcb = data;
 	__be32 *p;
 
+<<<<<<< HEAD
 	dprintk("RPC: %5u encoding RPCB_%s call (%u, %u, '%s', '%s')\n",
 			req->rq_task->tk_pid,
 			req->rq_task->tk_msg.rpc_proc->p_name,
 			rpcb->r_prog, rpcb->r_vers,
 			rpcb->r_netid, rpcb->r_addr);
 
+=======
+>>>>>>> upstream/android-13
 	p = xdr_reserve_space(xdr, (RPCB_program_sz + RPCB_version_sz) << 2);
 	*p++ = cpu_to_be32(rpcb->r_prog);
 	*p = cpu_to_be32(rpcb->r_vers);
@@ -969,11 +1131,16 @@ static int rpcb_dec_getaddr(struct rpc_rqst *req, struct xdr_stream *xdr,
 	 * If the returned universal address is a null string,
 	 * the requested RPC service was not registered.
 	 */
+<<<<<<< HEAD
 	if (len == 0) {
 		dprintk("RPC: %5u RPCB reply: program not registered\n",
 				req->rq_task->tk_pid);
 		return 0;
 	}
+=======
+	if (len == 0)
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (unlikely(len > RPCBIND_MAXUADDRLEN))
 		goto out_fail;
@@ -981,8 +1148,11 @@ static int rpcb_dec_getaddr(struct rpc_rqst *req, struct xdr_stream *xdr,
 	p = xdr_inline_decode(xdr, len);
 	if (unlikely(p == NULL))
 		goto out_fail;
+<<<<<<< HEAD
 	dprintk("RPC: %5u RPCB_%s reply: %*pE\n", req->rq_task->tk_pid,
 			req->rq_task->tk_msg.rpc_proc->p_name, len, (char *)p);
+=======
+>>>>>>> upstream/android-13
 
 	if (rpc_uaddr2sockaddr(req->rq_xprt->xprt_net, (char *)p, len,
 				sap, sizeof(address)) == 0)
@@ -992,9 +1162,12 @@ static int rpcb_dec_getaddr(struct rpc_rqst *req, struct xdr_stream *xdr,
 	return 0;
 
 out_fail:
+<<<<<<< HEAD
 	dprintk("RPC: %5u malformed RPCB_%s reply\n",
 			req->rq_task->tk_pid,
 			req->rq_task->tk_msg.rpc_proc->p_name);
+=======
+>>>>>>> upstream/android-13
 	return -EIO;
 }
 

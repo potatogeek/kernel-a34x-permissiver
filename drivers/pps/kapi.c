@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * kernel API
  *
@@ -17,6 +18,13 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * kernel API
+ *
+ * Copyright (C) 2005-2009   Rodolfo Giometti <giometti@linux.it>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -72,7 +80,12 @@ static void pps_echo_client_default(struct pps_device *pps, int event,
  * source is described by info's fields and it will have, as default PPS
  * parameters, the ones specified into default_params.
  *
+<<<<<<< HEAD
  * The function returns, in case of success, the PPS device. Otherwise NULL.
+=======
+ * The function returns, in case of success, the PPS device. Otherwise
+ * ERR_PTR(errno).
+>>>>>>> upstream/android-13
  */
 
 struct pps_device *pps_register_source(struct pps_source_info *info,
@@ -135,7 +148,11 @@ kfree_pps:
 pps_register_source_exit:
 	pr_err("%s: unable to register source\n", info->name);
 
+<<<<<<< HEAD
 	return NULL;
+=======
+	return ERR_PTR(err);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pps_register_source);
 

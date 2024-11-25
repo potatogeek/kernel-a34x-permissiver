@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-integrator/integrator_ap.c
  *
  *  Copyright (C) 2000-2003 Deep Blue Solutions Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -36,7 +43,10 @@
 #include "hardware.h"
 #include "cm.h"
 #include "common.h"
+<<<<<<< HEAD
 #include "lm.h"
+=======
+>>>>>>> upstream/android-13
 
 /* Regmap to the AP system controller */
 static struct regmap *ap_syscon_map;
@@ -187,10 +197,14 @@ static const struct of_device_id ap_syscon_match[] = {
 
 static void __init ap_init_of(void)
 {
+<<<<<<< HEAD
 	u32 sc_dec;
 	struct device_node *syscon;
 	int ret;
 	int i;
+=======
+	struct device_node *syscon;
+>>>>>>> upstream/android-13
 
 	of_platform_default_populate(NULL, ap_auxdata_lookup, NULL);
 
@@ -202,6 +216,7 @@ static void __init ap_init_of(void)
 		pr_crit("could not find Integrator/AP system controller\n");
 		return;
 	}
+<<<<<<< HEAD
 
 	ret = regmap_read(ap_syscon_map,
 			  INTEGRATOR_SC_DEC_OFFSET,
@@ -229,6 +244,8 @@ static void __init ap_init_of(void)
 
 		lm_device_register(lmdev);
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 static const char * ap_dt_board_compat[] = {

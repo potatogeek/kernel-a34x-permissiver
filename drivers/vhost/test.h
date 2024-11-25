@@ -4,5 +4,9 @@
 
 /* Start a given test on the virtio null device. 0 stops all tests. */
 #define VHOST_TEST_RUN _IOW(VHOST_VIRTIO, 0x31, int)
+<<<<<<< HEAD
+=======
+#define VHOST_TEST_SET_BACKEND _IOW(VHOST_VIRTIO, 0x32, int)
+>>>>>>> upstream/android-13
 
 #endif

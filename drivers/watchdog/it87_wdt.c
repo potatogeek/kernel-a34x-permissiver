@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Watchdog Timer Driver
  *	   for ITE IT87xx Environment Control - Low Pin Count Input / Output
@@ -14,6 +18,7 @@
  *	Support of the watchdog timers, which are available on
  *	IT8607, IT8620, IT8622, IT8625, IT8628, IT8655, IT8665, IT8686,
  *	IT8702, IT8712, IT8716, IT8718, IT8720, IT8721, IT8726, IT8728,
+<<<<<<< HEAD
  *	and IT8783.
  *
  *	This program is free software; you can redistribute it and/or
@@ -25,6 +30,9 @@
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *	GNU General Public License for more details.
+=======
+ *	IT8772, IT8783 and IT8784.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -75,7 +83,14 @@
 #define IT8721_ID	0x8721
 #define IT8726_ID	0x8726	/* the data sheet suggest wrongly 0x8716 */
 #define IT8728_ID	0x8728
+<<<<<<< HEAD
 #define IT8783_ID	0x8783
+=======
+#define IT8772_ID	0x8772
+#define IT8783_ID	0x8783
+#define IT8784_ID	0x8784
+#define IT8786_ID	0x8786
+>>>>>>> upstream/android-13
 
 /* GPIO Configuration Registers LDN=0x07 */
 #define WDTCTRL		0x71
@@ -158,6 +173,7 @@ static inline int superio_inw(int reg)
 	return val;
 }
 
+<<<<<<< HEAD
 static inline void superio_outw(int val, int reg)
 {
 	outb(reg++, REG);
@@ -166,6 +182,8 @@ static inline void superio_outw(int val, int reg)
 	outb(val, VAL);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Internal function, should be called after superio_select(GPIO) */
 static void _wdt_update_timeout(unsigned int t)
 {
@@ -302,7 +320,14 @@ static int __init it87_wdt_init(void)
 	case IT8720_ID:
 	case IT8721_ID:
 	case IT8728_ID:
+<<<<<<< HEAD
 	case IT8783_ID:
+=======
+	case IT8772_ID:
+	case IT8783_ID:
+	case IT8784_ID:
+	case IT8786_ID:
+>>>>>>> upstream/android-13
 		max_units = 65535;
 		break;
 	case IT8705_ID:

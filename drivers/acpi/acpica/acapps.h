@@ -3,7 +3,11 @@
  *
  * Module Name: acapps - common include for ACPI applications/tools
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -17,7 +21,11 @@
 /* Common info for tool signons */
 
 #define ACPICA_NAME                 "Intel ACPI Component Architecture"
+<<<<<<< HEAD
 #define ACPICA_COPYRIGHT            "Copyright (c) 2000 - 2018 Intel Corporation"
+=======
+#define ACPICA_COPYRIGHT            "Copyright (c) 2000 - 2021 Intel Corporation"
+>>>>>>> upstream/android-13
 
 #if ACPI_MACHINE_WIDTH == 64
 #define ACPI_WIDTH          " (64-bit version)"

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register map access API - SPI support
  *
@@ -9,6 +10,15 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register map access API - SPI support
+//
+// Copyright 2011 Wolfson Microelectronics plc
+//
+// Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+>>>>>>> upstream/android-13
 
 #include <linux/regmap.h>
 #include <linux/spi/spi.h>

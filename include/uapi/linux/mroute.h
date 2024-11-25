@@ -28,12 +28,26 @@
 #define MRT_TABLE	(MRT_BASE+9)	/* Specify mroute table ID		*/
 #define MRT_ADD_MFC_PROXY	(MRT_BASE+10)	/* Add a (*,*|G) mfc entry	*/
 #define MRT_DEL_MFC_PROXY	(MRT_BASE+11)	/* Del a (*,*|G) mfc entry	*/
+<<<<<<< HEAD
 #define MRT_MAX		(MRT_BASE+11)
+=======
+#define MRT_FLUSH	(MRT_BASE+12)	/* Flush all mfc entries and/or vifs	*/
+#define MRT_MAX		(MRT_BASE+12)
+>>>>>>> upstream/android-13
 
 #define SIOCGETVIFCNT	SIOCPROTOPRIVATE	/* IP protocol privates */
 #define SIOCGETSGCNT	(SIOCPROTOPRIVATE+1)
 #define SIOCGETRPF	(SIOCPROTOPRIVATE+2)
 
+<<<<<<< HEAD
+=======
+/* MRT_FLUSH optional flags */
+#define MRT_FLUSH_MFC	1	/* Flush multicast entries */
+#define MRT_FLUSH_MFC_STATIC	2	/* Flush static multicast entries */
+#define MRT_FLUSH_VIFS	4	/* Flush multicast vifs */
+#define MRT_FLUSH_VIFS_STATIC	8	/* Flush static multicast vifs */
+
+>>>>>>> upstream/android-13
 #define MAXVIFS		32
 typedef unsigned long vifbitmap_t;	/* User mode code depends on this lot */
 typedef unsigned short vifi_t;
@@ -106,8 +120,13 @@ struct igmpmsg {
 	__u32 unused1,unused2;
 	unsigned char im_msgtype;		/* What is this */
 	unsigned char im_mbz;			/* Must be zero */
+<<<<<<< HEAD
 	unsigned char im_vif;			/* Interface (this ought to be a vifi_t!) */
 	unsigned char unused3;
+=======
+	unsigned char im_vif;			/* Low 8 bits of Interface */
+	unsigned char im_vif_hi;		/* High 8 bits of Interface */
+>>>>>>> upstream/android-13
 	struct in_addr im_src,im_dst;
 };
 
@@ -162,6 +181,10 @@ enum {
 	IPMRA_CREPORT_SRC_ADDR,
 	IPMRA_CREPORT_DST_ADDR,
 	IPMRA_CREPORT_PKT,
+<<<<<<< HEAD
+=======
+	IPMRA_CREPORT_TABLE,
+>>>>>>> upstream/android-13
 	__IPMRA_CREPORT_MAX
 };
 #define IPMRA_CREPORT_MAX (__IPMRA_CREPORT_MAX - 1)

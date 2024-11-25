@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: ISC */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +19,8 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DEBUG_H_
@@ -44,6 +51,11 @@ enum ath10k_debug_mask {
 	ATH10K_DBG_USB		= 0x00040000,
 	ATH10K_DBG_USB_BULK	= 0x00080000,
 	ATH10K_DBG_SNOC		= 0x00100000,
+<<<<<<< HEAD
+=======
+	ATH10K_DBG_QMI		= 0x00200000,
+	ATH10K_DBG_STA		= 0x00400000,
+>>>>>>> upstream/android-13
 	ATH10K_DBG_ANY		= 0xffffffff,
 };
 
@@ -75,12 +87,22 @@ struct ath10k_pktlog_hdr {
 	__le16 log_type; /* Type of log information foll this header */
 	__le16 size; /* Size of variable length log information in bytes */
 	__le32 timestamp;
+<<<<<<< HEAD
 	u8 payload[0];
+=======
+	u8 payload[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* FIXME: How to calculate the buffer size sanely? */
 #define ATH10K_FW_STATS_BUF_SIZE (1024 * 1024)
 
+<<<<<<< HEAD
+=======
+#define ATH10K_TX_POWER_MAX_VAL 70
+#define ATH10K_TX_POWER_MIN_VAL 0
+
+>>>>>>> upstream/android-13
 extern unsigned int ath10k_debug_mask;
 
 __printf(2, 3) void ath10k_info(struct ath10k *ar, const char *fmt, ...);
@@ -128,6 +150,16 @@ static inline u32 ath10k_debug_get_fw_dbglog_level(struct ath10k *ar)
 	return ar->debug.fw_dbglog_level;
 }
 
+<<<<<<< HEAD
+=======
+static inline int ath10k_debug_is_extd_tx_stats_enabled(struct ath10k *ar)
+{
+	return ar->debug.enable_extd_tx_stats;
+}
+
+int ath10k_debug_fw_stats_request(struct ath10k *ar);
+
+>>>>>>> upstream/android-13
 #else
 
 static inline int ath10k_debug_start(struct ath10k *ar)
@@ -190,6 +222,19 @@ static inline u32 ath10k_debug_get_fw_dbglog_level(struct ath10k *ar)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int ath10k_debug_is_extd_tx_stats_enabled(struct ath10k *ar)
+{
+	return 0;
+}
+
+static inline int ath10k_debug_fw_stats_request(struct ath10k *ar)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 #define ATH10K_DFS_STAT_INC(ar, c) do { } while (0)
 
 #define ath10k_debug_get_et_strings NULL
@@ -203,12 +248,21 @@ void ath10k_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 void ath10k_sta_update_rx_duration(struct ath10k *ar,
 				   struct ath10k_fw_stats *stats);
 void ath10k_sta_update_rx_tid_stats(struct ath10k *ar, u8 *first_hdr,
+<<<<<<< HEAD
 				    unsigned long int num_msdus,
 				    enum ath10k_pkt_rx_err err,
 				    unsigned long int unchain_cnt,
 				    unsigned long int drop_cnt,
 				    unsigned long int drop_cnt_filter,
 				    unsigned long int queued_msdus);
+=======
+				    unsigned long num_msdus,
+				    enum ath10k_pkt_rx_err err,
+				    unsigned long unchain_cnt,
+				    unsigned long drop_cnt,
+				    unsigned long drop_cnt_filter,
+				    unsigned long queued_msdus);
+>>>>>>> upstream/android-13
 void ath10k_sta_update_rx_tid_stats_ampdu(struct ath10k *ar,
 					  u16 peer_id, u8 tid,
 					  struct htt_rx_indication_mpdu_range *ranges,
@@ -222,12 +276,21 @@ void ath10k_sta_update_rx_duration(struct ath10k *ar,
 
 static inline
 void ath10k_sta_update_rx_tid_stats(struct ath10k *ar, u8 *first_hdr,
+<<<<<<< HEAD
 				    unsigned long int num_msdus,
 				    enum ath10k_pkt_rx_err err,
 				    unsigned long int unchain_cnt,
 				    unsigned long int drop_cnt,
 				    unsigned long int drop_cnt_filter,
 				    unsigned long int queued_msdus)
+=======
+				    unsigned long num_msdus,
+				    enum ath10k_pkt_rx_err err,
+				    unsigned long unchain_cnt,
+				    unsigned long drop_cnt,
+				    unsigned long drop_cnt_filter,
+				    unsigned long queued_msdus)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -241,18 +304,30 @@ void ath10k_sta_update_rx_tid_stats_ampdu(struct ath10k *ar,
 #endif /* CONFIG_MAC80211_DEBUGFS */
 
 #ifdef CONFIG_ATH10K_DEBUG
+<<<<<<< HEAD
 __printf(3, 4) void ath10k_dbg(struct ath10k *ar,
 			       enum ath10k_debug_mask mask,
 			       const char *fmt, ...);
+=======
+__printf(3, 4) void __ath10k_dbg(struct ath10k *ar,
+				 enum ath10k_debug_mask mask,
+				 const char *fmt, ...);
+>>>>>>> upstream/android-13
 void ath10k_dbg_dump(struct ath10k *ar,
 		     enum ath10k_debug_mask mask,
 		     const char *msg, const char *prefix,
 		     const void *buf, size_t len);
 #else /* CONFIG_ATH10K_DEBUG */
 
+<<<<<<< HEAD
 static inline int ath10k_dbg(struct ath10k *ar,
 			     enum ath10k_debug_mask dbg_mask,
 			     const char *fmt, ...)
+=======
+static inline int __ath10k_dbg(struct ath10k *ar,
+			       enum ath10k_debug_mask dbg_mask,
+			       const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -264,4 +339,17 @@ static inline void ath10k_dbg_dump(struct ath10k *ar,
 {
 }
 #endif /* CONFIG_ATH10K_DEBUG */
+<<<<<<< HEAD
+=======
+
+/* Avoid calling __ath10k_dbg() if debug_mask is not set and tracing
+ * disabled.
+ */
+#define ath10k_dbg(ar, dbg_mask, fmt, ...)			\
+do {								\
+	if ((ath10k_debug_mask & dbg_mask) ||			\
+	    trace_ath10k_log_dbg_enabled())			\
+		__ath10k_dbg(ar, dbg_mask, fmt, ##__VA_ARGS__); \
+} while (0)
+>>>>>>> upstream/android-13
 #endif /* _DEBUG_H_ */

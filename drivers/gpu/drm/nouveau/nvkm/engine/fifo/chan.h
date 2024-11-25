@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_FIFO_CHAN_H__
 #define __NVKM_FIFO_CHAN_H__
 #define nvkm_fifo_chan(p) container_of((p), struct nvkm_fifo_chan, object)
@@ -17,11 +21,19 @@ struct nvkm_fifo_chan_func {
 			    bool suspend);
 	int  (*object_ctor)(struct nvkm_fifo_chan *, struct nvkm_object *);
 	void (*object_dtor)(struct nvkm_fifo_chan *, int);
+<<<<<<< HEAD
+=======
+	u32 (*submit_token)(struct nvkm_fifo_chan *);
+>>>>>>> upstream/android-13
 };
 
 int nvkm_fifo_chan_ctor(const struct nvkm_fifo_chan_func *, struct nvkm_fifo *,
 			u32 size, u32 align, bool zero, u64 vm, u64 push,
+<<<<<<< HEAD
 			u64 engines, int bar, u32 base, u32 user,
+=======
+			u32 engm, int bar, u32 base, u32 user,
+>>>>>>> upstream/android-13
 			const struct nvkm_oclass *, struct nvkm_fifo_chan *);
 
 struct nvkm_fifo_chan_oclass {

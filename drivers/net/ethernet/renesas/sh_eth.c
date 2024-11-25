@@ -45,6 +45,18 @@
 #define SH_ETH_OFFSET_DEFAULTS			\
 	[0 ... SH_ETH_MAX_REGISTER_OFFSET - 1] = SH_ETH_OFFSET_INVALID
 
+<<<<<<< HEAD
+=======
+/* use some intentionally tricky logic here to initialize the whole struct to
+ * 0xffff, but then override certain fields, requiring us to indicate that we
+ * "know" that there are overrides in this structure, and we'll need to disable
+ * that warning from W=1 builds. GCC has supported this option since 4.2.X, but
+ * the macros available to do this only define GCC 8.
+ */
+__diag_push();
+__diag_ignore(GCC, 8, "-Woverride-init",
+	      "logic to initialize all and then override some is OK");
+>>>>>>> upstream/android-13
 static const u16 sh_eth_offset_gigabit[SH_ETH_MAX_REGISTER_OFFSET] = {
 	SH_ETH_OFFSET_DEFAULTS,
 
@@ -142,6 +154,7 @@ static const u16 sh_eth_offset_gigabit[SH_ETH_MAX_REGISTER_OFFSET] = {
 	[FWALCR1]	= 0x00b4,
 };
 
+<<<<<<< HEAD
 static const u16 sh_eth_offset_fast_rz[SH_ETH_MAX_REGISTER_OFFSET] = {
 	SH_ETH_OFFSET_DEFAULTS,
 
@@ -205,6 +218,8 @@ static const u16 sh_eth_offset_fast_rz[SH_ETH_MAX_REGISTER_OFFSET] = {
 	[RXALCR0]	= 0x008C,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u16 sh_eth_offset_fast_rcar[SH_ETH_MAX_REGISTER_OFFSET] = {
 	SH_ETH_OFFSET_DEFAULTS,
 
@@ -395,6 +410,10 @@ static const u16 sh_eth_offset_fast_sh3_sh2[SH_ETH_MAX_REGISTER_OFFSET] = {
 
 	[TSU_ADRH0]	= 0x0100,
 };
+<<<<<<< HEAD
+=======
+__diag_pop();
+>>>>>>> upstream/android-13
 
 static void sh_eth_rcv_snd_disable(struct net_device *ndev);
 static struct net_device_stats *sh_eth_get_stats(struct net_device *ndev);
@@ -555,7 +574,11 @@ static int sh_eth_soft_reset_gether(struct net_device *ndev)
 	sh_eth_write(ndev, 0, RDFFR);
 
 	/* Reset HW CRC register */
+<<<<<<< HEAD
 	if (mdp->cd->hw_checksum)
+=======
+	if (mdp->cd->csmr)
+>>>>>>> upstream/android-13
 		sh_eth_write(ndev, 0, CSMR);
 
 	/* Select MII mode */
@@ -569,6 +592,12 @@ static void sh_eth_set_rate_gether(struct net_device *ndev)
 {
 	struct sh_eth_private *mdp = netdev_priv(ndev);
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!mdp->cd->gecmr))
+		return;
+
+>>>>>>> upstream/android-13
 	switch (mdp->speed) {
 	case 10: /* 10BASE */
 		sh_eth_write(ndev, GECMR_10, GECMR);
@@ -590,7 +619,11 @@ static struct sh_eth_cpu_data r7s72100_data = {
 	.chip_reset	= sh_eth_chip_reset,
 	.set_duplex	= sh_eth_set_duplex,
 
+<<<<<<< HEAD
 	.register_type	= SH_ETH_REG_FAST_RZ,
+=======
+	.register_type	= SH_ETH_REG_GIGABIT,
+>>>>>>> upstream/android-13
 
 	.edtrr_trns	= EDTRR_TRNS_GETHER,
 	.ecsr_value	= ECSR_ICD,
@@ -610,7 +643,11 @@ static struct sh_eth_cpu_data r7s72100_data = {
 			  EESR_TDE,
 	.fdr_value	= 0x0000070f,
 
+<<<<<<< HEAD
 	.trscer_err_mask = DESC_I_RINT8 | DESC_I_RINT5,
+=======
+	.trscer_err_mask = TRSCER_RMAFCE | TRSCER_RRFCE,
+>>>>>>> upstream/android-13
 
 	.no_psr		= 1,
 	.apr		= 1,
@@ -621,7 +658,12 @@ static struct sh_eth_cpu_data r7s72100_data = {
 	.no_trimd	= 1,
 	.no_ade		= 1,
 	.xdfar_rw	= 1,
+<<<<<<< HEAD
 	.hw_checksum	= 1,
+=======
+	.csmr		= 1,
+	.rx_csum	= 1,
+>>>>>>> upstream/android-13
 	.tsu		= 1,
 	.no_tx_cntrs	= 1,
 };
@@ -664,13 +706,22 @@ static struct sh_eth_cpu_data r8a7740_data = {
 	.apr		= 1,
 	.mpr		= 1,
 	.tpauser	= 1,
+<<<<<<< HEAD
+=======
+	.gecmr		= 1,
+>>>>>>> upstream/android-13
 	.bculr		= 1,
 	.hw_swap	= 1,
 	.rpadir		= 1,
 	.no_trimd	= 1,
 	.no_ade		= 1,
 	.xdfar_rw	= 1,
+<<<<<<< HEAD
 	.hw_checksum	= 1,
+=======
+	.csmr		= 1,
+	.rx_csum	= 1,
+>>>>>>> upstream/android-13
 	.tsu		= 1,
 	.select_mii	= 1,
 	.magic		= 1,
@@ -748,7 +799,11 @@ static struct sh_eth_cpu_data rcar_gen2_data = {
 			  EESR_RDE | EESR_RFRMER | EESR_TFE | EESR_TDE,
 	.fdr_value	= 0x00000f0f,
 
+<<<<<<< HEAD
 	.trscer_err_mask = DESC_I_RINT8,
+=======
+	.trscer_err_mask = TRSCER_RMAFCE,
+>>>>>>> upstream/android-13
 
 	.apr		= 1,
 	.mpr		= 1,
@@ -788,6 +843,10 @@ static struct sh_eth_cpu_data r8a77980_data = {
 	.apr		= 1,
 	.mpr		= 1,
 	.tpauser	= 1,
+<<<<<<< HEAD
+=======
+	.gecmr		= 1,
+>>>>>>> upstream/android-13
 	.bculr		= 1,
 	.hw_swap	= 1,
 	.nbst		= 1,
@@ -795,7 +854,12 @@ static struct sh_eth_cpu_data r8a77980_data = {
 	.no_trimd	= 1,
 	.no_ade		= 1,
 	.xdfar_rw	= 1,
+<<<<<<< HEAD
 	.hw_checksum	= 1,
+=======
+	.csmr		= 1,
+	.rx_csum	= 1,
+>>>>>>> upstream/android-13
 	.select_mii	= 1,
 	.magic		= 1,
 	.cexcr		= 1,
@@ -827,7 +891,11 @@ static struct sh_eth_cpu_data r7s9210_data = {
 
 	.fdr_value	= 0x0000070f,
 
+<<<<<<< HEAD
 	.trscer_err_mask = DESC_I_RINT8 | DESC_I_RINT5,
+=======
+	.trscer_err_mask = TRSCER_RMAFCE | TRSCER_RRFCE,
+>>>>>>> upstream/android-13
 
 	.apr		= 1,
 	.mpr		= 1,
@@ -958,6 +1026,12 @@ static void sh_eth_set_rate_giga(struct net_device *ndev)
 {
 	struct sh_eth_private *mdp = netdev_priv(ndev);
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!mdp->cd->gecmr))
+		return;
+
+>>>>>>> upstream/android-13
 	switch (mdp->speed) {
 	case 10: /* 10BASE */
 		sh_eth_write(ndev, 0x00000000, GECMR);
@@ -1003,6 +1077,10 @@ static struct sh_eth_cpu_data sh7757_data_giga = {
 	.apr		= 1,
 	.mpr		= 1,
 	.tpauser	= 1,
+<<<<<<< HEAD
+=======
+	.gecmr		= 1,
+>>>>>>> upstream/android-13
 	.bculr		= 1,
 	.hw_swap	= 1,
 	.rpadir		= 1,
@@ -1043,13 +1121,22 @@ static struct sh_eth_cpu_data sh7734_data = {
 	.apr		= 1,
 	.mpr		= 1,
 	.tpauser	= 1,
+<<<<<<< HEAD
+=======
+	.gecmr		= 1,
+>>>>>>> upstream/android-13
 	.bculr		= 1,
 	.hw_swap	= 1,
 	.no_trimd	= 1,
 	.no_ade		= 1,
 	.xdfar_rw	= 1,
 	.tsu		= 1,
+<<<<<<< HEAD
 	.hw_checksum	= 1,
+=======
+	.csmr		= 1,
+	.rx_csum	= 1,
+>>>>>>> upstream/android-13
 	.select_mii	= 1,
 	.magic		= 1,
 	.cexcr		= 1,
@@ -1083,6 +1170,10 @@ static struct sh_eth_cpu_data sh7763_data = {
 	.apr		= 1,
 	.mpr		= 1,
 	.tpauser	= 1,
+<<<<<<< HEAD
+=======
+	.gecmr		= 1,
+>>>>>>> upstream/android-13
 	.bculr		= 1,
 	.hw_swap	= 1,
 	.no_trimd	= 1,
@@ -1092,6 +1183,10 @@ static struct sh_eth_cpu_data sh7763_data = {
 	.irq_flags	= IRQF_SHARED,
 	.magic		= 1,
 	.cexcr		= 1,
+<<<<<<< HEAD
+=======
+	.rx_csum	= 1,
+>>>>>>> upstream/android-13
 	.dual_port	= 1,
 };
 
@@ -1131,7 +1226,11 @@ static struct sh_eth_cpu_data sh771x_data = {
 			  EESIPR_RRFIP | EESIPR_RTLFIP | EESIPR_RTSFIP |
 			  EESIPR_PREIP | EESIPR_CERFIP,
 
+<<<<<<< HEAD
 	.trscer_err_mask = DESC_I_RINT8,
+=======
+	.trscer_err_mask = TRSCER_RMAFCE,
+>>>>>>> upstream/android-13
 
 	.tsu		= 1,
 	.dual_port	= 1,
@@ -1256,7 +1355,11 @@ static void sh_mdc_ctrl(struct mdiobb_ctrl *ctrl, int bit)
 }
 
 /* mdio bus control struct */
+<<<<<<< HEAD
 static struct mdiobb_ops bb_ops = {
+=======
+static const struct mdiobb_ops bb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.set_mdc = sh_mdc_ctrl,
 	.set_mdio_dir = sh_mmd_ctrl,
@@ -1539,8 +1642,14 @@ static int sh_eth_dev_init(struct net_device *ndev)
 	mdp->irq_enabled = true;
 	sh_eth_write(ndev, mdp->cd->eesipr_value, EESIPR);
 
+<<<<<<< HEAD
 	/* PAUSE Prohibition */
 	sh_eth_write(ndev, ECMR_ZPF | (mdp->duplex ? ECMR_DM : 0) |
+=======
+	/* EMAC Mode: PAUSE prohibition; Duplex; RX Checksum; TX; RX */
+	sh_eth_write(ndev, ECMR_ZPF | (mdp->duplex ? ECMR_DM : 0) |
+		     (ndev->features & NETIF_F_RXCSUM ? ECMR_RCSC : 0) |
+>>>>>>> upstream/android-13
 		     ECMR_TE | ECMR_RE, ECMR);
 
 	if (mdp->cd->set_rate)
@@ -1603,6 +1712,22 @@ static void sh_eth_dev_exit(struct net_device *ndev)
 	update_mac_address(ndev);
 }
 
+<<<<<<< HEAD
+=======
+static void sh_eth_rx_csum(struct sk_buff *skb)
+{
+	u8 *hw_csum;
+
+	/* The hardware checksum is 2 bytes appended to packet data */
+	if (unlikely(skb->len < sizeof(__sum16)))
+		return;
+	hw_csum = skb_tail_pointer(skb) - sizeof(__sum16);
+	skb->csum = csum_unfold((__force __sum16)get_unaligned_le16(hw_csum));
+	skb->ip_summed = CHECKSUM_COMPLETE;
+	skb_trim(skb, skb->len - sizeof(__sum16));
+}
+
+>>>>>>> upstream/android-13
 /* Packet receive function */
 static int sh_eth_rx(struct net_device *ndev, u32 intr_status, int *quota)
 {
@@ -1644,7 +1769,11 @@ static int sh_eth_rx(struct net_device *ndev, u32 intr_status, int *quota)
 		 * the RFS bits are from bit 25 to bit 16. So, the
 		 * driver needs right shifting by 16.
 		 */
+<<<<<<< HEAD
 		if (mdp->cd->hw_checksum)
+=======
+		if (mdp->cd->csmr)
+>>>>>>> upstream/android-13
 			desc_status >>= 16;
 
 		skb = mdp->rx_skbuff[entry];
@@ -1677,6 +1806,11 @@ static int sh_eth_rx(struct net_device *ndev, u32 intr_status, int *quota)
 					 DMA_FROM_DEVICE);
 			skb_put(skb, pkt_len);
 			skb->protocol = eth_type_trans(skb, ndev);
+<<<<<<< HEAD
+=======
+			if (ndev->features & NETIF_F_RXCSUM)
+				sh_eth_rx_csum(skb);
+>>>>>>> upstream/android-13
 			netif_receive_skb(skb);
 			ndev->stats.rx_packets++;
 			ndev->stats.rx_bytes += pkt_len;
@@ -1770,7 +1904,11 @@ static void sh_eth_emac_interrupt(struct net_device *ndev)
 		link_stat = sh_eth_read(ndev, PSR);
 		if (mdp->ether_link_active_low)
 			link_stat = ~link_stat;
+<<<<<<< HEAD
 		if (!(link_stat & PHY_ST_LINK)) {
+=======
+		if (!(link_stat & PSR_LMON)) {
+>>>>>>> upstream/android-13
 			sh_eth_rcv_snd_disable(ndev);
 		} else {
 			/* Link Up */
@@ -2000,7 +2138,10 @@ static void sh_eth_adjust_link(struct net_device *ndev)
 	if ((mdp->cd->no_psr || mdp->no_ether_link) && phydev->link)
 		sh_eth_rcv_snd_enable(ndev);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&mdp->lock, flags);
 
 	if (new_state && netif_msg_link(mdp))
@@ -2127,11 +2268,21 @@ static size_t __sh_eth_get_regs(struct net_device *ndev, u32 *buf)
 	add_reg(EESR);
 	add_reg(EESIPR);
 	add_reg(TDLAR);
+<<<<<<< HEAD
 	add_reg(TDFAR);
 	add_reg(TDFXR);
 	add_reg(TDFFR);
 	add_reg(RDLAR);
 	add_reg(RDFAR);
+=======
+	if (!cd->no_xdfar)
+		add_reg(TDFAR);
+	add_reg(TDFXR);
+	add_reg(TDFFR);
+	add_reg(RDLAR);
+	if (!cd->no_xdfar)
+		add_reg(RDFAR);
+>>>>>>> upstream/android-13
 	add_reg(RDFXR);
 	add_reg(RDFFR);
 	add_reg(TRSCER);
@@ -2166,25 +2317,50 @@ static size_t __sh_eth_get_regs(struct net_device *ndev, u32 *buf)
 	if (cd->tpauser)
 		add_reg(TPAUSER);
 	add_reg(TPAUSECR);
+<<<<<<< HEAD
 	add_reg(GECMR);
+=======
+	if (cd->gecmr)
+		add_reg(GECMR);
+>>>>>>> upstream/android-13
 	if (cd->bculr)
 		add_reg(BCULR);
 	add_reg(MAHR);
 	add_reg(MALR);
+<<<<<<< HEAD
 	add_reg(TROCR);
 	add_reg(CDCR);
 	add_reg(LCCR);
 	add_reg(CNDCR);
+=======
+	if (!cd->no_tx_cntrs) {
+		add_reg(TROCR);
+		add_reg(CDCR);
+		add_reg(LCCR);
+		add_reg(CNDCR);
+	}
+>>>>>>> upstream/android-13
 	add_reg(CEFCR);
 	add_reg(FRECR);
 	add_reg(TSFRCR);
 	add_reg(TLFRCR);
+<<<<<<< HEAD
 	add_reg(CERCR);
 	add_reg(CEECR);
 	add_reg(MAFCR);
 	if (cd->rtrate)
 		add_reg(RTRATE);
 	if (cd->hw_checksum)
+=======
+	if (cd->cexcr) {
+		add_reg(CERCR);
+		add_reg(CEECR);
+	}
+	add_reg(MAFCR);
+	if (cd->rtrate)
+		add_reg(RTRATE);
+	if (cd->csmr)
+>>>>>>> upstream/android-13
 		add_reg(CSMR);
 	if (cd->select_mii)
 		add_reg(RMII_MII);
@@ -2302,7 +2478,11 @@ static void sh_eth_get_strings(struct net_device *ndev, u32 stringset, u8 *data)
 {
 	switch (stringset) {
 	case ETH_SS_STATS:
+<<<<<<< HEAD
 		memcpy(data, *sh_eth_gstrings_stats,
+=======
+		memcpy(data, sh_eth_gstrings_stats,
+>>>>>>> upstream/android-13
 		       sizeof(sh_eth_gstrings_stats));
 		break;
 	}
@@ -2469,7 +2649,11 @@ out_napi_off:
 }
 
 /* Timeout function */
+<<<<<<< HEAD
 static void sh_eth_tx_timeout(struct net_device *ndev)
+=======
+static void sh_eth_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct sh_eth_private *mdp = netdev_priv(ndev);
 	struct sh_eth_rxdesc *rxdesc;
@@ -2504,7 +2688,12 @@ static void sh_eth_tx_timeout(struct net_device *ndev)
 }
 
 /* Packet transmit function */
+<<<<<<< HEAD
 static int sh_eth_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+=======
+static netdev_tx_t sh_eth_start_xmit(struct sk_buff *skb,
+				     struct net_device *ndev)
+>>>>>>> upstream/android-13
 {
 	struct sh_eth_private *mdp = netdev_priv(ndev);
 	struct sh_eth_txdesc *txdesc;
@@ -2547,6 +2736,10 @@ static int sh_eth_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	else
 		txdesc->status |= cpu_to_le32(TD_TACT);
 
+<<<<<<< HEAD
+=======
+	wmb(); /* cur_tx must be incremented after TACT bit was set */
+>>>>>>> upstream/android-13
 	mdp->cur_tx++;
 
 	if (!(sh_eth_read(ndev, EDTRR) & mdp->cd->edtrr_trns))
@@ -2634,6 +2827,7 @@ static int sh_eth_close(struct net_device *ndev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* ioctl to device function */
 static int sh_eth_do_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd)
 {
@@ -2648,6 +2842,8 @@ static int sh_eth_do_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd)
 	return phy_mii_ioctl(phydev, rq, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sh_eth_change_mtu(struct net_device *ndev, int new_mtu)
 {
 	if (netif_running(ndev))
@@ -2936,6 +3132,42 @@ static void sh_eth_set_rx_mode(struct net_device *ndev)
 	spin_unlock_irqrestore(&mdp->lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void sh_eth_set_rx_csum(struct net_device *ndev, bool enable)
+{
+	struct sh_eth_private *mdp = netdev_priv(ndev);
+	unsigned long flags;
+
+	spin_lock_irqsave(&mdp->lock, flags);
+
+	/* Disable TX and RX */
+	sh_eth_rcv_snd_disable(ndev);
+
+	/* Modify RX Checksum setting */
+	sh_eth_modify(ndev, ECMR, ECMR_RCSC, enable ? ECMR_RCSC : 0);
+
+	/* Enable TX and RX */
+	sh_eth_rcv_snd_enable(ndev);
+
+	spin_unlock_irqrestore(&mdp->lock, flags);
+}
+
+static int sh_eth_set_features(struct net_device *ndev,
+			       netdev_features_t features)
+{
+	netdev_features_t changed = ndev->features ^ features;
+	struct sh_eth_private *mdp = netdev_priv(ndev);
+
+	if (changed & NETIF_F_RXCSUM && mdp->cd->rx_csum)
+		sh_eth_set_rx_csum(ndev, features & NETIF_F_RXCSUM);
+
+	ndev->features = features;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int sh_eth_get_vtag_index(struct sh_eth_private *mdp)
 {
 	if (!mdp->port)
@@ -3036,6 +3268,31 @@ static int sh_mdio_release(struct sh_eth_private *mdp)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int sh_mdiobb_read(struct mii_bus *bus, int phy, int reg)
+{
+	int res;
+
+	pm_runtime_get_sync(bus->parent);
+	res = mdiobb_read(bus, phy, reg);
+	pm_runtime_put(bus->parent);
+
+	return res;
+}
+
+static int sh_mdiobb_write(struct mii_bus *bus, int phy, int reg, u16 val)
+{
+	int res;
+
+	pm_runtime_get_sync(bus->parent);
+	res = mdiobb_write(bus, phy, reg, val);
+	pm_runtime_put(bus->parent);
+
+	return res;
+}
+
+>>>>>>> upstream/android-13
 /* MDIO bus init function */
 static int sh_mdio_init(struct sh_eth_private *mdp,
 			struct sh_eth_plat_data *pd)
@@ -3060,6 +3317,13 @@ static int sh_mdio_init(struct sh_eth_private *mdp,
 	if (!mdp->mii_bus)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	/* Wrap accessors with Runtime PM-aware ops */
+	mdp->mii_bus->read = sh_mdiobb_read;
+	mdp->mii_bus->write = sh_mdiobb_write;
+
+>>>>>>> upstream/android-13
 	/* Hook up MII support for ethtool */
 	mdp->mii_bus->name = "sh_mii";
 	mdp->mii_bus->parent = dev;
@@ -3089,9 +3353,12 @@ static const u16 *sh_eth_get_register_offset(int register_type)
 	case SH_ETH_REG_GIGABIT:
 		reg_offset = sh_eth_offset_gigabit;
 		break;
+<<<<<<< HEAD
 	case SH_ETH_REG_FAST_RZ:
 		reg_offset = sh_eth_offset_fast_rz;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case SH_ETH_REG_FAST_RCAR:
 		reg_offset = sh_eth_offset_fast_rcar;
 		break;
@@ -3113,10 +3380,18 @@ static const struct net_device_ops sh_eth_netdev_ops = {
 	.ndo_get_stats		= sh_eth_get_stats,
 	.ndo_set_rx_mode	= sh_eth_set_rx_mode,
 	.ndo_tx_timeout		= sh_eth_tx_timeout,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= sh_eth_do_ioctl,
 	.ndo_change_mtu		= sh_eth_change_mtu,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+	.ndo_change_mtu		= sh_eth_change_mtu,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_set_mac_address	= eth_mac_addr,
+	.ndo_set_features	= sh_eth_set_features,
+>>>>>>> upstream/android-13
 };
 
 static const struct net_device_ops sh_eth_netdev_ops_tsu = {
@@ -3128,10 +3403,18 @@ static const struct net_device_ops sh_eth_netdev_ops_tsu = {
 	.ndo_vlan_rx_add_vid	= sh_eth_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	= sh_eth_vlan_rx_kill_vid,
 	.ndo_tx_timeout		= sh_eth_tx_timeout,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= sh_eth_do_ioctl,
 	.ndo_change_mtu		= sh_eth_change_mtu,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+	.ndo_change_mtu		= sh_eth_change_mtu,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_set_mac_address	= eth_mac_addr,
+	.ndo_set_features	= sh_eth_set_features,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_OF
@@ -3139,13 +3422,18 @@ static struct sh_eth_plat_data *sh_eth_parse_dt(struct device *dev)
 {
 	struct device_node *np = dev->of_node;
 	struct sh_eth_plat_data *pdata;
+<<<<<<< HEAD
 	const char *mac_addr;
+=======
+	phy_interface_t interface;
+>>>>>>> upstream/android-13
 	int ret;
 
 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return NULL;
 
+<<<<<<< HEAD
 	ret = of_get_phy_mode(np);
 	if (ret < 0)
 		return NULL;
@@ -3154,6 +3442,14 @@ static struct sh_eth_plat_data *sh_eth_parse_dt(struct device *dev)
 	mac_addr = of_get_mac_address(np);
 	if (mac_addr)
 		memcpy(pdata->mac_addr, mac_addr, ETH_ALEN);
+=======
+	ret = of_get_phy_mode(np, &interface);
+	if (ret)
+		return NULL;
+	pdata->phy_interface = interface;
+
+	of_get_mac_address(np, pdata->mac_addr);
+>>>>>>> upstream/android-13
 
 	pdata->no_ether_link =
 		of_property_read_bool(np, "renesas,no-ether-link");
@@ -3197,9 +3493,12 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
 	struct net_device *ndev;
 	int ret;
 
+<<<<<<< HEAD
 	/* get base addr */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
+=======
+>>>>>>> upstream/android-13
 	ndev = alloc_etherdev(sizeof(struct sh_eth_private));
 	if (!ndev)
 		return -ENOMEM;
@@ -3217,7 +3516,11 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
 	mdp = netdev_priv(ndev);
 	mdp->num_tx_ring = TX_RING_SIZE;
 	mdp->num_rx_ring = RX_RING_SIZE;
+<<<<<<< HEAD
 	mdp->addr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mdp->addr = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mdp->addr)) {
 		ret = PTR_ERR(mdp->addr);
 		goto out_release;
@@ -3264,6 +3567,14 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
 	ndev->max_mtu = 2000 - (ETH_HLEN + VLAN_HLEN + ETH_FCS_LEN);
 	ndev->min_mtu = ETH_MIN_MTU;
 
+<<<<<<< HEAD
+=======
+	if (mdp->cd->rx_csum) {
+		ndev->features = NETIF_F_RXCSUM;
+		ndev->hw_features = NETIF_F_RXCSUM;
+	}
+
+>>>>>>> upstream/android-13
 	/* set function */
 	if (mdp->cd->tsu)
 		ndev->netdev_ops = &sh_eth_netdev_ops_tsu;
@@ -3313,7 +3624,11 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
 			goto out_release;
 		}
 		mdp->port = port;
+<<<<<<< HEAD
 		ndev->features = NETIF_F_HW_VLAN_CTAG_FILTER;
+=======
+		ndev->features |= NETIF_F_HW_VLAN_CTAG_FILTER;
+>>>>>>> upstream/android-13
 
 		/* Need to init only the first port of the two sharing a TSU */
 		if (port == 0) {

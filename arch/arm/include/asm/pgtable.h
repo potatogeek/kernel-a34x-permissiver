@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/pgtable.h
  *
  *  Copyright (C) 1995-2002 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASMARM_PGTABLE_H
 #define _ASMARM_PGTABLE_H
@@ -15,12 +22,19 @@
 
 #ifndef CONFIG_MMU
 
+<<<<<<< HEAD
 #include <asm-generic/4level-fixup.h>
+=======
+#include <asm-generic/pgtable-nopud.h>
+>>>>>>> upstream/android-13
 #include <asm/pgtable-nommu.h>
 
 #else
 
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/pgtable-nopud.h>
 #include <asm/memory.h>
 #include <asm/pgtable-hwdef.h>
@@ -83,9 +97,12 @@ extern void __pgd_error(const char *file, int line, pgd_t);
 
 extern pgprot_t		pgprot_user;
 extern pgprot_t		pgprot_kernel;
+<<<<<<< HEAD
 extern pgprot_t		pgprot_hyp_device;
 extern pgprot_t		pgprot_s2;
 extern pgprot_t		pgprot_s2_device;
+=======
+>>>>>>> upstream/android-13
 
 #define _MOD_PROT(p, b)	__pgprot(pgprot_val(p) | (b))
 
@@ -98,12 +115,15 @@ extern pgprot_t		pgprot_s2_device;
 #define PAGE_READONLY_EXEC	_MOD_PROT(pgprot_user, L_PTE_USER | L_PTE_RDONLY)
 #define PAGE_KERNEL		_MOD_PROT(pgprot_kernel, L_PTE_XN)
 #define PAGE_KERNEL_EXEC	pgprot_kernel
+<<<<<<< HEAD
 #define PAGE_HYP		_MOD_PROT(pgprot_kernel, L_PTE_HYP | L_PTE_XN)
 #define PAGE_HYP_EXEC		_MOD_PROT(pgprot_kernel, L_PTE_HYP | L_PTE_RDONLY)
 #define PAGE_HYP_RO		_MOD_PROT(pgprot_kernel, L_PTE_HYP | L_PTE_RDONLY | L_PTE_XN)
 #define PAGE_HYP_DEVICE		_MOD_PROT(pgprot_hyp_device, L_PTE_HYP)
 #define PAGE_S2			_MOD_PROT(pgprot_s2, L_PTE_S2_RDONLY | L_PTE_XN)
 #define PAGE_S2_DEVICE		_MOD_PROT(pgprot_s2_device, L_PTE_S2_RDONLY | L_PTE_XN)
+=======
+>>>>>>> upstream/android-13
 
 #define __PAGE_NONE		__pgprot(_L_PTE_DEFAULT | L_PTE_RDONLY | L_PTE_XN | L_PTE_NONE)
 #define __PAGE_SHARED		__pgprot(_L_PTE_DEFAULT | L_PTE_USER | L_PTE_XN)
@@ -125,6 +145,12 @@ extern pgprot_t		pgprot_s2_device;
 #define pgprot_stronglyordered(prot) \
 	__pgprot_modify(prot, L_PTE_MT_MASK, L_PTE_MT_UNCACHED)
 
+<<<<<<< HEAD
+=======
+#define pgprot_device(prot) \
+	__pgprot_modify(prot, L_PTE_MT_MASK, L_PTE_MT_DEV_SHARED | L_PTE_SHARED | L_PTE_DIRTY | L_PTE_XN)
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARM_DMA_MEM_BUFFERABLE
 #define pgprot_dmacoherent(prot) \
 	__pgprot_modify(prot, L_PTE_MT_MASK, L_PTE_MT_BUFFERABLE | L_PTE_XN)
@@ -176,6 +202,7 @@ extern struct page *empty_zero_page;
 
 extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
 
+<<<<<<< HEAD
 /* to find an entry in a page-table-directory */
 #define pgd_index(addr)		((addr) >> PGDIR_SHIFT)
 
@@ -183,6 +210,10 @@ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
 
 /* to find an entry in a kernel page-table-directory */
 #define pgd_offset_k(addr)	pgd_offset(&init_mm, addr)
+=======
+#define pud_page(pud)		pmd_page(__pmd(pud_val(pud)))
+#define pud_write(pud)		pmd_write(__pmd(pud_val(pud)))
+>>>>>>> upstream/android-13
 
 #define pmd_none(pmd)		(!pmd_val(pmd))
 
@@ -193,6 +224,7 @@ static inline pte_t *pmd_page_vaddr(pmd_t pmd)
 
 #define pmd_page(pmd)		pfn_to_page(__phys_to_pfn(pmd_val(pmd) & PHYS_MASK))
 
+<<<<<<< HEAD
 #ifndef CONFIG_HIGHPTE
 #define __pte_map(pmd)		pmd_page_vaddr(*(pmd))
 #define __pte_unmap(pte)	do { } while (0)
@@ -208,6 +240,8 @@ static inline pte_t *pmd_page_vaddr(pmd_t pmd)
 #define pte_offset_map(pmd,addr)	(__pte_map(pmd) + pte_index(addr))
 #define pte_unmap(pte)			__pte_unmap(pte)
 
+=======
+>>>>>>> upstream/android-13
 #define pte_pfn(pte)		((pte_val(pte) & PHYS_MASK) >> PAGE_SHIFT)
 #define pfn_pte(pfn,prot)	__pte(__pfn_to_phys(pfn) | pgprot_val(prot))
 
@@ -228,7 +262,10 @@ static inline pte_t *pmd_page_vaddr(pmd_t pmd)
 #define pte_dirty(pte)		(pte_isset((pte), L_PTE_DIRTY))
 #define pte_young(pte)		(pte_isset((pte), L_PTE_YOUNG))
 #define pte_exec(pte)		(pte_isclear((pte), L_PTE_XN))
+<<<<<<< HEAD
 #define pte_special(pte)	(pte_isset((pte), L_PTE_SPECIAL))
+=======
+>>>>>>> upstream/android-13
 
 #define pte_valid_user(pte)	\
 	(pte_valid(pte) && pte_isset((pte), L_PTE_USER) && pte_young(pte))
@@ -253,6 +290,7 @@ static inline void __sync_icache_dcache(pte_t pteval)
 extern void __sync_icache_dcache(pte_t pteval);
 #endif
 
+<<<<<<< HEAD
 static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
 			      pte_t *ptep, pte_t pteval)
 {
@@ -266,6 +304,10 @@ static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
 
 	set_pte_ext(ptep, pteval, ext);
 }
+=======
+void set_pte_at(struct mm_struct *mm, unsigned long addr,
+		      pte_t *ptep, pte_t pteval);
+>>>>>>> upstream/android-13
 
 static inline pte_t clear_pte_bit(pte_t pte, pgprot_t prot)
 {
@@ -319,11 +361,14 @@ static inline pte_t pte_mknexec(pte_t pte)
 	return set_pte_bit(pte, __pgprot(L_PTE_XN));
 }
 
+<<<<<<< HEAD
 static inline pte_t pte_mkspecial(pte_t pte)
 {
 	return set_pte_bit(pte, __pgprot(L_PTE_SPECIAL));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 {
 	const pteval_t mask = L_PTE_XN | L_PTE_RDONLY | L_PTE_USER |
@@ -353,7 +398,11 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 #define __swp_entry(type,offset) ((swp_entry_t) { ((type) << __SWP_TYPE_SHIFT) | ((offset) << __SWP_OFFSET_SHIFT) })
 
 #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
+<<<<<<< HEAD
 #define __swp_entry_to_pte(swp)	((pte_t) { (swp).val })
+=======
+#define __swp_entry_to_pte(swp)	__pte((swp).val | PTE_TYPE_FAULT)
+>>>>>>> upstream/android-13
 
 /*
  * It is an error for the kernel to have more swap files than we can
@@ -366,14 +415,18 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 /* FIXME: this is not correct */
 #define kern_addr_valid(addr)	(1)
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  * We provide our own arch_get_unmapped_area to cope with VIPT caches.
  */
 #define HAVE_ARCH_UNMAPPED_AREA
 #define HAVE_ARCH_UNMAPPED_AREA_TOPDOWN
 
+<<<<<<< HEAD
 #define pgtable_cache_init() do { } while (0)
 
 #if defined(CONFIG_ARCH_HAS_PTE_SPECIAL) && !defined(CONFIG_ARM_LPAE)
@@ -394,6 +447,8 @@ static inline bool spf_p4d_flunked(p4d_t *p4d)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 #endif /* CONFIG_MMU */

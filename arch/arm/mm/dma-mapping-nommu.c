@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Based on linux/arch/arm/mm/dma-mapping.c
  *
  *  Copyright (C) 2000-2004 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,11 @@
 #include <linux/dma-direct.h>
 #include <linux/scatterlist.h>
 
+=======
+ */
+
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <asm/cachetype.h>
 #include <asm/cacheflush.h>
 #include <asm/outercache.h>
@@ -21,6 +31,7 @@
 
 #include "dma.h"
 
+<<<<<<< HEAD
 /*
  *  dma_direct_ops is used if
  *   - MMU/MPU is off
@@ -96,6 +107,10 @@ static int arm_nommu_dma_mmap(struct device *dev, struct vm_area_struct *vma,
 
 static void __dma_page_cpu_to_dev(phys_addr_t paddr, size_t size,
 				  enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	dmac_map_area(__va(paddr), size, dir);
 
@@ -105,8 +120,13 @@ static void __dma_page_cpu_to_dev(phys_addr_t paddr, size_t size,
 		outer_clean_range(paddr, paddr + size);
 }
 
+<<<<<<< HEAD
 static void __dma_page_dev_to_cpu(phys_addr_t paddr, size_t size,
 				  enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	if (dir != DMA_TO_DEVICE) {
 		outer_inv_range(paddr, paddr + size);
@@ -114,6 +134,7 @@ static void __dma_page_dev_to_cpu(phys_addr_t paddr, size_t size,
 	}
 }
 
+<<<<<<< HEAD
 static dma_addr_t arm_nommu_dma_map_page(struct device *dev, struct page *page,
 					 unsigned long offset, size_t size,
 					 enum dma_data_direction dir,
@@ -218,6 +239,11 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 {
 	const struct dma_map_ops *dma_ops;
 
+=======
+void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+			const struct iommu_ops *iommu, bool coherent)
+{
+>>>>>>> upstream/android-13
 	if (IS_ENABLED(CONFIG_CPU_V7M)) {
 		/*
 		 * Cache support for v7m is optional, so can be treated as
@@ -225,11 +251,16 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 		 * enough to check if MPU is in use or not since in absense of
 		 * MPU system memory map is used.
 		 */
+<<<<<<< HEAD
 		dev->archdata.dma_coherent = (cacheid) ? coherent : true;
+=======
+		dev->dma_coherent = cacheid ? coherent : true;
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * Assume coherent DMA in case MMU/MPU has not been set up.
 		 */
+<<<<<<< HEAD
 		dev->archdata.dma_coherent = (get_cr() & CR_M) ? coherent : true;
 	}
 
@@ -240,4 +271,8 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 
 void arch_teardown_dma_ops(struct device *dev)
 {
+=======
+		dev->dma_coherent = (get_cr() & CR_M) ? coherent : true;
+	}
+>>>>>>> upstream/android-13
 }

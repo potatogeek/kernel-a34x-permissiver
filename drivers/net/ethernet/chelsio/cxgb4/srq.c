@@ -77,7 +77,11 @@ int cxgb4_get_srq_entry(struct net_device *dev,
 	adap = netdev2adap(dev);
 	s = adap->srq;
 
+<<<<<<< HEAD
 	if (!(adap->flags & FULL_INIT_DONE) || !s)
+=======
+	if (!(adap->flags & CXGB4_FULL_INIT_DONE) || !s)
+>>>>>>> upstream/android-13
 		goto out;
 
 	skb = alloc_skb(sizeof(*req), GFP_KERNEL);

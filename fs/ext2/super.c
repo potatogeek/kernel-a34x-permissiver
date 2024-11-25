@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/ext2/super.c
  *
@@ -73,7 +77,11 @@ void ext2_error(struct super_block *sb, const char *function,
 
 	if (test_opt(sb, ERRORS_PANIC))
 		panic("EXT2-fs: panic from previous error\n");
+<<<<<<< HEAD
 	if (test_opt(sb, ERRORS_RO)) {
+=======
+	if (!sb_rdonly(sb) && test_opt(sb, ERRORS_RO)) {
+>>>>>>> upstream/android-13
 		ext2_msg(sb, KERN_CRIT,
 			     "error: remounting filesystem read-only");
 		sb->s_flags |= SB_RDONLY;
@@ -148,10 +156,16 @@ static void ext2_put_super (struct super_block * sb)
 
 	ext2_quota_off_umount(sb);
 
+<<<<<<< HEAD
 	if (sbi->s_ea_block_cache) {
 		ext2_xattr_destroy_cache(sbi->s_ea_block_cache);
 		sbi->s_ea_block_cache = NULL;
 	}
+=======
+	ext2_xattr_destroy_cache(sbi->s_ea_block_cache);
+	sbi->s_ea_block_cache = NULL;
+
+>>>>>>> upstream/android-13
 	if (!sb_rdonly(sb)) {
 		struct ext2_super_block *es = sbi->s_es;
 
@@ -162,8 +176,12 @@ static void ext2_put_super (struct super_block * sb)
 	}
 	db_count = sbi->s_gdb_count;
 	for (i = 0; i < db_count; i++)
+<<<<<<< HEAD
 		if (sbi->s_group_desc[i])
 			brelse (sbi->s_group_desc[i]);
+=======
+		brelse(sbi->s_group_desc[i]);
+>>>>>>> upstream/android-13
 	kfree(sbi->s_group_desc);
 	kfree(sbi->s_debts);
 	percpu_counter_destroy(&sbi->s_freeblocks_counter);
@@ -193,6 +211,7 @@ static struct inode *ext2_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void ext2_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -204,6 +223,13 @@ static void ext2_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, ext2_i_callback);
 }
 
+=======
+static void ext2_free_in_core_inode(struct inode *inode)
+{
+	kmem_cache_free(ext2_inode_cachep, EXT2_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct ext2_inode_info *ei = (struct ext2_inode_info *) foo;
@@ -213,9 +239,12 @@ static void init_once(void *foo)
 	init_rwsem(&ei->xattr_sem);
 #endif
 	mutex_init(&ei->truncate_mutex);
+<<<<<<< HEAD
 #ifdef CONFIG_FS_DAX
 	init_rwsem(&ei->dax_sem);
 #endif
+=======
+>>>>>>> upstream/android-13
 	inode_init_once(&ei->vfs_inode);
 }
 
@@ -309,6 +338,7 @@ static int ext2_show_options(struct seq_file *seq, struct dentry *root)
 	if (test_opt(sb, NOBH))
 		seq_puts(seq, ",nobh");
 
+<<<<<<< HEAD
 #if defined(CONFIG_QUOTA)
 	if (sbi->s_mount_opt & EXT2_MOUNT_USRQUOTA)
 		seq_puts(seq, ",usrquota");
@@ -323,6 +353,19 @@ static int ext2_show_options(struct seq_file *seq, struct dentry *root)
 	if (sbi->s_mount_opt & EXT2_MOUNT_DAX)
 		seq_puts(seq, ",dax");
 #endif
+=======
+	if (test_opt(sb, USRQUOTA))
+		seq_puts(seq, ",usrquota");
+
+	if (test_opt(sb, GRPQUOTA))
+		seq_puts(seq, ",grpquota");
+
+	if (test_opt(sb, XIP))
+		seq_puts(seq, ",xip");
+
+	if (test_opt(sb, DAX))
+		seq_puts(seq, ",dax");
+>>>>>>> upstream/android-13
 
 	if (!test_opt(sb, RESERVATION))
 		seq_puts(seq, ",noreservation");
@@ -355,7 +398,11 @@ static const struct quotactl_ops ext2_quotactl_ops = {
 
 static const struct super_operations ext2_sops = {
 	.alloc_inode	= ext2_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= ext2_destroy_inode,
+=======
+	.free_inode	= ext2_free_in_core_inode,
+>>>>>>> upstream/android-13
 	.write_inode	= ext2_write_inode,
 	.evict_inode	= ext2_evict_inode,
 	.put_super	= ext2_put_super,
@@ -441,7 +488,11 @@ static unsigned long get_sb_block(void **data)
 enum {
 	Opt_bsd_df, Opt_minix_df, Opt_grpid, Opt_nogrpid,
 	Opt_resgid, Opt_resuid, Opt_sb, Opt_err_cont, Opt_err_panic,
+<<<<<<< HEAD
 	Opt_err_ro, Opt_nouid32, Opt_nocheck, Opt_debug,
+=======
+	Opt_err_ro, Opt_nouid32, Opt_debug,
+>>>>>>> upstream/android-13
 	Opt_oldalloc, Opt_orlov, Opt_nobh, Opt_user_xattr, Opt_nouser_xattr,
 	Opt_acl, Opt_noacl, Opt_xip, Opt_dax, Opt_ignore, Opt_err, Opt_quota,
 	Opt_usrquota, Opt_grpquota, Opt_reservation, Opt_noreservation
@@ -461,8 +512,11 @@ static const match_table_t tokens = {
 	{Opt_err_panic, "errors=panic"},
 	{Opt_err_ro, "errors=remount-ro"},
 	{Opt_nouid32, "nouid32"},
+<<<<<<< HEAD
 	{Opt_nocheck, "check=none"},
 	{Opt_nocheck, "nocheck"},
+=======
+>>>>>>> upstream/android-13
 	{Opt_debug, "debug"},
 	{Opt_oldalloc, "oldalloc"},
 	{Opt_orlov, "orlov"},
@@ -556,12 +610,15 @@ static int parse_options(char *options, struct super_block *sb,
 		case Opt_nouid32:
 			set_opt (opts->s_mount_opt, NO_UID32);
 			break;
+<<<<<<< HEAD
 		case Opt_nocheck:
 			ext2_msg(sb, KERN_WARNING,
 				"Option nocheck/check=none is deprecated and"
 				" will be removed in June 2020.");
 			clear_opt (opts->s_mount_opt, CHECK);
 			break;
+=======
+>>>>>>> upstream/android-13
 		case Opt_debug:
 			set_opt (opts->s_mount_opt, DEBUG);
 			break;
@@ -605,7 +662,11 @@ static int parse_options(char *options, struct super_block *sb,
 		case Opt_xip:
 			ext2_msg(sb, KERN_INFO, "use dax instead of xip");
 			set_opt(opts->s_mount_opt, XIP);
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Opt_dax:
 #ifdef CONFIG_FS_DAX
 			ext2_msg(sb, KERN_WARNING,
@@ -712,6 +773,7 @@ static int ext2_check_descriptors(struct super_block *sb)
 	for (i = 0; i < sbi->s_groups_count; i++) {
 		struct ext2_group_desc *gdp = ext2_get_group_desc(sb, i, NULL);
 		ext2_fsblk_t first_block = ext2_group_first_block_no(sb, i);
+<<<<<<< HEAD
 		ext2_fsblk_t last_block;
 
 		if (i == sbi->s_groups_count - 1)
@@ -719,6 +781,9 @@ static int ext2_check_descriptors(struct super_block *sb)
 		else
 			last_block = first_block +
 				(EXT2_BLOCKS_PER_GROUP(sb) - 1);
+=======
+		ext2_fsblk_t last_block = ext2_group_last_block_no(sb, i);
+>>>>>>> upstream/android-13
 
 		if (le32_to_cpu(gdp->bg_block_bitmap) < first_block ||
 		    le32_to_cpu(gdp->bg_block_bitmap) > last_block)
@@ -780,8 +845,17 @@ static loff_t ext2_max_size(int bits)
 	res += 1LL << (bits-2);
 	res += 1LL << (2*(bits-2));
 	res += 1LL << (3*(bits-2));
+<<<<<<< HEAD
 	/* Does block tree limit file size? */
 	if (res < upper_limit)
+=======
+	/* Compute how many metadata blocks are needed */
+	meta_blocks = 1;
+	meta_blocks += 1 + ppb;
+	meta_blocks += 1 + ppb + ppb * ppb;
+	/* Does block tree limit file size? */
+	if (res + meta_blocks <= upper_limit)
+>>>>>>> upstream/android-13
 		goto check_lfs;
 
 	res = upper_limit;
@@ -816,7 +890,10 @@ static unsigned long descriptor_loc(struct super_block *sb,
 {
 	struct ext2_sb_info *sbi = EXT2_SB(sb);
 	unsigned long bg, first_meta_bg;
+<<<<<<< HEAD
 	int has_super = 0;
+=======
+>>>>>>> upstream/android-13
 	
 	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
 
@@ -824,10 +901,15 @@ static unsigned long descriptor_loc(struct super_block *sb,
 	    nr < first_meta_bg)
 		return (logic_sb_block + nr + 1);
 	bg = sbi->s_desc_per_block * nr;
+<<<<<<< HEAD
 	if (ext2_bg_has_super(sb, bg))
 		has_super = 1;
 
 	return ext2_group_first_block_no(sb, bg) + has_super;
+=======
+
+	return ext2_group_first_block_no(sb, bg) + ext2_bg_has_super(sb, bg);
+>>>>>>> upstream/android-13
 }
 
 static int ext2_fill_super(struct super_block *sb, void *data, int silent)
@@ -944,8 +1026,12 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 	sbi->s_resgid = opts.s_resgid;
 
 	sb->s_flags = (sb->s_flags & ~SB_POSIXACL) |
+<<<<<<< HEAD
 		((EXT2_SB(sb)->s_mount_opt & EXT2_MOUNT_POSIX_ACL) ?
 		 SB_POSIXACL : 0);
+=======
+		(test_opt(sb, POSIX_ACL) ? SB_POSIXACL : 0);
+>>>>>>> upstream/android-13
 	sb->s_iflags |= SB_I_CGROUPWB;
 
 	if (le32_to_cpu(es->s_rev_level) == EXT2_GOOD_OLD_REV &&
@@ -976,11 +1062,20 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 
 	blocksize = BLOCK_SIZE << le32_to_cpu(sbi->s_es->s_log_block_size);
 
+<<<<<<< HEAD
 	if (sbi->s_mount_opt & EXT2_MOUNT_DAX) {
 		if (!bdev_dax_supported(sb->s_bdev, blocksize)) {
 			ext2_msg(sb, KERN_ERR,
 				"DAX unsupported by block device. Turning off DAX.");
 			sbi->s_mount_opt &= ~EXT2_MOUNT_DAX;
+=======
+	if (test_opt(sb, DAX)) {
+		if (!dax_supported(dax_dev, sb->s_bdev, blocksize, 0,
+				bdev_nr_sectors(sb->s_bdev))) {
+			ext2_msg(sb, KERN_ERR,
+				"DAX unsupported by block device. Turning off DAX.");
+			clear_opt(sbi->s_mount_opt, DAX);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1012,6 +1107,11 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 
 	sb->s_maxbytes = ext2_max_size(sb->s_blocksize_bits);
 	sb->s_max_links = EXT2_LINK_MAX;
+<<<<<<< HEAD
+=======
+	sb->s_time_min = S32_MIN;
+	sb->s_time_max = S32_MAX;
+>>>>>>> upstream/android-13
 
 	if (le32_to_cpu(es->s_rev_level) == EXT2_GOOD_OLD_REV) {
 		sbi->s_inode_size = EXT2_GOOD_OLD_INODE_SIZE;
@@ -1039,8 +1139,11 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 	sbi->s_frags_per_group = le32_to_cpu(es->s_frags_per_group);
 	sbi->s_inodes_per_group = le32_to_cpu(es->s_inodes_per_group);
 
+<<<<<<< HEAD
 	if (EXT2_INODE_SIZE(sb) == 0)
 		goto cantfind_ext2;
+=======
+>>>>>>> upstream/android-13
 	sbi->s_inodes_per_block = sb->s_blocksize / EXT2_INODE_SIZE(sb);
 	if (sbi->s_inodes_per_block == 0 || sbi->s_inodes_per_group == 0)
 		goto cantfind_ext2;
@@ -1098,16 +1201,28 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
 		   EXT2_DESC_PER_BLOCK(sb);
+<<<<<<< HEAD
 	sbi->s_group_desc = kmalloc_array (db_count,
 					   sizeof(struct buffer_head *),
 					   GFP_KERNEL);
 	if (sbi->s_group_desc == NULL) {
+=======
+	sbi->s_group_desc = kmalloc_array(db_count,
+					   sizeof(struct buffer_head *),
+					   GFP_KERNEL);
+	if (sbi->s_group_desc == NULL) {
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		ext2_msg(sb, KERN_ERR, "error: not enough memory");
 		goto failed_mount;
 	}
 	bgl_lock_init(sbi->s_blockgroup_lock);
 	sbi->s_debts = kcalloc(sbi->s_groups_count, sizeof(*sbi->s_debts), GFP_KERNEL);
 	if (!sbi->s_debts) {
+<<<<<<< HEAD
+=======
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		ext2_msg(sb, KERN_ERR, "error: not enough memory");
 		goto failed_mount_group_desc;
 	}
@@ -1130,7 +1245,11 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 	get_random_bytes(&sbi->s_next_generation, sizeof(u32));
 	spin_lock_init(&sbi->s_next_gen_lock);
 
+<<<<<<< HEAD
 	/* per fileystem reservation list head & lock */
+=======
+	/* per filesystem reservation list head & lock */
+>>>>>>> upstream/android-13
 	spin_lock_init(&sbi->s_rsv_window_lock);
 	sbi->s_rsv_window_root = RB_ROOT;
 	/*
@@ -1156,6 +1275,10 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 				ext2_count_dirs(sb), GFP_KERNEL);
 	}
 	if (err) {
+<<<<<<< HEAD
+=======
+		ret = err;
+>>>>>>> upstream/android-13
 		ext2_msg(sb, KERN_ERR, "error: insufficient memory");
 		goto failed_mount3;
 	}
@@ -1163,6 +1286,10 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
 #ifdef CONFIG_EXT2_FS_XATTR
 	sbi->s_ea_block_cache = ext2_xattr_create_cache();
 	if (!sbi->s_ea_block_cache) {
+<<<<<<< HEAD
+=======
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 		ext2_msg(sb, KERN_ERR, "Failed to create ea_block_cache");
 		goto failed_mount3;
 	}
@@ -1212,8 +1339,12 @@ cantfind_ext2:
 			sb->s_id);
 	goto failed_mount;
 failed_mount3:
+<<<<<<< HEAD
 	if (sbi->s_ea_block_cache)
 		ext2_xattr_destroy_cache(sbi->s_ea_block_cache);
+=======
+	ext2_xattr_destroy_cache(sbi->s_ea_block_cache);
+>>>>>>> upstream/android-13
 	percpu_counter_destroy(&sbi->s_freeblocks_counter);
 	percpu_counter_destroy(&sbi->s_freeinodes_counter);
 	percpu_counter_destroy(&sbi->s_dirs_counter);
@@ -1413,7 +1544,11 @@ out_set:
 	sbi->s_resuid = new_opts.s_resuid;
 	sbi->s_resgid = new_opts.s_resgid;
 	sb->s_flags = (sb->s_flags & ~SB_POSIXACL) |
+<<<<<<< HEAD
 		((sbi->s_mount_opt & EXT2_MOUNT_POSIX_ACL) ? SB_POSIXACL : 0);
+=======
+		(test_opt(sb, POSIX_ACL) ? SB_POSIXACL : 0);
+>>>>>>> upstream/android-13
 	spin_unlock(&sbi->s_lock);
 
 	return 0;
@@ -1424,7 +1559,10 @@ static int ext2_statfs (struct dentry * dentry, struct kstatfs * buf)
 	struct super_block *sb = dentry->d_sb;
 	struct ext2_sb_info *sbi = EXT2_SB(sb);
 	struct ext2_super_block *es = sbi->s_es;
+<<<<<<< HEAD
 	u64 fsid;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&sbi->s_lock);
 
@@ -1478,10 +1616,14 @@ static int ext2_statfs (struct dentry * dentry, struct kstatfs * buf)
 	buf->f_ffree = ext2_count_free_inodes(sb);
 	es->s_free_inodes_count = cpu_to_le32(buf->f_ffree);
 	buf->f_namelen = EXT2_NAME_LEN;
+<<<<<<< HEAD
 	fsid = le64_to_cpup((void *)es->s_uuid) ^
 	       le64_to_cpup((void *)es->s_uuid + sizeof(u64));
 	buf->f_fsid.val[0] = fsid & 0xFFFFFFFFUL;
 	buf->f_fsid.val[1] = (fsid >> 32) & 0xFFFFFFFFUL;
+=======
+	buf->f_fsid = uuid_to_fsid(es->s_uuid);
+>>>>>>> upstream/android-13
 	spin_unlock(&sbi->s_lock);
 	return 0;
 }
@@ -1676,5 +1818,9 @@ static void __exit exit_ext2_fs(void)
 MODULE_AUTHOR("Remy Card and others");
 MODULE_DESCRIPTION("Second Extended Filesystem");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 module_init(init_ext2_fs)
 module_exit(exit_ext2_fs)

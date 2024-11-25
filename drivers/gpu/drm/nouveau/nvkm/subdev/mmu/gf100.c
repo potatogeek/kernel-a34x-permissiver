@@ -30,7 +30,11 @@
  * The value 0xff represents an invalid storage type.
  */
 const u8 *
+<<<<<<< HEAD
 gf100_mmu_kind(struct nvkm_mmu *mmu, int *count)
+=======
+gf100_mmu_kind(struct nvkm_mmu *mmu, int *count, u8 *invalid)
+>>>>>>> upstream/android-13
 {
 	static const u8
 	kind[256] = {
@@ -69,6 +73,10 @@ gf100_mmu_kind(struct nvkm_mmu *mmu, int *count)
 	};
 
 	*count = ARRAY_SIZE(kind);
+<<<<<<< HEAD
+=======
+	*invalid = 0xff;
+>>>>>>> upstream/android-13
 	return kind;
 }
 
@@ -83,7 +91,14 @@ gf100_mmu = {
 };
 
 int
+<<<<<<< HEAD
 gf100_mmu_new(struct nvkm_device *device, int index, struct nvkm_mmu **pmmu)
 {
 	return nvkm_mmu_new_(&gf100_mmu, device, index, pmmu);
+=======
+gf100_mmu_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_mmu **pmmu)
+{
+	return nvkm_mmu_new_(&gf100_mmu, device, type, inst, pmmu);
+>>>>>>> upstream/android-13
 }

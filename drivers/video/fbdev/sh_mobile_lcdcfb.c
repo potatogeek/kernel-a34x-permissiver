@@ -15,7 +15,11 @@
 #include <linux/ctype.h>
 #include <linux/dma-mapping.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/fbcon.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/ioctl.h>
@@ -213,7 +217,10 @@ struct sh_mobile_lcdc_priv {
 	struct sh_mobile_lcdc_chan ch[2];
 	struct sh_mobile_lcdc_overlay overlays[4];
 
+<<<<<<< HEAD
 	struct notifier_block notifier;
+=======
+>>>>>>> upstream/android-13
 	int started;
 	int forced_fourcc; /* 2 channel LCDC must share fourcc setting */
 };
@@ -341,8 +348,12 @@ static void lcdc_wait_bit(struct sh_mobile_lcdc_priv *priv,
 static void sh_mobile_lcdc_clk_on(struct sh_mobile_lcdc_priv *priv)
 {
 	if (atomic_inc_and_test(&priv->hw_usecnt)) {
+<<<<<<< HEAD
 		if (priv->dot_clk)
 			clk_prepare_enable(priv->dot_clk);
+=======
+		clk_prepare_enable(priv->dot_clk);
+>>>>>>> upstream/android-13
 		pm_runtime_get_sync(priv->dev);
 	}
 }
@@ -351,8 +362,12 @@ static void sh_mobile_lcdc_clk_off(struct sh_mobile_lcdc_priv *priv)
 {
 	if (atomic_sub_return(1, &priv->hw_usecnt) == -1) {
 		pm_runtime_put(priv->dev);
+<<<<<<< HEAD
 		if (priv->dot_clk)
 			clk_disable_unprepare(priv->dot_clk);
+=======
+		clk_disable_unprepare(priv->dot_clk);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -534,6 +549,7 @@ static void sh_mobile_lcdc_display_off(struct sh_mobile_lcdc_chan *ch)
 		ch->tx_dev->ops->display_off(ch->tx_dev);
 }
 
+<<<<<<< HEAD
 static bool
 sh_mobile_lcdc_must_reconfigure(struct sh_mobile_lcdc_chan *ch,
 				const struct fb_videomode *new_mode)
@@ -617,6 +633,11 @@ static int sh_mobile_lcdc_display_notify(struct sh_mobile_lcdc_chan *ch,
 	return ret;
 }
 
+=======
+static int sh_mobile_lcdc_check_var(struct fb_var_screeninfo *var,
+				    struct fb_info *info);
+
+>>>>>>> upstream/android-13
 /* -----------------------------------------------------------------------------
  * Format helpers
  */
@@ -1570,7 +1591,11 @@ sh_mobile_lcdc_overlay_mmap(struct fb_info *info, struct vm_area_struct *vma)
 				 ovl->dma_handle, ovl->fb_size);
 }
 
+<<<<<<< HEAD
 static struct fb_ops sh_mobile_lcdc_overlay_ops = {
+=======
+static const struct fb_ops sh_mobile_lcdc_overlay_ops = {
+>>>>>>> upstream/android-13
 	.owner          = THIS_MODULE,
 	.fb_read        = fb_sys_read,
 	.fb_write       = fb_sys_write,
@@ -1644,17 +1669,26 @@ sh_mobile_lcdc_overlay_fb_init(struct sh_mobile_lcdc_overlay *ovl)
 
 	/* Allocate and initialize the frame buffer device. */
 	info = framebuffer_alloc(0, priv->dev);
+<<<<<<< HEAD
 	if (info == NULL) {
 		dev_err(priv->dev, "unable to allocate fb_info\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	ovl->info = info;
 
 	info->flags = FBINFO_FLAG_DEFAULT;
 	info->fbops = &sh_mobile_lcdc_overlay_ops;
 	info->device = priv->dev;
+<<<<<<< HEAD
 	info->screen_base = ovl->fb_mem;
+=======
+	info->screen_buffer = ovl->fb_mem;
+>>>>>>> upstream/android-13
 	info->par = ovl;
 
 	/* Initialize fixed screen information. Restrict pan to 2 lines steps
@@ -1676,6 +1710,10 @@ sh_mobile_lcdc_overlay_fb_init(struct sh_mobile_lcdc_overlay *ovl)
 	case V4L2_PIX_FMT_NV12:
 	case V4L2_PIX_FMT_NV21:
 		info->fix.ypanstep = 2;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case V4L2_PIX_FMT_NV16:
 	case V4L2_PIX_FMT_NV61:
 		info->fix.xpanstep = 2;
@@ -1838,8 +1876,11 @@ static void sh_mobile_fb_reconfig(struct fb_info *info)
 	struct sh_mobile_lcdc_chan *ch = info->par;
 	struct fb_var_screeninfo var;
 	struct fb_videomode mode;
+<<<<<<< HEAD
 	struct fb_event event;
 	int evnt = FB_EVENT_MODE_CHANGE_ALL;
+=======
+>>>>>>> upstream/android-13
 
 	if (ch->use_count > 1 || (ch->use_count == 1 && !info->fbcon_par))
 		/* More framebuffer users are active */
@@ -1861,6 +1902,7 @@ static void sh_mobile_fb_reconfig(struct fb_info *info)
 		/* Couldn't reconfigure, hopefully, can continue as before */
 		return;
 
+<<<<<<< HEAD
 	/*
 	 * fb_set_var() calls the notifier change internally, only if
 	 * FBINFO_MISC_USEREVENT flag is set. Since we do not want to fake a
@@ -1869,6 +1911,9 @@ static void sh_mobile_fb_reconfig(struct fb_info *info)
 	event.info = info;
 	event.data = &ch->display.mode;
 	fb_notifier_call_chain(evnt, &event);
+=======
+	fbcon_update_vcs(info, true);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2054,7 +2099,11 @@ sh_mobile_lcdc_mmap(struct fb_info *info, struct vm_area_struct *vma)
 				 ch->dma_handle, ch->fb_size);
 }
 
+<<<<<<< HEAD
 static struct fb_ops sh_mobile_lcdc_ops = {
+=======
+static const struct fb_ops sh_mobile_lcdc_ops = {
+>>>>>>> upstream/android-13
 	.owner          = THIS_MODULE,
 	.fb_setcolreg	= sh_mobile_lcdc_setcolreg,
 	.fb_read        = fb_sys_read,
@@ -2138,17 +2187,26 @@ sh_mobile_lcdc_channel_fb_init(struct sh_mobile_lcdc_chan *ch,
 	 * list and allocate the color map.
 	 */
 	info = framebuffer_alloc(0, priv->dev);
+<<<<<<< HEAD
 	if (info == NULL) {
 		dev_err(priv->dev, "unable to allocate fb_info\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	ch->info = info;
 
 	info->flags = FBINFO_FLAG_DEFAULT;
 	info->fbops = &sh_mobile_lcdc_ops;
 	info->device = priv->dev;
+<<<<<<< HEAD
 	info->screen_base = ch->fb_mem;
+=======
+	info->screen_buffer = ch->fb_mem;
+>>>>>>> upstream/android-13
 	info->pseudo_palette = &ch->pseudo_palette;
 	info->par = ch;
 
@@ -2177,6 +2235,10 @@ sh_mobile_lcdc_channel_fb_init(struct sh_mobile_lcdc_chan *ch,
 	case V4L2_PIX_FMT_NV12:
 	case V4L2_PIX_FMT_NV21:
 		info->fix.ypanstep = 2;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case V4L2_PIX_FMT_NV16:
 	case V4L2_PIX_FMT_NV61:
 		info->fix.xpanstep = 2;
@@ -2319,6 +2381,7 @@ static const struct dev_pm_ops sh_mobile_lcdc_dev_pm_ops = {
  * Framebuffer notifier
  */
 
+<<<<<<< HEAD
 /* locking: called with info->lock held */
 static int sh_mobile_lcdc_notify(struct notifier_block *nb,
 				 unsigned long action, void *data)
@@ -2350,6 +2413,8 @@ static int sh_mobile_lcdc_notify(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* -----------------------------------------------------------------------------
  * Probe/remove and driver init/exit
  */
@@ -2377,8 +2442,11 @@ static int sh_mobile_lcdc_remove(struct platform_device *pdev)
 	struct sh_mobile_lcdc_priv *priv = platform_get_drvdata(pdev);
 	unsigned int i;
 
+<<<<<<< HEAD
 	fb_unregister_client(&priv->notifier);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(priv->overlays); i++)
 		sh_mobile_lcdc_overlay_fb_unregister(&priv->overlays[i]);
 	for (i = 0; i < ARRAY_SIZE(priv->ch); i++)
@@ -2540,8 +2608,11 @@ sh_mobile_lcdc_channel_init(struct sh_mobile_lcdc_chan *ch)
 	unsigned int max_size;
 	unsigned int i;
 
+<<<<<<< HEAD
 	ch->notify = sh_mobile_lcdc_display_notify;
 
+=======
+>>>>>>> upstream/android-13
 	/* Validate the format. */
 	format = sh_mobile_format_info(cfg->fourcc);
 	if (format == NULL) {
@@ -2714,7 +2785,11 @@ static int sh_mobile_lcdc_probe(struct platform_device *pdev)
 	if (num_channels == 2)
 		priv->forced_fourcc = pdata->ch[0].fourcc;
 
+<<<<<<< HEAD
 	priv->base = ioremap_nocache(res->start, resource_size(res));
+=======
+	priv->base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!priv->base) {
 		error = -ENOMEM;
 		goto err1;
@@ -2770,10 +2845,13 @@ static int sh_mobile_lcdc_probe(struct platform_device *pdev)
 			goto err1;
 	}
 
+<<<<<<< HEAD
 	/* Failure ignored */
 	priv->notifier.notifier_call = sh_mobile_lcdc_notify;
 	fb_register_client(&priv->notifier);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 err1:
 	sh_mobile_lcdc_remove(pdev);

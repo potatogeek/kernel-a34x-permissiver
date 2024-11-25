@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP5 Voltage Management Routines
  *
  * Based on voltagedomains44xx_data.c
  *
+<<<<<<< HEAD
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/err.h>

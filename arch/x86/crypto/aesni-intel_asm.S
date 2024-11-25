@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Implement AES algorithm in Intel AES-NI instructions.
  *
@@ -22,6 +26,7 @@
  *
  * Ported x86_64 version to x86:
  *    Author: Mathias Krause <minipli@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +36,11 @@
 
 #include <linux/linkage.h>
 #include <asm/inst.h>
+=======
+ */
+
+#include <linux/linkage.h>
+>>>>>>> upstream/android-13
 #include <asm/frame.h>
 #include <asm/nospec-branch.h>
 
@@ -48,10 +58,13 @@
 #ifdef __x86_64__
 
 # constants in mergeable sections, linker can reorder and merge
+<<<<<<< HEAD
 .section	.rodata.cst16.gf128mul_x_ble_mask, "aM", @progbits, 16
 .align 16
 .Lgf128mul_x_ble_mask:
 	.octa 0x00000000000000010000000000000087
+=======
+>>>>>>> upstream/android-13
 .section	.rodata.cst16.POLY, "aM", @progbits, 16
 .align 16
 POLY:   .octa 0xC2000000000000000000000000000001
@@ -151,7 +164,11 @@ ALL_F:      .octa 0xffffffffffffffffffffffffffffffff
 #define CTR	%xmm11
 #define INC	%xmm12
 
+<<<<<<< HEAD
 #define GF128MUL_MASK %xmm10
+=======
+#define GF128MUL_MASK %xmm7
+>>>>>>> upstream/android-13
 
 #ifdef __x86_64__
 #define AREG	%rax
@@ -205,7 +222,11 @@ ALL_F:      .octa 0xffffffffffffffffffffffffffffffff
 	mov	\SUBKEY, %r12
 	movdqu	(%r12), \TMP3
 	movdqa	SHUF_MASK(%rip), \TMP2
+<<<<<<< HEAD
 	PSHUFB_XMM \TMP2, \TMP3
+=======
+	pshufb	\TMP2, \TMP3
+>>>>>>> upstream/android-13
 
 	# precompute HashKey<<1 mod poly from the HashKey (required for GHASH)
 
@@ -267,7 +288,11 @@ ALL_F:      .octa 0xffffffffffffffffffffffffffffffff
 	movdqu %xmm0, OrigIV(%arg2) # ctx_data.orig_IV = iv
 
 	movdqa  SHUF_MASK(%rip), %xmm2
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm2, %xmm0
+=======
+	pshufb %xmm2, %xmm0
+>>>>>>> upstream/android-13
 	movdqu %xmm0, CurCount(%arg2) # ctx_data.current_counter = iv
 
 	PRECOMPUTE \SUBKEY, %xmm1, %xmm2, %xmm3, %xmm4, %xmm5, %xmm6, %xmm7
@@ -323,7 +348,11 @@ _initial_blocks_\@:
 
 	# Main loop - Encrypt/Decrypt remaining blocks
 
+<<<<<<< HEAD
 	cmp	$0, %r13
+=======
+	test	%r13, %r13
+>>>>>>> upstream/android-13
 	je	_zero_cipher_left_\@
 	sub	$64, %r13
 	je	_four_cipher_left_\@
@@ -351,7 +380,11 @@ _zero_cipher_left_\@:
 	paddd ONE(%rip), %xmm0                # INCR CNT to get Yn
 	movdqu %xmm0, CurCount(%arg2)
 	movdqa SHUF_MASK(%rip), %xmm10
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm10, %xmm0
+=======
+	pshufb %xmm10, %xmm0
+>>>>>>> upstream/android-13
 
 	ENCRYPT_SINGLE_BLOCK	%xmm0, %xmm1        # Encrypt(K, Yn)
 	movdqu %xmm0, PBlockEncKey(%arg2)
@@ -381,7 +414,11 @@ _large_enough_update_\@:
 	# get the appropriate shuffle mask
 	movdqu	(%r12), %xmm2
 	# shift right 16-r13 bytes
+<<<<<<< HEAD
 	PSHUFB_XMM  %xmm2, %xmm1
+=======
+	pshufb  %xmm2, %xmm1
+>>>>>>> upstream/android-13
 
 _data_read_\@:
 	lea ALL_F+16(%rip), %r12
@@ -397,12 +434,20 @@ _data_read_\@:
 .ifc \operation, dec
 	pand    %xmm1, %xmm2
 	movdqa SHUF_MASK(%rip), %xmm10
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm10 ,%xmm2
+=======
+	pshufb %xmm10 ,%xmm2
+>>>>>>> upstream/android-13
 
 	pxor %xmm2, %xmm8
 .else
 	movdqa SHUF_MASK(%rip), %xmm10
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm10,%xmm0
+=======
+	pshufb %xmm10,%xmm0
+>>>>>>> upstream/android-13
 
 	pxor	%xmm0, %xmm8
 .endif
@@ -412,17 +457,29 @@ _data_read_\@:
 	# GHASH computation for the last <16 byte block
 	movdqa SHUF_MASK(%rip), %xmm10
 	# shuffle xmm0 back to output as ciphertext
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm10, %xmm0
 .endif
 
 	# Output %r13 bytes
 	MOVQ_R64_XMM %xmm0, %rax
+=======
+	pshufb %xmm10, %xmm0
+.endif
+
+	# Output %r13 bytes
+	movq %xmm0, %rax
+>>>>>>> upstream/android-13
 	cmp $8, %r13
 	jle _less_than_8_bytes_left_\@
 	mov %rax, (%arg3 , %r11, 1)
 	add $8, %r11
 	psrldq $8, %xmm0
+<<<<<<< HEAD
 	MOVQ_R64_XMM %xmm0, %rax
+=======
+	movq %xmm0, %rax
+>>>>>>> upstream/android-13
 	sub $8, %r13
 _less_than_8_bytes_left_\@:
 	mov %al,  (%arg3, %r11, 1)
@@ -442,7 +499,11 @@ _multiple_of_16_bytes_\@:
 
 	mov PBlockLen(%arg2), %r12
 
+<<<<<<< HEAD
 	cmp $0, %r12
+=======
+	test %r12, %r12
+>>>>>>> upstream/android-13
 	je _partial_done\@
 
 	GHASH_MUL %xmm8, %xmm13, %xmm9, %xmm10, %xmm11, %xmm5, %xmm6
@@ -453,7 +514,11 @@ _partial_done\@:
 	movd	%r12d, %xmm15		  # len(A) in %xmm15
 	mov InLen(%arg2), %r12
 	shl     $3, %r12                  # len(C) in bits (*128)
+<<<<<<< HEAD
 	MOVQ_R64_XMM    %r12, %xmm1
+=======
+	movq    %r12, %xmm1
+>>>>>>> upstream/android-13
 
 	pslldq	$8, %xmm15		  # %xmm15 = len(A)||0x0000000000000000
 	pxor	%xmm1, %xmm15		  # %xmm15 = len(A)||len(C)
@@ -461,7 +526,11 @@ _partial_done\@:
 	GHASH_MUL	%xmm8, %xmm13, %xmm9, %xmm10, %xmm11, %xmm5, %xmm6
 	# final GHASH computation
 	movdqa SHUF_MASK(%rip), %xmm10
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm10, %xmm8
+=======
+	pshufb %xmm10, %xmm8
+>>>>>>> upstream/android-13
 
 	movdqu OrigIV(%arg2), %xmm0       # %xmm0 = Y0
 	ENCRYPT_SINGLE_BLOCK	%xmm0,  %xmm1	  # E(K, Y0)
@@ -474,12 +543,20 @@ _return_T_\@:
 	cmp	$8, %r11
 	jl	_T_4_\@
 _T_8_\@:
+<<<<<<< HEAD
 	MOVQ_R64_XMM	%xmm0, %rax
+=======
+	movq	%xmm0, %rax
+>>>>>>> upstream/android-13
 	mov	%rax, (%r10)
 	add	$8, %r10
 	sub	$8, %r11
 	psrldq	$8, %xmm0
+<<<<<<< HEAD
 	cmp	$0, %r11
+=======
+	test	%r11, %r11
+>>>>>>> upstream/android-13
 	je	_return_T_done_\@
 _T_4_\@:
 	movd	%xmm0, %eax
@@ -487,7 +564,11 @@ _T_4_\@:
 	add	$4, %r10
 	sub	$4, %r11
 	psrldq	$4, %xmm0
+<<<<<<< HEAD
 	cmp	$0, %r11
+=======
+	test	%r11, %r11
+>>>>>>> upstream/android-13
 	je	_return_T_done_\@
 _T_123_\@:
 	movd	%xmm0, %eax
@@ -522,9 +603,15 @@ _return_T_done_\@:
 	pshufd	  $78, \HK, \TMP3
 	pxor	  \GH, \TMP2            # TMP2 = a1+a0
 	pxor	  \HK, \TMP3            # TMP3 = b1+b0
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \HK, \TMP1     # TMP1 = a1*b1
 	PCLMULQDQ 0x00, \HK, \GH       # GH = a0*b0
 	PCLMULQDQ 0x00, \TMP3, \TMP2   # TMP2 = (a0+a1)*(b1+b0)
+=======
+	pclmulqdq $0x11, \HK, \TMP1     # TMP1 = a1*b1
+	pclmulqdq $0x00, \HK, \GH       # GH = a0*b0
+	pclmulqdq $0x00, \TMP3, \TMP2   # TMP2 = (a0+a1)*(b1+b0)
+>>>>>>> upstream/android-13
 	pxor	  \GH, \TMP2
 	pxor	  \TMP1, \TMP2          # TMP2 = (a0*b0)+(a1*b0)
 	movdqa	  \TMP2, \TMP3
@@ -574,7 +661,11 @@ _return_T_done_\@:
         cmp $8, \DLEN
         jl _read_lt8_\@
         mov (\DPTR), %rax
+<<<<<<< HEAD
         MOVQ_R64_XMM %rax, \XMMDst
+=======
+        movq %rax, \XMMDst
+>>>>>>> upstream/android-13
         sub $8, \DLEN
         jz _done_read_partial_block_\@
 	xor %eax, %eax
@@ -583,7 +674,11 @@ _read_next_byte_\@:
         mov 7(\DPTR, \DLEN, 1), %al
         dec \DLEN
         jnz _read_next_byte_\@
+<<<<<<< HEAD
         MOVQ_R64_XMM %rax, \XMM1
+=======
+        movq %rax, \XMM1
+>>>>>>> upstream/android-13
 	pslldq $8, \XMM1
         por \XMM1, \XMMDst
 	jmp _done_read_partial_block_\@
@@ -594,7 +689,11 @@ _read_next_byte_lt8_\@:
         mov -1(\DPTR, \DLEN, 1), %al
         dec \DLEN
         jnz _read_next_byte_lt8_\@
+<<<<<<< HEAD
         MOVQ_R64_XMM %rax, \XMMDst
+=======
+        movq %rax, \XMMDst
+>>>>>>> upstream/android-13
 _done_read_partial_block_\@:
 .endm
 
@@ -612,7 +711,11 @@ _done_read_partial_block_\@:
 	jl	   _get_AAD_rest\@
 _get_AAD_blocks\@:
 	movdqu	   (%r10), \TMP7
+<<<<<<< HEAD
 	PSHUFB_XMM   %xmm14, \TMP7 # byte-reflect the AAD data
+=======
+	pshufb	   %xmm14, \TMP7 # byte-reflect the AAD data
+>>>>>>> upstream/android-13
 	pxor	   \TMP7, \TMP6
 	GHASH_MUL  \TMP6, \HASHKEY, \TMP1, \TMP2, \TMP3, \TMP4, \TMP5
 	add	   $16, %r10
@@ -624,11 +727,19 @@ _get_AAD_blocks\@:
 
 	/* read the last <16B of AAD */
 _get_AAD_rest\@:
+<<<<<<< HEAD
 	cmp	   $0, %r11
 	je	   _get_AAD_done\@
 
 	READ_PARTIAL_BLOCK %r10, %r11, \TMP1, \TMP7
 	PSHUFB_XMM   %xmm14, \TMP7 # byte-reflect the AAD data
+=======
+	test	   %r11, %r11
+	je	   _get_AAD_done\@
+
+	READ_PARTIAL_BLOCK %r10, %r11, \TMP1, \TMP7
+	pshufb	   %xmm14, \TMP7 # byte-reflect the AAD data
+>>>>>>> upstream/android-13
 	pxor	   \TMP6, \TMP7
 	GHASH_MUL  \TMP7, \HASHKEY, \TMP1, \TMP2, \TMP3, \TMP4, \TMP5
 	movdqu \TMP7, \TMP6
@@ -645,7 +756,11 @@ _get_AAD_done\@:
 .macro PARTIAL_BLOCK CYPH_PLAIN_OUT PLAIN_CYPH_IN PLAIN_CYPH_LEN DATA_OFFSET \
 	AAD_HASH operation
 	mov 	PBlockLen(%arg2), %r13
+<<<<<<< HEAD
 	cmp	$0, %r13
+=======
+	test	%r13, %r13
+>>>>>>> upstream/android-13
 	je	_partial_block_done_\@	# Leave Macro if no partial blocks
 	# Read in input data without over reading
 	cmp	$16, \PLAIN_CYPH_LEN
@@ -671,7 +786,11 @@ _data_read_\@:				# Finished reading in data
 	# r16-r13 is the number of bytes in plaintext mod 16)
 	add	%r13, %r12
 	movdqu	(%r12), %xmm2		# get the appropriate shuffle mask
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm2, %xmm9		# shift right r13 bytes
+=======
+	pshufb	%xmm2, %xmm9		# shift right r13 bytes
+>>>>>>> upstream/android-13
 
 .ifc \operation, dec
 	movdqa	%xmm1, %xmm3
@@ -693,11 +812,19 @@ _no_extra_mask_1_\@:
 
 	pand	%xmm1, %xmm3
 	movdqa	SHUF_MASK(%rip), %xmm10
+<<<<<<< HEAD
 	PSHUFB_XMM	%xmm10, %xmm3
 	PSHUFB_XMM	%xmm2, %xmm3
 	pxor	%xmm3, \AAD_HASH
 
 	cmp	$0, %r10
+=======
+	pshufb	%xmm10, %xmm3
+	pshufb	%xmm2, %xmm3
+	pxor	%xmm3, \AAD_HASH
+
+	test	%r10, %r10
+>>>>>>> upstream/android-13
 	jl	_partial_incomplete_1_\@
 
 	# GHASH computation for the last <16 Byte block
@@ -728,11 +855,19 @@ _no_extra_mask_2_\@:
 	pand	%xmm1, %xmm9
 
 	movdqa	SHUF_MASK(%rip), %xmm1
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm1, %xmm9
 	PSHUFB_XMM %xmm2, %xmm9
 	pxor	%xmm9, \AAD_HASH
 
 	cmp	$0, %r10
+=======
+	pshufb	%xmm1, %xmm9
+	pshufb	%xmm2, %xmm9
+	pxor	%xmm9, \AAD_HASH
+
+	test	%r10, %r10
+>>>>>>> upstream/android-13
 	jl	_partial_incomplete_2_\@
 
 	# GHASH computation for the last <16 Byte block
@@ -748,11 +883,19 @@ _encode_done_\@:
 
 	movdqa	SHUF_MASK(%rip), %xmm10
 	# shuffle xmm9 back to output as ciphertext
+<<<<<<< HEAD
 	PSHUFB_XMM	%xmm10, %xmm9
 	PSHUFB_XMM	%xmm2, %xmm9
 .endif
 	# output encrypted Bytes
 	cmp	$0, %r10
+=======
+	pshufb	%xmm10, %xmm9
+	pshufb	%xmm2, %xmm9
+.endif
+	# output encrypted Bytes
+	test	%r10, %r10
+>>>>>>> upstream/android-13
 	jl	_partial_fill_\@
 	mov	%r13, %r12
 	mov	$16, %r13
@@ -763,14 +906,22 @@ _partial_fill_\@:
 	mov	\PLAIN_CYPH_LEN, %r13
 _count_set_\@:
 	movdqa	%xmm9, %xmm0
+<<<<<<< HEAD
 	MOVQ_R64_XMM	%xmm0, %rax
+=======
+	movq	%xmm0, %rax
+>>>>>>> upstream/android-13
 	cmp	$8, %r13
 	jle	_less_than_8_bytes_left_\@
 
 	mov	%rax, (\CYPH_PLAIN_OUT, \DATA_OFFSET, 1)
 	add	$8, \DATA_OFFSET
 	psrldq	$8, %xmm0
+<<<<<<< HEAD
 	MOVQ_R64_XMM	%xmm0, %rax
+=======
+	movq	%xmm0, %rax
+>>>>>>> upstream/android-13
 	sub	$8, %r13
 _less_than_8_bytes_left_\@:
 	movb	%al, (\CYPH_PLAIN_OUT, \DATA_OFFSET, 1)
@@ -814,7 +965,11 @@ _partial_block_done_\@:
 .else
 	MOVADQ		\XMM0, %xmm\index
 .endif
+<<<<<<< HEAD
 	PSHUFB_XMM	%xmm14, %xmm\index      # perform a 16 byte swap
+=======
+	pshufb	%xmm14, %xmm\index      # perform a 16 byte swap
+>>>>>>> upstream/android-13
 	pxor		\TMP2, %xmm\index
 .endr
 	lea	0x10(%arg1),%r10
@@ -825,7 +980,11 @@ _partial_block_done_\@:
 aes_loop_initial_\@:
 	MOVADQ	(%r10),\TMP1
 .irpc	index, \i_seq
+<<<<<<< HEAD
 	AESENC	\TMP1, %xmm\index
+=======
+	aesenc	\TMP1, %xmm\index
+>>>>>>> upstream/android-13
 .endr
 	add	$16,%r10
 	sub	$1,%eax
@@ -833,7 +992,11 @@ aes_loop_initial_\@:
 
 	MOVADQ	(%r10), \TMP1
 .irpc index, \i_seq
+<<<<<<< HEAD
 	AESENCLAST \TMP1, %xmm\index         # Last Round
+=======
+	aesenclast \TMP1, %xmm\index         # Last Round
+>>>>>>> upstream/android-13
 .endr
 .irpc index, \i_seq
 	movdqu	   (%arg4 , %r11, 1), \TMP1
@@ -845,7 +1008,11 @@ aes_loop_initial_\@:
 .ifc \operation, dec
 	movdqa     \TMP1, %xmm\index
 .endif
+<<<<<<< HEAD
 	PSHUFB_XMM	   %xmm14, %xmm\index
+=======
+	pshufb	   %xmm14, %xmm\index
+>>>>>>> upstream/android-13
 
 		# prepare plaintext/ciphertext for GHASH computation
 .endr
@@ -880,6 +1047,7 @@ aes_loop_initial_\@:
 	MOVADQ	   ONE(%RIP),\TMP1
 	paddd	   \TMP1, \XMM0              # INCR Y0
 	MOVADQ	   \XMM0, \XMM1
+<<<<<<< HEAD
 	PSHUFB_XMM  %xmm14, \XMM1        # perform a 16 byte swap
 
 	paddd	   \TMP1, \XMM0              # INCR Y0
@@ -893,6 +1061,21 @@ aes_loop_initial_\@:
 	paddd	   \TMP1, \XMM0              # INCR Y0
 	MOVADQ	   \XMM0, \XMM4
 	PSHUFB_XMM %xmm14, \XMM4        # perform a 16 byte swap
+=======
+	pshufb  %xmm14, \XMM1        # perform a 16 byte swap
+
+	paddd	   \TMP1, \XMM0              # INCR Y0
+	MOVADQ	   \XMM0, \XMM2
+	pshufb  %xmm14, \XMM2        # perform a 16 byte swap
+
+	paddd	   \TMP1, \XMM0              # INCR Y0
+	MOVADQ	   \XMM0, \XMM3
+	pshufb %xmm14, \XMM3        # perform a 16 byte swap
+
+	paddd	   \TMP1, \XMM0              # INCR Y0
+	MOVADQ	   \XMM0, \XMM4
+	pshufb %xmm14, \XMM4        # perform a 16 byte swap
+>>>>>>> upstream/android-13
 
 	MOVADQ	   0(%arg1),\TMP1
 	pxor	   \TMP1, \XMM1
@@ -901,6 +1084,7 @@ aes_loop_initial_\@:
 	pxor	   \TMP1, \XMM4
 .irpc index, 1234 # do 4 rounds
 	movaps 0x10*\index(%arg1), \TMP1
+<<<<<<< HEAD
 	AESENC	   \TMP1, \XMM1
 	AESENC	   \TMP1, \XMM2
 	AESENC	   \TMP1, \XMM3
@@ -912,6 +1096,19 @@ aes_loop_initial_\@:
 	AESENC	   \TMP1, \XMM2
 	AESENC	   \TMP1, \XMM3
 	AESENC	   \TMP1, \XMM4
+=======
+	aesenc	   \TMP1, \XMM1
+	aesenc	   \TMP1, \XMM2
+	aesenc	   \TMP1, \XMM3
+	aesenc	   \TMP1, \XMM4
+.endr
+.irpc index, 56789 # do next 5 rounds
+	movaps 0x10*\index(%arg1), \TMP1
+	aesenc	   \TMP1, \XMM1
+	aesenc	   \TMP1, \XMM2
+	aesenc	   \TMP1, \XMM3
+	aesenc	   \TMP1, \XMM4
+>>>>>>> upstream/android-13
 .endr
 	lea	   0xa0(%arg1),%r10
 	mov	   keysize,%eax
@@ -922,7 +1119,11 @@ aes_loop_initial_\@:
 aes_loop_pre_\@:
 	MOVADQ	   (%r10),\TMP2
 .irpc	index, 1234
+<<<<<<< HEAD
 	AESENC	   \TMP2, %xmm\index
+=======
+	aesenc	   \TMP2, %xmm\index
+>>>>>>> upstream/android-13
 .endr
 	add	   $16,%r10
 	sub	   $1,%eax
@@ -930,10 +1131,17 @@ aes_loop_pre_\@:
 
 aes_loop_pre_done\@:
 	MOVADQ	   (%r10), \TMP2
+<<<<<<< HEAD
 	AESENCLAST \TMP2, \XMM1
 	AESENCLAST \TMP2, \XMM2
 	AESENCLAST \TMP2, \XMM3
 	AESENCLAST \TMP2, \XMM4
+=======
+	aesenclast \TMP2, \XMM1
+	aesenclast \TMP2, \XMM2
+	aesenclast \TMP2, \XMM3
+	aesenclast \TMP2, \XMM4
+>>>>>>> upstream/android-13
 	movdqu	   16*0(%arg4 , %r11 , 1), \TMP1
 	pxor	   \TMP1, \XMM1
 .ifc \operation, dec
@@ -965,12 +1173,21 @@ aes_loop_pre_done\@:
 .endif
 
 	add	   $64, %r11
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm14, \XMM1 # perform a 16 byte swap
 	pxor	   \XMMDst, \XMM1
 # combine GHASHed value with the corresponding ciphertext
 	PSHUFB_XMM %xmm14, \XMM2 # perform a 16 byte swap
 	PSHUFB_XMM %xmm14, \XMM3 # perform a 16 byte swap
 	PSHUFB_XMM %xmm14, \XMM4 # perform a 16 byte swap
+=======
+	pshufb %xmm14, \XMM1 # perform a 16 byte swap
+	pxor	   \XMMDst, \XMM1
+# combine GHASHed value with the corresponding ciphertext
+	pshufb %xmm14, \XMM2 # perform a 16 byte swap
+	pshufb %xmm14, \XMM3 # perform a 16 byte swap
+	pshufb %xmm14, \XMM4 # perform a 16 byte swap
+>>>>>>> upstream/android-13
 
 _initial_blocks_done\@:
 
@@ -998,7 +1215,11 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	pxor	  \XMM5, \TMP6
 	paddd     ONE(%rip), \XMM0		# INCR CNT
 	movdqu	  HashKey_4(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP4           # TMP4 = a1*b1
+=======
+	pclmulqdq $0x11, \TMP5, \TMP4           # TMP4 = a1*b1
+>>>>>>> upstream/android-13
 	movdqa    \XMM0, \XMM1
 	paddd     ONE(%rip), \XMM0		# INCR CNT
 	movdqa    \XMM0, \XMM2
@@ -1006,17 +1227,26 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	movdqa    \XMM0, \XMM3
 	paddd     ONE(%rip), \XMM0		# INCR CNT
 	movdqa    \XMM0, \XMM4
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm15, \XMM1	# perform a 16 byte swap
 	PCLMULQDQ 0x00, \TMP5, \XMM5           # XMM5 = a0*b0
 	PSHUFB_XMM %xmm15, \XMM2	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM3	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM4	# perform a 16 byte swap
+=======
+	pshufb %xmm15, \XMM1	# perform a 16 byte swap
+	pclmulqdq $0x00, \TMP5, \XMM5           # XMM5 = a0*b0
+	pshufb %xmm15, \XMM2	# perform a 16 byte swap
+	pshufb %xmm15, \XMM3	# perform a 16 byte swap
+	pshufb %xmm15, \XMM4	# perform a 16 byte swap
+>>>>>>> upstream/android-13
 
 	pxor	  (%arg1), \XMM1
 	pxor	  (%arg1), \XMM2
 	pxor	  (%arg1), \XMM3
 	pxor	  (%arg1), \XMM4
 	movdqu	  HashKey_4_k(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x00, \TMP5, \TMP6           # TMP6 = (a1+a0)*(b1+b0)
 	movaps 0x10(%arg1), \TMP1
 	AESENC	  \TMP1, \XMM1              # Round 1
@@ -1028,10 +1258,24 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP1, \XMM2
 	AESENC	  \TMP1, \XMM3
 	AESENC	  \TMP1, \XMM4
+=======
+	pclmulqdq $0x00, \TMP5, \TMP6       # TMP6 = (a1+a0)*(b1+b0)
+	movaps 0x10(%arg1), \TMP1
+	aesenc	  \TMP1, \XMM1              # Round 1
+	aesenc	  \TMP1, \XMM2
+	aesenc	  \TMP1, \XMM3
+	aesenc	  \TMP1, \XMM4
+	movaps 0x20(%arg1), \TMP1
+	aesenc	  \TMP1, \XMM1              # Round 2
+	aesenc	  \TMP1, \XMM2
+	aesenc	  \TMP1, \XMM3
+	aesenc	  \TMP1, \XMM4
+>>>>>>> upstream/android-13
 	movdqa	  \XMM6, \TMP1
 	pshufd	  $78, \XMM6, \TMP2
 	pxor	  \XMM6, \TMP2
 	movdqu	  HashKey_3(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1           # TMP1 = a1 * b1
 	movaps 0x30(%arg1), \TMP3
 	AESENC    \TMP3, \XMM1              # Round 3
@@ -1051,6 +1295,27 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP3, \XMM2
 	AESENC	  \TMP3, \XMM3
 	AESENC	  \TMP3, \XMM4
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1       # TMP1 = a1 * b1
+	movaps 0x30(%arg1), \TMP3
+	aesenc    \TMP3, \XMM1              # Round 3
+	aesenc    \TMP3, \XMM2
+	aesenc    \TMP3, \XMM3
+	aesenc    \TMP3, \XMM4
+	pclmulqdq $0x00, \TMP5, \XMM6       # XMM6 = a0*b0
+	movaps 0x40(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 4
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	movdqu	  HashKey_3_k(%arg2), \TMP5
+	pclmulqdq $0x00, \TMP5, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+	movaps 0x50(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 5
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+>>>>>>> upstream/android-13
 	pxor	  \TMP1, \TMP4
 # accumulate the results in TMP4:XMM5, TMP6 holds the middle part
 	pxor	  \XMM6, \XMM5
@@ -1062,6 +1327,7 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 
         # Multiply TMP5 * HashKey using karatsuba
 
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1           # TMP1 = a1*b1
 	movaps 0x60(%arg1), \TMP3
 	AESENC	  \TMP3, \XMM1              # Round 6
@@ -1081,6 +1347,27 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP3, \XMM2
 	AESENC	  \TMP3, \XMM3
 	AESENC	  \TMP3, \XMM4
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1       # TMP1 = a1*b1
+	movaps 0x60(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 6
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	pclmulqdq $0x00, \TMP5, \XMM7       # XMM7 = a0*b0
+	movaps 0x70(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 7
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	movdqu	  HashKey_2_k(%arg2), \TMP5
+	pclmulqdq $0x00, \TMP5, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+	movaps 0x80(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 8
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+>>>>>>> upstream/android-13
 	pxor	  \TMP1, \TMP4
 # accumulate the results in TMP4:XMM5, TMP6 holds the middle part
 	pxor	  \XMM7, \XMM5
@@ -1093,6 +1380,7 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	pshufd	  $78, \XMM8, \TMP2
 	pxor	  \XMM8, \TMP2
 	movdqu	  HashKey(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1          # TMP1 = a1*b1
 	movaps 0x90(%arg1), \TMP3
 	AESENC	  \TMP3, \XMM1            # Round 9
@@ -1100,6 +1388,15 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP3, \XMM3
 	AESENC	  \TMP3, \XMM4
 	PCLMULQDQ 0x00, \TMP5, \XMM8          # XMM8 = a0*b0
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1      # TMP1 = a1*b1
+	movaps 0x90(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1             # Round 9
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	pclmulqdq $0x00, \TMP5, \XMM8      # XMM8 = a0*b0
+>>>>>>> upstream/android-13
 	lea	  0xa0(%arg1),%r10
 	mov	  keysize,%eax
 	shr	  $2,%eax			# 128->4, 192->6, 256->8
@@ -1109,7 +1406,11 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 aes_loop_par_enc\@:
 	MOVADQ	  (%r10),\TMP3
 .irpc	index, 1234
+<<<<<<< HEAD
 	AESENC	  \TMP3, %xmm\index
+=======
+	aesenc	  \TMP3, %xmm\index
+>>>>>>> upstream/android-13
 .endr
 	add	  $16,%r10
 	sub	  $1,%eax
@@ -1117,12 +1418,21 @@ aes_loop_par_enc\@:
 
 aes_loop_par_enc_done\@:
 	MOVADQ	  (%r10), \TMP3
+<<<<<<< HEAD
 	AESENCLAST \TMP3, \XMM1           # Round 10
 	AESENCLAST \TMP3, \XMM2
 	AESENCLAST \TMP3, \XMM3
 	AESENCLAST \TMP3, \XMM4
 	movdqu    HashKey_k(%arg2), \TMP5
 	PCLMULQDQ 0x00, \TMP5, \TMP2          # TMP2 = (a1+a0)*(b1+b0)
+=======
+	aesenclast \TMP3, \XMM1           # Round 10
+	aesenclast \TMP3, \XMM2
+	aesenclast \TMP3, \XMM3
+	aesenclast \TMP3, \XMM4
+	movdqu    HashKey_k(%arg2), \TMP5
+	pclmulqdq $0x00, \TMP5, \TMP2          # TMP2 = (a1+a0)*(b1+b0)
+>>>>>>> upstream/android-13
 	movdqu	  (%arg4,%r11,1), \TMP3
 	pxor	  \TMP3, \XMM1                 # Ciphertext/Plaintext XOR EK
 	movdqu	  16(%arg4,%r11,1), \TMP3
@@ -1135,10 +1445,17 @@ aes_loop_par_enc_done\@:
         movdqu    \XMM2, 16(%arg3,%r11,1)      # Write to the ciphertext buffer
         movdqu    \XMM3, 32(%arg3,%r11,1)      # Write to the ciphertext buffer
         movdqu    \XMM4, 48(%arg3,%r11,1)      # Write to the ciphertext buffer
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm15, \XMM1        # perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM2	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM3	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM4	# perform a 16 byte swap
+=======
+	pshufb %xmm15, \XMM1        # perform a 16 byte swap
+	pshufb %xmm15, \XMM2	# perform a 16 byte swap
+	pshufb %xmm15, \XMM3	# perform a 16 byte swap
+	pshufb %xmm15, \XMM4	# perform a 16 byte swap
+>>>>>>> upstream/android-13
 
 	pxor	  \TMP4, \TMP1
 	pxor	  \XMM8, \XMM5
@@ -1206,7 +1523,11 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	pxor	  \XMM5, \TMP6
 	paddd     ONE(%rip), \XMM0		# INCR CNT
 	movdqu	  HashKey_4(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP4           # TMP4 = a1*b1
+=======
+	pclmulqdq $0x11, \TMP5, \TMP4           # TMP4 = a1*b1
+>>>>>>> upstream/android-13
 	movdqa    \XMM0, \XMM1
 	paddd     ONE(%rip), \XMM0		# INCR CNT
 	movdqa    \XMM0, \XMM2
@@ -1214,17 +1535,26 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	movdqa    \XMM0, \XMM3
 	paddd     ONE(%rip), \XMM0		# INCR CNT
 	movdqa    \XMM0, \XMM4
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm15, \XMM1	# perform a 16 byte swap
 	PCLMULQDQ 0x00, \TMP5, \XMM5           # XMM5 = a0*b0
 	PSHUFB_XMM %xmm15, \XMM2	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM3	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM4	# perform a 16 byte swap
+=======
+	pshufb %xmm15, \XMM1	# perform a 16 byte swap
+	pclmulqdq $0x00, \TMP5, \XMM5           # XMM5 = a0*b0
+	pshufb %xmm15, \XMM2	# perform a 16 byte swap
+	pshufb %xmm15, \XMM3	# perform a 16 byte swap
+	pshufb %xmm15, \XMM4	# perform a 16 byte swap
+>>>>>>> upstream/android-13
 
 	pxor	  (%arg1), \XMM1
 	pxor	  (%arg1), \XMM2
 	pxor	  (%arg1), \XMM3
 	pxor	  (%arg1), \XMM4
 	movdqu	  HashKey_4_k(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x00, \TMP5, \TMP6           # TMP6 = (a1+a0)*(b1+b0)
 	movaps 0x10(%arg1), \TMP1
 	AESENC	  \TMP1, \XMM1              # Round 1
@@ -1236,10 +1566,24 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP1, \XMM2
 	AESENC	  \TMP1, \XMM3
 	AESENC	  \TMP1, \XMM4
+=======
+	pclmulqdq $0x00, \TMP5, \TMP6       # TMP6 = (a1+a0)*(b1+b0)
+	movaps 0x10(%arg1), \TMP1
+	aesenc	  \TMP1, \XMM1              # Round 1
+	aesenc	  \TMP1, \XMM2
+	aesenc	  \TMP1, \XMM3
+	aesenc	  \TMP1, \XMM4
+	movaps 0x20(%arg1), \TMP1
+	aesenc	  \TMP1, \XMM1              # Round 2
+	aesenc	  \TMP1, \XMM2
+	aesenc	  \TMP1, \XMM3
+	aesenc	  \TMP1, \XMM4
+>>>>>>> upstream/android-13
 	movdqa	  \XMM6, \TMP1
 	pshufd	  $78, \XMM6, \TMP2
 	pxor	  \XMM6, \TMP2
 	movdqu	  HashKey_3(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1           # TMP1 = a1 * b1
 	movaps 0x30(%arg1), \TMP3
 	AESENC    \TMP3, \XMM1              # Round 3
@@ -1259,6 +1603,27 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP3, \XMM2
 	AESENC	  \TMP3, \XMM3
 	AESENC	  \TMP3, \XMM4
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1       # TMP1 = a1 * b1
+	movaps 0x30(%arg1), \TMP3
+	aesenc    \TMP3, \XMM1              # Round 3
+	aesenc    \TMP3, \XMM2
+	aesenc    \TMP3, \XMM3
+	aesenc    \TMP3, \XMM4
+	pclmulqdq $0x00, \TMP5, \XMM6       # XMM6 = a0*b0
+	movaps 0x40(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 4
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	movdqu	  HashKey_3_k(%arg2), \TMP5
+	pclmulqdq $0x00, \TMP5, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+	movaps 0x50(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 5
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+>>>>>>> upstream/android-13
 	pxor	  \TMP1, \TMP4
 # accumulate the results in TMP4:XMM5, TMP6 holds the middle part
 	pxor	  \XMM6, \XMM5
@@ -1270,6 +1635,7 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 
         # Multiply TMP5 * HashKey using karatsuba
 
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1           # TMP1 = a1*b1
 	movaps 0x60(%arg1), \TMP3
 	AESENC	  \TMP3, \XMM1              # Round 6
@@ -1289,6 +1655,27 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP3, \XMM2
 	AESENC	  \TMP3, \XMM3
 	AESENC	  \TMP3, \XMM4
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1       # TMP1 = a1*b1
+	movaps 0x60(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 6
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	pclmulqdq $0x00, \TMP5, \XMM7       # XMM7 = a0*b0
+	movaps 0x70(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 7
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	movdqu	  HashKey_2_k(%arg2), \TMP5
+	pclmulqdq $0x00, \TMP5, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+	movaps 0x80(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1              # Round 8
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+>>>>>>> upstream/android-13
 	pxor	  \TMP1, \TMP4
 # accumulate the results in TMP4:XMM5, TMP6 holds the middle part
 	pxor	  \XMM7, \XMM5
@@ -1301,6 +1688,7 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	pshufd	  $78, \XMM8, \TMP2
 	pxor	  \XMM8, \TMP2
 	movdqu	  HashKey(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1          # TMP1 = a1*b1
 	movaps 0x90(%arg1), \TMP3
 	AESENC	  \TMP3, \XMM1            # Round 9
@@ -1308,6 +1696,15 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 	AESENC	  \TMP3, \XMM3
 	AESENC	  \TMP3, \XMM4
 	PCLMULQDQ 0x00, \TMP5, \XMM8          # XMM8 = a0*b0
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1      # TMP1 = a1*b1
+	movaps 0x90(%arg1), \TMP3
+	aesenc	  \TMP3, \XMM1             # Round 9
+	aesenc	  \TMP3, \XMM2
+	aesenc	  \TMP3, \XMM3
+	aesenc	  \TMP3, \XMM4
+	pclmulqdq $0x00, \TMP5, \XMM8      # XMM8 = a0*b0
+>>>>>>> upstream/android-13
 	lea	  0xa0(%arg1),%r10
 	mov	  keysize,%eax
 	shr	  $2,%eax		        # 128->4, 192->6, 256->8
@@ -1317,7 +1714,11 @@ TMP6 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 operation
 aes_loop_par_dec\@:
 	MOVADQ	  (%r10),\TMP3
 .irpc	index, 1234
+<<<<<<< HEAD
 	AESENC	  \TMP3, %xmm\index
+=======
+	aesenc	  \TMP3, %xmm\index
+>>>>>>> upstream/android-13
 .endr
 	add	  $16,%r10
 	sub	  $1,%eax
@@ -1325,12 +1726,21 @@ aes_loop_par_dec\@:
 
 aes_loop_par_dec_done\@:
 	MOVADQ	  (%r10), \TMP3
+<<<<<<< HEAD
 	AESENCLAST \TMP3, \XMM1           # last round
 	AESENCLAST \TMP3, \XMM2
 	AESENCLAST \TMP3, \XMM3
 	AESENCLAST \TMP3, \XMM4
 	movdqu    HashKey_k(%arg2), \TMP5
 	PCLMULQDQ 0x00, \TMP5, \TMP2          # TMP2 = (a1+a0)*(b1+b0)
+=======
+	aesenclast \TMP3, \XMM1           # last round
+	aesenclast \TMP3, \XMM2
+	aesenclast \TMP3, \XMM3
+	aesenclast \TMP3, \XMM4
+	movdqu    HashKey_k(%arg2), \TMP5
+	pclmulqdq $0x00, \TMP5, \TMP2          # TMP2 = (a1+a0)*(b1+b0)
+>>>>>>> upstream/android-13
 	movdqu	  (%arg4,%r11,1), \TMP3
 	pxor	  \TMP3, \XMM1                 # Ciphertext/Plaintext XOR EK
 	movdqu	  \XMM1, (%arg3,%r11,1)        # Write to plaintext buffer
@@ -1347,10 +1757,17 @@ aes_loop_par_dec_done\@:
 	pxor	  \TMP3, \XMM4                 # Ciphertext/Plaintext XOR EK
 	movdqu	  \XMM4, 48(%arg3,%r11,1)      # Write to plaintext buffer
 	movdqa    \TMP3, \XMM4
+<<<<<<< HEAD
 	PSHUFB_XMM %xmm15, \XMM1        # perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM2	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM3	# perform a 16 byte swap
 	PSHUFB_XMM %xmm15, \XMM4	# perform a 16 byte swap
+=======
+	pshufb %xmm15, \XMM1        # perform a 16 byte swap
+	pshufb %xmm15, \XMM2	# perform a 16 byte swap
+	pshufb %xmm15, \XMM3	# perform a 16 byte swap
+	pshufb %xmm15, \XMM4	# perform a 16 byte swap
+>>>>>>> upstream/android-13
 
 	pxor	  \TMP4, \TMP1
 	pxor	  \XMM8, \XMM5
@@ -1406,10 +1823,17 @@ TMP7 XMM1 XMM2 XMM3 XMM4 XMMDst
 	pshufd	  $78, \XMM1, \TMP2
 	pxor	  \XMM1, \TMP2
 	movdqu	  HashKey_4(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP6       # TMP6 = a1*b1
 	PCLMULQDQ 0x00, \TMP5, \XMM1       # XMM1 = a0*b0
 	movdqu	  HashKey_4_k(%arg2), \TMP4
 	PCLMULQDQ 0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+=======
+	pclmulqdq $0x11, \TMP5, \TMP6       # TMP6 = a1*b1
+	pclmulqdq $0x00, \TMP5, \XMM1       # XMM1 = a0*b0
+	movdqu	  HashKey_4_k(%arg2), \TMP4
+	pclmulqdq $0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+>>>>>>> upstream/android-13
 	movdqa	  \XMM1, \XMMDst
 	movdqa	  \TMP2, \XMM1              # result in TMP6, XMMDst, XMM1
 
@@ -1419,10 +1843,17 @@ TMP7 XMM1 XMM2 XMM3 XMM4 XMMDst
 	pshufd	  $78, \XMM2, \TMP2
 	pxor	  \XMM2, \TMP2
 	movdqu	  HashKey_3(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1       # TMP1 = a1*b1
 	PCLMULQDQ 0x00, \TMP5, \XMM2       # XMM2 = a0*b0
 	movdqu	  HashKey_3_k(%arg2), \TMP4
 	PCLMULQDQ 0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1       # TMP1 = a1*b1
+	pclmulqdq $0x00, \TMP5, \XMM2       # XMM2 = a0*b0
+	movdqu	  HashKey_3_k(%arg2), \TMP4
+	pclmulqdq $0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+>>>>>>> upstream/android-13
 	pxor	  \TMP1, \TMP6
 	pxor	  \XMM2, \XMMDst
 	pxor	  \TMP2, \XMM1
@@ -1434,10 +1865,17 @@ TMP7 XMM1 XMM2 XMM3 XMM4 XMMDst
 	pshufd	  $78, \XMM3, \TMP2
 	pxor	  \XMM3, \TMP2
 	movdqu	  HashKey_2(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1       # TMP1 = a1*b1
 	PCLMULQDQ 0x00, \TMP5, \XMM3       # XMM3 = a0*b0
 	movdqu	  HashKey_2_k(%arg2), \TMP4
 	PCLMULQDQ 0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1       # TMP1 = a1*b1
+	pclmulqdq $0x00, \TMP5, \XMM3       # XMM3 = a0*b0
+	movdqu	  HashKey_2_k(%arg2), \TMP4
+	pclmulqdq $0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+>>>>>>> upstream/android-13
 	pxor	  \TMP1, \TMP6
 	pxor	  \XMM3, \XMMDst
 	pxor	  \TMP2, \XMM1   # results accumulated in TMP6, XMMDst, XMM1
@@ -1447,10 +1885,17 @@ TMP7 XMM1 XMM2 XMM3 XMM4 XMMDst
 	pshufd	  $78, \XMM4, \TMP2
 	pxor	  \XMM4, \TMP2
 	movdqu	  HashKey(%arg2), \TMP5
+<<<<<<< HEAD
 	PCLMULQDQ 0x11, \TMP5, \TMP1	    # TMP1 = a1*b1
 	PCLMULQDQ 0x00, \TMP5, \XMM4       # XMM4 = a0*b0
 	movdqu	  HashKey_k(%arg2), \TMP4
 	PCLMULQDQ 0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+=======
+	pclmulqdq $0x11, \TMP5, \TMP1	    # TMP1 = a1*b1
+	pclmulqdq $0x00, \TMP5, \XMM4       # XMM4 = a0*b0
+	movdqu	  HashKey_k(%arg2), \TMP4
+	pclmulqdq $0x00, \TMP4, \TMP2       # TMP2 = (a1+a0)*(b1+b0)
+>>>>>>> upstream/android-13
 	pxor	  \TMP1, \TMP6
 	pxor	  \XMM4, \XMMDst
 	pxor	  \XMM1, \TMP2
@@ -1508,13 +1953,21 @@ TMP7 XMM1 XMM2 XMM3 XMM4 XMMDst
 
 _esb_loop_\@:
 	MOVADQ		(%r10),\TMP1
+<<<<<<< HEAD
 	AESENC		\TMP1,\XMM0
+=======
+	aesenc		\TMP1,\XMM0
+>>>>>>> upstream/android-13
 	add		$16,%r10
 	sub		$1,%eax
 	jnz		_esb_loop_\@
 
 	MOVADQ		(%r10),\TMP1
+<<<<<<< HEAD
 	AESENCLAST	\TMP1,\XMM0
+=======
+	aesenclast	\TMP1,\XMM0
+>>>>>>> upstream/android-13
 .endm
 /*****************************************************************************
 * void aesni_gcm_dec(void *aes_ctx,    // AES Key schedule. Starts on a 16 byte boundary.
@@ -1596,15 +2049,24 @@ _esb_loop_\@:
 * poly = x^128 + x^127 + x^126 + x^121 + 1
 *
 *****************************************************************************/
+<<<<<<< HEAD
 ENTRY(aesni_gcm_dec)
+=======
+SYM_FUNC_START(aesni_gcm_dec)
+>>>>>>> upstream/android-13
 	FUNC_SAVE
 
 	GCM_INIT %arg6, arg7, arg8, arg9
 	GCM_ENC_DEC dec
 	GCM_COMPLETE arg10, arg11
 	FUNC_RESTORE
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_gcm_dec)
+=======
+	RET
+SYM_FUNC_END(aesni_gcm_dec)
+>>>>>>> upstream/android-13
 
 
 /*****************************************************************************
@@ -1684,7 +2146,11 @@ ENDPROC(aesni_gcm_dec)
 *
 * poly = x^128 + x^127 + x^126 + x^121 + 1
 ***************************************************************************/
+<<<<<<< HEAD
 ENTRY(aesni_gcm_enc)
+=======
+SYM_FUNC_START(aesni_gcm_enc)
+>>>>>>> upstream/android-13
 	FUNC_SAVE
 
 	GCM_INIT %arg6, arg7, arg8, arg9
@@ -1692,8 +2158,13 @@ ENTRY(aesni_gcm_enc)
 
 	GCM_COMPLETE arg10, arg11
 	FUNC_RESTORE
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_gcm_enc)
+=======
+	RET
+SYM_FUNC_END(aesni_gcm_enc)
+>>>>>>> upstream/android-13
 
 /*****************************************************************************
 * void aesni_gcm_init(void *aes_ctx,      // AES Key schedule. Starts on a 16 byte boundary.
@@ -1706,12 +2177,21 @@ ENDPROC(aesni_gcm_enc)
 *                     const u8 *aad,      // Additional Authentication Data (AAD)
 *                     u64 aad_len)        // Length of AAD in bytes.
 */
+<<<<<<< HEAD
 ENTRY(aesni_gcm_init)
 	FUNC_SAVE
 	GCM_INIT %arg3, %arg4,%arg5, %arg6
 	FUNC_RESTORE
 	ret
 ENDPROC(aesni_gcm_init)
+=======
+SYM_FUNC_START(aesni_gcm_init)
+	FUNC_SAVE
+	GCM_INIT %arg3, %arg4,%arg5, %arg6
+	FUNC_RESTORE
+	RET
+SYM_FUNC_END(aesni_gcm_init)
+>>>>>>> upstream/android-13
 
 /*****************************************************************************
 * void aesni_gcm_enc_update(void *aes_ctx,      // AES Key schedule. Starts on a 16 byte boundary.
@@ -1721,12 +2201,21 @@ ENDPROC(aesni_gcm_init)
 *                    const u8 *in,       // Plaintext input
 *                    u64 plaintext_len,  // Length of data in bytes for encryption.
 */
+<<<<<<< HEAD
 ENTRY(aesni_gcm_enc_update)
 	FUNC_SAVE
 	GCM_ENC_DEC enc
 	FUNC_RESTORE
 	ret
 ENDPROC(aesni_gcm_enc_update)
+=======
+SYM_FUNC_START(aesni_gcm_enc_update)
+	FUNC_SAVE
+	GCM_ENC_DEC enc
+	FUNC_RESTORE
+	RET
+SYM_FUNC_END(aesni_gcm_enc_update)
+>>>>>>> upstream/android-13
 
 /*****************************************************************************
 * void aesni_gcm_dec_update(void *aes_ctx,      // AES Key schedule. Starts on a 16 byte boundary.
@@ -1736,12 +2225,21 @@ ENDPROC(aesni_gcm_enc_update)
 *                    const u8 *in,       // Plaintext input
 *                    u64 plaintext_len,  // Length of data in bytes for encryption.
 */
+<<<<<<< HEAD
 ENTRY(aesni_gcm_dec_update)
 	FUNC_SAVE
 	GCM_ENC_DEC dec
 	FUNC_RESTORE
 	ret
 ENDPROC(aesni_gcm_dec_update)
+=======
+SYM_FUNC_START(aesni_gcm_dec_update)
+	FUNC_SAVE
+	GCM_ENC_DEC dec
+	FUNC_RESTORE
+	RET
+SYM_FUNC_END(aesni_gcm_dec_update)
+>>>>>>> upstream/android-13
 
 /*****************************************************************************
 * void aesni_gcm_finalize(void *aes_ctx,      // AES Key schedule. Starts on a 16 byte boundary.
@@ -1751,19 +2249,33 @@ ENDPROC(aesni_gcm_dec_update)
 *                    u64 auth_tag_len);  // Authenticated Tag Length in bytes. Valid values are 16 (most likely),
 *                                        // 12 or 8.
 */
+<<<<<<< HEAD
 ENTRY(aesni_gcm_finalize)
 	FUNC_SAVE
 	GCM_COMPLETE %arg3 %arg4
 	FUNC_RESTORE
 	ret
 ENDPROC(aesni_gcm_finalize)
+=======
+SYM_FUNC_START(aesni_gcm_finalize)
+	FUNC_SAVE
+	GCM_COMPLETE %arg3 %arg4
+	FUNC_RESTORE
+	RET
+SYM_FUNC_END(aesni_gcm_finalize)
+>>>>>>> upstream/android-13
 
 #endif
 
 
+<<<<<<< HEAD
 .align 4
 _key_expansion_128:
 _key_expansion_256a:
+=======
+SYM_FUNC_START_LOCAL_ALIAS(_key_expansion_128)
+SYM_FUNC_START_LOCAL(_key_expansion_256a)
+>>>>>>> upstream/android-13
 	pshufd $0b11111111, %xmm1, %xmm1
 	shufps $0b00010000, %xmm0, %xmm4
 	pxor %xmm4, %xmm0
@@ -1772,12 +2284,20 @@ _key_expansion_256a:
 	pxor %xmm1, %xmm0
 	movaps %xmm0, (TKEYP)
 	add $0x10, TKEYP
+<<<<<<< HEAD
 	ret
 ENDPROC(_key_expansion_128)
 ENDPROC(_key_expansion_256a)
 
 .align 4
 _key_expansion_192a:
+=======
+	RET
+SYM_FUNC_END(_key_expansion_256a)
+SYM_FUNC_END_ALIAS(_key_expansion_128)
+
+SYM_FUNC_START_LOCAL(_key_expansion_192a)
+>>>>>>> upstream/android-13
 	pshufd $0b01010101, %xmm1, %xmm1
 	shufps $0b00010000, %xmm0, %xmm4
 	pxor %xmm4, %xmm0
@@ -1798,11 +2318,18 @@ _key_expansion_192a:
 	shufps $0b01001110, %xmm2, %xmm1
 	movaps %xmm1, 0x10(TKEYP)
 	add $0x20, TKEYP
+<<<<<<< HEAD
 	ret
 ENDPROC(_key_expansion_192a)
 
 .align 4
 _key_expansion_192b:
+=======
+	RET
+SYM_FUNC_END(_key_expansion_192a)
+
+SYM_FUNC_START_LOCAL(_key_expansion_192b)
+>>>>>>> upstream/android-13
 	pshufd $0b01010101, %xmm1, %xmm1
 	shufps $0b00010000, %xmm0, %xmm4
 	pxor %xmm4, %xmm0
@@ -1818,11 +2345,18 @@ _key_expansion_192b:
 
 	movaps %xmm0, (TKEYP)
 	add $0x10, TKEYP
+<<<<<<< HEAD
 	ret
 ENDPROC(_key_expansion_192b)
 
 .align 4
 _key_expansion_256b:
+=======
+	RET
+SYM_FUNC_END(_key_expansion_192b)
+
+SYM_FUNC_START_LOCAL(_key_expansion_256b)
+>>>>>>> upstream/android-13
 	pshufd $0b10101010, %xmm1, %xmm1
 	shufps $0b00010000, %xmm2, %xmm4
 	pxor %xmm4, %xmm2
@@ -1831,14 +2365,23 @@ _key_expansion_256b:
 	pxor %xmm1, %xmm2
 	movaps %xmm2, (TKEYP)
 	add $0x10, TKEYP
+<<<<<<< HEAD
 	ret
 ENDPROC(_key_expansion_256b)
+=======
+	RET
+SYM_FUNC_END(_key_expansion_256b)
+>>>>>>> upstream/android-13
 
 /*
  * int aesni_set_key(struct crypto_aes_ctx *ctx, const u8 *in_key,
  *                   unsigned int key_len)
  */
+<<<<<<< HEAD
 ENTRY(aesni_set_key)
+=======
+SYM_FUNC_START(aesni_set_key)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 #ifndef __x86_64__
 	pushl KEYP
@@ -1857,6 +2400,7 @@ ENTRY(aesni_set_key)
 	movups 0x10(UKEYP), %xmm2	# other user key
 	movaps %xmm2, (TKEYP)
 	add $0x10, TKEYP
+<<<<<<< HEAD
 	AESKEYGENASSIST 0x1 %xmm2 %xmm1		# round 1
 	call _key_expansion_256a
 	AESKEYGENASSIST 0x1 %xmm0 %xmm1
@@ -1882,10 +2426,38 @@ ENTRY(aesni_set_key)
 	AESKEYGENASSIST 0x20 %xmm0 %xmm1
 	call _key_expansion_256b
 	AESKEYGENASSIST 0x40 %xmm2 %xmm1	# round 7
+=======
+	aeskeygenassist $0x1, %xmm2, %xmm1	# round 1
+	call _key_expansion_256a
+	aeskeygenassist $0x1, %xmm0, %xmm1
+	call _key_expansion_256b
+	aeskeygenassist $0x2, %xmm2, %xmm1	# round 2
+	call _key_expansion_256a
+	aeskeygenassist $0x2, %xmm0, %xmm1
+	call _key_expansion_256b
+	aeskeygenassist $0x4, %xmm2, %xmm1	# round 3
+	call _key_expansion_256a
+	aeskeygenassist $0x4, %xmm0, %xmm1
+	call _key_expansion_256b
+	aeskeygenassist $0x8, %xmm2, %xmm1	# round 4
+	call _key_expansion_256a
+	aeskeygenassist $0x8, %xmm0, %xmm1
+	call _key_expansion_256b
+	aeskeygenassist $0x10, %xmm2, %xmm1	# round 5
+	call _key_expansion_256a
+	aeskeygenassist $0x10, %xmm0, %xmm1
+	call _key_expansion_256b
+	aeskeygenassist $0x20, %xmm2, %xmm1	# round 6
+	call _key_expansion_256a
+	aeskeygenassist $0x20, %xmm0, %xmm1
+	call _key_expansion_256b
+	aeskeygenassist $0x40, %xmm2, %xmm1	# round 7
+>>>>>>> upstream/android-13
 	call _key_expansion_256a
 	jmp .Ldec_key
 .Lenc_key192:
 	movq 0x10(UKEYP), %xmm2		# other user key
+<<<<<<< HEAD
 	AESKEYGENASSIST 0x1 %xmm2 %xmm1		# round 1
 	call _key_expansion_192a
 	AESKEYGENASSIST 0x2 %xmm2 %xmm1		# round 2
@@ -1923,6 +2495,45 @@ ENTRY(aesni_set_key)
 	AESKEYGENASSIST 0x1b %xmm0 %xmm1	# round 9
 	call _key_expansion_128
 	AESKEYGENASSIST 0x36 %xmm0 %xmm1	# round 10
+=======
+	aeskeygenassist $0x1, %xmm2, %xmm1	# round 1
+	call _key_expansion_192a
+	aeskeygenassist $0x2, %xmm2, %xmm1	# round 2
+	call _key_expansion_192b
+	aeskeygenassist $0x4, %xmm2, %xmm1	# round 3
+	call _key_expansion_192a
+	aeskeygenassist $0x8, %xmm2, %xmm1	# round 4
+	call _key_expansion_192b
+	aeskeygenassist $0x10, %xmm2, %xmm1	# round 5
+	call _key_expansion_192a
+	aeskeygenassist $0x20, %xmm2, %xmm1	# round 6
+	call _key_expansion_192b
+	aeskeygenassist $0x40, %xmm2, %xmm1	# round 7
+	call _key_expansion_192a
+	aeskeygenassist $0x80, %xmm2, %xmm1	# round 8
+	call _key_expansion_192b
+	jmp .Ldec_key
+.Lenc_key128:
+	aeskeygenassist $0x1, %xmm0, %xmm1	# round 1
+	call _key_expansion_128
+	aeskeygenassist $0x2, %xmm0, %xmm1	# round 2
+	call _key_expansion_128
+	aeskeygenassist $0x4, %xmm0, %xmm1	# round 3
+	call _key_expansion_128
+	aeskeygenassist $0x8, %xmm0, %xmm1	# round 4
+	call _key_expansion_128
+	aeskeygenassist $0x10, %xmm0, %xmm1	# round 5
+	call _key_expansion_128
+	aeskeygenassist $0x20, %xmm0, %xmm1	# round 6
+	call _key_expansion_128
+	aeskeygenassist $0x40, %xmm0, %xmm1	# round 7
+	call _key_expansion_128
+	aeskeygenassist $0x80, %xmm0, %xmm1	# round 8
+	call _key_expansion_128
+	aeskeygenassist $0x1b, %xmm0, %xmm1	# round 9
+	call _key_expansion_128
+	aeskeygenassist $0x36, %xmm0, %xmm1	# round 10
+>>>>>>> upstream/android-13
 	call _key_expansion_128
 .Ldec_key:
 	sub $0x10, TKEYP
@@ -1935,7 +2546,11 @@ ENTRY(aesni_set_key)
 .align 4
 .Ldec_key_loop:
 	movaps (KEYP), %xmm0
+<<<<<<< HEAD
 	AESIMC %xmm0 %xmm1
+=======
+	aesimc %xmm0, %xmm1
+>>>>>>> upstream/android-13
 	movaps %xmm1, (UKEYP)
 	add $0x10, KEYP
 	sub $0x10, UKEYP
@@ -1946,6 +2561,7 @@ ENTRY(aesni_set_key)
 	popl KEYP
 #endif
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_set_key)
 
@@ -1953,6 +2569,15 @@ ENDPROC(aesni_set_key)
  * void aesni_enc(struct crypto_aes_ctx *ctx, u8 *dst, const u8 *src)
  */
 ENTRY(aesni_enc)
+=======
+	RET
+SYM_FUNC_END(aesni_set_key)
+
+/*
+ * void aesni_enc(const void *ctx, u8 *dst, const u8 *src)
+ */
+SYM_FUNC_START(aesni_enc)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 #ifndef __x86_64__
 	pushl KEYP
@@ -1970,8 +2595,13 @@ ENTRY(aesni_enc)
 	popl KEYP
 #endif
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_enc)
+=======
+	RET
+SYM_FUNC_END(aesni_enc)
+>>>>>>> upstream/android-13
 
 /*
  * _aesni_enc1:		internal ABI
@@ -1985,8 +2615,12 @@ ENDPROC(aesni_enc)
  *	KEY
  *	TKEYP (T1)
  */
+<<<<<<< HEAD
 .align 4
 _aesni_enc1:
+=======
+SYM_FUNC_START_LOCAL(_aesni_enc1)
+>>>>>>> upstream/android-13
 	movaps (KEYP), KEY		# key
 	mov KEYP, TKEYP
 	pxor KEY, STATE		# round 0
@@ -1997,6 +2631,7 @@ _aesni_enc1:
 	je .Lenc192
 	add $0x20, TKEYP
 	movaps -0x60(TKEYP), KEY
+<<<<<<< HEAD
 	AESENC KEY STATE
 	movaps -0x50(TKEYP), KEY
 	AESENC KEY STATE
@@ -2030,6 +2665,41 @@ _aesni_enc1:
 	AESENCLAST KEY STATE
 	ret
 ENDPROC(_aesni_enc1)
+=======
+	aesenc KEY, STATE
+	movaps -0x50(TKEYP), KEY
+	aesenc KEY, STATE
+.align 4
+.Lenc192:
+	movaps -0x40(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps -0x30(TKEYP), KEY
+	aesenc KEY, STATE
+.align 4
+.Lenc128:
+	movaps -0x20(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps -0x10(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps (TKEYP), KEY
+	aesenc KEY, STATE
+	movaps 0x10(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps 0x20(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps 0x30(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps 0x40(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps 0x50(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps 0x60(TKEYP), KEY
+	aesenc KEY, STATE
+	movaps 0x70(TKEYP), KEY
+	aesenclast KEY, STATE
+	RET
+SYM_FUNC_END(_aesni_enc1)
+>>>>>>> upstream/android-13
 
 /*
  * _aesni_enc4:	internal ABI
@@ -2049,8 +2719,12 @@ ENDPROC(_aesni_enc1)
  *	KEY
  *	TKEYP (T1)
  */
+<<<<<<< HEAD
 .align 4
 _aesni_enc4:
+=======
+SYM_FUNC_START_LOCAL(_aesni_enc4)
+>>>>>>> upstream/android-13
 	movaps (KEYP), KEY		# key
 	mov KEYP, TKEYP
 	pxor KEY, STATE1		# round 0
@@ -2064,6 +2738,7 @@ _aesni_enc4:
 	je .L4enc192
 	add $0x20, TKEYP
 	movaps -0x60(TKEYP), KEY
+<<<<<<< HEAD
 	AESENC KEY STATE1
 	AESENC KEY STATE2
 	AESENC KEY STATE3
@@ -2144,6 +2819,88 @@ ENDPROC(_aesni_enc4)
  * void aesni_dec (struct crypto_aes_ctx *ctx, u8 *dst, const u8 *src)
  */
 ENTRY(aesni_dec)
+=======
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps -0x50(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+#.align 4
+.L4enc192:
+	movaps -0x40(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps -0x30(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+#.align 4
+.L4enc128:
+	movaps -0x20(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps -0x10(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps (TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps 0x10(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps 0x20(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps 0x30(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps 0x40(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps 0x50(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps 0x60(TKEYP), KEY
+	aesenc KEY, STATE1
+	aesenc KEY, STATE2
+	aesenc KEY, STATE3
+	aesenc KEY, STATE4
+	movaps 0x70(TKEYP), KEY
+	aesenclast KEY, STATE1		# last round
+	aesenclast KEY, STATE2
+	aesenclast KEY, STATE3
+	aesenclast KEY, STATE4
+	RET
+SYM_FUNC_END(_aesni_enc4)
+
+/*
+ * void aesni_dec (const void *ctx, u8 *dst, const u8 *src)
+ */
+SYM_FUNC_START(aesni_dec)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 #ifndef __x86_64__
 	pushl KEYP
@@ -2162,8 +2919,13 @@ ENTRY(aesni_dec)
 	popl KEYP
 #endif
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_dec)
+=======
+	RET
+SYM_FUNC_END(aesni_dec)
+>>>>>>> upstream/android-13
 
 /*
  * _aesni_dec1:		internal ABI
@@ -2177,8 +2939,12 @@ ENDPROC(aesni_dec)
  *	KEY
  *	TKEYP (T1)
  */
+<<<<<<< HEAD
 .align 4
 _aesni_dec1:
+=======
+SYM_FUNC_START_LOCAL(_aesni_dec1)
+>>>>>>> upstream/android-13
 	movaps (KEYP), KEY		# key
 	mov KEYP, TKEYP
 	pxor KEY, STATE		# round 0
@@ -2189,6 +2955,7 @@ _aesni_dec1:
 	je .Ldec192
 	add $0x20, TKEYP
 	movaps -0x60(TKEYP), KEY
+<<<<<<< HEAD
 	AESDEC KEY STATE
 	movaps -0x50(TKEYP), KEY
 	AESDEC KEY STATE
@@ -2222,6 +2989,41 @@ _aesni_dec1:
 	AESDECLAST KEY STATE
 	ret
 ENDPROC(_aesni_dec1)
+=======
+	aesdec KEY, STATE
+	movaps -0x50(TKEYP), KEY
+	aesdec KEY, STATE
+.align 4
+.Ldec192:
+	movaps -0x40(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps -0x30(TKEYP), KEY
+	aesdec KEY, STATE
+.align 4
+.Ldec128:
+	movaps -0x20(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps -0x10(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps (TKEYP), KEY
+	aesdec KEY, STATE
+	movaps 0x10(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps 0x20(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps 0x30(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps 0x40(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps 0x50(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps 0x60(TKEYP), KEY
+	aesdec KEY, STATE
+	movaps 0x70(TKEYP), KEY
+	aesdeclast KEY, STATE
+	RET
+SYM_FUNC_END(_aesni_dec1)
+>>>>>>> upstream/android-13
 
 /*
  * _aesni_dec4:	internal ABI
@@ -2241,8 +3043,12 @@ ENDPROC(_aesni_dec1)
  *	KEY
  *	TKEYP (T1)
  */
+<<<<<<< HEAD
 .align 4
 _aesni_dec4:
+=======
+SYM_FUNC_START_LOCAL(_aesni_dec4)
+>>>>>>> upstream/android-13
 	movaps (KEYP), KEY		# key
 	mov KEYP, TKEYP
 	pxor KEY, STATE1		# round 0
@@ -2256,6 +3062,7 @@ _aesni_dec4:
 	je .L4dec192
 	add $0x20, TKEYP
 	movaps -0x60(TKEYP), KEY
+<<<<<<< HEAD
 	AESDEC KEY STATE1
 	AESDEC KEY STATE2
 	AESDEC KEY STATE3
@@ -2331,12 +3138,93 @@ _aesni_dec4:
 	AESDECLAST KEY STATE4
 	ret
 ENDPROC(_aesni_dec4)
+=======
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps -0x50(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+.align 4
+.L4dec192:
+	movaps -0x40(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps -0x30(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+.align 4
+.L4dec128:
+	movaps -0x20(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps -0x10(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps (TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps 0x10(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps 0x20(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps 0x30(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps 0x40(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps 0x50(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps 0x60(TKEYP), KEY
+	aesdec KEY, STATE1
+	aesdec KEY, STATE2
+	aesdec KEY, STATE3
+	aesdec KEY, STATE4
+	movaps 0x70(TKEYP), KEY
+	aesdeclast KEY, STATE1		# last round
+	aesdeclast KEY, STATE2
+	aesdeclast KEY, STATE3
+	aesdeclast KEY, STATE4
+	RET
+SYM_FUNC_END(_aesni_dec4)
+>>>>>>> upstream/android-13
 
 /*
  * void aesni_ecb_enc(struct crypto_aes_ctx *ctx, const u8 *dst, u8 *src,
  *		      size_t len)
  */
+<<<<<<< HEAD
 ENTRY(aesni_ecb_enc)
+=======
+SYM_FUNC_START(aesni_ecb_enc)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 #ifndef __x86_64__
 	pushl LEN
@@ -2389,14 +3277,23 @@ ENTRY(aesni_ecb_enc)
 	popl LEN
 #endif
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_ecb_enc)
+=======
+	RET
+SYM_FUNC_END(aesni_ecb_enc)
+>>>>>>> upstream/android-13
 
 /*
  * void aesni_ecb_dec(struct crypto_aes_ctx *ctx, const u8 *dst, u8 *src,
  *		      size_t len);
  */
+<<<<<<< HEAD
 ENTRY(aesni_ecb_dec)
+=======
+SYM_FUNC_START(aesni_ecb_dec)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 #ifndef __x86_64__
 	pushl LEN
@@ -2450,14 +3347,23 @@ ENTRY(aesni_ecb_dec)
 	popl LEN
 #endif
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_ecb_dec)
+=======
+	RET
+SYM_FUNC_END(aesni_ecb_dec)
+>>>>>>> upstream/android-13
 
 /*
  * void aesni_cbc_enc(struct crypto_aes_ctx *ctx, const u8 *dst, u8 *src,
  *		      size_t len, u8 *iv)
  */
+<<<<<<< HEAD
 ENTRY(aesni_cbc_enc)
+=======
+SYM_FUNC_START(aesni_cbc_enc)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 #ifndef __x86_64__
 	pushl IVP
@@ -2494,14 +3400,23 @@ ENTRY(aesni_cbc_enc)
 	popl IVP
 #endif
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_cbc_enc)
+=======
+	RET
+SYM_FUNC_END(aesni_cbc_enc)
+>>>>>>> upstream/android-13
 
 /*
  * void aesni_cbc_dec(struct crypto_aes_ctx *ctx, const u8 *dst, u8 *src,
  *		      size_t len, u8 *iv)
  */
+<<<<<<< HEAD
 ENTRY(aesni_cbc_dec)
+=======
+SYM_FUNC_START(aesni_cbc_dec)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 #ifndef __x86_64__
 	pushl IVP
@@ -2587,6 +3502,7 @@ ENTRY(aesni_cbc_dec)
 	popl IVP
 #endif
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_cbc_dec)
 
@@ -2597,6 +3513,145 @@ ENDPROC(aesni_cbc_dec)
 	.byte 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 .popsection
 
+=======
+	RET
+SYM_FUNC_END(aesni_cbc_dec)
+
+/*
+ * void aesni_cts_cbc_enc(struct crypto_aes_ctx *ctx, const u8 *dst, u8 *src,
+ *			  size_t len, u8 *iv)
+ */
+SYM_FUNC_START(aesni_cts_cbc_enc)
+	FRAME_BEGIN
+#ifndef __x86_64__
+	pushl IVP
+	pushl LEN
+	pushl KEYP
+	pushl KLEN
+	movl (FRAME_OFFSET+20)(%esp), KEYP	# ctx
+	movl (FRAME_OFFSET+24)(%esp), OUTP	# dst
+	movl (FRAME_OFFSET+28)(%esp), INP	# src
+	movl (FRAME_OFFSET+32)(%esp), LEN	# len
+	movl (FRAME_OFFSET+36)(%esp), IVP	# iv
+	lea .Lcts_permute_table, T1
+#else
+	lea .Lcts_permute_table(%rip), T1
+#endif
+	mov 480(KEYP), KLEN
+	movups (IVP), STATE
+	sub $16, LEN
+	mov T1, IVP
+	add $32, IVP
+	add LEN, T1
+	sub LEN, IVP
+	movups (T1), %xmm4
+	movups (IVP), %xmm5
+
+	movups (INP), IN1
+	add LEN, INP
+	movups (INP), IN2
+
+	pxor IN1, STATE
+	call _aesni_enc1
+
+	pshufb %xmm5, IN2
+	pxor STATE, IN2
+	pshufb %xmm4, STATE
+	add OUTP, LEN
+	movups STATE, (LEN)
+
+	movaps IN2, STATE
+	call _aesni_enc1
+	movups STATE, (OUTP)
+
+#ifndef __x86_64__
+	popl KLEN
+	popl KEYP
+	popl LEN
+	popl IVP
+#endif
+	FRAME_END
+	RET
+SYM_FUNC_END(aesni_cts_cbc_enc)
+
+/*
+ * void aesni_cts_cbc_dec(struct crypto_aes_ctx *ctx, const u8 *dst, u8 *src,
+ *			  size_t len, u8 *iv)
+ */
+SYM_FUNC_START(aesni_cts_cbc_dec)
+	FRAME_BEGIN
+#ifndef __x86_64__
+	pushl IVP
+	pushl LEN
+	pushl KEYP
+	pushl KLEN
+	movl (FRAME_OFFSET+20)(%esp), KEYP	# ctx
+	movl (FRAME_OFFSET+24)(%esp), OUTP	# dst
+	movl (FRAME_OFFSET+28)(%esp), INP	# src
+	movl (FRAME_OFFSET+32)(%esp), LEN	# len
+	movl (FRAME_OFFSET+36)(%esp), IVP	# iv
+	lea .Lcts_permute_table, T1
+#else
+	lea .Lcts_permute_table(%rip), T1
+#endif
+	mov 480(KEYP), KLEN
+	add $240, KEYP
+	movups (IVP), IV
+	sub $16, LEN
+	mov T1, IVP
+	add $32, IVP
+	add LEN, T1
+	sub LEN, IVP
+	movups (T1), %xmm4
+
+	movups (INP), STATE
+	add LEN, INP
+	movups (INP), IN1
+
+	call _aesni_dec1
+	movaps STATE, IN2
+	pshufb %xmm4, STATE
+	pxor IN1, STATE
+
+	add OUTP, LEN
+	movups STATE, (LEN)
+
+	movups (IVP), %xmm0
+	pshufb %xmm0, IN1
+	pblendvb IN2, IN1
+	movaps IN1, STATE
+	call _aesni_dec1
+
+	pxor IV, STATE
+	movups STATE, (OUTP)
+
+#ifndef __x86_64__
+	popl KLEN
+	popl KEYP
+	popl LEN
+	popl IVP
+#endif
+	FRAME_END
+	RET
+SYM_FUNC_END(aesni_cts_cbc_dec)
+
+.pushsection .rodata
+.align 16
+.Lcts_permute_table:
+	.byte		0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+	.byte		0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+	.byte		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07
+	.byte		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+	.byte		0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+	.byte		0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
+#ifdef __x86_64__
+.Lbswap_mask:
+	.byte 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+#endif
+.popsection
+
+#ifdef __x86_64__
+>>>>>>> upstream/android-13
 /*
  * _aesni_inc_init:	internal ABI
  *	setup registers used by _aesni_inc
@@ -2608,6 +3663,7 @@ ENDPROC(aesni_cbc_dec)
  *	INC:	== 1, in little endian
  *	BSWAP_MASK == endian swapping mask
  */
+<<<<<<< HEAD
 .align 4
 _aesni_inc_init:
 	movaps .Lbswap_mask, BSWAP_MASK
@@ -2618,6 +3674,17 @@ _aesni_inc_init:
 	MOVQ_R64_XMM CTR TCTR_LOW
 	ret
 ENDPROC(_aesni_inc_init)
+=======
+SYM_FUNC_START_LOCAL(_aesni_inc_init)
+	movaps .Lbswap_mask, BSWAP_MASK
+	movaps IV, CTR
+	pshufb BSWAP_MASK, CTR
+	mov $1, TCTR_LOW
+	movq TCTR_LOW, INC
+	movq CTR, TCTR_LOW
+	RET
+SYM_FUNC_END(_aesni_inc_init)
+>>>>>>> upstream/android-13
 
 /*
  * _aesni_inc:		internal ABI
@@ -2634,8 +3701,12 @@ ENDPROC(_aesni_inc_init)
  *	CTR:	== output IV, in little endian
  *	TCTR_LOW: == lower qword of CTR
  */
+<<<<<<< HEAD
 .align 4
 _aesni_inc:
+=======
+SYM_FUNC_START_LOCAL(_aesni_inc)
+>>>>>>> upstream/android-13
 	paddq INC, CTR
 	add $1, TCTR_LOW
 	jnc .Linc_low
@@ -2644,15 +3715,25 @@ _aesni_inc:
 	psrldq $8, INC
 .Linc_low:
 	movaps CTR, IV
+<<<<<<< HEAD
 	PSHUFB_XMM BSWAP_MASK IV
 	ret
 ENDPROC(_aesni_inc)
+=======
+	pshufb BSWAP_MASK, IV
+	RET
+SYM_FUNC_END(_aesni_inc)
+>>>>>>> upstream/android-13
 
 /*
  * void aesni_ctr_enc(struct crypto_aes_ctx *ctx, const u8 *dst, u8 *src,
  *		      size_t len, u8 *iv)
  */
+<<<<<<< HEAD
 ENTRY(aesni_ctr_enc)
+=======
+SYM_FUNC_START(aesni_ctr_enc)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 	cmp $16, LEN
 	jb .Lctr_enc_just_ret
@@ -2708,8 +3789,21 @@ ENTRY(aesni_ctr_enc)
 	movups IV, (IVP)
 .Lctr_enc_just_ret:
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(aesni_ctr_enc)
+=======
+	RET
+SYM_FUNC_END(aesni_ctr_enc)
+
+#endif
+
+.section	.rodata.cst16.gf128mul_x_ble_mask, "aM", @progbits, 16
+.align 16
+.Lgf128mul_x_ble_mask:
+	.octa 0x00000000000000010000000000000087
+.previous
+>>>>>>> upstream/android-13
 
 /*
  * _aesni_gf128mul_x_ble:		internal ABI
@@ -2723,6 +3817,7 @@ ENDPROC(aesni_ctr_enc)
  *	CTR:	== temporary value
  */
 #define _aesni_gf128mul_x_ble() \
+<<<<<<< HEAD
 	pshufd $0x13, IV, CTR; \
 	paddq IV, IV; \
 	psrad $31, CTR; \
@@ -2752,22 +3847,72 @@ ENTRY(aesni_xts_crypt8)
 	movdqa IV, STATE1
 	movdqu 0x00(INP), INC
 	pxor INC, STATE1
+=======
+	pshufd $0x13, IV, KEY; \
+	paddq IV, IV; \
+	psrad $31, KEY; \
+	pand GF128MUL_MASK, KEY; \
+	pxor KEY, IV;
+
+/*
+ * void aesni_xts_encrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
+ *			  const u8 *src, unsigned int len, le128 *iv)
+ */
+SYM_FUNC_START(aesni_xts_encrypt)
+	FRAME_BEGIN
+#ifndef __x86_64__
+	pushl IVP
+	pushl LEN
+	pushl KEYP
+	pushl KLEN
+	movl (FRAME_OFFSET+20)(%esp), KEYP	# ctx
+	movl (FRAME_OFFSET+24)(%esp), OUTP	# dst
+	movl (FRAME_OFFSET+28)(%esp), INP	# src
+	movl (FRAME_OFFSET+32)(%esp), LEN	# len
+	movl (FRAME_OFFSET+36)(%esp), IVP	# iv
+	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
+#else
+	movdqa .Lgf128mul_x_ble_mask(%rip), GF128MUL_MASK
+#endif
+	movups (IVP), IV
+
+	mov 480(KEYP), KLEN
+
+.Lxts_enc_loop4:
+	sub $64, LEN
+	jl .Lxts_enc_1x
+
+	movdqa IV, STATE1
+	movdqu 0x00(INP), IN
+	pxor IN, STATE1
+>>>>>>> upstream/android-13
 	movdqu IV, 0x00(OUTP)
 
 	_aesni_gf128mul_x_ble()
 	movdqa IV, STATE2
+<<<<<<< HEAD
 	movdqu 0x10(INP), INC
 	pxor INC, STATE2
+=======
+	movdqu 0x10(INP), IN
+	pxor IN, STATE2
+>>>>>>> upstream/android-13
 	movdqu IV, 0x10(OUTP)
 
 	_aesni_gf128mul_x_ble()
 	movdqa IV, STATE3
+<<<<<<< HEAD
 	movdqu 0x20(INP), INC
 	pxor INC, STATE3
+=======
+	movdqu 0x20(INP), IN
+	pxor IN, STATE3
+>>>>>>> upstream/android-13
 	movdqu IV, 0x20(OUTP)
 
 	_aesni_gf128mul_x_ble()
 	movdqa IV, STATE4
+<<<<<<< HEAD
 	movdqu 0x30(INP), INC
 	pxor INC, STATE4
 	movdqu IV, 0x30(OUTP)
@@ -2840,3 +3985,274 @@ ENTRY(aesni_xts_crypt8)
 ENDPROC(aesni_xts_crypt8)
 
 #endif
+=======
+	movdqu 0x30(INP), IN
+	pxor IN, STATE4
+	movdqu IV, 0x30(OUTP)
+
+	call _aesni_enc4
+
+	movdqu 0x00(OUTP), IN
+	pxor IN, STATE1
+	movdqu STATE1, 0x00(OUTP)
+
+	movdqu 0x10(OUTP), IN
+	pxor IN, STATE2
+	movdqu STATE2, 0x10(OUTP)
+
+	movdqu 0x20(OUTP), IN
+	pxor IN, STATE3
+	movdqu STATE3, 0x20(OUTP)
+
+	movdqu 0x30(OUTP), IN
+	pxor IN, STATE4
+	movdqu STATE4, 0x30(OUTP)
+
+	_aesni_gf128mul_x_ble()
+
+	add $64, INP
+	add $64, OUTP
+	test LEN, LEN
+	jnz .Lxts_enc_loop4
+
+.Lxts_enc_ret_iv:
+	movups IV, (IVP)
+
+.Lxts_enc_ret:
+#ifndef __x86_64__
+	popl KLEN
+	popl KEYP
+	popl LEN
+	popl IVP
+#endif
+	FRAME_END
+	RET
+
+.Lxts_enc_1x:
+	add $64, LEN
+	jz .Lxts_enc_ret_iv
+	sub $16, LEN
+	jl .Lxts_enc_cts4
+
+.Lxts_enc_loop1:
+	movdqu (INP), STATE
+	pxor IV, STATE
+	call _aesni_enc1
+	pxor IV, STATE
+	_aesni_gf128mul_x_ble()
+
+	test LEN, LEN
+	jz .Lxts_enc_out
+
+	add $16, INP
+	sub $16, LEN
+	jl .Lxts_enc_cts1
+
+	movdqu STATE, (OUTP)
+	add $16, OUTP
+	jmp .Lxts_enc_loop1
+
+.Lxts_enc_out:
+	movdqu STATE, (OUTP)
+	jmp .Lxts_enc_ret_iv
+
+.Lxts_enc_cts4:
+	movdqa STATE4, STATE
+	sub $16, OUTP
+
+.Lxts_enc_cts1:
+#ifndef __x86_64__
+	lea .Lcts_permute_table, T1
+#else
+	lea .Lcts_permute_table(%rip), T1
+#endif
+	add LEN, INP		/* rewind input pointer */
+	add $16, LEN		/* # bytes in final block */
+	movups (INP), IN1
+
+	mov T1, IVP
+	add $32, IVP
+	add LEN, T1
+	sub LEN, IVP
+	add OUTP, LEN
+
+	movups (T1), %xmm4
+	movaps STATE, IN2
+	pshufb %xmm4, STATE
+	movups STATE, (LEN)
+
+	movups (IVP), %xmm0
+	pshufb %xmm0, IN1
+	pblendvb IN2, IN1
+	movaps IN1, STATE
+
+	pxor IV, STATE
+	call _aesni_enc1
+	pxor IV, STATE
+
+	movups STATE, (OUTP)
+	jmp .Lxts_enc_ret
+SYM_FUNC_END(aesni_xts_encrypt)
+
+/*
+ * void aesni_xts_decrypt(const struct crypto_aes_ctx *ctx, u8 *dst,
+ *			  const u8 *src, unsigned int len, le128 *iv)
+ */
+SYM_FUNC_START(aesni_xts_decrypt)
+	FRAME_BEGIN
+#ifndef __x86_64__
+	pushl IVP
+	pushl LEN
+	pushl KEYP
+	pushl KLEN
+	movl (FRAME_OFFSET+20)(%esp), KEYP	# ctx
+	movl (FRAME_OFFSET+24)(%esp), OUTP	# dst
+	movl (FRAME_OFFSET+28)(%esp), INP	# src
+	movl (FRAME_OFFSET+32)(%esp), LEN	# len
+	movl (FRAME_OFFSET+36)(%esp), IVP	# iv
+	movdqa .Lgf128mul_x_ble_mask, GF128MUL_MASK
+#else
+	movdqa .Lgf128mul_x_ble_mask(%rip), GF128MUL_MASK
+#endif
+	movups (IVP), IV
+
+	mov 480(KEYP), KLEN
+	add $240, KEYP
+
+	test $15, LEN
+	jz .Lxts_dec_loop4
+	sub $16, LEN
+
+.Lxts_dec_loop4:
+	sub $64, LEN
+	jl .Lxts_dec_1x
+
+	movdqa IV, STATE1
+	movdqu 0x00(INP), IN
+	pxor IN, STATE1
+	movdqu IV, 0x00(OUTP)
+
+	_aesni_gf128mul_x_ble()
+	movdqa IV, STATE2
+	movdqu 0x10(INP), IN
+	pxor IN, STATE2
+	movdqu IV, 0x10(OUTP)
+
+	_aesni_gf128mul_x_ble()
+	movdqa IV, STATE3
+	movdqu 0x20(INP), IN
+	pxor IN, STATE3
+	movdqu IV, 0x20(OUTP)
+
+	_aesni_gf128mul_x_ble()
+	movdqa IV, STATE4
+	movdqu 0x30(INP), IN
+	pxor IN, STATE4
+	movdqu IV, 0x30(OUTP)
+
+	call _aesni_dec4
+
+	movdqu 0x00(OUTP), IN
+	pxor IN, STATE1
+	movdqu STATE1, 0x00(OUTP)
+
+	movdqu 0x10(OUTP), IN
+	pxor IN, STATE2
+	movdqu STATE2, 0x10(OUTP)
+
+	movdqu 0x20(OUTP), IN
+	pxor IN, STATE3
+	movdqu STATE3, 0x20(OUTP)
+
+	movdqu 0x30(OUTP), IN
+	pxor IN, STATE4
+	movdqu STATE4, 0x30(OUTP)
+
+	_aesni_gf128mul_x_ble()
+
+	add $64, INP
+	add $64, OUTP
+	test LEN, LEN
+	jnz .Lxts_dec_loop4
+
+.Lxts_dec_ret_iv:
+	movups IV, (IVP)
+
+.Lxts_dec_ret:
+#ifndef __x86_64__
+	popl KLEN
+	popl KEYP
+	popl LEN
+	popl IVP
+#endif
+	FRAME_END
+	RET
+
+.Lxts_dec_1x:
+	add $64, LEN
+	jz .Lxts_dec_ret_iv
+
+.Lxts_dec_loop1:
+	movdqu (INP), STATE
+
+	add $16, INP
+	sub $16, LEN
+	jl .Lxts_dec_cts1
+
+	pxor IV, STATE
+	call _aesni_dec1
+	pxor IV, STATE
+	_aesni_gf128mul_x_ble()
+
+	test LEN, LEN
+	jz .Lxts_dec_out
+
+	movdqu STATE, (OUTP)
+	add $16, OUTP
+	jmp .Lxts_dec_loop1
+
+.Lxts_dec_out:
+	movdqu STATE, (OUTP)
+	jmp .Lxts_dec_ret_iv
+
+.Lxts_dec_cts1:
+	movdqa IV, STATE4
+	_aesni_gf128mul_x_ble()
+
+	pxor IV, STATE
+	call _aesni_dec1
+	pxor IV, STATE
+
+#ifndef __x86_64__
+	lea .Lcts_permute_table, T1
+#else
+	lea .Lcts_permute_table(%rip), T1
+#endif
+	add LEN, INP		/* rewind input pointer */
+	add $16, LEN		/* # bytes in final block */
+	movups (INP), IN1
+
+	mov T1, IVP
+	add $32, IVP
+	add LEN, T1
+	sub LEN, IVP
+	add OUTP, LEN
+
+	movups (T1), %xmm4
+	movaps STATE, IN2
+	pshufb %xmm4, STATE
+	movups STATE, (LEN)
+
+	movups (IVP), %xmm0
+	pshufb %xmm0, IN1
+	pblendvb IN2, IN1
+	movaps IN1, STATE
+
+	pxor STATE4, STATE
+	call _aesni_dec1
+	pxor STATE4, STATE
+
+	movups STATE, (OUTP)
+	jmp .Lxts_dec_ret
+SYM_FUNC_END(aesni_xts_decrypt)
+>>>>>>> upstream/android-13

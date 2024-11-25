@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * helper functions for vmalloc video4linux capture buffers
  *
@@ -6,11 +10,15 @@
  * into PAGE_SIZE chunks).  They also assume the driver does not need
  * to touch the video data.
  *
+<<<<<<< HEAD
  * (c) 2007 Mauro Carvalho Chehab, <mchehab@kernel.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2
+=======
+ * (c) 2007 Mauro Carvalho Chehab <mchehab@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -18,12 +26,19 @@
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <linux/pci.h>
 #include <linux/vmalloc.h>
 #include <linux/pagemap.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <media/videobuf-vmalloc.h>
 
@@ -171,7 +186,11 @@ static int __videobuf_iolock(struct videobuf_queue *q,
 
 		/* All handling should be done by __videobuf_mmap_mapper() */
 		if (!mem->vaddr) {
+<<<<<<< HEAD
 			printk(KERN_ERR "memory is not alloced/mmapped.\n");
+=======
+			printk(KERN_ERR "memory is not allocated/mmapped.\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 		break;
@@ -196,6 +215,7 @@ static int __videobuf_iolock(struct videobuf_queue *q,
 		}
 		dprintk(1, "vmalloc is at addr %p (%d pages)\n",
 			mem->vaddr, pages);
+<<<<<<< HEAD
 
 #if 0
 		int rc;
@@ -216,6 +236,8 @@ static int __videobuf_iolock(struct videobuf_queue *q,
 		}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 		break;
 	case V4L2_MEMORY_OVERLAY:
 	default:

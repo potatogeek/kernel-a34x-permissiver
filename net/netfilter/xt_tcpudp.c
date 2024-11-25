@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/types.h>
 #include <linux/module.h>

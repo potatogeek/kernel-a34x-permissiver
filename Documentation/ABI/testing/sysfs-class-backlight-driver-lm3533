@@ -4,10 +4,19 @@ KernelVersion:	3.5
 Contact:	Johan Hovold <jhovold@gmail.com>
 Description:
 		Get the ALS output channel used as input in
+<<<<<<< HEAD
 		ALS-current-control mode (0, 1), where
 
 		0 - out_current0 (backlight 0)
 		1 - out_current1 (backlight 1)
+=======
+		ALS-current-control mode (0, 1), where:
+
+		==  ==========================
+		0   out_current0 (backlight 0)
+		1   out_current1 (backlight 1)
+		==  ==========================
+>>>>>>> upstream/android-13
 
 What:		/sys/class/backlight/<backlight>/als_en
 Date:		May 2012
@@ -28,16 +37,26 @@ Date:		April 2012
 KernelVersion:	3.5
 Contact:	Johan Hovold <jhovold@gmail.com>
 Description:
+<<<<<<< HEAD
 		Set the brightness-mapping mode (0, 1), where
 
 		0 - exponential mode
 		1 - linear mode
+=======
+		Set the brightness-mapping mode (0, 1), where:
+
+		==  ================
+		0   exponential mode
+		1   linear mode
+		==  ================
+>>>>>>> upstream/android-13
 
 What:		/sys/class/backlight/<backlight>/pwm
 Date:		April 2012
 KernelVersion:	3.5
 Contact:	Johan Hovold <jhovold@gmail.com>
 Description:
+<<<<<<< HEAD
 		Set the PWM-input control mask (5 bits), where
 
 		bit 5 - PWM-input enabled in Zone 4
@@ -46,3 +65,15 @@ Description:
 		bit 2 - PWM-input enabled in Zone 1
 		bit 1 - PWM-input enabled in Zone 0
 		bit 0 - PWM-input enabled
+=======
+		Set the PWM-input control mask (5 bits), where:
+
+		=====   ===========================
+		bit 5   PWM-input enabled in Zone 4
+		bit 4   PWM-input enabled in Zone 3
+		bit 3   PWM-input enabled in Zone 2
+		bit 2   PWM-input enabled in Zone 1
+		bit 1   PWM-input enabled in Zone 0
+		bit 0   PWM-input enabled
+		=====   ===========================
+>>>>>>> upstream/android-13

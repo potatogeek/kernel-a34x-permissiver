@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -30,7 +36,11 @@
  * the recommended way for applications to use the coprocessor, and
  * the driver interface is not intended for general use.
  *
+<<<<<<< HEAD
  * See Documentation/sparc/oradax/oracle-dax.txt for more details.
+=======
+ * See Documentation/sparc/oradax/oracle-dax.rst for more details.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/uaccess.h>
@@ -422,9 +432,13 @@ static void dax_unlock_pages(struct dax_ctx *ctx, int ccb_index, int nelem)
 
 			if (p) {
 				dax_dbg("freeing page %p", p);
+<<<<<<< HEAD
 				if (j == OUT)
 					set_page_dirty(p);
 				put_page(p);
+=======
+				unpin_user_pages_dirty_lock(&p, 1, j == OUT);
+>>>>>>> upstream/android-13
 				ctx->pages[i][j] = NULL;
 			}
 		}
@@ -437,13 +451,21 @@ static int dax_lock_page(void *va, struct page **p)
 
 	dax_dbg("uva %p", va);
 
+<<<<<<< HEAD
 	ret = get_user_pages_fast((unsigned long)va, 1, 1, p);
+=======
+	ret = pin_user_pages_fast((unsigned long)va, 1, FOLL_WRITE, p);
+>>>>>>> upstream/android-13
 	if (ret == 1) {
 		dax_dbg("locked page %p, for VA %p", *p, va);
 		return 0;
 	}
 
+<<<<<<< HEAD
 	dax_dbg("get_user_pages failed, va=%p, ret=%d", va, ret);
+=======
+	dax_dbg("pin_user_pages failed, va=%p, ret=%d", va, ret);
+>>>>>>> upstream/android-13
 	return -1;
 }
 

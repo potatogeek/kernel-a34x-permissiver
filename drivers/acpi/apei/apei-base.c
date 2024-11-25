@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * apei-base.c - ACPI Platform Error Interface (APEI) supporting
  * infrastructure
@@ -15,6 +19,7 @@
  *
  * Copyright (C) 2009, Intel Corp.
  *	Author: Huang Ying <ying.huang@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -24,6 +29,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -178,9 +185,15 @@ rewind:
 		if (ip == ctx->ip) {
 			if (entry->instruction >= ctx->instructions ||
 			    !ctx->ins_table[entry->instruction].run) {
+<<<<<<< HEAD
 				pr_warning(FW_WARN APEI_PFX
 			"Invalid action table, unknown instruction type: %d\n",
 					   entry->instruction);
+=======
+				pr_warn(FW_WARN APEI_PFX
+					"Invalid action table, unknown instruction type: %d\n",
+					entry->instruction);
+>>>>>>> upstream/android-13
 				return -EINVAL;
 			}
 			run = ctx->ins_table[entry->instruction].run;
@@ -219,9 +232,15 @@ static int apei_exec_for_each_entry(struct apei_exec_context *ctx,
 		if (end)
 			*end = i;
 		if (ins >= ctx->instructions || !ins_table[ins].run) {
+<<<<<<< HEAD
 			pr_warning(FW_WARN APEI_PFX
 			"Invalid action table, unknown instruction type: %d\n",
 				   ins);
+=======
+			pr_warn(FW_WARN APEI_PFX
+				"Invalid action table, unknown instruction type: %d\n",
+				ins);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 		rc = func(ctx, entry, data);
@@ -295,7 +314,11 @@ struct apei_res {
 };
 
 /* Collect all resources requested, to avoid conflict */
+<<<<<<< HEAD
 struct apei_resources apei_resources_all = {
+=======
+static struct apei_resources apei_resources_all = {
+>>>>>>> upstream/android-13
 	.iomem = LIST_HEAD_INIT(apei_resources_all.iomem),
 	.ioport = LIST_HEAD_INIT(apei_resources_all.ioport),
 };
@@ -587,18 +610,32 @@ static int apei_check_gar(struct acpi_generic_address *reg, u64 *paddr,
 	space_id = reg->space_id;
 	*paddr = get_unaligned(&reg->address);
 	if (!*paddr) {
+<<<<<<< HEAD
 		pr_warning(FW_BUG APEI_PFX
 			   "Invalid physical address in GAR [0x%llx/%u/%u/%u/%u]\n",
 			   *paddr, bit_width, bit_offset, access_size_code,
 			   space_id);
+=======
+		pr_warn(FW_BUG APEI_PFX
+			"Invalid physical address in GAR [0x%llx/%u/%u/%u/%u]\n",
+			*paddr, bit_width, bit_offset, access_size_code,
+			space_id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (access_size_code < 1 || access_size_code > 4) {
+<<<<<<< HEAD
 		pr_warning(FW_BUG APEI_PFX
 			   "Invalid access size code in GAR [0x%llx/%u/%u/%u/%u]\n",
 			   *paddr, bit_width, bit_offset, access_size_code,
 			   space_id);
+=======
+		pr_warn(FW_BUG APEI_PFX
+			"Invalid access size code in GAR [0x%llx/%u/%u/%u/%u]\n",
+			*paddr, bit_width, bit_offset, access_size_code,
+			space_id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	*access_bit_width = 1UL << (access_size_code + 2);
@@ -612,19 +649,33 @@ static int apei_check_gar(struct acpi_generic_address *reg, u64 *paddr,
 		*access_bit_width = 64;
 
 	if ((bit_width + bit_offset) > *access_bit_width) {
+<<<<<<< HEAD
 		pr_warning(FW_BUG APEI_PFX
 			   "Invalid bit width + offset in GAR [0x%llx/%u/%u/%u/%u]\n",
 			   *paddr, bit_width, bit_offset, access_size_code,
 			   space_id);
+=======
+		pr_warn(FW_BUG APEI_PFX
+			"Invalid bit width + offset in GAR [0x%llx/%u/%u/%u/%u]\n",
+			*paddr, bit_width, bit_offset, access_size_code,
+			space_id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY &&
 	    space_id != ACPI_ADR_SPACE_SYSTEM_IO) {
+<<<<<<< HEAD
 		pr_warning(FW_BUG APEI_PFX
 			   "Invalid address space type in GAR [0x%llx/%u/%u/%u/%u]\n",
 			   *paddr, bit_width, bit_offset, access_size_code,
 			   space_id);
+=======
+		pr_warn(FW_BUG APEI_PFX
+			"Invalid address space type in GAR [0x%llx/%u/%u/%u/%u]\n",
+			*paddr, bit_width, bit_offset, access_size_code,
+			space_id);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -640,7 +691,19 @@ int apei_map_generic_address(struct acpi_generic_address *reg)
 	rc = apei_check_gar(reg, &address, &access_bit_width);
 	if (rc)
 		return rc;
+<<<<<<< HEAD
 	return acpi_os_map_generic_address(reg);
+=======
+
+	/* IO space doesn't need mapping */
+	if (reg->space_id == ACPI_ADR_SPACE_SYSTEM_IO)
+		return 0;
+
+	if (!acpi_os_map_generic_address(reg))
+		return -ENXIO;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(apei_map_generic_address);
 

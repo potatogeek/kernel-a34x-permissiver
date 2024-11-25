@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Maxime Ripard. All rights reserved.
  *
@@ -12,6 +13,15 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Maxime Ripard. All rights reserved.
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 
 #include "ccu_common.h"
@@ -610,6 +620,7 @@ static struct ccu_common *sun5i_a10s_ccu_clks[] = {
 	&iep_clk.common,
 };
 
+<<<<<<< HEAD
 /* We hardcode the divider to 1 for now */
 static CLK_FIXED_FACTOR(pll_audio_clk, "pll-audio",
 			"pll-audio-base", 1, 1, CLK_SET_RATE_PARENT);
@@ -623,6 +634,31 @@ static CLK_FIXED_FACTOR(pll_video0_2x_clk, "pll-video0-2x",
 			"pll-video0", 1, 2, CLK_SET_RATE_PARENT);
 static CLK_FIXED_FACTOR(pll_video1_2x_clk, "pll-video1-2x",
 			"pll-video1", 1, 2, CLK_SET_RATE_PARENT);
+=======
+static const struct clk_hw *clk_parent_pll_audio[] = {
+	&pll_audio_base_clk.common.hw
+};
+
+/* We hardcode the divider to 1 for now */
+static CLK_FIXED_FACTOR_HWS(pll_audio_clk, "pll-audio",
+			    clk_parent_pll_audio,
+			    1, 1, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HWS(pll_audio_2x_clk, "pll-audio-2x",
+			    clk_parent_pll_audio,
+			    2, 1, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HWS(pll_audio_4x_clk, "pll-audio-4x",
+			    clk_parent_pll_audio,
+			    1, 1, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HWS(pll_audio_8x_clk, "pll-audio-8x",
+			    clk_parent_pll_audio,
+			    1, 2, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HW(pll_video0_2x_clk, "pll-video0-2x",
+			   &pll_video0_clk.common.hw,
+			   1, 2, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HW(pll_video1_2x_clk, "pll-video1-2x",
+			   &pll_video1_clk.common.hw,
+			   1, 2, CLK_SET_RATE_PARENT);
+>>>>>>> upstream/android-13
 
 static struct clk_hw_onecell_data sun5i_a10s_hw_clks = {
 	.hws	= {
@@ -1009,7 +1045,11 @@ static void __init sun5i_ccu_init(struct device_node *node,
 	val &= ~GENMASK(7, 6);
 	writel(val | (2 << 6), reg + SUN5I_AHB_REG);
 
+<<<<<<< HEAD
 	sunxi_ccu_probe(node, reg, desc);
+=======
+	of_sunxi_ccu_probe(node, reg, desc);
+>>>>>>> upstream/android-13
 }
 
 static void __init sun5i_a10s_ccu_setup(struct device_node *node)

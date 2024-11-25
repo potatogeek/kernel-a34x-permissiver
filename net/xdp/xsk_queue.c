@@ -3,6 +3,7 @@
  * Copyright(c) 2018 Intel Corporation.
  */
 
+<<<<<<< HEAD
 #include <linux/slab.h>
 
 #include "xsk_queue.h"
@@ -23,6 +24,23 @@ static u32 xskq_umem_get_ring_size(struct xsk_queue *q)
 static u32 xskq_rxtx_get_ring_size(struct xsk_queue *q)
 {
 	return sizeof(struct xdp_ring) + q->nentries * sizeof(struct xdp_desc);
+=======
+#include <linux/log2.h>
+#include <linux/slab.h>
+#include <linux/overflow.h>
+#include <net/xdp_sock_drv.h>
+
+#include "xsk_queue.h"
+
+static size_t xskq_get_ring_size(struct xsk_queue *q, bool umem_queue)
+{
+	struct xdp_umem_ring *umem_ring;
+	struct xdp_rxtx_ring *rxtx_ring;
+
+	if (umem_queue)
+		return struct_size(umem_ring, desc, q->nentries);
+	return struct_size(rxtx_ring, desc, q->nentries);
+>>>>>>> upstream/android-13
 }
 
 struct xsk_queue *xskq_create(u32 nentries, bool umem_queue)
@@ -40,8 +58,12 @@ struct xsk_queue *xskq_create(u32 nentries, bool umem_queue)
 
 	gfp_flags = GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN |
 		    __GFP_COMP  | __GFP_NORETRY;
+<<<<<<< HEAD
 	size = umem_queue ? xskq_umem_get_ring_size(q) :
 	       xskq_rxtx_get_ring_size(q);
+=======
+	size = xskq_get_ring_size(q, umem_queue);
+>>>>>>> upstream/android-13
 
 	q->ring = (struct xdp_ring *)__get_free_pages(gfp_flags,
 						      get_order(size));

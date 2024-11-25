@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/list.h>
 #include <linux/bitops.h>
@@ -105,6 +110,10 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
 	struct service_hndl *service;
 	struct list_head *list_itr;
 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!hw_data) {
 		dev_err(&GET_DEV(accel_dev),
@@ -122,6 +131,14 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
+=======
+	if (hw_data->init_device && hw_data->init_device(accel_dev)) {
+		dev_err(&GET_DEV(accel_dev), "Failed to initialize device\n");
+		return -EFAULT;
+	}
+
+>>>>>>> upstream/android-13
 	if (hw_data->init_admin_comms && hw_data->init_admin_comms(accel_dev)) {
 		dev_err(&GET_DEV(accel_dev), "Failed initialize admin comms\n");
 		return -EFAULT;
@@ -132,8 +149,11 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	hw_data->enable_ints(accel_dev);
 
+=======
+>>>>>>> upstream/android-13
 	if (adf_ae_init(accel_dev)) {
 		dev_err(&GET_DEV(accel_dev),
 			"Failed to initialise Acceleration Engine\n");
@@ -154,6 +174,16 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
 	}
 	set_bit(ADF_STATUS_IRQ_ALLOCATED, &accel_dev->status);
 
+<<<<<<< HEAD
+=======
+	hw_data->enable_ints(accel_dev);
+	hw_data->enable_error_correction(accel_dev);
+
+	ret = hw_data->enable_pfvf_comms(accel_dev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Subservice initialisation is divided into two stages: init and start.
 	 * This is to facilitate any ordering dependencies between services
@@ -170,9 +200,12 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
 		set_bit(accel_dev->accel_id, service->init_status);
 	}
 
+<<<<<<< HEAD
 	hw_data->enable_error_correction(accel_dev);
 	hw_data->enable_vf2pf_comms(accel_dev);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(adf_dev_init);
@@ -206,6 +239,13 @@ int adf_dev_start(struct adf_accel_dev *accel_dev)
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Set ssm watch dog timer */
+	if (hw_data->set_ssm_wdtimer)
+		hw_data->set_ssm_wdtimer(accel_dev);
+
+>>>>>>> upstream/android-13
 	list_for_each(list_itr, &service_table) {
 		service = list_entry(list_itr, struct service_hndl, list);
 		if (service->event_hld(accel_dev, ADF_EVENT_START)) {

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      	An implementation of a loadable kernel mode driver providing
  *		multiple kernel/user space bidirectional communications links.
  *
  * 		Author: 	Alan Cox <alan@lxorguk.ukuu.org.uk>
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  * 
  *              Adapted to become the Linux 2.0 Coda pseudo device
  *              Peter  Braam  <braam@maths.ox.ac.uk> 
@@ -39,12 +46,19 @@
 #include <linux/device.h>
 #include <linux/pid_namespace.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <linux/poll.h>
 #include <linux/uaccess.h>
 
 #include <linux/coda.h>
 #include <linux/coda_psdev.h>
 
+=======
+#include <linux/uaccess.h>
+
+#include <linux/coda.h>
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 
 #include "coda_int.h"
@@ -105,8 +119,17 @@ static ssize_t coda_psdev_write(struct file *file, const char __user *buf,
 	ssize_t retval = 0, count = 0;
 	int error;
 
+<<<<<<< HEAD
         /* Peek at the opcode, uniquefier */
 	if (copy_from_user(&hdr, buf, 2 * sizeof(u_long)))
+=======
+	/* make sure there is enough to copy out the (opcode, unique) values */
+	if (nbytes < (2 * sizeof(u_int32_t)))
+		return -EINVAL;
+
+        /* Peek at the opcode, uniquefier */
+	if (copy_from_user(&hdr, buf, 2 * sizeof(u_int32_t)))
+>>>>>>> upstream/android-13
 	        return -EFAULT;
 
         if (DOWNCALL(hdr.opcode)) {
@@ -124,17 +147,33 @@ static ssize_t coda_psdev_write(struct file *file, const char __user *buf,
 				hdr.opcode, hdr.unique);
 		        nbytes = size;
 		}
+<<<<<<< HEAD
 		CODA_ALLOC(dcbuf, union outputArgs *, nbytes);
 		if (copy_from_user(dcbuf, buf, nbytes)) {
 			CODA_FREE(dcbuf, nbytes);
+=======
+		dcbuf = kvmalloc(nbytes, GFP_KERNEL);
+		if (!dcbuf) {
+			retval = -ENOMEM;
+			goto out;
+		}
+		if (copy_from_user(dcbuf, buf, nbytes)) {
+			kvfree(dcbuf);
+>>>>>>> upstream/android-13
 			retval = -EFAULT;
 			goto out;
 		}
 
 		/* what downcall errors does Venus handle ? */
+<<<<<<< HEAD
 		error = coda_downcall(vcp, hdr.opcode, dcbuf);
 
 		CODA_FREE(dcbuf, nbytes);
+=======
+		error = coda_downcall(vcp, hdr.opcode, dcbuf, nbytes);
+
+		kvfree(dcbuf);
+>>>>>>> upstream/android-13
 		if (error) {
 			pr_warn("%s: coda_downcall error: %d\n",
 				__func__, error);
@@ -260,7 +299,11 @@ static ssize_t coda_psdev_read(struct file * file, char __user * buf,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	CODA_FREE(req->uc_data, sizeof(struct coda_in_hdr));
+=======
+	kvfree(req->uc_data);
+>>>>>>> upstream/android-13
 	kfree(req);
 out:
 	mutex_unlock(&vcp->vc_mutex);
@@ -322,7 +365,11 @@ static int coda_psdev_release(struct inode * inode, struct file * file)
 
 		/* Async requests need to be freed here */
 		if (req->uc_flags & CODA_REQ_ASYNC) {
+<<<<<<< HEAD
 			CODA_FREE(req->uc_data, sizeof(struct coda_in_hdr));
+=======
+			kvfree(req->uc_data);
+>>>>>>> upstream/android-13
 			kfree(req);
 			continue;
 		}
@@ -355,13 +402,21 @@ static const struct file_operations coda_psdev_fops = {
 	.llseek		= noop_llseek,
 };
 
+<<<<<<< HEAD
 static int init_coda_psdev(void)
+=======
+static int __init init_coda_psdev(void)
+>>>>>>> upstream/android-13
 {
 	int i, err = 0;
 	if (register_chrdev(CODA_PSDEV_MAJOR, "coda", &coda_psdev_fops)) {
 		pr_err("%s: unable to get major %d\n",
 		       __func__, CODA_PSDEV_MAJOR);
+<<<<<<< HEAD
               return -EIO;
+=======
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 	coda_psdev_class = class_create(THIS_MODULE, "coda");
 	if (IS_ERR(coda_psdev_class)) {
@@ -386,7 +441,12 @@ MODULE_AUTHOR("Jan Harkes, Peter J. Braam");
 MODULE_DESCRIPTION("Coda Distributed File System VFS interface");
 MODULE_ALIAS_CHARDEV_MAJOR(CODA_PSDEV_MAJOR);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION("6.6");
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+MODULE_VERSION("7.0");
+>>>>>>> upstream/android-13
 
 static int __init init_coda(void)
 {

@@ -27,5 +27,10 @@ static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
 	return channel ? 15 : 14;
 }
 
+<<<<<<< HEAD
+=======
+extern void pcibios_report_status(unsigned int status_mask, int warn);
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif

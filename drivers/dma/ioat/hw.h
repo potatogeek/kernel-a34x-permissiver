@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2004 - 2009 Intel Corporation. All rights reserved.
  *
@@ -13,6 +14,11 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called COPYING.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2004 - 2009 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef _IOAT_HW_H_
 #define _IOAT_HW_H_
@@ -66,11 +72,20 @@
 
 #define PCI_DEVICE_ID_INTEL_IOAT_SKX	0x2021
 
+<<<<<<< HEAD
+=======
+#define PCI_DEVICE_ID_INTEL_IOAT_ICX	0x0b00
+
+>>>>>>> upstream/android-13
 #define IOAT_VER_1_2            0x12    /* Version 1.2 */
 #define IOAT_VER_2_0            0x20    /* Version 2.0 */
 #define IOAT_VER_3_0            0x30    /* Version 3.0 */
 #define IOAT_VER_3_2            0x32    /* Version 3.2 */
 #define IOAT_VER_3_3            0x33    /* Version 3.3 */
+<<<<<<< HEAD
+=======
+#define IOAT_VER_3_4		0x34	/* Version 3.4 */
+>>>>>>> upstream/android-13
 
 
 int system_has_dca_enabled(struct pci_dev *pdev);

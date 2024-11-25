@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Compare pointer-typed values to NULL rather than 0
 ///
 //# This makes an effort to choose between !x and x == NULL.  !x is used
@@ -7,8 +11,13 @@
 //# include path.
 //
 // Confidence: High
+<<<<<<< HEAD
 // Copyright: (C) 2012 Julia Lawall, INRIA/LIP6.  GPLv2.
 // Copyright: (C) 2012 Gilles Muller, INRIA/LiP6.  GPLv2.
+=======
+// Copyright: (C) 2012 Julia Lawall, INRIA/LIP6.
+// Copyright: (C) 2012 Gilles Muller, INRIA/LiP6.
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Requires: 1.0.0
 // Options:

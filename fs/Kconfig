@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # File system configuration
 #
@@ -8,6 +12,15 @@ menu "File systems"
 config DCACHE_WORD_ACCESS
        bool
 
+<<<<<<< HEAD
+=======
+config VALIDATE_FS_PARSER
+	bool "Validate filesystem parameter description"
+	help
+	  Enable this to perform validation of the parameter description for a
+	  filesystem when it is registered.
+
+>>>>>>> upstream/android-13
 if BLOCK
 
 config FS_IOMAP
@@ -33,10 +46,17 @@ source "fs/ocfs2/Kconfig"
 source "fs/btrfs/Kconfig"
 source "fs/nilfs2/Kconfig"
 source "fs/f2fs/Kconfig"
+<<<<<<< HEAD
 source "fs/erofs/Kconfig"
 
 config FS_DAX
 	bool "Direct Access (DAX) support"
+=======
+source "fs/zonefs/Kconfig"
+
+config FS_DAX
+	bool "File system based Direct Access (DAX) support"
+>>>>>>> upstream/android-13
 	depends on MMU
 	depends on !(ARM || MIPS || SPARC)
 	select DEV_PAGEMAP_OPS if (ZONE_DEVICE && !FS_DAX_LIMITED)
@@ -46,8 +66,28 @@ config FS_DAX
 	  Direct Access (DAX) can be used on memory-backed block devices.
 	  If the block device supports DAX and the filesystem supports DAX,
 	  then you can avoid using the pagecache to buffer I/Os.  Turning
+<<<<<<< HEAD
 	  on this option will compile in support for DAX; you will need to
 	  mount the filesystem using the -o dax option.
+=======
+	  on this option will compile in support for DAX.
+
+	  For a DAX device to support file system access it needs to have
+	  struct pages.  For the nfit based NVDIMMs this can be enabled
+	  using the ndctl utility:
+
+		# ndctl create-namespace --force --reconfig=namespace0.0 \
+			--mode=fsdax --map=mem
+
+	  See the 'create-namespace' man page for details on the overhead of
+	  --map=mem:
+	  https://docs.pmem.io/ndctl-user-guide/ndctl-man-pages/ndctl-create-namespace
+
+          For ndctl to work CONFIG_DEV_DAX needs to be enabled as well. For most
+	  file systems DAX support needs to be manually enabled globally or
+	  per-inode using a mount option as well.  See the file documentation in
+	  Documentation/filesystems/dax.rst for details.
+>>>>>>> upstream/android-13
 
 	  If you do not have a block device that is capable of using this,
 	  or if unsure, say N.  Saying Y will increase the size of the kernel
@@ -94,6 +134,7 @@ config FILE_LOCKING
           for filesystems like NFS and for the flock() system
           call. Disabling this option saves about 11k.
 
+<<<<<<< HEAD
 config MANDATORY_FILE_LOCKING
 	bool "Enable Mandatory file locking"
 	depends on FILE_LOCKING
@@ -104,6 +145,8 @@ config MANDATORY_FILE_LOCKING
 
 	  To the best of my knowledge this is dead code that no one cares about.
 
+=======
+>>>>>>> upstream/android-13
 source "fs/crypto/Kconfig"
 
 source "fs/verity/Kconfig"
@@ -119,6 +162,10 @@ source "fs/incfs/Kconfig"
 
 menu "Caches"
 
+<<<<<<< HEAD
+=======
+source "fs/netfs/Kconfig"
+>>>>>>> upstream/android-13
 source "fs/fscache/Kconfig"
 source "fs/cachefiles/Kconfig"
 
@@ -134,11 +181,21 @@ endmenu
 endif # BLOCK
 
 if BLOCK
+<<<<<<< HEAD
 menu "DOS/FAT/NT Filesystems"
 
 source "fs/fat/Kconfig"
 source "fs/sdfat/Kconfig"
 source "fs/ntfs/Kconfig"
+=======
+menu "DOS/FAT/EXFAT/NT Filesystems"
+
+source "fs/fat/Kconfig"
+source "fs/sdfat/Kconfig"
+source "fs/exfat/Kconfig"
+source "fs/ntfs/Kconfig"
+source "fs/ntfs3/Kconfig"
+>>>>>>> upstream/android-13
 
 endmenu
 endif # BLOCK
@@ -160,7 +217,11 @@ config TMPFS
 	  space. If you unmount a tmpfs instance, everything stored therein is
 	  lost.
 
+<<<<<<< HEAD
 	  See <file:Documentation/filesystems/tmpfs.txt> for details.
+=======
+	  See <file:Documentation/filesystems/tmpfs.rst> for details.
+>>>>>>> upstream/android-13
 
 config TMPFS_POSIX_ACL
 	bool "Tmpfs POSIX Access Control Lists"
@@ -195,10 +256,40 @@ config TMPFS_XATTR
 
 	  If unsure, say N.
 
+<<<<<<< HEAD
 config HUGETLBFS
 	bool "HugeTLB file system support"
 	depends on X86 || IA64 || SPARC64 || (S390 && 64BIT) || \
 		   SYS_SUPPORTS_HUGETLBFS || BROKEN
+=======
+config TMPFS_INODE64
+	bool "Use 64-bit ino_t by default in tmpfs"
+	depends on TMPFS && 64BIT
+	default n
+	help
+	  tmpfs has historically used only inode numbers as wide as an unsigned
+	  int. In some cases this can cause wraparound, potentially resulting
+	  in multiple files with the same inode number on a single device. This
+	  option makes tmpfs use the full width of ino_t by default, without
+	  needing to specify the inode64 option when mounting.
+
+	  But if a long-lived tmpfs is to be accessed by 32-bit applications so
+	  ancient that opening a file larger than 2GiB fails with EINVAL, then
+	  the INODE64 config option and inode64 mount option risk operations
+	  failing with EOVERFLOW once 33-bit inode numbers are reached.
+
+	  To override this configured default, use the inode32 or inode64
+	  option when mounting.
+
+	  If unsure, say N.
+
+config ARCH_SUPPORTS_HUGETLBFS
+	def_bool n
+
+config HUGETLBFS
+	bool "HugeTLB file system support"
+	depends on X86 || IA64 || SPARC64 || ARCH_SUPPORTS_HUGETLBFS || BROKEN
+>>>>>>> upstream/android-13
 	help
 	  hugetlbfs is a filesystem backing for HugeTLB pages, based on
 	  ramfs. For architectures that support it, say Y here and read
@@ -209,6 +300,24 @@ config HUGETLBFS
 config HUGETLB_PAGE
 	def_bool HUGETLBFS
 
+<<<<<<< HEAD
+=======
+config HUGETLB_PAGE_FREE_VMEMMAP
+	def_bool HUGETLB_PAGE
+	depends on X86_64
+	depends on SPARSEMEM_VMEMMAP
+
+config HUGETLB_PAGE_FREE_VMEMMAP_DEFAULT_ON
+	bool "Default freeing vmemmap pages of HugeTLB to on"
+	default n
+	depends on HUGETLB_PAGE_FREE_VMEMMAP
+	help
+	  When using HUGETLB_PAGE_FREE_VMEMMAP, the freeing unused vmemmap
+	  pages associated with each HugeTLB page is default off. Say Y here
+	  to enable freeing vmemmap pages of HugeTLB by default. It can then
+	  be disabled on the command line via hugetlb_free_vmemmap=off.
+
+>>>>>>> upstream/android-13
 config MEMFD_CREATE
 	def_bool TMPFS || HUGETLBFS
 
@@ -223,7 +332,11 @@ endmenu
 menuconfig MISC_FILESYSTEMS
 	bool "Miscellaneous filesystems"
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to get to see options for various miscellaneous
 	  filesystems, such as filesystems that came from other
 	  operating systems.
@@ -239,7 +352,10 @@ source "fs/orangefs/Kconfig"
 source "fs/adfs/Kconfig"
 source "fs/affs/Kconfig"
 source "fs/ecryptfs/Kconfig"
+<<<<<<< HEAD
 source "fs/sdcardfs/Kconfig"
+=======
+>>>>>>> upstream/android-13
 source "fs/hfs/Kconfig"
 source "fs/hfsplus/Kconfig"
 source "fs/befs/Kconfig"
@@ -260,17 +376,29 @@ source "fs/romfs/Kconfig"
 source "fs/pstore/Kconfig"
 source "fs/sysv/Kconfig"
 source "fs/ufs/Kconfig"
+<<<<<<< HEAD
 source "fs/exofs/Kconfig"
 
 endif # MISC_FILESYSTEMS
 
 source "fs/exofs/Kconfig.ore"
 
+=======
+source "fs/erofs/Kconfig"
+source "fs/vboxsf/Kconfig"
+
+endif # MISC_FILESYSTEMS
+
+>>>>>>> upstream/android-13
 menuconfig NETWORK_FILESYSTEMS
 	bool "Network File Systems"
 	default y
 	depends on NET
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to get to see options for network filesystems and
 	  filesystem-related networking code, such as NFS daemon and
 	  RPCSEC security modules.
@@ -308,9 +436,27 @@ config NFS_COMMON
 	depends on NFSD || NFS_FS || LOCKD
 	default y
 
+<<<<<<< HEAD
 source "net/sunrpc/Kconfig"
 source "fs/ceph/Kconfig"
 source "fs/cifs/Kconfig"
+=======
+config NFS_V4_2_SSC_HELPER
+	bool
+	default y if NFS_V4_2
+
+source "net/sunrpc/Kconfig"
+source "fs/ceph/Kconfig"
+
+source "fs/cifs/Kconfig"
+source "fs/ksmbd/Kconfig"
+
+config SMBFS_COMMON
+	tristate
+	default y if CIFS=y
+	default m if CIFS=m
+
+>>>>>>> upstream/android-13
 source "fs/coda/Kconfig"
 source "fs/afs/Kconfig"
 source "fs/9p/Kconfig"
@@ -321,4 +467,10 @@ source "fs/nls/Kconfig"
 source "fs/dlm/Kconfig"
 source "fs/unicode/Kconfig"
 
+<<<<<<< HEAD
+=======
+config IO_WQ
+	bool
+
+>>>>>>> upstream/android-13
 endmenu

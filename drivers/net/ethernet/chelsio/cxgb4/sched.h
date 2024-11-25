@@ -52,10 +52,18 @@ enum {
 
 enum sched_fw_ops {
 	SCHED_FW_OP_ADD,
+<<<<<<< HEAD
+=======
+	SCHED_FW_OP_DEL,
+>>>>>>> upstream/android-13
 };
 
 enum sched_bind_type {
 	SCHED_QUEUE,
+<<<<<<< HEAD
+=======
+	SCHED_FLOWC,
+>>>>>>> upstream/android-13
 };
 
 struct sched_queue_entry {
@@ -64,19 +72,36 @@ struct sched_queue_entry {
 	struct ch_sched_queue param;
 };
 
+<<<<<<< HEAD
+=======
+struct sched_flowc_entry {
+	struct list_head list;
+	struct ch_sched_flowc param;
+};
+
+>>>>>>> upstream/android-13
 struct sched_class {
 	u8 state;
 	u8 idx;
 	struct ch_sched_params info;
+<<<<<<< HEAD
 	struct list_head queue_list;
 	spinlock_t lock; /* Per class lock */
+=======
+	enum sched_bind_type bind_type;
+	struct list_head entry_list;
+>>>>>>> upstream/android-13
 	atomic_t refcnt;
 };
 
 struct sched_table {      /* per port scheduling table */
 	u8 sched_size;
+<<<<<<< HEAD
 	rwlock_t rw_lock; /* Table lock */
 	struct sched_class tab[0];
+=======
+	struct sched_class tab[];
+>>>>>>> upstream/android-13
 };
 
 static inline bool can_sched(struct net_device *dev)
@@ -97,6 +122,11 @@ static inline bool valid_class_id(struct net_device *dev, u8 class_id)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+struct sched_class *cxgb4_sched_queue_lookup(struct net_device *dev,
+					     struct ch_sched_queue *p);
+>>>>>>> upstream/android-13
 int cxgb4_sched_class_bind(struct net_device *dev, void *arg,
 			   enum sched_bind_type type);
 int cxgb4_sched_class_unbind(struct net_device *dev, void *arg,
@@ -104,6 +134,10 @@ int cxgb4_sched_class_unbind(struct net_device *dev, void *arg,
 
 struct sched_class *cxgb4_sched_class_alloc(struct net_device *dev,
 					    struct ch_sched_params *p);
+<<<<<<< HEAD
+=======
+void cxgb4_sched_class_free(struct net_device *dev, u8 classid);
+>>>>>>> upstream/android-13
 
 struct sched_table *t4_init_sched(unsigned int size);
 void t4_cleanup_sched(struct adapter *adap);

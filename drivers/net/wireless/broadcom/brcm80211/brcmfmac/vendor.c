@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2014 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
@@ -123,6 +129,10 @@ const struct wiphy_vendor_command brcmf_vendor_cmds[] = {
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV |
 			 WIPHY_VENDOR_CMD_NEED_NETDEV,
+<<<<<<< HEAD
+=======
+		.policy = VENDOR_CMD_RAW_DATA,
+>>>>>>> upstream/android-13
 		.doit = brcmf_cfg80211_vndr_cmds_dcmd_handler
 	},
 };

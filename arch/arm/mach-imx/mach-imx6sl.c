@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
@@ -9,6 +10,14 @@
 
 #include <linux/irqchip.h>
 #include <linux/of.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2013 Freescale Semiconductor, Inc.
+ */
+
+#include <linux/irqchip.h>
+>>>>>>> upstream/android-13
 #include <linux/of_platform.h>
 #include <linux/mfd/syscon.h>
 #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
@@ -50,6 +59,7 @@ static void __init imx6sl_init_late(void)
 
 static void __init imx6sl_init_machine(void)
 {
+<<<<<<< HEAD
 	struct device *parent;
 
 	parent = imx_soc_device_init();
@@ -57,6 +67,9 @@ static void __init imx6sl_init_machine(void)
 		pr_warn("failed to initialize soc device\n");
 
 	of_platform_default_populate(NULL, NULL, parent);
+=======
+	of_platform_default_populate(NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 
 	if (cpu_is_imx6sl())
 		imx6sl_fec_init();

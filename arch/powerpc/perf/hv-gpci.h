@@ -2,6 +2,7 @@
 #ifndef LINUX_POWERPC_PERF_HV_GPCI_H_
 #define LINUX_POWERPC_PERF_HV_GPCI_H_
 
+<<<<<<< HEAD
 #include <linux/types.h>
 
 /* From the document "H_GetPerformanceCounterInfo Interface" v1.07 */
@@ -29,6 +30,8 @@ struct hv_get_perf_counter_info_params {
 	__u8 counter_value[];
 } __packed;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * counter info version => fw version/reference (spec version)
  *

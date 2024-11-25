@@ -35,10 +35,16 @@
 #include <asm/fpu.h>
 #include <linux/uaccess.h>
 #include <asm/traps.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/machdep.h>
 #include <asm/siginfo.h>
 
+=======
+#include <asm/machdep.h>
+#include <asm/siginfo.h>
+#include <asm/tlbflush.h>
+>>>>>>> upstream/android-13
 
 static const char *vec_names[] = {
 	[VEC_RESETSP]	= "RESET SP",
@@ -182,9 +188,14 @@ static inline void access_error060 (struct frame *fp)
 static inline unsigned long probe040(int iswrite, unsigned long addr, int wbs)
 {
 	unsigned long mmusr;
+<<<<<<< HEAD
 	mm_segment_t old_fs = get_fs();
 
 	set_fs(MAKE_MM_SEG(wbs));
+=======
+
+	set_fc(wbs);
+>>>>>>> upstream/android-13
 
 	if (iswrite)
 		asm volatile (".chip 68040; ptestw (%0); .chip 68k" : : "a" (addr));
@@ -193,7 +204,11 @@ static inline unsigned long probe040(int iswrite, unsigned long addr, int wbs)
 
 	asm volatile (".chip 68040; movec %%mmusr,%0; .chip 68k" : "=r" (mmusr));
 
+<<<<<<< HEAD
 	set_fs(old_fs);
+=======
+	set_fc(USER_DATA);
+>>>>>>> upstream/android-13
 
 	return mmusr;
 }
@@ -202,10 +217,15 @@ static inline int do_040writeback1(unsigned short wbs, unsigned long wba,
 				   unsigned long wbd)
 {
 	int res = 0;
+<<<<<<< HEAD
 	mm_segment_t old_fs = get_fs();
 
 	/* set_fs can not be moved, otherwise put_user() may oops */
 	set_fs(MAKE_MM_SEG(wbs));
+=======
+
+	set_fc(wbs);
+>>>>>>> upstream/android-13
 
 	switch (wbs & WBSIZ_040) {
 	case BA_SIZE_BYTE:
@@ -219,9 +239,13 @@ static inline int do_040writeback1(unsigned short wbs, unsigned long wba,
 		break;
 	}
 
+<<<<<<< HEAD
 	/* set_fs can not be moved, otherwise put_user() may oops */
 	set_fs(old_fs);
 
+=======
+	set_fc(USER_DATA);
+>>>>>>> upstream/android-13
 
 	pr_debug("do_040writeback1, res=%d\n", res);
 
@@ -431,7 +455,11 @@ static inline void bus_error030 (struct frame *fp)
 			pr_err("BAD KERNEL BUSERR\n");
 
 			die_if_kernel("Oops", &fp->ptregs,0);
+<<<<<<< HEAD
 			force_sig(SIGKILL, current);
+=======
+			force_sig(SIGKILL);
+>>>>>>> upstream/android-13
 			return;
 		}
 	} else {
@@ -463,7 +491,11 @@ static inline void bus_error030 (struct frame *fp)
 				 !(ssw & RW) ? "write" : "read", addr,
 				 fp->ptregs.pc);
 			die_if_kernel ("Oops", &fp->ptregs, buserr_type);
+<<<<<<< HEAD
 			force_sig (SIGBUS, current);
+=======
+			force_sig (SIGBUS);
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -493,7 +525,11 @@ static inline void bus_error030 (struct frame *fp)
 			do_page_fault (&fp->ptregs, addr, 0);
        } else {
 		pr_debug("protection fault on insn access (segv).\n");
+<<<<<<< HEAD
 		force_sig (SIGSEGV, current);
+=======
+		force_sig (SIGSEGV);
+>>>>>>> upstream/android-13
        }
 }
 #else
@@ -571,7 +607,11 @@ static inline void bus_error030 (struct frame *fp)
 			       !(ssw & RW) ? "write" : "read", addr,
 			       fp->ptregs.pc);
 			die_if_kernel("Oops",&fp->ptregs,mmusr);
+<<<<<<< HEAD
 			force_sig(SIGSEGV, current);
+=======
+			force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 			return;
 		} else {
 #if 0
@@ -598,7 +638,11 @@ static inline void bus_error030 (struct frame *fp)
 #endif
 			pr_debug("Unknown SIGSEGV - 1\n");
 			die_if_kernel("Oops",&fp->ptregs,mmusr);
+<<<<<<< HEAD
 			force_sig(SIGSEGV, current);
+=======
+			force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -621,7 +665,11 @@ static inline void bus_error030 (struct frame *fp)
 	buserr:
 		pr_err("BAD KERNEL BUSERR\n");
 		die_if_kernel("Oops",&fp->ptregs,0);
+<<<<<<< HEAD
 		force_sig(SIGKILL, current);
+=======
+		force_sig(SIGKILL);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -660,7 +708,11 @@ static inline void bus_error030 (struct frame *fp)
 			addr, fp->ptregs.pc);
 		pr_debug("Unknown SIGSEGV - 2\n");
 		die_if_kernel("Oops",&fp->ptregs,mmusr);
+<<<<<<< HEAD
 		force_sig(SIGSEGV, current);
+=======
+		force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -804,20 +856,32 @@ asmlinkage void buserr_c(struct frame *fp)
 	default:
 	  die_if_kernel("bad frame format",&fp->ptregs,0);
 	  pr_debug("Unknown SIGSEGV - 4\n");
+<<<<<<< HEAD
 	  force_sig(SIGSEGV, current);
+=======
+	  force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	}
 }
 
 
 static int kstack_depth_to_print = 48;
 
+<<<<<<< HEAD
 void show_trace(unsigned long *stack)
+=======
+static void show_trace(unsigned long *stack, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long *endstack;
 	unsigned long addr;
 	int i;
 
+<<<<<<< HEAD
 	pr_info("Call Trace:");
+=======
+	printk("%sCall Trace:", loglvl);
+>>>>>>> upstream/android-13
 	addr = (unsigned long)stack + THREAD_SIZE - 1;
 	endstack = (unsigned long *)(addr & -THREAD_SIZE);
 	i = 0;
@@ -846,7 +910,10 @@ void show_trace(unsigned long *stack)
 void show_registers(struct pt_regs *regs)
 {
 	struct frame *fp = (struct frame *)regs;
+<<<<<<< HEAD
 	mm_segment_t old_fs = get_fs();
+=======
+>>>>>>> upstream/android-13
 	u16 c, *cp;
 	unsigned long addr;
 	int i;
@@ -916,6 +983,7 @@ void show_registers(struct pt_regs *regs)
 	default:
 		pr_cont("\n");
 	}
+<<<<<<< HEAD
 	show_stack(NULL, (unsigned long *)addr);
 
 	pr_info("Code:");
@@ -923,6 +991,14 @@ void show_registers(struct pt_regs *regs)
 	cp = (u16 *)regs->pc;
 	for (i = -8; i < 16; i++) {
 		if (get_user(c, cp + i) && i >= 0) {
+=======
+	show_stack(NULL, (unsigned long *)addr, KERN_INFO);
+
+	pr_info("Code:");
+	cp = (u16 *)regs->pc;
+	for (i = -8; i < 16; i++) {
+		if (get_kernel_nofault(c, cp + i) && i >= 0) {
+>>>>>>> upstream/android-13
 			pr_cont(" Bad PC value.");
 			break;
 		}
@@ -931,11 +1007,19 @@ void show_registers(struct pt_regs *regs)
 		else
 			pr_cont(" <%04x>", c);
 	}
+<<<<<<< HEAD
 	set_fs(old_fs);
 	pr_cont("\n");
 }
 
 void show_stack(struct task_struct *task, unsigned long *stack)
+=======
+	pr_cont("\n");
+}
+
+void show_stack(struct task_struct *task, unsigned long *stack,
+		const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long *p;
 	unsigned long *endstack;
@@ -949,7 +1033,11 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 	}
 	endstack = (unsigned long *)(((unsigned long)stack + THREAD_SIZE - 1) & -THREAD_SIZE);
 
+<<<<<<< HEAD
 	pr_info("Stack from %08lx:", (unsigned long)stack);
+=======
+	printk("%sStack from %08lx:", loglvl, (unsigned long)stack);
+>>>>>>> upstream/android-13
 	p = stack;
 	for (i = 0; i < kstack_depth_to_print; i++) {
 		if (p + 1 > endstack)
@@ -959,7 +1047,11 @@ void show_stack(struct task_struct *task, unsigned long *stack)
 		pr_cont(" %08lx", *p++);
 	}
 	pr_cont("\n");
+<<<<<<< HEAD
 	show_trace(stack);
+=======
+	show_trace(stack, loglvl);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1127,7 +1219,11 @@ asmlinkage void trap_c(struct frame *fp)
 		addr = (void __user*) fp->un.fmtb.daddr;
 		break;
 	}
+<<<<<<< HEAD
 	force_sig_fault(sig, si_code, addr, current);
+=======
+	force_sig_fault(sig, si_code, addr);
+>>>>>>> upstream/android-13
 }
 
 void die_if_kernel (char *str, struct pt_regs *fp, int nr)
@@ -1153,12 +1249,20 @@ asmlinkage void set_esp0(unsigned long ssp)
  */
 asmlinkage void fpsp040_die(void)
 {
+<<<<<<< HEAD
 	do_exit(SIGSEGV);
+=======
+	force_exit_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_M68KFPU_EMU
 asmlinkage void fpemu_signal(int signal, int code, void *addr)
 {
+<<<<<<< HEAD
 	force_sig_fault(signal, code, addr, current);
+=======
+	force_sig_fault(signal, code, addr);
+>>>>>>> upstream/android-13
 }
 #endif

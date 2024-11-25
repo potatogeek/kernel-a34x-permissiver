@@ -133,12 +133,20 @@ nv50_instobj_kmap(struct nv50_instobj *iobj, struct nvkm_vmm *vmm)
 	 * into it.  The lock has to be dropped while doing this due
 	 * to the possibility of recursion for page table allocation.
 	 */
+<<<<<<< HEAD
 	mutex_unlock(&subdev->mutex);
+=======
+	mutex_unlock(&imem->base.mutex);
+>>>>>>> upstream/android-13
 	while ((ret = nvkm_vmm_get(vmm, 12, size, &bar))) {
 		/* Evict unused mappings, and keep retrying until we either
 		 * succeed,or there's no more objects left on the LRU.
 		 */
+<<<<<<< HEAD
 		mutex_lock(&subdev->mutex);
+=======
+		mutex_lock(&imem->base.mutex);
+>>>>>>> upstream/android-13
 		eobj = list_first_entry_or_null(&imem->lru, typeof(*eobj), lru);
 		if (eobj) {
 			nvkm_debug(subdev, "evict %016llx %016llx @ %016llx\n",
@@ -151,7 +159,11 @@ nv50_instobj_kmap(struct nv50_instobj *iobj, struct nvkm_vmm *vmm)
 			emap = eobj->map;
 			eobj->map = NULL;
 		}
+<<<<<<< HEAD
 		mutex_unlock(&subdev->mutex);
+=======
+		mutex_unlock(&imem->base.mutex);
+>>>>>>> upstream/android-13
 		if (!eobj)
 			break;
 		iounmap(emap);
@@ -160,12 +172,21 @@ nv50_instobj_kmap(struct nv50_instobj *iobj, struct nvkm_vmm *vmm)
 
 	if (ret == 0)
 		ret = nvkm_memory_map(memory, 0, vmm, bar, NULL, 0);
+<<<<<<< HEAD
 	mutex_lock(&subdev->mutex);
 	if (ret || iobj->bar) {
 		/* We either failed, or another thread beat us. */
 		mutex_unlock(&subdev->mutex);
 		nvkm_vmm_put(vmm, &bar);
 		mutex_lock(&subdev->mutex);
+=======
+	mutex_lock(&imem->base.mutex);
+	if (ret || iobj->bar) {
+		/* We either failed, or another thread beat us. */
+		mutex_unlock(&imem->base.mutex);
+		nvkm_vmm_put(vmm, &bar);
+		mutex_lock(&imem->base.mutex);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -197,7 +218,11 @@ nv50_instobj_release(struct nvkm_memory *memory)
 	wmb();
 	nvkm_bar_flush(subdev->device->bar);
 
+<<<<<<< HEAD
 	if (refcount_dec_and_mutex_lock(&iobj->maps, &subdev->mutex)) {
+=======
+	if (refcount_dec_and_mutex_lock(&iobj->maps, &imem->base.mutex)) {
+>>>>>>> upstream/android-13
 		/* Add the now-unused mapping to the LRU instead of directly
 		 * unmapping it here, in case we need to map it again later.
 		 */
@@ -208,7 +233,11 @@ nv50_instobj_release(struct nvkm_memory *memory)
 
 		/* Switch back to NULL accessors when last map is gone. */
 		iobj->base.memory.ptrs = NULL;
+<<<<<<< HEAD
 		mutex_unlock(&subdev->mutex);
+=======
+		mutex_unlock(&imem->base.mutex);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -227,9 +256,15 @@ nv50_instobj_acquire(struct nvkm_memory *memory)
 	/* Take the lock, and re-check that another thread hasn't
 	 * already mapped the object in the meantime.
 	 */
+<<<<<<< HEAD
 	mutex_lock(&imem->subdev.mutex);
 	if (refcount_inc_not_zero(&iobj->maps)) {
 		mutex_unlock(&imem->subdev.mutex);
+=======
+	mutex_lock(&imem->mutex);
+	if (refcount_inc_not_zero(&iobj->maps)) {
+		mutex_unlock(&imem->mutex);
+>>>>>>> upstream/android-13
 		return iobj->map;
 	}
 
@@ -252,7 +287,11 @@ nv50_instobj_acquire(struct nvkm_memory *memory)
 		refcount_set(&iobj->maps, 1);
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&imem->subdev.mutex);
+=======
+	mutex_unlock(&imem->mutex);
+>>>>>>> upstream/android-13
 	return map;
 }
 
@@ -265,7 +304,11 @@ nv50_instobj_boot(struct nvkm_memory *memory, struct nvkm_vmm *vmm)
 	/* Exclude bootstrapped objects (ie. the page tables for the
 	 * instmem BAR itself) from eviction.
 	 */
+<<<<<<< HEAD
 	mutex_lock(&imem->subdev.mutex);
+=======
+	mutex_lock(&imem->mutex);
+>>>>>>> upstream/android-13
 	if (likely(iobj->lru.next)) {
 		list_del_init(&iobj->lru);
 		iobj->lru.next = NULL;
@@ -273,7 +316,11 @@ nv50_instobj_boot(struct nvkm_memory *memory, struct nvkm_vmm *vmm)
 
 	nv50_instobj_kmap(iobj, vmm);
 	nvkm_instmem_boot(imem);
+<<<<<<< HEAD
 	mutex_unlock(&imem->subdev.mutex);
+=======
+	mutex_unlock(&imem->mutex);
+>>>>>>> upstream/android-13
 }
 
 static u64
@@ -288,6 +335,22 @@ nv50_instobj_addr(struct nvkm_memory *memory)
 	return nvkm_memory_addr(nv50_instobj(memory)->ram);
 }
 
+<<<<<<< HEAD
+=======
+static u64
+nv50_instobj_bar2(struct nvkm_memory *memory)
+{
+	struct nv50_instobj *iobj = nv50_instobj(memory);
+	u64 addr = ~0ULL;
+	if (nv50_instobj_acquire(&iobj->base.memory)) {
+		iobj->lru.next = NULL; /* Exclude from eviction. */
+		addr = iobj->bar->addr;
+	}
+	nv50_instobj_release(&iobj->base.memory);
+	return addr;
+}
+
+>>>>>>> upstream/android-13
 static enum nvkm_memory_target
 nv50_instobj_target(struct nvkm_memory *memory)
 {
@@ -302,12 +365,20 @@ nv50_instobj_dtor(struct nvkm_memory *memory)
 	struct nvkm_vma *bar;
 	void *map = map;
 
+<<<<<<< HEAD
 	mutex_lock(&imem->subdev.mutex);
+=======
+	mutex_lock(&imem->mutex);
+>>>>>>> upstream/android-13
 	if (likely(iobj->lru.next))
 		list_del(&iobj->lru);
 	map = iobj->map;
 	bar = iobj->bar;
+<<<<<<< HEAD
 	mutex_unlock(&imem->subdev.mutex);
+=======
+	mutex_unlock(&imem->mutex);
+>>>>>>> upstream/android-13
 
 	if (map) {
 		struct nvkm_vmm *vmm = nvkm_bar_bar2_vmm(imem->subdev.device);
@@ -325,8 +396,14 @@ static const struct nvkm_memory_func
 nv50_instobj_func = {
 	.dtor = nv50_instobj_dtor,
 	.target = nv50_instobj_target,
+<<<<<<< HEAD
 	.size = nv50_instobj_size,
 	.addr = nv50_instobj_addr,
+=======
+	.bar2 = nv50_instobj_bar2,
+	.addr = nv50_instobj_addr,
+	.size = nv50_instobj_size,
+>>>>>>> upstream/android-13
 	.boot = nv50_instobj_boot,
 	.acquire = nv50_instobj_acquire,
 	.release = nv50_instobj_release,
@@ -372,14 +449,22 @@ nv50_instmem = {
 };
 
 int
+<<<<<<< HEAD
 nv50_instmem_new(struct nvkm_device *device, int index,
+=======
+nv50_instmem_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+>>>>>>> upstream/android-13
 		 struct nvkm_instmem **pimem)
 {
 	struct nv50_instmem *imem;
 
 	if (!(imem = kzalloc(sizeof(*imem), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
 	nvkm_instmem_ctor(&nv50_instmem, device, index, &imem->base);
+=======
+	nvkm_instmem_ctor(&nv50_instmem, device, type, inst, &imem->base);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&imem->lru);
 	*pimem = &imem->base;
 	return 0;

@@ -1,17 +1,27 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019 MediaTek Inc.
+=======
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: PC Chen <pc.chen@mediatek.com>
+ *         Tiffany Lin <tiffany.lin@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <media/v4l2-event.h>
 #include <media/v4l2-mem2mem.h>
 #include <media/videobuf2-dma-contig.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "mtk_vcodec_drv.h"
 #include "mtk_vcodec_dec.h"
 #include "mtk_vcodec_intr.h"
 #include "mtk_vcodec_util.h"
+<<<<<<< HEAD
 #include "mtk_vcodec_dec_pm.h"
 #include "vdec_drv_if.h"
 
@@ -82,12 +92,81 @@ static struct mtk_video_fmt *mtk_vdec_find_format(struct mtk_vcodec_ctx *ctx,
 		fmt = &mtk_vdec_formats[k];
 		if (fmt->fourcc == f->fmt.pix_mp.pixelformat &&
 			mtk_vdec_formats[k].type == t)
+=======
+#include "vdec_drv_if.h"
+#include "mtk_vcodec_dec_pm.h"
+
+#define OUT_FMT_IDX	0
+#define CAP_FMT_IDX	3
+
+#define MTK_VDEC_MIN_W	64U
+#define MTK_VDEC_MIN_H	64U
+#define DFT_CFG_WIDTH	MTK_VDEC_MIN_W
+#define DFT_CFG_HEIGHT	MTK_VDEC_MIN_H
+
+static const struct mtk_video_fmt mtk_video_formats[] = {
+	{
+		.fourcc = V4L2_PIX_FMT_H264,
+		.type = MTK_FMT_DEC,
+		.num_planes = 1,
+		.flags = V4L2_FMT_FLAG_DYN_RESOLUTION,
+	},
+	{
+		.fourcc = V4L2_PIX_FMT_VP8,
+		.type = MTK_FMT_DEC,
+		.num_planes = 1,
+		.flags = V4L2_FMT_FLAG_DYN_RESOLUTION,
+	},
+	{
+		.fourcc = V4L2_PIX_FMT_VP9,
+		.type = MTK_FMT_DEC,
+		.num_planes = 1,
+		.flags = V4L2_FMT_FLAG_DYN_RESOLUTION,
+	},
+	{
+		.fourcc = V4L2_PIX_FMT_MT21C,
+		.type = MTK_FMT_FRAME,
+		.num_planes = 2,
+	},
+};
+
+static const struct mtk_codec_framesizes mtk_vdec_framesizes[] = {
+	{
+		.fourcc	= V4L2_PIX_FMT_H264,
+		.stepwise = {  MTK_VDEC_MIN_W, MTK_VDEC_MAX_W, 16,
+				MTK_VDEC_MIN_H, MTK_VDEC_MAX_H, 16 },
+	},
+	{
+		.fourcc	= V4L2_PIX_FMT_VP8,
+		.stepwise = {  MTK_VDEC_MIN_W, MTK_VDEC_MAX_W, 16,
+				MTK_VDEC_MIN_H, MTK_VDEC_MAX_H, 16 },
+	},
+	{
+		.fourcc = V4L2_PIX_FMT_VP9,
+		.stepwise = {  MTK_VDEC_MIN_W, MTK_VDEC_MAX_W, 16,
+				MTK_VDEC_MIN_H, MTK_VDEC_MAX_H, 16 },
+	},
+};
+
+#define NUM_SUPPORTED_FRAMESIZE ARRAY_SIZE(mtk_vdec_framesizes)
+#define NUM_FORMATS ARRAY_SIZE(mtk_video_formats)
+
+static const struct mtk_video_fmt *mtk_vdec_find_format(struct v4l2_format *f)
+{
+	const struct mtk_video_fmt *fmt;
+	unsigned int k;
+
+	for (k = 0; k < NUM_FORMATS; k++) {
+		fmt = &mtk_video_formats[k];
+		if (fmt->fourcc == f->fmt.pix_mp.pixelformat)
+>>>>>>> upstream/android-13
 			return fmt;
 	}
 
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct mtk_video_fmt *mtk_find_fmt_by_pixel(unsigned int pixelformat)
 {
 	struct mtk_video_fmt *fmt;
@@ -109,6 +188,11 @@ static struct mtk_q_data *mtk_vdec_get_q_data(struct mtk_vcodec_ctx *ctx,
 	if (ctx == NULL)
 		return NULL;
 
+=======
+static struct mtk_q_data *mtk_vdec_get_q_data(struct mtk_vcodec_ctx *ctx,
+					      enum v4l2_buf_type type)
+{
+>>>>>>> upstream/android-13
 	if (V4L2_TYPE_IS_OUTPUT(type))
 		return &ctx->q_data[MTK_Q_DATA_SRC];
 
@@ -121,6 +205,7 @@ static struct mtk_q_data *mtk_vdec_get_q_data(struct mtk_vcodec_ctx *ctx,
  * Note the buffers returned from codec driver may still be in driver's
  * reference list.
  */
+<<<<<<< HEAD
 static struct vb2_buffer *get_display_buffer(struct mtk_vcodec_ctx *ctx,
 	bool got_early_eos)
 {
@@ -149,10 +234,30 @@ static struct vb2_buffer *get_display_buffer(struct mtk_vcodec_ctx *ctx,
 	if (!virt_addr_valid(disp_frame_buffer)) {
 		mtk_v4l2_debug(3, "Bad display frame buffer %p",
 			disp_frame_buffer);
+=======
+static struct vb2_buffer *get_display_buffer(struct mtk_vcodec_ctx *ctx)
+{
+	struct vdec_fb *disp_frame_buffer = NULL;
+	struct mtk_video_dec_buf *dstbuf;
+	struct vb2_v4l2_buffer *vb;
+
+	mtk_v4l2_debug(3, "[%d]", ctx->id);
+	if (vdec_if_get_param(ctx,
+			GET_PARAM_DISP_FRAME_BUFFER,
+			&disp_frame_buffer)) {
+		mtk_v4l2_err("[%d]Cannot get param : GET_PARAM_DISP_FRAME_BUFFER",
+			ctx->id);
+		return NULL;
+	}
+
+	if (disp_frame_buffer == NULL) {
+		mtk_v4l2_debug(3, "No display frame buffer");
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
 	dstbuf = container_of(disp_frame_buffer, struct mtk_video_dec_buf,
+<<<<<<< HEAD
 						  frame_buffer);
 	num_planes = dstbuf->vb.vb2_buf.num_planes;
 	mutex_lock(&ctx->buf_lock);
@@ -183,6 +288,29 @@ static struct vb2_buffer *get_display_buffer(struct mtk_vcodec_ctx *ctx,
 	}
 	mutex_unlock(&ctx->buf_lock);
 	return &dstbuf->vb.vb2_buf;
+=======
+				frame_buffer);
+	vb = &dstbuf->m2m_buf.vb;
+	mutex_lock(&ctx->lock);
+	if (dstbuf->used) {
+		vb2_set_plane_payload(&vb->vb2_buf, 0,
+				      ctx->picinfo.fb_sz[0]);
+		if (ctx->q_data[MTK_Q_DATA_DST].fmt->num_planes == 2)
+			vb2_set_plane_payload(&vb->vb2_buf, 1,
+					      ctx->picinfo.fb_sz[1]);
+
+		mtk_v4l2_debug(2,
+				"[%d]status=%x queue id=%d to done_list %d",
+				ctx->id, disp_frame_buffer->status,
+				vb->vb2_buf.index,
+				dstbuf->queued_in_vb2);
+
+		v4l2_m2m_buf_done(vb, VB2_BUF_STATE_DONE);
+		ctx->decoded_frame_cnt++;
+	}
+	mutex_unlock(&ctx->lock);
+	return &vb->vb2_buf;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -197,6 +325,7 @@ static struct vb2_buffer *get_free_buffer(struct mtk_vcodec_ctx *ctx)
 {
 	struct mtk_video_dec_buf *dstbuf;
 	struct vdec_fb *free_frame_buffer = NULL;
+<<<<<<< HEAD
 	int i;
 
 	mutex_lock(&ctx->buf_lock);
@@ -236,6 +365,33 @@ static struct vb2_buffer *get_free_buffer(struct mtk_vcodec_ctx *ctx)
 		if ((dstbuf->queued_in_vb2) &&
 			(dstbuf->queued_in_v4l2) &&
 			(free_frame_buffer->status == FB_ST_FREE)) {
+=======
+	struct vb2_v4l2_buffer *vb;
+
+	if (vdec_if_get_param(ctx,
+				GET_PARAM_FREE_FRAME_BUFFER,
+				&free_frame_buffer)) {
+		mtk_v4l2_err("[%d] Error!! Cannot get param", ctx->id);
+		return NULL;
+	}
+	if (free_frame_buffer == NULL) {
+		mtk_v4l2_debug(3, " No free frame buffer");
+		return NULL;
+	}
+
+	mtk_v4l2_debug(3, "[%d] tmp_frame_addr = 0x%p",
+			ctx->id, free_frame_buffer);
+
+	dstbuf = container_of(free_frame_buffer, struct mtk_video_dec_buf,
+				frame_buffer);
+	vb = &dstbuf->m2m_buf.vb;
+
+	mutex_lock(&ctx->lock);
+	if (dstbuf->used) {
+		if ((dstbuf->queued_in_vb2) &&
+		    (dstbuf->queued_in_v4l2) &&
+		    (free_frame_buffer->status == FB_ST_FREE)) {
+>>>>>>> upstream/android-13
 			/*
 			 * After decode sps/pps or non-display buffer, we don't
 			 * need to return capture buffer to user space, but
@@ -246,11 +402,18 @@ static struct vb2_buffer *get_free_buffer(struct mtk_vcodec_ctx *ctx)
 			mtk_v4l2_debug(2,
 				"[%d]status=%x queue id=%d to rdy_queue %d",
 				ctx->id, free_frame_buffer->status,
+<<<<<<< HEAD
 				dstbuf->vb.vb2_buf.index,
 				dstbuf->queued_in_vb2);
 			v4l2_m2m_buf_queue_check(ctx->m2m_ctx, &dstbuf->vb);
 		} else if ((dstbuf->queued_in_vb2 == false) &&
 				   (dstbuf->queued_in_v4l2 == true)) {
+=======
+				vb->vb2_buf.index,
+				dstbuf->queued_in_vb2);
+			v4l2_m2m_buf_queue(ctx->m2m_ctx, vb);
+		} else if (!dstbuf->queued_in_vb2 && dstbuf->queued_in_v4l2) {
+>>>>>>> upstream/android-13
 			/*
 			 * If buffer in v4l2 driver but not in vb2 queue yet,
 			 * and we get this buffer from free_list, it means
@@ -262,10 +425,17 @@ static struct vb2_buffer *get_free_buffer(struct mtk_vcodec_ctx *ctx)
 			 * output.
 			 */
 			mtk_v4l2_debug(2,
+<<<<<<< HEAD
 				"[%d]status=%x queue id=%d to rdy_queue",
 				ctx->id, free_frame_buffer->status,
 				dstbuf->vb.vb2_buf.index);
 			v4l2_m2m_buf_queue_check(ctx->m2m_ctx, &dstbuf->vb);
+=======
+					"[%d]status=%x queue id=%d to rdy_queue",
+					ctx->id, free_frame_buffer->status,
+					vb->vb2_buf.index);
+			v4l2_m2m_buf_queue(ctx->m2m_ctx, vb);
+>>>>>>> upstream/android-13
 			dstbuf->queued_in_vb2 = true;
 		} else {
 			/*
@@ -276,6 +446,7 @@ static struct vb2_buffer *get_free_buffer(struct mtk_vcodec_ctx *ctx)
 			 * When this buffer q from user space, it could
 			 * directly q to vb2 buffer
 			 */
+<<<<<<< HEAD
 			mtk_v4l2_debug(4, "[%d]status=%x err queue id=%d %d %d",
 				ctx->id, free_frame_buffer->status,
 				dstbuf->vb.vb2_buf.index,
@@ -333,10 +504,26 @@ static struct vb2_buffer *get_free_bs_buffer(struct mtk_vcodec_ctx *ctx,
 
 static void clean_free_bs_buffer(struct mtk_vcodec_ctx *ctx,
 	struct mtk_vcodec_mem *current_bs)
+=======
+			mtk_v4l2_debug(3, "[%d]status=%x err queue id=%d %d %d",
+					ctx->id, free_frame_buffer->status,
+					vb->vb2_buf.index,
+					dstbuf->queued_in_vb2,
+					dstbuf->queued_in_v4l2);
+		}
+		dstbuf->used = false;
+	}
+	mutex_unlock(&ctx->lock);
+	return &vb->vb2_buf;
+}
+
+static void clean_display_buffer(struct mtk_vcodec_ctx *ctx)
+>>>>>>> upstream/android-13
 {
 	struct vb2_buffer *framptr;
 
 	do {
+<<<<<<< HEAD
 		framptr = get_free_bs_buffer(ctx, current_bs);
 	} while (framptr);
 }
@@ -352,6 +539,13 @@ static void clean_display_buffer(struct mtk_vcodec_ctx *ctx, bool got_early_eos)
 }
 
 static void clean_free_fm_buffer(struct mtk_vcodec_ctx *ctx)
+=======
+		framptr = get_display_buffer(ctx);
+	} while (framptr);
+}
+
+static void clean_free_buffer(struct mtk_vcodec_ctx *ctx)
+>>>>>>> upstream/android-13
 {
 	struct vb2_buffer *framptr;
 
@@ -370,6 +564,7 @@ static void mtk_vdec_queue_res_chg_event(struct mtk_vcodec_ctx *ctx)
 
 	mtk_v4l2_debug(1, "[%d]", ctx->id);
 	v4l2_event_queue_fh(&ctx->fh, &ev_src_ch);
+<<<<<<< HEAD
 
 	v4l2_m2m_set_dst_buffered(ctx->m2m_ctx,
 		ctx->input_driven);
@@ -438,6 +633,55 @@ static void mtk_vdec_pic_info_update(struct mtk_vcodec_ctx *ctx)
 		mtk_v4l2_err("[%d]Error!! Cannot get param : GET_PARAM_PICTURE_INFO ERR",
 					 ctx->id);
 		return;
+=======
+}
+
+static void mtk_vdec_flush_decoder(struct mtk_vcodec_ctx *ctx)
+{
+	bool res_chg;
+	int ret = 0;
+
+	ret = vdec_if_decode(ctx, NULL, NULL, &res_chg);
+	if (ret)
+		mtk_v4l2_err("DecodeFinal failed, ret=%d", ret);
+
+	clean_display_buffer(ctx);
+	clean_free_buffer(ctx);
+}
+
+static void mtk_vdec_update_fmt(struct mtk_vcodec_ctx *ctx,
+				unsigned int pixelformat)
+{
+	const struct mtk_video_fmt *fmt;
+	struct mtk_q_data *dst_q_data;
+	unsigned int k;
+
+	dst_q_data = &ctx->q_data[MTK_Q_DATA_DST];
+	for (k = 0; k < NUM_FORMATS; k++) {
+		fmt = &mtk_video_formats[k];
+		if (fmt->fourcc == pixelformat) {
+			mtk_v4l2_debug(1, "Update cap fourcc(%d -> %d)",
+				dst_q_data->fmt->fourcc, pixelformat);
+			dst_q_data->fmt = fmt;
+			return;
+		}
+	}
+
+	mtk_v4l2_err("Cannot get fourcc(%d), using init value", pixelformat);
+}
+
+static int mtk_vdec_pic_info_update(struct mtk_vcodec_ctx *ctx)
+{
+	unsigned int dpbsize = 0;
+	int ret;
+
+	if (vdec_if_get_param(ctx,
+				GET_PARAM_PIC_INFO,
+				&ctx->last_decoded_picinfo)) {
+		mtk_v4l2_err("[%d]Error!! Cannot get param : GET_PARAM_PICTURE_INFO ERR",
+				ctx->id);
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	if (ctx->last_decoded_picinfo.pic_w == 0 ||
@@ -445,6 +689,7 @@ static void mtk_vdec_pic_info_update(struct mtk_vcodec_ctx *ctx)
 		ctx->last_decoded_picinfo.buf_w == 0 ||
 		ctx->last_decoded_picinfo.buf_h == 0) {
 		mtk_v4l2_err("Cannot get correct pic info");
+<<<<<<< HEAD
 		return;
 	}
 
@@ -541,11 +786,40 @@ int mtk_vdec_put_fb(struct mtk_vcodec_ctx *ctx, int type)
 	}
 
 	return 0;
+=======
+		return -EINVAL;
+	}
+
+	if (ctx->last_decoded_picinfo.cap_fourcc != ctx->picinfo.cap_fourcc &&
+		ctx->picinfo.cap_fourcc != 0)
+		mtk_vdec_update_fmt(ctx, ctx->picinfo.cap_fourcc);
+
+	if ((ctx->last_decoded_picinfo.pic_w == ctx->picinfo.pic_w) ||
+	    (ctx->last_decoded_picinfo.pic_h == ctx->picinfo.pic_h))
+		return 0;
+
+	mtk_v4l2_debug(1,
+			"[%d]-> new(%d,%d), old(%d,%d), real(%d,%d)",
+			ctx->id, ctx->last_decoded_picinfo.pic_w,
+			ctx->last_decoded_picinfo.pic_h,
+			ctx->picinfo.pic_w, ctx->picinfo.pic_h,
+			ctx->last_decoded_picinfo.buf_w,
+			ctx->last_decoded_picinfo.buf_h);
+
+	ret = vdec_if_get_param(ctx, GET_PARAM_DPB_SIZE, &dpbsize);
+	if (dpbsize == 0)
+		mtk_v4l2_err("Incorrect dpb size, ret=%d", ret);
+
+	ctx->dpb_size = dpbsize;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void mtk_vdec_worker(struct work_struct *work)
 {
 	struct mtk_vcodec_ctx *ctx = container_of(work, struct mtk_vcodec_ctx,
+<<<<<<< HEAD
 		decode_work);
 	struct mtk_vcodec_dev *dev = ctx->dev;
 	struct vb2_buffer *src_buf, *dst_buf;
@@ -576,15 +850,30 @@ static void mtk_vdec_worker(struct work_struct *work)
 	}
 
 	do_gettimeofday(&worktvstart);
+=======
+				decode_work);
+	struct mtk_vcodec_dev *dev = ctx->dev;
+	struct vb2_v4l2_buffer *src_buf, *dst_buf;
+	struct mtk_vcodec_mem buf;
+	struct vdec_fb *pfb;
+	bool res_chg = false;
+	int ret;
+	struct mtk_video_dec_buf *dst_buf_info, *src_buf_info;
+
+>>>>>>> upstream/android-13
 	src_buf = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
 	if (src_buf == NULL) {
 		v4l2_m2m_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx);
 		mtk_v4l2_debug(1, "[%d] src_buf empty!!", ctx->id);
+<<<<<<< HEAD
 		mutex_unlock(&ctx->worker_lock);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	dst_buf = v4l2_m2m_next_dst_buf(ctx->m2m_ctx);
+<<<<<<< HEAD
 	if (dst_buf == NULL && !ctx->input_driven) {
 		v4l2_m2m_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx);
 		mtk_v4l2_debug(1, "[%d] dst_buf empty!!", ctx->id);
@@ -864,6 +1153,137 @@ static int vidioc_try_decoder_cmd(struct file *file, void *priv,
 		if (cmd->start.speed < 0)
 			cmd->start.speed = 0;
 		cmd->start.format = V4L2_DEC_START_FMT_NONE;
+=======
+	if (dst_buf == NULL) {
+		v4l2_m2m_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx);
+		mtk_v4l2_debug(1, "[%d] dst_buf empty!!", ctx->id);
+		return;
+	}
+
+	src_buf_info = container_of(src_buf, struct mtk_video_dec_buf,
+				    m2m_buf.vb);
+	dst_buf_info = container_of(dst_buf, struct mtk_video_dec_buf,
+				    m2m_buf.vb);
+
+	pfb = &dst_buf_info->frame_buffer;
+	pfb->base_y.va = vb2_plane_vaddr(&dst_buf->vb2_buf, 0);
+	pfb->base_y.dma_addr = vb2_dma_contig_plane_dma_addr(&dst_buf->vb2_buf, 0);
+	pfb->base_y.size = ctx->picinfo.fb_sz[0];
+
+	pfb->base_c.va = vb2_plane_vaddr(&dst_buf->vb2_buf, 1);
+	pfb->base_c.dma_addr = vb2_dma_contig_plane_dma_addr(&dst_buf->vb2_buf, 1);
+	pfb->base_c.size = ctx->picinfo.fb_sz[1];
+	pfb->status = 0;
+	mtk_v4l2_debug(3, "===>[%d] vdec_if_decode() ===>", ctx->id);
+
+	mtk_v4l2_debug(3,
+			"id=%d Framebuf  pfb=%p VA=%p Y_DMA=%pad C_DMA=%pad Size=%zx",
+			dst_buf->vb2_buf.index, pfb,
+			pfb->base_y.va, &pfb->base_y.dma_addr,
+			&pfb->base_c.dma_addr, pfb->base_y.size);
+
+	if (src_buf_info->lastframe) {
+		mtk_v4l2_debug(1, "Got empty flush input buffer.");
+		src_buf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
+
+		/* update dst buf status */
+		dst_buf = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
+		mutex_lock(&ctx->lock);
+		dst_buf_info->used = false;
+		mutex_unlock(&ctx->lock);
+
+		vdec_if_decode(ctx, NULL, NULL, &res_chg);
+		clean_display_buffer(ctx);
+		vb2_set_plane_payload(&dst_buf->vb2_buf, 0, 0);
+		if (ctx->q_data[MTK_Q_DATA_DST].fmt->num_planes == 2)
+			vb2_set_plane_payload(&dst_buf->vb2_buf, 1, 0);
+		dst_buf->flags |= V4L2_BUF_FLAG_LAST;
+		v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_DONE);
+		clean_free_buffer(ctx);
+		v4l2_m2m_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx);
+		return;
+	}
+	buf.va = vb2_plane_vaddr(&src_buf->vb2_buf, 0);
+	buf.dma_addr = vb2_dma_contig_plane_dma_addr(&src_buf->vb2_buf, 0);
+	buf.size = (size_t)src_buf->vb2_buf.planes[0].bytesused;
+	if (!buf.va) {
+		v4l2_m2m_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx);
+		mtk_v4l2_err("[%d] id=%d src_addr is NULL!!",
+				ctx->id, src_buf->vb2_buf.index);
+		return;
+	}
+	mtk_v4l2_debug(3, "[%d] Bitstream VA=%p DMA=%pad Size=%zx vb=%p",
+			ctx->id, buf.va, &buf.dma_addr, buf.size, src_buf);
+	dst_buf->vb2_buf.timestamp = src_buf->vb2_buf.timestamp;
+	dst_buf->timecode = src_buf->timecode;
+	mutex_lock(&ctx->lock);
+	dst_buf_info->used = true;
+	mutex_unlock(&ctx->lock);
+	src_buf_info->used = true;
+
+	ret = vdec_if_decode(ctx, &buf, pfb, &res_chg);
+
+	if (ret) {
+		mtk_v4l2_err(
+			" <===[%d], src_buf[%d] sz=0x%zx pts=%llu dst_buf[%d] vdec_if_decode() ret=%d res_chg=%d===>",
+			ctx->id,
+			src_buf->vb2_buf.index,
+			buf.size,
+			src_buf->vb2_buf.timestamp,
+			dst_buf->vb2_buf.index,
+			ret, res_chg);
+		src_buf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
+		if (ret == -EIO) {
+			mutex_lock(&ctx->lock);
+			src_buf_info->error = true;
+			mutex_unlock(&ctx->lock);
+		}
+		v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_ERROR);
+	} else if (!res_chg) {
+		/*
+		 * we only return src buffer with VB2_BUF_STATE_DONE
+		 * when decode success without resolution change
+		 */
+		src_buf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
+		v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_DONE);
+	}
+
+	dst_buf = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
+	clean_display_buffer(ctx);
+	clean_free_buffer(ctx);
+
+	if (!ret && res_chg) {
+		mtk_vdec_pic_info_update(ctx);
+		/*
+		 * On encountering a resolution change in the stream.
+		 * The driver must first process and decode all
+		 * remaining buffers from before the resolution change
+		 * point, so call flush decode here
+		 */
+		mtk_vdec_flush_decoder(ctx);
+		/*
+		 * After all buffers containing decoded frames from
+		 * before the resolution change point ready to be
+		 * dequeued on the CAPTURE queue, the driver sends a
+		 * V4L2_EVENT_SOURCE_CHANGE event for source change
+		 * type V4L2_EVENT_SRC_CH_RESOLUTION
+		 */
+		mtk_vdec_queue_res_chg_event(ctx);
+	}
+	v4l2_m2m_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx);
+}
+
+static int vidioc_try_decoder_cmd(struct file *file, void *priv,
+				struct v4l2_decoder_cmd *cmd)
+{
+	switch (cmd->cmd) {
+	case V4L2_DEC_CMD_STOP:
+	case V4L2_DEC_CMD_START:
+		if (cmd->flags != 0) {
+			mtk_v4l2_err("cmd->flags=%u", cmd->flags);
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -871,8 +1291,14 @@ static int vidioc_try_decoder_cmd(struct file *file, void *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vidioc_decoder_cmd(struct file *file, void *priv,
 	struct v4l2_decoder_cmd *cmd)
+=======
+
+static int vidioc_decoder_cmd(struct file *file, void *priv,
+				struct v4l2_decoder_cmd *cmd)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 	struct vb2_queue *src_vq, *dst_vq;
@@ -882,6 +1308,7 @@ static int vidioc_decoder_cmd(struct file *file, void *priv,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mtk_v4l2_debug(1, "decoder cmd= %u", cmd->cmd);
 	dst_vq = v4l2_m2m_get_vq(ctx->m2m_ctx,
 		V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
@@ -889,6 +1316,15 @@ static int vidioc_decoder_cmd(struct file *file, void *priv,
 	case V4L2_DEC_CMD_STOP:
 		src_vq = v4l2_m2m_get_vq(ctx->m2m_ctx,
 			V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+=======
+	mtk_v4l2_debug(1, "decoder cmd=%u", cmd->cmd);
+	dst_vq = v4l2_m2m_get_vq(ctx->m2m_ctx,
+				V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+	switch (cmd->cmd) {
+	case V4L2_DEC_CMD_STOP:
+		src_vq = v4l2_m2m_get_vq(ctx->m2m_ctx,
+				V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+>>>>>>> upstream/android-13
 		if (!vb2_is_streaming(src_vq)) {
 			mtk_v4l2_debug(1, "Output stream is off. No need to flush.");
 			return 0;
@@ -897,6 +1333,7 @@ static int vidioc_decoder_cmd(struct file *file, void *priv,
 			mtk_v4l2_debug(1, "Capture stream is off. No need to flush.");
 			return 0;
 		}
+<<<<<<< HEAD
 		if (ctx->dec_flush_buf->lastframe == NON_EOS) {
 			ctx->dec_flush_buf->lastframe = EOS;
 			ctx->dec_flush_buf->vb.vb2_buf.planes[0].bytesused = 0;
@@ -905,6 +1342,11 @@ static int vidioc_decoder_cmd(struct file *file, void *priv,
 		} else {
 			mtk_v4l2_debug(1, "Stopping no need to queue cmd dec_flush_buf.");
 		}
+=======
+		v4l2_m2m_buf_queue(ctx->m2m_ctx,
+				   &ctx->empty_flush_buf->m2m_buf.vb);
+		v4l2_m2m_try_schedule(ctx->m2m_ctx);
+>>>>>>> upstream/android-13
 		break;
 
 	case V4L2_DEC_CMD_START:
@@ -918,6 +1360,7 @@ static int vidioc_decoder_cmd(struct file *file, void *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 void mtk_vdec_unlock(struct mtk_vcodec_ctx *ctx, u32 hw_id)
 {
 	if (hw_id >= MTK_VDEC_HW_NUM)
@@ -992,12 +1435,26 @@ void mtk_vcodec_dec_empty_queues(struct file *file, struct mtk_vcodec_ctx *ctx)
 	}
 
 	ctx->state = MTK_STATE_FREE;
+=======
+void mtk_vdec_unlock(struct mtk_vcodec_ctx *ctx)
+{
+	mutex_unlock(&ctx->dev->dec_mutex);
+}
+
+void mtk_vdec_lock(struct mtk_vcodec_ctx *ctx)
+{
+	mutex_lock(&ctx->dev->dec_mutex);
+>>>>>>> upstream/android-13
 }
 
 void mtk_vcodec_dec_release(struct mtk_vcodec_ctx *ctx)
 {
 	vdec_if_deinit(ctx);
+<<<<<<< HEAD
 	vdec_check_release_lock(ctx);
+=======
+	ctx->state = MTK_STATE_FREE;
+>>>>>>> upstream/android-13
 }
 
 void mtk_vcodec_dec_set_default_params(struct mtk_vcodec_ctx *ctx)
@@ -1013,14 +1470,21 @@ void mtk_vcodec_dec_set_default_params(struct mtk_vcodec_ctx *ctx)
 	ctx->quantization = V4L2_QUANTIZATION_DEFAULT;
 	ctx->xfer_func = V4L2_XFER_FUNC_DEFAULT;
 
+<<<<<<< HEAD
 	get_supported_format(ctx);
 
+=======
+>>>>>>> upstream/android-13
 	q_data = &ctx->q_data[MTK_Q_DATA_SRC];
 	memset(q_data, 0, sizeof(struct mtk_q_data));
 	q_data->visible_width = DFT_CFG_WIDTH;
 	q_data->visible_height = DFT_CFG_HEIGHT;
+<<<<<<< HEAD
 	if (default_out_fmt_idx < MTK_MAX_DEC_CODECS_SUPPORT)
 		q_data->fmt = &mtk_vdec_formats[default_out_fmt_idx];
+=======
+	q_data->fmt = &mtk_video_formats[OUT_FMT_IDX];
+>>>>>>> upstream/android-13
 	q_data->field = V4L2_FIELD_NONE;
 
 	q_data->sizeimage[0] = DFT_CFG_WIDTH * DFT_CFG_HEIGHT;
@@ -1032,6 +1496,7 @@ void mtk_vcodec_dec_set_default_params(struct mtk_vcodec_ctx *ctx)
 	q_data->visible_height = DFT_CFG_HEIGHT;
 	q_data->coded_width = DFT_CFG_WIDTH;
 	q_data->coded_height = DFT_CFG_HEIGHT;
+<<<<<<< HEAD
 	if (default_cap_fmt_idx < MTK_MAX_DEC_CODECS_SUPPORT)
 		q_data->fmt = &mtk_vdec_formats[default_cap_fmt_idx];
 	q_data->field = V4L2_FIELD_NONE;
@@ -1240,10 +1705,40 @@ static int vidioc_vdec_qbuf(struct file *file, void *priv,
 		mtkbuf->flags |= NO_CAHCE_INVALIDATE;
 	}
 
+=======
+	q_data->fmt = &mtk_video_formats[CAP_FMT_IDX];
+	q_data->field = V4L2_FIELD_NONE;
+
+	v4l_bound_align_image(&q_data->coded_width,
+				MTK_VDEC_MIN_W,
+				MTK_VDEC_MAX_W, 4,
+				&q_data->coded_height,
+				MTK_VDEC_MIN_H,
+				MTK_VDEC_MAX_H, 5, 6);
+
+	q_data->sizeimage[0] = q_data->coded_width * q_data->coded_height;
+	q_data->bytesperline[0] = q_data->coded_width;
+	q_data->sizeimage[1] = q_data->sizeimage[0] / 2;
+	q_data->bytesperline[1] = q_data->coded_width;
+}
+
+static int vidioc_vdec_qbuf(struct file *file, void *priv,
+			    struct v4l2_buffer *buf)
+{
+	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+
+	if (ctx->state == MTK_STATE_ABORT) {
+		mtk_v4l2_err("[%d] Call on QBUF after unrecoverable error",
+				ctx->id);
+		return -EIO;
+	}
+
+>>>>>>> upstream/android-13
 	return v4l2_m2m_qbuf(file, ctx->m2m_ctx, buf);
 }
 
 static int vidioc_vdec_dqbuf(struct file *file, void *priv,
+<<<<<<< HEAD
 	struct v4l2_buffer *buf)
 {
 	int ret = 0;
@@ -1300,31 +1795,66 @@ static int vidioc_vdec_querycap(struct file *file, void *priv,
 
 	cap->device_caps  = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+			     struct v4l2_buffer *buf)
+{
+	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+
+	if (ctx->state == MTK_STATE_ABORT) {
+		mtk_v4l2_err("[%d] Call on DQBUF after unrecoverable error",
+				ctx->id);
+		return -EIO;
+	}
+
+	return v4l2_m2m_dqbuf(file, ctx->m2m_ctx, buf);
+}
+
+static int vidioc_vdec_querycap(struct file *file, void *priv,
+				struct v4l2_capability *cap)
+{
+	strscpy(cap->driver, MTK_VCODEC_DEC_NAME, sizeof(cap->driver));
+	strscpy(cap->bus_info, MTK_PLATFORM_STR, sizeof(cap->bus_info));
+	strscpy(cap->card, MTK_PLATFORM_STR, sizeof(cap->card));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int vidioc_vdec_subscribe_evt(struct v4l2_fh *fh,
+<<<<<<< HEAD
 	const struct v4l2_event_subscription *sub)
+=======
+				     const struct v4l2_event_subscription *sub)
+>>>>>>> upstream/android-13
 {
 	switch (sub->type) {
 	case V4L2_EVENT_EOS:
 		return v4l2_event_subscribe(fh, sub, 2, NULL);
 	case V4L2_EVENT_SOURCE_CHANGE:
 		return v4l2_src_change_event_subscribe(fh, sub);
+<<<<<<< HEAD
 	case V4L2_EVENT_MTK_VDEC_ERROR:
 		return v4l2_event_subscribe(fh, sub, 0, NULL);
 	case V4L2_EVENT_MTK_VDEC_NOHEADER:
 		return v4l2_event_subscribe(fh, sub, 0, NULL);
+=======
+>>>>>>> upstream/android-13
 	default:
 		return v4l2_ctrl_subscribe_event(fh, sub);
 	}
 }
 
+<<<<<<< HEAD
 static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt)
 {
 	struct v4l2_pix_format_mplane *pix_fmt_mp = &f->fmt.pix_mp;
 	unsigned int i;
+=======
+static int vidioc_try_fmt(struct v4l2_format *f,
+			  const struct mtk_video_fmt *fmt)
+{
+	struct v4l2_pix_format_mplane *pix_fmt_mp = &f->fmt.pix_mp;
+>>>>>>> upstream/android-13
 
 	pix_fmt_mp->field = V4L2_FIELD_NONE;
 
@@ -1335,11 +1865,19 @@ static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt)
 		int tmp_w, tmp_h;
 
 		pix_fmt_mp->height = clamp(pix_fmt_mp->height,
+<<<<<<< HEAD
 			MTK_VDEC_MIN_H,
 			MTK_VDEC_MAX_H);
 		pix_fmt_mp->width = clamp(pix_fmt_mp->width,
 			MTK_VDEC_MIN_W,
 			MTK_VDEC_MAX_W);
+=======
+					MTK_VDEC_MIN_H,
+					MTK_VDEC_MAX_H);
+		pix_fmt_mp->width = clamp(pix_fmt_mp->width,
+					MTK_VDEC_MIN_W,
+					MTK_VDEC_MAX_W);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Find next closer width align 64, heign align 64, size align
@@ -1350,11 +1888,19 @@ static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt)
 		tmp_w = pix_fmt_mp->width;
 		tmp_h = pix_fmt_mp->height;
 		v4l_bound_align_image(&pix_fmt_mp->width,
+<<<<<<< HEAD
 							  MTK_VDEC_MIN_W,
 							  MTK_VDEC_MAX_W, 6,
 							  &pix_fmt_mp->height,
 							  MTK_VDEC_MIN_H,
 							  MTK_VDEC_MAX_H, 6, 9);
+=======
+					MTK_VDEC_MIN_W,
+					MTK_VDEC_MAX_W, 6,
+					&pix_fmt_mp->height,
+					MTK_VDEC_MIN_H,
+					MTK_VDEC_MAX_H, 6, 9);
+>>>>>>> upstream/android-13
 
 		if (pix_fmt_mp->width < tmp_w &&
 			(pix_fmt_mp->width + 64) <= MTK_VDEC_MAX_W)
@@ -1369,11 +1915,15 @@ static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt)
 			pix_fmt_mp->height,
 			pix_fmt_mp->width * pix_fmt_mp->height);
 
+<<<<<<< HEAD
 		if (fmt->num_planes > 2)
 			pix_fmt_mp->num_planes = 2;
 		else
 			pix_fmt_mp->num_planes = fmt->num_planes;
 
+=======
+		pix_fmt_mp->num_planes = fmt->num_planes;
+>>>>>>> upstream/android-13
 		pix_fmt_mp->plane_fmt[0].sizeimage =
 				pix_fmt_mp->width * pix_fmt_mp->height;
 		pix_fmt_mp->plane_fmt[0].bytesperline = pix_fmt_mp->width;
@@ -1383,6 +1933,7 @@ static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt)
 				(pix_fmt_mp->width * pix_fmt_mp->height) / 2;
 			pix_fmt_mp->plane_fmt[1].bytesperline =
 				pix_fmt_mp->width;
+<<<<<<< HEAD
 		} else if (pix_fmt_mp->num_planes == 1) {
 			pix_fmt_mp->plane_fmt[0].sizeimage +=
 				(pix_fmt_mp->width * pix_fmt_mp->height) / 2;
@@ -1460,10 +2011,17 @@ static int vidioc_vdec_g_crop(struct file *file, void *priv,
 			ctx->picinfo.buf_h);
 	}
 
+=======
+		}
+	}
+
+	pix_fmt_mp->flags = 0;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int vidioc_try_fmt_vid_cap_mplane(struct file *file, void *priv,
+<<<<<<< HEAD
 	struct v4l2_format *f)
 {
 	struct mtk_video_fmt *fmt;
@@ -1477,11 +2035,23 @@ static int vidioc_try_fmt_vid_cap_mplane(struct file *file, void *priv,
 	}
 	if (!fmt)
 		return -EINVAL;
+=======
+				struct v4l2_format *f)
+{
+	const struct mtk_video_fmt *fmt;
+
+	fmt = mtk_vdec_find_format(f);
+	if (!fmt) {
+		f->fmt.pix.pixelformat = mtk_video_formats[CAP_FMT_IDX].fourcc;
+		fmt = mtk_vdec_find_format(f);
+	}
+>>>>>>> upstream/android-13
 
 	return vidioc_try_fmt(f, fmt);
 }
 
 static int vidioc_try_fmt_vid_out_mplane(struct file *file, void *priv,
+<<<<<<< HEAD
 	struct v4l2_format *f)
 {
 	struct v4l2_pix_format_mplane *pix_fmt_mp = &f->fmt.pix_mp;
@@ -1493,20 +2063,38 @@ static int vidioc_try_fmt_vid_out_mplane(struct file *file, void *priv,
 		f->fmt.pix.pixelformat =
 			mtk_vdec_formats[default_out_fmt_idx].fourcc;
 		fmt = mtk_vdec_find_format(ctx, f, MTK_FMT_DEC);
+=======
+				struct v4l2_format *f)
+{
+	struct v4l2_pix_format_mplane *pix_fmt_mp = &f->fmt.pix_mp;
+	const struct mtk_video_fmt *fmt;
+
+	fmt = mtk_vdec_find_format(f);
+	if (!fmt) {
+		f->fmt.pix.pixelformat = mtk_video_formats[OUT_FMT_IDX].fourcc;
+		fmt = mtk_vdec_find_format(f);
+>>>>>>> upstream/android-13
 	}
 
 	if (pix_fmt_mp->plane_fmt[0].sizeimage == 0) {
 		mtk_v4l2_err("sizeimage of output format must be given");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	if (!fmt)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	return vidioc_try_fmt(f, fmt);
 }
 
 static int vidioc_vdec_g_selection(struct file *file, void *priv,
+<<<<<<< HEAD
 	struct v4l2_selection *s)
+=======
+			struct v4l2_selection *s)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 	struct mtk_q_data *q_data;
@@ -1518,21 +2106,30 @@ static int vidioc_vdec_g_selection(struct file *file, void *priv,
 
 	switch (s->target) {
 	case V4L2_SEL_TGT_COMPOSE_DEFAULT:
+<<<<<<< HEAD
 	case V4L2_SEL_TGT_CROP_DEFAULT:
+=======
+>>>>>>> upstream/android-13
 		s->r.left = 0;
 		s->r.top = 0;
 		s->r.width = ctx->picinfo.pic_w;
 		s->r.height = ctx->picinfo.pic_h;
 		break;
 	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
+<<<<<<< HEAD
 	case V4L2_SEL_TGT_CROP_BOUNDS:
+=======
+>>>>>>> upstream/android-13
 		s->r.left = 0;
 		s->r.top = 0;
 		s->r.width = ctx->picinfo.buf_w;
 		s->r.height = ctx->picinfo.buf_h;
 		break;
 	case V4L2_SEL_TGT_COMPOSE:
+<<<<<<< HEAD
 	case V4L2_SEL_TGT_CROP:
+=======
+>>>>>>> upstream/android-13
 		if (vdec_if_get_param(ctx, GET_PARAM_CROP_INFO, &(s->r))) {
 			/* set to default value if header info not ready yet*/
 			s->r.left = 0;
@@ -1558,7 +2155,11 @@ static int vidioc_vdec_g_selection(struct file *file, void *priv,
 }
 
 static int vidioc_vdec_s_selection(struct file *file, void *priv,
+<<<<<<< HEAD
 	struct v4l2_selection *s)
+=======
+				struct v4l2_selection *s)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 
@@ -1567,7 +2168,10 @@ static int vidioc_vdec_s_selection(struct file *file, void *priv,
 
 	switch (s->target) {
 	case V4L2_SEL_TGT_COMPOSE:
+<<<<<<< HEAD
 	case V4L2_SEL_TGT_CROP:
+=======
+>>>>>>> upstream/android-13
 		s->r.left = 0;
 		s->r.top = 0;
 		s->r.width = ctx->picinfo.pic_w;
@@ -1581,34 +2185,63 @@ static int vidioc_vdec_s_selection(struct file *file, void *priv,
 }
 
 static int vidioc_vdec_s_fmt(struct file *file, void *priv,
+<<<<<<< HEAD
 							 struct v4l2_format *f)
+=======
+			     struct v4l2_format *f)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 	struct v4l2_pix_format_mplane *pix_mp;
 	struct mtk_q_data *q_data;
 	int ret = 0;
+<<<<<<< HEAD
 	struct mtk_video_fmt *fmt;
 	uint64_t size[2];
 
 	mtk_v4l2_debug(4, "[%d] type %d", ctx->id, f->type);
+=======
+	const struct mtk_video_fmt *fmt;
+
+	mtk_v4l2_debug(3, "[%d]", ctx->id);
+>>>>>>> upstream/android-13
 
 	q_data = mtk_vdec_get_q_data(ctx, f->type);
 	if (!q_data)
 		return -EINVAL;
 
 	pix_mp = &f->fmt.pix_mp;
+<<<<<<< HEAD
 	if ((f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) &&
 		vb2_is_busy(&ctx->m2m_ctx->out_q_ctx.q)) {
+=======
+	/*
+	 * Setting OUTPUT format after OUTPUT buffers are allocated is invalid
+	 * if using the stateful API.
+	 */
+	if ((f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) &&
+	    vb2_is_busy(&ctx->m2m_ctx->out_q_ctx.q)) {
+>>>>>>> upstream/android-13
 		mtk_v4l2_err("out_q_ctx buffers already requested");
 		ret = -EBUSY;
 	}
 
+<<<<<<< HEAD
 	if ((f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) &&
 		vb2_is_busy(&ctx->m2m_ctx->cap_q_ctx.q)) {
+=======
+	/*
+	 * Setting CAPTURE format after CAPTURE buffers are allocated is
+	 * invalid.
+	 */
+	if ((f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) &&
+	    vb2_is_busy(&ctx->m2m_ctx->cap_q_ctx.q)) {
+>>>>>>> upstream/android-13
 		mtk_v4l2_err("cap_q_ctx buffers already requested");
 		ret = -EBUSY;
 	}
 
+<<<<<<< HEAD
 	fmt = mtk_vdec_find_format(ctx, f,
 		(f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) ?
 		MTK_FMT_DEC : MTK_FMT_FRAME);
@@ -1626,15 +2259,34 @@ static int vidioc_vdec_s_fmt(struct file *file, void *priv,
 		}
 	}
 	if (!fmt)
+=======
+	fmt = mtk_vdec_find_format(f);
+	if (fmt == NULL) {
+		if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
+			f->fmt.pix.pixelformat =
+				mtk_video_formats[OUT_FMT_IDX].fourcc;
+			fmt = mtk_vdec_find_format(f);
+		} else if (f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+			f->fmt.pix.pixelformat =
+				mtk_video_formats[CAP_FMT_IDX].fourcc;
+			fmt = mtk_vdec_find_format(f);
+		}
+	}
+	if (fmt == NULL)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	q_data->fmt = fmt;
 	vidioc_try_fmt(f, q_data->fmt);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
 		q_data->sizeimage[0] = pix_mp->plane_fmt[0].sizeimage;
 		q_data->coded_width = pix_mp->width;
 		q_data->coded_height = pix_mp->height;
+<<<<<<< HEAD
 		size[0] = pix_mp->width;
 		size[1] = pix_mp->height;
 
@@ -1657,19 +2309,41 @@ static int vidioc_vdec_s_fmt(struct file *file, void *priv,
 			}
 			vdec_if_set_param(ctx,
 				SET_PARAM_FRAME_SIZE, (void *) size);
+=======
+
+		ctx->colorspace = pix_mp->colorspace;
+		ctx->ycbcr_enc = pix_mp->ycbcr_enc;
+		ctx->quantization = pix_mp->quantization;
+		ctx->xfer_func = pix_mp->xfer_func;
+
+		if (ctx->state == MTK_STATE_FREE) {
+			ret = vdec_if_init(ctx, q_data->fmt->fourcc);
+			if (ret) {
+				mtk_v4l2_err("[%d]: vdec_if_init() fail ret=%d",
+					ctx->id, ret);
+				return -EINVAL;
+			}
+>>>>>>> upstream/android-13
 			ctx->state = MTK_STATE_INIT;
 		}
 	}
 
+<<<<<<< HEAD
 	if (f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 		vdec_if_set_param(ctx, SET_PARAM_FB_NUM_PLANES,
 			(void *) &q_data->fmt->num_planes);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int vidioc_enum_framesizes(struct file *file, void *priv,
+<<<<<<< HEAD
 	struct v4l2_frmsizeenum *fsize)
+=======
+				struct v4l2_frmsizeenum *fsize)
+>>>>>>> upstream/android-13
 {
 	int i = 0;
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
@@ -1677,6 +2351,7 @@ static int vidioc_enum_framesizes(struct file *file, void *priv,
 	if (fsize->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (mtk_vdec_framesizes[0].fourcc == 0) {
 		if (vdec_if_get_param(ctx, GET_PARAM_CAPABILITY_FRAME_SIZES,
 			&mtk_vdec_framesizes) != 0) {
@@ -1702,10 +2377,14 @@ static int vidioc_enum_framesizes(struct file *file, void *priv,
 
 	for (i = 0; i < MTK_MAX_DEC_CODECS_SUPPORT &&
 		 mtk_vdec_framesizes[i].fourcc != 0; ++i) {
+=======
+	for (i = 0; i < NUM_SUPPORTED_FRAMESIZE; ++i) {
+>>>>>>> upstream/android-13
 		if (fsize->pixel_format != mtk_vdec_framesizes[i].fourcc)
 			continue;
 
 		fsize->type = V4L2_FRMSIZE_TYPE_STEPWISE;
+<<<<<<< HEAD
 		fsize->reserved[0] = mtk_vdec_framesizes[i].profile;
 		fsize->reserved[1] = mtk_vdec_framesizes[i].level;
 		fsize->stepwise = mtk_vdec_framesizes[i].stepwise;
@@ -1727,12 +2406,32 @@ static int vidioc_enum_framesizes(struct file *file, void *priv,
 					   fsize->stepwise.step_height,
 					   fsize->reserved[0],
 					   fsize->reserved[1]);
+=======
+		fsize->stepwise = mtk_vdec_framesizes[i].stepwise;
+		if (!(ctx->dev->dec_capability &
+				VCODEC_CAPABILITY_4K_DISABLED)) {
+			mtk_v4l2_debug(3, "4K is enabled");
+			fsize->stepwise.max_width =
+					VCODEC_DEC_4K_CODED_WIDTH;
+			fsize->stepwise.max_height =
+					VCODEC_DEC_4K_CODED_HEIGHT;
+		}
+		mtk_v4l2_debug(1, "%x, %d %d %d %d %d %d",
+				ctx->dev->dec_capability,
+				fsize->stepwise.min_width,
+				fsize->stepwise.max_width,
+				fsize->stepwise.step_width,
+				fsize->stepwise.min_height,
+				fsize->stepwise.max_height,
+				fsize->stepwise.step_height);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int vidioc_enum_fmt(struct mtk_vcodec_ctx *ctx, struct v4l2_fmtdesc *f,
 	bool output_queue)
 {
@@ -1746,6 +2445,18 @@ static int vidioc_enum_fmt(struct mtk_vcodec_ctx *ctx, struct v4l2_fmtdesc *f,
 			continue;
 		else if ((output_queue == false) &&
 				 (mtk_vdec_formats[i].type != MTK_FMT_FRAME))
+=======
+static int vidioc_enum_fmt(struct v4l2_fmtdesc *f, bool output_queue)
+{
+	const struct mtk_video_fmt *fmt;
+	int i, j = 0;
+
+	for (i = 0; i < NUM_FORMATS; i++) {
+		if (output_queue && (mtk_video_formats[i].type != MTK_FMT_DEC))
+			continue;
+		if (!output_queue &&
+			(mtk_video_formats[i].type != MTK_FMT_FRAME))
+>>>>>>> upstream/android-13
 			continue;
 
 		if (j == f->index)
@@ -1753,6 +2464,7 @@ static int vidioc_enum_fmt(struct mtk_vcodec_ctx *ctx, struct v4l2_fmtdesc *f,
 		++j;
 	}
 
+<<<<<<< HEAD
 	if (i == MTK_MAX_DEC_CODECS_SUPPORT ||
 		mtk_vdec_formats[i].fourcc == 0)
 		return -EINVAL;
@@ -1765,10 +2477,19 @@ static int vidioc_enum_fmt(struct mtk_vcodec_ctx *ctx, struct v4l2_fmtdesc *f,
 
 	if (mtk_vdec_formats[i].type != MTK_FMT_DEC)
 		f->flags |= V4L2_FMT_FLAG_COMPRESSED;
+=======
+	if (i == NUM_FORMATS)
+		return -EINVAL;
+
+	fmt = &mtk_video_formats[i];
+	f->pixelformat = fmt->fourcc;
+	f->flags = fmt->flags;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vidioc_vdec_enum_fmt_vid_cap_mplane(struct file *file, void *priv,
 	struct v4l2_fmtdesc *f)
 {
@@ -1787,13 +2508,32 @@ static int vidioc_vdec_enum_fmt_vid_out_mplane(struct file *file, void *priv,
 
 static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 							 struct v4l2_format *f)
+=======
+static int vidioc_vdec_enum_fmt_vid_cap(struct file *file, void *priv,
+					struct v4l2_fmtdesc *f)
+{
+	return vidioc_enum_fmt(f, false);
+}
+
+static int vidioc_vdec_enum_fmt_vid_out(struct file *file, void *priv,
+					struct v4l2_fmtdesc *f)
+{
+	return vidioc_enum_fmt(f, true);
+}
+
+static int vidioc_vdec_g_fmt(struct file *file, void *priv,
+			     struct v4l2_format *f)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 	struct v4l2_pix_format_mplane *pix_mp = &f->fmt.pix_mp;
 	struct vb2_queue *vq;
 	struct mtk_q_data *q_data;
+<<<<<<< HEAD
 	u32     fourcc;
 	unsigned int i = 0;
+=======
+>>>>>>> upstream/android-13
 
 	vq = v4l2_m2m_get_vq(ctx->m2m_ctx, f->type);
 	if (!vq) {
@@ -1810,13 +2550,18 @@ static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 	pix_mp->xfer_func = ctx->xfer_func;
 
 	if ((f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) &&
+<<<<<<< HEAD
 		(ctx->state >= MTK_STATE_HEADER)) {
+=======
+	    (ctx->state >= MTK_STATE_HEADER)) {
+>>>>>>> upstream/android-13
 		/* Until STREAMOFF is called on the CAPTURE queue
 		 * (acknowledging the event), the driver operates as if
 		 * the resolution hasn't changed yet.
 		 * So we just return picinfo yet, and update picinfo in
 		 * stop_streaming hook function
 		 */
+<<<<<<< HEAD
 		for (i = 0; i < q_data->fmt->num_planes; i++) {
 			q_data->sizeimage[i] = ctx->picinfo.fb_sz[i];
 			q_data->bytesperline[i] =
@@ -1826,6 +2571,15 @@ static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 		q_data->coded_height = ctx->picinfo.buf_h;
 		fourcc = ctx->picinfo.fourcc;
 		q_data->fmt = mtk_find_fmt_by_pixel(fourcc);
+=======
+		q_data->sizeimage[0] = ctx->picinfo.fb_sz[0];
+		q_data->sizeimage[1] = ctx->picinfo.fb_sz[1];
+		q_data->bytesperline[0] = ctx->last_decoded_picinfo.buf_w;
+		q_data->bytesperline[1] = ctx->last_decoded_picinfo.buf_w;
+		q_data->coded_width = ctx->picinfo.buf_w;
+		q_data->coded_height = ctx->picinfo.buf_h;
+		ctx->last_decoded_picinfo.cap_fourcc = q_data->fmt->fourcc;
+>>>>>>> upstream/android-13
 
 		/*
 		 * Width and height are set to the dimensions
@@ -1833,6 +2587,7 @@ static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 		 * further processing stages should crop to this
 		 * rectangle.
 		 */
+<<<<<<< HEAD
 		fourcc = ctx->q_data[MTK_Q_DATA_SRC].fmt->fourcc;
 		if (fourcc == V4L2_PIX_FMT_RV30 ||
 			fourcc == V4L2_PIX_FMT_RV40) {
@@ -1842,12 +2597,18 @@ static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 			pix_mp->width = q_data->coded_width;
 			pix_mp->height = q_data->coded_height;
 		}
+=======
+		pix_mp->width = q_data->coded_width;
+		pix_mp->height = q_data->coded_height;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Set pixelformat to the format in which mt vcodec
 		 * outputs the decoded frame
 		 */
 		pix_mp->num_planes = q_data->fmt->num_planes;
 		pix_mp->pixelformat = q_data->fmt->fourcc;
+<<<<<<< HEAD
 
 		if (fourcc == V4L2_PIX_FMT_RV30 ||
 			fourcc == V4L2_PIX_FMT_RV40) {
@@ -1872,6 +2633,12 @@ static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 			pix_mp->plane_fmt[0].sizeimage,
 			pix_mp->plane_fmt[1].bytesperline,
 			pix_mp->plane_fmt[1].sizeimage);
+=======
+		pix_mp->plane_fmt[0].bytesperline = q_data->bytesperline[0];
+		pix_mp->plane_fmt[0].sizeimage = q_data->sizeimage[0];
+		pix_mp->plane_fmt[1].bytesperline = q_data->bytesperline[1];
+		pix_mp->plane_fmt[1].sizeimage = q_data->sizeimage[1];
+>>>>>>> upstream/android-13
 
 	} else if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
 		/*
@@ -1887,6 +2654,7 @@ static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 		pix_mp->pixelformat = q_data->fmt->fourcc;
 		pix_mp->num_planes = q_data->fmt->num_planes;
 	} else {
+<<<<<<< HEAD
 		pix_mp->num_planes = q_data->fmt->num_planes;
 		pix_mp->pixelformat = q_data->fmt->fourcc;
 		fourcc = ctx->q_data[MTK_Q_DATA_SRC].fmt->fourcc;
@@ -1914,12 +2682,26 @@ static int vidioc_vdec_g_fmt(struct file *file, void *priv,
 		mtk_v4l2_debug(1,
 					   " [%d] type=%d state=%d Format information could not be read, not ready yet!",
 					   ctx->id, f->type, ctx->state);
+=======
+		pix_mp->width = q_data->coded_width;
+		pix_mp->height = q_data->coded_height;
+		pix_mp->num_planes = q_data->fmt->num_planes;
+		pix_mp->pixelformat = q_data->fmt->fourcc;
+		pix_mp->plane_fmt[0].bytesperline = q_data->bytesperline[0];
+		pix_mp->plane_fmt[0].sizeimage = q_data->sizeimage[0];
+		pix_mp->plane_fmt[1].bytesperline = q_data->bytesperline[1];
+		pix_mp->plane_fmt[1].sizeimage = q_data->sizeimage[1];
+
+		mtk_v4l2_debug(1, "[%d] type=%d state=%d Format information could not be read, not ready yet!",
+				ctx->id, f->type, ctx->state);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
 static int vb2ops_vdec_queue_setup(struct vb2_queue *vq,
+<<<<<<< HEAD
 	unsigned int *nbuffers,
 	unsigned int *nplanes,
 	unsigned int sizes[],
@@ -1940,6 +2722,21 @@ static int vb2ops_vdec_queue_setup(struct vb2_queue *vq,
 	q_data = mtk_vdec_get_q_data(ctx, vq->type);
 	if (q_data == NULL || (*nplanes) > MTK_VCODEC_MAX_PLANES) {
 		mtk_v4l2_err("vq->type=%d nplanes %d err", vq->type, *nplanes);
+=======
+				unsigned int *nbuffers,
+				unsigned int *nplanes,
+				unsigned int sizes[],
+				struct device *alloc_devs[])
+{
+	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vq);
+	struct mtk_q_data *q_data;
+	unsigned int i;
+
+	q_data = mtk_vdec_get_q_data(ctx, vq->type);
+
+	if (q_data == NULL) {
+		mtk_v4l2_err("vq->type=%d err\n", vq->type);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1950,7 +2747,11 @@ static int vb2ops_vdec_queue_setup(struct vb2_queue *vq,
 		}
 	} else {
 		if (vq->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
+<<<<<<< HEAD
 			*nplanes = q_data->fmt->num_planes;
+=======
+			*nplanes = 2;
+>>>>>>> upstream/android-13
 		else
 			*nplanes = 1;
 
@@ -1959,9 +2760,15 @@ static int vb2ops_vdec_queue_setup(struct vb2_queue *vq,
 	}
 
 	mtk_v4l2_debug(1,
+<<<<<<< HEAD
 				   "[%d]\t type = %d, get %d plane(s), %d buffer(s) of size 0x%x 0x%x ",
 				   ctx->id, vq->type, *nplanes, *nbuffers,
 				   sizes[0], sizes[1]);
+=======
+			"[%d]\t type = %d, get %d plane(s), %d buffer(s) of size 0x%x 0x%x ",
+			ctx->id, vq->type, *nplanes, *nbuffers,
+			sizes[0], sizes[1]);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1970,6 +2777,7 @@ static int vb2ops_vdec_buf_prepare(struct vb2_buffer *vb)
 {
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 	struct mtk_q_data *q_data;
+<<<<<<< HEAD
 	struct dma_buf_attachment *buf_att;
 	struct sg_table *sgt;
 	unsigned int plane = 0;
@@ -1979,12 +2787,19 @@ static int vb2ops_vdec_buf_prepare(struct vb2_buffer *vb)
 
 	mtk_v4l2_debug(4, "[%d] (%d) id=%d",
 				   ctx->id, vb->vb2_queue->type, vb->index);
+=======
+	int i;
+
+	mtk_v4l2_debug(3, "[%d] (%d) id=%d",
+			ctx->id, vb->vb2_queue->type, vb->index);
+>>>>>>> upstream/android-13
 
 	q_data = mtk_vdec_get_q_data(ctx, vb->vb2_queue->type);
 
 	for (i = 0; i < q_data->fmt->num_planes; i++) {
 		if (vb2_plane_size(vb, i) < q_data->sizeimage[i]) {
 			mtk_v4l2_err("data will not fit into plane %d (%lu < %d)",
+<<<<<<< HEAD
 						 i, vb2_plane_size(vb, i),
 						 q_data->sizeimage[i]);
 		}
@@ -2105,11 +2920,19 @@ static int vb2ops_vdec_buf_prepare(struct vb2_buffer *vb)
 			}
 		}
 	}
+=======
+				i, vb2_plane_size(vb, i),
+				q_data->sizeimage[i]);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 {
+<<<<<<< HEAD
 	struct vb2_buffer *src_buf;
 	struct mtk_vcodec_mem *src_mem;
 	unsigned int src_chg = 0;
@@ -2121,10 +2944,18 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 	unsigned int i = 0;
 	unsigned int dpbsize = 1;
 	unsigned int bs_fourcc, fm_fourcc;
+=======
+	struct vb2_v4l2_buffer *src_buf;
+	struct mtk_vcodec_mem src_mem;
+	bool res_chg = false;
+	int ret = 0;
+	unsigned int dpbsize = 1, i = 0;
+>>>>>>> upstream/android-13
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 	struct vb2_v4l2_buffer *vb2_v4l2 = NULL;
 	struct mtk_video_dec_buf *buf = NULL;
 	struct mtk_q_data *dst_q_data;
+<<<<<<< HEAD
 	u32 fourcc;
 	int last_frame_type = 0;
 	struct mtk_color_desc color_desc;
@@ -2133,11 +2964,18 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 	mtk_v4l2_debug(4, "[%d] (%d) id=%d, vb=%p",
 				   ctx->id, vb->vb2_queue->type,
 				   vb->index, vb);
+=======
+
+	mtk_v4l2_debug(3, "[%d] (%d) id=%d, vb=%p",
+			ctx->id, vb->vb2_queue->type,
+			vb->index, vb);
+>>>>>>> upstream/android-13
 	/*
 	 * check if this buffer is ready to be used after decode
 	 */
 	if (vb->vb2_queue->type != V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
 		vb2_v4l2 = to_vb2_v4l2_buffer(vb);
+<<<<<<< HEAD
 		buf = container_of(vb2_v4l2, struct mtk_video_dec_buf, vb);
 		mutex_lock(&ctx->buf_lock);
 		if (buf->used == false) {
@@ -2161,10 +2999,33 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 	if (ctx->state != MTK_STATE_INIT) {
 		mtk_v4l2_debug(4, "[%d] already init driver %d",
 					   ctx->id, ctx->state);
+=======
+		buf = container_of(vb2_v4l2, struct mtk_video_dec_buf,
+				   m2m_buf.vb);
+		mutex_lock(&ctx->lock);
+		if (!buf->used) {
+			v4l2_m2m_buf_queue(ctx->m2m_ctx, vb2_v4l2);
+			buf->queued_in_vb2 = true;
+			buf->queued_in_v4l2 = true;
+		} else {
+			buf->queued_in_vb2 = false;
+			buf->queued_in_v4l2 = true;
+		}
+		mutex_unlock(&ctx->lock);
+		return;
+	}
+
+	v4l2_m2m_buf_queue(ctx->m2m_ctx, to_vb2_v4l2_buffer(vb));
+
+	if (ctx->state != MTK_STATE_INIT) {
+		mtk_v4l2_debug(3, "[%d] already init driver %d",
+				ctx->id, ctx->state);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	src_buf = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
+<<<<<<< HEAD
 	if (!src_buf ||
 		to_vb2_v4l2_buffer(src_buf) == &ctx->dec_flush_buf->vb) {
 		mtk_v4l2_err("No src buffer %p", src_buf);
@@ -2226,10 +3087,38 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 		|| need_seq_header) {
 		/*
 		 * fb == NULL menas to parse SPS/PPS header or
+=======
+	if (!src_buf) {
+		mtk_v4l2_err("No src buffer");
+		return;
+	}
+	buf = container_of(src_buf, struct mtk_video_dec_buf, m2m_buf.vb);
+	if (buf->lastframe) {
+		/* This shouldn't happen. Just in case. */
+		mtk_v4l2_err("Invalid flush buffer.");
+		v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
+		return;
+	}
+
+	src_mem.va = vb2_plane_vaddr(&src_buf->vb2_buf, 0);
+	src_mem.dma_addr = vb2_dma_contig_plane_dma_addr(&src_buf->vb2_buf, 0);
+	src_mem.size = (size_t)src_buf->vb2_buf.planes[0].bytesused;
+	mtk_v4l2_debug(2,
+			"[%d] buf id=%d va=%p dma=%pad size=%zx",
+			ctx->id, src_buf->vb2_buf.index,
+			src_mem.va, &src_mem.dma_addr,
+			src_mem.size);
+
+	ret = vdec_if_decode(ctx, &src_mem, NULL, &res_chg);
+	if (ret || !res_chg) {
+		/*
+		 * fb == NULL means to parse SPS/PPS header or
+>>>>>>> upstream/android-13
 		 * resolution info in src_mem. Decode can fail
 		 * if there is no SPS header or picture info
 		 * in bs
 		 */
+<<<<<<< HEAD
 		vb2_v4l2 = to_vb2_v4l2_buffer(vb);
 		buf = container_of(vb2_v4l2, struct mtk_video_dec_buf, vb);
 		last_frame_type = buf->lastframe;
@@ -2325,11 +3214,50 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 				   dst_q_data->fmt->num_planes,
 				   ctx->last_decoded_picinfo.fb_sz[0],
 				   ctx->last_decoded_picinfo.fb_sz[1]);
+=======
+
+		src_buf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
+		if (ret == -EIO) {
+			mtk_v4l2_err("[%d] Unrecoverable error in vdec_if_decode.",
+					ctx->id);
+			ctx->state = MTK_STATE_ABORT;
+			v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_ERROR);
+		} else {
+			v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_DONE);
+		}
+		mtk_v4l2_debug(ret ? 0 : 1,
+			       "[%d] vdec_if_decode() src_buf=%d, size=%zu, fail=%d, res_chg=%d",
+			       ctx->id, src_buf->vb2_buf.index,
+			       src_mem.size, ret, res_chg);
+		return;
+	}
+
+	if (vdec_if_get_param(ctx, GET_PARAM_PIC_INFO, &ctx->picinfo)) {
+		mtk_v4l2_err("[%d]Error!! Cannot get param : GET_PARAM_PICTURE_INFO ERR",
+				ctx->id);
+		return;
+	}
+
+	ctx->last_decoded_picinfo = ctx->picinfo;
+	dst_q_data = &ctx->q_data[MTK_Q_DATA_DST];
+	for (i = 0; i < dst_q_data->fmt->num_planes; i++) {
+		dst_q_data->sizeimage[i] = ctx->picinfo.fb_sz[i];
+		dst_q_data->bytesperline[i] = ctx->picinfo.buf_w;
+	}
+
+	mtk_v4l2_debug(2, "[%d] vdec_if_init() OK wxh=%dx%d pic wxh=%dx%d sz[0]=0x%x sz[1]=0x%x",
+			ctx->id,
+			ctx->picinfo.buf_w, ctx->picinfo.buf_h,
+			ctx->picinfo.pic_w, ctx->picinfo.pic_h,
+			dst_q_data->sizeimage[0],
+			dst_q_data->sizeimage[1]);
+>>>>>>> upstream/android-13
 
 	ret = vdec_if_get_param(ctx, GET_PARAM_DPB_SIZE, &dpbsize);
 	if (dpbsize == 0)
 		mtk_v4l2_err("[%d] GET_PARAM_DPB_SIZE fail=%d", ctx->id, ret);
 
+<<<<<<< HEAD
 	ctx->last_dpb_size = dpbsize;
 
 	ret = vdec_if_get_param(ctx, GET_PARAM_COLOR_DESC, &color_desc);
@@ -2352,6 +3280,13 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 	ctx->state = MTK_STATE_HEADER;
 	mtk_v4l2_debug(1, "[%d] dpbsize=%d", ctx->id, ctx->last_dpb_size);
 
+=======
+	ctx->dpb_size = dpbsize;
+	ctx->state = MTK_STATE_HEADER;
+	mtk_v4l2_debug(1, "[%d] dpbsize=%d", ctx->id, ctx->dpb_size);
+
+	mtk_vdec_queue_res_chg_event(ctx);
+>>>>>>> upstream/android-13
 }
 
 static void vb2ops_vdec_buf_finish(struct vb2_buffer *vb)
@@ -2359,6 +3294,7 @@ static void vb2ops_vdec_buf_finish(struct vb2_buffer *vb)
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 	struct vb2_v4l2_buffer *vb2_v4l2;
 	struct mtk_video_dec_buf *buf;
+<<<<<<< HEAD
 	unsigned int plane = 0;
 	struct mtk_video_dec_buf *mtkbuf;
 
@@ -2446,12 +3382,30 @@ static void vb2ops_vdec_buf_cleanup(struct vb2_buffer *vb)
 			}
 		}
 		mutex_unlock(&ctx->buf_lock);
+=======
+	bool buf_error;
+
+	vb2_v4l2 = container_of(vb, struct vb2_v4l2_buffer, vb2_buf);
+	buf = container_of(vb2_v4l2, struct mtk_video_dec_buf, m2m_buf.vb);
+	mutex_lock(&ctx->lock);
+	if (vb->vb2_queue->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+		buf->queued_in_v4l2 = false;
+		buf->queued_in_vb2 = false;
+	}
+	buf_error = buf->error;
+	mutex_unlock(&ctx->lock);
+
+	if (buf_error) {
+		mtk_v4l2_err("Unrecoverable error on buffer.");
+		ctx->state = MTK_STATE_ABORT;
+>>>>>>> upstream/android-13
 	}
 }
 
 static int vb2ops_vdec_buf_init(struct vb2_buffer *vb)
 {
 	struct vb2_v4l2_buffer *vb2_v4l2 = container_of(vb,
+<<<<<<< HEAD
 		struct vb2_v4l2_buffer, vb2_buf);
 	struct mtk_video_dec_buf *buf = container_of(vb2_v4l2,
 		struct mtk_video_dec_buf, vb);
@@ -2479,6 +3433,17 @@ static int vb2ops_vdec_buf_init(struct vb2_buffer *vb)
 	} else {
 		mtk_v4l2_err("%s: unknown queue type", __func__);
 		return -EINVAL;
+=======
+					struct vb2_v4l2_buffer, vb2_buf);
+	struct mtk_video_dec_buf *buf = container_of(vb2_v4l2,
+					struct mtk_video_dec_buf, m2m_buf.vb);
+
+	if (vb->vb2_queue->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+		buf->used = false;
+		buf->queued_in_v4l2 = false;
+	} else {
+		buf->lastframe = false;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2487,13 +3452,17 @@ static int vb2ops_vdec_buf_init(struct vb2_buffer *vb)
 static int vb2ops_vdec_start_streaming(struct vb2_queue *q, unsigned int count)
 {
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(q);
+<<<<<<< HEAD
 	unsigned long total_frame_bufq_count;
 
 	mtk_v4l2_debug(4, "[%d] (%d) state=(%x)", ctx->id, q->type, ctx->state);
+=======
+>>>>>>> upstream/android-13
 
 	if (ctx->state == MTK_STATE_FLUSH)
 		ctx->state = MTK_STATE_HEADER;
 
+<<<<<<< HEAD
 	//SET_PARAM_TOTAL_FRAME_BUFQ_COUNT for SW DEC
 	if (q->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
 		total_frame_bufq_count = q->num_buffers;
@@ -2506,11 +3475,14 @@ static int vb2ops_vdec_start_streaming(struct vb2_queue *q, unsigned int count)
 	}
 
 	mtk_vdec_set_param(ctx);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void vb2ops_vdec_stop_streaming(struct vb2_queue *q)
 {
+<<<<<<< HEAD
 	struct vb2_buffer *src_buf = NULL, *dst_buf = NULL;
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(q);
 	struct vb2_v4l2_buffer *vb2_v4l2 = NULL;
@@ -2549,6 +3521,22 @@ static void vb2ops_vdec_stop_streaming(struct vb2_queue *q)
 					VB2_BUF_STATE_ERROR);
 			}
 		ctx->dec_flush_buf->lastframe = NON_EOS;
+=======
+	struct vb2_v4l2_buffer *src_buf = NULL, *dst_buf = NULL;
+	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(q);
+
+	mtk_v4l2_debug(3, "[%d] (%d) state=(%x) ctx->decoded_frame_cnt=%d",
+			ctx->id, q->type, ctx->state, ctx->decoded_frame_cnt);
+
+	if (q->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
+		while ((src_buf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx))) {
+			struct mtk_video_dec_buf *buf_info = container_of(
+				 src_buf, struct mtk_video_dec_buf, m2m_buf.vb);
+			if (!buf_info->lastframe)
+				v4l2_m2m_buf_done(src_buf,
+						VB2_BUF_STATE_ERROR);
+		}
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2561,6 +3549,7 @@ static void vb2ops_vdec_stop_streaming(struct vb2_queue *q)
 		 * So we update picinfo here
 		 */
 		ctx->picinfo = ctx->last_decoded_picinfo;
+<<<<<<< HEAD
 		ctx->dpb_size = ctx->last_dpb_size;
 		ctx->is_hdr = ctx->last_is_hdr;
 
@@ -2588,6 +3577,26 @@ static void vb2ops_vdec_stop_streaming(struct vb2_queue *q)
 
 		v4l2_m2m_buf_done(vb2_v4l2,
 						  VB2_BUF_STATE_ERROR);
+=======
+
+		mtk_v4l2_debug(2,
+				"[%d]-> new(%d,%d), old(%d,%d), real(%d,%d)",
+				ctx->id, ctx->last_decoded_picinfo.pic_w,
+				ctx->last_decoded_picinfo.pic_h,
+				ctx->picinfo.pic_w, ctx->picinfo.pic_h,
+				ctx->last_decoded_picinfo.buf_w,
+				ctx->last_decoded_picinfo.buf_h);
+
+		mtk_vdec_flush_decoder(ctx);
+	}
+	ctx->state = MTK_STATE_FLUSH;
+
+	while ((dst_buf = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx))) {
+		vb2_set_plane_payload(&dst_buf->vb2_buf, 0, 0);
+		if (ctx->q_data[MTK_Q_DATA_DST].fmt->num_planes == 2)
+			vb2_set_plane_payload(&dst_buf->vb2_buf, 1, 0);
+		v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_ERROR);
+>>>>>>> upstream/android-13
 	}
 
 }
@@ -2604,15 +3613,23 @@ static int m2mops_vdec_job_ready(void *m2m_priv)
 {
 	struct mtk_vcodec_ctx *ctx = m2m_priv;
 
+<<<<<<< HEAD
 	mtk_v4l2_debug(4, "[%d]", ctx->id);
+=======
+	mtk_v4l2_debug(3, "[%d]", ctx->id);
+>>>>>>> upstream/android-13
 
 	if (ctx->state == MTK_STATE_ABORT)
 		return 0;
 
 	if ((ctx->last_decoded_picinfo.pic_w != ctx->picinfo.pic_w) ||
+<<<<<<< HEAD
 		(ctx->last_decoded_picinfo.pic_h != ctx->picinfo.pic_h) ||
 		(ctx->last_dpb_size != ctx->dpb_size) ||
 		(ctx->last_is_hdr != ctx->is_hdr))
+=======
+	    (ctx->last_decoded_picinfo.pic_h != ctx->picinfo.pic_h))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (ctx->state != MTK_STATE_HEADER)
@@ -2625,7 +3642,10 @@ static void m2mops_vdec_job_abort(void *priv)
 {
 	struct mtk_vcodec_ctx *ctx = priv;
 
+<<<<<<< HEAD
 	mtk_v4l2_debug(4, "[%d]", ctx->id);
+=======
+>>>>>>> upstream/android-13
 	ctx->state = MTK_STATE_ABORT;
 }
 
@@ -2633,6 +3653,7 @@ static int mtk_vdec_g_v_ctrl(struct v4l2_ctrl *ctrl)
 {
 	struct mtk_vcodec_ctx *ctx = ctrl_to_ctx(ctrl);
 	int ret = 0;
+<<<<<<< HEAD
 	static unsigned int value;
 	struct mtk_color_desc *color_desc;
 
@@ -2641,10 +3662,19 @@ static int mtk_vdec_g_v_ctrl(struct v4l2_ctrl *ctrl)
 		if (ctx->state >= MTK_STATE_HEADER)
 			ctrl->val = ctx->dpb_size;
 		else {
+=======
+
+	switch (ctrl->id) {
+	case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
+		if (ctx->state >= MTK_STATE_HEADER) {
+			ctrl->val = ctx->dpb_size;
+		} else {
+>>>>>>> upstream/android-13
 			mtk_v4l2_debug(0, "Seqinfo not ready");
 			ctrl->val = 0;
 		}
 		break;
+<<<<<<< HEAD
 	case V4L2_CID_MPEG_MTK_FRAME_INTERVAL:
 		if (vdec_if_get_param(ctx,
 			GET_PARAM_FRAME_INTERVAL, &value) != 0) {
@@ -2700,12 +3730,15 @@ static int mtk_vdec_g_v_ctrl(struct v4l2_ctrl *ctrl)
 			ret = -EINVAL;
 		}
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		ret = -EINVAL;
 	}
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mtk_vdec_s_ctrl(struct v4l2_ctrl *ctrl)
 {
 	struct mtk_vcodec_ctx *ctx = ctrl_to_ctx(ctrl);
@@ -2823,12 +3856,17 @@ static const struct v4l2_ctrl_config mtk_codec_type_ctrl = {
 	.max = 10,
 	.step = 1,
 	.def = 0,
+=======
+static const struct v4l2_ctrl_ops mtk_vcodec_dec_ctrl_ops = {
+	.g_volatile_ctrl = mtk_vdec_g_v_ctrl,
+>>>>>>> upstream/android-13
 };
 
 int mtk_vcodec_dec_ctrls_setup(struct mtk_vcodec_ctx *ctx)
 {
 	struct v4l2_ctrl *ctrl;
 
+<<<<<<< HEAD
 	v4l2_ctrl_handler_init(&ctx->ctrl_hdl, MTK_MAX_CTRLS_HINT);
 
 	/* g_volatile_ctrl */
@@ -2934,6 +3972,24 @@ int mtk_vcodec_dec_ctrls_setup(struct mtk_vcodec_ctx *ctx)
 	if (ctx->ctrl_hdl.error) {
 		mtk_v4l2_err("Adding control failed %d",
 					 ctx->ctrl_hdl.error);
+=======
+	v4l2_ctrl_handler_init(&ctx->ctrl_hdl, 1);
+
+	ctrl = v4l2_ctrl_new_std(&ctx->ctrl_hdl,
+				&mtk_vcodec_dec_ctrl_ops,
+				V4L2_CID_MIN_BUFFERS_FOR_CAPTURE,
+				0, 32, 1, 1);
+	ctrl->flags |= V4L2_CTRL_FLAG_VOLATILE;
+	v4l2_ctrl_new_std_menu(&ctx->ctrl_hdl,
+				&mtk_vcodec_dec_ctrl_ops,
+				V4L2_CID_MPEG_VIDEO_VP9_PROFILE,
+				V4L2_MPEG_VIDEO_VP9_PROFILE_0,
+				0, V4L2_MPEG_VIDEO_VP9_PROFILE_0);
+
+	if (ctx->ctrl_hdl.error) {
+		mtk_v4l2_err("Adding control failed %d",
+				ctx->ctrl_hdl.error);
+>>>>>>> upstream/android-13
 		return ctx->ctrl_hdl.error;
 	}
 
@@ -2942,6 +3998,7 @@ int mtk_vcodec_dec_ctrls_setup(struct mtk_vcodec_ctx *ctx)
 }
 
 const struct v4l2_m2m_ops mtk_vdec_m2m_ops = {
+<<<<<<< HEAD
 	.device_run     = m2mops_vdec_device_run,
 	.job_ready      = m2mops_vdec_job_ready,
 	.job_abort      = m2mops_vdec_job_abort,
@@ -3005,10 +4062,66 @@ static int vdec_dc_ion_map_dmabuf(void *mem_priv)
 
 int mtk_vcodec_dec_queue_init(void *priv, struct vb2_queue *src_vq,
 	struct vb2_queue *dst_vq)
+=======
+	.device_run	= m2mops_vdec_device_run,
+	.job_ready	= m2mops_vdec_job_ready,
+	.job_abort	= m2mops_vdec_job_abort,
+};
+
+static const struct vb2_ops mtk_vdec_vb2_ops = {
+	.queue_setup	= vb2ops_vdec_queue_setup,
+	.buf_prepare	= vb2ops_vdec_buf_prepare,
+	.buf_queue	= vb2ops_vdec_buf_queue,
+	.wait_prepare	= vb2_ops_wait_prepare,
+	.wait_finish	= vb2_ops_wait_finish,
+	.buf_init	= vb2ops_vdec_buf_init,
+	.buf_finish	= vb2ops_vdec_buf_finish,
+	.start_streaming	= vb2ops_vdec_start_streaming,
+	.stop_streaming	= vb2ops_vdec_stop_streaming,
+};
+
+const struct v4l2_ioctl_ops mtk_vdec_ioctl_ops = {
+	.vidioc_streamon	= v4l2_m2m_ioctl_streamon,
+	.vidioc_streamoff	= v4l2_m2m_ioctl_streamoff,
+	.vidioc_reqbufs		= v4l2_m2m_ioctl_reqbufs,
+	.vidioc_querybuf	= v4l2_m2m_ioctl_querybuf,
+	.vidioc_expbuf		= v4l2_m2m_ioctl_expbuf,
+
+	.vidioc_qbuf		= vidioc_vdec_qbuf,
+	.vidioc_dqbuf		= vidioc_vdec_dqbuf,
+
+	.vidioc_try_fmt_vid_cap_mplane	= vidioc_try_fmt_vid_cap_mplane,
+	.vidioc_try_fmt_vid_out_mplane	= vidioc_try_fmt_vid_out_mplane,
+
+	.vidioc_s_fmt_vid_cap_mplane	= vidioc_vdec_s_fmt,
+	.vidioc_s_fmt_vid_out_mplane	= vidioc_vdec_s_fmt,
+	.vidioc_g_fmt_vid_cap_mplane	= vidioc_vdec_g_fmt,
+	.vidioc_g_fmt_vid_out_mplane	= vidioc_vdec_g_fmt,
+
+	.vidioc_create_bufs		= v4l2_m2m_ioctl_create_bufs,
+
+	.vidioc_enum_fmt_vid_cap	= vidioc_vdec_enum_fmt_vid_cap,
+	.vidioc_enum_fmt_vid_out	= vidioc_vdec_enum_fmt_vid_out,
+	.vidioc_enum_framesizes	= vidioc_enum_framesizes,
+
+	.vidioc_querycap		= vidioc_vdec_querycap,
+	.vidioc_subscribe_event		= vidioc_vdec_subscribe_evt,
+	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
+	.vidioc_g_selection             = vidioc_vdec_g_selection,
+	.vidioc_s_selection             = vidioc_vdec_s_selection,
+
+	.vidioc_decoder_cmd = vidioc_decoder_cmd,
+	.vidioc_try_decoder_cmd = vidioc_try_decoder_cmd,
+};
+
+int mtk_vcodec_dec_queue_init(void *priv, struct vb2_queue *src_vq,
+			   struct vb2_queue *dst_vq)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = priv;
 	int ret = 0;
 
+<<<<<<< HEAD
 	mtk_v4l2_debug(4, "[%d]", ctx->id);
 
 	src_vq->type            = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
@@ -3030,12 +4143,26 @@ int mtk_vcodec_dec_queue_init(void *priv, struct vb2_queue *src_vq,
 	src_vq->lock            = &ctx->dev->dev_mutex;
 	src_vq->dev             = &ctx->dev->plat_dev->dev;
 	src_vq->allow_zero_bytesused = 1;
+=======
+	mtk_v4l2_debug(3, "[%d]", ctx->id);
+
+	src_vq->type		= V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	src_vq->io_modes	= VB2_DMABUF | VB2_MMAP;
+	src_vq->drv_priv	= ctx;
+	src_vq->buf_struct_size = sizeof(struct mtk_video_dec_buf);
+	src_vq->ops		= &mtk_vdec_vb2_ops;
+	src_vq->mem_ops		= &vb2_dma_contig_memops;
+	src_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
+	src_vq->lock		= &ctx->dev->dev_mutex;
+	src_vq->dev             = &ctx->dev->plat_dev->dev;
+>>>>>>> upstream/android-13
 
 	ret = vb2_queue_init(src_vq);
 	if (ret) {
 		mtk_v4l2_err("Failed to initialize videobuf2 queue(output)");
 		return ret;
 	}
+<<<<<<< HEAD
 	dst_vq->type            = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	dst_vq->io_modes        = VB2_DMABUF | VB2_MMAP;
 	dst_vq->drv_priv        = ctx;
@@ -3060,6 +4187,21 @@ int mtk_vcodec_dec_queue_init(void *priv, struct vb2_queue *src_vq,
 		vb2_queue_release(src_vq);
 		mtk_v4l2_err("Failed to initialize videobuf2 queue(capture)");
 	}
+=======
+	dst_vq->type		= V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	dst_vq->io_modes	= VB2_DMABUF | VB2_MMAP;
+	dst_vq->drv_priv	= ctx;
+	dst_vq->buf_struct_size = sizeof(struct mtk_video_dec_buf);
+	dst_vq->ops		= &mtk_vdec_vb2_ops;
+	dst_vq->mem_ops		= &vb2_dma_contig_memops;
+	dst_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
+	dst_vq->lock		= &ctx->dev->dev_mutex;
+	dst_vq->dev             = &ctx->dev->plat_dev->dev;
+
+	ret = vb2_queue_init(dst_vq);
+	if (ret)
+		mtk_v4l2_err("Failed to initialize videobuf2 queue(capture)");
+>>>>>>> upstream/android-13
 
 	return ret;
 }

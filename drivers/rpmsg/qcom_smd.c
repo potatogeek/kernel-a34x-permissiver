@@ -974,6 +974,23 @@ static int qcom_smd_trysend(struct rpmsg_endpoint *ept, void *data, int len)
 	return __qcom_smd_send(qsept->qsch, data, len, false);
 }
 
+<<<<<<< HEAD
+=======
+static int qcom_smd_sendto(struct rpmsg_endpoint *ept, void *data, int len, u32 dst)
+{
+	struct qcom_smd_endpoint *qsept = to_smd_endpoint(ept);
+
+	return __qcom_smd_send(qsept->qsch, data, len, true);
+}
+
+static int qcom_smd_trysendto(struct rpmsg_endpoint *ept, void *data, int len, u32 dst)
+{
+	struct qcom_smd_endpoint *qsept = to_smd_endpoint(ept);
+
+	return __qcom_smd_send(qsept->qsch, data, len, false);
+}
+
+>>>>>>> upstream/android-13
 static __poll_t qcom_smd_poll(struct rpmsg_endpoint *ept,
 				  struct file *filp, poll_table *wait)
 {
@@ -1038,7 +1055,13 @@ static const struct rpmsg_device_ops qcom_smd_device_ops = {
 static const struct rpmsg_endpoint_ops qcom_smd_endpoint_ops = {
 	.destroy_ept = qcom_smd_destroy_ept,
 	.send = qcom_smd_send,
+<<<<<<< HEAD
 	.trysend = qcom_smd_trysend,
+=======
+	.sendto = qcom_smd_sendto,
+	.trysend = qcom_smd_trysend,
+	.trysendto = qcom_smd_trysendto,
+>>>>>>> upstream/android-13
 	.poll = qcom_smd_poll,
 };
 
@@ -1097,7 +1120,11 @@ static int qcom_smd_create_chrdev(struct qcom_smd_edge *edge)
 	qsdev->rpdev.dev.parent = &edge->dev;
 	qsdev->rpdev.dev.release = qcom_smd_release_device;
 
+<<<<<<< HEAD
 	return rpmsg_chrdev_register_device(&qsdev->rpdev);
+=======
+	return rpmsg_ctrldev_register_device(&qsdev->rpdev);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1469,7 +1496,11 @@ struct qcom_smd_edge *qcom_smd_register_edge(struct device *parent,
 	edge->dev.release = qcom_smd_edge_release;
 	edge->dev.of_node = node;
 	edge->dev.groups = qcom_smd_edge_groups;
+<<<<<<< HEAD
 	dev_set_name(&edge->dev, "%s:%s", dev_name(parent), node->name);
+=======
+	dev_set_name(&edge->dev, "%s:%pOFn", dev_name(parent), node);
+>>>>>>> upstream/android-13
 	ret = device_register(&edge->dev);
 	if (ret) {
 		pr_err("failed to register smd edge\n");

@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for I2C adapter in Rockchip RK3xxx SoC
  *
  * Max Schwarz <max.schwarz@online.de>
  * based on the patches by Rockchip Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/err.h>
 #include <linux/platform_device.h>
@@ -418,15 +429,24 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
 {
 	unsigned int i;
 	unsigned int len = i2c->msg->len - i2c->processed;
+<<<<<<< HEAD
 	u32 uninitialized_var(val);
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 	u8 byte;
 
 	/* we only care for MBRF here. */
 	if (!(ipd & REG_INT_MBRF))
 		return;
 
+<<<<<<< HEAD
 	/* ack interrupt */
 	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
+=======
+	/* ack interrupt (read also produces a spurious START flag, clear it too) */
+	i2c_writel(i2c, REG_INT_MBRF | REG_INT_START, REG_IPD);
+>>>>>>> upstream/android-13
 
 	/* Can only handle a maximum of 32 bytes at a time */
 	if (len > 32)
@@ -542,9 +562,15 @@ out:
  */
 static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
 {
+<<<<<<< HEAD
 	if (speed <= 100000)
 		return &standard_mode_spec;
 	else if (speed <= 400000)
+=======
+	if (speed <= I2C_MAX_STANDARD_MODE_FREQ)
+		return &standard_mode_spec;
+	else if (speed <= I2C_MAX_FAST_MODE_FREQ)
+>>>>>>> upstream/android-13
 		return &fast_mode_spec;
 	else
 		return &fast_mode_plus_spec;
@@ -581,8 +607,13 @@ static int rk3x_i2c_v0_calc_timings(unsigned long clk_rate,
 	int ret = 0;
 
 	/* Only support standard-mode and fast-mode */
+<<<<<<< HEAD
 	if (WARN_ON(t->bus_freq_hz > 400000))
 		t->bus_freq_hz = 400000;
+=======
+	if (WARN_ON(t->bus_freq_hz > I2C_MAX_FAST_MODE_FREQ))
+		t->bus_freq_hz = I2C_MAX_FAST_MODE_FREQ;
+>>>>>>> upstream/android-13
 
 	/* prevent scl_rate_khz from becoming 0 */
 	if (WARN_ON(t->bus_freq_hz < 1000))
@@ -761,8 +792,13 @@ static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
 	int ret = 0;
 
 	/* Support standard-mode, fast-mode and fast-mode plus */
+<<<<<<< HEAD
 	if (WARN_ON(t->bus_freq_hz > 1000000))
 		t->bus_freq_hz = 1000000;
+=======
+	if (WARN_ON(t->bus_freq_hz > I2C_MAX_FAST_MODE_PLUS_FREQ))
+		t->bus_freq_hz = I2C_MAX_FAST_MODE_PLUS_FREQ;
+>>>>>>> upstream/android-13
 
 	/* prevent scl_rate_khz from becoming 0 */
 	if (WARN_ON(t->bus_freq_hz < 1000))
@@ -1043,8 +1079,26 @@ static int rk3x_i2c_setup(struct rk3x_i2c *i2c, struct i2c_msg *msgs, int num)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int rk3x_i2c_xfer(struct i2c_adapter *adap,
 			 struct i2c_msg *msgs, int num)
+=======
+static int rk3x_i2c_wait_xfer_poll(struct rk3x_i2c *i2c)
+{
+	ktime_t timeout = ktime_add_ms(ktime_get(), WAIT_TIMEOUT);
+
+	while (READ_ONCE(i2c->busy) &&
+	       ktime_compare(ktime_get(), timeout) < 0) {
+		udelay(5);
+		rk3x_i2c_irq(0, i2c);
+	}
+
+	return !i2c->busy;
+}
+
+static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
+				struct i2c_msg *msgs, int num, bool polling)
+>>>>>>> upstream/android-13
 {
 	struct rk3x_i2c *i2c = (struct rk3x_i2c *)adap->algo_data;
 	unsigned long timeout, flags;
@@ -1078,8 +1132,17 @@ static int rk3x_i2c_xfer(struct i2c_adapter *adap,
 
 		rk3x_i2c_start(i2c);
 
+<<<<<<< HEAD
 		timeout = wait_event_timeout(i2c->wait, !i2c->busy,
 					     msecs_to_jiffies(WAIT_TIMEOUT));
+=======
+		if (!polling) {
+			timeout = wait_event_timeout(i2c->wait, !i2c->busy,
+						     msecs_to_jiffies(WAIT_TIMEOUT));
+		} else {
+			timeout = rk3x_i2c_wait_xfer_poll(i2c);
+		}
+>>>>>>> upstream/android-13
 
 		spin_lock_irqsave(&i2c->lock, flags);
 
@@ -1113,6 +1176,21 @@ static int rk3x_i2c_xfer(struct i2c_adapter *adap,
 	return ret < 0 ? ret : num;
 }
 
+<<<<<<< HEAD
+=======
+static int rk3x_i2c_xfer(struct i2c_adapter *adap,
+			 struct i2c_msg *msgs, int num)
+{
+	return rk3x_i2c_xfer_common(adap, msgs, num, false);
+}
+
+static int rk3x_i2c_xfer_polling(struct i2c_adapter *adap,
+				 struct i2c_msg *msgs, int num)
+{
+	return rk3x_i2c_xfer_common(adap, msgs, num, true);
+}
+
+>>>>>>> upstream/android-13
 static __maybe_unused int rk3x_i2c_resume(struct device *dev)
 {
 	struct rk3x_i2c *i2c = dev_get_drvdata(dev);
@@ -1129,6 +1207,10 @@ static u32 rk3x_i2c_func(struct i2c_adapter *adap)
 
 static const struct i2c_algorithm rk3x_i2c_algorithm = {
 	.master_xfer		= rk3x_i2c_xfer,
+<<<<<<< HEAD
+=======
+	.master_xfer_atomic	= rk3x_i2c_xfer_polling,
+>>>>>>> upstream/android-13
 	.functionality		= rk3x_i2c_func,
 };
 
@@ -1196,7 +1278,10 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	const struct of_device_id *match;
 	struct rk3x_i2c *i2c;
+<<<<<<< HEAD
 	struct resource *mem;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 	int bus_nr;
 	u32 value;
@@ -1226,8 +1311,12 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
 	spin_lock_init(&i2c->lock);
 	init_waitqueue_head(&i2c->wait);
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	i2c->regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	i2c->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2c->regs))
 		return PTR_ERR(i2c->regs);
 
@@ -1265,10 +1354,15 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
 
 	/* IRQ setup */
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "cannot find rk3x IRQ\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(&pdev->dev, irq, rk3x_i2c_irq,
 			       0, dev_name(&pdev->dev), i2c);
@@ -1288,6 +1382,7 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
 		i2c->pclk = devm_clk_get(&pdev->dev, "pclk");
 	}
 
+<<<<<<< HEAD
 	if (IS_ERR(i2c->clk)) {
 		ret = PTR_ERR(i2c->clk);
 		if (ret != -EPROBE_DEFER)
@@ -1300,6 +1395,15 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
 			dev_err(&pdev->dev, "Can't get periph clk: %d\n", ret);
 		return ret;
 	}
+=======
+	if (IS_ERR(i2c->clk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
+				     "Can't get bus clk\n");
+
+	if (IS_ERR(i2c->pclk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->pclk),
+				     "Can't get periph clk\n");
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare(i2c->clk);
 	if (ret < 0) {

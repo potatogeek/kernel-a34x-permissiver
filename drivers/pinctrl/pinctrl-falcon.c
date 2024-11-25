@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/pinctrl/pinmux-falcon.c
  *  based on linux/drivers/pinctrl/pinmux-pxa910.c
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright (C) 2012 Thomas Langer <thomas.langer@lantiq.com>
  *  Copyright (C) 2012 John Crispin <john@phrozen.org>
  */
 
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/slab.h>
 #include <linux/export.h>
@@ -99,12 +110,17 @@ static void lantiq_load_pin_desc(struct pinctrl_pin_desc *d, int bank, int len)
 	int i;
 
 	for (i = 0; i < len; i++) {
+<<<<<<< HEAD
 		/* strlen("ioXYZ") + 1 = 6 */
 		char *name = kzalloc(6, GFP_KERNEL);
 
 		snprintf(name, 6, "io%d", base + i);
 		d[i].number = base + i;
 		d[i].name = name;
+=======
+		d[i].number = base + i;
+		d[i].name = kasprintf(GFP_KERNEL, "io%d", base + i);
+>>>>>>> upstream/android-13
 	}
 	pad_count[bank] = len;
 }
@@ -462,12 +478,23 @@ static int pinctrl_falcon_probe(struct platform_device *pdev)
 		put_device(&ppdev->dev);
 		if (IS_ERR(falcon_info.clk[*bank])) {
 			dev_err(&ppdev->dev, "failed to get clock\n");
+<<<<<<< HEAD
+=======
+			of_node_put(np);
+>>>>>>> upstream/android-13
 			return PTR_ERR(falcon_info.clk[*bank]);
 		}
 		falcon_info.membase[*bank] = devm_ioremap_resource(&pdev->dev,
 								   &res);
+<<<<<<< HEAD
 		if (IS_ERR(falcon_info.membase[*bank]))
 			return PTR_ERR(falcon_info.membase[*bank]);
+=======
+		if (IS_ERR(falcon_info.membase[*bank])) {
+			of_node_put(np);
+			return PTR_ERR(falcon_info.membase[*bank]);
+		}
+>>>>>>> upstream/android-13
 
 		avail = pad_r32(falcon_info.membase[*bank],
 					LTQ_PADC_AVAIL);

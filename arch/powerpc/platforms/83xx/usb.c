@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale 83xx USB SOC setup code
  *
  * Copyright (C) 2007 Freescale Semiconductor, Inc.
  * Author: Li Yang
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -221,8 +228,15 @@ int mpc837x_usb_cfg(void)
 	int ret = 0;
 
 	np = of_find_compatible_node(NULL, NULL, "fsl-usb2-dr");
+<<<<<<< HEAD
 	if (!np || !of_device_is_available(np))
 		return -ENODEV;
+=======
+	if (!np || !of_device_is_available(np)) {
+		of_node_put(np);
+		return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 	prop = of_get_property(np, "phy_type", NULL);
 
 	if (!prop || (strcmp(prop, "ulpi") && strcmp(prop, "serial"))) {

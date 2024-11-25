@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Synchronous Cryptographic Hash operations.
  *
  * Copyright (c) 2008 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/scatterwalk.h>
@@ -25,12 +32,33 @@
 
 static const struct crypto_type crypto_shash_type;
 
+<<<<<<< HEAD
 int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
 		    unsigned int keylen)
 {
 	return -ENOSYS;
 }
 EXPORT_SYMBOL_GPL(shash_no_setkey);
+=======
+static int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+			   unsigned int keylen)
+{
+	return -ENOSYS;
+}
+
+/*
+ * Check whether an shash algorithm has a setkey function.
+ *
+ * For CFI compatibility, this must not be an inline function.  This is because
+ * when CFI is enabled, modules won't get the same address for shash_no_setkey
+ * (if it were exported, which inlining would require) as the core kernel will.
+ */
+bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
+{
+	return alg->setkey != shash_no_setkey;
+}
+EXPORT_SYMBOL_GPL(crypto_shash_alg_has_setkey);
+>>>>>>> upstream/android-13
 
 static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
 				  unsigned int keylen)
@@ -49,14 +77,22 @@ static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
 	alignbuffer = (u8 *)ALIGN((unsigned long)buffer, alignmask + 1);
 	memcpy(alignbuffer, key, keylen);
 	err = shash->setkey(tfm, alignbuffer, keylen);
+<<<<<<< HEAD
 	kzfree(buffer);
+=======
+	kfree_sensitive(buffer);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static void shash_set_needkey(struct crypto_shash *tfm, struct shash_alg *alg)
 {
+<<<<<<< HEAD
 	if (crypto_shash_alg_has_setkey(alg) &&
 	    !(alg->base.cra_flags & CRYPTO_ALG_OPTIONAL_KEY))
+=======
+	if (crypto_shash_alg_needs_key(alg))
+>>>>>>> upstream/android-13
 		crypto_shash_set_flags(tfm, CRYPTO_TFM_NEED_KEY);
 }
 
@@ -82,6 +118,7 @@ int crypto_shash_setkey(struct crypto_shash *tfm, const u8 *key,
 }
 EXPORT_SYMBOL_GPL(crypto_shash_setkey);
 
+<<<<<<< HEAD
 static inline unsigned int shash_align_buffer_size(unsigned len,
 						   unsigned long mask)
 {
@@ -89,6 +126,8 @@ static inline unsigned int shash_align_buffer_size(unsigned len,
 	return len + (mask & ~(__alignof__(u8_aligned) - 1));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int shash_update_unaligned(struct shash_desc *desc, const u8 *data,
 				  unsigned int len)
 {
@@ -97,11 +136,25 @@ static int shash_update_unaligned(struct shash_desc *desc, const u8 *data,
 	unsigned long alignmask = crypto_shash_alignmask(tfm);
 	unsigned int unaligned_len = alignmask + 1 -
 				     ((unsigned long)data & alignmask);
+<<<<<<< HEAD
 	u8 ubuf[shash_align_buffer_size(unaligned_len, alignmask)]
 		__aligned_largest;
 	u8 *buf = PTR_ALIGN(&ubuf[0], alignmask + 1);
 	int err;
 
+=======
+	/*
+	 * We cannot count on __aligned() working for large values:
+	 * https://patchwork.kernel.org/patch/9507697/
+	 */
+	u8 ubuf[MAX_ALGAPI_ALIGNMASK * 2];
+	u8 *buf = PTR_ALIGN(&ubuf[0], alignmask + 1);
+	int err;
+
+	if (WARN_ON(buf + unaligned_len > ubuf + sizeof(ubuf)))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (unaligned_len > len)
 		unaligned_len = len;
 
@@ -133,11 +186,25 @@ static int shash_final_unaligned(struct shash_desc *desc, u8 *out)
 	unsigned long alignmask = crypto_shash_alignmask(tfm);
 	struct shash_alg *shash = crypto_shash_alg(tfm);
 	unsigned int ds = crypto_shash_digestsize(tfm);
+<<<<<<< HEAD
 	u8 ubuf[shash_align_buffer_size(ds, alignmask)]
 		__aligned_largest;
 	u8 *buf = PTR_ALIGN(&ubuf[0], alignmask + 1);
 	int err;
 
+=======
+	/*
+	 * We cannot count on __aligned() working for large values:
+	 * https://patchwork.kernel.org/patch/9507697/
+	 */
+	u8 ubuf[MAX_ALGAPI_ALIGNMASK + HASH_MAX_DIGESTSIZE];
+	u8 *buf = PTR_ALIGN(&ubuf[0], alignmask + 1);
+	int err;
+
+	if (WARN_ON(buf + ds > ubuf + sizeof(ubuf)))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	err = shash->final(desc, buf);
 	if (err)
 		goto out;
@@ -207,6 +274,25 @@ int crypto_shash_digest(struct shash_desc *desc, const u8 *data,
 }
 EXPORT_SYMBOL_GPL(crypto_shash_digest);
 
+<<<<<<< HEAD
+=======
+int crypto_shash_tfm_digest(struct crypto_shash *tfm, const u8 *data,
+			    unsigned int len, u8 *out)
+{
+	SHASH_DESC_ON_STACK(desc, tfm);
+	int err;
+
+	desc->tfm = tfm;
+
+	err = crypto_shash_digest(desc, data, len, out);
+
+	shash_desc_zero(desc);
+
+	return err;
+}
+EXPORT_SYMBOL_GPL(crypto_shash_tfm_digest);
+
+>>>>>>> upstream/android-13
 static int shash_default_export(struct shash_desc *desc, void *out)
 {
 	memcpy(out, shash_desc_ctx(desc), crypto_shash_descsize(desc->tfm));
@@ -233,7 +319,10 @@ static int shash_async_init(struct ahash_request *req)
 	struct shash_desc *desc = ahash_request_ctx(req);
 
 	desc->tfm = *ctx;
+<<<<<<< HEAD
 	desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 
 	return crypto_shash_init(desc);
 }
@@ -288,7 +377,10 @@ static int shash_async_finup(struct ahash_request *req)
 	struct shash_desc *desc = ahash_request_ctx(req);
 
 	desc->tfm = *ctx;
+<<<<<<< HEAD
 	desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 
 	return shash_ahash_finup(req, desc);
 }
@@ -302,14 +394,21 @@ int shash_ahash_digest(struct ahash_request *req, struct shash_desc *desc)
 
 	if (nbytes &&
 	    (sg = req->src, offset = sg->offset,
+<<<<<<< HEAD
 	     nbytes < min(sg->length, ((unsigned int)(PAGE_SIZE)) - offset))) {
+=======
+	     nbytes <= min(sg->length, ((unsigned int)(PAGE_SIZE)) - offset))) {
+>>>>>>> upstream/android-13
 		void *data;
 
 		data = kmap_atomic(sg_page(sg));
 		err = crypto_shash_digest(desc, data + offset, nbytes,
 					  req->result);
 		kunmap_atomic(data);
+<<<<<<< HEAD
 		crypto_yield(desc->flags);
+=======
+>>>>>>> upstream/android-13
 	} else
 		err = crypto_shash_init(desc) ?:
 		      shash_ahash_finup(req, desc);
@@ -324,7 +423,10 @@ static int shash_async_digest(struct ahash_request *req)
 	struct shash_desc *desc = ahash_request_ctx(req);
 
 	desc->tfm = *ctx;
+<<<<<<< HEAD
 	desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 
 	return shash_ahash_digest(req, desc);
 }
@@ -340,7 +442,10 @@ static int shash_async_import(struct ahash_request *req, const void *in)
 	struct shash_desc *desc = ahash_request_ctx(req);
 
 	desc->tfm = *ctx;
+<<<<<<< HEAD
 	desc->flags = req->base.flags;
+=======
+>>>>>>> upstream/android-13
 
 	return crypto_shash_import(desc, in);
 }
@@ -383,39 +488,96 @@ int crypto_init_shash_ops_async(struct crypto_tfm *tfm)
 	crypto_ahash_set_flags(crt, crypto_shash_get_flags(shash) &
 				    CRYPTO_TFM_NEED_KEY);
 
+<<<<<<< HEAD
 	if (alg->export)
 		crt->export = shash_async_export;
 	if (alg->import)
 		crt->import = shash_async_import;
+=======
+	crt->export = shash_async_export;
+	crt->import = shash_async_import;
+>>>>>>> upstream/android-13
 
 	crt->reqsize = sizeof(struct shash_desc) + crypto_shash_descsize(shash);
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void crypto_shash_exit_tfm(struct crypto_tfm *tfm)
+{
+	struct crypto_shash *hash = __crypto_shash_cast(tfm);
+	struct shash_alg *alg = crypto_shash_alg(hash);
+
+	alg->exit_tfm(hash);
+}
+
+>>>>>>> upstream/android-13
 static int crypto_shash_init_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_shash *hash = __crypto_shash_cast(tfm);
 	struct shash_alg *alg = crypto_shash_alg(hash);
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	hash->descsize = alg->descsize;
 
 	shash_set_needkey(hash, alg);
 
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+	if (alg->exit_tfm)
+		tfm->exit = crypto_shash_exit_tfm;
+
+	if (!alg->init_tfm)
+		return 0;
+
+	err = alg->init_tfm(hash);
+	if (err)
+		return err;
+
+	/* ->init_tfm() may have increased the descsize. */
+	if (WARN_ON_ONCE(hash->descsize > HASH_MAX_DESCSIZE)) {
+		if (alg->exit_tfm)
+			alg->exit_tfm(hash);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static void crypto_shash_free_instance(struct crypto_instance *inst)
+{
+	struct shash_instance *shash = shash_instance(inst);
+
+	shash->free(shash);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET
 static int crypto_shash_report(struct sk_buff *skb, struct crypto_alg *alg)
 {
 	struct crypto_report_hash rhash;
 	struct shash_alg *salg = __crypto_shash_alg(alg);
 
+<<<<<<< HEAD
 	strncpy(rhash.type, "shash", sizeof(rhash.type));
+=======
+	memset(&rhash, 0, sizeof(rhash));
+
+	strscpy(rhash.type, "shash", sizeof(rhash.type));
+>>>>>>> upstream/android-13
 
 	rhash.blocksize = alg->cra_blocksize;
 	rhash.digestsize = salg->digestsize;
 
+<<<<<<< HEAD
 	if (nla_put(skb, CRYPTOCFGA_REPORT_HASH,
 		    sizeof(struct crypto_report_hash), &rhash))
 		goto nla_put_failure;
@@ -423,6 +585,9 @@ static int crypto_shash_report(struct sk_buff *skb, struct crypto_alg *alg)
 
 nla_put_failure:
 	return -EMSGSIZE;
+=======
+	return nla_put(skb, CRYPTOCFGA_REPORT_HASH, sizeof(rhash), &rhash);
+>>>>>>> upstream/android-13
 }
 #else
 static int crypto_shash_report(struct sk_buff *skb, struct crypto_alg *alg)
@@ -445,6 +610,10 @@ static void crypto_shash_show(struct seq_file *m, struct crypto_alg *alg)
 static const struct crypto_type crypto_shash_type = {
 	.extsize = crypto_alg_extsize,
 	.init_tfm = crypto_shash_init_tfm,
+<<<<<<< HEAD
+=======
+	.free = crypto_shash_free_instance,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROC_FS
 	.show = crypto_shash_show,
 #endif
@@ -455,6 +624,18 @@ static const struct crypto_type crypto_shash_type = {
 	.tfmsize = offsetof(struct crypto_shash, base),
 };
 
+<<<<<<< HEAD
+=======
+int crypto_grab_shash(struct crypto_shash_spawn *spawn,
+		      struct crypto_instance *inst,
+		      const char *name, u32 type, u32 mask)
+{
+	spawn->base.frontend = &crypto_shash_type;
+	return crypto_grab_spawn(&spawn->base, inst, name, type, mask);
+}
+EXPORT_SYMBOL_GPL(crypto_grab_shash);
+
+>>>>>>> upstream/android-13
 struct crypto_shash *crypto_alloc_shash(const char *alg_name, u32 type,
 					u32 mask)
 {
@@ -466,9 +647,18 @@ static int shash_prepare_alg(struct shash_alg *alg)
 {
 	struct crypto_alg *base = &alg->base;
 
+<<<<<<< HEAD
 	if (alg->digestsize > PAGE_SIZE / 8 ||
 	    alg->descsize > PAGE_SIZE / 8 ||
 	    alg->statesize > PAGE_SIZE / 8)
+=======
+	if (alg->digestsize > HASH_MAX_DIGESTSIZE ||
+	    alg->descsize > HASH_MAX_DESCSIZE ||
+	    alg->statesize > HASH_MAX_STATESIZE)
+		return -EINVAL;
+
+	if ((alg->export && !alg->import) || (alg->import && !alg->export))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	base->cra_type = &crypto_shash_type;
@@ -503,9 +693,15 @@ int crypto_register_shash(struct shash_alg *alg)
 }
 EXPORT_SYMBOL_GPL(crypto_register_shash);
 
+<<<<<<< HEAD
 int crypto_unregister_shash(struct shash_alg *alg)
 {
 	return crypto_unregister_alg(&alg->base);
+=======
+void crypto_unregister_shash(struct shash_alg *alg)
+{
+	crypto_unregister_alg(&alg->base);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_unregister_shash);
 
@@ -529,6 +725,7 @@ err:
 }
 EXPORT_SYMBOL_GPL(crypto_register_shashes);
 
+<<<<<<< HEAD
 int crypto_unregister_shashes(struct shash_alg *algs, int count)
 {
 	int i, ret;
@@ -542,6 +739,14 @@ int crypto_unregister_shashes(struct shash_alg *algs, int count)
 	}
 
 	return 0;
+=======
+void crypto_unregister_shashes(struct shash_alg *algs, int count)
+{
+	int i;
+
+	for (i = count - 1; i >= 0; --i)
+		crypto_unregister_shash(&algs[i]);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_unregister_shashes);
 
@@ -550,6 +755,12 @@ int shash_register_instance(struct crypto_template *tmpl,
 {
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!inst->free))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	err = shash_prepare_alg(&inst->alg);
 	if (err)
 		return err;
@@ -558,6 +769,7 @@ int shash_register_instance(struct crypto_template *tmpl,
 }
 EXPORT_SYMBOL_GPL(shash_register_instance);
 
+<<<<<<< HEAD
 void shash_free_instance(struct crypto_instance *inst)
 {
 	crypto_drop_spawn(crypto_instance_ctx(inst));
@@ -583,6 +795,14 @@ struct shash_alg *shash_attr_alg(struct rtattr *rta, u32 type, u32 mask)
 	       container_of(alg, struct shash_alg, base);
 }
 EXPORT_SYMBOL_GPL(shash_attr_alg);
+=======
+void shash_free_singlespawn_instance(struct shash_instance *inst)
+{
+	crypto_drop_spawn(shash_instance_ctx(inst));
+	kfree(inst);
+}
+EXPORT_SYMBOL_GPL(shash_free_singlespawn_instance);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Synchronous cryptographic hash type");

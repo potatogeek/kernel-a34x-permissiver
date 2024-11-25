@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * omap_hwmod_3xxx_data.c - hardware modules present on the OMAP3xxx chips
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2012 Texas Instruments, Inc.
  * Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * The data in this file should be completely autogeneratable from
  * the TI hardware database or other technical documentation.
  *
@@ -19,7 +26,10 @@
 #include <linux/power/smartreflex.h>
 #include <linux/platform_data/hsmmc-omap.h>
 
+<<<<<<< HEAD
 #include <linux/omap-dma.h>
+=======
+>>>>>>> upstream/android-13
 #include "l3_3xxx.h"
 #include "l4_3xxx.h"
 
@@ -151,6 +161,7 @@ static struct omap_hwmod_class omap3xxx_timer_hwmod_class = {
 	.sysc = &omap3xxx_timer_sysc,
 };
 
+<<<<<<< HEAD
 /* timer1 */
 static struct omap_hwmod omap3xxx_timer1_hwmod = {
 	.name		= "timer1",
@@ -181,6 +192,8 @@ static struct omap_hwmod omap3xxx_timer2_hwmod = {
 	.flags		= HWMOD_SET_DEFAULT_CLOCKACT,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* timer3 */
 static struct omap_hwmod omap3xxx_timer3_hwmod = {
 	.name		= "timer3",
@@ -316,6 +329,7 @@ static struct omap_hwmod omap3xxx_timer11_hwmod = {
 	.flags		= HWMOD_SET_DEFAULT_CLOCKACT,
 };
 
+<<<<<<< HEAD
 /* timer12 */
 static struct omap_hwmod omap3xxx_timer12_hwmod = {
 	.name		= "timer12",
@@ -331,6 +345,8 @@ static struct omap_hwmod omap3xxx_timer12_hwmod = {
 	.flags		= HWMOD_SET_DEFAULT_CLOCKACT,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * 'wd_timer' class
  * 32-bit watchdog upward counter that generates a pulse on the reset pin on
@@ -484,7 +500,10 @@ static struct omap_hwmod am35xx_uart4_hwmod = {
 static struct omap_hwmod_class i2c_class = {
 	.name	= "i2c",
 	.sysc	= &i2c_sysc,
+<<<<<<< HEAD
 	.rev	= OMAP_I2C_IP_VERSION_1,
+=======
+>>>>>>> upstream/android-13
 	.reset	= &omap_i2c_reset,
 };
 
@@ -707,7 +726,10 @@ static struct omap_hwmod_class_sysconfig omap3xxx_gpio_sysc = {
 static struct omap_hwmod_class omap3xxx_gpio_hwmod_class = {
 	.name = "gpio",
 	.sysc = &omap3xxx_gpio_sysc,
+<<<<<<< HEAD
 	.rev = 1,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* gpio1 */
@@ -838,6 +860,7 @@ static struct omap_hwmod omap3xxx_gpio6_hwmod = {
 	.class		= &omap3xxx_gpio_hwmod_class,
 };
 
+<<<<<<< HEAD
 /* dma attributes */
 static struct omap_dma_dev_attr dma_dev_attr = {
 	.dev_caps  = RESERVE_CHANNEL | DMA_LINKED_LCH | GLOBAL_PRIORITY |
@@ -879,6 +902,8 @@ static struct omap_hwmod omap3xxx_dma_system_hwmod = {
 	.flags		= HWMOD_NO_IDLEST,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * 'mcbsp' class
  * multi channel buffered serial port controller
@@ -1029,7 +1054,10 @@ static struct omap_hwmod_class_sysconfig omap34xx_sr_sysc = {
 static struct omap_hwmod_class omap34xx_smartreflex_hwmod_class = {
 	.name = "smartreflex",
 	.sysc = &omap34xx_sr_sysc,
+<<<<<<< HEAD
 	.rev  = 1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct omap_hwmod_class_sysconfig omap36xx_sr_sysc = {
@@ -1044,7 +1072,10 @@ static struct omap_hwmod_class_sysconfig omap36xx_sr_sysc = {
 static struct omap_hwmod_class omap36xx_smartreflex_hwmod_class = {
 	.name = "smartreflex",
 	.sysc = &omap36xx_sr_sysc,
+<<<<<<< HEAD
 	.rev  = 2,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* SR1 */
@@ -1574,6 +1605,7 @@ static struct omap_hwmod omap3xxx_sad2d_hwmod = {
 };
 
 /*
+<<<<<<< HEAD
  * '32K sync counter' class
  * 32-bit ordinary counter, clocked by the falling edge of the 32 khz clock
  */
@@ -1606,6 +1638,8 @@ static struct omap_hwmod omap3xxx_counter_32k_hwmod = {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * 'gpmc' class
  * general purpose memory controller
  */
@@ -1917,6 +1951,7 @@ static struct omap_hwmod_ocp_if omap3xxx_l3__iva = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+<<<<<<< HEAD
 
 /* l4_wkup -> timer1 */
 static struct omap_hwmod_ocp_if omap3xxx_l4_wkup__timer1 = {
@@ -1936,6 +1971,8 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_per__timer2 = {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 /* l4_per -> timer3 */
 static struct omap_hwmod_ocp_if omap3xxx_l4_per__timer3 = {
 	.master		= &omap3xxx_l4_per_hwmod,
@@ -2014,6 +2051,7 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_core__timer11 = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+<<<<<<< HEAD
 
 /* l4_core -> timer12 */
 static struct omap_hwmod_ocp_if omap3xxx_l4_sec__timer12 = {
@@ -2023,6 +2061,8 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_sec__timer12 = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* l4_wkup -> wd_timer2 */
 
 static struct omap_hwmod_ocp_if omap3xxx_l4_wkup__wd_timer2 = {
@@ -2240,6 +2280,7 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_per__gpio6 = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+<<<<<<< HEAD
 /* dma_system -> L3 */
 static struct omap_hwmod_ocp_if omap3xxx_dma_system__l3 = {
 	.master		= &omap3xxx_dma_system_hwmod,
@@ -2257,6 +2298,8 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_core__dma_system = {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 /* l4_core -> mcbsp1 */
 static struct omap_hwmod_ocp_if omap3xxx_l4_core__mcbsp1 = {
 	.master		= &omap3xxx_l4_core_hwmod,
@@ -2391,6 +2434,7 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_core__hdq1w = {
 	.flags		= OMAP_FIREWALL_L4 | OCPIF_SWSUP_IDLE,
 };
 
+<<<<<<< HEAD
 /* l4_wkup -> 32ksync_counter */
 
 
@@ -2401,6 +2445,8 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_wkup__counter_32k = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* am35xx has Davinci MDIO & EMAC */
 static struct omap_hwmod_class am35xx_mdio_class = {
 	.name = "davinci_mdio",
@@ -2523,6 +2569,7 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_core__sham = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+<<<<<<< HEAD
 /* l4_core -> AES */
 static struct omap_hwmod_class_sysconfig omap3_aes_sysc = {
 	.rev_offs	= 0x44,
@@ -2561,6 +2608,8 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_core__aes = {
 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * 'ssi' class
  * synchronous serial interface (multichannel and full-duplex serial if)
@@ -2617,8 +2666,11 @@ static struct omap_hwmod_ocp_if *omap3xxx_hwmod_ocp_ifs[] __initdata = {
 	&omap3_l4_core__i2c2,
 	&omap3_l4_core__i2c3,
 	&omap3xxx_l4_wkup__l4_sec,
+<<<<<<< HEAD
 	&omap3xxx_l4_wkup__timer1,
 	&omap3xxx_l4_per__timer2,
+=======
+>>>>>>> upstream/android-13
 	&omap3xxx_l4_per__timer3,
 	&omap3xxx_l4_per__timer4,
 	&omap3xxx_l4_per__timer5,
@@ -2635,8 +2687,11 @@ static struct omap_hwmod_ocp_if *omap3xxx_hwmod_ocp_ifs[] __initdata = {
 	&omap3xxx_l4_per__gpio4,
 	&omap3xxx_l4_per__gpio5,
 	&omap3xxx_l4_per__gpio6,
+<<<<<<< HEAD
 	&omap3xxx_dma_system__l3,
 	&omap3xxx_l4_core__dma_system,
+=======
+>>>>>>> upstream/android-13
 	&omap3xxx_l4_core__mcbsp1,
 	&omap3xxx_l4_per__mcbsp2,
 	&omap3xxx_l4_per__mcbsp3,
@@ -2648,11 +2703,15 @@ static struct omap_hwmod_ocp_if *omap3xxx_hwmod_ocp_ifs[] __initdata = {
 	&omap34xx_l4_core__mcspi2,
 	&omap34xx_l4_core__mcspi3,
 	&omap34xx_l4_core__mcspi4,
+<<<<<<< HEAD
 	&omap3xxx_l4_wkup__counter_32k,
+=======
+>>>>>>> upstream/android-13
 	&omap3xxx_l3_main__gpmc,
 	NULL,
 };
 
+<<<<<<< HEAD
 /* GP-only hwmod links */
 static struct omap_hwmod_ocp_if *omap34xx_gp_hwmod_ocp_ifs[] __initdata = {
 	&omap3xxx_l4_sec__timer12,
@@ -2669,26 +2728,34 @@ static struct omap_hwmod_ocp_if *am35xx_gp_hwmod_ocp_ifs[] __initdata = {
 	NULL,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* crypto hwmod links */
 static struct omap_hwmod_ocp_if *omap34xx_sham_hwmod_ocp_ifs[] __initdata = {
 	&omap3xxx_l4_core__sham,
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod_ocp_if *omap34xx_aes_hwmod_ocp_ifs[] __initdata = {
 	&omap3xxx_l4_core__aes,
 	NULL,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct omap_hwmod_ocp_if *omap36xx_sham_hwmod_ocp_ifs[] __initdata = {
 	&omap3xxx_l4_core__sham,
 	NULL
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod_ocp_if *omap36xx_aes_hwmod_ocp_ifs[] __initdata = {
 	&omap3xxx_l4_core__aes,
 	NULL
 };
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Apparently the SHA/MD5 and AES accelerator IP blocks are
@@ -2703,11 +2770,14 @@ static struct omap_hwmod_ocp_if *am35xx_sham_hwmod_ocp_ifs[] __initdata = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct omap_hwmod_ocp_if *am35xx_aes_hwmod_ocp_ifs[] __initdata = {
 	/* &omap3xxx_l4_core__aes, */
 	NULL,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* 3430ES1-only hwmod links */
 static struct omap_hwmod_ocp_if *omap3430es1_hwmod_ocp_ifs[] __initdata = {
 	&omap3430es1_dss__l3,
@@ -2842,8 +2912,12 @@ static bool __init omap3xxx_hwmod_is_hs_ip_block_usable(struct device_node *bus,
 int __init omap3xxx_hwmod_init(void)
 {
 	int r;
+<<<<<<< HEAD
 	struct omap_hwmod_ocp_if **h = NULL, **h_gp = NULL, **h_sham = NULL;
 	struct omap_hwmod_ocp_if **h_aes = NULL;
+=======
+	struct omap_hwmod_ocp_if **h = NULL, **h_sham = NULL;
+>>>>>>> upstream/android-13
 	struct device_node *bus;
 	unsigned int rev;
 
@@ -2865,6 +2939,7 @@ int __init omap3xxx_hwmod_init(void)
 	    rev == OMAP3430_REV_ES2_1 || rev == OMAP3430_REV_ES3_0 ||
 	    rev == OMAP3430_REV_ES3_1 || rev == OMAP3430_REV_ES3_1_2) {
 		h = omap34xx_hwmod_ocp_ifs;
+<<<<<<< HEAD
 		h_gp = omap34xx_gp_hwmod_ocp_ifs;
 		h_sham = omap34xx_sham_hwmod_ocp_ifs;
 		h_aes = omap34xx_aes_hwmod_ocp_ifs;
@@ -2879,6 +2954,16 @@ int __init omap3xxx_hwmod_init(void)
 		h_gp = omap36xx_gp_hwmod_ocp_ifs;
 		h_sham = omap36xx_sham_hwmod_ocp_ifs;
 		h_aes = omap36xx_aes_hwmod_ocp_ifs;
+=======
+		h_sham = omap34xx_sham_hwmod_ocp_ifs;
+	} else if (rev == AM35XX_REV_ES1_0 || rev == AM35XX_REV_ES1_1) {
+		h = am35xx_hwmod_ocp_ifs;
+		h_sham = am35xx_sham_hwmod_ocp_ifs;
+	} else if (rev == OMAP3630_REV_ES1_0 || rev == OMAP3630_REV_ES1_1 ||
+		   rev == OMAP3630_REV_ES1_2) {
+		h = omap36xx_hwmod_ocp_ifs;
+		h_sham = omap36xx_sham_hwmod_ocp_ifs;
+>>>>>>> upstream/android-13
 	} else {
 		WARN(1, "OMAP3 hwmod family init: unknown chip type\n");
 		return -EINVAL;
@@ -2888,6 +2973,7 @@ int __init omap3xxx_hwmod_init(void)
 	if (r < 0)
 		return r;
 
+<<<<<<< HEAD
 	/* Register GP-only hwmod links. */
 	if (h_gp && omap_type() == OMAP2_DEVICE_TYPE_GP) {
 		r = omap_hwmod_register_links(h_gp);
@@ -2895,6 +2981,8 @@ int __init omap3xxx_hwmod_init(void)
 			return r;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Register crypto hwmod links only if they are not disabled in DT.
 	 * If DT information is missing, enable them only for GP devices.
@@ -2908,11 +2996,14 @@ int __init omap3xxx_hwmod_init(void)
 			goto put_node;
 	}
 
+<<<<<<< HEAD
 	if (h_aes && omap3xxx_hwmod_is_hs_ip_block_usable(bus, "aes")) {
 		r = omap_hwmod_register_links(h_aes);
 		if (r < 0)
 			goto put_node;
 	}
+=======
+>>>>>>> upstream/android-13
 	of_node_put(bus);
 
 	/*

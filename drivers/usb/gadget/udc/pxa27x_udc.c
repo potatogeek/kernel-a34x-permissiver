@@ -207,9 +207,13 @@ static void pxa_init_debugfs(struct pxa_udc *udc)
 {
 	struct dentry *root;
 
+<<<<<<< HEAD
 	root = debugfs_create_dir(udc->gadget.name, NULL);
 	udc->debugfs_root = root;
 
+=======
+	root = debugfs_create_dir(udc->gadget.name, usb_debug_root);
+>>>>>>> upstream/android-13
 	debugfs_create_file("udcstate", 0400, root, udc, &state_dbg_fops);
 	debugfs_create_file("queues", 0400, root, udc, &queues_dbg_fops);
 	debugfs_create_file("epstate", 0400, root, udc, &eps_dbg_fops);
@@ -217,7 +221,11 @@ static void pxa_init_debugfs(struct pxa_udc *udc)
 
 static void pxa_cleanup_debugfs(struct pxa_udc *udc)
 {
+<<<<<<< HEAD
 	debugfs_remove_recursive(udc->debugfs_root);
+=======
+	debugfs_remove(debugfs_lookup(udc->gadget.name, usb_debug_root));
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -304,7 +312,11 @@ static struct pxa_ep *find_pxa_ep(struct pxa_udc *udc,
  * update_pxa_ep_matches - update pxa_ep cached values in all udc_usb_ep
  * @udc: pxa udc
  *
+<<<<<<< HEAD
  * Context: in_interrupt()
+=======
+ * Context: interrupt handler
+>>>>>>> upstream/android-13
  *
  * Updates all pxa_ep fields in udc_usb_ep structures, if this field was
  * previously set up (and is not NULL). The update is necessary is a
@@ -386,7 +398,11 @@ static inline void udc_clear_mask_UDCCR(struct pxa_udc *udc, int mask)
 
 /**
  * ep_write_UDCCSR - set bits in UDCCSR
+<<<<<<< HEAD
  * @udc: udc device
+=======
+ * @ep: udc endpoint
+>>>>>>> upstream/android-13
  * @mask: bits to set in UDCCR
  *
  * Sets bits in UDCCSR (UDCCSR0 and UDCCSR*).
@@ -472,7 +488,11 @@ static int epout_has_pkt(struct pxa_ep *ep)
 
 /**
  * set_ep0state - Set ep0 automata state
+<<<<<<< HEAD
  * @dev: udc device
+=======
+ * @udc: udc device
+>>>>>>> upstream/android-13
  * @state: state
  */
 static void set_ep0state(struct pxa_udc *udc, int state)
@@ -498,7 +518,10 @@ static void ep0_idle(struct pxa_udc *dev)
 /**
  * inc_ep_stats_reqs - Update ep stats counts
  * @ep: physical endpoint
+<<<<<<< HEAD
  * @req: usb request
+=======
+>>>>>>> upstream/android-13
  * @is_in: ep direction (USB_DIR_IN or 0)
  *
  */
@@ -860,7 +883,11 @@ static int write_packet(struct pxa_ep *ep, struct pxa27x_request *req,
  * @ep: pxa physical endpoint
  * @req: usb request
  *
+<<<<<<< HEAD
  * Context: callable when in_interrupt()
+=======
+ * Context: interrupt handler
+>>>>>>> upstream/android-13
  *
  * Unload as many packets as possible from the fifo we use for usb OUT
  * transfers and put them into the request. Caller should have made sure
@@ -998,7 +1025,11 @@ static int read_ep0_fifo(struct pxa_ep *ep, struct pxa27x_request *req)
  * @ep: control endpoint
  * @req: request
  *
+<<<<<<< HEAD
  * Context: callable when in_interrupt()
+=======
+ * Context: interrupt handler
+>>>>>>> upstream/android-13
  *
  * Sends a request (or a part of the request) to the control endpoint (ep0 in).
  * If the request doesn't fit, the remaining part will be sent from irq.
@@ -1037,8 +1068,13 @@ static int write_ep0_fifo(struct pxa_ep *ep, struct pxa27x_request *req)
  * @_req: usb request
  * @gfp_flags: flags
  *
+<<<<<<< HEAD
  * Context: normally called when !in_interrupt, but callable when in_interrupt()
  * in the special case of ep0 setup :
+=======
+ * Context: thread context or from the interrupt handler in the
+ * special case of ep0 setup :
+>>>>>>> upstream/android-13
  *   (irq->handle_ep0_ctrl_req->gadget_setup->pxa_ep_queue)
  *
  * Returns 0 if succedeed, error otherwise
@@ -1473,7 +1509,10 @@ static void udc_disable(struct pxa_udc *udc);
  * Context: any
  *
  * The UDC should be enabled if :
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
  *  - the pullup resistor is connected
  *  - and a gadget driver is bound
  *  - and vbus is sensed (or no vbus sense is available)
@@ -1514,7 +1553,12 @@ static int should_disable_udc(struct pxa_udc *udc)
  * pxa_udc_pullup - Offer manual D+ pullup control
  * @_gadget: usb gadget using the control
  * @is_active: 0 if disconnect, else connect D+ pullup resistor
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ *
+ * Context: task context, might sleep
+>>>>>>> upstream/android-13
  *
  * Returns 0 if OK, -EOPNOTSUPP if udc driver doesn't handle D+ pullup
  */
@@ -1562,7 +1606,11 @@ static int pxa_udc_vbus_session(struct usb_gadget *_gadget, int is_active)
  * @_gadget: usb gadget
  * @mA: current drawn
  *
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ * Context: task context, might sleep
+>>>>>>> upstream/android-13
  *
  * Called after a configuration was chosen by a USB host, to inform how much
  * current can be drawn by the device from VBus line.
@@ -1688,7 +1736,11 @@ static void udc_init_data(struct pxa_udc *dev)
 
 /**
  * udc_enable - Enables the udc device
+<<<<<<< HEAD
  * @dev: udc device
+=======
+ * @udc: udc device
+>>>>>>> upstream/android-13
  *
  * Enables the udc device : enables clocks, udc interrupts, control endpoint
  * interrupts, sets usb as UDC client and setups endpoints.
@@ -1731,9 +1783,15 @@ static void udc_enable(struct pxa_udc *udc)
 }
 
 /**
+<<<<<<< HEAD
  * pxa27x_start - Register gadget driver
  * @driver: gadget driver
  * @bind: bind function
+=======
+ * pxa27x_udc_start - Register gadget driver
+ * @g: gadget
+ * @driver: gadget driver
+>>>>>>> upstream/android-13
  *
  * When a driver is successfully registered, it will receive control requests
  * including set_configuration(), which enables non-control requests.  Then
@@ -1775,7 +1833,10 @@ fail:
 /**
  * stop_activity - Stops udc endpoints
  * @udc: udc device
+<<<<<<< HEAD
  * @driver: gadget driver
+=======
+>>>>>>> upstream/android-13
  *
  * Disables all udc endpoints (even control endpoint), report disconnect to
  * the gadget user.
@@ -1792,7 +1853,11 @@ static void stop_activity(struct pxa_udc *udc)
 
 /**
  * pxa27x_udc_stop - Unregister the gadget driver
+<<<<<<< HEAD
  * @driver: gadget driver
+=======
+ * @g: gadget
+>>>>>>> upstream/android-13
  *
  * Returns 0 if no error, -ENODEV, -EINVAL otherwise
  */
@@ -1889,7 +1954,11 @@ stall:
  * @fifo_irq: 1 if triggered by fifo service type irq
  * @opc_irq: 1 if triggered by output packet complete type irq
  *
+<<<<<<< HEAD
  * Context : when in_interrupt() or with ep->lock held
+=======
+ * Context : interrupt handler
+>>>>>>> upstream/android-13
  *
  * Tries to transfer all pending request data into the endpoint and/or
  * transfer all pending data in the endpoint into usb requests.
@@ -2014,7 +2083,11 @@ static void handle_ep0(struct pxa_udc *udc, int fifo_irq, int opc_irq)
  * Tries to transfer all pending request data into the endpoint and/or
  * transfer all pending data in the endpoint into usb requests.
  *
+<<<<<<< HEAD
  * Is always called when in_interrupt() and with ep->lock released.
+=======
+ * Is always called from the interrupt handler. ep->lock must not be held.
+>>>>>>> upstream/android-13
  */
 static void handle_ep(struct pxa_ep *ep)
 {
@@ -2349,14 +2422,21 @@ MODULE_DEVICE_TABLE(of, udc_pxa_dt_ids);
 
 /**
  * pxa_udc_probe - probes the udc device
+<<<<<<< HEAD
  * @_dev: platform device
+=======
+ * @pdev: platform device
+>>>>>>> upstream/android-13
  *
  * Perform basic init : allocates udc clock, creates sysfs files, requests
  * irq.
  */
 static int pxa_udc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *regs;
+=======
+>>>>>>> upstream/android-13
 	struct pxa_udc *udc = &memory;
 	int retval = 0, gpio;
 	struct pxa2xx_udc_mach_info *mach = dev_get_platdata(&pdev->dev);
@@ -2378,8 +2458,12 @@ static int pxa_udc_probe(struct platform_device *pdev)
 		udc->gpiod = devm_gpiod_get(&pdev->dev, NULL, GPIOD_ASIS);
 	}
 
+<<<<<<< HEAD
 	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	udc->regs = devm_ioremap_resource(&pdev->dev, regs);
+=======
+	udc->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(udc->regs))
 		return PTR_ERR(udc->regs);
 	udc->irq = platform_get_irq(pdev, 0);

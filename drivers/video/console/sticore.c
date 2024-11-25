@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/video/console/sticore.c -
  *	core code for console driver using HP's STI firmware
  *
  *	Copyright (C) 2000 Philipp Rumpf <prumpf@tux.org>
+<<<<<<< HEAD
  *	Copyright (C) 2001-2013 Helge Deller <deller@gmx.de>
+=======
+ *	Copyright (C) 2001-2020 Helge Deller <deller@gmx.de>
+>>>>>>> upstream/android-13
  *	Copyright (C) 2001-2002 Thomas Bogendoerfer <tsbogend@alpha.franken.de>
  * 
  * TODO:
@@ -13,6 +21,11 @@
  * 
  */
 
+<<<<<<< HEAD
+=======
+#define pr_fmt(fmt) "%s: " fmt, KBUILD_MODNAME
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -132,6 +145,7 @@ static const struct sti_font_flags default_font_flags = {
 };
 
 void
+<<<<<<< HEAD
 sti_putc(struct sti_struct *sti, int c, int y, int x)
 {
 	struct sti_font_inptr *inptr = &sti->sti_data->font_inptr;
@@ -142,6 +156,19 @@ sti_putc(struct sti_struct *sti, int c, int y, int x)
 		.bg_color	= c_bg(sti, c),
 		.dest_x		= x * sti->font_width,
 		.dest_y		= y * sti->font_height,
+=======
+sti_putc(struct sti_struct *sti, int c, int y, int x,
+	 struct sti_cooked_font *font)
+{
+	struct sti_font_inptr *inptr = &sti->sti_data->font_inptr;
+	struct sti_font_inptr inptr_default = {
+		.font_start_addr = STI_PTR(font->raw),
+		.index		= c_index(sti, c),
+		.fg_color	= c_fg(sti, c),
+		.bg_color	= c_bg(sti, c),
+		.dest_x		= x * font->width,
+		.dest_y		= y * font->height,
+>>>>>>> upstream/android-13
 	};
 	struct sti_font_outptr *outptr = &sti->sti_data->font_outptr;
 	s32 ret;
@@ -192,18 +219,31 @@ sti_set(struct sti_struct *sti, int src_y, int src_x,
 
 void
 sti_clear(struct sti_struct *sti, int src_y, int src_x,
+<<<<<<< HEAD
 	  int height, int width, int c)
+=======
+	  int height, int width, int c, struct sti_cooked_font *font)
+>>>>>>> upstream/android-13
 {
 	struct sti_blkmv_inptr *inptr = &sti->sti_data->blkmv_inptr;
 	struct sti_blkmv_inptr inptr_default = {
 		.fg_color	= c_fg(sti, c),
 		.bg_color	= c_bg(sti, c),
+<<<<<<< HEAD
 		.src_x		= src_x * sti->font_width,
 		.src_y		= src_y * sti->font_height,
 		.dest_x		= src_x * sti->font_width,
 		.dest_y		= src_y * sti->font_height,
 		.width		= width * sti->font_width,
 		.height		= height* sti->font_height,
+=======
+		.src_x		= src_x * font->width,
+		.src_y		= src_y * font->height,
+		.dest_x		= src_x * font->width,
+		.dest_y		= src_y * font->height,
+		.width		= width * font->width,
+		.height		= height * font->height,
+>>>>>>> upstream/android-13
 	};
 	struct sti_blkmv_outptr *outptr = &sti->sti_data->blkmv_outptr;
 	s32 ret;
@@ -224,6 +264,7 @@ static const struct sti_blkmv_flags default_blkmv_flags = {
 
 void
 sti_bmove(struct sti_struct *sti, int src_y, int src_x,
+<<<<<<< HEAD
 	  int dst_y, int dst_x, int height, int width)
 {
 	struct sti_blkmv_inptr *inptr = &sti->sti_data->blkmv_inptr;
@@ -234,6 +275,19 @@ sti_bmove(struct sti_struct *sti, int src_y, int src_x,
 		.dest_y		= dst_y * sti->font_height,
 		.width		= width * sti->font_width,
 		.height		= height* sti->font_height,
+=======
+	  int dst_y, int dst_x, int height, int width,
+	  struct sti_cooked_font *font)
+{
+	struct sti_blkmv_inptr *inptr = &sti->sti_data->blkmv_inptr;
+	struct sti_blkmv_inptr inptr_default = {
+		.src_x		= src_x * font->width,
+		.src_y		= src_y * font->height,
+		.dest_x		= dst_x * font->width,
+		.dest_y		= dst_y * font->height,
+		.width		= width * font->width,
+		.height		= height * font->height,
+>>>>>>> upstream/android-13
 	};
 	struct sti_blkmv_outptr *outptr = &sti->sti_data->blkmv_outptr;
 	s32 ret;
@@ -300,6 +354,7 @@ __setup("sti=", sti_setup);
 
 
 
+<<<<<<< HEAD
 static char *font_name[MAX_STI_ROMS];
 static int font_index[MAX_STI_ROMS],
 	   font_height[MAX_STI_ROMS],
@@ -330,6 +385,34 @@ static int sti_font_setup(char *str)
 		str = x;
 
 		i++;
+=======
+static char *font_name;
+static int font_index,
+	   font_height,
+	   font_width;
+#ifndef MODULE
+static int sti_font_setup(char *str)
+{
+	/*
+	 * The default font can be selected in various ways.
+	 * a) sti_font=VGA8x16, sti_font=10x20, sti_font=10*20 selects
+	 *    an built-in Linux framebuffer font.
+	 * b) sti_font=<index>, where index is (1..x) with 1 selecting
+	 *    the first HP STI ROM built-in font..
+	 */
+
+	if (*str >= '0' && *str <= '9') {
+		char *x;
+
+		if ((x = strchr(str, 'x')) || (x = strchr(str, '*'))) {
+			font_height = simple_strtoul(str, NULL, 0);
+			font_width = simple_strtoul(x+1, NULL, 0);
+		} else {
+			font_index = simple_strtoul(str, NULL, 0);
+		}
+	} else {
+		font_name = str;	/* fb font name */
+>>>>>>> upstream/android-13
 	}
 
 	return 1;
@@ -343,7 +426,11 @@ static int sti_font_setup(char *str)
  *		framebuffer font names (e.g. VGA8x16, SUN22x18). 
  *		This is only available if the fonts have been statically compiled 
  *		in with e.g. the CONFIG_FONT_8x16 or CONFIG_FONT_SUN12x22 options.
+<<<<<<< HEAD
  *	- sti_font=<number>
+=======
+ *	- sti_font=<number>	(<number> = 1,2,3,...)
+>>>>>>> upstream/android-13
  *		most STI ROMs have built-in HP specific fonts, which can be selected
  *		by giving the desired number to the sticon driver. 
  *		NOTE: This number is machine and STI ROM dependend.
@@ -363,8 +450,12 @@ static void sti_dump_globcfg(struct sti_glob_cfg *glob_cfg,
 {
 	struct sti_glob_cfg_ext *cfg;
 	
+<<<<<<< HEAD
 	DPRINTK((KERN_INFO
 		"%d text planes\n"
+=======
+	pr_debug("%d text planes\n"
+>>>>>>> upstream/android-13
 		"%4d x %4d screen resolution\n"
 		"%4d x %4d offscreen\n"
 		"%4d x %4d layout\n"
@@ -381,12 +472,20 @@ static void sti_dump_globcfg(struct sti_glob_cfg *glob_cfg,
 		glob_cfg->region_ptrs[4], glob_cfg->region_ptrs[5],
 		glob_cfg->region_ptrs[6], glob_cfg->region_ptrs[7],
 		glob_cfg->reent_lvl,
+<<<<<<< HEAD
 		glob_cfg->save_addr));
 
 	/* dump extended cfg */ 
 	cfg = PTR_STI((unsigned long)glob_cfg->ext_ptr);
 	DPRINTK(( KERN_INFO
 		"monitor %d\n"
+=======
+		glob_cfg->save_addr);
+
+	/* dump extended cfg */ 
+	cfg = PTR_STI((unsigned long)glob_cfg->ext_ptr);
+	pr_debug("monitor %d\n"
+>>>>>>> upstream/android-13
 		"in friendly mode: %d\n"
 		"power consumption %d watts\n"
 		"freq ref %d\n"
@@ -395,20 +494,32 @@ static void sti_dump_globcfg(struct sti_glob_cfg *glob_cfg,
 		cfg->friendly_boot,
 		cfg->power,
 		cfg->freq_ref,
+<<<<<<< HEAD
 		cfg->sti_mem_addr, sti_mem_request));
+=======
+		cfg->sti_mem_addr, sti_mem_request);
+>>>>>>> upstream/android-13
 }
 
 static void sti_dump_outptr(struct sti_struct *sti)
 {
+<<<<<<< HEAD
 	DPRINTK((KERN_INFO
 		"%d bits per pixel\n"
+=======
+	pr_debug("%d bits per pixel\n"
+>>>>>>> upstream/android-13
 		"%d used bits\n"
 		"%d planes\n"
 		"attributes %08x\n",
 		 sti->sti_data->inq_outptr.bits_per_pixel,
 		 sti->sti_data->inq_outptr.bits_used,
 		 sti->sti_data->inq_outptr.planes,
+<<<<<<< HEAD
 		 sti->sti_data->inq_outptr.attributes));
+=======
+		 sti->sti_data->inq_outptr.attributes);
+>>>>>>> upstream/android-13
 }
 
 static int sti_init_glob_cfg(struct sti_struct *sti, unsigned long rom_address,
@@ -447,8 +558,12 @@ static int sti_init_glob_cfg(struct sti_struct *sti, unsigned long rom_address,
 			if (offs != PCI_ROM_ADDRESS &&
 			    (offs < PCI_BASE_ADDRESS_0 ||
 			     offs > PCI_BASE_ADDRESS_5)) {
+<<<<<<< HEAD
 				printk (KERN_WARNING
 					"STI pci region mapping for region %d (%02x) can't be mapped\n",
+=======
+				pr_warn("STI pci region mapping for region %d (%02x) can't be mapped\n",
+>>>>>>> upstream/android-13
 					i,sti->rm_entry[i]);
 				continue;
 			}
@@ -463,14 +578,22 @@ static int sti_init_glob_cfg(struct sti_struct *sti, unsigned long rom_address,
 		if (len)
 			glob_cfg->region_ptrs[i] = sti->regions_phys[i];
 		
+<<<<<<< HEAD
 		DPRINTK(("region #%d: phys %08lx, region_ptr %08x, len=%lukB, "
+=======
+		pr_debug("region #%d: phys %08lx, region_ptr %08x, len=%lukB, "
+>>>>>>> upstream/android-13
 			 "btlb=%d, sysonly=%d, cache=%d, last=%d\n",
 			i, sti->regions_phys[i], glob_cfg->region_ptrs[i],
 			len/1024,
 			sti->regions[i].region_desc.btlb,
 			sti->regions[i].region_desc.sys_only,
 			sti->regions[i].region_desc.cache, 
+<<<<<<< HEAD
 			sti->regions[i].region_desc.last));
+=======
+			sti->regions[i].region_desc.last);
+>>>>>>> upstream/android-13
 
 		/* last entry reached ? */
 		if (sti->regions[i].region_desc.last)
@@ -478,8 +601,13 @@ static int sti_init_glob_cfg(struct sti_struct *sti, unsigned long rom_address,
 	}
 
 	if (++i<8 && sti->regions[i].region)
+<<<<<<< HEAD
 		printk(KERN_WARNING "%s: *future ptr (0x%8x) not yet supported !\n",
 				__FILE__, sti->regions[i].region);
+=======
+		pr_warn("future ptr (0x%8x) not yet supported !\n",
+			sti->regions[i].region);
+>>>>>>> upstream/android-13
 
 	glob_cfg_ext->sti_mem_addr = STI_PTR(sti_mem_addr);
 
@@ -505,11 +633,19 @@ sti_select_fbfont(struct sti_cooked_rom *cooked_rom, const char *fbfont_name)
 	if (!fbfont)
 		return NULL;
 
+<<<<<<< HEAD
 	pr_info("STI selected %dx%d framebuffer font %s for sticon\n",
 			fbfont->width, fbfont->height, fbfont->name);
 			
 	bpc = ((fbfont->width+7)/8) * fbfont->height; 
 	size = bpc * 256;
+=======
+	pr_info("STI selected %ux%u framebuffer font %s for sticon\n",
+			fbfont->width, fbfont->height, fbfont->name);
+			
+	bpc = ((fbfont->width+7)/8) * fbfont->height; 
+	size = bpc * fbfont->charcount;
+>>>>>>> upstream/android-13
 	size += sizeof(struct sti_rom_font);
 
 	nf = kzalloc(size, STI_LOWMEM);
@@ -517,7 +653,11 @@ sti_select_fbfont(struct sti_cooked_rom *cooked_rom, const char *fbfont_name)
 		return NULL;
 
 	nf->first_char = 0;
+<<<<<<< HEAD
 	nf->last_char = 255;
+=======
+	nf->last_char = fbfont->charcount - 1;
+>>>>>>> upstream/android-13
 	nf->width = fbfont->width;
 	nf->height = fbfont->height;
 	nf->font_type = STI_FONT_HPROMAN8;
@@ -528,7 +668,11 @@ sti_select_fbfont(struct sti_cooked_rom *cooked_rom, const char *fbfont_name)
 
 	dest = nf;
 	dest += sizeof(struct sti_rom_font);
+<<<<<<< HEAD
 	memcpy(dest, fbfont->data, bpc*256);
+=======
+	memcpy(dest, fbfont->data, bpc * fbfont->charcount);
+>>>>>>> upstream/android-13
 
 	cooked_font = kzalloc(sizeof(*cooked_font), GFP_KERNEL);
 	if (!cooked_font) {
@@ -537,6 +681,10 @@ sti_select_fbfont(struct sti_cooked_rom *cooked_rom, const char *fbfont_name)
 	}
 	
 	cooked_font->raw = nf;
+<<<<<<< HEAD
+=======
+	cooked_font->raw_ptr = nf;
+>>>>>>> upstream/android-13
 	cooked_font->next_font = NULL;
 
 	cooked_rom->font_start = cooked_font;
@@ -551,6 +699,7 @@ sti_select_fbfont(struct sti_cooked_rom *cooked_rom, const char *fbfont_name)
 }
 #endif
 
+<<<<<<< HEAD
 static struct sti_cooked_font *sti_select_font(struct sti_cooked_rom *rom,
 		int (*search_font_fnc)(struct sti_cooked_rom *, int, int))
 {
@@ -569,6 +718,40 @@ static struct sti_cooked_font *sti_select_font(struct sti_cooked_rom *rom,
 	for (font = rom->font_start, i = font_index[index];
 	    font && (i > 0);
 	    font = font->next_font, i--);
+=======
+static int sti_search_font(struct sti_cooked_rom *rom, int height, int width)
+{
+	struct sti_cooked_font *font;
+	int i = 0;
+
+	for (font = rom->font_start; font; font = font->next_font, i++) {
+		if ((font->raw->width == width) &&
+		    (font->raw->height == height))
+			return i;
+	}
+	return 0;
+}
+
+static struct sti_cooked_font *sti_select_font(struct sti_cooked_rom *rom)
+{
+	struct sti_cooked_font *font;
+	int i;
+
+	/* check for framebuffer-font first */
+	if (!font_index) {
+		font = sti_select_fbfont(rom, font_name);
+		if (font)
+			return font;
+	}
+
+	if (font_width && font_height)
+		font_index = sti_search_font(rom,
+				font_height, font_width);
+
+	for (font = rom->font_start, i = font_index - 1;
+		font && (i > 0);
+		font = font->next_font, i--);
+>>>>>>> upstream/android-13
 
 	if (font)
 		return font;
@@ -577,13 +760,24 @@ static struct sti_cooked_font *sti_select_font(struct sti_cooked_rom *rom,
 }
 
 
+<<<<<<< HEAD
 static void sti_dump_rom(struct sti_rom *rom)
 {
 	printk(KERN_INFO "    id %04x-%04x, conforms to spec rev. %d.%02x\n",
+=======
+static void sti_dump_rom(struct sti_struct *sti)
+{
+	struct sti_rom *rom = sti->rom->raw;
+	struct sti_cooked_font *font_start;
+	int nr;
+
+	pr_info("  id %04x-%04x, conforms to spec rev. %d.%02x\n",
+>>>>>>> upstream/android-13
 		rom->graphics_id[0], 
 		rom->graphics_id[1],
 		rom->revno[0] >> 4, 
 		rom->revno[0] & 0x0f);
+<<<<<<< HEAD
 	DPRINTK(("      supports %d monitors\n", rom->num_mons));
 	DPRINTK(("      font start %08x\n", rom->font_start));
 	DPRINTK(("      region list %08x\n", rom->region_list));
@@ -591,6 +785,26 @@ static void sti_dump_rom(struct sti_rom *rom)
 	DPRINTK(("      bus support %02x\n", rom->bus_support));
 	DPRINTK(("      ext bus support %02x\n", rom->ext_bus_support));
 	DPRINTK(("      alternate code type %d\n", rom->alt_code_type));
+=======
+	pr_debug("  supports %d monitors\n", rom->num_mons);
+	pr_debug("  font start %08x\n", rom->font_start);
+	pr_debug("  region list %08x\n", rom->region_list);
+	pr_debug("  init_graph %08x\n", rom->init_graph);
+	pr_debug("  bus support %02x\n", rom->bus_support);
+	pr_debug("  ext bus support %02x\n", rom->ext_bus_support);
+	pr_debug("  alternate code type %d\n", rom->alt_code_type);
+
+	font_start = sti->rom->font_start;
+	nr = 0;
+	while (font_start) {
+		struct sti_rom_font *f = font_start->raw;
+
+		pr_info("    built-in font #%d: size %dx%d, chars %d-%d, bpc %d\n", ++nr,
+			f->width, f->height,
+			f->first_char, f->last_char, f->bytes_per_char);
+		font_start = font_start->next_font;
+	}
+>>>>>>> upstream/android-13
 }
 
 
@@ -627,6 +841,7 @@ static int sti_cook_fonts(struct sti_cooked_rom *cooked_rom,
 	return 1;
 }
 
+<<<<<<< HEAD
 
 static int sti_search_font(struct sti_cooked_rom *rom, int height, int width)
 {
@@ -660,6 +875,36 @@ static void *sti_bmode_font_raw(struct sti_cooked_font *f)
 	}
 	return n + 3;
 }
+=======
+#define BMODE_RELOCATE(offset)		offset = (offset) / 4;
+#define BMODE_LAST_ADDR_OFFS		0x50
+
+void sti_font_convert_bytemode(struct sti_struct *sti, struct sti_cooked_font *f)
+{
+	unsigned char *n, *p, *q;
+	int size = f->raw->bytes_per_char * (f->raw->last_char + 1) + sizeof(struct sti_rom_font);
+	struct sti_rom_font *old_font;
+
+	if (sti->wordmode)
+		return;
+
+	old_font = f->raw_ptr;
+	n = kcalloc(4, size, STI_LOWMEM);
+	f->raw_ptr = n;
+	if (!n)
+		return;
+	p = n + 3;
+	q = (unsigned char *) f->raw;
+	while (size--) {
+		*p = *q++;
+		p += 4;
+	}
+	/* store new ptr to byte-mode font and delete old font */
+	f->raw = (struct sti_rom_font *) (n + 3);
+	kfree(old_font);
+}
+EXPORT_SYMBOL(sti_font_convert_bytemode);
+>>>>>>> upstream/android-13
 
 static void sti_bmode_rom_copy(unsigned long base, unsigned long count,
 			       void *dest)
@@ -746,7 +991,11 @@ static int sti_read_rom(int wordmode, struct sti_struct *sti,
 		goto out_err;
 
 	if (!sti_cook_fonts(cooked, raw)) {
+<<<<<<< HEAD
 		printk(KERN_ERR "No font found for STI at %08lx\n", address);
+=======
+		pr_warn("No font found for STI at %08lx\n", address);
+>>>>>>> upstream/android-13
 		goto out_err;
 	}
 
@@ -755,7 +1004,12 @@ static int sti_read_rom(int wordmode, struct sti_struct *sti,
 
 	address = (unsigned long) STI_PTR(raw);
 
+<<<<<<< HEAD
 	pr_info("STI ROM supports 32 %sbit firmware functions.\n",
+=======
+	pr_info("STI %s ROM supports 32 %sbit firmware functions.\n",
+		wordmode ? "word mode" : "byte mode",
+>>>>>>> upstream/android-13
 		raw->alt_code_type == ALT_CODE_TYPE_PA_RISC_64
 		? "and 64 " : "");
 
@@ -766,18 +1020,31 @@ static int sti_read_rom(int wordmode, struct sti_struct *sti,
 
 	sti->rom = cooked;
 	sti->rom->raw = raw;
+<<<<<<< HEAD
 	
 	sti->font = sti_select_font(sti->rom, sti_search_font);
 	sti->font_width = sti->font->raw->width;
 	sti->font_height = sti->font->raw->height;
 	if (!wordmode)
 		sti->font->raw = sti_bmode_font_raw(sti->font);
+=======
+	sti_dump_rom(sti);
+
+	sti->wordmode = wordmode;
+	sti->font = sti_select_font(sti->rom);
+	sti->font->width = sti->font->raw->width;
+	sti->font->height = sti->font->raw->height;
+	sti_font_convert_bytemode(sti, sti->font);
+>>>>>>> upstream/android-13
 
 	sti->sti_mem_request = raw->sti_mem_req;
 	sti->graphics_id[0] = raw->graphics_id[0];
 	sti->graphics_id[1] = raw->graphics_id[1];
+<<<<<<< HEAD
 	
 	sti_dump_rom(raw);
+=======
+>>>>>>> upstream/android-13
 
 	/* check if the ROM routines in this card are compatible */
 	if (wordmode || sti->graphics_id[1] != 0x09A02587)
@@ -803,9 +1070,15 @@ ok:
 	return 1;
 
 msg_not_supported:
+<<<<<<< HEAD
 	printk(KERN_ERR "Sorry, this GSC/STI card is not yet supported.\n");
 	printk(KERN_ERR "Please see http://parisc-linux.org/faq/"
 			"graphics-howto.html for more info.\n");
+=======
+	pr_warn("Sorry, this GSC/STI card is not yet supported.\n");
+	pr_warn("Please see https://parisc.wiki.kernel.org/"
+		"index.php/Graphics_howto for more info.\n");
+>>>>>>> upstream/android-13
 	/* fall through */
 out_err:
 	kfree(raw);
@@ -822,7 +1095,11 @@ static struct sti_struct *sti_try_rom_generic(unsigned long address,
 	u32 sig;
 
 	if (num_sti_roms >= MAX_STI_ROMS) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "maximum number of STI ROMS reached !\n");
+=======
+		pr_warn("maximum number of STI ROMS reached !\n");
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 	
@@ -848,16 +1125,25 @@ test_rom:
 		if (i != 1) {
 			/* The ROM could have multiple architecture 
 			 * dependent images (e.g. i386, parisc,...) */
+<<<<<<< HEAD
 			printk(KERN_WARNING 
 				"PCI ROM is not a STI ROM type image (0x%8x)\n", i);
+=======
+			pr_warn("PCI ROM is not a STI ROM type image (0x%8x)\n", i);
+>>>>>>> upstream/android-13
 			goto out_err;
 		}
 		
 		sti->pd = pd;
 
 		i = gsc_readl(address+0x0c);
+<<<<<<< HEAD
 		DPRINTK(("PCI ROM size (from header) = %d kB\n",
 			le16_to_cpu(i>>16)*512/1024));
+=======
+		pr_debug("PCI ROM size (from header) = %d kB\n",
+			le16_to_cpu(i>>16)*512/1024);
+>>>>>>> upstream/android-13
 		rm_offset = le16_to_cpu(i & 0xffff);
 		if (rm_offset) { 
 			/* read 16 bytes from the pci region mapper array */
@@ -866,6 +1152,7 @@ test_rom:
 			*rm++ = gsc_readl(address+rm_offset+0x04);
 			*rm++ = gsc_readl(address+rm_offset+0x08);
 			*rm++ = gsc_readl(address+rm_offset+0x0c);
+<<<<<<< HEAD
 			DPRINTK(("PCI region Mapper offset = %08x: ",
 				rm_offset));
 			for (i=0; i<16; i++)
@@ -875,20 +1162,36 @@ test_rom:
 
 		address += le32_to_cpu(gsc_readl(address+8));
 		DPRINTK(("sig %04x, PCI STI ROM at %08lx\n", sig, address));
+=======
+		}
+
+		address += le32_to_cpu(gsc_readl(address+8));
+		pr_debug("sig %04x, PCI STI ROM at %08lx\n", sig, address);
+>>>>>>> upstream/android-13
 		goto test_rom;
 	}
 	
 	ok = 0;
 	
 	if ((sig & 0xff) == 0x01) {
+<<<<<<< HEAD
 		DPRINTK(("    byte mode ROM at %08lx, hpa at %08lx\n",
 		       address, hpa));
+=======
+		pr_debug("    byte mode ROM at %08lx, hpa at %08lx\n",
+		       address, hpa);
+>>>>>>> upstream/android-13
 		ok = sti_read_rom(0, sti, address);
 	}
 
 	if ((sig & 0xffff) == 0x0303) {
+<<<<<<< HEAD
 		DPRINTK(("    word mode ROM at %08lx, hpa at %08lx\n",
 		       address, hpa));
+=======
+		pr_debug("    word mode ROM at %08lx, hpa at %08lx\n",
+		       address, hpa);
+>>>>>>> upstream/android-13
 		ok = sti_read_rom(1, sti, address);
 	}
 
@@ -905,7 +1208,11 @@ test_rom:
 		unsigned long rom_base;
 		rom_base = pci_resource_start(sti->pd, PCI_ROM_RESOURCE);	
 		pci_write_config_dword(sti->pd, PCI_ROM_ADDRESS, rom_base & ~PCI_ROM_ADDRESS_ENABLE);
+<<<<<<< HEAD
 		DPRINTK((KERN_DEBUG "STI PCI ROM disabled\n"));
+=======
+		pr_debug("STI PCI ROM disabled\n");
+>>>>>>> upstream/android-13
 	}
 
 	if (sti_init_graph(sti))
@@ -980,6 +1287,7 @@ static int sticore_pci_init(struct pci_dev *pd, const struct pci_device_id *ent)
 	rom_len = pci_resource_len(pd, PCI_ROM_RESOURCE);
 	if (rom_base) {
 		pci_write_config_dword(pd, PCI_ROM_ADDRESS, rom_base | PCI_ROM_ADDRESS_ENABLE);
+<<<<<<< HEAD
 		DPRINTK((KERN_DEBUG "STI PCI ROM enabled at 0x%08lx\n", rom_base));
 	}
 
@@ -988,6 +1296,16 @@ static int sticore_pci_init(struct pci_dev *pd, const struct pci_device_id *ent)
 
 	DPRINTK((KERN_DEBUG "Trying PCI STI ROM at %08lx, PCI hpa at %08lx\n",
 		    rom_base, fb_base));
+=======
+		pr_debug("STI PCI ROM enabled at 0x%08lx\n", rom_base);
+	}
+
+	pr_info("STI PCI graphic ROM found at %08lx (%u kB), fb at %08lx (%u MB)\n",
+		rom_base, rom_len/1024, fb_base, fb_len/1024/1024);
+
+	pr_debug("Trying PCI STI ROM at %08lx, PCI hpa at %08lx\n",
+		    rom_base, fb_base);
+>>>>>>> upstream/android-13
 
 	sti = sti_try_rom_generic(rom_base, fb_base, pd);
 	if (sti) {
@@ -997,8 +1315,12 @@ static int sticore_pci_init(struct pci_dev *pd, const struct pci_device_id *ent)
 	}
 	
 	if (!sti) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "Unable to handle STI device '%s'\n",
 			pci_name(pd));
+=======
+		pr_warn("Unable to handle STI device '%s'\n", pci_name(pd));
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 #endif /* CONFIG_PCI */
@@ -1057,7 +1379,11 @@ static void sti_init_roms(void)
 
 	sticore_initialized = 1;
 
+<<<<<<< HEAD
 	printk(KERN_INFO "STI GSC/PCI core graphics driver "
+=======
+	pr_info("STI GSC/PCI core graphics driver "
+>>>>>>> upstream/android-13
 			STI_DRIVERVERSION "\n");
 
 	/* Register drivers for native & PCI cards */

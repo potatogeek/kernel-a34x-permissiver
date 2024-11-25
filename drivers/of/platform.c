@@ -17,10 +17,15 @@
 #include <linux/slab.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_iommu.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
 #include <linux/of_reserved_mem.h>
+=======
+#include <linux/of_irq.h>
+#include <linux/of_platform.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 
 const struct of_device_id of_default_bus_match_table[] = {
@@ -38,11 +43,14 @@ static const struct of_device_id of_skipped_node_table[] = {
 	{} /* Empty terminated list */
 };
 
+<<<<<<< HEAD
 static int of_dev_node_match(struct device *dev, void *data)
 {
 	return dev->of_node == data;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * of_find_device_by_node - Find the platform_device associated with a node
  * @np: Pointer to device tree node
@@ -50,13 +58,21 @@ static int of_dev_node_match(struct device *dev, void *data)
  * Takes a reference to the embedded struct device which needs to be dropped
  * after use.
  *
+<<<<<<< HEAD
  * Returns platform_device pointer, or NULL if not found
+=======
+ * Return: platform_device pointer, or NULL if not found
+>>>>>>> upstream/android-13
  */
 struct platform_device *of_find_device_by_node(struct device_node *np)
 {
 	struct device *dev;
 
+<<<<<<< HEAD
 	dev = bus_find_device(&platform_bus_type, NULL, np, of_dev_node_match);
+=======
+	dev = bus_find_device_by_of_node(&platform_bus_type, np);
+>>>>>>> upstream/android-13
 	return dev ? to_platform_device(dev) : NULL;
 }
 EXPORT_SYMBOL(of_find_device_by_node);
@@ -93,8 +109,12 @@ static void of_device_make_bus_id(struct device *dev)
 		reg = of_get_property(node, "reg", NULL);
 		if (reg && (addr = of_translate_address(node, reg)) != OF_BAD_ADDR) {
 			dev_set_name(dev, dev_name(dev) ? "%llx.%pOFn:%s" : "%llx.%pOFn",
+<<<<<<< HEAD
 				     (unsigned long long)addr, node,
 				     dev_name(dev));
+=======
+				     addr, node, dev_name(dev));
+>>>>>>> upstream/android-13
 			return;
 		}
 
@@ -167,7 +187,11 @@ EXPORT_SYMBOL(of_device_alloc);
  * @platform_data: pointer to populate platform_data pointer with
  * @parent: Linux device model parent device.
  *
+<<<<<<< HEAD
  * Returns pointer to created platform device, or NULL if a device was not
+=======
+ * Return: Pointer to created platform device, or NULL if a device was not
+>>>>>>> upstream/android-13
  * registered.  Unavailable devices will not get registered.
  */
 static struct platform_device *of_platform_device_create_pdata(
@@ -192,7 +216,10 @@ static struct platform_device *of_platform_device_create_pdata(
 	dev->dev.bus = &platform_bus_type;
 	dev->dev.platform_data = platform_data;
 	of_msi_configure(&dev->dev, dev->dev.of_node);
+<<<<<<< HEAD
 	of_reserved_mem_device_init_by_idx(&dev->dev, dev->dev.of_node, 0);
+=======
+>>>>>>> upstream/android-13
 
 	if (of_device_add(dev) != 0) {
 		platform_device_put(dev);
@@ -212,7 +239,11 @@ err_clear_flag:
  * @bus_id: name to assign device
  * @parent: Linux device model parent device.
  *
+<<<<<<< HEAD
  * Returns pointer to created platform device, or NULL if a device was not
+=======
+ * Return: Pointer to created platform device, or NULL if a device was not
+>>>>>>> upstream/android-13
  * registered.  Unavailable devices will not get registered.
  */
 struct platform_device *of_platform_device_create(struct device_node *np,
@@ -298,8 +329,13 @@ static struct amba_device *of_amba_device_create(struct device_node *node,
 }
 #endif /* CONFIG_ARM_AMBA */
 
+<<<<<<< HEAD
 /**
  * of_devname_lookup() - Given a device node, lookup the preferred Linux name
+=======
+/*
+ * of_dev_lookup() - Given a device node, lookup the preferred Linux name
+>>>>>>> upstream/android-13
  */
 static const struct of_dev_auxdata *of_dev_lookup(const struct of_dev_auxdata *lookup,
 				 struct device_node *np)
@@ -471,7 +507,11 @@ EXPORT_SYMBOL(of_platform_bus_probe);
  * New board support should be using this function instead of
  * of_platform_bus_probe().
  *
+<<<<<<< HEAD
  * Returns 0 on success, < 0 on failure.
+=======
+ * Return: 0 on success, < 0 on failure.
+>>>>>>> upstream/android-13
  */
 int of_platform_populate(struct device_node *root,
 			const struct of_device_id *matches,
@@ -519,6 +559,11 @@ static const struct of_device_id reserved_mem_matches[] = {
 	{ .compatible = "qcom,rmtfs-mem" },
 	{ .compatible = "qcom,cmd-db" },
 	{ .compatible = "ramoops" },
+<<<<<<< HEAD
+=======
+	{ .compatible = "nvmem-rmem" },
+	{ .compatible = "google,open-dice" },
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -546,9 +591,13 @@ static int __init of_platform_default_populate_init(void)
 	}
 
 	/* Populate everything else. */
+<<<<<<< HEAD
 	fw_devlink_pause();
 	of_platform_default_populate(NULL, NULL, NULL);
 	fw_devlink_resume();
+=======
+	of_platform_default_populate(NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -598,7 +647,11 @@ EXPORT_SYMBOL_GPL(of_platform_device_destroy);
 void of_platform_depopulate(struct device *parent)
 {
 	if (parent->of_node && of_node_check_flag(parent->of_node, OF_POPULATED_BUS)) {
+<<<<<<< HEAD
 		device_for_each_child(parent, NULL, of_platform_device_destroy);
+=======
+		device_for_each_child_reverse(parent, NULL, of_platform_device_destroy);
+>>>>>>> upstream/android-13
 		of_node_clear_flag(parent->of_node, OF_POPULATED_BUS);
 	}
 }
@@ -616,7 +669,11 @@ static void devm_of_platform_populate_release(struct device *dev, void *res)
  * Similar to of_platform_populate(), but will automatically call
  * of_platform_depopulate() when the device is unbound from the bus.
  *
+<<<<<<< HEAD
  * Returns 0 on success, < 0 on failure.
+=======
+ * Return: 0 on success, < 0 on failure.
+>>>>>>> upstream/android-13
  */
 int devm_of_platform_populate(struct device *dev)
 {
@@ -697,7 +754,11 @@ static int of_platform_notify(struct notifier_block *nb,
 		pdev_parent = of_find_device_by_node(rd->dn->parent);
 		pdev = of_platform_device_create(rd->dn, NULL,
 				pdev_parent ? &pdev_parent->dev : NULL);
+<<<<<<< HEAD
 		of_dev_put(pdev_parent);
+=======
+		platform_device_put(pdev_parent);
+>>>>>>> upstream/android-13
 
 		if (pdev == NULL) {
 			pr_err("%s: failed to create for '%pOF'\n",
@@ -722,7 +783,11 @@ static int of_platform_notify(struct notifier_block *nb,
 		of_platform_device_destroy(&pdev->dev, &children_left);
 
 		/* and put the reference of the find */
+<<<<<<< HEAD
 		of_dev_put(pdev);
+=======
+		platform_device_put(pdev);
+>>>>>>> upstream/android-13
 		break;
 	}
 

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * omap iommu: pagetable definitions
  *
  * Copyright (C) 2008-2010 Nokia Corporation
  *
  * Written by Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _OMAP_IOPGTABLE_H
@@ -66,7 +73,12 @@
  *
  * va to pa translation
  */
+<<<<<<< HEAD
 static inline phys_addr_t omap_iommu_translate(u32 d, u32 va, u32 mask)
+=======
+static inline phys_addr_t omap_iommu_translate(unsigned long d, dma_addr_t va,
+					       dma_addr_t mask)
+>>>>>>> upstream/android-13
 {
 	return (d & mask) | (va & (~mask));
 }

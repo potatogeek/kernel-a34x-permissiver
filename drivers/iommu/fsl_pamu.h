@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -14,6 +15,12 @@
  *
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __FSL_PAMU_H
@@ -395,6 +402,7 @@ struct ome {
 int pamu_domain_init(void);
 int pamu_enable_liodn(int liodn);
 int pamu_disable_liodn(int liodn);
+<<<<<<< HEAD
 void pamu_free_subwins(int liodn);
 int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
 		       u32 omi, unsigned long rpn, u32 snoopid, uint32_t stashid,
@@ -408,5 +416,12 @@ void get_ome_index(u32 *omi_index, struct device *dev);
 int  pamu_update_paace_stash(int liodn, u32 subwin, u32 value);
 int pamu_disable_spaace(int liodn, u32 subwin);
 u32 pamu_get_max_subwin_cnt(void);
+=======
+int pamu_config_ppaace(int liodn, u32 omi, uint32_t stashid, int prot);
+
+u32 get_stash_id(u32 stash_dest_hint, u32 vcpu);
+void get_ome_index(u32 *omi_index, struct device *dev);
+int  pamu_update_paace_stash(int liodn, u32 value);
+>>>>>>> upstream/android-13
 
 #endif  /* __FSL_PAMU_H */

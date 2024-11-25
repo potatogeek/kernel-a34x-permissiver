@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PISMO memory driver - http://www.pismoworld.org/
  *
  * For ARM Realview and Versatile platforms
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -214,13 +221,20 @@ static int pismo_remove(struct i2c_client *client)
 static int pismo_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+=======
+>>>>>>> upstream/android-13
 	struct pismo_pdata *pdata = client->dev.platform_data;
 	struct pismo_eeprom eeprom;
 	struct pismo_data *pismo;
 	int ret, i;
 
+<<<<<<< HEAD
 	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
+=======
+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+>>>>>>> upstream/android-13
 		dev_err(&client->dev, "functionality mismatch\n");
 		return -EIO;
 	}

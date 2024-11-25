@@ -35,11 +35,43 @@ struct nsproxy {
 	struct mnt_namespace *mnt_ns;
 	struct pid_namespace *pid_ns_for_children;
 	struct net 	     *net_ns;
+<<<<<<< HEAD
+=======
+	struct time_namespace *time_ns;
+	struct time_namespace *time_ns_for_children;
+>>>>>>> upstream/android-13
 	struct cgroup_namespace *cgroup_ns;
 };
 extern struct nsproxy init_nsproxy;
 
 /*
+<<<<<<< HEAD
+=======
+ * A structure to encompass all bits needed to install
+ * a partial or complete new set of namespaces.
+ *
+ * If a new user namespace is requested cred will
+ * point to a modifiable set of credentials. If a pointer
+ * to a modifiable set is needed nsset_cred() must be
+ * used and tested.
+ */
+struct nsset {
+	unsigned flags;
+	struct nsproxy *nsproxy;
+	struct fs_struct *fs;
+	const struct cred *cred;
+};
+
+static inline struct cred *nsset_cred(struct nsset *set)
+{
+	if (set->flags & CLONE_NEWUSER)
+		return (struct cred *)set->cred;
+
+	return NULL;
+}
+
+/*
+>>>>>>> upstream/android-13
  * the namespaces access rules are:
  *
  *  1. only current task is allowed to change tsk->nsproxy pointer or

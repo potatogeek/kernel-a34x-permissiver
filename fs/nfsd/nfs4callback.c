@@ -38,7 +38,13 @@
 #include "nfsd.h"
 #include "state.h"
 #include "netns.h"
+<<<<<<< HEAD
 #include "xdr4cb.h"
+=======
+#include "trace.h"
+#include "xdr4cb.h"
+#include "xdr4.h"
+>>>>>>> upstream/android-13
 
 #define NFSDDBG_FACILITY                NFSDDBG_PROC
 
@@ -59,6 +65,7 @@ struct nfs4_cb_compound_hdr {
 	int		status;
 };
 
+<<<<<<< HEAD
 /*
  * Handle decode buffer overflows out-of-line.
  */
@@ -69,6 +76,8 @@ static void print_overflow_msg(const char *func, const struct xdr_stream *xdr)
 		func, xdr->end - xdr->p);
 }
 
+=======
+>>>>>>> upstream/android-13
 static __be32 *xdr_encode_empty_array(__be32 *p)
 {
 	*p++ = xdr_zero;
@@ -105,6 +114,10 @@ enum nfs_cb_opnum4 {
 	OP_CB_WANTS_CANCELLED		= 12,
 	OP_CB_NOTIFY_LOCK		= 13,
 	OP_CB_NOTIFY_DEVICEID		= 14,
+<<<<<<< HEAD
+=======
+	OP_CB_OFFLOAD			= 15,
+>>>>>>> upstream/android-13
 	OP_CB_ILLEGAL			= 10044
 };
 
@@ -238,7 +251,10 @@ static int decode_cb_op_status(struct xdr_stream *xdr,
 	*status = nfs_cb_stat_to_errno(be32_to_cpup(p));
 	return 0;
 out_overflow:
+<<<<<<< HEAD
 	print_overflow_msg(__func__, xdr);
+=======
+>>>>>>> upstream/android-13
 	return -EIO;
 out_unexpected:
 	dprintk("NFSD: Callback server returned operation %d but "
@@ -307,7 +323,10 @@ static int decode_cb_compound4res(struct xdr_stream *xdr,
 	hdr->nops = be32_to_cpup(p);
 	return 0;
 out_overflow:
+<<<<<<< HEAD
 	print_overflow_msg(__func__, xdr);
+=======
+>>>>>>> upstream/android-13
 	return -EIO;
 }
 
@@ -435,7 +454,10 @@ out:
 	cb->cb_seq_status = status;
 	return status;
 out_overflow:
+<<<<<<< HEAD
 	print_overflow_msg(__func__, xdr);
+=======
+>>>>>>> upstream/android-13
 	status = -EIO;
 	goto out;
 }
@@ -523,11 +545,17 @@ static int nfs4_xdr_dec_cb_recall(struct rpc_rqst *rqstp,
 	if (unlikely(status))
 		return status;
 
+<<<<<<< HEAD
 	if (cb != NULL) {
 		status = decode_cb_sequence4res(xdr, cb);
 		if (unlikely(status || cb->cb_seq_status))
 			return status;
 	}
+=======
+	status = decode_cb_sequence4res(xdr, cb);
+	if (unlikely(status || cb->cb_seq_status))
+		return status;
+>>>>>>> upstream/android-13
 
 	return decode_cb_op_status(xdr, OP_CB_RECALL, &cb->cb_status);
 }
@@ -615,11 +643,18 @@ static int nfs4_xdr_dec_cb_layout(struct rpc_rqst *rqstp,
 	if (unlikely(status))
 		return status;
 
+<<<<<<< HEAD
 	if (cb) {
 		status = decode_cb_sequence4res(xdr, cb);
 		if (unlikely(status || cb->cb_seq_status))
 			return status;
 	}
+=======
+	status = decode_cb_sequence4res(xdr, cb);
+	if (unlikely(status || cb->cb_seq_status))
+		return status;
+
+>>>>>>> upstream/android-13
 	return decode_cb_op_status(xdr, OP_CB_LAYOUTRECALL, &cb->cb_status);
 }
 #endif /* CONFIG_NFSD_PNFS */
@@ -674,15 +709,119 @@ static int nfs4_xdr_dec_cb_notify_lock(struct rpc_rqst *rqstp,
 	if (unlikely(status))
 		return status;
 
+<<<<<<< HEAD
 	if (cb) {
 		status = decode_cb_sequence4res(xdr, cb);
 		if (unlikely(status || cb->cb_seq_status))
 			return status;
 	}
+=======
+	status = decode_cb_sequence4res(xdr, cb);
+	if (unlikely(status || cb->cb_seq_status))
+		return status;
+
+>>>>>>> upstream/android-13
 	return decode_cb_op_status(xdr, OP_CB_NOTIFY_LOCK, &cb->cb_status);
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * struct write_response4 {
+ *	stateid4	wr_callback_id<1>;
+ *	length4		wr_count;
+ *	stable_how4	wr_committed;
+ *	verifier4	wr_writeverf;
+ * };
+ * union offload_info4 switch (nfsstat4 coa_status) {
+ *	case NFS4_OK:
+ *		write_response4	coa_resok4;
+ *	default:
+ *	length4		coa_bytes_copied;
+ * };
+ * struct CB_OFFLOAD4args {
+ *	nfs_fh4		coa_fh;
+ *	stateid4	coa_stateid;
+ *	offload_info4	coa_offload_info;
+ * };
+ */
+static void encode_offload_info4(struct xdr_stream *xdr,
+				 __be32 nfserr,
+				 const struct nfsd4_copy *cp)
+{
+	__be32 *p;
+
+	p = xdr_reserve_space(xdr, 4);
+	*p++ = nfserr;
+	if (!nfserr) {
+		p = xdr_reserve_space(xdr, 4 + 8 + 4 + NFS4_VERIFIER_SIZE);
+		p = xdr_encode_empty_array(p);
+		p = xdr_encode_hyper(p, cp->cp_res.wr_bytes_written);
+		*p++ = cpu_to_be32(cp->cp_res.wr_stable_how);
+		p = xdr_encode_opaque_fixed(p, cp->cp_res.wr_verifier.data,
+					    NFS4_VERIFIER_SIZE);
+	} else {
+		p = xdr_reserve_space(xdr, 8);
+		/* We always return success if bytes were written */
+		p = xdr_encode_hyper(p, 0);
+	}
+}
+
+static void encode_cb_offload4args(struct xdr_stream *xdr,
+				   __be32 nfserr,
+				   const struct knfsd_fh *fh,
+				   const struct nfsd4_copy *cp,
+				   struct nfs4_cb_compound_hdr *hdr)
+{
+	__be32 *p;
+
+	p = xdr_reserve_space(xdr, 4);
+	*p++ = cpu_to_be32(OP_CB_OFFLOAD);
+	encode_nfs_fh4(xdr, fh);
+	encode_stateid4(xdr, &cp->cp_res.cb_stateid);
+	encode_offload_info4(xdr, nfserr, cp);
+
+	hdr->nops++;
+}
+
+static void nfs4_xdr_enc_cb_offload(struct rpc_rqst *req,
+				    struct xdr_stream *xdr,
+				    const void *data)
+{
+	const struct nfsd4_callback *cb = data;
+	const struct nfsd4_copy *cp =
+		container_of(cb, struct nfsd4_copy, cp_cb);
+	struct nfs4_cb_compound_hdr hdr = {
+		.ident = 0,
+		.minorversion = cb->cb_clp->cl_minorversion,
+	};
+
+	encode_cb_compound4args(xdr, &hdr);
+	encode_cb_sequence4args(xdr, cb, &hdr);
+	encode_cb_offload4args(xdr, cp->nfserr, &cp->fh, cp, &hdr);
+	encode_cb_nops(&hdr);
+}
+
+static int nfs4_xdr_dec_cb_offload(struct rpc_rqst *rqstp,
+				   struct xdr_stream *xdr,
+				   void *data)
+{
+	struct nfsd4_callback *cb = data;
+	struct nfs4_cb_compound_hdr hdr;
+	int status;
+
+	status = decode_cb_compound4res(xdr, &hdr);
+	if (unlikely(status))
+		return status;
+
+	status = decode_cb_sequence4res(xdr, cb);
+	if (unlikely(status || cb->cb_seq_status))
+		return status;
+
+	return decode_cb_op_status(xdr, OP_CB_OFFLOAD, &cb->cb_status);
+}
+/*
+>>>>>>> upstream/android-13
  * RPC procedure tables
  */
 #define PROC(proc, call, argtype, restype)				\
@@ -703,6 +842,10 @@ static const struct rpc_procinfo nfs4_cb_procedures[] = {
 	PROC(CB_LAYOUT,	COMPOUND,	cb_layout,	cb_layout),
 #endif
 	PROC(CB_NOTIFY_LOCK,	COMPOUND,	cb_notify_lock,	cb_notify_lock),
+<<<<<<< HEAD
+=======
+	PROC(CB_OFFLOAD,	COMPOUND,	cb_offload,	cb_offload),
+>>>>>>> upstream/android-13
 };
 
 static unsigned int nfs4_cb_counts[ARRAY_SIZE(nfs4_cb_procedures)];
@@ -743,6 +886,7 @@ static const struct rpc_program cb_program = {
 static int max_cb_time(struct net *net)
 {
 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+<<<<<<< HEAD
 	return max(nn->nfsd4_lease/10, (time_t)1) * HZ;
 }
 
@@ -764,6 +908,62 @@ static struct rpc_cred *get_backchannel_cred(struct nfs4_client *clp, struct rpc
 		acred.uid = ses->se_cb_sec.uid;
 		acred.gid = ses->se_cb_sec.gid;
 		return auth->au_ops->lookup_cred(client->cl_auth, &acred, 0);
+=======
+
+	/*
+	 * nfsd4_lease is set to at most one hour in __nfsd4_write_time,
+	 * so we can use 32-bit math on it. Warn if that assumption
+	 * ever stops being true.
+	 */
+	if (WARN_ON_ONCE(nn->nfsd4_lease > 3600))
+		return 360 * HZ;
+
+	return max(((u32)nn->nfsd4_lease)/10, 1u) * HZ;
+}
+
+static struct workqueue_struct *callback_wq;
+
+static bool nfsd4_queue_cb(struct nfsd4_callback *cb)
+{
+	return queue_work(callback_wq, &cb->cb_work);
+}
+
+static void nfsd41_cb_inflight_begin(struct nfs4_client *clp)
+{
+	atomic_inc(&clp->cl_cb_inflight);
+}
+
+static void nfsd41_cb_inflight_end(struct nfs4_client *clp)
+{
+
+	if (atomic_dec_and_test(&clp->cl_cb_inflight))
+		wake_up_var(&clp->cl_cb_inflight);
+}
+
+static void nfsd41_cb_inflight_wait_complete(struct nfs4_client *clp)
+{
+	wait_var_event(&clp->cl_cb_inflight,
+			!atomic_read(&clp->cl_cb_inflight));
+}
+
+static const struct cred *get_backchannel_cred(struct nfs4_client *clp, struct rpc_clnt *client, struct nfsd4_session *ses)
+{
+	if (clp->cl_minorversion == 0) {
+		client->cl_principal = clp->cl_cred.cr_targ_princ ?
+			clp->cl_cred.cr_targ_princ : "nfs";
+
+		return get_cred(rpc_machine_cred());
+	} else {
+		struct cred *kcred;
+
+		kcred = prepare_kernel_cred(NULL);
+		if (!kcred)
+			return NULL;
+
+		kcred->uid = ses->se_cb_sec.uid;
+		kcred->gid = ses->se_cb_sec.gid;
+		return kcred;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -784,6 +984,7 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
 		.program	= &cb_program,
 		.version	= 1,
 		.flags		= (RPC_CLNT_CREATE_NOPING | RPC_CLNT_CREATE_QUIET),
+<<<<<<< HEAD
 	};
 	struct rpc_clnt *client;
 	struct rpc_cred *cred;
@@ -792,6 +993,19 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
 		if (!clp->cl_cred.cr_principal &&
 				(clp->cl_cred.cr_flavor >= RPC_AUTH_GSS_KRB5))
 			return -EINVAL;
+=======
+		.cred		= current_cred(),
+	};
+	struct rpc_clnt *client;
+	const struct cred *cred;
+
+	if (clp->cl_minorversion == 0) {
+		if (!clp->cl_cred.cr_principal &&
+		    (clp->cl_cred.cr_flavor >= RPC_AUTH_GSS_KRB5)) {
+			trace_nfsd_cb_setup_err(clp, -EINVAL);
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 		args.client_name = clp->cl_cred.cr_principal;
 		args.prognumber	= conn->cb_prog;
 		args.protocol = XPRT_TRANSPORT_TCP;
@@ -811,6 +1025,7 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
 	/* Create RPC client */
 	client = rpc_create(&args);
 	if (IS_ERR(client)) {
+<<<<<<< HEAD
 		dprintk("NFSD: couldn't create callback client: %ld\n",
 			PTR_ERR(client));
 		return PTR_ERR(client);
@@ -829,22 +1044,56 @@ static void warn_no_callback_path(struct nfs4_client *clp, int reason)
 {
 	dprintk("NFSD: warning: no callback path to client %.*s: error %d\n",
 		(int)clp->cl_name.len, clp->cl_name.data, reason);
+=======
+		trace_nfsd_cb_setup_err(clp, PTR_ERR(client));
+		return PTR_ERR(client);
+	}
+	cred = get_backchannel_cred(clp, client, ses);
+	if (!cred) {
+		trace_nfsd_cb_setup_err(clp, -ENOMEM);
+		rpc_shutdown_client(client);
+		return -ENOMEM;
+	}
+	clp->cl_cb_client = client;
+	clp->cl_cb_cred = cred;
+	rcu_read_lock();
+	trace_nfsd_cb_setup(clp, rpc_peeraddr2str(client, RPC_DISPLAY_NETID),
+			    args.authflavor);
+	rcu_read_unlock();
+	return 0;
+}
+
+static void nfsd4_mark_cb_state(struct nfs4_client *clp, int newstate)
+{
+	if (clp->cl_cb_state != newstate) {
+		clp->cl_cb_state = newstate;
+		trace_nfsd_cb_state(clp);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void nfsd4_mark_cb_down(struct nfs4_client *clp, int reason)
 {
 	if (test_bit(NFSD4_CLIENT_CB_UPDATE, &clp->cl_flags))
 		return;
+<<<<<<< HEAD
 	clp->cl_cb_state = NFSD4_CB_DOWN;
 	warn_no_callback_path(clp, reason);
+=======
+	nfsd4_mark_cb_state(clp, NFSD4_CB_DOWN);
+>>>>>>> upstream/android-13
 }
 
 static void nfsd4_mark_cb_fault(struct nfs4_client *clp, int reason)
 {
 	if (test_bit(NFSD4_CLIENT_CB_UPDATE, &clp->cl_flags))
 		return;
+<<<<<<< HEAD
 	clp->cl_cb_state = NFSD4_CB_FAULT;
 	warn_no_callback_path(clp, reason);
+=======
+	nfsd4_mark_cb_state(clp, NFSD4_CB_FAULT);
+>>>>>>> upstream/android-13
 }
 
 static void nfsd4_cb_probe_done(struct rpc_task *task, void *calldata)
@@ -854,24 +1103,47 @@ static void nfsd4_cb_probe_done(struct rpc_task *task, void *calldata)
 	if (task->tk_status)
 		nfsd4_mark_cb_down(clp, task->tk_status);
 	else
+<<<<<<< HEAD
 		clp->cl_cb_state = NFSD4_CB_UP;
+=======
+		nfsd4_mark_cb_state(clp, NFSD4_CB_UP);
+}
+
+static void nfsd4_cb_probe_release(void *calldata)
+{
+	struct nfs4_client *clp = container_of(calldata, struct nfs4_client, cl_cb_null);
+
+	nfsd41_cb_inflight_end(clp);
+
+>>>>>>> upstream/android-13
 }
 
 static const struct rpc_call_ops nfsd4_cb_probe_ops = {
 	/* XXX: release method to ensure we set the cb channel down if
 	 * necessary on early failure? */
 	.rpc_call_done = nfsd4_cb_probe_done,
+<<<<<<< HEAD
 };
 
 static struct workqueue_struct *callback_wq;
 
+=======
+	.rpc_release = nfsd4_cb_probe_release,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Poke the callback thread to process any updates to the callback
  * parameters, and send a null probe.
  */
 void nfsd4_probe_callback(struct nfs4_client *clp)
 {
+<<<<<<< HEAD
 	clp->cl_cb_state = NFSD4_CB_UNKNOWN;
+=======
+	trace_nfsd_cb_probe(clp);
+	nfsd4_mark_cb_state(clp, NFSD4_CB_UNKNOWN);
+>>>>>>> upstream/android-13
 	set_bit(NFSD4_CLIENT_CB_UPDATE, &clp->cl_flags);
 	nfsd4_run_cb(&clp->cl_cb_null);
 }
@@ -884,7 +1156,11 @@ void nfsd4_probe_callback_sync(struct nfs4_client *clp)
 
 void nfsd4_change_callback(struct nfs4_client *clp, struct nfs4_cb_conn *conn)
 {
+<<<<<<< HEAD
 	clp->cl_cb_state = NFSD4_CB_UNKNOWN;
+=======
+	nfsd4_mark_cb_state(clp, NFSD4_CB_UNKNOWN);
+>>>>>>> upstream/android-13
 	spin_lock(&clp->cl_lock);
 	memcpy(&clp->cl_cb_conn, conn, sizeof(struct nfs4_cb_conn));
 	spin_unlock(&clp->cl_lock);
@@ -895,9 +1171,18 @@ void nfsd4_change_callback(struct nfs4_client *clp, struct nfs4_cb_conn *conn)
  * If the slot is available, then mark it busy.  Otherwise, set the
  * thread for sleeping on the callback RPC wait queue.
  */
+<<<<<<< HEAD
 static bool nfsd41_cb_get_slot(struct nfs4_client *clp, struct rpc_task *task)
 {
 	if (test_and_set_bit(0, &clp->cl_cb_slot_busy) != 0) {
+=======
+static bool nfsd41_cb_get_slot(struct nfsd4_callback *cb, struct rpc_task *task)
+{
+	struct nfs4_client *clp = cb->cb_clp;
+
+	if (!cb->cb_holds_slot &&
+	    test_and_set_bit(0, &clp->cl_cb_slot_busy) != 0) {
+>>>>>>> upstream/android-13
 		rpc_sleep_on(&clp->cl_cb_waitq, task, NULL);
 		/* Race breaker */
 		if (test_and_set_bit(0, &clp->cl_cb_slot_busy) != 0) {
@@ -906,9 +1191,37 @@ static bool nfsd41_cb_get_slot(struct nfs4_client *clp, struct rpc_task *task)
 		}
 		rpc_wake_up_queued_task(&clp->cl_cb_waitq, task);
 	}
+<<<<<<< HEAD
 	return true;
 }
 
+=======
+	cb->cb_holds_slot = true;
+	return true;
+}
+
+static void nfsd41_cb_release_slot(struct nfsd4_callback *cb)
+{
+	struct nfs4_client *clp = cb->cb_clp;
+
+	if (cb->cb_holds_slot) {
+		cb->cb_holds_slot = false;
+		clear_bit(0, &clp->cl_cb_slot_busy);
+		rpc_wake_up_next(&clp->cl_cb_waitq);
+	}
+}
+
+static void nfsd41_destroy_cb(struct nfsd4_callback *cb)
+{
+	struct nfs4_client *clp = cb->cb_clp;
+
+	nfsd41_cb_release_slot(cb);
+	if (cb->cb_ops && cb->cb_ops->release)
+		cb->cb_ops->release(cb);
+	nfsd41_cb_inflight_end(clp);
+}
+
+>>>>>>> upstream/android-13
 /*
  * TODO: cb_sequence should support referring call lists, cachethis, multiple
  * slots, and mark callback channel down on communication errors.
@@ -925,11 +1238,16 @@ static void nfsd4_cb_prepare(struct rpc_task *task, void *calldata)
 	 */
 	cb->cb_seq_status = 1;
 	cb->cb_status = 0;
+<<<<<<< HEAD
 	if (minorversion) {
 		if (!cb->cb_holds_slot && !nfsd41_cb_get_slot(clp, task))
 			return;
 		cb->cb_holds_slot = true;
 	}
+=======
+	if (minorversion && !nfsd41_cb_get_slot(cb, task))
+		return;
+>>>>>>> upstream/android-13
 	rpc_call_start(task);
 }
 
@@ -949,7 +1267,11 @@ static bool nfsd4_cb_sequence_done(struct rpc_task *task, struct nfsd4_callback 
 		 * the submission code will error out, so we don't need to
 		 * handle that case here.
 		 */
+<<<<<<< HEAD
 		if (task->tk_flags & RPC_TASK_KILLED)
+=======
+		if (RPC_SIGNALLED(task))
+>>>>>>> upstream/android-13
 			goto need_restart;
 
 		return true;
@@ -971,7 +1293,11 @@ static bool nfsd4_cb_sequence_done(struct rpc_task *task, struct nfsd4_callback 
 		break;
 	case -ESERVERFAULT:
 		++session->se_cb_seq_nr;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 	case -NFS4ERR_BADSESSION:
 		nfsd4_mark_cb_fault(cb->cb_clp, cb->cb_seq_status);
@@ -992,10 +1318,15 @@ static bool nfsd4_cb_sequence_done(struct rpc_task *task, struct nfsd4_callback 
 		}
 		break;
 	default:
+<<<<<<< HEAD
+=======
+		nfsd4_mark_cb_fault(cb->cb_clp, cb->cb_seq_status);
+>>>>>>> upstream/android-13
 		dprintk("%s: unprocessed error %d\n", __func__,
 			cb->cb_seq_status);
 	}
 
+<<<<<<< HEAD
 	cb->cb_holds_slot = false;
 	clear_bit(0, &clp->cl_cb_slot_busy);
 	rpc_wake_up_next(&clp->cl_cb_waitq);
@@ -1003,6 +1334,13 @@ static bool nfsd4_cb_sequence_done(struct rpc_task *task, struct nfsd4_callback 
 		clp->cl_cb_session->se_cb_seq_nr);
 
 	if (task->tk_flags & RPC_TASK_KILLED)
+=======
+	nfsd41_cb_release_slot(cb);
+	dprintk("%s: freed slot, new seqid=%d\n", __func__,
+		clp->cl_cb_session->se_cb_seq_nr);
+
+	if (RPC_SIGNALLED(task))
+>>>>>>> upstream/android-13
 		goto need_restart;
 out:
 	return ret;
@@ -1011,8 +1349,15 @@ retry_nowait:
 		ret = false;
 	goto out;
 need_restart:
+<<<<<<< HEAD
 	task->tk_status = 0;
 	cb->cb_need_restart = true;
+=======
+	if (!test_bit(NFSD4_CLIENT_CB_KILL, &clp->cl_flags)) {
+		task->tk_status = 0;
+		cb->cb_need_restart = true;
+	}
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -1021,9 +1366,12 @@ static void nfsd4_cb_done(struct rpc_task *task, void *calldata)
 	struct nfsd4_callback *cb = calldata;
 	struct nfs4_client *clp = cb->cb_clp;
 
+<<<<<<< HEAD
 	dprintk("%s: minorversion=%d\n", __func__,
 		clp->cl_minorversion);
 
+=======
+>>>>>>> upstream/android-13
 	if (!nfsd4_cb_sequence_done(task, cb))
 		return;
 
@@ -1038,10 +1386,19 @@ static void nfsd4_cb_done(struct rpc_task *task, void *calldata)
 		rpc_restart_call_prepare(task);
 		return;
 	case 1:
+<<<<<<< HEAD
 		break;
 	case -1:
 		/* Network partition? */
 		nfsd4_mark_cb_down(clp, task->tk_status);
+=======
+		switch (task->tk_status) {
+		case -EIO:
+		case -ETIMEDOUT:
+		case -EACCES:
+			nfsd4_mark_cb_down(clp, task->tk_status);
+		}
+>>>>>>> upstream/android-13
 		break;
 	default:
 		BUG();
@@ -1053,9 +1410,15 @@ static void nfsd4_cb_release(void *calldata)
 	struct nfsd4_callback *cb = calldata;
 
 	if (cb->cb_need_restart)
+<<<<<<< HEAD
 		nfsd4_run_cb(cb);
 	else
 		cb->cb_ops->release(cb);
+=======
+		nfsd4_queue_cb(cb);
+	else
+		nfsd41_destroy_cb(cb);
+>>>>>>> upstream/android-13
 
 }
 
@@ -1081,6 +1444,12 @@ void nfsd4_destroy_callback_queue(void)
 /* must be called under the state lock */
 void nfsd4_shutdown_callback(struct nfs4_client *clp)
 {
+<<<<<<< HEAD
+=======
+	if (clp->cl_cb_state != NFSD4_CB_UNKNOWN)
+		trace_nfsd_cb_shutdown(clp);
+
+>>>>>>> upstream/android-13
 	set_bit(NFSD4_CLIENT_CB_KILL, &clp->cl_flags);
 	/*
 	 * Note this won't actually result in a null callback;
@@ -1089,6 +1458,10 @@ void nfsd4_shutdown_callback(struct nfs4_client *clp)
 	 */
 	nfsd4_run_cb(&clp->cl_cb_null);
 	flush_workqueue(callback_wq);
+<<<<<<< HEAD
+=======
+	nfsd41_cb_inflight_wait_complete(clp);
+>>>>>>> upstream/android-13
 }
 
 /* requires cl_lock: */
@@ -1106,6 +1479,15 @@ static struct nfsd4_conn * __nfsd4_find_backchannel(struct nfs4_client *clp)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Note there isn't a lot of locking in this code; instead we depend on
+ * the fact that it is run from the callback_wq, which won't run two
+ * work items at once.  So, for example, callback_wq handles all access
+ * of cl_cb_client and all calls to rpc_create or rpc_shutdown_client.
+ */
+>>>>>>> upstream/android-13
 static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
 {
 	struct nfs4_cb_conn conn;
@@ -1121,7 +1503,11 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
 	if (clp->cl_cb_client) {
 		rpc_shutdown_client(clp->cl_cb_client);
 		clp->cl_cb_client = NULL;
+<<<<<<< HEAD
 		put_rpccred(clp->cl_cb_cred);
+=======
+		put_cred(clp->cl_cb_cred);
+>>>>>>> upstream/android-13
 		clp->cl_cb_cred = NULL;
 	}
 	if (clp->cl_cb_conn.cb_xprt) {
@@ -1162,6 +1548,10 @@ nfsd4_run_cb_work(struct work_struct *work)
 		container_of(work, struct nfsd4_callback, cb_work);
 	struct nfs4_client *clp = cb->cb_clp;
 	struct rpc_clnt *clnt;
+<<<<<<< HEAD
+=======
+	int flags;
+>>>>>>> upstream/android-13
 
 	if (cb->cb_need_restart) {
 		cb->cb_need_restart = false;
@@ -1176,8 +1566,12 @@ nfsd4_run_cb_work(struct work_struct *work)
 	clnt = clp->cl_cb_client;
 	if (!clnt) {
 		/* Callback channel broken, or client killed; give up: */
+<<<<<<< HEAD
 		if (cb->cb_ops && cb->cb_ops->release)
 			cb->cb_ops->release(cb);
+=======
+		nfsd41_destroy_cb(cb);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1185,12 +1579,22 @@ nfsd4_run_cb_work(struct work_struct *work)
 	 * Don't send probe messages for 4.1 or later.
 	 */
 	if (!cb->cb_ops && clp->cl_minorversion) {
+<<<<<<< HEAD
 		clp->cl_cb_state = NFSD4_CB_UP;
+=======
+		nfsd4_mark_cb_state(clp, NFSD4_CB_UP);
+		nfsd41_destroy_cb(cb);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	cb->cb_msg.rpc_cred = clp->cl_cb_cred;
+<<<<<<< HEAD
 	rpc_call_async(clnt, &cb->cb_msg, RPC_TASK_SOFT | RPC_TASK_SOFTCONN,
+=======
+	flags = clp->cl_minorversion ? RPC_TASK_NOCONNECT : RPC_TASK_SOFTCONN;
+	rpc_call_async(clnt, &cb->cb_msg, RPC_TASK_SOFT | flags,
+>>>>>>> upstream/android-13
 			cb->cb_ops ? &nfsd4_cb_ops : &nfsd4_cb_probe_ops, cb);
 }
 
@@ -1211,5 +1615,13 @@ void nfsd4_init_cb(struct nfsd4_callback *cb, struct nfs4_client *clp,
 
 void nfsd4_run_cb(struct nfsd4_callback *cb)
 {
+<<<<<<< HEAD
 	queue_work(callback_wq, &cb->cb_work);
+=======
+	struct nfs4_client *clp = cb->cb_clp;
+
+	nfsd41_cb_inflight_begin(clp);
+	if (!nfsd4_queue_cb(cb))
+		nfsd41_cb_inflight_end(clp);
+>>>>>>> upstream/android-13
 }

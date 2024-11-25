@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* ZD1211 USB-WLAN driver for Linux
  *
  * Copyright (C) 2005-2007 Ulrich Kunitz <kune@deine-taler.de>
  * Copyright (C) 2006-2007 Daniel Drake <dsd@gentoo.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* This file implements all the hardware specific functions for the ZD1211
@@ -53,8 +60,12 @@ void zd_chip_clear(struct zd_chip *chip)
 static int scnprint_mac_oui(struct zd_chip *chip, char *buffer, size_t size)
 {
 	u8 *addr = zd_mac_get_perm_addr(zd_chip_to_mac(chip));
+<<<<<<< HEAD
 	return scnprintf(buffer, size, "%02x-%02x-%02x",
 		         addr[0], addr[1], addr[2]);
+=======
+	return scnprintf(buffer, size, "%3phD", addr);
+>>>>>>> upstream/android-13
 }
 
 /* Prints an identifier line, which will support debugging. */
@@ -1388,8 +1399,13 @@ static inline u8 zd_rate_from_ofdm_plcp_header(const void *rx_frame)
 
 /**
  * zd_rx_rate - report zd-rate
+<<<<<<< HEAD
  * @rx_frame - received frame
  * @rx_status - rx_status as given by the device
+=======
+ * @rx_frame: received frame
+ * @status: rx_status as given by the device
+>>>>>>> upstream/android-13
  *
  * This function converts the rate as encoded in the received packet to the
  * zd-rate, we are using on other places in the driver.

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
  * Copyright(c) 2015 Intel Mobile Communications GmbH
  * Copyright(c) 2017 Intel Deutschland GmbH
+<<<<<<< HEAD
  * Copyright(c) 2018 Intel Corporation
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,6 +21,9 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+ * Copyright(c) 2018 - 2019 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -401,6 +409,10 @@ struct iwl_lq_sta {
 		s8 last_rssi;
 		struct rs_rate_stats tx_stats[RS_COLUMN_COUNT][IWL_RATE_COUNT];
 		struct iwl_mvm *drv;
+<<<<<<< HEAD
+=======
+		spinlock_t lock; /* for races in reinit/update table */
+>>>>>>> upstream/android-13
 	} pers;
 };
 
@@ -455,10 +467,13 @@ int iwl_mvm_tx_protection(struct iwl_mvm *mvm, struct iwl_mvm_sta *mvmsta,
 void iwl_mvm_reset_frame_stats(struct iwl_mvm *mvm);
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_MAC80211_DEBUGFS
 void rs_remove_sta_debugfs(void *mvm, void *mvm_sta);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void iwl_mvm_rs_add_sta(struct iwl_mvm *mvm, struct iwl_mvm_sta *mvmsta);
 void rs_fw_rate_init(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
 		     enum nl80211_band band, bool update);
@@ -466,4 +481,9 @@ int rs_fw_tx_protection(struct iwl_mvm *mvm, struct iwl_mvm_sta *mvmsta,
 			bool enable);
 void iwl_mvm_tlc_update_notif(struct iwl_mvm *mvm,
 			      struct iwl_rx_cmd_buffer *rxb);
+<<<<<<< HEAD
+=======
+
+u16 rs_fw_get_max_amsdu_len(struct ieee80211_sta *sta);
+>>>>>>> upstream/android-13
 #endif /* __rs__ */

@@ -5,7 +5,10 @@
  * Written by: Masami Hiramatsu <mhiramat@kernel.org>
  */
 
+<<<<<<< HEAD
 #include <util.h>
+=======
+>>>>>>> upstream/android-13
 #include <debug.h>
 #include <dwarf-regs.h>
 #include <elf.h>
@@ -25,6 +28,10 @@
 #include "../arch/s390/include/dwarf-regs-table.h"
 #include "../arch/sparc/include/dwarf-regs-table.h"
 #include "../arch/xtensa/include/dwarf-regs-table.h"
+<<<<<<< HEAD
+=======
+#include "../arch/mips/include/dwarf-regs-table.h"
+>>>>>>> upstream/android-13
 
 #define __get_dwarf_regstr(tbl, n) (((n) < ARRAY_SIZE(tbl)) ? (tbl)[(n)] : NULL)
 
@@ -54,6 +61,11 @@ const char *get_dwarf_regstr(unsigned int n, unsigned int machine)
 		return __get_dwarf_regstr(sparc_regstr_tbl, n);
 	case EM_XTENSA:
 		return __get_dwarf_regstr(xtensa_regstr_tbl, n);
+<<<<<<< HEAD
+=======
+	case EM_MIPS:
+		return __get_dwarf_regstr(mips_regstr_tbl, n);
+>>>>>>> upstream/android-13
 	default:
 		pr_err("ELF MACHINE %x is not supported.\n", machine);
 	}

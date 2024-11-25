@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the Diolan DLN-2 USB-ADC adapter
  *
  * Copyright (c) 2017 Jack Andersen
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -251,7 +258,10 @@ static int dln2_adc_set_chan_period(struct dln2_adc *dln2,
 static int dln2_adc_read(struct dln2_adc *dln2, unsigned int channel)
 {
 	int ret, i;
+<<<<<<< HEAD
 	struct iio_dev *indio_dev = platform_get_drvdata(dln2->pdev);
+=======
+>>>>>>> upstream/android-13
 	u16 conflict;
 	__le16 value;
 	int olen = sizeof(value);
@@ -260,6 +270,7 @@ static int dln2_adc_read(struct dln2_adc *dln2, unsigned int channel)
 		.chan = channel,
 	};
 
+<<<<<<< HEAD
 	ret = iio_device_claim_direct_mode(indio_dev);
 	if (ret < 0)
 		return ret;
@@ -267,6 +278,11 @@ static int dln2_adc_read(struct dln2_adc *dln2, unsigned int channel)
 	ret = dln2_adc_set_chan_enabled(dln2, channel, true);
 	if (ret < 0)
 		goto release_direct;
+=======
+	ret = dln2_adc_set_chan_enabled(dln2, channel, true);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = dln2_adc_set_port_enabled(dln2, true, &conflict);
 	if (ret < 0) {
@@ -303,8 +319,11 @@ disable_port:
 	dln2_adc_set_port_enabled(dln2, false, NULL);
 disable_chan:
 	dln2_adc_set_chan_enabled(dln2, channel, false);
+<<<<<<< HEAD
 release_direct:
 	iio_device_release_direct_mode(indio_dev);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -340,10 +359,22 @@ static int dln2_adc_read_raw(struct iio_dev *indio_dev,
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
+<<<<<<< HEAD
+=======
+		ret = iio_device_claim_direct_mode(indio_dev);
+		if (ret < 0)
+			return ret;
+
+>>>>>>> upstream/android-13
 		mutex_lock(&dln2->mutex);
 		ret = dln2_adc_read(dln2, chan->channel);
 		mutex_unlock(&dln2->mutex);
 
+<<<<<<< HEAD
+=======
+		iio_device_release_direct_mode(indio_dev);
+
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -527,10 +558,13 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
 	u16 conflict;
 	unsigned int trigger_chan;
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_postenable(indio_dev);
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&dln2->mutex);
 
 	/* Enable ADC */
@@ -544,7 +578,10 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
 				(int)conflict);
 			ret = -EBUSY;
 		}
+<<<<<<< HEAD
 		iio_triggered_buffer_predisable(indio_dev);
+=======
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -558,7 +595,10 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
 		mutex_unlock(&dln2->mutex);
 		if (ret < 0) {
 			dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
+<<<<<<< HEAD
 			iio_triggered_buffer_predisable(indio_dev);
+=======
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	} else {
@@ -571,7 +611,11 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
 
 static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
 {
+<<<<<<< HEAD
 	int ret, ret2;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct dln2_adc *dln2 = iio_priv(indio_dev);
 
 	mutex_lock(&dln2->mutex);
@@ -589,10 +633,13 @@ static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
 	if (ret < 0)
 		dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
 
+<<<<<<< HEAD
 	ret2 = iio_triggered_buffer_predisable(indio_dev);
 	if (ret == 0)
 		ret = ret2;
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -655,7 +702,10 @@ static int dln2_adc_probe(struct platform_device *pdev)
 	IIO_CHAN_SOFT_TIMESTAMP_ASSIGN(dln2->iio_channels[i], i);
 
 	indio_dev->name = DLN2_ADC_MOD_NAME;
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &dln2_adc_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = dln2->iio_channels;
@@ -663,13 +713,26 @@ static int dln2_adc_probe(struct platform_device *pdev)
 	indio_dev->setup_ops = &dln2_adc_buffer_setup_ops;
 
 	dln2->trig = devm_iio_trigger_alloc(dev, "%s-dev%d",
+<<<<<<< HEAD
 					    indio_dev->name, indio_dev->id);
+=======
+					    indio_dev->name,
+					    iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 	if (!dln2->trig) {
 		dev_err(dev, "failed to allocate trigger\n");
 		return -ENOMEM;
 	}
 	iio_trigger_set_drvdata(dln2->trig, dln2);
+<<<<<<< HEAD
 	devm_iio_trigger_register(dev, dln2->trig);
+=======
+	ret = devm_iio_trigger_register(dev, dln2->trig);
+	if (ret) {
+		dev_err(dev, "failed to register trigger: %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 	iio_trigger_set_immutable(indio_dev, dln2->trig);
 
 	ret = devm_iio_triggered_buffer_setup(dev, indio_dev, NULL,

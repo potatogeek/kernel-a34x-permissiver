@@ -21,11 +21,20 @@
 #include <linux/init.h>
 #include <linux/cpu.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
+=======
+#include <linux/entry-common.h>
+>>>>>>> upstream/android-13
 #include <asm/irq_regs.h>
 #include <asm/cputime.h>
 #include <asm/lowcore.h>
 #include <asm/irq.h>
 #include <asm/hw_irq.h>
+<<<<<<< HEAD
+=======
+#include <asm/stacktrace.h>
+#include <asm/softirq_stack.h>
+>>>>>>> upstream/android-13
 #include "entry.h"
 
 DEFINE_PER_CPU_SHARED_ALIGNED(struct irq_stat, irq_stat);
@@ -73,7 +82,10 @@ static const struct irq_class irqclass_sub_desc[] = {
 	{.irq = IRQEXT_CMC, .name = "CMC", .desc = "[EXT] CPU-Measurement: Counter"},
 	{.irq = IRQEXT_FTP, .name = "FTP", .desc = "[EXT] HMC FTP Service"},
 	{.irq = IRQIO_CIO,  .name = "CIO", .desc = "[I/O] Common I/O Layer Interrupt"},
+<<<<<<< HEAD
 	{.irq = IRQIO_QAI,  .name = "QAI", .desc = "[I/O] QDIO Adapter Interrupt"},
+=======
+>>>>>>> upstream/android-13
 	{.irq = IRQIO_DAS,  .name = "DAS", .desc = "[I/O] DASD"},
 	{.irq = IRQIO_C15,  .name = "C15", .desc = "[I/O] 3215"},
 	{.irq = IRQIO_C70,  .name = "C70", .desc = "[I/O] 3270"},
@@ -81,6 +93,7 @@ static const struct irq_class irqclass_sub_desc[] = {
 	{.irq = IRQIO_VMR,  .name = "VMR", .desc = "[I/O] Unit Record Devices"},
 	{.irq = IRQIO_LCS,  .name = "LCS", .desc = "[I/O] LCS"},
 	{.irq = IRQIO_CTC,  .name = "CTC", .desc = "[I/O] CTC"},
+<<<<<<< HEAD
 	{.irq = IRQIO_APB,  .name = "APB", .desc = "[I/O] AP Bus"},
 	{.irq = IRQIO_ADM,  .name = "ADM", .desc = "[I/O] EADM Subchannel"},
 	{.irq = IRQIO_CSC,  .name = "CSC", .desc = "[I/O] CHSC Subchannel"},
@@ -88,10 +101,23 @@ static const struct irq_class irqclass_sub_desc[] = {
 	{.irq = IRQIO_MSI,  .name = "MSI", .desc = "[I/O] MSI Interrupt" },
 	{.irq = IRQIO_VIR,  .name = "VIR", .desc = "[I/O] Virtual I/O Devices"},
 	{.irq = IRQIO_VAI,  .name = "VAI", .desc = "[I/O] Virtual I/O Devices AI"},
+=======
+	{.irq = IRQIO_ADM,  .name = "ADM", .desc = "[I/O] EADM Subchannel"},
+	{.irq = IRQIO_CSC,  .name = "CSC", .desc = "[I/O] CHSC Subchannel"},
+	{.irq = IRQIO_VIR,  .name = "VIR", .desc = "[I/O] Virtual I/O Devices"},
+	{.irq = IRQIO_QAI,  .name = "QAI", .desc = "[AIO] QDIO Adapter Interrupt"},
+	{.irq = IRQIO_APB,  .name = "APB", .desc = "[AIO] AP Bus"},
+	{.irq = IRQIO_PCF,  .name = "PCF", .desc = "[AIO] PCI Floating Interrupt"},
+	{.irq = IRQIO_PCD,  .name = "PCD", .desc = "[AIO] PCI Directed Interrupt"},
+	{.irq = IRQIO_MSI,  .name = "MSI", .desc = "[AIO] MSI Interrupt"},
+	{.irq = IRQIO_VAI,  .name = "VAI", .desc = "[AIO] Virtual I/O Devices AI"},
+	{.irq = IRQIO_GAL,  .name = "GAL", .desc = "[AIO] GIB Alert"},
+>>>>>>> upstream/android-13
 	{.irq = NMI_NMI,    .name = "NMI", .desc = "[NMI] Machine Check"},
 	{.irq = CPU_RST,    .name = "RST", .desc = "[CPU] CPU Restart"},
 };
 
+<<<<<<< HEAD
 void __init init_IRQ(void)
 {
 	BUILD_BUG_ON(ARRAY_SIZE(irqclass_sub_desc) != NR_ARCH_IRQS);
@@ -106,13 +132,135 @@ void do_IRQ(struct pt_regs *regs, int irq)
 
 	old_regs = set_irq_regs(regs);
 	irq_enter();
+=======
+static void do_IRQ(struct pt_regs *regs, int irq)
+{
+>>>>>>> upstream/android-13
 	if (tod_after_eq(S390_lowcore.int_clock,
 			 S390_lowcore.clock_comparator))
 		/* Serve timer interrupts first. */
 		clock_comparator_work();
 	generic_handle_irq(irq);
+<<<<<<< HEAD
 	irq_exit();
 	set_irq_regs(old_regs);
+=======
+}
+
+static int on_async_stack(void)
+{
+	unsigned long frame = current_frame_address();
+
+	return ((S390_lowcore.async_stack ^ frame) & ~(THREAD_SIZE - 1)) == 0;
+}
+
+static void do_irq_async(struct pt_regs *regs, int irq)
+{
+	if (on_async_stack()) {
+		do_IRQ(regs, irq);
+	} else {
+		call_on_stack(2, S390_lowcore.async_stack, void, do_IRQ,
+			      struct pt_regs *, regs, int, irq);
+	}
+}
+
+static int irq_pending(struct pt_regs *regs)
+{
+	int cc;
+
+	asm volatile("tpi 0\n"
+		     "ipm %0" : "=d" (cc) : : "cc");
+	return cc >> 28;
+}
+
+void noinstr do_io_irq(struct pt_regs *regs)
+{
+	irqentry_state_t state = irqentry_enter(regs);
+	struct pt_regs *old_regs = set_irq_regs(regs);
+	int from_idle;
+
+	irq_enter_rcu();
+
+	if (user_mode(regs))
+		update_timer_sys();
+
+	from_idle = !user_mode(regs) && regs->psw.addr == (unsigned long)psw_idle_exit;
+	if (from_idle)
+		account_idle_time_irq();
+
+	do {
+		regs->tpi_info = S390_lowcore.tpi_info;
+		if (S390_lowcore.tpi_info.adapter_IO)
+			do_irq_async(regs, THIN_INTERRUPT);
+		else
+			do_irq_async(regs, IO_INTERRUPT);
+	} while (MACHINE_IS_LPAR && irq_pending(regs));
+
+	irq_exit_rcu();
+
+	set_irq_regs(old_regs);
+	irqentry_exit(regs, state);
+
+	if (from_idle)
+		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
+}
+
+void noinstr do_ext_irq(struct pt_regs *regs)
+{
+	irqentry_state_t state = irqentry_enter(regs);
+	struct pt_regs *old_regs = set_irq_regs(regs);
+	int from_idle;
+
+	irq_enter_rcu();
+
+	if (user_mode(regs))
+		update_timer_sys();
+
+	regs->int_code = S390_lowcore.ext_int_code_addr;
+	regs->int_parm = S390_lowcore.ext_params;
+	regs->int_parm_long = S390_lowcore.ext_params2;
+
+	from_idle = !user_mode(regs) && regs->psw.addr == (unsigned long)psw_idle_exit;
+	if (from_idle)
+		account_idle_time_irq();
+
+	do_irq_async(regs, EXT_INTERRUPT);
+
+	irq_exit_rcu();
+	set_irq_regs(old_regs);
+	irqentry_exit(regs, state);
+
+	if (from_idle)
+		regs->psw.mask &= ~(PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_WAIT);
+}
+
+static void show_msi_interrupt(struct seq_file *p, int irq)
+{
+	struct irq_desc *desc;
+	unsigned long flags;
+	int cpu;
+
+	irq_lock_sparse();
+	desc = irq_to_desc(irq);
+	if (!desc)
+		goto out;
+
+	raw_spin_lock_irqsave(&desc->lock, flags);
+	seq_printf(p, "%3d: ", irq);
+	for_each_online_cpu(cpu)
+		seq_printf(p, "%10u ", irq_desc_kstat_cpu(desc, cpu));
+
+	if (desc->irq_data.chip)
+		seq_printf(p, " %8s", desc->irq_data.chip->name);
+
+	if (desc->action)
+		seq_printf(p, "  %s", desc->action->name);
+
+	seq_putc(p, '\n');
+	raw_spin_unlock_irqrestore(&desc->lock, flags);
+out:
+	irq_unlock_sparse();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -123,11 +271,19 @@ int show_interrupts(struct seq_file *p, void *v)
 	int index = *(loff_t *) v;
 	int cpu, irq;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	if (index == 0) {
 		seq_puts(p, "           ");
 		for_each_online_cpu(cpu)
 			seq_printf(p, "CPU%d       ", cpu);
+=======
+	cpus_read_lock();
+	if (index == 0) {
+		seq_puts(p, "           ");
+		for_each_online_cpu(cpu)
+			seq_printf(p, "CPU%-8d", cpu);
+>>>>>>> upstream/android-13
 		seq_putc(p, '\n');
 	}
 	if (index < NR_IRQS_BASE) {
@@ -138,9 +294,16 @@ int show_interrupts(struct seq_file *p, void *v)
 		seq_putc(p, '\n');
 		goto out;
 	}
+<<<<<<< HEAD
 	if (index > NR_IRQS_BASE)
 		goto out;
 
+=======
+	if (index < nr_irqs) {
+		show_msi_interrupt(p, index);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 	for (index = 0; index < NR_ARCH_IRQS; index++) {
 		seq_printf(p, "%s: ", irqclass_sub_desc[index].name);
 		irq = irqclass_sub_desc[index].irq;
@@ -152,7 +315,11 @@ int show_interrupts(struct seq_file *p, void *v)
 		seq_putc(p, '\n');
 	}
 out:
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -162,6 +329,7 @@ unsigned int arch_dynirq_lower_bound(unsigned int from)
 }
 
 /*
+<<<<<<< HEAD
  * Switch to the asynchronous interrupt stack for softirq execution.
  */
 void do_softirq_own_stack(void)
@@ -188,6 +356,8 @@ void do_softirq_own_stack(void)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * ext_int_hash[index] is the list head for all external interrupts that hash
  * to this index.
  */
@@ -270,12 +440,16 @@ static irqreturn_t do_ext_interrupt(int irq, void *dummy)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction external_interrupt = {
 	.name	 = "EXT",
 	.handler = do_ext_interrupt,
 };
 
 void __init init_ext_interrupts(void)
+=======
+static void __init init_ext_interrupts(void)
+>>>>>>> upstream/android-13
 {
 	int idx;
 
@@ -284,7 +458,20 @@ void __init init_ext_interrupts(void)
 
 	irq_set_chip_and_handler(EXT_INTERRUPT,
 				 &dummy_irq_chip, handle_percpu_irq);
+<<<<<<< HEAD
 	setup_irq(EXT_INTERRUPT, &external_interrupt);
+=======
+	if (request_irq(EXT_INTERRUPT, do_ext_interrupt, 0, "EXT", NULL))
+		panic("Failed to register EXT interrupt\n");
+}
+
+void __init init_IRQ(void)
+{
+	BUILD_BUG_ON(ARRAY_SIZE(irqclass_sub_desc) != NR_ARCH_IRQS);
+	init_cio_interrupts();
+	init_airq_interrupts();
+	init_ext_interrupts();
+>>>>>>> upstream/android-13
 }
 
 static DEFINE_SPINLOCK(irq_subclass_lock);

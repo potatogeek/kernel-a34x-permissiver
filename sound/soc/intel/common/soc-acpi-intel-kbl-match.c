@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /*
  * soc-apci-intel-kbl-match.c - tables and support for KBL ACPI enumeration.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * soc-acpi-intel-kbl-match.c - tables and support for KBL ACPI enumeration.
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2018, Intel Corporation.
  *
@@ -32,6 +38,19 @@ static struct snd_soc_acpi_codecs kbl_7219_98357_codecs = {
 	.codecs = {"MX98357A"}
 };
 
+<<<<<<< HEAD
+=======
+static struct snd_soc_acpi_codecs kbl_7219_98927_codecs = {
+	.num_codecs = 1,
+	.codecs = {"MX98927"}
+};
+
+static struct snd_soc_acpi_codecs kbl_7219_98373_codecs = {
+	.num_codecs = 1,
+	.codecs = {"MX98373"}
+};
+
+>>>>>>> upstream/android-13
 struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
 	{
 		.id = "INT343A",
@@ -77,15 +96,57 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
 	},
 	{
 		.id = "DLGS7219",
+<<<<<<< HEAD
 		.drv_name = "kbl_da7219_max98357a",
+=======
+		.drv_name = "kbl_da7219_mx98357a",
+>>>>>>> upstream/android-13
 		.fw_filename = "intel/dsp_fw_kbl.bin",
 		.machine_quirk = snd_soc_acpi_codec_list,
 		.quirk_data = &kbl_7219_98357_codecs,
 		.pdata = &skl_dmic_data,
 	},
+<<<<<<< HEAD
 	{},
 };
 EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_kbl_machines);
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("Intel Common ACPI Match module");
+=======
+	{
+		.id = "DLGS7219",
+		.drv_name = "kbl_da7219_max98927",
+		.fw_filename = "intel/dsp_fw_kbl.bin",
+		.machine_quirk = snd_soc_acpi_codec_list,
+		.quirk_data = &kbl_7219_98927_codecs,
+		.pdata = &skl_dmic_data
+	},
+	{
+		.id = "10EC5660",
+		.drv_name = "kbl_rt5660",
+		.fw_filename = "intel/dsp_fw_kbl.bin",
+	},
+	{
+		.id = "10EC3277",
+		.drv_name = "kbl_rt5660",
+		.fw_filename = "intel/dsp_fw_kbl.bin",
+	},
+	{
+		.id = "DLGS7219",
+		.drv_name = "kbl_da7219_mx98373",
+		.fw_filename = "intel/dsp_fw_kbl.bin",
+		.machine_quirk = snd_soc_acpi_codec_list,
+		.quirk_data = &kbl_7219_98373_codecs,
+		.pdata = &skl_dmic_data
+	},
+	{
+		.id = "MX98373",
+		.drv_name = "kbl_max98373",
+		.fw_filename = "intel/dsp_fw_kbl.bin",
+		.pdata = &skl_dmic_data
+	},
+	{},
+};
+EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_kbl_machines);
+>>>>>>> upstream/android-13

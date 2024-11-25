@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * This file implements an irqchip for OPAL events. Whenever there is
  * an interrupt that is handled by OPAL we get passed a list of events
@@ -5,11 +9,14 @@
  * interrupts to Linux so we implement an irqchip to handle them.
  *
  * Copyright Alistair Popple, IBM Corporation 2014.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/bitops.h>
 #include <linux/irq.h>
@@ -50,18 +57,28 @@ void opal_handle_events(void)
 	e = READ_ONCE(last_outstanding_events) & opal_event_irqchip.mask;
 again:
 	while (e) {
+<<<<<<< HEAD
 		int virq, hwirq;
+=======
+		int hwirq;
+>>>>>>> upstream/android-13
 
 		hwirq = fls64(e) - 1;
 		e &= ~BIT_ULL(hwirq);
 
 		local_irq_disable();
+<<<<<<< HEAD
 		virq = irq_find_mapping(opal_event_irqchip.domain, hwirq);
 		if (virq) {
 			irq_enter();
 			generic_handle_irq(virq);
 			irq_exit();
 		}
+=======
+		irq_enter();
+		generic_handle_domain_irq(opal_event_irqchip.domain, hwirq);
+		irq_exit();
+>>>>>>> upstream/android-13
 		local_irq_enable();
 
 		cond_resched();

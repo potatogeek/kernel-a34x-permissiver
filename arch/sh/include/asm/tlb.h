@@ -2,6 +2,7 @@
 #ifndef __ASM_SH_TLB_H
 #define __ASM_SH_TLB_H
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH64
 # include <asm/tlb_64.h>
 #endif
@@ -140,6 +141,16 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
 #define tlb_migrate_finish(mm)		do { } while (0)
 
 #if defined(CONFIG_CPU_SH4) || defined(CONFIG_SUPERH64)
+=======
+#ifndef __ASSEMBLY__
+#include <linux/pagemap.h>
+#include <asm-generic/tlb.h>
+
+#ifdef CONFIG_MMU
+#include <linux/swap.h>
+
+#if defined(CONFIG_CPU_SH4)
+>>>>>>> upstream/android-13
 extern void tlb_wire_entry(struct vm_area_struct *, unsigned long, pte_t);
 extern void tlb_unwire_entry(void);
 #else
@@ -153,6 +164,7 @@ static inline void tlb_unwire_entry(void)
 {
 	BUG();
 }
+<<<<<<< HEAD
 #endif
 
 #else /* CONFIG_MMU */
@@ -164,6 +176,9 @@ static inline void tlb_unwire_entry(void)
 
 #include <asm-generic/tlb.h>
 
+=======
+#endif /* CONFIG_CPU_SH4 */
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MMU */
 #endif /* __ASSEMBLY__ */
 #endif /* __ASM_SH_TLB_H */

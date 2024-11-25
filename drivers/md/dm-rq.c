@@ -12,6 +12,25 @@
 
 #define DM_MSG_PREFIX "core-rq"
 
+<<<<<<< HEAD
+=======
+/*
+ * One of these is allocated per request.
+ */
+struct dm_rq_target_io {
+	struct mapped_device *md;
+	struct dm_target *ti;
+	struct request *orig, *clone;
+	struct kthread_work work;
+	blk_status_t error;
+	union map_info info;
+	struct dm_stats_aux stats_aux;
+	unsigned long duration_jiffies;
+	unsigned n_sectors;
+	unsigned completed;
+};
+
+>>>>>>> upstream/android-13
 #define DM_MQ_NR_HW_QUEUES 1
 #define DM_MQ_QUEUE_DEPTH 2048
 static unsigned dm_mq_nr_hw_queues = DM_MQ_NR_HW_QUEUES;
@@ -23,6 +42,7 @@ static unsigned dm_mq_queue_depth = DM_MQ_QUEUE_DEPTH;
 #define RESERVED_REQUEST_BASED_IOS	256
 static unsigned reserved_rq_based_ios = RESERVED_REQUEST_BASED_IOS;
 
+<<<<<<< HEAD
 static bool use_blk_mq = IS_ENABLED(CONFIG_DM_MQ_DEFAULT);
 
 bool dm_use_blk_mq_default(void)
@@ -36,6 +56,8 @@ bool dm_use_blk_mq(struct mapped_device *md)
 }
 EXPORT_SYMBOL_GPL(dm_use_blk_mq);
 
+=======
+>>>>>>> upstream/android-13
 unsigned dm_get_reserved_rq_based_ios(void)
 {
 	return __dm_get_module_param(&reserved_rq_based_ios,
@@ -56,6 +78,7 @@ static unsigned dm_get_blk_mq_queue_depth(void)
 
 int dm_request_based(struct mapped_device *md)
 {
+<<<<<<< HEAD
 	return queue_is_rq_based(md->queue);
 }
 
@@ -70,11 +93,18 @@ static void dm_old_start_queue(struct request_queue *q)
 }
 
 static void dm_mq_start_queue(struct request_queue *q)
+=======
+	return queue_is_mq(md->queue);
+}
+
+void dm_start_queue(struct request_queue *q)
+>>>>>>> upstream/android-13
 {
 	blk_mq_unquiesce_queue(q);
 	blk_mq_kick_requeue_list(q);
 }
 
+<<<<<<< HEAD
 void dm_start_queue(struct request_queue *q)
 {
 	if (!q->mq_ops)
@@ -104,6 +134,11 @@ void dm_stop_queue(struct request_queue *q)
 		dm_old_stop_queue(q);
 	else
 		dm_mq_stop_queue(q);
+=======
+void dm_stop_queue(struct request_queue *q)
+{
+	blk_mq_quiesce_queue(q);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -145,7 +180,11 @@ static void end_clone_bio(struct bio *clone)
 
 	/*
 	 * Update the original request.
+<<<<<<< HEAD
 	 * Do not use blk_end_request() here, because it may complete
+=======
+	 * Do not use blk_mq_end_request() here, because it may complete
+>>>>>>> upstream/android-13
 	 * the original request before the clone, and break the ordering.
 	 */
 	if (is_last)
@@ -174,6 +213,7 @@ static void rq_end_stats(struct mapped_device *md, struct request *orig)
  * the md may be freed in dm_put() at the end of this function.
  * Or do dm_get() before calling this function and dm_put() later.
  */
+<<<<<<< HEAD
 static void rq_completed(struct mapped_device *md, int rw, bool run_queue)
 {
 	struct request_queue *q = md->queue;
@@ -197,6 +237,10 @@ static void rq_completed(struct mapped_device *md, int rw, bool run_queue)
 		spin_unlock_irqrestore(q->queue_lock, flags);
 	}
 
+=======
+static void rq_completed(struct mapped_device *md)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * dm_put() must be at the end of this function. See the comment above
 	 */
@@ -210,7 +254,10 @@ static void rq_completed(struct mapped_device *md, int rw, bool run_queue)
  */
 static void dm_end_request(struct request *clone, blk_status_t error)
 {
+<<<<<<< HEAD
 	int rw = rq_data_dir(clone);
+=======
+>>>>>>> upstream/android-13
 	struct dm_rq_target_io *tio = clone->end_io_data;
 	struct mapped_device *md = tio->md;
 	struct request *rq = tio->orig;
@@ -219,6 +266,7 @@ static void dm_end_request(struct request *clone, blk_status_t error)
 	tio->ti->type->release_clone_rq(clone, NULL);
 
 	rq_end_stats(md, rq);
+<<<<<<< HEAD
 	if (!rq->q->mq_ops)
 		blk_end_request_all(rq, error);
 	else
@@ -238,6 +286,10 @@ static void dm_old_requeue_request(struct request *rq, unsigned long delay_ms)
 	blk_requeue_request(q, rq);
 	blk_delay_queue(q, delay_ms);
 	spin_unlock_irqrestore(q->queue_lock, flags);
+=======
+	blk_mq_end_request(rq, error);
+	rq_completed(md);
+>>>>>>> upstream/android-13
 }
 
 static void __dm_mq_kick_requeue_list(struct request_queue *q, unsigned long msecs)
@@ -247,7 +299,11 @@ static void __dm_mq_kick_requeue_list(struct request_queue *q, unsigned long mse
 
 void dm_mq_kick_requeue_list(struct mapped_device *md)
 {
+<<<<<<< HEAD
 	__dm_mq_kick_requeue_list(dm_get_md_queue(md), 0);
+=======
+	__dm_mq_kick_requeue_list(md->queue, 0);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(dm_mq_kick_requeue_list);
 
@@ -261,7 +317,10 @@ static void dm_requeue_original_request(struct dm_rq_target_io *tio, bool delay_
 {
 	struct mapped_device *md = tio->md;
 	struct request *rq = tio->orig;
+<<<<<<< HEAD
 	int rw = rq_data_dir(rq);
+=======
+>>>>>>> upstream/android-13
 	unsigned long delay_ms = delay_requeue ? 100 : 0;
 
 	rq_end_stats(md, rq);
@@ -270,12 +329,17 @@ static void dm_requeue_original_request(struct dm_rq_target_io *tio, bool delay_
 		tio->ti->type->release_clone_rq(tio->clone, NULL);
 	}
 
+<<<<<<< HEAD
 	if (!rq->q->mq_ops)
 		dm_old_requeue_request(rq, delay_ms);
 	else
 		dm_mq_delay_requeue_request(rq, delay_ms);
 
 	rq_completed(md, rw, false);
+=======
+	dm_mq_delay_requeue_request(rq, delay_ms);
+	rq_completed(md);
+>>>>>>> upstream/android-13
 }
 
 static void dm_done(struct request *clone, blk_status_t error, bool mapped)
@@ -333,18 +397,26 @@ static void dm_softirq_done(struct request *rq)
 	bool mapped = true;
 	struct dm_rq_target_io *tio = tio_from_request(rq);
 	struct request *clone = tio->clone;
+<<<<<<< HEAD
 	int rw;
+=======
+>>>>>>> upstream/android-13
 
 	if (!clone) {
 		struct mapped_device *md = tio->md;
 
 		rq_end_stats(md, rq);
+<<<<<<< HEAD
 		rw = rq_data_dir(rq);
 		if (!rq->q->mq_ops)
 			blk_end_request_all(rq, tio->error);
 		else
 			blk_mq_end_request(rq, tio->error);
 		rq_completed(md, rw, false);
+=======
+		blk_mq_end_request(rq, tio->error);
+		rq_completed(md);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -363,9 +435,13 @@ static void dm_complete_request(struct request *rq, blk_status_t error)
 	struct dm_rq_target_io *tio = tio_from_request(rq);
 
 	tio->error = error;
+<<<<<<< HEAD
 	if (!rq->q->mq_ops)
 		blk_complete_request(rq);
 	else
+=======
+	if (likely(!blk_should_fake_timeout(rq->q)))
+>>>>>>> upstream/android-13
 		blk_mq_complete_request(rq);
 }
 
@@ -373,7 +449,11 @@ static void dm_complete_request(struct request *rq, blk_status_t error)
  * Complete the not-mapped clone and the original request with the error status
  * through softirq context.
  * Target's rq_end_io() function isn't called.
+<<<<<<< HEAD
  * This may be used when the target's map_rq() or clone_and_map_rq() functions fail.
+=======
+ * This may be used when the target's clone_and_map_rq() function fails.
+>>>>>>> upstream/android-13
  */
 static void dm_kill_unmapped_request(struct request *rq, blk_status_t error)
 {
@@ -381,13 +461,17 @@ static void dm_kill_unmapped_request(struct request *rq, blk_status_t error)
 	dm_complete_request(rq, error);
 }
 
+<<<<<<< HEAD
 /*
  * Called with the clone's queue lock held (in the case of .request_fn)
  */
+=======
+>>>>>>> upstream/android-13
 static void end_clone_request(struct request *clone, blk_status_t error)
 {
 	struct dm_rq_target_io *tio = clone->end_io_data;
 
+<<<<<<< HEAD
 	/*
 	 * Actual request completion is done in a softirq context which doesn't
 	 * hold the clone's queue lock.  Otherwise, deadlock could occur because:
@@ -396,6 +480,8 @@ static void end_clone_request(struct request *clone, blk_status_t error)
 	 *     - the submission which requires queue lock may be done
 	 *       against this clone's queue
 	 */
+=======
+>>>>>>> upstream/android-13
 	dm_complete_request(tio->orig, error);
 }
 
@@ -446,8 +532,11 @@ static int setup_clone(struct request *clone, struct request *rq,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void map_tio_request(struct kthread_work *work);
 
+=======
+>>>>>>> upstream/android-13
 static void init_tio(struct dm_rq_target_io *tio, struct request *rq,
 		     struct mapped_device *md)
 {
@@ -464,8 +553,11 @@ static void init_tio(struct dm_rq_target_io *tio, struct request *rq,
 	 */
 	if (!md->init_tio_pdu)
 		memset(&tio->info, 0, sizeof(tio->info));
+<<<<<<< HEAD
 	if (md->kworker_task)
 		kthread_init_work(&tio->work, map_tio_request);
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -484,7 +576,10 @@ static int map_request(struct dm_rq_target_io *tio)
 	blk_status_t ret;
 
 	r = ti->type->clone_and_map_rq(ti, rq, &tio->info, &clone);
+<<<<<<< HEAD
 check_again:
+=======
+>>>>>>> upstream/android-13
 	switch (r) {
 	case DM_MAPIO_SUBMITTED:
 		/* The target has taken the I/O to submit by itself later */
@@ -497,7 +592,11 @@ check_again:
 		}
 
 		/* The target has remapped the I/O so dispatch it */
+<<<<<<< HEAD
 		trace_block_rq_remap(clone->q, clone, disk_devt(dm_disk(md)),
+=======
+		trace_block_rq_remap(clone, disk_devt(dm_disk(md)),
+>>>>>>> upstream/android-13
 				     blk_rq_pos(rq));
 		ret = dm_dispatch_clone_request(clone, rq);
 		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
@@ -505,11 +604,15 @@ check_again:
 			blk_mq_cleanup_rq(clone);
 			tio->ti->type->release_clone_rq(clone, &tio->info);
 			tio->clone = NULL;
+<<<<<<< HEAD
 			if (!rq->q->mq_ops)
 				r = DM_MAPIO_DELAY_REQUEUE;
 			else
 				r = DM_MAPIO_REQUEUE;
 			goto check_again;
+=======
+			return DM_MAPIO_REQUEUE;
+>>>>>>> upstream/android-13
 		}
 		break;
 	case DM_MAPIO_REQUEUE:
@@ -531,6 +634,7 @@ check_again:
 	return r;
 }
 
+<<<<<<< HEAD
 static void dm_start_request(struct mapped_device *md, struct request *orig)
 {
 	if (!orig->q->mq_ops)
@@ -544,6 +648,23 @@ static void dm_start_request(struct mapped_device *md, struct request *orig)
 		md->last_rq_rw = rq_data_dir(orig);
 		md->last_rq_start_time = ktime_get();
 	}
+=======
+/* DEPRECATED: previously used for request-based merge heuristic in dm_request_fn() */
+ssize_t dm_attr_rq_based_seq_io_merge_deadline_show(struct mapped_device *md, char *buf)
+{
+	return sprintf(buf, "%u\n", 0);
+}
+
+ssize_t dm_attr_rq_based_seq_io_merge_deadline_store(struct mapped_device *md,
+						     const char *buf, size_t count)
+{
+	return count;
+}
+
+static void dm_start_request(struct mapped_device *md, struct request *orig)
+{
+	blk_mq_start_request(orig);
+>>>>>>> upstream/android-13
 
 	if (unlikely(dm_stats_used(&md->stats))) {
 		struct dm_rq_target_io *tio = tio_from_request(orig);
@@ -564,8 +685,15 @@ static void dm_start_request(struct mapped_device *md, struct request *orig)
 	dm_get(md);
 }
 
+<<<<<<< HEAD
 static int __dm_rq_init_rq(struct mapped_device *md, struct request *rq)
 {
+=======
+static int dm_mq_init_request(struct blk_mq_tag_set *set, struct request *rq,
+			      unsigned int hctx_idx, unsigned int numa_node)
+{
+	struct mapped_device *md = set->driver_data;
+>>>>>>> upstream/android-13
 	struct dm_rq_target_io *tio = blk_mq_rq_to_pdu(rq);
 
 	/*
@@ -582,6 +710,7 @@ static int __dm_rq_init_rq(struct mapped_device *md, struct request *rq)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dm_rq_init_rq(struct request_queue *q, struct request *rq, gfp_t gfp)
 {
 	return __dm_rq_init_rq(q->rq_alloc_data, rq);
@@ -739,6 +868,8 @@ static int dm_mq_init_request(struct blk_mq_tag_set *set, struct request *rq,
 	return __dm_rq_init_rq(set->driver_data, rq);
 }
 
+=======
+>>>>>>> upstream/android-13
 static blk_status_t dm_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 			  const struct blk_mq_queue_data *bd)
 {
@@ -747,10 +878,30 @@ static blk_status_t dm_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 	struct mapped_device *md = tio->md;
 	struct dm_target *ti = md->immutable_target;
 
+<<<<<<< HEAD
 	if (unlikely(!ti)) {
 		int srcu_idx;
 		struct dm_table *map = dm_get_live_table(md, &srcu_idx);
 
+=======
+	/*
+	 * blk-mq's unquiesce may come from outside events, such as
+	 * elevator switch, updating nr_requests or others, and request may
+	 * come during suspend, so simply ask for blk-mq to requeue it.
+	 */
+	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags)))
+		return BLK_STS_RESOURCE;
+
+	if (unlikely(!ti)) {
+		int srcu_idx;
+		struct dm_table *map;
+
+		map = dm_get_live_table(md, &srcu_idx);
+		if (unlikely(!map)) {
+			dm_put_live_table(md, srcu_idx);
+			return BLK_STS_RESOURCE;
+		}
+>>>>>>> upstream/android-13
 		ti = dm_table_find_target(map, 0);
 		dm_put_live_table(md, srcu_idx);
 	}
@@ -772,7 +923,11 @@ static blk_status_t dm_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
 	if (map_request(tio) == DM_MAPIO_REQUEUE) {
 		/* Undo dm_start_request() before requeuing */
 		rq_end_stats(md, rq);
+<<<<<<< HEAD
 		rq_completed(md, rq_data_dir(rq), false);
+=======
+		rq_completed(md);
+>>>>>>> upstream/android-13
 		return BLK_STS_RESOURCE;
 	}
 
@@ -787,6 +942,7 @@ static const struct blk_mq_ops dm_mq_ops = {
 
 int dm_mq_init_request_queue(struct mapped_device *md, struct dm_table *t)
 {
+<<<<<<< HEAD
 	struct request_queue *q;
 	struct dm_target *immutable_tgt;
 	int err;
@@ -796,6 +952,11 @@ int dm_mq_init_request_queue(struct mapped_device *md, struct dm_table *t)
 		return -EINVAL;
 	}
 
+=======
+	struct dm_target *immutable_tgt;
+	int err;
+
+>>>>>>> upstream/android-13
 	md->tag_set = kzalloc_node(sizeof(struct blk_mq_tag_set), GFP_KERNEL, md->numa_node_id);
 	if (!md->tag_set)
 		return -ENOMEM;
@@ -803,7 +964,11 @@ int dm_mq_init_request_queue(struct mapped_device *md, struct dm_table *t)
 	md->tag_set->ops = &dm_mq_ops;
 	md->tag_set->queue_depth = dm_get_blk_mq_queue_depth();
 	md->tag_set->numa_node = md->numa_node_id;
+<<<<<<< HEAD
 	md->tag_set->flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_SG_MERGE;
+=======
+	md->tag_set->flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_STACKING;
+>>>>>>> upstream/android-13
 	md->tag_set->nr_hw_queues = dm_get_blk_mq_nr_hw_queues();
 	md->tag_set->driver_data = md;
 
@@ -819,12 +984,18 @@ int dm_mq_init_request_queue(struct mapped_device *md, struct dm_table *t)
 	if (err)
 		goto out_kfree_tag_set;
 
+<<<<<<< HEAD
 	q = blk_mq_init_allocated_queue(md->tag_set, md->queue);
 	if (IS_ERR(q)) {
 		err = PTR_ERR(q);
 		goto out_tag_set;
 	}
 
+=======
+	err = blk_mq_init_allocated_queue(md->tag_set, md->queue);
+	if (err)
+		goto out_tag_set;
+>>>>>>> upstream/android-13
 	return 0;
 
 out_tag_set:
@@ -848,6 +1019,11 @@ void dm_mq_cleanup_mapped_device(struct mapped_device *md)
 module_param(reserved_rq_based_ios, uint, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(reserved_rq_based_ios, "Reserved IOs in request-based mempools");
 
+<<<<<<< HEAD
+=======
+/* Unused, but preserved for userspace compatibility */
+static bool use_blk_mq = true;
+>>>>>>> upstream/android-13
 module_param(use_blk_mq, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(use_blk_mq, "Use block multiqueue for request-based DM devices");
 

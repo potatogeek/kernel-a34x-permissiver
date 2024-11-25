@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/net/bond/bond_netlink.c - Netlink interface for bonding
  * Copyright (c) 2013 Jiri Pirko <jiri@resnulli.us>
  * Copyright (c) 2013 Scott Feldman <sfeldma@cumulusnetworks.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -104,6 +111,10 @@ static const struct nla_policy bond_policy[IFLA_BOND_MAX + 1] = {
 	[IFLA_BOND_MIN_LINKS]		= { .type = NLA_U32 },
 	[IFLA_BOND_LP_INTERVAL]		= { .type = NLA_U32 },
 	[IFLA_BOND_PACKETS_PER_SLAVE]	= { .type = NLA_U32 },
+<<<<<<< HEAD
+=======
+	[IFLA_BOND_AD_LACP_ACTIVE]	= { .type = NLA_U8 },
+>>>>>>> upstream/android-13
 	[IFLA_BOND_AD_LACP_RATE]	= { .type = NLA_U8 },
 	[IFLA_BOND_AD_SELECT]		= { .type = NLA_U8 },
 	[IFLA_BOND_AD_INFO]		= { .type = NLA_NESTED },
@@ -112,6 +123,10 @@ static const struct nla_policy bond_policy[IFLA_BOND_MAX + 1] = {
 	[IFLA_BOND_AD_ACTOR_SYSTEM]	= { .type = NLA_BINARY,
 					    .len  = ETH_ALEN },
 	[IFLA_BOND_TLB_DYNAMIC_LB]	= { .type = NLA_U8 },
+<<<<<<< HEAD
+=======
+	[IFLA_BOND_PEER_NOTIF_DELAY]    = { .type = NLA_U32 },
+>>>>>>> upstream/android-13
 };
 
 static const struct nla_policy bond_slave_policy[IFLA_BOND_SLAVE_MAX + 1] = {
@@ -219,6 +234,17 @@ static int bond_changelink(struct net_device *bond_dev, struct nlattr *tb[],
 		if (err)
 			return err;
 	}
+<<<<<<< HEAD
+=======
+	if (data[IFLA_BOND_PEER_NOTIF_DELAY]) {
+		int delay = nla_get_u32(data[IFLA_BOND_PEER_NOTIF_DELAY]);
+
+		bond_opt_initval(&newval, delay);
+		err = __bond_opt_set(bond, BOND_OPT_PEER_NOTIF_DELAY, &newval);
+		if (err)
+			return err;
+	}
+>>>>>>> upstream/android-13
 	if (data[IFLA_BOND_USE_CARRIER]) {
 		int use_carrier = nla_get_u8(data[IFLA_BOND_USE_CARRIER]);
 
@@ -382,6 +408,19 @@ static int bond_changelink(struct net_device *bond_dev, struct nlattr *tb[],
 		if (err)
 			return err;
 	}
+<<<<<<< HEAD
+=======
+
+	if (data[IFLA_BOND_AD_LACP_ACTIVE]) {
+		int lacp_active = nla_get_u8(data[IFLA_BOND_AD_LACP_ACTIVE]);
+
+		bond_opt_initval(&newval, lacp_active);
+		err = __bond_opt_set(bond, BOND_OPT_LACP_ACTIVE, &newval);
+		if (err)
+			return err;
+	}
+
+>>>>>>> upstream/android-13
 	if (data[IFLA_BOND_AD_LACP_RATE]) {
 		int lacp_rate =
 			nla_get_u8(data[IFLA_BOND_AD_LACP_RATE]);
@@ -485,6 +524,10 @@ static size_t bond_get_size(const struct net_device *bond_dev)
 		nla_total_size(sizeof(u32)) +	/* IFLA_BOND_MIN_LINKS */
 		nla_total_size(sizeof(u32)) +	/* IFLA_BOND_LP_INTERVAL */
 		nla_total_size(sizeof(u32)) +  /* IFLA_BOND_PACKETS_PER_SLAVE */
+<<<<<<< HEAD
+=======
+		nla_total_size(sizeof(u8)) +	/* IFLA_BOND_AD_LACP_ACTIVE */
+>>>>>>> upstream/android-13
 		nla_total_size(sizeof(u8)) +	/* IFLA_BOND_AD_LACP_RATE */
 		nla_total_size(sizeof(u8)) +	/* IFLA_BOND_AD_SELECT */
 		nla_total_size(sizeof(struct nlattr)) + /* IFLA_BOND_AD_INFO */
@@ -497,6 +540,10 @@ static size_t bond_get_size(const struct net_device *bond_dev)
 		nla_total_size(sizeof(u16)) + /* IFLA_BOND_AD_USER_PORT_KEY */
 		nla_total_size(ETH_ALEN) + /* IFLA_BOND_AD_ACTOR_SYSTEM */
 		nla_total_size(sizeof(u8)) + /* IFLA_BOND_TLB_DYNAMIC_LB */
+<<<<<<< HEAD
+=======
+		nla_total_size(sizeof(u32)) +	/* IFLA_BOND_PEER_NOTIF_DELAY */
+>>>>>>> upstream/android-13
 		0;
 }
 
@@ -539,13 +586,24 @@ static int bond_fill_info(struct sk_buff *skb,
 			bond->params.downdelay * bond->params.miimon))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
+=======
+	if (nla_put_u32(skb, IFLA_BOND_PEER_NOTIF_DELAY,
+			bond->params.peer_notif_delay * bond->params.miimon))
+		goto nla_put_failure;
+
+>>>>>>> upstream/android-13
 	if (nla_put_u8(skb, IFLA_BOND_USE_CARRIER, bond->params.use_carrier))
 		goto nla_put_failure;
 
 	if (nla_put_u32(skb, IFLA_BOND_ARP_INTERVAL, bond->params.arp_interval))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	targets = nla_nest_start(skb, IFLA_BOND_ARP_IP_TARGET);
+=======
+	targets = nla_nest_start_noflag(skb, IFLA_BOND_ARP_IP_TARGET);
+>>>>>>> upstream/android-13
 	if (!targets)
 		goto nla_put_failure;
 
@@ -588,7 +646,11 @@ static int bond_fill_info(struct sk_buff *skb,
 		goto nla_put_failure;
 
 	if (nla_put_u32(skb, IFLA_BOND_RESEND_IGMP,
+<<<<<<< HEAD
 		        bond->params.resend_igmp))
+=======
+			bond->params.resend_igmp))
+>>>>>>> upstream/android-13
 		goto nla_put_failure;
 
 	if (nla_put_u8(skb, IFLA_BOND_NUM_PEER_NOTIF,
@@ -612,6 +674,13 @@ static int bond_fill_info(struct sk_buff *skb,
 			packets_per_slave))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
+=======
+	if (nla_put_u8(skb, IFLA_BOND_AD_LACP_ACTIVE,
+		       bond->params.lacp_active))
+		goto nla_put_failure;
+
+>>>>>>> upstream/android-13
 	if (nla_put_u8(skb, IFLA_BOND_AD_LACP_RATE,
 		       bond->params.lacp_fast))
 		goto nla_put_failure;
@@ -643,7 +712,11 @@ static int bond_fill_info(struct sk_buff *skb,
 		if (!bond_3ad_get_active_agg_info(bond, &info)) {
 			struct nlattr *nest;
 
+<<<<<<< HEAD
 			nest = nla_nest_start(skb, IFLA_BOND_AD_INFO);
+=======
+			nest = nla_nest_start_noflag(skb, IFLA_BOND_AD_INFO);
+>>>>>>> upstream/android-13
 			if (!nest)
 				goto nla_put_failure;
 
@@ -674,6 +747,74 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
+<<<<<<< HEAD
+=======
+static size_t bond_get_linkxstats_size(const struct net_device *dev, int attr)
+{
+	switch (attr) {
+	case IFLA_STATS_LINK_XSTATS:
+	case IFLA_STATS_LINK_XSTATS_SLAVE:
+		break;
+	default:
+		return 0;
+	}
+
+	return bond_3ad_stats_size() + nla_total_size(0);
+}
+
+static int bond_fill_linkxstats(struct sk_buff *skb,
+				const struct net_device *dev,
+				int *prividx, int attr)
+{
+	struct nlattr *nla __maybe_unused;
+	struct slave *slave = NULL;
+	struct nlattr *nest, *nest2;
+	struct bonding *bond;
+
+	switch (attr) {
+	case IFLA_STATS_LINK_XSTATS:
+		bond = netdev_priv(dev);
+		break;
+	case IFLA_STATS_LINK_XSTATS_SLAVE:
+		slave = bond_slave_get_rtnl(dev);
+		if (!slave)
+			return 0;
+		bond = slave->bond;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	nest = nla_nest_start_noflag(skb, LINK_XSTATS_TYPE_BOND);
+	if (!nest)
+		return -EMSGSIZE;
+	if (BOND_MODE(bond) == BOND_MODE_8023AD) {
+		struct bond_3ad_stats *stats;
+
+		if (slave)
+			stats = &SLAVE_AD_INFO(slave)->stats;
+		else
+			stats = &BOND_AD_INFO(bond).stats;
+
+		nest2 = nla_nest_start_noflag(skb, BOND_XSTATS_3AD);
+		if (!nest2) {
+			nla_nest_end(skb, nest);
+			return -EMSGSIZE;
+		}
+
+		if (bond_3ad_stats_fill(skb, stats)) {
+			nla_nest_cancel(skb, nest2);
+			nla_nest_end(skb, nest);
+			return -EMSGSIZE;
+		}
+		nla_nest_end(skb, nest2);
+	}
+	nla_nest_end(skb, nest);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 struct rtnl_link_ops bond_link_ops __read_mostly = {
 	.kind			= "bond",
 	.priv_size		= sizeof(struct bonding),
@@ -688,6 +829,11 @@ struct rtnl_link_ops bond_link_ops __read_mostly = {
 	.get_num_tx_queues	= bond_get_num_tx_queues,
 	.get_num_rx_queues	= bond_get_num_tx_queues, /* Use the same number
 							     as for TX queues */
+<<<<<<< HEAD
+=======
+	.fill_linkxstats        = bond_fill_linkxstats,
+	.get_linkxstats_size    = bond_get_linkxstats_size,
+>>>>>>> upstream/android-13
 	.slave_maxtype		= IFLA_BOND_SLAVE_MAX,
 	.slave_policy		= bond_slave_policy,
 	.slave_changelink	= bond_slave_changelink,

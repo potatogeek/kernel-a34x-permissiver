@@ -97,6 +97,7 @@ void omap2_clkops_disable_clkdm(struct clk_hw *hw)
 
 /**
  * omap2_init_clk_clkdm - look up a clockdomain name, store pointer in clk
+<<<<<<< HEAD
  * @clk: OMAP clock struct ptr to use
  *
  * Convert a clockdomain name stored in a struct clk 'clk' into a
@@ -104,13 +105,26 @@ void omap2_clkops_disable_clkdm(struct clk_hw *hw)
  * called during clk_register().  No return value.
  */
 void omap2_init_clk_clkdm(struct clk_hw *hw)
+=======
+ * @hw: Pointer to clk_hw_omap used to obtain OMAP clock struct ptr to use
+ *
+ * Convert a clockdomain name stored in a struct clk 'clk' into a
+ * clockdomain pointer, and save it into the struct clk.  Intended to be
+ * called during clk_register(). Returns 0 on success, -EERROR otherwise.
+ */
+int omap2_init_clk_clkdm(struct clk_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct clk_hw_omap *clk = to_clk_hw_omap(hw);
 	struct clockdomain *clkdm;
 	const char *clk_name;
 
 	if (!clk->clkdm_name)
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	clk_name = __clk_get_name(hw->clk);
 
@@ -123,6 +137,11 @@ void omap2_init_clk_clkdm(struct clk_hw *hw)
 		pr_debug("clock: could not associate clk %s to clkdm %s\n",
 			 clk_name, clk->clkdm_name);
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void __init of_ti_clockdomain_setup(struct device_node *node)
@@ -143,7 +162,11 @@ static void __init of_ti_clockdomain_setup(struct device_node *node)
 			continue;
 		}
 		clk_hw = __clk_get_hw(clk);
+<<<<<<< HEAD
 		if (clk_hw_get_flags(clk_hw) & CLK_IS_BASIC) {
+=======
+		if (!omap2_clk_is_hw_omap(clk_hw)) {
+>>>>>>> upstream/android-13
 			pr_warn("can't setup clkdm for basic clk %s\n",
 				__clk_get_name(clk));
 			clk_put(clk);

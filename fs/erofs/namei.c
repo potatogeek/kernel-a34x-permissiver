@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) 2017-2018 HUAWEI, Inc.
+<<<<<<< HEAD
  *             http://www.huawei.com/
  * Created by Gao Xiang <gaoxiang25@huawei.com>
+=======
+ *             https://www.huawei.com/
+>>>>>>> upstream/android-13
  */
 #include "xattr.h"
 
@@ -234,9 +238,15 @@ static struct dentry *erofs_lookup(struct inode *dir,
 	} else if (err) {
 		inode = ERR_PTR(err);
 	} else {
+<<<<<<< HEAD
 		erofs_dbg("%s, %s (nid %llu) found, d_type %u", __func__,
 			dentry->d_name.name, nid, d_type);
 		inode = erofs_iget(dir->i_sb, nid, d_type == EROFS_FT_DIR);
+=======
+		erofs_dbg("%s, %pd (nid %llu) found, d_type %u", __func__,
+			  dentry, nid, d_type);
+		inode = erofs_iget(dir->i_sb, nid, d_type == FT_DIR);
+>>>>>>> upstream/android-13
 	}
 	return d_splice_alias(inode, dentry);
 }
@@ -244,9 +254,16 @@ static struct dentry *erofs_lookup(struct inode *dir,
 const struct inode_operations erofs_dir_iops = {
 	.lookup = erofs_lookup,
 	.getattr = erofs_getattr,
+<<<<<<< HEAD
 #ifdef CONFIG_EROFS_FS_XATTR
 	.listxattr = erofs_listxattr,
 #endif
 	.get_acl = erofs_get_acl,
 };
 
+=======
+	.listxattr = erofs_listxattr,
+	.get_acl = erofs_get_acl,
+	.fiemap = erofs_fiemap,
+};
+>>>>>>> upstream/android-13

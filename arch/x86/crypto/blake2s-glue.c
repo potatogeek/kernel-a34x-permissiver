@@ -4,12 +4,20 @@
  */
 
 #include <crypto/internal/blake2s.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 
 #include <linux/types.h>
 #include <linux/jump_label.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cpufeature.h>
 #include <asm/fpu/api.h>
@@ -33,7 +41,11 @@ void blake2s_compress_arch(struct blake2s_state *state,
 	/* SIMD disables preemption, so relax after processing each page. */
 	BUILD_BUG_ON(SZ_4K / BLAKE2S_BLOCK_SIZE < 8);
 
+<<<<<<< HEAD
 	if (!static_branch_likely(&blake2s_use_ssse3) || !may_use_simd()) {
+=======
+	if (!static_branch_likely(&blake2s_use_ssse3) || !crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		blake2s_compress_generic(state, block, nblocks, inc);
 		return;
 	}
@@ -56,6 +68,7 @@ void blake2s_compress_arch(struct blake2s_state *state,
 }
 EXPORT_SYMBOL(blake2s_compress_arch);
 
+<<<<<<< HEAD
 static int crypto_blake2s_setkey(struct crypto_shash *tfm, const u8 *key,
 				 unsigned int keylen)
 {
@@ -190,6 +203,42 @@ static struct shash_alg blake2s_algs[] = {{
 	.final			= crypto_blake2s_final,
 	.descsize		= sizeof(struct blake2s_state),
 }};
+=======
+static int crypto_blake2s_update_x86(struct shash_desc *desc,
+				     const u8 *in, unsigned int inlen)
+{
+	return crypto_blake2s_update(desc, in, inlen, blake2s_compress_arch);
+}
+
+static int crypto_blake2s_final_x86(struct shash_desc *desc, u8 *out)
+{
+	return crypto_blake2s_final(desc, out, blake2s_compress_arch);
+}
+
+#define BLAKE2S_ALG(name, driver_name, digest_size)			\
+	{								\
+		.base.cra_name		= name,				\
+		.base.cra_driver_name	= driver_name,			\
+		.base.cra_priority	= 200,				\
+		.base.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,	\
+		.base.cra_blocksize	= BLAKE2S_BLOCK_SIZE,		\
+		.base.cra_ctxsize	= sizeof(struct blake2s_tfm_ctx), \
+		.base.cra_module	= THIS_MODULE,			\
+		.digestsize		= digest_size,			\
+		.setkey			= crypto_blake2s_setkey,	\
+		.init			= crypto_blake2s_init,		\
+		.update			= crypto_blake2s_update_x86,	\
+		.final			= crypto_blake2s_final_x86,	\
+		.descsize		= sizeof(struct blake2s_state),	\
+	}
+
+static struct shash_alg blake2s_algs[] = {
+	BLAKE2S_ALG("blake2s-128", "blake2s-128-x86", BLAKE2S_128_HASH_SIZE),
+	BLAKE2S_ALG("blake2s-160", "blake2s-160-x86", BLAKE2S_160_HASH_SIZE),
+	BLAKE2S_ALG("blake2s-224", "blake2s-224-x86", BLAKE2S_224_HASH_SIZE),
+	BLAKE2S_ALG("blake2s-256", "blake2s-256-x86", BLAKE2S_256_HASH_SIZE),
+};
+>>>>>>> upstream/android-13
 
 static int __init blake2s_mod_init(void)
 {

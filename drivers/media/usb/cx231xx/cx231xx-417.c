@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Support for a cx23417 mpeg encoder via cx231xx host port.
@@ -8,6 +12,7 @@
  *      - CX23885/7/8 support
  *
  *  Includes parts from the ivtv driver( http://ivtv.sourceforge.net/),
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx231xx.h"
@@ -69,10 +76,13 @@
 #define  MCI_MODE_MEMORY_READ           0x000
 #define  MCI_MODE_MEMORY_WRITE          0x4000
 
+<<<<<<< HEAD
 static unsigned int mpegbufs = 8;
 module_param(mpegbufs, int, 0644);
 MODULE_PARM_DESC(mpegbufs, "number of mpeg buffers, range 2-32");
 
+=======
+>>>>>>> upstream/android-13
 static unsigned int mpeglines = 128;
 module_param(mpeglines, int, 0644);
 MODULE_PARM_DESC(mpeglines, "number of lines in an MPEG buffer, range 2-32");
@@ -1060,6 +1070,10 @@ static int cx231xx_load_firmware(struct cx231xx *dev)
 	p_current_fw = p_fw;
 	vfree(p_current_fw);
 	p_current_fw = NULL;
+<<<<<<< HEAD
+=======
+	vfree(p_buffer);
+>>>>>>> upstream/android-13
 	uninitGPIO(dev);
 	release_firmware(firmware);
 	dprintk(1, "Firmware upload successful.\n");
@@ -1088,6 +1102,7 @@ static int cx231xx_load_firmware(struct cx231xx *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cx231xx_417_check_encoder(struct cx231xx *dev)
 {
 	u32 status, seq;
@@ -1098,6 +1113,8 @@ static void cx231xx_417_check_encoder(struct cx231xx *dev)
 	dprintk(1, "%s() status = %d, seq = %d\n", __func__, status, seq);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void cx231xx_codec_settings(struct cx231xx *dev)
 {
 	dprintk(1, "%s()\n", __func__);
@@ -1235,6 +1252,7 @@ static int cx231xx_initialize_codec(struct cx231xx *dev)
 
 /* ------------------------------------------------------------------ */
 
+<<<<<<< HEAD
 static int bb_buf_setup(struct videobuf_queue *q,
 	unsigned int *count, unsigned int *size)
 {
@@ -1245,10 +1263,30 @@ static int bb_buf_setup(struct videobuf_queue *q,
 
 	*size = fh->dev->ts1.ts_packet_size * fh->dev->ts1.ts_packet_count;
 	*count = mpegbufs;
+=======
+static int queue_setup(struct vb2_queue *vq,
+		       unsigned int *nbuffers, unsigned int *nplanes,
+		       unsigned int sizes[], struct device *alloc_devs[])
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+	unsigned int size = mpeglinesize * mpeglines;
+
+	dev->ts1.ts_packet_size  = mpeglinesize;
+	dev->ts1.ts_packet_count = mpeglines;
+
+	if (vq->num_buffers + *nbuffers < CX231XX_MIN_BUF)
+		*nbuffers = CX231XX_MIN_BUF - vq->num_buffers;
+
+	if (*nplanes)
+		return sizes[0] < size ? -EINVAL : 0;
+	*nplanes = 1;
+	sizes[0] = mpeglinesize * mpeglines;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void free_buffer(struct videobuf_queue *vq, struct cx231xx_buffer *buf)
 {
 	struct cx231xx_fh *fh = vq->priv_data;
@@ -1271,6 +1309,8 @@ static void free_buffer(struct videobuf_queue *vq, struct cx231xx_buffer *buf)
 	buf->vb.state = VIDEOBUF_NEEDS_INIT;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void buffer_copy(struct cx231xx *dev, char *data, int len, struct urb *urb,
 		struct cx231xx_dmaqueue *dma_q)
 {
@@ -1284,13 +1324,21 @@ static void buffer_copy(struct cx231xx *dev, char *data, int len, struct urb *ur
 			return;
 
 		buf = list_entry(dma_q->active.next,
+<<<<<<< HEAD
 				struct cx231xx_buffer, vb.queue);
+=======
+				struct cx231xx_buffer, list);
+>>>>>>> upstream/android-13
 		dev->video_mode.isoc_ctl.buf = buf;
 		dma_q->mpeg_buffer_done = 1;
 	}
 	/* Fill buffer */
 	buf = dev->video_mode.isoc_ctl.buf;
+<<<<<<< HEAD
 	vbuf = videobuf_to_vmalloc(&buf->vb);
+=======
+	vbuf = vb2_plane_vaddr(&buf->vb.vb2_buf, 0);
+>>>>>>> upstream/android-13
 
 	if ((dma_q->mpeg_buffer_completed+len) <
 			mpeglines*mpeglinesize) {
@@ -1314,11 +1362,18 @@ static void buffer_copy(struct cx231xx *dev, char *data, int len, struct urb *ur
 		memcpy(vbuf+dma_q->mpeg_buffer_completed,
 				data, tail_data);
 
+<<<<<<< HEAD
 		buf->vb.state = VIDEOBUF_DONE;
 		buf->vb.field_count++;
 		v4l2_get_timestamp(&buf->vb.ts);
 		list_del(&buf->vb.queue);
 		wake_up(&buf->vb.done);
+=======
+		buf->vb.vb2_buf.timestamp = ktime_get_ns();
+		buf->vb.sequence = dma_q->sequence++;
+		list_del(&buf->list);
+		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 		dma_q->mpeg_buffer_completed = 0;
 
 		if (len - tail_data > 0) {
@@ -1339,6 +1394,7 @@ static void buffer_filled(char *data, int len, struct urb *urb,
 	if (list_empty(&dma_q->active))
 		return;
 
+<<<<<<< HEAD
 	buf = list_entry(dma_q->active.next,
 			struct cx231xx_buffer, vb.queue);
 
@@ -1350,6 +1406,17 @@ static void buffer_filled(char *data, int len, struct urb *urb,
 	v4l2_get_timestamp(&buf->vb.ts);
 	list_del(&buf->vb.queue);
 	wake_up(&buf->vb.done);
+=======
+	buf = list_entry(dma_q->active.next, struct cx231xx_buffer, list);
+
+	/* Fill buffer */
+	vbuf = vb2_plane_vaddr(&buf->vb.vb2_buf, 0);
+	memcpy(vbuf, data, len);
+	buf->vb.sequence = dma_q->sequence++;
+	buf->vb.vb2_buf.timestamp = ktime_get_ns();
+	list_del(&buf->list);
+	vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 }
 
 static int cx231xx_isoc_copy(struct cx231xx *dev, struct urb *urb)
@@ -1402,6 +1469,7 @@ static int cx231xx_bulk_copy(struct cx231xx *dev, struct urb *urb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bb_buf_prepare(struct videobuf_queue *q,
 	struct videobuf_buffer *vb, enum v4l2_field field)
 {
@@ -1496,10 +1564,111 @@ static const struct videobuf_queue_ops cx231xx_qops = {
 	.buf_prepare  = bb_buf_prepare,
 	.buf_queue    = bb_buf_queue,
 	.buf_release  = bb_buf_release,
+=======
+static void buffer_queue(struct vb2_buffer *vb)
+{
+	struct cx231xx_buffer *buf =
+	    container_of(vb, struct cx231xx_buffer, vb.vb2_buf);
+	struct cx231xx *dev = vb2_get_drv_priv(vb->vb2_queue);
+	struct cx231xx_dmaqueue *vidq = &dev->video_mode.vidq;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->video_mode.slock, flags);
+	list_add_tail(&buf->list, &vidq->active);
+	spin_unlock_irqrestore(&dev->video_mode.slock, flags);
+}
+
+static void return_all_buffers(struct cx231xx *dev,
+			       enum vb2_buffer_state state)
+{
+	struct cx231xx_dmaqueue *vidq = &dev->video_mode.vidq;
+	struct cx231xx_buffer *buf, *node;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->video_mode.slock, flags);
+	list_for_each_entry_safe(buf, node, &vidq->active, list) {
+		vb2_buffer_done(&buf->vb.vb2_buf, state);
+		list_del(&buf->list);
+	}
+	spin_unlock_irqrestore(&dev->video_mode.slock, flags);
+}
+
+static int start_streaming(struct vb2_queue *vq, unsigned int count)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+	struct cx231xx_dmaqueue *vidq = &dev->video_mode.vidq;
+	int ret = 0;
+
+	vidq->sequence = 0;
+	dev->mode_tv = 1;
+
+	cx231xx_set_alt_setting(dev, INDEX_VANC, 1);
+	cx231xx_set_gpio_value(dev, 2, 0);
+
+	cx231xx_initialize_codec(dev);
+
+	cx231xx_start_TS1(dev);
+
+	cx231xx_set_alt_setting(dev, INDEX_TS1, 0);
+	cx231xx_set_mode(dev, CX231XX_DIGITAL_MODE);
+	if (dev->USE_ISO)
+		ret = cx231xx_init_isoc(dev, CX231XX_NUM_PACKETS,
+					CX231XX_NUM_BUFS,
+					dev->ts1_mode.max_pkt_size,
+					cx231xx_isoc_copy);
+	else
+		ret = cx231xx_init_bulk(dev, 320, 5,
+					dev->ts1_mode.max_pkt_size,
+					cx231xx_bulk_copy);
+	if (ret)
+		return_all_buffers(dev, VB2_BUF_STATE_QUEUED);
+
+	call_all(dev, video, s_stream, 1);
+	return ret;
+}
+
+static void stop_streaming(struct vb2_queue *vq)
+{
+	struct cx231xx *dev = vb2_get_drv_priv(vq);
+	unsigned long flags;
+
+	call_all(dev, video, s_stream, 0);
+
+	cx231xx_stop_TS1(dev);
+
+	/* do this before setting alternate! */
+	if (dev->USE_ISO)
+		cx231xx_uninit_isoc(dev);
+	else
+		cx231xx_uninit_bulk(dev);
+	cx231xx_set_mode(dev, CX231XX_SUSPEND);
+
+	cx231xx_api_cmd(dev, CX2341X_ENC_STOP_CAPTURE, 3, 0,
+			CX231xx_END_NOW, CX231xx_MPEG_CAPTURE,
+			CX231xx_RAW_BITS_NONE);
+
+	spin_lock_irqsave(&dev->video_mode.slock, flags);
+	if (dev->USE_ISO)
+		dev->video_mode.isoc_ctl.buf = NULL;
+	else
+		dev->video_mode.bulk_ctl.buf = NULL;
+	spin_unlock_irqrestore(&dev->video_mode.slock, flags);
+	return_all_buffers(dev, VB2_BUF_STATE_ERROR);
+}
+
+static struct vb2_ops cx231xx_video_qops = {
+	.queue_setup		= queue_setup,
+	.buf_queue		= buffer_queue,
+	.start_streaming	= start_streaming,
+	.stop_streaming		= stop_streaming,
+	.wait_prepare		= vb2_ops_wait_prepare,
+	.wait_finish		= vb2_ops_wait_finish,
+>>>>>>> upstream/android-13
 };
 
 /* ------------------------------------------------------------------ */
 
+<<<<<<< HEAD
 static int vidioc_cropcap(struct file *file, void *priv,
 			  struct v4l2_cropcap *cc)
 {
@@ -1517,14 +1686,55 @@ static int vidioc_cropcap(struct file *file, void *priv,
 	cc->defrect = cc->bounds;
 	cc->pixelaspect.numerator = is_50hz ? 54 : 11;
 	cc->pixelaspect.denominator = is_50hz ? 59 : 10;
+=======
+static int vidioc_g_pixelaspect(struct file *file, void *priv,
+				int type, struct v4l2_fract *f)
+{
+	struct cx231xx *dev = video_drvdata(file);
+	bool is_50hz = dev->encodernorm.id & V4L2_STD_625_50;
 
+	if (type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	f->numerator = is_50hz ? 54 : 11;
+	f->denominator = is_50hz ? 59 : 10;
+>>>>>>> upstream/android-13
+
+	return 0;
+}
+
+<<<<<<< HEAD
+static int vidioc_g_std(struct file *file, void *fh0, v4l2_std_id *norm)
+{
+	struct cx231xx_fh  *fh  = file->private_data;
+	struct cx231xx *dev = fh->dev;
+=======
+static int vidioc_g_selection(struct file *file, void *priv,
+			      struct v4l2_selection *s)
+{
+	struct cx231xx *dev = video_drvdata(file);
+
+	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		return -EINVAL;
+
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+		s->r.left = 0;
+		s->r.top = 0;
+		s->r.width = dev->ts1.width;
+		s->r.height = dev->ts1.height;
+		break;
+	default:
+		return -EINVAL;
+	}
 	return 0;
 }
 
 static int vidioc_g_std(struct file *file, void *fh0, v4l2_std_id *norm)
 {
-	struct cx231xx_fh  *fh  = file->private_data;
-	struct cx231xx *dev = fh->dev;
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	*norm = dev->encodernorm.id;
 	return 0;
@@ -1532,8 +1742,12 @@ static int vidioc_g_std(struct file *file, void *fh0, v4l2_std_id *norm)
 
 static int vidioc_s_std(struct file *file, void *priv, v4l2_std_id id)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh  *fh  = file->private_data;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(cx231xx_tvnorms); i++)
@@ -1565,8 +1779,12 @@ static int vidioc_s_std(struct file *file, void *priv, v4l2_std_id id)
 static int vidioc_s_ctrl(struct file *file, void *priv,
 				struct v4l2_control *ctl)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh  *fh  = file->private_data;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 	struct v4l2_subdev *sd;
 
 	dprintk(3, "enter vidioc_s_ctrl()\n");
@@ -1583,7 +1801,10 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 	if (f->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, "MPEG", sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = V4L2_PIX_FMT_MPEG;
 
 	return 0;
@@ -1592,8 +1813,12 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 static int vidioc_g_fmt_vid_cap(struct file *file, void *priv,
 				struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh  *fh  = file->private_data;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	dprintk(3, "enter vidioc_g_fmt_vid_cap()\n");
 	f->fmt.pix.pixelformat = V4L2_PIX_FMT_MPEG;
@@ -1612,8 +1837,12 @@ static int vidioc_g_fmt_vid_cap(struct file *file, void *priv,
 static int vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 				struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct cx231xx_fh  *fh  = file->private_data;
 	struct cx231xx *dev = fh->dev;
+=======
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	dprintk(3, "enter vidioc_try_fmt_vid_cap()\n");
 	f->fmt.pix.pixelformat = V4L2_PIX_FMT_MPEG;
@@ -1627,6 +1856,7 @@ static int vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vidioc_reqbufs(struct file *file, void *priv,
 				struct v4l2_requestbuffers *p)
 {
@@ -1694,11 +1924,17 @@ static int vidioc_log_status(struct file *file, void *priv)
 {
 	struct cx231xx_fh  *fh  = priv;
 	struct cx231xx *dev = fh->dev;
+=======
+static int vidioc_log_status(struct file *file, void *priv)
+{
+	struct cx231xx *dev = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	call_all(dev, core, log_status);
 	return v4l2_ctrl_log_status(file, priv);
 }
 
+<<<<<<< HEAD
 static int mpeg_open(struct file *file)
 {
 	struct video_device *vdev = video_devdata(file);
@@ -1851,6 +2087,15 @@ static const struct v4l2_file_operations mpeg_fops = {
 	.read	       = mpeg_read,
 	.poll          = mpeg_poll,
 	.mmap	       = mpeg_mmap,
+=======
+static const struct v4l2_file_operations mpeg_fops = {
+	.owner	       = THIS_MODULE,
+	.open	       = v4l2_fh_open,
+	.release       = vb2_fop_release,
+	.read	       = vb2_fop_read,
+	.poll          = vb2_fop_poll,
+	.mmap	       = vb2_fop_mmap,
+>>>>>>> upstream/android-13
 	.unlocked_ioctl = video_ioctl2,
 };
 
@@ -1865,18 +2110,32 @@ static const struct v4l2_ioctl_ops mpeg_ioctl_ops = {
 	.vidioc_g_input		 = cx231xx_g_input,
 	.vidioc_s_input		 = cx231xx_s_input,
 	.vidioc_s_ctrl		 = vidioc_s_ctrl,
+<<<<<<< HEAD
 	.vidioc_cropcap		 = vidioc_cropcap,
+=======
+	.vidioc_g_pixelaspect	 = vidioc_g_pixelaspect,
+	.vidioc_g_selection	 = vidioc_g_selection,
+>>>>>>> upstream/android-13
 	.vidioc_querycap	 = cx231xx_querycap,
 	.vidioc_enum_fmt_vid_cap = vidioc_enum_fmt_vid_cap,
 	.vidioc_g_fmt_vid_cap	 = vidioc_g_fmt_vid_cap,
 	.vidioc_try_fmt_vid_cap	 = vidioc_try_fmt_vid_cap,
 	.vidioc_s_fmt_vid_cap	 = vidioc_try_fmt_vid_cap,
+<<<<<<< HEAD
 	.vidioc_reqbufs		 = vidioc_reqbufs,
 	.vidioc_querybuf	 = vidioc_querybuf,
 	.vidioc_qbuf		 = vidioc_qbuf,
 	.vidioc_dqbuf		 = vidioc_dqbuf,
 	.vidioc_streamon	 = vidioc_streamon,
 	.vidioc_streamoff	 = vidioc_streamoff,
+=======
+	.vidioc_reqbufs		 = vb2_ioctl_reqbufs,
+	.vidioc_querybuf	 = vb2_ioctl_querybuf,
+	.vidioc_qbuf		 = vb2_ioctl_qbuf,
+	.vidioc_dqbuf		 = vb2_ioctl_dqbuf,
+	.vidioc_streamon	 = vb2_ioctl_streamon,
+	.vidioc_streamoff	 = vb2_ioctl_streamoff,
+>>>>>>> upstream/android-13
 	.vidioc_log_status	 = vidioc_log_status,
 #ifdef CONFIG_VIDEO_ADV_DEBUG
 	.vidioc_g_register	 = cx231xx_g_register,
@@ -1968,8 +2227,14 @@ static void cx231xx_video_dev_init(
 int cx231xx_417_register(struct cx231xx *dev)
 {
 	/* FIXME: Port1 hardcoded here */
+<<<<<<< HEAD
 	int err = -ENODEV;
 	struct cx231xx_tsport *tsport = &dev->ts1;
+=======
+	int err;
+	struct cx231xx_tsport *tsport = &dev->ts1;
+	struct vb2_queue *q;
+>>>>>>> upstream/android-13
 
 	dprintk(1, "%s()\n", __func__);
 
@@ -2007,8 +2272,28 @@ int cx231xx_417_register(struct cx231xx *dev)
 	/* Allocate and initialize V4L video device */
 	cx231xx_video_dev_init(dev, dev->udev,
 			&dev->v4l_device, &cx231xx_mpeg_template, "mpeg");
+<<<<<<< HEAD
 	err = video_register_device(&dev->v4l_device,
 		VFL_TYPE_GRABBER, -1);
+=======
+	q = &dev->mpegq;
+	q->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	q->io_modes = VB2_USERPTR | VB2_MMAP | VB2_DMABUF | VB2_READ;
+	q->drv_priv = dev;
+	q->buf_struct_size = sizeof(struct cx231xx_buffer);
+	q->ops = &cx231xx_video_qops;
+	q->mem_ops = &vb2_vmalloc_memops;
+	q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+	q->min_buffers_needed = 1;
+	q->lock = &dev->lock;
+	err = vb2_queue_init(q);
+	if (err)
+		return err;
+	dev->v4l_device.queue = q;
+
+	err = video_register_device(&dev->v4l_device,
+		VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dprintk(3, "%s: can't register mpeg device\n", dev->name);
 		v4l2_ctrl_handler_free(&dev->mpeg_ctrl_handler.hdl);

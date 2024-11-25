@@ -3,6 +3,7 @@
 #define _ASM_X86_DEVICE_H
 
 struct dev_archdata {
+<<<<<<< HEAD
 #if defined(CONFIG_INTEL_IOMMU) || defined(CONFIG_AMD_IOMMU)
 	void *iommu; /* hook for IOMMU specific extension */
 #endif
@@ -21,6 +22,10 @@ void add_dma_domain(struct dma_domain *domain);
 void del_dma_domain(struct dma_domain *domain);
 #endif
 
+=======
+};
+
+>>>>>>> upstream/android-13
 struct pdev_archdata {
 };
 

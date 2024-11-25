@@ -10,13 +10,23 @@ help:
 	@echo 'Possible targets:'
 	@echo ''
 	@echo '  acpi                   - ACPI tools'
+<<<<<<< HEAD
 	@echo '  cgroup                 - cgroup tools'
 	@echo '  cpupower               - a tool for all things x86 CPU power'
 	@echo '  firewire               - the userspace part of nosy, an IEEE-1394 traffic sniffer'
+=======
+	@echo '  bpf                    - misc BPF tools'
+	@echo '  cgroup                 - cgroup tools'
+	@echo '  cpupower               - a tool for all things x86 CPU power'
+	@echo '  debugging              - tools for debugging'
+	@echo '  firewire               - the userspace part of nosy, an IEEE-1394 traffic sniffer'
+	@echo '  firmware               - Firmware tools'
+>>>>>>> upstream/android-13
 	@echo '  freefall               - laptop accelerometer program for disk protection'
 	@echo '  gpio                   - GPIO tools'
 	@echo '  hv                     - tools used when in Hyper-V clients'
 	@echo '  iio                    - IIO tools'
+<<<<<<< HEAD
 	@echo '  kvm_stat               - top-like utility for displaying kvm statistics'
 	@echo '  leds                   - LEDs  tools'
 	@echo '  liblockdep             - user-space wrapper for kernel locking-validator'
@@ -26,6 +36,20 @@ help:
 	@echo '  spi                    - spi tools'
 	@echo '  objtool                - an ELF object analysis tool'
 	@echo '  tmon                   - thermal monitoring and tuning tool'
+=======
+	@echo '  intel-speed-select     - Intel Speed Select tool'
+	@echo '  kvm_stat               - top-like utility for displaying kvm statistics'
+	@echo '  leds                   - LEDs  tools'
+	@echo '  liblockdep             - user-space wrapper for kernel locking-validator'
+	@echo '  objtool                - an ELF object analysis tool'
+	@echo '  pci                    - PCI tools'
+	@echo '  perf                   - Linux performance measurement and analysis tool'
+	@echo '  selftests              - various kernel selftests'
+	@echo '  bootconfig             - boot config tool'
+	@echo '  spi                    - spi tools'
+	@echo '  tmon                   - thermal monitoring and tuning tool'
+	@echo '  tracing                - misc tracing tools'
+>>>>>>> upstream/android-13
 	@echo '  turbostat              - Intel CPU idle stats and freq reporting tool'
 	@echo '  usb                    - USB testing tools'
 	@echo '  virtio                 - vhost test module'
@@ -59,7 +83,14 @@ acpi: FORCE
 cpupower: FORCE
 	$(call descend,power/$@)
 
+<<<<<<< HEAD
 cgroup firewire hv guest spi usb virtio vm bpf iio gpio objtool leds wmi: FORCE
+=======
+cgroup firewire hv guest bootconfig spi usb virtio vm bpf iio gpio objtool leds wmi pci firmware debugging tracing: FORCE
+	$(call descend,$@)
+
+bpf/%: FORCE
+>>>>>>> upstream/android-13
 	$(call descend,$@)
 
 liblockdep: FORCE
@@ -79,7 +110,11 @@ perf: FORCE
 selftests: FORCE
 	$(call descend,testing/$@)
 
+<<<<<<< HEAD
 turbostat x86_energy_perf_policy: FORCE
+=======
+turbostat x86_energy_perf_policy intel-speed-select: FORCE
+>>>>>>> upstream/android-13
 	$(call descend,power/x86/$@)
 
 tmon: FORCE
@@ -92,9 +127,16 @@ kvm_stat: FORCE
 	$(call descend,kvm/$@)
 
 all: acpi cgroup cpupower gpio hv firewire liblockdep \
+<<<<<<< HEAD
 		perf selftests spi turbostat usb \
 		virtio vm bpf x86_energy_perf_policy \
 		tmon freefall iio objtool kvm_stat wmi
+=======
+		perf selftests bootconfig spi turbostat usb \
+		virtio vm bpf x86_energy_perf_policy \
+		tmon freefall iio objtool kvm_stat wmi \
+		pci debugging tracing
+>>>>>>> upstream/android-13
 
 acpi_install:
 	$(call descend,power/$(@:_install=),install)
@@ -102,7 +144,11 @@ acpi_install:
 cpupower_install:
 	$(call descend,power/$(@:_install=),install)
 
+<<<<<<< HEAD
 cgroup_install firewire_install gpio_install hv_install iio_install perf_install spi_install usb_install virtio_install vm_install bpf_install objtool_install wmi_install:
+=======
+cgroup_install firewire_install gpio_install hv_install iio_install perf_install bootconfig_install spi_install usb_install virtio_install vm_install bpf_install objtool_install wmi_install pci_install debugging_install tracing_install:
+>>>>>>> upstream/android-13
 	$(call descend,$(@:_install=),install)
 
 liblockdep_install:
@@ -111,7 +157,11 @@ liblockdep_install:
 selftests_install:
 	$(call descend,testing/$(@:_install=),install)
 
+<<<<<<< HEAD
 turbostat_install x86_energy_perf_policy_install:
+=======
+turbostat_install x86_energy_perf_policy_install intel-speed-select_install:
+>>>>>>> upstream/android-13
 	$(call descend,power/x86/$(@:_install=),install)
 
 tmon_install:
@@ -128,7 +178,12 @@ install: acpi_install cgroup_install cpupower_install gpio_install \
 		perf_install selftests_install turbostat_install usb_install \
 		virtio_install vm_install bpf_install x86_energy_perf_policy_install \
 		tmon_install freefall_install objtool_install kvm_stat_install \
+<<<<<<< HEAD
 		wmi_install
+=======
+		wmi_install pci_install debugging_install intel-speed-select_install \
+		tracing_install
+>>>>>>> upstream/android-13
 
 acpi_clean:
 	$(call descend,power/acpi,clean)
@@ -136,7 +191,11 @@ acpi_clean:
 cpupower_clean:
 	$(call descend,power/cpupower,clean)
 
+<<<<<<< HEAD
 cgroup_clean hv_clean firewire_clean spi_clean usb_clean virtio_clean vm_clean wmi_clean bpf_clean iio_clean gpio_clean objtool_clean leds_clean:
+=======
+cgroup_clean hv_clean firewire_clean bootconfig_clean spi_clean usb_clean virtio_clean vm_clean wmi_clean bpf_clean iio_clean gpio_clean objtool_clean leds_clean pci_clean firmware_clean debugging_clean tracing_clean:
+>>>>>>> upstream/android-13
 	$(call descend,$(@:_clean=),clean)
 
 liblockdep_clean:
@@ -158,7 +217,11 @@ perf_clean:
 selftests_clean:
 	$(call descend,testing/$(@:_clean=),clean)
 
+<<<<<<< HEAD
 turbostat_clean x86_energy_perf_policy_clean:
+=======
+turbostat_clean x86_energy_perf_policy_clean intel-speed-select_clean:
+>>>>>>> upstream/android-13
 	$(call descend,power/x86/$(@:_clean=),clean)
 
 tmon_clean:
@@ -171,9 +234,17 @@ build_clean:
 	$(call descend,build,clean)
 
 clean: acpi_clean cgroup_clean cpupower_clean hv_clean firewire_clean \
+<<<<<<< HEAD
 		perf_clean selftests_clean turbostat_clean spi_clean usb_clean virtio_clean \
 		vm_clean bpf_clean iio_clean x86_energy_perf_policy_clean tmon_clean \
 		freefall_clean build_clean libbpf_clean libsubcmd_clean liblockdep_clean \
 		gpio_clean objtool_clean leds_clean wmi_clean
+=======
+		perf_clean selftests_clean turbostat_clean bootconfig_clean spi_clean usb_clean virtio_clean \
+		vm_clean bpf_clean iio_clean x86_energy_perf_policy_clean tmon_clean \
+		freefall_clean build_clean libbpf_clean libsubcmd_clean liblockdep_clean \
+		gpio_clean objtool_clean leds_clean wmi_clean pci_clean firmware_clean debugging_clean \
+		intel-speed-select_clean tracing_clean
+>>>>>>> upstream/android-13
 
 .PHONY: FORCE

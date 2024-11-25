@@ -15,8 +15,11 @@
 
 #include "closure.h"
 
+<<<<<<< HEAD
 #define PAGE_SECTORS		(PAGE_SIZE / 512)
 
+=======
+>>>>>>> upstream/android-13
 struct closure;
 
 #ifdef CONFIG_BCACHE_DEBUG
@@ -27,7 +30,11 @@ struct closure;
 
 #else /* DEBUG */
 
+<<<<<<< HEAD
 #define EBUG_ON(cond)			do { if (cond); } while (0)
+=======
+#define EBUG_ON(cond)		do { if (cond) do {} while (0); } while (0)
+>>>>>>> upstream/android-13
 #define atomic_dec_bug(v)	atomic_dec(v)
 #define atomic_inc_bug(v, i)	atomic_inc(v)
 
@@ -558,6 +565,7 @@ static inline uint64_t bch_crc64_update(uint64_t crc,
 	return crc;
 }
 
+<<<<<<< HEAD
 /* Does linear interpolation between powers of two */
 static inline unsigned int fract_exp_two(unsigned int x,
 					 unsigned int fract_bits)
@@ -569,6 +577,31 @@ static inline unsigned int fract_exp_two(unsigned int x,
 	x  += (x * fract) >> fract_bits;
 
 	return x;
+=======
+/*
+ * A stepwise-linear pseudo-exponential.  This returns 1 << (x >>
+ * frac_bits), with the less-significant bits filled in by linear
+ * interpolation.
+ *
+ * This can also be interpreted as a floating-point number format,
+ * where the low frac_bits are the mantissa (with implicit leading
+ * 1 bit), and the more significant bits are the exponent.
+ * The return value is 1.mantissa * 2^exponent.
+ *
+ * The way this is used, fract_bits is 6 and the largest possible
+ * input is CONGESTED_MAX-1 = 1023 (exponent 16, mantissa 0x1.fc),
+ * so the maximum output is 0x1fc00.
+ */
+static inline unsigned int fract_exp_two(unsigned int x,
+					 unsigned int fract_bits)
+{
+	unsigned int mantissa = 1 << fract_bits;	/* Implicit bit */
+
+	mantissa += x & (mantissa - 1);
+	x >>= fract_bits;	/* The exponent */
+	/* Largest intermediate value 0x7f0000 */
+	return mantissa << x >> fract_bits;
+>>>>>>> upstream/android-13
 }
 
 void bch_bio_map(struct bio *bio, void *base);

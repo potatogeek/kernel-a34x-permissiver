@@ -21,7 +21,11 @@
 #include <linux/spinlock.h>
 
 #include <linux/coda.h>
+<<<<<<< HEAD
 #include <linux/coda_psdev.h>
+=======
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 #include "coda_cache.h"
 

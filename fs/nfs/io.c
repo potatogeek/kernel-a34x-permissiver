@@ -25,7 +25,11 @@ static void nfs_block_o_direct(struct nfs_inode *nfsi, struct inode *inode)
 
 /**
  * nfs_start_io_read - declare the file is being used for buffered reads
+<<<<<<< HEAD
  * @inode - file inode
+=======
+ * @inode: file inode
+>>>>>>> upstream/android-13
  *
  * Declare that a buffered read operation is about to start, and ensure
  * that we block all direct I/O.
@@ -56,7 +60,11 @@ nfs_start_io_read(struct inode *inode)
 
 /**
  * nfs_end_io_read - declare that the buffered read operation is done
+<<<<<<< HEAD
  * @inode - file inode
+=======
+ * @inode: file inode
+>>>>>>> upstream/android-13
  *
  * Declare that a buffered read operation is done, and release the shared
  * lock on inode->i_rwsem.
@@ -69,7 +77,11 @@ nfs_end_io_read(struct inode *inode)
 
 /**
  * nfs_start_io_write - declare the file is being used for buffered writes
+<<<<<<< HEAD
  * @inode - file inode
+=======
+ * @inode: file inode
+>>>>>>> upstream/android-13
  *
  * Declare that a buffered read operation is about to start, and ensure
  * that we block all direct I/O.
@@ -83,7 +95,11 @@ nfs_start_io_write(struct inode *inode)
 
 /**
  * nfs_end_io_write - declare that the buffered write operation is done
+<<<<<<< HEAD
  * @inode - file inode
+=======
+ * @inode: file inode
+>>>>>>> upstream/android-13
  *
  * Declare that a buffered write operation is done, and release the
  * lock on inode->i_rwsem.
@@ -104,8 +120,13 @@ static void nfs_block_buffered(struct nfs_inode *nfsi, struct inode *inode)
 }
 
 /**
+<<<<<<< HEAD
  * nfs_end_io_direct - declare the file is being used for direct i/o
  * @inode - file inode
+=======
+ * nfs_start_io_direct - declare the file is being used for direct i/o
+ * @inode: file inode
+>>>>>>> upstream/android-13
  *
  * Declare that a direct I/O operation is about to start, and ensure
  * that we block all buffered I/O.
@@ -136,7 +157,11 @@ nfs_start_io_direct(struct inode *inode)
 
 /**
  * nfs_end_io_direct - declare that the direct i/o operation is done
+<<<<<<< HEAD
  * @inode - file inode
+=======
+ * @inode: file inode
+>>>>>>> upstream/android-13
  *
  * Declare that a direct I/O operation is done, and release the shared
  * lock on inode->i_rwsem.

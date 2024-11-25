@@ -10,6 +10,7 @@
 #include <linux/delay.h>
 
 #define bcma_err(bus, fmt, ...) \
+<<<<<<< HEAD
 	pr_err("bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
 #define bcma_warn(bus, fmt, ...) \
 	pr_warn("bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
@@ -17,6 +18,15 @@
 	pr_info("bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
 #define bcma_debug(bus, fmt, ...) \
 	pr_debug("bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
+=======
+	dev_err((bus)->dev, "bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
+#define bcma_warn(bus, fmt, ...) \
+	dev_warn((bus)->dev, "bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
+#define bcma_info(bus, fmt, ...) \
+	dev_info((bus)->dev, "bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
+#define bcma_debug(bus, fmt, ...) \
+	dev_dbg((bus)->dev, "bus%d: " fmt, (bus)->num, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 struct bcma_bus;
 
@@ -33,7 +43,10 @@ int __init bcma_bus_early_register(struct bcma_bus *bus);
 int bcma_bus_suspend(struct bcma_bus *bus);
 int bcma_bus_resume(struct bcma_bus *bus);
 #endif
+<<<<<<< HEAD
 struct device *bcma_bus_get_host_dev(struct bcma_bus *bus);
+=======
+>>>>>>> upstream/android-13
 
 /* scan.c */
 void bcma_detect_chip(struct bcma_bus *bus);

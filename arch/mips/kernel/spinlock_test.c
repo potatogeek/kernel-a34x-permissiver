@@ -35,7 +35,11 @@ static int ss_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(fops_ss, ss_get, NULL, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(fops_ss, ss_get, NULL, "%llu\n");
+>>>>>>> upstream/android-13
 
 
 
@@ -114,6 +118,7 @@ static int multi_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(fops_multi, multi_get, NULL, "%llu\n");
 
 static int __init spinlock_test(void)
@@ -135,6 +140,16 @@ static int __init spinlock_test(void)
 	if (!d)
 		return -ENOMEM;
 
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(fops_multi, multi_get, NULL, "%llu\n");
+
+static int __init spinlock_test(void)
+{
+	debugfs_create_file_unsafe("spin_single", S_IRUGO, mips_debugfs_dir, NULL,
+			    &fops_ss);
+	debugfs_create_file_unsafe("spin_multi", S_IRUGO, mips_debugfs_dir, NULL,
+			    &fops_multi);
+>>>>>>> upstream/android-13
 	return 0;
 }
 device_initcall(spinlock_test);

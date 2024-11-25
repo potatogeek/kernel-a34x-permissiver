@@ -7,11 +7,16 @@
  *  Based on sc26xx.c, by Thomas Bogendörfer (tsbogend@alpha.franken.de)
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_SCCNXP_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
 #include <linux/clk.h>
+=======
+#include <linux/clk.h>
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
@@ -47,7 +52,10 @@
 #	define MR2_STOP1		(7 << 0)
 #	define MR2_STOP2		(0xf << 0)
 #define SCCNXP_SR_REG			(0x01)
+<<<<<<< HEAD
 #define SCCNXP_CSR_REG			SCCNXP_SR_REG
+=======
+>>>>>>> upstream/android-13
 #	define SR_RXRDY			(1 << 0)
 #	define SR_FULL			(1 << 1)
 #	define SR_TXRDY			(1 << 2)
@@ -56,6 +64,11 @@
 #	define SR_PE			(1 << 5)
 #	define SR_FE			(1 << 6)
 #	define SR_BRK			(1 << 7)
+<<<<<<< HEAD
+=======
+#define SCCNXP_CSR_REG			(SCCNXP_SR_REG)
+#	define CSR_TIMER_MODE		(0x0d)
+>>>>>>> upstream/android-13
 #define SCCNXP_CR_REG			(0x02)
 #	define CR_RX_ENABLE		(1 << 0)
 #	define CR_RX_DISABLE		(1 << 1)
@@ -82,9 +95,18 @@
 #	define IMR_RXRDY		(1 << 1)
 #	define ISR_TXRDY(x)		(1 << ((x * 4) + 0))
 #	define ISR_RXRDY(x)		(1 << ((x * 4) + 1))
+<<<<<<< HEAD
 #define SCCNXP_IPR_REG			(0x0d)
 #define SCCNXP_OPCR_REG			SCCNXP_IPR_REG
 #define SCCNXP_SOP_REG			(0x0e)
+=======
+#define SCCNXP_CTPU_REG			(0x06)
+#define SCCNXP_CTPL_REG			(0x07)
+#define SCCNXP_IPR_REG			(0x0d)
+#define SCCNXP_OPCR_REG			SCCNXP_IPR_REG
+#define SCCNXP_SOP_REG			(0x0e)
+#define SCCNXP_START_COUNTER_REG	SCCNXP_SOP_REG
+>>>>>>> upstream/android-13
 #define SCCNXP_ROP_REG			(0x0f)
 
 /* Route helpers */
@@ -103,6 +125,11 @@ struct sccnxp_chip {
 	unsigned long		freq_max;
 	unsigned int		flags;
 	unsigned int		fifosize;
+<<<<<<< HEAD
+=======
+	/* Time between read/write cycles */
+	unsigned int		trwd;
+>>>>>>> upstream/android-13
 };
 
 struct sccnxp_port {
@@ -137,6 +164,10 @@ static const struct sccnxp_chip sc2681 = {
 	.freq_max	= 4000000,
 	.flags		= SCCNXP_HAVE_IO,
 	.fifosize	= 3,
+<<<<<<< HEAD
+=======
+	.trwd		= 200,
+>>>>>>> upstream/android-13
 };
 
 static const struct sccnxp_chip sc2691 = {
@@ -147,6 +178,10 @@ static const struct sccnxp_chip sc2691 = {
 	.freq_max	= 4000000,
 	.flags		= 0,
 	.fifosize	= 3,
+<<<<<<< HEAD
+=======
+	.trwd		= 150,
+>>>>>>> upstream/android-13
 };
 
 static const struct sccnxp_chip sc2692 = {
@@ -157,6 +192,10 @@ static const struct sccnxp_chip sc2692 = {
 	.freq_max	= 4000000,
 	.flags		= SCCNXP_HAVE_IO,
 	.fifosize	= 3,
+<<<<<<< HEAD
+=======
+	.trwd		= 30,
+>>>>>>> upstream/android-13
 };
 
 static const struct sccnxp_chip sc2891 = {
@@ -167,6 +206,10 @@ static const struct sccnxp_chip sc2891 = {
 	.freq_max	= 8000000,
 	.flags		= SCCNXP_HAVE_IO | SCCNXP_HAVE_MR0,
 	.fifosize	= 16,
+<<<<<<< HEAD
+=======
+	.trwd		= 27,
+>>>>>>> upstream/android-13
 };
 
 static const struct sccnxp_chip sc2892 = {
@@ -177,6 +220,10 @@ static const struct sccnxp_chip sc2892 = {
 	.freq_max	= 8000000,
 	.flags		= SCCNXP_HAVE_IO | SCCNXP_HAVE_MR0,
 	.fifosize	= 16,
+<<<<<<< HEAD
+=======
+	.trwd		= 17,
+>>>>>>> upstream/android-13
 };
 
 static const struct sccnxp_chip sc28202 = {
@@ -187,6 +234,10 @@ static const struct sccnxp_chip sc28202 = {
 	.freq_max	= 50000000,
 	.flags		= SCCNXP_HAVE_IO | SCCNXP_HAVE_MR0,
 	.fifosize	= 256,
+<<<<<<< HEAD
+=======
+	.trwd		= 10,
+>>>>>>> upstream/android-13
 };
 
 static const struct sccnxp_chip sc68681 = {
@@ -197,6 +248,10 @@ static const struct sccnxp_chip sc68681 = {
 	.freq_max	= 4000000,
 	.flags		= SCCNXP_HAVE_IO,
 	.fifosize	= 3,
+<<<<<<< HEAD
+=======
+	.trwd		= 200,
+>>>>>>> upstream/android-13
 };
 
 static const struct sccnxp_chip sc68692 = {
@@ -207,6 +262,7 @@ static const struct sccnxp_chip sc68692 = {
 	.freq_max	= 4000000,
 	.flags		= SCCNXP_HAVE_IO,
 	.fifosize	= 3,
+<<<<<<< HEAD
 };
 
 static inline u8 sccnxp_read(struct uart_port *port, u8 reg)
@@ -220,11 +276,42 @@ static inline void sccnxp_write(struct uart_port *port, u8 reg, u8 v)
 }
 
 static inline u8 sccnxp_port_read(struct uart_port *port, u8 reg)
+=======
+	.trwd		= 200,
+};
+
+static u8 sccnxp_read(struct uart_port *port, u8 reg)
+{
+	struct sccnxp_port *s = dev_get_drvdata(port->dev);
+	u8 ret;
+
+	ret = readb(port->membase + (reg << port->regshift));
+
+	ndelay(s->chip->trwd);
+
+	return ret;
+}
+
+static void sccnxp_write(struct uart_port *port, u8 reg, u8 v)
+{
+	struct sccnxp_port *s = dev_get_drvdata(port->dev);
+
+	writeb(v, port->membase + (reg << port->regshift));
+
+	ndelay(s->chip->trwd);
+}
+
+static u8 sccnxp_port_read(struct uart_port *port, u8 reg)
+>>>>>>> upstream/android-13
 {
 	return sccnxp_read(port, (port->line << 3) + reg);
 }
 
+<<<<<<< HEAD
 static inline void sccnxp_port_write(struct uart_port *port, u8 reg, u8 v)
+=======
+static void sccnxp_port_write(struct uart_port *port, u8 reg, u8 v)
+>>>>>>> upstream/android-13
 {
 	sccnxp_write(port, (port->line << 3) + reg, v);
 }
@@ -233,7 +320,11 @@ static int sccnxp_update_best_err(int a, int b, int *besterr)
 {
 	int err = abs(a - b);
 
+<<<<<<< HEAD
 	if ((*besterr < 0) || (*besterr > err)) {
+=======
+	if (*besterr > err) {
+>>>>>>> upstream/android-13
 		*besterr = err;
 		return 0;
 	}
@@ -281,10 +372,29 @@ static const struct {
 static int sccnxp_set_baud(struct uart_port *port, int baud)
 {
 	struct sccnxp_port *s = dev_get_drvdata(port->dev);
+<<<<<<< HEAD
 	int div_std, tmp_baud, bestbaud = baud, besterr = -1;
 	struct sccnxp_chip *chip = s->chip;
 	u8 i, acr = 0, csr = 0, mr0 = 0;
 
+=======
+	int div_std, tmp_baud, bestbaud = INT_MAX, besterr = INT_MAX;
+	struct sccnxp_chip *chip = s->chip;
+	u8 i, acr = 0, csr = 0, mr0 = 0;
+
+	/* Find divisor to load to the timer preset registers */
+	div_std = DIV_ROUND_CLOSEST(port->uartclk, 2 * 16 * baud);
+	if ((div_std >= 2) && (div_std <= 0xffff)) {
+		bestbaud = DIV_ROUND_CLOSEST(port->uartclk, 2 * 16 * div_std);
+		sccnxp_update_best_err(baud, bestbaud, &besterr);
+		csr = CSR_TIMER_MODE;
+		sccnxp_port_write(port, SCCNXP_CTPU_REG, div_std >> 8);
+		sccnxp_port_write(port, SCCNXP_CTPL_REG, div_std);
+		/* Issue start timer/counter command */
+		sccnxp_port_read(port, SCCNXP_START_COUNTER_REG);
+	}
+
+>>>>>>> upstream/android-13
 	/* Find best baud from table */
 	for (i = 0; baud_std[i].baud && besterr; i++) {
 		if (baud_std[i].mr0 && !(chip->flags & SCCNXP_HAVE_MR0))
@@ -923,7 +1033,10 @@ static int sccnxp_probe(struct platform_device *pdev)
 	if (!s->poll) {
 		s->irq = platform_get_irq(pdev, 0);
 		if (s->irq < 0) {
+<<<<<<< HEAD
 			dev_err(&pdev->dev, "Missing irq resource data\n");
+=======
+>>>>>>> upstream/android-13
 			ret = -ENXIO;
 			goto err_out;
 		}
@@ -963,6 +1076,10 @@ static int sccnxp_probe(struct platform_device *pdev)
 		s->port[i].regshift	= s->pdata.reg_shift;
 		s->port[i].uartclk	= uartclk;
 		s->port[i].ops		= &sccnxp_ops;
+<<<<<<< HEAD
+=======
+		s->port[i].has_sysrq = IS_ENABLED(CONFIG_SERIAL_SCCNXP_CONSOLE);
+>>>>>>> upstream/android-13
 		uart_add_one_port(&s->uart, &s->port[i]);
 		/* Set direction to input */
 		if (s->chip->flags & SCCNXP_HAVE_IO)

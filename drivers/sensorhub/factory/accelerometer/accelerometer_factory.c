@@ -22,6 +22,7 @@
 #include "../../utility/shub_file_manager.h"
 #include "../../comm/shub_comm.h"
 
+<<<<<<< HEAD
 #if defined(CONFIG_SHUB_KUNIT)
 #include <kunit/mock.h>
 #define __mockable __weak
@@ -38,6 +39,12 @@
 #define MAX_ACCEL_1G_16G 2048
 #define MIN_ACCEL_1G_8G -4096
 #define MIN_ACCEL_1G_16G -2048
+=======
+#include <linux/delay.h>
+#include <linux/slab.h>
+
+#define MAX_ACCEL_1G 4096
+>>>>>>> upstream/android-13
 #define MAX_ACCEL_2G 8192
 #define MIN_ACCEL_2G -8192
 #define MAX_ACCEL_4G 16384
@@ -89,6 +96,7 @@ static int accel_do_calibrate(int enable)
 	uint32_t backup_sampling_period = sensor->sampling_period;
 	uint32_t backup_max_report_latency = sensor->max_report_latency;
 	struct accelerometer_data *data = sensor->data;
+<<<<<<< HEAD
 	int range = MAX_ACCEL_1G_8G;
 	struct accel_event *sensor_value = (struct accel_event *)sensor->event_buffer.value;
 
@@ -96,6 +104,10 @@ static int accel_do_calibrate(int enable)
 		range = MAX_ACCEL_1G_16G;
 	}
 
+=======
+	struct accel_event *sensor_value = (struct accel_event *)sensor->event_buffer.value;
+
+>>>>>>> upstream/android-13
 	if (enable) {
 		int count;
 
@@ -124,9 +136,15 @@ static int accel_do_calibrate(int enable)
 		data->cal_data.z = (iSum[2] / CALIBRATION_DATA_AMOUNT);
 
 		if (data->cal_data.z > 0)
+<<<<<<< HEAD
 			data->cal_data.z -= range;
 		else if (data->cal_data.z < 0)
 			data->cal_data.z += range;
+=======
+			data->cal_data.z -= MAX_ACCEL_1G;
+		else if (data->cal_data.z < 0)
+			data->cal_data.z += MAX_ACCEL_1G;
+>>>>>>> upstream/android-13
 
 	} else {
 		data->cal_data.x = 0;
@@ -164,6 +182,7 @@ static ssize_t accel_calibration_store(struct device *dev, struct device_attribu
 
 static ssize_t raw_data_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct accel_event *sensor_value;
 
 	if (!get_sensor_probe_state(SENSOR_TYPE_ACCELEROMETER)) {
@@ -172,6 +191,9 @@ static ssize_t raw_data_show(struct device *dev, struct device_attribute *attr, 
 	}
 
 	sensor_value = (struct accel_event *)(get_sensor_event(SENSOR_TYPE_ACCELEROMETER)->value);
+=======
+	struct accel_event *sensor_value = (struct accel_event *)(get_sensor_event(SENSOR_TYPE_ACCELEROMETER)->value);
+>>>>>>> upstream/android-13
 
 	return snprintf(buf, PAGE_SIZE, "%d,%d,%d\n", sensor_value->x, sensor_value->y,
 			sensor_value->z);
@@ -208,7 +230,11 @@ static ssize_t accel_reactive_alert_store(struct device *dev, struct device_attr
 
 		data->is_accel_alert = 0;
 
+<<<<<<< HEAD
 		ret = shub_send_command_wait(CMD_GETVALUE, SENSOR_TYPE_ACCELEROMETER, ACCELOMETER_REACTIVE_ALERT, 3000, NULL, 0,
+=======
+		ret = shub_send_command_wait(CMD_GETVALUE, SENSOR_TYPE_ACCELEROMETER, SENSOR_FACTORY, 3000, NULL, 0,
+>>>>>>> upstream/android-13
 					     &buffer, &buffer_length, true);
 
 		if (ret < 0) {
@@ -317,7 +343,11 @@ static DEVICE_ATTR(reactive_alert, 0664, accel_reactive_alert_show, accel_reacti
 static DEVICE_ATTR(lowpassfilter, 0220, NULL, accel_lowpassfilter_store);
 static DEVICE_ATTR_RO(selftest);
 
+<<<<<<< HEAD
 __visible_for_testing struct device_attribute *acc_attrs[] = {
+=======
+static struct device_attribute *acc_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_name,
 	&dev_attr_vendor,
 	&dev_attr_calibration,

@@ -13,9 +13,16 @@
 #define UFS_ANY_MODEL  "ANY_MODEL"
 
 #define UFS_VENDOR_MICRON      0x12C
+<<<<<<< HEAD
 #define UFS_VENDOR_TOSHIBA     0x198
 #define UFS_VENDOR_SAMSUNG     0x1CE
 #define UFS_VENDOR_SKHYNIX     0x1AD
+=======
+#define UFS_VENDOR_SAMSUNG     0x1CE
+#define UFS_VENDOR_SKHYNIX     0x1AD
+#define UFS_VENDOR_TOSHIBA     0x198
+#define UFS_VENDOR_WDC         0x145
+>>>>>>> upstream/android-13
 
 /**
  * ufs_dev_fix - ufs device quirk info
@@ -102,6 +109,16 @@ struct ufs_dev_fix {
 #define UFS_DEVICE_QUIRK_HOST_VS_DEBUGSAVECONFIGTIME	(1 << 9)
 
 /*
+<<<<<<< HEAD
+=======
+ * Some pre-3.1 UFS devices can support extended features by upgrading
+ * the firmware. Enable this quirk to make UFS core driver probe and enable
+ * supported features on such devices.
+ */
+#define UFS_DEVICE_QUIRK_SUPPORT_EXTENDED_FEATURES (1 << 10)
+
+/*
+>>>>>>> upstream/android-13
  * Some UFS devices require delay after VCC power rail is turned-off.
  * Enable this quirk to introduce 5ms delays after VCC power-off during
  * suspend flow.
@@ -109,6 +126,7 @@ struct ufs_dev_fix {
 #define UFS_DEVICE_QUIRK_DELAY_AFTER_LPM        (1 << 11)
 
 /*
+<<<<<<< HEAD
  * MTK PATCH
  * Some UFS device need 5ms delay in VCC off. In order to wait VCC discharged
  * to 0V. Some device may have issue when VCC is not discharged to 0V
@@ -129,5 +147,11 @@ struct ufs_dev_fix {
  * To fix this problem, Toggle fWriteBoosterEn instead.
  */
 #define UFS_DEVICE_QUIRK_WRITE_BOOSETER_FLUSH	(1 << 31)
+=======
+ * Some UFS devices require L2P entry should be swapped before being sent to the
+ * UFS device for HPB READ command.
+ */
+#define UFS_DEVICE_QUIRK_SWAP_L2P_ENTRY_FOR_HPB_READ (1 << 12)
+>>>>>>> upstream/android-13
 
 #endif /* UFS_QUIRKS_H_ */

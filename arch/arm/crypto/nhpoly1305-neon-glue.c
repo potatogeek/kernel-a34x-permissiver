@@ -9,6 +9,10 @@
 #include <asm/neon.h>
 #include <asm/simd.h>
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <crypto/nhpoly1305.h>
 #include <linux/module.h>
 
@@ -25,11 +29,19 @@ static void _nh_neon(const u32 *key, const u8 *message, size_t message_len,
 static int nhpoly1305_neon_update(struct shash_desc *desc,
 				  const u8 *src, unsigned int srclen)
 {
+<<<<<<< HEAD
 	if (srclen < 64 || !may_use_simd())
 		return crypto_nhpoly1305_update(desc, src, srclen);
 
 	do {
 		unsigned int n = min_t(unsigned int, srclen, PAGE_SIZE);
+=======
+	if (srclen < 64 || !crypto_simd_usable())
+		return crypto_nhpoly1305_update(desc, src, srclen);
+
+	do {
+		unsigned int n = min_t(unsigned int, srclen, SZ_4K);
+>>>>>>> upstream/android-13
 
 		kernel_neon_begin();
 		crypto_nhpoly1305_update_helper(desc, src, n, _nh_neon);

@@ -25,20 +25,33 @@
 #include "octeon_nic.h"
 #include "octeon_main.h"
 #include "octeon_network.h"
+<<<<<<< HEAD
 #include <net/switchdev.h>
 #include "lio_vf_rep.h"
 #include "octeon_network.h"
+=======
+#include "lio_vf_rep.h"
+>>>>>>> upstream/android-13
 
 static int lio_vf_rep_open(struct net_device *ndev);
 static int lio_vf_rep_stop(struct net_device *ndev);
 static netdev_tx_t lio_vf_rep_pkt_xmit(struct sk_buff *skb,
 				       struct net_device *ndev);
+<<<<<<< HEAD
 static void lio_vf_rep_tx_timeout(struct net_device *netdev);
+=======
+static void lio_vf_rep_tx_timeout(struct net_device *netdev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static int lio_vf_rep_phys_port_name(struct net_device *dev,
 				     char *buf, size_t len);
 static void lio_vf_rep_get_stats64(struct net_device *dev,
 				   struct rtnl_link_stats64 *stats64);
 static int lio_vf_rep_change_mtu(struct net_device *ndev, int new_mtu);
+<<<<<<< HEAD
+=======
+static int lio_vf_get_port_parent_id(struct net_device *dev,
+				     struct netdev_phys_item_id *ppid);
+>>>>>>> upstream/android-13
 
 static const struct net_device_ops lio_vf_rep_ndev_ops = {
 	.ndo_open = lio_vf_rep_open,
@@ -48,6 +61,7 @@ static const struct net_device_ops lio_vf_rep_ndev_ops = {
 	.ndo_get_phys_port_name = lio_vf_rep_phys_port_name,
 	.ndo_get_stats64 = lio_vf_rep_get_stats64,
 	.ndo_change_mtu = lio_vf_rep_change_mtu,
+<<<<<<< HEAD
 };
 
 static void
@@ -66,21 +80,32 @@ lio_vf_rep_send_sc_complete(struct octeon_device *oct,
 	complete(&ctx->complete);
 }
 
+=======
+	.ndo_get_port_parent_id = lio_vf_get_port_parent_id,
+};
+
+>>>>>>> upstream/android-13
 static int
 lio_vf_rep_send_soft_command(struct octeon_device *oct,
 			     void *req, int req_size,
 			     void *resp, int resp_size)
 {
 	int tot_resp_size = sizeof(struct lio_vf_rep_resp) + resp_size;
+<<<<<<< HEAD
 	int ctx_size = sizeof(struct lio_vf_rep_sc_ctx);
 	struct octeon_soft_command *sc = NULL;
 	struct lio_vf_rep_resp *rep_resp;
 	struct lio_vf_rep_sc_ctx *ctx;
+=======
+	struct octeon_soft_command *sc = NULL;
+	struct lio_vf_rep_resp *rep_resp;
+>>>>>>> upstream/android-13
 	void *sc_req;
 	int err;
 
 	sc = (struct octeon_soft_command *)
 		octeon_alloc_soft_command(oct, req_size,
+<<<<<<< HEAD
 					  tot_resp_size, ctx_size);
 	if (!sc)
 		return -ENOMEM;
@@ -88,6 +113,14 @@ lio_vf_rep_send_soft_command(struct octeon_device *oct,
 	ctx = (struct lio_vf_rep_sc_ctx *)sc->ctxptr;
 	memset(ctx, 0, ctx_size);
 	init_completion(&ctx->complete);
+=======
+					  tot_resp_size, 0);
+	if (!sc)
+		return -ENOMEM;
+
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	sc_req = (struct lio_vf_rep_req *)sc->virtdptr;
 	memcpy(sc_req, req, req_size);
@@ -99,14 +132,18 @@ lio_vf_rep_send_soft_command(struct octeon_device *oct,
 	sc->iq_no = 0;
 	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
 				    OPCODE_NIC_VF_REP_CMD, 0, 0, 0);
+<<<<<<< HEAD
 	sc->callback = lio_vf_rep_send_sc_complete;
 	sc->callback_arg = sc;
 	sc->wait_time = LIO_VF_REP_REQ_TMO_MS;
+=======
+>>>>>>> upstream/android-13
 
 	err = octeon_send_soft_command(oct, sc);
 	if (err == IQ_SEND_FAILED)
 		goto free_buff;
 
+<<<<<<< HEAD
 	wait_for_completion_timeout(&ctx->complete,
 				    msecs_to_jiffies
 				    (2 * LIO_VF_REP_REQ_TMO_MS));
@@ -116,6 +153,21 @@ lio_vf_rep_send_soft_command(struct octeon_device *oct,
 
 	if (resp)
 		memcpy(resp, (rep_resp + 1), resp_size);
+=======
+	err = wait_for_sc_completion_timeout(oct, sc, 0);
+	if (err)
+		return err;
+
+	err = READ_ONCE(rep_resp->status) ? -EBUSY : 0;
+	if (err)
+		dev_err(&oct->pci_dev->dev, "VF rep send config failed\n");
+	else if (resp)
+		memcpy(resp, (rep_resp + 1), resp_size);
+
+	WRITE_ONCE(sc->caller_is_done, true);
+	return err;
+
+>>>>>>> upstream/android-13
 free_buff:
 	octeon_free_soft_command(oct, sc);
 
@@ -189,7 +241,11 @@ lio_vf_rep_stop(struct net_device *ndev)
 }
 
 static void
+<<<<<<< HEAD
 lio_vf_rep_tx_timeout(struct net_device *ndev)
+=======
+lio_vf_rep_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	netif_trans_update(ndev);
 
@@ -407,7 +463,11 @@ lio_vf_rep_pkt_xmit(struct sk_buff *skb, struct net_device *ndev)
 	}
 
 	sc = (struct octeon_soft_command *)
+<<<<<<< HEAD
 		octeon_alloc_soft_command(oct, 0, 0, 0);
+=======
+		octeon_alloc_soft_command(oct, 0, 16, 0);
+>>>>>>> upstream/android-13
 	if (!sc) {
 		dev_err(&oct->pci_dev->dev, "VF rep: Soft command alloc failed\n");
 		goto xmit_failed;
@@ -416,6 +476,10 @@ lio_vf_rep_pkt_xmit(struct sk_buff *skb, struct net_device *ndev)
 	/* Multiple buffers are not used for vf_rep packets. */
 	if (skb_shinfo(skb)->nr_frags != 0) {
 		dev_err(&oct->pci_dev->dev, "VF rep: nr_frags != 0. Dropping packet\n");
+<<<<<<< HEAD
+=======
+		octeon_free_soft_command(oct, sc);
+>>>>>>> upstream/android-13
 		goto xmit_failed;
 	}
 
@@ -423,6 +487,10 @@ lio_vf_rep_pkt_xmit(struct sk_buff *skb, struct net_device *ndev)
 				     skb->data, skb->len, DMA_TO_DEVICE);
 	if (dma_mapping_error(&oct->pci_dev->dev, sc->dmadptr)) {
 		dev_err(&oct->pci_dev->dev, "VF rep: DMA mapping failed\n");
+<<<<<<< HEAD
+=======
+		octeon_free_soft_command(oct, sc);
+>>>>>>> upstream/android-13
 		goto xmit_failed;
 	}
 
@@ -443,6 +511,10 @@ lio_vf_rep_pkt_xmit(struct sk_buff *skb, struct net_device *ndev)
 	if (status == IQ_SEND_FAILED) {
 		dma_unmap_single(&oct->pci_dev->dev, sc->dmadptr,
 				 sc->datasize, DMA_TO_DEVICE);
+<<<<<<< HEAD
+=======
+		octeon_free_soft_command(oct, sc);
+>>>>>>> upstream/android-13
 		goto xmit_failed;
 	}
 
@@ -459,13 +531,19 @@ xmit_failed:
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static int
 lio_vf_rep_attr_get(struct net_device *dev, struct switchdev_attr *attr)
+=======
+static int lio_vf_get_port_parent_id(struct net_device *dev,
+				     struct netdev_phys_item_id *ppid)
+>>>>>>> upstream/android-13
 {
 	struct lio_vf_rep_desc *vf_rep = netdev_priv(dev);
 	struct net_device *parent_ndev = vf_rep->parent_ndev;
 	struct lio *lio = GET_LIO(parent_ndev);
 
+<<<<<<< HEAD
 	switch (attr->id) {
 	case SWITCHDEV_ATTR_ID_PORT_PARENT_ID:
 		attr->u.ppid.id_len = ETH_ALEN;
@@ -476,14 +554,21 @@ lio_vf_rep_attr_get(struct net_device *dev, struct switchdev_attr *attr)
 	default:
 		return -EOPNOTSUPP;
 	}
+=======
+	ppid->id_len = ETH_ALEN;
+	ether_addr_copy(ppid->id, (void *)&lio->linfo.hw_addr + 2);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct switchdev_ops lio_vf_rep_switchdev_ops = {
 	.switchdev_port_attr_get        = lio_vf_rep_attr_get,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void
 lio_vf_rep_fetch_stats(struct work_struct *work)
 {
@@ -540,7 +625,10 @@ lio_vf_rep_create(struct octeon_device *oct)
 		ndev->min_mtu = LIO_MIN_MTU_SIZE;
 		ndev->max_mtu = LIO_MAX_MTU_SIZE;
 		ndev->netdev_ops = &lio_vf_rep_ndev_ops;
+<<<<<<< HEAD
 		SWITCHDEV_SET_OPS(ndev, &lio_vf_rep_switchdev_ops);
+=======
+>>>>>>> upstream/android-13
 
 		vf_rep = netdev_priv(ndev);
 		memset(vf_rep, 0, sizeof(*vf_rep));

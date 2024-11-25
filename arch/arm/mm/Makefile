@@ -7,6 +7,10 @@ obj-y				:= extable.o fault.o init.o iomap.o
 obj-y				+= dma-mapping$(MMUEXT).o
 obj-$(CONFIG_MMU)		+= fault-armv.o flush.o idmap.o ioremap.o \
 				   mmap.o pgd.o mmu.o pageattr.o
+<<<<<<< HEAD
+=======
+KASAN_SANITIZE_mmu.o		:= n
+>>>>>>> upstream/android-13
 
 ifneq ($(CONFIG_MMU),y)
 obj-y				+= nommu.o
@@ -15,6 +19,7 @@ endif
 
 obj-$(CONFIG_ARM_PTDUMP_CORE)	+= dump.o
 obj-$(CONFIG_ARM_PTDUMP_DEBUGFS)	+= ptdump_debugfs.o
+<<<<<<< HEAD
 
 ifneq ($(CONFIG_ARM_LPAE),y)
 ifeq ($(CONFIG_ARCH_HAS_PTE_SPECIAL),y)
@@ -27,6 +32,13 @@ obj-$(CONFIG_DEBUG_VIRTUAL)	+= physaddr.o
 
 obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
 obj-$(CONFIG_HIGHMEM)		+= highmem.o
+=======
+obj-$(CONFIG_MODULES)		+= proc-syms.o
+KASAN_SANITIZE_physaddr.o	:= n
+obj-$(CONFIG_DEBUG_VIRTUAL)	+= physaddr.o
+
+obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
 obj-$(CONFIG_ARM_PV_FIXUP)	+= pv-fixup-asm.o
 
@@ -54,7 +66,10 @@ obj-$(CONFIG_CPU_CACHE_V7)	+= cache-v7.o
 obj-$(CONFIG_CPU_CACHE_FA)	+= cache-fa.o
 obj-$(CONFIG_CPU_CACHE_NOP)	+= cache-nop.o
 obj-$(CONFIG_CPU_CACHE_V7M)	+= cache-v7m.o
+<<<<<<< HEAD
 obj-$(CONFIG_MEDIATEK_SOLUTION)	+= cache-mtk-v8.o
+=======
+>>>>>>> upstream/android-13
 
 AFLAGS_cache-v6.o	:=-Wa,-march=armv6
 AFLAGS_cache-v7.o	:=-Wa,-march=armv7-a
@@ -119,4 +134,10 @@ obj-$(CONFIG_CACHE_L2X0_PMU)	+= cache-l2x0-pmu.o
 obj-$(CONFIG_CACHE_XSC3L2)	+= cache-xsc3l2.o
 obj-$(CONFIG_CACHE_TAUROS2)	+= cache-tauros2.o
 obj-$(CONFIG_CACHE_UNIPHIER)	+= cache-uniphier.o
+<<<<<<< HEAD
 obj-$(CONFIG_MEDIATEK_SOLUTION)	+= cache-mtk-v7.o
+=======
+
+KASAN_SANITIZE_kasan_init.o	:= n
+obj-$(CONFIG_KASAN)		+= kasan_init.o
+>>>>>>> upstream/android-13

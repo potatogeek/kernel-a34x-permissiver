@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -136,7 +142,10 @@ static int qcom_ipq806x_sata_phy_probe(struct platform_device *pdev)
 {
 	struct qcom_ipq806x_sata_phy *phy;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct phy_provider *phy_provider;
 	struct phy *generic_phy;
 	int ret;
@@ -145,8 +154,12 @@ static int qcom_ipq806x_sata_phy_probe(struct platform_device *pdev)
 	if (!phy)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	phy->mmio = devm_ioremap_resource(dev, res);
+=======
+	phy->mmio = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(phy->mmio))
 		return PTR_ERR(phy->mmio);
 

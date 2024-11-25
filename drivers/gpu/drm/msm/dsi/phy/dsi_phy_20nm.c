@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
@@ -9,10 +10,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "dsi_phy.h"
 #include "dsi.xml.h"
+<<<<<<< HEAD
+=======
+#include "dsi_phy_20nm.xml.h"
+>>>>>>> upstream/android-13
 
 static void dsi_20nm_dphy_set_timing(struct msm_dsi_phy *phy,
 		struct msm_dsi_dphy_timing *timing)
@@ -71,18 +81,30 @@ static void dsi_20nm_phy_regulator_ctrl(struct msm_dsi_phy *phy, bool enable)
 	dsi_phy_write(base + REG_DSI_20nm_PHY_REGULATOR_CTRL_0, 0x03);
 }
 
+<<<<<<< HEAD
 static int dsi_20nm_phy_enable(struct msm_dsi_phy *phy, int src_pll_id,
+=======
+static int dsi_20nm_phy_enable(struct msm_dsi_phy *phy,
+>>>>>>> upstream/android-13
 				struct msm_dsi_phy_clk_request *clk_req)
 {
 	struct msm_dsi_dphy_timing *timing = &phy->timing;
 	int i;
 	void __iomem *base = phy->base;
 	u32 cfg_4[4] = {0x20, 0x40, 0x20, 0x00};
+<<<<<<< HEAD
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 
 	DBG("");
 
 	if (msm_dsi_dphy_timing_calc(timing, clk_req)) {
+<<<<<<< HEAD
 		dev_err(&phy->pdev->dev,
+=======
+		DRM_DEV_ERROR(&phy->pdev->dev,
+>>>>>>> upstream/android-13
 			"%s: D-PHY timing calculation failed\n", __func__);
 		return -EINVAL;
 	}
@@ -91,9 +113,18 @@ static int dsi_20nm_phy_enable(struct msm_dsi_phy *phy, int src_pll_id,
 
 	dsi_phy_write(base + REG_DSI_20nm_PHY_STRENGTH_0, 0xff);
 
+<<<<<<< HEAD
 	msm_dsi_phy_set_src_pll(phy, src_pll_id,
 				REG_DSI_20nm_PHY_GLBL_TEST_CTRL,
 				DSI_20nm_PHY_GLBL_TEST_CTRL_BITCLK_HS_SEL);
+=======
+	val = dsi_phy_read(base + REG_DSI_20nm_PHY_GLBL_TEST_CTRL);
+	if (phy->id == DSI_1 && phy->usecase == MSM_DSI_PHY_STANDALONE)
+		val |= DSI_20nm_PHY_GLBL_TEST_CTRL_BITCLK_HS_SEL;
+	else
+		val &= ~DSI_20nm_PHY_GLBL_TEST_CTRL_BITCLK_HS_SEL;
+	dsi_phy_write(base + REG_DSI_20nm_PHY_GLBL_TEST_CTRL, val);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < 4; i++) {
 		dsi_phy_write(base + REG_DSI_20nm_PHY_LN_CFG_3(i),
@@ -133,8 +164,12 @@ static void dsi_20nm_phy_disable(struct msm_dsi_phy *phy)
 }
 
 const struct msm_dsi_phy_cfg dsi_phy_20nm_cfgs = {
+<<<<<<< HEAD
 	.type = MSM_DSI_PHY_20NM,
 	.src_pll_truthtable = { {false, true}, {false, true} },
+=======
+	.has_phy_regulator = true,
+>>>>>>> upstream/android-13
 	.reg_cfg = {
 		.num = 2,
 		.regs = {
@@ -145,7 +180,10 @@ const struct msm_dsi_phy_cfg dsi_phy_20nm_cfgs = {
 	.ops = {
 		.enable = dsi_20nm_phy_enable,
 		.disable = dsi_20nm_phy_disable,
+<<<<<<< HEAD
 		.init = msm_dsi_phy_init_common,
+=======
+>>>>>>> upstream/android-13
 	},
 	.io_start = { 0xfd998500, 0xfd9a0500 },
 	.num_dsi_phy = 2,

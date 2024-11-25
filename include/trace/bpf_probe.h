@@ -55,8 +55,12 @@
 /* tracepoints with more than 12 arguments will hit build error */
 #define CAST_TO_U64(...) CONCATENATE(__CAST, COUNT_ARGS(__VA_ARGS__))(__VA_ARGS__)
 
+<<<<<<< HEAD
 #undef DECLARE_EVENT_CLASS
 #define DECLARE_EVENT_CLASS(call, proto, args, tstruct, assign, print)	\
+=======
+#define __BPF_DECLARE_TRACE(call, proto, args)				\
+>>>>>>> upstream/android-13
 static notrace void							\
 __bpf_trace_##call(void *__data, proto)					\
 {									\
@@ -64,17 +68,29 @@ __bpf_trace_##call(void *__data, proto)					\
 	CONCATENATE(bpf_trace_run, COUNT_ARGS(args))(prog, CAST_TO_U64(args));	\
 }
 
+<<<<<<< HEAD
+=======
+#undef DECLARE_EVENT_CLASS
+#define DECLARE_EVENT_CLASS(call, proto, args, tstruct, assign, print)	\
+	__BPF_DECLARE_TRACE(call, PARAMS(proto), PARAMS(args))
+
+>>>>>>> upstream/android-13
 /*
  * This part is compiled out, it is only here as a build time check
  * to make sure that if the tracepoint handling changes, the
  * bpf probe will fail to compile unless it too is updated.
  */
+<<<<<<< HEAD
 #undef DEFINE_EVENT
 #define DEFINE_EVENT(template, call, proto, args)			\
+=======
+#define __DEFINE_EVENT(template, call, proto, args, size)		\
+>>>>>>> upstream/android-13
 static inline void bpf_test_probe_##call(void)				\
 {									\
 	check_trace_callback_type_##call(__bpf_trace_##template);	\
 }									\
+<<<<<<< HEAD
 static struct bpf_raw_event_map	__used					\
 	__attribute__((section("__bpf_raw_tp_map")))			\
 __bpf_trace_tp_map_##call = {						\
@@ -83,10 +99,58 @@ __bpf_trace_tp_map_##call = {						\
 	.num_args	= COUNT_ARGS(args),				\
 };
 
+=======
+typedef void (*btf_trace_##call)(void *__data, proto);			\
+static union {								\
+	struct bpf_raw_event_map event;					\
+	btf_trace_##call handler;					\
+} __bpf_trace_tp_map_##call __used					\
+__section("__bpf_raw_tp_map") = {					\
+	.event = {							\
+		.tp		= &__tracepoint_##call,			\
+		.bpf_func	= __bpf_trace_##template,		\
+		.num_args	= COUNT_ARGS(args),			\
+		.writable_size	= size,					\
+	},								\
+};
+
+#define FIRST(x, ...) x
+
+#undef DEFINE_EVENT_WRITABLE
+#define DEFINE_EVENT_WRITABLE(template, call, proto, args, size)	\
+static inline void bpf_test_buffer_##call(void)				\
+{									\
+	/* BUILD_BUG_ON() is ignored if the code is completely eliminated, but \
+	 * BUILD_BUG_ON_ZERO() uses a different mechanism that is not	\
+	 * dead-code-eliminated.					\
+	 */								\
+	FIRST(proto);							\
+	(void)BUILD_BUG_ON_ZERO(size != sizeof(*FIRST(args)));		\
+}									\
+__DEFINE_EVENT(template, call, PARAMS(proto), PARAMS(args), size)
+
+#undef DEFINE_EVENT
+#define DEFINE_EVENT(template, call, proto, args)			\
+	__DEFINE_EVENT(template, call, PARAMS(proto), PARAMS(args), 0)
+>>>>>>> upstream/android-13
 
 #undef DEFINE_EVENT_PRINT
 #define DEFINE_EVENT_PRINT(template, name, proto, args, print)	\
 	DEFINE_EVENT(template, name, PARAMS(proto), PARAMS(args))
 
+<<<<<<< HEAD
 #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
+=======
+#undef DECLARE_TRACE
+#define DECLARE_TRACE(call, proto, args)				\
+	__BPF_DECLARE_TRACE(call, PARAMS(proto), PARAMS(args))		\
+	__DEFINE_EVENT(call, call, PARAMS(proto), PARAMS(args), 0)
+
+#include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
+
+#undef DEFINE_EVENT_WRITABLE
+#undef __DEFINE_EVENT
+#undef FIRST
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_BPF_EVENTS */

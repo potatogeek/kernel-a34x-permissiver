@@ -28,9 +28,19 @@
 #include <linux/pci.h>
 #include <linux/pm_runtime.h>
 #include <linux/vga_switcheroo.h>
+<<<<<<< HEAD
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
+=======
+#include <linux/mmu_notifier.h>
+
+#include <drm/drm_aperture.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_gem_ttm_helper.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include <core/gpuobj.h>
 #include <core/option.h>
@@ -39,12 +49,19 @@
 
 #include <nvif/driver.h>
 #include <nvif/fifo.h>
+<<<<<<< HEAD
+=======
+#include <nvif/push006c.h>
+>>>>>>> upstream/android-13
 #include <nvif/user.h>
 
 #include <nvif/class.h>
 #include <nvif/cl0002.h>
 #include <nvif/cla06f.h>
+<<<<<<< HEAD
 #include <nvif/if0004.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "nouveau_drv.h"
 #include "nouveau_dma.h"
@@ -63,6 +80,11 @@
 #include "nouveau_usif.h"
 #include "nouveau_connector.h"
 #include "nouveau_platform.h"
+<<<<<<< HEAD
+=======
+#include "nouveau_svm.h"
+#include "nouveau_dmem.h"
+>>>>>>> upstream/android-13
 
 MODULE_PARM_DESC(config, "option string to pass to driver core");
 static char *nouveau_config;
@@ -111,8 +133,13 @@ nouveau_platform_name(struct platform_device *platformdev)
 static u64
 nouveau_name(struct drm_device *dev)
 {
+<<<<<<< HEAD
 	if (dev->pdev)
 		return nouveau_pci_name(dev->pdev);
+=======
+	if (dev_is_pci(dev->dev))
+		return nouveau_pci_name(to_pci_dev(dev->dev));
+>>>>>>> upstream/android-13
 	else
 		return nouveau_platform_name(to_platform_device(dev->dev));
 }
@@ -173,11 +200,20 @@ nouveau_cli_fini(struct nouveau_cli *cli)
 	WARN_ON(!list_empty(&cli->worker));
 
 	usif_client_fini(cli);
+<<<<<<< HEAD
 	nouveau_vmm_fini(&cli->vmm);
 	nvif_mmu_fini(&cli->mmu);
 	nvif_device_fini(&cli->device);
 	mutex_lock(&cli->drm->master.lock);
 	nvif_client_fini(&cli->base);
+=======
+	nouveau_vmm_fini(&cli->svm);
+	nouveau_vmm_fini(&cli->vmm);
+	nvif_mmu_dtor(&cli->mmu);
+	nvif_device_dtor(&cli->device);
+	mutex_lock(&cli->drm->master.lock);
+	nvif_client_dtor(&cli->base);
+>>>>>>> upstream/android-13
 	mutex_unlock(&cli->drm->master.lock);
 }
 
@@ -225,7 +261,11 @@ nouveau_cli_init(struct nouveau_drm *drm, const char *sname,
 				       cli->name, device, &cli->base);
 	} else {
 		mutex_lock(&drm->master.lock);
+<<<<<<< HEAD
 		ret = nvif_client_init(&drm->master.base, cli->name, device,
+=======
+		ret = nvif_client_ctor(&drm->master.base, cli->name, device,
+>>>>>>> upstream/android-13
 				       &cli->base);
 		mutex_unlock(&drm->master.lock);
 	}
@@ -234,9 +274,16 @@ nouveau_cli_init(struct nouveau_drm *drm, const char *sname,
 		goto done;
 	}
 
+<<<<<<< HEAD
 	ret = nvif_device_init(&cli->base.object, 0, NV_DEVICE,
 			       &(struct nv_device_v0) {
 					.device = ~0,
+=======
+	ret = nvif_device_ctor(&cli->base.object, "drmDevice", 0, NV_DEVICE,
+			       &(struct nv_device_v0) {
+					.device = ~0,
+					.priv = true,
+>>>>>>> upstream/android-13
 			       }, sizeof(struct nv_device_v0),
 			       &cli->device);
 	if (ret) {
@@ -250,7 +297,12 @@ nouveau_cli_init(struct nouveau_drm *drm, const char *sname,
 		goto done;
 	}
 
+<<<<<<< HEAD
 	ret = nvif_mmu_init(&cli->device.object, mmus[ret].oclass, &cli->mmu);
+=======
+	ret = nvif_mmu_ctor(&cli->device.object, "drmMmu", mmus[ret].oclass,
+			    &cli->mmu);
+>>>>>>> upstream/android-13
 	if (ret) {
 		NV_PRINTK(err, cli, "MMU allocation failed: %d\n", ret);
 		goto done;
@@ -283,6 +335,7 @@ done:
 }
 
 static void
+<<<<<<< HEAD
 nouveau_accel_fini(struct nouveau_drm *drm)
 {
 	nouveau_channel_idle(drm->channel);
@@ -296,6 +349,137 @@ nouveau_accel_fini(struct nouveau_drm *drm)
 	nvif_object_fini(&drm->ttm.copy);
 	nouveau_channel_del(&drm->cechan);
 
+=======
+nouveau_accel_ce_fini(struct nouveau_drm *drm)
+{
+	nouveau_channel_idle(drm->cechan);
+	nvif_object_dtor(&drm->ttm.copy);
+	nouveau_channel_del(&drm->cechan);
+}
+
+static void
+nouveau_accel_ce_init(struct nouveau_drm *drm)
+{
+	struct nvif_device *device = &drm->client.device;
+	int ret = 0;
+
+	/* Allocate channel that has access to a (preferably async) copy
+	 * engine, to use for TTM buffer moves.
+	 */
+	if (device->info.family >= NV_DEVICE_INFO_V0_KEPLER) {
+		ret = nouveau_channel_new(drm, device,
+					  nvif_fifo_runlist_ce(device), 0,
+					  true, &drm->cechan);
+	} else
+	if (device->info.chipset >= 0xa3 &&
+	    device->info.chipset != 0xaa &&
+	    device->info.chipset != 0xac) {
+		/* Prior to Kepler, there's only a single runlist, so all
+		 * engines can be accessed from any channel.
+		 *
+		 * We still want to use a separate channel though.
+		 */
+		ret = nouveau_channel_new(drm, device, NvDmaFB, NvDmaTT, false,
+					  &drm->cechan);
+	}
+
+	if (ret)
+		NV_ERROR(drm, "failed to create ce channel, %d\n", ret);
+}
+
+static void
+nouveau_accel_gr_fini(struct nouveau_drm *drm)
+{
+	nouveau_channel_idle(drm->channel);
+	nvif_object_dtor(&drm->ntfy);
+	nvkm_gpuobj_del(&drm->notify);
+	nouveau_channel_del(&drm->channel);
+}
+
+static void
+nouveau_accel_gr_init(struct nouveau_drm *drm)
+{
+	struct nvif_device *device = &drm->client.device;
+	u32 arg0, arg1;
+	int ret;
+
+	if (device->info.family >= NV_DEVICE_INFO_V0_AMPERE)
+		return;
+
+	/* Allocate channel that has access to the graphics engine. */
+	if (device->info.family >= NV_DEVICE_INFO_V0_KEPLER) {
+		arg0 = nvif_fifo_runlist(device, NV_DEVICE_HOST_RUNLIST_ENGINES_GR);
+		arg1 = 1;
+	} else {
+		arg0 = NvDmaFB;
+		arg1 = NvDmaTT;
+	}
+
+	ret = nouveau_channel_new(drm, device, arg0, arg1, false,
+				  &drm->channel);
+	if (ret) {
+		NV_ERROR(drm, "failed to create kernel channel, %d\n", ret);
+		nouveau_accel_gr_fini(drm);
+		return;
+	}
+
+	/* A SW class is used on pre-NV50 HW to assist with handling the
+	 * synchronisation of page flips, as well as to implement fences
+	 * on TNT/TNT2 HW that lacks any kind of support in host.
+	 */
+	if (!drm->channel->nvsw.client && device->info.family < NV_DEVICE_INFO_V0_TESLA) {
+		ret = nvif_object_ctor(&drm->channel->user, "drmNvsw",
+				       NVDRM_NVSW, nouveau_abi16_swclass(drm),
+				       NULL, 0, &drm->channel->nvsw);
+		if (ret == 0) {
+			struct nvif_push *push = drm->channel->chan.push;
+			ret = PUSH_WAIT(push, 2);
+			if (ret == 0)
+				PUSH_NVSQ(push, NV_SW, 0x0000, drm->channel->nvsw.handle);
+		}
+
+		if (ret) {
+			NV_ERROR(drm, "failed to allocate sw class, %d\n", ret);
+			nouveau_accel_gr_fini(drm);
+			return;
+		}
+	}
+
+	/* NvMemoryToMemoryFormat requires a notifier ctxdma for some reason,
+	 * even if notification is never requested, so, allocate a ctxdma on
+	 * any GPU where it's possible we'll end up using M2MF for BO moves.
+	 */
+	if (device->info.family < NV_DEVICE_INFO_V0_FERMI) {
+		ret = nvkm_gpuobj_new(nvxx_device(device), 32, 0, false, NULL,
+				      &drm->notify);
+		if (ret) {
+			NV_ERROR(drm, "failed to allocate notifier, %d\n", ret);
+			nouveau_accel_gr_fini(drm);
+			return;
+		}
+
+		ret = nvif_object_ctor(&drm->channel->user, "drmM2mfNtfy",
+				       NvNotify0, NV_DMA_IN_MEMORY,
+				       &(struct nv_dma_v0) {
+						.target = NV_DMA_V0_TARGET_VRAM,
+						.access = NV_DMA_V0_ACCESS_RDWR,
+						.start = drm->notify->addr,
+						.limit = drm->notify->addr + 31
+				       }, sizeof(struct nv_dma_v0),
+				       &drm->ntfy);
+		if (ret) {
+			nouveau_accel_gr_fini(drm);
+			return;
+		}
+	}
+}
+
+static void
+nouveau_accel_fini(struct nouveau_drm *drm)
+{
+	nouveau_accel_ce_fini(drm);
+	nouveau_accel_gr_fini(drm);
+>>>>>>> upstream/android-13
 	if (drm->fence)
 		nouveau_fence(drm)->dtor(drm);
 }
@@ -305,16 +489,24 @@ nouveau_accel_init(struct nouveau_drm *drm)
 {
 	struct nvif_device *device = &drm->client.device;
 	struct nvif_sclass *sclass;
+<<<<<<< HEAD
 	u32 arg0, arg1;
+=======
+>>>>>>> upstream/android-13
 	int ret, i, n;
 
 	if (nouveau_noaccel)
 		return;
 
+<<<<<<< HEAD
+=======
+	/* Initialise global support for channels, and synchronisation. */
+>>>>>>> upstream/android-13
 	ret = nouveau_channels_init(drm);
 	if (ret)
 		return;
 
+<<<<<<< HEAD
 	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_VOLTA) {
 		ret = nvif_user_init(device);
 		if (ret)
@@ -322,6 +514,8 @@ nouveau_accel_init(struct nouveau_drm *drm)
 	}
 
 	/* initialise synchronisation routines */
+=======
+>>>>>>> upstream/android-13
 	/*XXX: this is crap, but the fence/channel stuff is a little
 	 *     backwards in some places.  this will be fixed.
 	 */
@@ -353,6 +547,11 @@ nouveau_accel_init(struct nouveau_drm *drm)
 		case MAXWELL_CHANNEL_GPFIFO_A:
 		case PASCAL_CHANNEL_GPFIFO_A:
 		case VOLTA_CHANNEL_GPFIFO_A:
+<<<<<<< HEAD
+=======
+		case TURING_CHANNEL_GPFIFO_A:
+		case AMPERE_CHANNEL_GPFIFO_B:
+>>>>>>> upstream/android-13
 			ret = nvc0_fence_create(drm);
 			break;
 		default:
@@ -367,6 +566,7 @@ nouveau_accel_init(struct nouveau_drm *drm)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (device->info.family >= NV_DEVICE_INFO_V0_KEPLER) {
 		ret = nouveau_channel_new(drm, &drm->client.device,
 					  nvif_fifo_runlist_ce(device), 0,
@@ -527,6 +727,59 @@ static int nouveau_drm_probe(struct pci_dev *pdev,
 
 static int
 nouveau_drm_load(struct drm_device *dev, unsigned long flags)
+=======
+	/* Volta requires access to a doorbell register for kickoff. */
+	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_VOLTA) {
+		ret = nvif_user_ctor(device, "drmUsermode");
+		if (ret)
+			return;
+	}
+
+	/* Allocate channels we need to support various functions. */
+	nouveau_accel_gr_init(drm);
+	nouveau_accel_ce_init(drm);
+
+	/* Initialise accelerated TTM buffer moves. */
+	nouveau_bo_move_init(drm);
+}
+
+static void __printf(2, 3)
+nouveau_drm_errorf(struct nvif_object *object, const char *fmt, ...)
+{
+	struct nouveau_drm *drm = container_of(object->parent, typeof(*drm), parent);
+	struct va_format vaf;
+	va_list va;
+
+	va_start(va, fmt);
+	vaf.fmt = fmt;
+	vaf.va = &va;
+	NV_ERROR(drm, "%pV", &vaf);
+	va_end(va);
+}
+
+static void __printf(2, 3)
+nouveau_drm_debugf(struct nvif_object *object, const char *fmt, ...)
+{
+	struct nouveau_drm *drm = container_of(object->parent, typeof(*drm), parent);
+	struct va_format vaf;
+	va_list va;
+
+	va_start(va, fmt);
+	vaf.fmt = fmt;
+	vaf.va = &va;
+	NV_DEBUG(drm, "%pV", &vaf);
+	va_end(va);
+}
+
+static const struct nvif_parent_func
+nouveau_parent = {
+	.debugf = nouveau_drm_debugf,
+	.errorf = nouveau_drm_errorf,
+};
+
+static int
+nouveau_drm_device_init(struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_drm *drm;
 	int ret;
@@ -536,6 +789,7 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	dev->dev_private = drm;
 	drm->dev = dev;
 
+<<<<<<< HEAD
 	ret = nouveau_cli_init(drm, "DRM-master", &drm->master);
 	if (ret)
 		return ret;
@@ -545,11 +799,27 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 		return ret;
 
 	dev->irq_enabled = true;
+=======
+	nvif_parent_ctor(&nouveau_parent, &drm->parent);
+	drm->master.base.object.parent = &drm->parent;
+
+	ret = nouveau_cli_init(drm, "DRM-master", &drm->master);
+	if (ret)
+		goto fail_alloc;
+
+	ret = nouveau_cli_init(drm, "DRM", &drm->client);
+	if (ret)
+		goto fail_master;
+>>>>>>> upstream/android-13
 
 	nvxx_client(&drm->client.base)->debug =
 		nvkm_dbgopt(nouveau_debug, "DRM");
 
 	INIT_LIST_HEAD(&drm->clients);
+<<<<<<< HEAD
+=======
+	mutex_init(&drm->clients_lock);
+>>>>>>> upstream/android-13
 	spin_lock_init(&drm->tile.lock);
 
 	/* workaround an odd issue on nvc1 by disabling the device's
@@ -569,19 +839,33 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 	if (ret)
 		goto fail_bios;
 
+<<<<<<< HEAD
+=======
+	nouveau_accel_init(drm);
+
+>>>>>>> upstream/android-13
 	ret = nouveau_display_create(dev);
 	if (ret)
 		goto fail_dispctor;
 
 	if (dev->mode_config.num_crtc) {
+<<<<<<< HEAD
 		ret = nouveau_display_init(dev);
+=======
+		ret = nouveau_display_init(dev, false, false);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto fail_dispinit;
 	}
 
 	nouveau_debugfs_init(drm);
 	nouveau_hwmon_init(dev);
+<<<<<<< HEAD
 	nouveau_accel_init(drm);
+=======
+	nouveau_svm_init(drm);
+	nouveau_dmem_init(drm);
+>>>>>>> upstream/android-13
 	nouveau_fbcon_init(dev);
 	nouveau_led_init(dev);
 
@@ -599,20 +883,37 @@ nouveau_drm_load(struct drm_device *dev, unsigned long flags)
 fail_dispinit:
 	nouveau_display_destroy(dev);
 fail_dispctor:
+<<<<<<< HEAD
+=======
+	nouveau_accel_fini(drm);
+>>>>>>> upstream/android-13
 	nouveau_bios_takedown(dev);
 fail_bios:
 	nouveau_ttm_fini(drm);
 fail_ttm:
 	nouveau_vga_fini(drm);
 	nouveau_cli_fini(&drm->client);
+<<<<<<< HEAD
 	nouveau_cli_fini(&drm->master);
+=======
+fail_master:
+	nouveau_cli_fini(&drm->master);
+fail_alloc:
+	nvif_parent_dtor(&drm->parent);
+>>>>>>> upstream/android-13
 	kfree(drm);
 	return ret;
 }
 
 static void
+<<<<<<< HEAD
 nouveau_drm_unload(struct drm_device *dev)
 {
+=======
+nouveau_drm_device_fini(struct drm_device *dev)
+{
+	struct nouveau_cli *cli, *temp_cli;
+>>>>>>> upstream/android-13
 	struct nouveau_drm *drm = nouveau_drm(dev);
 
 	if (nouveau_pmops_runtime()) {
@@ -622,7 +923,12 @@ nouveau_drm_unload(struct drm_device *dev)
 
 	nouveau_led_fini(dev);
 	nouveau_fbcon_fini(dev);
+<<<<<<< HEAD
 	nouveau_accel_fini(drm);
+=======
+	nouveau_dmem_fini(drm);
+	nouveau_svm_fini(drm);
+>>>>>>> upstream/android-13
 	nouveau_hwmon_fini(dev);
 	nouveau_debugfs_fini(drm);
 
@@ -630,16 +936,175 @@ nouveau_drm_unload(struct drm_device *dev)
 		nouveau_display_fini(dev, false, false);
 	nouveau_display_destroy(dev);
 
+<<<<<<< HEAD
+=======
+	nouveau_accel_fini(drm);
+>>>>>>> upstream/android-13
 	nouveau_bios_takedown(dev);
 
 	nouveau_ttm_fini(drm);
 	nouveau_vga_fini(drm);
 
+<<<<<<< HEAD
 	nouveau_cli_fini(&drm->client);
 	nouveau_cli_fini(&drm->master);
 	kfree(drm);
 }
 
+=======
+	/*
+	 * There may be existing clients from as-yet unclosed files. For now,
+	 * clean them up here rather than deferring until the file is closed,
+	 * but this likely not correct if we want to support hot-unplugging
+	 * properly.
+	 */
+	mutex_lock(&drm->clients_lock);
+	list_for_each_entry_safe(cli, temp_cli, &drm->clients, head) {
+		list_del(&cli->head);
+		mutex_lock(&cli->mutex);
+		if (cli->abi16)
+			nouveau_abi16_fini(cli->abi16);
+		mutex_unlock(&cli->mutex);
+		nouveau_cli_fini(cli);
+		kfree(cli);
+	}
+	mutex_unlock(&drm->clients_lock);
+
+	nouveau_cli_fini(&drm->client);
+	nouveau_cli_fini(&drm->master);
+	nvif_parent_dtor(&drm->parent);
+	mutex_destroy(&drm->clients_lock);
+	kfree(drm);
+}
+
+/*
+ * On some Intel PCIe bridge controllers doing a
+ * D0 -> D3hot -> D3cold -> D0 sequence causes Nvidia GPUs to not reappear.
+ * Skipping the intermediate D3hot step seems to make it work again. This is
+ * probably caused by not meeting the expectation the involved AML code has
+ * when the GPU is put into D3hot state before invoking it.
+ *
+ * This leads to various manifestations of this issue:
+ *  - AML code execution to power on the GPU hits an infinite loop (as the
+ *    code waits on device memory to change).
+ *  - kernel crashes, as all PCI reads return -1, which most code isn't able
+ *    to handle well enough.
+ *
+ * In all cases dmesg will contain at least one line like this:
+ * 'nouveau 0000:01:00.0: Refused to change power state, currently in D3'
+ * followed by a lot of nouveau timeouts.
+ *
+ * In the \_SB.PCI0.PEG0.PG00._OFF code deeper down writes bit 0x80 to the not
+ * documented PCI config space register 0x248 of the Intel PCIe bridge
+ * controller (0x1901) in order to change the state of the PCIe link between
+ * the PCIe port and the GPU. There are alternative code paths using other
+ * registers, which seem to work fine (executed pre Windows 8):
+ *  - 0xbc bit 0x20 (publicly available documentation claims 'reserved')
+ *  - 0xb0 bit 0x10 (link disable)
+ * Changing the conditions inside the firmware by poking into the relevant
+ * addresses does resolve the issue, but it seemed to be ACPI private memory
+ * and not any device accessible memory at all, so there is no portable way of
+ * changing the conditions.
+ * On a XPS 9560 that means bits [0,3] on \CPEX need to be cleared.
+ *
+ * The only systems where this behavior can be seen are hybrid graphics laptops
+ * with a secondary Nvidia Maxwell, Pascal or Turing GPU. It's unclear whether
+ * this issue only occurs in combination with listed Intel PCIe bridge
+ * controllers and the mentioned GPUs or other devices as well.
+ *
+ * documentation on the PCIe bridge controller can be found in the
+ * "7th Generation Intel® Processor Families for H Platforms Datasheet Volume 2"
+ * Section "12 PCI Express* Controller (x16) Registers"
+ */
+
+static void quirk_broken_nv_runpm(struct pci_dev *pdev)
+{
+	struct drm_device *dev = pci_get_drvdata(pdev);
+	struct nouveau_drm *drm = nouveau_drm(dev);
+	struct pci_dev *bridge = pci_upstream_bridge(pdev);
+
+	if (!bridge || bridge->vendor != PCI_VENDOR_ID_INTEL)
+		return;
+
+	switch (bridge->device) {
+	case 0x1901:
+		drm->old_pm_cap = pdev->pm_cap;
+		pdev->pm_cap = 0;
+		NV_INFO(drm, "Disabling PCI power management to avoid bug\n");
+		break;
+	}
+}
+
+static int nouveau_drm_probe(struct pci_dev *pdev,
+			     const struct pci_device_id *pent)
+{
+	struct nvkm_device *device;
+	struct drm_device *drm_dev;
+	int ret;
+
+	if (vga_switcheroo_client_probe_defer(pdev))
+		return -EPROBE_DEFER;
+
+	/* We need to check that the chipset is supported before booting
+	 * fbdev off the hardware, as there's no way to put it back.
+	 */
+	ret = nvkm_device_pci_new(pdev, nouveau_config, "error",
+				  true, false, 0, &device);
+	if (ret)
+		return ret;
+
+	nvkm_device_del(&device);
+
+	/* Remove conflicting drivers (vesafb, efifb etc). */
+	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &driver_pci);
+	if (ret)
+		return ret;
+
+	ret = nvkm_device_pci_new(pdev, nouveau_config, nouveau_debug,
+				  true, true, ~0ULL, &device);
+	if (ret)
+		return ret;
+
+	pci_set_master(pdev);
+
+	if (nouveau_atomic)
+		driver_pci.driver_features |= DRIVER_ATOMIC;
+
+	drm_dev = drm_dev_alloc(&driver_pci, &pdev->dev);
+	if (IS_ERR(drm_dev)) {
+		ret = PTR_ERR(drm_dev);
+		goto fail_nvkm;
+	}
+
+	ret = pci_enable_device(pdev);
+	if (ret)
+		goto fail_drm;
+
+	pci_set_drvdata(pdev, drm_dev);
+
+	ret = nouveau_drm_device_init(drm_dev);
+	if (ret)
+		goto fail_pci;
+
+	ret = drm_dev_register(drm_dev, pent->driver_data);
+	if (ret)
+		goto fail_drm_dev_init;
+
+	quirk_broken_nv_runpm(pdev);
+	return 0;
+
+fail_drm_dev_init:
+	nouveau_drm_device_fini(drm_dev);
+fail_pci:
+	pci_disable_device(pdev);
+fail_drm:
+	drm_dev_put(drm_dev);
+fail_nvkm:
+	nvkm_device_del(&device);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 void
 nouveau_drm_device_remove(struct drm_device *dev)
 {
@@ -647,11 +1112,21 @@ nouveau_drm_device_remove(struct drm_device *dev)
 	struct nvkm_client *client;
 	struct nvkm_device *device;
 
+<<<<<<< HEAD
 	dev->irq_enabled = false;
 	client = nvxx_client(&drm->client.base);
 	device = nvkm_device_find(client->device);
 	drm_put_dev(dev);
 
+=======
+	drm_dev_unplug(dev);
+
+	client = nvxx_client(&drm->client.base);
+	device = nvkm_device_find(client->device);
+
+	nouveau_drm_device_fini(dev);
+	drm_dev_put(dev);
+>>>>>>> upstream/android-13
 	nvkm_device_del(&device);
 }
 
@@ -659,16 +1134,34 @@ static void
 nouveau_drm_remove(struct pci_dev *pdev)
 {
 	struct drm_device *dev = pci_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	nouveau_drm_device_remove(dev);
+=======
+	struct nouveau_drm *drm = nouveau_drm(dev);
+
+	/* revert our workaround */
+	if (drm->old_pm_cap)
+		pdev->pm_cap = drm->old_pm_cap;
+	nouveau_drm_device_remove(dev);
+	pci_disable_device(pdev);
+>>>>>>> upstream/android-13
 }
 
 static int
 nouveau_do_suspend(struct drm_device *dev, bool runtime)
 {
 	struct nouveau_drm *drm = nouveau_drm(dev);
+<<<<<<< HEAD
 	int ret;
 
+=======
+	struct ttm_resource_manager *man;
+	int ret;
+
+	nouveau_svm_suspend(drm);
+	nouveau_dmem_suspend(drm);
+>>>>>>> upstream/android-13
 	nouveau_led_suspend(dev);
 
 	if (dev->mode_config.num_crtc) {
@@ -681,7 +1174,13 @@ nouveau_do_suspend(struct drm_device *dev, bool runtime)
 	}
 
 	NV_DEBUG(drm, "evicting buffers...\n");
+<<<<<<< HEAD
 	ttm_bo_evict_mm(&drm->ttm.bdev, TTM_PL_VRAM);
+=======
+
+	man = ttm_manager_type(&drm->ttm.bdev, TTM_PL_VRAM);
+	ttm_resource_manager_evict_all(&drm->ttm.bdev, man);
+>>>>>>> upstream/android-13
 
 	NV_DEBUG(drm, "waiting for kernel channels to go idle...\n");
 	if (drm->cechan) {
@@ -726,10 +1225,22 @@ fail_display:
 static int
 nouveau_do_resume(struct drm_device *dev, bool runtime)
 {
+<<<<<<< HEAD
 	struct nouveau_drm *drm = nouveau_drm(dev);
 
 	NV_DEBUG(drm, "resuming object tree...\n");
 	nvif_client_resume(&drm->master.base);
+=======
+	int ret = 0;
+	struct nouveau_drm *drm = nouveau_drm(dev);
+
+	NV_DEBUG(drm, "resuming object tree...\n");
+	ret = nvif_client_resume(&drm->master.base);
+	if (ret) {
+		NV_ERROR(drm, "Client resume failed with error: %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	NV_DEBUG(drm, "resuming fence...\n");
 	if (drm->fence && nouveau_fence(drm)->resume)
@@ -745,7 +1256,12 @@ nouveau_do_resume(struct drm_device *dev, bool runtime)
 	}
 
 	nouveau_led_resume(dev);
+<<<<<<< HEAD
 
+=======
+	nouveau_dmem_resume(drm);
+	nouveau_svm_resume(drm);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -792,7 +1308,11 @@ nouveau_pmops_resume(struct device *dev)
 	ret = nouveau_do_resume(drm_dev, false);
 
 	/* Monitors may have been connected / disconnected during suspend */
+<<<<<<< HEAD
 	schedule_work(&nouveau_drm(drm_dev)->hpd_work);
+=======
+	nouveau_display_hpd_resume(drm_dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -848,6 +1368,10 @@ nouveau_pmops_runtime_resume(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+<<<<<<< HEAD
+=======
+	struct nouveau_drm *drm = nouveau_drm(drm_dev);
+>>>>>>> upstream/android-13
 	struct nvif_device *device = &nouveau_drm(drm_dev)->client.device;
 	int ret;
 
@@ -864,13 +1388,24 @@ nouveau_pmops_runtime_resume(struct device *dev)
 	pci_set_master(pdev);
 
 	ret = nouveau_do_resume(drm_dev, true);
+<<<<<<< HEAD
+=======
+	if (ret) {
+		NV_ERROR(drm, "resume failed with: %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/* do magic */
 	nvif_mask(&device->object, 0x088488, (1 << 25), (1 << 25));
 	drm_dev->switch_power_state = DRM_SWITCH_POWER_ON;
 
 	/* Monitors may have been connected / disconnected during suspend */
+<<<<<<< HEAD
 	schedule_work(&nouveau_drm(drm_dev)->hpd_work);
+=======
+	nouveau_display_hpd_resume(drm_dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -916,6 +1451,7 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
 	if (ret)
 		goto done;
 
+<<<<<<< HEAD
 	cli->base.super = false;
 
 	fpriv->driver_priv = cli;
@@ -923,6 +1459,13 @@ nouveau_drm_open(struct drm_device *dev, struct drm_file *fpriv)
 	mutex_lock(&drm->client.mutex);
 	list_add(&cli->head, &drm->clients);
 	mutex_unlock(&drm->client.mutex);
+=======
+	fpriv->driver_priv = cli;
+
+	mutex_lock(&drm->clients_lock);
+	list_add(&cli->head, &drm->clients);
+	mutex_unlock(&drm->clients_lock);
+>>>>>>> upstream/android-13
 
 done:
 	if (ret && cli) {
@@ -940,6 +1483,19 @@ nouveau_drm_postclose(struct drm_device *dev, struct drm_file *fpriv)
 {
 	struct nouveau_cli *cli = nouveau_cli(fpriv);
 	struct nouveau_drm *drm = nouveau_drm(dev);
+<<<<<<< HEAD
+=======
+	int dev_index;
+
+	/*
+	 * The device is gone, and as it currently stands all clients are
+	 * cleaned up in the removal codepath. In the future this may change
+	 * so that we can support hot-unplugging, but for now we immediately
+	 * return to avoid a double-free situation.
+	 */
+	if (!drm_dev_enter(dev, &dev_index))
+		return;
+>>>>>>> upstream/android-13
 
 	pm_runtime_get_sync(dev->dev);
 
@@ -948,18 +1504,29 @@ nouveau_drm_postclose(struct drm_device *dev, struct drm_file *fpriv)
 		nouveau_abi16_fini(cli->abi16);
 	mutex_unlock(&cli->mutex);
 
+<<<<<<< HEAD
 	mutex_lock(&drm->client.mutex);
 	list_del(&cli->head);
 	mutex_unlock(&drm->client.mutex);
+=======
+	mutex_lock(&drm->clients_lock);
+	list_del(&cli->head);
+	mutex_unlock(&drm->clients_lock);
+>>>>>>> upstream/android-13
 
 	nouveau_cli_fini(cli);
 	kfree(cli);
 	pm_runtime_mark_last_busy(dev->dev);
 	pm_runtime_put_autosuspend(dev->dev);
+<<<<<<< HEAD
+=======
+	drm_dev_exit(dev_index);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_ioctl_desc
 nouveau_ioctls[] = {
+<<<<<<< HEAD
 	DRM_IOCTL_DEF_DRV(NOUVEAU_GETPARAM, nouveau_abi16_ioctl_getparam, DRM_AUTH|DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(NOUVEAU_SETPARAM, nouveau_abi16_ioctl_setparam, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
 	DRM_IOCTL_DEF_DRV(NOUVEAU_CHANNEL_ALLOC, nouveau_abi16_ioctl_channel_alloc, DRM_AUTH|DRM_RENDER_ALLOW),
@@ -972,6 +1539,22 @@ nouveau_ioctls[] = {
 	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_CPU_PREP, nouveau_gem_ioctl_cpu_prep, DRM_AUTH|DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_CPU_FINI, nouveau_gem_ioctl_cpu_fini, DRM_AUTH|DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_INFO, nouveau_gem_ioctl_info, DRM_AUTH|DRM_RENDER_ALLOW),
+=======
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GETPARAM, nouveau_abi16_ioctl_getparam, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_SETPARAM, drm_invalid_op, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_CHANNEL_ALLOC, nouveau_abi16_ioctl_channel_alloc, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_CHANNEL_FREE, nouveau_abi16_ioctl_channel_free, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GROBJ_ALLOC, nouveau_abi16_ioctl_grobj_alloc, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_NOTIFIEROBJ_ALLOC, nouveau_abi16_ioctl_notifierobj_alloc, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GPUOBJ_FREE, nouveau_abi16_ioctl_gpuobj_free, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_SVM_INIT, nouveau_svmm_init, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_SVM_BIND, nouveau_svmm_bind, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_NEW, nouveau_gem_ioctl_new, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_PUSHBUF, nouveau_gem_ioctl_pushbuf, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_CPU_PREP, nouveau_gem_ioctl_cpu_prep, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_CPU_FINI, nouveau_gem_ioctl_cpu_fini, DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(NOUVEAU_GEM_INFO, nouveau_gem_ioctl_info, DRM_RENDER_ALLOW),
+>>>>>>> upstream/android-13
 };
 
 long
@@ -1007,7 +1590,11 @@ nouveau_driver_fops = {
 	.open = drm_open,
 	.release = drm_release,
 	.unlocked_ioctl = nouveau_drm_ioctl,
+<<<<<<< HEAD
 	.mmap = nouveau_ttm_mmap,
+=======
+	.mmap = drm_gem_mmap,
+>>>>>>> upstream/android-13
 	.poll = drm_poll,
 	.read = drm_read,
 #if defined(CONFIG_COMPAT)
@@ -1019,14 +1606,21 @@ nouveau_driver_fops = {
 static struct drm_driver
 driver_stub = {
 	.driver_features =
+<<<<<<< HEAD
 		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER
+=======
+		DRIVER_GEM | DRIVER_MODESET | DRIVER_RENDER
+>>>>>>> upstream/android-13
 #if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
 		| DRIVER_KMS_LEGACY_CONTEXT
 #endif
 		,
 
+<<<<<<< HEAD
 	.load = nouveau_drm_load,
 	.unload = nouveau_drm_unload,
+=======
+>>>>>>> upstream/android-13
 	.open = nouveau_drm_open,
 	.postclose = nouveau_drm_postclose,
 	.lastclose = nouveau_vga_lastclose,
@@ -1035,17 +1629,21 @@ driver_stub = {
 	.debugfs_init = nouveau_drm_debugfs_init,
 #endif
 
+<<<<<<< HEAD
 	.enable_vblank = nouveau_display_vblank_enable,
 	.disable_vblank = nouveau_display_vblank_disable,
 	.get_scanout_position = nouveau_display_scanoutpos,
 	.get_vblank_timestamp = drm_calc_vbltimestamp_from_scanoutpos,
 
+=======
+>>>>>>> upstream/android-13
 	.ioctls = nouveau_ioctls,
 	.num_ioctls = ARRAY_SIZE(nouveau_ioctls),
 	.fops = &nouveau_driver_fops,
 
 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+<<<<<<< HEAD
 	.gem_prime_export = drm_gem_prime_export,
 	.gem_prime_import = drm_gem_prime_import,
 	.gem_prime_pin = nouveau_gem_prime_pin,
@@ -1062,6 +1660,13 @@ driver_stub = {
 
 	.dumb_create = nouveau_display_dumb_create,
 	.dumb_map_offset = nouveau_display_dumb_map_offset,
+=======
+	.gem_prime_import_sg_table = nouveau_gem_prime_import_sg_table,
+	.gem_prime_mmap = drm_gem_prime_mmap,
+
+	.dumb_create = nouveau_display_dumb_create,
+	.dumb_map_offset = drm_gem_ttm_dumb_map_offset,
+>>>>>>> upstream/android-13
 
 	.name = DRIVER_NAME,
 	.desc = DRIVER_DESC,
@@ -1147,10 +1752,22 @@ nouveau_platform_device_create(const struct nvkm_device_tegra_func *func,
 		goto err_free;
 	}
 
+<<<<<<< HEAD
+=======
+	err = nouveau_drm_device_init(drm);
+	if (err)
+		goto err_put;
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, drm);
 
 	return drm;
 
+<<<<<<< HEAD
+=======
+err_put:
+	drm_dev_put(drm);
+>>>>>>> upstream/android-13
 err_free:
 	nvkm_device_del(pdevice);
 
@@ -1202,6 +1819,11 @@ nouveau_drm_exit(void)
 #ifdef CONFIG_NOUVEAU_PLATFORM_DRIVER
 	platform_driver_unregister(&nouveau_platform_driver);
 #endif
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_DRM_NOUVEAU_SVM))
+		mmu_notifier_synchronize();
+>>>>>>> upstream/android-13
 }
 
 module_init(nouveau_drm_init);

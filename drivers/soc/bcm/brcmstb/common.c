@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2014 NVIDIA Corporation
  * Copyright © 2015 Broadcom Corporation
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2014 NVIDIA Corporation
+ * Copyright © 2015 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -19,6 +26,7 @@
 #include <linux/soc/brcmstb/brcmstb.h>
 #include <linux/sys_soc.h>
 
+<<<<<<< HEAD
 #include <soc/brcmstb/common.h>
 
 static u32 family_id;
@@ -44,6 +52,11 @@ bool soc_is_brcmstb(void)
 	return match != NULL;
 }
 
+=======
+static u32 family_id;
+static u32 product_id;
+
+>>>>>>> upstream/android-13
 u32 brcmstb_get_family_id(void)
 {
 	return family_id;

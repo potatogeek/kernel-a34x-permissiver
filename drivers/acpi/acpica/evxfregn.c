@@ -4,7 +4,11 @@
  * Module Name: evxfregn - External Interfaces, ACPI Operation Regions and
  *                         Address Spaces.
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -201,6 +205,11 @@ acpi_remove_address_space_handler(acpi_handle device,
 
 			/* Now we can delete the handler object */
 
+<<<<<<< HEAD
+=======
+			acpi_os_release_mutex(handler_obj->address_space.
+					      context_mutex);
+>>>>>>> upstream/android-13
 			acpi_ut_remove_reference(handler_obj);
 			goto unlock_and_exit;
 		}

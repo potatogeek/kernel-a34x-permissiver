@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  ALSA driver for Echoaudio soundcards.
  *  Copyright (C) 2003-2004 Giuliano Pochini <pochini@shiny.it>
@@ -14,6 +15,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  ALSA driver for Echoaudio soundcards.
+ *  Copyright (C) 2003-2004 Giuliano Pochini <pochini@shiny.it>
+>>>>>>> upstream/android-13
  */
 
 #define ECHOGALS_FAMILY
@@ -73,7 +80,11 @@ static const struct pci_device_id snd_echo_ids[] = {
 	{0,}
 };
 
+<<<<<<< HEAD
 static struct snd_pcm_hardware pcm_hardware_skel = {
+=======
+static const struct snd_pcm_hardware pcm_hardware_skel = {
+>>>>>>> upstream/android-13
 	.info = SNDRV_PCM_INFO_MMAP |
 		SNDRV_PCM_INFO_INTERLEAVED |
 		SNDRV_PCM_INFO_BLOCK_TRANSFER |

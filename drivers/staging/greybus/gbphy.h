@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Greybus Bridged-Phy Bus driver
  *
@@ -36,9 +40,15 @@ struct gbphy_device_id {
 
 struct gbphy_driver {
 	const char *name;
+<<<<<<< HEAD
 	int (*probe)(struct gbphy_device *,
 		     const struct gbphy_device_id *id);
 	void (*remove)(struct gbphy_device *);
+=======
+	int (*probe)(struct gbphy_device *device,
+		     const struct gbphy_device_id *id);
+	void (*remove)(struct gbphy_device *device);
+>>>>>>> upstream/android-13
 	const struct gbphy_device_id *id_table;
 
 	struct device_driver driver;

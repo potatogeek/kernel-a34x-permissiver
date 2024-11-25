@@ -10,26 +10,43 @@
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
+<<<<<<< HEAD
 #include "xfs_bit.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_sb.h"
 #include "xfs_mount.h"
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
 #include "xfs_inode.h"
 #include "xfs_trans.h"
+<<<<<<< HEAD
 #include "xfs_inode_item.h"
 #include "xfs_bmap_btree.h"
 #include "xfs_bmap.h"
 #include "xfs_attr_sf.h"
 #include "xfs_attr_remote.h"
 #include "xfs_attr.h"
+=======
+#include "xfs_bmap_btree.h"
+#include "xfs_bmap.h"
+#include "xfs_attr_sf.h"
+#include "xfs_attr.h"
+#include "xfs_attr_remote.h"
+>>>>>>> upstream/android-13
 #include "xfs_attr_leaf.h"
 #include "xfs_error.h"
 #include "xfs_trace.h"
 #include "xfs_buf_item.h"
+<<<<<<< HEAD
 #include "xfs_cksum.h"
 #include "xfs_dir2.h"
 #include "xfs_log.h"
+=======
+#include "xfs_dir2.h"
+#include "xfs_log.h"
+#include "xfs_ag.h"
+>>>>>>> upstream/android-13
 
 
 /*
@@ -236,10 +253,69 @@ xfs_attr3_leaf_hdr_to_disk(
 }
 
 static xfs_failaddr_t
+<<<<<<< HEAD
+=======
+xfs_attr3_leaf_verify_entry(
+	struct xfs_mount			*mp,
+	char					*buf_end,
+	struct xfs_attr_leafblock		*leaf,
+	struct xfs_attr3_icleaf_hdr		*leafhdr,
+	struct xfs_attr_leaf_entry		*ent,
+	int					idx,
+	__u32					*last_hashval)
+{
+	struct xfs_attr_leaf_name_local		*lentry;
+	struct xfs_attr_leaf_name_remote	*rentry;
+	char					*name_end;
+	unsigned int				nameidx;
+	unsigned int				namesize;
+	__u32					hashval;
+
+	/* hash order check */
+	hashval = be32_to_cpu(ent->hashval);
+	if (hashval < *last_hashval)
+		return __this_address;
+	*last_hashval = hashval;
+
+	nameidx = be16_to_cpu(ent->nameidx);
+	if (nameidx < leafhdr->firstused || nameidx >= mp->m_attr_geo->blksize)
+		return __this_address;
+
+	/*
+	 * Check the name information.  The namelen fields are u8 so we can't
+	 * possibly exceed the maximum name length of 255 bytes.
+	 */
+	if (ent->flags & XFS_ATTR_LOCAL) {
+		lentry = xfs_attr3_leaf_name_local(leaf, idx);
+		namesize = xfs_attr_leaf_entsize_local(lentry->namelen,
+				be16_to_cpu(lentry->valuelen));
+		name_end = (char *)lentry + namesize;
+		if (lentry->namelen == 0)
+			return __this_address;
+	} else {
+		rentry = xfs_attr3_leaf_name_remote(leaf, idx);
+		namesize = xfs_attr_leaf_entsize_remote(rentry->namelen);
+		name_end = (char *)rentry + namesize;
+		if (rentry->namelen == 0)
+			return __this_address;
+		if (!(ent->flags & XFS_ATTR_INCOMPLETE) &&
+		    rentry->valueblk == 0)
+			return __this_address;
+	}
+
+	if (name_end > buf_end)
+		return __this_address;
+
+	return NULL;
+}
+
+static xfs_failaddr_t
+>>>>>>> upstream/android-13
 xfs_attr3_leaf_verify(
 	struct xfs_buf			*bp)
 {
 	struct xfs_attr3_icleaf_hdr	ichdr;
+<<<<<<< HEAD
 	struct xfs_mount		*mp = bp->b_target->bt_mount;
 	struct xfs_attr_leafblock	*leaf = bp->b_addr;
 	struct xfs_attr_leaf_entry	*entries;
@@ -271,6 +347,23 @@ xfs_attr3_leaf_verify(
 	 */
 	if (!xfs_log_in_recovery(mp) && ichdr.count == 0)
 		return __this_address;
+=======
+	struct xfs_mount		*mp = bp->b_mount;
+	struct xfs_attr_leafblock	*leaf = bp->b_addr;
+	struct xfs_attr_leaf_entry	*entries;
+	struct xfs_attr_leaf_entry	*ent;
+	char				*buf_end;
+	uint32_t			end;	/* must be 32bit - see below */
+	__u32				last_hashval = 0;
+	int				i;
+	xfs_failaddr_t			fa;
+
+	xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &ichdr, leaf);
+
+	fa = xfs_da3_blkinfo_verify(bp, bp->b_addr);
+	if (fa)
+		return fa;
+>>>>>>> upstream/android-13
 
 	/*
 	 * firstused is the block offset of the first name info structure.
@@ -287,8 +380,25 @@ xfs_attr3_leaf_verify(
 	    (char *)bp->b_addr + ichdr.firstused)
 		return __this_address;
 
+<<<<<<< HEAD
 	/* XXX: need to range check rest of attr header values */
 	/* XXX: hash order check? */
+=======
+	/*
+	 * NOTE: This verifier historically failed empty leaf buffers because
+	 * we expect the fork to be in another format. Empty attr fork format
+	 * conversions are possible during xattr set, however, and format
+	 * conversion is not atomic with the xattr set that triggers it. We
+	 * cannot assume leaf blocks are non-empty until that is addressed.
+	*/
+	buf_end = (char *)bp->b_addr + mp->m_attr_geo->blksize;
+	for (i = 0, ent = entries; i < ichdr.count; ent++, i++) {
+		fa = xfs_attr3_leaf_verify_entry(mp, buf_end, leaf, &ichdr,
+				ent, i, &last_hashval);
+		if (fa)
+			return fa;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Quickly check the freemap information.  Attribute data has to be
@@ -324,7 +434,11 @@ static void
 xfs_attr3_leaf_write_verify(
 	struct xfs_buf	*bp)
 {
+<<<<<<< HEAD
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
+=======
+	struct xfs_mount	*mp = bp->b_mount;
+>>>>>>> upstream/android-13
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 	struct xfs_attr3_leaf_hdr *hdr3 = bp->b_addr;
 	xfs_failaddr_t		fa;
@@ -335,7 +449,11 @@ xfs_attr3_leaf_write_verify(
 		return;
 	}
 
+<<<<<<< HEAD
 	if (!xfs_sb_version_hascrc(&mp->m_sb))
+=======
+	if (!xfs_has_crc(mp))
+>>>>>>> upstream/android-13
 		return;
 
 	if (bip)
@@ -354,10 +472,17 @@ static void
 xfs_attr3_leaf_read_verify(
 	struct xfs_buf		*bp)
 {
+<<<<<<< HEAD
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
 	xfs_failaddr_t		fa;
 
 	if (xfs_sb_version_hascrc(&mp->m_sb) &&
+=======
+	struct xfs_mount	*mp = bp->b_mount;
+	xfs_failaddr_t		fa;
+
+	if (xfs_has_crc(mp) &&
+>>>>>>> upstream/android-13
 	     !xfs_buf_verify_cksum(bp, XFS_ATTR3_LEAF_CRC_OFF))
 		xfs_verifier_error(bp, -EFSBADCRC, __this_address);
 	else {
@@ -369,6 +494,11 @@ xfs_attr3_leaf_read_verify(
 
 const struct xfs_buf_ops xfs_attr3_leaf_buf_ops = {
 	.name = "xfs_attr3_leaf",
+<<<<<<< HEAD
+=======
+	.magic16 = { cpu_to_be16(XFS_ATTR_LEAF_MAGIC),
+		     cpu_to_be16(XFS_ATTR3_LEAF_MAGIC) },
+>>>>>>> upstream/android-13
 	.verify_read = xfs_attr3_leaf_read_verify,
 	.verify_write = xfs_attr3_leaf_write_verify,
 	.verify_struct = xfs_attr3_leaf_verify,
@@ -379,13 +509,21 @@ xfs_attr3_leaf_read(
 	struct xfs_trans	*tp,
 	struct xfs_inode	*dp,
 	xfs_dablk_t		bno,
+<<<<<<< HEAD
 	xfs_daddr_t		mappedbno,
+=======
+>>>>>>> upstream/android-13
 	struct xfs_buf		**bpp)
 {
 	int			err;
 
+<<<<<<< HEAD
 	err = xfs_da_read_buf(tp, dp, bno, mappedbno, bpp,
 				XFS_ATTR_FORK, &xfs_attr3_leaf_buf_ops);
+=======
+	err = xfs_da_read_buf(tp, dp, bno, 0, bpp, XFS_ATTR_FORK,
+			&xfs_attr3_leaf_buf_ops);
+>>>>>>> upstream/android-13
 	if (!err && tp && *bpp)
 		xfs_trans_buf_set_type(tp, *bpp, XFS_BLFT_ATTR_LEAF_BUF);
 	return err;
@@ -395,6 +533,7 @@ xfs_attr3_leaf_read(
  * Namespace helper routines
  *========================================================================*/
 
+<<<<<<< HEAD
 /*
  * If namespace bits don't match return 0.
  * If all match then return 1.
@@ -405,12 +544,80 @@ xfs_attr_namesp_match(int arg_flags, int ondisk_flags)
 	return XFS_ATTR_NSP_ONDISK(ondisk_flags) == XFS_ATTR_NSP_ARGS_TO_ONDISK(arg_flags);
 }
 
+=======
+static bool
+xfs_attr_match(
+	struct xfs_da_args	*args,
+	uint8_t			namelen,
+	unsigned char		*name,
+	int			flags)
+{
+	if (args->namelen != namelen)
+		return false;
+	if (memcmp(args->name, name, namelen) != 0)
+		return false;
+	/*
+	 * If we are looking for incomplete entries, show only those, else only
+	 * show complete entries.
+	 */
+	if (args->attr_filter !=
+	    (flags & (XFS_ATTR_NSP_ONDISK_MASK | XFS_ATTR_INCOMPLETE)))
+		return false;
+	return true;
+}
+
+static int
+xfs_attr_copy_value(
+	struct xfs_da_args	*args,
+	unsigned char		*value,
+	int			valuelen)
+{
+	/*
+	 * No copy if all we have to do is get the length
+	 */
+	if (!args->valuelen) {
+		args->valuelen = valuelen;
+		return 0;
+	}
+
+	/*
+	 * No copy if the length of the existing buffer is too small
+	 */
+	if (args->valuelen < valuelen) {
+		args->valuelen = valuelen;
+		return -ERANGE;
+	}
+
+	if (!args->value) {
+		args->value = kvmalloc(valuelen, GFP_KERNEL | __GFP_NOLOCKDEP);
+		if (!args->value)
+			return -ENOMEM;
+	}
+	args->valuelen = valuelen;
+
+	/* remote block xattr requires IO for copy-in */
+	if (args->rmtblkno)
+		return xfs_attr_rmtval_get(args);
+
+	/*
+	 * This is to prevent a GCC warning because the remote xattr case
+	 * doesn't have a value to pass in. In that case, we never reach here,
+	 * but GCC can't work that out and so throws a "passing NULL to
+	 * memcpy" warning.
+	 */
+	if (!value)
+		return -EINVAL;
+	memcpy(args->value, value, valuelen);
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /*========================================================================
  * External routines when attribute fork size < XFS_LITINO(mp).
  *========================================================================*/
 
 /*
+<<<<<<< HEAD
  * Query whether the requested number of additional bytes of extended
  * attribute space will be able to fit inline.
  *
@@ -433,6 +640,38 @@ xfs_attr_shortform_bytesfit(xfs_inode_t *dp, int bytes)
 	offset = (XFS_LITINO(mp, dp->i_d.di_version) - bytes) >> 3;
 
 	if (dp->i_d.di_format == XFS_DINODE_FMT_DEV) {
+=======
+ * Query whether the total requested number of attr fork bytes of extended
+ * attribute space will be able to fit inline.
+ *
+ * Returns zero if not, else the i_forkoff fork offset to be used in the
+ * literal area for attribute data once the new bytes have been added.
+ *
+ * i_forkoff must be 8 byte aligned, hence is stored as a >>3 value;
+ * special case for dev/uuid inodes, they have fixed size data forks.
+ */
+int
+xfs_attr_shortform_bytesfit(
+	struct xfs_inode	*dp,
+	int			bytes)
+{
+	struct xfs_mount	*mp = dp->i_mount;
+	int64_t			dsize;
+	int			minforkoff;
+	int			maxforkoff;
+	int			offset;
+
+	/*
+	 * Check if the new size could fit at all first:
+	 */
+	if (bytes > XFS_LITINO(mp))
+		return 0;
+
+	/* rounded down */
+	offset = (XFS_LITINO(mp) - bytes) >> 3;
+
+	if (dp->i_df.if_format == XFS_DINODE_FMT_DEV) {
+>>>>>>> upstream/android-13
 		minforkoff = roundup(sizeof(xfs_dev_t), 8) >> 3;
 		return (offset >= minforkoff) ? minforkoff : 0;
 	}
@@ -448,28 +687,47 @@ xfs_attr_shortform_bytesfit(xfs_inode_t *dp, int bytes)
 	 * literal area rebalancing.
 	 */
 	if (bytes <= XFS_IFORK_ASIZE(dp))
+<<<<<<< HEAD
 		return dp->i_d.di_forkoff;
+=======
+		return dp->i_forkoff;
+>>>>>>> upstream/android-13
 
 	/*
 	 * For attr2 we can try to move the forkoff if there is space in the
 	 * literal area, but for the old format we are done if there is no
 	 * space in the fixed attribute fork.
 	 */
+<<<<<<< HEAD
 	if (!(mp->m_flags & XFS_MOUNT_ATTR2))
+=======
+	if (!xfs_has_attr2(mp))
+>>>>>>> upstream/android-13
 		return 0;
 
 	dsize = dp->i_df.if_bytes;
 
+<<<<<<< HEAD
 	switch (dp->i_d.di_format) {
 	case XFS_DINODE_FMT_EXTENTS:
 		/*
 		 * If there is no attr fork and the data fork is extents, 
+=======
+	switch (dp->i_df.if_format) {
+	case XFS_DINODE_FMT_EXTENTS:
+		/*
+		 * If there is no attr fork and the data fork is extents,
+>>>>>>> upstream/android-13
 		 * determine if creating the default attr fork will result
 		 * in the extents form migrating to btree. If so, the
 		 * minimum offset only needs to be the space required for
 		 * the btree root.
 		 */
+<<<<<<< HEAD
 		if (!dp->i_d.di_forkoff && dp->i_df.if_bytes >
+=======
+		if (!dp->i_forkoff && dp->i_df.if_bytes >
+>>>>>>> upstream/android-13
 		    xfs_default_attroffset(dp))
 			dsize = XFS_BMDR_SPACE_CALC(MINDBTPTRS);
 		break;
@@ -480,10 +738,17 @@ xfs_attr_shortform_bytesfit(xfs_inode_t *dp, int bytes)
 		 * minforkoff to where the btree root can finish so we have
 		 * plenty of room for attrs
 		 */
+<<<<<<< HEAD
 		if (dp->i_d.di_forkoff) {
 			if (offset < dp->i_d.di_forkoff)
 				return 0;
 			return dp->i_d.di_forkoff;
+=======
+		if (dp->i_forkoff) {
+			if (offset < dp->i_forkoff)
+				return 0;
+			return dp->i_forkoff;
+>>>>>>> upstream/android-13
 		}
 		dsize = XFS_BMAP_BROOT_SPACE(mp, dp->i_df.if_broot);
 		break;
@@ -493,12 +758,20 @@ xfs_attr_shortform_bytesfit(xfs_inode_t *dp, int bytes)
 	 * A data fork btree root must have space for at least
 	 * MINDBTPTRS key/ptr pairs if the data fork is small or empty.
 	 */
+<<<<<<< HEAD
 	minforkoff = max(dsize, XFS_BMDR_SPACE_CALC(MINDBTPTRS));
 	minforkoff = roundup(minforkoff, 8) >> 3;
 
 	/* attr fork btree root can have at least this many key/ptr pairs */
 	maxforkoff = XFS_LITINO(mp, dp->i_d.di_version) -
 			XFS_BMDR_SPACE_CALC(MINABTPTRS);
+=======
+	minforkoff = max_t(int64_t, dsize, XFS_BMDR_SPACE_CALC(MINDBTPTRS));
+	minforkoff = roundup(minforkoff, 8) >> 3;
+
+	/* attr fork btree root can have at least this many key/ptr pairs */
+	maxforkoff = XFS_LITINO(mp) - XFS_BMDR_SPACE_CALC(MINABTPTRS);
+>>>>>>> upstream/android-13
 	maxforkoff = maxforkoff >> 3;	/* rounded down */
 
 	if (offset >= maxforkoff)
@@ -509,6 +782,7 @@ xfs_attr_shortform_bytesfit(xfs_inode_t *dp, int bytes)
 }
 
 /*
+<<<<<<< HEAD
  * Switch on the ATTR2 superblock bit (implies also FEATURES2)
  */
 STATIC void
@@ -524,12 +798,36 @@ xfs_sbversion_add_attr2(xfs_mount_t *mp, xfs_trans_t *tp)
 		} else
 			spin_unlock(&mp->m_sb_lock);
 	}
+=======
+ * Switch on the ATTR2 superblock bit (implies also FEATURES2) unless:
+ * - noattr2 mount option is set,
+ * - on-disk version bit says it is already set, or
+ * - the attr2 mount option is not set to enable automatic upgrade from attr1.
+ */
+STATIC void
+xfs_sbversion_add_attr2(
+	struct xfs_mount	*mp,
+	struct xfs_trans	*tp)
+{
+	if (xfs_has_noattr2(mp))
+		return;
+	if (mp->m_sb.sb_features2 & XFS_SB_VERSION2_ATTR2BIT)
+		return;
+	if (!xfs_has_attr2(mp))
+		return;
+
+	spin_lock(&mp->m_sb_lock);
+	xfs_add_attr2(mp);
+	spin_unlock(&mp->m_sb_lock);
+	xfs_log_sb(tp);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Create the initial contents of a shortform attribute list.
  */
 void
+<<<<<<< HEAD
 xfs_attr_shortform_create(xfs_da_args_t *args)
 {
 	xfs_attr_sf_hdr_t *hdr;
@@ -550,6 +848,20 @@ xfs_attr_shortform_create(xfs_da_args_t *args)
 	} else {
 		ASSERT(ifp->if_flags & XFS_IFINLINE);
 	}
+=======
+xfs_attr_shortform_create(
+	struct xfs_da_args	*args)
+{
+	struct xfs_inode	*dp = args->dp;
+	struct xfs_ifork	*ifp = dp->i_afp;
+	struct xfs_attr_sf_hdr	*hdr;
+
+	trace_xfs_attr_sf_create(args);
+
+	ASSERT(ifp->if_bytes == 0);
+	if (ifp->if_format == XFS_DINODE_FMT_EXTENTS)
+		ifp->if_format = XFS_DINODE_FMT_LOCAL;
+>>>>>>> upstream/android-13
 	xfs_idata_realloc(dp, sizeof(*hdr), XFS_ATTR_FORK);
 	hdr = (struct xfs_attr_sf_hdr *)ifp->if_u1.if_data;
 	memset(hdr, 0, sizeof(*hdr));
@@ -558,10 +870,59 @@ xfs_attr_shortform_create(xfs_da_args_t *args)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Return -EEXIST if attr is found, or -ENOATTR if not
+ * args:  args containing attribute name and namelen
+ * sfep:  If not null, pointer will be set to the last attr entry found on
+	  -EEXIST.  On -ENOATTR pointer is left at the last entry in the list
+ * basep: If not null, pointer is set to the byte offset of the entry in the
+ *	  list on -EEXIST.  On -ENOATTR, pointer is left at the byte offset of
+ *	  the last entry in the list
+ */
+int
+xfs_attr_sf_findname(
+	struct xfs_da_args	 *args,
+	struct xfs_attr_sf_entry **sfep,
+	unsigned int		 *basep)
+{
+	struct xfs_attr_shortform *sf;
+	struct xfs_attr_sf_entry *sfe;
+	unsigned int		base = sizeof(struct xfs_attr_sf_hdr);
+	int			size = 0;
+	int			end;
+	int			i;
+
+	sf = (struct xfs_attr_shortform *)args->dp->i_afp->if_u1.if_data;
+	sfe = &sf->list[0];
+	end = sf->hdr.count;
+	for (i = 0; i < end; sfe = xfs_attr_sf_nextentry(sfe),
+			     base += size, i++) {
+		size = xfs_attr_sf_entsize(sfe);
+		if (!xfs_attr_match(args, sfe->namelen, sfe->nameval,
+				    sfe->flags))
+			continue;
+		break;
+	}
+
+	if (sfep != NULL)
+		*sfep = sfe;
+
+	if (basep != NULL)
+		*basep = base;
+
+	if (i == end)
+		return -ENOATTR;
+	return -EEXIST;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Add a name/value pair to the shortform attribute list.
  * Overflow from the inode has already been checked for.
  */
 void
+<<<<<<< HEAD
 xfs_attr_shortform_add(xfs_da_args_t *args, int forkoff)
 {
 	xfs_attr_shortform_t *sf;
@@ -570,11 +931,24 @@ xfs_attr_shortform_add(xfs_da_args_t *args, int forkoff)
 	xfs_mount_t *mp;
 	xfs_inode_t *dp;
 	struct xfs_ifork *ifp;
+=======
+xfs_attr_shortform_add(
+	struct xfs_da_args		*args,
+	int				forkoff)
+{
+	struct xfs_attr_shortform	*sf;
+	struct xfs_attr_sf_entry	*sfe;
+	int				offset, size;
+	struct xfs_mount		*mp;
+	struct xfs_inode		*dp;
+	struct xfs_ifork		*ifp;
+>>>>>>> upstream/android-13
 
 	trace_xfs_attr_sf_add(args);
 
 	dp = args->dp;
 	mp = dp->i_mount;
+<<<<<<< HEAD
 	dp->i_d.di_forkoff = forkoff;
 
 	ifp = dp->i_afp;
@@ -602,6 +976,25 @@ xfs_attr_shortform_add(xfs_da_args_t *args, int forkoff)
 	sfe->namelen = args->namelen;
 	sfe->valuelen = args->valuelen;
 	sfe->flags = XFS_ATTR_NSP_ARGS_TO_ONDISK(args->flags);
+=======
+	dp->i_forkoff = forkoff;
+
+	ifp = dp->i_afp;
+	ASSERT(ifp->if_format == XFS_DINODE_FMT_LOCAL);
+	sf = (struct xfs_attr_shortform *)ifp->if_u1.if_data;
+	if (xfs_attr_sf_findname(args, &sfe, NULL) == -EEXIST)
+		ASSERT(0);
+
+	offset = (char *)sfe - (char *)sf;
+	size = xfs_attr_sf_entsize_byname(args->namelen, args->valuelen);
+	xfs_idata_realloc(dp, size, XFS_ATTR_FORK);
+	sf = (struct xfs_attr_shortform *)ifp->if_u1.if_data;
+	sfe = (struct xfs_attr_sf_entry *)((char *)sf + offset);
+
+	sfe->namelen = args->namelen;
+	sfe->valuelen = args->valuelen;
+	sfe->flags = args->attr_filter;
+>>>>>>> upstream/android-13
 	memcpy(sfe->nameval, args->name, args->namelen);
 	memcpy(&sfe->nameval[args->namelen], args->value, args->valuelen);
 	sf->hdr.count++;
@@ -620,6 +1013,7 @@ xfs_attr_fork_remove(
 	struct xfs_inode	*ip,
 	struct xfs_trans	*tp)
 {
+<<<<<<< HEAD
 	xfs_idestroy_fork(ip, XFS_ATTR_FORK);
 	ip->i_d.di_forkoff = 0;
 	ip->i_d.di_aformat = XFS_DINODE_FMT_EXTENTS;
@@ -627,6 +1021,14 @@ xfs_attr_fork_remove(
 	ASSERT(ip->i_d.di_anextents == 0);
 	ASSERT(ip->i_afp == NULL);
 
+=======
+	ASSERT(ip->i_afp->if_nextents == 0);
+
+	xfs_idestroy_fork(ip->i_afp);
+	kmem_cache_free(xfs_ifork_zone, ip->i_afp);
+	ip->i_afp = NULL;
+	ip->i_forkoff = 0;
+>>>>>>> upstream/android-13
 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 }
 
@@ -634,6 +1036,7 @@ xfs_attr_fork_remove(
  * Remove an attribute from the shortform attribute list structure.
  */
 int
+<<<<<<< HEAD
 xfs_attr_shortform_remove(xfs_da_args_t *args)
 {
 	xfs_attr_shortform_t *sf;
@@ -641,11 +1044,24 @@ xfs_attr_shortform_remove(xfs_da_args_t *args)
 	int base, size=0, end, totsize, i;
 	xfs_mount_t *mp;
 	xfs_inode_t *dp;
+=======
+xfs_attr_sf_removename(
+	struct xfs_da_args		*args)
+{
+	struct xfs_attr_shortform	*sf;
+	struct xfs_attr_sf_entry	*sfe;
+	int				size = 0, end, totsize;
+	unsigned int			base;
+	struct xfs_mount		*mp;
+	struct xfs_inode		*dp;
+	int				error;
+>>>>>>> upstream/android-13
 
 	trace_xfs_attr_sf_remove(args);
 
 	dp = args->dp;
 	mp = dp->i_mount;
+<<<<<<< HEAD
 	base = sizeof(xfs_attr_sf_hdr_t);
 	sf = (xfs_attr_shortform_t *)dp->i_afp->if_u1.if_data;
 	sfe = &sf->list[0];
@@ -663,6 +1079,14 @@ xfs_attr_shortform_remove(xfs_da_args_t *args)
 	}
 	if (i == end)
 		return -ENOATTR;
+=======
+	sf = (struct xfs_attr_shortform *)dp->i_afp->if_u1.if_data;
+
+	error = xfs_attr_sf_findname(args, &sfe, &base);
+	if (error != -EEXIST)
+		return error;
+	size = xfs_attr_sf_entsize(sfe);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Fix up the attribute fork data, covering the hole
@@ -678,19 +1102,33 @@ xfs_attr_shortform_remove(xfs_da_args_t *args)
 	 * Fix up the start offset of the attribute fork
 	 */
 	totsize -= size;
+<<<<<<< HEAD
 	if (totsize == sizeof(xfs_attr_sf_hdr_t) &&
 	    (mp->m_flags & XFS_MOUNT_ATTR2) &&
 	    (dp->i_d.di_format != XFS_DINODE_FMT_BTREE) &&
+=======
+	if (totsize == sizeof(xfs_attr_sf_hdr_t) && xfs_has_attr2(mp) &&
+	    (dp->i_df.if_format != XFS_DINODE_FMT_BTREE) &&
+>>>>>>> upstream/android-13
 	    !(args->op_flags & XFS_DA_OP_ADDNAME)) {
 		xfs_attr_fork_remove(dp, args->trans);
 	} else {
 		xfs_idata_realloc(dp, -size, XFS_ATTR_FORK);
+<<<<<<< HEAD
 		dp->i_d.di_forkoff = xfs_attr_shortform_bytesfit(dp, totsize);
 		ASSERT(dp->i_d.di_forkoff);
 		ASSERT(totsize > sizeof(xfs_attr_sf_hdr_t) ||
 				(args->op_flags & XFS_DA_OP_ADDNAME) ||
 				!(mp->m_flags & XFS_MOUNT_ATTR2) ||
 				dp->i_d.di_format == XFS_DINODE_FMT_BTREE);
+=======
+		dp->i_forkoff = xfs_attr_shortform_bytesfit(dp, totsize);
+		ASSERT(dp->i_forkoff);
+		ASSERT(totsize > sizeof(xfs_attr_sf_hdr_t) ||
+				(args->op_flags & XFS_DA_OP_ADDNAME) ||
+				!xfs_has_attr2(mp) ||
+				dp->i_df.if_format == XFS_DINODE_FMT_BTREE);
+>>>>>>> upstream/android-13
 		xfs_trans_log_inode(args->trans, dp,
 					XFS_ILOG_CORE | XFS_ILOG_ADATA);
 	}
@@ -707,14 +1145,20 @@ xfs_attr_shortform_remove(xfs_da_args_t *args)
 int
 xfs_attr_shortform_lookup(xfs_da_args_t *args)
 {
+<<<<<<< HEAD
 	xfs_attr_shortform_t *sf;
 	xfs_attr_sf_entry_t *sfe;
+=======
+	struct xfs_attr_shortform *sf;
+	struct xfs_attr_sf_entry *sfe;
+>>>>>>> upstream/android-13
 	int i;
 	struct xfs_ifork *ifp;
 
 	trace_xfs_attr_sf_lookup(args);
 
 	ifp = args->dp->i_afp;
+<<<<<<< HEAD
 	ASSERT(ifp->if_flags & XFS_IFINLINE);
 	sf = (xfs_attr_shortform_t *)ifp->if_u1.if_data;
 	sfe = &sf->list[0];
@@ -727,11 +1171,22 @@ xfs_attr_shortform_lookup(xfs_da_args_t *args)
 		if (!xfs_attr_namesp_match(args->flags, sfe->flags))
 			continue;
 		return -EEXIST;
+=======
+	ASSERT(ifp->if_format == XFS_DINODE_FMT_LOCAL);
+	sf = (struct xfs_attr_shortform *)ifp->if_u1.if_data;
+	sfe = &sf->list[0];
+	for (i = 0; i < sf->hdr.count;
+				sfe = xfs_attr_sf_nextentry(sfe), i++) {
+		if (xfs_attr_match(args, sfe->namelen, sfe->nameval,
+				sfe->flags))
+			return -EEXIST;
+>>>>>>> upstream/android-13
 	}
 	return -ENOATTR;
 }
 
 /*
+<<<<<<< HEAD
  * Look up a name in a shortform attribute list structure.
  */
 /*ARGSUSED*/
@@ -765,6 +1220,31 @@ xfs_attr_shortform_getvalue(xfs_da_args_t *args)
 		memcpy(args->value, &sfe->nameval[args->namelen],
 						    args->valuelen);
 		return -EEXIST;
+=======
+ * Retrieve the attribute value and length.
+ *
+ * If args->valuelen is zero, only the length needs to be returned.  Unlike a
+ * lookup, we only return an error if the attribute does not exist or we can't
+ * retrieve the value.
+ */
+int
+xfs_attr_shortform_getvalue(
+	struct xfs_da_args	*args)
+{
+	struct xfs_attr_shortform *sf;
+	struct xfs_attr_sf_entry *sfe;
+	int			i;
+
+	ASSERT(args->dp->i_afp->if_format == XFS_DINODE_FMT_LOCAL);
+	sf = (struct xfs_attr_shortform *)args->dp->i_afp->if_u1.if_data;
+	sfe = &sf->list[0];
+	for (i = 0; i < sf->hdr.count;
+				sfe = xfs_attr_sf_nextentry(sfe), i++) {
+		if (xfs_attr_match(args, sfe->namelen, sfe->nameval,
+				sfe->flags))
+			return xfs_attr_copy_value(args,
+				&sfe->nameval[args->namelen], sfe->valuelen);
+>>>>>>> upstream/android-13
 	}
 	return -ENOATTR;
 }
@@ -792,6 +1272,7 @@ xfs_attr_shortform_to_leaf(
 
 	dp = args->dp;
 	ifp = dp->i_afp;
+<<<<<<< HEAD
 	sf = (xfs_attr_shortform_t *)ifp->if_u1.if_data;
 	size = be16_to_cpu(sf->hdr.totsize);
 	tmpbuffer = kmem_alloc(size, KM_SLEEP);
@@ -826,6 +1307,27 @@ xfs_attr_shortform_to_leaf(
 		memcpy(ifp->if_u1.if_data, tmpbuffer, size);	/* it back */
 		goto out;
 	}
+=======
+	sf = (struct xfs_attr_shortform *)ifp->if_u1.if_data;
+	size = be16_to_cpu(sf->hdr.totsize);
+	tmpbuffer = kmem_alloc(size, 0);
+	ASSERT(tmpbuffer != NULL);
+	memcpy(tmpbuffer, ifp->if_u1.if_data, size);
+	sf = (struct xfs_attr_shortform *)tmpbuffer;
+
+	xfs_idata_realloc(dp, -size, XFS_ATTR_FORK);
+	xfs_bmap_local_to_extents_empty(args->trans, dp, XFS_ATTR_FORK);
+
+	bp = NULL;
+	error = xfs_da_grow_inode(args, &blkno);
+	if (error)
+		goto out;
+
+	ASSERT(blkno == 0);
+	error = xfs_attr3_leaf_create(args, blkno, &bp);
+	if (error)
+		goto out;
+>>>>>>> upstream/android-13
 
 	memset((char *)&nargs, 0, sizeof(nargs));
 	nargs.dp = dp;
@@ -843,14 +1345,22 @@ xfs_attr_shortform_to_leaf(
 		nargs.valuelen = sfe->valuelen;
 		nargs.hashval = xfs_da_hashname(sfe->nameval,
 						sfe->namelen);
+<<<<<<< HEAD
 		nargs.flags = XFS_ATTR_NSP_ONDISK_TO_ARGS(sfe->flags);
+=======
+		nargs.attr_filter = sfe->flags & XFS_ATTR_NSP_ONDISK_MASK;
+>>>>>>> upstream/android-13
 		error = xfs_attr3_leaf_lookup_int(bp, &nargs); /* set a->index */
 		ASSERT(error == -ENOATTR);
 		error = xfs_attr3_leaf_add(bp, &nargs);
 		ASSERT(error != -ENOSPC);
 		if (error)
 			goto out;
+<<<<<<< HEAD
 		sfe = XFS_ATTR_SF_NEXTENTRY(sfe);
+=======
+		sfe = xfs_attr_sf_nextentry(sfe);
+>>>>>>> upstream/android-13
 	}
 	error = 0;
 	*leaf_bp = bp;
@@ -874,7 +1384,11 @@ xfs_attr_shortform_allfit(
 	struct xfs_attr3_icleaf_hdr leafhdr;
 	int			bytes;
 	int			i;
+<<<<<<< HEAD
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
+=======
+	struct xfs_mount	*mp = bp->b_mount;
+>>>>>>> upstream/android-13
 
 	leaf = bp->b_addr;
 	xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &leafhdr, leaf);
@@ -891,12 +1405,20 @@ xfs_attr_shortform_allfit(
 			return 0;
 		if (be16_to_cpu(name_loc->valuelen) >= XFS_ATTR_SF_ENTSIZE_MAX)
 			return 0;
+<<<<<<< HEAD
 		bytes += sizeof(struct xfs_attr_sf_entry) - 1
 				+ name_loc->namelen
 				+ be16_to_cpu(name_loc->valuelen);
 	}
 	if ((dp->i_mount->m_flags & XFS_MOUNT_ATTR2) &&
 	    (dp->i_d.di_format != XFS_DINODE_FMT_BTREE) &&
+=======
+		bytes += xfs_attr_sf_entsize_byname(name_loc->namelen,
+					be16_to_cpu(name_loc->valuelen));
+	}
+	if (xfs_has_attr2(dp->i_mount) &&
+	    (dp->i_df.if_format != XFS_DINODE_FMT_BTREE) &&
+>>>>>>> upstream/android-13
 	    (bytes == sizeof(struct xfs_attr_sf_hdr)))
 		return -1;
 	return xfs_attr_shortform_bytesfit(dp, bytes);
@@ -913,9 +1435,15 @@ xfs_attr_shortform_verify(
 	char				*endp;
 	struct xfs_ifork		*ifp;
 	int				i;
+<<<<<<< HEAD
 	int				size;
 
 	ASSERT(ip->i_d.di_aformat == XFS_DINODE_FMT_LOCAL);
+=======
+	int64_t				size;
+
+	ASSERT(ip->i_afp->if_format == XFS_DINODE_FMT_LOCAL);
+>>>>>>> upstream/android-13
 	ifp = XFS_IFORK_PTR(ip, XFS_ATTR_FORK);
 	sfp = (struct xfs_attr_shortform *)ifp->if_u1.if_data;
 	size = ifp->if_bytes;
@@ -938,7 +1466,11 @@ xfs_attr_shortform_verify(
 		 * xfs_attr_sf_entry is defined with a 1-byte variable
 		 * array at the end, so we must subtract that off.
 		 */
+<<<<<<< HEAD
 		if (((char *)sfep + sizeof(*sfep) - 1) >= endp)
+=======
+		if (((char *)sfep + sizeof(*sfep)) >= endp)
+>>>>>>> upstream/android-13
 			return __this_address;
 
 		/* Don't allow names with known bad length. */
@@ -950,7 +1482,11 @@ xfs_attr_shortform_verify(
 		 * within the data buffer.  The next entry starts after the
 		 * name component, so nextentry is an acceptable test.
 		 */
+<<<<<<< HEAD
 		next_sfep = XFS_ATTR_SF_NEXTENTRY(sfep);
+=======
+		next_sfep = xfs_attr_sf_nextentry(sfep);
+>>>>>>> upstream/android-13
 		if ((char *)next_sfep > endp)
 			return __this_address;
 
@@ -999,7 +1535,11 @@ xfs_attr3_leaf_to_shortform(
 
 	trace_xfs_attr_leaf_to_sf(args);
 
+<<<<<<< HEAD
 	tmpbuffer = kmem_alloc(args->geo->blksize, KM_SLEEP);
+=======
+	tmpbuffer = kmem_alloc(args->geo->blksize, 0);
+>>>>>>> upstream/android-13
 	if (!tmpbuffer)
 		return -ENOMEM;
 
@@ -1020,8 +1560,13 @@ xfs_attr3_leaf_to_shortform(
 		goto out;
 
 	if (forkoff == -1) {
+<<<<<<< HEAD
 		ASSERT(dp->i_mount->m_flags & XFS_MOUNT_ATTR2);
 		ASSERT(dp->i_d.di_format != XFS_DINODE_FMT_BTREE);
+=======
+		ASSERT(xfs_has_attr2(dp->i_mount));
+		ASSERT(dp->i_df.if_format != XFS_DINODE_FMT_BTREE);
+>>>>>>> upstream/android-13
 		xfs_attr_fork_remove(dp, args->trans);
 		goto out;
 	}
@@ -1051,7 +1596,11 @@ xfs_attr3_leaf_to_shortform(
 		nargs.value = &name_loc->nameval[nargs.namelen];
 		nargs.valuelen = be16_to_cpu(name_loc->valuelen);
 		nargs.hashval = be32_to_cpu(entry->hashval);
+<<<<<<< HEAD
 		nargs.flags = XFS_ATTR_NSP_ONDISK_TO_ARGS(entry->flags);
+=======
+		nargs.attr_filter = entry->flags & XFS_ATTR_NSP_ONDISK_MASK;
+>>>>>>> upstream/android-13
 		xfs_attr_shortform_add(&nargs, forkoff);
 	}
 	error = 0;
@@ -1071,7 +1620,10 @@ xfs_attr3_leaf_to_node(
 	struct xfs_attr_leafblock *leaf;
 	struct xfs_attr3_icleaf_hdr icleafhdr;
 	struct xfs_attr_leaf_entry *entries;
+<<<<<<< HEAD
 	struct xfs_da_node_entry *btree;
+=======
+>>>>>>> upstream/android-13
 	struct xfs_da3_icnode_hdr icnodehdr;
 	struct xfs_da_intnode	*node;
 	struct xfs_inode	*dp = args->dp;
@@ -1086,11 +1638,19 @@ xfs_attr3_leaf_to_node(
 	error = xfs_da_grow_inode(args, &blkno);
 	if (error)
 		goto out;
+<<<<<<< HEAD
 	error = xfs_attr3_leaf_read(args->trans, dp, 0, -1, &bp1);
 	if (error)
 		goto out;
 
 	error = xfs_da_get_buf(args->trans, dp, blkno, -1, &bp2, XFS_ATTR_FORK);
+=======
+	error = xfs_attr3_leaf_read(args->trans, dp, 0, &bp1);
+	if (error)
+		goto out;
+
+	error = xfs_da_get_buf(args->trans, dp, blkno, &bp2, XFS_ATTR_FORK);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -1098,9 +1658,15 @@ xfs_attr3_leaf_to_node(
 	xfs_trans_buf_set_type(args->trans, bp2, XFS_BLFT_ATTR_LEAF_BUF);
 	bp2->b_ops = bp1->b_ops;
 	memcpy(bp2->b_addr, bp1->b_addr, args->geo->blksize);
+<<<<<<< HEAD
 	if (xfs_sb_version_hascrc(&mp->m_sb)) {
 		struct xfs_da3_blkinfo *hdr3 = bp2->b_addr;
 		hdr3->blkno = cpu_to_be64(bp2->b_bn);
+=======
+	if (xfs_has_crc(mp)) {
+		struct xfs_da3_blkinfo *hdr3 = bp2->b_addr;
+		hdr3->blkno = cpu_to_be64(xfs_buf_daddr(bp2));
+>>>>>>> upstream/android-13
 	}
 	xfs_trans_log_buf(args->trans, bp2, 0, args->geo->blksize - 1);
 
@@ -1111,18 +1677,29 @@ xfs_attr3_leaf_to_node(
 	if (error)
 		goto out;
 	node = bp1->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->node_hdr_from_disk(&icnodehdr, node);
 	btree = dp->d_ops->node_tree_p(node);
+=======
+	xfs_da3_node_hdr_from_disk(mp, &icnodehdr, node);
+>>>>>>> upstream/android-13
 
 	leaf = bp2->b_addr;
 	xfs_attr3_leaf_hdr_from_disk(args->geo, &icleafhdr, leaf);
 	entries = xfs_attr3_leaf_entryp(leaf);
 
 	/* both on-disk, don't endian-flip twice */
+<<<<<<< HEAD
 	btree[0].hashval = entries[icleafhdr.count - 1].hashval;
 	btree[0].before = cpu_to_be32(blkno);
 	icnodehdr.count = 1;
 	dp->d_ops->node_hdr_to_disk(node, &icnodehdr);
+=======
+	icnodehdr.btree[0].hashval = entries[icleafhdr.count - 1].hashval;
+	icnodehdr.btree[0].before = cpu_to_be32(blkno);
+	icnodehdr.count = 1;
+	xfs_da3_node_hdr_to_disk(dp->i_mount, node, &icnodehdr);
+>>>>>>> upstream/android-13
 	xfs_trans_log_buf(args->trans, bp1, 0, args->geo->blksize - 1);
 	error = 0;
 out:
@@ -1152,7 +1729,11 @@ xfs_attr3_leaf_create(
 
 	trace_xfs_attr_leaf_create(args);
 
+<<<<<<< HEAD
 	error = xfs_da_get_buf(args->trans, args->dp, blkno, -1, &bp,
+=======
+	error = xfs_da_get_buf(args->trans, args->dp, blkno, &bp,
+>>>>>>> upstream/android-13
 					    XFS_ATTR_FORK);
 	if (error)
 		return error;
@@ -1164,12 +1745,20 @@ xfs_attr3_leaf_create(
 	memset(&ichdr, 0, sizeof(ichdr));
 	ichdr.firstused = args->geo->blksize;
 
+<<<<<<< HEAD
 	if (xfs_sb_version_hascrc(&mp->m_sb)) {
+=======
+	if (xfs_has_crc(mp)) {
+>>>>>>> upstream/android-13
 		struct xfs_da3_blkinfo *hdr3 = bp->b_addr;
 
 		ichdr.magic = XFS_ATTR3_LEAF_MAGIC;
 
+<<<<<<< HEAD
 		hdr3->blkno = cpu_to_be64(bp->b_bn);
+=======
+		hdr3->blkno = cpu_to_be64(xfs_buf_daddr(bp));
+>>>>>>> upstream/android-13
 		hdr3->owner = cpu_to_be64(dp->i_ino);
 		uuid_copy(&hdr3->uuid, &mp->m_sb.sb_meta_uuid);
 
@@ -1378,8 +1967,14 @@ xfs_attr3_leaf_add_work(
 	entry->nameidx = cpu_to_be16(ichdr->freemap[mapindex].base +
 				     ichdr->freemap[mapindex].size);
 	entry->hashval = cpu_to_be32(args->hashval);
+<<<<<<< HEAD
 	entry->flags = tmp ? XFS_ATTR_LOCAL : 0;
 	entry->flags |= XFS_ATTR_NSP_ARGS_TO_ONDISK(args->flags);
+=======
+	entry->flags = args->attr_filter;
+	if (tmp)
+		entry->flags |= XFS_ATTR_LOCAL;
+>>>>>>> upstream/android-13
 	if (args->op_flags & XFS_DA_OP_RENAME) {
 		entry->flags |= XFS_ATTR_INCOMPLETE;
 		if ((args->blkno2 == args->blkno) &&
@@ -1464,7 +2059,11 @@ xfs_attr3_leaf_compact(
 
 	trace_xfs_attr_leaf_compact(args);
 
+<<<<<<< HEAD
 	tmpbuffer = kmem_alloc(args->geo->blksize, KM_SLEEP);
+=======
+	tmpbuffer = kmem_alloc(args->geo->blksize, 0);
+>>>>>>> upstream/android-13
 	memcpy(tmpbuffer, bp->b_addr, args->geo->blksize);
 	memset(bp->b_addr, 0, args->geo->blksize);
 	leaf_src = (xfs_attr_leafblock_t *)tmpbuffer;
@@ -1538,7 +2137,11 @@ xfs_attr_leaf_order(
 {
 	struct xfs_attr3_icleaf_hdr ichdr1;
 	struct xfs_attr3_icleaf_hdr ichdr2;
+<<<<<<< HEAD
 	struct xfs_mount *mp = leaf1_bp->b_target->bt_mount;
+=======
+	struct xfs_mount *mp = leaf1_bp->b_mount;
+>>>>>>> upstream/android-13
 
 	xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &ichdr1, leaf1_bp->b_addr);
 	xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &ichdr2, leaf2_bp->b_addr);
@@ -1924,7 +2527,11 @@ xfs_attr3_leaf_toosmall(
 		if (blkno == 0)
 			continue;
 		error = xfs_attr3_leaf_read(state->args->trans, state->args->dp,
+<<<<<<< HEAD
 					blkno, -1, &bp);
+=======
+					blkno, &bp);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 
@@ -2183,7 +2790,11 @@ xfs_attr3_leaf_unbalance(
 		struct xfs_attr_leafblock *tmp_leaf;
 		struct xfs_attr3_icleaf_hdr tmphdr;
 
+<<<<<<< HEAD
 		tmp_leaf = kmem_zalloc(state->args->geo->blksize, KM_SLEEP);
+=======
+		tmp_leaf = kmem_zalloc(state->args->geo->blksize, 0);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Copy the header into the temp leaf so that all the stuff
@@ -2274,8 +2885,15 @@ xfs_attr3_leaf_lookup_int(
 	leaf = bp->b_addr;
 	xfs_attr3_leaf_hdr_from_disk(args->geo, &ichdr, leaf);
 	entries = xfs_attr3_leaf_entryp(leaf);
+<<<<<<< HEAD
 	if (ichdr.count >= args->geo->blksize / 8)
 		return -EFSCORRUPTED;
+=======
+	if (ichdr.count >= args->geo->blksize / 8) {
+		xfs_buf_mark_corrupt(bp);
+		return -EFSCORRUPTED;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Binary search.  (note: small blocks will skip this loop)
@@ -2291,10 +2909,21 @@ xfs_attr3_leaf_lookup_int(
 		else
 			break;
 	}
+<<<<<<< HEAD
 	if (!(probe >= 0 && (!ichdr.count || probe < ichdr.count)))
 		return -EFSCORRUPTED;
 	if (!(span <= 4 || be32_to_cpu(entry->hashval) == hashval))
 		return -EFSCORRUPTED;
+=======
+	if (!(probe >= 0 && (!ichdr.count || probe < ichdr.count))) {
+		xfs_buf_mark_corrupt(bp);
+		return -EFSCORRUPTED;
+	}
+	if (!(span <= 4 || be32_to_cpu(entry->hashval) == hashval)) {
+		xfs_buf_mark_corrupt(bp);
+		return -EFSCORRUPTED;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Since we may have duplicate hashval's, find the first matching
@@ -2322,6 +2951,7 @@ xfs_attr3_leaf_lookup_int(
 /*
  * GROT: Add code to remove incomplete entries.
  */
+<<<<<<< HEAD
 		/*
 		 * If we are looking for INCOMPLETE entries, show only those.
 		 * If we are looking for complete entries, show only those.
@@ -2338,17 +2968,28 @@ xfs_attr3_leaf_lookup_int(
 							args->namelen) != 0)
 				continue;
 			if (!xfs_attr_namesp_match(args->flags, entry->flags))
+=======
+		if (entry->flags & XFS_ATTR_LOCAL) {
+			name_loc = xfs_attr3_leaf_name_local(leaf, probe);
+			if (!xfs_attr_match(args, name_loc->namelen,
+					name_loc->nameval, entry->flags))
+>>>>>>> upstream/android-13
 				continue;
 			args->index = probe;
 			return -EEXIST;
 		} else {
 			name_rmt = xfs_attr3_leaf_name_remote(leaf, probe);
+<<<<<<< HEAD
 			if (name_rmt->namelen != args->namelen)
 				continue;
 			if (memcmp(args->name, name_rmt->name,
 							args->namelen) != 0)
 				continue;
 			if (!xfs_attr_namesp_match(args->flags, entry->flags))
+=======
+			if (!xfs_attr_match(args, name_rmt->namelen,
+					name_rmt->name, entry->flags))
+>>>>>>> upstream/android-13
 				continue;
 			args->index = probe;
 			args->rmtvaluelen = be32_to_cpu(name_rmt->valuelen);
@@ -2366,6 +3007,13 @@ xfs_attr3_leaf_lookup_int(
 /*
  * Get the value associated with an attribute name from a leaf attribute
  * list structure.
+<<<<<<< HEAD
+=======
+ *
+ * If args->valuelen is zero, only the length needs to be returned.  Unlike a
+ * lookup, we only return an error if the attribute does not exist or we can't
+ * retrieve the value.
+>>>>>>> upstream/android-13
  */
 int
 xfs_attr3_leaf_getvalue(
@@ -2377,7 +3025,10 @@ xfs_attr3_leaf_getvalue(
 	struct xfs_attr_leaf_entry *entry;
 	struct xfs_attr_leaf_name_local *name_loc;
 	struct xfs_attr_leaf_name_remote *name_rmt;
+<<<<<<< HEAD
 	int			valuelen;
+=======
+>>>>>>> upstream/android-13
 
 	leaf = bp->b_addr;
 	xfs_attr3_leaf_hdr_from_disk(args->geo, &ichdr, leaf);
@@ -2389,6 +3040,7 @@ xfs_attr3_leaf_getvalue(
 		name_loc = xfs_attr3_leaf_name_local(leaf, args->index);
 		ASSERT(name_loc->namelen == args->namelen);
 		ASSERT(memcmp(args->name, name_loc->nameval, args->namelen) == 0);
+<<<<<<< HEAD
 		valuelen = be16_to_cpu(name_loc->valuelen);
 		if (args->flags & ATTR_KERNOVAL) {
 			args->valuelen = valuelen;
@@ -2419,6 +3071,21 @@ xfs_attr3_leaf_getvalue(
 		args->valuelen = args->rmtvaluelen;
 	}
 	return 0;
+=======
+		return xfs_attr_copy_value(args,
+					&name_loc->nameval[args->namelen],
+					be16_to_cpu(name_loc->valuelen));
+	}
+
+	name_rmt = xfs_attr3_leaf_name_remote(leaf, args->index);
+	ASSERT(name_rmt->namelen == args->namelen);
+	ASSERT(memcmp(args->name, name_rmt->name, args->namelen) == 0);
+	args->rmtvaluelen = be32_to_cpu(name_rmt->valuelen);
+	args->rmtblkno = be32_to_cpu(name_rmt->valueblk);
+	args->rmtblkcnt = xfs_attr3_rmt_blocks(args->dp->i_mount,
+					       args->rmtvaluelen);
+	return xfs_attr_copy_value(args, NULL, args->rmtvaluelen);
+>>>>>>> upstream/android-13
 }
 
 /*========================================================================
@@ -2581,7 +3248,11 @@ xfs_attr_leaf_lasthash(
 {
 	struct xfs_attr3_icleaf_hdr ichdr;
 	struct xfs_attr_leaf_entry *entries;
+<<<<<<< HEAD
 	struct xfs_mount *mp = bp->b_target->bt_mount;
+=======
+	struct xfs_mount *mp = bp->b_mount;
+>>>>>>> upstream/android-13
 
 	xfs_attr3_leaf_hdr_from_disk(mp->m_attr_geo, &ichdr, bp->b_addr);
 	entries = xfs_attr3_leaf_entryp(bp->b_addr);
@@ -2668,7 +3339,11 @@ xfs_attr3_leaf_clearflag(
 	/*
 	 * Set up the operation.
 	 */
+<<<<<<< HEAD
 	error = xfs_attr3_leaf_read(args->trans, args->dp, args->blkno, -1, &bp);
+=======
+	error = xfs_attr3_leaf_read(args->trans, args->dp, args->blkno, &bp);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -2708,10 +3383,14 @@ xfs_attr3_leaf_clearflag(
 			 XFS_DA_LOGRANGE(leaf, name_rmt, sizeof(*name_rmt)));
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Commit the flag value change and start the next trans in series.
 	 */
 	return xfs_trans_roll_inode(&args->trans, args->dp);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2735,7 +3414,11 @@ xfs_attr3_leaf_setflag(
 	/*
 	 * Set up the operation.
 	 */
+<<<<<<< HEAD
 	error = xfs_attr3_leaf_read(args->trans, args->dp, args->blkno, -1, &bp);
+=======
+	error = xfs_attr3_leaf_read(args->trans, args->dp, args->blkno, &bp);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -2759,10 +3442,14 @@ xfs_attr3_leaf_setflag(
 			 XFS_DA_LOGRANGE(leaf, name_rmt, sizeof(*name_rmt)));
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Commit the flag value change and start the next trans in series.
 	 */
 	return xfs_trans_roll_inode(&args->trans, args->dp);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2797,7 +3484,11 @@ xfs_attr3_leaf_flipflags(
 	/*
 	 * Read the block containing the "old" attr
 	 */
+<<<<<<< HEAD
 	error = xfs_attr3_leaf_read(args->trans, args->dp, args->blkno, -1, &bp1);
+=======
+	error = xfs_attr3_leaf_read(args->trans, args->dp, args->blkno, &bp1);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -2806,7 +3497,11 @@ xfs_attr3_leaf_flipflags(
 	 */
 	if (args->blkno2 != args->blkno) {
 		error = xfs_attr3_leaf_read(args->trans, args->dp, args->blkno2,
+<<<<<<< HEAD
 					   -1, &bp2);
+=======
+					   &bp2);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	} else {
@@ -2877,10 +3572,14 @@ xfs_attr3_leaf_flipflags(
 			 XFS_DA_LOGRANGE(leaf2, name_rmt, sizeof(*name_rmt)));
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Commit the flag value change and start the next trans in series.
 	 */
 	error = xfs_trans_roll_inode(&args->trans, args->dp);
 
 	return error;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }

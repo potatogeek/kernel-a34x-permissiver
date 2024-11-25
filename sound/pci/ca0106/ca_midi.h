@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* 
  *  Copyright 10/16/2005 Tilman Kranz <tilde@tk-sls.de>
  *  Creative Audio MIDI, for the CA0106 Driver
@@ -5,6 +9,7 @@
  *
  *  Changelog:
  *    See ca_midi.c
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>

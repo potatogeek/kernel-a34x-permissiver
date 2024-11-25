@@ -16,6 +16,7 @@
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 
+<<<<<<< HEAD
 static const u32 fk[4] = {
 	0xa3b1bac6, 0x56aa3350, 0x677d9197, 0xb27022dc
 };
@@ -144,10 +145,15 @@ EXPORT_SYMBOL_GPL(crypto_sm4_expand_key);
 
 /**
  * crypto_sm4_set_key - Set the AES key.
+=======
+/**
+ * sm4_setkey - Set the SM4 key.
+>>>>>>> upstream/android-13
  * @tfm:	The %crypto_tfm that is used in the context.
  * @in_key:	The input key.
  * @key_len:	The size of the key.
  *
+<<<<<<< HEAD
  * Returns 0 on success, on failure the %CRYPTO_TFM_RES_BAD_KEY_LEN flag in tfm
  * is set. The function uses crypto_sm4_expand_key() to expand the key.
  * &crypto_sm4_ctx _must_ be the private data embedded in @tfm which is
@@ -186,10 +192,25 @@ static void sm4_do_crypt(const u32 *rk, u32 *out, const u32 *in)
 
 	for (i = 0; i < 4; ++i)
 		put_unaligned_be32(x[3 - i], &out[i]);
+=======
+ * This function uses sm4_expandkey() to expand the key.
+ * &sm4_ctx _must_ be the private data embedded in @tfm which is
+ * retrieved with crypto_tfm_ctx().
+ *
+ * Return: 0 on success; -EINVAL on failure (only happens for bad key lengths)
+ */
+static int sm4_setkey(struct crypto_tfm *tfm, const u8 *in_key,
+		       unsigned int key_len)
+{
+	struct sm4_ctx *ctx = crypto_tfm_ctx(tfm);
+
+	return sm4_expandkey(ctx, in_key, key_len);
+>>>>>>> upstream/android-13
 }
 
 /* encrypt a block of text */
 
+<<<<<<< HEAD
 void crypto_sm4_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	const struct crypto_sm4_ctx *ctx = crypto_tfm_ctx(tfm);
@@ -207,6 +228,23 @@ void crypto_sm4_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	sm4_do_crypt(ctx->rkey_dec, (u32 *)out, (u32 *)in);
 }
 EXPORT_SYMBOL_GPL(crypto_sm4_decrypt);
+=======
+static void sm4_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+{
+	const struct sm4_ctx *ctx = crypto_tfm_ctx(tfm);
+
+	sm4_crypt_block(ctx->rkey_enc, out, in);
+}
+
+/* decrypt a block of text */
+
+static void sm4_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+{
+	const struct sm4_ctx *ctx = crypto_tfm_ctx(tfm);
+
+	sm4_crypt_block(ctx->rkey_dec, out, in);
+}
+>>>>>>> upstream/android-13
 
 static struct crypto_alg sm4_alg = {
 	.cra_name		=	"sm4",
@@ -214,15 +252,25 @@ static struct crypto_alg sm4_alg = {
 	.cra_priority		=	100,
 	.cra_flags		=	CRYPTO_ALG_TYPE_CIPHER,
 	.cra_blocksize		=	SM4_BLOCK_SIZE,
+<<<<<<< HEAD
 	.cra_ctxsize		=	sizeof(struct crypto_sm4_ctx),
+=======
+	.cra_ctxsize		=	sizeof(struct sm4_ctx),
+>>>>>>> upstream/android-13
 	.cra_module		=	THIS_MODULE,
 	.cra_u			=	{
 		.cipher = {
 			.cia_min_keysize	=	SM4_KEY_SIZE,
 			.cia_max_keysize	=	SM4_KEY_SIZE,
+<<<<<<< HEAD
 			.cia_setkey		=	crypto_sm4_set_key,
 			.cia_encrypt		=	crypto_sm4_encrypt,
 			.cia_decrypt		=	crypto_sm4_decrypt
+=======
+			.cia_setkey		=	sm4_setkey,
+			.cia_encrypt		=	sm4_encrypt,
+			.cia_decrypt		=	sm4_decrypt
+>>>>>>> upstream/android-13
 		}
 	}
 };
@@ -237,7 +285,11 @@ static void __exit sm4_fini(void)
 	crypto_unregister_alg(&sm4_alg);
 }
 
+<<<<<<< HEAD
 module_init(sm4_init);
+=======
+subsys_initcall(sm4_init);
+>>>>>>> upstream/android-13
 module_exit(sm4_fini);
 
 MODULE_DESCRIPTION("SM4 Cipher Algorithm");

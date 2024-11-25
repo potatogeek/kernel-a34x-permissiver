@@ -12,7 +12,13 @@
 #include <linux/io.h>
 #include <linux/iopoll.h>
 
+<<<<<<< HEAD
 #include "camss-vfe.h"
+=======
+#include "camss.h"
+#include "camss-vfe.h"
+#include "camss-vfe-gen1.h"
+>>>>>>> upstream/android-13
 
 #define VFE_0_HW_VERSION		0x000
 
@@ -283,6 +289,7 @@ static void vfe_wm_frame_based(struct vfe_device *vfe, u8 wm, u8 enable)
 			1 << VFE_0_BUS_IMAGE_MASTER_n_WR_CFG_FRM_BASED_SHIFT);
 }
 
+<<<<<<< HEAD
 #define CALC_WORD(width, M, N) (((width) * (M) + (N) - 1) / (N))
 
 static int vfe_word_per_line(u32 format, u32 pixel_per_line)
@@ -307,6 +314,8 @@ static int vfe_word_per_line(u32 format, u32 pixel_per_line)
 	return val;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void vfe_get_wm_sizes(struct v4l2_pix_format_mplane *pix, u8 plane,
 			     u16 *width, u16 *height, u16 *bytesperline)
 {
@@ -665,6 +674,7 @@ static void vfe_set_demux_cfg(struct vfe_device *vfe, struct vfe_line *line)
 	writel_relaxed(odd_cfg, vfe->base + VFE_0_DEMUX_ODD_CFG);
 }
 
+<<<<<<< HEAD
 static inline u8 vfe_calc_interp_reso(u16 input, u16 output)
 {
 	if (input / output >= 16)
@@ -679,6 +689,8 @@ static inline u8 vfe_calc_interp_reso(u16 input, u16 output)
 	return 3;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void vfe_set_scale_cfg(struct vfe_device *vfe, struct vfe_line *line)
 {
 	u32 p = line->video_out.active_fmt.fmt.pix_mp.pixelformat;
@@ -922,7 +934,11 @@ static void vfe_violation_read(struct vfe_device *vfe)
 }
 
 /*
+<<<<<<< HEAD
  * vfe_isr - ISPIF module interrupt handler
+=======
+ * vfe_isr - VFE module interrupt handler
+>>>>>>> upstream/android-13
  * @irq: Interrupt line
  * @dev: VFE device
  *
@@ -936,8 +952,13 @@ static irqreturn_t vfe_isr(int irq, void *dev)
 
 	vfe->ops->isr_read(vfe, &value0, &value1);
 
+<<<<<<< HEAD
 	trace_printk("VFE: status0 = 0x%08x, status1 = 0x%08x\n",
 		     value0, value1);
+=======
+	dev_dbg(vfe->camss->dev, "VFE: status0 = 0x%08x, status1 = 0x%08x\n",
+		value0, value1);
+>>>>>>> upstream/android-13
 
 	if (value0 & VFE_0_IRQ_STATUS_0_RESET_ACK)
 		vfe->isr_ops.reset_ack(vfe);
@@ -974,6 +995,7 @@ static irqreturn_t vfe_isr(int irq, void *dev)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 const struct vfe_hw_ops vfe_ops_4_1 = {
 	.hw_version_read = vfe_hw_version_read,
 	.get_ub_size = vfe_get_ub_size,
@@ -1016,4 +1038,84 @@ const struct vfe_hw_ops vfe_ops_4_1 = {
 	.isr_read = vfe_isr_read,
 	.violation_read = vfe_violation_read,
 	.isr = vfe_isr,
+=======
+/*
+ * vfe_pm_domain_off - Disable power domains specific to this VFE.
+ * @vfe: VFE Device
+ */
+static void vfe_pm_domain_off(struct vfe_device *vfe)
+{
+	/* nop */
+}
+
+/*
+ * vfe_pm_domain_on - Enable power domains specific to this VFE.
+ * @vfe: VFE Device
+ */
+static int vfe_pm_domain_on(struct vfe_device *vfe)
+{
+	return 0;
+}
+
+static const struct vfe_hw_ops_gen1 vfe_ops_gen1_4_1 = {
+	.bus_connect_wm_to_rdi = vfe_bus_connect_wm_to_rdi,
+	.bus_disconnect_wm_from_rdi = vfe_bus_disconnect_wm_from_rdi,
+	.bus_enable_wr_if = vfe_bus_enable_wr_if,
+	.bus_reload_wm = vfe_bus_reload_wm,
+	.camif_wait_for_stop = vfe_camif_wait_for_stop,
+	.enable_irq_common = vfe_enable_irq_common,
+	.enable_irq_pix_line = vfe_enable_irq_pix_line,
+	.enable_irq_wm_line = vfe_enable_irq_wm_line,
+	.get_ub_size = vfe_get_ub_size,
+	.halt_clear = vfe_halt_clear,
+	.halt_request = vfe_halt_request,
+	.set_camif_cfg = vfe_set_camif_cfg,
+	.set_camif_cmd = vfe_set_camif_cmd,
+	.set_cgc_override = vfe_set_cgc_override,
+	.set_clamp_cfg = vfe_set_clamp_cfg,
+	.set_crop_cfg = vfe_set_crop_cfg,
+	.set_demux_cfg = vfe_set_demux_cfg,
+	.set_ds = vfe_set_ds,
+	.set_module_cfg = vfe_set_module_cfg,
+	.set_qos = vfe_set_qos,
+	.set_rdi_cid = vfe_set_rdi_cid,
+	.set_realign_cfg = vfe_set_realign_cfg,
+	.set_scale_cfg = vfe_set_scale_cfg,
+	.set_xbar_cfg = vfe_set_xbar_cfg,
+	.wm_enable = vfe_wm_enable,
+	.wm_frame_based = vfe_wm_frame_based,
+	.wm_get_ping_pong_status = vfe_wm_get_ping_pong_status,
+	.wm_line_based = vfe_wm_line_based,
+	.wm_set_framedrop_pattern = vfe_wm_set_framedrop_pattern,
+	.wm_set_framedrop_period = vfe_wm_set_framedrop_period,
+	.wm_set_ping_addr = vfe_wm_set_ping_addr,
+	.wm_set_pong_addr = vfe_wm_set_pong_addr,
+	.wm_set_subsample = vfe_wm_set_subsample,
+	.wm_set_ub_cfg = vfe_wm_set_ub_cfg,
+};
+
+static void vfe_subdev_init(struct device *dev, struct vfe_device *vfe)
+{
+	vfe->isr_ops = vfe_isr_ops_gen1;
+	vfe->ops_gen1 = &vfe_ops_gen1_4_1;
+	vfe->video_ops = vfe_video_ops_gen1;
+
+	vfe->line_num = VFE_LINE_NUM_GEN1;
+}
+
+const struct vfe_hw_ops vfe_ops_4_1 = {
+	.global_reset = vfe_global_reset,
+	.hw_version_read = vfe_hw_version_read,
+	.isr_read = vfe_isr_read,
+	.isr = vfe_isr,
+	.pm_domain_off = vfe_pm_domain_off,
+	.pm_domain_on = vfe_pm_domain_on,
+	.reg_update_clear = vfe_reg_update_clear,
+	.reg_update = vfe_reg_update,
+	.subdev_init = vfe_subdev_init,
+	.vfe_disable = vfe_gen1_disable,
+	.vfe_enable = vfe_gen1_enable,
+	.vfe_halt = vfe_gen1_halt,
+	.violation_read = vfe_violation_read,
+>>>>>>> upstream/android-13
 };

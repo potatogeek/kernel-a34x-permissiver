@@ -7,7 +7,11 @@ Required properties:
     See ../clock/clock-bindings.txt for details.
   - clock-names: Must include the following entries.
     - pwm: PWM operating clock.
+<<<<<<< HEAD
   - #pwm-cells: Should be 3. See pwm.txt in this directory for the description
+=======
+  - #pwm-cells: Should be 3. See pwm.yaml in this directory for the description
+>>>>>>> upstream/android-13
     of the cells format.
 
 Example:

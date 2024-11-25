@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the ICST307 VCO clock found in the ARM Reference designs.
  * We wrap the custom interface from <asm/hardware/icst.h> into the generic
@@ -5,10 +9,13 @@
  *
  * Copyright (C) 2012-2015 Linus Walleij
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO: when all ARM reference designs are migrated to generic clocks, the
  * ICST clock code from the ARM tree should probably be merged into this
  * file.
@@ -37,6 +44,7 @@
 #define INTEGRATOR_AP_PCI_25_33_MHZ BIT(8)
 
 /**
+<<<<<<< HEAD
  * enum icst_control_type - the type of ICST control register
  */
 enum icst_control_type {
@@ -53,6 +61,13 @@ enum icst_control_type {
  * @hw: corresponding clock hardware entry
  * @vcoreg: VCO register address
  * @lockreg: VCO lock register address
+=======
+ * struct clk_icst - ICST VCO clock wrapper
+ * @hw: corresponding clock hardware entry
+ * @map: register map
+ * @vcoreg_off: VCO register address
+ * @lockreg_off: VCO lock register address
+>>>>>>> upstream/android-13
  * @params: parameters for this ICST instance
  * @rate: current rate
  * @ctype: the type of control register for the ICST
@@ -347,6 +362,7 @@ static const struct clk_ops icst_ops = {
 	.set_rate = icst_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk *icst_clk_setup(struct device *dev,
 				  const struct clk_icst_desc *desc,
 				  const char *name,
@@ -357,6 +373,18 @@ static struct clk *icst_clk_setup(struct device *dev,
 	struct clk *clk;
 	struct clk_icst *icst;
 	struct clk_init_data init = {};
+=======
+struct clk *icst_clk_setup(struct device *dev,
+			   const struct clk_icst_desc *desc,
+			   const char *name,
+			   const char *parent_name,
+			   struct regmap *map,
+			   enum icst_control_type ctype)
+{
+	struct clk *clk;
+	struct clk_icst *icst;
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct icst_params *pclone;
 
 	icst = kzalloc(sizeof(*icst), GFP_KERNEL);
@@ -389,6 +417,10 @@ static struct clk *icst_clk_setup(struct device *dev,
 
 	return clk;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(icst_clk_setup);
+>>>>>>> upstream/android-13
 
 struct clk *icst_clk_register(struct device *dev,
 			const struct clk_icst_desc *desc,
@@ -442,7 +474,11 @@ static const struct icst_params icst307_params = {
 	.idx2s		= icst307_idx2s,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * The core modules on the Integrator/AP and Integrator/CP have
  * especially crippled ICST525 control.
  */

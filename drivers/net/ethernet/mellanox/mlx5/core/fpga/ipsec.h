@@ -37,6 +37,7 @@
 #include "accel/ipsec.h"
 #include "fs_cmd.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_MLX5_FPGA
 
 u32 mlx5_fpga_ipsec_device_caps(struct mlx5_core_dev *mdev);
@@ -131,12 +132,34 @@ mlx5_fpga_esp_modify_xfrm(struct mlx5_accel_esp_xfrm *xfrm,
 	return -EOPNOTSUPP;
 }
 
+=======
+#ifdef CONFIG_MLX5_FPGA_IPSEC
+const struct mlx5_accel_ipsec_ops *mlx5_fpga_ipsec_ops(struct mlx5_core_dev *mdev);
+u32 mlx5_fpga_ipsec_device_caps(struct mlx5_core_dev *mdev);
+const struct mlx5_flow_cmds *
+mlx5_fs_cmd_get_default_ipsec_fpga_cmds(enum fs_flow_table_type type);
+void mlx5_fpga_ipsec_build_fs_cmds(void);
+bool mlx5_fpga_is_ipsec_device(struct mlx5_core_dev *mdev);
+#else
+static inline
+const struct mlx5_accel_ipsec_ops *mlx5_fpga_ipsec_ops(struct mlx5_core_dev *mdev)
+{ return NULL; }
+static inline u32 mlx5_fpga_ipsec_device_caps(struct mlx5_core_dev *mdev) { return 0; }
+>>>>>>> upstream/android-13
 static inline const struct mlx5_flow_cmds *
 mlx5_fs_cmd_get_default_ipsec_fpga_cmds(enum fs_flow_table_type type)
 {
 	return mlx5_fs_cmd_get_default(type);
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_MLX5_FPGA */
 
 #endif	/* __MLX5_FPGA_SADB_H__ */
+=======
+static inline void mlx5_fpga_ipsec_build_fs_cmds(void) {};
+static inline bool mlx5_fpga_is_ipsec_device(struct mlx5_core_dev *mdev) { return false; }
+
+#endif /* CONFIG_MLX5_FPGA_IPSEC */
+#endif	/* __MLX5_FPGA_IPSEC_H__ */
+>>>>>>> upstream/android-13

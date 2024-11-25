@@ -429,8 +429,22 @@ gm107_gr = {
 	}
 };
 
+<<<<<<< HEAD
 int
 gm107_gr_new(struct nvkm_device *device, int index, struct nvkm_gr **pgr)
 {
 	return gf100_gr_new_(&gm107_gr, device, index, pgr);
+=======
+static const struct gf100_gr_fwif
+gm107_gr_fwif[] = {
+	{ -1, gf100_gr_load, &gm107_gr },
+	{ -1, gf100_gr_nofw, &gm107_gr },
+	{}
+};
+
+int
+gm107_gr_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+{
+	return gf100_gr_new_(gm107_gr_fwif, device, type, inst, pgr);
+>>>>>>> upstream/android-13
 }

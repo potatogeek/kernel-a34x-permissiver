@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ST Thermal Sensor Driver core routines
  * Author: Ajit Pal Singh <ajitpal.singh@st.com>
  *
  * Copyright (C) 2003-2014 STMicroelectronics (R&D) Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -251,11 +258,22 @@ int st_thermal_register(struct platform_device *pdev,
 		ret = PTR_ERR(sensor->thermal_dev);
 		goto sensor_off;
 	}
+<<<<<<< HEAD
+=======
+	ret = thermal_zone_device_enable(sensor->thermal_dev);
+	if (ret)
+		goto tzd_unregister;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, sensor);
 
 	return 0;
 
+<<<<<<< HEAD
+=======
+tzd_unregister:
+	thermal_zone_device_unregister(sensor->thermal_dev);
+>>>>>>> upstream/android-13
 sensor_off:
 	st_thermal_sensor_off(sensor);
 
@@ -277,8 +295,12 @@ EXPORT_SYMBOL_GPL(st_thermal_unregister);
 #ifdef CONFIG_PM_SLEEP
 static int st_thermal_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct st_thermal_sensor *sensor = platform_get_drvdata(pdev);
+=======
+	struct st_thermal_sensor *sensor = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	return st_thermal_sensor_off(sensor);
 }
@@ -286,8 +308,12 @@ static int st_thermal_suspend(struct device *dev)
 static int st_thermal_resume(struct device *dev)
 {
 	int ret;
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct st_thermal_sensor *sensor = platform_get_drvdata(pdev);
+=======
+	struct st_thermal_sensor *sensor = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	ret = st_thermal_sensor_on(sensor);
 	if (ret)

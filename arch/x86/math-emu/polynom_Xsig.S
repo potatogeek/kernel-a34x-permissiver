@@ -37,7 +37,11 @@
 #define OVERFLOWED      -16(%ebp)	/* addition overflow flag */
 
 .text
+<<<<<<< HEAD
 ENTRY(polynomial_Xsig)
+=======
+SYM_FUNC_START(polynomial_Xsig)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 	subl	$32,%esp
@@ -133,5 +137,10 @@ L_accum_done:
 	popl	%edi
 	popl	%esi
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(polynomial_Xsig)
+=======
+	RET
+SYM_FUNC_END(polynomial_Xsig)
+>>>>>>> upstream/android-13

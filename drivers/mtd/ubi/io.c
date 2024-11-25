@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) International Business Machines Corp., 2006
  * Copyright (c) Nokia Corporation, 2006, 2007
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
@@ -548,7 +555,18 @@ int ubi_io_sync_erase(struct ubi_device *ubi, int pnum, int torture)
 		return -EROFS;
 	}
 
+<<<<<<< HEAD
 	if (ubi->nor_flash) {
+=======
+	/*
+	 * If the flash is ECC-ed then we have to erase the ECC block before we
+	 * can write to it. But the write is in preparation to an erase in the
+	 * first place. This means we cannot zero out EC and VID before the
+	 * erase and we just have to hope the flash starts erasing from the
+	 * start of the page.
+	 */
+	if (ubi->nor_flash && ubi->mtd->writesize == 1) {
+>>>>>>> upstream/android-13
 		err = nor_erase_prepare(ubi, pnum);
 		if (err)
 			return err;
@@ -919,12 +937,16 @@ static int validate_vid_hdr(const struct ubi_device *ubi,
 				ubi_err(ubi, "bad data_size");
 				goto bad;
 			}
+<<<<<<< HEAD
 		} else if (lnum == used_ebs - 1) {
 			if (data_size == 0) {
 				ubi_err(ubi, "bad data_size at last LEB");
 				goto bad;
 			}
 		} else {
+=======
+		} else if (lnum > used_ebs - 1) {
+>>>>>>> upstream/android-13
 			ubi_err(ubi, "too high lnum");
 			goto bad;
 		}
@@ -1310,7 +1332,11 @@ static int self_check_write(struct ubi_device *ubi, const void *buf, int pnum,
 	if (!ubi_dbg_chk_io(ubi))
 		return 0;
 
+<<<<<<< HEAD
 	buf1 = __vmalloc(len, GFP_NOFS, PAGE_KERNEL);
+=======
+	buf1 = __vmalloc(len, GFP_NOFS);
+>>>>>>> upstream/android-13
 	if (!buf1) {
 		ubi_err(ubi, "cannot allocate memory to check writes");
 		return 0;
@@ -1374,7 +1400,11 @@ int ubi_self_check_all_ff(struct ubi_device *ubi, int pnum, int offset, int len)
 	if (!ubi_dbg_chk_io(ubi))
 		return 0;
 
+<<<<<<< HEAD
 	buf = __vmalloc(len, GFP_NOFS, PAGE_KERNEL);
+=======
+	buf = __vmalloc(len, GFP_NOFS);
+>>>>>>> upstream/android-13
 	if (!buf) {
 		ubi_err(ubi, "cannot allocate memory to check for 0xFFs");
 		return 0;

@@ -28,7 +28,11 @@ static unsigned int dummy_cpufreq_get(unsigned int cpu)
 	return 1;
 }
 
+<<<<<<< HEAD
 static int dummy_cpufreq_verify(struct cpufreq_policy *policy)
+=======
+static int dummy_cpufreq_verify(struct cpufreq_policy_data *data)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }

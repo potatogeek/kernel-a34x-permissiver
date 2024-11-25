@@ -292,6 +292,7 @@ struct octeon_soft_command {
 	u32  ctxsize;
 
 	/** Time out and callback */
+<<<<<<< HEAD
 	size_t wait_time;
 	size_t timeout;
 	u32 iq_no;
@@ -299,6 +300,21 @@ struct octeon_soft_command {
 	void *callback_arg;
 };
 
+=======
+	size_t expiry_time;
+	u32 iq_no;
+	void (*callback)(struct octeon_device *, u32, void *);
+	void *callback_arg;
+
+	int caller_is_done;
+	u32 sc_status;
+	struct completion complete;
+};
+
+/* max timeout (in milli sec) for soft request */
+#define LIO_SC_MAX_TMO_MS       60000
+
+>>>>>>> upstream/android-13
 /** Maximum number of buffers to allocate into soft command buffer pool
  */
 #define  MAX_SOFT_COMMAND_BUFFERS	256
@@ -319,6 +335,11 @@ struct octeon_sc_buffer_pool {
 		(((octeon_dev_ptr)->instr_queue[iq_no]->stats.field) += count)
 
 int octeon_setup_sc_buffer_pool(struct octeon_device *oct);
+<<<<<<< HEAD
+=======
+int octeon_free_sc_done_list(struct octeon_device *oct);
+int octeon_free_sc_zombie_list(struct octeon_device *oct);
+>>>>>>> upstream/android-13
 int octeon_free_sc_buffer_pool(struct octeon_device *oct);
 struct octeon_soft_command *
 	octeon_alloc_soft_command(struct octeon_device *oct,
@@ -370,6 +391,12 @@ int octeon_send_command(struct octeon_device *oct, u32 iq_no,
 			u32 force_db, void *cmd, void *buf,
 			u32 datasize, u32 reqtype);
 
+<<<<<<< HEAD
+=======
+void octeon_dump_soft_command(struct octeon_device *oct,
+			      struct octeon_soft_command *sc);
+
+>>>>>>> upstream/android-13
 void octeon_prepare_soft_command(struct octeon_device *oct,
 				 struct octeon_soft_command *sc,
 				 u8 opcode, u8 subcode,

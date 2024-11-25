@@ -735,8 +735,13 @@ static const char * const mt6779_pinctrl_register_base_names[] = {
 static const struct mtk_eint_hw mt6779_eint_hw = {
 	.port_mask = 7,
 	.ports     = 6,
+<<<<<<< HEAD
 	.ap_num    = 209,
 	.db_cnt    = 16,
+=======
+	.ap_num    = 195,
+	.db_cnt    = 13,
+>>>>>>> upstream/android-13
 };
 
 static const struct mtk_pin_soc mt6779_data = {
@@ -744,9 +749,15 @@ static const struct mtk_pin_soc mt6779_data = {
 	.pins = mtk_pins_mt6779,
 	.npins = ARRAY_SIZE(mtk_pins_mt6779),
 	.ngrps = ARRAY_SIZE(mtk_pins_mt6779),
+<<<<<<< HEAD
 	.nfuncs = 8,
 	.eint_hw = &mt6779_eint_hw,
 	.gpio_m = 0,
+=======
+	.eint_hw = &mt6779_eint_hw,
+	.gpio_m = 0,
+	.ies_present = true,
+>>>>>>> upstream/android-13
 	.base_names = mt6779_pinctrl_register_base_names,
 	.nbase_names = ARRAY_SIZE(mt6779_pinctrl_register_base_names),
 	.bias_set_combo = mtk_pinconf_bias_set_combo,
@@ -771,7 +782,10 @@ static struct platform_driver mt6779_pinctrl_driver = {
 	.driver = {
 		.name = "mt6779-pinctrl",
 		.of_match_table = mt6779_pinctrl_of_match,
+<<<<<<< HEAD
 		.pm = &mtk_eint_pm_ops_v2,
+=======
+>>>>>>> upstream/android-13
 	},
 	.probe = mt6779_pinctrl_probe,
 };

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef __ND_H__
 #define __ND_H__
@@ -43,11 +49,168 @@ struct nvdimm_drvdata {
 	struct kref kref;
 };
 
+<<<<<<< HEAD
+=======
+static inline const u8 *nsl_ref_name(struct nvdimm_drvdata *ndd,
+				     struct nd_namespace_label *nd_label)
+{
+	return nd_label->name;
+}
+
+static inline u8 *nsl_get_name(struct nvdimm_drvdata *ndd,
+			       struct nd_namespace_label *nd_label, u8 *name)
+{
+	return memcpy(name, nd_label->name, NSLABEL_NAME_LEN);
+}
+
+static inline u8 *nsl_set_name(struct nvdimm_drvdata *ndd,
+			       struct nd_namespace_label *nd_label, u8 *name)
+{
+	if (!name)
+		return NULL;
+	return memcpy(nd_label->name, name, NSLABEL_NAME_LEN);
+}
+
+static inline u32 nsl_get_slot(struct nvdimm_drvdata *ndd,
+			       struct nd_namespace_label *nd_label)
+{
+	return __le32_to_cpu(nd_label->slot);
+}
+
+static inline void nsl_set_slot(struct nvdimm_drvdata *ndd,
+				struct nd_namespace_label *nd_label, u32 slot)
+{
+	nd_label->slot = __cpu_to_le32(slot);
+}
+
+static inline u64 nsl_get_checksum(struct nvdimm_drvdata *ndd,
+				   struct nd_namespace_label *nd_label)
+{
+	return __le64_to_cpu(nd_label->checksum);
+}
+
+static inline void nsl_set_checksum(struct nvdimm_drvdata *ndd,
+				    struct nd_namespace_label *nd_label,
+				    u64 checksum)
+{
+	nd_label->checksum = __cpu_to_le64(checksum);
+}
+
+static inline u32 nsl_get_flags(struct nvdimm_drvdata *ndd,
+				struct nd_namespace_label *nd_label)
+{
+	return __le32_to_cpu(nd_label->flags);
+}
+
+static inline void nsl_set_flags(struct nvdimm_drvdata *ndd,
+				 struct nd_namespace_label *nd_label, u32 flags)
+{
+	nd_label->flags = __cpu_to_le32(flags);
+}
+
+static inline u64 nsl_get_dpa(struct nvdimm_drvdata *ndd,
+			      struct nd_namespace_label *nd_label)
+{
+	return __le64_to_cpu(nd_label->dpa);
+}
+
+static inline void nsl_set_dpa(struct nvdimm_drvdata *ndd,
+			       struct nd_namespace_label *nd_label, u64 dpa)
+{
+	nd_label->dpa = __cpu_to_le64(dpa);
+}
+
+static inline u64 nsl_get_rawsize(struct nvdimm_drvdata *ndd,
+				  struct nd_namespace_label *nd_label)
+{
+	return __le64_to_cpu(nd_label->rawsize);
+}
+
+static inline void nsl_set_rawsize(struct nvdimm_drvdata *ndd,
+				   struct nd_namespace_label *nd_label,
+				   u64 rawsize)
+{
+	nd_label->rawsize = __cpu_to_le64(rawsize);
+}
+
+static inline u64 nsl_get_isetcookie(struct nvdimm_drvdata *ndd,
+				     struct nd_namespace_label *nd_label)
+{
+	return __le64_to_cpu(nd_label->isetcookie);
+}
+
+static inline void nsl_set_isetcookie(struct nvdimm_drvdata *ndd,
+				      struct nd_namespace_label *nd_label,
+				      u64 isetcookie)
+{
+	nd_label->isetcookie = __cpu_to_le64(isetcookie);
+}
+
+static inline bool nsl_validate_isetcookie(struct nvdimm_drvdata *ndd,
+					   struct nd_namespace_label *nd_label,
+					   u64 cookie)
+{
+	return cookie == __le64_to_cpu(nd_label->isetcookie);
+}
+
+static inline u16 nsl_get_position(struct nvdimm_drvdata *ndd,
+				   struct nd_namespace_label *nd_label)
+{
+	return __le16_to_cpu(nd_label->position);
+}
+
+static inline void nsl_set_position(struct nvdimm_drvdata *ndd,
+				    struct nd_namespace_label *nd_label,
+				    u16 position)
+{
+	nd_label->position = __cpu_to_le16(position);
+}
+
+
+static inline u16 nsl_get_nlabel(struct nvdimm_drvdata *ndd,
+				 struct nd_namespace_label *nd_label)
+{
+	return __le16_to_cpu(nd_label->nlabel);
+}
+
+static inline void nsl_set_nlabel(struct nvdimm_drvdata *ndd,
+				  struct nd_namespace_label *nd_label,
+				  u16 nlabel)
+{
+	nd_label->nlabel = __cpu_to_le16(nlabel);
+}
+
+static inline u64 nsl_get_lbasize(struct nvdimm_drvdata *ndd,
+				  struct nd_namespace_label *nd_label)
+{
+	return __le64_to_cpu(nd_label->lbasize);
+}
+
+static inline void nsl_set_lbasize(struct nvdimm_drvdata *ndd,
+				   struct nd_namespace_label *nd_label,
+				   u64 lbasize)
+{
+	nd_label->lbasize = __cpu_to_le64(lbasize);
+}
+
+bool nsl_validate_blk_isetcookie(struct nvdimm_drvdata *ndd,
+				 struct nd_namespace_label *nd_label,
+				 u64 isetcookie);
+bool nsl_validate_type_guid(struct nvdimm_drvdata *ndd,
+			    struct nd_namespace_label *nd_label, guid_t *guid);
+enum nvdimm_claim_class nsl_get_claim_class(struct nvdimm_drvdata *ndd,
+					    struct nd_namespace_label *nd_label);
+
+>>>>>>> upstream/android-13
 struct nd_region_data {
 	int ns_count;
 	int ns_active;
 	unsigned int hints_shift;
+<<<<<<< HEAD
 	void __iomem *flush_wpq[0];
+=======
+	void __iomem *flush_wpq[];
+>>>>>>> upstream/android-13
 };
 
 static inline void __iomem *ndrd_get_flush_wpq(struct nd_region_data *ndrd,
@@ -154,17 +317,29 @@ struct nd_region {
 	struct device *btt_seed;
 	struct device *pfn_seed;
 	struct device *dax_seed;
+<<<<<<< HEAD
 	u16 ndr_mappings;
 	u64 ndr_size;
 	u64 ndr_start;
 	int id, num_lanes, ro, numa_node;
+=======
+	unsigned long align;
+	u16 ndr_mappings;
+	u64 ndr_size;
+	u64 ndr_start;
+	int id, num_lanes, ro, numa_node, target_node;
+>>>>>>> upstream/android-13
 	void *provider_data;
 	struct kernfs_node *bb_state;
 	struct badblocks bb;
 	struct nd_interleave_set *nd_set;
 	struct nd_percpu_lane __percpu *lane;
 	int (*flush)(struct nd_region *nd_region, struct bio *bio);
+<<<<<<< HEAD
 	struct nd_mapping mapping[0];
+=======
+	struct nd_mapping mapping[];
+>>>>>>> upstream/android-13
 };
 
 struct nd_blk_region {
@@ -220,6 +395,14 @@ struct nd_dax {
 	struct nd_pfn nd_pfn;
 };
 
+<<<<<<< HEAD
+=======
+static inline u32 nd_info_block_reserve(void)
+{
+	return ALIGN(SZ_8K, PAGE_SIZE);
+}
+
+>>>>>>> upstream/android-13
 enum nd_async_mode {
 	ND_SYNC,
 	ND_ASYNC,
@@ -242,17 +425,43 @@ int __init nd_label_init(void);
 void nvdimm_exit(void);
 void nd_region_exit(void);
 struct nvdimm;
+<<<<<<< HEAD
+=======
+extern const struct attribute_group nd_device_attribute_group;
+extern const struct attribute_group nd_numa_attribute_group;
+extern const struct attribute_group *nvdimm_bus_attribute_groups[];
+>>>>>>> upstream/android-13
 struct nvdimm_drvdata *to_ndd(struct nd_mapping *nd_mapping);
 int nvdimm_check_config_data(struct device *dev);
 int nvdimm_init_nsarea(struct nvdimm_drvdata *ndd);
 int nvdimm_init_config_data(struct nvdimm_drvdata *ndd);
+<<<<<<< HEAD
+=======
+int nvdimm_get_config_data(struct nvdimm_drvdata *ndd, void *buf,
+			   size_t offset, size_t len);
+>>>>>>> upstream/android-13
 int nvdimm_set_config_data(struct nvdimm_drvdata *ndd, size_t offset,
 		void *buf, size_t len);
 long nvdimm_clear_poison(struct device *dev, phys_addr_t phys,
 		unsigned int len);
+<<<<<<< HEAD
 void nvdimm_set_aliasing(struct device *dev);
 void nvdimm_set_locked(struct device *dev);
 void nvdimm_clear_locked(struct device *dev);
+=======
+void nvdimm_set_labeling(struct device *dev);
+void nvdimm_set_locked(struct device *dev);
+void nvdimm_clear_locked(struct device *dev);
+int nvdimm_security_setup_events(struct device *dev);
+#if IS_ENABLED(CONFIG_NVDIMM_KEYS)
+int nvdimm_security_unlock(struct device *dev);
+#else
+static inline int nvdimm_security_unlock(struct device *dev)
+{
+	return 0;
+}
+#endif
+>>>>>>> upstream/android-13
 struct nd_btt *to_nd_btt(struct device *dev);
 
 struct nd_gen_sb {
@@ -286,11 +495,15 @@ static inline struct device *nd_btt_create(struct nd_region *nd_region)
 struct nd_pfn *to_nd_pfn(struct device *dev);
 #if IS_ENABLED(CONFIG_NVDIMM_PFN)
 
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 #define PFN_DEFAULT_ALIGNMENT HPAGE_PMD_SIZE
 #else
 #define PFN_DEFAULT_ALIGNMENT PAGE_SIZE
 #endif
+=======
+#define MAX_NVDIMM_ALIGN	4
+>>>>>>> upstream/android-13
 
 int nd_pfn_probe(struct device *dev, struct nd_namespace_common *ndns);
 bool is_nd_pfn(struct device *dev);
@@ -298,7 +511,11 @@ struct device *nd_pfn_create(struct nd_region *nd_region);
 struct device *nd_pfn_devinit(struct nd_pfn *nd_pfn,
 		struct nd_namespace_common *ndns);
 int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig);
+<<<<<<< HEAD
 extern struct attribute_group nd_pfn_attribute_group;
+=======
+extern const struct attribute_group *nd_pfn_attribute_groups[];
+>>>>>>> upstream/android-13
 #else
 static inline int nd_pfn_probe(struct device *dev,
 		struct nd_namespace_common *ndns)
@@ -353,7 +570,11 @@ u64 nd_region_interleave_set_altcookie(struct nd_region *nd_region);
 void nvdimm_bus_lock(struct device *dev);
 void nvdimm_bus_unlock(struct device *dev);
 bool is_nvdimm_bus_locked(struct device *dev);
+<<<<<<< HEAD
 int nvdimm_revalidate_disk(struct gendisk *disk);
+=======
+void nvdimm_check_and_set_ro(struct gendisk *disk);
+>>>>>>> upstream/android-13
 void nvdimm_drvdata_release(struct kref *kref);
 void put_ndd(struct nvdimm_drvdata *ndd);
 int nd_label_reserve_dpa(struct nvdimm_drvdata *ndd);
@@ -369,18 +590,33 @@ int nvdimm_namespace_detach_btt(struct nd_btt *nd_btt);
 const char *nvdimm_namespace_disk_name(struct nd_namespace_common *ndns,
 		char *name);
 unsigned int pmem_sector_size(struct nd_namespace_common *ndns);
+<<<<<<< HEAD
 void nvdimm_badblocks_populate(struct nd_region *nd_region,
 		struct badblocks *bb, const struct resource *res);
 #if IS_ENABLED(CONFIG_ND_CLAIM)
 int nvdimm_setup_pfn(struct nd_pfn *nd_pfn, struct dev_pagemap *pgmap);
 int devm_nsio_enable(struct device *dev, struct nd_namespace_io *nsio);
 void devm_nsio_disable(struct device *dev, struct nd_namespace_io *nsio);
+=======
+struct range;
+void nvdimm_badblocks_populate(struct nd_region *nd_region,
+		struct badblocks *bb, const struct range *range);
+int devm_namespace_enable(struct device *dev, struct nd_namespace_common *ndns,
+		resource_size_t size);
+void devm_namespace_disable(struct device *dev,
+		struct nd_namespace_common *ndns);
+#if IS_ENABLED(CONFIG_ND_CLAIM)
+/* max struct page size independent of kernel config */
+#define MAX_STRUCT_PAGE_SIZE 64
+int nvdimm_setup_pfn(struct nd_pfn *nd_pfn, struct dev_pagemap *pgmap);
+>>>>>>> upstream/android-13
 #else
 static inline int nvdimm_setup_pfn(struct nd_pfn *nd_pfn,
 				   struct dev_pagemap *pgmap)
 {
 	return -ENXIO;
 }
+<<<<<<< HEAD
 static inline int devm_nsio_enable(struct device *dev,
 		struct nd_namespace_io *nsio)
 {
@@ -412,6 +648,11 @@ static inline void nd_iostat_end(struct bio *bio, unsigned long start)
 
 	generic_end_io_acct(disk->queue, bio_op(bio), &disk->part0, start);
 }
+=======
+#endif
+int nd_blk_region_init(struct nd_region *nd_region);
+int nd_region_activate(struct nd_region *nd_region);
+>>>>>>> upstream/android-13
 static inline bool is_bad_pmem(struct badblocks *bb, sector_t sector,
 		unsigned int len)
 {

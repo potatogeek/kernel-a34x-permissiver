@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007-2010 ST-Ericsson
  * License terms: GNU General Public License (GPL) version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007-2010 ST-Ericsson
+>>>>>>> upstream/android-13
  * Register access functions for the ABX500 Mixed Signal IC family.
  * Author: Mattias Wallin <mattias.wallin@stericsson.com>
  */

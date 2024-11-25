@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 1998-2009 VIA Technologies, Inc. All Rights Reserved.
  * Copyright 2001-2008 S3 Graphics, Inc. All Rights Reserved.
@@ -220,6 +224,7 @@ void viafb_release_dma(void)
 }
 EXPORT_SYMBOL_GPL(viafb_release_dma);
 
+<<<<<<< HEAD
 
 #if 0
 /*
@@ -263,6 +268,8 @@ void viafb_dma_copy_out(unsigned int offset, dma_addr_t paddr, int len)
 EXPORT_SYMBOL_GPL(viafb_dma_copy_out);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Do a scatter/gather DMA copy from FB memory.  You must have done
  * a successful call to viafb_request_dma() first.
@@ -484,7 +491,11 @@ static int via_pci_setup_mmio(struct viafb_dev *vdev)
 	 */
 	vdev->engine_start = pci_resource_start(vdev->pdev, 1);
 	vdev->engine_len = pci_resource_len(vdev->pdev, 1);
+<<<<<<< HEAD
 	vdev->engine_mmio = ioremap_nocache(vdev->engine_start,
+=======
+	vdev->engine_mmio = ioremap(vdev->engine_start,
+>>>>>>> upstream/android-13
 			vdev->engine_len);
 	if (vdev->engine_mmio == NULL)
 		dev_err(&vdev->pdev->dev,
@@ -600,9 +611,14 @@ static void via_teardown_subdevs(void)
 /*
  * Power management functions
  */
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static LIST_HEAD(viafb_pm_hooks);
 static DEFINE_MUTEX(viafb_pm_hooks_lock);
+=======
+static __maybe_unused LIST_HEAD(viafb_pm_hooks);
+static __maybe_unused DEFINE_MUTEX(viafb_pm_hooks_lock);
+>>>>>>> upstream/android-13
 
 void viafb_pm_register(struct viafb_pm_hooks *hooks)
 {
@@ -622,12 +638,19 @@ void viafb_pm_unregister(struct viafb_pm_hooks *hooks)
 }
 EXPORT_SYMBOL_GPL(viafb_pm_unregister);
 
+<<<<<<< HEAD
 static int via_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct viafb_pm_hooks *hooks;
 
 	if (state.event != PM_EVENT_SUSPEND)
 		return 0;
+=======
+static int __maybe_unused via_suspend(struct device *dev)
+{
+	struct viafb_pm_hooks *hooks;
+
+>>>>>>> upstream/android-13
 	/*
 	 * "I've occasionally hit a few drivers that caused suspend
 	 * failures, and each and every time it was a driver bug, and
@@ -642,6 +665,7 @@ static int via_suspend(struct pci_dev *pdev, pm_message_t state)
 		hooks->suspend(hooks->private);
 	mutex_unlock(&viafb_pm_hooks_lock);
 
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
@@ -660,6 +684,15 @@ static int via_resume(struct pci_dev *pdev)
 
 	pci_set_master(pdev);
 
+=======
+	return 0;
+}
+
+static int __maybe_unused via_resume(struct device *dev)
+{
+	struct viafb_pm_hooks *hooks;
+
+>>>>>>> upstream/android-13
 	/* Now bring back any subdevs */
 	mutex_lock(&viafb_pm_hooks_lock);
 	list_for_each_entry(hooks, &viafb_pm_hooks, list)
@@ -668,7 +701,10 @@ static int via_resume(struct pci_dev *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
+=======
+>>>>>>> upstream/android-13
 
 static int via_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
@@ -754,15 +790,33 @@ static const struct pci_device_id via_pci_table[] = {
 };
 MODULE_DEVICE_TABLE(pci, via_pci_table);
 
+<<<<<<< HEAD
+=======
+static const struct dev_pm_ops via_pm_ops = {
+#ifdef CONFIG_PM_SLEEP
+	.suspend	= via_suspend,
+	.resume		= via_resume,
+	.freeze		= NULL,
+	.thaw		= via_resume,
+	.poweroff	= NULL,
+	.restore	= via_resume,
+#endif
+};
+
+>>>>>>> upstream/android-13
 static struct pci_driver via_driver = {
 	.name		= "viafb",
 	.id_table	= via_pci_table,
 	.probe		= via_pci_probe,
 	.remove		= via_pci_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= via_suspend,
 	.resume		= via_resume,
 #endif
+=======
+	.driver.pm	= &via_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init via_core_init(void)

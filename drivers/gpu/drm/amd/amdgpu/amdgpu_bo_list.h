@@ -32,12 +32,21 @@ struct amdgpu_bo_va;
 struct amdgpu_fpriv;
 
 struct amdgpu_bo_list_entry {
+<<<<<<< HEAD
 	struct amdgpu_bo		*robj;
 	struct ttm_validate_buffer	tv;
 	struct amdgpu_bo_va		*bo_va;
 	uint32_t			priority;
 	struct page			**user_pages;
 	int				user_invalidated;
+=======
+	struct ttm_validate_buffer	tv;
+	struct amdgpu_bo_va		*bo_va;
+	struct dma_fence_chain		*chain;
+	uint32_t			priority;
+	struct page			**user_pages;
+	bool				user_invalidated;
+>>>>>>> upstream/android-13
 };
 
 struct amdgpu_bo_list {
@@ -61,7 +70,11 @@ int amdgpu_bo_create_list_entry_array(struct drm_amdgpu_bo_list_in *in,
 int amdgpu_bo_list_create(struct amdgpu_device *adev,
 				 struct drm_file *filp,
 				 struct drm_amdgpu_bo_list_entry *info,
+<<<<<<< HEAD
 				 unsigned num_entries,
+=======
+				 size_t num_entries,
+>>>>>>> upstream/android-13
 				 struct amdgpu_bo_list **list);
 
 static inline struct amdgpu_bo_list_entry *

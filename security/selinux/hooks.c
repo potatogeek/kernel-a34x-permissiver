@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  NSA Security-Enhanced Linux (SELinux) security module
  *
@@ -18,15 +22,22 @@
  *  Copyright (C) 2007 Hitachi Software Engineering Co., Ltd.
  *		       Yuichi Nakamura <ynakam@hitachisoft.jp>
  *  Copyright (C) 2016 Mellanox Technologies
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License version 2,
  *	as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/kd.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel_read_file.h>
+>>>>>>> upstream/android-13
 #include <linux/tracehook.h>
 #include <linux/errno.h>
 #include <linux/sched/signal.h>
@@ -48,6 +59,11 @@
 #include <linux/fdtable.h>
 #include <linux/namei.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+#include <linux/fs_parser.h>
+>>>>>>> upstream/android-13
 #include <linux/netfilter_ipv4.h>
 #include <linux/netfilter_ipv6.h>
 #include <linux/tty.h>
@@ -79,7 +95,10 @@
 #include <linux/personality.h>
 #include <linux/audit.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/selinux.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/posix-timers.h>
 #include <linux/syslog.h>
@@ -88,6 +107,14 @@
 #include <linux/msg.h>
 #include <linux/shm.h>
 #include <linux/bpf.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernfs.h>
+#include <linux/stringhash.h>	/* for hashlen_string() */
+#include <uapi/linux/mount.h>
+#include <linux/fsnotify.h>
+#include <linux/fanotify.h>
+>>>>>>> upstream/android-13
 
 #include "avc.h"
 #include "objsec.h"
@@ -105,6 +132,7 @@ struct selinux_state selinux_state;
 /* SECMARK reference count */
 static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 static DEFINE_MUTEX(selinux_sdcardfs_lock);
 // ] SEC_SELINUX_PORTING_COMMON
@@ -117,10 +145,15 @@ int selinux_enforcing __kdp_ro_aligned;
 static int selinux_enforcing_boot;
 int selinux_enforcing;
 #endif
+=======
+#ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+static int selinux_enforcing_boot __initdata;
+>>>>>>> upstream/android-13
 
 static int __init enforcing_setup(char *str)
 {
 	unsigned long enforcing;
+<<<<<<< HEAD
 	if (!kstrtoul(str, 0, &enforcing)){
 		// [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
@@ -132,6 +165,10 @@ static int __init enforcing_setup(char *str)
 #endif
 	}
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+	if (!kstrtoul(str, 0, &enforcing))
+		selinux_enforcing_boot = enforcing ? 1 : 0;
+>>>>>>> upstream/android-13
 	return 1;
 }
 __setup("enforcing=", enforcing_setup);
@@ -139,6 +176,7 @@ __setup("enforcing=", enforcing_setup);
 #define selinux_enforcing_boot 1
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY_SELINUX_BOOTPARAM
 #if (defined CONFIG_KDP_CRED && defined CONFIG_SAMSUNG_PRODUCT_SHIP)
 int selinux_enabled __kdp_ro_aligned = CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE;
@@ -146,10 +184,15 @@ int selinux_enabled __kdp_ro_aligned = CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE;
 int selinux_enabled = CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE;
 #endif
 
+=======
+int selinux_enabled_boot __initdata = 1;
+#ifdef CONFIG_SECURITY_SELINUX_BOOTPARAM
+>>>>>>> upstream/android-13
 static int __init selinux_enabled_setup(char *str)
 {
 	unsigned long enabled;
 	if (!kstrtoul(str, 0, &enabled))
+<<<<<<< HEAD
 	{
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
@@ -168,6 +211,12 @@ int selinux_enabled __kdp_ro_aligned = 1;
 #else
 int selinux_enabled = 1;
 #endif
+=======
+		selinux_enabled_boot = enabled ? 1 : 0;
+	return 1;
+}
+__setup("selinux=", selinux_enabled_setup);
+>>>>>>> upstream/android-13
 #endif
 
 static unsigned int selinux_checkreqprot_boot =
@@ -177,15 +226,26 @@ static int __init checkreqprot_setup(char *str)
 {
 	unsigned long checkreqprot;
 
+<<<<<<< HEAD
 	if (!kstrtoul(str, 0, &checkreqprot))
 		selinux_checkreqprot_boot = checkreqprot ? 1 : 0;
+=======
+	if (!kstrtoul(str, 0, &checkreqprot)) {
+		selinux_checkreqprot_boot = checkreqprot ? 1 : 0;
+		if (checkreqprot)
+			pr_warn("SELinux: checkreqprot set to 1 via kernel parameter.  This is deprecated and will be rejected in a future kernel release.\n");
+	}
+>>>>>>> upstream/android-13
 	return 1;
 }
 __setup("checkreqprot=", checkreqprot_setup);
 
+<<<<<<< HEAD
 static struct kmem_cache *sel_inode_cache;
 static struct kmem_cache *file_security_cache;
 
+=======
+>>>>>>> upstream/android-13
 /**
  * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
  *
@@ -234,7 +294,11 @@ static int selinux_lsm_notifier_avc_callback(u32 event)
 {
 	if (event == AVC_CALLBACK_RESET) {
 		sel_ib_pkey_flush();
+<<<<<<< HEAD
 		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+=======
+		call_blocking_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -247,6 +311,7 @@ static void cred_init_security(void)
 {
 	struct cred *cred = (struct cred *) current->real_cred;
 	struct task_security_struct *tsec;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	tsec = &init_sec;
 	tsec->bp_cred = cred;
@@ -257,6 +322,11 @@ static void cred_init_security(void)
 #endif
 	tsec->osid = tsec->sid = SECINITSID_KERNEL;
 	cred->security = tsec;
+=======
+
+	tsec = selinux_cred(cred);
+	tsec->osid = tsec->sid = SECINITSID_KERNEL;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -266,14 +336,37 @@ static inline u32 cred_sid(const struct cred *cred)
 {
 	const struct task_security_struct *tsec;
 
+<<<<<<< HEAD
 	tsec = cred->security;
+=======
+	tsec = selinux_cred(cred);
+>>>>>>> upstream/android-13
 	return tsec->sid;
+}
+
+/*
+<<<<<<< HEAD
+ * get the objective security ID of a task
+ */
+static inline u32 task_sid(const struct task_struct *task)
+=======
+ * get the subjective security ID of a task
+ */
+static inline u32 task_sid_subj(const struct task_struct *task)
+{
+	u32 sid;
+
+	rcu_read_lock();
+	sid = cred_sid(rcu_dereference(task->cred));
+	rcu_read_unlock();
+	return sid;
 }
 
 /*
  * get the objective security ID of a task
  */
-static inline u32 task_sid(const struct task_struct *task)
+static inline u32 task_sid_obj(const struct task_struct *task)
+>>>>>>> upstream/android-13
 {
 	u32 sid;
 
@@ -283,6 +376,7 @@ static inline u32 task_sid(const struct task_struct *task)
 	return sid;
 }
 
+<<<<<<< HEAD
 /* Allocate and free functions for each kind of security blob. */
 
 static int inode_alloc_security(struct inode *inode)
@@ -306,6 +400,8 @@ static int inode_alloc_security(struct inode *inode)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
 
 /*
@@ -318,11 +414,19 @@ static int __inode_security_revalidate(struct inode *inode,
 				       struct dentry *dentry,
 				       bool may_sleep)
 {
+<<<<<<< HEAD
 	struct inode_security_struct *isec = inode->i_security;
 
 	might_sleep_if(may_sleep);
 
 	if (ss_initialized && // SEC_SELINUX_PORTING_COMMON Change to use RKP
+=======
+	struct inode_security_struct *isec = selinux_inode(inode);
+
+	might_sleep_if(may_sleep);
+
+	if (selinux_initialized(&selinux_state) &&
+>>>>>>> upstream/android-13
 	    isec->initialized != LABEL_INITIALIZED) {
 		if (!may_sleep)
 			return -ECHILD;
@@ -339,7 +443,11 @@ static int __inode_security_revalidate(struct inode *inode,
 
 static struct inode_security_struct *inode_security_novalidate(struct inode *inode)
 {
+<<<<<<< HEAD
 	return inode->i_security;
+=======
+	return selinux_inode(inode);
+>>>>>>> upstream/android-13
 }
 
 static struct inode_security_struct *inode_security_rcu(struct inode *inode, bool rcu)
@@ -349,7 +457,11 @@ static struct inode_security_struct *inode_security_rcu(struct inode *inode, boo
 	error = __inode_security_revalidate(inode, NULL, !rcu);
 	if (error)
 		return ERR_PTR(error);
+<<<<<<< HEAD
 	return inode->i_security;
+=======
+	return selinux_inode(inode);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -358,14 +470,22 @@ static struct inode_security_struct *inode_security_rcu(struct inode *inode, boo
 static struct inode_security_struct *inode_security(struct inode *inode)
 {
 	__inode_security_revalidate(inode, NULL, true);
+<<<<<<< HEAD
 	return inode->i_security;
+=======
+	return selinux_inode(inode);
+>>>>>>> upstream/android-13
 }
 
 static struct inode_security_struct *backing_inode_security_novalidate(struct dentry *dentry)
 {
 	struct inode *inode = d_backing_inode(dentry);
 
+<<<<<<< HEAD
 	return inode->i_security;
+=======
+	return selinux_inode(inode);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -376,6 +496,7 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
 	struct inode *inode = d_backing_inode(dentry);
 
 	__inode_security_revalidate(inode, dentry, true);
+<<<<<<< HEAD
 	return inode->i_security;
 }
 
@@ -385,13 +506,25 @@ static void inode_free_rcu(struct rcu_head *head)
 
 	isec = container_of(head, struct inode_security_struct, rcu);
 	kmem_cache_free(sel_inode_cache, isec);
+=======
+	return selinux_inode(inode);
+>>>>>>> upstream/android-13
 }
 
 static void inode_free_security(struct inode *inode)
 {
+<<<<<<< HEAD
 	struct inode_security_struct *isec = inode->i_security;
 	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
 
+=======
+	struct inode_security_struct *isec = selinux_inode(inode);
+	struct superblock_security_struct *sbsec;
+
+	if (!isec)
+		return;
+	sbsec = selinux_superblock(inode->i_sb);
+>>>>>>> upstream/android-13
 	/*
 	 * As not all inode security structures are in a list, we check for
 	 * empty list outside of the lock to make sure that we won't waste
@@ -407,6 +540,7 @@ static void inode_free_security(struct inode *inode)
 		list_del_init(&isec->list);
 		spin_unlock(&sbsec->isec_lock);
 	}
+<<<<<<< HEAD
 
 	/*
 	 * The inode may still be referenced in a path walk and
@@ -473,10 +607,31 @@ static void superblock_free_security(struct super_block *sb)
 static inline int inode_doinit(struct inode *inode)
 {
 	return inode_doinit_with_dentry(inode, NULL);
+=======
+}
+
+struct selinux_mnt_opts {
+	const char *fscontext, *context, *rootcontext, *defcontext;
+	u32 fscontext_sid;
+	u32 context_sid;
+	u32 rootcontext_sid;
+	u32 defcontext_sid;
+};
+
+static void selinux_free_mnt_opts(void *mnt_opts)
+{
+	struct selinux_mnt_opts *opts = mnt_opts;
+	kfree(opts->fscontext);
+	kfree(opts->context);
+	kfree(opts->rootcontext);
+	kfree(opts->defcontext);
+	kfree(opts);
+>>>>>>> upstream/android-13
 }
 
 enum {
 	Opt_error = -1,
+<<<<<<< HEAD
 	Opt_context = 1,
 	Opt_fscontext = 2,
 	Opt_defcontext = 3,
@@ -495,6 +650,48 @@ static const match_table_t tokens = {
 	{Opt_labelsupport, LABELSUPP_STR},
 	{Opt_error, NULL},
 };
+=======
+	Opt_context = 0,
+	Opt_defcontext = 1,
+	Opt_fscontext = 2,
+	Opt_rootcontext = 3,
+	Opt_seclabel = 4,
+};
+
+#define A(s, has_arg) {#s, sizeof(#s) - 1, Opt_##s, has_arg}
+static struct {
+	const char *name;
+	int len;
+	int opt;
+	bool has_arg;
+} tokens[] = {
+	A(context, true),
+	A(fscontext, true),
+	A(defcontext, true),
+	A(rootcontext, true),
+	A(seclabel, false),
+};
+#undef A
+
+static int match_opt_prefix(char *s, int l, char **arg)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(tokens); i++) {
+		size_t len = tokens[i].len;
+		if (len > l || memcmp(s, tokens[i].name, len))
+			continue;
+		if (tokens[i].has_arg) {
+			if (len == l || s[len] != '=')
+				continue;
+			*arg = s + len + 1;
+		} else if (len != l)
+			continue;
+		return tokens[i].opt;
+	}
+	return Opt_error;
+}
+>>>>>>> upstream/android-13
 
 #define SEL_MOUNT_FAIL_MSG "SELinux:  duplicate or incompatible mount options\n"
 
@@ -502,7 +699,11 @@ static int may_context_mount_sb_relabel(u32 sid,
 			struct superblock_security_struct *sbsec,
 			const struct cred *cred)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = cred->security;
+=======
+	const struct task_security_struct *tsec = selinux_cred(cred);
+>>>>>>> upstream/android-13
 	int rc;
 
 	rc = avc_has_perm(&selinux_state,
@@ -521,7 +722,11 @@ static int may_context_mount_inode_relabel(u32 sid,
 			struct superblock_security_struct *sbsec,
 			const struct cred *cred)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = cred->security;
+=======
+	const struct task_security_struct *tsec = selinux_cred(cred);
+>>>>>>> upstream/android-13
 	int rc;
 	rc = avc_has_perm(&selinux_state,
 			  tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
@@ -550,7 +755,11 @@ static int selinux_is_genfs_special_handling(struct super_block *sb)
 
 static int selinux_is_sblabel_mnt(struct super_block *sb)
 {
+<<<<<<< HEAD
 	struct superblock_security_struct *sbsec = sb->s_security;
+=======
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>>>>>>> upstream/android-13
 
 	/*
 	 * IMPORTANT: Double-check logic in this function when adding a new
@@ -576,14 +785,70 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
 	}
 }
 
+<<<<<<< HEAD
 static int sb_finish_set_opts(struct super_block *sb)
 {
 	struct superblock_security_struct *sbsec = sb->s_security;
+=======
+static int sb_check_xattr_support(struct super_block *sb)
+{
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+	struct dentry *root = sb->s_root;
+	struct inode *root_inode = d_backing_inode(root);
+	u32 sid;
+	int rc;
+
+	/*
+	 * Make sure that the xattr handler exists and that no
+	 * error other than -ENODATA is returned by getxattr on
+	 * the root directory.  -ENODATA is ok, as this may be
+	 * the first boot of the SELinux kernel before we have
+	 * assigned xattr values to the filesystem.
+	 */
+	if (!(root_inode->i_opflags & IOP_XATTR)) {
+		pr_warn("SELinux: (dev %s, type %s) has no xattr support\n",
+			sb->s_id, sb->s_type->name);
+		goto fallback;
+	}
+
+	rc = __vfs_getxattr(root, root_inode, XATTR_NAME_SELINUX, NULL, 0);
+	if (rc < 0 && rc != -ENODATA) {
+		if (rc == -EOPNOTSUPP) {
+			pr_warn("SELinux: (dev %s, type %s) has no security xattr handler\n",
+				sb->s_id, sb->s_type->name);
+			goto fallback;
+		} else {
+			pr_warn("SELinux: (dev %s, type %s) getxattr errno %d\n",
+				sb->s_id, sb->s_type->name, -rc);
+			return rc;
+		}
+	}
+	return 0;
+
+fallback:
+	/* No xattr support - try to fallback to genfs if possible. */
+	rc = security_genfs_sid(&selinux_state, sb->s_type->name, "/",
+				SECCLASS_DIR, &sid);
+	if (rc)
+		return -EOPNOTSUPP;
+
+	pr_warn("SELinux: (dev %s, type %s) falling back to genfs\n",
+		sb->s_id, sb->s_type->name);
+	sbsec->behavior = SECURITY_FS_USE_GENFS;
+	sbsec->sid = sid;
+	return 0;
+}
+
+static int sb_finish_set_opts(struct super_block *sb)
+{
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>>>>>>> upstream/android-13
 	struct dentry *root = sb->s_root;
 	struct inode *root_inode = d_backing_inode(root);
 	int rc = 0;
 
 	if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
+<<<<<<< HEAD
 		/* Make sure that the xattr handler exists and that no
 		   error other than -ENODATA is returned by getxattr on
 		   the root directory.  -ENODATA is ok, as this may be
@@ -608,6 +873,11 @@ static int sb_finish_set_opts(struct super_block *sb)
 				       sb->s_type->name, -rc);
 			goto out;
 		}
+=======
+		rc = sb_check_xattr_support(sb);
+		if (rc)
+			return rc;
+>>>>>>> upstream/android-13
 	}
 
 	sbsec->flags |= SE_SBINITIALIZED;
@@ -630,10 +900,16 @@ static int sb_finish_set_opts(struct super_block *sb)
 	   during get_sb by a pseudo filesystem that directly
 	   populates itself. */
 	spin_lock(&sbsec->isec_lock);
+<<<<<<< HEAD
 next_inode:
 	if (!list_empty(&sbsec->isec_head)) {
 		struct inode_security_struct *isec =
 				list_entry(sbsec->isec_head.next,
+=======
+	while (!list_empty(&sbsec->isec_head)) {
+		struct inode_security_struct *isec =
+				list_first_entry(&sbsec->isec_head,
+>>>>>>> upstream/android-13
 					   struct inode_security_struct, list);
 		struct inode *inode = isec->inode;
 		list_del_init(&isec->list);
@@ -641,6 +917,7 @@ next_inode:
 		inode = igrab(inode);
 		if (inode) {
 			if (!IS_PRIVATE(inode))
+<<<<<<< HEAD
 				inode_doinit(inode);
 			iput(inode);
 		}
@@ -748,6 +1025,14 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
 
 out_free:
 	security_free_mnt_opts(opts);
+=======
+				inode_doinit_with_dentry(inode, NULL);
+			iput(inode);
+		}
+		spin_lock(&sbsec->isec_lock);
+	}
+	spin_unlock(&sbsec->isec_lock);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -771,16 +1056,35 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int parse_sid(struct super_block *sb, const char *s, u32 *sid)
+{
+	int rc = security_context_str_to_sid(&selinux_state, s,
+					     sid, GFP_KERNEL);
+	if (rc)
+		pr_warn("SELinux: security_context_str_to_sid"
+		       "(%s) failed for (dev %s, type %s) errno=%d\n",
+		       s, sb ? sb->s_id : "?", sb ? sb->s_type->name : "?", rc);
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Allow filesystems with binary mount data to explicitly set mount point
  * labeling information.
  */
 static int selinux_set_mnt_opts(struct super_block *sb,
+<<<<<<< HEAD
 				struct security_mnt_opts *opts,
+=======
+				void *mnt_opts,
+>>>>>>> upstream/android-13
 				unsigned long kern_flags,
 				unsigned long *set_kern_flags)
 {
 	const struct cred *cred = current_cred();
+<<<<<<< HEAD
 	int rc = 0, i;
 	struct superblock_security_struct *sbsec = sb->s_security;
 	const char *name = sb->s_type->name;
@@ -796,6 +1100,20 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 
 	if (!ss_initialized) { // SEC_SELINUX_PORTING_COMMON Change to use RKP
 		if (!num_opts) {
+=======
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+	struct dentry *root = sb->s_root;
+	struct selinux_mnt_opts *opts = mnt_opts;
+	struct inode_security_struct *root_isec;
+	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+	u32 defcontext_sid = 0;
+	int rc = 0;
+
+	mutex_lock(&sbsec->lock);
+
+	if (!selinux_initialized(&selinux_state)) {
+		if (!opts) {
+>>>>>>> upstream/android-13
 			/* Defer initialization until selinux_complete_init,
 			   after the initial policy is loaded and the security
 			   server is ready to handle calls. */
@@ -825,7 +1143,11 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 	 * will be used for both mounts)
 	 */
 	if ((sbsec->flags & SE_SBINITIALIZED) && (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
+<<<<<<< HEAD
 	    && (num_opts == 0))
+=======
+	    && !opts)
+>>>>>>> upstream/android-13
 		goto out;
 
 	root_isec = backing_inode_security_novalidate(root);
@@ -835,6 +1157,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 	 * also check if someone is trying to mount the same sb more
 	 * than once with different security options.
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < num_opts; i++) {
 		u32 sid;
 
@@ -891,12 +1214,54 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 		default:
 			rc = -EINVAL;
 			goto out;
+=======
+	if (opts) {
+		if (opts->fscontext) {
+			rc = parse_sid(sb, opts->fscontext, &fscontext_sid);
+			if (rc)
+				goto out;
+			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
+					fscontext_sid))
+				goto out_double_mount;
+			sbsec->flags |= FSCONTEXT_MNT;
+		}
+		if (opts->context) {
+			rc = parse_sid(sb, opts->context, &context_sid);
+			if (rc)
+				goto out;
+			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
+					context_sid))
+				goto out_double_mount;
+			sbsec->flags |= CONTEXT_MNT;
+		}
+		if (opts->rootcontext) {
+			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid);
+			if (rc)
+				goto out;
+			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
+					rootcontext_sid))
+				goto out_double_mount;
+			sbsec->flags |= ROOTCONTEXT_MNT;
+		}
+		if (opts->defcontext) {
+			rc = parse_sid(sb, opts->defcontext, &defcontext_sid);
+			if (rc)
+				goto out;
+			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
+					defcontext_sid))
+				goto out_double_mount;
+			sbsec->flags |= DEFCONTEXT_MNT;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (sbsec->flags & SE_SBINITIALIZED) {
 		/* previously mounted with options, but not on this attempt? */
+<<<<<<< HEAD
 		if ((sbsec->flags & SE_MNTMASK) && !num_opts)
+=======
+		if ((sbsec->flags & SE_MNTMASK) && !opts)
+>>>>>>> upstream/android-13
 			goto out_double_mount;
 		rc = 0;
 		goto out;
@@ -907,6 +1272,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 
 	if (!strcmp(sb->s_type->name, "debugfs") ||
 	    !strcmp(sb->s_type->name, "tracefs") ||
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 		!strcmp(sb->s_type->name, "configfs") ||
 // ] SEC_SELINUX_PORTING_COMMON
@@ -917,6 +1283,17 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 	    !strcmp(sb->s_type->name, "cgroup") ||
 	    !strcmp(sb->s_type->name, "cgroup2"))
 		sbsec->flags |= SE_SBGENFS;
+=======
+	    !strcmp(sb->s_type->name, "binder") ||
+	    !strcmp(sb->s_type->name, "bpf") ||
+	    !strcmp(sb->s_type->name, "pstore"))
+		sbsec->flags |= SE_SBGENFS;
+
+	if (!strcmp(sb->s_type->name, "sysfs") ||
+	    !strcmp(sb->s_type->name, "cgroup") ||
+	    !strcmp(sb->s_type->name, "cgroup2"))
+		sbsec->flags |= SE_SBGENFS | SE_SBGENFS_XATTR;
+>>>>>>> upstream/android-13
 
 	if (!sbsec->behavior) {
 		/*
@@ -939,7 +1316,12 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 	if (sb->s_user_ns != &init_user_ns &&
 	    strcmp(sb->s_type->name, "tmpfs") &&
 	    strcmp(sb->s_type->name, "ramfs") &&
+<<<<<<< HEAD
 	    strcmp(sb->s_type->name, "devpts")) {
+=======
+	    strcmp(sb->s_type->name, "devpts") &&
+	    strcmp(sb->s_type->name, "overlay")) {
+>>>>>>> upstream/android-13
 		if (context_sid || fscontext_sid || rootcontext_sid ||
 		    defcontext_sid) {
 			rc = -EACCES;
@@ -1034,15 +1416,25 @@ out:
 out_double_mount:
 	rc = -EINVAL;
 	pr_warn("SELinux: mount invalid.  Same superblock, different "
+<<<<<<< HEAD
 	       "security settings for (dev %s, type %s)\n", sb->s_id, name);
+=======
+	       "security settings for (dev %s, type %s)\n", sb->s_id,
+	       sb->s_type->name);
+>>>>>>> upstream/android-13
 	goto out;
 }
 
 static int selinux_cmp_sb_context(const struct super_block *oldsb,
 				    const struct super_block *newsb)
 {
+<<<<<<< HEAD
 	struct superblock_security_struct *old = oldsb->s_security;
 	struct superblock_security_struct *new = newsb->s_security;
+=======
+	struct superblock_security_struct *old = selinux_superblock(oldsb);
+	struct superblock_security_struct *new = selinux_superblock(newsb);
+>>>>>>> upstream/android-13
 	char oldflags = old->flags & SE_MNTMASK;
 	char newflags = new->flags & SE_MNTMASK;
 
@@ -1074,8 +1466,14 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
 					unsigned long *set_kern_flags)
 {
 	int rc = 0;
+<<<<<<< HEAD
 	const struct superblock_security_struct *oldsbsec = oldsb->s_security;
 	struct superblock_security_struct *newsbsec = newsb->s_security;
+=======
+	const struct superblock_security_struct *oldsbsec =
+						selinux_superblock(oldsb);
+	struct superblock_security_struct *newsbsec = selinux_superblock(newsb);
+>>>>>>> upstream/android-13
 
 	int set_fscontext =	(oldsbsec->flags & FSCONTEXT_MNT);
 	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
@@ -1085,7 +1483,11 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
 	 * if the parent was able to be mounted it clearly had no special lsm
 	 * mount options.  thus we can safely deal with this superblock later
 	 */
+<<<<<<< HEAD
 	if (!ss_initialized) // SEC_SELINUX_PORTING_COMMON Change to use RKP
+=======
+	if (!selinux_initialized(&selinux_state))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -1149,6 +1551,7 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 static int selinux_parse_opts_str(char *options,
 				  struct security_mnt_opts *opts)
 {
@@ -1361,6 +1764,173 @@ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
 	security_free_mnt_opts(&opts);
 
 	return rc;
+=======
+static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+{
+	struct selinux_mnt_opts *opts = *mnt_opts;
+	bool is_alloc_opts = false;
+
+	if (token == Opt_seclabel)	/* eaten and completely ignored */
+		return 0;
+
+	if (!s)
+		return -ENOMEM;
+
+	if (!opts) {
+		opts = kzalloc(sizeof(struct selinux_mnt_opts), GFP_KERNEL);
+		if (!opts)
+			return -ENOMEM;
+		*mnt_opts = opts;
+		is_alloc_opts = true;
+	}
+
+	switch (token) {
+	case Opt_context:
+		if (opts->context || opts->defcontext)
+			goto Einval;
+		opts->context = s;
+		if (selinux_initialized(&selinux_state))
+			parse_sid(NULL, s, &opts->context_sid);
+		break;
+	case Opt_fscontext:
+		if (opts->fscontext)
+			goto Einval;
+		opts->fscontext = s;
+		if (selinux_initialized(&selinux_state))
+			parse_sid(NULL, s, &opts->fscontext_sid);
+		break;
+	case Opt_rootcontext:
+		if (opts->rootcontext)
+			goto Einval;
+		opts->rootcontext = s;
+		if (selinux_initialized(&selinux_state))
+			parse_sid(NULL, s, &opts->rootcontext_sid);
+		break;
+	case Opt_defcontext:
+		if (opts->context || opts->defcontext)
+			goto Einval;
+		opts->defcontext = s;
+		if (selinux_initialized(&selinux_state))
+			parse_sid(NULL, s, &opts->defcontext_sid);
+		break;
+	}
+	return 0;
+Einval:
+	if (is_alloc_opts) {
+		kfree(opts);
+		*mnt_opts = NULL;
+	}
+	pr_warn(SEL_MOUNT_FAIL_MSG);
+	return -EINVAL;
+}
+
+static int selinux_add_mnt_opt(const char *option, const char *val, int len,
+			       void **mnt_opts)
+{
+	int token = Opt_error;
+	int rc, i;
+
+	for (i = 0; i < ARRAY_SIZE(tokens); i++) {
+		if (strcmp(option, tokens[i].name) == 0) {
+			token = tokens[i].opt;
+			break;
+		}
+	}
+
+	if (token == Opt_error)
+		return -EINVAL;
+
+	if (token != Opt_seclabel) {
+		val = kmemdup_nul(val, len, GFP_KERNEL);
+		if (!val) {
+			rc = -ENOMEM;
+			goto free_opt;
+		}
+	}
+	rc = selinux_add_opt(token, val, mnt_opts);
+	if (unlikely(rc)) {
+		kfree(val);
+		goto free_opt;
+	}
+	return rc;
+
+free_opt:
+	if (*mnt_opts) {
+		selinux_free_mnt_opts(*mnt_opts);
+		*mnt_opts = NULL;
+	}
+	return rc;
+}
+
+static int show_sid(struct seq_file *m, u32 sid)
+{
+	char *context = NULL;
+	u32 len;
+	int rc;
+
+	rc = security_sid_to_context(&selinux_state, sid,
+					     &context, &len);
+	if (!rc) {
+		bool has_comma = context && strchr(context, ',');
+
+		seq_putc(m, '=');
+		if (has_comma)
+			seq_putc(m, '\"');
+		seq_escape(m, context, "\"\n\\");
+		if (has_comma)
+			seq_putc(m, '\"');
+	}
+	kfree(context);
+	return rc;
+}
+
+static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+{
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+	int rc;
+
+	if (!(sbsec->flags & SE_SBINITIALIZED))
+		return 0;
+
+	if (!selinux_initialized(&selinux_state))
+		return 0;
+
+	if (sbsec->flags & FSCONTEXT_MNT) {
+		seq_putc(m, ',');
+		seq_puts(m, FSCONTEXT_STR);
+		rc = show_sid(m, sbsec->sid);
+		if (rc)
+			return rc;
+	}
+	if (sbsec->flags & CONTEXT_MNT) {
+		seq_putc(m, ',');
+		seq_puts(m, CONTEXT_STR);
+		rc = show_sid(m, sbsec->mntpoint_sid);
+		if (rc)
+			return rc;
+	}
+	if (sbsec->flags & DEFCONTEXT_MNT) {
+		seq_putc(m, ',');
+		seq_puts(m, DEFCONTEXT_STR);
+		rc = show_sid(m, sbsec->def_sid);
+		if (rc)
+			return rc;
+	}
+	if (sbsec->flags & ROOTCONTEXT_MNT) {
+		struct dentry *root = sb->s_root;
+		struct inode_security_struct *isec = backing_inode_security(root);
+		seq_putc(m, ',');
+		seq_puts(m, ROOTCONTEXT_STR);
+		rc = show_sid(m, isec->sid);
+		if (rc)
+			return rc;
+	}
+	if (sbsec->flags & SBLABEL_MNT) {
+		seq_putc(m, ',');
+		seq_puts(m, SECLABEL_STR);
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static inline u16 inode_mode_to_security_class(umode_t mode)
@@ -1388,7 +1958,12 @@ static inline u16 inode_mode_to_security_class(umode_t mode)
 
 static inline int default_protocol_stream(int protocol)
 {
+<<<<<<< HEAD
 	return (protocol == IPPROTO_IP || protocol == IPPROTO_TCP);
+=======
+	return (protocol == IPPROTO_IP || protocol == IPPROTO_TCP ||
+		protocol == IPPROTO_MPTCP);
+>>>>>>> upstream/android-13
 }
 
 static inline int default_protocol_dgram(int protocol)
@@ -1539,7 +2114,13 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
 			return SECCLASS_SMC_SOCKET;
 		case PF_XDP:
 			return SECCLASS_XDP_SOCKET;
+<<<<<<< HEAD
 #if PF_MAX > 45
+=======
+		case PF_MCTP:
+			return SECCLASS_MCTP_SOCKET;
+#if PF_MAX > 46
+>>>>>>> upstream/android-13
 #error New address family defined, please update this function.
 #endif
 		}
@@ -1586,10 +2167,75 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
+				  u32 def_sid, u32 *sid)
+{
+#define INITCONTEXTLEN 255
+	char *context;
+	unsigned int len;
+	int rc;
+
+	len = INITCONTEXTLEN;
+	context = kmalloc(len + 1, GFP_NOFS);
+	if (!context)
+		return -ENOMEM;
+
+	context[len] = '\0';
+	rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+	if (rc == -ERANGE) {
+		kfree(context);
+
+		/* Need a larger buffer.  Query for the right size. */
+		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
+		if (rc < 0)
+			return rc;
+
+		len = rc;
+		context = kmalloc(len + 1, GFP_NOFS);
+		if (!context)
+			return -ENOMEM;
+
+		context[len] = '\0';
+		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX,
+				    context, len);
+	}
+	if (rc < 0) {
+		kfree(context);
+		if (rc != -ENODATA) {
+			pr_warn("SELinux: %s:  getxattr returned %d for dev=%s ino=%ld\n",
+				__func__, -rc, inode->i_sb->s_id, inode->i_ino);
+			return rc;
+		}
+		*sid = def_sid;
+		return 0;
+	}
+
+	rc = security_context_to_sid_default(&selinux_state, context, rc, sid,
+					     def_sid, GFP_NOFS);
+	if (rc) {
+		char *dev = inode->i_sb->s_id;
+		unsigned long ino = inode->i_ino;
+
+		if (rc == -EINVAL) {
+			pr_notice_ratelimited("SELinux: inode=%lu on dev=%s was found to have an invalid context=%s.  This indicates you may need to relabel the inode or the filesystem in question.\n",
+					      ino, dev, context);
+		} else {
+			pr_warn("SELinux: %s:  context_to_sid(%s) returned %d for dev=%s ino=%ld\n",
+				__func__, context, -rc, dev, ino);
+		}
+	}
+	kfree(context);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* The inode's security attributes must be initialized before first use. */
 static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
 {
 	struct superblock_security_struct *sbsec = NULL;
+<<<<<<< HEAD
 	struct inode_security_struct *isec = inode->i_security;
 	u32 task_sid, sid = 0;
 	u16 sclass;
@@ -1597,6 +2243,12 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
 #define INITCONTEXTLEN 255
 	char *context = NULL;
 	unsigned len = 0;
+=======
+	struct inode_security_struct *isec = selinux_inode(inode);
+	u32 task_sid, sid = 0;
+	u16 sclass;
+	struct dentry *dentry;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	if (isec->initialized == LABEL_INITIALIZED)
@@ -1609,7 +2261,11 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
 	if (isec->sclass == SECCLASS_FILE)
 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
 
+<<<<<<< HEAD
 	sbsec = inode->i_sb->s_security;
+=======
+	sbsec = selinux_superblock(inode->i_sb);
+>>>>>>> upstream/android-13
 	if (!(sbsec->flags & SE_SBINITIALIZED)) {
 		/* Defer initialization until selinux_complete_init,
 		   after the initial policy is loaded and the security
@@ -1664,6 +2320,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
 			goto out_invalid;
 		}
 
+<<<<<<< HEAD
 		len = INITCONTEXTLEN;
 		context = kmalloc(len+1, GFP_NOFS);
 		if (!context) {
@@ -1730,6 +2387,13 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
 			}
 		}
 		kfree(context);
+=======
+		rc = inode_doinit_use_xattr(inode, dentry, sbsec->def_sid,
+					    &sid);
+		dput(dentry);
+		if (rc)
+			goto out;
+>>>>>>> upstream/android-13
 		break;
 	case SECURITY_FS_USE_TASK:
 		sid = task_sid;
@@ -1751,7 +2415,13 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
 		/* Default to the fs superblock SID. */
 		sid = sbsec->sid;
 
+<<<<<<< HEAD
 		if ((sbsec->flags & SE_SBGENFS) && !S_ISLNK(inode->i_mode)) {
+=======
+		if ((sbsec->flags & SE_SBGENFS) &&
+		     (!S_ISLNK(inode->i_mode) ||
+		      selinux_policycap_genfs_seclabel_symlinks())) {
+>>>>>>> upstream/android-13
 			/* We must have a dentry to determine the label on
 			 * procfs inodes */
 			if (opt_dentry) {
@@ -1780,9 +2450,27 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
 				goto out_invalid;
 			rc = selinux_genfs_get_sid(dentry, sclass,
 						   sbsec->flags, &sid);
+<<<<<<< HEAD
 			dput(dentry);
 			if (rc)
 				goto out;
+=======
+			if (rc) {
+				dput(dentry);
+				goto out;
+			}
+
+			if ((sbsec->flags & SE_SBGENFS_XATTR) &&
+			    (inode->i_opflags & IOP_XATTR)) {
+				rc = inode_doinit_use_xattr(inode, dentry,
+							    sid, &sid);
+				if (rc) {
+					dput(dentry);
+					goto out;
+				}
+			}
+			dput(dentry);
+>>>>>>> upstream/android-13
 		}
 		break;
 	}
@@ -1874,7 +2562,11 @@ static int cred_has_capability(const struct cred *cred,
 				  sid, sid, sclass, av, 0, &avd);
 	if (!(opts & CAP_OPT_NOAUDIT)) {
 		int rc2 = avc_audit(&selinux_state,
+<<<<<<< HEAD
 				    sid, sid, sclass, av, &avd, rc, &ad, 0);
+=======
+				    sid, sid, sclass, av, &avd, rc, &ad);
+>>>>>>> upstream/android-13
 		if (rc2)
 			return rc2;
 	}
@@ -1898,7 +2590,11 @@ static int inode_has_perm(const struct cred *cred,
 		return 0;
 
 	sid = cred_sid(cred);
+<<<<<<< HEAD
 	isec = inode->i_security;
+=======
+	isec = selinux_inode(inode);
+>>>>>>> upstream/android-13
 
 	return avc_has_perm(&selinux_state,
 			    sid, isec->sid, isec->sclass, perms, adp);
@@ -1964,7 +2660,11 @@ static int file_has_perm(const struct cred *cred,
 			 struct file *file,
 			 u32 av)
 {
+<<<<<<< HEAD
 	struct file_security_struct *fsec = file->f_security;
+=======
+	struct file_security_struct *fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 	struct inode *inode = file_inode(file);
 	struct common_audit_data ad;
 	u32 sid = cred_sid(cred);
@@ -2007,7 +2707,12 @@ selinux_determine_inode_label(const struct task_security_struct *tsec,
 				 const struct qstr *name, u16 tclass,
 				 u32 *_new_isid)
 {
+<<<<<<< HEAD
 	const struct superblock_security_struct *sbsec = dir->i_sb->s_security;
+=======
+	const struct superblock_security_struct *sbsec =
+						selinux_superblock(dir->i_sb);
+>>>>>>> upstream/android-13
 
 	if ((sbsec->flags & SE_SBINITIALIZED) &&
 	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
@@ -2030,7 +2735,11 @@ static int may_create(struct inode *dir,
 		      struct dentry *dentry,
 		      u16 tclass)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = current_security();
+=======
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+>>>>>>> upstream/android-13
 	struct inode_security_struct *dsec;
 	struct superblock_security_struct *sbsec;
 	u32 sid, newsid;
@@ -2038,7 +2747,11 @@ static int may_create(struct inode *dir,
 	int rc;
 
 	dsec = inode_security(dir);
+<<<<<<< HEAD
 	sbsec = dir->i_sb->s_security;
+=======
+	sbsec = selinux_superblock(dir->i_sb);
+>>>>>>> upstream/android-13
 
 	sid = tsec->sid;
 
@@ -2052,8 +2765,13 @@ static int may_create(struct inode *dir,
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	rc = selinux_determine_inode_label(current_security(), dir,
 					   &dentry->d_name, tclass, &newsid);
+=======
+	rc = selinux_determine_inode_label(tsec, dir, &dentry->d_name, tclass,
+					   &newsid);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -2187,7 +2905,11 @@ static int superblock_has_perm(const struct cred *cred,
 	struct superblock_security_struct *sbsec;
 	u32 sid = cred_sid(cred);
 
+<<<<<<< HEAD
 	sbsec = sb->s_security;
+=======
+	sbsec = selinux_superblock(sb);
+>>>>>>> upstream/android-13
 	return avc_has_perm(&selinux_state,
 			    sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
 }
@@ -2244,7 +2966,11 @@ static inline u32 file_to_av(struct file *file)
 }
 
 /*
+<<<<<<< HEAD
  * Convert a file to an access vector and include the correct open
+=======
+ * Convert a file to an access vector and include the correct
+>>>>>>> upstream/android-13
  * open permission.
  */
 static inline u32 open_file_to_av(struct file *file)
@@ -2302,7 +3028,11 @@ static int selinux_binder_transfer_file(const struct cred *from,
 					struct file *file)
 {
 	u32 sid = cred_sid(to);
+<<<<<<< HEAD
 	struct file_security_struct *fsec = file->f_security;
+=======
+	struct file_security_struct *fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 	struct dentry *dentry = file->f_path.dentry;
 	struct inode_security_struct *isec;
 	struct common_audit_data ad;
@@ -2337,10 +3067,17 @@ static int selinux_binder_transfer_file(const struct cred *from,
 }
 
 static int selinux_ptrace_access_check(struct task_struct *child,
+<<<<<<< HEAD
 				     unsigned int mode)
 {
 	u32 sid = current_sid();
 	u32 csid = task_sid(child);
+=======
+				       unsigned int mode)
+{
+	u32 sid = current_sid();
+	u32 csid = task_sid_obj(child);
+>>>>>>> upstream/android-13
 
 	if (mode & PTRACE_MODE_READ)
 		return avc_has_perm(&selinux_state,
@@ -2353,15 +3090,24 @@ static int selinux_ptrace_access_check(struct task_struct *child,
 static int selinux_ptrace_traceme(struct task_struct *parent)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    task_sid(parent), current_sid(), SECCLASS_PROCESS,
 			    PROCESS__PTRACE, NULL);
+=======
+			    task_sid_obj(parent), task_sid_obj(current),
+			    SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
+>>>>>>> upstream/android-13
 }
 
 static int selinux_capget(struct task_struct *target, kernel_cap_t *effective,
 			  kernel_cap_t *inheritable, kernel_cap_t *permitted)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(target), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(target), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__GETCAP, NULL);
 }
 
@@ -2405,11 +3151,24 @@ static int selinux_quotactl(int cmds, int type, int id, struct super_block *sb)
 	case Q_QUOTAOFF:
 	case Q_SETINFO:
 	case Q_SETQUOTA:
+<<<<<<< HEAD
+=======
+	case Q_XQUOTAOFF:
+	case Q_XQUOTAON:
+	case Q_XSETQLIM:
+>>>>>>> upstream/android-13
 		rc = superblock_has_perm(cred, sb, FILESYSTEM__QUOTAMOD, NULL);
 		break;
 	case Q_GETFMT:
 	case Q_GETINFO:
 	case Q_GETQUOTA:
+<<<<<<< HEAD
+=======
+	case Q_XGETQUOTA:
+	case Q_XGETQSTAT:
+	case Q_XGETQSTATV:
+	case Q_XGETNEXTQUOTA:
+>>>>>>> upstream/android-13
 		rc = superblock_has_perm(cred, sb, FILESYSTEM__QUOTAGET, NULL);
 		break;
 	default:
@@ -2479,7 +3238,11 @@ static u32 ptrace_parent_sid(void)
 	rcu_read_lock();
 	tracer = ptrace_parent(current);
 	if (tracer)
+<<<<<<< HEAD
 		sid = task_sid(tracer);
+=======
+		sid = task_sid_obj(tracer);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	return sid;
@@ -2539,7 +3302,11 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
 	return -EACCES;
 }
 
+<<<<<<< HEAD
 static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+=======
+static int selinux_bprm_creds_for_exec(struct linux_binprm *bprm)
+>>>>>>> upstream/android-13
 {
 	const struct task_security_struct *old_tsec;
 	struct task_security_struct *new_tsec;
@@ -2550,11 +3317,17 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
 
 	/* SELinux context only depends on initial program or script and not
 	 * the script interpreter */
+<<<<<<< HEAD
 	if (bprm->called_set_creds)
 		return 0;
 
 	old_tsec = current_security();
 	new_tsec = bprm->cred->security;
+=======
+
+	old_tsec = selinux_cred(current_cred());
+	new_tsec = selinux_cred(bprm->cred);
+>>>>>>> upstream/android-13
 	isec = inode_security(inode);
 
 	/* Default to the current task SID. */
@@ -2718,7 +3491,11 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
 	struct rlimit *rlim, *initrlim;
 	int rc, i;
 
+<<<<<<< HEAD
 	new_tsec = bprm->cred->security;
+=======
+	new_tsec = selinux_cred(bprm->cred);
+>>>>>>> upstream/android-13
 	if (new_tsec->sid == new_tsec->osid)
 		return;
 
@@ -2761,10 +3538,16 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
  */
 static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = current_security();
 	struct itimerval itimer;
 	u32 osid, sid;
 	int rc, i;
+=======
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+	u32 osid, sid;
+	int rc;
+>>>>>>> upstream/android-13
 
 	osid = tsec->osid;
 	sid = tsec->sid;
@@ -2782,11 +3565,16 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
 	rc = avc_has_perm(&selinux_state,
 			  osid, sid, SECCLASS_PROCESS, PROCESS__SIGINH, NULL);
 	if (rc) {
+<<<<<<< HEAD
 		if (IS_ENABLED(CONFIG_POSIX_TIMERS)) {
 			memset(&itimer, 0, sizeof itimer);
 			for (i = 0; i < 3; i++)
 				do_setitimer(i, &itimer, NULL);
 		}
+=======
+		clear_itimer();
+
+>>>>>>> upstream/android-13
 		spin_lock_irq(&current->sighand->siglock);
 		if (!fatal_signal_pending(current)) {
 			flush_sigqueue(&current->pending);
@@ -2809,6 +3597,7 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
 
 static int selinux_sb_alloc_security(struct super_block *sb)
 {
+<<<<<<< HEAD
 	return superblock_alloc_security(sb);
 }
 
@@ -2914,10 +3703,161 @@ static int selinux_sb_remount(struct super_block *sb, void *data)
 	struct security_mnt_opts opts;
 	char *secdata, **mount_options;
 	struct superblock_security_struct *sbsec = sb->s_security;
+=======
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+
+	mutex_init(&sbsec->lock);
+	INIT_LIST_HEAD(&sbsec->isec_head);
+	spin_lock_init(&sbsec->isec_lock);
+	sbsec->sid = SECINITSID_UNLABELED;
+	sbsec->def_sid = SECINITSID_FILE;
+	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+
+	return 0;
+}
+
+static inline int opt_len(const char *s)
+{
+	bool open_quote = false;
+	int len;
+	char c;
+
+	for (len = 0; (c = s[len]) != '\0'; len++) {
+		if (c == '"')
+			open_quote = !open_quote;
+		if (c == ',' && !open_quote)
+			break;
+	}
+	return len;
+}
+
+static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+{
+	char *from = options;
+	char *to = options;
+	bool first = true;
+	int rc;
+
+	while (1) {
+		int len = opt_len(from);
+		int token;
+		char *arg = NULL;
+
+		token = match_opt_prefix(from, len, &arg);
+
+		if (token != Opt_error) {
+			char *p, *q;
+
+			/* strip quotes */
+			if (arg) {
+				for (p = q = arg; p < from + len; p++) {
+					char c = *p;
+					if (c != '"')
+						*q++ = c;
+				}
+				arg = kmemdup_nul(arg, q - arg, GFP_KERNEL);
+				if (!arg) {
+					rc = -ENOMEM;
+					goto free_opt;
+				}
+			}
+			rc = selinux_add_opt(token, arg, mnt_opts);
+			if (unlikely(rc)) {
+				kfree(arg);
+				goto free_opt;
+			}
+		} else {
+			if (!first) {	// copy with preceding comma
+				from--;
+				len++;
+			}
+			if (to != from)
+				memmove(to, from, len);
+			to += len;
+			first = false;
+		}
+		if (!from[len])
+			break;
+		from += len + 1;
+	}
+	*to = '\0';
+	return 0;
+
+free_opt:
+	if (*mnt_opts) {
+		selinux_free_mnt_opts(*mnt_opts);
+		*mnt_opts = NULL;
+	}
+	return rc;
+}
+
+static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
+{
+	struct selinux_mnt_opts *opts = mnt_opts;
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+
+	/*
+	 * Superblock not initialized (i.e. no options) - reject if any
+	 * options specified, otherwise accept.
+	 */
+	if (!(sbsec->flags & SE_SBINITIALIZED))
+		return opts ? 1 : 0;
+
+	/*
+	 * Superblock initialized and no options specified - reject if
+	 * superblock has any options set, otherwise accept.
+	 */
+	if (!opts)
+		return (sbsec->flags & SE_MNTMASK) ? 1 : 0;
+
+	if (opts->fscontext) {
+		if (opts->fscontext_sid == SECSID_NULL)
+			return 1;
+		else if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
+				       opts->fscontext_sid))
+			return 1;
+	}
+	if (opts->context) {
+		if (opts->context_sid == SECSID_NULL)
+			return 1;
+		else if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
+				       opts->context_sid))
+			return 1;
+	}
+	if (opts->rootcontext) {
+		if (opts->rootcontext_sid == SECSID_NULL)
+			return 1;
+		else {
+			struct inode_security_struct *root_isec;
+
+			root_isec = backing_inode_security(sb->s_root);
+			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
+				       opts->rootcontext_sid))
+				return 1;
+		}
+	}
+	if (opts->defcontext) {
+		if (opts->defcontext_sid == SECSID_NULL)
+			return 1;
+		else if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
+				       opts->defcontext_sid))
+			return 1;
+	}
+	return 0;
+}
+
+static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
+{
+	struct selinux_mnt_opts *opts = mnt_opts;
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+	u32 sid;
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (!(sbsec->flags & SE_SBINITIALIZED))
 		return 0;
 
+<<<<<<< HEAD
 	if (!data)
 		return 0;
 
@@ -2986,10 +3926,48 @@ out_free_opts:
 out_free_secdata:
 	free_secdata(secdata);
 	return rc;
+=======
+	if (!opts)
+		return 0;
+
+	if (opts->fscontext) {
+		rc = parse_sid(sb, opts->fscontext, &sid);
+		if (rc)
+			return rc;
+		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
+			goto out_bad_option;
+	}
+	if (opts->context) {
+		rc = parse_sid(sb, opts->context, &sid);
+		if (rc)
+			return rc;
+		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
+			goto out_bad_option;
+	}
+	if (opts->rootcontext) {
+		struct inode_security_struct *root_isec;
+		root_isec = backing_inode_security(sb->s_root);
+		rc = parse_sid(sb, opts->rootcontext, &sid);
+		if (rc)
+			return rc;
+		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
+			goto out_bad_option;
+	}
+	if (opts->defcontext) {
+		rc = parse_sid(sb, opts->defcontext, &sid);
+		if (rc)
+			return rc;
+		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
+			goto out_bad_option;
+	}
+	return 0;
+
+>>>>>>> upstream/android-13
 out_bad_option:
 	pr_warn("SELinux: unable to change security options "
 	       "during remount (dev %s, type=%s)\n", sb->s_id,
 	       sb->s_type->name);
+<<<<<<< HEAD
 	goto out_free_opts;
 }
 
@@ -3021,6 +3999,19 @@ static int selinux_sb_kern_mount(struct super_block *sb, int flags, void *data)
 	// ] SEC_SELINUX_PORTING_COMMON
 	
 	return rc;
+=======
+	return -EINVAL;
+}
+
+static int selinux_sb_kern_mount(struct super_block *sb)
+{
+	const struct cred *cred = current_cred();
+	struct common_audit_data ad;
+
+	ad.type = LSM_AUDIT_DATA_DENTRY;
+	ad.u.dentry = sb->s_root;
+	return superblock_has_perm(cred, sb, FILESYSTEM__MOUNT, &ad);
+>>>>>>> upstream/android-13
 }
 
 static int selinux_sb_statfs(struct dentry *dentry)
@@ -3048,6 +4039,17 @@ static int selinux_mount(const char *dev_name,
 		return path_has_perm(cred, path, FILE__MOUNTON);
 }
 
+<<<<<<< HEAD
+=======
+static int selinux_move_mount(const struct path *from_path,
+			      const struct path *to_path)
+{
+	const struct cred *cred = current_cred();
+
+	return path_has_perm(cred, to_path, FILE__MOUNTON);
+}
+
+>>>>>>> upstream/android-13
 static int selinux_umount(struct vfsmount *mnt, int flags)
 {
 	const struct cred *cred = current_cred();
@@ -3056,11 +4058,93 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
 				   FILESYSTEM__UNMOUNT, NULL);
 }
 
+<<<<<<< HEAD
+=======
+static int selinux_fs_context_dup(struct fs_context *fc,
+				  struct fs_context *src_fc)
+{
+	const struct selinux_mnt_opts *src = src_fc->security;
+	struct selinux_mnt_opts *opts;
+
+	if (!src)
+		return 0;
+
+	fc->security = kzalloc(sizeof(struct selinux_mnt_opts), GFP_KERNEL);
+	if (!fc->security)
+		return -ENOMEM;
+
+	opts = fc->security;
+
+	if (src->fscontext) {
+		opts->fscontext = kstrdup(src->fscontext, GFP_KERNEL);
+		if (!opts->fscontext)
+			return -ENOMEM;
+	}
+	if (src->context) {
+		opts->context = kstrdup(src->context, GFP_KERNEL);
+		if (!opts->context)
+			return -ENOMEM;
+	}
+	if (src->rootcontext) {
+		opts->rootcontext = kstrdup(src->rootcontext, GFP_KERNEL);
+		if (!opts->rootcontext)
+			return -ENOMEM;
+	}
+	if (src->defcontext) {
+		opts->defcontext = kstrdup(src->defcontext, GFP_KERNEL);
+		if (!opts->defcontext)
+			return -ENOMEM;
+	}
+	return 0;
+}
+
+static const struct fs_parameter_spec selinux_fs_parameters[] = {
+	fsparam_string(CONTEXT_STR,	Opt_context),
+	fsparam_string(DEFCONTEXT_STR,	Opt_defcontext),
+	fsparam_string(FSCONTEXT_STR,	Opt_fscontext),
+	fsparam_string(ROOTCONTEXT_STR,	Opt_rootcontext),
+	fsparam_flag  (SECLABEL_STR,	Opt_seclabel),
+	{}
+};
+
+static int selinux_fs_context_parse_param(struct fs_context *fc,
+					  struct fs_parameter *param)
+{
+	struct fs_parse_result result;
+	int opt, rc;
+
+	opt = fs_parse(fc, selinux_fs_parameters, param, &result);
+	if (opt < 0)
+		return opt;
+
+	rc = selinux_add_opt(opt, param->string, &fc->security);
+	if (!rc)
+		param->string = NULL;
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 /* inode security operations */
 
 static int selinux_inode_alloc_security(struct inode *inode)
 {
+<<<<<<< HEAD
 	return inode_alloc_security(inode);
+=======
+	struct inode_security_struct *isec = selinux_inode(inode);
+	u32 sid = current_sid();
+
+	spin_lock_init(&isec->lock);
+	INIT_LIST_HEAD(&isec->list);
+	isec->inode = inode;
+	isec->sid = SECINITSID_UNLABELED;
+	isec->sclass = SECCLASS_FILE;
+	isec->task_sid = sid;
+	isec->initialized = LABEL_INVALID;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void selinux_inode_free_security(struct inode *inode)
@@ -3069,19 +4153,34 @@ static void selinux_inode_free_security(struct inode *inode)
 }
 
 static int selinux_dentry_init_security(struct dentry *dentry, int mode,
+<<<<<<< HEAD
 					const struct qstr *name, void **ctx,
+=======
+					const struct qstr *name,
+					const char **xattr_name, void **ctx,
+>>>>>>> upstream/android-13
 					u32 *ctxlen)
 {
 	u32 newsid;
 	int rc;
 
+<<<<<<< HEAD
 	rc = selinux_determine_inode_label(current_security(),
+=======
+	rc = selinux_determine_inode_label(selinux_cred(current_cred()),
+>>>>>>> upstream/android-13
 					   d_inode(dentry->d_parent), name,
 					   inode_mode_to_security_class(mode),
 					   &newsid);
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
+=======
+	if (xattr_name)
+		*xattr_name = XATTR_NAME_SELINUX;
+
+>>>>>>> upstream/android-13
 	return security_sid_to_context(&selinux_state, newsid, (char **)ctx,
 				       ctxlen);
 }
@@ -3095,14 +4194,22 @@ static int selinux_dentry_create_files_as(struct dentry *dentry, int mode,
 	int rc;
 	struct task_security_struct *tsec;
 
+<<<<<<< HEAD
 	rc = selinux_determine_inode_label(old->security,
+=======
+	rc = selinux_determine_inode_label(selinux_cred(old),
+>>>>>>> upstream/android-13
 					   d_inode(dentry->d_parent), name,
 					   inode_mode_to_security_class(mode),
 					   &newsid);
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	tsec = new->security;
+=======
+	tsec = selinux_cred(new);
+>>>>>>> upstream/android-13
 	tsec->create_sid = newsid;
 	return 0;
 }
@@ -3112,18 +4219,30 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
 				       const char **name,
 				       void **value, size_t *len)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = current_security();
+=======
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+>>>>>>> upstream/android-13
 	struct superblock_security_struct *sbsec;
 	u32 newsid, clen;
 	int rc;
 	char *context;
 
+<<<<<<< HEAD
 	sbsec = dir->i_sb->s_security;
 
 	newsid = tsec->create_sid;
 
 	rc = selinux_determine_inode_label(current_security(),
 		dir, qstr,
+=======
+	sbsec = selinux_superblock(dir->i_sb);
+
+	newsid = tsec->create_sid;
+
+	rc = selinux_determine_inode_label(tsec, dir, qstr,
+>>>>>>> upstream/android-13
 		inode_mode_to_security_class(inode->i_mode),
 		&newsid);
 	if (rc)
@@ -3131,13 +4250,22 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
 
 	/* Possibly defer initialization to selinux_complete_init. */
 	if (sbsec->flags & SE_SBINITIALIZED) {
+<<<<<<< HEAD
 		struct inode_security_struct *isec = inode->i_security;
+=======
+		struct inode_security_struct *isec = selinux_inode(inode);
+>>>>>>> upstream/android-13
 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
 		isec->sid = newsid;
 		isec->initialized = LABEL_INITIALIZED;
 	}
 
+<<<<<<< HEAD
 	if (!ss_initialized || !(sbsec->flags & SBLABEL_MNT)) // SEC_SELINUX_PORTING_COMMON Change to use RKP
+=======
+	if (!selinux_initialized(&selinux_state) ||
+	    !(sbsec->flags & SBLABEL_MNT))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	if (name)
@@ -3155,6 +4283,65 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int selinux_inode_init_security_anon(struct inode *inode,
+					    const struct qstr *name,
+					    const struct inode *context_inode)
+{
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+	struct common_audit_data ad;
+	struct inode_security_struct *isec;
+	int rc;
+
+	if (unlikely(!selinux_initialized(&selinux_state)))
+		return 0;
+
+	isec = selinux_inode(inode);
+
+	/*
+	 * We only get here once per ephemeral inode.  The inode has
+	 * been initialized via inode_alloc_security but is otherwise
+	 * untouched.
+	 */
+
+	if (context_inode) {
+		struct inode_security_struct *context_isec =
+			selinux_inode(context_inode);
+		if (context_isec->initialized != LABEL_INITIALIZED) {
+			pr_err("SELinux:  context_inode is not initialized");
+			return -EACCES;
+		}
+
+		isec->sclass = context_isec->sclass;
+		isec->sid = context_isec->sid;
+	} else {
+		isec->sclass = SECCLASS_ANON_INODE;
+		rc = security_transition_sid(
+			&selinux_state, tsec->sid, tsec->sid,
+			isec->sclass, name, &isec->sid);
+		if (rc)
+			return rc;
+	}
+
+	isec->initialized = LABEL_INITIALIZED;
+	/*
+	 * Now that we've initialized security, check whether we're
+	 * allowed to actually create this type of anonymous inode.
+	 */
+
+	ad.type = LSM_AUDIT_DATA_INODE;
+	ad.u.inode = inode;
+
+	return avc_has_perm(&selinux_state,
+			    tsec->sid,
+			    isec->sid,
+			    isec->sclass,
+			    FILE__CREATE,
+			    &ad);
+}
+
+>>>>>>> upstream/android-13
 static int selinux_inode_create(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	return may_create(dir, dentry, SECCLASS_FILE);
@@ -3220,9 +4407,14 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
 	if (IS_ERR(isec))
 		return PTR_ERR(isec);
 
+<<<<<<< HEAD
 	return avc_has_perm_flags(&selinux_state,
 				  sid, isec->sid, isec->sclass, FILE__READ, &ad,
 				  rcu ? MAY_NOT_BLOCK : 0);
+=======
+	return avc_has_perm(&selinux_state,
+				  sid, isec->sid, isec->sclass, FILE__READ, &ad);
+>>>>>>> upstream/android-13
 }
 
 static noinline int audit_inode_permission(struct inode *inode,
@@ -3230,18 +4422,28 @@ static noinline int audit_inode_permission(struct inode *inode,
 					   int result)
 {
 	struct common_audit_data ad;
+<<<<<<< HEAD
 	struct inode_security_struct *isec = inode->i_security;
 	int rc;
+=======
+	struct inode_security_struct *isec = selinux_inode(inode);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_INODE;
 	ad.u.inode = inode;
 
+<<<<<<< HEAD
 	rc = slow_avc_audit(&selinux_state,
 			    current_sid(), isec->sid, isec->sclass, perms,
 			    audited, denied, result, &ad);
 	if (rc)
 		return rc;
 	return 0;
+=======
+	return slow_avc_audit(&selinux_state,
+			    current_sid(), isec->sid, isec->sclass, perms,
+			    audited, denied, result, &ad);
+>>>>>>> upstream/android-13
 }
 
 static int selinux_inode_permission(struct inode *inode, int mask)
@@ -3249,7 +4451,11 @@ static int selinux_inode_permission(struct inode *inode, int mask)
 	const struct cred *cred = current_cred();
 	u32 perms;
 	bool from_access;
+<<<<<<< HEAD
 	unsigned flags = mask & MAY_NOT_BLOCK;
+=======
+	bool no_block = mask & MAY_NOT_BLOCK;
+>>>>>>> upstream/android-13
 	struct inode_security_struct *isec;
 	u32 sid;
 	struct av_decision avd;
@@ -3271,13 +4477,21 @@ static int selinux_inode_permission(struct inode *inode, int mask)
 	perms = file_mask_to_av(inode->i_mode, mask);
 
 	sid = cred_sid(cred);
+<<<<<<< HEAD
 	isec = inode_security_rcu(inode, flags & MAY_NOT_BLOCK);
+=======
+	isec = inode_security_rcu(inode, no_block);
+>>>>>>> upstream/android-13
 	if (IS_ERR(isec))
 		return PTR_ERR(isec);
 
 	rc = avc_has_perm_noaudit(&selinux_state,
+<<<<<<< HEAD
 				  sid, isec->sid, isec->sclass, perms,
 				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
+=======
+				  sid, isec->sid, isec->sclass, perms, 0,
+>>>>>>> upstream/android-13
 				  &avd);
 	audited = avc_audit_required(perms, &avd, rc,
 				     from_access ? FILE__AUDIT_ACCESS : 0,
@@ -3285,10 +4499,13 @@ static int selinux_inode_permission(struct inode *inode, int mask)
 	if (likely(!audited))
 		return rc;
 
+<<<<<<< HEAD
 	/* fall back to ref-walk if we have to generate audit */
 	if (flags & MAY_NOT_BLOCK)
 		return -ECHILD;
 
+=======
+>>>>>>> upstream/android-13
 	rc2 = audit_inode_permission(inode, perms, audited, denied, rc);
 	if (rc2)
 		return rc2;
@@ -3340,7 +4557,12 @@ static bool has_cap_mac_admin(bool audit)
 	return true;
 }
 
+<<<<<<< HEAD
 static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+=======
+static int selinux_inode_setxattr(struct user_namespace *mnt_userns,
+				  struct dentry *dentry, const char *name,
+>>>>>>> upstream/android-13
 				  const void *value, size_t size, int flags)
 {
 	struct inode *inode = d_backing_inode(dentry);
@@ -3360,11 +4582,22 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
 		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
 	}
 
+<<<<<<< HEAD
 	sbsec = inode->i_sb->s_security;
 	if (!(sbsec->flags & SBLABEL_MNT))
 		return -EOPNOTSUPP;
 
 	if (!inode_owner_or_capable(inode))
+=======
+	if (!selinux_initialized(&selinux_state))
+		return (inode_owner_or_capable(mnt_userns, inode) ? 0 : -EPERM);
+
+	sbsec = selinux_superblock(inode->i_sb);
+	if (!(sbsec->flags & SBLABEL_MNT))
+		return -EOPNOTSUPP;
+
+	if (!inode_owner_or_capable(mnt_userns, inode))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	ad.type = LSM_AUDIT_DATA_DENTRY;
@@ -3398,6 +4631,11 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
 			}
 			ab = audit_log_start(audit_context(),
 					     GFP_ATOMIC, AUDIT_SELINUX_ERR);
+<<<<<<< HEAD
+=======
+			if (!ab)
+				return rc;
+>>>>>>> upstream/android-13
 			audit_log_format(ab, "op=setxattr invalid_context=");
 			audit_log_n_untrustedstring(ab, value, audit_size);
 			audit_log_end(ab);
@@ -3443,6 +4681,18 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!selinux_initialized(&selinux_state)) {
+		/* If we haven't even been initialized, then we can't validate
+		 * against a policy, so leave the label as invalid. It may
+		 * resolve to a valid label on the next revalidation try if
+		 * we've since initialized.
+		 */
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	rc = security_context_to_sid_force(&selinux_state, value, size,
 					   &newsid);
 	if (rc) {
@@ -3476,10 +4726,18 @@ static int selinux_inode_listxattr(struct dentry *dentry)
 	return dentry_has_perm(cred, dentry, FILE__GETATTR);
 }
 
+<<<<<<< HEAD
 static int selinux_inode_removexattr(struct dentry *dentry, const char *name)
 {
 	if (strcmp(name, XATTR_NAME_SELINUX)) {
 		int rc = cap_inode_removexattr(dentry, name);
+=======
+static int selinux_inode_removexattr(struct user_namespace *mnt_userns,
+				     struct dentry *dentry, const char *name)
+{
+	if (strcmp(name, XATTR_NAME_SELINUX)) {
+		int rc = cap_inode_removexattr(mnt_userns, dentry, name);
+>>>>>>> upstream/android-13
 		if (rc)
 			return rc;
 
@@ -3488,24 +4746,92 @@ static int selinux_inode_removexattr(struct dentry *dentry, const char *name)
 		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
 	}
 
+<<<<<<< HEAD
+=======
+	if (!selinux_initialized(&selinux_state))
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* No one is allowed to remove a SELinux security label.
 	   You can change the label, but all data must be labeled. */
 	return -EACCES;
 }
 
+<<<<<<< HEAD
+=======
+static int selinux_path_notify(const struct path *path, u64 mask,
+						unsigned int obj_type)
+{
+	int ret;
+	u32 perm;
+
+	struct common_audit_data ad;
+
+	ad.type = LSM_AUDIT_DATA_PATH;
+	ad.u.path = *path;
+
+	/*
+	 * Set permission needed based on the type of mark being set.
+	 * Performs an additional check for sb watches.
+	 */
+	switch (obj_type) {
+	case FSNOTIFY_OBJ_TYPE_VFSMOUNT:
+		perm = FILE__WATCH_MOUNT;
+		break;
+	case FSNOTIFY_OBJ_TYPE_SB:
+		perm = FILE__WATCH_SB;
+		ret = superblock_has_perm(current_cred(), path->dentry->d_sb,
+						FILESYSTEM__WATCH, &ad);
+		if (ret)
+			return ret;
+		break;
+	case FSNOTIFY_OBJ_TYPE_INODE:
+		perm = FILE__WATCH;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	/* blocking watches require the file:watch_with_perm permission */
+	if (mask & (ALL_FSNOTIFY_PERM_EVENTS))
+		perm |= FILE__WATCH_WITH_PERM;
+
+	/* watches on read-like events need the file:watch_reads permission */
+	if (mask & (FS_ACCESS | FS_ACCESS_PERM | FS_CLOSE_NOWRITE))
+		perm |= FILE__WATCH_READS;
+
+	return path_has_perm(current_cred(), path, perm);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Copy the inode security context value to the user.
  *
  * Permission check is handled by selinux_inode_getxattr hook.
  */
+<<<<<<< HEAD
 static int selinux_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+=======
+static int selinux_inode_getsecurity(struct user_namespace *mnt_userns,
+				     struct inode *inode, const char *name,
+				     void **buffer, bool alloc)
+>>>>>>> upstream/android-13
 {
 	u32 size;
 	int error;
 	char *context = NULL;
 	struct inode_security_struct *isec;
 
+<<<<<<< HEAD
 	if (strcmp(name, XATTR_SELINUX_SUFFIX))
+=======
+	/*
+	 * If we're not initialized yet, then we can't validate contexts, so
+	 * just let vfs_getxattr fall back to using the on-disk xattr.
+	 */
+	if (!selinux_initialized(&selinux_state) ||
+	    strcmp(name, XATTR_SELINUX_SUFFIX))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	/*
@@ -3541,13 +4867,21 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
 				     const void *value, size_t size, int flags)
 {
 	struct inode_security_struct *isec = inode_security_novalidate(inode);
+<<<<<<< HEAD
 	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+=======
+	struct superblock_security_struct *sbsec;
+>>>>>>> upstream/android-13
 	u32 newsid;
 	int rc;
 
 	if (strcmp(name, XATTR_SELINUX_SUFFIX))
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
+=======
+	sbsec = selinux_superblock(inode->i_sb);
+>>>>>>> upstream/android-13
 	if (!(sbsec->flags & SBLABEL_MNT))
 		return -EOPNOTSUPP;
 
@@ -3570,6 +4904,13 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
 static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
 {
 	const int len = sizeof(XATTR_NAME_SELINUX);
+<<<<<<< HEAD
+=======
+
+	if (!selinux_initialized(&selinux_state))
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (buffer && len <= buffer_size)
 		memcpy(buffer, XATTR_NAME_SELINUX, len);
 	return len;
@@ -3593,7 +4934,11 @@ static int selinux_inode_copy_up(struct dentry *src, struct cred **new)
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	tsec = new_creds->security;
+=======
+	tsec = selinux_cred(new_creds);
+>>>>>>> upstream/android-13
 	/* Get label from overlay inode and set it in create_sid */
 	selinux_inode_getsecid(d_inode(src), &sid);
 	tsec->create_sid = sid;
@@ -3616,6 +4961,70 @@ static int selinux_inode_copy_up_xattr(const char *name)
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+/* kernfs node operations */
+
+static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+					struct kernfs_node *kn)
+{
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+	u32 parent_sid, newsid, clen;
+	int rc;
+	char *context;
+
+	rc = kernfs_xattr_get(kn_dir, XATTR_NAME_SELINUX, NULL, 0);
+	if (rc == -ENODATA)
+		return 0;
+	else if (rc < 0)
+		return rc;
+
+	clen = (u32)rc;
+	context = kmalloc(clen, GFP_KERNEL);
+	if (!context)
+		return -ENOMEM;
+
+	rc = kernfs_xattr_get(kn_dir, XATTR_NAME_SELINUX, context, clen);
+	if (rc < 0) {
+		kfree(context);
+		return rc;
+	}
+
+	rc = security_context_to_sid(&selinux_state, context, clen, &parent_sid,
+				     GFP_KERNEL);
+	kfree(context);
+	if (rc)
+		return rc;
+
+	if (tsec->create_sid) {
+		newsid = tsec->create_sid;
+	} else {
+		u16 secclass = inode_mode_to_security_class(kn->mode);
+		struct qstr q;
+
+		q.name = kn->name;
+		q.hash_len = hashlen_string(kn_dir, kn->name);
+
+		rc = security_transition_sid(&selinux_state, tsec->sid,
+					     parent_sid, secclass, &q,
+					     &newsid);
+		if (rc)
+			return rc;
+	}
+
+	rc = security_sid_to_context_force(&selinux_state, newsid,
+					   &context, &clen);
+	if (rc)
+		return rc;
+
+	rc = kernfs_xattr_set(kn, XATTR_NAME_SELINUX, context, clen,
+			      XATTR_CREATE);
+	kfree(context);
+	return rc;
+}
+
+
+>>>>>>> upstream/android-13
 /* file security operations */
 
 static int selinux_revalidate_file_permission(struct file *file, int mask)
@@ -3634,7 +5043,11 @@ static int selinux_revalidate_file_permission(struct file *file, int mask)
 static int selinux_file_permission(struct file *file, int mask)
 {
 	struct inode *inode = file_inode(file);
+<<<<<<< HEAD
 	struct file_security_struct *fsec = file->f_security;
+=======
+	struct file_security_struct *fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 	struct inode_security_struct *isec;
 	u32 sid = current_sid();
 
@@ -3653,12 +5066,22 @@ static int selinux_file_permission(struct file *file, int mask)
 
 static int selinux_file_alloc_security(struct file *file)
 {
+<<<<<<< HEAD
 	return file_alloc_security(file);
 }
 
 static void selinux_file_free_security(struct file *file)
 {
 	file_free_security(file);
+=======
+	struct file_security_struct *fsec = selinux_file(file);
+	u32 sid = current_sid();
+
+	fsec->sid = sid;
+	fsec->fown_sid = sid;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3669,7 +5092,11 @@ static int ioctl_has_perm(const struct cred *cred, struct file *file,
 		u32 requested, u16 cmd)
 {
 	struct common_audit_data ad;
+<<<<<<< HEAD
 	struct file_security_struct *fsec = file->f_security;
+=======
+	struct file_security_struct *fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 	struct inode *inode = file_inode(file);
 	struct inode_security_struct *isec;
 	struct lsm_ioctlop_audit ioctl;
@@ -3712,6 +5139,7 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
 
 	switch (cmd) {
 	case FIONREAD:
+<<<<<<< HEAD
 	/* fall through */
 	case FIBMAP:
 	/* fall through */
@@ -3719,19 +5147,30 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
 	/* fall through */
 	case FS_IOC_GETFLAGS:
 	/* fall through */
+=======
+	case FIBMAP:
+	case FIGETBSZ:
+	case FS_IOC_GETFLAGS:
+>>>>>>> upstream/android-13
 	case FS_IOC_GETVERSION:
 		error = file_has_perm(cred, file, FILE__GETATTR);
 		break;
 
 	case FS_IOC_SETFLAGS:
+<<<<<<< HEAD
 	/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case FS_IOC_SETVERSION:
 		error = file_has_perm(cred, file, FILE__SETATTR);
 		break;
 
 	/* sys_ioctl() checks */
 	case FIONBIO:
+<<<<<<< HEAD
 	/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case FIOASYNC:
 		error = file_has_perm(cred, file, 0);
 		break;
@@ -3742,6 +5181,15 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
 					    CAP_OPT_NONE, true);
 		break;
 
+<<<<<<< HEAD
+=======
+	case FIOCLEX:
+	case FIONCLEX:
+		if (!selinux_policycap_ioctl_skip_cloexec())
+			error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
+		break;
+
+>>>>>>> upstream/android-13
 	/* default case assumes that the command will go
 	 * to the file's ioctl() function.
 	 */
@@ -3751,7 +5199,11 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
 	return error;
 }
 
+<<<<<<< HEAD
 static int default_noexec;
+=======
+static int default_noexec __ro_after_init;
+>>>>>>> upstream/android-13
 
 static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
 {
@@ -3821,7 +5273,11 @@ static int selinux_mmap_file(struct file *file, unsigned long reqprot,
 			return rc;
 	}
 
+<<<<<<< HEAD
 	if (selinux_state.checkreqprot)
+=======
+	if (checkreqprot_get(&selinux_state))
+>>>>>>> upstream/android-13
 		prot = reqprot;
 
 	return file_map_prot_check(file, prot,
@@ -3835,7 +5291,11 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
 	const struct cred *cred = current_cred();
 	u32 sid = cred_sid(cred);
 
+<<<<<<< HEAD
 	if (selinux_state.checkreqprot)
+=======
+	if (checkreqprot_get(&selinux_state))
+>>>>>>> upstream/android-13
 		prot = reqprot;
 
 	if (default_noexec &&
@@ -3889,7 +5349,11 @@ static int selinux_file_fcntl(struct file *file, unsigned int cmd,
 			err = file_has_perm(cred, file, FILE__WRITE);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case F_SETOWN:
 	case F_SETSIG:
 	case F_GETFL:
@@ -3921,7 +5385,11 @@ static void selinux_file_set_fowner(struct file *file)
 {
 	struct file_security_struct *fsec;
 
+<<<<<<< HEAD
 	fsec = file->f_security;
+=======
+	fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 	fsec->fown_sid = current_sid();
 }
 
@@ -3929,14 +5397,22 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
 				       struct fown_struct *fown, int signum)
 {
 	struct file *file;
+<<<<<<< HEAD
 	u32 sid = task_sid(tsk);
+=======
+	u32 sid = task_sid_obj(tsk);
+>>>>>>> upstream/android-13
 	u32 perm;
 	struct file_security_struct *fsec;
 
 	/* struct fown_struct is never outside the context of a struct file */
 	file = container_of(fown, struct file, f_owner);
 
+<<<<<<< HEAD
 	fsec = file->f_security;
+=======
+	fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 
 	if (!signum)
 		perm = signal_to_av(SIGIO); /* as per send_sigio_to_task */
@@ -3960,7 +5436,11 @@ static int selinux_file_open(struct file *file)
 	struct file_security_struct *fsec;
 	struct inode_security_struct *isec;
 
+<<<<<<< HEAD
 	fsec = file->f_security;
+=======
+	fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 	isec = inode_security(file_inode(file));
 	/*
 	 * Save inode label and policy sequence number
@@ -3994,6 +5474,7 @@ static int selinux_task_alloc(struct task_struct *task,
 }
 
 /*
+<<<<<<< HEAD
  * allocate the SELinux part of blank credentials
  */
 static int selinux_cred_alloc_blank(struct cred *cred, gfp_t gfp)
@@ -4034,11 +5515,14 @@ static void selinux_cred_free(struct cred *cred)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * prepare a new set of credentials for modification
  */
 static int selinux_cred_prepare(struct cred *new, const struct cred *old,
 				gfp_t gfp)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *old_tsec;
 	struct task_security_struct *tsec;
 
@@ -4049,6 +5533,12 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
 		return -ENOMEM;
 
 	new->security = tsec;
+=======
+	const struct task_security_struct *old_tsec = selinux_cred(old);
+	struct task_security_struct *tsec = selinux_cred(new);
+
+	*tsec = *old_tsec;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4057,8 +5547,13 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
  */
 static void selinux_cred_transfer(struct cred *new, const struct cred *old)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *old_tsec = old->security;
 	struct task_security_struct *tsec = new->security;
+=======
+	const struct task_security_struct *old_tsec = selinux_cred(old);
+	struct task_security_struct *tsec = selinux_cred(new);
+>>>>>>> upstream/android-13
 
 	*tsec = *old_tsec;
 }
@@ -4074,7 +5569,11 @@ static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
  */
 static int selinux_kernel_act_as(struct cred *new, u32 secid)
 {
+<<<<<<< HEAD
 	struct task_security_struct *tsec = new->security;
+=======
+	struct task_security_struct *tsec = selinux_cred(new);
+>>>>>>> upstream/android-13
 	u32 sid = current_sid();
 	int ret;
 
@@ -4099,7 +5598,11 @@ static int selinux_kernel_act_as(struct cred *new, u32 secid)
 static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
 {
 	struct inode_security_struct *isec = inode_security(inode);
+<<<<<<< HEAD
 	struct task_security_struct *tsec = new->security;
+=======
+	struct task_security_struct *tsec = selinux_cred(new);
+>>>>>>> upstream/android-13
 	u32 sid = current_sid();
 	int ret;
 
@@ -4145,7 +5648,11 @@ static int selinux_kernel_module_from_file(struct file *file)
 	ad.type = LSM_AUDIT_DATA_FILE;
 	ad.u.file = file;
 
+<<<<<<< HEAD
 	fsec = file->f_security;
+=======
+	fsec = selinux_file(file);
+>>>>>>> upstream/android-13
 	if (sid != fsec->sid) {
 		rc = avc_has_perm(&selinux_state,
 				  sid, fsec->sid, SECCLASS_FD, FD__USE, &ad);
@@ -4160,13 +5667,22 @@ static int selinux_kernel_module_from_file(struct file *file)
 }
 
 static int selinux_kernel_read_file(struct file *file,
+<<<<<<< HEAD
 				    enum kernel_read_file_id id)
+=======
+				    enum kernel_read_file_id id,
+				    bool contents)
+>>>>>>> upstream/android-13
 {
 	int rc = 0;
 
 	switch (id) {
 	case READING_MODULE:
+<<<<<<< HEAD
 		rc = selinux_kernel_module_from_file(file);
+=======
+		rc = selinux_kernel_module_from_file(contents ? file : NULL);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -4175,13 +5691,21 @@ static int selinux_kernel_read_file(struct file *file,
 	return rc;
 }
 
+<<<<<<< HEAD
 static int selinux_kernel_load_data(enum kernel_load_data_id id)
+=======
+static int selinux_kernel_load_data(enum kernel_load_data_id id, bool contents)
+>>>>>>> upstream/android-13
 {
 	int rc = 0;
 
 	switch (id) {
 	case LOADING_MODULE:
 		rc = selinux_kernel_module_from_file(NULL);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -4192,20 +5716,29 @@ static int selinux_kernel_load_data(enum kernel_load_data_id id)
 static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__SETPGID, NULL);
 }
 
 static int selinux_task_getpgid(struct task_struct *p)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__GETPGID, NULL);
 }
 
 static int selinux_task_getsid(struct task_struct *p)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
 			    PROCESS__GETSESSION, NULL);
 }
@@ -4213,26 +5746,52 @@ static int selinux_task_getsid(struct task_struct *p)
 static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
 {
 	*secid = task_sid(p);
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+			    PROCESS__GETSESSION, NULL);
+}
+
+static void selinux_task_getsecid_subj(struct task_struct *p, u32 *secid)
+{
+	*secid = task_sid_subj(p);
+}
+
+static void selinux_task_getsecid_obj(struct task_struct *p, u32 *secid)
+{
+	*secid = task_sid_obj(p);
+>>>>>>> upstream/android-13
 }
 
 static int selinux_task_setnice(struct task_struct *p, int nice)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__SETSCHED, NULL);
 }
 
 static int selinux_task_setioprio(struct task_struct *p, int ioprio)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__SETSCHED, NULL);
 }
 
 static int selinux_task_getioprio(struct task_struct *p)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__GETSCHED, NULL);
 }
 
@@ -4263,7 +5822,11 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
 	   upon context transitions.  See selinux_bprm_committing_creds. */
 	if (old_rlim->rlim_max != new_rlim->rlim_max)
 		return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 				    current_sid(), task_sid(p),
+=======
+				    current_sid(), task_sid_obj(p),
+>>>>>>> upstream/android-13
 				    SECCLASS_PROCESS, PROCESS__SETRLIMIT, NULL);
 
 	return 0;
@@ -4272,25 +5835,41 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
 static int selinux_task_setscheduler(struct task_struct *p)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__SETSCHED, NULL);
 }
 
 static int selinux_task_getscheduler(struct task_struct *p)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+>>>>>>> upstream/android-13
 			    PROCESS__GETSCHED, NULL);
 }
 
 static int selinux_task_movememory(struct task_struct *p)
 {
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    current_sid(), task_sid(p), SECCLASS_PROCESS,
 			    PROCESS__SETSCHED, NULL);
 }
 
 static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
+=======
+			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+			    PROCESS__SETSCHED, NULL);
+}
+
+static int selinux_task_kill(struct task_struct *p, struct kernel_siginfo *info,
+>>>>>>> upstream/android-13
 				int sig, const struct cred *cred)
 {
 	u32 secid;
@@ -4305,14 +5884,23 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
 	else
 		secid = cred_sid(cred);
 	return avc_has_perm(&selinux_state,
+<<<<<<< HEAD
 			    secid, task_sid(p), SECCLASS_PROCESS, perm, NULL);
+=======
+			    secid, task_sid_obj(p), SECCLASS_PROCESS, perm, NULL);
+>>>>>>> upstream/android-13
 }
 
 static void selinux_task_to_inode(struct task_struct *p,
 				  struct inode *inode)
 {
+<<<<<<< HEAD
 	struct inode_security_struct *isec = inode->i_security;
 	u32 sid = task_sid(p);
+=======
+	struct inode_security_struct *isec = selinux_inode(inode);
+	u32 sid = task_sid_obj(p);
+>>>>>>> upstream/android-13
 
 	spin_lock(&isec->lock);
 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
@@ -4596,7 +6184,11 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
  *
  * If @skb_sid is valid then the user:role:type information from @sk_sid is
  * combined with the MLS information from @skb_sid in order to create
+<<<<<<< HEAD
  * @conn_sid.  If @skb_sid is not valid then then @conn_sid is simply a copy
+=======
+ * @conn_sid.  If @skb_sid is not valid then @conn_sid is simply a copy
+>>>>>>> upstream/android-13
  * of @sk_sid.  Returns zero on success, negative values on failure.
  *
  */
@@ -4648,7 +6240,11 @@ static int sock_has_perm(struct sock *sk, u32 perms)
 static int selinux_socket_create(int family, int type,
 				 int protocol, int kern)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = current_security();
+=======
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+>>>>>>> upstream/android-13
 	u32 newsid;
 	u16 secclass;
 	int rc;
@@ -4668,7 +6264,11 @@ static int selinux_socket_create(int family, int type,
 static int selinux_socket_post_create(struct socket *sock, int family,
 				      int type, int protocol, int kern)
 {
+<<<<<<< HEAD
 	const struct task_security_struct *tsec = current_security();
+=======
+	const struct task_security_struct *tsec = selinux_cred(current_cred());
+>>>>>>> upstream/android-13
 	struct inode_security_struct *isec = inode_security_novalidate(SOCK_INODE(sock));
 	struct sk_security_struct *sksec;
 	u16 sclass = socket_type_to_security_class(family, type, protocol);
@@ -4734,7 +6334,11 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
 		struct lsm_network_audit net = {0,};
 		struct sockaddr_in *addr4 = NULL;
 		struct sockaddr_in6 *addr6 = NULL;
+<<<<<<< HEAD
 		u16 family_sa = address->sa_family;
+=======
+		u16 family_sa;
+>>>>>>> upstream/android-13
 		unsigned short snum;
 		u32 sid, node_perm;
 
@@ -4744,6 +6348,12 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
 		 * need to check address->sa_family as it is possible to have
 		 * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
 		 */
+<<<<<<< HEAD
+=======
+		if (addrlen < offsetofend(struct sockaddr, sa_family))
+			return -EINVAL;
+		family_sa = address->sa_family;
+>>>>>>> upstream/android-13
 		switch (family_sa) {
 		case AF_UNSPEC:
 		case AF_INET:
@@ -4782,8 +6392,13 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
 
 			inet_get_local_port_range(sock_net(sk), &low, &high);
 
+<<<<<<< HEAD
 			if (snum < max(inet_prot_sock(sock_net(sk)), low) ||
 			    snum > high) {
+=======
+			if (inet_port_requires_bind_service(sock_net(sk), snum) ||
+			    snum < low || snum > high) {
+>>>>>>> upstream/android-13
 				err = sel_netport_sid(sk->sk_protocol,
 						      snum, &sid);
 				if (err)
@@ -4844,7 +6459,11 @@ err_af:
 }
 
 /* This supports connect(2) and SCTP connect services such as sctp_connectx(3)
+<<<<<<< HEAD
  * and sctp_sendmsg(3) as described in Documentation/security/LSM-sctp.rst
+=======
+ * and sctp_sendmsg(3) as described in Documentation/security/SCTP.rst
+>>>>>>> upstream/android-13
  */
 static int selinux_socket_connect_helper(struct socket *sock,
 					 struct sockaddr *address, int addrlen)
@@ -4856,6 +6475,17 @@ static int selinux_socket_connect_helper(struct socket *sock,
 	err = sock_has_perm(sk, SOCKET__CONNECT);
 	if (err)
 		return err;
+<<<<<<< HEAD
+=======
+	if (addrlen < offsetofend(struct sockaddr, sa_family))
+		return -EINVAL;
+
+	/* connect(AF_UNSPEC) has special handling, as it is a documented
+	 * way to disconnect the socket
+	 */
+	if (address->sa_family == AF_UNSPEC)
+		return 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If a TCP, DCCP or SCTP socket, check name_connect permission
@@ -4868,7 +6498,11 @@ static int selinux_socket_connect_helper(struct socket *sock,
 		struct lsm_network_audit net = {0,};
 		struct sockaddr_in *addr4 = NULL;
 		struct sockaddr_in6 *addr6 = NULL;
+<<<<<<< HEAD
 		unsigned short snum = 0;
+=======
+		unsigned short snum;
+>>>>>>> upstream/android-13
 		u32 sid, perm;
 
 		/* sctp_connectx(3) calls via selinux_sctp_bind_connect()
@@ -4891,12 +6525,21 @@ static int selinux_socket_connect_helper(struct socket *sock,
 			break;
 		default:
 			/* Note that SCTP services expect -EINVAL, whereas
+<<<<<<< HEAD
 			 * others must handle this at the protocol level:
 			 * connect(AF_UNSPEC) on a connected socket is
 			 * a documented way disconnect the socket.
 			 */
 			if (sksec->sclass == SECCLASS_SCTP_SOCKET)
 				return -EINVAL;
+=======
+			 * others expect -EAFNOSUPPORT.
+			 */
+			if (sksec->sclass == SECCLASS_SCTP_SOCKET)
+				return -EINVAL;
+			else
+				return -EAFNOSUPPORT;
+>>>>>>> upstream/android-13
 		}
 
 		err = sel_netport_sid(sk->sk_protocol, snum, &sid);
@@ -5455,7 +7098,11 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
 
 			/* As selinux_sctp_bind_connect() is called by the
 			 * SCTP protocol layer, the socket is already locked,
+<<<<<<< HEAD
 			 * therefore selinux_netlbl_socket_connect_locked() is
+=======
+			 * therefore selinux_netlbl_socket_connect_locked()
+>>>>>>> upstream/android-13
 			 * is called here. The situations handled are:
 			 * sctp_connectx(3), sctp_sendmsg(3), sendmsg(2),
 			 * whenever a new IP address is added or when a new
@@ -5497,7 +7144,11 @@ static void selinux_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
 	selinux_netlbl_sctp_sk_clone(sk, newsk);
 }
 
+<<<<<<< HEAD
 static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+=======
+static int selinux_inet_conn_request(const struct sock *sk, struct sk_buff *skb,
+>>>>>>> upstream/android-13
 				     struct request_sock *req)
 {
 	struct sk_security_struct *sksec = sk->sk_security;
@@ -5552,7 +7203,11 @@ static int selinux_secmark_relabel_packet(u32 sid)
 	const struct task_security_struct *__tsec;
 	u32 tsid;
 
+<<<<<<< HEAD
 	__tsec = current_security();
+=======
+	__tsec = selinux_cred(current_cred());
+>>>>>>> upstream/android-13
 	tsid = __tsec->sid;
 
 	return avc_has_perm(&selinux_state,
@@ -5571,9 +7226,15 @@ static void selinux_secmark_refcount_dec(void)
 }
 
 static void selinux_req_classify_flow(const struct request_sock *req,
+<<<<<<< HEAD
 				      struct flowi *fl)
 {
 	fl->flowi_secid = req->secid;
+=======
+				      struct flowi_common *flic)
+{
+	flic->flowic_secid = req->secid;
+>>>>>>> upstream/android-13
 }
 
 static int selinux_tun_dev_alloc_security(void **security)
@@ -5658,6 +7319,7 @@ static int selinux_tun_dev_open(void *security)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
 {
 	int rc = 0;
@@ -5716,6 +7378,8 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NETFILTER
 
 static unsigned int selinux_ip_forward(struct sk_buff *skb,
@@ -5859,7 +7523,11 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
 	struct common_audit_data ad;
 	struct lsm_network_audit net = {0,};
 	char *addrp;
+<<<<<<< HEAD
 	u8 proto;
+=======
+	u8 proto = 0;
+>>>>>>> upstream/android-13
 
 	if (sk == NULL)
 		return NF_ACCEPT;
@@ -6044,6 +7712,7 @@ static unsigned int selinux_ipv6_postroute(void *priv,
 
 static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	return selinux_nlmsg_perm(sk, skb);
 }
 
@@ -6090,6 +7759,68 @@ static void msg_msg_free_security(struct msg_msg *msg)
 
 	msg->security = NULL;
 	kfree(msec);
+=======
+	int rc = 0;
+	unsigned int msg_len;
+	unsigned int data_len = skb->len;
+	unsigned char *data = skb->data;
+	struct nlmsghdr *nlh;
+	struct sk_security_struct *sksec = sk->sk_security;
+	u16 sclass = sksec->sclass;
+	u32 perm;
+
+	while (data_len >= nlmsg_total_size(0)) {
+		nlh = (struct nlmsghdr *)data;
+
+		/* NOTE: the nlmsg_len field isn't reliably set by some netlink
+		 *       users which means we can't reject skb's with bogus
+		 *       length fields; our solution is to follow what
+		 *       netlink_rcv_skb() does and simply skip processing at
+		 *       messages with length fields that are clearly junk
+		 */
+		if (nlh->nlmsg_len < NLMSG_HDRLEN || nlh->nlmsg_len > data_len)
+			return 0;
+
+		rc = selinux_nlmsg_lookup(sclass, nlh->nlmsg_type, &perm);
+		if (rc == 0) {
+			rc = sock_has_perm(sk, perm);
+			if (rc)
+				return rc;
+		} else if (rc == -EINVAL) {
+			/* -EINVAL is a missing msg/perm mapping */
+			pr_warn_ratelimited("SELinux: unrecognized netlink"
+				" message: protocol=%hu nlmsg_type=%hu sclass=%s"
+				" pid=%d comm=%s\n",
+				sk->sk_protocol, nlh->nlmsg_type,
+				secclass_map[sclass - 1].name,
+				task_pid_nr(current), current->comm);
+			if (enforcing_enabled(&selinux_state) &&
+			    !security_get_allow_unknown(&selinux_state))
+				return rc;
+			rc = 0;
+		} else if (rc == -ENOENT) {
+			/* -ENOENT is a missing socket/class mapping, ignore */
+			rc = 0;
+		} else {
+			return rc;
+		}
+
+		/* move to the next message after applying netlink padding */
+		msg_len = NLMSG_ALIGN(nlh->nlmsg_len);
+		if (msg_len >= data_len)
+			return 0;
+		data_len -= msg_len;
+		data += msg_len;
+	}
+
+	return rc;
+}
+
+static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
+{
+	isec->sclass = sclass;
+	isec->sid = current_sid();
+>>>>>>> upstream/android-13
 }
 
 static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
@@ -6099,7 +7830,11 @@ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
 	struct common_audit_data ad;
 	u32 sid = current_sid();
 
+<<<<<<< HEAD
 	isec = ipc_perms->security;
+=======
+	isec = selinux_ipc(ipc_perms);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = ipc_perms->key;
@@ -6110,12 +7845,21 @@ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
 
 static int selinux_msg_msg_alloc_security(struct msg_msg *msg)
 {
+<<<<<<< HEAD
 	return msg_msg_alloc_security(msg);
 }
 
 static void selinux_msg_msg_free_security(struct msg_msg *msg)
 {
 	msg_msg_free_security(msg);
+=======
+	struct msg_security_struct *msec;
+
+	msec = selinux_msg_msg(msg);
+	msec->sid = SECINITSID_UNLABELED;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* message queue security operations */
@@ -6126,11 +7870,16 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
 	u32 sid = current_sid();
 	int rc;
 
+<<<<<<< HEAD
 	rc = ipc_alloc_security(msq, SECCLASS_MSGQ);
 	if (rc)
 		return rc;
 
 	isec = msq->security;
+=======
+	isec = selinux_ipc(msq);
+	ipc_init_security(isec, SECCLASS_MSGQ);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = msq->key;
@@ -6138,6 +7887,7 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
 	rc = avc_has_perm(&selinux_state,
 			  sid, isec->sid, SECCLASS_MSGQ,
 			  MSGQ__CREATE, &ad);
+<<<<<<< HEAD
 	if (rc) {
 		ipc_free_security(msq);
 		return rc;
@@ -6148,6 +7898,9 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
 static void selinux_msg_queue_free_security(struct kern_ipc_perm *msq)
 {
 	ipc_free_security(msq);
+=======
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int selinux_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
@@ -6156,7 +7909,11 @@ static int selinux_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
 	struct common_audit_data ad;
 	u32 sid = current_sid();
 
+<<<<<<< HEAD
 	isec = msq->security;
+=======
+	isec = selinux_ipc(msq);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = msq->key;
@@ -6205,8 +7962,13 @@ static int selinux_msg_queue_msgsnd(struct kern_ipc_perm *msq, struct msg_msg *m
 	u32 sid = current_sid();
 	int rc;
 
+<<<<<<< HEAD
 	isec = msq->security;
 	msec = msg->security;
+=======
+	isec = selinux_ipc(msq);
+	msec = selinux_msg_msg(msg);
+>>>>>>> upstream/android-13
 
 	/*
 	 * First time through, need to assign label to the message
@@ -6250,11 +8012,19 @@ static int selinux_msg_queue_msgrcv(struct kern_ipc_perm *msq, struct msg_msg *m
 	struct ipc_security_struct *isec;
 	struct msg_security_struct *msec;
 	struct common_audit_data ad;
+<<<<<<< HEAD
 	u32 sid = task_sid(target);
 	int rc;
 
 	isec = msq->security;
 	msec = msg->security;
+=======
+	u32 sid = task_sid_obj(target);
+	int rc;
+
+	isec = selinux_ipc(msq);
+	msec = selinux_msg_msg(msg);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = msq->key;
@@ -6277,11 +8047,16 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
 	u32 sid = current_sid();
 	int rc;
 
+<<<<<<< HEAD
 	rc = ipc_alloc_security(shp, SECCLASS_SHM);
 	if (rc)
 		return rc;
 
 	isec = shp->security;
+=======
+	isec = selinux_ipc(shp);
+	ipc_init_security(isec, SECCLASS_SHM);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = shp->key;
@@ -6289,6 +8064,7 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
 	rc = avc_has_perm(&selinux_state,
 			  sid, isec->sid, SECCLASS_SHM,
 			  SHM__CREATE, &ad);
+<<<<<<< HEAD
 	if (rc) {
 		ipc_free_security(shp);
 		return rc;
@@ -6299,6 +8075,9 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
 static void selinux_shm_free_security(struct kern_ipc_perm *shp)
 {
 	ipc_free_security(shp);
+=======
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int selinux_shm_associate(struct kern_ipc_perm *shp, int shmflg)
@@ -6307,7 +8086,11 @@ static int selinux_shm_associate(struct kern_ipc_perm *shp, int shmflg)
 	struct common_audit_data ad;
 	u32 sid = current_sid();
 
+<<<<<<< HEAD
 	isec = shp->security;
+=======
+	isec = selinux_ipc(shp);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = shp->key;
@@ -6374,11 +8157,16 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
 	u32 sid = current_sid();
 	int rc;
 
+<<<<<<< HEAD
 	rc = ipc_alloc_security(sma, SECCLASS_SEM);
 	if (rc)
 		return rc;
 
 	isec = sma->security;
+=======
+	isec = selinux_ipc(sma);
+	ipc_init_security(isec, SECCLASS_SEM);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = sma->key;
@@ -6386,6 +8174,7 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
 	rc = avc_has_perm(&selinux_state,
 			  sid, isec->sid, SECCLASS_SEM,
 			  SEM__CREATE, &ad);
+<<<<<<< HEAD
 	if (rc) {
 		ipc_free_security(sma);
 		return rc;
@@ -6396,6 +8185,9 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
 static void selinux_sem_free_security(struct kern_ipc_perm *sma)
 {
 	ipc_free_security(sma);
+=======
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static int selinux_sem_associate(struct kern_ipc_perm *sma, int semflg)
@@ -6404,7 +8196,11 @@ static int selinux_sem_associate(struct kern_ipc_perm *sma, int semflg)
 	struct common_audit_data ad;
 	u32 sid = current_sid();
 
+<<<<<<< HEAD
 	isec = sma->security;
+=======
+	isec = selinux_ipc(sma);
+>>>>>>> upstream/android-13
 
 	ad.type = LSM_AUDIT_DATA_IPC;
 	ad.u.ipc_id = sma->key;
@@ -6490,7 +8286,11 @@ static int selinux_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
 
 static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
 {
+<<<<<<< HEAD
 	struct ipc_security_struct *isec = ipcp->security;
+=======
+	struct ipc_security_struct *isec = selinux_ipc(ipcp);
+>>>>>>> upstream/android-13
 	*secid = isec->sid;
 }
 
@@ -6509,7 +8309,11 @@ static int selinux_getprocattr(struct task_struct *p,
 	unsigned len;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	__tsec = __task_cred(p)->security;
+=======
+	__tsec = selinux_cred(__task_cred(p));
+>>>>>>> upstream/android-13
 
 	if (current != p) {
 		error = avc_has_perm(&selinux_state,
@@ -6608,6 +8412,11 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
 				ab = audit_log_start(audit_context(),
 						     GFP_ATOMIC,
 						     AUDIT_SELINUX_ERR);
+<<<<<<< HEAD
+=======
+				if (!ab)
+					return error;
+>>>>>>> upstream/android-13
 				audit_log_format(ab, "op=fscreate invalid_context=");
 				audit_log_n_untrustedstring(ab, value, audit_size);
 				audit_log_end(ab);
@@ -6629,10 +8438,17 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
 	/* Permission checking based on the specified context is
 	   performed during the actual operation (execve,
 	   open/mkdir/...), when we know the full context of the
+<<<<<<< HEAD
 	   operation.  See selinux_bprm_set_creds for the execve
 	   checks and may_create for the file creation checks. The
 	   operation will then fail if the context is not permitted. */
 	tsec = new->security;
+=======
+	   operation.  See selinux_bprm_creds_for_exec for the execve
+	   checks and may_create for the file creation checks. The
+	   operation will then fail if the context is not permitted. */
+	tsec = selinux_cred(new);
+>>>>>>> upstream/android-13
 	if (!strcmp(name, "exec")) {
 		tsec->exec_sid = sid;
 	} else if (!strcmp(name, "fscreate")) {
@@ -6717,7 +8533,11 @@ static void selinux_release_secctx(char *secdata, u32 seclen)
 
 static void selinux_inode_invalidate_secctx(struct inode *inode)
 {
+<<<<<<< HEAD
 	struct inode_security_struct *isec = inode->i_security;
+=======
+	struct inode_security_struct *isec = selinux_inode(inode);
+>>>>>>> upstream/android-13
 
 	spin_lock(&isec->lock);
 	isec->initialized = LABEL_INVALID;
@@ -6740,14 +8560,24 @@ static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen
  */
 static int selinux_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
 {
+<<<<<<< HEAD
 	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SELINUX, ctx, ctxlen, 0);
+=======
+	return __vfs_setxattr_noperm(&init_user_ns, dentry, XATTR_NAME_SELINUX,
+				     ctx, ctxlen, 0);
+>>>>>>> upstream/android-13
 }
 
 static int selinux_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
 {
 	int len = 0;
+<<<<<<< HEAD
 	len = selinux_inode_getsecurity(inode, XATTR_SELINUX_SUFFIX,
 						ctx, true);
+=======
+	len = selinux_inode_getsecurity(&init_user_ns, inode,
+					XATTR_SELINUX_SUFFIX, ctx, true);
+>>>>>>> upstream/android-13
 	if (len < 0)
 		return len;
 	*ctxlen = len;
@@ -6765,7 +8595,11 @@ static int selinux_key_alloc(struct key *k, const struct cred *cred,
 	if (!ksec)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	tsec = cred->security;
+=======
+	tsec = selinux_cred(cred);
+>>>>>>> upstream/android-13
 	if (tsec->keycreate_sid)
 		ksec->sid = tsec->keycreate_sid;
 	else
@@ -6785,6 +8619,7 @@ static void selinux_key_free(struct key *k)
 
 static int selinux_key_permission(key_ref_t key_ref,
 				  const struct cred *cred,
+<<<<<<< HEAD
 				  unsigned perm)
 {
 	struct key *key;
@@ -6799,6 +8634,45 @@ static int selinux_key_permission(key_ref_t key_ref,
 
 	sid = cred_sid(cred);
 
+=======
+				  enum key_need_perm need_perm)
+{
+	struct key *key;
+	struct key_security_struct *ksec;
+	u32 perm, sid;
+
+	switch (need_perm) {
+	case KEY_NEED_VIEW:
+		perm = KEY__VIEW;
+		break;
+	case KEY_NEED_READ:
+		perm = KEY__READ;
+		break;
+	case KEY_NEED_WRITE:
+		perm = KEY__WRITE;
+		break;
+	case KEY_NEED_SEARCH:
+		perm = KEY__SEARCH;
+		break;
+	case KEY_NEED_LINK:
+		perm = KEY__LINK;
+		break;
+	case KEY_NEED_SETATTR:
+		perm = KEY__SETATTR;
+		break;
+	case KEY_NEED_UNLINK:
+	case KEY_SYSADMIN_OVERRIDE:
+	case KEY_AUTHTOKEN_OVERRIDE:
+	case KEY_DEFER_PERM_CHECK:
+		return 0;
+	default:
+		WARN_ON(1);
+		return -EPERM;
+
+	}
+
+	sid = cred_sid(cred);
+>>>>>>> upstream/android-13
 	key = key_ref_to_ptr(key_ref);
 	ksec = key->security;
 
@@ -6820,6 +8694,20 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
 	*_buffer = context;
 	return rc;
 }
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_KEY_NOTIFICATIONS
+static int selinux_watch_key(struct key *key)
+{
+	struct key_security_struct *ksec = key->security;
+	u32 sid = current_sid();
+
+	return avc_has_perm(&selinux_state,
+			    sid, ksec->sid, SECCLASS_KEY, KEY__VIEW, NULL);
+}
+#endif
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_SECURITY_INFINIBAND
@@ -6861,7 +8749,11 @@ static int selinux_ib_endport_manage_subnet(void *ib_sec, const char *dev_name,
 		return err;
 
 	ad.type = LSM_AUDIT_DATA_IBENDPORT;
+<<<<<<< HEAD
 	strncpy(ibendport.dev_name, dev_name, sizeof(ibendport.dev_name));
+=======
+	ibendport.dev_name = dev_name;
+>>>>>>> upstream/android-13
 	ibendport.port = port_num;
 	ad.u.ibendport = &ibendport;
 	return avc_has_perm(&selinux_state,
@@ -7028,6 +8920,45 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static int selinux_lockdown(enum lockdown_reason what)
+{
+	struct common_audit_data ad;
+	u32 sid = current_sid();
+	int invalid_reason = (what <= LOCKDOWN_NONE) ||
+			     (what == LOCKDOWN_INTEGRITY_MAX) ||
+			     (what >= LOCKDOWN_CONFIDENTIALITY_MAX);
+
+	if (WARN(invalid_reason, "Invalid lockdown reason")) {
+		audit_log(audit_context(),
+			  GFP_ATOMIC, AUDIT_SELINUX_ERR,
+			  "lockdown_reason=invalid");
+		return -EINVAL;
+	}
+
+	ad.type = LSM_AUDIT_DATA_LOCKDOWN;
+	ad.u.reason = what;
+
+	if (what <= LOCKDOWN_INTEGRITY_MAX)
+		return avc_has_perm(&selinux_state,
+				    sid, sid, SECCLASS_LOCKDOWN,
+				    LOCKDOWN__INTEGRITY, &ad);
+	else
+		return avc_has_perm(&selinux_state,
+				    sid, sid, SECCLASS_LOCKDOWN,
+				    LOCKDOWN__CONFIDENTIALITY, &ad);
+}
+
+struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
+	.lbs_cred = sizeof(struct task_security_struct),
+	.lbs_file = sizeof(struct file_security_struct),
+	.lbs_inode = sizeof(struct inode_security_struct),
+	.lbs_ipc = sizeof(struct ipc_security_struct),
+	.lbs_msg_msg = sizeof(struct msg_security_struct),
+	.lbs_superblock = sizeof(struct superblock_security_struct),
+};
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PERF_EVENTS
 static int selinux_perf_event_open(struct perf_event_attr *attr, int type)
@@ -7090,11 +9021,30 @@ static int selinux_perf_event_write(struct perf_event *event)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 static struct security_hook_list selinux_hooks[] __lsm_ro_after_init_kdp = {
 #else
 static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 #endif
+=======
+/*
+ * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
+ * 1. any hooks that don't belong to (2.) or (3.) below,
+ * 2. hooks that both access structures allocated by other hooks, and allocate
+ *    structures that can be later accessed by other hooks (mostly "cloning"
+ *    hooks),
+ * 3. hooks that only allocate structures that can be later accessed by other
+ *    hooks ("allocating" hooks).
+ *
+ * Please follow block comment delimiters in the list to keep this order.
+ *
+ * This ordering is needed for SELinux runtime disable to work at least somewhat
+ * safely. Breaking the ordering rules above might lead to NULL pointer derefs
+ * when disabling SELinux at runtime.
+ */
+static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
 	LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
@@ -7112,6 +9062,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 
 	LSM_HOOK_INIT(netlink_send, selinux_netlink_send),
 
+<<<<<<< HEAD
 	LSM_HOOK_INIT(bprm_set_creds, selinux_bprm_set_creds),
 	LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds),
 	LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
@@ -7119,6 +9070,14 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
 	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
 	LSM_HOOK_INIT(sb_copy_data, selinux_sb_copy_data),
+=======
+	LSM_HOOK_INIT(bprm_creds_for_exec, selinux_bprm_creds_for_exec),
+	LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds),
+	LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
+
+	LSM_HOOK_INIT(sb_free_mnt_opts, selinux_free_mnt_opts),
+	LSM_HOOK_INIT(sb_mnt_opts_compat, selinux_sb_mnt_opts_compat),
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(sb_remount, selinux_sb_remount),
 	LSM_HOOK_INIT(sb_kern_mount, selinux_sb_kern_mount),
 	LSM_HOOK_INIT(sb_show_options, selinux_sb_show_options),
@@ -7127,14 +9086,25 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(sb_umount, selinux_umount),
 	LSM_HOOK_INIT(sb_set_mnt_opts, selinux_set_mnt_opts),
 	LSM_HOOK_INIT(sb_clone_mnt_opts, selinux_sb_clone_mnt_opts),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(sb_parse_opts_str, selinux_parse_opts_str),
+=======
+
+	LSM_HOOK_INIT(move_mount, selinux_move_mount),
+>>>>>>> upstream/android-13
 
 	LSM_HOOK_INIT(dentry_init_security, selinux_dentry_init_security),
 	LSM_HOOK_INIT(dentry_create_files_as, selinux_dentry_create_files_as),
 
+<<<<<<< HEAD
 	LSM_HOOK_INIT(inode_alloc_security, selinux_inode_alloc_security),
 	LSM_HOOK_INIT(inode_free_security, selinux_inode_free_security),
 	LSM_HOOK_INIT(inode_init_security, selinux_inode_init_security),
+=======
+	LSM_HOOK_INIT(inode_free_security, selinux_inode_free_security),
+	LSM_HOOK_INIT(inode_init_security, selinux_inode_init_security),
+	LSM_HOOK_INIT(inode_init_security_anon, selinux_inode_init_security_anon),
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(inode_create, selinux_inode_create),
 	LSM_HOOK_INIT(inode_link, selinux_inode_link),
 	LSM_HOOK_INIT(inode_unlink, selinux_inode_unlink),
@@ -7159,10 +9129,19 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(inode_getsecid, selinux_inode_getsecid),
 	LSM_HOOK_INIT(inode_copy_up, selinux_inode_copy_up),
 	LSM_HOOK_INIT(inode_copy_up_xattr, selinux_inode_copy_up_xattr),
+<<<<<<< HEAD
 
 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
 	LSM_HOOK_INIT(file_free_security, selinux_file_free_security),
+=======
+	LSM_HOOK_INIT(path_notify, selinux_path_notify),
+
+	LSM_HOOK_INIT(kernfs_init_security, selinux_kernfs_init_security),
+
+	LSM_HOOK_INIT(file_permission, selinux_file_permission),
+	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
 	LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
@@ -7176,8 +9155,11 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(file_open, selinux_file_open),
 
 	LSM_HOOK_INIT(task_alloc, selinux_task_alloc),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(cred_alloc_blank, selinux_cred_alloc_blank),
 	LSM_HOOK_INIT(cred_free, selinux_cred_free),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
 	LSM_HOOK_INIT(cred_transfer, selinux_cred_transfer),
 	LSM_HOOK_INIT(cred_getsecid, selinux_cred_getsecid),
@@ -7189,7 +9171,12 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(task_setpgid, selinux_task_setpgid),
 	LSM_HOOK_INIT(task_getpgid, selinux_task_getpgid),
 	LSM_HOOK_INIT(task_getsid, selinux_task_getsid),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(task_getsecid, selinux_task_getsecid),
+=======
+	LSM_HOOK_INIT(task_getsecid_subj, selinux_task_getsecid_subj),
+	LSM_HOOK_INIT(task_getsecid_obj, selinux_task_getsecid_obj),
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(task_setnice, selinux_task_setnice),
 	LSM_HOOK_INIT(task_setioprio, selinux_task_setioprio),
 	LSM_HOOK_INIT(task_getioprio, selinux_task_getioprio),
@@ -7204,25 +9191,34 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(ipc_permission, selinux_ipc_permission),
 	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
 
+<<<<<<< HEAD
 	LSM_HOOK_INIT(msg_msg_alloc_security, selinux_msg_msg_alloc_security),
 	LSM_HOOK_INIT(msg_msg_free_security, selinux_msg_msg_free_security),
 
 	LSM_HOOK_INIT(msg_queue_alloc_security,
 			selinux_msg_queue_alloc_security),
 	LSM_HOOK_INIT(msg_queue_free_security, selinux_msg_queue_free_security),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(msg_queue_associate, selinux_msg_queue_associate),
 	LSM_HOOK_INIT(msg_queue_msgctl, selinux_msg_queue_msgctl),
 	LSM_HOOK_INIT(msg_queue_msgsnd, selinux_msg_queue_msgsnd),
 	LSM_HOOK_INIT(msg_queue_msgrcv, selinux_msg_queue_msgrcv),
 
+<<<<<<< HEAD
 	LSM_HOOK_INIT(shm_alloc_security, selinux_shm_alloc_security),
 	LSM_HOOK_INIT(shm_free_security, selinux_shm_free_security),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(shm_associate, selinux_shm_associate),
 	LSM_HOOK_INIT(shm_shmctl, selinux_shm_shmctl),
 	LSM_HOOK_INIT(shm_shmat, selinux_shm_shmat),
 
+<<<<<<< HEAD
 	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
 	LSM_HOOK_INIT(sem_free_security, selinux_sem_free_security),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(sem_associate, selinux_sem_associate),
 	LSM_HOOK_INIT(sem_semctl, selinux_sem_semctl),
 	LSM_HOOK_INIT(sem_semop, selinux_sem_semop),
@@ -7233,13 +9229,19 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(setprocattr, selinux_setprocattr),
 
 	LSM_HOOK_INIT(ismaclabel, selinux_ismaclabel),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(secctx_to_secid, selinux_secctx_to_secid),
 	LSM_HOOK_INIT(release_secctx, selinux_release_secctx),
 	LSM_HOOK_INIT(inode_invalidate_secctx, selinux_inode_invalidate_secctx),
 	LSM_HOOK_INIT(inode_notifysecctx, selinux_inode_notifysecctx),
 	LSM_HOOK_INIT(inode_setsecctx, selinux_inode_setsecctx),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
+=======
+>>>>>>> upstream/android-13
 
 	LSM_HOOK_INIT(unix_stream_connect, selinux_socket_unix_stream_connect),
 	LSM_HOOK_INIT(unix_may_send, selinux_socket_unix_may_send),
@@ -7262,7 +9264,10 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(socket_getpeersec_stream,
 			selinux_socket_getpeersec_stream),
 	LSM_HOOK_INIT(socket_getpeersec_dgram, selinux_socket_getpeersec_dgram),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(sk_alloc_security, selinux_sk_alloc_security),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(sk_free_security, selinux_sk_free_security),
 	LSM_HOOK_INIT(sk_clone_security, selinux_sk_clone_security),
 	LSM_HOOK_INIT(sk_getsecid, selinux_sk_getsecid),
@@ -7277,7 +9282,10 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(secmark_refcount_inc, selinux_secmark_refcount_inc),
 	LSM_HOOK_INIT(secmark_refcount_dec, selinux_secmark_refcount_dec),
 	LSM_HOOK_INIT(req_classify_flow, selinux_req_classify_flow),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(tun_dev_alloc_security, selinux_tun_dev_alloc_security),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(tun_dev_free_security, selinux_tun_dev_free_security),
 	LSM_HOOK_INIT(tun_dev_create, selinux_tun_dev_create),
 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
@@ -7287,6 +9295,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
 	LSM_HOOK_INIT(ib_endport_manage_subnet,
 		      selinux_ib_endport_manage_subnet),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
 	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
 #endif
@@ -7298,6 +9307,13 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(xfrm_state_alloc, selinux_xfrm_state_alloc),
 	LSM_HOOK_INIT(xfrm_state_alloc_acquire,
 			selinux_xfrm_state_alloc_acquire),
+=======
+	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
+#endif
+#ifdef CONFIG_SECURITY_NETWORK_XFRM
+	LSM_HOOK_INIT(xfrm_policy_free_security, selinux_xfrm_policy_free),
+	LSM_HOOK_INIT(xfrm_policy_delete_security, selinux_xfrm_policy_delete),
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(xfrm_state_free_security, selinux_xfrm_state_free),
 	LSM_HOOK_INIT(xfrm_state_delete_security, selinux_xfrm_state_delete),
 	LSM_HOOK_INIT(xfrm_policy_lookup, selinux_xfrm_policy_lookup),
@@ -7307,6 +9323,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 #endif
 
 #ifdef CONFIG_KEYS
+<<<<<<< HEAD
 	LSM_HOOK_INIT(key_alloc, selinux_key_alloc),
 	LSM_HOOK_INIT(key_free, selinux_key_free),
 	LSM_HOOK_INIT(key_permission, selinux_key_permission),
@@ -7315,6 +9332,17 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 
 #ifdef CONFIG_AUDIT
 	LSM_HOOK_INIT(audit_rule_init, selinux_audit_rule_init),
+=======
+	LSM_HOOK_INIT(key_free, selinux_key_free),
+	LSM_HOOK_INIT(key_permission, selinux_key_permission),
+	LSM_HOOK_INIT(key_getsecurity, selinux_key_getsecurity),
+#ifdef CONFIG_KEY_NOTIFICATIONS
+	LSM_HOOK_INIT(watch_key, selinux_watch_key),
+#endif
+#endif
+
+#ifdef CONFIG_AUDIT
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(audit_rule_known, selinux_audit_rule_known),
 	LSM_HOOK_INIT(audit_rule_match, selinux_audit_rule_match),
 	LSM_HOOK_INIT(audit_rule_free, selinux_audit_rule_free),
@@ -7324,23 +9352,83 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
 	LSM_HOOK_INIT(bpf, selinux_bpf),
 	LSM_HOOK_INIT(bpf_map, selinux_bpf_map),
 	LSM_HOOK_INIT(bpf_prog, selinux_bpf_prog),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(bpf_map_alloc_security, selinux_bpf_map_alloc),
 	LSM_HOOK_INIT(bpf_prog_alloc_security, selinux_bpf_prog_alloc),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
 	LSM_HOOK_INIT(bpf_prog_free_security, selinux_bpf_prog_free),
 #endif
 
 #ifdef CONFIG_PERF_EVENTS
 	LSM_HOOK_INIT(perf_event_open, selinux_perf_event_open),
+<<<<<<< HEAD
 	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
+=======
+>>>>>>> upstream/android-13
 	LSM_HOOK_INIT(perf_event_free, selinux_perf_event_free),
 	LSM_HOOK_INIT(perf_event_read, selinux_perf_event_read),
 	LSM_HOOK_INIT(perf_event_write, selinux_perf_event_write),
 #endif
+<<<<<<< HEAD
+=======
+
+	LSM_HOOK_INIT(locked_down, selinux_lockdown),
+
+	/*
+	 * PUT "CLONING" (ACCESSING + ALLOCATING) HOOKS HERE
+	 */
+	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
+	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
+	LSM_HOOK_INIT(sb_eat_lsm_opts, selinux_sb_eat_lsm_opts),
+	LSM_HOOK_INIT(sb_add_mnt_opt, selinux_add_mnt_opt),
+#ifdef CONFIG_SECURITY_NETWORK_XFRM
+	LSM_HOOK_INIT(xfrm_policy_clone_security, selinux_xfrm_policy_clone),
+#endif
+
+	/*
+	 * PUT "ALLOCATING" HOOKS HERE
+	 */
+	LSM_HOOK_INIT(msg_msg_alloc_security, selinux_msg_msg_alloc_security),
+	LSM_HOOK_INIT(msg_queue_alloc_security,
+		      selinux_msg_queue_alloc_security),
+	LSM_HOOK_INIT(shm_alloc_security, selinux_shm_alloc_security),
+	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
+	LSM_HOOK_INIT(inode_alloc_security, selinux_inode_alloc_security),
+	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
+	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
+	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
+	LSM_HOOK_INIT(sk_alloc_security, selinux_sk_alloc_security),
+	LSM_HOOK_INIT(tun_dev_alloc_security, selinux_tun_dev_alloc_security),
+#ifdef CONFIG_SECURITY_INFINIBAND
+	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
+#endif
+#ifdef CONFIG_SECURITY_NETWORK_XFRM
+	LSM_HOOK_INIT(xfrm_policy_alloc_security, selinux_xfrm_policy_alloc),
+	LSM_HOOK_INIT(xfrm_state_alloc, selinux_xfrm_state_alloc),
+	LSM_HOOK_INIT(xfrm_state_alloc_acquire,
+		      selinux_xfrm_state_alloc_acquire),
+#endif
+#ifdef CONFIG_KEYS
+	LSM_HOOK_INIT(key_alloc, selinux_key_alloc),
+#endif
+#ifdef CONFIG_AUDIT
+	LSM_HOOK_INIT(audit_rule_init, selinux_audit_rule_init),
+#endif
+#ifdef CONFIG_BPF_SYSCALL
+	LSM_HOOK_INIT(bpf_map_alloc_security, selinux_bpf_map_alloc),
+	LSM_HOOK_INIT(bpf_prog_alloc_security, selinux_bpf_prog_alloc),
+#endif
+#ifdef CONFIG_PERF_EVENTS
+	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
+#endif
+>>>>>>> upstream/android-13
 };
 
 static __init int selinux_init(void)
 {
+<<<<<<< HEAD
 	if (!security_module_enable("selinux")) {
 		// [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
@@ -7357,25 +9445,37 @@ static __init int selinux_init(void)
 		return 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	pr_info("SELinux:  Initializing.\n");
 
 	memset(&selinux_state, 0, sizeof(selinux_state));
 	enforcing_set(&selinux_state, selinux_enforcing_boot);
+<<<<<<< HEAD
 	selinux_state.checkreqprot = selinux_checkreqprot_boot;
 	selinux_ss_init(&selinux_state.ss);
 	selinux_avc_init(&selinux_state.avc);
+=======
+	checkreqprot_set(&selinux_state, selinux_checkreqprot_boot);
+	selinux_avc_init(&selinux_state.avc);
+	mutex_init(&selinux_state.status_lock);
+	mutex_init(&selinux_state.policy_mutex);
+>>>>>>> upstream/android-13
 
 	/* Set the security state for the initial task. */
 	cred_init_security();
 
 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
 
+<<<<<<< HEAD
 	sel_inode_cache = kmem_cache_create("selinux_inode_security",
 					    sizeof(struct inode_security_struct),
 					    0, SLAB_PANIC, NULL);
 	file_security_cache = kmem_cache_create("selinux_file_security",
 					    sizeof(struct file_security_struct),
 					    0, SLAB_PANIC, NULL);
+=======
+>>>>>>> upstream/android-13
 	avc_init();
 
 	avtab_cache_init();
@@ -7391,23 +9491,35 @@ static __init int selinux_init(void)
 
 	if (avc_add_callback(selinux_lsm_notifier_avc_callback, AVC_CALLBACK_RESET))
 		panic("SELinux: Unable to register AVC LSM notifier callback\n");
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
 		selinux_enforcing_boot = 1;
 #endif
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+>>>>>>> upstream/android-13
 
 	if (selinux_enforcing_boot)
 		pr_debug("SELinux:  Starting in enforcing mode\n");
 	else
 		pr_debug("SELinux:  Starting in permissive mode\n");
 
+<<<<<<< HEAD
+=======
+	fs_validate_description("selinux", selinux_fs_parameters);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void delayed_superblock_init(struct super_block *sb, void *unused)
 {
+<<<<<<< HEAD
 	superblock_doinit(sb, NULL);
+=======
+	selinux_set_mnt_opts(sb, NULL, 0, NULL);
+>>>>>>> upstream/android-13
 }
 
 void selinux_complete_init(void)
@@ -7421,7 +9533,17 @@ void selinux_complete_init(void)
 
 /* SELinux requires early initialization in order to label
    all processes and objects when they are created. */
+<<<<<<< HEAD
 security_initcall(selinux_init);
+=======
+DEFINE_LSM(selinux) = {
+	.name = "selinux",
+	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
+	.enabled = &selinux_enabled_boot,
+	.blobs = &selinux_blob_sizes,
+	.init = selinux_init,
+};
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_NETFILTER)
 
@@ -7486,6 +9608,7 @@ static struct pernet_operations selinux_net_ops = {
 static int __init selinux_nf_ip_init(void)
 {
 	int err;
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
 		selinux_enabled = 1;
@@ -7493,6 +9616,10 @@ static int __init selinux_nf_ip_init(void)
 // ] SEC_SELINUX_PORTING_COMMON
 
 	if (!selinux_enabled)
+=======
+
+	if (!selinux_enabled_boot)
+>>>>>>> upstream/android-13
 		return 0;
 
 	pr_debug("SELinux:  Registering netfilter hooks\n");
@@ -7517,7 +9644,10 @@ static void selinux_nf_ip_exit(void)
 #else /* CONFIG_NETFILTER */
 
 #ifdef CONFIG_SECURITY_SELINUX_DISABLE
+<<<<<<< HEAD
 static int selinux_disabled;
+=======
+>>>>>>> upstream/android-13
 #define selinux_nf_ip_exit()
 #endif
 
@@ -7526,30 +9656,54 @@ static int selinux_disabled;
 #ifdef CONFIG_SECURITY_SELINUX_DISABLE
 int selinux_disable(struct selinux_state *state)
 {
+<<<<<<< HEAD
 	if (ss_initialized) {     // SEC_SELINUX_PORTING_COMMON Change to use RKP
+=======
+	if (selinux_initialized(state)) {
+>>>>>>> upstream/android-13
 		/* Not permitted after initial policy load. */
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (selinux_disabled) {
+=======
+	if (selinux_disabled(state)) {
+>>>>>>> upstream/android-13
 		/* Only do this once. */
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	selinux_disabled = 1;
 
 	pr_info("SELinux:  Disabled at runtime.\n");
 
 	selinux_enabled = 0;
+=======
+	selinux_mark_disabled(state);
+
+	pr_info("SELinux:  Disabled at runtime.\n");
+
+	/*
+	 * Unregister netfilter hooks.
+	 * Must be done before security_delete_hooks() to avoid breaking
+	 * runtime disable.
+	 */
+	selinux_nf_ip_exit();
+>>>>>>> upstream/android-13
 
 	security_delete_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
 
 	/* Try to destroy the avc node cache */
 	avc_disable();
 
+<<<<<<< HEAD
 	/* Unregister netfilter hooks. */
 	selinux_nf_ip_exit();
 
+=======
+>>>>>>> upstream/android-13
 	/* Unregister selinuxfs. */
 	exit_sel_fs();
 

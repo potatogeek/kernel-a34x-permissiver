@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble ICE1724 (Envy24)
  *
  *   Lowlevel functions for Terratec PHASE 22
  *
  *	Copyright (c) 2005 Misha Zhilin <misha@epiphan.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* PHASE 22 overview:
@@ -171,7 +178,11 @@ static int phase22_add_controls(struct snd_ice1712 *ice)
 	return 0;
 }
 
+<<<<<<< HEAD
 static unsigned char phase22_eeprom[] = {
+=======
+static const unsigned char phase22_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x28,  /* clock 512, mpu 401,
 					spdif-in/1xADC, 1xDACs */
 	[ICE_EEP2_ACLINK]      = 0x80,	/* I2S */
@@ -188,7 +199,11 @@ static unsigned char phase22_eeprom[] = {
 	[ICE_EEP2_GPIO_STATE2] = 0x00,
 };
 
+<<<<<<< HEAD
 static unsigned char phase28_eeprom[] = {
+=======
+static const unsigned char phase28_eeprom[] = {
+>>>>>>> upstream/android-13
 	[ICE_EEP2_SYSCONF]     = 0x2b,  /* clock 512, mpu401,
 					spdif-in/1xADC, 4xDACs */
 	[ICE_EEP2_ACLINK]      = 0x80,	/* I2S */
@@ -759,7 +774,11 @@ static int phase28_oversampling_put(struct snd_kcontrol *kcontrol,
 static const DECLARE_TLV_DB_SCALE(db_scale_wm_dac, -12700, 100, 1);
 static const DECLARE_TLV_DB_SCALE(db_scale_wm_pcm, -6400, 50, 1);
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new phase28_dac_controls[] = {
+=======
+static const struct snd_kcontrol_new phase28_dac_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "Master Playback Switch",
@@ -874,7 +893,11 @@ static struct snd_kcontrol_new phase28_dac_controls[] = {
 	}
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new wm_controls[] = {
+=======
+static const struct snd_kcontrol_new wm_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = "PCM Playback Switch",

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
   File: fs/xattr.c
 
@@ -82,7 +86,12 @@ xattr_resolve_name(struct inode *inode, const char **name)
  * because different namespaces have very different rules.
  */
 static int
+<<<<<<< HEAD
 xattr_permission(struct inode *inode, const char *name, int mask)
+=======
+xattr_permission(struct user_namespace *mnt_userns, struct inode *inode,
+		 const char *name, int mask)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * We can never set or remove an extended attribute on a read-only
@@ -96,7 +105,11 @@ xattr_permission(struct inode *inode, const char *name, int mask)
 		 * to be writen back improperly if their true value is
 		 * unknown to the vfs.
 		 */
+<<<<<<< HEAD
 		if (HAS_UNMAPPED_ID(inode))
+=======
+		if (HAS_UNMAPPED_ID(mnt_userns, inode))
+>>>>>>> upstream/android-13
 			return -EPERM;
 	}
 
@@ -126,6 +139,7 @@ xattr_permission(struct inode *inode, const char *name, int mask)
 		if (!S_ISREG(inode->i_mode) && !S_ISDIR(inode->i_mode))
 			return (mask & MAY_WRITE) ? -EPERM : -ENODATA;
 		if (S_ISDIR(inode->i_mode) && (inode->i_mode & S_ISVTX) &&
+<<<<<<< HEAD
 		    (mask & MAY_WRITE) && !inode_owner_or_capable(inode))
 			return -EPERM;
 	}
@@ -136,6 +150,47 @@ xattr_permission(struct inode *inode, const char *name, int mask)
 int
 __vfs_setxattr(struct dentry *dentry, struct inode *inode, const char *name,
 	       const void *value, size_t size, int flags)
+=======
+		    (mask & MAY_WRITE) &&
+		    !inode_owner_or_capable(mnt_userns, inode))
+			return -EPERM;
+	}
+
+	return inode_permission(mnt_userns, inode, mask);
+}
+
+/*
+ * Look for any handler that deals with the specified namespace.
+ */
+int
+xattr_supported_namespace(struct inode *inode, const char *prefix)
+{
+	const struct xattr_handler **handlers = inode->i_sb->s_xattr;
+	const struct xattr_handler *handler;
+	size_t preflen;
+
+	if (!(inode->i_opflags & IOP_XATTR)) {
+		if (unlikely(is_bad_inode(inode)))
+			return -EIO;
+		return -EOPNOTSUPP;
+	}
+
+	preflen = strlen(prefix);
+
+	for_each_xattr_handler(handlers, handler) {
+		if (!strncmp(xattr_prefix(handler), prefix, preflen))
+			return 0;
+	}
+
+	return -EOPNOTSUPP;
+}
+EXPORT_SYMBOL(xattr_supported_namespace);
+
+int
+__vfs_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+	       struct inode *inode, const char *name, const void *value,
+	       size_t size, int flags)
+>>>>>>> upstream/android-13
 {
 	const struct xattr_handler *handler;
 
@@ -146,7 +201,12 @@ __vfs_setxattr(struct dentry *dentry, struct inode *inode, const char *name,
 		return -EOPNOTSUPP;
 	if (size == 0)
 		value = "";  /* empty EA, do not remove */
+<<<<<<< HEAD
 	return handler->set(handler, dentry, inode, name, value, size, flags);
+=======
+	return handler->set(handler, mnt_userns, dentry, inode, name, value,
+			    size, flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__vfs_setxattr);
 
@@ -154,11 +214,20 @@ EXPORT_SYMBOL(__vfs_setxattr);
  *  __vfs_setxattr_noperm - perform setxattr operation without performing
  *  permission checks.
  *
+<<<<<<< HEAD
  *  @dentry - object to perform setxattr on
  *  @name - xattr name to set
  *  @value - value to set @name to
  *  @size - size of @value
  *  @flags - flags to pass into filesystem operations
+=======
+ *  @mnt_userns: user namespace of the mount the inode was found from
+ *  @dentry: object to perform setxattr on
+ *  @name: xattr name to set
+ *  @value: value to set @name to
+ *  @size: size of @value
+ *  @flags: flags to pass into filesystem operations
+>>>>>>> upstream/android-13
  *
  *  returns the result of the internal setxattr or setsecurity operations.
  *
@@ -166,8 +235,14 @@ EXPORT_SYMBOL(__vfs_setxattr);
  *  is executed. It also assumes that the caller will make the appropriate
  *  permission checks.
  */
+<<<<<<< HEAD
 int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
 		const void *value, size_t size, int flags)
+=======
+int __vfs_setxattr_noperm(struct user_namespace *mnt_userns,
+			  struct dentry *dentry, const char *name,
+			  const void *value, size_t size, int flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = dentry->d_inode;
 	int error = -EAGAIN;
@@ -177,7 +252,12 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
 	if (issec)
 		inode->i_flags &= ~S_NOSEC;
 	if (inode->i_opflags & IOP_XATTR) {
+<<<<<<< HEAD
 		error = __vfs_setxattr(dentry, inode, name, value, size, flags);
+=======
+		error = __vfs_setxattr(mnt_userns, dentry, inode, name, value,
+				       size, flags);
+>>>>>>> upstream/android-13
 		if (!error) {
 			fsnotify_xattr(dentry);
 			security_inode_post_setxattr(dentry, name, value,
@@ -204,6 +284,7 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
 }
 
 /**
+<<<<<<< HEAD
  * __vfs_setxattr_locked: set an extended attribute while holding the inode
  * lock
  *
@@ -219,15 +300,42 @@ int
 __vfs_setxattr_locked(struct dentry *dentry, const char *name,
 		const void *value, size_t size, int flags,
 		struct inode **delegated_inode)
+=======
+ * __vfs_setxattr_locked - set an extended attribute while holding the inode
+ * lock
+ *
+ *  @mnt_userns: user namespace of the mount of the target inode
+ *  @dentry: object to perform setxattr on
+ *  @name: xattr name to set
+ *  @value: value to set @name to
+ *  @size: size of @value
+ *  @flags: flags to pass into filesystem operations
+ *  @delegated_inode: on return, will contain an inode pointer that
+ *  a delegation was broken on, NULL if none.
+ */
+int
+__vfs_setxattr_locked(struct user_namespace *mnt_userns, struct dentry *dentry,
+		      const char *name, const void *value, size_t size,
+		      int flags, struct inode **delegated_inode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = dentry->d_inode;
 	int error;
 
+<<<<<<< HEAD
 	error = xattr_permission(inode, name, MAY_WRITE);
 	if (error)
 		return error;
 
 	error = security_inode_setxattr(dentry, name, value, size, flags);
+=======
+	error = xattr_permission(mnt_userns, inode, name, MAY_WRITE);
+	if (error)
+		return error;
+
+	error = security_inode_setxattr(mnt_userns, dentry, name, value, size,
+					flags);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -235,7 +343,12 @@ __vfs_setxattr_locked(struct dentry *dentry, const char *name,
 	if (error)
 		goto out;
 
+<<<<<<< HEAD
 	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
+=======
+	error = __vfs_setxattr_noperm(mnt_userns, dentry, name, value,
+				      size, flags);
+>>>>>>> upstream/android-13
 
 out:
 	return error;
@@ -243,6 +356,7 @@ out:
 EXPORT_SYMBOL_GPL(__vfs_setxattr_locked);
 
 int
+<<<<<<< HEAD
 vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
 		size_t size, int flags)
 {
@@ -254,6 +368,27 @@ retry_deleg:
 	inode_lock(inode);
 	error = __vfs_setxattr_locked(dentry, name, value, size, flags,
 	    &delegated_inode);
+=======
+vfs_setxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+	     const char *name, const void *value, size_t size, int flags)
+{
+	struct inode *inode = dentry->d_inode;
+	struct inode *delegated_inode = NULL;
+	const void  *orig_value = value;
+	int error;
+
+	if (size && strcmp(name, XATTR_NAME_CAPS) == 0) {
+		error = cap_convert_nscap(mnt_userns, dentry, &value, size);
+		if (error < 0)
+			return error;
+		size = error;
+	}
+
+retry_deleg:
+	inode_lock(inode);
+	error = __vfs_setxattr_locked(mnt_userns, dentry, name, value, size,
+				      flags, &delegated_inode);
+>>>>>>> upstream/android-13
 	inode_unlock(inode);
 
 	if (delegated_inode) {
@@ -261,6 +396,7 @@ retry_deleg:
 		if (!error)
 			goto retry_deleg;
 	}
+<<<<<<< HEAD
 	return error;
 }
 EXPORT_SYMBOL_GPL(vfs_setxattr);
@@ -268,16 +404,38 @@ EXPORT_SYMBOL_GPL(vfs_setxattr);
 static ssize_t
 xattr_getsecurity(struct inode *inode, const char *name, void *value,
 			size_t size)
+=======
+	if (value != orig_value)
+		kfree(value);
+
+	return error;
+}
+EXPORT_SYMBOL_NS_GPL(vfs_setxattr, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+static ssize_t
+xattr_getsecurity(struct user_namespace *mnt_userns, struct inode *inode,
+		  const char *name, void *value, size_t size)
+>>>>>>> upstream/android-13
 {
 	void *buffer = NULL;
 	ssize_t len;
 
 	if (!value || !size) {
+<<<<<<< HEAD
 		len = security_inode_getsecurity(inode, name, &buffer, false);
 		goto out_noalloc;
 	}
 
 	len = security_inode_getsecurity(inode, name, &buffer, true);
+=======
+		len = security_inode_getsecurity(mnt_userns, inode, name,
+						 &buffer, false);
+		goto out_noalloc;
+	}
+
+	len = security_inode_getsecurity(mnt_userns, inode, name, &buffer,
+					 true);
+>>>>>>> upstream/android-13
 	if (len < 0)
 		return len;
 	if (size < len) {
@@ -300,15 +458,25 @@ out_noalloc:
  * Returns the result of alloc, if failed, or the getxattr operation.
  */
 ssize_t
+<<<<<<< HEAD
 vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
 		   size_t xattr_size, gfp_t flags)
+=======
+vfs_getxattr_alloc(struct user_namespace *mnt_userns, struct dentry *dentry,
+		   const char *name, char **xattr_value, size_t xattr_size,
+		   gfp_t flags)
+>>>>>>> upstream/android-13
 {
 	const struct xattr_handler *handler;
 	struct inode *inode = dentry->d_inode;
 	char *value = *xattr_value;
 	int error;
 
+<<<<<<< HEAD
 	error = xattr_permission(inode, name, MAY_READ);
+=======
+	error = xattr_permission(mnt_userns, inode, name, MAY_READ);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -342,9 +510,12 @@ __vfs_getxattr(struct dentry *dentry, struct inode *inode, const char *name,
 	handler = xattr_resolve_name(inode, &name);
 	if (IS_ERR(handler))
 		return PTR_ERR(handler);
+<<<<<<< HEAD
 	if (unlikely(handler->__get))
 		return handler->__get(handler, dentry, inode, name, value,
 				      size);
+=======
+>>>>>>> upstream/android-13
 	if (!handler->get)
 		return -EOPNOTSUPP;
 	return handler->get(handler, dentry, inode, name, value, size);
@@ -352,6 +523,7 @@ __vfs_getxattr(struct dentry *dentry, struct inode *inode, const char *name,
 EXPORT_SYMBOL(__vfs_getxattr);
 
 ssize_t
+<<<<<<< HEAD
 vfs_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
 {
 	struct inode *inode = dentry->d_inode;
@@ -359,6 +531,15 @@ vfs_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
 	const struct xattr_handler *handler;
 
 	error = xattr_permission(inode, name, MAY_READ);
+=======
+vfs_getxattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+	     const char *name, void *value, size_t size)
+{
+	struct inode *inode = dentry->d_inode;
+	int error;
+
+	error = xattr_permission(mnt_userns, inode, name, MAY_READ);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -369,7 +550,12 @@ vfs_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
 				XATTR_SECURITY_PREFIX_LEN)) {
 		const char *suffix = name + XATTR_SECURITY_PREFIX_LEN;
+<<<<<<< HEAD
 		int ret = xattr_getsecurity(inode, suffix, value, size);
+=======
+		int ret = xattr_getsecurity(mnt_userns, inode, suffix, value,
+					    size);
+>>>>>>> upstream/android-13
 		/*
 		 * Only overwrite the return value if a security module
 		 * is actually active.
@@ -379,6 +565,7 @@ vfs_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
 		return ret;
 	}
 nolsm:
+<<<<<<< HEAD
 	handler = xattr_resolve_name(inode, &name);
 	if (IS_ERR(handler))
 		return PTR_ERR(handler);
@@ -387,6 +574,11 @@ nolsm:
 	return handler->get(handler, dentry, inode, name, value, size);
 }
 EXPORT_SYMBOL_GPL(vfs_getxattr);
+=======
+	return __vfs_getxattr(dentry, inode, name, value, size);
+}
+EXPORT_SYMBOL_NS_GPL(vfs_getxattr, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 ssize_t
 vfs_listxattr(struct dentry *dentry, char *list, size_t size)
@@ -406,10 +598,18 @@ vfs_listxattr(struct dentry *dentry, char *list, size_t size)
 	}
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_listxattr);
 
 int
 __vfs_removexattr(struct dentry *dentry, const char *name)
+=======
+EXPORT_SYMBOL_NS_GPL(vfs_listxattr, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+int
+__vfs_removexattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		  const char *name)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	const struct xattr_handler *handler;
@@ -419,11 +619,17 @@ __vfs_removexattr(struct dentry *dentry, const char *name)
 		return PTR_ERR(handler);
 	if (!handler->set)
 		return -EOPNOTSUPP;
+<<<<<<< HEAD
 	return handler->set(handler, dentry, inode, name, NULL, 0, XATTR_REPLACE);
+=======
+	return handler->set(handler, mnt_userns, dentry, inode, name, NULL, 0,
+			    XATTR_REPLACE);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__vfs_removexattr);
 
 /**
+<<<<<<< HEAD
  * __vfs_removexattr_locked: set an extended attribute while holding the inode
  * lock
  *
@@ -435,15 +641,38 @@ EXPORT_SYMBOL(__vfs_removexattr);
 int
 __vfs_removexattr_locked(struct dentry *dentry, const char *name,
 		struct inode **delegated_inode)
+=======
+ * __vfs_removexattr_locked - set an extended attribute while holding the inode
+ * lock
+ *
+ *  @mnt_userns: user namespace of the mount of the target inode
+ *  @dentry: object to perform setxattr on
+ *  @name: name of xattr to remove
+ *  @delegated_inode: on return, will contain an inode pointer that
+ *  a delegation was broken on, NULL if none.
+ */
+int
+__vfs_removexattr_locked(struct user_namespace *mnt_userns,
+			 struct dentry *dentry, const char *name,
+			 struct inode **delegated_inode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = dentry->d_inode;
 	int error;
 
+<<<<<<< HEAD
 	error = xattr_permission(inode, name, MAY_WRITE);
 	if (error)
 		return error;
 
 	error = security_inode_removexattr(dentry, name);
+=======
+	error = xattr_permission(mnt_userns, inode, name, MAY_WRITE);
+	if (error)
+		return error;
+
+	error = security_inode_removexattr(mnt_userns, dentry, name);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -451,7 +680,11 @@ __vfs_removexattr_locked(struct dentry *dentry, const char *name,
 	if (error)
 		goto out;
 
+<<<<<<< HEAD
 	error = __vfs_removexattr(dentry, name);
+=======
+	error = __vfs_removexattr(mnt_userns, dentry, name);
+>>>>>>> upstream/android-13
 
 	if (!error) {
 		fsnotify_xattr(dentry);
@@ -464,7 +697,12 @@ out:
 EXPORT_SYMBOL_GPL(__vfs_removexattr_locked);
 
 int
+<<<<<<< HEAD
 vfs_removexattr(struct dentry *dentry, const char *name)
+=======
+vfs_removexattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		const char *name)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = dentry->d_inode;
 	struct inode *delegated_inode = NULL;
@@ -472,7 +710,12 @@ vfs_removexattr(struct dentry *dentry, const char *name)
 
 retry_deleg:
 	inode_lock(inode);
+<<<<<<< HEAD
 	error = __vfs_removexattr_locked(dentry, name, &delegated_inode);
+=======
+	error = __vfs_removexattr_locked(mnt_userns, dentry,
+					 name, &delegated_inode);
+>>>>>>> upstream/android-13
 	inode_unlock(inode);
 
 	if (delegated_inode) {
@@ -489,8 +732,14 @@ EXPORT_SYMBOL_GPL(vfs_removexattr);
  * Extended attribute SET operations
  */
 static long
+<<<<<<< HEAD
 setxattr(struct dentry *d, const char __user *name, const void __user *value,
 	 size_t size, int flags)
+=======
+setxattr(struct user_namespace *mnt_userns, struct dentry *d,
+	 const char __user *name, const void __user *value, size_t size,
+	 int flags)
+>>>>>>> upstream/android-13
 {
 	int error;
 	void *kvalue = NULL;
@@ -517,6 +766,7 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
 		}
 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
 		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
+<<<<<<< HEAD
 			posix_acl_fix_xattr_from_user(kvalue, size);
 		else if (strcmp(kname, XATTR_NAME_CAPS) == 0) {
 			error = cap_convert_nscap(d, &kvalue, size);
@@ -527,6 +777,12 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
 	}
 
 	error = vfs_setxattr(d, kname, kvalue, size, flags);
+=======
+			posix_acl_fix_xattr_from_user(mnt_userns, kvalue, size);
+	}
+
+	error = vfs_setxattr(mnt_userns, d, kname, kvalue, size, flags);
+>>>>>>> upstream/android-13
 out:
 	kvfree(kvalue);
 
@@ -539,13 +795,22 @@ static int path_setxattr(const char __user *pathname,
 {
 	struct path path;
 	int error;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 retry:
 	error = user_path_at(AT_FDCWD, pathname, lookup_flags, &path);
 	if (error)
 		return error;
 	error = mnt_want_write(path.mnt);
 	if (!error) {
+<<<<<<< HEAD
 		error = setxattr(path.dentry, name, value, size, flags);
+=======
+		error = setxattr(mnt_user_ns(path.mnt), path.dentry, name,
+				 value, size, flags);
+>>>>>>> upstream/android-13
 		mnt_drop_write(path.mnt);
 	}
 	path_put(&path);
@@ -581,7 +846,13 @@ SYSCALL_DEFINE5(fsetxattr, int, fd, const char __user *, name,
 	audit_file(f.file);
 	error = mnt_want_write_file(f.file);
 	if (!error) {
+<<<<<<< HEAD
 		error = setxattr(f.file->f_path.dentry, name, value, size, flags);
+=======
+		error = setxattr(file_mnt_user_ns(f.file),
+				 f.file->f_path.dentry, name,
+				 value, size, flags);
+>>>>>>> upstream/android-13
 		mnt_drop_write_file(f.file);
 	}
 	fdput(f);
@@ -592,8 +863,13 @@ SYSCALL_DEFINE5(fsetxattr, int, fd, const char __user *, name,
  * Extended attribute GET operations
  */
 static ssize_t
+<<<<<<< HEAD
 getxattr(struct dentry *d, const char __user *name, void __user *value,
 	 size_t size)
+=======
+getxattr(struct user_namespace *mnt_userns, struct dentry *d,
+	 const char __user *name, void __user *value, size_t size)
+>>>>>>> upstream/android-13
 {
 	ssize_t error;
 	void *kvalue = NULL;
@@ -613,11 +889,19 @@ getxattr(struct dentry *d, const char __user *name, void __user *value,
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	error = vfs_getxattr(d, kname, kvalue, size);
 	if (error > 0) {
 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
 		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
 			posix_acl_fix_xattr_to_user(kvalue, error);
+=======
+	error = vfs_getxattr(mnt_userns, d, kname, kvalue, size);
+	if (error > 0) {
+		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
+		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
+			posix_acl_fix_xattr_to_user(mnt_userns, kvalue, error);
+>>>>>>> upstream/android-13
 		if (size && copy_to_user(value, kvalue, error))
 			error = -EFAULT;
 	} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
@@ -641,7 +925,11 @@ retry:
 	error = user_path_at(AT_FDCWD, pathname, lookup_flags, &path);
 	if (error)
 		return error;
+<<<<<<< HEAD
 	error = getxattr(path.dentry, name, value, size);
+=======
+	error = getxattr(mnt_user_ns(path.mnt), path.dentry, name, value, size);
+>>>>>>> upstream/android-13
 	path_put(&path);
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
@@ -671,7 +959,12 @@ SYSCALL_DEFINE4(fgetxattr, int, fd, const char __user *, name,
 	if (!f.file)
 		return error;
 	audit_file(f.file);
+<<<<<<< HEAD
 	error = getxattr(f.file->f_path.dentry, name, value, size);
+=======
+	error = getxattr(file_mnt_user_ns(f.file), f.file->f_path.dentry,
+			 name, value, size);
+>>>>>>> upstream/android-13
 	fdput(f);
 	return error;
 }
@@ -755,7 +1048,12 @@ SYSCALL_DEFINE3(flistxattr, int, fd, char __user *, list, size_t, size)
  * Extended attribute REMOVE operations
  */
 static long
+<<<<<<< HEAD
 removexattr(struct dentry *d, const char __user *name)
+=======
+removexattr(struct user_namespace *mnt_userns, struct dentry *d,
+	    const char __user *name)
+>>>>>>> upstream/android-13
 {
 	int error;
 	char kname[XATTR_NAME_MAX + 1];
@@ -766,7 +1064,11 @@ removexattr(struct dentry *d, const char __user *name)
 	if (error < 0)
 		return error;
 
+<<<<<<< HEAD
 	return vfs_removexattr(d, kname);
+=======
+	return vfs_removexattr(mnt_userns, d, kname);
+>>>>>>> upstream/android-13
 }
 
 static int path_removexattr(const char __user *pathname,
@@ -780,7 +1082,11 @@ retry:
 		return error;
 	error = mnt_want_write(path.mnt);
 	if (!error) {
+<<<<<<< HEAD
 		error = removexattr(path.dentry, name);
+=======
+		error = removexattr(mnt_user_ns(path.mnt), path.dentry, name);
+>>>>>>> upstream/android-13
 		mnt_drop_write(path.mnt);
 	}
 	path_put(&path);
@@ -813,7 +1119,12 @@ SYSCALL_DEFINE2(fremovexattr, int, fd, const char __user *, name)
 	audit_file(f.file);
 	error = mnt_want_write_file(f.file);
 	if (!error) {
+<<<<<<< HEAD
 		error = removexattr(f.file->f_path.dentry, name);
+=======
+		error = removexattr(file_mnt_user_ns(f.file),
+				    f.file->f_path.dentry, name);
+>>>>>>> upstream/android-13
 		mnt_drop_write_file(f.file);
 	}
 	fdput(f);
@@ -895,7 +1206,11 @@ struct simple_xattr *simple_xattr_alloc(const void *value, size_t size)
 	if (len < sizeof(*new_xattr))
 		return NULL;
 
+<<<<<<< HEAD
 	new_xattr = kmalloc(len, GFP_KERNEL);
+=======
+	new_xattr = kvmalloc(len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!new_xattr)
 		return NULL;
 
@@ -938,6 +1253,10 @@ int simple_xattr_get(struct simple_xattrs *xattrs, const char *name,
  * @value: value of the xattr. If %NULL, will remove the attribute.
  * @size: size of the new xattr
  * @flags: %XATTR_{CREATE|REPLACE}
+<<<<<<< HEAD
+=======
+ * @removed_size: returns size of the removed xattr, -1 if none removed
+>>>>>>> upstream/android-13
  *
  * %XATTR_CREATE is set, the xattr shouldn't exist already; otherwise fails
  * with -EEXIST.  If %XATTR_REPLACE is set, the xattr should exist;
@@ -946,12 +1265,23 @@ int simple_xattr_get(struct simple_xattrs *xattrs, const char *name,
  * Returns 0 on success, -errno on failure.
  */
 int simple_xattr_set(struct simple_xattrs *xattrs, const char *name,
+<<<<<<< HEAD
 		     const void *value, size_t size, int flags)
+=======
+		     const void *value, size_t size, int flags,
+		     ssize_t *removed_size)
+>>>>>>> upstream/android-13
 {
 	struct simple_xattr *xattr;
 	struct simple_xattr *new_xattr = NULL;
 	int err = 0;
 
+<<<<<<< HEAD
+=======
+	if (removed_size)
+		*removed_size = -1;
+
+>>>>>>> upstream/android-13
 	/* value == NULL means remove */
 	if (value) {
 		new_xattr = simple_xattr_alloc(value, size);
@@ -960,7 +1290,11 @@ int simple_xattr_set(struct simple_xattrs *xattrs, const char *name,
 
 		new_xattr->name = kstrdup(name, GFP_KERNEL);
 		if (!new_xattr->name) {
+<<<<<<< HEAD
 			kfree(new_xattr);
+=======
+			kvfree(new_xattr);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 	}
@@ -973,8 +1307,17 @@ int simple_xattr_set(struct simple_xattrs *xattrs, const char *name,
 				err = -EEXIST;
 			} else if (new_xattr) {
 				list_replace(&xattr->list, &new_xattr->list);
+<<<<<<< HEAD
 			} else {
 				list_del(&xattr->list);
+=======
+				if (removed_size)
+					*removed_size = xattr->size;
+			} else {
+				list_del(&xattr->list);
+				if (removed_size)
+					*removed_size = xattr->size;
+>>>>>>> upstream/android-13
 			}
 			goto out;
 		}
@@ -990,7 +1333,11 @@ out:
 	spin_unlock(&xattrs->lock);
 	if (xattr) {
 		kfree(xattr->name);
+<<<<<<< HEAD
 		kfree(xattr);
+=======
+		kvfree(xattr);
+>>>>>>> upstream/android-13
 	}
 	return err;
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # SPDX-License-Identifier: GPL-2.0
+=======
+# SPDX-License-Identifier: ISC
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ATH10K) += ath10k_core.o
 ath10k_core-y += mac.o \
 		 debug.o \
@@ -36,7 +40,13 @@ obj-$(CONFIG_ATH10K_USB) += ath10k_usb.o
 ath10k_usb-y += usb.o
 
 obj-$(CONFIG_ATH10K_SNOC) += ath10k_snoc.o
+<<<<<<< HEAD
 ath10k_snoc-y += snoc.o
+=======
+ath10k_snoc-y += qmi.o \
+		 qmi_wlfw_v01.o \
+		 snoc.o
+>>>>>>> upstream/android-13
 
 # for tracing framework to find trace.h
 CFLAGS_trace.o := -I$(src)

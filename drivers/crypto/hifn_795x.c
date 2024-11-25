@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * 2007+ Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
  * All rights reserved.
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * 2007+ Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+ * All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -30,7 +37,12 @@
 #include <linux/ktime.h>
 
 #include <crypto/algapi.h>
+<<<<<<< HEAD
 #include <crypto/des.h>
+=======
+#include <crypto/internal/des.h>
+#include <crypto/internal/skcipher.h>
+>>>>>>> upstream/android-13
 
 static char hifn_pll_ref[sizeof("extNNN")] = "ext";
 module_param_string(hifn_pll_ref, hifn_pll_ref, sizeof(hifn_pll_ref), 0444);
@@ -605,7 +617,11 @@ struct hifn_crypt_result {
 
 struct hifn_crypto_alg {
 	struct list_head	entry;
+<<<<<<< HEAD
 	struct crypto_alg	alg;
+=======
+	struct skcipher_alg	alg;
+>>>>>>> upstream/android-13
 	struct hifn_device	*dev;
 };
 
@@ -788,8 +804,13 @@ static int hifn_register_rng(struct hifn_device *dev)
 						   dev->pk_clk_freq) * 256;
 
 	dev->rng.name		= dev->name;
+<<<<<<< HEAD
 	dev->rng.data_present	= hifn_rng_data_present,
 	dev->rng.data_read	= hifn_rng_data_read,
+=======
+	dev->rng.data_present	= hifn_rng_data_present;
+	dev->rng.data_read	= hifn_rng_data_read;
+>>>>>>> upstream/android-13
 	dev->rng.priv		= (unsigned long)dev;
 
 	return hwrng_register(&dev->rng);
@@ -1243,7 +1264,12 @@ static int hifn_setup_src_desc(struct hifn_device *dev, struct page *page,
 	int idx;
 	dma_addr_t addr;
 
+<<<<<<< HEAD
 	addr = pci_map_page(dev->pdev, page, offset, size, PCI_DMA_TODEVICE);
+=======
+	addr = dma_map_page(&dev->pdev->dev, page, offset, size,
+			    DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	idx = dma->srci;
 
@@ -1301,7 +1327,12 @@ static void hifn_setup_dst_desc(struct hifn_device *dev, struct page *page,
 	int idx;
 	dma_addr_t addr;
 
+<<<<<<< HEAD
 	addr = pci_map_page(dev->pdev, page, offset, size, PCI_DMA_FROMDEVICE);
+=======
+	addr = dma_map_page(&dev->pdev->dev, page, offset, size,
+			    DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	idx = dma->dsti;
 	dma->dstr[idx].p = __cpu_to_le32(addr);
@@ -1413,7 +1444,11 @@ static void hifn_cipher_walk_exit(struct hifn_cipher_walk *w)
 	w->num = 0;
 }
 
+<<<<<<< HEAD
 static int ablkcipher_add(unsigned int *drestp, struct scatterlist *dst,
+=======
+static int skcipher_add(unsigned int *drestp, struct scatterlist *dst,
+>>>>>>> upstream/android-13
 		unsigned int size, unsigned int *nbytesp)
 {
 	unsigned int copy, drest = *drestp, nbytes = *nbytesp;
@@ -1442,11 +1477,19 @@ static int ablkcipher_add(unsigned int *drestp, struct scatterlist *dst,
 	return idx;
 }
 
+<<<<<<< HEAD
 static int hifn_cipher_walk(struct ablkcipher_request *req,
 		struct hifn_cipher_walk *w)
 {
 	struct scatterlist *dst, *t;
 	unsigned int nbytes = req->nbytes, offset, copy, diff;
+=======
+static int hifn_cipher_walk(struct skcipher_request *req,
+		struct hifn_cipher_walk *w)
+{
+	struct scatterlist *dst, *t;
+	unsigned int nbytes = req->cryptlen, offset, copy, diff;
+>>>>>>> upstream/android-13
 	int idx, tidx, err;
 
 	tidx = idx = 0;
@@ -1468,7 +1511,11 @@ static int hifn_cipher_walk(struct ablkcipher_request *req,
 
 			t = &w->cache[idx];
 
+<<<<<<< HEAD
 			err = ablkcipher_add(&dlen, dst, slen, &nbytes);
+=======
+			err = skcipher_add(&dlen, dst, slen, &nbytes);
+>>>>>>> upstream/android-13
 			if (err < 0)
 				return err;
 
@@ -1507,7 +1554,11 @@ static int hifn_cipher_walk(struct ablkcipher_request *req,
 
 				dst = &req->dst[idx];
 
+<<<<<<< HEAD
 				err = ablkcipher_add(&dlen, dst, nbytes, &nbytes);
+=======
+				err = skcipher_add(&dlen, dst, nbytes, &nbytes);
+>>>>>>> upstream/android-13
 				if (err < 0)
 					return err;
 
@@ -1527,6 +1578,7 @@ static int hifn_cipher_walk(struct ablkcipher_request *req,
 	return tidx;
 }
 
+<<<<<<< HEAD
 static int hifn_setup_session(struct ablkcipher_request *req)
 {
 	struct hifn_context *ctx = crypto_tfm_ctx(req->base.tfm);
@@ -1534,6 +1586,15 @@ static int hifn_setup_session(struct ablkcipher_request *req)
 	struct hifn_device *dev = ctx->dev;
 	unsigned long dlen, flags;
 	unsigned int nbytes = req->nbytes, idx = 0;
+=======
+static int hifn_setup_session(struct skcipher_request *req)
+{
+	struct hifn_context *ctx = crypto_tfm_ctx(req->base.tfm);
+	struct hifn_request_context *rctx = skcipher_request_ctx(req);
+	struct hifn_device *dev = ctx->dev;
+	unsigned long dlen, flags;
+	unsigned int nbytes = req->cryptlen, idx = 0;
+>>>>>>> upstream/android-13
 	int err = -EINVAL, sg_num;
 	struct scatterlist *dst;
 
@@ -1572,7 +1633,11 @@ static int hifn_setup_session(struct ablkcipher_request *req)
 		goto err_out;
 	}
 
+<<<<<<< HEAD
 	err = hifn_setup_dma(dev, ctx, rctx, req->src, req->dst, req->nbytes, req);
+=======
+	err = hifn_setup_dma(dev, ctx, rctx, req->src, req->dst, req->cryptlen, req);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_out;
 
@@ -1619,7 +1684,11 @@ static int hifn_start_device(struct hifn_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ablkcipher_get(void *saddr, unsigned int *srestp, unsigned int offset,
+=======
+static int skcipher_get(void *saddr, unsigned int *srestp, unsigned int offset,
+>>>>>>> upstream/android-13
 		struct scatterlist *dst, unsigned int size, unsigned int *nbytesp)
 {
 	unsigned int srest = *srestp, nbytes = *nbytesp, copy;
@@ -1669,12 +1738,21 @@ static inline void hifn_complete_sa(struct hifn_device *dev, int i)
 	BUG_ON(dev->started < 0);
 }
 
+<<<<<<< HEAD
 static void hifn_process_ready(struct ablkcipher_request *req, int error)
 {
 	struct hifn_request_context *rctx = ablkcipher_request_ctx(req);
 
 	if (rctx->walk.flags & ASYNC_FLAGS_MISALIGNED) {
 		unsigned int nbytes = req->nbytes;
+=======
+static void hifn_process_ready(struct skcipher_request *req, int error)
+{
+	struct hifn_request_context *rctx = skcipher_request_ctx(req);
+
+	if (rctx->walk.flags & ASYNC_FLAGS_MISALIGNED) {
+		unsigned int nbytes = req->cryptlen;
+>>>>>>> upstream/android-13
 		int idx = 0, err;
 		struct scatterlist *dst, *t;
 		void *saddr;
@@ -1697,7 +1775,11 @@ static void hifn_process_ready(struct ablkcipher_request *req, int error)
 
 			saddr = kmap_atomic(sg_page(t));
 
+<<<<<<< HEAD
 			err = ablkcipher_get(saddr, &t->length, t->offset,
+=======
+			err = skcipher_get(saddr, &t->length, t->offset,
+>>>>>>> upstream/android-13
 					dst, nbytes, &nbytes);
 			if (err < 0) {
 				kunmap_atomic(saddr);
@@ -1919,7 +2001,11 @@ static void hifn_flush(struct hifn_device *dev)
 {
 	unsigned long flags;
 	struct crypto_async_request *async_req;
+<<<<<<< HEAD
 	struct ablkcipher_request *req;
+=======
+	struct skcipher_request *req;
+>>>>>>> upstream/android-13
 	struct hifn_dma *dma = (struct hifn_dma *)dev->desc_virt;
 	int i;
 
@@ -1935,7 +2021,11 @@ static void hifn_flush(struct hifn_device *dev)
 
 	spin_lock_irqsave(&dev->lock, flags);
 	while ((async_req = crypto_dequeue_request(&dev->queue))) {
+<<<<<<< HEAD
 		req = ablkcipher_request_cast(async_req);
+=======
+		req = skcipher_request_cast(async_req);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&dev->lock, flags);
 
 		hifn_process_ready(req, -ENODEV);
@@ -1945,6 +2035,7 @@ static void hifn_flush(struct hifn_device *dev)
 	spin_unlock_irqrestore(&dev->lock, flags);
 }
 
+<<<<<<< HEAD
 static int hifn_setkey(struct crypto_ablkcipher *cipher, const u8 *key,
 		unsigned int len)
 {
@@ -1966,6 +2057,18 @@ static int hifn_setkey(struct crypto_ablkcipher *cipher, const u8 *key,
 			return -EINVAL;
 		}
 	}
+=======
+static int hifn_setkey(struct crypto_skcipher *cipher, const u8 *key,
+		unsigned int len)
+{
+	struct hifn_context *ctx = crypto_skcipher_ctx(cipher);
+	struct hifn_device *dev = ctx->dev;
+	int err;
+
+	err = verify_skcipher_des_key(cipher, key);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	dev->flags &= ~HIFN_FLAG_OLD_KEY;
 
@@ -1975,26 +2078,58 @@ static int hifn_setkey(struct crypto_ablkcipher *cipher, const u8 *key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hifn_handle_req(struct ablkcipher_request *req)
+=======
+static int hifn_des3_setkey(struct crypto_skcipher *cipher, const u8 *key,
+			    unsigned int len)
+{
+	struct hifn_context *ctx = crypto_skcipher_ctx(cipher);
+	struct hifn_device *dev = ctx->dev;
+	int err;
+
+	err = verify_skcipher_des3_key(cipher, key);
+	if (err)
+		return err;
+
+	dev->flags &= ~HIFN_FLAG_OLD_KEY;
+
+	memcpy(ctx->key, key, len);
+	ctx->keysize = len;
+
+	return 0;
+}
+
+static int hifn_handle_req(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	struct hifn_context *ctx = crypto_tfm_ctx(req->base.tfm);
 	struct hifn_device *dev = ctx->dev;
 	int err = -EAGAIN;
 
+<<<<<<< HEAD
 	if (dev->started + DIV_ROUND_UP(req->nbytes, PAGE_SIZE) <= HIFN_QUEUE_LENGTH)
+=======
+	if (dev->started + DIV_ROUND_UP(req->cryptlen, PAGE_SIZE) <= HIFN_QUEUE_LENGTH)
+>>>>>>> upstream/android-13
 		err = hifn_setup_session(req);
 
 	if (err == -EAGAIN) {
 		unsigned long flags;
 
 		spin_lock_irqsave(&dev->lock, flags);
+<<<<<<< HEAD
 		err = ablkcipher_enqueue_request(&dev->queue, req);
+=======
+		err = crypto_enqueue_request(&dev->queue, &req->base);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&dev->lock, flags);
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static int hifn_setup_crypto_req(struct ablkcipher_request *req, u8 op,
 		u8 type, u8 mode)
 {
@@ -2005,6 +2140,18 @@ static int hifn_setup_crypto_req(struct ablkcipher_request *req, u8 op,
 	ivsize = crypto_ablkcipher_ivsize(crypto_ablkcipher_reqtfm(req));
 
 	if (req->info && mode != ACRYPTO_MODE_ECB) {
+=======
+static int hifn_setup_crypto_req(struct skcipher_request *req, u8 op,
+		u8 type, u8 mode)
+{
+	struct hifn_context *ctx = crypto_tfm_ctx(req->base.tfm);
+	struct hifn_request_context *rctx = skcipher_request_ctx(req);
+	unsigned ivsize;
+
+	ivsize = crypto_skcipher_ivsize(crypto_skcipher_reqtfm(req));
+
+	if (req->iv && mode != ACRYPTO_MODE_ECB) {
+>>>>>>> upstream/android-13
 		if (type == ACRYPTO_TYPE_AES_128)
 			ivsize = HIFN_AES_IV_LENGTH;
 		else if (type == ACRYPTO_TYPE_DES)
@@ -2023,7 +2170,11 @@ static int hifn_setup_crypto_req(struct ablkcipher_request *req, u8 op,
 	rctx->op = op;
 	rctx->mode = mode;
 	rctx->type = type;
+<<<<<<< HEAD
 	rctx->iv = req->info;
+=======
+	rctx->iv = req->iv;
+>>>>>>> upstream/android-13
 	rctx->ivsize = ivsize;
 
 	/*
@@ -2038,7 +2189,11 @@ static int hifn_setup_crypto_req(struct ablkcipher_request *req, u8 op,
 static int hifn_process_queue(struct hifn_device *dev)
 {
 	struct crypto_async_request *async_req, *backlog;
+<<<<<<< HEAD
 	struct ablkcipher_request *req;
+=======
+	struct skcipher_request *req;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int err = 0;
 
@@ -2054,7 +2209,11 @@ static int hifn_process_queue(struct hifn_device *dev)
 		if (backlog)
 			backlog->complete(backlog, -EINPROGRESS);
 
+<<<<<<< HEAD
 		req = ablkcipher_request_cast(async_req);
+=======
+		req = skcipher_request_cast(async_req);
+>>>>>>> upstream/android-13
 
 		err = hifn_handle_req(req);
 		if (err)
@@ -2064,7 +2223,11 @@ static int hifn_process_queue(struct hifn_device *dev)
 	return err;
 }
 
+<<<<<<< HEAD
 static int hifn_setup_crypto(struct ablkcipher_request *req, u8 op,
+=======
+static int hifn_setup_crypto(struct skcipher_request *req, u8 op,
+>>>>>>> upstream/android-13
 		u8 type, u8 mode)
 {
 	int err;
@@ -2084,22 +2247,38 @@ static int hifn_setup_crypto(struct ablkcipher_request *req, u8 op,
 /*
  * AES ecryption functions.
  */
+<<<<<<< HEAD
 static inline int hifn_encrypt_aes_ecb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_aes_ecb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_ECB);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_aes_cbc(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_aes_cbc(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_CBC);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_aes_cfb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_aes_cfb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_CFB);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_aes_ofb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_aes_ofb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_OFB);
@@ -2108,22 +2287,38 @@ static inline int hifn_encrypt_aes_ofb(struct ablkcipher_request *req)
 /*
  * AES decryption functions.
  */
+<<<<<<< HEAD
 static inline int hifn_decrypt_aes_ecb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_aes_ecb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_ECB);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_aes_cbc(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_aes_cbc(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_CBC);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_aes_cfb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_aes_cfb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_CFB);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_aes_ofb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_aes_ofb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_AES_128, ACRYPTO_MODE_OFB);
@@ -2132,22 +2327,38 @@ static inline int hifn_decrypt_aes_ofb(struct ablkcipher_request *req)
 /*
  * DES ecryption functions.
  */
+<<<<<<< HEAD
 static inline int hifn_encrypt_des_ecb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_des_ecb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_ECB);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_des_cbc(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_des_cbc(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_CBC);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_des_cfb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_des_cfb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_CFB);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_des_ofb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_des_ofb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_OFB);
@@ -2156,22 +2367,38 @@ static inline int hifn_encrypt_des_ofb(struct ablkcipher_request *req)
 /*
  * DES decryption functions.
  */
+<<<<<<< HEAD
 static inline int hifn_decrypt_des_ecb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_des_ecb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_ECB);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_des_cbc(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_des_cbc(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_CBC);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_des_cfb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_des_cfb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_CFB);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_des_ofb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_des_ofb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_DES, ACRYPTO_MODE_OFB);
@@ -2180,44 +2407,76 @@ static inline int hifn_decrypt_des_ofb(struct ablkcipher_request *req)
 /*
  * 3DES ecryption functions.
  */
+<<<<<<< HEAD
 static inline int hifn_encrypt_3des_ecb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_3des_ecb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_ECB);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_3des_cbc(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_3des_cbc(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_CBC);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_3des_cfb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_3des_cfb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_CFB);
 }
+<<<<<<< HEAD
 static inline int hifn_encrypt_3des_ofb(struct ablkcipher_request *req)
+=======
+static inline int hifn_encrypt_3des_ofb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_ENCRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_OFB);
 }
 
 /* 3DES decryption functions. */
+<<<<<<< HEAD
 static inline int hifn_decrypt_3des_ecb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_3des_ecb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_ECB);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_3des_cbc(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_3des_cbc(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_CBC);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_3des_cfb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_3des_cfb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_CFB);
 }
+<<<<<<< HEAD
 static inline int hifn_decrypt_3des_ofb(struct ablkcipher_request *req)
+=======
+static inline int hifn_decrypt_3des_ofb(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return hifn_setup_crypto(req, ACRYPTO_OP_DECRYPT,
 			ACRYPTO_TYPE_3DES, ACRYPTO_MODE_OFB);
@@ -2227,50 +2486,86 @@ struct hifn_alg_template {
 	char name[CRYPTO_MAX_ALG_NAME];
 	char drv_name[CRYPTO_MAX_ALG_NAME];
 	unsigned int bsize;
+<<<<<<< HEAD
 	struct ablkcipher_alg ablkcipher;
 };
 
 static struct hifn_alg_template hifn_alg_templates[] = {
+=======
+	struct skcipher_alg skcipher;
+};
+
+static const struct hifn_alg_template hifn_alg_templates[] = {
+>>>>>>> upstream/android-13
 	/*
 	 * 3DES ECB, CBC, CFB and OFB modes.
 	 */
 	{
 		.name = "cfb(des3_ede)", .drv_name = "cfb-3des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
 			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.setkey		=	hifn_setkey,
+=======
+		.skcipher = {
+			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.setkey		=	hifn_des3_setkey,
+>>>>>>> upstream/android-13
 			.encrypt	=	hifn_encrypt_3des_cfb,
 			.decrypt	=	hifn_decrypt_3des_cfb,
 		},
 	},
 	{
 		.name = "ofb(des3_ede)", .drv_name = "ofb-3des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
 			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.setkey		=	hifn_setkey,
+=======
+		.skcipher = {
+			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.setkey		=	hifn_des3_setkey,
+>>>>>>> upstream/android-13
 			.encrypt	=	hifn_encrypt_3des_ofb,
 			.decrypt	=	hifn_decrypt_3des_ofb,
 		},
 	},
 	{
 		.name = "cbc(des3_ede)", .drv_name = "cbc-3des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
 			.ivsize		=	HIFN_IV_LENGTH,
 			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.setkey		=	hifn_setkey,
+=======
+		.skcipher = {
+			.ivsize		=	HIFN_IV_LENGTH,
+			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.setkey		=	hifn_des3_setkey,
+>>>>>>> upstream/android-13
 			.encrypt	=	hifn_encrypt_3des_cbc,
 			.decrypt	=	hifn_decrypt_3des_cbc,
 		},
 	},
 	{
 		.name = "ecb(des3_ede)", .drv_name = "ecb-3des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
 			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
 			.setkey		=	hifn_setkey,
+=======
+		.skcipher = {
+			.min_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.max_keysize	=	HIFN_3DES_KEY_LENGTH,
+			.setkey		=	hifn_des3_setkey,
+>>>>>>> upstream/android-13
 			.encrypt	=	hifn_encrypt_3des_ecb,
 			.decrypt	=	hifn_decrypt_3des_ecb,
 		},
@@ -2281,7 +2576,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	 */
 	{
 		.name = "cfb(des)", .drv_name = "cfb-des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.min_keysize	=	HIFN_DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_DES_KEY_LENGTH,
 			.setkey		=	hifn_setkey,
@@ -2291,7 +2590,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	},
 	{
 		.name = "ofb(des)", .drv_name = "ofb-des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.min_keysize	=	HIFN_DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_DES_KEY_LENGTH,
 			.setkey		=	hifn_setkey,
@@ -2301,7 +2604,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	},
 	{
 		.name = "cbc(des)", .drv_name = "cbc-des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.ivsize		=	HIFN_IV_LENGTH,
 			.min_keysize	=	HIFN_DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_DES_KEY_LENGTH,
@@ -2312,7 +2619,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	},
 	{
 		.name = "ecb(des)", .drv_name = "ecb-des", .bsize = 8,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.min_keysize	=	HIFN_DES_KEY_LENGTH,
 			.max_keysize	=	HIFN_DES_KEY_LENGTH,
 			.setkey		=	hifn_setkey,
@@ -2326,7 +2637,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	 */
 	{
 		.name = "ecb(aes)", .drv_name = "ecb-aes", .bsize = 16,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.min_keysize	=	AES_MIN_KEY_SIZE,
 			.max_keysize	=	AES_MAX_KEY_SIZE,
 			.setkey		=	hifn_setkey,
@@ -2336,7 +2651,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	},
 	{
 		.name = "cbc(aes)", .drv_name = "cbc-aes", .bsize = 16,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.ivsize		=	HIFN_AES_IV_LENGTH,
 			.min_keysize	=	AES_MIN_KEY_SIZE,
 			.max_keysize	=	AES_MAX_KEY_SIZE,
@@ -2347,7 +2666,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	},
 	{
 		.name = "cfb(aes)", .drv_name = "cfb-aes", .bsize = 16,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.min_keysize	=	AES_MIN_KEY_SIZE,
 			.max_keysize	=	AES_MAX_KEY_SIZE,
 			.setkey		=	hifn_setkey,
@@ -2357,7 +2680,11 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	},
 	{
 		.name = "ofb(aes)", .drv_name = "ofb-aes", .bsize = 16,
+<<<<<<< HEAD
 		.ablkcipher = {
+=======
+		.skcipher = {
+>>>>>>> upstream/android-13
 			.min_keysize	=	AES_MIN_KEY_SIZE,
 			.max_keysize	=	AES_MAX_KEY_SIZE,
 			.setkey		=	hifn_setkey,
@@ -2367,6 +2694,7 @@ static struct hifn_alg_template hifn_alg_templates[] = {
 	},
 };
 
+<<<<<<< HEAD
 static int hifn_cra_init(struct crypto_tfm *tfm)
 {
 	struct crypto_alg *alg = tfm->__crt_alg;
@@ -2379,6 +2707,21 @@ static int hifn_cra_init(struct crypto_tfm *tfm)
 }
 
 static int hifn_alg_alloc(struct hifn_device *dev, struct hifn_alg_template *t)
+=======
+static int hifn_init_tfm(struct crypto_skcipher *tfm)
+{
+	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
+	struct hifn_crypto_alg *ha = crypto_alg_to_hifn(alg);
+	struct hifn_context *ctx = crypto_skcipher_ctx(tfm);
+
+	ctx->dev = ha->dev;
+	crypto_skcipher_set_reqsize(tfm, sizeof(struct hifn_request_context));
+
+	return 0;
+}
+
+static int hifn_alg_alloc(struct hifn_device *dev, const struct hifn_alg_template *t)
+>>>>>>> upstream/android-13
 {
 	struct hifn_crypto_alg *alg;
 	int err;
@@ -2387,6 +2730,7 @@ static int hifn_alg_alloc(struct hifn_device *dev, struct hifn_alg_template *t)
 	if (!alg)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	snprintf(alg->alg.cra_name, CRYPTO_MAX_ALG_NAME, "%s", t->name);
 	snprintf(alg->alg.cra_driver_name, CRYPTO_MAX_ALG_NAME, "%s-%s",
 		 t->drv_name, dev->name);
@@ -2401,12 +2745,31 @@ static int hifn_alg_alloc(struct hifn_device *dev, struct hifn_alg_template *t)
 	alg->alg.cra_module = THIS_MODULE;
 	alg->alg.cra_u.ablkcipher = t->ablkcipher;
 	alg->alg.cra_init = hifn_cra_init;
+=======
+	alg->alg = t->skcipher;
+	alg->alg.init = hifn_init_tfm;
+
+	snprintf(alg->alg.base.cra_name, CRYPTO_MAX_ALG_NAME, "%s", t->name);
+	snprintf(alg->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME, "%s-%s",
+		 t->drv_name, dev->name);
+
+	alg->alg.base.cra_priority = 300;
+	alg->alg.base.cra_flags = CRYPTO_ALG_KERN_DRIVER_ONLY | CRYPTO_ALG_ASYNC;
+	alg->alg.base.cra_blocksize = t->bsize;
+	alg->alg.base.cra_ctxsize = sizeof(struct hifn_context);
+	alg->alg.base.cra_alignmask = 0;
+	alg->alg.base.cra_module = THIS_MODULE;
+>>>>>>> upstream/android-13
 
 	alg->dev = dev;
 
 	list_add_tail(&alg->entry, &dev->alg_list);
 
+<<<<<<< HEAD
 	err = crypto_register_alg(&alg->alg);
+=======
+	err = crypto_register_skcipher(&alg->alg);
+>>>>>>> upstream/android-13
 	if (err) {
 		list_del(&alg->entry);
 		kfree(alg);
@@ -2421,7 +2784,11 @@ static void hifn_unregister_alg(struct hifn_device *dev)
 
 	list_for_each_entry_safe(a, n, &dev->alg_list, entry) {
 		list_del(&a->entry);
+<<<<<<< HEAD
 		crypto_unregister_alg(&a->alg);
+=======
+		crypto_unregister_skcipher(&a->alg);
+>>>>>>> upstream/android-13
 		kfree(a);
 	}
 }
@@ -2470,7 +2837,11 @@ static int hifn_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return err;
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_out_disable_pci_device;
 
@@ -2507,15 +2878,25 @@ static int hifn_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		addr = pci_resource_start(pdev, i);
 		size = pci_resource_len(pdev, i);
 
+<<<<<<< HEAD
 		dev->bar[i] = ioremap_nocache(addr, size);
+=======
+		dev->bar[i] = ioremap(addr, size);
+>>>>>>> upstream/android-13
 		if (!dev->bar[i]) {
 			err = -ENOMEM;
 			goto err_out_unmap_bars;
 		}
 	}
 
+<<<<<<< HEAD
 	dev->desc_virt = pci_zalloc_consistent(pdev, sizeof(struct hifn_dma),
 					       &dev->desc_dma);
+=======
+	dev->desc_virt = dma_alloc_coherent(&pdev->dev,
+					    sizeof(struct hifn_dma),
+					    &dev->desc_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev->desc_virt) {
 		dev_err(&pdev->dev, "Failed to allocate descriptor rings.\n");
 		err = -ENOMEM;
@@ -2572,8 +2953,13 @@ err_out_free_irq:
 	free_irq(dev->irq, dev);
 	tasklet_kill(&dev->tasklet);
 err_out_free_desc:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, sizeof(struct hifn_dma),
 			dev->desc_virt, dev->desc_dma);
+=======
+	dma_free_coherent(&pdev->dev, sizeof(struct hifn_dma), dev->desc_virt,
+			  dev->desc_dma);
+>>>>>>> upstream/android-13
 
 err_out_unmap_bars:
 	for (i = 0; i < 3; ++i)
@@ -2610,8 +2996,13 @@ static void hifn_remove(struct pci_dev *pdev)
 
 		hifn_flush(dev);
 
+<<<<<<< HEAD
 		pci_free_consistent(pdev, sizeof(struct hifn_dma),
 				dev->desc_virt, dev->desc_dma);
+=======
+		dma_free_coherent(&pdev->dev, sizeof(struct hifn_dma),
+				  dev->desc_virt, dev->desc_dma);
+>>>>>>> upstream/android-13
 		for (i = 0; i < 3; ++i)
 			if (dev->bar[i])
 				iounmap(dev->bar[i]);
@@ -2642,9 +3033,12 @@ static int __init hifn_init(void)
 	unsigned int freq;
 	int err;
 
+<<<<<<< HEAD
 	/* HIFN supports only 32-bit addresses */
 	BUILD_BUG_ON(sizeof(dma_addr_t) != 4);
 
+=======
+>>>>>>> upstream/android-13
 	if (strncmp(hifn_pll_ref, "ext", 3) &&
 	    strncmp(hifn_pll_ref, "pci", 3)) {
 		pr_err("hifn795x: invalid hifn_pll_ref clock, must be pci or ext");

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Renesas SuperH DMA Engine support
  *
  * Copyright (C) 2013 Renesas Electronics, Inc.
+<<<<<<< HEAD
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of version 2 the GNU General Public License as published by the Free
  * Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef SHDMA_ARM_H

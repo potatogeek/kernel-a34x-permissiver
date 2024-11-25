@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MSI DIGIVOX mini III remote controller keytable
  *
  * Copyright (C) 2010 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -27,6 +34,7 @@
    since rc-kworld-315u.c lacks NEC extended address byte. */
 static struct rc_map_table msi_digivox_iii[] = {
 	{ 0x61d601, KEY_VIDEO },           /* Source */
+<<<<<<< HEAD
 	{ 0x61d602, KEY_3 },
 	{ 0x61d603, KEY_POWER },           /* ShutDown */
 	{ 0x61d604, KEY_1 },
@@ -43,6 +51,24 @@ static struct rc_map_table msi_digivox_iii[] = {
 	{ 0x61d60f, KEY_4 },
 	{ 0x61d610, KEY_ESC },             /* [back up arrow] */
 	{ 0x61d611, KEY_0 },
+=======
+	{ 0x61d602, KEY_NUMERIC_3 },
+	{ 0x61d603, KEY_POWER },           /* ShutDown */
+	{ 0x61d604, KEY_NUMERIC_1 },
+	{ 0x61d605, KEY_NUMERIC_5 },
+	{ 0x61d606, KEY_NUMERIC_6 },
+	{ 0x61d607, KEY_CHANNELDOWN },     /* CH- */
+	{ 0x61d608, KEY_NUMERIC_2 },
+	{ 0x61d609, KEY_CHANNELUP },       /* CH+ */
+	{ 0x61d60a, KEY_NUMERIC_9 },
+	{ 0x61d60b, KEY_ZOOM },            /* Zoom */
+	{ 0x61d60c, KEY_NUMERIC_7 },
+	{ 0x61d60d, KEY_NUMERIC_8 },
+	{ 0x61d60e, KEY_VOLUMEUP },        /* Vol+ */
+	{ 0x61d60f, KEY_NUMERIC_4 },
+	{ 0x61d610, KEY_ESC },             /* [back up arrow] */
+	{ 0x61d611, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x61d612, KEY_OK },              /* [enter arrow] */
 	{ 0x61d613, KEY_VOLUMEDOWN },      /* Vol- */
 	{ 0x61d614, KEY_RECORD },          /* Rec */
@@ -64,7 +90,11 @@ static struct rc_map_list msi_digivox_iii_map = {
 	.map = {
 		.scan     = msi_digivox_iii,
 		.size     = ARRAY_SIZE(msi_digivox_iii),
+<<<<<<< HEAD
 		.rc_proto = RC_PROTO_NEC,
+=======
+		.rc_proto = RC_PROTO_NECX,
+>>>>>>> upstream/android-13
 		.name     = RC_MAP_MSI_DIGIVOX_III,
 	}
 };

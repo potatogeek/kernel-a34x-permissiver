@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OPAL Runtime Diagnostics interface driver
  * Supported on POWERNV platform
  *
  * Copyright IBM Corporation 2015
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "opal-prd: " fmt
@@ -32,7 +39,11 @@
 #include <linux/uaccess.h>
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * The msg member must be at the end of the struct, as it's followed by the
  * message data.
  */
@@ -113,7 +124,10 @@ static int opal_prd_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	size_t addr, size;
 	pgprot_t page_prot;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	pr_devel("opal_prd_mmap(0x%016lx, 0x%016lx, 0x%lx, 0x%lx)\n",
 			vma->vm_start, vma->vm_end, vma->vm_pgoff,
@@ -129,10 +143,15 @@ static int opal_prd_mmap(struct file *file, struct vm_area_struct *vma)
 	page_prot = phys_mem_access_prot(file, vma->vm_pgoff,
 					 size, vma->vm_page_prot);
 
+<<<<<<< HEAD
 	rc = remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff, size,
 				page_prot);
 
 	return rc;
+=======
+	return remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff, size,
+				page_prot);
+>>>>>>> upstream/android-13
 }
 
 static bool opal_msg_queue_empty(void)
@@ -350,7 +369,11 @@ static int opal_prd_msg_notifier(struct notifier_block *nb,
 	int msg_size, item_size;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (msg_type != OPAL_MSG_PRD)
+=======
+	if (msg_type != OPAL_MSG_PRD && msg_type != OPAL_MSG_PRD2)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* Calculate total size of the message and item we need to store. The
@@ -380,6 +403,15 @@ static struct notifier_block opal_prd_event_nb = {
 	.priority	= 0,
 };
 
+<<<<<<< HEAD
+=======
+static struct notifier_block opal_prd_event_nb2 = {
+	.notifier_call	= opal_prd_msg_notifier,
+	.next		= NULL,
+	.priority	= 0,
+};
+
+>>>>>>> upstream/android-13
 static int opal_prd_probe(struct platform_device *pdev)
 {
 	int rc;
@@ -401,11 +433,26 @@ static int opal_prd_probe(struct platform_device *pdev)
 		return rc;
 	}
 
+<<<<<<< HEAD
+=======
+	rc = opal_message_notifier_register(OPAL_MSG_PRD2, &opal_prd_event_nb2);
+	if (rc) {
+		pr_err("Couldn't register PRD2 event notifier\n");
+		opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
+		return rc;
+	}
+
+>>>>>>> upstream/android-13
 	rc = misc_register(&opal_prd_dev);
 	if (rc) {
 		pr_err("failed to register miscdev\n");
 		opal_message_notifier_unregister(OPAL_MSG_PRD,
 				&opal_prd_event_nb);
+<<<<<<< HEAD
+=======
+		opal_message_notifier_unregister(OPAL_MSG_PRD2,
+				&opal_prd_event_nb2);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -416,6 +463,10 @@ static int opal_prd_remove(struct platform_device *pdev)
 {
 	misc_deregister(&opal_prd_dev);
 	opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
+<<<<<<< HEAD
+=======
+	opal_message_notifier_unregister(OPAL_MSG_PRD2, &opal_prd_event_nb2);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Secure boot handling.
  *
@@ -5,24 +9,31 @@
  *     Roy Franz <roy.franz@linaro.org
  * Copyright (C) 2013 Red Hat, Inc.
  *     Mark Salter <msalter@redhat.com>
+<<<<<<< HEAD
  *
  * This file is part of the Linux kernel, and is made available under the
  * terms of the GNU General Public License version 2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/efi.h>
 #include <asm/efi.h>
 
 #include "efistub.h"
 
+<<<<<<< HEAD
 /* BIOS variables */
 static const efi_guid_t efi_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
 static const efi_char16_t efi_SecureBoot_name[] = L"SecureBoot";
 static const efi_char16_t efi_SetupMode_name[] = L"SetupMode";
 
+=======
+>>>>>>> upstream/android-13
 /* SHIM variables */
 static const efi_guid_t shim_guid = EFI_SHIM_LOCK_GUID;
 static const efi_char16_t shim_MokSBState_name[] = L"MokSBState";
 
+<<<<<<< HEAD
 #define get_efi_var(name, vendor, ...) \
 	efi_call_runtime(get_variable, \
 			 (efi_char16_t *)(name), (efi_guid_t *)(vendor), \
@@ -57,6 +68,32 @@ enum efi_secureboot_mode efi_get_secureboot(efi_system_table_t *sys_table_arg)
 
 	if (secboot == 0 || setupmode == 1)
 		return efi_secureboot_mode_disabled;
+=======
+static efi_status_t get_var(efi_char16_t *name, efi_guid_t *vendor, u32 *attr,
+			    unsigned long *data_size, void *data)
+{
+	return get_efi_var(name, vendor, attr, data_size, data);
+}
+
+/*
+ * Determine whether we're in secure boot mode.
+ */
+enum efi_secureboot_mode efi_get_secureboot(void)
+{
+	u32 attr;
+	unsigned long size;
+	enum efi_secureboot_mode mode;
+	efi_status_t status;
+	u8 moksbstate;
+
+	mode = efi_get_secureboot_mode(get_var);
+	if (mode == efi_secureboot_mode_unknown) {
+		efi_err("Could not determine UEFI Secure Boot status.\n");
+		return efi_secureboot_mode_unknown;
+	}
+	if (mode != efi_secureboot_mode_enabled)
+		return mode;
+>>>>>>> upstream/android-13
 
 	/*
 	 * See if a user has put the shim into insecure mode. If so, and if the
@@ -74,10 +111,15 @@ enum efi_secureboot_mode efi_get_secureboot(efi_system_table_t *sys_table_arg)
 		return efi_secureboot_mode_disabled;
 
 secure_boot_enabled:
+<<<<<<< HEAD
 	pr_efi(sys_table_arg, "UEFI Secure Boot is enabled.\n");
 	return efi_secureboot_mode_enabled;
 
 out_efi_err:
 	pr_efi_err(sys_table_arg, "Could not determine UEFI Secure Boot status.\n");
 	return efi_secureboot_mode_unknown;
+=======
+	efi_info("UEFI Secure Boot is enabled.\n");
+	return efi_secureboot_mode_enabled;
+>>>>>>> upstream/android-13
 }

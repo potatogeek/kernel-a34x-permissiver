@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TTL modification target for IP tables
  * (C) 2000,2005 by Harald Welte <laforge@netfilter.org>
  *
  * Hop Limit modification target for ip6tables
  * Maciej Soltysiak <solt@dns.toxicfilms.tv>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
@@ -32,7 +39,11 @@ ttl_tg(struct sk_buff *skb, const struct xt_action_param *par)
 	const struct ipt_TTL_info *info = par->targinfo;
 	int new_ttl;
 
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, skb->len))
+=======
+	if (skb_ensure_writable(skb, sizeof(*iph)))
+>>>>>>> upstream/android-13
 		return NF_DROP;
 
 	iph = ip_hdr(skb);
@@ -72,7 +83,11 @@ hl_tg6(struct sk_buff *skb, const struct xt_action_param *par)
 	const struct ip6t_HL_info *info = par->targinfo;
 	int new_hl;
 
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, skb->len))
+=======
+	if (skb_ensure_writable(skb, sizeof(*ip6h)))
+>>>>>>> upstream/android-13
 		return NF_DROP;
 
 	ip6h = ipv6_hdr(skb);

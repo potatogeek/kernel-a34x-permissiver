@@ -12,8 +12,12 @@
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+>>>>>>> upstream/android-13
 
 /* Greybus HID device's structure */
 struct gb_hid {
@@ -49,8 +53,13 @@ static int gb_hid_get_report_desc(struct gb_hid *ghid, char *rdesc)
 		return ret;
 
 	ret = gb_operation_sync(ghid->connection, GB_HID_TYPE_GET_REPORT_DESC,
+<<<<<<< HEAD
 				 NULL, 0, rdesc,
 				 le16_to_cpu(ghid->hdesc.wReportDescLength));
+=======
+				NULL, 0, rdesc,
+				le16_to_cpu(ghid->hdesc.wReportDescLength));
+>>>>>>> upstream/android-13
 
 	gb_pm_runtime_put_autosuspend(ghid->bundle);
 
@@ -86,7 +95,11 @@ static int gb_hid_get_report(struct gb_hid *ghid, u8 report_type, u8 report_id,
 	request.report_id = report_id;
 
 	ret = gb_operation_sync(ghid->connection, GB_HID_TYPE_GET_REPORT,
+<<<<<<< HEAD
 				 &request, sizeof(request), buf, len);
+=======
+				&request, sizeof(request), buf, len);
+>>>>>>> upstream/android-13
 
 	gb_pm_runtime_put_autosuspend(ghid->bundle);
 
@@ -211,17 +224,32 @@ static void gb_hid_init_reports(struct gb_hid *ghid)
 	struct hid_report *report;
 
 	list_for_each_entry(report,
+<<<<<<< HEAD
 		&hid->report_enum[HID_INPUT_REPORT].report_list, list)
 		gb_hid_init_report(ghid, report);
 
 	list_for_each_entry(report,
 		&hid->report_enum[HID_FEATURE_REPORT].report_list, list)
+=======
+			    &hid->report_enum[HID_INPUT_REPORT].report_list,
+			    list)
+		gb_hid_init_report(ghid, report);
+
+	list_for_each_entry(report,
+			    &hid->report_enum[HID_FEATURE_REPORT].report_list,
+			    list)
+>>>>>>> upstream/android-13
 		gb_hid_init_report(ghid, report);
 }
 
 static int __gb_hid_get_raw_report(struct hid_device *hid,
+<<<<<<< HEAD
 		unsigned char report_number, __u8 *buf, size_t count,
 		unsigned char report_type)
+=======
+				   unsigned char report_number, __u8 *buf, size_t count,
+				   unsigned char report_type)
+>>>>>>> upstream/android-13
 {
 	struct gb_hid *ghid = hid->driver_data;
 	int ret;
@@ -253,14 +281,23 @@ static int __gb_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
 
 	ret = gb_hid_set_report(ghid, report_type, report_id, buf, len);
 	if (report_id && ret >= 0)
+<<<<<<< HEAD
 		ret++; /* add report_id to the number of transfered bytes */
+=======
+		ret++; /* add report_id to the number of transferred bytes */
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int gb_hid_raw_request(struct hid_device *hid, unsigned char reportnum,
+<<<<<<< HEAD
 			       __u8 *buf, size_t len, unsigned char rtype,
 			       int reqtype)
+=======
+			      __u8 *buf, size_t len, unsigned char rtype,
+			      int reqtype)
+>>>>>>> upstream/android-13
 {
 	switch (reqtype) {
 	case HID_REQ_GET_REPORT:
@@ -289,10 +326,15 @@ static int gb_hid_parse(struct hid_device *hid)
 	}
 
 	rdesc = kzalloc(rsize, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!rdesc) {
 		dbg_hid("couldn't allocate rdesc memory\n");
 		return -ENOMEM;
 	}
+=======
+	if (!rdesc)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	ret = gb_hid_get_report_desc(ghid, rdesc);
 	if (ret) {
@@ -440,7 +482,11 @@ static int gb_hid_probe(struct gb_bundle *bundle,
 		return -ENOMEM;
 
 	connection = gb_connection_create(bundle, le16_to_cpu(cport_desc->id),
+<<<<<<< HEAD
 						gb_hid_request_handler);
+=======
+					  gb_hid_request_handler);
+>>>>>>> upstream/android-13
 	if (IS_ERR(connection)) {
 		ret = PTR_ERR(connection);
 		goto err_free_ghid;

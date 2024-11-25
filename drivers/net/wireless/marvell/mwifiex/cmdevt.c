@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: commands and events
  *
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: commands and events
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -39,10 +48,18 @@ static void mwifiex_cancel_pending_ioctl(struct mwifiex_adapter *adapter);
 static void
 mwifiex_init_cmd_node(struct mwifiex_private *priv,
 		      struct cmd_ctrl_node *cmd_node,
+<<<<<<< HEAD
 		      u32 cmd_oid, void *data_buf, bool sync)
 {
 	cmd_node->priv = priv;
 	cmd_node->cmd_oid = cmd_oid;
+=======
+		      u32 cmd_no, void *data_buf, bool sync)
+{
+	cmd_node->priv = priv;
+	cmd_node->cmd_no = cmd_no;
+
+>>>>>>> upstream/android-13
 	if (sync) {
 		cmd_node->wait_q_enabled = true;
 		cmd_node->cmd_wait_q_woken = false;
@@ -60,6 +77,7 @@ static struct cmd_ctrl_node *
 mwifiex_get_cmd_node(struct mwifiex_adapter *adapter)
 {
 	struct cmd_ctrl_node *cmd_node;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&adapter->cmd_free_q_lock, flags);
@@ -67,12 +85,24 @@ mwifiex_get_cmd_node(struct mwifiex_adapter *adapter)
 		mwifiex_dbg(adapter, ERROR,
 			    "GET_CMD_NODE: cmd node not available\n");
 		spin_unlock_irqrestore(&adapter->cmd_free_q_lock, flags);
+=======
+
+	spin_lock_bh(&adapter->cmd_free_q_lock);
+	if (list_empty(&adapter->cmd_free_q)) {
+		mwifiex_dbg(adapter, ERROR,
+			    "GET_CMD_NODE: cmd node not available\n");
+		spin_unlock_bh(&adapter->cmd_free_q_lock);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 	cmd_node = list_first_entry(&adapter->cmd_free_q,
 				    struct cmd_ctrl_node, list);
 	list_del(&cmd_node->list);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&adapter->cmd_free_q_lock, flags);
+=======
+	spin_unlock_bh(&adapter->cmd_free_q_lock);
+>>>>>>> upstream/android-13
 
 	return cmd_node;
 }
@@ -92,7 +122,11 @@ static void
 mwifiex_clean_cmd_node(struct mwifiex_adapter *adapter,
 		       struct cmd_ctrl_node *cmd_node)
 {
+<<<<<<< HEAD
 	cmd_node->cmd_oid = 0;
+=======
+	cmd_node->cmd_no = 0;
+>>>>>>> upstream/android-13
 	cmd_node->cmd_flag = 0;
 	cmd_node->data_buf = NULL;
 	cmd_node->wait_q_enabled = false;
@@ -116,8 +150,11 @@ static void
 mwifiex_insert_cmd_to_free_q(struct mwifiex_adapter *adapter,
 			     struct cmd_ctrl_node *cmd_node)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
+=======
+>>>>>>> upstream/android-13
 	if (!cmd_node)
 		return;
 
@@ -127,9 +164,15 @@ mwifiex_insert_cmd_to_free_q(struct mwifiex_adapter *adapter,
 	mwifiex_clean_cmd_node(adapter, cmd_node);
 
 	/* Insert node into cmd_free_q */
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->cmd_free_q_lock, flags);
 	list_add_tail(&cmd_node->list, &adapter->cmd_free_q);
 	spin_unlock_irqrestore(&adapter->cmd_free_q_lock, flags);
+=======
+	spin_lock_bh(&adapter->cmd_free_q_lock);
+	list_add_tail(&cmd_node->list, &adapter->cmd_free_q);
+	spin_unlock_bh(&adapter->cmd_free_q_lock);
+>>>>>>> upstream/android-13
 }
 
 /* This function reuses a command node. */
@@ -182,7 +225,10 @@ static int mwifiex_dnld_cmd_to_fw(struct mwifiex_private *priv,
 	struct host_cmd_ds_command *host_cmd;
 	uint16_t cmd_code;
 	uint16_t cmd_size;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!adapter || !cmd_node)
 		return -1;
@@ -190,7 +236,11 @@ static int mwifiex_dnld_cmd_to_fw(struct mwifiex_private *priv,
 	host_cmd = (struct host_cmd_ds_command *) (cmd_node->cmd_skb->data);
 
 	/* Sanity test */
+<<<<<<< HEAD
 	if (host_cmd == NULL || host_cmd->size == 0) {
+=======
+	if (host_cmd->size == 0) {
+>>>>>>> upstream/android-13
 		mwifiex_dbg(adapter, ERROR,
 			    "DNLD_CMD: host_cmd is null\t"
 			    "or cmd size is 0, not sending\n");
@@ -201,6 +251,10 @@ static int mwifiex_dnld_cmd_to_fw(struct mwifiex_private *priv,
 	}
 
 	cmd_code = le16_to_cpu(host_cmd->command);
+<<<<<<< HEAD
+=======
+	cmd_node->cmd_no = cmd_code;
+>>>>>>> upstream/android-13
 	cmd_size = le16_to_cpu(host_cmd->size);
 
 	if (adapter->hw_status == MWIFIEX_HW_STATUS_RESET &&
@@ -221,9 +275,15 @@ static int mwifiex_dnld_cmd_to_fw(struct mwifiex_private *priv,
 					 cmd_node->priv->bss_num,
 					 cmd_node->priv->bss_type));
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->mwifiex_cmd_lock, flags);
 	adapter->curr_cmd = cmd_node;
 	spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, flags);
+=======
+	spin_lock_bh(&adapter->mwifiex_cmd_lock);
+	adapter->curr_cmd = cmd_node;
+	spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 
 	/* Adjust skb length */
 	if (cmd_node->cmd_skb->len > cmd_size)
@@ -274,9 +334,15 @@ static int mwifiex_dnld_cmd_to_fw(struct mwifiex_private *priv,
 			adapter->cmd_wait_q.status = -1;
 		mwifiex_recycle_cmd_node(adapter, adapter->curr_cmd);
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&adapter->mwifiex_cmd_lock, flags);
 		adapter->curr_cmd = NULL;
 		spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, flags);
+=======
+		spin_lock_bh(&adapter->mwifiex_cmd_lock);
+		adapter->curr_cmd = NULL;
+		spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 
 		adapter->dbg.num_cmd_host_to_card_failure++;
 		return -1;
@@ -324,9 +390,15 @@ static int mwifiex_dnld_sleep_confirm_cmd(struct mwifiex_adapter *adapter)
 
 	adapter->seq_num++;
 	sleep_cfm_buf->seq_num =
+<<<<<<< HEAD
 		cpu_to_le16((HostCmd_SET_SEQ_NO_BSS_INFO
 					(adapter->seq_num, priv->bss_num,
 					 priv->bss_type)));
+=======
+		cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+					(adapter->seq_num, priv->bss_num,
+					 priv->bss_type));
+>>>>>>> upstream/android-13
 
 	mwifiex_dbg(adapter, CMD,
 		    "cmd: DNLD_CMD: %#x, act %#x, len %d, seqno %#x\n",
@@ -341,6 +413,15 @@ static int mwifiex_dnld_sleep_confirm_cmd(struct mwifiex_adapter *adapter)
 		sleep_cfm_tmp =
 			dev_alloc_skb(sizeof(struct mwifiex_opt_sleep_confirm)
 				      + MWIFIEX_TYPE_LEN);
+<<<<<<< HEAD
+=======
+		if (!sleep_cfm_tmp) {
+			mwifiex_dbg(adapter, ERROR,
+				    "SLEEP_CFM: dev_alloc_skb failed\n");
+			return -ENOMEM;
+		}
+
+>>>>>>> upstream/android-13
 		skb_put(sleep_cfm_tmp, sizeof(struct mwifiex_opt_sleep_confirm)
 			+ MWIFIEX_TYPE_LEN);
 		put_unaligned_le32(MWIFIEX_USB_TYPE_CMD, sleep_cfm_tmp->data);
@@ -615,7 +696,11 @@ int mwifiex_send_cmd(struct mwifiex_private *priv, u16 cmd_no,
 	}
 
 	/* Initialize the command node */
+<<<<<<< HEAD
 	mwifiex_init_cmd_node(priv, cmd_node, cmd_oid, data_buf, sync);
+=======
+	mwifiex_init_cmd_node(priv, cmd_node, cmd_no, data_buf, sync);
+>>>>>>> upstream/android-13
 
 	if (!cmd_node->cmd_skb) {
 		mwifiex_dbg(adapter, ERROR,
@@ -689,7 +774,10 @@ mwifiex_insert_cmd_to_pending_q(struct mwifiex_adapter *adapter,
 {
 	struct host_cmd_ds_command *host_cmd = NULL;
 	u16 command;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	bool add_tail = true;
 
 	host_cmd = (struct host_cmd_ds_command *) (cmd_node->cmd_skb->data);
@@ -711,12 +799,20 @@ mwifiex_insert_cmd_to_pending_q(struct mwifiex_adapter *adapter,
 		}
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->cmd_pending_q_lock, flags);
+=======
+	spin_lock_bh(&adapter->cmd_pending_q_lock);
+>>>>>>> upstream/android-13
 	if (add_tail)
 		list_add_tail(&cmd_node->list, &adapter->cmd_pending_q);
 	else
 		list_add(&cmd_node->list, &adapter->cmd_pending_q);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&adapter->cmd_pending_q_lock, flags);
+=======
+	spin_unlock_bh(&adapter->cmd_pending_q_lock);
+>>>>>>> upstream/android-13
 
 	atomic_inc(&adapter->cmd_pending);
 	mwifiex_dbg(adapter, CMD,
@@ -741,8 +837,11 @@ int mwifiex_exec_next_cmd(struct mwifiex_adapter *adapter)
 	struct cmd_ctrl_node *cmd_node;
 	int ret = 0;
 	struct host_cmd_ds_command *host_cmd;
+<<<<<<< HEAD
 	unsigned long cmd_flags;
 	unsigned long cmd_pending_q_flags;
+=======
+>>>>>>> upstream/android-13
 
 	/* Check if already in processing */
 	if (adapter->curr_cmd) {
@@ -751,6 +850,7 @@ int mwifiex_exec_next_cmd(struct mwifiex_adapter *adapter)
 		return -1;
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->mwifiex_cmd_lock, cmd_flags);
 	/* Check if any command is pending */
 	spin_lock_irqsave(&adapter->cmd_pending_q_lock, cmd_pending_q_flags);
@@ -758,6 +858,14 @@ int mwifiex_exec_next_cmd(struct mwifiex_adapter *adapter)
 		spin_unlock_irqrestore(&adapter->cmd_pending_q_lock,
 				       cmd_pending_q_flags);
 		spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, cmd_flags);
+=======
+	spin_lock_bh(&adapter->mwifiex_cmd_lock);
+	/* Check if any command is pending */
+	spin_lock_bh(&adapter->cmd_pending_q_lock);
+	if (list_empty(&adapter->cmd_pending_q)) {
+		spin_unlock_bh(&adapter->cmd_pending_q_lock);
+		spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	cmd_node = list_first_entry(&adapter->cmd_pending_q,
@@ -770,17 +878,28 @@ int mwifiex_exec_next_cmd(struct mwifiex_adapter *adapter)
 		mwifiex_dbg(adapter, ERROR,
 			    "%s: cannot send cmd in sleep state,\t"
 			    "this should not happen\n", __func__);
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&adapter->cmd_pending_q_lock,
 				       cmd_pending_q_flags);
 		spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, cmd_flags);
+=======
+		spin_unlock_bh(&adapter->cmd_pending_q_lock);
+		spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	list_del(&cmd_node->list);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&adapter->cmd_pending_q_lock,
 			       cmd_pending_q_flags);
 
 	spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, cmd_flags);
+=======
+	spin_unlock_bh(&adapter->cmd_pending_q_lock);
+
+	spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 	ret = mwifiex_dnld_cmd_to_fw(priv, cmd_node);
 	priv = mwifiex_get_priv(adapter, MWIFIEX_BSS_ROLE_ANY);
 	/* Any command sent to the firmware when host is in sleep
@@ -814,10 +933,13 @@ int mwifiex_process_cmdresp(struct mwifiex_adapter *adapter)
 	uint16_t orig_cmdresp_no;
 	uint16_t cmdresp_no;
 	uint16_t cmdresp_result;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	/* Now we got response from FW, cancel the command timer */
 	del_timer_sync(&adapter->cmd_timer);
+=======
+>>>>>>> upstream/android-13
 
 	if (!adapter->curr_cmd || !adapter->curr_cmd->resp_skb) {
 		resp = (struct host_cmd_ds_command *) adapter->upld_buf;
@@ -827,9 +949,26 @@ int mwifiex_process_cmdresp(struct mwifiex_adapter *adapter)
 		return -1;
 	}
 
+<<<<<<< HEAD
 	clear_bit(MWIFIEX_IS_CMD_TIMEDOUT, &adapter->work_flags);
 
 	resp = (struct host_cmd_ds_command *) adapter->curr_cmd->resp_skb->data;
+=======
+	resp = (struct host_cmd_ds_command *)adapter->curr_cmd->resp_skb->data;
+	orig_cmdresp_no = le16_to_cpu(resp->command);
+	cmdresp_no = (orig_cmdresp_no & HostCmd_CMD_ID_MASK);
+
+	if (adapter->curr_cmd->cmd_no != cmdresp_no) {
+		mwifiex_dbg(adapter, ERROR,
+			    "cmdresp error: cmd=0x%x cmd_resp=0x%x\n",
+			    adapter->curr_cmd->cmd_no, cmdresp_no);
+		return -1;
+	}
+	/* Now we got response from FW, cancel the command timer */
+	del_timer_sync(&adapter->cmd_timer);
+	clear_bit(MWIFIEX_IS_CMD_TIMEDOUT, &adapter->work_flags);
+
+>>>>>>> upstream/android-13
 	if (adapter->curr_cmd->cmd_flag & CMD_F_HOSTCMD) {
 		/* Copy original response back to response buffer */
 		struct mwifiex_ds_misc_cmd *hostcmd;
@@ -843,7 +982,10 @@ int mwifiex_process_cmdresp(struct mwifiex_adapter *adapter)
 			memcpy(hostcmd->cmd, resp, size);
 		}
 	}
+<<<<<<< HEAD
 	orig_cmdresp_no = le16_to_cpu(resp->command);
+=======
+>>>>>>> upstream/android-13
 
 	/* Get BSS number and corresponding priv */
 	priv = mwifiex_get_priv_by_id(adapter,
@@ -876,9 +1018,15 @@ int mwifiex_process_cmdresp(struct mwifiex_adapter *adapter)
 			adapter->cmd_wait_q.status = -1;
 
 		mwifiex_recycle_cmd_node(adapter, adapter->curr_cmd);
+<<<<<<< HEAD
 		spin_lock_irqsave(&adapter->mwifiex_cmd_lock, flags);
 		adapter->curr_cmd = NULL;
 		spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, flags);
+=======
+		spin_lock_bh(&adapter->mwifiex_cmd_lock);
+		adapter->curr_cmd = NULL;
+		spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -910,9 +1058,15 @@ int mwifiex_process_cmdresp(struct mwifiex_adapter *adapter)
 
 		mwifiex_recycle_cmd_node(adapter, adapter->curr_cmd);
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&adapter->mwifiex_cmd_lock, flags);
 		adapter->curr_cmd = NULL;
 		spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, flags);
+=======
+		spin_lock_bh(&adapter->mwifiex_cmd_lock);
+		adapter->curr_cmd = NULL;
+		spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -1018,17 +1172,27 @@ void
 mwifiex_cancel_pending_scan_cmd(struct mwifiex_adapter *adapter)
 {
 	struct cmd_ctrl_node *cmd_node = NULL, *tmp_node;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	/* Cancel all pending scan command */
 	spin_lock_irqsave(&adapter->scan_pending_q_lock, flags);
+=======
+
+	/* Cancel all pending scan command */
+	spin_lock_bh(&adapter->scan_pending_q_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(cmd_node, tmp_node,
 				 &adapter->scan_pending_q, list) {
 		list_del(&cmd_node->list);
 		cmd_node->wait_q_enabled = false;
 		mwifiex_insert_cmd_to_free_q(adapter, cmd_node);
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&adapter->scan_pending_q_lock, flags);
+=======
+	spin_unlock_bh(&adapter->scan_pending_q_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1042,9 +1206,14 @@ void
 mwifiex_cancel_all_pending_cmd(struct mwifiex_adapter *adapter)
 {
 	struct cmd_ctrl_node *cmd_node = NULL, *tmp_node;
+<<<<<<< HEAD
 	unsigned long flags, cmd_flags;
 
 	spin_lock_irqsave(&adapter->mwifiex_cmd_lock, cmd_flags);
+=======
+
+	spin_lock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 	/* Cancel current cmd */
 	if ((adapter->curr_cmd) && (adapter->curr_cmd->wait_q_enabled)) {
 		adapter->cmd_wait_q.status = -1;
@@ -1053,7 +1222,11 @@ mwifiex_cancel_all_pending_cmd(struct mwifiex_adapter *adapter)
 		/* no recycle probably wait for response */
 	}
 	/* Cancel all pending command */
+<<<<<<< HEAD
 	spin_lock_irqsave(&adapter->cmd_pending_q_lock, flags);
+=======
+	spin_lock_bh(&adapter->cmd_pending_q_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(cmd_node, tmp_node,
 				 &adapter->cmd_pending_q, list) {
 		list_del(&cmd_node->list);
@@ -1062,8 +1235,13 @@ mwifiex_cancel_all_pending_cmd(struct mwifiex_adapter *adapter)
 			adapter->cmd_wait_q.status = -1;
 		mwifiex_recycle_cmd_node(adapter, cmd_node);
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&adapter->cmd_pending_q_lock, flags);
 	spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, cmd_flags);
+=======
+	spin_unlock_bh(&adapter->cmd_pending_q_lock);
+	spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 
 	mwifiex_cancel_scan(adapter);
 }
@@ -1082,11 +1260,18 @@ static void
 mwifiex_cancel_pending_ioctl(struct mwifiex_adapter *adapter)
 {
 	struct cmd_ctrl_node *cmd_node = NULL;
+<<<<<<< HEAD
 	unsigned long cmd_flags;
 
 	if ((adapter->curr_cmd) &&
 	    (adapter->curr_cmd->wait_q_enabled)) {
 		spin_lock_irqsave(&adapter->mwifiex_cmd_lock, cmd_flags);
+=======
+
+	if ((adapter->curr_cmd) &&
+	    (adapter->curr_cmd->wait_q_enabled)) {
+		spin_lock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 		cmd_node = adapter->curr_cmd;
 		/* setting curr_cmd to NULL is quite dangerous, because
 		 * mwifiex_process_cmdresp checks curr_cmd to be != NULL
@@ -1097,7 +1282,11 @@ mwifiex_cancel_pending_ioctl(struct mwifiex_adapter *adapter)
 		 * at that point
 		 */
 		adapter->curr_cmd = NULL;
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&adapter->mwifiex_cmd_lock, cmd_flags);
+=======
+		spin_unlock_bh(&adapter->mwifiex_cmd_lock);
+>>>>>>> upstream/android-13
 
 		mwifiex_recycle_cmd_node(adapter, cmd_node);
 	}
@@ -1494,6 +1683,10 @@ int mwifiex_ret_get_hw_spec(struct mwifiex_private *priv,
 	struct mwifiex_adapter *adapter = priv->adapter;
 	struct mwifiex_ie_types_header *tlv;
 	struct hw_spec_api_rev *api_rev;
+<<<<<<< HEAD
+=======
+	struct hw_spec_max_conn *max_conn;
+>>>>>>> upstream/android-13
 	u16 resp_size, api_id;
 	int i, left_len, parsed_len = 0;
 
@@ -1580,8 +1773,26 @@ int mwifiex_ret_get_hw_spec(struct mwifiex_private *priv,
 					adapter->fw_api_ver =
 							api_rev->major_ver;
 					mwifiex_dbg(adapter, INFO,
+<<<<<<< HEAD
 						    "Firmware api version %d\n",
 						    adapter->fw_api_ver);
+=======
+						    "Firmware api version %d.%d\n",
+						    adapter->fw_api_ver,
+						    api_rev->minor_ver);
+					break;
+				case UAP_FW_API_VER_ID:
+					mwifiex_dbg(adapter, INFO,
+						    "uAP api version %d.%d\n",
+						    api_rev->major_ver,
+						    api_rev->minor_ver);
+					break;
+				case CHANRPT_API_VER_ID:
+					mwifiex_dbg(adapter, INFO,
+						    "channel report api version %d.%d\n",
+						    api_rev->major_ver,
+						    api_rev->minor_ver);
+>>>>>>> upstream/android-13
 					break;
 				default:
 					mwifiex_dbg(adapter, FATAL,
@@ -1590,6 +1801,20 @@ int mwifiex_ret_get_hw_spec(struct mwifiex_private *priv,
 					break;
 				}
 				break;
+<<<<<<< HEAD
+=======
+			case TLV_TYPE_MAX_CONN:
+				max_conn = (struct hw_spec_max_conn *)tlv;
+				adapter->max_p2p_conn = max_conn->max_p2p_conn;
+				adapter->max_sta_conn = max_conn->max_sta_conn;
+				mwifiex_dbg(adapter, INFO,
+					    "max p2p connections: %u\n",
+					    adapter->max_p2p_conn);
+				mwifiex_dbg(adapter, INFO,
+					    "max sta connections: %u\n",
+					    adapter->max_sta_conn);
+				break;
+>>>>>>> upstream/android-13
 			default:
 				mwifiex_dbg(adapter, FATAL,
 					    "Unknown GET_HW_SPEC TLV type: %#x\n",

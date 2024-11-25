@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  SR-IPv6 implementation
  *
  *  Author:
  *  David Lebrun <david.lebrun@uclouvain.be>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_SEG6_H
@@ -16,7 +23,10 @@
 
 #include <linux/net.h>
 #include <linux/ipv6.h>
+<<<<<<< HEAD
 #include <net/lwtunnel.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/seg6.h>
 #include <linux/rhashtable-types.h>
 
@@ -63,10 +73,38 @@ extern void seg6_iptunnel_exit(void);
 extern int seg6_local_init(void);
 extern void seg6_local_exit(void);
 
+<<<<<<< HEAD
 extern bool seg6_validate_srh(struct ipv6_sr_hdr *srh, int len);
+=======
+extern bool seg6_validate_srh(struct ipv6_sr_hdr *srh, int len, bool reduced);
+extern struct ipv6_sr_hdr *seg6_get_srh(struct sk_buff *skb, int flags);
+extern void seg6_icmp_srh(struct sk_buff *skb, struct inet6_skb_parm *opt);
+>>>>>>> upstream/android-13
 extern int seg6_do_srh_encap(struct sk_buff *skb, struct ipv6_sr_hdr *osrh,
 			     int proto);
 extern int seg6_do_srh_inline(struct sk_buff *skb, struct ipv6_sr_hdr *osrh);
 extern int seg6_lookup_nexthop(struct sk_buff *skb, struct in6_addr *nhaddr,
 			       u32 tbl_id);
+<<<<<<< HEAD
+=======
+
+/* If the packet which invoked an ICMP error contains an SRH return
+ * the true destination address from within the SRH, otherwise use the
+ * destination address in the IP header.
+ */
+static inline const struct in6_addr *seg6_get_daddr(struct sk_buff *skb,
+						    struct inet6_skb_parm *opt)
+{
+	struct ipv6_sr_hdr *srh;
+
+	if (opt->flags & IP6SKB_SEG6) {
+		srh = (struct ipv6_sr_hdr *)(skb->data + opt->srhoff);
+		return  &srh->segments[0];
+	}
+
+	return NULL;
+}
+
+
+>>>>>>> upstream/android-13
 #endif

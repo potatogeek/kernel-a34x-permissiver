@@ -24,7 +24,10 @@
 #include <linux/capability.h>
 #include <linux/semaphore.h>
 #include <linux/fcntl.h>
+<<<<<<< HEAD
 #include <linux/fiemap.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/rculist_bl.h>
 #include <linux/atomic.h>
 #include <linux/shrinker.h>
@@ -37,6 +40,14 @@
 #include <linux/uuid.h>
 #include <linux/errseq.h>
 #include <linux/ioprio.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_types.h>
+#include <linux/build_bug.h>
+#include <linux/stddef.h>
+#include <linux/mount.h>
+#include <linux/cred.h>
+>>>>>>> upstream/android-13
 #include <linux/android_kabi.h>
 
 #include <asm/byteorder.h>
@@ -46,6 +57,10 @@ struct backing_dev_info;
 struct bdi_writeback;
 struct bio;
 struct export_operations;
+<<<<<<< HEAD
+=======
+struct fiemap_extent_info;
+>>>>>>> upstream/android-13
 struct hd_geometry;
 struct iovec;
 struct kiocb;
@@ -64,6 +79,12 @@ struct fscrypt_info;
 struct fscrypt_operations;
 struct fsverity_info;
 struct fsverity_operations;
+<<<<<<< HEAD
+=======
+struct fs_context;
+struct fs_parameter_spec;
+struct fileattr;
+>>>>>>> upstream/android-13
 
 extern void __init inode_init(void);
 extern void __init inode_init_early(void);
@@ -138,7 +159,11 @@ typedef int (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
 /* Expect random access pattern */
 #define FMODE_RANDOM		((__force fmode_t)0x1000)
 
+<<<<<<< HEAD
 /* File is huge (eg. /dev/kmem): treat loff_t as unsigned */
+=======
+/* File is huge (eg. /dev/mem): treat loff_t as unsigned */
+>>>>>>> upstream/android-13
 #define FMODE_UNSIGNED_OFFSET	((__force fmode_t)0x2000)
 
 /* File is opened with O_PATH; almost nothing can be done with it */
@@ -163,6 +188,7 @@ typedef int (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
 #define FMODE_NONOTIFY		((__force fmode_t)0x4000000)
 
 /* File is capable of returning -EAGAIN if I/O will block */
+<<<<<<< HEAD
 #define FMODE_NOWAIT	((__force fmode_t)0x8000000)
 
 /* File does not contribute to nr_files count */
@@ -175,6 +201,18 @@ typedef int (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
  * points too.
  */
 #define CHECK_IOVEC_ONLY -1
+=======
+#define FMODE_NOWAIT		((__force fmode_t)0x8000000)
+
+/* File represents mount that needs unmounting */
+#define FMODE_NEED_UNMOUNT	((__force fmode_t)0x10000000)
+
+/* File does not contribute to nr_files count */
+#define FMODE_NOACCOUNT		((__force fmode_t)0x20000000)
+
+/* File supports async buffered reads */
+#define FMODE_BUF_RASYNC	((__force fmode_t)0x40000000)
+>>>>>>> upstream/android-13
 
 /*
  * Attribute flags.  These should be or-ed together to figure out what
@@ -285,6 +323,10 @@ enum positive_aop_returns {
 struct page;
 struct address_space;
 struct writeback_control;
+<<<<<<< HEAD
+=======
+struct readahead_control;
+>>>>>>> upstream/android-13
 
 /*
  * Write life time hint values.
@@ -299,6 +341,7 @@ enum rw_hint {
 	WRITE_LIFE_EXTREME	= RWH_WRITE_LIFE_EXTREME,
 };
 
+<<<<<<< HEAD
 #define IOCB_EVENTFD		(1 << 0)
 #define IOCB_APPEND		(1 << 1)
 #define IOCB_DIRECT		(1 << 2)
@@ -307,6 +350,24 @@ enum rw_hint {
 #define IOCB_SYNC		(1 << 5)
 #define IOCB_WRITE		(1 << 6)
 #define IOCB_NOWAIT		(1 << 7)
+=======
+/* Match RWF_* bits to IOCB bits */
+#define IOCB_HIPRI		(__force int) RWF_HIPRI
+#define IOCB_DSYNC		(__force int) RWF_DSYNC
+#define IOCB_SYNC		(__force int) RWF_SYNC
+#define IOCB_NOWAIT		(__force int) RWF_NOWAIT
+#define IOCB_APPEND		(__force int) RWF_APPEND
+
+/* non-RWF related bits - start at 16 */
+#define IOCB_EVENTFD		(1 << 16)
+#define IOCB_DIRECT		(1 << 17)
+#define IOCB_WRITE		(1 << 18)
+/* iocb->ki_waitq is valid */
+#define IOCB_WAITQ		(1 << 19)
+#define IOCB_NOIO		(1 << 20)
+/* can use bio alloc cache */
+#define IOCB_ALLOC_CACHE	(1 << 21)
+>>>>>>> upstream/android-13
 
 struct kiocb {
 	struct file		*ki_filp;
@@ -320,6 +381,13 @@ struct kiocb {
 	int			ki_flags;
 	u16			ki_hint;
 	u16			ki_ioprio; /* See linux/ioprio.h */
+<<<<<<< HEAD
+=======
+	union {
+		unsigned int		ki_cookie; /* for ->iopoll */
+		struct wait_page_queue	*ki_waitq; /* for async buffered IO */
+	};
+>>>>>>> upstream/android-13
 
 	randomized_struct_fields_end
 };
@@ -367,6 +435,10 @@ struct address_space_operations {
 	 */
 	int (*readpages)(struct file *filp, struct address_space *mapping,
 			struct list_head *pages, unsigned nr_pages);
+<<<<<<< HEAD
+=======
+	void (*readahead)(struct readahead_control *);
+>>>>>>> upstream/android-13
 
 	int (*write_begin)(struct file *, struct address_space *mapping,
 				loff_t pos, unsigned len, unsigned flags,
@@ -420,6 +492,7 @@ int pagecache_write_end(struct file *, struct address_space *mapping,
 				loff_t pos, unsigned len, unsigned copied,
 				struct page *page, void *fsdata);
 
+<<<<<<< HEAD
 struct address_space {
 	struct inode		*host;		/* owner: inode, block_device */
 	struct radix_tree_root	i_pages;	/* cached pages */
@@ -438,6 +511,50 @@ struct address_space {
 	struct list_head	private_list;	/* for use by the address_space */
 	void			*private_data;	/* ditto */
 	errseq_t		wb_err;
+=======
+/**
+ * struct address_space - Contents of a cacheable, mappable object.
+ * @host: Owner, either the inode or the block_device.
+ * @i_pages: Cached pages.
+ * @invalidate_lock: Guards coherency between page cache contents and
+ *   file offset->disk block mappings in the filesystem during invalidates.
+ *   It is also used to block modification of page cache contents through
+ *   memory mappings.
+ * @gfp_mask: Memory allocation flags to use for allocating pages.
+ * @i_mmap_writable: Number of VM_SHARED mappings.
+ * @nr_thps: Number of THPs in the pagecache (non-shmem only).
+ * @i_mmap: Tree of private and shared mappings.
+ * @i_mmap_rwsem: Protects @i_mmap and @i_mmap_writable.
+ * @nrpages: Number of page entries, protected by the i_pages lock.
+ * @writeback_index: Writeback starts here.
+ * @a_ops: Methods.
+ * @flags: Error bits and flags (AS_*).
+ * @wb_err: The most recent error which has occurred.
+ * @private_lock: For use by the owner of the address_space.
+ * @private_list: For use by the owner of the address_space.
+ * @private_data: For use by the owner of the address_space.
+ */
+struct address_space {
+	struct inode		*host;
+	struct xarray		i_pages;
+	struct rw_semaphore	invalidate_lock;
+	gfp_t			gfp_mask;
+	atomic_t		i_mmap_writable;
+#ifdef CONFIG_READ_ONLY_THP_FOR_FS
+	/* number of thp, only for non-shmem files */
+	atomic_t		nr_thps;
+#endif
+	struct rb_root_cached	i_mmap;
+	struct rw_semaphore	i_mmap_rwsem;
+	unsigned long		nrpages;
+	pgoff_t			writeback_index;
+	const struct address_space_operations *a_ops;
+	unsigned long		flags;
+	errseq_t		wb_err;
+	spinlock_t		private_lock;
+	struct list_head	private_list;
+	void			*private_data;
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -449,6 +566,7 @@ struct address_space {
 	 * must be enforced here for CRIS, to let the least significant bit
 	 * of struct page's "mapping" pointer be used for PAGE_MAPPING_ANON.
 	 */
+<<<<<<< HEAD
 struct request_queue;
 
 struct block_device {
@@ -503,22 +621,48 @@ struct block_device {
 #define PAGECACHE_TAG_TOWRITE	2
 
 int mapping_tagged(struct address_space *mapping, int tag);
+=======
+
+/* XArray tags, for tagging dirty and writeback pages in the pagecache. */
+#define PAGECACHE_TAG_DIRTY	XA_MARK_0
+#define PAGECACHE_TAG_WRITEBACK	XA_MARK_1
+#define PAGECACHE_TAG_TOWRITE	XA_MARK_2
+
+/*
+ * Returns true if any of the pages in the mapping are marked with the tag.
+ */
+static inline bool mapping_tagged(struct address_space *mapping, xa_mark_t tag)
+{
+	return xa_marked(&mapping->i_pages, tag);
+}
+>>>>>>> upstream/android-13
 
 static inline void i_mmap_lock_write(struct address_space *mapping)
 {
 	down_write(&mapping->i_mmap_rwsem);
 }
 
+<<<<<<< HEAD
+=======
+static inline int i_mmap_trylock_write(struct address_space *mapping)
+{
+	return down_write_trylock(&mapping->i_mmap_rwsem);
+}
+
+>>>>>>> upstream/android-13
 static inline void i_mmap_unlock_write(struct address_space *mapping)
 {
 	up_write(&mapping->i_mmap_rwsem);
 }
 
+<<<<<<< HEAD
 static inline int i_mmap_trylock_read(struct address_space *mapping)
 {
 	return down_read_trylock(&mapping->i_mmap_rwsem);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void i_mmap_lock_read(struct address_space *mapping)
 {
 	down_read(&mapping->i_mmap_rwsem);
@@ -529,6 +673,19 @@ static inline void i_mmap_unlock_read(struct address_space *mapping)
 	up_read(&mapping->i_mmap_rwsem);
 }
 
+<<<<<<< HEAD
+=======
+static inline void i_mmap_assert_locked(struct address_space *mapping)
+{
+	lockdep_assert_held(&mapping->i_mmap_rwsem);
+}
+
+static inline void i_mmap_assert_write_locked(struct address_space *mapping)
+{
+	lockdep_assert_held_write(&mapping->i_mmap_rwsem);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Might pages of this file be mapped into userspace?
  */
@@ -539,7 +696,11 @@ static inline int mapping_mapped(struct address_space *mapping)
 
 /*
  * Might pages of this file have been modified in userspace?
+<<<<<<< HEAD
  * Note that i_mmap_writable counts all VM_SHARED vmas: do_mmap_pgoff
+=======
+ * Note that i_mmap_writable counts all VM_SHARED vmas: do_mmap
+>>>>>>> upstream/android-13
  * marks vma as VM_SHARED if it is shared, and the file was opened for
  * writing i.e. vma may be mprotected writable even if now readonly.
  *
@@ -586,6 +747,14 @@ static inline void mapping_allow_writable(struct address_space *mapping)
 
 struct posix_acl;
 #define ACL_NOT_CACHED ((void *)(-1))
+<<<<<<< HEAD
+=======
+/*
+ * ACL_DONT_CACHE is for stacked filesystems, that rely on underlying fs to
+ * cache the ACL.  This also means that ->get_acl() can be called in RCU mode
+ * with the LOOKUP_RCU flag.
+ */
+>>>>>>> upstream/android-13
 #define ACL_DONT_CACHE ((void *)(-3))
 
 static inline struct posix_acl *
@@ -690,16 +859,29 @@ struct inode {
 	atomic_t		i_count;
 	atomic_t		i_dio_count;
 	atomic_t		i_writecount;
+<<<<<<< HEAD
 #ifdef CONFIG_IMA
 	atomic_t		i_readcount; /* struct files open RO */
 #endif
 	const struct file_operations	*i_fop;	/* former ->i_op->default_file_ops */
+=======
+#if defined(CONFIG_IMA) || defined(CONFIG_FILE_LOCKING)
+	atomic_t		i_readcount; /* struct files open RO */
+#endif
+	union {
+		const struct file_operations	*i_fop;	/* former ->i_op->default_file_ops */
+		void (*free_inode)(struct inode *);
+	};
+>>>>>>> upstream/android-13
 	struct file_lock_context	*i_flctx;
 	struct address_space	i_data;
 	struct list_head	i_devices;
 	union {
 		struct pipe_inode_info	*i_pipe;
+<<<<<<< HEAD
 		struct block_device	*i_bdev;
+=======
+>>>>>>> upstream/android-13
 		struct cdev		*i_cdev;
 		char			*i_link;
 		unsigned		i_dir_seq;
@@ -726,6 +908,11 @@ struct inode {
 	ANDROID_KABI_RESERVE(2);
 } __randomize_layout;
 
+<<<<<<< HEAD
+=======
+struct timespec64 timestamp_truncate(struct timespec64 t, struct inode *inode);
+
+>>>>>>> upstream/android-13
 static inline unsigned int i_blocksize(const struct inode *node)
 {
 	return (1 << node->i_blkbits);
@@ -818,9 +1005,48 @@ static inline void inode_lock_shared_nested(struct inode *inode, unsigned subcla
 	down_read_nested(&inode->i_rwsem, subclass);
 }
 
+<<<<<<< HEAD
 void lock_two_nondirectories(struct inode *, struct inode*);
 void unlock_two_nondirectories(struct inode *, struct inode*);
 
+=======
+static inline void filemap_invalidate_lock(struct address_space *mapping)
+{
+	down_write(&mapping->invalidate_lock);
+}
+
+static inline void filemap_invalidate_unlock(struct address_space *mapping)
+{
+	up_write(&mapping->invalidate_lock);
+}
+
+static inline void filemap_invalidate_lock_shared(struct address_space *mapping)
+{
+	down_read(&mapping->invalidate_lock);
+}
+
+static inline int filemap_invalidate_trylock_shared(
+					struct address_space *mapping)
+{
+	return down_read_trylock(&mapping->invalidate_lock);
+}
+
+static inline void filemap_invalidate_unlock_shared(
+					struct address_space *mapping)
+{
+	up_read(&mapping->invalidate_lock);
+}
+
+void lock_two_nondirectories(struct inode *, struct inode*);
+void unlock_two_nondirectories(struct inode *, struct inode*);
+
+void filemap_invalidate_lock_two(struct address_space *mapping1,
+				 struct address_space *mapping2);
+void filemap_invalidate_unlock_two(struct address_space *mapping1,
+				   struct address_space *mapping2);
+
+
+>>>>>>> upstream/android-13
 /*
  * NOTE: in a 32bit arch with a preemptable kernel and
  * an UP compile the i_size_read/write must be atomic
@@ -842,7 +1068,11 @@ static inline loff_t i_size_read(const struct inode *inode)
 		i_size = inode->i_size;
 	} while (read_seqcount_retry(&inode->i_size_seqcount, seq));
 	return i_size;
+<<<<<<< HEAD
 #elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPT)
+=======
+#elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 	loff_t i_size;
 
 	preempt_disable();
@@ -867,7 +1097,11 @@ static inline void i_size_write(struct inode *inode, loff_t i_size)
 	inode->i_size = i_size;
 	write_seqcount_end(&inode->i_size_seqcount);
 	preempt_enable();
+<<<<<<< HEAD
 #elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPT)
+=======
+#elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 	preempt_disable();
 	inode->i_size = i_size;
 	preempt_enable();
@@ -886,8 +1120,11 @@ static inline unsigned imajor(const struct inode *inode)
 	return MAJOR(inode->i_rdev);
 }
 
+<<<<<<< HEAD
 extern struct block_device *I_BDEV(struct inode *inode);
 
+=======
+>>>>>>> upstream/android-13
 struct fown_struct {
 	rwlock_t lock;          /* protects pid, uid, euid fields */
 	struct pid *pid;	/* pid or -pgrp where SIGIO should be sent */
@@ -896,6 +1133,7 @@ struct fown_struct {
 	int signum;		/* posix.1b rt signal to be delivered on IO */
 };
 
+<<<<<<< HEAD
 /*
  * Track a single file's readahead state
  */
@@ -908,6 +1146,24 @@ struct file_ra_state {
 	unsigned int ra_pages;		/* Maximum readahead window */
 	unsigned int mmap_miss;		/* Cache miss stat for mmap accesses */
 	loff_t prev_pos;		/* Cache last read() position */
+=======
+/**
+ * struct file_ra_state - Track a file's readahead state.
+ * @start: Where the most recent readahead started.
+ * @size: Number of pages read in the most recent readahead.
+ * @async_size: Start next readahead when this many pages are left.
+ * @ra_pages: Maximum size of a readahead request.
+ * @mmap_miss: How many mmap accesses missed in the page cache.
+ * @prev_pos: The last byte in the most recent read request.
+ */
+struct file_ra_state {
+	pgoff_t start;
+	unsigned int size;
+	unsigned int async_size;
+	unsigned int ra_pages;
+	unsigned int mmap_miss;
+	loff_t prev_pos;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -929,7 +1185,11 @@ struct file {
 	const struct file_operations	*f_op;
 
 	/*
+<<<<<<< HEAD
 	 * Protects f_ep_links, f_flags.
+=======
+	 * Protects f_ep, f_flags.
+>>>>>>> upstream/android-13
 	 * Must not be taken from IRQ context.
 	 */
 	spinlock_t		f_lock;
@@ -952,6 +1212,7 @@ struct file {
 
 #ifdef CONFIG_EPOLL
 	/* Used by fs/eventpoll.c to link all the hooks to this file */
+<<<<<<< HEAD
 	struct list_head	f_ep_links;
 	struct list_head	f_tfile_llink;
 #endif /* #ifdef CONFIG_EPOLL */
@@ -960,6 +1221,16 @@ struct file {
 #if defined(CONFIG_FIVE_PA_FEATURE) || defined(CONFIG_PROCA)
 	void *f_signature;
 #endif
+=======
+	struct hlist_head	*f_ep;
+#endif /* #ifdef CONFIG_EPOLL */
+	struct address_space	*f_mapping;
+	errseq_t		f_wb_err;
+	errseq_t		f_sb_err; /* for syncfs */
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
 
@@ -978,7 +1249,10 @@ static inline struct file *get_file(struct file *f)
 #define get_file_rcu_many(x, cnt)	\
 	atomic_long_add_unless(&(x)->f_count, (cnt), 0)
 #define get_file_rcu(x) get_file_rcu_many((x), 1)
+<<<<<<< HEAD
 #define fput_atomic(x)	atomic_long_add_unless(&(x)->f_count, -1, 1)
+=======
+>>>>>>> upstream/android-13
 #define file_count(x)	atomic_long_read(&(x)->f_count)
 
 #define	MAX_NON_LFS	((1UL<<31) - 1)
@@ -1003,6 +1277,10 @@ static inline struct file *get_file(struct file *f)
 #define FL_UNLOCK_PENDING	512 /* Lease is being broken */
 #define FL_OFDLCK	1024	/* lock is "owned" by struct file */
 #define FL_LAYOUT	2048	/* outstanding pNFS layout */
+<<<<<<< HEAD
+=======
+#define FL_RECLAIM	4096	/* reclaiming from a reboot server */
+>>>>>>> upstream/android-13
 
 #define FL_CLOSE_POSIX (FL_POSIX | FL_CLOSE)
 
@@ -1026,8 +1304,11 @@ struct file_lock_operations {
 };
 
 struct lock_manager_operations {
+<<<<<<< HEAD
 	int (*lm_compare_owner)(struct file_lock *, struct file_lock *);
 	unsigned long (*lm_owner_key)(struct file_lock *);
+=======
+>>>>>>> upstream/android-13
 	fl_owner_t (*lm_get_owner)(fl_owner_t);
 	void (*lm_put_owner)(fl_owner_t);
 	void (*lm_notify)(struct file_lock *);	/* unblock callback */
@@ -1035,6 +1316,10 @@ struct lock_manager_operations {
 	bool (*lm_break)(struct file_lock *);
 	int (*lm_change)(struct file_lock *, int, struct list_head *);
 	void (*lm_setup)(struct file_lock *, void **);
+<<<<<<< HEAD
+=======
+	bool (*lm_breaker_owns_lease)(struct file_lock *);
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -1076,10 +1361,22 @@ bool opens_in_grace(struct net *);
  * Obviously, the last two criteria only matter for POSIX locks.
  */
 struct file_lock {
+<<<<<<< HEAD
 	struct file_lock *fl_next;	/* singly linked list for this inode  */
 	struct list_head fl_list;	/* link into file_lock_context */
 	struct hlist_node fl_link;	/* node in global lists */
 	struct list_head fl_block;	/* circular list of blocked processes */
+=======
+	struct file_lock *fl_blocker;	/* The lock, that is blocking us */
+	struct list_head fl_list;	/* link into file_lock_context */
+	struct hlist_node fl_link;	/* node in global lists */
+	struct list_head fl_blocked_requests;	/* list of requests with
+						 * ->fl_blocker pointing here
+						 */
+	struct list_head fl_blocked_member;	/* node in
+						 * ->fl_blocker->fl_blocked_requests
+						 */
+>>>>>>> upstream/android-13
 	fl_owner_t fl_owner;
 	unsigned int fl_flags;
 	unsigned char fl_type;
@@ -1103,6 +1400,10 @@ struct file_lock {
 		struct {
 			struct list_head link;	/* link in AFS vnode's pending_locks list */
 			int state;		/* state of grant or error if -ve */
+<<<<<<< HEAD
+=======
+			unsigned int	debug_id;
+>>>>>>> upstream/android-13
 		} afs;
 	} fl_u;
 
@@ -1155,7 +1456,11 @@ extern void locks_remove_file(struct file *);
 extern void locks_release_private(struct file_lock *);
 extern void posix_test_lock(struct file *, struct file_lock *);
 extern int posix_lock_file(struct file *, struct file_lock *, struct file_lock *);
+<<<<<<< HEAD
 extern int posix_unblock_lock(struct file_lock *);
+=======
+extern int locks_delete_block(struct file_lock *);
+>>>>>>> upstream/android-13
 extern int vfs_test_lock(struct file *, struct file_lock *);
 extern int vfs_lock_file(struct file *, unsigned int, struct file_lock *, struct file_lock *);
 extern int vfs_cancel_lock(struct file *filp, struct file_lock *fl);
@@ -1165,6 +1470,14 @@ extern void lease_get_mtime(struct inode *, struct timespec64 *time);
 extern int generic_setlease(struct file *, long, struct file_lock **, void **priv);
 extern int vfs_setlease(struct file *, long, struct file_lock **, void **);
 extern int lease_modify(struct file_lock *, int, struct list_head *);
+<<<<<<< HEAD
+=======
+
+struct notifier_block;
+extern int lease_register_notifier(struct notifier_block *);
+extern void lease_unregister_notifier(struct notifier_block *);
+
+>>>>>>> upstream/android-13
 struct files_struct;
 extern void show_fd_locks(struct seq_file *f,
 			 struct file *filp, struct files_struct *files);
@@ -1245,7 +1558,11 @@ static inline int posix_lock_file(struct file *filp, struct file_lock *fl,
 	return -ENOLCK;
 }
 
+<<<<<<< HEAD
 static inline int posix_unblock_lock(struct file_lock *waiter)
+=======
+static inline int locks_delete_block(struct file_lock *waiter)
+>>>>>>> upstream/android-13
 {
 	return -ENOENT;
 }
@@ -1362,12 +1679,20 @@ extern int send_sigurg(struct fown_struct *fown);
 #define SB_NODIRATIME	2048	/* Do not update directory access times */
 #define SB_SILENT	32768
 #define SB_POSIXACL	(1<<16)	/* VFS does not apply the umask */
+<<<<<<< HEAD
+=======
+#define SB_INLINECRYPT	(1<<17)	/* Use blk-crypto for encrypted files */
+>>>>>>> upstream/android-13
 #define SB_KERNMOUNT	(1<<22) /* this is a kern_mount call */
 #define SB_I_VERSION	(1<<23) /* Update inode I_version field */
 #define SB_LAZYTIME	(1<<25) /* Update the on-disk [acm]times lazily */
 
 /* These sb flags are internal to the kernel */
 #define SB_SUBMOUNT     (1<<26)
+<<<<<<< HEAD
+=======
+#define SB_FORCE    	(1<<27)
+>>>>>>> upstream/android-13
 #define SB_NOSEC	(1<<28)
 #define SB_BORN		(1<<29)
 #define SB_ACTIVE	(1<<30)
@@ -1376,7 +1701,11 @@ extern int send_sigurg(struct fown_struct *fown);
 /* These flags relate to encoding and casefolding */
 #define SB_ENC_STRICT_MODE_FL	(1 << 0)
 
+<<<<<<< HEAD
 #define sb_has_enc_strict_mode(sb) \
+=======
+#define sb_has_strict_encoding(sb) \
+>>>>>>> upstream/android-13
 	(sb->s_encoding_flags & SB_ENC_STRICT_MODE_FL)
 
 /*
@@ -1393,13 +1722,22 @@ extern int send_sigurg(struct fown_struct *fown);
 #define SB_I_CGROUPWB	0x00000001	/* cgroup-aware writeback enabled */
 #define SB_I_NOEXEC	0x00000002	/* Ignore executables on this fs */
 #define SB_I_NODEV	0x00000004	/* Ignore devices on this fs */
+<<<<<<< HEAD
 #define SB_I_MULTIROOT	0x00000008	/* Multiple roots to the dentry tree */
+=======
+#define SB_I_STABLE_WRITES 0x00000008	/* don't modify blks until WB is done */
+>>>>>>> upstream/android-13
 
 /* sb->s_iflags to limit user namespace mounts */
 #define SB_I_USERNS_VISIBLE		0x00000010 /* fstype already mounted */
 #define SB_I_IMA_UNVERIFIABLE_SIGNATURE	0x00000020
 #define SB_I_UNTRUSTED_MOUNTER		0x00000040
 
+<<<<<<< HEAD
+=======
+#define SB_I_SKIP_SYNC	0x00000100	/* Skip superblock at global sync */
+
+>>>>>>> upstream/android-13
 /* Possible states of 'frozen' field */
 enum {
 	SB_UNFROZEN = 0,		/* FS is unfrozen */
@@ -1414,7 +1752,11 @@ enum {
 
 struct sb_writers {
 	int				frozen;		/* Is sb frozen? */
+<<<<<<< HEAD
 	wait_queue_head_t		wait_unfrozen;	/* for get_super_thawed() */
+=======
+	wait_queue_head_t		wait_unfrozen;	/* wait for thaw */
+>>>>>>> upstream/android-13
 	struct percpu_rw_semaphore	rw_sem[SB_FREEZE_LEVELS];
 };
 
@@ -1462,6 +1804,7 @@ struct super_block {
 
 	struct sb_writers	s_writers;
 
+<<<<<<< HEAD
 	char			s_id[32];	/* Informational name */
 	uuid_t			s_uuid;		/* UUID */
 
@@ -1473,6 +1816,31 @@ struct super_block {
 	   Cannot be worse than a second */
 	u32		   s_time_gran;
 
+=======
+	/*
+	 * Keep s_fs_info, s_time_gran, s_fsnotify_mask, and
+	 * s_fsnotify_marks together for cache efficiency. They are frequently
+	 * accessed and rarely modified.
+	 */
+	void			*s_fs_info;	/* Filesystem private info */
+
+	/* Granularity of c/m/atime in ns (cannot be worse than a second) */
+	u32			s_time_gran;
+	/* Time limits for c/m/atime in seconds */
+	time64_t		   s_time_min;
+	time64_t		   s_time_max;
+#ifdef CONFIG_FSNOTIFY
+	__u32			s_fsnotify_mask;
+	struct fsnotify_mark_connector __rcu	*s_fsnotify_marks;
+#endif
+
+	char			s_id[32];	/* Informational name */
+	uuid_t			s_uuid;		/* UUID */
+
+	unsigned int		s_max_links;
+	fmode_t			s_mode;
+
+>>>>>>> upstream/android-13
 	/*
 	 * The next field is for VFS *only*. No filesystems have any business
 	 * even looking at it. You had been warned.
@@ -1483,7 +1851,11 @@ struct super_block {
 	 * Filesystem subtype.  If non-empty the filesystem type field
 	 * in /proc/mounts will be "type.subtype"
 	 */
+<<<<<<< HEAD
 	char *s_subtype;
+=======
+	const char *s_subtype;
+>>>>>>> upstream/android-13
 
 	const struct dentry_operations *s_d_op; /* default d_op for dentries */
 
@@ -1497,12 +1869,26 @@ struct super_block {
 	/* Number of inodes with nlink == 0 but still referenced */
 	atomic_long_t s_remove_count;
 
+<<<<<<< HEAD
 	/* Pending fsnotify inode refs */
 	atomic_long_t s_fsnotify_inode_refs;
+=======
+	/*
+	 * Number of inode/mount/sb objects that are being watched, note that
+	 * inodes objects are currently double-accounted.
+	 */
+	atomic_long_t s_fsnotify_connectors;
+>>>>>>> upstream/android-13
 
 	/* Being remounted read-only */
 	int s_readonly_remount;
 
+<<<<<<< HEAD
+=======
+	/* per-sb errseq_t for reporting writeback errors via syncfs */
+	errseq_t s_wb_err;
+
+>>>>>>> upstream/android-13
 	/* AIO completions deferred from interrupt context */
 	struct workqueue_struct *s_dio_done_wq;
 	struct hlist_head s_pins;
@@ -1515,11 +1901,20 @@ struct super_block {
 	struct user_namespace *s_user_ns;
 
 	/*
+<<<<<<< HEAD
 	 * Keep the lru lists last in the structure so they always sit on their
 	 * own individual cachelines.
 	 */
 	struct list_lru		s_dentry_lru ____cacheline_aligned_in_smp;
 	struct list_lru		s_inode_lru ____cacheline_aligned_in_smp;
+=======
+	 * The list_lru structure is essentially just a pointer to a table
+	 * of per-node lru lists, each of which has its own spinlock.
+	 * There is no need to put them into separate cachelines.
+	 */
+	struct list_lru		s_dentry_lru;
+	struct list_lru		s_inode_lru;
+>>>>>>> upstream/android-13
 	struct rcu_head		rcu;
 	struct work_struct	destroy_work;
 
@@ -1568,15 +1963,205 @@ static inline void i_gid_write(struct inode *inode, gid_t gid)
 	inode->i_gid = make_kgid(inode->i_sb->s_user_ns, gid);
 }
 
+<<<<<<< HEAD
 extern struct timespec64 timespec64_trunc(struct timespec64 t, unsigned gran);
+=======
+/**
+ * kuid_into_mnt - map a kuid down into a mnt_userns
+ * @mnt_userns: user namespace of the relevant mount
+ * @kuid: kuid to be mapped
+ *
+ * Return: @kuid mapped according to @mnt_userns.
+ * If @kuid has no mapping INVALID_UID is returned.
+ */
+static inline kuid_t kuid_into_mnt(struct user_namespace *mnt_userns,
+				   kuid_t kuid)
+{
+	return make_kuid(mnt_userns, __kuid_val(kuid));
+}
+
+/**
+ * kgid_into_mnt - map a kgid down into a mnt_userns
+ * @mnt_userns: user namespace of the relevant mount
+ * @kgid: kgid to be mapped
+ *
+ * Return: @kgid mapped according to @mnt_userns.
+ * If @kgid has no mapping INVALID_GID is returned.
+ */
+static inline kgid_t kgid_into_mnt(struct user_namespace *mnt_userns,
+				   kgid_t kgid)
+{
+	return make_kgid(mnt_userns, __kgid_val(kgid));
+}
+
+/**
+ * i_uid_into_mnt - map an inode's i_uid down into a mnt_userns
+ * @mnt_userns: user namespace of the mount the inode was found from
+ * @inode: inode to map
+ *
+ * Return: the inode's i_uid mapped down according to @mnt_userns.
+ * If the inode's i_uid has no mapping INVALID_UID is returned.
+ */
+static inline kuid_t i_uid_into_mnt(struct user_namespace *mnt_userns,
+				    const struct inode *inode)
+{
+	return kuid_into_mnt(mnt_userns, inode->i_uid);
+}
+
+/**
+ * i_gid_into_mnt - map an inode's i_gid down into a mnt_userns
+ * @mnt_userns: user namespace of the mount the inode was found from
+ * @inode: inode to map
+ *
+ * Return: the inode's i_gid mapped down according to @mnt_userns.
+ * If the inode's i_gid has no mapping INVALID_GID is returned.
+ */
+static inline kgid_t i_gid_into_mnt(struct user_namespace *mnt_userns,
+				    const struct inode *inode)
+{
+	return kgid_into_mnt(mnt_userns, inode->i_gid);
+}
+
+/**
+ * kuid_from_mnt - map a kuid up into a mnt_userns
+ * @mnt_userns: user namespace of the relevant mount
+ * @kuid: kuid to be mapped
+ *
+ * Return: @kuid mapped up according to @mnt_userns.
+ * If @kuid has no mapping INVALID_UID is returned.
+ */
+static inline kuid_t kuid_from_mnt(struct user_namespace *mnt_userns,
+				   kuid_t kuid)
+{
+	return KUIDT_INIT(from_kuid(mnt_userns, kuid));
+}
+
+/**
+ * kgid_from_mnt - map a kgid up into a mnt_userns
+ * @mnt_userns: user namespace of the relevant mount
+ * @kgid: kgid to be mapped
+ *
+ * Return: @kgid mapped up according to @mnt_userns.
+ * If @kgid has no mapping INVALID_GID is returned.
+ */
+static inline kgid_t kgid_from_mnt(struct user_namespace *mnt_userns,
+				   kgid_t kgid)
+{
+	return KGIDT_INIT(from_kgid(mnt_userns, kgid));
+}
+
+/**
+ * mapped_fsuid - return caller's fsuid mapped up into a mnt_userns
+ * @mnt_userns: user namespace of the relevant mount
+ *
+ * Use this helper to initialize a new vfs or filesystem object based on
+ * the caller's fsuid. A common example is initializing the i_uid field of
+ * a newly allocated inode triggered by a creation event such as mkdir or
+ * O_CREAT. Other examples include the allocation of quotas for a specific
+ * user.
+ *
+ * Return: the caller's current fsuid mapped up according to @mnt_userns.
+ */
+static inline kuid_t mapped_fsuid(struct user_namespace *mnt_userns)
+{
+	return kuid_from_mnt(mnt_userns, current_fsuid());
+}
+
+/**
+ * mapped_fsgid - return caller's fsgid mapped up into a mnt_userns
+ * @mnt_userns: user namespace of the relevant mount
+ *
+ * Use this helper to initialize a new vfs or filesystem object based on
+ * the caller's fsgid. A common example is initializing the i_gid field of
+ * a newly allocated inode triggered by a creation event such as mkdir or
+ * O_CREAT. Other examples include the allocation of quotas for a specific
+ * user.
+ *
+ * Return: the caller's current fsgid mapped up according to @mnt_userns.
+ */
+static inline kgid_t mapped_fsgid(struct user_namespace *mnt_userns)
+{
+	return kgid_from_mnt(mnt_userns, current_fsgid());
+}
+
+/**
+ * inode_fsuid_set - initialize inode's i_uid field with callers fsuid
+ * @inode: inode to initialize
+ * @mnt_userns: user namespace of the mount the inode was found from
+ *
+ * Initialize the i_uid field of @inode. If the inode was found/created via
+ * an idmapped mount map the caller's fsuid according to @mnt_users.
+ */
+static inline void inode_fsuid_set(struct inode *inode,
+				   struct user_namespace *mnt_userns)
+{
+	inode->i_uid = mapped_fsuid(mnt_userns);
+}
+
+/**
+ * inode_fsgid_set - initialize inode's i_gid field with callers fsgid
+ * @inode: inode to initialize
+ * @mnt_userns: user namespace of the mount the inode was found from
+ *
+ * Initialize the i_gid field of @inode. If the inode was found/created via
+ * an idmapped mount map the caller's fsgid according to @mnt_users.
+ */
+static inline void inode_fsgid_set(struct inode *inode,
+				   struct user_namespace *mnt_userns)
+{
+	inode->i_gid = mapped_fsgid(mnt_userns);
+}
+
+/**
+ * fsuidgid_has_mapping() - check whether caller's fsuid/fsgid is mapped
+ * @sb: the superblock we want a mapping in
+ * @mnt_userns: user namespace of the relevant mount
+ *
+ * Check whether the caller's fsuid and fsgid have a valid mapping in the
+ * s_user_ns of the superblock @sb. If the caller is on an idmapped mount map
+ * the caller's fsuid and fsgid according to the @mnt_userns first.
+ *
+ * Return: true if fsuid and fsgid is mapped, false if not.
+ */
+static inline bool fsuidgid_has_mapping(struct super_block *sb,
+					struct user_namespace *mnt_userns)
+{
+	struct user_namespace *s_user_ns = sb->s_user_ns;
+
+	return kuid_has_mapping(s_user_ns, mapped_fsuid(mnt_userns)) &&
+	       kgid_has_mapping(s_user_ns, mapped_fsgid(mnt_userns));
+}
+
+>>>>>>> upstream/android-13
 extern struct timespec64 current_time(struct inode *inode);
 
 /*
  * Snapshotting support.
  */
 
+<<<<<<< HEAD
 void __sb_end_write(struct super_block *sb, int level);
 int __sb_start_write(struct super_block *sb, int level, bool wait);
+=======
+/*
+ * These are internal functions, please use sb_start_{write,pagefault,intwrite}
+ * instead.
+ */
+static inline void __sb_end_write(struct super_block *sb, int level)
+{
+	percpu_up_read(sb->s_writers.rw_sem + level-1);
+}
+
+static inline void __sb_start_write(struct super_block *sb, int level)
+{
+	percpu_down_read(sb->s_writers.rw_sem + level - 1);
+}
+
+static inline bool __sb_start_write_trylock(struct super_block *sb, int level)
+{
+	return percpu_down_read_trylock(sb->s_writers.rw_sem + level - 1);
+}
+>>>>>>> upstream/android-13
 
 #define __sb_writers_acquired(sb, lev)	\
 	percpu_rwsem_acquire(&(sb)->s_writers.rw_sem[(lev)-1], 1, _THIS_IP_)
@@ -1640,12 +2225,21 @@ static inline void sb_end_intwrite(struct super_block *sb)
  */
 static inline void sb_start_write(struct super_block *sb)
 {
+<<<<<<< HEAD
 	__sb_start_write(sb, SB_FREEZE_WRITE, true);
 }
 
 static inline int sb_start_write_trylock(struct super_block *sb)
 {
 	return __sb_start_write(sb, SB_FREEZE_WRITE, false);
+=======
+	__sb_start_write(sb, SB_FREEZE_WRITE);
+}
+
+static inline bool sb_start_write_trylock(struct super_block *sb)
+{
+	return __sb_start_write_trylock(sb, SB_FREEZE_WRITE);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1661,18 +2255,32 @@ static inline int sb_start_write_trylock(struct super_block *sb)
  *
  * Since page fault freeze protection behaves as a lock, users have to preserve
  * ordering of freeze protection and other filesystem locks. It is advised to
+<<<<<<< HEAD
  * put sb_start_pagefault() close to mmap_sem in lock ordering. Page fault
  * handling code implies lock dependency:
  *
  * mmap_sem
+=======
+ * put sb_start_pagefault() close to mmap_lock in lock ordering. Page fault
+ * handling code implies lock dependency:
+ *
+ * mmap_lock
+>>>>>>> upstream/android-13
  *   -> sb_start_pagefault
  */
 static inline void sb_start_pagefault(struct super_block *sb)
 {
+<<<<<<< HEAD
 	__sb_start_write(sb, SB_FREEZE_PAGEFAULT, true);
 }
 
 /*
+=======
+	__sb_start_write(sb, SB_FREEZE_PAGEFAULT);
+}
+
+/**
+>>>>>>> upstream/android-13
  * sb_start_intwrite - get write access to a superblock for internal fs purposes
  * @sb: the super we write to
  *
@@ -1687,6 +2295,7 @@ static inline void sb_start_pagefault(struct super_block *sb)
  */
 static inline void sb_start_intwrite(struct super_block *sb)
 {
+<<<<<<< HEAD
 	__sb_start_write(sb, SB_FREEZE_FS, true);
 }
 
@@ -1697,10 +2306,23 @@ static inline int sb_start_intwrite_trylock(struct super_block *sb)
 
 
 extern bool inode_owner_or_capable(const struct inode *inode);
+=======
+	__sb_start_write(sb, SB_FREEZE_FS);
+}
+
+static inline bool sb_start_intwrite_trylock(struct super_block *sb)
+{
+	return __sb_start_write_trylock(sb, SB_FREEZE_FS);
+}
+
+bool inode_owner_or_capable(struct user_namespace *mnt_userns,
+			    const struct inode *inode);
+>>>>>>> upstream/android-13
 
 /*
  * VFS helper functions..
  */
+<<<<<<< HEAD
 extern int vfs_create(struct inode *, struct dentry *, umode_t, bool);
 extern int vfs_create2(struct vfsmount *, struct inode *, struct dentry *, umode_t, bool);
 extern int vfs_mkdir(struct inode *, struct dentry *, umode_t);
@@ -1721,10 +2343,60 @@ extern int vfs_whiteout(struct inode *, struct dentry *);
 
 extern struct dentry *vfs_tmpfile(struct dentry *dentry, umode_t mode,
 				  int open_flag);
+=======
+int vfs_create(struct user_namespace *, struct inode *,
+	       struct dentry *, umode_t, bool);
+int vfs_mkdir(struct user_namespace *, struct inode *,
+	      struct dentry *, umode_t);
+int vfs_mknod(struct user_namespace *, struct inode *, struct dentry *,
+              umode_t, dev_t);
+int vfs_symlink(struct user_namespace *, struct inode *,
+		struct dentry *, const char *);
+int vfs_link(struct dentry *, struct user_namespace *, struct inode *,
+	     struct dentry *, struct inode **);
+int vfs_rmdir(struct user_namespace *, struct inode *, struct dentry *);
+int vfs_unlink(struct user_namespace *, struct inode *, struct dentry *,
+	       struct inode **);
+
+/**
+ * struct renamedata - contains all information required for renaming
+ * @old_mnt_userns:    old user namespace of the mount the inode was found from
+ * @old_dir:           parent of source
+ * @old_dentry:                source
+ * @new_mnt_userns:    new user namespace of the mount the inode was found from
+ * @new_dir:           parent of destination
+ * @new_dentry:                destination
+ * @delegated_inode:   returns an inode needing a delegation break
+ * @flags:             rename flags
+ */
+struct renamedata {
+	struct user_namespace *old_mnt_userns;
+	struct inode *old_dir;
+	struct dentry *old_dentry;
+	struct user_namespace *new_mnt_userns;
+	struct inode *new_dir;
+	struct dentry *new_dentry;
+	struct inode **delegated_inode;
+	unsigned int flags;
+} __randomize_layout;
+
+int vfs_rename(struct renamedata *);
+
+static inline int vfs_whiteout(struct user_namespace *mnt_userns,
+			       struct inode *dir, struct dentry *dentry)
+{
+	return vfs_mknod(mnt_userns, dir, dentry, S_IFCHR | WHITEOUT_MODE,
+			 WHITEOUT_DEV);
+}
+
+struct dentry *vfs_tmpfile(struct user_namespace *mnt_userns,
+			   struct dentry *dentry, umode_t mode, int open_flag);
+>>>>>>> upstream/android-13
 
 int vfs_mkobj(struct dentry *, umode_t,
 		int (*f)(struct dentry *, umode_t, void *),
 		void *);
+<<<<<<< HEAD
 int vfs_mkobj2(struct vfsmount *, struct dentry *, umode_t,
 		int (*f)(struct dentry *, umode_t, void *),
 		void *);
@@ -1766,6 +2438,28 @@ int fiemap_check_flags(struct fiemap_extent_info *fieinfo, u32 fs_flags);
 #define DT_LNK		10
 #define DT_SOCK		12
 #define DT_WHT		14
+=======
+
+int vfs_fchown(struct file *file, uid_t user, gid_t group);
+int vfs_fchmod(struct file *file, umode_t mode);
+int vfs_utimes(const struct path *path, struct timespec64 *times);
+
+extern long vfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+
+#ifdef CONFIG_COMPAT
+extern long compat_ptr_ioctl(struct file *file, unsigned int cmd,
+					unsigned long arg);
+#else
+#define compat_ptr_ioctl NULL
+#endif
+
+/*
+ * VFS file helper functions.
+ */
+void inode_init_owner(struct user_namespace *mnt_userns, struct inode *inode,
+		      const struct inode *dir, umode_t mode);
+extern bool may_open_dev(const struct path *path);
+>>>>>>> upstream/android-13
 
 /*
  * This is the "filldir" function type, used by readdir() to let
@@ -1782,6 +2476,7 @@ struct dir_context {
 	loff_t pos;
 };
 
+<<<<<<< HEAD
 struct block_device_operations;
 
 /* These macros are for out of kernel modules to test that
@@ -1790,6 +2485,8 @@ struct block_device_operations;
 #define HAVE_COMPAT_IOCTL 1
 #define HAVE_UNLOCKED_IOCTL 1
 
+=======
+>>>>>>> upstream/android-13
 /*
  * These flags let !MMU mmap() govern direct device mapping vs immediate
  * copying more easily for MAP_PRIVATE, especially for ROM filesystems.
@@ -1809,6 +2506,28 @@ struct block_device_operations;
 #define NOMMU_VMFLAGS \
 	(NOMMU_MAP_READ | NOMMU_MAP_WRITE | NOMMU_MAP_EXEC)
 
+<<<<<<< HEAD
+=======
+/*
+ * These flags control the behavior of the remap_file_range function pointer.
+ * If it is called with len == 0 that means "remap to end of source file".
+ * See Documentation/filesystems/vfs.rst for more details about this call.
+ *
+ * REMAP_FILE_DEDUP: only remap if contents identical (i.e. deduplicate)
+ * REMAP_FILE_CAN_SHORTEN: caller can handle a shortened request
+ */
+#define REMAP_FILE_DEDUP		(1 << 0)
+#define REMAP_FILE_CAN_SHORTEN		(1 << 1)
+
+/*
+ * These flags signal that the caller is ok with altering various aspects of
+ * the behavior of the remap operation.  The changes must be made by the
+ * implementation; the vfs remap helper functions can take advantage of them.
+ * Flags in this category exist to preserve the quirky behavior of the hoisted
+ * btrfs clone/dedupe ioctls.
+ */
+#define REMAP_FILE_ADVISORY		(REMAP_FILE_CAN_SHORTEN)
+>>>>>>> upstream/android-13
 
 struct iov_iter;
 
@@ -1819,6 +2538,10 @@ struct file_operations {
 	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
 	ssize_t (*read_iter) (struct kiocb *, struct iov_iter *);
 	ssize_t (*write_iter) (struct kiocb *, struct iov_iter *);
+<<<<<<< HEAD
+=======
+	int (*iopoll)(struct kiocb *kiocb, bool spin);
+>>>>>>> upstream/android-13
 	int (*iterate) (struct file *, struct dir_context *);
 	int (*iterate_shared) (struct file *, struct dir_context *);
 	__poll_t (*poll) (struct file *, struct poll_table_struct *);
@@ -1847,10 +2570,16 @@ struct file_operations {
 #endif
 	ssize_t (*copy_file_range)(struct file *, loff_t, struct file *,
 			loff_t, size_t, unsigned int);
+<<<<<<< HEAD
 	int (*clone_file_range)(struct file *, loff_t, struct file *, loff_t,
 			u64);
 	int (*dedupe_file_range)(struct file *, loff_t, struct file *, loff_t,
 			u64);
+=======
+	loff_t (*remap_file_range)(struct file *file_in, loff_t pos_in,
+				   struct file *file_out, loff_t pos_out,
+				   loff_t len, unsigned int remap_flags);
+>>>>>>> upstream/android-13
 	int (*fadvise)(struct file *, loff_t, loff_t, int);
 
 	ANDROID_KABI_RESERVE(1);
@@ -1862,6 +2591,7 @@ struct file_operations {
 struct inode_operations {
 	struct dentry * (*lookup) (struct inode *,struct dentry *, unsigned int);
 	const char * (*get_link) (struct dentry *, struct inode *, struct delayed_call *);
+<<<<<<< HEAD
 	int (*permission) (struct inode *, int);
 	int (*permission2) (struct vfsmount *, struct inode *, int);
 	struct posix_acl * (*get_acl)(struct inode *, int);
@@ -1880,6 +2610,30 @@ struct inode_operations {
 	int (*setattr) (struct dentry *, struct iattr *);
 	int (*setattr2) (struct vfsmount *, struct dentry *, struct iattr *);
         int (*getattr) (const struct path *, struct kstat *, u32, unsigned int);
+=======
+	int (*permission) (struct user_namespace *, struct inode *, int);
+	struct posix_acl * (*get_acl)(struct inode *, int, bool);
+
+	int (*readlink) (struct dentry *, char __user *,int);
+
+	int (*create) (struct user_namespace *, struct inode *,struct dentry *,
+		       umode_t, bool);
+	int (*link) (struct dentry *,struct inode *,struct dentry *);
+	int (*unlink) (struct inode *,struct dentry *);
+	int (*symlink) (struct user_namespace *, struct inode *,struct dentry *,
+			const char *);
+	int (*mkdir) (struct user_namespace *, struct inode *,struct dentry *,
+		      umode_t);
+	int (*rmdir) (struct inode *,struct dentry *);
+	int (*mknod) (struct user_namespace *, struct inode *,struct dentry *,
+		      umode_t,dev_t);
+	int (*rename) (struct user_namespace *, struct inode *, struct dentry *,
+			struct inode *, struct dentry *, unsigned int);
+	int (*setattr) (struct user_namespace *, struct dentry *,
+			struct iattr *);
+	int (*getattr) (struct user_namespace *, const struct path *,
+			struct kstat *, u32, unsigned int);
+>>>>>>> upstream/android-13
 	ssize_t (*listxattr) (struct dentry *, char *, size_t);
 	int (*fiemap)(struct inode *, struct fiemap_extent_info *, u64 start,
 		      u64 len);
@@ -1887,8 +2641,18 @@ struct inode_operations {
 	int (*atomic_open)(struct inode *, struct dentry *,
 			   struct file *, unsigned open_flag,
 			   umode_t create_mode);
+<<<<<<< HEAD
 	int (*tmpfile) (struct inode *, struct dentry *, umode_t);
 	int (*set_acl)(struct inode *, struct posix_acl *, int);
+=======
+	int (*tmpfile) (struct user_namespace *, struct inode *,
+			struct dentry *, umode_t);
+	int (*set_acl)(struct user_namespace *, struct inode *,
+		       struct posix_acl *, int);
+	int (*fileattr_set)(struct user_namespace *mnt_userns,
+			    struct dentry *dentry, struct fileattr *fa);
+	int (*fileattr_get)(struct dentry *dentry, struct fileattr *fa);
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -1913,6 +2677,7 @@ static inline int call_mmap(struct file *file, struct vm_area_struct *vma)
 	return file->f_op->mmap(file, vma);
 }
 
+<<<<<<< HEAD
 ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
 			      unsigned long nr_segs, unsigned long fast_segs,
 			      struct iovec *fast_pointer,
@@ -1940,11 +2705,39 @@ extern int vfs_dedupe_file_range(struct file *file,
 extern int vfs_dedupe_file_range_one(struct file *src_file, loff_t src_pos,
 				     struct file *dst_file, loff_t dst_pos,
 				     u64 len);
+=======
+extern ssize_t vfs_read(struct file *, char __user *, size_t, loff_t *);
+extern ssize_t vfs_write(struct file *, const char __user *, size_t, loff_t *);
+extern ssize_t vfs_copy_file_range(struct file *, loff_t , struct file *,
+				   loff_t, size_t, unsigned int);
+extern ssize_t generic_copy_file_range(struct file *file_in, loff_t pos_in,
+				       struct file *file_out, loff_t pos_out,
+				       size_t len, unsigned int flags);
+extern int generic_remap_file_range_prep(struct file *file_in, loff_t pos_in,
+					 struct file *file_out, loff_t pos_out,
+					 loff_t *count,
+					 unsigned int remap_flags);
+extern loff_t do_clone_file_range(struct file *file_in, loff_t pos_in,
+				  struct file *file_out, loff_t pos_out,
+				  loff_t len, unsigned int remap_flags);
+extern loff_t vfs_clone_file_range(struct file *file_in, loff_t pos_in,
+				   struct file *file_out, loff_t pos_out,
+				   loff_t len, unsigned int remap_flags);
+extern int vfs_dedupe_file_range(struct file *file,
+				 struct file_dedupe_range *same);
+extern loff_t vfs_dedupe_file_range_one(struct file *src_file, loff_t src_pos,
+					struct file *dst_file, loff_t dst_pos,
+					loff_t len, unsigned int remap_flags);
+>>>>>>> upstream/android-13
 
 
 struct super_operations {
    	struct inode *(*alloc_inode)(struct super_block *sb);
 	void (*destroy_inode)(struct inode *);
+<<<<<<< HEAD
+=======
+	void (*free_inode)(struct inode *);
+>>>>>>> upstream/android-13
 
    	void (*dirty_inode) (struct inode *, int flags);
 	int (*write_inode) (struct inode *, struct writeback_control *wbc);
@@ -1958,6 +2751,7 @@ struct super_operations {
 	int (*unfreeze_fs) (struct super_block *);
 	int (*statfs) (struct dentry *, struct kstatfs *);
 	int (*remount_fs) (struct super_block *, int *, char *);
+<<<<<<< HEAD
 	int (*remount_fs2) (struct vfsmount *, struct super_block *, int *, char *);
 	void *(*clone_mnt_data) (void *);
 	void (*copy_mnt_data) (void *, void *);
@@ -1966,6 +2760,11 @@ struct super_operations {
 
 	int (*show_options)(struct seq_file *, struct dentry *);
 	int (*show_options2)(struct vfsmount *,struct seq_file *, struct dentry *);
+=======
+	void (*umount_begin) (struct super_block *);
+
+	int (*show_options)(struct seq_file *, struct dentry *);
+>>>>>>> upstream/android-13
 	int (*show_devname)(struct seq_file *, struct dentry *);
 	int (*show_path)(struct seq_file *, struct dentry *);
 	int (*show_stats)(struct seq_file *, struct dentry *);
@@ -1974,7 +2773,10 @@ struct super_operations {
 	ssize_t (*quota_write)(struct super_block *, int, const char *, size_t, loff_t);
 	struct dquot **(*get_dquots)(struct inode *);
 #endif
+<<<<<<< HEAD
 	int (*bdev_try_to_free_page)(struct super_block*, struct page*, gfp_t);
+=======
+>>>>>>> upstream/android-13
 	long (*nr_cached_objects)(struct super_block *,
 				  struct shrink_control *);
 	long (*free_cached_objects)(struct super_block *,
@@ -1989,6 +2791,7 @@ struct super_operations {
 /*
  * Inode flags - they have no relation to superblock flags now
  */
+<<<<<<< HEAD
 #define S_SYNC		1	/* Writes are synced at once */
 #define S_NOATIME	2	/* Do not update access times */
 #define S_APPEND	4	/* Append-only file */
@@ -2010,6 +2813,29 @@ struct super_operations {
 #define S_ENCRYPTED	16384	/* Encrypted file (using fs/crypto/) */
 #define S_CASEFOLD	32768	/* Casefolded file */
 #define S_VERITY	65536	/* Verity file (using fs/verity/) */
+=======
+#define S_SYNC		(1 << 0)  /* Writes are synced at once */
+#define S_NOATIME	(1 << 1)  /* Do not update access times */
+#define S_APPEND	(1 << 2)  /* Append-only file */
+#define S_IMMUTABLE	(1 << 3)  /* Immutable file */
+#define S_DEAD		(1 << 4)  /* removed, but still open directory */
+#define S_NOQUOTA	(1 << 5)  /* Inode is not counted to quota */
+#define S_DIRSYNC	(1 << 6)  /* Directory modifications are synchronous */
+#define S_NOCMTIME	(1 << 7)  /* Do not update file c/mtime */
+#define S_SWAPFILE	(1 << 8)  /* Do not truncate: swapon got its bmaps */
+#define S_PRIVATE	(1 << 9)  /* Inode is fs-internal */
+#define S_IMA		(1 << 10) /* Inode has an associated IMA struct */
+#define S_AUTOMOUNT	(1 << 11) /* Automount/referral quasi-directory */
+#define S_NOSEC		(1 << 12) /* no suid or xattr security attributes */
+#ifdef CONFIG_FS_DAX
+#define S_DAX		(1 << 13) /* Direct Access, avoiding the page cache */
+#else
+#define S_DAX		0	  /* Make all the DAX code disappear */
+#endif
+#define S_ENCRYPTED	(1 << 14) /* Encrypted file (using fs/crypto/) */
+#define S_CASEFOLD	(1 << 15) /* Casefolded file */
+#define S_VERITY	(1 << 16) /* Verity file (using fs/verity/) */
+>>>>>>> upstream/android-13
 
 /*
  * Note that nosuid etc flags are inode-specific: setting some file-system
@@ -2056,9 +2882,17 @@ static inline bool sb_rdonly(const struct super_block *sb) { return sb->s_flags 
 #define IS_WHITEOUT(inode)	(S_ISCHR(inode->i_mode) && \
 				 (inode)->i_rdev == WHITEOUT_DEV)
 
+<<<<<<< HEAD
 static inline bool HAS_UNMAPPED_ID(struct inode *inode)
 {
 	return !uid_valid(inode->i_uid) || !gid_valid(inode->i_gid);
+=======
+static inline bool HAS_UNMAPPED_ID(struct user_namespace *mnt_userns,
+				   struct inode *inode)
+{
+	return !uid_valid(i_uid_into_mnt(mnt_userns, inode)) ||
+	       !gid_valid(i_gid_into_mnt(mnt_userns, inode));
+>>>>>>> upstream/android-13
 }
 
 static inline enum rw_hint file_write_hint(struct file *file)
@@ -2086,15 +2920,36 @@ static inline void init_sync_kiocb(struct kiocb *kiocb, struct file *filp)
 		.ki_filp = filp,
 		.ki_flags = iocb_flags(filp),
 		.ki_hint = ki_hint_validate(file_write_hint(filp)),
+<<<<<<< HEAD
 		.ki_ioprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 0),
+=======
+		.ki_ioprio = get_current_ioprio(),
+	};
+}
+
+static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
+			       struct file *filp)
+{
+	*kiocb = (struct kiocb) {
+		.ki_filp = filp,
+		.ki_flags = kiocb_src->ki_flags,
+		.ki_hint = kiocb_src->ki_hint,
+		.ki_ioprio = kiocb_src->ki_ioprio,
+		.ki_pos = kiocb_src->ki_pos,
+>>>>>>> upstream/android-13
 	};
 }
 
 /*
  * Inode state bits.  Protected by inode->i_lock
  *
+<<<<<<< HEAD
  * Three bits determine the dirty state of the inode, I_DIRTY_SYNC,
  * I_DIRTY_DATASYNC and I_DIRTY_PAGES.
+=======
+ * Four bits determine the dirty state of the inode: I_DIRTY_SYNC,
+ * I_DIRTY_DATASYNC, I_DIRTY_PAGES, and I_DIRTY_TIME.
+>>>>>>> upstream/android-13
  *
  * Four bits define the lifetime of an inode.  Initially, inodes are I_NEW,
  * until that flag is cleared.  I_WILL_FREE, I_FREEING and I_CLEAR are set at
@@ -2103,12 +2958,29 @@ static inline void init_sync_kiocb(struct kiocb *kiocb, struct file *filp)
  * Two bits are used for locking and completion notification, I_NEW and I_SYNC.
  *
  * I_DIRTY_SYNC		Inode is dirty, but doesn't have to be written on
+<<<<<<< HEAD
  *			fdatasync().  i_atime is the usual cause.
  * I_DIRTY_DATASYNC	Data-related inode changes pending. We keep track of
  *			these changes separately from I_DIRTY_SYNC so that we
  *			don't have to write inode on fdatasync() when only
  *			mtime has changed in it.
  * I_DIRTY_PAGES	Inode has dirty pages.  Inode itself may be clean.
+=======
+ *			fdatasync() (unless I_DIRTY_DATASYNC is also set).
+ *			Timestamp updates are the usual cause.
+ * I_DIRTY_DATASYNC	Data-related inode changes pending.  We keep track of
+ *			these changes separately from I_DIRTY_SYNC so that we
+ *			don't have to write inode on fdatasync() when only
+ *			e.g. the timestamps have changed.
+ * I_DIRTY_PAGES	Inode has dirty pages.  Inode itself may be clean.
+ * I_DIRTY_TIME		The inode itself only has dirty timestamps, and the
+ *			lazytime mount option is enabled.  We keep track of this
+ *			separately from I_DIRTY_SYNC in order to implement
+ *			lazytime.  This gets cleared if I_DIRTY_INODE
+ *			(I_DIRTY_SYNC and/or I_DIRTY_DATASYNC) gets set.  I.e.
+ *			either I_DIRTY_TIME *or* I_DIRTY_INODE can be set in
+ *			i_state, but not both.  I_DIRTY_PAGES may still be set.
+>>>>>>> upstream/android-13
  * I_NEW		Serves as both a mutex and completion notification.
  *			New inodes set I_NEW.  If two processes both create
  *			the same inode, one of them will release its inode and
@@ -2144,13 +3016,22 @@ static inline void init_sync_kiocb(struct kiocb *kiocb, struct file *filp)
  * I_WB_SWITCH		Cgroup bdi_writeback switching in progress.  Used to
  *			synchronize competing switching instances and to tell
  *			wb stat updates to grab the i_pages lock.  See
+<<<<<<< HEAD
  *			inode_switch_wb_work_fn() for details.
+=======
+ *			inode_switch_wbs_work_fn() for details.
+>>>>>>> upstream/android-13
  *
  * I_OVL_INUSE		Used by overlayfs to get exclusive ownership on upper
  *			and work dirs among overlayfs mounts.
  *
  * I_CREATING		New object's inode in the middle of setting up.
  *
+<<<<<<< HEAD
+=======
+ * I_DONTCACHE		Evict inode as soon as it is not used anymore.
+ *
+>>>>>>> upstream/android-13
  * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
  *			Used to detect that mark_inode_dirty() should not move
  * 			inode between dirty lists.
@@ -2175,6 +3056,10 @@ static inline void init_sync_kiocb(struct kiocb *kiocb, struct file *filp)
 #define I_WB_SWITCH		(1 << 13)
 #define I_OVL_INUSE		(1 << 14)
 #define I_CREATING		(1 << 15)
+<<<<<<< HEAD
+=======
+#define I_DONTCACHE		(1 << 16)
+>>>>>>> upstream/android-13
 #define I_SYNC_QUEUED		(1 << 17)
 
 #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
@@ -2192,6 +3077,24 @@ static inline void mark_inode_dirty_sync(struct inode *inode)
 	__mark_inode_dirty(inode, I_DIRTY_SYNC);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Returns true if the given inode itself only has dirty timestamps (its pages
+ * may still be dirty) and isn't currently being allocated or freed.
+ * Filesystems should call this if when writing an inode when lazytime is
+ * enabled, they want to opportunistically write the timestamps of other inodes
+ * located very nearby on-disk, e.g. in the same inode block.  This returns true
+ * if the given inode is in need of such an opportunistic update.  Requires
+ * i_lock, or at least later re-checking under i_lock.
+ */
+static inline bool inode_is_dirtytime_only(struct inode *inode)
+{
+	return (inode->i_state & (I_DIRTY_TIME | I_NEW |
+				  I_FREEING | I_WILL_FREE)) == I_DIRTY_TIME;
+}
+
+>>>>>>> upstream/android-13
 extern void inc_nlink(struct inode *inode);
 extern void drop_nlink(struct inode *inode);
 extern void clear_nlink(struct inode *inode);
@@ -2218,13 +3121,23 @@ enum file_time_flags {
 
 extern bool atime_needs_update(const struct path *, struct inode *);
 extern void touch_atime(const struct path *);
+<<<<<<< HEAD
+=======
+int inode_update_time(struct inode *inode, struct timespec64 *time, int flags);
+
+>>>>>>> upstream/android-13
 static inline void file_accessed(struct file *file)
 {
 	if (!(file->f_flags & O_NOATIME))
 		touch_atime(&file->f_path);
 }
 
+<<<<<<< HEAD
 int sync_inode(struct inode *inode, struct writeback_control *wbc);
+=======
+extern int file_modified(struct file *file);
+
+>>>>>>> upstream/android-13
 int sync_inode_metadata(struct inode *inode, int wait);
 
 struct file_system_type {
@@ -2234,12 +3147,23 @@ struct file_system_type {
 #define FS_BINARY_MOUNTDATA	2
 #define FS_HAS_SUBTYPE		4
 #define FS_USERNS_MOUNT		8	/* Can be mounted by userns root */
+<<<<<<< HEAD
 #define FS_RENAME_DOES_D_MOVE	32768	/* FS will handle d_move() during rename() internally. */
 	struct dentry *(*mount) (struct file_system_type *, int,
 		       const char *, void *);
 	struct dentry *(*mount2) (struct vfsmount *, struct file_system_type *, int,
 			       const char *, void *);
 	void *(*alloc_mnt_data) (void);
+=======
+#define FS_DISALLOW_NOTIFY_PERM	16	/* Disable fanotify permission events */
+#define FS_ALLOW_IDMAP         32      /* FS has been updated to handle vfs idmappings. */
+#define FS_THP_SUPPORT		8192	/* Remove once all fs converted */
+#define FS_RENAME_DOES_D_MOVE	32768	/* FS will handle d_move() during rename() internally. */
+	int (*init_fs_context)(struct fs_context *);
+	const struct fs_parameter_spec *parameters;
+	struct dentry *(*mount) (struct file_system_type *, int,
+		       const char *, void *);
+>>>>>>> upstream/android-13
 	void (*kill_sb) (struct super_block *);
 	struct module *owner;
 	struct file_system_type * next;
@@ -2252,6 +3176,10 @@ struct file_system_type {
 
 	struct lock_class_key i_lock_key;
 	struct lock_class_key i_mutex_key;
+<<<<<<< HEAD
+=======
+	struct lock_class_key invalidate_lock_key;
+>>>>>>> upstream/android-13
 	struct lock_class_key i_mutex_dir_key;
 
 	ANDROID_KABI_RESERVE(1);
@@ -2262,6 +3190,7 @@ struct file_system_type {
 
 #define MODULE_ALIAS_FS(NAME) MODULE_ALIAS("fs-" NAME)
 
+<<<<<<< HEAD
 extern struct dentry *mount_ns(struct file_system_type *fs_type,
 	int flags, void *data, void *ns, struct user_namespace *user_ns,
 	int (*fill_super)(struct super_block *, void *, int));
@@ -2277,6 +3206,11 @@ static inline struct dentry *mount_bdev(struct file_system_type *fs_type,
 	return ERR_PTR(-ENODEV);
 }
 #endif
+=======
+extern struct dentry *mount_bdev(struct file_system_type *fs_type,
+	int flags, const char *dev_name, void *data,
+	int (*fill_super)(struct super_block *, void *, int));
+>>>>>>> upstream/android-13
 extern struct dentry *mount_single(struct file_system_type *fs_type,
 	int flags, void *data,
 	int (*fill_super)(struct super_block *, void *, int));
@@ -2285,6 +3219,7 @@ extern struct dentry *mount_nodev(struct file_system_type *fs_type,
 	int (*fill_super)(struct super_block *, void *, int));
 extern struct dentry *mount_subtree(struct vfsmount *mnt, const char *path);
 void generic_shutdown_super(struct super_block *sb);
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
 void kill_block_super(struct super_block *sb);
 #else
@@ -2293,11 +3228,15 @@ static inline void kill_block_super(struct super_block *sb)
 	BUG();
 }
 #endif
+=======
+void kill_block_super(struct super_block *sb);
+>>>>>>> upstream/android-13
 void kill_anon_super(struct super_block *sb);
 void kill_litter_super(struct super_block *sb);
 void deactivate_super(struct super_block *sb);
 void deactivate_locked_super(struct super_block *sb);
 int set_anon_super(struct super_block *s, void *data);
+<<<<<<< HEAD
 int get_anon_bdev(dev_t *);
 void free_anon_bdev(dev_t);
 struct super_block *sget_userns(struct file_system_type *type,
@@ -2305,10 +3244,19 @@ struct super_block *sget_userns(struct file_system_type *type,
 			int (*set)(struct super_block *,void *),
 			int flags, struct user_namespace *user_ns,
 			void *data);
+=======
+int set_anon_super_fc(struct super_block *s, struct fs_context *fc);
+int get_anon_bdev(dev_t *);
+void free_anon_bdev(dev_t);
+struct super_block *sget_fc(struct fs_context *fc,
+			    int (*test)(struct super_block *, struct fs_context *),
+			    int (*set)(struct super_block *, struct fs_context *));
+>>>>>>> upstream/android-13
 struct super_block *sget(struct file_system_type *type,
 			int (*test)(struct super_block *,void *),
 			int (*set)(struct super_block *,void *),
 			int flags, void *data);
+<<<<<<< HEAD
 extern struct dentry *mount_pseudo_xattr(struct file_system_type *, char *,
 					 const struct super_operations *ops,
 					 const struct xattr_handler **xattr,
@@ -2322,6 +3270,8 @@ mount_pseudo(struct file_system_type *fs_type, char *name,
 {
 	return mount_pseudo_xattr(fs_type, name, ops, NULL, dops, magic);
 }
+=======
+>>>>>>> upstream/android-13
 
 /* Alas, no aliases. Too much hassle with bringing module.h everywhere */
 #define fops_get(fops) \
@@ -2342,8 +3292,12 @@ mount_pseudo(struct file_system_type *fs_type, char *name,
 
 extern int register_filesystem(struct file_system_type *);
 extern int unregister_filesystem(struct file_system_type *);
+<<<<<<< HEAD
 extern struct vfsmount *kern_mount_data(struct file_system_type *, void *data);
 #define kern_mount(type) kern_mount_data(type, NULL)
+=======
+extern struct vfsmount *kern_mount(struct file_system_type *);
+>>>>>>> upstream/android-13
 extern void kern_unmount(struct vfsmount *mnt);
 extern int may_umount_tree(struct vfsmount *);
 extern int may_umount(struct vfsmount *);
@@ -2375,6 +3329,7 @@ extern struct kobject *fs_kobj;
 
 #define MAX_RW_COUNT (INT_MAX & PAGE_MASK)
 
+<<<<<<< HEAD
 #ifdef CONFIG_MANDATORY_FILE_LOCKING
 extern int locks_mandatory_locked(struct file *);
 extern int locks_mandatory_area(struct inode *, struct file *, loff_t, loff_t, unsigned char);
@@ -2459,6 +3414,8 @@ static inline int locks_verify_truncate(struct inode *inode, struct file *filp,
 #endif /* CONFIG_MANDATORY_FILE_LOCKING */
 
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FILE_LOCKING
 static inline int break_lease(struct inode *inode, unsigned int mode)
 {
@@ -2558,20 +3515,44 @@ struct filename {
 	struct audit_names	*aname;
 	const char		iname[];
 };
+<<<<<<< HEAD
 
 extern long vfs_truncate(const struct path *, loff_t);
 extern int do_truncate(struct dentry *, loff_t start, unsigned int time_attrs,
 		       struct file *filp);
 extern int do_truncate2(struct vfsmount *, struct dentry *, loff_t start,
 			unsigned int time_attrs, struct file *filp);
+=======
+static_assert(offsetof(struct filename, iname) % sizeof(long) == 0);
+
+static inline struct user_namespace *file_mnt_user_ns(struct file *file)
+{
+	return mnt_user_ns(file->f_path.mnt);
+}
+extern long vfs_truncate(const struct path *, loff_t);
+int do_truncate(struct user_namespace *, struct dentry *, loff_t start,
+		unsigned int time_attrs, struct file *filp);
+>>>>>>> upstream/android-13
 extern int vfs_fallocate(struct file *file, int mode, loff_t offset,
 			loff_t len);
 extern long do_sys_open(int dfd, const char __user *filename, int flags,
 			umode_t mode);
 extern struct file *file_open_name(struct filename *, int, umode_t);
 extern struct file *filp_open(const char *, int, umode_t);
+<<<<<<< HEAD
 extern struct file *file_open_root(struct dentry *, struct vfsmount *,
 				   const char *, int, umode_t);
+=======
+extern struct file *filp_open_block(const char *, int, umode_t);
+extern struct file *file_open_root(const struct path *,
+				   const char *, int, umode_t);
+static inline struct file *file_open_root_mnt(struct vfsmount *mnt,
+				   const char *name, int flags, umode_t mode)
+{
+	return file_open_root(&(struct path){.mnt = mnt, .dentry = mnt->mnt_root},
+			      name, flags, mode);
+}
+>>>>>>> upstream/android-13
 extern struct file * dentry_open(const struct path *, int, const struct cred *);
 extern struct file * open_with_fake_path(const struct path *, int,
 					 struct inode*, const struct cred *);
@@ -2582,6 +3563,10 @@ static inline struct file *file_clone_open(struct file *file)
 extern int filp_close(struct file *, fl_owner_t id);
 
 extern struct filename *getname_flags(const char __user *, int, int *);
+<<<<<<< HEAD
+=======
+extern struct filename *getname_uflags(const char __user *, int);
+>>>>>>> upstream/android-13
 extern struct filename *getname(const char __user *);
 extern struct filename *getname_kernel(const char *);
 extern void putname(struct filename *name);
@@ -2590,10 +3575,13 @@ extern int finish_open(struct file *file, struct dentry *dentry,
 			int (*open)(struct inode *, struct file *));
 extern int finish_no_open(struct file *file, struct dentry *dentry);
 
+<<<<<<< HEAD
 /* fs/ioctl.c */
 
 extern int ioctl_preallocate(struct file *filp, void __user *argp);
 
+=======
+>>>>>>> upstream/android-13
 /* fs/dcache.c */
 extern void __init vfs_caches_init_early(void);
 extern void __init vfs_caches_init(void);
@@ -2603,6 +3591,7 @@ extern struct kmem_cache *names_cachep;
 #define __getname()		kmem_cache_alloc(names_cachep, GFP_KERNEL)
 #define __putname(name)		kmem_cache_free(names_cachep, (void *)(name))
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
 extern int register_blkdev(unsigned int, const char *);
 extern void unregister_blkdev(unsigned int, const char *);
@@ -2690,6 +3679,18 @@ static inline void bd_unlink_disk_holder(struct block_device *bdev,
 }
 #endif
 #endif
+=======
+extern struct super_block *blockdev_superblock;
+static inline bool sb_is_blkdev_sb(struct super_block *sb)
+{
+	return IS_ENABLED(CONFIG_BLOCK) && sb == blockdev_superblock;
+}
+
+void emergency_thaw_all(void);
+extern int sync_filesystem(struct super_block *);
+extern const struct file_operations def_blk_fops;
+extern const struct file_operations def_chr_fops;
+>>>>>>> upstream/android-13
 
 /* fs/char_dev.c */
 #define CHRDEV_MAJOR_MAX 512
@@ -2720,6 +3721,7 @@ static inline void unregister_chrdev(unsigned int major, const char *name)
 	__unregister_chrdev(major, 0, 256, name);
 }
 
+<<<<<<< HEAD
 /* fs/block_dev.c */
 #define BDEVNAME_SIZE	32	/* Largest string for a blockdev identifier */
 #define BDEVT_SIZE	10	/* Largest string for MAJ:MIN for blkdev */
@@ -2735,12 +3737,15 @@ extern void blkdev_show(struct seq_file *,off_t);
 #define BLKDEV_MAJOR_MAX	0
 #endif
 
+=======
+>>>>>>> upstream/android-13
 extern void init_special_inode(struct inode *, umode_t, dev_t);
 
 /* Invalid inode operations -- fs/bad_inode.c */
 extern void make_bad_inode(struct inode *);
 extern bool is_bad_inode(struct inode *);
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
 extern void check_disk_size_change(struct gendisk *disk,
 		struct block_device *bdev, bool verbose);
@@ -2752,6 +3757,15 @@ extern int invalidate_partition(struct gendisk *, int);
 unsigned long invalidate_mapping_pages(struct address_space *mapping,
 					pgoff_t start, pgoff_t end);
 
+=======
+unsigned long invalidate_mapping_pages(struct address_space *mapping,
+					pgoff_t start, pgoff_t end);
+
+void invalidate_mapping_pagevec(struct address_space *mapping,
+				pgoff_t start, pgoff_t end,
+				unsigned long *nr_pagevec);
+
+>>>>>>> upstream/android-13
 static inline void invalidate_remote_inode(struct inode *inode)
 {
 	if (S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
@@ -2777,7 +3791,12 @@ static inline int filemap_fdatawait(struct address_space *mapping)
 
 extern bool filemap_range_has_page(struct address_space *, loff_t lstart,
 				  loff_t lend);
+<<<<<<< HEAD
 extern int filemap_write_and_wait(struct address_space *mapping);
+=======
+extern bool filemap_range_needs_writeback(struct address_space *,
+					  loff_t lstart, loff_t lend);
+>>>>>>> upstream/android-13
 extern int filemap_write_and_wait_range(struct address_space *mapping,
 				        loff_t lstart, loff_t lend);
 extern int __filemap_fdatawrite_range(struct address_space *mapping,
@@ -2786,6 +3805,16 @@ extern int filemap_fdatawrite_range(struct address_space *mapping,
 				loff_t start, loff_t end);
 extern int filemap_check_errors(struct address_space *mapping);
 extern void __filemap_set_wb_err(struct address_space *mapping, int err);
+<<<<<<< HEAD
+=======
+int filemap_fdatawrite_wbc(struct address_space *mapping,
+			   struct writeback_control *wbc);
+
+static inline int filemap_write_and_wait(struct address_space *mapping)
+{
+	return filemap_write_and_wait_range(mapping, 0, LLONG_MAX);
+}
+>>>>>>> upstream/android-13
 
 extern int __must_check file_fdatawait_range(struct file *file, loff_t lstart,
 						loff_t lend);
@@ -2820,7 +3849,11 @@ static inline void filemap_set_wb_err(struct address_space *mapping, int err)
 }
 
 /**
+<<<<<<< HEAD
  * filemap_check_wb_error - has an error occurred since the mark was sampled?
+=======
+ * filemap_check_wb_err - has an error occurred since the mark was sampled?
+>>>>>>> upstream/android-13
  * @mapping: mapping to check for writeback errors
  * @since: previously-sampled errseq_t
  *
@@ -2847,10 +3880,31 @@ static inline errseq_t filemap_sample_wb_err(struct address_space *mapping)
 	return errseq_sample(&mapping->wb_err);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * file_sample_sb_err - sample the current errseq_t to test for later errors
+ * @file: file pointer to be sampled
+ *
+ * Grab the most current superblock-level errseq_t value for the given
+ * struct file.
+ */
+static inline errseq_t file_sample_sb_err(struct file *file)
+{
+	return errseq_sample(&file->f_path.dentry->d_sb->s_wb_err);
+}
+
+>>>>>>> upstream/android-13
 extern int vfs_fsync_range(struct file *file, loff_t start, loff_t end,
 			   int datasync);
 extern int vfs_fsync(struct file *file, int datasync);
 
+<<<<<<< HEAD
+=======
+extern int sync_file_range(struct file *file, loff_t offset, loff_t nbytes,
+				unsigned int flags);
+
+>>>>>>> upstream/android-13
 /*
  * Sync the bytes written if this was a synchronous write.  Expect ki_pos
  * to already be updated for the write, and will return either the amount
@@ -2871,6 +3925,7 @@ static inline ssize_t generic_write_sync(struct kiocb *iocb, ssize_t count)
 
 extern void emergency_sync(void);
 extern void emergency_remount(void);
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
 extern sector_t bmap(struct inode *, sector_t);
 #endif
@@ -2880,24 +3935,68 @@ extern int inode_permission(struct inode *, int);
 extern int inode_permission2(struct vfsmount *, struct inode *, int);
 extern int generic_permission(struct inode *, int);
 extern int __check_sticky(struct inode *dir, struct inode *inode);
+=======
+
+#ifdef CONFIG_BLOCK
+extern int bmap(struct inode *inode, sector_t *block);
+#else
+static inline int bmap(struct inode *inode,  sector_t *block)
+{
+	return -EINVAL;
+}
+#endif
+
+int notify_change(struct user_namespace *, struct dentry *,
+		  struct iattr *, struct inode **);
+int inode_permission(struct user_namespace *, struct inode *, int);
+int generic_permission(struct user_namespace *, struct inode *, int);
+static inline int file_permission(struct file *file, int mask)
+{
+	return inode_permission(file_mnt_user_ns(file),
+				file_inode(file), mask);
+}
+static inline int path_permission(const struct path *path, int mask)
+{
+	return inode_permission(mnt_user_ns(path->mnt),
+				d_inode(path->dentry), mask);
+}
+int __check_sticky(struct user_namespace *mnt_userns, struct inode *dir,
+		   struct inode *inode);
+>>>>>>> upstream/android-13
 
 static inline bool execute_ok(struct inode *inode)
 {
 	return (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode);
 }
 
+<<<<<<< HEAD
+=======
+static inline bool inode_wrong_type(const struct inode *inode, umode_t mode)
+{
+	return (inode->i_mode ^ mode) & S_IFMT;
+}
+
+>>>>>>> upstream/android-13
 static inline void file_start_write(struct file *file)
 {
 	if (!S_ISREG(file_inode(file)->i_mode))
 		return;
+<<<<<<< HEAD
 	__sb_start_write(file_inode(file)->i_sb, SB_FREEZE_WRITE, true);
+=======
+	sb_start_write(file_inode(file)->i_sb);
+>>>>>>> upstream/android-13
 }
 
 static inline bool file_start_write_trylock(struct file *file)
 {
 	if (!S_ISREG(file_inode(file)->i_mode))
 		return true;
+<<<<<<< HEAD
 	return __sb_start_write(file_inode(file)->i_sb, SB_FREEZE_WRITE, false);
+=======
+	return sb_start_write_trylock(file_inode(file)->i_sb);
+>>>>>>> upstream/android-13
 }
 
 static inline void file_end_write(struct file *file)
@@ -2908,6 +4007,7 @@ static inline void file_end_write(struct file *file)
 }
 
 /*
+<<<<<<< HEAD
  * get_write_access() gets write permission for a file.
  * put_write_access() releases this write permission.
  * This is used for regular files.
@@ -2917,6 +4017,22 @@ static inline void file_end_write(struct file *file)
  * 0: no writers, no VM_DENYWRITE mappings
  * < 0: (-i_writecount) vm_area_structs with VM_DENYWRITE set exist
  * > 0: (i_writecount) users are writing to the file.
+=======
+ * This is used for regular files where some users -- especially the
+ * currently executed binary in a process, previously handled via
+ * VM_DENYWRITE -- cannot handle concurrent write (and maybe mmap
+ * read-write shared) accesses.
+ *
+ * get_write_access() gets write permission for a file.
+ * put_write_access() releases this write permission.
+ * deny_write_access() denies write access to a file.
+ * allow_write_access() re-enables write access to a file.
+ *
+ * The i_writecount field of an inode can have the following values:
+ * 0: no write access, no denied write access
+ * < 0: (-i_writecount) users that denied write access to the file.
+ * > 0: (i_writecount) users that have write access to the file.
+>>>>>>> upstream/android-13
  *
  * Normally we operate on that counter with atomic_{inc,dec} and it's safe
  * except for the cases where we don't hold i_writecount yet. Then we need to
@@ -2946,7 +4062,11 @@ static inline bool inode_is_open_for_write(const struct inode *inode)
 	return atomic_read(&inode->i_writecount) > 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_IMA
+=======
+#if defined(CONFIG_IMA) || defined(CONFIG_FILE_LOCKING)
+>>>>>>> upstream/android-13
 static inline void i_readcount_dec(struct inode *inode)
 {
 	BUG_ON(!atomic_read(&inode->i_readcount));
@@ -2968,6 +4088,7 @@ static inline void i_readcount_inc(struct inode *inode)
 #endif
 extern int do_pipe_flags(int *, int);
 
+<<<<<<< HEAD
 #define __kernel_read_file_id(id) \
 	id(UNKNOWN, unknown)		\
 	id(FIRMWARE, firmware)		\
@@ -3005,6 +4126,10 @@ extern int kernel_read_file_from_path(const char *, void **, loff_t *, loff_t,
 extern int kernel_read_file_from_fd(int, void **, loff_t *, loff_t,
 				    enum kernel_read_file_id);
 extern ssize_t kernel_read(struct file *, void *, size_t, loff_t *);
+=======
+extern ssize_t kernel_read(struct file *, void *, size_t, loff_t *);
+ssize_t __kernel_read(struct file *file, void *buf, size_t count, loff_t *pos);
+>>>>>>> upstream/android-13
 extern ssize_t kernel_write(struct file *, const void *, size_t, loff_t *);
 extern ssize_t __kernel_write(struct file *, const void *, size_t, loff_t *);
 extern struct file * open_exec(const char *);
@@ -3033,6 +4158,10 @@ static inline int generic_drop_inode(struct inode *inode)
 {
 	return !inode->i_nlink || inode_unhashed(inode);
 }
+<<<<<<< HEAD
+=======
+extern void d_mark_dontcache(struct inode *inode);
+>>>>>>> upstream/android-13
 
 extern struct inode *ilookup5_nowait(struct super_block *sb,
 		unsigned long hashval, int (*test)(struct inode *, void *),
@@ -3052,6 +4181,12 @@ extern struct inode *find_inode_nowait(struct super_block *,
 				       int (*match)(struct inode *,
 						    unsigned long, void *),
 				       void *data);
+<<<<<<< HEAD
+=======
+extern struct inode *find_inode_rcu(struct super_block *, unsigned long,
+				    int (*)(struct inode *, void *), void *);
+extern struct inode *find_inode_by_ino_rcu(struct super_block *, unsigned long);
+>>>>>>> upstream/android-13
 extern int insert_inode_locked4(struct inode *, unsigned long, int (*test)(struct inode *, void *), void *);
 extern int insert_inode_locked(struct inode *);
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
@@ -3064,6 +4199,24 @@ extern void discard_new_inode(struct inode *);
 extern unsigned int get_next_ino(void);
 extern void evict_inodes(struct super_block *sb);
 
+<<<<<<< HEAD
+=======
+/*
+ * Userspace may rely on the the inode number being non-zero. For example, glibc
+ * simply ignores files with zero i_ino in unlink() and other places.
+ *
+ * As an additional complication, if userspace was compiled with
+ * _FILE_OFFSET_BITS=32 on a 64-bit kernel we'll only end up reading out the
+ * lower 32 bits, so we need to check that those aren't zero explicitly. With
+ * _FILE_OFFSET_BITS=64, this may cause some harmless false-negatives, but
+ * better safe than sorry.
+ */
+static inline bool is_zero_ino(ino_t ino)
+{
+	return (u32)ino == 0;
+}
+
+>>>>>>> upstream/android-13
 extern void __iget(struct inode * inode);
 extern void iget_failed(struct inode *);
 extern void clear_inode(struct inode *);
@@ -3089,16 +4242,27 @@ static inline void remove_inode_hash(struct inode *inode)
 
 extern void inode_sb_list_add(struct inode *inode);
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
 extern int bdev_read_only(struct block_device *);
 #endif
 extern int set_blocksize(struct block_device *, int);
+=======
+>>>>>>> upstream/android-13
 extern int sb_set_blocksize(struct super_block *, int);
 extern int sb_min_blocksize(struct super_block *, int);
 
 extern int generic_file_mmap(struct file *, struct vm_area_struct *);
 extern int generic_file_readonly_mmap(struct file *, struct vm_area_struct *);
 extern ssize_t generic_write_checks(struct kiocb *, struct iov_iter *);
+<<<<<<< HEAD
+=======
+extern int generic_write_check_limits(struct file *file, loff_t pos,
+		loff_t *count);
+extern int generic_file_rw_checks(struct file *file_in, struct file *file_out);
+ssize_t filemap_read(struct kiocb *iocb, struct iov_iter *to,
+		ssize_t already_read);
+>>>>>>> upstream/android-13
 extern ssize_t generic_file_read_iter(struct kiocb *, struct iov_iter *);
 extern ssize_t __generic_file_write_iter(struct kiocb *, struct iov_iter *);
 extern ssize_t generic_file_write_iter(struct kiocb *, struct iov_iter *);
@@ -3109,6 +4273,7 @@ ssize_t vfs_iter_read(struct file *file, struct iov_iter *iter, loff_t *ppos,
 		rwf_t flags);
 ssize_t vfs_iter_write(struct file *file, struct iov_iter *iter, loff_t *ppos,
 		rwf_t flags);
+<<<<<<< HEAD
 
 /* fs/block_dev.c */
 extern ssize_t blkdev_read_iter(struct kiocb *iocb, struct iov_iter *to);
@@ -3116,6 +4281,12 @@ extern ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from);
 extern int blkdev_fsync(struct file *filp, loff_t start, loff_t end,
 			int datasync);
 extern void block_sync_page(struct page *page);
+=======
+ssize_t vfs_iocb_iter_read(struct file *file, struct kiocb *iocb,
+			   struct iov_iter *iter);
+ssize_t vfs_iocb_iter_write(struct file *file, struct kiocb *iocb,
+			    struct iov_iter *iter);
+>>>>>>> upstream/android-13
 
 /* fs/splice.c */
 extern ssize_t generic_file_splice_read(struct file *, loff_t *,
@@ -3156,9 +4327,12 @@ enum {
 	DIO_SKIP_HOLES	= 0x02,
 };
 
+<<<<<<< HEAD
 void dio_end_io(struct bio *bio);
 void dio_warn_stale_pagecache(struct file *filp);
 
+=======
+>>>>>>> upstream/android-13
 ssize_t __blockdev_direct_IO(struct kiocb *iocb, struct inode *inode,
 			     struct block_device *bdev, struct iov_iter *iter,
 			     get_block_t get_block,
@@ -3177,7 +4351,11 @@ static inline ssize_t blockdev_direct_IO(struct kiocb *iocb,
 
 void inode_dio_wait(struct inode *inode);
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> upstream/android-13
  * inode_dio_begin - signal start of a direct I/O requests
  * @inode: inode the direct I/O happens on
  *
@@ -3189,7 +4367,11 @@ static inline void inode_dio_begin(struct inode *inode)
 	atomic_inc(&inode->i_dio_count);
 }
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> upstream/android-13
  * inode_dio_end - signal finish of a direct I/O requests
  * @inode: inode the direct I/O happens on
  *
@@ -3202,6 +4384,14 @@ static inline void inode_dio_end(struct inode *inode)
 		wake_up_bit(&inode->i_state, __I_DIO_WAKEUP);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Warn about a page cache invalidation failure diring a direct I/O write.
+ */
+void dio_warn_stale_pagecache(struct file *filp);
+
+>>>>>>> upstream/android-13
 extern void inode_set_flags(struct inode *inode, unsigned int flags,
 			    unsigned int mask);
 
@@ -3219,7 +4409,12 @@ extern int __page_symlink(struct inode *inode, const char *symname, int len,
 extern int page_symlink(struct inode *inode, const char *symname, int len);
 extern const struct inode_operations page_symlink_inode_operations;
 extern void kfree_link(void *);
+<<<<<<< HEAD
 extern void generic_fillattr(struct inode *, struct kstat *);
+=======
+void generic_fillattr(struct user_namespace *, struct inode *, struct kstat *);
+void generic_fill_statx_attr(struct inode *inode, struct kstat *stat);
+>>>>>>> upstream/android-13
 extern int vfs_getattr_nosec(const struct path *, struct kstat *, u32, unsigned int);
 extern int vfs_getattr(const struct path *, struct kstat *, u32, unsigned int);
 void __inode_add_bytes(struct inode *inode, loff_t bytes);
@@ -3238,6 +4433,7 @@ extern const struct inode_operations simple_symlink_inode_operations;
 
 extern int iterate_dir(struct file *, struct dir_context *);
 
+<<<<<<< HEAD
 extern int vfs_statx(int, const char __user *, int, struct kstat *, u32);
 extern int vfs_statx_fd(unsigned int, struct kstat *, u32, unsigned int);
 
@@ -3262,10 +4458,25 @@ static inline int vfs_fstat(int fd, struct kstat *stat)
 	return vfs_statx_fd(fd, stat, STATX_BASIC_STATS, 0);
 }
 
+=======
+int vfs_fstatat(int dfd, const char __user *filename, struct kstat *stat,
+		int flags);
+int vfs_fstat(int fd, struct kstat *stat);
+
+static inline int vfs_stat(const char __user *filename, struct kstat *stat)
+{
+	return vfs_fstatat(AT_FDCWD, filename, stat, 0);
+}
+static inline int vfs_lstat(const char __user *name, struct kstat *stat)
+{
+	return vfs_fstatat(AT_FDCWD, name, stat, AT_SYMLINK_NOFOLLOW);
+}
+>>>>>>> upstream/android-13
 
 extern const char *vfs_get_link(struct dentry *, struct delayed_call *);
 extern int vfs_readlink(struct dentry *, char __user *, int);
 
+<<<<<<< HEAD
 extern int __generic_block_fiemap(struct inode *inode,
 				  struct fiemap_extent_info *fieinfo,
 				  loff_t start, loff_t len,
@@ -3274,12 +4485,17 @@ extern int generic_block_fiemap(struct inode *inode,
 				struct fiemap_extent_info *fieinfo, u64 start,
 				u64 len, get_block_t *get_block);
 
+=======
+>>>>>>> upstream/android-13
 extern struct file_system_type *get_filesystem(struct file_system_type *fs);
 extern void put_filesystem(struct file_system_type *fs);
 extern struct file_system_type *get_fs_type(const char *name);
 extern struct super_block *get_super(struct block_device *);
+<<<<<<< HEAD
 extern struct super_block *get_super_thawed(struct block_device *);
 extern struct super_block *get_super_exclusive_thawed(struct block_device *bdev);
+=======
+>>>>>>> upstream/android-13
 extern struct super_block *get_active_super(struct block_device *bdev);
 extern void drop_super(struct super_block *sb);
 extern void drop_super_exclusive(struct super_block *sb);
@@ -3291,21 +4507,38 @@ extern int dcache_dir_open(struct inode *, struct file *);
 extern int dcache_dir_close(struct inode *, struct file *);
 extern loff_t dcache_dir_lseek(struct file *, loff_t, int);
 extern int dcache_readdir(struct file *, struct dir_context *);
+<<<<<<< HEAD
 extern int simple_setattr(struct dentry *, struct iattr *);
 extern int simple_getattr(const struct path *, struct kstat *, u32, unsigned int);
+=======
+extern int simple_setattr(struct user_namespace *, struct dentry *,
+			  struct iattr *);
+extern int simple_getattr(struct user_namespace *, const struct path *,
+			  struct kstat *, u32, unsigned int);
+>>>>>>> upstream/android-13
 extern int simple_statfs(struct dentry *, struct kstatfs *);
 extern int simple_open(struct inode *inode, struct file *file);
 extern int simple_link(struct dentry *, struct inode *, struct dentry *);
 extern int simple_unlink(struct inode *, struct dentry *);
 extern int simple_rmdir(struct inode *, struct dentry *);
+<<<<<<< HEAD
 extern int simple_rename(struct inode *, struct dentry *,
 			 struct inode *, struct dentry *, unsigned int);
 extern int noop_fsync(struct file *, loff_t, loff_t, int);
 extern int noop_set_page_dirty(struct page *page);
+=======
+extern int simple_rename(struct user_namespace *, struct inode *,
+			 struct dentry *, struct inode *, struct dentry *,
+			 unsigned int);
+extern void simple_recursive_removal(struct dentry *,
+                              void (*callback)(struct dentry *));
+extern int noop_fsync(struct file *, loff_t, loff_t, int);
+>>>>>>> upstream/android-13
 extern void noop_invalidatepage(struct page *page, unsigned int offset,
 		unsigned int length);
 extern ssize_t noop_direct_IO(struct kiocb *iocb, struct iov_iter *iter);
 extern int simple_empty(struct dentry *);
+<<<<<<< HEAD
 extern int simple_readpage(struct file *file, struct page *page);
 extern int simple_write_begin(struct file *file, struct address_space *mapping,
 			loff_t pos, unsigned len, unsigned flags,
@@ -3313,6 +4546,12 @@ extern int simple_write_begin(struct file *file, struct address_space *mapping,
 extern int simple_write_end(struct file *file, struct address_space *mapping,
 			loff_t pos, unsigned len, unsigned copied,
 			struct page *page, void *fsdata);
+=======
+extern int simple_write_begin(struct file *file, struct address_space *mapping,
+			loff_t pos, unsigned len, unsigned flags,
+			struct page **pagep, void **fsdata);
+extern const struct address_space_operations ram_aops;
+>>>>>>> upstream/android-13
 extern int always_delete_dentry(const struct dentry *);
 extern struct inode *alloc_anon_inode(struct super_block *);
 extern int simple_nosetlease(struct file *, long, struct file_lock **, void **);
@@ -3341,6 +4580,7 @@ extern int generic_file_fsync(struct file *, loff_t, loff_t, int);
 
 extern int generic_check_addressable(unsigned, u64);
 
+<<<<<<< HEAD
 #ifdef CONFIG_UNICODE
 extern int generic_ci_d_hash(const struct dentry *dentry, struct qstr *str);
 extern int generic_ci_d_compare(const struct dentry *dentry, unsigned int len,
@@ -3354,11 +4594,15 @@ static inline bool needs_casefold(const struct inode *dir)
 #endif
 extern void generic_set_encrypted_ci_d_ops(struct inode *dir,
 					   struct dentry *dentry);
+=======
+extern void generic_set_encrypted_ci_d_ops(struct dentry *dentry);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MIGRATION
 extern int buffer_migrate_page(struct address_space *,
 				struct page *, struct page *,
 				enum migrate_mode);
+<<<<<<< HEAD
 #else
 #define buffer_migrate_page NULL
 #endif
@@ -3375,6 +4619,26 @@ static inline bool io_is_direct(struct file *filp)
 }
 
 static inline bool vma_is_dax(struct vm_area_struct *vma)
+=======
+extern int buffer_migrate_page_norefs(struct address_space *,
+				struct page *, struct page *,
+				enum migrate_mode);
+#else
+#define buffer_migrate_page NULL
+#define buffer_migrate_page_norefs NULL
+#endif
+
+int may_setattr(struct user_namespace *mnt_userns, struct inode *inode,
+		unsigned int ia_valid);
+int setattr_prepare(struct user_namespace *, struct dentry *, struct iattr *);
+extern int inode_newsize_ok(const struct inode *, loff_t offset);
+void setattr_copy(struct user_namespace *, struct inode *inode,
+		  const struct iattr *attr);
+
+extern int file_update_time(struct file *file);
+
+static inline bool vma_is_dax(const struct vm_area_struct *vma)
+>>>>>>> upstream/android-13
 {
 	return vma->vm_file && IS_DAX(vma->vm_file->f_mapping->host);
 }
@@ -3383,7 +4647,11 @@ static inline bool vma_is_fsdax(struct vm_area_struct *vma)
 {
 	struct inode *inode;
 
+<<<<<<< HEAD
 	if (!vma->vm_file)
+=======
+	if (!IS_ENABLED(CONFIG_FS_DAX) || !vma->vm_file)
+>>>>>>> upstream/android-13
 		return false;
 	if (!vma_is_dax(vma))
 		return false;
@@ -3398,7 +4666,11 @@ static inline int iocb_flags(struct file *file)
 	int res = 0;
 	if (file->f_flags & O_APPEND)
 		res |= IOCB_APPEND;
+<<<<<<< HEAD
 	if (io_is_direct(file))
+=======
+	if (file->f_flags & O_DIRECT)
+>>>>>>> upstream/android-13
 		res |= IOCB_DIRECT;
 	if ((file->f_flags & O_DSYNC) || IS_SYNC(file->f_mapping->host))
 		res |= IOCB_DSYNC;
@@ -3409,12 +4681,23 @@ static inline int iocb_flags(struct file *file)
 
 static inline int kiocb_set_rw_flags(struct kiocb *ki, rwf_t flags)
 {
+<<<<<<< HEAD
+=======
+	int kiocb_flags = 0;
+
+	/* make sure there's no overlap between RWF and private IOCB flags */
+	BUILD_BUG_ON((__force int) RWF_SUPPORTED & IOCB_EVENTFD);
+
+	if (!flags)
+		return 0;
+>>>>>>> upstream/android-13
 	if (unlikely(flags & ~RWF_SUPPORTED))
 		return -EOPNOTSUPP;
 
 	if (flags & RWF_NOWAIT) {
 		if (!(ki->ki_filp->f_mode & FMODE_NOWAIT))
 			return -EOPNOTSUPP;
+<<<<<<< HEAD
 		ki->ki_flags |= IOCB_NOWAIT;
 	}
 	if (flags & RWF_HIPRI)
@@ -3428,6 +4711,23 @@ static inline int kiocb_set_rw_flags(struct kiocb *ki, rwf_t flags)
 	return 0;
 }
 
+=======
+		kiocb_flags |= IOCB_NOIO;
+	}
+	kiocb_flags |= (__force int) (flags & RWF_SUPPORTED);
+	if (flags & RWF_SYNC)
+		kiocb_flags |= IOCB_DSYNC;
+
+	ki->ki_flags |= kiocb_flags;
+	return 0;
+}
+
+static inline rwf_t iocb_to_rw_flags(int ifl, int iocb_mask)
+{
+	return ifl & iocb_mask;
+}
+
+>>>>>>> upstream/android-13
 static inline ino_t parent_ino(struct dentry *dentry)
 {
 	ino_t res;
@@ -3450,7 +4750,11 @@ static inline ino_t parent_ino(struct dentry *dentry)
  */
 struct simple_transaction_argresp {
 	ssize_t size;
+<<<<<<< HEAD
 	char data[0];
+=======
+	char data[];
+>>>>>>> upstream/android-13
 };
 
 #define SIMPLE_TRANSACTION_LIMIT (PAGE_SIZE - sizeof(struct simple_transaction_argresp))
@@ -3511,12 +4815,21 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
 
 struct ctl_table;
 int proc_nr_files(struct ctl_table *table, int write,
+<<<<<<< HEAD
 		  void __user *buffer, size_t *lenp, loff_t *ppos);
 int proc_nr_dentry(struct ctl_table *table, int write,
 		  void __user *buffer, size_t *lenp, loff_t *ppos);
 int proc_nr_inodes(struct ctl_table *table, int write,
 		   void __user *buffer, size_t *lenp, loff_t *ppos);
 int __init get_filesystem_list(char *buf);
+=======
+		  void *buffer, size_t *lenp, loff_t *ppos);
+int proc_nr_dentry(struct ctl_table *table, int write,
+		  void *buffer, size_t *lenp, loff_t *ppos);
+int proc_nr_inodes(struct ctl_table *table, int write,
+		   void *buffer, size_t *lenp, loff_t *ppos);
+int __init list_bdev_fs_names(char *buf, size_t size);
+>>>>>>> upstream/android-13
 
 #define __FMODE_EXEC		((__force int) FMODE_EXEC)
 #define __FMODE_NONOTIFY	((__force int) FMODE_NONOTIFY)
@@ -3530,12 +4843,21 @@ static inline bool is_sxid(umode_t mode)
 	return (mode & S_ISUID) || ((mode & S_ISGID) && (mode & S_IXGRP));
 }
 
+<<<<<<< HEAD
 static inline int check_sticky(struct inode *dir, struct inode *inode)
+=======
+static inline int check_sticky(struct user_namespace *mnt_userns,
+			       struct inode *dir, struct inode *inode)
+>>>>>>> upstream/android-13
 {
 	if (!(dir->i_mode & S_ISVTX))
 		return 0;
 
+<<<<<<< HEAD
 	return __check_sticky(dir, inode);
+=======
+	return __check_sticky(mnt_userns, dir, inode);
+>>>>>>> upstream/android-13
 }
 
 static inline void inode_has_no_xattr(struct inode *inode)
@@ -3599,6 +4921,7 @@ extern void inode_nohighmem(struct inode *inode);
 /* mm/fadvise.c */
 extern int vfs_fadvise(struct file *file, loff_t offset, loff_t len,
 		       int advice);
+<<<<<<< HEAD
 
 int vfs_ioc_setflags_prepare(struct inode *inode, unsigned int oldflags,
 			     unsigned int flags);
@@ -3611,6 +4934,10 @@ static inline void simple_fill_fsxattr(struct fsxattr *fa, __u32 xflags)
 	memset(fa, 0, sizeof(*fa));
 	fa->fsx_xflags = xflags;
 }
+=======
+extern int generic_fadvise(struct file *file, loff_t offset, loff_t len,
+			   int advice);
+>>>>>>> upstream/android-13
 
 /*
  * Flush file data before changing attributes.  Caller must hold any locks

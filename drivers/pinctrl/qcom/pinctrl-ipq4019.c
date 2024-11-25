@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -262,6 +268,10 @@ DECLARE_QCA_GPIO_PINS(99);
 		.mux_bit = 2,			\
 		.pull_bit = 0,			\
 		.drv_bit = 6,			\
+<<<<<<< HEAD
+=======
+		.od_bit = 12,			\
+>>>>>>> upstream/android-13
 		.oe_bit = 9,			\
 		.in_bit = 0,			\
 		.out_bit = 1,			\

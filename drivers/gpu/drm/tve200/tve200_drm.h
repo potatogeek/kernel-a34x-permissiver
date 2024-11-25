@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 Linus Walleij <linus.walleij@linaro.org>
  * Parts of this file were based on sources as follows:
@@ -7,16 +11,34 @@
  * Copyright (C) 2007 Dave Airlie <airlied@linux.ie>
  * Copyright (C) 2011 Texas Instruments
  * Copyright (C) 2017 Eric Anholt
+<<<<<<< HEAD
  *
  * This program is free software and is provided to you under the terms of the
  * GNU General Public License version 2 as published by the Free Software
  * Foundation, and any use by you of this program is subject to the terms of
  * such GNU licence.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _TVE200_DRM_H_
 #define _TVE200_DRM_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/irqreturn.h>
+
+#include <drm/drm_simple_kms_helper.h>
+
+struct clk;
+struct drm_bridge;
+struct drm_connector;
+struct drm_device;
+struct drm_file;
+struct drm_mode_create_dumb;
+struct drm_panel;
+
+>>>>>>> upstream/android-13
 /* Bits 2-31 are valid physical base addresses */
 #define TVE200_Y_FRAME_BASE_ADDR	0x00
 #define TVE200_U_FRAME_BASE_ADDR	0x04
@@ -93,9 +115,12 @@
 #define TVE200_CTRL_4			0x24
 #define TVE200_CTRL_4_RESET		BIT(0) /* triggers reset of TVE200 */
 
+<<<<<<< HEAD
 #include <drm/drm_gem.h>
 #include <drm/drm_simple_kms_helper.h>
 
+=======
+>>>>>>> upstream/android-13
 struct tve200_drm_dev_private {
 	struct drm_device *drm;
 

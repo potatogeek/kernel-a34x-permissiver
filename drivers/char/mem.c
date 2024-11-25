@@ -16,7 +16,10 @@
 #include <linux/mman.h>
 #include <linux/random.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/raw.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/tty.h>
 #include <linux/capability.h>
 #include <linux/ptrace.h>
@@ -29,13 +32,22 @@
 #include <linux/export.h>
 #include <linux/io.h>
 #include <linux/uio.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
+=======
+#include <linux/uaccess.h>
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IA64
 # include <linux/efi.h>
 #endif
 
+<<<<<<< HEAD
+=======
+#define DEVMEM_MINOR	1
+>>>>>>> upstream/android-13
 #define DEVPORT_MINOR	4
 
 static inline unsigned long size_inside_page(unsigned long start,
@@ -167,7 +179,11 @@ static ssize_t read_mem(struct file *file, char __user *buf,
 			if (!ptr)
 				goto failed;
 
+<<<<<<< HEAD
 			probe = probe_kernel_read(bounce, ptr, sz);
+=======
+			probe = copy_from_kernel_nofault(bounce, ptr, sz);
+>>>>>>> upstream/android-13
 			unxlate_dev_mem_ptr(p, ptr);
 			if (probe)
 				goto failed;
@@ -290,6 +306,7 @@ static int uncached_access(struct file *file, phys_addr_t addr)
 	 * attribute aliases.
 	 */
 	return !(efi_mem_attributes(addr) & EFI_MEMORY_WB);
+<<<<<<< HEAD
 #elif defined(CONFIG_MIPS)
 	{
 		extern int __uncached_access(struct file *file,
@@ -297,6 +314,8 @@ static int uncached_access(struct file *file, phys_addr_t addr)
 
 		return __uncached_access(file, addr);
 	}
+=======
+>>>>>>> upstream/android-13
 #else
 	/*
 	 * Accessing memory above the top the kernel knows about or through a
@@ -409,6 +428,7 @@ static int mmap_mem(struct file *file, struct vm_area_struct *vma)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mmap_kmem(struct file *file, struct vm_area_struct *vma)
 {
 	unsigned long pfn;
@@ -624,13 +644,19 @@ static ssize_t write_kmem(struct file *file, const char __user *buf,
 	return virtr + wrote ? : err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t read_port(struct file *file, char __user *buf,
 			 size_t count, loff_t *ppos)
 {
 	unsigned long i = *ppos;
 	char __user *tmp = buf;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	while (count-- > 0 && i < 65536) {
 		if (__put_user(inb(i), tmp) < 0)
@@ -648,7 +674,11 @@ static ssize_t write_port(struct file *file, const char __user *buf,
 	unsigned long i = *ppos;
 	const char __user *tmp = buf;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	while (count-- > 0 && i < 65536) {
 		char c;
@@ -722,6 +752,36 @@ static ssize_t read_iter_zero(struct kiocb *iocb, struct iov_iter *iter)
 	return written;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t read_zero(struct file *file, char __user *buf,
+			 size_t count, loff_t *ppos)
+{
+	size_t cleared = 0;
+
+	while (count) {
+		size_t chunk = min_t(size_t, count, PAGE_SIZE);
+		size_t left;
+
+		left = clear_user(buf + cleared, chunk);
+		if (unlikely(left)) {
+			cleared += (chunk - left);
+			if (!cleared)
+				return -EFAULT;
+			break;
+		}
+		cleared += chunk;
+		count -= chunk;
+
+		if (signal_pending(current))
+			break;
+		cond_resched();
+	}
+
+	return cleared;
+}
+
+>>>>>>> upstream/android-13
 static int mmap_zero(struct file *file, struct vm_area_struct *vma)
 {
 #ifndef CONFIG_MMU
@@ -787,7 +847,11 @@ static loff_t memory_lseek(struct file *file, loff_t offset, int orig)
 	switch (orig) {
 	case SEEK_CUR:
 		offset += file->f_pos;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SEEK_SET:
 		/* to avoid userland mistaking f_pos=-9 as -EBADF=-9 */
 		if ((unsigned long long)offset >= -MAX_ERRNO) {
@@ -807,7 +871,30 @@ static loff_t memory_lseek(struct file *file, loff_t offset, int orig)
 
 static int open_port(struct inode *inode, struct file *filp)
 {
+<<<<<<< HEAD
 	return capable(CAP_SYS_RAWIO) ? 0 : -EPERM;
+=======
+	int rc;
+
+	if (!capable(CAP_SYS_RAWIO))
+		return -EPERM;
+
+	rc = security_locked_down(LOCKDOWN_DEV_MEM);
+	if (rc)
+		return rc;
+
+	if (iminor(inode) != DEVMEM_MINOR)
+		return 0;
+
+	/*
+	 * Use a unified address space to have a single point to manage
+	 * revocations when drivers want to take over a /dev/mem mapped
+	 * range.
+	 */
+	filp->f_mapping = iomem_get_mapping();
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #define zero_lseek	null_lseek
@@ -815,7 +902,10 @@ static int open_port(struct inode *inode, struct file *filp)
 #define write_zero	write_null
 #define write_iter_zero	write_iter_null
 #define open_mem	open_port
+<<<<<<< HEAD
 #define open_kmem	open_mem
+=======
+>>>>>>> upstream/android-13
 
 static const struct file_operations __maybe_unused mem_fops = {
 	.llseek		= memory_lseek,
@@ -829,6 +919,7 @@ static const struct file_operations __maybe_unused mem_fops = {
 #endif
 };
 
+<<<<<<< HEAD
 static const struct file_operations __maybe_unused kmem_fops = {
 	.llseek		= memory_lseek,
 	.read		= read_kmem,
@@ -841,6 +932,8 @@ static const struct file_operations __maybe_unused kmem_fops = {
 #endif
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct file_operations null_fops = {
 	.llseek		= null_lseek,
 	.read		= read_null,
@@ -861,6 +954,10 @@ static const struct file_operations zero_fops = {
 	.llseek		= zero_lseek,
 	.write		= write_zero,
 	.read_iter	= read_iter_zero,
+<<<<<<< HEAD
+=======
+	.read		= read_zero,
+>>>>>>> upstream/android-13
 	.write_iter	= write_iter_zero,
 	.mmap		= mmap_zero,
 	.get_unmapped_area = get_unmapped_area_zero,
@@ -882,10 +979,14 @@ static const struct memdev {
 	fmode_t fmode;
 } devlist[] = {
 #ifdef CONFIG_DEVMEM
+<<<<<<< HEAD
 	 [1] = { "mem", 0, &mem_fops, FMODE_UNSIGNED_OFFSET },
 #endif
 #ifdef CONFIG_DEVKMEM
 	 [2] = { "kmem", 0, &kmem_fops, FMODE_UNSIGNED_OFFSET },
+=======
+	 [DEVMEM_MINOR] = { "mem", 0, &mem_fops, FMODE_UNSIGNED_OFFSET },
+>>>>>>> upstream/android-13
 #endif
 	 [3] = { "null", 0666, &null_fops, 0 },
 #ifdef CONFIG_DEVPORT

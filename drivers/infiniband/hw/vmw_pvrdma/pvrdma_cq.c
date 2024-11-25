@@ -49,6 +49,10 @@
 #include <rdma/ib_addr.h>
 #include <rdma/ib_smi.h>
 #include <rdma/ib_user_verbs.h>
+<<<<<<< HEAD
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 
 #include "pvrdma.h"
 
@@ -91,6 +95,7 @@ int pvrdma_req_notify_cq(struct ib_cq *ibcq,
 
 /**
  * pvrdma_create_cq - create completion queue
+<<<<<<< HEAD
  * @ibdev: the device
  * @attr: completion queue attributes
  * @context: user context
@@ -107,6 +112,21 @@ struct ib_cq *pvrdma_create_cq(struct ib_device *ibdev,
 	int entries = attr->cqe;
 	struct pvrdma_dev *dev = to_vdev(ibdev);
 	struct pvrdma_cq *cq;
+=======
+ * @ibcq: Allocated CQ
+ * @attr: completion queue attributes
+ * @udata: user data
+ *
+ * @return: 0 on success
+ */
+int pvrdma_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+		     struct ib_udata *udata)
+{
+	struct ib_device *ibdev = ibcq->device;
+	int entries = attr->cqe;
+	struct pvrdma_dev *dev = to_vdev(ibdev);
+	struct pvrdma_cq *cq = to_vcq(ibcq);
+>>>>>>> upstream/android-13
 	int ret;
 	int npages;
 	unsigned long flags;
@@ -114,6 +134,7 @@ struct ib_cq *pvrdma_create_cq(struct ib_device *ibdev,
 	union pvrdma_cmd_resp rsp;
 	struct pvrdma_cmd_create_cq *cmd = &req.create_cq;
 	struct pvrdma_cmd_create_cq_resp *resp = &rsp.create_cq_resp;
+<<<<<<< HEAD
 	struct pvrdma_create_cq_resp cq_resp = {0};
 	struct pvrdma_create_cq ucmd;
 
@@ -134,6 +155,27 @@ struct ib_cq *pvrdma_create_cq(struct ib_device *ibdev,
 
 	cq->ibcq.cqe = entries;
 	cq->is_kernel = !context;
+=======
+	struct pvrdma_create_cq_resp cq_resp = {};
+	struct pvrdma_create_cq ucmd;
+	struct pvrdma_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct pvrdma_ucontext, ibucontext);
+
+	BUILD_BUG_ON(sizeof(struct pvrdma_cqe) != 64);
+
+	if (attr->flags)
+		return -EOPNOTSUPP;
+
+	entries = roundup_pow_of_two(entries);
+	if (entries < 1 || entries > dev->dsr->caps.max_cqe)
+		return -EINVAL;
+
+	if (!atomic_add_unless(&dev->num_cqs, 1, dev->dsr->caps.max_cq))
+		return -ENOMEM;
+
+	cq->ibcq.cqe = entries;
+	cq->is_kernel = !udata;
+>>>>>>> upstream/android-13
 
 	if (!cq->is_kernel) {
 		if (ib_copy_from_udata(&ucmd, udata, sizeof(ucmd))) {
@@ -141,14 +183,23 @@ struct ib_cq *pvrdma_create_cq(struct ib_device *ibdev,
 			goto err_cq;
 		}
 
+<<<<<<< HEAD
 		cq->umem = ib_umem_get(context, ucmd.buf_addr, ucmd.buf_size,
 				       IB_ACCESS_LOCAL_WRITE, 1);
+=======
+		cq->umem = ib_umem_get(ibdev, ucmd.buf_addr, ucmd.buf_size,
+				       IB_ACCESS_LOCAL_WRITE);
+>>>>>>> upstream/android-13
 		if (IS_ERR(cq->umem)) {
 			ret = PTR_ERR(cq->umem);
 			goto err_cq;
 		}
 
+<<<<<<< HEAD
 		npages = ib_umem_page_count(cq->umem);
+=======
+		npages = ib_umem_num_dma_blocks(cq->umem, PAGE_SIZE);
+>>>>>>> upstream/android-13
 	} else {
 		/* One extra page for shared ring state */
 		npages = 1 + (entries * sizeof(struct pvrdma_cqe) +
@@ -185,8 +236,12 @@ struct ib_cq *pvrdma_create_cq(struct ib_device *ibdev,
 	memset(cmd, 0, sizeof(*cmd));
 	cmd->hdr.cmd = PVRDMA_CMD_CREATE_CQ;
 	cmd->nchunks = npages;
+<<<<<<< HEAD
 	cmd->ctx_handle = (context) ?
 		(u64)to_vucontext(context)->ctx_handle : 0;
+=======
+	cmd->ctx_handle = context ? context->ctx_handle : 0;
+>>>>>>> upstream/android-13
 	cmd->cqe = entries;
 	cmd->pdir_dma = cq->pdir.dir_dma;
 	ret = pvrdma_cmd_post(dev, &req, &rsp, PVRDMA_CMD_CREATE_CQ_RESP);
@@ -204,22 +259,36 @@ struct ib_cq *pvrdma_create_cq(struct ib_device *ibdev,
 	spin_unlock_irqrestore(&dev->cq_tbl_lock, flags);
 
 	if (!cq->is_kernel) {
+<<<<<<< HEAD
 		cq->uar = &(to_vucontext(context)->uar);
+=======
+		cq->uar = &context->uar;
+>>>>>>> upstream/android-13
 
 		/* Copy udata back. */
 		if (ib_copy_to_udata(udata, &cq_resp, sizeof(cq_resp))) {
 			dev_warn(&dev->pdev->dev,
 				 "failed to copy back udata\n");
+<<<<<<< HEAD
 			pvrdma_destroy_cq(&cq->ibcq);
 			return ERR_PTR(-EINVAL);
 		}
 	}
 
 	return &cq->ibcq;
+=======
+			pvrdma_destroy_cq(&cq->ibcq, udata);
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 
 err_page_dir:
 	pvrdma_page_dir_cleanup(dev, &cq->pdir);
 err_umem:
+<<<<<<< HEAD
 	if (!cq->is_kernel)
 		ib_umem_release(cq->umem);
 err_cq:
@@ -227,6 +296,12 @@ err_cq:
 	kfree(cq);
 
 	return ERR_PTR(ret);
+=======
+	ib_umem_release(cq->umem);
+err_cq:
+	atomic_dec(&dev->num_cqs);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void pvrdma_free_cq(struct pvrdma_dev *dev, struct pvrdma_cq *cq)
@@ -235,20 +310,32 @@ static void pvrdma_free_cq(struct pvrdma_dev *dev, struct pvrdma_cq *cq)
 		complete(&cq->free);
 	wait_for_completion(&cq->free);
 
+<<<<<<< HEAD
 	if (!cq->is_kernel)
 		ib_umem_release(cq->umem);
 
 	pvrdma_page_dir_cleanup(dev, &cq->pdir);
 	kfree(cq);
+=======
+	ib_umem_release(cq->umem);
+
+	pvrdma_page_dir_cleanup(dev, &cq->pdir);
+>>>>>>> upstream/android-13
 }
 
 /**
  * pvrdma_destroy_cq - destroy completion queue
  * @cq: the completion queue to destroy.
+<<<<<<< HEAD
  *
  * @return: 0 for success.
  */
 int pvrdma_destroy_cq(struct ib_cq *cq)
+=======
+ * @udata: user data or null for kernel object
+ */
+int pvrdma_destroy_cq(struct ib_cq *cq, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct pvrdma_cq *vcq = to_vcq(cq);
 	union pvrdma_cmd_req req;
@@ -274,8 +361,12 @@ int pvrdma_destroy_cq(struct ib_cq *cq)
 
 	pvrdma_free_cq(dev, vcq);
 	atomic_dec(&dev->num_cqs);
+<<<<<<< HEAD
 
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static inline struct pvrdma_cqe *get_cqe(struct pvrdma_cq *cq, int i)
@@ -378,7 +469,11 @@ retry:
 	wc->dlid_path_bits = cqe->dlid_path_bits;
 	wc->port_num = cqe->port_num;
 	wc->vendor_err = cqe->vendor_err;
+<<<<<<< HEAD
 	wc->network_hdr_type = cqe->network_hdr_type;
+=======
+	wc->network_hdr_type = pvrdma_network_type_to_ib(cqe->network_hdr_type);
+>>>>>>> upstream/android-13
 
 	/* Update shared ring state */
 	pvrdma_idx_ring_inc(&cq->ring_state->rx.cons_head, cq->ibcq.cqe);
@@ -390,7 +485,11 @@ retry:
  * pvrdma_poll_cq - poll for work completion queue entries
  * @ibcq: completion queue
  * @num_entries: the maximum number of entries
+<<<<<<< HEAD
  * @entry: pointer to work completion array
+=======
+ * @wc: pointer to work completion array
+>>>>>>> upstream/android-13
  *
  * @return: number of polled completion entries
  */

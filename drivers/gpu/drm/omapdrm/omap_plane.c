@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
  * Author: Rob Clark <rob.clark@linaro.org>
@@ -13,10 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+ * Author: Rob Clark <rob.clark@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_gem_atomic_helper.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_plane_helper.h>
 
 #include "omap_dmm_tiler.h"
@@ -40,6 +51,11 @@ static int omap_plane_prepare_fb(struct drm_plane *plane,
 	if (!new_state->fb)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	drm_gem_plane_helper_prepare_fb(plane, new_state);
+
+>>>>>>> upstream/android-13
 	return omap_framebuffer_pin(new_state->fb);
 }
 
@@ -51,6 +67,7 @@ static void omap_plane_cleanup_fb(struct drm_plane *plane,
 }
 
 static void omap_plane_atomic_update(struct drm_plane *plane,
+<<<<<<< HEAD
 				     struct drm_plane_state *old_state)
 {
 	struct omap_drm_private *priv = plane->dev->dev_private;
@@ -60,15 +77,42 @@ static void omap_plane_atomic_update(struct drm_plane *plane,
 	int ret;
 
 	DBG("%s, crtc=%p fb=%p", omap_plane->name, state->crtc, state->fb);
+=======
+				     struct drm_atomic_state *state)
+{
+	struct omap_drm_private *priv = plane->dev->dev_private;
+	struct omap_plane *omap_plane = to_omap_plane(plane);
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct omap_overlay_info info;
+	int ret;
+
+	DBG("%s, crtc=%p fb=%p", omap_plane->name, new_state->crtc,
+	    new_state->fb);
+>>>>>>> upstream/android-13
 
 	memset(&info, 0, sizeof(info));
 	info.rotation_type = OMAP_DSS_ROT_NONE;
 	info.rotation = DRM_MODE_ROTATE_0;
+<<<<<<< HEAD
 	info.global_alpha = 0xff;
 	info.zorder = state->normalized_zpos;
 
 	/* update scanout: */
 	omap_framebuffer_update_scanout(state->fb, state, &info);
+=======
+	info.global_alpha = new_state->alpha >> 8;
+	info.zorder = new_state->normalized_zpos;
+	if (new_state->pixel_blend_mode == DRM_MODE_BLEND_PREMULTI)
+		info.pre_mult_alpha = 1;
+	else
+		info.pre_mult_alpha = 0;
+	info.color_encoding = new_state->color_encoding;
+	info.color_range = new_state->color_range;
+
+	/* update scanout: */
+	omap_framebuffer_update_scanout(new_state->fb, new_state, &info);
+>>>>>>> upstream/android-13
 
 	DBG("%dx%d -> %dx%d (%d)", info.width, info.height,
 			info.out_width, info.out_height,
@@ -77,6 +121,7 @@ static void omap_plane_atomic_update(struct drm_plane *plane,
 			&info.paddr, &info.p_uv_addr);
 
 	/* and finally, update omapdss: */
+<<<<<<< HEAD
 	ret = priv->dispc_ops->ovl_setup(priv->dispc, omap_plane->id, &info,
 			      omap_crtc_timings(state->crtc), false,
 			      omap_crtc_channel(state->crtc));
@@ -116,6 +161,51 @@ static int omap_plane_atomic_check(struct drm_plane *plane,
 		return 0;
 
 	crtc_state = drm_atomic_get_existing_crtc_state(state->state, state->crtc);
+=======
+	ret = dispc_ovl_setup(priv->dispc, omap_plane->id, &info,
+			      omap_crtc_timings(new_state->crtc), false,
+			      omap_crtc_channel(new_state->crtc));
+	if (ret) {
+		dev_err(plane->dev->dev, "Failed to setup plane %s\n",
+			omap_plane->name);
+		dispc_ovl_enable(priv->dispc, omap_plane->id, false);
+		return;
+	}
+
+	dispc_ovl_enable(priv->dispc, omap_plane->id, true);
+}
+
+static void omap_plane_atomic_disable(struct drm_plane *plane,
+				      struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct omap_drm_private *priv = plane->dev->dev_private;
+	struct omap_plane *omap_plane = to_omap_plane(plane);
+
+	new_state->rotation = DRM_MODE_ROTATE_0;
+	new_state->zpos = plane->type == DRM_PLANE_TYPE_PRIMARY ? 0 : omap_plane->id;
+
+	dispc_ovl_enable(priv->dispc, omap_plane->id, false);
+}
+
+static int omap_plane_atomic_check(struct drm_plane *plane,
+				   struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct drm_crtc_state *crtc_state;
+
+	if (!new_plane_state->fb)
+		return 0;
+
+	/* crtc should only be NULL when disabling (i.e., !new_plane_state->fb) */
+	if (WARN_ON(!new_plane_state->crtc))
+		return 0;
+
+	crtc_state = drm_atomic_get_existing_crtc_state(state,
+							new_plane_state->crtc);
+>>>>>>> upstream/android-13
 	/* we should have a crtc state if the plane is attached to a crtc */
 	if (WARN_ON(!crtc_state))
 		return 0;
@@ -123,6 +213,7 @@ static int omap_plane_atomic_check(struct drm_plane *plane,
 	if (!crtc_state->enable)
 		return 0;
 
+<<<<<<< HEAD
 	if (state->crtc_x < 0 || state->crtc_y < 0)
 		return -EINVAL;
 
@@ -134,6 +225,19 @@ static int omap_plane_atomic_check(struct drm_plane *plane,
 
 	if (state->rotation != DRM_MODE_ROTATE_0 &&
 	    !omap_framebuffer_supports_rotation(state->fb))
+=======
+	if (new_plane_state->crtc_x < 0 || new_plane_state->crtc_y < 0)
+		return -EINVAL;
+
+	if (new_plane_state->crtc_x + new_plane_state->crtc_w > crtc_state->adjusted_mode.hdisplay)
+		return -EINVAL;
+
+	if (new_plane_state->crtc_y + new_plane_state->crtc_h > crtc_state->adjusted_mode.vdisplay)
+		return -EINVAL;
+
+	if (new_plane_state->rotation != DRM_MODE_ROTATE_0 &&
+	    !omap_framebuffer_supports_rotation(new_plane_state->fb))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return 0;
@@ -196,6 +300,11 @@ static void omap_plane_reset(struct drm_plane *plane)
 	 */
 	plane->state->zpos = plane->type == DRM_PLANE_TYPE_PRIMARY
 			   ? 0 : omap_plane->id;
+<<<<<<< HEAD
+=======
+	plane->state->color_encoding = DRM_COLOR_YCBCR_BT601;
+	plane->state->color_range = DRM_COLOR_YCBCR_FULL_RANGE;
+>>>>>>> upstream/android-13
 }
 
 static int omap_plane_atomic_set_property(struct drm_plane *plane,
@@ -239,6 +348,25 @@ static const struct drm_plane_funcs omap_plane_funcs = {
 	.atomic_get_property = omap_plane_atomic_get_property,
 };
 
+<<<<<<< HEAD
+=======
+static bool omap_plane_supports_yuv(struct drm_plane *plane)
+{
+	struct omap_drm_private *priv = plane->dev->dev_private;
+	struct omap_plane *omap_plane = to_omap_plane(plane);
+	const u32 *formats = dispc_ovl_get_color_modes(priv->dispc, omap_plane->id);
+	u32 i;
+
+	for (i = 0; formats[i]; i++)
+		if (formats[i] == DRM_FORMAT_YUYV ||
+		    formats[i] == DRM_FORMAT_UYVY ||
+		    formats[i] == DRM_FORMAT_NV12)
+			return true;
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static const char *plane_id_to_name[] = {
 	[OMAP_DSS_GFX] = "gfx",
 	[OMAP_DSS_VIDEO1] = "vid1",
@@ -259,7 +387,11 @@ struct drm_plane *omap_plane_init(struct drm_device *dev,
 		u32 possible_crtcs)
 {
 	struct omap_drm_private *priv = dev->dev_private;
+<<<<<<< HEAD
 	unsigned int num_planes = priv->dispc_ops->get_num_ovls(priv->dispc);
+=======
+	unsigned int num_planes = dispc_get_num_ovls(priv->dispc);
+>>>>>>> upstream/android-13
 	struct drm_plane *plane;
 	struct omap_plane *omap_plane;
 	enum omap_plane_id id;
@@ -278,7 +410,11 @@ struct drm_plane *omap_plane_init(struct drm_device *dev,
 	if (!omap_plane)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	formats = priv->dispc_ops->ovl_get_color_modes(priv->dispc, id);
+=======
+	formats = dispc_ovl_get_color_modes(priv->dispc, id);
+>>>>>>> upstream/android-13
 	for (nformats = 0; formats[nformats]; ++nformats)
 		;
 	omap_plane->id = id;
@@ -296,6 +432,21 @@ struct drm_plane *omap_plane_init(struct drm_device *dev,
 
 	omap_plane_install_properties(plane, &plane->base);
 	drm_plane_create_zpos_property(plane, 0, 0, num_planes - 1);
+<<<<<<< HEAD
+=======
+	drm_plane_create_alpha_property(plane);
+	drm_plane_create_blend_mode_property(plane, BIT(DRM_MODE_BLEND_PREMULTI) |
+					     BIT(DRM_MODE_BLEND_COVERAGE));
+
+	if (omap_plane_supports_yuv(plane))
+		drm_plane_create_color_properties(plane,
+						  BIT(DRM_COLOR_YCBCR_BT601) |
+						  BIT(DRM_COLOR_YCBCR_BT709),
+						  BIT(DRM_COLOR_YCBCR_FULL_RANGE) |
+						  BIT(DRM_COLOR_YCBCR_LIMITED_RANGE),
+						  DRM_COLOR_YCBCR_BT601,
+						  DRM_COLOR_YCBCR_FULL_RANGE);
+>>>>>>> upstream/android-13
 
 	return plane;
 

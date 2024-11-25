@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -46,6 +47,14 @@
  */
 
 #include <rdma/rdma_vt.h>
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2016 Intel Corporation.
+ */
+
+#include <rdma/rdmavt_qp.h>
+>>>>>>> upstream/android-13
 #include <rdma/ib_hdrs.h>
 
 /*
@@ -104,6 +113,7 @@ __be32 rvt_compute_aeth(struct rvt_qp *qp)
 	} else {
 		u32 min, max, x;
 		u32 credits;
+<<<<<<< HEAD
 		struct rvt_rwq *wq = qp->r_rq.wq;
 		u32 head;
 		u32 tail;
@@ -124,6 +134,33 @@ __be32 rvt_compute_aeth(struct rvt_qp *qp)
 		credits = head - tail;
 		if ((int)credits < 0)
 			credits += qp->r_rq.size;
+=======
+		u32 head;
+		u32 tail;
+
+		credits = READ_ONCE(qp->r_rq.kwq->count);
+		if (credits == 0) {
+			/* sanity check pointers before trusting them */
+			if (qp->ip) {
+				head = RDMA_READ_UAPI_ATOMIC(qp->r_rq.wq->head);
+				tail = RDMA_READ_UAPI_ATOMIC(qp->r_rq.wq->tail);
+			} else {
+				head = READ_ONCE(qp->r_rq.kwq->head);
+				tail = READ_ONCE(qp->r_rq.kwq->tail);
+			}
+			if (head >= qp->r_rq.size)
+				head = 0;
+			if (tail >= qp->r_rq.size)
+				tail = 0;
+			/*
+			 * Compute the number of credits available (RWQEs).
+			 * There is a small chance that the pair of reads are
+			 * not atomic, which is OK, since the fuzziness is
+			 * resolved as further ACKs go out.
+			 */
+			credits = rvt_get_rq_count(&qp->r_rq, head, tail);
+		}
+>>>>>>> upstream/android-13
 		/*
 		 * Binary search the credit table to find the code to
 		 * use.
@@ -187,3 +224,26 @@ void rvt_get_credit(struct rvt_qp *qp, u32 aeth)
 	}
 }
 EXPORT_SYMBOL(rvt_get_credit);
+<<<<<<< HEAD
+=======
+
+/**
+ * rvt_restart_sge - rewind the sge state for a wqe
+ * @ss: the sge state pointer
+ * @wqe: the wqe to rewind
+ * @len: the data length from the start of the wqe in bytes
+ *
+ * Returns the remaining data length.
+ */
+u32 rvt_restart_sge(struct rvt_sge_state *ss, struct rvt_swqe *wqe, u32 len)
+{
+	ss->sge = wqe->sg_list[0];
+	ss->sg_list = wqe->sg_list + 1;
+	ss->num_sge = wqe->wr.num_sge;
+	ss->total_len = wqe->length;
+	rvt_skip_sge(ss, len, false);
+	return wqe->length - len;
+}
+EXPORT_SYMBOL(rvt_restart_sge);
+
+>>>>>>> upstream/android-13

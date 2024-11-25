@@ -14,27 +14,63 @@
 #include <linux/irqchip/chained_irq.h>
 #include <linux/irqdesc.h>
 #include <linux/irqdomain.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/of_device.h>
+=======
+#include <linux/mfd/syscon.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/regmap.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
 
 #include "stm32-adc-core.h"
 
+<<<<<<< HEAD
 /**
  * stm32_adc_common_regs - stm32 common registers, compatible dependent data
  * @csr:	common status register offset
  * @eoc1:	adc1 end of conversion flag in @csr
  * @eoc2:	adc2 end of conversion flag in @csr
  * @eoc3:	adc3 end of conversion flag in @csr
+=======
+#define STM32_ADC_CORE_SLEEP_DELAY_MS	2000
+
+/* SYSCFG registers */
+#define STM32MP1_SYSCFG_PMCSETR		0x04
+#define STM32MP1_SYSCFG_PMCCLRR		0x44
+
+/* SYSCFG bit fields */
+#define STM32MP1_SYSCFG_ANASWVDD_MASK	BIT(9)
+
+/* SYSCFG capability flags */
+#define HAS_VBOOSTER		BIT(0)
+#define HAS_ANASWVDD		BIT(1)
+
+/**
+ * struct stm32_adc_common_regs - stm32 common registers
+ * @csr:	common status register offset
+ * @ccr:	common control register offset
+ * @eoc_msk:    array of eoc (end of conversion flag) masks in csr for adc1..n
+ * @ovr_msk:    array of ovr (overrun flag) masks in csr for adc1..n
+>>>>>>> upstream/android-13
  * @ier:	interrupt enable register offset for each adc
  * @eocie_msk:	end of conversion interrupt enable mask in @ier
  */
 struct stm32_adc_common_regs {
 	u32 csr;
+<<<<<<< HEAD
 	u32 eoc1_msk;
 	u32 eoc2_msk;
 	u32 eoc3_msk;
+=======
+	u32 ccr;
+	u32 eoc_msk[STM32_ADC_MAX_ADCS];
+	u32 ovr_msk[STM32_ADC_MAX_ADCS];
+>>>>>>> upstream/android-13
 	u32 ier;
 	u32 eocie_msk;
 };
@@ -42,15 +78,29 @@ struct stm32_adc_common_regs {
 struct stm32_adc_priv;
 
 /**
+<<<<<<< HEAD
  * stm32_adc_priv_cfg - stm32 core compatible configuration data
  * @regs:	common registers for all instances
  * @clk_sel:	clock selection routine
  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
+=======
+ * struct stm32_adc_priv_cfg - stm32 core compatible configuration data
+ * @regs:	common registers for all instances
+ * @clk_sel:	clock selection routine
+ * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
+ * @has_syscfg: SYSCFG capability flags
+ * @num_irqs:	number of interrupt lines
+>>>>>>> upstream/android-13
  */
 struct stm32_adc_priv_cfg {
 	const struct stm32_adc_common_regs *regs;
 	int (*clk_sel)(struct platform_device *, struct stm32_adc_priv *);
 	u32 max_clk_rate_hz;
+<<<<<<< HEAD
+=======
+	unsigned int has_syscfg;
+	unsigned int num_irqs;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -59,18 +109,46 @@ struct stm32_adc_priv_cfg {
  * @domain:		irq domain reference
  * @aclk:		clock reference for the analog circuitry
  * @bclk:		bus clock common for all ADCs, depends on part used
+<<<<<<< HEAD
  * @vref:		regulator reference
  * @cfg:		compatible configuration data
  * @common:		common data for all ADC instances
+=======
+ * @max_clk_rate:	desired maximum clock rate
+ * @booster:		booster supply reference
+ * @vdd:		vdd supply reference
+ * @vdda:		vdda analog supply reference
+ * @vref:		regulator reference
+ * @vdd_uv:		vdd supply voltage (microvolts)
+ * @vdda_uv:		vdda supply voltage (microvolts)
+ * @cfg:		compatible configuration data
+ * @common:		common data for all ADC instances
+ * @ccr_bak:		backup CCR in low power mode
+ * @syscfg:		reference to syscon, system control registers
+>>>>>>> upstream/android-13
  */
 struct stm32_adc_priv {
 	int				irq[STM32_ADC_MAX_ADCS];
 	struct irq_domain		*domain;
 	struct clk			*aclk;
 	struct clk			*bclk;
+<<<<<<< HEAD
 	struct regulator		*vref;
 	const struct stm32_adc_priv_cfg	*cfg;
 	struct stm32_adc_common		common;
+=======
+	u32				max_clk_rate;
+	struct regulator		*booster;
+	struct regulator		*vdd;
+	struct regulator		*vdda;
+	struct regulator		*vref;
+	int				vdd_uv;
+	int				vdda_uv;
+	const struct stm32_adc_priv_cfg	*cfg;
+	struct stm32_adc_common		common;
+	u32				ccr_bak;
+	struct regmap			*syscfg;
+>>>>>>> upstream/android-13
 };
 
 static struct stm32_adc_priv *to_stm32_adc_priv(struct stm32_adc_common *com)
@@ -83,6 +161,10 @@ static int stm32f4_pclk_div[] = {2, 4, 6, 8};
 
 /**
  * stm32f4_adc_clk_sel() - Select stm32f4 ADC common clock prescaler
+<<<<<<< HEAD
+=======
+ * @pdev: platform device
+>>>>>>> upstream/android-13
  * @priv: stm32 ADC core private data
  * Select clock prescaler used for analog conversions, before using ADC.
  */
@@ -106,7 +188,11 @@ static int stm32f4_adc_clk_sel(struct platform_device *pdev,
 	}
 
 	for (i = 0; i < ARRAY_SIZE(stm32f4_pclk_div); i++) {
+<<<<<<< HEAD
 		if ((rate / stm32f4_pclk_div[i]) <= priv->cfg->max_clk_rate_hz)
+=======
+		if ((rate / stm32f4_pclk_div[i]) <= priv->max_clk_rate)
+>>>>>>> upstream/android-13
 			break;
 	}
 	if (i >= ARRAY_SIZE(stm32f4_pclk_div)) {
@@ -163,7 +249,11 @@ static int stm32h7_adc_clk_sel(struct platform_device *pdev,
 {
 	u32 ckmode, presc, val;
 	unsigned long rate;
+<<<<<<< HEAD
 	int i, div;
+=======
+	int i, div, duty;
+>>>>>>> upstream/android-13
 
 	/* stm32h7 bus clock is common for all ADC instances (mandatory) */
 	if (!priv->bclk) {
@@ -187,6 +277,14 @@ static int stm32h7_adc_clk_sel(struct platform_device *pdev,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
+=======
+		/* If duty is an error, kindly use at least /2 divider */
+		duty = clk_get_scaled_duty_cycle(priv->aclk, 100);
+		if (duty < 0)
+			dev_warn(&pdev->dev, "adc clock duty: %d\n", duty);
+
+>>>>>>> upstream/android-13
 		for (i = 0; i < ARRAY_SIZE(stm32h7_adc_ckmodes_spec); i++) {
 			ckmode = stm32h7_adc_ckmodes_spec[i].ckmode;
 			presc = stm32h7_adc_ckmodes_spec[i].presc;
@@ -195,7 +293,18 @@ static int stm32h7_adc_clk_sel(struct platform_device *pdev,
 			if (ckmode)
 				continue;
 
+<<<<<<< HEAD
 			if ((rate / div) <= priv->cfg->max_clk_rate_hz)
+=======
+			/*
+			 * For proper operation, clock duty cycle range is 49%
+			 * to 51%. Apply at least /2 prescaler otherwise.
+			 */
+			if (div == 1 && (duty < 49 || duty > 51))
+				continue;
+
+			if ((rate / div) <= priv->max_clk_rate)
+>>>>>>> upstream/android-13
 				goto out;
 		}
 	}
@@ -207,6 +316,13 @@ static int stm32h7_adc_clk_sel(struct platform_device *pdev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	duty = clk_get_scaled_duty_cycle(priv->bclk, 100);
+	if (duty < 0)
+		dev_warn(&pdev->dev, "bus clock duty: %d\n", duty);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(stm32h7_adc_ckmodes_spec); i++) {
 		ckmode = stm32h7_adc_ckmodes_spec[i].ckmode;
 		presc = stm32h7_adc_ckmodes_spec[i].presc;
@@ -215,7 +331,14 @@ static int stm32h7_adc_clk_sel(struct platform_device *pdev,
 		if (!ckmode)
 			continue;
 
+<<<<<<< HEAD
 		if ((rate / div) <= priv->cfg->max_clk_rate_hz)
+=======
+		if (div == 1 && (duty < 49 || duty > 51))
+			continue;
+
+		if ((rate / div) <= priv->max_clk_rate)
+>>>>>>> upstream/android-13
 			goto out;
 	}
 
@@ -242,9 +365,15 @@ out:
 /* STM32F4 common registers definitions */
 static const struct stm32_adc_common_regs stm32f4_adc_common_regs = {
 	.csr = STM32F4_ADC_CSR,
+<<<<<<< HEAD
 	.eoc1_msk = STM32F4_EOC1,
 	.eoc2_msk = STM32F4_EOC2,
 	.eoc3_msk = STM32F4_EOC3,
+=======
+	.ccr = STM32F4_ADC_CCR,
+	.eoc_msk = { STM32F4_EOC1, STM32F4_EOC2, STM32F4_EOC3},
+	.ovr_msk = { STM32F4_OVR1, STM32F4_OVR2, STM32F4_OVR3},
+>>>>>>> upstream/android-13
 	.ier = STM32F4_ADC_CR1,
 	.eocie_msk = STM32F4_EOCIE,
 };
@@ -252,8 +381,14 @@ static const struct stm32_adc_common_regs stm32f4_adc_common_regs = {
 /* STM32H7 common registers definitions */
 static const struct stm32_adc_common_regs stm32h7_adc_common_regs = {
 	.csr = STM32H7_ADC_CSR,
+<<<<<<< HEAD
 	.eoc1_msk = STM32H7_EOC_MST,
 	.eoc2_msk = STM32H7_EOC_SLV,
+=======
+	.ccr = STM32H7_ADC_CCR,
+	.eoc_msk = { STM32H7_EOC_MST, STM32H7_EOC_SLV},
+	.ovr_msk = { STM32H7_OVR_MST, STM32H7_OVR_SLV},
+>>>>>>> upstream/android-13
 	.ier = STM32H7_ADC_IER,
 	.eocie_msk = STM32H7_EOCIE,
 };
@@ -277,6 +412,10 @@ static void stm32_adc_irq_handler(struct irq_desc *desc)
 {
 	struct stm32_adc_priv *priv = irq_desc_get_handler_data(desc);
 	struct irq_chip *chip = irq_desc_get_chip(desc);
+<<<<<<< HEAD
+=======
+	int i;
+>>>>>>> upstream/android-13
 	u32 status;
 
 	chained_irq_enter(chip, desc);
@@ -294,6 +433,7 @@ static void stm32_adc_irq_handler(struct irq_desc *desc)
 	 * before invoking the interrupt handler (e.g. call ISR only for
 	 * IRQ-enabled ADCs).
 	 */
+<<<<<<< HEAD
 	if (status & priv->cfg->regs->eoc1_msk &&
 	    stm32_adc_eoc_enabled(priv, 0))
 		generic_handle_irq(irq_find_mapping(priv->domain, 0));
@@ -305,6 +445,14 @@ static void stm32_adc_irq_handler(struct irq_desc *desc)
 	if (status & priv->cfg->regs->eoc3_msk &&
 	    stm32_adc_eoc_enabled(priv, 2))
 		generic_handle_irq(irq_find_mapping(priv->domain, 2));
+=======
+	for (i = 0; i < priv->cfg->num_irqs; i++) {
+		if ((status & priv->cfg->regs->eoc_msk[i] &&
+		     stm32_adc_eoc_enabled(priv, i)) ||
+		     (status & priv->cfg->regs->ovr_msk[i]))
+			generic_handle_irq(irq_find_mapping(priv->domain, i));
+	}
+>>>>>>> upstream/android-13
 
 	chained_irq_exit(chip, desc);
 };
@@ -336,6 +484,7 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
 	struct device_node *np = pdev->dev.of_node;
 	unsigned int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
 		priv->irq[i] = platform_get_irq(pdev, i);
 		if (priv->irq[i] < 0) {
@@ -352,6 +501,17 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
 
 			return priv->irq[i];
 		}
+=======
+	/*
+	 * Interrupt(s) must be provided, depending on the compatible:
+	 * - stm32f4/h7 shares a common interrupt line.
+	 * - stm32mp1, has one line per ADC
+	 */
+	for (i = 0; i < priv->cfg->num_irqs; i++) {
+		priv->irq[i] = platform_get_irq(pdev, i);
+		if (priv->irq[i] < 0)
+			return priv->irq[i];
+>>>>>>> upstream/android-13
 	}
 
 	priv->domain = irq_domain_add_simple(np, STM32_ADC_MAX_ADCS, 0,
@@ -362,9 +522,13 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
 		if (priv->irq[i] < 0)
 			continue;
+=======
+	for (i = 0; i < priv->cfg->num_irqs; i++) {
+>>>>>>> upstream/android-13
 		irq_set_chained_handler(priv->irq[i], stm32_adc_irq_handler);
 		irq_set_handler_data(priv->irq[i], priv);
 	}
@@ -382,11 +546,226 @@ static void stm32_adc_irq_remove(struct platform_device *pdev,
 		irq_dispose_mapping(irq_find_mapping(priv->domain, hwirq));
 	irq_domain_remove(priv->domain);
 
+<<<<<<< HEAD
 	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
 		if (priv->irq[i] < 0)
 			continue;
 		irq_set_chained_handler(priv->irq[i], NULL);
 	}
+=======
+	for (i = 0; i < priv->cfg->num_irqs; i++)
+		irq_set_chained_handler(priv->irq[i], NULL);
+}
+
+static int stm32_adc_core_switches_supply_en(struct stm32_adc_priv *priv,
+					     struct device *dev)
+{
+	int ret;
+
+	/*
+	 * On STM32H7 and STM32MP1, the ADC inputs are multiplexed with analog
+	 * switches (via PCSEL) which have reduced performances when their
+	 * supply is below 2.7V (vdda by default):
+	 * - Voltage booster can be used, to get full ADC performances
+	 *   (increases power consumption).
+	 * - Vdd can be used to supply them, if above 2.7V (STM32MP1 only).
+	 *
+	 * Recommended settings for ANASWVDD and EN_BOOSTER:
+	 * - vdda < 2.7V but vdd > 2.7V: ANASWVDD = 1, EN_BOOSTER = 0 (stm32mp1)
+	 * - vdda < 2.7V and vdd < 2.7V: ANASWVDD = 0, EN_BOOSTER = 1
+	 * - vdda >= 2.7V:               ANASWVDD = 0, EN_BOOSTER = 0 (default)
+	 */
+	if (priv->vdda_uv < 2700000) {
+		if (priv->syscfg && priv->vdd_uv > 2700000) {
+			ret = regulator_enable(priv->vdd);
+			if (ret < 0) {
+				dev_err(dev, "vdd enable failed %d\n", ret);
+				return ret;
+			}
+
+			ret = regmap_write(priv->syscfg,
+					   STM32MP1_SYSCFG_PMCSETR,
+					   STM32MP1_SYSCFG_ANASWVDD_MASK);
+			if (ret < 0) {
+				regulator_disable(priv->vdd);
+				dev_err(dev, "vdd select failed, %d\n", ret);
+				return ret;
+			}
+			dev_dbg(dev, "analog switches supplied by vdd\n");
+
+			return 0;
+		}
+
+		if (priv->booster) {
+			/*
+			 * This is optional, as this is a trade-off between
+			 * analog performance and power consumption.
+			 */
+			ret = regulator_enable(priv->booster);
+			if (ret < 0) {
+				dev_err(dev, "booster enable failed %d\n", ret);
+				return ret;
+			}
+			dev_dbg(dev, "analog switches supplied by booster\n");
+
+			return 0;
+		}
+	}
+
+	/* Fallback using vdda (default), nothing to do */
+	dev_dbg(dev, "analog switches supplied by vdda (%d uV)\n",
+		priv->vdda_uv);
+
+	return 0;
+}
+
+static void stm32_adc_core_switches_supply_dis(struct stm32_adc_priv *priv)
+{
+	if (priv->vdda_uv < 2700000) {
+		if (priv->syscfg && priv->vdd_uv > 2700000) {
+			regmap_write(priv->syscfg, STM32MP1_SYSCFG_PMCCLRR,
+				     STM32MP1_SYSCFG_ANASWVDD_MASK);
+			regulator_disable(priv->vdd);
+			return;
+		}
+		if (priv->booster)
+			regulator_disable(priv->booster);
+	}
+}
+
+static int stm32_adc_core_hw_start(struct device *dev)
+{
+	struct stm32_adc_common *common = dev_get_drvdata(dev);
+	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
+	int ret;
+
+	ret = regulator_enable(priv->vdda);
+	if (ret < 0) {
+		dev_err(dev, "vdda enable failed %d\n", ret);
+		return ret;
+	}
+
+	ret = regulator_get_voltage(priv->vdda);
+	if (ret < 0) {
+		dev_err(dev, "vdda get voltage failed, %d\n", ret);
+		goto err_vdda_disable;
+	}
+	priv->vdda_uv = ret;
+
+	ret = stm32_adc_core_switches_supply_en(priv, dev);
+	if (ret < 0)
+		goto err_vdda_disable;
+
+	ret = regulator_enable(priv->vref);
+	if (ret < 0) {
+		dev_err(dev, "vref enable failed\n");
+		goto err_switches_dis;
+	}
+
+	ret = clk_prepare_enable(priv->bclk);
+	if (ret < 0) {
+		dev_err(dev, "bus clk enable failed\n");
+		goto err_regulator_disable;
+	}
+
+	ret = clk_prepare_enable(priv->aclk);
+	if (ret < 0) {
+		dev_err(dev, "adc clk enable failed\n");
+		goto err_bclk_disable;
+	}
+
+	writel_relaxed(priv->ccr_bak, priv->common.base + priv->cfg->regs->ccr);
+
+	return 0;
+
+err_bclk_disable:
+	clk_disable_unprepare(priv->bclk);
+err_regulator_disable:
+	regulator_disable(priv->vref);
+err_switches_dis:
+	stm32_adc_core_switches_supply_dis(priv);
+err_vdda_disable:
+	regulator_disable(priv->vdda);
+
+	return ret;
+}
+
+static void stm32_adc_core_hw_stop(struct device *dev)
+{
+	struct stm32_adc_common *common = dev_get_drvdata(dev);
+	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
+
+	/* Backup CCR that may be lost (depends on power state to achieve) */
+	priv->ccr_bak = readl_relaxed(priv->common.base + priv->cfg->regs->ccr);
+	clk_disable_unprepare(priv->aclk);
+	clk_disable_unprepare(priv->bclk);
+	regulator_disable(priv->vref);
+	stm32_adc_core_switches_supply_dis(priv);
+	regulator_disable(priv->vdda);
+}
+
+static int stm32_adc_core_switches_probe(struct device *dev,
+					 struct stm32_adc_priv *priv)
+{
+	struct device_node *np = dev->of_node;
+	int ret;
+
+	/* Analog switches supply can be controlled by syscfg (optional) */
+	priv->syscfg = syscon_regmap_lookup_by_phandle(np, "st,syscfg");
+	if (IS_ERR(priv->syscfg)) {
+		ret = PTR_ERR(priv->syscfg);
+		if (ret != -ENODEV)
+			return dev_err_probe(dev, ret, "Can't probe syscfg\n");
+
+		priv->syscfg = NULL;
+	}
+
+	/* Booster can be used to supply analog switches (optional) */
+	if (priv->cfg->has_syscfg & HAS_VBOOSTER &&
+	    of_property_read_bool(np, "booster-supply")) {
+		priv->booster = devm_regulator_get_optional(dev, "booster");
+		if (IS_ERR(priv->booster)) {
+			ret = PTR_ERR(priv->booster);
+			if (ret != -ENODEV)
+				return dev_err_probe(dev, ret, "can't get booster\n");
+
+			priv->booster = NULL;
+		}
+	}
+
+	/* Vdd can be used to supply analog switches (optional) */
+	if (priv->cfg->has_syscfg & HAS_ANASWVDD &&
+	    of_property_read_bool(np, "vdd-supply")) {
+		priv->vdd = devm_regulator_get_optional(dev, "vdd");
+		if (IS_ERR(priv->vdd)) {
+			ret = PTR_ERR(priv->vdd);
+			if (ret != -ENODEV)
+				return dev_err_probe(dev, ret, "can't get vdd\n");
+
+			priv->vdd = NULL;
+		}
+	}
+
+	if (priv->vdd) {
+		ret = regulator_enable(priv->vdd);
+		if (ret < 0) {
+			dev_err(dev, "vdd enable failed %d\n", ret);
+			return ret;
+		}
+
+		ret = regulator_get_voltage(priv->vdd);
+		if (ret < 0) {
+			dev_err(dev, "vdd get voltage failed %d\n", ret);
+			regulator_disable(priv->vdd);
+			return ret;
+		}
+		priv->vdd_uv = ret;
+
+		regulator_disable(priv->vdd);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int stm32_adc_probe(struct platform_device *pdev)
@@ -395,6 +774,10 @@ static int stm32_adc_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct device_node *np = pdev->dev.of_node;
 	struct resource *res;
+<<<<<<< HEAD
+=======
+	u32 max_rate;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!pdev->dev.of_node)
@@ -403,6 +786,10 @@ static int stm32_adc_probe(struct platform_device *pdev)
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+	platform_set_drvdata(pdev, &priv->common);
+>>>>>>> upstream/android-13
 
 	priv->cfg = (const struct stm32_adc_priv_cfg *)
 		of_match_device(dev->driver->of_match_table, dev)->data;
@@ -413,6 +800,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->common.base);
 	priv->common.phys_base = res->start;
 
+<<<<<<< HEAD
 	priv->vref = devm_regulator_get(&pdev->dev, "vref");
 	if (IS_ERR(priv->vref)) {
 		ret = PTR_ERR(priv->vref);
@@ -425,15 +813,55 @@ static int stm32_adc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "vref enable failed\n");
 		return ret;
 	}
+=======
+	priv->vdda = devm_regulator_get(&pdev->dev, "vdda");
+	if (IS_ERR(priv->vdda))
+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->vdda),
+				     "vdda get failed\n");
+
+	priv->vref = devm_regulator_get(&pdev->dev, "vref");
+	if (IS_ERR(priv->vref))
+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->vref),
+				     "vref get failed\n");
+
+	priv->aclk = devm_clk_get_optional(&pdev->dev, "adc");
+	if (IS_ERR(priv->aclk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->aclk),
+				     "Can't get 'adc' clock\n");
+
+	priv->bclk = devm_clk_get_optional(&pdev->dev, "bus");
+	if (IS_ERR(priv->bclk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->bclk),
+				     "Can't get 'bus' clock\n");
+
+	ret = stm32_adc_core_switches_probe(dev, priv);
+	if (ret)
+		return ret;
+
+	pm_runtime_get_noresume(dev);
+	pm_runtime_set_active(dev);
+	pm_runtime_set_autosuspend_delay(dev, STM32_ADC_CORE_SLEEP_DELAY_MS);
+	pm_runtime_use_autosuspend(dev);
+	pm_runtime_enable(dev);
+
+	ret = stm32_adc_core_hw_start(dev);
+	if (ret)
+		goto err_pm_stop;
+>>>>>>> upstream/android-13
 
 	ret = regulator_get_voltage(priv->vref);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "vref get voltage failed, %d\n", ret);
+<<<<<<< HEAD
 		goto err_regulator_disable;
+=======
+		goto err_hw_stop;
+>>>>>>> upstream/android-13
 	}
 	priv->common.vref_mv = ret / 1000;
 	dev_dbg(&pdev->dev, "vref+=%dmV\n", priv->common.vref_mv);
 
+<<<<<<< HEAD
 	priv->aclk = devm_clk_get(&pdev->dev, "adc");
 	if (IS_ERR(priv->aclk)) {
 		ret = PTR_ERR(priv->aclk);
@@ -481,6 +909,22 @@ static int stm32_adc_probe(struct platform_device *pdev)
 		goto err_bclk_disable;
 
 	platform_set_drvdata(pdev, &priv->common);
+=======
+	ret = of_property_read_u32(pdev->dev.of_node, "st,max-clk-rate-hz",
+				   &max_rate);
+	if (!ret)
+		priv->max_clk_rate = min(max_rate, priv->cfg->max_clk_rate_hz);
+	else
+		priv->max_clk_rate = priv->cfg->max_clk_rate_hz;
+
+	ret = priv->cfg->clk_sel(pdev, priv);
+	if (ret < 0)
+		goto err_hw_stop;
+
+	ret = stm32_adc_irq_probe(pdev, priv);
+	if (ret < 0)
+		goto err_hw_stop;
+>>>>>>> upstream/android-13
 
 	ret = of_platform_populate(np, NULL, NULL, &pdev->dev);
 	if (ret < 0) {
@@ -488,10 +932,17 @@ static int stm32_adc_probe(struct platform_device *pdev)
 		goto err_irq_remove;
 	}
 
+<<<<<<< HEAD
+=======
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_irq_remove:
 	stm32_adc_irq_remove(pdev, priv);
+<<<<<<< HEAD
 
 err_bclk_disable:
 	if (priv->bclk)
@@ -503,6 +954,14 @@ err_aclk_disable:
 
 err_regulator_disable:
 	regulator_disable(priv->vref);
+=======
+err_hw_stop:
+	stm32_adc_core_hw_stop(dev);
+err_pm_stop:
+	pm_runtime_disable(dev);
+	pm_runtime_set_suspended(dev);
+	pm_runtime_put_noidle(dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -512,6 +971,7 @@ static int stm32_adc_remove(struct platform_device *pdev)
 	struct stm32_adc_common *common = platform_get_drvdata(pdev);
 	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
 
+<<<<<<< HEAD
 	of_platform_depopulate(&pdev->dev);
 	stm32_adc_irq_remove(pdev, priv);
 	if (priv->bclk)
@@ -519,26 +979,81 @@ static int stm32_adc_remove(struct platform_device *pdev)
 	if (priv->aclk)
 		clk_disable_unprepare(priv->aclk);
 	regulator_disable(priv->vref);
+=======
+	pm_runtime_get_sync(&pdev->dev);
+	of_platform_depopulate(&pdev->dev);
+	stm32_adc_irq_remove(pdev, priv);
+	stm32_adc_core_hw_stop(&pdev->dev);
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_put_noidle(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_PM)
+static int stm32_adc_core_runtime_suspend(struct device *dev)
+{
+	stm32_adc_core_hw_stop(dev);
+
+	return 0;
+}
+
+static int stm32_adc_core_runtime_resume(struct device *dev)
+{
+	return stm32_adc_core_hw_start(dev);
+}
+
+static int stm32_adc_core_runtime_idle(struct device *dev)
+{
+	pm_runtime_mark_last_busy(dev);
+
+	return 0;
+}
+#endif
+
+static const struct dev_pm_ops stm32_adc_core_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+				pm_runtime_force_resume)
+	SET_RUNTIME_PM_OPS(stm32_adc_core_runtime_suspend,
+			   stm32_adc_core_runtime_resume,
+			   stm32_adc_core_runtime_idle)
+};
+
+>>>>>>> upstream/android-13
 static const struct stm32_adc_priv_cfg stm32f4_adc_priv_cfg = {
 	.regs = &stm32f4_adc_common_regs,
 	.clk_sel = stm32f4_adc_clk_sel,
 	.max_clk_rate_hz = 36000000,
+<<<<<<< HEAD
+=======
+	.num_irqs = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
 	.regs = &stm32h7_adc_common_regs,
 	.clk_sel = stm32h7_adc_clk_sel,
 	.max_clk_rate_hz = 36000000,
+<<<<<<< HEAD
+=======
+	.has_syscfg = HAS_VBOOSTER,
+	.num_irqs = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
 	.regs = &stm32h7_adc_common_regs,
 	.clk_sel = stm32h7_adc_clk_sel,
 	.max_clk_rate_hz = 40000000,
+<<<<<<< HEAD
+=======
+	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
+	.num_irqs = 2,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id stm32_adc_of_match[] = {
@@ -562,6 +1077,10 @@ static struct platform_driver stm32_adc_driver = {
 	.driver = {
 		.name = "stm32-adc-core",
 		.of_match_table = stm32_adc_of_match,
+<<<<<<< HEAD
+=======
+		.pm = &stm32_adc_core_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(stm32_adc_driver);

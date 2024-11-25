@@ -150,7 +150,11 @@ static int child(struct shared_info *info)
 	printf("%-30s AMR: %016lx pkey1: %d pkey2: %d pkey3: %d\n",
 	       user_write, info->amr, pkey1, pkey2, pkey3);
 
+<<<<<<< HEAD
 	mtspr(SPRN_AMR, info->amr);
+=======
+	set_amr(info->amr);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We won't use pkey3. This tests whether the kernel restores the UAMOR

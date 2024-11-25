@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * IBM Accelerator Family 'GenWQE'
  *
  * (C) Copyright IBM Corp. 2013
@@ -7,6 +12,7 @@
  * Author: Joerg-Stephan Vogt <jsvogt@de.ibm.com>
  * Author: Michael Jung <mijung@gmx.net>
  * Author: Michael Ruettger <michael@ibmra.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (version 2 only)
@@ -16,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -95,7 +103,11 @@ static int genwqe_del_pin(struct genwqe_file *cfile, struct dma_mapping *m)
  * @cfile:	Descriptor of opened file
  * @u_addr:	User virtual address
  * @size:	Size of buffer
+<<<<<<< HEAD
  * @dma_addr:	DMA address to be updated
+=======
+ * @virt_addr:	Virtual address to be updated
+>>>>>>> upstream/android-13
  *
  * Return: Pointer to the corresponding mapping	NULL if not found
  */
@@ -152,6 +164,10 @@ static void __genwqe_del_mapping(struct genwqe_file *cfile,
  * @u_addr:	user virtual address
  * @size:	size of buffer
  * @dma_addr:	DMA address to be updated
+<<<<<<< HEAD
+=======
+ * @virt_addr:	Virtual address to be updated
+>>>>>>> upstream/android-13
  * Return: Pointer to the corresponding mapping	NULL if not found
  */
 static struct dma_mapping *__genwqe_search_mapping(struct genwqe_file *cfile,
@@ -257,6 +273,11 @@ static void genwqe_remove_pinnings(struct genwqe_file *cfile)
 
 /**
  * genwqe_kill_fasync() - Send signal to all processes with open GenWQE files
+<<<<<<< HEAD
+=======
+ * @cd: GenWQE device information
+ * @sig: Signal to send out
+>>>>>>> upstream/android-13
  *
  * E.g. genwqe_send_signal(cd, SIGIO);
  */
@@ -388,6 +409,10 @@ static void genwqe_vma_open(struct vm_area_struct *vma)
 
 /**
  * genwqe_vma_close() - Called each time when vma is unmapped
+<<<<<<< HEAD
+=======
+ * @vma: VMA area to close
+>>>>>>> upstream/android-13
  *
  * Free memory which got allocated by GenWQE mmap().
  */
@@ -424,6 +449,11 @@ static const struct vm_operations_struct genwqe_vma_ops = {
 
 /**
  * genwqe_mmap() - Provide contignous buffers to userspace
+<<<<<<< HEAD
+=======
+ * @filp:	File pointer (unused)
+ * @vma:	VMA area to map
+>>>>>>> upstream/android-13
  *
  * We use mmap() to allocate contignous buffers used for DMA
  * transfers. After the buffer is allocated we remap it to user-space
@@ -492,16 +522,27 @@ static int genwqe_mmap(struct file *filp, struct vm_area_struct *vma)
 	return rc;
 }
 
+<<<<<<< HEAD
 /**
  * do_flash_update() - Excute flash update (write image or CVPD)
  * @cd:        genwqe device
+=======
+#define	FLASH_BLOCK	0x40000	/* we use 256k blocks */
+
+/**
+ * do_flash_update() - Excute flash update (write image or CVPD)
+ * @cfile:	Descriptor of opened file
+>>>>>>> upstream/android-13
  * @load:      details about image load
  *
  * Return: 0 if successful
  */
+<<<<<<< HEAD
 
 #define	FLASH_BLOCK	0x40000	/* we use 256k blocks */
 
+=======
+>>>>>>> upstream/android-13
 static int do_flash_update(struct genwqe_file *cfile,
 			   struct genwqe_bitstream *load)
 {
@@ -828,6 +869,11 @@ static int genwqe_unpin_mem(struct genwqe_file *cfile, struct genwqe_mem *m)
 
 /**
  * ddcb_cmd_cleanup() - Remove dynamically created fixup entries
+<<<<<<< HEAD
+=======
+ * @cfile:	Descriptor of opened file
+ * @req:	DDCB work request
+>>>>>>> upstream/android-13
  *
  * Only if there are any. Pinnings are not removed.
  */
@@ -852,6 +898,11 @@ static int ddcb_cmd_cleanup(struct genwqe_file *cfile, struct ddcb_requ *req)
 
 /**
  * ddcb_cmd_fixups() - Establish DMA fixups/sglists for user memory references
+<<<<<<< HEAD
+=======
+ * @cfile:	Descriptor of opened file
+ * @req:	DDCB work request
+>>>>>>> upstream/android-13
  *
  * Before the DDCB gets executed we need to handle the fixups. We
  * replace the user-space addresses with DMA addresses or do
@@ -982,6 +1033,11 @@ static int ddcb_cmd_fixups(struct genwqe_file *cfile, struct ddcb_requ *req)
 
 /**
  * genwqe_execute_ddcb() - Execute DDCB using userspace address fixups
+<<<<<<< HEAD
+=======
+ * @cfile:	Descriptor of opened file
+ * @cmd:        Command identifier (passed from user)
+>>>>>>> upstream/android-13
  *
  * The code will build up the translation tables or lookup the
  * contignous memory allocation table to find the right translations
@@ -1223,6 +1279,7 @@ static long genwqe_ioctl(struct file *filp, unsigned int cmd,
 	return rc;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_COMPAT)
 /**
  * genwqe_compat_ioctl() - Compatibility ioctl
@@ -1242,15 +1299,21 @@ static long genwqe_compat_ioctl(struct file *filp, unsigned int cmd,
 }
 #endif /* defined(CONFIG_COMPAT) */
 
+=======
+>>>>>>> upstream/android-13
 static const struct file_operations genwqe_fops = {
 	.owner		= THIS_MODULE,
 	.open		= genwqe_open,
 	.fasync		= genwqe_fasync,
 	.mmap		= genwqe_mmap,
 	.unlocked_ioctl	= genwqe_ioctl,
+<<<<<<< HEAD
 #if defined(CONFIG_COMPAT)
 	.compat_ioctl   = genwqe_compat_ioctl,
 #endif
+=======
+	.compat_ioctl   = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.release	= genwqe_release,
 };
 
@@ -1309,6 +1372,7 @@ int genwqe_device_create(struct genwqe_dev *cd)
 		goto err_cdev;
 	}
 
+<<<<<<< HEAD
 	rc = genwqe_init_debugfs(cd);
 	if (rc != 0)
 		goto err_debugfs;
@@ -1317,6 +1381,12 @@ int genwqe_device_create(struct genwqe_dev *cd)
 
  err_debugfs:
 	device_destroy(cd->class_genwqe, cd->devnum_genwqe);
+=======
+	genwqe_init_debugfs(cd);
+
+	return 0;
+
+>>>>>>> upstream/android-13
  err_cdev:
 	cdev_del(&cd->cdev_genwqe);
  err_add:
@@ -1372,6 +1442,10 @@ static int genwqe_inform_and_stop_processes(struct genwqe_dev *cd)
 
 /**
  * genwqe_device_remove() - Remove genwqe's char device
+<<<<<<< HEAD
+=======
+ * @cd: GenWQE device information
+>>>>>>> upstream/android-13
  *
  * This function must be called after the client devices are removed
  * because it will free the major/minor number range for the genwqe

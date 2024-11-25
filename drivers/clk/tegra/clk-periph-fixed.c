@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -15,6 +16,15 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, NVIDIA CORPORATION.  All rights reserved.
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #include "clk.h"
 
@@ -87,7 +97,11 @@ struct clk *tegra_clk_register_periph_fixed(const char *name,
 {
 	const struct tegra_clk_periph_regs *regs;
 	struct tegra_clk_periph_fixed *fixed;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	regs = get_reg_bank(num);

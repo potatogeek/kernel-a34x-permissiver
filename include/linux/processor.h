@@ -32,6 +32,7 @@
 #define spin_cpu_relax() cpu_relax()
 #endif
 
+<<<<<<< HEAD
 /*
  * spin_cpu_yield may be called to yield (undirected) to the hypervisor if
  * necessary. This should be used if the wait is expected to take longer
@@ -41,6 +42,8 @@
 #define spin_cpu_yield() cpu_relax_yield()
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef spin_end
 #define spin_end()
 #endif

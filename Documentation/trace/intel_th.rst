@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+.. SPDX-License-Identifier: GPL-2.0
+
+>>>>>>> upstream/android-13
 =======================
 Intel(R) Trace Hub (TH)
 =======================
@@ -42,7 +47,12 @@ Documentation/trace/stm.rst for more information on that.
 
 MSU can be configured to collect trace data into a system memory
 buffer, which can later on be read from its device nodes via read() or
+<<<<<<< HEAD
 mmap() interface.
+=======
+mmap() interface and directed to a "software sink" driver that will
+consume the data and/or relay it further.
+>>>>>>> upstream/android-13
 
 On the whole, Intel(R) Trace Hub does not require any special
 userspace software to function; everything can be configured, started
@@ -55,7 +65,11 @@ Bus and Subdevices
 
 For each Intel TH device in the system a bus of its own is
 created and assigned an id number that reflects the order in which TH
+<<<<<<< HEAD
 devices were emumerated. All TH subdevices (devices on intel_th bus)
+=======
+devices were enumerated. All TH subdevices (devices on intel_th bus)
+>>>>>>> upstream/android-13
 begin with this id: 0-gth, 0-msc0, 0-msc1, 0-pti, 0-sth, which is
 followed by device's name and an optional index.
 
@@ -120,3 +134,31 @@ In order to enable the host mode, set the 'host_mode' parameter of the
 will show up on the intel_th bus. Also, trace configuration and
 capture controlling attribute groups of the 'gth' device will not be
 exposed. The 'sth' device will operate as usual.
+<<<<<<< HEAD
+=======
+
+Software Sinks
+--------------
+
+The Memory Storage Unit (MSU) driver provides an in-kernel API for
+drivers to register themselves as software sinks for the trace data.
+Such drivers can further export the data via other devices, such as
+USB device controllers or network cards.
+
+The API has two main parts::
+ - notifying the software sink that a particular window is full, and
+   "locking" that window, that is, making it unavailable for the trace
+   collection; when this happens, the MSU driver will automatically
+   switch to the next window in the buffer if it is unlocked, or stop
+   the trace capture if it's not;
+ - tracking the "locked" state of windows and providing a way for the
+   software sink driver to notify the MSU driver when a window is
+   unlocked and can be used again to collect trace data.
+
+An example sink driver, msu-sink illustrates the implementation of a
+software sink. Functionally, it simply unlocks windows as soon as they
+are full, keeping the MSU running in a circular buffer mode. Unlike the
+"multi" mode, it will fill out all the windows in the buffer as opposed
+to just the first one. It can be enabled by writing "sink" to the "mode"
+file (assuming msu-sink.ko is loaded).
+>>>>>>> upstream/android-13

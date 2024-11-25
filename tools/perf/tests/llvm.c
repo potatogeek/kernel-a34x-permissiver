@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <stdio.h>
+<<<<<<< HEAD
 #include <bpf/libbpf.h>
 #include <util/llvm-utils.h>
 #include <util/cache.h>
@@ -9,6 +10,17 @@
 #include "util.h"
 
 #ifdef HAVE_LIBBPF_SUPPORT
+=======
+#include <stdlib.h>
+#include <string.h>
+#include "tests.h"
+#include "debug.h"
+
+#ifdef HAVE_LIBBPF_SUPPORT
+#include <bpf/libbpf.h>
+#include <util/llvm-utils.h>
+#include "llvm.h"
+>>>>>>> upstream/android-13
 static int test__bpf_parsing(void *obj_buf, size_t obj_buf_sz)
 {
 	struct bpf_object *obj;
@@ -19,6 +31,7 @@ static int test__bpf_parsing(void *obj_buf, size_t obj_buf_sz)
 	bpf_object__close(obj);
 	return TEST_OK;
 }
+<<<<<<< HEAD
 #else
 static int test__bpf_parsing(void *obj_buf __maybe_unused,
 			     size_t obj_buf_sz __maybe_unused)
@@ -27,6 +40,8 @@ static int test__bpf_parsing(void *obj_buf __maybe_unused,
 	return TEST_OK;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct {
 	const char *source;
@@ -75,12 +90,20 @@ test_llvm__fetch_bpf_obj(void **p_obj_buf,
 
 	/*
 	 * Skip this test if user's .perfconfig doesn't set [llvm] section
+<<<<<<< HEAD
 	 * and clang is not found in $PATH, and this is not perf test -v
 	 */
 	if (!force && (verbose <= 0 &&
 		       !llvm_param.user_set_param &&
 		       llvm__search_clang())) {
 		pr_debug("No clang and no verbosive, skip this test\n");
+=======
+	 * and clang is not found in $PATH
+	 */
+	if (!force && (!llvm_param.user_set_param &&
+		       llvm__search_clang())) {
+		pr_debug("No clang, skip this test\n");
+>>>>>>> upstream/android-13
 		return TEST_SKIP;
 	}
 
@@ -170,3 +193,22 @@ const char *test__llvm_subtest_get_desc(int subtest)
 
 	return bpf_source_table[subtest].desc;
 }
+<<<<<<< HEAD
+=======
+#else //HAVE_LIBBPF_SUPPORT
+int test__llvm(struct test *test __maybe_unused, int subtest __maybe_unused)
+{
+	return TEST_SKIP;
+}
+
+int test__llvm_subtest_get_nr(void)
+{
+	return 0;
+}
+
+const char *test__llvm_subtest_get_desc(int subtest __maybe_unused)
+{
+	return NULL;
+}
+#endif // HAVE_LIBBPF_SUPPORT
+>>>>>>> upstream/android-13

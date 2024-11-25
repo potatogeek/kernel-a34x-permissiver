@@ -141,7 +141,12 @@ static int codel_change(struct Qdisc *sch, struct nlattr *opt,
 	if (!opt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_CODEL_MAX, opt, codel_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_CODEL_MAX, opt,
+					  codel_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -217,7 +222,11 @@ static int codel_dump(struct Qdisc *sch, struct sk_buff *skb)
 	struct codel_sched_data *q = qdisc_priv(sch);
 	struct nlattr *opts;
 
+<<<<<<< HEAD
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (opts == NULL)
 		goto nla_put_failure;
 

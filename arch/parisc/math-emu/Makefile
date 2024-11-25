@@ -18,3 +18,7 @@ obj-y	 := frnd.o driver.o decode_exc.o fpudispatch.o denormal.o \
 # other very old or stripped-down PA-RISC CPUs -- not currently supported
 
 obj-$(CONFIG_MATH_EMULATION)	+= unimplemented-math-emulation.o
+<<<<<<< HEAD
+=======
+CFLAGS_REMOVE_fpudispatch.o	= -Wimplicit-fallthrough
+>>>>>>> upstream/android-13

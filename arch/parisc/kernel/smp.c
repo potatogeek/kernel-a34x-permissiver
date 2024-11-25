@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 ** SMP Support
 **
@@ -11,10 +15,13 @@
 ** Thanks to John Curry and Ullas Ponnadi. I learned a lot from their work.
 ** -grant (1/12/2001)
 **
+<<<<<<< HEAD
 **	This program is free software; you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
 **      the Free Software Foundation; either version 2 of the License, or
 **      (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
 */
 #include <linux/types.h>
 #include <linux/spinlock.h>
@@ -32,6 +39,10 @@
 #include <linux/bitops.h>
 #include <linux/ftrace.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
+=======
+#include <linux/kgdb.h>
+>>>>>>> upstream/android-13
 
 #include <linux/atomic.h>
 #include <asm/current.h>
@@ -42,8 +53,11 @@
 #include <asm/irq.h>		/* for CPU_IRQ_REGION and friends */
 #include <asm/mmu_context.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/ptrace.h>
 #include <asm/unistd.h>
@@ -74,7 +88,14 @@ enum ipi_message_type {
 	IPI_CALL_FUNC,
 	IPI_CPU_START,
 	IPI_CPU_STOP,
+<<<<<<< HEAD
 	IPI_CPU_TEST
+=======
+	IPI_CPU_TEST,
+#ifdef CONFIG_KGDB
+	IPI_ENTER_KGDB,
+#endif
+>>>>>>> upstream/android-13
 };
 
 
@@ -112,6 +133,10 @@ halt_processor(void)
 	/* REVISIT : does PM *know* this CPU isn't available? */
 	set_cpu_online(smp_processor_id(), false);
 	local_irq_disable();
+<<<<<<< HEAD
+=======
+	__pdc_cpu_rendezvous();
+>>>>>>> upstream/android-13
 	for (;;)
 		;
 }
@@ -155,6 +180,10 @@ ipi_interrupt(int irq, void *dev_id)
 
 			case IPI_CALL_FUNC:
 				smp_debug(100, KERN_DEBUG "CPU%d IPI_CALL_FUNC\n", this_cpu);
+<<<<<<< HEAD
+=======
+				inc_irq_stat(irq_call_count);
+>>>>>>> upstream/android-13
 				generic_smp_call_function_interrupt();
 				break;
 
@@ -170,15 +199,33 @@ ipi_interrupt(int irq, void *dev_id)
 			case IPI_CPU_TEST:
 				smp_debug(100, KERN_DEBUG "CPU%d is alive!\n", this_cpu);
 				break;
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_KGDB
+			case IPI_ENTER_KGDB:
+				smp_debug(100, KERN_DEBUG "CPU%d ENTER_KGDB\n", this_cpu);
+				kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
+				break;
+#endif
+>>>>>>> upstream/android-13
 			default:
 				printk(KERN_CRIT "Unknown IPI num on CPU%d: %lu\n",
 					this_cpu, which);
 				return IRQ_NONE;
 			} /* Switch */
+<<<<<<< HEAD
 		/* let in any pending interrupts */
 		local_irq_enable();
 		local_irq_disable();
+=======
+
+			/* before doing more, let in any pending interrupts */
+			if (ops) {
+				local_irq_enable();
+				local_irq_disable();
+			}
+>>>>>>> upstream/android-13
 		} /* while (ops) */
 	}
 	return IRQ_HANDLED;
@@ -226,6 +273,15 @@ send_IPI_allbutself(enum ipi_message_type op)
 	}
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KGDB
+void kgdb_roundup_cpus(void)
+{
+	send_IPI_allbutself(IPI_ENTER_KGDB);
+}
+#endif
+>>>>>>> upstream/android-13
 
 inline void 
 smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
@@ -302,7 +358,10 @@ void __init smp_callin(unsigned long pdce_proc)
 #endif
 
 	smp_cpu_init(slave_id);
+<<<<<<< HEAD
 	preempt_disable();
+=======
+>>>>>>> upstream/android-13
 
 	flush_cache_all_local(); /* start with known state */
 	flush_tlb_all_local(NULL);

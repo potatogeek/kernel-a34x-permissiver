@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ITE IT913X silicon tuner driver
  *
  *  Copyright (C) 2011 Malcolm Priestley (tvboxspy@gmail.com)
  *  IT9137 Copyright (C) ITE Tech Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "it913x.h"
@@ -72,6 +79,10 @@ static int it913x_init(struct dvb_frontend *fe)
 		break;
 	default:
 		dev_err(&pdev->dev, "unknown clock identifier %d\n", utmp);
+<<<<<<< HEAD
+=======
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 		goto err;
 	}
 

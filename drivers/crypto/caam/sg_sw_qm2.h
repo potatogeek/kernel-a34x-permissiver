@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015-2016 Freescale Semiconductor, Inc.
  * Copyright 2017 NXP
@@ -30,6 +31,12 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
+/*
+ * Copyright 2015-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017 NXP
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SG_SW_QM2_H_
@@ -53,6 +60,7 @@ static inline void dma_to_qm_sg_one(struct dpaa2_sg_entry *qm_sg_ptr,
  * but does not have final bit; instead, returns last entry
  */
 static inline struct dpaa2_sg_entry *
+<<<<<<< HEAD
 sg_to_qm_sg(struct scatterlist *sg, int sg_count,
 	    struct dpaa2_sg_entry *qm_sg_ptr, u16 offset)
 {
@@ -62,6 +70,21 @@ sg_to_qm_sg(struct scatterlist *sg, int sg_count,
 		qm_sg_ptr++;
 		sg = sg_next(sg);
 		sg_count--;
+=======
+sg_to_qm_sg(struct scatterlist *sg, int len,
+	    struct dpaa2_sg_entry *qm_sg_ptr, u16 offset)
+{
+	int ent_len;
+
+	while (len) {
+		ent_len = min_t(int, sg_dma_len(sg), len);
+
+		dma_to_qm_sg_one(qm_sg_ptr, sg_dma_address(sg), ent_len,
+				 offset);
+		qm_sg_ptr++;
+		sg = sg_next(sg);
+		len -= ent_len;
+>>>>>>> upstream/android-13
 	}
 	return qm_sg_ptr - 1;
 }
@@ -70,11 +93,19 @@ sg_to_qm_sg(struct scatterlist *sg, int sg_count,
  * convert scatterlist to h/w link table format
  * scatterlist must have been previously dma mapped
  */
+<<<<<<< HEAD
 static inline void sg_to_qm_sg_last(struct scatterlist *sg, int sg_count,
 				    struct dpaa2_sg_entry *qm_sg_ptr,
 				    u16 offset)
 {
 	qm_sg_ptr = sg_to_qm_sg(sg, sg_count, qm_sg_ptr, offset);
+=======
+static inline void sg_to_qm_sg_last(struct scatterlist *sg, int len,
+				    struct dpaa2_sg_entry *qm_sg_ptr,
+				    u16 offset)
+{
+	qm_sg_ptr = sg_to_qm_sg(sg, len, qm_sg_ptr, offset);
+>>>>>>> upstream/android-13
 	dpaa2_sg_set_final(qm_sg_ptr, true);
 }
 

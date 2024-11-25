@@ -25,15 +25,19 @@
 #include <asm/vdso/processor.h>
 
 /*
+<<<<<<< HEAD
  * Return current * instruction pointer ("program counter").
  */
 #define current_text_addr() ({ __label__ _l; _l: &&_l;})
 
 /*
+=======
+>>>>>>> upstream/android-13
  * System setup and hardware flags..
  */
 
 extern unsigned int vced_count, vcei_count;
+<<<<<<< HEAD
 
 /*
  * MIPS does have an arch_pick_mmap_layout()
@@ -45,12 +49,20 @@ extern unsigned int vced_count, vcei_count;
 /* User space process size is limited to 1GB in KVM Guest Mode */
 #define TASK_SIZE	0x3fff8000UL
 #else
+=======
+extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src);
+
+#ifdef CONFIG_32BIT
+>>>>>>> upstream/android-13
 /*
  * User space process size: 2GB. This is hardcoded into a few places,
  * so don't change it unless you know what you are doing.
  */
 #define TASK_SIZE	0x80000000UL
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #define STACK_TOP_MAX	TASK_SIZE
 
@@ -235,10 +247,13 @@ struct nlm_cop2_state {
 #define COP2_INIT
 #endif
 
+<<<<<<< HEAD
 typedef struct {
 	unsigned long seg;
 } mm_segment_t;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_HAS_MSA
 # define ARCH_MIN_TASKALIGN	16
 # define FPU_ALIGN		__aligned(16)
@@ -261,6 +276,10 @@ struct thread_struct {
 	/* Saved cp0 stuff. */
 	unsigned long cp0_status;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+>>>>>>> upstream/android-13
 	/* Saved fpu/fpu emulator stuff. */
 	struct mips_fpu_struct fpu FPU_ALIGN;
 	/* Assigned branch delay slot 'emulation' frame */
@@ -269,6 +288,10 @@ struct thread_struct {
 	unsigned long bd_emu_branch_pc;
 	/* PC to continue from following a branch delay slot 'emulation' */
 	unsigned long bd_emu_cont_pc;
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MIPS_MT_FPAFF
 	/* Emulated instruction count */
 	unsigned long emulated_fp;
@@ -305,6 +328,24 @@ struct thread_struct {
 #define FPAFF_INIT
 #endif /* CONFIG_MIPS_MT_FPAFF */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+# define FPU_INIT						\
+	.fpu			= {				\
+		.fpr		= {{{0,},},},			\
+		.fcr31		= 0,				\
+		.msacsr		= 0,				\
+	},							\
+	/* Delay slot emulation */				\
+	.bd_emu_frame = ATOMIC_INIT(BD_EMUFRAME_NONE),		\
+	.bd_emu_branch_pc = 0,					\
+	.bd_emu_cont_pc = 0,
+#else
+# define FPU_INIT
+#endif
+
+>>>>>>> upstream/android-13
 #define INIT_THREAD  {						\
 	/*							\
 	 * Saved main processor registers			\
@@ -327,19 +368,26 @@ struct thread_struct {
 	/*							\
 	 * Saved FPU/FPU emulator stuff				\
 	 */							\
+<<<<<<< HEAD
 	.fpu			= {				\
 		.fpr		= {{{0,},},},			\
 		.fcr31		= 0,				\
 		.msacsr		= 0,				\
 	},							\
+=======
+	FPU_INIT						\
+>>>>>>> upstream/android-13
 	/*							\
 	 * FPU affinity state (null if not FPAFF)		\
 	 */							\
 	FPAFF_INIT						\
+<<<<<<< HEAD
 	/* Delay slot emulation */				\
 	.bd_emu_frame = ATOMIC_INIT(BD_EMUFRAME_NONE),		\
 	.bd_emu_branch_pc = 0,					\
 	.bd_emu_cont_pc = 0,					\
+=======
+>>>>>>> upstream/android-13
 	/*							\
 	 * Saved DSP stuff					\
 	 */							\

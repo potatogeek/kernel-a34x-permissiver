@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) Intel Corp. 2007.
  * All Rights Reserved.
@@ -6,6 +10,7 @@
  * develop this driver.
  *
  * This file is part of the Vermilion Range fb driver.
+<<<<<<< HEAD
  * The Vermilion Range fb driver is free software;
  * you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  *
  * Authors:
  *   Thomas Hellström <thomas-at-tungstengraphics-dot-com>
@@ -331,7 +338,11 @@ static int vmlfb_enable_mmio(struct vml_par *par)
 		       ": Could not claim display controller MMIO.\n");
 		return -EBUSY;
 	}
+<<<<<<< HEAD
 	par->vdc_mem = ioremap_nocache(par->vdc_mem_base, par->vdc_mem_size);
+=======
+	par->vdc_mem = ioremap(par->vdc_mem_base, par->vdc_mem_size);
+>>>>>>> upstream/android-13
 	if (par->vdc_mem == NULL) {
 		printk(KERN_ERR MODULE_NAME
 		       ": Could not map display controller MMIO.\n");
@@ -346,7 +357,11 @@ static int vmlfb_enable_mmio(struct vml_par *par)
 		err = -EBUSY;
 		goto out_err_1;
 	}
+<<<<<<< HEAD
 	par->gpu_mem = ioremap_nocache(par->gpu_mem_base, par->gpu_mem_size);
+=======
+	par->gpu_mem = ioremap(par->gpu_mem_base, par->gpu_mem_size);
+>>>>>>> upstream/android-13
 	if (par->gpu_mem == NULL) {
 		printk(KERN_ERR MODULE_NAME ": Could not map GPU MMIO.\n");
 		err = -ENOMEM;

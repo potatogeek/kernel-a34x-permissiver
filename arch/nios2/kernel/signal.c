@@ -36,10 +36,17 @@ struct rt_sigframe {
 
 static inline int rt_restore_ucontext(struct pt_regs *regs,
 					struct switch_stack *sw,
+<<<<<<< HEAD
 					struct ucontext *uc, int *pr2)
 {
 	int temp;
 	unsigned long *gregs = uc->uc_mcontext.gregs;
+=======
+					struct ucontext __user *uc, int *pr2)
+{
+	int temp;
+	unsigned long __user *gregs = uc->uc_mcontext.gregs;
+>>>>>>> upstream/android-13
 	int err;
 
 	/* Always make any pending restarted system calls return -EINTR */
@@ -102,11 +109,20 @@ asmlinkage int do_rt_sigreturn(struct switch_stack *sw)
 {
 	struct pt_regs *regs = (struct pt_regs *)(sw + 1);
 	/* Verify, can we follow the stack back */
+<<<<<<< HEAD
 	struct rt_sigframe *frame = (struct rt_sigframe *) regs->sp;
 	sigset_t set;
 	int rval;
 
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+=======
+	struct rt_sigframe __user *frame;
+	sigset_t set;
+	int rval;
+
+	frame = (struct rt_sigframe __user *) regs->sp;
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
@@ -120,6 +136,7 @@ asmlinkage int do_rt_sigreturn(struct switch_stack *sw)
 	return rval;
 
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
 	return 0;
 }
@@ -128,6 +145,16 @@ static inline int rt_setup_ucontext(struct ucontext *uc, struct pt_regs *regs)
 {
 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
 	unsigned long *gregs = uc->uc_mcontext.gregs;
+=======
+	force_sig(SIGSEGV);
+	return 0;
+}
+
+static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
+{
+	struct switch_stack *sw = (struct switch_stack *)regs - 1;
+	unsigned long __user *gregs = uc->uc_mcontext.gregs;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	err |= __put_user(MCONTEXT_VERSION, &uc->uc_mcontext.version);
@@ -162,8 +189,14 @@ static inline int rt_setup_ucontext(struct ucontext *uc, struct pt_regs *regs)
 	return err;
 }
 
+<<<<<<< HEAD
 static inline void *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
 				 size_t frame_size)
+=======
+static inline void __user *get_sigframe(struct ksignal *ksig,
+					struct pt_regs *regs,
+					size_t frame_size)
+>>>>>>> upstream/android-13
 {
 	unsigned long usp;
 
@@ -174,13 +207,21 @@ static inline void *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
 	usp = sigsp(usp, ksig);
 
 	/* Verify, is it 32 or 64 bit aligned */
+<<<<<<< HEAD
 	return (void *)((usp - frame_size) & -8UL);
+=======
+	return (void __user *)((usp - frame_size) & -8UL);
+>>>>>>> upstream/android-13
 }
 
 static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 			  struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct rt_sigframe *frame;
+=======
+	struct rt_sigframe __user *frame;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	frame = get_sigframe(ksig, regs, sizeof(*frame));
@@ -211,7 +252,11 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 	return 0;
 
 give_sigsegv:
+<<<<<<< HEAD
 	force_sigsegv(ksig->sig, current);
+=======
+	force_sigsegv(ksig->sig);
+>>>>>>> upstream/android-13
 	return -EFAULT;
 }
 
@@ -252,6 +297,10 @@ static int do_signal(struct pt_regs *regs)
 		switch (retval) {
 		case ERESTART_RESTARTBLOCK:
 			restart = -2;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case ERESTARTNOHAND:
 		case ERESTARTSYS:
 		case ERESTARTNOINTR:
@@ -305,7 +354,12 @@ asmlinkage int do_notify_resume(struct pt_regs *regs)
 	if (!user_mode(regs))
 		return 0;
 
+<<<<<<< HEAD
 	if (test_thread_flag(TIF_SIGPENDING)) {
+=======
+	if (test_thread_flag(TIF_SIGPENDING) ||
+	    test_thread_flag(TIF_NOTIFY_SIGNAL)) {
+>>>>>>> upstream/android-13
 		int restart = do_signal(regs);
 
 		if (unlikely(restart)) {
@@ -316,7 +370,11 @@ asmlinkage int do_notify_resume(struct pt_regs *regs)
 			 */
 			return restart;
 		}
+<<<<<<< HEAD
 	} else if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
+=======
+	} else if (test_thread_flag(TIF_NOTIFY_RESUME))
+>>>>>>> upstream/android-13
 		tracehook_notify_resume(regs);
 
 	return 0;

@@ -79,7 +79,11 @@ enum gpmi_type {
 struct gpmi_devdata {
 	enum gpmi_type type;
 	int bch_max_ecc_strength;
+<<<<<<< HEAD
 	int max_chain_delay; /* See the async EDO mode */
+=======
+	int max_chain_delay; /* See the SDR EDO mode */
+>>>>>>> upstream/android-13
 	const char * const *clks;
 	const int clks_count;
 };
@@ -103,6 +107,17 @@ struct gpmi_nfc_hardware_timing {
 	u32 ctrl1n;
 };
 
+<<<<<<< HEAD
+=======
+#define GPMI_MAX_TRANSFERS	8
+
+struct gpmi_transfer {
+	u8 cmdbuf[8];
+	struct scatterlist sgl;
+	enum dma_data_direction direction;
+};
+
+>>>>>>> upstream/android-13
 struct gpmi_nand_data {
 	/* Devdata */
 	const struct gpmi_devdata *devdata;
@@ -126,6 +141,7 @@ struct gpmi_nand_data {
 	struct boot_rom_geometry rom_geometry;
 
 	/* MTD / NAND */
+<<<<<<< HEAD
 	struct nand_chip	nand;
 
 	/* General-use Variables */
@@ -145,6 +161,20 @@ struct gpmi_nand_data {
 	void			*payload_virt;
 	dma_addr_t		payload_phys;
 
+=======
+	struct nand_controller	base;
+	struct nand_chip	nand;
+
+	struct gpmi_transfer	transfers[GPMI_MAX_TRANSFERS];
+	int			ntransfers;
+
+	bool			bch;
+	uint32_t		bch_flashlayout0;
+	uint32_t		bch_flashlayout1;
+
+	char			*data_buffer_dma;
+
+>>>>>>> upstream/android-13
 	void			*auxiliary_virt;
 	dma_addr_t		auxiliary_phys;
 
@@ -154,6 +184,7 @@ struct gpmi_nand_data {
 #define DMA_CHANS		8
 	struct dma_chan		*dma_chans[DMA_CHANS];
 	struct completion	dma_done;
+<<<<<<< HEAD
 
 	/* private */
 	void			*private;
@@ -193,6 +224,10 @@ void gpmi_copy_bits(u8 *dst, size_t dst_bit_off,
 		    const u8 *src, size_t src_bit_off,
 		    size_t nbits);
 
+=======
+};
+
+>>>>>>> upstream/android-13
 /* BCH : Status Block Completion Codes */
 #define STATUS_GOOD		0x00
 #define STATUS_ERASED		0xff
@@ -207,4 +242,8 @@ void gpmi_copy_bits(u8 *dst, size_t dst_bit_off,
 
 #define GPMI_IS_MX6(x)		(GPMI_IS_MX6Q(x) || GPMI_IS_MX6SX(x) || \
 				 GPMI_IS_MX7D(x))
+<<<<<<< HEAD
+=======
+#define GPMI_IS_MXS(x)		(GPMI_IS_MX23(x) || GPMI_IS_MX28(x))
+>>>>>>> upstream/android-13
 #endif

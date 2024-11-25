@@ -23,13 +23,22 @@
 #include "avtab.h"
 #include "policydb.h"
 
+<<<<<<< HEAD
 static struct kmem_cache *avtab_node_cachep;
 static struct kmem_cache *avtab_xperms_cachep;
+=======
+static struct kmem_cache *avtab_node_cachep __ro_after_init;
+static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
+>>>>>>> upstream/android-13
 
 /* Based on MurmurHash3, written by Austin Appleby and placed in the
  * public domain.
  */
+<<<<<<< HEAD
 static inline int avtab_hash(struct avtab_key *keyp, u32 mask)
+=======
+static inline int avtab_hash(const struct avtab_key *keyp, u32 mask)
+>>>>>>> upstream/android-13
 {
 	static const u32 c1 = 0xcc9e2d51;
 	static const u32 c2 = 0x1b873593;
@@ -68,7 +77,11 @@ static inline int avtab_hash(struct avtab_key *keyp, u32 mask)
 static struct avtab_node*
 avtab_insert_node(struct avtab *h, int hvalue,
 		  struct avtab_node *prev, struct avtab_node *cur,
+<<<<<<< HEAD
 		  struct avtab_key *key, struct avtab_datum *datum)
+=======
+		  const struct avtab_key *key, const struct avtab_datum *datum)
+>>>>>>> upstream/android-13
 {
 	struct avtab_node *newnode;
 	struct avtab_extended_perms *xperms;
@@ -93,29 +106,49 @@ avtab_insert_node(struct avtab *h, int hvalue,
 		newnode->next = prev->next;
 		prev->next = newnode;
 	} else {
+<<<<<<< HEAD
 		newnode->next = flex_array_get_ptr(h->htable, hvalue);
 		if (flex_array_put_ptr(h->htable, hvalue, newnode,
 				       GFP_KERNEL|__GFP_ZERO)) {
 			kmem_cache_free(avtab_node_cachep, newnode);
 			return NULL;
 		}
+=======
+		struct avtab_node **n = &h->htable[hvalue];
+
+		newnode->next = *n;
+		*n = newnode;
+>>>>>>> upstream/android-13
 	}
 
 	h->nel++;
 	return newnode;
 }
 
+<<<<<<< HEAD
 static int avtab_insert(struct avtab *h, struct avtab_key *key, struct avtab_datum *datum)
+=======
+static int avtab_insert(struct avtab *h, const struct avtab_key *key,
+			const struct avtab_datum *datum)
+>>>>>>> upstream/android-13
 {
 	int hvalue;
 	struct avtab_node *prev, *cur, *newnode;
 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
 
+<<<<<<< HEAD
 	if (!h || !h->htable)
 		return -EINVAL;
 
 	hvalue = avtab_hash(key, h->mask);
 	for (prev = NULL, cur = flex_array_get_ptr(h->htable, hvalue);
+=======
+	if (!h || !h->nslot)
+		return -EINVAL;
+
+	hvalue = avtab_hash(key, h->mask);
+	for (prev = NULL, cur = h->htable[hvalue];
+>>>>>>> upstream/android-13
 	     cur;
 	     prev = cur, cur = cur->next) {
 		if (key->source_type == cur->key.source_type &&
@@ -149,17 +182,30 @@ static int avtab_insert(struct avtab *h, struct avtab_key *key, struct avtab_dat
  * key/specified mask into the table, as needed by the conditional avtab.
  * It also returns a pointer to the node inserted.
  */
+<<<<<<< HEAD
 struct avtab_node *
 avtab_insert_nonunique(struct avtab *h, struct avtab_key *key, struct avtab_datum *datum)
+=======
+struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+					  const struct avtab_key *key,
+					  const struct avtab_datum *datum)
+>>>>>>> upstream/android-13
 {
 	int hvalue;
 	struct avtab_node *prev, *cur;
 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
 
+<<<<<<< HEAD
 	if (!h || !h->htable)
 		return NULL;
 	hvalue = avtab_hash(key, h->mask);
 	for (prev = NULL, cur = flex_array_get_ptr(h->htable, hvalue);
+=======
+	if (!h || !h->nslot)
+		return NULL;
+	hvalue = avtab_hash(key, h->mask);
+	for (prev = NULL, cur = h->htable[hvalue];
+>>>>>>> upstream/android-13
 	     cur;
 	     prev = cur, cur = cur->next) {
 		if (key->source_type == cur->key.source_type &&
@@ -180,17 +226,29 @@ avtab_insert_nonunique(struct avtab *h, struct avtab_key *key, struct avtab_datu
 	return avtab_insert_node(h, hvalue, prev, cur, key, datum);
 }
 
+<<<<<<< HEAD
 struct avtab_datum *avtab_search(struct avtab *h, struct avtab_key *key)
+=======
+struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *key)
+>>>>>>> upstream/android-13
 {
 	int hvalue;
 	struct avtab_node *cur;
 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
 
+<<<<<<< HEAD
 	if (!h || !h->htable)
 		return NULL;
 
 	hvalue = avtab_hash(key, h->mask);
 	for (cur = flex_array_get_ptr(h->htable, hvalue); cur;
+=======
+	if (!h || !h->nslot)
+		return NULL;
+
+	hvalue = avtab_hash(key, h->mask);
+	for (cur = h->htable[hvalue]; cur;
+>>>>>>> upstream/android-13
 	     cur = cur->next) {
 		if (key->source_type == cur->key.source_type &&
 		    key->target_type == cur->key.target_type &&
@@ -215,18 +273,31 @@ struct avtab_datum *avtab_search(struct avtab *h, struct avtab_key *key)
 /* This search function returns a node pointer, and can be used in
  * conjunction with avtab_search_next_node()
  */
+<<<<<<< HEAD
 struct avtab_node*
 avtab_search_node(struct avtab *h, struct avtab_key *key)
+=======
+struct avtab_node *avtab_search_node(struct avtab *h,
+				     const struct avtab_key *key)
+>>>>>>> upstream/android-13
 {
 	int hvalue;
 	struct avtab_node *cur;
 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
 
+<<<<<<< HEAD
 	if (!h || !h->htable)
 		return NULL;
 
 	hvalue = avtab_hash(key, h->mask);
 	for (cur = flex_array_get_ptr(h->htable, hvalue); cur;
+=======
+	if (!h || !h->nslot)
+		return NULL;
+
+	hvalue = avtab_hash(key, h->mask);
+	for (cur = h->htable[hvalue]; cur;
+>>>>>>> upstream/android-13
 	     cur = cur->next) {
 		if (key->source_type == cur->key.source_type &&
 		    key->target_type == cur->key.target_type &&
@@ -281,11 +352,19 @@ void avtab_destroy(struct avtab *h)
 	int i;
 	struct avtab_node *cur, *temp;
 
+<<<<<<< HEAD
 	if (!h || !h->htable)
 		return;
 
 	for (i = 0; i < h->nslot; i++) {
 		cur = flex_array_get_ptr(h->htable, i);
+=======
+	if (!h)
+		return;
+
+	for (i = 0; i < h->nslot; i++) {
+		cur = h->htable[i];
+>>>>>>> upstream/android-13
 		while (cur) {
 			temp = cur;
 			cur = cur->next;
@@ -295,21 +374,50 @@ void avtab_destroy(struct avtab *h)
 			kmem_cache_free(avtab_node_cachep, temp);
 		}
 	}
+<<<<<<< HEAD
 	flex_array_free(h->htable);
 	h->htable = NULL;
+=======
+	kvfree(h->htable);
+	h->htable = NULL;
+	h->nel = 0;
+>>>>>>> upstream/android-13
 	h->nslot = 0;
 	h->mask = 0;
 }
 
+<<<<<<< HEAD
 int avtab_init(struct avtab *h)
 {
 	h->htable = NULL;
 	h->nel = 0;
+=======
+void avtab_init(struct avtab *h)
+{
+	h->htable = NULL;
+	h->nel = 0;
+	h->nslot = 0;
+	h->mask = 0;
+}
+
+static int avtab_alloc_common(struct avtab *h, u32 nslot)
+{
+	if (!nslot)
+		return 0;
+
+	h->htable = kvcalloc(nslot, sizeof(void *), GFP_KERNEL);
+	if (!h->htable)
+		return -ENOMEM;
+
+	h->nslot = nslot;
+	h->mask = nslot - 1;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int avtab_alloc(struct avtab *h, u32 nrules)
 {
+<<<<<<< HEAD
 	u32 mask = 0;
 	u32 shift = 0;
 	u32 work = nrules;
@@ -343,6 +451,36 @@ int avtab_alloc(struct avtab *h, u32 nrules)
 	return 0;
 }
 
+=======
+	int rc;
+	u32 nslot = 0;
+
+	if (nrules != 0) {
+		u32 shift = 1;
+		u32 work = nrules >> 3;
+		while (work) {
+			work >>= 1;
+			shift++;
+		}
+		nslot = 1 << shift;
+		if (nslot > MAX_AVTAB_HASH_BUCKETS)
+			nslot = MAX_AVTAB_HASH_BUCKETS;
+
+		rc = avtab_alloc_common(h, nslot);
+		if (rc)
+			return rc;
+	}
+
+	pr_debug("SELinux: %d avtab hash slots, %d rules.\n", nslot, nrules);
+	return 0;
+}
+
+int avtab_alloc_dup(struct avtab *new, const struct avtab *orig)
+{
+	return avtab_alloc_common(new, orig->nslot);
+}
+
+>>>>>>> upstream/android-13
 void avtab_hash_eval(struct avtab *h, char *tag)
 {
 	int i, chain_len, slots_used, max_chain_len;
@@ -353,7 +491,11 @@ void avtab_hash_eval(struct avtab *h, char *tag)
 	max_chain_len = 0;
 	chain2_len_sum = 0;
 	for (i = 0; i < h->nslot; i++) {
+<<<<<<< HEAD
 		cur = flex_array_get_ptr(h->htable, i);
+=======
+		cur = h->htable[i];
+>>>>>>> upstream/android-13
 		if (cur) {
 			slots_used++;
 			chain_len = 0;
@@ -387,8 +529,13 @@ static uint16_t spec_order[] = {
 };
 
 int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+<<<<<<< HEAD
 		    int (*insertf)(struct avtab *a, struct avtab_key *k,
 				   struct avtab_datum *d, void *p),
+=======
+		    int (*insertf)(struct avtab *a, const struct avtab_key *k,
+				   const struct avtab_datum *d, void *p),
+>>>>>>> upstream/android-13
 		    void *p)
 {
 	__le16 buf16[4];
@@ -548,8 +695,13 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
 	return insertf(a, &key, &datum, p);
 }
 
+<<<<<<< HEAD
 static int avtab_insertf(struct avtab *a, struct avtab_key *k,
 			 struct avtab_datum *d, void *p)
+=======
+static int avtab_insertf(struct avtab *a, const struct avtab_key *k,
+			 const struct avtab_datum *d, void *p)
+>>>>>>> upstream/android-13
 {
 	return avtab_insert(a, k, d);
 }
@@ -598,7 +750,11 @@ bad:
 	goto out;
 }
 
+<<<<<<< HEAD
 int avtab_write_item(struct policydb *p, struct avtab_node *cur, void *fp)
+=======
+int avtab_write_item(struct policydb *p, const struct avtab_node *cur, void *fp)
+>>>>>>> upstream/android-13
 {
 	__le16 buf16[4];
 	__le32 buf32[ARRAY_SIZE(cur->datum.u.xperms->perms.p)];
@@ -646,7 +802,11 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
 		return rc;
 
 	for (i = 0; i < a->nslot; i++) {
+<<<<<<< HEAD
 		for (cur = flex_array_get_ptr(a->htable, i); cur;
+=======
+		for (cur = a->htable[i]; cur;
+>>>>>>> upstream/android-13
 		     cur = cur->next) {
 			rc = avtab_write_item(p, cur, fp);
 			if (rc)

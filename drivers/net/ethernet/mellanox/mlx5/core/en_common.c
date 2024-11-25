@@ -33,6 +33,7 @@
 #include "en.h"
 
 /* mlx5e global resources should be placed in this file.
+<<<<<<< HEAD
  * Global resources are common to all the netdevices crated on the same nic.
  */
 
@@ -59,6 +60,19 @@ void mlx5e_destroy_tir(struct mlx5_core_dev *mdev,
 	mlx5_core_destroy_tir(mdev, tir->tirn);
 	list_del(&tir->list);
 	mutex_unlock(&mdev->mlx5e_res.td.list_lock);
+=======
+ * Global resources are common to all the netdevices created on the same nic.
+ */
+
+void mlx5e_mkey_set_relaxed_ordering(struct mlx5_core_dev *mdev, void *mkc)
+{
+	bool ro_pci_enable = pcie_relaxed_ordering_enabled(mdev->pdev);
+	bool ro_write = MLX5_CAP_GEN(mdev, relaxed_ordering_write);
+	bool ro_read = MLX5_CAP_GEN(mdev, relaxed_ordering_read);
+
+	MLX5_SET(mkc, mkc, relaxed_ordering_read, ro_pci_enable && ro_read);
+	MLX5_SET(mkc, mkc, relaxed_ordering_write, ro_pci_enable && ro_write);
+>>>>>>> upstream/android-13
 }
 
 static int mlx5e_create_mkey(struct mlx5_core_dev *mdev, u32 pdn,
@@ -77,7 +91,11 @@ static int mlx5e_create_mkey(struct mlx5_core_dev *mdev, u32 pdn,
 	MLX5_SET(mkc, mkc, access_mode_1_0, MLX5_MKC_ACCESS_MODE_PA);
 	MLX5_SET(mkc, mkc, lw, 1);
 	MLX5_SET(mkc, mkc, lr, 1);
+<<<<<<< HEAD
 
+=======
+	mlx5e_mkey_set_relaxed_ordering(mdev, mkc);
+>>>>>>> upstream/android-13
 	MLX5_SET(mkc, mkc, pd, pdn);
 	MLX5_SET(mkc, mkc, length64, 1);
 	MLX5_SET(mkc, mkc, qpn, 0xffffff);
@@ -90,7 +108,11 @@ static int mlx5e_create_mkey(struct mlx5_core_dev *mdev, u32 pdn,
 
 int mlx5e_create_mdev_resources(struct mlx5_core_dev *mdev)
 {
+<<<<<<< HEAD
 	struct mlx5e_resources *res = &mdev->mlx5e_res;
+=======
+	struct mlx5e_hw_objs *res = &mdev->mlx5e_res.hw_objs;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = mlx5_core_alloc_pd(mdev, &res->pdn);
@@ -117,8 +139,13 @@ int mlx5e_create_mdev_resources(struct mlx5_core_dev *mdev)
 		goto err_destroy_mkey;
 	}
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&mdev->mlx5e_res.td.tirs_list);
 	mutex_init(&mdev->mlx5e_res.td.list_lock);
+=======
+	INIT_LIST_HEAD(&res->td.tirs_list);
+	mutex_init(&res->td.list_lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -133,7 +160,11 @@ err_dealloc_pd:
 
 void mlx5e_destroy_mdev_resources(struct mlx5_core_dev *mdev)
 {
+<<<<<<< HEAD
 	struct mlx5e_resources *res = &mdev->mlx5e_res;
+=======
+	struct mlx5e_hw_objs *res = &mdev->mlx5e_res.hw_objs;
+>>>>>>> upstream/android-13
 
 	mlx5_free_bfreg(mdev, &res->bfreg);
 	mlx5_core_destroy_mkey(mdev, &res->mkey);
@@ -142,10 +173,19 @@ void mlx5e_destroy_mdev_resources(struct mlx5_core_dev *mdev)
 	memset(res, 0, sizeof(*res));
 }
 
+<<<<<<< HEAD
 int mlx5e_refresh_tirs(struct mlx5e_priv *priv, bool enable_uc_lb)
 {
 	struct mlx5_core_dev *mdev = priv->mdev;
 	struct mlx5e_tir *tir;
+=======
+int mlx5e_refresh_tirs(struct mlx5e_priv *priv, bool enable_uc_lb,
+		       bool enable_mc_lb)
+{
+	struct mlx5_core_dev *mdev = priv->mdev;
+	struct mlx5e_tir *tir;
+	u8 lb_flags = 0;
+>>>>>>> upstream/android-13
 	int err  = 0;
 	u32 tirn = 0;
 	int inlen;
@@ -159,6 +199,7 @@ int mlx5e_refresh_tirs(struct mlx5e_priv *priv, bool enable_uc_lb)
 	}
 
 	if (enable_uc_lb)
+<<<<<<< HEAD
 		MLX5_SET(modify_tir_in, in, ctx.self_lb_block,
 			 MLX5_TIRC_SELF_LB_BLOCK_BLOCK_UNICAST_);
 
@@ -168,6 +209,22 @@ int mlx5e_refresh_tirs(struct mlx5e_priv *priv, bool enable_uc_lb)
 	list_for_each_entry(tir, &mdev->mlx5e_res.td.tirs_list, list) {
 		tirn = tir->tirn;
 		err = mlx5_core_modify_tir(mdev, tirn, in, inlen);
+=======
+		lb_flags = MLX5_TIRC_SELF_LB_BLOCK_BLOCK_UNICAST;
+
+	if (enable_mc_lb)
+		lb_flags |= MLX5_TIRC_SELF_LB_BLOCK_BLOCK_MULTICAST;
+
+	if (lb_flags)
+		MLX5_SET(modify_tir_in, in, ctx.self_lb_block, lb_flags);
+
+	MLX5_SET(modify_tir_in, in, bitmask.self_lb_en, 1);
+
+	mutex_lock(&mdev->mlx5e_res.hw_objs.td.list_lock);
+	list_for_each_entry(tir, &mdev->mlx5e_res.hw_objs.td.tirs_list, list) {
+		tirn = tir->tirn;
+		err = mlx5_core_modify_tir(mdev, tirn, in);
+>>>>>>> upstream/android-13
 		if (err)
 			goto out;
 	}
@@ -176,6 +233,7 @@ out:
 	kvfree(in);
 	if (err)
 		netdev_err(priv->netdev, "refresh tir(0x%x) failed, %d\n", tirn, err);
+<<<<<<< HEAD
 	mutex_unlock(&mdev->mlx5e_res.td.list_lock);
 
 	return err;
@@ -192,3 +250,9 @@ u8 mlx5e_params_calculate_tx_min_inline(struct mlx5_core_dev *mdev)
 
 	return min_inline_mode;
 }
+=======
+	mutex_unlock(&mdev->mlx5e_res.hw_objs.td.list_lock);
+
+	return err;
+}
+>>>>>>> upstream/android-13

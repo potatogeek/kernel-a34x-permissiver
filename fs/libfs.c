@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	fs/libfs.c
  *	Library for filesystems writers.
@@ -16,6 +20,12 @@
 #include <linux/exportfs.h>
 #include <linux/writeback.h>
 #include <linux/buffer_head.h> /* sync_mapping_buffers */
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+#include <linux/pseudo_fs.h>
+#include <linux/fsnotify.h>
+>>>>>>> upstream/android-13
 #include <linux/unicode.h>
 #include <linux/fscrypt.h>
 
@@ -23,11 +33,20 @@
 
 #include "internal.h"
 
+<<<<<<< HEAD
 int simple_getattr(const struct path *path, struct kstat *stat,
 		   u32 request_mask, unsigned int query_flags)
 {
 	struct inode *inode = d_inode(path->dentry);
 	generic_fillattr(inode, stat);
+=======
+int simple_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		   struct kstat *stat, u32 request_mask,
+		   unsigned int query_flags)
+{
+	struct inode *inode = d_inode(path->dentry);
+	generic_fillattr(&init_user_ns, inode, stat);
+>>>>>>> upstream/android-13
 	stat->blocks = inode->i_mapping->nrpages << (PAGE_SHIFT - 9);
 	return 0;
 }
@@ -91,6 +110,7 @@ EXPORT_SYMBOL(dcache_dir_close);
 /*
  * Returns an element of siblings' list.
  * We are looking for <count>th positive after <p>; if
+<<<<<<< HEAD
  * found, dentry is grabbed and passed to caller via *<res>.
  * If no such element exists, the anchor of list is returned
  * and *<res> is set to NULL.
@@ -99,6 +119,15 @@ static struct list_head *scan_positives(struct dentry *cursor,
 					struct list_head *p,
 					loff_t count,
 					struct dentry **res)
+=======
+ * found, dentry is grabbed and returned to caller.
+ * If no such element exists, NULL is returned.
+ */
+static struct dentry *scan_positives(struct dentry *cursor,
+					struct list_head *p,
+					loff_t count,
+					struct dentry *last)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry = cursor->d_parent, *found = NULL;
 
@@ -126,9 +155,14 @@ static struct list_head *scan_positives(struct dentry *cursor,
 		}
 	}
 	spin_unlock(&dentry->d_lock);
+<<<<<<< HEAD
 	dput(*res);
 	*res = found;
 	return p;
+=======
+	dput(last);
+	return found;
+>>>>>>> upstream/android-13
 }
 
 loff_t dcache_dir_lseek(struct file *file, loff_t offset, int whence)
@@ -137,15 +171,24 @@ loff_t dcache_dir_lseek(struct file *file, loff_t offset, int whence)
 	switch (whence) {
 		case 1:
 			offset += file->f_pos;
+<<<<<<< HEAD
 		case 0:
 			if (offset >= 0)
 				break;
+=======
+			fallthrough;
+		case 0:
+			if (offset >= 0)
+				break;
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			return -EINVAL;
 	}
 	if (offset != file->f_pos) {
 		struct dentry *cursor = file->private_data;
 		struct dentry *to = NULL;
+<<<<<<< HEAD
 		struct list_head *p;
 
 		file->f_pos = offset;
@@ -165,6 +208,24 @@ loff_t dcache_dir_lseek(struct file *file, loff_t offset, int whence)
 
 		dput(to);
 
+=======
+
+		inode_lock_shared(dentry->d_inode);
+
+		if (offset > 2)
+			to = scan_positives(cursor, &dentry->d_subdirs,
+					    offset - 2, NULL);
+		spin_lock(&dentry->d_lock);
+		if (to)
+			list_move(&cursor->d_child, &to->d_child);
+		else
+			list_del_init(&cursor->d_child);
+		spin_unlock(&dentry->d_lock);
+		dput(to);
+
+		file->f_pos = offset;
+
+>>>>>>> upstream/android-13
 		inode_unlock_shared(dentry->d_inode);
 	}
 	return offset;
@@ -196,17 +257,36 @@ int dcache_readdir(struct file *file, struct dir_context *ctx)
 
 	if (ctx->pos == 2)
 		p = anchor;
+<<<<<<< HEAD
 	else
 		p = &cursor->d_child;
 
 	while ((p = scan_positives(cursor, p, 1, &next)) != anchor) {
+=======
+	else if (!list_empty(&cursor->d_child))
+		p = &cursor->d_child;
+	else
+		return 0;
+
+	while ((next = scan_positives(cursor, p, 1, next)) != NULL) {
+>>>>>>> upstream/android-13
 		if (!dir_emit(ctx, next->d_name.name, next->d_name.len,
 			      d_inode(next)->i_ino, dt_type(d_inode(next))))
 			break;
 		ctx->pos++;
+<<<<<<< HEAD
 	}
 	spin_lock(&dentry->d_lock);
 	list_move_tail(&cursor->d_child, p);
+=======
+		p = &next->d_child;
+	}
+	spin_lock(&dentry->d_lock);
+	if (next)
+		list_move_tail(&cursor->d_child, &next->d_child);
+	else
+		list_del_init(&cursor->d_child);
+>>>>>>> upstream/android-13
 	spin_unlock(&dentry->d_lock);
 	dput(next);
 
@@ -218,7 +298,11 @@ ssize_t generic_read_dir(struct file *filp, char __user *buf, size_t siz, loff_t
 {
 	return -EISDIR;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(generic_read_dir);
+=======
+EXPORT_SYMBOL_NS(generic_read_dir, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 const struct file_operations simple_dir_operations = {
 	.open		= dcache_dir_open,
@@ -235,10 +319,83 @@ const struct inode_operations simple_dir_inode_operations = {
 };
 EXPORT_SYMBOL(simple_dir_inode_operations);
 
+<<<<<<< HEAD
+=======
+static struct dentry *find_next_child(struct dentry *parent, struct dentry *prev)
+{
+	struct dentry *child = NULL;
+	struct list_head *p = prev ? &prev->d_child : &parent->d_subdirs;
+
+	spin_lock(&parent->d_lock);
+	while ((p = p->next) != &parent->d_subdirs) {
+		struct dentry *d = container_of(p, struct dentry, d_child);
+		if (simple_positive(d)) {
+			spin_lock_nested(&d->d_lock, DENTRY_D_LOCK_NESTED);
+			if (simple_positive(d))
+				child = dget_dlock(d);
+			spin_unlock(&d->d_lock);
+			if (likely(child))
+				break;
+		}
+	}
+	spin_unlock(&parent->d_lock);
+	dput(prev);
+	return child;
+}
+
+void simple_recursive_removal(struct dentry *dentry,
+                              void (*callback)(struct dentry *))
+{
+	struct dentry *this = dget(dentry);
+	while (true) {
+		struct dentry *victim = NULL, *child;
+		struct inode *inode = this->d_inode;
+
+		inode_lock(inode);
+		if (d_is_dir(this))
+			inode->i_flags |= S_DEAD;
+		while ((child = find_next_child(this, victim)) == NULL) {
+			// kill and ascend
+			// update metadata while it's still locked
+			inode->i_ctime = current_time(inode);
+			clear_nlink(inode);
+			inode_unlock(inode);
+			victim = this;
+			this = this->d_parent;
+			inode = this->d_inode;
+			inode_lock(inode);
+			if (simple_positive(victim)) {
+				d_invalidate(victim);	// avoid lost mounts
+				if (d_is_dir(victim))
+					fsnotify_rmdir(inode, victim);
+				else
+					fsnotify_unlink(inode, victim);
+				if (callback)
+					callback(victim);
+				dput(victim);		// unpin it
+			}
+			if (victim == dentry) {
+				inode->i_ctime = inode->i_mtime =
+					current_time(inode);
+				if (d_is_dir(dentry))
+					drop_nlink(inode);
+				inode_unlock(inode);
+				dput(dentry);
+				return;
+			}
+		}
+		inode_unlock(inode);
+		this = child;
+	}
+}
+EXPORT_SYMBOL(simple_recursive_removal);
+
+>>>>>>> upstream/android-13
 static const struct super_operations simple_super_operations = {
 	.statfs		= simple_statfs,
 };
 
+<<<<<<< HEAD
 /*
  * Common helper for pseudo-filesystems (sockfs, pipefs, bdev - stuff that
  * will never be mountable)
@@ -256,10 +413,17 @@ struct dentry *mount_pseudo_xattr(struct file_system_type *fs_type, char *name,
 			&init_user_ns, NULL);
 	if (IS_ERR(s))
 		return ERR_CAST(s);
+=======
+static int pseudo_fs_fill_super(struct super_block *s, struct fs_context *fc)
+{
+	struct pseudo_fs_context *ctx = fc->fs_private;
+	struct inode *root;
+>>>>>>> upstream/android-13
 
 	s->s_maxbytes = MAX_LFS_FILESIZE;
 	s->s_blocksize = PAGE_SIZE;
 	s->s_blocksize_bits = PAGE_SHIFT;
+<<<<<<< HEAD
 	s->s_magic = magic;
 	s->s_op = ops ? ops : &simple_super_operations;
 	s->s_xattr = xattr;
@@ -267,6 +431,16 @@ struct dentry *mount_pseudo_xattr(struct file_system_type *fs_type, char *name,
 	root = new_inode(s);
 	if (!root)
 		goto Enomem;
+=======
+	s->s_magic = ctx->magic;
+	s->s_op = ctx->ops ?: &simple_super_operations;
+	s->s_xattr = ctx->xattr;
+	s->s_time_gran = 1;
+	root = new_inode(s);
+	if (!root)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	/*
 	 * since this is the first inode, make it number 1. New inodes created
 	 * after this must take care not to collide with it (by passing
@@ -275,6 +449,7 @@ struct dentry *mount_pseudo_xattr(struct file_system_type *fs_type, char *name,
 	root->i_ino = 1;
 	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
 	root->i_atime = root->i_mtime = root->i_ctime = current_time(root);
+<<<<<<< HEAD
 	dentry = __d_alloc(s, &d_name);
 	if (!dentry) {
 		iput(root);
@@ -291,6 +466,50 @@ Enomem:
 	return ERR_PTR(-ENOMEM);
 }
 EXPORT_SYMBOL(mount_pseudo_xattr);
+=======
+	s->s_root = d_make_root(root);
+	if (!s->s_root)
+		return -ENOMEM;
+	s->s_d_op = ctx->dops;
+	return 0;
+}
+
+static int pseudo_fs_get_tree(struct fs_context *fc)
+{
+	return get_tree_nodev(fc, pseudo_fs_fill_super);
+}
+
+static void pseudo_fs_free(struct fs_context *fc)
+{
+	kfree(fc->fs_private);
+}
+
+static const struct fs_context_operations pseudo_fs_context_ops = {
+	.free		= pseudo_fs_free,
+	.get_tree	= pseudo_fs_get_tree,
+};
+
+/*
+ * Common helper for pseudo-filesystems (sockfs, pipefs, bdev - stuff that
+ * will never be mountable)
+ */
+struct pseudo_fs_context *init_pseudo(struct fs_context *fc,
+					unsigned long magic)
+{
+	struct pseudo_fs_context *ctx;
+
+	ctx = kzalloc(sizeof(struct pseudo_fs_context), GFP_KERNEL);
+	if (likely(ctx)) {
+		ctx->magic = magic;
+		fc->fs_private = ctx;
+		fc->ops = &pseudo_fs_context_ops;
+		fc->sb_flags |= SB_NOUSER;
+		fc->global = true;
+	}
+	return ctx;
+}
+EXPORT_SYMBOL(init_pseudo);
+>>>>>>> upstream/android-13
 
 int simple_open(struct inode *inode, struct file *file)
 {
@@ -357,9 +576,15 @@ int simple_rmdir(struct inode *dir, struct dentry *dentry)
 }
 EXPORT_SYMBOL(simple_rmdir);
 
+<<<<<<< HEAD
 int simple_rename(struct inode *old_dir, struct dentry *old_dentry,
 		  struct inode *new_dir, struct dentry *new_dentry,
 		  unsigned int flags)
+=======
+int simple_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		  struct dentry *old_dentry, struct inode *new_dir,
+		  struct dentry *new_dentry, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(old_dentry);
 	int they_are_dirs = d_is_dir(old_dentry);
@@ -390,6 +615,10 @@ EXPORT_SYMBOL(simple_rename);
 
 /**
  * simple_setattr - setattr for simple filesystem
+<<<<<<< HEAD
+=======
+ * @mnt_userns: user namespace of the target mount
+>>>>>>> upstream/android-13
  * @dentry: dentry
  * @iattr: iattr structure
  *
@@ -402,24 +631,41 @@ EXPORT_SYMBOL(simple_rename);
  * on simple regular filesystems.  Anything that needs to change on-disk
  * or wire state on size changes needs its own setattr method.
  */
+<<<<<<< HEAD
 int simple_setattr(struct dentry *dentry, struct iattr *iattr)
+=======
+int simple_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		   struct iattr *iattr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	int error;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, iattr);
+=======
+	error = setattr_prepare(mnt_userns, dentry, iattr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
 	if (iattr->ia_valid & ATTR_SIZE)
 		truncate_setsize(inode, iattr->ia_size);
+<<<<<<< HEAD
 	setattr_copy(inode, iattr);
+=======
+	setattr_copy(mnt_userns, inode, iattr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }
 EXPORT_SYMBOL(simple_setattr);
 
+<<<<<<< HEAD
 int simple_readpage(struct file *file, struct page *page)
+=======
+static int simple_readpage(struct file *file, struct page *page)
+>>>>>>> upstream/android-13
 {
 	clear_highpage(page);
 	flush_dcache_page(page);
@@ -427,7 +673,10 @@ int simple_readpage(struct file *file, struct page *page)
 	unlock_page(page);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(simple_readpage);
+=======
+>>>>>>> upstream/android-13
 
 int simple_write_begin(struct file *file, struct address_space *mapping,
 			loff_t pos, unsigned len, unsigned flags,
@@ -455,8 +704,12 @@ EXPORT_SYMBOL(simple_write_begin);
 
 /**
  * simple_write_end - .write_end helper for non-block-device FSes
+<<<<<<< HEAD
  * @available: See .write_end of address_space_operations
  * @file: 		"
+=======
+ * @file: See .write_end of address_space_operations
+>>>>>>> upstream/android-13
  * @mapping: 		"
  * @pos: 		"
  * @len: 		"
@@ -476,7 +729,11 @@ EXPORT_SYMBOL(simple_write_begin);
  *
  * Use *ONLY* with simple_readpage()
  */
+<<<<<<< HEAD
 int simple_write_end(struct file *file, struct address_space *mapping,
+=======
+static int simple_write_end(struct file *file, struct address_space *mapping,
+>>>>>>> upstream/android-13
 			loff_t pos, unsigned len, unsigned copied,
 			struct page *page, void *fsdata)
 {
@@ -505,7 +762,21 @@ int simple_write_end(struct file *file, struct address_space *mapping,
 
 	return copied;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(simple_write_end);
+=======
+
+/*
+ * Provides ramfs-style behavior: data in the pagecache, but no writeback.
+ */
+const struct address_space_operations ram_aops = {
+	.readpage	= simple_readpage,
+	.write_begin	= simple_write_begin,
+	.write_end	= simple_write_end,
+	.set_page_dirty	= __set_page_dirty_no_writeback,
+};
+EXPORT_SYMBOL(ram_aops);
+>>>>>>> upstream/android-13
 
 /*
  * the inodes created here are not hashed. If you use iunique to generate
@@ -1007,7 +1278,11 @@ out:
 		ret = err;
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__generic_file_fsync);
+=======
+EXPORT_SYMBOL_NS(__generic_file_fsync, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * generic_file_fsync - generic fsync implementation for simple filesystems
@@ -1028,9 +1303,15 @@ int generic_file_fsync(struct file *file, loff_t start, loff_t end,
 	err = __generic_file_fsync(file, start, end, datasync);
 	if (err)
 		return err;
+<<<<<<< HEAD
 	return blkdev_issue_flush(inode->i_sb->s_bdev, GFP_KERNEL, NULL);
 }
 EXPORT_SYMBOL(generic_file_fsync);
+=======
+	return blkdev_issue_flush(inode->i_sb->s_bdev);
+}
+EXPORT_SYMBOL_NS(generic_file_fsync, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * generic_check_addressable - Check addressability of file system
@@ -1070,6 +1351,7 @@ int noop_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 }
 EXPORT_SYMBOL(noop_fsync);
 
+<<<<<<< HEAD
 int noop_set_page_dirty(struct page *page)
 {
 	/*
@@ -1086,6 +1368,8 @@ int noop_set_page_dirty(struct page *page)
 }
 EXPORT_SYMBOL_GPL(noop_set_page_dirty);
 
+=======
+>>>>>>> upstream/android-13
 void noop_invalidatepage(struct page *page, unsigned int offset,
 		unsigned int length)
 {
@@ -1116,6 +1400,7 @@ void kfree_link(void *p)
 }
 EXPORT_SYMBOL(kfree_link);
 
+<<<<<<< HEAD
 /*
  * nop .set_page_dirty method so that people can use .page_mkwrite on
  * anon inodes.
@@ -1134,6 +1419,12 @@ struct inode *alloc_anon_inode(struct super_block *s)
 {
 	static const struct address_space_operations anon_aops = {
 		.set_page_dirty = anon_set_page_dirty,
+=======
+struct inode *alloc_anon_inode(struct super_block *s)
+{
+	static const struct address_space_operations anon_aops = {
+		.set_page_dirty = __set_page_dirty_no_writeback,
+>>>>>>> upstream/android-13
 	};
 	struct inode *inode = new_inode_pseudo(s);
 
@@ -1177,6 +1468,23 @@ simple_nosetlease(struct file *filp, long arg, struct file_lock **flp,
 }
 EXPORT_SYMBOL(simple_nosetlease);
 
+<<<<<<< HEAD
+=======
+/**
+ * simple_get_link - generic helper to get the target of "fast" symlinks
+ * @dentry: not used here
+ * @inode: the symlink inode
+ * @done: not used here
+ *
+ * Generic helper for filesystems to use for symlink inodes where a pointer to
+ * the symlink target is stored in ->i_link.  NOTE: this isn't normally called,
+ * since as an optimization the path lookup code uses any non-NULL ->i_link
+ * directly, without calling ->get_link().  But ->get_link() still must be set,
+ * to mark the inode_operations as being for a symlink.
+ *
+ * Return: the symlink target
+ */
+>>>>>>> upstream/android-13
 const char *simple_get_link(struct dentry *dentry, struct inode *inode,
 			    struct delayed_call *done)
 {
@@ -1197,6 +1505,7 @@ static struct dentry *empty_dir_lookup(struct inode *dir, struct dentry *dentry,
 	return ERR_PTR(-ENOENT);
 }
 
+<<<<<<< HEAD
 static int empty_dir_getattr(const struct path *path, struct kstat *stat,
 			     u32 request_mask, unsigned int query_flags)
 {
@@ -1206,6 +1515,19 @@ static int empty_dir_getattr(const struct path *path, struct kstat *stat,
 }
 
 static int empty_dir_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+static int empty_dir_getattr(struct user_namespace *mnt_userns,
+			     const struct path *path, struct kstat *stat,
+			     u32 request_mask, unsigned int query_flags)
+{
+	struct inode *inode = d_inode(path->dentry);
+	generic_fillattr(&init_user_ns, inode, stat);
+	return 0;
+}
+
+static int empty_dir_setattr(struct user_namespace *mnt_userns,
+			     struct dentry *dentry, struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	return -EPERM;
 }
@@ -1266,6 +1588,7 @@ bool is_empty_dir_inode(struct inode *inode)
 }
 
 #ifdef CONFIG_UNICODE
+<<<<<<< HEAD
 bool needs_casefold(const struct inode *dir)
 {
 	return IS_CASEFOLDED(dir) && dir->i_sb->s_encoding &&
@@ -1287,6 +1610,40 @@ int generic_ci_d_compare(const struct dentry *dentry, unsigned int len,
 	if (!inode || !needs_casefold(inode))
 		goto fallback;
 
+=======
+/*
+ * Determine if the name of a dentry should be casefolded.
+ *
+ * Return: if names will need casefolding
+ */
+static bool needs_casefold(const struct inode *dir)
+{
+	return IS_CASEFOLDED(dir) && dir->i_sb->s_encoding;
+}
+
+/**
+ * generic_ci_d_compare - generic d_compare implementation for casefolding filesystems
+ * @dentry:	dentry whose name we are checking against
+ * @len:	len of name of dentry
+ * @str:	str pointer to name of dentry
+ * @name:	Name to compare against
+ *
+ * Return: 0 if names match, 1 if mismatch, or -ERRNO
+ */
+static int generic_ci_d_compare(const struct dentry *dentry, unsigned int len,
+				const char *str, const struct qstr *name)
+{
+	const struct dentry *parent = READ_ONCE(dentry->d_parent);
+	const struct inode *dir = READ_ONCE(parent->d_inode);
+	const struct super_block *sb = dentry->d_sb;
+	const struct unicode_map *um = sb->s_encoding;
+	struct qstr qstr = QSTR_INIT(str, len);
+	char strbuf[DNAME_INLINE_LEN];
+	int ret;
+
+	if (!dir || !needs_casefold(dir))
+		goto fallback;
+>>>>>>> upstream/android-13
 	/*
 	 * If the dentry name is stored in-line, then it may be concurrently
 	 * modified by a rename.  If this happens, the VFS will eventually retry
@@ -1297,6 +1654,7 @@ int generic_ci_d_compare(const struct dentry *dentry, unsigned int len,
 	if (len <= DNAME_INLINE_LEN - 1) {
 		memcpy(strbuf, str, len);
 		strbuf[len] = 0;
+<<<<<<< HEAD
 		entry.name = strbuf;
 		/* prevent compiler from optimizing out the temporary buffer */
 		barrier();
@@ -1307,21 +1665,47 @@ int generic_ci_d_compare(const struct dentry *dentry, unsigned int len,
 		return ret;
 
 	if (sb_has_enc_strict_mode(sb))
+=======
+		qstr.name = strbuf;
+		/* prevent compiler from optimizing out the temporary buffer */
+		barrier();
+	}
+	ret = utf8_strncasecmp(um, name, &qstr);
+	if (ret >= 0)
+		return ret;
+
+	if (sb_has_strict_encoding(sb))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 fallback:
 	if (len != name->len)
 		return 1;
 	return !!memcmp(str, name->name, len);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(generic_ci_d_compare);
 
 int generic_ci_d_hash(const struct dentry *dentry, struct qstr *str)
 {
 	const struct inode *inode = READ_ONCE(dentry->d_inode);
+=======
+
+/**
+ * generic_ci_d_hash - generic d_hash implementation for casefolding filesystems
+ * @dentry:	dentry of the parent directory
+ * @str:	qstr of name whose hash we should fill in
+ *
+ * Return: 0 if hash was successful or unchanged, and -EINVAL on error
+ */
+static int generic_ci_d_hash(const struct dentry *dentry, struct qstr *str)
+{
+	const struct inode *dir = READ_ONCE(dentry->d_inode);
+>>>>>>> upstream/android-13
 	struct super_block *sb = dentry->d_sb;
 	const struct unicode_map *um = sb->s_encoding;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!inode || !needs_casefold(inode))
 		return 0;
 
@@ -1338,6 +1722,16 @@ err:
 	return ret;
 }
 EXPORT_SYMBOL(generic_ci_d_hash);
+=======
+	if (!dir || !needs_casefold(dir))
+		return 0;
+
+	ret = utf8_casefold_hash(um, dentry, str);
+	if (ret < 0 && sb_has_strict_encoding(sb))
+		return -EINVAL;
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static const struct dentry_operations generic_ci_dentry_ops = {
 	.d_hash = generic_ci_d_hash,
@@ -1351,7 +1745,11 @@ static const struct dentry_operations generic_encrypted_dentry_ops = {
 };
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_UNICODE) && IS_ENABLED(CONFIG_FS_ENCRYPTION)
+=======
+#if defined(CONFIG_FS_ENCRYPTION) && defined(CONFIG_UNICODE)
+>>>>>>> upstream/android-13
 static const struct dentry_operations generic_encrypted_ci_dentry_ops = {
 	.d_hash = generic_ci_d_hash,
 	.d_compare = generic_ci_d_compare,
@@ -1361,6 +1759,7 @@ static const struct dentry_operations generic_encrypted_ci_dentry_ops = {
 
 /**
  * generic_set_encrypted_ci_d_ops - helper for setting d_ops for given dentry
+<<<<<<< HEAD
  * @dir:	parent of dentry whose ops to set
  * @dentry:	detnry to set ops on
  *
@@ -1377,12 +1776,54 @@ void generic_set_encrypted_ci_d_ops(struct inode *dir, struct dentry *dentry)
 			return;
 		}
 #endif
+=======
+ * @dentry:	dentry to set ops on
+ *
+ * Casefolded directories need d_hash and d_compare set, so that the dentries
+ * contained in them are handled case-insensitively.  Note that these operations
+ * are needed on the parent directory rather than on the dentries in it, and
+ * while the casefolding flag can be toggled on and off on an empty directory,
+ * dentry_operations can't be changed later.  As a result, if the filesystem has
+ * casefolding support enabled at all, we have to give all dentries the
+ * casefolding operations even if their inode doesn't have the casefolding flag
+ * currently (and thus the casefolding ops would be no-ops for now).
+ *
+ * Encryption works differently in that the only dentry operation it needs is
+ * d_revalidate, which it only needs on dentries that have the no-key name flag.
+ * The no-key flag can't be set "later", so we don't have to worry about that.
+ *
+ * Finally, to maximize compatibility with overlayfs (which isn't compatible
+ * with certain dentry operations) and to avoid taking an unnecessary
+ * performance hit, we use custom dentry_operations for each possible
+ * combination rather than always installing all operations.
+ */
+void generic_set_encrypted_ci_d_ops(struct dentry *dentry)
+{
+#ifdef CONFIG_FS_ENCRYPTION
+	bool needs_encrypt_ops = dentry->d_flags & DCACHE_NOKEY_NAME;
+#endif
+#ifdef CONFIG_UNICODE
+	bool needs_ci_ops = dentry->d_sb->s_encoding;
+#endif
+#if defined(CONFIG_FS_ENCRYPTION) && defined(CONFIG_UNICODE)
+	if (needs_encrypt_ops && needs_ci_ops) {
+		d_set_d_op(dentry, &generic_encrypted_ci_dentry_ops);
+		return;
+	}
+#endif
+#ifdef CONFIG_FS_ENCRYPTION
+	if (needs_encrypt_ops) {
+>>>>>>> upstream/android-13
 		d_set_d_op(dentry, &generic_encrypted_dentry_ops);
 		return;
 	}
 #endif
 #ifdef CONFIG_UNICODE
+<<<<<<< HEAD
 	if (dir->i_sb->s_encoding) {
+=======
+	if (needs_ci_ops) {
+>>>>>>> upstream/android-13
 		d_set_d_op(dentry, &generic_ci_dentry_ops);
 		return;
 	}

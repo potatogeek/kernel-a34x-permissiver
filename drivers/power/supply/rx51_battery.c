@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Nokia RX-51 battery driver
  *
@@ -16,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Nokia RX-51 battery driver
+ *
+ * Copyright (C) 2012  Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -291,6 +299,10 @@ static struct platform_driver rx51_battery_driver = {
 module_platform_driver(rx51_battery_driver);
 
 MODULE_ALIAS("platform:rx51-battery");
+<<<<<<< HEAD
 MODULE_AUTHOR("Pali Rohár <pali.rohar@gmail.com>");
+=======
+MODULE_AUTHOR("Pali Rohár <pali@kernel.org>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Nokia RX-51 battery driver");
 MODULE_LICENSE("GPL");

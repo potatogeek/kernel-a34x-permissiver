@@ -678,6 +678,7 @@ static ssize_t tool_mw_trans_read(struct file *filep, char __user *ubuf,
 			 &inmw->dma_base);
 
 	off += scnprintf(buf + off, buf_size - off,
+<<<<<<< HEAD
 			 "Window Size    \t%pa[p]\n",
 			 &inmw->size);
 
@@ -691,6 +692,21 @@ static ssize_t tool_mw_trans_read(struct file *filep, char __user *ubuf,
 
 	off += scnprintf(buf + off, buf_size - off,
 			 "Size Max       \t%pa[p]\n",
+=======
+			 "Window Size    \t%pap\n",
+			 &inmw->size);
+
+	off += scnprintf(buf + off, buf_size - off,
+			 "Alignment      \t%pap\n",
+			 &addr_align);
+
+	off += scnprintf(buf + off, buf_size - off,
+			 "Size Alignment \t%pap\n",
+			 &size_align);
+
+	off += scnprintf(buf + off, buf_size - off,
+			 "Size Max       \t%pap\n",
+>>>>>>> upstream/android-13
 			 &size_max);
 
 	ret = simple_read_from_buffer(ubuf, size, offp, buf, off);
@@ -907,16 +923,27 @@ static ssize_t tool_peer_mw_trans_read(struct file *filep, char __user *ubuf,
 			 "Virtual address     \t0x%pK\n", outmw->io_base);
 
 	off += scnprintf(buf + off, buf_size - off,
+<<<<<<< HEAD
 			 "Phys Address        \t%pa[p]\n", &map_base);
 
 	off += scnprintf(buf + off, buf_size - off,
 			 "Mapping Size        \t%pa[p]\n", &map_size);
+=======
+			 "Phys Address        \t%pap\n", &map_base);
+
+	off += scnprintf(buf + off, buf_size - off,
+			 "Mapping Size        \t%pap\n", &map_size);
+>>>>>>> upstream/android-13
 
 	off += scnprintf(buf + off, buf_size - off,
 			 "Translation Address \t0x%016llx\n", outmw->tr_base);
 
 	off += scnprintf(buf + off, buf_size - off,
+<<<<<<< HEAD
 			 "Window Size         \t%pa[p]\n", &outmw->size);
+=======
+			 "Window Size         \t%pap\n", &outmw->size);
+>>>>>>> upstream/android-13
 
 	ret = simple_read_from_buffer(ubuf, size, offp, buf, off);
 	kfree(buf);

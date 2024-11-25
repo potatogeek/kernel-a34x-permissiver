@@ -110,13 +110,18 @@ struct conn_gadget_dev {
 	wait_queue_head_t unbind_wq;
 
 	struct kfifo rd_queue;
+<<<<<<< HEAD
 	void* rd_queue_buf;
+=======
+	void  *rd_queue_buf;
+>>>>>>> upstream/android-13
 
 	int transfer_size;
 	int rd_queue_size; //byte
 
 	wait_queue_head_t ioctl_wq;
 
+<<<<<<< HEAD
 	/* store privious `online` value 
 	 * for notificate to app about bind/unbind state 
 	 * through IOCTL */
@@ -124,6 +129,15 @@ struct conn_gadget_dev {
 
  	/* flag variable that save flush call status 
 	 * to check wakeup reason */
+=======
+	/* store privious `online` value
+	 * for notificate to app about bind/unbind state
+	 * through IOCTL */
+	int memorized;
+
+	/* flag variable that save flush call status
+	* to check wakeup reason */
+>>>>>>> upstream/android-13
 	atomic_t flush;
 	
 	struct kref kref;
@@ -353,7 +367,11 @@ static int conn_gadget_request_ep_out(struct conn_gadget_dev *dev)
 }
 
 /* remove a request from it's list and add a request to other list */
+<<<<<<< HEAD
 void conn_gadget_req_move(struct conn_gadget_dev *dev, struct list_head *from_head, 
+=======
+void conn_gadget_req_move(struct conn_gadget_dev *dev, struct list_head *from_head,
+>>>>>>> upstream/android-13
 		struct list_head *to_head, struct usb_request *req)
 {
 	unsigned long flags;
@@ -364,7 +382,11 @@ void conn_gadget_req_move(struct conn_gadget_dev *dev, struct list_head *from_he
 	spin_unlock_irqrestore(&dev->lock, flags);
 }
 
+<<<<<<< HEAD
 /* check state of list 
+=======
+/* check state of list
+>>>>>>> upstream/android-13
  return value:
   - empty : 1
  */
@@ -461,7 +483,11 @@ static int conn_gadget_create_bulk_endpoints(struct conn_gadget_dev *dev,
 
 	/* now allocate requests for our endpoints */
 	for (i = 0; i < CONN_GADGET_RX_REQ_MAX; i++) {
+<<<<<<< HEAD
 		req = conn_gadget_request_new(dev->ep_out, 
+=======
+		req = conn_gadget_request_new(dev->ep_out,
+>>>>>>> upstream/android-13
 				(dev->transfer_size)?dev->transfer_size:CONN_GADGET_DEFAULT_TRANSFER_SIZE); //use default value
 		if (!req)
 			goto fail;
@@ -470,7 +496,11 @@ static int conn_gadget_create_bulk_endpoints(struct conn_gadget_dev *dev,
 	}
 
 	for (i = 0; i < CONN_GADGET_TX_REQ_MAX; i++) {
+<<<<<<< HEAD
 		req = conn_gadget_request_new(dev->ep_in, 
+=======
+		req = conn_gadget_request_new(dev->ep_in,
+>>>>>>> upstream/android-13
 				(dev->transfer_size)?dev->transfer_size:CONN_GADGET_DEFAULT_TRANSFER_SIZE); //use default value
 		if (!req)
 			goto fail;
@@ -485,7 +515,11 @@ fail:
 	return -1;
 }
 
+<<<<<<< HEAD
 static unsigned int conn_gadget_poll(struct file* fp, poll_table *wait)
+=======
+static unsigned int conn_gadget_poll(struct file *fp, poll_table *wait)
+>>>>>>> upstream/android-13
 {
 	unsigned int mask;
 	struct conn_gadget_dev *dev = fp->private_data;
@@ -517,7 +551,11 @@ static unsigned int conn_gadget_poll(struct file* fp, poll_table *wait)
 		conn_gadget_unlock(&dev->read_excl);
 	}
 
+<<<<<<< HEAD
 	if (!conn_gadget_empty(dev, &dev->tx_idle)) 
+=======
+	if (!conn_gadget_empty(dev, &dev->tx_idle))
+>>>>>>> upstream/android-13
 		mask |= (POLLOUT | POLLWRNORM);
 
 	CONN_GADGET_DBG("exit\n");
@@ -578,7 +616,11 @@ static ssize_t conn_gadget_read(struct file *fp, char __user *buf,
 	if (!xfer) {
 		//r = -EAGAIN;
 		r = 0;
+<<<<<<< HEAD
 		CONN_GADGET_ERR("zero queue\n"); 
+=======
+		CONN_GADGET_ERR("zero queue\n");
+>>>>>>> upstream/android-13
 		goto req;
 	}
 
@@ -587,11 +629,22 @@ static ssize_t conn_gadget_read(struct file *fp, char __user *buf,
 		CONN_GADGET_ERR("kfifo_to_user f %d\n", ret);
 		goto done;
 	}
+<<<<<<< HEAD
 	
 req:
 	//if there is a rx_idle, then usb_ep_queue
 	CONN_GADGET_DBG("conn_gadget_request_ep_out\n");
 	conn_gadget_request_ep_out(dev);
+=======
+
+req:
+	//if there is a rx_idle, then usb_ep_queue
+	CONN_GADGET_DBG("conn_gadget_request_ep_out\n");
+	if (dev->error || !dev->online)
+		printk("usb: conn_gadget skip conn_gadget_request_ep_out\n");
+	else
+		conn_gadget_request_ep_out(dev);
+>>>>>>> upstream/android-13
 
 done:
 	conn_gadget_unlock(&dev->read_excl);
@@ -640,6 +693,15 @@ static ssize_t conn_gadget_write(struct file *fp, const char __user *buf,
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		if (dev->error) {
+			r = -EIO;
+			printk(KERN_ERR "%s: wait_event_interruptible(), dev->error\n", __func__);
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		if (req != 0) {
 			if (count > dev->transfer_size)
 				xfer = dev->transfer_size;
@@ -764,10 +826,17 @@ static int conn_gadget_bind_status_copy_to_user(unsigned long value, int online)
 	unsigned long status = CONN_GADGET_IOCTL_BIND_STATUS_UNDEFINED;
 
 	status = (online)?CONN_GADGET_IOCTL_BIND_STATUS_BIND : CONN_GADGET_IOCTL_BIND_STATUS_UNBIND;
+<<<<<<< HEAD
 	err = copy_to_user((void __user *)value, (const void*)&status, sizeof(status));
 	if (err) { 
 		CONN_GADGET_ERR("copy_to_user f %d\n", err);
 		err = -EFAULT; 
+=======
+	err = copy_to_user((void __user *)value, (const void *)&status, sizeof(status));
+	if (err) {
+		CONN_GADGET_ERR("copy_to_user f %d\n", err);
+		err = -EFAULT;
+>>>>>>> upstream/android-13
 	} else {
 		CONN_GADGET_DBG("online value %d\n", online);
 	}
@@ -775,7 +844,11 @@ static int conn_gadget_bind_status_copy_to_user(unsigned long value, int online)
 	return err;
 }
 
+<<<<<<< HEAD
 static long conn_gadget_ioctl(struct file *fp, unsigned int cmd, 
+=======
+static long conn_gadget_ioctl(struct file *fp, unsigned int cmd,
+>>>>>>> upstream/android-13
 		unsigned long value)
 {
 	struct conn_gadget_dev	*dev = NULL;
@@ -785,7 +858,11 @@ static long conn_gadget_ioctl(struct file *fp, unsigned int cmd,
 	const int IOCTL_ARRAY[CONN_GADGET_IOCTL_MAX_NR+1] = {
 		CONN_GADGET_IOCTL_SUPPORT_LIST,
 		CONN_GADGET_IOCTL_BIND_WAIT_NOTIFY,
+<<<<<<< HEAD
 		CONN_GADGET_IOCTL_BIND_GET_STATUS 
+=======
+		CONN_GADGET_IOCTL_BIND_GET_STATUS
+>>>>>>> upstream/android-13
 		};
 
 	if (_IOC_TYPE(cmd) != CONN_GADGET_IOCTL_MAGIC_SIG) {
@@ -836,6 +913,7 @@ I think, memorized and online vairiable should be atomic variable. talk to choi 
 		dev->memorized = dev->online;
 		CONN_GADGET_DBG("out wait_event\n");
 
+<<<<<<< HEAD
 			if (flushed) {
 				CONN_GADGET_ERR("close called\n");
 				err = -EINTR;
@@ -854,6 +932,26 @@ I think, memorized and online vairiable should be atomic variable. talk to choi 
 				CONN_GADGET_ERR("GET_STATUS copy_to_user f %d\n", err);
 			}
 			break;
+=======
+		if (flushed) {
+			CONN_GADGET_ERR("close called\n");
+			err = -EINTR;
+			break;
+		}
+
+		err = conn_gadget_bind_status_copy_to_user(value, dev->online);
+		if (err) {
+			CONN_GADGET_ERR("WAIT_NOTIFY copy_to_user f %d\n", err);
+		}
+		break;
+
+	case CONN_GADGET_IOCTL_BIND_GET_STATUS:
+		err = conn_gadget_bind_status_copy_to_user(value, dev->online);
+		if (err) {
+			CONN_GADGET_ERR("GET_STATUS copy_to_user f %d\n", err);
+		}
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -916,14 +1014,24 @@ conn_gadget_function_bind(struct usb_configuration *c, struct usb_function *f)
 
 	/* support super speed hardware */
 	if (gadget_is_superspeed(c->cdev->gadget)) {
+<<<<<<< HEAD
 		conn_gadget_superspeed_in_desc.bEndpointAddress = 
 			conn_gadget_fullspeed_in_desc.bEndpointAddress;
 		conn_gadget_superspeed_out_desc.bEndpointAddress = 
+=======
+		conn_gadget_superspeed_in_desc.bEndpointAddress =
+			conn_gadget_fullspeed_in_desc.bEndpointAddress;
+		conn_gadget_superspeed_out_desc.bEndpointAddress =
+>>>>>>> upstream/android-13
 			conn_gadget_fullspeed_out_desc.bEndpointAddress;
 	}
 
 	printk(KERN_ERR "%s speed %s: IN/%s, OUT/%s\n",
+<<<<<<< HEAD
             gadget_is_superspeed(c->cdev->gadget) ? "super" :
+=======
+	gadget_is_superspeed(c->cdev->gadget) ? "super" :
+>>>>>>> upstream/android-13
 			gadget_is_dualspeed(c->cdev->gadget) ? "dual" : "full",
 			f->name, dev->ep_in->name, dev->ep_out->name);
 	return 0;
@@ -956,6 +1064,10 @@ conn_gadget_function_unbind(struct usb_configuration *c, struct usb_function *f)
 	} else {
 		ep_out_excl_locked = 1;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	while ((req = conn_gadget_req_get(dev, &dev->rx_idle)))
 		conn_gadget_request_free(req, dev->ep_out);
 
@@ -978,7 +1090,11 @@ static int conn_gadget_function_set_alt(struct usb_function *f,
 
 	printk(KERN_ERR "%s: intf: %d alt: %d\n", __func__, intf, alt);
 
+<<<<<<< HEAD
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0)
+=======
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 4, 0)
+>>>>>>> upstream/android-13
 	ret = config_ep_by_speed(cdev->gadget, f, dev->ep_in);
 	if (ret)
 		return ret;
@@ -994,7 +1110,11 @@ static int conn_gadget_function_set_alt(struct usb_function *f,
 		return ret;
 #endif
 
+<<<<<<< HEAD
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0)
+=======
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 4, 0)
+>>>>>>> upstream/android-13
 	ret = config_ep_by_speed(cdev->gadget, f, dev->ep_out);
 	if (ret) {
 		usb_ep_disable(dev->ep_in);
@@ -1069,7 +1189,11 @@ static int conn_gadget_bind_config(struct usb_configuration *c)
 	dev->cdev = c->cdev;
 	dev->function.name = "conn_gadget";
 
+<<<<<<< HEAD
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
+=======
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
+>>>>>>> upstream/android-13
 	dev->function.fs_descriptors = fs_conn_gadget_descs;
 #else
 	dev->function.descriptors = fs_conn_gadget_descs;
@@ -1086,12 +1210,21 @@ static int conn_gadget_bind_config(struct usb_configuration *c)
 }
 #endif
 
+<<<<<<< HEAD
 
 static ssize_t conn_gadget_usb_buffer_size_show(struct device *dev,
         struct device_attribute *attr, char *buf) {
     if (!_conn_gadget_dev) {
         CONN_GADGET_ERR("_conn_gadget_dev is NULL\n");
         return -ENODEV;
+=======
+#ifdef CONFIG_F_CONN_GADGET_DEBUGFS
+static ssize_t conn_gadget_usb_buffer_size_show(struct device *dev,
+		struct device_attribute *attr, char *buf) {
+	if (!_conn_gadget_dev) {
+		CONN_GADGET_ERR("_conn_gadget_dev is NULL\n");
+	return -ENODEV;
+>>>>>>> upstream/android-13
     }
 
     return sprintf(buf, "%d\n", (_conn_gadget_dev->transfer_size / 1024));
@@ -1127,7 +1260,11 @@ static ssize_t conn_gadget_usb_buffer_size_store(struct device *dev,
 		return size;
 	}
 
+<<<<<<< HEAD
 	if (_conn_gadget_dev->rd_queue_buf) 
+=======
+	if (_conn_gadget_dev->rd_queue_buf)
+>>>>>>> upstream/android-13
 		vfree(_conn_gadget_dev->rd_queue_buf);
 
 	_conn_gadget_dev->transfer_size 	= value * 1024;
@@ -1135,12 +1272,20 @@ static ssize_t conn_gadget_usb_buffer_size_store(struct device *dev,
 	_conn_gadget_dev->rd_queue_buf 		= rd_queue_buf;
 
 	kfifo_reset(&_conn_gadget_dev->rd_queue);
+<<<<<<< HEAD
 	kfifo_init(&_conn_gadget_dev->rd_queue, 
+=======
+	kfifo_init(&_conn_gadget_dev->rd_queue,
+>>>>>>> upstream/android-13
 			_conn_gadget_dev->rd_queue_buf,
 			_conn_gadget_dev->rd_queue_size);
 
 	/* T/O/D/O: renew allocate requests for our endpoints */
+<<<<<<< HEAD
 	/* No need to reallocate in this time, 
+=======
+	/* No need to reallocate in this time,
+>>>>>>> upstream/android-13
 	 * Because at alt_set time, requests are newly allocated. */
 
 	return size;
@@ -1148,7 +1293,11 @@ static ssize_t conn_gadget_usb_buffer_size_store(struct device *dev,
 
 static ssize_t conn_gadget_out_max_packet_size_show(
 		struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr, char *buf) 
+=======
+		struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	if (!_conn_gadget_dev || !_conn_gadget_dev->ep_out) {
 		CONN_GADGET_ERR("_conn_gadget_dev is NULL\n");
@@ -1161,7 +1310,11 @@ static ssize_t conn_gadget_out_max_packet_size_show(
 static ssize_t conn_gadget_out_max_packet_size_store(
 		struct device *dev,
 		struct device_attribute *attr, const char *buf,
+<<<<<<< HEAD
 		size_t size) 
+=======
+		size_t size)
+>>>>>>> upstream/android-13
 {
 	CONN_GADGET_DBG("not supported\n");
 	return size;
@@ -1169,7 +1322,11 @@ static ssize_t conn_gadget_out_max_packet_size_store(
 
 static ssize_t conn_gadget_in_max_packet_size_show(
 		struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr, char *buf) 
+=======
+		struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	if (!_conn_gadget_dev || !_conn_gadget_dev->ep_in) {
 		CONN_GADGET_ERR("_conn_gadget_dev is NULL\n");
@@ -1182,7 +1339,11 @@ static ssize_t conn_gadget_in_max_packet_size_show(
 static ssize_t conn_gadget_in_max_packet_size_store(
 		struct device *dev,
 		struct device_attribute *attr, const char *buf,
+<<<<<<< HEAD
 		size_t size) 
+=======
+		size_t size)
+>>>>>>> upstream/android-13
 {
 	CONN_GADGET_DBG("not supported\n");
 	return size;
@@ -1204,22 +1365,40 @@ static DEVICE_ATTR(in_max_packet_size, S_IRUGO | S_IWUSR,
 
 
 static struct device_attribute *conn_gadget_function_attributes[] = {
+<<<<<<< HEAD
 	&dev_attr_usb_buffer_size, 
+=======
+	&dev_attr_usb_buffer_size,
+>>>>>>> upstream/android-13
 	&dev_attr_out_max_packet_size,
 	&dev_attr_in_max_packet_size,
 	NULL
 };
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> upstream/android-13
 extern struct device *create_function_device(char *name);
 
 static int conn_gadget_setup(struct conn_gadget_instance *fi_conn_gadget)
 {
 	struct conn_gadget_dev *dev;
 	struct device *android_dev;
+<<<<<<< HEAD
 	struct device_attribute **attrs;
 	struct device_attribute *attr;
 	int ret;
 	int err = 0;
+=======
+	int ret;
+#ifdef CONFIG_F_CONN_GADGET_DEBUGFS
+	struct device_attribute **attrs;
+	struct device_attribute *attr;
+	int err = 0;
+#endif
+
+>>>>>>> upstream/android-13
 
 	printk(KERN_INFO "conn_gadget_setup\n");
 
@@ -1265,6 +1444,7 @@ static int conn_gadget_setup(struct conn_gadget_instance *fi_conn_gadget)
 		printk(KERN_ERR "%s: misc_register f %d\n", __func__, ret);
 		goto err_;
 	}
+<<<<<<< HEAD
 	
 	android_dev = create_function_device("f_conn_gadget");
 	if (IS_ERR(android_dev))
@@ -1272,6 +1452,15 @@ static int conn_gadget_setup(struct conn_gadget_instance *fi_conn_gadget)
 
 	attrs = conn_gadget_function_attributes;
 	
+=======
+
+	android_dev = create_function_device("f_conn_gadget");
+	if (IS_ERR(android_dev))
+		return PTR_ERR(android_dev);
+#ifdef CONFIG_F_CONN_GADGET_DEBUGFS
+	attrs = conn_gadget_function_attributes;
+
+>>>>>>> upstream/android-13
 	if (attrs) {
 		while ((attr = *attrs++) && !err)
 			err = device_create_file(android_dev, attr);
@@ -1280,11 +1469,19 @@ static int conn_gadget_setup(struct conn_gadget_instance *fi_conn_gadget)
 			goto err_;
 		}
 	}
+<<<<<<< HEAD
 
 	return 0;
 err_:
 
 	if (dev->rd_queue_buf)
+=======
+#endif
+	return 0;
+err_:
+
+    if (dev->rd_queue_buf)
+>>>>>>> upstream/android-13
 		vfree(dev->rd_queue_buf);
 
 	_conn_gadget_dev = NULL;
@@ -1304,7 +1501,11 @@ static void conn_gadget_cleanup(struct kref *kref)
 
 	misc_deregister(&conn_gadget_device);
 
+<<<<<<< HEAD
 	if (_conn_gadget_dev->rd_queue_buf)
+=======
+    if (_conn_gadget_dev->rd_queue_buf)
+>>>>>>> upstream/android-13
 		vfree(_conn_gadget_dev->rd_queue_buf);
 
 	kfree(_conn_gadget_dev);
@@ -1379,15 +1580,26 @@ struct usb_function_instance *alloc_inst_conn_gadget(void)
 	int err;
 
 	fi_conn = kzalloc(sizeof(*fi_conn), GFP_KERNEL);
+<<<<<<< HEAD
 	
 	if (!fi_conn)
 		return ERR_PTR(-ENOMEM);
 	
+=======
+
+	if (!fi_conn)
+		return ERR_PTR(-ENOMEM);
+
+>>>>>>> upstream/android-13
 	fi_conn->func_inst.set_inst_name = conn_gadget_set_inst_name;
 	fi_conn->func_inst.free_func_inst = conn_gadget_free_inst;
 
 	err = conn_gadget_setup_configfs(fi_conn);
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	if (err) {
 		kfree(fi_conn);
 		pr_err("Error setting conn gadget\n");
@@ -1396,7 +1608,11 @@ struct usb_function_instance *alloc_inst_conn_gadget(void)
 
 	config_group_init_type_name(&fi_conn->func_inst.group,
 					"", &conn_gadget_func_type);
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	return  &fi_conn->func_inst;
 
 }
@@ -1430,6 +1646,10 @@ static struct usb_function *conn_gadget_alloc(struct usb_function_instance *fi)
 }
 
 DECLARE_USB_FUNCTION_INIT(conn_gadget, conn_gadget_alloc_inst, conn_gadget_alloc);
+<<<<<<< HEAD
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13
 
 /*
 static int conn_gadget_function_init(struct android_usb_function *f, struct usb_composite_dev *cdev)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Broadcom GENET (Gigabit Ethernet) Wake-on-LAN support
  *
@@ -6,6 +7,13 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Broadcom GENET (Gigabit Ethernet) Wake-on-LAN support
+ *
+ * Copyright (c) 2014-2020 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)				"bcmgenet_wol: " fmt
@@ -21,7 +29,10 @@
 #include <linux/delay.h>
 #include <linux/pm.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <net/arp.h>
 
@@ -44,6 +55,7 @@
 void bcmgenet_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 {
 	struct bcmgenet_priv *priv = netdev_priv(dev);
+<<<<<<< HEAD
 	u32 reg;
 
 	wol->supported = WAKE_MAGIC | WAKE_MAGICSECURE;
@@ -56,6 +68,22 @@ void bcmgenet_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 		reg = bcmgenet_umac_readl(priv, UMAC_MPD_PW_LS);
 		put_unaligned_be32(reg, &wol->sopass[2]);
 	}
+=======
+	struct device *kdev = &priv->pdev->dev;
+
+	if (!device_can_wakeup(kdev)) {
+		wol->supported = 0;
+		wol->wolopts = 0;
+		return;
+	}
+
+	wol->supported = WAKE_MAGIC | WAKE_MAGICSECURE | WAKE_FILTER;
+	wol->wolopts = priv->wolopts;
+	memset(wol->sopass, 0, sizeof(wol->sopass));
+
+	if (wol->wolopts & WAKE_MAGICSECURE)
+		memcpy(wol->sopass, priv->sopass, sizeof(priv->sopass));
+>>>>>>> upstream/android-13
 }
 
 /* ethtool function - set WOL (Wake on LAN) settings.
@@ -65,11 +93,15 @@ int bcmgenet_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 {
 	struct bcmgenet_priv *priv = netdev_priv(dev);
 	struct device *kdev = &priv->pdev->dev;
+<<<<<<< HEAD
 	u32 reg;
+=======
+>>>>>>> upstream/android-13
 
 	if (!device_can_wakeup(kdev))
 		return -ENOTSUPP;
 
+<<<<<<< HEAD
 	if (wol->wolopts & ~(WAKE_MAGIC | WAKE_MAGICSECURE))
 		return -EINVAL;
 
@@ -84,6 +116,13 @@ int bcmgenet_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 		reg &= ~MPD_PW_EN;
 	}
 	bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+=======
+	if (wol->wolopts & ~(WAKE_MAGIC | WAKE_MAGICSECURE | WAKE_FILTER))
+		return -EINVAL;
+
+	if (wol->wolopts & WAKE_MAGICSECURE)
+		memcpy(priv->sopass, wol->sopass, sizeof(priv->sopass));
+>>>>>>> upstream/android-13
 
 	/* Flag the device and relevant IRQ as wakeup capable */
 	if (wol->wolopts) {
@@ -123,40 +162,106 @@ static int bcmgenet_poll_wol_status(struct bcmgenet_priv *priv)
 	return retries;
 }
 
+<<<<<<< HEAD
+=======
+static void bcmgenet_set_mpd_password(struct bcmgenet_priv *priv)
+{
+	bcmgenet_umac_writel(priv, get_unaligned_be16(&priv->sopass[0]),
+			     UMAC_MPD_PW_MS);
+	bcmgenet_umac_writel(priv, get_unaligned_be32(&priv->sopass[2]),
+			     UMAC_MPD_PW_LS);
+}
+
+>>>>>>> upstream/android-13
 int bcmgenet_wol_power_down_cfg(struct bcmgenet_priv *priv,
 				enum bcmgenet_power_mode mode)
 {
 	struct net_device *dev = priv->dev;
+<<<<<<< HEAD
 	int retries = 0;
 	u32 reg;
+=======
+	struct bcmgenet_rxnfc_rule *rule;
+	u32 reg, hfb_ctrl_reg, hfb_enable = 0;
+	int retries = 0;
+>>>>>>> upstream/android-13
 
 	if (mode != GENET_POWER_WOL_MAGIC) {
 		netif_err(priv, wol, dev, "unsupported mode: %d\n", mode);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* disable RX */
 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
+=======
+	/* Can't suspend with WoL if MAC is still in reset */
+	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
+	if (reg & CMD_SW_RESET)
+		reg &= ~CMD_SW_RESET;
+
+	/* disable RX */
+>>>>>>> upstream/android-13
 	reg &= ~CMD_RX_EN;
 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
 	mdelay(10);
 
+<<<<<<< HEAD
 	reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
 	reg |= MPD_EN;
 	bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+=======
+	if (priv->wolopts & (WAKE_MAGIC | WAKE_MAGICSECURE)) {
+		reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
+		reg |= MPD_EN;
+		if (priv->wolopts & WAKE_MAGICSECURE) {
+			bcmgenet_set_mpd_password(priv);
+			reg |= MPD_PW_EN;
+		}
+		bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+	}
+
+	hfb_ctrl_reg = bcmgenet_hfb_reg_readl(priv, HFB_CTRL);
+	if (priv->wolopts & WAKE_FILTER) {
+		list_for_each_entry(rule, &priv->rxnfc_list, list)
+			if (rule->fs.ring_cookie == RX_CLS_FLOW_WAKE)
+				hfb_enable |= (1 << rule->fs.location);
+		reg = (hfb_ctrl_reg & ~RBUF_HFB_EN) | RBUF_ACPI_EN;
+		bcmgenet_hfb_reg_writel(priv, reg, HFB_CTRL);
+	}
+>>>>>>> upstream/android-13
 
 	/* Do not leave UniMAC in MPD mode only */
 	retries = bcmgenet_poll_wol_status(priv);
 	if (retries < 0) {
 		reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
+<<<<<<< HEAD
 		reg &= ~MPD_EN;
 		bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+=======
+		reg &= ~(MPD_EN | MPD_PW_EN);
+		bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+		bcmgenet_hfb_reg_writel(priv, hfb_ctrl_reg, HFB_CTRL);
+>>>>>>> upstream/android-13
 		return retries;
 	}
 
 	netif_dbg(priv, wol, dev, "MPD WOL-ready status set after %d msec\n",
 		  retries);
 
+<<<<<<< HEAD
+=======
+	clk_prepare_enable(priv->clk_wol);
+	priv->wol_active = 1;
+
+	if (hfb_enable) {
+		bcmgenet_hfb_reg_writel(priv, hfb_enable,
+					HFB_FLT_ENABLE_V3PLUS + 4);
+		hfb_ctrl_reg = RBUF_HFB_EN | RBUF_ACPI_EN;
+		bcmgenet_hfb_reg_writel(priv, hfb_ctrl_reg, HFB_CTRL);
+	}
+
+>>>>>>> upstream/android-13
 	/* Enable CRC forward */
 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
 	priv->crc_fwd_en = 1;
@@ -166,11 +271,19 @@ int bcmgenet_wol_power_down_cfg(struct bcmgenet_priv *priv,
 	reg |= CMD_RX_EN;
 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
 
+<<<<<<< HEAD
 	if (priv->hw_params->flags & GENET_HAS_EXT) {
 		reg = bcmgenet_ext_readl(priv, EXT_EXT_PWR_MGMT);
 		reg &= ~EXT_ENERGY_DET_MASK;
 		bcmgenet_ext_writel(priv, reg, EXT_EXT_PWR_MGMT);
 	}
+=======
+	reg = UMAC_IRQ_MPD_R;
+	if (hfb_enable)
+		reg |=  UMAC_IRQ_HFB_SM | UMAC_IRQ_HFB_MM;
+
+	bcmgenet_intrl2_0_writel(priv, reg, INTRL2_CPU_MASK_CLEAR);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -185,15 +298,45 @@ void bcmgenet_wol_power_up_cfg(struct bcmgenet_priv *priv,
 		return;
 	}
 
+<<<<<<< HEAD
 	reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
 	if (!(reg & MPD_EN))
 		return;	/* already powered up so skip the rest */
 	reg &= ~MPD_EN;
 	bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+=======
+	if (!priv->wol_active)
+		return;	/* failed to suspend so skip the rest */
+
+	priv->wol_active = 0;
+	clk_disable_unprepare(priv->clk_wol);
+	priv->crc_fwd_en = 0;
+
+	/* Disable Magic Packet Detection */
+	if (priv->wolopts & (WAKE_MAGIC | WAKE_MAGICSECURE)) {
+		reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
+		if (!(reg & MPD_EN))
+			return;	/* already reset so skip the rest */
+		reg &= ~(MPD_EN | MPD_PW_EN);
+		bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+	}
+
+	/* Disable WAKE_FILTER Detection */
+	if (priv->wolopts & WAKE_FILTER) {
+		reg = bcmgenet_hfb_reg_readl(priv, HFB_CTRL);
+		if (!(reg & RBUF_ACPI_EN))
+			return;	/* already reset so skip the rest */
+		reg &= ~(RBUF_HFB_EN | RBUF_ACPI_EN);
+		bcmgenet_hfb_reg_writel(priv, reg, HFB_CTRL);
+	}
+>>>>>>> upstream/android-13
 
 	/* Disable CRC Forward */
 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
 	reg &= ~CMD_CRC_FWD;
 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
+<<<<<<< HEAD
 	priv->crc_fwd_en = 0;
+=======
+>>>>>>> upstream/android-13
 }

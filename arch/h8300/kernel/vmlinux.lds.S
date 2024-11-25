@@ -1,4 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
+=======
+
+#define RO_EXCEPTION_TABLE_ALIGN	16
+
+>>>>>>> upstream/android-13
 #include <asm-generic/vmlinux.lds.h>
 #include <asm/page.h>
 #include <asm/thread_info.h>
@@ -37,9 +43,13 @@ SECTIONS
 #endif
 	_etext = . ;
 	}
+<<<<<<< HEAD
 	EXCEPTION_TABLE(16)
 	NOTES
 	RO_DATA_SECTION(4)
+=======
+	RO_DATA(4)
+>>>>>>> upstream/android-13
 	ROMEND = .;
 #if defined(CONFIG_ROMKERNEL)
 	. = RAMTOP;
@@ -48,7 +58,11 @@ SECTIONS
 #endif
 	_sdata = . ;
 	__data_start = . ;
+<<<<<<< HEAD
 	RW_DATA_SECTION(0, PAGE_SIZE, THREAD_SIZE)
+=======
+	RW_DATA(0, PAGE_SIZE, THREAD_SIZE)
+>>>>>>> upstream/android-13
 #if defined(CONFIG_ROMKERNEL)
 #undef ADDR
 #endif
@@ -56,7 +70,10 @@ SECTIONS
 	__init_begin = .;
 	INIT_TEXT_SECTION(4)
 	INIT_DATA_SECTION(4)
+<<<<<<< HEAD
 	SECURITY_INIT
+=======
+>>>>>>> upstream/android-13
 	__init_end = .;
 	_edata = . ;
 	_begin_data = LOADADDR(.data);

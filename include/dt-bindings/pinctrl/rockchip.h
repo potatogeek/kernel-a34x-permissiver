@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Header providing constants for Rockchip pinctrl bindings.
  *
  * Copyright (c) 2013 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,11 +18,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_ROCKCHIP_PINCTRL_H__
 #define __DT_BINDINGS_ROCKCHIP_PINCTRL_H__
 
+<<<<<<< HEAD
 #define RK_GPIO0	0
 #define RK_GPIO1	1
 #define RK_GPIO2	2
@@ -25,6 +33,8 @@
 #define RK_GPIO4	4
 #define RK_GPIO6	6
 
+=======
+>>>>>>> upstream/android-13
 #define RK_PA0		0
 #define RK_PA1		1
 #define RK_PA2		2
@@ -59,9 +69,12 @@
 #define RK_PD7		31
 
 #define RK_FUNC_GPIO	0
+<<<<<<< HEAD
 #define RK_FUNC_1	1
 #define RK_FUNC_2	2
 #define RK_FUNC_3	3
 #define RK_FUNC_4	4
+=======
+>>>>>>> upstream/android-13
 
 #endif

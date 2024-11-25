@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SMP support for BPA machines.
  *
@@ -5,11 +9,14 @@
  * Mike Corrigan {engebret|bergner|mikec}@us.ibm.com
  *
  * Plus various changes from other IBM teams...
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -25,12 +32,19 @@
 #include <linux/err.h>
 #include <linux/device.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ptrace.h>
 #include <linux/atomic.h>
 #include <asm/irq.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/prom.h>
 #include <asm/smp.h>
@@ -82,9 +96,12 @@ static inline int smp_startup_cpu(unsigned int lcpu)
 
 	pcpu = get_hard_smp_processor_id(lcpu);
 
+<<<<<<< HEAD
 	/* Fixup atomic count: it exited inside IRQ handler. */
 	task_thread_info(paca_ptrs[lcpu]->__current)->preempt_count	= 0;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If the RTAS start-cpu token does not exist then presume the
 	 * cpu is already spinning.

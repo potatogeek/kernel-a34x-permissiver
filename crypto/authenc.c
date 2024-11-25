@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Authenc: Simple AEAD wrapper for IPsec
  *
  * Copyright (c) 2007-2015 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/aead.h>
@@ -33,7 +40,11 @@ struct authenc_instance_ctx {
 struct crypto_authenc_ctx {
 	struct crypto_ahash *auth;
 	struct crypto_skcipher *enc;
+<<<<<<< HEAD
 	struct crypto_skcipher *null;
+=======
+	struct crypto_sync_skcipher *null;
+>>>>>>> upstream/android-13
 };
 
 struct authenc_request_ctx {
@@ -96,15 +107,22 @@ static int crypto_authenc_setkey(struct crypto_aead *authenc, const u8 *key,
 	int err = -EINVAL;
 
 	if (crypto_authenc_extractkeys(&keys, key, keylen) != 0)
+<<<<<<< HEAD
 		goto badkey;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	crypto_ahash_clear_flags(auth, CRYPTO_TFM_REQ_MASK);
 	crypto_ahash_set_flags(auth, crypto_aead_get_flags(authenc) &
 				    CRYPTO_TFM_REQ_MASK);
 	err = crypto_ahash_setkey(auth, keys.authkey, keys.authkeylen);
+<<<<<<< HEAD
 	crypto_aead_set_flags(authenc, crypto_ahash_get_flags(auth) &
 				       CRYPTO_TFM_RES_MASK);
 
+=======
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
@@ -112,6 +130,7 @@ static int crypto_authenc_setkey(struct crypto_aead *authenc, const u8 *key,
 	crypto_skcipher_set_flags(enc, crypto_aead_get_flags(authenc) &
 				       CRYPTO_TFM_REQ_MASK);
 	err = crypto_skcipher_setkey(enc, keys.enckey, keys.enckeylen);
+<<<<<<< HEAD
 	crypto_aead_set_flags(authenc, crypto_skcipher_get_flags(enc) &
 				       CRYPTO_TFM_RES_MASK);
 
@@ -122,6 +141,11 @@ out:
 badkey:
 	crypto_aead_set_flags(authenc, CRYPTO_TFM_RES_BAD_KEY_LEN);
 	goto out;
+=======
+out:
+	memzero_explicit(&keys, sizeof(keys));
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void authenc_geniv_ahash_done(struct crypto_async_request *areq, int err)
@@ -193,9 +217,15 @@ static int crypto_authenc_copy_assoc(struct aead_request *req)
 {
 	struct crypto_aead *authenc = crypto_aead_reqtfm(req);
 	struct crypto_authenc_ctx *ctx = crypto_aead_ctx(authenc);
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(skreq, ctx->null);
 
 	skcipher_request_set_tfm(skreq, ctx->null);
+=======
+	SYNC_SKCIPHER_REQUEST_ON_STACK(skreq, ctx->null);
+
+	skcipher_request_set_sync_tfm(skreq, ctx->null);
+>>>>>>> upstream/android-13
 	skcipher_request_set_callback(skreq, aead_request_flags(req),
 				      NULL, NULL);
 	skcipher_request_set_crypt(skreq, req->src, req->dst, req->assoclen,
@@ -268,7 +298,11 @@ static int crypto_authenc_decrypt_tail(struct aead_request *req,
 		dst = scatterwalk_ffwd(areq_ctx->dst, req->dst, req->assoclen);
 
 	skcipher_request_set_tfm(skreq, ctx->enc);
+<<<<<<< HEAD
 	skcipher_request_set_callback(skreq, aead_request_flags(req),
+=======
+	skcipher_request_set_callback(skreq, flags,
+>>>>>>> upstream/android-13
 				      req->base.complete, req->base.data);
 	skcipher_request_set_crypt(skreq, src, dst,
 				   req->cryptlen - authsize, req->iv);
@@ -326,7 +360,11 @@ static int crypto_authenc_init_tfm(struct crypto_aead *tfm)
 	struct crypto_authenc_ctx *ctx = crypto_aead_ctx(tfm);
 	struct crypto_ahash *auth;
 	struct crypto_skcipher *enc;
+<<<<<<< HEAD
 	struct crypto_skcipher *null;
+=======
+	struct crypto_sync_skcipher *null;
+>>>>>>> upstream/android-13
 	int err;
 
 	auth = crypto_spawn_ahash(&ictx->auth);
@@ -387,6 +425,7 @@ static void crypto_authenc_free(struct aead_instance *inst)
 static int crypto_authenc_create(struct crypto_template *tmpl,
 				 struct rtattr **tb)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct aead_instance *inst;
 	struct hash_alg_common *auth;
@@ -435,6 +474,36 @@ static int crypto_authenc_create(struct crypto_template *tmpl,
 	if (err)
 		goto err_drop_auth;
 
+=======
+	u32 mask;
+	struct aead_instance *inst;
+	struct authenc_instance_ctx *ctx;
+	struct hash_alg_common *auth;
+	struct crypto_alg *auth_base;
+	struct skcipher_alg *enc;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_AEAD, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	ctx = aead_instance_ctx(inst);
+
+	err = crypto_grab_ahash(&ctx->auth, aead_crypto_instance(inst),
+				crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	auth = crypto_spawn_ahash_alg(&ctx->auth);
+	auth_base = &auth->base;
+
+	err = crypto_grab_skcipher(&ctx->enc, aead_crypto_instance(inst),
+				   crypto_attr_alg_name(tb[2]), 0, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 	enc = crypto_spawn_skcipher_alg(&ctx->enc);
 
 	ctx->reqoff = ALIGN(2 * auth->digestsize + auth_base->cra_alignmask,
@@ -445,15 +514,24 @@ static int crypto_authenc_create(struct crypto_template *tmpl,
 		     "authenc(%s,%s)", auth_base->cra_name,
 		     enc->base.cra_name) >=
 	    CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto err_drop_enc;
+=======
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
 		     "authenc(%s,%s)", auth_base->cra_driver_name,
 		     enc->base.cra_driver_name) >= CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto err_drop_enc;
 
 	inst->alg.base.cra_flags = (auth_base->cra_flags |
 				    enc->base.cra_flags) & CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_priority = enc->base.cra_priority * 10 +
 				      auth_base->cra_priority;
 	inst->alg.base.cra_blocksize = enc->base.cra_blocksize;
@@ -475,6 +553,7 @@ static int crypto_authenc_create(struct crypto_template *tmpl,
 	inst->free = crypto_authenc_free;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto err_drop_enc;
 
@@ -490,6 +569,13 @@ err_free_inst:
 	kfree(inst);
 out_put_auth:
 	goto out;
+=======
+	if (err) {
+err_free_inst:
+		crypto_authenc_free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template crypto_authenc_tmpl = {
@@ -508,7 +594,11 @@ static void __exit crypto_authenc_module_exit(void)
 	crypto_unregister_template(&crypto_authenc_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_authenc_module_init);
+=======
+subsys_initcall(crypto_authenc_module_init);
+>>>>>>> upstream/android-13
 module_exit(crypto_authenc_module_exit);
 
 MODULE_LICENSE("GPL");

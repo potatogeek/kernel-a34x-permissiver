@@ -797,7 +797,11 @@ static s32 e1000_poll_fiber_serdes_link_generic(struct e1000_hw *hw)
 	 * milliseconds even if the other end is doing it in SW).
 	 */
 	for (i = 0; i < FIBER_LINK_UP_LIMIT; i++) {
+<<<<<<< HEAD
 		usleep_range(10000, 20000);
+=======
+		usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 		status = er32(STATUS);
 		if (status & E1000_STATUS_LU)
 			break;
@@ -1363,7 +1367,11 @@ s32 e1000e_get_hw_semaphore(struct e1000_hw *hw)
 		if (!(swsm & E1000_SWSM_SMBI))
 			break;
 
+<<<<<<< HEAD
 		usleep_range(50, 100);
+=======
+		udelay(100);
+>>>>>>> upstream/android-13
 		i++;
 	}
 
@@ -1381,7 +1389,11 @@ s32 e1000e_get_hw_semaphore(struct e1000_hw *hw)
 		if (er32(SWSM) & E1000_SWSM_SWESMBI)
 			break;
 
+<<<<<<< HEAD
 		usleep_range(50, 100);
+=======
+		udelay(100);
+>>>>>>> upstream/android-13
 	}
 
 	if (i == timeout) {

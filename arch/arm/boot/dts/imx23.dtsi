@@ -76,7 +76,11 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			gpmi-nand@8000c000 {
+=======
+			nand-controller@8000c000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx23-gpmi-nand";
 				#address-cells = <1>;
 				#size-cells = <1>;
@@ -91,7 +95,11 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			ssp0: ssp@80010000 {
+=======
+			ssp0: spi@80010000 {
+>>>>>>> upstream/android-13
 				reg = <0x80010000 0x2000>;
 				interrupts = <15>;
 				clocks = <&clks 33>;
@@ -267,6 +275,17 @@
 					fsl,pull-up = <MXS_PULL_DISABLE>;
 				};
 
+<<<<<<< HEAD
+=======
+				mmc0_sck_cfg: mmc0-sck-cfg@0 {
+					reg = <0>;
+					fsl,pinmux-ids = <
+						MX23_PAD_SSP1_SCK__SSP1_SCK
+					>;
+					fsl,pull-up = <MXS_PULL_DISABLE>;
+				};
+
+>>>>>>> upstream/android-13
 				mmc1_4bit_pins_a: mmc1-4bit@0 {
 					reg = <0>;
 					fsl,pinmux-ids = <
@@ -422,7 +441,11 @@
 				clocks = <&clks 16>;
 			};
 
+<<<<<<< HEAD
 			dcp@80028000 {
+=======
+			dcp: crypto@80028000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx23-dcp";
 				reg = <0x80028000 0x2000>;
 				interrupts = <53 54>;
@@ -434,7 +457,11 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			ocotp@8002c000 {
+=======
+			efuse@8002c000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx23-ocotp", "fsl,ocotp";
 				#address-cells = <1>;
 				#size-cells = <1>;
@@ -455,7 +482,11 @@
 				status = "disabled";
 			};
 
+<<<<<<< HEAD
 			ssp1: ssp@80034000 {
+=======
+			ssp1: spi@80034000 {
+>>>>>>> upstream/android-13
 				reg = <0x80034000 0x2000>;
 				interrupts = <2>;
 				clocks = <&clks 33>;

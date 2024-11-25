@@ -40,6 +40,7 @@
 
 #include "mlx4_ib.h"
 
+<<<<<<< HEAD
 static struct ib_ah *create_ib_ah(struct ib_pd *pd,
 				  struct rdma_ah_attr *ah_attr,
 				  struct mlx4_ib_ah *ah)
@@ -47,6 +48,14 @@ static struct ib_ah *create_ib_ah(struct ib_pd *pd,
 	struct mlx4_dev *dev = to_mdev(pd->device)->dev;
 
 	ah->av.ib.port_pd = cpu_to_be32(to_mpd(pd)->pdn |
+=======
+static void create_ib_ah(struct ib_ah *ib_ah, struct rdma_ah_attr *ah_attr)
+{
+	struct mlx4_ib_ah *ah = to_mah(ib_ah);
+	struct mlx4_dev *dev = to_mdev(ib_ah->device)->dev;
+
+	ah->av.ib.port_pd = cpu_to_be32(to_mpd(ib_ah->pd)->pdn |
+>>>>>>> upstream/android-13
 			    (rdma_ah_get_port_num(ah_attr) << 24));
 	ah->av.ib.g_slid  = rdma_ah_get_path_bits(ah_attr);
 	ah->av.ib.sl_tclass_flowlabel =
@@ -73,6 +82,7 @@ static struct ib_ah *create_ib_ah(struct ib_pd *pd,
 			--static_rate;
 		ah->av.ib.stat_rate = static_rate;
 	}
+<<<<<<< HEAD
 
 	return &ah->ibah;
 }
@@ -82,6 +92,14 @@ static struct ib_ah *create_iboe_ah(struct ib_pd *pd,
 				    struct mlx4_ib_ah *ah)
 {
 	struct mlx4_ib_dev *ibdev = to_mdev(pd->device);
+=======
+}
+
+static int create_iboe_ah(struct ib_ah *ib_ah, struct rdma_ah_attr *ah_attr)
+{
+	struct mlx4_ib_dev *ibdev = to_mdev(ib_ah->device);
+	struct mlx4_ib_ah *ah = to_mah(ib_ah);
+>>>>>>> upstream/android-13
 	const struct ib_gid_attr *gid_attr;
 	struct mlx4_dev *dev = ibdev->dev;
 	int is_mcast = 0;
@@ -103,12 +121,23 @@ static struct ib_ah *create_iboe_ah(struct ib_pd *pd,
 	 */
 	gid_attr = ah_attr->grh.sgid_attr;
 	if (gid_attr) {
+<<<<<<< HEAD
 		if (is_vlan_dev(gid_attr->ndev))
 			vlan_tag = vlan_dev_vlan_id(gid_attr->ndev);
 		memcpy(ah->av.eth.s_mac, gid_attr->ndev->dev_addr, ETH_ALEN);
 		ret = mlx4_ib_gid_index_to_real_index(ibdev, gid_attr);
 		if (ret < 0)
 			return ERR_PTR(ret);
+=======
+		ret = rdma_read_gid_l2_fields(gid_attr, &vlan_tag,
+					      &ah->av.eth.s_mac[0]);
+		if (ret)
+			return ret;
+
+		ret = mlx4_ib_gid_index_to_real_index(ibdev, gid_attr);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 		ah->av.eth.gid_index = ret;
 	} else {
 		/* mlx4_ib_create_ah_slave fills in the s_mac and the vlan */
@@ -117,7 +146,11 @@ static struct ib_ah *create_iboe_ah(struct ib_pd *pd,
 
 	if (vlan_tag < 0x1000)
 		vlan_tag |= (rdma_ah_get_sl(ah_attr) & 7) << 13;
+<<<<<<< HEAD
 	ah->av.eth.port_pd = cpu_to_be32(to_mpd(pd)->pdn |
+=======
+	ah->av.eth.port_pd = cpu_to_be32(to_mpd(ib_ah->pd)->pdn |
+>>>>>>> upstream/android-13
 					 (rdma_ah_get_port_num(ah_attr) << 24));
 	ah->av.eth.vlan = cpu_to_be16(vlan_tag);
 	ah->av.eth.hop_limit = grh->hop_limit;
@@ -140,6 +173,7 @@ static struct ib_ah *create_iboe_ah(struct ib_pd *pd,
 	memcpy(ah->av.eth.dgid, grh->dgid.raw, 16);
 	ah->av.eth.sl_tclass_flowlabel |= cpu_to_be32(rdma_ah_get_sl(ah_attr)
 						      << 29);
+<<<<<<< HEAD
 	return &ah->ibah;
 }
 
@@ -197,6 +231,50 @@ struct ib_ah *mlx4_ib_create_ah_slave(struct ib_pd *pd,
 	ah->pd = pd;
 	ah->type = ah_attr->type;
 	mah = to_mah(ah);
+=======
+	return 0;
+}
+
+int mlx4_ib_create_ah(struct ib_ah *ib_ah, struct rdma_ah_init_attr *init_attr,
+		      struct ib_udata *udata)
+{
+	struct rdma_ah_attr *ah_attr = init_attr->ah_attr;
+
+	if (ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
+		if (!(rdma_ah_get_ah_flags(ah_attr) & IB_AH_GRH))
+			return -EINVAL;
+		/*
+		 * TBD: need to handle the case when we get
+		 * called in an atomic context and there we
+		 * might sleep.  We don't expect this
+		 * currently since we're working with link
+		 * local addresses which we can translate
+		 * without going to sleep.
+		 */
+		return create_iboe_ah(ib_ah, ah_attr);
+	}
+
+	create_ib_ah(ib_ah, ah_attr);
+	return 0;
+}
+
+int mlx4_ib_create_ah_slave(struct ib_ah *ah, struct rdma_ah_attr *ah_attr,
+			    int slave_sgid_index, u8 *s_mac, u16 vlan_tag)
+{
+	struct rdma_ah_attr slave_attr = *ah_attr;
+	struct rdma_ah_init_attr init_attr = {};
+	struct mlx4_ib_ah *mah = to_mah(ah);
+	int ret;
+
+	slave_attr.grh.sgid_attr = NULL;
+	slave_attr.grh.sgid_index = slave_sgid_index;
+	init_attr.ah_attr = &slave_attr;
+	ret = mlx4_ib_create_ah(ah, &init_attr, NULL);
+	if (ret)
+		return ret;
+
+	ah->type = ah_attr->type;
+>>>>>>> upstream/android-13
 
 	/* get rid of force-loopback bit */
 	mah->av.ib.port_pd &= cpu_to_be32(0x7FFFFFFF);
@@ -208,7 +286,11 @@ struct ib_ah *mlx4_ib_create_ah_slave(struct ib_pd *pd,
 		vlan_tag |= (rdma_ah_get_sl(ah_attr) & 7) << 13;
 	mah->av.eth.vlan = cpu_to_be16(vlan_tag);
 
+<<<<<<< HEAD
 	return ah;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int mlx4_ib_query_ah(struct ib_ah *ibah, struct rdma_ah_attr *ah_attr)
@@ -249,9 +331,12 @@ int mlx4_ib_query_ah(struct ib_ah *ibah, struct rdma_ah_attr *ah_attr)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 int mlx4_ib_destroy_ah(struct ib_ah *ah)
 {
 	kfree(to_mah(ah));
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

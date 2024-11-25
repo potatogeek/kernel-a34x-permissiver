@@ -14,7 +14,10 @@
  */
 
 #include <linux/atomic.h>
+<<<<<<< HEAD
 #include <linux/cpufreq_times.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/hashtable.h>
 #include <linux/init.h>
@@ -137,7 +140,11 @@ static void get_full_task_comm(struct task_entry *task_entry,
 
 	/* next the executable file name */
 	if (mm) {
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
+=======
+		mmap_write_lock(mm);
+>>>>>>> upstream/android-13
 		if (mm->exe_file) {
 			char *pathname = d_path(&mm->exe_file->f_path, buf,
 					unused_len);
@@ -150,7 +157,11 @@ static void get_full_task_comm(struct task_entry *task_entry,
 				unused_len--;
 			}
 		}
+<<<<<<< HEAD
 		up_read(&mm->mmap_sem);
+=======
+		mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	}
 	unused_len -= len;
 
@@ -385,11 +396,19 @@ static int uid_cputime_open(struct inode *inode, struct file *file)
 	return single_open(file, uid_cputime_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations uid_cputime_fops = {
 	.open		= uid_cputime_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
+=======
+static const struct proc_ops uid_cputime_fops = {
+	.proc_open	= uid_cputime_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int uid_remove_open(struct inode *inode, struct file *file)
@@ -404,8 +423,12 @@ static ssize_t uid_remove_write(struct file *file,
 	struct hlist_node *tmp;
 	char uids[128];
 	char *start_uid, *end_uid = NULL;
+<<<<<<< HEAD
 	uid_t uid_start = 0, uid_end = 0;
 	u64 uid;
+=======
+	long int uid_start = 0, uid_end = 0;
+>>>>>>> upstream/android-13
 
 	if (count >= sizeof(uids))
 		count = sizeof(uids) - 1;
@@ -420,6 +443,7 @@ static ssize_t uid_remove_write(struct file *file,
 	if (!start_uid || !end_uid)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (kstrtouint(start_uid, 10, &uid_start) != 0 ||
 		kstrtouint(end_uid, 10, &uid_end) != 0) {
 		return -EINVAL;
@@ -437,6 +461,19 @@ static ssize_t uid_remove_write(struct file *file,
 		hash_for_each_possible_safe(hash_table, uid_entry, tmp,
 							hash, uid) {
 			if (uid == uid_entry->uid) {
+=======
+	if (kstrtol(start_uid, 10, &uid_start) != 0 ||
+		kstrtol(end_uid, 10, &uid_end) != 0) {
+		return -EINVAL;
+	}
+
+	rt_mutex_lock(&uid_lock);
+
+	for (; uid_start <= uid_end; uid_start++) {
+		hash_for_each_possible_safe(hash_table, uid_entry, tmp,
+							hash, (uid_t)uid_start) {
+			if (uid_start == uid_entry->uid) {
+>>>>>>> upstream/android-13
 				remove_uid_tasks(uid_entry);
 				hash_del(&uid_entry->hash);
 				kfree(uid_entry);
@@ -448,10 +485,17 @@ static ssize_t uid_remove_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations uid_remove_fops = {
 	.open		= uid_remove_open,
 	.release	= single_release,
 	.write		= uid_remove_write,
+=======
+static const struct proc_ops uid_remove_fops = {
+	.proc_open	= uid_remove_open,
+	.proc_release	= single_release,
+	.proc_write	= uid_remove_write,
+>>>>>>> upstream/android-13
 };
 
 
@@ -567,11 +611,19 @@ static int uid_io_open(struct inode *inode, struct file *file)
 	return single_open(file, uid_io_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations uid_io_fops = {
 	.open		= uid_io_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
+=======
+static const struct proc_ops uid_io_fops = {
+	.proc_open	= uid_io_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int uid_procstat_open(struct inode *inode, struct file *file)
@@ -624,10 +676,17 @@ static ssize_t uid_procstat_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations uid_procstat_fops = {
 	.open		= uid_procstat_open,
 	.release	= single_release,
 	.write		= uid_procstat_write,
+=======
+static const struct proc_ops uid_procstat_fops = {
+	.proc_open	= uid_procstat_open,
+	.proc_release	= single_release,
+	.proc_write	= uid_procstat_write,
+>>>>>>> upstream/android-13
 };
 
 static int process_notifier(struct notifier_block *self,

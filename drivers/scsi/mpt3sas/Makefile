@@ -7,4 +7,9 @@ mpt3sas-y +=  mpt3sas_base.o     \
 		mpt3sas_transport.o     \
 		mpt3sas_ctl.o	\
 		mpt3sas_trigger_diag.o \
+<<<<<<< HEAD
 		mpt3sas_warpdrive.o
+=======
+		mpt3sas_warpdrive.o \
+		mpt3sas_debugfs.o \
+>>>>>>> upstream/android-13

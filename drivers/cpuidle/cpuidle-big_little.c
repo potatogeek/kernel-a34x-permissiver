@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013 ARM/Linaro
  *
@@ -5,10 +9,13 @@
  *          Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
  *          Nicolas Pitre <nicolas.pitre@linaro.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Maintainer: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
  * Maintainer: Daniel Lezcano <daniel.lezcano@linaro.org>
  */
@@ -158,8 +165,12 @@ static int __init bl_idle_driver_init(struct cpuidle_driver *drv, int part_id)
 
 static const struct of_device_id compatible_machine_match[] = {
 	{ .compatible = "arm,vexpress,v2p-ca15_a7" },
+<<<<<<< HEAD
 	{ .compatible = "samsung,exynos5420" },
 	{ .compatible = "samsung,exynos5800" },
+=======
+	{ .compatible = "google,peach" },
+>>>>>>> upstream/android-13
 	{},
 };
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * binfmt_misc.c
  *
@@ -22,6 +26,10 @@
 #include <linux/pagemap.h>
 #include <linux/namei.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/syscalls.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
@@ -132,7 +140,10 @@ static int load_misc_binary(struct linux_binprm *bprm)
 	Node *fmt;
 	struct file *interp_file = NULL;
 	int retval;
+<<<<<<< HEAD
 	int fd_binary = -1;
+=======
+>>>>>>> upstream/android-13
 
 	retval = -ENOEXEC;
 	if (!enabled)
@@ -152,12 +163,19 @@ static int load_misc_binary(struct linux_binprm *bprm)
 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
 		goto ret;
 
+<<<<<<< HEAD
 	if (!(fmt->flags & MISC_FMT_PRESERVE_ARGV0)) {
+=======
+	if (fmt->flags & MISC_FMT_PRESERVE_ARGV0) {
+		bprm->interp_flags |= BINPRM_FLAGS_PRESERVE_ARGV0;
+	} else {
+>>>>>>> upstream/android-13
 		retval = remove_arg_zero(bprm);
 		if (retval)
 			goto ret;
 	}
 
+<<<<<<< HEAD
 	if (fmt->flags & MISC_FMT_OPEN_BINARY) {
 
 		/* if the binary should be opened on behalf of the
@@ -197,12 +215,31 @@ static int load_misc_binary(struct linux_binprm *bprm)
 	retval = copy_strings_kernel(1, &fmt->interpreter, bprm);
 	if (retval < 0)
 		goto error;
+=======
+	if (fmt->flags & MISC_FMT_OPEN_BINARY)
+		bprm->have_execfd = 1;
+
+	/* make argv[1] be the path to the binary */
+	retval = copy_string_kernel(bprm->interp, bprm);
+	if (retval < 0)
+		goto ret;
+	bprm->argc++;
+
+	/* add the interp as argv[0] */
+	retval = copy_string_kernel(fmt->interpreter, bprm);
+	if (retval < 0)
+		goto ret;
+>>>>>>> upstream/android-13
 	bprm->argc++;
 
 	/* Update interp in case binfmt_script needs it. */
 	retval = bprm_change_interp(fmt->interpreter, bprm);
 	if (retval < 0)
+<<<<<<< HEAD
 		goto error;
+=======
+		goto ret;
+>>>>>>> upstream/android-13
 
 	if (fmt->flags & MISC_FMT_OPEN_FILE) {
 		interp_file = file_clone_open(fmt->interp_file);
@@ -213,6 +250,7 @@ static int load_misc_binary(struct linux_binprm *bprm)
 	}
 	retval = PTR_ERR(interp_file);
 	if (IS_ERR(interp_file))
+<<<<<<< HEAD
 		goto error;
 
 	bprm->file = interp_file;
@@ -245,6 +283,18 @@ error:
 	bprm->interp_flags = 0;
 	bprm->interp_data = 0;
 	goto ret;
+=======
+		goto ret;
+
+	bprm->interpreter = interp_file;
+	if (fmt->flags & MISC_FMT_CREDENTIALS)
+		bprm->execfd_creds = 1;
+
+	retval = 0;
+ret:
+	dput(fmt->dentry);
+	return retval;
+>>>>>>> upstream/android-13
 }
 
 /* Command parsers */
@@ -819,7 +869,11 @@ static const struct super_operations s_ops = {
 	.evict_inode	= bm_evict_inode,
 };
 
+<<<<<<< HEAD
 static int bm_fill_super(struct super_block *sb, void *data, int silent)
+=======
+static int bm_fill_super(struct super_block *sb, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	int err;
 	static const struct tree_descr bm_files[] = {
@@ -834,10 +888,26 @@ static int bm_fill_super(struct super_block *sb, void *data, int silent)
 	return err;
 }
 
+<<<<<<< HEAD
 static struct dentry *bm_mount(struct file_system_type *fs_type,
 	int flags, const char *dev_name, void *data)
 {
 	return mount_single(fs_type, flags, data, bm_fill_super);
+=======
+static int bm_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, bm_fill_super);
+}
+
+static const struct fs_context_operations bm_context_ops = {
+	.get_tree	= bm_get_tree,
+};
+
+static int bm_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &bm_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct linux_binfmt misc_format = {
@@ -848,7 +918,11 @@ static struct linux_binfmt misc_format = {
 static struct file_system_type bm_fs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "binfmt_misc",
+<<<<<<< HEAD
 	.mount		= bm_mount,
+=======
+	.init_fs_context = bm_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_litter_super,
 };
 MODULE_ALIAS_FS("binfmt_misc");
@@ -870,3 +944,7 @@ static void __exit exit_misc_binfmt(void)
 core_initcall(init_misc_binfmt);
 module_exit(exit_misc_binfmt);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

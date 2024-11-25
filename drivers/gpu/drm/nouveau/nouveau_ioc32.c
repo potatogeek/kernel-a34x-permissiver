@@ -33,7 +33,12 @@
 
 #include <linux/compat.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <drm/drm.h>
+#include <drm/drm_ioctl.h>
+>>>>>>> upstream/android-13
 
 #include "nouveau_ioctl.h"
 

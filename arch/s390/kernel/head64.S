@@ -14,6 +14,7 @@
 #include <asm/asm-offsets.h>
 #include <asm/thread_info.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 
 __HEAD
 ENTRY(startup_continue)
@@ -30,11 +31,22 @@ ENTRY(startup_continue)
 					# move IPL device to lowcore
 	larl	%r0,boot_vdso_data
 	stg	%r0,__LC_VDSO_PER_CPU
+=======
+#include <asm/ptrace.h>
+
+__HEAD
+ENTRY(startup_continue)
+	larl	%r1,tod_clock_base
+	mvc	0(16,%r1),__LC_BOOT_CLOCK
+	larl	%r13,.LPG1		# get base
+	lctlg	%c0,%c15,.Lctl-.LPG1(%r13)	# load control registers
+>>>>>>> upstream/android-13
 #
 # Setup stack
 #
 	larl	%r14,init_task
 	stg	%r14,__LC_CURRENT
+<<<<<<< HEAD
 	larl	%r15,init_thread_union
 	aghi	%r15,1<<(PAGE_SHIFT+THREAD_SIZE_ORDER) # init_task_union + THREAD_SIZE
 	stg	%r15,__LC_KERNEL_STACK	# set end of kernel stack
@@ -57,6 +69,14 @@ ENTRY(startup_continue)
 
 	lam	0,15,.Laregs-.LPG1(%r13)	# load acrs needed by uaccess
 	brasl	%r14,start_kernel		# go to C code
+=======
+	larl	%r15,init_thread_union+THREAD_SIZE-STACK_FRAME_OVERHEAD-__PT_SIZE
+#ifdef CONFIG_KASAN
+	brasl	%r14,kasan_early_init
+#endif
+	brasl	%r14,startup_init		# s390 specific early init
+	brasl	%r14,start_kernel		# common init code
+>>>>>>> upstream/android-13
 #
 # We returned from start_kernel ?!? PANIK
 #
@@ -65,6 +85,7 @@ ENTRY(startup_continue)
 
 	.align	16
 .LPG1:
+<<<<<<< HEAD
 .Lctl:	.quad	0x04040000		# cr0: AFP registers & secondary space
 	.quad	0			# cr1: primary space segment table
 	.quad	.Lduct			# cr2: dispatchable unit control table
@@ -75,11 +96,25 @@ ENTRY(startup_continue)
 	.quad	0			# cr7:	secondary space segment table
 	.quad	0			# cr8:	access registers translation
 	.quad	0			# cr9:	tracing off
+=======
+.Ldw:	.quad	0x0002000180000000,0x0000000000000000
+.Lctl:	.quad	0x04040000		# cr0: AFP registers & secondary space
+	.quad	0			# cr1: primary space segment table
+	.quad	0			# cr2: dispatchable unit control table
+	.quad	0			# cr3: instruction authorization
+	.quad	0xffff			# cr4: instruction authorization
+	.quad	0			# cr5: primary-aste origin
+	.quad	0			# cr6: I/O interrupts
+	.quad	0			# cr7: secondary space segment table
+	.quad	0x0000000000008000	# cr8: access registers translation
+	.quad	0			# cr9: tracing off
+>>>>>>> upstream/android-13
 	.quad	0			# cr10: tracing off
 	.quad	0			# cr11: tracing off
 	.quad	0			# cr12: tracing off
 	.quad	0			# cr13: home space segment table
 	.quad	0xc0000000		# cr14: machine check handling off
+<<<<<<< HEAD
 	.quad	.Llinkage_stack		# cr15: linkage stack operations
 .Lpcmsk:.quad	0x0000000180000000
 .L4malign:.quad 0xffffffffffc00000
@@ -99,3 +134,6 @@ ENTRY(startup_continue)
 	.long	0,0,0x89000000,0,0,0,0x8a000000,0
 .Ldw:	.quad	0x0002000180000000,0x0000000000000000
 .Laregs:.long	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+=======
+	.quad	0			# cr15: linkage stack operations
+>>>>>>> upstream/android-13

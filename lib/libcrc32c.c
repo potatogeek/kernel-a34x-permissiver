@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* 
  * CRC32C
  *@Article{castagnoli-crc,
@@ -11,7 +15,11 @@
  * pages =        {},
  * month =        {June},
  *}
+<<<<<<< HEAD
  * Used by the iSCSI driver, possibly others, and derived from the
+=======
+ * Used by the iSCSI driver, possibly others, and derived from
+>>>>>>> upstream/android-13
  * the iscsi-crc.c module of the linux-iscsi driver at
  * http://linux-iscsi.sourceforge.net.
  *
@@ -23,12 +31,15 @@
  *  <endoflist>
  *
  * Copyright (c) 2004 Cisco Systems, Inc.
+<<<<<<< HEAD
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option) 
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/hash.h>
@@ -47,7 +58,10 @@ u32 crc32c(u32 crc, const void *address, unsigned int length)
 	int err;
 
 	shash->tfm = tfm;
+<<<<<<< HEAD
 	shash->flags = 0;
+=======
+>>>>>>> upstream/android-13
 	*ctx = crc;
 
 	err = crypto_shash_update(shash, address, length);

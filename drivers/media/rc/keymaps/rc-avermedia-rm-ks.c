@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AverMedia RM-KS remote controller keytable
  *
  * Copyright (C) 2010 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -33,6 +40,7 @@ static struct rc_map_table avermedia_rm_ks[] = {
 	{ 0x0506, KEY_MUTE }, /* Mute */
 	{ 0x0507, KEY_AGAIN }, /* Recall */
 	{ 0x0508, KEY_VIDEO }, /* Source */
+<<<<<<< HEAD
 	{ 0x0509, KEY_1 }, /* 1 */
 	{ 0x050a, KEY_2 }, /* 2 */
 	{ 0x050b, KEY_3 }, /* 3 */
@@ -43,6 +51,18 @@ static struct rc_map_table avermedia_rm_ks[] = {
 	{ 0x0510, KEY_8 }, /* 8 */
 	{ 0x0511, KEY_9 }, /* 9 */
 	{ 0x0512, KEY_0 }, /* 0 */
+=======
+	{ 0x0509, KEY_NUMERIC_1 }, /* 1 */
+	{ 0x050a, KEY_NUMERIC_2 }, /* 2 */
+	{ 0x050b, KEY_NUMERIC_3 }, /* 3 */
+	{ 0x050c, KEY_NUMERIC_4 }, /* 4 */
+	{ 0x050d, KEY_NUMERIC_5 }, /* 5 */
+	{ 0x050e, KEY_NUMERIC_6 }, /* 6 */
+	{ 0x050f, KEY_NUMERIC_7 }, /* 7 */
+	{ 0x0510, KEY_NUMERIC_8 }, /* 8 */
+	{ 0x0511, KEY_NUMERIC_9 }, /* 9 */
+	{ 0x0512, KEY_NUMERIC_0 }, /* 0 */
+>>>>>>> upstream/android-13
 	{ 0x0513, KEY_AUDIO }, /* Audio */
 	{ 0x0515, KEY_EPG }, /* EPG */
 	{ 0x0516, KEY_PLAYPAUSE }, /* Play/Pause */

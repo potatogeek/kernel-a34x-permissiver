@@ -16,20 +16,34 @@
 /********************************************************************/
 int orinoco_mic_init(struct orinoco_private *priv)
 {
+<<<<<<< HEAD
 	priv->tx_tfm_mic = crypto_alloc_shash("michael_mic", 0,
 					      CRYPTO_ALG_ASYNC);
 	if (IS_ERR(priv->tx_tfm_mic)) {
 		printk(KERN_DEBUG "orinoco_mic_init: could not allocate "
 		       "crypto API michael_mic\n");
+=======
+	priv->tx_tfm_mic = crypto_alloc_shash("michael_mic", 0, 0);
+	if (IS_ERR(priv->tx_tfm_mic)) {
+		printk(KERN_DEBUG "%s: could not allocate "
+		       "crypto API michael_mic\n", __func__);
+>>>>>>> upstream/android-13
 		priv->tx_tfm_mic = NULL;
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	priv->rx_tfm_mic = crypto_alloc_shash("michael_mic", 0,
 					      CRYPTO_ALG_ASYNC);
 	if (IS_ERR(priv->rx_tfm_mic)) {
 		printk(KERN_DEBUG "orinoco_mic_init: could not allocate "
 		       "crypto API michael_mic\n");
+=======
+	priv->rx_tfm_mic = crypto_alloc_shash("michael_mic", 0, 0);
+	if (IS_ERR(priv->rx_tfm_mic)) {
+		printk(KERN_DEBUG "%s: could not allocate "
+		       "crypto API michael_mic\n", __func__);
+>>>>>>> upstream/android-13
 		priv->rx_tfm_mic = NULL;
 		return -ENOMEM;
 	}
@@ -54,7 +68,11 @@ int orinoco_mic(struct crypto_shash *tfm_michael, u8 *key,
 	int err;
 
 	if (tfm_michael == NULL) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "orinoco_mic: tfm_michael == NULL\n");
+=======
+		printk(KERN_WARNING "%s: tfm_michael == NULL\n", __func__);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -67,7 +85,10 @@ int orinoco_mic(struct crypto_shash *tfm_michael, u8 *key,
 	hdr[ETH_ALEN * 2 + 3] = 0;
 
 	desc->tfm = tfm_michael;
+<<<<<<< HEAD
 	desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	err = crypto_shash_setkey(tfm_michael, key, MIC_KEYLEN);
 	if (err)

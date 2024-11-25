@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # Makefile for the Tensilica xtavnet Emulation Board
 #
 # Note! Dependencies are done automagically by 'make dep', which also

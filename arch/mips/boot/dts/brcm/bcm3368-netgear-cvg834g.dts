@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 
+<<<<<<< HEAD
 /include/ "bcm3368.dtsi"
+=======
+#include "bcm3368.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	compatible = "netgear,cvg834g", "brcm,bcm3368";

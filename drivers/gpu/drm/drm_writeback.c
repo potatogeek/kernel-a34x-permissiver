@@ -9,12 +9,23 @@
  * of such GNU licence.
  */
 
+<<<<<<< HEAD
 #include <drm/drm_crtc.h>
 #include <drm/drm_modeset_helper_vtables.h>
 #include <drm/drm_property.h>
 #include <drm/drm_writeback.h>
 #include <drm/drmP.h>
 #include <linux/dma-fence.h>
+=======
+#include <linux/dma-fence.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_modeset_helper_vtables.h>
+#include <drm/drm_property.h>
+#include <drm/drm_writeback.h>
+>>>>>>> upstream/android-13
 
 /**
  * DOC: overview
@@ -106,7 +117,10 @@ static const struct dma_fence_ops drm_writeback_fence_ops = {
 	.get_driver_name = drm_writeback_fence_get_driver_name,
 	.get_timeline_name = drm_writeback_fence_get_timeline_name,
 	.enable_signaling = drm_writeback_fence_enable_signaling,
+<<<<<<< HEAD
 	.wait = dma_fence_default_wait,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int create_writeback_properties(struct drm_device *dev)
@@ -239,6 +253,7 @@ fail:
 }
 EXPORT_SYMBOL(drm_writeback_connector_init);
 
+<<<<<<< HEAD
 /**
  * drm_writeback_queue_job - Queue a writeback job for later signalling
  * @wb_connector: The writeback connector to queue a job on
@@ -247,6 +262,54 @@ EXPORT_SYMBOL(drm_writeback_connector_init);
  * This function adds a job to the job_queue for a writeback connector. It
  * should be considered to take ownership of the writeback job, and so any other
  * references to the job must be cleared after calling this function.
+=======
+int drm_writeback_set_fb(struct drm_connector_state *conn_state,
+			 struct drm_framebuffer *fb)
+{
+	WARN_ON(conn_state->connector->connector_type != DRM_MODE_CONNECTOR_WRITEBACK);
+
+	if (!conn_state->writeback_job) {
+		conn_state->writeback_job =
+			kzalloc(sizeof(*conn_state->writeback_job), GFP_KERNEL);
+		if (!conn_state->writeback_job)
+			return -ENOMEM;
+
+		conn_state->writeback_job->connector =
+			drm_connector_to_writeback(conn_state->connector);
+	}
+
+	drm_framebuffer_assign(&conn_state->writeback_job->fb, fb);
+	return 0;
+}
+
+int drm_writeback_prepare_job(struct drm_writeback_job *job)
+{
+	struct drm_writeback_connector *connector = job->connector;
+	const struct drm_connector_helper_funcs *funcs =
+		connector->base.helper_private;
+	int ret;
+
+	if (funcs->prepare_writeback_job) {
+		ret = funcs->prepare_writeback_job(connector, job);
+		if (ret < 0)
+			return ret;
+	}
+
+	job->prepared = true;
+	return 0;
+}
+EXPORT_SYMBOL(drm_writeback_prepare_job);
+
+/**
+ * drm_writeback_queue_job - Queue a writeback job for later signalling
+ * @wb_connector: The writeback connector to queue a job on
+ * @conn_state: The connector state containing the job to queue
+ *
+ * This function adds the job contained in @conn_state to the job_queue for a
+ * writeback connector. It takes ownership of the writeback job and sets the
+ * @conn_state->writeback_job to NULL, and so no access to the job may be
+ * performed by the caller after this function returns.
+>>>>>>> upstream/android-13
  *
  * Drivers must ensure that for a given writeback connector, jobs are queued in
  * exactly the same order as they will be completed by the hardware (and
@@ -258,16 +321,49 @@ EXPORT_SYMBOL(drm_writeback_connector_init);
  * See also: drm_writeback_signal_completion()
  */
 void drm_writeback_queue_job(struct drm_writeback_connector *wb_connector,
+<<<<<<< HEAD
 			     struct drm_writeback_job *job)
 {
 	unsigned long flags;
 
+=======
+			     struct drm_connector_state *conn_state)
+{
+	struct drm_writeback_job *job;
+	unsigned long flags;
+
+	job = conn_state->writeback_job;
+	conn_state->writeback_job = NULL;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&wb_connector->job_lock, flags);
 	list_add_tail(&job->list_entry, &wb_connector->job_queue);
 	spin_unlock_irqrestore(&wb_connector->job_lock, flags);
 }
 EXPORT_SYMBOL(drm_writeback_queue_job);
 
+<<<<<<< HEAD
+=======
+void drm_writeback_cleanup_job(struct drm_writeback_job *job)
+{
+	struct drm_writeback_connector *connector = job->connector;
+	const struct drm_connector_helper_funcs *funcs =
+		connector->base.helper_private;
+
+	if (job->prepared && funcs->cleanup_writeback_job)
+		funcs->cleanup_writeback_job(connector, job);
+
+	if (job->fb)
+		drm_framebuffer_put(job->fb);
+
+	if (job->out_fence)
+		dma_fence_put(job->out_fence);
+
+	kfree(job);
+}
+EXPORT_SYMBOL(drm_writeback_cleanup_job);
+
+>>>>>>> upstream/android-13
 /*
  * @cleanup_work: deferred cleanup of a writeback job
  *
@@ -280,10 +376,16 @@ static void cleanup_work(struct work_struct *work)
 	struct drm_writeback_job *job = container_of(work,
 						     struct drm_writeback_job,
 						     cleanup_work);
+<<<<<<< HEAD
 	drm_framebuffer_put(job->fb);
 	kfree(job);
 }
 
+=======
+
+	drm_writeback_cleanup_job(job);
+}
+>>>>>>> upstream/android-13
 
 /**
  * drm_writeback_signal_completion - Signal the completion of a writeback job
@@ -307,11 +409,16 @@ drm_writeback_signal_completion(struct drm_writeback_connector *wb_connector,
 {
 	unsigned long flags;
 	struct drm_writeback_job *job;
+<<<<<<< HEAD
+=======
+	struct dma_fence *out_fence;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&wb_connector->job_lock, flags);
 	job = list_first_entry_or_null(&wb_connector->job_queue,
 				       struct drm_writeback_job,
 				       list_entry);
+<<<<<<< HEAD
 	if (job) {
 		list_del(&job->list_entry);
 		if (job->out_fence) {
@@ -321,11 +428,28 @@ drm_writeback_signal_completion(struct drm_writeback_connector *wb_connector,
 			dma_fence_put(job->out_fence);
 		}
 	}
+=======
+	if (job)
+		list_del(&job->list_entry);
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&wb_connector->job_lock, flags);
 
 	if (WARN_ON(!job))
 		return;
 
+<<<<<<< HEAD
+=======
+	out_fence = job->out_fence;
+	if (out_fence) {
+		if (status)
+			dma_fence_set_error(out_fence, status);
+		dma_fence_signal(out_fence);
+		dma_fence_put(out_fence);
+		job->out_fence = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&job->cleanup_work, cleanup_work);
 	queue_work(system_long_wq, &job->cleanup_work);
 }

@@ -13,9 +13,13 @@
 #include <linux/module.h>
 #include <linux/init.h>
 
+<<<<<<< HEAD
 bool curve25519_selftest(void);
 
 static int __init mod_init(void)
+=======
+static int __init curve25519_init(void)
+>>>>>>> upstream/android-13
 {
 	if (!IS_ENABLED(CONFIG_CRYPTO_MANAGER_DISABLE_TESTS) &&
 	    WARN_ON(!curve25519_selftest()))
@@ -23,12 +27,21 @@ static int __init mod_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __exit mod_exit(void)
 {
 }
 
 module_init(mod_init);
 module_exit(mod_exit);
+=======
+static void __exit curve25519_exit(void)
+{
+}
+
+module_init(curve25519_init);
+module_exit(curve25519_exit);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("Curve25519 scalar multiplication");

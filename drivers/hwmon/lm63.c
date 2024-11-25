@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm63.c - driver for the National Semiconductor LM63 temperature sensor
  *          with integrated fan control
@@ -21,6 +25,7 @@
  * I had a explanation from National Semiconductor though. The two lower
  * bits of the read value have to be masked out. The value is still 16 bit
  * in width.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +40,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -944,7 +951,11 @@ static const struct attribute_group lm63_group_extra_lut = {
 static umode_t lm63_attribute_mode(struct kobject *kobj,
 				   struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct lm63_data *data = dev_get_drvdata(dev);
 
 	if (attr == &sensor_dev_attr_temp2_crit.dev_attr.attr
@@ -1100,8 +1111,14 @@ static void lm63_init_client(struct lm63_data *data)
 		(data->config_fan & 0x20) ? "manual" : "auto");
 }
 
+<<<<<<< HEAD
 static int lm63_probe(struct i2c_client *client,
 		      const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id lm63_id[];
+
+static int lm63_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -1119,8 +1136,12 @@ static int lm63_probe(struct i2c_client *client,
 	if (client->dev.of_node)
 		data->kind = (enum chips)of_device_get_match_data(&client->dev);
 	else
+<<<<<<< HEAD
 		data->kind = id->driver_data;
 	data->kind = id->driver_data;
+=======
+		data->kind = i2c_match_id(lm63_id, client)->driver_data;
+>>>>>>> upstream/android-13
 	if (data->kind == lm64)
 		data->temp2_offset = 16000;
 
@@ -1154,7 +1175,11 @@ static const struct i2c_device_id lm63_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, lm63_id);
 
+<<<<<<< HEAD
 static const struct of_device_id lm63_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused lm63_of_match[] = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "national,lm63",
 		.data = (void *)lm63
@@ -1177,7 +1202,11 @@ static struct i2c_driver lm63_driver = {
 		.name	= "lm63",
 		.of_match_table = of_match_ptr(lm63_of_match),
 	},
+<<<<<<< HEAD
 	.probe		= lm63_probe,
+=======
+	.probe_new	= lm63_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm63_id,
 	.detect		= lm63_detect,
 	.address_list	= normal_i2c,

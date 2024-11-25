@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * gpio-crystalcove.c - Intel Crystal Cove GPIO Driver
  *
@@ -23,6 +24,25 @@
 #include <linux/bitops.h>
 #include <linux/regmap.h>
 #include <linux/mfd/intel_soc_pmic.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Intel Crystal Cove GPIO Driver
+ *
+ * Copyright (C) 2012, 2014 Intel Corporation. All rights reserved.
+ *
+ * Author: Yang, Bin <bin.yang@intel.com>
+ */
+
+#include <linux/bitops.h>
+#include <linux/gpio/driver.h>
+#include <linux/interrupt.h>
+#include <linux/mfd/intel_soc_pmic.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+#include <linux/seq_file.h>
+>>>>>>> upstream/android-13
 
 #define CRYSTALCOVE_GPIO_NUM	16
 #define CRYSTALCOVE_VGPIO_NUM	95
@@ -137,7 +157,11 @@ static void crystalcove_update_irq_ctrl(struct crystalcove_gpio *cg, int gpio)
 	regmap_update_bits(cg->regmap, reg, CTLI_INTCNT_BE, cg->intcnt_value);
 }
 
+<<<<<<< HEAD
 static int crystalcove_gpio_dir_in(struct gpio_chip *chip, unsigned gpio)
+=======
+static int crystalcove_gpio_dir_in(struct gpio_chip *chip, unsigned int gpio)
+>>>>>>> upstream/android-13
 {
 	struct crystalcove_gpio *cg = gpiochip_get_data(chip);
 	int reg = to_reg(gpio, CTRL_OUT);
@@ -148,7 +172,11 @@ static int crystalcove_gpio_dir_in(struct gpio_chip *chip, unsigned gpio)
 	return regmap_write(cg->regmap, reg, CTLO_INPUT_SET);
 }
 
+<<<<<<< HEAD
 static int crystalcove_gpio_dir_out(struct gpio_chip *chip, unsigned gpio,
+=======
+static int crystalcove_gpio_dir_out(struct gpio_chip *chip, unsigned int gpio,
+>>>>>>> upstream/android-13
 				    int value)
 {
 	struct crystalcove_gpio *cg = gpiochip_get_data(chip);
@@ -160,7 +188,11 @@ static int crystalcove_gpio_dir_out(struct gpio_chip *chip, unsigned gpio,
 	return regmap_write(cg->regmap, reg, CTLO_OUTPUT_SET | value);
 }
 
+<<<<<<< HEAD
 static int crystalcove_gpio_get(struct gpio_chip *chip, unsigned gpio)
+=======
+static int crystalcove_gpio_get(struct gpio_chip *chip, unsigned int gpio)
+>>>>>>> upstream/android-13
 {
 	struct crystalcove_gpio *cg = gpiochip_get_data(chip);
 	unsigned int val;
@@ -177,7 +209,11 @@ static int crystalcove_gpio_get(struct gpio_chip *chip, unsigned gpio)
 }
 
 static void crystalcove_gpio_set(struct gpio_chip *chip,
+<<<<<<< HEAD
 				 unsigned gpio, int value)
+=======
+				 unsigned int gpio, int value)
+>>>>>>> upstream/android-13
 {
 	struct crystalcove_gpio *cg = gpiochip_get_data(chip);
 	int reg = to_reg(gpio, CTRL_OUT);
@@ -191,7 +227,11 @@ static void crystalcove_gpio_set(struct gpio_chip *chip,
 		regmap_update_bits(cg->regmap, reg, 1, 0);
 }
 
+<<<<<<< HEAD
 static int crystalcove_irq_type(struct irq_data *data, unsigned type)
+=======
+static int crystalcove_irq_type(struct irq_data *data, unsigned int type)
+>>>>>>> upstream/android-13
 {
 	struct crystalcove_gpio *cg =
 		gpiochip_get_data(irq_data_get_irq_chip_data(data));
@@ -279,8 +319,13 @@ static struct irq_chip crystalcove_irqchip = {
 static irqreturn_t crystalcove_gpio_irq_handler(int irq, void *data)
 {
 	struct crystalcove_gpio *cg = data;
+<<<<<<< HEAD
 	unsigned int p0, p1;
 	int pending;
+=======
+	unsigned long pending;
+	unsigned int p0, p1;
+>>>>>>> upstream/android-13
 	int gpio;
 	unsigned int virq;
 
@@ -293,11 +338,17 @@ static irqreturn_t crystalcove_gpio_irq_handler(int irq, void *data)
 
 	pending = p0 | p1 << 8;
 
+<<<<<<< HEAD
 	for (gpio = 0; gpio < CRYSTALCOVE_GPIO_NUM; gpio++) {
 		if (pending & BIT(gpio)) {
 			virq = irq_find_mapping(cg->chip.irq.domain, gpio);
 			handle_nested_irq(virq);
 		}
+=======
+	for_each_set_bit(gpio, &pending, CRYSTALCOVE_GPIO_NUM) {
+		virq = irq_find_mapping(cg->chip.irq.domain, gpio);
+		handle_nested_irq(virq);
+>>>>>>> upstream/android-13
 	}
 
 	return IRQ_HANDLED;
@@ -340,6 +391,10 @@ static int crystalcove_gpio_probe(struct platform_device *pdev)
 	int retval;
 	struct device *dev = pdev->dev.parent;
 	struct intel_soc_pmic *pmic = dev_get_drvdata(dev);
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 
 	if (irq < 0)
 		return irq;
@@ -348,8 +403,11 @@ static int crystalcove_gpio_probe(struct platform_device *pdev)
 	if (!cg)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, cg);
 
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&cg->buslock);
 	cg->chip.label = KBUILD_MODNAME;
 	cg->chip.direction_input = crystalcove_gpio_dir_in;
@@ -363,6 +421,7 @@ static int crystalcove_gpio_probe(struct platform_device *pdev)
 	cg->chip.dbg_show = crystalcove_gpio_dbg_show;
 	cg->regmap = pmic->regmap;
 
+<<<<<<< HEAD
 	retval = devm_gpiochip_add_data(&pdev->dev, &cg->chip, cg);
 	if (retval) {
 		dev_warn(&pdev->dev, "add gpio chip error: %d\n", retval);
@@ -375,11 +434,27 @@ static int crystalcove_gpio_probe(struct platform_device *pdev)
 	retval = request_threaded_irq(irq, NULL, crystalcove_gpio_irq_handler,
 				      IRQF_ONESHOT, KBUILD_MODNAME, cg);
 
+=======
+	girq = &cg->chip.irq;
+	girq->chip = &crystalcove_irqchip;
+	/* This will let us handle the parent IRQ in the driver */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_simple_irq;
+	girq->threaded = true;
+
+	retval = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+					   crystalcove_gpio_irq_handler,
+					   IRQF_ONESHOT, KBUILD_MODNAME, cg);
+>>>>>>> upstream/android-13
 	if (retval) {
 		dev_warn(&pdev->dev, "request irq failed: %d\n", retval);
 		return retval;
 	}
 
+<<<<<<< HEAD
 	gpiochip_set_nested_irqchip(&cg->chip, &crystalcove_irqchip, irq);
 
 	return 0;
@@ -393,16 +468,25 @@ static int crystalcove_gpio_remove(struct platform_device *pdev)
 	if (irq >= 0)
 		free_irq(irq, cg);
 	return 0;
+=======
+	return devm_gpiochip_add_data(&pdev->dev, &cg->chip, cg);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver crystalcove_gpio_driver = {
 	.probe = crystalcove_gpio_probe,
+<<<<<<< HEAD
 	.remove = crystalcove_gpio_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "crystal_cove_gpio",
 	},
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 module_platform_driver(crystalcove_gpio_driver);
 
 MODULE_AUTHOR("Yang, Bin <bin.yang@intel.com>");

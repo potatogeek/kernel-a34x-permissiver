@@ -3,7 +3,11 @@
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * Header for EXYNOS PMU Driver support
+=======
+ * Header for Exynos PMU Driver support
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_SOC_EXYNOS_PMU_H

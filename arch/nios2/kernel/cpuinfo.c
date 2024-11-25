@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Altera Corporation
  * Copyright (C) 2011 Tobias Klauser <tklauser@distanz.ch>
  *
  * Based on cpuinfo.c from microblaze
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -47,7 +54,11 @@ void __init setup_cpuinfo(void)
 	const char *str;
 	int len;
 
+<<<<<<< HEAD
 	cpu = of_find_node_by_type(NULL, "cpu");
+=======
+	cpu = of_get_cpu_node(0, NULL);
+>>>>>>> upstream/android-13
 	if (!cpu)
 		panic("%s: No CPU found in devicetree!\n", __func__);
 
@@ -120,6 +131,11 @@ void __init setup_cpuinfo(void)
 	cpuinfo.reset_addr = fcpu(cpu, "altr,reset-addr");
 	cpuinfo.exception_addr = fcpu(cpu, "altr,exception-addr");
 	cpuinfo.fast_tlb_miss_exc_addr = fcpu(cpu, "altr,fast-tlb-miss-addr");
+<<<<<<< HEAD
+=======
+
+	of_node_put(cpu);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PROC_FS

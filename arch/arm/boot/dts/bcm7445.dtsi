@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
+=======
+>>>>>>> upstream/android-13
 / {
 	#address-cells = <2>;
 	#size-cells = <2>;
@@ -65,7 +68,11 @@
 			     <GIC_PPI 10 (GIC_CPU_MASK_RAW(15) | IRQ_TYPE_LEVEL_LOW)>;
 	};
 
+<<<<<<< HEAD
 	rdb {
+=======
+	rdb@f0000000 {
+>>>>>>> upstream/android-13
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "simple-bus";
@@ -150,7 +157,11 @@
 			reg-names = "aon-ctrl", "aon-sram";
 		};
 
+<<<<<<< HEAD
 		nand: nand@3e2800 {
+=======
+		nand_controller: nand-controller@3e2800 {
+>>>>>>> upstream/android-13
 			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -226,7 +237,11 @@
 
 	};
 
+<<<<<<< HEAD
 	memory_controllers {
+=======
+	memory_controllers@f1100000 {
+>>>>>>> upstream/android-13
 		compatible = "simple-bus";
 		ranges = <0x0 0x0 0xf1100000 0x200000>;
 		#address-cells = <1>;
@@ -254,7 +269,11 @@
 			};
 		};
 
+<<<<<<< HEAD
 		memc@1 {
+=======
+		memc@80000 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,brcmstb-memc", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -276,7 +295,11 @@
 			};
 		};
 
+<<<<<<< HEAD
 		memc@2 {
+=======
+		memc@100000 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,brcmstb-memc", "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;

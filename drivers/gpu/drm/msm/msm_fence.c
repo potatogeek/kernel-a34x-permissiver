@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013-2016 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013-2016 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dma-fence.h>
@@ -22,7 +29,12 @@
 
 
 struct msm_fence_context *
+<<<<<<< HEAD
 msm_fence_context_alloc(struct drm_device *dev, const char *name)
+=======
+msm_fence_context_alloc(struct drm_device *dev, volatile uint32_t *fenceptr,
+		const char *name)
+>>>>>>> upstream/android-13
 {
 	struct msm_fence_context *fctx;
 
@@ -33,7 +45,11 @@ msm_fence_context_alloc(struct drm_device *dev, const char *name)
 	fctx->dev = dev;
 	strncpy(fctx->name, name, sizeof(fctx->name));
 	fctx->context = dma_fence_context_alloc(1);
+<<<<<<< HEAD
 	init_waitqueue_head(&fctx->event);
+=======
+	fctx->fenceptr = fenceptr;
+>>>>>>> upstream/android-13
 	spin_lock_init(&fctx->spinlock);
 
 	return fctx;
@@ -46,6 +62,7 @@ void msm_fence_context_free(struct msm_fence_context *fctx)
 
 static inline bool fence_completed(struct msm_fence_context *fctx, uint32_t fence)
 {
+<<<<<<< HEAD
 	return (int32_t)(fctx->completed_fence - fence) >= 0;
 }
 
@@ -86,6 +103,14 @@ int msm_wait_fence(struct msm_fence_context *fctx, uint32_t fence,
 	}
 
 	return ret;
+=======
+	/*
+	 * Note: Check completed_fence first, as fenceptr is in a write-combine
+	 * mapping, so it will be more expensive to read.
+	 */
+	return (int32_t)(fctx->completed_fence - fence) >= 0 ||
+		(int32_t)(*fctx->fenceptr - fence) >= 0;
+>>>>>>> upstream/android-13
 }
 
 /* called from workqueue */
@@ -94,8 +119,11 @@ void msm_update_fence(struct msm_fence_context *fctx, uint32_t fence)
 	spin_lock(&fctx->spinlock);
 	fctx->completed_fence = max(fence, fctx->completed_fence);
 	spin_unlock(&fctx->spinlock);
+<<<<<<< HEAD
 
 	wake_up_all(&fctx->event);
+=======
+>>>>>>> upstream/android-13
 }
 
 struct msm_fence {
@@ -119,11 +147,14 @@ static const char *msm_fence_get_timeline_name(struct dma_fence *fence)
 	return f->fctx->name;
 }
 
+<<<<<<< HEAD
 static bool msm_fence_enable_signaling(struct dma_fence *fence)
 {
 	return true;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool msm_fence_signaled(struct dma_fence *fence)
 {
 	struct msm_fence *f = to_msm_fence(fence);
@@ -133,10 +164,14 @@ static bool msm_fence_signaled(struct dma_fence *fence)
 static const struct dma_fence_ops msm_fence_ops = {
 	.get_driver_name = msm_fence_get_driver_name,
 	.get_timeline_name = msm_fence_get_timeline_name,
+<<<<<<< HEAD
 	.enable_signaling = msm_fence_enable_signaling,
 	.signaled = msm_fence_signaled,
 	.wait = dma_fence_default_wait,
 	.release = dma_fence_free,
+=======
+	.signaled = msm_fence_signaled,
+>>>>>>> upstream/android-13
 };
 
 struct dma_fence *

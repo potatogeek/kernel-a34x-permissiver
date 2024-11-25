@@ -1,22 +1,32 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/processor.h
  *
  *  Copyright (C) 1995-1999 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ARM_PROCESSOR_H
 #define __ASM_ARM_PROCESSOR_H
 
+<<<<<<< HEAD
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
  */
 #define current_text_addr() ({ __label__ _l; _l: &&_l;})
 
+=======
+>>>>>>> upstream/android-13
 #ifdef __KERNEL__
 
 #include <asm/hw_breakpoint.h>
@@ -105,7 +115,12 @@ unsigned long get_wchan(struct task_struct *p);
 #define __ALT_SMP_ASM(smp, up)						\
 	"9998:	" smp "\n"						\
 	"	.pushsection \".alt.smp.init\", \"a\"\n"		\
+<<<<<<< HEAD
 	"	.long	9998b\n"					\
+=======
+	"	.align	2\n"						\
+	"	.long	9998b - .\n"					\
+>>>>>>> upstream/android-13
 	"	" up "\n"						\
 	"	.popsection\n"
 #else
@@ -132,16 +147,24 @@ static inline void prefetchw(const void *ptr)
 	__asm__ __volatile__(
 		".arch_extension	mp\n"
 		__ALT_SMP_ASM(
+<<<<<<< HEAD
 			WASM(pldw)		"\t%a0",
 			WASM(pld)		"\t%a0"
+=======
+			"pldw\t%a0",
+			"pld\t%a0"
+>>>>>>> upstream/android-13
 		)
 		:: "p" (ptr));
 }
 #endif
 #endif
 
+<<<<<<< HEAD
 #define HAVE_ARCH_PICK_MMAP_LAYOUT
 
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* __ASM_ARM_PROCESSOR_H */

@@ -1,15 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Au12x0/Au1550 PSC ALSA ASoC audio support.
  *
  * (c) 2007-2008 MSC Vertriebsges.m.b.H.,
  *	Manuel Lauss <manuel.lauss@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * DMA glue for Au1x-PSC audio.
  *
+=======
+ * DMA glue for Au1x-PSC audio.
+>>>>>>> upstream/android-13
  */
 
 
@@ -186,27 +194,43 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline struct au1xpsc_audio_dmadata *to_dmadata(struct snd_pcm_substream *ss)
 {
 	struct snd_soc_pcm_runtime *rtd = ss->private_data;
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd, DRV_NAME);
+=======
+static inline struct au1xpsc_audio_dmadata *to_dmadata(struct snd_pcm_substream *ss,
+						       struct snd_soc_component *component)
+{
+>>>>>>> upstream/android-13
 	struct au1xpsc_audio_dmadata *pcd = snd_soc_component_get_drvdata(component);
 	return &pcd[ss->stream];
 }
 
+<<<<<<< HEAD
 static int au1xpsc_pcm_hw_params(struct snd_pcm_substream *substream,
+=======
+static int au1xpsc_pcm_hw_params(struct snd_soc_component *component,
+				 struct snd_pcm_substream *substream,
+>>>>>>> upstream/android-13
 				 struct snd_pcm_hw_params *params)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct au1xpsc_audio_dmadata *pcd;
 	int stype, ret;
 
+<<<<<<< HEAD
 	ret = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(params));
 	if (ret < 0)
 		goto out;
 
 	stype = substream->stream;
 	pcd = to_dmadata(substream);
+=======
+	stype = substream->stream;
+	pcd = to_dmadata(substream, component);
+>>>>>>> upstream/android-13
 
 	DBG("runtime->dma_area = 0x%08lx dma_addr_t = 0x%08lx dma_size = %zu "
 	    "runtime->min_align %lu\n",
@@ -236,6 +260,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int au1xpsc_pcm_hw_free(struct snd_pcm_substream *substream)
 {
 	snd_pcm_lib_free_pages(substream);
@@ -245,6 +270,12 @@ static int au1xpsc_pcm_hw_free(struct snd_pcm_substream *substream)
 static int au1xpsc_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	struct au1xpsc_audio_dmadata *pcd = to_dmadata(substream);
+=======
+static int au1xpsc_pcm_prepare(struct snd_soc_component *component,
+			       struct snd_pcm_substream *substream)
+{
+	struct au1xpsc_audio_dmadata *pcd = to_dmadata(substream, component);
+>>>>>>> upstream/android-13
 
 	au1xxx_dbdma_reset(pcd->ddma_chan);
 
@@ -259,9 +290,16 @@ static int au1xpsc_pcm_prepare(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int au1xpsc_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	u32 c = to_dmadata(substream)->ddma_chan;
+=======
+static int au1xpsc_pcm_trigger(struct snd_soc_component *component,
+			       struct snd_pcm_substream *substream, int cmd)
+{
+	u32 c = to_dmadata(substream, component)->ddma_chan;
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
@@ -279,6 +317,7 @@ static int au1xpsc_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 }
 
 static snd_pcm_uframes_t
+<<<<<<< HEAD
 au1xpsc_pcm_pointer(struct snd_pcm_substream *substream)
 {
 	return bytes_to_frames(substream->runtime, to_dmadata(substream)->pos);
@@ -291,6 +330,23 @@ static int au1xpsc_pcm_open(struct snd_pcm_substream *substream)
 	int stype = substream->stream, *dmaids;
 
 	dmaids = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+au1xpsc_pcm_pointer(struct snd_soc_component *component,
+		    struct snd_pcm_substream *substream)
+{
+	return bytes_to_frames(substream->runtime,
+			       to_dmadata(substream, component)->pos);
+}
+
+static int au1xpsc_pcm_open(struct snd_soc_component *component,
+			    struct snd_pcm_substream *substream)
+{
+	struct au1xpsc_audio_dmadata *pcd = to_dmadata(substream, component);
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	int stype = substream->stream, *dmaids;
+
+	dmaids = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 	if (!dmaids)
 		return -ENODEV;	/* whoa, has ordering changed? */
 
@@ -300,6 +356,7 @@ static int au1xpsc_pcm_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int au1xpsc_pcm_close(struct snd_pcm_substream *substream)
 {
 	au1x_pcm_dbdma_free(to_dmadata(substream));
@@ -318,11 +375,26 @@ static const struct snd_pcm_ops au1xpsc_pcm_ops = {
 };
 
 static int au1xpsc_pcm_new(struct snd_soc_pcm_runtime *rtd)
+=======
+static int au1xpsc_pcm_close(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream)
+{
+	au1x_pcm_dbdma_free(to_dmadata(substream, component));
+	return 0;
+}
+
+static int au1xpsc_pcm_new(struct snd_soc_component *component,
+			   struct snd_soc_pcm_runtime *rtd)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card = rtd->card->snd_card;
 	struct snd_pcm *pcm = rtd->pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+>>>>>>> upstream/android-13
 		card->dev, AU1XPSC_BUFFER_MIN_BYTES, (4096 * 1024) - 1);
 
 	return 0;
@@ -331,8 +403,18 @@ static int au1xpsc_pcm_new(struct snd_soc_pcm_runtime *rtd)
 /* au1xpsc audio platform */
 static struct snd_soc_component_driver au1xpsc_soc_component = {
 	.name		= DRV_NAME,
+<<<<<<< HEAD
 	.ops		= &au1xpsc_pcm_ops,
 	.pcm_new	= au1xpsc_pcm_new,
+=======
+	.open		= au1xpsc_pcm_open,
+	.close		= au1xpsc_pcm_close,
+	.hw_params	= au1xpsc_pcm_hw_params,
+	.prepare	= au1xpsc_pcm_prepare,
+	.trigger	= au1xpsc_pcm_trigger,
+	.pointer	= au1xpsc_pcm_pointer,
+	.pcm_construct	= au1xpsc_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 static int au1xpsc_pcm_drvprobe(struct platform_device *pdev)

@@ -66,7 +66,11 @@ struct rdma_id_private {
 	struct mutex		qp_mutex;
 
 	struct completion	comp;
+<<<<<<< HEAD
 	atomic_t		refcount;
+=======
+	refcount_t refcount;
+>>>>>>> upstream/android-13
 	struct mutex		handler_mutex;
 
 	int			backlog;
@@ -84,14 +88,58 @@ struct rdma_id_private {
 	u32			options;
 	u8			srq;
 	u8			tos;
+<<<<<<< HEAD
 	bool			tos_set;
 	u8			reuseaddr;
 	u8			afonly;
+=======
+	u8			tos_set:1;
+	u8                      timeout_set:1;
+	u8			min_rnr_timer_set:1;
+	u8			reuseaddr;
+	u8			afonly;
+	u8			timeout;
+	u8			min_rnr_timer;
+	u8 used_resolve_ip;
+>>>>>>> upstream/android-13
 	enum ib_gid_type	gid_type;
 
 	/*
 	 * Internal to RDMA/core, don't use in the drivers
 	 */
 	struct rdma_restrack_entry     res;
+<<<<<<< HEAD
 };
+=======
+	struct rdma_ucm_ece ece;
+};
+
+#if IS_ENABLED(CONFIG_INFINIBAND_ADDR_TRANS_CONFIGFS)
+int cma_configfs_init(void);
+void cma_configfs_exit(void);
+#else
+static inline int cma_configfs_init(void)
+{
+	return 0;
+}
+
+static inline void cma_configfs_exit(void)
+{
+}
+#endif
+
+void cma_dev_get(struct cma_device *dev);
+void cma_dev_put(struct cma_device *dev);
+typedef bool (*cma_device_filter)(struct ib_device *, void *);
+struct cma_device *cma_enum_devices_by_ibdev(cma_device_filter filter,
+					     void *cookie);
+int cma_get_default_gid_type(struct cma_device *dev, u32 port);
+int cma_set_default_gid_type(struct cma_device *dev, u32 port,
+			     enum ib_gid_type default_gid_type);
+int cma_get_default_roce_tos(struct cma_device *dev, u32 port);
+int cma_set_default_roce_tos(struct cma_device *dev, u32 port,
+			     u8 default_roce_tos);
+struct ib_device *cma_get_ib_dev(struct cma_device *dev);
+
+>>>>>>> upstream/android-13
 #endif /* _CMA_PRIV_H */

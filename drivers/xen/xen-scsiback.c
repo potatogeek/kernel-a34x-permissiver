@@ -33,8 +33,11 @@
 
 #define pr_fmt(fmt) "xen-pvscsi: " fmt
 
+<<<<<<< HEAD
 #include <stdarg.h>
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/utsname.h>
 #include <linux/interrupt.h>
@@ -99,6 +102,11 @@ struct vscsibk_info {
 	struct list_head v2p_entry_lists;
 
 	wait_queue_head_t waiting_to_free;
+<<<<<<< HEAD
+=======
+
+	struct gnttab_page_cache free_pages;
+>>>>>>> upstream/android-13
 };
 
 /* theoretical maximum of grants for one request */
@@ -188,10 +196,13 @@ module_param_named(max_buffer_pages, scsiback_max_buffer_pages, int, 0644);
 MODULE_PARM_DESC(max_buffer_pages,
 "Maximum number of free pages to keep in backend buffer");
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(free_pages_lock);
 static int free_pages_num;
 static LIST_HEAD(scsiback_free_pages);
 
+=======
+>>>>>>> upstream/android-13
 /* Global spinlock to protect scsiback TPG list */
 static DEFINE_MUTEX(scsiback_mutex);
 static LIST_HEAD(scsiback_list);
@@ -207,6 +218,7 @@ static void scsiback_put(struct vscsibk_info *info)
 		wake_up(&info->waiting_to_free);
 }
 
+<<<<<<< HEAD
 static void put_free_pages(struct page **page, int num)
 {
 	unsigned long flags;
@@ -242,6 +254,8 @@ static int get_free_page(struct page **page)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned long vaddr_page(struct page *page)
 {
 	unsigned long pfn = page_to_pfn(page);
@@ -259,10 +273,17 @@ static void scsiback_print_status(char *sense_buffer, int errors,
 {
 	struct scsiback_tpg *tpg = pending_req->v2p->tpg;
 
+<<<<<<< HEAD
 	pr_err("[%s:%d] cmnd[0]=%02x -> st=%02x msg=%02x host=%02x drv=%02x\n",
 	       tpg->tport->tport_name, pending_req->v2p->lun,
 	       pending_req->cmnd[0], status_byte(errors), msg_byte(errors),
 	       host_byte(errors), driver_byte(errors));
+=======
+	pr_err("[%s:%d] cmnd[0]=%02x -> st=%02x msg=%02x host=%02x\n",
+	       tpg->tport->tport_name, pending_req->v2p->lun,
+	       pending_req->cmnd[0], errors & 0xff, COMMAND_COMPLETE,
+	       host_byte(errors));
+>>>>>>> upstream/android-13
 }
 
 static void scsiback_fast_flush_area(struct vscsibk_pend *req)
@@ -302,7 +323,12 @@ static void scsiback_fast_flush_area(struct vscsibk_pend *req)
 		BUG_ON(err);
 	}
 
+<<<<<<< HEAD
 	put_free_pages(req->pages, req->n_grants);
+=======
+	gnttab_page_cache_put(&req->info->free_pages, req->pages,
+			      req->n_grants);
+>>>>>>> upstream/android-13
 	req->n_grants = 0;
 }
 
@@ -396,6 +422,7 @@ static void scsiback_cmd_exec(struct vscsibk_pend *pending_req)
 {
 	struct se_cmd *se_cmd = &pending_req->se_cmd;
 	struct se_session *sess = pending_req->v2p->tpg->tpg_nexus->tvn_se_sess;
+<<<<<<< HEAD
 	int rc;
 
 	scsiback_get(pending_req->info);
@@ -411,6 +438,20 @@ static void scsiback_cmd_exec(struct vscsibk_pend *pending_req)
 				TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE, 0);
 		transport_generic_free_cmd(se_cmd, 0);
 	}
+=======
+
+	scsiback_get(pending_req->info);
+	se_cmd->tag = pending_req->rqid;
+	target_init_cmd(se_cmd, sess, pending_req->sense_buffer,
+			pending_req->v2p->lun, pending_req->data_len, 0,
+			pending_req->sc_data_direction, TARGET_SCF_ACK_KREF);
+
+	if (target_submit_prep(se_cmd, pending_req->cmnd, pending_req->sgl,
+			       pending_req->n_sg, NULL, 0, NULL, 0, GFP_KERNEL))
+		return;
+
+	target_submit(se_cmd);
+>>>>>>> upstream/android-13
 }
 
 static int scsiback_gnttab_data_map_batch(struct gnttab_map_grant_ref *map,
@@ -445,8 +486,13 @@ static int scsiback_gnttab_data_map_list(struct vscsibk_pend *pending_req,
 	struct vscsibk_info *info = pending_req->info;
 
 	for (i = 0; i < cnt; i++) {
+<<<<<<< HEAD
 		if (get_free_page(pg + mapcount)) {
 			put_free_pages(pg, mapcount);
+=======
+		if (gnttab_page_cache_get(&info->free_pages, pg + mapcount)) {
+			gnttab_page_cache_put(&info->free_pages, pg, mapcount);
+>>>>>>> upstream/android-13
 			pr_err("no grant page\n");
 			return -ENOMEM;
 		}
@@ -758,10 +804,17 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info,
 				result = DID_NO_CONNECT;
 				break;
 			default:
+<<<<<<< HEAD
 				result = DRIVER_ERROR;
 				break;
 			}
 			scsiback_send_response(info, NULL, result << 24, 0,
+=======
+				result = DID_ERROR;
+				break;
+			}
+			scsiback_send_response(info, NULL, result << 16, 0,
+>>>>>>> upstream/android-13
 					       ring_req.rqid);
 			return 1;
 		}
@@ -771,7 +824,11 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info,
 			if (scsiback_gnttab_data_map(&ring_req, pending_req)) {
 				scsiback_fast_flush_area(pending_req);
 				scsiback_do_resp_with_sense(NULL,
+<<<<<<< HEAD
 						DRIVER_ERROR << 24, 0, pending_req);
+=======
+						DID_ERROR << 16, 0, pending_req);
+>>>>>>> upstream/android-13
 				transport_generic_free_cmd(&pending_req->se_cmd, 0);
 			} else {
 				scsiback_cmd_exec(pending_req);
@@ -786,7 +843,11 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info,
 			break;
 		default:
 			pr_err_ratelimited("invalid request\n");
+<<<<<<< HEAD
 			scsiback_do_resp_with_sense(NULL, DRIVER_ERROR << 24, 0,
+=======
+			scsiback_do_resp_with_sense(NULL, DID_ERROR << 16, 0,
+>>>>>>> upstream/android-13
 						    pending_req);
 			transport_generic_free_cmd(&pending_req->se_cmd, 0);
 			break;
@@ -796,6 +857,11 @@ static int scsiback_do_cmd_fn(struct vscsibk_info *info,
 		cond_resched();
 	}
 
+<<<<<<< HEAD
+=======
+	gnttab_page_cache_shrink(&info->free_pages, scsiback_max_buffer_pages);
+
+>>>>>>> upstream/android-13
 	RING_FINAL_CHECK_FOR_REQUESTS(&info->ring, more_to_do);
 	return more_to_do;
 }
@@ -833,7 +899,11 @@ static int scsiback_init_sring(struct vscsibk_info *info, grant_ref_t ring_ref,
 	sring = (struct vscsiif_sring *)area;
 	BACK_RING_INIT(&info->ring, sring, PAGE_SIZE);
 
+<<<<<<< HEAD
 	err = bind_interdomain_evtchn_to_irq_lateeoi(info->domid, evtchn);
+=======
+	err = bind_interdomain_evtchn_to_irq_lateeoi(info->dev, evtchn);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto unmap_page;
 
@@ -858,7 +928,12 @@ unmap_page:
 static int scsiback_map(struct vscsibk_info *info)
 {
 	struct xenbus_device *dev = info->dev;
+<<<<<<< HEAD
 	unsigned int ring_ref, evtchn;
+=======
+	unsigned int ring_ref;
+	evtchn_port_t evtchn;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = xenbus_gather(XBT_NIL, dev->otherend,
@@ -1188,7 +1263,11 @@ static void scsiback_frontend_changed(struct xenbus_device *dev,
 		xenbus_switch_state(dev, XenbusStateClosed);
 		if (xenbus_dev_is_online(dev))
 			break;
+<<<<<<< HEAD
 		/* fall through if not online */
+=======
+		fallthrough;	/* if not online */
+>>>>>>> upstream/android-13
 	case XenbusStateUnknown:
 		device_unregister(&dev->dev);
 		break;
@@ -1232,6 +1311,11 @@ static int scsiback_remove(struct xenbus_device *dev)
 
 	scsiback_release_translation_entry(info);
 
+<<<<<<< HEAD
+=======
+	gnttab_page_cache_shrink(&info->free_pages, 0);
+
+>>>>>>> upstream/android-13
 	dev_set_drvdata(&dev->dev, NULL);
 
 	return 0;
@@ -1262,6 +1346,10 @@ static int scsiback_probe(struct xenbus_device *dev,
 	info->irq = 0;
 	INIT_LIST_HEAD(&info->v2p_entry_lists);
 	spin_lock_init(&info->v2p_lock);
+<<<<<<< HEAD
+=======
+	gnttab_page_cache_init(&info->free_pages);
+>>>>>>> upstream/android-13
 
 	err = xenbus_printf(XBT_NIL, dev->nodename, "feature-sg-grant", "%u",
 			    SG_ALL);
@@ -1407,11 +1495,14 @@ static int scsiback_write_pending(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int scsiback_write_pending_status(struct se_cmd *se_cmd)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void scsiback_set_default_node_attrs(struct se_node_acl *nacl)
 {
 }
@@ -1439,8 +1530,12 @@ static int scsiback_queue_status(struct se_cmd *se_cmd)
 	if (se_cmd->sense_buffer &&
 	    ((se_cmd->se_cmd_flags & SCF_TRANSPORT_TASK_SENSE) ||
 	     (se_cmd->se_cmd_flags & SCF_EMULATED_TASK_SENSE)))
+<<<<<<< HEAD
 		pending_req->result = (DRIVER_SENSE << 24) |
 				      SAM_STAT_CHECK_CONDITION;
+=======
+		pending_req->result = SAM_STAT_CHECK_CONDITION;
+>>>>>>> upstream/android-13
 	else
 		pending_req->result = se_cmd->scsi_status;
 
@@ -1715,11 +1810,14 @@ static struct configfs_attribute *scsiback_wwn_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static char *scsiback_get_fabric_name(void)
 {
 	return "xen-pvscsi";
 }
 
+=======
+>>>>>>> upstream/android-13
 static int scsiback_port_link(struct se_portal_group *se_tpg,
 			       struct se_lun *lun)
 {
@@ -1813,8 +1911,12 @@ static int scsiback_check_false(struct se_portal_group *se_tpg)
 
 static const struct target_core_fabric_ops scsiback_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "xen-pvscsi",
 	.get_fabric_name		= scsiback_get_fabric_name,
+=======
+	.fabric_name			= "xen-pvscsi",
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= scsiback_get_fabric_wwn,
 	.tpg_get_tag			= scsiback_get_tag,
 	.tpg_check_demo_mode		= scsiback_check_true,
@@ -1827,7 +1929,10 @@ static const struct target_core_fabric_ops scsiback_ops = {
 	.sess_get_index			= scsiback_sess_get_index,
 	.sess_get_initiator_sid		= NULL,
 	.write_pending			= scsiback_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= scsiback_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= scsiback_set_default_node_attrs,
 	.get_cmd_state			= scsiback_get_cmd_state,
 	.queue_data_in			= scsiback_queue_data_in,
@@ -1890,6 +1995,7 @@ out:
 
 static void __exit scsiback_exit(void)
 {
+<<<<<<< HEAD
 	struct page *page;
 
 	while (free_pages_num) {
@@ -1897,6 +2003,8 @@ static void __exit scsiback_exit(void)
 			BUG();
 		gnttab_free_pages(1, &page);
 	}
+=======
+>>>>>>> upstream/android-13
 	target_unregister_template(&scsiback_ops);
 	xenbus_unregister_driver(&scsiback_driver);
 }

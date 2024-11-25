@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute	it and/or modify it
  * under  the terms of	the GNU General	 Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2003, 04, 11 Ralf Baechle (ralf@linux-mips.org)
  * Copyright (C) 2011 Wind River Systems,
@@ -11,7 +16,11 @@
 #include <linux/bug.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/init.h>
 #include <linux/types.h>
@@ -92,7 +101,10 @@ static void pcibios_scanbus(struct pci_controller *hose)
 				hose->mem_resource, hose->mem_offset);
 	pci_add_resource_offset(&resources,
 				hose->io_resource, hose->io_offset);
+<<<<<<< HEAD
 	pci_add_resource(&resources, hose->busn_resource);
+=======
+>>>>>>> upstream/android-13
 	list_splice_init(&resources, &bridge->windows);
 	bridge->dev.parent = NULL;
 	bridge->sysdata = hose;
@@ -143,7 +155,10 @@ void pci_load_of_ranges(struct pci_controller *hose, struct device_node *node)
 	struct of_pci_range range;
 	struct of_pci_range_parser parser;
 
+<<<<<<< HEAD
 	pr_info("PCI host bridge %pOF ranges:\n", node);
+=======
+>>>>>>> upstream/android-13
 	hose->of_node = node;
 
 	if (of_pci_range_parser_init(&parser, node))
@@ -154,18 +169,24 @@ void pci_load_of_ranges(struct pci_controller *hose, struct device_node *node)
 
 		switch (range.flags & IORESOURCE_TYPE_BITS) {
 		case IORESOURCE_IO:
+<<<<<<< HEAD
 			pr_info("  IO 0x%016llx..0x%016llx\n",
 				range.cpu_addr,
 				range.cpu_addr + range.size - 1);
+=======
+>>>>>>> upstream/android-13
 			hose->io_map_base =
 				(unsigned long)ioremap(range.cpu_addr,
 						       range.size);
 			res = hose->io_resource;
 			break;
 		case IORESOURCE_MEM:
+<<<<<<< HEAD
 			pr_info(" MEM 0x%016llx..0x%016llx\n",
 				range.cpu_addr,
 				range.cpu_addr + range.size - 1);
+=======
+>>>>>>> upstream/android-13
 			res = hose->mem_resource;
 			break;
 		}
@@ -260,7 +281,11 @@ static int pcibios_enable_resources(struct pci_dev *dev, int mask)
 
 	pci_read_config_word(dev, PCI_COMMAND, &cmd);
 	old_cmd = cmd;
+<<<<<<< HEAD
 	for (idx=0; idx < PCI_NUM_RESOURCES; idx++) {
+=======
+	for (idx = 0; idx < PCI_NUM_RESOURCES; idx++) {
+>>>>>>> upstream/android-13
 		/* Only set up the requested stuff */
 		if (!(mask & (1<<idx)))
 			continue;
@@ -290,9 +315,15 @@ static int pcibios_enable_resources(struct pci_dev *dev, int mask)
 
 int pcibios_enable_device(struct pci_dev *dev, int mask)
 {
+<<<<<<< HEAD
 	int err;
 
 	if ((err = pcibios_enable_resources(dev, mask)) < 0)
+=======
+	int err = pcibios_enable_resources(dev, mask);
+
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	return pcibios_plat_dev_init(dev);

@@ -1,7 +1,11 @@
 /*
  * usb-omap.h - Platform data for the various OMAP USB IPs
  *
+<<<<<<< HEAD
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com
+=======
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * This software is distributed under the terms of the GNU General Public
  * License ("GPL") version 2, as published by the Free Software Foundation.

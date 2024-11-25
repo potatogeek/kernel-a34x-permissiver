@@ -177,7 +177,10 @@ int alt_pr_register(struct device *dev, void __iomem *reg_base)
 {
 	struct alt_pr_priv *priv;
 	struct fpga_manager *mgr;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	u32 val;
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
@@ -192,6 +195,7 @@ int alt_pr_register(struct device *dev, void __iomem *reg_base)
 		(val & ALT_PR_CSR_STATUS_MSK) >> ALT_PR_CSR_STATUS_SFT,
 		(int)(val & ALT_PR_CSR_PR_START));
 
+<<<<<<< HEAD
 	mgr = fpga_mgr_create(dev, dev_name(dev), &alt_pr_ops, priv);
 	if (!mgr)
 		return -ENOMEM;
@@ -218,6 +222,16 @@ int alt_pr_unregister(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(alt_pr_unregister);
 
+=======
+	mgr = devm_fpga_mgr_create(dev, dev_name(dev), &alt_pr_ops, priv);
+	if (!mgr)
+		return -ENOMEM;
+
+	return devm_fpga_mgr_register(dev, mgr);
+}
+EXPORT_SYMBOL_GPL(alt_pr_register);
+
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Matthew Gerlach <matthew.gerlach@linux.intel.com>");
 MODULE_DESCRIPTION("Altera Partial Reconfiguration IP Core");
 MODULE_LICENSE("GPL v2");

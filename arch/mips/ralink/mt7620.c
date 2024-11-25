@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Parts of this file are based on Ralink's 2.6.21 BSP
  *
@@ -17,7 +22,10 @@
 #include <asm/mipsregs.h>
 #include <asm/mach-ralink/ralink_regs.h>
 #include <asm/mach-ralink/mt7620.h>
+<<<<<<< HEAD
 #include <asm/mach-ralink/pinmux.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "common.h"
 
@@ -52,6 +60,7 @@
 /* does the board have sdram or ddram */
 static int dram_type;
 
+<<<<<<< HEAD
 static struct rt2880_pmx_func i2c_grp[] =  { FUNC("i2c", 0, 1, 2) };
 static struct rt2880_pmx_func spi_grp[] = { FUNC("spi", 0, 3, 4) };
 static struct rt2880_pmx_func uartlite_grp[] = { FUNC("uartlite", 0, 15, 2) };
@@ -366,6 +375,8 @@ static inline int is_mt76x8(void)
 	       ralink_soc == MT762X_SOC_MT7688;
 }
 
+=======
+>>>>>>> upstream/android-13
 static __init u32
 mt7620_calc_rate(u32 ref_rate, u32 mul, u32 div)
 {
@@ -641,7 +652,11 @@ mt7628_dram_init(struct ralink_soc_info *soc_info)
 	}
 }
 
+<<<<<<< HEAD
 void prom_soc_init(struct ralink_soc_info *soc_info)
+=======
+void __init prom_soc_init(struct ralink_soc_info *soc_info)
+>>>>>>> upstream/android-13
 {
 	void __iomem *sysc = (void __iomem *) KSEG1ADDR(MT7620_SYSC_BASE);
 	unsigned char *name = NULL;
@@ -712,9 +727,12 @@ void prom_soc_init(struct ralink_soc_info *soc_info)
 		(pmu0 & PMU_SW_SET) ? ("sw") : ("hw"));
 	pr_info("Digital PMU set to %s control\n",
 		(pmu1 & DIG_SW_SEL) ? ("sw") : ("hw"));
+<<<<<<< HEAD
 
 	if (is_mt76x8())
 		rt2880_pinmux_data = mt7628an_pinmux_data;
 	else
 		rt2880_pinmux_data = mt7620a_pinmux_data;
+=======
+>>>>>>> upstream/android-13
 }

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2009 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CONF_H__
@@ -1164,7 +1171,11 @@ struct wlcore_conf {
 struct wlcore_conf_file {
 	struct wlcore_conf_header header;
 	struct wlcore_conf core;
+<<<<<<< HEAD
 	u8 priv[0];
+=======
+	u8 priv[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #endif

@@ -42,6 +42,7 @@ asmlinkage __visible unsigned long xen_save_fl(void)
 }
 PV_CALLEE_SAVE_REGS_THUNK(xen_save_fl);
 
+<<<<<<< HEAD
 __visible void xen_restore_fl(unsigned long flags)
 {
 	struct vcpu_info *vcpu;
@@ -64,6 +65,8 @@ __visible void xen_restore_fl(unsigned long flags)
 }
 PV_CALLEE_SAVE_REGS_THUNK(xen_restore_fl);
 
+=======
+>>>>>>> upstream/android-13
 asmlinkage __visible void xen_irq_disable(void)
 {
 	/* There's a one instruction preempt window here.  We need to
@@ -118,7 +121,10 @@ static void xen_halt(void)
 
 static const struct pv_irq_ops xen_irq_ops __initconst = {
 	.save_fl = PV_CALLEE_SAVE(xen_save_fl),
+<<<<<<< HEAD
 	.restore_fl = PV_CALLEE_SAVE(xen_restore_fl),
+=======
+>>>>>>> upstream/android-13
 	.irq_disable = PV_CALLEE_SAVE(xen_irq_disable),
 	.irq_enable = PV_CALLEE_SAVE(xen_irq_enable),
 
@@ -128,6 +134,10 @@ static const struct pv_irq_ops xen_irq_ops __initconst = {
 
 void __init xen_init_irq_ops(void)
 {
+<<<<<<< HEAD
 	pv_irq_ops = xen_irq_ops;
+=======
+	pv_ops.irq = xen_irq_ops;
+>>>>>>> upstream/android-13
 	x86_init.irqs.intr_init = xen_init_IRQ;
 }

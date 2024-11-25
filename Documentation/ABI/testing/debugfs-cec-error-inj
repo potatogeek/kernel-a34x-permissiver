@@ -1,6 +1,10 @@
 What:		/sys/kernel/debug/cec/*/error-inj
 Date:		March 2018
+<<<<<<< HEAD
 Contact:	Hans Verkuil <hans.verkuil@cisco.com>
+=======
+Contact:	Hans Verkuil <hverkuil-cisco@xs4all.nl>
+>>>>>>> upstream/android-13
 Description:
 
 The CEC Framework allows for CEC error injection commands through
@@ -23,7 +27,11 @@ error injections without having to know the details of the driver-specific
 commands.
 
 Note that the output of 'error-inj' shall be valid as input to 'error-inj'.
+<<<<<<< HEAD
 So this must work:
+=======
+So this must work::
+>>>>>>> upstream/android-13
 
 	$ cat error-inj >einj.txt
 	$ cat einj.txt >error-inj
@@ -37,4 +45,8 @@ when changes are made.
 
 The following CEC error injection implementations exist:
 
+<<<<<<< HEAD
 - Documentation/media/uapi/cec/cec-pin-error-inj.rst
+=======
+- Documentation/userspace-api/media/cec/cec-pin-error-inj.rst
+>>>>>>> upstream/android-13

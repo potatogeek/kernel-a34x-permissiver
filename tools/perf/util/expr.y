@@ -1,18 +1,38 @@
 /* Simple expression parser */
 %{
+<<<<<<< HEAD
 #include "util.h"
 #include "util/debug.h"
+=======
+#define YYDEBUG 1
+#include <stdio.h>
+#include "util.h"
+#include "util/debug.h"
+#include <stdlib.h> // strtod()
+>>>>>>> upstream/android-13
 #define IN_EXPR_Y 1
 #include "expr.h"
 #include "smt.h"
 #include <string.h>
 
+<<<<<<< HEAD
 #define MAXIDLEN 256
+=======
+static double d_ratio(double val0, double val1)
+{
+	if (val1 == 0) {
+		return 0;
+	}
+	return  val0 / val1;
+}
+
+>>>>>>> upstream/android-13
 %}
 
 %define api.pure full
 
 %parse-param { double *final_val }
+<<<<<<< HEAD
 %parse-param { struct parse_ctx *ctx }
 %parse-param { const char **pp }
 %lex-param { const char **pp }
@@ -25,26 +45,53 @@
 %token <num> NUMBER
 %token <id> ID
 %token MIN MAX IF ELSE SMT_ON
+=======
+%parse-param { struct expr_parse_ctx *ctx }
+%parse-param {void *scanner}
+%lex-param {void* scanner}
+
+%union {
+	double	 num;
+	char	*str;
+}
+
+%token EXPR_PARSE EXPR_OTHER EXPR_ERROR
+%token <num> NUMBER
+%token <str> ID
+%destructor { free ($$); } <str>
+%token MIN MAX IF ELSE SMT_ON D_RATIO
+>>>>>>> upstream/android-13
 %left MIN MAX IF
 %left '|'
 %left '^'
 %left '&'
+<<<<<<< HEAD
+=======
+%left '<' '>'
+>>>>>>> upstream/android-13
 %left '-' '+'
 %left '*' '/' '%'
 %left NEG NOT
 %type <num> expr if_expr
 
 %{
+<<<<<<< HEAD
 static int expr__lex(YYSTYPE *res, const char **pp);
 
 static void expr__error(double *final_val __maybe_unused,
 		       struct parse_ctx *ctx __maybe_unused,
 		       const char **pp __maybe_unused,
+=======
+static void expr_error(double *final_val __maybe_unused,
+		       struct expr_parse_ctx *ctx __maybe_unused,
+		       void *scanner,
+>>>>>>> upstream/android-13
 		       const char *s)
 {
 	pr_debug("%s\n", s);
 }
 
+<<<<<<< HEAD
 static int lookup_id(struct parse_ctx *ctx, char *id, double *val)
 {
 	int i;
@@ -61,6 +108,28 @@ static int lookup_id(struct parse_ctx *ctx, char *id, double *val)
 %}
 %%
 
+=======
+%}
+%%
+
+start:
+EXPR_PARSE all_expr
+|
+EXPR_OTHER all_other
+
+all_other: all_other other
+|
+
+other: ID
+{
+	expr__add_id(ctx, $1);
+}
+|
+MIN | MAX | IF | ELSE | SMT_ON | NUMBER | '|' | '^' | '&' | '-' | '+' | '*' | '/' | '%' | '(' | ')' | ','
+|
+'<' | '>' | D_RATIO
+
+>>>>>>> upstream/android-13
 all_expr: if_expr			{ *final_val = $1; }
 	;
 
@@ -70,24 +139,58 @@ if_expr:
 	;
 
 expr:	  NUMBER
+<<<<<<< HEAD
 	| ID			{ if (lookup_id(ctx, $1, &$$) < 0) {
 					pr_debug("%s not found\n", $1);
 					YYABORT;
 				  }
+=======
+	| ID			{
+					struct expr_id_data *data;
+
+					if (expr__resolve_id(ctx, $1, &data)) {
+						free($1);
+						YYABORT;
+					}
+
+					$$ = expr_id_data__value(data);
+					free($1);
+>>>>>>> upstream/android-13
 				}
 	| expr '|' expr		{ $$ = (long)$1 | (long)$3; }
 	| expr '&' expr		{ $$ = (long)$1 & (long)$3; }
 	| expr '^' expr		{ $$ = (long)$1 ^ (long)$3; }
+<<<<<<< HEAD
 	| expr '+' expr		{ $$ = $1 + $3; }
 	| expr '-' expr		{ $$ = $1 - $3; }
 	| expr '*' expr		{ $$ = $1 * $3; }
 	| expr '/' expr		{ if ($3 == 0) YYABORT; $$ = $1 / $3; }
 	| expr '%' expr		{ if ((long)$3 == 0) YYABORT; $$ = (long)$1 % (long)$3; }
+=======
+	| expr '<' expr		{ $$ = $1 < $3; }
+	| expr '>' expr		{ $$ = $1 > $3; }
+	| expr '+' expr		{ $$ = $1 + $3; }
+	| expr '-' expr		{ $$ = $1 - $3; }
+	| expr '*' expr		{ $$ = $1 * $3; }
+	| expr '/' expr		{ if ($3 == 0) {
+					pr_debug("division by zero\n");
+					YYABORT;
+				  }
+				  $$ = $1 / $3;
+	                        }
+	| expr '%' expr		{ if ((long)$3 == 0) {
+					pr_debug("division by zero\n");
+					YYABORT;
+				  }
+				  $$ = (long)$1 % (long)$3;
+	                        }
+>>>>>>> upstream/android-13
 	| '-' expr %prec NEG	{ $$ = -$2; }
 	| '(' if_expr ')'	{ $$ = $2; }
 	| MIN '(' expr ',' expr ')' { $$ = $3 < $5 ? $3 : $5; }
 	| MAX '(' expr ',' expr ')' { $$ = $3 > $5 ? $3 : $5; }
 	| SMT_ON		 { $$ = smt_on() > 0; }
+<<<<<<< HEAD
 	;
 
 %%
@@ -234,3 +337,9 @@ int expr__find_other(const char *p, const char *one, const char ***other,
 	}
 	return err;
 }
+=======
+	| D_RATIO '(' expr ',' expr ')' { $$ = d_ratio($3,$5); }
+	;
+
+%%
+>>>>>>> upstream/android-13

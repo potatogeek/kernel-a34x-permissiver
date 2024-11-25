@@ -52,7 +52,11 @@ extern int bnx2x_num_queues;
 
 #define BNX2X_PCI_ALLOC(y, size)					\
 ({									\
+<<<<<<< HEAD
 	void *x = dma_zalloc_coherent(&bp->pdev->dev, size, y, GFP_KERNEL); \
+=======
+	void *x = dma_alloc_coherent(&bp->pdev->dev, size, y, GFP_KERNEL); \
+>>>>>>> upstream/android-13
 	if (x)								\
 		DP(NETIF_MSG_HW,					\
 		   "BNX2X_PCI_ALLOC: Physical %Lx Virtual %p\n",	\
@@ -496,11 +500,19 @@ int bnx2x_get_vf_config(struct net_device *dev, int vf,
 int bnx2x_set_vf_mac(struct net_device *dev, int queue, u8 *mac);
 int bnx2x_set_vf_vlan(struct net_device *netdev, int vf, u16 vlan, u8 qos,
 		      __be16 vlan_proto);
+<<<<<<< HEAD
 
 /* select_queue callback */
 u16 bnx2x_select_queue(struct net_device *dev, struct sk_buff *skb,
 		       struct net_device *sb_dev,
 		       select_queue_fallback_t fallback);
+=======
+int bnx2x_set_vf_spoofchk(struct net_device *dev, int idx, bool val);
+
+/* select_queue callback */
+u16 bnx2x_select_queue(struct net_device *dev, struct sk_buff *skb,
+		       struct net_device *sb_dev);
+>>>>>>> upstream/android-13
 
 static inline void bnx2x_update_rx_prod(struct bnx2x *bp,
 					struct bnx2x_fastpath *fp,
@@ -528,8 +540,11 @@ static inline void bnx2x_update_rx_prod(struct bnx2x *bp,
 		REG_WR_RELAXED(bp, fp->ustorm_rx_prods_offset + i * 4,
 			       ((u32 *)&rx_prods)[i]);
 
+<<<<<<< HEAD
 	mmiowb(); /* keep prod updates ordered */
 
+=======
+>>>>>>> upstream/android-13
 	DP(NETIF_MSG_RX_STATUS,
 	   "queue[%d]:  wrote  bd_prod %u  cqe_prod %u  sge_prod %u\n",
 	   fp->index, bd_prod, rx_comp_prod, rx_sge_prod);
@@ -543,9 +558,13 @@ int bnx2x_change_mac_addr(struct net_device *dev, void *p);
 /* NAPI poll Tx part */
 int bnx2x_tx_int(struct bnx2x *bp, struct bnx2x_fp_txdata *txdata);
 
+<<<<<<< HEAD
 /* suspend/resume callbacks */
 int bnx2x_suspend(struct pci_dev *pdev, pm_message_t state);
 int bnx2x_resume(struct pci_dev *pdev);
+=======
+extern const struct dev_pm_ops bnx2x_pm_ops;
+>>>>>>> upstream/android-13
 
 /* Release IRQ vectors */
 void bnx2x_free_irq(struct bnx2x *bp);
@@ -619,7 +638,11 @@ int bnx2x_set_features(struct net_device *dev, netdev_features_t features);
  *
  * @dev:	net device
  */
+<<<<<<< HEAD
 void bnx2x_tx_timeout(struct net_device *dev);
+=======
+void bnx2x_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 /** bnx2x_get_c2s_mapping - read inner-to-outer vlan configuration
  * c2s_map should have BNX2X_MAX_PRIORITY entries.
@@ -654,7 +677,10 @@ static inline void bnx2x_igu_ack_sb_gen(struct bnx2x *bp, u8 igu_sb_id,
 	REG_WR(bp, igu_addr, cmd_data.sb_id_and_flags);
 
 	/* Make sure that ACK is written */
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	barrier();
 }
 
@@ -675,7 +701,10 @@ static inline void bnx2x_hc_ack_sb(struct bnx2x *bp, u8 sb_id,
 	REG_WR(bp, hc_addr, (*(u32 *)&igu_ack));
 
 	/* Make sure that ACK is written */
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	barrier();
 }
 
@@ -831,9 +860,15 @@ static inline void bnx2x_del_all_napi_cnic(struct bnx2x *bp)
 	int i;
 
 	for_each_rx_queue_cnic(bp, i) {
+<<<<<<< HEAD
 		napi_hash_del(&bnx2x_fp(bp, i, napi));
 		netif_napi_del(&bnx2x_fp(bp, i, napi));
 	}
+=======
+		__netif_napi_del(&bnx2x_fp(bp, i, napi));
+	}
+	synchronize_net();
+>>>>>>> upstream/android-13
 }
 
 static inline void bnx2x_del_all_napi(struct bnx2x *bp)
@@ -841,9 +876,15 @@ static inline void bnx2x_del_all_napi(struct bnx2x *bp)
 	int i;
 
 	for_each_eth_queue(bp, i) {
+<<<<<<< HEAD
 		napi_hash_del(&bnx2x_fp(bp, i, napi));
 		netif_napi_del(&bnx2x_fp(bp, i, napi));
 	}
+=======
+		__netif_napi_del(&bnx2x_fp(bp, i, napi));
+	}
+	synchronize_net();
+>>>>>>> upstream/android-13
 }
 
 int bnx2x_set_int_mode(struct bnx2x *bp);
@@ -966,12 +1007,21 @@ static inline int bnx2x_func_start(struct bnx2x *bp)
 		start_params->network_cos_mode = STATIC_COS;
 	else /* CHIP_IS_E1X */
 		start_params->network_cos_mode = FW_WRR;
+<<<<<<< HEAD
 	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN].count) {
 		port = bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN].dst_port;
 		start_params->vxlan_dst_port = port;
 	}
 	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE].count) {
 		port = bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE].dst_port;
+=======
+	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN]) {
+		port = bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN];
+		start_params->vxlan_dst_port = port;
+	}
+	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE]) {
+		port = bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE];
+>>>>>>> upstream/android-13
 		start_params->geneve_dst_port = port;
 	}
 

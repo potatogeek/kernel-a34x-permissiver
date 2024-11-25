@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 Marvell International Ltd.
  *		Zhangfei Gao <zhangfei.gao@marvell.com>
@@ -5,6 +9,7 @@
  *		Jun Nie <njun@marvell.com>
  *		Qiming Wu <wuqm@marvell.com>
  *		Philip Rakity <prakity@marvell.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -23,7 +30,10 @@
 #include <linux/clk.h>
 #include <linux/module.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mmc/card.h>
 #include <linux/mmc/host.h>
 #include <linux/platform_data/pxa_sdhci.h>
@@ -236,6 +246,10 @@ free:
 static struct platform_driver sdhci_pxav2_driver = {
 	.driver		= {
 		.name	= "sdhci-pxav2",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(sdhci_pxav2_of_match),
 		.pm	= &sdhci_pltfm_pmops,
 	},

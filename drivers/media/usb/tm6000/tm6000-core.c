@@ -668,7 +668,11 @@ int tm6000_set_audio_rinput(struct tm6000_core *dev)
 			areg_f0 = 0x04;
 			break;
 		default:
+<<<<<<< HEAD
 			printk(KERN_INFO "%s: audio input dosn't support\n",
+=======
+			printk(KERN_INFO "%s: audio input doesn't support\n",
+>>>>>>> upstream/android-13
 				dev->name);
 			return 0;
 			break;
@@ -690,7 +694,11 @@ int tm6000_set_audio_rinput(struct tm6000_core *dev)
 			areg_eb = 0x04;
 			break;
 		default:
+<<<<<<< HEAD
 			printk(KERN_INFO "%s: audio input dosn't support\n",
+=======
+			printk(KERN_INFO "%s: audio input doesn't support\n",
+>>>>>>> upstream/android-13
 				dev->name);
 			return 0;
 			break;
@@ -853,11 +861,17 @@ int tm6000_call_fillbuf(struct tm6000_core *dev, enum tm6000_ops_type type,
 
 	/* FIXME: tm6000_extension_devlist_lock should be a spinlock */
 
+<<<<<<< HEAD
 	if (!list_empty(&tm6000_extension_devlist)) {
 		list_for_each_entry(ops, &tm6000_extension_devlist, next) {
 			if (ops->fillbuf && ops->type == type)
 				ops->fillbuf(dev, buf, size);
 		}
+=======
+	list_for_each_entry(ops, &tm6000_extension_devlist, next) {
+		if (ops->fillbuf && ops->type == type)
+			ops->fillbuf(dev, buf, size);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -898,11 +912,17 @@ void tm6000_init_extension(struct tm6000_core *dev)
 	struct tm6000_ops *ops = NULL;
 
 	mutex_lock(&tm6000_devlist_mutex);
+<<<<<<< HEAD
 	if (!list_empty(&tm6000_extension_devlist)) {
 		list_for_each_entry(ops, &tm6000_extension_devlist, next) {
 			if (ops->init)
 				ops->init(dev);
 		}
+=======
+	list_for_each_entry(ops, &tm6000_extension_devlist, next) {
+		if (ops->init)
+			ops->init(dev);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&tm6000_devlist_mutex);
 }
@@ -912,11 +932,17 @@ void tm6000_close_extension(struct tm6000_core *dev)
 	struct tm6000_ops *ops = NULL;
 
 	mutex_lock(&tm6000_devlist_mutex);
+<<<<<<< HEAD
 	if (!list_empty(&tm6000_extension_devlist)) {
 		list_for_each_entry(ops, &tm6000_extension_devlist, next) {
 			if (ops->fini)
 				ops->fini(dev);
 		}
+=======
+	list_for_each_entry(ops, &tm6000_extension_devlist, next) {
+		if (ops->fini)
+			ops->fini(dev);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&tm6000_devlist_mutex);
 }

@@ -123,27 +123,49 @@ static const unsigned int clu_codes[] = {
 };
 
 static int clu_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
 			      struct v4l2_subdev_mbus_code_enum *code)
 {
 	return vsp1_subdev_enum_mbus_code(subdev, cfg, code, clu_codes,
+=======
+			      struct v4l2_subdev_state *sd_state,
+			      struct v4l2_subdev_mbus_code_enum *code)
+{
+	return vsp1_subdev_enum_mbus_code(subdev, sd_state, code, clu_codes,
+>>>>>>> upstream/android-13
 					  ARRAY_SIZE(clu_codes));
 }
 
 static int clu_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
 			       struct v4l2_subdev_frame_size_enum *fse)
 {
 	return vsp1_subdev_enum_frame_size(subdev, cfg, fse, CLU_MIN_SIZE,
+=======
+			       struct v4l2_subdev_state *sd_state,
+			       struct v4l2_subdev_frame_size_enum *fse)
+{
+	return vsp1_subdev_enum_frame_size(subdev, sd_state, fse,
+					   CLU_MIN_SIZE,
+>>>>>>> upstream/android-13
 					   CLU_MIN_SIZE, CLU_MAX_SIZE,
 					   CLU_MAX_SIZE);
 }
 
 static int clu_set_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
 			  struct v4l2_subdev_format *fmt)
 {
 	return vsp1_subdev_set_pad_format(subdev, cfg, fmt, clu_codes,
+=======
+			  struct v4l2_subdev_state *sd_state,
+			  struct v4l2_subdev_format *fmt)
+{
+	return vsp1_subdev_set_pad_format(subdev, sd_state, fmt, clu_codes,
+>>>>>>> upstream/android-13
 					  ARRAY_SIZE(clu_codes),
 					  CLU_MIN_SIZE, CLU_MIN_SIZE,
 					  CLU_MAX_SIZE, CLU_MAX_SIZE);
@@ -171,6 +193,10 @@ static const struct v4l2_subdev_ops clu_ops = {
 
 static void clu_configure_stream(struct vsp1_entity *entity,
 				 struct vsp1_pipeline *pipe,
+<<<<<<< HEAD
+=======
+				 struct vsp1_dl_list *dl,
+>>>>>>> upstream/android-13
 				 struct vsp1_dl_body *dlb)
 {
 	struct vsp1_clu *clu = to_clu(&entity->subdev);

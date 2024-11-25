@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * irq.c: API for in kernel interrupt controller
  * Copyright (c) 2007, Intel Corporation.
  * Copyright 2009 Red Hat, Inc. and/or its affiliates.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -18,6 +23,10 @@
  * Authors:
  *   Yaozu (Eddie) Dong <Eddie.dong@intel.com>
  *
+=======
+ * Authors:
+ *   Yaozu (Eddie) Dong <Eddie.dong@intel.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -26,6 +35,10 @@
 #include "irq.h"
 #include "i8254.h"
 #include "x86.h"
+<<<<<<< HEAD
+=======
+#include "xen.h"
+>>>>>>> upstream/android-13
 
 /*
  * check if there are pending timer events
@@ -68,6 +81,12 @@ int kvm_cpu_has_extint(struct kvm_vcpu *v)
 	if (!lapic_in_kernel(v))
 		return v->arch.interrupt.injected;
 
+<<<<<<< HEAD
+=======
+	if (kvm_xen_has_interrupt(v))
+		return 1;
+
+>>>>>>> upstream/android-13
 	if (!kvm_apic_accept_pic_intr(v))
 		return 0;
 
@@ -93,6 +112,10 @@ int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
 
 	return kvm_apic_has_interrupt(v) != -1; /* LAPIC */
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(kvm_cpu_has_injectable_intr);
+>>>>>>> upstream/android-13
 
 /*
  * check if there is pending interrupt without
@@ -121,6 +144,12 @@ static int kvm_cpu_get_extint(struct kvm_vcpu *v)
 	if (!lapic_in_kernel(v))
 		return v->arch.interrupt.nr;
 
+<<<<<<< HEAD
+=======
+	if (kvm_xen_has_interrupt(v))
+		return v->kvm->arch.xen.upcall_vector;
+
+>>>>>>> upstream/android-13
 	if (irqchip_split(v->kvm)) {
 		int vector = v->arch.pending_external_vector;
 
@@ -154,6 +183,10 @@ void __kvm_migrate_timers(struct kvm_vcpu *vcpu)
 {
 	__kvm_migrate_apic_timer(vcpu);
 	__kvm_migrate_pit_timer(vcpu);
+<<<<<<< HEAD
+=======
+	static_call_cond(kvm_x86_migrate_timers)(vcpu);
+>>>>>>> upstream/android-13
 }
 
 bool kvm_arch_irqfd_allowed(struct kvm *kvm, struct kvm_irqfd *args)

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics uvis25 sensor driver
  *
  * Copyright 2017 STMicroelectronics Inc.
  *
  * Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ST_UVIS25_H

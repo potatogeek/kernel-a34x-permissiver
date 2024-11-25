@@ -35,7 +35,12 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 {
 	int oldval = 0, ret;
 
+<<<<<<< HEAD
 	pagefault_disable();
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 
 	switch (op) {
 	case FUTEX_OP_SET:
@@ -57,8 +62,11 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 		ret = -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	pagefault_enable();
 
+=======
+>>>>>>> upstream/android-13
 	if (!ret)
 		*oval = oldval;
 
@@ -72,7 +80,11 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 	int ret = 0;
 	u32 prev;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	__asm__ __volatile__ (				\

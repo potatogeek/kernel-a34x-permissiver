@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* IRC extension for TCP NAT alteration.
  *
  * (C) 2000-2001 by Harald Welte <laforge@gnumonks.org>
  * (C) 2004 Rusty Russell <rusty@rustcorp.com.au> IBM Corporation
  * based on a copy of RR's ip_nat_ftp.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -23,10 +30,22 @@
 #include <net/netfilter/nf_conntrack_expect.h>
 #include <linux/netfilter/nf_conntrack_irc.h>
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Harald Welte <laforge@gnumonks.org>");
 MODULE_DESCRIPTION("IRC (DCC) NAT helper");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("ip_nat_irc");
+=======
+#define NAT_HELPER_NAME "irc"
+
+MODULE_AUTHOR("Harald Welte <laforge@gnumonks.org>");
+MODULE_DESCRIPTION("IRC (DCC) NAT helper");
+MODULE_LICENSE("GPL");
+MODULE_ALIAS_NF_NAT_HELPER(NAT_HELPER_NAME);
+
+static struct nf_conntrack_nat_helper nat_helper_irc =
+	NF_CT_NAT_HELPER_INIT(NAT_HELPER_NAME);
+>>>>>>> upstream/android-13
 
 static unsigned int help(struct sk_buff *skb,
 			 enum ip_conntrack_info ctinfo,
@@ -52,7 +71,11 @@ static unsigned int help(struct sk_buff *skb,
 		int ret;
 
 		exp->tuple.dst.u.tcp.port = htons(port);
+<<<<<<< HEAD
 		ret = nf_ct_expect_related(exp);
+=======
+		ret = nf_ct_expect_related(exp, 0);
+>>>>>>> upstream/android-13
 		if (ret == 0)
 			break;
 		else if (ret != -EBUSY) {
@@ -96,6 +119,10 @@ static unsigned int help(struct sk_buff *skb,
 
 static void __exit nf_nat_irc_fini(void)
 {
+<<<<<<< HEAD
+=======
+	nf_nat_helper_unregister(&nat_helper_irc);
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(nf_nat_irc_hook, NULL);
 	synchronize_rcu();
 }
@@ -103,6 +130,10 @@ static void __exit nf_nat_irc_fini(void)
 static int __init nf_nat_irc_init(void)
 {
 	BUG_ON(nf_nat_irc_hook != NULL);
+<<<<<<< HEAD
+=======
+	nf_nat_helper_register(&nat_helper_irc);
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(nf_nat_irc_hook, help);
 	return 0;
 }

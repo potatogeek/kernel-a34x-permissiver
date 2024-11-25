@@ -347,7 +347,11 @@ static void ehci_iaa_watchdog(struct ehci_hcd *ehci)
 	 */
 	status = ehci_readl(ehci, &ehci->regs->status);
 	if ((status & STS_IAA) || !(cmd & CMD_IAAD)) {
+<<<<<<< HEAD
 		COUNT(ehci->stats.lost_iaa);
+=======
+		INCR(ehci->stats.lost_iaa);
+>>>>>>> upstream/android-13
 		ehci_writel(ehci, STS_IAA, &ehci->regs->status);
 	}
 

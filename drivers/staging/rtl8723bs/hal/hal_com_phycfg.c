@@ -4,19 +4,28 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _HAL_COM_PHYCFG_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <hal_data.h>
 #include <linux/kernel.h>
 
+<<<<<<< HEAD
 u8 PHY_GetTxPowerByRateBase(struct adapter *Adapter, u8 Band, u8 RfPath,
 			    u8 TxNum, enum RATE_SECTION RateSection)
+=======
+u8 PHY_GetTxPowerByRateBase(struct adapter *Adapter, u8 RfPath,
+			    enum rate_section RateSection)
+>>>>>>> upstream/android-13
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(Adapter);
 	u8	value = 0;
 
+<<<<<<< HEAD
 	if (RfPath > ODM_RF_PATH_D) {
 		DBG_871X("Invalid Rf Path %d in PHY_GetTxPowerByRateBase()\n", RfPath);
 		return 0;
@@ -95,11 +104,30 @@ u8 PHY_GetTxPowerByRateBase(struct adapter *Adapter, u8 Band, u8 RfPath,
 		}
 	} else
 		DBG_871X("Invalid Band %d in PHY_GetTxPowerByRateBase()\n", Band);
+=======
+	if (RfPath >= RF_PATH_MAX)
+		return 0;
+
+	switch (RateSection) {
+	case CCK:
+		value = pHalData->TxPwrByRateBase2_4G[RfPath][0];
+		break;
+	case OFDM:
+		value = pHalData->TxPwrByRateBase2_4G[RfPath][1];
+		break;
+	case HT_MCS0_MCS7:
+		value = pHalData->TxPwrByRateBase2_4G[RfPath][2];
+		break;
+	default:
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	return value;
 }
 
 static void
+<<<<<<< HEAD
 phy_SetTxPowerByRateBase(
 	struct adapter *Adapter,
 	u8 Band,
@@ -189,6 +217,29 @@ phy_SetTxPowerByRateBase(
 		}
 	} else
 		DBG_871X("Invalid Band %d in phy_SetTxPowerByRateBase()\n", Band);
+=======
+phy_SetTxPowerByRateBase(struct adapter *Adapter, u8 RfPath,
+			 enum rate_section RateSection, u8 Value)
+{
+	struct hal_com_data	*pHalData = GET_HAL_DATA(Adapter);
+
+	if (RfPath >= RF_PATH_MAX)
+		return;
+
+	switch (RateSection) {
+	case CCK:
+		pHalData->TxPwrByRateBase2_4G[RfPath][0] = Value;
+		break;
+	case OFDM:
+		pHalData->TxPwrByRateBase2_4G[RfPath][1] = Value;
+		break;
+	case HT_MCS0_MCS7:
+		pHalData->TxPwrByRateBase2_4G[RfPath][2] = Value;
+		break;
+	default:
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -198,6 +249,7 @@ struct adapter *padapter
 {
 	u8 path, base;
 
+<<<<<<< HEAD
 	/* DBG_871X("===>%s\n", __func__); */
 
 	for (path = ODM_RF_PATH_A; path <= ODM_RF_PATH_B; ++path) {
@@ -263,6 +315,18 @@ struct adapter *padapter
 	}
 
 	/* DBG_871X("<===%s\n", __func__); */
+=======
+	for (path = RF_PATH_A; path <= RF_PATH_B; ++path) {
+		base = PHY_GetTxPowerByRate(padapter, path, MGN_11M);
+		phy_SetTxPowerByRateBase(padapter, path, CCK, base);
+
+		base = PHY_GetTxPowerByRate(padapter, path, MGN_54M);
+		phy_SetTxPowerByRateBase(padapter, path, OFDM, base);
+
+		base = PHY_GetTxPowerByRate(padapter, path, MGN_MCS7);
+		phy_SetTxPowerByRateBase(padapter, path, HT_MCS0_MCS7, base);
+	}
+>>>>>>> upstream/android-13
 }
 
 u8 PHY_GetRateSectionIndexOfTxPowerByRate(
@@ -270,7 +334,11 @@ u8 PHY_GetRateSectionIndexOfTxPowerByRate(
 )
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
+=======
+	struct dm_odm_t *pDM_Odm = &pHalData->odmpriv;
+>>>>>>> upstream/android-13
 	u8	index = 0;
 
 	if (pDM_Odm->PhyRegPgVersion == 0) {
@@ -297,12 +365,15 @@ u8 PHY_GetRateSectionIndexOfTxPowerByRate(
 		case rTxAGC_A_Mcs07_Mcs04:
 			index = 3;
 			break;
+<<<<<<< HEAD
 		case rTxAGC_A_Mcs11_Mcs08:
 			index = 4;
 			break;
 		case rTxAGC_A_Mcs15_Mcs12:
 			index = 5;
 			break;
+=======
+>>>>>>> upstream/android-13
 		case rTxAGC_B_Rate18_06:
 			index = 8;
 			break;
@@ -318,6 +389,7 @@ u8 PHY_GetRateSectionIndexOfTxPowerByRate(
 		case rTxAGC_B_Mcs07_Mcs04:
 			index = 11;
 			break;
+<<<<<<< HEAD
 		case rTxAGC_B_Mcs11_Mcs08:
 			index = 12;
 			break;
@@ -326,6 +398,9 @@ u8 PHY_GetRateSectionIndexOfTxPowerByRate(
 			break;
 		default:
 			DBG_871X("Invalid RegAddr 0x3%x in PHY_GetRateSectionIndexOfTxPowerByRate()", RegAddr);
+=======
+		default:
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -423,6 +498,7 @@ PHY_GetRateValuesOfTxPowerByRate(
 		*RateNum = 4;
 		break;
 
+<<<<<<< HEAD
 	case rTxAGC_A_Mcs11_Mcs08:
 	case rTxAGC_B_Mcs11_Mcs08:
 		RateIndex[0] = PHY_GetRateIndexOfTxPowerByRate(MGN_MCS8);
@@ -450,6 +526,8 @@ PHY_GetRateValuesOfTxPowerByRate(
 
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case rTxAGC_B_CCK1_55_Mcs32:
 		RateIndex[0] = PHY_GetRateIndexOfTxPowerByRate(MGN_1M);
 		RateIndex[1] = PHY_GetRateIndexOfTxPowerByRate(MGN_2M);
@@ -536,6 +614,7 @@ PHY_GetRateValuesOfTxPowerByRate(
 		*RateNum = 4;
 		break;
 
+<<<<<<< HEAD
 	case 0xC34:
 	case 0xE34:
 	case 0x1834:
@@ -716,10 +795,14 @@ PHY_GetRateValuesOfTxPowerByRate(
 
 	default:
 		DBG_871X("Invalid RegAddr 0x%x in %s()\n", RegAddr, __func__);
+=======
+	default:
+>>>>>>> upstream/android-13
 		break;
 	}
 }
 
+<<<<<<< HEAD
 static void PHY_StoreTxPowerByRateNew(
 	struct adapter *padapter,
 	u32	Band,
@@ -729,6 +812,10 @@ static void PHY_StoreTxPowerByRateNew(
 	u32	BitMask,
 	u32	Data
 )
+=======
+static void PHY_StoreTxPowerByRateNew(struct adapter *padapter,	u32 RfPath,
+				      u32 RegAddr, u32 BitMask, u32 Data)
+>>>>>>> upstream/android-13
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
 	u8 i = 0, rateIndex[4] = {0}, rateNum = 0;
@@ -736,6 +823,7 @@ static void PHY_StoreTxPowerByRateNew(
 
 	PHY_GetRateValuesOfTxPowerByRate(padapter, RegAddr, BitMask, Data, rateIndex, PwrByRateVal, &rateNum);
 
+<<<<<<< HEAD
 	if (Band != BAND_ON_2_4G && Band != BAND_ON_5G) {
 		DBG_871X("Invalid Band %d\n", Band);
 		return;
@@ -757,6 +845,13 @@ static void PHY_StoreTxPowerByRateNew(
 			TxNum = RF_2TX;
 
 		pHalData->TxPwrByRateOffset[Band][RfPath][TxNum][rateIndex[i]] = PwrByRateVal[i];
+=======
+	if (RfPath >= RF_PATH_MAX)
+		return;
+
+	for (i = 0; i < rateNum; ++i) {
+		pHalData->TxPwrByRateOffset[RfPath][rateIndex[i]] = PwrByRateVal[i];
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -768,13 +863,17 @@ static void PHY_StoreTxPowerByRateOld(
 	u8	index = PHY_GetRateSectionIndexOfTxPowerByRate(padapter, RegAddr, BitMask);
 
 	pHalData->MCSTxPowerLevelOriginalOffset[pHalData->pwrGroupCnt][index] = Data;
+<<<<<<< HEAD
 	/* DBG_871X("MCSTxPowerLevelOriginalOffset[%d][0] = 0x%x\n", pHalData->pwrGroupCnt, */
 	/*	pHalData->MCSTxPowerLevelOriginalOffset[pHalData->pwrGroupCnt][0]); */
+=======
+>>>>>>> upstream/android-13
 }
 
 void PHY_InitTxPowerByRate(struct adapter *padapter)
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	u8 band, rfPath, TxNum, rate;
 
 	for (band = BAND_ON_2_4G; band <= BAND_ON_5G; ++band)
@@ -782,19 +881,31 @@ void PHY_InitTxPowerByRate(struct adapter *padapter)
 				for (TxNum = 0; TxNum < TX_PWR_BY_RATE_NUM_RF; ++TxNum)
 					for (rate = 0; rate < TX_PWR_BY_RATE_NUM_RATE; ++rate)
 						pHalData->TxPwrByRateOffset[band][rfPath][TxNum][rate] = 0;
+=======
+	u8 rfPath, rate;
+
+	for (rfPath = RF_PATH_A; rfPath < MAX_RF_PATH_NUM; ++rfPath)
+		for (rate = 0; rate < TX_PWR_BY_RATE_NUM_RATE; ++rate)
+			pHalData->TxPwrByRateOffset[rfPath][rate] = 0;
+>>>>>>> upstream/android-13
 }
 
 void PHY_StoreTxPowerByRate(
 	struct adapter *padapter,
+<<<<<<< HEAD
 	u32	Band,
 	u32	RfPath,
 	u32	TxNum,
+=======
+	u32	RfPath,
+>>>>>>> upstream/android-13
 	u32	RegAddr,
 	u32	BitMask,
 	u32	Data
 )
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
 
 	if (pDM_Odm->PhyRegPgVersion > 0)
@@ -809,6 +920,15 @@ void PHY_StoreTxPowerByRate(
 	} else
 		DBG_871X("Invalid PHY_REG_PG.txt version %d\n",  pDM_Odm->PhyRegPgVersion);
 
+=======
+	struct dm_odm_t *pDM_Odm = &pHalData->odmpriv;
+
+	if (pDM_Odm->PhyRegPgVersion > 0)
+		PHY_StoreTxPowerByRateNew(padapter, RfPath, RegAddr, BitMask, Data);
+	else if (pDM_Odm->PhyRegPgVersion == 0) {
+		PHY_StoreTxPowerByRateOld(padapter, RegAddr, BitMask, Data);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -816,7 +936,11 @@ phy_ConvertTxPowerByRateInDbmToRelativeValues(
 struct adapter *padapter
 	)
 {
+<<<<<<< HEAD
 	u8	base = 0, i = 0, value = 0, band = 0, path = 0, txNum = 0;
+=======
+	u8	base = 0, i = 0, value = 0, path = 0;
+>>>>>>> upstream/android-13
 	u8	cckRates[4] = {
 		MGN_1M, MGN_2M, MGN_5_5M, MGN_11M
 	};
@@ -826,6 +950,7 @@ struct adapter *padapter
 	u8 mcs0_7Rates[8] = {
 		MGN_MCS0, MGN_MCS1, MGN_MCS2, MGN_MCS3, MGN_MCS4, MGN_MCS5, MGN_MCS6, MGN_MCS7
 	};
+<<<<<<< HEAD
 	u8 mcs8_15Rates[8] = {
 		MGN_MCS8, MGN_MCS9, MGN_MCS10, MGN_MCS11, MGN_MCS12, MGN_MCS13, MGN_MCS14, MGN_MCS15
 	};
@@ -910,6 +1035,30 @@ struct adapter *padapter
 	}
 
 	/* DBG_871X("<===PHY_ConvertTxPowerByRateInDbmToRelativeValues()\n"); */
+=======
+	for (path = RF_PATH_A; path < RF_PATH_MAX; ++path) {
+		/*  CCK */
+		base = PHY_GetTxPowerByRate(padapter, path, MGN_11M);
+		for (i = 0; i < ARRAY_SIZE(cckRates); ++i) {
+			value = PHY_GetTxPowerByRate(padapter, path, cckRates[i]);
+			PHY_SetTxPowerByRate(padapter, path, cckRates[i], value - base);
+		}
+
+		/*  OFDM */
+		base = PHY_GetTxPowerByRate(padapter, path, MGN_54M);
+		for (i = 0; i < sizeof(ofdmRates); ++i) {
+			value = PHY_GetTxPowerByRate(padapter, path, ofdmRates[i]);
+			PHY_SetTxPowerByRate(padapter, path, ofdmRates[i], value - base);
+		}
+
+		/*  HT MCS0~7 */
+		base = PHY_GetTxPowerByRate(padapter, path, MGN_MCS7);
+		for (i = 0; i < sizeof(mcs0_7Rates); ++i) {
+			value = PHY_GetTxPowerByRate(padapter, path, mcs0_7Rates[i]);
+			PHY_SetTxPowerByRate(padapter, path, mcs0_7Rates[i], value - base);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -930,11 +1079,18 @@ void PHY_SetTxPowerIndexByRateSection(
 
 	if (RateSection == CCK) {
 		u8 cckRates[]   = {MGN_1M, MGN_2M, MGN_5_5M, MGN_11M};
+<<<<<<< HEAD
 		if (pHalData->CurrentBandType == BAND_ON_2_4G)
 			PHY_SetTxPowerIndexByRateArray(padapter, RFPath,
 						     pHalData->CurrentChannelBW,
 						     Channel, cckRates,
 						     ARRAY_SIZE(cckRates));
+=======
+		PHY_SetTxPowerIndexByRateArray(padapter, RFPath,
+					     pHalData->CurrentChannelBW,
+					     Channel, cckRates,
+					     ARRAY_SIZE(cckRates));
+>>>>>>> upstream/android-13
 
 	} else if (RateSection == OFDM) {
 		u8 ofdmRates[]  = {MGN_6M, MGN_9M, MGN_12M, MGN_18M, MGN_24M, MGN_36M, MGN_48M, MGN_54M};
@@ -950,6 +1106,7 @@ void PHY_SetTxPowerIndexByRateSection(
 					       Channel, htRates1T,
 					       ARRAY_SIZE(htRates1T));
 
+<<<<<<< HEAD
 	} else if (RateSection == HT_MCS8_MCS15) {
 		u8 htRates2T[]  = {MGN_MCS8, MGN_MCS9, MGN_MCS10, MGN_MCS11, MGN_MCS12, MGN_MCS13, MGN_MCS14, MGN_MCS15};
 		PHY_SetTxPowerIndexByRateArray(padapter, RFPath,
@@ -1033,12 +1190,16 @@ static bool phy_GetChnlIndex(u8 Channel, u8 *ChannelIdx)
 	}
 
 	return bIn24G;
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 u8 PHY_GetTxPowerIndexBase(
 	struct adapter *padapter,
 	u8 RFPath,
 	u8 Rate,
+<<<<<<< HEAD
 	enum CHANNEL_WIDTH	BandWidth,
 	u8 Channel,
 	bool *bIn24G
@@ -1180,6 +1341,34 @@ u8 PHY_GetTxPowerIndexBase(
 			/*	pHalData->BW80_5G_Diff[RFPath][TX_1S], pHalData->BW80_5G_Diff[RFPath][TX_2S], */
 			/*	pHalData->BW80_5G_Diff[RFPath][TX_3S], pHalData->BW80_5G_Diff[RFPath][TX_4S]); */
 		}
+=======
+	enum channel_width	BandWidth,
+	u8 Channel
+)
+{
+	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+	u8 txPower = 0;
+	u8 chnlIdx = (Channel-1);
+
+	if (HAL_IsLegalChannel(padapter, Channel) == false)
+		chnlIdx = 0;
+
+	if (IS_CCK_RATE(Rate))
+		txPower = pHalData->Index24G_CCK_Base[RFPath][chnlIdx];
+	else if (MGN_6M <= Rate)
+		txPower = pHalData->Index24G_BW40_Base[RFPath][chnlIdx];
+
+	/*  OFDM-1T */
+	if ((MGN_6M <= Rate && Rate <= MGN_54M) && !IS_CCK_RATE(Rate))
+		txPower += pHalData->OFDM_24G_Diff[RFPath][TX_1S];
+
+	if (BandWidth == CHANNEL_WIDTH_20) { /*  BW20-1S, BW20-2S */
+		if (MGN_MCS0 <= Rate && Rate <= MGN_MCS7)
+			txPower += pHalData->BW20_24G_Diff[RFPath][TX_1S];
+	} else if (BandWidth == CHANNEL_WIDTH_40) { /*  BW40-1S, BW40-2S */
+		if (MGN_MCS0 <= Rate && Rate <= MGN_MCS7)
+			txPower += pHalData->BW40_24G_Diff[RFPath][TX_1S];
+>>>>>>> upstream/android-13
 	}
 
 	return txPower;
@@ -1188,12 +1377,17 @@ u8 PHY_GetTxPowerIndexBase(
 s8 PHY_GetTxPowerTrackingOffset(struct adapter *padapter, u8 RFPath, u8 Rate)
 {
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = &pHalData->odmpriv;
+=======
+	struct dm_odm_t *pDM_Odm = &pHalData->odmpriv;
+>>>>>>> upstream/android-13
 	s8 offset = 0;
 
 	if (pDM_Odm->RFCalibrateInfo.TxPowerTrackControl  == false)
 		return offset;
 
+<<<<<<< HEAD
 	if ((Rate == MGN_1M) || (Rate == MGN_2M) || (Rate == MGN_5_5M) || (Rate == MGN_11M)) {
 		offset = pDM_Odm->Remnant_CCKSwingIdx;
 		/* DBG_871X("+Remnant_CCKSwingIdx = 0x%x\n", RFPath, Rate, pDM_Odm->Remnant_CCKSwingIdx); */
@@ -1202,6 +1396,12 @@ s8 PHY_GetTxPowerTrackingOffset(struct adapter *padapter, u8 RFPath, u8 Rate)
 		/* DBG_871X("+Remanant_OFDMSwingIdx[RFPath %u][Rate 0x%x] = 0x%x\n", RFPath, Rate, pDM_Odm->Remnant_OFDMSwingIdx[RFPath]); */
 
 	}
+=======
+	if ((Rate == MGN_1M) || (Rate == MGN_2M) || (Rate == MGN_5_5M) || (Rate == MGN_11M))
+		offset = pDM_Odm->Remnant_CCKSwingIdx;
+	else
+		offset = pDM_Odm->Remnant_OFDMSwingIdx[RFPath];
+>>>>>>> upstream/android-13
 
 	return offset;
 }
@@ -1270,6 +1470,7 @@ u8 PHY_GetRateIndexOfTxPowerByRate(u8 Rate)
 	case MGN_MCS7:
 		index = 19;
 		break;
+<<<<<<< HEAD
 	case MGN_MCS8:
 		index = 20;
 		break;
@@ -1464,14 +1665,21 @@ u8 PHY_GetRateIndexOfTxPowerByRate(u8 Rate)
 		break;
 	default:
 		DBG_871X("Invalid rate 0x%x in %s\n", Rate, __func__);
+=======
+	default:
+>>>>>>> upstream/android-13
 		break;
 	}
 	return index;
 }
 
+<<<<<<< HEAD
 s8 PHY_GetTxPowerByRate(
 	struct adapter *padapter, u8 Band, u8 RFPath, u8 TxNum, u8 Rate
 )
+=======
+s8 PHY_GetTxPowerByRate(struct adapter *padapter, u8 RFPath, u8 Rate)
+>>>>>>> upstream/android-13
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
 	s8 value = 0;
@@ -1481,6 +1689,7 @@ s8 PHY_GetTxPowerByRate(
 		   padapter->registrypriv.RegEnableTxPowerByRate == 0)
 		return 0;
 
+<<<<<<< HEAD
 	if (Band != BAND_ON_2_4G && Band != BAND_ON_5G) {
 		DBG_871X("Invalid band %d in %s\n", Band, __func__);
 		return value;
@@ -1501,14 +1710,27 @@ s8 PHY_GetTxPowerByRate(
 	value = pHalData->TxPwrByRateOffset[Band][RFPath][TxNum][rateIndex];
 
 	return value;
+=======
+	if (RFPath >= RF_PATH_MAX)
+		return value;
+
+	if (rateIndex >= TX_PWR_BY_RATE_NUM_RATE)
+		return value;
+
+	return pHalData->TxPwrByRateOffset[RFPath][rateIndex];
+>>>>>>> upstream/android-13
 
 }
 
 void PHY_SetTxPowerByRate(
 	struct adapter *padapter,
+<<<<<<< HEAD
 	u8 Band,
 	u8 RFPath,
 	u8 TxNum,
+=======
+	u8 RFPath,
+>>>>>>> upstream/android-13
 	u8 Rate,
 	s8 Value
 )
@@ -1516,6 +1738,7 @@ void PHY_SetTxPowerByRate(
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
 	u8 rateIndex = PHY_GetRateIndexOfTxPowerByRate(Rate);
 
+<<<<<<< HEAD
 	if (Band != BAND_ON_2_4G && Band != BAND_ON_5G) {
 		DBG_871X("Invalid band %d in %s\n", Band, __func__);
 		return;
@@ -1534,10 +1757,20 @@ void PHY_SetTxPowerByRate(
 	}
 
 	pHalData->TxPwrByRateOffset[Band][RFPath][TxNum][rateIndex] = Value;
+=======
+	if (RFPath >= RF_PATH_MAX)
+		return;
+
+	if (rateIndex >= TX_PWR_BY_RATE_NUM_RATE)
+		return;
+
+	pHalData->TxPwrByRateOffset[RFPath][rateIndex] = Value;
+>>>>>>> upstream/android-13
 }
 
 void PHY_SetTxPowerLevelByPath(struct adapter *Adapter, u8 channel, u8 path)
 {
+<<<<<<< HEAD
 	struct hal_com_data *pHalData = GET_HAL_DATA(Adapter);
 	bool bIsIn24G = (pHalData->CurrentBandType == BAND_ON_2_4G);
 
@@ -1553,12 +1786,22 @@ void PHY_SetTxPowerLevelByPath(struct adapter *Adapter, u8 channel, u8 path)
 			PHY_SetTxPowerIndexByRateSection(Adapter, path, channel, HT_MCS8_MCS15);
 
 	}
+=======
+	PHY_SetTxPowerIndexByRateSection(Adapter, path, channel, CCK);
+
+	PHY_SetTxPowerIndexByRateSection(Adapter, path, channel, OFDM);
+	PHY_SetTxPowerIndexByRateSection(Adapter, path, channel, HT_MCS0_MCS7);
+>>>>>>> upstream/android-13
 }
 
 void PHY_SetTxPowerIndexByRateArray(
 	struct adapter *padapter,
 	u8 RFPath,
+<<<<<<< HEAD
 	enum CHANNEL_WIDTH BandWidth,
+=======
+	enum channel_width BandWidth,
+>>>>>>> upstream/android-13
 	u8 Channel,
 	u8 *Rates,
 	u8 RateArraySize
@@ -1586,6 +1829,7 @@ static s8 phy_GetWorldWideLimit(s8 *LimitTable)
 	return min;
 }
 
+<<<<<<< HEAD
 static s8 phy_GetChannelIndexOfTxPowerLimit(u8 Band, u8 Channel)
 {
 	s8	channelIndex = -1;
@@ -1613,16 +1857,27 @@ static s8 phy_GetChannelIndexOfTxPowerLimit(u8 Band, u8 Channel)
 }
 
 static s16 get_bandwidth_idx(const enum CHANNEL_WIDTH bandwidth)
+=======
+static s8 phy_GetChannelIndexOfTxPowerLimit(u8 Channel)
+{
+	return Channel - 1;
+}
+
+static s16 get_bandwidth_idx(const enum channel_width bandwidth)
+>>>>>>> upstream/android-13
 {
 	switch (bandwidth) {
 	case CHANNEL_WIDTH_20:
 		return 0;
 	case CHANNEL_WIDTH_40:
 		return 1;
+<<<<<<< HEAD
 	case CHANNEL_WIDTH_80:
 		return 2;
 	case CHANNEL_WIDTH_160:
 		return 3;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -1;
 	}
@@ -1639,6 +1894,7 @@ static s16 get_rate_sctn_idx(const u8 rate)
 	case MGN_MCS0: case MGN_MCS1: case MGN_MCS2: case MGN_MCS3:
 	case MGN_MCS4: case MGN_MCS5: case MGN_MCS6: case MGN_MCS7:
 		return 2;
+<<<<<<< HEAD
 	case MGN_MCS8: case MGN_MCS9: case MGN_MCS10: case MGN_MCS11:
 	case MGN_MCS12: case MGN_MCS13: case MGN_MCS14: case MGN_MCS15:
 		return 3;
@@ -1670,21 +1926,34 @@ static s16 get_rate_sctn_idx(const u8 rate)
 		return 9;
 	default:
 		DBG_871X("Wrong rate 0x%x\n", rate);
+=======
+	default:
+>>>>>>> upstream/android-13
 		return -1;
 	}
 }
 
 s8 phy_get_tx_pwr_lmt(struct adapter *adapter, u32 reg_pwr_tbl_sel,
+<<<<<<< HEAD
 		      enum BAND_TYPE band_type, enum CHANNEL_WIDTH bandwidth,
 		      u8 rf_path, u8 data_rate, u8 channel)
 {
 	s16 idx_band       = -1;
+=======
+		      enum channel_width bandwidth,
+		      u8 rf_path, u8 data_rate, u8 channel)
+{
+>>>>>>> upstream/android-13
 	s16 idx_regulation = -1;
 	s16 idx_bandwidth  = -1;
 	s16 idx_rate_sctn  = -1;
 	s16 idx_channel    = -1;
 	s8 pwr_lmt = MAX_POWER_INDEX;
 	struct hal_com_data *hal_data = GET_HAL_DATA(adapter);
+<<<<<<< HEAD
+=======
+	s8 limits[10] = {0}; u8 i = 0;
+>>>>>>> upstream/android-13
 
 	if (((adapter->registrypriv.RegEnableTxPowerLimit == 2) &&
 	     (hal_data->EEPROMRegulatory != 1)) ||
@@ -1705,6 +1974,7 @@ s8 phy_get_tx_pwr_lmt(struct adapter *adapter, u32 reg_pwr_tbl_sel,
 		idx_regulation = TXPWR_LMT_WW;
 		break;
 	default:
+<<<<<<< HEAD
 		idx_regulation = (band_type == BAND_ON_2_4G) ?
 			hal_data->Regulation2_4G :
 			hal_data->Regulation5G;
@@ -1725,12 +1995,22 @@ s8 phy_get_tx_pwr_lmt(struct adapter *adapter, u32 reg_pwr_tbl_sel,
 	if (band_type == BAND_ON_5G && idx_rate_sctn == 0)
                 DBG_871X("Wrong rate 0x%x: No CCK in 5G Band\n", DataRate);
 
+=======
+		idx_regulation = hal_data->Regulation2_4G;
+		break;
+	}
+
+	idx_bandwidth = get_bandwidth_idx(bandwidth);
+	idx_rate_sctn = get_rate_sctn_idx(data_rate);
+
+>>>>>>> upstream/android-13
 	/*  workaround for wrong index combination to obtain tx power limit, */
 	/*  OFDM only exists in BW 20M */
 	/*  CCK table will only be given in BW 20M */
 	/*  HT on 80M will reference to HT on 40M */
 	if (idx_rate_sctn == 0 || idx_rate_sctn == 1)
 		idx_bandwidth = 0;
+<<<<<<< HEAD
 	else if ((idx_rate_sctn == 2 || idx_rate_sctn == 3) &&
 		 (band_type == BAND_ON_5G) && (idx_bandwidth == 2))
 		idx_bandwidth = 1;
@@ -1864,6 +2144,34 @@ static void phy_CrossReferenceHTAndVHTTxPowerLimit(struct adapter *padapter)
 	}
 }
 
+=======
+
+	channel = phy_GetChannelIndexOfTxPowerLimit(channel);
+
+	if (idx_regulation == -1 || idx_bandwidth == -1 ||
+	    idx_rate_sctn == -1 || idx_channel == -1)
+		return MAX_POWER_INDEX;
+
+
+	for (i = 0; i < MAX_REGULATION_NUM; i++)
+		limits[i] = hal_data->TxPwrLimit_2_4G[i]
+						     [idx_bandwidth]
+						     [idx_rate_sctn]
+						     [idx_channel]
+						     [rf_path];
+
+	pwr_lmt = (idx_regulation == TXPWR_LMT_WW) ?
+		phy_GetWorldWideLimit(limits) :
+		hal_data->TxPwrLimit_2_4G[idx_regulation]
+					 [idx_bandwidth]
+					 [idx_rate_sctn]
+					 [idx_channel]
+					 [rf_path];
+
+	return pwr_lmt;
+}
+
+>>>>>>> upstream/android-13
 void PHY_ConvertTxPowerLimitToPowerIndex(struct adapter *Adapter)
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(Adapter);
@@ -1872,6 +2180,7 @@ void PHY_ConvertTxPowerLimitToPowerIndex(struct adapter *Adapter)
 	s8 tempValue = 0, tempPwrLmt = 0;
 	u8 rfPath = 0;
 
+<<<<<<< HEAD
 	/* DBG_871X("=====> PHY_ConvertTxPowerLimitToPowerIndex()\n"); */
 
 	phy_CrossReferenceHTAndVHTTxPowerLimit(Adapter);
@@ -1896,6 +2205,22 @@ void PHY_ConvertTxPowerLimitToPowerIndex(struct adapter *Adapter)
 								BW40PwrBasedBm2_4G = PHY_GetTxPowerByRateBase(Adapter, BAND_ON_2_4G, rfPath, RF_1TX, OFDM);
 							else if (rateSection == 0) /*  CCK */
 								BW40PwrBasedBm2_4G = PHY_GetTxPowerByRateBase(Adapter, BAND_ON_2_4G, rfPath, RF_1TX, CCK);
+=======
+	for (regulation = 0; regulation < MAX_REGULATION_NUM; ++regulation) {
+		for (bw = 0; bw < MAX_2_4G_BANDWIDTH_NUM; ++bw) {
+			for (channel = 0; channel < CHANNEL_MAX_NUMBER_2G; ++channel) {
+				for (rateSection = 0; rateSection < MAX_RATE_SECTION_NUM; ++rateSection) {
+					tempPwrLmt = pHalData->TxPwrLimit_2_4G[regulation][bw][rateSection][channel][RF_PATH_A];
+
+					for (rfPath = RF_PATH_A; rfPath < MAX_RF_PATH_NUM; ++rfPath) {
+						if (pHalData->odmpriv.PhyRegPgValueType == PHY_REG_PG_EXACT_VALUE) {
+							if (rateSection == 2) /*  HT 1T */
+								BW40PwrBasedBm2_4G = PHY_GetTxPowerByRateBase(Adapter, rfPath, HT_MCS0_MCS7);
+							else if (rateSection == 1) /*  OFDM */
+								BW40PwrBasedBm2_4G = PHY_GetTxPowerByRateBase(Adapter, rfPath, OFDM);
+							else if (rateSection == 0) /*  CCK */
+								BW40PwrBasedBm2_4G = PHY_GetTxPowerByRateBase(Adapter, rfPath, CCK);
+>>>>>>> upstream/android-13
 						} else
 							BW40PwrBasedBm2_4G = Adapter->registrypriv.RegPowerBase * 2;
 
@@ -1908,8 +2233,11 @@ void PHY_ConvertTxPowerLimitToPowerIndex(struct adapter *Adapter)
 			}
 		}
 	}
+<<<<<<< HEAD
 
 	/* DBG_871X("<===== PHY_ConvertTxPowerLimitToPowerIndex()\n"); */
+=======
+>>>>>>> upstream/android-13
 }
 
 void PHY_InitTxPowerLimit(struct adapter *Adapter)
@@ -1917,15 +2245,21 @@ void PHY_InitTxPowerLimit(struct adapter *Adapter)
 	struct hal_com_data	*pHalData = GET_HAL_DATA(Adapter);
 	u8 i, j, k, l, m;
 
+<<<<<<< HEAD
 	/* DBG_871X("=====> PHY_InitTxPowerLimit()!\n"); */
 
 	for (i = 0; i < MAX_REGULATION_NUM; ++i) {
 		for (j = 0; j < MAX_2_4G_BANDWITH_NUM; ++j)
+=======
+	for (i = 0; i < MAX_REGULATION_NUM; ++i) {
+		for (j = 0; j < MAX_2_4G_BANDWIDTH_NUM; ++j)
+>>>>>>> upstream/android-13
 			for (k = 0; k < MAX_RATE_SECTION_NUM; ++k)
 				for (m = 0; m < CHANNEL_MAX_NUMBER_2G; ++m)
 					for (l = 0; l < MAX_RF_PATH_NUM; ++l)
 						pHalData->TxPwrLimit_2_4G[i][j][k][m][l] = MAX_POWER_INDEX;
 	}
+<<<<<<< HEAD
 
 	for (i = 0; i < MAX_REGULATION_NUM; ++i) {
 		for (j = 0; j < MAX_5G_BANDWITH_NUM; ++j)
@@ -1936,12 +2270,17 @@ void PHY_InitTxPowerLimit(struct adapter *Adapter)
 	}
 
 	/* DBG_871X("<===== PHY_InitTxPowerLimit()!\n"); */
+=======
+>>>>>>> upstream/android-13
 }
 
 void PHY_SetTxPowerLimit(
 	struct adapter *Adapter,
 	u8 *Regulation,
+<<<<<<< HEAD
 	u8 *Band,
+=======
+>>>>>>> upstream/android-13
 	u8 *Bandwidth,
 	u8 *RateSection,
 	u8 *RfPath,
@@ -1953,12 +2292,17 @@ void PHY_SetTxPowerLimit(
 	u8 regulation = 0, bandwidth = 0, rateSection = 0, channel;
 	s8 powerLimit = 0, prevPowerLimit, channelIndex;
 
+<<<<<<< HEAD
 	/* DBG_871X("Index of power limit table [band %s][regulation %s][bw %s][rate section %s][rf path %s][chnl %s][val %s]\n", */
 	/*	  Band, Regulation, Bandwidth, RateSection, RfPath, Channel, PowerLimit); */
 
 	if (!GetU1ByteIntegerFromStringInDecimal((s8 *)Channel, &channel) ||
 		 !GetU1ByteIntegerFromStringInDecimal((s8 *)PowerLimit, &powerLimit))
 		DBG_871X("Illegal index of power limit table [chnl %s][val %s]\n", Channel, PowerLimit);
+=======
+	GetU1ByteIntegerFromStringInDecimal((s8 *)Channel, &channel);
+	GetU1ByteIntegerFromStringInDecimal((s8 *)PowerLimit, &powerLimit);
+>>>>>>> upstream/android-13
 
 	powerLimit = powerLimit > MAX_POWER_INDEX ? MAX_POWER_INDEX : powerLimit;
 
@@ -1977,6 +2321,7 @@ void PHY_SetTxPowerLimit(
 		rateSection = 1;
 	else if (eqNByte(RateSection, (u8 *)("HT"), 2) && eqNByte(RfPath, (u8 *)("1T"), 2))
 		rateSection = 2;
+<<<<<<< HEAD
 	else if (eqNByte(RateSection, (u8 *)("HT"), 2) && eqNByte(RfPath, (u8 *)("2T"), 2))
 		rateSection = 3;
 	else if (eqNByte(RateSection, (u8 *)("HT"), 2) && eqNByte(RfPath, (u8 *)("3T"), 2))
@@ -1996,11 +2341,16 @@ void PHY_SetTxPowerLimit(
 		return;
 	}
 
+=======
+	else
+		return;
+>>>>>>> upstream/android-13
 
 	if (eqNByte(Bandwidth, (u8 *)("20M"), 3))
 		bandwidth = 0;
 	else if (eqNByte(Bandwidth, (u8 *)("40M"), 3))
 		bandwidth = 1;
+<<<<<<< HEAD
 	else if (eqNByte(Bandwidth, (u8 *)("80M"), 3))
 		bandwidth = 2;
 	else if (eqNByte(Bandwidth, (u8 *)("160M"), 4))
@@ -2054,13 +2404,28 @@ void PHY_SetTxPowerIndex(
 )
 {
 	PHY_SetTxPowerIndex_8723B(padapter, PowerIndex, RFPath, Rate);
+=======
+
+	channelIndex = phy_GetChannelIndexOfTxPowerLimit(channel);
+
+	if (channelIndex == -1)
+		return;
+
+	prevPowerLimit = pHalData->TxPwrLimit_2_4G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A];
+
+	if (powerLimit < prevPowerLimit)
+		pHalData->TxPwrLimit_2_4G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A] = powerLimit;
+>>>>>>> upstream/android-13
 }
 
 void Hal_ChannelPlanToRegulation(struct adapter *Adapter, u16 ChannelPlan)
 {
 	struct hal_com_data *pHalData = GET_HAL_DATA(Adapter);
 	pHalData->Regulation2_4G = TXPWR_LMT_WW;
+<<<<<<< HEAD
 	pHalData->Regulation5G = TXPWR_LMT_WW;
+=======
+>>>>>>> upstream/android-13
 
 	switch (ChannelPlan) {
 	case RT_CHANNEL_DOMAIN_WORLD_NULL:
@@ -2080,6 +2445,7 @@ void Hal_ChannelPlanToRegulation(struct adapter *Adapter, u16 ChannelPlan)
 		break;
 	case RT_CHANNEL_DOMAIN_FCC1_FCC1:
 		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+<<<<<<< HEAD
 		pHalData->Regulation5G = TXPWR_LMT_FCC;
 		break;
 	case RT_CHANNEL_DOMAIN_WORLD_ETSI1:
@@ -2213,11 +2579,113 @@ void Hal_ChannelPlanToRegulation(struct adapter *Adapter, u16 ChannelPlan)
 	case RT_CHANNEL_DOMAIN_REALTEK_DEFINE: /* Realtek Reserve */
 		pHalData->Regulation2_4G = TXPWR_LMT_WW;
 		pHalData->Regulation5G = TXPWR_LMT_WW;
+=======
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI1:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_MKK1_MKK1:
+		pHalData->Regulation2_4G = TXPWR_LMT_MKK;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_KCC1:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_FCC2:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_FCC3:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_FCC4:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_FCC5:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_FCC6:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_FCC7:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI2:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI3:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_MKK1_MKK2:
+		pHalData->Regulation2_4G = TXPWR_LMT_MKK;
+		break;
+	case RT_CHANNEL_DOMAIN_MKK1_MKK3:
+		pHalData->Regulation2_4G = TXPWR_LMT_MKK;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_NCC1:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_NCC2:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_GLOBAL_NULL:
+		pHalData->Regulation2_4G = TXPWR_LMT_WW;
+		break;
+	case RT_CHANNEL_DOMAIN_ETSI1_ETSI4:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_FCC2:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_NCC3:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI5:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_FCC8:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI6:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI7:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI8:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI9:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI10:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI11:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_NCC4:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI12:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_FCC9:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_WORLD_ETSI13:
+		pHalData->Regulation2_4G = TXPWR_LMT_ETSI;
+		break;
+	case RT_CHANNEL_DOMAIN_FCC1_FCC10:
+		pHalData->Regulation2_4G = TXPWR_LMT_FCC;
+		break;
+	case RT_CHANNEL_DOMAIN_REALTEK_DEFINE: /* Realtek Reserve */
+		pHalData->Regulation2_4G = TXPWR_LMT_WW;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
 	}
 }
+<<<<<<< HEAD
 
 
 static char file_path_bs[PATH_MAX];
@@ -3293,3 +3761,5 @@ void phy_free_filebuf(struct adapter *padapter)
 		vfree(pHalData->rf_tx_pwr_lmt);
 
 }
+=======
+>>>>>>> upstream/android-13

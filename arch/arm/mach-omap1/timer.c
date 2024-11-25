@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * OMAP1 Dual-Mode Timers - platform device registration
  *
  * Contains first level initialization routines which internally
@@ -6,7 +10,11 @@
  * device model. It also has a low level function to change the timer
  * input clock source.
  *
+<<<<<<< HEAD
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  * Tarun Kanti DebBarma <tarun.kanti@ti.com>
  * Thara Gopinath <thara@ti.com>
  *

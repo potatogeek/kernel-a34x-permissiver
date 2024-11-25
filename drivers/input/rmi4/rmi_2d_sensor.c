@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2016 Synaptics Incorporated
  * Copyright (c) 2011 Unixphere
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011-2016 Synaptics Incorporated
+ * Copyright (c) 2011 Unixphere
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -207,7 +214,10 @@ static void rmi_2d_sensor_set_input_params(struct rmi_2d_sensor *sensor)
 	if (sensor->topbuttonpad)
 		set_bit(INPUT_PROP_TOPBUTTONPAD, input->propbit);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(rmi_2d_sensor_set_input_params);
+=======
+>>>>>>> upstream/android-13
 
 int rmi_2d_sensor_configure_input(struct rmi_function *fn,
 					struct rmi_2d_sensor *sensor)

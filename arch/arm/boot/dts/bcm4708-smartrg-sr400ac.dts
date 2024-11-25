@@ -19,9 +19,16 @@
 		bootargs = "console=ttyS0,115200 earlycon";
 	};
 
+<<<<<<< HEAD
 	memory {
 		reg = <0x00000000 0x08000000
 		       0x88000000 0x08000000>;
+=======
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00000000 0x08000000>,
+		      <0x88000000 0x08000000>;
+>>>>>>> upstream/android-13
 	};
 
 	leds {
@@ -92,8 +99,11 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 
 		rfkill {
 			label = "WiFi";
@@ -123,9 +133,12 @@
 	status = "okay";
 
 	ports {
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+=======
+>>>>>>> upstream/android-13
 		port@0 {
 			reg = <0>;
 			label = "lan4";

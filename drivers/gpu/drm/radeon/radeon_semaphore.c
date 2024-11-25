@@ -27,7 +27,11 @@
  * Authors:
  *    Christian König <deathsimple@vodafone.de>
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_trace.h"
 

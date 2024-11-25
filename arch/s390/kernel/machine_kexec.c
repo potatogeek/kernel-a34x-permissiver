@@ -14,11 +14,16 @@
 #include <linux/reboot.h>
 #include <linux/ftrace.h>
 #include <linux/debug_locks.h>
+<<<<<<< HEAD
 #include <linux/suspend.h>
 #include <asm/cio.h>
 #include <asm/setup.h>
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
+=======
+#include <asm/cio.h>
+#include <asm/setup.h>
+>>>>>>> upstream/android-13
 #include <asm/smp.h>
 #include <asm/ipl.h>
 #include <asm/diag.h>
@@ -27,6 +32,10 @@
 #include <asm/cacheflush.h>
 #include <asm/os_info.h>
 #include <asm/set_memory.h>
+<<<<<<< HEAD
+=======
+#include <asm/stacktrace.h>
+>>>>>>> upstream/android-13
 #include <asm/switch_to.h>
 #include <asm/nmi.h>
 
@@ -38,6 +47,7 @@ extern const unsigned long long relocate_kernel_len;
 #ifdef CONFIG_CRASH_DUMP
 
 /*
+<<<<<<< HEAD
  * PM notifier callback for kdump
  */
 static int machine_kdump_pm_cb(struct notifier_block *nb, unsigned long action,
@@ -68,6 +78,8 @@ static int __init machine_kdump_pm_init(void)
 arch_initcall(machine_kdump_pm_init);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Reset the system, copy boot CPU registers to absolute zero,
  * and jump to the kdump image
  */
@@ -95,7 +107,11 @@ static void __do_machine_kdump(void *image)
 	start_kdump(1);
 
 	/* Die if start_kdump returns */
+<<<<<<< HEAD
 	disabled_wait((unsigned long) __builtin_return_address(0));
+=======
+	disabled_wait();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -140,7 +156,24 @@ static noinline void __machine_kdump(void *image)
 	 */
 	store_status(__do_machine_kdump, image);
 }
+<<<<<<< HEAD
 #endif
+=======
+
+static unsigned long do_start_kdump(unsigned long addr)
+{
+	struct kimage *image = (struct kimage *) addr;
+	int (*start_kdump)(int) = (void *)image->start;
+	int rc;
+
+	__arch_local_irq_stnsm(0xfb); /* disable DAT */
+	rc = start_kdump(0);
+	__arch_local_irq_stosm(0x04); /* enable DAT */
+	return rc;
+}
+
+#endif /* CONFIG_CRASH_DUMP */
+>>>>>>> upstream/android-13
 
 /*
  * Check if kdump checksums are valid: We call purgatory with parameter "0"
@@ -148,12 +181,21 @@ static noinline void __machine_kdump(void *image)
 static bool kdump_csum_valid(struct kimage *image)
 {
 #ifdef CONFIG_CRASH_DUMP
+<<<<<<< HEAD
 	int (*start_kdump)(int) = (void *)image->start;
 	int rc;
 
 	__arch_local_irq_stnsm(0xfb); /* disable DAT */
 	rc = start_kdump(0);
 	__arch_local_irq_stosm(0x04); /* enable DAT */
+=======
+	int rc;
+
+	preempt_disable();
+	rc = call_on_stack(1, S390_lowcore.nodat_stack, unsigned long, do_start_kdump,
+			   unsigned long, (unsigned long)image);
+	preempt_enable();
+>>>>>>> upstream/android-13
 	return rc == 0;
 #else
 	return false;
@@ -243,6 +285,12 @@ void arch_crash_save_vmcoreinfo(void)
 	VMCOREINFO_SYMBOL(lowcore_ptr);
 	VMCOREINFO_SYMBOL(high_memory);
 	VMCOREINFO_LENGTH(lowcore_ptr, NR_CPUS);
+<<<<<<< HEAD
+=======
+	vmcoreinfo_append_str("SAMODE31=%lx\n", __samode31);
+	vmcoreinfo_append_str("EAMODE31=%lx\n", __eamode31);
+	vmcoreinfo_append_str("KERNELOFFSET=%lx\n", kaslr_offset());
+>>>>>>> upstream/android-13
 	mem_assign_absolute(S390_lowcore.vmcore_info, paddr_vmcoreinfo_note());
 }
 
@@ -271,7 +319,11 @@ static void __do_machine_kexec(void *data)
 	(*data_mover)(&image->head, image->start);
 
 	/* Die if kexec returns */
+<<<<<<< HEAD
 	disabled_wait((unsigned long) __builtin_return_address(0));
+=======
+	disabled_wait();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -279,7 +331,10 @@ static void __do_machine_kexec(void *data)
  */
 static void __machine_kexec(void *data)
 {
+<<<<<<< HEAD
 	__arch_local_irq_stosm(0x04); /* enable DAT */
+=======
+>>>>>>> upstream/android-13
 	pfault_fini();
 	tracing_off();
 	debug_locks_off();

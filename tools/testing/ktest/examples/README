@@ -11,7 +11,11 @@ crosstests.conf - this config shows an example of testing a git repo against
     lots of different architectures. It only does build tests, but makes
     it easy to compile test different archs. You can download the arch
     cross compilers from:
+<<<<<<< HEAD
   http://kernel.org/pub/tools/crosstool/files/bin/x86_64/
+=======
+  https://kernel.org/pub/tools/crosstool/files/bin/x86_64/
+>>>>>>> upstream/android-13
 
 test.conf - A generic example of a config. This is based on an actual config
      used to perform real testing.

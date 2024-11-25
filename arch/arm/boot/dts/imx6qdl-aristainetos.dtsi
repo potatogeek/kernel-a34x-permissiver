@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * support fot the imx6 based aristainetos board
  *
  * Copyright (C) 2014 Heiko Schocher <hs@denx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -95,7 +102,11 @@
 };
 
 &ecspi4 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio3 20 0>;
+=======
+	cs-gpios = <&gpio3 20 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi4>;
 	status = "okay";

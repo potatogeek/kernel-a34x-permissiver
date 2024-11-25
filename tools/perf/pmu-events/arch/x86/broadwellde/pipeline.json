@@ -1,6 +1,9 @@
 [
     {
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "UMask": "0x1",
         "BriefDescription": "Instructions retired from execution.",
         "Counter": "Fixed counter 0",
@@ -10,7 +13,10 @@
         "CounterHTOff": "Fixed counter 0"
     },
     {
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "UMask": "0x2",
         "BriefDescription": "Core cycles when the thread is not in halt state",
         "Counter": "Fixed counter 1",
@@ -20,7 +26,10 @@
         "CounterHTOff": "Fixed counter 1"
     },
     {
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "UMask": "0x2",
         "BriefDescription": "Core cycles when at least one thread on the physical core is not in halt state.",
         "Counter": "Fixed counter 1",
@@ -30,7 +39,10 @@
         "CounterHTOff": "Fixed counter 1"
     },
     {
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "UMask": "0x3",
         "BriefDescription": "Reference cycles when the core is not in halt state.",
         "Counter": "Fixed counter 2",

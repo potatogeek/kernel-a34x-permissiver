@@ -150,10 +150,13 @@ extern int raw_notifier_chain_register(struct raw_notifier_head *nh,
 extern int srcu_notifier_chain_register(struct srcu_notifier_head *nh,
 		struct notifier_block *nb);
 
+<<<<<<< HEAD
 extern int blocking_notifier_chain_cond_register(
 		struct blocking_notifier_head *nh,
 		struct notifier_block *nb);
 
+=======
+>>>>>>> upstream/android-13
 extern int atomic_notifier_chain_unregister(struct atomic_notifier_head *nh,
 		struct notifier_block *nb);
 extern int blocking_notifier_chain_unregister(struct blocking_notifier_head *nh,
@@ -165,6 +168,7 @@ extern int srcu_notifier_chain_unregister(struct srcu_notifier_head *nh,
 
 extern int atomic_notifier_call_chain(struct atomic_notifier_head *nh,
 		unsigned long val, void *v);
+<<<<<<< HEAD
 extern int __atomic_notifier_call_chain(struct atomic_notifier_head *nh,
 	unsigned long val, void *v, int nr_to_call, int *nr_calls);
 extern int blocking_notifier_call_chain(struct blocking_notifier_head *nh,
@@ -179,6 +183,19 @@ extern int srcu_notifier_call_chain(struct srcu_notifier_head *nh,
 		unsigned long val, void *v);
 extern int __srcu_notifier_call_chain(struct srcu_notifier_head *nh,
 	unsigned long val, void *v, int nr_to_call, int *nr_calls);
+=======
+extern int blocking_notifier_call_chain(struct blocking_notifier_head *nh,
+		unsigned long val, void *v);
+extern int raw_notifier_call_chain(struct raw_notifier_head *nh,
+		unsigned long val, void *v);
+extern int srcu_notifier_call_chain(struct srcu_notifier_head *nh,
+		unsigned long val, void *v);
+
+extern int blocking_notifier_call_chain_robust(struct blocking_notifier_head *nh,
+		unsigned long val_up, unsigned long val_down, void *v);
+extern int raw_notifier_call_chain_robust(struct raw_notifier_head *nh,
+		unsigned long val_up, unsigned long val_down, void *v);
+>>>>>>> upstream/android-13
 
 #define NOTIFY_DONE		0x0000		/* Don't care */
 #define NOTIFY_OK		0x0001		/* Suits me */
@@ -236,6 +253,7 @@ static inline int notifier_to_errno(int ret)
 #define KBD_POST_KEYSYM		0x0005 /* Called after keyboard keysym interpretation */
 
 extern struct blocking_notifier_head reboot_notifier_list;
+<<<<<<< HEAD
 extern int show_mem_extra_notifier_register(struct notifier_block *nb);
 extern int show_mem_extra_notifier_unregister(struct notifier_block *nb);
 extern void show_mem_extra_call_notifiers(void);
@@ -243,5 +261,10 @@ extern void show_mem_extra_call_notifiers(void);
 extern int am_app_launch_notifier_register(struct notifier_block *nb);
 extern int am_app_launch_notifier_unregister(struct notifier_block *nb);
 
+=======
+
+extern int am_app_launch_notifier_register(struct notifier_block *nb);
+extern int am_app_launch_notifier_unregister(struct notifier_block *nb);
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif /* _LINUX_NOTIFIER_H */

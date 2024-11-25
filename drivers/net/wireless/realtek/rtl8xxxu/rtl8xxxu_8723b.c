@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * RTL8XXXU mac80211 USB driver - 8723b specific subdriver
  *
@@ -10,6 +14,7 @@
  * rtl8723au driver. As the Realtek 8xxx chips are very similar in
  * their programming interface, I have started adding support for
  * additional 8xxx chips like the 8192cu, 8188cus, etc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -19,6 +24,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -890,7 +897,11 @@ static void rtl8723bu_phy_iqcalibrate(struct rtl8xxxu_priv *priv,
 	u32 i, val32;
 	int path_a_ok /*, path_b_ok */;
 	int retry = 2;
+<<<<<<< HEAD
 	const u32 adda_regs[RTL8XXXU_ADDA_REGS] = {
+=======
+	static const u32 adda_regs[RTL8XXXU_ADDA_REGS] = {
+>>>>>>> upstream/android-13
 		REG_FPGA0_XCD_SWITCH_CTRL, REG_BLUETOOTH,
 		REG_RX_WAIT_CCA, REG_TX_CCK_RFON,
 		REG_TX_CCK_BBON, REG_TX_OFDM_RFON,
@@ -900,11 +911,19 @@ static void rtl8723bu_phy_iqcalibrate(struct rtl8xxxu_priv *priv,
 		REG_RX_TO_RX, REG_STANDBY,
 		REG_SLEEP, REG_PMPD_ANAEN
 	};
+<<<<<<< HEAD
 	const u32 iqk_mac_regs[RTL8XXXU_MAC_REGS] = {
 		REG_TXPAUSE, REG_BEACON_CTRL,
 		REG_BEACON_CTRL_1, REG_GPIO_MUXCFG
 	};
 	const u32 iqk_bb_regs[RTL8XXXU_BB_REGS] = {
+=======
+	static const u32 iqk_mac_regs[RTL8XXXU_MAC_REGS] = {
+		REG_TXPAUSE, REG_BEACON_CTRL,
+		REG_BEACON_CTRL_1, REG_GPIO_MUXCFG
+	};
+	static const u32 iqk_bb_regs[RTL8XXXU_BB_REGS] = {
+>>>>>>> upstream/android-13
 		REG_OFDM0_TRX_PATH_ENABLE, REG_OFDM0_TR_MUX_PAR,
 		REG_FPGA0_XCD_RF_SW_CTRL, REG_CONFIG_ANT_A, REG_CONFIG_ANT_B,
 		REG_FPGA0_XAB_RF_SW_CTRL, REG_FPGA0_XA_RF_INT_OE,
@@ -1533,7 +1552,11 @@ static void rtl8723b_enable_rf(struct rtl8xxxu_priv *priv)
 	/*
 	 * WLAN action by PTA
 	 */
+<<<<<<< HEAD
 	rtl8xxxu_write8(priv, REG_WLAN_ACT_CONTROL_8723B, 0x04);
+=======
+	rtl8xxxu_write8(priv, REG_WLAN_ACT_CONTROL_8723B, 0x0c);
+>>>>>>> upstream/android-13
 
 	/*
 	 * BT select S0/S1 controlled by WiFi
@@ -1576,16 +1599,31 @@ static void rtl8723b_enable_rf(struct rtl8xxxu_priv *priv)
 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.ant_sel_rsv));
 
 	/*
+<<<<<<< HEAD
 	 * 0x280, 0x00, 0x200, 0x80 - not clear
 	 */
 	rtl8xxxu_write32(priv, REG_S0S1_PATH_SWITCH, 0x00);
+=======
+	 * Different settings per different antenna position.
+	 *      Antenna Position:   | Normal   Inverse
+	 * --------------------------------------------------
+	 * Antenna switch to BT:    |  0x280,   0x00
+	 * Antenna switch to WiFi:  |  0x0,     0x280
+	 * Antenna switch to PTA:   |  0x200,   0x80
+	 */
+	rtl8xxxu_write32(priv, REG_S0S1_PATH_SWITCH, 0x80);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Software control, antenna at WiFi side
 	 */
+<<<<<<< HEAD
 #ifdef NEED_PS_TDMA
 	rtl8723bu_set_ps_tdma(priv, 0x08, 0x00, 0x00, 0x00, 0x00);
 #endif
+=======
+	rtl8723bu_set_ps_tdma(priv, 0x08, 0x00, 0x00, 0x00, 0x00);
+>>>>>>> upstream/android-13
 
 	rtl8xxxu_write32(priv, REG_BT_COEX_TABLE1, 0x55555555);
 	rtl8xxxu_write32(priv, REG_BT_COEX_TABLE2, 0x55555555);

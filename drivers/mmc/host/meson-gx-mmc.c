@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Amlogic SD/eMMC driver for the GX/S905 family SoCs
  *
  * Copyright (c) 2016 BayLibre, SAS.
  * Author: Kevin Hilman <khilman@baylibre.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
@@ -17,16 +22,25 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  * The full GNU General Public License is included in this distribution
  * in the file called COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/ioport.h>
 #include <linux/spinlock.h>
+=======
+#include <linux/iopoll.h>
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
+#include <linux/ioport.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/mmc/host.h>
 #include <linux/mmc/mmc.h>
@@ -49,6 +63,11 @@
 #define   CLK_CORE_PHASE_MASK GENMASK(9, 8)
 #define   CLK_TX_PHASE_MASK GENMASK(11, 10)
 #define   CLK_RX_PHASE_MASK GENMASK(13, 12)
+<<<<<<< HEAD
+=======
+#define   CLK_PHASE_0 0
+#define   CLK_PHASE_180 2
+>>>>>>> upstream/android-13
 #define   CLK_V2_TX_DELAY_MASK GENMASK(19, 16)
 #define   CLK_V2_RX_DELAY_MASK GENMASK(23, 20)
 #define   CLK_V2_ALWAYS_ON BIT(24)
@@ -57,16 +76,25 @@
 #define   CLK_V3_RX_DELAY_MASK GENMASK(27, 22)
 #define   CLK_V3_ALWAYS_ON BIT(28)
 
+<<<<<<< HEAD
 #define   CLK_DELAY_STEP_PS 200
 #define   CLK_PHASE_STEP 30
 #define   CLK_PHASE_POINT_NUM (360 / CLK_PHASE_STEP)
 
+=======
+>>>>>>> upstream/android-13
 #define   CLK_TX_DELAY_MASK(h)		(h->data->tx_delay_mask)
 #define   CLK_RX_DELAY_MASK(h)		(h->data->rx_delay_mask)
 #define   CLK_ALWAYS_ON(h)		(h->data->always_on)
 
 #define SD_EMMC_DELAY 0x4
 #define SD_EMMC_ADJUST 0x8
+<<<<<<< HEAD
+=======
+#define   ADJUST_ADJ_DELAY_MASK GENMASK(21, 16)
+#define   ADJUST_DS_EN BIT(15)
+#define   ADJUST_ADJ_EN BIT(13)
+>>>>>>> upstream/android-13
 
 #define SD_EMMC_DELAY1 0x4
 #define SD_EMMC_DELAY2 0x8
@@ -128,6 +156,12 @@
 #define SD_EMMC_TXD 0x94
 #define SD_EMMC_LAST_REG SD_EMMC_TXD
 
+<<<<<<< HEAD
+=======
+#define SD_EMMC_SRAM_DATA_BUF_LEN 1536
+#define SD_EMMC_SRAM_DATA_BUF_OFF 0x200
+
+>>>>>>> upstream/android-13
 #define SD_EMMC_CFG_BLK_SIZE 512 /* internal buffer max: 512 bytes */
 #define SD_EMMC_CFG_RESP_TIMEOUT 256 /* in clock cycles */
 #define SD_EMMC_CMD_TIMEOUT 1024 /* in ms */
@@ -144,6 +178,10 @@ struct meson_mmc_data {
 	unsigned int tx_delay_mask;
 	unsigned int rx_delay_mask;
 	unsigned int always_on;
+<<<<<<< HEAD
+=======
+	unsigned int adjust;
+>>>>>>> upstream/android-13
 };
 
 struct sd_emmc_desc {
@@ -159,6 +197,7 @@ struct meson_host {
 	struct	mmc_host	*mmc;
 	struct	mmc_command	*cmd;
 
+<<<<<<< HEAD
 	spinlock_t lock;
 	void __iomem *regs;
 	struct clk *core_clk;
@@ -169,10 +208,26 @@ struct meson_host {
 
 	struct pinctrl *pinctrl;
 	struct pinctrl_state *pins_default;
+=======
+	void __iomem *regs;
+	struct clk *core_clk;
+	struct clk *mux_clk;
+	struct clk *mmc_clk;
+	unsigned long req_rate;
+	bool ddr;
+
+	bool dram_access_quirk;
+
+	struct pinctrl *pinctrl;
+>>>>>>> upstream/android-13
 	struct pinctrl_state *pins_clk_gate;
 
 	unsigned int bounce_buf_size;
 	void *bounce_buf;
+<<<<<<< HEAD
+=======
+	void __iomem *bounce_iomem_buf;
+>>>>>>> upstream/android-13
 	dma_addr_t bounce_dma_addr;
 	struct sd_emmc_desc *descs;
 	dma_addr_t descs_dma_addr;
@@ -180,6 +235,11 @@ struct meson_host {
 	int irq;
 
 	bool vqmmc_enabled;
+<<<<<<< HEAD
+=======
+	bool needs_pre_post_req;
+
+>>>>>>> upstream/android-13
 };
 
 #define CMD_CFG_LENGTH_MASK GENMASK(8, 0)
@@ -205,6 +265,7 @@ struct meson_host {
 #define CMD_RESP_MASK GENMASK(31, 1)
 #define CMD_RESP_SRAM BIT(0)
 
+<<<<<<< HEAD
 struct meson_mmc_phase {
 	struct clk_hw hw;
 	void __iomem *reg;
@@ -289,6 +350,8 @@ static const struct clk_ops meson_mmc_clk_phase_ops = {
 	.set_phase = meson_mmc_clk_set_phase,
 };
 
+=======
+>>>>>>> upstream/android-13
 static unsigned int meson_mmc_get_timeout_msecs(struct mmc_data *data)
 {
 	unsigned int timeout = data->timeout_ns / NSEC_PER_MSEC;
@@ -315,6 +378,7 @@ static struct mmc_command *meson_mmc_get_next_command(struct mmc_command *cmd)
 static void meson_mmc_get_transfer_mode(struct mmc_host *mmc,
 					struct mmc_request *mrq)
 {
+<<<<<<< HEAD
 	struct mmc_data *data = mrq->data;
 	struct scatterlist *sg;
 	int i;
@@ -339,6 +403,52 @@ static void meson_mmc_get_transfer_mode(struct mmc_host *mmc,
 
 	if (use_desc_chain_mode)
 		data->host_cookie |= SD_EMMC_DESC_CHAIN_MODE;
+=======
+	struct meson_host *host = mmc_priv(mmc);
+	struct mmc_data *data = mrq->data;
+	struct scatterlist *sg;
+	int i;
+
+	/*
+	 * When Controller DMA cannot directly access DDR memory, disable
+	 * support for Chain Mode to directly use the internal SRAM using
+	 * the bounce buffer mode.
+	 */
+	if (host->dram_access_quirk)
+		return;
+
+	/* SD_IO_RW_EXTENDED (CMD53) can also use block mode under the hood */
+	if (data->blocks > 1 || mrq->cmd->opcode == SD_IO_RW_EXTENDED) {
+		/*
+		 * In block mode DMA descriptor format, "length" field indicates
+		 * number of blocks and there is no way to pass DMA size that
+		 * is not multiple of SDIO block size, making it impossible to
+		 * tie more than one memory buffer with single SDIO block.
+		 * Block mode sg buffer size should be aligned with SDIO block
+		 * size, otherwise chain mode could not be used.
+		 */
+		for_each_sg(data->sg, sg, data->sg_len, i) {
+			if (sg->length % data->blksz) {
+				dev_warn_once(mmc_dev(mmc),
+					      "unaligned sg len %u blksize %u, disabling descriptor DMA for transfer\n",
+					      sg->length, data->blksz);
+				return;
+			}
+		}
+	}
+
+	for_each_sg(data->sg, sg, data->sg_len, i) {
+		/* check for 8 byte alignment */
+		if (sg->offset % 8) {
+			dev_warn_once(mmc_dev(mmc),
+				      "unaligned sg offset %u, disabling descriptor DMA for transfer\n",
+				      sg->offset);
+			return;
+		}
+	}
+
+	data->host_cookie |= SD_EMMC_DESC_CHAIN_MODE;
+>>>>>>> upstream/android-13
 }
 
 static inline bool meson_mmc_desc_chain_mode(const struct mmc_data *data)
@@ -381,6 +491,7 @@ static void meson_mmc_post_req(struct mmc_host *mmc, struct mmc_request *mrq,
 			     mmc_get_dma_dir(data));
 }
 
+<<<<<<< HEAD
 static bool meson_mmc_timing_is_ddr(struct mmc_ios *ios)
 {
 	if (ios->timing == MMC_TIMING_MMC_DDR52 ||
@@ -391,6 +502,8 @@ static bool meson_mmc_timing_is_ddr(struct mmc_ios *ios)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Gating the clock on this controller is tricky.  It seems the mmc clock
  * is also used by the controller.  It may crash during some operation if the
@@ -419,7 +532,11 @@ static void meson_mmc_clk_ungate(struct meson_host *host)
 	u32 cfg;
 
 	if (host->pins_clk_gate)
+<<<<<<< HEAD
 		pinctrl_select_state(host->pinctrl, host->pins_default);
+=======
+		pinctrl_select_default_state(host->dev);
+>>>>>>> upstream/android-13
 
 	/* Make sure the clock is not stopped in the controller */
 	cfg = readl(host->regs + SD_EMMC_CFG);
@@ -427,6 +544,7 @@ static void meson_mmc_clk_ungate(struct meson_host *host)
 	writel(cfg, host->regs + SD_EMMC_CFG);
 }
 
+<<<<<<< HEAD
 static int meson_mmc_clk_set(struct meson_host *host, struct mmc_ios *ios)
 {
 	struct mmc_host *mmc = host->mmc;
@@ -440,23 +558,55 @@ static int meson_mmc_clk_set(struct meson_host *host, struct mmc_ios *ios)
 
 	/* Same request - bail-out */
 	if (host->req_rate == rate)
+=======
+static int meson_mmc_clk_set(struct meson_host *host, unsigned long rate,
+			     bool ddr)
+{
+	struct mmc_host *mmc = host->mmc;
+	int ret;
+	u32 cfg;
+
+	/* Same request - bail-out */
+	if (host->ddr == ddr && host->req_rate == rate)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* stop clock */
 	meson_mmc_clk_gate(host);
 	host->req_rate = 0;
+<<<<<<< HEAD
 
 	if (!rate) {
 		mmc->actual_clock = 0;
 		/* return with clock being stopped */
 		return 0;
 	}
+=======
+	mmc->actual_clock = 0;
+
+	/* return with clock being stopped */
+	if (!rate)
+		return 0;
+>>>>>>> upstream/android-13
 
 	/* Stop the clock during rate change to avoid glitches */
 	cfg = readl(host->regs + SD_EMMC_CFG);
 	cfg |= CFG_STOP_CLOCK;
 	writel(cfg, host->regs + SD_EMMC_CFG);
 
+<<<<<<< HEAD
+=======
+	if (ddr) {
+		/* DDR modes require higher module clock */
+		rate <<= 1;
+		cfg |= CFG_DDR;
+	} else {
+		cfg &= ~CFG_DDR;
+	}
+	writel(cfg, host->regs + SD_EMMC_CFG);
+	host->ddr = ddr;
+
+>>>>>>> upstream/android-13
 	ret = clk_set_rate(host->mmc_clk, rate);
 	if (ret) {
 		dev_err(host->dev, "Unable to set cfg_div_clk to %lu. ret=%d\n",
@@ -468,12 +618,23 @@ static int meson_mmc_clk_set(struct meson_host *host, struct mmc_ios *ios)
 	mmc->actual_clock = clk_get_rate(host->mmc_clk);
 
 	/* We should report the real output frequency of the controller */
+<<<<<<< HEAD
 	if (meson_mmc_timing_is_ddr(ios))
 		mmc->actual_clock >>= 1;
 
 	dev_dbg(host->dev, "clk rate: %u Hz\n", mmc->actual_clock);
 	if (ios->clock != mmc->actual_clock)
 		dev_dbg(host->dev, "requested rate was %u\n", ios->clock);
+=======
+	if (ddr) {
+		host->req_rate >>= 1;
+		mmc->actual_clock >>= 1;
+	}
+
+	dev_dbg(host->dev, "clk rate: %u Hz\n", mmc->actual_clock);
+	if (rate != mmc->actual_clock)
+		dev_dbg(host->dev, "requested rate was %lu\n", rate);
+>>>>>>> upstream/android-13
 
 	/* (re)start clock */
 	meson_mmc_clk_ungate(host);
@@ -491,8 +652,11 @@ static int meson_mmc_clk_init(struct meson_host *host)
 	struct clk_init_data init;
 	struct clk_mux *mux;
 	struct clk_divider *div;
+<<<<<<< HEAD
 	struct meson_mmc_phase *core, *tx, *rx;
 	struct clk *clk;
+=======
+>>>>>>> upstream/android-13
 	char clk_name[32];
 	int i, ret = 0;
 	const char *mux_parent_names[MUX_CLK_NUM_PARENTS];
@@ -500,9 +664,17 @@ static int meson_mmc_clk_init(struct meson_host *host)
 	u32 clk_reg;
 
 	/* init SD_EMMC_CLOCK to sane defaults w/min clock rate */
+<<<<<<< HEAD
 	clk_reg = 0;
 	clk_reg |= CLK_ALWAYS_ON(host);
 	clk_reg |= CLK_DIV_MASK;
+=======
+	clk_reg = CLK_ALWAYS_ON(host);
+	clk_reg |= CLK_DIV_MASK;
+	clk_reg |= FIELD_PREP(CLK_CORE_PHASE_MASK, CLK_PHASE_180);
+	clk_reg |= FIELD_PREP(CLK_TX_PHASE_MASK, CLK_PHASE_0);
+	clk_reg |= FIELD_PREP(CLK_RX_PHASE_MASK, CLK_PHASE_0);
+>>>>>>> upstream/android-13
 	writel(clk_reg, host->regs + SD_EMMC_CLOCK);
 
 	/* get the mux parents */
@@ -512,11 +684,17 @@ static int meson_mmc_clk_init(struct meson_host *host)
 
 		snprintf(name, sizeof(name), "clkin%d", i);
 		clk = devm_clk_get(host->dev, name);
+<<<<<<< HEAD
 		if (IS_ERR(clk)) {
 			if (clk != ERR_PTR(-EPROBE_DEFER))
 				dev_err(host->dev, "Missing clock %s\n", name);
 			return PTR_ERR(clk);
 		}
+=======
+		if (IS_ERR(clk))
+			return dev_err_probe(host->dev, PTR_ERR(clk),
+					     "Missing clock %s\n", name);
+>>>>>>> upstream/android-13
 
 		mux_parent_names[i] = __clk_get_name(clk);
 	}
@@ -538,9 +716,15 @@ static int meson_mmc_clk_init(struct meson_host *host)
 	mux->mask = CLK_SRC_MASK >> mux->shift;
 	mux->hw.init = &init;
 
+<<<<<<< HEAD
 	clk = devm_clk_register(host->dev, &mux->hw);
 	if (WARN_ON(IS_ERR(clk)))
 		return PTR_ERR(clk);
+=======
+	host->mux_clk = devm_clk_register(host->dev, &mux->hw);
+	if (WARN_ON(IS_ERR(host->mux_clk)))
+		return PTR_ERR(host->mux_clk);
+>>>>>>> upstream/android-13
 
 	/* create the divider */
 	div = devm_kzalloc(host->dev, sizeof(*div), GFP_KERNEL);
@@ -551,7 +735,11 @@ static int meson_mmc_clk_init(struct meson_host *host)
 	init.name = clk_name;
 	init.ops = &clk_divider_ops;
 	init.flags = CLK_SET_RATE_PARENT;
+<<<<<<< HEAD
 	clk_parent[0] = __clk_get_name(clk);
+=======
+	clk_parent[0] = __clk_get_name(host->mux_clk);
+>>>>>>> upstream/android-13
 	init.parent_names = clk_parent;
 	init.num_parents = 1;
 
@@ -561,6 +749,7 @@ static int meson_mmc_clk_init(struct meson_host *host)
 	div->hw.init = &init;
 	div->flags = CLK_DIVIDER_ONE_BASED;
 
+<<<<<<< HEAD
 	clk = devm_clk_register(host->dev, &div->hw);
 	if (WARN_ON(IS_ERR(clk)))
 		return PTR_ERR(clk);
@@ -632,12 +821,19 @@ static int meson_mmc_clk_init(struct meson_host *host)
 	if (WARN_ON(PTR_ERR_OR_ZERO(host->rx_clk)))
 		return PTR_ERR(host->rx_clk);
 
+=======
+	host->mmc_clk = devm_clk_register(host->dev, &div->hw);
+	if (WARN_ON(IS_ERR(host->mmc_clk)))
+		return PTR_ERR(host->mmc_clk);
+
+>>>>>>> upstream/android-13
 	/* init SD_EMMC_CLOCK to sane defaults w/min clock rate */
 	host->mmc->f_min = clk_round_rate(host->mmc_clk, 400000);
 	ret = clk_set_rate(host->mmc_clk, host->mmc->f_min);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	/*
 	 * Set phases : These values are mostly the datasheet recommended ones
 	 * except for the Tx phase. Datasheet recommends 180 but some cards
@@ -746,6 +942,96 @@ static int meson_mmc_execute_tuning(struct mmc_host *mmc, u32 opcode)
 	struct meson_host *host = mmc_priv(mmc);
 
 	return meson_mmc_clk_phase_tuning(mmc, opcode, host->rx_clk);
+=======
+	return clk_prepare_enable(host->mmc_clk);
+}
+
+static void meson_mmc_disable_resampling(struct meson_host *host)
+{
+	unsigned int val = readl(host->regs + host->data->adjust);
+
+	val &= ~ADJUST_ADJ_EN;
+	writel(val, host->regs + host->data->adjust);
+}
+
+static void meson_mmc_reset_resampling(struct meson_host *host)
+{
+	unsigned int val;
+
+	meson_mmc_disable_resampling(host);
+
+	val = readl(host->regs + host->data->adjust);
+	val &= ~ADJUST_ADJ_DELAY_MASK;
+	writel(val, host->regs + host->data->adjust);
+}
+
+static int meson_mmc_resampling_tuning(struct mmc_host *mmc, u32 opcode)
+{
+	struct meson_host *host = mmc_priv(mmc);
+	unsigned int val, dly, max_dly, i;
+	int ret;
+
+	/* Resampling is done using the source clock */
+	max_dly = DIV_ROUND_UP(clk_get_rate(host->mux_clk),
+			       clk_get_rate(host->mmc_clk));
+
+	val = readl(host->regs + host->data->adjust);
+	val |= ADJUST_ADJ_EN;
+	writel(val, host->regs + host->data->adjust);
+
+	if (mmc_doing_retune(mmc))
+		dly = FIELD_GET(ADJUST_ADJ_DELAY_MASK, val) + 1;
+	else
+		dly = 0;
+
+	for (i = 0; i < max_dly; i++) {
+		val &= ~ADJUST_ADJ_DELAY_MASK;
+		val |= FIELD_PREP(ADJUST_ADJ_DELAY_MASK, (dly + i) % max_dly);
+		writel(val, host->regs + host->data->adjust);
+
+		ret = mmc_send_tuning(mmc, opcode, NULL);
+		if (!ret) {
+			dev_dbg(mmc_dev(mmc), "resampling delay: %u\n",
+				(dly + i) % max_dly);
+			return 0;
+		}
+	}
+
+	meson_mmc_reset_resampling(host);
+	return -EIO;
+}
+
+static int meson_mmc_prepare_ios_clock(struct meson_host *host,
+				       struct mmc_ios *ios)
+{
+	bool ddr;
+
+	switch (ios->timing) {
+	case MMC_TIMING_MMC_DDR52:
+	case MMC_TIMING_UHS_DDR50:
+		ddr = true;
+		break;
+
+	default:
+		ddr = false;
+		break;
+	}
+
+	return meson_mmc_clk_set(host, ios->clock, ddr);
+}
+
+static void meson_mmc_check_resampling(struct meson_host *host,
+				       struct mmc_ios *ios)
+{
+	switch (ios->timing) {
+	case MMC_TIMING_LEGACY:
+	case MMC_TIMING_MMC_HS:
+	case MMC_TIMING_SD_HS:
+	case MMC_TIMING_MMC_DDR52:
+		meson_mmc_disable_resampling(host);
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void meson_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
@@ -774,9 +1060,12 @@ static void meson_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		if (!IS_ERR(mmc->supply.vmmc))
 			mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, ios->vdd);
 
+<<<<<<< HEAD
 		/* Reset rx phase */
 		clk_set_phase(host->rx_clk, 0);
 
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case MMC_POWER_ON:
@@ -813,6 +1102,7 @@ static void meson_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	val = readl(host->regs + SD_EMMC_CFG);
 	val &= ~CFG_BUS_WIDTH_MASK;
 	val |= FIELD_PREP(CFG_BUS_WIDTH_MASK, bus_width);
+<<<<<<< HEAD
 
 	val &= ~CFG_DDR;
 	if (meson_mmc_timing_is_ddr(ios))
@@ -827,6 +1117,15 @@ static void meson_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		dev_err(host->dev, "Failed to set clock: %d\n,", err);
 
 	writel(val, host->regs + SD_EMMC_CFG);
+=======
+	writel(val, host->regs + SD_EMMC_CFG);
+
+	meson_mmc_check_resampling(host, ios);
+	err = meson_mmc_prepare_ios_clock(host, ios);
+	if (err)
+		dev_err(host->dev, "Failed to set clock: %d\n,", err);
+
+>>>>>>> upstream/android-13
 	dev_dbg(host->dev, "SD_EMMC_CFG:  0x%08x\n", val);
 }
 
@@ -836,6 +1135,11 @@ static void meson_mmc_request_done(struct mmc_host *mmc,
 	struct meson_host *host = mmc_priv(mmc);
 
 	host->cmd = NULL;
+<<<<<<< HEAD
+=======
+	if (host->needs_pre_post_req)
+		meson_mmc_post_req(mmc, mrq, 0);
+>>>>>>> upstream/android-13
 	mmc_request_done(host->mmc, mrq);
 }
 
@@ -919,6 +1223,56 @@ static void meson_mmc_desc_chain_transfer(struct mmc_host *mmc, u32 cmd_cfg)
 	writel(start, host->regs + SD_EMMC_START);
 }
 
+<<<<<<< HEAD
+=======
+/* local sg copy for dram_access_quirk */
+static void meson_mmc_copy_buffer(struct meson_host *host, struct mmc_data *data,
+				  size_t buflen, bool to_buffer)
+{
+	unsigned int sg_flags = SG_MITER_ATOMIC;
+	struct scatterlist *sgl = data->sg;
+	unsigned int nents = data->sg_len;
+	struct sg_mapping_iter miter;
+	unsigned int offset = 0;
+
+	if (to_buffer)
+		sg_flags |= SG_MITER_FROM_SG;
+	else
+		sg_flags |= SG_MITER_TO_SG;
+
+	sg_miter_start(&miter, sgl, nents, sg_flags);
+
+	while ((offset < buflen) && sg_miter_next(&miter)) {
+		unsigned int buf_offset = 0;
+		unsigned int len, left;
+		u32 *buf = miter.addr;
+
+		len = min(miter.length, buflen - offset);
+		left = len;
+
+		if (to_buffer) {
+			do {
+				writel(*buf++, host->bounce_iomem_buf + offset + buf_offset);
+
+				buf_offset += 4;
+				left -= 4;
+			} while (left);
+		} else {
+			do {
+				*buf++ = readl(host->bounce_iomem_buf + offset + buf_offset);
+
+				buf_offset += 4;
+				left -= 4;
+			} while (left);
+		}
+
+		offset += len;
+	}
+
+	sg_miter_stop(&miter);
+}
+
+>>>>>>> upstream/android-13
 static void meson_mmc_start_cmd(struct mmc_host *mmc, struct mmc_command *cmd)
 {
 	struct meson_host *host = mmc_priv(mmc);
@@ -962,8 +1316,16 @@ static void meson_mmc_start_cmd(struct mmc_host *mmc, struct mmc_command *cmd)
 		if (data->flags & MMC_DATA_WRITE) {
 			cmd_cfg |= CMD_CFG_DATA_WR;
 			WARN_ON(xfer_bytes > host->bounce_buf_size);
+<<<<<<< HEAD
 			sg_copy_to_buffer(data->sg, data->sg_len,
 					  host->bounce_buf, xfer_bytes);
+=======
+			if (host->dram_access_quirk)
+				meson_mmc_copy_buffer(host, data, xfer_bytes, true);
+			else
+				sg_copy_to_buffer(data->sg, data->sg_len,
+						  host->bounce_buf, xfer_bytes);
+>>>>>>> upstream/android-13
 			dma_wmb();
 		}
 
@@ -982,6 +1344,7 @@ static void meson_mmc_start_cmd(struct mmc_host *mmc, struct mmc_command *cmd)
 	writel(cmd->arg, host->regs + SD_EMMC_CMD_ARG);
 }
 
+<<<<<<< HEAD
 static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
 {
 	struct meson_host *host = mmc_priv(mmc);
@@ -995,15 +1358,64 @@ static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
 	}
 
 	if (needs_pre_post_req)
+=======
+static int meson_mmc_validate_dram_access(struct mmc_host *mmc, struct mmc_data *data)
+{
+	struct scatterlist *sg;
+	int i;
+
+	/* Reject request if any element offset or size is not 32bit aligned */
+	for_each_sg(data->sg, sg, data->sg_len, i) {
+		if (!IS_ALIGNED(sg->offset, sizeof(u32)) ||
+		    !IS_ALIGNED(sg->length, sizeof(u32))) {
+			dev_err(mmc_dev(mmc), "unaligned sg offset %u len %u\n",
+				data->sg->offset, data->sg->length);
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static void meson_mmc_request(struct mmc_host *mmc, struct mmc_request *mrq)
+{
+	struct meson_host *host = mmc_priv(mmc);
+	host->needs_pre_post_req = mrq->data &&
+			!(mrq->data->host_cookie & SD_EMMC_PRE_REQ_DONE);
+
+	/*
+	 * The memory at the end of the controller used as bounce buffer for
+	 * the dram_access_quirk only accepts 32bit read/write access,
+	 * check the aligment and length of the data before starting the request.
+	 */
+	if (host->dram_access_quirk && mrq->data) {
+		mrq->cmd->error = meson_mmc_validate_dram_access(mmc, mrq->data);
+		if (mrq->cmd->error) {
+			mmc_request_done(mmc, mrq);
+			return;
+		}
+	}
+
+	if (host->needs_pre_post_req) {
+		meson_mmc_get_transfer_mode(mmc, mrq);
+		if (!meson_mmc_desc_chain_mode(mrq->data))
+			host->needs_pre_post_req = false;
+	}
+
+	if (host->needs_pre_post_req)
+>>>>>>> upstream/android-13
 		meson_mmc_pre_req(mmc, mrq);
 
 	/* Stop execution */
 	writel(0, host->regs + SD_EMMC_START);
 
 	meson_mmc_start_cmd(mmc, mrq->sbc ?: mrq->cmd);
+<<<<<<< HEAD
 
 	if (needs_pre_post_req)
 		meson_mmc_post_req(mmc, mrq, 0);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void meson_mmc_read_resp(struct mmc_host *mmc, struct mmc_command *cmd)
@@ -1042,7 +1454,12 @@ static irqreturn_t meson_mmc_irq(int irq, void *dev_id)
 	if (WARN_ON(!host) || WARN_ON(!host->cmd))
 		return IRQ_NONE;
 
+<<<<<<< HEAD
 	spin_lock(&host->lock);
+=======
+	/* ack all raised interrupts */
+	writel(status, host->regs + SD_EMMC_STATUS);
+>>>>>>> upstream/android-13
 
 	cmd = host->cmd;
 	data = cmd->data;
@@ -1079,9 +1496,12 @@ static irqreturn_t meson_mmc_irq(int irq, void *dev_id)
 	}
 
 out:
+<<<<<<< HEAD
 	/* ack all enabled interrupts */
 	writel(irq_en, host->regs + SD_EMMC_STATUS);
 
+=======
+>>>>>>> upstream/android-13
 	if (cmd->error) {
 		/* Stop desc in case of errors */
 		u32 start = readl(host->regs + SD_EMMC_START);
@@ -1093,13 +1513,19 @@ out:
 	if (ret == IRQ_HANDLED)
 		meson_mmc_request_done(host->mmc, cmd->mrq);
 
+<<<<<<< HEAD
 	spin_unlock(&host->lock);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int meson_mmc_wait_desc_stop(struct meson_host *host)
 {
+<<<<<<< HEAD
 	int loop;
+=======
+>>>>>>> upstream/android-13
 	u32 status;
 
 	/*
@@ -1109,6 +1535,7 @@ static int meson_mmc_wait_desc_stop(struct meson_host *host)
 	 * If we don't confirm the descriptor is stopped, it might raise new
 	 * IRQs after we have called mmc_request_done() which is bad.
 	 */
+<<<<<<< HEAD
 	for (loop = 50; loop; loop--) {
 		status = readl(host->regs + SD_EMMC_STATUS);
 		if (status & (STATUS_BUSY | STATUS_DESC_BUSY))
@@ -1123,6 +1550,12 @@ static int meson_mmc_wait_desc_stop(struct meson_host *host)
 	}
 
 	return 0;
+=======
+
+	return readl_poll_timeout(host->regs + SD_EMMC_STATUS, status,
+				  !(status & (STATUS_BUSY | STATUS_DESC_BUSY)),
+				  100, 5000);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t meson_mmc_irq_thread(int irq, void *dev_id)
@@ -1146,8 +1579,16 @@ static irqreturn_t meson_mmc_irq_thread(int irq, void *dev_id)
 	if (meson_mmc_bounce_buf_read(data)) {
 		xfer_bytes = data->blksz * data->blocks;
 		WARN_ON(xfer_bytes > host->bounce_buf_size);
+<<<<<<< HEAD
 		sg_copy_from_buffer(data->sg, data->sg_len,
 				    host->bounce_buf, xfer_bytes);
+=======
+		if (host->dram_access_quirk)
+			meson_mmc_copy_buffer(host, data, xfer_bytes, false);
+		else
+			sg_copy_from_buffer(data->sg, data->sg_len,
+					    host->bounce_buf, xfer_bytes);
+>>>>>>> upstream/android-13
 	}
 
 	next_cmd = meson_mmc_get_next_command(cmd);
@@ -1201,6 +1642,11 @@ static int meson_mmc_card_busy(struct mmc_host *mmc)
 
 static int meson_mmc_voltage_switch(struct mmc_host *mmc, struct mmc_ios *ios)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	/* vqmmc regulator is available */
 	if (!IS_ERR(mmc->supply.vqmmc)) {
 		/*
@@ -1210,7 +1656,12 @@ static int meson_mmc_voltage_switch(struct mmc_host *mmc, struct mmc_ios *ios)
 		 * to 1.8v. Please make sure the regulator framework is aware
 		 * of your own regulator constraints
 		 */
+<<<<<<< HEAD
 		return mmc_regulator_set_vqmmc(mmc, ios);
+=======
+		ret = mmc_regulator_set_vqmmc(mmc, ios);
+		return ret < 0 ? ret : 0;
+>>>>>>> upstream/android-13
 	}
 
 	/* no vqmmc regulator, assume fixed regulator at 3/3.3V */
@@ -1226,7 +1677,11 @@ static const struct mmc_host_ops meson_mmc_ops = {
 	.get_cd         = meson_mmc_get_cd,
 	.pre_req	= meson_mmc_pre_req,
 	.post_req	= meson_mmc_post_req,
+<<<<<<< HEAD
 	.execute_tuning = meson_mmc_execute_tuning,
+=======
+	.execute_tuning = meson_mmc_resampling_tuning,
+>>>>>>> upstream/android-13
 	.card_busy	= meson_mmc_card_busy,
 	.start_signal_voltage_switch = meson_mmc_voltage_switch,
 };
@@ -1246,7 +1701,13 @@ static int meson_mmc_probe(struct platform_device *pdev)
 	host->dev = &pdev->dev;
 	dev_set_drvdata(&pdev->dev, host);
 
+<<<<<<< HEAD
 	spin_lock_init(&host->lock);
+=======
+	/* The G12A SDIO Controller needs an SRAM bounce buffer */
+	host->dram_access_quirk = device_property_read_bool(&pdev->dev,
+					"amlogic,dram-access-quirk");
+>>>>>>> upstream/android-13
 
 	/* Get regulators and the supported OCR mask */
 	host->vqmmc_enabled = false;
@@ -1269,12 +1730,17 @@ static int meson_mmc_probe(struct platform_device *pdev)
 	}
 
 	ret = device_reset_optional(&pdev->dev);
+<<<<<<< HEAD
 	if (ret) {
 		if (ret != -EPROBE_DEFER)
 			dev_err(&pdev->dev, "device reset failed: %d\n", ret);
 
 		return ret;
 	}
+=======
+	if (ret)
+		return dev_err_probe(&pdev->dev, ret, "device reset failed\n");
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	host->regs = devm_ioremap_resource(&pdev->dev, res);
@@ -1285,7 +1751,10 @@ static int meson_mmc_probe(struct platform_device *pdev)
 
 	host->irq = platform_get_irq(pdev, 0);
 	if (host->irq <= 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get interrupt resource.\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto free_host;
 	}
@@ -1296,6 +1765,7 @@ static int meson_mmc_probe(struct platform_device *pdev)
 		goto free_host;
 	}
 
+<<<<<<< HEAD
 	host->pins_default = pinctrl_lookup_state(host->pinctrl,
 						  PINCTRL_STATE_DEFAULT);
 	if (IS_ERR(host->pins_default)) {
@@ -1303,6 +1773,8 @@ static int meson_mmc_probe(struct platform_device *pdev)
 		goto free_host;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	host->pins_clk_gate = pinctrl_lookup_state(host->pinctrl,
 						   "clk-gate");
 	if (IS_ERR(host->pins_clk_gate)) {
@@ -1339,12 +1811,17 @@ static int meson_mmc_probe(struct platform_device *pdev)
 	       host->regs + SD_EMMC_IRQ_EN);
 
 	ret = request_threaded_irq(host->irq, meson_mmc_irq,
+<<<<<<< HEAD
 				   meson_mmc_irq_thread, IRQF_SHARED,
+=======
+				   meson_mmc_irq_thread, IRQF_ONESHOT,
+>>>>>>> upstream/android-13
 				   dev_name(&pdev->dev), host);
 	if (ret)
 		goto err_init_clk;
 
 	mmc->caps |= MMC_CAP_CMD23;
+<<<<<<< HEAD
 	mmc->max_blk_count = CMD_CFG_LENGTH_MASK;
 	mmc->max_req_size = mmc->max_blk_count * mmc->max_blk_size;
 	mmc->max_segs = SD_EMMC_DESC_BUF_LEN / sizeof(struct sd_emmc_desc);
@@ -1359,6 +1836,50 @@ static int meson_mmc_probe(struct platform_device *pdev)
 		dev_err(host->dev, "Unable to map allocate DMA bounce buffer.\n");
 		ret = -ENOMEM;
 		goto err_free_irq;
+=======
+	if (host->dram_access_quirk) {
+		/* Limit segments to 1 due to low available sram memory */
+		mmc->max_segs = 1;
+		/* Limit to the available sram memory */
+		mmc->max_blk_count = SD_EMMC_SRAM_DATA_BUF_LEN /
+				     mmc->max_blk_size;
+	} else {
+		mmc->max_blk_count = CMD_CFG_LENGTH_MASK;
+		mmc->max_segs = SD_EMMC_DESC_BUF_LEN /
+				sizeof(struct sd_emmc_desc);
+	}
+	mmc->max_req_size = mmc->max_blk_count * mmc->max_blk_size;
+	mmc->max_seg_size = mmc->max_req_size;
+
+	/*
+	 * At the moment, we don't know how to reliably enable HS400.
+	 * From the different datasheets, it is not even clear if this mode
+	 * is officially supported by any of the SoCs
+	 */
+	mmc->caps2 &= ~MMC_CAP2_HS400;
+
+	if (host->dram_access_quirk) {
+		/*
+		 * The MMC Controller embeds 1,5KiB of internal SRAM
+		 * that can be used to be used as bounce buffer.
+		 * In the case of the G12A SDIO controller, use these
+		 * instead of the DDR memory
+		 */
+		host->bounce_buf_size = SD_EMMC_SRAM_DATA_BUF_LEN;
+		host->bounce_iomem_buf = host->regs + SD_EMMC_SRAM_DATA_BUF_OFF;
+		host->bounce_dma_addr = res->start + SD_EMMC_SRAM_DATA_BUF_OFF;
+	} else {
+		/* data bounce buffer */
+		host->bounce_buf_size = mmc->max_req_size;
+		host->bounce_buf =
+			dma_alloc_coherent(host->dev, host->bounce_buf_size,
+					   &host->bounce_dma_addr, GFP_KERNEL);
+		if (host->bounce_buf == NULL) {
+			dev_err(host->dev, "Unable to map allocate DMA bounce buffer.\n");
+			ret = -ENOMEM;
+			goto err_free_irq;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	host->descs = dma_alloc_coherent(host->dev, SD_EMMC_DESC_BUF_LEN,
@@ -1375,8 +1896,14 @@ static int meson_mmc_probe(struct platform_device *pdev)
 	return 0;
 
 err_bounce_buf:
+<<<<<<< HEAD
 	dma_free_coherent(host->dev, host->bounce_buf_size,
 			  host->bounce_buf, host->bounce_dma_addr);
+=======
+	if (!host->dram_access_quirk)
+		dma_free_coherent(host->dev, host->bounce_buf_size,
+				  host->bounce_buf, host->bounce_dma_addr);
+>>>>>>> upstream/android-13
 err_free_irq:
 	free_irq(host->irq, host);
 err_init_clk:
@@ -1400,8 +1927,15 @@ static int meson_mmc_remove(struct platform_device *pdev)
 
 	dma_free_coherent(host->dev, SD_EMMC_DESC_BUF_LEN,
 			  host->descs, host->descs_dma_addr);
+<<<<<<< HEAD
 	dma_free_coherent(host->dev, host->bounce_buf_size,
 			  host->bounce_buf, host->bounce_dma_addr);
+=======
+
+	if (!host->dram_access_quirk)
+		dma_free_coherent(host->dev, host->bounce_buf_size,
+				  host->bounce_buf, host->bounce_dma_addr);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(host->mmc_clk);
 	clk_disable_unprepare(host->core_clk);
@@ -1414,12 +1948,20 @@ static const struct meson_mmc_data meson_gx_data = {
 	.tx_delay_mask	= CLK_V2_TX_DELAY_MASK,
 	.rx_delay_mask	= CLK_V2_RX_DELAY_MASK,
 	.always_on	= CLK_V2_ALWAYS_ON,
+<<<<<<< HEAD
+=======
+	.adjust		= SD_EMMC_ADJUST,
+>>>>>>> upstream/android-13
 };
 
 static const struct meson_mmc_data meson_axg_data = {
 	.tx_delay_mask	= CLK_V3_TX_DELAY_MASK,
 	.rx_delay_mask	= CLK_V3_RX_DELAY_MASK,
 	.always_on	= CLK_V3_ALWAYS_ON,
+<<<<<<< HEAD
+=======
+	.adjust		= SD_EMMC_V3_ADJUST,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id meson_mmc_of_match[] = {
@@ -1437,7 +1979,12 @@ static struct platform_driver meson_mmc_driver = {
 	.remove		= meson_mmc_remove,
 	.driver		= {
 		.name = DRIVER_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(meson_mmc_of_match),
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+		.of_match_table = meson_mmc_of_match,
+>>>>>>> upstream/android-13
 	},
 };
 

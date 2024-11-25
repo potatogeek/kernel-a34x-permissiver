@@ -225,7 +225,11 @@ record_exception(struct pt_regs *regs, int eflag)
 int
 do_mathemu(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	void *op0 = 0, *op1 = 0, *op2 = 0, *op3 = 0;
+=======
+	void *op0 = NULL, *op1 = NULL, *op2 = NULL, *op3 = NULL;
+>>>>>>> upstream/android-13
 	unsigned long pc = regs->nip;
 	signed short sdisp;
 	u32 insn = 0;
@@ -234,7 +238,11 @@ do_mathemu(struct pt_regs *regs)
 	int type = 0;
 	int eflag, trap;
 
+<<<<<<< HEAD
 	if (get_user(insn, (u32 *)pc))
+=======
+	if (get_user(insn, (u32 __user *)pc))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	switch (insn >> 26) {
@@ -453,7 +461,11 @@ do_mathemu(struct pt_regs *regs)
 		break;
 	}
 
+<<<<<<< HEAD
 	regs->nip += 4;
+=======
+	regs_add_return_ip(regs, 4);
+>>>>>>> upstream/android-13
 	return 0;
 
 illegal:

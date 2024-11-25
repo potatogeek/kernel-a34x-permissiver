@@ -40,7 +40,11 @@
 #include "en.h"
 #include "en_accel/ipsec.h"
 #include "en_accel/ipsec_rxtx.h"
+<<<<<<< HEAD
 
+=======
+#include "en_accel/ipsec_fs.h"
+>>>>>>> upstream/android-13
 
 static struct mlx5e_ipsec_sa_entry *to_ipsec_sa_entry(struct xfrm_state *x)
 {
@@ -75,6 +79,7 @@ struct xfrm_state *mlx5e_ipsec_sadb_rx_lookup(struct mlx5e_ipsec *ipsec,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mlx5e_ipsec_sadb_rx_add(struct mlx5e_ipsec_sa_entry *sa_entry)
 {
 	struct mlx5e_ipsec *ipsec = sa_entry->ipsec;
@@ -87,6 +92,25 @@ static int mlx5e_ipsec_sadb_rx_add(struct mlx5e_ipsec_sa_entry *sa_entry)
 
 	spin_lock_irqsave(&ipsec->sadb_rx_lock, flags);
 	sa_entry->handle = ret;
+=======
+static int  mlx5e_ipsec_sadb_rx_add(struct mlx5e_ipsec_sa_entry *sa_entry,
+				    unsigned int handle)
+{
+	struct mlx5e_ipsec *ipsec = sa_entry->ipsec;
+	struct mlx5e_ipsec_sa_entry *_sa_entry;
+	unsigned long flags;
+
+	rcu_read_lock();
+	hash_for_each_possible_rcu(ipsec->sadb_rx, _sa_entry, hlist, handle)
+		if (_sa_entry->handle == handle) {
+			rcu_read_unlock();
+			return  -EEXIST;
+		}
+	rcu_read_unlock();
+
+	spin_lock_irqsave(&ipsec->sadb_rx_lock, flags);
+	sa_entry->handle = handle;
+>>>>>>> upstream/android-13
 	hash_add_rcu(ipsec->sadb_rx, &sa_entry->hlist, sa_entry->handle);
 	spin_unlock_irqrestore(&ipsec->sadb_rx_lock, flags);
 
@@ -103,6 +127,7 @@ static void mlx5e_ipsec_sadb_rx_del(struct mlx5e_ipsec_sa_entry *sa_entry)
 	spin_unlock_irqrestore(&ipsec->sadb_rx_lock, flags);
 }
 
+<<<<<<< HEAD
 static void mlx5e_ipsec_sadb_rx_free(struct mlx5e_ipsec_sa_entry *sa_entry)
 {
 	struct mlx5e_ipsec *ipsec = sa_entry->ipsec;
@@ -116,6 +141,12 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
 {
 	struct xfrm_replay_state_esn *replay_esn;
 	u32 seq_bottom;
+=======
+static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
+{
+	struct xfrm_replay_state_esn *replay_esn;
+	u32 seq_bottom = 0;
+>>>>>>> upstream/android-13
 	u8 overlap;
 	u32 *esn;
 
@@ -125,7 +156,13 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
 	}
 
 	replay_esn = sa_entry->x->replay_esn;
+<<<<<<< HEAD
 	seq_bottom = replay_esn->seq - replay_esn->replay_window + 1;
+=======
+	if (replay_esn->seq >= replay_esn->replay_window)
+		seq_bottom = replay_esn->seq - replay_esn->replay_window + 1;
+
+>>>>>>> upstream/android-13
 	overlap = sa_entry->esn_state.overlap;
 
 	sa_entry->esn_state.esn = xfrm_replay_seqhi(sa_entry->x,
@@ -199,11 +236,26 @@ mlx5e_ipsec_build_accel_xfrm_attrs(struct mlx5e_ipsec_sa_entry *sa_entry,
 	attrs->flags |= (x->props.mode == XFRM_MODE_TRANSPORT) ?
 			MLX5_ACCEL_ESP_FLAGS_TRANSPORT :
 			MLX5_ACCEL_ESP_FLAGS_TUNNEL;
+<<<<<<< HEAD
+=======
+
+	/* spi */
+	attrs->spi = x->id.spi;
+
+	/* source , destination ips */
+	memcpy(&attrs->saddr, x->props.saddr.a6, sizeof(attrs->saddr));
+	memcpy(&attrs->daddr, x->id.daddr.a6, sizeof(attrs->daddr));
+	attrs->is_ipv6 = (x->props.family != AF_INET);
+>>>>>>> upstream/android-13
 }
 
 static inline int mlx5e_xfrm_validate_state(struct xfrm_state *x)
 {
+<<<<<<< HEAD
 	struct net_device *netdev = x->xso.dev;
+=======
+	struct net_device *netdev = x->xso.real_dev;
+>>>>>>> upstream/android-13
 	struct mlx5e_priv *priv;
 
 	priv = netdev_priv(netdev);
@@ -278,6 +330,7 @@ static inline int mlx5e_xfrm_validate_state(struct xfrm_state *x)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mlx5e_xfrm_add_state(struct xfrm_state *x)
 {
 	struct mlx5e_ipsec_sa_entry *sa_entry = NULL;
@@ -286,6 +339,36 @@ static int mlx5e_xfrm_add_state(struct xfrm_state *x)
 	struct mlx5e_priv *priv;
 	__be32 saddr[4] = {0}, daddr[4] = {0}, spi;
 	bool is_ipv6 = false;
+=======
+static int mlx5e_xfrm_fs_add_rule(struct mlx5e_priv *priv,
+				  struct mlx5e_ipsec_sa_entry *sa_entry)
+{
+	if (!mlx5_is_ipsec_device(priv->mdev))
+		return 0;
+
+	return mlx5e_accel_ipsec_fs_add_rule(priv, &sa_entry->xfrm->attrs,
+					     sa_entry->ipsec_obj_id,
+					     &sa_entry->ipsec_rule);
+}
+
+static void mlx5e_xfrm_fs_del_rule(struct mlx5e_priv *priv,
+				   struct mlx5e_ipsec_sa_entry *sa_entry)
+{
+	if (!mlx5_is_ipsec_device(priv->mdev))
+		return;
+
+	mlx5e_accel_ipsec_fs_del_rule(priv, &sa_entry->xfrm->attrs,
+				      &sa_entry->ipsec_rule);
+}
+
+static int mlx5e_xfrm_add_state(struct xfrm_state *x)
+{
+	struct mlx5e_ipsec_sa_entry *sa_entry = NULL;
+	struct net_device *netdev = x->xso.real_dev;
+	struct mlx5_accel_esp_xfrm_attrs attrs;
+	struct mlx5e_priv *priv;
+	unsigned int sa_handle;
+>>>>>>> upstream/android-13
 	int err;
 
 	priv = netdev_priv(netdev);
@@ -303,6 +386,7 @@ static int mlx5e_xfrm_add_state(struct xfrm_state *x)
 	sa_entry->x = x;
 	sa_entry->ipsec = priv->ipsec;
 
+<<<<<<< HEAD
 	/* Add the SA to handle processed incoming packets before the add SA
 	 * completion was received
 	 */
@@ -317,6 +401,8 @@ static int mlx5e_xfrm_add_state(struct xfrm_state *x)
 				mlx5e_ipsec_set_iv_esn : mlx5e_ipsec_set_iv;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* check esn */
 	mlx5e_ipsec_update_esn_state(sa_entry);
 
@@ -327,6 +413,7 @@ static int mlx5e_xfrm_add_state(struct xfrm_state *x)
 					   MLX5_ACCEL_XFRM_FLAG_REQUIRE_METADATA);
 	if (IS_ERR(sa_entry->xfrm)) {
 		err = PTR_ERR(sa_entry->xfrm);
+<<<<<<< HEAD
 		goto err_sadb_rx;
 	}
 
@@ -345,11 +432,22 @@ static int mlx5e_xfrm_add_state(struct xfrm_state *x)
 							 sa_entry->xfrm,
 							 saddr, daddr, spi,
 							 is_ipv6);
+=======
+		goto err_sa_entry;
+	}
+
+	/* create hw context */
+	sa_entry->hw_context =
+			mlx5_accel_esp_create_hw_context(priv->mdev,
+							 sa_entry->xfrm,
+							 &sa_handle);
+>>>>>>> upstream/android-13
 	if (IS_ERR(sa_entry->hw_context)) {
 		err = PTR_ERR(sa_entry->hw_context);
 		goto err_xfrm;
 	}
 
+<<<<<<< HEAD
 	x->xso.offload_handle = (unsigned long)sa_entry;
 	goto out;
 
@@ -362,6 +460,34 @@ err_sadb_rx:
 	}
 err_entry:
 	kfree(sa_entry);
+=======
+	sa_entry->ipsec_obj_id = sa_handle;
+	err = mlx5e_xfrm_fs_add_rule(priv, sa_entry);
+	if (err)
+		goto err_hw_ctx;
+
+	if (x->xso.flags & XFRM_OFFLOAD_INBOUND) {
+		err = mlx5e_ipsec_sadb_rx_add(sa_entry, sa_handle);
+		if (err)
+			goto err_add_rule;
+	} else {
+		sa_entry->set_iv_op = (x->props.flags & XFRM_STATE_ESN) ?
+				mlx5e_ipsec_set_iv_esn : mlx5e_ipsec_set_iv;
+	}
+
+	x->xso.offload_handle = (unsigned long)sa_entry;
+	goto out;
+
+err_add_rule:
+	mlx5e_xfrm_fs_del_rule(priv, sa_entry);
+err_hw_ctx:
+	mlx5_accel_esp_free_hw_context(priv->mdev, sa_entry->hw_context);
+err_xfrm:
+	mlx5_accel_esp_destroy_xfrm(sa_entry->xfrm);
+err_sa_entry:
+	kfree(sa_entry);
+
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -380,12 +506,17 @@ static void mlx5e_xfrm_del_state(struct xfrm_state *x)
 static void mlx5e_xfrm_free_state(struct xfrm_state *x)
 {
 	struct mlx5e_ipsec_sa_entry *sa_entry = to_ipsec_sa_entry(x);
+<<<<<<< HEAD
+=======
+	struct mlx5e_priv *priv = netdev_priv(x->xso.dev);
+>>>>>>> upstream/android-13
 
 	if (!sa_entry)
 		return;
 
 	if (sa_entry->hw_context) {
 		flush_workqueue(sa_entry->ipsec->wq);
+<<<<<<< HEAD
 		mlx5_accel_esp_free_hw_context(sa_entry->hw_context);
 		mlx5_accel_esp_destroy_xfrm(sa_entry->xfrm);
 	}
@@ -393,6 +524,13 @@ static void mlx5e_xfrm_free_state(struct xfrm_state *x)
 	if (x->xso.flags & XFRM_OFFLOAD_INBOUND)
 		mlx5e_ipsec_sadb_rx_free(sa_entry);
 
+=======
+		mlx5e_xfrm_fs_del_rule(priv, sa_entry);
+		mlx5_accel_esp_free_hw_context(sa_entry->xfrm->mdev, sa_entry->hw_context);
+		mlx5_accel_esp_destroy_xfrm(sa_entry->xfrm);
+	}
+
+>>>>>>> upstream/android-13
 	kfree(sa_entry);
 }
 
@@ -413,7 +551,10 @@ int mlx5e_ipsec_init(struct mlx5e_priv *priv)
 	spin_lock_init(&ipsec->sadb_rx_lock);
 	ida_init(&ipsec->halloc);
 	ipsec->en_priv = priv;
+<<<<<<< HEAD
 	ipsec->en_priv->ipsec = ipsec;
+=======
+>>>>>>> upstream/android-13
 	ipsec->no_trailer = !!(mlx5_accel_ipsec_device_caps(priv->mdev) &
 			       MLX5_ACCEL_IPSEC_CAP_RX_NO_TRAILER);
 	ipsec->wq = alloc_ordered_workqueue("mlx5e_ipsec: %s", 0,
@@ -422,6 +563,12 @@ int mlx5e_ipsec_init(struct mlx5e_priv *priv)
 		kfree(ipsec);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
+=======
+
+	priv->ipsec = ipsec;
+	mlx5e_accel_ipsec_fs_init(priv);
+>>>>>>> upstream/android-13
 	netdev_dbg(priv->netdev, "IPSec attached to netdevice\n");
 	return 0;
 }
@@ -433,7 +580,11 @@ void mlx5e_ipsec_cleanup(struct mlx5e_priv *priv)
 	if (!ipsec)
 		return;
 
+<<<<<<< HEAD
 	drain_workqueue(ipsec->wq);
+=======
+	mlx5e_accel_ipsec_fs_cleanup(priv);
+>>>>>>> upstream/android-13
 	destroy_workqueue(ipsec->wq);
 
 	ida_destroy(&ipsec->halloc);
@@ -515,9 +666,12 @@ void mlx5e_ipsec_build_netdev(struct mlx5e_priv *priv)
 	struct mlx5_core_dev *mdev = priv->mdev;
 	struct net_device *netdev = priv->netdev;
 
+<<<<<<< HEAD
 	if (!priv->ipsec)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	if (!(mlx5_accel_ipsec_device_caps(mdev) & MLX5_ACCEL_IPSEC_CAP_ESP) ||
 	    !MLX5_CAP_ETH(mdev, swp)) {
 		mlx5_core_dbg(mdev, "mlx5e: ESP and SWP offload not supported\n");
@@ -543,6 +697,12 @@ void mlx5e_ipsec_build_netdev(struct mlx5e_priv *priv)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if (mlx5_is_ipsec_device(mdev))
+		netdev->gso_partial_features |= NETIF_F_GSO_ESP;
+
+>>>>>>> upstream/android-13
 	mlx5_core_dbg(mdev, "mlx5e: ESP GSO capability turned on\n");
 	netdev->features |= NETIF_F_GSO_ESP;
 	netdev->hw_features |= NETIF_F_GSO_ESP;

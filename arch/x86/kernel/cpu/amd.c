@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/bitops.h>
 #include <linux/elf.h>
@@ -7,18 +11,33 @@
 #include <linux/sched.h>
 #include <linux/sched/clock.h>
 #include <linux/random.h>
+<<<<<<< HEAD
+=======
+#include <linux/topology.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/apic.h>
 #include <asm/cacheinfo.h>
 #include <asm/cpu.h>
 #include <asm/spec-ctrl.h>
 #include <asm/smp.h>
+<<<<<<< HEAD
 #include <asm/pci-direct.h>
 #include <asm/delay.h>
 
 #ifdef CONFIG_X86_64
 # include <asm/mmconfig.h>
 # include <asm/set_memory.h>
+=======
+#include <asm/numa.h>
+#include <asm/pci-direct.h>
+#include <asm/delay.h>
+#include <asm/debugreg.h>
+#include <asm/resctrl.h>
+
+#ifdef CONFIG_X86_64
+# include <asm/mmconfig.h>
+>>>>>>> upstream/android-13
 #endif
 
 #include "cpu.h"
@@ -82,11 +101,22 @@ static inline int wrmsrl_amd_safe(unsigned msr, unsigned long long val)
  *	performance at the same time..
  */
 
+<<<<<<< HEAD
 extern __visible void vide(void);
 __asm__(".globl vide\n"
 	".type vide, @function\n"
 	".align 4\n"
 	"vide: ret\n");
+=======
+#ifdef CONFIG_X86_32
+extern __visible void vide(void);
+__asm__(".text\n"
+	".globl vide\n"
+	".type vide, @function\n"
+	".align 4\n"
+	"vide: ret\n");
+#endif
+>>>>>>> upstream/android-13
 
 static void init_amd_k5(struct cpuinfo_x86 *c)
 {
@@ -314,6 +344,7 @@ static void legacy_fixup_core_id(struct cpuinfo_x86 *c)
 	c->cpu_core_id %= cus_per_node;
 }
 
+<<<<<<< HEAD
 
 static void amd_get_topology_early(struct cpuinfo_x86 *c)
 {
@@ -321,6 +352,8 @@ static void amd_get_topology_early(struct cpuinfo_x86 *c)
 		smp_num_siblings = ((cpuid_ebx(0x8000001e) >> 8) & 0xff) + 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Fixup core topology information for
  * (1) AMD multi-node processors
@@ -329,7 +362,10 @@ static void amd_get_topology_early(struct cpuinfo_x86 *c)
  */
 static void amd_get_topology(struct cpuinfo_x86 *c)
 {
+<<<<<<< HEAD
 	u8 node_id;
+=======
+>>>>>>> upstream/android-13
 	int cpu = smp_processor_id();
 
 	/* get information required for multi-node processors */
@@ -339,7 +375,11 @@ static void amd_get_topology(struct cpuinfo_x86 *c)
 
 		cpuid(0x8000001e, &eax, &ebx, &ecx, &edx);
 
+<<<<<<< HEAD
 		node_id  = ecx & 0xff;
+=======
+		c->cpu_die_id  = ecx & 0xff;
+>>>>>>> upstream/android-13
 
 		if (c->x86 == 0x15)
 			c->cu_id = ebx & 0xff;
@@ -359,15 +399,25 @@ static void amd_get_topology(struct cpuinfo_x86 *c)
 		if (!err)
 			c->x86_coreid_bits = get_count_order(c->x86_max_cores);
 
+<<<<<<< HEAD
 		cacheinfo_amd_init_llc_id(c, cpu, node_id);
+=======
+		cacheinfo_amd_init_llc_id(c, cpu);
+>>>>>>> upstream/android-13
 
 	} else if (cpu_has(c, X86_FEATURE_NODEID_MSR)) {
 		u64 value;
 
 		rdmsrl(MSR_FAM10H_NODE_ID, value);
+<<<<<<< HEAD
 		node_id = value & 7;
 
 		per_cpu(cpu_llc_id, cpu) = node_id;
+=======
+		c->cpu_die_id = value & 7;
+
+		per_cpu(cpu_llc_id, cpu) = c->cpu_die_id;
+>>>>>>> upstream/android-13
 	} else
 		return;
 
@@ -392,6 +442,7 @@ static void amd_detect_cmp(struct cpuinfo_x86 *c)
 	/* Convert the initial APIC ID into the socket ID */
 	c->phys_proc_id = c->initial_apicid >> bits;
 	/* use socket ID also for last level cache */
+<<<<<<< HEAD
 	per_cpu(cpu_llc_id, cpu) = c->phys_proc_id;
 }
 
@@ -400,6 +451,39 @@ u16 amd_get_nb_id(int cpu)
 	return per_cpu(cpu_llc_id, cpu);
 }
 EXPORT_SYMBOL_GPL(amd_get_nb_id);
+=======
+	per_cpu(cpu_llc_id, cpu) = c->cpu_die_id = c->phys_proc_id;
+}
+
+static void amd_detect_ppin(struct cpuinfo_x86 *c)
+{
+	unsigned long long val;
+
+	if (!cpu_has(c, X86_FEATURE_AMD_PPIN))
+		return;
+
+	/* When PPIN is defined in CPUID, still need to check PPIN_CTL MSR */
+	if (rdmsrl_safe(MSR_AMD_PPIN_CTL, &val))
+		goto clear_ppin;
+
+	/* PPIN is locked in disabled mode, clear feature bit */
+	if ((val & 3UL) == 1UL)
+		goto clear_ppin;
+
+	/* If PPIN is disabled, try to enable it */
+	if (!(val & 2UL)) {
+		wrmsrl_safe(MSR_AMD_PPIN_CTL,  val | 2UL);
+		rdmsrl_safe(MSR_AMD_PPIN_CTL, &val);
+	}
+
+	/* If PPIN_EN bit is 1, return from here; otherwise fall through */
+	if (val & 2UL)
+		return;
+
+clear_ppin:
+	clear_cpu_cap(c, X86_FEATURE_AMD_PPIN);
+}
+>>>>>>> upstream/android-13
 
 u32 amd_get_nodes_per_socket(void)
 {
@@ -416,7 +500,11 @@ static void srat_detect_node(struct cpuinfo_x86 *c)
 
 	node = numa_cpu_node(cpu);
 	if (node == NUMA_NO_NODE)
+<<<<<<< HEAD
 		node = per_cpu(cpu_llc_id, cpu);
+=======
+		node = get_llc_id(cpu);
+>>>>>>> upstream/android-13
 
 	/*
 	 * On multi-fabric platform (e.g. Numascale NumaChip) a
@@ -486,6 +574,7 @@ static void early_init_amd_mc(struct cpuinfo_x86 *c)
 
 static void bsp_init_amd(struct cpuinfo_x86 *c)
 {
+<<<<<<< HEAD
 
 #ifdef CONFIG_X86_64
 	if (c->x86 >= 0xf) {
@@ -506,6 +595,8 @@ static void bsp_init_amd(struct cpuinfo_x86 *c)
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (cpu_has(c, X86_FEATURE_CONSTANT_TSC)) {
 
 		if (c->x86 > 0x10 ||
@@ -540,12 +631,20 @@ static void bsp_init_amd(struct cpuinfo_x86 *c)
 		u32 ecx;
 
 		ecx = cpuid_ecx(0x8000001e);
+<<<<<<< HEAD
 		nodes_per_socket = ((ecx >> 8) & 7) + 1;
+=======
+		__max_die_per_package = nodes_per_socket = ((ecx >> 8) & 7) + 1;
+>>>>>>> upstream/android-13
 	} else if (boot_cpu_has(X86_FEATURE_NODEID_MSR)) {
 		u64 value;
 
 		rdmsrl(MSR_FAM10H_NODE_ID, value);
+<<<<<<< HEAD
 		nodes_per_socket = ((value >> 3) & 7) + 1;
+=======
+		__max_die_per_package = nodes_per_socket = ((value >> 3) & 7) + 1;
+>>>>>>> upstream/android-13
 	}
 
 	if (!boot_cpu_has(X86_FEATURE_AMD_SSBD) &&
@@ -569,6 +668,11 @@ static void bsp_init_amd(struct cpuinfo_x86 *c)
 			x86_amd_ls_cfg_ssbd_mask = 1ULL << bit;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	resctrl_cpu_detect(c);
+>>>>>>> upstream/android-13
 }
 
 static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
@@ -582,15 +686,24 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
 	 *	      If BIOS has not enabled SME then don't advertise the
 	 *	      SME feature (set in scattered.c).
 	 *   For SEV: If BIOS has not enabled SEV then don't advertise the
+<<<<<<< HEAD
 	 *            SEV feature (set in scattered.c).
+=======
+	 *            SEV and SEV_ES feature (set in scattered.c).
+>>>>>>> upstream/android-13
 	 *
 	 *   In all cases, since support for SME and SEV requires long mode,
 	 *   don't advertise the feature under CONFIG_X86_32.
 	 */
 	if (cpu_has(c, X86_FEATURE_SME) || cpu_has(c, X86_FEATURE_SEV)) {
 		/* Check if memory encryption is enabled */
+<<<<<<< HEAD
 		rdmsrl(MSR_K8_SYSCFG, msr);
 		if (!(msr & MSR_K8_SYSCFG_MEM_ENCRYPT))
+=======
+		rdmsrl(MSR_AMD64_SYSCFG, msr);
+		if (!(msr & MSR_AMD64_SYSCFG_MEM_ENCRYPT))
+>>>>>>> upstream/android-13
 			goto clear_all;
 
 		/*
@@ -613,6 +726,10 @@ clear_all:
 		setup_clear_cpu_cap(X86_FEATURE_SME);
 clear_sev:
 		setup_clear_cpu_cap(X86_FEATURE_SEV);
+<<<<<<< HEAD
+=======
+		setup_clear_cpu_cap(X86_FEATURE_SEV_ES);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -623,11 +740,14 @@ static void early_init_amd(struct cpuinfo_x86 *c)
 
 	early_init_amd_mc(c);
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	if (c->x86 == 6)
 		set_cpu_cap(c, X86_FEATURE_K7);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (c->x86 >= 0xf)
 		set_cpu_cap(c, X86_FEATURE_K8);
 
@@ -646,6 +766,13 @@ static void early_init_amd(struct cpuinfo_x86 *c)
 	if (c->x86_power & BIT(12))
 		set_cpu_cap(c, X86_FEATURE_ACC_POWER);
 
+<<<<<<< HEAD
+=======
+	/* Bit 14 indicates the Runtime Average Power Limit interface. */
+	if (c->x86_power & BIT(14))
+		set_cpu_cap(c, X86_FEATURE_RAPL);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_64
 	set_cpu_cap(c, X86_FEATURE_SYSCALL32);
 #else
@@ -712,7 +839,12 @@ static void early_init_amd(struct cpuinfo_x86 *c)
 		}
 	}
 
+<<<<<<< HEAD
 	amd_get_topology_early(c);
+=======
+	if (cpu_has(c, X86_FEATURE_TOPOEXT))
+		smp_num_siblings = ((cpuid_ebx(0x8000001e) >> 8) & 0xff) + 1;
+>>>>>>> upstream/android-13
 }
 
 static void init_amd_k8(struct cpuinfo_x86 *c)
@@ -885,6 +1017,13 @@ static void init_amd_zn(struct cpuinfo_x86 *c)
 {
 	set_cpu_cap(c, X86_FEATURE_ZEN);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NUMA
+	node_reclaim_distance = 32;
+#endif
+
+>>>>>>> upstream/android-13
 	/*
 	 * Fix erratum 1076: CPB feature bit not being set in CPUID.
 	 * Always set it, except when running under a hypervisor.
@@ -922,7 +1061,12 @@ static void init_amd(struct cpuinfo_x86 *c)
 	case 0x12: init_amd_ln(c); break;
 	case 0x15: init_amd_bd(c); break;
 	case 0x16: init_amd_jg(c); break;
+<<<<<<< HEAD
 	case 0x17: init_amd_zn(c); break;
+=======
+	case 0x17: fallthrough;
+	case 0x19: init_amd_zn(c); break;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -937,16 +1081,25 @@ static void init_amd(struct cpuinfo_x86 *c)
 	amd_detect_cmp(c);
 	amd_get_topology(c);
 	srat_detect_node(c);
+<<<<<<< HEAD
+=======
+	amd_detect_ppin(c);
+>>>>>>> upstream/android-13
 
 	init_amd_cacheinfo(c);
 
 	if (cpu_has(c, X86_FEATURE_XMM2)) {
+<<<<<<< HEAD
 		unsigned long long val;
 		int ret;
 
 		/*
 		 * A serializing LFENCE has less overhead than MFENCE, so
 		 * use it for execution serialization.  On families which
+=======
+		/*
+		 * Use LFENCE for execution serialization.  On families which
+>>>>>>> upstream/android-13
 		 * don't have that MSR, LFENCE is already serializing.
 		 * msr_set_bit() uses the safe accessors, too, even if the MSR
 		 * is not present.
@@ -954,6 +1107,7 @@ static void init_amd(struct cpuinfo_x86 *c)
 		msr_set_bit(MSR_F10H_DECFG,
 			    MSR_F10H_DECFG_LFENCE_SERIALIZE_BIT);
 
+<<<<<<< HEAD
 		/*
 		 * Verify that the MSR write was successful (could be running
 		 * under a hypervisor) and only then assume that LFENCE is
@@ -967,6 +1121,10 @@ static void init_amd(struct cpuinfo_x86 *c)
 			/* MFENCE stops RDTSC speculation */
 			set_cpu_cap(c, X86_FEATURE_MFENCE_RDTSC);
 		}
+=======
+		/* A serializing LFENCE stops RDTSC speculation */
+		set_cpu_cap(c, X86_FEATURE_LFENCE_RDTSC);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -993,6 +1151,11 @@ static void init_amd(struct cpuinfo_x86 *c)
 	if (cpu_has(c, X86_FEATURE_IRPERF) &&
 	    !cpu_has_amd_erratum(c, amd_erratum_1054))
 		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
+<<<<<<< HEAD
+=======
+
+	check_null_seg_clears_base(c);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_X86_32
@@ -1173,3 +1336,22 @@ void set_dr_addr_mask(unsigned long mask, int dr)
 		break;
 	}
 }
+<<<<<<< HEAD
+=======
+
+u32 amd_get_highest_perf(void)
+{
+	struct cpuinfo_x86 *c = &boot_cpu_data;
+
+	if (c->x86 == 0x17 && ((c->x86_model >= 0x30 && c->x86_model < 0x40) ||
+			       (c->x86_model >= 0x70 && c->x86_model < 0x80)))
+		return 166;
+
+	if (c->x86 == 0x19 && ((c->x86_model >= 0x20 && c->x86_model < 0x30) ||
+			       (c->x86_model >= 0x40 && c->x86_model < 0x70)))
+		return 166;
+
+	return 255;
+}
+EXPORT_SYMBOL_GPL(amd_get_highest_perf);
+>>>>>>> upstream/android-13

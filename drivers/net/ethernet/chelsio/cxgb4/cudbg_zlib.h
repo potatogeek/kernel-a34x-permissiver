@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2018 Chelsio Communications.  All rights reserved.
  *
@@ -13,6 +14,11 @@
  *  The full GNU General Public License is included in this distribution in
  *  the file called "COPYING".
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (C) 2018 Chelsio Communications.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CUDBG_ZLIB_H__

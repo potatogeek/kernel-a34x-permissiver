@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmfs.c
  *
  * Code which implements the kernel side of a minimal userspace
@@ -9,6 +14,7 @@
  * which was a template for the fs side of this module.
  *
  * Copyright (C) 2003, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -24,6 +30,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Simple VFS hooks based on: */
@@ -47,11 +55,19 @@
 
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #include "stackglue.h"
 #include "userdlm.h"
 
 #define MLOG_MASK_PREFIX ML_DLMFS
 #include "cluster/masklog.h"
+=======
+#include "../stackglue.h"
+#include "userdlm.h"
+
+#define MLOG_MASK_PREFIX ML_DLMFS
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 
 static const struct super_operations dlmfs_ops;
@@ -179,7 +195,11 @@ bail:
 static int dlmfs_file_release(struct inode *inode,
 			      struct file *file)
 {
+<<<<<<< HEAD
 	int level, status;
+=======
+	int level;
+>>>>>>> upstream/android-13
 	struct dlmfs_inode_private *ip = DLMFS_I(inode);
 	struct dlmfs_filp_private *fp = file->private_data;
 
@@ -188,7 +208,10 @@ static int dlmfs_file_release(struct inode *inode,
 
 	mlog(0, "close called on inode %lu\n", inode->i_ino);
 
+<<<<<<< HEAD
 	status = 0;
+=======
+>>>>>>> upstream/android-13
 	if (fp) {
 		level = fp->fp_lock_level;
 		if (level != DLM_LOCK_IV)
@@ -205,17 +228,30 @@ static int dlmfs_file_release(struct inode *inode,
  * We do ->setattr() just to override size changes.  Our size is the size
  * of the LVB and nothing else.
  */
+<<<<<<< HEAD
 static int dlmfs_file_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+static int dlmfs_file_setattr(struct user_namespace *mnt_userns,
+			      struct dentry *dentry, struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	int error;
 	struct inode *inode = d_inode(dentry);
 
 	attr->ia_valid &= ~ATTR_SIZE;
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr);
 	if (error)
 		return error;
 
 	setattr_copy(inode, attr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+	if (error)
+		return error;
+
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }
@@ -236,11 +272,16 @@ static __poll_t dlmfs_file_poll(struct file *file, poll_table *wait)
 	return event;
 }
 
+<<<<<<< HEAD
 static ssize_t dlmfs_file_read(struct file *filp,
+=======
+static ssize_t dlmfs_file_read(struct file *file,
+>>>>>>> upstream/android-13
 			       char __user *buf,
 			       size_t count,
 			       loff_t *ppos)
 {
+<<<<<<< HEAD
 	int bytes_left;
 	ssize_t readlen, got;
 	char *lvb_buf;
@@ -282,6 +323,14 @@ static ssize_t dlmfs_file_read(struct file *filp,
 
 	mlog(0, "read %zd bytes\n", readlen);
 	return readlen;
+=======
+	char lvb[DLM_LVB_LEN];
+
+	if (!user_dlm_read_lvb(file_inode(file), lvb))
+		return 0;
+
+	return simple_read_from_buffer(buf, count, ppos, lvb, sizeof(lvb));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dlmfs_file_write(struct file *filp,
@@ -289,14 +338,20 @@ static ssize_t dlmfs_file_write(struct file *filp,
 				size_t count,
 				loff_t *ppos)
 {
+<<<<<<< HEAD
 	int bytes_left;
 	ssize_t writelen;
 	char *lvb_buf;
+=======
+	char lvb_buf[DLM_LVB_LEN];
+	int bytes_left;
+>>>>>>> upstream/android-13
 	struct inode *inode = file_inode(filp);
 
 	mlog(0, "inode %lu, count = %zu, *ppos = %llu\n",
 		inode->i_ino, count, *ppos);
 
+<<<<<<< HEAD
 	if (*ppos >= i_size_read(inode))
 		return -ENOSPC;
 
@@ -326,6 +381,26 @@ static ssize_t dlmfs_file_write(struct file *filp,
 	*ppos = *ppos + writelen;
 	mlog(0, "wrote %zd bytes\n", writelen);
 	return writelen;
+=======
+	if (*ppos >= DLM_LVB_LEN)
+		return -ENOSPC;
+
+	/* don't write past the lvb */
+	if (count > DLM_LVB_LEN - *ppos)
+		count = DLM_LVB_LEN - *ppos;
+
+	if (!count)
+		return 0;
+
+	bytes_left = copy_from_user(lvb_buf, buf, count);
+	count -= bytes_left;
+	if (count)
+		user_dlm_write_lvb(inode, lvb_buf, count);
+
+	*ppos = *ppos + count;
+	mlog(0, "wrote %zu bytes\n", count);
+	return count;
+>>>>>>> upstream/android-13
 }
 
 static void dlmfs_init_once(void *foo)
@@ -350,6 +425,7 @@ static struct inode *dlmfs_alloc_inode(struct super_block *sb)
 	return &ip->ip_vfs_inode;
 }
 
+<<<<<<< HEAD
 static void dlmfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -361,6 +437,13 @@ static void dlmfs_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, dlmfs_i_callback);
 }
 
+=======
+static void dlmfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(dlmfs_inode_cache, DLMFS_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static void dlmfs_evict_inode(struct inode *inode)
 {
 	int status;
@@ -397,7 +480,11 @@ static struct inode *dlmfs_get_root_inode(struct super_block *sb)
 
 	if (inode) {
 		inode->i_ino = get_next_ino();
+<<<<<<< HEAD
 		inode_init_owner(inode, NULL, mode);
+=======
+		inode_init_owner(&init_user_ns, inode, NULL, mode);
+>>>>>>> upstream/android-13
 		inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
 		inc_nlink(inode);
 
@@ -420,7 +507,11 @@ static struct inode *dlmfs_get_inode(struct inode *parent,
 		return NULL;
 
 	inode->i_ino = get_next_ino();
+<<<<<<< HEAD
 	inode_init_owner(inode, parent, mode);
+=======
+	inode_init_owner(&init_user_ns, inode, parent, mode);
+>>>>>>> upstream/android-13
 	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
 
 	ip = DLMFS_I(inode);
@@ -463,7 +554,12 @@ static struct inode *dlmfs_get_inode(struct inode *parent,
  * File creation. Allocate an inode, and we're done..
  */
 /* SMP-safe */
+<<<<<<< HEAD
 static int dlmfs_mkdir(struct inode * dir,
+=======
+static int dlmfs_mkdir(struct user_namespace * mnt_userns,
+		       struct inode * dir,
+>>>>>>> upstream/android-13
 		       struct dentry * dentry,
 		       umode_t mode)
 {
@@ -511,7 +607,12 @@ bail:
 	return status;
 }
 
+<<<<<<< HEAD
 static int dlmfs_create(struct inode *dir,
+=======
+static int dlmfs_create(struct user_namespace *mnt_userns,
+			struct inode *dir,
+>>>>>>> upstream/android-13
 			struct dentry *dentry,
 			umode_t mode,
 			bool excl)
@@ -606,7 +707,11 @@ static const struct inode_operations dlmfs_root_inode_operations = {
 static const struct super_operations dlmfs_ops = {
 	.statfs		= simple_statfs,
 	.alloc_inode	= dlmfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= dlmfs_destroy_inode,
+=======
+	.free_inode	= dlmfs_free_inode,
+>>>>>>> upstream/android-13
 	.evict_inode	= dlmfs_evict_inode,
 	.drop_inode	= generic_delete_inode,
 };
@@ -683,6 +788,10 @@ static void __exit exit_dlmfs_fs(void)
 
 MODULE_AUTHOR("Oracle");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("OCFS2 DLM-Filesystem");
 
 module_init(init_dlmfs_fs)

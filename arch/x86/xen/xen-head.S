@@ -22,7 +22,11 @@
 
 #ifdef CONFIG_XEN_PV
 	__INIT
+<<<<<<< HEAD
 ENTRY(startup_xen)
+=======
+SYM_CODE_START(startup_xen)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_EMPTY
 	cld
 
@@ -35,6 +39,7 @@ ENTRY(startup_xen)
 	rep __ASM_SIZE(stos)
 
 	mov %_ASM_SI, xen_start_info
+<<<<<<< HEAD
 	mov $init_thread_union+THREAD_SIZE, %_ASM_SP
 
 #ifdef CONFIG_X86_64
@@ -54,14 +59,51 @@ ENTRY(startup_xen)
 	jmp xen_start_kernel
 END(startup_xen)
 	__FINIT
+=======
+	mov initial_stack(%rip), %rsp
+
+	/* Set up %gs.
+	 *
+	 * The base of %gs always points to fixed_percpu_data.  If the
+	 * stack protector canary is enabled, it is located at %gs:40.
+	 * Note that, on SMP, the boot cpu uses init data section until
+	 * the per cpu areas are set up.
+	 */
+	movl	$MSR_GS_BASE,%ecx
+	movq	$INIT_PER_CPU_VAR(fixed_percpu_data),%rax
+	cdq
+	wrmsr
+
+	call xen_start_kernel
+SYM_CODE_END(startup_xen)
+	__FINIT
+
+#ifdef CONFIG_XEN_PV_SMP
+.pushsection .text
+SYM_CODE_START(asm_cpu_bringup_and_idle)
+	UNWIND_HINT_EMPTY
+
+	call cpu_bringup_and_idle
+SYM_CODE_END(asm_cpu_bringup_and_idle)
+.popsection
+#endif
+>>>>>>> upstream/android-13
 #endif
 
 .pushsection .text
 	.balign PAGE_SIZE
+<<<<<<< HEAD
 ENTRY(hypercall_page)
 	.rept (PAGE_SIZE / 32)
 		UNWIND_HINT_EMPTY
 		.skip 32
+=======
+SYM_CODE_START(hypercall_page)
+	.rept (PAGE_SIZE / 32)
+		UNWIND_HINT_FUNC
+		.skip 31, 0x90
+		RET
+>>>>>>> upstream/android-13
 	.endr
 
 #define HYPERCALL(n) \
@@ -69,7 +111,11 @@ ENTRY(hypercall_page)
 	.type xen_hypercall_##n, @function; .size xen_hypercall_##n, 32
 #include <asm/xen-hypercalls.h>
 #undef HYPERCALL
+<<<<<<< HEAD
 END(hypercall_page)
+=======
+SYM_CODE_END(hypercall_page)
+>>>>>>> upstream/android-13
 .popsection
 
 	ELFNOTE(Xen, XEN_ELFNOTE_GUEST_OS,       .asciz "linux")

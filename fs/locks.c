@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/locks.c
  *
@@ -11,11 +15,19 @@
  *
  *  Miscellaneous edits, and a total rewrite of posix_lock_file() code.
  *  Kai Petzke (wpp@marie.physik.tu-berlin.de), 1994
+<<<<<<< HEAD
  *  
  *  Converted file_lock_table to a linked list from an array, which eliminates
  *  the limits on how many active file locks are open.
  *  Chad Page (pageone@netcom.com), November 27, 1994
  * 
+=======
+ *
+ *  Converted file_lock_table to a linked list from an array, which eliminates
+ *  the limits on how many active file locks are open.
+ *  Chad Page (pageone@netcom.com), November 27, 1994
+ *
+>>>>>>> upstream/android-13
  *  Removed dependency on file descriptors. dup()'ed file descriptors now
  *  get the same locks as the original file descriptors, and a close() on
  *  any file descriptor removes ALL the locks on the file for the current
@@ -41,7 +53,11 @@
  *  with a file pointer (filp). As a result they can be shared by a parent
  *  process and its children after a fork(). They are removed when the last
  *  file descriptor referring to the file pointer is closed (unless explicitly
+<<<<<<< HEAD
  *  unlocked). 
+=======
+ *  unlocked).
+>>>>>>> upstream/android-13
  *
  *  FL_FLOCK locks never deadlock, an existing lock is always removed before
  *  upgrading from shared to exclusive (or vice versa). When this happens
@@ -50,7 +66,11 @@
  *  Andy Walker (andy@lysaker.kvaerner.no), June 09, 1995
  *
  *  Removed some race conditions in flock_lock_file(), marked other possible
+<<<<<<< HEAD
  *  races. Just grep for FIXME to see them. 
+=======
+ *  races. Just grep for FIXME to see them.
+>>>>>>> upstream/android-13
  *  Dmitry Gorodchanin (pgmdsg@ibi.com), February 09, 1996.
  *
  *  Addressed Dmitry's concerns. Deadlock checking no longer recursive.
@@ -60,7 +80,11 @@
  *
  *  Initial implementation of mandatory locks. SunOS turned out to be
  *  a rotten model, so I implemented the "obvious" semantics.
+<<<<<<< HEAD
  *  See 'Documentation/filesystems/mandatory-locking.txt' for details.
+=======
+ *  See 'Documentation/filesystems/mandatory-locking.rst' for details.
+>>>>>>> upstream/android-13
  *  Andy Walker (andy@lysaker.kvaerner.no), April 06, 1996.
  *
  *  Don't allow mandatory locks on mmap()'ed files. Added simple functions to
@@ -112,6 +136,49 @@
  *  Leases and LOCK_MAND
  *  Matthew Wilcox <willy@debian.org>, June, 2000.
  *  Stephen Rothwell <sfr@canb.auug.org.au>, June, 2000.
+<<<<<<< HEAD
+=======
+ *
+ * Locking conflicts and dependencies:
+ * If multiple threads attempt to lock the same byte (or flock the same file)
+ * only one can be granted the lock, and other must wait their turn.
+ * The first lock has been "applied" or "granted", the others are "waiting"
+ * and are "blocked" by the "applied" lock..
+ *
+ * Waiting and applied locks are all kept in trees whose properties are:
+ *
+ *	- the root of a tree may be an applied or waiting lock.
+ *	- every other node in the tree is a waiting lock that
+ *	  conflicts with every ancestor of that node.
+ *
+ * Every such tree begins life as a waiting singleton which obviously
+ * satisfies the above properties.
+ *
+ * The only ways we modify trees preserve these properties:
+ *
+ *	1. We may add a new leaf node, but only after first verifying that it
+ *	   conflicts with all of its ancestors.
+ *	2. We may remove the root of a tree, creating a new singleton
+ *	   tree from the root and N new trees rooted in the immediate
+ *	   children.
+ *	3. If the root of a tree is not currently an applied lock, we may
+ *	   apply it (if possible).
+ *	4. We may upgrade the root of the tree (either extend its range,
+ *	   or upgrade its entire range from read to write).
+ *
+ * When an applied lock is modified in a way that reduces or downgrades any
+ * part of its range, we remove all its children (2 above).  This particularly
+ * happens when a lock is unlocked.
+ *
+ * For each of those child trees we "wake up" the thread which is
+ * waiting for the lock so it can continue handling as follows: if the
+ * root of the tree applies, we do so (3).  If it doesn't, it must
+ * conflict with some applied lock.  We remove (wake up) all of its children
+ * (2), and add it is a new leaf to the tree rooted in the applied
+ * lock (1).  We then repeat the process recursively with those
+ * children.
+ *
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -171,6 +238,10 @@ struct file_lock_list_struct {
 static DEFINE_PER_CPU(struct file_lock_list_struct, file_lock_list);
 DEFINE_STATIC_PERCPU_RWSEM(file_rwsem);
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 /*
  * The blocked_hash is used to find POSIX lock loops for deadlock detection.
  * It is protected by blocked_lock_lock.
@@ -189,9 +260,15 @@ static DEFINE_HASHTABLE(blocked_hash, BLOCKED_HASH_BITS);
  * This lock protects the blocked_hash. Generally, if you're accessing it, you
  * want to be holding this lock.
  *
+<<<<<<< HEAD
  * In addition, it also protects the fl->fl_block list, and the fl->fl_next
  * pointer for file_lock structures that are acting as lock requests (in
  * contrast to those that are acting as records of acquired locks).
+=======
+ * In addition, it also protects the fl->fl_blocked_requests list, and the
+ * fl->fl_blocker pointer for file_lock structures that are acting as lock
+ * requests (in contrast to those that are acting as records of acquired locks).
+>>>>>>> upstream/android-13
  *
  * Note that when we acquire this lock in order to change the above fields,
  * we often hold the flc_lock as well. In certain cases, when reading the fields
@@ -293,7 +370,12 @@ static void locks_init_lock_heads(struct file_lock *fl)
 {
 	INIT_HLIST_NODE(&fl->fl_link);
 	INIT_LIST_HEAD(&fl->fl_list);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&fl->fl_block);
+=======
+	INIT_LIST_HEAD(&fl->fl_blocked_requests);
+	INIT_LIST_HEAD(&fl->fl_blocked_member);
+>>>>>>> upstream/android-13
 	init_waitqueue_head(&fl->fl_wait);
 }
 
@@ -311,6 +393,15 @@ EXPORT_SYMBOL_GPL(locks_alloc_lock);
 
 void locks_release_private(struct file_lock *fl)
 {
+<<<<<<< HEAD
+=======
+	BUG_ON(waitqueue_active(&fl->fl_wait));
+	BUG_ON(!list_empty(&fl->fl_list));
+	BUG_ON(!list_empty(&fl->fl_blocked_requests));
+	BUG_ON(!list_empty(&fl->fl_blocked_member));
+	BUG_ON(!hlist_unhashed(&fl->fl_link));
+
+>>>>>>> upstream/android-13
 	if (fl->fl_ops) {
 		if (fl->fl_ops->fl_release_private)
 			fl->fl_ops->fl_release_private(fl);
@@ -330,11 +421,14 @@ EXPORT_SYMBOL_GPL(locks_release_private);
 /* Free a lock which is not in use. */
 void locks_free_lock(struct file_lock *fl)
 {
+<<<<<<< HEAD
 	BUG_ON(waitqueue_active(&fl->fl_wait));
 	BUG_ON(!list_empty(&fl->fl_list));
 	BUG_ON(!list_empty(&fl->fl_block));
 	BUG_ON(!hlist_unhashed(&fl->fl_link));
 
+=======
+>>>>>>> upstream/android-13
 	locks_release_private(fl);
 	kmem_cache_free(filelock_cache, fl);
 }
@@ -357,7 +451,10 @@ void locks_init_lock(struct file_lock *fl)
 	memset(fl, 0, sizeof(struct file_lock));
 	locks_init_lock_heads(fl);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(locks_init_lock);
 
 /*
@@ -397,9 +494,32 @@ void locks_copy_lock(struct file_lock *new, struct file_lock *fl)
 			fl->fl_ops->fl_copy_lock(new, fl);
 	}
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(locks_copy_lock);
 
+=======
+EXPORT_SYMBOL(locks_copy_lock);
+
+static void locks_move_blocks(struct file_lock *new, struct file_lock *fl)
+{
+	struct file_lock *f;
+
+	/*
+	 * As ctx->flc_lock is held, new requests cannot be added to
+	 * ->fl_blocked_requests, so we don't need a lock to check if it
+	 * is empty.
+	 */
+	if (list_empty(&fl->fl_blocked_requests))
+		return;
+	spin_lock(&blocked_lock_lock);
+	list_splice_init(&fl->fl_blocked_requests, &new->fl_blocked_requests);
+	list_for_each_entry(f, &new->fl_blocked_requests, fl_blocked_member)
+		f->fl_blocker = new;
+	spin_unlock(&blocked_lock_lock);
+}
+
+>>>>>>> upstream/android-13
 static inline int flock_translate_cmd(int cmd) {
 	if (cmd & LOCK_MAND)
 		return cmd & (LOCK_MAND | LOCK_RW);
@@ -416,17 +536,33 @@ static inline int flock_translate_cmd(int cmd) {
 
 /* Fill in a file_lock structure with an appropriate FLOCK lock. */
 static struct file_lock *
+<<<<<<< HEAD
 flock_make_lock(struct file *filp, unsigned int cmd)
 {
 	struct file_lock *fl;
+=======
+flock_make_lock(struct file *filp, unsigned int cmd, struct file_lock *fl)
+{
+>>>>>>> upstream/android-13
 	int type = flock_translate_cmd(cmd);
 
 	if (type < 0)
 		return ERR_PTR(type);
+<<<<<<< HEAD
 	
 	fl = locks_alloc_lock();
 	if (fl == NULL)
 		return ERR_PTR(-ENOMEM);
+=======
+
+	if (fl == NULL) {
+		fl = locks_alloc_lock();
+		if (fl == NULL)
+			return ERR_PTR(-ENOMEM);
+	} else {
+		locks_init_lock(fl);
+	}
+>>>>>>> upstream/android-13
 
 	fl->fl_file = filp;
 	fl->fl_owner = filp;
@@ -434,7 +570,11 @@ flock_make_lock(struct file *filp, unsigned int cmd)
 	fl->fl_flags = FL_FLOCK;
 	fl->fl_type = type;
 	fl->fl_end = OFFSET_MAX;
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	return fl;
 }
 
@@ -479,7 +619,11 @@ static int flock64_to_posix_lock(struct file *filp, struct file_lock *fl,
 	if (l->l_len > 0) {
 		if (l->l_len - 1 > OFFSET_MAX - fl->fl_start)
 			return -EOVERFLOW;
+<<<<<<< HEAD
 		fl->fl_end = fl->fl_start + l->l_len - 1;
+=======
+		fl->fl_end = fl->fl_start + (l->l_len - 1);
+>>>>>>> upstream/android-13
 
 	} else if (l->l_len < 0) {
 		if (fl->fl_start + l->l_len < 0)
@@ -596,9 +740,12 @@ static inline int locks_overlap(struct file_lock *fl1, struct file_lock *fl2)
  */
 static int posix_same_owner(struct file_lock *fl1, struct file_lock *fl2)
 {
+<<<<<<< HEAD
 	if (fl1->fl_lmops && fl1->fl_lmops->lm_compare_owner)
 		return fl2->fl_lmops == fl1->fl_lmops &&
 			fl1->fl_lmops->lm_compare_owner(fl1, fl2);
+=======
+>>>>>>> upstream/android-13
 	return fl1->fl_owner == fl2->fl_owner;
 }
 
@@ -639,8 +786,11 @@ static void locks_delete_global_locks(struct file_lock *fl)
 static unsigned long
 posix_owner_key(struct file_lock *fl)
 {
+<<<<<<< HEAD
 	if (fl->fl_lmops && fl->fl_lmops->lm_owner_key)
 		return fl->fl_lmops->lm_owner_key(fl);
+=======
+>>>>>>> upstream/android-13
 	return (unsigned long)fl->fl_owner;
 }
 
@@ -666,6 +816,7 @@ static void locks_delete_global_blocked(struct file_lock *waiter)
 static void __locks_delete_block(struct file_lock *waiter)
 {
 	locks_delete_global_blocked(waiter);
+<<<<<<< HEAD
 	list_del_init(&waiter->fl_block);
 	waiter->fl_next = NULL;
 }
@@ -677,12 +828,91 @@ static void locks_delete_block(struct file_lock *waiter)
 	spin_unlock(&blocked_lock_lock);
 }
 
+=======
+	list_del_init(&waiter->fl_blocked_member);
+}
+
+static void __locks_wake_up_blocks(struct file_lock *blocker)
+{
+	while (!list_empty(&blocker->fl_blocked_requests)) {
+		struct file_lock *waiter;
+
+		waiter = list_first_entry(&blocker->fl_blocked_requests,
+					  struct file_lock, fl_blocked_member);
+		__locks_delete_block(waiter);
+		if (waiter->fl_lmops && waiter->fl_lmops->lm_notify)
+			waiter->fl_lmops->lm_notify(waiter);
+		else
+			wake_up(&waiter->fl_wait);
+
+		/*
+		 * The setting of fl_blocker to NULL marks the "done"
+		 * point in deleting a block. Paired with acquire at the top
+		 * of locks_delete_block().
+		 */
+		smp_store_release(&waiter->fl_blocker, NULL);
+	}
+}
+
+/**
+ *	locks_delete_block - stop waiting for a file lock
+ *	@waiter: the lock which was waiting
+ *
+ *	lockd/nfsd need to disconnect the lock while working on it.
+ */
+int locks_delete_block(struct file_lock *waiter)
+{
+	int status = -ENOENT;
+
+	/*
+	 * If fl_blocker is NULL, it won't be set again as this thread "owns"
+	 * the lock and is the only one that might try to claim the lock.
+	 *
+	 * We use acquire/release to manage fl_blocker so that we can
+	 * optimize away taking the blocked_lock_lock in many cases.
+	 *
+	 * The smp_load_acquire guarantees two things:
+	 *
+	 * 1/ that fl_blocked_requests can be tested locklessly. If something
+	 * was recently added to that list it must have been in a locked region
+	 * *before* the locked region when fl_blocker was set to NULL.
+	 *
+	 * 2/ that no other thread is accessing 'waiter', so it is safe to free
+	 * it.  __locks_wake_up_blocks is careful not to touch waiter after
+	 * fl_blocker is released.
+	 *
+	 * If a lockless check of fl_blocker shows it to be NULL, we know that
+	 * no new locks can be inserted into its fl_blocked_requests list, and
+	 * can avoid doing anything further if the list is empty.
+	 */
+	if (!smp_load_acquire(&waiter->fl_blocker) &&
+	    list_empty(&waiter->fl_blocked_requests))
+		return status;
+
+	spin_lock(&blocked_lock_lock);
+	if (waiter->fl_blocker)
+		status = 0;
+	__locks_wake_up_blocks(waiter);
+	__locks_delete_block(waiter);
+
+	/*
+	 * The setting of fl_blocker to NULL marks the "done" point in deleting
+	 * a block. Paired with acquire at the top of this function.
+	 */
+	smp_store_release(&waiter->fl_blocker, NULL);
+	spin_unlock(&blocked_lock_lock);
+	return status;
+}
+EXPORT_SYMBOL(locks_delete_block);
+
+>>>>>>> upstream/android-13
 /* Insert waiter into blocker's block list.
  * We use a circular list so that processes can be easily woken up in
  * the order they blocked. The documentation doesn't require this but
  * it seems like the reasonable thing to do.
  *
  * Must be called with both the flc_lock and blocked_lock_lock held. The
+<<<<<<< HEAD
  * fl_block list itself is protected by the blocked_lock_lock, but by ensuring
  * that the flc_lock is also held on insertions we can avoid taking the
  * blocked_lock_lock in some cases when we see that the fl_block list is empty.
@@ -695,14 +925,58 @@ static void __locks_insert_block(struct file_lock *blocker,
 	list_add_tail(&waiter->fl_block, &blocker->fl_block);
 	if (IS_POSIX(blocker) && !IS_OFDLCK(blocker))
 		locks_insert_global_blocked(waiter);
+=======
+ * fl_blocked_requests list itself is protected by the blocked_lock_lock,
+ * but by ensuring that the flc_lock is also held on insertions we can avoid
+ * taking the blocked_lock_lock in some cases when we see that the
+ * fl_blocked_requests list is empty.
+ *
+ * Rather than just adding to the list, we check for conflicts with any existing
+ * waiters, and add beneath any waiter that blocks the new waiter.
+ * Thus wakeups don't happen until needed.
+ */
+static void __locks_insert_block(struct file_lock *blocker,
+				 struct file_lock *waiter,
+				 bool conflict(struct file_lock *,
+					       struct file_lock *))
+{
+	struct file_lock *fl;
+	BUG_ON(!list_empty(&waiter->fl_blocked_member));
+
+new_blocker:
+	list_for_each_entry(fl, &blocker->fl_blocked_requests, fl_blocked_member)
+		if (conflict(fl, waiter)) {
+			blocker =  fl;
+			goto new_blocker;
+		}
+	waiter->fl_blocker = blocker;
+	list_add_tail(&waiter->fl_blocked_member, &blocker->fl_blocked_requests);
+	if (IS_POSIX(blocker) && !IS_OFDLCK(blocker))
+		locks_insert_global_blocked(waiter);
+
+	/* The requests in waiter->fl_blocked are known to conflict with
+	 * waiter, but might not conflict with blocker, or the requests
+	 * and lock which block it.  So they all need to be woken.
+	 */
+	__locks_wake_up_blocks(waiter);
+>>>>>>> upstream/android-13
 }
 
 /* Must be called with flc_lock held. */
 static void locks_insert_block(struct file_lock *blocker,
+<<<<<<< HEAD
 					struct file_lock *waiter)
 {
 	spin_lock(&blocked_lock_lock);
 	__locks_insert_block(blocker, waiter);
+=======
+			       struct file_lock *waiter,
+			       bool conflict(struct file_lock *,
+					     struct file_lock *))
+{
+	spin_lock(&blocked_lock_lock);
+	__locks_insert_block(blocker, waiter, conflict);
+>>>>>>> upstream/android-13
 	spin_unlock(&blocked_lock_lock);
 }
 
@@ -716,6 +990,7 @@ static void locks_wake_up_blocks(struct file_lock *blocker)
 	/*
 	 * Avoid taking global lock if list is empty. This is safe since new
 	 * blocked requests are only added to the list under the flc_lock, and
+<<<<<<< HEAD
 	 * the flc_lock is always held here. Note that removal from the fl_block
 	 * list does not require the flc_lock, so we must recheck list_empty()
 	 * after acquiring the blocked_lock_lock.
@@ -735,6 +1010,17 @@ static void locks_wake_up_blocks(struct file_lock *blocker)
 		else
 			wake_up(&waiter->fl_wait);
 	}
+=======
+	 * the flc_lock is always held here. Note that removal from the
+	 * fl_blocked_requests list does not require the flc_lock, so we must
+	 * recheck list_empty() after acquiring the blocked_lock_lock.
+	 */
+	if (list_empty(&blocker->fl_blocked_requests))
+		return;
+
+	spin_lock(&blocked_lock_lock);
+	__locks_wake_up_blocks(blocker);
+>>>>>>> upstream/android-13
 	spin_unlock(&blocked_lock_lock);
 }
 
@@ -766,6 +1052,7 @@ locks_delete_lock_ctx(struct file_lock *fl, struct list_head *dispose)
 /* Determine if lock sys_fl blocks lock caller_fl. Common functionality
  * checks for shared/exclusive status of overlapping locks.
  */
+<<<<<<< HEAD
 static int locks_conflict(struct file_lock *caller_fl, struct file_lock *sys_fl)
 {
 	if (sys_fl->fl_type == F_WRLCK)
@@ -773,17 +1060,33 @@ static int locks_conflict(struct file_lock *caller_fl, struct file_lock *sys_fl)
 	if (caller_fl->fl_type == F_WRLCK)
 		return 1;
 	return 0;
+=======
+static bool locks_conflict(struct file_lock *caller_fl,
+			   struct file_lock *sys_fl)
+{
+	if (sys_fl->fl_type == F_WRLCK)
+		return true;
+	if (caller_fl->fl_type == F_WRLCK)
+		return true;
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /* Determine if lock sys_fl blocks lock caller_fl. POSIX specific
  * checking before calling the locks_conflict().
  */
+<<<<<<< HEAD
 static int posix_locks_conflict(struct file_lock *caller_fl, struct file_lock *sys_fl)
+=======
+static bool posix_locks_conflict(struct file_lock *caller_fl,
+				 struct file_lock *sys_fl)
+>>>>>>> upstream/android-13
 {
 	/* POSIX locks owned by the same process do not conflict with
 	 * each other.
 	 */
 	if (posix_same_owner(caller_fl, sys_fl))
+<<<<<<< HEAD
 		return (0);
 
 	/* Check whether they overlap */
@@ -791,22 +1094,44 @@ static int posix_locks_conflict(struct file_lock *caller_fl, struct file_lock *s
 		return 0;
 
 	return (locks_conflict(caller_fl, sys_fl));
+=======
+		return false;
+
+	/* Check whether they overlap */
+	if (!locks_overlap(caller_fl, sys_fl))
+		return false;
+
+	return locks_conflict(caller_fl, sys_fl);
+>>>>>>> upstream/android-13
 }
 
 /* Determine if lock sys_fl blocks lock caller_fl. FLOCK specific
  * checking before calling the locks_conflict().
  */
+<<<<<<< HEAD
 static int flock_locks_conflict(struct file_lock *caller_fl, struct file_lock *sys_fl)
+=======
+static bool flock_locks_conflict(struct file_lock *caller_fl,
+				 struct file_lock *sys_fl)
+>>>>>>> upstream/android-13
 {
 	/* FLOCK locks referring to the same filp do not conflict with
 	 * each other.
 	 */
 	if (caller_fl->fl_file == sys_fl->fl_file)
+<<<<<<< HEAD
 		return (0);
 	if ((caller_fl->fl_type & LOCK_MAND) || (sys_fl->fl_type & LOCK_MAND))
 		return 0;
 
 	return (locks_conflict(caller_fl, sys_fl));
+=======
+		return false;
+	if ((caller_fl->fl_type & LOCK_MAND) || (sys_fl->fl_type & LOCK_MAND))
+		return false;
+
+	return locks_conflict(caller_fl, sys_fl);
+>>>>>>> upstream/android-13
 }
 
 void
@@ -877,8 +1202,16 @@ static struct file_lock *what_owner_is_waiting_for(struct file_lock *block_fl)
 	struct file_lock *fl;
 
 	hash_for_each_possible(blocked_hash, fl, fl_link, posix_owner_key(block_fl)) {
+<<<<<<< HEAD
 		if (posix_same_owner(fl, block_fl))
 			return fl->fl_next;
+=======
+		if (posix_same_owner(fl, block_fl)) {
+			while (fl->fl_blocker)
+				fl = fl->fl_blocker;
+			return fl;
+		}
+>>>>>>> upstream/android-13
 	}
 	return NULL;
 }
@@ -936,7 +1269,11 @@ static int flock_lock_inode(struct inode *inode, struct file_lock *request)
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	percpu_down_read_preempt_disable(&file_rwsem);
+=======
+	percpu_down_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	spin_lock(&ctx->flc_lock);
 	if (request->fl_flags & FL_ACCESS)
 		goto find_conflict;
@@ -965,19 +1302,31 @@ find_conflict:
 		if (!(request->fl_flags & FL_SLEEP))
 			goto out;
 		error = FILE_LOCK_DEFERRED;
+<<<<<<< HEAD
 		locks_insert_block(fl, request);
+=======
+		locks_insert_block(fl, request, flock_locks_conflict);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	if (request->fl_flags & FL_ACCESS)
 		goto out;
 	locks_copy_lock(new_fl, request);
+<<<<<<< HEAD
+=======
+	locks_move_blocks(new_fl, request);
+>>>>>>> upstream/android-13
 	locks_insert_lock_ctx(new_fl, &ctx->flc_flock);
 	new_fl = NULL;
 	error = 0;
 
 out:
 	spin_unlock(&ctx->flc_lock);
+<<<<<<< HEAD
 	percpu_up_read_preempt_enable(&file_rwsem);
+=======
+	percpu_up_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	if (new_fl)
 		locks_free_lock(new_fl);
 	locks_dispose_list(&dispose);
@@ -1015,7 +1364,11 @@ static int posix_lock_inode(struct inode *inode, struct file_lock *request,
 		new_fl2 = locks_alloc_lock();
 	}
 
+<<<<<<< HEAD
 	percpu_down_read_preempt_disable(&file_rwsem);
+=======
+	percpu_down_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	spin_lock(&ctx->flc_lock);
 	/*
 	 * New lock request. Walk all POSIX locks and look for conflicts. If
@@ -1037,6 +1390,7 @@ static int posix_lock_inode(struct inode *inode, struct file_lock *request,
 			 */
 			error = -EDEADLK;
 			spin_lock(&blocked_lock_lock);
+<<<<<<< HEAD
 			if (likely(!posix_locks_deadlock(request, fl))) {
 				error = FILE_LOCK_DEFERRED;
 				__locks_insert_block(fl, request);
@@ -1045,6 +1399,22 @@ static int posix_lock_inode(struct inode *inode, struct file_lock *request,
 			goto out;
   		}
   	}
+=======
+			/*
+			 * Ensure that we don't find any locks blocked on this
+			 * request during deadlock detection.
+			 */
+			__locks_wake_up_blocks(request);
+			if (likely(!posix_locks_deadlock(request, fl))) {
+				error = FILE_LOCK_DEFERRED;
+				__locks_insert_block(fl, request,
+						     posix_locks_conflict);
+			}
+			spin_unlock(&blocked_lock_lock);
+			goto out;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* If we're just looking for a conflict, we're done. */
 	error = 0;
@@ -1133,6 +1503,10 @@ static int posix_lock_inode(struct inode *inode, struct file_lock *request,
 				if (!new_fl)
 					goto out;
 				locks_copy_lock(new_fl, request);
+<<<<<<< HEAD
+=======
+				locks_move_blocks(new_fl, request);
+>>>>>>> upstream/android-13
 				request = new_fl;
 				new_fl = NULL;
 				locks_insert_lock_ctx(request, &fl->fl_list);
@@ -1164,6 +1538,10 @@ static int posix_lock_inode(struct inode *inode, struct file_lock *request,
 			goto out;
 		}
 		locks_copy_lock(new_fl, request);
+<<<<<<< HEAD
+=======
+		locks_move_blocks(new_fl, request);
+>>>>>>> upstream/android-13
 		locks_insert_lock_ctx(new_fl, &fl->fl_list);
 		fl = new_fl;
 		new_fl = NULL;
@@ -1187,7 +1565,11 @@ static int posix_lock_inode(struct inode *inode, struct file_lock *request,
 	}
  out:
 	spin_unlock(&ctx->flc_lock);
+<<<<<<< HEAD
 	percpu_up_read_preempt_enable(&file_rwsem);
+=======
+	percpu_up_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	/*
 	 * Free any unused locks.
 	 */
@@ -1237,6 +1619,7 @@ static int posix_lock_inode_wait(struct inode *inode, struct file_lock *fl)
 		error = posix_lock_inode(inode, fl, NULL);
 		if (error != FILE_LOCK_DEFERRED)
 			break;
+<<<<<<< HEAD
 		error = wait_event_interruptible(fl->fl_wait, !fl->fl_next);
 		if (!error)
 			continue;
@@ -1344,12 +1727,27 @@ int locks_mandatory_area(struct inode *inode, struct file *filp, loff_t start,
 EXPORT_SYMBOL(locks_mandatory_area);
 #endif /* CONFIG_MANDATORY_FILE_LOCKING */
 
+=======
+		error = wait_event_interruptible(fl->fl_wait,
+					list_empty(&fl->fl_blocked_member));
+		if (error)
+			break;
+	}
+	locks_delete_block(fl);
+	return error;
+}
+
+>>>>>>> upstream/android-13
 static void lease_clear_pending(struct file_lock *fl, int arg)
 {
 	switch (arg) {
 	case F_UNLCK:
 		fl->fl_flags &= ~FL_UNLOCK_PENDING;
+<<<<<<< HEAD
 		/* fall through: */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case F_RDLCK:
 		fl->fl_flags &= ~FL_DOWNGRADE_PENDING;
 	}
@@ -1406,11 +1804,32 @@ static void time_out_leases(struct inode *inode, struct list_head *dispose)
 
 static bool leases_conflict(struct file_lock *lease, struct file_lock *breaker)
 {
+<<<<<<< HEAD
 	if ((breaker->fl_flags & FL_LAYOUT) != (lease->fl_flags & FL_LAYOUT))
 		return false;
 	if ((breaker->fl_flags & FL_DELEG) && (lease->fl_flags & FL_LEASE))
 		return false;
 	return locks_conflict(breaker, lease);
+=======
+	bool rc;
+
+	if (lease->fl_lmops->lm_breaker_owns_lease
+			&& lease->fl_lmops->lm_breaker_owns_lease(lease))
+		return false;
+	if ((breaker->fl_flags & FL_LAYOUT) != (lease->fl_flags & FL_LAYOUT)) {
+		rc = false;
+		goto trace;
+	}
+	if ((breaker->fl_flags & FL_DELEG) && (lease->fl_flags & FL_LEASE)) {
+		rc = false;
+		goto trace;
+	}
+
+	rc = locks_conflict(breaker, lease);
+trace:
+	trace_leases_conflict(rc, lease, breaker);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static bool
@@ -1459,10 +1878,17 @@ int __break_lease(struct inode *inode, unsigned int mode, unsigned int type)
 	ctx = smp_load_acquire(&inode->i_flctx);
 	if (!ctx) {
 		WARN_ON_ONCE(1);
+<<<<<<< HEAD
 		return error;
 	}
 
 	percpu_down_read_preempt_disable(&file_rwsem);
+=======
+		goto free_lock;
+	}
+
+	percpu_down_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	spin_lock(&ctx->flc_lock);
 
 	time_out_leases(inode, &dispose);
@@ -1511,6 +1937,7 @@ restart:
 		break_time -= jiffies;
 	if (break_time == 0)
 		break_time++;
+<<<<<<< HEAD
 	locks_insert_block(fl, new_fl);
 	trace_break_lease_block(inode, new_fl);
 	spin_unlock(&ctx->flc_lock);
@@ -1521,6 +1948,19 @@ restart:
 						!new_fl->fl_next, break_time);
 
 	percpu_down_read_preempt_disable(&file_rwsem);
+=======
+	locks_insert_block(fl, new_fl, leases_conflict);
+	trace_break_lease_block(inode, new_fl);
+	spin_unlock(&ctx->flc_lock);
+	percpu_up_read(&file_rwsem);
+
+	locks_dispose_list(&dispose);
+	error = wait_event_interruptible_timeout(new_fl->fl_wait,
+					list_empty(&new_fl->fl_blocked_member),
+					break_time);
+
+	percpu_down_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	spin_lock(&ctx->flc_lock);
 	trace_break_lease_unblock(inode, new_fl);
 	locks_delete_block(new_fl);
@@ -1537,12 +1977,21 @@ restart:
 	}
 out:
 	spin_unlock(&ctx->flc_lock);
+<<<<<<< HEAD
 	percpu_up_read_preempt_enable(&file_rwsem);
 	locks_dispose_list(&dispose);
 	locks_free_lock(new_fl);
 	return error;
 }
 
+=======
+	percpu_up_read(&file_rwsem);
+	locks_dispose_list(&dispose);
+free_lock:
+	locks_free_lock(new_fl);
+	return error;
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(__break_lease);
 
 /**
@@ -1573,7 +2022,10 @@ void lease_get_mtime(struct inode *inode, struct timespec64 *time)
 	if (has_lease)
 		*time = current_time(inode);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(lease_get_mtime);
 
 /**
@@ -1609,7 +2061,11 @@ int fcntl_getlease(struct file *filp)
 
 	ctx = smp_load_acquire(&inode->i_flctx);
 	if (ctx && !list_empty_careful(&ctx->flc_lease)) {
+<<<<<<< HEAD
 		percpu_down_read_preempt_disable(&file_rwsem);
+=======
+		percpu_down_read(&file_rwsem);
+>>>>>>> upstream/android-13
 		spin_lock(&ctx->flc_lock);
 		time_out_leases(inode, &dispose);
 		list_for_each_entry(fl, &ctx->flc_lease, fl_list) {
@@ -1619,7 +2075,11 @@ int fcntl_getlease(struct file *filp)
 			break;
 		}
 		spin_unlock(&ctx->flc_lock);
+<<<<<<< HEAD
 		percpu_up_read_preempt_enable(&file_rwsem);
+=======
+		percpu_up_read(&file_rwsem);
+>>>>>>> upstream/android-13
 
 		locks_dispose_list(&dispose);
 	}
@@ -1627,10 +2087,17 @@ int fcntl_getlease(struct file *filp)
 }
 
 /**
+<<<<<<< HEAD
  * check_conflicting_open - see if the given dentry points to a file that has
  * 			    an existing open that would conflict with the
  * 			    desired lease.
  * @dentry:	dentry to check
+=======
+ * check_conflicting_open - see if the given file points to an inode that has
+ *			    an existing open that would conflict with the
+ *			    desired lease.
+ * @filp:	file to check
+>>>>>>> upstream/android-13
  * @arg:	type of lease that we're trying to acquire
  * @flags:	current lock flags
  *
@@ -1638,6 +2105,7 @@ int fcntl_getlease(struct file *filp)
  * conflict with the lease we're trying to set.
  */
 static int
+<<<<<<< HEAD
 check_conflicting_open(const struct dentry *dentry, const long arg, int flags)
 {
 	int ret = 0;
@@ -1654,14 +2122,52 @@ check_conflicting_open(const struct dentry *dentry, const long arg, int flags)
 		ret = -EAGAIN;
 
 	return ret;
+=======
+check_conflicting_open(struct file *filp, const long arg, int flags)
+{
+	struct inode *inode = locks_inode(filp);
+	int self_wcount = 0, self_rcount = 0;
+
+	if (flags & FL_LAYOUT)
+		return 0;
+	if (flags & FL_DELEG)
+		/* We leave these checks to the caller */
+		return 0;
+
+	if (arg == F_RDLCK)
+		return inode_is_open_for_write(inode) ? -EAGAIN : 0;
+	else if (arg != F_WRLCK)
+		return 0;
+
+	/*
+	 * Make sure that only read/write count is from lease requestor.
+	 * Note that this will result in denying write leases when i_writecount
+	 * is negative, which is what we want.  (We shouldn't grant write leases
+	 * on files open for execution.)
+	 */
+	if (filp->f_mode & FMODE_WRITE)
+		self_wcount = 1;
+	else if (filp->f_mode & FMODE_READ)
+		self_rcount = 1;
+
+	if (atomic_read(&inode->i_writecount) != self_wcount ||
+	    atomic_read(&inode->i_readcount) != self_rcount)
+		return -EAGAIN;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int
 generic_add_lease(struct file *filp, long arg, struct file_lock **flp, void **priv)
 {
 	struct file_lock *fl, *my_fl = NULL, *lease;
+<<<<<<< HEAD
 	struct dentry *dentry = filp->f_path.dentry;
 	struct inode *inode = dentry->d_inode;
+=======
+	struct inode *inode = locks_inode(filp);
+>>>>>>> upstream/android-13
 	struct file_lock_context *ctx;
 	bool is_deleg = (*flp)->fl_flags & FL_DELEG;
 	int error;
@@ -1693,10 +2199,17 @@ generic_add_lease(struct file *filp, long arg, struct file_lock **flp, void **pr
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	percpu_down_read_preempt_disable(&file_rwsem);
 	spin_lock(&ctx->flc_lock);
 	time_out_leases(inode, &dispose);
 	error = check_conflicting_open(dentry, arg, lease->fl_flags);
+=======
+	percpu_down_read(&file_rwsem);
+	spin_lock(&ctx->flc_lock);
+	time_out_leases(inode, &dispose);
+	error = check_conflicting_open(filp, arg, lease->fl_flags);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -1753,7 +2266,11 @@ generic_add_lease(struct file *filp, long arg, struct file_lock **flp, void **pr
 	 * precedes these checks.
 	 */
 	smp_mb();
+<<<<<<< HEAD
 	error = check_conflicting_open(dentry, arg, lease->fl_flags);
+=======
+	error = check_conflicting_open(filp, arg, lease->fl_flags);
+>>>>>>> upstream/android-13
 	if (error) {
 		locks_unlink_lock_ctx(lease);
 		goto out;
@@ -1764,7 +2281,11 @@ out_setup:
 		lease->fl_lmops->lm_setup(lease, priv);
 out:
 	spin_unlock(&ctx->flc_lock);
+<<<<<<< HEAD
 	percpu_up_read_preempt_enable(&file_rwsem);
+=======
+	percpu_up_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	locks_dispose_list(&dispose);
 	if (is_deleg)
 		inode_unlock(inode);
@@ -1787,7 +2308,11 @@ static int generic_delete_lease(struct file *filp, void *owner)
 		return error;
 	}
 
+<<<<<<< HEAD
 	percpu_down_read_preempt_disable(&file_rwsem);
+=======
+	percpu_down_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	spin_lock(&ctx->flc_lock);
 	list_for_each_entry(fl, &ctx->flc_lease, fl_list) {
 		if (fl->fl_file == filp &&
@@ -1800,7 +2325,11 @@ static int generic_delete_lease(struct file *filp, void *owner)
 	if (victim)
 		error = fl->fl_lmops->lm_change(victim, F_UNLCK, &dispose);
 	spin_unlock(&ctx->flc_lock);
+<<<<<<< HEAD
 	percpu_up_read_preempt_enable(&file_rwsem);
+=======
+	percpu_up_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	locks_dispose_list(&dispose);
 	return error;
 }
@@ -1847,13 +2376,78 @@ int generic_setlease(struct file *filp, long arg, struct file_lock **flp,
 }
 EXPORT_SYMBOL(generic_setlease);
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SRCU)
+/*
+ * Kernel subsystems can register to be notified on any attempt to set
+ * a new lease with the lease_notifier_chain. This is used by (e.g.) nfsd
+ * to close files that it may have cached when there is an attempt to set a
+ * conflicting lease.
+ */
+static struct srcu_notifier_head lease_notifier_chain;
+
+static inline void
+lease_notifier_chain_init(void)
+{
+	srcu_init_notifier_head(&lease_notifier_chain);
+}
+
+static inline void
+setlease_notifier(long arg, struct file_lock *lease)
+{
+	if (arg != F_UNLCK)
+		srcu_notifier_call_chain(&lease_notifier_chain, arg, lease);
+}
+
+int lease_register_notifier(struct notifier_block *nb)
+{
+	return srcu_notifier_chain_register(&lease_notifier_chain, nb);
+}
+EXPORT_SYMBOL_GPL(lease_register_notifier);
+
+void lease_unregister_notifier(struct notifier_block *nb)
+{
+	srcu_notifier_chain_unregister(&lease_notifier_chain, nb);
+}
+EXPORT_SYMBOL_GPL(lease_unregister_notifier);
+
+#else /* !IS_ENABLED(CONFIG_SRCU) */
+static inline void
+lease_notifier_chain_init(void)
+{
+}
+
+static inline void
+setlease_notifier(long arg, struct file_lock *lease)
+{
+}
+
+int lease_register_notifier(struct notifier_block *nb)
+{
+	return 0;
+}
+EXPORT_SYMBOL_GPL(lease_register_notifier);
+
+void lease_unregister_notifier(struct notifier_block *nb)
+{
+}
+EXPORT_SYMBOL_GPL(lease_unregister_notifier);
+
+#endif /* IS_ENABLED(CONFIG_SRCU) */
+
+>>>>>>> upstream/android-13
 /**
  * vfs_setlease        -       sets a lease on an open file
  * @filp:	file pointer
  * @arg:	type of lease to obtain
  * @lease:	file_lock to use when adding a lease
  * @priv:	private info for lm_setup when adding a lease (may be
+<<<<<<< HEAD
  * 		NULL if lm_setup doesn't require it)
+=======
+ *		NULL if lm_setup doesn't require it)
+>>>>>>> upstream/android-13
  *
  * Call this to establish a lease on the file. The "lease" argument is not
  * used for F_UNLCK requests and may be NULL. For commands that set or alter
@@ -1867,6 +2461,11 @@ EXPORT_SYMBOL(generic_setlease);
 int
 vfs_setlease(struct file *filp, long arg, struct file_lock **lease, void **priv)
 {
+<<<<<<< HEAD
+=======
+	if (lease)
+		setlease_notifier(arg, *lease);
+>>>>>>> upstream/android-13
 	if (filp->f_op->setlease)
 		return filp->f_op->setlease(filp, arg, lease, priv);
 	else
@@ -1931,6 +2530,7 @@ static int flock_lock_inode_wait(struct inode *inode, struct file_lock *fl)
 		error = flock_lock_inode(inode, fl);
 		if (error != FILE_LOCK_DEFERRED)
 			break;
+<<<<<<< HEAD
 		error = wait_event_interruptible(fl->fl_wait, !fl->fl_next);
 		if (!error)
 			continue;
@@ -1938,6 +2538,14 @@ static int flock_lock_inode_wait(struct inode *inode, struct file_lock *fl)
 		locks_delete_block(fl);
 		break;
 	}
+=======
+		error = wait_event_interruptible(fl->fl_wait,
+				list_empty(&fl->fl_blocked_member));
+		if (error)
+			break;
+	}
+	locks_delete_block(fl);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -2001,7 +2609,11 @@ SYSCALL_DEFINE2(flock, unsigned int, fd, unsigned int, cmd)
 	    !(f.file->f_mode & (FMODE_READ|FMODE_WRITE)))
 		goto out_putf;
 
+<<<<<<< HEAD
 	lock = flock_make_lock(f.file, cmd);
+=======
+	lock = flock_make_lock(f.file, cmd, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(lock)) {
 		error = PTR_ERR(lock);
 		goto out_putf;
@@ -2135,7 +2747,10 @@ int fcntl_getlk(struct file *filp, unsigned int cmd, struct flock *flock)
 		if (flock->l_pid != 0)
 			goto out;
 
+<<<<<<< HEAD
 		cmd = F_GETLK;
+=======
+>>>>>>> upstream/android-13
 		fl->fl_flags |= FL_OFDLCK;
 		fl->fl_owner = filp;
 	}
@@ -2143,7 +2758,11 @@ int fcntl_getlk(struct file *filp, unsigned int cmd, struct flock *flock)
 	error = vfs_test_lock(filp, fl);
 	if (error)
 		goto out;
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> upstream/android-13
 	flock->l_type = fl->fl_type;
 	if (fl->fl_type != F_UNLCK) {
 		error = posix_lock_to_flock(flock, fl);
@@ -2210,6 +2829,7 @@ static int do_lock_file_wait(struct file *filp, unsigned int cmd,
 		error = vfs_lock_file(filp, cmd, fl, NULL);
 		if (error != FILE_LOCK_DEFERRED)
 			break;
+<<<<<<< HEAD
 		error = wait_event_interruptible(fl->fl_wait, !fl->fl_next);
 		if (!error)
 			continue;
@@ -2217,6 +2837,14 @@ static int do_lock_file_wait(struct file *filp, unsigned int cmd,
 		locks_delete_block(fl);
 		break;
 	}
+=======
+		error = wait_event_interruptible(fl->fl_wait,
+					list_empty(&fl->fl_blocked_member));
+		if (error)
+			break;
+	}
+	locks_delete_block(fl);
+>>>>>>> upstream/android-13
 
 	return error;
 }
@@ -2251,6 +2879,7 @@ int fcntl_setlk(unsigned int fd, struct file *filp, unsigned int cmd,
 	if (file_lock == NULL)
 		return -ENOLCK;
 
+<<<<<<< HEAD
 	/* Don't allow mandatory locks on files that may be memory mapped
 	 * and shared.
 	 */
@@ -2259,6 +2888,8 @@ int fcntl_setlk(unsigned int fd, struct file *filp, unsigned int cmd,
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	error = flock_to_posix_lock(filp, file_lock, flock);
 	if (error)
 		goto out;
@@ -2289,7 +2920,11 @@ int fcntl_setlk(unsigned int fd, struct file *filp, unsigned int cmd,
 		cmd = F_SETLKW;
 		file_lock->fl_flags |= FL_OFDLCK;
 		file_lock->fl_owner = filp;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case F_SETLKW:
 		file_lock->fl_flags |= FL_SLEEP;
 	}
@@ -2303,14 +2938,24 @@ int fcntl_setlk(unsigned int fd, struct file *filp, unsigned int cmd,
 	 */
 	if (!error && file_lock->fl_type != F_UNLCK &&
 	    !(file_lock->fl_flags & FL_OFDLCK)) {
+<<<<<<< HEAD
+=======
+		struct files_struct *files = current->files;
+>>>>>>> upstream/android-13
 		/*
 		 * We need that spin_lock here - it prevents reordering between
 		 * update of i_flctx->flc_posix and check for it done in
 		 * close(). rcu_read_lock() wouldn't do.
 		 */
+<<<<<<< HEAD
 		spin_lock(&current->files->file_lock);
 		f = fcheck(fd);
 		spin_unlock(&current->files->file_lock);
+=======
+		spin_lock(&files->file_lock);
+		f = files_lookup_fd_locked(files, fd);
+		spin_unlock(&files->file_lock);
+>>>>>>> upstream/android-13
 		if (f != filp) {
 			file_lock->fl_type = F_UNLCK;
 			error = do_lock_file_wait(filp, cmd, file_lock);
@@ -2375,13 +3020,17 @@ int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
 		struct flock64 *flock)
 {
 	struct file_lock *file_lock = locks_alloc_lock();
+<<<<<<< HEAD
 	struct inode *inode = locks_inode(filp);
+=======
+>>>>>>> upstream/android-13
 	struct file *f;
 	int error;
 
 	if (file_lock == NULL)
 		return -ENOLCK;
 
+<<<<<<< HEAD
 	/* Don't allow mandatory locks on files that may be memory mapped
 	 * and shared.
 	 */
@@ -2390,6 +3039,8 @@ int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	error = flock64_to_posix_lock(filp, file_lock, flock);
 	if (error)
 		goto out;
@@ -2420,7 +3071,11 @@ int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
 		cmd = F_SETLKW64;
 		file_lock->fl_flags |= FL_OFDLCK;
 		file_lock->fl_owner = filp;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case F_SETLKW64:
 		file_lock->fl_flags |= FL_SLEEP;
 	}
@@ -2434,14 +3089,24 @@ int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
 	 */
 	if (!error && file_lock->fl_type != F_UNLCK &&
 	    !(file_lock->fl_flags & FL_OFDLCK)) {
+<<<<<<< HEAD
+=======
+		struct files_struct *files = current->files;
+>>>>>>> upstream/android-13
 		/*
 		 * We need that spin_lock here - it prevents reordering between
 		 * update of i_flctx->flc_posix and check for it done in
 		 * close(). rcu_read_lock() wouldn't do.
 		 */
+<<<<<<< HEAD
 		spin_lock(&current->files->file_lock);
 		f = fcheck(fd);
 		spin_unlock(&current->files->file_lock);
+=======
+		spin_lock(&files->file_lock);
+		f = files_lookup_fd_locked(files, fd);
+		spin_unlock(&files->file_lock);
+>>>>>>> upstream/android-13
 		if (f != filp) {
 			file_lock->fl_type = F_UNLCK;
 			error = do_lock_file_wait(filp, cmd, file_lock);
@@ -2476,6 +3141,10 @@ void locks_remove_posix(struct file *filp, fl_owner_t owner)
 	if (!ctx || list_empty(&ctx->flc_posix))
 		return;
 
+<<<<<<< HEAD
+=======
+	locks_init_lock(&lock);
+>>>>>>> upstream/android-13
 	lock.fl_type = F_UNLCK;
 	lock.fl_flags = FL_POSIX | FL_CLOSE;
 	lock.fl_start = 0;
@@ -2492,13 +3161,17 @@ void locks_remove_posix(struct file *filp, fl_owner_t owner)
 		lock.fl_ops->fl_release_private(&lock);
 	trace_locks_remove_posix(inode, &lock, error);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(locks_remove_posix);
 
 /* The i_flctx must be valid when calling into here */
 static void
 locks_remove_flock(struct file *filp, struct file_lock_context *flctx)
 {
+<<<<<<< HEAD
 	struct file_lock fl = {
 		.fl_owner = filp,
 		.fl_pid = current->tgid,
@@ -2507,11 +3180,20 @@ locks_remove_flock(struct file *filp, struct file_lock_context *flctx)
 		.fl_type = F_UNLCK,
 		.fl_end = OFFSET_MAX,
 	};
+=======
+	struct file_lock fl;
+>>>>>>> upstream/android-13
 	struct inode *inode = locks_inode(filp);
 
 	if (list_empty(&flctx->flc_flock))
 		return;
 
+<<<<<<< HEAD
+=======
+	flock_make_lock(filp, LOCK_UN, &fl);
+	fl.fl_flags |= FL_CLOSE;
+
+>>>>>>> upstream/android-13
 	if (filp->f_op->flock)
 		filp->f_op->flock(filp, F_SETLKW, &fl);
 	else
@@ -2531,13 +3213,21 @@ locks_remove_lease(struct file *filp, struct file_lock_context *ctx)
 	if (list_empty(&ctx->flc_lease))
 		return;
 
+<<<<<<< HEAD
 	percpu_down_read_preempt_disable(&file_rwsem);
+=======
+	percpu_down_read(&file_rwsem);
+>>>>>>> upstream/android-13
 	spin_lock(&ctx->flc_lock);
 	list_for_each_entry_safe(fl, tmp, &ctx->flc_lease, fl_list)
 		if (filp == fl->fl_file)
 			lease_modify(fl, F_UNLCK, &dispose);
 	spin_unlock(&ctx->flc_lock);
+<<<<<<< HEAD
 	percpu_up_read_preempt_enable(&file_rwsem);
+=======
+	percpu_up_read(&file_rwsem);
+>>>>>>> upstream/android-13
 
 	locks_dispose_list(&dispose);
 }
@@ -2570,6 +3260,7 @@ void locks_remove_file(struct file *filp)
 }
 
 /**
+<<<<<<< HEAD
  *	posix_unblock_lock - stop waiting for a file lock
  *	@waiter: the lock which was waiting
  *
@@ -2591,6 +3282,8 @@ posix_unblock_lock(struct file_lock *waiter)
 EXPORT_SYMBOL(posix_unblock_lock);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * vfs_cancel_lock - file byte range unblock lock
  * @filp: The file to apply the unblock to
  * @fl: The lock to be unblocked
@@ -2603,7 +3296,10 @@ int vfs_cancel_lock(struct file *filp, struct file_lock *fl)
 		return filp->f_op->lock(filp, F_CANCELLK, fl);
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(vfs_cancel_lock);
 
 #ifdef CONFIG_PROC_FS
@@ -2616,11 +3312,19 @@ struct locks_iterator {
 };
 
 static void lock_get_status(struct seq_file *f, struct file_lock *fl,
+<<<<<<< HEAD
 			    loff_t id, char *pfx)
 {
 	struct inode *inode = NULL;
 	unsigned int fl_pid;
 	struct pid_namespace *proc_pidns = file_inode(f->file)->i_sb->s_fs_info;
+=======
+			    loff_t id, char *pfx, int repeat)
+{
+	struct inode *inode = NULL;
+	unsigned int fl_pid;
+	struct pid_namespace *proc_pidns = proc_pid_ns(file_inode(f->file)->i_sb);
+>>>>>>> upstream/android-13
 
 	fl_pid = locks_translate_pid(fl, proc_pidns);
 	/*
@@ -2632,7 +3336,15 @@ static void lock_get_status(struct seq_file *f, struct file_lock *fl,
 	if (fl->fl_file != NULL)
 		inode = locks_inode(fl->fl_file);
 
+<<<<<<< HEAD
 	seq_printf(f, "%lld:%s ", id, pfx);
+=======
+	seq_printf(f, "%lld: ", id);
+
+	if (repeat)
+		seq_printf(f, "%*s", repeat - 1 + (int)strlen(pfx), pfx);
+
+>>>>>>> upstream/android-13
 	if (IS_POSIX(fl)) {
 		if (fl->fl_flags & FL_ACCESS)
 			seq_puts(f, "ACCESS");
@@ -2642,8 +3354,12 @@ static void lock_get_status(struct seq_file *f, struct file_lock *fl,
 			seq_puts(f, "POSIX ");
 
 		seq_printf(f, " %s ",
+<<<<<<< HEAD
 			     (inode == NULL) ? "*NOINODE*" :
 			     mandatory_lock(inode) ? "MANDATORY" : "ADVISORY ");
+=======
+			     (inode == NULL) ? "*NOINODE*" : "ADVISORY ");
+>>>>>>> upstream/android-13
 	} else if (IS_FLOCK(fl)) {
 		if (fl->fl_type & LOCK_MAND) {
 			seq_puts(f, "FLOCK  MSNFS     ");
@@ -2671,10 +3387,17 @@ static void lock_get_status(struct seq_file *f, struct file_lock *fl,
 			       ? (fl->fl_type & LOCK_WRITE) ? "RW   " : "READ "
 			       : (fl->fl_type & LOCK_WRITE) ? "WRITE" : "NONE ");
 	} else {
+<<<<<<< HEAD
 		seq_printf(f, "%s ",
 			       (lease_breaking(fl))
 			       ? (fl->fl_type == F_UNLCK) ? "UNLCK" : "READ "
 			       : (fl->fl_type == F_WRLCK) ? "WRITE" : "READ ");
+=======
+		int type = IS_LEASE(fl) ? target_leasetype(fl) : fl->fl_type;
+
+		seq_printf(f, "%s ", (type == F_WRLCK) ? "WRITE" :
+				     (type == F_RDLCK) ? "READ" : "UNLCK");
+>>>>>>> upstream/android-13
 	}
 	if (inode) {
 		/* userspace relies on this representation of dev_t */
@@ -2694,6 +3417,7 @@ static void lock_get_status(struct seq_file *f, struct file_lock *fl,
 	}
 }
 
+<<<<<<< HEAD
 static int locks_show(struct seq_file *f, void *v)
 {
 	struct locks_iterator *iter = f->private;
@@ -2709,6 +3433,66 @@ static int locks_show(struct seq_file *f, void *v)
 
 	list_for_each_entry(bfl, &fl->fl_block, fl_block)
 		lock_get_status(f, bfl, iter->li_pos, " ->");
+=======
+static struct file_lock *get_next_blocked_member(struct file_lock *node)
+{
+	struct file_lock *tmp;
+
+	/* NULL node or root node */
+	if (node == NULL || node->fl_blocker == NULL)
+		return NULL;
+
+	/* Next member in the linked list could be itself */
+	tmp = list_next_entry(node, fl_blocked_member);
+	if (list_entry_is_head(tmp, &node->fl_blocker->fl_blocked_requests, fl_blocked_member)
+		|| tmp == node) {
+		return NULL;
+	}
+
+	return tmp;
+}
+
+static int locks_show(struct seq_file *f, void *v)
+{
+	struct locks_iterator *iter = f->private;
+	struct file_lock *cur, *tmp;
+	struct pid_namespace *proc_pidns = proc_pid_ns(file_inode(f->file)->i_sb);
+	int level = 0;
+
+	cur = hlist_entry(v, struct file_lock, fl_link);
+
+	if (locks_translate_pid(cur, proc_pidns) == 0)
+		return 0;
+
+	/* View this crossed linked list as a binary tree, the first member of fl_blocked_requests
+	 * is the left child of current node, the next silibing in fl_blocked_member is the
+	 * right child, we can alse get the parent of current node from fl_blocker, so this
+	 * question becomes traversal of a binary tree
+	 */
+	while (cur != NULL) {
+		if (level)
+			lock_get_status(f, cur, iter->li_pos, "-> ", level);
+		else
+			lock_get_status(f, cur, iter->li_pos, "", level);
+
+		if (!list_empty(&cur->fl_blocked_requests)) {
+			/* Turn left */
+			cur = list_first_entry_or_null(&cur->fl_blocked_requests,
+				struct file_lock, fl_blocked_member);
+			level++;
+		} else {
+			/* Turn right */
+			tmp = get_next_blocked_member(cur);
+			/* Fall back to parent node */
+			while (tmp == NULL && cur->fl_blocker != NULL) {
+				cur = cur->fl_blocker;
+				level--;
+				tmp = get_next_blocked_member(cur);
+			}
+			cur = tmp;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2729,7 +3513,11 @@ static void __show_fd_locks(struct seq_file *f,
 
 		(*id)++;
 		seq_puts(f, "lock:\t");
+<<<<<<< HEAD
 		lock_get_status(f, fl, *id, "");
+=======
+		lock_get_status(f, fl, *id, "", 0);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2803,7 +3591,10 @@ static int __init filelock_init(void)
 	filelock_cache = kmem_cache_create("file_lock_cache",
 			sizeof(struct file_lock), 0, SLAB_PANIC, NULL);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	for_each_possible_cpu(i) {
 		struct file_lock_list_struct *fll = per_cpu_ptr(&file_lock_list, i);
 
@@ -2811,7 +3602,13 @@ static int __init filelock_init(void)
 		INIT_HLIST_HEAD(&fll->hlist);
 	}
 
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+	lease_notifier_chain_init();
+	return 0;
+}
+>>>>>>> upstream/android-13
 core_initcall(filelock_init);

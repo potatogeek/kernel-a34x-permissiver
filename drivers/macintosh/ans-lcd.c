@@ -64,7 +64,11 @@ anslcd_write( struct file * file, const char __user * buf,
 	printk(KERN_DEBUG "LCD: write\n");
 #endif
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	mutex_lock(&anslcd_mutex);
@@ -142,12 +146,21 @@ const struct file_operations anslcd_fops = {
 };
 
 static struct miscdevice anslcd_dev = {
+<<<<<<< HEAD
 	ANSLCD_MINOR,
+=======
+	LCD_MINOR,
+>>>>>>> upstream/android-13
 	"anslcd",
 	&anslcd_fops
 };
 
+<<<<<<< HEAD
 const char anslcd_logo[] =	"********************"  /* Line #1 */
+=======
+static const char anslcd_logo[] __initconst =
+				"********************"  /* Line #1 */
+>>>>>>> upstream/android-13
 				"*      LINUX!      *"  /* Line #3 */
 				"*    Welcome to    *"  /* Line #2 */
 				"********************"; /* Line #4 */
@@ -160,7 +173,11 @@ anslcd_init(void)
 	struct device_node* node;
 
 	node = of_find_node_by_name(NULL, "lcd");
+<<<<<<< HEAD
 	if (!node || !node->parent || strcmp(node->parent->name, "gc")) {
+=======
+	if (!node || !of_node_name_eq(node->parent, "gc")) {
+>>>>>>> upstream/android-13
 		of_node_put(node);
 		return -ENODEV;
 	}

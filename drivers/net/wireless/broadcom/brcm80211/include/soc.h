@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,12 +13,21 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef	_BRCM_SOC_H
 #define	_BRCM_SOC_H
 
+<<<<<<< HEAD
 #define SI_ENUM_BASE		0x18000000	/* Enumeration space base */
+=======
+#define SI_ENUM_BASE_DEFAULT	0x18000000
+>>>>>>> upstream/android-13
 
 /* Common core control flags */
 #define	SICF_BIST_EN		0x8000

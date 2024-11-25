@@ -205,15 +205,24 @@ nv44_vmm = {
 };
 
 int
+<<<<<<< HEAD
 nv44_vmm_new(struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	     struct lock_class_key *key, const char *name,
+=======
+nv44_vmm_new(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	     void *argv, u32 argc, struct lock_class_key *key, const char *name,
+>>>>>>> upstream/android-13
 	     struct nvkm_vmm **pvmm)
 {
 	struct nvkm_subdev *subdev = &mmu->subdev;
 	struct nvkm_vmm *vmm;
 	int ret;
 
+<<<<<<< HEAD
 	ret = nv04_vmm_new_(&nv44_vmm, mmu, 0, addr, size,
+=======
+	ret = nv04_vmm_new_(&nv44_vmm, mmu, 0, managed, addr, size,
+>>>>>>> upstream/android-13
 			    argv, argc, key, name, &vmm);
 	*pvmm = vmm;
 	if (ret)

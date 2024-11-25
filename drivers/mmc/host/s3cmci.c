@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/s3cmci.h - Samsung S3C MCI driver
  *
@@ -5,10 +9,13 @@
  *
  * Current driver maintained by Ben Dooks and Simtec Electronics
  *  Copyright (C) 2008 Simtec Electronics <ben-linux@fluff.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,12 +27,17 @@
 #include <linux/cpufreq.h>
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/io.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/mmc/slot-gpio.h>
 
@@ -33,6 +45,9 @@
 #include <mach/dma.h>
 #include <mach/gpio-samsung.h>
 
+=======
+#include <linux/mmc/slot-gpio.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/mmc-s3cmci.h>
 
 #include "s3cmci.h"
@@ -154,8 +169,13 @@ static void s3cmci_reset(struct s3cmci_host *host);
 
 static void dbg_dumpregs(struct s3cmci_host *host, char *prefix)
 {
+<<<<<<< HEAD
 	u32 con, pre, cmdarg, cmdcon, cmdsta, r0, r1, r2, r3, timer, bsize;
 	u32 datcon, datcnt, datsta, fsta, imask;
+=======
+	u32 con, pre, cmdarg, cmdcon, cmdsta, r0, r1, r2, r3, timer;
+	u32 datcon, datcnt, datsta, fsta;
+>>>>>>> upstream/android-13
 
 	con 	= readl(host->base + S3C2410_SDICON);
 	pre 	= readl(host->base + S3C2410_SDIPRE);
@@ -167,12 +187,18 @@ static void dbg_dumpregs(struct s3cmci_host *host, char *prefix)
 	r2 	= readl(host->base + S3C2410_SDIRSP2);
 	r3 	= readl(host->base + S3C2410_SDIRSP3);
 	timer 	= readl(host->base + S3C2410_SDITIMER);
+<<<<<<< HEAD
 	bsize 	= readl(host->base + S3C2410_SDIBSIZE);
+=======
+>>>>>>> upstream/android-13
 	datcon 	= readl(host->base + S3C2410_SDIDCON);
 	datcnt 	= readl(host->base + S3C2410_SDIDCNT);
 	datsta 	= readl(host->base + S3C2410_SDIDSTA);
 	fsta 	= readl(host->base + S3C2410_SDIFSTA);
+<<<<<<< HEAD
 	imask   = readl(host->base + host->sdiimsk);
+=======
+>>>>>>> upstream/android-13
 
 	dbg(host, dbg_debug, "%s  CON:[%08x]  PRE:[%08x]  TMR:[%08x]\n",
 				prefix, con, pre, timer);
@@ -311,7 +337,12 @@ static inline void clear_imask(struct s3cmci_host *host)
 static void s3cmci_check_sdio_irq(struct s3cmci_host *host)
 {
 	if (host->sdio_irqen) {
+<<<<<<< HEAD
 		if (gpio_get_value(S3C2410_GPE(8)) == 0) {
+=======
+		if (host->pdata->bus[3] &&
+		    gpiod_get_value(host->pdata->bus[3]) == 0) {
+>>>>>>> upstream/android-13
 			pr_debug("%s: signalling irq\n", __func__);
 			mmc_signal_sdio_irq(host->mmc);
 		}
@@ -400,9 +431,12 @@ static void s3cmci_enable_irq(struct s3cmci_host *host, bool more)
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 /**
  *
  */
+=======
+>>>>>>> upstream/android-13
 static void s3cmci_disable_irq(struct s3cmci_host *host, bool transfer)
 {
 	unsigned long flags;
@@ -553,9 +587,15 @@ static void do_pio_write(struct s3cmci_host *host)
 	enable_imask(host, S3C2410_SDIIMSK_TXFIFOHALF);
 }
 
+<<<<<<< HEAD
 static void pio_tasklet(unsigned long data)
 {
 	struct s3cmci_host *host = (struct s3cmci_host *) data;
+=======
+static void pio_tasklet(struct tasklet_struct *t)
+{
+	struct s3cmci_host *host = from_tasklet(host, t, pio_tasklet);
+>>>>>>> upstream/android-13
 
 	s3cmci_disable_irq(host, true);
 
@@ -962,6 +1002,7 @@ static int s3cmci_setup_data(struct s3cmci_host *host, struct mmc_data *data)
 {
 	u32 dcon, imsk, stoptries = 3;
 
+<<<<<<< HEAD
 	/* write DCON register */
 
 	if (!data) {
@@ -969,6 +1010,8 @@ static int s3cmci_setup_data(struct s3cmci_host *host, struct mmc_data *data)
 		return 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if ((data->blksz & 3) != 0) {
 		/* We cannot deal with unaligned blocks with more than
 		 * one block being transferred. */
@@ -1217,6 +1260,7 @@ static void s3cmci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	switch (ios->power_mode) {
 	case MMC_POWER_ON:
 	case MMC_POWER_UP:
+<<<<<<< HEAD
 		/* Configure GPE5...GPE10 pins in SD mode */
 		if (!host->pdev->dev.of_node)
 			s3c_gpio_cfgall_range(S3C2410_GPE(5), 6, S3C_GPIO_SFN(2),
@@ -1228,10 +1272,15 @@ static void s3cmci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		if (!host->is2440)
 			mci_con |= S3C2410_SDICON_FIFORESET;
 
+=======
+		if (!host->is2440)
+			mci_con |= S3C2410_SDICON_FIFORESET;
+>>>>>>> upstream/android-13
 		break;
 
 	case MMC_POWER_OFF:
 	default:
+<<<<<<< HEAD
 		if (!host->pdev->dev.of_node)
 			gpio_direction_output(S3C2410_GPE(5), 0);
 
@@ -1244,6 +1293,16 @@ static void s3cmci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		break;
 	}
 
+=======
+		if (host->is2440)
+			mci_con |= S3C2440_SDICON_SDRESET;
+		break;
+	}
+
+	if (host->pdata->set_power)
+		host->pdata->set_power(ios->power_mode, ios->vdd);
+
+>>>>>>> upstream/android-13
 	s3cmci_set_clk(host, ios);
 
 	/* Set CLOCK_ENABLE */
@@ -1321,6 +1380,7 @@ static const struct mmc_host_ops s3cmci_ops = {
 	.enable_sdio_irq = s3cmci_enable_sdio_irq,
 };
 
+<<<<<<< HEAD
 static struct s3c24xx_mci_pdata s3cmci_def_pdata = {
 	/* This is currently here to avoid a number of if (host->pdata)
 	 * checks. Any zero fields to ensure reasonable defaults are picked. */
@@ -1328,6 +1388,8 @@ static struct s3c24xx_mci_pdata s3cmci_def_pdata = {
 	 .no_detect = 1,
 };
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARM_S3C24XX_CPUFREQ
 
 static int s3cmci_cpufreq_transition(struct notifier_block *nb,
@@ -1390,7 +1452,11 @@ static int s3cmci_state_show(struct seq_file *seq, void *v)
 {
 	struct s3cmci_host *host = seq->private;
 
+<<<<<<< HEAD
 	seq_printf(seq, "Register base = 0x%08x\n", (u32)host->base);
+=======
+	seq_printf(seq, "Register base = 0x%p\n", host->base);
+>>>>>>> upstream/android-13
 	seq_printf(seq, "Clock rate = %ld\n", host->clk_rate);
 	seq_printf(seq, "Prescale = %d\n", host->prescaler);
 	seq_printf(seq, "is2440 = %d\n", host->is2440);
@@ -1406,6 +1472,7 @@ static int s3cmci_state_show(struct seq_file *seq, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int s3cmci_state_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, s3cmci_state_show, inode->i_private);
@@ -1418,6 +1485,9 @@ static const struct file_operations s3cmci_fops_state = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(s3cmci_state);
+>>>>>>> upstream/android-13
 
 #define DBG_REG(_r) { .addr = S3C2410_SDI##_r, .name = #_r }
 
@@ -1459,6 +1529,7 @@ static int s3cmci_regs_show(struct seq_file *seq, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int s3cmci_regs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, s3cmci_regs_show, inode->i_private);
@@ -1471,10 +1542,14 @@ static const struct file_operations s3cmci_fops_regs = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(s3cmci_regs);
+>>>>>>> upstream/android-13
 
 static void s3cmci_debugfs_attach(struct s3cmci_host *host)
 {
 	struct device *dev = &host->pdev->dev;
+<<<<<<< HEAD
 
 	host->debug_root = debugfs_create_dir(dev_name(dev), NULL);
 	if (IS_ERR(host->debug_root)) {
@@ -1495,13 +1570,26 @@ static void s3cmci_debugfs_attach(struct s3cmci_host *host)
 
 	if (IS_ERR(host->debug_regs))
 		dev_err(dev, "failed to create debug regs file\n");
+=======
+	struct dentry *root;
+
+	root = debugfs_create_dir(dev_name(dev), NULL);
+	host->debug_root = root;
+
+	debugfs_create_file("state", 0444, root, host, &s3cmci_state_fops);
+	debugfs_create_file("regs", 0444, root, host, &s3cmci_regs_fops);
+>>>>>>> upstream/android-13
 }
 
 static void s3cmci_debugfs_remove(struct s3cmci_host *host)
 {
+<<<<<<< HEAD
 	debugfs_remove(host->debug_regs);
 	debugfs_remove(host->debug_state);
 	debugfs_remove(host->debug_root);
+=======
+	debugfs_remove_recursive(host->debug_root);
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -1518,6 +1606,7 @@ static int s3cmci_probe_pdata(struct s3cmci_host *host)
 	int i, ret;
 
 	host->is2440 = platform_get_device_id(pdev)->driver_data;
+<<<<<<< HEAD
 
 	for (i = S3C2410_GPE(5); i <= S3C2410_GPE(10); i++) {
 		ret = gpio_request(i, dev_name(&pdev->dev));
@@ -1535,6 +1624,22 @@ static int s3cmci_probe_pdata(struct s3cmci_host *host)
 		pdev->dev.platform_data = &s3cmci_def_pdata;
 
 	pdata = pdev->dev.platform_data;
+=======
+	pdata = pdev->dev.platform_data;
+	if (!pdata) {
+		dev_err(&pdev->dev, "need platform data");
+		return -ENXIO;
+	}
+
+	for (i = 0; i < 6; i++) {
+		pdata->bus[i] = devm_gpiod_get_index(&pdev->dev, "bus", i,
+						     GPIOD_OUT_LOW);
+		if (IS_ERR(pdata->bus[i])) {
+			dev_err(&pdev->dev, "failed to get gpio %d\n", i);
+			return PTR_ERR(pdata->bus[i]);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	if (pdata->no_wprotect)
 		mmc->caps2 |= MMC_CAP2_NO_WRITE_PROTECT;
@@ -1545,6 +1650,7 @@ static int s3cmci_probe_pdata(struct s3cmci_host *host)
 	if (pdata->wprotect_invert)
 		mmc->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
 
+<<<<<<< HEAD
 	if (pdata->detect_invert)
 		 mmc->caps2 |= MMC_CAP2_CD_ACTIVE_HIGH;
 
@@ -1564,6 +1670,21 @@ static int s3cmci_probe_pdata(struct s3cmci_host *host)
 				ret);
 			return ret;
 		}
+=======
+	/* If we get -ENOENT we have no card detect GPIO line */
+	ret = mmc_gpiod_request_cd(mmc, "cd", 0, false, 0);
+	if (ret != -ENOENT) {
+		dev_err(&pdev->dev, "error requesting GPIO for CD %d\n",
+			ret);
+		return ret;
+	}
+
+	ret = mmc_gpiod_request_ro(host->mmc, "wp", 0, 0);
+	if (ret != -ENOENT) {
+		dev_err(&pdev->dev, "error requesting GPIO for WP %d\n",
+			ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1576,7 +1697,11 @@ static int s3cmci_probe_dt(struct s3cmci_host *host)
 	struct mmc_host *mmc = host->mmc;
 	int ret;
 
+<<<<<<< HEAD
 	host->is2440 = (int) of_device_get_match_data(&pdev->dev);
+=======
+	host->is2440 = (long) of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	ret = mmc_of_parse(mmc);
 	if (ret)
@@ -1596,7 +1721,10 @@ static int s3cmci_probe(struct platform_device *pdev)
 	struct s3cmci_host *host;
 	struct mmc_host	*mmc;
 	int ret;
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	mmc = mmc_alloc_host(sizeof(struct s3cmci_host), &pdev->dev);
 	if (!mmc) {
@@ -1619,7 +1747,11 @@ static int s3cmci_probe(struct platform_device *pdev)
 	host->pdata = pdev->dev.platform_data;
 
 	spin_lock_init(&host->complete_lock);
+<<<<<<< HEAD
 	tasklet_init(&host->pio_tasklet, pio_tasklet, (unsigned long) host);
+=======
+	tasklet_setup(&host->pio_tasklet, pio_tasklet);
+>>>>>>> upstream/android-13
 
 	if (host->is2440) {
 		host->sdiimsk	= S3C2440_SDIIMSK;
@@ -1640,7 +1772,11 @@ static int s3cmci_probe(struct platform_device *pdev)
 			"failed to get io memory region resource.\n");
 
 		ret = -ENOENT;
+<<<<<<< HEAD
 		goto probe_free_gpio;
+=======
+		goto probe_free_host;
+>>>>>>> upstream/android-13
 	}
 
 	host->mem = request_mem_region(host->mem->start,
@@ -1649,7 +1785,11 @@ static int s3cmci_probe(struct platform_device *pdev)
 	if (!host->mem) {
 		dev_err(&pdev->dev, "failed to request io memory region.\n");
 		ret = -ENOENT;
+<<<<<<< HEAD
 		goto probe_free_gpio;
+=======
+		goto probe_free_host;
+>>>>>>> upstream/android-13
 	}
 
 	host->base = ioremap(host->mem->start, resource_size(host->mem));
@@ -1661,22 +1801,32 @@ static int s3cmci_probe(struct platform_device *pdev)
 
 	host->irq = platform_get_irq(pdev, 0);
 	if (host->irq <= 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get interrupt resource.\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto probe_iounmap;
 	}
 
+<<<<<<< HEAD
 	if (request_irq(host->irq, s3cmci_irq, 0, DRIVER_NAME, host)) {
+=======
+	if (request_irq(host->irq, s3cmci_irq, IRQF_NO_AUTOEN, DRIVER_NAME, host)) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "failed to request mci interrupt.\n");
 		ret = -ENOENT;
 		goto probe_iounmap;
 	}
 
+<<<<<<< HEAD
 	/* We get spurious interrupts even when we have set the IMSK
 	 * register to ignore everything, so use disable_irq() to make
 	 * ensure we don't lock the system with un-serviceable requests. */
 
 	disable_irq(host->irq);
+=======
+>>>>>>> upstream/android-13
 	host->irq_state = false;
 
 	/* Depending on the dma state, get a DMA channel to use. */
@@ -1774,11 +1924,14 @@ static int s3cmci_probe(struct platform_device *pdev)
  probe_free_mem_region:
 	release_mem_region(host->mem->start, resource_size(host->mem));
 
+<<<<<<< HEAD
  probe_free_gpio:
 	if (!pdev->dev.of_node)
 		for (i = S3C2410_GPE(5); i <= S3C2410_GPE(10); i++)
 			gpio_free(i);
 
+=======
+>>>>>>> upstream/android-13
  probe_free_host:
 	mmc_free_host(mmc);
 
@@ -1804,7 +1957,10 @@ static int s3cmci_remove(struct platform_device *pdev)
 {
 	struct mmc_host		*mmc  = platform_get_drvdata(pdev);
 	struct s3cmci_host	*host = mmc_priv(mmc);
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	s3cmci_shutdown(pdev);
 
@@ -1817,10 +1973,13 @@ static int s3cmci_remove(struct platform_device *pdev)
 
 	free_irq(host->irq, host);
 
+<<<<<<< HEAD
 	if (!pdev->dev.of_node)
 		for (i = S3C2410_GPE(5); i <= S3C2410_GPE(10); i++)
 			gpio_free(i);
 
+=======
+>>>>>>> upstream/android-13
 	iounmap(host->base);
 	release_mem_region(host->mem->start, resource_size(host->mem));
 
@@ -1864,6 +2023,10 @@ MODULE_DEVICE_TABLE(platform, s3cmci_driver_ids);
 static struct platform_driver s3cmci_driver = {
 	.driver	= {
 		.name	= "s3c-sdi",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = s3cmci_dt_match,
 	},
 	.id_table	= s3cmci_driver_ids,

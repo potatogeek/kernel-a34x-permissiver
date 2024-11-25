@@ -271,7 +271,11 @@ static void hva_dbg_perf_compute(struct hva_ctx *ctx)
  * device debug info
  */
 
+<<<<<<< HEAD
 static int hva_dbg_device(struct seq_file *s, void *data)
+=======
+static int device_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct hva_dev *hva = s->private;
 
@@ -281,7 +285,11 @@ static int hva_dbg_device(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hva_dbg_encoders(struct seq_file *s, void *data)
+=======
+static int encoders_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct hva_dev *hva = s->private;
 	unsigned int i = 0;
@@ -299,7 +307,11 @@ static int hva_dbg_encoders(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hva_dbg_last(struct seq_file *s, void *data)
+=======
+static int last_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct hva_dev *hva = s->private;
 	struct hva_ctx *last_ctx = &hva->dbg.last_ctx;
@@ -316,7 +328,11 @@ static int hva_dbg_last(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hva_dbg_regs(struct seq_file *s, void *data)
+=======
+static int regs_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct hva_dev *hva = s->private;
 
@@ -325,6 +341,7 @@ static int hva_dbg_regs(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define hva_dbg_declare(name)						  \
 	static int hva_dbg_##name##_open(struct inode *i, struct file *f) \
 	{								  \
@@ -345,10 +362,21 @@ hva_dbg_declare(device);
 hva_dbg_declare(encoders);
 hva_dbg_declare(last);
 hva_dbg_declare(regs);
+=======
+#define hva_dbg_create_entry(name)					 \
+	debugfs_create_file(#name, 0444, hva->dbg.debugfs_entry, hva, \
+			    &name##_fops)
+
+DEFINE_SHOW_ATTRIBUTE(device);
+DEFINE_SHOW_ATTRIBUTE(encoders);
+DEFINE_SHOW_ATTRIBUTE(last);
+DEFINE_SHOW_ATTRIBUTE(regs);
+>>>>>>> upstream/android-13
 
 void hva_debugfs_create(struct hva_dev *hva)
 {
 	hva->dbg.debugfs_entry = debugfs_create_dir(HVA_NAME, NULL);
+<<<<<<< HEAD
 	if (!hva->dbg.debugfs_entry)
 		goto err;
 
@@ -368,6 +396,13 @@ void hva_debugfs_create(struct hva_dev *hva)
 
 err:
 	hva_debugfs_remove(hva);
+=======
+
+	hva_dbg_create_entry(device);
+	hva_dbg_create_entry(encoders);
+	hva_dbg_create_entry(last);
+	hva_dbg_create_entry(regs);
+>>>>>>> upstream/android-13
 }
 
 void hva_debugfs_remove(struct hva_dev *hva)
@@ -380,7 +415,11 @@ void hva_debugfs_remove(struct hva_dev *hva)
  * context (instance) debug info
  */
 
+<<<<<<< HEAD
 static int hva_dbg_ctx(struct seq_file *s, void *data)
+=======
+static int ctx_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct hva_ctx *ctx = s->private;
 
@@ -392,7 +431,11 @@ static int hva_dbg_ctx(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 hva_dbg_declare(ctx);
+=======
+DEFINE_SHOW_ATTRIBUTE(ctx);
+>>>>>>> upstream/android-13
 
 void hva_dbg_ctx_create(struct hva_ctx *ctx)
 {
@@ -407,7 +450,11 @@ void hva_dbg_ctx_create(struct hva_ctx *ctx)
 
 	ctx->dbg.debugfs_entry = debugfs_create_file(name, 0444,
 						     hva->dbg.debugfs_entry,
+<<<<<<< HEAD
 						     ctx, &hva_dbg_ctx_fops);
+=======
+						     ctx, &ctx_fops);
+>>>>>>> upstream/android-13
 }
 
 void hva_dbg_ctx_remove(struct hva_ctx *ctx)

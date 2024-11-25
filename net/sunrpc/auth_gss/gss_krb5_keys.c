@@ -147,7 +147,11 @@ u32 krb5_derive_key(const struct gss_krb5_enctype *gk5e,
 	size_t blocksize, keybytes, keylength, n;
 	unsigned char *inblockdata, *outblockdata, *rawkey;
 	struct xdr_netobj inblock, outblock;
+<<<<<<< HEAD
 	struct crypto_skcipher *cipher;
+=======
+	struct crypto_sync_skcipher *cipher;
+>>>>>>> upstream/android-13
 	u32 ret = EINVAL;
 
 	blocksize = gk5e->blocksize;
@@ -157,11 +161,18 @@ u32 krb5_derive_key(const struct gss_krb5_enctype *gk5e,
 	if ((inkey->len != keylength) || (outkey->len != keylength))
 		goto err_return;
 
+<<<<<<< HEAD
 	cipher = crypto_alloc_skcipher(gk5e->encrypt_name, 0,
 				       CRYPTO_ALG_ASYNC);
 	if (IS_ERR(cipher))
 		goto err_return;
 	if (crypto_skcipher_setkey(cipher, inkey->data, inkey->len))
+=======
+	cipher = crypto_alloc_sync_skcipher(gk5e->encrypt_name, 0, 0);
+	if (IS_ERR(cipher))
+		goto err_return;
+	if (crypto_sync_skcipher_setkey(cipher, inkey->data, inkey->len))
+>>>>>>> upstream/android-13
 		goto err_return;
 
 	/* allocate and set up buffers */
@@ -229,6 +240,7 @@ u32 krb5_derive_key(const struct gss_krb5_enctype *gk5e,
 	ret = 0;
 
 err_free_raw:
+<<<<<<< HEAD
 	memset(rawkey, 0, keybytes);
 	kfree(rawkey);
 err_free_out:
@@ -239,6 +251,15 @@ err_free_in:
 	kfree(inblockdata);
 err_free_cipher:
 	crypto_free_skcipher(cipher);
+=======
+	kfree_sensitive(rawkey);
+err_free_out:
+	kfree_sensitive(outblockdata);
+err_free_in:
+	kfree_sensitive(inblockdata);
+err_free_cipher:
+	crypto_free_sync_skcipher(cipher);
+>>>>>>> upstream/android-13
 err_return:
 	return ret;
 }

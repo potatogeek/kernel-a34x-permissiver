@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Default generic APIC driver. This handles up to 8 CPUs.
  *
  * Copyright 2003 Andi Kleen, SuSE Labs.
+<<<<<<< HEAD
  * Subject to the GNU Public License, v.2
  *
  * Generic x86 APIC driver probe layer.
@@ -51,6 +56,20 @@ static int __init print_ipi_mode(void)
 	return 0;
 }
 late_initcall(print_ipi_mode);
+=======
+ *
+ * Generic x86 APIC driver probe layer.
+ */
+#include <linux/export.h>
+#include <linux/errno.h>
+#include <linux/smp.h>
+
+#include <asm/io_apic.h>
+#include <asm/apic.h>
+#include <asm/acpi.h>
+
+#include "local.h"
+>>>>>>> upstream/android-13
 
 static int default_x86_32_early_logical_apicid(int cpu)
 {
@@ -105,6 +124,7 @@ static struct apic apic_default __ro_after_init = {
 	.apic_id_valid			= default_apic_id_valid,
 	.apic_id_registered		= default_apic_id_registered,
 
+<<<<<<< HEAD
 	.irq_delivery_mode		= dest_Fixed,
 	/* logical delivery broadcast to all CPUs: */
 	.irq_dest_mode			= 1,
@@ -115,6 +135,15 @@ static struct apic apic_default __ro_after_init = {
 
 	.init_apic_ldr			= default_init_apic_ldr,
 
+=======
+	.delivery_mode			= APIC_DELIVERY_MODE_FIXED,
+	.dest_mode_logical		= true,
+
+	.disable_esr			= 0,
+
+	.check_apicid_used		= default_check_apicid_used,
+	.init_apic_ldr			= default_init_apic_ldr,
+>>>>>>> upstream/android-13
 	.ioapic_phys_id_map		= default_ioapic_phys_id_map,
 	.setup_apic_routing		= setup_apic_flat_routing,
 	.cpu_present_to_apicid		= default_cpu_present_to_apicid,
@@ -184,7 +213,13 @@ void __init default_setup_apic_routing(void)
 				def_to_bigsmp = 0;
 				break;
 			}
+<<<<<<< HEAD
 			/* If P4 and above fall through */
+=======
+			/* P4 and above */
+			fallthrough;
+		case X86_VENDOR_HYGON:
+>>>>>>> upstream/android-13
 		case X86_VENDOR_AMD:
 			def_to_bigsmp = 1;
 		}
@@ -204,9 +239,12 @@ void __init default_setup_apic_routing(void)
 
 	if (apic->setup_apic_routing)
 		apic->setup_apic_routing();
+<<<<<<< HEAD
 
 	if (x86_platform.apic_post_init)
 		x86_platform.apic_post_init();
+=======
+>>>>>>> upstream/android-13
 }
 
 void __init generic_apic_probe(void)

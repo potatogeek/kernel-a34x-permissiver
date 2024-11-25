@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014-2016 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014-2016 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -154,6 +160,7 @@ int pnv_cxl_ioda_msi_setup(struct pci_dev *dev, unsigned int hwirq,
 	return 0;
 }
 EXPORT_SYMBOL(pnv_cxl_ioda_msi_setup);
+<<<<<<< HEAD
 
 #if IS_MODULE(CONFIG_CXL)
 static inline int get_cxl_module(void)
@@ -176,3 +183,5 @@ static inline int get_cxl_module(void)
 #else
 static inline int get_cxl_module(void) { return 0; }
 #endif
+=======
+>>>>>>> upstream/android-13

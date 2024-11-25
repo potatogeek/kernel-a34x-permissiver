@@ -163,7 +163,11 @@ unsigned char *nubus_dirptr(const struct nubus_dirent *nd)
 void nubus_get_rsrc_mem(void *dest, const struct nubus_dirent *dirent,
 			unsigned int len)
 {
+<<<<<<< HEAD
 	unsigned char *t = (unsigned char *)dest;
+=======
+	unsigned char *t = dest;
+>>>>>>> upstream/android-13
 	unsigned char *p = nubus_dirptr(dirent);
 
 	while (len) {

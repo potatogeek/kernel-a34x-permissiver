@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Nomadik clock implementation
  * Copyright (C) 2013 ST-Ericsson AB
  * License terms: GNU General Public License (GPL) version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Nomadik clock implementation
+ * Copyright (C) 2013 ST-Ericsson AB
+>>>>>>> upstream/android-13
  * Author: Linus Walleij <linus.walleij@linaro.org>
  */
 
@@ -97,8 +104,13 @@ static void __init nomadik_src_init(void)
 	}
 	src_base = of_iomap(np, 0);
 	if (!src_base) {
+<<<<<<< HEAD
 		pr_err("%s: must have src parent node with REGS (%s)\n",
 		       __func__, np->name);
+=======
+		pr_err("%s: must have src parent node with REGS (%pOFn)\n",
+		       __func__, np);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -259,7 +271,11 @@ pll_clk_register(struct device *dev, const char *name,
 {
 	int ret;
 	struct clk_pll *pll;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	if (id != 1 && id != 2) {
 		pr_err("%s: the Nomadik has only PLL 1 & 2\n", __func__);
@@ -351,7 +367,11 @@ src_clk_register(struct device *dev, const char *name,
 {
 	int ret;
 	struct clk_src *sclk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	sclk = kzalloc(sizeof(*sclk), GFP_KERNEL);
 	if (!sclk)
@@ -455,7 +475,11 @@ static const char * const src_clk_names[] = {
 	"RNGCCLK   ",
 };
 
+<<<<<<< HEAD
 static int nomadik_src_clk_show(struct seq_file *s, void *what)
+=======
+static int nomadik_src_clk_debugfs_show(struct seq_file *s, void *what)
+>>>>>>> upstream/android-13
 {
 	int i;
 	u32 src_pcksr0 = readl(src_base + SRC_PCKSR0);
@@ -479,6 +503,7 @@ static int nomadik_src_clk_show(struct seq_file *s, void *what)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nomadik_src_clk_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, nomadik_src_clk_show, NULL);
@@ -490,6 +515,9 @@ static const struct file_operations nomadik_src_clk_debugfs_ops = {
         .llseek         = seq_lseek,
 	.release        = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(nomadik_src_clk_debugfs);
+>>>>>>> upstream/android-13
 
 static int __init nomadik_src_clk_init_debugfs(void)
 {
@@ -499,7 +527,11 @@ static int __init nomadik_src_clk_init_debugfs(void)
 	src_pcksr0_boot = readl(src_base + SRC_PCKSR0);
 	src_pcksr1_boot = readl(src_base + SRC_PCKSR1);
 	debugfs_create_file("nomadik-src-clk", S_IFREG | S_IRUGO,
+<<<<<<< HEAD
 			    NULL, NULL, &nomadik_src_clk_debugfs_ops);
+=======
+			    NULL, NULL, &nomadik_src_clk_debugfs_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 device_initcall(nomadik_src_clk_init_debugfs);

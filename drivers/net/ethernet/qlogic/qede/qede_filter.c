@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qede NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qede NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <net/udp_tunnel.h>
@@ -336,6 +345,12 @@ int qede_alloc_arfs(struct qede_dev *edev)
 {
 	int i;
 
+<<<<<<< HEAD
+=======
+	if (!edev->dev_info.common.b_arfs_capable)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	edev->arfs = vzalloc(sizeof(*edev->arfs));
 	if (!edev->arfs)
 		return -ENOMEM;
@@ -853,7 +868,11 @@ int qede_configure_vlan_filters(struct qede_dev *edev)
 int qede_vlan_rx_kill_vid(struct net_device *dev, __be16 proto, u16 vid)
 {
 	struct qede_dev *edev = netdev_priv(dev);
+<<<<<<< HEAD
 	struct qede_vlan *vlan = NULL;
+=======
+	struct qede_vlan *vlan;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	DP_VERBOSE(edev, NETIF_MSG_IFDOWN, "Removing vlan 0x%04x\n", vid);
@@ -864,7 +883,11 @@ int qede_vlan_rx_kill_vid(struct net_device *dev, __be16 proto, u16 vid)
 		if (vlan->vid == vid)
 			break;
 
+<<<<<<< HEAD
 	if (!vlan || (vlan->vid != vid)) {
+=======
+	if (list_entry_is_head(vlan, &edev->vlan_list, list)) {
+>>>>>>> upstream/android-13
 		DP_VERBOSE(edev, (NETIF_MSG_IFUP | NETIF_MSG_IFDOWN),
 			   "Vlan isn't configured\n");
 		goto out;
@@ -978,15 +1001,25 @@ int qede_set_features(struct net_device *dev, netdev_features_t features)
 	return 0;
 }
 
+<<<<<<< HEAD
 void qede_udp_tunnel_add(struct net_device *dev, struct udp_tunnel_info *ti)
 {
 	struct qede_dev *edev = netdev_priv(dev);
 	struct qed_tunn_params tunn_params;
 	u16 t_port = ntohs(ti->port);
+=======
+static int qede_udp_tunnel_sync(struct net_device *dev, unsigned int table)
+{
+	struct qede_dev *edev = netdev_priv(dev);
+	struct qed_tunn_params tunn_params;
+	struct udp_tunnel_info ti;
+	u16 *save_port;
+>>>>>>> upstream/android-13
 	int rc;
 
 	memset(&tunn_params, 0, sizeof(tunn_params));
 
+<<<<<<< HEAD
 	switch (ti->type) {
 	case UDP_TUNNEL_TYPE_VXLAN:
 		if (!edev->dev_info.common.vxlan_enable)
@@ -1087,6 +1120,59 @@ void qede_udp_tunnel_del(struct net_device *dev,
 	default:
 		return;
 	}
+=======
+	udp_tunnel_nic_get_port(dev, table, 0, &ti);
+	if (ti.type == UDP_TUNNEL_TYPE_VXLAN) {
+		tunn_params.update_vxlan_port = 1;
+		tunn_params.vxlan_port = ntohs(ti.port);
+		save_port = &edev->vxlan_dst_port;
+	} else {
+		tunn_params.update_geneve_port = 1;
+		tunn_params.geneve_port = ntohs(ti.port);
+		save_port = &edev->geneve_dst_port;
+	}
+
+	__qede_lock(edev);
+	rc = edev->ops->tunn_config(edev->cdev, &tunn_params);
+	__qede_unlock(edev);
+	if (rc)
+		return rc;
+
+	*save_port = ntohs(ti.port);
+	return 0;
+}
+
+static const struct udp_tunnel_nic_info qede_udp_tunnels_both = {
+	.sync_table	= qede_udp_tunnel_sync,
+	.flags		= UDP_TUNNEL_NIC_INFO_MAY_SLEEP,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN,  },
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_GENEVE, },
+	},
+}, qede_udp_tunnels_vxlan = {
+	.sync_table	= qede_udp_tunnel_sync,
+	.flags		= UDP_TUNNEL_NIC_INFO_MAY_SLEEP,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN,  },
+	},
+}, qede_udp_tunnels_geneve = {
+	.sync_table	= qede_udp_tunnel_sync,
+	.flags		= UDP_TUNNEL_NIC_INFO_MAY_SLEEP,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_GENEVE, },
+	},
+};
+
+void qede_set_udp_tunnels(struct qede_dev *edev)
+{
+	if (edev->dev_info.common.vxlan_enable &&
+	    edev->dev_info.common.geneve_enable)
+		edev->ndev->udp_tunnel_nic_info = &qede_udp_tunnels_both;
+	else if (edev->dev_info.common.vxlan_enable)
+		edev->ndev->udp_tunnel_nic_info = &qede_udp_tunnels_vxlan;
+	else if (edev->dev_info.common.geneve_enable)
+		edev->ndev->udp_tunnel_nic_info = &qede_udp_tunnels_geneve;
+>>>>>>> upstream/android-13
 }
 
 static void qede_xdp_reload_func(struct qede_dev *edev,
@@ -1118,9 +1204,12 @@ int qede_xdp(struct net_device *dev, struct netdev_bpf *xdp)
 	switch (xdp->command) {
 	case XDP_SETUP_PROG:
 		return qede_xdp_set(edev, xdp->prog);
+<<<<<<< HEAD
 	case XDP_QUERY_PROG:
 		xdp->prog_id = edev->xdp_prog ? edev->xdp_prog->aux->id : 0;
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -1298,7 +1387,11 @@ void qede_config_rx_mode(struct net_device *ndev)
 	rx_mode.type = QED_FILTER_TYPE_RX_MODE;
 
 	/* Remove all previous unicast secondary macs and multicast macs
+<<<<<<< HEAD
 	 * (configrue / leave the primary mac)
+=======
+	 * (configure / leave the primary mac)
+>>>>>>> upstream/android-13
 	 */
 	rc = qede_set_ucast_rx_mac(edev, QED_FILTER_XCAST_TYPE_REPLACE,
 				   edev->ndev->dev_addr);
@@ -1665,6 +1758,7 @@ static int qede_set_v6_tuple_to_profile(struct qede_dev *edev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qede_flow_spec_to_tuple_ipv4_common(struct qede_dev *edev,
 					       struct qede_arfs_tuple *t,
 					       struct ethtool_rx_flow_spec *fs)
@@ -1857,6 +1951,8 @@ static int qede_flow_spec_validate(struct qede_dev *edev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Must be called while qede lock is held */
 static struct qede_arfs_fltr_node *
 qede_flow_find_fltr(struct qede_dev *edev, struct qede_arfs_tuple *t)
@@ -1896,6 +1992,7 @@ static void qede_flow_set_destination(struct qede_dev *edev,
 			   "Configuring N-tuple for VF 0x%02x\n", n->vfid - 1);
 }
 
+<<<<<<< HEAD
 int qede_add_cls_rule(struct qede_dev *edev, struct ethtool_rxnfc *info)
 {
 	struct ethtool_rx_flow_spec *fsp = &info->fs;
@@ -1962,6 +2059,8 @@ unlock:
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 int qede_delete_flow_filter(struct qede_dev *edev, u64 cookie)
 {
 	struct qede_arfs_fltr_node *fltr = NULL;
@@ -2004,6 +2103,7 @@ unlock:
 }
 
 static int qede_parse_actions(struct qede_dev *edev,
+<<<<<<< HEAD
 			      struct tcf_exts *exts)
 {
 	int rc = -EINVAL, num_act = 0, i;
@@ -2051,21 +2151,80 @@ qede_tc_parse_ports(struct qede_dev *edev,
 
 		t->src_port = key->src;
 		t->dst_port = key->dst;
+=======
+			      struct flow_action *flow_action,
+			      struct netlink_ext_ack *extack)
+{
+	const struct flow_action_entry *act;
+	int i;
+
+	if (!flow_action_has_entries(flow_action)) {
+		DP_NOTICE(edev, "No actions received\n");
+		return -EINVAL;
+	}
+
+	if (!flow_action_basic_hw_stats_check(flow_action, extack))
+		return -EOPNOTSUPP;
+
+	flow_action_for_each(i, act, flow_action) {
+		switch (act->id) {
+		case FLOW_ACTION_DROP:
+			break;
+		case FLOW_ACTION_QUEUE:
+			if (act->queue.vf)
+				break;
+
+			if (act->queue.index >= QEDE_RSS_COUNT(edev)) {
+				DP_INFO(edev, "Queue out-of-bounds\n");
+				return -EINVAL;
+			}
+			break;
+		default:
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
 static int
+<<<<<<< HEAD
 qede_tc_parse_v6_common(struct qede_dev *edev,
 			struct tc_cls_flower_offload *f,
 			struct qede_arfs_tuple *t)
+=======
+qede_flow_parse_ports(struct qede_dev *edev, struct flow_rule *rule,
+		      struct qede_arfs_tuple *t)
+{
+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_PORTS)) {
+		struct flow_match_ports match;
+
+		flow_rule_match_ports(rule, &match);
+		if ((match.key->src && match.mask->src != htons(U16_MAX)) ||
+		    (match.key->dst && match.mask->dst != htons(U16_MAX))) {
+			DP_NOTICE(edev, "Do not support ports masks\n");
+			return -EINVAL;
+		}
+
+		t->src_port = match.key->src;
+		t->dst_port = match.key->dst;
+	}
+
+	return 0;
+}
+
+static int
+qede_flow_parse_v6_common(struct qede_dev *edev, struct flow_rule *rule,
+			  struct qede_arfs_tuple *t)
+>>>>>>> upstream/android-13
 {
 	struct in6_addr zero_addr, addr;
 
 	memset(&zero_addr, 0, sizeof(addr));
 	memset(&addr, 0xff, sizeof(addr));
 
+<<<<<<< HEAD
 	if (dissector_uses_key(f->dissector, FLOW_DISSECTOR_KEY_IPV6_ADDRS)) {
 		struct flow_dissector_key_ipv6_addrs *key, *mask;
 
@@ -2080,22 +2239,41 @@ qede_tc_parse_v6_common(struct qede_dev *edev,
 		     memcmp(&mask->src, &addr, sizeof(addr))) ||
 		    (memcmp(&key->dst, &zero_addr, sizeof(addr)) &&
 		     memcmp(&mask->dst, &addr, sizeof(addr)))) {
+=======
+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_IPV6_ADDRS)) {
+		struct flow_match_ipv6_addrs match;
+
+		flow_rule_match_ipv6_addrs(rule, &match);
+		if ((memcmp(&match.key->src, &zero_addr, sizeof(addr)) &&
+		     memcmp(&match.mask->src, &addr, sizeof(addr))) ||
+		    (memcmp(&match.key->dst, &zero_addr, sizeof(addr)) &&
+		     memcmp(&match.mask->dst, &addr, sizeof(addr)))) {
+>>>>>>> upstream/android-13
 			DP_NOTICE(edev,
 				  "Do not support IPv6 address prefix/mask\n");
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		memcpy(&t->src_ipv6, &key->src, sizeof(addr));
 		memcpy(&t->dst_ipv6, &key->dst, sizeof(addr));
 	}
 
 	if (qede_tc_parse_ports(edev, f, t))
+=======
+		memcpy(&t->src_ipv6, &match.key->src, sizeof(addr));
+		memcpy(&t->dst_ipv6, &match.key->dst, sizeof(addr));
+	}
+
+	if (qede_flow_parse_ports(edev, rule, t))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return qede_set_v6_tuple_to_profile(edev, t, &zero_addr);
 }
 
 static int
+<<<<<<< HEAD
 qede_tc_parse_v4_common(struct qede_dev *edev,
 			struct tc_cls_flower_offload *f,
 			struct qede_arfs_tuple *t)
@@ -2112,61 +2290,109 @@ qede_tc_parse_v4_common(struct qede_dev *edev,
 
 		if ((key->src && mask->src != U32_MAX) ||
 		    (key->dst && mask->dst != U32_MAX)) {
+=======
+qede_flow_parse_v4_common(struct qede_dev *edev, struct flow_rule *rule,
+			struct qede_arfs_tuple *t)
+{
+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_IPV4_ADDRS)) {
+		struct flow_match_ipv4_addrs match;
+
+		flow_rule_match_ipv4_addrs(rule, &match);
+		if ((match.key->src && match.mask->src != htonl(U32_MAX)) ||
+		    (match.key->dst && match.mask->dst != htonl(U32_MAX))) {
+>>>>>>> upstream/android-13
 			DP_NOTICE(edev, "Do not support ipv4 prefix/masks\n");
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		t->src_ipv4 = key->src;
 		t->dst_ipv4 = key->dst;
 	}
 
 	if (qede_tc_parse_ports(edev, f, t))
+=======
+		t->src_ipv4 = match.key->src;
+		t->dst_ipv4 = match.key->dst;
+	}
+
+	if (qede_flow_parse_ports(edev, rule, t))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return qede_set_v4_tuple_to_profile(edev, t);
 }
 
 static int
+<<<<<<< HEAD
 qede_tc_parse_tcp_v6(struct qede_dev *edev,
 		     struct tc_cls_flower_offload *f,
+=======
+qede_flow_parse_tcp_v6(struct qede_dev *edev, struct flow_rule *rule,
+>>>>>>> upstream/android-13
 		     struct qede_arfs_tuple *tuple)
 {
 	tuple->ip_proto = IPPROTO_TCP;
 	tuple->eth_proto = htons(ETH_P_IPV6);
 
+<<<<<<< HEAD
 	return qede_tc_parse_v6_common(edev, f, tuple);
 }
 
 static int
 qede_tc_parse_tcp_v4(struct qede_dev *edev,
 		     struct tc_cls_flower_offload *f,
+=======
+	return qede_flow_parse_v6_common(edev, rule, tuple);
+}
+
+static int
+qede_flow_parse_tcp_v4(struct qede_dev *edev, struct flow_rule *rule,
+>>>>>>> upstream/android-13
 		     struct qede_arfs_tuple *tuple)
 {
 	tuple->ip_proto = IPPROTO_TCP;
 	tuple->eth_proto = htons(ETH_P_IP);
 
+<<<<<<< HEAD
 	return qede_tc_parse_v4_common(edev, f, tuple);
 }
 
 static int
 qede_tc_parse_udp_v6(struct qede_dev *edev,
 		     struct tc_cls_flower_offload *f,
+=======
+	return qede_flow_parse_v4_common(edev, rule, tuple);
+}
+
+static int
+qede_flow_parse_udp_v6(struct qede_dev *edev, struct flow_rule *rule,
+>>>>>>> upstream/android-13
 		     struct qede_arfs_tuple *tuple)
 {
 	tuple->ip_proto = IPPROTO_UDP;
 	tuple->eth_proto = htons(ETH_P_IPV6);
 
+<<<<<<< HEAD
 	return qede_tc_parse_v6_common(edev, f, tuple);
 }
 
 static int
 qede_tc_parse_udp_v4(struct qede_dev *edev,
 		     struct tc_cls_flower_offload *f,
+=======
+	return qede_flow_parse_v6_common(edev, rule, tuple);
+}
+
+static int
+qede_flow_parse_udp_v4(struct qede_dev *edev, struct flow_rule *rule,
+>>>>>>> upstream/android-13
 		     struct qede_arfs_tuple *tuple)
 {
 	tuple->ip_proto = IPPROTO_UDP;
 	tuple->eth_proto = htons(ETH_P_IP);
 
+<<<<<<< HEAD
 	return qede_tc_parse_v4_common(edev, f, tuple);
 }
 
@@ -2175,19 +2401,37 @@ qede_parse_flower_attr(struct qede_dev *edev, __be16 proto,
 		       struct tc_cls_flower_offload *f,
 		       struct qede_arfs_tuple *tuple)
 {
+=======
+	return qede_flow_parse_v4_common(edev, rule, tuple);
+}
+
+static int
+qede_parse_flow_attr(struct qede_dev *edev, __be16 proto,
+		     struct flow_rule *rule, struct qede_arfs_tuple *tuple)
+{
+	struct flow_dissector *dissector = rule->match.dissector;
+>>>>>>> upstream/android-13
 	int rc = -EINVAL;
 	u8 ip_proto = 0;
 
 	memset(tuple, 0, sizeof(*tuple));
 
+<<<<<<< HEAD
 	if (f->dissector->used_keys &
+=======
+	if (dissector->used_keys &
+>>>>>>> upstream/android-13
 	    ~(BIT(FLOW_DISSECTOR_KEY_CONTROL) |
 	      BIT(FLOW_DISSECTOR_KEY_IPV4_ADDRS) |
 	      BIT(FLOW_DISSECTOR_KEY_BASIC) |
 	      BIT(FLOW_DISSECTOR_KEY_IPV6_ADDRS) |
 	      BIT(FLOW_DISSECTOR_KEY_PORTS))) {
 		DP_NOTICE(edev, "Unsupported key set:0x%x\n",
+<<<<<<< HEAD
 			  f->dissector->used_keys);
+=======
+			  dissector->used_keys);
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 	}
 
@@ -2197,6 +2441,7 @@ qede_parse_flower_attr(struct qede_dev *edev, __be16 proto,
 		return -EPROTONOSUPPORT;
 	}
 
+<<<<<<< HEAD
 	if (dissector_uses_key(f->dissector, FLOW_DISSECTOR_KEY_BASIC)) {
 		struct flow_dissector_key_basic *key;
 
@@ -2216,12 +2461,35 @@ qede_parse_flower_attr(struct qede_dev *edev, __be16 proto,
 		rc = qede_tc_parse_udp_v6(edev, f, tuple);
 	else
 		DP_NOTICE(edev, "Invalid tc protocol request\n");
+=======
+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_BASIC)) {
+		struct flow_match_basic match;
+
+		flow_rule_match_basic(rule, &match);
+		ip_proto = match.key->ip_proto;
+	}
+
+	if (ip_proto == IPPROTO_TCP && proto == htons(ETH_P_IP))
+		rc = qede_flow_parse_tcp_v4(edev, rule, tuple);
+	else if (ip_proto == IPPROTO_TCP && proto == htons(ETH_P_IPV6))
+		rc = qede_flow_parse_tcp_v6(edev, rule, tuple);
+	else if (ip_proto == IPPROTO_UDP && proto == htons(ETH_P_IP))
+		rc = qede_flow_parse_udp_v4(edev, rule, tuple);
+	else if (ip_proto == IPPROTO_UDP && proto == htons(ETH_P_IPV6))
+		rc = qede_flow_parse_udp_v6(edev, rule, tuple);
+	else
+		DP_NOTICE(edev, "Invalid protocol request\n");
+>>>>>>> upstream/android-13
 
 	return rc;
 }
 
 int qede_add_tc_flower_fltr(struct qede_dev *edev, __be16 proto,
+<<<<<<< HEAD
 			    struct tc_cls_flower_offload *f)
+=======
+			    struct flow_cls_offload *f)
+>>>>>>> upstream/android-13
 {
 	struct qede_arfs_fltr_node *n;
 	int min_hlen, rc = -EINVAL;
@@ -2235,7 +2503,11 @@ int qede_add_tc_flower_fltr(struct qede_dev *edev, __be16 proto,
 	}
 
 	/* parse flower attribute and prepare filter */
+<<<<<<< HEAD
 	if (qede_parse_flower_attr(edev, proto, f, &t))
+=======
+	if (qede_parse_flow_attr(edev, proto, f->rule, &t))
+>>>>>>> upstream/android-13
 		goto unlock;
 
 	/* Validate profile mode and number of filters */
@@ -2248,7 +2520,11 @@ int qede_add_tc_flower_fltr(struct qede_dev *edev, __be16 proto,
 	}
 
 	/* parse tc actions and get the vf_id */
+<<<<<<< HEAD
 	if (qede_parse_actions(edev, f->exts))
+=======
+	if (qede_parse_actions(edev, &f->rule->action, f->common.extack))
+>>>>>>> upstream/android-13
 		goto unlock;
 
 	if (qede_flow_find_fltr(edev, &t)) {
@@ -2290,3 +2566,144 @@ unlock:
 	__qede_unlock(edev);
 	return rc;
 }
+<<<<<<< HEAD
+=======
+
+static int qede_flow_spec_validate(struct qede_dev *edev,
+				   struct flow_action *flow_action,
+				   struct qede_arfs_tuple *t,
+				   __u32 location)
+{
+	if (location >= QEDE_RFS_MAX_FLTR) {
+		DP_INFO(edev, "Location out-of-bounds\n");
+		return -EINVAL;
+	}
+
+	/* Check location isn't already in use */
+	if (test_bit(location, edev->arfs->arfs_fltr_bmap)) {
+		DP_INFO(edev, "Location already in use\n");
+		return -EINVAL;
+	}
+
+	/* Check if the filtering-mode could support the filter */
+	if (edev->arfs->filter_count &&
+	    edev->arfs->mode != t->mode) {
+		DP_INFO(edev,
+			"flow_spec would require filtering mode %08x, but %08x is configured\n",
+			t->mode, edev->arfs->filter_count);
+		return -EINVAL;
+	}
+
+	if (qede_parse_actions(edev, flow_action, NULL))
+		return -EINVAL;
+
+	return 0;
+}
+
+static int qede_flow_spec_to_rule(struct qede_dev *edev,
+				  struct qede_arfs_tuple *t,
+				  struct ethtool_rx_flow_spec *fs)
+{
+	struct ethtool_rx_flow_spec_input input = {};
+	struct ethtool_rx_flow_rule *flow;
+	__be16 proto;
+	int err = 0;
+
+	if (qede_flow_spec_validate_unused(edev, fs))
+		return -EOPNOTSUPP;
+
+	switch ((fs->flow_type & ~FLOW_EXT)) {
+	case TCP_V4_FLOW:
+	case UDP_V4_FLOW:
+		proto = htons(ETH_P_IP);
+		break;
+	case TCP_V6_FLOW:
+	case UDP_V6_FLOW:
+		proto = htons(ETH_P_IPV6);
+		break;
+	default:
+		DP_VERBOSE(edev, NETIF_MSG_IFUP,
+			   "Can't support flow of type %08x\n", fs->flow_type);
+		return -EOPNOTSUPP;
+	}
+
+	input.fs = fs;
+	flow = ethtool_rx_flow_rule_create(&input);
+	if (IS_ERR(flow))
+		return PTR_ERR(flow);
+
+	if (qede_parse_flow_attr(edev, proto, flow->rule, t)) {
+		err = -EINVAL;
+		goto err_out;
+	}
+
+	/* Make sure location is valid and filter isn't already set */
+	err = qede_flow_spec_validate(edev, &flow->rule->action, t,
+				      fs->location);
+err_out:
+	ethtool_rx_flow_rule_destroy(flow);
+	return err;
+
+}
+
+int qede_add_cls_rule(struct qede_dev *edev, struct ethtool_rxnfc *info)
+{
+	struct ethtool_rx_flow_spec *fsp = &info->fs;
+	struct qede_arfs_fltr_node *n;
+	struct qede_arfs_tuple t;
+	int min_hlen, rc;
+
+	__qede_lock(edev);
+
+	if (!edev->arfs) {
+		rc = -EPERM;
+		goto unlock;
+	}
+
+	/* Translate the flow specification into something fittign our DB */
+	rc = qede_flow_spec_to_rule(edev, &t, fsp);
+	if (rc)
+		goto unlock;
+
+	if (qede_flow_find_fltr(edev, &t)) {
+		rc = -EINVAL;
+		goto unlock;
+	}
+
+	n = kzalloc(sizeof(*n), GFP_KERNEL);
+	if (!n) {
+		rc = -ENOMEM;
+		goto unlock;
+	}
+
+	min_hlen = qede_flow_get_min_header_size(&t);
+	n->data = kzalloc(min_hlen, GFP_KERNEL);
+	if (!n->data) {
+		kfree(n);
+		rc = -ENOMEM;
+		goto unlock;
+	}
+
+	n->sw_id = fsp->location;
+	set_bit(n->sw_id, edev->arfs->arfs_fltr_bmap);
+	n->buf_len = min_hlen;
+
+	memcpy(&n->tuple, &t, sizeof(n->tuple));
+
+	qede_flow_set_destination(edev, n, fsp);
+
+	/* Build a minimal header according to the flow */
+	n->tuple.build_hdr(&n->tuple, n->data);
+
+	rc = qede_enqueue_fltr_and_config_searcher(edev, n, 0);
+	if (rc)
+		goto unlock;
+
+	qede_configure_arfs_fltr(edev, n, n->rxq_id, true);
+	rc = qede_poll_arfs_filter_config(edev, n);
+unlock:
+	__qede_unlock(edev);
+
+	return rc;
+}
+>>>>>>> upstream/android-13

@@ -10,6 +10,11 @@
 #include <linux/ioport.h>
 #include <linux/io.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/vga.h>
+
+>>>>>>> upstream/android-13
 unsigned long vga_base;
 EXPORT_SYMBOL(vga_base);
 

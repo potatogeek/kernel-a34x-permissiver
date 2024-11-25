@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8978.c  --  WM8978 ALSA SoC Audio Codec driver
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2007 Carlos Munoz <carlos@kenati.com>
  * Copyright 2006-2009 Wolfson Microelectronics PLC.
  * Based on wm8974 and wm8990 by Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -656,8 +663,13 @@ static int wm8978_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
 	 * BCLK polarity mask = 0x100, LRC clock polarity mask = 0x80,
 	 * Data Format mask = 0x18: all will be calculated anew
 	 */
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8978_AUDIO_INTERFACE) & ~0x198;
 	u16 clk = snd_soc_component_read32(component, WM8978_CLOCKING);
+=======
+	u16 iface = snd_soc_component_read(component, WM8978_AUDIO_INTERFACE) & ~0x198;
+	u16 clk = snd_soc_component_read(component, WM8978_CLOCKING);
+>>>>>>> upstream/android-13
 
 	dev_dbg(component->dev, "%s\n", __func__);
 
@@ -723,11 +735,19 @@ static int wm8978_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_component *component = dai->component;
 	struct wm8978_priv *wm8978 = snd_soc_component_get_drvdata(component);
 	/* Word length mask = 0x60 */
+<<<<<<< HEAD
 	u16 iface_ctl = snd_soc_component_read32(component, WM8978_AUDIO_INTERFACE) & ~0x60;
 	/* Sampling rate mask = 0xe (for filters) */
 	u16 add_ctl = snd_soc_component_read32(component, WM8978_ADDITIONAL_CONTROL) & ~0xe;
 	u16 clking = snd_soc_component_read32(component, WM8978_CLOCKING);
 	enum wm8978_sysclk_src current_clk_id = clking & 0x100 ?
+=======
+	u16 iface_ctl = snd_soc_component_read(component, WM8978_AUDIO_INTERFACE) & ~0x60;
+	/* Sampling rate mask = 0xe (for filters) */
+	u16 add_ctl = snd_soc_component_read(component, WM8978_ADDITIONAL_CONTROL) & ~0xe;
+	u16 clking = snd_soc_component_read(component, WM8978_CLOCKING);
+	enum wm8978_sysclk_src current_clk_id = (clking & 0x100) ?
+>>>>>>> upstream/android-13
 		WM8978_PLL : WM8978_MCLK;
 	unsigned int f_sel, diff, diff_best = INT_MAX;
 	int i, best = 0;
@@ -839,7 +859,11 @@ static int wm8978_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8978_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int wm8978_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 
@@ -856,7 +880,11 @@ static int wm8978_mute(struct snd_soc_dai *dai, int mute)
 static int wm8978_set_bias_level(struct snd_soc_component *component,
 				 enum snd_soc_bias_level level)
 {
+<<<<<<< HEAD
 	u16 power1 = snd_soc_component_read32(component, WM8978_POWER_MANAGEMENT_1) & ~3;
+=======
+	u16 power1 = snd_soc_component_read(component, WM8978_POWER_MANAGEMENT_1) & ~3;
+>>>>>>> upstream/android-13
 
 	switch (level) {
 	case SND_SOC_BIAS_ON:
@@ -896,10 +924,18 @@ static int wm8978_set_bias_level(struct snd_soc_component *component,
 
 static const struct snd_soc_dai_ops wm8978_dai_ops = {
 	.hw_params	= wm8978_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= wm8978_mute,
 	.set_fmt	= wm8978_set_dai_fmt,
 	.set_clkdiv	= wm8978_set_dai_clkdiv,
 	.set_sysclk	= wm8978_set_dai_sysclk,
+=======
+	.mute_stream	= wm8978_mute,
+	.set_fmt	= wm8978_set_dai_fmt,
+	.set_clkdiv	= wm8978_set_dai_clkdiv,
+	.set_sysclk	= wm8978_set_dai_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 /* Also supports 12kHz */
@@ -920,7 +956,11 @@ static struct snd_soc_dai_driver wm8978_dai = {
 		.formats = WM8978_FORMATS,
 	},
 	.ops = &wm8978_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int wm8978_suspend(struct snd_soc_component *component)

@@ -200,8 +200,13 @@ gf100_ltc_oneinit_tag_ram(struct nvkm_ltc *ltc)
 	}
 
 mm_init:
+<<<<<<< HEAD
 	nvkm_mm_fini(&fb->tags);
 	return nvkm_mm_init(&fb->tags, 0, 0, ltc->num_tags, 1);
+=======
+	nvkm_mm_fini(&fb->tags.mm);
+	return nvkm_mm_init(&fb->tags.mm, 0, 0, ltc->num_tags, 1);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -249,7 +254,14 @@ gf100_ltc = {
 };
 
 int
+<<<<<<< HEAD
 gf100_ltc_new(struct nvkm_device *device, int index, struct nvkm_ltc **pltc)
 {
 	return nvkm_ltc_new_(&gf100_ltc, device, index, pltc);
+=======
+gf100_ltc_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_ltc **pltc)
+{
+	return nvkm_ltc_new_(&gf100_ltc, device, type, inst, pltc);
+>>>>>>> upstream/android-13
 }

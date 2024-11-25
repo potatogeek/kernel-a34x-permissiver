@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Sanechips Technology Co., Ltd.
  * Copyright 2017 Linaro Ltd.
@@ -5,12 +6,19 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2017 Sanechips Technology Co., Ltd.
+ * Copyright 2017 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <media/rc-map.h>
 
 static struct rc_map_table zx_irdec_table[] = {
+<<<<<<< HEAD
 	{ 0x01, KEY_1 },
 	{ 0x02, KEY_2 },
 	{ 0x03, KEY_3 },
@@ -21,6 +29,18 @@ static struct rc_map_table zx_irdec_table[] = {
 	{ 0x08, KEY_8 },
 	{ 0x09, KEY_9 },
 	{ 0x31, KEY_0 },
+=======
+	{ 0x01, KEY_NUMERIC_1 },
+	{ 0x02, KEY_NUMERIC_2 },
+	{ 0x03, KEY_NUMERIC_3 },
+	{ 0x04, KEY_NUMERIC_4 },
+	{ 0x05, KEY_NUMERIC_5 },
+	{ 0x06, KEY_NUMERIC_6 },
+	{ 0x07, KEY_NUMERIC_7 },
+	{ 0x08, KEY_NUMERIC_8 },
+	{ 0x09, KEY_NUMERIC_9 },
+	{ 0x31, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x16, KEY_DELETE },
 	{ 0x0a, KEY_MODE },		/* Input method */
 	{ 0x0c, KEY_VOLUMEUP },

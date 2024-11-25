@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * MMCIF eMMC driver.
  *
  * Copyright (C) 2010 Renesas Solutions Corp.
  * Yusuke Goda <yusuke.goda.sx@renesas.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -194,9 +201,15 @@
 				 STS2_AC12BSYTO | STS2_RSPBSYTO |	\
 				 STS2_AC12RSPTO | STS2_RSPTO)
 
+<<<<<<< HEAD
 #define CLKDEV_EMMC_DATA	52000000 /* 52MHz */
 #define CLKDEV_MMC_DATA		20000000 /* 20MHz */
 #define CLKDEV_INIT		400000   /* 400 KHz */
+=======
+#define CLKDEV_EMMC_DATA	52000000 /* 52 MHz */
+#define CLKDEV_MMC_DATA		20000000 /* 20 MHz */
+#define CLKDEV_INIT		400000   /* 400 kHz */
+>>>>>>> upstream/android-13
 
 enum sh_mmcif_state {
 	STATE_IDLE,
@@ -435,8 +448,17 @@ static void sh_mmcif_request_dma(struct sh_mmcif_host *host)
 		host->chan_rx = sh_mmcif_request_dma_pdata(host,
 							pdata->slave_id_rx);
 	} else {
+<<<<<<< HEAD
 		host->chan_tx = dma_request_slave_channel(dev, "tx");
 		host->chan_rx = dma_request_slave_channel(dev, "rx");
+=======
+		host->chan_tx = dma_request_chan(dev, "tx");
+		if (IS_ERR(host->chan_tx))
+			host->chan_tx = NULL;
+		host->chan_rx = dma_request_chan(dev, "rx");
+		if (IS_ERR(host->chan_rx))
+			host->chan_rx = NULL;
+>>>>>>> upstream/android-13
 	}
 	dev_dbg(dev, "%s: got channel TX %p RX %p\n", __func__, host->chan_tx,
 		host->chan_rx);
@@ -1163,9 +1185,15 @@ static bool sh_mmcif_end_cmd(struct sh_mmcif_host *host)
 		data->bytes_xfered = 0;
 		/* Abort DMA */
 		if (data->flags & MMC_DATA_READ)
+<<<<<<< HEAD
 			dmaengine_terminate_all(host->chan_rx);
 		else
 			dmaengine_terminate_all(host->chan_tx);
+=======
+			dmaengine_terminate_sync(host->chan_rx);
+		else
+			dmaengine_terminate_sync(host->chan_tx);
+>>>>>>> upstream/android-13
 	}
 
 	return false;
@@ -1391,11 +1419,15 @@ static int sh_mmcif_probe(struct platform_device *pdev)
 	struct sh_mmcif_host *host;
 	struct device *dev = &pdev->dev;
 	struct sh_mmcif_plat_data *pd = dev->platform_data;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *reg;
 	const char *name;
 
 	irq[0] = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	irq[1] = platform_get_irq(pdev, 1);
 	if (irq[0] < 0) {
 		dev_err(dev, "Get irq error\n");
@@ -1404,6 +1436,13 @@ static int sh_mmcif_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	reg = devm_ioremap_resource(dev, res);
+=======
+	irq[1] = platform_get_irq_optional(pdev, 1);
+	if (irq[0] < 0)
+		return -ENXIO;
+
+	reg = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(reg))
 		return PTR_ERR(reg);
 
@@ -1565,6 +1604,10 @@ static struct platform_driver sh_mmcif_driver = {
 	.remove		= sh_mmcif_remove,
 	.driver		= {
 		.name	= DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &sh_mmcif_dev_pm_ops,
 		.of_match_table = sh_mmcif_of_match,
 	},
@@ -1573,6 +1616,10 @@ static struct platform_driver sh_mmcif_driver = {
 module_platform_driver(sh_mmcif_driver);
 
 MODULE_DESCRIPTION("SuperH on-chip MMC/eMMC interface driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("platform:" DRIVER_NAME);
 MODULE_AUTHOR("Yusuke Goda <yusuke.goda.sx@renesas.com>");

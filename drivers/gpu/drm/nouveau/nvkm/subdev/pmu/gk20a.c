@@ -95,7 +95,11 @@ static void
 gk20a_pmu_dvfs_get_dev_status(struct gk20a_pmu *pmu,
 			      struct gk20a_pmu_dvfs_dev_status *status)
 {
+<<<<<<< HEAD
 	struct nvkm_falcon *falcon = pmu->base.falcon;
+=======
+	struct nvkm_falcon *falcon = &pmu->base.falcon;
+>>>>>>> upstream/android-13
 
 	status->busy = nvkm_falcon_rd32(falcon, 0x508 + (BUSY_SLOT * 0x10));
 	status->total= nvkm_falcon_rd32(falcon, 0x508 + (CLK_SLOT * 0x10));
@@ -104,7 +108,11 @@ gk20a_pmu_dvfs_get_dev_status(struct gk20a_pmu *pmu,
 static void
 gk20a_pmu_dvfs_reset_dev_status(struct gk20a_pmu *pmu)
 {
+<<<<<<< HEAD
 	struct nvkm_falcon *falcon = pmu->base.falcon;
+=======
+	struct nvkm_falcon *falcon = &pmu->base.falcon;
+>>>>>>> upstream/android-13
 
 	nvkm_falcon_wr32(falcon, 0x508 + (BUSY_SLOT * 0x10), 0x80000000);
 	nvkm_falcon_wr32(falcon, 0x508 + (CLK_SLOT * 0x10), 0x80000000);
@@ -160,7 +168,11 @@ gk20a_pmu_fini(struct nvkm_pmu *pmu)
 	struct gk20a_pmu *gpmu = gk20a_pmu(pmu);
 	nvkm_timer_alarm(pmu->subdev.device->timer, 0, &gpmu->alarm);
 
+<<<<<<< HEAD
 	nvkm_falcon_put(pmu->falcon, &pmu->subdev);
+=======
+	nvkm_falcon_put(&pmu->falcon, &pmu->subdev);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -169,7 +181,11 @@ gk20a_pmu_init(struct nvkm_pmu *pmu)
 	struct gk20a_pmu *gpmu = gk20a_pmu(pmu);
 	struct nvkm_subdev *subdev = &pmu->subdev;
 	struct nvkm_device *device = pmu->subdev.device;
+<<<<<<< HEAD
 	struct nvkm_falcon *falcon = pmu->falcon;
+=======
+	struct nvkm_falcon *falcon = &pmu->falcon;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = nvkm_falcon_get(falcon, subdev);
@@ -196,25 +212,53 @@ gk20a_dvfs_data= {
 
 static const struct nvkm_pmu_func
 gk20a_pmu = {
+<<<<<<< HEAD
+=======
+	.flcn = &gt215_pmu_flcn,
+>>>>>>> upstream/android-13
 	.enabled = gf100_pmu_enabled,
 	.init = gk20a_pmu_init,
 	.fini = gk20a_pmu_fini,
 	.reset = gf100_pmu_reset,
 };
 
+<<<<<<< HEAD
 int
 gk20a_pmu_new(struct nvkm_device *device, int index, struct nvkm_pmu **ppmu)
 {
 	struct gk20a_pmu *pmu;
+=======
+static const struct nvkm_pmu_fwif
+gk20a_pmu_fwif[] = {
+	{ -1, gf100_pmu_nofw, &gk20a_pmu },
+	{}
+};
+
+int
+gk20a_pmu_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_pmu **ppmu)
+{
+	struct gk20a_pmu *pmu;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!(pmu = kzalloc(sizeof(*pmu), GFP_KERNEL)))
 		return -ENOMEM;
 	*ppmu = &pmu->base;
 
+<<<<<<< HEAD
 	nvkm_pmu_ctor(&gk20a_pmu, device, index, &pmu->base);
 
 	pmu->data = &gk20a_dvfs_data;
 	nvkm_alarm_init(&pmu->alarm, gk20a_pmu_dvfs_work);
 
+=======
+	ret = nvkm_pmu_ctor(gk20a_pmu_fwif, device, type, inst, &pmu->base);
+	if (ret)
+		return ret;
+
+	pmu->data = &gk20a_dvfs_data;
+	nvkm_alarm_init(&pmu->alarm, gk20a_pmu_dvfs_work);
+>>>>>>> upstream/android-13
 	return 0;
 }

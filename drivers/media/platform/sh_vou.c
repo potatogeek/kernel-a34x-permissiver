@@ -138,7 +138,10 @@ static void sh_vou_reg_ab_set(struct sh_vou_device *vou_dev, unsigned int reg,
 
 struct sh_vou_fmt {
 	u32		pfmt;
+<<<<<<< HEAD
 	char		*desc;
+=======
+>>>>>>> upstream/android-13
 	unsigned char	bpp;
 	unsigned char	bpl;
 	unsigned char	rgb;
@@ -152,7 +155,10 @@ static struct sh_vou_fmt vou_fmt[] = {
 		.pfmt	= V4L2_PIX_FMT_NV12,
 		.bpp	= 12,
 		.bpl	= 1,
+<<<<<<< HEAD
 		.desc	= "YVU420 planar",
+=======
+>>>>>>> upstream/android-13
 		.yf	= 0,
 		.rgb	= 0,
 	},
@@ -160,7 +166,10 @@ static struct sh_vou_fmt vou_fmt[] = {
 		.pfmt	= V4L2_PIX_FMT_NV16,
 		.bpp	= 16,
 		.bpl	= 1,
+<<<<<<< HEAD
 		.desc	= "YVYU planar",
+=======
+>>>>>>> upstream/android-13
 		.yf	= 1,
 		.rgb	= 0,
 	},
@@ -168,7 +177,10 @@ static struct sh_vou_fmt vou_fmt[] = {
 		.pfmt	= V4L2_PIX_FMT_RGB24,
 		.bpp	= 24,
 		.bpl	= 3,
+<<<<<<< HEAD
 		.desc	= "RGB24",
+=======
+>>>>>>> upstream/android-13
 		.pkf	= 2,
 		.rgb	= 1,
 	},
@@ -176,7 +188,10 @@ static struct sh_vou_fmt vou_fmt[] = {
 		.pfmt	= V4L2_PIX_FMT_RGB565,
 		.bpp	= 16,
 		.bpl	= 2,
+<<<<<<< HEAD
 		.desc	= "RGB565",
+=======
+>>>>>>> upstream/android-13
 		.pkf	= 3,
 		.rgb	= 1,
 	},
@@ -184,7 +199,10 @@ static struct sh_vou_fmt vou_fmt[] = {
 		.pfmt	= V4L2_PIX_FMT_RGB565X,
 		.bpp	= 16,
 		.bpl	= 2,
+<<<<<<< HEAD
 		.desc	= "RGB565 byteswapped",
+=======
+>>>>>>> upstream/android-13
 		.pkf	= 3,
 		.rgb	= 1,
 	},
@@ -226,7 +244,11 @@ static void sh_vou_stream_config(struct sh_vou_device *vou_dev)
 		break;
 	case V4L2_PIX_FMT_RGB565:
 		dataswap ^= 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case V4L2_PIX_FMT_RGB565X:
 		row_coeff = 2;
 		break;
@@ -378,12 +400,18 @@ static int sh_vou_querycap(struct file *file, void  *priv,
 
 	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
 
+<<<<<<< HEAD
 	strlcpy(cap->card, "SuperH VOU", sizeof(cap->card));
 	strlcpy(cap->driver, "sh-vou", sizeof(cap->driver));
 	strlcpy(cap->bus_info, "platform:sh-vou", sizeof(cap->bus_info));
 	cap->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_READWRITE |
 			   V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->card, "SuperH VOU", sizeof(cap->card));
+	strscpy(cap->driver, "sh-vou", sizeof(cap->driver));
+	strscpy(cap->bus_info, "platform:sh-vou", sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -398,9 +426,12 @@ static int sh_vou_enum_fmt_vid_out(struct file *file, void  *priv,
 
 	dev_dbg(vou_dev->v4l2_dev.dev, "%s()\n", __func__);
 
+<<<<<<< HEAD
 	fmt->type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 	strlcpy(fmt->description, vou_fmt[fmt->index].desc,
 		sizeof(fmt->description));
+=======
+>>>>>>> upstream/android-13
 	fmt->pixelformat = vou_fmt[fmt->index].pfmt;
 
 	return 0;
@@ -494,7 +525,12 @@ static void sh_vou_configure_geometry(struct sh_vou_device *vou_dev,
 	if (h_idx)
 		vouvcr |= (1 << 14) | vou_scale_v_fld[h_idx - 1];
 
+<<<<<<< HEAD
 	dev_dbg(vou_dev->v4l2_dev.dev, "%s: scaling 0x%x\n", fmt->desc, vouvcr);
+=======
+	dev_dbg(vou_dev->v4l2_dev.dev, "0x%08x: scaling 0x%x\n",
+		fmt->pfmt, vouvcr);
+>>>>>>> upstream/android-13
 
 	/* To produce a colour bar for testing set bit 23 of VOUVCR */
 	sh_vou_reg_ab_write(vou_dev, VOUVCR, vouvcr);
@@ -790,7 +826,11 @@ static int sh_vou_enum_output(struct file *file, void *fh,
 
 	if (a->index)
 		return -EINVAL;
+<<<<<<< HEAD
 	strlcpy(a->name, "Video Out", sizeof(a->name));
+=======
+	strscpy(a->name, "Video Out", sizeof(a->name));
+>>>>>>> upstream/android-13
 	a->type = V4L2_OUTPUT_TYPE_ANALOG;
 	a->std = vou_dev->vdev.tvnorms;
 	return 0;
@@ -813,7 +853,11 @@ static u32 sh_vou_ntsc_mode(enum sh_vou_bus_fmt bus_fmt)
 	default:
 		pr_warn("%s(): Invalid bus-format code %d, using default 8-bit\n",
 			__func__, bus_fmt);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SH_VOU_BUS_8BIT:
 		return 1;
 	case SH_VOU_BUS_16BIT:
@@ -1007,7 +1051,11 @@ static int sh_vou_s_selection(struct file *file, void *fh,
 
 	/*
 	 * No down-scaling. According to the API, current call has precedence:
+<<<<<<< HEAD
 	 * http://v4l2spec.bytesex.org/spec/x1904.htm#AEN1954 paragraph two.
+=======
+	 * https://linuxtv.org/downloads/v4l-dvb-apis/uapi/v4l/crop.html#cropping-structures
+>>>>>>> upstream/android-13
 	 */
 	vou_adjust_input(&geo, vou_dev->std);
 
@@ -1144,7 +1192,15 @@ static int sh_vou_open(struct file *file)
 	if (v4l2_fh_is_singular_file(file) &&
 	    vou_dev->status == SH_VOU_INITIALISING) {
 		/* First open */
+<<<<<<< HEAD
 		pm_runtime_get_sync(vou_dev->v4l2_dev.dev);
+=======
+		err = pm_runtime_resume_and_get(vou_dev->v4l2_dev.dev);
+		if (err < 0) {
+			v4l2_fh_release(file);
+			goto done_open;
+		}
+>>>>>>> upstream/android-13
 		err = sh_vou_hw_init(vou_dev);
 		if (err < 0) {
 			pm_runtime_put(vou_dev->v4l2_dev.dev);
@@ -1218,6 +1274,11 @@ static const struct video_device sh_vou_video_template = {
 	.ioctl_ops	= &sh_vou_ioctl_ops,
 	.tvnorms	= V4L2_STD_525_60, /* PAL only supported in 8-bit non-bt656 mode */
 	.vfl_dir	= VFL_DIR_TX,
+<<<<<<< HEAD
+=======
+	.device_caps	= V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_READWRITE |
+			  V4L2_CAP_STREAMING,
+>>>>>>> upstream/android-13
 };
 
 static int sh_vou_probe(struct platform_device *pdev)
@@ -1332,7 +1393,11 @@ static int sh_vou_probe(struct platform_device *pdev)
 		goto ei2cnd;
 	}
 
+<<<<<<< HEAD
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto evregdev;
 
@@ -1364,7 +1429,11 @@ static int sh_vou_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct platform_driver __refdata sh_vou = {
+=======
+static struct platform_driver sh_vou = {
+>>>>>>> upstream/android-13
 	.remove  = sh_vou_remove,
 	.driver  = {
 		.name	= "sh-vou",

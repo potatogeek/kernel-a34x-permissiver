@@ -29,11 +29,19 @@ char *yaml_error_name[] = {
 		    (emitter)->problem, __func__, __LINE__);		\
 })
 
+<<<<<<< HEAD
 static void yaml_propval_int(yaml_emitter_t *emitter, struct marker *markers, char *data, int len, int width)
 {
 	yaml_event_t event;
 	void *tag;
 	int off, start_offset = markers->offset;
+=======
+static void yaml_propval_int(yaml_emitter_t *emitter, struct marker *markers, char *data, unsigned int len, int width)
+{
+	yaml_event_t event;
+	void *tag;
+	unsigned int off, start_offset = markers->offset;
+>>>>>>> upstream/android-13
 
 	switch(width) {
 		case 1: tag = "!u8"; break;
@@ -59,10 +67,17 @@ static void yaml_propval_int(yaml_emitter_t *emitter, struct marker *markers, ch
 			sprintf(buf, "0x%"PRIx8, *(uint8_t*)(data + off));
 			break;
 		case 2:
+<<<<<<< HEAD
 			sprintf(buf, "0x%"PRIx16, fdt16_to_cpu(*(fdt16_t*)(data + off)));
 			break;
 		case 4:
 			sprintf(buf, "0x%"PRIx32, fdt32_to_cpu(*(fdt32_t*)(data + off)));
+=======
+			sprintf(buf, "0x%"PRIx16, dtb_ld16(data + off));
+			break;
+		case 4:
+			sprintf(buf, "0x%"PRIx32, dtb_ld32(data + off));
+>>>>>>> upstream/android-13
 			m = markers;
 			is_phandle = false;
 			for_each_marker_of_type(m, REF_PHANDLE) {
@@ -73,7 +88,11 @@ static void yaml_propval_int(yaml_emitter_t *emitter, struct marker *markers, ch
 			}
 			break;
 		case 8:
+<<<<<<< HEAD
 			sprintf(buf, "0x%"PRIx64, fdt64_to_cpu(*(fdt64_t*)(data + off)));
+=======
+			sprintf(buf, "0x%"PRIx64, dtb_ld64(data + off));
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -112,7 +131,11 @@ static void yaml_propval_string(yaml_emitter_t *emitter, char *str, int len)
 static void yaml_propval(yaml_emitter_t *emitter, struct property *prop)
 {
 	yaml_event_t event;
+<<<<<<< HEAD
 	int len = prop->val.len;
+=======
+	unsigned int len = prop->val.len;
+>>>>>>> upstream/android-13
 	struct marker *m = prop->val.markers;
 
 	/* Emit the property name */

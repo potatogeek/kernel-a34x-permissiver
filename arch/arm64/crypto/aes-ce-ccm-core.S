@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * aesce-ccm-core.S - AES-CCM transform for ARMv8 with Crypto Extensions
  *
  * Copyright (C) 2013 - 2017 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -18,7 +25,11 @@
 	 * void ce_aes_ccm_auth_data(u8 mac[], u8 const in[], u32 abytes,
 	 *			     u32 *macp, u8 const rk[], u32 rounds);
 	 */
+<<<<<<< HEAD
 ENTRY(ce_aes_ccm_auth_data)
+=======
+SYM_FUNC_START(ce_aes_ccm_auth_data)
+>>>>>>> upstream/android-13
 	ldr	w8, [x3]			/* leftover from prev round? */
 	ld1	{v0.16b}, [x0]			/* load mac */
 	cbz	w8, 1f
@@ -84,13 +95,21 @@ ENTRY(ce_aes_ccm_auth_data)
 	st1	{v0.16b}, [x0]
 10:	str	w8, [x3]
 	ret
+<<<<<<< HEAD
 ENDPROC(ce_aes_ccm_auth_data)
+=======
+SYM_FUNC_END(ce_aes_ccm_auth_data)
+>>>>>>> upstream/android-13
 
 	/*
 	 * void ce_aes_ccm_final(u8 mac[], u8 const ctr[], u8 const rk[],
 	 * 			 u32 rounds);
 	 */
+<<<<<<< HEAD
 ENTRY(ce_aes_ccm_final)
+=======
+SYM_FUNC_START(ce_aes_ccm_final)
+>>>>>>> upstream/android-13
 	ld1	{v3.4s}, [x2], #16		/* load first round key */
 	ld1	{v0.16b}, [x0]			/* load mac */
 	cmp	w3, #12				/* which key size? */
@@ -124,7 +143,11 @@ ENTRY(ce_aes_ccm_final)
 	eor	v0.16b, v0.16b, v1.16b		/* en-/decrypt the mac */
 	st1	{v0.16b}, [x0]			/* store result */
 	ret
+<<<<<<< HEAD
 ENDPROC(ce_aes_ccm_final)
+=======
+SYM_FUNC_END(ce_aes_ccm_final)
+>>>>>>> upstream/android-13
 
 	.macro	aes_ccm_do_crypt,enc
 	ldr	x8, [x6, #8]			/* load lower ctr */
@@ -215,6 +238,7 @@ CPU_LE(	rev	x8, x8			)
 	 * 			   u8 const rk[], u32 rounds, u8 mac[],
 	 * 			   u8 ctr[]);
 	 */
+<<<<<<< HEAD
 ENTRY(ce_aes_ccm_encrypt)
 	aes_ccm_do_crypt	1
 ENDPROC(ce_aes_ccm_encrypt)
@@ -222,3 +246,12 @@ ENDPROC(ce_aes_ccm_encrypt)
 ENTRY(ce_aes_ccm_decrypt)
 	aes_ccm_do_crypt	0
 ENDPROC(ce_aes_ccm_decrypt)
+=======
+SYM_FUNC_START(ce_aes_ccm_encrypt)
+	aes_ccm_do_crypt	1
+SYM_FUNC_END(ce_aes_ccm_encrypt)
+
+SYM_FUNC_START(ce_aes_ccm_decrypt)
+	aes_ccm_do_crypt	0
+SYM_FUNC_END(ce_aes_ccm_decrypt)
+>>>>>>> upstream/android-13

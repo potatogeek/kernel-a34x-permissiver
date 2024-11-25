@@ -11,4 +11,19 @@ void main(void)
 
 	LOCK_UNLOCK_2(a, b);
 	LOCK_UNLOCK_2(b, a);
+<<<<<<< HEAD
+=======
+
+	pthread_mutex_destroy(&b);
+	pthread_mutex_destroy(&a);
+
+	pthread_mutex_init(&a, NULL);
+	pthread_mutex_init(&b, NULL);
+
+	LOCK_UNLOCK_2(a, b);
+	LOCK_UNLOCK_2(b, a);
+
+	pthread_mutex_destroy(&b);
+	pthread_mutex_destroy(&a);
+>>>>>>> upstream/android-13
 }

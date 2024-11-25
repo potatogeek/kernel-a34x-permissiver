@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * xhci-debugfs.h - xHCI debugfs interface
  *
@@ -80,7 +84,10 @@ struct xhci_regset {
 	char			name[DEBUGFS_NAMELEN];
 	struct debugfs_regset32	regset;
 	size_t			nregs;
+<<<<<<< HEAD
 	struct dentry		*parent;
+=======
+>>>>>>> upstream/android-13
 	struct list_head	list;
 };
 
@@ -92,6 +99,12 @@ struct xhci_file_map {
 struct xhci_ep_priv {
 	char			name[DEBUGFS_NAMELEN];
 	struct dentry		*root;
+<<<<<<< HEAD
+=======
+	struct xhci_stream_info *stream_info;
+	struct xhci_ring	*show_ring;
+	unsigned int		stream_id;
+>>>>>>> upstream/android-13
 };
 
 struct xhci_slot_priv {
@@ -114,6 +127,12 @@ void xhci_debugfs_create_endpoint(struct xhci_hcd *xhci,
 void xhci_debugfs_remove_endpoint(struct xhci_hcd *xhci,
 				  struct xhci_virt_device *virt_dev,
 				  int ep_index);
+<<<<<<< HEAD
+=======
+void xhci_debugfs_create_stream_files(struct xhci_hcd *xhci,
+				      struct xhci_virt_device *virt_dev,
+				      int ep_index);
+>>>>>>> upstream/android-13
 #else
 static inline void xhci_debugfs_init(struct xhci_hcd *xhci) { }
 static inline void xhci_debugfs_exit(struct xhci_hcd *xhci) { }
@@ -129,6 +148,13 @@ static inline void
 xhci_debugfs_remove_endpoint(struct xhci_hcd *xhci,
 			     struct xhci_virt_device *virt_dev,
 			     int ep_index) { }
+<<<<<<< HEAD
+=======
+static inline void
+xhci_debugfs_create_stream_files(struct xhci_hcd *xhci,
+				 struct xhci_virt_device *virt_dev,
+				 int ep_index) { }
+>>>>>>> upstream/android-13
 #endif /* CONFIG_DEBUG_FS */
 
 #endif /* __LINUX_XHCI_DEBUGFS_H */

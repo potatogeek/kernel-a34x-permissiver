@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  *  Copyright(c) 2004 Intel Corporation. All rights reserved.
@@ -8,6 +12,7 @@
  *  <jkmaline@cc.hut.fi>
  *  Copyright (c) 2002-2003, Jouni Malinen <jkmaline@cc.hut.fi>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of version 2 of the GNU General Public License as
  *  published by the Free Software Foundation.
@@ -24,14 +29,22 @@
  *  The full GNU General Public License is included in this distribution in the
  *  file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  *  Contact Information:
  *  James P. Ketrenos <ipw2100-admin@linux.intel.com>
  *  Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
  *
+<<<<<<< HEAD
  *******************************************************************************/
 
 #include <linux/compiler.h>
 /* #include <linux/config.h> */
+=======
+ ******************************************************************************/
+
+#include <linux/compiler.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/if_arp.h>
 #include <linux/in6.h>
@@ -64,12 +77,20 @@ static inline int ieee80211_networks_allocate(struct ieee80211_device *ieee)
 	if (ieee->networks)
 		return 0;
 
+<<<<<<< HEAD
 	ieee->networks = kcalloc(
 		MAX_NETWORK_COUNT, sizeof(struct ieee80211_network),
 		GFP_KERNEL);
 	if (!ieee->networks) {
 		printk(KERN_WARNING "%s: Out of memory allocating beacons\n",
 		       ieee->dev->name);
+=======
+	ieee->networks = kcalloc(MAX_NETWORK_COUNT,
+				 sizeof(struct ieee80211_network),
+				 GFP_KERNEL);
+	if (!ieee->networks) {
+		netdev_warn(ieee->dev, "Out of memory allocating beacons\n");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -94,7 +115,10 @@ static inline void ieee80211_networks_initialize(struct ieee80211_device *ieee)
 		list_add_tail(&ieee->networks[i].list, &ieee->network_free_list);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct net_device *alloc_ieee80211(int sizeof_priv)
 {
 	struct ieee80211_device *ieee;
@@ -110,7 +134,10 @@ struct net_device *alloc_ieee80211(int sizeof_priv)
 	}
 
 	ieee = netdev_priv(dev);
+<<<<<<< HEAD
 	memset(ieee, 0, sizeof(struct ieee80211_device)+sizeof_priv);
+=======
+>>>>>>> upstream/android-13
 	ieee->dev = dev;
 
 	err = ieee80211_networks_allocate(ieee);
@@ -121,7 +148,10 @@ struct net_device *alloc_ieee80211(int sizeof_priv)
 	}
 	ieee80211_networks_initialize(ieee);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* Default fragmentation threshold is maximum payload size */
 	ieee->fts = DEFAULT_FTS;
 	ieee->scan_age = DEFAULT_MAX_SCAN_AGE;
@@ -157,8 +187,18 @@ struct net_device *alloc_ieee80211(int sizeof_priv)
 	ieee80211_softmac_init(ieee);
 
 	ieee->pHTInfo = kzalloc(sizeof(RT_HIGH_THROUGHPUT), GFP_KERNEL);
+<<<<<<< HEAD
 	if (ieee->pHTInfo == NULL) {
 		IEEE80211_DEBUG(IEEE80211_DL_ERR, "can't alloc memory for HTInfo\n");
+=======
+	if (!ieee->pHTInfo) {
+		IEEE80211_DEBUG(IEEE80211_DL_ERR, "can't alloc memory for HTInfo\n");
+
+		/* By this point in code ieee80211_networks_allocate() has been
+		 * successfully called so the memory allocated should be freed
+		 */
+		ieee80211_networks_free(ieee);
+>>>>>>> upstream/android-13
 		goto failed;
 	}
 	HTUpdateDefaultSetting(ieee);
@@ -169,9 +209,15 @@ struct net_device *alloc_ieee80211(int sizeof_priv)
 		INIT_LIST_HEAD(&ieee->ibss_mac_hash[i]);
 
 	for (i = 0; i < 17; i++) {
+<<<<<<< HEAD
 	  ieee->last_rxseq_num[i] = -1;
 	  ieee->last_rxfrag_num[i] = -1;
 	  ieee->last_packet_time[i] = 0;
+=======
+		ieee->last_rxseq_num[i] = -1;
+		ieee->last_rxfrag_num[i] = -1;
+		ieee->last_packet_time[i] = 0;
+>>>>>>> upstream/android-13
 	}
 
 /* These function were added to load crypte module autoly */
@@ -186,7 +232,10 @@ struct net_device *alloc_ieee80211(int sizeof_priv)
 	return NULL;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void free_ieee80211(struct net_device *dev)
 {
 	struct ieee80211_device *ieee = netdev_priv(dev);
@@ -202,6 +251,10 @@ void free_ieee80211(struct net_device *dev)
 
 	for (i = 0; i < WEP_KEYS; i++) {
 		struct ieee80211_crypt_data *crypt = ieee->crypt[i];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (crypt) {
 			if (crypt->ops)
 				crypt->ops->deinit(crypt->priv);
@@ -217,8 +270,12 @@ void free_ieee80211(struct net_device *dev)
 #ifdef CONFIG_IEEE80211_DEBUG
 
 u32 ieee80211_debug_level;
+<<<<<<< HEAD
 static int debug = \
 	//		    IEEE80211_DL_INFO	|
+=======
+static int debug = //	    IEEE80211_DL_INFO	|
+>>>>>>> upstream/android-13
 	//		    IEEE80211_DL_WX	|
 	//		    IEEE80211_DL_SCAN	|
 	//		    IEEE80211_DL_STATE	|
@@ -247,10 +304,18 @@ static int show_debug_level(struct seq_file *m, void *v)
 }
 
 static ssize_t write_debug_level(struct file *file, const char __user *buffer,
+<<<<<<< HEAD
 			     size_t count, loff_t *ppos)
 {
 	unsigned long val;
 	int err = kstrtoul_from_user(buffer, count, 0, &val);
+=======
+				 size_t count, loff_t *ppos)
+{
+	unsigned long val;
+	int err = kstrtoul_from_user(buffer, count, 0, &val);
+
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 	ieee80211_debug_level = val;
@@ -262,12 +327,21 @@ static int open_debug_level(struct inode *inode, struct file *file)
 	return single_open(file, show_debug_level, NULL);
 }
 
+<<<<<<< HEAD
 static const struct file_operations fops = {
 	.open = open_debug_level,
 	.read = seq_read,
 	.llseek = seq_lseek,
 	.write = write_debug_level,
 	.release = single_release,
+=======
+static const struct proc_ops debug_level_proc_ops = {
+	.proc_open	= open_debug_level,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= write_debug_level,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 int __init ieee80211_debug_init(void)
@@ -277,12 +351,20 @@ int __init ieee80211_debug_init(void)
 	ieee80211_debug_level = debug;
 
 	ieee80211_proc = proc_mkdir(DRV_NAME, init_net.proc_net);
+<<<<<<< HEAD
 	if (ieee80211_proc == NULL) {
+=======
+	if (!ieee80211_proc) {
+>>>>>>> upstream/android-13
 		IEEE80211_ERROR("Unable to create " DRV_NAME
 				" proc directory\n");
 		return -EIO;
 	}
+<<<<<<< HEAD
 	e = proc_create("debug_level", 0644, ieee80211_proc, &fops);
+=======
+	e = proc_create("debug_level", 0644, ieee80211_proc, &debug_level_proc_ops);
+>>>>>>> upstream/android-13
 	if (!e) {
 		remove_proc_entry(DRV_NAME, init_net.proc_net);
 		ieee80211_proc = NULL;

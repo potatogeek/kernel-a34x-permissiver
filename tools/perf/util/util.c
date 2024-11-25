@@ -1,9 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "../perf.h"
 #include "util.h"
 #include "debug.h"
 #include <api/fs/fs.h>
 #include <sys/mman.h>
+=======
+#include "util.h"
+#include "debug.h"
+#include "event.h"
+#include <api/fs/fs.h>
+>>>>>>> upstream/android-13
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <dirent.h>
@@ -15,11 +22,21 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+<<<<<<< HEAD
+=======
+#include <linux/capability.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/log2.h>
 #include <linux/time64.h>
 #include <unistd.h>
+<<<<<<< HEAD
 #include "strlist.h"
+=======
+#include "cap.h"
+#include "strlist.h"
+#include "string2.h"
+>>>>>>> upstream/android-13
 
 /*
  * XXX We need to find a better place for these things...
@@ -37,6 +54,7 @@ void perf_set_multithreaded(void)
 	perf_singlethreaded = false;
 }
 
+<<<<<<< HEAD
 unsigned int page_size;
 
 #ifdef _SC_LEVEL1_DCACHE_LINESIZE
@@ -59,6 +77,8 @@ int cacheline_size(void)
 	return size;
 }
 
+=======
+>>>>>>> upstream/android-13
 int sysctl_perf_event_max_stack = PERF_MAX_STACK_DEPTH;
 int sysctl_perf_event_max_contexts_per_stack = PERF_MAX_CONTEXTS_PER_STACK;
 
@@ -75,6 +95,27 @@ int sysctl__max_stack(void)
 	return sysctl_perf_event_max_stack;
 }
 
+<<<<<<< HEAD
+=======
+bool sysctl__nmi_watchdog_enabled(void)
+{
+	static bool cached;
+	static bool nmi_watchdog;
+	int value;
+
+	if (cached)
+		return nmi_watchdog;
+
+	if (sysctl__read_int("kernel/nmi_watchdog", &value) < 0)
+		return false;
+
+	nmi_watchdog = (value > 0) ? true : false;
+	cached = true;
+
+	return nmi_watchdog;
+}
+
+>>>>>>> upstream/android-13
 bool test_attr__enabled;
 
 bool perf_host  = true;
@@ -116,6 +157,7 @@ int mkdir_p(char *path, mode_t mode)
 	return (stat(path, &st) && mkdir(path, mode)) ? -1 : 0;
 }
 
+<<<<<<< HEAD
 int rm_rf(const char *path)
 {
 	DIR *dir;
@@ -129,10 +171,74 @@ int rm_rf(const char *path)
 
 	while ((d = readdir(dir)) != NULL && !ret) {
 		struct stat statbuf;
+=======
+static bool match_pat(char *file, const char **pat)
+{
+	int i = 0;
+
+	if (!pat)
+		return true;
+
+	while (pat[i]) {
+		if (strglobmatch(file, pat[i]))
+			return true;
+
+		i++;
+	}
+
+	return false;
+}
+
+/*
+ * The depth specify how deep the removal will go.
+ * 0       - will remove only files under the 'path' directory
+ * 1 .. x  - will dive in x-level deep under the 'path' directory
+ *
+ * If specified the pat is array of string patterns ended with NULL,
+ * which are checked upon every file/directory found. Only matching
+ * ones are removed.
+ *
+ * The function returns:
+ *    0 on success
+ *   -1 on removal failure with errno set
+ *   -2 on pattern failure
+ */
+static int rm_rf_depth_pat(const char *path, int depth, const char **pat)
+{
+	DIR *dir;
+	int ret;
+	struct dirent *d;
+	char namebuf[PATH_MAX];
+	struct stat statbuf;
+
+	/* Do not fail if there's no file. */
+	ret = lstat(path, &statbuf);
+	if (ret)
+		return 0;
+
+	/* Try to remove any file we get. */
+	if (!(statbuf.st_mode & S_IFDIR))
+		return unlink(path);
+
+	/* We have directory in path. */
+	dir = opendir(path);
+	if (dir == NULL)
+		return -1;
+
+	while ((d = readdir(dir)) != NULL && !ret) {
+>>>>>>> upstream/android-13
 
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
 
+<<<<<<< HEAD
+=======
+		if (!match_pat(d->d_name, pat)) {
+			ret =  -2;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		scnprintf(namebuf, sizeof(namebuf), "%s/%s",
 			  path, d->d_name);
 
@@ -144,7 +250,11 @@ int rm_rf(const char *path)
 		}
 
 		if (S_ISDIR(statbuf.st_mode))
+<<<<<<< HEAD
 			ret = rm_rf(namebuf);
+=======
+			ret = depth ? rm_rf_depth_pat(namebuf, depth - 1, pat) : 0;
+>>>>>>> upstream/android-13
 		else
 			ret = unlink(namebuf);
 	}
@@ -156,6 +266,42 @@ int rm_rf(const char *path)
 	return rmdir(path);
 }
 
+<<<<<<< HEAD
+=======
+static int rm_rf_kcore_dir(const char *path)
+{
+	char kcore_dir_path[PATH_MAX];
+	const char *pat[] = {
+		"kcore",
+		"kallsyms",
+		"modules",
+		NULL,
+	};
+
+	snprintf(kcore_dir_path, sizeof(kcore_dir_path), "%s/kcore_dir", path);
+
+	return rm_rf_depth_pat(kcore_dir_path, 0, pat);
+}
+
+int rm_rf_perf_data(const char *path)
+{
+	const char *pat[] = {
+		"data",
+		"data.*",
+		NULL,
+	};
+
+	rm_rf_kcore_dir(path);
+
+	return rm_rf_depth_pat(path, 0, pat);
+}
+
+int rm_rf(const char *path)
+{
+	return rm_rf_depth_pat(path, INT_MAX, NULL);
+}
+
+>>>>>>> upstream/android-13
 /* A filter which removes dot files */
 bool lsdir_no_dot_filter(const char *name __maybe_unused, struct dirent *d)
 {
@@ -190,6 +336,7 @@ out:
 	return list;
 }
 
+<<<<<<< HEAD
 static int slow_copyfile(const char *from, const char *to, struct nsinfo *nsi)
 {
 	int err = -1;
@@ -362,6 +509,8 @@ ssize_t writen(int fd, const void *buf, size_t n)
 	return ion(false, fd, (void *)buf, n);
 }
 
+=======
+>>>>>>> upstream/android-13
 size_t hex_width(u64 v)
 {
 	size_t n = 1;
@@ -372,6 +521,7 @@ size_t hex_width(u64 v)
 	return n;
 }
 
+<<<<<<< HEAD
 /*
  * While we find nice hex chars, build a long_val.
  * Return number of chars processed.
@@ -385,6 +535,8 @@ int hex2u64(const char *ptr, u64 *long_val)
 	return p - ptr;
 }
 
+=======
+>>>>>>> upstream/android-13
 int perf_event_paranoid(void)
 {
 	int value;
@@ -394,6 +546,17 @@ int perf_event_paranoid(void)
 
 	return value;
 }
+<<<<<<< HEAD
+=======
+
+bool perf_event_paranoid_check(int max_level)
+{
+	return perf_cap__capable(CAP_SYS_ADMIN) ||
+			perf_cap__capable(CAP_PERFMON) ||
+			perf_event_paranoid() <= max_level;
+}
+
+>>>>>>> upstream/android-13
 static int
 fetch_ubuntu_kernel_version(unsigned int *puint)
 {
@@ -479,30 +642,65 @@ fetch_kernel_version(unsigned int *puint, char *str,
 	return 0;
 }
 
+<<<<<<< HEAD
 const char *perf_tip(const char *dirpath)
 {
 	struct strlist *tips;
 	struct str_node *node;
 	char *tip = NULL;
+=======
+int perf_tip(char **strp, const char *dirpath)
+{
+	struct strlist *tips;
+	struct str_node *node;
+>>>>>>> upstream/android-13
 	struct strlist_config conf = {
 		.dirname = dirpath,
 		.file_only = true,
 	};
+<<<<<<< HEAD
 
 	tips = strlist__new("tips.txt", &conf);
 	if (tips == NULL)
 		return errno == ENOENT ? NULL :
 			"Tip: check path of tips.txt or get more memory! ;-p";
+=======
+	int ret = 0;
+
+	*strp = NULL;
+	tips = strlist__new("tips.txt", &conf);
+	if (tips == NULL)
+		return -errno;
+>>>>>>> upstream/android-13
 
 	if (strlist__nr_entries(tips) == 0)
 		goto out;
 
 	node = strlist__entry(tips, random() % strlist__nr_entries(tips));
+<<<<<<< HEAD
 	if (asprintf(&tip, "Tip: %s", node->s) < 0)
 		tip = (char *)"Tip: get more memory! ;-)";
+=======
+	if (asprintf(strp, "Tip: %s", node->s) < 0)
+		ret = -ENOMEM;
+>>>>>>> upstream/android-13
 
 out:
 	strlist__delete(tips);
 
+<<<<<<< HEAD
 	return tip;
+=======
+	return ret;
+}
+
+char *perf_exe(char *buf, int len)
+{
+	int n = readlink("/proc/self/exe", buf, len);
+	if (n > 0) {
+		buf[n] = 0;
+		return buf;
+	}
+	return strcpy(buf, "perf");
+>>>>>>> upstream/android-13
 }

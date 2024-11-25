@@ -52,6 +52,21 @@ struct drm_mode_config_funcs {
 	 * requested metadata, but most of that is left to the driver. See
 	 * &struct drm_mode_fb_cmd2 for details.
 	 *
+<<<<<<< HEAD
+=======
+	 * To validate the pixel format and modifier drivers can use
+	 * drm_any_plane_has_format() to make sure at least one plane supports
+	 * the requested values. Note that the driver must first determine the
+	 * actual modifier used if the request doesn't have it specified,
+	 * ie. when (@mode_cmd->flags & DRM_MODE_FB_MODIFIERS) == 0.
+	 *
+	 * IMPORTANT: These implied modifiers for legacy userspace must be
+	 * stored in struct &drm_framebuffer, including all relevant metadata
+	 * like &drm_framebuffer.pitches and &drm_framebuffer.offsets if the
+	 * modifier enables additional planes beyond the fourcc pixel format
+	 * code. This is required by the GETFB2 ioctl.
+	 *
+>>>>>>> upstream/android-13
 	 * If the parameters are deemed valid and the backing storage objects in
 	 * the underlying memory manager all exist, then the driver allocates
 	 * a new &drm_framebuffer structure, subclassed to contain
@@ -355,7 +370,11 @@ struct drm_mode_config {
 	 *
 	 * This is the big scary modeset BKL which protects everything that
 	 * isn't protect otherwise. Scope is unclear and fuzzy, try to remove
+<<<<<<< HEAD
 	 * anything from under it's protection and move it into more well-scoped
+=======
+	 * anything from under its protection and move it into more well-scoped
+>>>>>>> upstream/android-13
 	 * locks.
 	 *
 	 * The one important thing this protects is the use of @acquire_ctx.
@@ -385,18 +404,30 @@ struct drm_mode_config {
 	/**
 	 * @idr_mutex:
 	 *
+<<<<<<< HEAD
 	 * Mutex for KMS ID allocation and management. Protects both @crtc_idr
+=======
+	 * Mutex for KMS ID allocation and management. Protects both @object_idr
+>>>>>>> upstream/android-13
 	 * and @tile_idr.
 	 */
 	struct mutex idr_mutex;
 
 	/**
+<<<<<<< HEAD
 	 * @crtc_idr:
+=======
+	 * @object_idr:
+>>>>>>> upstream/android-13
 	 *
 	 * Main KMS ID tracking object. Use this idr for all IDs, fb, crtc,
 	 * connector, modes - just makes life easier to have only one.
 	 */
+<<<<<<< HEAD
 	struct idr crtc_idr;
+=======
+	struct idr object_idr;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @tile_idr:
@@ -506,6 +537,18 @@ struct drm_mode_config {
 	 */
 	struct list_head property_list;
 
+<<<<<<< HEAD
+=======
+	/**
+	 * @privobj_list:
+	 *
+	 * List of private objects linked with &drm_private_obj.head. This is
+	 * invariant over the lifetime of a device and hence doesn't need any
+	 * locks.
+	 */
+	struct list_head privobj_list;
+
+>>>>>>> upstream/android-13
 	int min_width, min_height;
 	int max_width, max_height;
 	const struct drm_mode_config_funcs *funcs;
@@ -588,22 +631,38 @@ struct drm_mode_config {
 	struct drm_property *prop_src_h;
 	/**
 	 * @prop_crtc_x: Default atomic plane property for the plane destination
+<<<<<<< HEAD
 	 * position in the &drm_crtc is is being shown on.
+=======
+	 * position in the &drm_crtc is being shown on.
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *prop_crtc_x;
 	/**
 	 * @prop_crtc_y: Default atomic plane property for the plane destination
+<<<<<<< HEAD
 	 * position in the &drm_crtc is is being shown on.
+=======
+	 * position in the &drm_crtc is being shown on.
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *prop_crtc_y;
 	/**
 	 * @prop_crtc_w: Default atomic plane property for the plane destination
+<<<<<<< HEAD
 	 * position in the &drm_crtc is is being shown on.
+=======
+	 * position in the &drm_crtc is being shown on.
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *prop_crtc_w;
 	/**
 	 * @prop_crtc_h: Default atomic plane property for the plane destination
+<<<<<<< HEAD
 	 * position in the &drm_crtc is is being shown on.
+=======
+	 * position in the &drm_crtc is being shown on.
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *prop_crtc_h;
 	/**
@@ -628,6 +687,18 @@ struct drm_mode_config {
 	 */
 	struct drm_property *prop_crtc_id;
 	/**
+<<<<<<< HEAD
+=======
+	 * @prop_fb_damage_clips: Optional plane property to mark damaged
+	 * regions on the plane in framebuffer coordinates of the framebuffer
+	 * attached to the plane.
+	 *
+	 * The layout of blob data is simply an array of &drm_mode_rect. Unlike
+	 * plane src coordinates, damage clips are not in 16.16 fixed point.
+	 */
+	struct drm_property *prop_fb_damage_clips;
+	/**
+>>>>>>> upstream/android-13
 	 * @prop_active: Default atomic CRTC property to control the active
 	 * state, which is the simplified implementation for DPMS in atomic
 	 * drivers.
@@ -639,6 +710,14 @@ struct drm_mode_config {
 	 * connectors must be of and active must be set to disabled, too.
 	 */
 	struct drm_property *prop_mode_id;
+<<<<<<< HEAD
+=======
+	/**
+	 * @prop_vrr_enabled: Default atomic CRTC property to indicate
+	 * whether variable refresh rate should be enabled on the CRTC.
+	 */
+	struct drm_property *prop_vrr_enabled;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @dvi_i_subconnector_property: Optional DVI-I property to
@@ -652,6 +731,15 @@ struct drm_mode_config {
 	struct drm_property *dvi_i_select_subconnector_property;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @dp_subconnector_property: Optional DP property to differentiate
+	 * between different DP downstream port types.
+	 */
+	struct drm_property *dp_subconnector_property;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @tv_subconnector_property: Optional TV property to differentiate
 	 * between different TV connector types.
 	 */
@@ -668,22 +756,38 @@ struct drm_mode_config {
 	struct drm_property *tv_mode_property;
 	/**
 	 * @tv_left_margin_property: Optional TV property to set the left
+<<<<<<< HEAD
 	 * margin.
+=======
+	 * margin (expressed in pixels).
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *tv_left_margin_property;
 	/**
 	 * @tv_right_margin_property: Optional TV property to set the right
+<<<<<<< HEAD
 	 * margin.
+=======
+	 * margin (expressed in pixels).
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *tv_right_margin_property;
 	/**
 	 * @tv_top_margin_property: Optional TV property to set the right
+<<<<<<< HEAD
 	 * margin.
+=======
+	 * margin (expressed in pixels).
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *tv_top_margin_property;
 	/**
 	 * @tv_bottom_margin_property: Optional TV property to set the right
+<<<<<<< HEAD
 	 * margin.
+=======
+	 * margin (expressed in pixels).
+>>>>>>> upstream/android-13
 	 */
 	struct drm_property *tv_bottom_margin_property;
 	/**
@@ -807,10 +911,64 @@ struct drm_mode_config {
 	 */
 	struct drm_property *writeback_out_fence_ptr_property;
 
+<<<<<<< HEAD
+=======
+	/**
+	 * @hdr_output_metadata_property: Connector property containing hdr
+	 * metatada. This will be provided by userspace compositors based
+	 * on HDR content
+	 */
+	struct drm_property *hdr_output_metadata_property;
+
+	/**
+	 * @content_protection_property: DRM ENUM property for content
+	 * protection. See drm_connector_attach_content_protection_property().
+	 */
+	struct drm_property *content_protection_property;
+
+	/**
+	 * @hdcp_content_type_property: DRM ENUM property for type of
+	 * Protected Content.
+	 */
+	struct drm_property *hdcp_content_type_property;
+
+>>>>>>> upstream/android-13
 	/* dumb ioctl parameters */
 	uint32_t preferred_depth, prefer_shadow;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @prefer_shadow_fbdev:
+	 *
+	 * Hint to framebuffer emulation to prefer shadow-fb rendering.
+	 */
+	bool prefer_shadow_fbdev;
+
+	/**
+	 * @quirk_addfb_prefer_xbgr_30bpp:
+	 *
+	 * Special hack for legacy ADDFB to keep nouveau userspace happy. Should
+	 * only ever be set by the nouveau kernel driver.
+	 */
+	bool quirk_addfb_prefer_xbgr_30bpp;
+
+	/**
+	 * @quirk_addfb_prefer_host_byte_order:
+	 *
+	 * When set to true drm_mode_addfb() will pick host byte order
+	 * pixel_format when calling drm_mode_addfb2().  This is how
+	 * drm_mode_addfb() should have worked from day one.  It
+	 * didn't though, so we ended up with quirks in both kernel
+	 * and userspace drivers to deal with the broken behavior.
+	 * Simply fixing drm_mode_addfb() unconditionally would break
+	 * these drivers, so add a quirk bit here to allow drivers
+	 * opt-in.
+	 */
+	bool quirk_addfb_prefer_host_byte_order;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @async_page_flip: Does this device support async flips on the primary
 	 * plane?
 	 */
@@ -820,6 +978,18 @@ struct drm_mode_config {
 	 * @allow_fb_modifiers:
 	 *
 	 * Whether the driver supports fb modifiers in the ADDFB2.1 ioctl call.
+<<<<<<< HEAD
+=======
+	 * Note that drivers should not set this directly, it is automatically
+	 * set in drm_universal_plane_init().
+	 *
+	 * IMPORTANT:
+	 *
+	 * If this is set the driver must fill out the full implicit modifier
+	 * information in their &drm_mode_config_funcs.fb_create hook for legacy
+	 * userspace which does not set modifiers. Otherwise the GETFB2 ioctl is
+	 * broken for modifier aware userspace.
+>>>>>>> upstream/android-13
 	 */
 	bool allow_fb_modifiers;
 
@@ -852,7 +1022,27 @@ struct drm_mode_config {
 	const struct drm_mode_config_helper_funcs *helper_private;
 };
 
+<<<<<<< HEAD
 void drm_mode_config_init(struct drm_device *dev);
+=======
+int __must_check drmm_mode_config_init(struct drm_device *dev);
+
+/**
+ * drm_mode_config_init - DRM mode_configuration structure initialization
+ * @dev: DRM device
+ *
+ * This is the unmanaged version of drmm_mode_config_init() for drivers which
+ * still explicitly call drm_mode_config_cleanup().
+ *
+ * FIXME: This function is deprecated and drivers should be converted over to
+ * drmm_mode_config_init().
+ */
+static inline int drm_mode_config_init(struct drm_device *dev)
+{
+	return drmm_mode_config_init(dev);
+}
+
+>>>>>>> upstream/android-13
 void drm_mode_config_reset(struct drm_device *dev);
 void drm_mode_config_cleanup(struct drm_device *dev);
 

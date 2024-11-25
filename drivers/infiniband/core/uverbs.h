@@ -97,20 +97,35 @@ ib_uverbs_init_udata_buf_or_null(struct ib_udata *udata,
  */
 
 struct ib_uverbs_device {
+<<<<<<< HEAD
 	atomic_t				refcount;
 	u32					num_comp_vectors;
 	struct completion			comp;
 	struct device			       *dev;
+=======
+	refcount_t				refcount;
+	u32					num_comp_vectors;
+	struct completion			comp;
+	struct device				dev;
+	/* First group for device attributes, NULL terminated array */
+	const struct attribute_group		*groups[2];
+>>>>>>> upstream/android-13
 	struct ib_device	__rcu	       *ib_dev;
 	int					devnum;
 	struct cdev			        cdev;
 	struct rb_root				xrcd_tree;
 	struct mutex				xrcd_tree_mutex;
+<<<<<<< HEAD
 	struct kobject				kobj;
 	struct srcu_struct			disassociate_srcu;
 	struct mutex				lists_mutex; /* protect lists */
 	struct list_head			uverbs_file_list;
 	struct list_head			uverbs_events_file_list;
+=======
+	struct srcu_struct			disassociate_srcu;
+	struct mutex				lists_mutex; /* protect lists */
+	struct list_head			uverbs_file_list;
+>>>>>>> upstream/android-13
 	struct uverbs_api			*uapi;
 };
 
@@ -123,10 +138,16 @@ struct ib_uverbs_event_queue {
 };
 
 struct ib_uverbs_async_event_file {
+<<<<<<< HEAD
 	struct ib_uverbs_event_queue		ev_queue;
 	struct ib_uverbs_file		       *uverbs_file;
 	struct kref				ref;
 	struct list_head			list;
+=======
+	struct ib_uobject			uobj;
+	struct ib_uverbs_event_queue		ev_queue;
+	struct ib_event_handler			event_handler;
+>>>>>>> upstream/android-13
 };
 
 struct ib_uverbs_completion_event_file {
@@ -143,10 +164,15 @@ struct ib_uverbs_file {
 	 * ucontext_lock held
 	 */
 	struct ib_ucontext		       *ucontext;
+<<<<<<< HEAD
 	struct ib_event_handler			event_handler;
 	struct ib_uverbs_async_event_file       *async_file;
 	struct list_head			list;
 	int					is_closed;
+=======
+	struct ib_uverbs_async_event_file      *default_async_file;
+	struct list_head			list;
+>>>>>>> upstream/android-13
 
 	/*
 	 * To access the uobjects list hw_destroy_rwsem must be held for write
@@ -158,12 +184,20 @@ struct ib_uverbs_file {
 	spinlock_t		uobjects_lock;
 	struct list_head	uobjects;
 
+<<<<<<< HEAD
 	u64 uverbs_cmd_mask;
 	u64 uverbs_ex_cmd_mask;
 
 	struct idr		idr;
 	/* spinlock protects write access to idr */
 	spinlock_t		idr_lock;
+=======
+	struct mutex umap_lock;
+	struct list_head umaps;
+	struct page *disassociate_page;
+
+	struct xarray		idr;
+>>>>>>> upstream/android-13
 };
 
 struct ib_uverbs_event {
@@ -184,6 +218,11 @@ struct ib_uverbs_mcast_entry {
 
 struct ib_uevent_object {
 	struct ib_uobject	uobject;
+<<<<<<< HEAD
+=======
+	struct ib_uverbs_async_event_file *event_file;
+	/* List member for ib_uverbs_async_event_file list */
+>>>>>>> upstream/android-13
 	struct list_head	event_list;
 	u32			events_reported;
 };
@@ -211,6 +250,7 @@ struct ib_uwq_object {
 };
 
 struct ib_ucq_object {
+<<<<<<< HEAD
 	struct ib_uobject	uobject;
 	struct list_head	comp_list;
 	struct list_head	async_list;
@@ -237,22 +277,56 @@ void ib_uverbs_release_ucq(struct ib_uverbs_file *file,
 void ib_uverbs_release_uevent(struct ib_uverbs_file *file,
 			      struct ib_uevent_object *uobj);
 void ib_uverbs_release_file(struct kref *ref);
+=======
+	struct ib_uevent_object uevent;
+	struct list_head	comp_list;
+	u32			comp_events_reported;
+};
+
+extern const struct file_operations uverbs_event_fops;
+extern const struct file_operations uverbs_async_event_fops;
+void ib_uverbs_init_event_queue(struct ib_uverbs_event_queue *ev_queue);
+void ib_uverbs_init_async_event_file(struct ib_uverbs_async_event_file *ev_file);
+void ib_uverbs_free_event_queue(struct ib_uverbs_event_queue *event_queue);
+void ib_uverbs_flow_resources_free(struct ib_uflow_resources *uflow_res);
+int uverbs_async_event_release(struct inode *inode, struct file *filp);
+
+int ib_alloc_ucontext(struct uverbs_attr_bundle *attrs);
+int ib_init_ucontext(struct uverbs_attr_bundle *attrs);
+
+void ib_uverbs_release_ucq(struct ib_uverbs_completion_event_file *ev_file,
+			   struct ib_ucq_object *uobj);
+void ib_uverbs_release_uevent(struct ib_uevent_object *uobj);
+void ib_uverbs_release_file(struct kref *ref);
+void ib_uverbs_async_handler(struct ib_uverbs_async_event_file *async_file,
+			     __u64 element, __u64 event,
+			     struct list_head *obj_list, u32 *counter);
+>>>>>>> upstream/android-13
 
 void ib_uverbs_comp_handler(struct ib_cq *cq, void *cq_context);
 void ib_uverbs_cq_event_handler(struct ib_event *event, void *context_ptr);
 void ib_uverbs_qp_event_handler(struct ib_event *event, void *context_ptr);
 void ib_uverbs_wq_event_handler(struct ib_event *event, void *context_ptr);
 void ib_uverbs_srq_event_handler(struct ib_event *event, void *context_ptr);
+<<<<<<< HEAD
 void ib_uverbs_event_handler(struct ib_event_handler *handler,
 			     struct ib_event *event);
 int ib_uverbs_dealloc_xrcd(struct ib_uobject *uobject, struct ib_xrcd *xrcd,
 			   enum rdma_remove_reason why);
+=======
+int ib_uverbs_dealloc_xrcd(struct ib_uobject *uobject, struct ib_xrcd *xrcd,
+			   enum rdma_remove_reason why,
+			   struct uverbs_attr_bundle *attrs);
+>>>>>>> upstream/android-13
 
 int uverbs_dealloc_mw(struct ib_mw *mw);
 void ib_uverbs_detach_umcast(struct ib_qp *qp,
 			     struct ib_uqp_object *uobj);
 
+<<<<<<< HEAD
 void create_udata(struct uverbs_attr_bundle *ctx, struct ib_udata *udata);
+=======
+>>>>>>> upstream/android-13
 long ib_uverbs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 
 struct ib_uverbs_flow_spec {
@@ -283,6 +357,7 @@ int ib_uverbs_kern_spec_to_ib_spec_filter(enum ib_flow_spec_type type,
 					  size_t kern_filter_sz,
 					  union ib_flow_spec *ib_spec);
 
+<<<<<<< HEAD
 extern const struct uverbs_object_def UVERBS_OBJECT(UVERBS_OBJECT_DEVICE);
 extern const struct uverbs_object_def UVERBS_OBJECT(UVERBS_OBJECT_PD);
 extern const struct uverbs_object_def UVERBS_OBJECT(UVERBS_OBJECT_MR);
@@ -359,4 +434,49 @@ IB_UVERBS_DECLARE_EX_CMD(destroy_rwq_ind_table);
 IB_UVERBS_DECLARE_EX_CMD(modify_qp);
 IB_UVERBS_DECLARE_EX_CMD(modify_cq);
 
+=======
+/*
+ * ib_uverbs_query_port_resp.port_cap_flags started out as just a copy of the
+ * PortInfo CapabilityMask, but was extended with unique bits.
+ */
+static inline u32 make_port_cap_flags(const struct ib_port_attr *attr)
+{
+	u32 res;
+
+	/* All IBA CapabilityMask bits are passed through here, except bit 26,
+	 * which is overridden with IP_BASED_GIDS. This is due to a historical
+	 * mistake in the implementation of IP_BASED_GIDS. Otherwise all other
+	 * bits match the IBA definition across all kernel versions.
+	 */
+	res = attr->port_cap_flags & ~(u32)IB_UVERBS_PCF_IP_BASED_GIDS;
+
+	if (attr->ip_gids)
+		res |= IB_UVERBS_PCF_IP_BASED_GIDS;
+
+	return res;
+}
+
+static inline struct ib_uverbs_async_event_file *
+ib_uverbs_get_async_event(struct uverbs_attr_bundle *attrs,
+			  u16 id)
+{
+	struct ib_uobject *async_ev_file_uobj;
+	struct ib_uverbs_async_event_file *async_ev_file;
+
+	async_ev_file_uobj = uverbs_attr_get_uobject(attrs, id);
+	if (IS_ERR(async_ev_file_uobj))
+		async_ev_file = READ_ONCE(attrs->ufile->default_async_file);
+	else
+		async_ev_file = container_of(async_ev_file_uobj,
+				       struct ib_uverbs_async_event_file,
+				       uobj);
+	if (async_ev_file)
+		uverbs_uobject_get(&async_ev_file->uobj);
+	return async_ev_file;
+}
+
+void copy_port_attr_to_resp(struct ib_port_attr *attr,
+			    struct ib_uverbs_query_port_resp *resp,
+			    struct ib_device *ib_dev, u8 port_num);
+>>>>>>> upstream/android-13
 #endif /* UVERBS_H */

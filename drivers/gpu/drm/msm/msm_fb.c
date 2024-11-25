@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -18,6 +19,20 @@
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_damage_helper.h>
+#include <drm/drm_file.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "msm_drv.h"
 #include "msm_kms.h"
@@ -35,11 +50,19 @@ static struct drm_framebuffer *msm_framebuffer_init(struct drm_device *dev,
 static const struct drm_framebuffer_funcs msm_framebuffer_funcs = {
 	.create_handle = drm_gem_fb_create_handle,
 	.destroy = drm_gem_fb_destroy,
+<<<<<<< HEAD
+=======
+	.dirty = drm_atomic_helper_dirtyfb,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_DEBUG_FS
 void msm_framebuffer_describe(struct drm_framebuffer *fb, struct seq_file *m)
 {
+<<<<<<< HEAD
+=======
+	struct msm_gem_stats stats = {};
+>>>>>>> upstream/android-13
 	int i, n = fb->format->num_planes;
 
 	seq_printf(m, "fb: %dx%d@%4.4s (%2d, ID:%d)\n",
@@ -49,7 +72,11 @@ void msm_framebuffer_describe(struct drm_framebuffer *fb, struct seq_file *m)
 	for (i = 0; i < n; i++) {
 		seq_printf(m, "   %d: offset=%d pitch=%d, obj: ",
 				i, fb->offsets[i], fb->pitches[i]);
+<<<<<<< HEAD
 		msm_gem_describe(fb->obj[i], m);
+=======
+		msm_gem_describe(fb->obj[i], m, &stats);
+>>>>>>> upstream/android-13
 	}
 }
 #endif
@@ -66,8 +93,13 @@ int msm_framebuffer_prepare(struct drm_framebuffer *fb,
 	uint64_t iova;
 
 	for (i = 0; i < n; i++) {
+<<<<<<< HEAD
 		ret = msm_gem_get_iova(fb->obj[i], aspace, &iova);
 		DBG("FB[%u]: iova[%d]: %08llx (%d)", fb->base.id, i, iova, ret);
+=======
+		ret = msm_gem_get_and_pin_iova(fb->obj[i], aspace, &iova);
+		drm_dbg_state(fb->dev, "FB[%u]: iova[%d]: %08llx (%d)", fb->base.id, i, iova, ret);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -81,7 +113,11 @@ void msm_framebuffer_cleanup(struct drm_framebuffer *fb,
 	int i, n = fb->format->num_planes;
 
 	for (i = 0; i < n; i++)
+<<<<<<< HEAD
 		msm_gem_put_iova(fb->obj[i], aspace);
+=======
+		msm_gem_unpin_iova(fb->obj[i], aspace);
+>>>>>>> upstream/android-13
 }
 
 uint32_t msm_framebuffer_iova(struct drm_framebuffer *fb,
@@ -106,9 +142,17 @@ const struct msm_format *msm_framebuffer_format(struct drm_framebuffer *fb)
 struct drm_framebuffer *msm_framebuffer_create(struct drm_device *dev,
 		struct drm_file *file, const struct drm_mode_fb_cmd2 *mode_cmd)
 {
+<<<<<<< HEAD
 	struct drm_gem_object *bos[4] = {0};
 	struct drm_framebuffer *fb;
 	int ret, i, n = drm_format_num_planes(mode_cmd->pixel_format);
+=======
+	const struct drm_format_info *info = drm_get_format_info(dev,
+								 mode_cmd);
+	struct drm_gem_object *bos[4] = {0};
+	struct drm_framebuffer *fb;
+	int ret, i, n = info->num_planes;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < n; i++) {
 		bos[i] = drm_gem_object_lookup(file, mode_cmd->handles[i]);
@@ -128,19 +172,29 @@ struct drm_framebuffer *msm_framebuffer_create(struct drm_device *dev,
 
 out_unref:
 	for (i = 0; i < n; i++)
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(bos[i]);
+=======
+		drm_gem_object_put(bos[i]);
+>>>>>>> upstream/android-13
 	return ERR_PTR(ret);
 }
 
 static struct drm_framebuffer *msm_framebuffer_init(struct drm_device *dev,
 		const struct drm_mode_fb_cmd2 *mode_cmd, struct drm_gem_object **bos)
 {
+<<<<<<< HEAD
+=======
+	const struct drm_format_info *info = drm_get_format_info(dev,
+								 mode_cmd);
+>>>>>>> upstream/android-13
 	struct msm_drm_private *priv = dev->dev_private;
 	struct msm_kms *kms = priv->kms;
 	struct msm_framebuffer *msm_fb = NULL;
 	struct drm_framebuffer *fb;
 	const struct msm_format *format;
 	int ret, i, n;
+<<<<<<< HEAD
 	unsigned int hsub, vsub;
 
 	DBG("create framebuffer: dev=%p, mode_cmd=%p (%dx%d@%4.4s)",
@@ -155,6 +209,18 @@ static struct drm_framebuffer *msm_framebuffer_init(struct drm_device *dev,
 			mode_cmd->modifier[0]);
 	if (!format) {
 		dev_err(dev->dev, "unsupported pixel format: %4.4s\n",
+=======
+
+	drm_dbg_state(dev, "create framebuffer: mode_cmd=%p (%dx%d@%4.4s)",
+			mode_cmd, mode_cmd->width, mode_cmd->height,
+			(char *)&mode_cmd->pixel_format);
+
+	n = info->num_planes;
+	format = kms->funcs->get_format(kms, mode_cmd->pixel_format,
+			mode_cmd->modifier[0]);
+	if (!format) {
+		DRM_DEV_ERROR(dev->dev, "unsupported pixel format: %4.4s\n",
+>>>>>>> upstream/android-13
 				(char *)&mode_cmd->pixel_format);
 		ret = -EINVAL;
 		goto fail;
@@ -176,12 +242,21 @@ static struct drm_framebuffer *msm_framebuffer_init(struct drm_device *dev,
 	}
 
 	for (i = 0; i < n; i++) {
+<<<<<<< HEAD
 		unsigned int width = mode_cmd->width / (i ? hsub : 1);
 		unsigned int height = mode_cmd->height / (i ? vsub : 1);
 		unsigned int min_size;
 
 		min_size = (height - 1) * mode_cmd->pitches[i]
 			 + width * drm_format_plane_cpp(mode_cmd->pixel_format, i)
+=======
+		unsigned int width = mode_cmd->width / (i ? info->hsub : 1);
+		unsigned int height = mode_cmd->height / (i ? info->vsub : 1);
+		unsigned int min_size;
+
+		min_size = (height - 1) * mode_cmd->pitches[i]
+			 + width * info->cpp[i]
+>>>>>>> upstream/android-13
 			 + mode_cmd->offsets[i];
 
 		if (bos[i]->size < min_size) {
@@ -196,11 +271,19 @@ static struct drm_framebuffer *msm_framebuffer_init(struct drm_device *dev,
 
 	ret = drm_framebuffer_init(dev, fb, &msm_framebuffer_funcs);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "framebuffer init failed: %d\n", ret);
 		goto fail;
 	}
 
 	DBG("create: FB ID: %d (%p)", fb->base.id, fb);
+=======
+		DRM_DEV_ERROR(dev->dev, "framebuffer init failed: %d\n", ret);
+		goto fail;
+	}
+
+	drm_dbg_state(dev, "create: FB ID: %d (%p)", fb->base.id, fb);
+>>>>>>> upstream/android-13
 
 	return fb;
 
@@ -233,6 +316,7 @@ msm_alloc_stolen_fb(struct drm_device *dev, int w, int h, int p, uint32_t format
 		bo = msm_gem_new(dev, size, MSM_BO_SCANOUT | MSM_BO_WC);
 	}
 	if (IS_ERR(bo)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to allocate buffer object\n");
 		return ERR_CAST(bo);
 	}
@@ -244,6 +328,21 @@ msm_alloc_stolen_fb(struct drm_device *dev, int w, int h, int p, uint32_t format
 		 * to unref the bo:
 		 */
 		drm_gem_object_put_unlocked(bo);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to allocate buffer object\n");
+		return ERR_CAST(bo);
+	}
+
+	msm_gem_object_set_name(bo, "stolenfb");
+
+	fb = msm_framebuffer_init(dev, &mode_cmd, &bo);
+	if (IS_ERR(fb)) {
+		DRM_DEV_ERROR(dev->dev, "failed to allocate fb\n");
+		/* note: if fb creation failed, we can't rely on fb destroy
+		 * to unref the bo:
+		 */
+		drm_gem_object_put(bo);
+>>>>>>> upstream/android-13
 		return ERR_CAST(fb);
 	}
 

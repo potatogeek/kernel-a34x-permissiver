@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  ALSA sequencer Memory Manager
  *  Copyright (c) 1998 by Frank van de Pol <fvdpol@coil.demon.nl>
  *                        Jaroslav Kysela <perex@perex.cz>
  *                2000 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,13 +23,19 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/export.h>
 #include <linux/slab.h>
 #include <linux/sched/signal.h>
+<<<<<<< HEAD
 #include <linux/vmalloc.h>
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <sound/core.h>
 
 #include <sound/seq_kernel.h>
@@ -83,7 +94,12 @@ int snd_seq_dump_var_event(const struct snd_seq_event *event,
 	int len, err;
 	struct snd_seq_event_cell *cell;
 
+<<<<<<< HEAD
 	if ((len = get_var_len(event)) <= 0)
+=======
+	len = get_var_len(event);
+	if (len <= 0)
+>>>>>>> upstream/android-13
 		return len;
 
 	if (event->data.ext.len & SNDRV_SEQ_EXT_USRPTR) {
@@ -147,7 +163,12 @@ int snd_seq_expand_var_event(const struct snd_seq_event *event, int count, char 
 	int len, newlen;
 	int err;
 
+<<<<<<< HEAD
 	if ((len = get_var_len(event)) < 0)
+=======
+	len = get_var_len(event);
+	if (len < 0)
+>>>>>>> upstream/android-13
 		return len;
 	newlen = len;
 	if (size_aligned > 0)
@@ -244,13 +265,21 @@ static int snd_seq_cell_alloc(struct snd_seq_pool *pool,
 
 		set_current_state(TASK_INTERRUPTIBLE);
 		add_wait_queue(&pool->output_sleep, &wait);
+<<<<<<< HEAD
 		spin_unlock_irq(&pool->lock);
+=======
+		spin_unlock_irqrestore(&pool->lock, flags);
+>>>>>>> upstream/android-13
 		if (mutexp)
 			mutex_unlock(mutexp);
 		schedule();
 		if (mutexp)
 			mutex_lock(mutexp);
+<<<<<<< HEAD
 		spin_lock_irq(&pool->lock);
+=======
+		spin_lock_irqsave(&pool->lock, flags);
+>>>>>>> upstream/android-13
 		remove_wait_queue(&pool->output_sleep, &wait);
 		/* interrupted? */
 		if (signal_pending(current)) {
@@ -304,7 +333,11 @@ int snd_seq_event_dup(struct snd_seq_pool *pool, struct snd_seq_event *event,
 	extlen = 0;
 	if (snd_seq_ev_is_variable(event)) {
 		extlen = event->data.ext.len & ~SNDRV_SEQ_EXT_MASK;
+<<<<<<< HEAD
 		ncells = (extlen + sizeof(struct snd_seq_event) - 1) / sizeof(struct snd_seq_event);
+=======
+		ncells = DIV_ROUND_UP(extlen, sizeof(struct snd_seq_event));
+>>>>>>> upstream/android-13
 	}
 	if (ncells >= pool->total_elements)
 		return -ENOMEM;
@@ -384,21 +417,36 @@ int snd_seq_pool_init(struct snd_seq_pool *pool)
 {
 	int cell;
 	struct snd_seq_event_cell *cellptr;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (snd_BUG_ON(!pool))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	cellptr = vmalloc(array_size(sizeof(struct snd_seq_event_cell),
 				     pool->size));
+=======
+	cellptr = kvmalloc_array(sizeof(struct snd_seq_event_cell), pool->size,
+				 GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!cellptr)
 		return -ENOMEM;
 
 	/* add new cells to the free cell list */
+<<<<<<< HEAD
 	spin_lock_irqsave(&pool->lock, flags);
 	if (pool->ptr) {
 		spin_unlock_irqrestore(&pool->lock, flags);
 		vfree(cellptr);
+=======
+	spin_lock_irq(&pool->lock);
+	if (pool->ptr) {
+		spin_unlock_irq(&pool->lock);
+		kvfree(cellptr);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -416,7 +464,11 @@ int snd_seq_pool_init(struct snd_seq_pool *pool)
 	/* init statistics */
 	pool->max_used = 0;
 	pool->total_elements = pool->size;
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&pool->lock, flags);
+=======
+	spin_unlock_irq(&pool->lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -435,7 +487,10 @@ void snd_seq_pool_mark_closing(struct snd_seq_pool *pool)
 /* remove events */
 int snd_seq_pool_done(struct snd_seq_pool *pool)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	struct snd_seq_event_cell *ptr;
 
 	if (snd_BUG_ON(!pool))
@@ -449,11 +504,16 @@ int snd_seq_pool_done(struct snd_seq_pool *pool)
 		schedule_timeout_uninterruptible(1);
 	
 	/* release all resources */
+<<<<<<< HEAD
 	spin_lock_irqsave(&pool->lock, flags);
+=======
+	spin_lock_irq(&pool->lock);
+>>>>>>> upstream/android-13
 	ptr = pool->ptr;
 	pool->ptr = NULL;
 	pool->free = NULL;
 	pool->total_elements = 0;
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&pool->lock, flags);
 
 	vfree(ptr);
@@ -461,6 +521,15 @@ int snd_seq_pool_done(struct snd_seq_pool *pool)
 	spin_lock_irqsave(&pool->lock, flags);
 	pool->closing = 0;
 	spin_unlock_irqrestore(&pool->lock, flags);
+=======
+	spin_unlock_irq(&pool->lock);
+
+	kvfree(ptr);
+
+	spin_lock_irq(&pool->lock);
+	pool->closing = 0;
+	spin_unlock_irq(&pool->lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

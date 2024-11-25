@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2018 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #include <linux/bitfield.h>
 #include <linux/device.h>
@@ -47,6 +52,33 @@ static void nfp_net_tlv_caps_reset(struct nfp_net_tlv_caps *caps)
 	caps->mbox_len = NFP_NET_CFG_MBOX_VAL_MAX_SZ;
 }
 
+<<<<<<< HEAD
+=======
+static bool
+nfp_net_tls_parse_crypto_ops(struct device *dev, struct nfp_net_tlv_caps *caps,
+			     u8 __iomem *ctrl_mem, u8 __iomem *data,
+			     unsigned int length, unsigned int offset,
+			     bool rx_stream_scan)
+{
+	/* Ignore the legacy TLV if new one was already parsed */
+	if (caps->tls_resync_ss && !rx_stream_scan)
+		return true;
+
+	if (length < 32) {
+		dev_err(dev,
+			"CRYPTO OPS TLV should be at least 32B, is %dB offset:%u\n",
+			length, offset);
+		return false;
+	}
+
+	caps->crypto_ops = readl(data);
+	caps->crypto_enable_off = data - ctrl_mem + 16;
+	caps->tls_resync_ss = rx_stream_scan;
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 int nfp_net_tlv_caps_parse(struct device *dev, u8 __iomem *ctrl_mem,
 			   struct nfp_net_tlv_caps *caps)
 {
@@ -71,8 +103,13 @@ int nfp_net_tlv_caps_parse(struct device *dev, u8 __iomem *ctrl_mem,
 		data += 4;
 
 		if (length % NFP_NET_CFG_TLV_LENGTH_INC) {
+<<<<<<< HEAD
 			dev_err(dev, "TLV size not multiple of %u len:%u\n",
 				NFP_NET_CFG_TLV_LENGTH_INC, length);
+=======
+			dev_err(dev, "TLV size not multiple of %u offset:%u len:%u\n",
+				NFP_NET_CFG_TLV_LENGTH_INC, offset, length);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 		if (data + length > end) {
@@ -91,14 +128,24 @@ int nfp_net_tlv_caps_parse(struct device *dev, u8 __iomem *ctrl_mem,
 			if (!length)
 				return 0;
 
+<<<<<<< HEAD
 			dev_err(dev, "END TLV should be empty, has len:%d\n",
 				length);
+=======
+			dev_err(dev, "END TLV should be empty, has offset:%u len:%d\n",
+				offset, length);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		case NFP_NET_CFG_TLV_TYPE_ME_FREQ:
 			if (length != 4) {
 				dev_err(dev,
+<<<<<<< HEAD
 					"ME FREQ TLV should be 4B, is %dB\n",
 					length);
+=======
+					"ME FREQ TLV should be 4B, is %dB offset:%u\n",
+					length, offset);
+>>>>>>> upstream/android-13
 				return -EINVAL;
 			}
 
@@ -113,6 +160,50 @@ int nfp_net_tlv_caps_parse(struct device *dev, u8 __iomem *ctrl_mem,
 				caps->mbox_len = length;
 			}
 			break;
+<<<<<<< HEAD
+=======
+		case NFP_NET_CFG_TLV_TYPE_EXPERIMENTAL0:
+		case NFP_NET_CFG_TLV_TYPE_EXPERIMENTAL1:
+			dev_warn(dev,
+				 "experimental TLV type:%u offset:%u len:%u\n",
+				 FIELD_GET(NFP_NET_CFG_TLV_HEADER_TYPE, hdr),
+				 offset, length);
+			break;
+		case NFP_NET_CFG_TLV_TYPE_REPR_CAP:
+			if (length < 4) {
+				dev_err(dev, "REPR CAP TLV short %dB < 4B offset:%u\n",
+					length, offset);
+				return -EINVAL;
+			}
+
+			caps->repr_cap = readl(data);
+			break;
+		case NFP_NET_CFG_TLV_TYPE_MBOX_CMSG_TYPES:
+			if (length >= 4)
+				caps->mbox_cmsg_types = readl(data);
+			break;
+		case NFP_NET_CFG_TLV_TYPE_CRYPTO_OPS:
+			if (!nfp_net_tls_parse_crypto_ops(dev, caps, ctrl_mem,
+							  data, length, offset,
+							  false))
+				return -EINVAL;
+			break;
+		case NFP_NET_CFG_TLV_TYPE_VNIC_STATS:
+			if ((data - ctrl_mem) % 8) {
+				dev_warn(dev, "VNIC STATS TLV misaligned, ignoring offset:%u len:%u\n",
+					 offset, length);
+				break;
+			}
+			caps->vnic_stats_off = data - ctrl_mem;
+			caps->vnic_stats_cnt = length / 10;
+			break;
+		case NFP_NET_CFG_TLV_TYPE_CRYPTO_OPS_RX_SCAN:
+			if (!nfp_net_tls_parse_crypto_ops(dev, caps, ctrl_mem,
+							  data, length, offset,
+							  true))
+				return -EINVAL;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			if (!FIELD_GET(NFP_NET_CFG_TLV_HEADER_REQUIRED, hdr))
 				break;

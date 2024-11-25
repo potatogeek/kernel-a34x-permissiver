@@ -6,4 +6,8 @@ netup-unidvb-objs += netup_unidvb_spi.o
 
 obj-$(CONFIG_DVB_NETUP_UNIDVB) += netup-unidvb.o
 
+<<<<<<< HEAD
 ccflags-y += -Idrivers/media/dvb-frontends
+=======
+ccflags-y += -I $(srctree)/drivers/media/dvb-frontends
+>>>>>>> upstream/android-13

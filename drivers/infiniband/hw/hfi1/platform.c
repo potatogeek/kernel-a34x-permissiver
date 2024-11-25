@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015, 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015, 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/firmware.h>
@@ -634,7 +640,11 @@ static void apply_tx_lanes(struct hfi1_pportdata *ppd, u8 field_id,
 			   u32 config_data, const char *message)
 {
 	u8 i;
+<<<<<<< HEAD
 	int ret = HCMD_SUCCESS;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < 4; i++) {
 		ret = load_8051_config(ppd->dd, field_id, i, config_data);
@@ -668,8 +678,13 @@ static u8 aoc_low_power_setting(struct hfi1_pportdata *ppd)
 
 	/* active optical cables only */
 	switch ((cache[QSFP_MOD_TECH_OFFS] & 0xF0) >> 4) {
+<<<<<<< HEAD
 	case 0x0 ... 0x9: /* fallthrough */
 	case 0xC: /* fallthrough */
+=======
+	case 0x0 ... 0x9: fallthrough;
+	case 0xC: fallthrough;
+>>>>>>> upstream/android-13
 	case 0xE:
 		/* active AOC */
 		power_class = get_qsfp_power_class(cache[QSFP_MOD_PWR_OFFS]);
@@ -899,8 +914,13 @@ static int tune_qsfp(struct hfi1_pportdata *ppd,
 
 		*ptr_tuning_method = OPA_PASSIVE_TUNING;
 		break;
+<<<<<<< HEAD
 	case 0x0 ... 0x9: /* fallthrough */
 	case 0xC: /* fallthrough */
+=======
+	case 0x0 ... 0x9: fallthrough;
+	case 0xC: fallthrough;
+>>>>>>> upstream/android-13
 	case 0xE:
 		ret = tune_active_qsfp(ppd, ptr_tx_preset, ptr_rx_preset,
 				       ptr_total_atten);
@@ -909,7 +929,11 @@ static int tune_qsfp(struct hfi1_pportdata *ppd,
 
 		*ptr_tuning_method = OPA_ACTIVE_TUNING;
 		break;
+<<<<<<< HEAD
 	case 0xD: /* fallthrough */
+=======
+	case 0xD: fallthrough;
+>>>>>>> upstream/android-13
 	case 0xF:
 	default:
 		dd_dev_warn(ppd->dd, "%s: Unknown/unsupported cable\n",

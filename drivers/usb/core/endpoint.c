@@ -84,6 +84,7 @@ static ssize_t interval_show(struct device *dev, struct device_attribute *attr,
 			     char *buf)
 {
 	struct ep_device *ep = to_ep_device(dev);
+<<<<<<< HEAD
 	char unit;
 	unsigned interval = 0;
 	unsigned in;
@@ -118,6 +119,15 @@ static ssize_t interval_show(struct device *dev, struct device_attribute *attr,
 	if (interval % 1000)
 		unit = 'u';
 	else {
+=======
+	unsigned int interval;
+	char unit;
+
+	interval = usb_decode_interval(ep->desc, ep->udev->speed);
+	if (interval % 1000) {
+		unit = 'u';
+	} else {
+>>>>>>> upstream/android-13
 		unit = 'm';
 		interval /= 1000;
 	}
@@ -153,7 +163,11 @@ static struct attribute *ep_dev_attrs[] = {
 	&dev_attr_direction.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static struct attribute_group ep_dev_attr_grp = {
+=======
+static const struct attribute_group ep_dev_attr_grp = {
+>>>>>>> upstream/android-13
 	.attrs = ep_dev_attrs,
 };
 static const struct attribute_group *ep_dev_groups[] = {

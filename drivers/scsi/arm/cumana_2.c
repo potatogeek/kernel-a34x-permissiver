@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/acorn/scsi/cumana_2.c
  *
  *  Copyright (C) 1997-2005 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Changelog:
  *   30-08-1997	RMK	0.0.0	Created, READONLY version.
  *   22-01-1998	RMK	0.0.1	Updated to 2.1.80.
@@ -26,11 +33,18 @@
 #include <linux/interrupt.h>
 #include <linux/init.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/dma.h>
 #include <asm/ecard.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "../scsi.h"
 #include <scsi/scsi_host.h>
@@ -169,6 +183,7 @@ cumanascsi_2_dma_setup(struct Scsi_Host *host, struct scsi_pointer *SCp,
 
 		bufs = copy_SCp_to_sg(&info->sg[0], SCp, NR_SG);
 
+<<<<<<< HEAD
 		if (direction == DMA_OUT)
 			map_dir = DMA_TO_DEVICE,
 			dma_dir = DMA_MODE_WRITE,
@@ -177,6 +192,17 @@ cumanascsi_2_dma_setup(struct Scsi_Host *host, struct scsi_pointer *SCp,
 			map_dir = DMA_FROM_DEVICE,
 			dma_dir = DMA_MODE_READ,
 			alatch_dir = ALATCH_DMA_IN;
+=======
+		if (direction == DMA_OUT) {
+			map_dir = DMA_TO_DEVICE;
+			dma_dir = DMA_MODE_WRITE;
+			alatch_dir = ALATCH_DMA_OUT;
+		} else {
+			map_dir = DMA_FROM_DEVICE;
+			dma_dir = DMA_MODE_READ;
+			alatch_dir = ALATCH_DMA_IN;
+		}
+>>>>>>> upstream/android-13
 
 		dma_map_sg(dev, info->sg, bufs, map_dir);
 
@@ -329,10 +355,19 @@ cumanascsi_2_set_proc_info(struct Scsi_Host *host, char *buffer, int length)
 				cumanascsi_2_terminator_ctl(host, 0);
 			else
 				ret = -EINVAL;
+<<<<<<< HEAD
 		} else
 			ret = -EINVAL;
 	} else
 		ret = -EINVAL;
+=======
+		} else {
+			ret = -EINVAL;
+		}
+	} else {
+		ret = -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -367,7 +402,10 @@ static struct scsi_host_template cumanascsi2_template = {
 	.this_id			= 7,
 	.sg_tablesize			= SG_MAX_SEGMENTS,
 	.dma_boundary			= IOMD_DMA_BOUNDARY,
+<<<<<<< HEAD
 	.use_clustering			= DISABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.proc_name			= "cumanascsi2",
 };
 

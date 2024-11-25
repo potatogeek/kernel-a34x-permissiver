@@ -6,6 +6,10 @@
 
 #include <linux/kernel.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 #include <linux/init.h>
 

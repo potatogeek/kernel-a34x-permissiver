@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TI DAVINCI I2C adapter driver.
  *
@@ -8,6 +12,7 @@
  *
  * ----------------------------------------------------------------------------
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,9 @@
  * GNU General Public License for more details.
  * ----------------------------------------------------------------------------
  *
+=======
+ * ----------------------------------------------------------------------------
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -770,7 +778,10 @@ static int davinci_i2c_probe(struct platform_device *pdev)
 {
 	struct davinci_i2c_dev *dev;
 	struct i2c_adapter *adap;
+<<<<<<< HEAD
 	struct resource *mem;
+=======
+>>>>>>> upstream/android-13
 	struct i2c_bus_recovery_info *rinfo;
 	int r, irq;
 
@@ -778,10 +789,14 @@ static int davinci_i2c_probe(struct platform_device *pdev)
 	if (irq <= 0) {
 		if (!irq)
 			irq = -ENXIO;
+<<<<<<< HEAD
 		if (irq != -EPROBE_DEFER)
 			dev_err(&pdev->dev,
 				"can't get irq resource ret=%d\n", irq);
 		return irq;
+=======
+		return dev_err_probe(&pdev->dev, irq, "can't get irq resource\n");
+>>>>>>> upstream/android-13
 	}
 
 	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
@@ -823,8 +838,12 @@ static int davinci_i2c_probe(struct platform_device *pdev)
 	if (IS_ERR(dev->clk))
 		return PTR_ERR(dev->clk);
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	dev->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dev->base)) {
 		return PTR_ERR(dev->base);
 	}

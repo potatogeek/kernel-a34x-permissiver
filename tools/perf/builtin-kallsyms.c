@@ -1,18 +1,31 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * builtin-kallsyms.c
  *
  * Builtin command: Look for a symbol in the running kernel and its modules
  *
  * Copyright (C) 2017, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
+<<<<<<< HEAD
  *
  * Released under the GPL v2. (and only v2, not any later version)
+=======
+>>>>>>> upstream/android-13
  */
 #include <inttypes.h>
 #include "builtin.h"
 #include <linux/compiler.h>
 #include <subcmd/parse-options.h>
 #include "debug.h"
+<<<<<<< HEAD
 #include "machine.h"
+=======
+#include "dso.h"
+#include "machine.h"
+#include "map.h"
+>>>>>>> upstream/android-13
 #include "symbol.h"
 
 static int __cmd_kallsyms(int argc, const char **argv)

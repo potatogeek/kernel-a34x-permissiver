@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * VMware vSockets Driver
  *
  * Copyright (C) 2007-2013 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AF_VSOCK_H__
@@ -18,7 +25,11 @@
 
 #include <linux/kernel.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #include <linux/vm_sockets.h>
+=======
+#include <uapi/linux/vm_sockets.h>
+>>>>>>> upstream/android-13
 
 #include "vsock_addr.h"
 
@@ -35,6 +46,10 @@ extern spinlock_t vsock_table_lock;
 struct vsock_sock {
 	/* sk must be the first member. */
 	struct sock sk;
+<<<<<<< HEAD
+=======
+	const struct vsock_transport *transport;
+>>>>>>> upstream/android-13
 	struct sockaddr_vm local_addr;
 	struct sockaddr_vm remote_addr;
 	/* Links for the global tables of bound and connected sockets. */
@@ -72,16 +87,28 @@ struct vsock_sock {
 	bool sent_request;
 	bool ignore_connecting_rst;
 
+<<<<<<< HEAD
+=======
+	/* Protected by lock_sock(sk) */
+	u64 buffer_size;
+	u64 buffer_min_size;
+	u64 buffer_max_size;
+
+>>>>>>> upstream/android-13
 	/* Private to transport. */
 	void *trans;
 };
 
 s64 vsock_stream_has_data(struct vsock_sock *vsk);
 s64 vsock_stream_has_space(struct vsock_sock *vsk);
+<<<<<<< HEAD
 struct sock *__vsock_create(struct net *net,
 			    struct socket *sock,
 			    struct sock *parent,
 			    gfp_t priority, unsigned short type, int kern);
+=======
+struct sock *vsock_create_connected(struct sock *parent);
+>>>>>>> upstream/android-13
 
 /**** TRANSPORT ****/
 
@@ -96,7 +123,23 @@ struct vsock_transport_send_notify_data {
 	u64 data2; /* Transport-defined. */
 };
 
+<<<<<<< HEAD
 struct vsock_transport {
+=======
+/* Transport features flags */
+/* Transport provides host->guest communication */
+#define VSOCK_TRANSPORT_F_H2G		0x00000001
+/* Transport provides guest->host communication */
+#define VSOCK_TRANSPORT_F_G2H		0x00000002
+/* Transport provides DGRAM communication */
+#define VSOCK_TRANSPORT_F_DGRAM		0x00000004
+/* Transport provides local (loopback) communication */
+#define VSOCK_TRANSPORT_F_LOCAL		0x00000008
+
+struct vsock_transport {
+	struct module *module;
+
+>>>>>>> upstream/android-13
 	/* Initialize/tear-down socket. */
 	int (*init)(struct vsock_sock *, struct vsock_sock *);
 	void (*destruct)(struct vsock_sock *);
@@ -128,6 +171,17 @@ struct vsock_transport {
 	bool (*stream_is_active)(struct vsock_sock *);
 	bool (*stream_allow)(u32 cid, u32 port);
 
+<<<<<<< HEAD
+=======
+	/* SEQ_PACKET. */
+	ssize_t (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
+				     int flags);
+	int (*seqpacket_enqueue)(struct vsock_sock *vsk, struct msghdr *msg,
+				 size_t len);
+	bool (*seqpacket_allow)(u32 remote_cid);
+	u32 (*seqpacket_has_data)(struct vsock_sock *vsk);
+
+>>>>>>> upstream/android-13
 	/* Notification. */
 	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
 	int (*notify_poll_out)(struct vsock_sock *, size_t, bool *);
@@ -147,10 +201,16 @@ struct vsock_transport {
 		struct vsock_transport_send_notify_data *);
 	int (*notify_send_post_enqueue)(struct vsock_sock *, ssize_t,
 		struct vsock_transport_send_notify_data *);
+<<<<<<< HEAD
+=======
+	/* sk_lock held by the caller */
+	void (*notify_buffer_size)(struct vsock_sock *, u64 *);
+>>>>>>> upstream/android-13
 
 	/* Shutdown. */
 	int (*shutdown)(struct vsock_sock *, int);
 
+<<<<<<< HEAD
 	/* Buffer sizes. */
 	void (*set_buffer_size)(struct vsock_sock *, u64);
 	void (*set_min_buffer_size)(struct vsock_sock *, u64);
@@ -159,12 +219,15 @@ struct vsock_transport {
 	u64 (*get_min_buffer_size)(struct vsock_sock *);
 	u64 (*get_max_buffer_size)(struct vsock_sock *);
 
+=======
+>>>>>>> upstream/android-13
 	/* Addressing. */
 	u32 (*get_local_cid)(void);
 };
 
 /**** CORE ****/
 
+<<<<<<< HEAD
 int __vsock_core_init(const struct vsock_transport *t, struct module *owner);
 static inline int vsock_core_init(const struct vsock_transport *t)
 {
@@ -174,6 +237,13 @@ void vsock_core_exit(void);
 
 /* The transport may downcast this to access transport-specific functions */
 const struct vsock_transport *vsock_core_get_transport(void);
+=======
+int vsock_core_register(const struct vsock_transport *t, int features);
+void vsock_core_unregister(const struct vsock_transport *t);
+
+/* The transport may downcast this to access transport-specific functions */
+const struct vsock_transport *vsock_core_get_transport(struct vsock_sock *vsk);
+>>>>>>> upstream/android-13
 
 /**** UTILS ****/
 
@@ -201,6 +271,11 @@ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
 					 struct sockaddr_vm *dst);
 void vsock_remove_sock(struct vsock_sock *vsk);
 void vsock_for_each_connected_socket(void (*fn)(struct sock *sk));
+<<<<<<< HEAD
+=======
+int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk);
+bool vsock_find_cid(unsigned int cid);
+>>>>>>> upstream/android-13
 
 /**** TAP ****/
 

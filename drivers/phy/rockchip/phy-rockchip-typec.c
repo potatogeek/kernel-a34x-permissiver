@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author: Chris Zhong <zyw@rock-chips.com>
  *         Kever Yang <kever.yang@rock-chips.com>
  *
+<<<<<<< HEAD
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * The ROCKCHIP Type-C PHY has two PLL clocks. The first PLL clock
  * is used for USB3, the second PLL clock is used for DP. This Type-C PHY has
  * 3 working modes: USB3 only mode, DP only mode, and USB3+DP mode.
@@ -42,7 +49,10 @@
  * This Type-C PHY driver supports normal and flip orientation. The orientation
  * is reported by the EXTCON_PROP_USB_TYPEC_POLARITY property: true is flip
  * orientation, false is normal orientation.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -356,7 +366,11 @@ struct usb3phy_reg {
 };
 
 /**
+<<<<<<< HEAD
  * struct rockchip_usb3phy_port_cfg: usb3-phy port configuration.
+=======
+ * struct rockchip_usb3phy_port_cfg - usb3-phy port configuration.
+>>>>>>> upstream/android-13
  * @reg: the base address for usb3-phy config.
  * @typec_conn_dir: the register of type-c connector direction.
  * @usb3tousb2_en: the register of type-c force usb2 to usb2 enable.
@@ -400,7 +414,11 @@ struct phy_reg {
 	u32 addr;
 };
 
+<<<<<<< HEAD
 struct phy_reg usb3_pll_cfg[] = {
+=======
+static struct phy_reg usb3_pll_cfg[] = {
+>>>>>>> upstream/android-13
 	{ 0xf0,		CMN_PLL0_VCOCAL_INIT },
 	{ 0x18,		CMN_PLL0_VCOCAL_ITER },
 	{ 0xd0,		CMN_PLL0_INTDIV },
@@ -417,7 +435,11 @@ struct phy_reg usb3_pll_cfg[] = {
 	{ 0x8,		CMN_DIAG_PLL0_LF_PROG },
 };
 
+<<<<<<< HEAD
 struct phy_reg dp_pll_cfg[] = {
+=======
+static struct phy_reg dp_pll_cfg[] = {
+>>>>>>> upstream/android-13
 	{ 0xf0,		CMN_PLL1_VCOCAL_INIT },
 	{ 0x18,		CMN_PLL1_VCOCAL_ITER },
 	{ 0x30b9,	CMN_PLL1_VCOCAL_START },
@@ -1145,8 +1167,13 @@ static int rockchip_typec_phy_probe(struct platform_device *pdev)
 	}
 
 	if (!tcphy->port_cfgs) {
+<<<<<<< HEAD
 		dev_err(dev, "no phy-config can be matched with %s node\n",
 			np->name);
+=======
+		dev_err(dev, "no phy-config can be matched with %pOFn node\n",
+			np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1176,19 +1203,33 @@ static int rockchip_typec_phy_probe(struct platform_device *pdev)
 	for_each_available_child_of_node(np, child_np) {
 		struct phy *phy;
 
+<<<<<<< HEAD
 		if (!of_node_cmp(child_np->name, "dp-port"))
 			phy = devm_phy_create(dev, child_np,
 					      &rockchip_dp_phy_ops);
 		else if (!of_node_cmp(child_np->name, "usb3-port"))
+=======
+		if (of_node_name_eq(child_np, "dp-port"))
+			phy = devm_phy_create(dev, child_np,
+					      &rockchip_dp_phy_ops);
+		else if (of_node_name_eq(child_np, "usb3-port"))
+>>>>>>> upstream/android-13
 			phy = devm_phy_create(dev, child_np,
 					      &rockchip_usb3_phy_ops);
 		else
 			continue;
 
 		if (IS_ERR(phy)) {
+<<<<<<< HEAD
 			dev_err(dev, "failed to create phy: %s\n",
 				child_np->name);
 			pm_runtime_disable(dev);
+=======
+			dev_err(dev, "failed to create phy: %pOFn\n",
+				child_np);
+			pm_runtime_disable(dev);
+			of_node_put(child_np);
+>>>>>>> upstream/android-13
 			return PTR_ERR(phy);
 		}
 

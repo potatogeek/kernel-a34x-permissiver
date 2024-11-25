@@ -641,8 +641,13 @@ alloc_scq(struct idt77252_dev *card, int class)
 	scq = kzalloc(sizeof(struct scq_info), GFP_KERNEL);
 	if (!scq)
 		return NULL;
+<<<<<<< HEAD
 	scq->base = dma_zalloc_coherent(&card->pcidev->dev, SCQ_SIZE,
 					&scq->paddr, GFP_KERNEL);
+=======
+	scq->base = dma_alloc_coherent(&card->pcidev->dev, SCQ_SIZE,
+				       &scq->paddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (scq->base == NULL) {
 		kfree(scq);
 		return NULL;
@@ -835,6 +840,10 @@ queue_skb(struct idt77252_dev *card, struct vc_map *vc,
 	unsigned long flags;
 	int error;
 	int aal;
+<<<<<<< HEAD
+=======
+	u32 word4;
+>>>>>>> upstream/android-13
 
 	if (skb->len == 0) {
 		printk("%s: invalid skb->len (%d)\n", card->name, skb->len);
@@ -846,6 +855,11 @@ queue_skb(struct idt77252_dev *card, struct vc_map *vc,
 
 	tbd = &IDT77252_PRV_TBD(skb);
 	vcc = ATM_SKB(skb)->vcc;
+<<<<<<< HEAD
+=======
+	word4 = (skb->data[0] << 24) | (skb->data[1] << 16) |
+			(skb->data[2] <<  8) | (skb->data[3] <<  0);
+>>>>>>> upstream/android-13
 
 	IDT77252_PRV_PADDR(skb) = dma_map_single(&card->pcidev->dev, skb->data,
 						 skb->len, DMA_TO_DEVICE);
@@ -859,8 +873,12 @@ queue_skb(struct idt77252_dev *card, struct vc_map *vc,
 		tbd->word_1 = SAR_TBD_OAM | ATM_CELL_PAYLOAD | SAR_TBD_EPDU;
 		tbd->word_2 = IDT77252_PRV_PADDR(skb) + 4;
 		tbd->word_3 = 0x00000000;
+<<<<<<< HEAD
 		tbd->word_4 = (skb->data[0] << 24) | (skb->data[1] << 16) |
 			      (skb->data[2] <<  8) | (skb->data[3] <<  0);
+=======
+		tbd->word_4 = word4;
+>>>>>>> upstream/android-13
 
 		if (test_bit(VCF_RSV, &vc->flags))
 			vc = card->vcs[0];
@@ -890,8 +908,12 @@ queue_skb(struct idt77252_dev *card, struct vc_map *vc,
 
 		tbd->word_2 = IDT77252_PRV_PADDR(skb) + 4;
 		tbd->word_3 = 0x00000000;
+<<<<<<< HEAD
 		tbd->word_4 = (skb->data[0] << 24) | (skb->data[1] << 16) |
 			      (skb->data[2] <<  8) | (skb->data[3] <<  0);
+=======
+		tbd->word_4 = word4;
+>>>>>>> upstream/android-13
 		break;
 
 	case ATM_AAL5:
@@ -971,8 +993,13 @@ init_rsq(struct idt77252_dev *card)
 {
 	struct rsq_entry *rsqe;
 
+<<<<<<< HEAD
 	card->rsq.base = dma_zalloc_coherent(&card->pcidev->dev, RSQSIZE,
 					     &card->rsq.paddr, GFP_KERNEL);
+=======
+	card->rsq.base = dma_alloc_coherent(&card->pcidev->dev, RSQSIZE,
+					    &card->rsq.paddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (card->rsq.base == NULL) {
 		printk("%s: can't allocate RSQ.\n", card->name);
 		return -1;
@@ -1379,7 +1406,10 @@ init_tsq(struct idt77252_dev *card)
 		printk("%s: can't allocate TSQ.\n", card->name);
 		return -1;
 	}
+<<<<<<< HEAD
 	memset(card->tsq.base, 0, TSQSIZE);
+=======
+>>>>>>> upstream/android-13
 
 	card->tsq.last = card->tsq.base + TSQ_NUM_ENTRIES - 1;
 	card->tsq.next = card->tsq.last;
@@ -1784,12 +1814,15 @@ set_tct(struct idt77252_dev *card, struct vc_map *vc)
 /*****************************************************************************/
 
 static __inline__ int
+<<<<<<< HEAD
 idt77252_fbq_level(struct idt77252_dev *card, int queue)
 {
 	return (readl(SAR_REG_STAT) >> (16 + (queue << 2))) & 0x0f;
 }
 
 static __inline__ int
+=======
+>>>>>>> upstream/android-13
 idt77252_fbq_full(struct idt77252_dev *card, int queue)
 {
 	return (readl(SAR_REG_STAT) >> (16 + (queue << 2))) == 0x0f;
@@ -3390,10 +3423,17 @@ static int init_card(struct atm_dev *dev)
 	writel(0, SAR_REG_GP);
 
 	/* Initialize RAW Cell Handle Register  */
+<<<<<<< HEAD
 	card->raw_cell_hnd = dma_zalloc_coherent(&card->pcidev->dev,
 						 2 * sizeof(u32),
 						 &card->raw_cell_paddr,
 						 GFP_KERNEL);
+=======
+	card->raw_cell_hnd = dma_alloc_coherent(&card->pcidev->dev,
+						2 * sizeof(u32),
+						&card->raw_cell_paddr,
+						GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!card->raw_cell_hnd) {
 		printk("%s: memory allocation failure.\n", card->name);
 		deinit_card(card);
@@ -3542,7 +3582,11 @@ static int idt77252_preset(struct idt77252_dev *card)
 		return -1;
 	}
 	if (!(pci_command & PCI_COMMAND_IO)) {
+<<<<<<< HEAD
 		printk("%s: PCI_COMMAND: %04x (???)\n",
+=======
+		printk("%s: PCI_COMMAND: %04x (?)\n",
+>>>>>>> upstream/android-13
 		       card->name, pci_command);
 		deinit_card(card);
 		return (-1);
@@ -3743,6 +3787,7 @@ static int __init idt77252_init(void)
 	struct sk_buff *skb;
 
 	printk("%s: at %p\n", __func__, idt77252_init);
+<<<<<<< HEAD
 
 	if (sizeof(skb->cb) < sizeof(struct atm_skb_data) +
 			      sizeof(struct idt77252_skb_prv)) {
@@ -3753,6 +3798,9 @@ static int __init idt77252_init(void)
 		return -EIO;
 	}
 
+=======
+	BUILD_BUG_ON(sizeof(skb->cb) < sizeof(struct idt77252_skb_prv) + sizeof(struct atm_skb_data));
+>>>>>>> upstream/android-13
 	return pci_register_driver(&idt77252_driver);
 }
 

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/devfreq/governor_userspace.c
  *
  *  Copyright (C) 2011 Samsung Electronics
  *	MyungJoo Ham <myungjoo.ham@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -26,6 +33,7 @@ static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
 {
 	struct userspace_data *data = df->data;
 
+<<<<<<< HEAD
 	if (data->valid) {
 		unsigned long adjusted_freq = data->user_frequency;
 
@@ -44,6 +52,18 @@ static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
 
 static ssize_t store_freq(struct device *dev, struct device_attribute *attr,
 			  const char *buf, size_t count)
+=======
+	if (data->valid)
+		*freq = data->user_frequency;
+	else
+		*freq = df->previous_freq; /* No user freq specified yet */
+
+	return 0;
+}
+
+static ssize_t set_freq_store(struct device *dev, struct device_attribute *attr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct devfreq *devfreq = to_devfreq(dev);
 	struct userspace_data *data;
@@ -63,8 +83,13 @@ static ssize_t store_freq(struct device *dev, struct device_attribute *attr,
 	return err;
 }
 
+<<<<<<< HEAD
 static ssize_t show_freq(struct device *dev, struct device_attribute *attr,
 			 char *buf)
+=======
+static ssize_t set_freq_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct devfreq *devfreq = to_devfreq(dev);
 	struct userspace_data *data;
@@ -81,7 +106,11 @@ static ssize_t show_freq(struct device *dev, struct device_attribute *attr,
 	return err;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(set_freq, 0644, show_freq, store_freq);
+=======
+static DEVICE_ATTR_RW(set_freq);
+>>>>>>> upstream/android-13
 static struct attribute *dev_entries[] = {
 	&dev_attr_set_freq.attr,
 	NULL,
@@ -142,7 +171,11 @@ static int devfreq_userspace_handler(struct devfreq *devfreq,
 }
 
 static struct devfreq_governor devfreq_userspace = {
+<<<<<<< HEAD
 	.name = "userspace",
+=======
+	.name = DEVFREQ_GOV_USERSPACE,
+>>>>>>> upstream/android-13
 	.get_target_freq = devfreq_userspace_func,
 	.event_handler = devfreq_userspace_handler,
 };

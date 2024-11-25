@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Driver for the Conexant Riptide Soundchip
  *
  *	Copyright (c) 2004 Peter Gruber <nokos@gmx.net>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 /*
   History:
@@ -117,7 +124,10 @@
 MODULE_AUTHOR("Peter Gruber <nokos@gmx.net>");
 MODULE_DESCRIPTION("riptide");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Conexant,Riptide}}");
+=======
+>>>>>>> upstream/android-13
 MODULE_FIRMWARE("riptide.hex");
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
@@ -375,9 +385,15 @@ enum RT_CHANNEL_IDS {
 enum { SB_CMD = 0, MODEM_CMD, I2S_CMD0, I2S_CMD1, FM_CMD, MAX_CMD };
 
 struct lbuspath {
+<<<<<<< HEAD
 	unsigned char *noconv;
 	unsigned char *stereo;
 	unsigned char *mono;
+=======
+	const unsigned char *noconv;
+	const unsigned char *stereo;
+	const unsigned char *mono;
+>>>>>>> upstream/android-13
 };
 
 struct cmdport {
@@ -459,7 +475,10 @@ struct snd_riptide {
 	union firmware_version firmware;
 
 	spinlock_t lock;
+<<<<<<< HEAD
 	struct tasklet_struct riptide_tq;
+=======
+>>>>>>> upstream/android-13
 	struct snd_info_entry *proc_entry;
 
 	unsigned long received_irqs;
@@ -478,7 +497,11 @@ struct sgd {			/* scatter gather desriptor */
 
 struct pcmhw {			/* pcm descriptor */
 	struct lbuspath paths;
+<<<<<<< HEAD
 	unsigned char *lbuspath;
+=======
+	const unsigned char *lbuspath;
+>>>>>>> upstream/android-13
 	unsigned char source;
 	unsigned char intdec[2];
 	unsigned char mixer;
@@ -531,7 +554,11 @@ MODULE_DEVICE_TABLE(pci, snd_riptide_ids);
 /*
  */
 
+<<<<<<< HEAD
 static unsigned char lbusin2out[E2SINK_MAX + 1][2] = {
+=======
+static const unsigned char lbusin2out[E2SINK_MAX + 1][2] = {
+>>>>>>> upstream/android-13
 	{NO_OUT, LS_NONE1}, {NO_OUT, LS_NONE2}, {NO_OUT, LS_NONE1}, {NO_OUT,
 								     LS_NONE2},
 	{NO_OUT, LS_NONE1}, {NO_OUT, LS_NONE2}, {NO_OUT, LS_NONE1}, {NO_OUT,
@@ -571,6 +598,7 @@ static unsigned char lbusin2out[E2SINK_MAX + 1][2] = {
 								     LS_NONE2},
 };
 
+<<<<<<< HEAD
 static unsigned char lbus_play_opl3[] = {
 	DIGITAL_MIXER_IN0 + FM_MIXER, 0xff
 };
@@ -628,6 +656,65 @@ static unsigned char play_sources[] = {
 	ARM2LBUS_FIFO4, ARM2LBUS_FIFO1, ARM2LBUS_FIFO2,
 };
 static struct lbuspath lbus_play_paths[] = {
+=======
+static const unsigned char lbus_play_opl3[] = {
+	DIGITAL_MIXER_IN0 + FM_MIXER, 0xff
+};
+static const unsigned char lbus_play_modem[] = {
+	DIGITAL_MIXER_IN0 + MODEM_MIXER, 0xff
+};
+static const unsigned char lbus_play_i2s[] = {
+	INTER0_IN + I2S_INTDEC, DIGITAL_MIXER_IN0 + I2S_MIXER, 0xff
+};
+static const unsigned char lbus_play_out[] = {
+	PDAC2ACLNK, 0xff
+};
+static const unsigned char lbus_play_outhp[] = {
+	HNDSPK2ACLNK, 0xff
+};
+static const unsigned char lbus_play_noconv1[] = {
+	DIGITAL_MIXER_IN0, 0xff
+};
+static const unsigned char lbus_play_stereo1[] = {
+	INTER0_IN, DIGITAL_MIXER_IN0, 0xff
+};
+static const unsigned char lbus_play_mono1[] = {
+	INTERM0_IN, DIGITAL_MIXER_IN0, 0xff
+};
+static const unsigned char lbus_play_noconv2[] = {
+	DIGITAL_MIXER_IN1, 0xff
+};
+static const unsigned char lbus_play_stereo2[] = {
+	INTER1_IN, DIGITAL_MIXER_IN1, 0xff
+};
+static const unsigned char lbus_play_mono2[] = {
+	INTERM1_IN, DIGITAL_MIXER_IN1, 0xff
+};
+static const unsigned char lbus_play_noconv3[] = {
+	DIGITAL_MIXER_IN2, 0xff
+};
+static const unsigned char lbus_play_stereo3[] = {
+	INTER2_IN, DIGITAL_MIXER_IN2, 0xff
+};
+static const unsigned char lbus_play_mono3[] = {
+	INTERM2_IN, DIGITAL_MIXER_IN2, 0xff
+};
+static const unsigned char lbus_rec_noconv1[] = {
+	LBUS2ARM_FIFO5, 0xff
+};
+static const unsigned char lbus_rec_stereo1[] = {
+	DECIM0_IN, LBUS2ARM_FIFO5, 0xff
+};
+static const unsigned char lbus_rec_mono1[] = {
+	DECIMM3_IN, LBUS2ARM_FIFO5, 0xff
+};
+
+static const unsigned char play_ids[] = { 4, 1, 2, };
+static const unsigned char play_sources[] = {
+	ARM2LBUS_FIFO4, ARM2LBUS_FIFO1, ARM2LBUS_FIFO2,
+};
+static const struct lbuspath lbus_play_paths[] = {
+>>>>>>> upstream/android-13
 	{
 	 .noconv = lbus_play_noconv1,
 	 .stereo = lbus_play_stereo1,
@@ -751,7 +838,11 @@ static int loadfirmware(struct cmdif *cif, const unsigned char *img,
 
 static void
 alloclbuspath(struct cmdif *cif, unsigned char source,
+<<<<<<< HEAD
 	      unsigned char *path, unsigned char *mixer, unsigned char *s)
+=======
+	      const unsigned char *path, unsigned char *mixer, unsigned char *s)
+>>>>>>> upstream/android-13
 {
 	while (*path != 0xff) {
 		unsigned char sink, type;
@@ -779,7 +870,11 @@ alloclbuspath(struct cmdif *cif, unsigned char source,
 			}
 		}
 		if (*path++ & SPLIT_PATH) {
+<<<<<<< HEAD
 			unsigned char *npath = path;
+=======
+			const unsigned char *npath = path;
+>>>>>>> upstream/android-13
 
 			while (*npath != 0xff)
 				npath++;
@@ -789,7 +884,11 @@ alloclbuspath(struct cmdif *cif, unsigned char source,
 }
 
 static void
+<<<<<<< HEAD
 freelbuspath(struct cmdif *cif, unsigned char source, unsigned char *path)
+=======
+freelbuspath(struct cmdif *cif, unsigned char source, const unsigned char *path)
+>>>>>>> upstream/android-13
 {
 	while (*path != 0xff) {
 		unsigned char sink;
@@ -801,7 +900,11 @@ freelbuspath(struct cmdif *cif, unsigned char source, unsigned char *path)
 			source = lbusin2out[sink][0];
 		}
 		if (*path++ & SPLIT_PATH) {
+<<<<<<< HEAD
 			unsigned char *npath = path;
+=======
+			const unsigned char *npath = path;
+>>>>>>> upstream/android-13
 
 			while (*npath != 0xff)
 				npath++;
@@ -1084,9 +1187,15 @@ getmixer(struct cmdif *cif, short num, unsigned short *rval,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void riptide_handleirq(unsigned long dev_id)
 {
 	struct snd_riptide *chip = (void *)dev_id;
+=======
+static irqreturn_t riptide_handleirq(int irq, void *dev_id)
+{
+	struct snd_riptide *chip = dev_id;
+>>>>>>> upstream/android-13
 	struct cmdif *cif = chip->cif;
 	struct snd_pcm_substream *substream[PLAYBACK_SUBSTREAMS + 1];
 	struct snd_pcm_runtime *runtime;
@@ -1097,15 +1206,31 @@ static void riptide_handleirq(unsigned long dev_id)
 	unsigned int flag;
 
 	if (!cif)
+<<<<<<< HEAD
 		return;
+=======
+		return IRQ_HANDLED;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < PLAYBACK_SUBSTREAMS; i++)
 		substream[i] = chip->playback_substream[i];
 	substream[i] = chip->capture_substream;
 	for (i = 0; i < PLAYBACK_SUBSTREAMS + 1; i++) {
+<<<<<<< HEAD
 		if (substream[i] &&
 		    (runtime = substream[i]->runtime) &&
 		    (data = runtime->private_data) && data->state != ST_STOP) {
+=======
+		if (!substream[i])
+			continue;
+		runtime = substream[i]->runtime;
+		if (!runtime)
+			continue;
+		data = runtime->private_data;
+		if (!data)
+			continue;
+		if (data->state != ST_STOP) {
+>>>>>>> upstream/android-13
 			pos = 0;
 			for (j = 0; j < data->pages; j++) {
 				c = &data->sgdbuf[j];
@@ -1148,6 +1273,11 @@ static void riptide_handleirq(unsigned long dev_id)
 			}
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	return IRQ_HANDLED;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -1158,7 +1288,10 @@ static int riptide_suspend(struct device *dev)
 
 	chip->in_suspend = 1;
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(chip->pcm);
+=======
+>>>>>>> upstream/android-13
 	snd_ac97_suspend(chip->ac97);
 	return 0;
 }
@@ -1456,7 +1589,11 @@ static int snd_riptide_prepare(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct pcmhw *data = get_pcmhwdev(substream);
 	struct cmdif *cif = chip->cif;
+<<<<<<< HEAD
 	unsigned char *lbuspath = NULL;
+=======
+	const unsigned char *lbuspath = NULL;
+>>>>>>> upstream/android-13
 	unsigned int rate, channels;
 	int err = 0;
 	snd_pcm_format_t format;
@@ -1564,17 +1701,28 @@ snd_riptide_hw_params(struct snd_pcm_substream *substream,
 		    (int)sgdlist->bytes);
 	if (sgdlist->area)
 		snd_dma_free_pages(sgdlist);
+<<<<<<< HEAD
 	if ((err = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV,
 				       snd_dma_pci_data(chip->pci),
 				       sizeof(struct sgd) * (DESC_MAX_MASK + 1),
 				       sgdlist)) < 0) {
+=======
+	err = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, &chip->pci->dev,
+				  sizeof(struct sgd) * (DESC_MAX_MASK + 1),
+				  sgdlist);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printk(KERN_ERR "Riptide: failed to alloc %d dma bytes\n",
 			   (int)sizeof(struct sgd) * (DESC_MAX_MASK + 1));
 		return err;
 	}
 	data->sgdbuf = (struct sgd *)sgdlist->area;
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream,
 					params_buffer_bytes(hw_params));
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int snd_riptide_hw_free(struct snd_pcm_substream *substream)
@@ -1596,7 +1744,11 @@ static int snd_riptide_hw_free(struct snd_pcm_substream *substream)
 			data->sgdlist.area = NULL;
 		}
 	}
+<<<<<<< HEAD
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int snd_riptide_playback_open(struct snd_pcm_substream *substream)
@@ -1672,22 +1824,34 @@ static int snd_riptide_capture_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_riptide_playback_ops = {
 	.open = snd_riptide_playback_open,
 	.close = snd_riptide_playback_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_riptide_hw_params,
 	.hw_free = snd_riptide_hw_free,
 	.prepare = snd_riptide_prepare,
 	.page = snd_pcm_sgbuf_ops_page,
+=======
+	.hw_params = snd_riptide_hw_params,
+	.hw_free = snd_riptide_hw_free,
+	.prepare = snd_riptide_prepare,
+>>>>>>> upstream/android-13
 	.trigger = snd_riptide_trigger,
 	.pointer = snd_riptide_pointer,
 };
 static const struct snd_pcm_ops snd_riptide_capture_ops = {
 	.open = snd_riptide_capture_open,
 	.close = snd_riptide_capture_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_riptide_hw_params,
 	.hw_free = snd_riptide_hw_free,
 	.prepare = snd_riptide_prepare,
 	.page = snd_pcm_sgbuf_ops_page,
+=======
+	.hw_params = snd_riptide_hw_params,
+	.hw_free = snd_riptide_hw_free,
+	.prepare = snd_riptide_prepare,
+>>>>>>> upstream/android-13
 	.trigger = snd_riptide_trigger,
 	.pointer = snd_riptide_pointer,
 };
@@ -1697,9 +1861,15 @@ static int snd_riptide_pcm(struct snd_riptide *chip, int device)
 	struct snd_pcm *pcm;
 	int err;
 
+<<<<<<< HEAD
 	if ((err =
 	     snd_pcm_new(chip->card, "RIPTIDE", device, PLAYBACK_SUBSTREAMS, 1,
 			 &pcm)) < 0)
+=======
+	err = snd_pcm_new(chip->card, "RIPTIDE", device, PLAYBACK_SUBSTREAMS, 1,
+			  &pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK,
 			&snd_riptide_playback_ops);
@@ -1709,9 +1879,14 @@ static int snd_riptide_pcm(struct snd_riptide *chip, int device)
 	pcm->info_flags = 0;
 	strcpy(pcm->name, "RIPTIDE");
 	chip->pcm = pcm;
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
 					      snd_dma_pci_data(chip->pci),
 					      64 * 1024, 128 * 1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
+				       &chip->pci->dev, 64 * 1024, 128 * 1024);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1720,13 +1895,21 @@ snd_riptide_interrupt(int irq, void *dev_id)
 {
 	struct snd_riptide *chip = dev_id;
 	struct cmdif *cif = chip->cif;
+<<<<<<< HEAD
+=======
+	irqreturn_t ret = IRQ_HANDLED;
+>>>>>>> upstream/android-13
 
 	if (cif) {
 		chip->received_irqs++;
 		if (IS_EOBIRQ(cif->hwport) || IS_EOSIRQ(cif->hwport) ||
 		    IS_EOCIRQ(cif->hwport)) {
 			chip->handled_irqs++;
+<<<<<<< HEAD
 			tasklet_schedule(&chip->riptide_tq);
+=======
+			ret = IRQ_WAKE_THREAD;
+>>>>>>> upstream/android-13
 		}
 		if (chip->rmidi && IS_MPUIRQ(cif->hwport)) {
 			chip->handled_irqs++;
@@ -1735,7 +1918,11 @@ snd_riptide_interrupt(int irq, void *dev_id)
 		}
 		SET_AIACK(cif->hwport);
 	}
+<<<<<<< HEAD
 	return IRQ_HANDLED;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1786,14 +1973,24 @@ static int snd_riptide_initialize(struct snd_riptide *chip)
 
 	cif = chip->cif;
 	if (!cif) {
+<<<<<<< HEAD
 		if ((cif = kzalloc(sizeof(struct cmdif), GFP_KERNEL)) == NULL)
+=======
+		cif = kzalloc(sizeof(struct cmdif), GFP_KERNEL);
+		if (!cif)
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		cif->hwport = (struct riptideport *)chip->port;
 		spin_lock_init(&cif->lock);
 		chip->cif = cif;
 	}
 	cif->is_reset = 0;
+<<<<<<< HEAD
 	if ((err = riptide_reset(cif, chip)) != 0)
+=======
+	err = riptide_reset(cif, chip);
+	if (err)
+>>>>>>> upstream/android-13
 		return err;
 	device_id = chip->device_id;
 	switch (device_id) {
@@ -1810,6 +2007,7 @@ static int snd_riptide_initialize(struct snd_riptide *chip)
 	return err;
 }
 
+<<<<<<< HEAD
 static int snd_riptide_free(struct snd_riptide *chip)
 {
 	struct cmdif *cif;
@@ -1818,11 +2016,21 @@ static int snd_riptide_free(struct snd_riptide *chip)
 		return 0;
 
 	if ((cif = chip->cif)) {
+=======
+static void snd_riptide_free(struct snd_card *card)
+{
+	struct snd_riptide *chip = card->private_data;
+	struct cmdif *cif;
+
+	cif = chip->cif;
+	if (cif) {
+>>>>>>> upstream/android-13
 		SET_GRESET(cif->hwport);
 		udelay(100);
 		UNSET_GRESET(cif->hwport);
 		kfree(chip->cif);
 	}
+<<<<<<< HEAD
 	if (chip->irq >= 0)
 		free_irq(chip->irq, chip);
 	release_firmware(chip->fw_entry);
@@ -1854,6 +2062,21 @@ snd_riptide_create(struct snd_card *card, struct pci_dev *pci,
 		return err;
 	if (!(chip = kzalloc(sizeof(struct snd_riptide), GFP_KERNEL)))
 		return -ENOMEM;
+=======
+	release_firmware(chip->fw_entry);
+}
+
+static int
+snd_riptide_create(struct snd_card *card, struct pci_dev *pci)
+{
+	struct snd_riptide *chip = card->private_data;
+	struct riptideport *hwport;
+	int err;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&chip->lock);
 	chip->card = card;
@@ -1864,6 +2087,7 @@ snd_riptide_create(struct snd_card *card, struct pci_dev *pci,
 	chip->received_irqs = 0;
 	chip->handled_irqs = 0;
 	chip->cif = NULL;
+<<<<<<< HEAD
 	tasklet_init(&chip->riptide_tq, riptide_handleirq, (unsigned long)chip);
 
 	if ((chip->res_port =
@@ -1898,6 +2122,32 @@ snd_riptide_create(struct snd_card *card, struct pci_dev *pci,
 	}
 
 	*rchip = chip;
+=======
+	card->private_free = snd_riptide_free;
+
+	err = pci_request_regions(pci, "RIPTIDE");
+	if (err < 0)
+		return err;
+	hwport = (struct riptideport *)chip->port;
+	UNSET_AIE(hwport);
+
+	if (devm_request_threaded_irq(&pci->dev, pci->irq,
+				      snd_riptide_interrupt,
+				      riptide_handleirq, IRQF_SHARED,
+				      KBUILD_MODNAME, chip)) {
+		snd_printk(KERN_ERR "Riptide: unable to grab IRQ %d\n",
+			   pci->irq);
+		return -EBUSY;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	chip->device_id = pci->device;
+	pci_set_master(pci);
+	err = snd_riptide_initialize(chip);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1922,7 +2172,12 @@ snd_riptide_proc_read(struct snd_info_entry *entry,
 	for (i = 0; i < 64; i += 4)
 		snd_iprintf(buffer, "%c%02x: %08x",
 			    (i % 16) ? ' ' : '\n', i, inl(chip->port + i));
+<<<<<<< HEAD
 	if ((cif = chip->cif)) {
+=======
+	cif = chip->cif;
+	if (cif) {
+>>>>>>> upstream/android-13
 		snd_iprintf(buffer,
 			    "\nVersion: ASIC: %d CODEC: %d AUXDSP: %d PROG: %d",
 			    chip->firmware.firmware.ASIC,
@@ -1941,10 +2196,18 @@ snd_riptide_proc_read(struct snd_info_entry *entry,
 	}
 	snd_iprintf(buffer, "\nOpen streams %d:\n", chip->openstreams);
 	for (i = 0; i < PLAYBACK_SUBSTREAMS; i++) {
+<<<<<<< HEAD
 		if (chip->playback_substream[i]
 		    && chip->playback_substream[i]->runtime
 		    && (data =
 			chip->playback_substream[i]->runtime->private_data)) {
+=======
+		if (!chip->playback_substream[i] ||
+		    !chip->playback_substream[i]->runtime)
+			continue;
+		data = chip->playback_substream[i]->runtime->private_data;
+		if (data) {
+>>>>>>> upstream/android-13
 			snd_iprintf(buffer,
 				    "stream: %d mixer: %d source: %d (%d,%d)\n",
 				    data->id, data->mixer, data->source,
@@ -1953,6 +2216,7 @@ snd_riptide_proc_read(struct snd_info_entry *entry,
 				snd_iprintf(buffer, "rate: %d\n", rate);
 		}
 	}
+<<<<<<< HEAD
 	if (chip->capture_substream
 	    && chip->capture_substream->runtime
 	    && (data = chip->capture_substream->runtime->private_data)) {
@@ -1962,6 +2226,18 @@ snd_riptide_proc_read(struct snd_info_entry *entry,
 			    data->source, data->intdec[0], data->intdec[1]);
 		if (!(getsamplerate(cif, data->intdec, &rate)))
 			snd_iprintf(buffer, "rate: %d\n", rate);
+=======
+	if (chip->capture_substream && chip->capture_substream->runtime) {
+		data = chip->capture_substream->runtime->private_data;
+		if (data) {
+			snd_iprintf(buffer,
+				    "stream: %d mixer: %d source: %d (%d,%d)\n",
+				    data->id, data->mixer,
+				    data->source, data->intdec[0], data->intdec[1]);
+			if (!(getsamplerate(cif, data->intdec, &rate)))
+				snd_iprintf(buffer, "rate: %d\n", rate);
+		}
+>>>>>>> upstream/android-13
 	}
 	snd_iprintf(buffer, "Paths:\n");
 	i = getpaths(cif, p);
@@ -1974,10 +2250,15 @@ snd_riptide_proc_read(struct snd_info_entry *entry,
 
 static void snd_riptide_proc_init(struct snd_riptide *chip)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 
 	if (!snd_card_proc_new(chip->card, "riptide", &entry))
 		snd_info_set_text_ops(entry, chip, snd_riptide_proc_read);
+=======
+	snd_card_ro_proc_new(chip->card, "riptide", chip,
+			     snd_riptide_proc_read);
+>>>>>>> upstream/android-13
 }
 
 static int snd_riptide_mixer(struct snd_riptide *chip)
@@ -1985,7 +2266,11 @@ static int snd_riptide_mixer(struct snd_riptide *chip)
 	struct snd_ac97_bus *pbus;
 	struct snd_ac97_template ac97;
 	int err = 0;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_riptide_codec_write,
 		.read = snd_riptide_codec_read,
 	};
@@ -1994,12 +2279,22 @@ static int snd_riptide_mixer(struct snd_riptide *chip)
 	ac97.private_data = chip;
 	ac97.scaps = AC97_SCAP_SKIP_MODEM;
 
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(chip->card, 0, &ops, chip, &pbus)) < 0)
+=======
+	err = snd_ac97_bus(chip->card, 0, &ops, chip, &pbus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	chip->ac97_bus = pbus;
 	ac97.pci = chip->pci;
+<<<<<<< HEAD
 	if ((err = snd_ac97_mixer(pbus, &ac97, &chip->ac97)) < 0)
+=======
+	err = snd_ac97_mixer(pbus, &ac97, &chip->ac97);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	return err;
 }
@@ -2061,7 +2356,11 @@ static void snd_riptide_joystick_remove(struct pci_dev *pci)
 #endif
 
 static int
+<<<<<<< HEAD
 snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+=======
+__snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -2076,6 +2375,7 @@ snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -2090,6 +2390,22 @@ snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 	err = snd_riptide_mixer(chip);
 	if (err < 0)
 		goto error;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+	err = snd_riptide_create(card, pci);
+	if (err < 0)
+		return err;
+	err = snd_riptide_pcm(chip, 0);
+	if (err < 0)
+		return err;
+	err = snd_riptide_mixer(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	val = LEGACY_ENABLE_ALL;
 	if (opl3_port[dev])
@@ -2156,6 +2472,7 @@ snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 	snd_riptide_proc_init(chip);
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto error;
 	pci_set_drvdata(pci, card);
 	dev++;
@@ -2169,13 +2486,28 @@ snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 static void snd_card_riptide_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+		return err;
+	pci_set_drvdata(pci, card);
+	dev++;
+	return 0;
+}
+
+static int
+snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_card_riptide_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_riptide_ids,
 	.probe = snd_card_riptide_probe,
+<<<<<<< HEAD
 	.remove = snd_card_riptide_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = RIPTIDE_PM_OPS,
 	},

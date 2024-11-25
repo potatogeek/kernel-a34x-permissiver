@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * GPL LICENSE SUMMARY
@@ -21,6 +22,13 @@
  * The full GNU General Public License is included in this distribution
  * in the file called LICENSE.GPL.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2008 - 2011 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <ilw@linux.intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -703,7 +711,11 @@ il_eeprom_query16(const struct il_priv *il, size_t offset)
 }
 EXPORT_SYMBOL(il_eeprom_query16);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_eeprom_init - read EEPROM contents
  *
  * Load the EEPROM contents from adapter into il->eeprom
@@ -854,7 +866,11 @@ il_init_band_reference(const struct il_priv *il, int eep_band,
 
 #define CHECK_AND_PRINT(x) ((eeprom_ch->flags & EEPROM_CHANNEL_##x) \
 			    ? # x " " : "")
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_mod_ht40_chan_info - Copy ht40 channel info into driver's il.
  *
  * Does not set up a command, or touch hardware.
@@ -895,7 +911,11 @@ il_mod_ht40_chan_info(struct il_priv *il, enum nl80211_band band, u16 channel,
 #define CHECK_AND_PRINT_I(x) ((eeprom_ch_info[ch].flags & EEPROM_CHANNEL_##x) \
 			    ? # x " " : "")
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_init_channel_map - Set up driver's info for all possible channels
  */
 int
@@ -1042,7 +1062,11 @@ il_free_channel_map(struct il_priv *il)
 }
 EXPORT_SYMBOL(il_free_channel_map);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_get_channel_info - Find driver's ilate channel info
  *
  * Based on band and channel number.
@@ -1090,7 +1114,11 @@ EXPORT_SYMBOL(il_get_channel_info);
 static void
 il_build_powertable_cmd(struct il_priv *il, struct il_powertable_cmd *cmd)
 {
+<<<<<<< HEAD
 	const __le32 interval[3][IL_POWER_VEC_SIZE] = {
+=======
+	static const __le32 interval[3][IL_POWER_VEC_SIZE] = {
+>>>>>>> upstream/android-13
 		SLP_VEC(2, 2, 4, 6, 0xFF),
 		SLP_VEC(2, 4, 7, 10, 10),
 		SLP_VEC(4, 7, 10, 10, 0xFF)
@@ -1361,7 +1389,11 @@ il_do_scan_abort(struct il_priv *il)
 		D_SCAN("Successfully send scan abort\n");
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_scan_cancel - Cancel any currently executing HW scan
  */
 int
@@ -1373,7 +1405,11 @@ il_scan_cancel(struct il_priv *il)
 }
 EXPORT_SYMBOL(il_scan_cancel);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_scan_cancel_timeout - Cancel any currently executing HW scan
  * @ms: amount of time to wait (in milliseconds) for scan to abort
  *
@@ -1448,10 +1484,15 @@ static void
 il_hdl_scan_complete(struct il_priv *il, struct il_rx_buf *rxb)
 {
 
+<<<<<<< HEAD
 #ifdef CONFIG_IWLEGACY_DEBUG
 	struct il_rx_pkt *pkt = rxb_addr(rxb);
 	struct il_scancomplete_notification *scan_notif = (void *)pkt->u.raw;
 #endif
+=======
+	struct il_rx_pkt *pkt = rxb_addr(rxb);
+	struct il_scancomplete_notification *scan_notif = (void *)pkt->u.raw;
+>>>>>>> upstream/android-13
 
 	D_SCAN("Scan complete: %d channels (TSF 0x%08X:%08X) - %d\n",
 	       scan_notif->scanned_channels, scan_notif->tsf_low,
@@ -1625,10 +1666,16 @@ il_bg_scan_check(struct work_struct *data)
 	mutex_unlock(&il->mutex);
 }
 
+<<<<<<< HEAD
 /**
  * il_fill_probe_req - fill in all required fields and IE for probe request
  */
 
+=======
+/*
+ * il_fill_probe_req - fill in all required fields and IE for probe request
+ */
+>>>>>>> upstream/android-13
 u16
 il_fill_probe_req(struct il_priv *il, struct ieee80211_mgmt *frame,
 		  const u8 *ta, const u8 *ies, int ie_len, int left)
@@ -1931,7 +1978,11 @@ done:
 	return;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_prep_station - Prepare station information for addition
  *
  * should be called with sta_lock held
@@ -2018,7 +2069,11 @@ EXPORT_SYMBOL_GPL(il_prep_station);
 
 #define STA_WAIT_TIMEOUT (HZ/2)
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_add_station_common -
  */
 int
@@ -2078,7 +2133,11 @@ il_add_station_common(struct il_priv *il, const u8 *addr, bool is_ap,
 }
 EXPORT_SYMBOL(il_add_station_common);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_sta_ucode_deactivate - deactivate ucode status for a station
  *
  * il->sta_lock must be held
@@ -2154,7 +2213,11 @@ il_send_remove_station(struct il_priv *il, const u8 * addr, int sta_id,
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_remove_station - Remove driver's knowledge of station.
  */
 int
@@ -2210,7 +2273,11 @@ out_err:
 }
 EXPORT_SYMBOL_GPL(il_remove_station);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_clear_ucode_stations - clear ucode station table bits
  *
  * This function clears all the bits in the driver indicating
@@ -2242,7 +2309,11 @@ il_clear_ucode_stations(struct il_priv *il)
 }
 EXPORT_SYMBOL(il_clear_ucode_stations);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_restore_stations() - Restore driver known stations to device
  *
  * All stations considered active by driver, but not present in ucode, is
@@ -2374,7 +2445,11 @@ il_dump_lq_cmd(struct il_priv *il, struct il_link_quality_cmd *lq)
 }
 #endif
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_is_lq_table_valid() - Test one aspect of LQ cmd for validity
  *
  * It sometimes happens when a HT rate has been in use and we
@@ -2403,7 +2478,11 @@ il_is_lq_table_valid(struct il_priv *il, struct il_link_quality_cmd *lq)
 	return true;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_send_lq_cmd() - Send link quality command
  * @init: This command is sent as part of station initialization right
  *        after station has been added.
@@ -2549,7 +2628,11 @@ EXPORT_SYMBOL(il_mac_sta_remove);
  *
  */
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_rx_queue_space - Return number of free slots available in queue.
  */
 int
@@ -2566,7 +2649,11 @@ il_rx_queue_space(const struct il_rx_queue *q)
 }
 EXPORT_SYMBOL(il_rx_queue_space);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_rx_queue_update_write_ptr - Update the write pointer for the RX queue
  */
 void
@@ -2695,6 +2782,10 @@ il_set_decrypted_flag(struct il_priv *il, struct ieee80211_hdr *hdr,
 		if ((decrypt_res & RX_RES_STATUS_DECRYPT_TYPE_MSK) ==
 		    RX_RES_STATUS_BAD_KEY_TTAK)
 			break;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case RX_RES_STATUS_SEC_TYPE_WEP:
 		if ((decrypt_res & RX_RES_STATUS_DECRYPT_TYPE_MSK) ==
@@ -2704,6 +2795,10 @@ il_set_decrypted_flag(struct il_priv *il, struct ieee80211_hdr *hdr,
 			D_RX("Packet destroyed\n");
 			return -1;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case RX_RES_STATUS_SEC_TYPE_CCMP:
 		if ((decrypt_res & RX_RES_STATUS_DECRYPT_TYPE_MSK) ==
 		    RX_RES_STATUS_DECRYPT_OK) {
@@ -2719,7 +2814,11 @@ il_set_decrypted_flag(struct il_priv *il, struct ieee80211_hdr *hdr,
 }
 EXPORT_SYMBOL(il_set_decrypted_flag);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_txq_update_write_ptr - Send new write idx to hardware
  */
 void
@@ -2759,7 +2858,11 @@ il_txq_update_write_ptr(struct il_priv *il, struct il_tx_queue *txq)
 }
 EXPORT_SYMBOL(il_txq_update_write_ptr);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_tx_queue_unmap -  Unmap any remaining DMA mappings and free skb's
  */
 void
@@ -2778,7 +2881,11 @@ il_tx_queue_unmap(struct il_priv *il, int txq_id)
 }
 EXPORT_SYMBOL(il_tx_queue_unmap);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_tx_queue_free - Deallocate DMA queue.
  * @txq: Transmit queue to deallocate.
  *
@@ -2821,7 +2928,11 @@ il_tx_queue_free(struct il_priv *il, int txq_id)
 }
 EXPORT_SYMBOL(il_tx_queue_free);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_cmd_queue_unmap - Unmap any remaining DMA mappings from command queue
  */
 void
@@ -2838,10 +2949,17 @@ il_cmd_queue_unmap(struct il_priv *il)
 		i = il_get_cmd_idx(q, q->read_ptr, 0);
 
 		if (txq->meta[i].flags & CMD_MAPPED) {
+<<<<<<< HEAD
 			pci_unmap_single(il->pci_dev,
 					 dma_unmap_addr(&txq->meta[i], mapping),
 					 dma_unmap_len(&txq->meta[i], len),
 					 PCI_DMA_BIDIRECTIONAL);
+=======
+			dma_unmap_single(&il->pci_dev->dev,
+					 dma_unmap_addr(&txq->meta[i], mapping),
+					 dma_unmap_len(&txq->meta[i], len),
+					 DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 			txq->meta[i].flags = 0;
 		}
 
@@ -2850,18 +2968,30 @@ il_cmd_queue_unmap(struct il_priv *il)
 
 	i = q->n_win;
 	if (txq->meta[i].flags & CMD_MAPPED) {
+<<<<<<< HEAD
 		pci_unmap_single(il->pci_dev,
 				 dma_unmap_addr(&txq->meta[i], mapping),
 				 dma_unmap_len(&txq->meta[i], len),
 				 PCI_DMA_BIDIRECTIONAL);
+=======
+		dma_unmap_single(&il->pci_dev->dev,
+				 dma_unmap_addr(&txq->meta[i], mapping),
+				 dma_unmap_len(&txq->meta[i], len),
+				 DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 		txq->meta[i].flags = 0;
 	}
 }
 EXPORT_SYMBOL(il_cmd_queue_unmap);
 
+<<<<<<< HEAD
 /**
  * il_cmd_queue_free - Deallocate DMA queue.
  * @txq: Transmit queue to deallocate.
+=======
+/*
+ * il_cmd_queue_free - Deallocate DMA queue.
+>>>>>>> upstream/android-13
  *
  * Empty queue by removing and destroying all BD's.
  * Free all buffers.
@@ -2940,7 +3070,11 @@ il_queue_space(const struct il_queue *q)
 EXPORT_SYMBOL(il_queue_space);
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_queue_init - Initialize queue's high/low-water and read/write idxes
  */
 static int
@@ -2974,7 +3108,11 @@ il_queue_init(struct il_priv *il, struct il_queue *q, int slots, u32 id)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_tx_queue_alloc - Alloc driver data and TFD CB for one Tx/cmd queue
  */
 static int
@@ -3014,7 +3152,11 @@ error:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_tx_queue_init - Allocate and initialize one tx/cmd queue
  */
 int
@@ -3121,7 +3263,11 @@ EXPORT_SYMBOL(il_tx_queue_reset);
 
 /*************** HOST COMMAND QUEUE FUNCTIONS   *****/
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_enqueue_hcmd - enqueue a uCode command
  * @il: device ilate data point
  * @cmd: a point to the ucode command structure
@@ -3139,7 +3285,10 @@ il_enqueue_hcmd(struct il_priv *il, struct il_host_cmd *cmd)
 	struct il_cmd_meta *out_meta;
 	dma_addr_t phys_addr;
 	unsigned long flags;
+<<<<<<< HEAD
 	int len;
+=======
+>>>>>>> upstream/android-13
 	u32 idx;
 	u16 fix_size;
 
@@ -3198,9 +3347,12 @@ il_enqueue_hcmd(struct il_priv *il, struct il_host_cmd *cmd)
 	    cpu_to_le16(QUEUE_TO_SEQ(il->cmd_queue) | IDX_TO_SEQ(q->write_ptr));
 	if (cmd->flags & CMD_SIZE_HUGE)
 		out_cmd->hdr.sequence |= SEQ_HUGE_FRAME;
+<<<<<<< HEAD
 	len = sizeof(struct il_device_cmd);
 	if (idx == TFD_CMD_SLOTS)
 		len = IL_MAX_CMD_SIZE;
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IWLEGACY_DEBUG
 	switch (out_cmd->hdr.cmd) {
@@ -3221,10 +3373,16 @@ il_enqueue_hcmd(struct il_priv *il, struct il_host_cmd *cmd)
 	}
 #endif
 
+<<<<<<< HEAD
 	phys_addr =
 	    pci_map_single(il->pci_dev, &out_cmd->hdr, fix_size,
 			   PCI_DMA_BIDIRECTIONAL);
 	if (unlikely(pci_dma_mapping_error(il->pci_dev, phys_addr))) {
+=======
+	phys_addr = dma_map_single(&il->pci_dev->dev, &out_cmd->hdr, fix_size,
+				   DMA_BIDIRECTIONAL);
+	if (unlikely(dma_mapping_error(&il->pci_dev->dev, phys_addr))) {
+>>>>>>> upstream/android-13
 		idx = -ENOMEM;
 		goto out;
 	}
@@ -3249,7 +3407,11 @@ out:
 	return idx;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_hcmd_queue_reclaim - Reclaim TX command queue entries already Tx'd
  *
  * When FW advances 'R' idx, all entries between old and new 'R' idx
@@ -3282,7 +3444,11 @@ il_hcmd_queue_reclaim(struct il_priv *il, int txq_id, int idx, int cmd_idx)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_tx_cmd_complete - Pull unused buffers off the queue and reclaim them
  * @rxb: Rx buffer to reclaim
  *
@@ -3322,8 +3488,13 @@ il_tx_cmd_complete(struct il_priv *il, struct il_rx_buf *rxb)
 
 	txq->time_stamp = jiffies;
 
+<<<<<<< HEAD
 	pci_unmap_single(il->pci_dev, dma_unmap_addr(meta, mapping),
 			 dma_unmap_len(meta, len), PCI_DMA_BIDIRECTIONAL);
+=======
+	dma_unmap_single(&il->pci_dev->dev, dma_unmap_addr(meta, mapping),
+			 dma_unmap_len(meta, len), DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 	/* Input error checking is done when commands are added to queue. */
 	if (meta->flags & CMD_WANT_SKB) {
@@ -3433,7 +3604,11 @@ il_init_ht_hw_capab(const struct il_priv *il,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_init_geos - Initialize mac80211's geo/channel info based from eeprom
  */
 int
@@ -3779,7 +3954,11 @@ il_check_rxon_cmd(struct il_priv *il)
 }
 EXPORT_SYMBOL(il_check_rxon_cmd);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_full_rxon_required - check if full RXON (vs RXON_ASSOC) cmd is needed
  * @il: staging_rxon is compared to active_rxon
  *
@@ -3959,7 +4138,11 @@ il_get_single_channel_number(struct il_priv *il, enum nl80211_band band)
 }
 EXPORT_SYMBOL(il_get_single_channel_number);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_set_rxon_channel - Set the band and channel values in staging RXON
  * @ch: requested channel as a pointer to struct ieee80211_channel
 
@@ -4162,7 +4345,11 @@ il_print_rx_config_cmd(struct il_priv *il)
 }
 EXPORT_SYMBOL(il_print_rx_config_cmd);
 #endif
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_irq_handle_error - called for HW or SW error interrupt from card
  */
 void
@@ -4958,8 +5145,12 @@ EXPORT_SYMBOL(il_add_beacon_time);
 static int
 il_pci_suspend(struct device *device)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(device);
 	struct il_priv *il = pci_get_drvdata(pdev);
+=======
+	struct il_priv *il = dev_get_drvdata(device);
+>>>>>>> upstream/android-13
 
 	/*
 	 * This function is called when system goes into suspend state
@@ -5028,7 +5219,11 @@ il_update_qos(struct il_priv *il)
 			      &il->qos_data.def_qos_parm, NULL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il_mac_config - mac80211 config callback
  */
 int
@@ -5199,8 +5394,12 @@ il_mac_reset_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	memset(&il->current_ht_config, 0, sizeof(struct il_ht_config));
 
 	/* new association get rid of ibss beacon skb */
+<<<<<<< HEAD
 	if (il->beacon_skb)
 		dev_kfree_skb(il->beacon_skb);
+=======
+	dev_kfree_skb(il->beacon_skb);
+>>>>>>> upstream/android-13
 	il->beacon_skb = NULL;
 	il->timestamp = 0;
 
@@ -5319,10 +5518,14 @@ il_beacon_update(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	}
 
 	spin_lock_irqsave(&il->lock, flags);
+<<<<<<< HEAD
 
 	if (il->beacon_skb)
 		dev_kfree_skb(il->beacon_skb);
 
+=======
+	dev_kfree_skb(il->beacon_skb);
+>>>>>>> upstream/android-13
 	il->beacon_skb = skb;
 
 	timestamp = ((struct ieee80211_mgmt *)skb->data)->u.beacon.timestamp;

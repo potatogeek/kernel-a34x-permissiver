@@ -8,7 +8,11 @@ Required properties:
 - reg : Offset and length of the register set for the device
 - clocks: I2C functional clock phandle.
 	  For 66AK2G this property should be set per binding,
+<<<<<<< HEAD
 	  Documentation/devicetree/bindings/clock/ti,sci-clk.txt
+=======
+	  Documentation/devicetree/bindings/clock/ti,sci-clk.yaml
+>>>>>>> upstream/android-13
 
 SoC-specific Required Properties:
 
@@ -17,7 +21,11 @@ The following are mandatory properties for Keystone 2 66AK2G SoCs only:
 - power-domains:	Should contain a phandle to a PM domain provider node
 			and an args specifier containing the I2C device id
 			value. This property is as per the binding,
+<<<<<<< HEAD
 			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.txt
+=======
+			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml
+>>>>>>> upstream/android-13
 
 Recommended properties :
 - interrupts : standard interrupt property.

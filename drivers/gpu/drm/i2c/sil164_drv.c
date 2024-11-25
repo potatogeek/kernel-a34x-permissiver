@@ -26,9 +26,16 @@
 
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_encoder_slave.h>
+=======
+#include <drm/drm_drv.h>
+#include <drm/drm_encoder_slave.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 #include <drm/i2c/sil164.h>
 
 struct sil164_priv {
@@ -43,7 +50,11 @@ struct sil164_priv {
 	((struct sil164_priv *)to_encoder_slave(x)->slave_priv)
 
 #define sil164_dbg(client, format, ...) do {				\
+<<<<<<< HEAD
 		if (drm_debug & DRM_UT_KMS)				\
+=======
+		if (drm_debug_enabled(DRM_UT_KMS))			\
+>>>>>>> upstream/android-13
 			dev_printk(KERN_DEBUG, &client->dev,		\
 				   "%s: " format, __func__, ## __VA_ARGS__); \
 	} while (0)
@@ -392,7 +403,11 @@ sil164_detect_slave(struct i2c_client *client)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	return i2c_new_device(adap, &info);
+=======
+	return i2c_new_client_device(adap, &info);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -401,6 +416,10 @@ sil164_encoder_init(struct i2c_client *client,
 		    struct drm_encoder_slave *encoder)
 {
 	struct sil164_priv *priv;
+<<<<<<< HEAD
+=======
+	struct i2c_client *slave_client;
+>>>>>>> upstream/android-13
 
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -409,7 +428,13 @@ sil164_encoder_init(struct i2c_client *client,
 	encoder->slave_priv = priv;
 	encoder->slave_funcs = &sil164_encoder_funcs;
 
+<<<<<<< HEAD
 	priv->duallink_slave = sil164_detect_slave(client);
+=======
+	slave_client = sil164_detect_slave(client);
+	if (!IS_ERR(slave_client))
+		priv->duallink_slave = slave_client;
+>>>>>>> upstream/android-13
 
 	return 0;
 }

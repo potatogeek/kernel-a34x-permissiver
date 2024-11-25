@@ -35,6 +35,10 @@
 #include <linux/debugfs.h>
 #include <linux/fb.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/fbcon.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/pm_domain.h>
@@ -133,7 +137,10 @@ static DEFINE_MUTEX(vgasr_mutex);
  * @delayed_switch_active: whether a delayed switch is pending
  * @delayed_client_id: client to which a delayed switch is pending
  * @debugfs_root: directory for vga_switcheroo debugfs interface
+<<<<<<< HEAD
  * @switch_file: file for vga_switcheroo debugfs interface
+=======
+>>>>>>> upstream/android-13
  * @registered_clients: number of registered GPUs
  *	(counting only vga clients, not audio clients)
  * @clients: list of registered clients
@@ -152,7 +159,10 @@ struct vgasr_priv {
 	enum vga_switcheroo_client_id delayed_client_id;
 
 	struct dentry *debugfs_root;
+<<<<<<< HEAD
 	struct dentry *switch_file;
+=======
+>>>>>>> upstream/android-13
 
 	int registered_clients;
 	struct list_head clients;
@@ -168,7 +178,11 @@ struct vgasr_priv {
 #define client_is_vga(c)		(!client_is_audio(c))
 #define client_id(c)		((c)->id & ~ID_BIT_AUDIO)
 
+<<<<<<< HEAD
 static int vga_switcheroo_debugfs_init(struct vgasr_priv *priv);
+=======
+static void vga_switcheroo_debugfs_init(struct vgasr_priv *priv);
+>>>>>>> upstream/android-13
 static void vga_switcheroo_debugfs_fini(struct vgasr_priv *priv);
 
 /* only one switcheroo per system */
@@ -736,6 +750,7 @@ static int vga_switchto_stage2(struct vga_switcheroo_client *new_client)
 	if (!active->driver_power_control)
 		set_audio_state(active->id, VGA_SWITCHEROO_OFF);
 
+<<<<<<< HEAD
 	if (new_client->fb_info) {
 		struct fb_event event;
 
@@ -744,6 +759,10 @@ static int vga_switchto_stage2(struct vga_switcheroo_client *new_client)
 		fb_notifier_call_chain(FB_EVENT_REMAP_ALL_CONSOLE, &event);
 		console_unlock();
 	}
+=======
+	if (new_client->fb_info)
+		fbcon_remap_all(new_client->fb_info);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vgasr_priv.mux_hw_lock);
 	ret = vgasr_priv.handler->switchto(new_client->id);
@@ -914,6 +933,7 @@ static const struct file_operations vga_switcheroo_debugfs_fops = {
 
 static void vga_switcheroo_debugfs_fini(struct vgasr_priv *priv)
 {
+<<<<<<< HEAD
 	debugfs_remove(priv->switch_file);
 	priv->switch_file = NULL;
 
@@ -946,6 +966,22 @@ static int vga_switcheroo_debugfs_init(struct vgasr_priv *priv)
 fail:
 	vga_switcheroo_debugfs_fini(priv);
 	return -1;
+=======
+	debugfs_remove_recursive(priv->debugfs_root);
+	priv->debugfs_root = NULL;
+}
+
+static void vga_switcheroo_debugfs_init(struct vgasr_priv *priv)
+{
+	/* already initialised */
+	if (priv->debugfs_root)
+		return;
+
+	priv->debugfs_root = debugfs_create_dir("vgaswitcheroo", NULL);
+
+	debugfs_create_file("switch", 0644, priv->debugfs_root, NULL,
+			    &vga_switcheroo_debugfs_fops);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1059,17 +1095,25 @@ static int vga_switcheroo_runtime_suspend(struct device *dev)
 static int vga_switcheroo_runtime_resume(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vgasr_mutex);
 	vga_switcheroo_power_switch(pdev, VGA_SWITCHEROO_ON);
 	mutex_unlock(&vgasr_mutex);
+<<<<<<< HEAD
 	pci_wakeup_bus(pdev->bus);
 	ret = dev->bus->pm->runtime_resume(dev);
 	if (ret)
 		return ret;
 
 	return 0;
+=======
+	pci_resume_bus(pdev->bus);
+	return dev->bus->pm->runtime_resume(dev);
+>>>>>>> upstream/android-13
 }
 
 /**

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation. All rights reserved.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92C_MAC_H__
 #define __RTL92C_MAC_H__
@@ -40,7 +45,10 @@ void rtl92c_enable_interrupt(struct ieee80211_hw *hw);
 void rtl92c_disable_interrupt(struct ieee80211_hw *hw);
 void rtl92c_set_qos(struct ieee80211_hw *hw, int aci);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*---------------------------------------------------------------
  *	Hardware init functions
  *---------------------------------------------------------------*/
@@ -152,6 +160,9 @@ void rtl92c_translate_rx_signal_stuff(struct ieee80211_hw *hw,
  *	Card disable functions
  *---------------------------------------------------------------*/
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 #endif

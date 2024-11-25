@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NOTE: This example is works on x86 and powerpc.
  * Here's a sample kernel module showing the use of kprobes to dump a
@@ -10,12 +11,32 @@
  * whenever _do_fork() is invoked to create a new process.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Here's a sample kernel module showing the use of kprobes to dump a
+ * stack trace and selected registers when kernel_clone() is called.
+ *
+ * For more information on theory of operation of kprobes, see
+ * Documentation/trace/kprobes.rst
+ *
+ * You will see the trace data in /var/log/messages and on the console
+ * whenever kernel_clone() is invoked to create a new process.
+ */
+
+#define pr_fmt(fmt) "%s: " fmt, __func__
+
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kprobes.h>
 
 #define MAX_SYMBOL_LEN	64
+<<<<<<< HEAD
 static char symbol[MAX_SYMBOL_LEN] = "_do_fork";
+=======
+static char symbol[MAX_SYMBOL_LEN] = "kernel_clone";
+>>>>>>> upstream/android-13
 module_param_string(symbol, symbol, sizeof(symbol), 0644);
 
 /* For each probe you need to allocate a kprobe structure */
@@ -24,6 +45,7 @@ static struct kprobe kp = {
 };
 
 /* kprobe pre_handler: called just before the probed instruction is executed */
+<<<<<<< HEAD
 static int handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 #ifdef CONFIG_X86
@@ -45,6 +67,36 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
 #endif
 #ifdef CONFIG_S390
 	pr_info("<%s> pre_handler: p->addr, 0x%p, ip = 0x%lx, flags = 0x%lx\n",
+=======
+static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
+{
+#ifdef CONFIG_X86
+	pr_info("<%s> p->addr = 0x%p, ip = %lx, flags = 0x%lx\n",
+		p->symbol_name, p->addr, regs->ip, regs->flags);
+#endif
+#ifdef CONFIG_PPC
+	pr_info("<%s> p->addr = 0x%p, nip = 0x%lx, msr = 0x%lx\n",
+		p->symbol_name, p->addr, regs->nip, regs->msr);
+#endif
+#ifdef CONFIG_MIPS
+	pr_info("<%s> p->addr = 0x%p, epc = 0x%lx, status = 0x%lx\n",
+		p->symbol_name, p->addr, regs->cp0_epc, regs->cp0_status);
+#endif
+#ifdef CONFIG_ARM64
+	pr_info("<%s> p->addr = 0x%p, pc = 0x%lx, pstate = 0x%lx\n",
+		p->symbol_name, p->addr, (long)regs->pc, (long)regs->pstate);
+#endif
+#ifdef CONFIG_ARM
+	pr_info("<%s> p->addr = 0x%p, pc = 0x%lx, cpsr = 0x%lx\n",
+		p->symbol_name, p->addr, (long)regs->ARM_pc, (long)regs->ARM_cpsr);
+#endif
+#ifdef CONFIG_RISCV
+	pr_info("<%s> p->addr = 0x%p, pc = 0x%lx, status = 0x%lx\n",
+		p->symbol_name, p->addr, regs->epc, regs->status);
+#endif
+#ifdef CONFIG_S390
+	pr_info("<%s> p->addr, 0x%p, ip = 0x%lx, flags = 0x%lx\n",
+>>>>>>> upstream/android-13
 		p->symbol_name, p->addr, regs->psw.addr, regs->flags);
 #endif
 
@@ -53,6 +105,7 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
 }
 
 /* kprobe post_handler: called after the probed instruction is executed */
+<<<<<<< HEAD
 static void handler_post(struct kprobe *p, struct pt_regs *regs,
 				unsigned long flags)
 {
@@ -74,10 +127,42 @@ static void handler_post(struct kprobe *p, struct pt_regs *regs,
 #endif
 #ifdef CONFIG_S390
 	pr_info("<%s> pre_handler: p->addr, 0x%p, flags = 0x%lx\n",
+=======
+static void __kprobes handler_post(struct kprobe *p, struct pt_regs *regs,
+				unsigned long flags)
+{
+#ifdef CONFIG_X86
+	pr_info("<%s> p->addr = 0x%p, flags = 0x%lx\n",
+		p->symbol_name, p->addr, regs->flags);
+#endif
+#ifdef CONFIG_PPC
+	pr_info("<%s> p->addr = 0x%p, msr = 0x%lx\n",
+		p->symbol_name, p->addr, regs->msr);
+#endif
+#ifdef CONFIG_MIPS
+	pr_info("<%s> p->addr = 0x%p, status = 0x%lx\n",
+		p->symbol_name, p->addr, regs->cp0_status);
+#endif
+#ifdef CONFIG_ARM64
+	pr_info("<%s> p->addr = 0x%p, pstate = 0x%lx\n",
+		p->symbol_name, p->addr, (long)regs->pstate);
+#endif
+#ifdef CONFIG_ARM
+	pr_info("<%s> p->addr = 0x%p, cpsr = 0x%lx\n",
+		p->symbol_name, p->addr, (long)regs->ARM_cpsr);
+#endif
+#ifdef CONFIG_RISCV
+	pr_info("<%s> p->addr = 0x%p, status = 0x%lx\n",
+		p->symbol_name, p->addr, regs->status);
+#endif
+#ifdef CONFIG_S390
+	pr_info("<%s> p->addr, 0x%p, flags = 0x%lx\n",
+>>>>>>> upstream/android-13
 		p->symbol_name, p->addr, regs->flags);
 #endif
 }
 
+<<<<<<< HEAD
 /*
  * fault_handler: this is called if an exception is generated for any
  * instruction within the pre- or post-handler, or when Kprobes
@@ -90,12 +175,17 @@ static int handler_fault(struct kprobe *p, struct pt_regs *regs, int trapnr)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __init kprobe_init(void)
 {
 	int ret;
 	kp.pre_handler = handler_pre;
 	kp.post_handler = handler_post;
+<<<<<<< HEAD
 	kp.fault_handler = handler_fault;
+=======
+>>>>>>> upstream/android-13
 
 	ret = register_kprobe(&kp);
 	if (ret < 0) {

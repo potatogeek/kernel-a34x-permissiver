@@ -32,7 +32,11 @@ static int finish_range(handle_t *handle, struct inode *inode,
 	newext.ee_block = cpu_to_le32(lb->first_block);
 	newext.ee_len   = cpu_to_le16(lb->last_block - lb->first_block + 1);
 	ext4_ext_store_pblock(&newext, lb->first_pblock);
+<<<<<<< HEAD
 	/* Locking only for convinience since we are operating on temp inode */
+=======
+	/* Locking only for convenience since we are operating on temp inode */
+>>>>>>> upstream/android-13
 	down_write(&EXT4_I(inode)->i_data_sem);
 	path = ext4_find_extent(inode, lb->first_block, NULL, 0);
 	if (IS_ERR(path)) {
@@ -43,13 +47,19 @@ static int finish_range(handle_t *handle, struct inode *inode,
 
 	/*
 	 * Calculate the credit needed to inserting this extent
+<<<<<<< HEAD
 	 * Since we are doing this in loop we may accumalate extra
 	 * credit. But below we try to not accumalate too much
+=======
+	 * Since we are doing this in loop we may accumulate extra
+	 * credit. But below we try to not accumulate too much
+>>>>>>> upstream/android-13
 	 * of them by restarting the journal.
 	 */
 	needed = ext4_ext_calc_credits_for_single_extent(inode,
 		    lb->last_block - lb->first_block + 1, path);
 
+<<<<<<< HEAD
 	/*
 	 * Make sure the credit we accumalated is not really high
 	 */
@@ -73,6 +83,11 @@ static int finish_range(handle_t *handle, struct inode *inode,
 				goto err_out;
 		}
 	}
+=======
+	retval = ext4_datasem_ensure_credits(handle, inode, needed, needed, 0);
+	if (retval < 0)
+		goto err_out;
+>>>>>>> upstream/android-13
 	retval = ext4_ext_insert_extent(handle, inode, &path, &newext, 0);
 err_out:
 	up_write((&EXT4_I(inode)->i_data_sem));
@@ -196,6 +211,7 @@ static int update_tind_extent_range(handle_t *handle, struct inode *inode,
 
 }
 
+<<<<<<< HEAD
 static int extend_credit_for_blkdel(handle_t *handle, struct inode *inode)
 {
 	int retval = 0, needed;
@@ -216,22 +232,42 @@ static int extend_credit_for_blkdel(handle_t *handle, struct inode *inode)
 	return retval;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int free_dind_blocks(handle_t *handle,
 				struct inode *inode, __le32 i_data)
 {
 	int i;
 	__le32 *tmp_idata;
 	struct buffer_head *bh;
+<<<<<<< HEAD
 	unsigned long max_entries = inode->i_sb->s_blocksize >> 2;
 
 	bh = ext4_sb_bread(inode->i_sb, le32_to_cpu(i_data), 0);
+=======
+	struct super_block *sb = inode->i_sb;
+	unsigned long max_entries = inode->i_sb->s_blocksize >> 2;
+	int err;
+
+	bh = ext4_sb_bread(sb, le32_to_cpu(i_data), 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bh))
 		return PTR_ERR(bh);
 
 	tmp_idata = (__le32 *)bh->b_data;
 	for (i = 0; i < max_entries; i++) {
 		if (tmp_idata[i]) {
+<<<<<<< HEAD
 			extend_credit_for_blkdel(handle, inode);
+=======
+			err = ext4_journal_ensure_credits(handle,
+				EXT4_RESERVE_TRANS_BLOCKS,
+				ext4_free_metadata_revoke_credits(sb, 1));
+			if (err < 0) {
+				put_bh(bh);
+				return err;
+			}
+>>>>>>> upstream/android-13
 			ext4_free_blocks(handle, inode, NULL,
 					 le32_to_cpu(tmp_idata[i]), 1,
 					 EXT4_FREE_BLOCKS_METADATA |
@@ -239,7 +275,14 @@ static int free_dind_blocks(handle_t *handle,
 		}
 	}
 	put_bh(bh);
+<<<<<<< HEAD
 	extend_credit_for_blkdel(handle, inode);
+=======
+	err = ext4_journal_ensure_credits(handle, EXT4_RESERVE_TRANS_BLOCKS,
+				ext4_free_metadata_revoke_credits(sb, 1));
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	ext4_free_blocks(handle, inode, NULL, le32_to_cpu(i_data), 1,
 			 EXT4_FREE_BLOCKS_METADATA |
 			 EXT4_FREE_BLOCKS_FORGET);
@@ -270,7 +313,14 @@ static int free_tind_blocks(handle_t *handle,
 		}
 	}
 	put_bh(bh);
+<<<<<<< HEAD
 	extend_credit_for_blkdel(handle, inode);
+=======
+	retval = ext4_journal_ensure_credits(handle, EXT4_RESERVE_TRANS_BLOCKS,
+			ext4_free_metadata_revoke_credits(inode->i_sb, 1));
+	if (retval < 0)
+		return retval;
+>>>>>>> upstream/android-13
 	ext4_free_blocks(handle, inode, NULL, le32_to_cpu(i_data), 1,
 			 EXT4_FREE_BLOCKS_METADATA |
 			 EXT4_FREE_BLOCKS_FORGET);
@@ -283,7 +333,15 @@ static int free_ind_block(handle_t *handle, struct inode *inode, __le32 *i_data)
 
 	/* ei->i_data[EXT4_IND_BLOCK] */
 	if (i_data[0]) {
+<<<<<<< HEAD
 		extend_credit_for_blkdel(handle, inode);
+=======
+		retval = ext4_journal_ensure_credits(handle,
+			EXT4_RESERVE_TRANS_BLOCKS,
+			ext4_free_metadata_revoke_credits(inode->i_sb, 1));
+		if (retval < 0)
+			return retval;
+>>>>>>> upstream/android-13
 		ext4_free_blocks(handle, inode, NULL,
 				le32_to_cpu(i_data[0]), 1,
 				 EXT4_FREE_BLOCKS_METADATA |
@@ -309,7 +367,11 @@ static int free_ind_block(handle_t *handle, struct inode *inode, __le32 *i_data)
 static int ext4_ext_swap_inode_data(handle_t *handle, struct inode *inode,
 						struct inode *tmp_inode)
 {
+<<<<<<< HEAD
 	int retval;
+=======
+	int retval, retval2 = 0;
+>>>>>>> upstream/android-13
 	__le32	i_data[3];
 	struct ext4_inode_info *ei = EXT4_I(inode);
 	struct ext4_inode_info *tmp_ei = EXT4_I(tmp_inode);
@@ -318,12 +380,18 @@ static int ext4_ext_swap_inode_data(handle_t *handle, struct inode *inode,
 	 * One credit accounted for writing the
 	 * i_data field of the original inode
 	 */
+<<<<<<< HEAD
 	retval = ext4_journal_extend(handle, 1);
 	if (retval) {
 		retval = ext4_journal_restart(handle, 1);
 		if (retval)
 			goto err_out;
 	}
+=======
+	retval = ext4_journal_ensure_credits(handle, 1, 0);
+	if (retval < 0)
+		goto err_out;
+>>>>>>> upstream/android-13
 
 	i_data[0] = ei->i_data[EXT4_IND_BLOCK];
 	i_data[1] = ei->i_data[EXT4_DIND_BLOCK];
@@ -367,7 +435,13 @@ static int ext4_ext_swap_inode_data(handle_t *handle, struct inode *inode,
 	 * i_blocks when freeing the indirect meta-data blocks
 	 */
 	retval = free_ind_block(handle, inode, i_data);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, inode);
+=======
+	retval2 = ext4_mark_inode_dirty(handle, inode);
+	if (unlikely(retval2 && !retval))
+		retval = retval2;
+>>>>>>> upstream/android-13
 
 err_out:
 	return retval;
@@ -391,6 +465,7 @@ static int free_ext_idx(handle_t *handle, struct inode *inode,
 		ix = EXT_FIRST_INDEX(eh);
 		for (i = 0; i < le16_to_cpu(eh->eh_entries); i++, ix++) {
 			retval = free_ext_idx(handle, inode, ix);
+<<<<<<< HEAD
 			if (retval)
 				break;
 		}
@@ -400,6 +475,22 @@ static int free_ext_idx(handle_t *handle, struct inode *inode,
 	ext4_free_blocks(handle, inode, NULL, block, 1,
 			 EXT4_FREE_BLOCKS_METADATA | EXT4_FREE_BLOCKS_FORGET);
 	return retval;
+=======
+			if (retval) {
+				put_bh(bh);
+				return retval;
+			}
+		}
+	}
+	put_bh(bh);
+	retval = ext4_journal_ensure_credits(handle, EXT4_RESERVE_TRANS_BLOCKS,
+			ext4_free_metadata_revoke_credits(inode->i_sb, 1));
+	if (retval < 0)
+		return retval;
+	ext4_free_blocks(handle, inode, NULL, block, 1,
+			 EXT4_FREE_BLOCKS_METADATA | EXT4_FREE_BLOCKS_FORGET);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -455,12 +546,21 @@ int ext4_ext_migrate(struct inode *inode)
 	percpu_down_write(&sbi->s_writepages_rwsem);
 
 	/*
+<<<<<<< HEAD
 	 * Worst case we can touch the allocation bitmaps, a bgd
 	 * block, and a block to link in the orphan list.  We do need
 	 * need to worry about credits for modifying the quota inode.
 	 */
 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE,
 		4 + EXT4_MAXQUOTAS_TRANS_BLOCKS(inode->i_sb));
+=======
+	 * Worst case we can touch the allocation bitmaps and a block
+	 * group descriptor block.  We do need need to worry about
+	 * credits for modifying the quota inode.
+	 */
+	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE,
+		3 + EXT4_MAXQUOTAS_TRANS_BLOCKS(inode->i_sb));
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(handle)) {
 		retval = PTR_ERR(handle);
@@ -477,6 +577,16 @@ int ext4_ext_migrate(struct inode *inode)
 		ext4_journal_stop(handle);
 		goto out_unlock;
 	}
+<<<<<<< HEAD
+=======
+	/*
+	 * Use the correct seed for checksum (i.e. the seed from 'inode').  This
+	 * is so that the metadata blocks will have the correct checksum after
+	 * the migration.
+	 */
+	ei = EXT4_I(inode);
+	EXT4_I(tmp_inode)->i_csum_seed = ei->i_csum_seed;
+>>>>>>> upstream/android-13
 	i_size_write(tmp_inode, i_size_read(inode));
 	/*
 	 * Set the i_nlink to zero so it will be deleted later
@@ -485,7 +595,10 @@ int ext4_ext_migrate(struct inode *inode)
 	clear_nlink(tmp_inode);
 
 	ext4_ext_tree_init(handle, tmp_inode);
+<<<<<<< HEAD
 	ext4_orphan_add(handle, tmp_inode);
+=======
+>>>>>>> upstream/android-13
 	ext4_journal_stop(handle);
 
 	/*
@@ -510,17 +623,23 @@ int ext4_ext_migrate(struct inode *inode)
 
 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE, 1);
 	if (IS_ERR(handle)) {
+<<<<<<< HEAD
 		/*
 		 * It is impossible to update on-disk structures without
 		 * a handle, so just rollback in-core changes and live other
 		 * work to orphan_list_cleanup()
 		 */
 		ext4_orphan_del(NULL, tmp_inode);
+=======
+>>>>>>> upstream/android-13
 		retval = PTR_ERR(handle);
 		goto out_tmp_inode;
 	}
 
+<<<<<<< HEAD
 	ei = EXT4_I(inode);
+=======
+>>>>>>> upstream/android-13
 	i_data = ei->i_data;
 	memset(&lb, 0, sizeof(lb));
 
@@ -538,22 +657,37 @@ int ext4_ext_migrate(struct inode *inode)
 	if (i_data[EXT4_IND_BLOCK]) {
 		retval = update_ind_extent_range(handle, tmp_inode,
 				le32_to_cpu(i_data[EXT4_IND_BLOCK]), &lb);
+<<<<<<< HEAD
 			if (retval)
 				goto err_out;
+=======
+		if (retval)
+			goto err_out;
+>>>>>>> upstream/android-13
 	} else
 		lb.curr_block += max_entries;
 	if (i_data[EXT4_DIND_BLOCK]) {
 		retval = update_dind_extent_range(handle, tmp_inode,
 				le32_to_cpu(i_data[EXT4_DIND_BLOCK]), &lb);
+<<<<<<< HEAD
 			if (retval)
 				goto err_out;
+=======
+		if (retval)
+			goto err_out;
+>>>>>>> upstream/android-13
 	} else
 		lb.curr_block += max_entries * max_entries;
 	if (i_data[EXT4_TIND_BLOCK]) {
 		retval = update_tind_extent_range(handle, tmp_inode,
 				le32_to_cpu(i_data[EXT4_TIND_BLOCK]), &lb);
+<<<<<<< HEAD
 			if (retval)
 				goto err_out;
+=======
+		if (retval)
+			goto err_out;
+>>>>>>> upstream/android-13
 	}
 	/*
 	 * Build the last extent
@@ -577,9 +711,15 @@ err_out:
 	}
 
 	/* We mark the tmp_inode dirty via ext4_ext_tree_init. */
+<<<<<<< HEAD
 	if (ext4_journal_extend(handle, 1) != 0)
 		ext4_journal_restart(handle, 1);
 
+=======
+	retval = ext4_journal_ensure_credits(handle, 1, 0);
+	if (retval < 0)
+		goto out_stop;
+>>>>>>> upstream/android-13
 	/*
 	 * Mark the tmp_inode as of size zero
 	 */
@@ -597,6 +737,10 @@ err_out:
 
 	/* Reset the extent details */
 	ext4_ext_tree_init(handle, tmp_inode);
+<<<<<<< HEAD
+=======
+out_stop:
+>>>>>>> upstream/android-13
 	ext4_journal_stop(handle);
 out_tmp_inode:
 	unlock_new_inode(tmp_inode);
@@ -620,7 +764,11 @@ int ext4_ind_migrate(struct inode *inode)
 	ext4_lblk_t			start, end;
 	ext4_fsblk_t			blk;
 	handle_t			*handle;
+<<<<<<< HEAD
 	int				ret;
+=======
+	int				ret, ret2 = 0;
+>>>>>>> upstream/android-13
 
 	if (!ext4_has_feature_extents(inode->i_sb) ||
 	    (!ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
@@ -674,7 +822,13 @@ int ext4_ind_migrate(struct inode *inode)
 	memset(ei->i_data, 0, sizeof(ei->i_data));
 	for (i = start; i <= end; i++)
 		ei->i_data[i] = cpu_to_le32(blk++);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, inode);
+=======
+	ret2 = ext4_mark_inode_dirty(handle, inode);
+	if (unlikely(ret2 && !ret))
+		ret = ret2;
+>>>>>>> upstream/android-13
 errout:
 	ext4_journal_stop(handle);
 	up_write(&EXT4_I(inode)->i_data_sem);

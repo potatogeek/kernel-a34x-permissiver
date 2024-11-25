@@ -16,7 +16,11 @@
 
 KBUILD_DEFCONFIG := multi_defconfig
 
+<<<<<<< HEAD
 ifneq ($(SUBARCH),$(ARCH))
+=======
+ifdef cross_compiling
+>>>>>>> upstream/android-13
 	ifeq ($(CROSS_COMPILE),)
 		CROSS_COMPILE := $(call cc-cross-prefix, \
 			m68k-linux-gnu- m68k-linux- m68k-unknown-linux-gnu-)
@@ -32,6 +36,7 @@ endif
 #	compiler cpu type flag.
 #
 ifndef CONFIG_M68040
+<<<<<<< HEAD
 cpuflags-$(CONFIG_M68060)	:= -m68060
 endif
 ifndef CONFIG_M68060
@@ -56,6 +61,35 @@ cpuflags-$(CONFIG_M5249)	:= $(call cc-option,-mcpu=5249,-m5200)
 cpuflags-$(CONFIG_M520x)	:= $(call cc-option,-mcpu=5208,-m5200)
 cpuflags-$(CONFIG_M5206e)	:= $(call cc-option,-mcpu=5206e,-m5200)
 cpuflags-$(CONFIG_M5206)	:= $(call cc-option,-mcpu=5206,-m5200)
+=======
+cpuflags-$(CONFIG_M68060)	= -m68060
+endif
+ifndef CONFIG_M68060
+cpuflags-$(CONFIG_M68040)	= -m68040
+endif
+cpuflags-$(CONFIG_M68030)	=
+cpuflags-$(CONFIG_M68020)	=
+cpuflags-$(CONFIG_M68000)	= -m68000
+cpuflags-$(CONFIG_M5441x)	= $(call cc-option,-mcpu=54455,-mcfv4e)
+cpuflags-$(CONFIG_M54xx)	= $(call cc-option,-mcpu=5475,-m5200)
+cpuflags-$(CONFIG_M5407)	= $(call cc-option,-mcpu=5407,-m5200)
+cpuflags-$(CONFIG_M532x)	= $(call cc-option,-mcpu=532x,-m5307)
+cpuflags-$(CONFIG_M537x)	= $(call cc-option,-mcpu=537x,-m5307)
+cpuflags-$(CONFIG_M5307)	= $(call cc-option,-mcpu=5307,-m5200)
+cpuflags-$(CONFIG_M528x)	= $(call cc-option,-mcpu=528x,-m5307)
+cpuflags-$(CONFIG_M5275)	= $(call cc-option,-mcpu=5275,-m5307)
+cpuflags-$(CONFIG_M5272)	= $(call cc-option,-mcpu=5272,-m5307)
+cpuflags-$(CONFIG_M5271)	= $(call cc-option,-mcpu=5271,-m5307)
+cpuflags-$(CONFIG_M523x)	= $(call cc-option,-mcpu=523x,-m5307)
+cpuflags-$(CONFIG_M525x)	= $(call cc-option,-mcpu=5253,-m5200)
+cpuflags-$(CONFIG_M5249)	= $(call cc-option,-mcpu=5249,-m5200)
+cpuflags-$(CONFIG_M520x)	= $(call cc-option,-mcpu=5208,-m5200)
+cpuflags-$(CONFIG_M5206e)	= $(call cc-option,-mcpu=5206e,-m5200)
+cpuflags-$(CONFIG_M5206)	= $(call cc-option,-mcpu=5206,-m5200)
+
+# Evaluate tune cc-option calls now
+cpuflags-y := $(cpuflags-y)
+>>>>>>> upstream/android-13
 
 KBUILD_AFLAGS += $(cpuflags-y)
 KBUILD_CFLAGS += $(cpuflags-y)
@@ -63,6 +97,7 @@ KBUILD_CFLAGS += $(cpuflags-y)
 KBUILD_CFLAGS += -pipe -ffreestanding
 
 ifdef CONFIG_MMU
+<<<<<<< HEAD
 # without -fno-strength-reduce the 53c7xx.c driver fails ;-(
 KBUILD_CFLAGS += -fno-strength-reduce -ffixed-a2
 else
@@ -74,6 +109,16 @@ endif
 
 KBUILD_LDFLAGS := -m m68kelf
 KBUILD_LDFLAGS_MODULE += -T $(srctree)/arch/m68k/kernel/module.lds
+=======
+KBUILD_CFLAGS += -ffixed-a2
+else
+# we can use a m68k-linux-gcc toolchain with these in place
+KBUILD_CPPFLAGS += -DUTS_SYSNAME=\"uClinux\"
+KBUILD_CPPFLAGS += -D__uClinux__
+endif
+
+KBUILD_LDFLAGS := -m m68kelf
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_SUN3
 LDFLAGS_vmlinux = -N
@@ -97,6 +142,7 @@ head-$(CONFIG_SUN3)		:= arch/m68k/kernel/sun3-head.o
 head-$(CONFIG_M68000)		:= arch/m68k/68000/head.o
 head-$(CONFIG_COLDFIRE)		:= arch/m68k/coldfire/head.o
 
+<<<<<<< HEAD
 core-y				+= arch/m68k/kernel/	arch/m68k/mm/
 libs-y				+= arch/m68k/lib/
 
@@ -118,6 +164,10 @@ core-$(CONFIG_M68KFPU_EMU)	+= arch/m68k/math-emu/
 core-$(CONFIG_M68000)		+= arch/m68k/68000/
 core-$(CONFIG_COLDFIRE)		+= arch/m68k/coldfire/
 
+=======
+libs-y				+= arch/m68k/lib/
+
+>>>>>>> upstream/android-13
 
 all:	zImage
 
@@ -135,10 +185,17 @@ vmlinux.gz: vmlinux
 ifndef CONFIG_KGDB
 	cp vmlinux vmlinux.tmp
 	$(STRIP) vmlinux.tmp
+<<<<<<< HEAD
 	gzip -9c vmlinux.tmp >vmlinux.gz
 	rm vmlinux.tmp
 else
 	gzip -9c vmlinux >vmlinux.gz
+=======
+	$(KGZIP) -9c vmlinux.tmp >vmlinux.gz
+	rm vmlinux.tmp
+else
+	$(KGZIP) -9c vmlinux >vmlinux.gz
+>>>>>>> upstream/android-13
 endif
 
 bzImage: vmlinux.bz2
@@ -148,6 +205,7 @@ vmlinux.bz2: vmlinux
 ifndef CONFIG_KGDB
 	cp vmlinux vmlinux.tmp
 	$(STRIP) vmlinux.tmp
+<<<<<<< HEAD
 	bzip2 -1c vmlinux.tmp >vmlinux.bz2
 	rm vmlinux.tmp
 else
@@ -156,6 +214,18 @@ endif
 
 archclean:
 	rm -f vmlinux.gz vmlinux.bz2
+=======
+	$(KBZIP2) -1c vmlinux.tmp >vmlinux.bz2
+	rm vmlinux.tmp
+else
+	$(KBZIP2) -1c vmlinux >vmlinux.bz2
+endif
+
+CLEAN_FILES += vmlinux.gz vmlinux.bz2
+
+archheaders:
+	$(Q)$(MAKE) $(build)=arch/m68k/kernel/syscalls all
+>>>>>>> upstream/android-13
 
 install:
 	sh $(srctree)/arch/m68k/install.sh $(KERNELRELEASE) vmlinux.gz System.map "$(INSTALL_PATH)"

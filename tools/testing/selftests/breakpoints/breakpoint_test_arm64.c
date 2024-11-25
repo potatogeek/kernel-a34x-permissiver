@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Google, Inc.
  *
@@ -10,11 +11,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Google, Inc.
+ *
+>>>>>>> upstream/android-13
  * Original Code by Pavel Labath <labath@google.com>
  *
  * Code modified by Pratyush Anand <panand@redhat.com>
  * for testing different byte select for each access size.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define _GNU_SOURCE
@@ -154,7 +164,11 @@ static bool run_test(int wr_size, int wp_size, int wr, int wp)
 
 	if (ptrace(PTRACE_CONT, pid, NULL, NULL) < 0) {
 		ksft_print_msg(
+<<<<<<< HEAD
 			"ptrace(PTRACE_SINGLESTEP) failed: %s\n",
+=======
+			"ptrace(PTRACE_CONT) failed: %s\n",
+>>>>>>> upstream/android-13
 			strerror(errno));
 		return false;
 	}
@@ -168,7 +182,11 @@ static bool run_test(int wr_size, int wp_size, int wr, int wp)
 	}
 	alarm(0);
 	if (WIFEXITED(status)) {
+<<<<<<< HEAD
 		ksft_print_msg("child did not single-step\n");
+=======
+		ksft_print_msg("child exited prematurely\n");
+>>>>>>> upstream/android-13
 		return false;
 	}
 	if (!WIFSTOPPED(status)) {
@@ -214,6 +232,10 @@ int main(int argc, char **argv)
 	bool result;
 
 	ksft_print_header();
+<<<<<<< HEAD
+=======
+	ksft_set_plan(213);
+>>>>>>> upstream/android-13
 
 	act.sa_handler = sigalrm;
 	sigemptyset(&act.sa_mask);

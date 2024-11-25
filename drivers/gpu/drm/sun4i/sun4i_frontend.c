@@ -3,18 +3,35 @@
  * Copyright (C) 2017 Free Electrons
  * Maxime Ripard <maxime.ripard@free-electrons.com>
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/regmap.h>
 #include <linux/reset.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_device.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_framebuffer.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_plane.h>
+
+>>>>>>> upstream/android-13
 #include "sun4i_drv.h"
 #include "sun4i_frontend.h"
 
@@ -48,10 +65,44 @@ static const u32 sun4i_frontend_horz_coef[64] = {
 	0x03ff0000, 0x0000fd41, 0x01ff0000, 0x0000fe42,
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * These coefficients are taken from the A33 BSP from Allwinner.
+ *
+ * The first three values of each row are coded as 13-bit signed fixed-point
+ * numbers, with 10 bits for the fractional part. The fourth value is a
+ * constant coded as a 14-bit signed fixed-point number with 4 bits for the
+ * fractional part.
+ *
+ * The values in table order give the following colorspace translation:
+ * G = 1.164 * Y - 0.391 * U - 0.813 * V + 135
+ * R = 1.164 * Y + 1.596 * V - 222
+ * B = 1.164 * Y + 2.018 * U + 276
+ *
+ * This seems to be a conversion from Y[16:235] UV[16:240] to RGB[0:255],
+ * following the BT601 spec.
+ */
+const u32 sunxi_bt601_yuv2rgb_coef[12] = {
+	0x000004a7, 0x00001e6f, 0x00001cbf, 0x00000877,
+	0x000004a7, 0x00000000, 0x00000662, 0x00003211,
+	0x000004a7, 0x00000812, 0x00000000, 0x00002eb1,
+};
+EXPORT_SYMBOL(sunxi_bt601_yuv2rgb_coef);
+
+>>>>>>> upstream/android-13
 static void sun4i_frontend_scaler_init(struct sun4i_frontend *frontend)
 {
 	int i;
 
+<<<<<<< HEAD
+=======
+	if (frontend->data->has_coef_access_ctrl)
+		regmap_write_bits(frontend->regs, SUN4I_FRONTEND_FRM_CTRL_REG,
+				  SUN4I_FRONTEND_FRM_CTRL_COEF_ACCESS_CTRL,
+				  SUN4I_FRONTEND_FRM_CTRL_COEF_ACCESS_CTRL);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < 32; i++) {
 		regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_HORZCOEF0_REG(i),
 			     sun4i_frontend_horz_coef[2 * i]);
@@ -67,9 +118,17 @@ static void sun4i_frontend_scaler_init(struct sun4i_frontend *frontend)
 			     sun4i_frontend_vert_coef[i]);
 	}
 
+<<<<<<< HEAD
 	regmap_update_bits(frontend->regs, SUN4I_FRONTEND_FRM_CTRL_REG,
 			   SUN4I_FRONTEND_FRM_CTRL_COEF_ACCESS_CTRL,
 			   SUN4I_FRONTEND_FRM_CTRL_COEF_ACCESS_CTRL);
+=======
+	if (frontend->data->has_coef_rdy)
+		regmap_write_bits(frontend->regs,
+				  SUN4I_FRONTEND_FRM_CTRL_REG,
+				  SUN4I_FRONTEND_FRM_CTRL_COEF_RDY,
+				  SUN4I_FRONTEND_FRM_CTRL_COEF_RDY);
+>>>>>>> upstream/android-13
 }
 
 int sun4i_frontend_init(struct sun4i_frontend *frontend)
@@ -84,16 +143,102 @@ void sun4i_frontend_exit(struct sun4i_frontend *frontend)
 }
 EXPORT_SYMBOL(sun4i_frontend_exit);
 
+<<<<<<< HEAD
+=======
+static bool sun4i_frontend_format_chroma_requires_swap(uint32_t fmt)
+{
+	switch (fmt) {
+	case DRM_FORMAT_YVU411:
+	case DRM_FORMAT_YVU420:
+	case DRM_FORMAT_YVU422:
+	case DRM_FORMAT_YVU444:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+static bool sun4i_frontend_format_supports_tiling(uint32_t fmt)
+{
+	switch (fmt) {
+	case DRM_FORMAT_NV12:
+	case DRM_FORMAT_NV16:
+	case DRM_FORMAT_NV21:
+	case DRM_FORMAT_NV61:
+	case DRM_FORMAT_YUV411:
+	case DRM_FORMAT_YUV420:
+	case DRM_FORMAT_YUV422:
+	case DRM_FORMAT_YVU420:
+	case DRM_FORMAT_YVU422:
+	case DRM_FORMAT_YVU411:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+>>>>>>> upstream/android-13
 void sun4i_frontend_update_buffer(struct sun4i_frontend *frontend,
 				  struct drm_plane *plane)
 {
 	struct drm_plane_state *state = plane->state;
 	struct drm_framebuffer *fb = state->fb;
+<<<<<<< HEAD
 	dma_addr_t paddr;
+=======
+	unsigned int strides[3] = {};
+
+	dma_addr_t paddr;
+	bool swap;
+
+	if (fb->modifier == DRM_FORMAT_MOD_ALLWINNER_TILED) {
+		unsigned int width = state->src_w >> 16;
+		unsigned int offset;
+
+		strides[0] = SUN4I_FRONTEND_LINESTRD_TILED(fb->pitches[0]);
+
+		/*
+		 * The X1 offset is the offset to the bottom-right point in the
+		 * end tile, which is the final pixel (at offset width - 1)
+		 * within the end tile (with a 32-byte mask).
+		 */
+		offset = (width - 1) & (32 - 1);
+
+		regmap_write(frontend->regs, SUN4I_FRONTEND_TB_OFF0_REG,
+			     SUN4I_FRONTEND_TB_OFF_X1(offset));
+
+		if (fb->format->num_planes > 1) {
+			strides[1] =
+				SUN4I_FRONTEND_LINESTRD_TILED(fb->pitches[1]);
+
+			regmap_write(frontend->regs, SUN4I_FRONTEND_TB_OFF1_REG,
+				     SUN4I_FRONTEND_TB_OFF_X1(offset));
+		}
+
+		if (fb->format->num_planes > 2) {
+			strides[2] =
+				SUN4I_FRONTEND_LINESTRD_TILED(fb->pitches[2]);
+
+			regmap_write(frontend->regs, SUN4I_FRONTEND_TB_OFF2_REG,
+				     SUN4I_FRONTEND_TB_OFF_X1(offset));
+		}
+	} else {
+		strides[0] = fb->pitches[0];
+
+		if (fb->format->num_planes > 1)
+			strides[1] = fb->pitches[1];
+
+		if (fb->format->num_planes > 2)
+			strides[2] = fb->pitches[2];
+	}
+>>>>>>> upstream/android-13
 
 	/* Set the line width */
 	DRM_DEBUG_DRIVER("Frontend stride: %d bytes\n", fb->pitches[0]);
 	regmap_write(frontend->regs, SUN4I_FRONTEND_LINESTRD0_REG,
+<<<<<<< HEAD
 		     fb->pitches[0]);
 
 	/* Set the physical address of the buffer in memory */
@@ -109,6 +254,137 @@ static int sun4i_frontend_drm_format_to_input_fmt(uint32_t fmt, u32 *val)
 	switch (fmt) {
 	case DRM_FORMAT_ARGB8888:
 		*val = 5;
+=======
+		     strides[0]);
+
+	if (fb->format->num_planes > 1)
+		regmap_write(frontend->regs, SUN4I_FRONTEND_LINESTRD1_REG,
+			     strides[1]);
+
+	if (fb->format->num_planes > 2)
+		regmap_write(frontend->regs, SUN4I_FRONTEND_LINESTRD2_REG,
+			     strides[2]);
+
+	/* Some planar formats require chroma channel swapping by hand. */
+	swap = sun4i_frontend_format_chroma_requires_swap(fb->format->format);
+
+	/* Set the physical address of the buffer in memory */
+	paddr = drm_fb_cma_get_gem_addr(fb, state, 0);
+	DRM_DEBUG_DRIVER("Setting buffer #0 address to %pad\n", &paddr);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_BUF_ADDR0_REG, paddr);
+
+	if (fb->format->num_planes > 1) {
+		paddr = drm_fb_cma_get_gem_addr(fb, state, swap ? 2 : 1);
+		DRM_DEBUG_DRIVER("Setting buffer #1 address to %pad\n", &paddr);
+		regmap_write(frontend->regs, SUN4I_FRONTEND_BUF_ADDR1_REG,
+			     paddr);
+	}
+
+	if (fb->format->num_planes > 2) {
+		paddr = drm_fb_cma_get_gem_addr(fb, state, swap ? 1 : 2);
+		DRM_DEBUG_DRIVER("Setting buffer #2 address to %pad\n", &paddr);
+		regmap_write(frontend->regs, SUN4I_FRONTEND_BUF_ADDR2_REG,
+			     paddr);
+	}
+}
+EXPORT_SYMBOL(sun4i_frontend_update_buffer);
+
+static int
+sun4i_frontend_drm_format_to_input_fmt(const struct drm_format_info *format,
+				       u32 *val)
+{
+	if (!format->is_yuv)
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_FMT_RGB;
+	else if (drm_format_info_is_yuv_sampling_411(format))
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_FMT_YUV411;
+	else if (drm_format_info_is_yuv_sampling_420(format))
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_FMT_YUV420;
+	else if (drm_format_info_is_yuv_sampling_422(format))
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_FMT_YUV422;
+	else if (drm_format_info_is_yuv_sampling_444(format))
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_FMT_YUV444;
+	else
+		return -EINVAL;
+
+	return 0;
+}
+
+static int
+sun4i_frontend_drm_format_to_input_mode(const struct drm_format_info *format,
+					uint64_t modifier, u32 *val)
+{
+	bool tiled = (modifier == DRM_FORMAT_MOD_ALLWINNER_TILED);
+
+	switch (format->num_planes) {
+	case 1:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_MOD_PACKED;
+		return 0;
+
+	case 2:
+		*val = tiled ? SUN4I_FRONTEND_INPUT_FMT_DATA_MOD_MB32_SEMIPLANAR
+			     : SUN4I_FRONTEND_INPUT_FMT_DATA_MOD_SEMIPLANAR;
+		return 0;
+
+	case 3:
+		*val = tiled ? SUN4I_FRONTEND_INPUT_FMT_DATA_MOD_MB32_PLANAR
+			     : SUN4I_FRONTEND_INPUT_FMT_DATA_MOD_PLANAR;
+		return 0;
+
+	default:
+		return -EINVAL;
+	}
+}
+
+static int
+sun4i_frontend_drm_format_to_input_sequence(const struct drm_format_info *format,
+					    u32 *val)
+{
+	/* Planar formats have an explicit input sequence. */
+	if (drm_format_info_is_yuv_planar(format)) {
+		*val = 0;
+		return 0;
+	}
+
+	switch (format->format) {
+	case DRM_FORMAT_BGRX8888:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_BGRX;
+		return 0;
+
+	case DRM_FORMAT_NV12:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_UV;
+		return 0;
+
+	case DRM_FORMAT_NV16:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_UV;
+		return 0;
+
+	case DRM_FORMAT_NV21:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_VU;
+		return 0;
+
+	case DRM_FORMAT_NV61:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_VU;
+		return 0;
+
+	case DRM_FORMAT_UYVY:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_UYVY;
+		return 0;
+
+	case DRM_FORMAT_VYUY:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_VYUY;
+		return 0;
+
+	case DRM_FORMAT_XRGB8888:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_XRGB;
+		return 0;
+
+	case DRM_FORMAT_YUYV:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_YUYV;
+		return 0;
+
+	case DRM_FORMAT_YVYU:
+		*val = SUN4I_FRONTEND_INPUT_FMT_DATA_PS_YVYU;
+>>>>>>> upstream/android-13
 		return 0;
 
 	default:
@@ -119,9 +395,18 @@ static int sun4i_frontend_drm_format_to_input_fmt(uint32_t fmt, u32 *val)
 static int sun4i_frontend_drm_format_to_output_fmt(uint32_t fmt, u32 *val)
 {
 	switch (fmt) {
+<<<<<<< HEAD
 	case DRM_FORMAT_XRGB8888:
 	case DRM_FORMAT_ARGB8888:
 		*val = 2;
+=======
+	case DRM_FORMAT_BGRX8888:
+		*val = SUN4I_FRONTEND_OUTPUT_FMT_DATA_FMT_BGRX8888;
+		return 0;
+
+	case DRM_FORMAT_XRGB8888:
+		*val = SUN4I_FRONTEND_OUTPUT_FMT_DATA_FMT_XRGB8888;
+>>>>>>> upstream/android-13
 		return 0;
 
 	default:
@@ -129,22 +414,92 @@ static int sun4i_frontend_drm_format_to_output_fmt(uint32_t fmt, u32 *val)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static const uint32_t sun4i_frontend_formats[] = {
+	DRM_FORMAT_BGRX8888,
+	DRM_FORMAT_NV12,
+	DRM_FORMAT_NV16,
+	DRM_FORMAT_NV21,
+	DRM_FORMAT_NV61,
+	DRM_FORMAT_UYVY,
+	DRM_FORMAT_VYUY,
+	DRM_FORMAT_XRGB8888,
+	DRM_FORMAT_YUV411,
+	DRM_FORMAT_YUV420,
+	DRM_FORMAT_YUV422,
+	DRM_FORMAT_YUV444,
+	DRM_FORMAT_YUYV,
+	DRM_FORMAT_YVU411,
+	DRM_FORMAT_YVU420,
+	DRM_FORMAT_YVU422,
+	DRM_FORMAT_YVU444,
+	DRM_FORMAT_YVYU,
+};
+
+bool sun4i_frontend_format_is_supported(uint32_t fmt, uint64_t modifier)
+{
+	unsigned int i;
+
+	if (modifier == DRM_FORMAT_MOD_ALLWINNER_TILED)
+		return sun4i_frontend_format_supports_tiling(fmt);
+	else if (modifier != DRM_FORMAT_MOD_LINEAR)
+		return false;
+
+	for (i = 0; i < ARRAY_SIZE(sun4i_frontend_formats); i++)
+		if (sun4i_frontend_formats[i] == fmt)
+			return true;
+
+	return false;
+}
+EXPORT_SYMBOL(sun4i_frontend_format_is_supported);
+
+>>>>>>> upstream/android-13
 int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
 				  struct drm_plane *plane, uint32_t out_fmt)
 {
 	struct drm_plane_state *state = plane->state;
 	struct drm_framebuffer *fb = state->fb;
+<<<<<<< HEAD
 	u32 out_fmt_val;
 	u32 in_fmt_val;
 	int ret;
 
 	ret = sun4i_frontend_drm_format_to_input_fmt(fb->format->format,
 						     &in_fmt_val);
+=======
+	const struct drm_format_info *format = fb->format;
+	uint64_t modifier = fb->modifier;
+	unsigned int ch1_phase_idx;
+	u32 out_fmt_val;
+	u32 in_fmt_val, in_mod_val, in_ps_val;
+	unsigned int i;
+	u32 bypass;
+	int ret;
+
+	ret = sun4i_frontend_drm_format_to_input_fmt(format, &in_fmt_val);
+>>>>>>> upstream/android-13
 	if (ret) {
 		DRM_DEBUG_DRIVER("Invalid input format\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = sun4i_frontend_drm_format_to_input_mode(format, modifier,
+						      &in_mod_val);
+	if (ret) {
+		DRM_DEBUG_DRIVER("Invalid input mode\n");
+		return ret;
+	}
+
+	ret = sun4i_frontend_drm_format_to_input_sequence(format, &in_ps_val);
+	if (ret) {
+		DRM_DEBUG_DRIVER("Invalid pixel sequence\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	ret = sun4i_frontend_drm_format_to_output_fmt(out_fmt, &out_fmt_val);
 	if (ret) {
 		DRM_DEBUG_DRIVER("Invalid output format\n");
@@ -155,6 +510,7 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
 	 * I have no idea what this does exactly, but it seems to be
 	 * related to the scaler FIR filter phase parameters.
 	 */
+<<<<<<< HEAD
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_HORZPHASE_REG, 0x400);
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_HORZPHASE_REG, 0x400);
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE0_REG, 0x400);
@@ -166,6 +522,45 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
 		     SUN4I_FRONTEND_INPUT_FMT_DATA_MOD(1) |
 		     SUN4I_FRONTEND_INPUT_FMT_DATA_FMT(in_fmt_val) |
 		     SUN4I_FRONTEND_INPUT_FMT_PS(1));
+=======
+	ch1_phase_idx = (format->num_planes > 1) ? 1 : 0;
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_HORZPHASE_REG,
+		     frontend->data->ch_phase[0]);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_HORZPHASE_REG,
+		     frontend->data->ch_phase[ch1_phase_idx]);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE0_REG,
+		     frontend->data->ch_phase[0]);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE0_REG,
+		     frontend->data->ch_phase[ch1_phase_idx]);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTPHASE1_REG,
+		     frontend->data->ch_phase[0]);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTPHASE1_REG,
+		     frontend->data->ch_phase[ch1_phase_idx]);
+
+	/*
+	 * Checking the input format is sufficient since we currently only
+	 * support RGB output formats to the backend. If YUV output formats
+	 * ever get supported, an YUV input and output would require bypassing
+	 * the CSC engine too.
+	 */
+	if (format->is_yuv) {
+		/* Setup the CSC engine for YUV to RGB conversion. */
+		bypass = 0;
+
+		for (i = 0; i < ARRAY_SIZE(sunxi_bt601_yuv2rgb_coef); i++)
+			regmap_write(frontend->regs,
+				     SUN4I_FRONTEND_CSC_COEF_REG(i),
+				     sunxi_bt601_yuv2rgb_coef[i]);
+	} else {
+		bypass = SUN4I_FRONTEND_BYPASS_CSC_EN;
+	}
+
+	regmap_update_bits(frontend->regs, SUN4I_FRONTEND_BYPASS_REG,
+			   SUN4I_FRONTEND_BYPASS_CSC_EN, bypass);
+
+	regmap_write(frontend->regs, SUN4I_FRONTEND_INPUT_FMT_REG,
+		     in_mod_val | in_fmt_val | in_ps_val);
+>>>>>>> upstream/android-13
 
 	/*
 	 * TODO: It look like the A31 and A80 at least will need the
@@ -173,7 +568,11 @@ int sun4i_frontend_update_formats(struct sun4i_frontend *frontend,
 	 * ARGB8888).
 	 */
 	regmap_write(frontend->regs, SUN4I_FRONTEND_OUTPUT_FMT_REG,
+<<<<<<< HEAD
 		     SUN4I_FRONTEND_OUTPUT_FMT_DATA_FMT(out_fmt_val));
+=======
+		     out_fmt_val);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -183,16 +582,36 @@ void sun4i_frontend_update_coord(struct sun4i_frontend *frontend,
 				 struct drm_plane *plane)
 {
 	struct drm_plane_state *state = plane->state;
+<<<<<<< HEAD
+=======
+	struct drm_framebuffer *fb = state->fb;
+	uint32_t luma_width, luma_height;
+	uint32_t chroma_width, chroma_height;
+>>>>>>> upstream/android-13
 
 	/* Set height and width */
 	DRM_DEBUG_DRIVER("Frontend size W: %u H: %u\n",
 			 state->crtc_w, state->crtc_h);
+<<<<<<< HEAD
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_INSIZE_REG,
 		     SUN4I_FRONTEND_INSIZE(state->src_h >> 16,
 					   state->src_w >> 16));
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_INSIZE_REG,
 		     SUN4I_FRONTEND_INSIZE(state->src_h >> 16,
 					   state->src_w >> 16));
+=======
+
+	luma_width = state->src_w >> 16;
+	luma_height = state->src_h >> 16;
+
+	chroma_width = DIV_ROUND_UP(luma_width, fb->format->hsub);
+	chroma_height = DIV_ROUND_UP(luma_height, fb->format->vsub);
+
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_INSIZE_REG,
+		     SUN4I_FRONTEND_INSIZE(luma_height, luma_width));
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_INSIZE_REG,
+		     SUN4I_FRONTEND_INSIZE(chroma_height, chroma_width));
+>>>>>>> upstream/android-13
 
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_OUTSIZE_REG,
 		     SUN4I_FRONTEND_OUTSIZE(state->crtc_h, state->crtc_w));
@@ -200,6 +619,7 @@ void sun4i_frontend_update_coord(struct sun4i_frontend *frontend,
 		     SUN4I_FRONTEND_OUTSIZE(state->crtc_h, state->crtc_w));
 
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_HORZFACT_REG,
+<<<<<<< HEAD
 		     state->src_w / state->crtc_w);
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_HORZFACT_REG,
 		     state->src_w / state->crtc_w);
@@ -208,6 +628,16 @@ void sun4i_frontend_update_coord(struct sun4i_frontend *frontend,
 		     state->src_h / state->crtc_h);
 	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTFACT_REG,
 		     state->src_h / state->crtc_h);
+=======
+		     (luma_width << 16) / state->crtc_w);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_HORZFACT_REG,
+		     (chroma_width << 16) / state->crtc_w);
+
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH0_VERTFACT_REG,
+		     (luma_height << 16) / state->crtc_h);
+	regmap_write(frontend->regs, SUN4I_FRONTEND_CH1_VERTFACT_REG,
+		     (chroma_height << 16) / state->crtc_h);
+>>>>>>> upstream/android-13
 
 	regmap_write_bits(frontend->regs, SUN4I_FRONTEND_FRM_CTRL_REG,
 			  SUN4I_FRONTEND_FRM_CTRL_REG_RDY,
@@ -225,7 +655,11 @@ int sun4i_frontend_enable(struct sun4i_frontend *frontend)
 }
 EXPORT_SYMBOL(sun4i_frontend_enable);
 
+<<<<<<< HEAD
 static struct regmap_config sun4i_frontend_regmap_config = {
+=======
+static const struct regmap_config sun4i_frontend_regmap_config = {
+>>>>>>> upstream/android-13
 	.reg_bits	= 32,
 	.val_bits	= 32,
 	.reg_stride	= 4,
@@ -250,6 +684,13 @@ static int sun4i_frontend_bind(struct device *dev, struct device *master,
 	frontend->dev = dev;
 	frontend->node = dev->of_node;
 
+<<<<<<< HEAD
+=======
+	frontend->data = of_device_get_match_data(dev);
+	if (!frontend->data)
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(dev, res);
 	if (IS_ERR(regs))
@@ -339,10 +780,13 @@ static int sun4i_frontend_runtime_resume(struct device *dev)
 			   SUN4I_FRONTEND_EN_EN,
 			   SUN4I_FRONTEND_EN_EN);
 
+<<<<<<< HEAD
 	regmap_update_bits(frontend->regs, SUN4I_FRONTEND_BYPASS_REG,
 			   SUN4I_FRONTEND_BYPASS_CSC_EN,
 			   SUN4I_FRONTEND_BYPASS_CSC_EN);
 
+=======
+>>>>>>> upstream/android-13
 	sun4i_frontend_scaler_init(frontend);
 
 	return 0;
@@ -366,8 +810,38 @@ static const struct dev_pm_ops sun4i_frontend_pm_ops = {
 	.runtime_suspend	= sun4i_frontend_runtime_suspend,
 };
 
+<<<<<<< HEAD
 const struct of_device_id sun4i_frontend_of_table[] = {
 	{ .compatible = "allwinner,sun8i-a33-display-frontend" },
+=======
+static const struct sun4i_frontend_data sun4i_a10_frontend = {
+	.ch_phase		= { 0x000, 0xfc000 },
+	.has_coef_rdy		= true,
+};
+
+static const struct sun4i_frontend_data sun8i_a33_frontend = {
+	.ch_phase		= { 0x400, 0xfc400 },
+	.has_coef_access_ctrl	= true,
+};
+
+const struct of_device_id sun4i_frontend_of_table[] = {
+	{
+		.compatible = "allwinner,sun4i-a10-display-frontend",
+		.data = &sun4i_a10_frontend
+	},
+	{
+		.compatible = "allwinner,sun7i-a20-display-frontend",
+		.data = &sun4i_a10_frontend
+	},
+	{
+		.compatible = "allwinner,sun8i-a23-display-frontend",
+		.data = &sun8i_a33_frontend
+	},
+	{
+		.compatible = "allwinner,sun8i-a33-display-frontend",
+		.data = &sun8i_a33_frontend
+	},
+>>>>>>> upstream/android-13
 	{ }
 };
 EXPORT_SYMBOL(sun4i_frontend_of_table);

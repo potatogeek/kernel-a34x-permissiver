@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * net/sched/sch_choke.c	CHOKE scheduler
  *
  * Copyright (c) 2011 Stephen Hemminger <shemminger@vyatta.com>
  * Copyright (c) 2011 Eric Dumazet <eric.dumazet@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -135,7 +142,10 @@ static void choke_drop_by_idx(struct Qdisc *sch, unsigned int idx,
 }
 
 struct choke_skb_cb {
+<<<<<<< HEAD
 	u16			classid;
+=======
+>>>>>>> upstream/android-13
 	u8			keys_valid;
 	struct			flow_keys_digest keys;
 };
@@ -146,11 +156,14 @@ static inline struct choke_skb_cb *choke_skb_cb(const struct sk_buff *skb)
 	return (struct choke_skb_cb *)qdisc_skb_cb(skb)->data;
 }
 
+<<<<<<< HEAD
 static inline void choke_set_classid(struct sk_buff *skb, u16 classid)
 {
 	choke_skb_cb(skb)->classid = classid;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Compare flow of two packets
  *  Returns true only if source and destination address and port match.
@@ -360,7 +373,12 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
 	if (opt == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_CHOKE_MAX, opt, choke_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_CHOKE_MAX, opt,
+					  choke_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -382,7 +400,11 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt,
 	if (mask != q->tab_mask) {
 		struct sk_buff **ntab;
 
+<<<<<<< HEAD
 		ntab = kvmalloc_array((mask + 1), sizeof(struct sk_buff *), GFP_KERNEL | __GFP_ZERO);
+=======
+		ntab = kvcalloc(mask + 1, sizeof(struct sk_buff *), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!ntab)
 			return -ENOMEM;
 
@@ -454,7 +476,11 @@ static int choke_dump(struct Qdisc *sch, struct sk_buff *skb)
 		.Scell_log	= q->parms.Scell_log,
 	};
 
+<<<<<<< HEAD
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (opts == NULL)
 		goto nla_put_failure;
 

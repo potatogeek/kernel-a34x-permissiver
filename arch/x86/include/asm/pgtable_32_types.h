@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #ifndef _ASM_X86_PGTABLE_32_DEFS_H
 #define _ASM_X86_PGTABLE_32_DEFS_H
+=======
+#ifndef _ASM_X86_PGTABLE_32_TYPES_H
+#define _ASM_X86_PGTABLE_32_TYPES_H
+>>>>>>> upstream/android-13
 
 /*
  * The Linux x86 paging architecture is 'compile-time dual-mode', it
@@ -20,6 +25,7 @@
 #define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
 #define PGDIR_MASK	(~(PGDIR_SIZE - 1))
 
+<<<<<<< HEAD
 /* Just any arbitrary offset to the start of the vmalloc VM area: the
  * current 8MB value just means that there will be a 8MB "hole" after the
  * physical memory until the kernel virtual memory starts.  That means that
@@ -71,3 +77,6 @@ extern bool __vmalloc_start_set; /* set once high_memory is set */
 #define MAXMEM	(VMALLOC_END - PAGE_OFFSET - __VMALLOC_RESERVE)
 
 #endif /* _ASM_X86_PGTABLE_32_DEFS_H */
+=======
+#endif /* _ASM_X86_PGTABLE_32_TYPES_H */
+>>>>>>> upstream/android-13

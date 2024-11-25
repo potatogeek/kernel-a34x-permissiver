@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009 - 2014 Intel Corporation. All rights reserved.
@@ -18,6 +19,14 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/******************************************************************************
+ *
+ * Copyright(c) 2009 - 2014 Intel Corporation. All rights reserved.
+ * Copyright(C) 2016        Intel Deutschland GmbH
+ * Copyright(c) 2018        Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -60,16 +69,35 @@ static inline bool iwl_trace_data(struct sk_buff *skb)
 }
 
 static inline size_t iwl_rx_trace_len(const struct iwl_trans *trans,
+<<<<<<< HEAD
 				      void *rxbuf, size_t len)
 {
 	struct iwl_cmd_header *cmd = (void *)((u8 *)rxbuf + sizeof(__le32));
 	struct ieee80211_hdr *hdr;
+=======
+				      void *rxbuf, size_t len,
+				      size_t *out_hdr_offset)
+{
+	struct iwl_cmd_header *cmd = (void *)((u8 *)rxbuf + sizeof(__le32));
+	struct ieee80211_hdr *hdr = NULL;
+	size_t hdr_offset;
+>>>>>>> upstream/android-13
 
 	if (cmd->cmd != trans->rx_mpdu_cmd)
 		return len;
 
+<<<<<<< HEAD
 	hdr = (void *)((u8 *)cmd + sizeof(struct iwl_cmd_header) +
 			trans->rx_mpdu_cmd_hdr_size);
+=======
+	hdr_offset = sizeof(struct iwl_cmd_header) +
+		     trans->rx_mpdu_cmd_hdr_size;
+
+	if (out_hdr_offset)
+		*out_hdr_offset = hdr_offset;
+
+	hdr = (void *)((u8 *)cmd + hdr_offset);
+>>>>>>> upstream/android-13
 	if (!ieee80211_is_data(hdr->frame_control))
 		return len;
 	/* maybe try to identify EAPOL frames? */
@@ -82,7 +110,10 @@ static inline size_t iwl_rx_trace_len(const struct iwl_trans *trans,
 
 #include <linux/tracepoint.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include "iwl-trans.h"
+=======
+>>>>>>> upstream/android-13
 
 
 #if !defined(CONFIG_IWLWIFI_DEVICE_TRACING) || defined(__CHECKER__)

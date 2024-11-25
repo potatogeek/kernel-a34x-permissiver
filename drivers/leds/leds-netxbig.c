@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * leds-netxbig.c - Driver for the 2Big and 5Big Network series LEDs
  *
  * Copyright (C) 2010 LaCie
  *
  * Author: Simon Guinot <sguinot@lacie.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -25,10 +32,59 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
 #include <linux/leds.h>
 #include <linux/platform_data/leds-kirkwood-netxbig.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/leds.h>
+#include <linux/of.h>
+#include <linux/of_platform.h>
+
+struct netxbig_gpio_ext {
+	struct gpio_desc **addr;
+	int		num_addr;
+	struct gpio_desc **data;
+	int		num_data;
+	struct gpio_desc *enable;
+};
+
+enum netxbig_led_mode {
+	NETXBIG_LED_OFF,
+	NETXBIG_LED_ON,
+	NETXBIG_LED_SATA,
+	NETXBIG_LED_TIMER1,
+	NETXBIG_LED_TIMER2,
+	NETXBIG_LED_MODE_NUM,
+};
+
+#define NETXBIG_LED_INVALID_MODE NETXBIG_LED_MODE_NUM
+
+struct netxbig_led_timer {
+	unsigned long		delay_on;
+	unsigned long		delay_off;
+	enum netxbig_led_mode	mode;
+};
+
+struct netxbig_led {
+	const char	*name;
+	const char	*default_trigger;
+	int		mode_addr;
+	int		*mode_val;
+	int		bright_addr;
+	int		bright_max;
+};
+
+struct netxbig_led_platform_data {
+	struct netxbig_gpio_ext	*gpio_ext;
+	struct netxbig_led_timer *timer;
+	int			num_timer;
+	struct netxbig_led	*leds;
+	int			num_leds;
+};
+>>>>>>> upstream/android-13
 
 /*
  * GPIO extension bus.
@@ -41,7 +97,11 @@ static void gpio_ext_set_addr(struct netxbig_gpio_ext *gpio_ext, int addr)
 	int pin;
 
 	for (pin = 0; pin < gpio_ext->num_addr; pin++)
+<<<<<<< HEAD
 		gpio_set_value(gpio_ext->addr[pin], (addr >> pin) & 1);
+=======
+		gpiod_set_value(gpio_ext->addr[pin], (addr >> pin) & 1);
+>>>>>>> upstream/android-13
 }
 
 static void gpio_ext_set_data(struct netxbig_gpio_ext *gpio_ext, int data)
@@ -49,14 +109,23 @@ static void gpio_ext_set_data(struct netxbig_gpio_ext *gpio_ext, int data)
 	int pin;
 
 	for (pin = 0; pin < gpio_ext->num_data; pin++)
+<<<<<<< HEAD
 		gpio_set_value(gpio_ext->data[pin], (data >> pin) & 1);
+=======
+		gpiod_set_value(gpio_ext->data[pin], (data >> pin) & 1);
+>>>>>>> upstream/android-13
 }
 
 static void gpio_ext_enable_select(struct netxbig_gpio_ext *gpio_ext)
 {
 	/* Enable select is done on the raising edge. */
+<<<<<<< HEAD
 	gpio_set_value(gpio_ext->enable, 0);
 	gpio_set_value(gpio_ext->enable, 1);
+=======
+	gpiod_set_value(gpio_ext->enable, 0);
+	gpiod_set_value(gpio_ext->enable, 1);
+>>>>>>> upstream/android-13
 }
 
 static void gpio_ext_set_value(struct netxbig_gpio_ext *gpio_ext,
@@ -71,6 +140,7 @@ static void gpio_ext_set_value(struct netxbig_gpio_ext *gpio_ext,
 	spin_unlock_irqrestore(&gpio_ext_lock, flags);
 }
 
+<<<<<<< HEAD
 static int gpio_ext_init(struct platform_device *pdev,
 			 struct netxbig_gpio_ext *gpio_ext)
 {
@@ -106,6 +176,8 @@ static int gpio_ext_init(struct platform_device *pdev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Class LED driver.
  */
@@ -210,9 +282,15 @@ static void netxbig_led_set(struct led_classdev *led_cdev,
 	spin_unlock_irqrestore(&led_dat->lock, flags);
 }
 
+<<<<<<< HEAD
 static ssize_t netxbig_led_sata_store(struct device *dev,
 				      struct device_attribute *attr,
 				      const char *buff, size_t count)
+=======
+static ssize_t sata_store(struct device *dev,
+			  struct device_attribute *attr,
+			  const char *buff, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct netxbig_led_data *led_dat =
@@ -261,8 +339,13 @@ exit_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t netxbig_led_sata_show(struct device *dev,
 				     struct device_attribute *attr, char *buf)
+=======
+static ssize_t sata_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct netxbig_led_data *led_dat =
@@ -271,7 +354,11 @@ static ssize_t netxbig_led_sata_show(struct device *dev,
 	return sprintf(buf, "%d\n", led_dat->sata);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(sata, 0644, netxbig_led_sata_show, netxbig_led_sata_store);
+=======
+static DEVICE_ATTR_RW(sata);
+>>>>>>> upstream/android-13
 
 static struct attribute *netxbig_led_attrs[] = {
 	&dev_attr_sata.attr,
@@ -319,6 +406,7 @@ static int create_netxbig_led(struct platform_device *pdev,
 	return devm_led_classdev_register(&pdev->dev, &led_dat->cdev);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF_GPIO
 static int gpio_ext_get_of_pdata(struct device *dev, struct device_node *np,
 				 struct netxbig_gpio_ext *gpio_ext)
@@ -329,6 +417,49 @@ static int gpio_ext_get_of_pdata(struct device *dev, struct device_node *np,
 	int i;
 
 	ret = of_gpio_named_count(np, "addr-gpios");
+=======
+/**
+ * netxbig_gpio_ext_remove() - Clean up GPIO extension data
+ * @data: managed resource data to clean up
+ *
+ * Since we pick GPIO descriptors from another device than the device our
+ * driver is probing to, we need to register a specific callback to free
+ * these up using managed resources.
+ */
+static void netxbig_gpio_ext_remove(void *data)
+{
+	struct netxbig_gpio_ext *gpio_ext = data;
+	int i;
+
+	for (i = 0; i < gpio_ext->num_addr; i++)
+		gpiod_put(gpio_ext->addr[i]);
+	for (i = 0; i < gpio_ext->num_data; i++)
+		gpiod_put(gpio_ext->data[i]);
+	gpiod_put(gpio_ext->enable);
+}
+
+/**
+ * netxbig_gpio_ext_get() - Obtain GPIO extension device data
+ * @dev: main LED device
+ * @gpio_ext_dev: the GPIO extension device
+ * @gpio_ext: the data structure holding the GPIO extension data
+ *
+ * This function walks the subdevice that only contain GPIO line
+ * handles in the device tree and obtains the GPIO descriptors from that
+ * device.
+ */
+static int netxbig_gpio_ext_get(struct device *dev,
+				struct device *gpio_ext_dev,
+				struct netxbig_gpio_ext *gpio_ext)
+{
+	struct gpio_desc **addr, **data;
+	int num_addr, num_data;
+	struct gpio_desc *gpiod;
+	int ret;
+	int i;
+
+	ret = gpiod_count(gpio_ext_dev, "addr");
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev,
 			"Failed to count GPIOs in DT property addr-gpios\n");
@@ -339,16 +470,37 @@ static int gpio_ext_get_of_pdata(struct device *dev, struct device_node *np,
 	if (!addr)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	for (i = 0; i < num_addr; i++) {
 		ret = of_get_named_gpio(np, "addr-gpios", i);
 		if (ret < 0)
 			return ret;
 		addr[i] = ret;
+=======
+	/*
+	 * We cannot use devm_ managed resources with these GPIO descriptors
+	 * since they are associated with the "GPIO extension device" which
+	 * does not probe any driver. The device tree parser will however
+	 * populate a platform device for it so we can anyway obtain the
+	 * GPIO descriptors from the device.
+	 */
+	for (i = 0; i < num_addr; i++) {
+		gpiod = gpiod_get_index(gpio_ext_dev, "addr", i,
+					GPIOD_OUT_LOW);
+		if (IS_ERR(gpiod))
+			return PTR_ERR(gpiod);
+		gpiod_set_consumer_name(gpiod, "GPIO extension addr");
+		addr[i] = gpiod;
+>>>>>>> upstream/android-13
 	}
 	gpio_ext->addr = addr;
 	gpio_ext->num_addr = num_addr;
 
+<<<<<<< HEAD
 	ret = of_gpio_named_count(np, "data-gpios");
+=======
+	ret = gpiod_count(gpio_ext_dev, "data");
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev,
 			"Failed to count GPIOs in DT property data-gpios\n");
@@ -360,14 +512,24 @@ static int gpio_ext_get_of_pdata(struct device *dev, struct device_node *np,
 		return -ENOMEM;
 
 	for (i = 0; i < num_data; i++) {
+<<<<<<< HEAD
 		ret = of_get_named_gpio(np, "data-gpios", i);
 		if (ret < 0)
 			return ret;
 		data[i] = ret;
+=======
+		gpiod = gpiod_get_index(gpio_ext_dev, "data", i,
+					GPIOD_OUT_LOW);
+		if (IS_ERR(gpiod))
+			return PTR_ERR(gpiod);
+		gpiod_set_consumer_name(gpiod, "GPIO extension data");
+		data[i] = gpiod;
+>>>>>>> upstream/android-13
 	}
 	gpio_ext->data = data;
 	gpio_ext->num_data = num_data;
 
+<<<<<<< HEAD
 	ret = of_get_named_gpio(np, "enable-gpio", 0);
 	if (ret < 0) {
 		dev_err(dev,
@@ -377,13 +539,32 @@ static int gpio_ext_get_of_pdata(struct device *dev, struct device_node *np,
 	gpio_ext->enable = ret;
 
 	return 0;
+=======
+	gpiod = gpiod_get(gpio_ext_dev, "enable", GPIOD_OUT_LOW);
+	if (IS_ERR(gpiod)) {
+		dev_err(dev,
+			"Failed to get GPIO from DT property enable-gpio\n");
+		return PTR_ERR(gpiod);
+	}
+	gpiod_set_consumer_name(gpiod, "GPIO extension enable");
+	gpio_ext->enable = gpiod;
+
+	return devm_add_action_or_reset(dev, netxbig_gpio_ext_remove, gpio_ext);
+>>>>>>> upstream/android-13
 }
 
 static int netxbig_leds_get_of_pdata(struct device *dev,
 				     struct netxbig_led_platform_data *pdata)
 {
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	struct device_node *gpio_ext_np;
+=======
+	struct device_node *np = dev_of_node(dev);
+	struct device_node *gpio_ext_np;
+	struct platform_device *gpio_ext_pdev;
+	struct device *gpio_ext_dev;
+>>>>>>> upstream/android-13
 	struct device_node *child;
 	struct netxbig_gpio_ext *gpio_ext;
 	struct netxbig_led_timer *timers;
@@ -399,6 +580,7 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
 		dev_err(dev, "Failed to get DT handle gpio-ext\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 
 	gpio_ext = devm_kzalloc(dev, sizeof(*gpio_ext), GFP_KERNEL);
 	if (!gpio_ext)
@@ -407,11 +589,31 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
 	if (ret)
 		return ret;
 	of_node_put(gpio_ext_np);
+=======
+	gpio_ext_pdev = of_find_device_by_node(gpio_ext_np);
+	if (!gpio_ext_pdev) {
+		dev_err(dev, "Failed to find platform device for gpio-ext\n");
+		return -ENODEV;
+	}
+	gpio_ext_dev = &gpio_ext_pdev->dev;
+
+	gpio_ext = devm_kzalloc(dev, sizeof(*gpio_ext), GFP_KERNEL);
+	if (!gpio_ext) {
+		of_node_put(gpio_ext_np);
+		ret = -ENOMEM;
+		goto put_device;
+	}
+	ret = netxbig_gpio_ext_get(dev, gpio_ext_dev, gpio_ext);
+	of_node_put(gpio_ext_np);
+	if (ret)
+		goto put_device;
+>>>>>>> upstream/android-13
 	pdata->gpio_ext = gpio_ext;
 
 	/* Timers (optional) */
 	ret = of_property_count_u32_elems(np, "timers");
 	if (ret > 0) {
+<<<<<<< HEAD
 		if (ret % 3)
 			return -EINVAL;
 		num_timers = ret / 3;
@@ -419,13 +621,34 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
 				      GFP_KERNEL);
 		if (!timers)
 			return -ENOMEM;
+=======
+		if (ret % 3) {
+			ret = -EINVAL;
+			goto put_device;
+		}
+
+		num_timers = ret / 3;
+		timers = devm_kcalloc(dev, num_timers, sizeof(*timers),
+				      GFP_KERNEL);
+		if (!timers) {
+			ret = -ENOMEM;
+			goto put_device;
+		}
+>>>>>>> upstream/android-13
 		for (i = 0; i < num_timers; i++) {
 			u32 tmp;
 
 			of_property_read_u32_index(np, "timers", 3 * i,
 						   &timers[i].mode);
+<<<<<<< HEAD
 			if (timers[i].mode >= NETXBIG_LED_MODE_NUM)
 				return -EINVAL;
+=======
+			if (timers[i].mode >= NETXBIG_LED_MODE_NUM) {
+				ret = -EINVAL;
+				goto put_device;
+			}
+>>>>>>> upstream/android-13
 			of_property_read_u32_index(np, "timers",
 						   3 * i + 1, &tmp);
 			timers[i].delay_on = tmp;
@@ -438,6 +661,7 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
 	}
 
 	/* LEDs */
+<<<<<<< HEAD
 	num_leds = of_get_child_count(np);
 	if (!num_leds) {
 		dev_err(dev, "No LED subnodes found in DT\n");
@@ -450,6 +674,23 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
 
 	led = leds;
 	for_each_child_of_node(np, child) {
+=======
+	num_leds = of_get_available_child_count(np);
+	if (!num_leds) {
+		dev_err(dev, "No LED subnodes found in DT\n");
+		ret = -ENODEV;
+		goto put_device;
+	}
+
+	leds = devm_kcalloc(dev, num_leds, sizeof(*leds), GFP_KERNEL);
+	if (!leds) {
+		ret = -ENOMEM;
+		goto put_device;
+	}
+
+	led = leds;
+	for_each_available_child_of_node(np, child) {
+>>>>>>> upstream/android-13
 		const char *string;
 		int *mode_val;
 		int num_modes;
@@ -527,6 +768,11 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
 
 err_node_put:
 	of_node_put(child);
+<<<<<<< HEAD
+=======
+put_device:
+	put_device(gpio_ext_dev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -535,6 +781,7 @@ static const struct of_device_id of_netxbig_leds_match[] = {
 	{},
 };
 MODULE_DEVICE_TABLE(of, of_netxbig_leds_match);
+<<<<<<< HEAD
 #else
 static inline int
 netxbig_leds_get_of_pdata(struct device *dev,
@@ -547,10 +794,17 @@ netxbig_leds_get_of_pdata(struct device *dev,
 static int netxbig_led_probe(struct platform_device *pdev)
 {
 	struct netxbig_led_platform_data *pdata = dev_get_platdata(&pdev->dev);
+=======
+
+static int netxbig_led_probe(struct platform_device *pdev)
+{
+	struct netxbig_led_platform_data *pdata;
+>>>>>>> upstream/android-13
 	struct netxbig_led_data *leds_data;
 	int i;
 	int ret;
 
+<<<<<<< HEAD
 	if (!pdata) {
 		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
 		if (!pdata)
@@ -559,6 +813,14 @@ static int netxbig_led_probe(struct platform_device *pdev)
 		if (ret)
 			return ret;
 	}
+=======
+	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+	if (!pdata)
+		return -ENOMEM;
+	ret = netxbig_leds_get_of_pdata(&pdev->dev, pdata);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	leds_data = devm_kcalloc(&pdev->dev,
 				 pdata->num_leds, sizeof(*leds_data),
@@ -566,10 +828,13 @@ static int netxbig_led_probe(struct platform_device *pdev)
 	if (!leds_data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = gpio_ext_init(pdev, pdata->gpio_ext);
 	if (ret < 0)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < pdata->num_leds; i++) {
 		ret = create_netxbig_led(pdev, pdata,
 					 &leds_data[i], &pdata->leds[i]);
@@ -584,7 +849,11 @@ static struct platform_driver netxbig_led_driver = {
 	.probe		= netxbig_led_probe,
 	.driver		= {
 		.name		= "leds-netxbig",
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(of_netxbig_leds_match),
+=======
+		.of_match_table	= of_netxbig_leds_match,
+>>>>>>> upstream/android-13
 	},
 };
 

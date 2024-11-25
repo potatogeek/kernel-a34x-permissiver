@@ -13,16 +13,26 @@
 #ifndef _NF_CONNTRACK_H
 #define _NF_CONNTRACK_H
 
+<<<<<<< HEAD
 #include <linux/netfilter/nf_conntrack_common.h>
 
 #include <linux/bitops.h>
 #include <linux/compiler.h>
 #include <linux/atomic.h>
 
+=======
+#include <linux/bitops.h>
+#include <linux/compiler.h>
+#include <linux/android_vendor.h>
+#include <linux/android_kabi.h>
+
+#include <linux/netfilter/nf_conntrack_common.h>
+>>>>>>> upstream/android-13
 #include <linux/netfilter/nf_conntrack_tcp.h>
 #include <linux/netfilter/nf_conntrack_dccp.h>
 #include <linux/netfilter/nf_conntrack_sctp.h>
 #include <linux/netfilter/nf_conntrack_proto_gre.h>
+<<<<<<< HEAD
 #include <net/netfilter/ipv6/nf_conntrack_icmpv6.h>
 
 #include <net/netfilter/nf_conntrack_tuple.h>
@@ -30,6 +40,14 @@
 #define PROCESS_NAME_LEN_NAP	128
 #define DOMAIN_NAME_LEN_NAP	255
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+=======
+
+#include <net/netfilter/nf_conntrack_tuple.h>
+
+struct nf_ct_udp {
+	unsigned long	stream_ts;
+};
+>>>>>>> upstream/android-13
 
 /* per conntrack: protocol private data */
 union nf_conntrack_proto {
@@ -37,6 +55,10 @@ union nf_conntrack_proto {
 	struct nf_ct_dccp dccp;
 	struct ip_ct_sctp sctp;
 	struct ip_ct_tcp tcp;
+<<<<<<< HEAD
+=======
+	struct nf_ct_udp udp;
+>>>>>>> upstream/android-13
 	struct nf_ct_gre gre;
 	unsigned int tmpl_padto;
 };
@@ -46,8 +68,28 @@ union nf_conntrack_expect_proto {
 };
 
 struct nf_conntrack_net {
+<<<<<<< HEAD
 	unsigned int users4;
 	unsigned int users6;
+=======
+	/* only used when new connection is allocated: */
+	atomic_t count;
+	unsigned int expect_count;
+	u8 sysctl_auto_assign_helper;
+	bool auto_assign_helper_warned;
+
+	/* only used from work queues, configuration plane, and so on: */
+	unsigned int users4;
+	unsigned int users6;
+	unsigned int users_bridge;
+#ifdef CONFIG_SYSCTL
+	struct ctl_table_header	*sysctl_header;
+#endif
+#ifdef CONFIG_NF_CONNTRACK_EVENTS
+	struct delayed_work ecache_dwork;
+	struct netns_ct *ct_net;
+#endif
+>>>>>>> upstream/android-13
 };
 
 #include <linux/types.h>
@@ -63,12 +105,22 @@ struct nf_conn {
 	 * Hint, SKB address this struct and refcnt via skb->_nfct and
 	 * helpers nf_conntrack_get() and nf_conntrack_put().
 	 * Helper nf_ct_put() equals nf_conntrack_put() by dec refcnt,
+<<<<<<< HEAD
+=======
+	 * except that the latter uses internal indirection and does not
+	 * result in a conntrack module dependency.
+>>>>>>> upstream/android-13
 	 * beware nf_ct_get() is different and don't inc refcnt.
 	 */
 	struct nf_conntrack ct_general;
 
 	spinlock_t	lock;
+<<<<<<< HEAD
 	u16		cpu;
+=======
+	/* jiffies32 when this ct is considered dead */
+	u32 timeout;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NF_CONNTRACK_ZONES
 	struct nf_conntrack_zone zone;
@@ -80,9 +132,13 @@ struct nf_conn {
 	/* Have we seen traffic both ways yet? (bitset) */
 	unsigned long status;
 
+<<<<<<< HEAD
 	/* jiffies32 when this ct is considered dead */
 	u32 timeout;
 
+=======
+	u16		cpu;
+>>>>>>> upstream/android-13
 	possible_net_t ct_net;
 
 #if IS_ENABLED(CONFIG_NF_NAT)
@@ -107,6 +163,7 @@ struct nf_conn {
 
 	/* Storage reserved for other modules, must be the last member */
 	union nf_conntrack_proto proto;
+<<<<<<< HEAD
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
 	/* The number of application layer bytes sent by the socket */
 	__u64   knox_sent;
@@ -138,6 +195,12 @@ struct nf_conn {
 	/* Atomic variable indicating end of intermediate flow */
 	atomic_t intermediateFlow;
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+=======
+
+	ANDROID_OEM_DATA(1);
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 static inline struct nf_conn *
@@ -178,13 +241,17 @@ void nf_conntrack_alter_reply(struct nf_conn *ct,
 int nf_conntrack_tuple_taken(const struct nf_conntrack_tuple *tuple,
 			     const struct nf_conn *ignored_conntrack);
 
+<<<<<<< HEAD
 #define NFCT_INFOMASK	7UL
 #define NFCT_PTRMASK	~(NFCT_INFOMASK)
 
+=======
+>>>>>>> upstream/android-13
 /* Return conntrack_info and tuple hash for given skb. */
 static inline struct nf_conn *
 nf_ct_get(const struct sk_buff *skb, enum ip_conntrack_info *ctinfo)
 {
+<<<<<<< HEAD
 	*ctinfo = skb->_nfct & NFCT_INFOMASK;
 
 	return (struct nf_conn *)(skb->_nfct & NFCT_PTRMASK);
@@ -195,6 +262,21 @@ static inline void nf_ct_put(struct nf_conn *ct)
 {
 	WARN_ON(!ct);
 	nf_conntrack_put(&ct->ct_general);
+=======
+	unsigned long nfct = skb_get_nfct(skb);
+
+	*ctinfo = nfct & NFCT_INFOMASK;
+	return (struct nf_conn *)(nfct & NFCT_PTRMASK);
+}
+
+void nf_ct_destroy(struct nf_conntrack *nfct);
+
+/* decrement reference count on a conntrack */
+static inline void nf_ct_put(struct nf_conn *ct)
+{
+	if (ct && refcount_dec_and_test(&ct->ct_general.use))
+		nf_ct_destroy(&ct->ct_general);
+>>>>>>> upstream/android-13
 }
 
 /* Protocol module loading */
@@ -217,28 +299,47 @@ bool nf_ct_delete(struct nf_conn *ct, u32 pid, int report);
 bool nf_ct_get_tuplepr(const struct sk_buff *skb, unsigned int nhoff,
 		       u_int16_t l3num, struct net *net,
 		       struct nf_conntrack_tuple *tuple);
+<<<<<<< HEAD
 bool nf_ct_invert_tuplepr(struct nf_conntrack_tuple *inverse,
 			  const struct nf_conntrack_tuple *orig);
 
 void __nf_ct_refresh_acct(struct nf_conn *ct, enum ip_conntrack_info ctinfo,
 			  const struct sk_buff *skb,
 			  unsigned long extra_jiffies, int do_acct);
+=======
+
+void __nf_ct_refresh_acct(struct nf_conn *ct, enum ip_conntrack_info ctinfo,
+			  const struct sk_buff *skb,
+			  u32 extra_jiffies, bool do_acct);
+>>>>>>> upstream/android-13
 
 /* Refresh conntrack for this many jiffies and do accounting */
 static inline void nf_ct_refresh_acct(struct nf_conn *ct,
 				      enum ip_conntrack_info ctinfo,
 				      const struct sk_buff *skb,
+<<<<<<< HEAD
 				      unsigned long extra_jiffies)
 {
 	__nf_ct_refresh_acct(ct, ctinfo, skb, extra_jiffies, 1);
+=======
+				      u32 extra_jiffies)
+{
+	__nf_ct_refresh_acct(ct, ctinfo, skb, extra_jiffies, true);
+>>>>>>> upstream/android-13
 }
 
 /* Refresh conntrack for this many jiffies */
 static inline void nf_ct_refresh(struct nf_conn *ct,
 				 const struct sk_buff *skb,
+<<<<<<< HEAD
 				 unsigned long extra_jiffies)
 {
 	__nf_ct_refresh_acct(ct, 0, skb, extra_jiffies, 0);
+=======
+				 u32 extra_jiffies)
+{
+	__nf_ct_refresh_acct(ct, 0, skb, extra_jiffies, false);
+>>>>>>> upstream/android-13
 }
 
 /* kill conntrack and do accounting */
@@ -299,14 +400,22 @@ static inline bool nf_is_loopback_packet(const struct sk_buff *skb)
 /* jiffies until ct expires, 0 if already expired */
 static inline unsigned long nf_ct_expires(const struct nf_conn *ct)
 {
+<<<<<<< HEAD
 	s32 timeout = ct->timeout - nfct_time_stamp;
+=======
+	s32 timeout = READ_ONCE(ct->timeout) - nfct_time_stamp;
+>>>>>>> upstream/android-13
 
 	return timeout > 0 ? timeout : 0;
 }
 
 static inline bool nf_ct_is_expired(const struct nf_conn *ct)
 {
+<<<<<<< HEAD
 	return (__s32)(ct->timeout - nfct_time_stamp) <= 0;
+=======
+	return (__s32)(READ_ONCE(ct->timeout) - nfct_time_stamp) <= 0;
+>>>>>>> upstream/android-13
 }
 
 /* use after obtaining a reference count */
@@ -316,6 +425,21 @@ static inline bool nf_ct_should_gc(const struct nf_conn *ct)
 	       !nf_ct_is_dying(ct);
 }
 
+<<<<<<< HEAD
+=======
+#define	NF_CT_DAY	(86400 * HZ)
+
+/* Set an arbitrary timeout large enough not to ever expire, this save
+ * us a check for the IPS_OFFLOAD_BIT from the packet path via
+ * nf_ct_is_expired().
+ */
+static inline void nf_ct_offload_timeout(struct nf_conn *ct)
+{
+	if (nf_ct_expires(ct) < NF_CT_DAY / 2)
+		WRITE_ONCE(ct->timeout, nfct_time_stamp + NF_CT_DAY);
+}
+
+>>>>>>> upstream/android-13
 struct kernel_param;
 
 int nf_conntrack_set_hashsize(const char *val, const struct kernel_param *kp);
@@ -323,7 +447,11 @@ int nf_conntrack_hash_resize(unsigned int hashsize);
 
 extern struct hlist_nulls_head *nf_conntrack_hash;
 extern unsigned int nf_conntrack_htable_size;
+<<<<<<< HEAD
 extern seqcount_t nf_conntrack_generation;
+=======
+extern seqcount_spinlock_t nf_conntrack_generation;
+>>>>>>> upstream/android-13
 extern unsigned int nf_conntrack_max;
 
 /* must be called with rcu read lock held */
@@ -349,11 +477,26 @@ struct nf_conn *nf_ct_tmpl_alloc(struct net *net,
 void nf_ct_tmpl_free(struct nf_conn *tmpl);
 
 u32 nf_ct_get_id(const struct nf_conn *ct);
+<<<<<<< HEAD
+=======
+u32 nf_conntrack_count(const struct net *net);
+>>>>>>> upstream/android-13
 
 static inline void
 nf_ct_set(struct sk_buff *skb, struct nf_conn *ct, enum ip_conntrack_info info)
 {
+<<<<<<< HEAD
 	skb->_nfct = (unsigned long)ct | info;
+=======
+	skb_set_nfct(skb, (unsigned long)ct | info);
+}
+
+extern unsigned int nf_conntrack_net_id;
+
+static inline struct nf_conntrack_net *nf_ct_pernet(const struct net *net)
+{
+	return net_generic(net, nf_conntrack_net_id);
+>>>>>>> upstream/android-13
 }
 
 #define NF_CT_STAT_INC(net, count)	  __this_cpu_inc((net)->ct.stat->count)

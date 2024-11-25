@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Misc and compatibility things
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Misc and compatibility things
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -127,7 +134,11 @@ snd_pci_quirk_lookup_id(u16 vendor, u16 device,
 {
 	const struct snd_pci_quirk *q;
 
+<<<<<<< HEAD
 	for (q = list; q->subvendor; q++) {
+=======
+	for (q = list; q->subvendor || q->subdevice; q++) {
+>>>>>>> upstream/android-13
 		if (q->subvendor != vendor)
 			continue;
 		if (!q->subdevice ||

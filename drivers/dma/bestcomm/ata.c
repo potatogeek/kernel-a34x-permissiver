@@ -133,7 +133,11 @@ void bcom_ata_reset_bd(struct bcom_task *tsk)
 	struct bcom_ata_var *var;
 
 	/* Reset all BD */
+<<<<<<< HEAD
 	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+=======
+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+>>>>>>> upstream/android-13
 
 	tsk->index = 0;
 	tsk->outdex = 0;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * T613 subdriver
  *
  * Copyright (C) 2010 Jean-Francois Moine (http://moinejf.free.fr)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *Notes: * t613  + tas5130A
  *	* Focus to light do not balance well as in win.
  *	  Quality in win is not good, but its kinda better.
@@ -966,7 +973,11 @@ static int sd_init_controls(struct gspca_dev *gspca_dev)
 			V4L2_CID_SATURATION, 0, 0xf, 1, 5);
 	v4l2_ctrl_new_std(hdl, &sd_ctrl_ops,
 			V4L2_CID_GAMMA, 0, GAMMA_MAX, 1, 10);
+<<<<<<< HEAD
 	/* Activate lowlight, some apps dont bring up the
+=======
+	/* Activate lowlight, some apps don't bring up the
+>>>>>>> upstream/android-13
 	   backlight_compensation control) */
 	v4l2_ctrl_new_std(hdl, &sd_ctrl_ops,
 			V4L2_CID_BACKLIGHT_COMPENSATION, 0, 1, 1, 1);

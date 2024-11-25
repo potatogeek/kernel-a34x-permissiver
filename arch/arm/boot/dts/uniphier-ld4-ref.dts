@@ -20,7 +20,11 @@
 
 	aliases {
 		serial0 = &serial0;
+<<<<<<< HEAD
 		serial1 = &serial1;
+=======
+		serial1 = &serialsc;
+>>>>>>> upstream/android-13
 		serial2 = &serial2;
 		serial3 = &serial3;
 		i2c0 = &i2c0;
@@ -39,6 +43,13 @@
 	interrupts = <1 8>;
 };
 
+<<<<<<< HEAD
+=======
+&serialsc {
+	interrupts = <1 8>;
+};
+
+>>>>>>> upstream/android-13
 &serial0 {
 	status = "okay";
 };
@@ -63,6 +74,13 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&sd {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &usb0 {
 	status = "okay";
 };
@@ -73,4 +91,11 @@
 
 &nand {
 	status = "okay";
+<<<<<<< HEAD
+=======
+
+	nand@0 {
+		reg = <0>;
+	};
+>>>>>>> upstream/android-13
 };

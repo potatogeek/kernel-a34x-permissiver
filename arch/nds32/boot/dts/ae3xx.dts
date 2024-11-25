@@ -82,4 +82,12 @@
 			interrupts = <18>;
 		};
 	};
+<<<<<<< HEAD
+=======
+
+	pmu {
+		compatible = "andestech,nds32v3-pmu";
+		interrupts= <13>;
+	};
+>>>>>>> upstream/android-13
 };

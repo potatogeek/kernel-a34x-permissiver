@@ -16,6 +16,11 @@
 #include <linux/blockgroup_lock.h>
 #include <linux/percpu_counter.h>
 #include <linux/rbtree.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+#include <linux/highmem.h>
+>>>>>>> upstream/android-13
 
 /* XXX Here for now... not interested in restructing headers JUST now */
 
@@ -52,8 +57,13 @@ struct ext2_block_alloc_info {
 	/*
 	 * Was i_next_alloc_goal in ext2_inode_info
 	 * is the *physical* companion to i_next_alloc_block.
+<<<<<<< HEAD
 	 * it the the physical block number of the block which was most-recentl
 	 * allocated to this file.  This give us the goal (target) for the next
+=======
+	 * it is the physical block number of the block which was most-recently
+	 * allocated to this file.  This gives us the goal (target) for the next
+>>>>>>> upstream/android-13
 	 * allocation when we detect linearly ascending requests.
 	 */
 	ext2_fsblk_t		last_alloc_physical_block;
@@ -281,8 +291,11 @@ static inline __u32 ext2_mask_flags(umode_t mode, __u32 flags)
 /*
  * ioctl commands
  */
+<<<<<<< HEAD
 #define	EXT2_IOC_GETFLAGS		FS_IOC_GETFLAGS
 #define	EXT2_IOC_SETFLAGS		FS_IOC_SETFLAGS
+=======
+>>>>>>> upstream/android-13
 #define	EXT2_IOC_GETVERSION		FS_IOC_GETVERSION
 #define	EXT2_IOC_SETVERSION		FS_IOC_SETVERSION
 #define	EXT2_IOC_GETRSVSZ		_IOR('f', 5, long)
@@ -291,8 +304,11 @@ static inline __u32 ext2_mask_flags(umode_t mode, __u32 flags)
 /*
  * ioctl commands in 32 bit emulation
  */
+<<<<<<< HEAD
 #define EXT2_IOC32_GETFLAGS		FS_IOC32_GETFLAGS
 #define EXT2_IOC32_SETFLAGS		FS_IOC32_SETFLAGS
+=======
+>>>>>>> upstream/android-13
 #define EXT2_IOC32_GETVERSION		FS_IOC32_GETVERSION
 #define EXT2_IOC32_SETVERSION		FS_IOC32_SETVERSION
 
@@ -374,7 +390,10 @@ struct ext2_inode {
 /*
  * Mount flags
  */
+<<<<<<< HEAD
 #define EXT2_MOUNT_CHECK		0x000001  /* Do mount-time checks */
+=======
+>>>>>>> upstream/android-13
 #define EXT2_MOUNT_OLDALLOC		0x000002  /* Don't use the new Orlov allocator */
 #define EXT2_MOUNT_GRPID		0x000004  /* Create files with directory's group */
 #define EXT2_MOUNT_DEBUG		0x000008  /* Some debugging messages */
@@ -390,11 +409,15 @@ struct ext2_inode {
 #define EXT2_MOUNT_USRQUOTA		0x020000  /* user quota */
 #define EXT2_MOUNT_GRPQUOTA		0x040000  /* group quota */
 #define EXT2_MOUNT_RESERVATION		0x080000  /* Preallocation */
+<<<<<<< HEAD
 #ifdef CONFIG_FS_DAX
 #define EXT2_MOUNT_DAX			0x100000  /* Direct Access */
 #else
 #define EXT2_MOUNT_DAX			0
 #endif
+=======
+#define EXT2_MOUNT_DAX			0x100000  /* Direct Access */
+>>>>>>> upstream/android-13
 
 
 #define clear_opt(o, opt)		o &= ~EXT2_MOUNT_##opt
@@ -608,6 +631,7 @@ struct ext2_dir_entry_2 {
 };
 
 /*
+<<<<<<< HEAD
  * Ext2 directory file types.  Only the low 3 bits are used.  The
  * other bits are reserved for now.
  */
@@ -624,6 +648,8 @@ enum {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * EXT2_DIR_PAD defines the directory entries boundaries
  *
  * NOTE: It must be a multiple of 4
@@ -690,9 +716,12 @@ struct ext2_inode_info {
 	struct rw_semaphore xattr_sem;
 #endif
 	rwlock_t i_meta_lock;
+<<<<<<< HEAD
 #ifdef CONFIG_FS_DAX
 	struct rw_semaphore dax_sem;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * truncate_mutex is for serialising ext2_truncate() against
@@ -708,6 +737,7 @@ struct ext2_inode_info {
 #endif
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_FS_DAX
 #define dax_sem_down_write(ext2_inode)	down_write(&(ext2_inode)->dax_sem)
 #define dax_sem_up_write(ext2_inode)	up_write(&(ext2_inode)->dax_sem)
@@ -716,6 +746,8 @@ struct ext2_inode_info {
 #define dax_sem_up_write(ext2_inode)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Inode dynamic state flags
  */
@@ -758,6 +790,7 @@ extern void ext2_rsv_window_add(struct super_block *sb, struct ext2_reserve_wind
 
 /* dir.c */
 extern int ext2_add_link (struct dentry *, struct inode *);
+<<<<<<< HEAD
 extern ino_t ext2_inode_by_name(struct inode *, const struct qstr *);
 extern int ext2_make_empty(struct inode *, struct inode *);
 extern struct ext2_dir_entry_2 * ext2_find_entry (struct inode *,const struct qstr *, struct page **);
@@ -765,6 +798,24 @@ extern int ext2_delete_entry (struct ext2_dir_entry_2 *, struct page *);
 extern int ext2_empty_dir (struct inode *);
 extern struct ext2_dir_entry_2 * ext2_dotdot (struct inode *, struct page **);
 extern void ext2_set_link(struct inode *, struct ext2_dir_entry_2 *, struct page *, struct inode *, int);
+=======
+extern int ext2_inode_by_name(struct inode *dir,
+			      const struct qstr *child, ino_t *ino);
+extern int ext2_make_empty(struct inode *, struct inode *);
+extern struct ext2_dir_entry_2 *ext2_find_entry(struct inode *, const struct qstr *,
+						struct page **, void **res_page_addr);
+extern int ext2_delete_entry(struct ext2_dir_entry_2 *dir, struct page *page,
+			     char *kaddr);
+extern int ext2_empty_dir (struct inode *);
+extern struct ext2_dir_entry_2 *ext2_dotdot(struct inode *dir, struct page **p, void **pa);
+extern void ext2_set_link(struct inode *, struct ext2_dir_entry_2 *, struct page *, void *,
+			  struct inode *, int);
+static inline void ext2_put_page(struct page *page, void *page_addr)
+{
+	kunmap_local(page_addr);
+	put_page(page);
+}
+>>>>>>> upstream/android-13
 
 /* ialloc.c */
 extern struct inode * ext2_new_inode (struct inode *, umode_t, const struct qstr *);
@@ -777,12 +828,24 @@ extern struct inode *ext2_iget (struct super_block *, unsigned long);
 extern int ext2_write_inode (struct inode *, struct writeback_control *);
 extern void ext2_evict_inode(struct inode *);
 extern int ext2_get_block(struct inode *, sector_t, struct buffer_head *, int);
+<<<<<<< HEAD
 extern int ext2_setattr (struct dentry *, struct iattr *);
+=======
+extern int ext2_setattr (struct user_namespace *, struct dentry *, struct iattr *);
+extern int ext2_getattr (struct user_namespace *, const struct path *,
+			 struct kstat *, u32, unsigned int);
+>>>>>>> upstream/android-13
 extern void ext2_set_inode_flags(struct inode *inode);
 extern int ext2_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		       u64 start, u64 len);
 
 /* ioctl.c */
+<<<<<<< HEAD
+=======
+extern int ext2_fileattr_get(struct dentry *dentry, struct fileattr *fa);
+extern int ext2_fileattr_set(struct user_namespace *mnt_userns,
+			     struct dentry *dentry, struct fileattr *fa);
+>>>>>>> upstream/android-13
 extern long ext2_ioctl(struct file *, unsigned int, unsigned long);
 extern long ext2_compat_ioctl(struct file *, unsigned int, unsigned long);
 
@@ -832,6 +895,21 @@ ext2_group_first_block_no(struct super_block *sb, unsigned long group_no)
 		le32_to_cpu(EXT2_SB(sb)->s_es->s_first_data_block);
 }
 
+<<<<<<< HEAD
+=======
+static inline ext2_fsblk_t
+ext2_group_last_block_no(struct super_block *sb, unsigned long group_no)
+{
+	struct ext2_sb_info *sbi = EXT2_SB(sb);
+
+	if (group_no == sbi->s_groups_count - 1)
+		return le32_to_cpu(sbi->s_es->s_blocks_count) - 1;
+	else
+		return ext2_group_first_block_no(sb, group_no) +
+			EXT2_BLOCKS_PER_GROUP(sb) - 1;
+}
+
+>>>>>>> upstream/android-13
 #define ext2_set_bit	__test_and_set_bit_le
 #define ext2_clear_bit	__test_and_clear_bit_le
 #define ext2_test_bit	test_bit_le

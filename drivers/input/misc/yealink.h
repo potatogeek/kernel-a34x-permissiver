@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * drivers/usb/input/yealink.h
  *
  * Copyright (c) 2005 Henk Vergonet <Henk.Vergonet@gmail.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef INPUT_YEALINK_H
 #define INPUT_YEALINK_H

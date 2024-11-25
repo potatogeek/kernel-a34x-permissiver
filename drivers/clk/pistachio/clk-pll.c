@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Google, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Google, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
@@ -298,7 +304,11 @@ static unsigned long pll_gf40lp_frac_recalc_rate(struct clk_hw *hw,
 	return rate;
 }
 
+<<<<<<< HEAD
 static struct clk_ops pll_gf40lp_frac_ops = {
+=======
+static const struct clk_ops pll_gf40lp_frac_ops = {
+>>>>>>> upstream/android-13
 	.enable = pll_gf40lp_frac_enable,
 	.disable = pll_gf40lp_frac_disable,
 	.is_enabled = pll_gf40lp_frac_is_enabled,
@@ -307,7 +317,11 @@ static struct clk_ops pll_gf40lp_frac_ops = {
 	.set_rate = pll_gf40lp_frac_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_ops pll_gf40lp_frac_fixed_ops = {
+=======
+static const struct clk_ops pll_gf40lp_frac_fixed_ops = {
+>>>>>>> upstream/android-13
 	.enable = pll_gf40lp_frac_enable,
 	.disable = pll_gf40lp_frac_disable,
 	.is_enabled = pll_gf40lp_frac_is_enabled,
@@ -430,7 +444,11 @@ static unsigned long pll_gf40lp_laint_recalc_rate(struct clk_hw *hw,
 	return rate;
 }
 
+<<<<<<< HEAD
 static struct clk_ops pll_gf40lp_laint_ops = {
+=======
+static const struct clk_ops pll_gf40lp_laint_ops = {
+>>>>>>> upstream/android-13
 	.enable = pll_gf40lp_laint_enable,
 	.disable = pll_gf40lp_laint_disable,
 	.is_enabled = pll_gf40lp_laint_is_enabled,
@@ -439,7 +457,11 @@ static struct clk_ops pll_gf40lp_laint_ops = {
 	.set_rate = pll_gf40lp_laint_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_ops pll_gf40lp_laint_fixed_ops = {
+=======
+static const struct clk_ops pll_gf40lp_laint_fixed_ops = {
+>>>>>>> upstream/android-13
 	.enable = pll_gf40lp_laint_enable,
 	.disable = pll_gf40lp_laint_disable,
 	.is_enabled = pll_gf40lp_laint_is_enabled,
@@ -453,7 +475,11 @@ static struct clk *pll_register(const char *name, const char *parent_name,
 				unsigned int nr_rates)
 {
 	struct pistachio_clk_pll *pll;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	pll = kzalloc(sizeof(*pll), GFP_KERNEL);

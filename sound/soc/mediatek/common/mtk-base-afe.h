@@ -27,12 +27,20 @@ struct mtk_base_memif_data {
 	int mono_shift;
 	int mono_invert;
 	int quad_ch_reg;
+<<<<<<< HEAD
 	int quad_ch_mask_shift;
 	int quad_ch_shift;
+=======
+	int quad_ch_mask;
+	int quad_ch_shift;
+	int int_odd_flag_reg;
+	int int_odd_flag_shift;
+>>>>>>> upstream/android-13
 	int enable_reg;
 	int enable_shift;
 	int hd_reg;
 	int hd_shift;
+<<<<<<< HEAD
 	int msb_reg;
 	int msb_shift;
 	int msb2_reg;
@@ -45,6 +53,25 @@ struct mtk_base_memif_data {
 	int pbuf_shift;
 	int minlen_reg;
 	int minlen_mask_shift;
+=======
+	int hd_align_reg;
+	int hd_align_mshift;
+	int msb_reg;
+	int msb_shift;
+	int msb_end_reg;
+	int msb_end_shift;
+	int agent_disable_reg;
+	int agent_disable_shift;
+	int ch_num_reg;
+	int ch_num_shift;
+	int ch_num_maskbit;
+	/* playback memif only */
+	int pbuf_reg;
+	int pbuf_mask;
+	int pbuf_shift;
+	int minlen_reg;
+	int minlen_mask;
+>>>>>>> upstream/android-13
 	int minlen_shift;
 };
 
@@ -60,6 +87,7 @@ struct mtk_base_irq_data {
 	int irq_en_shift;
 	int irq_clr_reg;
 	int irq_clr_shift;
+<<<<<<< HEAD
 	int irq_ap_en_reg;
 	int irq_ap_en_shift;
 	int irq_scp_en_reg;
@@ -67,6 +95,11 @@ struct mtk_base_irq_data {
 };
 
 struct dentry;
+=======
+	int irq_status_shift;
+};
+
+>>>>>>> upstream/android-13
 struct device;
 struct list_head;
 struct mtk_base_afe_memif;
@@ -75,10 +108,13 @@ struct mtk_base_afe_dai;
 struct regmap;
 struct snd_pcm_substream;
 struct snd_soc_dai;
+<<<<<<< HEAD
 struct snd_soc_dai_driver;
 typedef int (*mtk_sp_copy_f)(struct snd_pcm_substream *substream,
 				 int channel, unsigned long hwoff,
 				 void *buf, unsigned long bytes);
+=======
+>>>>>>> upstream/android-13
 
 struct mtk_base_afe {
 	void __iomem *base_addr;
@@ -96,9 +132,15 @@ struct mtk_base_afe {
 
 	struct mtk_base_afe_memif *memif;
 	int memif_size;
+<<<<<<< HEAD
 	int memif_32bit_supported;
 	struct mtk_base_afe_irq *irqs;
 	int irqs_size;
+=======
+	struct mtk_base_afe_irq *irqs;
+	int irqs_size;
+	int memif_32bit_supported;
+>>>>>>> upstream/android-13
 
 	struct list_head sub_dais;
 	struct snd_soc_dai_driver *dai_drivers;
@@ -113,6 +155,7 @@ struct mtk_base_afe {
 			  int dai_id, unsigned int rate);
 	int (*get_memif_pbuf_size)(struct snd_pcm_substream *substream);
 
+<<<<<<< HEAD
 	void *sram;
 	int (*request_dram_resource)(struct device *dev);
 	int (*release_dram_resource)(struct device *dev);
@@ -133,10 +176,22 @@ struct mtk_base_afe_memif {
 	dma_addr_t dma_addr;
 	size_t dma_bytes;
 
+=======
+	int (*request_dram_resource)(struct device *dev);
+	int (*release_dram_resource)(struct device *dev);
+
+	void *platform_priv;
+};
+
+struct mtk_base_afe_memif {
+	unsigned int phys_buf_addr;
+	int buffer_size;
+>>>>>>> upstream/android-13
 	struct snd_pcm_substream *substream;
 	const struct mtk_base_memif_data *data;
 	int irq_usage;
 	int const_irq;
+<<<<<<< HEAD
 	unsigned int phys_buf_addr;
 	int buffer_size;
 
@@ -156,6 +211,11 @@ struct mtk_base_afe_memif {
 
 	bool ack_enable;
 	int (*ack)(struct snd_pcm_substream *substream);
+=======
+	unsigned char *dma_area;
+	dma_addr_t dma_addr;
+	size_t dma_bytes;
+>>>>>>> upstream/android-13
 };
 
 struct mtk_base_afe_irq {

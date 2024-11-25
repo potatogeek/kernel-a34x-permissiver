@@ -34,7 +34,10 @@
 
 struct pci_dev;
 
+<<<<<<< HEAD
 #define KFD_INTERFACE_VERSION 2
+=======
+>>>>>>> upstream/android-13
 #define KGD_MAX_QUEUES 128
 
 struct kfd_dev;
@@ -45,6 +48,10 @@ struct kgd_mem;
 enum kfd_preempt_type {
 	KFD_PREEMPT_TYPE_WAVEFRONT_DRAIN = 0,
 	KFD_PREEMPT_TYPE_WAVEFRONT_RESET,
+<<<<<<< HEAD
+=======
+	KFD_PREEMPT_TYPE_WAVEFRONT_SAVE
+>>>>>>> upstream/android-13
 };
 
 struct kfd_vm_fault_info {
@@ -86,6 +93,7 @@ enum kgd_memory_pool {
 	KGD_POOL_FRAMEBUFFER = 3,
 };
 
+<<<<<<< HEAD
 enum kgd_engine_type {
 	KGD_ENGINE_PFP = 1,
 	KGD_ENGINE_ME,
@@ -96,6 +104,33 @@ enum kgd_engine_type {
 	KGD_ENGINE_SDMA1,
 	KGD_ENGINE_SDMA2,
 	KGD_ENGINE_MAX
+=======
+/**
+ * enum kfd_sched_policy
+ *
+ * @KFD_SCHED_POLICY_HWS: H/W scheduling policy known as command processor (cp)
+ * scheduling. In this scheduling mode we're using the firmware code to
+ * schedule the user mode queues and kernel queues such as HIQ and DIQ.
+ * the HIQ queue is used as a special queue that dispatches the configuration
+ * to the cp and the user mode queues list that are currently running.
+ * the DIQ queue is a debugging queue that dispatches debugging commands to the
+ * firmware.
+ * in this scheduling mode user mode queues over subscription feature is
+ * enabled.
+ *
+ * @KFD_SCHED_POLICY_HWS_NO_OVERSUBSCRIPTION: The same as above but the over
+ * subscription feature disabled.
+ *
+ * @KFD_SCHED_POLICY_NO_HWS: no H/W scheduling policy is a mode which directly
+ * set the command processor registers and sets the queues "manually". This
+ * mode is used *ONLY* for debugging proposes.
+ *
+ */
+enum kfd_sched_policy {
+	KFD_SCHED_POLICY_HWS = 0,
+	KFD_SCHED_POLICY_HWS_NO_OVERSUBSCRIPTION,
+	KFD_SCHED_POLICY_NO_HWS
+>>>>>>> upstream/android-13
 };
 
 struct kgd2kfd_shared_resources {
@@ -109,6 +144,7 @@ struct kgd2kfd_shared_resources {
 	uint32_t num_queue_per_pipe;
 
 	/* Bit n == 1 means Queue n is available for KFD */
+<<<<<<< HEAD
 	DECLARE_BITMAP(queue_bitmap, KGD_MAX_QUEUES);
 
 	/* Doorbell assignments (SOC15 and later chips only). Only
@@ -125,6 +161,21 @@ struct kgd2kfd_shared_resources {
 	unsigned int sdma_doorbell[2][2];
 	unsigned int reserved_doorbell_mask;
 	unsigned int reserved_doorbell_val;
+=======
+	DECLARE_BITMAP(cp_queue_bitmap, KGD_MAX_QUEUES);
+
+	/* SDMA doorbell assignments (SOC15 and later chips only). Only
+	 * specific doorbells are routed to each SDMA engine. Others
+	 * are routed to IH and VCN. They are not usable by the CP.
+	 */
+	uint32_t *sdma_doorbell_idx;
+
+	/* From SOC15 onward, the doorbell index range not usable for CP
+	 * queues.
+	 */
+	uint32_t non_cp_doorbells_start;
+	uint32_t non_cp_doorbells_end;
+>>>>>>> upstream/android-13
 
 	/* Base address of doorbell aperture. */
 	phys_addr_t doorbell_physical_address;
@@ -140,6 +191,10 @@ struct kgd2kfd_shared_resources {
 
 	/* Minor device number of the render node */
 	int drm_render_minor;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 };
 
 struct tile_config {
@@ -153,6 +208,7 @@ struct tile_config {
 	uint32_t num_ranks;
 };
 
+<<<<<<< HEAD
 
 /*
  * Allocation flag domains
@@ -173,10 +229,14 @@ struct tile_config {
 #define ALLOC_MEM_FLAGS_NO_SUBSTITUTE	(1 << 28) /* TODO */
 #define ALLOC_MEM_FLAGS_AQL_QUEUE_MEM	(1 << 27)
 #define ALLOC_MEM_FLAGS_COHERENT	(1 << 26) /* For GFXv9 or later */
+=======
+#define KFD_MAX_NUM_OF_QUEUES_PER_DEVICE_DEFAULT 4096
+>>>>>>> upstream/android-13
 
 /**
  * struct kfd2kgd_calls
  *
+<<<<<<< HEAD
  * @init_gtt_mem_allocation: Allocate a buffer on the gart aperture.
  * The buffer can be used for mqds, hpds, kernel queue, fence and runlists
  *
@@ -191,6 +251,8 @@ struct tile_config {
  * @alloc_pasid: Allocate a PASID
  * @free_pasid: Free a PASID
  *
+=======
+>>>>>>> upstream/android-13
  * @program_sh_mem_settings: A function that should initiate the memory
  * properties such as main aperture memory type (cache / non cached) and
  * secondary aperture base address, size and memory type.
@@ -220,6 +282,7 @@ struct tile_config {
  * @hqd_sdma_destroy: Destructs and preempts the SDMA queue assigned to that
  * SDMA hqd slot.
  *
+<<<<<<< HEAD
  * @get_fw_version: Returns FW versions from the header
  *
  * @set_scratch_backing_va: Sets VA for scratch backing memory of a VMID.
@@ -262,10 +325,18 @@ struct tile_config {
  * process. This is intended for restoring memory mappings after a TTM
  * eviction.
  *
+=======
+ * @set_scratch_backing_va: Sets VA for scratch backing memory of a VMID.
+ * Only used for no cp scheduling mode
+ *
+ * @set_vm_context_page_table_base: Program page table base for a VMID
+ *
+>>>>>>> upstream/android-13
  * @invalidate_tlbs: Invalidate TLBs for a specific PASID
  *
  * @invalidate_tlbs_vmid: Invalidate TLBs for a specific VMID
  *
+<<<<<<< HEAD
  * @submit_ib: Submits an IB to the engine specified by inserting the
  * IB to the corresponding ring (ring type). The IB is executed with the
  * specified VMID in a user mode context.
@@ -276,20 +347,34 @@ struct tile_config {
  * faults. On GFXv9 VM fault information is fully contained in the IH
  * packet and this function is not needed.
  *
+=======
+>>>>>>> upstream/android-13
  * @read_vmid_from_vmfault_reg: On Hawaii the VMID is not set in the
  * IH ring entry. This function allows the KFD ISR to get the VMID
  * from the fault status register as early as possible.
  *
+<<<<<<< HEAD
  * @gpu_recover: let kgd reset gpu after kfd detect CPC hang
  *
  * @set_compute_idle: Indicates that compute is idle on a device. This
  * can be used to change power profiles depending on compute activity.
+=======
+ * @get_cu_occupancy: Function pointer that returns to caller the number
+ * of wave fronts that are in flight for all of the queues of a process
+ * as identified by its pasid. It is important to note that the value
+ * returned by this function is a snapshot of current moment and cannot
+ * guarantee any minimum for the number of waves in-flight. This function
+ * is defined for devices that belong to GFX9 and later GFX families. Care
+ * must be taken in calling this function as it is not defined for devices
+ * that belong to GFX8 and below GFX families.
+>>>>>>> upstream/android-13
  *
  * This structure contains function pointers to services that the kgd driver
  * provides to amdkfd driver.
  *
  */
 struct kfd2kgd_calls {
+<<<<<<< HEAD
 	int (*init_gtt_mem_allocation)(struct kgd_dev *kgd, size_t size,
 					void **mem_obj, uint64_t *gpu_addr,
 					void **cpu_ptr, bool mqd_gfx9);
@@ -305,12 +390,18 @@ struct kfd2kgd_calls {
 	int (*alloc_pasid)(unsigned int bits);
 	void (*free_pasid)(unsigned int pasid);
 
+=======
+>>>>>>> upstream/android-13
 	/* Register access functions */
 	void (*program_sh_mem_settings)(struct kgd_dev *kgd, uint32_t vmid,
 			uint32_t sh_mem_config,	uint32_t sh_mem_ape1_base,
 			uint32_t sh_mem_ape1_limit, uint32_t sh_mem_bases);
 
+<<<<<<< HEAD
 	int (*set_pasid_vmid_mapping)(struct kgd_dev *kgd, unsigned int pasid,
+=======
+	int (*set_pasid_vmid_mapping)(struct kgd_dev *kgd, u32 pasid,
+>>>>>>> upstream/android-13
 					unsigned int vmid);
 
 	int (*init_interrupts)(struct kgd_dev *kgd, uint32_t pipe_id);
@@ -320,6 +411,13 @@ struct kfd2kgd_calls {
 			uint32_t wptr_shift, uint32_t wptr_mask,
 			struct mm_struct *mm);
 
+<<<<<<< HEAD
+=======
+	int (*hiq_mqd_load)(struct kgd_dev *kgd, void *mqd,
+			    uint32_t pipe_id, uint32_t queue_id,
+			    uint32_t doorbell_off);
+
+>>>>>>> upstream/android-13
 	int (*hqd_sdma_load)(struct kgd_dev *kgd, void *mqd,
 			     uint32_t __user *wptr, struct mm_struct *mm);
 
@@ -355,6 +453,7 @@ struct kfd2kgd_calls {
 	uint32_t (*address_watch_get_offset)(struct kgd_dev *kgd,
 					unsigned int watch_point_id,
 					unsigned int reg_offset);
+<<<<<<< HEAD
 	bool (*get_atc_vmid_pasid_mapping_valid)(
 					struct kgd_dev *kgd,
 					uint8_t vmid);
@@ -462,4 +561,28 @@ struct kgd2kfd_calls {
 int kgd2kfd_init(unsigned interface_version,
 		const struct kgd2kfd_calls **g2f);
 
+=======
+	bool (*get_atc_vmid_pasid_mapping_info)(
+					struct kgd_dev *kgd,
+					uint8_t vmid,
+					uint16_t *p_pasid);
+
+	/* No longer needed from GFXv9 onward. The scratch base address is
+	 * passed to the shader by the CP. It's the user mode driver's
+	 * responsibility.
+	 */
+	void (*set_scratch_backing_va)(struct kgd_dev *kgd,
+				uint64_t va, uint32_t vmid);
+
+	void (*set_vm_context_page_table_base)(struct kgd_dev *kgd,
+			uint32_t vmid, uint64_t page_table_base);
+	uint32_t (*read_vmid_from_vmfault_reg)(struct kgd_dev *kgd);
+
+	void (*get_cu_occupancy)(struct kgd_dev *kgd, int pasid, int *wave_cnt,
+			int *max_waves_per_cu);
+	void (*program_trap_handler_settings)(struct kgd_dev *kgd,
+			uint32_t vmid, uint64_t tba_addr, uint64_t tma_addr);
+};
+
+>>>>>>> upstream/android-13
 #endif	/* KGD_KFD_INTERFACE_H_INCLUDED */

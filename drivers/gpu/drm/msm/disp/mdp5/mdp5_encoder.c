@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,12 @@
 
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
+=======
+ */
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "mdp5_kms.h"
 
@@ -27,6 +38,7 @@ static struct mdp5_kms *get_kms(struct drm_encoder *encoder)
 	return to_mdp5_kms(to_mdp_kms(priv->kms));
 }
 
+<<<<<<< HEAD
 #ifdef DOWNSTREAM_CONFIG_MSM_BUS_SCALING
 #include <mach/board.h>
 #include <mach/msm_bus.h>
@@ -93,6 +105,11 @@ static void mdp5_encoder_destroy(struct drm_encoder *encoder)
 {
 	struct mdp5_encoder *mdp5_encoder = to_mdp5_encoder(encoder);
 	bs_fini(mdp5_encoder);
+=======
+static void mdp5_encoder_destroy(struct drm_encoder *encoder)
+{
+	struct mdp5_encoder *mdp5_encoder = to_mdp5_encoder(encoder);
+>>>>>>> upstream/android-13
 	drm_encoder_cleanup(encoder);
 	kfree(mdp5_encoder);
 }
@@ -118,6 +135,7 @@ static void mdp5_vid_encoder_mode_set(struct drm_encoder *encoder,
 
 	mode = adjusted_mode;
 
+<<<<<<< HEAD
 	DBG("set mode: %d:\"%s\" %d %d %d %d %d %d %d %d %d %d 0x%x 0x%x",
 			mode->base.id, mode->name,
 			mode->vrefresh, mode->clock,
@@ -126,6 +144,9 @@ static void mdp5_vid_encoder_mode_set(struct drm_encoder *encoder,
 			mode->vdisplay, mode->vsync_start,
 			mode->vsync_end, mode->vtotal,
 			mode->type, mode->flags);
+=======
+	DBG("set mode: " DRM_MODE_FMT, DRM_MODE_ARG(mode));
+>>>>>>> upstream/android-13
 
 	ctrl_pol = 0;
 
@@ -240,8 +261,11 @@ static void mdp5_vid_encoder_disable(struct drm_encoder *encoder)
 	 */
 	mdp_irq_wait(&mdp5_kms->base, intf2vblank(mixer, intf));
 
+<<<<<<< HEAD
 	bs_set(mdp5_encoder, 0);
 
+=======
+>>>>>>> upstream/android-13
 	mdp5_encoder->enabled = false;
 }
 
@@ -258,7 +282,10 @@ static void mdp5_vid_encoder_enable(struct drm_encoder *encoder)
 	if (WARN_ON(mdp5_encoder->enabled))
 		return;
 
+<<<<<<< HEAD
 	bs_set(mdp5_encoder, 1);
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&mdp5_encoder->intf_lock, flags);
 	mdp5_write(mdp5_kms, REG_MDP5_INTF_TIMING_ENGINE_EN(intfn), 1);
 	spin_unlock_irqrestore(&mdp5_encoder->intf_lock, flags);
@@ -444,8 +471,11 @@ struct drm_encoder *mdp5_encoder_init(struct drm_device *dev,
 
 	drm_encoder_helper_add(encoder, &mdp5_encoder_helper_funcs);
 
+<<<<<<< HEAD
 	bs_init(mdp5_encoder);
 
+=======
+>>>>>>> upstream/android-13
 	return encoder;
 
 fail:

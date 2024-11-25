@@ -31,6 +31,12 @@
 /* control total # of nats */
 #define DEF_NAT_CACHE_THRESHOLD			100000
 
+<<<<<<< HEAD
+=======
+/* control total # of node writes used for roll-fowrad recovery */
+#define DEF_RF_NODE_BLOCKS			0
+
+>>>>>>> upstream/android-13
 /* vector size for gang look-up from nat cache that consists of radix tree */
 #define NATVEC_SIZE	64
 #define SETVEC_SIZE	32
@@ -38,6 +44,12 @@
 /* return value for read_node_page */
 #define LOCKED_PAGE	1
 
+<<<<<<< HEAD
+=======
+/* check pinned file's alignment status of physical blocks */
+#define FILE_NOT_ALIGNED	1
+
+>>>>>>> upstream/android-13
 /* For flag in struct node_info */
 enum {
 	IS_CHECKPOINTED,	/* is it checkpointed before? */
@@ -135,11 +147,14 @@ static inline bool excess_cached_nats(struct f2fs_sb_info *sbi)
 	return NM_I(sbi)->nat_cnt[TOTAL_NAT] >= DEF_NAT_CACHE_THRESHOLD;
 }
 
+<<<<<<< HEAD
 static inline bool excess_dirty_nodes(struct f2fs_sb_info *sbi)
 {
 	return get_pages(sbi, F2FS_DIRTY_NODES) >= sbi->blocks_per_seg * 8;
 }
 
+=======
+>>>>>>> upstream/android-13
 enum mem_type {
 	FREE_NIDS,	/* indicates the free nid list */
 	NAT_ENTRIES,	/* indicates the cached nat entry */
@@ -147,6 +162,11 @@ enum mem_type {
 	INO_ENTRIES,	/* indicates inode entries */
 	EXTENT_CACHE,	/* indicates extent cache */
 	INMEM_PAGES,	/* indicates inmemory pages */
+<<<<<<< HEAD
+=======
+	DISCARD_CACHE,	/* indicates memory of cached discard cmds */
+	COMPRESS_PAGE,	/* indicates memory of cached compressed pages */
+>>>>>>> upstream/android-13
 	BASE_CHECK,	/* check kernel status */
 };
 
@@ -388,6 +408,7 @@ static inline nid_t get_nid(struct page *p, int off, bool i)
  *  - Mark cold node blocks in their node footer
  *  - Mark cold data pages in page cache
  */
+<<<<<<< HEAD
 static inline int is_cold_data(struct page *page)
 {
 	return PageChecked(page);
@@ -402,6 +423,8 @@ static inline void clear_cold_data(struct page *page)
 {
 	ClearPageChecked(page);
 }
+=======
+>>>>>>> upstream/android-13
 
 static inline int is_node(struct page *page, int type)
 {
@@ -413,6 +436,7 @@ static inline int is_node(struct page *page, int type)
 #define is_fsync_dnode(page)	is_node(page, FSYNC_BIT_SHIFT)
 #define is_dent_dnode(page)	is_node(page, DENT_BIT_SHIFT)
 
+<<<<<<< HEAD
 static inline int is_inline_node(struct page *page)
 {
 	return PageChecked(page);
@@ -428,6 +452,8 @@ static inline void clear_inline_node(struct page *page)
 	ClearPageChecked(page);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void set_cold_node(struct page *page, bool is_dir)
 {
 	struct f2fs_node *rn = F2FS_NODE(page);

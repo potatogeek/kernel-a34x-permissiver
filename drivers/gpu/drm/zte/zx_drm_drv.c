@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 Linaro Ltd.
  * Copyright 2016 ZTE Corporation.
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2016 Linaro Ltd.
+ * Copyright 2016 ZTE Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -18,26 +25,39 @@
 
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc.h>
+<<<<<<< HEAD
 #include <drm/drm_crtc_helper.h>
+=======
+#include <drm/drm_drv.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_fb_cma_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
 #include <drm/drm_of.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "zx_drm_drv.h"
 #include "zx_vou.h"
 
 static const struct drm_mode_config_funcs zx_drm_mode_config_funcs = {
 	.fb_create = drm_gem_fb_create,
+<<<<<<< HEAD
 	.output_poll_changed = drm_fb_helper_output_poll_changed,
+=======
+>>>>>>> upstream/android-13
 	.atomic_check = drm_atomic_helper_check,
 	.atomic_commit = drm_atomic_helper_commit,
 };
 
 DEFINE_DRM_GEM_CMA_FOPS(zx_drm_fops);
 
+<<<<<<< HEAD
 static struct drm_driver zx_drm_driver = {
 	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
 			   DRIVER_ATOMIC,
@@ -54,6 +74,11 @@ static struct drm_driver zx_drm_driver = {
 	.gem_prime_vmap = drm_gem_cma_prime_vmap,
 	.gem_prime_vunmap = drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap = drm_gem_cma_prime_mmap,
+=======
+static const struct drm_driver zx_drm_driver = {
+	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+	DRM_GEM_CMA_DRIVER_OPS,
+>>>>>>> upstream/android-13
 	.fops = &zx_drm_fops,
 	.name = "zx-vou",
 	.desc = "ZTE VOU Controller DRM",
@@ -92,6 +117,7 @@ static int zx_drm_bind(struct device *dev)
 		goto out_unbind;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * We will manage irq handler on our own.  In this case, irq_enabled
 	 * need to be true for using vblank core support.
@@ -115,6 +141,19 @@ static int zx_drm_bind(struct device *dev)
 
 out_fbdev_fini:
 	drm_fb_cma_fbdev_fini(drm);
+=======
+	drm_mode_config_reset(drm);
+	drm_kms_helper_poll_init(drm);
+
+	ret = drm_dev_register(drm, 0);
+	if (ret)
+		goto out_poll_fini;
+
+	drm_fbdev_generic_setup(drm, 32);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 out_poll_fini:
 	drm_kms_helper_poll_fini(drm);
 	drm_mode_config_cleanup(drm);
@@ -122,7 +161,11 @@ out_unbind:
 	component_unbind_all(dev, drm);
 out_unregister:
 	dev_set_drvdata(dev, NULL);
+<<<<<<< HEAD
 	drm_dev_unref(drm);
+=======
+	drm_dev_put(drm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -131,12 +174,21 @@ static void zx_drm_unbind(struct device *dev)
 	struct drm_device *drm = dev_get_drvdata(dev);
 
 	drm_dev_unregister(drm);
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(drm);
 	drm_kms_helper_poll_fini(drm);
 	drm_mode_config_cleanup(drm);
 	component_unbind_all(dev, drm);
 	dev_set_drvdata(dev, NULL);
 	drm_dev_unref(drm);
+=======
+	drm_kms_helper_poll_fini(drm);
+	drm_atomic_helper_shutdown(drm);
+	drm_mode_config_cleanup(drm);
+	component_unbind_all(dev, drm);
+	dev_set_drvdata(dev, NULL);
+	drm_dev_put(drm);
+>>>>>>> upstream/android-13
 }
 
 static const struct component_master_ops zx_drm_master_ops = {
@@ -161,10 +213,15 @@ static int zx_drm_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	for_each_available_child_of_node(parent, child) {
 		component_match_add(dev, &match, compare_of, child);
 		of_node_put(child);
 	}
+=======
+	for_each_available_child_of_node(parent, child)
+		component_match_add(dev, &match, compare_of, child);
+>>>>>>> upstream/android-13
 
 	return component_master_add_with_match(dev, &zx_drm_master_ops, match);
 }

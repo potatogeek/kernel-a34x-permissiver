@@ -26,6 +26,7 @@
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
  */
+<<<<<<< HEAD
 #include <linux/init.h>
 #include <linux/time.h>
 #include <linux/interrupt.h>
@@ -50,11 +51,18 @@
 #include "omap_device.h"
 #include <plat/counter-32k.h>
 #include <clocksource/timer-ti-dm.h>
+=======
+#include <linux/clk.h>
+#include <linux/clocksource.h>
+>>>>>>> upstream/android-13
 
 #include "soc.h"
 #include "common.h"
 #include "control.h"
+<<<<<<< HEAD
 #include "powerdomain.h"
+=======
+>>>>>>> upstream/android-13
 #include "omap-secure.h"
 
 #define REALTIME_COUNTER_BASE				0x48243200
@@ -62,6 +70,7 @@
 #define INCREMENTER_DENUMERATOR_RELOAD_OFFSET		0x14
 #define NUMERATOR_DENUMERATOR_MASK			0xfffff000
 
+<<<<<<< HEAD
 /* Clockevent code */
 
 static struct omap_dm_timer clkev;
@@ -74,12 +83,15 @@ static struct omap_hwmod *clockevent_gpt_hwmod;
 static struct omap_hwmod *clocksource_gpt_hwmod;
 
 #ifdef CONFIG_SOC_HAS_REALTIME_COUNTER
+=======
+>>>>>>> upstream/android-13
 static unsigned long arch_timer_freq;
 
 void set_cntfreq(void)
 {
 	omap_smc1(OMAP5_DRA7_MON_SET_CNTFRQ_INDEX, arch_timer_freq);
 }
+<<<<<<< HEAD
 #endif
 
 static irqreturn_t omap2_gp_timer_interrupt(int irq, void *dev_id)
@@ -598,6 +610,8 @@ void __init omap4_local_timer_init(void)
 #endif
 
 #if defined(CONFIG_SOC_OMAP5) || defined(CONFIG_SOC_DRA7XX)
+=======
+>>>>>>> upstream/android-13
 
 /*
  * The realtime counter also called master counter, is a free-running
@@ -610,7 +624,10 @@ void __init omap4_local_timer_init(void)
  */
 static void __init realtime_counter_init(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_SOC_HAS_REALTIME_COUNTER
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	static struct clk *sys_clk;
 	unsigned long rate;
@@ -709,16 +726,24 @@ sysclk1_based:
 	set_cntfreq();
 
 	iounmap(base);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 void __init omap5_realtime_timer_init(void)
 {
+<<<<<<< HEAD
 	omap4_sync32k_timer_init();
+=======
+	omap_clk_init();
+>>>>>>> upstream/android-13
 	realtime_counter_init();
 
 	timer_probe();
 }
+<<<<<<< HEAD
 #endif /* CONFIG_SOC_OMAP5 || CONFIG_SOC_DRA7XX */
 
 /**
@@ -745,3 +770,5 @@ static int __init omap2_override_clocksource(char *str)
 	return 0;
 }
 early_param("clocksource", omap2_override_clocksource);
+=======
+>>>>>>> upstream/android-13

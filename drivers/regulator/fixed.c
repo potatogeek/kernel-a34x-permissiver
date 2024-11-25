@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * fixed.c
  *
@@ -8,11 +12,14 @@
  * Copyright (c) 2009 Nokia Corporation
  * Roger Quadros <ext-roger.quadros@nokia.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This is useful for systems with mixed controllable and
  * non-controllable regulators, as well as for allowing testing on
  * systems with no controllable regulators.
@@ -22,6 +29,7 @@
 #include <linux/mutex.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/regulator/driver.h>
 #include <linux/regulator/fixed.h>
 #include <linux/gpio.h>
@@ -30,12 +38,101 @@
 #include <linux/of_gpio.h>
 #include <linux/regulator/of_regulator.h>
 #include <linux/regulator/machine.h>
+=======
+#include <linux/pm_domain.h>
+#include <linux/pm_opp.h>
+#include <linux/regulator/driver.h>
+#include <linux/regulator/fixed.h>
+#include <linux/gpio/consumer.h>
+#include <linux/slab.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/regulator/of_regulator.h>
+#include <linux/regulator/machine.h>
+#include <linux/clk.h>
+
+>>>>>>> upstream/android-13
 
 struct fixed_voltage_data {
 	struct regulator_desc desc;
 	struct regulator_dev *dev;
+<<<<<<< HEAD
 };
 
+=======
+
+	struct clk *enable_clock;
+	unsigned int enable_counter;
+	int performance_state;
+};
+
+struct fixed_dev_type {
+	bool has_enable_clock;
+	bool has_performance_state;
+};
+
+static int reg_clock_enable(struct regulator_dev *rdev)
+{
+	struct fixed_voltage_data *priv = rdev_get_drvdata(rdev);
+	int ret = 0;
+
+	ret = clk_prepare_enable(priv->enable_clock);
+	if (ret)
+		return ret;
+
+	priv->enable_counter++;
+
+	return ret;
+}
+
+static int reg_clock_disable(struct regulator_dev *rdev)
+{
+	struct fixed_voltage_data *priv = rdev_get_drvdata(rdev);
+
+	clk_disable_unprepare(priv->enable_clock);
+	priv->enable_counter--;
+
+	return 0;
+}
+
+static int reg_domain_enable(struct regulator_dev *rdev)
+{
+	struct fixed_voltage_data *priv = rdev_get_drvdata(rdev);
+	struct device *dev = rdev->dev.parent;
+	int ret;
+
+	ret = dev_pm_genpd_set_performance_state(dev, priv->performance_state);
+	if (ret)
+		return ret;
+
+	priv->enable_counter++;
+
+	return ret;
+}
+
+static int reg_domain_disable(struct regulator_dev *rdev)
+{
+	struct fixed_voltage_data *priv = rdev_get_drvdata(rdev);
+	struct device *dev = rdev->dev.parent;
+	int ret;
+
+	ret = dev_pm_genpd_set_performance_state(dev, 0);
+	if (ret)
+		return ret;
+
+	priv->enable_counter--;
+
+	return 0;
+}
+
+static int reg_is_enabled(struct regulator_dev *rdev)
+{
+	struct fixed_voltage_data *priv = rdev_get_drvdata(rdev);
+
+	return priv->enable_counter > 0;
+}
+
+>>>>>>> upstream/android-13
 
 /**
  * of_get_fixed_voltage_config - extract fixed_voltage_config structure info
@@ -78,6 +175,7 @@ of_get_fixed_voltage_config(struct device *dev,
 	if (init_data->constraints.boot_on)
 		config->enabled_at_boot = true;
 
+<<<<<<< HEAD
 	config->gpio = of_get_named_gpio(np, "gpio", 0);
 	if ((config->gpio < 0) && (config->gpio != -ENOENT))
 		return ERR_PTR(config->gpio);
@@ -90,6 +188,10 @@ of_get_fixed_voltage_config(struct device *dev,
 #ifdef CONFIG_SEC_PM
 	config->skip_gpio_request = of_property_read_bool(np, "skip-gpio-request");
 #endif /* CONFIG_SEC_PM */
+=======
+	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
+	of_property_read_u32(np, "off-on-delay-us", &config->off_on_delay);
+>>>>>>> upstream/android-13
 
 	if (of_find_property(np, "vin-supply", NULL))
 		config->input_supply = "vin";
@@ -97,14 +199,39 @@ of_get_fixed_voltage_config(struct device *dev,
 	return config;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops fixed_voltage_ops = {
+=======
+static const struct regulator_ops fixed_voltage_ops = {
+};
+
+static const struct regulator_ops fixed_voltage_clkenabled_ops = {
+	.enable = reg_clock_enable,
+	.disable = reg_clock_disable,
+	.is_enabled = reg_is_enabled,
+};
+
+static const struct regulator_ops fixed_voltage_domain_ops = {
+	.enable = reg_domain_enable,
+	.disable = reg_domain_disable,
+	.is_enabled = reg_is_enabled,
+>>>>>>> upstream/android-13
 };
 
 static int reg_fixed_voltage_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct fixed_voltage_config *config;
 	struct fixed_voltage_data *drvdata;
 	struct regulator_config cfg = { };
+=======
+	struct device *dev = &pdev->dev;
+	struct fixed_voltage_config *config;
+	struct fixed_voltage_data *drvdata;
+	const struct fixed_dev_type *drvtype = of_device_get_match_data(dev);
+	struct regulator_config cfg = { };
+	enum gpiod_flags gflags;
+>>>>>>> upstream/android-13
 	int ret;
 
 	drvdata = devm_kzalloc(&pdev->dev, sizeof(struct fixed_voltage_data),
@@ -133,9 +260,35 @@ static int reg_fixed_voltage_probe(struct platform_device *pdev)
 	}
 	drvdata->desc.type = REGULATOR_VOLTAGE;
 	drvdata->desc.owner = THIS_MODULE;
+<<<<<<< HEAD
 	drvdata->desc.ops = &fixed_voltage_ops;
 
 	drvdata->desc.enable_time = config->startup_delay;
+=======
+
+	if (drvtype && drvtype->has_enable_clock) {
+		drvdata->desc.ops = &fixed_voltage_clkenabled_ops;
+
+		drvdata->enable_clock = devm_clk_get(dev, NULL);
+		if (IS_ERR(drvdata->enable_clock)) {
+			dev_err(dev, "Can't get enable-clock from devicetree\n");
+			return -ENOENT;
+		}
+	} else if (drvtype && drvtype->has_performance_state) {
+		drvdata->desc.ops = &fixed_voltage_domain_ops;
+
+		drvdata->performance_state = of_get_required_opp_performance_state(dev->of_node, 0);
+		if (drvdata->performance_state < 0) {
+			dev_err(dev, "Can't get performance state from devicetree\n");
+			return drvdata->performance_state;
+		}
+	} else {
+		drvdata->desc.ops = &fixed_voltage_ops;
+	}
+
+	drvdata->desc.enable_time = config->startup_delay;
+	drvdata->desc.off_on_delay = config->off_on_delay;
+>>>>>>> upstream/android-13
 
 	if (config->input_supply) {
 		drvdata->desc.supply_name = devm_kstrdup(&pdev->dev,
@@ -153,6 +306,7 @@ static int reg_fixed_voltage_probe(struct platform_device *pdev)
 
 	drvdata->desc.fixed_uV = config->microvolts;
 
+<<<<<<< HEAD
 	if (gpio_is_valid(config->gpio)) {
 		cfg.ena_gpio = config->gpio;
 		if (pdev->dev.of_node)
@@ -172,20 +326,61 @@ static int reg_fixed_voltage_probe(struct platform_device *pdev)
 	}
 	if (config->gpio_is_open_drain)
 		cfg.ena_gpio_flags |= GPIOF_OPEN_DRAIN;
+=======
+	/*
+	 * The signal will be inverted by the GPIO core if flagged so in the
+	 * descriptor.
+	 */
+	if (config->enabled_at_boot)
+		gflags = GPIOD_OUT_HIGH;
+	else
+		gflags = GPIOD_OUT_LOW;
+
+	/*
+	 * Some fixed regulators share the enable line between two
+	 * regulators which makes it necessary to get a handle on the
+	 * same descriptor for two different consumers. This will get
+	 * the GPIO descriptor, but only the first call will initialize
+	 * it so any flags such as inversion or open drain will only
+	 * be set up by the first caller and assumed identical on the
+	 * next caller.
+	 *
+	 * FIXME: find a better way to deal with this.
+	 */
+	gflags |= GPIOD_FLAGS_BIT_NONEXCLUSIVE;
+
+	/*
+	 * Do not use devm* here: the regulator core takes over the
+	 * lifecycle management of the GPIO descriptor.
+	 */
+	cfg.ena_gpiod = gpiod_get_optional(&pdev->dev, NULL, gflags);
+	if (IS_ERR(cfg.ena_gpiod))
+		return dev_err_probe(&pdev->dev, PTR_ERR(cfg.ena_gpiod),
+				     "can't get GPIO\n");
+>>>>>>> upstream/android-13
 
 	cfg.dev = &pdev->dev;
 	cfg.init_data = config->init_data;
 	cfg.driver_data = drvdata;
 	cfg.of_node = pdev->dev.of_node;
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 	cfg.skip_gpio_request = config->skip_gpio_request;
 #endif /* CONFIG_SEC_PM */
+=======
+>>>>>>> upstream/android-13
 
 	drvdata->dev = devm_regulator_register(&pdev->dev, &drvdata->desc,
 					       &cfg);
 	if (IS_ERR(drvdata->dev)) {
+<<<<<<< HEAD
 		ret = PTR_ERR(drvdata->dev);
 		dev_err(&pdev->dev, "Failed to register regulator: %d\n", ret);
+=======
+		ret = dev_err_probe(&pdev->dev, PTR_ERR(drvdata->dev),
+				    "Failed to register regulator: %ld\n",
+				    PTR_ERR(drvdata->dev));
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -198,9 +393,39 @@ static int reg_fixed_voltage_probe(struct platform_device *pdev)
 }
 
 #if defined(CONFIG_OF)
+<<<<<<< HEAD
 static const struct of_device_id fixed_of_match[] = {
 	{ .compatible = "regulator-fixed", },
 	{},
+=======
+static const struct fixed_dev_type fixed_voltage_data = {
+	.has_enable_clock = false,
+};
+
+static const struct fixed_dev_type fixed_clkenable_data = {
+	.has_enable_clock = true,
+};
+
+static const struct fixed_dev_type fixed_domain_data = {
+	.has_performance_state = true,
+};
+
+static const struct of_device_id fixed_of_match[] = {
+	{
+		.compatible = "regulator-fixed",
+		.data = &fixed_voltage_data,
+	},
+	{
+		.compatible = "regulator-fixed-clock",
+		.data = &fixed_clkenable_data,
+	},
+	{
+		.compatible = "regulator-fixed-domain",
+		.data = &fixed_domain_data,
+	},
+	{
+	},
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(of, fixed_of_match);
 #endif

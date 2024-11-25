@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MediaTek Inc.
  * Author: Flora Fu, MediaTek
@@ -10,16 +11,29 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: Flora Fu, MediaTek
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MFD_MT6397_CORE_H__
 #define __MFD_MT6397_CORE_H__
 
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 #include <linux/notifier.h>
 
 enum chip_id {
 	MT6323_CHIP_ID = 0x23,
+<<<<<<< HEAD
 	MT6357_CHIP_ID = 0x57,
+=======
+>>>>>>> upstream/android-13
 	MT6358_CHIP_ID = 0x58,
 	MT6359_CHIP_ID = 0x59,
 	MT6391_CHIP_ID = 0x91,
@@ -78,8 +92,13 @@ struct mt6397_chip {
 	void *irq_data;
 };
 
+<<<<<<< HEAD
 int mt6358_ipi_init(struct mt6397_chip *chip);
 int mt6358_irq_init(struct mt6397_chip *chip);
 int mt6397_irq_init(struct mt6397_chip *mt6397);
+=======
+int mt6358_irq_init(struct mt6397_chip *chip);
+int mt6397_irq_init(struct mt6397_chip *chip);
+>>>>>>> upstream/android-13
 
 #endif /* __MFD_MT6397_CORE_H__ */

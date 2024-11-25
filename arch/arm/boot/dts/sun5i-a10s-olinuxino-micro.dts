@@ -79,7 +79,11 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&led_pins_olinuxino>;
 
+<<<<<<< HEAD
 		green {
+=======
+		led {
+>>>>>>> upstream/android-13
 			label = "a10s-olinuxino-micro:green:usr";
 			gpios = <&pio 4 3 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
@@ -97,8 +101,13 @@
 
 &emac {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&emac_pins_b>;
 	phy = <&phy1>;
+=======
+	pinctrl-0 = <&emac_pa_pins>;
+	phy-handle = <&phy1>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -117,8 +126,11 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp152: pmic@30 {
@@ -130,11 +142,17 @@
 #include "axp152.dtsi"
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
 	status = "okay";
 
 	at24@50 {
+=======
+	status = "okay";
+
+	eeprom@50 {
+>>>>>>> upstream/android-13
 		compatible = "atmel,24c16";
 		pagesize = <16>;
 		reg = <0x50>;
@@ -143,8 +161,11 @@
 };
 
 &i2c2 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -152,35 +173,55 @@
 	vref-supply = <&reg_vcc3v0>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@191 {
+=======
+	button-191 {
+>>>>>>> upstream/android-13
 		label = "Volume Up";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <191274>;
 	};
 
+<<<<<<< HEAD
 	button@392 {
+=======
+	button-392 {
+>>>>>>> upstream/android-13
 		label = "Volume Down";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
 		voltage = <392644>;
 	};
 
+<<<<<<< HEAD
 	button@601 {
+=======
+	button-601 {
+>>>>>>> upstream/android-13
 		label = "Menu";
 		linux,code = <KEY_MENU>;
 		channel = <0>;
 		voltage = <601151>;
 	};
 
+<<<<<<< HEAD
 	button@795 {
+=======
+	button-795 {
+>>>>>>> upstream/android-13
 		label = "Enter";
 		linux,code = <KEY_ENTER>;
 		channel = <0>;
 		voltage = <795090>;
 	};
 
+<<<<<<< HEAD
 	button@987 {
+=======
+	button-987 {
+>>>>>>> upstream/android-13
 		label = "Home";
 		linux,code = <KEY_HOMEPAGE>;
 		channel = <0>;
@@ -197,8 +238,11 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_olinuxino_micro>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 6 1 GPIO_ACTIVE_LOW>; /* PG1 */
@@ -206,8 +250,11 @@
 };
 
 &mmc1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc1_pins_a>, <&mmc1_cd_pin_olinuxino_micro>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
 	cd-gpios = <&pio 6 13 GPIO_ACTIVE_LOW>; /* PG13 */
@@ -223,6 +270,7 @@
 };
 
 &pio {
+<<<<<<< HEAD
 	mmc0_cd_pin_olinuxino_micro: mmc0_cd_pin@0 {
 		pins = "PG1";
 		function = "gpio_in";
@@ -236,10 +284,14 @@
 	};
 
 	led_pins_olinuxino: led_pins@0 {
+=======
+	led_pins_olinuxino: led-pin {
+>>>>>>> upstream/android-13
 		pins = "PE3";
 		function = "gpio_out";
 		drive-strength = <20>;
 	};
+<<<<<<< HEAD
 
 	usb1_vbus_pin_olinuxino_m: usb1_vbus_pin@0 {
 		pins = "PB10";
@@ -251,6 +303,8 @@
 		function = "gpio_in";
 		bias-pull-up;
 	};
+=======
+>>>>>>> upstream/android-13
 };
 
 &reg_usb0_vbus {
@@ -259,15 +313,23 @@
 };
 
 &reg_usb1_vbus {
+<<<<<<< HEAD
 	pinctrl-0 = <&usb1_vbus_pin_olinuxino_m>;
+=======
+>>>>>>> upstream/android-13
 	gpio = <&pio 1 10 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
 &spi2 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&spi2_pins_b>,
 		    <&spi2_cs0_pins_b>;
+=======
+	pinctrl-0 = <&spi2_pb_pins>,
+		    <&spi2_cs0_pb_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -277,19 +339,31 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart2 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart2_pins_b>;
+=======
+	pinctrl-0 = <&uart2_pc_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart3 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart3_pins_a>;
+=======
+	pinctrl-0 = <&uart3_pg_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -299,9 +373,13 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>;
 	usb0_id_det-gpio = <&pio 6 12 GPIO_ACTIVE_HIGH>; /* PG12 */
+=======
+	usb0_id_det-gpios = <&pio 6 12 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PG12 */
+>>>>>>> upstream/android-13
 	usb0_vbus-supply = <&reg_usb0_vbus>;
 	usb1_vbus-supply = <&reg_usb1_vbus>;
 	status = "okay";

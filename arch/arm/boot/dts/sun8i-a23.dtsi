@@ -45,11 +45,15 @@
 #include "sun8i-a23-a33.dtsi"
 
 / {
+<<<<<<< HEAD
 	memory {
 		reg = <0x40000000 0x40000000>;
 	};
 
 	soc@1c00000 {
+=======
+	soc {
+>>>>>>> upstream/android-13
 		codec: codec@1c22c00 {
 			#sound-dai-cells = <0>;
 			compatible = "allwinner,sun8i-a23-codec";
@@ -66,10 +70,32 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&be0 {
+	compatible = "allwinner,sun8i-a23-display-backend";
+};
+
+>>>>>>> upstream/android-13
 &ccu {
 	compatible = "allwinner,sun8i-a23-ccu";
 };
 
+<<<<<<< HEAD
+=======
+&de {
+	compatible = "allwinner,sun8i-a23-display-engine";
+};
+
+&drc0 {
+	compatible = "allwinner,sun8i-a23-drc";
+};
+
+&fe0 {
+	compatible = "allwinner,sun8i-a23-display-frontend";
+};
+
+>>>>>>> upstream/android-13
 &pio {
 	compatible = "allwinner,sun8i-a23-pinctrl";
 	interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
@@ -77,6 +103,13 @@
 		     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
 };
 
+<<<<<<< HEAD
+=======
+&tcon0 {
+	compatible = "allwinner,sun8i-a23-tcon";
+};
+
+>>>>>>> upstream/android-13
 &usb_otg {
 	compatible = "allwinner,sun6i-a31-musb";
 };

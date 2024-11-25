@@ -28,6 +28,10 @@
 	};
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x40000000 0x80000000>;
 	};
 
@@ -63,6 +67,7 @@
 	pinctrl-names = "default";
 
 	phy-handle = <&eth_phy0>;
+<<<<<<< HEAD
 	phy-mode = "rgmii";
 
 	amlogic,tx-delay-ns = <4>;
@@ -70,6 +75,9 @@
 	snps,reset-gpio = <&gpio GPIOH_4 0>;
 	snps,reset-delays-us = <0 10000 1000000>;
 	snps,reset-active-low;
+=======
+	phy-mode = "rgmii-id";
+>>>>>>> upstream/android-13
 
 	mdio {
 		compatible = "snps,dwmac-mdio";
@@ -79,6 +87,13 @@
 		eth_phy0: ethernet-phy@0 {
 			/* Realtek RTL8211F (0x001cc916) */
 			reg = <0>;
+<<<<<<< HEAD
+=======
+
+			reset-assert-us = <10000>;
+			reset-deassert-us = <80000>;
+			reset-gpios = <&gpio GPIOH_4 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 		};
 	};
 };
@@ -108,8 +123,14 @@
 				regulator-always-on;
 			};
 
+<<<<<<< HEAD
 			DCDC2 {
 				regulator-name = "VDDAO";
+=======
+			vddee: DCDC2 {
+				/* the output is also used as VDDAO */
+				regulator-name = "VDD_EE";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <950000>;
 				regulator-max-microvolt = <1150000>;
 				regulator-boot-on;
@@ -183,6 +204,13 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&mali {
+	mali-supply = <&vddee>;
+};
+
+>>>>>>> upstream/android-13
 &saradc {
 	status = "okay";
 	vref-supply = <&vddio_ao1v8>;

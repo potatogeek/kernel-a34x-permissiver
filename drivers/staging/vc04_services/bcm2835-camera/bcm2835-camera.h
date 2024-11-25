@@ -4,10 +4,18 @@
  *
  * Copyright © 2013 Raspberry Pi (Trading) Ltd.
  *
+<<<<<<< HEAD
  * Authors: Vincent Sanders <vincent.sanders@collabora.co.uk>
  *          Dave Stevenson <dsteve@broadcom.com>
  *          Simon Mellor <simellor@broadcom.com>
  *          Luke Diamand <luked@broadcom.com>
+=======
+ * Authors: Vincent Sanders @ Collabora
+ *          Dave Stevenson @ Broadcom
+ *		(now dave.stevenson@raspberrypi.org)
+ *          Simon Mellor @ Broadcom
+ *          Luke Diamand @ Broadcom
+>>>>>>> upstream/android-13
  *
  * core driver device
  */
@@ -15,6 +23,7 @@
 #define V4L2_CTRL_COUNT 29 /* number of v4l controls */
 
 enum {
+<<<<<<< HEAD
 	MMAL_COMPONENT_CAMERA = 0,
 	MMAL_COMPONENT_PREVIEW,
 	MMAL_COMPONENT_IMAGE_ENCODE,
@@ -31,10 +40,27 @@ enum {
 
 #define PREVIEW_LAYER      2
 
+=======
+	COMP_CAMERA = 0,
+	COMP_PREVIEW,
+	COMP_IMAGE_ENCODE,
+	COMP_VIDEO_ENCODE,
+	COMP_COUNT
+};
+
+enum {
+	CAM_PORT_PREVIEW = 0,
+	CAM_PORT_VIDEO,
+	CAM_PORT_CAPTURE,
+	CAM_PORT_COUNT
+};
+
+>>>>>>> upstream/android-13
 extern int bcm2835_v4l2_debug;
 
 struct bm2835_mmal_dev {
 	/* v4l2 devices */
+<<<<<<< HEAD
 	struct v4l2_device     v4l2_dev;
 	struct video_device    vdev;
 	struct mutex           mutex;
@@ -48,24 +74,50 @@ struct bm2835_mmal_dev {
 	int                       vflip;
 	int			  red_gain;
 	int			  blue_gain;
+=======
+	struct v4l2_device v4l2_dev;
+	struct video_device vdev;
+	struct mutex mutex;
+
+	/* controls */
+	struct v4l2_ctrl_handler ctrl_handler;
+	struct v4l2_ctrl *ctrls[V4L2_CTRL_COUNT];
+	enum v4l2_scene_mode scene_mode;
+	struct mmal_colourfx colourfx;
+	int hflip;
+	int vflip;
+	int red_gain;
+	int blue_gain;
+>>>>>>> upstream/android-13
 	enum mmal_parameter_exposuremode exposure_mode_user;
 	enum v4l2_exposure_auto_type exposure_mode_v4l2_user;
 	/* active exposure mode may differ if selected via a scene mode */
 	enum mmal_parameter_exposuremode exposure_mode_active;
 	enum mmal_parameter_exposuremeteringmode metering_mode;
+<<<<<<< HEAD
 	unsigned int		  manual_shutter_speed;
 	bool			  exp_auto_priority;
+=======
+	unsigned int manual_shutter_speed;
+	bool exp_auto_priority;
+>>>>>>> upstream/android-13
 	bool manual_iso_enabled;
 	u32 iso;
 
 	/* allocated mmal instance and components */
+<<<<<<< HEAD
 	struct vchiq_mmal_instance   *instance;
 	struct vchiq_mmal_component  *component[MMAL_COMPONENT_COUNT];
+=======
+	struct vchiq_mmal_instance *instance;
+	struct vchiq_mmal_component *component[COMP_COUNT];
+>>>>>>> upstream/android-13
 	int camera_use_count;
 
 	struct v4l2_window overlay;
 
 	struct {
+<<<<<<< HEAD
 		unsigned int     width;  /* width */
 		unsigned int     height;  /* height */
 		unsigned int     stride;  /* stride */
@@ -77,11 +129,25 @@ struct bm2835_mmal_dev {
 		int         encode_bitrate;
 		/* H264 bitrate mode. CBR/VBR */
 		int         encode_bitrate_mode;
+=======
+		unsigned int width;  /* width */
+		unsigned int height;  /* height */
+		unsigned int stride;  /* stride */
+		unsigned int buffersize; /* buffer size with padding */
+		struct mmal_fmt *fmt;
+		struct v4l2_fract timeperframe;
+
+		/* H264 encode bitrate */
+		int encode_bitrate;
+		/* H264 bitrate mode. CBR/VBR */
+		int encode_bitrate_mode;
+>>>>>>> upstream/android-13
 		/* H264 profile */
 		enum v4l2_mpeg_video_h264_profile enc_profile;
 		/* H264 level */
 		enum v4l2_mpeg_video_h264_level enc_level;
 		/* JPEG Q-factor */
+<<<<<<< HEAD
 		int         q_factor;
 
 		struct vb2_queue	vb_vidq;
@@ -100,6 +166,28 @@ struct bm2835_mmal_dev {
 		unsigned int  frame_count;
 		/* last frame completion */
 		struct completion  frame_cmplt;
+=======
+		int q_factor;
+
+		struct vb2_queue vb_vidq;
+
+		/* VC start timestamp for streaming */
+		s64 vc_start_timestamp;
+		/* Kernel start timestamp for streaming */
+		ktime_t kernel_start_ts;
+		/* Sequence number of last buffer */
+		u32 sequence;
+
+		struct vchiq_mmal_port *port; /* port being used for capture */
+		/* camera port being used for capture */
+		struct vchiq_mmal_port *camera_port;
+		/* component being used for encode */
+		struct vchiq_mmal_component *encode_component;
+		/* number of frames remaining which driver should capture */
+		unsigned int frame_count;
+		/* last frame completion */
+		struct completion frame_cmplt;
+>>>>>>> upstream/android-13
 
 	} capture;
 
@@ -127,6 +215,10 @@ int set_framerate_params(struct bm2835_mmal_dev *dev);
 		(pix_fmt)->pixelformat, (pix_fmt)->bytesperline,	\
 		(pix_fmt)->sizeimage, (pix_fmt)->colorspace, (pix_fmt)->priv); \
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #define v4l2_dump_win_format(level, debug, dev, win_fmt, desc)	\
 {	\
 	v4l2_dbg(level, debug, dev,	\

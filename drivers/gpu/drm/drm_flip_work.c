@@ -21,8 +21,16 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_flip_work.h>
+=======
+#include <linux/slab.h>
+
+#include <drm/drm_flip_work.h>
+#include <drm/drm_print.h>
+#include <drm/drm_util.h>
+>>>>>>> upstream/android-13
 
 /**
  * drm_flip_work_allocate_task - allocate a flip-work task

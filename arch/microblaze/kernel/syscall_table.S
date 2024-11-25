@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 ENTRY(sys_call_table)
 	.long sys_restart_syscall	/* 0 - old "setup()" system call,
 					 * used for restarting */
@@ -402,3 +403,9 @@ ENTRY(sys_call_table)
 	.long sys_statx
 	.long sys_io_pgetevents
 	.long sys_rseq
+=======
+
+#define __SYSCALL(nr, entry) .long entry
+ENTRY(sys_call_table)
+#include <asm/syscall_table.h>
+>>>>>>> upstream/android-13

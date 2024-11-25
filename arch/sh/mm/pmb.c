@@ -23,10 +23,17 @@
 #include <linux/io.h>
 #include <linux/spinlock.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 #include <asm/cacheflush.h>
 #include <asm/sizes.h>
 #include <linux/uaccess.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/cacheflush.h>
+#include <linux/sizes.h>
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/mmu.h>
 #include <asm/mmu_context.h>
@@ -812,7 +819,11 @@ bool __in_29bit_mode(void)
         return (__raw_readl(PMB_PASCR) & PASCR_SE) == 0;
 }
 
+<<<<<<< HEAD
 static int pmb_seq_show(struct seq_file *file, void *iter)
+=======
+static int pmb_debugfs_show(struct seq_file *file, void *iter)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -846,6 +857,7 @@ static int pmb_seq_show(struct seq_file *file, void *iter)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pmb_debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, pmb_seq_show, NULL);
@@ -868,6 +880,14 @@ static int __init pmb_debugfs_init(void)
 	if (!dentry)
 		return -ENOMEM;
 
+=======
+DEFINE_SHOW_ATTRIBUTE(pmb_debugfs);
+
+static int __init pmb_debugfs_init(void)
+{
+	debugfs_create_file("pmb", S_IFREG | S_IRUGO, arch_debugfs_dir, NULL,
+			    &pmb_debugfs_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 subsys_initcall(pmb_debugfs_init);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # IP netfilter configuration
 #
@@ -27,6 +31,7 @@ config NF_TABLES_IPV4
 
 if NF_TABLES_IPV4
 
+<<<<<<< HEAD
 config NFT_CHAIN_ROUTE_IPV4
 	tristate "IPv4 nf_tables route chain support"
 	help
@@ -35,6 +40,8 @@ config NFT_CHAIN_ROUTE_IPV4
 	  fields such as the source, destination, type of service and
 	  the packet mark.
 
+=======
+>>>>>>> upstream/android-13
 config NFT_REJECT_IPV4
 	select NF_REJECT_IPV4
 	default NFT_REJECT
@@ -83,17 +90,32 @@ config NF_DUP_IPV4
 config NF_LOG_ARP
 	tristate "ARP packet logging"
 	default m if NETFILTER_ADVANCED=n
+<<<<<<< HEAD
 	select NF_LOG_COMMON
+=======
+	select NF_LOG_SYSLOG
+	help
+	This is a backwards-compat option for the user's convenience
+	(e.g. when running oldconfig). It selects CONFIG_NF_LOG_SYSLOG.
+>>>>>>> upstream/android-13
 
 config NF_LOG_IPV4
 	tristate "IPv4 packet logging"
 	default m if NETFILTER_ADVANCED=n
+<<<<<<< HEAD
 	select NF_LOG_COMMON
+=======
+	select NF_LOG_SYSLOG
+	help
+	This is a backwards-compat option for the user's convenience
+	(e.g. when running oldconfig). It selects CONFIG_NF_LOG_SYSLOG.
+>>>>>>> upstream/android-13
 
 config NF_REJECT_IPV4
 	tristate "IPv4 packet rejection"
 	default m if NETFILTER_ADVANCED=n
 
+<<<<<<< HEAD
 config NF_NAT_IPV4
 	tristate "IPv4 NAT"
 	depends on NF_CONNTRACK
@@ -138,13 +160,20 @@ config NFT_REDIR_IPV4
 	  nf_tables.
 endif # NF_TABLES
 
+=======
+if NF_NAT
+>>>>>>> upstream/android-13
 config NF_NAT_SNMP_BASIC
 	tristate "Basic SNMP-ALG support"
 	depends on NF_CONNTRACK_SNMP
 	depends on NETFILTER_ADVANCED
 	default NF_NAT && NF_CONNTRACK_SNMP
 	select ASN1
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 
 	  This module implements an Application Layer Gateway (ALG) for
 	  SNMP payloads.  In conjunction with NAT, it allows a network
@@ -156,22 +185,32 @@ config NF_NAT_SNMP_BASIC
 
 	  To compile it as a module, choose M here.  If unsure, say N.
 
+<<<<<<< HEAD
 config NF_NAT_PROTO_GRE
 	tristate
 	depends on NF_CT_PROTO_GRE
 
+=======
+>>>>>>> upstream/android-13
 config NF_NAT_PPTP
 	tristate
 	depends on NF_CONNTRACK
 	default NF_CONNTRACK_PPTP
+<<<<<<< HEAD
 	select NF_NAT_PROTO_GRE
+=======
+>>>>>>> upstream/android-13
 
 config NF_NAT_H323
 	tristate
 	depends on NF_CONNTRACK
 	default NF_CONNTRACK_H323
 
+<<<<<<< HEAD
 endif # NF_NAT_IPV4
+=======
+endif # NF_NAT
+>>>>>>> upstream/android-13
 
 config IP_NF_IPTABLES
 	tristate "IP tables support (required for filtering/masq/NAT)"
@@ -201,7 +240,11 @@ config IP_NF_MATCH_ECN
 	tristate '"ecn" match support'
 	depends on NETFILTER_ADVANCED
 	select NETFILTER_XT_MATCH_ECN
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This is a backwards-compat option for the user's convenience
 	(e.g. when running oldconfig). It selects
 	CONFIG_NETFILTER_XT_MATCH_ECN.
@@ -210,7 +253,11 @@ config IP_NF_MATCH_RPFILTER
 	tristate '"rpfilter" reverse path filter match support'
 	depends on NETFILTER_ADVANCED
 	depends on IP_NF_MANGLE || IP_NF_RAW
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This option allows you to match packets whose replies would
 	  go out via the interface the packet came in.
 
@@ -221,7 +268,11 @@ config IP_NF_MATCH_TTL
 	tristate '"ttl" match support'
 	depends on NETFILTER_ADVANCED
 	select NETFILTER_XT_MATCH_HL
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This is a backwards-compat option for the user's convenience
 	(e.g. when running oldconfig). It selects
 	CONFIG_NETFILTER_XT_MATCH_HL.
@@ -268,7 +319,10 @@ config IP_NF_NAT
 	depends on NF_CONNTRACK
 	default m if NETFILTER_ADVANCED=n
 	select NF_NAT
+<<<<<<< HEAD
 	select NF_NAT_IPV4
+=======
+>>>>>>> upstream/android-13
 	select NETFILTER_XT_NAT
 	help
 	  This enables the `nat' table in iptables. This allows masquerading,
@@ -281,6 +335,7 @@ if IP_NF_NAT
 
 config IP_NF_TARGET_MASQUERADE
 	tristate "MASQUERADE target support"
+<<<<<<< HEAD
 	select NF_NAT_MASQUERADE_IPV4
 	default m if NETFILTER_ADVANCED=n
 	help
@@ -291,12 +346,22 @@ config IP_NF_TARGET_MASQUERADE
 	  address will be different on next dialup).
 
 	  To compile it as a module, choose M here.  If unsure, say N.
+=======
+	select NETFILTER_XT_TARGET_MASQUERADE
+	help
+	  This is a backwards-compat option for the user's convenience
+	  (e.g. when running oldconfig). It selects NETFILTER_XT_TARGET_MASQUERADE.
+>>>>>>> upstream/android-13
 
 config IP_NF_TARGET_NETMAP
 	tristate "NETMAP target support"
 	depends on NETFILTER_ADVANCED
 	select NETFILTER_XT_TARGET_NETMAP
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This is a backwards-compat option for the user's convenience
 	(e.g. when running oldconfig). It selects
 	CONFIG_NETFILTER_XT_TARGET_NETMAP.
@@ -305,7 +370,11 @@ config IP_NF_TARGET_REDIRECT
 	tristate "REDIRECT target support"
 	depends on NETFILTER_ADVANCED
 	select NETFILTER_XT_TARGET_REDIRECT
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This is a backwards-compat option for the user's convenience
 	(e.g. when running oldconfig). It selects
 	CONFIG_NETFILTER_XT_TARGET_REDIRECT.
@@ -334,16 +403,26 @@ config IP_NF_TARGET_CLUSTERIP
 	  The CLUSTERIP target allows you to build load-balancing clusters of
 	  network servers without having a dedicated load-balancing
 	  router/server/switch.
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	  To compile it as a module, choose M here.  If unsure, say N.
 
 config IP_NF_TARGET_ECN
 	tristate "ECN target support"
 	depends on IP_NF_MANGLE
 	depends on NETFILTER_ADVANCED
+<<<<<<< HEAD
 	---help---
 	  This option adds a `ECN' target, which can be used in the iptables mangle
 	  table.  
+=======
+	help
+	  This option adds a `ECN' target, which can be used in the iptables mangle
+	  table.
+>>>>>>> upstream/android-13
 
 	  You can use this target to remove the ECN bits from the IPv4 header of
 	  an IP packet.  This is particularly useful, if you need to work around
@@ -356,7 +435,11 @@ config IP_NF_TARGET_TTL
 	tristate '"TTL" target support'
 	depends on NETFILTER_ADVANCED && IP_NF_MANGLE
 	select NETFILTER_XT_TARGET_HL
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This is a backwards-compatible option for the user's convenience
 	(e.g. when running oldconfig). It selects
 	CONFIG_NETFILTER_XT_TARGET_HL.
@@ -368,9 +451,15 @@ config IP_NF_RAW
 	  This option adds a `raw' table to iptables. This table is the very
 	  first in the netfilter framework and hooks in at the PREROUTING
 	  and OUTPUT chains.
+<<<<<<< HEAD
 	
 	  If you want to compile it as a module, say M here and read
 	  <file:Documentation/kbuild/modules.txt>.  If unsure, say `N'.
+=======
+
+	  If you want to compile it as a module, say M here and read
+	  <file:Documentation/kbuild/modules.rst>.  If unsure, say `N'.
+>>>>>>> upstream/android-13
 
 # security table for MAC policy
 config IP_NF_SECURITY
@@ -380,7 +469,11 @@ config IP_NF_SECURITY
 	help
 	  This option adds a `security' table to iptables, for use
 	  with Mandatory Access Control (MAC) policy.
+<<<<<<< HEAD
 	 
+=======
+
+>>>>>>> upstream/android-13
 	  If unsure, say N.
 
 endif # IP_NF_IPTABLES

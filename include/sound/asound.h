@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Advanced Linux Sound Architecture - ALSA - Driver
  *  Copyright (c) 1994-2003 by Jaroslav Kysela <perex@perex.cz>,
  *                             Abramo Bagnara <abramo@alsa-project.org>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __SOUND_ASOUND_H
 #define __SOUND_ASOUND_H

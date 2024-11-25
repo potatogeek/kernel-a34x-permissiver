@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 Samsung Electronics Co.Ltd
  * Authors:
@@ -6,6 +10,7 @@
  *	Joonyoung Shim <jy0922.shim@samsung.com>
  *
  * Based on drivers/media/video/s5p-tv/hdmi_drv.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,6 +51,43 @@
 #include <media/cec-notifier.h>
 
 #include "exynos_drm_crtc.h"
+=======
+ */
+
+#include <drm/exynos_drm.h>
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+#include <linux/hdmi.h>
+#include <linux/i2c.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/irq.h>
+#include <linux/kernel.h>
+#include <linux/mfd/syscon.h>
+#include <linux/of_address.h>
+#include <linux/of_device.h>
+#include <linux/of_graph.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
+#include <linux/wait.h>
+
+#include <sound/hdmi-codec.h>
+#include <media/cec-notifier.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+
+#include "exynos_drm_crtc.h"
+#include "regs-hdmi.h"
+>>>>>>> upstream/android-13
 
 #define HOTPLUG_DEBOUNCE_MS		1100
 
@@ -526,6 +568,18 @@ static const struct hdmiphy_config hdmiphy_5420_configs[] = {
 			0x54, 0x4B, 0x25, 0x03, 0x00, 0x80, 0x01, 0x80,
 		},
 	},
+<<<<<<< HEAD
+=======
+	{
+		.pixel_clock = 154000000,
+		.conf = {
+			0x01, 0xD1, 0x20, 0x01, 0x40, 0x30, 0x08, 0xCC,
+			0x8C, 0xE8, 0xC1, 0xD8, 0x45, 0xA0, 0xAC, 0x80,
+			0x08, 0x80, 0x09, 0x84, 0x05, 0x02, 0x24, 0x86,
+			0x54, 0x3F, 0x25, 0x03, 0x00, 0x00, 0x01, 0x80,
+		},
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct hdmiphy_config hdmiphy_5433_configs[] = {
@@ -819,7 +873,12 @@ static void hdmi_reg_infoframes(struct hdmi_context *hdata)
 		return;
 	}
 
+<<<<<<< HEAD
 	ret = drm_hdmi_avi_infoframe_from_display_mode(&frm.avi, m, false);
+=======
+	ret = drm_hdmi_avi_infoframe_from_display_mode(&frm.avi,
+						       &hdata->connector, m);
+>>>>>>> upstream/android-13
 	if (!ret)
 		ret = hdmi_avi_infoframe_pack(&frm.avi, buf, sizeof(buf));
 	if (ret > 0) {
@@ -857,6 +916,13 @@ static enum drm_connector_status hdmi_detect(struct drm_connector *connector,
 
 static void hdmi_connector_destroy(struct drm_connector *connector)
 {
+<<<<<<< HEAD
+=======
+	struct hdmi_context *hdata = connector_to_hdmi(connector);
+
+	cec_notifier_conn_unregister(hdata->notifier);
+
+>>>>>>> upstream/android-13
 	drm_connector_unregister(connector);
 	drm_connector_cleanup(connector);
 }
@@ -884,9 +950,15 @@ static int hdmi_get_modes(struct drm_connector *connector)
 		return -ENODEV;
 
 	hdata->dvi_mode = !drm_detect_hdmi_monitor(edid);
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("%s : width[%d] x height[%d]\n",
 		(hdata->dvi_mode ? "dvi monitor" : "hdmi monitor"),
 		edid->width_cm, edid->height_cm);
+=======
+	DRM_DEV_DEBUG_KMS(hdata->dev, "%s : width[%d] x height[%d]\n",
+			  (hdata->dvi_mode ? "dvi monitor" : "hdmi monitor"),
+			  edid->width_cm, edid->height_cm);
+>>>>>>> upstream/android-13
 
 	drm_connector_update_edid_property(connector, edid);
 	cec_notifier_set_phys_addr_from_edid(hdata->notifier, edid);
@@ -907,7 +979,12 @@ static int hdmi_find_phy_conf(struct hdmi_context *hdata, u32 pixel_clock)
 		if (confs->data[i].pixel_clock == pixel_clock)
 			return i;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("Could not find phy config for %d\n", pixel_clock);
+=======
+	DRM_DEV_DEBUG_KMS(hdata->dev, "Could not find phy config for %d\n",
+			  pixel_clock);
+>>>>>>> upstream/android-13
 	return -EINVAL;
 }
 
@@ -917,10 +994,19 @@ static int hdmi_mode_valid(struct drm_connector *connector,
 	struct hdmi_context *hdata = connector_to_hdmi(connector);
 	int ret;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("xres=%d, yres=%d, refresh=%d, intl=%d clock=%d\n",
 		mode->hdisplay, mode->vdisplay, mode->vrefresh,
 		(mode->flags & DRM_MODE_FLAG_INTERLACE) ? true :
 		false, mode->clock * 1000);
+=======
+	DRM_DEV_DEBUG_KMS(hdata->dev,
+			  "xres=%d, yres=%d, refresh=%d, intl=%d clock=%d\n",
+			  mode->hdisplay, mode->vdisplay,
+			  drm_mode_vrefresh(mode),
+			  (mode->flags & DRM_MODE_FLAG_INTERLACE) ? true :
+			  false, mode->clock * 1000);
+>>>>>>> upstream/android-13
 
 	ret = hdmi_find_phy_conf(hdata, mode->clock * 1000);
 	if (ret < 0)
@@ -938,25 +1024,52 @@ static int hdmi_create_connector(struct drm_encoder *encoder)
 {
 	struct hdmi_context *hdata = encoder_to_hdmi(encoder);
 	struct drm_connector *connector = &hdata->connector;
+<<<<<<< HEAD
+=======
+	struct cec_connector_info conn_info;
+>>>>>>> upstream/android-13
 	int ret;
 
 	connector->interlace_allowed = true;
 	connector->polled = DRM_CONNECTOR_POLL_HPD;
 
+<<<<<<< HEAD
 	ret = drm_connector_init(hdata->drm_dev, connector,
 			&hdmi_connector_funcs, DRM_MODE_CONNECTOR_HDMIA);
 	if (ret) {
 		DRM_ERROR("Failed to initialize connector with drm\n");
+=======
+	ret = drm_connector_init_with_ddc(hdata->drm_dev, connector,
+					  &hdmi_connector_funcs,
+					  DRM_MODE_CONNECTOR_HDMIA,
+					  hdata->ddc_adpt);
+	if (ret) {
+		DRM_DEV_ERROR(hdata->dev,
+			      "Failed to initialize connector with drm\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	drm_connector_helper_add(connector, &hdmi_connector_helper_funcs);
 	drm_connector_attach_encoder(connector, encoder);
 
+<<<<<<< HEAD
 	if (hdata->bridge) {
 		ret = drm_bridge_attach(encoder, hdata->bridge, NULL);
 		if (ret)
 			DRM_ERROR("Failed to attach bridge\n");
+=======
+	if (hdata->bridge)
+		ret = drm_bridge_attach(encoder, hdata->bridge, NULL, 0);
+
+	cec_fill_conn_info_from_drm(&conn_info, connector);
+
+	hdata->notifier = cec_notifier_conn_register(hdata->dev, NULL,
+						     &conn_info);
+	if (!hdata->notifier) {
+		ret = -ENOMEM;
+		DRM_DEV_ERROR(hdata->dev, "Failed to allocate CEC notifier\n");
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -1001,8 +1114,15 @@ static bool hdmi_mode_fixup(struct drm_encoder *encoder,
 			DRM_INFO("desired mode doesn't exist so\n");
 			DRM_INFO("use the most suitable mode among modes.\n");
 
+<<<<<<< HEAD
 			DRM_DEBUG_KMS("Adjusted Mode: [%d]x[%d] [%d]Hz\n",
 				m->hdisplay, m->vdisplay, m->vrefresh);
+=======
+			DRM_DEV_DEBUG_KMS(dev->dev,
+					  "Adjusted Mode: [%d]x[%d] [%d]Hz\n",
+					  m->hdisplay, m->vdisplay,
+					  drm_mode_vrefresh(m));
+>>>>>>> upstream/android-13
 
 			drm_mode_copy(adjusted_mode, m);
 			break;
@@ -1168,13 +1288,23 @@ static void hdmiphy_wait_for_pll(struct hdmi_context *hdata)
 		u32 val = hdmi_reg_read(hdata, HDMI_PHY_STATUS);
 
 		if (val & HDMI_PHY_STATUS_READY) {
+<<<<<<< HEAD
 			DRM_DEBUG_KMS("PLL stabilized after %d tries\n", tries);
+=======
+			DRM_DEV_DEBUG_KMS(hdata->dev,
+					  "PLL stabilized after %d tries\n",
+					  tries);
+>>>>>>> upstream/android-13
 			return;
 		}
 		usleep_range(10, 20);
 	}
 
+<<<<<<< HEAD
 	DRM_ERROR("PLL could not reach steady state\n");
+=======
+	DRM_DEV_ERROR(hdata->dev, "PLL could not reach steady state\n");
+>>>>>>> upstream/android-13
 }
 
 static void hdmi_v13_mode_apply(struct hdmi_context *hdata)
@@ -1410,7 +1540,11 @@ static void hdmiphy_conf_apply(struct hdmi_context *hdata)
 
 	ret = hdmi_find_phy_conf(hdata, m->clock * 1000);
 	if (ret < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to find hdmiphy conf\n");
+=======
+		DRM_DEV_ERROR(hdata->dev, "failed to find hdmiphy conf\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 	phy_conf = hdata->drv_data->phy_confs.data[ret].conf;
@@ -1422,7 +1556,11 @@ static void hdmiphy_conf_apply(struct hdmi_context *hdata)
 	hdmiphy_enable_mode_set(hdata, true);
 	ret = hdmiphy_reg_write_buf(hdata, 0, phy_conf, 32);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to configure hdmiphy\n");
+=======
+		DRM_DEV_ERROR(hdata->dev, "failed to configure hdmiphy\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 	hdmiphy_enable_mode_set(hdata, false);
@@ -1453,6 +1591,7 @@ static void hdmi_set_refclk(struct hdmi_context *hdata, bool on)
 /* Should be called with hdata->mutex mutex held. */
 static void hdmiphy_enable(struct hdmi_context *hdata)
 {
+<<<<<<< HEAD
 	if (hdata->powered)
 		return;
 
@@ -1460,6 +1599,22 @@ static void hdmiphy_enable(struct hdmi_context *hdata)
 
 	if (regulator_bulk_enable(ARRAY_SIZE(supply), hdata->regul_bulk))
 		DRM_DEBUG_KMS("failed to enable regulator bulk\n");
+=======
+	int ret;
+
+	if (hdata->powered)
+		return;
+
+	ret = pm_runtime_resume_and_get(hdata->dev);
+	if (ret < 0) {
+		dev_err(hdata->dev, "failed to enable HDMIPHY device.\n");
+		return;
+	}
+
+	if (regulator_bulk_enable(ARRAY_SIZE(supply), hdata->regul_bulk))
+		DRM_DEV_DEBUG_KMS(hdata->dev,
+				  "failed to enable regulator bulk\n");
+>>>>>>> upstream/android-13
 
 	regmap_update_bits(hdata->pmureg, PMU_HDMI_PHY_CONTROL,
 			PMU_HDMI_PHY_ENABLE_BIT, 1);
@@ -1525,8 +1680,13 @@ static void hdmi_disable(struct drm_encoder *encoder)
 		 */
 		mutex_unlock(&hdata->mutex);
 		cancel_delayed_work(&hdata->hotplug_work);
+<<<<<<< HEAD
 		cec_notifier_set_phys_addr(hdata->notifier,
 					   CEC_PHYS_ADDR_INVALID);
+=======
+		if (hdata->notifier)
+			cec_notifier_phys_addr_invalidate(hdata->notifier);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1539,10 +1699,13 @@ static const struct drm_encoder_helper_funcs exynos_hdmi_encoder_helper_funcs = 
 	.disable	= hdmi_disable,
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs exynos_hdmi_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void hdmi_audio_shutdown(struct device *dev, void *data)
 {
 	struct hdmi_context *hdata = dev_get_drvdata(dev);
@@ -1587,7 +1750,12 @@ static int hdmi_audio_hw_params(struct device *dev, void *data,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hdmi_audio_digital_mute(struct device *dev, void *data, bool mute)
+=======
+static int hdmi_audio_mute(struct device *dev, void *data,
+			   bool mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct hdmi_context *hdata = dev_get_drvdata(dev);
 
@@ -1617,8 +1785,14 @@ static int hdmi_audio_get_eld(struct device *dev, void *data, uint8_t *buf,
 static const struct hdmi_codec_ops audio_codec_ops = {
 	.hw_params = hdmi_audio_hw_params,
 	.audio_shutdown = hdmi_audio_shutdown,
+<<<<<<< HEAD
 	.digital_mute = hdmi_audio_digital_mute,
 	.get_eld = hdmi_audio_get_eld,
+=======
+	.mute_stream = hdmi_audio_mute,
+	.get_eld = hdmi_audio_get_eld,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static int hdmi_register_audio_device(struct hdmi_context *hdata)
@@ -1733,7 +1907,11 @@ static int hdmi_bridge_init(struct hdmi_context *hdata)
 	np = of_graph_get_remote_port_parent(ep);
 	of_node_put(ep);
 	if (!np) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to get remote port parent");
+=======
+		DRM_DEV_ERROR(dev, "failed to get remote port parent");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1751,17 +1929,29 @@ static int hdmi_resources_init(struct hdmi_context *hdata)
 	struct device *dev = hdata->dev;
 	int i, ret;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("HDMI resource init\n");
 
 	hdata->hpd_gpio = devm_gpiod_get(dev, "hpd", GPIOD_IN);
 	if (IS_ERR(hdata->hpd_gpio)) {
 		DRM_ERROR("cannot get hpd gpio property\n");
+=======
+	DRM_DEV_DEBUG_KMS(dev, "HDMI resource init\n");
+
+	hdata->hpd_gpio = devm_gpiod_get(dev, "hpd", GPIOD_IN);
+	if (IS_ERR(hdata->hpd_gpio)) {
+		DRM_DEV_ERROR(dev, "cannot get hpd gpio property\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(hdata->hpd_gpio);
 	}
 
 	hdata->irq = gpiod_to_irq(hdata->hpd_gpio);
 	if (hdata->irq < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to get GPIO irq\n");
+=======
+		DRM_DEV_ERROR(dev, "failed to get GPIO irq\n");
+>>>>>>> upstream/android-13
 		return  hdata->irq;
 	}
 
@@ -1777,6 +1967,7 @@ static int hdmi_resources_init(struct hdmi_context *hdata)
 		hdata->regul_bulk[i].supply = supply[i];
 
 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(supply), hdata->regul_bulk);
+<<<<<<< HEAD
 	if (ret) {
 		if (ret != -EPROBE_DEFER)
 			DRM_ERROR("failed to get regulators\n");
@@ -1796,6 +1987,17 @@ static int hdmi_resources_init(struct hdmi_context *hdata)
 		}
 	}
 
+=======
+	if (ret)
+		return dev_err_probe(dev, ret, "failed to get regulators\n");
+
+	hdata->reg_hdmi_en = devm_regulator_get_optional(dev, "hdmi-en");
+
+	if (PTR_ERR(hdata->reg_hdmi_en) != -ENODEV)
+		if (IS_ERR(hdata->reg_hdmi_en))
+			return PTR_ERR(hdata->reg_hdmi_en);
+
+>>>>>>> upstream/android-13
 	return hdmi_bridge_init(hdata);
 }
 
@@ -1830,8 +2032,12 @@ static int hdmi_bind(struct device *dev, struct device *master, void *data)
 
 	hdata->phy_clk.enable = hdmiphy_clk_enable;
 
+<<<<<<< HEAD
 	drm_encoder_init(drm_dev, encoder, &exynos_hdmi_encoder_funcs,
 			 DRM_MODE_ENCODER_TMDS, NULL);
+=======
+	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
+>>>>>>> upstream/android-13
 
 	drm_encoder_helper_add(encoder, &exynos_hdmi_encoder_helper_funcs);
 
@@ -1844,7 +2050,12 @@ static int hdmi_bind(struct device *dev, struct device *master, void *data)
 
 	ret = hdmi_create_connector(encoder);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to create connector ret = %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev, "failed to create connector ret = %d\n",
+			      ret);
+>>>>>>> upstream/android-13
 		drm_encoder_cleanup(encoder);
 		return ret;
 	}
@@ -1874,7 +2085,12 @@ static int hdmi_get_ddc_adapter(struct hdmi_context *hdata)
 		np = of_parse_phandle(hdata->dev->of_node, "ddc", 0);
 
 	if (!np) {
+<<<<<<< HEAD
 		DRM_ERROR("Failed to find ddc node in device tree\n");
+=======
+		DRM_DEV_ERROR(hdata->dev,
+			      "Failed to find ddc node in device tree\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -1901,7 +2117,12 @@ static int hdmi_get_phy_io(struct hdmi_context *hdata)
 	if (!np) {
 		np = of_parse_phandle(hdata->dev->of_node, "phy", 0);
 		if (!np) {
+<<<<<<< HEAD
 			DRM_ERROR("Failed to find hdmiphy node in device tree\n");
+=======
+			DRM_DEV_ERROR(hdata->dev,
+				      "Failed to find hdmiphy node in device tree\n");
+>>>>>>> upstream/android-13
 			return -ENODEV;
 		}
 	}
@@ -1909,7 +2130,12 @@ static int hdmi_get_phy_io(struct hdmi_context *hdata)
 	if (hdata->drv_data->is_apb_phy) {
 		hdata->regs_hdmiphy = of_iomap(np, 0);
 		if (!hdata->regs_hdmiphy) {
+<<<<<<< HEAD
 			DRM_ERROR("failed to ioremap hdmi phy\n");
+=======
+			DRM_DEV_ERROR(hdata->dev,
+				      "failed to ioremap hdmi phy\n");
+>>>>>>> upstream/android-13
 			ret = -ENOMEM;
 			goto out;
 		}
@@ -1932,7 +2158,10 @@ static int hdmi_probe(struct platform_device *pdev)
 	struct hdmi_audio_infoframe *audio_infoframe;
 	struct device *dev = &pdev->dev;
 	struct hdmi_context *hdata;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	hdata = devm_kzalloc(dev, sizeof(struct hdmi_context), GFP_KERNEL);
@@ -1950,12 +2179,20 @@ static int hdmi_probe(struct platform_device *pdev)
 	ret = hdmi_resources_init(hdata);
 	if (ret) {
 		if (ret != -EPROBE_DEFER)
+<<<<<<< HEAD
 			DRM_ERROR("hdmi_resources_init failed\n");
 		return ret;
 	}
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hdata->regs = devm_ioremap_resource(dev, res);
+=======
+			DRM_DEV_ERROR(dev, "hdmi_resources_init failed\n");
+		return ret;
+	}
+
+	hdata->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hdata->regs)) {
 		ret = PTR_ERR(hdata->regs);
 		return ret;
@@ -1976,14 +2213,22 @@ static int hdmi_probe(struct platform_device *pdev)
 			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
 			"hdmi", hdata);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("failed to register hdmi interrupt\n");
+=======
+		DRM_DEV_ERROR(dev, "failed to register hdmi interrupt\n");
+>>>>>>> upstream/android-13
 		goto err_hdmiphy;
 	}
 
 	hdata->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
 			"samsung,syscon-phandle");
 	if (IS_ERR(hdata->pmureg)) {
+<<<<<<< HEAD
 		DRM_ERROR("syscon regmap lookup failed.\n");
+=======
+		DRM_DEV_ERROR(dev, "syscon regmap lookup failed.\n");
+>>>>>>> upstream/android-13
 		ret = -EPROBE_DEFER;
 		goto err_hdmiphy;
 	}
@@ -1992,16 +2237,30 @@ static int hdmi_probe(struct platform_device *pdev)
 		hdata->sysreg = syscon_regmap_lookup_by_phandle(dev->of_node,
 				"samsung,sysreg-phandle");
 		if (IS_ERR(hdata->sysreg)) {
+<<<<<<< HEAD
 			DRM_ERROR("sysreg regmap lookup failed.\n");
+=======
+			DRM_DEV_ERROR(dev, "sysreg regmap lookup failed.\n");
+>>>>>>> upstream/android-13
 			ret = -EPROBE_DEFER;
 			goto err_hdmiphy;
 		}
 	}
 
+<<<<<<< HEAD
 	hdata->notifier = cec_notifier_get(&pdev->dev);
 	if (hdata->notifier == NULL) {
 		ret = -ENOMEM;
 		goto err_hdmiphy;
+=======
+	if (!IS_ERR(hdata->reg_hdmi_en)) {
+		ret = regulator_enable(hdata->reg_hdmi_en);
+		if (ret) {
+			DRM_DEV_ERROR(dev,
+			      "failed to enable hdmi-en regulator\n");
+			goto err_hdmiphy;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	pm_runtime_enable(dev);
@@ -2015,7 +2274,11 @@ static int hdmi_probe(struct platform_device *pdev)
 
 	ret = hdmi_register_audio_device(hdata);
 	if (ret)
+<<<<<<< HEAD
 		goto err_notifier_put;
+=======
+		goto err_rpm_disable;
+>>>>>>> upstream/android-13
 
 	ret = component_add(&pdev->dev, &hdmi_component_ops);
 	if (ret)
@@ -2026,10 +2289,17 @@ static int hdmi_probe(struct platform_device *pdev)
 err_unregister_audio:
 	platform_device_unregister(hdata->audio.pdev);
 
+<<<<<<< HEAD
 err_notifier_put:
 	cec_notifier_put(hdata->notifier);
 	pm_runtime_disable(dev);
 
+=======
+err_rpm_disable:
+	pm_runtime_disable(dev);
+	if (!IS_ERR(hdata->reg_hdmi_en))
+		regulator_disable(hdata->reg_hdmi_en);
+>>>>>>> upstream/android-13
 err_hdmiphy:
 	if (hdata->hdmiphy_port)
 		put_device(&hdata->hdmiphy_port->dev);
@@ -2046,12 +2316,18 @@ static int hdmi_remove(struct platform_device *pdev)
 	struct hdmi_context *hdata = platform_get_drvdata(pdev);
 
 	cancel_delayed_work_sync(&hdata->hotplug_work);
+<<<<<<< HEAD
 	cec_notifier_set_phys_addr(hdata->notifier, CEC_PHYS_ADDR_INVALID);
+=======
+>>>>>>> upstream/android-13
 
 	component_del(&pdev->dev, &hdmi_component_ops);
 	platform_device_unregister(hdata->audio.pdev);
 
+<<<<<<< HEAD
 	cec_notifier_put(hdata->notifier);
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 
 	if (!IS_ERR(hdata->reg_hdmi_en))

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright 2003 H. Peter Anvin - All Rights Reserved
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation, Inc., 53 Temple Place Ste 330,
  *   Boston MA 02111-1307, USA; either version 2 of the License, or
  *   (at your option) any later version; incorporated herein by reference.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 #ifndef LINUX_RAID_RAID6_H
@@ -33,7 +40,13 @@ extern const char raid6_empty_zero_page[PAGE_SIZE];
 #include <errno.h>
 #include <inttypes.h>
 #include <stddef.h>
+<<<<<<< HEAD
 #include <sys/mman.h>
+=======
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/time.h>
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 
 /* Not standard, but glibc defines it */
@@ -47,11 +60,23 @@ typedef uint64_t u64;
 #ifndef PAGE_SIZE
 # define PAGE_SIZE 4096
 #endif
+<<<<<<< HEAD
+=======
+#ifndef PAGE_SHIFT
+# define PAGE_SHIFT 12
+#endif
+>>>>>>> upstream/android-13
 extern const char raid6_empty_zero_page[PAGE_SIZE];
 
 #define __init
 #define __exit
+<<<<<<< HEAD
 #define __attribute_const__ __attribute__((const))
+=======
+#ifndef __attribute_const__
+# define __attribute_const__ __attribute__((const))
+#endif
+>>>>>>> upstream/android-13
 #define noinline __attribute__((noinline))
 
 #define preempt_enable()
@@ -60,12 +85,24 @@ extern const char raid6_empty_zero_page[PAGE_SIZE];
 #define enable_kernel_altivec()
 #define disable_kernel_altivec()
 
+<<<<<<< HEAD
 #define EXPORT_SYMBOL(sym)
+=======
+#undef	EXPORT_SYMBOL
+#define EXPORT_SYMBOL(sym)
+#undef	EXPORT_SYMBOL_GPL
+>>>>>>> upstream/android-13
 #define EXPORT_SYMBOL_GPL(sym)
 #define MODULE_LICENSE(licence)
 #define MODULE_DESCRIPTION(desc)
 #define subsys_initcall(x)
 #define module_exit(x)
+<<<<<<< HEAD
+=======
+
+#define IS_ENABLED(x) (x)
+#define CONFIG_RAID6_PQ_BENCHMARK 1
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 
 /* Routine choices */

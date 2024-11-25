@@ -1,12 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *	klist.h - Some generic list helpers, extending struct list_head a bit.
  *
  *	Implementations are found in lib/klist.c
  *
+<<<<<<< HEAD
  *
  *	Copyright (C) 2005 Patrick Mochel
  *
  *	This file is rleased under the GPL v2.
+=======
+ *	Copyright (C) 2005 Patrick Mochel
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_KLIST_H

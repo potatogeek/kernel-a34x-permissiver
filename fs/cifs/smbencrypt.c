@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    Unix SMB/Netbios implementation.
    Version 1.9.
@@ -8,6 +12,7 @@
    Copyright (C) Andrew Bartlett <abartlet@samba.org> 2002-2003
    Modified by Steve French (sfrench@us.ibm.com) 2002-2003
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -26,6 +31,13 @@
 #include <linux/crypto.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+=======
+*/
+
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/fips.h>
+>>>>>>> upstream/android-13
 #include <linux/fs.h>
 #include <linux/string.h>
 #include <linux/kernel.h>
@@ -36,6 +48,10 @@
 #include "cifsglob.h"
 #include "cifs_debug.h"
 #include "cifsproto.h"
+<<<<<<< HEAD
+=======
+#include "../smbfs_common/md4.h"
+>>>>>>> upstream/android-13
 
 #ifndef false
 #define false 0
@@ -49,6 +65,7 @@
 #define SSVALX(buf,pos,val) (CVAL(buf,pos)=(val)&0xFF,CVAL(buf,pos+1)=(val)>>8)
 #define SSVAL(buf,pos,val) SSVALX((buf),(pos),((__u16)(val)))
 
+<<<<<<< HEAD
 static void
 str_to_key(unsigned char *str, unsigned char *key)
 {
@@ -170,6 +187,31 @@ SMBencrypt(unsigned char *passwd, const unsigned char *c8, unsigned char *p24)
 	memcpy(p21, p16, 16);
 	rc = E_P24(p21, c8, p24);
 
+=======
+/* produce a md4 message digest from data of length n bytes */
+static int
+mdfour(unsigned char *md4_hash, unsigned char *link_str, int link_len)
+{
+	int rc;
+	struct md4_ctx mctx;
+
+	rc = cifs_md4_init(&mctx);
+	if (rc) {
+		cifs_dbg(VFS, "%s: Could not init MD4\n", __func__);
+		goto mdfour_err;
+	}
+	rc = cifs_md4_update(&mctx, link_str, link_len);
+	if (rc) {
+		cifs_dbg(VFS, "%s: Could not update MD4\n", __func__);
+		goto mdfour_err;
+	}
+	rc = cifs_md4_final(&mctx, md4_hash);
+	if (rc)
+		cifs_dbg(VFS, "%s: Could not finalize MD4\n", __func__);
+
+
+mdfour_err:
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -198,6 +240,7 @@ E_md4hash(const unsigned char *passwd, unsigned char *p16,
 
 	return rc;
 }
+<<<<<<< HEAD
 
 /* Does the NT MD4 hash then des encryption. */
 int
@@ -220,3 +263,5 @@ SMBNTencrypt(unsigned char *passwd, unsigned char *c8, unsigned char *p24,
 	rc = E_P24(p21, c8, p24);
 	return rc;
 }
+=======
+>>>>>>> upstream/android-13

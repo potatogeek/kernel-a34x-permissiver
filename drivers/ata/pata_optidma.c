@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata_optidma.c 	- Opti DMA PATA for new ATA layer
  *			  (C) 2006 Red Hat Inc
@@ -286,7 +290,11 @@ static void optiplus_set_dma_mode(struct ata_port *ap, struct ata_device *adev)
 }
 
 /**
+<<<<<<< HEAD
  *	optidma_make_bits	-	PCI setup helper
+=======
+ *	optidma_make_bits43	-	PCI setup helper
+>>>>>>> upstream/android-13
  *	@adev: ATA device
  *
  *	Turn the ATA device setup into PCI configuration bits
@@ -308,6 +316,10 @@ static u8 optidma_make_bits43(struct ata_device *adev)
 /**
  *	optidma_set_mode	-	mode setup
  *	@link: link to set up
+<<<<<<< HEAD
+=======
+ *	@r_failed: out parameter for failed device
+>>>>>>> upstream/android-13
  *
  *	Use the standard setup to tune the chipset and then finalise the
  *	configuration by writing the nibble of extra bits of data into
@@ -353,7 +365,11 @@ static struct ata_port_operations optiplus_port_ops = {
 
 /**
  *	optiplus_with_udma	-	Look for UDMA capable setup
+<<<<<<< HEAD
  *	@pdev; ATA controller
+=======
+ *	@pdev: ATA controller
+>>>>>>> upstream/android-13
  */
 
 static int optiplus_with_udma(struct pci_dev *pdev)

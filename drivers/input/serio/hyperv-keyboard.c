@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) 2013, Microsoft Corporation.
  *
@@ -9,6 +10,11 @@
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  *  more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (c) 2013, Microsoft Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -83,8 +89,13 @@ struct synth_kbd_keystroke {
 
 #define HK_MAXIMUM_MESSAGE_SIZE 256
 
+<<<<<<< HEAD
 #define KBD_VSC_SEND_RING_BUFFER_SIZE		(10 * PAGE_SIZE)
 #define KBD_VSC_RECV_RING_BUFFER_SIZE		(10 * PAGE_SIZE)
+=======
+#define KBD_VSC_SEND_RING_BUFFER_SIZE	VMBUS_RING_SIZE(36 * 1024)
+#define KBD_VSC_RECV_RING_BUFFER_SIZE	VMBUS_RING_SIZE(36 * 1024)
+>>>>>>> upstream/android-13
 
 #define XTKBD_EMUL0     0xe0
 #define XTKBD_EMUL1     0xe1
@@ -267,6 +278,11 @@ static int hv_kbd_connect_to_vsp(struct hv_device *hv_dev)
 	u32 proto_status;
 	int error;
 
+<<<<<<< HEAD
+=======
+	reinit_completion(&kbd_dev->wait_event);
+
+>>>>>>> upstream/android-13
 	request = &kbd_dev->protocol_req;
 	memset(request, 0, sizeof(struct synth_kbd_protocol_request));
 	request->header.type = __cpu_to_le32(SYNTH_KBD_PROTOCOL_REQUEST);
@@ -388,6 +404,32 @@ static int hv_kbd_remove(struct hv_device *hv_dev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int hv_kbd_suspend(struct hv_device *hv_dev)
+{
+	vmbus_close(hv_dev->channel);
+
+	return 0;
+}
+
+static int hv_kbd_resume(struct hv_device *hv_dev)
+{
+	int ret;
+
+	ret = vmbus_open(hv_dev->channel,
+			 KBD_VSC_SEND_RING_BUFFER_SIZE,
+			 KBD_VSC_RECV_RING_BUFFER_SIZE,
+			 NULL, 0,
+			 hv_kbd_on_channel_callback,
+			 hv_dev);
+	if (ret == 0)
+		ret = hv_kbd_connect_to_vsp(hv_dev);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static const struct hv_vmbus_device_id id_table[] = {
 	/* Keyboard guid */
 	{ HV_KBD_GUID, },
@@ -401,6 +443,11 @@ static struct  hv_driver hv_kbd_drv = {
 	.id_table = id_table,
 	.probe = hv_kbd_probe,
 	.remove = hv_kbd_remove,
+<<<<<<< HEAD
+=======
+	.suspend = hv_kbd_suspend,
+	.resume = hv_kbd_resume,
+>>>>>>> upstream/android-13
 	.driver = {
 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	},
@@ -417,5 +464,10 @@ static void __exit hv_kbd_exit(void)
 }
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Microsoft Hyper-V Synthetic Keyboard Driver");
+
+>>>>>>> upstream/android-13
 module_init(hv_kbd_init);
 module_exit(hv_kbd_exit);

@@ -83,12 +83,21 @@ static int proc_scsi_host_open(struct inode *inode, struct file *file)
 				4 * PAGE_SIZE);
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_scsi_fops = {
 	.open = proc_scsi_host_open,
 	.release = single_release,
 	.read = seq_read,
 	.llseek = seq_lseek,
 	.write = proc_scsi_host_write
+=======
+static const struct proc_ops proc_scsi_ops = {
+	.proc_open	= proc_scsi_host_open,
+	.proc_release	= single_release,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= proc_scsi_host_write
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -146,7 +155,11 @@ void scsi_proc_host_add(struct Scsi_Host *shost)
 
 	sprintf(name,"%d", shost->host_no);
 	p = proc_create_data(name, S_IRUGO | S_IWUSR,
+<<<<<<< HEAD
 		sht->proc_dir, &proc_scsi_fops, shost);
+=======
+		sht->proc_dir, &proc_scsi_ops, shost);
+>>>>>>> upstream/android-13
 	if (!p)
 		printk(KERN_ERR "%s: Failed to register host %d in"
 		       "%s\n", __func__, shost->host_no,
@@ -372,6 +385,7 @@ static ssize_t proc_scsi_write(struct file *file, const char __user *buf,
 	return err;
 }
 
+<<<<<<< HEAD
 static int always_match(struct device *dev, void *data)
 {
 	return 1;
@@ -381,6 +395,12 @@ static inline struct device *next_scsi_device(struct device *start)
 {
 	struct device *next = bus_find_device(&scsi_bus_type, start, NULL,
 					      always_match);
+=======
+static inline struct device *next_scsi_device(struct device *start)
+{
+	struct device *next = bus_find_next_device(&scsi_bus_type, start);
+
+>>>>>>> upstream/android-13
 	put_device(start);
 	return next;
 }
@@ -441,6 +461,7 @@ static int proc_scsi_open(struct inode *inode, struct file *file)
 	return seq_open(file, &scsi_seq_ops);
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_scsi_operations = {
 	.owner		= THIS_MODULE,
 	.open		= proc_scsi_open,
@@ -448,6 +469,14 @@ static const struct file_operations proc_scsi_operations = {
 	.write		= proc_scsi_write,
 	.llseek		= seq_lseek,
 	.release	= seq_release,
+=======
+static const struct proc_ops scsi_scsi_proc_ops = {
+	.proc_open	= proc_scsi_open,
+	.proc_read	= seq_read,
+	.proc_write	= proc_scsi_write,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -461,7 +490,11 @@ int __init scsi_init_procfs(void)
 	if (!proc_scsi)
 		goto err1;
 
+<<<<<<< HEAD
 	pde = proc_create("scsi/scsi", 0, NULL, &proc_scsi_operations);
+=======
+	pde = proc_create("scsi/scsi", 0, NULL, &scsi_scsi_proc_ops);
+>>>>>>> upstream/android-13
 	if (!pde)
 		goto err2;
 

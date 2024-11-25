@@ -21,6 +21,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include "clearstate_defs.h"
+
+>>>>>>> upstream/android-13
 static const u32 SECT_CONTEXT_def_1[] =
 {
     0x00000000, // DB_RENDER_CONTROL

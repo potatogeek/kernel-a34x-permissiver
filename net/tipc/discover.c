@@ -74,7 +74,12 @@ struct tipc_discoverer {
 /**
  * tipc_disc_init_msg - initialize a link setup message
  * @net: the applicable net namespace
+<<<<<<< HEAD
  * @type: message type (request or response)
+=======
+ * @skb: buffer containing message
+ * @mtyp: message type (request or response)
+>>>>>>> upstream/android-13
  * @b: ptr to bearer issuing message
  */
 static void tipc_disc_init_msg(struct net *net, struct sk_buff *skb,
@@ -94,6 +99,10 @@ static void tipc_disc_init_msg(struct net *net, struct sk_buff *skb,
 	msg_set_dest_domain(hdr, dest_domain);
 	msg_set_bc_netid(hdr, tn->net_id);
 	b->media->addr2msg(msg_media_addr(hdr), &b->addr);
+<<<<<<< HEAD
+=======
+	msg_set_peer_net_hash(hdr, tipc_net_hash_mixes(net, tn->random));
+>>>>>>> upstream/android-13
 	msg_set_node_id(hdr, tipc_own_id(net));
 }
 
@@ -166,7 +175,11 @@ static bool tipc_disc_addr_trial_msg(struct tipc_discoverer *d,
 
 	/* Apply trial address if we just left trial period */
 	if (!trial && !self) {
+<<<<<<< HEAD
 		tipc_sched_net_finalize(net, tn->trial_addr);
+=======
+		schedule_work(&tn->work);
+>>>>>>> upstream/android-13
 		msg_set_prevnode(buf_msg(d->skb), tn->trial_addr);
 		msg_set_type(buf_msg(d->skb), DSC_REQ_MSG);
 	}
@@ -193,6 +206,10 @@ void tipc_disc_rcv(struct net *net, struct sk_buff *skb,
 {
 	struct tipc_net *tn = tipc_net(net);
 	struct tipc_msg *hdr = buf_msg(skb);
+<<<<<<< HEAD
+=======
+	u32 pnet_hash = msg_peer_net_hash(hdr);
+>>>>>>> upstream/android-13
 	u16 caps = msg_node_capabilities(hdr);
 	bool legacy = tn->legacy_addr_format;
 	u32 sugg = msg_sugg_node_addr(hdr);
@@ -241,7 +258,11 @@ void tipc_disc_rcv(struct net *net, struct sk_buff *skb,
 		return;
 	if (!tipc_in_scope(legacy, b->domain, src))
 		return;
+<<<<<<< HEAD
 	tipc_node_check_dest(net, src, peer_id, b, caps, signature,
+=======
+	tipc_node_check_dest(net, src, peer_id, b, caps, signature, pnet_hash,
+>>>>>>> upstream/android-13
 			     &maddr, &respond, &dupl_addr);
 	if (dupl_addr)
 		disc_dupl_alert(b, src, &maddr);
@@ -305,7 +326,11 @@ static void tipc_disc_timeout(struct timer_list *t)
 	if (!time_before(jiffies, tn->addr_trial_end) && !tipc_own_addr(net)) {
 		mod_timer(&d->timer, jiffies + TIPC_DISC_INIT);
 		spin_unlock_bh(&d->lock);
+<<<<<<< HEAD
 		tipc_sched_net_finalize(net, tn->trial_addr);
+=======
+		schedule_work(&tn->work);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -337,9 +362,15 @@ exit:
  * @net: the applicable net namespace
  * @b: ptr to bearer issuing requests
  * @dest: destination address for request messages
+<<<<<<< HEAD
  * @dest_domain: network domain to which links can be established
  *
  * Returns 0 if successful, otherwise -errno.
+=======
+ * @skb: pointer to created frame
+ *
+ * Return: 0 if successful, otherwise -errno.
+>>>>>>> upstream/android-13
  */
 int tipc_disc_create(struct net *net, struct tipc_bearer *b,
 		     struct tipc_media_addr *dest, struct sk_buff **skb)
@@ -378,7 +409,11 @@ int tipc_disc_create(struct net *net, struct tipc_bearer *b,
 
 /**
  * tipc_disc_delete - destroy object sending periodic link setup requests
+<<<<<<< HEAD
  * @d: ptr to link duest structure
+=======
+ * @d: ptr to link dest structure
+>>>>>>> upstream/android-13
  */
 void tipc_disc_delete(struct tipc_discoverer *d)
 {
@@ -391,7 +426,10 @@ void tipc_disc_delete(struct tipc_discoverer *d)
  * tipc_disc_reset - reset object to send periodic link setup requests
  * @net: the applicable net namespace
  * @b: ptr to bearer issuing requests
+<<<<<<< HEAD
  * @dest_domain: network domain to which links can be established
+=======
+>>>>>>> upstream/android-13
  */
 void tipc_disc_reset(struct net *net, struct tipc_bearer *b)
 {

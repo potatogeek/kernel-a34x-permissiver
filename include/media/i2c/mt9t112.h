@@ -14,7 +14,11 @@ struct mt9t112_pll_divider {
 };
 
 /**
+<<<<<<< HEAD
  * mt9t112_platform_data -	mt9t112 driver interface
+=======
+ * struct mt9t112_platform_data - mt9t112 driver interface
+>>>>>>> upstream/android-13
  * @flags:			Sensor media bus configuration.
  * @divider:			Sensor PLL configuration
  */

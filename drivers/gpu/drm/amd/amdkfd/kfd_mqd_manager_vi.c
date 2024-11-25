@@ -31,6 +31,10 @@
 #include "gca/gfx_8_0_sh_mask.h"
 #include "gca/gfx_8_0_enum.h"
 #include "oss/oss_3_0_sh_mask.h"
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #define CP_MQD_CONTROL__PRIV_STATE__SHIFT 0x8
 
 static inline struct vi_mqd *get_mqd(void *mqd)
@@ -68,6 +72,7 @@ static void update_cu_mask(struct mqd_manager *mm, void *mqd,
 		m->compute_static_thread_mgmt_se3);
 }
 
+<<<<<<< HEAD
 static int init_mqd(struct mqd_manager *mm, void **mqd,
 			struct kfd_mem_obj **mqd_mem_obj, uint64_t *gart_addr,
 			struct queue_properties *q)
@@ -83,6 +88,35 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
 
 	m = (struct vi_mqd *) (*mqd_mem_obj)->cpu_ptr;
 	addr = (*mqd_mem_obj)->gpu_addr;
+=======
+static void set_priority(struct vi_mqd *m, struct queue_properties *q)
+{
+	m->cp_hqd_pipe_priority = pipe_priority_map[q->priority];
+	m->cp_hqd_queue_priority = q->priority;
+}
+
+static struct kfd_mem_obj *allocate_mqd(struct kfd_dev *kfd,
+					struct queue_properties *q)
+{
+	struct kfd_mem_obj *mqd_mem_obj;
+
+	if (kfd_gtt_sa_allocate(kfd, sizeof(struct vi_mqd),
+			&mqd_mem_obj))
+		return NULL;
+
+	return mqd_mem_obj;
+}
+
+static void init_mqd(struct mqd_manager *mm, void **mqd,
+			struct kfd_mem_obj *mqd_mem_obj, uint64_t *gart_addr,
+			struct queue_properties *q)
+{
+	uint64_t addr;
+	struct vi_mqd *m;
+
+	m = (struct vi_mqd *) mqd_mem_obj->cpu_ptr;
+	addr = mqd_mem_obj->gpu_addr;
+>>>>>>> upstream/android-13
 
 	memset(m, 0, sizeof(struct vi_mqd));
 
@@ -104,11 +138,17 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
 
 	m->cp_hqd_quantum = 1 << CP_HQD_QUANTUM__QUANTUM_EN__SHIFT |
 			1 << CP_HQD_QUANTUM__QUANTUM_SCALE__SHIFT |
+<<<<<<< HEAD
 			10 << CP_HQD_QUANTUM__QUANTUM_DURATION__SHIFT;
 
 	m->cp_hqd_pipe_priority = 1;
 	m->cp_hqd_queue_priority = 15;
 
+=======
+			1 << CP_HQD_QUANTUM__QUANTUM_DURATION__SHIFT;
+
+	set_priority(m, q);
+>>>>>>> upstream/android-13
 	m->cp_hqd_eop_rptr = 1 << CP_HQD_EOP_RPTR__INIT_FETCHER__SHIFT;
 
 	if (q->format == KFD_QUEUE_FORMAT_AQL)
@@ -139,9 +179,13 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
 	*mqd = m;
 	if (gart_addr)
 		*gart_addr = addr;
+<<<<<<< HEAD
 	retval = mm->update_mqd(mm, m, q);
 
 	return retval;
+=======
+	mm->update_mqd(mm, m, q);
+>>>>>>> upstream/android-13
 }
 
 static int load_mqd(struct mqd_manager *mm, void *mqd,
@@ -157,7 +201,11 @@ static int load_mqd(struct mqd_manager *mm, void *mqd,
 					  wptr_shift, wptr_mask, mms);
 }
 
+<<<<<<< HEAD
 static int __update_mqd(struct mqd_manager *mm, void *mqd,
+=======
+static void __update_mqd(struct mqd_manager *mm, void *mqd,
+>>>>>>> upstream/android-13
 			struct queue_properties *q, unsigned int mtype,
 			unsigned int atc_bit)
 {
@@ -222,6 +270,7 @@ static int __update_mqd(struct mqd_manager *mm, void *mqd,
 			mtype << CP_HQD_CTX_SAVE_CONTROL__MTYPE__SHIFT;
 
 	update_cu_mask(mm, mqd, q);
+<<<<<<< HEAD
 
 	q->is_active = (q->queue_size > 0 &&
 			q->queue_address != 0 &&
@@ -242,6 +291,31 @@ static int update_mqd_tonga(struct mqd_manager *mm, void *mqd,
 			struct queue_properties *q)
 {
 	return __update_mqd(mm, mqd, q, MTYPE_UC, 0);
+=======
+	set_priority(m, q);
+
+	q->is_active = QUEUE_IS_ACTIVE(*q);
+}
+
+
+static void update_mqd(struct mqd_manager *mm, void *mqd,
+			struct queue_properties *q)
+{
+	__update_mqd(mm, mqd, q, MTYPE_CC, 1);
+}
+
+static uint32_t read_doorbell_id(void *mqd)
+{
+	struct vi_mqd *m = (struct vi_mqd *)mqd;
+
+	return m->queue_doorbell_id0;
+}
+
+static void update_mqd_tonga(struct mqd_manager *mm, void *mqd,
+			struct queue_properties *q)
+{
+	__update_mqd(mm, mqd, q, MTYPE_UC, 0);
+>>>>>>> upstream/android-13
 }
 
 static int destroy_mqd(struct mqd_manager *mm, void *mqd,
@@ -254,7 +328,11 @@ static int destroy_mqd(struct mqd_manager *mm, void *mqd,
 		pipe_id, queue_id);
 }
 
+<<<<<<< HEAD
 static void uninit_mqd(struct mqd_manager *mm, void *mqd,
+=======
+static void free_mqd(struct mqd_manager *mm, void *mqd,
+>>>>>>> upstream/android-13
 			struct kfd_mem_obj *mqd_mem_obj)
 {
 	kfd_gtt_sa_free(mm->dev, mqd_mem_obj);
@@ -269,6 +347,7 @@ static bool is_occupied(struct mqd_manager *mm, void *mqd,
 		pipe_id, queue_id);
 }
 
+<<<<<<< HEAD
 static int init_mqd_hiq(struct mqd_manager *mm, void **mqd,
 			struct kfd_mem_obj **mqd_mem_obj, uint64_t *gart_addr,
 			struct queue_properties *q)
@@ -278,11 +357,42 @@ static int init_mqd_hiq(struct mqd_manager *mm, void **mqd,
 
 	if (retval != 0)
 		return retval;
+=======
+static int get_wave_state(struct mqd_manager *mm, void *mqd,
+			  void __user *ctl_stack,
+			  u32 *ctl_stack_used_size,
+			  u32 *save_area_used_size)
+{
+	struct vi_mqd *m;
+
+	m = get_mqd(mqd);
+
+	*ctl_stack_used_size = m->cp_hqd_cntl_stack_size -
+		m->cp_hqd_cntl_stack_offset;
+	*save_area_used_size = m->cp_hqd_wg_state_offset -
+		m->cp_hqd_cntl_stack_size;
+
+	/* Control stack is not copied to user mode for GFXv8 because
+	 * it's part of the context save area that is already
+	 * accessible to user mode
+	 */
+
+	return 0;
+}
+
+static void init_mqd_hiq(struct mqd_manager *mm, void **mqd,
+			struct kfd_mem_obj *mqd_mem_obj, uint64_t *gart_addr,
+			struct queue_properties *q)
+{
+	struct vi_mqd *m;
+	init_mqd(mm, mqd, mqd_mem_obj, gart_addr, q);
+>>>>>>> upstream/android-13
 
 	m = get_mqd(*mqd);
 
 	m->cp_hqd_pq_control |= 1 << CP_HQD_PQ_CONTROL__PRIV_STATE__SHIFT |
 			1 << CP_HQD_PQ_CONTROL__KMD_QUEUE__SHIFT;
+<<<<<<< HEAD
 
 	return retval;
 }
@@ -317,10 +427,28 @@ static int init_mqd_sdma(struct mqd_manager *mm, void **mqd,
 		return -ENOMEM;
 
 	m = (struct vi_sdma_mqd *) (*mqd_mem_obj)->cpu_ptr;
+=======
+}
+
+static void update_mqd_hiq(struct mqd_manager *mm, void *mqd,
+			struct queue_properties *q)
+{
+	__update_mqd(mm, mqd, q, MTYPE_UC, 0);
+}
+
+static void init_mqd_sdma(struct mqd_manager *mm, void **mqd,
+		struct kfd_mem_obj *mqd_mem_obj, uint64_t *gart_addr,
+		struct queue_properties *q)
+{
+	struct vi_sdma_mqd *m;
+
+	m = (struct vi_sdma_mqd *) mqd_mem_obj->cpu_ptr;
+>>>>>>> upstream/android-13
 
 	memset(m, 0, sizeof(struct vi_sdma_mqd));
 
 	*mqd = m;
+<<<<<<< HEAD
 	if (gart_addr != NULL)
 		*gart_addr = (*mqd_mem_obj)->gpu_addr;
 
@@ -333,6 +461,12 @@ static void uninit_mqd_sdma(struct mqd_manager *mm, void *mqd,
 		struct kfd_mem_obj *mqd_mem_obj)
 {
 	kfd_gtt_sa_free(mm->dev, mqd_mem_obj);
+=======
+	if (gart_addr)
+		*gart_addr = mqd_mem_obj->gpu_addr;
+
+	mm->update_mqd(mm, m, q);
+>>>>>>> upstream/android-13
 }
 
 static int load_mqd_sdma(struct mqd_manager *mm, void *mqd,
@@ -344,7 +478,11 @@ static int load_mqd_sdma(struct mqd_manager *mm, void *mqd,
 					       mms);
 }
 
+<<<<<<< HEAD
 static int update_mqd_sdma(struct mqd_manager *mm, void *mqd,
+=======
+static void update_mqd_sdma(struct mqd_manager *mm, void *mqd,
+>>>>>>> upstream/android-13
 		struct queue_properties *q)
 {
 	struct vi_sdma_mqd *m;
@@ -368,12 +506,16 @@ static int update_mqd_sdma(struct mqd_manager *mm, void *mqd,
 	m->sdma_engine_id = q->sdma_engine_id;
 	m->sdma_queue_id = q->sdma_queue_id;
 
+<<<<<<< HEAD
 	q->is_active = (q->queue_size > 0 &&
 			q->queue_address != 0 &&
 			q->queue_percent > 0 &&
 			!q->is_evicted);
 
 	return 0;
+=======
+	q->is_active = QUEUE_IS_ACTIVE(*q);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -429,35 +571,80 @@ struct mqd_manager *mqd_manager_init_vi(enum KFD_MQD_TYPE type,
 
 	switch (type) {
 	case KFD_MQD_TYPE_CP:
+<<<<<<< HEAD
 	case KFD_MQD_TYPE_COMPUTE:
 		mqd->init_mqd = init_mqd;
 		mqd->uninit_mqd = uninit_mqd;
+=======
+		mqd->allocate_mqd = allocate_mqd;
+		mqd->init_mqd = init_mqd;
+		mqd->free_mqd = free_mqd;
+>>>>>>> upstream/android-13
 		mqd->load_mqd = load_mqd;
 		mqd->update_mqd = update_mqd;
 		mqd->destroy_mqd = destroy_mqd;
 		mqd->is_occupied = is_occupied;
+<<<<<<< HEAD
+=======
+		mqd->get_wave_state = get_wave_state;
+		mqd->mqd_size = sizeof(struct vi_mqd);
+>>>>>>> upstream/android-13
 #if defined(CONFIG_DEBUG_FS)
 		mqd->debugfs_show_mqd = debugfs_show_mqd;
 #endif
 		break;
 	case KFD_MQD_TYPE_HIQ:
+<<<<<<< HEAD
 		mqd->init_mqd = init_mqd_hiq;
 		mqd->uninit_mqd = uninit_mqd;
+=======
+		mqd->allocate_mqd = allocate_hiq_mqd;
+		mqd->init_mqd = init_mqd_hiq;
+		mqd->free_mqd = free_mqd_hiq_sdma;
+>>>>>>> upstream/android-13
 		mqd->load_mqd = load_mqd;
 		mqd->update_mqd = update_mqd_hiq;
 		mqd->destroy_mqd = destroy_mqd;
 		mqd->is_occupied = is_occupied;
+<<<<<<< HEAD
+=======
+		mqd->mqd_size = sizeof(struct vi_mqd);
+#if defined(CONFIG_DEBUG_FS)
+		mqd->debugfs_show_mqd = debugfs_show_mqd;
+#endif
+		mqd->read_doorbell_id = read_doorbell_id;
+		break;
+	case KFD_MQD_TYPE_DIQ:
+		mqd->allocate_mqd = allocate_mqd;
+		mqd->init_mqd = init_mqd_hiq;
+		mqd->free_mqd = free_mqd;
+		mqd->load_mqd = load_mqd;
+		mqd->update_mqd = update_mqd_hiq;
+		mqd->destroy_mqd = destroy_mqd;
+		mqd->is_occupied = is_occupied;
+		mqd->mqd_size = sizeof(struct vi_mqd);
+>>>>>>> upstream/android-13
 #if defined(CONFIG_DEBUG_FS)
 		mqd->debugfs_show_mqd = debugfs_show_mqd;
 #endif
 		break;
 	case KFD_MQD_TYPE_SDMA:
+<<<<<<< HEAD
 		mqd->init_mqd = init_mqd_sdma;
 		mqd->uninit_mqd = uninit_mqd_sdma;
+=======
+		mqd->allocate_mqd = allocate_sdma_mqd;
+		mqd->init_mqd = init_mqd_sdma;
+		mqd->free_mqd = free_mqd_hiq_sdma;
+>>>>>>> upstream/android-13
 		mqd->load_mqd = load_mqd_sdma;
 		mqd->update_mqd = update_mqd_sdma;
 		mqd->destroy_mqd = destroy_mqd_sdma;
 		mqd->is_occupied = is_occupied_sdma;
+<<<<<<< HEAD
+=======
+		mqd->mqd_size = sizeof(struct vi_sdma_mqd);
+>>>>>>> upstream/android-13
 #if defined(CONFIG_DEBUG_FS)
 		mqd->debugfs_show_mqd = debugfs_show_mqd_sdma;
 #endif
@@ -478,7 +665,11 @@ struct mqd_manager *mqd_manager_init_vi_tonga(enum KFD_MQD_TYPE type,
 	mqd = mqd_manager_init_vi(type, dev);
 	if (!mqd)
 		return NULL;
+<<<<<<< HEAD
 	if ((type == KFD_MQD_TYPE_CP) || (type == KFD_MQD_TYPE_COMPUTE))
+=======
+	if (type == KFD_MQD_TYPE_CP)
+>>>>>>> upstream/android-13
 		mqd->update_mqd = update_mqd_tonga;
 	return mqd;
 }

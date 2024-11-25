@@ -24,10 +24,16 @@
  *
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
 #include <linux/ktime.h>
 #include <linux/hrtimer.h>
+=======
+#include <linux/ktime.h>
+#include <linux/hrtimer.h>
+#include <linux/sched/signal.h>
+>>>>>>> upstream/android-13
 #include <trace/events/dma_fence.h>
 
 #include <nvif/cl826e.h>
@@ -88,7 +94,11 @@ nouveau_local_fence(struct dma_fence *fence, struct nouveau_drm *drm)
 }
 
 void
+<<<<<<< HEAD
 nouveau_fence_context_del(struct nouveau_fence_chan *fctx)
+=======
+nouveau_fence_context_kill(struct nouveau_fence_chan *fctx, int error)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_fence *fence;
 
@@ -96,12 +106,28 @@ nouveau_fence_context_del(struct nouveau_fence_chan *fctx)
 	while (!list_empty(&fctx->pending)) {
 		fence = list_entry(fctx->pending.next, typeof(*fence), head);
 
+<<<<<<< HEAD
+=======
+		if (error)
+			dma_fence_set_error(&fence->base, error);
+
+>>>>>>> upstream/android-13
 		if (nouveau_fence_signal(fence))
 			nvif_notify_put(&fctx->notify);
 	}
 	spin_unlock_irq(&fctx->lock);
+<<<<<<< HEAD
 
 	nvif_notify_fini(&fctx->notify);
+=======
+}
+
+void
+nouveau_fence_context_del(struct nouveau_fence_chan *fctx)
+{
+	nouveau_fence_context_kill(fctx, 0);
+	nvif_notify_dtor(&fctx->notify);
+>>>>>>> upstream/android-13
 	fctx->dead = 1;
 
 	/*
@@ -188,7 +214,12 @@ nouveau_fence_context_new(struct nouveau_channel *chan, struct nouveau_fence_cha
 	if (!priv->uevent)
 		return;
 
+<<<<<<< HEAD
 	ret = nvif_notify_init(&chan->user, nouveau_fence_wait_uevent_handler,
+=======
+	ret = nvif_notify_ctor(&chan->user, "fenceNonStallIntr",
+			       nouveau_fence_wait_uevent_handler,
+>>>>>>> upstream/android-13
 			       false, NV826E_V0_NTFY_NON_STALL_INTERRUPT,
 			       &(struct nvif_notify_uevent_req) { },
 			       sizeof(struct nvif_notify_uevent_req),
@@ -335,12 +366,18 @@ nouveau_fence_sync(struct nouveau_bo *nvbo, struct nouveau_channel *chan, bool e
 {
 	struct nouveau_fence_chan *fctx = chan->fence;
 	struct dma_fence *fence;
+<<<<<<< HEAD
 	struct reservation_object *resv = nvbo->bo.resv;
 	struct reservation_object_list *fobj;
+=======
+	struct dma_resv *resv = nvbo->bo.base.resv;
+	struct dma_resv_list *fobj;
+>>>>>>> upstream/android-13
 	struct nouveau_fence *f;
 	int ret = 0, i;
 
 	if (!exclusive) {
+<<<<<<< HEAD
 		ret = reservation_object_reserve_shared(resv);
 
 		if (ret)
@@ -373,11 +410,31 @@ nouveau_fence_sync(struct nouveau_bo *nvbo, struct nouveau_channel *chan, bool e
 		return ret;
 
 	for (i = 0; i < fobj->shared_count && !ret; ++i) {
+=======
+		ret = dma_resv_reserve_shared(resv, 1);
+
+		if (ret)
+			return ret;
+
+		fobj = NULL;
+	} else {
+		fobj = dma_resv_shared_list(resv);
+	}
+
+	/* Waiting for the exclusive fence first causes performance regressions
+	 * under some circumstances. So manually wait for the shared ones first.
+	 */
+	for (i = 0; i < (fobj ? fobj->shared_count : 0) && !ret; ++i) {
+>>>>>>> upstream/android-13
 		struct nouveau_channel *prev = NULL;
 		bool must_wait = true;
 
 		fence = rcu_dereference_protected(fobj->shared[i],
+<<<<<<< HEAD
 						reservation_object_held(resv));
+=======
+						dma_resv_held(resv));
+>>>>>>> upstream/android-13
 
 		f = nouveau_local_fence(fence, chan->drm);
 		if (f) {
@@ -392,6 +449,29 @@ nouveau_fence_sync(struct nouveau_bo *nvbo, struct nouveau_channel *chan, bool e
 			ret = dma_fence_wait(fence, intr);
 	}
 
+<<<<<<< HEAD
+=======
+	fence = dma_resv_excl_fence(resv);
+	if (fence) {
+		struct nouveau_channel *prev = NULL;
+		bool must_wait = true;
+
+		f = nouveau_local_fence(fence, chan->drm);
+		if (f) {
+			rcu_read_lock();
+			prev = rcu_dereference(f->channel);
+			if (prev && (prev == chan || fctx->sync(f, prev, chan) == 0))
+				must_wait = false;
+			rcu_read_unlock();
+		}
+
+		if (must_wait)
+			ret = dma_fence_wait(fence, intr);
+
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -526,6 +606,9 @@ static const struct dma_fence_ops nouveau_fence_ops_uevent = {
 	.get_timeline_name = nouveau_fence_get_timeline_name,
 	.enable_signaling = nouveau_fence_enable_signaling,
 	.signaled = nouveau_fence_is_signaled,
+<<<<<<< HEAD
 	.wait = dma_fence_default_wait,
+=======
+>>>>>>> upstream/android-13
 	.release = nouveau_fence_release
 };

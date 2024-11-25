@@ -1,15 +1,34 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <stdio.h>
+<<<<<<< HEAD
 #include <linux/string.h>
 
 #include "../../util/util.h"
 #include "../../util/hist.h"
+=======
+#include <stdlib.h>
+#include <linux/string.h>
+
+#include "../../util/callchain.h"
+#include "../../util/debug.h"
+#include "../../util/event.h"
+#include "../../util/hist.h"
+#include "../../util/map.h"
+#include "../../util/maps.h"
+#include "../../util/symbol.h"
+>>>>>>> upstream/android-13
 #include "../../util/sort.h"
 #include "../../util/evsel.h"
 #include "../../util/srcline.h"
 #include "../../util/string2.h"
 #include "../../util/thread.h"
+<<<<<<< HEAD
 #include "../../util/sane_ctype.h"
+=======
+#include "../../util/block-info.h"
+#include <linux/ctype.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 static size_t callchain__fprintf_left_margin(FILE *fp, int left_margin)
 {
@@ -512,7 +531,11 @@ static int hist_entry__hierarchy_fprintf(struct hist_entry *he,
 		 * dynamic entries are right-aligned but we want left-aligned
 		 * in the hierarchy mode
 		 */
+<<<<<<< HEAD
 		printed += fprintf(fp, "%s%s", sep ?: "  ", ltrim(buf));
+=======
+		printed += fprintf(fp, "%s%s", sep ?: "  ", skip_spaces(buf));
+>>>>>>> upstream/android-13
 	}
 	printed += putc('\n', fp);
 
@@ -527,6 +550,52 @@ out:
 	return printed;
 }
 
+<<<<<<< HEAD
+=======
+static int hist_entry__block_fprintf(struct hist_entry *he,
+				     char *bf, size_t size,
+				     FILE *fp)
+{
+	struct block_hist *bh = container_of(he, struct block_hist, he);
+	int ret = 0;
+
+	for (unsigned int i = 0; i < bh->block_hists.nr_entries; i++) {
+		struct perf_hpp hpp = {
+			.buf		= bf,
+			.size		= size,
+			.skip		= false,
+		};
+
+		bh->block_idx = i;
+		hist_entry__snprintf(he, &hpp);
+
+		if (!hpp.skip)
+			ret += fprintf(fp, "%s\n", bf);
+	}
+
+	return ret;
+}
+
+static int hist_entry__individual_block_fprintf(struct hist_entry *he,
+						char *bf, size_t size,
+						FILE *fp)
+{
+	int ret = 0;
+
+	struct perf_hpp hpp = {
+		.buf		= bf,
+		.size		= size,
+		.skip		= false,
+	};
+
+	hist_entry__snprintf(he, &hpp);
+	if (!hpp.skip)
+		ret += fprintf(fp, "%s\n", bf);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int hist_entry__fprintf(struct hist_entry *he, size_t size,
 			       char *bf, size_t bfsz, FILE *fp,
 			       bool ignore_callchains)
@@ -546,6 +615,15 @@ static int hist_entry__fprintf(struct hist_entry *he, size_t size,
 	if (symbol_conf.report_hierarchy)
 		return hist_entry__hierarchy_fprintf(he, &hpp, hists, fp);
 
+<<<<<<< HEAD
+=======
+	if (symbol_conf.report_block)
+		return hist_entry__block_fprintf(he, bf, size, fp);
+
+	if (symbol_conf.report_individual_block)
+		return hist_entry__individual_block_fprintf(he, bf, size, fp);
+
+>>>>>>> upstream/android-13
 	hist_entry__snprintf(he, &hpp);
 
 	ret = fprintf(fp, "%s\n", bf);
@@ -562,10 +640,21 @@ static int hist_entry__fprintf(struct hist_entry *he, size_t size,
 static int print_hierarchy_indent(const char *sep, int indent,
 				  const char *line, FILE *fp)
 {
+<<<<<<< HEAD
 	if (sep != NULL || indent < 2)
 		return 0;
 
 	return fprintf(fp, "%-.*s", (indent - 2) * HIERARCHY_INDENT, line);
+=======
+	int width;
+
+	if (sep != NULL || indent < 2)
+		return 0;
+
+	width = (indent - 2) * HIERARCHY_INDENT;
+
+	return fprintf(fp, "%-*.*s", width, width, line);
+>>>>>>> upstream/android-13
 }
 
 static int hists__fprintf_hierarchy_headers(struct hists *hists,
@@ -583,7 +672,11 @@ static int hists__fprintf_hierarchy_headers(struct hists *hists,
 	indent = hists->nr_hpp_node;
 
 	/* preserve max indent depth for column headers */
+<<<<<<< HEAD
 	print_hierarchy_indent(sep, indent, spaces, fp);
+=======
+	print_hierarchy_indent(sep, indent, " ", fp);
+>>>>>>> upstream/android-13
 
 	/* the first hpp_list_node is for overhead columns */
 	fmt_node = list_first_entry(&hists->hpp_formats,
@@ -612,7 +705,11 @@ static int hists__fprintf_hierarchy_headers(struct hists *hists,
 
 			fmt->header(fmt, hpp, hists, 0, NULL);
 
+<<<<<<< HEAD
 			header_width += fprintf(fp, "%s", trim(hpp->buf));
+=======
+			header_width += fprintf(fp, "%s", strim(hpp->buf));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -788,14 +885,27 @@ size_t hists__fprintf(struct hists *hists, bool show_header, int max_rows,
 
 	indent = hists__overhead_width(hists) + 4;
 
+<<<<<<< HEAD
 	for (nd = rb_first(&hists->entries); nd; nd = __rb_hierarchy_next(nd, HMD_FORCE_CHILD)) {
+=======
+	for (nd = rb_first_cached(&hists->entries); nd;
+	     nd = __rb_hierarchy_next(nd, HMD_FORCE_CHILD)) {
+>>>>>>> upstream/android-13
 		struct hist_entry *h = rb_entry(nd, struct hist_entry, rb_node);
 		float percent;
 
 		if (h->filtered)
 			continue;
 
+<<<<<<< HEAD
 		percent = hist_entry__get_percent_limit(h);
+=======
+		if (symbol_conf.report_individual_block)
+			percent = block_info__total_cycles_percent(h);
+		else
+			percent = hist_entry__get_percent_limit(h);
+
+>>>>>>> upstream/android-13
 		if (percent < min_pcnt)
 			continue;
 
@@ -811,7 +921,11 @@ size_t hists__fprintf(struct hists *hists, bool show_header, int max_rows,
 		if (!h->leaf && !hist_entry__has_hierarchy_children(h, min_pcnt)) {
 			int depth = hists->nr_hpp_node + h->depth + 1;
 
+<<<<<<< HEAD
 			print_hierarchy_indent(sep, depth, spaces, fp);
+=======
+			print_hierarchy_indent(sep, depth, " ", fp);
+>>>>>>> upstream/android-13
 			fprintf(fp, "%*sno entry >= %.2f%%\n", indent, "", min_pcnt);
 
 			if (max_rows && ++nr_rows >= max_rows)
@@ -819,7 +933,11 @@ size_t hists__fprintf(struct hists *hists, bool show_header, int max_rows,
 		}
 
 		if (h->ms.map == NULL && verbose > 1) {
+<<<<<<< HEAD
 			map_groups__fprintf(h->thread->mg, fp);
+=======
+			maps__fprintf(h->thread->maps, fp);
+>>>>>>> upstream/android-13
 			fprintf(fp, "%.10s end\n", graph_dotted_line);
 		}
 	}
@@ -831,10 +949,19 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 size_t events_stats__fprintf(struct events_stats *stats, FILE *fp)
 {
 	int i;
 	size_t ret = 0;
+=======
+size_t events_stats__fprintf(struct events_stats *stats, FILE *fp,
+			     bool skip_empty)
+{
+	int i;
+	size_t ret = 0;
+	u32 total = stats->nr_events[0];
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < PERF_RECORD_HEADER_MAX; ++i) {
 		const char *name;
@@ -842,8 +969,22 @@ size_t events_stats__fprintf(struct events_stats *stats, FILE *fp)
 		name = perf_event__name(i);
 		if (!strcmp(name, "UNKNOWN"))
 			continue;
+<<<<<<< HEAD
 
 		ret += fprintf(fp, "%16s events: %10d\n", name, stats->nr_events[i]);
+=======
+		if (skip_empty && !stats->nr_events[i])
+			continue;
+
+		if (i && total) {
+			ret += fprintf(fp, "%16s events: %10d  (%4.1f%%)\n",
+				       name, stats->nr_events[i],
+				       100.0 * stats->nr_events[i] / total);
+		} else {
+			ret += fprintf(fp, "%16s events: %10d\n",
+				       name, stats->nr_events[i]);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return ret;

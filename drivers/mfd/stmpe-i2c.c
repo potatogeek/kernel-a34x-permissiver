@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ST Microelectronics MFD: stmpe's i2c client specific driver
  *
  * Copyright (C) ST-Ericsson SA 2010
  * Copyright (C) ST Microelectronics SA 2011
  *
+<<<<<<< HEAD
  * License Terms: GNU General Public License, version 2
+=======
+>>>>>>> upstream/android-13
  * Author: Rabin Vincent <rabin.vincent@stericsson.com> for ST-Ericsson
  * Author: Viresh Kumar <vireshk@kernel.org> for ST Microelectronics
  */
@@ -109,7 +116,11 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
 	{ "stmpe2403", STMPE2403 },
 	{ }
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(i2c, stmpe_id);
+=======
+MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
+>>>>>>> upstream/android-13
 
 static struct i2c_driver stmpe_i2c_driver = {
 	.driver = {

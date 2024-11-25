@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Export the iSCSI boot info to userland via sysfs.
  *
  * Copyright (C) 2010 Red Hat, Inc.  All rights reserved.
  * Copyright (C) 2010 Mike Christie
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ISCSI_BOOT_SYSFS_
 #define _ISCSI_BOOT_SYSFS_

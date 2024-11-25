@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dm_services.h"
 
 #include "include/logger_interface.h"
@@ -84,6 +89,13 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 	.ack = NULL
 };
 
+<<<<<<< HEAD
+=======
+static const struct irq_source_info_funcs vupdate_irq_info_funcs = {
+	.set = NULL,
+	.ack = NULL
+};
+>>>>>>> upstream/android-13
 
 #define hpd_int_entry(reg_num)\
 	[DC_IRQ_SOURCE_INVALID + reg_num] = {\
@@ -142,7 +154,11 @@ static const struct irq_source_info_funcs vblank_irq_info_funcs = {
 		CRTC_V_UPDATE_INT_STATUS__CRTC_V_UPDATE_INT_CLEAR_MASK,\
 		.ack_value =\
 		CRTC_V_UPDATE_INT_STATUS__CRTC_V_UPDATE_INT_CLEAR_MASK,\
+<<<<<<< HEAD
 		.funcs = &vblank_irq_info_funcs\
+=======
+		.funcs = &vupdate_irq_info_funcs\
+>>>>>>> upstream/android-13
 	}
 
 #define vblank_int_entry(reg_num)\
@@ -277,7 +293,11 @@ static const struct irq_service_funcs irq_service_funcs_dce80 = {
 		.to_dal_irq_source = to_dal_irq_source_dce110
 };
 
+<<<<<<< HEAD
 static void construct(
+=======
+static void dce80_irq_construct(
+>>>>>>> upstream/android-13
 	struct irq_service *irq_service,
 	struct irq_service_init_data *init_data)
 {
@@ -296,7 +316,11 @@ struct irq_service *dal_irq_service_dce80_create(
 	if (!irq_service)
 		return NULL;
 
+<<<<<<< HEAD
 	construct(irq_service, init_data);
+=======
+	dce80_irq_construct(irq_service, init_data);
+>>>>>>> upstream/android-13
 	return irq_service;
 }
 

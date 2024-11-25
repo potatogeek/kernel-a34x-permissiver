@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*-
  * Finger Sensing Pad PS/2 mouse driver.
  *
  * Copyright (C) 2005-2007 Asia Vital Components Co., Ltd.
  * Copyright (C) 2005-2012 Tai-hwa Liang, Sentelic Corporation.
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef	__SENTELIC_H
@@ -119,6 +126,7 @@ struct fsp_data {
 	unsigned int	last_mt_fgr;	/* Last seen finger(multitouch) */
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_MOUSE_PS2_SENTELIC
 extern int fsp_detect(struct psmouse *psmouse, bool set_properties);
 extern int fsp_init(struct psmouse *psmouse);
@@ -132,6 +140,10 @@ static inline int fsp_init(struct psmouse *psmouse)
 	return -ENOSYS;
 }
 #endif
+=======
+extern int fsp_detect(struct psmouse *psmouse, bool set_properties);
+extern int fsp_init(struct psmouse *psmouse);
+>>>>>>> upstream/android-13
 
 #endif	/* __KERNEL__ */
 

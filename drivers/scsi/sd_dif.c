@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sd_dif.c - SCSI Data Integrity Field
  *
  * Copyright (C) 2007, 2008 Oracle Corporation
  * Written by: Martin K. Petersen <martin.petersen@oracle.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -18,6 +23,8 @@
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139,
  * USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/blkdev.h>

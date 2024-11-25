@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016-17 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016-17 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "vas: " fmt
@@ -18,7 +24,14 @@
 #include <linux/of_platform.h>
 #include <linux/of_address.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <asm/prom.h>
+=======
+#include <linux/irqdomain.h>
+#include <linux/interrupt.h>
+#include <asm/prom.h>
+#include <asm/xive.h>
+>>>>>>> upstream/android-13
 
 #include "vas.h"
 
@@ -27,12 +40,44 @@ static LIST_HEAD(vas_instances);
 
 static DEFINE_PER_CPU(int, cpu_vas_id);
 
+<<<<<<< HEAD
 static int init_vas_instance(struct platform_device *pdev)
 {
 	int rc, cpu, vasid;
 	struct resource *res;
 	struct vas_instance *vinst;
 	struct device_node *dn = pdev->dev.of_node;
+=======
+static int vas_irq_fault_window_setup(struct vas_instance *vinst)
+{
+	int rc = 0;
+
+	rc = request_threaded_irq(vinst->virq, vas_fault_handler,
+				vas_fault_thread_fn, 0, vinst->name, vinst);
+
+	if (rc) {
+		pr_err("VAS[%d]: Request IRQ(%d) failed with %d\n",
+				vinst->vas_id, vinst->virq, rc);
+		goto out;
+	}
+
+	rc = vas_setup_fault_window(vinst);
+	if (rc)
+		free_irq(vinst->virq, vinst);
+
+out:
+	return rc;
+}
+
+static int init_vas_instance(struct platform_device *pdev)
+{
+	struct device_node *dn = pdev->dev.of_node;
+	struct vas_instance *vinst;
+	struct xive_irq_data *xd;
+	uint32_t chipid, hwirq;
+	struct resource *res;
+	int rc, cpu, vasid;
+>>>>>>> upstream/android-13
 
 	rc = of_property_read_u32(dn, "ibm,vas-id", &vasid);
 	if (rc) {
@@ -40,6 +85,15 @@ static int init_vas_instance(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	rc = of_property_read_u32(dn, "ibm,chip-id", &chipid);
+	if (rc) {
+		pr_err("No ibm,chip-id property for %s?\n", pdev->name);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	if (pdev->num_resources != 4) {
 		pr_err("Unexpected DT configuration for [%s, %d]\n",
 				pdev->name, vasid);
@@ -50,6 +104,15 @@ static int init_vas_instance(struct platform_device *pdev)
 	if (!vinst)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	vinst->name = kasprintf(GFP_KERNEL, "vas-%d", vasid);
+	if (!vinst->name) {
+		kfree(vinst);
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&vinst->node);
 	ida_init(&vinst->ida);
 	mutex_init(&vinst->mutex);
@@ -73,9 +136,38 @@ static int init_vas_instance(struct platform_device *pdev)
 
 	vinst->paste_win_id_shift = 63 - res->end;
 
+<<<<<<< HEAD
 	pr_devel("Initialized instance [%s, %d], paste_base 0x%llx, "
 			"paste_win_id_shift 0x%llx\n", pdev->name, vasid,
 			vinst->paste_base_addr, vinst->paste_win_id_shift);
+=======
+	hwirq = xive_native_alloc_irq_on_chip(chipid);
+	if (!hwirq) {
+		pr_err("Inst%d: Unable to allocate global irq for chip %d\n",
+				vinst->vas_id, chipid);
+		return -ENOENT;
+	}
+
+	vinst->virq = irq_create_mapping(NULL, hwirq);
+	if (!vinst->virq) {
+		pr_err("Inst%d: Unable to map global irq %d\n",
+				vinst->vas_id, hwirq);
+		return -EINVAL;
+	}
+
+	xd = irq_get_handler_data(vinst->virq);
+	if (!xd) {
+		pr_err("Inst%d: Invalid virq %d\n",
+				vinst->vas_id, vinst->virq);
+		return -EINVAL;
+	}
+
+	vinst->irq_port = xd->trig_page;
+	pr_devel("Initialized instance [%s, %d] paste_base 0x%llx paste_win_id_shift 0x%llx IRQ %d Port 0x%llx\n",
+			pdev->name, vasid, vinst->paste_base_addr,
+			vinst->paste_win_id_shift, vinst->virq,
+			vinst->irq_port);
+>>>>>>> upstream/android-13
 
 	for_each_possible_cpu(cpu) {
 		if (cpu_to_chip_id(cpu) == of_get_ibm_chip_id(dn))
@@ -86,6 +178,25 @@ static int init_vas_instance(struct platform_device *pdev)
 	list_add(&vinst->node, &vas_instances);
 	mutex_unlock(&vas_mutex);
 
+<<<<<<< HEAD
+=======
+	spin_lock_init(&vinst->fault_lock);
+	/*
+	 * IRQ and fault handling setup is needed only for user space
+	 * send windows.
+	 */
+	if (vinst->virq) {
+		rc = vas_irq_fault_window_setup(vinst);
+		/*
+		 * Fault window is used only for user space send windows.
+		 * So if vinst->virq is NULL, tx_win_open returns -ENODEV
+		 * for user space.
+		 */
+		if (rc)
+			vinst->virq = 0;
+	}
+
+>>>>>>> upstream/android-13
 	vas_instance_init_dbgdir(vinst);
 
 	dev_set_drvdata(&pdev->dev, vinst);
@@ -93,6 +204,10 @@ static int init_vas_instance(struct platform_device *pdev)
 	return 0;
 
 free_vinst:
+<<<<<<< HEAD
+=======
+	kfree(vinst->name);
+>>>>>>> upstream/android-13
 	kfree(vinst);
 	return -ENODEV;
 

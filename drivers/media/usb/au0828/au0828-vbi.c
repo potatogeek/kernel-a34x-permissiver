@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    au0828-vbi.c - VBI driver for au0828
 
@@ -5,6 +9,7 @@
 
    This work was sponsored by GetWellNetwork Inc.
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
    02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "au0828.h"

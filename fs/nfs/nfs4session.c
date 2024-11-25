@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fs/nfs/nfs4session.c
  *
@@ -55,7 +59,11 @@ static void nfs4_shrink_slot_table(struct nfs4_slot_table  *tbl, u32 newsize)
 
 /**
  * nfs4_slot_tbl_drain_complete - wake waiters when drain is complete
+<<<<<<< HEAD
  * @tbl - controlling slot table
+=======
+ * @tbl: controlling slot table
+>>>>>>> upstream/android-13
  *
  */
 void nfs4_slot_tbl_drain_complete(struct nfs4_slot_table *tbl)
@@ -110,6 +118,11 @@ static struct nfs4_slot *nfs4_new_slot(struct nfs4_slot_table  *tbl,
 		slot->table = tbl;
 		slot->slot_nr = slotid;
 		slot->seq_nr = seq_init;
+<<<<<<< HEAD
+=======
+		slot->seq_nr_highest_sent = seq_init;
+		slot->seq_nr_last_acked = seq_init - 1;
+>>>>>>> upstream/android-13
 	}
 	return slot;
 }
@@ -276,7 +289,12 @@ static void nfs4_reset_slot_table(struct nfs4_slot_table *tbl,
 	p = &tbl->slots;
 	while (*p) {
 		(*p)->seq_nr = ivalue;
+<<<<<<< HEAD
 		(*p)->interrupted = 0;
+=======
+		(*p)->seq_nr_highest_sent = ivalue;
+		(*p)->seq_nr_last_acked = ivalue - 1;
+>>>>>>> upstream/android-13
 		p = &(*p)->next;
 	}
 	tbl->highest_used_slotid = NFS4_NO_SLOT;
@@ -573,12 +591,20 @@ static void nfs4_destroy_session_slot_tables(struct nfs4_session *session)
 void nfs4_destroy_session(struct nfs4_session *session)
 {
 	struct rpc_xprt *xprt;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
 
 	cred = nfs4_get_clid_cred(session->clp);
 	nfs4_proc_destroy_session(session, cred);
 	if (cred)
 		put_rpccred(cred);
+=======
+	const struct cred *cred;
+
+	cred = nfs4_get_clid_cred(session->clp);
+	nfs4_proc_destroy_session(session, cred);
+	put_cred(cred);
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	xprt = rcu_dereference(session->clp->cl_rpcclient->cl_xprt);

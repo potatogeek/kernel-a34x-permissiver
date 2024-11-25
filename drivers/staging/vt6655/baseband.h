@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: baseband.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Implement functions to access baseband
  *
  * Author: Jerry Chen
@@ -46,14 +53,22 @@
 #define TOP_RATE_2M         0x00200000
 #define TOP_RATE_1M         0x00100000
 
+<<<<<<< HEAD
 unsigned int BBuGetFrameTime(unsigned char byPreambleType,
 			     unsigned char byPktType,
 			     unsigned int cbFrameLength,
 			     unsigned short wRate);
+=======
+unsigned int bb_get_frame_time(unsigned char by_preamble_type,
+			       unsigned char by_pkt_type,
+			       unsigned int cb_frame_length,
+			       unsigned short w_rate);
+>>>>>>> upstream/android-13
 
 void vnt_get_phy_field(struct vnt_private *priv, u32 frame_length,
 		       u16 tx_rate, u8 pkt_type, struct vnt_phy_field *phy);
 
+<<<<<<< HEAD
 bool BBbReadEmbedded(struct vnt_private *priv, unsigned char byBBAddr,
 		     unsigned char *pbyData);
 bool BBbWriteEmbedded(struct vnt_private *priv, unsigned char byBBAddr,
@@ -71,5 +86,25 @@ void BBvSetTxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode);
 void BBvSetRxAntennaMode(struct vnt_private *priv, unsigned char byAntennaMode);
 void BBvSetDeepSleep(struct vnt_private *priv, unsigned char byLocalID);
 void BBvExitDeepSleep(struct vnt_private *priv, unsigned char byLocalID);
+=======
+bool bb_read_embedded(struct vnt_private *priv, unsigned char by_bb_addr,
+		      unsigned char *pby_data);
+bool bb_write_embedded(struct vnt_private *priv, unsigned char by_bb_addr,
+		       unsigned char by_data);
+
+void bb_set_short_slot_time(struct vnt_private *priv);
+void bb_set_vga_gain_offset(struct vnt_private *priv, unsigned char by_data);
+
+/* VT3253 Baseband */
+bool bb_vt3253_init(struct vnt_private *priv);
+void bb_software_reset(struct vnt_private *priv);
+void bb_power_save_mode_on(struct vnt_private *priv);
+void bb_power_save_mode_off(struct vnt_private *priv);
+void bb_set_tx_antenna_mode(struct vnt_private *priv,
+			    unsigned char by_antenna_mode);
+void bb_set_rx_antenna_mode(struct vnt_private *priv,
+			    unsigned char by_antenna_mode);
+void bb_set_deep_sleep(struct vnt_private *priv, unsigned char by_local_id);
+>>>>>>> upstream/android-13
 
 #endif /* __BASEBAND_H__ */

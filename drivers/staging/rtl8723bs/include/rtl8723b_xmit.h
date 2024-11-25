@@ -59,8 +59,12 @@
 /*  */
 /* defined for TX DESC Operation */
 /*  */
+<<<<<<< HEAD
 typedef struct txdesc_8723b
 {
+=======
+struct txdesc_8723b {
+>>>>>>> upstream/android-13
 	/*  Offset 0 */
 	u32 pktlen:16;
 	u32 offset:8;
@@ -176,7 +180,11 @@ typedef struct txdesc_8723b
 	u32 txbf_path:1;
 	u32 seq:12;
 	u32 final_data_rate:8;
+<<<<<<< HEAD
 }TXDESC_8723B, *PTXDESC_8723B;
+=======
+};
+>>>>>>> upstream/android-13
 
 #ifndef __INC_HAL8723BDESC_H
 #define __INC_HAL8723BDESC_H
@@ -395,6 +403,7 @@ typedef struct txdesc_8723b
 #define DESC8723B_RATEMCS5				0x11
 #define DESC8723B_RATEMCS6				0x12
 #define DESC8723B_RATEMCS7				0x13
+<<<<<<< HEAD
 #define DESC8723B_RATEMCS8				0x14
 #define DESC8723B_RATEMCS9				0x15
 #define DESC8723B_RATEMCS10		0x16
@@ -424,6 +433,8 @@ typedef struct txdesc_8723b
 #define DESC8723B_RATEVHTSS2MCS8		0x3e
 #define DESC8723B_RATEVHTSS2MCS9		0x3f
 
+=======
+>>>>>>> upstream/android-13
 
 #define		RX_HAL_IS_CCK_RATE_8723B(pDesc)\
 			(GET_RX_STATUS_DESC_RX_RATE_8723B(pDesc) == DESC8723B_RATE1M ||\
@@ -444,7 +455,12 @@ s32 rtl8723bs_xmit_buf_handler(struct adapter *padapter);
 int rtl8723bs_xmit_thread(void *context);
 #define hal_xmit_handler rtl8723bs_xmit_buf_handler
 
+<<<<<<< HEAD
 u8 BWMapping_8723B(struct adapter * Adapter, struct pkt_attrib *pattrib);
 u8 SCMapping_8723B(struct adapter * Adapter, struct pkt_attrib	*pattrib);
+=======
+u8 BWMapping_8723B(struct adapter *Adapter, struct pkt_attrib *pattrib);
+u8 SCMapping_8723B(struct adapter *Adapter, struct pkt_attrib *pattrib);
+>>>>>>> upstream/android-13
 
 #endif

@@ -2,9 +2,16 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+<<<<<<< HEAD
 #include <errno.h>
 
 #include "util.h"
+=======
+#include <string.h>
+#include <errno.h>
+#include <linux/zalloc.h>
+
+>>>>>>> upstream/android-13
 #include "values.h"
 #include "debug.h"
 

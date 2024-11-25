@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Samsung Electronics Co.Ltd
  * Authors: Joonyoung Shim <jy0922.shim@samsung.com>
@@ -26,6 +27,36 @@
 #include "exynos_drm_g2d.h"
 #include "exynos_drm_gem.h"
 #include "exynos_drm_iommu.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Samsung Electronics Co.Ltd
+ * Authors: Joonyoung Shim <jy0922.shim@samsung.com>
+ */
+
+#include <linux/refcount.h>
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/delay.h>
+#include <linux/dma-mapping.h>
+#include <linux/err.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/kernel.h>
+#include <linux/of.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/slab.h>
+#include <linux/uaccess.h>
+#include <linux/workqueue.h>
+
+#include <drm/drm_file.h>
+#include <drm/exynos_drm.h>
+
+#include "exynos_drm_drv.h"
+#include "exynos_drm_g2d.h"
+#include "exynos_drm_gem.h"
+>>>>>>> upstream/android-13
 
 #define G2D_HW_MAJOR_VER		4
 #define G2D_HW_MINOR_VER		1
@@ -206,9 +237,16 @@ struct g2d_cmdlist_userptr {
 	dma_addr_t		dma_addr;
 	unsigned long		userptr;
 	unsigned long		size;
+<<<<<<< HEAD
 	struct frame_vector	*vec;
 	struct sg_table		*sgt;
 	atomic_t		refcount;
+=======
+	struct page		**pages;
+	unsigned int		npages;
+	struct sg_table		*sgt;
+	refcount_t		refcount;
+>>>>>>> upstream/android-13
 	bool			in_pool;
 	bool			out_of_list;
 };
@@ -233,6 +271,10 @@ struct g2d_runqueue_node {
 
 struct g2d_data {
 	struct device			*dev;
+<<<<<<< HEAD
+=======
+	void				*dma_priv;
+>>>>>>> upstream/android-13
 	struct clk			*gate_clk;
 	void __iomem			*regs;
 	int				irq;
@@ -268,7 +310,11 @@ static inline void g2d_hw_reset(struct g2d_data *g2d)
 static int g2d_init_cmdlist(struct g2d_data *g2d)
 {
 	struct device *dev = g2d->dev;
+<<<<<<< HEAD
 	struct g2d_cmdlist_node *node = g2d->cmdlist_node;
+=======
+	struct g2d_cmdlist_node *node;
+>>>>>>> upstream/android-13
 	int nr;
 	int ret;
 	struct g2d_buf_info *buf_info;
@@ -378,7 +424,10 @@ static void g2d_userptr_put_dma_addr(struct g2d_data *g2d,
 					bool force)
 {
 	struct g2d_cmdlist_userptr *g2d_userptr = obj;
+<<<<<<< HEAD
 	struct page **pages;
+=======
+>>>>>>> upstream/android-13
 
 	if (!obj)
 		return;
@@ -386,15 +435,22 @@ static void g2d_userptr_put_dma_addr(struct g2d_data *g2d,
 	if (force)
 		goto out;
 
+<<<<<<< HEAD
 	atomic_dec(&g2d_userptr->refcount);
 
 	if (atomic_read(&g2d_userptr->refcount) > 0)
+=======
+	refcount_dec(&g2d_userptr->refcount);
+
+	if (refcount_read(&g2d_userptr->refcount) > 0)
+>>>>>>> upstream/android-13
 		return;
 
 	if (g2d_userptr->in_pool)
 		return;
 
 out:
+<<<<<<< HEAD
 	dma_unmap_sg(to_dma_dev(g2d->drm_dev), g2d_userptr->sgt->sgl,
 			g2d_userptr->sgt->nents, DMA_BIDIRECTIONAL);
 
@@ -407,6 +463,14 @@ out:
 	}
 	put_vaddr_frames(g2d_userptr->vec);
 	frame_vector_destroy(g2d_userptr->vec);
+=======
+	dma_unmap_sgtable(to_dma_dev(g2d->drm_dev), g2d_userptr->sgt,
+			  DMA_BIDIRECTIONAL, 0);
+
+	unpin_user_pages_dirty_lock(g2d_userptr->pages, g2d_userptr->npages,
+				    true);
+	kvfree(g2d_userptr->pages);
+>>>>>>> upstream/android-13
 
 	if (!g2d_userptr->out_of_list)
 		list_del_init(&g2d_userptr->list);
@@ -430,7 +494,11 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
 	int ret;
 
 	if (!size) {
+<<<<<<< HEAD
 		DRM_ERROR("invalid userptr size.\n");
+=======
+		DRM_DEV_ERROR(g2d->dev, "invalid userptr size.\n");
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -442,7 +510,11 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
 			 * and different size.
 			 */
 			if (g2d_userptr->size == size) {
+<<<<<<< HEAD
 				atomic_inc(&g2d_userptr->refcount);
+=======
+				refcount_inc(&g2d_userptr->refcount);
+>>>>>>> upstream/android-13
 				*obj = g2d_userptr;
 
 				return &g2d_userptr->dma_addr;
@@ -467,19 +539,30 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
 	if (!g2d_userptr)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	atomic_set(&g2d_userptr->refcount, 1);
+=======
+	refcount_set(&g2d_userptr->refcount, 1);
+>>>>>>> upstream/android-13
 	g2d_userptr->size = size;
 
 	start = userptr & PAGE_MASK;
 	offset = userptr & ~PAGE_MASK;
 	end = PAGE_ALIGN(userptr + size);
 	npages = (end - start) >> PAGE_SHIFT;
+<<<<<<< HEAD
 	g2d_userptr->vec = frame_vector_create(npages);
 	if (!g2d_userptr->vec) {
+=======
+	g2d_userptr->pages = kvmalloc_array(npages, sizeof(*g2d_userptr->pages),
+					    GFP_KERNEL);
+	if (!g2d_userptr->pages) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_free;
 	}
 
+<<<<<<< HEAD
 	ret = get_vaddr_frames(start, npages, FOLL_FORCE | FOLL_WRITE,
 		g2d_userptr->vec);
 	if (ret != npages) {
@@ -493,10 +576,26 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
 		ret = -EFAULT;
 		goto err_put_framevec;
 	}
+=======
+	ret = pin_user_pages_fast(start, npages,
+				  FOLL_FORCE | FOLL_WRITE | FOLL_LONGTERM,
+				  g2d_userptr->pages);
+	if (ret != npages) {
+		DRM_DEV_ERROR(g2d->dev,
+			      "failed to get user pages from userptr.\n");
+		if (ret < 0)
+			goto err_destroy_pages;
+		npages = ret;
+		ret = -EFAULT;
+		goto err_unpin_pages;
+	}
+	g2d_userptr->npages = npages;
+>>>>>>> upstream/android-13
 
 	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
 	if (!sgt) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto err_put_framevec;
 	}
 
@@ -505,15 +604,32 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
 					npages, offset, size, GFP_KERNEL);
 	if (ret < 0) {
 		DRM_ERROR("failed to get sgt from pages.\n");
+=======
+		goto err_unpin_pages;
+	}
+
+	ret = sg_alloc_table_from_pages(sgt,
+					g2d_userptr->pages,
+					npages, offset, size, GFP_KERNEL);
+	if (ret < 0) {
+		DRM_DEV_ERROR(g2d->dev, "failed to get sgt from pages.\n");
+>>>>>>> upstream/android-13
 		goto err_free_sgt;
 	}
 
 	g2d_userptr->sgt = sgt;
 
+<<<<<<< HEAD
 	if (!dma_map_sg(to_dma_dev(g2d->drm_dev), sgt->sgl, sgt->nents,
 				DMA_BIDIRECTIONAL)) {
 		DRM_ERROR("failed to map sgt with dma region.\n");
 		ret = -ENOMEM;
+=======
+	ret = dma_map_sgtable(to_dma_dev(g2d->drm_dev), sgt,
+			      DMA_BIDIRECTIONAL, 0);
+	if (ret) {
+		DRM_DEV_ERROR(g2d->dev, "failed to map sgt with dma region.\n");
+>>>>>>> upstream/android-13
 		goto err_sg_free_table;
 	}
 
@@ -537,11 +653,19 @@ err_sg_free_table:
 err_free_sgt:
 	kfree(sgt);
 
+<<<<<<< HEAD
 err_put_framevec:
 	put_vaddr_frames(g2d_userptr->vec);
 
 err_destroy_framevec:
 	frame_vector_destroy(g2d_userptr->vec);
+=======
+err_unpin_pages:
+	unpin_user_pages(g2d_userptr->pages, npages);
+
+err_destroy_pages:
+	kvfree(g2d_userptr->pages);
+>>>>>>> upstream/android-13
 
 err_free:
 	kfree(g2d_userptr);
@@ -561,7 +685,11 @@ static void g2d_userptr_free_all(struct g2d_data *g2d, struct drm_file *filp)
 	g2d->current_pool = 0;
 }
 
+<<<<<<< HEAD
 static enum g2d_reg_type g2d_get_reg_type(int reg_offset)
+=======
+static enum g2d_reg_type g2d_get_reg_type(struct g2d_data *g2d, int reg_offset)
+>>>>>>> upstream/android-13
 {
 	enum g2d_reg_type reg_type;
 
@@ -594,7 +722,12 @@ static enum g2d_reg_type g2d_get_reg_type(int reg_offset)
 		break;
 	default:
 		reg_type = REG_TYPE_NONE;
+<<<<<<< HEAD
 		DRM_ERROR("Unknown register offset![%d]\n", reg_offset);
+=======
+		DRM_DEV_ERROR(g2d->dev, "Unknown register offset![%d]\n",
+			      reg_offset);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -628,9 +761,16 @@ static unsigned long g2d_get_buf_bpp(unsigned int format)
 	return bpp;
 }
 
+<<<<<<< HEAD
 static bool g2d_check_buf_desc_is_valid(struct g2d_buf_desc *buf_desc,
 						enum g2d_reg_type reg_type,
 						unsigned long size)
+=======
+static bool g2d_check_buf_desc_is_valid(struct g2d_data *g2d,
+					struct g2d_buf_desc *buf_desc,
+					enum g2d_reg_type reg_type,
+					unsigned long size)
+>>>>>>> upstream/android-13
 {
 	int width, height;
 	unsigned long bpp, last_pos;
@@ -645,14 +785,23 @@ static bool g2d_check_buf_desc_is_valid(struct g2d_buf_desc *buf_desc,
 	/* This check also makes sure that right_x > left_x. */
 	width = (int)buf_desc->right_x - (int)buf_desc->left_x;
 	if (width < G2D_LEN_MIN || width > G2D_LEN_MAX) {
+<<<<<<< HEAD
 		DRM_ERROR("width[%d] is out of range!\n", width);
+=======
+		DRM_DEV_ERROR(g2d->dev, "width[%d] is out of range!\n", width);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
 	/* This check also makes sure that bottom_y > top_y. */
 	height = (int)buf_desc->bottom_y - (int)buf_desc->top_y;
 	if (height < G2D_LEN_MIN || height > G2D_LEN_MAX) {
+<<<<<<< HEAD
 		DRM_ERROR("height[%d] is out of range!\n", height);
+=======
+		DRM_DEV_ERROR(g2d->dev,
+			      "height[%d] is out of range!\n", height);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -671,8 +820,13 @@ static bool g2d_check_buf_desc_is_valid(struct g2d_buf_desc *buf_desc,
 	 */
 
 	if (last_pos >= size) {
+<<<<<<< HEAD
 		DRM_ERROR("last engine access position [%lu] "
 			"is out of range [%lu]!\n", last_pos, size);
+=======
+		DRM_DEV_ERROR(g2d->dev, "last engine access position [%lu] "
+			      "is out of range [%lu]!\n", last_pos, size);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -702,7 +856,11 @@ static int g2d_map_cmdlist_gem(struct g2d_data *g2d,
 		offset = cmdlist->data[reg_pos];
 		handle = cmdlist->data[reg_pos + 1];
 
+<<<<<<< HEAD
 		reg_type = g2d_get_reg_type(offset);
+=======
+		reg_type = g2d_get_reg_type(g2d, offset);
+>>>>>>> upstream/android-13
 		if (reg_type == REG_TYPE_NONE) {
 			ret = -EFAULT;
 			goto err;
@@ -719,7 +877,11 @@ static int g2d_map_cmdlist_gem(struct g2d_data *g2d,
 				goto err;
 			}
 
+<<<<<<< HEAD
 			if (!g2d_check_buf_desc_is_valid(buf_desc,
+=======
+			if (!g2d_check_buf_desc_is_valid(g2d, buf_desc,
+>>>>>>> upstream/android-13
 							 reg_type, exynos_gem->size)) {
 				exynos_drm_gem_put(exynos_gem);
 				ret = -EFAULT;
@@ -737,8 +899,14 @@ static int g2d_map_cmdlist_gem(struct g2d_data *g2d,
 				goto err;
 			}
 
+<<<<<<< HEAD
 			if (!g2d_check_buf_desc_is_valid(buf_desc, reg_type,
 							g2d_userptr.size)) {
+=======
+			if (!g2d_check_buf_desc_is_valid(g2d, buf_desc,
+							 reg_type,
+							 g2d_userptr.size)) {
+>>>>>>> upstream/android-13
 				ret = -EFAULT;
 				goto err;
 			}
@@ -846,7 +1014,11 @@ static void g2d_free_runqueue_node(struct g2d_data *g2d,
  *
  * Has to be called under runqueue lock.
  */
+<<<<<<< HEAD
 static void g2d_remove_runqueue_nodes(struct g2d_data *g2d, struct drm_file* file)
+=======
+static void g2d_remove_runqueue_nodes(struct g2d_data *g2d, struct drm_file *file)
+>>>>>>> upstream/android-13
 {
 	struct g2d_runqueue_node *node, *n;
 
@@ -893,11 +1065,26 @@ static void g2d_runqueue_worker(struct work_struct *work)
 		g2d->runqueue_node = g2d_get_runqueue_node(g2d);
 
 		if (g2d->runqueue_node) {
+<<<<<<< HEAD
 			pm_runtime_get_sync(g2d->dev);
+=======
+			int ret;
+
+			ret = pm_runtime_resume_and_get(g2d->dev);
+			if (ret < 0) {
+				dev_err(g2d->dev, "failed to enable G2D device.\n");
+				goto out;
+			}
+
+>>>>>>> upstream/android-13
 			g2d_dma_start(g2d, g2d->runqueue_node);
 		}
 	}
 
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	mutex_unlock(&g2d->runqueue_mutex);
 }
 
@@ -1045,7 +1232,11 @@ static int g2d_check_reg_offset(struct g2d_data *g2d,
 			if (!for_addr)
 				goto err;
 
+<<<<<<< HEAD
 			reg_type = g2d_get_reg_type(reg_offset);
+=======
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+>>>>>>> upstream/android-13
 
 			/* check userptr buffer type. */
 			if ((cmdlist->data[index] & ~0x7fffffff) >> 31) {
@@ -1059,7 +1250,11 @@ static int g2d_check_reg_offset(struct g2d_data *g2d,
 			if (for_addr)
 				goto err;
 
+<<<<<<< HEAD
 			reg_type = g2d_get_reg_type(reg_offset);
+=======
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+>>>>>>> upstream/android-13
 
 			buf_desc = &buf_info->descs[reg_type];
 			buf_desc->stride = cmdlist->data[index + 1];
@@ -1069,7 +1264,11 @@ static int g2d_check_reg_offset(struct g2d_data *g2d,
 			if (for_addr)
 				goto err;
 
+<<<<<<< HEAD
 			reg_type = g2d_get_reg_type(reg_offset);
+=======
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+>>>>>>> upstream/android-13
 
 			buf_desc = &buf_info->descs[reg_type];
 			value = cmdlist->data[index + 1];
@@ -1081,7 +1280,11 @@ static int g2d_check_reg_offset(struct g2d_data *g2d,
 			if (for_addr)
 				goto err;
 
+<<<<<<< HEAD
 			reg_type = g2d_get_reg_type(reg_offset);
+=======
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+>>>>>>> upstream/android-13
 
 			buf_desc = &buf_info->descs[reg_type];
 			value = cmdlist->data[index + 1];
@@ -1094,7 +1297,11 @@ static int g2d_check_reg_offset(struct g2d_data *g2d,
 			if (for_addr)
 				goto err;
 
+<<<<<<< HEAD
 			reg_type = g2d_get_reg_type(reg_offset);
+=======
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+>>>>>>> upstream/android-13
 
 			buf_desc = &buf_info->descs[reg_type];
 			value = cmdlist->data[index + 1];
@@ -1405,7 +1612,11 @@ static int g2d_bind(struct device *dev, struct device *master, void *data)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = drm_iommu_attach_device(drm_dev, dev);
+=======
+	ret = exynos_drm_register_dma(drm_dev, dev, &g2d->dma_priv);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to enable iommu.\n");
 		g2d_fini_cmdlist(g2d);
@@ -1430,7 +1641,11 @@ static void g2d_unbind(struct device *dev, struct device *master, void *data)
 	priv->g2d_dev = NULL;
 
 	cancel_work_sync(&g2d->runqueue_work);
+<<<<<<< HEAD
 	drm_iommu_detach_device(g2d->drm_dev, dev);
+=======
+	exynos_drm_unregister_dma(g2d->drm_dev, dev, &g2d->dma_priv);
+>>>>>>> upstream/android-13
 }
 
 static const struct component_ops g2d_component_ops = {
@@ -1441,7 +1656,10 @@ static const struct component_ops g2d_component_ops = {
 static int g2d_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct g2d_data *g2d;
 	int ret;
 
@@ -1483,9 +1701,13 @@ static int g2d_probe(struct platform_device *pdev)
 	clear_bit(G2D_BIT_SUSPEND_RUNQUEUE, &g2d->flags);
 	clear_bit(G2D_BIT_ENGINE_BUSY, &g2d->flags);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 	g2d->regs = devm_ioremap_resource(dev, res);
+=======
+	g2d->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(g2d->regs)) {
 		ret = PTR_ERR(g2d->regs);
 		goto err_put_clk;
@@ -1493,7 +1715,10 @@ static int g2d_probe(struct platform_device *pdev)
 
 	g2d->irq = platform_get_irq(pdev, 0);
 	if (g2d->irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to get irq\n");
+=======
+>>>>>>> upstream/android-13
 		ret = g2d->irq;
 		goto err_put_clk;
 	}

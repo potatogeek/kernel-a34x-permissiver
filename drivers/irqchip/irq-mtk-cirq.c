@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 MediaTek Inc.
  * Author: Youlin.Pei <youlin.pei@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: Youlin.Pei <youlin.pei@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -225,7 +232,11 @@ static void mtk_cirq_resume(void)
 {
 	u32 value;
 
+<<<<<<< HEAD
 	/* flush recored interrupts, will send signals to parent controller */
+=======
+	/* flush recorded interrupts, will send signals to parent controller */
+>>>>>>> upstream/android-13
 	value = readl_relaxed(cirq_data->base + CIRQ_CONTROL);
 	writel_relaxed(value | CIRQ_FLUSH, cirq_data->base + CIRQ_CONTROL);
 

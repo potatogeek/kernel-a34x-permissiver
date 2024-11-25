@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Avionic Design GmbH
  * Copyright (C) 2012-2013, NVIDIA Corporation
@@ -17,6 +18,18 @@
 
 #include <linux/host1x.h>
 #include <linux/of.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Avionic Design GmbH
+ * Copyright (C) 2012-2013, NVIDIA Corporation
+ */
+
+#include <linux/debugfs.h>
+#include <linux/host1x.h>
+#include <linux/of.h>
+#include <linux/seq_file.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/of_device.h>
 
@@ -41,6 +54,10 @@ struct host1x_subdev {
 /**
  * host1x_subdev_add() - add a new subdevice with an associated device node
  * @device: host1x device to add the subdevice to
+<<<<<<< HEAD
+=======
+ * @driver: host1x driver containing the subdevices
+>>>>>>> upstream/android-13
  * @np: device node
  */
 static int host1x_subdev_add(struct host1x_device *device,
@@ -129,7 +146,11 @@ static void host1x_subdev_register(struct host1x_device *device,
 	mutex_lock(&device->clients_lock);
 	list_move_tail(&client->list, &device->clients);
 	list_move_tail(&subdev->list, &device->active);
+<<<<<<< HEAD
 	client->parent = &device->dev;
+=======
+	client->host = &device->dev;
+>>>>>>> upstream/android-13
 	subdev->client = client;
 	mutex_unlock(&device->clients_lock);
 	mutex_unlock(&device->subdevs_lock);
@@ -165,7 +186,11 @@ static void __host1x_subdev_unregister(struct host1x_device *device,
 	 */
 	mutex_lock(&device->clients_lock);
 	subdev->client = NULL;
+<<<<<<< HEAD
 	client->parent = NULL;
+=======
+	client->host = NULL;
+>>>>>>> upstream/android-13
 	list_move_tail(&subdev->list, &device->subdevs);
 	/*
 	 * XXX: Perhaps don't do this here, but rather explicitly remove it
@@ -205,6 +230,20 @@ int host1x_device_init(struct host1x_device *device)
 	mutex_lock(&device->clients_lock);
 
 	list_for_each_entry(client, &device->clients, list) {
+<<<<<<< HEAD
+=======
+		if (client->ops && client->ops->early_init) {
+			err = client->ops->early_init(client);
+			if (err < 0) {
+				dev_err(&device->dev, "failed to early initialize %s: %d\n",
+					dev_name(client->dev), err);
+				goto teardown_late;
+			}
+		}
+	}
+
+	list_for_each_entry(client, &device->clients, list) {
+>>>>>>> upstream/android-13
 		if (client->ops && client->ops->init) {
 			err = client->ops->init(client);
 			if (err < 0) {
@@ -225,6 +264,17 @@ teardown:
 		if (client->ops->exit)
 			client->ops->exit(client);
 
+<<<<<<< HEAD
+=======
+	/* reset client to end of list for late teardown */
+	client = list_entry(&device->clients, struct host1x_client, list);
+
+teardown_late:
+	list_for_each_entry_continue_reverse(client, &device->clients, list)
+		if (client->ops->late_exit)
+			client->ops->late_exit(client);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&device->clients_lock);
 	return err;
 }
@@ -259,6 +309,21 @@ int host1x_device_exit(struct host1x_device *device)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	list_for_each_entry_reverse(client, &device->clients, list) {
+		if (client->ops && client->ops->late_exit) {
+			err = client->ops->late_exit(client);
+			if (err < 0) {
+				dev_err(&device->dev, "failed to late cleanup %s: %d\n",
+					dev_name(client->dev), err);
+				mutex_unlock(&device->clients_lock);
+				return err;
+			}
+		}
+	}
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&device->clients_lock);
 
 	return 0;
@@ -314,6 +379,39 @@ static int host1x_device_match(struct device *dev, struct device_driver *drv)
 	return strcmp(dev_name(dev), drv->name) == 0;
 }
 
+<<<<<<< HEAD
+=======
+static int host1x_device_uevent(struct device *dev,
+				struct kobj_uevent_env *env)
+{
+	struct device_node *np = dev->parent->of_node;
+	unsigned int count = 0;
+	struct property *p;
+	const char *compat;
+
+	/*
+	 * This duplicates most of of_device_uevent(), but the latter cannot
+	 * be called from modules and operates on dev->of_node, which is not
+	 * available in this case.
+	 *
+	 * Note that this is really only needed for backwards compatibility
+	 * with libdrm, which parses this information from sysfs and will
+	 * fail if it can't find the OF_FULLNAME, specifically.
+	 */
+	add_uevent_var(env, "OF_NAME=%pOFn", np);
+	add_uevent_var(env, "OF_FULLNAME=%pOF", np);
+
+	of_property_for_each_string(np, "compatible", p, compat) {
+		add_uevent_var(env, "OF_COMPATIBLE_%u=%s", count, compat);
+		count++;
+	}
+
+	add_uevent_var(env, "OF_COMPATIBLE_N=%u", count);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int host1x_dma_configure(struct device *dev)
 {
 	return of_dma_configure(dev, dev->of_node, true);
@@ -331,7 +429,12 @@ static const struct dev_pm_ops host1x_device_pm_ops = {
 struct bus_type host1x_bus_type = {
 	.name = "host1x",
 	.match = host1x_device_match,
+<<<<<<< HEAD
 	.dma_configure	= host1x_dma_configure,
+=======
+	.uevent = host1x_device_uevent,
+	.dma_configure = host1x_dma_configure,
+>>>>>>> upstream/android-13
 	.pm = &host1x_device_pm_ops,
 };
 
@@ -417,14 +520,21 @@ static int host1x_device_add(struct host1x *host1x,
 	device->dev.dma_mask = &device->dev.coherent_dma_mask;
 	dev_set_name(&device->dev, "%s", driver->driver.name);
 	device->dev.release = host1x_device_release;
+<<<<<<< HEAD
 	device->dev.of_node = host1x->dev->of_node;
+=======
+>>>>>>> upstream/android-13
 	device->dev.bus = &host1x_bus_type;
 	device->dev.parent = host1x->dev;
 
 	of_dma_configure(&device->dev, host1x->dev->of_node, true);
 
 	device->dev.dma_parms = &device->dma_parms;
+<<<<<<< HEAD
 	dma_set_max_seg_size(&device->dev, SZ_4M);
+=======
+	dma_set_max_seg_size(&device->dev, UINT_MAX);
+>>>>>>> upstream/android-13
 
 	err = host1x_device_parse_dt(device, driver);
 	if (err < 0) {
@@ -503,6 +613,39 @@ static void host1x_detach_driver(struct host1x *host1x,
 	mutex_unlock(&host1x->devices_lock);
 }
 
+<<<<<<< HEAD
+=======
+static int host1x_devices_show(struct seq_file *s, void *data)
+{
+	struct host1x *host1x = s->private;
+	struct host1x_device *device;
+
+	mutex_lock(&host1x->devices_lock);
+
+	list_for_each_entry(device, &host1x->devices, list) {
+		struct host1x_subdev *subdev;
+
+		seq_printf(s, "%s\n", dev_name(&device->dev));
+
+		mutex_lock(&device->subdevs_lock);
+
+		list_for_each_entry(subdev, &device->active, list)
+			seq_printf(s, "  %pOFf: %s\n", subdev->np,
+				   dev_name(subdev->client->dev));
+
+		list_for_each_entry(subdev, &device->subdevs, list)
+			seq_printf(s, "  %pOFf:\n", subdev->np);
+
+		mutex_unlock(&device->subdevs_lock);
+	}
+
+	mutex_unlock(&host1x->devices_lock);
+
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(host1x_devices);
+
+>>>>>>> upstream/android-13
 /**
  * host1x_register() - register a host1x controller
  * @host1x: host1x controller
@@ -526,6 +669,12 @@ int host1x_register(struct host1x *host1x)
 
 	mutex_unlock(&drivers_lock);
 
+<<<<<<< HEAD
+=======
+	debugfs_create_file("devices", S_IRUGO, host1x->debugfs, host1x,
+			    &host1x_devices_fops);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -650,8 +799,37 @@ void host1x_driver_unregister(struct host1x_driver *driver)
 EXPORT_SYMBOL(host1x_driver_unregister);
 
 /**
+<<<<<<< HEAD
  * host1x_client_register() - register a host1x client
  * @client: host1x client
+=======
+ * __host1x_client_init() - initialize a host1x client
+ * @client: host1x client
+ * @key: lock class key for the client-specific mutex
+ */
+void __host1x_client_init(struct host1x_client *client, struct lock_class_key *key)
+{
+	INIT_LIST_HEAD(&client->list);
+	__mutex_init(&client->lock, "host1x client lock", key);
+	client->usecount = 0;
+}
+EXPORT_SYMBOL(__host1x_client_init);
+
+/**
+ * host1x_client_exit() - uninitialize a host1x client
+ * @client: host1x client
+ */
+void host1x_client_exit(struct host1x_client *client)
+{
+	mutex_destroy(&client->lock);
+}
+EXPORT_SYMBOL(host1x_client_exit);
+
+/**
+ * __host1x_client_register() - register a host1x client
+ * @client: host1x client
+ * @key: lock class key for the client-specific mutex
+>>>>>>> upstream/android-13
  *
  * Registers a host1x client with each host1x controller instance. Note that
  * each client will only match their parent host1x controller and will only be
@@ -660,7 +838,11 @@ EXPORT_SYMBOL(host1x_driver_unregister);
  * device and call host1x_device_init(), which will in turn call each client's
  * &host1x_client_ops.init implementation.
  */
+<<<<<<< HEAD
 int host1x_client_register(struct host1x_client *client)
+=======
+int __host1x_client_register(struct host1x_client *client)
+>>>>>>> upstream/android-13
 {
 	struct host1x *host1x;
 	int err;
@@ -683,7 +865,11 @@ int host1x_client_register(struct host1x_client *client)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(host1x_client_register);
+=======
+EXPORT_SYMBOL(__host1x_client_register);
+>>>>>>> upstream/android-13
 
 /**
  * host1x_client_unregister() - unregister a host1x client
@@ -723,3 +909,77 @@ int host1x_client_unregister(struct host1x_client *client)
 	return 0;
 }
 EXPORT_SYMBOL(host1x_client_unregister);
+<<<<<<< HEAD
+=======
+
+int host1x_client_suspend(struct host1x_client *client)
+{
+	int err = 0;
+
+	mutex_lock(&client->lock);
+
+	if (client->usecount == 1) {
+		if (client->ops && client->ops->suspend) {
+			err = client->ops->suspend(client);
+			if (err < 0)
+				goto unlock;
+		}
+	}
+
+	client->usecount--;
+	dev_dbg(client->dev, "use count: %u\n", client->usecount);
+
+	if (client->parent) {
+		err = host1x_client_suspend(client->parent);
+		if (err < 0)
+			goto resume;
+	}
+
+	goto unlock;
+
+resume:
+	if (client->usecount == 0)
+		if (client->ops && client->ops->resume)
+			client->ops->resume(client);
+
+	client->usecount++;
+unlock:
+	mutex_unlock(&client->lock);
+	return err;
+}
+EXPORT_SYMBOL(host1x_client_suspend);
+
+int host1x_client_resume(struct host1x_client *client)
+{
+	int err = 0;
+
+	mutex_lock(&client->lock);
+
+	if (client->parent) {
+		err = host1x_client_resume(client->parent);
+		if (err < 0)
+			goto unlock;
+	}
+
+	if (client->usecount == 0) {
+		if (client->ops && client->ops->resume) {
+			err = client->ops->resume(client);
+			if (err < 0)
+				goto suspend;
+		}
+	}
+
+	client->usecount++;
+	dev_dbg(client->dev, "use count: %u\n", client->usecount);
+
+	goto unlock;
+
+suspend:
+	if (client->parent)
+		host1x_client_suspend(client->parent);
+unlock:
+	mutex_unlock(&client->lock);
+	return err;
+}
+EXPORT_SYMBOL(host1x_client_resume);
+>>>>>>> upstream/android-13

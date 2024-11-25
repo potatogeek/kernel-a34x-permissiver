@@ -1,11 +1,18 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010-2013 Bluecherry, LLC <http://www.bluecherrydvr.com>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2010-2013 Bluecherry, LLC <https://www.bluecherrydvr.com>
+>>>>>>> upstream/android-13
  *
  * Original author:
  * Ben Collins <bcollins@ubuntu.com>
  *
  * Additional work by:
  * John Brooks <john.brooks@bluecherry.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -377,7 +386,11 @@ static ssize_t sdram_show(struct file *file, struct kobject *kobj,
 			  struct bin_attribute *a, char *buf,
 			  loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct solo_dev *solo_dev =
 		container_of(dev, struct solo_dev, dev);
 	const int size = solo_dev->sdram_size;
@@ -512,7 +525,11 @@ static int solo_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	default:
 		dev_warn(&pdev->dev, "Invalid chip_id 0x%02x, assuming 4 ch\n",
 			 chip_id);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 5:
 		solo_dev->nr_chans = 4;
 		solo_dev->nr_ext = 1;

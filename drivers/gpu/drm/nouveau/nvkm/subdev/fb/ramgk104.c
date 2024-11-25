@@ -260,7 +260,11 @@ gk104_ram_calc_gddr5(struct gk104_ram *ram, u32 freq)
 	ram_mask(fuc, 0x10f808, 0x40000000, 0x40000000);
 	ram_block(fuc);
 
+<<<<<<< HEAD
 	if (nvkm_device_engine(ram->base.fb->subdev.device, NVKM_ENGINE_DISP))
+=======
+	if (ram->base.fb->subdev.device->disp)
+>>>>>>> upstream/android-13
 		ram_wr32(fuc, 0x62c000, 0x0f0f0000);
 
 	/* MR1: turn termination on early, for some reason.. */
@@ -661,7 +665,11 @@ gk104_ram_calc_gddr5(struct gk104_ram *ram, u32 freq)
 
 	ram_unblock(fuc);
 
+<<<<<<< HEAD
 	if (nvkm_device_engine(ram->base.fb->subdev.device, NVKM_ENGINE_DISP))
+=======
+	if (ram->base.fb->subdev.device->disp)
+>>>>>>> upstream/android-13
 		ram_wr32(fuc, 0x62c000, 0x0f0f0f00);
 
 	if (next->bios.rammap_11_08_01)
@@ -711,7 +719,11 @@ gk104_ram_calc_sddr3(struct gk104_ram *ram, u32 freq)
 	ram_mask(fuc, 0x10f808, 0x40000000, 0x40000000);
 	ram_block(fuc);
 
+<<<<<<< HEAD
 	if (nvkm_device_engine(ram->base.fb->subdev.device, NVKM_ENGINE_DISP))
+=======
+	if (ram->base.fb->subdev.device->disp)
+>>>>>>> upstream/android-13
 		ram_wr32(fuc, 0x62c000, 0x0f0f0000);
 
 	if (vc == 1 && ram_have(fuc, gpio2E)) {
@@ -943,7 +955,11 @@ gk104_ram_calc_sddr3(struct gk104_ram *ram, u32 freq)
 
 	ram_unblock(fuc);
 
+<<<<<<< HEAD
 	if (nvkm_device_engine(ram->base.fb->subdev.device, NVKM_ENGINE_DISP))
+=======
+	if (ram->base.fb->subdev.device->disp)
+>>>>>>> upstream/android-13
 		ram_wr32(fuc, 0x62c000, 0x0f0f0f00);
 
 	if (next->bios.rammap_11_08_01)
@@ -1070,7 +1086,11 @@ gk104_ram_calc_xits(struct gk104_ram *ram, struct nvkm_ram_data *next)
 			nvkm_error(subdev, "unable to calc plls\n");
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		nvkm_debug(subdev, "sucessfully calced PLLs for clock %i kHz"
+=======
+		nvkm_debug(subdev, "successfully calced PLLs for clock %i kHz"
+>>>>>>> upstream/android-13
 				" (refclock: %i kHz)\n", next->freq, ret);
 	} else {
 		/* calculate refpll coefficients */
@@ -1698,7 +1718,11 @@ gk104_ram_new_(const struct nvkm_ram_func *func, struct nvkm_fb *fb,
 
 static const struct nvkm_ram_func
 gk104_ram = {
+<<<<<<< HEAD
 	.upper = 0x0200000000,
+=======
+	.upper = 0x0200000000ULL,
+>>>>>>> upstream/android-13
 	.probe_fbp = gf100_ram_probe_fbp,
 	.probe_fbp_amount = gf108_ram_probe_fbp_amount,
 	.probe_fbpa_amount = gf100_ram_probe_fbpa_amount,

@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 
 config STREAM_PARSER
 	tristate
 	default n
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config STREAM_PARSER
+	def_bool n
+>>>>>>> upstream/android-13

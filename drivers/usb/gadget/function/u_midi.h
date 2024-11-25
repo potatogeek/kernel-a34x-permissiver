@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * u_midi.h
  *
@@ -7,7 +11,11 @@
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef U_MIDI_H
@@ -29,8 +37,13 @@ struct f_midi_opts {
 	 * Protect the data form concurrent access by read/write
 	 * and create symlink/remove symlink.
 	 */
+<<<<<<< HEAD
 	 struct mutex			lock;
 	 int				refcnt;
+=======
+	struct mutex			lock;
+	int				refcnt;
+>>>>>>> upstream/android-13
 };
 
 #endif /* U_MIDI_H */

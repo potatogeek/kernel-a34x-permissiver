@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Linear Technology LTC2945 I2C Power Monitor
  *
  * Copyright (c) 2014 Guenter Roeck
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -226,7 +233,11 @@ static int ltc2945_val_to_reg(struct device *dev, u8 reg,
 	return val;
 }
 
+<<<<<<< HEAD
 static ssize_t ltc2945_show_value(struct device *dev,
+=======
+static ssize_t ltc2945_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -235,12 +246,21 @@ static ssize_t ltc2945_show_value(struct device *dev,
 	value = ltc2945_reg_to_val(dev, attr->index);
 	if (value < 0)
 		return value;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%lld\n", value);
 }
 
 static ssize_t ltc2945_set_value(struct device *dev,
 				     struct device_attribute *da,
 				     const char *buf, size_t count)
+=======
+	return sysfs_emit(buf, "%lld\n", value);
+}
+
+static ssize_t ltc2945_value_store(struct device *dev,
+				   struct device_attribute *da,
+				   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct regmap *regmap = dev_get_drvdata(dev);
@@ -273,7 +293,11 @@ static ssize_t ltc2945_set_value(struct device *dev,
 	return ret < 0 ? ret : count;
 }
 
+<<<<<<< HEAD
 static ssize_t ltc2945_reset_history(struct device *dev,
+=======
+static ssize_t ltc2945_history_store(struct device *dev,
+>>>>>>> upstream/android-13
 				     struct device_attribute *da,
 				     const char *buf, size_t count)
 {
@@ -326,7 +350,11 @@ static ssize_t ltc2945_reset_history(struct device *dev,
 	return ret ? : count;
 }
 
+<<<<<<< HEAD
 static ssize_t ltc2945_show_bool(struct device *dev,
+=======
+static ssize_t ltc2945_bool_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -342,11 +370,16 @@ static ssize_t ltc2945_show_bool(struct device *dev,
 	if (fault)		/* Clear reported faults in chip register */
 		regmap_update_bits(regmap, LTC2945_FAULT, attr->index, 0);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", !!fault);
+=======
+	return sysfs_emit(buf, "%d\n", !!fault);
+>>>>>>> upstream/android-13
 }
 
 /* Input voltages */
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in1_input, S_IRUGO, ltc2945_show_value, NULL,
 			  LTC2945_VIN_H);
 static SENSOR_DEVICE_ATTR(in1_min, S_IRUGO | S_IWUSR, ltc2945_show_value,
@@ -427,6 +460,67 @@ static SENSOR_DEVICE_ATTR(power1_min_alarm, S_IRUGO, ltc2945_show_bool, NULL,
 			  FAULT_POWER_UV);
 static SENSOR_DEVICE_ATTR(power1_max_alarm, S_IRUGO, ltc2945_show_bool, NULL,
 			  FAULT_POWER_OV);
+=======
+static SENSOR_DEVICE_ATTR_RO(in1_input, ltc2945_value, LTC2945_VIN_H);
+static SENSOR_DEVICE_ATTR_RW(in1_min, ltc2945_value, LTC2945_MIN_VIN_THRES_H);
+static SENSOR_DEVICE_ATTR_RW(in1_max, ltc2945_value, LTC2945_MAX_VIN_THRES_H);
+static SENSOR_DEVICE_ATTR_RO(in1_lowest, ltc2945_value, LTC2945_MIN_VIN_H);
+static SENSOR_DEVICE_ATTR_RO(in1_highest, ltc2945_value, LTC2945_MAX_VIN_H);
+static SENSOR_DEVICE_ATTR_WO(in1_reset_history, ltc2945_history,
+			     LTC2945_MIN_VIN_H);
+
+static SENSOR_DEVICE_ATTR_RO(in2_input, ltc2945_value, LTC2945_ADIN_H);
+static SENSOR_DEVICE_ATTR_RW(in2_min, ltc2945_value, LTC2945_MIN_ADIN_THRES_H);
+static SENSOR_DEVICE_ATTR_RW(in2_max, ltc2945_value, LTC2945_MAX_ADIN_THRES_H);
+static SENSOR_DEVICE_ATTR_RO(in2_lowest, ltc2945_value, LTC2945_MIN_ADIN_H);
+static SENSOR_DEVICE_ATTR_RO(in2_highest, ltc2945_value, LTC2945_MAX_ADIN_H);
+static SENSOR_DEVICE_ATTR_WO(in2_reset_history, ltc2945_history,
+			     LTC2945_MIN_ADIN_H);
+
+/* Voltage alarms */
+
+static SENSOR_DEVICE_ATTR_RO(in1_min_alarm, ltc2945_bool, FAULT_VIN_UV);
+static SENSOR_DEVICE_ATTR_RO(in1_max_alarm, ltc2945_bool, FAULT_VIN_OV);
+static SENSOR_DEVICE_ATTR_RO(in2_min_alarm, ltc2945_bool, FAULT_ADIN_UV);
+static SENSOR_DEVICE_ATTR_RO(in2_max_alarm, ltc2945_bool, FAULT_ADIN_OV);
+
+/* Currents (via sense resistor) */
+
+static SENSOR_DEVICE_ATTR_RO(curr1_input, ltc2945_value, LTC2945_SENSE_H);
+static SENSOR_DEVICE_ATTR_RW(curr1_min, ltc2945_value,
+			     LTC2945_MIN_SENSE_THRES_H);
+static SENSOR_DEVICE_ATTR_RW(curr1_max, ltc2945_value,
+			     LTC2945_MAX_SENSE_THRES_H);
+static SENSOR_DEVICE_ATTR_RO(curr1_lowest, ltc2945_value, LTC2945_MIN_SENSE_H);
+static SENSOR_DEVICE_ATTR_RO(curr1_highest, ltc2945_value,
+			     LTC2945_MAX_SENSE_H);
+static SENSOR_DEVICE_ATTR_WO(curr1_reset_history, ltc2945_history,
+			     LTC2945_MIN_SENSE_H);
+
+/* Current alarms */
+
+static SENSOR_DEVICE_ATTR_RO(curr1_min_alarm, ltc2945_bool, FAULT_SENSE_UV);
+static SENSOR_DEVICE_ATTR_RO(curr1_max_alarm, ltc2945_bool, FAULT_SENSE_OV);
+
+/* Power */
+
+static SENSOR_DEVICE_ATTR_RO(power1_input, ltc2945_value, LTC2945_POWER_H);
+static SENSOR_DEVICE_ATTR_RW(power1_min, ltc2945_value,
+			     LTC2945_MIN_POWER_THRES_H);
+static SENSOR_DEVICE_ATTR_RW(power1_max, ltc2945_value,
+			     LTC2945_MAX_POWER_THRES_H);
+static SENSOR_DEVICE_ATTR_RO(power1_input_lowest, ltc2945_value,
+			     LTC2945_MIN_POWER_H);
+static SENSOR_DEVICE_ATTR_RO(power1_input_highest, ltc2945_value,
+			     LTC2945_MAX_POWER_H);
+static SENSOR_DEVICE_ATTR_WO(power1_reset_history, ltc2945_history,
+			     LTC2945_MIN_POWER_H);
+
+/* Power alarms */
+
+static SENSOR_DEVICE_ATTR_RO(power1_min_alarm, ltc2945_bool, FAULT_POWER_UV);
+static SENSOR_DEVICE_ATTR_RO(power1_max_alarm, ltc2945_bool, FAULT_POWER_OV);
+>>>>>>> upstream/android-13
 
 static struct attribute *ltc2945_attrs[] = {
 	&sensor_dev_attr_in1_input.dev_attr.attr,
@@ -475,8 +569,12 @@ static const struct regmap_config ltc2945_regmap_config = {
 	.max_register = LTC2945_MIN_ADIN_THRES_L,
 };
 
+<<<<<<< HEAD
 static int ltc2945_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int ltc2945_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -508,7 +606,11 @@ static struct i2c_driver ltc2945_driver = {
 	.driver = {
 		   .name = "ltc2945",
 		   },
+<<<<<<< HEAD
 	.probe = ltc2945_probe,
+=======
+	.probe_new = ltc2945_probe,
+>>>>>>> upstream/android-13
 	.id_table = ltc2945_id,
 };
 

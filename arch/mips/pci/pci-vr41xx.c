@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  pci-vr41xx.c, PCI Control Unit routines for the NEC VR4100 series.
  *
@@ -5,6 +9,7 @@
  *    Author: Yoichi Yuasa <source@mvista.com>
  *  Copyright (C) 2004-2008  Yoichi Yuasa <yuasa@linux-mips.org>
  *  Copyright (C) 2004 by Ralf Baechle (ralf@linux-mips.org)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 /*
  * Changes:
@@ -306,8 +313,15 @@ static int __init vr41xx_pciu_init(void)
 		master = setup->master_io;
 		io_map_base = ioremap(master->bus_base_address,
 				      resource_size(res));
+<<<<<<< HEAD
 		if (!io_map_base)
 			return -EBUSY;
+=======
+		if (!io_map_base) {
+			iounmap(pciu_base);
+			return -EBUSY;
+		}
+>>>>>>> upstream/android-13
 
 		vr41xx_pci_controller.io_map_base = (unsigned long)io_map_base;
 	}

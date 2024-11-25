@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  include/linux/clkdev.h
  *
  *  Copyright (C) 2008 Russell King.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Helper for the clk API to assist looking up a struct clk.
  */
 #ifndef __CLKDEV_H
@@ -33,11 +40,14 @@ struct clk_lookup {
 		.clk = c,	\
 	}
 
+<<<<<<< HEAD
 struct clk_lookup *clkdev_alloc(struct clk *clk, const char *con_id,
 	const char *dev_fmt, ...) __printf(3, 4);
 struct clk_lookup *clkdev_hw_alloc(struct clk_hw *hw, const char *con_id,
 	const char *dev_fmt, ...) __printf(3, 4);
 
+=======
+>>>>>>> upstream/android-13
 void clkdev_add(struct clk_lookup *cl);
 void clkdev_drop(struct clk_lookup *cl);
 
@@ -52,4 +62,11 @@ int clk_add_alias(const char *, const char *, const char *, struct device *);
 int clk_register_clkdev(struct clk *, const char *, const char *);
 int clk_hw_register_clkdev(struct clk_hw *, const char *, const char *);
 
+<<<<<<< HEAD
+=======
+int devm_clk_hw_register_clkdev(struct device *dev, struct clk_hw *hw,
+				const char *con_id, const char *dev_id);
+void devm_clk_release_clkdev(struct device *dev, const char *con_id,
+			     const char *dev_id);
+>>>>>>> upstream/android-13
 #endif

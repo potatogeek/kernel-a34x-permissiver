@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HTC Herald board configuration
  * Copyright (C) 2009 Cory Maccarrone <darkstar6262@gmail.com>
@@ -6,6 +10,7 @@
  * Based on the board-htcwizard.c file from the linwizard project:
  * Copyright (C) 2006 Unai Uribarri
  * Copyright (C) 2008 linwizard.sourceforge.net
+<<<<<<< HEAD
  *
  * This  program is  free  software; you  can  redistribute it  and/or
  * modify  it under the  terms of  the GNU  General Public  License as
@@ -22,6 +27,8 @@
  * Foundation,  Inc.,  51 Franklin  Street,  Fifth  Floor, Boston,  MA
  * 02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>

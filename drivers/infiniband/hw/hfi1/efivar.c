@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015, 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015, 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ctype.h>
@@ -78,7 +84,11 @@ static int read_efi_var(const char *name, unsigned long *size,
 	*size = 0;
 	*return_data = NULL;
 
+<<<<<<< HEAD
 	if (!efi_enabled(EFI_RUNTIME_SERVICES))
+=======
+	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	uni_name = kcalloc(strlen(name) + 1, sizeof(efi_char16_t), GFP_KERNEL);

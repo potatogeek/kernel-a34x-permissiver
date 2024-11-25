@@ -42,6 +42,12 @@ dvb-usb-digitv-objs := digitv.o
 obj-$(CONFIG_DVB_USB_DIGITV) += dvb-usb-digitv.o
 
 dvb-usb-cxusb-objs := cxusb.o
+<<<<<<< HEAD
+=======
+ifeq ($(CONFIG_DVB_USB_CXUSB_ANALOG),y)
+dvb-usb-cxusb-objs += cxusb-analog.o
+endif
+>>>>>>> upstream/android-13
 obj-$(CONFIG_DVB_USB_CXUSB) += dvb-usb-cxusb.o
 
 dvb-usb-ttusb2-objs := ttusb2.o
@@ -80,4 +86,8 @@ obj-$(CONFIG_DVB_USB_TECHNISAT_USB2) += dvb-usb-technisat-usb2.o
 ccflags-y += -I$(srctree)/drivers/media/dvb-frontends/
 # due to tuner-xc3028
 ccflags-y += -I$(srctree)/drivers/media/tuners
+<<<<<<< HEAD
 ccflags-y += -I$(srctree)/drivers/media/pci/ttpci
+=======
+ccflags-y += -I$(srctree)/drivers/media/common
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver for TerraTec DMX 6Fire USB
  *
@@ -6,11 +10,14 @@
  * Author:	Torsten Schenk <torsten.schenk@zoho.com>
  * Created:	Jan 01, 2011
  * Copyright:	(C) Torsten Schenk
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "comm.h"
@@ -99,7 +106,11 @@ static int usb6fire_comm_send_buffer(u8 *buffer, struct usb_device *dev)
 	int actual_len;
 
 	ret = usb_interrupt_msg(dev, usb_sndintpipe(dev, COMM_EP),
+<<<<<<< HEAD
 			buffer, buffer[1] + 2, &actual_len, HZ);
+=======
+			buffer, buffer[1] + 2, &actual_len, 1000);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	else if (actual_len != buffer[1] + 2)

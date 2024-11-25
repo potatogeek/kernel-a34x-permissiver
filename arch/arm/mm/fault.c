@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/fault.c
  *
  *  Copyright (C) 1995  Linus Torvalds
  *  Modifications for ARM processor (c) 1995-2004 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/extable.h>
 #include <linux/signal.h>
@@ -21,7 +28,10 @@
 #include <linux/highmem.h>
 #include <linux/perf_event.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/system_misc.h>
 #include <asm/system_info.h>
 #include <asm/tlbflush.h>
@@ -30,6 +40,7 @@
 
 #ifdef CONFIG_MMU
 
+<<<<<<< HEAD
 #ifdef CONFIG_KPROBES
 static inline int notify_page_fault(struct pt_regs *regs, unsigned int fsr)
 {
@@ -52,36 +63,63 @@ static inline int notify_page_fault(struct pt_regs *regs, unsigned int fsr)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This is useful to dump out the page tables associated with
  * 'addr' in mm 'mm'.
  */
+<<<<<<< HEAD
 void show_pte(struct mm_struct *mm, unsigned long addr)
+=======
+void show_pte(const char *lvl, struct mm_struct *mm, unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	pgd_t *pgd;
 
 	if (!mm)
 		mm = &init_mm;
 
+<<<<<<< HEAD
 	pr_alert("pgd = %p\n", mm->pgd);
 	pgd = pgd_offset(mm, addr);
 	pr_alert("[%08lx] *pgd=%08llx",
 			addr, (long long)pgd_val(*pgd));
 
 	do {
+=======
+	printk("%spgd = %p\n", lvl, mm->pgd);
+	pgd = pgd_offset(mm, addr);
+	printk("%s[%08lx] *pgd=%08llx", lvl, addr, (long long)pgd_val(*pgd));
+
+	do {
+		p4d_t *p4d;
+>>>>>>> upstream/android-13
 		pud_t *pud;
 		pmd_t *pmd;
 		pte_t *pte;
 
+<<<<<<< HEAD
 		if (pgd_none(*pgd))
 			break;
 
 		if (pgd_bad(*pgd)) {
+=======
+		p4d = p4d_offset(pgd, addr);
+		if (p4d_none(*p4d))
+			break;
+
+		if (p4d_bad(*p4d)) {
+>>>>>>> upstream/android-13
 			pr_cont("(bad)");
 			break;
 		}
 
+<<<<<<< HEAD
 		pud = pud_offset(pgd, addr);
+=======
+		pud = pud_offset(p4d, addr);
+>>>>>>> upstream/android-13
 		if (PTRS_PER_PUD != 1)
 			pr_cont(", *pud=%08llx", (long long)pud_val(*pud));
 
@@ -121,7 +159,11 @@ void show_pte(struct mm_struct *mm, unsigned long addr)
 	pr_cont("\n");
 }
 #else					/* CONFIG_MMU */
+<<<<<<< HEAD
 void show_pte(struct mm_struct *mm, unsigned long addr)
+=======
+void show_pte(const char *lvl, struct mm_struct *mm, unsigned long addr)
+>>>>>>> upstream/android-13
 { }
 #endif					/* CONFIG_MMU */
 
@@ -142,11 +184,19 @@ __do_kernel_fault(struct mm_struct *mm, unsigned long addr, unsigned int fsr,
 	 * No handler, we'll have to terminate things with extreme prejudice.
 	 */
 	bust_spinlocks(1);
+<<<<<<< HEAD
+=======
+	pr_alert("8<--- cut here ---\n");
+>>>>>>> upstream/android-13
 	pr_alert("Unable to handle kernel %s at virtual address %08lx\n",
 		 (addr < PAGE_SIZE) ? "NULL pointer dereference" :
 		 "paging request", addr);
 
+<<<<<<< HEAD
 	show_pte(mm, addr);
+=======
+	show_pte(KERN_ALERT, mm, addr);
+>>>>>>> upstream/android-13
 	die("Oops", regs, fsr);
 	bust_spinlocks(0);
 	do_exit(SIGKILL);
@@ -157,15 +207,23 @@ __do_kernel_fault(struct mm_struct *mm, unsigned long addr, unsigned int fsr,
  * User mode accesses just cause a SIGSEGV
  */
 static void
+<<<<<<< HEAD
 __do_user_fault(struct task_struct *tsk, unsigned long addr,
 		unsigned int fsr, unsigned int sig, int code,
 		struct pt_regs *regs)
 {
 	struct siginfo si;
+=======
+__do_user_fault(unsigned long addr, unsigned int fsr, unsigned int sig,
+		int code, struct pt_regs *regs)
+{
+	struct task_struct *tsk = current;
+>>>>>>> upstream/android-13
 
 	if (addr > TASK_SIZE)
 		harden_branch_predictor();
 
+<<<<<<< HEAD
 	clear_siginfo(&si);
 
 #ifdef CONFIG_DEBUG_USER
@@ -177,15 +235,37 @@ __do_user_fault(struct task_struct *tsk, unsigned long addr,
 		show_regs(regs);
 	}
 #endif
+=======
+#ifdef CONFIG_DEBUG_USER
+	if (((user_debug & UDBG_SEGV) && (sig == SIGSEGV)) ||
+	    ((user_debug & UDBG_BUS)  && (sig == SIGBUS))) {
+		pr_err("8<--- cut here ---\n");
+		pr_err("%s: unhandled page fault (%d) at 0x%08lx, code 0x%03x\n",
+		       tsk->comm, sig, addr, fsr);
+		show_pte(KERN_ERR, tsk->mm, addr);
+		show_regs(regs);
+	}
+#endif
+#ifndef CONFIG_KUSER_HELPERS
+	if ((sig == SIGSEGV) && ((addr & PAGE_MASK) == 0xffff0000))
+		printk_ratelimited(KERN_DEBUG
+				   "%s: CONFIG_KUSER_HELPERS disabled at 0x%08lx\n",
+				   tsk->comm, addr);
+#endif
+>>>>>>> upstream/android-13
 
 	tsk->thread.address = addr;
 	tsk->thread.error_code = fsr;
 	tsk->thread.trap_no = 14;
+<<<<<<< HEAD
 	si.si_signo = sig;
 	si.si_errno = 0;
 	si.si_code = code;
 	si.si_addr = (void __user *)addr;
 	force_sig_info(sig, &si, tsk);
+=======
+	force_sig_fault(sig, code, (void __user *)addr);
+>>>>>>> upstream/android-13
 }
 
 void do_bad_area(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
@@ -198,7 +278,11 @@ void do_bad_area(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	 * have no context to handle this fault with.
 	 */
 	if (user_mode(regs))
+<<<<<<< HEAD
 		__do_user_fault(tsk, addr, fsr, SIGSEGV, SEGV_MAPERR, regs);
+=======
+		__do_user_fault(addr, fsr, SIGSEGV, SEGV_MAPERR, regs);
+>>>>>>> upstream/android-13
 	else
 		__do_kernel_fault(mm, addr, fsr, regs);
 }
@@ -207,6 +291,7 @@ void do_bad_area(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 #define VM_FAULT_BADMAP		0x010000
 #define VM_FAULT_BADACCESS	0x020000
 
+<<<<<<< HEAD
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 bool __access_error(unsigned long fsr, unsigned long vma_flags)
 {
@@ -221,6 +306,8 @@ bool __access_error(unsigned long fsr, unsigned long vma_flags)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Check that the permissions on the VMA allow for the fault which occurred.
  * If we encountered a write fault, we must have write permission, otherwise
@@ -228,7 +315,11 @@ bool __access_error(unsigned long fsr, unsigned long vma_flags)
  */
 static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	unsigned int mask = VM_READ | VM_WRITE | VM_EXEC;
+=======
+	unsigned int mask = VM_ACCESS_FLAGS;
+>>>>>>> upstream/android-13
 
 	if ((fsr & FSR_WRITE) && !(fsr & FSR_CM))
 		mask = VM_WRITE;
@@ -240,7 +331,12 @@ static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
 
 static vm_fault_t __kprobes
 __do_page_fault(struct mm_struct *mm, unsigned long addr, unsigned int fsr,
+<<<<<<< HEAD
 		unsigned int flags, struct task_struct *tsk)
+=======
+		unsigned int flags, struct task_struct *tsk,
+		struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	struct vm_area_struct *vma;
 	vm_fault_t fault;
@@ -262,7 +358,11 @@ good_area:
 		goto out;
 	}
 
+<<<<<<< HEAD
 	return handle_mm_fault(vma, addr & PAGE_MASK, flags);
+=======
+	return handle_mm_fault(vma, addr & PAGE_MASK, flags, regs);
+>>>>>>> upstream/android-13
 
 check_stack:
 	/* Don't allow expansion below FIRST_USER_ADDRESS */
@@ -280,9 +380,15 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	struct mm_struct *mm;
 	int sig, code;
 	vm_fault_t fault;
+<<<<<<< HEAD
 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
 
 	if (notify_page_fault(regs, fsr))
+=======
+	unsigned int flags = FAULT_FLAG_DEFAULT;
+
+	if (kprobe_page_fault(regs, fsr))
+>>>>>>> upstream/android-13
 		return 0;
 
 	tsk = current;
@@ -304,6 +410,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	if ((fsr & FSR_WRITE) && !(fsr & FSR_CM))
 		flags |= FAULT_FLAG_WRITE;
 
+<<<<<<< HEAD
 	/*
 	 * let's try a speculative page fault without grabbing the
 	 * mmap_sem.
@@ -311,17 +418,28 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	fault = handle_speculative_fault(mm, addr, flags, (unsigned long)fsr);
 	if (fault != VM_FAULT_RETRY)
 		goto done;
+=======
+	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
+>>>>>>> upstream/android-13
 
 	/*
 	 * As per x86, we may deadlock here.  However, since the kernel only
 	 * validly references user space from well defined areas of the code,
 	 * we can bug out early if this is from code which shouldn't.
 	 */
+<<<<<<< HEAD
 	if (!down_read_trylock(&mm->mmap_sem)) {
 		if (!user_mode(regs) && !search_exception_tables(regs->ARM_pc))
 			goto no_context;
 retry:
 		down_read(&mm->mmap_sem);
+=======
+	if (!mmap_read_trylock(mm)) {
+		if (!user_mode(regs) && !search_exception_tables(regs->ARM_pc))
+			goto no_context;
+retry:
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * The above down_read_trylock() might have succeeded in
@@ -336,6 +454,7 @@ retry:
 #endif
 	}
 
+<<<<<<< HEAD
 	fault = __do_page_fault(mm, addr, fsr, flags, tsk);
 
 	/* If we need to retry but a fatal signal is pending, handle the
@@ -343,11 +462,21 @@ retry:
 	 * it would already be released in __lock_page_or_retry in
 	 * mm/filemap.c. */
 	if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current)) {
+=======
+	fault = __do_page_fault(mm, addr, fsr, flags, tsk, regs);
+
+	/* If we need to retry but a fatal signal is pending, handle the
+	 * signal first. We do not need to release the mmap_lock because
+	 * it would already be released in __lock_page_or_retry in
+	 * mm/filemap.c. */
+	if (fault_signal_pending(fault, regs)) {
+>>>>>>> upstream/android-13
 		if (!user_mode(regs))
 			goto no_context;
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Major/minor page fault accounting is only done on the
 	 * initial attempt. If we go through a retry, it is extremely
@@ -369,14 +498,23 @@ retry:
 			/* Clear FAULT_FLAG_ALLOW_RETRY to avoid any risk
 			* of starvation. */
 			flags &= ~FAULT_FLAG_ALLOW_RETRY;
+=======
+	if (!(fault & VM_FAULT_ERROR) && flags & FAULT_FLAG_ALLOW_RETRY) {
+		if (fault & VM_FAULT_RETRY) {
+>>>>>>> upstream/android-13
 			flags |= FAULT_FLAG_TRIED;
 			goto retry;
 		}
 	}
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
 
 done:
+=======
+	mmap_read_unlock(mm);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Handle the "normal" case first - VM_FAULT_MAJOR
 	 */
@@ -417,7 +555,11 @@ done:
 			SEGV_ACCERR : SEGV_MAPERR;
 	}
 
+<<<<<<< HEAD
 	__do_user_fault(tsk, addr, fsr, sig, code, regs);
+=======
+	__do_user_fault(addr, fsr, sig, code, regs);
+>>>>>>> upstream/android-13
 	return 0;
 
 no_context:
@@ -456,6 +598,10 @@ do_translation_fault(unsigned long addr, unsigned int fsr,
 {
 	unsigned int index;
 	pgd_t *pgd, *pgd_k;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d, *p4d_k;
+>>>>>>> upstream/android-13
 	pud_t *pud, *pud_k;
 	pmd_t *pmd, *pmd_k;
 
@@ -470,6 +616,7 @@ do_translation_fault(unsigned long addr, unsigned int fsr,
 	pgd = cpu_get_pgd() + index;
 	pgd_k = init_mm.pgd + index;
 
+<<<<<<< HEAD
 	if (pgd_none(*pgd_k))
 		goto bad_area;
 	if (!pgd_present(*pgd))
@@ -477,6 +624,18 @@ do_translation_fault(unsigned long addr, unsigned int fsr,
 
 	pud = pud_offset(pgd, addr);
 	pud_k = pud_offset(pgd_k, addr);
+=======
+	p4d = p4d_offset(pgd, addr);
+	p4d_k = p4d_offset(pgd_k, addr);
+
+	if (p4d_none(*p4d_k))
+		goto bad_area;
+	if (!p4d_present(*p4d))
+		set_p4d(p4d, *p4d_k);
+
+	pud = pud_offset(p4d, addr);
+	pud_k = pud_offset(p4d_k, addr);
+>>>>>>> upstream/android-13
 
 	if (pud_none(*pud_k))
 		goto bad_area;
@@ -577,11 +736,15 @@ asmlinkage void
 do_DataAbort(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 {
 	const struct fsr_info *inf = fsr_info + fsr_fs(fsr);
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+>>>>>>> upstream/android-13
 
 	if (!inf->fn(addr, fsr & ~FSR_LNX_PF, regs))
 		return;
 
+<<<<<<< HEAD
 	pr_alert("Unhandled fault: %s (0x%03x) at 0x%08lx\n",
 		inf->name, fsr, addr);
 	show_pte(current->mm, addr);
@@ -592,6 +755,15 @@ do_DataAbort(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	info.si_code  = inf->code;
 	info.si_addr  = (void __user *)addr;
 	arm_notify_die("", regs, &info, fsr, 0);
+=======
+	pr_alert("8<--- cut here ---\n");
+	pr_alert("Unhandled fault: %s (0x%03x) at 0x%08lx\n",
+		inf->name, fsr, addr);
+	show_pte(KERN_ALERT, current->mm, addr);
+
+	arm_notify_die("", regs, inf->sig, inf->code, (void __user *)addr,
+		       fsr, 0);
+>>>>>>> upstream/android-13
 }
 
 void __init
@@ -611,7 +783,10 @@ asmlinkage void
 do_PrefetchAbort(unsigned long addr, unsigned int ifsr, struct pt_regs *regs)
 {
 	const struct fsr_info *inf = ifsr_info + fsr_fs(ifsr);
+<<<<<<< HEAD
 	struct siginfo info;
+=======
+>>>>>>> upstream/android-13
 
 	if (!inf->fn(addr, ifsr | FSR_LNX_PF, regs))
 		return;
@@ -619,12 +794,17 @@ do_PrefetchAbort(unsigned long addr, unsigned int ifsr, struct pt_regs *regs)
 	pr_alert("Unhandled prefetch abort: %s (0x%03x) at 0x%08lx\n",
 		inf->name, ifsr, addr);
 
+<<<<<<< HEAD
 	clear_siginfo(&info);
 	info.si_signo = inf->sig;
 	info.si_errno = 0;
 	info.si_code  = inf->code;
 	info.si_addr  = (void __user *)addr;
 	arm_notify_die("", regs, &info, ifsr, 0);
+=======
+	arm_notify_die("", regs, inf->sig, inf->code, (void __user *)addr,
+		       ifsr, 0);
+>>>>>>> upstream/android-13
 }
 
 /*

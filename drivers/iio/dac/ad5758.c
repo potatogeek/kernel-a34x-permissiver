@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * AD5758 Digital to analog converters driver
  *
@@ -11,7 +15,14 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/property.h>
+<<<<<<< HEAD
 #include <linux/spi/spi.h>
+=======
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/spi/spi.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -71,8 +82,11 @@
 #define AD5758_DCDC_CONFIG1_DCDC_VPROG_MODE(x)	(((x) & 0x1F) << 0)
 #define AD5758_DCDC_CONFIG1_DCDC_MODE_MSK	GENMASK(6, 5)
 #define AD5758_DCDC_CONFIG1_DCDC_MODE_MODE(x)	(((x) & 0x3) << 5)
+<<<<<<< HEAD
 #define AD5758_DCDC_CONFIG1_PROT_SW_EN_MSK	BIT(7)
 #define AD5758_DCDC_CONFIG1_PROT_SW_EN_MODE(x)	(((x) & 0x1) << 7)
+=======
+>>>>>>> upstream/android-13
 
 /* AD5758_DCDC_CONFIG2 */
 #define AD5758_DCDC_CONFIG2_ILIMIT_MSK		GENMASK(3, 1)
@@ -83,10 +97,18 @@
 /* AD5758_DIGITAL_DIAG_RESULTS */
 #define AD5758_CAL_MEM_UNREFRESHED_MSK		BIT(15)
 
+<<<<<<< HEAD
+=======
+/* AD5758_ADC_CONFIG */
+#define AD5758_ADC_CONFIG_PPC_BUF_EN(x)		(((x) & 0x1) << 11)
+#define AD5758_ADC_CONFIG_PPC_BUF_MSK		BIT(11)
+
+>>>>>>> upstream/android-13
 #define AD5758_WR_FLAG_MSK(x)		(0x80 | ((x) & 0x1F))
 
 #define AD5758_FULL_SCALE_MICRO	65535000000ULL
 
+<<<<<<< HEAD
 /**
  * struct ad5758_state - driver instance specific data
  * @spi:	spi_device
@@ -99,15 +121,36 @@
  * @data:	spi transfer buffers
  */
 
+=======
+>>>>>>> upstream/android-13
 struct ad5758_range {
 	int reg;
 	int min;
 	int max;
 };
 
+<<<<<<< HEAD
 struct ad5758_state {
 	struct spi_device *spi;
 	struct mutex lock;
+=======
+/**
+ * struct ad5758_state - driver instance specific data
+ * @spi:	spi_device
+ * @lock:	mutex lock
+ * @gpio_reset:	gpio descriptor for the reset line
+ * @out_range:	struct which stores the output range
+ * @dc_dc_mode:	variable which stores the mode of operation
+ * @dc_dc_ilim:	variable which stores the dc-to-dc converter current limit
+ * @slew_time:	variable which stores the target slew time
+ * @pwr_down:	variable which contains whether a channel is powered down or not
+ * @d32:	spi transfer buffers
+ */
+struct ad5758_state {
+	struct spi_device *spi;
+	struct mutex lock;
+	struct gpio_desc *gpio_reset;
+>>>>>>> upstream/android-13
 	struct ad5758_range out_range;
 	unsigned int dc_dc_mode;
 	unsigned int dc_dc_ilim;
@@ -116,7 +159,11 @@ struct ad5758_state {
 	__be32 d32[3];
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Output ranges corresponding to bits [3:0] from DAC_CONFIG register
  * 0000: 0 V to 5 V voltage range
  * 0001: 0 V to 10 V voltage range
@@ -313,6 +360,21 @@ static int ad5758_set_dc_dc_conv_mode(struct ad5758_state *st,
 {
 	int ret;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The ENABLE_PPC_BUFFERS bit must be set prior to enabling PPC current
+	 * mode.
+	 */
+	if (mode == AD5758_DCDC_MODE_PPC_CURRENT) {
+		ret  = ad5758_spi_write_mask(st, AD5758_ADC_CONFIG,
+				    AD5758_ADC_CONFIG_PPC_BUF_MSK,
+				    AD5758_ADC_CONFIG_PPC_BUF_EN(1));
+		if (ret < 0)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	ret = ad5758_spi_write_mask(st, AD5758_DCDC_CONFIG1,
 				    AD5758_DCDC_CONFIG1_DCDC_MODE_MSK,
 				    AD5758_DCDC_CONFIG1_DCDC_MODE_MODE(mode));
@@ -442,6 +504,7 @@ static int ad5758_set_out_range(struct ad5758_state *st, int range)
 					     AD5758_CAL_MEM_UNREFRESHED_MSK);
 }
 
+<<<<<<< HEAD
 static int ad5758_fault_prot_switch_en(struct ad5758_state *st, bool enable)
 {
 	int ret;
@@ -459,6 +522,8 @@ static int ad5758_fault_prot_switch_en(struct ad5758_state *st, bool enable)
 					     AD5758_DCDC_CONFIG2_BUSY_3WI_MSK);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ad5758_internal_buffers_en(struct ad5758_state *st, bool enable)
 {
 	int ret;
@@ -474,6 +539,24 @@ static int ad5758_internal_buffers_en(struct ad5758_state *st, bool enable)
 					     AD5758_CAL_MEM_UNREFRESHED_MSK);
 }
 
+<<<<<<< HEAD
+=======
+static int ad5758_reset(struct ad5758_state *st)
+{
+	if (st->gpio_reset) {
+		gpiod_set_value(st->gpio_reset, 0);
+		usleep_range(100, 1000);
+		gpiod_set_value(st->gpio_reset, 1);
+		usleep_range(100, 1000);
+
+		return 0;
+	} else {
+		/* Perform a software reset */
+		return ad5758_soft_reset(st);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int ad5758_reg_access(struct iio_dev *indio_dev,
 			     unsigned int reg,
 			     unsigned int writeval,
@@ -558,7 +641,11 @@ static ssize_t ad5758_read_powerdown(struct iio_dev *indio_dev,
 {
 	struct ad5758_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", st->pwr_down);
+=======
+	return sysfs_emit(buf, "%d\n", st->pwr_down);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ad5758_write_powerdown(struct iio_dev *indio_dev,
@@ -568,8 +655,13 @@ static ssize_t ad5758_write_powerdown(struct iio_dev *indio_dev,
 {
 	struct ad5758_state *st = iio_priv(indio_dev);
 	bool pwr_down;
+<<<<<<< HEAD
 	unsigned int dcdc_config1_mode, dc_dc_mode, dac_config_mode, val;
 	unsigned long int dcdc_config1_msk, dac_config_msk;
+=======
+	unsigned int dac_config_mode, val;
+	unsigned long int dac_config_msk;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = kstrtobool(buf, &pwr_down);
@@ -577,6 +669,7 @@ static ssize_t ad5758_write_powerdown(struct iio_dev *indio_dev,
 		return ret;
 
 	mutex_lock(&st->lock);
+<<<<<<< HEAD
 	if (pwr_down) {
 		dc_dc_mode = AD5758_DCDC_MODE_POWER_OFF;
 		val = 0;
@@ -595,6 +688,12 @@ static ssize_t ad5758_write_powerdown(struct iio_dev *indio_dev,
 				    dcdc_config1_mode);
 	if (ret < 0)
 		goto err_unlock;
+=======
+	if (pwr_down)
+		val = 0;
+	else
+		val = 1;
+>>>>>>> upstream/android-13
 
 	dac_config_mode = AD5758_DAC_CONFIG_OUT_EN_MODE(val) |
 			  AD5758_DAC_CONFIG_INT_EN_MODE(val);
@@ -768,13 +867,26 @@ static int ad5758_init(struct ad5758_state *st)
 {
 	int regval, ret;
 
+<<<<<<< HEAD
+=======
+	st->gpio_reset = devm_gpiod_get_optional(&st->spi->dev, "reset",
+						 GPIOD_OUT_HIGH);
+	if (IS_ERR(st->gpio_reset))
+		return PTR_ERR(st->gpio_reset);
+
+>>>>>>> upstream/android-13
 	/* Disable CRC checks */
 	ret = ad5758_crc_disable(st);
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	/* Perform a software reset */
 	ret = ad5758_soft_reset(st);
+=======
+	/* Perform a reset */
+	ret = ad5758_reset(st);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -819,11 +931,14 @@ static int ad5758_init(struct ad5758_state *st)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	/* Enable the VIOUT fault protection switch (FPS is closed) */
 	ret = ad5758_fault_prot_switch_en(st, 1);
 	if (ret < 0)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	/* Power up the DAC and internal (INT) amplifiers */
 	ret = ad5758_internal_buffers_en(st, 1);
 	if (ret < 0)
@@ -852,7 +967,10 @@ static int ad5758_probe(struct spi_device *spi)
 
 	mutex_init(&st->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->info = &ad5758_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -882,9 +1000,22 @@ static const struct spi_device_id ad5758_id[] = {
 };
 MODULE_DEVICE_TABLE(spi, ad5758_id);
 
+<<<<<<< HEAD
 static struct spi_driver ad5758_driver = {
 	.driver = {
 		.name = KBUILD_MODNAME,
+=======
+static const struct of_device_id ad5758_of_match[] = {
+        { .compatible = "adi,ad5758" },
+        { },
+};
+MODULE_DEVICE_TABLE(of, ad5758_of_match);
+
+static struct spi_driver ad5758_driver = {
+	.driver = {
+		.name = KBUILD_MODNAME,
+		.of_match_table = ad5758_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = ad5758_probe,
 	.id_table = ad5758_id,

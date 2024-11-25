@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Linaro Ltd.
  * Copyright (c) 2015 Hisilicon Limited.
@@ -7,6 +8,12 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2015 Linaro Ltd.
+ * Copyright (c) 2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include "hisi_sas.h"
@@ -406,8 +413,11 @@ enum {
 	TRANS_RX_SMP_RESP_TIMEOUT_ERR, /* 0x31a */
 };
 
+<<<<<<< HEAD
 #define HISI_SAS_COMMAND_ENTRIES_V1_HW 8192
 
+=======
+>>>>>>> upstream/android-13
 #define HISI_SAS_PHY_MAX_INT_NR (HISI_SAS_PHY_INT_NR * HISI_SAS_MAX_PHYS)
 #define HISI_SAS_CQ_MAX_INT_NR (HISI_SAS_MAX_QUEUES)
 #define HISI_SAS_FATAL_INT_NR (2)
@@ -423,6 +433,7 @@ static u32 hisi_sas_read32(struct hisi_hba *hisi_hba, u32 off)
 	return readl(regs);
 }
 
+<<<<<<< HEAD
 static u32 hisi_sas_read32_relaxed(struct hisi_hba *hisi_hba, u32 off)
 {
 	void __iomem *regs = hisi_hba->regs + off;
@@ -430,6 +441,8 @@ static u32 hisi_sas_read32_relaxed(struct hisi_hba *hisi_hba, u32 off)
 	return readl_relaxed(regs);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void hisi_sas_write32(struct hisi_hba *hisi_hba,
 				    u32 off, u32 val)
 {
@@ -510,6 +523,10 @@ static void setup_itct_v1_hw(struct hisi_hba *hisi_hba,
 	struct hisi_sas_itct *itct = &hisi_hba->itct[device_id];
 	struct asd_sas_port *sas_port = device->port;
 	struct hisi_sas_port *port = to_hisi_sas_port(sas_port);
+<<<<<<< HEAD
+=======
+	u64 sas_addr;
+>>>>>>> upstream/android-13
 
 	memset(itct, 0, sizeof(*itct));
 
@@ -534,8 +551,13 @@ static void setup_itct_v1_hw(struct hisi_hba *hisi_hba,
 	itct->qw0 = cpu_to_le64(qw0);
 
 	/* qw1 */
+<<<<<<< HEAD
 	memcpy(&itct->sas_addr, device->sas_addr, SAS_ADDR_SIZE);
 	itct->sas_addr = __swab64(itct->sas_addr);
+=======
+	memcpy(&sas_addr, device->sas_addr, SAS_ADDR_SIZE);
+	itct->sas_addr = cpu_to_le64(__swab64(sas_addr));
+>>>>>>> upstream/android-13
 
 	/* qw2 */
 	itct->qw2 = cpu_to_le64((500ULL << ITCT_HDR_IT_NEXUS_LOSS_TL_OFF) |
@@ -544,8 +566,13 @@ static void setup_itct_v1_hw(struct hisi_hba *hisi_hba,
 				(0xff00ULL << ITCT_HDR_REJ_OPEN_TL_OFF));
 }
 
+<<<<<<< HEAD
 static void clear_itct_v1_hw(struct hisi_hba *hisi_hba,
 			      struct hisi_sas_device *sas_dev)
+=======
+static int clear_itct_v1_hw(struct hisi_hba *hisi_hba,
+			    struct hisi_sas_device *sas_dev)
+>>>>>>> upstream/android-13
 {
 	u64 dev_id = sas_dev->device_id;
 	struct hisi_sas_itct *itct = &hisi_hba->itct[dev_id];
@@ -561,9 +588,17 @@ static void clear_itct_v1_hw(struct hisi_hba *hisi_hba,
 	reg_val &= ~CFG_AGING_TIME_ITCT_REL_MSK;
 	hisi_sas_write32(hisi_hba, CFG_AGING_TIME, reg_val);
 
+<<<<<<< HEAD
 	qw0 = cpu_to_le64(itct->qw0);
 	qw0 &= ~ITCT_HDR_VALID_MSK;
 	itct->qw0 = cpu_to_le64(qw0);
+=======
+	qw0 = le64_to_cpu(itct->qw0);
+	qw0 &= ~ITCT_HDR_VALID_MSK;
+	itct->qw0 = cpu_to_le64(qw0);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int reset_hw_v1_hw(struct hisi_hba *hisi_hba)
@@ -763,7 +798,11 @@ static int hw_init_v1_hw(struct hisi_hba *hisi_hba)
 
 	rc = reset_hw_v1_hw(hisi_hba);
 	if (rc) {
+<<<<<<< HEAD
 		dev_err(dev, "hisi_sas_reset_hw failed, rc=%d", rc);
+=======
+		dev_err(dev, "hisi_sas_reset_hw failed, rc=%d\n", rc);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -797,6 +836,7 @@ static void start_phy_v1_hw(struct hisi_hba *hisi_hba, int phy_no)
 	enable_phy_v1_hw(hisi_hba, phy_no);
 }
 
+<<<<<<< HEAD
 static void stop_phy_v1_hw(struct hisi_hba *hisi_hba, int phy_no)
 {
 	disable_phy_v1_hw(hisi_hba, phy_no);
@@ -807,6 +847,13 @@ static void phy_hard_reset_v1_hw(struct hisi_hba *hisi_hba, int phy_no)
 	stop_phy_v1_hw(hisi_hba, phy_no);
 	msleep(100);
 	start_phy_v1_hw(hisi_hba, phy_no);
+=======
+static void phy_hard_reset_v1_hw(struct hisi_hba *hisi_hba, int phy_no)
+{
+	hisi_sas_phy_enable(hisi_hba, phy_no, 0);
+	msleep(100);
+	hisi_sas_phy_enable(hisi_hba, phy_no, 1);
+>>>>>>> upstream/android-13
 }
 
 static void start_phys_v1_hw(struct timer_list *t)
@@ -816,7 +863,11 @@ static void start_phys_v1_hw(struct timer_list *t)
 
 	for (i = 0; i < hisi_hba->n_phy; i++) {
 		hisi_sas_phy_write32(hisi_hba, i, CHL_INT2_MSK, 0x12a);
+<<<<<<< HEAD
 		start_phy_v1_hw(hisi_hba, i);
+=======
+		hisi_sas_phy_enable(hisi_hba, i, 1);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -875,6 +926,7 @@ static int get_wideport_bitmap_v1_hw(struct hisi_hba *hisi_hba, int port_id)
 	return bitmap;
 }
 
+<<<<<<< HEAD
 /*
  * The callpath to this function and upto writing the write
  * queue pointer should be safe from interruption.
@@ -899,6 +951,8 @@ get_free_slot_v1_hw(struct hisi_hba *hisi_hba, struct hisi_sas_dq *dq)
 	return w;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* DQ lock must be taken here */
 static void start_delivery_v1_hw(struct hisi_sas_dq *dq)
 {
@@ -1100,7 +1154,11 @@ static void slot_err_v1_hw(struct hisi_hba *hisi_hba,
 	case SAS_PROTOCOL_SSP:
 	{
 		int error = -1;
+<<<<<<< HEAD
 		u32 dma_err_type = cpu_to_le32(err_record->dma_err_type);
+=======
+		u32 dma_err_type = le32_to_cpu(err_record->dma_err_type);
+>>>>>>> upstream/android-13
 		u32 dma_tx_err_type = ((dma_err_type &
 					ERR_HDR_DMA_TX_ERR_TYPE_MSK)) >>
 					ERR_HDR_DMA_TX_ERR_TYPE_OFF;
@@ -1108,9 +1166,15 @@ static void slot_err_v1_hw(struct hisi_hba *hisi_hba,
 					ERR_HDR_DMA_RX_ERR_TYPE_MSK)) >>
 					ERR_HDR_DMA_RX_ERR_TYPE_OFF;
 		u32 trans_tx_fail_type =
+<<<<<<< HEAD
 				cpu_to_le32(err_record->trans_tx_fail_type);
 		u32 trans_rx_fail_type =
 				cpu_to_le32(err_record->trans_rx_fail_type);
+=======
+				le32_to_cpu(err_record->trans_tx_fail_type);
+		u32 trans_rx_fail_type =
+				le32_to_cpu(err_record->trans_rx_fail_type);
+>>>>>>> upstream/android-13
 
 		if (dma_tx_err_type) {
 			/* dma tx err */
@@ -1192,21 +1256,33 @@ static void slot_err_v1_hw(struct hisi_hba *hisi_hba,
 		}
 		default:
 		{
+<<<<<<< HEAD
 			ts->stat = SAM_STAT_CHECK_CONDITION;
+=======
+			ts->stat = SAS_SAM_STAT_CHECK_CONDITION;
+>>>>>>> upstream/android-13
 			break;
 		}
 		}
 	}
 		break;
 	case SAS_PROTOCOL_SMP:
+<<<<<<< HEAD
 		ts->stat = SAM_STAT_CHECK_CONDITION;
+=======
+		ts->stat = SAS_SAM_STAT_CHECK_CONDITION;
+>>>>>>> upstream/android-13
 		break;
 
 	case SAS_PROTOCOL_SATA:
 	case SAS_PROTOCOL_STP:
 	case SAS_PROTOCOL_SATA | SAS_PROTOCOL_STP:
 	{
+<<<<<<< HEAD
 		dev_err(dev, "slot err: SATA/STP not supported");
+=======
+		dev_err(dev, "slot err: SATA/STP not supported\n");
+>>>>>>> upstream/android-13
 	}
 		break;
 	default:
@@ -1215,15 +1291,23 @@ static void slot_err_v1_hw(struct hisi_hba *hisi_hba,
 
 }
 
+<<<<<<< HEAD
 static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 			       struct hisi_sas_slot *slot)
+=======
+static void slot_complete_v1_hw(struct hisi_hba *hisi_hba,
+				struct hisi_sas_slot *slot)
+>>>>>>> upstream/android-13
 {
 	struct sas_task *task = slot->task;
 	struct hisi_sas_device *sas_dev;
 	struct device *dev = hisi_hba->dev;
 	struct task_status_struct *ts;
 	struct domain_device *device;
+<<<<<<< HEAD
 	enum exec_status sts;
+=======
+>>>>>>> upstream/android-13
 	struct hisi_sas_complete_v1_hdr *complete_queue =
 			hisi_hba->complete_hdr[slot->cmplt_queue];
 	struct hisi_sas_complete_v1_hdr *complete_hdr;
@@ -1234,7 +1318,11 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 	cmplt_hdr_data = le32_to_cpu(complete_hdr->data);
 
 	if (unlikely(!task || !task->lldd_task || !task->dev))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	ts = &task->task_status;
 	device = task->dev;
@@ -1259,6 +1347,7 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 		u32 info_reg = hisi_sas_read32(hisi_hba, HGC_INVLD_DQE_INFO);
 
 		if (info_reg & HGC_INVLD_DQE_INFO_DQ_MSK)
+<<<<<<< HEAD
 			dev_err(dev, "slot complete: [%d:%d] has dq IPTT err",
 				slot->cmplt_queue, slot->cmplt_queue_slot);
 
@@ -1288,6 +1377,37 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 
 		if (info_reg & HGC_INVLD_DQE_INFO_OFL_MSK)
 			dev_err(dev, "slot complete: [%d:%d] has dq order frame len err",
+=======
+			dev_err(dev, "slot complete: [%d:%d] has dq IPTT err\n",
+				slot->cmplt_queue, slot->cmplt_queue_slot);
+
+		if (info_reg & HGC_INVLD_DQE_INFO_TYPE_MSK)
+			dev_err(dev, "slot complete: [%d:%d] has dq type err\n",
+				slot->cmplt_queue, slot->cmplt_queue_slot);
+
+		if (info_reg & HGC_INVLD_DQE_INFO_FORCE_MSK)
+			dev_err(dev, "slot complete: [%d:%d] has dq force phy err\n",
+				slot->cmplt_queue, slot->cmplt_queue_slot);
+
+		if (info_reg & HGC_INVLD_DQE_INFO_PHY_MSK)
+			dev_err(dev, "slot complete: [%d:%d] has dq phy id err\n",
+				slot->cmplt_queue, slot->cmplt_queue_slot);
+
+		if (info_reg & HGC_INVLD_DQE_INFO_ABORT_MSK)
+			dev_err(dev, "slot complete: [%d:%d] has dq abort flag err\n",
+				slot->cmplt_queue, slot->cmplt_queue_slot);
+
+		if (info_reg & HGC_INVLD_DQE_INFO_IPTT_OF_MSK)
+			dev_err(dev, "slot complete: [%d:%d] has dq IPTT or ICT err\n",
+				slot->cmplt_queue, slot->cmplt_queue_slot);
+
+		if (info_reg & HGC_INVLD_DQE_INFO_SSP_ERR_MSK)
+			dev_err(dev, "slot complete: [%d:%d] has dq SSP frame type err\n",
+				slot->cmplt_queue, slot->cmplt_queue_slot);
+
+		if (info_reg & HGC_INVLD_DQE_INFO_OFL_MSK)
+			dev_err(dev, "slot complete: [%d:%d] has dq order frame len err\n",
+>>>>>>> upstream/android-13
 				slot->cmplt_queue, slot->cmplt_queue_slot);
 
 		ts->stat = SAS_OPEN_REJECT;
@@ -1299,8 +1419,15 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 		!(cmplt_hdr_data & CMPLT_HDR_RSPNS_XFRD_MSK)) {
 
 		slot_err_v1_hw(hisi_hba, task, slot);
+<<<<<<< HEAD
 		if (unlikely(slot->abort))
 			return ts->stat;
+=======
+		if (unlikely(slot->abort)) {
+			sas_task_abort(task);
+			return;
+		}
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -1317,6 +1444,7 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 	}
 	case SAS_PROTOCOL_SMP:
 	{
+<<<<<<< HEAD
 		void *to;
 		struct scatterlist *sg_resp = &task->smp_task.smp_resp;
 
@@ -1325,23 +1453,42 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 
 		dma_unmap_sg(dev, &task->smp_task.smp_resp, 1,
 			     DMA_FROM_DEVICE);
+=======
+		struct scatterlist *sg_resp = &task->smp_task.smp_resp;
+		void *to = page_address(sg_page(sg_resp));
+
+		ts->stat = SAS_SAM_STAT_GOOD;
+
+>>>>>>> upstream/android-13
 		dma_unmap_sg(dev, &task->smp_task.smp_req, 1,
 			     DMA_TO_DEVICE);
 		memcpy(to + sg_resp->offset,
 		       hisi_sas_status_buf_addr_mem(slot) +
 		       sizeof(struct hisi_sas_err_record),
+<<<<<<< HEAD
 		       sg_dma_len(sg_resp));
 		kunmap_atomic(to);
+=======
+		       sg_resp->length);
+>>>>>>> upstream/android-13
 		break;
 	}
 	case SAS_PROTOCOL_SATA:
 	case SAS_PROTOCOL_STP:
 	case SAS_PROTOCOL_SATA | SAS_PROTOCOL_STP:
+<<<<<<< HEAD
 		dev_err(dev, "slot complete: SATA/STP not supported");
 		break;
 
 	default:
 		ts->stat = SAM_STAT_CHECK_CONDITION;
+=======
+		dev_err(dev, "slot complete: SATA/STP not supported\n");
+		break;
+
+	default:
+		ts->stat = SAS_SAM_STAT_CHECK_CONDITION;
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -1353,12 +1500,18 @@ static int slot_complete_v1_hw(struct hisi_hba *hisi_hba,
 
 out:
 	hisi_sas_slot_task_free(hisi_hba, task, slot);
+<<<<<<< HEAD
 	sts = ts->stat;
 
 	if (task->task_done)
 		task->task_done(task);
 
 	return sts;
+=======
+
+	if (task->task_done)
+		task->task_done(task);
+>>>>>>> upstream/android-13
 }
 
 /* Interrupts */
@@ -1454,7 +1607,10 @@ static irqreturn_t int_bcast_v1_hw(int irq, void *p)
 	struct hisi_sas_phy *phy = p;
 	struct hisi_hba *hisi_hba = phy->hisi_hba;
 	struct asd_sas_phy *sas_phy = &phy->sas_phy;
+<<<<<<< HEAD
 	struct sas_ha_struct *sha = &hisi_hba->sha;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = hisi_hba->dev;
 	int phy_no = sas_phy->id;
 	u32 irq_value;
@@ -1463,14 +1619,23 @@ static irqreturn_t int_bcast_v1_hw(int irq, void *p)
 	irq_value = hisi_sas_phy_read32(hisi_hba, phy_no, CHL_INT2);
 
 	if (!(irq_value & CHL_INT2_SL_RX_BC_ACK_MSK)) {
+<<<<<<< HEAD
 		dev_err(dev, "bcast: irq_value = %x not set enable bit",
+=======
+		dev_err(dev, "bcast: irq_value = %x not set enable bit\n",
+>>>>>>> upstream/android-13
 			irq_value);
 		res = IRQ_NONE;
 		goto end;
 	}
 
 	if (!test_bit(HISI_SAS_RESET_BIT, &hisi_hba->flags))
+<<<<<<< HEAD
 		sha->notify_port_event(sas_phy, PORTE_BROADCAST_RCVD);
+=======
+		sas_notify_port_event(sas_phy, PORTE_BROADCAST_RCVD,
+				      GFP_ATOMIC);
+>>>>>>> upstream/android-13
 
 end:
 	hisi_sas_phy_write32(hisi_hba, phy_no, CHL_INT2,
@@ -1499,7 +1664,12 @@ static irqreturn_t int_abnormal_v1_hw(int irq, void *p)
 		u32 phy_state = hisi_sas_read32(hisi_hba, PHY_STATE);
 
 		hisi_sas_phy_down(hisi_hba, phy_no,
+<<<<<<< HEAD
 				  (phy_state & 1 << phy_no) ? 1 : 0);
+=======
+				  (phy_state & 1 << phy_no) ? 1 : 0,
+				  GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	}
 
 	if (irq_value & CHL_INT0_ID_TIMEOUT_MSK)
@@ -1543,11 +1713,17 @@ static irqreturn_t cq_interrupt_v1_hw(int irq, void *p)
 	struct hisi_sas_complete_v1_hdr *complete_queue =
 			(struct hisi_sas_complete_v1_hdr *)
 			hisi_hba->complete_hdr[queue];
+<<<<<<< HEAD
 	u32 irq_value, rd_point = cq->rd_point, wr_point;
 
 	spin_lock(&hisi_hba->lock);
 	irq_value = hisi_sas_read32(hisi_hba, OQ_INT_SRC);
 
+=======
+	u32 rd_point = cq->rd_point, wr_point;
+
+	spin_lock(&hisi_hba->lock);
+>>>>>>> upstream/android-13
 	hisi_sas_write32(hisi_hba, OQ_INT_SRC, 1 << queue);
 	wr_point = hisi_sas_read32(hisi_hba,
 			COMPL_Q_0_WR_PTR + (0x14 * queue));
@@ -1558,7 +1734,11 @@ static irqreturn_t cq_interrupt_v1_hw(int irq, void *p)
 		u32 cmplt_hdr_data;
 
 		complete_hdr = &complete_queue[rd_point];
+<<<<<<< HEAD
 		cmplt_hdr_data = cpu_to_le32(complete_hdr->data);
+=======
+		cmplt_hdr_data = le32_to_cpu(complete_hdr->data);
+>>>>>>> upstream/android-13
 		idx = (cmplt_hdr_data & CMPLT_HDR_IPTT_MSK) >>
 		      CMPLT_HDR_IPTT_OFF;
 		slot = &hisi_hba->slot_info[idx];
@@ -1693,20 +1873,33 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
 		idx = i * HISI_SAS_PHY_INT_NR;
 		for (j = 0; j < HISI_SAS_PHY_INT_NR; j++, idx++) {
 			irq = platform_get_irq(pdev, idx);
+<<<<<<< HEAD
 			if (!irq) {
 				dev_err(dev,
 					"irq init: fail map phy interrupt %d\n",
 					idx);
 				return -ENOENT;
+=======
+			if (irq < 0) {
+				dev_err(dev, "irq init: fail map phy interrupt %d\n",
+					idx);
+				return irq;
+>>>>>>> upstream/android-13
 			}
 
 			rc = devm_request_irq(dev, irq, phy_interrupts[j], 0,
 					      DRV_NAME " phy", phy);
 			if (rc) {
+<<<<<<< HEAD
 				dev_err(dev, "irq init: could not request "
 					"phy interrupt %d, rc=%d\n",
 					irq, rc);
 				return -ENOENT;
+=======
+				dev_err(dev, "irq init: could not request phy interrupt %d, rc=%d\n",
+					irq, rc);
+				return rc;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -1714,10 +1907,17 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
 	idx = hisi_hba->n_phy * HISI_SAS_PHY_INT_NR;
 	for (i = 0; i < hisi_hba->queue_count; i++, idx++) {
 		irq = platform_get_irq(pdev, idx);
+<<<<<<< HEAD
 		if (!irq) {
 			dev_err(dev, "irq init: could not map cq interrupt %d\n",
 				idx);
 			return -ENOENT;
+=======
+		if (irq < 0) {
+			dev_err(dev, "irq init: could not map cq interrupt %d\n",
+				idx);
+			return irq;
+>>>>>>> upstream/android-13
 		}
 
 		rc = devm_request_irq(dev, irq, cq_interrupt_v1_hw, 0,
@@ -1725,22 +1925,34 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
 		if (rc) {
 			dev_err(dev, "irq init: could not request cq interrupt %d, rc=%d\n",
 				irq, rc);
+<<<<<<< HEAD
 			return -ENOENT;
+=======
+			return rc;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	idx = (hisi_hba->n_phy * HISI_SAS_PHY_INT_NR) + hisi_hba->queue_count;
 	for (i = 0; i < HISI_SAS_FATAL_INT_NR; i++, idx++) {
 		irq = platform_get_irq(pdev, idx);
+<<<<<<< HEAD
 		if (!irq) {
 			dev_err(dev, "irq init: could not map fatal interrupt %d\n",
 				idx);
 			return -ENOENT;
+=======
+		if (irq < 0) {
+			dev_err(dev, "irq init: could not map fatal interrupt %d\n",
+				idx);
+			return irq;
+>>>>>>> upstream/android-13
 		}
 
 		rc = devm_request_irq(dev, irq, fatal_interrupts[i], 0,
 				      DRV_NAME " fatal", hisi_hba);
 		if (rc) {
+<<<<<<< HEAD
 			dev_err(dev,
 				"irq init: could not request fatal interrupt %d, rc=%d\n",
 				irq, rc);
@@ -1748,6 +1960,16 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
 		}
 	}
 
+=======
+			dev_err(dev, "irq init: could not request fatal interrupt %d, rc=%d\n",
+				irq, rc);
+			return rc;
+		}
+	}
+
+	hisi_hba->cq_nvecs = hisi_hba->queue_count;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1797,16 +2019,31 @@ static int hisi_sas_v1_init(struct hisi_hba *hisi_hba)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct scsi_host_template sht_v1_hw = {
 	.name			= DRV_NAME,
 	.module			= THIS_MODULE,
 	.queuecommand		= sas_queuecommand,
+=======
+static struct device_attribute *host_attrs_v1_hw[] = {
+	&dev_attr_phy_event_threshold,
+	NULL
+};
+
+static struct scsi_host_template sht_v1_hw = {
+	.name			= DRV_NAME,
+	.proc_name		= DRV_NAME,
+	.module			= THIS_MODULE,
+	.queuecommand		= sas_queuecommand,
+	.dma_need_drain		= ata_scsi_dma_need_drain,
+>>>>>>> upstream/android-13
 	.target_alloc		= sas_target_alloc,
 	.slave_configure	= hisi_sas_slave_configure,
 	.scan_finished		= hisi_sas_scan_finished,
 	.scan_start		= hisi_sas_scan_start,
 	.change_queue_depth	= sas_change_queue_depth,
 	.bios_param		= sas_bios_param,
+<<<<<<< HEAD
 	.can_queue		= 1,
 	.this_id		= -1,
 	.sg_tablesize		= SG_ALL,
@@ -1817,6 +2054,21 @@ static struct scsi_host_template sht_v1_hw = {
 	.target_destroy		= sas_target_destroy,
 	.ioctl			= sas_ioctl,
 	.shost_attrs		= host_attrs,
+=======
+	.this_id		= -1,
+	.sg_tablesize		= HISI_SAS_SGE_PAGE_CNT,
+	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+	.eh_device_reset_handler = sas_eh_device_reset_handler,
+	.eh_target_reset_handler = sas_eh_target_reset_handler,
+	.slave_alloc		= sas_slave_alloc,
+	.target_destroy		= sas_target_destroy,
+	.ioctl			= sas_ioctl,
+#ifdef CONFIG_COMPAT
+	.compat_ioctl		= sas_ioctl,
+#endif
+	.shost_attrs		= host_attrs_v1_hw,
+	.host_reset             = hisi_sas_host_reset,
+>>>>>>> upstream/android-13
 };
 
 static const struct hisi_sas_hw hisi_sas_v1_hw = {
@@ -1826,9 +2078,13 @@ static const struct hisi_sas_hw hisi_sas_v1_hw = {
 	.clear_itct = clear_itct_v1_hw,
 	.prep_smp = prep_smp_v1_hw,
 	.prep_ssp = prep_ssp_v1_hw,
+<<<<<<< HEAD
 	.get_free_slot = get_free_slot_v1_hw,
 	.start_delivery = start_delivery_v1_hw,
 	.slot_complete = slot_complete_v1_hw,
+=======
+	.start_delivery = start_delivery_v1_hw,
+>>>>>>> upstream/android-13
 	.phys_init = phys_init_v1_hw,
 	.phy_start = start_phy_v1_hw,
 	.phy_disable = disable_phy_v1_hw,
@@ -1836,7 +2092,10 @@ static const struct hisi_sas_hw hisi_sas_v1_hw = {
 	.phy_set_linkrate = phy_set_linkrate_v1_hw,
 	.phy_get_max_linkrate = phy_get_max_linkrate_v1_hw,
 	.get_wideport_bitmap = get_wideport_bitmap_v1_hw,
+<<<<<<< HEAD
 	.max_command_entries = HISI_SAS_COMMAND_ENTRIES_V1_HW,
+=======
+>>>>>>> upstream/android-13
 	.complete_hdr_size = sizeof(struct hisi_sas_complete_v1_hdr),
 	.sht = &sht_v1_hw,
 };

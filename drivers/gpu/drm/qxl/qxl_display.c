@@ -24,10 +24,23 @@
  */
 
 #include <linux/crc32.h>
+<<<<<<< HEAD
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_atomic.h>
+=======
+#include <linux/delay.h>
+#include <linux/dma-buf-map.h>
+
+#include <drm/drm_drv.h>
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "qxl_drv.h"
 #include "qxl_object.h"
@@ -37,7 +50,12 @@ static bool qxl_head_enabled(struct qxl_head *head)
 	return head->width && head->height;
 }
 
+<<<<<<< HEAD
 static void qxl_alloc_client_monitors_config(struct qxl_device *qdev, unsigned count)
+=======
+static int qxl_alloc_client_monitors_config(struct qxl_device *qdev,
+		unsigned int count)
+>>>>>>> upstream/android-13
 {
 	if (qdev->client_monitors_config &&
 	    count > qdev->client_monitors_config->count) {
@@ -46,18 +64,32 @@ static void qxl_alloc_client_monitors_config(struct qxl_device *qdev, unsigned c
 	}
 	if (!qdev->client_monitors_config) {
 		qdev->client_monitors_config = kzalloc(
+<<<<<<< HEAD
 				sizeof(struct qxl_monitors_config) +
 				sizeof(struct qxl_head) * count, GFP_KERNEL);
 		if (!qdev->client_monitors_config)
 			return;
 	}
 	qdev->client_monitors_config->count = count;
+=======
+				struct_size(qdev->client_monitors_config,
+				heads, count), GFP_KERNEL);
+		if (!qdev->client_monitors_config)
+			return -ENOMEM;
+	}
+	qdev->client_monitors_config->count = count;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 enum {
 	MONITORS_CONFIG_MODIFIED,
 	MONITORS_CONFIG_UNCHANGED,
 	MONITORS_CONFIG_BAD_CRC,
+<<<<<<< HEAD
+=======
+	MONITORS_CONFIG_ERROR,
+>>>>>>> upstream/android-13
 };
 
 static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
@@ -76,10 +108,17 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
 		DRM_DEBUG_KMS("no client monitors configured\n");
 		return status;
 	}
+<<<<<<< HEAD
 	if (num_monitors > qdev->monitors_config->max_allowed) {
 		DRM_DEBUG_KMS("client monitors list will be truncated: %d < %d\n",
 			      qdev->monitors_config->max_allowed, num_monitors);
 		num_monitors = qdev->monitors_config->max_allowed;
+=======
+	if (num_monitors > qxl_num_crtc) {
+		DRM_DEBUG_KMS("client monitors list will be truncated: %d < %d\n",
+			      qxl_num_crtc, num_monitors);
+		num_monitors = qxl_num_crtc;
+>>>>>>> upstream/android-13
 	} else {
 		num_monitors = qdev->rom->client_monitors_config.count;
 	}
@@ -87,10 +126,19 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
 	      && (num_monitors != qdev->client_monitors_config->count)) {
 		status = MONITORS_CONFIG_MODIFIED;
 	}
+<<<<<<< HEAD
 	qxl_alloc_client_monitors_config(qdev, num_monitors);
 	/* we copy max from the client but it isn't used */
 	qdev->client_monitors_config->max_allowed =
 				qdev->monitors_config->max_allowed;
+=======
+	if (qxl_alloc_client_monitors_config(qdev, num_monitors)) {
+		status = MONITORS_CONFIG_ERROR;
+		return status;
+	}
+	/* we copy max from the client but it isn't used */
+	qdev->client_monitors_config->max_allowed = qxl_num_crtc;
+>>>>>>> upstream/android-13
 	for (i = 0 ; i < qdev->client_monitors_config->count ; ++i) {
 		struct qxl_urect *c_rect =
 			&qdev->rom->client_monitors_config.heads[i];
@@ -153,7 +201,12 @@ static void qxl_update_offset_props(struct qxl_device *qdev)
 void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
 {
 	struct drm_device *dev = &qdev->ddev;
+<<<<<<< HEAD
 	int status, retries;
+=======
+	struct drm_modeset_acquire_ctx ctx;
+	int status, retries, ret;
+>>>>>>> upstream/android-13
 
 	for (retries = 0; retries < 10; retries++) {
 		status = qxl_display_copy_rom_client_monitors_config(qdev);
@@ -161,6 +214,13 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
 			break;
 		udelay(5);
 	}
+<<<<<<< HEAD
+=======
+	if (status == MONITORS_CONFIG_ERROR) {
+		DRM_DEBUG_KMS("ignoring client monitors config: error");
+		return;
+	}
+>>>>>>> upstream/android-13
 	if (status == MONITORS_CONFIG_BAD_CRC) {
 		DRM_DEBUG_KMS("ignoring client monitors config: bad crc");
 		return;
@@ -170,9 +230,15 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
 		return;
 	}
 
+<<<<<<< HEAD
 	drm_modeset_lock_all(dev);
 	qxl_update_offset_props(qdev);
 	drm_modeset_unlock_all(dev);
+=======
+	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
+	qxl_update_offset_props(qdev);
+	DRM_MODESET_LOCK_ALL_END(dev, ctx, ret);
+>>>>>>> upstream/android-13
 	if (!drm_helper_hpd_irq_event(dev)) {
 		/* notify that the monitor configuration changed, to
 		   adjust at the arbitrary resolution */
@@ -180,6 +246,7 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
 	}
 }
 
+<<<<<<< HEAD
 static int qxl_add_monitors_config_modes(struct drm_connector *connector,
                                          unsigned *pwidth,
                                          unsigned *pheight)
@@ -189,11 +256,69 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
 	struct qxl_output *output = drm_connector_to_qxl_output(connector);
 	int h = output->index;
 	struct drm_display_mode *mode = NULL;
+=======
+static int qxl_check_mode(struct qxl_device *qdev,
+			  unsigned int width,
+			  unsigned int height)
+{
+	unsigned int stride;
+	unsigned int size;
+
+	if (check_mul_overflow(width, 4u, &stride))
+		return -EINVAL;
+	if (check_mul_overflow(stride, height, &size))
+		return -EINVAL;
+	if (size > qdev->vram_size)
+		return -ENOMEM;
+	return 0;
+}
+
+static int qxl_check_framebuffer(struct qxl_device *qdev,
+				 struct qxl_bo *bo)
+{
+	return qxl_check_mode(qdev, bo->surf.width, bo->surf.height);
+}
+
+static int qxl_add_mode(struct drm_connector *connector,
+			unsigned int width,
+			unsigned int height,
+			bool preferred)
+{
+	struct drm_device *dev = connector->dev;
+	struct qxl_device *qdev = to_qxl(dev);
+	struct drm_display_mode *mode = NULL;
+	int rc;
+
+	rc = qxl_check_mode(qdev, width, height);
+	if (rc != 0)
+		return 0;
+
+	mode = drm_cvt_mode(dev, width, height, 60, false, false, false);
+	if (preferred)
+		mode->type |= DRM_MODE_TYPE_PREFERRED;
+	mode->hdisplay = width;
+	mode->vdisplay = height;
+	drm_mode_set_name(mode);
+	drm_mode_probed_add(connector, mode);
+	return 1;
+}
+
+static int qxl_add_monitors_config_modes(struct drm_connector *connector)
+{
+	struct drm_device *dev = connector->dev;
+	struct qxl_device *qdev = to_qxl(dev);
+	struct qxl_output *output = drm_connector_to_qxl_output(connector);
+	int h = output->index;
+>>>>>>> upstream/android-13
 	struct qxl_head *head;
 
 	if (!qdev->monitors_config)
 		return 0;
+<<<<<<< HEAD
 	if (h >= qdev->monitors_config->max_allowed)
+=======
+	if (h >= qxl_num_crtc)
+>>>>>>> upstream/android-13
 		return 0;
 	if (!qdev->client_monitors_config)
 		return 0;
@@ -203,6 +328,7 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
 	head = &qdev->client_monitors_config->heads[h];
 	DRM_DEBUG_KMS("head %d is %dx%d\n", h, head->width, head->height);
 
+<<<<<<< HEAD
 	mode = drm_cvt_mode(dev, head->width, head->height, 60, false, false,
 			    false);
 	mode->type |= DRM_MODE_TYPE_PREFERRED;
@@ -216,11 +342,15 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
 	qdev->monitors_config_width = mode->hdisplay;
 	qdev->monitors_config_height = mode->vdisplay;
 	return 1;
+=======
+	return qxl_add_mode(connector, head->width, head->height, true);
+>>>>>>> upstream/android-13
 }
 
 static struct mode_size {
 	int w;
 	int h;
+<<<<<<< HEAD
 } common_modes[] = {
 	{ 640,  480},
 	{ 720,  480},
@@ -256,6 +386,24 @@ static int qxl_add_common_modes(struct drm_connector *connector,
 		drm_mode_probed_add(connector, mode);
 	}
 	return i - 1;
+=======
+} extra_modes[] = {
+	{ 720,  480},
+	{1152,  768},
+	{1280,  854},
+};
+
+static int qxl_add_extra_modes(struct drm_connector *connector)
+{
+	int i, ret = 0;
+
+	for (i = 0; i < ARRAY_SIZE(extra_modes); i++)
+		ret += qxl_add_mode(connector,
+				    extra_modes[i].w,
+				    extra_modes[i].h,
+				    false);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void qxl_send_monitors_config(struct qxl_device *qdev)
@@ -285,31 +433,56 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
 					    const char *reason)
 {
 	struct drm_device *dev = crtc->dev;
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	struct qxl_crtc *qcrtc = to_qxl_crtc(crtc);
 	struct qxl_head head;
 	int oldcount, i = qcrtc->index;
 
+<<<<<<< HEAD
 	if (!qdev->primary_created) {
+=======
+	if (!qdev->primary_bo) {
+>>>>>>> upstream/android-13
 		DRM_DEBUG_KMS("no primary surface, skip (%s)\n", reason);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (!qdev->monitors_config ||
 	    qdev->monitors_config->max_allowed <= i)
+=======
+	if (!qdev->monitors_config || qxl_num_crtc <= i)
+>>>>>>> upstream/android-13
 		return;
 
 	head.id = i;
 	head.flags = 0;
+<<<<<<< HEAD
 	oldcount = qdev->monitors_config->count;
 	if (crtc->state->active) {
 		struct drm_display_mode *mode = &crtc->mode;
+=======
+	head.surface_id = 0;
+	oldcount = qdev->monitors_config->count;
+	if (crtc->state->active) {
+		struct drm_display_mode *mode = &crtc->mode;
+
+>>>>>>> upstream/android-13
 		head.width = mode->hdisplay;
 		head.height = mode->vdisplay;
 		head.x = crtc->x;
 		head.y = crtc->y;
 		if (qdev->monitors_config->count < i + 1)
 			qdev->monitors_config->count = i + 1;
+<<<<<<< HEAD
+=======
+		if (qdev->primary_bo == qdev->dumb_shadow_bo)
+			head.x += qdev->dumb_heads[i].x;
+>>>>>>> upstream/android-13
 	} else if (i > 0) {
 		head.width = 0;
 		head.height = 0;
@@ -335,13 +508,21 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
 	if (oldcount != qdev->monitors_config->count)
 		DRM_DEBUG_KMS("active heads %d -> %d (%d total)\n",
 			      oldcount, qdev->monitors_config->count,
+<<<<<<< HEAD
 			      qdev->monitors_config->max_allowed);
 
 	qdev->monitors_config->heads[i] = head;
+=======
+			      qxl_num_crtc);
+
+	qdev->monitors_config->heads[i] = head;
+	qdev->monitors_config->max_allowed = qxl_num_crtc;
+>>>>>>> upstream/android-13
 	qxl_send_monitors_config(qdev);
 }
 
 static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				  struct drm_crtc_state *old_crtc_state)
 {
 	struct drm_device *dev = crtc->dev;
@@ -357,6 +538,10 @@ static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
 		spin_unlock_irqrestore(&dev->event_lock, flags);
 	}
 
+=======
+				  struct drm_atomic_state *state)
+{
+>>>>>>> upstream/android-13
 	qxl_crtc_update_monitors_config(crtc, "flush");
 }
 
@@ -378,6 +563,7 @@ static const struct drm_crtc_funcs qxl_crtc_funcs = {
 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
 };
 
+<<<<<<< HEAD
 void qxl_user_framebuffer_destroy(struct drm_framebuffer *fb)
 {
 	struct qxl_framebuffer *qxl_fb = to_qxl_framebuffer(fb);
@@ -410,6 +596,29 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
 		drm_modeset_unlock_all(fb->dev);
 		return 0;
 	}
+=======
+static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
+					 struct drm_file *file_priv,
+					 unsigned int flags, unsigned int color,
+					 struct drm_clip_rect *clips,
+					 unsigned int num_clips)
+{
+	/* TODO: vmwgfx where this was cribbed from had locking. Why? */
+	struct qxl_device *qdev = to_qxl(fb->dev);
+	struct drm_clip_rect norect;
+	struct qxl_bo *qobj;
+	struct drm_modeset_acquire_ctx ctx;
+	bool is_primary;
+	int inc = 1, ret;
+
+	DRM_MODESET_LOCK_ALL_BEGIN(fb->dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
+
+	qobj = gem_to_qxl_bo(fb->obj[0]);
+	/* if we aren't primary surface ignore this */
+	is_primary = qobj->shadow ? qobj->shadow->is_primary : qobj->is_primary;
+	if (!is_primary)
+		goto out_lock_end;
+>>>>>>> upstream/android-13
 
 	if (!num_clips) {
 		num_clips = 1;
@@ -422,15 +631,24 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
 		inc = 2; /* skip source rects */
 	}
 
+<<<<<<< HEAD
 	qxl_draw_dirty_fb(qdev, qxl_fb, qobj, flags, color,
 			  clips, num_clips, inc);
 
 	drm_modeset_unlock_all(fb->dev);
+=======
+	qxl_draw_dirty_fb(qdev, fb, qobj, flags, color,
+			  clips, num_clips, inc, 0);
+
+out_lock_end:
+	DRM_MODESET_LOCK_ALL_END(fb->dev, ctx, ret);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static const struct drm_framebuffer_funcs qxl_fb_funcs = {
+<<<<<<< HEAD
 	.destroy = qxl_user_framebuffer_destroy,
 	.dirty = qxl_framebuffer_surface_dirty,
 /*	TODO?
@@ -458,12 +676,25 @@ qxl_framebuffer_init(struct drm_device *dev,
 
 static void qxl_crtc_atomic_enable(struct drm_crtc *crtc,
 				   struct drm_crtc_state *old_state)
+=======
+	.destroy = drm_gem_fb_destroy,
+	.dirty = qxl_framebuffer_surface_dirty,
+	.create_handle = drm_gem_fb_create_handle,
+};
+
+static void qxl_crtc_atomic_enable(struct drm_crtc *crtc,
+				   struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	qxl_crtc_update_monitors_config(crtc, "enable");
 }
 
 static void qxl_crtc_atomic_disable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *old_state)
+=======
+				    struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	qxl_crtc_update_monitors_config(crtc, "disable");
 }
@@ -475,6 +706,7 @@ static const struct drm_crtc_helper_funcs qxl_crtc_helper_funcs = {
 };
 
 static int qxl_primary_atomic_check(struct drm_plane *plane,
+<<<<<<< HEAD
 				    struct drm_plane_state *state)
 {
 	struct qxl_device *qdev = plane->dev->dev_private;
@@ -501,6 +733,28 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
 	struct qxl_device *qdev = dev->dev_private;
 	struct drm_framebuffer *fb = plane->state->fb;
 	struct qxl_crtc *qcrtc = to_qxl_crtc(plane->state->crtc);
+=======
+				    struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct qxl_device *qdev = to_qxl(plane->dev);
+	struct qxl_bo *bo;
+
+	if (!new_plane_state->crtc || !new_plane_state->fb)
+		return 0;
+
+	bo = gem_to_qxl_bo(new_plane_state->fb->obj[0]);
+
+	return qxl_check_framebuffer(qdev, bo);
+}
+
+static int qxl_primary_apply_cursor(struct qxl_device *qdev,
+				    struct drm_plane_state *plane_state)
+{
+	struct drm_framebuffer *fb = plane_state->fb;
+	struct qxl_crtc *qcrtc = to_qxl_crtc(plane_state->crtc);
+>>>>>>> upstream/android-13
 	struct qxl_cursor_cmd *cmd;
 	struct qxl_release *release;
 	int ret = 0;
@@ -524,8 +778,13 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
 
 	cmd = (struct qxl_cursor_cmd *)qxl_release_map(qdev, release);
 	cmd->type = QXL_CURSOR_SET;
+<<<<<<< HEAD
 	cmd->u.set.position.x = plane->state->crtc_x + fb->hot_x;
 	cmd->u.set.position.y = plane->state->crtc_y + fb->hot_y;
+=======
+	cmd->u.set.position.x = plane_state->crtc_x + fb->hot_x;
+	cmd->u.set.position.y = plane_state->crtc_y + fb->hot_y;
+>>>>>>> upstream/android-13
 
 	cmd->u.set.shape = qxl_bo_physical_address(qdev, qcrtc->cursor_bo, 0);
 
@@ -542,6 +801,7 @@ out_free_release:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void qxl_primary_atomic_update(struct drm_plane *plane,
 				      struct drm_plane_state *old_state)
 {
@@ -627,11 +887,25 @@ static void qxl_cursor_atomic_update(struct drm_plane *plane,
 	int ret;
 	void *user_ptr;
 	int size = 64*64*4;
+=======
+static int qxl_primary_move_cursor(struct qxl_device *qdev,
+				   struct drm_plane_state *plane_state)
+{
+	struct drm_framebuffer *fb = plane_state->fb;
+	struct qxl_crtc *qcrtc = to_qxl_crtc(plane_state->crtc);
+	struct qxl_cursor_cmd *cmd;
+	struct qxl_release *release;
+	int ret = 0;
+
+	if (!qcrtc->cursor_bo)
+		return 0;
+>>>>>>> upstream/android-13
 
 	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
 					 QXL_RELEASE_CURSOR_CMD,
 					 &release, NULL);
 	if (ret)
+<<<<<<< HEAD
 		return;
 
 	if (fb != old_state->fb) {
@@ -720,6 +994,173 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
 				      struct drm_plane_state *old_state)
 {
 	struct qxl_device *qdev = plane->dev->dev_private;
+=======
+		return ret;
+
+	ret = qxl_release_reserve_list(release, true);
+	if (ret) {
+		qxl_release_free(qdev, release);
+		return ret;
+	}
+
+	cmd = (struct qxl_cursor_cmd *)qxl_release_map(qdev, release);
+	cmd->type = QXL_CURSOR_MOVE;
+	cmd->u.position.x = plane_state->crtc_x + fb->hot_x;
+	cmd->u.position.y = plane_state->crtc_y + fb->hot_y;
+	qxl_release_unmap(qdev, release, &cmd->release_info);
+
+	qxl_release_fence_buffer_objects(release);
+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+	return ret;
+}
+
+static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
+					struct qxl_bo *user_bo,
+					int hot_x, int hot_y)
+{
+	static const u32 size = 64 * 64 * 4;
+	struct qxl_bo *cursor_bo;
+	struct dma_buf_map cursor_map;
+	struct dma_buf_map user_map;
+	struct qxl_cursor cursor;
+	int ret;
+
+	if (!user_bo)
+		return NULL;
+
+	ret = qxl_bo_create(qdev, sizeof(struct qxl_cursor) + size,
+			    false, true, QXL_GEM_DOMAIN_VRAM, 1,
+			    NULL, &cursor_bo);
+	if (ret)
+		goto err;
+
+	ret = qxl_bo_vmap(cursor_bo, &cursor_map);
+	if (ret)
+		goto err_unref;
+
+	ret = qxl_bo_vmap(user_bo, &user_map);
+	if (ret)
+		goto err_unmap;
+
+	cursor.header.unique = 0;
+	cursor.header.type = SPICE_CURSOR_TYPE_ALPHA;
+	cursor.header.width = 64;
+	cursor.header.height = 64;
+	cursor.header.hot_spot_x = hot_x;
+	cursor.header.hot_spot_y = hot_y;
+	cursor.data_size = size;
+	cursor.chunk.next_chunk = 0;
+	cursor.chunk.prev_chunk = 0;
+	cursor.chunk.data_size = size;
+	if (cursor_map.is_iomem) {
+		memcpy_toio(cursor_map.vaddr_iomem,
+			    &cursor, sizeof(cursor));
+		memcpy_toio(cursor_map.vaddr_iomem + sizeof(cursor),
+			    user_map.vaddr, size);
+	} else {
+		memcpy(cursor_map.vaddr,
+		       &cursor, sizeof(cursor));
+		memcpy(cursor_map.vaddr + sizeof(cursor),
+		       user_map.vaddr, size);
+	}
+
+	qxl_bo_vunmap(user_bo);
+	qxl_bo_vunmap(cursor_bo);
+	return cursor_bo;
+
+err_unmap:
+	qxl_bo_vunmap(cursor_bo);
+err_unref:
+	qxl_bo_unpin(cursor_bo);
+	qxl_bo_unref(&cursor_bo);
+err:
+	return NULL;
+}
+
+static void qxl_free_cursor(struct qxl_bo *cursor_bo)
+{
+	if (!cursor_bo)
+		return;
+
+	qxl_bo_unpin(cursor_bo);
+	qxl_bo_unref(&cursor_bo);
+}
+
+static void qxl_primary_atomic_update(struct drm_plane *plane,
+				      struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct qxl_device *qdev = to_qxl(plane->dev);
+	struct qxl_bo *bo = gem_to_qxl_bo(new_state->fb->obj[0]);
+	struct qxl_bo *primary;
+	struct drm_clip_rect norect = {
+	    .x1 = 0,
+	    .y1 = 0,
+	    .x2 = new_state->fb->width,
+	    .y2 = new_state->fb->height
+	};
+	uint32_t dumb_shadow_offset = 0;
+
+	primary = bo->shadow ? bo->shadow : bo;
+
+	if (!primary->is_primary) {
+		if (qdev->primary_bo)
+			qxl_io_destroy_primary(qdev);
+		qxl_io_create_primary(qdev, primary);
+		qxl_primary_apply_cursor(qdev, plane->state);
+	}
+
+	if (bo->is_dumb)
+		dumb_shadow_offset =
+			qdev->dumb_heads[new_state->crtc->index].x;
+
+	qxl_draw_dirty_fb(qdev, new_state->fb, bo, 0, 0, &norect, 1, 1,
+			  dumb_shadow_offset);
+}
+
+static void qxl_primary_atomic_disable(struct drm_plane *plane,
+				       struct drm_atomic_state *state)
+{
+	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+									   plane);
+	struct qxl_device *qdev = to_qxl(plane->dev);
+
+	if (old_state->fb) {
+		struct qxl_bo *bo = gem_to_qxl_bo(old_state->fb->obj[0]);
+
+		if (bo->shadow)
+			bo = bo->shadow;
+		if (bo->is_primary)
+			qxl_io_destroy_primary(qdev);
+	}
+}
+
+static void qxl_cursor_atomic_update(struct drm_plane *plane,
+				     struct drm_atomic_state *state)
+{
+	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+									   plane);
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct qxl_device *qdev = to_qxl(plane->dev);
+	struct drm_framebuffer *fb = new_state->fb;
+
+	if (fb != old_state->fb) {
+		qxl_primary_apply_cursor(qdev, new_state);
+	} else {
+		qxl_primary_move_cursor(qdev, new_state);
+	}
+}
+
+static void qxl_cursor_atomic_disable(struct drm_plane *plane,
+				      struct drm_atomic_state *state)
+{
+	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+									   plane);
+	struct qxl_device *qdev = to_qxl(plane->dev);
+	struct qxl_crtc *qcrtc;
+>>>>>>> upstream/android-13
 	struct qxl_release *release;
 	struct qxl_cursor_cmd *cmd;
 	int ret;
@@ -742,19 +1183,122 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
 
 	qxl_release_fence_buffer_objects(release);
 	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+<<<<<<< HEAD
+=======
+
+	qcrtc = to_qxl_crtc(old_state->crtc);
+	qxl_free_cursor(qcrtc->cursor_bo);
+	qcrtc->cursor_bo = NULL;
+}
+
+static void qxl_update_dumb_head(struct qxl_device *qdev,
+				 int index, struct qxl_bo *bo)
+{
+	uint32_t width, height;
+
+	if (index >= qdev->monitors_config->max_allowed)
+		return;
+
+	if (bo && bo->is_dumb) {
+		width = bo->surf.width;
+		height = bo->surf.height;
+	} else {
+		width = 0;
+		height = 0;
+	}
+
+	if (qdev->dumb_heads[index].width == width &&
+	    qdev->dumb_heads[index].height == height)
+		return;
+
+	DRM_DEBUG("#%d: %dx%d -> %dx%d\n", index,
+		  qdev->dumb_heads[index].width,
+		  qdev->dumb_heads[index].height,
+		  width, height);
+	qdev->dumb_heads[index].width = width;
+	qdev->dumb_heads[index].height = height;
+}
+
+static void qxl_calc_dumb_shadow(struct qxl_device *qdev,
+				 struct qxl_surface *surf)
+{
+	struct qxl_head *head;
+	int i;
+
+	memset(surf, 0, sizeof(*surf));
+	for (i = 0; i < qdev->monitors_config->max_allowed; i++) {
+		head = qdev->dumb_heads + i;
+		head->x = surf->width;
+		surf->width += head->width;
+		if (surf->height < head->height)
+			surf->height = head->height;
+	}
+	if (surf->width < 64)
+		surf->width = 64;
+	if (surf->height < 64)
+		surf->height = 64;
+	surf->format = SPICE_SURFACE_FMT_32_xRGB;
+	surf->stride = surf->width * 4;
+
+	if (!qdev->dumb_shadow_bo ||
+	    qdev->dumb_shadow_bo->surf.width != surf->width ||
+	    qdev->dumb_shadow_bo->surf.height != surf->height)
+		DRM_DEBUG("%dx%d\n", surf->width, surf->height);
+}
+
+static void qxl_prepare_shadow(struct qxl_device *qdev, struct qxl_bo *user_bo,
+			       int crtc_index)
+{
+	struct qxl_surface surf;
+
+	qxl_update_dumb_head(qdev, crtc_index,
+			     user_bo);
+	qxl_calc_dumb_shadow(qdev, &surf);
+	if (!qdev->dumb_shadow_bo ||
+	    qdev->dumb_shadow_bo->surf.width  != surf.width ||
+	    qdev->dumb_shadow_bo->surf.height != surf.height) {
+		if (qdev->dumb_shadow_bo) {
+			qxl_bo_unpin(qdev->dumb_shadow_bo);
+			drm_gem_object_put
+				(&qdev->dumb_shadow_bo->tbo.base);
+			qdev->dumb_shadow_bo = NULL;
+		}
+		qxl_bo_create(qdev, surf.height * surf.stride,
+			      true, true, QXL_GEM_DOMAIN_SURFACE, 0,
+			      &surf, &qdev->dumb_shadow_bo);
+	}
+	if (user_bo->shadow != qdev->dumb_shadow_bo) {
+		if (user_bo->shadow) {
+			qxl_bo_unpin(user_bo->shadow);
+			drm_gem_object_put
+				(&user_bo->shadow->tbo.base);
+			user_bo->shadow = NULL;
+		}
+		drm_gem_object_get(&qdev->dumb_shadow_bo->tbo.base);
+		user_bo->shadow = qdev->dumb_shadow_bo;
+		qxl_bo_pin(user_bo->shadow);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int qxl_plane_prepare_fb(struct drm_plane *plane,
 				struct drm_plane_state *new_state)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = plane->dev->dev_private;
 	struct drm_gem_object *obj;
 	struct qxl_bo *user_bo, *old_bo = NULL;
 	int ret;
+=======
+	struct qxl_device *qdev = to_qxl(plane->dev);
+	struct drm_gem_object *obj;
+	struct qxl_bo *user_bo;
+>>>>>>> upstream/android-13
 
 	if (!new_state->fb)
 		return 0;
 
+<<<<<<< HEAD
 	obj = to_qxl_framebuffer(new_state->fb)->obj;
 	user_bo = gem_to_qxl_bo(obj);
 
@@ -789,6 +1333,28 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
 		return ret;
 
 	return 0;
+=======
+	obj = new_state->fb->obj[0];
+	user_bo = gem_to_qxl_bo(obj);
+
+	if (plane->type == DRM_PLANE_TYPE_PRIMARY &&
+	    user_bo->is_dumb) {
+		qxl_prepare_shadow(qdev, user_bo, new_state->crtc->index);
+	}
+
+	if (plane->type == DRM_PLANE_TYPE_CURSOR &&
+	    plane->state->fb != new_state->fb) {
+		struct qxl_crtc *qcrtc = to_qxl_crtc(new_state->crtc);
+		struct qxl_bo *old_cursor_bo = qcrtc->cursor_bo;
+
+		qcrtc->cursor_bo = qxl_create_cursor(qdev, user_bo,
+						     new_state->fb->hot_x,
+						     new_state->fb->hot_y);
+		qxl_free_cursor(old_cursor_bo);
+	}
+
+	return qxl_bo_pin(user_bo);
+>>>>>>> upstream/android-13
 }
 
 static void qxl_plane_cleanup_fb(struct drm_plane *plane,
@@ -805,12 +1371,22 @@ static void qxl_plane_cleanup_fb(struct drm_plane *plane,
 		return;
 	}
 
+<<<<<<< HEAD
 	obj = to_qxl_framebuffer(old_state->fb)->obj;
 	user_bo = gem_to_qxl_bo(obj);
 	qxl_bo_unpin(user_bo);
 
 	if (user_bo->shadow && !user_bo->is_primary) {
 		drm_gem_object_put_unlocked(&user_bo->shadow->gem_base);
+=======
+	obj = old_state->fb->obj[0];
+	user_bo = gem_to_qxl_bo(obj);
+	qxl_bo_unpin(user_bo);
+
+	if (old_state->fb != plane->state->fb && user_bo->shadow) {
+		qxl_bo_unpin(user_bo->shadow);
+		drm_gem_object_put(&user_bo->shadow->tbo.base);
+>>>>>>> upstream/android-13
 		user_bo->shadow = NULL;
 	}
 }
@@ -905,7 +1481,11 @@ static int qdev_crtc_init(struct drm_device *dev, int crtc_id)
 {
 	struct qxl_crtc *qxl_crtc;
 	struct drm_plane *primary, *cursor;
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	int r;
 
 	qxl_crtc = kzalloc(sizeof(struct qxl_crtc), GFP_KERNEL);
@@ -946,6 +1526,7 @@ free_mem:
 
 static int qxl_conn_get_modes(struct drm_connector *connector)
 {
+<<<<<<< HEAD
 	unsigned pwidth = 1024;
 	unsigned pheight = 768;
 	int ret = 0;
@@ -954,6 +1535,28 @@ static int qxl_conn_get_modes(struct drm_connector *connector)
 	if (ret < 0)
 		return ret;
 	ret += qxl_add_common_modes(connector, pwidth, pheight);
+=======
+	struct drm_device *dev = connector->dev;
+	struct qxl_device *qdev = to_qxl(dev);
+	struct qxl_output *output = drm_connector_to_qxl_output(connector);
+	unsigned int pwidth = 1024;
+	unsigned int pheight = 768;
+	int ret = 0;
+
+	if (qdev->client_monitors_config) {
+		struct qxl_head *head;
+		head = &qdev->client_monitors_config->heads[output->index];
+		if (head->width)
+			pwidth = head->width;
+		if (head->height)
+			pheight = head->height;
+	}
+
+	ret += drm_add_modes_noedid(connector, 8192, 8192);
+	ret += qxl_add_extra_modes(connector);
+	ret += qxl_add_monitors_config_modes(connector);
+	drm_set_preferred_mode(connector, pwidth, pheight);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -961,6 +1564,7 @@ static enum drm_mode_status qxl_conn_mode_valid(struct drm_connector *connector,
 			       struct drm_display_mode *mode)
 {
 	struct drm_device *ddev = connector->dev;
+<<<<<<< HEAD
 	struct qxl_device *qdev = ddev->dev_private;
 	int i;
 
@@ -976,6 +1580,14 @@ static enum drm_mode_status qxl_conn_mode_valid(struct drm_connector *connector,
 			return MODE_OK;
 	}
 	return MODE_BAD;
+=======
+	struct qxl_device *qdev = to_qxl(ddev);
+
+	if (qxl_check_mode(qdev, mode->hdisplay, mode->vdisplay) != 0)
+		return MODE_BAD;
+
+	return MODE_OK;
+>>>>>>> upstream/android-13
 }
 
 static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
@@ -987,10 +1599,13 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
 	return &qxl_output->enc;
 }
 
+<<<<<<< HEAD
 
 static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct drm_connector_helper_funcs qxl_connector_helper_funcs = {
 	.get_modes = qxl_conn_get_modes,
 	.mode_valid = qxl_conn_mode_valid,
@@ -1004,7 +1619,11 @@ static enum drm_connector_status qxl_conn_detect(
 	struct qxl_output *output =
 		drm_connector_to_qxl_output(connector);
 	struct drm_device *ddev = connector->dev;
+<<<<<<< HEAD
 	struct qxl_device *qdev = ddev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(ddev);
+>>>>>>> upstream/android-13
 	bool connected = false;
 
 	/* The first monitor is always connected */
@@ -1032,7 +1651,10 @@ static void qxl_conn_destroy(struct drm_connector *connector)
 }
 
 static const struct drm_connector_funcs qxl_connector_funcs = {
+<<<<<<< HEAD
 	.dpms = drm_helper_connector_dpms,
+=======
+>>>>>>> upstream/android-13
 	.detect = qxl_conn_detect,
 	.fill_modes = drm_helper_probe_single_connector_modes,
 	.destroy = qxl_conn_destroy,
@@ -1041,6 +1663,7 @@ static const struct drm_connector_funcs qxl_connector_funcs = {
 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
 };
 
+<<<<<<< HEAD
 static void qxl_enc_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
@@ -1050,6 +1673,8 @@ static const struct drm_encoder_funcs qxl_enc_funcs = {
 	.destroy = qxl_enc_destroy,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int qxl_mode_create_hotplug_mode_update_property(struct qxl_device *qdev)
 {
 	if (qdev->hotplug_mode_update_property)
@@ -1064,10 +1689,18 @@ static int qxl_mode_create_hotplug_mode_update_property(struct qxl_device *qdev)
 
 static int qdev_output_init(struct drm_device *dev, int num_output)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
 	struct qxl_output *qxl_output;
 	struct drm_connector *connector;
 	struct drm_encoder *encoder;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+	struct qxl_output *qxl_output;
+	struct drm_connector *connector;
+	struct drm_encoder *encoder;
+	int ret;
+>>>>>>> upstream/android-13
 
 	qxl_output = kzalloc(sizeof(struct qxl_output), GFP_KERNEL);
 	if (!qxl_output)
@@ -1080,15 +1713,28 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
 	drm_connector_init(dev, &qxl_output->base,
 			   &qxl_connector_funcs, DRM_MODE_CONNECTOR_VIRTUAL);
 
+<<<<<<< HEAD
 	drm_encoder_init(dev, &qxl_output->enc, &qxl_enc_funcs,
 			 DRM_MODE_ENCODER_VIRTUAL, NULL);
+=======
+	ret = drm_simple_encoder_init(dev, &qxl_output->enc,
+				      DRM_MODE_ENCODER_VIRTUAL);
+	if (ret) {
+		drm_err(dev, "drm_simple_encoder_init() failed, error %d\n",
+			ret);
+		goto err_drm_connector_cleanup;
+	}
+>>>>>>> upstream/android-13
 
 	/* we get HPD via client monitors config */
 	connector->polled = DRM_CONNECTOR_POLL_HPD;
 	encoder->possible_crtcs = 1 << num_output;
 	drm_connector_attach_encoder(&qxl_output->base,
 					  &qxl_output->enc);
+<<<<<<< HEAD
 	drm_encoder_helper_add(encoder, &qxl_enc_helper_funcs);
+=======
+>>>>>>> upstream/android-13
 	drm_connector_helper_add(connector, &qxl_connector_helper_funcs);
 
 	drm_object_attach_property(&connector->base,
@@ -1098,6 +1744,14 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
 	drm_object_attach_property(&connector->base,
 				   dev->mode_config.suggested_y_property, 0);
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_drm_connector_cleanup:
+	drm_connector_cleanup(&qxl_output->base);
+	kfree(qxl_output);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static struct drm_framebuffer *
@@ -1105,6 +1759,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
 			    struct drm_file *file_priv,
 			    const struct drm_mode_fb_cmd2 *mode_cmd)
 {
+<<<<<<< HEAD
 	struct drm_gem_object *obj;
 	struct qxl_framebuffer *qxl_fb;
 	int ret;
@@ -1125,6 +1780,10 @@ qxl_user_framebuffer_create(struct drm_device *dev,
 	}
 
 	return &qxl_fb->base;
+=======
+	return drm_gem_fb_create_with_funcs(dev, file_priv, mode_cmd,
+					    &qxl_fb_funcs);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_mode_config_funcs qxl_mode_funcs = {
@@ -1137,9 +1796,15 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
 {
 	int ret;
 	struct drm_gem_object *gobj;
+<<<<<<< HEAD
 	int max_allowed = qxl_num_crtc;
 	int monitors_config_size = sizeof(struct qxl_monitors_config) +
 		max_allowed * sizeof(struct qxl_head);
+=======
+	struct dma_buf_map map;
+	int monitors_config_size = sizeof(struct qxl_monitors_config) +
+		qxl_num_crtc * sizeof(struct qxl_head);
+>>>>>>> upstream/android-13
 
 	ret = qxl_gem_object_create(qdev, monitors_config_size, 0,
 				    QXL_GEM_DOMAIN_VRAM,
@@ -1150,18 +1815,34 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
 	}
 	qdev->monitors_config_bo = gem_to_qxl_bo(gobj);
 
+<<<<<<< HEAD
 	ret = qxl_bo_pin(qdev->monitors_config_bo, QXL_GEM_DOMAIN_VRAM, NULL);
 	if (ret)
 		return ret;
 
 	qxl_bo_kmap(qdev->monitors_config_bo, NULL);
 
+=======
+	ret = qxl_bo_vmap(qdev->monitors_config_bo, &map);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	qdev->monitors_config = qdev->monitors_config_bo->kptr;
 	qdev->ram_header->monitors_config =
 		qxl_bo_physical_address(qdev, qdev->monitors_config_bo, 0);
 
 	memset(qdev->monitors_config, 0, monitors_config_size);
+<<<<<<< HEAD
 	qdev->monitors_config->max_allowed = max_allowed;
+=======
+	qdev->dumb_heads = kcalloc(qxl_num_crtc, sizeof(qdev->dumb_heads[0]),
+				   GFP_KERNEL);
+	if (!qdev->dumb_heads) {
+		qxl_destroy_monitors_object(qdev);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1169,11 +1850,21 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
 {
 	int ret;
 
+<<<<<<< HEAD
 	qdev->monitors_config = NULL;
 	qdev->ram_header->monitors_config = 0;
 
 	qxl_bo_kunmap(qdev->monitors_config_bo);
 	ret = qxl_bo_unpin(qdev->monitors_config_bo);
+=======
+	if (!qdev->monitors_config_bo)
+		return 0;
+
+	qdev->monitors_config = NULL;
+	qdev->ram_header->monitors_config = 0;
+
+	ret = qxl_bo_vunmap(qdev->monitors_config_bo);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1186,7 +1877,13 @@ int qxl_modeset_init(struct qxl_device *qdev)
 	int i;
 	int ret;
 
+<<<<<<< HEAD
 	drm_mode_config_init(&qdev->ddev);
+=======
+	ret = drmm_mode_config_init(&qdev->ddev);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = qxl_create_monitors_object(qdev);
 	if (ret)
@@ -1211,6 +1908,7 @@ int qxl_modeset_init(struct qxl_device *qdev)
 	}
 
 	qxl_display_read_client_monitors_config(qdev);
+<<<<<<< HEAD
 	qdev->mode_info.mode_config_initialized = true;
 
 	drm_mode_config_reset(&qdev->ddev);
@@ -1219,11 +1917,16 @@ int qxl_modeset_init(struct qxl_device *qdev)
 	 * issuing command queue commands and having them read by
 	 * spice server. */
 	qxl_fbdev_init(qdev);
+=======
+
+	drm_mode_config_reset(&qdev->ddev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 void qxl_modeset_fini(struct qxl_device *qdev)
 {
+<<<<<<< HEAD
 	qxl_fbdev_fini(qdev);
 
 	qxl_destroy_monitors_object(qdev);
@@ -1231,4 +1934,12 @@ void qxl_modeset_fini(struct qxl_device *qdev)
 		drm_mode_config_cleanup(&qdev->ddev);
 		qdev->mode_info.mode_config_initialized = false;
 	}
+=======
+	if (qdev->dumb_shadow_bo) {
+		qxl_bo_unpin(qdev->dumb_shadow_bo);
+		drm_gem_object_put(&qdev->dumb_shadow_bo->tbo.base);
+		qdev->dumb_shadow_bo = NULL;
+	}
+	qxl_destroy_monitors_object(qdev);
+>>>>>>> upstream/android-13
 }

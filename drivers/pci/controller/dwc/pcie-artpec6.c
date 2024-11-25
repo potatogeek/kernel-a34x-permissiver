@@ -44,6 +44,7 @@ struct artpec_pcie_of_data {
 
 static const struct of_device_id artpec6_pcie_of_match[];
 
+<<<<<<< HEAD
 /* PCIe Port Logic registers (memory-mapped) */
 #define PL_OFFSET			0x700
 
@@ -54,6 +55,8 @@ static const struct of_device_id artpec6_pcie_of_match[];
 #define FAST_TRAINING_SEQ_MASK		GENMASK(7, 0)
 #define FAST_TRAINING_SEQ(x)		(((x) << 0) & FAST_TRAINING_SEQ_MASK)
 
+=======
+>>>>>>> upstream/android-13
 /* ARTPEC-6 specific registers */
 #define PCIECFG				0x18
 #define  PCIECFG_DBG_OEN		BIT(24)
@@ -292,6 +295,7 @@ static void artpec6_pcie_init_phy(struct artpec6_pcie *artpec6_pcie)
 	}
 }
 
+<<<<<<< HEAD
 static void artpec6_pcie_set_nfts(struct artpec6_pcie *artpec6_pcie)
 {
 	struct dw_pcie *pci = artpec6_pcie->pci;
@@ -319,6 +323,8 @@ static void artpec6_pcie_set_nfts(struct artpec6_pcie *artpec6_pcie)
 	dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void artpec6_pcie_assert_core_reset(struct artpec6_pcie *artpec6_pcie)
 {
 	u32 val;
@@ -352,6 +358,7 @@ static void artpec6_pcie_deassert_core_reset(struct artpec6_pcie *artpec6_pcie)
 	usleep_range(100, 200);
 }
 
+<<<<<<< HEAD
 static void artpec6_pcie_enable_interrupts(struct artpec6_pcie *artpec6_pcie)
 {
 	struct dw_pcie *pci = artpec6_pcie->pci;
@@ -361,20 +368,32 @@ static void artpec6_pcie_enable_interrupts(struct artpec6_pcie *artpec6_pcie)
 		dw_pcie_msi_init(pp);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int artpec6_pcie_host_init(struct pcie_port *pp)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
 	struct artpec6_pcie *artpec6_pcie = to_artpec6_pcie(pci);
 
+<<<<<<< HEAD
+=======
+	if (artpec6_pcie->variant == ARTPEC7) {
+		pci->n_fts[0] = 180;
+		pci->n_fts[1] = 180;
+	}
+>>>>>>> upstream/android-13
 	artpec6_pcie_assert_core_reset(artpec6_pcie);
 	artpec6_pcie_init_phy(artpec6_pcie);
 	artpec6_pcie_deassert_core_reset(artpec6_pcie);
 	artpec6_pcie_wait_for_phy(artpec6_pcie);
+<<<<<<< HEAD
 	artpec6_pcie_set_nfts(artpec6_pcie);
 	dw_pcie_setup_rc(pp);
 	artpec6_pcie_establish_link(pci);
 	dw_pcie_wait_for_link(pci);
 	artpec6_pcie_enable_interrupts(artpec6_pcie);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -383,6 +402,7 @@ static const struct dw_pcie_host_ops artpec6_pcie_host_ops = {
 	.host_init = artpec6_pcie_host_init,
 };
 
+<<<<<<< HEAD
 static int artpec6_add_pcie_port(struct artpec6_pcie *artpec6_pcie,
 				 struct platform_device *pdev)
 {
@@ -410,6 +430,8 @@ static int artpec6_add_pcie_port(struct artpec6_pcie *artpec6_pcie,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void artpec6_pcie_ep_init(struct dw_pcie_ep *ep)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
@@ -420,9 +442,14 @@ static void artpec6_pcie_ep_init(struct dw_pcie_ep *ep)
 	artpec6_pcie_init_phy(artpec6_pcie);
 	artpec6_pcie_deassert_core_reset(artpec6_pcie);
 	artpec6_pcie_wait_for_phy(artpec6_pcie);
+<<<<<<< HEAD
 	artpec6_pcie_set_nfts(artpec6_pcie);
 
 	for (bar = BAR_0; bar <= BAR_5; bar++)
+=======
+
+	for (bar = 0; bar < PCI_STD_NUM_BARS; bar++)
+>>>>>>> upstream/android-13
 		dw_pcie_ep_reset_bar(pci, bar);
 }
 
@@ -444,11 +471,16 @@ static int artpec6_pcie_raise_irq(struct dw_pcie_ep *ep, u8 func_no,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dw_pcie_ep_ops pcie_ep_ops = {
+=======
+static const struct dw_pcie_ep_ops pcie_ep_ops = {
+>>>>>>> upstream/android-13
 	.ep_init = artpec6_pcie_ep_init,
 	.raise_irq = artpec6_pcie_raise_irq,
 };
 
+<<<<<<< HEAD
 static int artpec6_add_pcie_ep(struct artpec6_pcie *artpec6_pcie,
 			       struct platform_device *pdev)
 {
@@ -482,18 +514,27 @@ static int artpec6_add_pcie_ep(struct artpec6_pcie *artpec6_pcie,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int artpec6_pcie_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct dw_pcie *pci;
 	struct artpec6_pcie *artpec6_pcie;
+<<<<<<< HEAD
 	struct resource *dbi_base;
 	struct resource *phy_base;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	const struct of_device_id *match;
 	const struct artpec_pcie_of_data *data;
 	enum artpec_pcie_variants variant;
 	enum dw_pcie_device_mode mode;
+<<<<<<< HEAD
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 
 	match = of_match_device(artpec6_pcie_of_match, dev);
 	if (!match)
@@ -518,6 +559,7 @@ static int artpec6_pcie_probe(struct platform_device *pdev)
 	artpec6_pcie->variant = variant;
 	artpec6_pcie->mode = mode;
 
+<<<<<<< HEAD
 	dbi_base = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dbi");
 	pci->dbi_base = devm_ioremap_resource(dev, dbi_base);
 	if (IS_ERR(pci->dbi_base))
@@ -525,6 +567,10 @@ static int artpec6_pcie_probe(struct platform_device *pdev)
 
 	phy_base = platform_get_resource_byname(pdev, IORESOURCE_MEM, "phy");
 	artpec6_pcie->phy_base = devm_ioremap_resource(dev, phy_base);
+=======
+	artpec6_pcie->phy_base =
+		devm_platform_ioremap_resource_byname(pdev, "phy");
+>>>>>>> upstream/android-13
 	if (IS_ERR(artpec6_pcie->phy_base))
 		return PTR_ERR(artpec6_pcie->phy_base);
 
@@ -541,6 +587,7 @@ static int artpec6_pcie_probe(struct platform_device *pdev)
 		if (!IS_ENABLED(CONFIG_PCIE_ARTPEC6_HOST))
 			return -ENODEV;
 
+<<<<<<< HEAD
 		ret = artpec6_add_pcie_port(artpec6_pcie, pdev);
 		if (ret < 0)
 			return ret;
@@ -548,17 +595,33 @@ static int artpec6_pcie_probe(struct platform_device *pdev)
 	case DW_PCIE_EP_TYPE: {
 		u32 val;
 
+=======
+		pci->pp.ops = &artpec6_pcie_host_ops;
+
+		ret = dw_pcie_host_init(&pci->pp);
+		if (ret < 0)
+			return ret;
+		break;
+	case DW_PCIE_EP_TYPE:
+>>>>>>> upstream/android-13
 		if (!IS_ENABLED(CONFIG_PCIE_ARTPEC6_EP))
 			return -ENODEV;
 
 		val = artpec6_pcie_readl(artpec6_pcie, PCIECFG);
 		val &= ~PCIECFG_DEVICE_TYPE_MASK;
 		artpec6_pcie_writel(artpec6_pcie, PCIECFG, val);
+<<<<<<< HEAD
 		ret = artpec6_add_pcie_ep(artpec6_pcie, pdev);
 		if (ret < 0)
 			return ret;
 		break;
 	}
+=======
+
+		pci->ep.ops = &pcie_ep_ops;
+
+		return dw_pcie_ep_init(&pci->ep);
+>>>>>>> upstream/android-13
 	default:
 		dev_err(dev, "INVALID device type %d\n", artpec6_pcie->mode);
 	}

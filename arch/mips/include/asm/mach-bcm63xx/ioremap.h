@@ -4,11 +4,14 @@
 
 #include <bcm63xx_cpu.h>
 
+<<<<<<< HEAD
 static inline phys_addr_t fixup_bigphys_addr(phys_addr_t phys_addr, phys_addr_t size)
 {
 	return phys_addr;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int is_bcm63xx_internal_registers(phys_addr_t offset)
 {
 	switch (bcm63xx_get_cpu_id()) {

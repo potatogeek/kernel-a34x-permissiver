@@ -1,34 +1,69 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
  *
  * Parts came from builtin-annotate.c, see those files for further
  * copyright notes.
+<<<<<<< HEAD
  *
  * Released under the GPL v2. (and only v2, not any later version)
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <errno.h>
 #include <inttypes.h>
+<<<<<<< HEAD
 #include "util.h"
+=======
+#include <libgen.h>
+#include <stdlib.h>
+#include "util.h" // hex_width()
+>>>>>>> upstream/android-13
 #include "ui/ui.h"
 #include "sort.h"
 #include "build-id.h"
 #include "color.h"
 #include "config.h"
+<<<<<<< HEAD
 #include "cache.h"
 #include "symbol.h"
+=======
+#include "dso.h"
+#include "env.h"
+#include "map.h"
+#include "maps.h"
+#include "symbol.h"
+#include "srcline.h"
+>>>>>>> upstream/android-13
 #include "units.h"
 #include "debug.h"
 #include "annotate.h"
 #include "evsel.h"
 #include "evlist.h"
+<<<<<<< HEAD
 #include "block-range.h"
 #include "string2.h"
+=======
+#include "bpf-event.h"
+#include "block-range.h"
+#include "string2.h"
+#include "util/event.h"
+>>>>>>> upstream/android-13
 #include "arch/common.h"
 #include <regex.h>
 #include <pthread.h>
 #include <linux/bitops.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/string.h>
+#include <subcmd/parse-options.h>
+#include <subcmd/run-command.h>
+>>>>>>> upstream/android-13
 
 /* FIXME: For the HE_COLORSET */
 #include "ui/browser.h"
@@ -42,7 +77,11 @@
 #define DARROW_CHAR	((unsigned char)'.')
 #define UARROW_CHAR	((unsigned char)'-')
 
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 
 struct annotation_options annotation__default_options = {
 	.use_offset     = true,
@@ -134,6 +173,7 @@ static int arch__associate_ins_ops(struct arch* arch, const char *name, struct i
 	return 0;
 }
 
+<<<<<<< HEAD
 #include "arch/arm/annotate/instructions.c"
 #include "arch/arm64/annotate/instructions.c"
 #include "arch/x86/annotate/instructions.c"
@@ -142,6 +182,24 @@ static int arch__associate_ins_ops(struct arch* arch, const char *name, struct i
 
 static struct arch architectures[] = {
 	{
+=======
+#include "arch/arc/annotate/instructions.c"
+#include "arch/arm/annotate/instructions.c"
+#include "arch/arm64/annotate/instructions.c"
+#include "arch/csky/annotate/instructions.c"
+#include "arch/mips/annotate/instructions.c"
+#include "arch/x86/annotate/instructions.c"
+#include "arch/powerpc/annotate/instructions.c"
+#include "arch/s390/annotate/instructions.c"
+#include "arch/sparc/annotate/instructions.c"
+
+static struct arch architectures[] = {
+	{
+		.name = "arc",
+		.init = arc__annotate_init,
+	},
+	{
+>>>>>>> upstream/android-13
 		.name = "arm",
 		.init = arm__annotate_init,
 	},
@@ -150,6 +208,20 @@ static struct arch architectures[] = {
 		.init = arm64__annotate_init,
 	},
 	{
+<<<<<<< HEAD
+=======
+		.name = "csky",
+		.init = csky__annotate_init,
+	},
+	{
+		.name = "mips",
+		.init = mips__annotate_init,
+		.objdump = {
+			.comment_char = '#',
+		},
+	},
+	{
+>>>>>>> upstream/android-13
 		.name = "x86",
 		.init = x86__annotate_init,
 		.instructions = x86__instructions,
@@ -170,6 +242,16 @@ static struct arch architectures[] = {
 			.comment_char = '#',
 		},
 	},
+<<<<<<< HEAD
+=======
+	{
+		.name = "sparc",
+		.init = sparc__annotate_init,
+		.objdump = {
+			.comment_char = '#',
+		},
+	},
+>>>>>>> upstream/android-13
 };
 
 static void ins__delete(struct ins_operands *ops)
@@ -183,6 +265,7 @@ static void ins__delete(struct ins_operands *ops)
 }
 
 static int ins__raw_scnprintf(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			      struct ins_operands *ops)
 {
 	return scnprintf(bf, size, "%-6s %s", ins->name, ops->raw);
@@ -195,6 +278,20 @@ int ins__scnprintf(struct ins *ins, char *bf, size_t size,
 		return ins->ops->scnprintf(ins, bf, size, ops);
 
 	return ins__raw_scnprintf(ins, bf, size, ops);
+=======
+			      struct ins_operands *ops, int max_ins_name)
+{
+	return scnprintf(bf, size, "%-*s %s", max_ins_name, ins->name, ops->raw);
+}
+
+int ins__scnprintf(struct ins *ins, char *bf, size_t size,
+		   struct ins_operands *ops, int max_ins_name)
+{
+	if (ins->ops->scnprintf)
+		return ins->ops->scnprintf(ins, bf, size, ops, max_ins_name);
+
+	return ins__raw_scnprintf(ins, bf, size, ops, max_ins_name);
+>>>>>>> upstream/android-13
 }
 
 bool ins__is_fused(struct arch *arch, const char *ins1, const char *ins2)
@@ -210,7 +307,11 @@ static int call__parse(struct arch *arch, struct ins_operands *ops, struct map_s
 	char *endptr, *tok, *name;
 	struct map *map = ms->map;
 	struct addr_map_symbol target = {
+<<<<<<< HEAD
 		.map = map,
+=======
+		.ms = { .map = map, },
+>>>>>>> upstream/android-13
 	};
 
 	ops->target.addr = strtoull(ops->raw, &endptr, 16);
@@ -238,9 +339,15 @@ static int call__parse(struct arch *arch, struct ins_operands *ops, struct map_s
 find_target:
 	target.addr = map__objdump_2mem(map, ops->target.addr);
 
+<<<<<<< HEAD
 	if (map_groups__find_ams(&target) == 0 &&
 	    map__rip_2objdump(target.map, map->map_ip(target.map, target.addr)) == ops->target.addr)
 		ops->target.sym = target.sym;
+=======
+	if (maps__find_ams(ms->maps, &target) == 0 &&
+	    map__rip_2objdump(target.ms.map, map->map_ip(target.ms.map, target.addr)) == ops->target.addr)
+		ops->target.sym = target.ms.sym;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -258,6 +365,7 @@ indirect_call:
 }
 
 static int call__scnprintf(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			   struct ins_operands *ops)
 {
 	if (ops->target.sym)
@@ -270,6 +378,20 @@ static int call__scnprintf(struct ins *ins, char *bf, size_t size,
 		return scnprintf(bf, size, "%-6s %s", ins->name, ops->target.name);
 
 	return scnprintf(bf, size, "%-6s *%" PRIx64, ins->name, ops->target.addr);
+=======
+			   struct ins_operands *ops, int max_ins_name)
+{
+	if (ops->target.sym)
+		return scnprintf(bf, size, "%-*s %s", max_ins_name, ins->name, ops->target.sym->name);
+
+	if (ops->target.addr == 0)
+		return ins__raw_scnprintf(ins, bf, size, ops, max_ins_name);
+
+	if (ops->target.name)
+		return scnprintf(bf, size, "%-*s %s", max_ins_name, ins->name, ops->target.name);
+
+	return scnprintf(bf, size, "%-*s *%" PRIx64, max_ins_name, ins->name, ops->target.addr);
+>>>>>>> upstream/android-13
 }
 
 static struct ins_ops call_ops = {
@@ -285,12 +407,24 @@ bool ins__is_call(const struct ins *ins)
 /*
  * Prevents from matching commas in the comment section, e.g.:
  * ffff200008446e70:       b.cs    ffff2000084470f4 <generic_exec_single+0x314>  // b.hs, b.nlast
+<<<<<<< HEAD
+=======
+ *
+ * and skip comma as part of function arguments, e.g.:
+ * 1d8b4ac <linemap_lookup(line_maps const*, unsigned int)+0xcc>
+>>>>>>> upstream/android-13
  */
 static inline const char *validate_comma(const char *c, struct ins_operands *ops)
 {
 	if (ops->raw_comment && c > ops->raw_comment)
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	if (ops->raw_func_start && c > ops->raw_func_start)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	return c;
 }
 
@@ -299,12 +433,21 @@ static int jump__parse(struct arch *arch, struct ins_operands *ops, struct map_s
 	struct map *map = ms->map;
 	struct symbol *sym = ms->sym;
 	struct addr_map_symbol target = {
+<<<<<<< HEAD
 		.map = map,
+=======
+		.ms = { .map = map, },
+>>>>>>> upstream/android-13
 	};
 	const char *c = strchr(ops->raw, ',');
 	u64 start, end;
 
 	ops->raw_comment = strchr(ops->raw, arch->objdump.comment_char);
+<<<<<<< HEAD
+=======
+	ops->raw_func_start = strchr(ops->raw, '<');
+
+>>>>>>> upstream/android-13
 	c = validate_comma(c, ops);
 
 	/*
@@ -358,9 +501,15 @@ static int jump__parse(struct arch *arch, struct ins_operands *ops, struct map_s
 	 * Actual navigation will come next, with further understanding of how
 	 * the symbol searching and disassembly should be done.
 	 */
+<<<<<<< HEAD
 	if (map_groups__find_ams(&target) == 0 &&
 	    map__rip_2objdump(target.map, map->map_ip(target.map, target.addr)) == ops->target.addr)
 		ops->target.sym = target.sym;
+=======
+	if (maps__find_ams(ms->maps, &target) == 0 &&
+	    map__rip_2objdump(target.ms.map, map->map_ip(target.ms.map, target.addr)) == ops->target.addr)
+		ops->target.sym = target.ms.sym;
+>>>>>>> upstream/android-13
 
 	if (!ops->target.outside) {
 		ops->target.offset = target.addr - start;
@@ -373,15 +522,26 @@ static int jump__parse(struct arch *arch, struct ins_operands *ops, struct map_s
 }
 
 static int jump__scnprintf(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			   struct ins_operands *ops)
+=======
+			   struct ins_operands *ops, int max_ins_name)
+>>>>>>> upstream/android-13
 {
 	const char *c;
 
 	if (!ops->target.addr || ops->target.offset < 0)
+<<<<<<< HEAD
 		return ins__raw_scnprintf(ins, bf, size, ops);
 
 	if (ops->target.outside && ops->target.sym != NULL)
 		return scnprintf(bf, size, "%-6s %s", ins->name, ops->target.sym->name);
+=======
+		return ins__raw_scnprintf(ins, bf, size, ops, max_ins_name);
+
+	if (ops->target.outside && ops->target.sym != NULL)
+		return scnprintf(bf, size, "%-*s %s", max_ins_name, ins->name, ops->target.sym->name);
+>>>>>>> upstream/android-13
 
 	c = strchr(ops->raw, ',');
 	c = validate_comma(c, ops);
@@ -400,7 +560,11 @@ static int jump__scnprintf(struct ins *ins, char *bf, size_t size,
 			c++;
 	}
 
+<<<<<<< HEAD
 	return scnprintf(bf, size, "%-6s %.*s%" PRIx64,
+=======
+	return scnprintf(bf, size, "%-*s %.*s%" PRIx64, max_ins_name,
+>>>>>>> upstream/android-13
 			 ins->name, c ? c - ops->raw : 0, ops->raw,
 			 ops->target.offset);
 }
@@ -468,16 +632,28 @@ out_free_ops:
 }
 
 static int lock__scnprintf(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			   struct ins_operands *ops)
+=======
+			   struct ins_operands *ops, int max_ins_name)
+>>>>>>> upstream/android-13
 {
 	int printed;
 
 	if (ops->locked.ins.ops == NULL)
+<<<<<<< HEAD
 		return ins__raw_scnprintf(ins, bf, size, ops);
 
 	printed = scnprintf(bf, size, "%-6s ", ins->name);
 	return printed + ins__scnprintf(&ops->locked.ins, bf + printed,
 					size - printed, ops->locked.ops);
+=======
+		return ins__raw_scnprintf(ins, bf, size, ops, max_ins_name);
+
+	printed = scnprintf(bf, size, "%-*s ", max_ins_name, ins->name);
+	return printed + ins__scnprintf(&ops->locked.ins, bf + printed,
+					size - printed, ops->locked.ops, max_ins_name);
+>>>>>>> upstream/android-13
 }
 
 static void lock__delete(struct ins_operands *ops)
@@ -537,7 +713,11 @@ static int mov__parse(struct arch *arch, struct ins_operands *ops, struct map_sy
 	if (comment == NULL)
 		return 0;
 
+<<<<<<< HEAD
 	comment = ltrim(comment);
+=======
+	comment = skip_spaces(comment);
+>>>>>>> upstream/android-13
 	comment__symbol(ops->source.raw, comment + 1, &ops->source.addr, &ops->source.name);
 	comment__symbol(ops->target.raw, comment + 1, &ops->target.addr, &ops->target.name);
 
@@ -549,9 +729,15 @@ out_free_source:
 }
 
 static int mov__scnprintf(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			   struct ins_operands *ops)
 {
 	return scnprintf(bf, size, "%-6s %s,%s", ins->name,
+=======
+			   struct ins_operands *ops, int max_ins_name)
+{
+	return scnprintf(bf, size, "%-*s %s,%s", max_ins_name, ins->name,
+>>>>>>> upstream/android-13
 			 ops->source.name ?: ops->source.raw,
 			 ops->target.name ?: ops->target.raw);
 }
@@ -582,16 +768,26 @@ static int dec__parse(struct arch *arch __maybe_unused, struct ins_operands *ops
 	if (comment == NULL)
 		return 0;
 
+<<<<<<< HEAD
 	comment = ltrim(comment);
+=======
+	comment = skip_spaces(comment);
+>>>>>>> upstream/android-13
 	comment__symbol(ops->target.raw, comment + 1, &ops->target.addr, &ops->target.name);
 
 	return 0;
 }
 
 static int dec__scnprintf(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			   struct ins_operands *ops)
 {
 	return scnprintf(bf, size, "%-6s %s", ins->name,
+=======
+			   struct ins_operands *ops, int max_ins_name)
+{
+	return scnprintf(bf, size, "%-*s %s", max_ins_name, ins->name,
+>>>>>>> upstream/android-13
 			 ops->target.name ?: ops->target.raw);
 }
 
@@ -601,9 +797,15 @@ static struct ins_ops dec_ops = {
 };
 
 static int nop__scnprintf(struct ins *ins __maybe_unused, char *bf, size_t size,
+<<<<<<< HEAD
 			  struct ins_operands *ops __maybe_unused)
 {
 	return scnprintf(bf, size, "%-6s", "nop");
+=======
+			  struct ins_operands *ops __maybe_unused, int max_ins_name)
+{
+	return scnprintf(bf, size, "%-*s", max_ins_name, "nop");
+>>>>>>> upstream/android-13
 }
 
 static struct ins_ops nop_ops = {
@@ -821,6 +1023,13 @@ static int __symbol__account_cycles(struct cyc_hist *ch,
 			   ch[offset].start < start)
 			return 0;
 	}
+<<<<<<< HEAD
+=======
+
+	if (ch[offset].num < NUM_SPARKS)
+		ch[offset].cycles_spark[ch[offset].num] = cycles;
+
+>>>>>>> upstream/android-13
 	ch[offset].have_start = have_start;
 	ch[offset].start = start;
 	ch[offset].cycles += cycles;
@@ -828,6 +1037,7 @@ static int __symbol__account_cycles(struct cyc_hist *ch,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __symbol__inc_addr_samples(struct symbol *sym, struct map *map,
 				      struct annotated_source *src, int evidx, u64 addr,
 				      struct perf_sample *sample)
@@ -836,6 +1046,17 @@ static int __symbol__inc_addr_samples(struct symbol *sym, struct map *map,
 	struct sym_hist *h;
 
 	pr_debug3("%s: addr=%#" PRIx64 "\n", __func__, map->unmap_ip(map, addr));
+=======
+static int __symbol__inc_addr_samples(struct map_symbol *ms,
+				      struct annotated_source *src, int evidx, u64 addr,
+				      struct perf_sample *sample)
+{
+	struct symbol *sym = ms->sym;
+	unsigned offset;
+	struct sym_hist *h;
+
+	pr_debug3("%s: addr=%#" PRIx64 "\n", __func__, ms->map->unmap_ip(ms->map, addr));
+>>>>>>> upstream/android-13
 
 	if ((addr < sym->start || addr >= sym->end) &&
 	    (addr != sym->end || sym->start != sym->end)) {
@@ -902,17 +1123,30 @@ alloc_histograms:
 	return notes->src;
 }
 
+<<<<<<< HEAD
 static int symbol__inc_addr_samples(struct symbol *sym, struct map *map,
 				    struct perf_evsel *evsel, u64 addr,
 				    struct perf_sample *sample)
 {
+=======
+static int symbol__inc_addr_samples(struct map_symbol *ms,
+				    struct evsel *evsel, u64 addr,
+				    struct perf_sample *sample)
+{
+	struct symbol *sym = ms->sym;
+>>>>>>> upstream/android-13
 	struct annotated_source *src;
 
 	if (sym == NULL)
 		return 0;
+<<<<<<< HEAD
 	src = symbol__hists(sym, evsel->evlist->nr_entries);
 	return (src) ?  __symbol__inc_addr_samples(sym, map, src, evsel->idx,
 						   addr, sample) : 0;
+=======
+	src = symbol__hists(sym, evsel->evlist->core.nr_entries);
+	return src ? __symbol__inc_addr_samples(ms, src, evsel->core.idx, addr, sample) : 0;
+>>>>>>> upstream/android-13
 }
 
 static int symbol__account_cycles(u64 addr, u64 start,
@@ -960,17 +1194,29 @@ int addr_map_symbol__account_cycles(struct addr_map_symbol *ams,
 	 * it starts on the function start.
 	 */
 	if (start &&
+<<<<<<< HEAD
 		(start->sym == ams->sym ||
 		 (ams->sym &&
 		   start->addr == ams->sym->start + ams->map->start)))
+=======
+		(start->ms.sym == ams->ms.sym ||
+		 (ams->ms.sym &&
+		   start->addr == ams->ms.sym->start + ams->ms.map->start)))
+>>>>>>> upstream/android-13
 		saddr = start->al_addr;
 	if (saddr == 0)
 		pr_debug2("BB with bad start: addr %"PRIx64" start %"PRIx64" sym %"PRIx64" saddr %"PRIx64"\n",
 			ams->addr,
 			start ? start->addr : 0,
+<<<<<<< HEAD
 			ams->sym ? ams->sym->start + ams->map->start : 0,
 			saddr);
 	err = symbol__account_cycles(ams->al_addr, saddr, ams->sym, cycles);
+=======
+			ams->ms.sym ? ams->ms.sym->start + ams->ms.map->start : 0,
+			saddr);
+	err = symbol__account_cycles(ams->al_addr, saddr, ams->ms.sym, cycles);
+>>>>>>> upstream/android-13
 	if (err)
 		pr_debug2("account_cycles failed %d\n", err);
 	return err;
@@ -991,6 +1237,10 @@ static unsigned annotation__count_insn(struct annotation *notes, u64 start, u64 
 static void annotation__count_and_fill(struct annotation *notes, u64 start, u64 end, struct cyc_hist *ch)
 {
 	unsigned n_insn;
+<<<<<<< HEAD
+=======
+	unsigned int cover_insn = 0;
+>>>>>>> upstream/android-13
 	u64 offset;
 
 	n_insn = annotation__count_insn(notes, start, end);
@@ -998,27 +1248,58 @@ static void annotation__count_and_fill(struct annotation *notes, u64 start, u64 
 		float ipc = n_insn / ((double)ch->cycles / (double)ch->num);
 
 		/* Hide data when there are too many overlaps. */
+<<<<<<< HEAD
 		if (ch->reset >= 0x7fff || ch->reset >= ch->num / 2)
+=======
+		if (ch->reset >= 0x7fff)
+>>>>>>> upstream/android-13
 			return;
 
 		for (offset = start; offset <= end; offset++) {
 			struct annotation_line *al = notes->offsets[offset];
 
+<<<<<<< HEAD
 			if (al)
 				al->ipc = ipc;
+=======
+			if (al && al->ipc == 0.0) {
+				al->ipc = ipc;
+				cover_insn++;
+			}
+		}
+
+		if (cover_insn) {
+			notes->hit_cycles += ch->cycles;
+			notes->hit_insn += n_insn * ch->num;
+			notes->cover_insn += cover_insn;
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
 void annotation__compute_ipc(struct annotation *notes, size_t size)
 {
+<<<<<<< HEAD
 	u64 offset;
+=======
+	s64 offset;
+>>>>>>> upstream/android-13
 
 	if (!notes->src || !notes->src->cycles_hist)
 		return;
 
+<<<<<<< HEAD
 	pthread_mutex_lock(&notes->lock);
 	for (offset = 0; offset < size; ++offset) {
+=======
+	notes->total_insn = annotation__count_insn(notes, 0, size - 1);
+	notes->hit_cycles = 0;
+	notes->hit_insn = 0;
+	notes->cover_insn = 0;
+
+	pthread_mutex_lock(&notes->lock);
+	for (offset = size - 1; offset >= 0; --offset) {
+>>>>>>> upstream/android-13
 		struct cyc_hist *ch;
 
 		ch = &notes->src->cycles_hist[offset];
@@ -1040,6 +1321,7 @@ void annotation__compute_ipc(struct annotation *notes, size_t size)
 }
 
 int addr_map_symbol__inc_samples(struct addr_map_symbol *ams, struct perf_sample *sample,
+<<<<<<< HEAD
 				 struct perf_evsel *evsel)
 {
 	return symbol__inc_addr_samples(ams->sym, ams->map, evsel, ams->al_addr, sample);
@@ -1049,6 +1331,17 @@ int hist_entry__inc_addr_samples(struct hist_entry *he, struct perf_sample *samp
 				 struct perf_evsel *evsel, u64 ip)
 {
 	return symbol__inc_addr_samples(he->ms.sym, he->ms.map, evsel, ip, sample);
+=======
+				 struct evsel *evsel)
+{
+	return symbol__inc_addr_samples(&ams->ms, evsel, ams->al_addr, sample);
+}
+
+int hist_entry__inc_addr_samples(struct hist_entry *he, struct perf_sample *sample,
+				 struct evsel *evsel, u64 ip)
+{
+	return symbol__inc_addr_samples(&he->ms, evsel, ip, sample);
+>>>>>>> upstream/android-13
 }
 
 static void disasm_line__init_ins(struct disasm_line *dl, struct arch *arch, struct map_symbol *ms)
@@ -1064,7 +1357,11 @@ static void disasm_line__init_ins(struct disasm_line *dl, struct arch *arch, str
 
 static int disasm_line__parse(char *line, const char **namep, char **rawp)
 {
+<<<<<<< HEAD
 	char tmp, *name = ltrim(line);
+=======
+	char tmp, *name = skip_spaces(line);
+>>>>>>> upstream/android-13
 
 	if (name[0] == '\0')
 		return -1;
@@ -1082,7 +1379,11 @@ static int disasm_line__parse(char *line, const char **namep, char **rawp)
 		goto out;
 
 	(*rawp)[0] = tmp;
+<<<<<<< HEAD
 	*rawp = ltrim(*rawp);
+=======
+	*rawp = strim(*rawp);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1091,6 +1392,7 @@ out:
 }
 
 struct annotate_args {
+<<<<<<< HEAD
 	size_t			 privsize;
 	struct arch		*arch;
 	struct map_symbol	 ms;
@@ -1145,12 +1447,47 @@ annotation_line__new(struct annotate_args *args, size_t privsize)
 	}
 
 	return al;
+=======
+	struct arch		  *arch;
+	struct map_symbol	  ms;
+	struct evsel		  *evsel;
+	struct annotation_options *options;
+	s64			  offset;
+	char			  *line;
+	int			  line_nr;
+	char			  *fileloc;
+};
+
+static void annotation_line__init(struct annotation_line *al,
+				  struct annotate_args *args,
+				  int nr)
+{
+	al->offset = args->offset;
+	al->line = strdup(args->line);
+	al->line_nr = args->line_nr;
+	al->fileloc = args->fileloc;
+	al->data_nr = nr;
+}
+
+static void annotation_line__exit(struct annotation_line *al)
+{
+	free_srcline(al->path);
+	zfree(&al->line);
+}
+
+static size_t disasm_line_size(int nr)
+{
+	struct annotation_line *al;
+
+	return (sizeof(struct disasm_line) + (sizeof(al->data[0]) * nr));
+>>>>>>> upstream/android-13
 }
 
 /*
  * Allocating the disasm annotation line data with
  * following structure:
  *
+<<<<<<< HEAD
  *    ------------------------------------------------------------
  *    privsize space | struct disasm_line | struct annotation_line
  *    ------------------------------------------------------------
@@ -1158,10 +1495,19 @@ annotation_line__new(struct annotate_args *args, size_t privsize)
  * We have 'struct annotation_line' member as last member
  * of 'struct disasm_line' to have an easy access.
  *
+=======
+ *    -------------------------------------------
+ *    struct disasm_line | struct annotation_line
+ *    -------------------------------------------
+ *
+ * We have 'struct annotation_line' member as last member
+ * of 'struct disasm_line' to have an easy access.
+>>>>>>> upstream/android-13
  */
 static struct disasm_line *disasm_line__new(struct annotate_args *args)
 {
 	struct disasm_line *dl = NULL;
+<<<<<<< HEAD
 	struct annotation_line *al;
 	size_t privsize = args->privsize + offsetof(struct disasm_line, al);
 
@@ -1178,6 +1524,26 @@ static struct disasm_line *disasm_line__new(struct annotate_args *args)
 
 			disasm_line__init_ins(dl, args->arch, &args->ms);
 		}
+=======
+	int nr = 1;
+
+	if (evsel__is_group_event(args->evsel))
+		nr = args->evsel->core.nr_members;
+
+	dl = zalloc(disasm_line_size(nr));
+	if (!dl)
+		return NULL;
+
+	annotation_line__init(&dl->al, args, nr);
+	if (dl->al.line == NULL)
+		goto out_delete;
+
+	if (args->offset != -1) {
+		if (disasm_line__parse(dl->al.line, &dl->ins.name, &dl->ops.raw) < 0)
+			goto out_free_line;
+
+		disasm_line__init_ins(dl, args->arch, &args->ms);
+>>>>>>> upstream/android-13
 	}
 
 	return dl;
@@ -1195,6 +1561,7 @@ void disasm_line__free(struct disasm_line *dl)
 		dl->ins.ops->free(&dl->ops);
 	else
 		ins__delete(&dl->ops);
+<<<<<<< HEAD
 	free((void *)dl->ins.name);
 	dl->ins.name = NULL;
 	annotation_line__delete(&dl->al);
@@ -1206,6 +1573,19 @@ int disasm_line__scnprintf(struct disasm_line *dl, char *bf, size_t size, bool r
 		return scnprintf(bf, size, "%-6s %s", dl->ins.name, dl->ops.raw);
 
 	return ins__scnprintf(&dl->ins, bf, size, &dl->ops);
+=======
+	zfree(&dl->ins.name);
+	annotation_line__exit(&dl->al);
+	free(dl);
+}
+
+int disasm_line__scnprintf(struct disasm_line *dl, char *bf, size_t size, bool raw, int max_ins_name)
+{
+	if (raw || !dl->ins.ops)
+		return scnprintf(bf, size, "%-*s %s", max_ins_name, dl->ins.name, dl->ops.raw);
+
+	return ins__scnprintf(&dl->ins, bf, size, &dl->ops, max_ins_name);
+>>>>>>> upstream/android-13
 }
 
 static void annotation_line__add(struct annotation_line *al, struct list_head *head)
@@ -1320,13 +1700,20 @@ static int disasm_line__print(struct disasm_line *dl, u64 start, int addr_fmt_wi
 
 static int
 annotation_line__print(struct annotation_line *al, struct symbol *sym, u64 start,
+<<<<<<< HEAD
 		       struct perf_evsel *evsel, u64 len, int min_pcnt, int printed,
+=======
+		       struct evsel *evsel, u64 len, int min_pcnt, int printed,
+>>>>>>> upstream/android-13
 		       int max_lines, struct annotation_line *queue, int addr_fmt_width,
 		       int percent_type)
 {
 	struct disasm_line *dl = container_of(al, struct disasm_line, al);
 	static const char *prev_line;
+<<<<<<< HEAD
 	static const char *prev_color;
+=======
+>>>>>>> upstream/android-13
 
 	if (al->offset != -1) {
 		double max_percent = 0.0;
@@ -1365,6 +1752,7 @@ annotation_line__print(struct annotation_line *al, struct symbol *sym, u64 start
 
 		color = get_percent_color(max_percent);
 
+<<<<<<< HEAD
 		/*
 		 * Also color the filename and line if needed, with
 		 * the same color than the percentage. Don't print it
@@ -1379,6 +1767,8 @@ annotation_line__print(struct annotation_line *al, struct symbol *sym, u64 start
 			}
 		}
 
+=======
+>>>>>>> upstream/android-13
 		for (i = 0; i < nr_percent; i++) {
 			struct annotation_data *data = &al->data[i];
 			double percent;
@@ -1399,6 +1789,22 @@ annotation_line__print(struct annotation_line *al, struct symbol *sym, u64 start
 		printf(" : ");
 
 		disasm_line__print(dl, start, addr_fmt_width);
+<<<<<<< HEAD
+=======
+
+		/*
+		 * Also color the filename and line if needed, with
+		 * the same color than the percentage. Don't print it
+		 * twice for close colored addr with the same filename:line
+		 */
+		if (al->path) {
+			if (!prev_line || strcmp(prev_line, al->path)) {
+				color_fprintf(stdout, color, " // %s", al->path);
+				prev_line = al->path;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		printf("\n");
 	} else if (max_lines && printed >= max_lines)
 		return 1;
@@ -1408,13 +1814,22 @@ annotation_line__print(struct annotation_line *al, struct symbol *sym, u64 start
 		if (queue)
 			return -1;
 
+<<<<<<< HEAD
 		if (perf_evsel__is_group_event(evsel))
 			width *= evsel->nr_members;
+=======
+		if (evsel__is_group_event(evsel))
+			width *= evsel->core.nr_members;
+>>>>>>> upstream/android-13
 
 		if (!*al->line)
 			printf(" %*s:\n", width, " ");
 		else
+<<<<<<< HEAD
 			printf(" %*s:     %*s %s\n", width, " ", addr_fmt_width, " ", al->line);
+=======
+			printf(" %*s: %-*d %s\n", width, " ", addr_fmt_width, al->line_nr, al->line);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1440,13 +1855,20 @@ annotation_line__print(struct annotation_line *al, struct symbol *sym, u64 start
  * means that it's not a disassembly line so should be treated differently.
  * The ops.raw part will be parsed further according to type of the instruction.
  */
+<<<<<<< HEAD
 static int symbol__parse_objdump_line(struct symbol *sym, FILE *file,
 				      struct annotate_args *args,
 				      int *line_nr)
+=======
+static int symbol__parse_objdump_line(struct symbol *sym,
+				      struct annotate_args *args,
+				      char *parsed_line, int *line_nr, char **fileloc)
+>>>>>>> upstream/android-13
 {
 	struct map *map = args->ms.map;
 	struct annotation *notes = symbol__annotation(sym);
 	struct disasm_line *dl;
+<<<<<<< HEAD
 	char *line = NULL, *parsed_line, *tmp, *tmp2;
 	size_t line_len;
 	s64 line_ip, offset = -1;
@@ -1478,6 +1900,22 @@ static int symbol__parse_objdump_line(struct symbol *sym, FILE *file,
 	}
 
 	if (line_ip != -1) {
+=======
+	char *tmp;
+	s64 line_ip, offset = -1;
+	regmatch_t match[2];
+
+	/* /filename:linenr ? Save line number and ignore. */
+	if (regexec(&file_lineno, parsed_line, 2, match, 0) == 0) {
+		*line_nr = atoi(parsed_line + match[1].rm_so);
+		*fileloc = strdup(parsed_line);
+		return 0;
+	}
+
+	/* Process hex address followed by ':'. */
+	line_ip = strtoull(parsed_line, &tmp, 16);
+	if (parsed_line != tmp && tmp[0] == ':' && tmp[1] != '\0') {
+>>>>>>> upstream/android-13
 		u64 start = map__rip_2objdump(map, sym->start),
 		    end = map__rip_2objdump(map, sym->end);
 
@@ -1485,16 +1923,27 @@ static int symbol__parse_objdump_line(struct symbol *sym, FILE *file,
 		if ((u64)line_ip < start || (u64)line_ip >= end)
 			offset = -1;
 		else
+<<<<<<< HEAD
 			parsed_line = tmp2 + 1;
+=======
+			parsed_line = tmp + 1;
+>>>>>>> upstream/android-13
 	}
 
 	args->offset  = offset;
 	args->line    = parsed_line;
 	args->line_nr = *line_nr;
+<<<<<<< HEAD
 	args->ms.sym  = sym;
 
 	dl = disasm_line__new(args);
 	free(line);
+=======
+	args->fileloc = *fileloc;
+	args->ms.sym  = sym;
+
+	dl = disasm_line__new(args);
+>>>>>>> upstream/android-13
 	(*line_nr)++;
 
 	if (dl == NULL)
@@ -1509,6 +1958,7 @@ static int symbol__parse_objdump_line(struct symbol *sym, FILE *file,
 	/* kcore has no symbols, so add the call target symbol */
 	if (dl->ins.ops && ins__is_call(&dl->ins) && !dl->ops.target.sym) {
 		struct addr_map_symbol target = {
+<<<<<<< HEAD
 			.map = map,
 			.addr = dl->ops.target.addr,
 		};
@@ -1516,6 +1966,15 @@ static int symbol__parse_objdump_line(struct symbol *sym, FILE *file,
 		if (!map_groups__find_ams(&target) &&
 		    target.sym->start == target.al_addr)
 			dl->ops.target.sym = target.sym;
+=======
+			.addr = dl->ops.target.addr,
+			.ms = { .map = map, },
+		};
+
+		if (!maps__find_ams(args->ms.maps, &target) &&
+		    target.ms.sym->start == target.al_addr)
+			dl->ops.target.sym = target.ms.sym;
+>>>>>>> upstream/android-13
 	}
 
 	annotation_line__add(&dl->al, &notes->src->source);
@@ -1547,15 +2006,25 @@ static void delete_last_nop(struct symbol *sym)
 				return;
 		}
 
+<<<<<<< HEAD
 		list_del(&dl->al.node);
+=======
+		list_del_init(&dl->al.node);
+>>>>>>> upstream/android-13
 		disasm_line__free(dl);
 	}
 }
 
+<<<<<<< HEAD
 int symbol__strerror_disassemble(struct symbol *sym __maybe_unused, struct map *map,
 			      int errnum, char *buf, size_t buflen)
 {
 	struct dso *dso = map->dso;
+=======
+int symbol__strerror_disassemble(struct map_symbol *ms, int errnum, char *buf, size_t buflen)
+{
+	struct dso *dso = ms->map->dso;
+>>>>>>> upstream/android-13
 
 	BUG_ON(buflen == 0);
 
@@ -1570,8 +2039,12 @@ int symbol__strerror_disassemble(struct symbol *sym __maybe_unused, struct map *
 		char *build_id_msg = NULL;
 
 		if (dso->has_build_id) {
+<<<<<<< HEAD
 			build_id__sprintf(dso->build_id,
 					  sizeof(dso->build_id), bf + 15);
+=======
+			build_id__sprintf(&dso->bid, bf + 15);
+>>>>>>> upstream/android-13
 			build_id_msg = bf;
 		}
 		scnprintf(buf, buflen,
@@ -1583,6 +2056,25 @@ int symbol__strerror_disassemble(struct symbol *sym __maybe_unused, struct map *
 			  "  --vmlinux vmlinux\n", build_id_msg ?: "");
 	}
 		break;
+<<<<<<< HEAD
+=======
+	case SYMBOL_ANNOTATE_ERRNO__NO_LIBOPCODES_FOR_BPF:
+		scnprintf(buf, buflen, "Please link with binutils's libopcode to enable BPF annotation");
+		break;
+	case SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_REGEXP:
+		scnprintf(buf, buflen, "Problems with arch specific instruction name regular expressions.");
+		break;
+	case SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING:
+		scnprintf(buf, buflen, "Problems while parsing the CPUID in the arch specific initialization.");
+		break;
+	case SYMBOL_ANNOTATE_ERRNO__BPF_INVALID_FILE:
+		scnprintf(buf, buflen, "Invalid BPF file: %s.", dso->long_name);
+		break;
+	case SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF:
+		scnprintf(buf, buflen, "The %s BPF file has no BTF section, compile with -g or use pahole -J.",
+			  dso->long_name);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		scnprintf(buf, buflen, "Internal error: Invalid %d error code\n", errnum);
 		break;
@@ -1597,6 +2089,10 @@ static int dso__disassemble_filename(struct dso *dso, char *filename, size_t fil
 	char *build_id_filename;
 	char *build_id_path = NULL;
 	char *pos;
+<<<<<<< HEAD
+=======
+	int len;
+>>>>>>> upstream/android-13
 
 	if (dso->symtab_type == DSO_BINARY_TYPE__KALLSYMS &&
 	    !dso__is_kcore(dso))
@@ -1625,10 +2121,23 @@ static int dso__disassemble_filename(struct dso *dso, char *filename, size_t fil
 	if (pos && strlen(pos) < SBUILD_ID_SIZE - 2)
 		dirname(build_id_path);
 
+<<<<<<< HEAD
 	if (dso__is_kcore(dso) ||
 	    readlink(build_id_path, linkname, sizeof(linkname)) < 0 ||
 	    strstr(linkname, DSO__NAME_KALLSYMS) ||
 	    access(filename, R_OK)) {
+=======
+	if (dso__is_kcore(dso))
+		goto fallback;
+
+	len = readlink(build_id_path, linkname, sizeof(linkname) - 1);
+	if (len < 0)
+		goto fallback;
+
+	linkname[len] = '\0';
+	if (strstr(linkname, DSO__NAME_KALLSYMS) ||
+		access(filename, R_OK)) {
+>>>>>>> upstream/android-13
 fallback:
 		/*
 		 * If we don't have build-ids or the build-id file isn't in the
@@ -1642,6 +2151,249 @@ fallback:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if defined(HAVE_LIBBFD_SUPPORT) && defined(HAVE_LIBBPF_SUPPORT)
+#define PACKAGE "perf"
+#include <bfd.h>
+#include <dis-asm.h>
+#include <bpf/bpf.h>
+#include <bpf/btf.h>
+#include <bpf/libbpf.h>
+#include <linux/btf.h>
+
+static int symbol__disassemble_bpf(struct symbol *sym,
+				   struct annotate_args *args)
+{
+	struct annotation *notes = symbol__annotation(sym);
+	struct annotation_options *opts = args->options;
+	struct bpf_prog_info_linear *info_linear;
+	struct bpf_prog_linfo *prog_linfo = NULL;
+	struct bpf_prog_info_node *info_node;
+	int len = sym->end - sym->start;
+	disassembler_ftype disassemble;
+	struct map *map = args->ms.map;
+	struct disassemble_info info;
+	struct dso *dso = map->dso;
+	int pc = 0, count, sub_id;
+	struct btf *btf = NULL;
+	char tpath[PATH_MAX];
+	size_t buf_size;
+	int nr_skip = 0;
+	char *buf;
+	bfd *bfdf;
+	int ret;
+	FILE *s;
+
+	if (dso->binary_type != DSO_BINARY_TYPE__BPF_PROG_INFO)
+		return SYMBOL_ANNOTATE_ERRNO__BPF_INVALID_FILE;
+
+	pr_debug("%s: handling sym %s addr %" PRIx64 " len %" PRIx64 "\n", __func__,
+		  sym->name, sym->start, sym->end - sym->start);
+
+	memset(tpath, 0, sizeof(tpath));
+	perf_exe(tpath, sizeof(tpath));
+
+	bfdf = bfd_openr(tpath, NULL);
+	assert(bfdf);
+	assert(bfd_check_format(bfdf, bfd_object));
+
+	s = open_memstream(&buf, &buf_size);
+	if (!s) {
+		ret = errno;
+		goto out;
+	}
+	init_disassemble_info(&info, s,
+			      (fprintf_ftype) fprintf);
+
+	info.arch = bfd_get_arch(bfdf);
+	info.mach = bfd_get_mach(bfdf);
+
+	info_node = perf_env__find_bpf_prog_info(dso->bpf_prog.env,
+						 dso->bpf_prog.id);
+	if (!info_node) {
+		ret = SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF;
+		goto out;
+	}
+	info_linear = info_node->info_linear;
+	sub_id = dso->bpf_prog.sub_id;
+
+	info.buffer = (void *)(uintptr_t)(info_linear->info.jited_prog_insns);
+	info.buffer_length = info_linear->info.jited_prog_len;
+
+	if (info_linear->info.nr_line_info)
+		prog_linfo = bpf_prog_linfo__new(&info_linear->info);
+
+	if (info_linear->info.btf_id) {
+		struct btf_node *node;
+
+		node = perf_env__find_btf(dso->bpf_prog.env,
+					  info_linear->info.btf_id);
+		if (node)
+			btf = btf__new((__u8 *)(node->data),
+				       node->data_size);
+	}
+
+	disassemble_init_for_target(&info);
+
+#ifdef DISASM_FOUR_ARGS_SIGNATURE
+	disassemble = disassembler(info.arch,
+				   bfd_big_endian(bfdf),
+				   info.mach,
+				   bfdf);
+#else
+	disassemble = disassembler(bfdf);
+#endif
+	assert(disassemble);
+
+	fflush(s);
+	do {
+		const struct bpf_line_info *linfo = NULL;
+		struct disasm_line *dl;
+		size_t prev_buf_size;
+		const char *srcline;
+		u64 addr;
+
+		addr = pc + ((u64 *)(uintptr_t)(info_linear->info.jited_ksyms))[sub_id];
+		count = disassemble(pc, &info);
+
+		if (prog_linfo)
+			linfo = bpf_prog_linfo__lfind_addr_func(prog_linfo,
+								addr, sub_id,
+								nr_skip);
+
+		if (linfo && btf) {
+			srcline = btf__name_by_offset(btf, linfo->line_off);
+			nr_skip++;
+		} else
+			srcline = NULL;
+
+		fprintf(s, "\n");
+		prev_buf_size = buf_size;
+		fflush(s);
+
+		if (!opts->hide_src_code && srcline) {
+			args->offset = -1;
+			args->line = strdup(srcline);
+			args->line_nr = 0;
+			args->fileloc = NULL;
+			args->ms.sym  = sym;
+			dl = disasm_line__new(args);
+			if (dl) {
+				annotation_line__add(&dl->al,
+						     &notes->src->source);
+			}
+		}
+
+		args->offset = pc;
+		args->line = buf + prev_buf_size;
+		args->line_nr = 0;
+		args->fileloc = NULL;
+		args->ms.sym  = sym;
+		dl = disasm_line__new(args);
+		if (dl)
+			annotation_line__add(&dl->al, &notes->src->source);
+
+		pc += count;
+	} while (count > 0 && pc < len);
+
+	ret = 0;
+out:
+	free(prog_linfo);
+	btf__free(btf);
+	fclose(s);
+	bfd_close(bfdf);
+	return ret;
+}
+#else // defined(HAVE_LIBBFD_SUPPORT) && defined(HAVE_LIBBPF_SUPPORT)
+static int symbol__disassemble_bpf(struct symbol *sym __maybe_unused,
+				   struct annotate_args *args __maybe_unused)
+{
+	return SYMBOL_ANNOTATE_ERRNO__NO_LIBOPCODES_FOR_BPF;
+}
+#endif // defined(HAVE_LIBBFD_SUPPORT) && defined(HAVE_LIBBPF_SUPPORT)
+
+static int
+symbol__disassemble_bpf_image(struct symbol *sym,
+			      struct annotate_args *args)
+{
+	struct annotation *notes = symbol__annotation(sym);
+	struct disasm_line *dl;
+
+	args->offset = -1;
+	args->line = strdup("to be implemented");
+	args->line_nr = 0;
+	args->fileloc = NULL;
+	dl = disasm_line__new(args);
+	if (dl)
+		annotation_line__add(&dl->al, &notes->src->source);
+
+	free(args->line);
+	return 0;
+}
+
+/*
+ * Possibly create a new version of line with tabs expanded. Returns the
+ * existing or new line, storage is updated if a new line is allocated. If
+ * allocation fails then NULL is returned.
+ */
+static char *expand_tabs(char *line, char **storage, size_t *storage_len)
+{
+	size_t i, src, dst, len, new_storage_len, num_tabs;
+	char *new_line;
+	size_t line_len = strlen(line);
+
+	for (num_tabs = 0, i = 0; i < line_len; i++)
+		if (line[i] == '\t')
+			num_tabs++;
+
+	if (num_tabs == 0)
+		return line;
+
+	/*
+	 * Space for the line and '\0', less the leading and trailing
+	 * spaces. Each tab may introduce 7 additional spaces.
+	 */
+	new_storage_len = line_len + 1 + (num_tabs * 7);
+
+	new_line = malloc(new_storage_len);
+	if (new_line == NULL) {
+		pr_err("Failure allocating memory for tab expansion\n");
+		return NULL;
+	}
+
+	/*
+	 * Copy regions starting at src and expand tabs. If there are two
+	 * adjacent tabs then 'src == i', the memcpy is of size 0 and the spaces
+	 * are inserted.
+	 */
+	for (i = 0, src = 0, dst = 0; i < line_len && num_tabs; i++) {
+		if (line[i] == '\t') {
+			len = i - src;
+			memcpy(&new_line[dst], &line[src], len);
+			dst += len;
+			new_line[dst++] = ' ';
+			while (dst % 8 != 0)
+				new_line[dst++] = ' ';
+			src = i + 1;
+			num_tabs--;
+		}
+	}
+
+	/* Expand the last region. */
+	len = line_len - src;
+	memcpy(&new_line[dst], &line[src], len);
+	dst += len;
+	new_line[dst] = '\0';
+
+	free(*storage);
+	*storage = new_line;
+	*storage_len = new_storage_len;
+	return new_line;
+
+}
+
+>>>>>>> upstream/android-13
 static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 {
 	struct annotation_options *opts = args->options;
@@ -1653,10 +2405,27 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 	struct kcore_extract kce;
 	bool delete_extract = false;
 	bool decomp = false;
+<<<<<<< HEAD
 	int stdout_fd[2];
 	int lineno = 0;
 	int nline;
 	pid_t pid;
+=======
+	int lineno = 0;
+	char *fileloc = NULL;
+	int nline;
+	char *line;
+	size_t line_len;
+	const char *objdump_argv[] = {
+		"/bin/sh",
+		"-c",
+		NULL, /* Will be the objdump command to run. */
+		"--",
+		NULL, /* Will be the symfs path. */
+		NULL,
+	};
+	struct child_process objdump_process;
+>>>>>>> upstream/android-13
 	int err = dso__disassemble_filename(dso, symfs_filename, sizeof(symfs_filename));
 
 	if (err)
@@ -1669,7 +2438,15 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 	pr_debug("annotating [%p] %30s : [%p] %30s\n",
 		 dso, dso->long_name, sym, sym->name);
 
+<<<<<<< HEAD
 	if (dso__is_kcore(dso)) {
+=======
+	if (dso->binary_type == DSO_BINARY_TYPE__BPF_PROG_INFO) {
+		return symbol__disassemble_bpf(sym, args);
+	} else if (dso->binary_type == DSO_BINARY_TYPE__BPF_IMAGE) {
+		return symbol__disassemble_bpf_image(sym, args);
+	} else if (dso__is_kcore(dso)) {
+>>>>>>> upstream/android-13
 		kce.kcore_filename = symfs_filename;
 		kce.addr = map__rip_2objdump(map, sym->start);
 		kce.offs = sym->start;
@@ -1684,7 +2461,11 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 
 		if (dso__decompress_kmodule_path(dso, symfs_filename,
 						 tmp, sizeof(tmp)) < 0)
+<<<<<<< HEAD
 			goto out;
+=======
+			return -1;
+>>>>>>> upstream/android-13
 
 		decomp = true;
 		strcpy(symfs_filename, tmp);
@@ -1693,15 +2474,30 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 	err = asprintf(&command,
 		 "%s %s%s --start-address=0x%016" PRIx64
 		 " --stop-address=0x%016" PRIx64
+<<<<<<< HEAD
 		 " -l -d %s %s -C \"%s\" 2>/dev/null|grep -v \"%s:\"|expand",
+=======
+		 " -l -d %s %s %s %c%s%c %s%s -C \"$1\"",
+>>>>>>> upstream/android-13
 		 opts->objdump_path ?: "objdump",
 		 opts->disassembler_style ? "-M " : "",
 		 opts->disassembler_style ?: "",
 		 map__rip_2objdump(map, sym->start),
 		 map__rip_2objdump(map, sym->end),
+<<<<<<< HEAD
 		 opts->show_asm_raw ? "" : "--no-show-raw",
 		 opts->annotate_src ? "-S" : "",
 		 symfs_filename, symfs_filename);
+=======
+		 opts->show_asm_raw ? "" : "--no-show-raw-insn",
+		 opts->annotate_src ? "-S" : "",
+		 opts->prefix ? "--prefix " : "",
+		 opts->prefix ? '"' : ' ',
+		 opts->prefix ?: "",
+		 opts->prefix ? '"' : ' ',
+		 opts->prefix_strip ? "--prefix-strip=" : "",
+		 opts->prefix_strip ?: "");
+>>>>>>> upstream/android-13
 
 	if (err < 0) {
 		pr_err("Failure allocating memory for the command to run\n");
@@ -1710,6 +2506,7 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 
 	pr_debug("Executing: %s\n", command);
 
+<<<<<<< HEAD
 	err = -1;
 	if (pipe(stdout_fd) < 0) {
 		pr_err("Failure creating the pipe to run %s\n", command);
@@ -1734,12 +2531,29 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 	close(stdout_fd[1]);
 
 	file = fdopen(stdout_fd[0], "r");
+=======
+	objdump_argv[2] = command;
+	objdump_argv[4] = symfs_filename;
+
+	/* Create a pipe to read from for stdout */
+	memset(&objdump_process, 0, sizeof(objdump_process));
+	objdump_process.argv = objdump_argv;
+	objdump_process.out = -1;
+	if (start_command(&objdump_process)) {
+		pr_err("Failure starting to run %s\n", command);
+		err = -1;
+		goto out_free_command;
+	}
+
+	file = fdopen(objdump_process.out, "r");
+>>>>>>> upstream/android-13
 	if (!file) {
 		pr_err("Failure creating FILE stream for %s\n", command);
 		/*
 		 * If we were using debug info should retry with
 		 * original binary.
 		 */
+<<<<<<< HEAD
 		goto out_free_command;
 	}
 
@@ -1758,6 +2572,55 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 
 	if (nline == 0)
 		pr_err("No output from %s\n", command);
+=======
+		err = -1;
+		goto out_close_stdout;
+	}
+
+	/* Storage for getline. */
+	line = NULL;
+	line_len = 0;
+
+	nline = 0;
+	while (!feof(file)) {
+		const char *match;
+		char *expanded_line;
+
+		if (getline(&line, &line_len, file) < 0 || !line)
+			break;
+
+		/* Skip lines containing "filename:" */
+		match = strstr(line, symfs_filename);
+		if (match && match[strlen(symfs_filename)] == ':')
+			continue;
+
+		expanded_line = strim(line);
+		expanded_line = expand_tabs(expanded_line, &line, &line_len);
+		if (!expanded_line)
+			break;
+
+		/*
+		 * The source code line number (lineno) needs to be kept in
+		 * across calls to symbol__parse_objdump_line(), so that it
+		 * can associate it with the instructions till the next one.
+		 * See disasm_line__new() and struct disasm_line::line_nr.
+		 */
+		if (symbol__parse_objdump_line(sym, args, expanded_line,
+					       &lineno, &fileloc) < 0)
+			break;
+		nline++;
+	}
+	free(line);
+
+	err = finish_command(&objdump_process);
+	if (err)
+		pr_err("Error running %s\n", command);
+
+	if (nline == 0) {
+		err = -1;
+		pr_err("No output from %s\n", command);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * kallsyms does not have symbol sizes so there may a nop at the end.
@@ -1767,23 +2630,39 @@ static int symbol__disassemble(struct symbol *sym, struct annotate_args *args)
 		delete_last_nop(sym);
 
 	fclose(file);
+<<<<<<< HEAD
 	err = 0;
 out_free_command:
 	free(command);
 out_remove_tmp:
 	close(stdout_fd[0]);
 
+=======
+
+out_close_stdout:
+	close(objdump_process.out);
+
+out_free_command:
+	free(command);
+
+out_remove_tmp:
+>>>>>>> upstream/android-13
 	if (decomp)
 		unlink(symfs_filename);
 
 	if (delete_extract)
 		kcore_extract__delete(&kce);
+<<<<<<< HEAD
 out:
 	return err;
 
 out_close_stdout:
 	close(stdout_fd[1]);
 	goto out_free_command;
+=======
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void calc_percent(struct sym_hist *sym_hist,
@@ -1817,10 +2696,17 @@ static void calc_percent(struct sym_hist *sym_hist,
 }
 
 static void annotation__calc_percent(struct annotation *notes,
+<<<<<<< HEAD
 				     struct perf_evsel *leader, s64 len)
 {
 	struct annotation_line *al, *next;
 	struct perf_evsel *evsel;
+=======
+				     struct evsel *leader, s64 len)
+{
+	struct annotation_line *al, *next;
+	struct evsel *evsel;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(al, &notes->src->source, node) {
 		s64 end;
@@ -1839,7 +2725,11 @@ static void annotation__calc_percent(struct annotation *notes,
 
 			BUG_ON(i >= al->data_nr);
 
+<<<<<<< HEAD
 			sym_hist = annotation__histogram(notes, evsel->idx);
+=======
+			sym_hist = annotation__histogram(notes, evsel->core.idx);
+>>>>>>> upstream/android-13
 			data = &al->data[i++];
 
 			calc_percent(sym_hist, hists, data, al->offset, end);
@@ -1847,13 +2737,18 @@ static void annotation__calc_percent(struct annotation *notes,
 	}
 }
 
+<<<<<<< HEAD
 void symbol__calc_percent(struct symbol *sym, struct perf_evsel *evsel)
+=======
+void symbol__calc_percent(struct symbol *sym, struct evsel *evsel)
+>>>>>>> upstream/android-13
 {
 	struct annotation *notes = symbol__annotation(sym);
 
 	annotation__calc_percent(notes, evsel, symbol__size(sym));
 }
 
+<<<<<<< HEAD
 int symbol__annotate(struct symbol *sym, struct map *map,
 		     struct perf_evsel *evsel, size_t privsize,
 		     struct annotation_options *options,
@@ -1866,6 +2761,18 @@ int symbol__annotate(struct symbol *sym, struct map *map,
 		.options	= options,
 	};
 	struct perf_env *env = perf_evsel__env(evsel);
+=======
+int symbol__annotate(struct map_symbol *ms, struct evsel *evsel,
+		     struct annotation_options *options, struct arch **parch)
+{
+	struct symbol *sym = ms->sym;
+	struct annotation *notes = symbol__annotation(sym);
+	struct annotate_args args = {
+		.evsel		= evsel,
+		.options	= options,
+	};
+	struct perf_env *env = evsel__env(evsel);
+>>>>>>> upstream/android-13
 	const char *arch_name = perf_env__arch(env);
 	struct arch *arch;
 	int err;
@@ -1874,8 +2781,15 @@ int symbol__annotate(struct symbol *sym, struct map *map,
 		return errno;
 
 	args.arch = arch = arch__find(arch_name);
+<<<<<<< HEAD
 	if (arch == NULL)
 		return ENOTSUP;
+=======
+	if (arch == NULL) {
+		pr_err("%s: unsupported arch %s\n", __func__, arch_name);
+		return ENOTSUP;
+	}
+>>>>>>> upstream/android-13
 
 	if (parch)
 		*parch = arch;
@@ -1888,9 +2802,14 @@ int symbol__annotate(struct symbol *sym, struct map *map,
 		}
 	}
 
+<<<<<<< HEAD
 	args.ms.map = map;
 	args.ms.sym = sym;
 	notes->start = map__rip_2objdump(map, sym->start);
+=======
+	args.ms = *ms;
+	notes->start = map__rip_2objdump(ms->map, sym->start);
+>>>>>>> upstream/android-13
 
 	return symbol__disassemble(sym, &args);
 }
@@ -2020,10 +2939,17 @@ static void print_summary(struct rb_root *root, const char *filename)
 	}
 }
 
+<<<<<<< HEAD
 static void symbol__annotate_hits(struct symbol *sym, struct perf_evsel *evsel)
 {
 	struct annotation *notes = symbol__annotation(sym);
 	struct sym_hist *h = annotation__histogram(notes, evsel->idx);
+=======
+static void symbol__annotate_hits(struct symbol *sym, struct evsel *evsel)
+{
+	struct annotation *notes = symbol__annotation(sym);
+	struct sym_hist *h = annotation__histogram(notes, evsel->core.idx);
+>>>>>>> upstream/android-13
 	u64 len = symbol__size(sym), offset;
 
 	for (offset = 0; offset < len; ++offset)
@@ -2046,6 +2972,7 @@ static int annotated_source__addr_fmt_width(struct list_head *lines, u64 start)
 	return 0;
 }
 
+<<<<<<< HEAD
 int symbol__annotate_printf(struct symbol *sym, struct map *map,
 			    struct perf_evsel *evsel,
 			    struct annotation_options *opts)
@@ -2056,6 +2983,19 @@ int symbol__annotate_printf(struct symbol *sym, struct map *map,
 	const char *evsel_name = perf_evsel__name(evsel);
 	struct annotation *notes = symbol__annotation(sym);
 	struct sym_hist *h = annotation__histogram(notes, evsel->idx);
+=======
+int symbol__annotate_printf(struct map_symbol *ms, struct evsel *evsel,
+			    struct annotation_options *opts)
+{
+	struct map *map = ms->map;
+	struct symbol *sym = ms->sym;
+	struct dso *dso = map->dso;
+	char *filename;
+	const char *d_filename;
+	const char *evsel_name = evsel__name(evsel);
+	struct annotation *notes = symbol__annotation(sym);
+	struct sym_hist *h = annotation__histogram(notes, evsel->core.idx);
+>>>>>>> upstream/android-13
 	struct annotation_line *pos, *queue = NULL;
 	u64 start = map__rip_2objdump(map, sym->start);
 	int printed = 2, queue_len = 0, addr_fmt_width;
@@ -2077,9 +3017,15 @@ int symbol__annotate_printf(struct symbol *sym, struct map *map,
 
 	len = symbol__size(sym);
 
+<<<<<<< HEAD
 	if (perf_evsel__is_group_event(evsel)) {
 		width *= evsel->nr_members;
 		perf_evsel__group_desc(evsel, buf, sizeof(buf));
+=======
+	if (evsel__is_group_event(evsel)) {
+		width *= evsel->core.nr_members;
+		evsel__group_desc(evsel, buf, sizeof(buf));
+>>>>>>> upstream/android-13
 		evsel_name = buf;
 	}
 
@@ -2211,10 +3157,17 @@ static int symbol__annotate_fprintf2(struct symbol *sym, FILE *fp,
 	return 0;
 }
 
+<<<<<<< HEAD
 int map_symbol__annotation_dump(struct map_symbol *ms, struct perf_evsel *evsel,
 				struct annotation_options *opts)
 {
 	const char *ev_name = perf_evsel__name(evsel);
+=======
+int map_symbol__annotation_dump(struct map_symbol *ms, struct evsel *evsel,
+				struct annotation_options *opts)
+{
+	const char *ev_name = evsel__name(evsel);
+>>>>>>> upstream/android-13
 	char buf[1024];
 	char *filename;
 	int err = -1;
@@ -2227,8 +3180,13 @@ int map_symbol__annotation_dump(struct map_symbol *ms, struct perf_evsel *evsel,
 	if (fp == NULL)
 		goto out_free_filename;
 
+<<<<<<< HEAD
 	if (perf_evsel__is_group_event(evsel)) {
 		perf_evsel__group_desc(evsel, buf, sizeof(buf));
+=======
+	if (evsel__is_group_event(evsel)) {
+		evsel__group_desc(evsel, buf, sizeof(buf));
+>>>>>>> upstream/android-13
 		ev_name = buf;
 	}
 
@@ -2269,7 +3227,11 @@ void annotated_source__purge(struct annotated_source *as)
 	struct annotation_line *al, *n;
 
 	list_for_each_entry_safe(al, n, &as->source, node) {
+<<<<<<< HEAD
 		list_del(&al->node);
+=======
+		list_del_init(&al->node);
+>>>>>>> upstream/android-13
 		disasm_line__free(disasm_line(al));
 	}
 }
@@ -2340,8 +3302,11 @@ void annotation__mark_jump_targets(struct annotation *notes, struct symbol *sym)
 
 		if (++al->jump_sources > notes->max_jump_sources)
 			notes->max_jump_sources = al->jump_sources;
+<<<<<<< HEAD
 
 		++notes->nr_jumps;
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2350,6 +3315,11 @@ void annotation__set_offsets(struct annotation *notes, s64 size)
 	struct annotation_line *al;
 
 	notes->max_line_len = 0;
+<<<<<<< HEAD
+=======
+	notes->nr_entries = 0;
+	notes->nr_asm_entries = 0;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(al, &notes->src->source, node) {
 		size_t line_len = strlen(al->line);
@@ -2382,12 +3352,36 @@ static inline int width_jumps(int n)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static int annotation__max_ins_name(struct annotation *notes)
+{
+	int max_name = 0, len;
+	struct annotation_line *al;
+
+        list_for_each_entry(al, &notes->src->source, node) {
+		if (al->offset == -1)
+			continue;
+
+		len = strlen(disasm_line(al)->ins.name);
+		if (max_name < len)
+			max_name = len;
+	}
+
+	return max_name;
+}
+
+>>>>>>> upstream/android-13
 void annotation__init_column_widths(struct annotation *notes, struct symbol *sym)
 {
 	notes->widths.addr = notes->widths.target =
 		notes->widths.min_addr = hex_width(symbol__size(sym));
 	notes->widths.max_addr = hex_width(sym->end);
 	notes->widths.jumps = width_jumps(notes->max_jump_sources);
+<<<<<<< HEAD
+=======
+	notes->widths.max_ins_name = annotation__max_ins_name(notes);
+>>>>>>> upstream/android-13
 }
 
 void annotation__update_column_widths(struct annotation *notes)
@@ -2435,6 +3429,7 @@ static void annotation__calc_lines(struct annotation *notes, struct map *map,
 	resort_source_line(root, &tmp_root);
 }
 
+<<<<<<< HEAD
 static void symbol__calc_lines(struct symbol *sym, struct map *map,
 			       struct rb_root *root,
 			       struct annotation_options *opts)
@@ -2459,6 +3454,39 @@ int symbol__tty_annotate2(struct symbol *sym, struct map *map,
 	if (opts->print_lines) {
 		srcline_full_filename = opts->full_path;
 		symbol__calc_lines(sym, map, &source_line, opts);
+=======
+static void symbol__calc_lines(struct map_symbol *ms, struct rb_root *root,
+			       struct annotation_options *opts)
+{
+	struct annotation *notes = symbol__annotation(ms->sym);
+
+	annotation__calc_lines(notes, ms->map, root, opts);
+}
+
+int symbol__tty_annotate2(struct map_symbol *ms, struct evsel *evsel,
+			  struct annotation_options *opts)
+{
+	struct dso *dso = ms->map->dso;
+	struct symbol *sym = ms->sym;
+	struct rb_root source_line = RB_ROOT;
+	struct hists *hists = evsel__hists(evsel);
+	char buf[1024];
+	int err;
+
+	err = symbol__annotate2(ms, evsel, opts, NULL);
+	if (err) {
+		char msg[BUFSIZ];
+
+		dso->annotate_warned = true;
+		symbol__strerror_disassemble(ms, err, msg, sizeof(msg));
+		ui__error("Couldn't annotate %s:\n%s", sym->name, msg);
+		return -1;
+	}
+
+	if (opts->print_lines) {
+		srcline_full_filename = opts->full_path;
+		symbol__calc_lines(ms, &source_line, opts);
+>>>>>>> upstream/android-13
 		print_summary(&source_line, dso->long_name);
 	}
 
@@ -2472,6 +3500,7 @@ int symbol__tty_annotate2(struct symbol *sym, struct map *map,
 	return 0;
 }
 
+<<<<<<< HEAD
 int symbol__tty_annotate(struct symbol *sym, struct map *map,
 			 struct perf_evsel *evsel,
 			 struct annotation_options *opts)
@@ -2481,16 +3510,43 @@ int symbol__tty_annotate(struct symbol *sym, struct map *map,
 
 	if (symbol__annotate(sym, map, evsel, 0, opts, NULL) < 0)
 		return -1;
+=======
+int symbol__tty_annotate(struct map_symbol *ms, struct evsel *evsel,
+			 struct annotation_options *opts)
+{
+	struct dso *dso = ms->map->dso;
+	struct symbol *sym = ms->sym;
+	struct rb_root source_line = RB_ROOT;
+	int err;
+
+	err = symbol__annotate(ms, evsel, opts, NULL);
+	if (err) {
+		char msg[BUFSIZ];
+
+		dso->annotate_warned = true;
+		symbol__strerror_disassemble(ms, err, msg, sizeof(msg));
+		ui__error("Couldn't annotate %s:\n%s", sym->name, msg);
+		return -1;
+	}
+>>>>>>> upstream/android-13
 
 	symbol__calc_percent(sym, evsel);
 
 	if (opts->print_lines) {
 		srcline_full_filename = opts->full_path;
+<<<<<<< HEAD
 		symbol__calc_lines(sym, map, &source_line, opts);
 		print_summary(&source_line, dso->long_name);
 	}
 
 	symbol__annotate_printf(sym, map, evsel, opts);
+=======
+		symbol__calc_lines(ms, &source_line, opts);
+		print_summary(&source_line, dso->long_name);
+	}
+
+	symbol__annotate_printf(ms, evsel, opts);
+>>>>>>> upstream/android-13
 
 	annotated_source__purge(symbol__annotation(sym)->src);
 
@@ -2551,7 +3607,27 @@ call_like:
 		obj__printf(obj, "  ");
 	}
 
+<<<<<<< HEAD
 	disasm_line__scnprintf(dl, bf, size, !notes->options->use_offset);
+=======
+	disasm_line__scnprintf(dl, bf, size, !notes->options->use_offset, notes->widths.max_ins_name);
+}
+
+static void ipc_coverage_string(char *bf, int size, struct annotation *notes)
+{
+	double ipc = 0.0, coverage = 0.0;
+
+	if (notes->hit_cycles)
+		ipc = notes->hit_insn / ((double)notes->hit_cycles);
+
+	if (notes->total_insn) {
+		coverage = notes->cover_insn * 100.0 /
+			((double)notes->total_insn);
+	}
+
+	scnprintf(bf, size, "(Average IPC: %.2f, IPC Coverage: %.1f%%)",
+		  ipc, coverage);
+>>>>>>> upstream/android-13
 }
 
 static void __annotation_line__write(struct annotation_line *al, struct annotation *notes,
@@ -2588,9 +3664,15 @@ static void __annotation_line__write(struct annotation_line *al, struct annotati
 			percent = annotation_data__percent(&al->data[i], percent_type);
 
 			obj__set_percent_color(obj, percent, current_entry);
+<<<<<<< HEAD
 			if (notes->options->show_total_period) {
 				obj__printf(obj, "%11" PRIu64 " ", al->data[i].he.period);
 			} else if (notes->options->show_nr_samples) {
+=======
+			if (symbol_conf.show_total_period) {
+				obj__printf(obj, "%11" PRIu64 " ", al->data[i].he.period);
+			} else if (symbol_conf.show_nr_samples) {
+>>>>>>> upstream/android-13
 				obj__printf(obj, "%6" PRIu64 " ",
 						   al->data[i].he.nr_samples);
 			} else {
@@ -2604,8 +3686,13 @@ static void __annotation_line__write(struct annotation_line *al, struct annotati
 			obj__printf(obj, "%-*s", pcnt_width, " ");
 		else {
 			obj__printf(obj, "%-*s", pcnt_width,
+<<<<<<< HEAD
 					   notes->options->show_total_period ? "Period" :
 					   notes->options->show_nr_samples ? "Samples" : "Percent");
+=======
+					   symbol_conf.show_total_period ? "Period" :
+					   symbol_conf.show_nr_samples ? "Samples" : "Percent");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2649,6 +3736,14 @@ static void __annotation_line__write(struct annotation_line *al, struct annotati
 					    ANNOTATION__MINMAX_CYCLES_WIDTH - 1,
 					    "Cycle(min/max)");
 		}
+<<<<<<< HEAD
+=======
+
+		if (show_title && !*al->line) {
+			ipc_coverage_string(bf, sizeof(bf), notes);
+			obj__printf(obj, "%*s", ANNOTATION__AVG_IPC_WIDTH, bf);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	obj__printf(obj, " ");
@@ -2723,9 +3818,16 @@ void annotation_line__write(struct annotation_line *al, struct annotation *notes
 				 wops->write_graph);
 }
 
+<<<<<<< HEAD
 int symbol__annotate2(struct symbol *sym, struct map *map, struct perf_evsel *evsel,
 		      struct annotation_options *options, struct arch **parch)
 {
+=======
+int symbol__annotate2(struct map_symbol *ms, struct evsel *evsel,
+		      struct annotation_options *options, struct arch **parch)
+{
+	struct symbol *sym = ms->sym;
+>>>>>>> upstream/android-13
 	struct annotation *notes = symbol__annotation(sym);
 	size_t size = symbol__size(sym);
 	int nr_pcnt = 1, err;
@@ -2734,10 +3836,17 @@ int symbol__annotate2(struct symbol *sym, struct map *map, struct perf_evsel *ev
 	if (notes->offsets == NULL)
 		return ENOMEM;
 
+<<<<<<< HEAD
 	if (perf_evsel__is_group_event(evsel))
 		nr_pcnt = evsel->nr_members;
 
 	err = symbol__annotate(sym, map, evsel, 0, options, parch);
+=======
+	if (evsel__is_group_event(evsel))
+		nr_pcnt = evsel->core.nr_members;
+
+	err = symbol__annotate(ms, evsel, options, parch);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_free_offsets;
 
@@ -2752,6 +3861,10 @@ int symbol__annotate2(struct symbol *sym, struct map *map, struct perf_evsel *ev
 	notes->nr_events = nr_pcnt;
 
 	annotation__update_column_widths(notes);
+<<<<<<< HEAD
+=======
+	sym->annotate2 = true;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -2760,6 +3873,7 @@ out_free_offsets:
 	return err;
 }
 
+<<<<<<< HEAD
 #define ANNOTATION__CFG(n) \
 	{ .name = #n, .value = &annotation__default_options.n, }
 
@@ -2794,10 +3908,16 @@ static int annotation__config(const char *var, const char *value,
 {
 	struct annotation_config *cfg;
 	const char *name;
+=======
+static int annotation__config(const char *var, const char *value, void *data)
+{
+	struct annotation_options *opt = data;
+>>>>>>> upstream/android-13
 
 	if (!strstarts(var, "annotate."))
 		return 0;
 
+<<<<<<< HEAD
 	name = var + 9;
 	cfg = bsearch(name, annotation__configs, ARRAY_SIZE(annotation__configs),
 		      sizeof(struct annotation_config), annotation_config__cmp);
@@ -2823,6 +3943,47 @@ void annotation_config__init(void)
 
 	annotation__default_options.show_total_period = symbol_conf.show_total_period;
 	annotation__default_options.show_nr_samples   = symbol_conf.show_nr_samples;
+=======
+	if (!strcmp(var, "annotate.offset_level")) {
+		perf_config_u8(&opt->offset_level, "offset_level", value);
+
+		if (opt->offset_level > ANNOTATION__MAX_OFFSET_LEVEL)
+			opt->offset_level = ANNOTATION__MAX_OFFSET_LEVEL;
+		else if (opt->offset_level < ANNOTATION__MIN_OFFSET_LEVEL)
+			opt->offset_level = ANNOTATION__MIN_OFFSET_LEVEL;
+	} else if (!strcmp(var, "annotate.hide_src_code")) {
+		opt->hide_src_code = perf_config_bool("hide_src_code", value);
+	} else if (!strcmp(var, "annotate.jump_arrows")) {
+		opt->jump_arrows = perf_config_bool("jump_arrows", value);
+	} else if (!strcmp(var, "annotate.show_linenr")) {
+		opt->show_linenr = perf_config_bool("show_linenr", value);
+	} else if (!strcmp(var, "annotate.show_nr_jumps")) {
+		opt->show_nr_jumps = perf_config_bool("show_nr_jumps", value);
+	} else if (!strcmp(var, "annotate.show_nr_samples")) {
+		symbol_conf.show_nr_samples = perf_config_bool("show_nr_samples",
+								value);
+	} else if (!strcmp(var, "annotate.show_total_period")) {
+		symbol_conf.show_total_period = perf_config_bool("show_total_period",
+								value);
+	} else if (!strcmp(var, "annotate.use_offset")) {
+		opt->use_offset = perf_config_bool("use_offset", value);
+	} else if (!strcmp(var, "annotate.disassembler_style")) {
+		opt->disassembler_style = value;
+	} else if (!strcmp(var, "annotate.demangle")) {
+		symbol_conf.demangle = perf_config_bool("demangle", value);
+	} else if (!strcmp(var, "annotate.demangle_kernel")) {
+		symbol_conf.demangle_kernel = perf_config_bool("demangle_kernel", value);
+	} else {
+		pr_debug("%s variable unknown, ignoring...", var);
+	}
+
+	return 0;
+}
+
+void annotation_config__init(struct annotation_options *opt)
+{
+	perf_config(annotation__config, opt);
+>>>>>>> upstream/android-13
 }
 
 static unsigned int parse_percent_type(char *str1, char *str2)
@@ -2876,3 +4037,15 @@ out:
 	free(str1);
 	return err;
 }
+<<<<<<< HEAD
+=======
+
+int annotate_check_args(struct annotation_options *args)
+{
+	if (args->prefix_strip && !args->prefix) {
+		pr_err("--prefix-strip requires --prefix\n");
+		return -1;
+	}
+	return 0;
+}
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Linux NET3:	Internet Group Management Protocol  [IGMP]
  *
@@ -11,11 +15,14 @@
  *	Authors:
  *		Alan Cox <alan@lxorguk.ukuu.org.uk>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Fixes:
  *
  *		Alan Cox	:	Added lots of __inline__ to optimise
@@ -111,8 +118,11 @@
 #ifdef CONFIG_IP_MULTICAST
 /* Parameter names and values are taken from igmp-v2-06 draft */
 
+<<<<<<< HEAD
 #define IGMP_V2_UNSOLICITED_REPORT_INTERVAL	(10*HZ)
 #define IGMP_V3_UNSOLICITED_REPORT_INTERVAL	(1*HZ)
+=======
+>>>>>>> upstream/android-13
 #define IGMP_QUERY_INTERVAL			(125*HZ)
 #define IGMP_QUERY_RESPONSE_INTERVAL		(10*HZ)
 
@@ -159,7 +169,12 @@ static int unsolicited_report_interval(struct in_device *in_dev)
 	return interval_jiffies;
 }
 
+<<<<<<< HEAD
 static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im);
+=======
+static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im,
+			      gfp_t gfp);
+>>>>>>> upstream/android-13
 static void igmpv3_del_delrec(struct in_device *in_dev, struct ip_mc_list *im);
 static void igmpv3_clear_delrec(struct in_device *in_dev);
 static int sf_setstate(struct ip_mc_list *pmc);
@@ -335,14 +350,25 @@ static __be32 igmpv3_get_srcaddr(struct net_device *dev,
 				 const struct flowi4 *fl4)
 {
 	struct in_device *in_dev = __in_dev_get_rcu(dev);
+<<<<<<< HEAD
+=======
+	const struct in_ifaddr *ifa;
+>>>>>>> upstream/android-13
 
 	if (!in_dev)
 		return htonl(INADDR_ANY);
 
+<<<<<<< HEAD
 	for_ifa(in_dev) {
 		if (fl4->saddr == ifa->ifa_local)
 			return fl4->saddr;
 	} endfor_ifa(in_dev);
+=======
+	in_dev_for_each_ifa_rcu(ifa, in_dev) {
+		if (fl4->saddr == ifa->ifa_local)
+			return fl4->saddr;
+	}
+>>>>>>> upstream/android-13
 
 	return htonl(INADDR_ANY);
 }
@@ -807,10 +833,24 @@ static void igmp_gq_timer_expire(struct timer_list *t)
 static void igmp_ifc_timer_expire(struct timer_list *t)
 {
 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
+<<<<<<< HEAD
 
 	igmpv3_send_cr(in_dev);
 	if (in_dev->mr_ifc_count) {
 		in_dev->mr_ifc_count--;
+=======
+	u32 mr_ifc_count;
+
+	igmpv3_send_cr(in_dev);
+restart:
+	mr_ifc_count = READ_ONCE(in_dev->mr_ifc_count);
+
+	if (mr_ifc_count) {
+		if (cmpxchg(&in_dev->mr_ifc_count,
+			    mr_ifc_count,
+			    mr_ifc_count - 1) != mr_ifc_count)
+			goto restart;
+>>>>>>> upstream/android-13
 		igmp_ifc_start_timer(in_dev,
 				     unsolicited_report_interval(in_dev));
 	}
@@ -822,7 +862,11 @@ static void igmp_ifc_event(struct in_device *in_dev)
 	struct net *net = dev_net(in_dev->dev);
 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev))
 		return;
+<<<<<<< HEAD
 	in_dev->mr_ifc_count = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+=======
+	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv);
+>>>>>>> upstream/android-13
 	igmp_ifc_start_timer(in_dev, 1);
 }
 
@@ -961,7 +1005,11 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
 				in_dev->mr_qri;
 		}
 		/* cancel the interface change timer */
+<<<<<<< HEAD
 		in_dev->mr_ifc_count = 0;
+=======
+		WRITE_ONCE(in_dev->mr_ifc_count, 0);
+>>>>>>> upstream/android-13
 		if (del_timer(&in_dev->mr_ifc_timer))
 			__in_dev_put(in_dev);
 		/* clear deleted report items */
@@ -1163,7 +1211,12 @@ static void ip_mc_filter_del(struct in_device *in_dev, __be32 addr)
 /*
  * deleted ip_mc_list manipulation
  */
+<<<<<<< HEAD
 static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im)
+=======
+static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im,
+			      gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct ip_mc_list *pmc;
 	struct net *net = dev_net(in_dev->dev);
@@ -1174,7 +1227,11 @@ static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im)
 	 * for deleted items allows change reports to use common code with
 	 * non-deleted or query-response MCA's.
 	 */
+<<<<<<< HEAD
 	pmc = kzalloc(sizeof(*pmc), GFP_KERNEL);
+=======
+	pmc = kzalloc(sizeof(*pmc), gfp);
+>>>>>>> upstream/android-13
 	if (!pmc)
 		return;
 	spin_lock_init(&pmc->lock);
@@ -1276,7 +1333,11 @@ static void igmpv3_clear_delrec(struct in_device *in_dev)
 }
 #endif
 
+<<<<<<< HEAD
 static void igmp_group_dropped(struct ip_mc_list *im)
+=======
+static void __igmp_group_dropped(struct ip_mc_list *im, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct in_device *in_dev = im->interface;
 #ifdef CONFIG_IP_MULTICAST
@@ -1307,13 +1368,25 @@ static void igmp_group_dropped(struct ip_mc_list *im)
 			return;
 		}
 		/* IGMPv3 */
+<<<<<<< HEAD
 		igmpv3_add_delrec(in_dev, im);
+=======
+		igmpv3_add_delrec(in_dev, im, gfp);
+>>>>>>> upstream/android-13
 
 		igmp_ifc_event(in_dev);
 	}
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static void igmp_group_dropped(struct ip_mc_list *im)
+{
+	__igmp_group_dropped(im, GFP_KERNEL);
+}
+
+>>>>>>> upstream/android-13
 static void igmp_group_added(struct ip_mc_list *im)
 {
 	struct in_device *in_dev = im->interface;
@@ -1415,8 +1488,13 @@ static void ip_mc_hash_remove(struct in_device *in_dev,
 /*
  *	A socket has joined a multicast group on device dev.
  */
+<<<<<<< HEAD
 static void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
 			      unsigned int mode)
+=======
+static void ____ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
+				unsigned int mode, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct ip_mc_list *im;
 
@@ -1430,7 +1508,11 @@ static void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr,
 		}
 	}
 
+<<<<<<< HEAD
 	im = kzalloc(sizeof(*im), GFP_KERNEL);
+=======
+	im = kzalloc(sizeof(*im), gfp);
+>>>>>>> upstream/android-13
 	if (!im)
 		goto out;
 
@@ -1463,9 +1545,21 @@ out:
 	return;
 }
 
+<<<<<<< HEAD
 void ip_mc_inc_group(struct in_device *in_dev, __be32 addr)
 {
 	__ip_mc_inc_group(in_dev, addr, MCAST_EXCLUDE);
+=======
+void __ip_mc_inc_group(struct in_device *in_dev, __be32 addr, gfp_t gfp)
+{
+	____ip_mc_inc_group(in_dev, addr, MCAST_EXCLUDE, gfp);
+}
+EXPORT_SYMBOL(__ip_mc_inc_group);
+
+void ip_mc_inc_group(struct in_device *in_dev, __be32 addr)
+{
+	__ip_mc_inc_group(in_dev, addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ip_mc_inc_group);
 
@@ -1508,11 +1602,16 @@ static int ip_mc_check_igmp_reportv3(struct sk_buff *skb)
 
 	len += sizeof(struct igmpv3_report);
 
+<<<<<<< HEAD
 	return pskb_may_pull(skb, len) ? 0 : -EINVAL;
+=======
+	return ip_mc_may_pull(skb, len) ? 0 : -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static int ip_mc_check_igmp_query(struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	unsigned int len = skb_transport_offset(skb);
 
 	len += sizeof(struct igmphdr);
@@ -1524,6 +1623,19 @@ static int ip_mc_check_igmp_query(struct sk_buff *skb)
 		/* or IGMPv3? */
 		len += sizeof(struct igmpv3_query) - sizeof(struct igmphdr);
 		if (skb->len < len || !pskb_may_pull(skb, len))
+=======
+	unsigned int transport_len = ip_transport_len(skb);
+	unsigned int len;
+
+	/* IGMPv{1,2}? */
+	if (transport_len != sizeof(struct igmphdr)) {
+		/* or IGMPv3? */
+		if (transport_len < sizeof(struct igmpv3_query))
+			return -EINVAL;
+
+		len = skb_transport_offset(skb) + sizeof(struct igmpv3_query);
+		if (!ip_mc_may_pull(skb, len))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 	}
 
@@ -1543,7 +1655,10 @@ static int ip_mc_check_igmp_msg(struct sk_buff *skb)
 	case IGMP_HOST_LEAVE_MESSAGE:
 	case IGMP_HOST_MEMBERSHIP_REPORT:
 	case IGMPV2_HOST_MEMBERSHIP_REPORT:
+<<<<<<< HEAD
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 		return 0;
 	case IGMPV3_HOST_MEMBERSHIP_REPORT:
 		return ip_mc_check_igmp_reportv3(skb);
@@ -1554,11 +1669,16 @@ static int ip_mc_check_igmp_msg(struct sk_buff *skb)
 	}
 }
 
+<<<<<<< HEAD
 static inline __sum16 ip_mc_validate_checksum(struct sk_buff *skb)
+=======
+static __sum16 ip_mc_validate_checksum(struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	return skb_checksum_simple_validate(skb);
 }
 
+<<<<<<< HEAD
 static int __ip_mc_check_igmp(struct sk_buff *skb, struct sk_buff **skb_trimmed)
 
 {
@@ -1568,10 +1688,21 @@ static int __ip_mc_check_igmp(struct sk_buff *skb, struct sk_buff **skb_trimmed)
 	int ret = -EINVAL;
 
 	transport_len = ntohs(ip_hdr(skb)->tot_len) - ip_hdrlen(skb);
+=======
+static int ip_mc_check_igmp_csum(struct sk_buff *skb)
+{
+	unsigned int len = skb_transport_offset(skb) + sizeof(struct igmphdr);
+	unsigned int transport_len = ip_transport_len(skb);
+	struct sk_buff *skb_chk;
+
+	if (!ip_mc_may_pull(skb, len))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	skb_chk = skb_checksum_trimmed(skb, transport_len,
 				       ip_mc_validate_checksum);
 	if (!skb_chk)
+<<<<<<< HEAD
 		goto err;
 
 	if (!pskb_may_pull(skb_chk, len))
@@ -1594,12 +1725,23 @@ err:
 		kfree_skb(skb_chk);
 
 	return ret;
+=======
+		return -EINVAL;
+
+	if (skb_chk != skb)
+		kfree_skb(skb_chk);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  * ip_mc_check_igmp - checks whether this is a sane IGMP packet
  * @skb: the skb to validate
+<<<<<<< HEAD
  * @skb_trimmed: to store an skb pointer trimmed to IPv4 packet tail (optional)
+=======
+>>>>>>> upstream/android-13
  *
  * Checks whether an IPv4 packet is a valid IGMP packet. If so sets
  * skb transport header accordingly and returns zero.
@@ -1609,6 +1751,7 @@ err:
  * -ENOMSG: IP header validation succeeded but it is not an IGMP packet.
  * -ENOMEM: A memory allocation failure happened.
  *
+<<<<<<< HEAD
  * Optionally, an skb pointer might be provided via skb_trimmed (or set it
  * to NULL): After parsing an IGMP packet successfully it will point to
  * an skb which has its tail aligned to the IP packet end. This might
@@ -1621,6 +1764,12 @@ err:
  * differs from the provided skb.
  */
 int ip_mc_check_igmp(struct sk_buff *skb, struct sk_buff **skb_trimmed)
+=======
+ * Caller needs to set the skb network header and free any returned skb if it
+ * differs from the provided skb.
+ */
+int ip_mc_check_igmp(struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	int ret = ip_mc_check_iphdr(skb);
 
@@ -1630,7 +1779,15 @@ int ip_mc_check_igmp(struct sk_buff *skb, struct sk_buff **skb_trimmed)
 	if (ip_hdr(skb)->protocol != IPPROTO_IGMP)
 		return -ENOMSG;
 
+<<<<<<< HEAD
 	return __ip_mc_check_igmp(skb, skb_trimmed);
+=======
+	ret = ip_mc_check_igmp_csum(skb);
+	if (ret < 0)
+		return ret;
+
+	return ip_mc_check_igmp_msg(skb);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ip_mc_check_igmp);
 
@@ -1671,7 +1828,11 @@ static void ip_mc_rejoin_groups(struct in_device *in_dev)
  *	A socket has left a multicast group on device dev
  */
 
+<<<<<<< HEAD
 void ip_mc_dec_group(struct in_device *in_dev, __be32 addr)
+=======
+void __ip_mc_dec_group(struct in_device *in_dev, __be32 addr, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct ip_mc_list *i;
 	struct ip_mc_list __rcu **ip;
@@ -1686,7 +1847,11 @@ void ip_mc_dec_group(struct in_device *in_dev, __be32 addr)
 				ip_mc_hash_remove(in_dev, i);
 				*ip = i->next_rcu;
 				in_dev->mc_count--;
+<<<<<<< HEAD
 				igmp_group_dropped(i);
+=======
+				__igmp_group_dropped(i, gfp);
+>>>>>>> upstream/android-13
 				ip_mc_clear_src(i);
 
 				if (!in_dev->dead)
@@ -1699,7 +1864,11 @@ void ip_mc_dec_group(struct in_device *in_dev, __be32 addr)
 		}
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ip_mc_dec_group);
+=======
+EXPORT_SYMBOL(__ip_mc_dec_group);
+>>>>>>> upstream/android-13
 
 /* Device changing type */
 
@@ -1739,7 +1908,11 @@ void ip_mc_down(struct in_device *in_dev)
 		igmp_group_dropped(pmc);
 
 #ifdef CONFIG_IP_MULTICAST
+<<<<<<< HEAD
 	in_dev->mr_ifc_count = 0;
+=======
+	WRITE_ONCE(in_dev->mr_ifc_count, 0);
+>>>>>>> upstream/android-13
 	if (del_timer(&in_dev->mr_ifc_timer))
 		__in_dev_put(in_dev);
 	in_dev->mr_gq_running = 0;
@@ -1816,6 +1989,10 @@ void ip_mc_destroy_dev(struct in_device *in_dev)
 	while ((i = rtnl_dereference(in_dev->mc_list)) != NULL) {
 		in_dev->mc_list = i->next_rcu;
 		in_dev->mc_count--;
+<<<<<<< HEAD
+=======
+		ip_mc_clear_src(i);
+>>>>>>> upstream/android-13
 		ip_ma_put(i);
 	}
 }
@@ -1955,7 +2132,11 @@ static int ip_mc_del_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
 		pmc->sfmode = MCAST_INCLUDE;
 #ifdef CONFIG_IP_MULTICAST
 		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+<<<<<<< HEAD
 		in_dev->mr_ifc_count = pmc->crcount;
+=======
+		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+>>>>>>> upstream/android-13
 		for (psf = pmc->sources; psf; psf = psf->sf_next)
 			psf->sf_crcount = 0;
 		igmp_ifc_event(pmc->interface);
@@ -2134,7 +2315,11 @@ static int ip_mc_add_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
 		/* else no filters; keep old mode for reports */
 
 		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+<<<<<<< HEAD
 		in_dev->mr_ifc_count = pmc->crcount;
+=======
+		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+>>>>>>> upstream/android-13
 		for (psf = pmc->sources; psf; psf = psf->sf_next)
 			psf->sf_crcount = 0;
 		igmp_ifc_event(in_dev);
@@ -2210,7 +2395,11 @@ static int __ip_mc_join_group(struct sock *sk, struct ip_mreqn *imr,
 	iml->sflist = NULL;
 	iml->sfmode = mode;
 	rcu_assign_pointer(inet->mc_list, iml);
+<<<<<<< HEAD
 	__ip_mc_inc_group(in_dev, addr, mode);
+=======
+	____ip_mc_inc_group(in_dev, addr, mode, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	err = 0;
 done:
 	return err;
@@ -2247,7 +2436,11 @@ static int ip_mc_leave_src(struct sock *sk, struct ip_mc_socklist *iml,
 			iml->sfmode, psf->sl_count, psf->sl_addr, 0);
 	RCU_INIT_POINTER(iml->sflist, NULL);
 	/* decrease mem now to avoid the memleak warning */
+<<<<<<< HEAD
 	atomic_sub(IP_SFLSIZE(psf->sl_max), &sk->sk_omem_alloc);
+=======
+	atomic_sub(struct_size(psf, sl_addr, psf->sl_max), &sk->sk_omem_alloc);
+>>>>>>> upstream/android-13
 	kfree_rcu(psf, rcu);
 	return err;
 }
@@ -2396,7 +2589,12 @@ int ip_mc_source(int add, int omode, struct sock *sk, struct
 
 		if (psl)
 			count += psl->sl_max;
+<<<<<<< HEAD
 		newpsl = sock_kmalloc(sk, IP_SFLSIZE(count), GFP_KERNEL);
+=======
+		newpsl = sock_kmalloc(sk, struct_size(newpsl, sl_addr, count),
+				      GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!newpsl) {
 			err = -ENOBUFS;
 			goto done;
@@ -2407,10 +2605,19 @@ int ip_mc_source(int add, int omode, struct sock *sk, struct
 			for (i = 0; i < psl->sl_count; i++)
 				newpsl->sl_addr[i] = psl->sl_addr[i];
 			/* decrease mem now to avoid the memleak warning */
+<<<<<<< HEAD
 			atomic_sub(IP_SFLSIZE(psl->sl_max), &sk->sk_omem_alloc);
 			kfree_rcu(psl, rcu);
 		}
 		rcu_assign_pointer(pmc->sflist, newpsl);
+=======
+			atomic_sub(struct_size(psl, sl_addr, psl->sl_max),
+				   &sk->sk_omem_alloc);
+		}
+		rcu_assign_pointer(pmc->sflist, newpsl);
+		if (psl)
+			kfree_rcu(psl, rcu);
+>>>>>>> upstream/android-13
 		psl = newpsl;
 	}
 	rv = 1;	/* > 0 for insert logic below if sl_count is 0 */
@@ -2482,19 +2689,36 @@ int ip_mc_msfilter(struct sock *sk, struct ip_msfilter *msf, int ifindex)
 		goto done;
 	}
 	if (msf->imsf_numsrc) {
+<<<<<<< HEAD
 		newpsl = sock_kmalloc(sk, IP_SFLSIZE(msf->imsf_numsrc),
 							   GFP_KERNEL);
+=======
+		newpsl = sock_kmalloc(sk, struct_size(newpsl, sl_addr,
+						      msf->imsf_numsrc),
+				      GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!newpsl) {
 			err = -ENOBUFS;
 			goto done;
 		}
 		newpsl->sl_max = newpsl->sl_count = msf->imsf_numsrc;
+<<<<<<< HEAD
 		memcpy(newpsl->sl_addr, msf->imsf_slist,
 			msf->imsf_numsrc * sizeof(msf->imsf_slist[0]));
 		err = ip_mc_add_src(in_dev, &msf->imsf_multiaddr,
 			msf->imsf_fmode, newpsl->sl_count, newpsl->sl_addr, 0);
 		if (err) {
 			sock_kfree_s(sk, newpsl, IP_SFLSIZE(newpsl->sl_max));
+=======
+		memcpy(newpsl->sl_addr, msf->imsf_slist_flex,
+		       flex_array_size(msf, imsf_slist_flex, msf->imsf_numsrc));
+		err = ip_mc_add_src(in_dev, &msf->imsf_multiaddr,
+			msf->imsf_fmode, newpsl->sl_count, newpsl->sl_addr, 0);
+		if (err) {
+			sock_kfree_s(sk, newpsl,
+				     struct_size(newpsl, sl_addr,
+						 newpsl->sl_max));
+>>>>>>> upstream/android-13
 			goto done;
 		}
 	} else {
@@ -2507,12 +2731,24 @@ int ip_mc_msfilter(struct sock *sk, struct ip_msfilter *msf, int ifindex)
 		(void) ip_mc_del_src(in_dev, &msf->imsf_multiaddr, pmc->sfmode,
 			psl->sl_count, psl->sl_addr, 0);
 		/* decrease mem now to avoid the memleak warning */
+<<<<<<< HEAD
 		atomic_sub(IP_SFLSIZE(psl->sl_max), &sk->sk_omem_alloc);
 		kfree_rcu(psl, rcu);
 	} else
 		(void) ip_mc_del_src(in_dev, &msf->imsf_multiaddr, pmc->sfmode,
 			0, NULL, 0);
 	rcu_assign_pointer(pmc->sflist, newpsl);
+=======
+		atomic_sub(struct_size(psl, sl_addr, psl->sl_max),
+			   &sk->sk_omem_alloc);
+	} else {
+		(void) ip_mc_del_src(in_dev, &msf->imsf_multiaddr, pmc->sfmode,
+			0, NULL, 0);
+	}
+	rcu_assign_pointer(pmc->sflist, newpsl);
+	if (psl)
+		kfree_rcu(psl, rcu);
+>>>>>>> upstream/android-13
 	pmc->sfmode = msf->imsf_fmode;
 	err = 0;
 done:
@@ -2565,14 +2801,22 @@ int ip_mc_msfget(struct sock *sk, struct ip_msfilter *msf,
 		count = psl->sl_count;
 	}
 	copycount = count < msf->imsf_numsrc ? count : msf->imsf_numsrc;
+<<<<<<< HEAD
 	len = copycount * sizeof(psl->sl_addr[0]);
+=======
+	len = flex_array_size(psl, sl_addr, copycount);
+>>>>>>> upstream/android-13
 	msf->imsf_numsrc = count;
 	if (put_user(IP_MSFILTER_SIZE(copycount), optlen) ||
 	    copy_to_user(optval, msf, IP_MSFILTER_SIZE(0))) {
 		return -EFAULT;
 	}
 	if (len &&
+<<<<<<< HEAD
 	    copy_to_user(&optval->imsf_slist[0], psl->sl_addr, len))
+=======
+	    copy_to_user(&optval->imsf_slist_flex[0], psl->sl_addr, len))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return 0;
 done:
@@ -2580,9 +2824,15 @@ done:
 }
 
 int ip_mc_gsfget(struct sock *sk, struct group_filter *gsf,
+<<<<<<< HEAD
 	struct group_filter __user *optval, int __user *optlen)
 {
 	int err, i, count, copycount;
+=======
+	struct sockaddr_storage __user *p)
+{
+	int i, count, copycount;
+>>>>>>> upstream/android-13
 	struct sockaddr_in *psin;
 	__be32 addr;
 	struct ip_mc_socklist *pmc;
@@ -2598,37 +2848,55 @@ int ip_mc_gsfget(struct sock *sk, struct group_filter *gsf,
 	if (!ipv4_is_multicast(addr))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = -EADDRNOTAVAIL;
 
+=======
+>>>>>>> upstream/android-13
 	for_each_pmc_rtnl(inet, pmc) {
 		if (pmc->multi.imr_multiaddr.s_addr == addr &&
 		    pmc->multi.imr_ifindex == gsf->gf_interface)
 			break;
 	}
 	if (!pmc)		/* must have a prior join */
+<<<<<<< HEAD
 		goto done;
+=======
+		return -EADDRNOTAVAIL;
+>>>>>>> upstream/android-13
 	gsf->gf_fmode = pmc->sfmode;
 	psl = rtnl_dereference(pmc->sflist);
 	count = psl ? psl->sl_count : 0;
 	copycount = count < gsf->gf_numsrc ? count : gsf->gf_numsrc;
 	gsf->gf_numsrc = count;
+<<<<<<< HEAD
 	if (put_user(GROUP_FILTER_SIZE(copycount), optlen) ||
 	    copy_to_user(optval, gsf, GROUP_FILTER_SIZE(0))) {
 		return -EFAULT;
 	}
 	for (i = 0; i < copycount; i++) {
+=======
+	for (i = 0; i < copycount; i++, p++) {
+>>>>>>> upstream/android-13
 		struct sockaddr_storage ss;
 
 		psin = (struct sockaddr_in *)&ss;
 		memset(&ss, 0, sizeof(ss));
 		psin->sin_family = AF_INET;
 		psin->sin_addr.s_addr = psl->sl_addr[i];
+<<<<<<< HEAD
 		if (copy_to_user(&optval->gf_slist[i], &ss, sizeof(ss)))
 			return -EFAULT;
 	}
 	return 0;
 done:
 	return err;
+=======
+		if (copy_to_user(p, &ss, sizeof(ss)))
+			return -EFAULT;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*

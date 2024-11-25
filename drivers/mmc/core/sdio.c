@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/sdio.c
  *
  *  Copyright 2006-2007 Pierre Ossman
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -19,6 +26,11 @@
 #include <linux/mmc/sdio_func.h>
 #include <linux/mmc/sdio_ids.h>
 
+<<<<<<< HEAD
+=======
+#include <trace/hooks/mmc.h>
+
+>>>>>>> upstream/android-13
 #include "core.h"
 #include "card.h"
 #include "host.h"
@@ -31,6 +43,51 @@
 #include "sdio_ops.h"
 #include "sdio_cis.h"
 
+<<<<<<< HEAD
+=======
+MMC_DEV_ATTR(vendor, "0x%04x\n", card->cis.vendor);
+MMC_DEV_ATTR(device, "0x%04x\n", card->cis.device);
+MMC_DEV_ATTR(revision, "%u.%u\n", card->major_rev, card->minor_rev);
+MMC_DEV_ATTR(ocr, "0x%08x\n", card->ocr);
+MMC_DEV_ATTR(rca, "0x%04x\n", card->rca);
+
+#define sdio_info_attr(num)									\
+static ssize_t info##num##_show(struct device *dev, struct device_attribute *attr, char *buf)	\
+{												\
+	struct mmc_card *card = mmc_dev_to_card(dev);						\
+												\
+	if (num > card->num_info)								\
+		return -ENODATA;								\
+	if (!card->info[num-1][0])								\
+		return 0;									\
+	return sprintf(buf, "%s\n", card->info[num-1]);						\
+}												\
+static DEVICE_ATTR_RO(info##num)
+
+sdio_info_attr(1);
+sdio_info_attr(2);
+sdio_info_attr(3);
+sdio_info_attr(4);
+
+static struct attribute *sdio_std_attrs[] = {
+	&dev_attr_vendor.attr,
+	&dev_attr_device.attr,
+	&dev_attr_revision.attr,
+	&dev_attr_info1.attr,
+	&dev_attr_info2.attr,
+	&dev_attr_info3.attr,
+	&dev_attr_info4.attr,
+	&dev_attr_ocr.attr,
+	&dev_attr_rca.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(sdio_std);
+
+static struct device_type sdio_type = {
+	.groups = sdio_std_groups,
+};
+
+>>>>>>> upstream/android-13
 static int sdio_read_fbr(struct sdio_func *func)
 {
 	int ret;
@@ -162,6 +219,7 @@ static int sdio_read_cccr(struct mmc_card *card, u32 ocr)
 			if (mmc_host_uhs(card->host)) {
 				if (data & SDIO_UHS_DDR50)
 					card->sw_caps.sd3_bus_mode
+<<<<<<< HEAD
 						|= SD_MODE_UHS_DDR50;
 
 				if (data & SDIO_UHS_SDR50)
@@ -171,6 +229,20 @@ static int sdio_read_cccr(struct mmc_card *card, u32 ocr)
 				if (data & SDIO_UHS_SDR104)
 					card->sw_caps.sd3_bus_mode
 						|= SD_MODE_UHS_SDR104;
+=======
+						|= SD_MODE_UHS_DDR50 | SD_MODE_UHS_SDR50
+							| SD_MODE_UHS_SDR25 | SD_MODE_UHS_SDR12;
+
+				if (data & SDIO_UHS_SDR50)
+					card->sw_caps.sd3_bus_mode
+						|= SD_MODE_UHS_SDR50 | SD_MODE_UHS_SDR25
+							| SD_MODE_UHS_SDR12;
+
+				if (data & SDIO_UHS_SDR104)
+					card->sw_caps.sd3_bus_mode
+						|= SD_MODE_UHS_SDR104 | SD_MODE_UHS_SDR50
+							| SD_MODE_UHS_SDR25 | SD_MODE_UHS_SDR12;
+>>>>>>> upstream/android-13
 			}
 
 			ret = mmc_io_rw_direct(card, 0, 0,
@@ -289,11 +361,36 @@ static int sdio_disable_wide(struct mmc_card *card)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int sdio_disable_4bit_bus(struct mmc_card *card)
+{
+	int err;
+
+	if (card->type == MMC_TYPE_SDIO)
+		goto out;
+
+	if (!(card->host->caps & MMC_CAP_4_BIT_DATA))
+		return 0;
+
+	if (!(card->scr.bus_widths & SD_SCR_BUS_WIDTH_4))
+		return 0;
+
+	err = mmc_app_set_bus_width(card, MMC_BUS_WIDTH_1);
+	if (err)
+		return err;
+
+out:
+	return sdio_disable_wide(card);
+}
+
+>>>>>>> upstream/android-13
 
 static int sdio_enable_4bit_bus(struct mmc_card *card)
 {
 	int err;
 
+<<<<<<< HEAD
 	if (card->type == MMC_TYPE_SDIO)
 		err = sdio_enable_wide(card);
 	else if ((card->host->caps & MMC_CAP_4_BIT_DATA) &&
@@ -313,6 +410,25 @@ static int sdio_enable_4bit_bus(struct mmc_card *card)
 	}
 
 	return err;
+=======
+	err = sdio_enable_wide(card);
+	if (err <= 0)
+		return err;
+	if (card->type == MMC_TYPE_SDIO)
+		goto out;
+
+	if (card->scr.bus_widths & SD_SCR_BUS_WIDTH_4) {
+		err = mmc_app_set_bus_width(card, MMC_BUS_WIDTH_4);
+		if (err) {
+			sdio_disable_wide(card);
+			return err;
+		}
+	}
+out:
+	mmc_set_bus_width(card->host, MMC_BUS_WIDTH_4);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -504,10 +620,15 @@ static int sdio_set_bus_speed_mode(struct mmc_card *card)
 	max_rate = min_not_zero(card->quirk_max_rate,
 				card->sw_caps.uhs_max_dtr);
 
+<<<<<<< HEAD
 	if (bus_speed) {
 		mmc_set_timing(card->host, timing);
 		mmc_set_clock(card->host, max_rate);
 	}
+=======
+	mmc_set_timing(card->host, timing);
+	mmc_set_clock(card->host, max_rate);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -547,6 +668,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static void mmc_sdio_resend_if_cond(struct mmc_host *host,
 				    struct mmc_card *card)
 {
@@ -554,6 +676,35 @@ static void mmc_sdio_resend_if_cond(struct mmc_host *host,
 	mmc_go_idle(host);
 	mmc_send_if_cond(host, host->ocr_avail);
 	mmc_remove_card(card);
+=======
+static int mmc_sdio_pre_init(struct mmc_host *host, u32 ocr,
+			     struct mmc_card *card)
+{
+	if (card)
+		mmc_remove_card(card);
+
+	/*
+	 * Reset the card by performing the same steps that are taken by
+	 * mmc_rescan_try_freq() and mmc_attach_sdio() during a "normal" probe.
+	 *
+	 * sdio_reset() is technically not needed. Having just powered up the
+	 * hardware, it should already be in reset state. However, some
+	 * platforms (such as SD8686 on OLPC) do not instantly cut power,
+	 * meaning that a reset is required when restoring power soon after
+	 * powering off. It is harmless in other cases.
+	 *
+	 * The CMD5 reset (mmc_send_io_op_cond()), according to the SDIO spec,
+	 * is not necessary for non-removable cards. However, it is required
+	 * for OLPC SD8686 (which expects a [CMD5,5,3,7] init sequence), and
+	 * harmless in other situations.
+	 *
+	 */
+
+	sdio_reset(host);
+	mmc_go_idle(host);
+	mmc_send_if_cond(host, ocr);
+	return mmc_send_io_op_cond(host, 0, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -563,7 +714,11 @@ static void mmc_sdio_resend_if_cond(struct mmc_host *host,
  * we're trying to reinitialise.
  */
 static int mmc_sdio_init_card(struct mmc_host *host, u32 ocr,
+<<<<<<< HEAD
 			      struct mmc_card *oldcard, int powered_resume)
+=======
+			      struct mmc_card *oldcard)
+>>>>>>> upstream/android-13
 {
 	struct mmc_card *card;
 	int err;
@@ -586,11 +741,17 @@ try_again:
 	/*
 	 * Inform the card of the voltage
 	 */
+<<<<<<< HEAD
 	if (!powered_resume) {
 		err = mmc_send_io_op_cond(host, ocr, &rocr);
 		if (err)
 			goto err;
 	}
+=======
+	err = mmc_send_io_op_cond(host, ocr, &rocr);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	/*
 	 * For SPI, enable CRC as appropriate.
@@ -598,17 +759,27 @@ try_again:
 	if (mmc_host_is_spi(host)) {
 		err = mmc_spi_set_crc(host, use_spi_crc);
 		if (err)
+<<<<<<< HEAD
 			goto err;
+=======
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * Allocate card structure.
 	 */
+<<<<<<< HEAD
 	card = mmc_alloc_card(host, NULL);
 	if (IS_ERR(card)) {
 		err = PTR_ERR(card);
 		goto err;
 	}
+=======
+	card = mmc_alloc_card(host, &sdio_type);
+	if (IS_ERR(card))
+		return PTR_ERR(card);
+>>>>>>> upstream/android-13
 
 	if ((rocr & R4_MEMORY_PRESENT) &&
 	    mmc_sd_get_cid(host, ocr & rocr, card->raw_cid, NULL) == 0) {
@@ -616,15 +787,25 @@ try_again:
 
 		if (oldcard && (oldcard->type != MMC_TYPE_SD_COMBO ||
 		    memcmp(card->raw_cid, oldcard->raw_cid, sizeof(card->raw_cid)) != 0)) {
+<<<<<<< HEAD
 			mmc_remove_card(card);
 			return -ENOENT;
+=======
+			err = -ENOENT;
+			goto mismatch;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		card->type = MMC_TYPE_SDIO;
 
 		if (oldcard && oldcard->type != MMC_TYPE_SDIO) {
+<<<<<<< HEAD
 			mmc_remove_card(card);
 			return -ENOENT;
+=======
+			err = -ENOENT;
+			goto mismatch;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -634,6 +815,11 @@ try_again:
 	if (host->ops->init_card)
 		host->ops->init_card(host, card);
 
+<<<<<<< HEAD
+=======
+	card->ocr = ocr_card;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If the host and card support UHS-I mode request the card
 	 * to switch to 1.8V signaling level.  No 1.8v signalling if
@@ -645,10 +831,17 @@ try_again:
 	 * try to init uhs card. sdio_read_cccr will take over this task
 	 * to make sure which speed mode should work.
 	 */
+<<<<<<< HEAD
 	if (!powered_resume && (rocr & ocr & R4_18V_PRESENT)) {
 		err = mmc_set_uhs_voltage(host, ocr_card);
 		if (err == -EAGAIN) {
 			mmc_sdio_resend_if_cond(host, card);
+=======
+	if (rocr & ocr & R4_18V_PRESENT) {
+		err = mmc_set_uhs_voltage(host, ocr_card);
+		if (err == -EAGAIN) {
+			mmc_sdio_pre_init(host, ocr_card, card);
+>>>>>>> upstream/android-13
 			retries--;
 			goto try_again;
 		} else if (err) {
@@ -659,7 +852,11 @@ try_again:
 	/*
 	 * For native busses:  set card RCA and quit open drain mode.
 	 */
+<<<<<<< HEAD
 	if (!powered_resume && !mmc_host_is_spi(host)) {
+=======
+	if (!mmc_host_is_spi(host)) {
+>>>>>>> upstream/android-13
 		err = mmc_send_relative_addr(host, &card->rca);
 		if (err)
 			goto remove;
@@ -677,9 +874,15 @@ try_again:
 	 * Read CSD, before selecting the card
 	 */
 	if (!oldcard && card->type == MMC_TYPE_SD_COMBO) {
+<<<<<<< HEAD
 		err = mmc_sd_get_csd(host, card);
 		if (err)
 			return err;
+=======
+		err = mmc_sd_get_csd(card);
+		if (err)
+			goto remove;
+>>>>>>> upstream/android-13
 
 		mmc_decode_cid(card);
 	}
@@ -687,7 +890,11 @@ try_again:
 	/*
 	 * Select card, as all following commands rely on that.
 	 */
+<<<<<<< HEAD
 	if (!powered_resume && !mmc_host_is_spi(host)) {
+=======
+	if (!mmc_host_is_spi(host)) {
+>>>>>>> upstream/android-13
 		err = mmc_select_card(card);
 		if (err)
 			goto remove;
@@ -706,7 +913,16 @@ try_again:
 			mmc_set_timing(card->host, MMC_TIMING_SD_HS);
 		}
 
+<<<<<<< HEAD
 		goto finish;
+=======
+		if (oldcard)
+			mmc_remove_card(card);
+		else
+			host->card = card;
+
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -715,7 +931,11 @@ try_again:
 	 */
 	err = sdio_read_cccr(card, ocr);
 	if (err) {
+<<<<<<< HEAD
 		mmc_sdio_resend_if_cond(host, card);
+=======
+		mmc_sdio_pre_init(host, ocr_card, card);
+>>>>>>> upstream/android-13
 		if (ocr & R4_18V_PRESENT) {
 			/* Retry init sequence, but without R4_18V_PRESENT. */
 			retries = 0;
@@ -732,6 +952,7 @@ try_again:
 		goto remove;
 
 	if (oldcard) {
+<<<<<<< HEAD
 		int same = (card->cis.vendor == oldcard->cis.vendor &&
 			    card->cis.device == oldcard->cis.device);
 		mmc_remove_card(card);
@@ -741,6 +962,18 @@ try_again:
 		card = oldcard;
 	}
 	card->ocr = ocr_card;
+=======
+		if (card->cis.vendor == oldcard->cis.vendor &&
+		    card->cis.device == oldcard->cis.device) {
+			mmc_remove_card(card);
+			card = oldcard;
+		} else {
+			err = -ENOENT;
+			goto mismatch;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	mmc_fixup_device(card, sdio_fixup_methods);
 
 	if (card->type == MMC_TYPE_SD_COMBO) {
@@ -799,6 +1032,7 @@ try_again:
 		err = -EINVAL;
 		goto remove;
 	}
+<<<<<<< HEAD
 finish:
 	if (!oldcard)
 		host->card = card;
@@ -826,6 +1060,29 @@ static int mmc_sdio_reinit_card(struct mmc_host *host, bool powered_resume)
 
 	return mmc_sdio_init_card(host, host->card->ocr, host->card,
 				  powered_resume);
+=======
+
+	host->card = card;
+	return 0;
+
+mismatch:
+	pr_debug("%s: Perhaps the card was replaced\n", mmc_hostname(host));
+remove:
+	if (oldcard != card)
+		mmc_remove_card(card);
+	return err;
+}
+
+static int mmc_sdio_reinit_card(struct mmc_host *host)
+{
+	int ret;
+
+	ret = mmc_sdio_pre_init(host, host->card->ocr, NULL);
+	if (ret)
+		return ret;
+
+	return mmc_sdio_init_card(host, host->card->ocr, host->card);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -863,11 +1120,17 @@ static void mmc_sdio_detect(struct mmc_host *host)
 
 	/* Make sure card is powered before detecting it */
 	if (host->caps & MMC_CAP_POWER_OFF_CARD) {
+<<<<<<< HEAD
 		err = pm_runtime_get_sync(&host->card->dev);
 		if (err < 0) {
 			pm_runtime_put_noidle(&host->card->dev);
 			goto out;
 		}
+=======
+		err = pm_runtime_resume_and_get(&host->card->dev);
+		if (err < 0)
+			goto out;
+>>>>>>> upstream/android-13
 	}
 
 	mmc_claim_host(host);
@@ -911,12 +1174,17 @@ out:
  */
 static int mmc_sdio_pre_suspend(struct mmc_host *host)
 {
+<<<<<<< HEAD
 	int i, err = 0;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < host->card->sdio_funcs; i++) {
 		struct sdio_func *func = host->card->sdio_func[i];
 		if (func && sdio_func_present(func) && func->dev.driver) {
 			const struct dev_pm_ops *pmops = func->dev.driver->pm;
+<<<<<<< HEAD
 			if (!pmops || !pmops->suspend || !pmops->resume) {
 				/* force removal of entire card in that case */
 				err = -ENOSYS;
@@ -926,6 +1194,33 @@ static int mmc_sdio_pre_suspend(struct mmc_host *host)
 	}
 
 	return err;
+=======
+			if (!pmops || !pmops->suspend || !pmops->resume)
+				/* force removal of entire card in that case */
+				goto remove;
+		}
+	}
+
+	return 0;
+
+remove:
+	if (!mmc_card_is_removable(host)) {
+		dev_warn(mmc_dev(host),
+			 "missing suspend/resume ops for non-removable SDIO card\n");
+		/* Don't remove a non-removable card - we can't re-detect it. */
+		return 0;
+	}
+
+	/* Remove the SDIO card and let it be re-detected later on. */
+	mmc_sdio_remove(host);
+	mmc_claim_host(host);
+	mmc_detach_bus(host);
+	mmc_power_off(host);
+	mmc_release_host(host);
+	host->pm_flags = 0;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -933,6 +1228,11 @@ static int mmc_sdio_pre_suspend(struct mmc_host *host)
  */
 static int mmc_sdio_suspend(struct mmc_host *host)
 {
+<<<<<<< HEAD
+=======
+	WARN_ON(host->sdio_irqs && !mmc_card_keep_power(host));
+
+>>>>>>> upstream/android-13
 	/* Prevent processing of SDIO IRQs in suspended state. */
 	mmc_card_set_suspended(host->card);
 	cancel_delayed_work_sync(&host->sdio_irq_work);
@@ -940,7 +1240,11 @@ static int mmc_sdio_suspend(struct mmc_host *host)
 	mmc_claim_host(host);
 
 	if (mmc_card_keep_power(host) && mmc_card_wake_sdio_irq(host))
+<<<<<<< HEAD
 		sdio_disable_wide(host->card);
+=======
+		sdio_disable_4bit_bus(host->card);
+>>>>>>> upstream/android-13
 
 	if (!mmc_card_keep_power(host)) {
 		mmc_power_off(host);
@@ -961,7 +1265,15 @@ static int mmc_sdio_resume(struct mmc_host *host)
 	/* Basic card reinitialization. */
 	mmc_claim_host(host);
 
+<<<<<<< HEAD
 	/* Restore power if needed */
+=======
+	/*
+	 * Restore power and reinitialize the card when needed. Note that a
+	 * removable card is checked from a detect work later on in the resume
+	 * process.
+	 */
+>>>>>>> upstream/android-13
 	if (!mmc_card_keep_power(host)) {
 		mmc_power_up(host, host->card->ocr);
 		/*
@@ -975,12 +1287,17 @@ static int mmc_sdio_resume(struct mmc_host *host)
 			pm_runtime_set_active(&host->card->dev);
 			pm_runtime_enable(&host->card->dev);
 		}
+<<<<<<< HEAD
 	}
 
 	/* No need to reinitialize powered-resumed nonremovable cards */
 	if (mmc_card_is_removable(host) || !mmc_card_keep_power(host)) {
 		err = mmc_sdio_reinit_card(host, mmc_card_keep_power(host));
 	} else if (mmc_card_keep_power(host) && mmc_card_wake_sdio_irq(host)) {
+=======
+		err = mmc_sdio_reinit_card(host);
+	} else if (mmc_card_wake_sdio_irq(host)) {
+>>>>>>> upstream/android-13
 		/* We may have switched to 1-bit mode during suspend */
 		err = sdio_enable_4bit_bus(host->card);
 	}
@@ -995,13 +1312,18 @@ static int mmc_sdio_resume(struct mmc_host *host)
 		if (!(host->caps2 & MMC_CAP2_SDIO_IRQ_NOTHREAD))
 			wake_up_process(host->sdio_irq_thread);
 		else if (host->caps & MMC_CAP_SDIO_IRQ)
+<<<<<<< HEAD
 			host->ops->enable_sdio_irq(host, 1);
+=======
+			queue_delayed_work(system_wq, &host->sdio_irq_work, 0);
+>>>>>>> upstream/android-13
 	}
 
 out:
 	mmc_release_host(host);
 
 	host->pm_flags &= ~MMC_PM_KEEP_POWER;
+<<<<<<< HEAD
 	return err;
 }
 
@@ -1037,6 +1359,13 @@ static int mmc_sdio_power_restore(struct mmc_host *host)
 	return ret;
 }
 
+=======
+	trace_android_vh_mmc_sdio_pm_flag_set(host);
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int mmc_sdio_runtime_suspend(struct mmc_host *host)
 {
 	/* No references to the card, cut the power to it. */
@@ -1054,16 +1383,53 @@ static int mmc_sdio_runtime_resume(struct mmc_host *host)
 	/* Restore power and re-initialize. */
 	mmc_claim_host(host);
 	mmc_power_up(host, host->card->ocr);
+<<<<<<< HEAD
 	ret = mmc_sdio_power_restore(host);
+=======
+	ret = mmc_sdio_reinit_card(host);
+>>>>>>> upstream/android-13
 	mmc_release_host(host);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mmc_sdio_hw_reset(struct mmc_host *host)
 {
 	mmc_power_cycle(host, host->card->ocr);
 	return mmc_sdio_power_restore(host);
+=======
+/*
+ * SDIO HW reset
+ *
+ * Returns 0 if the HW reset was executed synchronously, returns 1 if the HW
+ * reset was asynchronously scheduled, else a negative error code.
+ */
+static int mmc_sdio_hw_reset(struct mmc_host *host)
+{
+	struct mmc_card *card = host->card;
+
+	/*
+	 * In case the card is shared among multiple func drivers, reset the
+	 * card through a rescan work. In this way it will be removed and
+	 * re-detected, thus all func drivers becomes informed about it.
+	 */
+	if (atomic_read(&card->sdio_funcs_probed) > 1) {
+		if (mmc_card_removed(card))
+			return 1;
+		host->rescan_entered = 0;
+		mmc_card_set_removed(card);
+		_mmc_detect_change(host, 0, false);
+		return 1;
+	}
+
+	/*
+	 * A single func driver has been probed, then let's skip the heavy
+	 * hotplug dance above and execute the reset immediately.
+	 */
+	mmc_power_cycle(host, card->ocr);
+	return mmc_sdio_reinit_card(host);
+>>>>>>> upstream/android-13
 }
 
 static int mmc_sdio_sw_reset(struct mmc_host *host)
@@ -1075,7 +1441,11 @@ static int mmc_sdio_sw_reset(struct mmc_host *host)
 	mmc_set_initial_state(host);
 	mmc_set_initial_signal_voltage(host);
 
+<<<<<<< HEAD
 	return mmc_sdio_reinit_card(host, 0);
+=======
+	return mmc_sdio_reinit_card(host);
+>>>>>>> upstream/android-13
 }
 
 static const struct mmc_bus_ops mmc_sdio_ops = {
@@ -1125,7 +1495,11 @@ int mmc_attach_sdio(struct mmc_host *host)
 	/*
 	 * Detect and init the card.
 	 */
+<<<<<<< HEAD
 	err = mmc_sdio_init_card(host, rocr, NULL, 0);
+=======
+	err = mmc_sdio_init_card(host, rocr, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err;
 

@@ -8,8 +8,15 @@ function usage() {
     echo "Usage: $0 [-vx] -i ethX"
     echo "  -i : (\$DEV)       output interface/device (required)"
     echo "  -s : (\$PKT_SIZE)  packet size"
+<<<<<<< HEAD
     echo "  -d : (\$DEST_IP)   destination IP"
     echo "  -m : (\$DST_MAC)   destination MAC-addr"
+=======
+    echo "  -d : (\$DEST_IP)   destination IP. CIDR (e.g. 198.18.0.0/15) is also allowed"
+    echo "  -m : (\$DST_MAC)   destination MAC-addr"
+    echo "  -p : (\$DST_PORT)  destination PORT range (e.g. 433-444) is also allowed"
+    echo "  -k : (\$UDP_CSUM)  enable UDP tx checksum"
+>>>>>>> upstream/android-13
     echo "  -t : (\$THREADS)   threads to start"
     echo "  -f : (\$F_THREAD)  index of first thread (zero indexed CPU number)"
     echo "  -c : (\$SKB_CLONE) SKB clones send before alloc new SKB"
@@ -18,12 +25,21 @@ function usage() {
     echo "  -v : (\$VERBOSE)   verbose"
     echo "  -x : (\$DEBUG)     debug"
     echo "  -6 : (\$IP6)       IPv6"
+<<<<<<< HEAD
+=======
+    echo "  -w : (\$DELAY)     Tx Delay value (ns)"
+    echo "  -a : (\$APPEND)    Script will not reset generator's state, but will append its config"
+>>>>>>> upstream/android-13
     echo ""
 }
 
 ##  --- Parse command line arguments / parameters ---
 ## echo "Commandline options:"
+<<<<<<< HEAD
 while getopts "s:i:d:m:f:t:c:n:b:vxh6" option; do
+=======
+while getopts "s:i:d:m:p:f:t:c:n:b:w:vxh6ak" option; do
+>>>>>>> upstream/android-13
     case $option in
         i) # interface
           export DEV=$OPTARG
@@ -41,6 +57,13 @@ while getopts "s:i:d:m:f:t:c:n:b:vxh6" option; do
           export DST_MAC=$OPTARG
 	  info "Destination MAC set to: DST_MAC=$DST_MAC"
           ;;
+<<<<<<< HEAD
+=======
+        p) # PORT
+          export DST_PORT=$OPTARG
+	  info "Destination PORT set to: DST_PORT=$DST_PORT"
+          ;;
+>>>>>>> upstream/android-13
         f)
 	  export F_THREAD=$OPTARG
 	  info "Index of first thread (zero indexed CPU number): $F_THREAD"
@@ -61,6 +84,13 @@ while getopts "s:i:d:m:f:t:c:n:b:vxh6" option; do
 	  export BURST=$OPTARG
 	  info "SKB bursting: BURST=$BURST"
           ;;
+<<<<<<< HEAD
+=======
+        w)
+	  export DELAY=$OPTARG
+	  info "DELAY=$DELAY"
+          ;;
+>>>>>>> upstream/android-13
         v)
           export VERBOSE=yes
           info "Verbose mode: VERBOSE=$VERBOSE"
@@ -73,6 +103,17 @@ while getopts "s:i:d:m:f:t:c:n:b:vxh6" option; do
 	  export IP6=6
 	  info "IP6: IP6=$IP6"
 	  ;;
+<<<<<<< HEAD
+=======
+        a)
+          export APPEND=yes
+          info "Append mode: APPEND=$APPEND"
+          ;;
+        k)
+          export UDP_CSUM=yes
+          info "UDP tx checksum: UDP_CSUM=$UDP_CSUM"
+          ;;
+>>>>>>> upstream/android-13
         h|?|*)
           usage;
           err 2 "[ERROR] Unknown parameters!!!"
@@ -95,6 +136,12 @@ if [ -z "$THREADS" ]; then
     export THREADS=1
 fi
 
+<<<<<<< HEAD
+=======
+# default DELAY
+[ -z "$DELAY" ] && export DELAY=0 # Zero means max speed
+
+>>>>>>> upstream/android-13
 export L_THREAD=$(( THREADS + F_THREAD - 1 ))
 
 if [ -z "$DEV" ]; then

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * jc42.c - driver for Jedec JC42.4 compliant temperature sensors
  *
@@ -6,6 +10,7 @@
  * Derived from lm77.c by Andras BALI <drewie@freemail.hu>.
  *
  * JC42.4 compliant temperature sensors are typically used on memory modules.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -390,12 +397,17 @@ static umode_t jc42_is_visible(const void *_data, enum hwmon_sensor_types type,
 {
 	const struct jc42_data *data = _data;
 	unsigned int config = data->config;
+<<<<<<< HEAD
 	umode_t mode = S_IRUGO;
+=======
+	umode_t mode = 0444;
+>>>>>>> upstream/android-13
 
 	switch (attr) {
 	case hwmon_temp_min:
 	case hwmon_temp_max:
 		if (!(config & JC42_CFG_EVENT_LOCK))
+<<<<<<< HEAD
 			mode |= S_IWUSR;
 		break;
 	case hwmon_temp_crit:
@@ -405,6 +417,17 @@ static umode_t jc42_is_visible(const void *_data, enum hwmon_sensor_types type,
 	case hwmon_temp_crit_hyst:
 		if (!(config & (JC42_CFG_EVENT_LOCK | JC42_CFG_TCRIT_LOCK)))
 			mode |= S_IWUSR;
+=======
+			mode |= 0200;
+		break;
+	case hwmon_temp_crit:
+		if (!(config & JC42_CFG_TCRIT_LOCK))
+			mode |= 0200;
+		break;
+	case hwmon_temp_crit_hyst:
+		if (!(config & (JC42_CFG_EVENT_LOCK | JC42_CFG_TCRIT_LOCK)))
+			mode |= 0200;
+>>>>>>> upstream/android-13
 		break;
 	case hwmon_temp_input:
 	case hwmon_temp_max_hyst:
@@ -451,6 +474,7 @@ static int jc42_detect(struct i2c_client *client, struct i2c_board_info *info)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static const u32 jc42_temp_config[] = {
 	HWMON_T_INPUT | HWMON_T_MIN | HWMON_T_MAX | HWMON_T_CRIT |
 	HWMON_T_MAX_HYST | HWMON_T_CRIT_HYST |
@@ -465,6 +489,14 @@ static const struct hwmon_channel_info jc42_temp = {
 
 static const struct hwmon_channel_info *jc42_info[] = {
 	&jc42_temp,
+=======
+static const struct hwmon_channel_info *jc42_info[] = {
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_MIN | HWMON_T_MAX |
+			   HWMON_T_CRIT | HWMON_T_MAX_HYST |
+			   HWMON_T_CRIT_HYST | HWMON_T_MIN_ALARM |
+			   HWMON_T_MAX_ALARM | HWMON_T_CRIT_ALARM),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -479,7 +511,11 @@ static const struct hwmon_chip_info jc42_chip_info = {
 	.info = jc42_info,
 };
 
+<<<<<<< HEAD
 static int jc42_probe(struct i2c_client *client, const struct i2c_device_id *id)
+=======
+static int jc42_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -602,7 +638,11 @@ static struct i2c_driver jc42_driver = {
 		.pm = JC42_DEV_PM_OPS,
 		.of_match_table = of_match_ptr(jc42_of_ids),
 	},
+<<<<<<< HEAD
 	.probe		= jc42_probe,
+=======
+	.probe_new	= jc42_probe,
+>>>>>>> upstream/android-13
 	.remove		= jc42_remove,
 	.id_table	= jc42_id,
 	.detect		= jc42_detect,

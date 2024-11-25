@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * fixed.h
  *
@@ -7,11 +11,14 @@
  *
  * Copyright (c) 2009 Nokia Corporation
  * Roger Quadros <ext-roger.quadros@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __REGULATOR_FIXED_H
@@ -24,6 +31,7 @@ struct regulator_init_data;
  * @supply_name:	Name of the regulator supply
  * @input_supply:	Name of the input regulator supply
  * @microvolts:		Output voltage of regulator
+<<<<<<< HEAD
  * @gpio:		GPIO to use for enable control
  * 			set to -EINVAL if not used
  * @startup_delay:	Start-up time in microseconds
@@ -35,6 +43,9 @@ struct regulator_init_data;
  *			will be in output and drive to low/high accordingly.
  * @enable_high:	Polarity of enable GPIO
  *			1 = Active high, 0 = Active low
+=======
+ * @startup_delay:	Start-up time in microseconds
+>>>>>>> upstream/android-13
  * @enabled_at_boot:	Whether regulator has been enabled at
  * 			boot or not. 1 = Yes, 0 = No
  * 			This is used to keep the regulator at
@@ -49,6 +60,7 @@ struct fixed_voltage_config {
 	const char *supply_name;
 	const char *input_supply;
 	int microvolts;
+<<<<<<< HEAD
 	int gpio;
 #ifdef CONFIG_SEC_PM
 	bool skip_gpio_request;
@@ -56,6 +68,10 @@ struct fixed_voltage_config {
 	unsigned startup_delay;
 	unsigned gpio_is_open_drain:1;
 	unsigned enable_high:1;
+=======
+	unsigned startup_delay;
+	unsigned int off_on_delay;
+>>>>>>> upstream/android-13
 	unsigned enabled_at_boot:1;
 	struct regulator_init_data *init_data;
 };

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* sound/soc/samsung/s3c24xx_simtec.h
  *
  * Copyright 2009 Simtec Electronics
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright 2009 Simtec Electronics
+ */
+>>>>>>> upstream/android-13
 
 extern void simtec_audio_init(struct snd_soc_pcm_runtime *rtd);
 

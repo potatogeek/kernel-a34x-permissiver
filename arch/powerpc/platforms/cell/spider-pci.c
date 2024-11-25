@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IO workarounds for PCI on Celleb/Cell platform
  *
  * (C) Copyright 2006-2007 TOSHIBA CORPORATION
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -38,10 +45,16 @@ struct spiderpci_iowa_private {
 static void spiderpci_io_flush(struct iowa_bus *bus)
 {
 	struct spiderpci_iowa_private *priv;
+<<<<<<< HEAD
 	u32 val;
 
 	priv = bus->private;
 	val = in_be32(priv->regs + SPIDER_PCI_DUMMY_READ);
+=======
+
+	priv = bus->private;
+	in_be32(priv->regs + SPIDER_PCI_DUMMY_READ);
+>>>>>>> upstream/android-13
 	iosync();
 }
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /*
  *    PARISC specific syscalls
@@ -5,6 +9,7 @@
  *    Copyright (C) 1999-2003 Matthew Wilcox <willy at parisc-linux.org>
  *    Copyright (C) 2000-2003 Paul Bame <bame at parisc-linux.org>
  *    Copyright (C) 2001 Thomas Bogendoerfer <tsbogend at parisc-linux.org>
+<<<<<<< HEAD
  *    Copyright (C) 1999-2014 Helge Deller <deller@gmx.de>
  *
  *
@@ -21,6 +26,9 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+ *    Copyright (C) 1999-2020 Helge Deller <deller@gmx.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/uaccess.h>
@@ -37,6 +45,10 @@
 #include <linux/utsname.h>
 #include <linux/personality.h>
 #include <linux/random.h>
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 
 /* we construct an artificial offset for the mapping based on the physical
  * address of the kernel mapping variable */
@@ -66,6 +78,28 @@ static inline unsigned long COLOR_ALIGN(unsigned long addr,
 	return base + off;
 }
 
+<<<<<<< HEAD
+=======
+
+#define STACK_SIZE_DEFAULT (USER_WIDE_MODE			\
+			? (1 << 30)	/* 1 GB */		\
+			: (CONFIG_STACK_MAX_DEFAULT_SIZE_MB*1024*1024))
+
+unsigned long calc_max_stack_size(unsigned long stack_max)
+{
+#ifdef CONFIG_COMPAT
+	if (!USER_WIDE_MODE && (stack_max == COMPAT_RLIM_INFINITY))
+		stack_max = STACK_SIZE_DEFAULT;
+	else
+#endif
+	if (stack_max == RLIM_INFINITY)
+		stack_max = STACK_SIZE_DEFAULT;
+
+	return stack_max;
+}
+
+
+>>>>>>> upstream/android-13
 /*
  * Top of mmap area (just below the process stack).
  */
@@ -82,11 +116,20 @@ static unsigned long mmap_upper_limit(struct rlimit *rlim_stack)
 	/* Limit stack size - see setup_arg_pages() in fs/exec.c */
 	stack_base = rlim_stack ? rlim_stack->rlim_max
 				: rlimit_max(RLIMIT_STACK);
+<<<<<<< HEAD
 	if (stack_base > STACK_SIZE_MAX)
 		stack_base = STACK_SIZE_MAX;
 
 	/* Add space for stack randomization. */
 	stack_base += (STACK_RND_MASK << PAGE_SHIFT);
+=======
+
+	stack_base = calc_max_stack_size(stack_base);
+
+	/* Add space for stack randomization. */
+	if (current->flags & PF_RANDOMIZE)
+		stack_base += (STACK_RND_MASK << PAGE_SHIFT);
+>>>>>>> upstream/android-13
 
 	return PAGE_ALIGN(STACK_TOP - stack_base);
 }
@@ -386,3 +429,76 @@ long parisc_personality(unsigned long personality)
 
 	return err;
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Up to kernel v5.9 we defined O_NONBLOCK as 000200004,
+ * since then O_NONBLOCK is defined as 000200000.
+ *
+ * The following wrapper functions mask out the old
+ * O_NDELAY bit from calls which use O_NONBLOCK.
+ *
+ * XXX: Remove those in year 2022 (or later)?
+ */
+
+#define O_NONBLOCK_OLD		000200004
+#define O_NONBLOCK_MASK_OUT	(O_NONBLOCK_OLD & ~O_NONBLOCK)
+
+static int FIX_O_NONBLOCK(int flags)
+{
+	if (flags & O_NONBLOCK_MASK_OUT) {
+		struct task_struct *tsk = current;
+		pr_warn_once("%s(%d) uses a deprecated O_NONBLOCK value.\n",
+			tsk->comm, tsk->pid);
+	}
+	return flags & ~O_NONBLOCK_MASK_OUT;
+}
+
+asmlinkage long parisc_timerfd_create(int clockid, int flags)
+{
+	flags = FIX_O_NONBLOCK(flags);
+	return sys_timerfd_create(clockid, flags);
+}
+
+asmlinkage long parisc_signalfd4(int ufd, sigset_t __user *user_mask,
+	size_t sizemask, int flags)
+{
+	flags = FIX_O_NONBLOCK(flags);
+	return sys_signalfd4(ufd, user_mask, sizemask, flags);
+}
+
+#ifdef CONFIG_COMPAT
+asmlinkage long parisc_compat_signalfd4(int ufd,
+	compat_sigset_t __user *user_mask,
+	compat_size_t sizemask, int flags)
+{
+	flags = FIX_O_NONBLOCK(flags);
+	return compat_sys_signalfd4(ufd, user_mask, sizemask, flags);
+}
+#endif
+
+asmlinkage long parisc_eventfd2(unsigned int count, int flags)
+{
+	flags = FIX_O_NONBLOCK(flags);
+	return sys_eventfd2(count, flags);
+}
+
+asmlinkage long parisc_userfaultfd(int flags)
+{
+	flags = FIX_O_NONBLOCK(flags);
+	return sys_userfaultfd(flags);
+}
+
+asmlinkage long parisc_pipe2(int __user *fildes, int flags)
+{
+	flags = FIX_O_NONBLOCK(flags);
+	return sys_pipe2(fildes, flags);
+}
+
+asmlinkage long parisc_inotify_init1(int flags)
+{
+	flags = FIX_O_NONBLOCK(flags);
+	return sys_inotify_init1(flags);
+}
+>>>>>>> upstream/android-13

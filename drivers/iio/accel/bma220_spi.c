@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * BMA220 Digital triaxial acceleration sensor driver
  *
@@ -15,6 +16,24 @@
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 #include <linux/spi/spi.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * BMA220 Digital triaxial acceleration sensor driver
+ *
+ * Copyright (c) 2016,2020 Intel Corporation.
+ */
+
+#include <linux/bits.h>
+#include <linux/kernel.h>
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/spi/spi.h>
+
+#include <linux/iio/buffer.h>
+#include <linux/iio/iio.h>
+#include <linux/iio/sysfs.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
 
@@ -26,14 +45,22 @@
 #define BMA220_REG_SUSPEND			0x18
 
 #define BMA220_CHIP_ID				0xDD
+<<<<<<< HEAD
 #define BMA220_READ_MASK			0x80
 #define BMA220_RANGE_MASK			0x03
+=======
+#define BMA220_READ_MASK			BIT(7)
+#define BMA220_RANGE_MASK			GENMASK(1, 0)
+>>>>>>> upstream/android-13
 #define BMA220_DATA_SHIFT			2
 #define BMA220_SUSPEND_SLEEP			0xFF
 #define BMA220_SUSPEND_WAKE			0x00
 
 #define BMA220_DEVICE_NAME			"bma220"
+<<<<<<< HEAD
 #define BMA220_SCALE_AVAILABLE			"0.623 1.248 2.491 4.983"
+=======
+>>>>>>> upstream/android-13
 
 #define BMA220_ACCEL_CHANNEL(index, reg, axis) {			\
 	.type = IIO_ACCEL,						\
@@ -58,6 +85,7 @@ enum bma220_axis {
 	AXIS_Z,
 };
 
+<<<<<<< HEAD
 static IIO_CONST_ATTR(in_accel_scale_available, BMA220_SCALE_AVAILABLE);
 
 static struct attribute *bma220_attributes[] = {
@@ -71,12 +99,24 @@ static const struct attribute_group bma220_attribute_group = {
 
 static const int bma220_scale_table[][4] = {
 	{0, 623000}, {1, 248000}, {2, 491000}, {4, 983000}
+=======
+static const int bma220_scale_table[][2] = {
+	{0, 623000}, {1, 248000}, {2, 491000}, {4, 983000},
+>>>>>>> upstream/android-13
 };
 
 struct bma220_data {
 	struct spi_device *spi_device;
 	struct mutex lock;
+<<<<<<< HEAD
 	s8 buffer[16]; /* 3x8-bit channels + 5x8 padding + 8x8 timestamp */
+=======
+	struct {
+		s8 chans[3];
+		/* Ensure timestamp is naturally aligned. */
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 	u8 tx_buf[2] ____cacheline_aligned;
 };
 
@@ -107,12 +147,20 @@ static irqreturn_t bma220_trigger_handler(int irq, void *p)
 
 	mutex_lock(&data->lock);
 	data->tx_buf[0] = BMA220_REG_ACCEL_X | BMA220_READ_MASK;
+<<<<<<< HEAD
 	ret = spi_write_then_read(spi, data->tx_buf, 1, data->buffer,
+=======
+	ret = spi_write_then_read(spi, data->tx_buf, 1, &data->scan.chans,
+>>>>>>> upstream/android-13
 				  ARRAY_SIZE(bma220_channels) - 1);
 	if (ret < 0)
 		goto err;
 
+<<<<<<< HEAD
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 					   pf->timestamp);
 err:
 	mutex_unlock(&data->lock);
@@ -185,10 +233,33 @@ static int bma220_write_raw(struct iio_dev *indio_dev,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static const struct iio_info bma220_info = {
 	.read_raw		= bma220_read_raw,
 	.write_raw		= bma220_write_raw,
 	.attrs			= &bma220_attribute_group,
+=======
+static int bma220_read_avail(struct iio_dev *indio_dev,
+			     struct iio_chan_spec const *chan,
+			     const int **vals, int *type, int *length,
+			     long mask)
+{
+	switch (mask) {
+	case IIO_CHAN_INFO_SCALE:
+		*vals = (int *)bma220_scale_table;
+		*type = IIO_VAL_INT_PLUS_MICRO;
+		*length = ARRAY_SIZE(bma220_scale_table) * 2;
+		return IIO_AVAIL_LIST;
+	default:
+		return -EINVAL;
+	}
+}
+
+static const struct iio_info bma220_info = {
+	.read_raw		= bma220_read_raw,
+	.write_raw		= bma220_write_raw,
+	.read_avail		= bma220_read_avail,
+>>>>>>> upstream/android-13
 };
 
 static int bma220_init(struct spi_device *spi)
@@ -201,14 +272,24 @@ static int bma220_init(struct spi_device *spi)
 
 	/* Make sure the chip is powered on */
 	ret = bma220_read_reg(spi, BMA220_REG_SUSPEND);
+<<<<<<< HEAD
 	if (ret < 0)
 		return ret;
 	else if (ret == BMA220_SUSPEND_WAKE)
 		return bma220_read_reg(spi, BMA220_REG_SUSPEND);
+=======
+	if (ret == BMA220_SUSPEND_WAKE)
+		ret = bma220_read_reg(spi, BMA220_REG_SUSPEND);
+	if (ret < 0)
+		return ret;
+	if (ret == BMA220_SUSPEND_WAKE)
+		return -EBUSY;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bma220_deinit(struct spi_device *spi)
 {
 	int ret;
@@ -221,6 +302,35 @@ static int bma220_deinit(struct spi_device *spi)
 		return bma220_read_reg(spi, BMA220_REG_SUSPEND);
 
 	return 0;
+=======
+static int bma220_power(struct spi_device *spi, bool up)
+{
+	int i, ret;
+
+	/**
+	 * The chip can be suspended/woken up by a simple register read.
+	 * So, we need up to 2 register reads of the suspend register
+	 * to make sure that the device is in the desired state.
+	 */
+	for (i = 0; i < 2; i++) {
+		ret = bma220_read_reg(spi, BMA220_REG_SUSPEND);
+		if (ret < 0)
+			return ret;
+
+		if (up && ret == BMA220_SUSPEND_SLEEP)
+			return 0;
+
+		if (!up && ret == BMA220_SUSPEND_WAKE)
+			return 0;
+	}
+
+	return -EBUSY;
+}
+
+static void bma220_deinit(void *spi)
+{
+	bma220_power(spi, false);
+>>>>>>> upstream/android-13
 }
 
 static int bma220_probe(struct spi_device *spi)
@@ -237,10 +347,15 @@ static int bma220_probe(struct spi_device *spi)
 
 	data = iio_priv(indio_dev);
 	data->spi_device = spi;
+<<<<<<< HEAD
 	spi_set_drvdata(spi, indio_dev);
 	mutex_init(&data->lock);
 
 	indio_dev->dev.parent = &spi->dev;
+=======
+	mutex_init(&data->lock);
+
+>>>>>>> upstream/android-13
 	indio_dev->info = &bma220_info;
 	indio_dev->name = BMA220_DEVICE_NAME;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -249,6 +364,7 @@ static int bma220_probe(struct spi_device *spi)
 	indio_dev->available_scan_masks = bma220_accel_scan_masks;
 
 	ret = bma220_init(data->spi_device);
+<<<<<<< HEAD
 	if (ret < 0)
 		return ret;
 
@@ -307,6 +423,41 @@ static SIMPLE_DEV_PM_OPS(bma220_pm_ops, bma220_suspend, bma220_resume);
 #define BMA220_PM_OPS NULL
 #endif
 
+=======
+	if (ret)
+		return ret;
+
+	ret = devm_add_action_or_reset(&spi->dev, bma220_deinit, spi);
+	if (ret)
+		return ret;
+
+	ret = devm_iio_triggered_buffer_setup(&spi->dev, indio_dev,
+					      iio_pollfunc_store_time,
+					      bma220_trigger_handler, NULL);
+	if (ret < 0) {
+		dev_err(&spi->dev, "iio triggered buffer setup failed\n");
+		return ret;
+	}
+
+	return devm_iio_device_register(&spi->dev, indio_dev);
+}
+
+static __maybe_unused int bma220_suspend(struct device *dev)
+{
+	struct spi_device *spi = to_spi_device(dev);
+
+	return bma220_power(spi, false);
+}
+
+static __maybe_unused int bma220_resume(struct device *dev)
+{
+	struct spi_device *spi = to_spi_device(dev);
+
+	return bma220_power(spi, true);
+}
+static SIMPLE_DEV_PM_OPS(bma220_pm_ops, bma220_suspend, bma220_resume);
+
+>>>>>>> upstream/android-13
 static const struct spi_device_id bma220_spi_id[] = {
 	{"bma220", 0},
 	{}
@@ -316,12 +467,16 @@ static const struct acpi_device_id bma220_acpi_id[] = {
 	{"BMA0220", 0},
 	{}
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(spi, bma220_spi_id);
 
 static struct spi_driver bma220_driver = {
 	.driver = {
 		.name = "bma220_spi",
+<<<<<<< HEAD
 		.pm = BMA220_PM_OPS,
 		.acpi_match_table = ACPI_PTR(bma220_acpi_id),
 	},
@@ -330,6 +485,14 @@ static struct spi_driver bma220_driver = {
 	.id_table =         bma220_spi_id,
 };
 
+=======
+		.pm = &bma220_pm_ops,
+		.acpi_match_table = bma220_acpi_id,
+	},
+	.probe =            bma220_probe,
+	.id_table =         bma220_spi_id,
+};
+>>>>>>> upstream/android-13
 module_spi_driver(bma220_driver);
 
 MODULE_AUTHOR("Tiberiu Breana <tiberiu.a.breana@intel.com>");

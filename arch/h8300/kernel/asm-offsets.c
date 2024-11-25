@@ -21,7 +21,10 @@
 int main(void)
 {
 	/* offsets into the task struct */
+<<<<<<< HEAD
 	OFFSET(TASK_STATE, task_struct, state);
+=======
+>>>>>>> upstream/android-13
 	OFFSET(TASK_FLAGS, task_struct, flags);
 	OFFSET(TASK_PTRACE, task_struct, ptrace);
 	OFFSET(TASK_BLOCKED, task_struct, blocked);

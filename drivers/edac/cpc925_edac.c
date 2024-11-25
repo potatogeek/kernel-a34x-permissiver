@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cpc925_edac.c, EDAC driver for IBM CPC925 Bridge and Memory Controller.
  *
  * Copyright (c) 2008 Wind River Systems, Inc.
  *
  * Authors:	Cao Qingtao <qingtao.cao@windriver.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -593,8 +600,12 @@ static void cpc925_mc_check(struct mem_ctl_info *mci)
 /******************** CPU err device********************************/
 static u32 cpc925_cpu_mask_disabled(void)
 {
+<<<<<<< HEAD
 	struct device_node *cpus;
 	struct device_node *cpunode = NULL;
+=======
+	struct device_node *cpunode;
+>>>>>>> upstream/android-13
 	static u32 mask = 0;
 
 	/* use cached value if available */
@@ -603,6 +614,7 @@ static u32 cpc925_cpu_mask_disabled(void)
 
 	mask = APIMASK_ADI0 | APIMASK_ADI1;
 
+<<<<<<< HEAD
 	cpus = of_find_node_by_path("/cpus");
 	if (cpus == NULL) {
 		cpc925_printk(KERN_DEBUG, "No /cpus node !\n");
@@ -617,6 +629,10 @@ static u32 cpc925_cpu_mask_disabled(void)
 			continue;
 		}
 
+=======
+	for_each_of_cpu_node(cpunode) {
+		const u32 *reg = of_get_property(cpunode, "reg", NULL);
+>>>>>>> upstream/android-13
 		if (reg == NULL || *reg > 2) {
 			cpc925_printk(KERN_ERR, "Bad reg value at %pOF\n", cpunode);
 			continue;
@@ -633,9 +649,12 @@ static u32 cpc925_cpu_mask_disabled(void)
 				"Assuming PI id is equal to CPU MPIC id!\n");
 	}
 
+<<<<<<< HEAD
 	of_node_put(cpunode);
 	of_node_put(cpus);
 
+=======
+>>>>>>> upstream/android-13
 	return mask;
 }
 

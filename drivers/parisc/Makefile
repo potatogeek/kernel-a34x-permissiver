@@ -8,9 +8,12 @@
 obj-$(CONFIG_IOSAPIC)		+= iosapic.o
 obj-$(CONFIG_IOMMU_SBA)		+= sba_iommu.o
 obj-$(CONFIG_PCI_LBA)		+= lba_pci.o
+<<<<<<< HEAD
 
 # Only use one of them: ccio-rm-dma is for PCX-W systems *only*
 # obj-$(CONFIG_IOMMU_CCIO)	+= ccio-rm-dma.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_IOMMU_CCIO)	+= ccio-dma.o
 
 obj-$(CONFIG_GSC)		+= gsc.o

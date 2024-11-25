@@ -1,19 +1,30 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ARM DynamIQ Shared Unit (DSU) PMU driver
  *
  * Copyright (C) ARM Limited, 2017.
  *
  * Based on ARM CCI-PMU, ARMv8 PMU-v3 drivers.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define PMUNAME		"arm_dsu"
 #define DRVNAME		PMUNAME "_pmu"
 #define pr_fmt(fmt)	DRVNAME ": " fmt
 
+<<<<<<< HEAD
+=======
+#include <linux/acpi.h>
+>>>>>>> upstream/android-13
 #include <linux/bitmap.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
@@ -138,8 +149,12 @@ static ssize_t dsu_pmu_sysfs_event_show(struct device *dev,
 {
 	struct dev_ext_attribute *eattr = container_of(attr,
 					struct dev_ext_attribute, attr);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "event=0x%lx\n",
 					 (unsigned long)eattr->var);
+=======
+	return sysfs_emit(buf, "event=0x%lx\n", (unsigned long)eattr->var);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dsu_pmu_sysfs_format_show(struct device *dev,
@@ -148,7 +163,11 @@ static ssize_t dsu_pmu_sysfs_format_show(struct device *dev,
 {
 	struct dev_ext_attribute *eattr = container_of(attr,
 					struct dev_ext_attribute, attr);
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%s\n", (char *)eattr->var);
+=======
+	return sysfs_emit(buf, "%s\n", (char *)eattr->var);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dsu_pmu_cpumask_show(struct device *dev,
@@ -562,6 +581,7 @@ static int dsu_pmu_event_init(struct perf_event *event)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (has_branch_stack(event) ||
 	    event->attr.exclude_user ||
 	    event->attr.exclude_kernel ||
@@ -569,6 +589,9 @@ static int dsu_pmu_event_init(struct perf_event *event)
 	    event->attr.exclude_idle ||
 	    event->attr.exclude_host ||
 	    event->attr.exclude_guest) {
+=======
+	if (has_branch_stack(event)) {
+>>>>>>> upstream/android-13
 		dev_dbg(dsu_pmu->pmu.dev, "Can't support filtering\n");
 		return -EINVAL;
 	}
@@ -612,18 +635,33 @@ static struct dsu_pmu *dsu_pmu_alloc(struct platform_device *pdev)
 }
 
 /**
+<<<<<<< HEAD
  * dsu_pmu_dt_get_cpus: Get the list of CPUs in the cluster.
  */
 static int dsu_pmu_dt_get_cpus(struct device_node *dev, cpumask_t *mask)
+=======
+ * dsu_pmu_dt_get_cpus: Get the list of CPUs in the cluster
+ * from device tree.
+ */
+static int dsu_pmu_dt_get_cpus(struct device *dev, cpumask_t *mask)
+>>>>>>> upstream/android-13
 {
 	int i = 0, n, cpu;
 	struct device_node *cpu_node;
 
+<<<<<<< HEAD
 	n = of_count_phandle_with_args(dev, "cpus", NULL);
 	if (n <= 0)
 		return -ENODEV;
 	for (; i < n; i++) {
 		cpu_node = of_parse_phandle(dev, "cpus", i);
+=======
+	n = of_count_phandle_with_args(dev->of_node, "cpus", NULL);
+	if (n <= 0)
+		return -ENODEV;
+	for (; i < n; i++) {
+		cpu_node = of_parse_phandle(dev->of_node, "cpus", i);
+>>>>>>> upstream/android-13
 		if (!cpu_node)
 			break;
 		cpu = of_cpu_node_to_id(cpu_node);
@@ -640,6 +678,39 @@ static int dsu_pmu_dt_get_cpus(struct device_node *dev, cpumask_t *mask)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * dsu_pmu_acpi_get_cpus: Get the list of CPUs in the cluster
+ * from ACPI.
+ */
+static int dsu_pmu_acpi_get_cpus(struct device *dev, cpumask_t *mask)
+{
+#ifdef CONFIG_ACPI
+	int cpu;
+
+	/*
+	 * A dsu pmu node is inside a cluster parent node along with cpu nodes.
+	 * We need to find out all cpus that have the same parent with this pmu.
+	 */
+	for_each_possible_cpu(cpu) {
+		struct acpi_device *acpi_dev;
+		struct device *cpu_dev = get_cpu_device(cpu);
+
+		if (!cpu_dev)
+			continue;
+
+		acpi_dev = ACPI_COMPANION(cpu_dev);
+		if (acpi_dev &&
+			acpi_dev->parent == ACPI_COMPANION(dev)->parent)
+			cpumask_set_cpu(cpu, mask);
+	}
+#endif
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * dsu_pmu_probe_pmu: Probe the PMU details on a CPU in the cluster.
  */
@@ -665,7 +736,11 @@ static void dsu_pmu_probe_pmu(struct dsu_pmu *dsu_pmu)
 static void dsu_pmu_set_active_cpu(int cpu, struct dsu_pmu *dsu_pmu)
 {
 	cpumask_set_cpu(cpu, &dsu_pmu->active_cpu);
+<<<<<<< HEAD
 	if (irq_set_affinity_hint(dsu_pmu->irq, &dsu_pmu->active_cpu))
+=======
+	if (irq_set_affinity(dsu_pmu->irq, &dsu_pmu->active_cpu))
+>>>>>>> upstream/android-13
 		pr_warn("Failed to set irq affinity to %d\n", cpu);
 }
 
@@ -685,6 +760,10 @@ static int dsu_pmu_device_probe(struct platform_device *pdev)
 {
 	int irq, rc;
 	struct dsu_pmu *dsu_pmu;
+<<<<<<< HEAD
+=======
+	struct fwnode_handle *fwnode = dev_fwnode(&pdev->dev);
+>>>>>>> upstream/android-13
 	char *name;
 	static atomic_t pmu_idx = ATOMIC_INIT(-1);
 
@@ -692,17 +771,32 @@ static int dsu_pmu_device_probe(struct platform_device *pdev)
 	if (IS_ERR(dsu_pmu))
 		return PTR_ERR(dsu_pmu);
 
+<<<<<<< HEAD
 	rc = dsu_pmu_dt_get_cpus(pdev->dev.of_node, &dsu_pmu->associated_cpus);
+=======
+	if (is_of_node(fwnode))
+		rc = dsu_pmu_dt_get_cpus(&pdev->dev, &dsu_pmu->associated_cpus);
+	else if (is_acpi_device_node(fwnode))
+		rc = dsu_pmu_acpi_get_cpus(&pdev->dev, &dsu_pmu->associated_cpus);
+	else
+		return -ENOENT;
+
+>>>>>>> upstream/android-13
 	if (rc) {
 		dev_warn(&pdev->dev, "Failed to parse the CPUs\n");
 		return rc;
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_warn(&pdev->dev, "Failed to find IRQ\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s_%d",
 				PMUNAME, atomic_inc_return(&pmu_idx));
@@ -735,13 +829,20 @@ static int dsu_pmu_device_probe(struct platform_device *pdev)
 		.read		= dsu_pmu_read,
 
 		.attr_groups	= dsu_pmu_attr_groups,
+<<<<<<< HEAD
+=======
+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	rc = perf_pmu_register(&dsu_pmu->pmu, name, -1);
 	if (rc) {
 		cpuhp_state_remove_instance(dsu_pmu_cpuhp_state,
 						 &dsu_pmu->cpuhp_node);
+<<<<<<< HEAD
 		irq_set_affinity_hint(dsu_pmu->irq, NULL);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return rc;
@@ -753,7 +854,10 @@ static int dsu_pmu_device_remove(struct platform_device *pdev)
 
 	perf_pmu_unregister(&dsu_pmu->pmu);
 	cpuhp_state_remove_instance(dsu_pmu_cpuhp_state, &dsu_pmu->cpuhp_node);
+<<<<<<< HEAD
 	irq_set_affinity_hint(dsu_pmu->irq, NULL);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -762,11 +866,28 @@ static const struct of_device_id dsu_pmu_of_match[] = {
 	{ .compatible = "arm,dsu-pmu", },
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, dsu_pmu_of_match);
+
+#ifdef CONFIG_ACPI
+static const struct acpi_device_id dsu_pmu_acpi_match[] = {
+	{ "ARMHD500", 0},
+	{},
+};
+MODULE_DEVICE_TABLE(acpi, dsu_pmu_acpi_match);
+#endif
+>>>>>>> upstream/android-13
 
 static struct platform_driver dsu_pmu_driver = {
 	.driver = {
 		.name	= DRVNAME,
 		.of_match_table = of_match_ptr(dsu_pmu_of_match),
+<<<<<<< HEAD
+=======
+		.acpi_match_table = ACPI_PTR(dsu_pmu_acpi_match),
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = dsu_pmu_device_probe,
 	.remove = dsu_pmu_device_remove,
@@ -801,10 +922,15 @@ static int dsu_pmu_cpu_teardown(unsigned int cpu, struct hlist_node *node)
 
 	dst = dsu_pmu_get_online_cpu_any_but(dsu_pmu, cpu);
 	/* If there are no active CPUs in the DSU, leave IRQ disabled */
+<<<<<<< HEAD
 	if (dst >= nr_cpu_ids) {
 		irq_set_affinity_hint(dsu_pmu->irq, NULL);
 		return 0;
 	}
+=======
+	if (dst >= nr_cpu_ids)
+		return 0;
+>>>>>>> upstream/android-13
 
 	perf_pmu_migrate_context(&dsu_pmu->pmu, cpu, dst);
 	dsu_pmu_set_active_cpu(dst, dsu_pmu);
@@ -835,7 +961,10 @@ static void __exit dsu_pmu_exit(void)
 module_init(dsu_pmu_init);
 module_exit(dsu_pmu_exit);
 
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(of, dsu_pmu_of_match);
+=======
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Perf driver for ARM DynamIQ Shared Unit");
 MODULE_AUTHOR("Suzuki K Poulose <suzuki.poulose@arm.com>");
 MODULE_LICENSE("GPL v2");

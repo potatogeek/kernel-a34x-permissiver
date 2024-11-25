@@ -88,7 +88,11 @@ static int iio_mark_update_needed_kfifo(struct iio_buffer *r)
 
 static int shub_iio_set_bytes_per_datum_kfifo(struct iio_buffer *r, size_t bpd)
 {
+<<<<<<< HEAD
 	pr_info("[SHUB] %s bytes_per_datum : %d", __func__, (int)r->bytes_per_datum);
+=======
+	pr_info("[SHUB] %s bytes_per_datum : %d", __func__, r->bytes_per_datum);
+>>>>>>> upstream/android-13
 
 /*
 	if (r->bytes_per_datum != bpd) {

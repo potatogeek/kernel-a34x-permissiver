@@ -22,6 +22,10 @@
 #include <linux/delay.h>
 #include <linux/workqueue.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/reg.h>
 #include <asm/nvram.h>
@@ -100,6 +104,7 @@ static void TAUupdate(int cpu)
  * with interrupts disabled
  */
 
+<<<<<<< HEAD
 void TAUException(struct pt_regs * regs)
 {
 	int cpu = smp_processor_id();
@@ -110,6 +115,15 @@ void TAUException(struct pt_regs * regs)
 	TAUupdate(cpu);
 
 	irq_exit();
+=======
+DEFINE_INTERRUPT_HANDLER_ASYNC(TAUException)
+{
+	int cpu = smp_processor_id();
+
+	tau[cpu].interrupts++;
+
+	TAUupdate(cpu);
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_TAU_INT */
 
@@ -166,7 +180,11 @@ static void tau_work_func(struct work_struct *work)
 	queue_work(tau_workq, work);
 }
 
+<<<<<<< HEAD
 DECLARE_WORK(tau_work, tau_work_func);
+=======
+static DECLARE_WORK(tau_work, tau_work_func);
+>>>>>>> upstream/android-13
 
 /*
  * setup the TAU

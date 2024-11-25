@@ -119,13 +119,22 @@ static const struct watchdog_ops da9055_wdt_ops = {
 
 static int da9055_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct da9055 *da9055 = dev_get_drvdata(pdev->dev.parent);
+=======
+	struct device *dev = &pdev->dev;
+	struct da9055 *da9055 = dev_get_drvdata(dev->parent);
+>>>>>>> upstream/android-13
 	struct da9055_wdt_data *driver_data;
 	struct watchdog_device *da9055_wdt;
 	int ret;
 
+<<<<<<< HEAD
 	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
 				   GFP_KERNEL);
+=======
+	driver_data = devm_kzalloc(dev, sizeof(*driver_data), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!driver_data)
 		return -ENOMEM;
 
@@ -136,17 +145,29 @@ static int da9055_wdt_probe(struct platform_device *pdev)
 	da9055_wdt->timeout = DA9055_DEF_TIMEOUT;
 	da9055_wdt->info = &da9055_wdt_info;
 	da9055_wdt->ops = &da9055_wdt_ops;
+<<<<<<< HEAD
 	da9055_wdt->parent = &pdev->dev;
+=======
+	da9055_wdt->parent = dev;
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(da9055_wdt, nowayout);
 	watchdog_set_drvdata(da9055_wdt, driver_data);
 
 	ret = da9055_wdt_stop(da9055_wdt);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to stop watchdog, %d\n", ret);
 		return ret;
 	}
 
 	ret = devm_watchdog_register_device(&pdev->dev, &driver_data->wdt);
+=======
+		dev_err(dev, "Failed to stop watchdog, %d\n", ret);
+		return ret;
+	}
+
+	ret = devm_watchdog_register_device(dev, &driver_data->wdt);
+>>>>>>> upstream/android-13
 	if (ret != 0)
 		dev_err(da9055->dev, "watchdog_register_device() failed: %d\n",
 			ret);

@@ -255,12 +255,20 @@ static inline unsigned int dmt(void)
 static inline void __raw_emt(void)
 {
 	__asm__ __volatile__(
+<<<<<<< HEAD
+=======
+	"	.set	push						\n"
+>>>>>>> upstream/android-13
 	"	.set	noreorder					\n"
 	"	.set	mips32r2					\n"
 	"	.word	0x41600be1			# emt		\n"
 	"	ehb							\n"
+<<<<<<< HEAD
 	"	.set	mips0						\n"
 	"	.set	reorder");
+=======
+	"	.set	pop");
+>>>>>>> upstream/android-13
 }
 
 /* enable multi-threaded execution if previous suggested it should be.
@@ -277,9 +285,16 @@ static inline void emt(int previous)
 static inline void ehb(void)
 {
 	__asm__ __volatile__(
+<<<<<<< HEAD
 	"	.set	mips32r2				\n"
 	"	ehb						\n"
 	"	.set	mips0					\n");
+=======
+	"	.set	push					\n"
+	"	.set	mips32r2				\n"
+	"	ehb						\n"
+	"	.set	pop					\n");
+>>>>>>> upstream/android-13
 }
 
 #define mftc0(rt,sel)							\

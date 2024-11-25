@@ -24,6 +24,10 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/prefetch.h>
+>>>>>>> upstream/android-13
 #include <linux/proc_fs.h>
 #include <linux/slab.h>
 #include <linux/usb/ch9.h>
@@ -35,8 +39,11 @@
 #include <linux/seq_file.h>
 #endif
 
+<<<<<<< HEAD
 #include <mach/hardware.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  * USB device configuration structure
  */
@@ -115,6 +122,14 @@ struct lpc32xx_ep {
 	bool			wedge;
 };
 
+<<<<<<< HEAD
+=======
+enum atx_type {
+	ISP1301,
+	STOTG04,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Common UDC structure
  */
@@ -123,14 +138,20 @@ struct lpc32xx_udc {
 	struct usb_gadget_driver *driver;
 	struct platform_device	*pdev;
 	struct device		*dev;
+<<<<<<< HEAD
 	struct dentry		*pde;
+=======
+>>>>>>> upstream/android-13
 	spinlock_t		lock;
 	struct i2c_client	*isp1301_i2c_client;
 
 	/* Board and device specific */
 	struct lpc32xx_usbd_cfg	*board;
+<<<<<<< HEAD
 	u32			io_p_start;
 	u32			io_p_size;
+=======
+>>>>>>> upstream/android-13
 	void __iomem		*udp_baseaddr;
 	int			udp_irq[4];
 	struct clk		*usb_slv_clk;
@@ -151,10 +172,17 @@ struct lpc32xx_udc {
 	u8			last_vbus;
 	int			pullup;
 	int			poweron;
+<<<<<<< HEAD
 
 	/* Work queues related to I2C support */
 	struct work_struct	pullup_job;
 	struct work_struct	vbus_job;
+=======
+	enum atx_type		atx;
+
+	/* Work queues related to I2C support */
+	struct work_struct	pullup_job;
+>>>>>>> upstream/android-13
 	struct work_struct	power_job;
 
 	/* USB device peripheral - various */
@@ -493,7 +521,11 @@ static void proc_ep_show(struct seq_file *s, struct lpc32xx_ep *ep)
 	}
 }
 
+<<<<<<< HEAD
 static int proc_udc_show(struct seq_file *s, void *unused)
+=======
+static int udc_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct lpc32xx_udc *udc = s->private;
 	struct lpc32xx_ep *ep;
@@ -522,6 +554,7 @@ static int proc_udc_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int proc_udc_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, proc_udc_show, PDE_DATA(inode));
@@ -538,11 +571,22 @@ static const struct file_operations proc_ops = {
 static void create_debug_file(struct lpc32xx_udc *udc)
 {
 	udc->pde = debugfs_create_file(debug_filename, 0, NULL, udc, &proc_ops);
+=======
+DEFINE_SHOW_ATTRIBUTE(udc);
+
+static void create_debug_file(struct lpc32xx_udc *udc)
+{
+	debugfs_create_file(debug_filename, 0, NULL, udc, &udc_fops);
+>>>>>>> upstream/android-13
 }
 
 static void remove_debug_file(struct lpc32xx_udc *udc)
 {
+<<<<<<< HEAD
 	debugfs_remove(udc->pde);
+=======
+	debugfs_remove(debugfs_lookup(debug_filename, NULL));
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -553,6 +597,18 @@ static inline void remove_debug_file(struct lpc32xx_udc *udc) {}
 /* Primary initialization sequence for the ISP1301 transceiver */
 static void isp1301_udc_configure(struct lpc32xx_udc *udc)
 {
+<<<<<<< HEAD
+=======
+	u8 value;
+	s32 vendor, product;
+
+	vendor = i2c_smbus_read_word_data(udc->isp1301_i2c_client, 0x00);
+	product = i2c_smbus_read_word_data(udc->isp1301_i2c_client, 0x02);
+
+	if (vendor == 0x0483 && product == 0xa0c4)
+		udc->atx = STOTG04;
+
+>>>>>>> upstream/android-13
 	/* LPC32XX only supports DAT_SE0 USB mode */
 	/* This sequence is important */
 
@@ -572,8 +628,17 @@ static void isp1301_udc_configure(struct lpc32xx_udc *udc)
 	 */
 	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
 		(ISP1301_I2C_MODE_CONTROL_2 | ISP1301_I2C_REG_CLEAR_ADDR), ~0);
+<<<<<<< HEAD
 	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
 		ISP1301_I2C_MODE_CONTROL_2, (MC2_BI_DI | MC2_SPD_SUSP_CTRL));
+=======
+
+	value = MC2_BI_DI;
+	if (udc->atx != STOTG04)
+		value |= MC2_SPD_SUSP_CTRL;
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_MODE_CONTROL_2, value);
+>>>>>>> upstream/android-13
 
 	/* Driver VBUS_DRV high or low depending on board setup */
 	if (udc->board->vbus_drv_pol != 0)
@@ -601,6 +666,7 @@ static void isp1301_udc_configure(struct lpc32xx_udc *udc)
 		(ISP1301_I2C_OTG_CONTROL_1 | ISP1301_I2C_REG_CLEAR_ADDR),
 		OTG1_VBUS_DISCHRG);
 
+<<<<<<< HEAD
 	/* Clear and enable VBUS high edge interrupt */
 	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
 		ISP1301_I2C_INTERRUPT_LATCH | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
@@ -619,6 +685,21 @@ static void isp1301_udc_configure(struct lpc32xx_udc *udc)
 		 i2c_smbus_read_word_data(udc->isp1301_i2c_client, 0x02));
 	dev_info(udc->dev, "ISP1301 Version ID : 0x%04x\n",
 		 i2c_smbus_read_word_data(udc->isp1301_i2c_client, 0x14));
+=======
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_INTERRUPT_LATCH | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
+
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_INTERRUPT_FALLING | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_INTERRUPT_RISING | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
+
+	dev_info(udc->dev, "ISP1301 Vendor ID  : 0x%04x\n", vendor);
+	dev_info(udc->dev, "ISP1301 Product ID : 0x%04x\n", product);
+	dev_info(udc->dev, "ISP1301 Version ID : 0x%04x\n",
+		 i2c_smbus_read_word_data(udc->isp1301_i2c_client, 0x14));
+
+>>>>>>> upstream/android-13
 }
 
 /* Enables or disables the USB device pullup via the ISP1301 transceiver */
@@ -661,6 +742,13 @@ static void isp1301_pullup_enable(struct lpc32xx_udc *udc, int en_pullup,
 /* Powers up or down the ISP1301 transceiver */
 static void isp1301_set_powerstate(struct lpc32xx_udc *udc, int enable)
 {
+<<<<<<< HEAD
+=======
+	/* There is no "global power down" register for stotg04 */
+	if (udc->atx == STOTG04)
+		return;
+
+>>>>>>> upstream/android-13
 	if (enable != 0)
 		/* Power up ISP1301 - this ISP1301 will automatically wakeup
 		   when VBUS is detected */
@@ -727,7 +815,10 @@ static inline void udc_protocol_cmd_data_w(struct lpc32xx_udc *udc, u32 cmd,
  * response data */
 static u32 udc_protocol_cmd_r(struct lpc32xx_udc *udc, u32 cmd)
 {
+<<<<<<< HEAD
 	u32 tmp;
+=======
+>>>>>>> upstream/android-13
 	int to = 1000;
 
 	/* Write a command and read data from the protocol engine */
@@ -737,7 +828,10 @@ static u32 udc_protocol_cmd_r(struct lpc32xx_udc *udc, u32 cmd)
 	/* Write command code */
 	udc_protocol_cmd_w(udc, cmd);
 
+<<<<<<< HEAD
 	tmp = readl(USBD_DEVINTST(udc->udp_baseaddr));
+=======
+>>>>>>> upstream/android-13
 	while ((!(readl(USBD_DEVINTST(udc->udp_baseaddr)) & USBD_CDFULL))
 	       && (to > 0))
 		to--;
@@ -1139,7 +1233,11 @@ static void udc_pop_fifo(struct lpc32xx_udc *udc, u8 *data, u32 bytes)
 	u32 *p32, tmp, cbytes;
 
 	/* Use optimal data transfer method based on source address and size */
+<<<<<<< HEAD
 	switch (((u32) data) & 0x3) {
+=======
+	switch (((uintptr_t) data) & 0x3) {
+>>>>>>> upstream/android-13
 	case 0: /* 32-bit aligned */
 		p32 = (u32 *) data;
 		cbytes = (bytes & ~0x3);
@@ -1240,7 +1338,11 @@ static void udc_stuff_fifo(struct lpc32xx_udc *udc, u8 *data, u32 bytes)
 	u32 *p32, tmp, cbytes;
 
 	/* Use optimal data transfer method based on source address and size */
+<<<<<<< HEAD
 	switch (((u32) data) & 0x3) {
+=======
+	switch (((uintptr_t) data) & 0x3) {
+>>>>>>> upstream/android-13
 	case 0: /* 32-bit aligned */
 		p32 = (u32 *) data;
 		cbytes = (bytes & ~0x3);
@@ -1914,7 +2016,11 @@ static const struct usb_ep_ops lpc32xx_ep_ops = {
 };
 
 /* Send a ZLP on a non-0 IN EP */
+<<<<<<< HEAD
 void udc_send_in_zlp(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
+=======
+static void udc_send_in_zlp(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
+>>>>>>> upstream/android-13
 {
 	/* Clear EP status */
 	udc_clearep_getsts(udc, ep->hwep_num);
@@ -1928,7 +2034,11 @@ void udc_send_in_zlp(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
  * This function will only be called when a delayed ZLP needs to be sent out
  * after a DMA transfer has filled both buffers.
  */
+<<<<<<< HEAD
 void udc_handle_eps(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
+=======
+static void udc_handle_eps(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
+>>>>>>> upstream/android-13
 {
 	u32 epstatus;
 	struct lpc32xx_request *req;
@@ -1978,7 +2088,11 @@ void udc_handle_eps(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
 /* DMA end of transfer completion */
 static void udc_handle_dma_ep(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
 {
+<<<<<<< HEAD
 	u32 status, epstatus;
+=======
+	u32 status;
+>>>>>>> upstream/android-13
 	struct lpc32xx_request *req;
 	struct lpc32xx_usbd_dd_gad *dd;
 
@@ -2072,7 +2186,11 @@ static void udc_handle_dma_ep(struct lpc32xx_udc *udc, struct lpc32xx_ep *ep)
 		if (udc_clearep_getsts(udc, ep->hwep_num) & EP_SEL_F) {
 			udc_clearep_getsts(udc, ep->hwep_num);
 			uda_enable_hwepint(udc, ep->hwep_num);
+<<<<<<< HEAD
 			epstatus = udc_clearep_getsts(udc, ep->hwep_num);
+=======
+			udc_clearep_getsts(udc, ep->hwep_num);
+>>>>>>> upstream/android-13
 
 			/* Let the EP interrupt handle the ZLP */
 			return;
@@ -2184,7 +2302,11 @@ static void udc_handle_ep0_setup(struct lpc32xx_udc *udc)
 	struct lpc32xx_ep *ep, *ep0 = &udc->ep[0];
 	struct usb_ctrlrequest ctrlpkt;
 	int i, bytes;
+<<<<<<< HEAD
 	u16 wIndex, wValue, wLength, reqtype, req, tmp;
+=======
+	u16 wIndex, wValue, reqtype, req, tmp;
+>>>>>>> upstream/android-13
 
 	/* Nuke previous transfers */
 	nuke(ep0, -EPROTO);
@@ -2200,7 +2322,10 @@ static void udc_handle_ep0_setup(struct lpc32xx_udc *udc)
 	/* Native endianness */
 	wIndex = le16_to_cpu(ctrlpkt.wIndex);
 	wValue = le16_to_cpu(ctrlpkt.wValue);
+<<<<<<< HEAD
 	wLength = le16_to_cpu(ctrlpkt.wLength);
+=======
+>>>>>>> upstream/android-13
 	reqtype = le16_to_cpu(ctrlpkt.bRequestType);
 
 	/* Set direction of EP0 */
@@ -2251,7 +2376,11 @@ static void udc_handle_ep0_setup(struct lpc32xx_udc *udc)
 		default:
 			break;
 		}
+<<<<<<< HEAD
 
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	case USB_REQ_SET_ADDRESS:
 		if (reqtype == (USB_TYPE_STANDARD | USB_RECIP_DEVICE)) {
@@ -2830,11 +2959,17 @@ static irqreturn_t lpc32xx_usb_devdma_irq(int irq, void *_udc)
  * VBUS detection, pullup handler, and Gadget cable state notification
  *
  */
+<<<<<<< HEAD
 static void vbus_work(struct work_struct *work)
 {
 	u8 value;
 	struct lpc32xx_udc *udc = container_of(work, struct lpc32xx_udc,
 					       vbus_job);
+=======
+static void vbus_work(struct lpc32xx_udc *udc)
+{
+	u8 value;
+>>>>>>> upstream/android-13
 
 	if (udc->enabled != 0) {
 		/* Discharge VBUS real quick */
@@ -2870,18 +3005,25 @@ static void vbus_work(struct work_struct *work)
 			lpc32xx_vbus_session(&udc->gadget, udc->vbus);
 		}
 	}
+<<<<<<< HEAD
 
 	/* Re-enable after completion */
 	enable_irq(udc->udp_irq[IRQ_USB_ATX]);
+=======
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t lpc32xx_usb_vbus_irq(int irq, void *_udc)
 {
 	struct lpc32xx_udc *udc = _udc;
 
+<<<<<<< HEAD
 	/* Defer handling of VBUS IRQ to work queue */
 	disable_irq_nosync(udc->udp_irq[IRQ_USB_ATX]);
 	schedule_work(&udc->vbus_job);
+=======
+	vbus_work(udc);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -2890,7 +3032,10 @@ static int lpc32xx_start(struct usb_gadget *gadget,
 			 struct usb_gadget_driver *driver)
 {
 	struct lpc32xx_udc *udc = to_udc(gadget);
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	if (!driver || driver->max_speed < USB_SPEED_FULL || !driver->setup) {
 		dev_err(udc->dev, "bad parameter.\n");
@@ -2910,22 +3055,41 @@ static int lpc32xx_start(struct usb_gadget *gadget,
 
 	/* Force VBUS process once to check for cable insertion */
 	udc->last_vbus = udc->vbus = 0;
+<<<<<<< HEAD
 	schedule_work(&udc->vbus_job);
 
 	/* Do not re-enable ATX IRQ (3) */
 	for (i = IRQ_USB_LP; i < IRQ_USB_ATX; i++)
 		enable_irq(udc->udp_irq[i]);
+=======
+	vbus_work(udc);
+
+	/* enable interrupts */
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_INTERRUPT_FALLING, INT_SESS_VLD | INT_VBUS_VLD);
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_INTERRUPT_RISING, INT_SESS_VLD | INT_VBUS_VLD);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int lpc32xx_stop(struct usb_gadget *gadget)
 {
+<<<<<<< HEAD
 	int i;
 	struct lpc32xx_udc *udc = to_udc(gadget);
 
 	for (i = IRQ_USB_LP; i <= IRQ_USB_ATX; i++)
 		disable_irq(udc->udp_irq[i]);
+=======
+	struct lpc32xx_udc *udc = to_udc(gadget);
+
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_INTERRUPT_FALLING | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
+	i2c_smbus_write_byte_data(udc->isp1301_i2c_client,
+		ISP1301_I2C_INTERRUPT_RISING | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
+>>>>>>> upstream/android-13
 
 	if (udc->clocked) {
 		spin_lock(&udc->lock);
@@ -2980,7 +3144,11 @@ static void lpc32xx_rmwkup_chg(int remote_wakup_enable)
 	/* Enable or disable USB remote wakeup */
 }
 
+<<<<<<< HEAD
 struct lpc32xx_usbd_cfg lpc32xx_usbddata = {
+=======
+static struct lpc32xx_usbd_cfg lpc32xx_usbddata = {
+>>>>>>> upstream/android-13
 	.vbus_drv_pol = 0,
 	.conn_chgb = &lpc32xx_usbd_conn_chg,
 	.susp_chgb = &lpc32xx_usbd_susp_chg,
@@ -2995,11 +3163,18 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct lpc32xx_udc *udc;
 	int retval, i;
+<<<<<<< HEAD
 	struct resource *res;
 	dma_addr_t dma_handle;
 	struct device_node *isp1301_node;
 
 	udc = kmemdup(&controller_template, sizeof(*udc), GFP_KERNEL);
+=======
+	dma_addr_t dma_handle;
+	struct device_node *isp1301_node;
+
+	udc = devm_kmemdup(dev, &controller_template, sizeof(*udc), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!udc)
 		return -ENOMEM;
 
@@ -3022,8 +3197,12 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 
 	udc->isp1301_i2c_client = isp1301_get_client(isp1301_node);
 	if (!udc->isp1301_i2c_client) {
+<<<<<<< HEAD
 		retval = -EPROBE_DEFER;
 		goto phy_fail;
+=======
+		return -EPROBE_DEFER;
+>>>>>>> upstream/android-13
 	}
 
 	dev_info(udc->dev, "ISP1301 I2C device at address 0x%x\n",
@@ -3032,7 +3211,11 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 	pdev->dev.dma_mask = &lpc32xx_usbd_dmamask;
 	retval = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
 	if (retval)
+<<<<<<< HEAD
 		goto resource_fail;
+=======
+		return retval;
+>>>>>>> upstream/android-13
 
 	udc->board = &lpc32xx_usbddata;
 
@@ -3044,17 +3227,21 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 	 *  IORESOURCE_IRQ, USB device interrupt number
 	 *  IORESOURCE_IRQ, USB transceiver interrupt number
 	 */
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		retval = -ENXIO;
 		goto resource_fail;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&udc->lock);
 
 	/* Get IRQs */
 	for (i = 0; i < 4; i++) {
 		udc->udp_irq[i] = platform_get_irq(pdev, i);
+<<<<<<< HEAD
 		if (udc->udp_irq[i] < 0) {
 			dev_err(udc->dev,
 				"irq resource %d not available!\n", i);
@@ -3084,19 +3271,43 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 		dev_err(udc->dev, "failed to acquire USB device clock\n");
 		retval = PTR_ERR(udc->usb_slv_clk);
 		goto usb_clk_get_fail;
+=======
+		if (udc->udp_irq[i] < 0)
+			return udc->udp_irq[i];
+	}
+
+	udc->udp_baseaddr = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(udc->udp_baseaddr)) {
+		dev_err(udc->dev, "IO map failure\n");
+		return PTR_ERR(udc->udp_baseaddr);
+	}
+
+	/* Get USB device clock */
+	udc->usb_slv_clk = devm_clk_get(&pdev->dev, NULL);
+	if (IS_ERR(udc->usb_slv_clk)) {
+		dev_err(udc->dev, "failed to acquire USB device clock\n");
+		return PTR_ERR(udc->usb_slv_clk);
+>>>>>>> upstream/android-13
 	}
 
 	/* Enable USB device clock */
 	retval = clk_prepare_enable(udc->usb_slv_clk);
 	if (retval < 0) {
 		dev_err(udc->dev, "failed to start USB device clock\n");
+<<<<<<< HEAD
 		goto usb_clk_enable_fail;
+=======
+		return retval;
+>>>>>>> upstream/android-13
 	}
 
 	/* Setup deferred workqueue data */
 	udc->poweron = udc->pullup = 0;
 	INIT_WORK(&udc->pullup_job, pullup_work);
+<<<<<<< HEAD
 	INIT_WORK(&udc->vbus_job, vbus_work);
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	INIT_WORK(&udc->power_job, power_work);
 #endif
@@ -3134,6 +3345,7 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 
 	/* Request IRQs - low and high priority USB device IRQs are routed to
 	 * the same handler, while the DMA interrupt is routed elsewhere */
+<<<<<<< HEAD
 	retval = request_irq(udc->udp_irq[IRQ_USB_LP], lpc32xx_usb_lp_irq,
 			     0, "udc_lp", udc);
 	if (retval < 0) {
@@ -3155,26 +3367,62 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 		dev_err(udc->dev, "DEV request irq %d failed\n",
 			udc->udp_irq[IRQ_USB_DEVDMA]);
 		goto irq_dev_fail;
+=======
+	retval = devm_request_irq(dev, udc->udp_irq[IRQ_USB_LP],
+				  lpc32xx_usb_lp_irq, 0, "udc_lp", udc);
+	if (retval < 0) {
+		dev_err(udc->dev, "LP request irq %d failed\n",
+			udc->udp_irq[IRQ_USB_LP]);
+		goto irq_req_fail;
+	}
+	retval = devm_request_irq(dev, udc->udp_irq[IRQ_USB_HP],
+				  lpc32xx_usb_hp_irq, 0, "udc_hp", udc);
+	if (retval < 0) {
+		dev_err(udc->dev, "HP request irq %d failed\n",
+			udc->udp_irq[IRQ_USB_HP]);
+		goto irq_req_fail;
+	}
+
+	retval = devm_request_irq(dev, udc->udp_irq[IRQ_USB_DEVDMA],
+				  lpc32xx_usb_devdma_irq, 0, "udc_dma", udc);
+	if (retval < 0) {
+		dev_err(udc->dev, "DEV request irq %d failed\n",
+			udc->udp_irq[IRQ_USB_DEVDMA]);
+		goto irq_req_fail;
+>>>>>>> upstream/android-13
 	}
 
 	/* The transceiver interrupt is used for VBUS detection and will
 	   kick off the VBUS handler function */
+<<<<<<< HEAD
 	retval = request_irq(udc->udp_irq[IRQ_USB_ATX], lpc32xx_usb_vbus_irq,
 			     0, "udc_otg", udc);
 	if (retval < 0) {
 		dev_err(udc->dev, "VBUS request irq %d failed\n",
 			udc->udp_irq[IRQ_USB_ATX]);
 		goto irq_xcvr_fail;
+=======
+	retval = devm_request_threaded_irq(dev, udc->udp_irq[IRQ_USB_ATX], NULL,
+					   lpc32xx_usb_vbus_irq, IRQF_ONESHOT,
+					   "udc_otg", udc);
+	if (retval < 0) {
+		dev_err(udc->dev, "VBUS request irq %d failed\n",
+			udc->udp_irq[IRQ_USB_ATX]);
+		goto irq_req_fail;
+>>>>>>> upstream/android-13
 	}
 
 	/* Initialize wait queue */
 	init_waitqueue_head(&udc->ep_disable_wait_queue);
 	atomic_set(&udc->enabled_ep_cnt, 0);
 
+<<<<<<< HEAD
 	/* Keep all IRQs disabled until GadgetFS starts up */
 	for (i = IRQ_USB_LP; i <= IRQ_USB_ATX; i++)
 		disable_irq(udc->udp_irq[i]);
 
+=======
+>>>>>>> upstream/android-13
 	retval = usb_add_gadget_udc(dev, &udc->gadget);
 	if (retval < 0)
 		goto add_gadget_fail;
@@ -3190,6 +3438,7 @@ static int lpc32xx_udc_probe(struct platform_device *pdev)
 	return 0;
 
 add_gadget_fail:
+<<<<<<< HEAD
 	free_irq(udc->udp_irq[IRQ_USB_ATX], udc);
 irq_xcvr_fail:
 	free_irq(udc->udp_irq[IRQ_USB_DEVDMA], udc);
@@ -3198,12 +3447,16 @@ irq_dev_fail:
 irq_hp_fail:
 	free_irq(udc->udp_irq[IRQ_USB_LP], udc);
 irq_lp_fail:
+=======
+irq_req_fail:
+>>>>>>> upstream/android-13
 	dma_pool_destroy(udc->dd_cache);
 dma_alloc_fail:
 	dma_free_coherent(&pdev->dev, UDCA_BUFF_SIZE,
 			  udc->udca_v_base, udc->udca_p_base);
 i2c_fail:
 	clk_disable_unprepare(udc->usb_slv_clk);
+<<<<<<< HEAD
 usb_clk_enable_fail:
 	clk_put(udc->usb_slv_clk);
 usb_clk_get_fail:
@@ -3216,6 +3469,10 @@ irq_fail:
 resource_fail:
 phy_fail:
 	kfree(udc);
+=======
+	dev_err(udc->dev, "%s probe failed, %d\n", driver_name, retval);
+
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -3231,14 +3488,18 @@ static int lpc32xx_udc_remove(struct platform_device *pdev)
 	udc_disable(udc);
 	pullup(udc, 0);
 
+<<<<<<< HEAD
 	free_irq(udc->udp_irq[IRQ_USB_ATX], udc);
 
+=======
+>>>>>>> upstream/android-13
 	device_init_wakeup(&pdev->dev, 0);
 	remove_debug_file(udc);
 
 	dma_pool_destroy(udc->dd_cache);
 	dma_free_coherent(&pdev->dev, UDCA_BUFF_SIZE,
 			  udc->udca_v_base, udc->udca_p_base);
+<<<<<<< HEAD
 	free_irq(udc->udp_irq[IRQ_USB_DEVDMA], udc);
 	free_irq(udc->udp_irq[IRQ_USB_HP], udc);
 	free_irq(udc->udp_irq[IRQ_USB_LP], udc);
@@ -3249,6 +3510,10 @@ static int lpc32xx_udc_remove(struct platform_device *pdev)
 	iounmap(udc->udp_baseaddr);
 	release_mem_region(udc->io_p_start, udc->io_p_size);
 	kfree(udc);
+=======
+
+	clk_disable_unprepare(udc->usb_slv_clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3314,7 +3579,11 @@ static struct platform_driver lpc32xx_udc_driver = {
 	.suspend	= lpc32xx_udc_suspend,
 	.resume		= lpc32xx_udc_resume,
 	.driver		= {
+<<<<<<< HEAD
 		.name	= (char *) driver_name,
+=======
+		.name	= driver_name,
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(lpc32xx_udc_of_match),
 	},
 };

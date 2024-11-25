@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * I2C client/driver for the Linear Technology LTC2941, LTC2942, LTC2943
  * and LTC2944 Battery Gas Gauge IC
@@ -7,6 +11,10 @@
  * Author: Auryn Verwegen
  * Author: Mike Looijmans
  */
+<<<<<<< HEAD
+=======
+#include <linux/devm-helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
@@ -444,6 +452,7 @@ static enum power_supply_property ltc294x_properties[] = {
 	POWER_SUPPLY_PROP_CURRENT_NOW,
 };
 
+<<<<<<< HEAD
 static int ltc294x_i2c_remove(struct i2c_client *client)
 {
 	struct ltc294x_info *info = i2c_get_clientdata(client);
@@ -453,6 +462,8 @@ static int ltc294x_i2c_remove(struct i2c_client *client)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ltc294x_i2c_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)
 {
@@ -472,7 +483,12 @@ static int ltc294x_i2c_probe(struct i2c_client *client,
 
 	np = of_node_get(client->dev.of_node);
 
+<<<<<<< HEAD
 	info->id = (enum ltc294x_id)of_device_get_match_data(&client->dev);
+=======
+	info->id = (enum ltc294x_id) (uintptr_t) of_device_get_match_data(
+							&client->dev);
+>>>>>>> upstream/android-13
 	info->supply_desc.name = np->name;
 
 	/* r_sense can be negative, when sense+ is connected to the battery
@@ -545,7 +561,14 @@ static int ltc294x_i2c_probe(struct i2c_client *client,
 
 	psy_cfg.drv_data = info;
 
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&info->work, ltc294x_work);
+=======
+	ret = devm_delayed_work_autocancel(&client->dev, &info->work,
+					   ltc294x_work);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = ltc294x_reset(info, prescaler_exp);
 	if (ret < 0) {
@@ -553,8 +576,13 @@ static int ltc294x_i2c_probe(struct i2c_client *client,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	info->supply = power_supply_register(&client->dev, &info->supply_desc,
 					     &psy_cfg);
+=======
+	info->supply = devm_power_supply_register(&client->dev,
+						  &info->supply_desc, &psy_cfg);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info->supply)) {
 		dev_err(&client->dev, "failed to register ltc2941\n");
 		return PTR_ERR(info->supply);
@@ -653,7 +681,10 @@ static struct i2c_driver ltc294x_driver = {
 		.pm	= LTC294X_PM_OPS,
 	},
 	.probe		= ltc294x_i2c_probe,
+<<<<<<< HEAD
 	.remove		= ltc294x_i2c_remove,
+=======
+>>>>>>> upstream/android-13
 	.shutdown	= ltc294x_i2c_shutdown,
 	.id_table	= ltc294x_i2c_id,
 };

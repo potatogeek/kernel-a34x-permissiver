@@ -10,16 +10,23 @@
 #
 # Copyright (C) 1995-2001 by Russell King
 
+<<<<<<< HEAD
 LDFLAGS_vmlinux	:=-p --no-undefined -X --pic-veneer
+=======
+LDFLAGS_vmlinux	:= --no-undefined -X --pic-veneer -z norelro
+>>>>>>> upstream/android-13
 ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
 LDFLAGS_vmlinux	+= --be8
 KBUILD_LDFLAGS_MODULE	+= --be8
 endif
 
+<<<<<<< HEAD
 ifeq ($(CONFIG_ARM_MODULE_PLTS),y)
 KBUILD_LDFLAGS_MODULE	+= -T $(srctree)/arch/arm/kernel/module.lds
 endif
 
+=======
+>>>>>>> upstream/android-13
 GZFLAGS		:=-9
 #KBUILD_CFLAGS	+=-pipe
 
@@ -45,12 +52,18 @@ endif
 ifeq ($(CONFIG_CPU_BIG_ENDIAN),y)
 KBUILD_CPPFLAGS	+= -mbig-endian
 CHECKFLAGS	+= -D__ARMEB__
+<<<<<<< HEAD
 AS		+= -EB
+=======
+>>>>>>> upstream/android-13
 KBUILD_LDFLAGS	+= -EB
 else
 KBUILD_CPPFLAGS	+= -mlittle-endian
 CHECKFLAGS	+= -D__ARMEL__
+<<<<<<< HEAD
 AS		+= -EL
+=======
+>>>>>>> upstream/android-13
 KBUILD_LDFLAGS	+= -EL
 endif
 
@@ -66,6 +79,7 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-ipa-sra)
 # Note that GCC does not numerically define an architecture version
 # macro, but instead defines a whole series of macros which makes
 # testing for a specific architecture or later rather impossible.
+<<<<<<< HEAD
 arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
 arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
 arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
@@ -78,6 +92,20 @@ arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te
 arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
 arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
 arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3
+=======
+arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
+arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
+arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
+# Only override the compiler option if ARMv6. The ARMv6K extensions are
+# always available in ARMv7
+ifeq ($(CONFIG_CPU_32v6),y)
+arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
+endif
+arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
+arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
+arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
+arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3m
+>>>>>>> upstream/android-13
 
 # Evaluate arch cc-option calls now
 arch-y := $(arch-y)
@@ -88,7 +116,11 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7tdmi
 tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
 tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
+<<<<<<< HEAD
 tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
+=======
+tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
+>>>>>>> upstream/android-13
 tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
@@ -96,11 +128,19 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
 tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
 tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
+<<<<<<< HEAD
 tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
 tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
 tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
 tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
 tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
+=======
+tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
+tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
+tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
+tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
+tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
+>>>>>>> upstream/android-13
 
 # Evaluate tune cc-option calls now
 tune-y := $(tune-y)
@@ -123,6 +163,7 @@ endif
 AFLAGS_NOWARN	:=$(call as-option,-Wa$(comma)-mno-warn-deprecated,-Wa$(comma)-W)
 
 ifeq ($(CONFIG_THUMB2_KERNEL),y)
+<<<<<<< HEAD
 AFLAGS_AUTOIT	:=$(call as-option,-Wa$(comma)-mimplicit-it=always,-Wa$(comma)-mauto-it)
 CFLAGS_ISA	:=-mthumb $(AFLAGS_AUTOIT) $(AFLAGS_NOWARN)
 AFLAGS_ISA	:=$(CFLAGS_ISA) -Wa$(comma)-mthumb
@@ -130,6 +171,10 @@ AFLAGS_ISA	:=$(CFLAGS_ISA) -Wa$(comma)-mthumb
 ifeq ($(CONFIG_THUMB2_AVOID_R_ARM_THM_JUMP11),y)
 KBUILD_CFLAGS_MODULE	+=-fno-optimize-sibling-calls
 endif
+=======
+CFLAGS_ISA	:=-mthumb -Wa,-mimplicit-it=always $(AFLAGS_NOWARN)
+AFLAGS_ISA	:=$(CFLAGS_ISA) -Wa$(comma)-mthumb
+>>>>>>> upstream/android-13
 else
 CFLAGS_ISA	:=$(call cc-option,-marm,) $(AFLAGS_NOWARN)
 AFLAGS_ISA	:=$(CFLAGS_ISA)
@@ -146,13 +191,28 @@ head-y		:= arch/arm/kernel/head$(MMUEXT).o
 
 # Text offset. This list is sorted numerically by address in order to
 # provide a means to avoid/resolve conflicts in multi-arch kernels.
+<<<<<<< HEAD
 textofs-y	:= 0x00008000
 # We don't want the htc bootloader to corrupt kernel during resume
 textofs-$(CONFIG_PM_H1940)      := 0x00108000
+=======
+# Note: the 32kB below this value is reserved for use by the kernel
+# during boot, and this offset is critical to the functioning of
+# kexec-tools.
+textofs-y	:= 0x00008000
+# We don't want the htc bootloader to corrupt kernel during resume
+textofs-$(CONFIG_PM_H1940)      := 0x00108000
+# RTD1195 has Boot ROM at start of address space
+textofs-$(CONFIG_ARCH_REALTEK)  := 0x00108000
+>>>>>>> upstream/android-13
 # SA1111 DMA bug: we don't want the kernel to live in precious DMA-able memory
 ifeq ($(CONFIG_ARCH_SA1100),y)
 textofs-$(CONFIG_SA1111) := 0x00208000
 endif
+<<<<<<< HEAD
+=======
+textofs-$(CONFIG_ARCH_IPQ40XX) := 0x00208000
+>>>>>>> upstream/android-13
 textofs-$(CONFIG_ARCH_MSM8X60) := 0x00208000
 textofs-$(CONFIG_ARCH_MSM8960) := 0x00208000
 textofs-$(CONFIG_ARCH_MESON) := 0x00208000
@@ -163,6 +223,10 @@ textofs-$(CONFIG_ARCH_AXXIA) := 0x00308000
 machine-$(CONFIG_ARCH_ACTIONS)		+= actions
 machine-$(CONFIG_ARCH_ALPINE)		+= alpine
 machine-$(CONFIG_ARCH_ARTPEC)		+= artpec
+<<<<<<< HEAD
+=======
+machine-$(CONFIG_ARCH_ASPEED)           += aspeed
+>>>>>>> upstream/android-13
 machine-$(CONFIG_ARCH_AT91)		+= at91
 machine-$(CONFIG_ARCH_AXXIA)		+= axxia
 machine-$(CONFIG_ARCH_BCM)		+= bcm
@@ -172,8 +236,11 @@ machine-$(CONFIG_ARCH_CNS3XXX)		+= cns3xxx
 machine-$(CONFIG_ARCH_DAVINCI)		+= davinci
 machine-$(CONFIG_ARCH_DIGICOLOR)	+= digicolor
 machine-$(CONFIG_ARCH_DOVE)		+= dove
+<<<<<<< HEAD
 machine-$(CONFIG_ARCH_EBSA110)		+= ebsa110
 machine-$(CONFIG_ARCH_EFM32)		+= efm32
+=======
+>>>>>>> upstream/android-13
 machine-$(CONFIG_ARCH_EP93XX)		+= ep93xx
 machine-$(CONFIG_ARCH_EXYNOS)		+= exynos
 machine-$(CONFIG_ARCH_FOOTBRIDGE)	+= footbridge
@@ -181,12 +248,18 @@ machine-$(CONFIG_ARCH_GEMINI)		+= gemini
 machine-$(CONFIG_ARCH_HIGHBANK)		+= highbank
 machine-$(CONFIG_ARCH_HISI)		+= hisi
 machine-$(CONFIG_ARCH_INTEGRATOR)	+= integrator
+<<<<<<< HEAD
 machine-$(CONFIG_ARCH_IOP13XX)		+= iop13xx
 machine-$(CONFIG_ARCH_IOP32X)		+= iop32x
 machine-$(CONFIG_ARCH_IOP33X)		+= iop33x
 machine-$(CONFIG_ARCH_IXP4XX)		+= ixp4xx
 machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
 machine-$(CONFIG_ARCH_KS8695)		+= ks8695
+=======
+machine-$(CONFIG_ARCH_IOP32X)		+= iop32x
+machine-$(CONFIG_ARCH_IXP4XX)		+= ixp4xx
+machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
+>>>>>>> upstream/android-13
 machine-$(CONFIG_ARCH_LPC18XX)		+= lpc18xx
 machine-$(CONFIG_ARCH_LPC32XX)		+= lpc32xx
 machine-$(CONFIG_ARCH_MESON)		+= meson
@@ -197,8 +270,14 @@ machine-$(CONFIG_ARCH_MV78XX0)		+= mv78xx0
 machine-$(CONFIG_ARCH_MVEBU)		+= mvebu
 machine-$(CONFIG_ARCH_MXC)		+= imx
 machine-$(CONFIG_ARCH_MEDIATEK)		+= mediatek
+<<<<<<< HEAD
 machine-$(CONFIG_ARCH_MXS)		+= mxs
 machine-$(CONFIG_ARCH_NETX)		+= netx
+=======
+machine-$(CONFIG_ARCH_MILBEAUT)		+= milbeaut
+machine-$(CONFIG_ARCH_MXS)		+= mxs
+machine-$(CONFIG_ARCH_MSTARV7)		+= mstar
+>>>>>>> upstream/android-13
 machine-$(CONFIG_ARCH_NOMADIK)		+= nomadik
 machine-$(CONFIG_ARCH_NPCM)		+= npcm
 machine-$(CONFIG_ARCH_NSPIRE)		+= nspire
@@ -206,6 +285,7 @@ machine-$(CONFIG_ARCH_OXNAS)		+= oxnas
 machine-$(CONFIG_ARCH_OMAP1)		+= omap1
 machine-$(CONFIG_ARCH_OMAP2PLUS)	+= omap2
 machine-$(CONFIG_ARCH_ORION5X)		+= orion5x
+<<<<<<< HEAD
 machine-$(CONFIG_ARCH_PICOXCELL)	+= picoxcell
 machine-$(CONFIG_ARCH_PXA)		+= pxa
 machine-$(CONFIG_ARCH_QCOM)		+= qcom
@@ -225,17 +305,39 @@ machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
 machine-$(CONFIG_ARCH_TANGO)		+= tango
 machine-$(CONFIG_ARCH_TEGRA)		+= tegra
 machine-$(CONFIG_ARCH_U300)		+= u300
+=======
+machine-$(CONFIG_ARCH_PXA)		+= pxa
+machine-$(CONFIG_ARCH_QCOM)		+= qcom
+machine-$(CONFIG_ARCH_RDA)		+= rda
+machine-$(CONFIG_ARCH_REALTEK)		+= realtek
+machine-$(CONFIG_ARCH_REALVIEW)		+= realview
+machine-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip
+machine-$(CONFIG_ARCH_RPC)		+= rpc
+machine-$(CONFIG_PLAT_SAMSUNG)		+= s3c
+machine-$(CONFIG_ARCH_S5PV210)		+= s5pv210
+machine-$(CONFIG_ARCH_SA1100)		+= sa1100
+machine-$(CONFIG_ARCH_RENESAS)	 	+= shmobile
+machine-$(CONFIG_ARCH_INTEL_SOCFPGA)	+= socfpga
+machine-$(CONFIG_ARCH_STI)		+= sti
+machine-$(CONFIG_ARCH_STM32)		+= stm32
+machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
+machine-$(CONFIG_ARCH_TEGRA)		+= tegra
+>>>>>>> upstream/android-13
 machine-$(CONFIG_ARCH_U8500)		+= ux500
 machine-$(CONFIG_ARCH_VERSATILE)	+= versatile
 machine-$(CONFIG_ARCH_VEXPRESS)		+= vexpress
 machine-$(CONFIG_ARCH_VT8500)		+= vt8500
+<<<<<<< HEAD
 machine-$(CONFIG_ARCH_W90X900)		+= w90x900
 machine-$(CONFIG_ARCH_ZX)		+= zx
+=======
+>>>>>>> upstream/android-13
 machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 machine-$(CONFIG_PLAT_SPEAR)		+= spear
 
 # Platform directory name.  This list is sorted alphanumerically
 # by CONFIG_* macro name.
+<<<<<<< HEAD
 plat-$(CONFIG_ARCH_EXYNOS)	+= samsung
 plat-$(CONFIG_ARCH_OMAP)	+= omap
 plat-$(CONFIG_ARCH_S3C64XX)	+= samsung
@@ -253,6 +355,13 @@ CFLAGS_3c589_cs.o :=-DISA_SIXTEEN_BIT_PERIPHERAL
 export CFLAGS_3c589_cs.o
 endif
 
+=======
+plat-$(CONFIG_ARCH_OMAP)	+= omap
+plat-$(CONFIG_PLAT_ORION)	+= orion
+plat-$(CONFIG_PLAT_PXA)		+= pxa
+plat-$(CONFIG_PLAT_VERSATILE)	+= versatile
+
+>>>>>>> upstream/android-13
 # The byte offset of the kernel image in RAM from the start of RAM.
 TEXT_OFFSET := $(textofs-y)
 
@@ -271,6 +380,7 @@ platdirs := $(patsubst %,arch/arm/plat-%/,$(sort $(plat-y)))
 
 ifneq ($(CONFIG_ARCH_MULTIPLATFORM),y)
 ifneq ($(CONFIG_ARM_SINGLE_ARMV7M),y)
+<<<<<<< HEAD
 ifeq ($(KBUILD_SRC),)
 KBUILD_CPPFLAGS += $(patsubst %,-I%include,$(machdirs) $(platdirs))
 else
@@ -303,6 +413,20 @@ core-y				+= arch/arm/firmware/
 core-y				+= $(machdirs) $(platdirs)
 
 drivers-$(CONFIG_OPROFILE)      += arch/arm/oprofile/
+=======
+KBUILD_CPPFLAGS += $(patsubst %,-I$(srctree)/%include,$(machdirs) $(platdirs))
+endif
+endif
+
+export	TEXT_OFFSET GZFLAGS MMUEXT
+
+# If we have a machine-specific directory, then include it in the build.
+core-y				+= $(machdirs) $(platdirs)
+
+# For cleaning
+core-				+= $(patsubst %,arch/arm/mach-%/, $(machine-))
+core-				+= $(patsubst %,arch/arm/plat-%/, $(plat-))
+>>>>>>> upstream/android-13
 
 libs-y				:= arch/arm/lib/ $(libs-y)
 
@@ -314,6 +438,7 @@ else
 KBUILD_IMAGE := $(boot)/zImage
 endif
 
+<<<<<<< HEAD
 # Build the DT binary blobs if we have OF configured
 ifeq ($(CONFIG_USE_OF),y)
 KBUILD_DTBS := dtbs
@@ -324,6 +449,24 @@ all:	$(notdir $(KBUILD_IMAGE)) $(KBUILD_DTBS)
 MTK_PLATFORM := $(CONFIG_MTK_PLATFORM:"%"=%)
 MTK_PROJECT := $(CONFIG_ARCH_MTK_PROJECT:"%"=%)
 export MTK_PLATFORM MTK_PROJECT
+=======
+ifeq ($(CONFIG_STACKPROTECTOR_PER_TASK),y)
+prepare: stack_protector_prepare
+stack_protector_prepare: prepare0
+	$(eval SSP_PLUGIN_CFLAGS := \
+		-fplugin-arg-arm_ssp_per_task_plugin-tso=$(shell	\
+			awk '{if ($$2 == "THREAD_SZ_ORDER") print $$3;}'\
+				include/generated/asm-offsets.h)	\
+		-fplugin-arg-arm_ssp_per_task_plugin-offset=$(shell	\
+			awk '{if ($$2 == "TI_STACK_CANARY") print $$3;}'\
+				include/generated/asm-offsets.h))
+	$(eval KBUILD_CFLAGS += $(SSP_PLUGIN_CFLAGS))
+	$(eval GCC_PLUGINS_CFLAGS += $(SSP_PLUGIN_CFLAGS))
+endif
+
+all:	$(notdir $(KBUILD_IMAGE))
+
+>>>>>>> upstream/android-13
 
 archheaders:
 	$(Q)$(MAKE) $(build)=arch/arm/tools uapi
@@ -347,6 +490,7 @@ $(BOOT_TARGETS): vmlinux
 	@$(kecho) '  Kernel: $(boot)/$@ is ready'
 
 $(INSTALL_TARGETS):
+<<<<<<< HEAD
 	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $@
 
 %.dtb: | scripts
@@ -359,6 +503,10 @@ dtbs: prepare scripts
 
 dtbs_install:
 	$(Q)$(MAKE) $(dtbinst)=$(boot)/dts
+=======
+	$(CONFIG_SHELL) $(srctree)/$(boot)/install.sh "$(KERNELRELEASE)" \
+	$(boot)/$(patsubst %install,%Image,$@) System.map "$(INSTALL_PATH)"
+>>>>>>> upstream/android-13
 
 PHONY += vdso_install
 vdso_install:
@@ -381,8 +529,11 @@ define archhelp
   echo  '  uImage        - U-Boot wrapped zImage'
   echo  '  bootpImage    - Combined zImage and initial RAM disk'
   echo  '                  (supply initrd image via make variable INITRD=<path>)'
+<<<<<<< HEAD
   echo  '* dtbs          - Build device tree blobs for enabled boards'
   echo  '  dtbs_install  - Install dtbs to $(INSTALL_DTBS_PATH)'
+=======
+>>>>>>> upstream/android-13
   echo  '  install       - Install uncompressed kernel'
   echo  '  zinstall      - Install compressed kernel'
   echo  '  uinstall      - Install U-Boot wrapped compressed kernel'

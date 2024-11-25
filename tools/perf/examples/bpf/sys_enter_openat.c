@@ -14,7 +14,11 @@
  * the return value.
  */
 
+<<<<<<< HEAD
 #include <bpf.h>
+=======
+#include <bpf/bpf.h>
+>>>>>>> upstream/android-13
 
 struct syscall_enter_openat_args {
 	unsigned long long unused;

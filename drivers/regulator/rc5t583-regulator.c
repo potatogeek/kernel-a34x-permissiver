@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Regulator driver for RICOH RC5T583 power management chip.
  *
@@ -6,6 +10,7 @@
  *
  * based on code
  *      Copyright (C) 2011 RICOH COMPANY,LTD
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -47,6 +54,7 @@ struct rc5t583_regulator_info {
 	struct regulator_desc	desc;
 };
 
+<<<<<<< HEAD
 struct rc5t583_regulator {
 	struct rc5t583_regulator_info *reg_info;
 	struct regulator_dev	*rdev;
@@ -59,6 +67,15 @@ static int rc5t583_regulator_enable_time(struct regulator_dev *rdev)
 	int curr_uV = regulator_list_voltage_linear(rdev, vsel);
 
 	return DIV_ROUND_UP(curr_uV, reg->reg_info->enable_uv_per_us);
+=======
+static int rc5t583_regulator_enable_time(struct regulator_dev *rdev)
+{
+	struct rc5t583_regulator_info *reg_info = rdev_get_drvdata(rdev);
+	int vsel = regulator_get_voltage_sel_regmap(rdev);
+	int curr_uV = regulator_list_voltage_linear(rdev, vsel);
+
+	return DIV_ROUND_UP(curr_uV, reg_info->enable_uv_per_us);
+>>>>>>> upstream/android-13
 }
 
 static const struct regulator_ops rc5t583_ops = {
@@ -120,8 +137,11 @@ static int rc5t583_regulator_probe(struct platform_device *pdev)
 	struct rc5t583 *rc5t583 = dev_get_drvdata(pdev->dev.parent);
 	struct rc5t583_platform_data *pdata = dev_get_platdata(rc5t583->dev);
 	struct regulator_config config = { };
+<<<<<<< HEAD
 	struct rc5t583_regulator *reg = NULL;
 	struct rc5t583_regulator *regs;
+=======
+>>>>>>> upstream/android-13
 	struct regulator_dev *rdev;
 	struct rc5t583_regulator_info *ri;
 	int ret;
@@ -132,6 +152,7 @@ static int rc5t583_regulator_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	regs = devm_kcalloc(&pdev->dev,
 			    RC5T583_REGULATOR_MAX,
 			    sizeof(struct rc5t583_regulator),
@@ -144,6 +165,10 @@ static int rc5t583_regulator_probe(struct platform_device *pdev)
 		reg = &regs[id];
 		ri = &rc5t583_reg_info[id];
 		reg->reg_info = ri;
+=======
+	for (id = 0; id < RC5T583_REGULATOR_MAX; ++id) {
+		ri = &rc5t583_reg_info[id];
+>>>>>>> upstream/android-13
 
 		if (ri->deepsleep_id == RC5T583_DS_NONE)
 			goto skip_ext_pwr_config;
@@ -163,7 +188,11 @@ static int rc5t583_regulator_probe(struct platform_device *pdev)
 skip_ext_pwr_config:
 		config.dev = &pdev->dev;
 		config.init_data = pdata->reg_init_data[id];
+<<<<<<< HEAD
 		config.driver_data = reg;
+=======
+		config.driver_data = ri;
+>>>>>>> upstream/android-13
 		config.regmap = rc5t583->regmap;
 
 		rdev = devm_regulator_register(&pdev->dev, &ri->desc, &config);
@@ -172,9 +201,13 @@ skip_ext_pwr_config:
 						ri->desc.name);
 			return PTR_ERR(rdev);
 		}
+<<<<<<< HEAD
 		reg->rdev = rdev;
 	}
 	platform_set_drvdata(pdev, regs);
+=======
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 

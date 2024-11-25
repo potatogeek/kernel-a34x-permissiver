@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Board setup routines for the Emerson/Artesyn MVME2500
  *
@@ -9,6 +13,7 @@
  *	Tom Armistead (tom.armistead@emerson.com)
  *	Copyright 2012 Emerson
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
@@ -16,6 +21,9 @@
  *
  * Author Alessio Igor Bogani <alessio.bogani@elettra.eu>
  *
+=======
+ * Author Alessio Igor Bogani <alessio.bogani@elettra.eu>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>

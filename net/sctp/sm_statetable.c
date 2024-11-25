@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -9,6 +13,7 @@
  *
  * These are the state tables for the SCTP state machine.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -79,7 +86,11 @@ static const struct sctp_sm_table_entry bug = {
 
 const struct sctp_sm_table_entry *sctp_sm_lookup_event(
 					struct net *net,
+<<<<<<< HEAD
 					enum sctp_event event_type,
+=======
+					enum sctp_event_type event_type,
+>>>>>>> upstream/android-13
 					enum sctp_state state,
 					union sctp_subtype event_subtype)
 {
@@ -542,6 +553,29 @@ auth_chunk_event_table[SCTP_NUM_AUTH_CHUNK_TYPES][SCTP_STATE_NUM_STATES] = {
 }; /*state_fn_t auth_chunk_event_table[][] */
 
 static const struct sctp_sm_table_entry
+<<<<<<< HEAD
+=======
+pad_chunk_event_table[SCTP_STATE_NUM_STATES] = {
+	/* SCTP_STATE_CLOSED */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+	/* SCTP_STATE_COOKIE_WAIT */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+	/* SCTP_STATE_COOKIE_ECHOED */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+	/* SCTP_STATE_ESTABLISHED */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+	/* SCTP_STATE_SHUTDOWN_PENDING */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+	/* SCTP_STATE_SHUTDOWN_SENT */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+	/* SCTP_STATE_SHUTDOWN_RECEIVED */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+	/* SCTP_STATE_SHUTDOWN_ACK_SENT */
+	TYPE_SCTP_FUNC(sctp_sf_discard_chunk),
+};	/* chunk pad */
+
+static const struct sctp_sm_table_entry
+>>>>>>> upstream/android-13
 chunk_event_table_unknown[SCTP_STATE_NUM_STATES] = {
 	/* SCTP_STATE_CLOSED */
 	TYPE_SCTP_FUNC(sctp_sf_ootb),
@@ -962,6 +996,28 @@ other_event_table[SCTP_NUM_OTHER_TYPES][SCTP_STATE_NUM_STATES] = {
 	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
 }
 
+<<<<<<< HEAD
+=======
+#define TYPE_SCTP_EVENT_TIMEOUT_PROBE { \
+	/* SCTP_STATE_CLOSED */ \
+	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
+	/* SCTP_STATE_COOKIE_WAIT */ \
+	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
+	/* SCTP_STATE_COOKIE_ECHOED */ \
+	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
+	/* SCTP_STATE_ESTABLISHED */ \
+	TYPE_SCTP_FUNC(sctp_sf_send_probe), \
+	/* SCTP_STATE_SHUTDOWN_PENDING */ \
+	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
+	/* SCTP_STATE_SHUTDOWN_SENT */ \
+	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
+	/* SCTP_STATE_SHUTDOWN_RECEIVED */ \
+	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
+	/* SCTP_STATE_SHUTDOWN_ACK_SENT */ \
+	TYPE_SCTP_FUNC(sctp_sf_timer_ignore), \
+}
+
+>>>>>>> upstream/android-13
 static const struct sctp_sm_table_entry
 timeout_event_table[SCTP_NUM_TIMEOUT_TYPES][SCTP_STATE_NUM_STATES] = {
 	TYPE_SCTP_EVENT_TIMEOUT_NONE,
@@ -973,6 +1029,10 @@ timeout_event_table[SCTP_NUM_TIMEOUT_TYPES][SCTP_STATE_NUM_STATES] = {
 	TYPE_SCTP_EVENT_TIMEOUT_T5_SHUTDOWN_GUARD,
 	TYPE_SCTP_EVENT_TIMEOUT_HEARTBEAT,
 	TYPE_SCTP_EVENT_TIMEOUT_RECONF,
+<<<<<<< HEAD
+=======
+	TYPE_SCTP_EVENT_TIMEOUT_PROBE,
+>>>>>>> upstream/android-13
 	TYPE_SCTP_EVENT_TIMEOUT_SACK,
 	TYPE_SCTP_EVENT_TIMEOUT_AUTOCLOSE,
 };
@@ -991,6 +1051,7 @@ static const struct sctp_sm_table_entry *sctp_chunk_event_lookup(
 	if (cid <= SCTP_CID_BASE_MAX)
 		return &chunk_event_table[cid][state];
 
+<<<<<<< HEAD
 	if (net->sctp.prsctp_enable) {
 		if (cid == SCTP_CID_FWD_TSN || cid == SCTP_CID_I_FWD_TSN)
 			return &prsctp_chunk_event_table[0][state];
@@ -1011,6 +1072,27 @@ static const struct sctp_sm_table_entry *sctp_chunk_event_lookup(
 	if (net->sctp.auth_enable) {
 		if (cid == SCTP_CID_AUTH)
 			return &auth_chunk_event_table[0][state];
+=======
+	switch ((u16)cid) {
+	case SCTP_CID_FWD_TSN:
+	case SCTP_CID_I_FWD_TSN:
+		return &prsctp_chunk_event_table[0][state];
+
+	case SCTP_CID_ASCONF:
+		return &addip_chunk_event_table[0][state];
+
+	case SCTP_CID_ASCONF_ACK:
+		return &addip_chunk_event_table[1][state];
+
+	case SCTP_CID_RECONF:
+		return &reconf_chunk_event_table[0][state];
+
+	case SCTP_CID_AUTH:
+		return &auth_chunk_event_table[0][state];
+
+	case SCTP_CID_PAD:
+		return &pad_chunk_event_table[state];
+>>>>>>> upstream/android-13
 	}
 
 	return &chunk_event_table_unknown[state];

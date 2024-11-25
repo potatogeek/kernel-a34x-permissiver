@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* drivers/atm/zatm.c - ZeitNet ZN122x device driver */
  
 /* Written 1995-2000 by Werner Almesberger, EPFL LRC/ICA */
@@ -939,7 +943,11 @@ static int open_tx_first(struct atm_vcc *vcc)
 	    vcc->qos.txtp.max_pcr >= ATM_OC3_PCR);
 	if (unlimited && zatm_dev->ubr != -1) zatm_vcc->shaper = zatm_dev->ubr;
 	else {
+<<<<<<< HEAD
 		int uninitialized_var(pcr);
+=======
+		int pcr;
+>>>>>>> upstream/android-13
 
 		if (unlimited) vcc->qos.txtp.max_sdu = ATM_MAX_AAL5_PDU;
 		if ((zatm_vcc->shaper = alloc_shaper(vcc->dev,&pcr,
@@ -1446,7 +1454,11 @@ static int zatm_ioctl(struct atm_dev *dev,unsigned int cmd,void __user *arg)
 	switch (cmd) {
 		case ZATM_GETPOOLZ:
 			if (!capable(CAP_NET_ADMIN)) return -EPERM;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case ZATM_GETPOOL:
 			{
 				struct zatm_pool_info info;
@@ -1514,6 +1526,7 @@ static int zatm_ioctl(struct atm_dev *dev,unsigned int cmd,void __user *arg)
 	}
 }
 
+<<<<<<< HEAD
 
 static int zatm_getsockopt(struct atm_vcc *vcc,int level,int optname,
     void __user *optval,int optlen)
@@ -1528,6 +1541,8 @@ static int zatm_setsockopt(struct atm_vcc *vcc,int level,int optname,
 	return -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int zatm_send(struct atm_vcc *vcc,struct sk_buff *skb)
 {
 	int error;
@@ -1581,8 +1596,11 @@ static const struct atmdev_ops ops = {
 	.open		= zatm_open,
 	.close		= zatm_close,
 	.ioctl		= zatm_ioctl,
+<<<<<<< HEAD
 	.getsockopt	= zatm_getsockopt,
 	.setsockopt	= zatm_setsockopt,
+=======
+>>>>>>> upstream/android-13
 	.send		= zatm_send,
 	.phy_put	= zatm_phy_put,
 	.phy_get	= zatm_phy_get,

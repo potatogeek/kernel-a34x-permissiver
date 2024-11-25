@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Mantis PCI bridge driver
 
 	Copyright (C) Manu Abraham (abraham.manu@gmail.com)
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/signal.h>
@@ -121,7 +128,10 @@ static int mantis_ts_control(struct dvb_ca_en50221 *en50221, int slot)
 	struct mantis_pci *mantis = ca->ca_priv;
 
 	dprintk(MANTIS_DEBUG, 1, "Slot(%d): TS control", slot);
+<<<<<<< HEAD
 /*	mantis_set_direction(mantis, 1); */ /* Enable TS through CAM */
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

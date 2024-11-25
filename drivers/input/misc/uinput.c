@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  User level driver support for input subsystem
  *
  * Heavily based on evdev.c by Vojtech Pavlik
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
  *
  * Changes/Revisions:
@@ -402,7 +409,11 @@ static int uinput_open(struct inode *inode, struct file *file)
 	newdev->state = UIST_NEW_DEVICE;
 
 	file->private_data = newdev;
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -706,13 +717,23 @@ static ssize_t uinput_read(struct file *file, char __user *buffer,
 static __poll_t uinput_poll(struct file *file, poll_table *wait)
 {
 	struct uinput_device *udev = file->private_data;
+<<<<<<< HEAD
+=======
+	__poll_t mask = EPOLLOUT | EPOLLWRNORM; /* uinput is always writable */
+>>>>>>> upstream/android-13
 
 	poll_wait(file, &udev->waitq, wait);
 
 	if (udev->head != udev->tail)
+<<<<<<< HEAD
 		return EPOLLIN | EPOLLRDNORM;
 
 	return 0;
+=======
+		mask |= EPOLLIN | EPOLLRDNORM;
+
+	return mask;
+>>>>>>> upstream/android-13
 }
 
 static int uinput_release(struct inode *inode, struct file *file)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92D_DEF_H__
 #define __RTL92D_DEF_H__
@@ -48,6 +53,7 @@
 #define RX_MPDU_QUEUE					0
 #define RX_CMD_QUEUE					1
 
+<<<<<<< HEAD
 #define	C2H_RX_CMD_HDR_LEN				8
 #define	GET_C2H_CMD_CMD_LEN(__prxhdr)			\
 	LE_BITS_TO_4BYTE((__prxhdr), 0, 16)
@@ -79,6 +85,8 @@
 #define	GET_C2H_CMD_FEEDBACK_CCX_SEQ(__pcmdfbhdr)	\
 	LE_BITS_TO_4BYTE(((__pcmdfbhdr) + 4), 20, 12)
 
+=======
+>>>>>>> upstream/android-13
 enum version_8192d {
 	VERSION_TEST_CHIP_88C = 0x0000,
 	VERSION_TEST_CHIP_92C = 0x0020,

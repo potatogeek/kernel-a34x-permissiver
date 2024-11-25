@@ -271,9 +271,15 @@ static void ifi_canfd_read_fifo(struct net_device *ndev)
 	dlc = (rxdlc >> IFI_CANFD_RXFIFO_DLC_DLC_OFFSET) &
 	      IFI_CANFD_RXFIFO_DLC_DLC_MASK;
 	if (rxdlc & IFI_CANFD_RXFIFO_DLC_EDL)
+<<<<<<< HEAD
 		cf->len = can_dlc2len(dlc);
 	else
 		cf->len = get_can_dlc(dlc);
+=======
+		cf->len = can_fd_dlc2len(dlc);
+	else
+		cf->len = can_cc_dlc2len(dlc);
+>>>>>>> upstream/android-13
 
 	rxid = readl(priv->base + IFI_CANFD_RXFIFO_ID);
 	id = (rxid >> IFI_CANFD_RXFIFO_ID_ID_OFFSET);
@@ -431,7 +437,11 @@ static int ifi_canfd_handle_lec_err(struct net_device *ndev)
 	writel(IFI_CANFD_ERROR_CTR_ER_ENABLE, priv->base + IFI_CANFD_ERROR_CTR);
 
 	stats->rx_packets++;
+<<<<<<< HEAD
 	stats->rx_bytes += cf->can_dlc;
+=======
+	stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 	netif_receive_skb(skb);
 
 	return 1;
@@ -523,7 +533,11 @@ static int ifi_canfd_handle_state_change(struct net_device *ndev,
 	}
 
 	stats->rx_packets++;
+<<<<<<< HEAD
 	stats->rx_bytes += cf->can_dlc;
+=======
+	stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 	netif_receive_skb(skb);
 
 	return 1;
@@ -629,7 +643,11 @@ static irqreturn_t ifi_canfd_isr(int irq, void *dev_id)
 
 	/* TX IRQ */
 	if (isr & IFI_CANFD_INTERRUPT_TXFIFO_REMOVE) {
+<<<<<<< HEAD
 		stats->tx_bytes += can_get_echo_skb(ndev, 0);
+=======
+		stats->tx_bytes += can_get_echo_skb(ndev, 0, NULL);
+>>>>>>> upstream/android-13
 		stats->tx_packets++;
 		can_led_event(ndev, CAN_LED_EVENT_TX);
 	}
@@ -900,7 +918,11 @@ static netdev_tx_t ifi_canfd_start_xmit(struct sk_buff *skb,
 		txid = cf->can_id & CAN_SFF_MASK;
 	}
 
+<<<<<<< HEAD
 	txdlc = can_len2dlc(cf->len);
+=======
+	txdlc = can_fd_len2dlc(cf->len);
+>>>>>>> upstream/android-13
 	if ((priv->can.ctrlmode & CAN_CTRLMODE_FD) && can_is_canfd_skb(skb)) {
 		txdlc |= IFI_CANFD_TXFIFO_DLC_EDL;
 		if (cf->flags & CANFD_BRS)
@@ -922,7 +944,11 @@ static netdev_tx_t ifi_canfd_start_xmit(struct sk_buff *skb,
 	writel(0, priv->base + IFI_CANFD_TXFIFO_REPEATCOUNT);
 	writel(0, priv->base + IFI_CANFD_TXFIFO_SUSPEND_US);
 
+<<<<<<< HEAD
 	can_put_echo_skb(skb, ndev, 0);
+=======
+	can_put_echo_skb(skb, ndev, 0, 0);
+>>>>>>> upstream/android-13
 
 	/* Start the transmission */
 	writel(IFI_CANFD_TXSTCMD_ADD_MSG, priv->base + IFI_CANFD_TXSTCMD);
@@ -942,15 +968,27 @@ static int ifi_canfd_plat_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct net_device *ndev;
 	struct ifi_canfd_priv *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *addr;
 	int irq, ret;
 	u32 id, rev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	addr = devm_ioremap_resource(dev, res);
 	irq = platform_get_irq(pdev, 0);
 	if (IS_ERR(addr) || irq < 0)
+=======
+	addr = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(addr))
+		return PTR_ERR(addr);
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	id = readl(addr + IFI_CANFD_IP_ID);

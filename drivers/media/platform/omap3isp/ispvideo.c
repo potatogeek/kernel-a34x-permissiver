@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ispvideo.c
  *
@@ -7,6 +11,7 @@
  *
  * Contacts: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	     Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,10 @@
  */
 
 #include <asm/cacheflush.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/mm.h>
 #include <linux/module.h>
@@ -654,17 +663,26 @@ isp_video_querycap(struct file *file, void *fh, struct v4l2_capability *cap)
 {
 	struct isp_video *video = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, ISP_VIDEO_DRIVER_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, video->video.name, sizeof(cap->card));
 	strlcpy(cap->bus_info, "media", sizeof(cap->bus_info));
+=======
+	strscpy(cap->driver, ISP_VIDEO_DRIVER_NAME, sizeof(cap->driver));
+	strscpy(cap->card, video->video.name, sizeof(cap->card));
+	strscpy(cap->bus_info, "media", sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 
 	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_VIDEO_OUTPUT
 		| V4L2_CAP_STREAMING | V4L2_CAP_DEVICE_CAPS;
 
+<<<<<<< HEAD
 	if (video->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
 		cap->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
 	else
 		cap->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -711,7 +729,11 @@ isp_video_set_format(struct file *file, void *fh, struct v4l2_format *format)
 		 * requested.
 		 */
 		format->fmt.pix.field = V4L2_FIELD_INTERLACED_TB;
+<<<<<<< HEAD
 		/* Fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case V4L2_FIELD_INTERLACED_TB:
 	case V4L2_FIELD_INTERLACED_BT:
 		/* Interlaced orders are only supported at the CCDC output. */
@@ -1027,8 +1049,13 @@ static int isp_video_check_external_subdevs(struct isp_video *video,
 
 	ctrls.count = 1;
 	ctrls.controls = &ctrl;
+<<<<<<< HEAD
 
 	ret = v4l2_g_ext_ctrls(pipe->external->ctrl_handler, NULL, &ctrls);
+=======
+	ret = v4l2_g_ext_ctrls(pipe->external->ctrl_handler, &video->video,
+			       NULL, &ctrls);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_warn(isp->dev, "no pixel rate control in subdev %s\n",
 			 pipe->external->name);
@@ -1251,7 +1278,11 @@ isp_video_enum_input(struct file *file, void *fh, struct v4l2_input *input)
 	if (input->index > 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(input->name, "camera", sizeof(input->name));
+=======
+	strscpy(input->name, "camera", sizeof(input->name));
+>>>>>>> upstream/android-13
 	input->type = V4L2_INPUT_TYPE_CAMERA;
 
 	return 0;
@@ -1318,7 +1349,11 @@ static int isp_video_open(struct file *file)
 		goto done;
 	}
 
+<<<<<<< HEAD
 	ret = v4l2_pipeline_pm_use(&video->video.entity, 1);
+=======
+	ret = v4l2_pipeline_pm_get(&video->video.entity);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		omap3isp_put(video->isp);
 		goto done;
@@ -1370,7 +1405,11 @@ static int isp_video_release(struct file *file)
 	vb2_queue_release(&handle->queue);
 	mutex_unlock(&video->queue_lock);
 
+<<<<<<< HEAD
 	v4l2_pipeline_pm_use(&video->video.entity, 0);
+=======
+	v4l2_pipeline_pm_put(&video->video.entity);
+>>>>>>> upstream/android-13
 
 	/* Release the file handle. */
 	v4l2_fh_del(vfh);
@@ -1460,9 +1499,22 @@ int omap3isp_video_init(struct isp_video *video, const char *name)
 	video->video.fops = &isp_video_fops;
 	snprintf(video->video.name, sizeof(video->video.name),
 		 "OMAP3 ISP %s %s", name, direction);
+<<<<<<< HEAD
 	video->video.vfl_type = VFL_TYPE_GRABBER;
 	video->video.release = video_device_release_empty;
 	video->video.ioctl_ops = &isp_video_ioctl_ops;
+=======
+	video->video.vfl_type = VFL_TYPE_VIDEO;
+	video->video.release = video_device_release_empty;
+	video->video.ioctl_ops = &isp_video_ioctl_ops;
+	if (video->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
+		video->video.device_caps = V4L2_CAP_VIDEO_CAPTURE
+					 | V4L2_CAP_STREAMING;
+	else
+		video->video.device_caps = V4L2_CAP_VIDEO_OUTPUT
+					 | V4L2_CAP_STREAMING;
+
+>>>>>>> upstream/android-13
 	video->pipe.stream_state = ISP_PIPELINE_STREAM_STOPPED;
 
 	video_set_drvdata(&video->video, video);
@@ -1484,7 +1536,11 @@ int omap3isp_video_register(struct isp_video *video, struct v4l2_device *vdev)
 
 	video->video.v4l2_dev = vdev;
 
+<<<<<<< HEAD
 	ret = video_register_device(&video->video, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(&video->video, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(video->isp->dev,
 			"%s: could not register video device (%d)\n",
@@ -1495,6 +1551,10 @@ int omap3isp_video_register(struct isp_video *video, struct v4l2_device *vdev)
 
 void omap3isp_video_unregister(struct isp_video *video)
 {
+<<<<<<< HEAD
 	if (video_is_registered(&video->video))
 		video_unregister_device(&video->video);
+=======
+	video_unregister_device(&video->video);
+>>>>>>> upstream/android-13
 }

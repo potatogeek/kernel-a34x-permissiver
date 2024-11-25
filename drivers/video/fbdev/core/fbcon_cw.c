@@ -50,7 +50,11 @@ static void cw_bmove(struct vc_data *vc, struct fb_info *info, int sy,
 {
 	struct fbcon_ops *ops = info->fbcon_par;
 	struct fb_copyarea area;
+<<<<<<< HEAD
 	u32 vxres = GETVXRES(ops->p->scrollmode, info);
+=======
+	u32 vxres = GETVXRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	area.sx = vxres - ((sy + height) * vc->vc_font.height);
 	area.sy = sx * vc->vc_font.width;
@@ -68,7 +72,11 @@ static void cw_clear(struct vc_data *vc, struct fb_info *info, int sy,
 	struct fbcon_ops *ops = info->fbcon_par;
 	struct fb_fillrect region;
 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+<<<<<<< HEAD
 	u32 vxres = GETVXRES(ops->p->scrollmode, info);
+=======
+	u32 vxres = GETVXRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	region.color = attr_bgcol_ec(bgshift,vc,info);
 	region.dx = vxres - ((sy + height) * vc->vc_font.height);
@@ -125,7 +133,11 @@ static void cw_putcs(struct vc_data *vc, struct fb_info *info,
 	u32 cnt, pitch, size;
 	u32 attribute = get_attribute(info, scr_readw(s));
 	u8 *dst, *buf = NULL;
+<<<<<<< HEAD
 	u32 vxres = GETVXRES(ops->p->scrollmode, info);
+=======
+	u32 vxres = GETVXRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	if (!ops->fontbuffer)
 		return;
@@ -208,11 +220,19 @@ static void cw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
 	struct fbcon_ops *ops = info->fbcon_par;
 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
 	int w = (vc->vc_font.height + 7) >> 3, c;
+<<<<<<< HEAD
 	int y = real_y(ops->p, vc->vc_y);
 	int attribute, use_sw = (vc->vc_cursor_type & 0x10);
 	int err = 1, dx, dy;
 	char *src;
 	u32 vxres = GETVXRES(ops->p->scrollmode, info);
+=======
+	int y = real_y(ops->p, vc->state.y);
+	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
+	int err = 1, dx, dy;
+	char *src;
+	u32 vxres = GETVXRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	if (!ops->fontbuffer)
 		return;
@@ -258,7 +278,11 @@ static void cw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
 	}
 
 	dx = vxres - ((y * vc->vc_font.height) + vc->vc_font.height);
+<<<<<<< HEAD
 	dy = vc->vc_x * vc->vc_font.width;
+=======
+	dy = vc->state.x * vc->vc_font.width;
+>>>>>>> upstream/android-13
 
 	if (ops->cursor_state.image.dx != dx ||
 	    ops->cursor_state.image.dy != dy ||
@@ -299,7 +323,11 @@ static void cw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
 		ops->p->cursor_shape = vc->vc_cursor_type;
 		cursor.set |= FB_CUR_SETSHAPE;
 
+<<<<<<< HEAD
 		switch (ops->p->cursor_shape & CUR_HWMASK) {
+=======
+		switch (CUR_SIZE(ops->p->cursor_shape)) {
+>>>>>>> upstream/android-13
 		case CUR_NONE:
 			cur_height = 0;
 			break;
@@ -369,7 +397,11 @@ static void cw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
 static int cw_update_start(struct fb_info *info)
 {
 	struct fbcon_ops *ops = info->fbcon_par;
+<<<<<<< HEAD
 	u32 vxres = GETVXRES(ops->p->scrollmode, info);
+=======
+	u32 vxres = GETVXRES(ops->p, info);
+>>>>>>> upstream/android-13
 	u32 xoffset;
 	int err;
 
@@ -392,4 +424,7 @@ void fbcon_rotate_cw(struct fbcon_ops *ops)
 	ops->cursor = cw_cursor;
 	ops->update_start = cw_update_start;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(fbcon_rotate_cw);
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _LINUX_I8042_H
 #define _LINUX_I8042_H
 
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+#ifndef _LINUX_I8042_H
+#define _LINUX_I8042_H
+
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 

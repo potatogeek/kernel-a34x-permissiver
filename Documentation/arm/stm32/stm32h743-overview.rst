@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+==================
+>>>>>>> upstream/android-13
 STM32H743 Overview
 ==================
 
@@ -29,6 +33,10 @@ Datasheet and reference manual are publicly available on ST website (STM32H743_)
 
 .. _STM32H743: http://www.st.com/en/microcontrollers/stm32h7x3.html?querycriteria=productId=LN2033
 
+<<<<<<< HEAD
 :Authors:
 
 Alexandre Torgue <alexandre.torgue@st.com>
+=======
+:Authors: Alexandre Torgue <alexandre.torgue@st.com>
+>>>>>>> upstream/android-13

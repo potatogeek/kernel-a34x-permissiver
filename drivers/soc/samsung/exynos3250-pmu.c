@@ -3,7 +3,11 @@
 // Copyright (c) 2011-2015 Samsung Electronics Co., Ltd.
 //		http://www.samsung.com/
 //
+<<<<<<< HEAD
 // EXYNOS3250 - CPU PMU (Power Management Unit) support
+=======
+// Exynos3250 - CPU PMU (Power Management Unit) support
+>>>>>>> upstream/android-13
 
 #include <linux/soc/samsung/exynos-regs-pmu.h>
 #include <linux/soc/samsung/exynos-pmu.h>

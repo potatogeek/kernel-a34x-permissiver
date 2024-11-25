@@ -40,13 +40,21 @@ static DEFINE_MUTEX(rpadlpar_mutex);
 static struct device_node *find_vio_slot_node(char *drc_name)
 {
 	struct device_node *parent = of_find_node_by_name(NULL, "vdevice");
+<<<<<<< HEAD
 	struct device_node *dn = NULL;
+=======
+	struct device_node *dn;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!parent)
 		return NULL;
 
+<<<<<<< HEAD
 	while ((dn = of_get_next_child(parent, dn))) {
+=======
+	for_each_child_of_node(parent, dn) {
+>>>>>>> upstream/android-13
 		rc = rpaphp_check_drc_props(dn, drc_name, NULL);
 		if (rc == 0)
 			break;
@@ -60,10 +68,17 @@ static struct device_node *find_vio_slot_node(char *drc_name)
 static struct device_node *find_php_slot_pci_node(char *drc_name,
 						  char *drc_type)
 {
+<<<<<<< HEAD
 	struct device_node *np = NULL;
 	int rc;
 
 	while ((np = of_find_node_by_name(np, "pci"))) {
+=======
+	struct device_node *np;
+	int rc;
+
+	for_each_node_by_name(np, "pci") {
+>>>>>>> upstream/android-13
 		rc = rpaphp_check_drc_props(np, drc_name, drc_type);
 		if (rc == 0)
 			break;
@@ -140,7 +155,11 @@ static void dlpar_pci_add_bus(struct device_node *dn)
 	struct pci_controller *phb = pdn->phb;
 	struct pci_dev *dev = NULL;
 
+<<<<<<< HEAD
 	eeh_add_device_tree_early(pdn);
+=======
+	pseries_eeh_init_edev_recursive(pdn);
+>>>>>>> upstream/android-13
 
 	/* Add EADS device to PHB bus, adding new entry to bus->devices */
 	dev = of_create_pci_dev(dn, phb->bus, pdn->devfn);
@@ -352,7 +371,11 @@ static int dlpar_remove_vio_slot(char *drc_name, struct device_node *dn)
  * -ENODEV		Not a valid drc_name
  * -EIO			Internal PCI Error
  */
+<<<<<<< HEAD
 int dlpar_remove_pci_slot(char *drc_name, struct device_node *dn)
+=======
+static int dlpar_remove_pci_slot(char *drc_name, struct device_node *dn)
+>>>>>>> upstream/android-13
 {
 	struct pci_bus *bus;
 	struct slot *slot;
@@ -458,7 +481,11 @@ static inline int is_dlpar_capable(void)
 	return (int) (rc != RTAS_UNKNOWN_SERVICE);
 }
 
+<<<<<<< HEAD
 int __init rpadlpar_io_init(void)
+=======
+static int __init rpadlpar_io_init(void)
+>>>>>>> upstream/android-13
 {
 
 	if (!is_dlpar_capable()) {
@@ -470,10 +497,16 @@ int __init rpadlpar_io_init(void)
 	return dlpar_sysfs_init();
 }
 
+<<<<<<< HEAD
 void rpadlpar_io_exit(void)
 {
 	dlpar_sysfs_exit();
 	return;
+=======
+static void __exit rpadlpar_io_exit(void)
+{
+	dlpar_sysfs_exit();
+>>>>>>> upstream/android-13
 }
 
 module_init(rpadlpar_io_init);

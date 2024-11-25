@@ -7,10 +7,19 @@
 #include <linux/workqueue.h>
 #include <linux/list.h>
 #include <linux/refcount.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_parser.h>
+>>>>>>> upstream/android-13
 
 #define TRACE_CGROUP_PATH_LEN 1024
 extern spinlock_t trace_cgroup_path_lock;
 extern char trace_cgroup_path[TRACE_CGROUP_PATH_LEN];
+<<<<<<< HEAD
+=======
+extern bool cgroup_debug;
+extern void __init enable_debug_cgroup(void);
+>>>>>>> upstream/android-13
 
 /*
  * cgroup_path() takes a spin lock. It is good practice not to take
@@ -25,16 +34,74 @@ extern char trace_cgroup_path[TRACE_CGROUP_PATH_LEN];
 #define TRACE_CGROUP_PATH(type, cgrp, ...)				\
 	do {								\
 		if (trace_cgroup_##type##_enabled()) {			\
+<<<<<<< HEAD
 			spin_lock(&trace_cgroup_path_lock);		\
+=======
+			unsigned long flags;				\
+			spin_lock_irqsave(&trace_cgroup_path_lock,	\
+					  flags);			\
+>>>>>>> upstream/android-13
 			cgroup_path(cgrp, trace_cgroup_path,		\
 				    TRACE_CGROUP_PATH_LEN);		\
 			trace_cgroup_##type(cgrp, trace_cgroup_path,	\
 					    ##__VA_ARGS__);		\
+<<<<<<< HEAD
 			spin_unlock(&trace_cgroup_path_lock);		\
+=======
+			spin_unlock_irqrestore(&trace_cgroup_path_lock, \
+					       flags);			\
+>>>>>>> upstream/android-13
 		}							\
 	} while (0)
 
 /*
+<<<<<<< HEAD
+=======
+ * The cgroup filesystem superblock creation/mount context.
+ */
+struct cgroup_fs_context {
+	struct kernfs_fs_context kfc;
+	struct cgroup_root	*root;
+	struct cgroup_namespace	*ns;
+	unsigned int	flags;			/* CGRP_ROOT_* flags */
+
+	/* cgroup1 bits */
+	bool		cpuset_clone_children;
+	bool		none;			/* User explicitly requested empty subsystem */
+	bool		all_ss;			/* Seen 'all' option */
+	u16		subsys_mask;		/* Selected subsystems */
+	char		*name;			/* Hierarchy name */
+	char		*release_agent;		/* Path for release notifications */
+};
+
+static inline struct cgroup_fs_context *cgroup_fc2context(struct fs_context *fc)
+{
+	struct kernfs_fs_context *kfc = fc->fs_private;
+
+	return container_of(kfc, struct cgroup_fs_context, kfc);
+}
+
+struct cgroup_pidlist;
+
+struct cgroup_file_ctx {
+	struct cgroup_namespace	*ns;
+
+	struct {
+		void			*trigger;
+	} psi;
+
+	struct {
+		bool			started;
+		struct css_task_iter	iter;
+	} procs;
+
+	struct {
+		struct cgroup_pidlist	*pidlist;
+	} procs1;
+};
+
+/*
+>>>>>>> upstream/android-13
  * A cgroup can be associated with multiple css_sets as different tasks may
  * belong to different cgroups on different hierarchies.  In the other
  * direction, a css_set is naturally associated with multiple cgroups.
@@ -115,6 +182,7 @@ struct cgroup_mgctx {
 #define DEFINE_CGROUP_MGCTX(name)						\
 	struct cgroup_mgctx name = CGROUP_MGCTX_INIT(name)
 
+<<<<<<< HEAD
 struct cgroup_sb_opts {
 	u16 subsys_mask;
 	unsigned int flags;
@@ -126,6 +194,8 @@ struct cgroup_sb_opts {
 };
 
 extern struct mutex cgroup_mutex;
+=======
+>>>>>>> upstream/android-13
 extern spinlock_t css_set_lock;
 extern struct cgroup_subsys *cgroup_subsys[];
 extern struct list_head cgroup_roots;
@@ -195,12 +265,19 @@ int cgroup_path_ns_locked(struct cgroup *cgrp, char *buf, size_t buflen,
 			  struct cgroup_namespace *ns);
 
 void cgroup_free_root(struct cgroup_root *root);
+<<<<<<< HEAD
 void init_cgroup_root(struct cgroup_root *root, struct cgroup_sb_opts *opts);
 int cgroup_setup_root(struct cgroup_root *root, u16 ss_mask);
 int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask);
 struct dentry *cgroup_do_mount(struct file_system_type *fs_type, int flags,
 			       struct cgroup_root *root, unsigned long magic,
 			       struct cgroup_namespace *ns);
+=======
+void init_cgroup_root(struct cgroup_fs_context *ctx);
+int cgroup_setup_root(struct cgroup_root *root, u16 ss_mask);
+int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask);
+int cgroup_do_get_tree(struct fs_context *fc);
+>>>>>>> upstream/android-13
 
 int cgroup_migrate_vet_dst(struct cgroup *dst_cgrp);
 void cgroup_migrate_finish(struct cgroup_mgctx *mgctx);
@@ -212,9 +289,17 @@ int cgroup_migrate(struct task_struct *leader, bool threadgroup,
 
 int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
 		       bool threadgroup);
+<<<<<<< HEAD
 struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup)
 	__acquires(&cgroup_threadgroup_rwsem);
 void cgroup_procs_write_finish(struct task_struct *task)
+=======
+struct task_struct *cgroup_procs_write_start(char *buf, bool threadgroup,
+					     bool *locked,
+					     struct cgroup *dst_cgrp);
+	__acquires(&cgroup_threadgroup_rwsem);
+void cgroup_procs_write_finish(struct task_struct *task, bool locked)
+>>>>>>> upstream/android-13
 	__releases(&cgroup_threadgroup_rwsem);
 
 void cgroup_lock_and_drain_offline(struct cgroup *cgrp);
@@ -245,14 +330,24 @@ extern const struct proc_ns_operations cgroupns_operations;
  */
 extern struct cftype cgroup1_base_files[];
 extern struct kernfs_syscall_ops cgroup1_kf_syscall_ops;
+<<<<<<< HEAD
+=======
+extern const struct fs_parameter_spec cgroup1_fs_parameters[];
+>>>>>>> upstream/android-13
 
 int proc_cgroupstats_show(struct seq_file *m, void *v);
 bool cgroup1_ssid_disabled(int ssid);
 void cgroup1_pidlist_destroy_all(struct cgroup *cgrp);
 void cgroup1_release_agent(struct work_struct *work);
 void cgroup1_check_for_release(struct cgroup *cgrp);
+<<<<<<< HEAD
 struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 			     void *data, unsigned long magic,
 			     struct cgroup_namespace *ns);
+=======
+int cgroup1_parse_param(struct fs_context *fc, struct fs_parameter *param);
+int cgroup1_get_tree(struct fs_context *fc);
+int cgroup1_reconfigure(struct fs_context *ctx);
+>>>>>>> upstream/android-13
 
 #endif /* __CGROUP_INTERNAL_H */

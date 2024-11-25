@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 Pablo Neira Ayuso <pablo@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -16,8 +22,13 @@
 #include <net/netfilter/ipv6/nf_dup_ipv6.h>
 
 struct nft_dup_ipv6 {
+<<<<<<< HEAD
 	enum nft_registers	sreg_addr:8;
 	enum nft_registers	sreg_dev:8;
+=======
+	u8	sreg_addr;
+	u8	sreg_dev;
+>>>>>>> upstream/android-13
 };
 
 static void nft_dup_ipv6_eval(const struct nft_expr *expr,
@@ -41,6 +52,7 @@ static int nft_dup_ipv6_init(const struct nft_ctx *ctx,
 	if (tb[NFTA_DUP_SREG_ADDR] == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	priv->sreg_addr = nft_parse_register(tb[NFTA_DUP_SREG_ADDR]);
 	err = nft_validate_register_load(priv->sreg_addr, sizeof(struct in6_addr));
 	if (err < 0)
@@ -51,6 +63,18 @@ static int nft_dup_ipv6_init(const struct nft_ctx *ctx,
 		return nft_validate_register_load(priv->sreg_dev, sizeof(int));
 	}
 	return 0;
+=======
+	err = nft_parse_register_load(tb[NFTA_DUP_SREG_ADDR], &priv->sreg_addr,
+				      sizeof(struct in6_addr));
+	if (err < 0)
+		return err;
+
+	if (tb[NFTA_DUP_SREG_DEV])
+		err = nft_parse_register_load(tb[NFTA_DUP_SREG_DEV],
+					      &priv->sreg_dev, sizeof(int));
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int nft_dup_ipv6_dump(struct sk_buff *skb, const struct nft_expr *expr)
@@ -108,3 +132,7 @@ module_exit(nft_dup_ipv6_module_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Pablo Neira Ayuso <pablo@netfilter.org>");
 MODULE_ALIAS_NFT_AF_EXPR(AF_INET6, "dup");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("IPv6 nftables packet duplication support");
+>>>>>>> upstream/android-13

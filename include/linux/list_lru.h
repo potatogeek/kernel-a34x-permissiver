@@ -34,7 +34,11 @@ struct list_lru_one {
 struct list_lru_memcg {
 	struct rcu_head		rcu;
 	/* array of per cgroup lists, indexed by memcg_cache_id */
+<<<<<<< HEAD
 	struct list_lru_one	*lru[0];
+=======
+	struct list_lru_one	*lru[];
+>>>>>>> upstream/android-13
 };
 
 struct list_lru_node {
@@ -146,7 +150,11 @@ typedef enum lru_status (*list_lru_walk_cb)(struct list_head *item,
  * @lru: the lru pointer.
  * @nid: the node id to scan from.
  * @memcg: the cgroup to scan from.
+<<<<<<< HEAD
  * @isolate: callback function that is resposible for deciding what to do with
+=======
+ * @isolate: callback function that is responsible for deciding what to do with
+>>>>>>> upstream/android-13
  *  the item currently being scanned
  * @cb_arg: opaque type that will be passed to @isolate
  * @nr_to_walk: how many items to scan.
@@ -172,7 +180,11 @@ unsigned long list_lru_walk_one(struct list_lru *lru,
  * @lru: the lru pointer.
  * @nid: the node id to scan from.
  * @memcg: the cgroup to scan from.
+<<<<<<< HEAD
  * @isolate: callback function that is resposible for deciding what to do with
+=======
+ * @isolate: callback function that is responsible for deciding what to do with
+>>>>>>> upstream/android-13
  *  the item currently being scanned
  * @cb_arg: opaque type that will be passed to @isolate
  * @nr_to_walk: how many items to scan.

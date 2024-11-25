@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2007 Eugene Konev <ejka@openwrt.org>
@@ -17,6 +18,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include <linux/bootmem.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2007 Felix Fietkau <nbd@openwrt.org>
+ * Copyright (C) 2007 Eugene Konev <ejka@openwrt.org>
+ */
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/pfn.h>
@@ -60,10 +69,14 @@ void __init prom_meminit(void)
 	unsigned long pages;
 
 	pages = memsize() >> PAGE_SHIFT;
+<<<<<<< HEAD
 	add_memory_region(PHYS_OFFSET, pages << PAGE_SHIFT, BOOT_MEM_RAM);
 }
 
 void __init prom_free_prom_memory(void)
 {
 	/* Nothing to free */
+=======
+	memblock_add(PHYS_OFFSET, pages << PAGE_SHIFT);
+>>>>>>> upstream/android-13
 }

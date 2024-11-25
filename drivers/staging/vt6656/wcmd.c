@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: wcmd.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Handles the management command interface functions
  *
  * Author: Lyndon Chen
@@ -122,8 +125,12 @@ void vnt_run_command(struct work_struct *work)
 
 	case WLAN_CMD_SETPOWER_START:
 
+<<<<<<< HEAD
 		vnt_rf_setpower(priv, priv->current_rate,
 				priv->hw->conf.chandef.chan->hw_value);
+=======
+		vnt_rf_setpower(priv, priv->hw->conf.chandef.chan);
+>>>>>>> upstream/android-13
 
 		break;
 

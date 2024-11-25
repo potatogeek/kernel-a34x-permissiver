@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  * Copyright 2012 Linaro Ltd.
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2012 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -28,6 +35,10 @@
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 #include <asm/mach/time.h>
+<<<<<<< HEAD
+=======
+#include <asm/system_info.h>
+>>>>>>> upstream/android-13
 #include <asm/system_misc.h>
 
 #include "pm.h"
@@ -57,6 +68,12 @@
 #define MXS_CLR_ADDR		0x8
 #define MXS_TOG_ADDR		0xc
 
+<<<<<<< HEAD
+=======
+#define HW_OCOTP_OPS2		19	/* offset 0x150 */
+#define HW_OCOTP_OPS3		20	/* offset 0x160 */
+
+>>>>>>> upstream/android-13
 static u32 chipid;
 static u32 socid;
 
@@ -385,6 +402,11 @@ static void __init mxs_machine_init(void)
 	struct device *parent;
 	struct soc_device *soc_dev;
 	struct soc_device_attribute *soc_dev_attr;
+<<<<<<< HEAD
+=======
+	u64 soc_uid = 0;
+	const u32 *ocotp = mxs_get_ocotp();
+>>>>>>> upstream/android-13
 	int ret;
 
 	soc_dev_attr = kzalloc(sizeof(*soc_dev_attr), GFP_KERNEL);
@@ -400,8 +422,26 @@ static void __init mxs_machine_init(void)
 	soc_dev_attr->soc_id = mxs_get_soc_id();
 	soc_dev_attr->revision = mxs_get_revision();
 
+<<<<<<< HEAD
 	soc_dev = soc_device_register(soc_dev_attr);
 	if (IS_ERR(soc_dev)) {
+=======
+	if (socid == HW_DIGCTL_CHIPID_MX23) {
+		soc_uid = system_serial_low = ocotp[HW_OCOTP_OPS3];
+	} else if (socid == HW_DIGCTL_CHIPID_MX28) {
+		soc_uid = system_serial_high = ocotp[HW_OCOTP_OPS2];
+		soc_uid <<= 32;
+		system_serial_low = ocotp[HW_OCOTP_OPS3];
+		soc_uid |= system_serial_low;
+	}
+
+	if (soc_uid)
+		soc_dev_attr->serial_number = kasprintf(GFP_KERNEL, "%016llX", soc_uid);
+
+	soc_dev = soc_device_register(soc_dev_attr);
+	if (IS_ERR(soc_dev)) {
+		kfree(soc_dev_attr->serial_number);
+>>>>>>> upstream/android-13
 		kfree(soc_dev_attr->revision);
 		kfree(soc_dev_attr);
 		return;

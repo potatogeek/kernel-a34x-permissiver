@@ -10,11 +10,19 @@
  */
 # define __NOKPROBE_SYMBOL(fname)				\
 static unsigned long __used					\
+<<<<<<< HEAD
 	__attribute__((__section__("_kprobe_blacklist")))	\
 	_kbl_addr_##fname = (unsigned long)fname;
 # define NOKPROBE_SYMBOL(fname)	__NOKPROBE_SYMBOL(fname)
 /* Use this to forbid a kprobes attach on very low level functions */
 # define __kprobes	__attribute__((__section__(".kprobes.text")))
+=======
+	__section("_kprobe_blacklist")				\
+	_kbl_addr_##fname = (unsigned long)fname;
+# define NOKPROBE_SYMBOL(fname)	__NOKPROBE_SYMBOL(fname)
+/* Use this to forbid a kprobes attach on very low level functions */
+# define __kprobes	__section(".kprobes.text")
+>>>>>>> upstream/android-13
 # define nokprobe_inline	__always_inline
 #else
 # define NOKPROBE_SYMBOL(fname)

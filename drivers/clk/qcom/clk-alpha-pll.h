@@ -13,15 +13,27 @@ enum {
 	CLK_ALPHA_PLL_TYPE_HUAYRA,
 	CLK_ALPHA_PLL_TYPE_BRAMMO,
 	CLK_ALPHA_PLL_TYPE_FABIA,
+<<<<<<< HEAD
+=======
+	CLK_ALPHA_PLL_TYPE_TRION,
+	CLK_ALPHA_PLL_TYPE_LUCID = CLK_ALPHA_PLL_TYPE_TRION,
+	CLK_ALPHA_PLL_TYPE_AGERA,
+	CLK_ALPHA_PLL_TYPE_ZONDA,
+>>>>>>> upstream/android-13
 	CLK_ALPHA_PLL_TYPE_MAX,
 };
 
 enum {
 	PLL_OFF_L_VAL,
+<<<<<<< HEAD
+=======
+	PLL_OFF_CAL_L_VAL,
+>>>>>>> upstream/android-13
 	PLL_OFF_ALPHA_VAL,
 	PLL_OFF_ALPHA_VAL_U,
 	PLL_OFF_USER_CTL,
 	PLL_OFF_USER_CTL_U,
+<<<<<<< HEAD
 	PLL_OFF_CONFIG_CTL,
 	PLL_OFF_CONFIG_CTL_U,
 	PLL_OFF_TEST_CTL,
@@ -29,6 +41,19 @@ enum {
 	PLL_OFF_STATUS,
 	PLL_OFF_OPMODE,
 	PLL_OFF_FRAC,
+=======
+	PLL_OFF_USER_CTL_U1,
+	PLL_OFF_CONFIG_CTL,
+	PLL_OFF_CONFIG_CTL_U,
+	PLL_OFF_CONFIG_CTL_U1,
+	PLL_OFF_TEST_CTL,
+	PLL_OFF_TEST_CTL_U,
+	PLL_OFF_TEST_CTL_U1,
+	PLL_OFF_STATUS,
+	PLL_OFF_OPMODE,
+	PLL_OFF_FRAC,
+	PLL_OFF_CAL_VAL,
+>>>>>>> upstream/android-13
 	PLL_OFF_MAX_REGS
 };
 
@@ -40,6 +65,15 @@ struct pll_vco {
 	u32 val;
 };
 
+<<<<<<< HEAD
+=======
+#define VCO(a, b, c) { \
+	.val = a,\
+	.min_freq = b,\
+	.max_freq = c,\
+}
+
+>>>>>>> upstream/android-13
 /**
  * struct clk_alpha_pll - phase locked loop (PLL)
  * @offset: base address of registers
@@ -89,6 +123,16 @@ struct alpha_pll_config {
 	u32 alpha_hi;
 	u32 config_ctl_val;
 	u32 config_ctl_hi_val;
+<<<<<<< HEAD
+=======
+	u32 config_ctl_hi1_val;
+	u32 user_ctl_val;
+	u32 user_ctl_hi_val;
+	u32 user_ctl_hi1_val;
+	u32 test_ctl_val;
+	u32 test_ctl_hi_val;
+	u32 test_ctl_hi1_val;
+>>>>>>> upstream/android-13
 	u32 main_output_mask;
 	u32 aux_output_mask;
 	u32 aux2_output_mask;
@@ -104,6 +148,10 @@ struct alpha_pll_config {
 };
 
 extern const struct clk_ops clk_alpha_pll_ops;
+<<<<<<< HEAD
+=======
+extern const struct clk_ops clk_alpha_pll_fixed_ops;
+>>>>>>> upstream/android-13
 extern const struct clk_ops clk_alpha_pll_hwfsm_ops;
 extern const struct clk_ops clk_alpha_pll_postdiv_ops;
 extern const struct clk_ops clk_alpha_pll_huayra_ops;
@@ -113,9 +161,41 @@ extern const struct clk_ops clk_alpha_pll_fabia_ops;
 extern const struct clk_ops clk_alpha_pll_fixed_fabia_ops;
 extern const struct clk_ops clk_alpha_pll_postdiv_fabia_ops;
 
+<<<<<<< HEAD
+=======
+extern const struct clk_ops clk_alpha_pll_trion_ops;
+extern const struct clk_ops clk_alpha_pll_fixed_trion_ops;
+extern const struct clk_ops clk_alpha_pll_postdiv_trion_ops;
+
+extern const struct clk_ops clk_alpha_pll_lucid_ops;
+#define clk_alpha_pll_fixed_lucid_ops clk_alpha_pll_fixed_trion_ops
+extern const struct clk_ops clk_alpha_pll_postdiv_lucid_ops;
+extern const struct clk_ops clk_alpha_pll_agera_ops;
+
+extern const struct clk_ops clk_alpha_pll_lucid_5lpe_ops;
+extern const struct clk_ops clk_alpha_pll_fixed_lucid_5lpe_ops;
+extern const struct clk_ops clk_alpha_pll_postdiv_lucid_5lpe_ops;
+
+extern const struct clk_ops clk_alpha_pll_zonda_ops;
+#define clk_alpha_pll_postdiv_zonda_ops clk_alpha_pll_postdiv_fabia_ops
+
+>>>>>>> upstream/android-13
 void clk_alpha_pll_configure(struct clk_alpha_pll *pll, struct regmap *regmap,
 			     const struct alpha_pll_config *config);
 void clk_fabia_pll_configure(struct clk_alpha_pll *pll, struct regmap *regmap,
 				const struct alpha_pll_config *config);
+<<<<<<< HEAD
+=======
+void clk_trion_pll_configure(struct clk_alpha_pll *pll, struct regmap *regmap,
+			     const struct alpha_pll_config *config);
+void clk_agera_pll_configure(struct clk_alpha_pll *pll, struct regmap *regmap,
+				const struct alpha_pll_config *config);
+#define clk_lucid_pll_configure(pll, regmap, config) \
+	clk_trion_pll_configure(pll, regmap, config)
+
+void clk_zonda_pll_configure(struct clk_alpha_pll *pll, struct regmap *regmap,
+			     const struct alpha_pll_config *config);
+
+>>>>>>> upstream/android-13
 
 #endif

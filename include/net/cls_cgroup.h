@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * cls_cgroup.h			Control Group Classifier
  *
  * Authors:	Thomas Graf <tgraf@suug.ch>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_CLS_CGROUP_H
@@ -50,9 +57,20 @@ static inline void sock_update_classid(struct sock_cgroup_data *skcd)
 	sock_cgroup_set_classid(skcd, classid);
 }
 
+<<<<<<< HEAD
 static inline u32 task_get_classid(const struct sk_buff *skb)
 {
 	u32 classid = task_cls_state(current)->classid;
+=======
+static inline u32 __task_get_classid(struct task_struct *task)
+{
+	return task_cls_state(task)->classid;
+}
+
+static inline u32 task_get_classid(const struct sk_buff *skb)
+{
+	u32 classid = __task_get_classid(current);
+>>>>>>> upstream/android-13
 
 	/* Due to the nature of the classifier it is required to ignore all
 	 * packets originating from softirq context as accessing `current'

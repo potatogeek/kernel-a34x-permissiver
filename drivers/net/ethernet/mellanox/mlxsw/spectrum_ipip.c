@@ -3,8 +3,15 @@
 
 #include <net/ip_tunnels.h>
 #include <net/ip6_tunnel.h>
+<<<<<<< HEAD
 
 #include "spectrum_ipip.h"
+=======
+#include <net/inet_ecn.h>
+
+#include "spectrum_ipip.h"
+#include "reg.h"
+>>>>>>> upstream/android-13
 
 struct ip_tunnel_parm
 mlxsw_sp_ipip_netdev_parms4(const struct net_device *ol_dev)
@@ -125,6 +132,7 @@ bool mlxsw_sp_l3addr_is_zero(union mlxsw_sp_l3addr addr)
 
 static int
 mlxsw_sp_ipip_nexthop_update_gre4(struct mlxsw_sp *mlxsw_sp, u32 adj_index,
+<<<<<<< HEAD
 				  struct mlxsw_sp_ipip_entry *ipip_entry)
 {
 	u16 rif_index = mlxsw_sp_ipip_lb_rif_index(ipip_entry->ol_lb);
@@ -133,6 +141,18 @@ mlxsw_sp_ipip_nexthop_update_gre4(struct mlxsw_sp *mlxsw_sp, u32 adj_index,
 
 	mlxsw_reg_ratr_pack(ratr_pl, MLXSW_REG_RATR_OP_WRITE_WRITE_ENTRY,
 			    true, MLXSW_REG_RATR_TYPE_IPIP,
+=======
+				  struct mlxsw_sp_ipip_entry *ipip_entry,
+				  bool force, char *ratr_pl)
+{
+	u16 rif_index = mlxsw_sp_ipip_lb_rif_index(ipip_entry->ol_lb);
+	__be32 daddr4 = mlxsw_sp_ipip_netdev_daddr4(ipip_entry->ol_dev);
+	enum mlxsw_reg_ratr_op op;
+
+	op = force ? MLXSW_REG_RATR_OP_WRITE_WRITE_ENTRY :
+		     MLXSW_REG_RATR_OP_WRITE_WRITE_ENTRY_ON_ACTIVITY;
+	mlxsw_reg_ratr_pack(ratr_pl, op, true, MLXSW_REG_RATR_TYPE_IPIP,
+>>>>>>> upstream/android-13
 			    adj_index, rif_index);
 	mlxsw_reg_ratr_ipip4_entry_pack(ratr_pl, be32_to_cpu(daddr4));
 
@@ -140,11 +160,20 @@ mlxsw_sp_ipip_nexthop_update_gre4(struct mlxsw_sp *mlxsw_sp, u32 adj_index,
 }
 
 static int
+<<<<<<< HEAD
 mlxsw_sp_ipip_fib_entry_op_gre4_rtdp(struct mlxsw_sp *mlxsw_sp,
 				     u32 tunnel_index,
 				     struct mlxsw_sp_ipip_entry *ipip_entry)
 {
 	u16 rif_index = mlxsw_sp_ipip_lb_rif_index(ipip_entry->ol_lb);
+=======
+mlxsw_sp_ipip_decap_config_gre4(struct mlxsw_sp *mlxsw_sp,
+				struct mlxsw_sp_ipip_entry *ipip_entry,
+				u32 tunnel_index)
+{
+	u16 rif_index = mlxsw_sp_ipip_lb_rif_index(ipip_entry->ol_lb);
+	u16 ul_rif_id = mlxsw_sp_ipip_lb_ul_rif_id(ipip_entry->ol_lb);
+>>>>>>> upstream/android-13
 	char rtdp_pl[MLXSW_REG_RTDP_LEN];
 	struct ip_tunnel_parm parms;
 	unsigned int type_check;
@@ -157,6 +186,10 @@ mlxsw_sp_ipip_fib_entry_op_gre4_rtdp(struct mlxsw_sp *mlxsw_sp,
 	ikey = mlxsw_sp_ipip_parms4_ikey(parms);
 
 	mlxsw_reg_rtdp_pack(rtdp_pl, MLXSW_REG_RTDP_TYPE_IPIP, tunnel_index);
+<<<<<<< HEAD
+=======
+	mlxsw_reg_rtdp_egress_router_interface_set(rtdp_pl, ul_rif_id);
+>>>>>>> upstream/android-13
 
 	type_check = has_ikey ?
 		MLXSW_REG_RTDP_IPIP_TYPE_CHECK_ALLOW_GRE_KEY :
@@ -176,6 +209,7 @@ mlxsw_sp_ipip_fib_entry_op_gre4_rtdp(struct mlxsw_sp *mlxsw_sp,
 	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(rtdp), rtdp_pl);
 }
 
+<<<<<<< HEAD
 static int
 mlxsw_sp_ipip_fib_entry_op_gre4_ralue(struct mlxsw_sp *mlxsw_sp,
 				      u32 dip, u8 prefix_len, u16 ul_vr_id,
@@ -211,6 +245,8 @@ static int mlxsw_sp_ipip_fib_entry_op_gre4(struct mlxsw_sp *mlxsw_sp,
 						     tunnel_index);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool mlxsw_sp_ipip_tunnel_complete(enum mlxsw_sp_l3proto proto,
 					  const struct net_device *ol_dev)
 {
@@ -227,8 +263,12 @@ static bool mlxsw_sp_ipip_tunnel_complete(enum mlxsw_sp_l3proto proto,
 }
 
 static bool mlxsw_sp_ipip_can_offload_gre4(const struct mlxsw_sp *mlxsw_sp,
+<<<<<<< HEAD
 					   const struct net_device *ol_dev,
 					   enum mlxsw_sp_l3proto ol_proto)
+=======
+					   const struct net_device *ol_dev)
+>>>>>>> upstream/android-13
 {
 	struct ip_tunnel *tunnel = netdev_priv(ol_dev);
 	__be16 okflags = TUNNEL_KEY; /* We can't offload any other features. */
@@ -327,7 +367,11 @@ static const struct mlxsw_sp_ipip_ops mlxsw_sp_ipip_gre4_ops = {
 	.dev_type = ARPHRD_IPGRE,
 	.ul_proto = MLXSW_SP_L3_PROTO_IPV4,
 	.nexthop_update = mlxsw_sp_ipip_nexthop_update_gre4,
+<<<<<<< HEAD
 	.fib_entry_op = mlxsw_sp_ipip_fib_entry_op_gre4,
+=======
+	.decap_config = mlxsw_sp_ipip_decap_config_gre4,
+>>>>>>> upstream/android-13
 	.can_offload = mlxsw_sp_ipip_can_offload_gre4,
 	.ol_loopback_config = mlxsw_sp_ipip_ol_loopback_config_gre4,
 	.ol_netdev_change = mlxsw_sp_ipip_ol_netdev_change_gre4,
@@ -336,3 +380,63 @@ static const struct mlxsw_sp_ipip_ops mlxsw_sp_ipip_gre4_ops = {
 const struct mlxsw_sp_ipip_ops *mlxsw_sp_ipip_ops_arr[] = {
 	[MLXSW_SP_IPIP_TYPE_GRE4] = &mlxsw_sp_ipip_gre4_ops,
 };
+<<<<<<< HEAD
+=======
+
+static int mlxsw_sp_ipip_ecn_encap_init_one(struct mlxsw_sp *mlxsw_sp,
+					    u8 inner_ecn, u8 outer_ecn)
+{
+	char tieem_pl[MLXSW_REG_TIEEM_LEN];
+
+	mlxsw_reg_tieem_pack(tieem_pl, inner_ecn, outer_ecn);
+	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(tieem), tieem_pl);
+}
+
+int mlxsw_sp_ipip_ecn_encap_init(struct mlxsw_sp *mlxsw_sp)
+{
+	int i;
+
+	/* Iterate over inner ECN values */
+	for (i = INET_ECN_NOT_ECT; i <= INET_ECN_CE; i++) {
+		u8 outer_ecn = INET_ECN_encapsulate(0, i);
+		int err;
+
+		err = mlxsw_sp_ipip_ecn_encap_init_one(mlxsw_sp, i, outer_ecn);
+		if (err)
+			return err;
+	}
+
+	return 0;
+}
+
+static int mlxsw_sp_ipip_ecn_decap_init_one(struct mlxsw_sp *mlxsw_sp,
+					    u8 inner_ecn, u8 outer_ecn)
+{
+	char tidem_pl[MLXSW_REG_TIDEM_LEN];
+	u8 new_inner_ecn;
+	bool trap_en;
+
+	new_inner_ecn = mlxsw_sp_tunnel_ecn_decap(outer_ecn, inner_ecn,
+						  &trap_en);
+	mlxsw_reg_tidem_pack(tidem_pl, outer_ecn, inner_ecn, new_inner_ecn,
+			     trap_en, trap_en ? MLXSW_TRAP_ID_DECAP_ECN0 : 0);
+	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(tidem), tidem_pl);
+}
+
+int mlxsw_sp_ipip_ecn_decap_init(struct mlxsw_sp *mlxsw_sp)
+{
+	int i, j, err;
+
+	/* Iterate over inner ECN values */
+	for (i = INET_ECN_NOT_ECT; i <= INET_ECN_CE; i++) {
+		/* Iterate over outer ECN values */
+		for (j = INET_ECN_NOT_ECT; j <= INET_ECN_CE; j++) {
+			err = mlxsw_sp_ipip_ecn_decap_init_one(mlxsw_sp, i, j);
+			if (err)
+				return err;
+		}
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13

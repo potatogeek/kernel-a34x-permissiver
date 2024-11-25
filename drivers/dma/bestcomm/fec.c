@@ -140,7 +140,11 @@ bcom_fec_rx_reset(struct bcom_task *tsk)
 	tsk->index = 0;
 	tsk->outdex = 0;
 
+<<<<<<< HEAD
 	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+=======
+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+>>>>>>> upstream/android-13
 
 	/* Configure some stuff */
 	bcom_set_task_pragma(tsk->tasknum, BCOM_FEC_RX_BD_PRAGMA);
@@ -241,7 +245,11 @@ bcom_fec_tx_reset(struct bcom_task *tsk)
 	tsk->index = 0;
 	tsk->outdex = 0;
 
+<<<<<<< HEAD
 	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+=======
+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+>>>>>>> upstream/android-13
 
 	/* Configure some stuff */
 	bcom_set_task_pragma(tsk->tasknum, BCOM_FEC_TX_BD_PRAGMA);

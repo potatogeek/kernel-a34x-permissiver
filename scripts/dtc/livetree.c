@@ -438,7 +438,11 @@ cell_t propval_cell(struct property *prop)
 	return fdt32_to_cpu(*((fdt32_t *)prop->val.val));
 }
 
+<<<<<<< HEAD
 cell_t propval_cell_n(struct property *prop, int n)
+=======
+cell_t propval_cell_n(struct property *prop, unsigned int n)
+>>>>>>> upstream/android-13
 {
 	assert(prop->val.len / sizeof(cell_t) >= n);
 	return fdt32_to_cpu(*((fdt32_t *)prop->val.val + n));
@@ -526,8 +530,12 @@ struct node *get_node_by_path(struct node *tree, const char *path)
 	p = strchr(path, '/');
 
 	for_each_child(tree, child) {
+<<<<<<< HEAD
 		if (p && (strlen(child->name) == p-path) &&
 		    strprefixeq(path, p - path, child->name))
+=======
+		if (p && strprefixeq(path, p - path, child->name))
+>>>>>>> upstream/android-13
 			return get_node_by_path(child, p+1);
 		else if (!p && streq(path, child->name))
 			return child;

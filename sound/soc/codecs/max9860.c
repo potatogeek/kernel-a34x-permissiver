@@ -334,7 +334,11 @@ static int max9860_hw_params(struct snd_pcm_substream *substream,
 			return -EINVAL;
 		}
 		ifc1a ^= MAX9860_WCI;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SND_SOC_DAIFMT_IB_NF:
 		ifc1a ^= MAX9860_DBCI;
 		ifc1b ^= MAX9860_ABCI;
@@ -489,7 +493,11 @@ static struct snd_soc_dai_driver max9860_dai = {
 			   SNDRV_PCM_FMTBIT_S32_LE,
 	},
 	.ops = &max9860_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int max9860_set_bias_level(struct snd_soc_component *component,
@@ -615,7 +623,12 @@ static int max9860_probe(struct i2c_client *i2c)
 
 	max9860->dvddio_nb.notifier_call = max9860_dvddio_event;
 
+<<<<<<< HEAD
 	ret = regulator_register_notifier(max9860->dvddio, &max9860->dvddio_nb);
+=======
+	ret = devm_regulator_register_notifier(max9860->dvddio,
+					       &max9860->dvddio_nb);
+>>>>>>> upstream/android-13
 	if (ret)
 		dev_err(dev, "Failed to register DVDDIO notifier: %d\n", ret);
 

@@ -57,7 +57,11 @@
  * QIB_VERBOSE_TRACING define as 1 if you want additional tracing in
  * fastpath code
  * QIB_TRACE_REGWRITES define as 1 if you want register writes to be
+<<<<<<< HEAD
  * traced in faspath code
+=======
+ * traced in fastpath code
+>>>>>>> upstream/android-13
  * _QIB_TRACING define as 0 if you want to remove all tracing in a
  * compilation unit
  */
@@ -795,6 +799,7 @@ static inline __u32 qib_hdrget_use_egr_buf(const __le32 *rbuf)
 {
 	return __le32_to_cpu(rbuf[0]) & QLOGIC_IB_RHF_L_USE_EGR;
 }
+<<<<<<< HEAD
 
 static inline __u32 qib_hdrget_qib_ver(__le32 hdrword)
 {
@@ -802,4 +807,6 @@ static inline __u32 qib_hdrget_qib_ver(__le32 hdrword)
 		QLOGIC_IB_I_VERS_MASK;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif                          /* _QIB_COMMON_H */

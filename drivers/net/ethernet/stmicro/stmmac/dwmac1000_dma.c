@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
   This is the driver for the GMAC on-chip Ethernet controller for ST SoCs.
   DWC Ether MAC 10/100/1000 Universal version 3.41a  has been used for
@@ -7,6 +11,7 @@
 
   Copyright (C) 2007-2009  STMicroelectronics Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -18,6 +23,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -122,18 +129,32 @@ static void dwmac1000_dma_init(void __iomem *ioaddr,
 
 static void dwmac1000_dma_init_rx(void __iomem *ioaddr,
 				  struct stmmac_dma_cfg *dma_cfg,
+<<<<<<< HEAD
 				  u32 dma_rx_phy, u32 chan)
 {
 	/* RX descriptor base address list must be written into DMA CSR3 */
 	writel(dma_rx_phy, ioaddr + DMA_RCV_BASE_ADDR);
+=======
+				  dma_addr_t dma_rx_phy, u32 chan)
+{
+	/* RX descriptor base address list must be written into DMA CSR3 */
+	writel(lower_32_bits(dma_rx_phy), ioaddr + DMA_RCV_BASE_ADDR);
+>>>>>>> upstream/android-13
 }
 
 static void dwmac1000_dma_init_tx(void __iomem *ioaddr,
 				  struct stmmac_dma_cfg *dma_cfg,
+<<<<<<< HEAD
 				  u32 dma_tx_phy, u32 chan)
 {
 	/* TX descriptor base address list must be written into DMA CSR4 */
 	writel(dma_tx_phy, ioaddr + DMA_TX_BASE_ADDR);
+=======
+				  dma_addr_t dma_tx_phy, u32 chan)
+{
+	/* TX descriptor base address list must be written into DMA CSR4 */
+	writel(lower_32_bits(dma_tx_phy), ioaddr + DMA_TX_BASE_ADDR);
+>>>>>>> upstream/android-13
 }
 
 static u32 dwmac1000_configure_fc(u32 csr6, int rxfifosz)
@@ -228,11 +249,26 @@ static void dwmac1000_dump_dma_regs(void __iomem *ioaddr, u32 *reg_space)
 				readl(ioaddr + DMA_BUS_MODE + i * 4);
 }
 
+<<<<<<< HEAD
 static void dwmac1000_get_hw_feature(void __iomem *ioaddr,
 				     struct dma_features *dma_cap)
 {
 	u32 hw_cap = readl(ioaddr + DMA_HW_FEATURE);
 
+=======
+static int dwmac1000_get_hw_feature(void __iomem *ioaddr,
+				    struct dma_features *dma_cap)
+{
+	u32 hw_cap = readl(ioaddr + DMA_HW_FEATURE);
+
+	if (!hw_cap) {
+		/* 0x00000000 is the value read on old hardware that does not
+		 * implement this register
+		 */
+		return -EOPNOTSUPP;
+	}
+
+>>>>>>> upstream/android-13
 	dma_cap->mbps_10_100 = (hw_cap & DMA_HW_FEAT_MIISEL);
 	dma_cap->mbps_1000 = (hw_cap & DMA_HW_FEAT_GMIISEL) >> 1;
 	dma_cap->half_duplex = (hw_cap & DMA_HW_FEAT_HDSEL) >> 2;
@@ -262,10 +298,19 @@ static void dwmac1000_get_hw_feature(void __iomem *ioaddr,
 	dma_cap->number_tx_channel = (hw_cap & DMA_HW_FEAT_TXCHCNT) >> 22;
 	/* Alternate (enhanced) DESC mode */
 	dma_cap->enh_desc = (hw_cap & DMA_HW_FEAT_ENHDESSEL) >> 24;
+<<<<<<< HEAD
 }
 
 static void dwmac1000_rx_watchdog(void __iomem *ioaddr, u32 riwt,
 				  u32 number_chan)
+=======
+
+	return 0;
+}
+
+static void dwmac1000_rx_watchdog(void __iomem *ioaddr, u32 riwt,
+				  u32 queue)
+>>>>>>> upstream/android-13
 {
 	writel(riwt, ioaddr + DMA_RX_WATCHDOG);
 }

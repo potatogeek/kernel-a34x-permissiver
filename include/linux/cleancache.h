@@ -5,6 +5,10 @@
 #include <linux/fs.h>
 #include <linux/exportfs.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_vendor.h>
+>>>>>>> upstream/android-13
 
 #define CLEANCACHE_NO_POOL		-1
 #define CLEANCACHE_NO_BACKEND		-2
@@ -36,7 +40,13 @@ struct cleancache_ops {
 	void (*invalidate_page)(int, struct cleancache_filekey, pgoff_t);
 	void (*invalidate_inode)(int, struct cleancache_filekey);
 	void (*invalidate_fs)(int);
+<<<<<<< HEAD
 };
+=======
+	ANDROID_OEM_DATA(1);
+};
+typedef int (*rbin_module_oem_func)(int, int *);
+>>>>>>> upstream/android-13
 
 extern int cleancache_register_ops(const struct cleancache_ops *ops);
 extern void __cleancache_init_fs(struct super_block *);

@@ -37,6 +37,7 @@ enum {
 	SEG6_IPTUN_MODE_L2ENCAP,
 };
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
 static inline size_t seg6_lwt_headroom(struct seg6_iptunnel_encap *tuninfo)
@@ -58,4 +59,6 @@ static inline size_t seg6_lwt_headroom(struct seg6_iptunnel_encap *tuninfo)
 
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif

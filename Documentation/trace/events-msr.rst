@@ -4,7 +4,11 @@ MSR Trace Events
 
 The x86 kernel supports tracing most MSR (Model Specific Register) accesses.
 To see the definition of the MSRs on Intel systems please see the SDM
+<<<<<<< HEAD
 at http://www.intel.com/sdm (Volume 3)
+=======
+at https://www.intel.com/sdm (Volume 3)
+>>>>>>> upstream/android-13
 
 Available trace points:
 

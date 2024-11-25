@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-mmp/time.c
  *
@@ -12,16 +16,23 @@
  * The timers module actually includes three timers, each timer with up to
  * three match comparators. Timer #0 is used here in free-running mode as
  * the clock source, and match comparator #1 used as clock event device.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/interrupt.h>
 #include <linux/clockchips.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 
 #include <linux/io.h>
 #include <linux/irq.h>
@@ -35,6 +46,7 @@
 #include "regs-timers.h"
 #include "regs-apbc.h"
 #include "irqs.h"
+<<<<<<< HEAD
 #include "cputype.h"
 #include "clock.h"
 
@@ -43,6 +55,9 @@
 #else
 #define MMP_CLOCK_FREQ		3250000
 #endif
+=======
+#include <linux/soc/mmp/cputype.h>
+>>>>>>> upstream/android-13
 
 #define TIMERS_VIRT_BASE	TIMERS1_VIRT_BASE
 
@@ -163,7 +178,12 @@ static void __init timer_config(void)
 
 	__raw_writel(0x0, mmp_timer_base + TMR_CER); /* disable */
 
+<<<<<<< HEAD
 	ccr &= (cpu_is_mmp2()) ? (TMR_CCR_CS_0(0) | TMR_CCR_CS_1(0)) :
+=======
+	ccr &= (cpu_is_mmp2() || cpu_is_mmp3()) ?
+		(TMR_CCR_CS_0(0) | TMR_CCR_CS_1(0)) :
+>>>>>>> upstream/android-13
 		(TMR_CCR_CS_0(3) | TMR_CCR_CS_1(3));
 	__raw_writel(ccr, mmp_timer_base + TMR_CCR);
 
@@ -182,6 +202,7 @@ static void __init timer_config(void)
 	__raw_writel(0x2, mmp_timer_base + TMR_CER);
 }
 
+<<<<<<< HEAD
 static struct irqaction timer_irq = {
 	.name		= "timer",
 	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
@@ -237,3 +258,52 @@ out:
 	pr_err("Failed to get timer from device tree with error:%d\n", ret);
 }
 #endif
+=======
+void __init mmp_timer_init(int irq, unsigned long rate)
+{
+	timer_config();
+
+	sched_clock_register(mmp_read_sched_clock, 32, rate);
+
+	ckevt.cpumask = cpumask_of(0);
+
+	if (request_irq(irq, timer_interrupt, IRQF_TIMER | IRQF_IRQPOLL,
+			"timer", &ckevt))
+		pr_err("Failed to request irq %d (timer)\n", irq);
+
+	clocksource_register_hz(&cksrc, rate);
+	clockevents_config_and_register(&ckevt, rate, MIN_DELTA, MAX_DELTA);
+}
+
+static int __init mmp_dt_init_timer(struct device_node *np)
+{
+	struct clk *clk;
+	int irq, ret;
+	unsigned long rate;
+
+	clk = of_clk_get(np, 0);
+	if (!IS_ERR(clk)) {
+		ret = clk_prepare_enable(clk);
+		if (ret)
+			return ret;
+		rate = clk_get_rate(clk);
+	} else if (cpu_is_pj4()) {
+		rate = 6500000;
+	} else {
+		rate = 3250000;
+	}
+
+	irq = irq_of_parse_and_map(np, 0);
+	if (!irq)
+		return -EINVAL;
+
+	mmp_timer_base = of_iomap(np, 0);
+	if (!mmp_timer_base)
+		return -ENOMEM;
+
+	mmp_timer_init(irq, rate);
+	return 0;
+}
+
+TIMER_OF_DECLARE(mmp_timer, "mrvl,mmp-timer", mmp_dt_init_timer);
+>>>>>>> upstream/android-13

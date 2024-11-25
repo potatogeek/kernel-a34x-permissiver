@@ -4,7 +4,12 @@ set -eu
 
 ping_once()
 {
+<<<<<<< HEAD
 	ping -${1} -q -c 1 -W 1 ${2%%/*} >/dev/null 2>&1
+=======
+	type ping${1} >/dev/null 2>&1 && PING="ping${1}" || PING="ping -${1}"
+	$PING -q -c 1 -W 1 ${2%%/*} >/dev/null 2>&1
+>>>>>>> upstream/android-13
 }
 
 wait_for_ip()

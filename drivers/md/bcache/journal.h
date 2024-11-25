@@ -103,6 +103,11 @@ struct journal_write {
 /* Embedded in struct cache_set */
 struct journal {
 	spinlock_t		lock;
+<<<<<<< HEAD
+=======
+	spinlock_t		flush_write_lock;
+	bool			btree_flushing;
+>>>>>>> upstream/android-13
 	/* used when waiting because the journal was full */
 	struct closure_waitlist	wait;
 	struct closure		io;
@@ -154,6 +159,11 @@ struct journal_device {
 	struct bio_vec		bv[8];
 };
 
+<<<<<<< HEAD
+=======
+#define BTREE_FLUSH_NR	8
+
+>>>>>>> upstream/android-13
 #define journal_pin_cmp(c, l, r)				\
 	(fifo_idx(&(c)->journal.pin, (l)) > fifo_idx(&(c)->journal.pin, (r)))
 

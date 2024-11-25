@@ -10,8 +10,11 @@
  */
 extern unsigned long vdma_alloc(unsigned long paddr, unsigned long size);
 extern int vdma_free(unsigned long laddr);
+<<<<<<< HEAD
 extern int vdma_remap(unsigned long laddr, unsigned long paddr,
 		      unsigned long size);
+=======
+>>>>>>> upstream/android-13
 extern unsigned long vdma_phys2log(unsigned long paddr);
 extern unsigned long vdma_log2phys(unsigned long laddr);
 extern void vdma_stats(void);		/* for debugging only */
@@ -40,12 +43,15 @@ extern int vdma_get_enable(int channel);
 #define VDMA_OFFSET(a)		((unsigned int)(a) & (VDMA_PAGESIZE-1))
 
 /*
+<<<<<<< HEAD
  * error code returned by vdma_alloc()
  * (See also arch/mips/kernel/jazzdma.c)
  */
 #define VDMA_ERROR		0xffffffff
 
 /*
+=======
+>>>>>>> upstream/android-13
  * VDMA pagetable entry description
  */
 typedef volatile struct VDMA_PGTBL_ENTRY {

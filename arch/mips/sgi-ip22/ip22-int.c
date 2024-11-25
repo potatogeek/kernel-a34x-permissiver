@@ -159,6 +159,7 @@ static void __irq_entry indy_buserror_irq(void)
 	irq_exit();
 }
 
+<<<<<<< HEAD
 static struct irqaction local0_cascade = {
 	.handler	= no_action,
 	.flags		= IRQF_NO_THREAD,
@@ -189,6 +190,9 @@ static struct irqaction map1_cascade = {
 	.flags		= IRQF_NO_THREAD,
 	.name		= "mapable1 cascade",
 };
+=======
+#ifdef USE_LIO3_IRQ
+>>>>>>> upstream/android-13
 #define SGI_INTERRUPTS	SGINT_END
 #else
 #define SGI_INTERRUPTS	SGINT_LOCAL3
@@ -322,6 +326,7 @@ void __init arch_init_irq(void)
 	}
 
 	/* vector handler. this register the IRQ as non-sharable */
+<<<<<<< HEAD
 	setup_irq(SGI_LOCAL_0_IRQ, &local0_cascade);
 	setup_irq(SGI_LOCAL_1_IRQ, &local1_cascade);
 	setup_irq(SGI_BUSERR_IRQ, &buserr);
@@ -330,6 +335,26 @@ void __init arch_init_irq(void)
 	setup_irq(SGI_MAP_0_IRQ, &map0_cascade);
 #ifdef USE_LIO3_IRQ
 	setup_irq(SGI_MAP_1_IRQ, &map1_cascade);
+=======
+	if (request_irq(SGI_LOCAL_0_IRQ, no_action, IRQF_NO_THREAD,
+			"local0 cascade", NULL))
+		pr_err("Failed to register local0 cascade interrupt\n");
+	if (request_irq(SGI_LOCAL_1_IRQ, no_action, IRQF_NO_THREAD,
+			"local1 cascade", NULL))
+		pr_err("Failed to register local1 cascade interrupt\n");
+	if (request_irq(SGI_BUSERR_IRQ, no_action, IRQF_NO_THREAD,
+			"Bus Error", NULL))
+		pr_err("Failed to register Bus Error interrupt\n");
+
+	/* cascade in cascade. i love Indy ;-) */
+	if (request_irq(SGI_MAP_0_IRQ, no_action, IRQF_NO_THREAD,
+			"mapable0 cascade", NULL))
+		pr_err("Failed to register mapable0 cascade interrupt\n");
+#ifdef USE_LIO3_IRQ
+	if (request_irq(SGI_MAP_1_IRQ, no_action, IRQF_NO_THREAD,
+			"mapable1 cascade", NULL))
+		pr_err("Failed to register mapable1 cascade interrupt\n");
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_EISA

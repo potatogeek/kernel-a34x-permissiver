@@ -8,12 +8,15 @@
 #ifndef __ASM_SPARC64_PROCESSOR_H
 #define __ASM_SPARC64_PROCESSOR_H
 
+<<<<<<< HEAD
 /*
  * Sparc64 implementation of macro that returns current
  * instruction pointer ("program counter").
  */
 #define current_text_addr() ({ void *pc; __asm__("rd %%pc, %0" : "=r" (pc)); pc; })
 
+=======
+>>>>>>> upstream/android-13
 #include <asm/asi.h>
 #include <asm/pstate.h>
 #include <asm/ptrace.h>

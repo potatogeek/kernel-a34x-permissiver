@@ -25,6 +25,7 @@
 #include "v3d_drv.h"
 #include "uapi/drm/v3d_drm.h"
 
+<<<<<<< HEAD
 /* Pins the shmem pages, fills in the .pages and .sgt fields of the BO, and maps
  * it for DMA.
  */
@@ -181,6 +182,8 @@ free_mm:
 	return ERR_PTR(ret);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Called DRM core on the last userspace/kernel unreference of the
  * BO.
  */
@@ -189,11 +192,17 @@ void v3d_free_object(struct drm_gem_object *obj)
 	struct v3d_dev *v3d = to_v3d_dev(obj->dev);
 	struct v3d_bo *bo = to_v3d_bo(obj);
 
+<<<<<<< HEAD
+=======
+	v3d_mmu_remove_ptes(bo);
+
+>>>>>>> upstream/android-13
 	mutex_lock(&v3d->bo_lock);
 	v3d->bo_stats.num_allocated--;
 	v3d->bo_stats.pages_allocated -= obj->size >> PAGE_SHIFT;
 	mutex_unlock(&v3d->bo_lock);
 
+<<<<<<< HEAD
 	reservation_object_fini(&bo->_resv);
 
 	v3d_bo_put_pages(bo);
@@ -202,10 +211,13 @@ void v3d_free_object(struct drm_gem_object *obj)
 		drm_prime_gem_destroy(obj, bo->sgt);
 
 	v3d_mmu_remove_ptes(bo);
+=======
+>>>>>>> upstream/android-13
 	spin_lock(&v3d->mm_lock);
 	drm_mm_remove_node(&bo->node);
 	spin_unlock(&v3d->mm_lock);
 
+<<<<<<< HEAD
 	mutex_destroy(&bo->lock);
 
 	drm_gem_object_release(obj);
@@ -264,10 +276,87 @@ int v3d_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
 		return ret;
 
 	v3d_set_mmap_vma_flags(vma);
+=======
+	/* GPU execution may have dirtied any pages in the BO. */
+	bo->base.pages_mark_dirty_on_put = true;
+
+	drm_gem_shmem_free_object(obj);
+}
+
+static const struct drm_gem_object_funcs v3d_gem_funcs = {
+	.free = v3d_free_object,
+	.print_info = drm_gem_shmem_print_info,
+	.pin = drm_gem_shmem_pin,
+	.unpin = drm_gem_shmem_unpin,
+	.get_sg_table = drm_gem_shmem_get_sg_table,
+	.vmap = drm_gem_shmem_vmap,
+	.vunmap = drm_gem_shmem_vunmap,
+	.mmap = drm_gem_shmem_mmap,
+};
+
+/* gem_create_object function for allocating a BO struct and doing
+ * early setup.
+ */
+struct drm_gem_object *v3d_create_object(struct drm_device *dev, size_t size)
+{
+	struct v3d_bo *bo;
+	struct drm_gem_object *obj;
+
+	if (size == 0)
+		return NULL;
+
+	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
+	if (!bo)
+		return NULL;
+	obj = &bo->base.base;
+
+	obj->funcs = &v3d_gem_funcs;
+	bo->base.map_wc = true;
+	INIT_LIST_HEAD(&bo->unref_head);
+
+	return &bo->base.base;
+}
+
+static int
+v3d_bo_create_finish(struct drm_gem_object *obj)
+{
+	struct v3d_dev *v3d = to_v3d_dev(obj->dev);
+	struct v3d_bo *bo = to_v3d_bo(obj);
+	struct sg_table *sgt;
+	int ret;
+
+	/* So far we pin the BO in the MMU for its lifetime, so use
+	 * shmem's helper for getting a lifetime sgt.
+	 */
+	sgt = drm_gem_shmem_get_pages_sgt(&bo->base.base);
+	if (IS_ERR(sgt))
+		return PTR_ERR(sgt);
+
+	spin_lock(&v3d->mm_lock);
+	/* Allocate the object's space in the GPU's page tables.
+	 * Inserting PTEs will happen later, but the offset is for the
+	 * lifetime of the BO.
+	 */
+	ret = drm_mm_insert_node_generic(&v3d->mm, &bo->node,
+					 obj->size >> PAGE_SHIFT,
+					 GMP_GRANULARITY >> PAGE_SHIFT, 0, 0);
+	spin_unlock(&v3d->mm_lock);
+	if (ret)
+		return ret;
+
+	/* Track stats for /debug/dri/n/bo_stats. */
+	mutex_lock(&v3d->bo_lock);
+	v3d->bo_stats.num_allocated++;
+	v3d->bo_stats.pages_allocated += obj->size >> PAGE_SHIFT;
+	mutex_unlock(&v3d->bo_lock);
+
+	v3d_mmu_insert_ptes(bo);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 struct sg_table *
 v3d_prime_get_sg_table(struct drm_gem_object *obj)
 {
@@ -275,6 +364,29 @@ v3d_prime_get_sg_table(struct drm_gem_object *obj)
 	int npages = obj->size >> PAGE_SHIFT;
 
 	return drm_prime_pages_to_sg(bo->pages, npages);
+=======
+struct v3d_bo *v3d_bo_create(struct drm_device *dev, struct drm_file *file_priv,
+			     size_t unaligned_size)
+{
+	struct drm_gem_shmem_object *shmem_obj;
+	struct v3d_bo *bo;
+	int ret;
+
+	shmem_obj = drm_gem_shmem_create(dev, unaligned_size);
+	if (IS_ERR(shmem_obj))
+		return ERR_CAST(shmem_obj);
+	bo = to_v3d_bo(&shmem_obj->base);
+
+	ret = v3d_bo_create_finish(&shmem_obj->base);
+	if (ret)
+		goto free_obj;
+
+	return bo;
+
+free_obj:
+	drm_gem_shmem_free_object(&shmem_obj->base);
+	return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 }
 
 struct drm_gem_object *
@@ -283,6 +395,7 @@ v3d_prime_import_sg_table(struct drm_device *dev,
 			  struct sg_table *sgt)
 {
 	struct drm_gem_object *obj;
+<<<<<<< HEAD
 	struct v3d_bo *bo;
 
 	bo = v3d_bo_create_struct(dev, attach->dmabuf->size);
@@ -297,6 +410,19 @@ v3d_prime_import_sg_table(struct drm_device *dev,
 	v3d_bo_get_pages(bo);
 
 	v3d_mmu_insert_ptes(bo);
+=======
+	int ret;
+
+	obj = drm_gem_shmem_prime_import_sg_table(dev, attach, sgt);
+	if (IS_ERR(obj))
+		return obj;
+
+	ret = v3d_bo_create_finish(obj);
+	if (ret) {
+		drm_gem_shmem_free_object(obj);
+		return ERR_PTR(ret);
+	}
+>>>>>>> upstream/android-13
 
 	return obj;
 }
@@ -319,8 +445,13 @@ int v3d_create_bo_ioctl(struct drm_device *dev, void *data,
 
 	args->offset = bo->node.start << PAGE_SHIFT;
 
+<<<<<<< HEAD
 	ret = drm_gem_handle_create(file_priv, &bo->base, &args->handle);
 	drm_gem_object_put_unlocked(&bo->base);
+=======
+	ret = drm_gem_handle_create(file_priv, &bo->base.base, &args->handle);
+	drm_gem_object_put(&bo->base.base);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -330,7 +461,10 @@ int v3d_mmap_bo_ioctl(struct drm_device *dev, void *data,
 {
 	struct drm_v3d_mmap_bo *args = data;
 	struct drm_gem_object *gem_obj;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (args->flags != 0) {
 		DRM_INFO("unknown mmap_bo flags: %d\n", args->flags);
@@ -343,12 +477,19 @@ int v3d_mmap_bo_ioctl(struct drm_device *dev, void *data,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	ret = drm_gem_create_mmap_offset(gem_obj);
 	if (ret == 0)
 		args->offset = drm_vma_node_offset_addr(&gem_obj->vma_node);
 	drm_gem_object_put_unlocked(gem_obj);
 
 	return ret;
+=======
+	args->offset = drm_vma_node_offset_addr(&gem_obj->vma_node);
+	drm_gem_object_put(gem_obj);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int v3d_get_bo_offset_ioctl(struct drm_device *dev, void *data,
@@ -367,6 +508,10 @@ int v3d_get_bo_offset_ioctl(struct drm_device *dev, void *data,
 
 	args->offset = bo->node.start << PAGE_SHIFT;
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gem_obj);
+=======
+	drm_gem_object_put(gem_obj);
+>>>>>>> upstream/android-13
 	return 0;
 }

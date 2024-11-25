@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /*
  * Userspace interface for AMD Secure Encrypted Virtualization (SEV)
  * platform management commands.
@@ -6,12 +10,16 @@
  *
  * Author: Brijesh Singh <brijesh.singh@amd.com>
  *
+<<<<<<< HEAD
  * SEV spec 0.14 is available at:
  * http://support.amd.com/TechDocs/55766_SEV-KM%20API_Specification.pdf
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * SEV API specification is available at: https://developer.amd.com/sev/
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PSP_SEV_USER_H__
@@ -30,7 +38,12 @@ enum {
 	SEV_PDH_GEN,
 	SEV_PDH_CERT_EXPORT,
 	SEV_PEK_CERT_IMPORT,
+<<<<<<< HEAD
 	SEV_GET_ID,
+=======
+	SEV_GET_ID,	/* This command is deprecated, use SEV_GET_ID2 */
+	SEV_GET_ID2,
+>>>>>>> upstream/android-13
 
 	SEV_MAX,
 };
@@ -61,6 +74,12 @@ typedef enum {
 	SEV_RET_HWSEV_RET_PLATFORM,
 	SEV_RET_HWSEV_RET_UNSAFE,
 	SEV_RET_UNSUPPORTED,
+<<<<<<< HEAD
+=======
+	SEV_RET_INVALID_PARAM,
+	SEV_RET_RESOURCE_LIMIT,
+	SEV_RET_SECURE_DATA_INVALID,
+>>>>>>> upstream/android-13
 	SEV_RET_MAX,
 } sev_ret_code;
 
@@ -83,6 +102,11 @@ struct sev_user_data_status {
 	__u32 guest_count;			/* Out */
 } __packed;
 
+<<<<<<< HEAD
+=======
+#define SEV_STATUS_FLAGS_CONFIG_ES	0x0100
+
+>>>>>>> upstream/android-13
 /**
  * struct sev_user_data_pek_csr - PEK_CSR command parameters
  *
@@ -125,7 +149,11 @@ struct sev_user_data_pdh_cert_export {
 } __packed;
 
 /**
+<<<<<<< HEAD
  * struct sev_user_data_get_id - GET_ID command parameters
+=======
+ * struct sev_user_data_get_id - GET_ID command parameters (deprecated)
+>>>>>>> upstream/android-13
  *
  * @socket1: Buffer to pass unique ID of first socket
  * @socket2: Buffer to pass unique ID of second socket
@@ -136,6 +164,19 @@ struct sev_user_data_get_id {
 } __packed;
 
 /**
+<<<<<<< HEAD
+=======
+ * struct sev_user_data_get_id2 - GET_ID command parameters
+ * @address: Buffer to store unique ID
+ * @length: length of the unique ID
+ */
+struct sev_user_data_get_id2 {
+	__u64 address;				/* In */
+	__u32 length;				/* In/Out */
+} __packed;
+
+/**
+>>>>>>> upstream/android-13
  * struct sev_issue_cmd - SEV ioctl parameters
  *
  * @cmd: SEV commands to execute

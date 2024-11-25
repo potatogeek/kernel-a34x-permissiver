@@ -79,6 +79,7 @@ ccw_device_accumulate_ecw(struct ccw_device *cdev, struct irb *irb)
 	 * are condition that have to be met for the extended control
 	 * bit to have meaning. Sick.
 	 */
+<<<<<<< HEAD
 	cdev->private->irb.scsw.cmd.ectl = 0;
 	if ((irb->scsw.cmd.stctl & SCSW_STCTL_ALERT_STATUS) &&
 	    !(irb->scsw.cmd.stctl & SCSW_STCTL_INTER_STATUS))
@@ -88,6 +89,17 @@ ccw_device_accumulate_ecw(struct ccw_device *cdev, struct irb *irb)
 		return;
 	/* Copy concurrent sense / model dependent information. */
 	memcpy (&cdev->private->irb.ecw, irb->ecw, sizeof (irb->ecw));
+=======
+	cdev->private->dma_area->irb.scsw.cmd.ectl = 0;
+	if ((irb->scsw.cmd.stctl & SCSW_STCTL_ALERT_STATUS) &&
+	    !(irb->scsw.cmd.stctl & SCSW_STCTL_INTER_STATUS))
+		cdev->private->dma_area->irb.scsw.cmd.ectl = irb->scsw.cmd.ectl;
+	/* Check if extended control word is valid. */
+	if (!cdev->private->dma_area->irb.scsw.cmd.ectl)
+		return;
+	/* Copy concurrent sense / model dependent information. */
+	memcpy(&cdev->private->dma_area->irb.ecw, irb->ecw, sizeof(irb->ecw));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -118,7 +130,11 @@ ccw_device_accumulate_esw(struct ccw_device *cdev, struct irb *irb)
 	if (!ccw_device_accumulate_esw_valid(irb))
 		return;
 
+<<<<<<< HEAD
 	cdev_irb = &cdev->private->irb;
+=======
+	cdev_irb = &cdev->private->dma_area->irb;
+>>>>>>> upstream/android-13
 
 	/* Copy last path used mask. */
 	cdev_irb->esw.esw1.lpum = irb->esw.esw1.lpum;
@@ -210,7 +226,11 @@ ccw_device_accumulate_irb(struct ccw_device *cdev, struct irb *irb)
 		ccw_device_path_notoper(cdev);
 	/* No irb accumulation for transport mode irbs. */
 	if (scsw_is_tm(&irb->scsw)) {
+<<<<<<< HEAD
 		memcpy(&cdev->private->irb, irb, sizeof(struct irb));
+=======
+		memcpy(&cdev->private->dma_area->irb, irb, sizeof(struct irb));
+>>>>>>> upstream/android-13
 		return;
 	}
 	/*
@@ -219,7 +239,11 @@ ccw_device_accumulate_irb(struct ccw_device *cdev, struct irb *irb)
 	if (!scsw_is_solicited(&irb->scsw))
 		return;
 
+<<<<<<< HEAD
 	cdev_irb = &cdev->private->irb;
+=======
+	cdev_irb = &cdev->private->dma_area->irb;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the clear function had been performed, all formerly pending
@@ -227,7 +251,11 @@ ccw_device_accumulate_irb(struct ccw_device *cdev, struct irb *irb)
 	 * intermediate accumulated status to the device driver.
 	 */
 	if (irb->scsw.cmd.fctl & SCSW_FCTL_CLEAR_FUNC)
+<<<<<<< HEAD
 		memset(&cdev->private->irb, 0, sizeof(struct irb));
+=======
+		memset(&cdev->private->dma_area->irb, 0, sizeof(struct irb));
+>>>>>>> upstream/android-13
 
 	/* Copy bits which are valid only for the start function. */
 	if (irb->scsw.cmd.fctl & SCSW_FCTL_START_FUNC) {
@@ -329,9 +357,15 @@ ccw_device_do_sense(struct ccw_device *cdev, struct irb *irb)
 	/*
 	 * We have ending status but no sense information. Do a basic sense.
 	 */
+<<<<<<< HEAD
 	sense_ccw = &to_io_private(sch)->sense_ccw;
 	sense_ccw->cmd_code = CCW_CMD_BASIC_SENSE;
 	sense_ccw->cda = (__u32) __pa(cdev->private->irb.ecw);
+=======
+	sense_ccw = &to_io_private(sch)->dma_area->sense_ccw;
+	sense_ccw->cmd_code = CCW_CMD_BASIC_SENSE;
+	sense_ccw->cda = (__u32) __pa(cdev->private->dma_area->irb.ecw);
+>>>>>>> upstream/android-13
 	sense_ccw->count = SENSE_MAX_COUNT;
 	sense_ccw->flags = CCW_FLAG_SLI;
 
@@ -364,7 +398,11 @@ ccw_device_accumulate_basic_sense(struct ccw_device *cdev, struct irb *irb)
 
 	if (!(irb->scsw.cmd.dstat & DEV_STAT_UNIT_CHECK) &&
 	    (irb->scsw.cmd.dstat & DEV_STAT_CHN_END)) {
+<<<<<<< HEAD
 		cdev->private->irb.esw.esw0.erw.cons = 1;
+=======
+		cdev->private->dma_area->irb.esw.esw0.erw.cons = 1;
+>>>>>>> upstream/android-13
 		cdev->private->flags.dosense = 0;
 	}
 	/* Check if path verification is required. */
@@ -386,7 +424,11 @@ ccw_device_accumulate_and_sense(struct ccw_device *cdev, struct irb *irb)
 	/* Check for basic sense. */
 	if (cdev->private->flags.dosense &&
 	    !(irb->scsw.cmd.dstat & DEV_STAT_UNIT_CHECK)) {
+<<<<<<< HEAD
 		cdev->private->irb.esw.esw0.erw.cons = 1;
+=======
+		cdev->private->dma_area->irb.esw.esw0.erw.cons = 1;
+>>>>>>> upstream/android-13
 		cdev->private->flags.dosense = 0;
 		return 0;
 	}

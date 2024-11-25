@@ -82,6 +82,7 @@
 #define CON_SOCK_STATE_CONNECTED	3	/* -> CLOSING or -> CLOSED */
 #define CON_SOCK_STATE_CLOSING		4	/* -> CLOSED */
 
+<<<<<<< HEAD
 /*
  * connection states
  */
@@ -110,43 +111,75 @@ static bool con_flag_valid(unsigned long con_flag)
 	case CON_FLAG_WRITE_PENDING:
 	case CON_FLAG_SOCK_CLOSED:
 	case CON_FLAG_BACKOFF:
+=======
+static bool con_flag_valid(unsigned long con_flag)
+{
+	switch (con_flag) {
+	case CEPH_CON_F_LOSSYTX:
+	case CEPH_CON_F_KEEPALIVE_PENDING:
+	case CEPH_CON_F_WRITE_PENDING:
+	case CEPH_CON_F_SOCK_CLOSED:
+	case CEPH_CON_F_BACKOFF:
+>>>>>>> upstream/android-13
 		return true;
 	default:
 		return false;
 	}
 }
 
+<<<<<<< HEAD
 static void con_flag_clear(struct ceph_connection *con, unsigned long con_flag)
+=======
+void ceph_con_flag_clear(struct ceph_connection *con, unsigned long con_flag)
+>>>>>>> upstream/android-13
 {
 	BUG_ON(!con_flag_valid(con_flag));
 
 	clear_bit(con_flag, &con->flags);
 }
 
+<<<<<<< HEAD
 static void con_flag_set(struct ceph_connection *con, unsigned long con_flag)
+=======
+void ceph_con_flag_set(struct ceph_connection *con, unsigned long con_flag)
+>>>>>>> upstream/android-13
 {
 	BUG_ON(!con_flag_valid(con_flag));
 
 	set_bit(con_flag, &con->flags);
 }
 
+<<<<<<< HEAD
 static bool con_flag_test(struct ceph_connection *con, unsigned long con_flag)
+=======
+bool ceph_con_flag_test(struct ceph_connection *con, unsigned long con_flag)
+>>>>>>> upstream/android-13
 {
 	BUG_ON(!con_flag_valid(con_flag));
 
 	return test_bit(con_flag, &con->flags);
 }
 
+<<<<<<< HEAD
 static bool con_flag_test_and_clear(struct ceph_connection *con,
 					unsigned long con_flag)
+=======
+bool ceph_con_flag_test_and_clear(struct ceph_connection *con,
+				  unsigned long con_flag)
+>>>>>>> upstream/android-13
 {
 	BUG_ON(!con_flag_valid(con_flag));
 
 	return test_and_clear_bit(con_flag, &con->flags);
 }
 
+<<<<<<< HEAD
 static bool con_flag_test_and_set(struct ceph_connection *con,
 					unsigned long con_flag)
+=======
+bool ceph_con_flag_test_and_set(struct ceph_connection *con,
+				unsigned long con_flag)
+>>>>>>> upstream/android-13
 {
 	BUG_ON(!con_flag_valid(con_flag));
 
@@ -156,6 +189,7 @@ static bool con_flag_test_and_set(struct ceph_connection *con,
 /* Slab caches for frequently-allocated structures */
 
 static struct kmem_cache	*ceph_msg_cache;
+<<<<<<< HEAD
 static struct kmem_cache	*ceph_msg_data_cache;
 
 /* static tag bytes (protocol control messages) */
@@ -163,6 +197,8 @@ static char tag_msg = CEPH_MSGR_TAG_MSG;
 static char tag_ack = CEPH_MSGR_TAG_ACK;
 static char tag_keepalive = CEPH_MSGR_TAG_KEEPALIVE;
 static char tag_keepalive2 = CEPH_MSGR_TAG_KEEPALIVE2;
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_LOCKDEP
 static struct lock_class_key socket_class;
@@ -185,6 +221,7 @@ static void con_fault(struct ceph_connection *con);
 static char addr_str[ADDR_STR_COUNT][MAX_ADDR_STR_LEN];
 static atomic_t addr_str_seq = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 static struct page *zero_page;		/* used in certain error cases */
 
 const char *ceph_pr_addr(const struct sockaddr_storage *ss)
@@ -193,34 +230,71 @@ const char *ceph_pr_addr(const struct sockaddr_storage *ss)
 	char *s;
 	struct sockaddr_in *in4 = (struct sockaddr_in *) ss;
 	struct sockaddr_in6 *in6 = (struct sockaddr_in6 *) ss;
+=======
+struct page *ceph_zero_page;		/* used in certain error cases */
+
+const char *ceph_pr_addr(const struct ceph_entity_addr *addr)
+{
+	int i;
+	char *s;
+	struct sockaddr_storage ss = addr->in_addr; /* align */
+	struct sockaddr_in *in4 = (struct sockaddr_in *)&ss;
+	struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)&ss;
+>>>>>>> upstream/android-13
 
 	i = atomic_inc_return(&addr_str_seq) & ADDR_STR_COUNT_MASK;
 	s = addr_str[i];
 
+<<<<<<< HEAD
 	switch (ss->ss_family) {
 	case AF_INET:
 		snprintf(s, MAX_ADDR_STR_LEN, "%pI4:%hu", &in4->sin_addr,
+=======
+	switch (ss.ss_family) {
+	case AF_INET:
+		snprintf(s, MAX_ADDR_STR_LEN, "(%d)%pI4:%hu",
+			 le32_to_cpu(addr->type), &in4->sin_addr,
+>>>>>>> upstream/android-13
 			 ntohs(in4->sin_port));
 		break;
 
 	case AF_INET6:
+<<<<<<< HEAD
 		snprintf(s, MAX_ADDR_STR_LEN, "[%pI6c]:%hu", &in6->sin6_addr,
+=======
+		snprintf(s, MAX_ADDR_STR_LEN, "(%d)[%pI6c]:%hu",
+			 le32_to_cpu(addr->type), &in6->sin6_addr,
+>>>>>>> upstream/android-13
 			 ntohs(in6->sin6_port));
 		break;
 
 	default:
 		snprintf(s, MAX_ADDR_STR_LEN, "(unknown sockaddr family %hu)",
+<<<<<<< HEAD
 			 ss->ss_family);
+=======
+			 ss.ss_family);
+>>>>>>> upstream/android-13
 	}
 
 	return s;
 }
 EXPORT_SYMBOL(ceph_pr_addr);
 
+<<<<<<< HEAD
 static void encode_my_addr(struct ceph_messenger *msgr)
 {
 	memcpy(&msgr->my_enc_addr, &msgr->inst.addr, sizeof(msgr->my_enc_addr));
 	ceph_encode_addr(&msgr->my_enc_addr);
+=======
+void ceph_encode_my_addr(struct ceph_messenger *msgr)
+{
+	if (!ceph_msgr2(from_msgr(msgr))) {
+		memcpy(&msgr->my_enc_addr, &msgr->inst.addr,
+		       sizeof(msgr->my_enc_addr));
+		ceph_encode_banner_addr(&msgr->my_enc_addr);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -235,6 +309,7 @@ static int ceph_msgr_slab_init(void)
 	if (!ceph_msg_cache)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	BUG_ON(ceph_msg_data_cache);
 	ceph_msg_data_cache = KMEM_CACHE(ceph_msg_data, 0);
 	if (ceph_msg_data_cache)
@@ -244,14 +319,20 @@ static int ceph_msgr_slab_init(void)
 	ceph_msg_cache = NULL;
 
 	return -ENOMEM;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void ceph_msgr_slab_exit(void)
 {
+<<<<<<< HEAD
 	BUG_ON(!ceph_msg_data_cache);
 	kmem_cache_destroy(ceph_msg_data_cache);
 	ceph_msg_data_cache = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	BUG_ON(!ceph_msg_cache);
 	kmem_cache_destroy(ceph_msg_cache);
 	ceph_msg_cache = NULL;
@@ -264,9 +345,15 @@ static void _ceph_msgr_exit(void)
 		ceph_msgr_wq = NULL;
 	}
 
+<<<<<<< HEAD
 	BUG_ON(zero_page == NULL);
 	put_page(zero_page);
 	zero_page = NULL;
+=======
+	BUG_ON(!ceph_zero_page);
+	put_page(ceph_zero_page);
+	ceph_zero_page = NULL;
+>>>>>>> upstream/android-13
 
 	ceph_msgr_slab_exit();
 }
@@ -276,9 +363,15 @@ int __init ceph_msgr_init(void)
 	if (ceph_msgr_slab_init())
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	BUG_ON(zero_page != NULL);
 	zero_page = ZERO_PAGE(0);
 	get_page(zero_page);
+=======
+	BUG_ON(ceph_zero_page);
+	ceph_zero_page = ZERO_PAGE(0);
+	get_page(ceph_zero_page);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The number of active work items is limited by the number of
@@ -382,7 +475,11 @@ static void ceph_sock_data_ready(struct sock *sk)
 	}
 
 	if (sk->sk_state != TCP_CLOSE_WAIT) {
+<<<<<<< HEAD
 		dout("%s on %p state = %lu, queueing work\n", __func__,
+=======
+		dout("%s %p state = %d, queueing work\n", __func__,
+>>>>>>> upstream/android-13
 		     con, con->state);
 		queue_con(con);
 	}
@@ -400,7 +497,11 @@ static void ceph_sock_write_space(struct sock *sk)
 	 * buffer. See net/ipv4/tcp_input.c:tcp_check_space()
 	 * and net/core/stream.c:sk_stream_write_space().
 	 */
+<<<<<<< HEAD
 	if (con_flag_test(con, CON_FLAG_WRITE_PENDING)) {
+=======
+	if (ceph_con_flag_test(con, CEPH_CON_F_WRITE_PENDING)) {
+>>>>>>> upstream/android-13
 		if (sk_stream_is_writeable(sk)) {
 			dout("%s %p queueing write work\n", __func__, con);
 			clear_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
@@ -416,17 +517,29 @@ static void ceph_sock_state_change(struct sock *sk)
 {
 	struct ceph_connection *con = sk->sk_user_data;
 
+<<<<<<< HEAD
 	dout("%s %p state = %lu sk_state = %u\n", __func__,
+=======
+	dout("%s %p state = %d sk_state = %u\n", __func__,
+>>>>>>> upstream/android-13
 	     con, con->state, sk->sk_state);
 
 	switch (sk->sk_state) {
 	case TCP_CLOSE:
 		dout("%s TCP_CLOSE\n", __func__);
+<<<<<<< HEAD
 		/* fall through */
 	case TCP_CLOSE_WAIT:
 		dout("%s TCP_CLOSE_WAIT\n", __func__);
 		con_sock_state_closing(con);
 		con_flag_set(con, CON_FLAG_SOCK_CLOSED);
+=======
+		fallthrough;
+	case TCP_CLOSE_WAIT:
+		dout("%s TCP_CLOSE_WAIT\n", __func__);
+		con_sock_state_closing(con);
+		ceph_con_flag_set(con, CEPH_CON_F_SOCK_CLOSED);
+>>>>>>> upstream/android-13
 		queue_con(con);
 		break;
 	case TCP_ESTABLISHED:
@@ -460,18 +573,33 @@ static void set_sock_callbacks(struct socket *sock,
 /*
  * initiate connection to a remote socket.
  */
+<<<<<<< HEAD
 static int ceph_tcp_connect(struct ceph_connection *con)
 {
 	struct sockaddr_storage *paddr = &con->peer_addr.in_addr;
+=======
+int ceph_tcp_connect(struct ceph_connection *con)
+{
+	struct sockaddr_storage ss = con->peer_addr.in_addr; /* align */
+>>>>>>> upstream/android-13
 	struct socket *sock;
 	unsigned int noio_flag;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	dout("%s con %p peer_addr %s\n", __func__, con,
+	     ceph_pr_addr(&con->peer_addr));
+>>>>>>> upstream/android-13
 	BUG_ON(con->sock);
 
 	/* sock_create_kern() allocates with GFP_KERNEL */
 	noio_flag = memalloc_noio_save();
+<<<<<<< HEAD
 	ret = sock_create_kern(read_pnet(&con->msgr->net), paddr->ss_family,
+=======
+	ret = sock_create_kern(read_pnet(&con->msgr->net), ss.ss_family,
+>>>>>>> upstream/android-13
 			       SOCK_STREAM, IPPROTO_TCP, &sock);
 	memalloc_noio_restore(noio_flag);
 	if (ret)
@@ -484,6 +612,7 @@ static int ceph_tcp_connect(struct ceph_connection *con)
 
 	set_sock_callbacks(sock, con);
 
+<<<<<<< HEAD
 	dout("connect %s\n", ceph_pr_addr(&con->peer_addr.in_addr));
 
 	con_sock_state_connecting(con);
@@ -496,10 +625,23 @@ static int ceph_tcp_connect(struct ceph_connection *con)
 	} else if (ret < 0) {
 		pr_err("connect %s error %d\n",
 		       ceph_pr_addr(&con->peer_addr.in_addr), ret);
+=======
+	con_sock_state_connecting(con);
+	ret = sock->ops->connect(sock, (struct sockaddr *)&ss, sizeof(ss),
+				 O_NONBLOCK);
+	if (ret == -EINPROGRESS) {
+		dout("connect %s EINPROGRESS sk_state = %u\n",
+		     ceph_pr_addr(&con->peer_addr),
+		     sock->sk->sk_state);
+	} else if (ret < 0) {
+		pr_err("connect %s error %d\n",
+		       ceph_pr_addr(&con->peer_addr), ret);
+>>>>>>> upstream/android-13
 		sock_release(sock);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (ceph_test_opt(from_msgr(con->msgr), TCP_NODELAY)) {
 		int optval = 1;
 
@@ -509,12 +651,17 @@ static int ceph_tcp_connect(struct ceph_connection *con)
 			pr_err("kernel_setsockopt(TCP_NODELAY) failed: %d",
 			       ret);
 	}
+=======
+	if (ceph_test_opt(from_msgr(con->msgr), TCP_NODELAY))
+		tcp_sock_set_nodelay(sock->sk);
+>>>>>>> upstream/android-13
 
 	con->sock = sock;
 	return 0;
 }
 
 /*
+<<<<<<< HEAD
  * If @buf is NULL, discard up to @len bytes.
  */
 static int ceph_tcp_recvmsg(struct socket *sock, void *buf, size_t len)
@@ -629,6 +776,15 @@ static int con_close_socket(struct ceph_connection *con)
 	int rc = 0;
 
 	dout("con_close_socket on %p sock %p\n", con, con->sock);
+=======
+ * Shutdown/close the socket for the given connection.
+ */
+int ceph_con_close_socket(struct ceph_connection *con)
+{
+	int rc = 0;
+
+	dout("%s con %p sock %p\n", __func__, con, con->sock);
+>>>>>>> upstream/android-13
 	if (con->sock) {
 		rc = con->sock->ops->shutdown(con->sock, SHUT_RDWR);
 		sock_release(con->sock);
@@ -641,12 +797,41 @@ static int con_close_socket(struct ceph_connection *con)
 	 * received a socket close event before we had the chance to
 	 * shut the socket down.
 	 */
+<<<<<<< HEAD
 	con_flag_clear(con, CON_FLAG_SOCK_CLOSED);
+=======
+	ceph_con_flag_clear(con, CEPH_CON_F_SOCK_CLOSED);
+>>>>>>> upstream/android-13
 
 	con_sock_state_closed(con);
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+static void ceph_con_reset_protocol(struct ceph_connection *con)
+{
+	dout("%s con %p\n", __func__, con);
+
+	ceph_con_close_socket(con);
+	if (con->in_msg) {
+		WARN_ON(con->in_msg->con != con);
+		ceph_msg_put(con->in_msg);
+		con->in_msg = NULL;
+	}
+	if (con->out_msg) {
+		WARN_ON(con->out_msg->con != con);
+		ceph_msg_put(con->out_msg);
+		con->out_msg = NULL;
+	}
+
+	if (ceph_msgr2(from_msgr(con->msgr)))
+		ceph_con_v2_reset_protocol(con);
+	else
+		ceph_con_v1_reset_protocol(con);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Reset a connection.  Discard all incoming and outgoing messages
  * and clear *_seq state.
@@ -657,6 +842,10 @@ static void ceph_msg_remove(struct ceph_msg *msg)
 
 	ceph_msg_put(msg);
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static void ceph_msg_remove_list(struct list_head *head)
 {
 	while (!list_empty(head)) {
@@ -666,6 +855,7 @@ static void ceph_msg_remove_list(struct list_head *head)
 	}
 }
 
+<<<<<<< HEAD
 static void reset_connection(struct ceph_connection *con)
 {
 	/* reset connection, out_queue, msg_ and connect_seq */
@@ -691,6 +881,24 @@ static void reset_connection(struct ceph_connection *con)
 	con->in_seq_acked = 0;
 
 	con->out_skip = 0;
+=======
+void ceph_con_reset_session(struct ceph_connection *con)
+{
+	dout("%s con %p\n", __func__, con);
+
+	WARN_ON(con->in_msg);
+	WARN_ON(con->out_msg);
+	ceph_msg_remove_list(&con->out_queue);
+	ceph_msg_remove_list(&con->out_sent);
+	con->out_seq = 0;
+	con->in_seq = 0;
+	con->in_seq_acked = 0;
+
+	if (ceph_msgr2(from_msgr(con->msgr)))
+		ceph_con_v2_reset_session(con);
+	else
+		ceph_con_v1_reset_session(con);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -699,6 +907,7 @@ static void reset_connection(struct ceph_connection *con)
 void ceph_con_close(struct ceph_connection *con)
 {
 	mutex_lock(&con->mutex);
+<<<<<<< HEAD
 	dout("con_close %p peer %s\n", con,
 	     ceph_pr_addr(&con->peer_addr.in_addr));
 	con->state = CON_STATE_CLOSED;
@@ -712,6 +921,20 @@ void ceph_con_close(struct ceph_connection *con)
 	con->peer_global_seq = 0;
 	cancel_con(con);
 	con_close_socket(con);
+=======
+	dout("con_close %p peer %s\n", con, ceph_pr_addr(&con->peer_addr));
+	con->state = CEPH_CON_S_CLOSED;
+
+	ceph_con_flag_clear(con, CEPH_CON_F_LOSSYTX);  /* so we retry next
+							  connect */
+	ceph_con_flag_clear(con, CEPH_CON_F_KEEPALIVE_PENDING);
+	ceph_con_flag_clear(con, CEPH_CON_F_WRITE_PENDING);
+	ceph_con_flag_clear(con, CEPH_CON_F_BACKOFF);
+
+	ceph_con_reset_protocol(con);
+	ceph_con_reset_session(con);
+	cancel_con(con);
+>>>>>>> upstream/android-13
 	mutex_unlock(&con->mutex);
 }
 EXPORT_SYMBOL(ceph_con_close);
@@ -724,10 +947,17 @@ void ceph_con_open(struct ceph_connection *con,
 		   struct ceph_entity_addr *addr)
 {
 	mutex_lock(&con->mutex);
+<<<<<<< HEAD
 	dout("con_open %p %s\n", con, ceph_pr_addr(&addr->in_addr));
 
 	WARN_ON(con->state != CON_STATE_CLOSED);
 	con->state = CON_STATE_PREOPEN;
+=======
+	dout("con_open %p %s\n", con, ceph_pr_addr(addr));
+
+	WARN_ON(con->state != CEPH_CON_S_CLOSED);
+	con->state = CEPH_CON_S_PREOPEN;
+>>>>>>> upstream/android-13
 
 	con->peer_name.type = (__u8) entity_type;
 	con->peer_name.num = cpu_to_le64(entity_num);
@@ -744,7 +974,14 @@ EXPORT_SYMBOL(ceph_con_open);
  */
 bool ceph_con_opened(struct ceph_connection *con)
 {
+<<<<<<< HEAD
 	return con->connect_seq > 0;
+=======
+	if (ceph_msgr2(from_msgr(con->msgr)))
+		return ceph_con_v2_opened(con);
+
+	return ceph_con_v1_opened(con);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -767,16 +1004,27 @@ void ceph_con_init(struct ceph_connection *con, void *private,
 	INIT_LIST_HEAD(&con->out_sent);
 	INIT_DELAYED_WORK(&con->work, ceph_con_workfn);
 
+<<<<<<< HEAD
 	con->state = CON_STATE_CLOSED;
 }
 EXPORT_SYMBOL(ceph_con_init);
 
 
+=======
+	con->state = CEPH_CON_S_CLOSED;
+}
+EXPORT_SYMBOL(ceph_con_init);
+
+>>>>>>> upstream/android-13
 /*
  * We maintain a global counter to order connection attempts.  Get
  * a unique seq greater than @gt.
  */
+<<<<<<< HEAD
 static u32 get_global_seq(struct ceph_messenger *msgr, u32 gt)
+=======
+u32 ceph_get_global_seq(struct ceph_messenger *msgr, u32 gt)
+>>>>>>> upstream/android-13
 {
 	u32 ret;
 
@@ -788,6 +1036,7 @@ static u32 get_global_seq(struct ceph_messenger *msgr, u32 gt)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void con_out_kvec_reset(struct ceph_connection *con)
 {
 	BUG_ON(con->out_skip);
@@ -830,6 +1079,55 @@ static int con_out_kvec_skip(struct ceph_connection *con)
 	}
 
 	return skip;
+=======
+/*
+ * Discard messages that have been acked by the server.
+ */
+void ceph_con_discard_sent(struct ceph_connection *con, u64 ack_seq)
+{
+	struct ceph_msg *msg;
+	u64 seq;
+
+	dout("%s con %p ack_seq %llu\n", __func__, con, ack_seq);
+	while (!list_empty(&con->out_sent)) {
+		msg = list_first_entry(&con->out_sent, struct ceph_msg,
+				       list_head);
+		WARN_ON(msg->needs_out_seq);
+		seq = le64_to_cpu(msg->hdr.seq);
+		if (seq > ack_seq)
+			break;
+
+		dout("%s con %p discarding msg %p seq %llu\n", __func__, con,
+		     msg, seq);
+		ceph_msg_remove(msg);
+	}
+}
+
+/*
+ * Discard messages that have been requeued in con_fault(), up to
+ * reconnect_seq.  This avoids gratuitously resending messages that
+ * the server had received and handled prior to reconnect.
+ */
+void ceph_con_discard_requeued(struct ceph_connection *con, u64 reconnect_seq)
+{
+	struct ceph_msg *msg;
+	u64 seq;
+
+	dout("%s con %p reconnect_seq %llu\n", __func__, con, reconnect_seq);
+	while (!list_empty(&con->out_queue)) {
+		msg = list_first_entry(&con->out_queue, struct ceph_msg,
+				       list_head);
+		if (msg->needs_out_seq)
+			break;
+		seq = le64_to_cpu(msg->hdr.seq);
+		if (seq > reconnect_seq)
+			break;
+
+		dout("%s con %p discarding msg %p seq %llu\n", __func__, con,
+		     msg, seq);
+		ceph_msg_remove(msg);
+	}
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_BLOCK
@@ -870,6 +1168,10 @@ static bool ceph_msg_data_bio_advance(struct ceph_msg_data_cursor *cursor,
 					size_t bytes)
 {
 	struct ceph_bio_iter *it = &cursor->bio_iter;
+<<<<<<< HEAD
+=======
+	struct page *page = bio_iter_page(it->bio, it->iter);
+>>>>>>> upstream/android-13
 
 	BUG_ON(bytes > cursor->resid);
 	BUG_ON(bytes > bio_iter_len(it->bio, it->iter));
@@ -881,7 +1183,12 @@ static bool ceph_msg_data_bio_advance(struct ceph_msg_data_cursor *cursor,
 		return false;   /* no more data */
 	}
 
+<<<<<<< HEAD
 	if (!bytes || (it->iter.bi_size && it->iter.bi_bvec_done))
+=======
+	if (!bytes || (it->iter.bi_size && it->iter.bi_bvec_done &&
+		       page == bio_iter_page(it->bio, it->iter)))
+>>>>>>> upstream/android-13
 		return false;	/* more bytes to process in this segment */
 
 	if (!it->iter.bi_size) {
@@ -929,6 +1236,10 @@ static bool ceph_msg_data_bvecs_advance(struct ceph_msg_data_cursor *cursor,
 					size_t bytes)
 {
 	struct bio_vec *bvecs = cursor->data->bvec_pos.bvecs;
+<<<<<<< HEAD
+=======
+	struct page *page = bvec_iter_page(bvecs, cursor->bvec_iter);
+>>>>>>> upstream/android-13
 
 	BUG_ON(bytes > cursor->resid);
 	BUG_ON(bytes > bvec_iter_len(bvecs, cursor->bvec_iter));
@@ -940,7 +1251,12 @@ static bool ceph_msg_data_bvecs_advance(struct ceph_msg_data_cursor *cursor,
 		return false;   /* no more data */
 	}
 
+<<<<<<< HEAD
 	if (!bytes || cursor->bvec_iter.bi_bvec_done)
+=======
+	if (!bytes || (cursor->bvec_iter.bi_bvec_done &&
+		       page == bvec_iter_page(bvecs, cursor->bvec_iter)))
+>>>>>>> upstream/android-13
 		return false;	/* more bytes to process in this segment */
 
 	BUG_ON(cursor->last_piece);
@@ -1144,6 +1460,7 @@ static void __ceph_msg_data_cursor_init(struct ceph_msg_data_cursor *cursor)
 	cursor->need_crc = true;
 }
 
+<<<<<<< HEAD
 static void ceph_msg_data_cursor_init(struct ceph_msg *msg, size_t length)
 {
 	struct ceph_msg_data_cursor *cursor = &msg->cursor;
@@ -1157,6 +1474,17 @@ static void ceph_msg_data_cursor_init(struct ceph_msg *msg, size_t length)
 	cursor->total_resid = length;
 	data = list_first_entry(&msg->data, struct ceph_msg_data, links);
 	cursor->data = data;
+=======
+void ceph_msg_data_cursor_init(struct ceph_msg_data_cursor *cursor,
+			       struct ceph_msg *msg, size_t length)
+{
+	BUG_ON(!length);
+	BUG_ON(length > msg->data_length);
+	BUG_ON(!msg->num_data_items);
+
+	cursor->total_resid = length;
+	cursor->data = msg->data;
+>>>>>>> upstream/android-13
 
 	__ceph_msg_data_cursor_init(cursor);
 }
@@ -1166,9 +1494,15 @@ static void ceph_msg_data_cursor_init(struct ceph_msg *msg, size_t length)
  * data item, and supply the page offset and length of that piece.
  * Indicate whether this is the last piece in this data item.
  */
+<<<<<<< HEAD
 static struct page *ceph_msg_data_next(struct ceph_msg_data_cursor *cursor,
 					size_t *page_offset, size_t *length,
 					bool *last_piece)
+=======
+struct page *ceph_msg_data_next(struct ceph_msg_data_cursor *cursor,
+				size_t *page_offset, size_t *length,
+				bool *last_piece)
+>>>>>>> upstream/android-13
 {
 	struct page *page;
 
@@ -1207,8 +1541,12 @@ static struct page *ceph_msg_data_next(struct ceph_msg_data_cursor *cursor,
  * Returns true if the result moves the cursor on to the next piece
  * of the data item.
  */
+<<<<<<< HEAD
 static void ceph_msg_data_advance(struct ceph_msg_data_cursor *cursor,
 				  size_t bytes)
+=======
+void ceph_msg_data_advance(struct ceph_msg_data_cursor *cursor, size_t bytes)
+>>>>>>> upstream/android-13
 {
 	bool new_piece;
 
@@ -1237,14 +1575,19 @@ static void ceph_msg_data_advance(struct ceph_msg_data_cursor *cursor,
 
 	if (!cursor->resid && cursor->total_resid) {
 		WARN_ON(!cursor->last_piece);
+<<<<<<< HEAD
 		BUG_ON(list_is_last(&cursor->data->links, cursor->data_head));
 		cursor->data = list_next_entry(cursor->data, links);
+=======
+		cursor->data++;
+>>>>>>> upstream/android-13
 		__ceph_msg_data_cursor_init(cursor);
 		new_piece = true;
 	}
 	cursor->need_crc = new_piece;
 }
 
+<<<<<<< HEAD
 static size_t sizeof_footer(struct ceph_connection *con)
 {
 	return (con->peer_features & CEPH_FEATURE_MSG_AUTH) ?
@@ -1570,6 +1913,10 @@ out:
 static u32 ceph_crc32c_page(u32 crc, struct page *page,
 				unsigned int page_offset,
 				unsigned int length)
+=======
+u32 ceph_crc32c_page(u32 crc, struct page *page, unsigned int page_offset,
+		     unsigned int length)
+>>>>>>> upstream/android-13
 {
 	char *kaddr;
 
@@ -1580,6 +1927,7 @@ static u32 ceph_crc32c_page(u32 crc, struct page *page,
 
 	return crc;
 }
+<<<<<<< HEAD
 /*
  * Write as much message data payload as we can.  If we finish, queue
  * up the footer.
@@ -1832,6 +2180,18 @@ static bool addr_is_blank(struct sockaddr_storage *ss)
 	switch (ss->ss_family) {
 	case AF_INET:
 		return addr->s_addr == htonl(INADDR_ANY);
+=======
+
+bool ceph_addr_is_blank(const struct ceph_entity_addr *addr)
+{
+	struct sockaddr_storage ss = addr->in_addr; /* align */
+	struct in_addr *addr4 = &((struct sockaddr_in *)&ss)->sin_addr;
+	struct in6_addr *addr6 = &((struct sockaddr_in6 *)&ss)->sin6_addr;
+
+	switch (ss.ss_family) {
+	case AF_INET:
+		return addr4->s_addr == htonl(INADDR_ANY);
+>>>>>>> upstream/android-13
 	case AF_INET6:
 		return ipv6_addr_any(addr6);
 	default:
@@ -1839,6 +2199,7 @@ static bool addr_is_blank(struct sockaddr_storage *ss)
 	}
 }
 
+<<<<<<< HEAD
 static int addr_port(struct sockaddr_storage *ss)
 {
 	switch (ss->ss_family) {
@@ -1846,10 +2207,20 @@ static int addr_port(struct sockaddr_storage *ss)
 		return ntohs(((struct sockaddr_in *)ss)->sin_port);
 	case AF_INET6:
 		return ntohs(((struct sockaddr_in6 *)ss)->sin6_port);
+=======
+int ceph_addr_port(const struct ceph_entity_addr *addr)
+{
+	switch (get_unaligned(&addr->in_addr.ss_family)) {
+	case AF_INET:
+		return ntohs(get_unaligned(&((struct sockaddr_in *)&addr->in_addr)->sin_port));
+	case AF_INET6:
+		return ntohs(get_unaligned(&((struct sockaddr_in6 *)&addr->in_addr)->sin6_port));
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static void addr_set_port(struct sockaddr_storage *ss, int p)
 {
 	switch (ss->ss_family) {
@@ -1858,6 +2229,16 @@ static void addr_set_port(struct sockaddr_storage *ss, int p)
 		break;
 	case AF_INET6:
 		((struct sockaddr_in6 *)ss)->sin6_port = htons(p);
+=======
+void ceph_addr_set_port(struct ceph_entity_addr *addr, int p)
+{
+	switch (get_unaligned(&addr->in_addr.ss_family)) {
+	case AF_INET:
+		put_unaligned(htons(p), &((struct sockaddr_in *)&addr->in_addr)->sin_port);
+		break;
+	case AF_INET6:
+		put_unaligned(htons(p), &((struct sockaddr_in6 *)&addr->in_addr)->sin6_port);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -1865,6 +2246,7 @@ static void addr_set_port(struct sockaddr_storage *ss, int p)
 /*
  * Unlike other *_pton function semantics, zero indicates success.
  */
+<<<<<<< HEAD
 static int ceph_pton(const char *str, size_t len, struct sockaddr_storage *ss,
 		char delim, const char **ipend)
 {
@@ -1880,6 +2262,20 @@ static int ceph_pton(const char *str, size_t len, struct sockaddr_storage *ss,
 
 	if (in6_pton(str, len, (u8 *)&in6->sin6_addr.s6_addr, delim, ipend)) {
 		ss->ss_family = AF_INET6;
+=======
+static int ceph_pton(const char *str, size_t len, struct ceph_entity_addr *addr,
+		char delim, const char **ipend)
+{
+	memset(&addr->in_addr, 0, sizeof(addr->in_addr));
+
+	if (in4_pton(str, len, (u8 *)&((struct sockaddr_in *)&addr->in_addr)->sin_addr.s_addr, delim, ipend)) {
+		put_unaligned(AF_INET, &addr->in_addr.ss_family);
+		return 0;
+	}
+
+	if (in6_pton(str, len, (u8 *)&((struct sockaddr_in6 *)&addr->in_addr)->sin6_addr.s6_addr, delim, ipend)) {
+		put_unaligned(AF_INET6, &addr->in_addr.ss_family);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1891,7 +2287,11 @@ static int ceph_pton(const char *str, size_t len, struct sockaddr_storage *ss,
  */
 #ifdef CONFIG_CEPH_LIB_USE_DNS_RESOLVER
 static int ceph_dns_resolve_name(const char *name, size_t namelen,
+<<<<<<< HEAD
 		struct sockaddr_storage *ss, char delim, const char **ipend)
+=======
+		struct ceph_entity_addr *addr, char delim, const char **ipend)
+>>>>>>> upstream/android-13
 {
 	const char *end, *delim_p;
 	char *colon_p, *ip_addr = NULL;
@@ -1918,9 +2318,16 @@ static int ceph_dns_resolve_name(const char *name, size_t namelen,
 		return -EINVAL;
 
 	/* do dns_resolve upcall */
+<<<<<<< HEAD
 	ip_len = dns_query(NULL, name, end - name, NULL, &ip_addr, NULL);
 	if (ip_len > 0)
 		ret = ceph_pton(ip_addr, ip_len, ss, -1, NULL);
+=======
+	ip_len = dns_query(current->nsproxy->net_ns,
+			   NULL, name, end - name, NULL, &ip_addr, NULL, false);
+	if (ip_len > 0)
+		ret = ceph_pton(ip_addr, ip_len, addr, -1, NULL);
+>>>>>>> upstream/android-13
 	else
 		ret = -ESRCH;
 
@@ -1929,13 +2336,21 @@ static int ceph_dns_resolve_name(const char *name, size_t namelen,
 	*ipend = end;
 
 	pr_info("resolve '%.*s' (ret=%d): %s\n", (int)(end - name), name,
+<<<<<<< HEAD
 			ret, ret ? "failed" : ceph_pr_addr(ss));
+=======
+			ret, ret ? "failed" : ceph_pr_addr(addr));
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 #else
 static inline int ceph_dns_resolve_name(const char *name, size_t namelen,
+<<<<<<< HEAD
 		struct sockaddr_storage *ss, char delim, const char **ipend)
+=======
+		struct ceph_entity_addr *addr, char delim, const char **ipend)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
@@ -1946,6 +2361,7 @@ static inline int ceph_dns_resolve_name(const char *name, size_t namelen,
  * then try to extract a hostname to resolve using userspace DNS upcall.
  */
 static int ceph_parse_server_name(const char *name, size_t namelen,
+<<<<<<< HEAD
 			struct sockaddr_storage *ss, char delim, const char **ipend)
 {
 	int ret;
@@ -1953,6 +2369,15 @@ static int ceph_parse_server_name(const char *name, size_t namelen,
 	ret = ceph_pton(name, namelen, ss, delim, ipend);
 	if (ret)
 		ret = ceph_dns_resolve_name(name, namelen, ss, delim, ipend);
+=======
+		struct ceph_entity_addr *addr, char delim, const char **ipend)
+{
+	int ret;
+
+	ret = ceph_pton(name, namelen, addr, delim, ipend);
+	if (ret)
+		ret = ceph_dns_resolve_name(name, namelen, addr, delim, ipend);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1971,7 +2396,10 @@ int ceph_parse_ips(const char *c, const char *end,
 	dout("parse_ips on '%.*s'\n", (int)(end-c), c);
 	for (i = 0; i < max_count; i++) {
 		const char *ipend;
+<<<<<<< HEAD
 		struct sockaddr_storage *ss = &addr[i].in_addr;
+=======
+>>>>>>> upstream/android-13
 		int port;
 		char delim = ',';
 
@@ -1980,7 +2408,11 @@ int ceph_parse_ips(const char *c, const char *end,
 			p++;
 		}
 
+<<<<<<< HEAD
 		ret = ceph_parse_server_name(p, end - p, ss, delim, &ipend);
+=======
+		ret = ceph_parse_server_name(p, end - p, &addr[i], delim, &ipend);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto bad;
 		ret = -EINVAL;
@@ -2011,9 +2443,25 @@ int ceph_parse_ips(const char *c, const char *end,
 			port = CEPH_MON_PORT;
 		}
 
+<<<<<<< HEAD
 		addr_set_port(ss, port);
 
 		dout("parse_ips got %s\n", ceph_pr_addr(ss));
+=======
+		ceph_addr_set_port(&addr[i], port);
+		/*
+		 * We want the type to be set according to ms_mode
+		 * option, but options are normally parsed after mon
+		 * addresses.  Rather than complicating parsing, set
+		 * to LEGACY and override in build_initial_monmap()
+		 * for mon addresses and ceph_messenger_init() for
+		 * ip option.
+		 */
+		addr[i].type = CEPH_ENTITY_ADDR_TYPE_LEGACY;
+		addr[i].nonce = 0;
+
+		dout("parse_ips got %s\n", ceph_pr_addr(&addr[i]));
+>>>>>>> upstream/android-13
 
 		if (p == end)
 			break;
@@ -2030,6 +2478,7 @@ int ceph_parse_ips(const char *c, const char *end,
 	return 0;
 
 bad:
+<<<<<<< HEAD
 	pr_err("parse_ips bad ip '%.*s'\n", (int)(end - c), c);
 	return ret;
 }
@@ -2547,13 +2996,21 @@ static int read_partial_message(struct ceph_connection *con)
 
 	return 1; /* done! */
 }
+=======
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Process message.  This happens in the worker thread.  The callback should
  * be careful not to do anything that waits on other incoming messages or it
  * may deadlock.
  */
+<<<<<<< HEAD
 static void process_message(struct ceph_connection *con)
+=======
+void ceph_con_process_message(struct ceph_connection *con)
+>>>>>>> upstream/android-13
 {
 	struct ceph_msg *msg = con->in_msg;
 
@@ -2567,12 +3024,20 @@ static void process_message(struct ceph_connection *con)
 	con->in_seq++;
 	mutex_unlock(&con->mutex);
 
+<<<<<<< HEAD
 	dout("===== %p %llu from %s%lld %d=%s len %d+%d (%u %u %u) =====\n",
+=======
+	dout("===== %p %llu from %s%lld %d=%s len %d+%d+%d (%u %u %u) =====\n",
+>>>>>>> upstream/android-13
 	     msg, le64_to_cpu(msg->hdr.seq),
 	     ENTITY_NAME(msg->hdr.src),
 	     le16_to_cpu(msg->hdr.type),
 	     ceph_msg_type_name(le16_to_cpu(msg->hdr.type)),
 	     le32_to_cpu(msg->hdr.front_len),
+<<<<<<< HEAD
+=======
+	     le32_to_cpu(msg->hdr.middle_len),
+>>>>>>> upstream/android-13
 	     le32_to_cpu(msg->hdr.data_len),
 	     con->in_front_crc, con->in_middle_crc, con->in_data_crc);
 	con->ops->dispatch(con, msg);
@@ -2580,6 +3045,7 @@ static void process_message(struct ceph_connection *con)
 	mutex_lock(&con->mutex);
 }
 
+<<<<<<< HEAD
 static int read_keepalive_ack(struct ceph_connection *con)
 {
 	struct ceph_timespec ceph_ts;
@@ -2838,6 +3304,8 @@ bad_tag:
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Atomically queue work on a connection after the specified delay.
  * Bump @con reference to avoid races with connection teardown.
@@ -2850,13 +3318,23 @@ static int queue_con_delay(struct ceph_connection *con, unsigned long delay)
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
+=======
+	if (delay >= HZ)
+		delay = round_jiffies_relative(delay);
+
+	dout("%s %p %lu\n", __func__, con, delay);
+>>>>>>> upstream/android-13
 	if (!queue_delayed_work(ceph_msgr_wq, &con->work, delay)) {
 		dout("%s %p - already queued\n", __func__, con);
 		con->ops->put(con);
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	dout("%s %p %lu\n", __func__, con, delay);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2875,17 +3353,26 @@ static void cancel_con(struct ceph_connection *con)
 
 static bool con_sock_closed(struct ceph_connection *con)
 {
+<<<<<<< HEAD
 	if (!con_flag_test_and_clear(con, CON_FLAG_SOCK_CLOSED))
 		return false;
 
 #define CASE(x)								\
 	case CON_STATE_ ## x:						\
+=======
+	if (!ceph_con_flag_test_and_clear(con, CEPH_CON_F_SOCK_CLOSED))
+		return false;
+
+#define CASE(x)								\
+	case CEPH_CON_S_ ## x:						\
+>>>>>>> upstream/android-13
 		con->error_msg = "socket closed (con state " #x ")";	\
 		break;
 
 	switch (con->state) {
 	CASE(CLOSED);
 	CASE(PREOPEN);
+<<<<<<< HEAD
 	CASE(CONNECTING);
 	CASE(NEGOTIATING);
 	CASE(OPEN);
@@ -2896,6 +3383,21 @@ static bool con_sock_closed(struct ceph_connection *con)
 		con->error_msg = "unrecognized con state";
 		BUG();
 		break;
+=======
+	CASE(V1_BANNER);
+	CASE(V1_CONNECT_MSG);
+	CASE(V2_BANNER_PREFIX);
+	CASE(V2_BANNER_PAYLOAD);
+	CASE(V2_HELLO);
+	CASE(V2_AUTH);
+	CASE(V2_AUTH_SIGNATURE);
+	CASE(V2_SESSION_CONNECT);
+	CASE(V2_SESSION_RECONNECT);
+	CASE(OPEN);
+	CASE(STANDBY);
+	default:
+		BUG();
+>>>>>>> upstream/android-13
 	}
 #undef CASE
 
@@ -2906,15 +3408,26 @@ static bool con_backoff(struct ceph_connection *con)
 {
 	int ret;
 
+<<<<<<< HEAD
 	if (!con_flag_test_and_clear(con, CON_FLAG_BACKOFF))
 		return false;
 
 	ret = queue_con_delay(con, round_jiffies_relative(con->delay));
+=======
+	if (!ceph_con_flag_test_and_clear(con, CEPH_CON_F_BACKOFF))
+		return false;
+
+	ret = queue_con_delay(con, con->delay);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dout("%s: con %p FAILED to back off %lu\n", __func__,
 			con, con->delay);
 		BUG_ON(ret == -ENOENT);
+<<<<<<< HEAD
 		con_flag_set(con, CON_FLAG_BACKOFF);
+=======
+		ceph_con_flag_set(con, CEPH_CON_F_BACKOFF);
+>>>>>>> upstream/android-13
 	}
 
 	return true;
@@ -2930,11 +3443,19 @@ static void con_fault_finish(struct ceph_connection *con)
 	 * in case we faulted due to authentication, invalidate our
 	 * current tickets so that we can get new ones.
 	 */
+<<<<<<< HEAD
 	if (con->auth_retry) {
 		dout("auth_retry %d, invalidating\n", con->auth_retry);
 		if (con->ops->invalidate_authorizer)
 			con->ops->invalidate_authorizer(con);
 		con->auth_retry = 0;
+=======
+	if (con->v1.auth_retry) {
+		dout("auth_retry %d, invalidating\n", con->v1.auth_retry);
+		if (con->ops->invalidate_authorizer)
+			con->ops->invalidate_authorizer(con);
+		con->v1.auth_retry = 0;
+>>>>>>> upstream/android-13
 	}
 
 	if (con->ops->fault)
@@ -2962,21 +3483,40 @@ static void ceph_con_workfn(struct work_struct *work)
 			dout("%s: con %p BACKOFF\n", __func__, con);
 			break;
 		}
+<<<<<<< HEAD
 		if (con->state == CON_STATE_STANDBY) {
 			dout("%s: con %p STANDBY\n", __func__, con);
 			break;
 		}
 		if (con->state == CON_STATE_CLOSED) {
+=======
+		if (con->state == CEPH_CON_S_STANDBY) {
+			dout("%s: con %p STANDBY\n", __func__, con);
+			break;
+		}
+		if (con->state == CEPH_CON_S_CLOSED) {
+>>>>>>> upstream/android-13
 			dout("%s: con %p CLOSED\n", __func__, con);
 			BUG_ON(con->sock);
 			break;
 		}
+<<<<<<< HEAD
 		if (con->state == CON_STATE_PREOPEN) {
+=======
+		if (con->state == CEPH_CON_S_PREOPEN) {
+>>>>>>> upstream/android-13
 			dout("%s: con %p PREOPEN\n", __func__, con);
 			BUG_ON(con->sock);
 		}
 
+<<<<<<< HEAD
 		ret = try_read(con);
+=======
+		if (ceph_msgr2(from_msgr(con->msgr)))
+			ret = ceph_con_v2_try_read(con);
+		else
+			ret = ceph_con_v1_try_read(con);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			if (ret == -EAGAIN)
 				continue;
@@ -2986,7 +3526,14 @@ static void ceph_con_workfn(struct work_struct *work)
 			break;
 		}
 
+<<<<<<< HEAD
 		ret = try_write(con);
+=======
+		if (ceph_msgr2(from_msgr(con->msgr)))
+			ret = ceph_con_v2_try_write(con);
+		else
+			ret = ceph_con_v1_try_write(con);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			if (ret == -EAGAIN)
 				continue;
@@ -3013,6 +3560,7 @@ static void ceph_con_workfn(struct work_struct *work)
  */
 static void con_fault(struct ceph_connection *con)
 {
+<<<<<<< HEAD
 	dout("fault %p state %lu to peer %s\n",
 	     con, con->state, ceph_pr_addr(&con->peer_addr.in_addr));
 
@@ -3043,12 +3591,33 @@ static void con_fault(struct ceph_connection *con)
 		con->out_msg = NULL;
 	}
 
+=======
+	dout("fault %p state %d to peer %s\n",
+	     con, con->state, ceph_pr_addr(&con->peer_addr));
+
+	pr_warn("%s%lld %s %s\n", ENTITY_NAME(con->peer_name),
+		ceph_pr_addr(&con->peer_addr), con->error_msg);
+	con->error_msg = NULL;
+
+	WARN_ON(con->state == CEPH_CON_S_STANDBY ||
+		con->state == CEPH_CON_S_CLOSED);
+
+	ceph_con_reset_protocol(con);
+
+	if (ceph_con_flag_test(con, CEPH_CON_F_LOSSYTX)) {
+		dout("fault on LOSSYTX channel, marking CLOSED\n");
+		con->state = CEPH_CON_S_CLOSED;
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	/* Requeue anything that hasn't been acked */
 	list_splice_init(&con->out_sent, &con->out_queue);
 
 	/* If there are no messages queued or keepalive pending, place
 	 * the connection in a STANDBY state */
 	if (list_empty(&con->out_queue) &&
+<<<<<<< HEAD
 	    !con_flag_test(con, CON_FLAG_KEEPALIVE_PENDING)) {
 		dout("fault %p setting STANDBY clearing WRITE_PENDING\n", con);
 		con_flag_clear(con, CON_FLAG_WRITE_PENDING);
@@ -3061,11 +3630,37 @@ static void con_fault(struct ceph_connection *con)
 		else if (con->delay < MAX_DELAY_INTERVAL)
 			con->delay *= 2;
 		con_flag_set(con, CON_FLAG_BACKOFF);
+=======
+	    !ceph_con_flag_test(con, CEPH_CON_F_KEEPALIVE_PENDING)) {
+		dout("fault %p setting STANDBY clearing WRITE_PENDING\n", con);
+		ceph_con_flag_clear(con, CEPH_CON_F_WRITE_PENDING);
+		con->state = CEPH_CON_S_STANDBY;
+	} else {
+		/* retry after a delay. */
+		con->state = CEPH_CON_S_PREOPEN;
+		if (!con->delay) {
+			con->delay = BASE_DELAY_INTERVAL;
+		} else if (con->delay < MAX_DELAY_INTERVAL) {
+			con->delay *= 2;
+			if (con->delay > MAX_DELAY_INTERVAL)
+				con->delay = MAX_DELAY_INTERVAL;
+		}
+		ceph_con_flag_set(con, CEPH_CON_F_BACKOFF);
+>>>>>>> upstream/android-13
 		queue_con(con);
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+void ceph_messenger_reset_nonce(struct ceph_messenger *msgr)
+{
+	u32 nonce = le32_to_cpu(msgr->inst.addr.nonce) + 1000000;
+	msgr->inst.addr.nonce = cpu_to_le32(nonce);
+	ceph_encode_my_addr(msgr);
+}
+>>>>>>> upstream/android-13
 
 /*
  * initialize a new messenger instance
@@ -3075,6 +3670,7 @@ void ceph_messenger_init(struct ceph_messenger *msgr,
 {
 	spin_lock_init(&msgr->global_seq_lock);
 
+<<<<<<< HEAD
 	if (myaddr)
 		msgr->inst.addr = *myaddr;
 
@@ -3082,19 +3678,45 @@ void ceph_messenger_init(struct ceph_messenger *msgr,
 	msgr->inst.addr.type = 0;
 	get_random_bytes(&msgr->inst.addr.nonce, sizeof(msgr->inst.addr.nonce));
 	encode_my_addr(msgr);
+=======
+	if (myaddr) {
+		memcpy(&msgr->inst.addr.in_addr, &myaddr->in_addr,
+		       sizeof(msgr->inst.addr.in_addr));
+		ceph_addr_set_port(&msgr->inst.addr, 0);
+	}
+
+	/*
+	 * Since nautilus, clients are identified using type ANY.
+	 * For msgr1, ceph_encode_banner_addr() munges it to NONE.
+	 */
+	msgr->inst.addr.type = CEPH_ENTITY_ADDR_TYPE_ANY;
+
+	/* generate a random non-zero nonce */
+	do {
+		get_random_bytes(&msgr->inst.addr.nonce,
+				 sizeof(msgr->inst.addr.nonce));
+	} while (!msgr->inst.addr.nonce);
+	ceph_encode_my_addr(msgr);
+>>>>>>> upstream/android-13
 
 	atomic_set(&msgr->stopping, 0);
 	write_pnet(&msgr->net, get_net(current->nsproxy->net_ns));
 
 	dout("%s %p\n", __func__, msgr);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ceph_messenger_init);
+=======
+>>>>>>> upstream/android-13
 
 void ceph_messenger_fini(struct ceph_messenger *msgr)
 {
 	put_net(read_pnet(&msgr->net));
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ceph_messenger_fini);
+=======
+>>>>>>> upstream/android-13
 
 static void msg_con_set(struct ceph_msg *msg, struct ceph_connection *con)
 {
@@ -3108,17 +3730,31 @@ static void msg_con_set(struct ceph_msg *msg, struct ceph_connection *con)
 static void clear_standby(struct ceph_connection *con)
 {
 	/* come back from STANDBY? */
+<<<<<<< HEAD
 	if (con->state == CON_STATE_STANDBY) {
 		dout("clear_standby %p and ++connect_seq\n", con);
 		con->state = CON_STATE_PREOPEN;
 		con->connect_seq++;
 		WARN_ON(con_flag_test(con, CON_FLAG_WRITE_PENDING));
 		WARN_ON(con_flag_test(con, CON_FLAG_KEEPALIVE_PENDING));
+=======
+	if (con->state == CEPH_CON_S_STANDBY) {
+		dout("clear_standby %p and ++connect_seq\n", con);
+		con->state = CEPH_CON_S_PREOPEN;
+		con->v1.connect_seq++;
+		WARN_ON(ceph_con_flag_test(con, CEPH_CON_F_WRITE_PENDING));
+		WARN_ON(ceph_con_flag_test(con, CEPH_CON_F_KEEPALIVE_PENDING));
+>>>>>>> upstream/android-13
 	}
 }
 
 /*
  * Queue up an outgoing message on the given connection.
+<<<<<<< HEAD
+=======
+ *
+ * Consumes a ref on @msg.
+>>>>>>> upstream/android-13
  */
 void ceph_con_send(struct ceph_connection *con, struct ceph_msg *msg)
 {
@@ -3129,7 +3765,11 @@ void ceph_con_send(struct ceph_connection *con, struct ceph_msg *msg)
 
 	mutex_lock(&con->mutex);
 
+<<<<<<< HEAD
 	if (con->state == CON_STATE_CLOSED) {
+=======
+	if (con->state == CEPH_CON_S_CLOSED) {
+>>>>>>> upstream/android-13
 		dout("con_send %p closed, dropping %p\n", con, msg);
 		ceph_msg_put(msg);
 		mutex_unlock(&con->mutex);
@@ -3152,7 +3792,11 @@ void ceph_con_send(struct ceph_connection *con, struct ceph_msg *msg)
 
 	/* if there wasn't anything waiting to send before, queue
 	 * new work */
+<<<<<<< HEAD
 	if (con_flag_test_and_set(con, CON_FLAG_WRITE_PENDING) == 0)
+=======
+	if (!ceph_con_flag_test_and_set(con, CEPH_CON_F_WRITE_PENDING))
+>>>>>>> upstream/android-13
 		queue_con(con);
 }
 EXPORT_SYMBOL(ceph_con_send);
@@ -3170,6 +3814,7 @@ void ceph_msg_revoke(struct ceph_msg *msg)
 	}
 
 	mutex_lock(&con->mutex);
+<<<<<<< HEAD
 	if (!list_empty(&msg->list_head)) {
 		dout("%s %p msg %p - was on queue\n", __func__, con, msg);
 		list_del_init(&msg->list_head);
@@ -3200,6 +3845,32 @@ void ceph_msg_revoke(struct ceph_msg *msg)
 		ceph_msg_put(msg);
 	}
 
+=======
+	if (list_empty(&msg->list_head)) {
+		WARN_ON(con->out_msg == msg);
+		dout("%s con %p msg %p not linked\n", __func__, con, msg);
+		mutex_unlock(&con->mutex);
+		return;
+	}
+
+	dout("%s con %p msg %p was linked\n", __func__, con, msg);
+	msg->hdr.seq = 0;
+	ceph_msg_remove(msg);
+
+	if (con->out_msg == msg) {
+		WARN_ON(con->state != CEPH_CON_S_OPEN);
+		dout("%s con %p msg %p was sending\n", __func__, con, msg);
+		if (ceph_msgr2(from_msgr(con->msgr)))
+			ceph_con_v2_revoke(con);
+		else
+			ceph_con_v1_revoke(con);
+		ceph_msg_put(con->out_msg);
+		con->out_msg = NULL;
+	} else {
+		dout("%s con %p msg %p not current, out_msg %p\n", __func__,
+		     con, msg, con->out_msg);
+	}
+>>>>>>> upstream/android-13
 	mutex_unlock(&con->mutex);
 }
 
@@ -3217,6 +3888,7 @@ void ceph_msg_revoke_incoming(struct ceph_msg *msg)
 
 	mutex_lock(&con->mutex);
 	if (con->in_msg == msg) {
+<<<<<<< HEAD
 		unsigned int front_len = le32_to_cpu(con->in_hdr.front_len);
 		unsigned int middle_len = le32_to_cpu(con->in_hdr.middle_len);
 		unsigned int data_len = le32_to_cpu(con->in_hdr.data_len);
@@ -3236,6 +3908,19 @@ void ceph_msg_revoke_incoming(struct ceph_msg *msg)
 	} else {
 		dout("%s %p in_msg %p msg %p no-op\n",
 		     __func__, con, con->in_msg, msg);
+=======
+		WARN_ON(con->state != CEPH_CON_S_OPEN);
+		dout("%s con %p msg %p was recving\n", __func__, con, msg);
+		if (ceph_msgr2(from_msgr(con->msgr)))
+			ceph_con_v2_revoke_incoming(con);
+		else
+			ceph_con_v1_revoke_incoming(con);
+		ceph_msg_put(con->in_msg);
+		con->in_msg = NULL;
+	} else {
+		dout("%s con %p msg %p not current, in_msg %p\n", __func__,
+		     con, msg, con->in_msg);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&con->mutex);
 }
@@ -3248,10 +3933,17 @@ void ceph_con_keepalive(struct ceph_connection *con)
 	dout("con_keepalive %p\n", con);
 	mutex_lock(&con->mutex);
 	clear_standby(con);
+<<<<<<< HEAD
 	con_flag_set(con, CON_FLAG_KEEPALIVE_PENDING);
 	mutex_unlock(&con->mutex);
 
 	if (con_flag_test_and_set(con, CON_FLAG_WRITE_PENDING) == 0)
+=======
+	ceph_con_flag_set(con, CEPH_CON_F_KEEPALIVE_PENDING);
+	mutex_unlock(&con->mutex);
+
+	if (!ceph_con_flag_test_and_set(con, CEPH_CON_F_WRITE_PENDING))
+>>>>>>> upstream/android-13
 		queue_con(con);
 }
 EXPORT_SYMBOL(ceph_con_keepalive);
@@ -3271,6 +3963,7 @@ bool ceph_con_keepalive_expired(struct ceph_connection *con,
 	return false;
 }
 
+<<<<<<< HEAD
 static struct ceph_msg_data *ceph_msg_data_create(enum ceph_msg_data_type type)
 {
 	struct ceph_msg_data *data;
@@ -3286,10 +3979,17 @@ static struct ceph_msg_data *ceph_msg_data_create(enum ceph_msg_data_type type)
 	INIT_LIST_HEAD(&data->links);
 
 	return data;
+=======
+static struct ceph_msg_data *ceph_msg_data_add(struct ceph_msg *msg)
+{
+	BUG_ON(msg->num_data_items >= msg->max_data_items);
+	return &msg->data[msg->num_data_items++];
+>>>>>>> upstream/android-13
 }
 
 static void ceph_msg_data_destroy(struct ceph_msg_data *data)
 {
+<<<<<<< HEAD
 	if (!data)
 		return;
 
@@ -3301,12 +4001,25 @@ static void ceph_msg_data_destroy(struct ceph_msg_data *data)
 
 void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
 		size_t length, size_t alignment)
+=======
+	if (data->type == CEPH_MSG_DATA_PAGES && data->own_pages) {
+		int num_pages = calc_pages_for(data->alignment, data->length);
+		ceph_release_page_vector(data->pages, num_pages);
+	} else if (data->type == CEPH_MSG_DATA_PAGELIST) {
+		ceph_pagelist_release(data->pagelist);
+	}
+}
+
+void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
+			     size_t length, size_t alignment, bool own_pages)
+>>>>>>> upstream/android-13
 {
 	struct ceph_msg_data *data;
 
 	BUG_ON(!pages);
 	BUG_ON(!length);
 
+<<<<<<< HEAD
 	data = ceph_msg_data_create(CEPH_MSG_DATA_PAGES);
 	BUG_ON(!data);
 	data->pages = pages;
@@ -3314,6 +4027,15 @@ void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
 	data->alignment = alignment & ~PAGE_MASK;
 
 	list_add_tail(&data->links, &msg->data);
+=======
+	data = ceph_msg_data_add(msg);
+	data->type = CEPH_MSG_DATA_PAGES;
+	data->pages = pages;
+	data->length = length;
+	data->alignment = alignment & ~PAGE_MASK;
+	data->own_pages = own_pages;
+
+>>>>>>> upstream/android-13
 	msg->data_length += length;
 }
 EXPORT_SYMBOL(ceph_msg_data_add_pages);
@@ -3326,11 +4048,19 @@ void ceph_msg_data_add_pagelist(struct ceph_msg *msg,
 	BUG_ON(!pagelist);
 	BUG_ON(!pagelist->length);
 
+<<<<<<< HEAD
 	data = ceph_msg_data_create(CEPH_MSG_DATA_PAGELIST);
 	BUG_ON(!data);
 	data->pagelist = pagelist;
 
 	list_add_tail(&data->links, &msg->data);
+=======
+	data = ceph_msg_data_add(msg);
+	data->type = CEPH_MSG_DATA_PAGELIST;
+	refcount_inc(&pagelist->refcnt);
+	data->pagelist = pagelist;
+
+>>>>>>> upstream/android-13
 	msg->data_length += pagelist->length;
 }
 EXPORT_SYMBOL(ceph_msg_data_add_pagelist);
@@ -3341,12 +4071,20 @@ void ceph_msg_data_add_bio(struct ceph_msg *msg, struct ceph_bio_iter *bio_pos,
 {
 	struct ceph_msg_data *data;
 
+<<<<<<< HEAD
 	data = ceph_msg_data_create(CEPH_MSG_DATA_BIO);
 	BUG_ON(!data);
 	data->bio_pos = *bio_pos;
 	data->bio_length = length;
 
 	list_add_tail(&data->links, &msg->data);
+=======
+	data = ceph_msg_data_add(msg);
+	data->type = CEPH_MSG_DATA_BIO;
+	data->bio_pos = *bio_pos;
+	data->bio_length = length;
+
+>>>>>>> upstream/android-13
 	msg->data_length += length;
 }
 EXPORT_SYMBOL(ceph_msg_data_add_bio);
@@ -3357,11 +4095,18 @@ void ceph_msg_data_add_bvecs(struct ceph_msg *msg,
 {
 	struct ceph_msg_data *data;
 
+<<<<<<< HEAD
 	data = ceph_msg_data_create(CEPH_MSG_DATA_BVECS);
 	BUG_ON(!data);
 	data->bvec_pos = *bvec_pos;
 
 	list_add_tail(&data->links, &msg->data);
+=======
+	data = ceph_msg_data_add(msg);
+	data->type = CEPH_MSG_DATA_BVECS;
+	data->bvec_pos = *bvec_pos;
+
+>>>>>>> upstream/android-13
 	msg->data_length += bvec_pos->iter.bi_size;
 }
 EXPORT_SYMBOL(ceph_msg_data_add_bvecs);
@@ -3370,8 +4115,13 @@ EXPORT_SYMBOL(ceph_msg_data_add_bvecs);
  * construct a new message with given type, size
  * the new msg has a ref count of 1.
  */
+<<<<<<< HEAD
 struct ceph_msg *ceph_msg_new(int type, int front_len, gfp_t flags,
 			      bool can_fail)
+=======
+struct ceph_msg *ceph_msg_new2(int type, int front_len, int max_data_items,
+			       gfp_t flags, bool can_fail)
+>>>>>>> upstream/android-13
 {
 	struct ceph_msg *m;
 
@@ -3385,7 +4135,10 @@ struct ceph_msg *ceph_msg_new(int type, int front_len, gfp_t flags,
 
 	INIT_LIST_HEAD(&m->list_head);
 	kref_init(&m->kref);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&m->data);
+=======
+>>>>>>> upstream/android-13
 
 	/* front */
 	if (front_len) {
@@ -3400,6 +4153,18 @@ struct ceph_msg *ceph_msg_new(int type, int front_len, gfp_t flags,
 	}
 	m->front_alloc_len = m->front.iov_len = front_len;
 
+<<<<<<< HEAD
+=======
+	if (max_data_items) {
+		m->data = kmalloc_array(max_data_items, sizeof(*m->data),
+					flags);
+		if (!m->data)
+			goto out2;
+
+		m->max_data_items = max_data_items;
+	}
+
+>>>>>>> upstream/android-13
 	dout("ceph_msg_new %p front %d\n", m, front_len);
 	return m;
 
@@ -3416,6 +4181,16 @@ out:
 	}
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(ceph_msg_new2);
+
+struct ceph_msg *ceph_msg_new(int type, int front_len, gfp_t flags,
+			      bool can_fail)
+{
+	return ceph_msg_new2(type, front_len, 0, flags, can_fail);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(ceph_msg_new);
 
 /*
@@ -3456,9 +4231,15 @@ static int ceph_alloc_middle(struct ceph_connection *con, struct ceph_msg *msg)
  * On error (ENOMEM, EAGAIN, ...),
  *  - con->in_msg == NULL
  */
+<<<<<<< HEAD
 static int ceph_con_in_msg_alloc(struct ceph_connection *con, int *skip)
 {
 	struct ceph_msg_header *hdr = &con->in_hdr;
+=======
+int ceph_con_in_msg_alloc(struct ceph_connection *con,
+			  struct ceph_msg_header *hdr, int *skip)
+{
+>>>>>>> upstream/android-13
 	int middle_len = le32_to_cpu(hdr->middle_len);
 	struct ceph_msg *msg;
 	int ret = 0;
@@ -3469,7 +4250,11 @@ static int ceph_con_in_msg_alloc(struct ceph_connection *con, int *skip)
 	mutex_unlock(&con->mutex);
 	msg = con->ops->alloc_msg(con, hdr, skip);
 	mutex_lock(&con->mutex);
+<<<<<<< HEAD
 	if (con->state != CON_STATE_OPEN) {
+=======
+	if (con->state != CEPH_CON_S_OPEN) {
+>>>>>>> upstream/android-13
 		if (msg)
 			ceph_msg_put(msg);
 		return -EAGAIN;
@@ -3490,7 +4275,11 @@ static int ceph_con_in_msg_alloc(struct ceph_connection *con, int *skip)
 		con->error_msg = "error allocating memory for incoming message";
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	memcpy(&con->in_msg->hdr, &con->in_hdr, sizeof(con->in_hdr));
+=======
+	memcpy(&con->in_msg->hdr, hdr, sizeof(*hdr));
+>>>>>>> upstream/android-13
 
 	if (middle_len && !con->in_msg->middle) {
 		ret = ceph_alloc_middle(con, con->in_msg);
@@ -3503,6 +4292,42 @@ static int ceph_con_in_msg_alloc(struct ceph_connection *con, int *skip)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+void ceph_con_get_out_msg(struct ceph_connection *con)
+{
+	struct ceph_msg *msg;
+
+	BUG_ON(list_empty(&con->out_queue));
+	msg = list_first_entry(&con->out_queue, struct ceph_msg, list_head);
+	WARN_ON(msg->con != con);
+
+	/*
+	 * Put the message on "sent" list using a ref from ceph_con_send().
+	 * It is put when the message is acked or revoked.
+	 */
+	list_move_tail(&msg->list_head, &con->out_sent);
+
+	/*
+	 * Only assign outgoing seq # if we haven't sent this message
+	 * yet.  If it is requeued, resend with it's original seq.
+	 */
+	if (msg->needs_out_seq) {
+		msg->hdr.seq = cpu_to_le64(++con->out_seq);
+		msg->needs_out_seq = false;
+
+		if (con->ops->reencode_message)
+			con->ops->reencode_message(msg);
+	}
+
+	/*
+	 * Get a ref for out_msg.  It is put when we are done sending the
+	 * message or in case of a fault.
+	 */
+	WARN_ON(con->out_msg);
+	con->out_msg = ceph_msg_get(msg);
+}
+>>>>>>> upstream/android-13
 
 /*
  * Free a generically kmalloc'd message.
@@ -3511,13 +4336,21 @@ static void ceph_msg_free(struct ceph_msg *m)
 {
 	dout("%s %p\n", __func__, m);
 	kvfree(m->front.iov_base);
+<<<<<<< HEAD
+=======
+	kfree(m->data);
+>>>>>>> upstream/android-13
 	kmem_cache_free(ceph_msg_cache, m);
 }
 
 static void ceph_msg_release(struct kref *kref)
 {
 	struct ceph_msg *m = container_of(kref, struct ceph_msg, kref);
+<<<<<<< HEAD
 	struct ceph_msg_data *data, *next;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	dout("%s %p\n", __func__, m);
 	WARN_ON(!list_empty(&m->list_head));
@@ -3530,11 +4363,16 @@ static void ceph_msg_release(struct kref *kref)
 		m->middle = NULL;
 	}
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(data, next, &m->data, links) {
 		list_del_init(&data->links);
 		ceph_msg_data_destroy(data);
 	}
 	m->data_length = 0;
+=======
+	for (i = 0; i < m->num_data_items; i++)
+		ceph_msg_data_destroy(&m->data[i]);
+>>>>>>> upstream/android-13
 
 	if (m->pool)
 		ceph_msgpool_put(m->pool, m);

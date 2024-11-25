@@ -8,11 +8,17 @@
 
 #include <linux/compiler.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <string.h>
 #include <bpf/libbpf.h>
 #include "probe-event.h"
 #include "evlist.h"
 #include "debug.h"
+=======
+
+#ifdef HAVE_LIBBPF_SUPPORT
+#include <bpf/libbpf.h>
+>>>>>>> upstream/android-13
 
 enum bpf_loader_errno {
 	__BPF_LOADER_ERRNO__START = __LIBBPF_ERRNO__START - 100,
@@ -42,14 +48,25 @@ enum bpf_loader_errno {
 	BPF_LOADER_ERRNO__OBJCONF_MAP_IDX2BIG,	/* Index too large */
 	__BPF_LOADER_ERRNO__END,
 };
+<<<<<<< HEAD
 
 struct perf_evsel;
+=======
+#endif // HAVE_LIBBPF_SUPPORT
+
+struct evsel;
+struct evlist;
+>>>>>>> upstream/android-13
 struct bpf_object;
 struct parse_events_term;
 #define PERF_BPF_PROBE_GROUP "perf_bpf_probe"
 
 typedef int (*bpf_prog_iter_callback_t)(const char *group, const char *event,
+<<<<<<< HEAD
 					int fd, void *arg);
+=======
+					int fd, struct bpf_object *obj, void *arg);
+>>>>>>> upstream/android-13
 
 #ifdef HAVE_LIBBPF_SUPPORT
 struct bpf_object *bpf__prepare_load(const char *filename, bool source);
@@ -73,20 +90,37 @@ int bpf__foreach_event(struct bpf_object *obj,
 		       bpf_prog_iter_callback_t func, void *arg);
 
 int bpf__config_obj(struct bpf_object *obj, struct parse_events_term *term,
+<<<<<<< HEAD
 		    struct perf_evlist *evlist, int *error_pos);
 int bpf__strerror_config_obj(struct bpf_object *obj,
 			     struct parse_events_term *term,
 			     struct perf_evlist *evlist,
+=======
+		    struct evlist *evlist, int *error_pos);
+int bpf__strerror_config_obj(struct bpf_object *obj,
+			     struct parse_events_term *term,
+			     struct evlist *evlist,
+>>>>>>> upstream/android-13
 			     int *error_pos, int err, char *buf,
 			     size_t size);
 int bpf__apply_obj_config(void);
 int bpf__strerror_apply_obj_config(int err, char *buf, size_t size);
 
+<<<<<<< HEAD
 int bpf__setup_stdout(struct perf_evlist *evlist);
 struct perf_evsel *bpf__setup_output_event(struct perf_evlist *evlist, const char *name);
 int bpf__strerror_setup_output_event(struct perf_evlist *evlist, int err, char *buf, size_t size);
 #else
 #include <errno.h>
+=======
+int bpf__setup_stdout(struct evlist *evlist);
+struct evsel *bpf__setup_output_event(struct evlist *evlist, const char *name);
+int bpf__strerror_setup_output_event(struct evlist *evlist, int err, char *buf, size_t size);
+#else
+#include <errno.h>
+#include <string.h>
+#include "debug.h"
+>>>>>>> upstream/android-13
 
 static inline struct bpf_object *
 bpf__prepare_load(const char *filename __maybe_unused,
@@ -120,7 +154,11 @@ bpf__foreach_event(struct bpf_object *obj __maybe_unused,
 static inline int
 bpf__config_obj(struct bpf_object *obj __maybe_unused,
 		struct parse_events_term *term __maybe_unused,
+<<<<<<< HEAD
 		struct perf_evlist *evlist __maybe_unused,
+=======
+		struct evlist *evlist __maybe_unused,
+>>>>>>> upstream/android-13
 		int *error_pos __maybe_unused)
 {
 	return 0;
@@ -133,13 +171,22 @@ bpf__apply_obj_config(void)
 }
 
 static inline int
+<<<<<<< HEAD
 bpf__setup_stdout(struct perf_evlist *evlist __maybe_unused)
+=======
+bpf__setup_stdout(struct evlist *evlist __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline struct perf_evsel *
 bpf__setup_output_event(struct perf_evlist *evlist __maybe_unused, const char *name __maybe_unused)
+=======
+static inline struct evsel *
+bpf__setup_output_event(struct evlist *evlist __maybe_unused, const char *name __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	return NULL;
 }
@@ -183,7 +230,11 @@ static inline int bpf__strerror_load(struct bpf_object *obj __maybe_unused,
 static inline int
 bpf__strerror_config_obj(struct bpf_object *obj __maybe_unused,
 			 struct parse_events_term *term __maybe_unused,
+<<<<<<< HEAD
 			 struct perf_evlist *evlist __maybe_unused,
+=======
+			 struct evlist *evlist __maybe_unused,
+>>>>>>> upstream/android-13
 			 int *error_pos __maybe_unused,
 			 int err __maybe_unused,
 			 char *buf, size_t size)
@@ -199,7 +250,11 @@ bpf__strerror_apply_obj_config(int err __maybe_unused,
 }
 
 static inline int
+<<<<<<< HEAD
 bpf__strerror_setup_output_event(struct perf_evlist *evlist __maybe_unused,
+=======
+bpf__strerror_setup_output_event(struct evlist *evlist __maybe_unused,
+>>>>>>> upstream/android-13
 				 int err __maybe_unused, char *buf, size_t size)
 {
 	return __bpf_strerror(buf, size);
@@ -207,7 +262,11 @@ bpf__strerror_setup_output_event(struct perf_evlist *evlist __maybe_unused,
 
 #endif
 
+<<<<<<< HEAD
 static inline int bpf__strerror_setup_stdout(struct perf_evlist *evlist, int err, char *buf, size_t size)
+=======
+static inline int bpf__strerror_setup_stdout(struct evlist *evlist, int err, char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	return bpf__strerror_setup_output_event(evlist, err, buf, size);
 }

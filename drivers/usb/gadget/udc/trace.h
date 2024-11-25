@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * udc.c - Core UDC Framework
  *
  * Copyright (C) 2016 Intel Corporation

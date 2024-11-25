@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata_pdc202xx_old.c 	- Promise PDC202xx PATA for new ATA layer
  *			  (C) 2005 Red Hat Inc
@@ -114,7 +118,11 @@ static void pdc202xx_set_piomode(struct ata_port *ap, struct ata_device *adev)
 }
 
 /**
+<<<<<<< HEAD
  *	pdc202xx_configure_dmamode	-	set DMA mode in chip
+=======
+ *	pdc202xx_set_dmamode	-	set DMA mode in chip
+>>>>>>> upstream/android-13
  *	@ap: ATA interface
  *	@adev: ATA device
  *
@@ -213,7 +221,11 @@ static void pdc2026x_bmdma_start(struct ata_queued_cmd *qc)
 }
 
 /**
+<<<<<<< HEAD
  *	pdc2026x_bmdma_end		-	DMA engine stop
+=======
+ *	pdc2026x_bmdma_stop		-	DMA engine stop
+>>>>>>> upstream/android-13
  *	@qc: ATA command
  *
  *	After a DMA completes we need to put the clock back to 33MHz for

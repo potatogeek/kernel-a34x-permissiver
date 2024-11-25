@@ -29,6 +29,10 @@
 
 #include <asm/unaligned.h>
 #include <linux/atomic.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 /* L2CAP defaults */
 #define L2CAP_DEFAULT_MTU		672
@@ -47,6 +51,10 @@
 #define L2CAP_DEFAULT_ACC_LAT		0xFFFFFFFF
 #define L2CAP_BREDR_MAX_PAYLOAD		1019    /* 3-DH5 packet */
 #define L2CAP_LE_MIN_MTU		23
+<<<<<<< HEAD
+=======
+#define L2CAP_ECRED_CONN_SCID_MAX	5
+>>>>>>> upstream/android-13
 
 #define L2CAP_DISC_TIMEOUT		msecs_to_jiffies(100)
 #define L2CAP_DISC_REJ_TIMEOUT		msecs_to_jiffies(5000)
@@ -119,6 +127,13 @@ struct l2cap_conninfo {
 #define L2CAP_LE_CONN_REQ	0x14
 #define L2CAP_LE_CONN_RSP	0x15
 #define L2CAP_LE_CREDITS	0x16
+<<<<<<< HEAD
+=======
+#define L2CAP_ECRED_CONN_REQ	0x17
+#define L2CAP_ECRED_CONN_RSP	0x18
+#define L2CAP_ECRED_RECONF_REQ	0x19
+#define L2CAP_ECRED_RECONF_RSP	0x1a
+>>>>>>> upstream/android-13
 
 /* L2CAP extended feature mask */
 #define L2CAP_FEAT_FLOWCTL	0x00000001
@@ -202,6 +217,10 @@ struct l2cap_hdr {
 	__le16     len;
 	__le16     cid;
 } __packed;
+<<<<<<< HEAD
+=======
+#define L2CAP_LEN_SIZE		2
+>>>>>>> upstream/android-13
 #define L2CAP_HDR_SIZE		4
 #define L2CAP_ENH_HDR_SIZE	6
 #define L2CAP_EXT_HDR_SIZE	8
@@ -277,12 +296,30 @@ struct l2cap_conn_rsp {
 #define L2CAP_CR_SEC_BLOCK	0x0003
 #define L2CAP_CR_NO_MEM		0x0004
 #define L2CAP_CR_BAD_AMP	0x0005
+<<<<<<< HEAD
 #define L2CAP_CR_AUTHENTICATION	0x0005
 #define L2CAP_CR_AUTHORIZATION	0x0006
 #define L2CAP_CR_BAD_KEY_SIZE	0x0007
 #define L2CAP_CR_ENCRYPTION	0x0008
 #define L2CAP_CR_INVALID_SCID	0x0009
 #define L2CAP_CR_SCID_IN_USE	0x000A
+=======
+#define L2CAP_CR_INVALID_SCID	0x0006
+#define L2CAP_CR_SCID_IN_USE	0x0007
+
+/* credit based connect results */
+#define L2CAP_CR_LE_SUCCESS		0x0000
+#define L2CAP_CR_LE_BAD_PSM		0x0002
+#define L2CAP_CR_LE_NO_MEM		0x0004
+#define L2CAP_CR_LE_AUTHENTICATION	0x0005
+#define L2CAP_CR_LE_AUTHORIZATION	0x0006
+#define L2CAP_CR_LE_BAD_KEY_SIZE	0x0007
+#define L2CAP_CR_LE_ENCRYPTION		0x0008
+#define L2CAP_CR_LE_INVALID_SCID	0x0009
+#define L2CAP_CR_LE_SCID_IN_USE		0X000A
+#define L2CAP_CR_LE_UNACCEPT_PARAMS	0X000B
+#define L2CAP_CR_LE_INVALID_PARAMS	0X000C
+>>>>>>> upstream/android-13
 
 /* connect/create channel status */
 #define L2CAP_CS_NO_INFO	0x0000
@@ -292,14 +329,22 @@ struct l2cap_conn_rsp {
 struct l2cap_conf_req {
 	__le16     dcid;
 	__le16     flags;
+<<<<<<< HEAD
 	__u8       data[0];
+=======
+	__u8       data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct l2cap_conf_rsp {
 	__le16     scid;
 	__le16     flags;
 	__le16     result;
+<<<<<<< HEAD
 	__u8       data[0];
+=======
+	__u8       data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define L2CAP_CONF_SUCCESS	0x0000
@@ -315,7 +360,11 @@ struct l2cap_conf_rsp {
 struct l2cap_conf_opt {
 	__u8       type;
 	__u8       len;
+<<<<<<< HEAD
 	__u8       val[0];
+=======
+	__u8       val[];
+>>>>>>> upstream/android-13
 } __packed;
 #define L2CAP_CONF_OPT_SIZE	2
 
@@ -352,6 +401,10 @@ struct l2cap_conf_rfc {
  * ever be used in the BR/EDR configuration phase.
  */
 #define L2CAP_MODE_LE_FLOWCTL	0x80
+<<<<<<< HEAD
+=======
+#define L2CAP_MODE_EXT_FLOWCTL	0x81
+>>>>>>> upstream/android-13
 
 struct l2cap_conf_efs {
 	__u8	id;
@@ -385,7 +438,11 @@ struct l2cap_info_req {
 struct l2cap_info_rsp {
 	__le16      type;
 	__le16      result;
+<<<<<<< HEAD
 	__u8        data[0];
+=======
+	__u8        data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct l2cap_create_chan_req {
@@ -455,9 +512,12 @@ struct l2cap_conn_param_update_rsp {
 #define L2CAP_CONN_PARAM_ACCEPTED	0x0000
 #define L2CAP_CONN_PARAM_REJECTED	0x0001
 
+<<<<<<< HEAD
 #define L2CAP_LE_MAX_CREDITS		10
 #define L2CAP_LE_DEFAULT_MPS		230
 
+=======
+>>>>>>> upstream/android-13
 struct l2cap_le_conn_req {
 	__le16     psm;
 	__le16     scid;
@@ -479,6 +539,43 @@ struct l2cap_le_credits {
 	__le16     credits;
 } __packed;
 
+<<<<<<< HEAD
+=======
+#define L2CAP_ECRED_MIN_MTU		64
+#define L2CAP_ECRED_MIN_MPS		64
+#define L2CAP_ECRED_MAX_CID		5
+
+struct l2cap_ecred_conn_req {
+	__le16 psm;
+	__le16 mtu;
+	__le16 mps;
+	__le16 credits;
+	__le16 scid[];
+} __packed;
+
+struct l2cap_ecred_conn_rsp {
+	__le16 mtu;
+	__le16 mps;
+	__le16 credits;
+	__le16 result;
+	__le16 dcid[];
+};
+
+struct l2cap_ecred_reconf_req {
+	__le16 mtu;
+	__le16 mps;
+	__le16 scid[];
+} __packed;
+
+#define L2CAP_RECONF_SUCCESS		0x0000
+#define L2CAP_RECONF_INVALID_MTU	0x0001
+#define L2CAP_RECONF_INVALID_MPS	0x0002
+
+struct l2cap_ecred_reconf_rsp {
+	__le16 result;
+} __packed;
+
+>>>>>>> upstream/android-13
 /* ----- L2CAP channels and connections ----- */
 struct l2cap_seq_list {
 	__u16	head;
@@ -598,6 +695,12 @@ struct l2cap_chan {
 	void			*data;
 	const struct l2cap_ops	*ops;
 	struct mutex		lock;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 struct l2cap_ops {
@@ -616,11 +719,21 @@ struct l2cap_ops {
 	void			(*suspend) (struct l2cap_chan *chan);
 	void			(*set_shutdown) (struct l2cap_chan *chan);
 	long			(*get_sndtimeo) (struct l2cap_chan *chan);
+<<<<<<< HEAD
+=======
+	struct pid		*(*get_peer_pid) (struct l2cap_chan *chan);
+>>>>>>> upstream/android-13
 	struct sk_buff		*(*alloc_skb) (struct l2cap_chan *chan,
 					       unsigned long hdr_len,
 					       unsigned long len, int nb);
 	int			(*filter) (struct l2cap_chan * chan,
 					   struct sk_buff *skb);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 struct l2cap_conn {
@@ -656,6 +769,12 @@ struct l2cap_conn {
 	struct mutex		chan_lock;
 	struct kref		ref;
 	struct list_head	users;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 struct l2cap_user {
@@ -722,6 +841,10 @@ enum {
 	FLAG_EFS_ENABLE,
 	FLAG_DEFER_SETUP,
 	FLAG_LE_CONN_REQ_SENT,
+<<<<<<< HEAD
+=======
+	FLAG_ECRED_CONN_REQ_SENT,
+>>>>>>> upstream/android-13
 	FLAG_PENDING_SECURITY,
 	FLAG_HOLD_HCI_CONN,
 };
@@ -798,6 +921,10 @@ enum {
 };
 
 void l2cap_chan_hold(struct l2cap_chan *c);
+<<<<<<< HEAD
+=======
+struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c);
+>>>>>>> upstream/android-13
 void l2cap_chan_put(struct l2cap_chan *c);
 
 static inline void l2cap_chan_lock(struct l2cap_chan *chan)
@@ -915,12 +1042,20 @@ static inline long l2cap_chan_no_get_sndtimeo(struct l2cap_chan *chan)
 }
 
 extern bool disable_ertm;
+<<<<<<< HEAD
+=======
+extern bool enable_ecred;
+>>>>>>> upstream/android-13
 
 int l2cap_init_sockets(void);
 void l2cap_cleanup_sockets(void);
 bool l2cap_is_socket(struct socket *sock);
 
 void __l2cap_le_connect_rsp_defer(struct l2cap_chan *chan);
+<<<<<<< HEAD
+=======
+void __l2cap_ecred_conn_rsp_defer(struct l2cap_chan *chan);
+>>>>>>> upstream/android-13
 void __l2cap_connect_rsp_defer(struct l2cap_chan *chan);
 
 int l2cap_add_psm(struct l2cap_chan *chan, bdaddr_t *src, __le16 psm);
@@ -930,6 +1065,10 @@ struct l2cap_chan *l2cap_chan_create(void);
 void l2cap_chan_close(struct l2cap_chan *chan, int reason);
 int l2cap_chan_connect(struct l2cap_chan *chan, __le16 psm, u16 cid,
 		       bdaddr_t *dst, u8 dst_type);
+<<<<<<< HEAD
+=======
+int l2cap_chan_reconfigure(struct l2cap_chan *chan, __u16 mtu);
+>>>>>>> upstream/android-13
 int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len);
 void l2cap_chan_busy(struct l2cap_chan *chan, int busy);
 int l2cap_chan_check_security(struct l2cap_chan *chan, bool initiator);
@@ -937,6 +1076,12 @@ void l2cap_chan_set_defaults(struct l2cap_chan *chan);
 int l2cap_ertm_init(struct l2cap_chan *chan);
 void l2cap_chan_add(struct l2cap_conn *conn, struct l2cap_chan *chan);
 void __l2cap_chan_add(struct l2cap_conn *conn, struct l2cap_chan *chan);
+<<<<<<< HEAD
+=======
+typedef void (*l2cap_chan_func_t)(struct l2cap_chan *chan, void *data);
+void l2cap_chan_list(struct l2cap_conn *conn, l2cap_chan_func_t func,
+		     void *data);
+>>>>>>> upstream/android-13
 void l2cap_chan_del(struct l2cap_chan *chan, int err);
 void l2cap_send_conn_req(struct l2cap_chan *chan);
 void l2cap_move_start(struct l2cap_chan *chan);

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Handle incoming frames
  *	Linux ethernet bridge
  *
  *	Authors:
  *	Lennert Buytenhek		<buytenh@gnu.org>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -16,17 +23,29 @@
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/netfilter_bridge.h>
+<<<<<<< HEAD
 #include <linux/neighbour.h>
 #include <net/arp.h>
+=======
+#ifdef CONFIG_NETFILTER_FAMILY_BRIDGE
+#include <net/netfilter/nf_queue.h>
+#endif
+#include <linux/neighbour.h>
+#include <net/arp.h>
+#include <net/dsa.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/rculist.h>
 #include "br_private.h"
 #include "br_private_tunnel.h"
 
+<<<<<<< HEAD
 /* Hook for brouter */
 br_should_route_hook_t __rcu *br_should_route_hook __read_mostly;
 EXPORT_SYMBOL(br_should_route_hook);
 
+=======
+>>>>>>> upstream/android-13
 static int
 br_netif_receive_skb(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
@@ -39,6 +58,7 @@ static int br_pass_frame_up(struct sk_buff *skb)
 	struct net_device *indev, *brdev = BR_INPUT_SKB_CB(skb)->brdev;
 	struct net_bridge *br = netdev_priv(brdev);
 	struct net_bridge_vlan_group *vg;
+<<<<<<< HEAD
 	struct pcpu_sw_netstats *brstats = this_cpu_ptr(br->stats);
 
 	u64_stats_update_begin(&brstats->syncp);
@@ -49,6 +69,14 @@ static int br_pass_frame_up(struct sk_buff *skb)
 	vg = br_vlan_group_rcu(br);
 	/* Bridge is just like any other port.  Make sure the
 	 * packet is allowed except in promisc modue when someone
+=======
+
+	dev_sw_netstats_rx_add(brdev, skb->len);
+
+	vg = br_vlan_group_rcu(br);
+	/* Bridge is just like any other port.  Make sure the
+	 * packet is allowed except in promisc mode when someone
+>>>>>>> upstream/android-13
 	 * may be running packet capture.
 	 */
 	if (!(brdev->flags & IFF_PROMISC) &&
@@ -77,15 +105,34 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
 	enum br_pkt_type pkt_type = BR_PKT_UNICAST;
 	struct net_bridge_fdb_entry *dst = NULL;
+<<<<<<< HEAD
 	struct net_bridge_mdb_entry *mdst;
 	bool local_rcv, mcast_hit = false;
 	struct net_bridge *br;
 	u16 vid = 0;
+=======
+	struct net_bridge_mcast_port *pmctx;
+	struct net_bridge_mdb_entry *mdst;
+	bool local_rcv, mcast_hit = false;
+	struct net_bridge_mcast *brmctx;
+	struct net_bridge_vlan *vlan;
+	struct net_bridge *br;
+	u16 vid = 0;
+	u8 state;
+>>>>>>> upstream/android-13
 
 	if (!p || p->state == BR_STATE_DISABLED)
 		goto drop;
 
+<<<<<<< HEAD
 	if (!br_allowed_ingress(p->br, nbp_vlan_group_rcu(p), skb, &vid))
+=======
+	brmctx = &p->br->multicast_ctx;
+	pmctx = &p->multicast_ctx;
+	state = p->state;
+	if (!br_allowed_ingress(p->br, nbp_vlan_group_rcu(p), skb, &vid,
+				&state, &vlan))
+>>>>>>> upstream/android-13
 		goto out;
 
 	nbp_switchdev_frame_mark(p, skb);
@@ -93,7 +140,11 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 	/* insert into forwarding database after filtering to avoid spoofing */
 	br = p->br;
 	if (p->flags & BR_LEARNING)
+<<<<<<< HEAD
 		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, false);
+=======
+		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, 0);
+>>>>>>> upstream/android-13
 
 	local_rcv = !!(br->dev->flags & IFF_PROMISC);
 	if (is_multicast_ether_addr(eth_hdr(skb)->h_dest)) {
@@ -103,12 +154,20 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 			local_rcv = true;
 		} else {
 			pkt_type = BR_PKT_MULTICAST;
+<<<<<<< HEAD
 			if (br_multicast_rcv(br, p, skb, vid))
+=======
+			if (br_multicast_rcv(&brmctx, &pmctx, vlan, skb, vid))
+>>>>>>> upstream/android-13
 				goto drop;
 		}
 	}
 
+<<<<<<< HEAD
 	if (p->state == BR_STATE_LEARNING)
+=======
+	if (state == BR_STATE_LEARNING)
+>>>>>>> upstream/android-13
 		goto drop;
 
 	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
@@ -120,7 +179,11 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 		br_do_proxy_suppress_arp(skb, br, vid, p);
 	} else if (IS_ENABLED(CONFIG_IPV6) &&
 		   skb->protocol == htons(ETH_P_IPV6) &&
+<<<<<<< HEAD
 		   br->neigh_suppress_enabled &&
+=======
+		   br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED) &&
+>>>>>>> upstream/android-13
 		   pskb_may_pull(skb, sizeof(struct ipv6hdr) +
 				 sizeof(struct nd_msg)) &&
 		   ipv6_hdr(skb)->nexthdr == IPPROTO_ICMPV6) {
@@ -133,11 +196,19 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 
 	switch (pkt_type) {
 	case BR_PKT_MULTICAST:
+<<<<<<< HEAD
 		mdst = br_mdb_get(br, skb, vid);
 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
 		    br_multicast_querier_exists(br, eth_hdr(skb))) {
 			if ((mdst && mdst->host_joined) ||
 			    br_multicast_is_router(br)) {
+=======
+		mdst = br_mdb_get(brmctx, skb, vid);
+		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst)) {
+			if ((mdst && mdst->host_joined) ||
+			    br_multicast_is_router(brmctx, skb)) {
+>>>>>>> upstream/android-13
 				local_rcv = true;
 				br->dev->stats.multicast++;
 			}
@@ -149,6 +220,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 		break;
 	case BR_PKT_UNICAST:
 		dst = br_fdb_find_rcu(br, eth_hdr(skb)->h_dest, vid);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -156,7 +231,11 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 	if (dst) {
 		unsigned long now = jiffies;
 
+<<<<<<< HEAD
 		if (dst->is_local)
+=======
+		if (test_bit(BR_FDB_LOCAL, &dst->flags))
+>>>>>>> upstream/android-13
 			return br_pass_frame_up(skb);
 
 		if (now != dst->used)
@@ -166,7 +245,11 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
 		if (!mcast_hit)
 			br_flood(br, skb, pkt_type, local_rcv, false);
 		else
+<<<<<<< HEAD
 			br_multicast_flood(mdst, skb, local_rcv, false);
+=======
+			br_multicast_flood(mdst, skb, brmctx, local_rcv, false);
+>>>>>>> upstream/android-13
 	}
 
 	if (local_rcv)
@@ -186,8 +269,16 @@ static void __br_handle_local_finish(struct sk_buff *skb)
 	u16 vid = 0;
 
 	/* check if vlan is allowed, to avoid spoofing */
+<<<<<<< HEAD
 	if (p->flags & BR_LEARNING && br_should_learn(p, skb, &vid))
 		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, false);
+=======
+	if ((p->flags & BR_LEARNING) &&
+	    nbp_state_should_learn(p) &&
+	    !br_opt_get(p->br, BROPT_NO_LL_LEARN) &&
+	    br_should_learn(p, skb, &vid))
+		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, 0);
+>>>>>>> upstream/android-13
 }
 
 /* note: already called with rcu_read_lock */
@@ -199,16 +290,94 @@ static int br_handle_local_finish(struct net *net, struct sock *sk, struct sk_bu
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static int nf_hook_bridge_pre(struct sk_buff *skb, struct sk_buff **pskb)
+{
+#ifdef CONFIG_NETFILTER_FAMILY_BRIDGE
+	struct nf_hook_entries *e = NULL;
+	struct nf_hook_state state;
+	unsigned int verdict, i;
+	struct net *net;
+	int ret;
+
+	net = dev_net(skb->dev);
+#ifdef HAVE_JUMP_LABEL
+	if (!static_key_false(&nf_hooks_needed[NFPROTO_BRIDGE][NF_BR_PRE_ROUTING]))
+		goto frame_finish;
+#endif
+
+	e = rcu_dereference(net->nf.hooks_bridge[NF_BR_PRE_ROUTING]);
+	if (!e)
+		goto frame_finish;
+
+	nf_hook_state_init(&state, NF_BR_PRE_ROUTING,
+			   NFPROTO_BRIDGE, skb->dev, NULL, NULL,
+			   net, br_handle_frame_finish);
+
+	for (i = 0; i < e->num_hook_entries; i++) {
+		verdict = nf_hook_entry_hookfn(&e->hooks[i], skb, &state);
+		switch (verdict & NF_VERDICT_MASK) {
+		case NF_ACCEPT:
+			if (BR_INPUT_SKB_CB(skb)->br_netfilter_broute) {
+				*pskb = skb;
+				return RX_HANDLER_PASS;
+			}
+			break;
+		case NF_DROP:
+			kfree_skb(skb);
+			return RX_HANDLER_CONSUMED;
+		case NF_QUEUE:
+			ret = nf_queue(skb, &state, i, verdict);
+			if (ret == 1)
+				continue;
+			return RX_HANDLER_CONSUMED;
+		default: /* STOLEN */
+			return RX_HANDLER_CONSUMED;
+		}
+	}
+frame_finish:
+	net = dev_net(skb->dev);
+	br_handle_frame_finish(net, NULL, skb);
+#else
+	br_handle_frame_finish(dev_net(skb->dev), NULL, skb);
+#endif
+	return RX_HANDLER_CONSUMED;
+}
+
+/* Return 0 if the frame was not processed otherwise 1
+ * note: already called with rcu_read_lock
+ */
+static int br_process_frame_type(struct net_bridge_port *p,
+				 struct sk_buff *skb)
+{
+	struct br_frame_type *tmp;
+
+	hlist_for_each_entry_rcu(tmp, &p->br->frame_type_list, list)
+		if (unlikely(tmp->type == skb->protocol))
+			return tmp->frame_handler(p, skb);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Return NULL if skb is handled
  * note: already called with rcu_read_lock
  */
+<<<<<<< HEAD
 rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+=======
+static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+>>>>>>> upstream/android-13
 {
 	struct net_bridge_port *p;
 	struct sk_buff *skb = *pskb;
 	const unsigned char *dest = eth_hdr(skb)->h_dest;
+<<<<<<< HEAD
 	br_should_route_hook_t *rhook;
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
 		return RX_HANDLER_PASS;
@@ -220,12 +389,20 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
 	if (!skb)
 		return RX_HANDLER_CONSUMED;
 
+<<<<<<< HEAD
 	p = br_port_get_rcu(skb->dev);
 	if (p->flags & BR_VLAN_TUNNEL) {
 		if (br_handle_ingress_vlan_tunnel(skb, p,
 						  nbp_vlan_group_rcu(p)))
 			goto drop;
 	}
+=======
+	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
+
+	p = br_port_get_rcu(skb->dev);
+	if (p->flags & BR_VLAN_TUNNEL)
+		br_handle_ingress_vlan_tunnel(skb, p, nbp_vlan_group_rcu(p));
+>>>>>>> upstream/android-13
 
 	if (unlikely(is_link_local_ether_addr(dest))) {
 		u16 fwd_mask = p->br->group_fwd_mask_required;
@@ -287,6 +464,7 @@ rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
 		}
 	}
 
+<<<<<<< HEAD
 forward:
 	switch (p->state) {
 	case BR_STATE_FORWARDING:
@@ -299,17 +477,68 @@ forward:
 			dest = eth_hdr(skb)->h_dest;
 		}
 		/* fall through */
+=======
+	if (unlikely(br_process_frame_type(p, skb)))
+		return RX_HANDLER_PASS;
+
+forward:
+	switch (p->state) {
+	case BR_STATE_FORWARDING:
+>>>>>>> upstream/android-13
 	case BR_STATE_LEARNING:
 		if (ether_addr_equal(p->br->dev->dev_addr, dest))
 			skb->pkt_type = PACKET_HOST;
 
+<<<<<<< HEAD
 		NF_HOOK(NFPROTO_BRIDGE, NF_BR_PRE_ROUTING,
 			dev_net(skb->dev), NULL, skb, skb->dev, NULL,
 			br_handle_frame_finish);
 		break;
+=======
+		return nf_hook_bridge_pre(skb, pskb);
+>>>>>>> upstream/android-13
 	default:
 drop:
 		kfree_skb(skb);
 	}
 	return RX_HANDLER_CONSUMED;
 }
+<<<<<<< HEAD
+=======
+
+/* This function has no purpose other than to appease the br_port_get_rcu/rtnl
+ * helpers which identify bridged ports according to the rx_handler installed
+ * on them (so there _needs_ to be a bridge rx_handler even if we don't need it
+ * to do anything useful). This bridge won't support traffic to/from the stack,
+ * but only hardware bridging. So return RX_HANDLER_PASS so we don't steal
+ * frames from the ETH_P_XDSA packet_type handler.
+ */
+static rx_handler_result_t br_handle_frame_dummy(struct sk_buff **pskb)
+{
+	return RX_HANDLER_PASS;
+}
+
+rx_handler_func_t *br_get_rx_handler(const struct net_device *dev)
+{
+	if (netdev_uses_dsa(dev))
+		return br_handle_frame_dummy;
+
+	return br_handle_frame;
+}
+
+void br_add_frame(struct net_bridge *br, struct br_frame_type *ft)
+{
+	hlist_add_head_rcu(&ft->list, &br->frame_type_list);
+}
+
+void br_del_frame(struct net_bridge *br, struct br_frame_type *ft)
+{
+	struct br_frame_type *tmp;
+
+	hlist_for_each_entry(tmp, &br->frame_type_list, list)
+		if (ft == tmp) {
+			hlist_del_rcu(&ft->list);
+			return;
+		}
+}
+>>>>>>> upstream/android-13

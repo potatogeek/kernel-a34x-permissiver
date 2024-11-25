@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* Internal definitions for FS-Cache
  *
  * Copyright (C) 2004-2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -49,6 +56,10 @@ extern struct fscache_cache *fscache_select_cache_for_object(
  * cookie.c
  */
 extern struct kmem_cache *fscache_cookie_jar;
+<<<<<<< HEAD
+=======
+extern const struct seq_operations fscache_cookies_seq_ops;
+>>>>>>> upstream/android-13
 
 extern void fscache_free_cookie(struct fscache_cookie *);
 extern struct fscache_cookie *fscache_alloc_cookie(struct fscache_cookie *,
@@ -57,9 +68,24 @@ extern struct fscache_cookie *fscache_alloc_cookie(struct fscache_cookie *,
 						   const void *, size_t,
 						   void *, loff_t);
 extern struct fscache_cookie *fscache_hash_cookie(struct fscache_cookie *);
+<<<<<<< HEAD
 extern void fscache_cookie_put(struct fscache_cookie *,
 			       enum fscache_cookie_trace);
 
+=======
+extern struct fscache_cookie *fscache_cookie_get(struct fscache_cookie *,
+						 enum fscache_cookie_trace);
+extern void fscache_cookie_put(struct fscache_cookie *,
+			       enum fscache_cookie_trace);
+
+static inline void fscache_cookie_see(struct fscache_cookie *cookie,
+				      enum fscache_cookie_trace where)
+{
+	trace_fscache_cookie(cookie->debug_id, refcount_read(&cookie->ref),
+			     where);
+}
+
+>>>>>>> upstream/android-13
 /*
  * fsdef.c
  */
@@ -67,6 +93,7 @@ extern struct fscache_cookie fscache_fsdef_index;
 extern struct fscache_cookie_def fscache_fsdef_netfs_def;
 
 /*
+<<<<<<< HEAD
  * histogram.c
  */
 #ifdef CONFIG_FSCACHE_HISTOGRAM
@@ -91,6 +118,8 @@ extern const struct seq_operations fscache_histogram_ops;
 #endif
 
 /*
+=======
+>>>>>>> upstream/android-13
  * main.c
  */
 extern unsigned fscache_defer_lookup;
@@ -101,6 +130,11 @@ extern struct workqueue_struct *fscache_object_wq;
 extern struct workqueue_struct *fscache_op_wq;
 DECLARE_PER_CPU(wait_queue_head_t, fscache_object_cong_wait);
 
+<<<<<<< HEAD
+=======
+extern unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n);
+
+>>>>>>> upstream/android-13
 static inline bool fscache_object_congested(void)
 {
 	return workqueue_congested(WORK_CPU_UNBOUND, fscache_object_wq);
@@ -112,6 +146,7 @@ static inline bool fscache_object_congested(void)
 extern void fscache_enqueue_object(struct fscache_object *);
 
 /*
+<<<<<<< HEAD
  * object-list.c
  */
 #ifdef CONFIG_FSCACHE_OBJECT_LIST
@@ -125,6 +160,8 @@ extern void fscache_objlist_remove(struct fscache_object *);
 #endif
 
 /*
+=======
+>>>>>>> upstream/android-13
  * operation.c
  */
 extern int fscache_submit_exclusive_op(struct fscache_object *,
@@ -146,6 +183,13 @@ extern int fscache_wait_for_operation_activation(struct fscache_object *,
 						 atomic_t *,
 						 atomic_t *);
 extern void fscache_invalidate_writes(struct fscache_cookie *);
+<<<<<<< HEAD
+=======
+struct fscache_retrieval *fscache_alloc_retrieval(struct fscache_cookie *cookie,
+						  struct address_space *mapping,
+						  fscache_rw_complete_t end_io_func,
+						  void *context);
+>>>>>>> upstream/android-13
 
 /*
  * proc.c
@@ -320,6 +364,7 @@ static inline void fscache_raise_event(struct fscache_object *object,
 		fscache_enqueue_object(object);
 }
 
+<<<<<<< HEAD
 static inline void fscache_cookie_get(struct fscache_cookie *cookie,
 				      enum fscache_cookie_trace where)
 {
@@ -328,6 +373,8 @@ static inline void fscache_cookie_get(struct fscache_cookie *cookie,
 	trace_fscache_cookie(cookie, where, usage);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * get an extra reference to a netfs retrieval context
  */

@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /******************************************************************************
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
  * Based on the r8180 driver, which is:
  * Copyright 2004-2005 Andrea Merello <andrea.merello@gmail.com>, et al.
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +24,11 @@
  * Contact Information:
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
+=======
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/pci.h>
 #include <linux/vmalloc.h>
@@ -34,7 +45,10 @@
 #include "rtl_pm.h"
 
 int hwwep = 1;
+<<<<<<< HEAD
 static int channels = 0x3fff;
+=======
+>>>>>>> upstream/android-13
 static char *ifname = "wlan%d";
 
 
@@ -74,13 +88,22 @@ static int _rtl92e_pci_probe(struct pci_dev *pdev,
 static void _rtl92e_pci_disconnect(struct pci_dev *pdev);
 static irqreturn_t _rtl92e_irq(int irq, void *netdev);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(rtl92e_pm_ops, rtl92e_suspend, rtl92e_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver rtl8192_pci_driver = {
 	.name = DRV_NAME,	/* Driver name   */
 	.id_table = rtl8192_pci_id_tbl,	/* PCI_ID table  */
 	.probe	= _rtl92e_pci_probe,	/* probe fn      */
 	.remove	 = _rtl92e_pci_disconnect,	/* remove fn */
+<<<<<<< HEAD
 	.suspend = rtl92e_suspend,	/* PM suspend fn */
 	.resume = rtl92e_resume,                 /* PM resume fn  */
+=======
+	.driver.pm = &rtl92e_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static short _rtl92e_is_tx_queue_empty(struct net_device *dev);
@@ -92,8 +115,13 @@ static int _rtl92e_hard_start_xmit(struct sk_buff *skb, struct net_device *dev);
 static void _rtl92e_tx_cmd(struct net_device *dev, struct sk_buff *skb);
 static short _rtl92e_tx(struct net_device *dev, struct sk_buff *skb);
 static short _rtl92e_pci_initdescring(struct net_device *dev);
+<<<<<<< HEAD
 static void _rtl92e_irq_tx_tasklet(struct r8192_priv *priv);
 static void _rtl92e_irq_rx_tasklet(struct r8192_priv *priv);
+=======
+static void _rtl92e_irq_tx_tasklet(struct tasklet_struct *t);
+static void _rtl92e_irq_rx_tasklet(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 static void _rtl92e_cancel_deferred_work(struct r8192_priv *priv);
 static int _rtl92e_up(struct net_device *dev, bool is_silent_reset);
 static int _rtl92e_try_up(struct net_device *dev);
@@ -156,21 +184,35 @@ bool rtl92e_set_rf_state(struct net_device *dev,
 	unsigned long flag;
 
 	RT_TRACE((COMP_PS | COMP_RF),
+<<<<<<< HEAD
 		 "===>rtl92e_set_rf_state(): StateToSet(%d)\n", StateToSet);
+=======
+		 "===>%s: StateToSet(%d)\n", __func__, StateToSet);
+>>>>>>> upstream/android-13
 
 	while (true) {
 		spin_lock_irqsave(&priv->rf_ps_lock, flag);
 		if (priv->RFChangeInProgress) {
 			spin_unlock_irqrestore(&priv->rf_ps_lock, flag);
 			RT_TRACE((COMP_PS | COMP_RF),
+<<<<<<< HEAD
 				 "rtl92e_set_rf_state(): RF Change in progress! Wait to set..StateToSet(%d).\n",
 				 StateToSet);
+=======
+				 "%s: RF Change in progress! Wait to set..StateToSet(%d).\n",
+				 __func__, StateToSet);
+>>>>>>> upstream/android-13
 
 			while (priv->RFChangeInProgress) {
 				RFWaitCounter++;
 				RT_TRACE((COMP_PS | COMP_RF),
+<<<<<<< HEAD
 					 "rtl92e_set_rf_state(): Wait 1 ms (%d times)...\n",
 					 RFWaitCounter);
+=======
+					 "%s: Wait 1 ms (%d times)...\n",
+					 __func__, RFWaitCounter);
+>>>>>>> upstream/android-13
 				mdelay(1);
 
 				if (RFWaitCounter > 100) {
@@ -206,8 +248,13 @@ bool rtl92e_set_rf_state(struct net_device *dev,
 				bConnectBySSID = true;
 		} else {
 			RT_TRACE((COMP_PS | COMP_RF),
+<<<<<<< HEAD
 				 "rtl92e_set_rf_state - eRfon reject pMgntInfo->RfOffReason= 0x%x, ChangeSource=0x%X\n",
 				  priv->rtllib->RfOffReason, ChangeSource);
+=======
+				 "%s - eRfon reject pMgntInfo->RfOffReason= 0x%x, ChangeSource=0x%X\n",
+				 __func__, priv->rtllib->RfOffReason, ChangeSource);
+>>>>>>> upstream/android-13
 	}
 
 		break;
@@ -243,8 +290,13 @@ bool rtl92e_set_rf_state(struct net_device *dev,
 
 	if (bActionAllowed) {
 		RT_TRACE((COMP_PS | COMP_RF),
+<<<<<<< HEAD
 			 "rtl92e_set_rf_state(): Action is allowed.... StateToSet(%d), RfOffReason(%#X)\n",
 			 StateToSet, priv->rtllib->RfOffReason);
+=======
+			 "%s: Action is allowed.... StateToSet(%d), RfOffReason(%#X)\n",
+			 __func__, StateToSet, priv->rtllib->RfOffReason);
+>>>>>>> upstream/android-13
 		PHY_SetRFPowerState(dev, StateToSet);
 		if (StateToSet == eRfOn) {
 
@@ -256,15 +308,24 @@ bool rtl92e_set_rf_state(struct net_device *dev,
 		}
 	} else {
 		RT_TRACE((COMP_PS | COMP_RF),
+<<<<<<< HEAD
 			 "rtl92e_set_rf_state(): Action is rejected.... StateToSet(%d), ChangeSource(%#X), RfOffReason(%#X)\n",
 			 StateToSet, ChangeSource, priv->rtllib->RfOffReason);
+=======
+			 "%s: Action is rejected.... StateToSet(%d), ChangeSource(%#X), RfOffReason(%#X)\n",
+			 __func__, StateToSet, ChangeSource, priv->rtllib->RfOffReason);
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_irqsave(&priv->rf_ps_lock, flag);
 	priv->RFChangeInProgress = false;
 	spin_unlock_irqrestore(&priv->rf_ps_lock, flag);
 
+<<<<<<< HEAD
 	RT_TRACE((COMP_PS | COMP_RF), "<===rtl92e_set_rf_state()\n");
+=======
+	RT_TRACE((COMP_PS | COMP_RF), "<===%s\n", __func__);
+>>>>>>> upstream/android-13
 	return bActionAllowed;
 }
 
@@ -278,7 +339,11 @@ static short _rtl92e_check_nic_enough_desc(struct net_device *dev, int prio)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void _rtl92e_tx_timeout(struct net_device *dev)
+=======
+static void _rtl92e_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct r8192_priv *priv = rtllib_priv(dev);
 
@@ -385,9 +450,14 @@ static void _rtl92e_update_beacon(void *data)
 
 	if (ieee->pHTInfo->bCurrentHTSupport)
 		HT_update_self_and_peer_setting(ieee, net);
+<<<<<<< HEAD
 	ieee->pHTInfo->bCurrentRT2RTLongSlotTime =
 		 net->bssht.bdRT2RTLongSlotTime;
 	ieee->pHTInfo->RT2RT_HT_Mode = net->bssht.RT2RT_HT_Mode;
+=======
+	ieee->pHTInfo->bCurrentRT2RTLongSlotTime = net->bssht.bd_rt2rt_long_slot_time;
+	ieee->pHTInfo->RT2RT_HT_Mode = net->bssht.rt2rt_ht_mode;
+>>>>>>> upstream/android-13
 	_rtl92e_update_cap(dev, net->capability);
 }
 
@@ -436,7 +506,11 @@ static int _rtl92e_qos_handle_probe_response(struct r8192_priv *priv,
 				network->qos_data.param_count)) {
 			network->qos_data.old_param_count =
 				network->qos_data.param_count;
+<<<<<<< HEAD
 	priv->rtllib->wmm_acm = network->qos_data.wmm_acm;
+=======
+			priv->rtllib->wmm_acm = network->qos_data.wmm_acm;
+>>>>>>> upstream/android-13
 			schedule_work(&priv->qos_activate);
 			RT_TRACE(COMP_QOS,
 				 "QoS parameters change call qos_activate\n");
@@ -527,8 +601,15 @@ static int _rtl92e_handle_assoc_response(struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void _rtl92e_prepare_beacon(struct r8192_priv *priv)
 {
+=======
+static void _rtl92e_prepare_beacon(struct tasklet_struct *t)
+{
+	struct r8192_priv *priv = from_tasklet(priv, t,
+					       irq_prepare_beacon_tasklet);
+>>>>>>> upstream/android-13
 	struct net_device *dev = priv->rtllib->dev;
 	struct sk_buff *pskb = NULL, *pnewskb = NULL;
 	struct cb_desc *tcb_desc = NULL;
@@ -726,8 +807,13 @@ void rtl92e_set_wireless_mode(struct net_device *dev, u8 wireless_mode)
 	if ((wireless_mode == WIRELESS_MODE_N_24G) ||
 	    (wireless_mode == WIRELESS_MODE_N_5G)) {
 		priv->rtllib->pHTInfo->bEnableHT = 1;
+<<<<<<< HEAD
 	RT_TRACE(COMP_DBG, "%s(), wireless_mode:%x, bEnableHT = 1\n",
 		 __func__, wireless_mode);
+=======
+		RT_TRACE(COMP_DBG, "%s(), wireless_mode:%x, bEnableHT = 1\n",
+			 __func__, wireless_mode);
+>>>>>>> upstream/android-13
 	} else {
 		priv->rtllib->pHTInfo->bEnableHT = 0;
 		RT_TRACE(COMP_DBG, "%s(), wireless_mode:%x, bEnableHT = 0\n",
@@ -743,7 +829,11 @@ static int _rtl92e_sta_up(struct net_device *dev, bool is_silent_reset)
 	struct r8192_priv *priv = rtllib_priv(dev);
 	struct rt_pwr_save_ctrl *pPSC = (struct rt_pwr_save_ctrl *)
 					(&priv->rtllib->PowerSaveControl);
+<<<<<<< HEAD
 	bool init_status = true;
+=======
+	bool init_status;
+>>>>>>> upstream/android-13
 
 	priv->bDriverIsGoingToUnload = false;
 	priv->bdisable_nic = false;
@@ -1018,6 +1108,7 @@ static void _rtl92e_init_priv_task(struct net_device *dev)
 			      (void *)rtl92e_hw_wakeup_wq, dev);
 	INIT_DELAYED_WORK_RSL(&priv->rtllib->hw_sleep_wq,
 			      (void *)rtl92e_hw_sleep_wq, dev);
+<<<<<<< HEAD
 	tasklet_init(&priv->irq_rx_tasklet,
 		     (void(*)(unsigned long))_rtl92e_irq_rx_tasklet,
 		     (unsigned long)priv);
@@ -1027,6 +1118,12 @@ static void _rtl92e_init_priv_task(struct net_device *dev)
 	tasklet_init(&priv->irq_prepare_beacon_tasklet,
 		     (void(*)(unsigned long))_rtl92e_prepare_beacon,
 		     (unsigned long)priv);
+=======
+	tasklet_setup(&priv->irq_rx_tasklet, _rtl92e_irq_rx_tasklet);
+	tasklet_setup(&priv->irq_tx_tasklet, _rtl92e_irq_tx_tasklet);
+	tasklet_setup(&priv->irq_prepare_beacon_tasklet,
+		      _rtl92e_prepare_beacon);
+>>>>>>> upstream/android-13
 }
 
 static short _rtl92e_get_channel_map(struct net_device *dev)
@@ -1049,7 +1146,11 @@ static short _rtl92e_get_channel_map(struct net_device *dev)
 	}
 	RT_TRACE(COMP_INIT, "Channel plan is %d\n", priv->ChannelPlan);
 	dot11d_init(priv->rtllib);
+<<<<<<< HEAD
 	Dot11d_Channelmap(priv->ChannelPlan, priv->rtllib);
+=======
+	dot11d_channel_map(priv->ChannelPlan, priv->rtllib);
+>>>>>>> upstream/android-13
 	for (i = 1; i <= 11; i++)
 		(priv->rtllib->active_channel_map)[i] = 1;
 	(priv->rtllib->active_channel_map)[12] = 2;
@@ -1149,7 +1250,11 @@ static enum reset_type _rtl92e_tx_check_stuck(struct net_device *dev)
 		if (skb_queue_len(&ring->queue) == 0) {
 			continue;
 		} else {
+<<<<<<< HEAD
 			skb = (&ring->queue)->next;
+=======
+			skb = __skb_peek(&ring->queue);
+>>>>>>> upstream/android-13
 			tcb_desc = (struct cb_desc *)(skb->cb +
 				    MAX_DEV_ADDR_SIZE);
 			tcb_desc->nStuckCount++;
@@ -1402,7 +1507,11 @@ static void _rtl92e_watchdog_wq_cb(void *data)
 
 	rtl92e_dm_watchdog(dev);
 
+<<<<<<< HEAD
 	if (rtllib_act_scanning(priv->rtllib, false) == false) {
+=======
+	if (!rtllib_act_scanning(priv->rtllib, false)) {
+>>>>>>> upstream/android-13
 		if ((ieee->iw_mode == IW_MODE_INFRA) && (ieee->state ==
 		     RTLLIB_NOLINK) &&
 		     (ieee->eRFPowerState == eRfOn) && !ieee->is_set_key &&
@@ -1570,6 +1679,7 @@ static void _rtl92e_free_rx_ring(struct net_device *dev)
 			if (!skb)
 				continue;
 
+<<<<<<< HEAD
 			pci_unmap_single(priv->pdev,
 				*((dma_addr_t *)skb->cb),
 				priv->rxbuffersize, PCI_DMA_FROMDEVICE);
@@ -1581,6 +1691,18 @@ static void _rtl92e_free_rx_ring(struct net_device *dev)
 			priv->rxringcount,
 			priv->rx_ring[rx_queue_idx],
 			priv->rx_ring_dma[rx_queue_idx]);
+=======
+			dma_unmap_single(&priv->pdev->dev,
+					 *((dma_addr_t *)skb->cb),
+					 priv->rxbuffersize, DMA_FROM_DEVICE);
+			kfree_skb(skb);
+		}
+
+		dma_free_coherent(&priv->pdev->dev,
+				  sizeof(*priv->rx_ring[rx_queue_idx]) * priv->rxringcount,
+				  priv->rx_ring[rx_queue_idx],
+				  priv->rx_ring_dma[rx_queue_idx]);
+>>>>>>> upstream/android-13
 		priv->rx_ring[rx_queue_idx] = NULL;
 	}
 }
@@ -1594,14 +1716,25 @@ static void _rtl92e_free_tx_ring(struct net_device *dev, unsigned int prio)
 		struct tx_desc *entry = &ring->desc[ring->idx];
 		struct sk_buff *skb = __skb_dequeue(&ring->queue);
 
+<<<<<<< HEAD
 		pci_unmap_single(priv->pdev, entry->TxBuffAddr,
 			skb->len, PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev, entry->TxBuffAddr,
+				 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		kfree_skb(skb);
 		ring->idx = (ring->idx + 1) % ring->entries;
 	}
 
+<<<<<<< HEAD
 	pci_free_consistent(priv->pdev, sizeof(*ring->desc) * ring->entries,
 	ring->desc, ring->dma);
+=======
+	dma_free_coherent(&priv->pdev->dev,
+			  sizeof(*ring->desc) * ring->entries, ring->desc,
+			  ring->dma);
+>>>>>>> upstream/android-13
 	ring->desc = NULL;
 }
 
@@ -1688,8 +1821,13 @@ static void _rtl92e_tx_isr(struct net_device *dev, int prio)
 		}
 
 		skb = __skb_dequeue(&ring->queue);
+<<<<<<< HEAD
 		pci_unmap_single(priv->pdev, entry->TxBuffAddr,
 		skb->len, PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev, entry->TxBuffAddr,
+				 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		kfree_skb(skb);
 	}
@@ -1729,8 +1867,12 @@ static short _rtl92e_tx(struct net_device *dev, struct sk_buff *skb)
 				    MAX_DEV_ADDR_SIZE);
 	struct tx_desc *pdesc = NULL;
 	struct rtllib_hdr_1addr *header = NULL;
+<<<<<<< HEAD
 	u16 fc = 0, type = 0, stype = 0;
 	bool  multi_addr = false, broad_addr = false, uni_addr = false;
+=======
+	u16 fc = 0, type = 0;
+>>>>>>> upstream/android-13
 	u8 *pda_addr = NULL;
 	int   idx;
 	u32 fwinfo_size = 0;
@@ -1748,6 +1890,7 @@ static short _rtl92e_tx(struct net_device *dev, struct sk_buff *skb)
 	header = (struct rtllib_hdr_1addr *)(((u8 *)skb->data) + fwinfo_size);
 	fc = le16_to_cpu(header->frame_ctl);
 	type = WLAN_FC_GET_TYPE(fc);
+<<<<<<< HEAD
 	stype = WLAN_FC_GET_STYPE(fc);
 	pda_addr = header->addr1;
 
@@ -1764,6 +1907,16 @@ static short _rtl92e_tx(struct net_device *dev, struct sk_buff *skb)
 		priv->stats.txbytesmulticast += skb->len - fwinfo_size;
 	else
 		priv->stats.txbytesbroadcast += skb->len - fwinfo_size;
+=======
+	pda_addr = header->addr1;
+
+	if (is_broadcast_ether_addr(pda_addr))
+		priv->stats.txbytesbroadcast += skb->len - fwinfo_size;
+	else if (is_multicast_ether_addr(pda_addr))
+		priv->stats.txbytesmulticast += skb->len - fwinfo_size;
+	else
+		priv->stats.txbytesunicast += skb->len - fwinfo_size;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&priv->irq_th_lock, flags);
 	ring = &priv->tx_ring[tcb_desc->queue_index];
@@ -1803,9 +1956,16 @@ static short _rtl92e_alloc_rx_ring(struct net_device *dev)
 	int i, rx_queue_idx;
 
 	for (rx_queue_idx = 0; rx_queue_idx < MAX_RX_QUEUE; rx_queue_idx++) {
+<<<<<<< HEAD
 		priv->rx_ring[rx_queue_idx] = pci_zalloc_consistent(priv->pdev,
 					      sizeof(*priv->rx_ring[rx_queue_idx]) * priv->rxringcount,
 					      &priv->rx_ring_dma[rx_queue_idx]);
+=======
+		priv->rx_ring[rx_queue_idx] = dma_alloc_coherent(&priv->pdev->dev,
+								 sizeof(*priv->rx_ring[rx_queue_idx]) * priv->rxringcount,
+								 &priv->rx_ring_dma[rx_queue_idx],
+								 GFP_ATOMIC);
+>>>>>>> upstream/android-13
 		if (!priv->rx_ring[rx_queue_idx] ||
 		    (unsigned long)priv->rx_ring[rx_queue_idx] & 0xFF) {
 			netdev_warn(dev, "Cannot allocate RX ring\n");
@@ -1824,11 +1984,18 @@ static short _rtl92e_alloc_rx_ring(struct net_device *dev)
 			skb->dev = dev;
 			priv->rx_buf[rx_queue_idx][i] = skb;
 			mapping = (dma_addr_t *)skb->cb;
+<<<<<<< HEAD
 			*mapping = pci_map_single(priv->pdev,
 						  skb_tail_pointer_rsl(skb),
 						  priv->rxbuffersize,
 						  PCI_DMA_FROMDEVICE);
 			if (pci_dma_mapping_error(priv->pdev, *mapping)) {
+=======
+			*mapping = dma_map_single(&priv->pdev->dev,
+						  skb_tail_pointer_rsl(skb),
+						  priv->rxbuffersize, DMA_FROM_DEVICE);
+			if (dma_mapping_error(&priv->pdev->dev, *mapping)) {
+>>>>>>> upstream/android-13
 				dev_kfree_skb_any(skb);
 				return -1;
 			}
@@ -1852,7 +2019,12 @@ static int _rtl92e_alloc_tx_ring(struct net_device *dev, unsigned int prio,
 	dma_addr_t dma;
 	int i;
 
+<<<<<<< HEAD
 	ring = pci_zalloc_consistent(priv->pdev, sizeof(*ring) * entries, &dma);
+=======
+	ring = dma_alloc_coherent(&priv->pdev->dev, sizeof(*ring) * entries,
+				  &dma, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!ring || (unsigned long)ring & 0xFF) {
 		netdev_warn(dev, "Cannot allocate TX ring (prio = %d)\n", prio);
 		return -ENOMEM;
@@ -1926,9 +2098,15 @@ void rtl92e_reset_desc_ring(struct net_device *dev)
 				struct sk_buff *skb =
 						 __skb_dequeue(&ring->queue);
 
+<<<<<<< HEAD
 				pci_unmap_single(priv->pdev,
 						 entry->TxBuffAddr,
 						 skb->len, PCI_DMA_TODEVICE);
+=======
+				dma_unmap_single(&priv->pdev->dev,
+						 entry->TxBuffAddr, skb->len,
+						 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 				kfree_skb(skb);
 				ring->idx = (ring->idx + 1) % ring->entries;
 			}
@@ -1993,6 +2171,7 @@ u8 rtl92e_rx_db_to_percent(s8 antpower)
 
 u8 rtl92e_evm_db_to_percent(s8 value)
 {
+<<<<<<< HEAD
 	s8 ret_val;
 
 	ret_val = value;
@@ -2005,6 +2184,13 @@ u8 rtl92e_evm_db_to_percent(s8 value)
 	ret_val *= 3;
 	if (ret_val == 99)
 		ret_val = 100;
+=======
+	s8 ret_val = clamp(-value, 0, 33) * 3;
+
+	if (ret_val == 99)
+		ret_val = 100;
+
+>>>>>>> upstream/android-13
 	return ret_val;
 }
 
@@ -2056,10 +2242,15 @@ static void _rtl92e_rx_normal(struct net_device *dev)
 		if (unlikely(!new_skb))
 			goto done;
 
+<<<<<<< HEAD
 		pci_unmap_single(priv->pdev,
 				*((dma_addr_t *)skb->cb),
 				priv->rxbuffersize,
 				PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&priv->pdev->dev, *((dma_addr_t *)skb->cb),
+				 priv->rxbuffersize, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		skb_put(skb, pdesc->Length);
 		skb_reserve(skb, stats.RxDrvInfoSize +
@@ -2102,12 +2293,19 @@ static void _rtl92e_rx_normal(struct net_device *dev)
 
 		priv->rx_buf[rx_queue_idx][priv->rx_idx[rx_queue_idx]] =
 								 skb;
+<<<<<<< HEAD
 		*((dma_addr_t *)skb->cb) = pci_map_single(priv->pdev,
 					    skb_tail_pointer_rsl(skb),
 					    priv->rxbuffersize,
 					    PCI_DMA_FROMDEVICE);
 		if (pci_dma_mapping_error(priv->pdev,
 					  *((dma_addr_t *)skb->cb))) {
+=======
+		*((dma_addr_t *)skb->cb) = dma_map_single(&priv->pdev->dev,
+							  skb_tail_pointer_rsl(skb),
+							  priv->rxbuffersize, DMA_FROM_DEVICE);
+		if (dma_mapping_error(&priv->pdev->dev, *((dma_addr_t *)skb->cb))) {
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(skb);
 			return;
 		}
@@ -2140,6 +2338,7 @@ static void _rtl92e_tx_resume(struct net_device *dev)
 	}
 }
 
+<<<<<<< HEAD
 static void _rtl92e_irq_tx_tasklet(struct r8192_priv *priv)
 {
 	_rtl92e_tx_resume(priv->rtllib->dev);
@@ -2147,6 +2346,19 @@ static void _rtl92e_irq_tx_tasklet(struct r8192_priv *priv)
 
 static void _rtl92e_irq_rx_tasklet(struct r8192_priv *priv)
 {
+=======
+static void _rtl92e_irq_tx_tasklet(struct tasklet_struct *t)
+{
+	struct r8192_priv *priv = from_tasklet(priv, t, irq_tx_tasklet);
+
+	_rtl92e_tx_resume(priv->rtllib->dev);
+}
+
+static void _rtl92e_irq_rx_tasklet(struct tasklet_struct *t)
+{
+	struct r8192_priv *priv = from_tasklet(priv, t, irq_rx_tasklet);
+
+>>>>>>> upstream/android-13
 	_rtl92e_rx_normal(priv->rtllib->dev);
 
 	rtl92e_writel(priv->rtllib->dev, INTA_MASK,
@@ -2441,8 +2653,13 @@ static int _rtl92e_pci_probe(struct pci_dev *pdev,
 
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+		if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 			dev_info(&pdev->dev,
 				 "Unable to obtain 32bit DMA for consistent allocations\n");
 			goto err_pci_disable;
@@ -2483,7 +2700,11 @@ static int _rtl92e_pci_probe(struct pci_dev *pdev,
 	}
 
 
+<<<<<<< HEAD
 	ioaddr = (unsigned long)ioremap_nocache(pmem_start, pmem_len);
+=======
+	ioaddr = (unsigned long)ioremap(pmem_start, pmem_len);
+>>>>>>> upstream/android-13
 	if (ioaddr == (unsigned long)NULL) {
 		netdev_err(dev, "ioremap failed!");
 		goto err_rel_mem;
@@ -2499,7 +2720,11 @@ static int _rtl92e_pci_probe(struct pci_dev *pdev,
 
 	priv->ops = ops;
 
+<<<<<<< HEAD
 	if (rtl92e_check_adapter(pdev, dev) == false)
+=======
+	if (!rtl92e_check_adapter(pdev, dev))
+>>>>>>> upstream/android-13
 		goto err_unmap;
 
 	dev->irq = pdev->irq;
@@ -2516,7 +2741,11 @@ static int _rtl92e_pci_probe(struct pci_dev *pdev,
 	if (dev_alloc_name(dev, ifname) < 0) {
 		RT_TRACE(COMP_INIT,
 			 "Oops: devname already taken! Trying wlan%%d...\n");
+<<<<<<< HEAD
 			dev_alloc_name(dev, ifname);
+=======
+		dev_alloc_name(dev, ifname);
+>>>>>>> upstream/android-13
 	}
 
 	RT_TRACE(COMP_INIT, "Driver probe completed1\n");
@@ -2579,15 +2808,23 @@ static void _rtl92e_pci_disconnect(struct pci_dev *pdev)
 			free_irq(dev->irq, dev);
 			priv->irq = 0;
 		}
+<<<<<<< HEAD
 		free_rtllib(dev);
+=======
+>>>>>>> upstream/android-13
 
 		if (dev->mem_start != 0) {
 			iounmap((void __iomem *)dev->mem_start);
 			release_mem_region(pci_resource_start(pdev, 1),
 					pci_resource_len(pdev, 1));
 		}
+<<<<<<< HEAD
 	} else {
 		priv = rtllib_priv(dev);
+=======
+
+		free_rtllib(dev);
+>>>>>>> upstream/android-13
 	}
 
 	pci_disable_device(pdev);
@@ -2671,8 +2908,14 @@ MODULE_FIRMWARE(RTL8192E_DATA_IMG_FW);
 
 module_param(ifname, charp, 0644);
 module_param(hwwep, int, 0644);
+<<<<<<< HEAD
 module_param(channels, int, 0644);
 
 MODULE_PARM_DESC(ifname, " Net interface name, wlan%d=default");
 MODULE_PARM_DESC(hwwep, " Try to use hardware WEP support(default use hw. set 0 to use software security)");
 MODULE_PARM_DESC(channels, " Channel bitmask for specific locales. NYI");
+=======
+
+MODULE_PARM_DESC(ifname, " Net interface name, wlan%d=default");
+MODULE_PARM_DESC(hwwep, " Try to use hardware WEP support(default use hw. set 0 to use software security)");
+>>>>>>> upstream/android-13

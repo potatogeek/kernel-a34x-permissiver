@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QED_DCBX_H
@@ -107,6 +114,11 @@ struct qed_dcbx_mib_meta_data {
 	u32 addr;
 };
 
+<<<<<<< HEAD
+=======
+extern const struct qed_eth_dcbnl_ops qed_dcbnl_ops_pass;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DCB
 int qed_dcbx_get_config_params(struct qed_hwfn *, struct qed_dcbx_set *);
 

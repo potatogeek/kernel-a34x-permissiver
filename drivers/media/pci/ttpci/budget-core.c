@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * budget-core.c: driver for the SAA7146 based Budget DVB cards
  *
@@ -13,6 +17,7 @@
  *	     Oliver Endriss <o.endriss@gmx.de>,
  *	     Andreas 'randy' Weinberger
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -28,6 +33,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 
@@ -185,16 +192,27 @@ static int budget_read_fe_status(struct dvb_frontend *fe,
 	return ret;
 }
 
+<<<<<<< HEAD
 static void vpeirq(unsigned long data)
 {
 	struct budget *budget = (struct budget *) data;
+=======
+static void vpeirq(struct tasklet_struct *t)
+{
+	struct budget *budget = from_tasklet(budget, t, vpe_tasklet);
+>>>>>>> upstream/android-13
 	u8 *mem = (u8 *) (budget->grabbing);
 	u32 olddma = budget->ttbp;
 	u32 newdma = saa7146_read(budget->dev, PCI_VDP3);
 	u32 count;
 
 	/* Ensure streamed PCI data is synced to CPU */
+<<<<<<< HEAD
 	pci_dma_sync_sg_for_cpu(budget->dev->pci, budget->pt.slist, budget->pt.nents, PCI_DMA_FROMDEVICE);
+=======
+	dma_sync_sg_for_cpu(&budget->dev->pci->dev, budget->pt.slist,
+			    budget->pt.nents, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	/* nearest lower position divisible by 188 */
 	newdma -= newdma % 188;
@@ -509,10 +527,19 @@ int ttpci_budget_init(struct budget *budget, struct saa7146_dev *dev,
 	if (bi->type != BUDGET_FS_ACTIVY)
 		saa7146_write(dev, GPIO_CTRL, 0x500000);	/* GPIO 3 = 1 */
 
+<<<<<<< HEAD
 	strlcpy(budget->i2c_adap.name, budget->card->name, sizeof(budget->i2c_adap.name));
 
 	saa7146_i2c_adapter_prepare(dev, &budget->i2c_adap, SAA7146_I2C_BUS_BIT_RATE_120);
 	strcpy(budget->i2c_adap.name, budget->card->name);
+=======
+	strscpy(budget->i2c_adap.name, budget->card->name,
+		sizeof(budget->i2c_adap.name));
+
+	saa7146_i2c_adapter_prepare(dev, &budget->i2c_adap, SAA7146_I2C_BUS_BIT_RATE_120);
+	strscpy(budget->i2c_adap.name, budget->card->name,
+		sizeof(budget->i2c_adap.name));
+>>>>>>> upstream/android-13
 
 	if (i2c_add_adapter(&budget->i2c_adap) < 0) {
 		ret = -ENOMEM;
@@ -531,7 +558,11 @@ int ttpci_budget_init(struct budget *budget, struct saa7146_dev *dev,
 	/* upload all */
 	saa7146_write(dev, GPIO_CTRL, 0x000000);
 
+<<<<<<< HEAD
 	tasklet_init(&budget->vpe_tasklet, vpeirq, (unsigned long) budget);
+=======
+	tasklet_setup(&budget->vpe_tasklet, vpeirq);
+>>>>>>> upstream/android-13
 
 	/* frontend power on */
 	if (bi->type != BUDGET_FS_ACTIVY)

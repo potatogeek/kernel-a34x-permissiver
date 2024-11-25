@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Marek Vasut <marex@denx.de>
  *
@@ -7,6 +8,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+
+ * Copyright (C) 2012 Marek Vasut <marex@denx.de>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -18,7 +25,11 @@
 
 	apb@80000000 {
 		apbh@80000000 {
+<<<<<<< HEAD
 			ssp0: ssp@80010000 {
+=======
+			ssp0: spi@80010000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx28-mmc";
 				pinctrl-names = "default";
 				pinctrl-0 = <&mmc0_8bit_pins_a
@@ -30,7 +41,11 @@
 				status = "okay";
 			};
 
+<<<<<<< HEAD
 			ssp2: ssp@80014000 {
+=======
+			ssp2: spi@80014000 {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "fsl,imx28-spi";

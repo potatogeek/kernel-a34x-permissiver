@@ -66,7 +66,11 @@ static bool tscs42xx_volatile(struct device *dev, unsigned int reg)
 		return true;
 	default:
 		return false;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static bool tscs42xx_precious(struct device *dev, unsigned int reg)
@@ -81,7 +85,11 @@ static bool tscs42xx_precious(struct device *dev, unsigned int reg)
 		return true;
 	default:
 		return false;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct regmap_config tscs42xx_regmap = {
@@ -103,7 +111,11 @@ static bool plls_locked(struct snd_soc_component *component)
 	int count = MAX_PLL_LOCK_20MS_WAITS;
 
 	do {
+<<<<<<< HEAD
 		ret = snd_soc_component_read32(component, R_PLLCTL0);
+=======
+		ret = snd_soc_component_read(component, R_PLLCTL0);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			dev_err(component->dev,
 				"Failed to read PLL lock status (%d)\n", ret);
@@ -148,7 +160,11 @@ static int write_coeff_ram(struct snd_soc_component *component, u8 *coeff_ram,
 	for (cnt = 0; cnt < coeff_cnt; cnt++, addr++) {
 
 		for (trys = 0; trys < DACCRSTAT_MAX_TRYS; trys++) {
+<<<<<<< HEAD
 			ret = snd_soc_component_read32(component, R_DACCRSTAT);
+=======
+			ret = snd_soc_component_read(component, R_DACCRSTAT);
+>>>>>>> upstream/android-13
 			if (ret < 0) {
 				dev_err(component->dev,
 					"Failed to read stat (%d)\n", ret);
@@ -389,7 +405,11 @@ static int dac_event(struct snd_soc_dapm_widget *w,
 
 	mutex_lock(&tscs42xx->coeff_ram_lock);
 
+<<<<<<< HEAD
 	if (tscs42xx->coeff_ram_synced == false) {
+=======
+	if (!tscs42xx->coeff_ram_synced) {
+>>>>>>> upstream/android-13
 		ret = write_coeff_ram(component, tscs42xx->coeff_ram, 0x00,
 			COEFF_RAM_COEFF_COUNT);
 		if (ret < 0)
@@ -1294,7 +1314,11 @@ static int part_is_valid(struct tscs42xx *tscs42xx)
 		return true;
 	default:
 		return false;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static int set_sysclk(struct snd_soc_component *component)
@@ -1397,9 +1421,15 @@ static struct snd_soc_dai_driver tscs42xx_dai = {
 		.rates = TSCS42XX_RATES,
 		.formats = TSCS42XX_FORMATS,},
 	.ops = &tscs42xx_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
 	.symmetric_channels = 1,
 	.symmetric_samplebits = 1,
+=======
+	.symmetric_rate = 1,
+	.symmetric_channels = 1,
+	.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct reg_sequence tscs42xx_patch[] = {

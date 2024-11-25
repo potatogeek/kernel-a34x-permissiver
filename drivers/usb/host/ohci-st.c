@@ -132,17 +132,25 @@ static int st_ohci_platform_probe(struct platform_device *dev)
 	struct resource *res_mem;
 	struct usb_ohci_pdata *pdata = &ohci_platform_defaults;
 	struct st_ohci_platform_priv *priv;
+<<<<<<< HEAD
 	struct ohci_hcd *ohci;
+=======
+>>>>>>> upstream/android-13
 	int err, irq, clk = 0;
 
 	if (usb_disabled())
 		return -ENODEV;
 
 	irq = platform_get_irq(dev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&dev->dev, "no irq provided");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	res_mem = platform_get_resource(dev, IORESOURCE_MEM, 0);
 	if (!res_mem) {
@@ -158,7 +166,10 @@ static int st_ohci_platform_probe(struct platform_device *dev)
 	platform_set_drvdata(dev, hcd);
 	dev->dev.platform_data = pdata;
 	priv = hcd_to_ohci_priv(hcd);
+<<<<<<< HEAD
 	ohci = hcd_to_ohci(hcd);
+=======
+>>>>>>> upstream/android-13
 
 	priv->phy = devm_phy_get(&dev->dev, "usb");
 	if (IS_ERR(priv->phy)) {

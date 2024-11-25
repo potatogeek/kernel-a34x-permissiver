@@ -22,6 +22,7 @@
 
 struct flip_cover_detector_event {
 	u8 value;
+<<<<<<< HEAD
 	s8 nfc;
 	s32 diff;
 	s32 magX;
@@ -30,6 +31,10 @@ struct flip_cover_detector_event {
 	u16 detach_mismatch_cnt;
     u16 detach_mismatch_stop_cnt;
 	u16 attach_retry_cnt;
+=======
+	s32 magX;
+	s32 stable_min_max;
+>>>>>>> upstream/android-13
 	s32 uncal_mag_x;
 	s32 uncal_mag_y;
 	s32 uncal_mag_z;

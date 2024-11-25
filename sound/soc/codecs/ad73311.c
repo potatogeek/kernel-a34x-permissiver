@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ad73311.c  --  ALSA Soc AD73311 codec support
  *
@@ -8,6 +9,14 @@
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * ad73311.c  --  ALSA Soc AD73311 codec support
+ *
+ * Copyright:	Analog Devices Inc.
+ * Author:	Cliff Cai <cliff.cai@analog.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

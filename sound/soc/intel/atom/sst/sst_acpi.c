@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sst_acpi.c - SST (LPE) driver init file for ACPI enumeration.
  *
@@ -5,6 +9,7 @@
  *
  *  Authors:	Ramesh Babu K V <Ramesh.Babu@intel.com>
  *  Authors:	Omair Mohammed Abdullah <omair.m.abdullah@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  * more details.
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -31,6 +38,10 @@
 #include <linux/acpi.h>
 #include <asm/platform_sst_audio.h>
 #include <sound/core.h>
+<<<<<<< HEAD
+=======
+#include <sound/intel-dsp-config.h>
+>>>>>>> upstream/android-13
 #include <sound/soc.h>
 #include <sound/compress_driver.h>
 #include <acpi/acbuffer.h>
@@ -38,12 +49,19 @@
 #include <acpi/platform/aclinux.h>
 #include <acpi/actypes.h>
 #include <acpi/acpi_bus.h>
+<<<<<<< HEAD
 #include <asm/cpu_device_id.h>
 #include <asm/iosf_mbi.h>
 #include <sound/soc-acpi.h>
 #include <sound/soc-acpi-intel-match.h>
 #include "../sst-mfld-platform.h"
 #include "../../common/sst-dsp.h"
+=======
+#include <sound/soc-acpi.h>
+#include <sound/soc-acpi-intel-match.h>
+#include "../sst-mfld-platform.h"
+#include "../../common/soc-intel-quirks.h"
+>>>>>>> upstream/android-13
 #include "sst.h"
 
 /* LPE viewpoint addresses */
@@ -176,7 +194,11 @@ static int sst_platform_get_resources(struct intel_sst_drv *ctx)
 	ctx->iram_base = rsrc->start + ctx->pdata->res_info->iram_offset;
 	ctx->iram_end =  ctx->iram_base + ctx->pdata->res_info->iram_size - 1;
 	dev_info(ctx->dev, "IRAM base: %#x", ctx->iram_base);
+<<<<<<< HEAD
 	ctx->iram = devm_ioremap_nocache(ctx->dev, ctx->iram_base,
+=======
+	ctx->iram = devm_ioremap(ctx->dev, ctx->iram_base,
+>>>>>>> upstream/android-13
 					 ctx->pdata->res_info->iram_size);
 	if (!ctx->iram) {
 		dev_err(ctx->dev, "unable to map IRAM\n");
@@ -186,7 +208,11 @@ static int sst_platform_get_resources(struct intel_sst_drv *ctx)
 	ctx->dram_base = rsrc->start + ctx->pdata->res_info->dram_offset;
 	ctx->dram_end = ctx->dram_base + ctx->pdata->res_info->dram_size - 1;
 	dev_info(ctx->dev, "DRAM base: %#x", ctx->dram_base);
+<<<<<<< HEAD
 	ctx->dram = devm_ioremap_nocache(ctx->dev, ctx->dram_base,
+=======
+	ctx->dram = devm_ioremap(ctx->dev, ctx->dram_base,
+>>>>>>> upstream/android-13
 					 ctx->pdata->res_info->dram_size);
 	if (!ctx->dram) {
 		dev_err(ctx->dev, "unable to map DRAM\n");
@@ -195,7 +221,11 @@ static int sst_platform_get_resources(struct intel_sst_drv *ctx)
 
 	ctx->shim_phy_add = rsrc->start + ctx->pdata->res_info->shim_offset;
 	dev_info(ctx->dev, "SHIM base: %#x", ctx->shim_phy_add);
+<<<<<<< HEAD
 	ctx->shim = devm_ioremap_nocache(ctx->dev, ctx->shim_phy_add,
+=======
+	ctx->shim = devm_ioremap(ctx->dev, ctx->shim_phy_add,
+>>>>>>> upstream/android-13
 					ctx->pdata->res_info->shim_size);
 	if (!ctx->shim) {
 		dev_err(ctx->dev, "unable to map SHIM\n");
@@ -208,7 +238,11 @@ static int sst_platform_get_resources(struct intel_sst_drv *ctx)
 	/* Get mailbox addr */
 	ctx->mailbox_add = rsrc->start + ctx->pdata->res_info->mbox_offset;
 	dev_info(ctx->dev, "Mailbox base: %#x", ctx->mailbox_add);
+<<<<<<< HEAD
 	ctx->mailbox = devm_ioremap_nocache(ctx->dev, ctx->mailbox_add,
+=======
+	ctx->mailbox = devm_ioremap(ctx->dev, ctx->mailbox_add,
+>>>>>>> upstream/android-13
 					    ctx->pdata->res_info->mbox_size);
 	if (!ctx->mailbox) {
 		dev_err(ctx->dev, "unable to map mailbox\n");
@@ -227,7 +261,11 @@ static int sst_platform_get_resources(struct intel_sst_drv *ctx)
 	ctx->ddr_base = rsrc->start;
 	ctx->ddr_end = rsrc->end;
 	dev_info(ctx->dev, "DDR base: %#x", ctx->ddr_base);
+<<<<<<< HEAD
 	ctx->ddr = devm_ioremap_nocache(ctx->dev, ctx->ddr_base,
+=======
+	ctx->ddr = devm_ioremap(ctx->dev, ctx->ddr_base,
+>>>>>>> upstream/android-13
 					resource_size(rsrc));
 	if (!ctx->ddr) {
 		dev_err(ctx->dev, "unable to map DDR\n");
@@ -243,6 +281,7 @@ static int sst_platform_get_resources(struct intel_sst_drv *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int is_byt(void)
 {
 	bool status = false;
@@ -290,6 +329,8 @@ static int is_byt_cr(struct device *dev, bool *bytcr)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static int sst_acpi_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -301,11 +342,24 @@ static int sst_acpi_probe(struct platform_device *pdev)
 	struct platform_device *plat_dev;
 	struct sst_platform_info *pdata;
 	unsigned int dev_id;
+<<<<<<< HEAD
 	bool bytcr = false;
+=======
+>>>>>>> upstream/android-13
 
 	id = acpi_match_device(dev->driver->acpi_match_table, dev);
 	if (!id)
 		return -ENODEV;
+<<<<<<< HEAD
+=======
+
+	ret = snd_intel_acpi_dsp_driver_probe(dev, id->id);
+	if (ret != SND_INTEL_DSP_DRIVER_ANY && ret != SND_INTEL_DSP_DRIVER_SST) {
+		dev_dbg(dev, "SST ACPI driver not selected, aborting probe\n");
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "for %s\n", id->id);
 
 	mach = (struct snd_soc_acpi_mach *)id->driver_data;
@@ -315,7 +369,11 @@ static int sst_acpi_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (is_byt())
+=======
+	if (soc_intel_is_byt())
+>>>>>>> upstream/android-13
 		mach->pdata = &byt_rvp_platform_data;
 	else
 		mach->pdata = &chv_platform_data;
@@ -333,14 +391,25 @@ static int sst_acpi_probe(struct platform_device *pdev)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = is_byt_cr(dev, &bytcr);
 	if (!((ret < 0) || (bytcr == false))) {
 		dev_info(dev, "Detected Baytrail-CR platform\n");
 
+=======
+	if (soc_intel_is_byt_cr(pdev)) {
+>>>>>>> upstream/android-13
 		/* override resource info */
 		byt_rvp_platform_data.res_info = &bytcr_res_info;
 	}
 
+<<<<<<< HEAD
+=======
+	/* update machine parameters */
+	mach->mach_params.acpi_ipc_irq_index =
+		pdata->res_info->acpi_ipc_irq_index;
+
+>>>>>>> upstream/android-13
 	plat_dev = platform_device_register_data(dev, pdata->platform, -1,
 						NULL, 0);
 	if (IS_ERR(plat_dev)) {
@@ -379,7 +448,11 @@ static int sst_acpi_probe(struct platform_device *pdev)
 }
 
 /**
+<<<<<<< HEAD
 * intel_sst_remove - remove function
+=======
+* sst_acpi_remove - remove function
+>>>>>>> upstream/android-13
 *
 * @pdev:	platform device structure
 *

@@ -35,8 +35,13 @@ struct etnaviv_dump_registers {
 };
 
 #ifdef __KERNEL__
+<<<<<<< HEAD
 struct etnaviv_gpu;
 void etnaviv_core_dump(struct etnaviv_gpu *gpu);
+=======
+struct etnaviv_gem_submit;
+void etnaviv_core_dump(struct etnaviv_gem_submit *submit);
+>>>>>>> upstream/android-13
 #endif
 
 #endif

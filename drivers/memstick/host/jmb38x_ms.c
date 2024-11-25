@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  jmb38x_ms.c - JMicron jmb38x MemoryStick card reader
  *
  *  Copyright (C) 2008 Alex Dubov <oakad@yahoo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -259,9 +266,17 @@ static unsigned int jmb38x_ms_write_data(struct jmb38x_ms_host *host,
 	case 3:
 		host->io_word[0] |= buf[off + 2] << 16;
 		host->io_pos++;
+<<<<<<< HEAD
 	case 2:
 		host->io_word[0] |= buf[off + 1] << 8;
 		host->io_pos++;
+=======
+		fallthrough;
+	case 2:
+		host->io_word[0] |= buf[off + 1] << 8;
+		host->io_pos++;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		host->io_word[0] |= buf[off];
 		host->io_pos++;
@@ -316,7 +331,11 @@ static int jmb38x_ms_transfer_data(struct jmb38x_ms_host *host)
 	}
 
 	while (length) {
+<<<<<<< HEAD
 		unsigned int uninitialized_var(p_off);
+=======
+		unsigned int p_off;
+>>>>>>> upstream/android-13
 
 		if (host->req->long_data) {
 			pg = nth_page(sg_page(&host->req->sg),
@@ -368,7 +387,10 @@ static int jmb38x_ms_transfer_data(struct jmb38x_ms_host *host)
 static int jmb38x_ms_issue_cmd(struct memstick_host *msh)
 {
 	struct jmb38x_ms_host *host = memstick_priv(msh);
+<<<<<<< HEAD
 	unsigned char *data;
+=======
+>>>>>>> upstream/android-13
 	unsigned int data_len, cmd, t_val;
 
 	if (!(STATUS_HAS_MEDIA & readl(host->addr + STATUS))) {
@@ -400,8 +422,11 @@ static int jmb38x_ms_issue_cmd(struct memstick_host *msh)
 			cmd |= TPC_WAIT_INT;
 	}
 
+<<<<<<< HEAD
 	data = host->req->data;
 
+=======
+>>>>>>> upstream/android-13
 	if (!no_dma)
 		host->cmd_flags |= DMA_DATA;
 
@@ -438,6 +463,7 @@ static int jmb38x_ms_issue_cmd(struct memstick_host *msh)
 		writel(((1 << 16) & BLOCK_COUNT_MASK)
 		       | (data_len & BLOCK_SIZE_MASK),
 		       host->addr + BLOCK);
+<<<<<<< HEAD
 			t_val = readl(host->addr + INT_STATUS_ENABLE);
 			t_val |= host->req->data_dir == READ
 				 ? INT_STATUS_FIFO_RRDY
@@ -445,6 +471,15 @@ static int jmb38x_ms_issue_cmd(struct memstick_host *msh)
 
 			writel(t_val, host->addr + INT_STATUS_ENABLE);
 			writel(t_val, host->addr + INT_SIGNAL_ENABLE);
+=======
+		t_val = readl(host->addr + INT_STATUS_ENABLE);
+		t_val |= host->req->data_dir == READ
+			 ? INT_STATUS_FIFO_RRDY
+			 : INT_STATUS_FIFO_WRDY;
+
+		writel(t_val, host->addr + INT_STATUS_ENABLE);
+		writel(t_val, host->addr + INT_SIGNAL_ENABLE);
+>>>>>>> upstream/android-13
 	} else {
 		cmd &= ~(TPC_DATA_SEL | 0xf);
 		host->cmd_flags |= REG_DATA;
@@ -644,7 +679,10 @@ static int jmb38x_ms_reset(struct jmb38x_ms_host *host)
 	writel(HOST_CONTROL_RESET_REQ | HOST_CONTROL_CLOCK_EN
 	       | readl(host->addr + HOST_CONTROL),
 	       host->addr + HOST_CONTROL);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	for (cnt = 0; cnt < 20; ++cnt) {
 		if (!(HOST_CONTROL_RESET_REQ
@@ -659,7 +697,10 @@ reset_next:
 	writel(HOST_CONTROL_RESET | HOST_CONTROL_CLOCK_EN
 	       | readl(host->addr + HOST_CONTROL),
 	       host->addr + HOST_CONTROL);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	for (cnt = 0; cnt < 20; ++cnt) {
 		if (!(HOST_CONTROL_RESET
@@ -672,7 +713,10 @@ reset_next:
 	return -EIO;
 
 reset_ok:
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	writel(INT_STATUS_ALL, host->addr + INT_SIGNAL_ENABLE);
 	writel(INT_STATUS_ALL, host->addr + INT_STATUS_ENABLE);
 	return 0;
@@ -756,7 +800,11 @@ static int jmb38x_ms_set_param(struct memstick_host *msh,
 				      clock_delay);
 		host->ifmode = value;
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -801,11 +849,18 @@ static int jmb38x_ms_pmos(struct pci_dev *pdev, int flag)
         return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 static int jmb38x_ms_suspend(struct pci_dev *dev, pm_message_t state)
 {
 	struct jmb38x_ms *jm = pci_get_drvdata(dev);
+=======
+static int __maybe_unused jmb38x_ms_suspend(struct device *dev)
+{
+	struct jmb38x_ms *jm = dev_get_drvdata(dev);
+
+>>>>>>> upstream/android-13
 	int cnt;
 
 	for (cnt = 0; cnt < jm->host_cnt; ++cnt) {
@@ -814,6 +869,7 @@ static int jmb38x_ms_suspend(struct pci_dev *dev, pm_message_t state)
 		memstick_suspend_host(jm->hosts[cnt]);
 	}
 
+<<<<<<< HEAD
 	pci_save_state(dev);
 	pci_enable_wake(dev, pci_choose_state(dev, state), 0);
 	pci_disable_device(dev);
@@ -834,6 +890,19 @@ static int jmb38x_ms_resume(struct pci_dev *dev)
 	pci_set_master(dev);
 
 	jmb38x_ms_pmos(dev, 1);
+=======
+	device_wakeup_disable(dev);
+
+	return 0;
+}
+
+static int __maybe_unused jmb38x_ms_resume(struct device *dev)
+{
+	struct jmb38x_ms *jm = dev_get_drvdata(dev);
+	int rc;
+
+	jmb38x_ms_pmos(to_pci_dev(dev), 1);
+>>>>>>> upstream/android-13
 
 	for (rc = 0; rc < jm->host_cnt; ++rc) {
 		if (!jm->hosts[rc])
@@ -845,6 +914,7 @@ static int jmb38x_ms_resume(struct pci_dev *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #else
 
 #define jmb38x_ms_suspend NULL
@@ -852,11 +922,17 @@ static int jmb38x_ms_resume(struct pci_dev *dev)
 
 #endif /* CONFIG_PM */
 
+=======
+>>>>>>> upstream/android-13
 static int jmb38x_ms_count_slots(struct pci_dev *pdev)
 {
 	int cnt, rc = 0;
 
+<<<<<<< HEAD
 	for (cnt = 0; cnt < PCI_ROM_RESOURCE; ++cnt) {
+=======
+	for (cnt = 0; cnt < PCI_STD_NUM_BARS; ++cnt) {
+>>>>>>> upstream/android-13
 		if (!(IORESOURCE_MEM & pci_resource_flags(pdev, cnt)))
 			break;
 
@@ -907,7 +983,11 @@ static struct memstick_host *jmb38x_ms_alloc_host(struct jmb38x_ms *jm, int cnt)
 
 	iounmap(host->addr);
 err_out_free:
+<<<<<<< HEAD
 	kfree(msh);
+=======
+	memstick_free_host(msh);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -1009,7 +1089,10 @@ static void jmb38x_ms_remove(struct pci_dev *dev)
 		tasklet_kill(&host->notify);
 		writel(0, host->addr + INT_SIGNAL_ENABLE);
 		writel(0, host->addr + INT_STATUS_ENABLE);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		dev_dbg(&jm->pdev->dev, "interrupts off\n");
 		spin_lock_irqsave(&host->lock, flags);
 		if (host->req) {
@@ -1039,13 +1122,22 @@ static struct pci_device_id jmb38x_ms_id_tbl [] = {
 	{ }
 };
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(jmb38x_ms_pm_ops, jmb38x_ms_suspend, jmb38x_ms_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver jmb38x_ms_driver = {
 	.name = DRIVER_NAME,
 	.id_table = jmb38x_ms_id_tbl,
 	.probe = jmb38x_ms_probe,
 	.remove = jmb38x_ms_remove,
+<<<<<<< HEAD
 	.suspend = jmb38x_ms_suspend,
 	.resume = jmb38x_ms_resume
+=======
+	.driver.pm = &jmb38x_ms_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(jmb38x_ms_driver);

@@ -32,6 +32,10 @@
 #include <linux/of.h>
 #include <linux/of_fdt.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <uapi/linux/mount.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/page.h>
 #include <asm/elf.h>
@@ -43,6 +47,10 @@
 #include <asm/mmu_context.h>
 #include <asm/mmzone.h>
 #include <asm/sparsemem.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 /*
  * Initialize loops_per_jiffy as 10000000 (1000MIPS).
@@ -288,16 +296,23 @@ void __init setup_arch(char **cmdline_p)
 
 #ifdef CONFIG_BLK_DEV_RAM
 	rd_image_start = RAMDISK_FLAGS & RAMDISK_IMAGE_START_MASK;
+<<<<<<< HEAD
 	rd_prompt = ((RAMDISK_FLAGS & RAMDISK_PROMPT_FLAG) != 0);
 	rd_doload = ((RAMDISK_FLAGS & RAMDISK_LOAD_FLAG) != 0);
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	if (!MOUNT_ROOT_RDONLY)
 		root_mountflags &= ~MS_RDONLY;
+<<<<<<< HEAD
 	init_mm.start_code = (unsigned long) _text;
 	init_mm.end_code = (unsigned long) _etext;
 	init_mm.end_data = (unsigned long) _edata;
 	init_mm.brk = (unsigned long) _end;
+=======
+	setup_initial_init_mm(_text, _etext, _edata, _end);
+>>>>>>> upstream/android-13
 
 	code_resource.start = virt_to_phys(_text);
 	code_resource.end = virt_to_phys(_etext)-1;
@@ -327,7 +342,11 @@ void __init setup_arch(char **cmdline_p)
 	sh_mv_setup();
 
 	/* Let earlyprintk output early console messages */
+<<<<<<< HEAD
 	early_platform_driver_probe("earlyprintk", 1, 1);
+=======
+	sh_early_platform_driver_probe("earlyprintk", 1, 1);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_OF_FLATTREE
 #ifdef CONFIG_USE_BUILTIN_DTB
@@ -339,10 +358,13 @@ void __init setup_arch(char **cmdline_p)
 
 	paging_init();
 
+<<<<<<< HEAD
 #ifdef CONFIG_DUMMY_CONSOLE
 	conswitchp = &dummy_con;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* Perform the machine specific initialisation */
 	if (likely(sh_mv.mv_setup))
 		sh_mv.mv_setup(cmdline_p);
@@ -353,7 +375,11 @@ void __init setup_arch(char **cmdline_p)
 /* processor boot mode configuration */
 int generic_mode_pins(void)
 {
+<<<<<<< HEAD
 	pr_warning("generic_mode_pins(): missing mode pin configuration\n");
+=======
+	pr_warn("generic_mode_pins(): missing mode pin configuration\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 

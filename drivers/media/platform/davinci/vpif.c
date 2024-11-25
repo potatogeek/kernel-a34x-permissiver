@@ -1,11 +1,19 @@
 /*
  * vpif - Video Port Interface driver
  * VPIF is a receiver and transmitter for video data. It has two channels(0, 1)
+<<<<<<< HEAD
  * that receiveing video byte stream and two channels(2, 3) for video output.
  * The hardware supports SDTV, HDTV formats, raw data capture.
  * Currently, the driver supports NTSC and PAL standards.
  *
  * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * that receiving video byte stream and two channels(2, 3) for video output.
+ * The hardware supports SDTV, HDTV formats, raw data capture.
+ * Currently, the driver supports NTSC and PAL standards.
+ *
+ * Copyright (C) 2009 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +49,11 @@ MODULE_ALIAS("platform:" VPIF_DRIVER_NAME);
 #define VPIF_CH2_MAX_MODES	15
 #define VPIF_CH3_MAX_MODES	2
 
+<<<<<<< HEAD
 spinlock_t vpif_lock;
+=======
+DEFINE_SPINLOCK(vpif_lock);
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(vpif_lock);
 
 void __iomem *vpif_base;
@@ -428,6 +440,10 @@ static int vpif_probe(struct platform_device *pdev)
 	static struct resource	*res, *res_irq;
 	struct platform_device *pdev_capture, *pdev_display;
 	struct device_node *endpoint = NULL;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	vpif_base = devm_ioremap_resource(&pdev->dev, res);
@@ -437,7 +453,10 @@ static int vpif_probe(struct platform_device *pdev)
 	pm_runtime_enable(&pdev->dev);
 	pm_runtime_get(&pdev->dev);
 
+<<<<<<< HEAD
 	spin_lock_init(&vpif_lock);
+=======
+>>>>>>> upstream/android-13
 	dev_info(&pdev->dev, "vpif probe success\n");
 
 	/*
@@ -458,7 +477,12 @@ static int vpif_probe(struct platform_device *pdev)
 	res_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (!res_irq) {
 		dev_warn(&pdev->dev, "Missing IRQ resource.\n");
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto err_put_rpm;
+>>>>>>> upstream/android-13
 	}
 
 	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
@@ -492,10 +516,23 @@ static int vpif_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_put_rpm:
+	pm_runtime_put(&pdev->dev);
+	pm_runtime_disable(&pdev->dev);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int vpif_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	pm_runtime_put(&pdev->dev);
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 	return 0;
 }

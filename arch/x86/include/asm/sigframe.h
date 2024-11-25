@@ -33,11 +33,15 @@ struct sigframe_ia32 {
 	 * legacy application accessing/modifying it.
 	 */
 	struct _fpstate_32 fpstate_unused;
+<<<<<<< HEAD
 #ifdef CONFIG_IA32_EMULATION
 	unsigned int extramask[_COMPAT_NSIG_WORDS-1];
 #else /* !CONFIG_IA32_EMULATION */
 	unsigned long extramask[_NSIG_WORDS-1];
 #endif /* CONFIG_IA32_EMULATION */
+=======
+	unsigned int extramask[1];
+>>>>>>> upstream/android-13
 	char retcode[8];
 	/* fp state follows here */
 };
@@ -89,4 +93,9 @@ struct rt_sigframe_x32 {
 
 #endif /* CONFIG_X86_64 */
 
+<<<<<<< HEAD
+=======
+void __init init_sigframe_size(void);
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_SIGFRAME_H */

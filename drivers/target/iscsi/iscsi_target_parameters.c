@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * This file contains main functions related to iSCSI Parameter negotiation.
  *
@@ -5,6 +9,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/slab.h>
@@ -1365,14 +1372,21 @@ int iscsi_decode_text_input(
 	struct iscsi_param_list *param_list = conn->param_list;
 	char *tmpbuf, *start = NULL, *end = NULL;
 
+<<<<<<< HEAD
 	tmpbuf = kzalloc(length + 1, GFP_KERNEL);
+=======
+	tmpbuf = kmemdup_nul(textbuf, length, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tmpbuf) {
 		pr_err("Unable to allocate %u + 1 bytes for tmpbuf.\n", length);
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	memcpy(tmpbuf, textbuf, length);
 	tmpbuf[length] = '\0';
+=======
+>>>>>>> upstream/android-13
 	start = tmpbuf;
 	end = (start + length);
 

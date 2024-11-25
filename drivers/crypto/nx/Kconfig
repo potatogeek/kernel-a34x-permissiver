@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 config CRYPTO_DEV_NX_ENCRYPT
 	tristate "Encryption acceleration support on pSeries platform"
@@ -28,6 +32,10 @@ if CRYPTO_DEV_NX_COMPRESS
 config CRYPTO_DEV_NX_COMPRESS_PSERIES
 	tristate "Compression acceleration support on pSeries platform"
 	depends on PPC_PSERIES && IBMVIO
+<<<<<<< HEAD
+=======
+	depends on PPC_VAS
+>>>>>>> upstream/android-13
 	default y
 	help
 	  Support for PowerPC Nest (NX) compression acceleration. This

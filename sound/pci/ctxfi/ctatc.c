@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
  *
@@ -5,6 +6,12 @@
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * @File    ctatc.c
  *
  * @Brief
@@ -38,7 +45,11 @@
 			    | (0x10 << 16) \
 			    | ((IEC958_AES3_CON_FS_48000) << 24))
 
+<<<<<<< HEAD
 static struct snd_pci_quirk subsys_20k1_list[] = {
+=======
+static const struct snd_pci_quirk subsys_20k1_list[] = {
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, 0x0022, "SB055x", CTSB055X),
 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, 0x002f, "SB055x", CTSB055X),
 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, 0x0029, "SB073x", CTSB073X),
@@ -48,7 +59,11 @@ static struct snd_pci_quirk subsys_20k1_list[] = {
 	{ } /* terminator */
 };
 
+<<<<<<< HEAD
 static struct snd_pci_quirk subsys_20k2_list[] = {
+=======
+static const struct snd_pci_quirk subsys_20k2_list[] = {
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, PCI_SUBDEVICE_ID_CREATIVE_SB0760,
 		      "SB0760", CTSB0760),
 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, PCI_SUBDEVICE_ID_CREATIVE_SB1270,
@@ -1285,7 +1300,11 @@ static int atc_identify_card(struct ct_atc *atc, unsigned int ssid)
 	if (p) {
 		if (p->value < 0) {
 			dev_err(atc->card->dev,
+<<<<<<< HEAD
 				"Device %04x:%04x is black-listed\n",
+=======
+				"Device %04x:%04x is on the denylist\n",
+>>>>>>> upstream/android-13
 				vendor_id, device_id);
 			return -ENOENT;
 		}
@@ -1548,11 +1567,15 @@ static void atc_connect_resources(struct ct_atc *atc)
 #ifdef CONFIG_PM_SLEEP
 static int atc_suspend(struct ct_atc *atc)
 {
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 	struct hw *hw = atc->hw;
 
 	snd_power_change_state(atc->card, SNDRV_CTL_POWER_D3hot);
 
+<<<<<<< HEAD
 	for (i = FRONT; i < NUM_PCMS; i++) {
 		if (!atc->pcms[i])
 			continue;
@@ -1560,6 +1583,8 @@ static int atc_suspend(struct ct_atc *atc)
 		snd_pcm_suspend_all(atc->pcms[i]);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	atc_release_resources(atc);
 
 	hw->suspend(hw);
@@ -1666,6 +1691,13 @@ static const struct ct_atc atc_preset = {
  *  ct_atc_create - create and initialize a hardware manager
  *  @card: corresponding alsa card object
  *  @pci: corresponding kernel pci device object
+<<<<<<< HEAD
+=======
+ *  @rsr: reference sampling rate
+ *  @msr: master sampling rate
+ *  @chip_type: CHIPTYP enum values
+ *  @ssid: vendor ID (upper 16 bits) and device ID (lower 16 bits)
+>>>>>>> upstream/android-13
  *  @ratc: return created object address in it
  *
  *  Creates and initializes a hardware manager.
@@ -1680,7 +1712,11 @@ int ct_atc_create(struct snd_card *card, struct pci_dev *pci,
 		  struct ct_atc **ratc)
 {
 	struct ct_atc *atc;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free = atc_dev_free,
 	};
 	int err;

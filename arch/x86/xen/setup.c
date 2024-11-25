@@ -12,6 +12,10 @@
 #include <linux/memblock.h>
 #include <linux/cpuidle.h>
 #include <linux/cpufreq.h>
+<<<<<<< HEAD
+=======
+#include <linux/memory_hotplug.h>
+>>>>>>> upstream/android-13
 
 #include <asm/elf.h>
 #include <asm/vdso.h>
@@ -19,6 +23,10 @@
 #include <asm/setup.h>
 #include <asm/acpi.h>
 #include <asm/numa.h>
+<<<<<<< HEAD
+=======
+#include <asm/idtentry.h>
+>>>>>>> upstream/android-13
 #include <asm/xen/hypervisor.h>
 #include <asm/xen/hypercall.h>
 
@@ -30,7 +38,10 @@
 #include <xen/features.h>
 #include <xen/hvc-console.h>
 #include "xen-ops.h"
+<<<<<<< HEAD
 #include "vdso.h"
+=======
+>>>>>>> upstream/android-13
 #include "mmu.h"
 
 #define GB(x) ((uint64_t)(x) * 1024 * 1024 * 1024)
@@ -58,13 +69,21 @@ static struct {
 } xen_remap_buf __initdata __aligned(PAGE_SIZE);
 static unsigned long xen_remap_mfn __initdata = INVALID_P2M_ENTRY;
 
+<<<<<<< HEAD
 /* 
+=======
+/*
+>>>>>>> upstream/android-13
  * The maximum amount of extra memory compared to the base size.  The
  * main scaling factor is the size of struct page.  At extreme ratios
  * of base:extra, all the base memory can be filled with page
  * structures for the extra memory, leaving no space for anything
  * else.
+<<<<<<< HEAD
  * 
+=======
+ *
+>>>>>>> upstream/android-13
  * 10x seems like a reasonable balance between scaling flexibility and
  * leaving a practically usable system.
  */
@@ -411,7 +430,11 @@ static unsigned long __init xen_set_identity_and_remap_chunk(
 
 		remap_range_size = xen_find_pfn_range(&remap_pfn);
 		if (!remap_range_size) {
+<<<<<<< HEAD
 			pr_warning("Unable to find available pfn range, not remapping identity pages\n");
+=======
+			pr_warn("Unable to find available pfn range, not remapping identity pages\n");
+>>>>>>> upstream/android-13
 			xen_set_identity_and_release_chunk(cur_pfn,
 						cur_pfn + left, nr_pages);
 			break;
@@ -493,7 +516,11 @@ static unsigned long __init xen_foreach_remap_area(unsigned long nr_pages,
  * The remap information (which mfn remap to which pfn) is contained in the
  * to be remapped memory itself in a linked list anchored at xen_remap_mfn.
  * This scheme allows to remap the different chunks in arbitrary order while
+<<<<<<< HEAD
  * the resulting mapping will be independant from the order.
+=======
+ * the resulting mapping will be independent from the order.
+>>>>>>> upstream/android-13
  */
 void __init xen_remap_memory(void)
 {
@@ -543,6 +570,7 @@ static unsigned long __init xen_get_pages_limit(void)
 {
 	unsigned long limit;
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	limit = GB(64) / PAGE_SIZE;
 #else
@@ -550,6 +578,12 @@ static unsigned long __init xen_get_pages_limit(void)
 	if (!xen_initial_domain() && xen_512gb_limit)
 		limit = GB(512) / PAGE_SIZE;
 #endif
+=======
+	limit = MAXMEM / PAGE_SIZE;
+	if (!xen_initial_domain() && xen_512gb_limit)
+		limit = GB(512) / PAGE_SIZE;
+
+>>>>>>> upstream/android-13
 	return limit;
 }
 
@@ -589,6 +623,17 @@ static void __init xen_align_and_add_e820_region(phys_addr_t start,
 	if (type == E820_TYPE_RAM) {
 		start = PAGE_ALIGN(start);
 		end &= ~((phys_addr_t)PAGE_SIZE - 1);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMORY_HOTPLUG
+		/*
+		 * Don't allow adding memory not in E820 map while booting the
+		 * system. Once the balloon driver is up it will remove that
+		 * restriction again.
+		 */
+		max_mem_size = end;
+#endif
+>>>>>>> upstream/android-13
 	}
 
 	e820__range_add(start, end - start, type);
@@ -712,6 +757,7 @@ static void __init xen_reserve_xen_mfnlist(void)
 	if (!xen_is_e820_reserved(start, size))
 		return;
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	/*
 	 * Relocating the p2m on 32 bit system to an arbitrary virtual address
@@ -723,6 +769,10 @@ static void __init xen_reserve_xen_mfnlist(void)
 	xen_relocate_p2m();
 	memblock_free(start, size);
 #endif
+=======
+	xen_relocate_p2m();
+	memblock_free(start, size);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -748,6 +798,13 @@ char * __init xen_memory_setup(void)
 	memmap.nr_entries = ARRAY_SIZE(xen_e820_table.entries);
 	set_xen_guest_handle(memmap.buffer, xen_e820_table.entries);
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_MEMORY_HOTPLUG) && defined(CONFIG_XEN_BALLOON)
+	xen_saved_max_mem_size = max_mem_size;
+#endif
+
+>>>>>>> upstream/android-13
 	op = xen_initial_domain() ?
 		XENMEM_machine_memory_map :
 		XENMEM_memory_map;
@@ -790,6 +847,7 @@ char * __init xen_memory_setup(void)
 
 	/*
 	 * Clamp the amount of extra memory to a EXTRA_MEM_RATIO
+<<<<<<< HEAD
 	 * factor the base size.  On non-highmem systems, the base
 	 * size is the full initial memory allocation; on highmem it
 	 * is limited to the max size of lowmem, so that it doesn't
@@ -801,6 +859,12 @@ char * __init xen_memory_setup(void)
 	 * In principle there could be a problem in lowmem systems if
 	 * the initial memory is also very large with respect to
 	 * lowmem, but we won't try to deal with that here.
+=======
+	 * factor the base size.
+	 *
+	 * Make sure we have no memory above max_pages, as this area
+	 * isn't handled by the p2m management.
+>>>>>>> upstream/android-13
 	 */
 	extra_pages = min3(EXTRA_MEM_RATIO * min(max_pfn, PFN_DOWN(MAXMEM)),
 			   extra_pages, max_pages - max_pfn);
@@ -907,6 +971,7 @@ char * __init xen_memory_setup(void)
 	return "Xen";
 }
 
+<<<<<<< HEAD
 /*
  * Set the bit indicating "nosegneg" library variants should be used.
  * We only need to bother in pure 32-bit mode; compat 32-bit processes
@@ -921,6 +986,8 @@ static void __init fiddle_vdso(void)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static int register_callback(unsigned type, const void *func)
 {
 	struct callback_register callback = {
@@ -937,11 +1004,15 @@ void xen_enable_sysenter(void)
 	int ret;
 	unsigned sysenter_feature;
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	sysenter_feature = X86_FEATURE_SEP;
 #else
 	sysenter_feature = X86_FEATURE_SYSENTER32;
 #endif
+=======
+	sysenter_feature = X86_FEATURE_SYSENTER32;
+>>>>>>> upstream/android-13
 
 	if (!boot_cpu_has(sysenter_feature))
 		return;
@@ -953,7 +1024,10 @@ void xen_enable_sysenter(void)
 
 void xen_enable_syscall(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = register_callback(CALLBACKTYPE_syscall, xen_syscall_target);
@@ -969,10 +1043,16 @@ void xen_enable_syscall(void)
 		if (ret != 0)
 			setup_clear_cpu_cap(X86_FEATURE_SYSCALL32);
 	}
+<<<<<<< HEAD
 #endif /* CONFIG_X86_64 */
 }
 
 void __init xen_pvmmu_arch_setup(void)
+=======
+}
+
+static void __init xen_pvmmu_arch_setup(void)
+>>>>>>> upstream/android-13
 {
 	HYPERVISOR_vm_assist(VMASST_CMD_enable, VMASST_TYPE_4gb_segments);
 	HYPERVISOR_vm_assist(VMASST_CMD_enable, VMASST_TYPE_writable_pagetables);
@@ -980,7 +1060,12 @@ void __init xen_pvmmu_arch_setup(void)
 	HYPERVISOR_vm_assist(VMASST_CMD_enable,
 			     VMASST_TYPE_pae_extended_cr3);
 
+<<<<<<< HEAD
 	if (register_callback(CALLBACKTYPE_event, xen_hypervisor_callback) ||
+=======
+	if (register_callback(CALLBACKTYPE_event,
+			      xen_asm_exc_xen_hypervisor_callback) ||
+>>>>>>> upstream/android-13
 	    register_callback(CALLBACKTYPE_failsafe, xen_failsafe_callback))
 		BUG();
 
@@ -1009,7 +1094,10 @@ void __init xen_arch_setup(void)
 	disable_cpuidle();
 	disable_cpufreq();
 	WARN_ON(xen_set_default_idle());
+<<<<<<< HEAD
 	fiddle_vdso();
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NUMA
 	numa_off = 1;
 #endif

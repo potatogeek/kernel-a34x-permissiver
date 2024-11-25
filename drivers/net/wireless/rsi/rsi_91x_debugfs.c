@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) 2014 Redpine Signals Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -59,7 +63,11 @@ static int rsi_sdio_stats_read(struct seq_file *seq, void *data)
 }
 
 /**
+<<<<<<< HEAD
  * rsi_sdio_stats_open() - This funtion calls single open function of seq_file
+=======
+ * rsi_sdio_stats_open() - This function calls single open function of seq_file
+>>>>>>> upstream/android-13
  *			   to open file and read contents from it.
  * @inode: Pointer to the inode structure.
  * @file: Pointer to the file structure.
@@ -93,7 +101,11 @@ static int rsi_version_read(struct seq_file *seq, void *data)
 }
 
 /**
+<<<<<<< HEAD
  * rsi_version_open() - This funtion calls single open function of seq_file to
+=======
+ * rsi_version_open() - This function calls single open function of seq_file to
+>>>>>>> upstream/android-13
  *			open file and read contents from it.
  * @inode: Pointer to the inode structure.
  * @file: Pointer to the file structure.
@@ -117,7 +129,11 @@ static int rsi_stats_read(struct seq_file *seq, void *data)
 {
 	struct rsi_common *common = seq->private;
 
+<<<<<<< HEAD
 	unsigned char fsm_state[][32] = {
+=======
+	static const unsigned char fsm_state[][32] = {
+>>>>>>> upstream/android-13
 		"FSM_FW_NOT_LOADED",
 		"FSM_CARD_NOT_READY",
 		"FSM_COMMON_DEV_PARAMS_SENT",
@@ -178,7 +194,11 @@ static int rsi_stats_read(struct seq_file *seq, void *data)
 }
 
 /**
+<<<<<<< HEAD
  * rsi_stats_open() - This funtion calls single open function of seq_file to
+=======
+ * rsi_stats_open() - This function calls single open function of seq_file to
+>>>>>>> upstream/android-13
  *		      open file and read contents from it.
  * @inode: Pointer to the inode structure.
  * @file: Pointer to the file structure.
@@ -207,7 +227,11 @@ static int rsi_debug_zone_read(struct seq_file *seq, void *data)
 }
 
 /**
+<<<<<<< HEAD
  * rsi_debug_read() - This funtion calls single open function of seq_file to
+=======
+ * rsi_debug_read() - This function calls single open function of seq_file to
+>>>>>>> upstream/android-13
  *		      open file and read contents from it.
  * @inode: Pointer to the inode structure.
  * @file: Pointer to the file structure.
@@ -297,11 +321,14 @@ int rsi_init_dbgfs(struct rsi_hw *adapter)
 
 	dev_dbgfs->subdir = debugfs_create_dir(devdir, NULL);
 
+<<<<<<< HEAD
 	if (!dev_dbgfs->subdir) {
 		kfree(dev_dbgfs);
 		return -ENOMEM;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	for (ii = 0; ii < adapter->num_debugfs_entries; ii++) {
 		files = &dev_debugfs_files[ii];
 		dev_dbgfs->rsi_files[ii] =

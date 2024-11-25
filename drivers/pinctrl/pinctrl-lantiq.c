@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/pinctrl/pinctrl-lantiq.c
  *  based on linux/drivers/pinctrl/pinctrl-pxa3xx.c
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  publishhed by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright (C) 2012 John Crispin <john@phrozen.org>
  */
 
@@ -80,14 +87,24 @@ static void ltq_pinctrl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
 	int ret, i;
 
 	if (!pins && !groups) {
+<<<<<<< HEAD
 		dev_err(pctldev->dev, "%s defines neither pins nor groups\n",
 			np->name);
+=======
+		dev_err(pctldev->dev, "%pOFn defines neither pins nor groups\n",
+			np);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (pins && groups) {
+<<<<<<< HEAD
 		dev_err(pctldev->dev, "%s defines both pins and groups\n",
 			np->name);
+=======
+		dev_err(pctldev->dev, "%pOFn defines both pins and groups\n",
+			np);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -224,7 +241,11 @@ static int match_mux(const struct ltq_mfp_pin *mfp, unsigned mux)
 	return i;
 }
 
+<<<<<<< HEAD
 /* dont assume .mfp is linearly mapped. find the mfp with the correct .pin */
+=======
+/* don't assume .mfp is linearly mapped. find the mfp with the correct .pin */
+>>>>>>> upstream/android-13
 static int match_mfp(const struct ltq_pinmux_info *info, int pin)
 {
 	int i;

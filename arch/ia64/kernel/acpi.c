@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  acpi.c - Architecture-Specific Low-Level ACPI Support
  *
@@ -12,6 +16,7 @@
  *  Copyright (C) 2001 Takayoshi Kochi <t-kochi@bq.jp.nec.com>
  *  Copyright (C) 2002 Erich Focht <efocht@ess.nec.de>
  *  Copyright (C) 2004 Ashok Raj <ashok.raj@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -30,6 +35,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -48,7 +55,10 @@
 #include <acpi/processor.h>
 #include <asm/io.h>
 #include <asm/iosapic.h>
+<<<<<<< HEAD
 #include <asm/machvec.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/numa.h>
 #include <asm/sal.h>
@@ -60,6 +70,7 @@ int acpi_lapic;
 unsigned int acpi_cpei_override;
 unsigned int acpi_cpei_phys_cpuid;
 
+<<<<<<< HEAD
 unsigned long acpi_wakeup_address = 0;
 
 #ifdef CONFIG_IA64_GENERIC
@@ -133,6 +144,8 @@ acpi_get_sysname(void)
 }
 #endif /* CONFIG_IA64_GENERIC */
 
+=======
+>>>>>>> upstream/android-13
 #define ACPI_MAX_PLATFORM_INTERRUPTS	256
 
 /* Array to record platform interrupt vectors for generic interrupt routing. */
@@ -177,7 +190,11 @@ struct acpi_table_madt *acpi_madt __initdata;
 static u8 has_8259;
 
 static int __init
+<<<<<<< HEAD
 acpi_parse_lapic_addr_ovr(struct acpi_subtable_header * header,
+=======
+acpi_parse_lapic_addr_ovr(union acpi_subtable_headers * header,
+>>>>>>> upstream/android-13
 			  const unsigned long end)
 {
 	struct acpi_madt_local_apic_override *lapic;
@@ -195,7 +212,11 @@ acpi_parse_lapic_addr_ovr(struct acpi_subtable_header * header,
 }
 
 static int __init
+<<<<<<< HEAD
 acpi_parse_lsapic(struct acpi_subtable_header * header, const unsigned long end)
+=======
+acpi_parse_lsapic(union acpi_subtable_headers *header, const unsigned long end)
+>>>>>>> upstream/android-13
 {
 	struct acpi_madt_local_sapic *lsapic;
 
@@ -216,7 +237,11 @@ acpi_parse_lsapic(struct acpi_subtable_header * header, const unsigned long end)
 }
 
 static int __init
+<<<<<<< HEAD
 acpi_parse_lapic_nmi(struct acpi_subtable_header * header, const unsigned long end)
+=======
+acpi_parse_lapic_nmi(union acpi_subtable_headers * header, const unsigned long end)
+>>>>>>> upstream/android-13
 {
 	struct acpi_madt_local_apic_nmi *lacpi_nmi;
 
@@ -230,7 +255,11 @@ acpi_parse_lapic_nmi(struct acpi_subtable_header * header, const unsigned long e
 }
 
 static int __init
+<<<<<<< HEAD
 acpi_parse_iosapic(struct acpi_subtable_header * header, const unsigned long end)
+=======
+acpi_parse_iosapic(union acpi_subtable_headers * header, const unsigned long end)
+>>>>>>> upstream/android-13
 {
 	struct acpi_madt_io_sapic *iosapic;
 
@@ -245,7 +274,11 @@ acpi_parse_iosapic(struct acpi_subtable_header * header, const unsigned long end
 static unsigned int __initdata acpi_madt_rev;
 
 static int __init
+<<<<<<< HEAD
 acpi_parse_plat_int_src(struct acpi_subtable_header * header,
+=======
+acpi_parse_plat_int_src(union acpi_subtable_headers * header,
+>>>>>>> upstream/android-13
 			const unsigned long end)
 {
 	struct acpi_madt_interrupt_source *plintsrc;
@@ -329,7 +362,11 @@ unsigned int get_cpei_target_cpu(void)
 }
 
 static int __init
+<<<<<<< HEAD
 acpi_parse_int_src_ovr(struct acpi_subtable_header * header,
+=======
+acpi_parse_int_src_ovr(union acpi_subtable_headers * header,
+>>>>>>> upstream/android-13
 		       const unsigned long end)
 {
 	struct acpi_madt_interrupt_override *p;
@@ -350,7 +387,11 @@ acpi_parse_int_src_ovr(struct acpi_subtable_header * header,
 }
 
 static int __init
+<<<<<<< HEAD
 acpi_parse_nmi_src(struct acpi_subtable_header * header, const unsigned long end)
+=======
+acpi_parse_nmi_src(union acpi_subtable_headers * header, const unsigned long end)
+>>>>>>> upstream/android-13
 {
 	struct acpi_madt_nmi_source *nmi_src;
 
@@ -424,7 +465,11 @@ get_processor_proximity_domain(struct acpi_srat_cpu_affinity *pa)
 	int pxm;
 
 	pxm = pa->proximity_domain_lo;
+<<<<<<< HEAD
 	if (ia64_platform_is("sn2") || acpi_srat_revision >= 2)
+=======
+	if (acpi_srat_revision >= 2)
+>>>>>>> upstream/android-13
 		pxm += pa->proximity_domain_hi[0] << 8;
 	return pxm;
 }
@@ -435,7 +480,11 @@ get_memory_proximity_domain(struct acpi_srat_mem_affinity *ma)
 	int pxm;
 
 	pxm = ma->proximity_domain;
+<<<<<<< HEAD
 	if (!ia64_platform_is("sn2") && acpi_srat_revision <= 1)
+=======
+	if (acpi_srat_revision <= 1)
+>>>>>>> upstream/android-13
 		pxm &= 0xff;
 
 	return pxm;
@@ -537,7 +586,12 @@ void __init acpi_numa_fixup(void)
 	if (srat_num_cpus == 0) {
 		node_set_online(0);
 		node_cpuid[0].phys_id = hard_smp_processor_id();
+<<<<<<< HEAD
 		return;
+=======
+		slit_distance(0, 0) = LOCAL_DISTANCE;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -578,9 +632,15 @@ void __init acpi_numa_fixup(void)
 	if (!slit_table) {
 		for (i = 0; i < MAX_NUMNODES; i++)
 			for (j = 0; j < MAX_NUMNODES; j++)
+<<<<<<< HEAD
 				node_distance(i, j) = i == j ? LOCAL_DISTANCE :
 							REMOTE_DISTANCE;
 		return;
+=======
+				slit_distance(i, j) = i == j ?
+					LOCAL_DISTANCE : REMOTE_DISTANCE;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	memset(numa_slit, -1, sizeof(numa_slit));
@@ -592,7 +652,11 @@ void __init acpi_numa_fixup(void)
 			if (!pxm_bit_test(j))
 				continue;
 			node_to = pxm_to_node(j);
+<<<<<<< HEAD
 			node_distance(node_from, node_to) =
+=======
+			slit_distance(node_from, node_to) =
+>>>>>>> upstream/android-13
 			    slit_table->entry[i * slit_table->locality_count + j];
 		}
 	}
@@ -605,6 +669,11 @@ void __init acpi_numa_fixup(void)
 		printk("\n");
 	}
 #endif
+<<<<<<< HEAD
+=======
+out:
+	node_possible_map = node_online_map;
+>>>>>>> upstream/android-13
 }
 #endif				/* CONFIG_ACPI_NUMA */
 
@@ -727,9 +796,14 @@ int __init acpi_boot_init(void)
 
 	if (acpi_table_parse_madt
 	    (ACPI_MADT_TYPE_IO_SAPIC, acpi_parse_iosapic, NR_IOSAPICS) < 1) {
+<<<<<<< HEAD
 		if (!ia64_platform_is("sn2"))
 			printk(KERN_ERR PREFIX
 			       "Error parsing MADT - no IOSAPIC entries\n");
+=======
+		printk(KERN_ERR PREFIX
+		       "Error parsing MADT - no IOSAPIC entries\n");
+>>>>>>> upstream/android-13
 	}
 
 	/* System-Level Interrupt Routing */
@@ -995,6 +1069,10 @@ EXPORT_SYMBOL(acpi_unregister_ioapic);
 /*
  * acpi_suspend_lowlevel() - save kernel state and suspend.
  *
+<<<<<<< HEAD
  * TBD when when IA64 starts to support suspend...
+=======
+ * TBD when IA64 starts to support suspend...
+>>>>>>> upstream/android-13
  */
 int acpi_suspend_lowlevel(void) { return 0; }

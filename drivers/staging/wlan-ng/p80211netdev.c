@@ -98,10 +98,17 @@ static int p80211knetdev_stop(struct net_device *netdev);
 static netdev_tx_t p80211knetdev_hard_start_xmit(struct sk_buff *skb,
 						 struct net_device *netdev);
 static void p80211knetdev_set_multicast_list(struct net_device *dev);
+<<<<<<< HEAD
 static int p80211knetdev_do_ioctl(struct net_device *dev, struct ifreq *ifr,
 				  int cmd);
 static int p80211knetdev_set_mac_address(struct net_device *dev, void *addr);
 static void p80211knetdev_tx_timeout(struct net_device *netdev);
+=======
+static int p80211knetdev_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+					void __user *data, int cmd);
+static int p80211knetdev_set_mac_address(struct net_device *dev, void *addr);
+static void p80211knetdev_tx_timeout(struct net_device *netdev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static int p80211_rx_typedrop(struct wlandevice *wlandev, u16 fc);
 
 int wlan_watchdog = 5000;
@@ -235,10 +242,17 @@ void p80211netdev_rx(struct wlandevice *wlandev, struct sk_buff *skb)
 static int p80211_convert_to_ether(struct wlandevice *wlandev,
 				   struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct p80211_hdr_a3 *hdr;
 
 	hdr = (struct p80211_hdr_a3 *)skb->data;
 	if (p80211_rx_typedrop(wlandev, le16_to_cpu(hdr->fc)))
+=======
+	struct p80211_hdr *hdr;
+
+	hdr = (struct p80211_hdr *)skb->data;
+	if (p80211_rx_typedrop(wlandev, le16_to_cpu(hdr->frame_control)))
+>>>>>>> upstream/android-13
 		return CONV_TO_ETHER_SKIPPED;
 
 	/* perform mcast filtering: allow my local address through but reject
@@ -246,8 +260,13 @@ static int p80211_convert_to_ether(struct wlandevice *wlandev,
 	 */
 	if (wlandev->netdev->flags & IFF_ALLMULTI) {
 		if (!ether_addr_equal_unaligned(wlandev->netdev->dev_addr,
+<<<<<<< HEAD
 						hdr->a1)) {
 			if (!is_multicast_ether_addr(hdr->a1))
+=======
+						hdr->address1)) {
+			if (!is_multicast_ether_addr(hdr->address1))
+>>>>>>> upstream/android-13
 				return CONV_TO_ETHER_SKIPPED;
 		}
 	}
@@ -266,6 +285,7 @@ static int p80211_convert_to_ether(struct wlandevice *wlandev,
 /**
  * p80211netdev_rx_bh - deferred processing of all received frames
  *
+<<<<<<< HEAD
  * @arg: pointer to WLAN network device structure (cast to unsigned long)
  */
 static void p80211netdev_rx_bh(unsigned long arg)
@@ -275,6 +295,17 @@ static void p80211netdev_rx_bh(unsigned long arg)
 	struct net_device *dev = wlandev->netdev;
 
 	/* Let's empty our our queue */
+=======
+ * @t: pointer to the tasklet associated with this handler
+ */
+static void p80211netdev_rx_bh(struct tasklet_struct *t)
+{
+	struct wlandevice *wlandev = from_tasklet(wlandev, t, rx_bh);
+	struct sk_buff *skb = NULL;
+	struct net_device *dev = wlandev->netdev;
+
+	/* Let's empty our queue */
+>>>>>>> upstream/android-13
 	while ((skb = skb_dequeue(&wlandev->nsd_rxq))) {
 		if (wlandev->state == WLAN_DEVICE_OPEN) {
 			if (dev->type != ARPHRD_ETHER) {
@@ -325,9 +356,15 @@ static netdev_tx_t p80211knetdev_hard_start_xmit(struct sk_buff *skb,
 						 struct net_device *netdev)
 {
 	int result = 0;
+<<<<<<< HEAD
 	int txresult = -1;
 	struct wlandevice *wlandev = netdev->ml_priv;
 	union p80211_hdr p80211_hdr;
+=======
+	int txresult;
+	struct wlandevice *wlandev = netdev->ml_priv;
+	struct p80211_hdr p80211_hdr;
+>>>>>>> upstream/android-13
 	struct p80211_metawep p80211_wep;
 
 	p80211_wep.data = NULL;
@@ -429,7 +466,11 @@ static netdev_tx_t p80211knetdev_hard_start_xmit(struct sk_buff *skb,
 failed:
 	/* Free up the WEP buffer if it's not the same as the skb */
 	if ((p80211_wep.data) && (p80211_wep.data != skb->data))
+<<<<<<< HEAD
 		kzfree(p80211_wep.data);
+=======
+		kfree_sensitive(p80211_wep.data);
+>>>>>>> upstream/android-13
 
 	/* we always free the skb here, never in a lower level. */
 	if (!result)
@@ -461,6 +502,7 @@ static void p80211knetdev_set_multicast_list(struct net_device *dev)
 		wlandev->set_multicast_list(wlandev, dev);
 }
 
+<<<<<<< HEAD
 #ifdef SIOCETHTOOL
 
 static int p80211netdev_ethtool(struct wlandevice *wlandev,
@@ -511,6 +553,10 @@ static int p80211netdev_ethtool(struct wlandevice *wlandev,
 
 /*----------------------------------------------------------------
  * p80211knetdev_do_ioctl
+=======
+/*----------------------------------------------------------------
+ * p80211knetdev_siocdevprivate
+>>>>>>> upstream/android-13
  *
  * Handle an ioctl call on one of our devices.  Everything Linux
  * ioctl specific is done here.  Then we pass the contents of the
@@ -537,8 +583,14 @@ static int p80211netdev_ethtool(struct wlandevice *wlandev,
  *	locks.
  *----------------------------------------------------------------
  */
+<<<<<<< HEAD
 static int p80211knetdev_do_ioctl(struct net_device *dev,
 				  struct ifreq *ifr, int cmd)
+=======
+static int p80211knetdev_siocdevprivate(struct net_device *dev,
+					struct ifreq *ifr,
+					void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	int result = 0;
 	struct p80211ioctl_req *req = (struct p80211ioctl_req *)ifr;
@@ -547,6 +599,7 @@ static int p80211knetdev_do_ioctl(struct net_device *dev,
 
 	netdev_dbg(dev, "rx'd ioctl, cmd=%d, len=%d\n", cmd, req->len);
 
+<<<<<<< HEAD
 #ifdef SIOCETHTOOL
 	if (cmd == SIOCETHTOOL) {
 		result =
@@ -554,6 +607,10 @@ static int p80211knetdev_do_ioctl(struct net_device *dev,
 		goto bail;
 	}
 #endif
+=======
+	if (in_compat_syscall())
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	/* Test the magic, assume ifr is good if it's there */
 	if (req->magic != P80211_IOCTL_MAGIC) {
@@ -569,6 +626,7 @@ static int p80211knetdev_do_ioctl(struct net_device *dev,
 		goto bail;
 	}
 
+<<<<<<< HEAD
 	/* Allocate a buf of size req->len */
 	msgbuf = kmalloc(req->len, GFP_KERNEL);
 	if (msgbuf) {
@@ -587,6 +645,22 @@ static int p80211knetdev_do_ioctl(struct net_device *dev,
 	} else {
 		result = -ENOMEM;
 	}
+=======
+	msgbuf = memdup_user(data, req->len);
+	if (IS_ERR(msgbuf)) {
+		result = PTR_ERR(msgbuf);
+		goto bail;
+	}
+
+	result = p80211req_dorequest(wlandev, msgbuf);
+
+	if (result == 0) {
+		if (copy_to_user(data, msgbuf, req->len))
+			result = -EFAULT;
+	}
+	kfree(msgbuf);
+
+>>>>>>> upstream/android-13
 bail:
 	/* If allocate,copyfrom or copyto fails, return errno */
 	return result;
@@ -638,25 +712,41 @@ static int p80211knetdev_set_mac_address(struct net_device *dev, void *addr)
 
 	/* Set up a dot11req_mibset */
 	memset(&dot11req, 0, sizeof(dot11req));
+<<<<<<< HEAD
 	dot11req.msgcode = DIDmsg_dot11req_mibset;
+=======
+	dot11req.msgcode = DIDMSG_DOT11REQ_MIBSET;
+>>>>>>> upstream/android-13
 	dot11req.msglen = sizeof(dot11req);
 	memcpy(dot11req.devname,
 	       ((struct wlandevice *)dev->ml_priv)->name,
 	       WLAN_DEVNAMELEN_MAX - 1);
 
 	/* Set up the mibattribute argument */
+<<<<<<< HEAD
 	mibattr->did = DIDmsg_dot11req_mibset_mibattribute;
 	mibattr->status = P80211ENUM_msgitem_status_data_ok;
 	mibattr->len = sizeof(mibattr->data);
 
 	macaddr->did = DIDmib_dot11mac_dot11OperationTable_dot11MACAddress;
+=======
+	mibattr->did = DIDMSG_DOT11REQ_MIBSET_MIBATTRIBUTE;
+	mibattr->status = P80211ENUM_msgitem_status_data_ok;
+	mibattr->len = sizeof(mibattr->data);
+
+	macaddr->did = DIDMIB_DOT11MAC_OPERATIONTABLE_MACADDRESS;
+>>>>>>> upstream/android-13
 	macaddr->status = P80211ENUM_msgitem_status_data_ok;
 	macaddr->len = sizeof(macaddr->data);
 	macaddr->data.len = ETH_ALEN;
 	memcpy(&macaddr->data.data, new_addr->sa_data, ETH_ALEN);
 
 	/* Set up the resultcode argument */
+<<<<<<< HEAD
 	resultcode->did = DIDmsg_dot11req_mibset_resultcode;
+=======
+	resultcode->did = DIDMSG_DOT11REQ_MIBSET_RESULTCODE;
+>>>>>>> upstream/android-13
 	resultcode->status = P80211ENUM_msgitem_status_no_value;
 	resultcode->len = sizeof(resultcode->data);
 	resultcode->data = 0;
@@ -684,7 +774,11 @@ static const struct net_device_ops p80211_netdev_ops = {
 	.ndo_stop = p80211knetdev_stop,
 	.ndo_start_xmit = p80211knetdev_hard_start_xmit,
 	.ndo_set_rx_mode = p80211knetdev_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl = p80211knetdev_do_ioctl,
+=======
+	.ndo_siocdevprivate = p80211knetdev_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address = p80211knetdev_set_mac_address,
 	.ndo_tx_timeout = p80211knetdev_tx_timeout,
 	.ndo_validate_addr = eth_validate_addr,
@@ -728,8 +822,12 @@ int wlan_setup(struct wlandevice *wlandev, struct device *physdev)
 
 	/* Set up the rx queue */
 	skb_queue_head_init(&wlandev->nsd_rxq);
+<<<<<<< HEAD
 	tasklet_init(&wlandev->rx_bh,
 		     p80211netdev_rx_bh, (unsigned long)wlandev);
+=======
+	tasklet_setup(&wlandev->rx_bh, p80211netdev_rx_bh);
+>>>>>>> upstream/android-13
 
 	/* Allocate and initialize the wiphy struct */
 	wiphy = wlan_create_wiphy(physdev, wlandev);
@@ -927,10 +1025,13 @@ static int p80211_rx_typedrop(struct wlandevice *wlandev, u16 fc)
 	/* Classify frame, increment counter */
 	ftype = WLAN_GET_FC_FTYPE(fc);
 	fstype = WLAN_GET_FC_FSTYPE(fc);
+<<<<<<< HEAD
 #if 0
 	netdev_dbg(wlandev->netdev, "rx_typedrop : ftype=%d fstype=%d.\n",
 		   ftype, fstype);
 #endif
+=======
+>>>>>>> upstream/android-13
 	switch (ftype) {
 	case WLAN_FTYPE_MGMT:
 		if ((wlandev->netdev->flags & IFF_PROMISC) ||
@@ -1078,7 +1179,11 @@ static int p80211_rx_typedrop(struct wlandevice *wlandev, u16 fc)
 	return drop;
 }
 
+<<<<<<< HEAD
 static void p80211knetdev_tx_timeout(struct net_device *netdev)
+=======
+static void p80211knetdev_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct wlandevice *wlandev = netdev->ml_priv;
 

@@ -30,8 +30,11 @@
 #include <linux/regulator/consumer.h>
 #include <linux/pm_runtime.h>
 
+<<<<<<< HEAD
 #include <mach/regs-s3c2443-clock.h>
 
+=======
+>>>>>>> upstream/android-13
 #define S3C_HSUDC_REG(x)	(x)
 
 /* Non-Indexed Registers */
@@ -186,6 +189,7 @@ static inline void __orr32(void __iomem *ptr, u32 val)
 	writel(readl(ptr) | val, ptr);
 }
 
+<<<<<<< HEAD
 static void s3c_hsudc_init_phy(void)
 {
 	u32 cfg;
@@ -233,6 +237,8 @@ static void s3c_hsudc_uninit_phy(void)
 	writel(cfg, S3C2443_UCLKCON);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * s3c_hsudc_complete_request - Complete a transfer request.
  * @hsep: Endpoint to which the request belongs.
@@ -1188,7 +1194,12 @@ static int s3c_hsudc_start(struct usb_gadget *gadget,
 
 	pm_runtime_get_sync(hsudc->dev);
 
+<<<<<<< HEAD
 	s3c_hsudc_init_phy();
+=======
+	if (hsudc->pd->phy_init)
+		hsudc->pd->phy_init();
+>>>>>>> upstream/android-13
 	if (hsudc->pd->gpio_init)
 		hsudc->pd->gpio_init();
 
@@ -1210,7 +1221,12 @@ static int s3c_hsudc_stop(struct usb_gadget *gadget)
 
 	spin_lock_irqsave(&hsudc->lock, flags);
 	hsudc->gadget.speed = USB_SPEED_UNKNOWN;
+<<<<<<< HEAD
 	s3c_hsudc_uninit_phy();
+=======
+	if (hsudc->pd->phy_uninit)
+		hsudc->pd->phy_uninit();
+>>>>>>> upstream/android-13
 
 	pm_runtime_put(hsudc->dev);
 
@@ -1263,14 +1279,22 @@ static const struct usb_gadget_ops s3c_hsudc_gadget_ops = {
 static int s3c_hsudc_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct s3c_hsudc *hsudc;
 	struct s3c24xx_hsudc_platdata *pd = dev_get_platdata(&pdev->dev);
 	int ret, i;
 
+<<<<<<< HEAD
 	hsudc = devm_kzalloc(&pdev->dev, sizeof(struct s3c_hsudc) +
 			sizeof(struct s3c_hsudc_ep) * pd->epnum,
 			GFP_KERNEL);
+=======
+	hsudc = devm_kzalloc(&pdev->dev, struct_size(hsudc, ep, pd->epnum),
+			     GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!hsudc)
 		return -ENOMEM;
 
@@ -1286,6 +1310,7 @@ static int s3c_hsudc_probe(struct platform_device *pdev)
 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(hsudc->supplies),
 				 hsudc->supplies);
 	if (ret != 0) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to request supplies: %d\n", ret);
 		goto err_supplies;
 	}
@@ -1293,6 +1318,14 @@ static int s3c_hsudc_probe(struct platform_device *pdev)
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 	hsudc->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+		if (ret != -EPROBE_DEFER)
+			dev_err(dev, "failed to request supplies: %d\n", ret);
+		goto err_supplies;
+	}
+
+	hsudc->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hsudc->regs)) {
 		ret = PTR_ERR(hsudc->regs);
 		goto err_res;
@@ -1311,10 +1344,15 @@ static int s3c_hsudc_probe(struct platform_device *pdev)
 	s3c_hsudc_setup_ep(hsudc);
 
 	ret = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(dev, "unable to obtain IRQ number\n");
 		goto err_res;
 	}
+=======
+	if (ret < 0)
+		goto err_res;
+>>>>>>> upstream/android-13
 	hsudc->irq = ret;
 
 	ret = devm_request_irq(&pdev->dev, hsudc->irq, s3c_hsudc_irq, 0,

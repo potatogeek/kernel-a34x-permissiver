@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/include/asm/pgtable-3level.h
  *
  * Copyright (C) 2011 ARM Ltd.
  * Author: Catalin Marinas <catalin.marinas@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_PGTABLE_3LEVEL_H
 #define _ASM_PGTABLE_3LEVEL_H
@@ -37,6 +44,11 @@
 #define PTE_HWTABLE_OFF		(0)
 #define PTE_HWTABLE_SIZE	(PTRS_PER_PTE * sizeof(u64))
 
+<<<<<<< HEAD
+=======
+#define MAX_POSSIBLE_PHYSMEM_BITS 40
+
+>>>>>>> upstream/android-13
 /*
  * PGDIR_SHIFT determines the size a top-level page table entry can map.
  */
@@ -116,6 +128,7 @@
  */
 #define L_PGD_SWAPPER		(_AT(pgdval_t, 1) << 55)	/* swapper_pg_dir entry */
 
+<<<<<<< HEAD
 /*
  * 2nd stage PTE definitions for LPAE.
  */
@@ -136,6 +149,8 @@
  */
 #define L_PTE_HYP		L_PTE_USER
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 
 #define pud_none(pud)		(!pud_val(pud))
@@ -146,6 +161,10 @@
 #define pmd_sect(pmd)		((pmd_val(pmd) & PMD_TYPE_MASK) == \
 						 PMD_TYPE_SECT)
 #define pmd_large(pmd)		pmd_sect(pmd)
+<<<<<<< HEAD
+=======
+#define pmd_leaf(pmd)		pmd_sect(pmd)
+>>>>>>> upstream/android-13
 
 #define pud_clear(pudp)			\
 	do {				\
@@ -159,11 +178,16 @@
 		flush_pmd_entry(pudp);	\
 	} while (0)
 
+<<<<<<< HEAD
 static inline pmd_t *pud_page_vaddr(pud_t pud)
+=======
+static inline pmd_t *pud_pgtable(pud_t pud)
+>>>>>>> upstream/android-13
 {
 	return __va(pud_val(pud) & PHYS_MASK & (s32)PAGE_MASK);
 }
 
+<<<<<<< HEAD
 /* Find an entry in the second-level page table.. */
 #define pmd_index(addr)		(((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1))
 static inline pmd_t *pmd_offset(pud_t *pud, unsigned long addr)
@@ -171,6 +195,8 @@ static inline pmd_t *pmd_offset(pud_t *pud, unsigned long addr)
 	return (pmd_t *)pud_page_vaddr(*pud) + pmd_index(addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define pmd_bad(pmd)		(!(pmd_val(pmd) & 2))
 
 #define copy_pmd(pmdpd,pmdps)		\
@@ -213,11 +239,23 @@ static inline pmd_t *pmd_offset(pud_t *pud, unsigned long addr)
 
 #define pmd_present(pmd)	(pmd_isset((pmd), L_PMD_SECT_VALID))
 #define pmd_young(pmd)		(pmd_isset((pmd), PMD_SECT_AF))
+<<<<<<< HEAD
 
 #define pmd_write(pmd)		(pmd_isclear((pmd), L_PMD_SECT_RDONLY))
 #define pmd_dirty(pmd)		(pmd_isset((pmd), L_PMD_SECT_DIRTY))
 #define pud_page(pud)		pmd_page(__pmd(pud_val(pud)))
 #define pud_write(pud)		pmd_write(__pmd(pud_val(pud)))
+=======
+#define pte_special(pte)	(pte_isset((pte), L_PTE_SPECIAL))
+static inline pte_t pte_mkspecial(pte_t pte)
+{
+	pte_val(pte) |= L_PTE_SPECIAL;
+	return pte;
+}
+
+#define pmd_write(pmd)		(pmd_isclear((pmd), L_PMD_SECT_RDONLY))
+#define pmd_dirty(pmd)		(pmd_isset((pmd), L_PMD_SECT_DIRTY))
+>>>>>>> upstream/android-13
 
 #define pmd_hugewillfault(pmd)	(!pmd_young(pmd) || !pmd_write(pmd))
 #define pmd_thp_or_huge(pmd)	(pmd_huge(pmd) || pmd_trans_huge(pmd))
@@ -246,7 +284,11 @@ PMD_BIT_FUNC(mkyoung,   |= PMD_SECT_AF);
 #define pmdp_establish generic_pmdp_establish
 
 /* represent a notpresent pmd by faulting entry, this is used by pmdp_invalidate */
+<<<<<<< HEAD
 static inline pmd_t pmd_mknotpresent(pmd_t pmd)
+=======
+static inline pmd_t pmd_mkinvalid(pmd_t pmd)
+>>>>>>> upstream/android-13
 {
 	return __pmd(pmd_val(pmd) & ~L_PMD_SECT_VALID);
 }

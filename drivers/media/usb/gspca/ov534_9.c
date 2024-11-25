@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ov534-ov9xxx gspca driver
  *
@@ -8,6 +12,7 @@
  * Based on a prototype written by Mark Ferrell <majortrips@gmail.com>
  * USB protocol reverse engineered by Jim Paris <jim@jtan.com>
  * https://jim.sh/svn/jim/devl/playstation/ps3/eye/test/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt

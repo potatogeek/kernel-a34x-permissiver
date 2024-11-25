@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SMP boot-related support
  *
@@ -24,7 +28,11 @@
 
 #include <linux/module.h>
 #include <linux/acpi.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/cpu.h>
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -44,6 +52,7 @@
 #include <asm/cache.h>
 #include <asm/current.h>
 #include <asm/delay.h>
+<<<<<<< HEAD
 #include <asm/io.h>
 #include <asm/irq.h>
 #include <asm/machvec.h>
@@ -51,12 +60,22 @@
 #include <asm/page.h>
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/efi.h>
+#include <asm/io.h>
+#include <asm/irq.h>
+#include <asm/mca.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/ptrace.h>
 #include <asm/sal.h>
 #include <asm/tlbflush.h>
 #include <asm/unistd.h>
+<<<<<<< HEAD
 #include <asm/sn/arch.h>
+=======
+>>>>>>> upstream/android-13
 
 #define SMP_DEBUG 0
 
@@ -358,10 +377,13 @@ smp_callin (void)
 	extern void ia64_init_itm(void);
 	extern volatile int time_keeper_id;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PERFMON
 	extern void pfm_init_percpu(void);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	cpuid = smp_processor_id();
 	phys_id = hard_smp_processor_id();
 	itc_master = time_keeper_id;
@@ -392,10 +414,13 @@ smp_callin (void)
 
 	ia64_mca_cmc_vector_setup();	/* Setup vector on AP */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PERFMON
 	pfm_init_percpu();
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	local_irq_enable();
 
 	if (!(sal_platform_features & IA64_SAL_PLATFORM_FEATURE_ITC_DRIFT)) {
@@ -451,7 +476,10 @@ start_secondary (void *unused)
 #endif
 	efi_map_pal_code();
 	cpu_init();
+<<<<<<< HEAD
 	preempt_disable();
+=======
+>>>>>>> upstream/android-13
 	smp_callin();
 
 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
@@ -467,7 +495,11 @@ do_boot_cpu (int sapicid, int cpu, struct task_struct *idle)
 	Dprintk("Sending wakeup vector %lu to AP 0x%x/0x%x.\n", ap_wakeup_vector, cpu, sapicid);
 
 	set_brendez_area(cpu);
+<<<<<<< HEAD
 	platform_send_ipi(cpu, ap_wakeup_vector, IA64_IPI_DM_INT, 0);
+=======
+	ia64_send_ipi(cpu, ap_wakeup_vector, IA64_IPI_DM_INT, 0);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Wait 10s total for the AP to start
@@ -657,11 +689,14 @@ int __cpu_disable(void)
 		return (-EBUSY);
 	}
 
+<<<<<<< HEAD
 	if (ia64_platform_is("sn2")) {
 		if (!sn_cpu_disable_allowed(cpu))
 			return -EBUSY;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	set_cpu_online(cpu, false);
 
 	if (migrate_platform_irqs(cpu)) {

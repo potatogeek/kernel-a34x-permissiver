@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_ND_H__
 #define __LINUX_ND_H__
@@ -19,6 +25,10 @@
 
 enum nvdimm_event {
 	NVDIMM_REVALIDATE_POISON,
+<<<<<<< HEAD
+=======
+	NVDIMM_REVALIDATE_REGION,
+>>>>>>> upstream/android-13
 };
 
 enum nvdimm_claim_class {
@@ -34,7 +44,11 @@ struct nd_device_driver {
 	struct device_driver drv;
 	unsigned long type;
 	int (*probe)(struct device *dev);
+<<<<<<< HEAD
 	int (*remove)(struct device *dev);
+=======
+	void (*remove)(struct device *dev);
+>>>>>>> upstream/android-13
 	void (*shutdown)(struct device *dev);
 	void (*notify)(struct device *dev, enum nvdimm_event event);
 };
@@ -155,7 +169,11 @@ static inline int nvdimm_read_bytes(struct nd_namespace_common *ndns,
 
 /**
  * nvdimm_write_bytes() - synchronously write bytes to an nvdimm namespace
+<<<<<<< HEAD
  * @ndns: device to read
+=======
+ * @ndns: device to write
+>>>>>>> upstream/android-13
  * @offset: namespace-relative starting offset
  * @buf: buffer to drain
  * @size: transfer length

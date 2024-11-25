@@ -19,13 +19,22 @@
 #include "../sensormanager/shub_sensor_manager.h"
 #include "../utility/shub_utility.h"
 #include "../utility/shub_file_manager.h"
+<<<<<<< HEAD
 #include "../others/shub_panel.h"
 #include "light.h"
+=======
+#include "light.h"
+
+>>>>>>> upstream/android-13
 #include <linux/of_gpio.h>
 #include <linux/slab.h>
 
 get_init_chipset_funcs_ptr get_light_funcs_ary[] = {
+<<<<<<< HEAD
 	get_light_stk_common_function_pointer,
+=======
+	get_light_stk33512_function_pointer,
+>>>>>>> upstream/android-13
 };
 
 static get_init_chipset_funcs_ptr *get_light_init_chipset_funcs(int *len)
@@ -47,7 +56,11 @@ static int init_light_variable(void)
 	else
 		data->raw_data_size = 2;
 
+<<<<<<< HEAD
 	set_light_ddi_support(system_info->system_feature);
+=======
+	set_light_ddi_support(system_info->support_ddi);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -142,6 +155,7 @@ int set_light_region(struct light_data *data)
 }
 #endif
 
+<<<<<<< HEAD
 void set_light_ddi_support(uint32_t system_feature)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT);
@@ -150,6 +164,11 @@ void set_light_ddi_support(uint32_t system_feature)
 	data->ddi_support = is_support_system_feature(SF_DDI_SUPPORT);
 
 	shub_infof("%d", data->ddi_support);
+=======
+void set_light_ddi_support(uint32_t ddi_support)
+{
+	shub_infof("%d", ddi_support);
+>>>>>>> upstream/android-13
 }
 
 int light_open_calibration(void)
@@ -164,7 +183,11 @@ int light_open_calibration(void)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	shub_infof("%d %d %d", data->cal_data.result, data->cal_data.max, data->cal_data.lux);
+=======
+	shub_infof("%d %d %d", data->cal_data.cal, data->cal_data.max, data->cal_data.lux);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -173,10 +196,17 @@ static int set_light_cal(struct light_data *data)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!data->use_cal_data || is_panel_ubid_changed())
 		return 0;
 
 	shub_infof("%d %d %d", data->cal_data.result, data->cal_data.max, data->cal_data.lux);
+=======
+	if (!data->use_cal_data)
+		return 0;
+
+	shub_infof("%d %d %d", data->cal_data.cal, data->cal_data.max, data->cal_data.lux);
+>>>>>>> upstream/android-13
 
 	ret = shub_send_command(CMD_SETVALUE, SENSOR_TYPE_LIGHT, CAL_DATA, (u8 *)(&data->cal_data),
 							sizeof(data->cal_data));
@@ -186,6 +216,7 @@ static int set_light_cal(struct light_data *data)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int set_panel_vendor(struct light_data *data)
 {
 	int ret = 0;
@@ -218,19 +249,29 @@ static int set_hbm_finger(struct light_data *data)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sync_light_status(void)
 {
 	int ret = 0;
 	struct light_data *data = get_sensor(SENSOR_TYPE_LIGHT)->data;
+<<<<<<< HEAD
 	shub_info("sync_light_status ");
+=======
+
+>>>>>>> upstream/android-13
 	set_light_coef(data);
 	set_light_brightness(data);
 #ifdef CONFIG_SENSORS_SSP_LIGHT_JPNCONCEPT
 	set_light_region(data);
 #endif
 	set_light_cal(data);
+<<<<<<< HEAD
 	set_panel_vendor(data);
 	set_hbm_finger(data);
+=======
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -260,7 +301,11 @@ static void report_event_light(void)
 void print_light_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+>>>>>>> upstream/android-13
 	struct light_cct_event *sensor_value = (struct light_cct_event *)(event->value);
 
 	shub_info("%s(%u) : %u(%lld) (%ums, %dms)", sensor->name, SENSOR_TYPE_LIGHT, sensor_value->lux,
@@ -275,6 +320,7 @@ int inject_light_additional_data(char *buf, int count)
 	int i, ret = 0;
 	struct light_data *data = get_sensor(SENSOR_TYPE_LIGHT)->data;
 
+<<<<<<< HEAD
 	if (count < 1) {
 		shub_errf("brightness length error %d", count);
 		return -EINVAL;
@@ -330,6 +376,37 @@ int inject_light_additional_data(char *buf, int count)
 			shub_errf("CMD fail %d\n", ret);
 			return ret;
 		}
+=======
+	if (count < 4) {
+		shub_errf("brightness length error %d", count);
+		return -EINVAL;
+	}
+	brightness = *((int32_t *)(buf));
+	cal_brightness = brightness / 10;
+	cal_brightness *= 10;
+
+	// shub_errf("br %d, cal_br %d", brightness, cal_brightness);
+	// set current level for changing itime
+	for (i = 0; i < data->brightness_array_len; i++) {
+		if (brightness <= data->brightness_array[i]) {
+			cur_level = i + 1;
+			// shub_infof("brightness %d <= %d , level %d", brightness, data->brightness_array[i],
+			// cur_level);
+			break;
+		}
+	}
+
+	if (data->last_brightness_level != cur_level) {
+		data->brightness = brightness;
+		// update last level
+		data->last_brightness_level = cur_level;
+		ret = set_light_brightness(data);
+		data->brightness = cal_brightness;
+	} else if (data->brightness != cal_brightness) {
+		data->brightness = brightness;
+		ret = set_light_brightness(data);
+		data->brightness = cal_brightness;
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -337,6 +414,7 @@ int inject_light_additional_data(char *buf, int count)
 
 int get_light_sensor_value(char *dataframe, int *index, struct sensor_event *event, int frame_len)
 {
+<<<<<<< HEAD
 	struct light_data *data = get_sensor(SENSOR_TYPE_LIGHT)->data;
 	struct light_event *sensor_value = (struct light_event *)event->value;
 
@@ -346,6 +424,15 @@ int get_light_sensor_value(char *dataframe, int *index, struct sensor_event *eve
 	*index += sizeof(sensor_value->cct);
 	memcpy(&sensor_value->raw_lux, dataframe + *index, sizeof(sensor_value->raw_lux));
 	*index += sizeof(sensor_value->raw_lux);
+=======
+	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT);
+	struct light_data *data = sensor->data;
+	struct light_event *sensor_value = (struct light_event *)event->value;
+	int offset_raw_data = offsetof(struct light_event, r);
+
+	memcpy(&sensor_value->lux, dataframe + *index, offset_raw_data);
+	*index += offset_raw_data;
+>>>>>>> upstream/android-13
 
 	memcpy(&sensor_value->r, dataframe + *index, data->raw_data_size);
 	*index += data->raw_data_size;
@@ -355,17 +442,25 @@ int get_light_sensor_value(char *dataframe, int *index, struct sensor_event *eve
 	*index += data->raw_data_size;
 	memcpy(&sensor_value->w, dataframe + *index, data->raw_data_size);
 	*index += data->raw_data_size;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	memcpy(&sensor_value->a_time, dataframe + *index, data->raw_data_size);
 	*index += data->raw_data_size;
 	memcpy(&sensor_value->a_gain, dataframe + *index, data->raw_data_size);
 	*index += data->raw_data_size;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	memcpy(&sensor_value->brightness, dataframe + *index, sizeof(sensor_value->brightness));
 	*index += sizeof(sensor_value->brightness);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 
 static struct light_data light_data;
 static struct sensor_funcs light_sensor_funcs = {
@@ -384,12 +479,17 @@ static struct sensor_funcs light_sensor_funcs = {
 int init_light(bool en)
 {
 	int ret = 0;
+=======
+int init_light(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "light_sensor",
 				sensor->spec.version >= LIGHT_DEBIG_EVENT_SIZE_4BYTE_VERSION ? 40 : 28, 4, sizeof(struct light_event));
 		sensor->data = (void *)&light_data;
@@ -399,4 +499,63 @@ int init_light(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "light_sensor");
+		if(sensor->spec.version >= LIGHT_DEBIG_EVENT_SIZE_4BYTE_VERSION)
+			sensor->receive_event_size = 40;
+		else
+			sensor->receive_event_size = 28;
+		sensor->report_event_size = 4;
+		sensor->event_buffer.value = kzalloc(sizeof(struct light_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->data = kzalloc(sizeof(struct light_data), GFP_KERNEL);
+		if (!sensor->data)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->sync_status = sync_light_status;
+		sensor->funcs->enable = enable_light;
+		sensor->funcs->report_event = report_event_light;
+		sensor->funcs->print_debug = print_light_debug;
+		sensor->funcs->inject_additional_data = inject_light_additional_data;
+		sensor->funcs->get_sensor_value = get_light_sensor_value;
+		sensor->funcs->open_calibration_file = light_open_calibration;
+		sensor->funcs->parse_dt = parse_dt_light;
+		sensor->funcs->init_variable = init_light_variable;
+		sensor->funcs->get_init_chipset_funcs = get_light_init_chipset_funcs;
+	} else {
+		struct light_data *data = get_sensor(SENSOR_TYPE_LIGHT)->data;
+
+		kfree(data->light_coef);
+		data->light_coef = NULL;
+
+		kfree(sensor->data);
+		sensor->data = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+	}
+
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->data);
+	sensor->data = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

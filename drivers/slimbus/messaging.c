@@ -66,7 +66,11 @@ int slim_alloc_txn_tid(struct slim_controller *ctrl, struct slim_msg_txn *txn)
 	int ret = 0;
 
 	spin_lock_irqsave(&ctrl->txn_lock, flags);
+<<<<<<< HEAD
 	ret = idr_alloc_cyclic(&ctrl->tid_idr, txn, 0,
+=======
+	ret = idr_alloc_cyclic(&ctrl->tid_idr, txn, 1,
+>>>>>>> upstream/android-13
 				SLIM_MAX_TIDS, GFP_ATOMIC);
 	if (ret < 0) {
 		spin_unlock_irqrestore(&ctrl->txn_lock, flags);
@@ -131,7 +135,12 @@ int slim_do_transfer(struct slim_controller *ctrl, struct slim_msg_txn *txn)
 			goto slim_xfer_err;
 		}
 	}
+<<<<<<< HEAD
 
+=======
+	/* Initialize tid to invalid value */
+	txn->tid = 0;
+>>>>>>> upstream/android-13
 	need_tid = slim_tid_txn(txn->mt, txn->mc);
 
 	if (need_tid) {
@@ -163,7 +172,11 @@ int slim_do_transfer(struct slim_controller *ctrl, struct slim_msg_txn *txn)
 			txn->mt, txn->mc, txn->la, ret);
 
 slim_xfer_err:
+<<<<<<< HEAD
 	if (!clk_pause_msg && (!need_tid  || ret == -ETIMEDOUT)) {
+=======
+	if (!clk_pause_msg && (txn->tid == 0  || ret == -ETIMEDOUT)) {
+>>>>>>> upstream/android-13
 		/*
 		 * remove runtime-pm vote if this was TX only, or
 		 * if there was error during this transaction
@@ -258,6 +271,10 @@ int slim_xfer_msg(struct slim_device *sbdev, struct slim_val_inf *msg,
 	case SLIM_MSG_MC_REQUEST_CLEAR_INFORMATION:
 	case SLIM_MSG_MC_CLEAR_INFORMATION:
 		txn->rl += msg->num_bytes;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

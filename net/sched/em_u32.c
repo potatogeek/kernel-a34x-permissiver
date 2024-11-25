@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/em_u32.c	U32 Ematch
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/em_u32.c	U32 Ematch
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  *		Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *

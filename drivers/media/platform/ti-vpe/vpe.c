@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI VPE mem2mem driver, based on the virtual v4l2-mem2mem example driver
  *
@@ -11,10 +15,13 @@
  * Marek Szyprowski, <m.szyprowski@samsung.com>
  *
  * Based on the virtual v4l2-mem2mem example device
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -55,7 +62,11 @@
 #define MIN_W		32
 #define MIN_H		32
 #define MAX_W		2048
+<<<<<<< HEAD
 #define MAX_H		1184
+=======
+#define MAX_H		2048
+>>>>>>> upstream/android-13
 
 /* required alignments */
 #define S_ALIGN		0	/* multiple of 1 */
@@ -227,7 +238,10 @@ static const struct vpe_port_data port_data[11] = {
 
 /* driver info for each of the supported video formats */
 struct vpe_fmt {
+<<<<<<< HEAD
 	char	*name;			/* human-readable name */
+=======
+>>>>>>> upstream/android-13
 	u32	fourcc;			/* standard format identifier */
 	u8	types;			/* CAPTURE and/or OUTPUT */
 	u8	coplanar;		/* set for unpacked Luma and Chroma */
@@ -237,7 +251,10 @@ struct vpe_fmt {
 
 static struct vpe_fmt vpe_formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "NV16 YUV 422 co-planar",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV16,
 		.types		= VPE_FMT_TYPE_CAPTURE | VPE_FMT_TYPE_OUTPUT,
 		.coplanar	= 1,
@@ -246,7 +263,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "NV12 YUV 420 co-planar",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV12,
 		.types		= VPE_FMT_TYPE_CAPTURE | VPE_FMT_TYPE_OUTPUT,
 		.coplanar	= 1,
@@ -255,7 +275,18 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUYV 422 packed",
+=======
+		.fourcc		= V4L2_PIX_FMT_NV21,
+		.types		= VPE_FMT_TYPE_CAPTURE | VPE_FMT_TYPE_OUTPUT,
+		.coplanar	= 1,
+		.vpdma_fmt	= { &vpdma_yuv_fmts[VPDMA_DATA_FMT_Y420],
+				    &vpdma_yuv_fmts[VPDMA_DATA_FMT_CB420],
+				  },
+	},
+	{
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUYV,
 		.types		= VPE_FMT_TYPE_CAPTURE | VPE_FMT_TYPE_OUTPUT,
 		.coplanar	= 0,
@@ -263,7 +294,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "UYVY 422 packed",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_UYVY,
 		.types		= VPE_FMT_TYPE_CAPTURE | VPE_FMT_TYPE_OUTPUT,
 		.coplanar	= 0,
@@ -271,7 +305,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "RGB888 packed",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB24,
 		.types		= VPE_FMT_TYPE_CAPTURE,
 		.coplanar	= 0,
@@ -279,7 +316,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "ARGB32",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB32,
 		.types		= VPE_FMT_TYPE_CAPTURE,
 		.coplanar	= 0,
@@ -287,7 +327,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "BGR888 packed",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_BGR24,
 		.types		= VPE_FMT_TYPE_CAPTURE,
 		.coplanar	= 0,
@@ -295,7 +338,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "ABGR32",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_BGR32,
 		.types		= VPE_FMT_TYPE_CAPTURE,
 		.coplanar	= 0,
@@ -303,7 +349,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "RGB565",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB565,
 		.types		= VPE_FMT_TYPE_CAPTURE,
 		.coplanar	= 0,
@@ -311,7 +360,10 @@ static struct vpe_fmt vpe_formats[] = {
 				  },
 	},
 	{
+<<<<<<< HEAD
 		.name		= "RGB5551",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB555,
 		.types		= VPE_FMT_TYPE_CAPTURE,
 		.coplanar	= 0,
@@ -325,6 +377,7 @@ static struct vpe_fmt vpe_formats[] = {
  * there is one source queue and one destination queue for each m2m context.
  */
 struct vpe_q_data {
+<<<<<<< HEAD
 	unsigned int		width;				/* frame width */
 	unsigned int		height;				/* frame height */
 	unsigned int		nplanes;			/* Current number of planes */
@@ -333,6 +386,11 @@ struct vpe_q_data {
 	enum v4l2_field		field;				/* supported field value */
 	unsigned int		flags;
 	unsigned int		sizeimage[VPE_MAX_PLANES];	/* image size in memory */
+=======
+	/* current v4l2 format info */
+	struct v4l2_format	format;
+	unsigned int		flags;
+>>>>>>> upstream/android-13
 	struct v4l2_rect	c_rect;				/* crop/compose rectangle */
 	struct vpe_fmt		*fmt;				/* format info */
 };
@@ -342,9 +400,20 @@ struct vpe_q_data {
 #define	Q_DATA_MODE_TILED		BIT(1)
 #define	Q_DATA_INTERLACED_ALTERNATE	BIT(2)
 #define	Q_DATA_INTERLACED_SEQ_TB	BIT(3)
+<<<<<<< HEAD
 
 #define Q_IS_INTERLACED		(Q_DATA_INTERLACED_ALTERNATE | \
 				Q_DATA_INTERLACED_SEQ_TB)
+=======
+#define	Q_DATA_INTERLACED_SEQ_BT	BIT(4)
+
+#define Q_IS_SEQ_XX		(Q_DATA_INTERLACED_SEQ_TB | \
+				Q_DATA_INTERLACED_SEQ_BT)
+
+#define Q_IS_INTERLACED		(Q_DATA_INTERLACED_ALTERNATE | \
+				Q_DATA_INTERLACED_SEQ_TB | \
+				Q_DATA_INTERLACED_SEQ_BT)
+>>>>>>> upstream/android-13
 
 enum {
 	Q_DATA_SRC = 0,
@@ -700,7 +769,12 @@ static void set_cfg_modes(struct vpe_ctx *ctx)
 	 * Cfg Mode 1: YUV422 source, disable upsampler, DEI is de-interlacing.
 	 */
 
+<<<<<<< HEAD
 	if (fmt->fourcc == V4L2_PIX_FMT_NV12)
+=======
+	if (fmt->fourcc == V4L2_PIX_FMT_NV12 ||
+	    fmt->fourcc == V4L2_PIX_FMT_NV21)
+>>>>>>> upstream/android-13
 		cfg_mode = 0;
 
 	write_field(us1_reg0, cfg_mode, VPE_US_MODE_MASK, VPE_US_MODE_SHIFT);
@@ -715,7 +789,12 @@ static void set_line_modes(struct vpe_ctx *ctx)
 	struct vpe_fmt *fmt = ctx->q_data[Q_DATA_SRC].fmt;
 	int line_mode = 1;
 
+<<<<<<< HEAD
 	if (fmt->fourcc == V4L2_PIX_FMT_NV12)
+=======
+	if (fmt->fourcc == V4L2_PIX_FMT_NV12 ||
+	    fmt->fourcc == V4L2_PIX_FMT_NV21)
+>>>>>>> upstream/android-13
 		line_mode = 0;		/* double lines to line buffer */
 
 	/* regs for now */
@@ -760,11 +839,20 @@ static void set_src_registers(struct vpe_ctx *ctx)
 static void set_dst_registers(struct vpe_ctx *ctx)
 {
 	struct vpe_mmr_adb *mmr_adb = ctx->mmr_adb.addr;
+<<<<<<< HEAD
 	enum v4l2_colorspace clrspc = ctx->q_data[Q_DATA_DST].colorspace;
 	struct vpe_fmt *fmt = ctx->q_data[Q_DATA_DST].fmt;
 	u32 val = 0;
 
 	if (clrspc == V4L2_COLORSPACE_SRGB) {
+=======
+	struct vpe_fmt *fmt = ctx->q_data[Q_DATA_DST].fmt;
+	const struct v4l2_format_info *finfo;
+	u32 val = 0;
+
+	finfo = v4l2_format_info(fmt->fourcc);
+	if (v4l2_is_format_rgb(finfo)) {
+>>>>>>> upstream/android-13
 		val |= VPE_RGB_OUT_SELECT;
 		vpdma_set_bg_color(ctx->dev->vpdma,
 			(struct vpdma_data_format *)fmt->vpdma_fmt[0], 0xff);
@@ -777,7 +865,12 @@ static void set_dst_registers(struct vpe_ctx *ctx)
 	 */
 	val |= VPE_DS_SRC_DEI_SCALER | VPE_CSC_SRC_DEI_SCALER;
 
+<<<<<<< HEAD
 	if (fmt->fourcc != V4L2_PIX_FMT_NV12)
+=======
+	if (fmt->fourcc != V4L2_PIX_FMT_NV12 &&
+	    fmt->fourcc != V4L2_PIX_FMT_NV21)
+>>>>>>> upstream/android-13
 		val |= VPE_DS_BYPASS;
 
 	mmr_adb->out_fmt_reg[0] = val;
@@ -866,11 +959,19 @@ static int set_srcdst_params(struct vpe_ctx *ctx)
 	unsigned int src_h = s_q_data->c_rect.height;
 	unsigned int dst_w = d_q_data->c_rect.width;
 	unsigned int dst_h = d_q_data->c_rect.height;
+<<<<<<< HEAD
+=======
+	struct v4l2_pix_format_mplane *spix;
+>>>>>>> upstream/android-13
 	size_t mv_buf_size;
 	int ret;
 
 	ctx->sequence = 0;
 	ctx->field = V4L2_FIELD_TOP;
+<<<<<<< HEAD
+=======
+	spix = &s_q_data->format.fmt.pix_mp;
+>>>>>>> upstream/android-13
 
 	if ((s_q_data->flags & Q_IS_INTERLACED) &&
 			!(d_q_data->flags & Q_IS_INTERLACED)) {
@@ -881,6 +982,7 @@ static int set_srcdst_params(struct vpe_ctx *ctx)
 		/*
 		 * we make sure that the source image has a 16 byte aligned
 		 * stride, we need to do the same for the motion vector buffer
+<<<<<<< HEAD
 		 * by aligning it's stride to the next 16 byte boundry. this
 		 * extra space will not be used by the de-interlacer, but will
 		 * ensure that vpdma operates correctly
@@ -888,6 +990,15 @@ static int set_srcdst_params(struct vpe_ctx *ctx)
 		bytes_per_line = ALIGN((s_q_data->width * mv->depth) >> 3,
 					VPDMA_STRIDE_ALIGN);
 		mv_buf_size = bytes_per_line * s_q_data->height;
+=======
+		 * by aligning it's stride to the next 16 byte boundary. this
+		 * extra space will not be used by the de-interlacer, but will
+		 * ensure that vpdma operates correctly
+		 */
+		bytes_per_line = ALIGN((spix->width * mv->depth) >> 3,
+				       VPDMA_STRIDE_ALIGN);
+		mv_buf_size = bytes_per_line * spix->height;
+>>>>>>> upstream/android-13
 
 		ctx->deinterlacing = true;
 		src_h <<= 1;
@@ -907,7 +1018,11 @@ static int set_srcdst_params(struct vpe_ctx *ctx)
 	set_dei_regs(ctx);
 
 	csc_set_coeff(ctx->dev->csc, &mmr_adb->csc_regs[0],
+<<<<<<< HEAD
 		s_q_data->colorspace, d_q_data->colorspace);
+=======
+		      &s_q_data->format, &d_q_data->format);
+>>>>>>> upstream/android-13
 
 	sc_set_hs_coeffs(ctx->dev->sc, ctx->sc_coeff_h.addr, src_w, dst_w);
 	sc_set_vs_coeffs(ctx->dev->sc, ctx->sc_coeff_v.addr, src_h, dst_h);
@@ -920,6 +1035,7 @@ static int set_srcdst_params(struct vpe_ctx *ctx)
 }
 
 /*
+<<<<<<< HEAD
  * Return the vpe_ctx structure for a given struct file
  */
 static struct vpe_ctx *file2ctx(struct file *file)
@@ -928,6 +1044,8 @@ static struct vpe_ctx *file2ctx(struct file *file)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * mem2mem callbacks
  */
 
@@ -1029,6 +1147,10 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
 	struct vpe_fmt *fmt = q_data->fmt;
 	const struct vpdma_data_format *vpdma_fmt;
 	int mv_buf_selector = !ctx->src_mv_buf_selector;
+<<<<<<< HEAD
+=======
+	struct v4l2_pix_format_mplane *pix;
+>>>>>>> upstream/android-13
 	dma_addr_t dma_addr;
 	u32 flags = 0;
 	u32 offset = 0;
@@ -1038,21 +1160,37 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
 		vpdma_fmt = &vpdma_misc_fmts[VPDMA_DATA_FMT_MV];
 		dma_addr = ctx->mv_buf_dma[mv_buf_selector];
 		q_data = &ctx->q_data[Q_DATA_SRC];
+<<<<<<< HEAD
 		stride = ALIGN((q_data->width * vpdma_fmt->depth) >> 3,
+=======
+		pix = &q_data->format.fmt.pix_mp;
+		stride = ALIGN((pix->width * vpdma_fmt->depth) >> 3,
+>>>>>>> upstream/android-13
 			       VPDMA_STRIDE_ALIGN);
 	} else {
 		/* to incorporate interleaved formats */
 		int plane = fmt->coplanar ? p_data->vb_part : 0;
 
+<<<<<<< HEAD
+=======
+		pix = &q_data->format.fmt.pix_mp;
+>>>>>>> upstream/android-13
 		vpdma_fmt = fmt->vpdma_fmt[plane];
 		/*
 		 * If we are using a single plane buffer and
 		 * we need to set a separate vpdma chroma channel.
 		 */
+<<<<<<< HEAD
 		if (q_data->nplanes == 1 && plane) {
 			dma_addr = vb2_dma_contig_plane_dma_addr(vb, 0);
 			/* Compute required offset */
 			offset = q_data->bytesperline[0] * q_data->height;
+=======
+		if (pix->num_planes == 1 && plane) {
+			dma_addr = vb2_dma_contig_plane_dma_addr(vb, 0);
+			/* Compute required offset */
+			offset = pix->plane_fmt[0].bytesperline * pix->height;
+>>>>>>> upstream/android-13
 		} else {
 			dma_addr = vb2_dma_contig_plane_dma_addr(vb, plane);
 			/* Use address as is, no offset */
@@ -1066,7 +1204,11 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
 		}
 		/* Apply the offset */
 		dma_addr += offset;
+<<<<<<< HEAD
 		stride = q_data->bytesperline[VPE_LUMA];
+=======
+		stride = pix->plane_fmt[VPE_LUMA].bytesperline;
+>>>>>>> upstream/android-13
 	}
 
 	if (q_data->flags & Q_DATA_FRAME_1D)
@@ -1077,7 +1219,11 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
 	vpdma_set_max_size(ctx->dev->vpdma, VPDMA_MAX_SIZE1,
 			   MAX_W, MAX_H);
 
+<<<<<<< HEAD
 	vpdma_add_out_dtd(&ctx->desc_list, q_data->width,
+=======
+	vpdma_add_out_dtd(&ctx->desc_list, pix->width,
+>>>>>>> upstream/android-13
 			  stride, &q_data->c_rect,
 			  vpdma_fmt, dma_addr, MAX_OUT_WIDTH_REG1,
 			  MAX_OUT_HEIGHT_REG1, p_data->channel, flags);
@@ -1090,6 +1236,10 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
 	struct vb2_buffer *vb = &ctx->src_vbs[p_data->vb_index]->vb2_buf;
 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
 	struct vpe_fmt *fmt = q_data->fmt;
+<<<<<<< HEAD
+=======
+	struct v4l2_pix_format_mplane *pix;
+>>>>>>> upstream/android-13
 	const struct vpdma_data_format *vpdma_fmt;
 	int mv_buf_selector = ctx->src_mv_buf_selector;
 	int field = vbuf->field == V4L2_FIELD_BOTTOM;
@@ -1099,10 +1249,18 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
 	u32 offset = 0;
 	u32 stride;
 
+<<<<<<< HEAD
 	if (port == VPE_PORT_MV_IN) {
 		vpdma_fmt = &vpdma_misc_fmts[VPDMA_DATA_FMT_MV];
 		dma_addr = ctx->mv_buf_dma[mv_buf_selector];
 		stride = ALIGN((q_data->width * vpdma_fmt->depth) >> 3,
+=======
+	pix = &q_data->format.fmt.pix_mp;
+	if (port == VPE_PORT_MV_IN) {
+		vpdma_fmt = &vpdma_misc_fmts[VPDMA_DATA_FMT_MV];
+		dma_addr = ctx->mv_buf_dma[mv_buf_selector];
+		stride = ALIGN((pix->width * vpdma_fmt->depth) >> 3,
+>>>>>>> upstream/android-13
 			       VPDMA_STRIDE_ALIGN);
 	} else {
 		/* to incorporate interleaved formats */
@@ -1113,10 +1271,17 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
 		 * If we are using a single plane buffer and
 		 * we need to set a separate vpdma chroma channel.
 		 */
+<<<<<<< HEAD
 		if (q_data->nplanes == 1 && plane) {
 			dma_addr = vb2_dma_contig_plane_dma_addr(vb, 0);
 			/* Compute required offset */
 			offset = q_data->bytesperline[0] * q_data->height;
+=======
+		if (pix->num_planes == 1 && plane) {
+			dma_addr = vb2_dma_contig_plane_dma_addr(vb, 0);
+			/* Compute required offset */
+			offset = pix->plane_fmt[0].bytesperline * pix->height;
+>>>>>>> upstream/android-13
 		} else {
 			dma_addr = vb2_dma_contig_plane_dma_addr(vb, plane);
 			/* Use address as is, no offset */
@@ -1130,6 +1295,7 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
 		}
 		/* Apply the offset */
 		dma_addr += offset;
+<<<<<<< HEAD
 		stride = q_data->bytesperline[VPE_LUMA];
 
 		if (q_data->flags & Q_DATA_INTERLACED_SEQ_TB) {
@@ -1151,6 +1317,41 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
 				if (plane)
 					height /= 2;
 				dma_addr += q_data->width * height * bpp;
+=======
+		stride = pix->plane_fmt[VPE_LUMA].bytesperline;
+
+		/*
+		 * field used in VPDMA desc  = 0 (top) / 1 (bottom)
+		 * Use top or bottom field from same vb alternately
+		 * For each de-interlacing operation, f,f-1,f-2 should be one
+		 * of TBT or BTB
+		 */
+		if (q_data->flags & Q_DATA_INTERLACED_SEQ_TB ||
+		    q_data->flags & Q_DATA_INTERLACED_SEQ_BT) {
+			/* Select initial value based on format */
+			if (q_data->flags & Q_DATA_INTERLACED_SEQ_BT)
+				field = 1;
+			else
+				field = 0;
+
+			/* Toggle for each vb_index and each operation */
+			field = (field + p_data->vb_index + ctx->sequence) % 2;
+
+			if (field) {
+				int height = pix->height / 2;
+				int bpp;
+
+				if (fmt->fourcc == V4L2_PIX_FMT_NV12 ||
+				    fmt->fourcc == V4L2_PIX_FMT_NV21)
+					bpp = 1;
+				else
+					bpp = vpdma_fmt->depth >> 3;
+
+				if (plane)
+					height /= 2;
+
+				dma_addr += pix->width * height * bpp;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -1163,10 +1364,18 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
 	frame_width = q_data->c_rect.width;
 	frame_height = q_data->c_rect.height;
 
+<<<<<<< HEAD
 	if (p_data->vb_part && fmt->fourcc == V4L2_PIX_FMT_NV12)
 		frame_height /= 2;
 
 	vpdma_add_in_dtd(&ctx->desc_list, q_data->width, stride,
+=======
+	if (p_data->vb_part && (fmt->fourcc == V4L2_PIX_FMT_NV12 ||
+				fmt->fourcc == V4L2_PIX_FMT_NV21))
+		frame_height /= 2;
+
+	vpdma_add_in_dtd(&ctx->desc_list, pix->width, stride,
+>>>>>>> upstream/android-13
 			 &q_data->c_rect, vpdma_fmt, dma_addr,
 			 p_data->channel, field, flags, frame_width,
 			 frame_height, 0, 0);
@@ -1203,6 +1412,7 @@ static void device_run(void *priv)
 	struct sc_data *sc = ctx->dev->sc;
 	struct vpe_q_data *d_q_data = &ctx->q_data[Q_DATA_DST];
 	struct vpe_q_data *s_q_data = &ctx->q_data[Q_DATA_SRC];
+<<<<<<< HEAD
 
 	if (ctx->deinterlacing && s_q_data->flags & Q_DATA_INTERLACED_SEQ_TB &&
 		ctx->sequence % 2 == 0) {
@@ -1210,6 +1420,20 @@ static void device_run(void *priv)
 		 * No need to remove the buffer as the next field is present
 		 * in the same buffer. (so that job_ready won't fail)
 		 * It will be removed when using bottom field
+=======
+	const struct v4l2_format_info *d_finfo;
+
+	d_finfo = v4l2_format_info(d_q_data->fmt->fourcc);
+
+	if (ctx->deinterlacing && s_q_data->flags & Q_IS_SEQ_XX &&
+	    ctx->sequence % 2 == 0) {
+		/* When using SEQ_XX type buffers, each buffer has two fields
+		 * each buffer has two fields (top & bottom)
+		 * Removing one buffer is actually getting two fields
+		 * Alternate between two operations:-
+		 * Even : consume one field but DO NOT REMOVE from queue
+		 * Odd : consume other field and REMOVE from queue
+>>>>>>> upstream/android-13
 		 */
 		ctx->src_vbs[0] = v4l2_m2m_next_src_buf(ctx->fh.m2m_ctx);
 		WARN_ON(ctx->src_vbs[0] == NULL);
@@ -1273,7 +1497,11 @@ static void device_run(void *priv)
 	if (ctx->deinterlacing)
 		add_out_dtd(ctx, VPE_PORT_MV_OUT);
 
+<<<<<<< HEAD
 	if (d_q_data->colorspace == V4L2_COLORSPACE_SRGB) {
+=======
+	if (v4l2_is_format_rgb(d_finfo)) {
+>>>>>>> upstream/android-13
 		add_out_dtd(ctx, VPE_PORT_RGB_OUT);
 	} else {
 		add_out_dtd(ctx, VPE_PORT_LUMA_OUT);
@@ -1315,7 +1543,11 @@ static void device_run(void *priv)
 	}
 
 	/* sync on channel control descriptors for output ports */
+<<<<<<< HEAD
 	if (d_q_data->colorspace == V4L2_COLORSPACE_SRGB) {
+=======
+	if (v4l2_is_format_rgb(d_finfo)) {
+>>>>>>> upstream/android-13
 		vpdma_add_sync_on_channel_ctd(&ctx->desc_list,
 			VPE_CHAN_RGB_OUT);
 	} else {
@@ -1505,12 +1737,19 @@ handled:
 static int vpe_querycap(struct file *file, void *priv,
 			struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	strncpy(cap->driver, VPE_MODULE_NAME, sizeof(cap->driver) - 1);
 	strncpy(cap->card, VPE_MODULE_NAME, sizeof(cap->card) - 1);
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		VPE_MODULE_NAME);
 	cap->device_caps  = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, VPE_MODULE_NAME, sizeof(cap->driver));
+	strscpy(cap->card, VPE_MODULE_NAME, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
+		VPE_MODULE_NAME);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1533,7 +1772,10 @@ static int __enum_fmt(struct v4l2_fmtdesc *f, u32 type)
 	if (!fmt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strncpy(f->description, fmt->name, sizeof(f->description) - 1);
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = fmt->fourcc;
 	return 0;
 }
@@ -1550,16 +1792,23 @@ static int vpe_enum_fmt(struct file *file, void *priv,
 static int vpe_g_fmt(struct file *file, void *priv, struct v4l2_format *f)
 {
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
+<<<<<<< HEAD
 	struct vpe_ctx *ctx = file2ctx(file);
 	struct vb2_queue *vq;
 	struct vpe_q_data *q_data;
 	int i;
+=======
+	struct vpe_ctx *ctx = file->private_data;
+	struct vb2_queue *vq;
+	struct vpe_q_data *q_data;
+>>>>>>> upstream/android-13
 
 	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
 	if (!vq)
 		return -EINVAL;
 
 	q_data = get_q_data(ctx, f->type);
+<<<<<<< HEAD
 
 	pix->width = q_data->width;
 	pix->height = q_data->height;
@@ -1582,6 +1831,25 @@ static int vpe_g_fmt(struct file *file, void *priv, struct v4l2_format *f)
 	for (i = 0; i < pix->num_planes; i++) {
 		pix->plane_fmt[i].bytesperline = q_data->bytesperline[i];
 		pix->plane_fmt[i].sizeimage = q_data->sizeimage[i];
+=======
+	if (!q_data)
+		return -EINVAL;
+
+	*f = q_data->format;
+
+	if (V4L2_TYPE_IS_CAPTURE(f->type)) {
+		struct vpe_q_data *s_q_data;
+		struct v4l2_pix_format_mplane *spix;
+
+		/* get colorimetry from the source queue */
+		s_q_data = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+		spix = &s_q_data->format.fmt.pix_mp;
+
+		pix->colorspace = spix->colorspace;
+		pix->xfer_func = spix->xfer_func;
+		pix->ycbcr_enc = spix->ycbcr_enc;
+		pix->quantization = spix->quantization;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1595,6 +1863,10 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
 	unsigned int w_align;
 	int i, depth, depth_bytes, height;
 	unsigned int stride = 0;
+<<<<<<< HEAD
+=======
+	const struct v4l2_format_info *finfo;
+>>>>>>> upstream/android-13
 
 	if (!fmt || !(fmt->types & type)) {
 		vpe_dbg(ctx->dev, "Fourcc format (0x%08x) invalid.\n",
@@ -1602,8 +1874,15 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
 		fmt = __find_format(V4L2_PIX_FMT_YUYV);
 	}
 
+<<<<<<< HEAD
 	if (pix->field != V4L2_FIELD_NONE && pix->field != V4L2_FIELD_ALTERNATE
 			&& pix->field != V4L2_FIELD_SEQ_TB)
+=======
+	if (pix->field != V4L2_FIELD_NONE &&
+	    pix->field != V4L2_FIELD_ALTERNATE &&
+	    pix->field != V4L2_FIELD_SEQ_TB &&
+	    pix->field != V4L2_FIELD_SEQ_BT)
+>>>>>>> upstream/android-13
 		pix->field = V4L2_FIELD_NONE;
 
 	depth = fmt->vpdma_fmt[VPE_LUMA]->depth;
@@ -1652,21 +1931,35 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
 		pix->num_planes = 1;
 
 	pix->pixelformat = fmt->fourcc;
+<<<<<<< HEAD
 
 	/*
 	 * For the actual image parameters, we need to consider the field
 	 * height of the image for SEQ_TB buffers.
 	 */
 	if (pix->field == V4L2_FIELD_SEQ_TB)
+=======
+	finfo = v4l2_format_info(fmt->fourcc);
+
+	/*
+	 * For the actual image parameters, we need to consider the field
+	 * height of the image for SEQ_XX buffers.
+	 */
+	if (pix->field == V4L2_FIELD_SEQ_TB || pix->field == V4L2_FIELD_SEQ_BT)
+>>>>>>> upstream/android-13
 		height = pix->height / 2;
 	else
 		height = pix->height;
 
 	if (!pix->colorspace) {
+<<<<<<< HEAD
 		if (fmt->fourcc == V4L2_PIX_FMT_RGB24 ||
 				fmt->fourcc == V4L2_PIX_FMT_BGR24 ||
 				fmt->fourcc == V4L2_PIX_FMT_RGB32 ||
 				fmt->fourcc == V4L2_PIX_FMT_BGR32) {
+=======
+		if (v4l2_is_format_rgb(finfo)) {
+>>>>>>> upstream/android-13
 			pix->colorspace = V4L2_COLORSPACE_SRGB;
 		} else {
 			if (height > 1280)	/* HD */
@@ -1676,7 +1969,10 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
 		}
 	}
 
+<<<<<<< HEAD
 	memset(pix->reserved, 0, sizeof(pix->reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < pix->num_planes; i++) {
 		plane_fmt = &pix->plane_fmt[i];
 		depth = fmt->vpdma_fmt[i]->depth;
@@ -1706,7 +2002,10 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
 					       plane_fmt->bytesperline *
 					       depth) >> 3;
 		}
+<<<<<<< HEAD
 		memset(plane_fmt->reserved, 0, sizeof(plane_fmt->reserved));
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1714,7 +2013,11 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
 
 static int vpe_try_fmt(struct file *file, void *priv, struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct vpe_ctx *ctx = file2ctx(file);
+=======
+	struct vpe_ctx *ctx = file->private_data;
+>>>>>>> upstream/android-13
 	struct vpe_fmt *fmt = find_format(f);
 
 	if (V4L2_TYPE_IS_OUTPUT(f->type))
@@ -1726,10 +2029,16 @@ static int vpe_try_fmt(struct file *file, void *priv, struct v4l2_format *f)
 static int __vpe_s_fmt(struct vpe_ctx *ctx, struct v4l2_format *f)
 {
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
+<<<<<<< HEAD
 	struct v4l2_plane_pix_format *plane_fmt;
 	struct vpe_q_data *q_data;
 	struct vb2_queue *vq;
 	int i;
+=======
+	struct v4l2_pix_format_mplane *qpix;
+	struct vpe_q_data *q_data;
+	struct vb2_queue *vq;
+>>>>>>> upstream/android-13
 
 	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
 	if (!vq)
@@ -1744,6 +2053,7 @@ static int __vpe_s_fmt(struct vpe_ctx *ctx, struct v4l2_format *f)
 	if (!q_data)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	q_data->fmt		= find_format(f);
 	q_data->width		= pix->width;
 	q_data->height		= pix->height;
@@ -1780,6 +2090,36 @@ static int __vpe_s_fmt(struct vpe_ctx *ctx, struct v4l2_format *f)
 	if (q_data->nplanes == 2)
 		vpe_dbg(ctx->dev, " bpl_uv %d\n",
 			q_data->bytesperline[VPE_CHROMA]);
+=======
+	qpix = &q_data->format.fmt.pix_mp;
+	q_data->fmt		= find_format(f);
+	q_data->format = *f;
+
+	q_data->c_rect.left	= 0;
+	q_data->c_rect.top	= 0;
+	q_data->c_rect.width	= pix->width;
+	q_data->c_rect.height	= pix->height;
+
+	if (qpix->field == V4L2_FIELD_ALTERNATE)
+		q_data->flags |= Q_DATA_INTERLACED_ALTERNATE;
+	else if (qpix->field == V4L2_FIELD_SEQ_TB)
+		q_data->flags |= Q_DATA_INTERLACED_SEQ_TB;
+	else if (qpix->field == V4L2_FIELD_SEQ_BT)
+		q_data->flags |= Q_DATA_INTERLACED_SEQ_BT;
+	else
+		q_data->flags &= ~Q_IS_INTERLACED;
+
+	/* the crop height is halved for the case of SEQ_XX buffers */
+	if (q_data->flags & Q_IS_SEQ_XX)
+		q_data->c_rect.height /= 2;
+
+	vpe_dbg(ctx->dev, "Setting format for type %d, wxh: %dx%d, fmt: %d bpl_y %d",
+		f->type, pix->width, pix->height, pix->pixelformat,
+		pix->plane_fmt[0].bytesperline);
+	if (pix->num_planes == 2)
+		vpe_dbg(ctx->dev, " bpl_uv %d\n",
+			pix->plane_fmt[1].bytesperline);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1787,7 +2127,11 @@ static int __vpe_s_fmt(struct vpe_ctx *ctx, struct v4l2_format *f)
 static int vpe_s_fmt(struct file *file, void *priv, struct v4l2_format *f)
 {
 	int ret;
+<<<<<<< HEAD
 	struct vpe_ctx *ctx = file2ctx(file);
+=======
+	struct vpe_ctx *ctx = file->private_data;
+>>>>>>> upstream/android-13
 
 	ret = vpe_try_fmt(file, priv, f);
 	if (ret)
@@ -1808,6 +2152,10 @@ static int vpe_s_fmt(struct file *file, void *priv, struct v4l2_format *f)
 static int __vpe_try_selection(struct vpe_ctx *ctx, struct v4l2_selection *s)
 {
 	struct vpe_q_data *q_data;
+<<<<<<< HEAD
+=======
+	struct v4l2_pix_format_mplane *pix;
+>>>>>>> upstream/android-13
 	int height;
 
 	if ((s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE) &&
@@ -1818,6 +2166,11 @@ static int __vpe_try_selection(struct vpe_ctx *ctx, struct v4l2_selection *s)
 	if (!q_data)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	pix = &q_data->format.fmt.pix_mp;
+
+>>>>>>> upstream/android-13
 	switch (s->target) {
 	case V4L2_SEL_TGT_COMPOSE:
 		/*
@@ -1844,6 +2197,7 @@ static int __vpe_try_selection(struct vpe_ctx *ctx, struct v4l2_selection *s)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * For SEQ_TB buffers, crop height should be less than the height of
 	 * the field height, not the buffer height
 	 */
@@ -1851,12 +2205,22 @@ static int __vpe_try_selection(struct vpe_ctx *ctx, struct v4l2_selection *s)
 		height = q_data->height / 2;
 	else
 		height = q_data->height;
+=======
+	 * For SEQ_XX buffers, crop height should be less than the height of
+	 * the field height, not the buffer height
+	 */
+	if (q_data->flags & Q_IS_SEQ_XX)
+		height = pix->height / 2;
+	else
+		height = pix->height;
+>>>>>>> upstream/android-13
 
 	if (s->r.top < 0 || s->r.left < 0) {
 		vpe_err(ctx->dev, "negative values for top and left\n");
 		s->r.top = s->r.left = 0;
 	}
 
+<<<<<<< HEAD
 	v4l_bound_align_image(&s->r.width, MIN_W, q_data->width, 1,
 		&s->r.height, MIN_H, height, H_ALIGN, S_ALIGN);
 
@@ -1865,6 +2229,16 @@ static int __vpe_try_selection(struct vpe_ctx *ctx, struct v4l2_selection *s)
 		s->r.left = q_data->width - s->r.width;
 	if (s->r.top + s->r.height > q_data->height)
 		s->r.top = q_data->height - s->r.height;
+=======
+	v4l_bound_align_image(&s->r.width, MIN_W, pix->width, 1,
+		&s->r.height, MIN_H, height, H_ALIGN, S_ALIGN);
+
+	/* adjust left/top if cropping rectangle is out of bounds */
+	if (s->r.left + s->r.width > pix->width)
+		s->r.left = pix->width - s->r.width;
+	if (s->r.top + s->r.height > pix->height)
+		s->r.top = pix->height - s->r.height;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1872,8 +2246,14 @@ static int __vpe_try_selection(struct vpe_ctx *ctx, struct v4l2_selection *s)
 static int vpe_g_selection(struct file *file, void *fh,
 		struct v4l2_selection *s)
 {
+<<<<<<< HEAD
 	struct vpe_ctx *ctx = file2ctx(file);
 	struct vpe_q_data *q_data;
+=======
+	struct vpe_ctx *ctx = file->private_data;
+	struct vpe_q_data *q_data;
+	struct v4l2_pix_format_mplane *pix;
+>>>>>>> upstream/android-13
 	bool use_c_rect = false;
 
 	if ((s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE) &&
@@ -1884,6 +2264,11 @@ static int vpe_g_selection(struct file *file, void *fh,
 	if (!q_data)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	pix = &q_data->format.fmt.pix_mp;
+
+>>>>>>> upstream/android-13
 	switch (s->target) {
 	case V4L2_SEL_TGT_COMPOSE_DEFAULT:
 	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
@@ -1922,8 +2307,13 @@ static int vpe_g_selection(struct file *file, void *fh,
 		 */
 		s->r.left = 0;
 		s->r.top = 0;
+<<<<<<< HEAD
 		s->r.width = q_data->width;
 		s->r.height = q_data->height;
+=======
+		s->r.width = pix->width;
+		s->r.height = pix->height;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1933,7 +2323,11 @@ static int vpe_g_selection(struct file *file, void *fh,
 static int vpe_s_selection(struct file *file, void *fh,
 		struct v4l2_selection *s)
 {
+<<<<<<< HEAD
 	struct vpe_ctx *ctx = file2ctx(file);
+=======
+	struct vpe_ctx *ctx = file->private_data;
+>>>>>>> upstream/android-13
 	struct vpe_q_data *q_data;
 	struct v4l2_selection sel = *s;
 	int ret;
@@ -1991,12 +2385,20 @@ static const struct v4l2_ctrl_ops vpe_ctrl_ops = {
 static const struct v4l2_ioctl_ops vpe_ioctl_ops = {
 	.vidioc_querycap		= vpe_querycap,
 
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= vpe_enum_fmt,
+=======
+	.vidioc_enum_fmt_vid_cap	= vpe_enum_fmt,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_cap_mplane	= vpe_g_fmt,
 	.vidioc_try_fmt_vid_cap_mplane	= vpe_try_fmt,
 	.vidioc_s_fmt_vid_cap_mplane	= vpe_s_fmt,
 
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_out_mplane	= vpe_enum_fmt,
+=======
+	.vidioc_enum_fmt_vid_out	= vpe_enum_fmt,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_out_mplane	= vpe_g_fmt,
 	.vidioc_try_fmt_vid_out_mplane	= vpe_try_fmt,
 	.vidioc_s_fmt_vid_out_mplane	= vpe_s_fmt,
@@ -2026,6 +2428,7 @@ static int vpe_queue_setup(struct vb2_queue *vq,
 	int i;
 	struct vpe_ctx *ctx = vb2_get_drv_priv(vq);
 	struct vpe_q_data *q_data;
+<<<<<<< HEAD
 
 	q_data = get_q_data(ctx, vq->type);
 
@@ -2037,6 +2440,23 @@ static int vpe_queue_setup(struct vb2_queue *vq,
 	vpe_dbg(ctx->dev, "get %d buffer(s) of size %d", *nbuffers,
 		sizes[VPE_LUMA]);
 	if (q_data->nplanes == 2)
+=======
+	struct v4l2_pix_format_mplane *pix;
+
+	q_data = get_q_data(ctx, vq->type);
+	if (!q_data)
+		return -EINVAL;
+
+	pix = &q_data->format.fmt.pix_mp;
+	*nplanes = pix->num_planes;
+
+	for (i = 0; i < *nplanes; i++)
+		sizes[i] = pix->plane_fmt[i].sizeimage;
+
+	vpe_dbg(ctx->dev, "get %d buffer(s) of size %d", *nbuffers,
+		sizes[VPE_LUMA]);
+	if (*nplanes == 2)
+>>>>>>> upstream/android-13
 		vpe_dbg(ctx->dev, " and %d\n", sizes[VPE_CHROMA]);
 
 	return 0;
@@ -2047,12 +2467,24 @@ static int vpe_buf_prepare(struct vb2_buffer *vb)
 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
 	struct vpe_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 	struct vpe_q_data *q_data;
+<<<<<<< HEAD
 	int i, num_planes;
+=======
+	struct v4l2_pix_format_mplane *pix;
+	int i;
+>>>>>>> upstream/android-13
 
 	vpe_dbg(ctx->dev, "type: %d\n", vb->vb2_queue->type);
 
 	q_data = get_q_data(ctx, vb->vb2_queue->type);
+<<<<<<< HEAD
 	num_planes = q_data->nplanes;
+=======
+	if (!q_data)
+		return -EINVAL;
+
+	pix = &q_data->format.fmt.pix_mp;
+>>>>>>> upstream/android-13
 
 	if (vb->vb2_queue->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
 		if (!(q_data->flags & Q_IS_INTERLACED)) {
@@ -2060,23 +2492,42 @@ static int vpe_buf_prepare(struct vb2_buffer *vb)
 		} else {
 			if (vbuf->field != V4L2_FIELD_TOP &&
 			    vbuf->field != V4L2_FIELD_BOTTOM &&
+<<<<<<< HEAD
 			    vbuf->field != V4L2_FIELD_SEQ_TB)
+=======
+			    vbuf->field != V4L2_FIELD_SEQ_TB &&
+			    vbuf->field != V4L2_FIELD_SEQ_BT)
+>>>>>>> upstream/android-13
 				return -EINVAL;
 		}
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < num_planes; i++) {
 		if (vb2_plane_size(vb, i) < q_data->sizeimage[i]) {
 			vpe_err(ctx->dev,
 				"data will not fit into plane (%lu < %lu)\n",
 				vb2_plane_size(vb, i),
 				(long) q_data->sizeimage[i]);
+=======
+	for (i = 0; i < pix->num_planes; i++) {
+		if (vb2_plane_size(vb, i) < pix->plane_fmt[i].sizeimage) {
+			vpe_err(ctx->dev,
+				"data will not fit into plane (%lu < %lu)\n",
+				vb2_plane_size(vb, i),
+				(long)pix->plane_fmt[i].sizeimage);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < num_planes; i++)
 		vb2_set_plane_payload(vb, i, q_data->sizeimage[i]);
+=======
+	for (i = 0; i < pix->num_planes; i++)
+		vb2_set_plane_payload(vb, i, pix->plane_fmt[i].sizeimage);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2261,6 +2712,10 @@ static int vpe_open(struct file *file)
 	struct vpe_q_data *s_q_data;
 	struct v4l2_ctrl_handler *hdl;
 	struct vpe_ctx *ctx;
+<<<<<<< HEAD
+=======
+	struct v4l2_pix_format_mplane *pix;
+>>>>>>> upstream/android-13
 	int ret;
 
 	vpe_dbg(dev, "vpe_open\n");
@@ -2296,7 +2751,11 @@ static int vpe_open(struct file *file)
 	init_adb_hdrs(ctx);
 
 	v4l2_fh_init(&ctx->fh, video_devdata(file));
+<<<<<<< HEAD
 	file->private_data = &ctx->fh;
+=======
+	file->private_data = ctx;
+>>>>>>> upstream/android-13
 
 	hdl = &ctx->hdl;
 	v4l2_ctrl_handler_init(hdl, 1);
@@ -2309,6 +2768,7 @@ static int vpe_open(struct file *file)
 	v4l2_ctrl_handler_setup(hdl);
 
 	s_q_data = &ctx->q_data[Q_DATA_SRC];
+<<<<<<< HEAD
 	s_q_data->fmt = __find_format(V4L2_PIX_FMT_YUYV);
 	s_q_data->width = 1920;
 	s_q_data->height = 1080;
@@ -2326,6 +2786,34 @@ static int vpe_open(struct file *file)
 	s_q_data->flags = 0;
 
 	ctx->q_data[Q_DATA_DST] = *s_q_data;
+=======
+	pix = &s_q_data->format.fmt.pix_mp;
+	s_q_data->fmt = __find_format(V4L2_PIX_FMT_YUYV);
+	pix->pixelformat = s_q_data->fmt->fourcc;
+	s_q_data->format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	pix->width = 1920;
+	pix->height = 1080;
+	pix->num_planes = 1;
+	pix->plane_fmt[VPE_LUMA].bytesperline = (pix->width *
+			s_q_data->fmt->vpdma_fmt[VPE_LUMA]->depth) >> 3;
+	pix->plane_fmt[VPE_LUMA].sizeimage =
+			pix->plane_fmt[VPE_LUMA].bytesperline *
+			pix->height;
+	pix->colorspace = V4L2_COLORSPACE_REC709;
+	pix->xfer_func = V4L2_XFER_FUNC_DEFAULT;
+	pix->ycbcr_enc = V4L2_YCBCR_ENC_DEFAULT;
+	pix->quantization = V4L2_QUANTIZATION_DEFAULT;
+	pix->field = V4L2_FIELD_NONE;
+	s_q_data->c_rect.left = 0;
+	s_q_data->c_rect.top = 0;
+	s_q_data->c_rect.width = pix->width;
+	s_q_data->c_rect.height = pix->height;
+	s_q_data->flags = 0;
+
+	ctx->q_data[Q_DATA_DST] = *s_q_data;
+	ctx->q_data[Q_DATA_DST].format.type =
+			V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+>>>>>>> upstream/android-13
 
 	set_dei_shadow_registers(ctx);
 	set_src_registers(ctx);
@@ -2381,7 +2869,11 @@ free_ctx:
 static int vpe_release(struct file *file)
 {
 	struct vpe_dev *dev = video_drvdata(file);
+<<<<<<< HEAD
 	struct vpe_ctx *ctx = file2ctx(file);
+=======
+	struct vpe_ctx *ctx = file->private_data;
+>>>>>>> upstream/android-13
 
 	vpe_dbg(dev, "releasing instance %p\n", ctx);
 
@@ -2435,6 +2927,10 @@ static const struct video_device vpe_videodev = {
 	.minor		= -1,
 	.release	= video_device_release_empty,
 	.vfl_dir	= VFL_DIR_M2M,
+<<<<<<< HEAD
+=======
+	.device_caps	= V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING,
+>>>>>>> upstream/android-13
 };
 
 static const struct v4l2_m2m_ops m2m_ops = {
@@ -2449,11 +2945,17 @@ static int vpe_runtime_get(struct platform_device *pdev)
 
 	dev_dbg(&pdev->dev, "vpe_runtime_get\n");
 
+<<<<<<< HEAD
 	r = pm_runtime_get_sync(&pdev->dev);
 	WARN_ON(r < 0);
 	if (r)
 		pm_runtime_put_noidle(&pdev->dev);
 	return r < 0 ? r : 0;
+=======
+	r = pm_runtime_resume_and_get(&pdev->dev);
+	WARN_ON(r < 0);
+	return r;
+>>>>>>> upstream/android-13
 }
 
 static void vpe_runtime_put(struct platform_device *pdev)
@@ -2478,7 +2980,11 @@ static void vpe_fw_cb(struct platform_device *pdev)
 	vfd->lock = &dev->dev_mutex;
 	vfd->v4l2_dev = &dev->v4l2_dev;
 
+<<<<<<< HEAD
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER, 0);
+=======
+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		vpe_err(dev, "Failed to register video device\n");
 
@@ -2501,6 +3007,16 @@ static int vpe_probe(struct platform_device *pdev)
 	struct vpe_dev *dev;
 	int ret, irq, func;
 
+<<<<<<< HEAD
+=======
+	ret = dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+	if (ret) {
+		dev_err(&pdev->dev,
+			"32-bit consistent DMA enable failed\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
 	if (!dev)
 		return -ENOMEM;
@@ -2515,7 +3031,16 @@ static int vpe_probe(struct platform_device *pdev)
 	mutex_init(&dev->dev_mutex);
 
 	dev->res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
+<<<<<<< HEAD
 			"vpe_top");
+=======
+						"vpe_top");
+	if (!dev->res) {
+		dev_err(&pdev->dev, "missing 'vpe_top' resources data\n");
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * HACK: we get resource info from device tree in the form of a list of
 	 * VPE sub blocks, the driver currently uses only the base of vpe_top
@@ -2546,7 +3071,11 @@ static int vpe_probe(struct platform_device *pdev)
 	pm_runtime_enable(&pdev->dev);
 
 	ret = vpe_runtime_get(pdev);
+<<<<<<< HEAD
 	if (ret)
+=======
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		goto rel_m2m;
 
 	/* Perform clk enable followed by reset */
@@ -2610,7 +3139,11 @@ static int vpe_remove(struct platform_device *pdev)
 #if defined(CONFIG_OF)
 static const struct of_device_id vpe_of_match[] = {
 	{
+<<<<<<< HEAD
 		.compatible = "ti,vpe",
+=======
+		.compatible = "ti,dra7-vpe",
+>>>>>>> upstream/android-13
 	},
 	{},
 };

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* MTD-based superblock handling
  *
  * Copyright © 2006 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MTD_SUPER_H__
@@ -18,9 +25,15 @@
 #include <linux/fs.h>
 #include <linux/mount.h>
 
+<<<<<<< HEAD
 extern struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
 		      const char *dev_name, void *data,
 		      int (*fill_super)(struct super_block *, void *, int));
+=======
+extern int get_tree_mtd(struct fs_context *fc,
+		     int (*fill_super)(struct super_block *sb,
+				       struct fs_context *fc));
+>>>>>>> upstream/android-13
 extern void kill_mtd_super(struct super_block *sb);
 
 

@@ -67,8 +67,11 @@
 
 	reg_mmc3_vdd: mmc3_vdd {
 		compatible = "regulator-fixed";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&mmc3_vdd_pin_a20_hummingbird>;
+=======
+>>>>>>> upstream/android-13
 		regulator-name = "mmc3_vdd";
 		regulator-min-microvolt = <3000000>;
 		regulator-max-microvolt = <3000000>;
@@ -78,8 +81,11 @@
 
 	reg_gmac_vdd: gmac_vdd {
 		compatible = "regulator-fixed";
+<<<<<<< HEAD
 		pinctrl-names = "default";
 		pinctrl-0 = <&gmac_vdd_pin_a20_hummingbird>;
+=======
+>>>>>>> upstream/android-13
 		regulator-name = "gmac_vdd";
 		regulator-min-microvolt = <3000000>;
 		regulator-max-microvolt = <3000000>;
@@ -103,6 +109,7 @@
 
 &gmac {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&gmac_pins_rgmii_a>;
 	phy = <&phy1>;
 	phy-mode = "rgmii";
@@ -122,6 +129,16 @@
 &i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+	pinctrl-0 = <&gmac_rgmii_pins>;
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii";
+	phy-supply = <&reg_gmac_vdd>;
+	status = "okay";
+};
+
+&i2c0 {
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	axp209: pmic@34 {
@@ -135,25 +152,35 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &i2c2 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &i2c3 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c3_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &ir0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&ir0_rx_pins_a>;
 	status = "okay";
 };
@@ -161,6 +188,23 @@
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>;
+=======
+	pinctrl-0 = <&ir0_rx_pin>;
+	status = "okay";
+};
+
+&gmac_mdio {
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+		reset-gpios = <&pio 0 17 GPIO_ACTIVE_LOW>; /* PA17 */
+		reset-assert-us = <10000>;
+		/* wait 1s after reset, otherwise fail to read phy id */
+		reset-deassert-us = <1000000>;
+	};
+};
+
+&mmc0 {
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v0>;
 	bus-width = <4>;
 	cd-gpios = <&pio 7 1 GPIO_ACTIVE_LOW>; /* PH1 */
@@ -168,8 +212,11 @@
 };
 
 &mmc3 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc3_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_mmc3_vdd>;
 	bus-width = <4>;
 	non-removable;
@@ -184,6 +231,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	ahci_pwr_pin_a20_hummingbird: ahci_pwr_pin@0 {
 		pins = "PH15";
@@ -209,17 +257,28 @@
 &pwm {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pwm0_pins_a>;
+=======
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm0_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &reg_ahci_5v {
+<<<<<<< HEAD
 	pinctrl-0 = <&ahci_pwr_pin_a20_hummingbird>;
+=======
+>>>>>>> upstream/android-13
 	gpio = <&pio 7 15 GPIO_ACTIVE_HIGH>; /* PH15 */
 	status = "okay";
 };
 
 &reg_usb1_vbus {
+<<<<<<< HEAD
 	pinctrl-0 = <&usb1_vbus_pin_a20_hummingbird>;
+=======
+>>>>>>> upstream/android-13
 	gpio = <&pio 7 2 GPIO_ACTIVE_HIGH>; /* PH2 */
 	status = "okay";
 };
@@ -230,38 +289,63 @@
 
 &spi2 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&spi2_pins_b>,
 		    <&spi2_cs0_pins_b>;
+=======
+	pinctrl-0 = <&spi2_pb_pins>,
+		    <&spi2_cs0_pb_pin>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_a>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart2 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart2_pins_a>;
+=======
+	pinctrl-0 = <&uart2_pi_pins>, <&uart2_cts_rts_pi_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart3 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart3_pins_a>;
+=======
+	pinctrl-0 = <&uart3_pg_pins>, <&uart3_cts_rts_pg_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart4 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart4_pins_a>;
+=======
+	pinctrl-0 = <&uart4_pg_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart5 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart5_pins_a>;
+=======
+	pinctrl-0 = <&uart5_pi_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

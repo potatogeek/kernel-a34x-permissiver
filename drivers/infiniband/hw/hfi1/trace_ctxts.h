@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Copyright(c) 2015, 2016 Intel Corporation.
 *
@@ -44,6 +45,13 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+* Copyright(c) 2015 - 2020 Intel Corporation.
+*/
+
+>>>>>>> upstream/android-13
 #if !defined(__HFI1_TRACE_CTXTS_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __HFI1_TRACE_CTXTS_H
 
@@ -80,7 +88,11 @@ TRACE_EVENT(hfi1_uctxtdata,
 			   __entry->credits = uctxt->sc->credits;
 			   __entry->hw_free = le64_to_cpu(*uctxt->sc->hw_free);
 			   __entry->piobase = uctxt->sc->base_addr;
+<<<<<<< HEAD
 			   __entry->rcvhdrq_cnt = uctxt->rcvhdrq_cnt;
+=======
+			   __entry->rcvhdrq_cnt = get_hdrq_cnt(uctxt);
+>>>>>>> upstream/android-13
 			   __entry->rcvhdrq_dma = uctxt->rcvhdrq_dma;
 			   __entry->eager_cnt = uctxt->egrbufs.alloced;
 			   __entry->rcvegr_dma = uctxt->egrbufs.rcvtids[0].dma;
@@ -138,6 +150,18 @@ TRACE_EVENT(hfi1_ctxt_info,
 		      )
 );
 
+<<<<<<< HEAD
+=======
+const char *hfi1_trace_print_rsm_hist(struct trace_seq *p, unsigned int ctxt);
+TRACE_EVENT(ctxt_rsm_hist,
+	    TP_PROTO(unsigned int ctxt),
+	    TP_ARGS(ctxt),
+	    TP_STRUCT__entry(__field(unsigned int, ctxt)),
+	    TP_fast_assign(__entry->ctxt = ctxt;),
+	    TP_printk("%s", hfi1_trace_print_rsm_hist(p, __entry->ctxt))
+);
+
+>>>>>>> upstream/android-13
 #endif /* __HFI1_TRACE_CTXTS_H */
 
 #undef TRACE_INCLUDE_PATH

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * xfrm_replay.c - xfrm replay detection, derived from xfrm_state.c.
  *
  * Copyright (C) 2010 secunet Security Networks AG
  * Copyright (C) 2010 Steffen Klassert <steffen.klassert@secunet.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -46,8 +53,16 @@ u32 xfrm_replay_seqhi(struct xfrm_state *x, __be32 net_seq)
 	return seq_hi;
 }
 EXPORT_SYMBOL(xfrm_replay_seqhi);
+<<<<<<< HEAD
 ;
 static void xfrm_replay_notify(struct xfrm_state *x, int event)
+=======
+
+static void xfrm_replay_notify_bmp(struct xfrm_state *x, int event);
+static void xfrm_replay_notify_esn(struct xfrm_state *x, int event);
+
+void xfrm_replay_notify(struct xfrm_state *x, int event)
+>>>>>>> upstream/android-13
 {
 	struct km_event c;
 	/* we send notify messages in case
@@ -60,6 +75,20 @@ static void xfrm_replay_notify(struct xfrm_state *x, int event)
 	 *  The state structure must be locked!
 	 */
 
+<<<<<<< HEAD
+=======
+	switch (x->repl_mode) {
+	case XFRM_REPLAY_MODE_LEGACY:
+		break;
+	case XFRM_REPLAY_MODE_BMP:
+		xfrm_replay_notify_bmp(x, event);
+		return;
+	case XFRM_REPLAY_MODE_ESN:
+		xfrm_replay_notify_esn(x, event);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	switch (event) {
 	case XFRM_REPLAY_UPDATE:
 		if (!x->replay_maxdiff ||
@@ -93,7 +122,11 @@ static void xfrm_replay_notify(struct xfrm_state *x, int event)
 		x->xflags &= ~XFRM_TIME_DEFER;
 }
 
+<<<<<<< HEAD
 static int xfrm_replay_overflow(struct xfrm_state *x, struct sk_buff *skb)
+=======
+static int __xfrm_replay_overflow(struct xfrm_state *x, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 	struct net *net = xs_net(x);
@@ -101,7 +134,12 @@ static int xfrm_replay_overflow(struct xfrm_state *x, struct sk_buff *skb)
 	if (x->type->flags & XFRM_TYPE_REPLAY_PROT) {
 		XFRM_SKB_CB(skb)->seq.output.low = ++x->replay.oseq;
 		XFRM_SKB_CB(skb)->seq.output.hi = 0;
+<<<<<<< HEAD
 		if (unlikely(x->replay.oseq == 0)) {
+=======
+		if (unlikely(x->replay.oseq == 0) &&
+		    !(x->props.extra_flags & XFRM_SA_XFLAG_OSEQ_MAY_WRAP)) {
+>>>>>>> upstream/android-13
 			x->replay.oseq--;
 			xfrm_audit_state_replay_overflow(x, skb);
 			err = -EOVERFLOW;
@@ -109,14 +147,23 @@ static int xfrm_replay_overflow(struct xfrm_state *x, struct sk_buff *skb)
 			return err;
 		}
 		if (xfrm_aevent_is_on(net))
+<<<<<<< HEAD
 			x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+			xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static int xfrm_replay_check(struct xfrm_state *x,
 		      struct sk_buff *skb, __be32 net_seq)
+=======
+static int xfrm_replay_check_legacy(struct xfrm_state *x,
+				    struct sk_buff *skb, __be32 net_seq)
+>>>>>>> upstream/android-13
 {
 	u32 diff;
 	u32 seq = ntohl(net_seq);
@@ -147,14 +194,36 @@ err:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static void xfrm_replay_advance(struct xfrm_state *x, __be32 net_seq)
 {
 	u32 diff;
 	u32 seq = ntohl(net_seq);
+=======
+static void xfrm_replay_advance_bmp(struct xfrm_state *x, __be32 net_seq);
+static void xfrm_replay_advance_esn(struct xfrm_state *x, __be32 net_seq);
+
+void xfrm_replay_advance(struct xfrm_state *x, __be32 net_seq)
+{
+	u32 diff, seq;
+
+	switch (x->repl_mode) {
+	case XFRM_REPLAY_MODE_LEGACY:
+		break;
+	case XFRM_REPLAY_MODE_BMP:
+		return xfrm_replay_advance_bmp(x, net_seq);
+	case XFRM_REPLAY_MODE_ESN:
+		return xfrm_replay_advance_esn(x, net_seq);
+	}
+>>>>>>> upstream/android-13
 
 	if (!x->props.replay_window)
 		return;
 
+<<<<<<< HEAD
+=======
+	seq = ntohl(net_seq);
+>>>>>>> upstream/android-13
 	if (seq > x->replay.seq) {
 		diff = seq - x->replay.seq;
 		if (diff < x->props.replay_window)
@@ -168,7 +237,11 @@ static void xfrm_replay_advance(struct xfrm_state *x, __be32 net_seq)
 	}
 
 	if (xfrm_aevent_is_on(xs_net(x)))
+<<<<<<< HEAD
 		x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+		xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 }
 
 static int xfrm_replay_overflow_bmp(struct xfrm_state *x, struct sk_buff *skb)
@@ -180,7 +253,12 @@ static int xfrm_replay_overflow_bmp(struct xfrm_state *x, struct sk_buff *skb)
 	if (x->type->flags & XFRM_TYPE_REPLAY_PROT) {
 		XFRM_SKB_CB(skb)->seq.output.low = ++replay_esn->oseq;
 		XFRM_SKB_CB(skb)->seq.output.hi = 0;
+<<<<<<< HEAD
 		if (unlikely(replay_esn->oseq == 0)) {
+=======
+		if (unlikely(replay_esn->oseq == 0) &&
+		    !(x->props.extra_flags & XFRM_SA_XFLAG_OSEQ_MAY_WRAP)) {
+>>>>>>> upstream/android-13
 			replay_esn->oseq--;
 			xfrm_audit_state_replay_overflow(x, skb);
 			err = -EOVERFLOW;
@@ -188,7 +266,11 @@ static int xfrm_replay_overflow_bmp(struct xfrm_state *x, struct sk_buff *skb)
 			return err;
 		}
 		if (xfrm_aevent_is_on(net))
+<<<<<<< HEAD
 			x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+			xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -283,7 +365,11 @@ static void xfrm_replay_advance_bmp(struct xfrm_state *x, __be32 net_seq)
 	replay_esn->bmp[nr] |= (1U << bitnr);
 
 	if (xfrm_aevent_is_on(xs_net(x)))
+<<<<<<< HEAD
 		x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+		xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 }
 
 static void xfrm_replay_notify_bmp(struct xfrm_state *x, int event)
@@ -426,7 +512,11 @@ static int xfrm_replay_overflow_esn(struct xfrm_state *x, struct sk_buff *skb)
 			}
 		}
 		if (xfrm_aevent_is_on(net))
+<<<<<<< HEAD
 			x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+			xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -491,6 +581,24 @@ err:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+int xfrm_replay_check(struct xfrm_state *x,
+		      struct sk_buff *skb, __be32 net_seq)
+{
+	switch (x->repl_mode) {
+	case XFRM_REPLAY_MODE_LEGACY:
+		break;
+	case XFRM_REPLAY_MODE_BMP:
+		return xfrm_replay_check_bmp(x, skb, net_seq);
+	case XFRM_REPLAY_MODE_ESN:
+		return xfrm_replay_check_esn(x, skb, net_seq);
+	}
+
+	return xfrm_replay_check_legacy(x, skb, net_seq);
+}
+
+>>>>>>> upstream/android-13
 static int xfrm_replay_recheck_esn(struct xfrm_state *x,
 				   struct sk_buff *skb, __be32 net_seq)
 {
@@ -503,6 +611,25 @@ static int xfrm_replay_recheck_esn(struct xfrm_state *x,
 	return xfrm_replay_check_esn(x, skb, net_seq);
 }
 
+<<<<<<< HEAD
+=======
+int xfrm_replay_recheck(struct xfrm_state *x,
+			struct sk_buff *skb, __be32 net_seq)
+{
+	switch (x->repl_mode) {
+	case XFRM_REPLAY_MODE_LEGACY:
+		break;
+	case XFRM_REPLAY_MODE_BMP:
+		/* no special recheck treatment */
+		return xfrm_replay_check_bmp(x, skb, net_seq);
+	case XFRM_REPLAY_MODE_ESN:
+		return xfrm_replay_recheck_esn(x, skb, net_seq);
+	}
+
+	return xfrm_replay_check_legacy(x, skb, net_seq);
+}
+
+>>>>>>> upstream/android-13
 static void xfrm_replay_advance_esn(struct xfrm_state *x, __be32 net_seq)
 {
 	unsigned int bitnr, nr, i;
@@ -558,7 +685,11 @@ static void xfrm_replay_advance_esn(struct xfrm_state *x, __be32 net_seq)
 	replay_esn->bmp[nr] |= (1U << bitnr);
 
 	if (xfrm_aevent_is_on(xs_net(x)))
+<<<<<<< HEAD
 		x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+		xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_XFRM_OFFLOAD
@@ -570,7 +701,11 @@ static int xfrm_replay_overflow_offload(struct xfrm_state *x, struct sk_buff *sk
 	__u32 oseq = x->replay.oseq;
 
 	if (!xo)
+<<<<<<< HEAD
 		return xfrm_replay_overflow(x, skb);
+=======
+		return __xfrm_replay_overflow(x, skb);
+>>>>>>> upstream/android-13
 
 	if (x->type->flags & XFRM_TYPE_REPLAY_PROT) {
 		if (!skb_is_gso(skb)) {
@@ -584,7 +719,12 @@ static int xfrm_replay_overflow_offload(struct xfrm_state *x, struct sk_buff *sk
 
 		XFRM_SKB_CB(skb)->seq.output.hi = 0;
 		xo->seq.hi = 0;
+<<<<<<< HEAD
 		if (unlikely(oseq < x->replay.oseq)) {
+=======
+		if (unlikely(oseq < x->replay.oseq) &&
+		    !(x->props.extra_flags & XFRM_SA_XFLAG_OSEQ_MAY_WRAP)) {
+>>>>>>> upstream/android-13
 			xfrm_audit_state_replay_overflow(x, skb);
 			err = -EOVERFLOW;
 
@@ -594,7 +734,11 @@ static int xfrm_replay_overflow_offload(struct xfrm_state *x, struct sk_buff *sk
 		x->replay.oseq = oseq;
 
 		if (xfrm_aevent_is_on(net))
+<<<<<<< HEAD
 			x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+			xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -623,7 +767,12 @@ static int xfrm_replay_overflow_offload_bmp(struct xfrm_state *x, struct sk_buff
 
 		XFRM_SKB_CB(skb)->seq.output.hi = 0;
 		xo->seq.hi = 0;
+<<<<<<< HEAD
 		if (unlikely(oseq < replay_esn->oseq)) {
+=======
+		if (unlikely(oseq < replay_esn->oseq) &&
+		    !(x->props.extra_flags & XFRM_SA_XFLAG_OSEQ_MAY_WRAP)) {
+>>>>>>> upstream/android-13
 			xfrm_audit_state_replay_overflow(x, skb);
 			err = -EOVERFLOW;
 
@@ -633,7 +782,11 @@ static int xfrm_replay_overflow_offload_bmp(struct xfrm_state *x, struct sk_buff
 		}
 
 		if (xfrm_aevent_is_on(net))
+<<<<<<< HEAD
 			x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+			xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -682,12 +835,17 @@ static int xfrm_replay_overflow_offload_esn(struct xfrm_state *x, struct sk_buff
 		replay_esn->oseq = oseq;
 
 		if (xfrm_aevent_is_on(net))
+<<<<<<< HEAD
 			x->repl->notify(x, XFRM_REPLAY_UPDATE);
+=======
+			xfrm_replay_notify(x, XFRM_REPLAY_UPDATE);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static const struct xfrm_replay xfrm_replay_legacy = {
 	.advance	= xfrm_replay_advance,
 	.check		= xfrm_replay_check,
@@ -735,6 +893,35 @@ static const struct xfrm_replay xfrm_replay_esn = {
 	.notify		= xfrm_replay_notify_esn,
 	.overflow	= xfrm_replay_overflow_esn,
 };
+=======
+int xfrm_replay_overflow(struct xfrm_state *x, struct sk_buff *skb)
+{
+	switch (x->repl_mode) {
+	case XFRM_REPLAY_MODE_LEGACY:
+		break;
+	case XFRM_REPLAY_MODE_BMP:
+		return xfrm_replay_overflow_offload_bmp(x, skb);
+	case XFRM_REPLAY_MODE_ESN:
+		return xfrm_replay_overflow_offload_esn(x, skb);
+	}
+
+	return xfrm_replay_overflow_offload(x, skb);
+}
+#else
+int xfrm_replay_overflow(struct xfrm_state *x, struct sk_buff *skb)
+{
+	switch (x->repl_mode) {
+	case XFRM_REPLAY_MODE_LEGACY:
+		break;
+	case XFRM_REPLAY_MODE_BMP:
+		return xfrm_replay_overflow_bmp(x, skb);
+	case XFRM_REPLAY_MODE_ESN:
+		return xfrm_replay_overflow_esn(x, skb);
+	}
+
+	return __xfrm_replay_overflow(x, skb);
+}
+>>>>>>> upstream/android-13
 #endif
 
 int xfrm_init_replay(struct xfrm_state *x)
@@ -749,12 +936,21 @@ int xfrm_init_replay(struct xfrm_state *x)
 		if (x->props.flags & XFRM_STATE_ESN) {
 			if (replay_esn->replay_window == 0)
 				return -EINVAL;
+<<<<<<< HEAD
 			x->repl = &xfrm_replay_esn;
 		} else {
 			x->repl = &xfrm_replay_bmp;
 		}
 	} else {
 		x->repl = &xfrm_replay_legacy;
+=======
+			x->repl_mode = XFRM_REPLAY_MODE_ESN;
+		} else {
+			x->repl_mode = XFRM_REPLAY_MODE_BMP;
+		}
+	} else {
+		x->repl_mode = XFRM_REPLAY_MODE_LEGACY;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

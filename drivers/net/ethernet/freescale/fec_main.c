@@ -38,6 +38,10 @@
 #include <linux/in.h>
 #include <linux/ip.h>
 #include <net/ip.h>
+<<<<<<< HEAD
+=======
+#include <net/selftests.h>
+>>>>>>> upstream/android-13
 #include <net/tso.h>
 #include <linux/tcp.h>
 #include <linux/udp.h>
@@ -75,7 +79,11 @@ static void fec_enet_itr_coal_init(struct net_device *ndev);
 
 #define DRIVER_NAME	"fec"
 
+<<<<<<< HEAD
 #define FEC_ENET_GET_QUQUE(_x) ((_x == 0) ? 1 : ((_x == 1) ? 2 : 0))
+=======
+static const u16 fec_enet_vlan_pri_to_queue[8] = {0, 0, 1, 1, 1, 2, 2, 2};
+>>>>>>> upstream/android-13
 
 /* Pause frame feild and FIFO threshold */
 #define FEC_ENET_FCE	(1 << 5)
@@ -88,8 +96,11 @@ static void fec_enet_itr_coal_init(struct net_device *ndev);
 
 struct fec_devinfo {
 	u32 quirks;
+<<<<<<< HEAD
 	u8 stop_gpr_reg;
 	u8 stop_gpr_bit;
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct fec_devinfo fec_imx25_info = {
@@ -104,16 +115,25 @@ static const struct fec_devinfo fec_imx27_info = {
 static const struct fec_devinfo fec_imx28_info = {
 	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_SWAP_FRAME |
 		  FEC_QUIRK_SINGLE_MDIO | FEC_QUIRK_HAS_RACC |
+<<<<<<< HEAD
 		  FEC_QUIRK_HAS_FRREG,
+=======
+		  FEC_QUIRK_HAS_FRREG | FEC_QUIRK_CLEAR_SETUP_MII |
+		  FEC_QUIRK_NO_HARD_RESET,
+>>>>>>> upstream/android-13
 };
 
 static const struct fec_devinfo fec_imx6q_info = {
 	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
 		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
 		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR006358 |
+<<<<<<< HEAD
 		  FEC_QUIRK_HAS_RACC,
 	.stop_gpr_reg = 0x34,
 	.stop_gpr_bit = 27,
+=======
+		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_CLEAR_SETUP_MII,
+>>>>>>> upstream/android-13
 };
 
 static const struct fec_devinfo fec_mvf600_info = {
@@ -125,7 +145,12 @@ static const struct fec_devinfo fec_imx6x_info = {
 		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
 		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
 		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
+<<<<<<< HEAD
 		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE,
+=======
+		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE |
+		  FEC_QUIRK_CLEAR_SETUP_MII | FEC_QUIRK_HAS_MULTI_QUEUES,
+>>>>>>> upstream/android-13
 };
 
 static const struct fec_devinfo fec_imx6ul_info = {
@@ -133,7 +158,31 @@ static const struct fec_devinfo fec_imx6ul_info = {
 		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
 		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR007885 |
 		  FEC_QUIRK_BUG_CAPTURE | FEC_QUIRK_HAS_RACC |
+<<<<<<< HEAD
 		  FEC_QUIRK_HAS_COALESCE,
+=======
+		  FEC_QUIRK_HAS_COALESCE | FEC_QUIRK_CLEAR_SETUP_MII,
+};
+
+static const struct fec_devinfo fec_imx8mq_info = {
+	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
+		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
+		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
+		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
+		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE |
+		  FEC_QUIRK_CLEAR_SETUP_MII | FEC_QUIRK_HAS_MULTI_QUEUES |
+		  FEC_QUIRK_HAS_EEE | FEC_QUIRK_WAKEUP_FROM_INT2,
+};
+
+static const struct fec_devinfo fec_imx8qm_info = {
+	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
+		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
+		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
+		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
+		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE |
+		  FEC_QUIRK_CLEAR_SETUP_MII | FEC_QUIRK_HAS_MULTI_QUEUES |
+		  FEC_QUIRK_DELAYED_CLKS_SUPPORT,
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device_id fec_devtype[] = {
@@ -163,6 +212,15 @@ static struct platform_device_id fec_devtype[] = {
 		.name = "imx6ul-fec",
 		.driver_data = (kernel_ulong_t)&fec_imx6ul_info,
 	}, {
+<<<<<<< HEAD
+=======
+		.name = "imx8mq-fec",
+		.driver_data = (kernel_ulong_t)&fec_imx8mq_info,
+	}, {
+		.name = "imx8qm-fec",
+		.driver_data = (kernel_ulong_t)&fec_imx8qm_info,
+	}, {
+>>>>>>> upstream/android-13
 		/* sentinel */
 	}
 };
@@ -176,6 +234,11 @@ enum imx_fec_type {
 	MVF600_FEC,
 	IMX6SX_FEC,
 	IMX6UL_FEC,
+<<<<<<< HEAD
+=======
+	IMX8MQ_FEC,
+	IMX8QM_FEC,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id fec_dt_ids[] = {
@@ -186,6 +249,11 @@ static const struct of_device_id fec_dt_ids[] = {
 	{ .compatible = "fsl,mvf600-fec", .data = &fec_devtype[MVF600_FEC], },
 	{ .compatible = "fsl,imx6sx-fec", .data = &fec_devtype[IMX6SX_FEC], },
 	{ .compatible = "fsl,imx6ul-fec", .data = &fec_devtype[IMX6UL_FEC], },
+<<<<<<< HEAD
+=======
+	{ .compatible = "fsl,imx8mq-fec", .data = &fec_devtype[IMX8MQ_FEC], },
+	{ .compatible = "fsl,imx8qm-fec", .data = &fec_devtype[IMX8QM_FEC], },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, fec_dt_ids);
@@ -246,8 +314,16 @@ MODULE_PARM_DESC(macaddr, "FEC Ethernet MAC address");
 
 /* FEC MII MMFR bits definition */
 #define FEC_MMFR_ST		(1 << 30)
+<<<<<<< HEAD
 #define FEC_MMFR_OP_READ	(2 << 28)
 #define FEC_MMFR_OP_WRITE	(1 << 28)
+=======
+#define FEC_MMFR_ST_C45		(0)
+#define FEC_MMFR_OP_READ	(2 << 28)
+#define FEC_MMFR_OP_READ_C45	(3 << 28)
+#define FEC_MMFR_OP_WRITE	(1 << 28)
+#define FEC_MMFR_OP_ADDR_WRITE	(0)
+>>>>>>> upstream/android-13
 #define FEC_MMFR_PA(v)		((v & 0x1f) << 23)
 #define FEC_MMFR_RA(v)		((v & 0x1f) << 18)
 #define FEC_MMFR_TA		(2 << 16)
@@ -403,7 +479,11 @@ fec_enet_txq_submit_frag_skb(struct fec_enet_priv_tx_q *txq,
 		status = fec16_to_cpu(bdp->cbd_sc);
 		status &= ~BD_ENET_TX_STATS;
 		status |= (BD_ENET_TX_TC | BD_ENET_TX_READY);
+<<<<<<< HEAD
 		frag_len = skb_shinfo(skb)->frags[frag].size;
+=======
+		frag_len = skb_frag_size(&skb_shinfo(skb)->frags[frag]);
+>>>>>>> upstream/android-13
 
 		/* Handle the last BD specially */
 		if (frag == nr_frags - 1) {
@@ -421,11 +501,19 @@ fec_enet_txq_submit_frag_skb(struct fec_enet_priv_tx_q *txq,
 				estatus |= FEC_TX_BD_FTYPE(txq->bd.qid);
 			if (skb->ip_summed == CHECKSUM_PARTIAL)
 				estatus |= BD_ENET_TX_PINS | BD_ENET_TX_IINS;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			ebdp->cbd_bdu = 0;
 			ebdp->cbd_esc = cpu_to_fec32(estatus);
 		}
 
+<<<<<<< HEAD
 		bufaddr = page_address(this_frag->page.p) + this_frag->page_offset;
+=======
+		bufaddr = skb_frag_address(this_frag);
+>>>>>>> upstream/android-13
 
 		index = fec_enet_get_bd_index(bdp, &txq->bd);
 		if (((unsigned long) bufaddr) & fep->tx_align ||
@@ -711,8 +799,12 @@ static int fec_enet_txq_submit_tso(struct fec_enet_priv_tx_q *txq,
 				   struct net_device *ndev)
 {
 	struct fec_enet_private *fep = netdev_priv(ndev);
+<<<<<<< HEAD
 	int hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
 	int total_len, data_left;
+=======
+	int hdr_len, total_len, data_left;
+>>>>>>> upstream/android-13
 	struct bufdesc *bdp = txq->bd.cur;
 	struct tso_t tso;
 	unsigned int index = 0;
@@ -732,7 +824,11 @@ static int fec_enet_txq_submit_tso(struct fec_enet_priv_tx_q *txq,
 	}
 
 	/* Initialize the TSO handler, and prepare the first payload */
+<<<<<<< HEAD
 	tso_start(skb, &tso);
+=======
+	hdr_len = tso_start(skb, &tso);
+>>>>>>> upstream/android-13
 
 	total_len = skb->len - hdr_len;
 	while (total_len > 0) {
@@ -947,7 +1043,10 @@ static void
 fec_restart(struct net_device *ndev)
 {
 	struct fec_enet_private *fep = netdev_priv(ndev);
+<<<<<<< HEAD
 	u32 val;
+=======
+>>>>>>> upstream/android-13
 	u32 temp_mac[2];
 	u32 rcntl = OPT_FRAME_SIZE | 0x04;
 	u32 ecntl = 0x2; /* ETHEREN */
@@ -956,7 +1055,12 @@ fec_restart(struct net_device *ndev)
 	 * For i.MX6SX SOC, enet use AXI bus, we use disable MAC
 	 * instead of reset MAC itself.
 	 */
+<<<<<<< HEAD
 	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
+=======
+	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES ||
+	    ((fep->quirks & FEC_QUIRK_NO_HARD_RESET) && fep->link)) {
+>>>>>>> upstream/android-13
 		writel(0, fep->hwp + FEC_ECNTRL);
 	} else {
 		writel(1, fep->hwp + FEC_ECNTRL);
@@ -973,8 +1077,13 @@ fec_restart(struct net_device *ndev)
 	writel((__force u32)cpu_to_be32(temp_mac[1]),
 	       fep->hwp + FEC_ADDR_HIGH);
 
+<<<<<<< HEAD
 	/* Clear any outstanding interrupt. */
 	writel(0xffffffff, fep->hwp + FEC_IEVENT);
+=======
+	/* Clear any outstanding interrupt, except MDIO. */
+	writel((0xffffffff & ~FEC_ENET_MII), fep->hwp + FEC_IEVENT);
+>>>>>>> upstream/android-13
 
 	fec_enet_bd_init(ndev);
 
@@ -998,7 +1107,12 @@ fec_restart(struct net_device *ndev)
 
 #if !defined(CONFIG_M5272)
 	if (fep->quirks & FEC_QUIRK_HAS_RACC) {
+<<<<<<< HEAD
 		val = readl(fep->hwp + FEC_RACC);
+=======
+		u32 val = readl(fep->hwp + FEC_RACC);
+
+>>>>>>> upstream/android-13
 		/* align IP header */
 		val |= FEC_RACC_SHIFT16;
 		if (fep->csum_flags & FLAG_RX_CSUM_ENABLED)
@@ -1104,6 +1218,16 @@ fec_restart(struct net_device *ndev)
 	if (fep->bufdesc_ex)
 		ecntl |= (1 << 4);
 
+<<<<<<< HEAD
+=======
+	if (fep->quirks & FEC_QUIRK_DELAYED_CLKS_SUPPORT &&
+	    fep->rgmii_txc_dly)
+		ecntl |= FEC_ENET_TXC_DLY;
+	if (fep->quirks & FEC_QUIRK_DELAYED_CLKS_SUPPORT &&
+	    fep->rgmii_rxc_dly)
+		ecntl |= FEC_ENET_RXC_DLY;
+
+>>>>>>> upstream/android-13
 #ifndef CONFIG_M5272
 	/* Enable the MIB statistic event counters */
 	writel(0 << 31, fep->hwp + FEC_MIB_CTRLSTAT);
@@ -1120,7 +1244,11 @@ fec_restart(struct net_device *ndev)
 	if (fep->link)
 		writel(FEC_DEFAULT_IMASK, fep->hwp + FEC_IMASK);
 	else
+<<<<<<< HEAD
 		writel(FEC_ENET_MII, fep->hwp + FEC_IMASK);
+=======
+		writel(0, fep->hwp + FEC_IMASK);
+>>>>>>> upstream/android-13
 
 	/* Init the interrupt coalescing */
 	fec_enet_itr_coal_init(ndev);
@@ -1165,7 +1293,11 @@ fec_stop(struct net_device *ndev)
 	 * instead of reset MAC itself.
 	 */
 	if (!(fep->wol_flag & FEC_WOL_FLAG_SLEEP_ON)) {
+<<<<<<< HEAD
 		if (fep->quirks & FEC_QUIRK_HAS_AVB) {
+=======
+		if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+>>>>>>> upstream/android-13
 			writel(0, fep->hwp + FEC_ECNTRL);
 		} else {
 			writel(1, fep->hwp + FEC_ECNTRL);
@@ -1191,7 +1323,11 @@ fec_stop(struct net_device *ndev)
 
 
 static void
+<<<<<<< HEAD
 fec_timeout(struct net_device *ndev)
+=======
+fec_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct fec_enet_private *fep = netdev_priv(ndev);
 
@@ -1249,8 +1385,11 @@ fec_enet_tx_queue(struct net_device *ndev, u16 queue_id)
 
 	fep = netdev_priv(ndev);
 
+<<<<<<< HEAD
 	queue_id = FEC_ENET_GET_QUQUE(queue_id);
 
+=======
+>>>>>>> upstream/android-13
 	txq = fep->tx_queue[queue_id];
 	/* get next bdp of dirty_tx */
 	nq = netdev_get_tx_queue(ndev, queue_id);
@@ -1299,8 +1438,18 @@ fec_enet_tx_queue(struct net_device *ndev, u16 queue_id)
 			ndev->stats.tx_bytes += skb->len;
 		}
 
+<<<<<<< HEAD
 		if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_IN_PROGRESS) &&
 			fep->bufdesc_ex) {
+=======
+		/* NOTE: SKBTX_IN_PROGRESS being set does not imply it's we who
+		 * are to time stamp the packet, so we still need to check time
+		 * stamping enabled flag.
+		 */
+		if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_IN_PROGRESS &&
+			     fep->hwts_tx_en) &&
+		    fep->bufdesc_ex) {
+>>>>>>> upstream/android-13
 			struct skb_shared_hwtstamps shhwtstamps;
 			struct bufdesc_ex *ebdp = (struct bufdesc_ex *)bdp;
 
@@ -1341,6 +1490,7 @@ skb_done:
 		writel(0, txq->bd.reg_desc_active);
 }
 
+<<<<<<< HEAD
 static void
 fec_enet_tx(struct net_device *ndev)
 {
@@ -1352,6 +1502,16 @@ fec_enet_tx(struct net_device *ndev)
 		fec_enet_tx_queue(ndev, queue_id);
 	}
 	return;
+=======
+static void fec_enet_tx(struct net_device *ndev)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	int i;
+
+	/* Make sure that AVB queues are processed first. */
+	for (i = fep->num_tx_queues - 1; i >= 0; i--)
+		fec_enet_tx_queue(ndev, i);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -1427,7 +1587,10 @@ fec_enet_rx_queue(struct net_device *ndev, int budget, u16 queue_id)
 #ifdef CONFIG_M532x
 	flush_cache_all();
 #endif
+<<<<<<< HEAD
 	queue_id = FEC_ENET_GET_QUQUE(queue_id);
+=======
+>>>>>>> upstream/android-13
 	rxq = fep->rx_queue[queue_id];
 
 	/* First, grab all of the stats for the incoming packet.
@@ -1441,7 +1604,11 @@ fec_enet_rx_queue(struct net_device *ndev, int budget, u16 queue_id)
 			break;
 		pkt_received++;
 
+<<<<<<< HEAD
 		writel(FEC_ENET_RXF, fep->hwp + FEC_IEVENT);
+=======
+		writel(FEC_ENET_RXF_GET(queue_id), fep->hwp + FEC_IEVENT);
+>>>>>>> upstream/android-13
 
 		/* Check for errors. */
 		status ^= BD_ENET_RX_LAST;
@@ -1551,6 +1718,10 @@ fec_enet_rx_queue(struct net_device *ndev, int budget, u16 queue_id)
 					       htons(ETH_P_8021Q),
 					       vlan_tag);
 
+<<<<<<< HEAD
+=======
+		skb_record_rx_queue(skb, queue_id);
+>>>>>>> upstream/android-13
 		napi_gro_receive(&fep->napi, skb);
 
 		if (is_copybreak) {
@@ -1596,6 +1767,7 @@ rx_processing_done:
 	return pkt_received;
 }
 
+<<<<<<< HEAD
 static int
 fec_enet_rx(struct net_device *ndev, int budget)
 {
@@ -1638,6 +1810,32 @@ fec_enet_collect_events(struct fec_enet_private *fep, uint int_events)
 		fep->work_tx |= (1 << 1);
 
 	return true;
+=======
+static int fec_enet_rx(struct net_device *ndev, int budget)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	int i, done = 0;
+
+	/* Make sure that AVB queues are processed first. */
+	for (i = fep->num_rx_queues - 1; i >= 0; i--)
+		done += fec_enet_rx_queue(ndev, budget - done, i);
+
+	return done;
+}
+
+static bool fec_enet_collect_events(struct fec_enet_private *fep)
+{
+	uint int_events;
+
+	int_events = readl(fep->hwp + FEC_IEVENT);
+
+	/* Don't clear MDIO events, we poll for those */
+	int_events &= ~FEC_ENET_MII;
+
+	writel(int_events, fep->hwp + FEC_IEVENT);
+
+	return int_events != 0;
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t
@@ -1645,6 +1843,7 @@ fec_enet_interrupt(int irq, void *dev_id)
 {
 	struct net_device *ndev = dev_id;
 	struct fec_enet_private *fep = netdev_priv(ndev);
+<<<<<<< HEAD
 	uint int_events;
 	irqreturn_t ret = IRQ_NONE;
 
@@ -1658,14 +1857,27 @@ fec_enet_interrupt(int irq, void *dev_id)
 		if (napi_schedule_prep(&fep->napi)) {
 			/* Disable the NAPI interrupts */
 			writel(FEC_NAPI_IMASK, fep->hwp + FEC_IMASK);
+=======
+	irqreturn_t ret = IRQ_NONE;
+
+	if (fec_enet_collect_events(fep) && fep->link) {
+		ret = IRQ_HANDLED;
+
+		if (napi_schedule_prep(&fep->napi)) {
+			/* Disable interrupts */
+			writel(0, fep->hwp + FEC_IMASK);
+>>>>>>> upstream/android-13
 			__napi_schedule(&fep->napi);
 		}
 	}
 
+<<<<<<< HEAD
 	if (int_events & FEC_ENET_MII) {
 		ret = IRQ_HANDLED;
 		complete(&fep->mdio_done);
 	}
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1673,6 +1885,7 @@ static int fec_enet_rx_napi(struct napi_struct *napi, int budget)
 {
 	struct net_device *ndev = napi->dev;
 	struct fec_enet_private *fep = netdev_priv(ndev);
+<<<<<<< HEAD
 	int pkts;
 
 	pkts = fec_enet_rx(ndev, budget);
@@ -1692,6 +1905,29 @@ static void fec_get_mac(struct net_device *ndev)
 	struct fec_enet_private *fep = netdev_priv(ndev);
 	struct fec_platform_data *pdata = dev_get_platdata(&fep->pdev->dev);
 	unsigned char *iap, tmpaddr[ETH_ALEN];
+=======
+	int done = 0;
+
+	do {
+		done += fec_enet_rx(ndev, budget - done);
+		fec_enet_tx(ndev);
+	} while ((done < budget) && fec_enet_collect_events(fep));
+
+	if (done < budget) {
+		napi_complete_done(napi, done);
+		writel(FEC_DEFAULT_IMASK, fep->hwp + FEC_IMASK);
+	}
+
+	return done;
+}
+
+/* ------------------------------------------------------------------------- */
+static int fec_get_mac(struct net_device *ndev)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	unsigned char *iap, tmpaddr[ETH_ALEN];
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * try to get mac address in following order:
@@ -1707,9 +1943,17 @@ static void fec_get_mac(struct net_device *ndev)
 	if (!is_valid_ether_addr(iap)) {
 		struct device_node *np = fep->pdev->dev.of_node;
 		if (np) {
+<<<<<<< HEAD
 			const char *mac = of_get_mac_address(np);
 			if (mac)
 				iap = (unsigned char *) mac;
+=======
+			ret = of_get_mac_address(np, tmpaddr);
+			if (!ret)
+				iap = tmpaddr;
+			else if (ret == -EPROBE_DEFER)
+				return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1721,6 +1965,11 @@ static void fec_get_mac(struct net_device *ndev)
 		if (FEC_FLASHMAC)
 			iap = (unsigned char *)FEC_FLASHMAC;
 #else
+<<<<<<< HEAD
+=======
+		struct fec_platform_data *pdata = dev_get_platdata(&fep->pdev->dev);
+
+>>>>>>> upstream/android-13
 		if (pdata)
 			iap = (unsigned char *)&pdata->mac;
 #endif
@@ -1746,7 +1995,11 @@ static void fec_get_mac(struct net_device *ndev)
 		eth_hw_addr_random(ndev);
 		dev_info(&fep->pdev->dev, "Using random MAC address: %pM\n",
 			 ndev->dev_addr);
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	memcpy(ndev->dev_addr, iap, ETH_ALEN);
@@ -1754,6 +2007,11 @@ static void fec_get_mac(struct net_device *ndev)
 	/* Adjust MAC if using macaddr */
 	if (iap == macaddr)
 		 ndev->dev_addr[ETH_ALEN-1] = macaddr[ETH_ALEN-1] + fep->dev_id;
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1767,12 +2025,15 @@ static void fec_enet_adjust_link(struct net_device *ndev)
 	struct phy_device *phy_dev = ndev->phydev;
 	int status_change = 0;
 
+<<<<<<< HEAD
 	/* Prevent a state halted on mii error */
 	if (fep->mii_timeout && phy_dev->state == PHY_HALTED) {
 		phy_dev->state = PHY_RESUMING;
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If the netdev is down, or is going down, we're not interested
 	 * in link state events, so just mark our idea of the link as down
@@ -1821,10 +2082,28 @@ static void fec_enet_adjust_link(struct net_device *ndev)
 		phy_print_status(phy_dev);
 }
 
+<<<<<<< HEAD
+=======
+static int fec_enet_mdio_wait(struct fec_enet_private *fep)
+{
+	uint ievent;
+	int ret;
+
+	ret = readl_poll_timeout_atomic(fep->hwp + FEC_IEVENT, ievent,
+					ievent & FEC_ENET_MII, 2, 30000);
+
+	if (!ret)
+		writel(FEC_ENET_MII, fep->hwp + FEC_IEVENT);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int fec_enet_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
 {
 	struct fec_enet_private *fep = bus->priv;
 	struct device *dev = &fep->pdev->dev;
+<<<<<<< HEAD
 	unsigned long time_left;
 	int ret = 0;
 
@@ -1847,6 +2126,50 @@ static int fec_enet_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
 		fep->mii_timeout = 1;
 		netdev_err(fep->netdev, "MDIO read timeout\n");
 		ret = -ETIMEDOUT;
+=======
+	int ret = 0, frame_start, frame_addr, frame_op;
+	bool is_c45 = !!(regnum & MII_ADDR_C45);
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+
+	if (is_c45) {
+		frame_start = FEC_MMFR_ST_C45;
+
+		/* write address */
+		frame_addr = (regnum >> 16);
+		writel(frame_start | FEC_MMFR_OP_ADDR_WRITE |
+		       FEC_MMFR_PA(mii_id) | FEC_MMFR_RA(frame_addr) |
+		       FEC_MMFR_TA | (regnum & 0xFFFF),
+		       fep->hwp + FEC_MII_DATA);
+
+		/* wait for end of transfer */
+		ret = fec_enet_mdio_wait(fep);
+		if (ret) {
+			netdev_err(fep->netdev, "MDIO address write timeout\n");
+			goto out;
+		}
+
+		frame_op = FEC_MMFR_OP_READ_C45;
+
+	} else {
+		/* C22 read */
+		frame_op = FEC_MMFR_OP_READ;
+		frame_start = FEC_MMFR_ST;
+		frame_addr = regnum;
+	}
+
+	/* start a read op */
+	writel(frame_start | frame_op |
+		FEC_MMFR_PA(mii_id) | FEC_MMFR_RA(frame_addr) |
+		FEC_MMFR_TA, fep->hwp + FEC_MII_DATA);
+
+	/* wait for end of transfer */
+	ret = fec_enet_mdio_wait(fep);
+	if (ret) {
+		netdev_err(fep->netdev, "MDIO read timeout\n");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -1864,6 +2187,7 @@ static int fec_enet_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
 {
 	struct fec_enet_private *fep = bus->priv;
 	struct device *dev = &fep->pdev->dev;
+<<<<<<< HEAD
 	unsigned long time_left;
 	int ret;
 
@@ -1879,10 +2203,45 @@ static int fec_enet_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
 	/* start a write op */
 	writel(FEC_MMFR_ST | FEC_MMFR_OP_WRITE |
 		FEC_MMFR_PA(mii_id) | FEC_MMFR_RA(regnum) |
+=======
+	int ret, frame_start, frame_addr;
+	bool is_c45 = !!(regnum & MII_ADDR_C45);
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+
+	if (is_c45) {
+		frame_start = FEC_MMFR_ST_C45;
+
+		/* write address */
+		frame_addr = (regnum >> 16);
+		writel(frame_start | FEC_MMFR_OP_ADDR_WRITE |
+		       FEC_MMFR_PA(mii_id) | FEC_MMFR_RA(frame_addr) |
+		       FEC_MMFR_TA | (regnum & 0xFFFF),
+		       fep->hwp + FEC_MII_DATA);
+
+		/* wait for end of transfer */
+		ret = fec_enet_mdio_wait(fep);
+		if (ret) {
+			netdev_err(fep->netdev, "MDIO address write timeout\n");
+			goto out;
+		}
+	} else {
+		/* C22 write */
+		frame_start = FEC_MMFR_ST;
+		frame_addr = regnum;
+	}
+
+	/* start a write op */
+	writel(frame_start | FEC_MMFR_OP_WRITE |
+		FEC_MMFR_PA(mii_id) | FEC_MMFR_RA(frame_addr) |
+>>>>>>> upstream/android-13
 		FEC_MMFR_TA | FEC_MMFR_DATA(value),
 		fep->hwp + FEC_MII_DATA);
 
 	/* wait for end of transfer */
+<<<<<<< HEAD
 	time_left = wait_for_completion_timeout(&fep->mdio_done,
 			usecs_to_jiffies(FEC_MII_TIMEOUT));
 	if (time_left == 0) {
@@ -1891,6 +2250,13 @@ static int fec_enet_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
 		ret  = -ETIMEDOUT;
 	}
 
+=======
+	ret = fec_enet_mdio_wait(fep);
+	if (ret)
+		netdev_err(fep->netdev, "MDIO write timeout\n");
+
+out:
+>>>>>>> upstream/android-13
 	pm_runtime_mark_last_busy(dev);
 	pm_runtime_put_autosuspend(dev);
 
@@ -1944,6 +2310,13 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
 		if (ret)
 			goto failed_clk_ref;
 
+<<<<<<< HEAD
+=======
+		ret = clk_prepare_enable(fep->clk_2x_txclk);
+		if (ret)
+			goto failed_clk_2x_txclk;
+
+>>>>>>> upstream/android-13
 		fec_enet_phy_reset_after_clk_enable(ndev);
 	} else {
 		clk_disable_unprepare(fep->clk_enet_out);
@@ -1954,20 +2327,70 @@ static int fec_enet_clk_enable(struct net_device *ndev, bool enable)
 			mutex_unlock(&fep->ptp_clk_mutex);
 		}
 		clk_disable_unprepare(fep->clk_ref);
+<<<<<<< HEAD
+=======
+		clk_disable_unprepare(fep->clk_2x_txclk);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
+<<<<<<< HEAD
 failed_clk_ref:
 	if (fep->clk_ref)
 		clk_disable_unprepare(fep->clk_ref);
 failed_clk_ptp:
 	if (fep->clk_enet_out)
 		clk_disable_unprepare(fep->clk_enet_out);
+=======
+failed_clk_2x_txclk:
+	if (fep->clk_ref)
+		clk_disable_unprepare(fep->clk_ref);
+failed_clk_ref:
+	if (fep->clk_ptp) {
+		mutex_lock(&fep->ptp_clk_mutex);
+		clk_disable_unprepare(fep->clk_ptp);
+		fep->ptp_clk_on = false;
+		mutex_unlock(&fep->ptp_clk_mutex);
+	}
+failed_clk_ptp:
+	clk_disable_unprepare(fep->clk_enet_out);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int fec_enet_parse_rgmii_delay(struct fec_enet_private *fep,
+				      struct device_node *np)
+{
+	u32 rgmii_tx_delay, rgmii_rx_delay;
+
+	/* For rgmii tx internal delay, valid values are 0ps and 2000ps */
+	if (!of_property_read_u32(np, "tx-internal-delay-ps", &rgmii_tx_delay)) {
+		if (rgmii_tx_delay != 0 && rgmii_tx_delay != 2000) {
+			dev_err(&fep->pdev->dev, "The only allowed RGMII TX delay values are: 0ps, 2000ps");
+			return -EINVAL;
+		} else if (rgmii_tx_delay == 2000) {
+			fep->rgmii_txc_dly = true;
+		}
+	}
+
+	/* For rgmii rx internal delay, valid values are 0ps and 2000ps */
+	if (!of_property_read_u32(np, "rx-internal-delay-ps", &rgmii_rx_delay)) {
+		if (rgmii_rx_delay != 0 && rgmii_rx_delay != 2000) {
+			dev_err(&fep->pdev->dev, "The only allowed RGMII RX delay values are: 0ps, 2000ps");
+			return -EINVAL;
+		} else if (rgmii_rx_delay == 2000) {
+			fep->rgmii_rxc_dly = true;
+		}
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int fec_enet_mii_probe(struct net_device *ndev)
 {
 	struct fec_enet_private *fep = netdev_priv(ndev);
@@ -2015,6 +2438,7 @@ static int fec_enet_mii_probe(struct net_device *ndev)
 
 	/* mask with MAC supported features */
 	if (fep->quirks & FEC_QUIRK_HAS_GBIT) {
+<<<<<<< HEAD
 		phy_dev->supported &= PHY_GBIT_FEATURES;
 		phy_dev->supported &= ~SUPPORTED_1000baseT_Half;
 #if !defined(CONFIG_M5272)
@@ -2025,10 +2449,26 @@ static int fec_enet_mii_probe(struct net_device *ndev)
 		phy_dev->supported &= PHY_BASIC_FEATURES;
 
 	phy_dev->advertising = phy_dev->supported;
+=======
+		phy_set_max_speed(phy_dev, 1000);
+		phy_remove_link_mode(phy_dev,
+				     ETHTOOL_LINK_MODE_1000baseT_Half_BIT);
+#if !defined(CONFIG_M5272)
+		phy_support_sym_pause(phy_dev);
+#endif
+	}
+	else
+		phy_set_max_speed(phy_dev, 100);
+>>>>>>> upstream/android-13
 
 	fep->link = 0;
 	fep->full_duplex = 0;
 
+<<<<<<< HEAD
+=======
+	phy_dev->mac_managed_pm = 1;
+
+>>>>>>> upstream/android-13
 	phy_attached_info(phy_dev);
 
 	return 0;
@@ -2039,9 +2479,17 @@ static int fec_enet_mii_init(struct platform_device *pdev)
 	static struct mii_bus *fec0_mii_bus;
 	struct net_device *ndev = platform_get_drvdata(pdev);
 	struct fec_enet_private *fep = netdev_priv(ndev);
+<<<<<<< HEAD
 	struct device_node *node;
 	int err = -ENXIO;
 	u32 mii_speed, holdtime;
+=======
+	bool suppress_preamble = false;
+	struct device_node *node;
+	int err = -ENXIO;
+	u32 mii_speed, holdtime;
+	u32 bus_freq;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The i.MX28 dual fec interfaces are not equal.
@@ -2069,17 +2517,34 @@ static int fec_enet_mii_init(struct platform_device *pdev)
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	fep->mii_timeout = 0;
 
 	/*
 	 * Set MII speed to 2.5 MHz (= clk_get_rate() / 2 * phy_speed)
+=======
+	bus_freq = 2500000; /* 2.5MHz by default */
+	node = of_get_child_by_name(pdev->dev.of_node, "mdio");
+	if (node) {
+		of_property_read_u32(node, "clock-frequency", &bus_freq);
+		suppress_preamble = of_property_read_bool(node,
+							  "suppress-preamble");
+	}
+
+	/*
+	 * Set MII speed (= clk_get_rate() / 2 * phy_speed)
+>>>>>>> upstream/android-13
 	 *
 	 * The formula for FEC MDC is 'ref_freq / (MII_SPEED x 2)' while
 	 * for ENET-MAC is 'ref_freq / ((MII_SPEED + 1) x 2)'.  The i.MX28
 	 * Reference Manual has an error on this, and gets fixed on i.MX6Q
 	 * document.
 	 */
+<<<<<<< HEAD
 	mii_speed = DIV_ROUND_UP(clk_get_rate(fep->clk_ipg), 5000000);
+=======
+	mii_speed = DIV_ROUND_UP(clk_get_rate(fep->clk_ipg), bus_freq * 2);
+>>>>>>> upstream/android-13
 	if (fep->quirks & FEC_QUIRK_ENET_MAC)
 		mii_speed--;
 	if (mii_speed > 63) {
@@ -2106,8 +2571,31 @@ static int fec_enet_mii_init(struct platform_device *pdev)
 
 	fep->phy_speed = mii_speed << 1 | holdtime << 8;
 
+<<<<<<< HEAD
 	writel(fep->phy_speed, fep->hwp + FEC_MII_SPEED);
 
+=======
+	if (suppress_preamble)
+		fep->phy_speed |= BIT(7);
+
+	if (fep->quirks & FEC_QUIRK_CLEAR_SETUP_MII) {
+		/* Clear MMFR to avoid to generate MII event by writing MSCR.
+		 * MII event generation condition:
+		 * - writing MSCR:
+		 *	- mmfr[31:0]_not_zero & mscr[7:0]_is_zero &
+		 *	  mscr_reg_data_in[7:0] != 0
+		 * - writing MMFR:
+		 *	- mscr[7:0]_not_zero
+		 */
+		writel(0, fep->hwp + FEC_MII_DATA);
+	}
+
+	writel(fep->phy_speed, fep->hwp + FEC_MII_SPEED);
+
+	/* Clear any pending transaction complete indication */
+	writel(FEC_ENET_MII, fep->hwp + FEC_IEVENT);
+
+>>>>>>> upstream/android-13
 	fep->mii_bus = mdiobus_alloc();
 	if (fep->mii_bus == NULL) {
 		err = -ENOMEM;
@@ -2122,12 +2610,19 @@ static int fec_enet_mii_init(struct platform_device *pdev)
 	fep->mii_bus->priv = fep;
 	fep->mii_bus->parent = &pdev->dev;
 
+<<<<<<< HEAD
 	node = of_get_child_by_name(pdev->dev.of_node, "mdio");
 	err = of_mdiobus_register(fep->mii_bus, node);
 	if (node)
 		of_node_put(node);
 	if (err)
 		goto err_out_free_mdiobus;
+=======
+	err = of_mdiobus_register(fep->mii_bus, node);
+	if (err)
+		goto err_out_free_mdiobus;
+	of_node_put(node);
+>>>>>>> upstream/android-13
 
 	mii_cnt++;
 
@@ -2140,6 +2635,10 @@ static int fec_enet_mii_init(struct platform_device *pdev)
 err_out_free_mdiobus:
 	mdiobus_free(fep->mii_bus);
 err_out:
+<<<<<<< HEAD
+=======
+	of_node_put(node);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -2158,7 +2657,10 @@ static void fec_enet_get_drvinfo(struct net_device *ndev,
 
 	strlcpy(info->driver, fep->pdev->dev.driver->name,
 		sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, "Revision: 1.0", sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, dev_name(&ndev->dev), sizeof(info->bus_info));
 }
 
@@ -2179,6 +2681,10 @@ static int fec_enet_get_regs_len(struct net_device *ndev)
 #if defined(CONFIG_M523x) || defined(CONFIG_M527x) || defined(CONFIG_M528x) || \
 	defined(CONFIG_M520x) || defined(CONFIG_M532x) || defined(CONFIG_ARM) || \
 	defined(CONFIG_ARM64) || defined(CONFIG_COMPILE_TEST)
+<<<<<<< HEAD
+=======
+static __u32 fec_enet_register_version = 2;
+>>>>>>> upstream/android-13
 static u32 fec_enet_register_offset[] = {
 	FEC_IEVENT, FEC_IMASK, FEC_R_DES_ACTIVE_0, FEC_X_DES_ACTIVE_0,
 	FEC_ECNTRL, FEC_MII_DATA, FEC_MII_SPEED, FEC_MIB_CTRLSTAT, FEC_R_CNTRL,
@@ -2209,6 +2715,10 @@ static u32 fec_enet_register_offset[] = {
 	IEEE_R_FDXFC, IEEE_R_OCTETS_OK
 };
 #else
+<<<<<<< HEAD
+=======
+static __u32 fec_enet_register_version = 1;
+>>>>>>> upstream/android-13
 static u32 fec_enet_register_offset[] = {
 	FEC_ECNTRL, FEC_IEVENT, FEC_IMASK, FEC_IVEC, FEC_R_DES_ACTIVE_0,
 	FEC_R_DES_ACTIVE_1, FEC_R_DES_ACTIVE_2, FEC_X_DES_ACTIVE_0,
@@ -2227,8 +2737,21 @@ static void fec_enet_get_regs(struct net_device *ndev,
 {
 	struct fec_enet_private *fep = netdev_priv(ndev);
 	u32 __iomem *theregs = (u32 __iomem *)fep->hwp;
+<<<<<<< HEAD
 	u32 *buf = (u32 *)regbuf;
 	u32 i, off;
+=======
+	struct device *dev = &fep->pdev->dev;
+	u32 *buf = (u32 *)regbuf;
+	u32 i, off;
+	int ret;
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return;
+
+	regs->version = fec_enet_register_version;
+>>>>>>> upstream/android-13
 
 	memset(buf, 0, regs->len);
 
@@ -2242,6 +2765,12 @@ static void fec_enet_get_regs(struct net_device *ndev,
 		off >>= 2;
 		buf[off] = readl(&theregs[off]);
 	}
+<<<<<<< HEAD
+=======
+
+	pm_runtime_mark_last_busy(dev);
+	pm_runtime_put_autosuspend(dev);
+>>>>>>> upstream/android-13
 }
 
 static int fec_enet_get_ts_info(struct net_device *ndev,
@@ -2305,6 +2834,7 @@ static int fec_enet_set_pauseparam(struct net_device *ndev,
 	fep->pause_flag |= pause->rx_pause ? FEC_PAUSE_FLAG_ENABLE : 0;
 	fep->pause_flag |= pause->autoneg ? FEC_PAUSE_FLAG_AUTONEG : 0;
 
+<<<<<<< HEAD
 	if (pause->rx_pause || pause->autoneg) {
 		ndev->phydev->supported |= ADVERTISED_Pause;
 		ndev->phydev->advertising |= ADVERTISED_Pause;
@@ -2312,6 +2842,10 @@ static int fec_enet_set_pauseparam(struct net_device *ndev,
 		ndev->phydev->supported &= ~ADVERTISED_Pause;
 		ndev->phydev->advertising &= ~ADVERTISED_Pause;
 	}
+=======
+	phy_set_sym_pause(ndev->phydev, pause->rx_pause, pause->tx_pause,
+			  pause->autoneg);
+>>>>>>> upstream/android-13
 
 	if (pause->autoneg) {
 		if (netif_running(ndev))
@@ -2428,6 +2962,12 @@ static void fec_enet_get_strings(struct net_device *netdev,
 			memcpy(data + i * ETH_GSTRING_LEN,
 				fec_stats[i].name, ETH_GSTRING_LEN);
 		break;
+<<<<<<< HEAD
+=======
+	case ETH_SS_TEST:
+		net_selftest_get_strings(data);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2436,6 +2976,11 @@ static int fec_enet_get_sset_count(struct net_device *dev, int sset)
 	switch (sset) {
 	case ETH_SS_STATS:
 		return ARRAY_SIZE(fec_stats);
+<<<<<<< HEAD
+=======
+	case ETH_SS_TEST:
+		return net_selftest_get_count();
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -2506,7 +3051,11 @@ static void fec_enet_itr_coal_set(struct net_device *ndev)
 
 	writel(tx_itr, fep->hwp + FEC_TXIC0);
 	writel(rx_itr, fep->hwp + FEC_RXIC0);
+<<<<<<< HEAD
 	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
+=======
+	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+>>>>>>> upstream/android-13
 		writel(tx_itr, fep->hwp + FEC_TXIC1);
 		writel(rx_itr, fep->hwp + FEC_RXIC1);
 		writel(tx_itr, fep->hwp + FEC_TXIC2);
@@ -2514,8 +3063,15 @@ static void fec_enet_itr_coal_set(struct net_device *ndev)
 	}
 }
 
+<<<<<<< HEAD
 static int
 fec_enet_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec)
+=======
+static int fec_enet_get_coalesce(struct net_device *ndev,
+				 struct ethtool_coalesce *ec,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct fec_enet_private *fep = netdev_priv(ndev);
 
@@ -2531,34 +3087,60 @@ fec_enet_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 fec_enet_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec)
 {
 	struct fec_enet_private *fep = netdev_priv(ndev);
+=======
+static int fec_enet_set_coalesce(struct net_device *ndev,
+				 struct ethtool_coalesce *ec,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	struct device *dev = &fep->pdev->dev;
+>>>>>>> upstream/android-13
 	unsigned int cycle;
 
 	if (!(fep->quirks & FEC_QUIRK_HAS_COALESCE))
 		return -EOPNOTSUPP;
 
 	if (ec->rx_max_coalesced_frames > 255) {
+<<<<<<< HEAD
 		pr_err("Rx coalesced frames exceed hardware limitation\n");
+=======
+		dev_err(dev, "Rx coalesced frames exceed hardware limitation\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (ec->tx_max_coalesced_frames > 255) {
+<<<<<<< HEAD
 		pr_err("Tx coalesced frame exceed hardware limitation\n");
+=======
+		dev_err(dev, "Tx coalesced frame exceed hardware limitation\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	cycle = fec_enet_us_to_itr_clock(ndev, ec->rx_coalesce_usecs);
 	if (cycle > 0xFFFF) {
+<<<<<<< HEAD
 		pr_err("Rx coalesced usec exceed hardware limitation\n");
+=======
+		dev_err(dev, "Rx coalesced usec exceed hardware limitation\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	cycle = fec_enet_us_to_itr_clock(ndev, ec->tx_coalesce_usecs);
 	if (cycle > 0xFFFF) {
+<<<<<<< HEAD
 		pr_err("Tx coalesced usec exceed hardware limitation\n");
+=======
+		dev_err(dev, "Tx coalesced usec exceed hardware limitation\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2583,7 +3165,11 @@ static void fec_enet_itr_coal_init(struct net_device *ndev)
 	ec.tx_coalesce_usecs = FEC_ITR_ICTT_DEFAULT;
 	ec.tx_max_coalesced_frames = FEC_ITR_ICFT_DEFAULT;
 
+<<<<<<< HEAD
 	fec_enet_set_coalesce(ndev, &ec);
+=======
+	fec_enet_set_coalesce(ndev, &ec, NULL, NULL);
+>>>>>>> upstream/android-13
 }
 
 static int fec_enet_get_tunable(struct net_device *netdev,
@@ -2624,6 +3210,95 @@ static int fec_enet_set_tunable(struct net_device *netdev,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/* LPI Sleep Ts count base on tx clk (clk_ref).
+ * The lpi sleep cnt value = X us / (cycle_ns).
+ */
+static int fec_enet_us_to_tx_cycle(struct net_device *ndev, int us)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+
+	return us * (fep->clk_ref_rate / 1000) / 1000;
+}
+
+static int fec_enet_eee_mode_set(struct net_device *ndev, bool enable)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	struct ethtool_eee *p = &fep->eee;
+	unsigned int sleep_cycle, wake_cycle;
+	int ret = 0;
+
+	if (enable) {
+		ret = phy_init_eee(ndev->phydev, 0);
+		if (ret)
+			return ret;
+
+		sleep_cycle = fec_enet_us_to_tx_cycle(ndev, p->tx_lpi_timer);
+		wake_cycle = sleep_cycle;
+	} else {
+		sleep_cycle = 0;
+		wake_cycle = 0;
+	}
+
+	p->tx_lpi_enabled = enable;
+	p->eee_enabled = enable;
+	p->eee_active = enable;
+
+	writel(sleep_cycle, fep->hwp + FEC_LPI_SLEEP);
+	writel(wake_cycle, fep->hwp + FEC_LPI_WAKE);
+
+	return 0;
+}
+
+static int
+fec_enet_get_eee(struct net_device *ndev, struct ethtool_eee *edata)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	struct ethtool_eee *p = &fep->eee;
+
+	if (!(fep->quirks & FEC_QUIRK_HAS_EEE))
+		return -EOPNOTSUPP;
+
+	if (!netif_running(ndev))
+		return -ENETDOWN;
+
+	edata->eee_enabled = p->eee_enabled;
+	edata->eee_active = p->eee_active;
+	edata->tx_lpi_timer = p->tx_lpi_timer;
+	edata->tx_lpi_enabled = p->tx_lpi_enabled;
+
+	return phy_ethtool_get_eee(ndev->phydev, edata);
+}
+
+static int
+fec_enet_set_eee(struct net_device *ndev, struct ethtool_eee *edata)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	struct ethtool_eee *p = &fep->eee;
+	int ret = 0;
+
+	if (!(fep->quirks & FEC_QUIRK_HAS_EEE))
+		return -EOPNOTSUPP;
+
+	if (!netif_running(ndev))
+		return -ENETDOWN;
+
+	p->tx_lpi_timer = edata->tx_lpi_timer;
+
+	if (!edata->eee_enabled || !edata->tx_lpi_enabled ||
+	    !edata->tx_lpi_timer)
+		ret = fec_enet_eee_mode_set(ndev, false);
+	else
+		ret = fec_enet_eee_mode_set(ndev, true);
+
+	if (ret)
+		return ret;
+
+	return phy_ethtool_set_eee(ndev->phydev, edata);
+}
+
+>>>>>>> upstream/android-13
 static void
 fec_enet_get_wol(struct net_device *ndev, struct ethtool_wolinfo *wol)
 {
@@ -2651,18 +3326,32 @@ fec_enet_set_wol(struct net_device *ndev, struct ethtool_wolinfo *wol)
 	device_set_wakeup_enable(&ndev->dev, wol->wolopts & WAKE_MAGIC);
 	if (device_may_wakeup(&ndev->dev)) {
 		fep->wol_flag |= FEC_WOL_FLAG_ENABLE;
+<<<<<<< HEAD
 		if (fep->irq[0] > 0)
 			enable_irq_wake(fep->irq[0]);
 	} else {
 		fep->wol_flag &= (~FEC_WOL_FLAG_ENABLE);
 		if (fep->irq[0] > 0)
 			disable_irq_wake(fep->irq[0]);
+=======
+		if (fep->wake_irq > 0)
+			enable_irq_wake(fep->wake_irq);
+	} else {
+		fep->wol_flag &= (~FEC_WOL_FLAG_ENABLE);
+		if (fep->wake_irq > 0)
+			disable_irq_wake(fep->wake_irq);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
 static const struct ethtool_ops fec_enet_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo		= fec_enet_get_drvinfo,
 	.get_regs_len		= fec_enet_get_regs_len,
 	.get_regs		= fec_enet_get_regs,
@@ -2682,8 +3371,16 @@ static const struct ethtool_ops fec_enet_ethtool_ops = {
 	.set_tunable		= fec_enet_set_tunable,
 	.get_wol		= fec_enet_get_wol,
 	.set_wol		= fec_enet_set_wol,
+<<<<<<< HEAD
 	.get_link_ksettings	= phy_ethtool_get_link_ksettings,
 	.set_link_ksettings	= phy_ethtool_set_link_ksettings,
+=======
+	.get_eee		= fec_enet_get_eee,
+	.set_eee		= fec_enet_set_eee,
+	.get_link_ksettings	= phy_ethtool_get_link_ksettings,
+	.set_link_ksettings	= phy_ethtool_set_link_ksettings,
+	.self_test		= net_selftest,
+>>>>>>> upstream/android-13
 };
 
 static int fec_enet_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd)
@@ -2698,10 +3395,23 @@ static int fec_enet_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd)
 		return -ENODEV;
 
 	if (fep->bufdesc_ex) {
+<<<<<<< HEAD
 		if (cmd == SIOCSHWTSTAMP)
 			return fec_ptp_set(ndev, rq);
 		if (cmd == SIOCGHWTSTAMP)
 			return fec_ptp_get(ndev, rq);
+=======
+		bool use_fec_hwts = !phy_has_hwtstamp(phydev);
+
+		if (cmd == SIOCSHWTSTAMP) {
+			if (use_fec_hwts)
+				return fec_ptp_set(ndev, rq);
+			fec_ptp_disable_hwts(ndev);
+		} else if (cmd == SIOCGHWTSTAMP) {
+			if (use_fec_hwts)
+				return fec_ptp_get(ndev, rq);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return phy_mii_ioctl(phydev, rq, cmd);
@@ -2736,7 +3446,10 @@ static void fec_enet_free_buffers(struct net_device *ndev)
 
 	for (q = 0; q < fep->num_tx_queues; q++) {
 		txq = fep->tx_queue[q];
+<<<<<<< HEAD
 		bdp = txq->bd.base;
+=======
+>>>>>>> upstream/android-13
 		for (i = 0; i < txq->bd.ring_size; i++) {
 			kfree(txq->tx_bounce[i]);
 			txq->tx_bounce[i] = NULL;
@@ -2919,7 +3632,11 @@ fec_enet_open(struct net_device *ndev)
 	int ret;
 	bool reset_again;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&fep->pdev->dev);
+=======
+	ret = pm_runtime_resume_and_get(&fep->pdev->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -3166,15 +3883,55 @@ static int fec_set_features(struct net_device *netdev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static u16 fec_enet_get_raw_vlan_tci(struct sk_buff *skb)
+{
+	struct vlan_ethhdr *vhdr;
+	unsigned short vlan_TCI = 0;
+
+	if (skb->protocol == htons(ETH_P_ALL)) {
+		vhdr = (struct vlan_ethhdr *)(skb->data);
+		vlan_TCI = ntohs(vhdr->h_vlan_TCI);
+	}
+
+	return vlan_TCI;
+}
+
+static u16 fec_enet_select_queue(struct net_device *ndev, struct sk_buff *skb,
+				 struct net_device *sb_dev)
+{
+	struct fec_enet_private *fep = netdev_priv(ndev);
+	u16 vlan_tag;
+
+	if (!(fep->quirks & FEC_QUIRK_HAS_AVB))
+		return netdev_pick_tx(ndev, skb, NULL);
+
+	vlan_tag = fec_enet_get_raw_vlan_tci(skb);
+	if (!vlan_tag)
+		return vlan_tag;
+
+	return fec_enet_vlan_pri_to_queue[vlan_tag >> 13];
+}
+
+>>>>>>> upstream/android-13
 static const struct net_device_ops fec_netdev_ops = {
 	.ndo_open		= fec_enet_open,
 	.ndo_stop		= fec_enet_close,
 	.ndo_start_xmit		= fec_enet_start_xmit,
+<<<<<<< HEAD
+=======
+	.ndo_select_queue       = fec_enet_select_queue,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= set_multicast_list,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_tx_timeout		= fec_timeout,
 	.ndo_set_mac_address	= fec_set_mac_address,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= fec_enet_ioctl,
+=======
+	.ndo_eth_ioctl		= fec_enet_ioctl,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	= fec_poll_controller,
 #endif
@@ -3221,7 +3978,13 @@ static int fec_enet_init(struct net_device *ndev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	fec_enet_alloc_queue(ndev);
+=======
+	ret = fec_enet_alloc_queue(ndev);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	bd_size = (fep->total_tx_ring_size + fep->total_rx_ring_size) * dsize;
 
@@ -3229,6 +3992,7 @@ static int fec_enet_init(struct net_device *ndev)
 	cbd_base = dmam_alloc_coherent(&fep->pdev->dev, bd_size, &bd_dma,
 				       GFP_KERNEL);
 	if (!cbd_base) {
+<<<<<<< HEAD
 		return -ENOMEM;
 	}
 
@@ -3236,6 +4000,17 @@ static int fec_enet_init(struct net_device *ndev)
 
 	/* Get the Ethernet address */
 	fec_get_mac(ndev);
+=======
+		ret = -ENOMEM;
+		goto free_queue_mem;
+	}
+
+	/* Get the Ethernet address */
+	ret = fec_get_mac(ndev);
+	if (ret)
+		goto free_queue_mem;
+
+>>>>>>> upstream/android-13
 	/* make sure MAC we just acquired is programmed into the hw */
 	fec_set_mac_address(ndev, NULL);
 
@@ -3294,7 +4069,11 @@ static int fec_enet_init(struct net_device *ndev)
 		fep->csum_flags |= FLAG_RX_CSUM_ENABLED;
 	}
 
+<<<<<<< HEAD
 	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
+=======
+	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+>>>>>>> upstream/android-13
 		fep->tx_align = 0;
 		fep->rx_align = 0x3f;
 	}
@@ -3309,6 +4088,13 @@ static int fec_enet_init(struct net_device *ndev)
 		fec_enet_update_ethtool_stats(ndev);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+free_queue_mem:
+	fec_enet_free_queue(ndev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_OF
@@ -3421,6 +4207,7 @@ static int fec_enet_get_irq_cnt(struct platform_device *pdev)
 	return irq_cnt;
 }
 
+<<<<<<< HEAD
 static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
 				   struct fec_devinfo *dev_info,
 				   struct device_node *np)
@@ -3435,6 +4222,37 @@ static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
 	if (!gpr_np)
 		return 0;
 
+=======
+static void fec_enet_get_wakeup_irq(struct platform_device *pdev)
+{
+	struct net_device *ndev = platform_get_drvdata(pdev);
+	struct fec_enet_private *fep = netdev_priv(ndev);
+
+	if (fep->quirks & FEC_QUIRK_WAKEUP_FROM_INT2)
+		fep->wake_irq = fep->irq[2];
+	else
+		fep->wake_irq = fep->irq[0];
+}
+
+static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
+				   struct device_node *np)
+{
+	struct device_node *gpr_np;
+	u32 out_val[3];
+	int ret = 0;
+
+	gpr_np = of_parse_phandle(np, "fsl,stop-mode", 0);
+	if (!gpr_np)
+		return 0;
+
+	ret = of_property_read_u32_array(np, "fsl,stop-mode", out_val,
+					 ARRAY_SIZE(out_val));
+	if (ret) {
+		dev_dbg(&fep->pdev->dev, "no stop mode property\n");
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	fep->stop_gpr.gpr = syscon_node_to_regmap(gpr_np);
 	if (IS_ERR(fep->stop_gpr.gpr)) {
 		dev_err(&fep->pdev->dev, "could not find gpr regmap\n");
@@ -3443,8 +4261,13 @@ static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	fep->stop_gpr.reg = dev_info->stop_gpr_reg;
 	fep->stop_gpr.bit = dev_info->stop_gpr_bit;
+=======
+	fep->stop_gpr.reg = out_val[1];
+	fep->stop_gpr.bit = out_val[2];
+>>>>>>> upstream/android-13
 
 out:
 	of_node_put(gpr_np);
@@ -3457,9 +4280,15 @@ fec_probe(struct platform_device *pdev)
 {
 	struct fec_enet_private *fep;
 	struct fec_platform_data *pdata;
+<<<<<<< HEAD
 	struct net_device *ndev;
 	int i, irq, ret = 0;
 	struct resource *r;
+=======
+	phy_interface_t interface;
+	struct net_device *ndev;
+	int i, irq, ret = 0;
+>>>>>>> upstream/android-13
 	const struct of_device_id *of_id;
 	static int dev_id;
 	struct device_node *np = pdev->dev.of_node, *phy_node;
@@ -3502,8 +4331,12 @@ fec_probe(struct platform_device *pdev)
 	/* Select default pin state */
 	pinctrl_pm_select_default_state(&pdev->dev);
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	fep->hwp = devm_ioremap_resource(&pdev->dev, r);
+=======
+	fep->hwp = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(fep->hwp)) {
 		ret = PTR_ERR(fep->hwp);
 		goto failed_ioremap;
@@ -3522,7 +4355,11 @@ fec_probe(struct platform_device *pdev)
 	if (of_get_property(np, "fsl,magic-packet", NULL))
 		fep->wol_flag |= FEC_WOL_HAS_MAGIC_PACKET;
 
+<<<<<<< HEAD
 	ret = fec_enet_init_stop_mode(fep, dev_info, np);
+=======
+	ret = fec_enet_init_stop_mode(fep, np);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto failed_stop_mode;
 
@@ -3538,17 +4375,32 @@ fec_probe(struct platform_device *pdev)
 	}
 	fep->phy_node = phy_node;
 
+<<<<<<< HEAD
 	ret = of_get_phy_mode(pdev->dev.of_node);
 	if (ret < 0) {
+=======
+	ret = of_get_phy_mode(pdev->dev.of_node, &interface);
+	if (ret) {
+>>>>>>> upstream/android-13
 		pdata = dev_get_platdata(&pdev->dev);
 		if (pdata)
 			fep->phy_interface = pdata->phy;
 		else
 			fep->phy_interface = PHY_INTERFACE_MODE_MII;
 	} else {
+<<<<<<< HEAD
 		fep->phy_interface = ret;
 	}
 
+=======
+		fep->phy_interface = interface;
+	}
+
+	ret = fec_enet_parse_rgmii_delay(fep, np);
+	if (ret)
+		goto failed_rgmii_delay;
+
+>>>>>>> upstream/android-13
 	fep->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
 	if (IS_ERR(fep->clk_ipg)) {
 		ret = PTR_ERR(fep->clk_ipg);
@@ -3575,6 +4427,17 @@ fec_probe(struct platform_device *pdev)
 	fep->clk_ref = devm_clk_get(&pdev->dev, "enet_clk_ref");
 	if (IS_ERR(fep->clk_ref))
 		fep->clk_ref = NULL;
+<<<<<<< HEAD
+=======
+	fep->clk_ref_rate = clk_get_rate(fep->clk_ref);
+
+	/* clk_2x_txclk is optional, depends on board */
+	if (fep->rgmii_txc_dly || fep->rgmii_rxc_dly) {
+		fep->clk_2x_txclk = devm_clk_get(&pdev->dev, "enet_2x_txclk");
+		if (IS_ERR(fep->clk_2x_txclk))
+			fep->clk_2x_txclk = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	fep->bufdesc_ex = fep->quirks & FEC_QUIRK_HAS_BUFDESC_EX;
 	fep->clk_ptp = devm_clk_get(&pdev->dev, "ptp");
@@ -3594,13 +4457,20 @@ fec_probe(struct platform_device *pdev)
 	if (ret)
 		goto failed_clk_ahb;
 
+<<<<<<< HEAD
 	fep->reg_phy = devm_regulator_get(&pdev->dev, "phy");
+=======
+	fep->reg_phy = devm_regulator_get_optional(&pdev->dev, "phy");
+>>>>>>> upstream/android-13
 	if (!IS_ERR(fep->reg_phy)) {
 		ret = regulator_enable(fep->reg_phy);
 		if (ret) {
 			dev_err(&pdev->dev,
 				"Failed to enable phy regulator: %d\n", ret);
+<<<<<<< HEAD
 			clk_disable_unprepare(fep->clk_ipg);
+=======
+>>>>>>> upstream/android-13
 			goto failed_regulator;
 		}
 	} else {
@@ -3631,7 +4501,11 @@ fec_probe(struct platform_device *pdev)
 
 	for (i = 0; i < irq_cnt; i++) {
 		snprintf(irq_name, sizeof(irq_name), "int%d", i);
+<<<<<<< HEAD
 		irq = platform_get_irq_byname(pdev, irq_name);
+=======
+		irq = platform_get_irq_byname_optional(pdev, irq_name);
+>>>>>>> upstream/android-13
 		if (irq < 0)
 			irq = platform_get_irq(pdev, i);
 		if (irq < 0) {
@@ -3646,7 +4520,13 @@ fec_probe(struct platform_device *pdev)
 		fep->irq[i] = irq;
 	}
 
+<<<<<<< HEAD
 	init_completion(&fep->mdio_done);
+=======
+	/* Decide which interrupt line is wakeup capable */
+	fec_enet_get_wakeup_irq(pdev);
+
+>>>>>>> upstream/android-13
 	ret = fec_enet_mii_init(pdev);
 	if (ret)
 		goto failed_mii_init;
@@ -3656,6 +4536,11 @@ fec_probe(struct platform_device *pdev)
 	fec_enet_clk_enable(ndev, false);
 	pinctrl_pm_select_sleep_state(&pdev->dev);
 
+<<<<<<< HEAD
+=======
+	ndev->max_mtu = PKT_MAXBUF_SIZE - ETH_HLEN - ETH_FCS_LEN;
+
+>>>>>>> upstream/android-13
 	ret = register_netdev(ndev);
 	if (ret)
 		goto failed_register;
@@ -3692,6 +4577,10 @@ failed_clk_ahb:
 failed_clk_ipg:
 	fec_enet_clk_enable(ndev, false);
 failed_clk:
+<<<<<<< HEAD
+=======
+failed_rgmii_delay:
+>>>>>>> upstream/android-13
 	if (of_phy_is_fixed_link(np))
 		of_phy_deregister_fixed_link(np);
 	of_node_put(phy_node);
@@ -3712,7 +4601,11 @@ fec_drv_remove(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	int ret;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&pdev->dev);
+=======
+	ret = pm_runtime_resume_and_get(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -3726,13 +4619,20 @@ fec_drv_remove(struct platform_device *pdev)
 	if (of_phy_is_fixed_link(np))
 		of_phy_deregister_fixed_link(np);
 	of_node_put(fep->phy_node);
+<<<<<<< HEAD
 	free_netdev(ndev);
+=======
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(fep->clk_ahb);
 	clk_disable_unprepare(fep->clk_ipg);
 	pm_runtime_put_noidle(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
 
+<<<<<<< HEAD
+=======
+	free_netdev(ndev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3804,6 +4704,10 @@ static int __maybe_unused fec_resume(struct device *dev)
 		netif_device_attach(ndev);
 		netif_tx_unlock_bh(ndev);
 		napi_enable(&fep->napi);
+<<<<<<< HEAD
+=======
+		phy_init_hw(ndev->phydev);
+>>>>>>> upstream/android-13
 		phy_start(ndev->phydev);
 	}
 	rtnl_unlock();
@@ -3857,6 +4761,10 @@ static struct platform_driver fec_driver = {
 		.name	= DRIVER_NAME,
 		.pm	= &fec_pm_ops,
 		.of_match_table = fec_dt_ids,
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.id_table = fec_devtype,
 	.probe	= fec_probe,
@@ -3865,5 +4773,8 @@ static struct platform_driver fec_driver = {
 
 module_platform_driver(fec_driver);
 
+<<<<<<< HEAD
 MODULE_ALIAS("platform:"DRIVER_NAME);
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

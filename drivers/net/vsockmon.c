@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/if_arp.h>
@@ -11,12 +16,15 @@
 #define DEFAULT_MTU (VIRTIO_VSOCK_MAX_PKT_BUF_SIZE + \
 		     sizeof(struct af_vsockmon_hdr))
 
+<<<<<<< HEAD
 struct pcpu_lstats {
 	u64 rx_packets;
 	u64 rx_bytes;
 	struct u64_stats_sync syncp;
 };
 
+=======
+>>>>>>> upstream/android-13
 static int vsockmon_dev_init(struct net_device *dev)
 {
 	dev->lstats = netdev_alloc_pcpu_stats(struct pcpu_lstats);
@@ -52,6 +60,7 @@ static int vsockmon_close(struct net_device *dev)
 
 static netdev_tx_t vsockmon_xmit(struct sk_buff *skb, struct net_device *dev)
 {
+<<<<<<< HEAD
 	int len = skb->len;
 	struct pcpu_lstats *stats = this_cpu_ptr(dev->lstats);
 
@@ -59,6 +68,9 @@ static netdev_tx_t vsockmon_xmit(struct sk_buff *skb, struct net_device *dev)
 	stats->rx_bytes += len;
 	stats->rx_packets++;
 	u64_stats_update_end(&stats->syncp);
+=======
+	dev_lstats_add(dev, skb->len);
+>>>>>>> upstream/android-13
 
 	dev_kfree_skb(skb);
 
@@ -68,6 +80,7 @@ static netdev_tx_t vsockmon_xmit(struct sk_buff *skb, struct net_device *dev)
 static void
 vsockmon_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 {
+<<<<<<< HEAD
 	int i;
 	u64 bytes = 0, packets = 0;
 
@@ -92,6 +105,11 @@ vsockmon_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 	stats->tx_packets = 0;
 
 	stats->rx_bytes = bytes;
+=======
+	dev_lstats_read(dev, &stats->rx_packets, &stats->rx_bytes);
+
+	stats->tx_packets = 0;
+>>>>>>> upstream/android-13
 	stats->tx_bytes = 0;
 }
 

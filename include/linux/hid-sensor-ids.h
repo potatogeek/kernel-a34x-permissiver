@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HID Sensors Driver
  * Copyright (c) 2012, Intel Corporation.
@@ -15,6 +16,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * HID Sensors Driver
+ * Copyright (c) 2012, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #ifndef _HID_SENSORS_IDS_H
 #define _HID_SENSORS_IDS_H
@@ -141,6 +148,13 @@
 #define HID_USAGE_SENSOR_UNITS_DEGREES_PER_SECOND		0x15
 
 /* Common selectors */
+<<<<<<< HEAD
+=======
+#define HID_USAGE_SENSOR_PROP_DESC				0x200300
+#define HID_USAGE_SENSOR_PROP_FRIENDLY_NAME			0x200301
+#define HID_USAGE_SENSOR_PROP_SERIAL_NUM			0x200307
+#define HID_USAGE_SENSOR_PROP_MANUFACTURER			0x200305
+>>>>>>> upstream/android-13
 #define HID_USAGE_SENSOR_PROP_REPORT_INTERVAL			0x20030E
 #define HID_USAGE_SENSOR_PROP_SENSITIVITY_ABS			0x20030F
 #define HID_USAGE_SENSOR_PROP_SENSITIVITY_RANGE_PCT		0x200310
@@ -158,6 +172,10 @@
 /* Per data field properties */
 #define HID_USAGE_SENSOR_DATA_MOD_NONE					0x00
 #define HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS		0x1000
+<<<<<<< HEAD
+=======
+#define HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_REL_PCT            0xE000
+>>>>>>> upstream/android-13
 
 /* Power state enumerations */
 #define HID_USAGE_SENSOR_PROP_POWER_STATE_UNDEFINED_ENUM	0x200850
@@ -171,4 +189,17 @@
 #define HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM	0x200840
 #define HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM	0x200841
 
+<<<<<<< HEAD
+=======
+/* Custom Sensor (2000e1) */
+#define HID_USAGE_SENSOR_HINGE				        0x20020B
+#define HID_USAGE_SENSOR_DATA_FIELD_LOCATION			0x200400
+#define HID_USAGE_SENSOR_DATA_FIELE_TIME_SINCE_SYS_BOOT		0x20052B
+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_USAGE		0x200541
+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_BASE           0x200543
+/* Custom Sensor data 28=>x>=0 */
+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE(x)                            \
+	(HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_BASE + (x))
+
+>>>>>>> upstream/android-13
 #endif

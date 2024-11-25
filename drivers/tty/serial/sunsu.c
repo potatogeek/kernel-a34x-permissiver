@@ -39,15 +39,22 @@
 #include <linux/delay.h>
 #include <linux/of_device.h>
 
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/prom.h>
 #include <asm/setup.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_SUNSU_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 #include <linux/sunserialcore.h>
 
@@ -470,12 +477,17 @@ static irqreturn_t sunsu_serial_interrupt(int irq, void *dev_id)
 		if (status & UART_LSR_THRE)
 			transmit_chars(up);
 
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&up->port.lock, flags);
 
 		tty_flip_buffer_push(&up->port.state->port);
 
 		spin_lock_irqsave(&up->port.lock, flags);
 
+=======
+		tty_flip_buffer_push(&up->port.state->port);
+
+>>>>>>> upstream/android-13
 	} while (!(serial_in(up, UART_IIR) & UART_IIR_NO_INT));
 
 	spin_unlock_irqrestore(&up->port.lock, flags);
@@ -518,7 +530,11 @@ static void receive_kbd_ms_chars(struct uart_sunsu_port *up, int is_break)
 			switch (ret) {
 			case 2:
 				sunsu_change_mouse_baud(up);
+<<<<<<< HEAD
 				/* fallthru */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case 1:
 				break;
 
@@ -1475,6 +1491,10 @@ static int su_probe(struct platform_device *op)
 
 	up->port.type = PORT_UNKNOWN;
 	up->port.uartclk = (SU_BASE_BAUD * 16);
+<<<<<<< HEAD
+=======
+	up->port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_SUNSU_CONSOLE);
+>>>>>>> upstream/android-13
 
 	err = 0;
 	if (up->su_type == SU_PORT_KBD || up->su_type == SU_PORT_MS) {
@@ -1503,8 +1523,13 @@ static int su_probe(struct platform_device *op)
 	up->port.ops = &sunsu_pops;
 
 	ignore_line = false;
+<<<<<<< HEAD
 	if (!strcmp(dp->name, "rsc-console") ||
 	    !strcmp(dp->name, "lom-console"))
+=======
+	if (of_node_name_eq(dp, "rsc-console") ||
+	    of_node_name_eq(dp, "lom-console"))
+>>>>>>> upstream/android-13
 		ignore_line = true;
 
 	sunserial_console_match(SUNSU_CONSOLE(), dp,

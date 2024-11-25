@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  The NFC Controller Interface is the communication protocol between an
  *  NFC Controller (NFCC) and a Device Host (DH).
@@ -10,6 +14,7 @@
  *  Acknowledgements:
  *  This file is based on hci.h, which was written
  *  by Maxim Krasnyansky.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -23,6 +28,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __NCI_H
@@ -37,6 +44,11 @@
 #define NCI_MAX_PARAM_LEN					251
 #define NCI_MAX_PAYLOAD_SIZE					255
 #define NCI_MAX_PACKET_SIZE					258
+<<<<<<< HEAD
+=======
+#define NCI_MAX_LARGE_PARAMS_NCI_v2				15
+#define NCI_VER_2_MASK						0x20
+>>>>>>> upstream/android-13
 
 /* NCI Status Codes */
 #define NCI_STATUS_OK						0x00
@@ -143,6 +155,12 @@
 #define NCI_LF_CON_BITR_F_212					0x02
 #define NCI_LF_CON_BITR_F_424					0x04
 
+<<<<<<< HEAD
+=======
+/* NCI 2.x Feature Enable Bit */
+#define NCI_FEATURE_DISABLE					0x00
+
+>>>>>>> upstream/android-13
 /* NCI Reset types */
 #define NCI_RESET_TYPE_KEEP_CONFIG				0x00
 #define NCI_RESET_TYPE_RESET_CONFIG				0x01
@@ -232,6 +250,14 @@ struct nci_core_reset_cmd {
 } __packed;
 
 #define NCI_OP_CORE_INIT_CMD		nci_opcode_pack(NCI_GID_CORE, 0x01)
+<<<<<<< HEAD
+=======
+/* To support NCI 2.x */
+struct nci_core_init_v2_cmd {
+	u8	feature1;
+	u8	feature2;
+};
+>>>>>>> upstream/android-13
 
 #define NCI_OP_CORE_SET_CONFIG_CMD	nci_opcode_pack(NCI_GID_CORE, 0x02)
 struct set_config_param {
@@ -256,13 +282,21 @@ struct dest_spec_params {
 struct core_conn_create_dest_spec_params {
 	__u8    type;
 	__u8    length;
+<<<<<<< HEAD
 	__u8    value[0];
+=======
+	__u8    value[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct nci_core_conn_create_cmd {
 	__u8    destination_type;
 	__u8    number_destination_params;
+<<<<<<< HEAD
 	struct core_conn_create_dest_spec_params params[0];
+=======
+	struct core_conn_create_dest_spec_params params[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define NCI_OP_CORE_CONN_CLOSE_CMD	nci_opcode_pack(NCI_GID_CORE, 0x05)
@@ -333,7 +367,11 @@ struct nci_core_init_rsp_1 {
 	__u8	status;
 	__le32	nfcc_features;
 	__u8	num_supported_rf_interfaces;
+<<<<<<< HEAD
 	__u8	supported_rf_interfaces[0];	/* variable size array */
+=======
+	__u8	supported_rf_interfaces[];	/* variable size array */
+>>>>>>> upstream/android-13
 	/* continuted in nci_core_init_rsp_2 */
 } __packed;
 
@@ -346,11 +384,32 @@ struct nci_core_init_rsp_2 {
 	__le32	manufact_specific_info;
 } __packed;
 
+<<<<<<< HEAD
+=======
+/* To support NCI ver 2.x */
+struct nci_core_init_rsp_nci_ver2 {
+	u8	status;
+	__le32	nfcc_features;
+	u8	max_logical_connections;
+	__le16	max_routing_table_size;
+	u8	max_ctrl_pkt_payload_len;
+	u8	max_data_pkt_hci_payload_len;
+	u8	number_of_hci_credit;
+	__le16	max_nfc_v_frame_size;
+	u8	num_supported_rf_interfaces;
+	u8	supported_rf_interfaces[];
+} __packed;
+
+>>>>>>> upstream/android-13
 #define NCI_OP_CORE_SET_CONFIG_RSP	nci_opcode_pack(NCI_GID_CORE, 0x02)
 struct nci_core_set_config_rsp {
 	__u8	status;
 	__u8	num_params;
+<<<<<<< HEAD
 	__u8	params_id[0];	/* variable size array */
+=======
+	__u8	params_id[];	/* variable size array */
+>>>>>>> upstream/android-13
 } __packed;
 
 #define NCI_OP_CORE_CONN_CREATE_RSP	nci_opcode_pack(NCI_GID_CORE, 0x04)
@@ -384,6 +443,19 @@ struct nci_nfcee_discover_rsp {
 /* --------------------------- */
 /* ---- NCI Notifications ---- */
 /* --------------------------- */
+<<<<<<< HEAD
+=======
+#define NCI_OP_CORE_RESET_NTF		nci_opcode_pack(NCI_GID_CORE, 0x00)
+struct nci_core_reset_ntf {
+	u8	reset_trigger;
+	u8	config_status;
+	u8	nci_ver;
+	u8	manufact_id;
+	u8	manufacturer_specific_len;
+	__le32	manufact_specific_info;
+} __packed;
+
+>>>>>>> upstream/android-13
 #define NCI_OP_CORE_CONN_CREDITS_NTF	nci_opcode_pack(NCI_GID_CORE, 0x06)
 struct conn_credit_entry {
 	__u8	conn_id;
@@ -513,18 +585,30 @@ struct nci_rf_nfcee_action_ntf {
 	__u8 nfcee_id;
 	__u8 trigger;
 	__u8 supported_data_length;
+<<<<<<< HEAD
 	__u8 supported_data[0];
+=======
+	__u8 supported_data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define NCI_OP_NFCEE_DISCOVER_NTF nci_opcode_pack(NCI_GID_NFCEE_MGMT, 0x00)
 struct nci_nfcee_supported_protocol {
 	__u8	num_protocol;
+<<<<<<< HEAD
 	__u8	supported_protocol[0];
+=======
+	__u8	supported_protocol[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct nci_nfcee_information_tlv {
 	__u8	num_tlv;
+<<<<<<< HEAD
 	__u8	information_tlv[0];
+=======
+	__u8	information_tlv[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct nci_nfcee_discover_ntf {

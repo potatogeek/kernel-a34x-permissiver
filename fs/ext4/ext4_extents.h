@@ -120,6 +120,22 @@ struct ext4_ext_path {
 };
 
 /*
+<<<<<<< HEAD
+=======
+ * Used to record a portion of a cluster found at the beginning or end
+ * of an extent while traversing the extent tree during space removal.
+ * A partial cluster may be removed if it does not contain blocks shared
+ * with extents that aren't being deleted (tofree state).  Otherwise,
+ * it cannot be removed (nofree state).
+ */
+struct partial_cluster {
+	ext4_fsblk_t pclu;  /* physical cluster number */
+	ext4_lblk_t lblk;   /* logical block number within logical cluster */
+	enum {initial, tofree, nofree} state;
+};
+
+/*
+>>>>>>> upstream/android-13
  * structure for external API
  */
 
@@ -160,10 +176,18 @@ struct ext4_ext_path {
 #define EXT_MAX_EXTENT(__hdr__)	\
 	((le16_to_cpu((__hdr__)->eh_max)) ? \
 	((EXT_FIRST_EXTENT((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)) \
+<<<<<<< HEAD
 					: 0)
 #define EXT_MAX_INDEX(__hdr__) \
 	((le16_to_cpu((__hdr__)->eh_max)) ? \
 	((EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)) : 0)
+=======
+					: NULL)
+#define EXT_MAX_INDEX(__hdr__) \
+	((le16_to_cpu((__hdr__)->eh_max)) ? \
+	((EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)) \
+					: NULL)
+>>>>>>> upstream/android-13
 
 static inline struct ext4_extent_header *ext_inode_hdr(struct inode *inode)
 {
@@ -257,10 +281,13 @@ static inline void ext4_idx_store_pblock(struct ext4_extent_idx *ix,
 				     0xffff);
 }
 
+<<<<<<< HEAD
 #define ext4_ext_dirty(handle, inode, path) \
 		__ext4_ext_dirty(__func__, __LINE__, (handle), (inode), (path))
 int __ext4_ext_dirty(const char *where, unsigned int line, handle_t *handle,
 		     struct inode *inode, struct ext4_ext_path *path);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _EXT4_EXTENTS */
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* avermedia-m733a-rm-k6.h - Keytable for avermedia_m733a_rm_k6 Remote Controller
  *
  * Copyright (c) 2010 by Herton Ronaldo Krzesinski <herton@mandriva.com.br>
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* avermedia-m733a-rm-k6.h - Keytable for avermedia_m733a_rm_k6 Remote Controller
+ *
+ * Copyright (c) 2010 by Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -22,6 +29,7 @@ static struct rc_map_table avermedia_m733a_rm_k6[] = {
 	{ 0x0406, KEY_MUTE },
 	{ 0x0408, KEY_MODE },     /* TV/FM */
 
+<<<<<<< HEAD
 	{ 0x0409, KEY_1 },
 	{ 0x040a, KEY_2 },
 	{ 0x040b, KEY_3 },
@@ -33,6 +41,19 @@ static struct rc_map_table avermedia_m733a_rm_k6[] = {
 	{ 0x0411, KEY_9 },
 	{ 0x044c, KEY_DOT },      /* '.' */
 	{ 0x0412, KEY_0 },
+=======
+	{ 0x0409, KEY_NUMERIC_1 },
+	{ 0x040a, KEY_NUMERIC_2 },
+	{ 0x040b, KEY_NUMERIC_3 },
+	{ 0x040c, KEY_NUMERIC_4 },
+	{ 0x040d, KEY_NUMERIC_5 },
+	{ 0x040e, KEY_NUMERIC_6 },
+	{ 0x040f, KEY_NUMERIC_7 },
+	{ 0x0410, KEY_NUMERIC_8 },
+	{ 0x0411, KEY_NUMERIC_9 },
+	{ 0x044c, KEY_DOT },      /* '.' */
+	{ 0x0412, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x0407, KEY_REFRESH },  /* Refresh/Reload */
 
 	{ 0x0413, KEY_AUDIO },

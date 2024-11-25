@@ -11,14 +11,23 @@ Required properties:
 - None
 
 Optional properties:
+<<<<<<< HEAD
 - operating-points: Refer to Documentation/devicetree/bindings/opp/opp.txt for
+=======
+- operating-points: Refer to Documentation/devicetree/bindings/opp/opp-v1.yaml for
+>>>>>>> upstream/android-13
   details. OPPs *must* be supplied either via DT, i.e. this property, or
   populated at runtime.
 - clock-latency: Specify the possible maximum transition latency for clock,
   in unit of nanoseconds.
 - voltage-tolerance: Specify the CPU voltage tolerance in percentage.
 - #cooling-cells:
+<<<<<<< HEAD
      Please refer to Documentation/devicetree/bindings/thermal/thermal.txt.
+=======
+     Please refer to
+     Documentation/devicetree/bindings/thermal/thermal-cooling-devices.yaml.
+>>>>>>> upstream/android-13
 
 Examples:
 

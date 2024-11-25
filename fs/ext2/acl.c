@@ -141,13 +141,23 @@ fail:
  * inode->i_mutex: don't care
  */
 struct posix_acl *
+<<<<<<< HEAD
 ext2_get_acl(struct inode *inode, int type)
+=======
+ext2_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	int name_index;
 	char *value = NULL;
 	struct posix_acl *acl;
 	int retval;
 
+<<<<<<< HEAD
+=======
+	if (rcu)
+		return ERR_PTR(-ECHILD);
+
+>>>>>>> upstream/android-13
 	switch (type) {
 	case ACL_TYPE_ACCESS:
 		name_index = EXT2_XATTR_INDEX_POSIX_ACL_ACCESS;
@@ -216,14 +226,24 @@ __ext2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
  * inode->i_mutex: down
  */
 int
+<<<<<<< HEAD
 ext2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+=======
+ext2_set_acl(struct user_namespace *mnt_userns, struct inode *inode,
+	     struct posix_acl *acl, int type)
+>>>>>>> upstream/android-13
 {
 	int error;
 	int update_mode = 0;
 	umode_t mode = inode->i_mode;
 
 	if (type == ACL_TYPE_ACCESS && acl) {
+<<<<<<< HEAD
 		error = posix_acl_update_mode(inode, &mode, &acl);
+=======
+		error = posix_acl_update_mode(&init_user_ns, inode, &mode,
+					      &acl);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 		update_mode = 1;
@@ -256,11 +276,21 @@ ext2_init_acl(struct inode *inode, struct inode *dir)
 	if (default_acl) {
 		error = __ext2_set_acl(inode, default_acl, ACL_TYPE_DEFAULT);
 		posix_acl_release(default_acl);
+<<<<<<< HEAD
+=======
+	} else {
+		inode->i_default_acl = NULL;
+>>>>>>> upstream/android-13
 	}
 	if (acl) {
 		if (!error)
 			error = __ext2_set_acl(inode, acl, ACL_TYPE_ACCESS);
 		posix_acl_release(acl);
+<<<<<<< HEAD
+=======
+	} else {
+		inode->i_acl = NULL;
+>>>>>>> upstream/android-13
 	}
 	return error;
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 // Check if refcount_t type and API should be used
 // instead of atomic_t type when dealing with refcounters
 //

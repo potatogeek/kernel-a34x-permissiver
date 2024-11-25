@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
  * core.c - DesignWare USB3 DRD Controller Core file
  *
  * Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com
+=======
+/*
+ * core.c - DesignWare USB3 DRD Controller Core file
+ *
+ * Copyright (C) 2010-2011 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * Authors: Felipe Balbi <balbi@ti.com>,
  *	    Sebastian Andrzej Siewior <bigeasy@linutronix.de>
@@ -37,6 +44,10 @@
 #include "io.h"
 
 #include "debug.h"
+<<<<<<< HEAD
+=======
+#include "../host/xhci-exynos-audio.h"
+>>>>>>> upstream/android-13
 
 #define DWC3_DEFAULT_AUTOSUSPEND_DELAY	5000 /* ms */
 
@@ -80,11 +91,22 @@ static int dwc3_get_dr_mode(struct dwc3 *dwc)
 			mode = USB_DR_MODE_PERIPHERAL;
 
 		/*
+<<<<<<< HEAD
 		 * dwc_usb31 does not support OTG mode. If the controller
 		 * supports DRD but the dr_mode is not specified or set to OTG,
 		 * then set the mode to peripheral.
 		 */
 		if (mode == USB_DR_MODE_OTG && dwc3_is_usb31(dwc))
+=======
+		 * DWC_usb31 and DWC_usb3 v3.30a and higher do not support OTG
+		 * mode. If the controller supports DRD but the dr_mode is not
+		 * specified or set to OTG, then set the mode to peripheral.
+		 */
+		if (mode == USB_DR_MODE_OTG &&
+		    (!IS_ENABLED(CONFIG_USB_ROLE_SWITCH) ||
+		     !device_property_read_bool(dwc->dev, "usb-role-switch")) &&
+		    !DWC3_VER_IS_PRIOR(DWC3, 330A))
+>>>>>>> upstream/android-13
 			mode = USB_DR_MODE_PERIPHERAL;
 	}
 
@@ -111,19 +133,33 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
 	dwc->current_dr_role = mode;
 }
 
+<<<<<<< HEAD
+=======
+static int dwc3_core_soft_reset(struct dwc3 *dwc);
+
+>>>>>>> upstream/android-13
 static void __dwc3_set_mode(struct work_struct *work)
 {
 	struct dwc3 *dwc = work_to_dwc(work);
 	unsigned long flags;
 	int ret;
+<<<<<<< HEAD
 
 	if (dwc->dr_mode != USB_DR_MODE_OTG)
 		return;
+=======
+	u32 reg;
+
+	mutex_lock(&dwc->mutex);
+
+	pm_runtime_get_sync(dwc->dev);
+>>>>>>> upstream/android-13
 
 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
 		dwc3_otg_update(dwc, 0);
 
 	if (!dwc->desired_dr_role)
+<<<<<<< HEAD
 		return;
 
 	if (dwc->desired_dr_role == dwc->current_dr_role)
@@ -131,6 +167,15 @@ static void __dwc3_set_mode(struct work_struct *work)
 
 	if (dwc->desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
 		return;
+=======
+		goto out;
+
+	if (dwc->desired_dr_role == dwc->current_dr_role)
+		goto out;
+
+	if (dwc->desired_dr_role == DWC3_GCTL_PRTCAP_OTG && dwc->edev)
+		goto out;
+>>>>>>> upstream/android-13
 
 	switch (dwc->current_dr_role) {
 	case DWC3_GCTL_PRTCAP_HOST:
@@ -151,6 +196,33 @@ static void __dwc3_set_mode(struct work_struct *work)
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * When current_dr_role is not set, there's no role switching.
+	 * Only perform GCTL.CoreSoftReset when there's DRD role switching.
+	 */
+	if (dwc->current_dr_role && ((DWC3_IP_IS(DWC3) ||
+			DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
+			dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+		reg |= DWC3_GCTL_CORESOFTRESET;
+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
+
+		/*
+		 * Wait for internal clocks to synchronized. DWC_usb31 and
+		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
+		 * keep it consistent across different IPs, let's wait up to
+		 * 100ms before clearing GCTL.CORESOFTRESET.
+		 */
+		msleep(100);
+
+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+		reg &= ~DWC3_GCTL_CORESOFTRESET;
+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
+	}
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&dwc->lock, flags);
 
 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
@@ -167,10 +239,23 @@ static void __dwc3_set_mode(struct work_struct *work)
 				otg_set_vbus(dwc->usb2_phy->otg, true);
 			phy_set_mode(dwc->usb2_generic_phy, PHY_MODE_USB_HOST);
 			phy_set_mode(dwc->usb3_generic_phy, PHY_MODE_USB_HOST);
+<<<<<<< HEAD
 			phy_calibrate(dwc->usb2_generic_phy);
 		}
 		break;
 	case DWC3_GCTL_PRTCAP_DEVICE:
+=======
+			if (dwc->dis_split_quirk) {
+				reg = dwc3_readl(dwc->regs, DWC3_GUCTL3);
+				reg |= DWC3_GUCTL3_SPLITDISABLE;
+				dwc3_writel(dwc->regs, DWC3_GUCTL3, reg);
+			}
+		}
+		break;
+	case DWC3_GCTL_PRTCAP_DEVICE:
+		dwc3_core_soft_reset(dwc);
+
+>>>>>>> upstream/android-13
 		dwc3_event_buffers_setup(dwc);
 
 		if (dwc->usb2_phy)
@@ -190,12 +275,25 @@ static void __dwc3_set_mode(struct work_struct *work)
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+out:
+	pm_runtime_mark_last_busy(dwc->dev);
+	pm_runtime_put_autosuspend(dwc->dev);
+	mutex_unlock(&dwc->mutex);
+>>>>>>> upstream/android-13
 }
 
 void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
+=======
+	if (dwc->dr_mode != USB_DR_MODE_OTG)
+		return;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&dwc->lock, flags);
 	dwc->desired_dr_role = mode;
 	spin_unlock_irqrestore(&dwc->lock, flags);
@@ -225,6 +323,7 @@ static int dwc3_core_soft_reset(struct dwc3 *dwc)
 {
 	u32		reg;
 	int		retries = 1000;
+<<<<<<< HEAD
 	int		ret;
 
 	usb_phy_init(dwc->usb2_phy);
@@ -239,6 +338,10 @@ static int dwc3_core_soft_reset(struct dwc3 *dwc)
 		return ret;
 	}
 
+=======
+
+	pr_info("%s +++\n", __func__);
+>>>>>>> upstream/android-13
 	/*
 	 * We're resetting only the device side because, if we're in host mode,
 	 * XHCI driver will reset the host block. If dwc3 was configured for
@@ -249,23 +352,48 @@ static int dwc3_core_soft_reset(struct dwc3 *dwc)
 
 	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
 	reg |= DWC3_DCTL_CSFTRST;
+<<<<<<< HEAD
 	dwc3_writel(dwc->regs, DWC3_DCTL, reg);
+=======
+	reg &= ~DWC3_DCTL_RUN_STOP;
+	dwc3_gadget_dctl_write_safe(dwc, reg);
+
+	/*
+	 * For DWC_usb31 controller 1.90a and later, the DCTL.CSFRST bit
+	 * is cleared only after all the clocks are synchronized. This can
+	 * take a little more than 50ms. Set the polling rate at 20ms
+	 * for 10 times instead.
+	 */
+	if (DWC3_VER_IS_WITHIN(DWC31, 190A, ANY) || DWC3_IP_IS(DWC32))
+		retries = 10;
+>>>>>>> upstream/android-13
 
 	do {
 		reg = dwc3_readl(dwc->regs, DWC3_DCTL);
 		if (!(reg & DWC3_DCTL_CSFTRST))
 			goto done;
 
+<<<<<<< HEAD
 		udelay(1);
 	} while (--retries);
 
 	phy_exit(dwc->usb3_generic_phy);
 	phy_exit(dwc->usb2_generic_phy);
 
+=======
+		if (DWC3_VER_IS_WITHIN(DWC31, 190A, ANY) || DWC3_IP_IS(DWC32))
+			msleep(20);
+		else
+			udelay(1);
+	} while (--retries);
+
+	dev_warn(dwc->dev, "DWC3 controller soft reset failed.\n");
+>>>>>>> upstream/android-13
 	return -ETIMEDOUT;
 
 done:
 	/*
+<<<<<<< HEAD
 	 * For DWC_usb31 controller, once DWC3_DCTL_CSFTRST bit is cleared,
 	 * we must wait at least 50ms before accessing the PHY domain
 	 * (synchronization delay). DWC_usb31 programming guide section 1.3.2.
@@ -282,6 +410,20 @@ static const struct clk_bulk_data dwc3_core_clks[] = {
 	{ .id = "suspend" },
 };
 
+=======
+	 * For DWC_usb31 controller 1.80a and prior, once DCTL.CSFRST bit
+	 * is cleared, we must wait at least 50ms before accessing the PHY
+	 * domain (synchronization delay).
+	 */
+	if (DWC3_VER_IS_WITHIN(DWC31, ANY, 180A))
+		msleep(50);
+
+	pr_info("%s ---\n", __func__);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * dwc3_frame_length_adjustment - Adjusts frame length if required
  * @dwc3: Pointer to our controller context structure
@@ -291,7 +433,11 @@ static void dwc3_frame_length_adjustment(struct dwc3 *dwc)
 	u32 reg;
 	u32 dft;
 
+<<<<<<< HEAD
 	if (dwc->revision < DWC3_REVISION_250A)
+=======
+	if (DWC3_VER_IS_PRIOR(DWC3, 250A))
+>>>>>>> upstream/android-13
 		return;
 
 	if (dwc->fladj == 0)
@@ -525,6 +671,12 @@ static void dwc3_cache_hwparams(struct dwc3 *dwc)
 	parms->hwparams6 = dwc3_readl(dwc->regs, DWC3_GHWPARAMS6);
 	parms->hwparams7 = dwc3_readl(dwc->regs, DWC3_GHWPARAMS7);
 	parms->hwparams8 = dwc3_readl(dwc->regs, DWC3_GHWPARAMS8);
+<<<<<<< HEAD
+=======
+
+	if (DWC3_IP_IS(DWC32))
+		parms->hwparams9 = dwc3_readl(dwc->regs, DWC3_GHWPARAMS9);
+>>>>>>> upstream/android-13
 }
 
 static int dwc3_core_ulpi_init(struct dwc3 *dwc)
@@ -553,8 +705,16 @@ static int dwc3_core_ulpi_init(struct dwc3 *dwc)
  */
 static int dwc3_phy_setup(struct dwc3 *dwc)
 {
+<<<<<<< HEAD
 	u32 reg;
 
+=======
+	unsigned int hw_mode;
+	u32 reg;
+
+	hw_mode = DWC3_GHWPARAMS0_MODE(dwc->hwparams.hwparams0);
+
+>>>>>>> upstream/android-13
 	reg = dwc3_readl(dwc->regs, DWC3_GUSB3PIPECTL(0));
 
 	/*
@@ -569,9 +729,23 @@ static int dwc3_phy_setup(struct dwc3 *dwc)
 	 * will be '0' when the core is reset. Application needs to set it
 	 * to '1' after the core initialization is completed.
 	 */
+<<<<<<< HEAD
 	if (dwc->revision > DWC3_REVISION_194A)
 		reg |= DWC3_GUSB3PIPECTL_SUSPHY;
 
+=======
+	if (!DWC3_VER_IS_WITHIN(DWC3, ANY, 194A))
+		reg |= DWC3_GUSB3PIPECTL_SUSPHY;
+
+	/*
+	 * For DRD controllers, GUSB3PIPECTL.SUSPENDENABLE must be cleared after
+	 * power-on reset, and it can be set after core initialization, which is
+	 * after device soft-reset during initialization.
+	 */
+	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD)
+		reg &= ~DWC3_GUSB3PIPECTL_SUSPHY;
+
+>>>>>>> upstream/android-13
 	if (dwc->u2ss_inp3_quirk)
 		reg |= DWC3_GUSB3PIPECTL_U2SSINP3OK;
 
@@ -622,9 +796,14 @@ static int dwc3_phy_setup(struct dwc3 *dwc)
 			if (!(reg & DWC3_GUSB2PHYCFG_ULPI_UTMI))
 				break;
 		}
+<<<<<<< HEAD
 		/* FALLTHROUGH */
 	case DWC3_GHWPARAMS3_HSPHY_IFC_ULPI:
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+	case DWC3_GHWPARAMS3_HSPHY_IFC_ULPI:
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -652,14 +831,33 @@ static int dwc3_phy_setup(struct dwc3 *dwc)
 	 * be '0' when the core is reset. Application needs to set it to
 	 * '1' after the core initialization is completed.
 	 */
+<<<<<<< HEAD
 	if (dwc->revision > DWC3_REVISION_194A)
 		reg |= DWC3_GUSB2PHYCFG_SUSPHY;
 
+=======
+	if (!DWC3_VER_IS_WITHIN(DWC3, ANY, 194A))
+		reg |= DWC3_GUSB2PHYCFG_SUSPHY;
+
+	/*
+	 * For DRD controllers, GUSB2PHYCFG.SUSPHY must be cleared after
+	 * power-on reset, and it can be set after core initialization, which is
+	 * after device soft-reset during initialization.
+	 */
+	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD)
+		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+
+>>>>>>> upstream/android-13
 	if (dwc->dis_u2_susphy_quirk)
 		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
 
 	if (dwc->dis_enblslpm_quirk)
 		reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
+<<<<<<< HEAD
+=======
+	else
+		reg |= DWC3_GUSB2PHYCFG_ENBLSLPM;
+>>>>>>> upstream/android-13
 
 	if (dwc->dis_u2_freeclk_exists_quirk)
 		reg &= ~DWC3_GUSB2PHYCFG_U2_FREECLK_EXISTS;
@@ -682,8 +880,12 @@ static void dwc3_core_exit(struct dwc3 *dwc)
 	usb_phy_set_suspend(dwc->usb3_phy, 1);
 	phy_power_off(dwc->usb2_generic_phy);
 	phy_power_off(dwc->usb3_generic_phy);
+<<<<<<< HEAD
 	clk_bulk_disable(dwc->num_clks, dwc->clks);
 	clk_bulk_unprepare(dwc->num_clks, dwc->clks);
+=======
+	clk_bulk_disable_unprepare(dwc->num_clks, dwc->clks);
+>>>>>>> upstream/android-13
 	reset_control_assert(dwc->reset);
 }
 
@@ -692,6 +894,7 @@ static bool dwc3_core_is_valid(struct dwc3 *dwc)
 	u32 reg;
 
 	reg = dwc3_readl(dwc->regs, DWC3_GSNPSID);
+<<<<<<< HEAD
 
 	/* This should read as U3 followed by revision number */
 	if ((reg & DWC3_GSNPSID_MASK) == 0x55330000) {
@@ -701,6 +904,16 @@ static bool dwc3_core_is_valid(struct dwc3 *dwc)
 		/* Detected DWC_usb31 IP */
 		dwc->revision = dwc3_readl(dwc->regs, DWC3_VER_NUMBER);
 		dwc->revision |= DWC3_REVISION_IS_DWC31;
+=======
+	dwc->ip = DWC3_GSNPS_ID(reg);
+
+	/* This should read as U3 followed by revision number */
+	if (DWC3_IP_IS(DWC3)) {
+		dwc->revision = reg;
+	} else if (DWC3_IP_IS(DWC31) || DWC3_IP_IS(DWC32)) {
+		dwc->revision = dwc3_readl(dwc->regs, DWC3_VER_NUMBER);
+		dwc->version_type = dwc3_readl(dwc->regs, DWC3_VER_TYPE);
+>>>>>>> upstream/android-13
 	} else {
 		return false;
 	}
@@ -732,8 +945,12 @@ static void dwc3_core_setup_global_control(struct dwc3 *dwc)
 		 */
 		if ((dwc->dr_mode == USB_DR_MODE_HOST ||
 				dwc->dr_mode == USB_DR_MODE_OTG) &&
+<<<<<<< HEAD
 				(dwc->revision >= DWC3_REVISION_210A &&
 				dwc->revision <= DWC3_REVISION_250A))
+=======
+				DWC3_VER_IS_WITHIN(DWC3, 210A, 250A))
+>>>>>>> upstream/android-13
 			reg |= DWC3_GCTL_DSBLCLKGTNG | DWC3_GCTL_SOFITPSYNC;
 		else
 			reg &= ~DWC3_GCTL_DSBLCLKGTNG;
@@ -755,7 +972,11 @@ static void dwc3_core_setup_global_control(struct dwc3 *dwc)
 
 	/* check if current dwc3 is on simulation board */
 	if (dwc->hwparams.hwparams6 & DWC3_GHWPARAMS6_EN_FPGA) {
+<<<<<<< HEAD
 		dev_info(dwc->dev, "Running with FPGA optmizations\n");
+=======
+		dev_info(dwc->dev, "Running with FPGA optimizations\n");
+>>>>>>> upstream/android-13
 		dwc->is_fpga = true;
 	}
 
@@ -776,7 +997,11 @@ static void dwc3_core_setup_global_control(struct dwc3 *dwc)
 	 * and falls back to high-speed mode which causes
 	 * the device to enter a Connect/Disconnect loop
 	 */
+<<<<<<< HEAD
 	if (dwc->revision < DWC3_REVISION_190A)
+=======
+	if (DWC3_VER_IS_PRIOR(DWC3, 190A))
+>>>>>>> upstream/android-13
 		reg |= DWC3_GCTL_U2RSTECN;
 
 	dwc3_writel(dwc->regs, DWC3_GCTL, reg);
@@ -808,8 +1033,12 @@ static void dwc3_set_incr_burst_type(struct dwc3 *dwc)
 	 * result = 1, means INCRx burst mode supported.
 	 * result > 1, means undefined length burst mode supported.
 	 */
+<<<<<<< HEAD
 	ntype = device_property_read_u32_array(dev,
 			"snps,incr-burst-type-adjustment", NULL, 0);
+=======
+	ntype = device_property_count_u32(dev, "snps,incr-burst-type-adjustment");
+>>>>>>> upstream/android-13
 	if (ntype <= 0)
 		return;
 
@@ -823,6 +1052,10 @@ static void dwc3_set_incr_burst_type(struct dwc3 *dwc)
 	ret = device_property_read_u32_array(dev,
 			"snps,incr-burst-type-adjustment", vals, ntype);
 	if (ret) {
+<<<<<<< HEAD
+=======
+		kfree(vals);
+>>>>>>> upstream/android-13
 		dev_err(dev, "Error to get property\n");
 		return;
 	}
@@ -841,6 +1074,11 @@ static void dwc3_set_incr_burst_type(struct dwc3 *dwc)
 		incrx_mode = INCRX_BURST_MODE;
 	}
 
+<<<<<<< HEAD
+=======
+	kfree(vals);
+
+>>>>>>> upstream/android-13
 	/* Enable Undefined Length INCR Burst and Enable INCRx Burst */
 	cfg &= ~DWC3_GSBUSCFG0_INCRBRST_MASK;
 	if (incrx_mode)
@@ -877,6 +1115,47 @@ static void dwc3_set_incr_burst_type(struct dwc3 *dwc)
 	dwc3_writel(dwc->regs, DWC3_GSBUSCFG0, cfg);
 }
 
+<<<<<<< HEAD
+=======
+static void dwc3_set_power_down_clk_scale(struct dwc3 *dwc)
+{
+	struct device *dev = dwc->dev;
+	struct device_node *node = dev->of_node;
+	struct clk *suspend_clk;
+	u32 scale;
+	u32 reg;
+
+	if (dwc->num_clks == 0)
+		return;
+
+	/*
+	 * The power down scale field specifies how many suspend_clk
+	 * periods fit into a 16KHz clock period. When performing
+	 * the division, round up the remainder.
+	 *
+	 * The power down scale value is calculated using the fastest
+	 * frequency of the suspend_clk. If it isn't fixed (but within
+	 * the accuracy requirement), the driver may not know the max
+	 * rate of the suspend_clk, so only update the power down scale
+	 * if the default is less than the calculated value from
+	 * clk_get_rate() or if the default is questionably high
+	 * (3x or more) to be within the requirement.
+	 */
+	suspend_clk = of_clk_get_by_name(node, "suspend");
+	if (IS_ERR(suspend_clk))
+		return;
+
+	scale = DIV_ROUND_UP(clk_get_rate(suspend_clk), 16000);
+	reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+	if ((reg & DWC3_GCTL_PWRDNSCALE_MASK) < DWC3_GCTL_PWRDNSCALE(scale) ||
+	    (reg & DWC3_GCTL_PWRDNSCALE_MASK) > DWC3_GCTL_PWRDNSCALE(scale*3)) {
+		reg &= ~(DWC3_GCTL_PWRDNSCALE_MASK);
+		reg |= DWC3_GCTL_PWRDNSCALE(scale);
+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * dwc3_core_init - Low-level initialization of DWC3 Core
  * @dwc: Pointer to our controller context structure
@@ -885,6 +1164,7 @@ static void dwc3_set_incr_burst_type(struct dwc3 *dwc)
  */
 static int dwc3_core_init(struct dwc3 *dwc)
 {
+<<<<<<< HEAD
 	u32			reg;
 	int			ret;
 
@@ -893,6 +1173,13 @@ static int dwc3_core_init(struct dwc3 *dwc)
 		ret = -ENODEV;
 		goto err0;
 	}
+=======
+	unsigned int		hw_mode;
+	u32			reg;
+	int			ret;
+
+	hw_mode = DWC3_GHWPARAMS0_MODE(dwc->hwparams.hwparams0);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Write Linux Version Code to our GUID register so it's easy to figure
@@ -900,6 +1187,7 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	 */
 	dwc3_writel(dwc->regs, DWC3_GUID, LINUX_VERSION_CODE);
 
+<<<<<<< HEAD
 	/* Handle USB2.0-only core configuration */
 	if (DWC3_GHWPARAMS3_SSPHY_IFC(dwc->hwparams.hwparams3) ==
 			DWC3_GHWPARAMS3_SSPHY_IFC_DIS) {
@@ -907,6 +1195,8 @@ static int dwc3_core_init(struct dwc3 *dwc)
 			dwc->maximum_speed = USB_SPEED_HIGH;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = dwc3_phy_setup(dwc);
 	if (ret)
 		goto err0;
@@ -925,9 +1215,42 @@ static int dwc3_core_init(struct dwc3 *dwc)
 		dwc->phys_ready = true;
 	}
 
+<<<<<<< HEAD
 	ret = dwc3_core_soft_reset(dwc);
 	if (ret)
 		goto err0a;
+=======
+	usb_phy_init(dwc->usb2_phy);
+	usb_phy_init(dwc->usb3_phy);
+	ret = phy_init(dwc->usb2_generic_phy);
+	if (ret < 0)
+		goto err0a;
+
+	ret = phy_init(dwc->usb3_generic_phy);
+	if (ret < 0) {
+		phy_exit(dwc->usb2_generic_phy);
+		goto err0a;
+	}
+
+	ret = dwc3_core_soft_reset(dwc);
+	if (ret)
+		goto err1;
+
+	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD &&
+	    !DWC3_VER_IS_WITHIN(DWC3, ANY, 194A)) {
+		if (!dwc->dis_u3_susphy_quirk) {
+			reg = dwc3_readl(dwc->regs, DWC3_GUSB3PIPECTL(0));
+			reg |= DWC3_GUSB3PIPECTL_SUSPHY;
+			dwc3_writel(dwc->regs, DWC3_GUSB3PIPECTL(0), reg);
+		}
+
+		if (!dwc->dis_u2_susphy_quirk) {
+			reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+			reg |= DWC3_GUSB2PHYCFG_SUSPHY;
+			dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	dwc3_core_setup_global_control(dwc);
 	dwc3_core_num_eps(dwc);
@@ -936,6 +1259,12 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	if (ret)
 		goto err1;
 
+<<<<<<< HEAD
+=======
+	/* Set power down scale of suspend_clk */
+	dwc3_set_power_down_clk_scale(dwc);
+
+>>>>>>> upstream/android-13
 	/* Adjust Frame Length */
 	dwc3_frame_length_adjustment(dwc);
 
@@ -962,22 +1291,45 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	 * the DWC_usb3 controller. It is NOT available in the
 	 * DWC_usb31 controller.
 	 */
+<<<<<<< HEAD
 	if (!dwc3_is_usb31(dwc) && dwc->revision >= DWC3_REVISION_310A) {
+=======
+	if (DWC3_VER_IS_WITHIN(DWC3, 310A, ANY)) {
+>>>>>>> upstream/android-13
 		reg = dwc3_readl(dwc->regs, DWC3_GUCTL2);
 		reg |= DWC3_GUCTL2_RST_ACTBITLATER;
 		dwc3_writel(dwc->regs, DWC3_GUCTL2, reg);
 	}
 
+<<<<<<< HEAD
 	if (dwc->revision >= DWC3_REVISION_250A) {
+=======
+	if (!DWC3_VER_IS_PRIOR(DWC3, 250A)) {
+>>>>>>> upstream/android-13
 		reg = dwc3_readl(dwc->regs, DWC3_GUCTL1);
 
 		/*
 		 * Enable hardware control of sending remote wakeup
 		 * in HS when the device is in the L1 state.
 		 */
+<<<<<<< HEAD
 		if (dwc->revision >= DWC3_REVISION_290A)
 			reg |= DWC3_GUCTL1_DEV_L1_EXIT_BY_HW;
 
+=======
+		if (!DWC3_VER_IS_PRIOR(DWC3, 290A))
+			reg |= DWC3_GUCTL1_DEV_L1_EXIT_BY_HW;
+
+		/*
+		 * Decouple USB 2.0 L1 & L2 events which will allow for
+		 * gadget driver to only receive U3/L2 suspend & wakeup
+		 * events and prevent the more frequent L1 LPM transitions
+		 * from interrupting the driver.
+		 */
+		if (!DWC3_VER_IS_PRIOR(DWC3, 300A))
+			reg |= DWC3_GUCTL1_DEV_DECOUPLE_L1L2_EVT;
+
+>>>>>>> upstream/android-13
 		if (dwc->dis_tx_ipgap_linecheck_quirk)
 			reg |= DWC3_GUCTL1_TX_IPGAP_LINECHECK_DIS;
 
@@ -1007,7 +1359,11 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	 * Must config both number of packets and max burst settings to enable
 	 * RX and/or TX threshold.
 	 */
+<<<<<<< HEAD
 	if (dwc3_is_usb31(dwc) && dwc->dr_mode == USB_DR_MODE_HOST) {
+=======
+	if (!DWC3_IP_IS(DWC3) && dwc->dr_mode == USB_DR_MODE_HOST) {
+>>>>>>> upstream/android-13
 		u8 rx_thr_num = dwc->rx_thr_num_pkt_prd;
 		u8 rx_maxburst = dwc->rx_max_burst_prd;
 		u8 tx_thr_num = dwc->tx_thr_num_pkt_prd;
@@ -1083,11 +1439,16 @@ static int dwc3_core_get_phy(struct dwc3 *dwc)
 		ret = PTR_ERR(dwc->usb2_phy);
 		if (ret == -ENXIO || ret == -ENODEV) {
 			dwc->usb2_phy = NULL;
+<<<<<<< HEAD
 		} else if (ret == -EPROBE_DEFER) {
 			return ret;
 		} else {
 			dev_err(dev, "no usb2 phy configured\n");
 			return ret;
+=======
+		} else {
+			return dev_err_probe(dev, ret, "no usb2 phy configured\n");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1095,11 +1456,16 @@ static int dwc3_core_get_phy(struct dwc3 *dwc)
 		ret = PTR_ERR(dwc->usb3_phy);
 		if (ret == -ENXIO || ret == -ENODEV) {
 			dwc->usb3_phy = NULL;
+<<<<<<< HEAD
 		} else if (ret == -EPROBE_DEFER) {
 			return ret;
 		} else {
 			dev_err(dev, "no usb3 phy configured\n");
 			return ret;
+=======
+		} else {
+			return dev_err_probe(dev, ret, "no usb3 phy configured\n");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1108,11 +1474,16 @@ static int dwc3_core_get_phy(struct dwc3 *dwc)
 		ret = PTR_ERR(dwc->usb2_generic_phy);
 		if (ret == -ENOSYS || ret == -ENODEV) {
 			dwc->usb2_generic_phy = NULL;
+<<<<<<< HEAD
 		} else if (ret == -EPROBE_DEFER) {
 			return ret;
 		} else {
 			dev_err(dev, "no usb2 phy configured\n");
 			return ret;
+=======
+		} else {
+			return dev_err_probe(dev, ret, "no usb2 phy configured\n");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1121,11 +1492,16 @@ static int dwc3_core_get_phy(struct dwc3 *dwc)
 		ret = PTR_ERR(dwc->usb3_generic_phy);
 		if (ret == -ENOSYS || ret == -ENODEV) {
 			dwc->usb3_generic_phy = NULL;
+<<<<<<< HEAD
 		} else if (ret == -EPROBE_DEFER) {
 			return ret;
 		} else {
 			dev_err(dev, "no usb3 phy configured\n");
 			return ret;
+=======
+		} else {
+			return dev_err_probe(dev, ret, "no usb3 phy configured\n");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1147,11 +1523,16 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
 		phy_set_mode(dwc->usb3_generic_phy, PHY_MODE_USB_DEVICE);
 
 		ret = dwc3_gadget_init(dwc);
+<<<<<<< HEAD
 		if (ret) {
 			if (ret != -EPROBE_DEFER)
 				dev_err(dev, "failed to initialize gadget\n");
 			return ret;
 		}
+=======
+		if (ret)
+			return dev_err_probe(dev, ret, "failed to initialize gadget\n");
+>>>>>>> upstream/android-13
 		break;
 	case USB_DR_MODE_HOST:
 		dwc3_set_prtcap(dwc, DWC3_GCTL_PRTCAP_HOST);
@@ -1162,21 +1543,31 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
 		phy_set_mode(dwc->usb3_generic_phy, PHY_MODE_USB_HOST);
 
 		ret = dwc3_host_init(dwc);
+<<<<<<< HEAD
 		if (ret) {
 			if (ret != -EPROBE_DEFER)
 				dev_err(dev, "failed to initialize host\n");
 			return ret;
 		}
 		phy_calibrate(dwc->usb2_generic_phy);
+=======
+		if (ret)
+			return dev_err_probe(dev, ret, "failed to initialize host\n");
+>>>>>>> upstream/android-13
 		break;
 	case USB_DR_MODE_OTG:
 		INIT_WORK(&dwc->drd_work, __dwc3_set_mode);
 		ret = dwc3_drd_init(dwc);
+<<<<<<< HEAD
 		if (ret) {
 			if (ret != -EPROBE_DEFER)
 				dev_err(dev, "failed to initialize dual-role\n");
 			return ret;
 		}
+=======
+		if (ret)
+			return dev_err_probe(dev, ret, "failed to initialize dual-role\n");
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_err(dev, "Unsupported mode of operation %d\n", dwc->dr_mode);
@@ -1213,10 +1604,20 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 	u8			lpm_nyet_threshold;
 	u8			tx_de_emphasis;
 	u8			hird_threshold;
+<<<<<<< HEAD
 	u8			rx_thr_num_pkt_prd;
 	u8			rx_max_burst_prd;
 	u8			tx_thr_num_pkt_prd;
 	u8			tx_max_burst_prd;
+=======
+	u8			rx_thr_num_pkt_prd = 0;
+	u8			rx_max_burst_prd = 0;
+	u8			tx_thr_num_pkt_prd = 0;
+	u8			tx_max_burst_prd = 0;
+	u8			tx_fifo_resize_max_num;
+	const char		*usb_psy_name;
+	int			ret;
+>>>>>>> upstream/android-13
 
 	/* default to highest possible threshold */
 	lpm_nyet_threshold = 0xf;
@@ -1230,7 +1631,19 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 	 */
 	hird_threshold = 12;
 
+<<<<<<< HEAD
 	dwc->maximum_speed = usb_get_maximum_speed(dev);
+=======
+	/*
+	 * default to a TXFIFO size large enough to fit 6 max packets.  This
+	 * allows for systems with larger bus latencies to have some headroom
+	 * for endpoints that have a large bMaxBurst value.
+	 */
+	tx_fifo_resize_max_num = 6;
+
+	dwc->maximum_speed = usb_get_maximum_speed(dev);
+	dwc->max_ssp_rate = usb_get_maximum_ssp_rate(dev);
+>>>>>>> upstream/android-13
 	dwc->dr_mode = usb_get_dr_mode(dev);
 	dwc->hsphy_mode = of_usb_get_phy_mode(dev->of_node);
 
@@ -1241,6 +1654,16 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 	else
 		dwc->sysdev = dwc->dev;
 
+<<<<<<< HEAD
+=======
+	ret = device_property_read_string(dev, "usb-psy-name", &usb_psy_name);
+	if (ret >= 0) {
+		dwc->usb_psy = power_supply_get_by_name(usb_psy_name);
+		if (!dwc->usb_psy)
+			dev_err(dev, "couldn't get usb power supply\n");
+	}
+
+>>>>>>> upstream/android-13
 	dwc->has_lpm_erratum = device_property_read_bool(dev,
 				"snps,has-lpm-erratum");
 	device_property_read_u8(dev, "snps,lpm-nyet-threshold",
@@ -1249,8 +1672,19 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 				"snps,is-utmi-l1-suspend");
 	device_property_read_u8(dev, "snps,hird-threshold",
 				&hird_threshold);
+<<<<<<< HEAD
 	dwc->usb3_lpm_capable = device_property_read_bool(dev,
 				"snps,usb3_lpm_capable");
+=======
+	dwc->dis_start_transfer_quirk = device_property_read_bool(dev,
+				"snps,dis-start-transfer-quirk");
+	dwc->usb3_lpm_capable = device_property_read_bool(dev,
+				"snps,usb3_lpm_capable");
+	dwc->usb2_lpm_disable = device_property_read_bool(dev,
+				"snps,usb2-lpm-disable");
+	dwc->usb2_gadget_lpm_disable = device_property_read_bool(dev,
+				"snps,usb2-gadget-lpm-disable");
+>>>>>>> upstream/android-13
 	device_property_read_u8(dev, "snps,rx-thr-num-pkt-prd",
 				&rx_thr_num_pkt_prd);
 	device_property_read_u8(dev, "snps,rx-max-burst-prd",
@@ -1259,6 +1693,14 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 				&tx_thr_num_pkt_prd);
 	device_property_read_u8(dev, "snps,tx-max-burst-prd",
 				&tx_max_burst_prd);
+<<<<<<< HEAD
+=======
+	dwc->do_fifo_resize = device_property_read_bool(dev,
+							"tx-fifo-resize");
+	if (dwc->do_fifo_resize)
+		device_property_read_u8(dev, "tx-fifo-max-num",
+					&tx_fifo_resize_max_num);
+>>>>>>> upstream/android-13
 
 	dwc->disable_scramble_quirk = device_property_read_bool(dev,
 				"snps,disable_scramble_quirk");
@@ -1282,6 +1724,13 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 				"snps,dis_u2_susphy_quirk");
 	dwc->dis_enblslpm_quirk = device_property_read_bool(dev,
 				"snps,dis_enblslpm_quirk");
+<<<<<<< HEAD
+=======
+	dwc->dis_u1_entry_quirk = device_property_read_bool(dev,
+				"snps,dis-u1-entry-quirk");
+	dwc->dis_u2_entry_quirk = device_property_read_bool(dev,
+				"snps,dis-u2-entry-quirk");
+>>>>>>> upstream/android-13
 	dwc->dis_rxdet_inp3_quirk = device_property_read_bool(dev,
 				"snps,dis_rxdet_inp3_quirk");
 	dwc->dis_u2_freeclk_exists_quirk = device_property_read_bool(dev,
@@ -1305,11 +1754,21 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 	dwc->dis_metastability_quirk = device_property_read_bool(dev,
 				"snps,dis_metastability_quirk");
 
+<<<<<<< HEAD
 	dwc->lpm_nyet_threshold = lpm_nyet_threshold;
 	dwc->tx_de_emphasis = tx_de_emphasis;
 
 	dwc->hird_threshold = hird_threshold
 		| (dwc->is_utmi_l1_suspend << 4);
+=======
+	dwc->dis_split_quirk = device_property_read_bool(dev,
+				"snps,dis-split-quirk");
+
+	dwc->lpm_nyet_threshold = lpm_nyet_threshold;
+	dwc->tx_de_emphasis = tx_de_emphasis;
+
+	dwc->hird_threshold = hird_threshold;
+>>>>>>> upstream/android-13
 
 	dwc->rx_thr_num_pkt_prd = rx_thr_num_pkt_prd;
 	dwc->rx_max_burst_prd = rx_max_burst_prd;
@@ -1318,20 +1777,36 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 	dwc->tx_max_burst_prd = tx_max_burst_prd;
 
 	dwc->imod_interval = 0;
+<<<<<<< HEAD
+=======
+
+	dwc->tx_fifo_resize_max_num = tx_fifo_resize_max_num;
+>>>>>>> upstream/android-13
 }
 
 /* check whether the core supports IMOD */
 bool dwc3_has_imod(struct dwc3 *dwc)
 {
+<<<<<<< HEAD
 	return ((dwc3_is_usb3(dwc) &&
 		 dwc->revision >= DWC3_REVISION_300A) ||
 		(dwc3_is_usb31(dwc) &&
 		 dwc->revision >= DWC3_USB31_REVISION_120A));
+=======
+	return DWC3_VER_IS_WITHIN(DWC3, 300A, ANY) ||
+		DWC3_VER_IS_WITHIN(DWC31, 120A, ANY) ||
+		DWC3_IP_IS(DWC32);
+>>>>>>> upstream/android-13
 }
 
 static void dwc3_check_params(struct dwc3 *dwc)
 {
 	struct device *dev = dwc->dev;
+<<<<<<< HEAD
+=======
+	unsigned int hwparam_gen =
+		DWC3_GHWPARAMS3_SSPHY_IFC(dwc->hwparams.hwparams3);
+>>>>>>> upstream/android-13
 
 	/* Check for proper value of imod_interval */
 	if (dwc->imod_interval && !dwc3_has_imod(dwc)) {
@@ -1347,20 +1822,41 @@ static void dwc3_check_params(struct dwc3 *dwc)
 	 * affected version.
 	 */
 	if (!dwc->imod_interval &&
+<<<<<<< HEAD
 	    (dwc->revision == DWC3_REVISION_300A))
+=======
+	    DWC3_VER_IS(DWC3, 300A))
+>>>>>>> upstream/android-13
 		dwc->imod_interval = 1;
 
 	/* Check the maximum_speed parameter */
 	switch (dwc->maximum_speed) {
+<<<<<<< HEAD
 	case USB_SPEED_LOW:
 	case USB_SPEED_FULL:
 	case USB_SPEED_HIGH:
 	case USB_SPEED_SUPER:
 	case USB_SPEED_SUPER_PLUS:
+=======
+	case USB_SPEED_FULL:
+	case USB_SPEED_HIGH:
+		break;
+	case USB_SPEED_SUPER:
+		if (hwparam_gen == DWC3_GHWPARAMS3_SSPHY_IFC_DIS)
+			dev_warn(dev, "UDC doesn't support Gen 1\n");
+		break;
+	case USB_SPEED_SUPER_PLUS:
+		if ((DWC3_IP_IS(DWC32) &&
+		     hwparam_gen == DWC3_GHWPARAMS3_SSPHY_IFC_DIS) ||
+		    (!DWC3_IP_IS(DWC32) &&
+		     hwparam_gen != DWC3_GHWPARAMS3_SSPHY_IFC_GEN2))
+			dev_warn(dev, "UDC doesn't support SSP\n");
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_err(dev, "invalid maximum_speed parameter %d\n",
 			dwc->maximum_speed);
+<<<<<<< HEAD
 		/* fall through */
 	case USB_SPEED_UNKNOWN:
 		/* default to superspeed */
@@ -1376,6 +1872,65 @@ static void dwc3_check_params(struct dwc3 *dwc)
 
 		break;
 	}
+=======
+		fallthrough;
+	case USB_SPEED_UNKNOWN:
+		switch (hwparam_gen) {
+		case DWC3_GHWPARAMS3_SSPHY_IFC_GEN2:
+			dwc->maximum_speed = USB_SPEED_SUPER_PLUS;
+			break;
+		case DWC3_GHWPARAMS3_SSPHY_IFC_GEN1:
+			if (DWC3_IP_IS(DWC32))
+				dwc->maximum_speed = USB_SPEED_SUPER_PLUS;
+			else
+				dwc->maximum_speed = USB_SPEED_SUPER;
+			break;
+		case DWC3_GHWPARAMS3_SSPHY_IFC_DIS:
+			dwc->maximum_speed = USB_SPEED_HIGH;
+			break;
+		default:
+			dwc->maximum_speed = USB_SPEED_SUPER;
+			break;
+		}
+		break;
+	}
+
+	/*
+	 * Currently the controller does not have visibility into the HW
+	 * parameter to determine the maximum number of lanes the HW supports.
+	 * If the number of lanes is not specified in the device property, then
+	 * set the default to support dual-lane for DWC_usb32 and single-lane
+	 * for DWC_usb31 for super-speed-plus.
+	 */
+	if (dwc->maximum_speed == USB_SPEED_SUPER_PLUS) {
+		switch (dwc->max_ssp_rate) {
+		case USB_SSP_GEN_2x1:
+			if (hwparam_gen == DWC3_GHWPARAMS3_SSPHY_IFC_GEN1)
+				dev_warn(dev, "UDC only supports Gen 1\n");
+			break;
+		case USB_SSP_GEN_1x2:
+		case USB_SSP_GEN_2x2:
+			if (DWC3_IP_IS(DWC31))
+				dev_warn(dev, "UDC only supports single lane\n");
+			break;
+		case USB_SSP_GEN_UNKNOWN:
+		default:
+			switch (hwparam_gen) {
+			case DWC3_GHWPARAMS3_SSPHY_IFC_GEN2:
+				if (DWC3_IP_IS(DWC32))
+					dwc->max_ssp_rate = USB_SSP_GEN_2x2;
+				else
+					dwc->max_ssp_rate = USB_SSP_GEN_2x1;
+				break;
+			case DWC3_GHWPARAMS3_SSPHY_IFC_GEN1:
+				if (DWC3_IP_IS(DWC32))
+					dwc->max_ssp_rate = USB_SSP_GEN_1x2;
+				break;
+			}
+			break;
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 static int dwc3_probe(struct platform_device *pdev)
@@ -1388,15 +1943,23 @@ static int dwc3_probe(struct platform_device *pdev)
 
 	void __iomem		*regs;
 
+<<<<<<< HEAD
+=======
+	pr_info("%s +++\n", __func__);
+
+>>>>>>> upstream/android-13
 	dwc = devm_kzalloc(dev, sizeof(*dwc), GFP_KERNEL);
 	if (!dwc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	dwc->clks = devm_kmemdup(dev, dwc3_core_clks, sizeof(dwc3_core_clks),
 				 GFP_KERNEL);
 	if (!dwc->clks)
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	dwc->dev = dev;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -1427,26 +1990,49 @@ static int dwc3_probe(struct platform_device *pdev)
 
 	dwc3_get_properties(dwc);
 
+<<<<<<< HEAD
 	dwc->reset = devm_reset_control_get_optional_shared(dev, NULL);
+=======
+	if (!dwc->sysdev_is_parent) {
+		ret = dma_set_mask_and_coherent(dwc->sysdev, DMA_BIT_MASK(64));
+		if (ret)
+			return ret;
+	}
+
+	dwc->reset = devm_reset_control_array_get_optional_shared(dev);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dwc->reset))
 		return PTR_ERR(dwc->reset);
 
 	if (dev->of_node) {
+<<<<<<< HEAD
 		dwc->num_clks = ARRAY_SIZE(dwc3_core_clks);
 
 		ret = clk_bulk_get(dev, dwc->num_clks, dwc->clks);
+=======
+		ret = devm_clk_bulk_get_all(dev, &dwc->clks);
+>>>>>>> upstream/android-13
 		if (ret == -EPROBE_DEFER)
 			return ret;
 		/*
 		 * Clocks are optional, but new DT platforms should support all
 		 * clocks as required by the DT-binding.
 		 */
+<<<<<<< HEAD
 		if (ret)
 			dwc->num_clks = 0;
+=======
+		if (ret < 0)
+			dwc->num_clks = 0;
+		else
+			dwc->num_clks = ret;
+
+>>>>>>> upstream/android-13
 	}
 
 	ret = reset_control_deassert(dwc->reset);
 	if (ret)
+<<<<<<< HEAD
 		goto put_clks;
 
 	ret = clk_bulk_prepare(dwc->num_clks, dwc->clks);
@@ -1456,11 +2042,28 @@ static int dwc3_probe(struct platform_device *pdev)
 	ret = clk_bulk_enable(dwc->num_clks, dwc->clks);
 	if (ret)
 		goto unprepare_clks;
+=======
+		return ret;
+
+	ret = clk_bulk_prepare_enable(dwc->num_clks, dwc->clks);
+	if (ret)
+		goto assert_reset;
+
+	if (!dwc3_core_is_valid(dwc)) {
+		dev_err(dwc->dev, "this is not a DesignWare USB3 DRD Core\n");
+		ret = -ENODEV;
+		goto disable_clks;
+	}
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, dwc);
 	dwc3_cache_hwparams(dwc);
 
 	spin_lock_init(&dwc->lock);
+<<<<<<< HEAD
+=======
+	mutex_init(&dwc->mutex);
+>>>>>>> upstream/android-13
 
 	pm_runtime_set_active(dev);
 	pm_runtime_use_autosuspend(dev);
@@ -1489,23 +2092,46 @@ static int dwc3_probe(struct platform_device *pdev)
 
 	ret = dwc3_core_init(dwc);
 	if (ret) {
+<<<<<<< HEAD
 		if (ret != -EPROBE_DEFER)
 			dev_err(dev, "failed to initialize core: %d\n", ret);
+=======
+		dev_err_probe(dev, ret, "failed to initialize core\n");
+>>>>>>> upstream/android-13
 		goto err4;
 	}
 
 	dwc3_check_params(dwc);
+<<<<<<< HEAD
+=======
+	dwc3_debugfs_init(dwc);
+>>>>>>> upstream/android-13
 
 	ret = dwc3_core_init_mode(dwc);
 	if (ret)
 		goto err5;
 
+<<<<<<< HEAD
 	dwc3_debugfs_init(dwc);
 	pm_runtime_put(dev);
 
 	return 0;
 
 err5:
+=======
+	ret = xhci_exynos_audio_alloc(dev);
+	if (ret < 0)
+		dev_err(dev, "xhci_exynos_audio_alloc failed\n");
+
+	pm_runtime_put(dev);
+
+	pr_info("%s ---\n", __func__);
+
+	return 0;
+
+err5:
+	dwc3_debugfs_exit(dwc);
+>>>>>>> upstream/android-13
 	dwc3_event_buffers_cleanup(dwc);
 
 	usb_phy_shutdown(dwc->usb2_phy);
@@ -1533,6 +2159,7 @@ err1:
 	pm_runtime_put_sync(&pdev->dev);
 	pm_runtime_disable(&pdev->dev);
 
+<<<<<<< HEAD
 	clk_bulk_disable(dwc->num_clks, dwc->clks);
 unprepare_clks:
 	clk_bulk_unprepare(dwc->num_clks, dwc->clks);
@@ -1540,6 +2167,15 @@ assert_reset:
 	reset_control_assert(dwc->reset);
 put_clks:
 	clk_bulk_put(dwc->num_clks, dwc->clks);
+=======
+disable_clks:
+	clk_bulk_disable_unprepare(dwc->num_clks, dwc->clks);
+assert_reset:
+	reset_control_assert(dwc->reset);
+
+	if (dwc->usb_psy)
+		power_supply_put(dwc->usb_psy);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1550,8 +2186,13 @@ static int dwc3_remove(struct platform_device *pdev)
 
 	pm_runtime_get_sync(&pdev->dev);
 
+<<<<<<< HEAD
 	dwc3_debugfs_exit(dwc);
 	dwc3_core_exit_mode(dwc);
+=======
+	dwc3_core_exit_mode(dwc);
+	dwc3_debugfs_exit(dwc);
+>>>>>>> upstream/android-13
 
 	dwc3_core_exit(dwc);
 	dwc3_ulpi_exit(dwc);
@@ -1562,7 +2203,13 @@ static int dwc3_remove(struct platform_device *pdev)
 
 	dwc3_free_event_buffers(dwc);
 	dwc3_free_scratch_buffers(dwc);
+<<<<<<< HEAD
 	clk_bulk_put(dwc->num_clks, dwc->clks);
+=======
+
+	if (dwc->usb_psy)
+		power_supply_put(dwc->usb_psy);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1576,6 +2223,7 @@ static int dwc3_core_init_for_resume(struct dwc3 *dwc)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = clk_bulk_prepare(dwc->num_clks, dwc->clks);
 	if (ret)
 		goto assert_reset;
@@ -1584,6 +2232,12 @@ static int dwc3_core_init_for_resume(struct dwc3 *dwc)
 	if (ret)
 		goto unprepare_clks;
 
+=======
+	ret = clk_bulk_prepare_enable(dwc->num_clks, dwc->clks);
+	if (ret)
+		goto assert_reset;
+
+>>>>>>> upstream/android-13
 	ret = dwc3_core_init(dwc);
 	if (ret)
 		goto disable_clks;
@@ -1591,9 +2245,13 @@ static int dwc3_core_init_for_resume(struct dwc3 *dwc)
 	return 0;
 
 disable_clks:
+<<<<<<< HEAD
 	clk_bulk_disable(dwc->num_clks, dwc->clks);
 unprepare_clks:
 	clk_bulk_unprepare(dwc->num_clks, dwc->clks);
+=======
+	clk_bulk_disable_unprepare(dwc->num_clks, dwc->clks);
+>>>>>>> upstream/android-13
 assert_reset:
 	reset_control_assert(dwc->reset);
 
@@ -1607,6 +2265,11 @@ static int dwc3_suspend_common(struct dwc3 *dwc, pm_message_t msg)
 
 	switch (dwc->current_dr_role) {
 	case DWC3_GCTL_PRTCAP_DEVICE:
+<<<<<<< HEAD
+=======
+		if (pm_runtime_suspended(dwc->dev))
+			break;
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&dwc->lock, flags);
 		dwc3_gadget_suspend(dwc);
 		spin_unlock_irqrestore(&dwc->lock, flags);
@@ -1745,6 +2408,11 @@ static int dwc3_runtime_suspend(struct device *dev)
 	struct dwc3     *dwc = dev_get_drvdata(dev);
 	int		ret;
 
+<<<<<<< HEAD
+=======
+	pr_info("%s +++\n", __func__);
+
+>>>>>>> upstream/android-13
 	if (dwc3_runtime_checks(dwc))
 		return -EBUSY;
 
@@ -1753,6 +2421,10 @@ static int dwc3_runtime_suspend(struct device *dev)
 		return ret;
 
 	device_init_wakeup(dev, true);
+<<<<<<< HEAD
+=======
+	pr_info("%s ---\n", __func__);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1762,6 +2434,10 @@ static int dwc3_runtime_resume(struct device *dev)
 	struct dwc3     *dwc = dev_get_drvdata(dev);
 	int		ret;
 
+<<<<<<< HEAD
+=======
+	pr_info("%s +++\n", __func__);
+>>>>>>> upstream/android-13
 	device_init_wakeup(dev, false);
 
 	ret = dwc3_resume_common(dwc, PMSG_AUTO_RESUME);
@@ -1780,6 +2456,10 @@ static int dwc3_runtime_resume(struct device *dev)
 
 	pm_runtime_mark_last_busy(dev);
 
+<<<<<<< HEAD
+=======
+	pr_info("%s ---\n", __func__);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1787,6 +2467,10 @@ static int dwc3_runtime_idle(struct device *dev)
 {
 	struct dwc3     *dwc = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
+=======
+	pr_info("%s +++\n", __func__);
+>>>>>>> upstream/android-13
 	switch (dwc->current_dr_role) {
 	case DWC3_GCTL_PRTCAP_DEVICE:
 		if (dwc3_runtime_checks(dwc))
@@ -1801,6 +2485,10 @@ static int dwc3_runtime_idle(struct device *dev)
 	pm_runtime_mark_last_busy(dev);
 	pm_runtime_autosuspend(dev);
 
+<<<<<<< HEAD
+=======
+	pr_info("%s ---\n", __func__);
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif /* CONFIG_PM */
@@ -1811,12 +2499,20 @@ static int dwc3_suspend(struct device *dev)
 	struct dwc3	*dwc = dev_get_drvdata(dev);
 	int		ret;
 
+<<<<<<< HEAD
+=======
+	pr_info("%s +++\n", __func__);
+>>>>>>> upstream/android-13
 	ret = dwc3_suspend_common(dwc, PMSG_SUSPEND);
 	if (ret)
 		return ret;
 
 	pinctrl_pm_select_sleep_state(dev);
 
+<<<<<<< HEAD
+=======
+	pr_info("%s ---\n", __func__);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1825,6 +2521,10 @@ static int dwc3_resume(struct device *dev)
 	struct dwc3	*dwc = dev_get_drvdata(dev);
 	int		ret;
 
+<<<<<<< HEAD
+=======
+	pr_info("%s +++\n", __func__);
+>>>>>>> upstream/android-13
 	pinctrl_pm_select_default_state(dev);
 
 	ret = dwc3_resume_common(dwc, PMSG_RESUME);
@@ -1835,12 +2535,37 @@ static int dwc3_resume(struct device *dev)
 	pm_runtime_set_active(dev);
 	pm_runtime_enable(dev);
 
+<<<<<<< HEAD
 	return 0;
 }
+=======
+	pr_info("%s ---\n", __func__);
+	return 0;
+}
+
+static void dwc3_complete(struct device *dev)
+{
+	struct dwc3	*dwc = dev_get_drvdata(dev);
+	u32		reg;
+
+	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_HOST &&
+			dwc->dis_split_quirk) {
+		reg = dwc3_readl(dwc->regs, DWC3_GUCTL3);
+		reg |= DWC3_GUCTL3_SPLITDISABLE;
+		dwc3_writel(dwc->regs, DWC3_GUCTL3, reg);
+	}
+}
+#else
+#define dwc3_complete NULL
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PM_SLEEP */
 
 static const struct dev_pm_ops dwc3_dev_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(dwc3_suspend, dwc3_resume)
+<<<<<<< HEAD
+=======
+	.complete = dwc3_complete,
+>>>>>>> upstream/android-13
 	SET_RUNTIME_PM_OPS(dwc3_runtime_suspend, dwc3_runtime_resume,
 			dwc3_runtime_idle)
 };

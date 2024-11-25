@@ -440,8 +440,11 @@ static inline unsigned long ffz(unsigned long word)
 
 #endif
 
+<<<<<<< HEAD
 #include <asm-generic/bitops/find.h>
 
+=======
+>>>>>>> upstream/android-13
 #ifdef __KERNEL__
 
 #if defined(CONFIG_CPU_HAS_NO_BITFIELDS)
@@ -502,7 +505,11 @@ static inline unsigned long __ffs(unsigned long x)
 /*
  *	fls: find last bit set.
  */
+<<<<<<< HEAD
 static inline int fls(int x)
+=======
+static inline int fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int cnt;
 
@@ -525,10 +532,21 @@ static inline int __fls(int x)
 #define __clear_bit_unlock	clear_bit_unlock
 
 #include <asm-generic/bitops/ext2-atomic.h>
+<<<<<<< HEAD
 #include <asm-generic/bitops/le.h>
 #include <asm-generic/bitops/fls64.h>
 #include <asm-generic/bitops/sched.h>
 #include <asm-generic/bitops/hweight.h>
 #endif /* __KERNEL__ */
 
+=======
+#include <asm-generic/bitops/fls64.h>
+#include <asm-generic/bitops/sched.h>
+#include <asm-generic/bitops/hweight.h>
+#include <asm-generic/bitops/le.h>
+#endif /* __KERNEL__ */
+
+#include <asm-generic/bitops/find.h>
+
+>>>>>>> upstream/android-13
 #endif /* _M68K_BITOPS_H */

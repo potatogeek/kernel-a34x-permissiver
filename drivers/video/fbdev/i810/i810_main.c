@@ -1883,7 +1883,11 @@ static int i810_allocate_pci_resource(struct i810fb_par *par,
 	}
 	par->res_flags |= MMIO_REQ;
 
+<<<<<<< HEAD
 	par->mmio_start_virtual = ioremap_nocache(par->mmio_start_phys, 
+=======
+	par->mmio_start_virtual = ioremap(par->mmio_start_phys, 
+>>>>>>> upstream/android-13
 						  MMIO_SIZE);
 	if (!par->mmio_start_virtual) {
 		printk("i810fb_init: cannot remap mmio region\n");
@@ -1966,6 +1970,7 @@ static int i810fb_setup(char *options)
 	
 	while ((this_opt = strsep(&options, ",")) != NULL) {
 		if (!strncmp(this_opt, "mtrr", 4))
+<<<<<<< HEAD
 			mtrr = 1;
 		else if (!strncmp(this_opt, "accel", 5))
 			accel = 1;
@@ -1973,6 +1978,15 @@ static int i810fb_setup(char *options)
 			extvga = 1;
 		else if (!strncmp(this_opt, "sync", 4))
 			sync = 1;
+=======
+			mtrr = true;
+		else if (!strncmp(this_opt, "accel", 5))
+			accel = true;
+		else if (!strncmp(this_opt, "extvga", 6))
+			extvga = true;
+		else if (!strncmp(this_opt, "sync", 4))
+			sync = true;
+>>>>>>> upstream/android-13
 		else if (!strncmp(this_opt, "vram:", 5))
 			vram = (simple_strtoul(this_opt+5, NULL, 0));
 		else if (!strncmp(this_opt, "voffset:", 8))
@@ -1998,7 +2012,11 @@ static int i810fb_setup(char *options)
 		else if (!strncmp(this_opt, "vsync2:", 7))
 			vsync2 = simple_strtoul(this_opt+7, NULL, 0);
 		else if (!strncmp(this_opt, "dcolor", 6))
+<<<<<<< HEAD
 			dcolor = 1;
+=======
+			dcolor = true;
+>>>>>>> upstream/android-13
 		else if (!strncmp(this_opt, "ddc3", 4))
 			ddc3 = true;
 		else

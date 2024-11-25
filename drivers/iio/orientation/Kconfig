@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Inclinometer sensors
 #
@@ -8,7 +12,10 @@ menu "Inclinometer sensors"
 config HID_SENSOR_INCLINOMETER_3D
 	depends on HID_SENSOR_HUB
 	select IIO_BUFFER
+<<<<<<< HEAD
 	select IIO_TRIGGERED_BUFFER
+=======
+>>>>>>> upstream/android-13
 	select HID_SENSOR_IIO_COMMON
 	select HID_SENSOR_IIO_TRIGGER
 	tristate "HID Inclinometer 3D"
@@ -19,7 +26,10 @@ config HID_SENSOR_INCLINOMETER_3D
 config HID_SENSOR_DEVICE_ROTATION
 	depends on HID_SENSOR_HUB
 	select IIO_BUFFER
+<<<<<<< HEAD
 	select IIO_TRIGGERED_BUFFER
+=======
+>>>>>>> upstream/android-13
 	select HID_SENSOR_IIO_COMMON
 	select HID_SENSOR_IIO_TRIGGER
 	tristate "HID Device Rotation"

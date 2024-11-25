@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -21,6 +22,10 @@
  *
  * Larry Finger <Larry.Finger@lwfinger.net>
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "wifi.h"
 #include "cam.h"
@@ -29,6 +34,7 @@
 #include <linux/vmalloc.h>
 
 #ifdef CONFIG_RTLWIFI_DEBUG
+<<<<<<< HEAD
 void _rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *fmt, ...)
 {
@@ -49,6 +55,8 @@ void _rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
 }
 EXPORT_SYMBOL_GPL(_rtl_dbg_trace);
 
+=======
+>>>>>>> upstream/android-13
 void _rtl_dbg_print(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *fmt, ...)
 {
@@ -425,8 +433,13 @@ static ssize_t rtl_debugfs_set_write_rfreg(struct file *filp,
 		     &path, &addr, &bitmask, &data);
 
 	if (num != 4) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_DMESG,
 			 "Format is <path> <addr> <mask> <data>\n");
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_DMESG,
+			"Format is <path> <addr> <mask> <data>\n");
+>>>>>>> upstream/android-13
 		return count;
 	}
 
@@ -463,12 +476,18 @@ static const struct file_operations file_ops_common_write = {
 #define RTL_DEBUGFS_ADD_CORE(name, mode, fopname)			   \
 	do {								   \
 		rtl_debug_priv_ ##name.rtlpriv = rtlpriv;		   \
+<<<<<<< HEAD
 		if (!debugfs_create_file(#name, mode,			   \
 					 parent, &rtl_debug_priv_ ##name,  \
 					 &file_ops_ ##fopname))		   \
 			pr_err("Unable to initialize debugfs:%s/%s\n",	   \
 			       rtlpriv->dbg.debugfs_name,		   \
 			       #name);					   \
+=======
+		debugfs_create_file(#name, mode, parent,		   \
+				    &rtl_debug_priv_ ##name,		   \
+				    &file_ops_ ##fopname);		   \
+>>>>>>> upstream/android-13
 	} while (0)
 
 #define RTL_DEBUGFS_ADD(name)						   \
@@ -486,11 +505,14 @@ void rtl_debug_add_one(struct ieee80211_hw *hw)
 
 	rtlpriv->dbg.debugfs_dir =
 		debugfs_create_dir(rtlpriv->dbg.debugfs_name, debugfs_topdir);
+<<<<<<< HEAD
 	if (!rtlpriv->dbg.debugfs_dir) {
 		pr_err("Unable to init debugfs:/%s/%s\n", rtlpriv->cfg->name,
 		       rtlpriv->dbg.debugfs_name);
 		return;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	parent = rtlpriv->dbg.debugfs_dir;
 

@@ -19,6 +19,10 @@
 #include <linux/mm.h>
 #include <linux/seq_file.h>
 #include <linux/tty.h>
+<<<<<<< HEAD
+=======
+#include <linux/clocksource.h>
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/linkage.h>
 #include <linux/init.h>
@@ -31,7 +35,10 @@
 #include <asm/bootinfo.h>
 #include <asm/bootinfo-vme.h>
 #include <asm/byteorder.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/irq.h>
 #include <asm/traps.h>
@@ -43,8 +50,12 @@ extern t_bdid mvme_bdid;
 static MK48T08ptr_t volatile rtc = (MK48T08ptr_t)MVME_RTC_BASE;
 
 static void mvme16x_get_model(char *model);
+<<<<<<< HEAD
 extern void mvme16x_sched_init(irq_handler_t handler);
 extern u32 mvme16x_gettimeoffset(void);
+=======
+extern void mvme16x_sched_init(void);
+>>>>>>> upstream/android-13
 extern int mvme16x_hwclk (int, struct rtc_time *);
 extern void mvme16x_reset (void);
 
@@ -115,11 +126,19 @@ static void __init mvme16x_init_IRQ (void)
 	m68k_setup_user_interrupt(VEC_USER, 192);
 }
 
+<<<<<<< HEAD
 #define pcc2chip	((volatile u_char *)0xfff42000)
 #define PccSCCMICR	0x1d
 #define PccSCCTICR	0x1e
 #define PccSCCRICR	0x1f
 #define PccTPIACKR	0x25
+=======
+#define PCC2CHIP   (0xfff42000)
+#define PCCSCCMICR (PCC2CHIP + 0x1d)
+#define PCCSCCTICR (PCC2CHIP + 0x1e)
+#define PCCSCCRICR (PCC2CHIP + 0x1f)
+#define PCCTPIACKR (PCC2CHIP + 0x25)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_EARLY_PRINTK
 
@@ -227,10 +246,17 @@ void mvme16x_cons_write(struct console *co, const char *str, unsigned count)
 	base_addr[CyIER] = CyTxMpty;
 
 	while (1) {
+<<<<<<< HEAD
 		if (pcc2chip[PccSCCTICR] & 0x20)
 		{
 			/* We have a Tx int. Acknowledge it */
 			sink = pcc2chip[PccTPIACKR];
+=======
+		if (in_8(PCCSCCTICR) & 0x20)
+		{
+			/* We have a Tx int. Acknowledge it */
+			sink = in_8(PCCTPIACKR);
+>>>>>>> upstream/android-13
 			if ((base_addr[CyLICR] >> 2) == port) {
 				if (i == count) {
 					/* Last char of string is now output */
@@ -269,10 +295,15 @@ void __init config_mvme16x(void)
     char id[40];
     uint16_t brdno = be16_to_cpu(p->brdno);
 
+<<<<<<< HEAD
     mach_max_dma_address = 0xffffffff;
     mach_sched_init      = mvme16x_sched_init;
     mach_init_IRQ        = mvme16x_init_IRQ;
     arch_gettimeoffset   = mvme16x_gettimeoffset;
+=======
+    mach_sched_init      = mvme16x_sched_init;
+    mach_init_IRQ        = mvme16x_init_IRQ;
+>>>>>>> upstream/android-13
     mach_hwclk           = mvme16x_hwclk;
     mach_reset		 = mvme16x_reset;
     mach_get_model       = mvme16x_get_model;
@@ -345,6 +376,7 @@ static irqreturn_t mvme16x_abort_int (int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static irqreturn_t mvme16x_timer_int (int irq, void *dev_id)
 {
 	irq_handler_t timer_routine = dev_id;
@@ -353,17 +385,61 @@ static irqreturn_t mvme16x_timer_int (int irq, void *dev_id)
 	local_irq_save(flags);
 	*(volatile unsigned char *)0xfff4201b |= 8;
 	timer_routine(0, NULL);
+=======
+static u64 mvme16x_read_clk(struct clocksource *cs);
+
+static struct clocksource mvme16x_clk = {
+	.name   = "pcc",
+	.rating = 250,
+	.read   = mvme16x_read_clk,
+	.mask   = CLOCKSOURCE_MASK(32),
+	.flags  = CLOCK_SOURCE_IS_CONTINUOUS,
+};
+
+static u32 clk_total;
+
+#define PCC_TIMER_CLOCK_FREQ 1000000
+#define PCC_TIMER_CYCLES     (PCC_TIMER_CLOCK_FREQ / HZ)
+
+#define PCCTCMP1             (PCC2CHIP + 0x04)
+#define PCCTCNT1             (PCC2CHIP + 0x08)
+#define PCCTOVR1             (PCC2CHIP + 0x17)
+#define PCCTIC1              (PCC2CHIP + 0x1b)
+
+#define PCCTOVR1_TIC_EN      0x01
+#define PCCTOVR1_COC_EN      0x02
+#define PCCTOVR1_OVR_CLR     0x04
+
+#define PCCTIC1_INT_LEVEL    6
+#define PCCTIC1_INT_CLR      0x08
+#define PCCTIC1_INT_EN       0x10
+
+static irqreturn_t mvme16x_timer_int (int irq, void *dev_id)
+{
+	unsigned long flags;
+
+	local_irq_save(flags);
+	out_8(PCCTOVR1, PCCTOVR1_OVR_CLR | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
+	out_8(PCCTIC1, PCCTIC1_INT_EN | PCCTIC1_INT_CLR | PCCTIC1_INT_LEVEL);
+	clk_total += PCC_TIMER_CYCLES;
+	legacy_timer_tick(1);
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 void mvme16x_sched_init (irq_handler_t timer_routine)
+=======
+void mvme16x_sched_init(void)
+>>>>>>> upstream/android-13
 {
     uint16_t brdno = be16_to_cpu(mvme_bdid.brdno);
     int irq;
 
     /* Using PCCchip2 or MC2 chip tick timer 1 */
+<<<<<<< HEAD
     *(volatile unsigned long *)0xfff42008 = 0;
     *(volatile unsigned long *)0xfff42004 = 10000;	/* 10ms */
     *(volatile unsigned char *)0xfff42017 |= 3;
@@ -372,6 +448,19 @@ void mvme16x_sched_init (irq_handler_t timer_routine)
                     timer_routine))
 	panic ("Couldn't register timer int");
 
+=======
+    if (request_irq(MVME16x_IRQ_TIMER, mvme16x_timer_int, IRQF_TIMER, "timer",
+                    NULL))
+	panic ("Couldn't register timer int");
+
+    out_be32(PCCTCNT1, 0);
+    out_be32(PCCTCMP1, PCC_TIMER_CYCLES);
+    out_8(PCCTOVR1, PCCTOVR1_OVR_CLR | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
+    out_8(PCCTIC1, PCCTIC1_INT_EN | PCCTIC1_INT_CLR | PCCTIC1_INT_LEVEL);
+
+    clocksource_register_hz(&mvme16x_clk, PCC_TIMER_CLOCK_FREQ);
+
+>>>>>>> upstream/android-13
     if (brdno == 0x0162 || brdno == 0x172)
 	irq = MVME162_IRQ_ABORT;
     else
@@ -381,11 +470,31 @@ void mvme16x_sched_init (irq_handler_t timer_routine)
 	panic ("Couldn't register abort int");
 }
 
+<<<<<<< HEAD
 
 /* This is always executed with interrupts disabled.  */
 u32 mvme16x_gettimeoffset(void)
 {
     return (*(volatile u32 *)0xfff42008) * 1000;
+=======
+static u64 mvme16x_read_clk(struct clocksource *cs)
+{
+	unsigned long flags;
+	u8 overflow, tmp;
+	u32 ticks;
+
+	local_irq_save(flags);
+	tmp = in_8(PCCTOVR1) >> 4;
+	ticks = in_be32(PCCTCNT1);
+	overflow = in_8(PCCTOVR1) >> 4;
+	if (overflow != tmp)
+		ticks = in_be32(PCCTCNT1);
+	ticks += overflow * PCC_TIMER_CYCLES;
+	ticks += clk_total;
+	local_irq_restore(flags);
+
+	return ticks;
+>>>>>>> upstream/android-13
 }
 
 int bcd2int (unsigned char b)
@@ -395,7 +504,10 @@ int bcd2int (unsigned char b)
 
 int mvme16x_hwclk(int op, struct rtc_time *t)
 {
+<<<<<<< HEAD
 #warning check me!
+=======
+>>>>>>> upstream/android-13
 	if (!op) {
 		rtc->ctrl = RTC_READ;
 		t->tm_year = bcd2int (rtc->bcd_year);
@@ -407,6 +519,12 @@ int mvme16x_hwclk(int op, struct rtc_time *t)
 		rtc->ctrl = 0;
 		if (t->tm_year < 70)
 			t->tm_year += 100;
+<<<<<<< HEAD
+=======
+	} else {
+		/* FIXME Setting the time is not yet supported */
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }

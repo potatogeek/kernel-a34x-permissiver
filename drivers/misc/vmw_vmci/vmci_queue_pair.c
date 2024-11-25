@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VMware VMCI Driver
  *
  * Copyright (C) 2012 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmw_vmci_defs.h>
@@ -245,7 +252,13 @@ static struct qp_list qp_guest_endpoints = {
 #define QPE_NUM_PAGES(_QPE) ((u32) \
 			     (DIV_ROUND_UP(_QPE.produce_size, PAGE_SIZE) + \
 			      DIV_ROUND_UP(_QPE.consume_size, PAGE_SIZE) + 2))
+<<<<<<< HEAD
 
+=======
+#define QP_SIZES_ARE_VALID(_prod_qsize, _cons_qsize) \
+	((_prod_qsize) + (_cons_qsize) >= max(_prod_qsize, _cons_qsize) && \
+	 (_prod_qsize) + (_cons_qsize) <= VMCI_MAX_GUEST_QP_MEMORY)
+>>>>>>> upstream/android-13
 
 /*
  * Frees kernel VA space for a given queue and its queue header, and
@@ -435,8 +448,13 @@ static int qp_alloc_ppn_set(void *prod_q,
 			    void *cons_q,
 			    u64 num_consume_pages, struct ppn_set *ppn_set)
 {
+<<<<<<< HEAD
 	u32 *produce_ppns;
 	u32 *consume_ppns;
+=======
+	u64 *produce_ppns;
+	u64 *consume_ppns;
+>>>>>>> upstream/android-13
 	struct vmci_queue *produce_q = prod_q;
 	struct vmci_queue *consume_q = cons_q;
 	u64 i;
@@ -462,6 +480,7 @@ static int qp_alloc_ppn_set(void *prod_q,
 		return VMCI_ERROR_NO_MEM;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < num_produce_pages; i++) {
 		unsigned long pfn;
 
@@ -487,6 +506,15 @@ static int qp_alloc_ppn_set(void *prod_q,
 		    && pfn != consume_ppns[i])
 			goto ppn_error;
 	}
+=======
+	for (i = 0; i < num_produce_pages; i++)
+		produce_ppns[i] =
+			produce_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
+
+	for (i = 0; i < num_consume_pages; i++)
+		consume_ppns[i] =
+			consume_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
+>>>>>>> upstream/android-13
 
 	ppn_set->num_produce_pages = num_produce_pages;
 	ppn_set->num_consume_pages = num_consume_pages;
@@ -494,11 +522,14 @@ static int qp_alloc_ppn_set(void *prod_q,
 	ppn_set->consume_ppns = consume_ppns;
 	ppn_set->initialized = true;
 	return VMCI_SUCCESS;
+<<<<<<< HEAD
 
  ppn_error:
 	kfree(produce_ppns);
 	kfree(consume_ppns);
 	return VMCI_ERROR_INVALID_ARGS;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -520,12 +551,37 @@ static void qp_free_ppn_set(struct ppn_set *ppn_set)
  */
 static int qp_populate_ppn_set(u8 *call_buf, const struct ppn_set *ppn_set)
 {
+<<<<<<< HEAD
 	memcpy(call_buf, ppn_set->produce_ppns,
 	       ppn_set->num_produce_pages * sizeof(*ppn_set->produce_ppns));
 	memcpy(call_buf +
 	       ppn_set->num_produce_pages * sizeof(*ppn_set->produce_ppns),
 	       ppn_set->consume_ppns,
 	       ppn_set->num_consume_pages * sizeof(*ppn_set->consume_ppns));
+=======
+	if (vmci_use_ppn64()) {
+		memcpy(call_buf, ppn_set->produce_ppns,
+		       ppn_set->num_produce_pages *
+		       sizeof(*ppn_set->produce_ppns));
+		memcpy(call_buf +
+		       ppn_set->num_produce_pages *
+		       sizeof(*ppn_set->produce_ppns),
+		       ppn_set->consume_ppns,
+		       ppn_set->num_consume_pages *
+		       sizeof(*ppn_set->consume_ppns));
+	} else {
+		int i;
+		u32 *ppns = (u32 *) call_buf;
+
+		for (i = 0; i < ppn_set->num_produce_pages; i++)
+			ppns[i] = (u32) ppn_set->produce_ppns[i];
+
+		ppns = &ppns[ppn_set->num_produce_pages];
+
+		for (i = 0; i < ppn_set->num_consume_pages; i++)
+			ppns[i] = (u32) ppn_set->consume_ppns[i];
+	}
+>>>>>>> upstream/android-13
 
 	return VMCI_SUCCESS;
 }
@@ -543,7 +599,11 @@ static struct vmci_queue *qp_host_alloc_queue(u64 size)
 	u64 num_pages;
 	const size_t queue_size = sizeof(*queue) + sizeof(*(queue->kernel_if));
 
+<<<<<<< HEAD
 	if (size > SIZE_MAX - PAGE_SIZE)
+=======
+	if (size > min_t(size_t, VMCI_MAX_GUEST_QP_MEMORY, SIZE_MAX - PAGE_SIZE))
+>>>>>>> upstream/android-13
 		return NULL;
 	num_pages = DIV_ROUND_UP(size, PAGE_SIZE) + 1;
 	if (num_pages > (SIZE_MAX - queue_size) /
@@ -669,7 +729,12 @@ static int qp_host_get_user_memory(u64 produce_uva,
 	int err = VMCI_SUCCESS;
 
 	retval = get_user_pages_fast((uintptr_t) produce_uva,
+<<<<<<< HEAD
 				     produce_q->kernel_if->num_pages, 1,
+=======
+				     produce_q->kernel_if->num_pages,
+				     FOLL_WRITE,
+>>>>>>> upstream/android-13
 				     produce_q->kernel_if->u.h.header_page);
 	if (retval < (int)produce_q->kernel_if->num_pages) {
 		pr_debug("get_user_pages_fast(produce) failed (retval=%d)",
@@ -682,7 +747,12 @@ static int qp_host_get_user_memory(u64 produce_uva,
 	}
 
 	retval = get_user_pages_fast((uintptr_t) consume_uva,
+<<<<<<< HEAD
 				     consume_q->kernel_if->num_pages, 1,
+=======
+				     consume_q->kernel_if->num_pages,
+				     FOLL_WRITE,
+>>>>>>> upstream/android-13
 				     consume_q->kernel_if->u.h.header_page);
 	if (retval < (int)consume_q->kernel_if->num_pages) {
 		pr_debug("get_user_pages_fast(consume) failed (retval=%d)",
@@ -956,13 +1026,23 @@ static int qp_alloc_hypercall(const struct qp_guest_endpoint *entry)
 {
 	struct vmci_qp_alloc_msg *alloc_msg;
 	size_t msg_size;
+<<<<<<< HEAD
+=======
+	size_t ppn_size;
+>>>>>>> upstream/android-13
 	int result;
 
 	if (!entry || entry->num_ppns <= 2)
 		return VMCI_ERROR_INVALID_ARGS;
 
+<<<<<<< HEAD
 	msg_size = sizeof(*alloc_msg) +
 	    (size_t) entry->num_ppns * sizeof(u32);
+=======
+	ppn_size = vmci_use_ppn64() ? sizeof(u64) : sizeof(u32);
+	msg_size = sizeof(*alloc_msg) +
+	    (size_t) entry->num_ppns * ppn_size;
+>>>>>>> upstream/android-13
 	alloc_msg = kmalloc(msg_size, GFP_KERNEL);
 	if (!alloc_msg)
 		return VMCI_ERROR_NO_MEM;
@@ -1221,7 +1301,11 @@ static int qp_alloc_guest_work(struct vmci_handle *handle,
 	} else {
 		result = qp_alloc_hypercall(queue_pair_entry);
 		if (result < VMCI_SUCCESS) {
+<<<<<<< HEAD
 			pr_warn("qp_alloc_hypercall result = %d\n", result);
+=======
+			pr_devel("qp_alloc_hypercall result = %d\n", result);
+>>>>>>> upstream/android-13
 			goto error;
 		}
 	}
@@ -1943,6 +2027,12 @@ int vmci_qp_broker_alloc(struct vmci_handle handle,
 			 struct vmci_qp_page_store *page_store,
 			 struct vmci_ctx *context)
 {
+<<<<<<< HEAD
+=======
+	if (!QP_SIZES_ARE_VALID(produce_size, consume_size))
+		return VMCI_ERROR_NO_RESOURCES;
+
+>>>>>>> upstream/android-13
 	return qp_broker_alloc(handle, peer, flags, priv_flags,
 			       produce_size, consume_size,
 			       page_store, context, NULL, NULL, NULL, NULL);
@@ -2249,7 +2339,12 @@ int vmci_qp_broker_map(struct vmci_handle handle,
 
 	result = VMCI_SUCCESS;
 
+<<<<<<< HEAD
 	if (context_id != VMCI_HOST_CONTEXT_ID) {
+=======
+	if (context_id != VMCI_HOST_CONTEXT_ID &&
+	    !QPBROKERSTATE_HAS_MEM(entry)) {
+>>>>>>> upstream/android-13
 		struct vmci_qp_page_store page_store;
 
 		page_store.pages = guest_mem;
@@ -2356,7 +2451,12 @@ int vmci_qp_broker_unmap(struct vmci_handle handle,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (context_id != VMCI_HOST_CONTEXT_ID) {
+=======
+	if (context_id != VMCI_HOST_CONTEXT_ID &&
+	    QPBROKERSTATE_HAS_MEM(entry)) {
+>>>>>>> upstream/android-13
 		qp_acquire_queue_mutex(entry->produce_q);
 		result = qp_save_headers(entry);
 		if (result < VMCI_SUCCESS)
@@ -2699,8 +2799,12 @@ int vmci_qpair_alloc(struct vmci_qp **qpair,
 	 * used by the device is NO_RESOURCES, so use that here too.
 	 */
 
+<<<<<<< HEAD
 	if (produce_qsize + consume_qsize < max(produce_qsize, consume_qsize) ||
 	    produce_qsize + consume_qsize > VMCI_MAX_GUEST_QP_MEMORY)
+=======
+	if (!QP_SIZES_ARE_VALID(produce_qsize, consume_qsize))
+>>>>>>> upstream/android-13
 		return VMCI_ERROR_NO_RESOURCES;
 
 	retval = vmci_route(&src, &dst, false, &route);
@@ -3035,7 +3139,11 @@ ssize_t vmci_qpair_enqueue(struct vmci_qp *qpair,
 	if (!qpair || !buf)
 		return VMCI_ERROR_INVALID_ARGS;
 
+<<<<<<< HEAD
 	iov_iter_kvec(&from, WRITE | ITER_KVEC, &v, 1, buf_size);
+=======
+	iov_iter_kvec(&from, WRITE, &v, 1, buf_size);
+>>>>>>> upstream/android-13
 
 	qp_lock(qpair);
 
@@ -3079,7 +3187,11 @@ ssize_t vmci_qpair_dequeue(struct vmci_qp *qpair,
 	if (!qpair || !buf)
 		return VMCI_ERROR_INVALID_ARGS;
 
+<<<<<<< HEAD
 	iov_iter_kvec(&to, READ | ITER_KVEC, &v, 1, buf_size);
+=======
+	iov_iter_kvec(&to, READ, &v, 1, buf_size);
+>>>>>>> upstream/android-13
 
 	qp_lock(qpair);
 
@@ -3124,7 +3236,11 @@ ssize_t vmci_qpair_peek(struct vmci_qp *qpair,
 	if (!qpair || !buf)
 		return VMCI_ERROR_INVALID_ARGS;
 
+<<<<<<< HEAD
 	iov_iter_kvec(&to, READ | ITER_KVEC, &v, 1, buf_size);
+=======
+	iov_iter_kvec(&to, READ, &v, 1, buf_size);
+>>>>>>> upstream/android-13
 
 	qp_lock(qpair);
 

@@ -24,7 +24,11 @@ CTR8BL:	.octa 0x00000003000000020000000100000000
 
 .text
 
+<<<<<<< HEAD
 ENTRY(chacha_2block_xor_avx512vl)
+=======
+SYM_FUNC_START(chacha_2block_xor_avx512vl)
+>>>>>>> upstream/android-13
 	# %rdi: Input state matrix, s
 	# %rsi: up to 2 data blocks output, o
 	# %rdx: up to 2 data blocks input, i
@@ -166,7 +170,11 @@ ENTRY(chacha_2block_xor_avx512vl)
 
 .Ldone2:
 	vzeroupper
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lxorpart2:
 	# xor remaining bytes from partial register into output
@@ -187,9 +195,15 @@ ENTRY(chacha_2block_xor_avx512vl)
 
 	jmp		.Ldone2
 
+<<<<<<< HEAD
 ENDPROC(chacha_2block_xor_avx512vl)
 
 ENTRY(chacha_4block_xor_avx512vl)
+=======
+SYM_FUNC_END(chacha_2block_xor_avx512vl)
+
+SYM_FUNC_START(chacha_4block_xor_avx512vl)
+>>>>>>> upstream/android-13
 	# %rdi: Input state matrix, s
 	# %rsi: up to 4 data blocks output, o
 	# %rdx: up to 4 data blocks input, i
@@ -432,7 +446,11 @@ ENTRY(chacha_4block_xor_avx512vl)
 
 .Ldone4:
 	vzeroupper
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lxorpart4:
 	# xor remaining bytes from partial register into output
@@ -453,9 +471,15 @@ ENTRY(chacha_4block_xor_avx512vl)
 
 	jmp		.Ldone4
 
+<<<<<<< HEAD
 ENDPROC(chacha_4block_xor_avx512vl)
 
 ENTRY(chacha_8block_xor_avx512vl)
+=======
+SYM_FUNC_END(chacha_4block_xor_avx512vl)
+
+SYM_FUNC_START(chacha_8block_xor_avx512vl)
+>>>>>>> upstream/android-13
 	# %rdi: Input state matrix, s
 	# %rsi: up to 8 data blocks output, o
 	# %rdx: up to 8 data blocks input, i
@@ -812,7 +836,11 @@ ENTRY(chacha_8block_xor_avx512vl)
 
 .Ldone8:
 	vzeroupper
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lxorpart8:
 	# xor remaining bytes from partial register into output
@@ -833,4 +861,8 @@ ENTRY(chacha_8block_xor_avx512vl)
 
 	jmp		.Ldone8
 
+<<<<<<< HEAD
 ENDPROC(chacha_8block_xor_avx512vl)
+=======
+SYM_FUNC_END(chacha_8block_xor_avx512vl)
+>>>>>>> upstream/android-13

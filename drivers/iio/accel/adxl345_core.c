@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADXL345 3-Axis Digital Accelerometer IIO core driver
  *
  * Copyright (c) 2017 Eva Rachel Retuya <eraretuya@gmail.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License. See the file COPYING in the main
  * directory of this archive for more details.
  *
  * Datasheet: http://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
+=======
+ * Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -150,8 +158,13 @@ static int adxl345_read_raw(struct iio_dev *indio_dev,
 }
 
 static int adxl345_write_raw(struct iio_dev *indio_dev,
+<<<<<<< HEAD
 			    struct iio_chan_spec const *chan,
 			    int val, int val2, long mask)
+=======
+			     struct iio_chan_spec const *chan,
+			     int val, int val2, long mask)
+>>>>>>> upstream/android-13
 {
 	struct adxl345_data *data = iio_priv(indio_dev);
 	s64 n;
@@ -211,6 +224,14 @@ static const struct iio_info adxl345_info = {
 	.write_raw_get_fmt	= adxl345_write_raw_get_fmt,
 };
 
+<<<<<<< HEAD
+=======
+static void adxl345_powerdown(void *regmap)
+{
+	regmap_write(regmap, ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_STANDBY);
+}
+
+>>>>>>> upstream/android-13
 int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		       enum adxl345_device_type type, const char *name)
 {
@@ -236,7 +257,10 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		return -ENOMEM;
 
 	data = iio_priv(indio_dev);
+<<<<<<< HEAD
 	dev_set_drvdata(dev, indio_dev);
+=======
+>>>>>>> upstream/android-13
 	data->regmap = regmap;
 	data->type = type;
 	/* Enable full-resolution mode */
@@ -249,7 +273,10 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = name;
 	indio_dev->info = &adxl345_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -264,6 +291,7 @@ int adxl345_core_probe(struct device *dev, struct regmap *regmap,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret < 0) {
 		dev_err(dev, "iio_device_register failed: %d\n", ret);
@@ -287,6 +315,16 @@ int adxl345_core_remove(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(adxl345_core_remove);
 
+=======
+	ret = devm_add_action_or_reset(dev, adxl345_powerdown, data->regmap);
+	if (ret < 0)
+		return ret;
+
+	return devm_iio_device_register(dev, indio_dev);
+}
+EXPORT_SYMBOL_GPL(adxl345_core_probe);
+
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Eva Rachel Retuya <eraretuya@gmail.com>");
 MODULE_DESCRIPTION("ADXL345 3-Axis Digital Accelerometer core driver");
 MODULE_LICENSE("GPL v2");

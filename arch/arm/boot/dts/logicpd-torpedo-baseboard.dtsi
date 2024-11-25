@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 / {
 	gpio_keys {
@@ -69,6 +73,10 @@
 		pinctrl-0 = <&pwm_pins>;
 		ti,timers = <&timer10>;
 		#pwm-cells = <3>;
+<<<<<<< HEAD
+=======
+		ti,clock-source = <0x01>;
+>>>>>>> upstream/android-13
 	};
 
 };
@@ -107,14 +115,29 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&hdqw1w {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdq_pins>;
+};
+
+
+>>>>>>> upstream/android-13
 &vpll2 {
 	regulator-always-on;
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
 	vdds_dsi-supply = <&vpll2>;
 	vdda_video-supply = <&video_reg>;
+=======
+	status = "okay";
+	vdds_dsi-supply = <&vpll2>;
+	vdda_video-supply = <&vpll2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&dss_dpi_pins1>;
 	port {
@@ -130,6 +153,7 @@
 		display0 = &lcd0;
 	};
 
+<<<<<<< HEAD
 	video_reg: video_reg {
 		pinctrl-names = "default";
 		pinctrl-0 = <&panel_pwr_pins>;
@@ -147,11 +171,22 @@
 		/* default-on; */
 		pinctrl-names = "default";
 
+=======
+	lcd0: display {
+		/* This isn't the exact LCD, but the timings meet spec */
+		compatible = "newhaven,nhd-4.3-480272ef-atxl";
+		label = "15";
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_pwr_pins>;
+		backlight = <&bl>;
+		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;
+>>>>>>> upstream/android-13
 		port {
 			lcd_in: endpoint {
 				remote-endpoint = <&dpi_out>;
 			};
 		};
+<<<<<<< HEAD
 
 		panel-timing {
 			clock-frequency = <9000000>;
@@ -168,6 +203,8 @@
 			de-active = <1>;
 			pixelclk-active = <1>;
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	bl: backlight {
@@ -199,6 +236,15 @@
 		>;
 	};
 
+<<<<<<< HEAD
+=======
+	hdq_pins: hdq_pins {
+		pinctrl-single,pins = <
+			OMAP3_CORE1_IOPAD(0x21c6, PIN_INPUT_PULLUP | MUX_MODE0) /* hdq_sio */
+		>;
+	};
+
+>>>>>>> upstream/android-13
 	pwm_pins: pinmux_pwm_pins {
 		pinctrl-single,pins = <
 			OMAP3_CORE1_IOPAD(0x20B8, PIN_OUTPUT | PIN_OFF_OUTPUT_LOW | MUX_MODE3)       /* gpmc_ncs5.gpt_10_pwm_evt */

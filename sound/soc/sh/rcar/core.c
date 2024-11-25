@@ -90,6 +90,7 @@
  *
  */
 
+<<<<<<< HEAD
 /*
  * you can enable below define if you don't need
  * DAI status debug message when debugging
@@ -98,16 +99,29 @@
  * #define RSND_DEBUG_NO_DAI_CALL 1
  */
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include "rsnd.h"
 
 #define RSND_RATES SNDRV_PCM_RATE_8000_192000
+<<<<<<< HEAD
 #define RSND_FMTS (SNDRV_PCM_FMTBIT_S24_LE | SNDRV_PCM_FMTBIT_S16_LE)
+=======
+#define RSND_FMTS (SNDRV_PCM_FMTBIT_S8 |\
+		   SNDRV_PCM_FMTBIT_S16_LE |\
+		   SNDRV_PCM_FMTBIT_S24_LE)
+>>>>>>> upstream/android-13
 
 static const struct of_device_id rsnd_of_match[] = {
 	{ .compatible = "renesas,rcar_sound-gen1", .data = (void *)RSND_GEN1 },
 	{ .compatible = "renesas,rcar_sound-gen2", .data = (void *)RSND_GEN2 },
 	{ .compatible = "renesas,rcar_sound-gen3", .data = (void *)RSND_GEN3 },
+<<<<<<< HEAD
+=======
+	/* Special Handling */
+	{ .compatible = "renesas,rcar_sound-r8a77990", .data = (void *)(RSND_GEN3 | RSND_SOC_E) },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, rsnd_of_match);
@@ -121,8 +135,13 @@ void rsnd_mod_make_sure(struct rsnd_mod *mod, enum rsnd_mod_type type)
 		struct rsnd_priv *priv = rsnd_mod_to_priv(mod);
 		struct device *dev = rsnd_priv_to_dev(priv);
 
+<<<<<<< HEAD
 		dev_warn(dev, "%s[%d] is not your expected module\n",
 			 rsnd_mod_name(mod), rsnd_mod_id(mod));
+=======
+		dev_warn(dev, "%s is not your expected module\n",
+			 rsnd_mod_name(mod));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -135,20 +154,83 @@ struct dma_chan *rsnd_mod_dma_req(struct rsnd_dai_stream *io,
 	return mod->ops->dma_req(io, mod);
 }
 
+<<<<<<< HEAD
 u32 *rsnd_mod_get_status(struct rsnd_dai_stream *io,
 			 struct rsnd_mod *mod,
+=======
+#define MOD_NAME_NUM   5
+#define MOD_NAME_SIZE 16
+char *rsnd_mod_name(struct rsnd_mod *mod)
+{
+	static char names[MOD_NAME_NUM][MOD_NAME_SIZE];
+	static int num;
+	char *name = names[num];
+
+	num++;
+	if (num >= MOD_NAME_NUM)
+		num = 0;
+
+	/*
+	 * Let's use same char to avoid pointlessness memory
+	 * Thus, rsnd_mod_name() should be used immediately
+	 * Don't keep pointer
+	 */
+	if ((mod)->ops->id_sub) {
+		snprintf(name, MOD_NAME_SIZE, "%s[%d%d]",
+			 mod->ops->name,
+			 rsnd_mod_id(mod),
+			 rsnd_mod_id_sub(mod));
+	} else {
+		snprintf(name, MOD_NAME_SIZE, "%s[%d]",
+			 mod->ops->name,
+			 rsnd_mod_id(mod));
+	}
+
+	return name;
+}
+
+u32 *rsnd_mod_get_status(struct rsnd_mod *mod,
+			 struct rsnd_dai_stream *io,
+>>>>>>> upstream/android-13
 			 enum rsnd_mod_type type)
 {
 	return &mod->status;
 }
 
+<<<<<<< HEAD
+=======
+int rsnd_mod_id_raw(struct rsnd_mod *mod)
+{
+	return mod->id;
+}
+
+int rsnd_mod_id(struct rsnd_mod *mod)
+{
+	if ((mod)->ops->id)
+		return (mod)->ops->id(mod);
+
+	return rsnd_mod_id_raw(mod);
+}
+
+int rsnd_mod_id_sub(struct rsnd_mod *mod)
+{
+	if ((mod)->ops->id_sub)
+		return (mod)->ops->id_sub(mod);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int rsnd_mod_init(struct rsnd_priv *priv,
 		  struct rsnd_mod *mod,
 		  struct rsnd_mod_ops *ops,
 		  struct clk *clk,
+<<<<<<< HEAD
 		  u32* (*get_status)(struct rsnd_dai_stream *io,
 				     struct rsnd_mod *mod,
 				     enum rsnd_mod_type type),
+=======
+>>>>>>> upstream/android-13
 		  enum rsnd_mod_type type,
 		  int id)
 {
@@ -162,9 +244,14 @@ int rsnd_mod_init(struct rsnd_priv *priv,
 	mod->type	= type;
 	mod->clk	= clk;
 	mod->priv	= priv;
+<<<<<<< HEAD
 	mod->get_status	= get_status;
 
 	return ret;
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void rsnd_mod_quit(struct rsnd_mod *mod)
@@ -178,12 +265,20 @@ void rsnd_mod_interrupt(struct rsnd_mod *mod,
 					 struct rsnd_dai_stream *io))
 {
 	struct rsnd_priv *priv = rsnd_mod_to_priv(mod);
+<<<<<<< HEAD
 	struct rsnd_dai_stream *io;
+=======
+>>>>>>> upstream/android-13
 	struct rsnd_dai *rdai;
 	int i;
 
 	for_each_rsnd_dai(rdai, priv, i) {
+<<<<<<< HEAD
 		io = &rdai->playback;
+=======
+		struct rsnd_dai_stream *io = &rdai->playback;
+
+>>>>>>> upstream/android-13
 		if (mod == io->mod[mod->type])
 			callback(mod, io);
 
@@ -215,8 +310,14 @@ int rsnd_runtime_channel_original_with_params(struct rsnd_dai_stream *io,
 	 */
 	if (params)
 		return params_channels(params);
+<<<<<<< HEAD
 	else
 		return runtime->channels;
+=======
+	else if (runtime)
+		return runtime->channels;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int rsnd_runtime_channel_after_ctu_with_params(struct rsnd_dai_stream *io,
@@ -226,7 +327,24 @@ int rsnd_runtime_channel_after_ctu_with_params(struct rsnd_dai_stream *io,
 	struct rsnd_mod *ctu_mod = rsnd_io_to_mod_ctu(io);
 
 	if (ctu_mod) {
+<<<<<<< HEAD
 		u32 converted_chan = rsnd_ctu_converted_channel(ctu_mod);
+=======
+		u32 converted_chan = rsnd_io_converted_chan(io);
+
+		/*
+		 * !! Note !!
+		 *
+		 * converted_chan will be used for CTU,
+		 * or TDM Split mode.
+		 * User shouldn't use CTU with TDM Split mode.
+		 */
+		if (rsnd_runtime_is_tdm_split(io)) {
+			struct device *dev = rsnd_priv_to_dev(rsnd_io_to_priv(io));
+
+			dev_err(dev, "CTU and TDM Split should be used\n");
+		}
+>>>>>>> upstream/android-13
 
 		if (converted_chan)
 			return converted_chan;
@@ -235,6 +353,21 @@ int rsnd_runtime_channel_after_ctu_with_params(struct rsnd_dai_stream *io,
 	return chan;
 }
 
+<<<<<<< HEAD
+=======
+int rsnd_channel_normalization(int chan)
+{
+	if (WARN_ON((chan > 8) || (chan < 0)))
+		return 0;
+
+	/* TDM Extend Mode needs 8ch */
+	if (chan == 6)
+		chan = 8;
+
+	return chan;
+}
+
+>>>>>>> upstream/android-13
 int rsnd_runtime_channel_for_ssi_with_params(struct rsnd_dai_stream *io,
 					     struct snd_pcm_hw_params *params)
 {
@@ -244,6 +377,7 @@ int rsnd_runtime_channel_for_ssi_with_params(struct rsnd_dai_stream *io,
 		rsnd_runtime_channel_original_with_params(io, params);
 
 	/* Use Multi SSI */
+<<<<<<< HEAD
 	if (rsnd_runtime_is_ssi_multi(io))
 		chan /= rsnd_rdai_ssi_lane_get(rdai);
 
@@ -255,6 +389,15 @@ int rsnd_runtime_channel_for_ssi_with_params(struct rsnd_dai_stream *io,
 }
 
 int rsnd_runtime_is_ssi_multi(struct rsnd_dai_stream *io)
+=======
+	if (rsnd_runtime_is_multi_ssi(io))
+		chan /= rsnd_rdai_ssi_lane_get(rdai);
+
+	return rsnd_channel_normalization(chan);
+}
+
+int rsnd_runtime_is_multi_ssi(struct rsnd_dai_stream *io)
+>>>>>>> upstream/android-13
 {
 	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
 	int lane = rsnd_rdai_ssi_lane_get(rdai);
@@ -265,11 +408,23 @@ int rsnd_runtime_is_ssi_multi(struct rsnd_dai_stream *io)
 	return (chan > 2) && (lane > 1);
 }
 
+<<<<<<< HEAD
 int rsnd_runtime_is_ssi_tdm(struct rsnd_dai_stream *io)
+=======
+int rsnd_runtime_is_tdm(struct rsnd_dai_stream *io)
+>>>>>>> upstream/android-13
 {
 	return rsnd_runtime_channel_for_ssi(io) >= 6;
 }
 
+<<<<<<< HEAD
+=======
+int rsnd_runtime_is_tdm_split(struct rsnd_dai_stream *io)
+{
+	return !!rsnd_flags_has(io, RSND_STREAM_TDM_SPLIT);
+}
+
+>>>>>>> upstream/android-13
 /*
  *	ADINR function
  */
@@ -280,6 +435,11 @@ u32 rsnd_get_adinr_bit(struct rsnd_mod *mod, struct rsnd_dai_stream *io)
 	struct device *dev = rsnd_priv_to_dev(priv);
 
 	switch (snd_pcm_format_width(runtime->format)) {
+<<<<<<< HEAD
+=======
+	case 8:
+		return 16 << 16;
+>>>>>>> upstream/android-13
 	case 16:
 		return 8 << 16;
 	case 24:
@@ -296,9 +456,21 @@ u32 rsnd_get_adinr_bit(struct rsnd_mod *mod, struct rsnd_dai_stream *io)
  */
 u32 rsnd_get_dalign(struct rsnd_mod *mod, struct rsnd_dai_stream *io)
 {
+<<<<<<< HEAD
 	struct rsnd_mod *ssiu = rsnd_io_to_mod_ssiu(io);
 	struct rsnd_mod *target;
 	struct snd_pcm_runtime *runtime = rsnd_io_to_runtime(io);
+=======
+	static const u32 dalign_values[8] = {
+		0x76543210, 0x00000032, 0x00007654, 0x00000076,
+		0xfedcba98, 0x000000ba, 0x0000fedc, 0x000000fe,
+	};
+	int id = 0;
+	struct rsnd_mod *ssiu = rsnd_io_to_mod_ssiu(io);
+	struct rsnd_mod *target;
+	struct snd_pcm_runtime *runtime = rsnd_io_to_runtime(io);
+	u32 dalign;
+>>>>>>> upstream/android-13
 
 	/*
 	 * *Hardware* L/R and *Software* L/R are inverted for 16bit data.
@@ -331,6 +503,7 @@ u32 rsnd_get_dalign(struct rsnd_mod *mod, struct rsnd_dai_stream *io)
 		target = cmd ? cmd : ssiu;
 	}
 
+<<<<<<< HEAD
 	/* Non target mod or 24bit data needs normal DALIGN */
 	if ((snd_pcm_format_width(runtime->format) != 16) ||
 	    (mod != target))
@@ -338,23 +511,49 @@ u32 rsnd_get_dalign(struct rsnd_mod *mod, struct rsnd_dai_stream *io)
 	/* Target mod needs inverted DALIGN when 16bit */
 	else
 		return 0x67452301;
+=======
+	if (mod == ssiu)
+		id = rsnd_mod_id_sub(mod);
+
+	dalign = dalign_values[id];
+
+	if (mod == target && snd_pcm_format_width(runtime->format) == 16) {
+		/* Target mod needs inverted DALIGN when 16bit */
+		dalign = (dalign & 0xf0f0f0f0) >> 4 |
+			 (dalign & 0x0f0f0f0f) << 4;
+	}
+
+	return dalign;
+>>>>>>> upstream/android-13
 }
 
 u32 rsnd_get_busif_shift(struct rsnd_dai_stream *io, struct rsnd_mod *mod)
 {
+<<<<<<< HEAD
 	enum rsnd_mod_type playback_mods[] = {
+=======
+	static const enum rsnd_mod_type playback_mods[] = {
+>>>>>>> upstream/android-13
 		RSND_MOD_SRC,
 		RSND_MOD_CMD,
 		RSND_MOD_SSIU,
 	};
+<<<<<<< HEAD
 	enum rsnd_mod_type capture_mods[] = {
+=======
+	static const enum rsnd_mod_type capture_mods[] = {
+>>>>>>> upstream/android-13
 		RSND_MOD_CMD,
 		RSND_MOD_SRC,
 		RSND_MOD_SSIU,
 	};
 	struct snd_pcm_runtime *runtime = rsnd_io_to_runtime(io);
 	struct rsnd_mod *tmod = NULL;
+<<<<<<< HEAD
 	enum rsnd_mod_type *mods =
+=======
+	const enum rsnd_mod_type *mods =
+>>>>>>> upstream/android-13
 		rsnd_io_is_play(io) ?
 		playback_mods : capture_mods;
 	int i;
@@ -367,7 +566,11 @@ u32 rsnd_get_busif_shift(struct rsnd_dai_stream *io, struct rsnd_mod *mod)
 	 * HW    24bit data is located as 0x******00
 	 *
 	 */
+<<<<<<< HEAD
 	if (snd_pcm_format_width(runtime->format) == 16)
+=======
+	if (snd_pcm_format_width(runtime->format) != 24)
+>>>>>>> upstream/android-13
 		return 0;
 
 	for (i = 0; i < ARRAY_SIZE(playback_mods); i++) {
@@ -395,6 +598,7 @@ struct rsnd_mod *rsnd_mod_next(int *iterator,
 			       enum rsnd_mod_type *array,
 			       int array_size)
 {
+<<<<<<< HEAD
 	struct rsnd_mod *mod;
 	enum rsnd_mod_type type;
 	int max = array ? array_size : RSND_MOD_MAX;
@@ -402,6 +606,14 @@ struct rsnd_mod *rsnd_mod_next(int *iterator,
 	for (; *iterator < max; (*iterator)++) {
 		type = (array) ? array[*iterator] : *iterator;
 		mod = rsnd_io_to_mod(io, type);
+=======
+	int max = array ? array_size : RSND_MOD_MAX;
+
+	for (; *iterator < max; (*iterator)++) {
+		enum rsnd_mod_type type = (array) ? array[*iterator] : *iterator;
+		struct rsnd_mod *mod = rsnd_io_to_mod(io, type);
+
+>>>>>>> upstream/android-13
 		if (mod)
 			return mod;
 	}
@@ -443,16 +655,33 @@ static enum rsnd_mod_type rsnd_mod_sequence[][RSND_MOD_MAX] = {
 	},
 };
 
+<<<<<<< HEAD
 static int rsnd_status_update(u32 *status,
 			      int shift, int add, int timing)
 {
+=======
+static int rsnd_status_update(struct rsnd_dai_stream *io,
+			      struct rsnd_mod *mod, enum rsnd_mod_type type,
+			      int shift, int add, int timing)
+{
+	u32 *status	= mod->ops->get_status(mod, io, type);
+>>>>>>> upstream/android-13
 	u32 mask	= 0xF << shift;
 	u8 val		= (*status >> shift) & 0xF;
 	u8 next_val	= (val + add) & 0xF;
 	int func_call	= (val == timing);
 
+<<<<<<< HEAD
 	if (next_val == 0xF) /* underflow case */
 		func_call = 0;
+=======
+	/* no status update */
+	if (add == 0 || shift == 28)
+		return 1;
+
+	if (next_val == 0xF) /* underflow case */
+		func_call = -1;
+>>>>>>> upstream/android-13
 	else
 		*status = (*status & ~mask) + (next_val << shift);
 
@@ -468,6 +697,7 @@ static int rsnd_status_update(u32 *status,
 	enum rsnd_mod_type *types = rsnd_mod_sequence[is_play];		\
 	for_each_rsnd_mod_arrays(i, mod, io, types, RSND_MOD_MAX) {	\
 		int tmp = 0;						\
+<<<<<<< HEAD
 		u32 *status = mod->get_status(io, mod, types[i]);	\
 		int func_call = rsnd_status_update(status,		\
 						__rsnd_mod_shift_##fn,	\
@@ -482,6 +712,18 @@ static int rsnd_status_update(u32 *status,
 			dev_err(dev, "%s[%d] : %s error %d\n",		\
 				rsnd_mod_name(mod), rsnd_mod_id(mod),	\
 						     #fn, tmp);		\
+=======
+		int func_call = rsnd_status_update(io, mod, types[i],	\
+						__rsnd_mod_shift_##fn,	\
+						__rsnd_mod_add_##fn,	\
+						__rsnd_mod_call_##fn);	\
+		if (func_call > 0 && (mod)->ops->fn)			\
+			tmp = (mod)->ops->fn(mod, io, param);		\
+		if (unlikely(func_call < 0) ||				\
+		    unlikely(tmp && (tmp != -EPROBE_DEFER)))		\
+			dev_err(dev, "%s : %s error (%d, %d)\n",	\
+				rsnd_mod_name(mod), #fn, tmp, func_call);\
+>>>>>>> upstream/android-13
 		ret |= tmp;						\
 	}								\
 	ret;								\
@@ -508,8 +750,13 @@ int rsnd_dai_connect(struct rsnd_mod *mod,
 
 	io->mod[type] = mod;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "%s[%d] is connected to io (%s)\n",
 		rsnd_mod_name(mod), rsnd_mod_id(mod),
+=======
+	dev_dbg(dev, "%s is connected to io (%s)\n",
+		rsnd_mod_name(mod),
+>>>>>>> upstream/android-13
 		rsnd_io_is_play(io) ? "Playback" : "Capture");
 
 	return 0;
@@ -540,6 +787,17 @@ int rsnd_rdai_ssi_lane_ctrl(struct rsnd_dai *rdai,
 	return rdai->ssi_lane;
 }
 
+<<<<<<< HEAD
+=======
+int rsnd_rdai_width_ctrl(struct rsnd_dai *rdai, int width)
+{
+	if (width > 0)
+		rdai->chan_width = width;
+
+	return rdai->chan_width;
+}
+
+>>>>>>> upstream/android-13
 struct rsnd_dai *rsnd_rdai_get(struct rsnd_priv *priv, int id)
 {
 	if ((id < 0) || (id >= rsnd_rdai_nr(priv)))
@@ -596,9 +854,15 @@ static void rsnd_dai_stream_quit(struct rsnd_dai_stream *io)
 static
 struct snd_soc_dai *rsnd_substream_to_dai(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 
 	return  rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+
+	return  asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 }
 
 static
@@ -661,6 +925,7 @@ static int rsnd_soc_dai_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 {
 	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
 
+<<<<<<< HEAD
 	/* set master/slave audio interface */
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBM_CFM:
@@ -668,6 +933,15 @@ static int rsnd_soc_dai_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 		break;
 	case SND_SOC_DAIFMT_CBS_CFS:
 		rdai->clk_master = 1; /* codec is slave, cpu is master */
+=======
+	/* set clock master for audio interface */
+	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+	case SND_SOC_DAIFMT_CBP_CFP:
+		rdai->clk_master = 0;
+		break;
+	case SND_SOC_DAIFMT_CBC_CFC:
+		rdai->clk_master = 1; /* cpu is master */
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -682,6 +956,10 @@ static int rsnd_soc_dai_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 		rdai->frm_clk_inv = 0;
 		break;
 	case SND_SOC_DAIFMT_LEFT_J:
+<<<<<<< HEAD
+=======
+	case SND_SOC_DAIFMT_DSP_B:
+>>>>>>> upstream/android-13
 		rdai->sys_delay = 1;
 		rdai->data_alignment = 0;
 		rdai->frm_clk_inv = 1;
@@ -691,6 +969,14 @@ static int rsnd_soc_dai_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 		rdai->data_alignment = 1;
 		rdai->frm_clk_inv = 1;
 		break;
+<<<<<<< HEAD
+=======
+	case SND_SOC_DAIFMT_DSP_A:
+		rdai->sys_delay = 0;
+		rdai->data_alignment = 0;
+		rdai->frm_clk_inv = 1;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	/* set clock inversion */
@@ -721,13 +1007,33 @@ static int rsnd_soc_set_dai_tdm_slot(struct snd_soc_dai *dai,
 	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
 	struct device *dev = rsnd_priv_to_dev(priv);
 
+<<<<<<< HEAD
 	switch (slots) {
 	case 2:
+=======
+	switch (slot_width) {
+	case 16:
+	case 24:
+	case 32:
+		break;
+	default:
+		/* use default */
+		slot_width = 32;
+	}
+
+	switch (slots) {
+	case 2:
+		/* TDM Split Mode */
+>>>>>>> upstream/android-13
 	case 6:
 	case 8:
 		/* TDM Extend Mode */
 		rsnd_rdai_channels_set(rdai, slots);
 		rsnd_rdai_ssi_lane_set(rdai, 1);
+<<<<<<< HEAD
+=======
+		rsnd_rdai_width_set(rdai, slot_width);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_err(dev, "unsupported TDM slots (%d)\n", slots);
@@ -756,7 +1062,11 @@ static unsigned int rsnd_soc_hw_rate_list[] = {
 	192000,
 };
 
+<<<<<<< HEAD
 static int rsnd_soc_hw_rule(struct rsnd_priv *priv,
+=======
+static int rsnd_soc_hw_rule(struct rsnd_dai *rdai,
+>>>>>>> upstream/android-13
 			    unsigned int *list, int list_num,
 			    struct snd_interval *baseline, struct snd_interval *iv)
 {
@@ -773,14 +1083,22 @@ static int rsnd_soc_hw_rule(struct rsnd_priv *priv,
 		if (!snd_interval_test(iv, list[i]))
 			continue;
 
+<<<<<<< HEAD
 		rate = rsnd_ssi_clk_query(priv,
+=======
+		rate = rsnd_ssi_clk_query(rdai,
+>>>>>>> upstream/android-13
 					  baseline->min, list[i], NULL);
 		if (rate > 0) {
 			p.min = min(p.min, list[i]);
 			p.max = max(p.max, list[i]);
 		}
 
+<<<<<<< HEAD
 		rate = rsnd_ssi_clk_query(priv,
+=======
+		rate = rsnd_ssi_clk_query(rdai,
+>>>>>>> upstream/android-13
 					  baseline->max, list[i], NULL);
 		if (rate > 0) {
 			p.min = min(p.min, list[i]);
@@ -791,17 +1109,27 @@ static int rsnd_soc_hw_rule(struct rsnd_priv *priv,
 	return snd_interval_refine(iv, &p);
 }
 
+<<<<<<< HEAD
 static int __rsnd_soc_hw_rule_rate(struct snd_pcm_hw_params *params,
 				   struct snd_pcm_hw_rule *rule,
 				   int is_play)
+=======
+static int rsnd_soc_hw_rule_rate(struct snd_pcm_hw_params *params,
+				 struct snd_pcm_hw_rule *rule)
+>>>>>>> upstream/android-13
 {
 	struct snd_interval *ic_ = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
 	struct snd_interval *ir = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
 	struct snd_interval ic;
+<<<<<<< HEAD
 	struct snd_soc_dai *dai = rule->private;
 	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
 	struct rsnd_dai_stream *io = is_play ? &rdai->playback : &rdai->capture;
+=======
+	struct rsnd_dai_stream *io = rule->private;
+	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
+>>>>>>> upstream/android-13
 
 	/*
 	 * possible sampling rate limitation is same as
@@ -812,11 +1140,16 @@ static int __rsnd_soc_hw_rule_rate(struct snd_pcm_hw_params *params,
 	ic.min =
 	ic.max = rsnd_runtime_channel_for_ssi_with_params(io, params);
 
+<<<<<<< HEAD
 	return rsnd_soc_hw_rule(priv, rsnd_soc_hw_rate_list,
+=======
+	return rsnd_soc_hw_rule(rdai, rsnd_soc_hw_rate_list,
+>>>>>>> upstream/android-13
 				ARRAY_SIZE(rsnd_soc_hw_rate_list),
 				&ic, ir);
 }
 
+<<<<<<< HEAD
 static int rsnd_soc_hw_rule_rate_playback(struct snd_pcm_hw_params *params,
 				 struct snd_pcm_hw_rule *rule)
 {
@@ -832,14 +1165,23 @@ static int rsnd_soc_hw_rule_rate_capture(struct snd_pcm_hw_params *params,
 static int __rsnd_soc_hw_rule_channels(struct snd_pcm_hw_params *params,
 				       struct snd_pcm_hw_rule *rule,
 				       int is_play)
+=======
+static int rsnd_soc_hw_rule_channels(struct snd_pcm_hw_params *params,
+				     struct snd_pcm_hw_rule *rule)
+>>>>>>> upstream/android-13
 {
 	struct snd_interval *ic_ = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
 	struct snd_interval *ir = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
 	struct snd_interval ic;
+<<<<<<< HEAD
 	struct snd_soc_dai *dai = rule->private;
 	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
 	struct rsnd_dai_stream *io = is_play ? &rdai->playback : &rdai->capture;
+=======
+	struct rsnd_dai_stream *io = rule->private;
+	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
+>>>>>>> upstream/android-13
 
 	/*
 	 * possible sampling rate limitation is same as
@@ -850,11 +1192,16 @@ static int __rsnd_soc_hw_rule_channels(struct snd_pcm_hw_params *params,
 	ic.min =
 	ic.max = rsnd_runtime_channel_for_ssi_with_params(io, params);
 
+<<<<<<< HEAD
 	return rsnd_soc_hw_rule(priv, rsnd_soc_hw_channels_list,
+=======
+	return rsnd_soc_hw_rule(rdai, rsnd_soc_hw_channels_list,
+>>>>>>> upstream/android-13
 				ARRAY_SIZE(rsnd_soc_hw_channels_list),
 				ir, &ic);
 }
 
+<<<<<<< HEAD
 static int rsnd_soc_hw_rule_channels_playback(struct snd_pcm_hw_params *params,
 					      struct snd_pcm_hw_rule *rule)
 {
@@ -867,6 +1214,8 @@ static int rsnd_soc_hw_rule_channels_capture(struct snd_pcm_hw_params *params,
 	return __rsnd_soc_hw_rule_channels(params, rule, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct snd_pcm_hardware rsnd_pcm_hardware = {
 	.info =		SNDRV_PCM_INFO_INTERLEAVED	|
 			SNDRV_PCM_INFO_MMAP		|
@@ -883,12 +1232,18 @@ static int rsnd_soc_dai_startup(struct snd_pcm_substream *substream,
 				struct snd_soc_dai *dai)
 {
 	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
+<<<<<<< HEAD
 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
+=======
+>>>>>>> upstream/android-13
 	struct rsnd_dai_stream *io = rsnd_rdai_to_io(rdai, substream);
 	struct snd_pcm_hw_constraint_list *constraint = &rdai->constraint;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	unsigned int max_channels = rsnd_rdai_channels_get(rdai);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	rsnd_dai_stream_init(io, substream);
@@ -923,6 +1278,7 @@ static int rsnd_soc_dai_startup(struct snd_pcm_substream *substream,
 		int is_play = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
 
 		snd_pcm_hw_rule_add(runtime, 0, SNDRV_PCM_HW_PARAM_RATE,
+<<<<<<< HEAD
 				    is_play ? rsnd_soc_hw_rule_rate_playback :
 					      rsnd_soc_hw_rule_rate_capture,
 				    dai,
@@ -942,6 +1298,18 @@ static int rsnd_soc_dai_startup(struct snd_pcm_substream *substream,
 		rsnd_dai_call(nolock_stop, io, priv);
 
 	return ret;
+=======
+				    rsnd_soc_hw_rule_rate,
+				    is_play ? &rdai->playback : &rdai->capture,
+				    SNDRV_PCM_HW_PARAM_CHANNELS, -1);
+		snd_pcm_hw_rule_add(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
+				    rsnd_soc_hw_rule_channels,
+				    is_play ? &rdai->playback : &rdai->capture,
+				    SNDRV_PCM_HW_PARAM_RATE, -1);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void rsnd_soc_dai_shutdown(struct snd_pcm_substream *substream,
@@ -954,7 +1322,11 @@ static void rsnd_soc_dai_shutdown(struct snd_pcm_substream *substream,
 	/*
 	 * call rsnd_dai_call without spinlock
 	 */
+<<<<<<< HEAD
 	rsnd_dai_call(nolock_stop, io, priv);
+=======
+	rsnd_dai_call(cleanup, io, priv);
+>>>>>>> upstream/android-13
 
 	rsnd_dai_stream_quit(io);
 }
@@ -969,6 +1341,34 @@ static int rsnd_soc_dai_prepare(struct snd_pcm_substream *substream,
 	return rsnd_dai_call(prepare, io, priv);
 }
 
+<<<<<<< HEAD
+=======
+static u64 rsnd_soc_dai_formats[] = {
+	/*
+	 * 1st Priority
+	 *
+	 * Well tested formats.
+	 * Select below from Sound Card, not auto
+	 *	SND_SOC_DAIFMT_CBC_CFC
+	 *	SND_SOC_DAIFMT_CBP_CFP
+	 */
+	SND_SOC_POSSIBLE_DAIFMT_I2S	|
+	SND_SOC_POSSIBLE_DAIFMT_RIGHT_J	|
+	SND_SOC_POSSIBLE_DAIFMT_LEFT_J	|
+	SND_SOC_POSSIBLE_DAIFMT_NB_NF	|
+	SND_SOC_POSSIBLE_DAIFMT_NB_IF	|
+	SND_SOC_POSSIBLE_DAIFMT_IB_NF	|
+	SND_SOC_POSSIBLE_DAIFMT_IB_IF,
+	/*
+	 * 2nd Priority
+	 *
+	 * Supported, but not well tested
+	 */
+	SND_SOC_POSSIBLE_DAIFMT_DSP_A	|
+	SND_SOC_POSSIBLE_DAIFMT_DSP_B,
+};
+
+>>>>>>> upstream/android-13
 static const struct snd_soc_dai_ops rsnd_soc_dai_ops = {
 	.startup	= rsnd_soc_dai_startup,
 	.shutdown	= rsnd_soc_dai_shutdown,
@@ -976,9 +1376,94 @@ static const struct snd_soc_dai_ops rsnd_soc_dai_ops = {
 	.set_fmt	= rsnd_soc_dai_set_fmt,
 	.set_tdm_slot	= rsnd_soc_set_dai_tdm_slot,
 	.prepare	= rsnd_soc_dai_prepare,
+<<<<<<< HEAD
 };
 
 void rsnd_parse_connect_common(struct rsnd_dai *rdai,
+=======
+	.auto_selectable_formats	= rsnd_soc_dai_formats,
+	.num_auto_selectable_formats	= ARRAY_SIZE(rsnd_soc_dai_formats),
+};
+
+static void rsnd_parse_tdm_split_mode(struct rsnd_priv *priv,
+				      struct rsnd_dai_stream *io,
+				      struct device_node *dai_np)
+{
+	struct device *dev = rsnd_priv_to_dev(priv);
+	struct device_node *ssiu_np = rsnd_ssiu_of_node(priv);
+	struct device_node *np;
+	int is_play = rsnd_io_is_play(io);
+	int i;
+
+	if (!ssiu_np)
+		return;
+
+	/*
+	 * This driver assumes that it is TDM Split mode
+	 * if it includes ssiu node
+	 */
+	for (i = 0;; i++) {
+		struct device_node *node = is_play ?
+			of_parse_phandle(dai_np, "playback", i) :
+			of_parse_phandle(dai_np, "capture",  i);
+
+		if (!node)
+			break;
+
+		for_each_child_of_node(ssiu_np, np) {
+			if (np == node) {
+				rsnd_flags_set(io, RSND_STREAM_TDM_SPLIT);
+				dev_dbg(dev, "%s is part of TDM Split\n", io->name);
+			}
+		}
+
+		of_node_put(node);
+	}
+
+	of_node_put(ssiu_np);
+}
+
+static void rsnd_parse_connect_simple(struct rsnd_priv *priv,
+				      struct rsnd_dai_stream *io,
+				      struct device_node *dai_np)
+{
+	if (!rsnd_io_to_mod_ssi(io))
+		return;
+
+	rsnd_parse_tdm_split_mode(priv, io, dai_np);
+}
+
+static void rsnd_parse_connect_graph(struct rsnd_priv *priv,
+				     struct rsnd_dai_stream *io,
+				     struct device_node *endpoint)
+{
+	struct device *dev = rsnd_priv_to_dev(priv);
+	struct device_node *remote_node;
+
+	if (!rsnd_io_to_mod_ssi(io))
+		return;
+
+	remote_node = of_graph_get_remote_port_parent(endpoint);
+
+	/* HDMI0 */
+	if (strstr(remote_node->full_name, "hdmi@fead0000")) {
+		rsnd_flags_set(io, RSND_STREAM_HDMI0);
+		dev_dbg(dev, "%s connected to HDMI0\n", io->name);
+	}
+
+	/* HDMI1 */
+	if (strstr(remote_node->full_name, "hdmi@feae0000")) {
+		rsnd_flags_set(io, RSND_STREAM_HDMI1);
+		dev_dbg(dev, "%s connected to HDMI1\n", io->name);
+	}
+
+	rsnd_parse_tdm_split_mode(priv, io, endpoint);
+
+	of_node_put(remote_node);
+}
+
+void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
+>>>>>>> upstream/android-13
 		struct rsnd_mod* (*mod_get)(struct rsnd_priv *priv, int id),
 		struct device_node *node,
 		struct device_node *playback,
@@ -986,7 +1471,10 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai,
 {
 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
 	struct device_node *np;
+<<<<<<< HEAD
 	struct rsnd_mod *mod;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!node)
@@ -994,7 +1482,16 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai,
 
 	i = 0;
 	for_each_child_of_node(node, np) {
+<<<<<<< HEAD
 		mod = mod_get(priv, i);
+=======
+		struct rsnd_mod *mod;
+
+		i = rsnd_node_fixed_index(np, name, i);
+
+		mod = mod_get(priv, i);
+
+>>>>>>> upstream/android-13
 		if (np == playback)
 			rsnd_dai_connect(mod, &rdai->playback, mod->type);
 		if (np == capture)
@@ -1005,6 +1502,60 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai,
 	of_node_put(node);
 }
 
+<<<<<<< HEAD
+=======
+int rsnd_node_fixed_index(struct device_node *node, char *name, int idx)
+{
+	char node_name[16];
+
+	/*
+	 * rsnd is assuming each device nodes are sequential numbering,
+	 * but some of them are not.
+	 * This function adjusts index for it.
+	 *
+	 * ex)
+	 * Normal case,		special case
+	 *	ssi-0
+	 *	ssi-1
+	 *	ssi-2
+	 *	ssi-3		ssi-3
+	 *	ssi-4		ssi-4
+	 *	...
+	 *
+	 * assume Max 64 node
+	 */
+	for (; idx < 64; idx++) {
+		snprintf(node_name, sizeof(node_name), "%s-%d", name, idx);
+
+		if (strncmp(node_name, of_node_full_name(node), sizeof(node_name)) == 0)
+			return idx;
+	}
+
+	return -EINVAL;
+}
+
+int rsnd_node_count(struct rsnd_priv *priv, struct device_node *node, char *name)
+{
+	struct device *dev = rsnd_priv_to_dev(priv);
+	struct device_node *np;
+	int i;
+
+	i = 0;
+	for_each_child_of_node(node, np) {
+		i = rsnd_node_fixed_index(np, name, i);
+		if (i < 0) {
+			dev_err(dev, "strange node numbering (%s)",
+				of_node_full_name(node));
+			of_node_put(np);
+			return 0;
+		}
+		i++;
+	}
+
+	return i;
+}
+
+>>>>>>> upstream/android-13
 static struct device_node *rsnd_dai_of_node(struct rsnd_priv *priv,
 					    int *is_graph)
 {
@@ -1041,11 +1592,76 @@ of_node_compatible:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+
+#define PREALLOC_BUFFER		(32 * 1024)
+#define PREALLOC_BUFFER_MAX	(32 * 1024)
+
+static int rsnd_preallocate_pages(struct snd_soc_pcm_runtime *rtd,
+				  struct rsnd_dai_stream *io,
+				  int stream)
+{
+	struct rsnd_priv *priv = rsnd_io_to_priv(io);
+	struct device *dev = rsnd_priv_to_dev(priv);
+	struct snd_pcm_substream *substream;
+
+	/*
+	 * use Audio-DMAC dev if we can use IPMMU
+	 * see
+	 *	rsnd_dmaen_attach()
+	 */
+	if (io->dmac_dev)
+		dev = io->dmac_dev;
+
+	for (substream = rtd->pcm->streams[stream].substream;
+	     substream;
+	     substream = substream->next) {
+		snd_pcm_set_managed_buffer(substream,
+					   SNDRV_DMA_TYPE_DEV,
+					   dev,
+					   PREALLOC_BUFFER, PREALLOC_BUFFER_MAX);
+	}
+
+	return 0;
+}
+
+static int rsnd_pcm_new(struct snd_soc_pcm_runtime *rtd,
+			struct snd_soc_dai *dai)
+{
+	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
+	int ret;
+
+	ret = rsnd_dai_call(pcm_new, &rdai->playback, rtd);
+	if (ret)
+		return ret;
+
+	ret = rsnd_dai_call(pcm_new, &rdai->capture, rtd);
+	if (ret)
+		return ret;
+
+	ret = rsnd_preallocate_pages(rtd, &rdai->playback,
+				     SNDRV_PCM_STREAM_PLAYBACK);
+	if (ret)
+		return ret;
+
+	ret = rsnd_preallocate_pages(rtd, &rdai->capture,
+				     SNDRV_PCM_STREAM_CAPTURE);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void __rsnd_dai_probe(struct rsnd_priv *priv,
 			     struct device_node *dai_np,
 			     int dai_i)
 {
+<<<<<<< HEAD
 	struct device_node *playback, *capture;
+=======
+>>>>>>> upstream/android-13
 	struct rsnd_dai_stream *io_playback;
 	struct rsnd_dai_stream *io_capture;
 	struct snd_soc_dai_driver *drv;
@@ -1063,21 +1679,34 @@ static void __rsnd_dai_probe(struct rsnd_priv *priv,
 	rdai->priv	= priv;
 	drv->name	= rdai->name;
 	drv->ops	= &rsnd_soc_dai_ops;
+<<<<<<< HEAD
 
 	snprintf(rdai->playback.name, RSND_DAI_NAME_SIZE,
+=======
+	drv->pcm_new	= rsnd_pcm_new;
+
+	snprintf(io_playback->name, RSND_DAI_NAME_SIZE,
+>>>>>>> upstream/android-13
 		 "DAI%d Playback", dai_i);
 	drv->playback.rates		= RSND_RATES;
 	drv->playback.formats		= RSND_FMTS;
 	drv->playback.channels_min	= 2;
 	drv->playback.channels_max	= 8;
+<<<<<<< HEAD
 	drv->playback.stream_name	= rdai->playback.name;
 
 	snprintf(rdai->capture.name, RSND_DAI_NAME_SIZE,
+=======
+	drv->playback.stream_name	= io_playback->name;
+
+	snprintf(io_capture->name, RSND_DAI_NAME_SIZE,
+>>>>>>> upstream/android-13
 		 "DAI%d Capture", dai_i);
 	drv->capture.rates		= RSND_RATES;
 	drv->capture.formats		= RSND_FMTS;
 	drv->capture.channels_min	= 2;
 	drv->capture.channels_max	= 8;
+<<<<<<< HEAD
 	drv->capture.stream_name	= rdai->capture.name;
 
 	rdai->playback.rdai		= rdai;
@@ -1088,11 +1717,28 @@ static void __rsnd_dai_probe(struct rsnd_priv *priv,
 	for (io_i = 0;; io_i++) {
 		playback = of_parse_phandle(dai_np, "playback", io_i);
 		capture  = of_parse_phandle(dai_np, "capture", io_i);
+=======
+	drv->capture.stream_name	= io_capture->name;
+
+	io_playback->rdai		= rdai;
+	io_capture->rdai		= rdai;
+	rsnd_rdai_channels_set(rdai, 2); /* default 2ch */
+	rsnd_rdai_ssi_lane_set(rdai, 1); /* default 1lane */
+	rsnd_rdai_width_set(rdai, 32);   /* default 32bit width */
+
+	for (io_i = 0;; io_i++) {
+		struct device_node *playback = of_parse_phandle(dai_np, "playback", io_i);
+		struct device_node *capture  = of_parse_phandle(dai_np, "capture", io_i);
+>>>>>>> upstream/android-13
 
 		if (!playback && !capture)
 			break;
 
 		rsnd_parse_connect_ssi(rdai, playback, capture);
+<<<<<<< HEAD
+=======
+		rsnd_parse_connect_ssiu(rdai, playback, capture);
+>>>>>>> upstream/android-13
 		rsnd_parse_connect_src(rdai, playback, capture);
 		rsnd_parse_connect_ctu(rdai, playback, capture);
 		rsnd_parse_connect_mix(rdai, playback, capture);
@@ -1104,8 +1750,13 @@ static void __rsnd_dai_probe(struct rsnd_priv *priv,
 
 	if (rsnd_ssi_is_pin_sharing(io_capture) ||
 	    rsnd_ssi_is_pin_sharing(io_playback)) {
+<<<<<<< HEAD
 		/* should have symmetric_rates if pin sharing */
 		drv->symmetric_rates = 1;
+=======
+		/* should have symmetric_rate if pin sharing */
+		drv->symmetric_rate = 1;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(dev, "%s (%s/%s)\n", rdai->name,
@@ -1149,12 +1800,34 @@ static int rsnd_dai_probe(struct rsnd_priv *priv)
 	if (is_graph) {
 		for_each_endpoint_of_node(dai_node, dai_np) {
 			__rsnd_dai_probe(priv, dai_np, dai_i);
+<<<<<<< HEAD
 			rsnd_ssi_parse_hdmi_connection(priv, dai_np, dai_i);
 			dai_i++;
 		}
 	} else {
 		for_each_child_of_node(dai_node, dai_np)
 			__rsnd_dai_probe(priv, dai_np, dai_i++);
+=======
+			if (rsnd_is_gen3(priv)) {
+				rdai = rsnd_rdai_get(priv, dai_i);
+
+				rsnd_parse_connect_graph(priv, &rdai->playback, dai_np);
+				rsnd_parse_connect_graph(priv, &rdai->capture,  dai_np);
+			}
+			dai_i++;
+		}
+	} else {
+		for_each_child_of_node(dai_node, dai_np) {
+			__rsnd_dai_probe(priv, dai_np, dai_i);
+			if (rsnd_is_gen3(priv)) {
+				rdai = rsnd_rdai_get(priv, dai_i);
+
+				rsnd_parse_connect_simple(priv, &rdai->playback, dai_np);
+				rsnd_parse_connect_simple(priv, &rdai->capture,  dai_np);
+			}
+			dai_i++;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1163,12 +1836,18 @@ static int rsnd_dai_probe(struct rsnd_priv *priv)
 /*
  *		pcm ops
  */
+<<<<<<< HEAD
 static int rsnd_hw_params(struct snd_pcm_substream *substream,
 			 struct snd_pcm_hw_params *hw_params)
+=======
+static int rsnd_hw_update(struct snd_pcm_substream *substream,
+			  struct snd_pcm_hw_params *hw_params)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_dai *dai = rsnd_substream_to_dai(substream);
 	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
 	struct rsnd_dai_stream *io = rsnd_rdai_to_io(rdai, substream);
+<<<<<<< HEAD
 	int ret;
 
 	ret = rsnd_dai_call(hw_params, io, substream, hw_params);
@@ -1180,6 +1859,140 @@ static int rsnd_hw_params(struct snd_pcm_substream *substream,
 }
 
 static snd_pcm_uframes_t rsnd_pointer(struct snd_pcm_substream *substream)
+=======
+	struct rsnd_priv *priv = rsnd_io_to_priv(io);
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&priv->lock, flags);
+	if (hw_params)
+		ret = rsnd_dai_call(hw_params, io, substream, hw_params);
+	else
+		ret = rsnd_dai_call(hw_free, io, substream);
+	spin_unlock_irqrestore(&priv->lock, flags);
+
+	return ret;
+}
+
+static int rsnd_hw_params(struct snd_soc_component *component,
+			  struct snd_pcm_substream *substream,
+			  struct snd_pcm_hw_params *hw_params)
+{
+	struct snd_soc_dai *dai = rsnd_substream_to_dai(substream);
+	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
+	struct rsnd_dai_stream *io = rsnd_rdai_to_io(rdai, substream);
+	struct snd_soc_pcm_runtime *fe = asoc_substream_to_rtd(substream);
+
+	/*
+	 * rsnd assumes that it might be used under DPCM if user want to use
+	 * channel / rate convert. Then, rsnd should be FE.
+	 * And then, this function will be called *after* BE settings.
+	 * this means, each BE already has fixuped hw_params.
+	 * see
+	 *	dpcm_fe_dai_hw_params()
+	 *	dpcm_be_dai_hw_params()
+	 */
+	io->converted_rate = 0;
+	io->converted_chan = 0;
+	if (fe->dai_link->dynamic) {
+		struct rsnd_priv *priv = rsnd_io_to_priv(io);
+		struct device *dev = rsnd_priv_to_dev(priv);
+		struct snd_soc_dpcm *dpcm;
+		int stream = substream->stream;
+
+		for_each_dpcm_be(fe, stream, dpcm) {
+			struct snd_pcm_hw_params *be_params = &dpcm->hw_params;
+
+			if (params_channels(hw_params) != params_channels(be_params))
+				io->converted_chan = params_channels(be_params);
+			if (params_rate(hw_params) != params_rate(be_params))
+				io->converted_rate = params_rate(be_params);
+		}
+		if (io->converted_chan)
+			dev_dbg(dev, "convert channels = %d\n", io->converted_chan);
+		if (io->converted_rate) {
+			/*
+			 * SRC supports convert rates from params_rate(hw_params)/k_down
+			 * to params_rate(hw_params)*k_up, where k_up is always 6, and
+			 * k_down depends on number of channels and SRC unit.
+			 * So all SRC units can upsample audio up to 6 times regardless
+			 * its number of channels. And all SRC units can downsample
+			 * 2 channel audio up to 6 times too.
+			 */
+			int k_up = 6;
+			int k_down = 6;
+			int channel;
+			struct rsnd_mod *src_mod = rsnd_io_to_mod_src(io);
+
+			dev_dbg(dev, "convert rate     = %d\n", io->converted_rate);
+
+			channel = io->converted_chan ? io->converted_chan :
+				  params_channels(hw_params);
+
+			switch (rsnd_mod_id(src_mod)) {
+			/*
+			 * SRC0 can downsample 4, 6 and 8 channel audio up to 4 times.
+			 * SRC1, SRC3 and SRC4 can downsample 4 channel audio
+			 * up to 4 times.
+			 * SRC1, SRC3 and SRC4 can downsample 6 and 8 channel audio
+			 * no more than twice.
+			 */
+			case 1:
+			case 3:
+			case 4:
+				if (channel > 4) {
+					k_down = 2;
+					break;
+				}
+				fallthrough;
+			case 0:
+				if (channel > 2)
+					k_down = 4;
+				break;
+
+			/* Other SRC units do not support more than 2 channels */
+			default:
+				if (channel > 2)
+					return -EINVAL;
+			}
+
+			if (params_rate(hw_params) > io->converted_rate * k_down) {
+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->min =
+					io->converted_rate * k_down;
+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->max =
+					io->converted_rate * k_down;
+				hw_params->cmask |= SNDRV_PCM_HW_PARAM_RATE;
+			} else if (params_rate(hw_params) * k_up < io->converted_rate) {
+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->min =
+					(io->converted_rate + k_up - 1) / k_up;
+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->max =
+					(io->converted_rate + k_up - 1) / k_up;
+				hw_params->cmask |= SNDRV_PCM_HW_PARAM_RATE;
+			}
+
+			/*
+			 * TBD: Max SRC input and output rates also depend on number
+			 * of channels and SRC unit:
+			 * SRC1, SRC3 and SRC4 do not support more than 128kHz
+			 * for 6 channel and 96kHz for 8 channel audio.
+			 * Perhaps this function should return EINVAL if the input or
+			 * the output rate exceeds the limitation.
+			 */
+		}
+	}
+
+	return rsnd_hw_update(substream, hw_params);
+}
+
+static int rsnd_hw_free(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream)
+{
+	return rsnd_hw_update(substream, NULL);
+}
+
+static snd_pcm_uframes_t rsnd_pointer(struct snd_soc_component *component,
+				      struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_dai *dai = rsnd_substream_to_dai(substream);
 	struct rsnd_dai *rdai = rsnd_dai_to_rdai(dai);
@@ -1191,6 +2004,7 @@ static snd_pcm_uframes_t rsnd_pointer(struct snd_pcm_substream *substream)
 	return pointer;
 }
 
+<<<<<<< HEAD
 static const struct snd_pcm_ops rsnd_pcm_ops = {
 	.ioctl		= snd_pcm_lib_ioctl,
 	.hw_params	= rsnd_hw_params,
@@ -1198,6 +2012,8 @@ static const struct snd_pcm_ops rsnd_pcm_ops = {
 	.pointer	= rsnd_pointer,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  *		snd_kcontrol
  */
@@ -1212,7 +2028,11 @@ static int rsnd_kctrl_info(struct snd_kcontrol *kctrl,
 		uinfo->value.enumerated.items = cfg->max;
 		if (uinfo->value.enumerated.item >= cfg->max)
 			uinfo->value.enumerated.item = cfg->max - 1;
+<<<<<<< HEAD
 		strlcpy(uinfo->value.enumerated.name,
+=======
+		strscpy(uinfo->value.enumerated.name,
+>>>>>>> upstream/android-13
 			cfg->texts[uinfo->value.enumerated.item],
 			sizeof(uinfo->value.enumerated.name));
 	} else {
@@ -1275,8 +2095,20 @@ int rsnd_kctrl_accept_anytime(struct rsnd_dai_stream *io)
 int rsnd_kctrl_accept_runtime(struct rsnd_dai_stream *io)
 {
 	struct snd_pcm_runtime *runtime = rsnd_io_to_runtime(io);
+<<<<<<< HEAD
 
 	return !!runtime;
+=======
+	struct rsnd_priv *priv = rsnd_io_to_priv(io);
+	struct device *dev = rsnd_priv_to_dev(priv);
+
+	if (!runtime) {
+		dev_warn(dev, "Can't update kctrl when idle\n");
+		return 0;
+	}
+
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 struct rsnd_kctrl_cfg *rsnd_kctrl_init_m(struct rsnd_kctrl_cfg_m *cfg)
@@ -1383,6 +2215,7 @@ int rsnd_kctrl_new(struct rsnd_mod *mod,
 /*
  *		snd_soc_component
  */
+<<<<<<< HEAD
 
 #define PREALLOC_BUFFER		(32 * 1024)
 #define PREALLOC_BUFFER_MAX	(32 * 1024)
@@ -1449,6 +2282,14 @@ static const struct snd_soc_component_driver rsnd_soc_component = {
 	.ops		= &rsnd_pcm_ops,
 	.pcm_new	= rsnd_pcm_new,
 	.name		= "rsnd",
+=======
+static const struct snd_soc_component_driver rsnd_soc_component = {
+	.name		= "rsnd",
+	.probe		= rsnd_debugfs_probe,
+	.hw_params	= rsnd_hw_params,
+	.hw_free	= rsnd_hw_free,
+	.pointer	= rsnd_pointer,
+>>>>>>> upstream/android-13
 };
 
 static int rsnd_rdai_continuance_probe(struct rsnd_priv *priv,
@@ -1601,8 +2442,11 @@ static int rsnd_remove(struct platform_device *pdev)
 	};
 	int ret = 0, i;
 
+<<<<<<< HEAD
 	snd_soc_disconnect_sync(&pdev->dev);
 
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 
 	for_each_rsnd_dai(rdai, priv, i) {

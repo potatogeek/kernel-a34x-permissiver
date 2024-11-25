@@ -13,9 +13,16 @@
 #include <linux/static_key.h>
 #include <linux/netfilter_defs.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
 #include <net/net_namespace.h>
 
 #ifdef CONFIG_NETFILTER
+=======
+#include <linux/sockptr.h>
+#include <linux/android_kabi.h>
+#include <net/net_namespace.h>
+
+>>>>>>> upstream/android-13
 static inline int NF_DROP_GETERR(int verdict)
 {
 	return -(verdict >> NF_VERDICT_QBITS);
@@ -24,20 +31,48 @@ static inline int NF_DROP_GETERR(int verdict)
 static inline int nf_inet_addr_cmp(const union nf_inet_addr *a1,
 				   const union nf_inet_addr *a2)
 {
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+	const unsigned long *ul1 = (const unsigned long *)a1;
+	const unsigned long *ul2 = (const unsigned long *)a2;
+
+	return ((ul1[0] ^ ul2[0]) | (ul1[1] ^ ul2[1])) == 0UL;
+#else
+>>>>>>> upstream/android-13
 	return a1->all[0] == a2->all[0] &&
 	       a1->all[1] == a2->all[1] &&
 	       a1->all[2] == a2->all[2] &&
 	       a1->all[3] == a2->all[3];
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline void nf_inet_addr_mask(const union nf_inet_addr *a1,
 				     union nf_inet_addr *result,
 				     const union nf_inet_addr *mask)
 {
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+	const unsigned long *ua = (const unsigned long *)a1;
+	unsigned long *ur = (unsigned long *)result;
+	const unsigned long *um = (const unsigned long *)mask;
+
+	ur[0] = ua[0] & um[0];
+	ur[1] = ua[1] & um[1];
+#else
+>>>>>>> upstream/android-13
 	result->all[0] = a1->all[0] & mask->all[0];
 	result->all[1] = a1->all[1] & mask->all[1];
 	result->all[2] = a1->all[2] & mask->all[2];
 	result->all[3] = a1->all[3] & mask->all[3];
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 }
 
 int netfilter_init(void);
@@ -49,8 +84,13 @@ struct nf_hook_ops;
 struct sock;
 
 struct nf_hook_state {
+<<<<<<< HEAD
 	unsigned int hook;
 	u_int8_t pf;
+=======
+	u8 hook;
+	u8 pf;
+>>>>>>> upstream/android-13
 	struct net_device *in;
 	struct net_device *out;
 	struct sock *sk;
@@ -61,12 +101,25 @@ struct nf_hook_state {
 typedef unsigned int nf_hookfn(void *priv,
 			       struct sk_buff *skb,
 			       const struct nf_hook_state *state);
+<<<<<<< HEAD
+=======
+enum nf_hook_ops_type {
+	NF_HOOK_OP_UNDEFINED,
+	NF_HOOK_OP_NF_TABLES,
+};
+
+>>>>>>> upstream/android-13
 struct nf_hook_ops {
 	/* User fills in from here down. */
 	nf_hookfn		*hook;
 	struct net_device	*dev;
 	void			*priv;
+<<<<<<< HEAD
 	u_int8_t		pf;
+=======
+	u8			pf;
+	enum nf_hook_ops_type	hook_ops_type:8;
+>>>>>>> upstream/android-13
 	unsigned int		hooknum;
 	/* Hooks are ordered in ascending priority. */
 	int			priority;
@@ -102,6 +155,10 @@ struct nf_hook_entries {
 	 */
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NETFILTER
+>>>>>>> upstream/android-13
 static inline struct nf_hook_ops **nf_hook_entries_get_hook_ops(const struct nf_hook_entries *e)
 {
 	unsigned int n = e->num_hook_entries;
@@ -147,6 +204,7 @@ struct nf_sockopt_ops {
 	/* Non-inclusive ranges: use 0/0/NULL to never get called. */
 	int set_optmin;
 	int set_optmax;
+<<<<<<< HEAD
 	int (*set)(struct sock *sk, int optval, void __user *user, unsigned int len);
 #ifdef CONFIG_COMPAT
 	int (*compat_set)(struct sock *sk, int optval,
@@ -161,6 +219,17 @@ struct nf_sockopt_ops {
 #endif
 	/* Use the module struct to lock set/get code in place */
 	struct module *owner;
+=======
+	int (*set)(struct sock *sk, int optval, sockptr_t arg,
+		   unsigned int len);
+	int get_optmin;
+	int get_optmax;
+	int (*get)(struct sock *sk, int optval, void __user *user, int *len);
+	/* Use the module struct to lock set/get code in place */
+	struct module *owner;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /* Function to register/unregister hook points. */
@@ -183,6 +252,11 @@ extern struct static_key nf_hooks_needed[NFPROTO_NUMPROTO][NF_MAX_HOOKS];
 int nf_hook_slow(struct sk_buff *skb, struct nf_hook_state *state,
 		 const struct nf_hook_entries *e, unsigned int i);
 
+<<<<<<< HEAD
+=======
+void nf_hook_slow_list(struct list_head *head, struct nf_hook_state *state,
+		       const struct nf_hook_entries *e);
+>>>>>>> upstream/android-13
 /**
  *	nf_hook - call a netfilter hook
  *
@@ -295,6 +369,7 @@ NF_HOOK_LIST(uint8_t pf, unsigned int hook, struct net *net, struct sock *sk,
 	     struct list_head *head, struct net_device *in, struct net_device *out,
 	     int (*okfn)(struct net *, struct sock *, struct sk_buff *))
 {
+<<<<<<< HEAD
 	struct sk_buff *skb, *next;
 	struct list_head sublist;
 
@@ -324,6 +399,45 @@ int compat_nf_getsockopt(struct sock *sk, u_int8_t pf, int optval,
    modifiable and linear to the point you care about (writable_len).
    Returns true or false. */
 int skb_make_writable(struct sk_buff *skb, unsigned int writable_len);
+=======
+	struct nf_hook_entries *hook_head = NULL;
+
+#ifdef CONFIG_JUMP_LABEL
+	if (__builtin_constant_p(pf) &&
+	    __builtin_constant_p(hook) &&
+	    !static_key_false(&nf_hooks_needed[pf][hook]))
+		return;
+#endif
+
+	rcu_read_lock();
+	switch (pf) {
+	case NFPROTO_IPV4:
+		hook_head = rcu_dereference(net->nf.hooks_ipv4[hook]);
+		break;
+	case NFPROTO_IPV6:
+		hook_head = rcu_dereference(net->nf.hooks_ipv6[hook]);
+		break;
+	default:
+		WARN_ON_ONCE(1);
+		break;
+	}
+
+	if (hook_head) {
+		struct nf_hook_state state;
+
+		nf_hook_state_init(&state, hook, pf, in, out, sk, net, okfn);
+
+		nf_hook_slow_list(head, &state, hook_head);
+	}
+	rcu_read_unlock();
+}
+
+/* Call setsockopt() */
+int nf_setsockopt(struct sock *sk, u_int8_t pf, int optval, sockptr_t opt,
+		  unsigned int len);
+int nf_getsockopt(struct sock *sk, u_int8_t pf, int optval, char __user *opt,
+		  int *len);
+>>>>>>> upstream/android-13
 
 struct flowi;
 struct nf_queue_entry;
@@ -353,6 +467,11 @@ struct nf_nat_hook {
 	unsigned int (*manip_pkt)(struct sk_buff *skb, struct nf_conn *ct,
 				  enum nf_nat_manip_type mtype,
 				  enum ip_conntrack_dir dir);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 extern struct nf_nat_hook __rcu *nf_nat_hook;
@@ -360,7 +479,11 @@ extern struct nf_nat_hook __rcu *nf_nat_hook;
 static inline void
 nf_nat_decode_session(struct sk_buff *skb, struct flowi *fl, u_int8_t family)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NF_NAT_NEEDED
+=======
+#if IS_ENABLED(CONFIG_NF_NAT)
+>>>>>>> upstream/android-13
 	struct nf_nat_hook *nat_hook;
 
 	rcu_read_lock();
@@ -411,7 +534,11 @@ nf_nat_decode_session(struct sk_buff *skb, struct flowi *fl, u_int8_t family)
 }
 #endif /*CONFIG_NETFILTER*/
 
+<<<<<<< HEAD
 #if defined(CONFIG_NF_CONNTRACK) || defined(CONFIG_NF_CONNTRACK_MODULE)
+=======
+#if IS_ENABLED(CONFIG_NF_CONNTRACK)
+>>>>>>> upstream/android-13
 #include <linux/netfilter/nf_conntrack_zones_common.h>
 
 extern void (*ip_ct_attach)(struct sk_buff *, const struct sk_buff *) __rcu;
@@ -437,14 +564,22 @@ struct nf_ct_hook {
 	void (*destroy)(struct nf_conntrack *);
 	bool (*get_tuple_skb)(struct nf_conntrack_tuple *,
 			      const struct sk_buff *);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 extern struct nf_ct_hook __rcu *nf_ct_hook;
 
 struct nlattr;
 
 struct nfnl_ct_hook {
+<<<<<<< HEAD
 	struct nf_conn *(*get_ct)(const struct sk_buff *skb,
 				  enum ip_conntrack_info *ctinfo);
+=======
+>>>>>>> upstream/android-13
 	size_t (*build_size)(const struct nf_conn *ct);
 	int (*build)(struct sk_buff *skb, struct nf_conn *ct,
 		     enum ip_conntrack_info ctinfo,
@@ -454,6 +589,11 @@ struct nfnl_ct_hook {
 			     u32 portid, u32 report);
 	void (*seq_adjust)(struct sk_buff *skb, struct nf_conn *ct,
 			   enum ip_conntrack_info ctinfo, s32 off);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 extern struct nfnl_ct_hook __rcu *nfnl_ct_hook;
 

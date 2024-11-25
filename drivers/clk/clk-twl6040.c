@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
 * TWL6040 clock module driver for OMAP4 McPDM functional clock
 *
 * Copyright (C) 2012 Texas Instruments Inc.
 * Peter Ujfalusi <peter.ujfalusi@ti.com>
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA
 *
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/module.h>
@@ -157,9 +164,14 @@ static int twl6040_pdmclk_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, clkdata);
 
+<<<<<<< HEAD
 	return of_clk_add_hw_provider(pdev->dev.parent->of_node,
 				      of_clk_hw_simple_get,
 				      &clkdata->pdmclk_hw);
+=======
+	return devm_of_clk_add_hw_provider(&pdev->dev, of_clk_hw_simple_get,
+					   &clkdata->pdmclk_hw);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver twl6040_pdmclk_driver = {

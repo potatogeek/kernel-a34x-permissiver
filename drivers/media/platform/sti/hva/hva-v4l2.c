@@ -257,8 +257,13 @@ static int hva_querycap(struct file *file, void *priv,
 	struct hva_ctx *ctx = fh_to_ctx(file->private_data);
 	struct hva_dev *hva = ctx_to_hdev(ctx);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, HVA_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, hva->vdev->name, sizeof(cap->card));
+=======
+	strscpy(cap->driver, HVA_NAME, sizeof(cap->driver));
+	strscpy(cap->card, hva->vdev->name, sizeof(cap->card));
+>>>>>>> upstream/android-13
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 hva->pdev->name);
 
@@ -566,6 +571,10 @@ static int hva_qbuf(struct file *file, void *priv, struct v4l2_buffer *buf)
 		 */
 		struct vb2_queue *vq;
 		struct hva_stream *stream;
+<<<<<<< HEAD
+=======
+		struct vb2_buffer *vb2_buf;
+>>>>>>> upstream/android-13
 
 		vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, buf->type);
 
@@ -575,7 +584,12 @@ static int hva_qbuf(struct file *file, void *priv, struct v4l2_buffer *buf)
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		stream = (struct hva_stream *)vq->bufs[buf->index];
+=======
+		vb2_buf = vb2_get_buffer(vq, buf->index);
+		stream = to_hva_stream(to_vb2_v4l2_buffer(vb2_buf));
+>>>>>>> upstream/android-13
 		stream->bytesused = buf->bytesused;
 	}
 
@@ -1085,7 +1099,11 @@ static void hva_stop_streaming(struct vb2_queue *vq)
 
 	if ((V4L2_TYPE_IS_OUTPUT(vq->type) &&
 	     vb2_is_streaming(&ctx->fh.m2m_ctx->cap_q_ctx.q)) ||
+<<<<<<< HEAD
 	    (!V4L2_TYPE_IS_OUTPUT(vq->type) &&
+=======
+	    (V4L2_TYPE_IS_CAPTURE(vq->type) &&
+>>>>>>> upstream/android-13
 	     vb2_is_streaming(&ctx->fh.m2m_ctx->out_q_ctx.q))) {
 		dev_dbg(dev, "%s %s out=%d cap=%d\n",
 			ctx->name, to_type_str(vq->type),
@@ -1314,7 +1332,11 @@ static int hva_register_device(struct hva_dev *hva)
 	snprintf(vdev->name, sizeof(vdev->name), "%s%lx", HVA_NAME,
 		 hva->ip_version);
 
+<<<<<<< HEAD
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "%s failed to register video device\n",
 			HVA_PREFIX);

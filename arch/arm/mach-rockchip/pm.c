@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
  * Author: Tony Xie <tony.xie@rock-chips.com>
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014, Fuzhou Rockchip Electronics Co., Ltd
+ * Author: Tony Xie <tony.xie@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -59,7 +66,11 @@ static inline u32 rk3288_l2_config(void)
 	return l2ctlr;
 }
 
+<<<<<<< HEAD
 static void rk3288_config_bootdata(void)
+=======
+static void __init rk3288_config_bootdata(void)
+>>>>>>> upstream/android-13
 {
 	rkpm_bootdata_cpusp = rk3288_bootram_phy + (SZ_4K - 8);
 	rkpm_bootdata_cpu_code = __pa_symbol(cpu_resume);
@@ -230,7 +241,11 @@ static void rk3288_suspend_finish(void)
 		pr_err("%s: Suspend finish failed\n", __func__);
 }
 
+<<<<<<< HEAD
 static int rk3288_suspend_init(struct device_node *np)
+=======
+static int __init rk3288_suspend_init(struct device_node *np)
+>>>>>>> upstream/android-13
 {
 	struct device_node *sram_np;
 	struct resource res;
@@ -266,12 +281,20 @@ static int rk3288_suspend_init(struct device_node *np)
 	rk3288_bootram_base = of_iomap(sram_np, 0);
 	if (!rk3288_bootram_base) {
 		pr_err("%s: could not map bootram base\n", __func__);
+<<<<<<< HEAD
+=======
+		of_node_put(sram_np);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	ret = of_address_to_resource(sram_np, 0, &res);
 	if (ret) {
 		pr_err("%s: could not get bootram phy addr\n", __func__);
+<<<<<<< HEAD
+=======
+		of_node_put(sram_np);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	rk3288_bootram_phy = res.start;

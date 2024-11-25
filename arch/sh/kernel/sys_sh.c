@@ -69,10 +69,17 @@ asmlinkage int sys_cacheflush(unsigned long addr, unsigned long len, int op)
 	if (addr + len < addr)
 		return -EFAULT;
 
+<<<<<<< HEAD
 	down_read(&current->mm->mmap_sem);
 	vma = find_vma (current->mm, addr);
 	if (vma == NULL || addr < vma->vm_start || addr + len > vma->vm_end) {
 		up_read(&current->mm->mmap_sem);
+=======
+	mmap_read_lock(current->mm);
+	vma = find_vma (current->mm, addr);
+	if (vma == NULL || addr < vma->vm_start || addr + len > vma->vm_end) {
+		mmap_read_unlock(current->mm);
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -91,6 +98,10 @@ asmlinkage int sys_cacheflush(unsigned long addr, unsigned long len, int op)
 	if (op & CACHEFLUSH_I)
 		flush_icache_range(addr, addr+len);
 
+<<<<<<< HEAD
 	up_read(&current->mm->mmap_sem);
+=======
+	mmap_read_unlock(current->mm);
+>>>>>>> upstream/android-13
 	return 0;
 }

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NET4:	Implementation of BSD Unix domain sockets.
  *
  * Authors:	Alan Cox, <alan@lxorguk.ukuu.org.uk>
  *
+<<<<<<< HEAD
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Fixes:
  *		Linus Torvalds	:	Assorted bug cures.
  *		Niibe Yutaka	:	async I/O support.
@@ -49,7 +56,10 @@
  *	     				the core infrastructure is doing that
  *	     				for all net proto families now (2.5.69+)
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Known differences from reference BSD that was tested:
  *
  *	[TO FIX]
@@ -118,6 +128,10 @@
 #include <linux/security.h>
 #include <linux/freezer.h>
 #include <linux/file.h>
+<<<<<<< HEAD
+=======
+#include <linux/btf_ids.h>
+>>>>>>> upstream/android-13
 
 #include "scm.h"
 
@@ -267,6 +281,17 @@ static void __unix_insert_socket(struct hlist_head *list, struct sock *sk)
 	sk_add_node(sk, list);
 }
 
+<<<<<<< HEAD
+=======
+static void __unix_set_addr(struct sock *sk, struct unix_address *addr,
+			    unsigned hash)
+{
+	__unix_remove_socket(sk);
+	smp_store_release(&unix_sk(sk)->addr, addr);
+	__unix_insert_socket(&unix_socket_table[hash], sk);
+}
+
+>>>>>>> upstream/android-13
 static inline void unix_remove_socket(struct sock *sk)
 {
 	spin_lock(&unix_table_lock);
@@ -283,11 +308,19 @@ static inline void unix_insert_socket(struct hlist_head *list, struct sock *sk)
 
 static struct sock *__unix_find_socket_byname(struct net *net,
 					      struct sockaddr_un *sunname,
+<<<<<<< HEAD
 					      int len, int type, unsigned int hash)
 {
 	struct sock *s;
 
 	sk_for_each(s, &unix_socket_table[hash ^ type]) {
+=======
+					      int len, unsigned int hash)
+{
+	struct sock *s;
+
+	sk_for_each(s, &unix_socket_table[hash]) {
+>>>>>>> upstream/android-13
 		struct unix_sock *u = unix_sk(s);
 
 		if (!net_eq(sock_net(s), net))
@@ -295,22 +328,36 @@ static struct sock *__unix_find_socket_byname(struct net *net,
 
 		if (u->addr->len == len &&
 		    !memcmp(u->addr->name, sunname, len))
+<<<<<<< HEAD
 			goto found;
 	}
 	s = NULL;
 found:
 	return s;
+=======
+			return s;
+	}
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static inline struct sock *unix_find_socket_byname(struct net *net,
 						   struct sockaddr_un *sunname,
+<<<<<<< HEAD
 						   int len, int type,
 						   unsigned int hash)
+=======
+						   int len, unsigned int hash)
+>>>>>>> upstream/android-13
 {
 	struct sock *s;
 
 	spin_lock(&unix_table_lock);
+<<<<<<< HEAD
 	s = __unix_find_socket_byname(net, sunname, len, type, hash);
+=======
+	s = __unix_find_socket_byname(net, sunname, len, hash);
+>>>>>>> upstream/android-13
 	if (s)
 		sock_hold(s);
 	spin_unlock(&unix_table_lock);
@@ -491,9 +538,16 @@ static void unix_dgram_disconnected(struct sock *sk, struct sock *other)
 		 */
 		if (!sock_flag(other, SOCK_DEAD) && unix_peer(other) == sk) {
 			other->sk_err = ECONNRESET;
+<<<<<<< HEAD
 			other->sk_error_report(other);
 		}
 	}
+=======
+			sk_error_report(other);
+		}
+	}
+	other->sk_state = TCP_CLOSE;
+>>>>>>> upstream/android-13
 }
 
 static void unix_sock_destructor(struct sock *sk)
@@ -502,6 +556,15 @@ static void unix_sock_destructor(struct sock *sk)
 
 	skb_queue_purge(&sk->sk_receive_queue);
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+	if (u->oob_skb) {
+		kfree_skb(u->oob_skb);
+		u->oob_skb = NULL;
+	}
+#endif
+>>>>>>> upstream/android-13
 	WARN_ON(refcount_read(&sk->sk_wmem_alloc));
 	WARN_ON(!sk_unhashed(sk));
 	WARN_ON(sk->sk_socket);
@@ -542,12 +605,22 @@ static void unix_release_sock(struct sock *sk, int embrion)
 	u->path.mnt = NULL;
 	state = sk->sk_state;
 	sk->sk_state = TCP_CLOSE;
+<<<<<<< HEAD
+=======
+
+	skpair = unix_peer(sk);
+	unix_peer(sk) = NULL;
+
+>>>>>>> upstream/android-13
 	unix_state_unlock(sk);
 
 	wake_up_interruptible_all(&u->peer_wait);
 
+<<<<<<< HEAD
 	skpair = unix_peer(sk);
 
+=======
+>>>>>>> upstream/android-13
 	if (skpair != NULL) {
 		if (sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET) {
 			unix_state_lock(skpair);
@@ -562,7 +635,10 @@ static void unix_release_sock(struct sock *sk, int embrion)
 
 		unix_dgram_peer_wake_disconnect(sk, skpair);
 		sock_put(skpair); /* It may now die */
+<<<<<<< HEAD
 		unix_peer(sk) = NULL;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* Try to flush out this socket. Throw out buffers at least */
@@ -599,20 +675,58 @@ static void unix_release_sock(struct sock *sk, int embrion)
 
 static void init_peercred(struct sock *sk)
 {
+<<<<<<< HEAD
 	put_pid(sk->sk_peer_pid);
 	if (sk->sk_peer_cred)
 		put_cred(sk->sk_peer_cred);
 	sk->sk_peer_pid  = get_pid(task_tgid(current));
 	sk->sk_peer_cred = get_current_cred();
+=======
+	const struct cred *old_cred;
+	struct pid *old_pid;
+
+	spin_lock(&sk->sk_peer_lock);
+	old_pid = sk->sk_peer_pid;
+	old_cred = sk->sk_peer_cred;
+	sk->sk_peer_pid  = get_pid(task_tgid(current));
+	sk->sk_peer_cred = get_current_cred();
+	spin_unlock(&sk->sk_peer_lock);
+
+	put_pid(old_pid);
+	put_cred(old_cred);
+>>>>>>> upstream/android-13
 }
 
 static void copy_peercred(struct sock *sk, struct sock *peersk)
 {
+<<<<<<< HEAD
 	put_pid(sk->sk_peer_pid);
 	if (sk->sk_peer_cred)
 		put_cred(sk->sk_peer_cred);
 	sk->sk_peer_pid  = get_pid(peersk->sk_peer_pid);
 	sk->sk_peer_cred = get_cred(peersk->sk_peer_cred);
+=======
+	const struct cred *old_cred;
+	struct pid *old_pid;
+
+	if (sk < peersk) {
+		spin_lock(&sk->sk_peer_lock);
+		spin_lock_nested(&peersk->sk_peer_lock, SINGLE_DEPTH_NESTING);
+	} else {
+		spin_lock(&peersk->sk_peer_lock);
+		spin_lock_nested(&sk->sk_peer_lock, SINGLE_DEPTH_NESTING);
+	}
+	old_pid = sk->sk_peer_pid;
+	old_cred = sk->sk_peer_cred;
+	sk->sk_peer_pid  = get_pid(peersk->sk_peer_pid);
+	sk->sk_peer_cred = get_cred(peersk->sk_peer_cred);
+
+	spin_unlock(&sk->sk_peer_lock);
+	spin_unlock(&peersk->sk_peer_lock);
+
+	put_pid(old_pid);
+	put_cred(old_cred);
+>>>>>>> upstream/android-13
 }
 
 static int unix_listen(struct socket *sock, int backlog)
@@ -620,7 +734,10 @@ static int unix_listen(struct socket *sock, int backlog)
 	int err;
 	struct sock *sk = sock->sk;
 	struct unix_sock *u = unix_sk(sk);
+<<<<<<< HEAD
 	struct pid *old_pid = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	err = -EOPNOTSUPP;
 	if (sock->type != SOCK_STREAM && sock->type != SOCK_SEQPACKET)
@@ -641,7 +758,10 @@ static int unix_listen(struct socket *sock, int backlog)
 
 out_unlock:
 	unix_state_unlock(sk);
+<<<<<<< HEAD
 	put_pid(old_pid);
+=======
+>>>>>>> upstream/android-13
 out:
 	return err;
 }
@@ -670,6 +790,13 @@ static ssize_t unix_stream_splice_read(struct socket *,  loff_t *ppos,
 				       unsigned int flags);
 static int unix_dgram_sendmsg(struct socket *, struct msghdr *, size_t);
 static int unix_dgram_recvmsg(struct socket *, struct msghdr *, size_t, int);
+<<<<<<< HEAD
+=======
+static int unix_read_sock(struct sock *sk, read_descriptor_t *desc,
+			  sk_read_actor_t recv_actor);
+static int unix_stream_read_sock(struct sock *sk, read_descriptor_t *desc,
+				 sk_read_actor_t recv_actor);
+>>>>>>> upstream/android-13
 static int unix_dgram_connect(struct socket *, struct sockaddr *,
 			      int, int);
 static int unix_seqpacket_sendmsg(struct socket *, struct msghdr *, size_t);
@@ -689,6 +816,24 @@ static int unix_set_peek_off(struct sock *sk, int val)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PROC_FS
+static void unix_show_fdinfo(struct seq_file *m, struct socket *sock)
+{
+	struct sock *sk = sock->sk;
+	struct unix_sock *u;
+
+	if (sk) {
+		u = unix_sk(sock->sk);
+		seq_printf(m, "scm_fds: %u\n",
+			   atomic_read(&u->scm_stat.nr_fds));
+	}
+}
+#else
+#define unix_show_fdinfo NULL
+#endif
+>>>>>>> upstream/android-13
 
 static const struct proto_ops unix_stream_ops = {
 	.family =	PF_UNIX,
@@ -706,14 +851,24 @@ static const struct proto_ops unix_stream_ops = {
 #endif
 	.listen =	unix_listen,
 	.shutdown =	unix_shutdown,
+<<<<<<< HEAD
 	.setsockopt =	sock_no_setsockopt,
 	.getsockopt =	sock_no_getsockopt,
 	.sendmsg =	unix_stream_sendmsg,
 	.recvmsg =	unix_stream_recvmsg,
+=======
+	.sendmsg =	unix_stream_sendmsg,
+	.recvmsg =	unix_stream_recvmsg,
+	.read_sock =	unix_stream_read_sock,
+>>>>>>> upstream/android-13
 	.mmap =		sock_no_mmap,
 	.sendpage =	unix_stream_sendpage,
 	.splice_read =	unix_stream_splice_read,
 	.set_peek_off =	unix_set_peek_off,
+<<<<<<< HEAD
+=======
+	.show_fdinfo =	unix_show_fdinfo,
+>>>>>>> upstream/android-13
 };
 
 static const struct proto_ops unix_dgram_ops = {
@@ -732,13 +887,22 @@ static const struct proto_ops unix_dgram_ops = {
 #endif
 	.listen =	sock_no_listen,
 	.shutdown =	unix_shutdown,
+<<<<<<< HEAD
 	.setsockopt =	sock_no_setsockopt,
 	.getsockopt =	sock_no_getsockopt,
 	.sendmsg =	unix_dgram_sendmsg,
+=======
+	.sendmsg =	unix_dgram_sendmsg,
+	.read_sock =	unix_read_sock,
+>>>>>>> upstream/android-13
 	.recvmsg =	unix_dgram_recvmsg,
 	.mmap =		sock_no_mmap,
 	.sendpage =	sock_no_sendpage,
 	.set_peek_off =	unix_set_peek_off,
+<<<<<<< HEAD
+=======
+	.show_fdinfo =	unix_show_fdinfo,
+>>>>>>> upstream/android-13
 };
 
 static const struct proto_ops unix_seqpacket_ops = {
@@ -757,13 +921,17 @@ static const struct proto_ops unix_seqpacket_ops = {
 #endif
 	.listen =	unix_listen,
 	.shutdown =	unix_shutdown,
+<<<<<<< HEAD
 	.setsockopt =	sock_no_setsockopt,
 	.getsockopt =	sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.sendmsg =	unix_seqpacket_sendmsg,
 	.recvmsg =	unix_seqpacket_recvmsg,
 	.mmap =		sock_no_mmap,
 	.sendpage =	sock_no_sendpage,
 	.set_peek_off =	unix_set_peek_off,
+<<<<<<< HEAD
 };
 
 static struct proto unix_proto = {
@@ -784,6 +952,67 @@ static struct sock *unix_create1(struct net *net, struct socket *sock, int kern)
 	sk = sk_alloc(net, PF_UNIX, GFP_KERNEL, &unix_proto, kern);
 	if (!sk)
 		goto out;
+=======
+	.show_fdinfo =	unix_show_fdinfo,
+};
+
+static void unix_close(struct sock *sk, long timeout)
+{
+	/* Nothing to do here, unix socket does not need a ->close().
+	 * This is merely for sockmap.
+	 */
+}
+
+static void unix_unhash(struct sock *sk)
+{
+	/* Nothing to do here, unix socket does not need a ->unhash().
+	 * This is merely for sockmap.
+	 */
+}
+
+struct proto unix_dgram_proto = {
+	.name			= "UNIX",
+	.owner			= THIS_MODULE,
+	.obj_size		= sizeof(struct unix_sock),
+	.close			= unix_close,
+#ifdef CONFIG_BPF_SYSCALL
+	.psock_update_sk_prot	= unix_dgram_bpf_update_proto,
+#endif
+};
+
+struct proto unix_stream_proto = {
+	.name			= "UNIX-STREAM",
+	.owner			= THIS_MODULE,
+	.obj_size		= sizeof(struct unix_sock),
+	.close			= unix_close,
+	.unhash			= unix_unhash,
+#ifdef CONFIG_BPF_SYSCALL
+	.psock_update_sk_prot	= unix_stream_bpf_update_proto,
+#endif
+};
+
+static struct sock *unix_create1(struct net *net, struct socket *sock, int kern, int type)
+{
+	struct unix_sock *u;
+	struct sock *sk;
+	int err;
+
+	atomic_long_inc(&unix_nr_socks);
+	if (atomic_long_read(&unix_nr_socks) > 2 * get_max_files()) {
+		err = -ENFILE;
+		goto err;
+	}
+
+	if (type == SOCK_STREAM)
+		sk = sk_alloc(net, PF_UNIX, GFP_KERNEL, &unix_stream_proto, kern);
+	else /*dgram and  seqpacket */
+		sk = sk_alloc(net, PF_UNIX, GFP_KERNEL, &unix_dgram_proto, kern);
+
+	if (!sk) {
+		err = -ENOMEM;
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	sock_init_data(sock, sk);
 
@@ -801,6 +1030,7 @@ static struct sock *unix_create1(struct net *net, struct socket *sock, int kern)
 	mutex_init(&u->bindlock); /* single task binding lock */
 	init_waitqueue_head(&u->peer_wait);
 	init_waitqueue_func_entry(&u->peer_wake, unix_dgram_peer_wake_relay);
+<<<<<<< HEAD
 	unix_insert_socket(unix_sockets_unbound(sk), sk);
 out:
 	if (sk == NULL)
@@ -811,11 +1041,30 @@ out:
 		local_bh_enable();
 	}
 	return sk;
+=======
+	memset(&u->scm_stat, 0, sizeof(struct scm_stat));
+	unix_insert_socket(unix_sockets_unbound(sk), sk);
+
+	local_bh_disable();
+	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
+	local_bh_enable();
+
+	return sk;
+
+err:
+	atomic_long_dec(&unix_nr_socks);
+	return ERR_PTR(err);
+>>>>>>> upstream/android-13
 }
 
 static int unix_create(struct net *net, struct socket *sock, int protocol,
 		       int kern)
 {
+<<<<<<< HEAD
+=======
+	struct sock *sk;
+
+>>>>>>> upstream/android-13
 	if (protocol && protocol != PF_UNIX)
 		return -EPROTONOSUPPORT;
 
@@ -831,7 +1080,11 @@ static int unix_create(struct net *net, struct socket *sock, int protocol,
 		 */
 	case SOCK_RAW:
 		sock->type = SOCK_DGRAM;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SOCK_DGRAM:
 		sock->ops = &unix_dgram_ops;
 		break;
@@ -842,7 +1095,15 @@ static int unix_create(struct net *net, struct socket *sock, int protocol,
 		return -ESOCKTNOSUPPORT;
 	}
 
+<<<<<<< HEAD
 	return unix_create1(net, sock, kern) ? 0 : -ENOMEM;
+=======
+	sk = unix_create1(net, sock, kern, sock->type);
+	if (IS_ERR(sk))
+		return PTR_ERR(sk);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int unix_release(struct socket *sock)
@@ -852,6 +1113,10 @@ static int unix_release(struct socket *sock)
 	if (!sk)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	sk->sk_prot->close(sk, 0);
+>>>>>>> upstream/android-13
 	unix_release_sock(sk, 0);
 	sock->sk = NULL;
 
@@ -872,7 +1137,10 @@ static int unix_autobind(struct socket *sock)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = 0;
+=======
+>>>>>>> upstream/android-13
 	if (u->addr)
 		goto out;
 
@@ -887,12 +1155,20 @@ static int unix_autobind(struct socket *sock)
 retry:
 	addr->len = sprintf(addr->name->sun_path+1, "%05x", ordernum) + 1 + sizeof(short);
 	addr->hash = unix_hash_fold(csum_partial(addr->name, addr->len, 0));
+<<<<<<< HEAD
+=======
+	addr->hash ^= sk->sk_type;
+>>>>>>> upstream/android-13
 
 	spin_lock(&unix_table_lock);
 	ordernum = (ordernum+1)&0xFFFFF;
 
+<<<<<<< HEAD
 	if (__unix_find_socket_byname(net, addr->name, addr->len, sock->type,
 				      addr->hash)) {
+=======
+	if (__unix_find_socket_byname(net, addr->name, addr->len, addr->hash)) {
+>>>>>>> upstream/android-13
 		spin_unlock(&unix_table_lock);
 		/*
 		 * __unix_find_socket_byname() may take long time if many names
@@ -907,11 +1183,16 @@ retry:
 		}
 		goto retry;
 	}
+<<<<<<< HEAD
 	addr->hash ^= sk->sk_type;
 
 	__unix_remove_socket(sk);
 	smp_store_release(&u->addr, addr);
 	__unix_insert_socket(&unix_socket_table[addr->hash], sk);
+=======
+
+	__unix_set_addr(sk, addr, addr->hash);
+>>>>>>> upstream/android-13
 	spin_unlock(&unix_table_lock);
 	err = 0;
 
@@ -933,7 +1214,11 @@ static struct sock *unix_find_other(struct net *net,
 		if (err)
 			goto fail;
 		inode = d_backing_inode(path.dentry);
+<<<<<<< HEAD
 		err = inode_permission(inode, MAY_WRITE);
+=======
+		err = path_permission(&path, MAY_WRITE);
+>>>>>>> upstream/android-13
 		if (err)
 			goto put_fail;
 
@@ -956,7 +1241,11 @@ static struct sock *unix_find_other(struct net *net,
 		}
 	} else {
 		err = -ECONNREFUSED;
+<<<<<<< HEAD
 		u = unix_find_socket_byname(net, sunname, len, type, hash);
+=======
+		u = unix_find_socket_byname(net, sunname, len, type ^ hash);
+>>>>>>> upstream/android-13
 		if (u) {
 			struct dentry *dentry;
 			dentry = unix_sk(u)->path.dentry;
@@ -974,23 +1263,45 @@ fail:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int unix_mknod(const char *sun_path, umode_t mode, struct path *res)
 {
 	struct dentry *dentry;
 	struct path path;
 	int err = 0;
+=======
+static int unix_bind_bsd(struct sock *sk, struct unix_address *addr)
+{
+	struct unix_sock *u = unix_sk(sk);
+	umode_t mode = S_IFSOCK |
+	       (SOCK_INODE(sk->sk_socket)->i_mode & ~current_umask());
+	struct user_namespace *ns; // barf...
+	struct path parent;
+	struct dentry *dentry;
+	unsigned int hash;
+	int err;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Get the parent directory, calculate the hash for last
 	 * component.
 	 */
+<<<<<<< HEAD
 	dentry = kern_path_create(AT_FDCWD, sun_path, &path, 0);
 	err = PTR_ERR(dentry);
 	if (IS_ERR(dentry))
 		return err;
+=======
+	dentry = kern_path_create(AT_FDCWD, addr->name->sun_path, &parent, 0);
+	if (IS_ERR(dentry))
+		return PTR_ERR(dentry);
+	ns = mnt_user_ns(parent.mnt);
+>>>>>>> upstream/android-13
 
 	/*
 	 * All right, let's create it.
 	 */
+<<<<<<< HEAD
 	err = security_path_mknod(&path, dentry, mode, 0);
 	if (!err) {
 		err = vfs_mknod(d_inode(path.dentry), dentry, mode, 0);
@@ -1008,11 +1319,77 @@ static int unix_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 	struct sock *sk = sock->sk;
 	struct net *net = sock_net(sk);
 	struct unix_sock *u = unix_sk(sk);
+=======
+	err = security_path_mknod(&parent, dentry, mode, 0);
+	if (!err)
+		err = vfs_mknod(ns, d_inode(parent.dentry), dentry, mode, 0);
+	if (err)
+		goto out;
+	err = mutex_lock_interruptible(&u->bindlock);
+	if (err)
+		goto out_unlink;
+	if (u->addr)
+		goto out_unlock;
+
+	addr->hash = UNIX_HASH_SIZE;
+	hash = d_backing_inode(dentry)->i_ino & (UNIX_HASH_SIZE - 1);
+	spin_lock(&unix_table_lock);
+	u->path.mnt = mntget(parent.mnt);
+	u->path.dentry = dget(dentry);
+	__unix_set_addr(sk, addr, hash);
+	spin_unlock(&unix_table_lock);
+	mutex_unlock(&u->bindlock);
+	done_path_create(&parent, dentry);
+	return 0;
+
+out_unlock:
+	mutex_unlock(&u->bindlock);
+	err = -EINVAL;
+out_unlink:
+	/* failed after successful mknod?  unlink what we'd created... */
+	vfs_unlink(ns, d_inode(parent.dentry), dentry, NULL);
+out:
+	done_path_create(&parent, dentry);
+	return err;
+}
+
+static int unix_bind_abstract(struct sock *sk, struct unix_address *addr)
+{
+	struct unix_sock *u = unix_sk(sk);
+	int err;
+
+	err = mutex_lock_interruptible(&u->bindlock);
+	if (err)
+		return err;
+
+	if (u->addr) {
+		mutex_unlock(&u->bindlock);
+		return -EINVAL;
+	}
+
+	spin_lock(&unix_table_lock);
+	if (__unix_find_socket_byname(sock_net(sk), addr->name, addr->len,
+				      addr->hash)) {
+		spin_unlock(&unix_table_lock);
+		mutex_unlock(&u->bindlock);
+		return -EADDRINUSE;
+	}
+	__unix_set_addr(sk, addr, addr->hash);
+	spin_unlock(&unix_table_lock);
+	mutex_unlock(&u->bindlock);
+	return 0;
+}
+
+static int unix_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+{
+	struct sock *sk = sock->sk;
+>>>>>>> upstream/android-13
 	struct sockaddr_un *sunaddr = (struct sockaddr_un *)uaddr;
 	char *sun_path = sunaddr->sun_path;
 	int err;
 	unsigned int hash;
 	struct unix_address *addr;
+<<<<<<< HEAD
 	struct hlist_head *list;
 	struct path path = { };
 
@@ -1054,12 +1431,30 @@ static int unix_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 	addr = kmalloc(sizeof(*addr)+addr_len, GFP_KERNEL);
 	if (!addr)
 		goto out_up;
+=======
+
+	if (addr_len < offsetofend(struct sockaddr_un, sun_family) ||
+	    sunaddr->sun_family != AF_UNIX)
+		return -EINVAL;
+
+	if (addr_len == sizeof(short))
+		return unix_autobind(sock);
+
+	err = unix_mkname(sunaddr, addr_len, &hash);
+	if (err < 0)
+		return err;
+	addr_len = err;
+	addr = kmalloc(sizeof(*addr)+addr_len, GFP_KERNEL);
+	if (!addr)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	memcpy(addr->name, sunaddr, addr_len);
 	addr->len = addr_len;
 	addr->hash = hash ^ sk->sk_type;
 	refcount_set(&addr->refcnt, 1);
 
+<<<<<<< HEAD
 	if (sun_path[0]) {
 		addr->hash = UNIX_HASH_SIZE;
 		hash = d_backing_inode(path.dentry)->i_ino & (UNIX_HASH_SIZE - 1);
@@ -1092,6 +1487,15 @@ out_put:
 		path_put(&path);
 out:
 	return err;
+=======
+	if (sun_path[0])
+		err = unix_bind_bsd(sk, addr);
+	else
+		err = unix_bind_abstract(sk, addr);
+	if (err)
+		unix_release_addr(addr);
+	return err == -EEXIST ? -EADDRINUSE : err;
+>>>>>>> upstream/android-13
 }
 
 static void unix_state_double_lock(struct sock *sk1, struct sock *sk2)
@@ -1165,6 +1569,10 @@ restart:
 		if (err)
 			goto out_unlock;
 
+<<<<<<< HEAD
+=======
+		sk->sk_state = other->sk_state = TCP_ESTABLISHED;
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 *	1003.1g breaking connected state with AF_UNSPEC
@@ -1178,7 +1586,14 @@ restart:
 	 */
 	if (unix_peer(sk)) {
 		struct sock *old_peer = unix_peer(sk);
+<<<<<<< HEAD
 		unix_peer(sk) = other;
+=======
+
+		unix_peer(sk) = other;
+		if (!other)
+			sk->sk_state = TCP_CLOSE;
+>>>>>>> upstream/android-13
 		unix_dgram_peer_wake_disconnect_wakeup(sk, old_peer);
 
 		unix_state_double_unlock(sk, other);
@@ -1190,6 +1605,10 @@ restart:
 		unix_peer(sk) = other;
 		unix_state_double_unlock(sk, other);
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out_unlock:
@@ -1200,6 +1619,10 @@ out:
 }
 
 static long unix_wait_for_peer(struct sock *other, long timeo)
+<<<<<<< HEAD
+=======
+	__releases(&unix_sk(other)->lock)
+>>>>>>> upstream/android-13
 {
 	struct unix_sock *u = unix_sk(other);
 	int sched;
@@ -1251,12 +1674,24 @@ static int unix_stream_connect(struct socket *sock, struct sockaddr *uaddr,
 	   we will have to recheck all again in any case.
 	 */
 
+<<<<<<< HEAD
 	err = -ENOMEM;
 
 	/* create new sock for complete connection */
 	newsk = unix_create1(sock_net(sk), NULL, 0);
 	if (newsk == NULL)
 		goto out;
+=======
+	/* create new sock for complete connection */
+	newsk = unix_create1(sock_net(sk), NULL, 0, sock->type);
+	if (IS_ERR(newsk)) {
+		err = PTR_ERR(newsk);
+		newsk = NULL;
+		goto out;
+	}
+
+	err = -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Allocate skb for sending to listening sock */
 	skb = sock_wmalloc(newsk, 1, 0, GFP_KERNEL);
@@ -1387,7 +1822,11 @@ restart:
 
 	unix_state_unlock(sk);
 
+<<<<<<< HEAD
 	/* take ten and and send info to listening sock */
+=======
+	/* take ten and send info to listening sock */
+>>>>>>> upstream/android-13
 	spin_lock(&other->sk_receive_queue.lock);
 	__skb_queue_tail(&other->sk_receive_queue, skb);
 	spin_unlock(&other->sk_receive_queue.lock);
@@ -1421,12 +1860,19 @@ static int unix_socketpair(struct socket *socka, struct socket *sockb)
 	init_peercred(ska);
 	init_peercred(skb);
 
+<<<<<<< HEAD
 	if (ska->sk_type != SOCK_DGRAM) {
 		ska->sk_state = TCP_ESTABLISHED;
 		skb->sk_state = TCP_ESTABLISHED;
 		socka->state  = SS_CONNECTED;
 		sockb->state  = SS_CONNECTED;
 	}
+=======
+	ska->sk_state = TCP_ESTABLISHED;
+	skb->sk_state = TCP_ESTABLISHED;
+	socka->state  = SS_CONNECTED;
+	sockb->state  = SS_CONNECTED;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1520,13 +1966,19 @@ static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
 {
 	scm->fp = scm_fp_dup(UNIXCB(skb).fp);
 
+<<<<<<< HEAD
 	/* Garbage collection of unix sockets starts by selecting a set of
+=======
+	/*
+	 * Garbage collection of unix sockets starts by selecting a set of
+>>>>>>> upstream/android-13
 	 * candidate sockets which have reference only from being in flight
 	 * (total_refs == inflight_refs).  This condition is checked once during
 	 * the candidate collection phase, and candidates are marked as such, so
 	 * that non-candidates can later be ignored.  While inflight_refs is
 	 * protected by unix_gc_lock, total_refs (file count) is not, hence this
 	 * is an instantaneous decision.
+<<<<<<< HEAD
 	 * Once a candidate, however, the socket must not be reinstalled into a
 	 * file descriptor while the garbage collection is in progress.
 	 * If the above conditions are met, then the directed graph of
@@ -1537,17 +1989,42 @@ static void unix_peek_fds(struct scm_cookie *scm, struct sk_buff *skb)
 	 * Dequeing a candidate via recvmsg would install it into an fd, but
 	 * that takes unix_gc_lock to decrement the inflight count, so it's
 	 * serialized with garbage collection.
+=======
+	 *
+	 * Once a candidate, however, the socket must not be reinstalled into a
+	 * file descriptor while the garbage collection is in progress.
+	 *
+	 * If the above conditions are met, then the directed graph of
+	 * candidates (*) does not change while unix_gc_lock is held.
+	 *
+	 * Any operations that changes the file count through file descriptors
+	 * (dup, close, sendmsg) does not change the graph since candidates are
+	 * not installed in fds.
+	 *
+	 * Dequeing a candidate via recvmsg would install it into an fd, but
+	 * that takes unix_gc_lock to decrement the inflight count, so it's
+	 * serialized with garbage collection.
+	 *
+>>>>>>> upstream/android-13
 	 * MSG_PEEK is special in that it does not change the inflight count,
 	 * yet does install the socket into an fd.  The following lock/unlock
 	 * pair is to ensure serialization with garbage collection.  It must be
 	 * done between incrementing the file count and installing the file into
 	 * an fd.
+<<<<<<< HEAD
+=======
+	 *
+>>>>>>> upstream/android-13
 	 * If garbage collection starts after the barrier provided by the
 	 * lock/unlock, then it will see the elevated refcount and not mark this
 	 * as a candidate.  If a garbage collection is already in progress
 	 * before the file count was incremented, then the lock/unlock pair will
 	 * ensure that garbage collection is finished before progressing to
 	 * installing the fd.
+<<<<<<< HEAD
+=======
+	 *
+>>>>>>> upstream/android-13
 	 * (*) A -> B where B is on the queue of A or B is on the queue of C
 	 * which is on the queue of listening socket A.
 	 */
@@ -1624,6 +2101,27 @@ static bool unix_skb_scm_eq(struct sk_buff *skb,
 	       unix_secdata_eq(scm, skb);
 }
 
+<<<<<<< HEAD
+=======
+static void scm_stat_add(struct sock *sk, struct sk_buff *skb)
+{
+	struct scm_fp_list *fp = UNIXCB(skb).fp;
+	struct unix_sock *u = unix_sk(sk);
+
+	if (unlikely(fp && fp->count))
+		atomic_add(fp->count, &u->scm_stat.nr_fds);
+}
+
+static void scm_stat_del(struct sock *sk, struct sk_buff *skb)
+{
+	struct scm_fp_list *fp = UNIXCB(skb).fp;
+	struct unix_sock *u = unix_sk(sk);
+
+	if (unlikely(fp && fp->count))
+		atomic_sub(fp->count, &u->scm_stat.nr_fds);
+}
+
+>>>>>>> upstream/android-13
 /*
  *	Send AF_UNIX data.
  */
@@ -1746,6 +2244,10 @@ restart_locked:
 
 			unix_state_unlock(sk);
 
+<<<<<<< HEAD
+=======
+			sk->sk_state = TCP_CLOSE;
+>>>>>>> upstream/android-13
 			unix_dgram_disconnected(sk, other);
 			sock_put(other);
 			err = -ECONNREFUSED;
@@ -1810,6 +2312,10 @@ restart_locked:
 	if (sock_flag(other, SOCK_RCVTSTAMP))
 		__net_timestamp(skb);
 	maybe_add_creds(skb, sock, other);
+<<<<<<< HEAD
+=======
+	scm_stat_add(other, skb);
+>>>>>>> upstream/android-13
 	skb_queue_tail(&other->sk_receive_queue, skb);
 	unix_state_unlock(other);
 	other->sk_data_ready(other);
@@ -1835,6 +2341,56 @@ out:
  */
 #define UNIX_SKB_FRAGS_SZ (PAGE_SIZE << get_order(32768))
 
+<<<<<<< HEAD
+=======
+#if (IS_ENABLED(CONFIG_AF_UNIX_OOB))
+static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other)
+{
+	struct unix_sock *ousk = unix_sk(other);
+	struct sk_buff *skb;
+	int err = 0;
+
+	skb = sock_alloc_send_skb(sock->sk, 1, msg->msg_flags & MSG_DONTWAIT, &err);
+
+	if (!skb)
+		return err;
+
+	skb_put(skb, 1);
+	err = skb_copy_datagram_from_iter(skb, 0, &msg->msg_iter, 1);
+
+	if (err) {
+		kfree_skb(skb);
+		return err;
+	}
+
+	unix_state_lock(other);
+
+	if (sock_flag(other, SOCK_DEAD) ||
+	    (other->sk_shutdown & RCV_SHUTDOWN)) {
+		unix_state_unlock(other);
+		kfree_skb(skb);
+		return -EPIPE;
+	}
+
+	maybe_add_creds(skb, sock, other);
+	skb_get(skb);
+
+	if (ousk->oob_skb)
+		consume_skb(ousk->oob_skb);
+
+	WRITE_ONCE(ousk->oob_skb, skb);
+
+	scm_stat_add(other, skb);
+	skb_queue_tail(&other->sk_receive_queue, skb);
+	sk_send_sigurg(other);
+	unix_state_unlock(other);
+	other->sk_data_ready(other);
+
+	return err;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static int unix_stream_sendmsg(struct socket *sock, struct msghdr *msg,
 			       size_t len)
 {
@@ -1853,8 +2409,19 @@ static int unix_stream_sendmsg(struct socket *sock, struct msghdr *msg,
 		return err;
 
 	err = -EOPNOTSUPP;
+<<<<<<< HEAD
 	if (msg->msg_flags&MSG_OOB)
 		goto out_err;
+=======
+	if (msg->msg_flags & MSG_OOB) {
+#if (IS_ENABLED(CONFIG_AF_UNIX_OOB))
+		if (len)
+			len--;
+		else
+#endif
+			goto out_err;
+	}
+>>>>>>> upstream/android-13
 
 	if (msg->msg_namelen) {
 		err = sk->sk_state == TCP_ESTABLISHED ? -EISCONN : -EOPNOTSUPP;
@@ -1912,12 +2479,28 @@ static int unix_stream_sendmsg(struct socket *sock, struct msghdr *msg,
 			goto pipe_err_free;
 
 		maybe_add_creds(skb, sock, other);
+<<<<<<< HEAD
+=======
+		scm_stat_add(other, skb);
+>>>>>>> upstream/android-13
 		skb_queue_tail(&other->sk_receive_queue, skb);
 		unix_state_unlock(other);
 		other->sk_data_ready(other);
 		sent += size;
 	}
 
+<<<<<<< HEAD
+=======
+#if (IS_ENABLED(CONFIG_AF_UNIX_OOB))
+	if (msg->msg_flags & MSG_OOB) {
+		err = queue_oob(sock, msg, other);
+		if (err)
+			goto out_err;
+		sent++;
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	scm_destroy(&scm);
 
 	return sent;
@@ -2090,6 +2673,7 @@ static void unix_copy_addr(struct msghdr *msg, struct sock *sk)
 	}
 }
 
+<<<<<<< HEAD
 static int unix_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
 			      size_t size, int flags)
 {
@@ -2100,6 +2684,18 @@ static int unix_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
 	long timeo;
 	int err;
 	int peeked, skip;
+=======
+int __unix_dgram_recvmsg(struct sock *sk, struct msghdr *msg, size_t size,
+			 int flags)
+{
+	struct scm_cookie scm;
+	struct socket *sock = sk->sk_socket;
+	struct unix_sock *u = unix_sk(sk);
+	struct sk_buff *skb, *last;
+	long timeo;
+	int skip;
+	int err;
+>>>>>>> upstream/android-13
 
 	err = -EOPNOTSUPP;
 	if (flags&MSG_OOB)
@@ -2111,17 +2707,32 @@ static int unix_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
 		mutex_lock(&u->iolock);
 
 		skip = sk_peek_offset(sk, flags);
+<<<<<<< HEAD
 		skb = __skb_try_recv_datagram(sk, flags, NULL, &peeked, &skip,
 					      &err, &last);
 		if (skb)
 			break;
+=======
+		skb = __skb_try_recv_datagram(sk, &sk->sk_receive_queue, flags,
+					      &skip, &err, &last);
+		if (skb) {
+			if (!(flags & MSG_PEEK))
+				scm_stat_del(sk, skb);
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		mutex_unlock(&u->iolock);
 
 		if (err != -EAGAIN)
 			break;
 	} while (timeo &&
+<<<<<<< HEAD
 		 !__skb_wait_for_more_packets(sk, &err, &timeo, last));
+=======
+		 !__skb_wait_for_more_packets(sk, &sk->sk_receive_queue,
+					      &err, &timeo, last));
+>>>>>>> upstream/android-13
 
 	if (!skb) { /* implies iolock unlocked */
 		unix_state_lock(sk);
@@ -2193,6 +2804,58 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int unix_dgram_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+			      int flags)
+{
+	struct sock *sk = sock->sk;
+
+#ifdef CONFIG_BPF_SYSCALL
+	const struct proto *prot = READ_ONCE(sk->sk_prot);
+
+	if (prot != &unix_dgram_proto)
+		return prot->recvmsg(sk, msg, size, flags & MSG_DONTWAIT,
+					    flags & ~MSG_DONTWAIT, NULL);
+#endif
+	return __unix_dgram_recvmsg(sk, msg, size, flags);
+}
+
+static int unix_read_sock(struct sock *sk, read_descriptor_t *desc,
+			  sk_read_actor_t recv_actor)
+{
+	int copied = 0;
+
+	while (1) {
+		struct unix_sock *u = unix_sk(sk);
+		struct sk_buff *skb;
+		int used, err;
+
+		mutex_lock(&u->iolock);
+		skb = skb_recv_datagram(sk, 0, 1, &err);
+		mutex_unlock(&u->iolock);
+		if (!skb)
+			return err;
+
+		used = recv_actor(desc, skb, 0, skb->len);
+		if (used <= 0) {
+			if (!copied)
+				copied = used;
+			kfree_skb(skb);
+			break;
+		} else if (used <= skb->len) {
+			copied += used;
+		}
+
+		kfree_skb(skb);
+		if (!desc->count)
+			break;
+	}
+
+	return copied;
+}
+
+>>>>>>> upstream/android-13
 /*
  *	Sleep until more data has arrived. But check for races..
  */
@@ -2252,6 +2915,88 @@ struct unix_stream_read_state {
 	unsigned int splice_flags;
 };
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+static int unix_stream_recv_urg(struct unix_stream_read_state *state)
+{
+	struct socket *sock = state->socket;
+	struct sock *sk = sock->sk;
+	struct unix_sock *u = unix_sk(sk);
+	int chunk = 1;
+	struct sk_buff *oob_skb;
+
+	mutex_lock(&u->iolock);
+	unix_state_lock(sk);
+
+	if (sock_flag(sk, SOCK_URGINLINE) || !u->oob_skb) {
+		unix_state_unlock(sk);
+		mutex_unlock(&u->iolock);
+		return -EINVAL;
+	}
+
+	oob_skb = u->oob_skb;
+
+	if (!(state->flags & MSG_PEEK))
+		WRITE_ONCE(u->oob_skb, NULL);
+
+	unix_state_unlock(sk);
+
+	chunk = state->recv_actor(oob_skb, 0, chunk, state);
+
+	if (!(state->flags & MSG_PEEK)) {
+		UNIXCB(oob_skb).consumed += 1;
+		kfree_skb(oob_skb);
+	}
+
+	mutex_unlock(&u->iolock);
+
+	if (chunk < 0)
+		return -EFAULT;
+
+	state->msg->msg_flags |= MSG_OOB;
+	return 1;
+}
+
+static struct sk_buff *manage_oob(struct sk_buff *skb, struct sock *sk,
+				  int flags, int copied)
+{
+	struct unix_sock *u = unix_sk(sk);
+
+	if (!unix_skb_len(skb) && !(flags & MSG_PEEK)) {
+		skb_unlink(skb, &sk->sk_receive_queue);
+		consume_skb(skb);
+		skb = NULL;
+	} else {
+		if (skb == u->oob_skb) {
+			if (copied) {
+				skb = NULL;
+			} else if (sock_flag(sk, SOCK_URGINLINE)) {
+				if (!(flags & MSG_PEEK)) {
+					WRITE_ONCE(u->oob_skb, NULL);
+					consume_skb(skb);
+				}
+			} else if (!(flags & MSG_PEEK)) {
+				skb_unlink(skb, &sk->sk_receive_queue);
+				consume_skb(skb);
+				skb = skb_peek(&sk->sk_receive_queue);
+			}
+		}
+	}
+	return skb;
+}
+#endif
+
+static int unix_stream_read_sock(struct sock *sk, read_descriptor_t *desc,
+				 sk_read_actor_t recv_actor)
+{
+	if (unlikely(sk->sk_state != TCP_ESTABLISHED))
+		return -ENOTCONN;
+
+	return unix_read_sock(sk, desc, recv_actor);
+}
+
+>>>>>>> upstream/android-13
 static int unix_stream_read_generic(struct unix_stream_read_state *state,
 				    bool freezable)
 {
@@ -2277,6 +3022,12 @@ static int unix_stream_read_generic(struct unix_stream_read_state *state,
 
 	if (unlikely(flags & MSG_OOB)) {
 		err = -EOPNOTSUPP;
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+		err = unix_stream_recv_urg(state);
+#endif
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -2305,6 +3056,21 @@ redo:
 		}
 		last = skb = skb_peek(&sk->sk_receive_queue);
 		last_len = last ? last->len : 0;
+<<<<<<< HEAD
+=======
+
+#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+		if (skb) {
+			skb = manage_oob(skb, sk, flags, copied);
+			if (!skb) {
+				unix_state_unlock(sk);
+				if (copied)
+					break;
+				goto redo;
+			}
+		}
+#endif
+>>>>>>> upstream/android-13
 again:
 		if (skb == NULL) {
 			if (copied >= target)
@@ -2406,8 +3172,15 @@ unlock:
 
 			sk_peek_offset_bwd(sk, chunk);
 
+<<<<<<< HEAD
 			if (UNIXCB(skb).fp)
 				unix_detach_fds(&scm, skb);
+=======
+			if (UNIXCB(skb).fp) {
+				scm_stat_del(sk, skb);
+				unix_detach_fds(&scm, skb);
+			}
+>>>>>>> upstream/android-13
 
 			if (unix_skb_len(skb))
 				break;
@@ -2460,6 +3233,23 @@ static int unix_stream_read_actor(struct sk_buff *skb,
 	return ret ?: chunk;
 }
 
+<<<<<<< HEAD
+=======
+int __unix_stream_recvmsg(struct sock *sk, struct msghdr *msg,
+			  size_t size, int flags)
+{
+	struct unix_stream_read_state state = {
+		.recv_actor = unix_stream_read_actor,
+		.socket = sk->sk_socket,
+		.msg = msg,
+		.size = size,
+		.flags = flags
+	};
+
+	return unix_stream_read_generic(&state, true);
+}
+
+>>>>>>> upstream/android-13
 static int unix_stream_recvmsg(struct socket *sock, struct msghdr *msg,
 			       size_t size, int flags)
 {
@@ -2471,6 +3261,17 @@ static int unix_stream_recvmsg(struct socket *sock, struct msghdr *msg,
 		.flags = flags
 	};
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BPF_SYSCALL
+	struct sock *sk = sock->sk;
+	const struct proto *prot = READ_ONCE(sk->sk_prot);
+
+	if (prot != &unix_stream_proto)
+		return prot->recvmsg(sk, msg, size, flags & MSG_DONTWAIT,
+					    flags & ~MSG_DONTWAIT, NULL);
+#endif
+>>>>>>> upstream/android-13
 	return unix_stream_read_generic(&state, true);
 }
 
@@ -2531,7 +3332,14 @@ static int unix_shutdown(struct socket *sock, int mode)
 		(sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET)) {
 
 		int peer_mode = 0;
+<<<<<<< HEAD
 
+=======
+		const struct proto *prot = READ_ONCE(other->sk_prot);
+
+		if (prot->unhash)
+			prot->unhash(other);
+>>>>>>> upstream/android-13
 		if (mode&RCV_SHUTDOWN)
 			peer_mode |= SEND_SHUTDOWN;
 		if (mode&SEND_SHUTDOWN)
@@ -2638,6 +3446,22 @@ static int unix_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 	case SIOCUNIXFILE:
 		err = unix_open_file(sk);
 		break;
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+	case SIOCATMARK:
+		{
+			struct sk_buff *skb;
+			int answ = 0;
+
+			skb = skb_peek(&sk->sk_receive_queue);
+			if (skb && skb == READ_ONCE(unix_sk(sk)->oob_skb))
+				answ = 1;
+			err = put_user(answ, (int __user *)arg);
+		}
+		break;
+#endif
+>>>>>>> upstream/android-13
 	default:
 		err = -ENOIOCTLCMD;
 		break;
@@ -2671,6 +3495,15 @@ static __poll_t unix_poll(struct file *file, struct socket *sock, poll_table *wa
 	/* readable? */
 	if (!skb_queue_empty_lockless(&sk->sk_receive_queue))
 		mask |= EPOLLIN | EPOLLRDNORM;
+<<<<<<< HEAD
+=======
+	if (sk_is_readable(sk))
+		mask |= EPOLLIN | EPOLLRDNORM;
+#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+	if (READ_ONCE(unix_sk(sk)->oob_skb))
+		mask |= EPOLLPRI;
+#endif
+>>>>>>> upstream/android-13
 
 	/* Connection-based need to check for termination and startup */
 	if ((sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET) &&
@@ -2710,6 +3543,11 @@ static __poll_t unix_dgram_poll(struct file *file, struct socket *sock,
 	/* readable? */
 	if (!skb_queue_empty_lockless(&sk->sk_receive_queue))
 		mask |= EPOLLIN | EPOLLRDNORM;
+<<<<<<< HEAD
+=======
+	if (sk_is_readable(sk))
+		mask |= EPOLLIN | EPOLLRDNORM;
+>>>>>>> upstream/android-13
 
 	/* Connection-based need to check for termination and startup */
 	if (sk->sk_type == SOCK_SEQPACKET) {
@@ -2730,7 +3568,11 @@ static __poll_t unix_dgram_poll(struct file *file, struct socket *sock,
 
 		other = unix_peer(sk);
 		if (other && unix_peer(other) != sk &&
+<<<<<<< HEAD
 		    unix_recvq_full(other) &&
+=======
+		    unix_recvq_full_lockless(other) &&
+>>>>>>> upstream/android-13
 		    unix_dgram_peer_wake_me(sk, other))
 			writable = 0;
 
@@ -2874,6 +3716,67 @@ static const struct seq_operations unix_seq_ops = {
 	.stop   = unix_seq_stop,
 	.show   = unix_seq_show,
 };
+<<<<<<< HEAD
+=======
+
+#if IS_BUILTIN(CONFIG_UNIX) && defined(CONFIG_BPF_SYSCALL)
+struct bpf_iter__unix {
+	__bpf_md_ptr(struct bpf_iter_meta *, meta);
+	__bpf_md_ptr(struct unix_sock *, unix_sk);
+	uid_t uid __aligned(8);
+};
+
+static int unix_prog_seq_show(struct bpf_prog *prog, struct bpf_iter_meta *meta,
+			      struct unix_sock *unix_sk, uid_t uid)
+{
+	struct bpf_iter__unix ctx;
+
+	meta->seq_num--;  /* skip SEQ_START_TOKEN */
+	ctx.meta = meta;
+	ctx.unix_sk = unix_sk;
+	ctx.uid = uid;
+	return bpf_iter_run_prog(prog, &ctx);
+}
+
+static int bpf_iter_unix_seq_show(struct seq_file *seq, void *v)
+{
+	struct bpf_iter_meta meta;
+	struct bpf_prog *prog;
+	struct sock *sk = v;
+	uid_t uid;
+
+	if (v == SEQ_START_TOKEN)
+		return 0;
+
+	uid = from_kuid_munged(seq_user_ns(seq), sock_i_uid(sk));
+	meta.seq = seq;
+	prog = bpf_iter_get_info(&meta, false);
+	return unix_prog_seq_show(prog, &meta, v, uid);
+}
+
+static void bpf_iter_unix_seq_stop(struct seq_file *seq, void *v)
+{
+	struct bpf_iter_meta meta;
+	struct bpf_prog *prog;
+
+	if (!v) {
+		meta.seq = seq;
+		prog = bpf_iter_get_info(&meta, true);
+		if (prog)
+			(void)unix_prog_seq_show(prog, &meta, v, 0);
+	}
+
+	unix_seq_stop(seq, v);
+}
+
+static const struct seq_operations bpf_iter_unix_seq_ops = {
+	.start	= unix_seq_start,
+	.next	= unix_seq_next,
+	.stop	= bpf_iter_unix_seq_stop,
+	.show	= bpf_iter_unix_seq_show,
+};
+#endif
+>>>>>>> upstream/android-13
 #endif
 
 static const struct net_proto_family unix_family_ops = {
@@ -2914,13 +3817,57 @@ static struct pernet_operations unix_net_ops = {
 	.exit = unix_net_exit,
 };
 
+<<<<<<< HEAD
+=======
+#if IS_BUILTIN(CONFIG_UNIX) && defined(CONFIG_BPF_SYSCALL) && defined(CONFIG_PROC_FS)
+DEFINE_BPF_ITER_FUNC(unix, struct bpf_iter_meta *meta,
+		     struct unix_sock *unix_sk, uid_t uid)
+
+static const struct bpf_iter_seq_info unix_seq_info = {
+	.seq_ops		= &bpf_iter_unix_seq_ops,
+	.init_seq_private	= bpf_iter_init_seq_net,
+	.fini_seq_private	= bpf_iter_fini_seq_net,
+	.seq_priv_size		= sizeof(struct seq_net_private),
+};
+
+static struct bpf_iter_reg unix_reg_info = {
+	.target			= "unix",
+	.ctx_arg_info_size	= 1,
+	.ctx_arg_info		= {
+		{ offsetof(struct bpf_iter__unix, unix_sk),
+		  PTR_TO_BTF_ID_OR_NULL },
+	},
+	.seq_info		= &unix_seq_info,
+};
+
+static void __init bpf_iter_register(void)
+{
+	unix_reg_info.ctx_arg_info[0].btf_id = btf_sock_ids[BTF_SOCK_TYPE_UNIX];
+	if (bpf_iter_reg_target(&unix_reg_info))
+		pr_warn("Warning: could not register bpf iterator unix\n");
+}
+#endif
+
+>>>>>>> upstream/android-13
 static int __init af_unix_init(void)
 {
 	int rc = -1;
 
+<<<<<<< HEAD
 	BUILD_BUG_ON(sizeof(struct unix_skb_parms) > FIELD_SIZEOF(struct sk_buff, cb));
 
 	rc = proto_register(&unix_proto, 1);
+=======
+	BUILD_BUG_ON(sizeof(struct unix_skb_parms) > sizeof_field(struct sk_buff, cb));
+
+	rc = proto_register(&unix_dgram_proto, 1);
+	if (rc != 0) {
+		pr_crit("%s: Cannot create unix_sock SLAB cache!\n", __func__);
+		goto out;
+	}
+
+	rc = proto_register(&unix_stream_proto, 1);
+>>>>>>> upstream/android-13
 	if (rc != 0) {
 		pr_crit("%s: Cannot create unix_sock SLAB cache!\n", __func__);
 		goto out;
@@ -2928,6 +3875,15 @@ static int __init af_unix_init(void)
 
 	sock_register(&unix_family_ops);
 	register_pernet_subsys(&unix_net_ops);
+<<<<<<< HEAD
+=======
+	unix_bpf_build_proto();
+
+#if IS_BUILTIN(CONFIG_UNIX) && defined(CONFIG_BPF_SYSCALL) && defined(CONFIG_PROC_FS)
+	bpf_iter_register();
+#endif
+
+>>>>>>> upstream/android-13
 out:
 	return rc;
 }
@@ -2935,7 +3891,12 @@ out:
 static void __exit af_unix_exit(void)
 {
 	sock_unregister(PF_UNIX);
+<<<<<<< HEAD
 	proto_unregister(&unix_proto);
+=======
+	proto_unregister(&unix_dgram_proto);
+	proto_unregister(&unix_stream_proto);
+>>>>>>> upstream/android-13
 	unregister_pernet_subsys(&unix_net_ops);
 }
 
@@ -2947,4 +3908,8 @@ fs_initcall(af_unix_init);
 module_exit(af_unix_exit);
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+>>>>>>> upstream/android-13
 MODULE_ALIAS_NETPROTO(PF_UNIX);

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2004 IBM Corporation
  *
  *  Author: Serge Hallyn <serue@us.ibm.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, version 2 of the
  *  License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -37,7 +44,11 @@ static struct uts_namespace *create_uts_ns(void)
 
 	uts_ns = kmem_cache_alloc(uts_ns_cache, GFP_KERNEL);
 	if (uts_ns)
+<<<<<<< HEAD
 		kref_init(&uts_ns->kref);
+=======
+		refcount_set(&uts_ns->ns.count, 1);
+>>>>>>> upstream/android-13
 	return uts_ns;
 }
 
@@ -107,11 +118,16 @@ struct uts_namespace *copy_utsname(unsigned long flags,
 	return new_ns;
 }
 
+<<<<<<< HEAD
 void free_uts_ns(struct kref *kref)
 {
 	struct uts_namespace *ns;
 
 	ns = container_of(kref, struct uts_namespace, kref);
+=======
+void free_uts_ns(struct uts_namespace *ns)
+{
+>>>>>>> upstream/android-13
 	dec_uts_namespaces(ns->ucounts);
 	put_user_ns(ns->user_ns);
 	ns_free_inum(&ns->ns);
@@ -144,12 +160,22 @@ static void utsns_put(struct ns_common *ns)
 	put_uts_ns(to_uts_ns(ns));
 }
 
+<<<<<<< HEAD
 static int utsns_install(struct nsproxy *nsproxy, struct ns_common *new)
 {
 	struct uts_namespace *ns = to_uts_ns(new);
 
 	if (!ns_capable(ns->user_ns, CAP_SYS_ADMIN) ||
 	    !ns_capable(current_user_ns(), CAP_SYS_ADMIN))
+=======
+static int utsns_install(struct nsset *nsset, struct ns_common *new)
+{
+	struct nsproxy *nsproxy = nsset->nsproxy;
+	struct uts_namespace *ns = to_uts_ns(new);
+
+	if (!ns_capable(ns->user_ns, CAP_SYS_ADMIN) ||
+	    !ns_capable(nsset->cred->user_ns, CAP_SYS_ADMIN))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	get_uts_ns(ns);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Epson HWA742 LCD controller driver
  *
@@ -5,6 +9,7 @@
  * Authors:     Juha Yrjölä   <juha.yrjola@nokia.com>
  *	        Imre Deak     <imre.deak@nokia.com>
  * YUV support: Jussi Laako   <jussi.laako@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/mm.h>
@@ -113,6 +120,17 @@ struct {
 	struct hwa742_request	req_pool[REQ_POOL_SIZE];
 	struct list_head	pending_req_list;
 	struct list_head	free_req_list;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * @req_lock: protect request slots pool and its tracking lists
+	 * @req_sema: counter; slot allocators from task contexts must
+	 *            push it down before acquiring a slot. This
+	 *            guarantees that atomic contexts will always have
+	 *            a minimum of IRQ_REQ_POOL_SIZE slots available.
+	 */
+>>>>>>> upstream/android-13
 	struct semaphore	req_sema;
 	spinlock_t		req_lock;
 
@@ -237,13 +255,21 @@ static void disable_tearsync(void)
 	hwa742_write_reg(HWA742_NDP_CTRL, b);
 }
 
+<<<<<<< HEAD
 static inline struct hwa742_request *alloc_req(void)
+=======
+static inline struct hwa742_request *alloc_req(bool can_sleep)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct hwa742_request *req;
 	int req_flags = 0;
 
+<<<<<<< HEAD
 	if (!in_interrupt())
+=======
+	if (can_sleep)
+>>>>>>> upstream/android-13
 		down(&hwa742.req_sema);
 	else
 		req_flags = REQ_FROM_IRQ_POOL;
@@ -412,8 +438,13 @@ static void send_frame_complete(void *data)
 	hwa742.int_ctrl->enable_plane(OMAPFB_PLANE_GFX, 0);
 }
 
+<<<<<<< HEAD
 #define ADD_PREQ(_x, _y, _w, _h) do {		\
 	req = alloc_req();			\
+=======
+#define ADD_PREQ(_x, _y, _w, _h, can_sleep) do {\
+	req = alloc_req(can_sleep);		\
+>>>>>>> upstream/android-13
 	req->handler	= send_frame_handler;	\
 	req->complete	= send_frame_complete;	\
 	req->par.update.x = _x;			\
@@ -426,7 +457,12 @@ static void send_frame_complete(void *data)
 } while(0)
 
 static void create_req_list(struct omapfb_update_window *win,
+<<<<<<< HEAD
 			    struct list_head *req_head)
+=======
+			    struct list_head *req_head,
+			    bool can_sleep)
+>>>>>>> upstream/android-13
 {
 	struct hwa742_request *req;
 	int x = win->x;
@@ -440,7 +476,11 @@ static void create_req_list(struct omapfb_update_window *win,
 	color_mode = win->format & OMAPFB_FORMAT_MASK;
 
 	if (x & 1) {
+<<<<<<< HEAD
 		ADD_PREQ(x, y, 1, height);
+=======
+		ADD_PREQ(x, y, 1, height, can_sleep);
+>>>>>>> upstream/android-13
 		width--;
 		x++;
 		flags &= ~OMAPFB_FORMAT_FLAG_TEARSYNC;
@@ -452,19 +492,31 @@ static void create_req_list(struct omapfb_update_window *win,
 
 		if (xspan * height * 2 > hwa742.max_transmit_size) {
 			yspan = hwa742.max_transmit_size / (xspan * 2);
+<<<<<<< HEAD
 			ADD_PREQ(x, ystart, xspan, yspan);
+=======
+			ADD_PREQ(x, ystart, xspan, yspan, can_sleep);
+>>>>>>> upstream/android-13
 			ystart += yspan;
 			yspan = height - yspan;
 			flags &= ~OMAPFB_FORMAT_FLAG_TEARSYNC;
 		}
 
+<<<<<<< HEAD
 		ADD_PREQ(x, ystart, xspan, yspan);
+=======
+		ADD_PREQ(x, ystart, xspan, yspan, can_sleep);
+>>>>>>> upstream/android-13
 		x += xspan;
 		width -= xspan;
 		flags &= ~OMAPFB_FORMAT_FLAG_TEARSYNC;
 	}
 	if (width)
+<<<<<<< HEAD
 		ADD_PREQ(x, y, 1, height);
+=======
+		ADD_PREQ(x, y, 1, height, can_sleep);
+>>>>>>> upstream/android-13
 }
 
 static void auto_update_complete(void *data)
@@ -474,12 +526,20 @@ static void auto_update_complete(void *data)
 			  jiffies + HWA742_AUTO_UPDATE_TIME);
 }
 
+<<<<<<< HEAD
 static void hwa742_update_window_auto(struct timer_list *unused)
+=======
+static void __hwa742_update_window_auto(bool can_sleep)
+>>>>>>> upstream/android-13
 {
 	LIST_HEAD(req_list);
 	struct hwa742_request *last;
 
+<<<<<<< HEAD
 	create_req_list(&hwa742.auto_update_window, &req_list);
+=======
+	create_req_list(&hwa742.auto_update_window, &req_list, can_sleep);
+>>>>>>> upstream/android-13
 	last = list_entry(req_list.prev, struct hwa742_request, entry);
 
 	last->complete = auto_update_complete;
@@ -488,6 +548,14 @@ static void hwa742_update_window_auto(struct timer_list *unused)
 	submit_req_list(&req_list);
 }
 
+<<<<<<< HEAD
+=======
+static void hwa742_update_window_auto(struct timer_list *unused)
+{
+	__hwa742_update_window_auto(false);
+}
+
+>>>>>>> upstream/android-13
 int hwa742_update_window_async(struct fb_info *fbi,
 				 struct omapfb_update_window *win,
 				 void (*complete_callback)(void *arg),
@@ -510,7 +578,11 @@ int hwa742_update_window_async(struct fb_info *fbi,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	create_req_list(win, &req_list);
+=======
+	create_req_list(win, &req_list, true);
+>>>>>>> upstream/android-13
 	last = list_entry(req_list.prev, struct hwa742_request, entry);
 
 	last->complete = complete_callback;
@@ -557,7 +629,11 @@ static void hwa742_sync(void)
 	struct hwa742_request *req;
 	struct completion comp;
 
+<<<<<<< HEAD
 	req = alloc_req();
+=======
+	req = alloc_req(true);
+>>>>>>> upstream/android-13
 
 	req->handler = sync_handler;
 	req->complete = NULL;
@@ -612,7 +688,11 @@ static int hwa742_set_update_mode(enum omapfb_update_mode mode)
 		omapfb_notify_clients(hwa742.fbdev, OMAPFB_EVENT_READY);
 		break;
 	case OMAPFB_AUTO_UPDATE:
+<<<<<<< HEAD
 		hwa742_update_window_auto(0);
+=======
+		__hwa742_update_window_auto(true);
+>>>>>>> upstream/android-13
 		break;
 	case OMAPFB_UPDATE_DISABLED:
 		break;

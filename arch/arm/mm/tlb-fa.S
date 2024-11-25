@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/tlb-fa.S
  *
@@ -7,10 +11,13 @@
  * Based on tlb-v4wbi.S:
  *  Copyright (C) 1997-2002 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  ARM architecture version 4, Faraday variation.
  *  This assume an unified TLBs, with a write buffer, and branch target buffer (BTB)
  *

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Realtek RTL2832U SDR driver
  *
  * Copyright (C) 2013 Antti Palosaari <crope@iki.fi>
  *
+<<<<<<< HEAD
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,10 @@
  * GNU Radio plugin "gr-kernel" for device usage will be on:
  * http://git.linuxtv.org/anttip/gr-kernel.git
  *
+=======
+ * GNU Radio plugin "gr-kernel" for device usage will be on:
+ * http://git.linuxtv.org/anttip/gr-kernel.git
+>>>>>>> upstream/android-13
  */
 
 #ifndef RTL2832_SDR_H

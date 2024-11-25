@@ -3,8 +3,11 @@
 # Makefile for USB Core files and filesystem
 #
 
+<<<<<<< HEAD
 ccflags-y := -I$(srctree)/drivers/misc/mediatek/usb_boost/
 
+=======
+>>>>>>> upstream/android-13
 usbcore-y := usb.o hub.o hcd.o urb.o message.o driver.o
 usbcore-y += config.o file.o buffer.o sysfs.o endpoint.o
 usbcore-y += devio.o notify.o generic.o quirks.o devices.o
@@ -13,6 +16,10 @@ usbcore-y += phy.o port.o
 usbcore-$(CONFIG_OF)		+= of.o
 usbcore-$(CONFIG_USB_PCI)		+= hcd-pci.o
 usbcore-$(CONFIG_ACPI)		+= usb-acpi.o
+<<<<<<< HEAD
+=======
+usbcore-$(CONFIG_USB_HOST_CERTIFICATION)		+= usb_host_certify.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_USB)		+= usbcore.o
 

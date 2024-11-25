@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	X.25 Packet Layer release 002
  *
@@ -7,12 +11,15 @@
  *
  *	This code REQUIRES 2.1.15 or higher
  *
+<<<<<<< HEAD
  *	This module:
  *		This module is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	History
  *	X.25 001	Jonathan Naylor	  Started coding.
  *	X.25 002	Jonathan Naylor	  Centralised disconnection code.
@@ -142,6 +149,18 @@ static int x25_state1_machine(struct sock *sk, struct sk_buff *skb, int frametyp
 			sk->sk_state_change(sk);
 		break;
 	}
+<<<<<<< HEAD
+=======
+	case X25_CALL_REQUEST:
+		/* call collision */
+		x25->causediag.cause      = 0x01;
+		x25->causediag.diagnostic = 0x48;
+
+		x25_write_internal(sk, X25_CLEAR_REQUEST);
+		x25_disconnect(sk, EISCONN, 0x01, 0x48);
+		break;
+
+>>>>>>> upstream/android-13
 	case X25_CLEAR_REQUEST:
 		if (!pskb_may_pull(skb, X25_STD_MIN_LEN + 2))
 			goto out_clear;
@@ -345,7 +364,11 @@ static int x25_state4_machine(struct sock *sk, struct sk_buff *skb, int frametyp
 
 		case X25_RESET_REQUEST:
 			x25_write_internal(sk, X25_RESET_CONFIRMATION);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case X25_RESET_CONFIRMATION: {
 			x25_stop_timer(sk);
 			x25->condition = 0x00;
@@ -378,6 +401,38 @@ out_clear:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * State machine for state 5, Call Accepted / Call Connected pending (X25_ACCPT_APPRV_FLAG).
+ * The handling of the timer(s) is in file x25_timer.c
+ * Handling of state 0 and connection release is in af_x25.c.
+ */
+static int x25_state5_machine(struct sock *sk, struct sk_buff *skb, int frametype)
+{
+	struct x25_sock *x25 = x25_sk(sk);
+
+	switch (frametype) {
+		case X25_CLEAR_REQUEST:
+			if (!pskb_may_pull(skb, X25_STD_MIN_LEN + 2)) {
+				x25_write_internal(sk, X25_CLEAR_REQUEST);
+				x25->state = X25_STATE_2;
+				x25_start_t23timer(sk);
+				return 0;
+			}
+
+			x25_write_internal(sk, X25_CLEAR_CONFIRMATION);
+			x25_disconnect(sk, 0, skb->data[3], skb->data[4]);
+			break;
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Higher level upcall for a LAPB frame */
 int x25_process_rx_frame(struct sock *sk, struct sk_buff *skb)
 {
@@ -402,6 +457,12 @@ int x25_process_rx_frame(struct sock *sk, struct sk_buff *skb)
 	case X25_STATE_4:
 		queued = x25_state4_machine(sk, skb, frametype);
 		break;
+<<<<<<< HEAD
+=======
+	case X25_STATE_5:
+		queued = x25_state5_machine(sk, skb, frametype);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	x25_kick(sk);

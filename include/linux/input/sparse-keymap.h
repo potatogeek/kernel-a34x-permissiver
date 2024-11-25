@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _SPARSE_KEYMAP_H
 #define _SPARSE_KEYMAP_H
 
 /*
  * Copyright (c) 2009 Dmitry Torokhov
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KE_END		0	/* Indicates end of keymap */
@@ -23,6 +30,10 @@
  *	private definitions.
  * @code: Device-specific data identifying the button/switch
  * @keycode: KEY_* code assigned to a key/button
+<<<<<<< HEAD
+=======
+ * @sw: struct with code/value used by KE_SW and KE_VSW
+>>>>>>> upstream/android-13
  * @sw.code: SW_* code assigned to a switch
  * @sw.value: Value that should be sent in an input even when KE_SW
  *	switch is toggled. KE_VSW switches ignore this field and

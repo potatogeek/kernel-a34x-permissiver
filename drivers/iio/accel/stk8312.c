@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Sensortek STK8312 3-Axis Accelerometer
  *
  * Copyright (c) 2015, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License. See the file COPYING in the main
  * directory of this archive for more details.
@@ -11,6 +17,11 @@
  */
 
 #include <linux/acpi.h>
+=======
+ * IIO driver for STK8312; 7-bit I2C address: 0x3D.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
@@ -106,7 +117,15 @@ struct stk8312_data {
 	u8 mode;
 	struct iio_trigger *dready_trig;
 	bool dready_trigger_on;
+<<<<<<< HEAD
 	s8 buffer[16]; /* 3x8-bit channels + 5x8 padding + 64-bit timestamp */
+=======
+	/* Ensure timestamp is naturally aligned */
+	struct {
+		s8 chans[3];
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 };
 
 static IIO_CONST_ATTR(in_accel_scale_available, STK8312_SCALE_AVAIL);
@@ -441,7 +460,11 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
 		ret = i2c_smbus_read_i2c_block_data(data->client,
 						    STK8312_REG_XOUT,
 						    STK8312_ALL_CHANNEL_SIZE,
+<<<<<<< HEAD
 						    data->buffer);
+=======
+						    data->scan.chans);
+>>>>>>> upstream/android-13
 		if (ret < STK8312_ALL_CHANNEL_SIZE) {
 			dev_err(&data->client->dev, "register read failed\n");
 			mutex_unlock(&data->lock);
@@ -455,12 +478,20 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
 				mutex_unlock(&data->lock);
 				goto err;
 			}
+<<<<<<< HEAD
 			data->buffer[i++] = ret;
+=======
+			data->scan.chans[i++] = ret;
+>>>>>>> upstream/android-13
 		}
 	}
 	mutex_unlock(&data->lock);
 
+<<<<<<< HEAD
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 					   pf->timestamp);
 err:
 	iio_trigger_notify_done(indio_dev->trig);
@@ -495,8 +526,11 @@ static int stk8312_buffer_postdisable(struct iio_dev *indio_dev)
 
 static const struct iio_buffer_setup_ops stk8312_buffer_setup_ops = {
 	.preenable   = stk8312_buffer_preenable,
+<<<<<<< HEAD
 	.postenable  = iio_triggered_buffer_postenable,
 	.predisable  = iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = stk8312_buffer_postdisable,
 };
 
@@ -518,7 +552,10 @@ static int stk8312_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, indio_dev);
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &stk8312_info;
 	indio_dev->name = STK8312_DRIVER_NAME;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -558,13 +595,20 @@ static int stk8312_probe(struct i2c_client *client,
 		data->dready_trig = devm_iio_trigger_alloc(&client->dev,
 							   "%s-dev%d",
 							   indio_dev->name,
+<<<<<<< HEAD
 							   indio_dev->id);
+=======
+							   iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!data->dready_trig) {
 			ret = -ENOMEM;
 			goto err_power_off;
 		}
 
+<<<<<<< HEAD
 		data->dready_trig->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 		data->dready_trig->ops = &stk8312_trigger_ops;
 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
 		ret = iio_trigger_register(data->dready_trig);
@@ -642,11 +686,18 @@ static SIMPLE_DEV_PM_OPS(stk8312_pm_ops, stk8312_suspend, stk8312_resume);
 #endif
 
 static const struct i2c_device_id stk8312_i2c_id[] = {
+<<<<<<< HEAD
 	{"STK8312", 0},
+=======
+	/* Deprecated in favour of lowercase form */
+	{ "STK8312", 0 },
+	{ "stk8312", 0 },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(i2c, stk8312_i2c_id);
 
+<<<<<<< HEAD
 static const struct acpi_device_id stk8312_acpi_id[] = {
 	{"STK8312", 0},
 	{}
@@ -654,11 +705,16 @@ static const struct acpi_device_id stk8312_acpi_id[] = {
 
 MODULE_DEVICE_TABLE(acpi, stk8312_acpi_id);
 
+=======
+>>>>>>> upstream/android-13
 static struct i2c_driver stk8312_driver = {
 	.driver = {
 		.name = STK8312_DRIVER_NAME,
 		.pm = STK8312_PM_OPS,
+<<<<<<< HEAD
 		.acpi_match_table = ACPI_PTR(stk8312_acpi_id),
+=======
+>>>>>>> upstream/android-13
 	},
 	.probe =            stk8312_probe,
 	.remove =           stk8312_remove,

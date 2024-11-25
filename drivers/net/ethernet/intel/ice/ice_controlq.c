@@ -3,6 +3,31 @@
 
 #include "ice_common.h"
 
+<<<<<<< HEAD
+=======
+#define ICE_CQ_INIT_REGS(qinfo, prefix)				\
+do {								\
+	(qinfo)->sq.head = prefix##_ATQH;			\
+	(qinfo)->sq.tail = prefix##_ATQT;			\
+	(qinfo)->sq.len = prefix##_ATQLEN;			\
+	(qinfo)->sq.bah = prefix##_ATQBAH;			\
+	(qinfo)->sq.bal = prefix##_ATQBAL;			\
+	(qinfo)->sq.len_mask = prefix##_ATQLEN_ATQLEN_M;	\
+	(qinfo)->sq.len_ena_mask = prefix##_ATQLEN_ATQENABLE_M;	\
+	(qinfo)->sq.len_crit_mask = prefix##_ATQLEN_ATQCRIT_M;	\
+	(qinfo)->sq.head_mask = prefix##_ATQH_ATQH_M;		\
+	(qinfo)->rq.head = prefix##_ARQH;			\
+	(qinfo)->rq.tail = prefix##_ARQT;			\
+	(qinfo)->rq.len = prefix##_ARQLEN;			\
+	(qinfo)->rq.bah = prefix##_ARQBAH;			\
+	(qinfo)->rq.bal = prefix##_ARQBAL;			\
+	(qinfo)->rq.len_mask = prefix##_ARQLEN_ARQLEN_M;	\
+	(qinfo)->rq.len_ena_mask = prefix##_ARQLEN_ARQENABLE_M;	\
+	(qinfo)->rq.len_crit_mask = prefix##_ARQLEN_ARQCRIT_M;	\
+	(qinfo)->rq.head_mask = prefix##_ARQH_ARQH_M;		\
+} while (0)
+
+>>>>>>> upstream/android-13
 /**
  * ice_adminq_init_regs - Initialize AdminQ registers
  * @hw: pointer to the hardware structure
@@ -13,6 +38,7 @@ static void ice_adminq_init_regs(struct ice_hw *hw)
 {
 	struct ice_ctl_q_info *cq = &hw->adminq;
 
+<<<<<<< HEAD
 	cq->sq.head = PF_FW_ATQH;
 	cq->sq.tail = PF_FW_ATQT;
 	cq->sq.len = PF_FW_ATQLEN;
@@ -30,11 +56,44 @@ static void ice_adminq_init_regs(struct ice_hw *hw)
 	cq->rq.len_mask = PF_FW_ARQLEN_ARQLEN_M;
 	cq->rq.len_ena_mask = PF_FW_ARQLEN_ARQENABLE_M;
 	cq->rq.head_mask = PF_FW_ARQH_ARQH_M;
+=======
+	ICE_CQ_INIT_REGS(cq, PF_FW);
+}
+
+/**
+ * ice_mailbox_init_regs - Initialize Mailbox registers
+ * @hw: pointer to the hardware structure
+ *
+ * This assumes the alloc_sq and alloc_rq functions have already been called
+ */
+static void ice_mailbox_init_regs(struct ice_hw *hw)
+{
+	struct ice_ctl_q_info *cq = &hw->mailboxq;
+
+	ICE_CQ_INIT_REGS(cq, PF_MBX);
+}
+
+/**
+ * ice_sb_init_regs - Initialize Sideband registers
+ * @hw: pointer to the hardware structure
+ *
+ * This assumes the alloc_sq and alloc_rq functions have already been called
+ */
+static void ice_sb_init_regs(struct ice_hw *hw)
+{
+	struct ice_ctl_q_info *cq = &hw->sbq;
+
+	ICE_CQ_INIT_REGS(cq, PF_SB);
+>>>>>>> upstream/android-13
 }
 
 /**
  * ice_check_sq_alive
+<<<<<<< HEAD
  * @hw: pointer to the hw struct
+=======
+ * @hw: pointer to the HW struct
+>>>>>>> upstream/android-13
  * @cq: pointer to the specific Control queue
  *
  * Returns true if Queue is enabled else false.
@@ -101,6 +160,7 @@ ice_alloc_ctrlq_rq_ring(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 }
 
 /**
+<<<<<<< HEAD
  * ice_free_ctrlq_sq_ring - Free Control Transmit Queue (ATQ) rings
  * @hw: pointer to the hardware structure
  * @cq: pointer to the specific Control queue
@@ -132,6 +192,22 @@ static void ice_free_ctrlq_rq_ring(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	cq->rq.desc_buf.va = NULL;
 	cq->rq.desc_buf.pa = 0;
 	cq->rq.desc_buf.size = 0;
+=======
+ * ice_free_cq_ring - Free control queue ring
+ * @hw: pointer to the hardware structure
+ * @ring: pointer to the specific control queue ring
+ *
+ * This assumes the posted buffers have already been cleaned
+ * and de-allocated
+ */
+static void ice_free_cq_ring(struct ice_hw *hw, struct ice_ctl_q_ring *ring)
+{
+	dmam_free_coherent(ice_hw_to_dev(hw), ring->desc_buf.size,
+			   ring->desc_buf.va, ring->desc_buf.pa);
+	ring->desc_buf.va = NULL;
+	ring->desc_buf.pa = 0;
+	ring->desc_buf.size = 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -199,7 +275,13 @@ unwind_alloc_rq_bufs:
 		cq->rq.r.rq_bi[i].pa = 0;
 		cq->rq.r.rq_bi[i].size = 0;
 	}
+<<<<<<< HEAD
 	devm_kfree(ice_hw_to_dev(hw), cq->rq.dma_head);
+=======
+	cq->rq.r.rq_bi = NULL;
+	devm_kfree(ice_hw_to_dev(hw), cq->rq.dma_head);
+	cq->rq.dma_head = NULL;
+>>>>>>> upstream/android-13
 
 	return ICE_ERR_NO_MEMORY;
 }
@@ -245,11 +327,18 @@ unwind_alloc_sq_bufs:
 		cq->sq.r.sq_bi[i].pa = 0;
 		cq->sq.r.sq_bi[i].size = 0;
 	}
+<<<<<<< HEAD
 	devm_kfree(ice_hw_to_dev(hw), cq->sq.dma_head);
+=======
+	cq->sq.r.sq_bi = NULL;
+	devm_kfree(ice_hw_to_dev(hw), cq->sq.dma_head);
+	cq->sq.dma_head = NULL;
+>>>>>>> upstream/android-13
 
 	return ICE_ERR_NO_MEMORY;
 }
 
+<<<<<<< HEAD
 /**
  * ice_free_rq_bufs - Free ARQ buffer info elements
  * @hw: pointer to the hardware structure
@@ -298,6 +387,25 @@ static void ice_free_sq_bufs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 
 	/* free the dma header */
 	devm_kfree(ice_hw_to_dev(hw), cq->sq.dma_head);
+=======
+static enum ice_status
+ice_cfg_cq_regs(struct ice_hw *hw, struct ice_ctl_q_ring *ring, u16 num_entries)
+{
+	/* Clear Head and Tail */
+	wr32(hw, ring->head, 0);
+	wr32(hw, ring->tail, 0);
+
+	/* set starting point */
+	wr32(hw, ring->len, (num_entries | ring->len_ena_mask));
+	wr32(hw, ring->bal, lower_32_bits(ring->desc_buf.pa));
+	wr32(hw, ring->bah, upper_32_bits(ring->desc_buf.pa));
+
+	/* Check one register to verify that config was applied */
+	if (rd32(hw, ring->bal) != lower_32_bits(ring->desc_buf.pa))
+		return ICE_ERR_AQ_ERROR;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -310,6 +418,7 @@ static void ice_free_sq_bufs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 static enum ice_status
 ice_cfg_sq_regs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 {
+<<<<<<< HEAD
 	u32 reg = 0;
 
 	/* Clear Head and Tail */
@@ -327,6 +436,9 @@ ice_cfg_sq_regs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 		return ICE_ERR_AQ_ERROR;
 
 	return 0;
+=======
+	return ice_cfg_cq_regs(hw, &cq->sq, cq->num_sq_entries);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -334,11 +446,16 @@ ice_cfg_sq_regs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
  * @hw: pointer to the hardware structure
  * @cq: pointer to the specific Control queue
  *
+<<<<<<< HEAD
  * Configure base address and length registers for the receive (event q)
+=======
+ * Configure base address and length registers for the receive (event queue)
+>>>>>>> upstream/android-13
  */
 static enum ice_status
 ice_cfg_rq_regs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 {
+<<<<<<< HEAD
 	u32 reg = 0;
 
 	/* Clear Head and Tail */
@@ -349,10 +466,18 @@ ice_cfg_rq_regs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	wr32(hw, cq->rq.len, (cq->num_rq_entries | cq->rq.len_ena_mask));
 	wr32(hw, cq->rq.bal, lower_32_bits(cq->rq.desc_buf.pa));
 	wr32(hw, cq->rq.bah, upper_32_bits(cq->rq.desc_buf.pa));
+=======
+	enum ice_status status;
+
+	status = ice_cfg_cq_regs(hw, &cq->rq, cq->num_rq_entries);
+	if (status)
+		return status;
+>>>>>>> upstream/android-13
 
 	/* Update tail in the HW to post pre-allocated buffers */
 	wr32(hw, cq->rq.tail, (u32)(cq->num_rq_entries - 1));
 
+<<<<<<< HEAD
 	/* Check one register to verify that config was applied */
 	reg = rd32(hw, cq->rq.bal);
 	if (reg != lower_32_bits(cq->rq.desc_buf.pa))
@@ -361,13 +486,46 @@ ice_cfg_rq_regs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	return 0;
 }
 
+=======
+	return 0;
+}
+
+#define ICE_FREE_CQ_BUFS(hw, qi, ring)					\
+do {									\
+	/* free descriptors */						\
+	if ((qi)->ring.r.ring##_bi) {					\
+		int i;							\
+									\
+		for (i = 0; i < (qi)->num_##ring##_entries; i++)	\
+			if ((qi)->ring.r.ring##_bi[i].pa) {		\
+				dmam_free_coherent(ice_hw_to_dev(hw),	\
+					(qi)->ring.r.ring##_bi[i].size,	\
+					(qi)->ring.r.ring##_bi[i].va,	\
+					(qi)->ring.r.ring##_bi[i].pa);	\
+					(qi)->ring.r.ring##_bi[i].va = NULL;\
+					(qi)->ring.r.ring##_bi[i].pa = 0;\
+					(qi)->ring.r.ring##_bi[i].size = 0;\
+		}							\
+	}								\
+	/* free the buffer info list */					\
+	if ((qi)->ring.cmd_buf)						\
+		devm_kfree(ice_hw_to_dev(hw), (qi)->ring.cmd_buf);	\
+	/* free DMA head */						\
+	devm_kfree(ice_hw_to_dev(hw), (qi)->ring.dma_head);		\
+} while (0)
+
+>>>>>>> upstream/android-13
 /**
  * ice_init_sq - main initialization routine for Control ATQ
  * @hw: pointer to the hardware structure
  * @cq: pointer to the specific Control queue
  *
  * This is the main initialization routine for the Control Send Queue
+<<<<<<< HEAD
  * Prior to calling this function, drivers *MUST* set the following fields
+=======
+ * Prior to calling this function, the driver *MUST* set the following fields
+>>>>>>> upstream/android-13
  * in the cq->structure:
  *     - cq->num_sq_entries
  *     - cq->sq_buf_size
@@ -414,7 +572,12 @@ static enum ice_status ice_init_sq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	goto init_ctrlq_exit;
 
 init_ctrlq_free_rings:
+<<<<<<< HEAD
 	ice_free_ctrlq_sq_ring(hw, cq);
+=======
+	ICE_FREE_CQ_BUFS(hw, cq, sq);
+	ice_free_cq_ring(hw, &cq->sq);
+>>>>>>> upstream/android-13
 
 init_ctrlq_exit:
 	return ret_code;
@@ -426,7 +589,11 @@ init_ctrlq_exit:
  * @cq: pointer to the specific Control queue
  *
  * The main initialization routine for the Admin Receive (Event) Queue.
+<<<<<<< HEAD
  * Prior to calling this function, drivers *MUST* set the following fields
+=======
+ * Prior to calling this function, the driver *MUST* set the following fields
+>>>>>>> upstream/android-13
  * in the cq->structure:
  *     - cq->num_rq_entries
  *     - cq->rq_buf_size
@@ -473,7 +640,12 @@ static enum ice_status ice_init_rq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	goto init_ctrlq_exit;
 
 init_ctrlq_free_rings:
+<<<<<<< HEAD
 	ice_free_ctrlq_rq_ring(hw, cq);
+=======
+	ICE_FREE_CQ_BUFS(hw, cq, rq);
+	ice_free_cq_ring(hw, &cq->rq);
+>>>>>>> upstream/android-13
 
 init_ctrlq_exit:
 	return ret_code;
@@ -508,8 +680,13 @@ ice_shutdown_sq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	cq->sq.count = 0;	/* to indicate uninitialized queue */
 
 	/* free ring buffers and the ring itself */
+<<<<<<< HEAD
 	ice_free_sq_bufs(hw, cq);
 	ice_free_ctrlq_sq_ring(hw, cq);
+=======
+	ICE_FREE_CQ_BUFS(hw, cq, sq);
+	ice_free_cq_ring(hw, &cq->sq);
+>>>>>>> upstream/android-13
 
 shutdown_sq_out:
 	mutex_unlock(&cq->sq_lock);
@@ -576,8 +753,13 @@ ice_shutdown_rq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	cq->rq.count = 0;
 
 	/* free ring buffers and the ring itself */
+<<<<<<< HEAD
 	ice_free_rq_bufs(hw, cq);
 	ice_free_ctrlq_rq_ring(hw, cq);
+=======
+	ICE_FREE_CQ_BUFS(hw, cq, rq);
+	ice_free_cq_ring(hw, &cq->rq);
+>>>>>>> upstream/android-13
 
 shutdown_rq_out:
 	mutex_unlock(&cq->rq_lock);
@@ -605,6 +787,7 @@ static enum ice_status ice_init_check_adminq(struct ice_hw *hw)
 	return 0;
 
 init_ctrlq_free_rq:
+<<<<<<< HEAD
 	if (cq->rq.head) {
 		ice_shutdown_rq(hw, cq);
 		mutex_destroy(&cq->rq_lock);
@@ -613,6 +796,10 @@ init_ctrlq_free_rq:
 		ice_shutdown_sq(hw, cq);
 		mutex_destroy(&cq->sq_lock);
 	}
+=======
+	ice_shutdown_rq(hw, cq);
+	ice_shutdown_sq(hw, cq);
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -621,13 +808,21 @@ init_ctrlq_free_rq:
  * @hw: pointer to the hardware structure
  * @q_type: specific Control queue type
  *
+<<<<<<< HEAD
  * Prior to calling this function, drivers *MUST* set the following fields
+=======
+ * Prior to calling this function, the driver *MUST* set the following fields
+>>>>>>> upstream/android-13
  * in the cq->structure:
  *     - cq->num_sq_entries
  *     - cq->num_rq_entries
  *     - cq->rq_buf_size
  *     - cq->sq_buf_size
  *
+<<<<<<< HEAD
+=======
+ * NOTE: this function does not initialize the controlq locks
+>>>>>>> upstream/android-13
  */
 static enum ice_status ice_init_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 {
@@ -639,6 +834,17 @@ static enum ice_status ice_init_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 		ice_adminq_init_regs(hw);
 		cq = &hw->adminq;
 		break;
+<<<<<<< HEAD
+=======
+	case ICE_CTL_Q_SB:
+		ice_sb_init_regs(hw);
+		cq = &hw->sbq;
+		break;
+	case ICE_CTL_Q_MAILBOX:
+		ice_mailbox_init_regs(hw);
+		cq = &hw->mailboxq;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return ICE_ERR_PARAM;
 	}
@@ -649,8 +855,11 @@ static enum ice_status ice_init_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 	    !cq->rq_buf_size || !cq->sq_buf_size) {
 		return ICE_ERR_CFG;
 	}
+<<<<<<< HEAD
 	mutex_init(&cq->sq_lock);
 	mutex_init(&cq->rq_lock);
+=======
+>>>>>>> upstream/android-13
 
 	/* setup SQ command write back timeout */
 	cq->sq_cmd_timeout = ICE_CTL_Q_SQ_CMD_TIMEOUT;
@@ -658,7 +867,11 @@ static enum ice_status ice_init_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 	/* allocate the ATQ */
 	ret_code = ice_init_sq(hw, cq);
 	if (ret_code)
+<<<<<<< HEAD
 		goto init_ctrlq_destroy_locks;
+=======
+		return ret_code;
+>>>>>>> upstream/android-13
 
 	/* allocate the ARQ */
 	ret_code = ice_init_rq(hw, cq);
@@ -670,13 +883,17 @@ static enum ice_status ice_init_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 
 init_ctrlq_free_sq:
 	ice_shutdown_sq(hw, cq);
+<<<<<<< HEAD
 init_ctrlq_destroy_locks:
 	mutex_destroy(&cq->sq_lock);
 	mutex_destroy(&cq->rq_lock);
+=======
+>>>>>>> upstream/android-13
 	return ret_code;
 }
 
 /**
+<<<<<<< HEAD
  * ice_init_all_ctrlq - main initialization routine for all control queues
  * @hw: pointer to the hardware structure
  *
@@ -697,12 +914,42 @@ enum ice_status ice_init_all_ctrlq(struct ice_hw *hw)
 		return ret_code;
 
 	return ice_init_check_adminq(hw);
+=======
+ * ice_is_sbq_supported - is the sideband queue supported
+ * @hw: pointer to the hardware structure
+ *
+ * Returns true if the sideband control queue interface is
+ * supported for the device, false otherwise
+ */
+bool ice_is_sbq_supported(struct ice_hw *hw)
+{
+	/* The device sideband queue is only supported on devices with the
+	 * generic MAC type.
+	 */
+	return hw->mac_type == ICE_MAC_GENERIC;
+}
+
+/**
+ * ice_get_sbq - returns the right control queue to use for sideband
+ * @hw: pointer to the hardware structure
+ */
+struct ice_ctl_q_info *ice_get_sbq(struct ice_hw *hw)
+{
+	if (ice_is_sbq_supported(hw))
+		return &hw->sbq;
+	return &hw->adminq;
+>>>>>>> upstream/android-13
 }
 
 /**
  * ice_shutdown_ctrlq - shutdown routine for any control queue
  * @hw: pointer to the hardware structure
  * @q_type: specific Control queue type
+<<<<<<< HEAD
+=======
+ *
+ * NOTE: this function does not destroy the control queue locks.
+>>>>>>> upstream/android-13
  */
 static void ice_shutdown_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 {
@@ -714,10 +961,20 @@ static void ice_shutdown_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 		if (ice_check_sq_alive(hw, cq))
 			ice_aq_q_shutdown(hw, true);
 		break;
+<<<<<<< HEAD
+=======
+	case ICE_CTL_Q_SB:
+		cq = &hw->sbq;
+		break;
+	case ICE_CTL_Q_MAILBOX:
+		cq = &hw->mailboxq;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return;
 	}
 
+<<<<<<< HEAD
 	if (cq->sq.head) {
 		ice_shutdown_sq(hw, cq);
 		mutex_destroy(&cq->sq_lock);
@@ -726,16 +983,153 @@ static void ice_shutdown_ctrlq(struct ice_hw *hw, enum ice_ctl_q q_type)
 		ice_shutdown_rq(hw, cq);
 		mutex_destroy(&cq->rq_lock);
 	}
+=======
+	ice_shutdown_sq(hw, cq);
+	ice_shutdown_rq(hw, cq);
+>>>>>>> upstream/android-13
 }
 
 /**
  * ice_shutdown_all_ctrlq - shutdown routine for all control queues
  * @hw: pointer to the hardware structure
+<<<<<<< HEAD
+=======
+ *
+ * NOTE: this function does not destroy the control queue locks. The driver
+ * may call this at runtime to shutdown and later restart control queues, such
+ * as in response to a reset event.
+>>>>>>> upstream/android-13
  */
 void ice_shutdown_all_ctrlq(struct ice_hw *hw)
 {
 	/* Shutdown FW admin queue */
 	ice_shutdown_ctrlq(hw, ICE_CTL_Q_ADMIN);
+<<<<<<< HEAD
+=======
+	/* Shutdown PHY Sideband */
+	if (ice_is_sbq_supported(hw))
+		ice_shutdown_ctrlq(hw, ICE_CTL_Q_SB);
+	/* Shutdown PF-VF Mailbox */
+	ice_shutdown_ctrlq(hw, ICE_CTL_Q_MAILBOX);
+}
+
+/**
+ * ice_init_all_ctrlq - main initialization routine for all control queues
+ * @hw: pointer to the hardware structure
+ *
+ * Prior to calling this function, the driver MUST* set the following fields
+ * in the cq->structure for all control queues:
+ *     - cq->num_sq_entries
+ *     - cq->num_rq_entries
+ *     - cq->rq_buf_size
+ *     - cq->sq_buf_size
+ *
+ * NOTE: this function does not initialize the controlq locks.
+ */
+enum ice_status ice_init_all_ctrlq(struct ice_hw *hw)
+{
+	enum ice_status status;
+	u32 retry = 0;
+
+	/* Init FW admin queue */
+	do {
+		status = ice_init_ctrlq(hw, ICE_CTL_Q_ADMIN);
+		if (status)
+			return status;
+
+		status = ice_init_check_adminq(hw);
+		if (status != ICE_ERR_AQ_FW_CRITICAL)
+			break;
+
+		ice_debug(hw, ICE_DBG_AQ_MSG, "Retry Admin Queue init due to FW critical error\n");
+		ice_shutdown_ctrlq(hw, ICE_CTL_Q_ADMIN);
+		msleep(ICE_CTL_Q_ADMIN_INIT_MSEC);
+	} while (retry++ < ICE_CTL_Q_ADMIN_INIT_TIMEOUT);
+
+	if (status)
+		return status;
+	/* sideband control queue (SBQ) interface is not supported on some
+	 * devices. Initialize if supported, else fallback to the admin queue
+	 * interface
+	 */
+	if (ice_is_sbq_supported(hw)) {
+		status = ice_init_ctrlq(hw, ICE_CTL_Q_SB);
+		if (status)
+			return status;
+	}
+	/* Init Mailbox queue */
+	return ice_init_ctrlq(hw, ICE_CTL_Q_MAILBOX);
+}
+
+/**
+ * ice_init_ctrlq_locks - Initialize locks for a control queue
+ * @cq: pointer to the control queue
+ *
+ * Initializes the send and receive queue locks for a given control queue.
+ */
+static void ice_init_ctrlq_locks(struct ice_ctl_q_info *cq)
+{
+	mutex_init(&cq->sq_lock);
+	mutex_init(&cq->rq_lock);
+}
+
+/**
+ * ice_create_all_ctrlq - main initialization routine for all control queues
+ * @hw: pointer to the hardware structure
+ *
+ * Prior to calling this function, the driver *MUST* set the following fields
+ * in the cq->structure for all control queues:
+ *     - cq->num_sq_entries
+ *     - cq->num_rq_entries
+ *     - cq->rq_buf_size
+ *     - cq->sq_buf_size
+ *
+ * This function creates all the control queue locks and then calls
+ * ice_init_all_ctrlq. It should be called once during driver load. If the
+ * driver needs to re-initialize control queues at run time it should call
+ * ice_init_all_ctrlq instead.
+ */
+enum ice_status ice_create_all_ctrlq(struct ice_hw *hw)
+{
+	ice_init_ctrlq_locks(&hw->adminq);
+	if (ice_is_sbq_supported(hw))
+		ice_init_ctrlq_locks(&hw->sbq);
+	ice_init_ctrlq_locks(&hw->mailboxq);
+
+	return ice_init_all_ctrlq(hw);
+}
+
+/**
+ * ice_destroy_ctrlq_locks - Destroy locks for a control queue
+ * @cq: pointer to the control queue
+ *
+ * Destroys the send and receive queue locks for a given control queue.
+ */
+static void ice_destroy_ctrlq_locks(struct ice_ctl_q_info *cq)
+{
+	mutex_destroy(&cq->sq_lock);
+	mutex_destroy(&cq->rq_lock);
+}
+
+/**
+ * ice_destroy_all_ctrlq - exit routine for all control queues
+ * @hw: pointer to the hardware structure
+ *
+ * This function shuts down all the control queues and then destroys the
+ * control queue locks. It should be called once during driver unload. The
+ * driver should call ice_shutdown_all_ctrlq if it needs to shut down and
+ * reinitialize control queues, such as in response to a reset event.
+ */
+void ice_destroy_all_ctrlq(struct ice_hw *hw)
+{
+	/* shut down all the control queues first */
+	ice_shutdown_all_ctrlq(hw);
+
+	ice_destroy_ctrlq_locks(&hw->adminq);
+	if (ice_is_sbq_supported(hw))
+		ice_destroy_ctrlq_locks(&hw->sbq);
+	ice_destroy_ctrlq_locks(&hw->mailboxq);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -756,8 +1150,12 @@ static u16 ice_clean_sq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 	details = ICE_CTL_Q_DETAILS(*sq, ntc);
 
 	while (rd32(hw, cq->sq.head) != ntc) {
+<<<<<<< HEAD
 		ice_debug(hw, ICE_DBG_AQ_MSG,
 			  "ntc %d head %d.\n", ntc, rd32(hw, cq->sq.head));
+=======
+		ice_debug(hw, ICE_DBG_AQ_MSG, "ntc %d head %d.\n", ntc, rd32(hw, cq->sq.head));
+>>>>>>> upstream/android-13
 		memset(desc, 0, sizeof(*desc));
 		memset(details, 0, sizeof(*details));
 		ntc++;
@@ -773,8 +1171,58 @@ static u16 ice_clean_sq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 }
 
 /**
+<<<<<<< HEAD
  * ice_sq_done - check if FW has processed the Admin Send Queue (ATQ)
  * @hw: pointer to the hw struct
+=======
+ * ice_debug_cq
+ * @hw: pointer to the hardware structure
+ * @desc: pointer to control queue descriptor
+ * @buf: pointer to command buffer
+ * @buf_len: max length of buf
+ *
+ * Dumps debug log about control command with descriptor contents.
+ */
+static void ice_debug_cq(struct ice_hw *hw, void *desc, void *buf, u16 buf_len)
+{
+	struct ice_aq_desc *cq_desc = desc;
+	u16 len;
+
+	if (!IS_ENABLED(CONFIG_DYNAMIC_DEBUG) &&
+	    !((ICE_DBG_AQ_DESC | ICE_DBG_AQ_DESC_BUF) & hw->debug_mask))
+		return;
+
+	if (!desc)
+		return;
+
+	len = le16_to_cpu(cq_desc->datalen);
+
+	ice_debug(hw, ICE_DBG_AQ_DESC, "CQ CMD: opcode 0x%04X, flags 0x%04X, datalen 0x%04X, retval 0x%04X\n",
+		  le16_to_cpu(cq_desc->opcode),
+		  le16_to_cpu(cq_desc->flags),
+		  le16_to_cpu(cq_desc->datalen), le16_to_cpu(cq_desc->retval));
+	ice_debug(hw, ICE_DBG_AQ_DESC, "\tcookie (h,l) 0x%08X 0x%08X\n",
+		  le32_to_cpu(cq_desc->cookie_high),
+		  le32_to_cpu(cq_desc->cookie_low));
+	ice_debug(hw, ICE_DBG_AQ_DESC, "\tparam (0,1)  0x%08X 0x%08X\n",
+		  le32_to_cpu(cq_desc->params.generic.param0),
+		  le32_to_cpu(cq_desc->params.generic.param1));
+	ice_debug(hw, ICE_DBG_AQ_DESC, "\taddr (h,l)   0x%08X 0x%08X\n",
+		  le32_to_cpu(cq_desc->params.generic.addr_high),
+		  le32_to_cpu(cq_desc->params.generic.addr_low));
+	if (buf && cq_desc->datalen != 0) {
+		ice_debug(hw, ICE_DBG_AQ_DESC_BUF, "Buffer:\n");
+		if (buf_len < len)
+			len = buf_len;
+
+		ice_debug_array(hw, ICE_DBG_AQ_DESC_BUF, 16, 1, buf, len);
+	}
+}
+
+/**
+ * ice_sq_done - check if FW has processed the Admin Send Queue (ATQ)
+ * @hw: pointer to the HW struct
+>>>>>>> upstream/android-13
  * @cq: pointer to the specific Control queue
  *
  * Returns true if the firmware has processed all descriptors on the
@@ -790,14 +1238,24 @@ static bool ice_sq_done(struct ice_hw *hw, struct ice_ctl_q_info *cq)
 
 /**
  * ice_sq_send_cmd - send command to Control Queue (ATQ)
+<<<<<<< HEAD
  * @hw: pointer to the hw struct
  * @cq: pointer to the specific Control queue
  * @desc: prefilled descriptor describing the command (non DMA mem)
+=======
+ * @hw: pointer to the HW struct
+ * @cq: pointer to the specific Control queue
+ * @desc: prefilled descriptor describing the command
+>>>>>>> upstream/android-13
  * @buf: buffer to use for indirect commands (or NULL for direct commands)
  * @buf_size: size of buffer for indirect commands (or 0 for direct commands)
  * @cd: pointer to command details structure
  *
+<<<<<<< HEAD
  * This is the main send command routine for the ATQ.  It runs the q,
+=======
+ * This is the main send command routine for the ATQ. It runs the queue,
+>>>>>>> upstream/android-13
  * cleans the queue, etc.
  */
 enum ice_status
@@ -822,8 +1280,12 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 	cq->sq_last_status = ICE_AQ_RC_OK;
 
 	if (!cq->sq.count) {
+<<<<<<< HEAD
 		ice_debug(hw, ICE_DBG_AQ_MSG,
 			  "Control Send queue not initialized.\n");
+=======
+		ice_debug(hw, ICE_DBG_AQ_MSG, "Control Send queue not initialized.\n");
+>>>>>>> upstream/android-13
 		status = ICE_ERR_AQ_EMPTY;
 		goto sq_send_command_error;
 	}
@@ -835,8 +1297,12 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 
 	if (buf) {
 		if (buf_size > cq->sq_buf_size) {
+<<<<<<< HEAD
 			ice_debug(hw, ICE_DBG_AQ_MSG,
 				  "Invalid buffer size for Control Send queue: %d.\n",
+=======
+			ice_debug(hw, ICE_DBG_AQ_MSG, "Invalid buffer size for Control Send queue: %d.\n",
+>>>>>>> upstream/android-13
 				  buf_size);
 			status = ICE_ERR_INVAL_SIZE;
 			goto sq_send_command_error;
@@ -849,8 +1315,12 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 
 	val = rd32(hw, cq->sq.head);
 	if (val >= cq->num_sq_entries) {
+<<<<<<< HEAD
 		ice_debug(hw, ICE_DBG_AQ_MSG,
 			  "head overrun at %d in the Control Send Queue ring\n",
+=======
+		ice_debug(hw, ICE_DBG_AQ_MSG, "head overrun at %d in the Control Send Queue ring\n",
+>>>>>>> upstream/android-13
 			  val);
 		status = ICE_ERR_AQ_EMPTY;
 		goto sq_send_command_error;
@@ -858,7 +1328,11 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 
 	details = ICE_CTL_Q_DETAILS(cq->sq, cq->sq.next_to_use);
 	if (cd)
+<<<<<<< HEAD
 		memcpy(details, cd, sizeof(*details));
+=======
+		*details = *cd;
+>>>>>>> upstream/android-13
 	else
 		memset(details, 0, sizeof(*details));
 
@@ -868,8 +1342,12 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 	 * called in a separate thread in case of asynchronous completions.
 	 */
 	if (ice_clean_sq(hw, cq) == 0) {
+<<<<<<< HEAD
 		ice_debug(hw, ICE_DBG_AQ_MSG,
 			  "Error: Control Send Queue is full.\n");
+=======
+		ice_debug(hw, ICE_DBG_AQ_MSG, "Error: Control Send Queue is full.\n");
+>>>>>>> upstream/android-13
 		status = ICE_ERR_AQ_FULL;
 		goto sq_send_command_error;
 	}
@@ -897,10 +1375,16 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 	}
 
 	/* Debug desc and buffer */
+<<<<<<< HEAD
 	ice_debug(hw, ICE_DBG_AQ_MSG,
 		  "ATQ: Control Send queue desc and buffer:\n");
 
 	ice_debug_cq(hw, ICE_DBG_AQ_CMD, (void *)desc_on_ring, buf, buf_size);
+=======
+	ice_debug(hw, ICE_DBG_AQ_DESC, "ATQ: Control Send queue desc and buffer:\n");
+
+	ice_debug_cq(hw, (void *)desc_on_ring, buf, buf_size);
+>>>>>>> upstream/android-13
 
 	(cq->sq.next_to_use)++;
 	if (cq->sq.next_to_use == cq->sq.count)
@@ -923,8 +1407,12 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 			u16 copy_size = le16_to_cpu(desc->datalen);
 
 			if (copy_size > buf_size) {
+<<<<<<< HEAD
 				ice_debug(hw, ICE_DBG_AQ_MSG,
 					  "Return len %d > than buf len %d\n",
+=======
+				ice_debug(hw, ICE_DBG_AQ_MSG, "Return len %d > than buf len %d\n",
+>>>>>>> upstream/android-13
 					  copy_size, buf_size);
 				status = ICE_ERR_AQ_ERROR;
 			} else {
@@ -933,8 +1421,13 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 		}
 		retval = le16_to_cpu(desc->retval);
 		if (retval) {
+<<<<<<< HEAD
 			ice_debug(hw, ICE_DBG_AQ_MSG,
 				  "Control Send Queue command completed with error 0x%x\n",
+=======
+			ice_debug(hw, ICE_DBG_AQ_MSG, "Control Send Queue command 0x%04X completed with error 0x%X\n",
+				  le16_to_cpu(desc->opcode),
+>>>>>>> upstream/android-13
 				  retval);
 
 			/* strip off FW internal code */
@@ -946,10 +1439,16 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 		cq->sq_last_status = (enum ice_aq_err)retval;
 	}
 
+<<<<<<< HEAD
 	ice_debug(hw, ICE_DBG_AQ_MSG,
 		  "ATQ: desc and buffer writeback:\n");
 
 	ice_debug_cq(hw, ICE_DBG_AQ_CMD, (void *)desc, buf, buf_size);
+=======
+	ice_debug(hw, ICE_DBG_AQ_MSG, "ATQ: desc and buffer writeback:\n");
+
+	ice_debug_cq(hw, (void *)desc, buf, buf_size);
+>>>>>>> upstream/android-13
 
 	/* save writeback AQ if requested */
 	if (details->wb_desc)
@@ -958,9 +1457,20 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 
 	/* update the error if time out occurred */
 	if (!cmd_completed) {
+<<<<<<< HEAD
 		ice_debug(hw, ICE_DBG_AQ_MSG,
 			  "Control Send Queue Writeback timeout.\n");
 		status = ICE_ERR_AQ_TIMEOUT;
+=======
+		if (rd32(hw, cq->rq.len) & cq->rq.len_crit_mask ||
+		    rd32(hw, cq->sq.len) & cq->sq.len_crit_mask) {
+			ice_debug(hw, ICE_DBG_AQ_MSG, "Critical FW error.\n");
+			status = ICE_ERR_AQ_FW_CRITICAL;
+		} else {
+			ice_debug(hw, ICE_DBG_AQ_MSG, "Control Send Queue Writeback timeout.\n");
+			status = ICE_ERR_AQ_TIMEOUT;
+		}
+>>>>>>> upstream/android-13
 	}
 
 sq_send_command_error:
@@ -985,13 +1495,21 @@ void ice_fill_dflt_direct_cmd_desc(struct ice_aq_desc *desc, u16 opcode)
 
 /**
  * ice_clean_rq_elem
+<<<<<<< HEAD
  * @hw: pointer to the hw struct
+=======
+ * @hw: pointer to the HW struct
+>>>>>>> upstream/android-13
  * @cq: pointer to the specific Control queue
  * @e: event info from the receive descriptor, includes any buffers
  * @pending: number of events that could be left to process
  *
  * This function cleans one Admin Receive Queue element and returns
+<<<<<<< HEAD
  * the contents through e.  It can also return how many events are
+=======
+ * the contents through e. It can also return how many events are
+>>>>>>> upstream/android-13
  * left to process through 'pending'.
  */
 enum ice_status
@@ -999,6 +1517,10 @@ ice_clean_rq_elem(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 		  struct ice_rq_event_info *e, u16 *pending)
 {
 	u16 ntc = cq->rq.next_to_clean;
+<<<<<<< HEAD
+=======
+	enum ice_aq_err rq_last_status;
+>>>>>>> upstream/android-13
 	enum ice_status ret_code = 0;
 	struct ice_aq_desc *desc;
 	struct ice_dma_mem *bi;
@@ -1014,8 +1536,12 @@ ice_clean_rq_elem(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 	mutex_lock(&cq->rq_lock);
 
 	if (!cq->rq.count) {
+<<<<<<< HEAD
 		ice_debug(hw, ICE_DBG_AQ_MSG,
 			  "Control Receive queue not initialized.\n");
+=======
+		ice_debug(hw, ICE_DBG_AQ_MSG, "Control Receive queue not initialized.\n");
+>>>>>>> upstream/android-13
 		ret_code = ICE_ERR_AQ_EMPTY;
 		goto clean_rq_elem_err;
 	}
@@ -1033,6 +1559,7 @@ ice_clean_rq_elem(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 	desc = ICE_CTL_Q_DESC(cq->rq, ntc);
 	desc_idx = ntc;
 
+<<<<<<< HEAD
 	cq->rq_last_status = (enum ice_aq_err)le16_to_cpu(desc->retval);
 	flags = le16_to_cpu(desc->flags);
 	if (flags & ICE_AQ_FLAG_ERR) {
@@ -1051,6 +1578,24 @@ ice_clean_rq_elem(struct ice_hw *hw, struct ice_ctl_q_info *cq,
 
 	ice_debug_cq(hw, ICE_DBG_AQ_CMD, (void *)desc, e->msg_buf,
 		     cq->rq_buf_size);
+=======
+	rq_last_status = (enum ice_aq_err)le16_to_cpu(desc->retval);
+	flags = le16_to_cpu(desc->flags);
+	if (flags & ICE_AQ_FLAG_ERR) {
+		ret_code = ICE_ERR_AQ_ERROR;
+		ice_debug(hw, ICE_DBG_AQ_MSG, "Control Receive Queue Event 0x%04X received with error 0x%X\n",
+			  le16_to_cpu(desc->opcode), rq_last_status);
+	}
+	memcpy(&e->desc, desc, sizeof(e->desc));
+	datalen = le16_to_cpu(desc->datalen);
+	e->msg_len = min_t(u16, datalen, e->buf_len);
+	if (e->msg_buf && e->msg_len)
+		memcpy(e->msg_buf, cq->rq.r.rq_bi[desc_idx].va, e->msg_len);
+
+	ice_debug(hw, ICE_DBG_AQ_DESC, "ARQ: desc and buffer:\n");
+
+	ice_debug_cq(hw, (void *)desc, e->msg_buf, cq->rq_buf_size);
+>>>>>>> upstream/android-13
 
 	/* Restore the original datalen and buffer address in the desc,
 	 * FW updates datalen to indicate the event message size

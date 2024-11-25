@@ -265,6 +265,7 @@ static unsigned int max8973_dcdc_get_mode(struct regulator_dev *rdev)
 		REGULATOR_MODE_FAST : REGULATOR_MODE_NORMAL;
 }
 
+<<<<<<< HEAD
 static int max8973_set_ramp_delay(struct regulator_dev *rdev,
 		int ramp_delay)
 {
@@ -292,6 +293,8 @@ static int max8973_set_ramp_delay(struct regulator_dev *rdev,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int max8973_set_current_limit(struct regulator_dev *rdev,
 		int min_ua, int max_ua)
 {
@@ -341,6 +344,13 @@ static int max8973_get_current_limit(struct regulator_dev *rdev)
 	return 9000000;
 }
 
+<<<<<<< HEAD
+=======
+static const unsigned int max8973_buck_ramp_table[] = {
+	12000, 25000, 50000, 200000
+};
+
+>>>>>>> upstream/android-13
 static const struct regulator_ops max8973_dcdc_ops = {
 	.get_voltage_sel	= max8973_dcdc_get_voltage_sel,
 	.set_voltage_sel	= max8973_dcdc_set_voltage_sel,
@@ -348,7 +358,11 @@ static const struct regulator_ops max8973_dcdc_ops = {
 	.set_mode		= max8973_dcdc_set_mode,
 	.get_mode		= max8973_dcdc_get_mode,
 	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
+<<<<<<< HEAD
 	.set_ramp_delay		= max8973_set_ramp_delay,
+=======
+	.set_ramp_delay		= regulator_set_ramp_delay_regmap,
+>>>>>>> upstream/android-13
 };
 
 static int max8973_init_dcdc(struct max8973_chip *max,
@@ -694,6 +708,13 @@ static int max8973_probe(struct i2c_client *client,
 	max->desc.min_uV = MAX8973_MIN_VOLATGE;
 	max->desc.uV_step = MAX8973_VOLATGE_STEP;
 	max->desc.n_voltages = MAX8973_BUCK_N_VOLTAGE;
+<<<<<<< HEAD
+=======
+	max->desc.ramp_reg = MAX8973_CONTROL1;
+	max->desc.ramp_mask = MAX8973_RAMP_MASK;
+	max->desc.ramp_delay_table = max8973_buck_ramp_table;
+	max->desc.n_ramp_values = ARRAY_SIZE(max8973_buck_ramp_table);
+>>>>>>> upstream/android-13
 
 	max->dvs_gpio = (pdata->dvs_gpio) ? pdata->dvs_gpio : -EINVAL;
 	max->enable_external_control = pdata->enable_ext_control;
@@ -758,6 +779,10 @@ static int max8973_probe(struct i2c_client *client,
 			gflags = GPIOD_OUT_HIGH;
 		else
 			gflags = GPIOD_OUT_LOW;
+<<<<<<< HEAD
+=======
+		gflags |= GPIOD_FLAGS_BIT_NONEXCLUSIVE;
+>>>>>>> upstream/android-13
 		gpiod = devm_gpiod_get_optional(&client->dev,
 						"maxim,enable",
 						gflags);
@@ -807,7 +832,17 @@ static int max8973_probe(struct i2c_client *client,
 	config.of_node = client->dev.of_node;
 	config.regmap = max->regmap;
 
+<<<<<<< HEAD
 	/* Register the regulators */
+=======
+	/*
+	 * Register the regulators
+	 * Turn the GPIO descriptor over to the regulator core for
+	 * lifecycle management if we pass an ena_gpiod.
+	 */
+	if (config.ena_gpiod)
+		devm_gpiod_unhinge(&client->dev, config.ena_gpiod);
+>>>>>>> upstream/android-13
 	rdev = devm_regulator_register(&client->dev, &max->desc, &config);
 	if (IS_ERR(rdev)) {
 		ret = PTR_ERR(rdev);

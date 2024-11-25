@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Qualcomm Technologies HIDMA debug file
  *
  * Copyright (c) 2015-2016, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -85,11 +92,19 @@ static void hidma_ll_devstats(struct seq_file *s, void *llhndl)
 }
 
 /*
+<<<<<<< HEAD
  * hidma_chan_stats: display HIDMA channel statistics
  *
  * Display the statistics for the current HIDMA virtual channel device.
  */
 static int hidma_chan_stats(struct seq_file *s, void *unused)
+=======
+ * hidma_chan_show: display HIDMA channel statistics
+ *
+ * Display the statistics for the current HIDMA virtual channel device.
+ */
+static int hidma_chan_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct hidma_chan *mchan = s->private;
 	struct hidma_desc *mdesc;
@@ -117,11 +132,19 @@ static int hidma_chan_stats(struct seq_file *s, void *unused)
 }
 
 /*
+<<<<<<< HEAD
  * hidma_dma_info: display HIDMA device info
  *
  * Display the info for the current HIDMA device.
  */
 static int hidma_dma_info(struct seq_file *s, void *unused)
+=======
+ * hidma_dma_show: display HIDMA device info
+ *
+ * Display the info for the current HIDMA device.
+ */
+static int hidma_dma_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct hidma_dev *dmadev = s->private;
 	resource_size_t sz;
@@ -138,6 +161,7 @@ static int hidma_dma_info(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hidma_chan_stats_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, hidma_chan_stats, inode->i_private);
@@ -161,12 +185,17 @@ static const struct file_operations hidma_dma_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(hidma_chan);
+DEFINE_SHOW_ATTRIBUTE(hidma_dma);
+>>>>>>> upstream/android-13
 
 void hidma_debug_uninit(struct hidma_dev *dmadev)
 {
 	debugfs_remove_recursive(dmadev->debugfs);
 }
 
+<<<<<<< HEAD
 int hidma_debug_init(struct hidma_dev *dmadev)
 {
 	int rc = 0;
@@ -178,6 +207,15 @@ int hidma_debug_init(struct hidma_dev *dmadev)
 		rc = -ENODEV;
 		return rc;
 	}
+=======
+void hidma_debug_init(struct hidma_dev *dmadev)
+{
+	int chidx = 0;
+	struct list_head *position = NULL;
+	struct dentry *dir;
+
+	dmadev->debugfs = debugfs_create_dir(dev_name(dmadev->ddev.dev), NULL);
+>>>>>>> upstream/android-13
 
 	/* walk through the virtual channel list */
 	list_for_each(position, &dmadev->ddev.channels) {
@@ -186,6 +224,7 @@ int hidma_debug_init(struct hidma_dev *dmadev)
 		chan = list_entry(position, struct hidma_chan,
 				  chan.device_node);
 		sprintf(chan->dbg_name, "chan%d", chidx);
+<<<<<<< HEAD
 		chan->debugfs = debugfs_create_dir(chan->dbg_name,
 						   dmadev->debugfs);
 		if (!chan->debugfs) {
@@ -214,4 +253,15 @@ int hidma_debug_init(struct hidma_dev *dmadev)
 cleanup:
 	hidma_debug_uninit(dmadev);
 	return rc;
+=======
+		dir = debugfs_create_dir(chan->dbg_name,
+						   dmadev->debugfs);
+		debugfs_create_file("stats", S_IRUGO, dir, chan,
+				    &hidma_chan_fops);
+		chidx++;
+	}
+
+	debugfs_create_file("stats", S_IRUGO, dmadev->debugfs, dmadev,
+			    &hidma_dma_fops);
+>>>>>>> upstream/android-13
 }

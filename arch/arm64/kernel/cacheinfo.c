@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  ARM64 cacheinfo support
  *
  *  Copyright (C) 2015 ARM Ltd.
  *  All Rights Reserved
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -28,6 +35,18 @@
 #define CLIDR_CTYPE(clidr, level)	\
 	(((clidr) & CLIDR_CTYPE_MASK(level)) >> CLIDR_CTYPE_SHIFT(level))
 
+<<<<<<< HEAD
+=======
+int cache_line_size(void)
+{
+	if (coherency_max_size != 0)
+		return coherency_max_size;
+
+	return cache_line_size_of_cpu();
+}
+EXPORT_SYMBOL_GPL(cache_line_size);
+
+>>>>>>> upstream/android-13
 static inline enum cache_type get_cache_type(int level)
 {
 	u64 clidr;
@@ -45,7 +64,11 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
 	this_leaf->type = type;
 }
 
+<<<<<<< HEAD
 static int __init_cache_level(unsigned int cpu)
+=======
+int init_cache_level(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	unsigned int ctype, level, leaves, fw_level;
 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
@@ -80,7 +103,11 @@ static int __init_cache_level(unsigned int cpu)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __populate_cache_leaves(unsigned int cpu)
+=======
+int populate_cache_leaves(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	unsigned int level, idx;
 	enum cache_type type;
@@ -99,6 +126,9 @@ static int __populate_cache_leaves(unsigned int cpu)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
 DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
+=======
+>>>>>>> upstream/android-13

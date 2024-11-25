@@ -52,7 +52,11 @@ static inline unsigned long xchg64(__volatile__ unsigned long *m, unsigned long 
 	return val;
 }
 
+<<<<<<< HEAD
 #define xchg(ptr,x)							\
+=======
+#define arch_xchg(ptr,x)							\
+>>>>>>> upstream/android-13
 ({	__typeof__(*(ptr)) __ret;					\
 	__ret = (__typeof__(*(ptr)))					\
 		__xchg((unsigned long)(x), (ptr), sizeof(*(ptr)));	\
@@ -168,7 +172,11 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
 	return old;
 }
 
+<<<<<<< HEAD
 #define cmpxchg(ptr,o,n)						 \
+=======
+#define arch_cmpxchg(ptr,o,n)						 \
+>>>>>>> upstream/android-13
   ({									 \
      __typeof__(*(ptr)) _o_ = (o);					 \
      __typeof__(*(ptr)) _n_ = (n);					 \
@@ -189,12 +197,17 @@ static inline unsigned long __cmpxchg_local(volatile void *ptr,
 	case 4:
 	case 8:	return __cmpxchg(ptr, old, new, size);
 	default:
+<<<<<<< HEAD
 		return __cmpxchg_local_generic(ptr, old, new, size);
+=======
+		return __generic_cmpxchg_local(ptr, old, new, size);
+>>>>>>> upstream/android-13
 	}
 
 	return old;
 }
 
+<<<<<<< HEAD
 #define cmpxchg_local(ptr, o, n)				  	\
 	((__typeof__(*(ptr)))__cmpxchg_local((ptr), (unsigned long)(o),	\
 			(unsigned long)(n), sizeof(*(ptr))))
@@ -204,5 +217,16 @@ static inline unsigned long __cmpxchg_local(volatile void *ptr,
 	cmpxchg_local((ptr), (o), (n));					\
   })
 #define cmpxchg64(ptr, o, n)	cmpxchg64_local((ptr), (o), (n))
+=======
+#define arch_cmpxchg_local(ptr, o, n)				  	\
+	((__typeof__(*(ptr)))__cmpxchg_local((ptr), (unsigned long)(o),	\
+			(unsigned long)(n), sizeof(*(ptr))))
+#define arch_cmpxchg64_local(ptr, o, n)					\
+  ({									\
+	BUILD_BUG_ON(sizeof(*(ptr)) != 8);				\
+	arch_cmpxchg_local((ptr), (o), (n));					\
+  })
+#define arch_cmpxchg64(ptr, o, n)	arch_cmpxchg64_local((ptr), (o), (n))
+>>>>>>> upstream/android-13
 
 #endif /* __ARCH_SPARC64_CMPXCHG__ */

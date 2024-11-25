@@ -39,6 +39,10 @@
 #include "i915_drv.h"
 #include "gvt.h"
 #include "i915_pvinfo.h"
+<<<<<<< HEAD
+=======
+#include "display/intel_display_types.h"
+>>>>>>> upstream/android-13
 
 /* XXX FIXME i915 has changed PP_XXX definition */
 #define PCH_PP_STATUS  _MMIO(0xc7200)
@@ -49,6 +53,7 @@
 
 unsigned long intel_gvt_get_device_type(struct intel_gvt *gvt)
 {
+<<<<<<< HEAD
 	if (IS_BROADWELL(gvt->dev_priv))
 		return D_BDW;
 	else if (IS_SKYLAKE(gvt->dev_priv))
@@ -57,6 +62,20 @@ unsigned long intel_gvt_get_device_type(struct intel_gvt *gvt)
 		return D_KBL;
 	else if (IS_BROXTON(gvt->dev_priv))
 		return D_BXT;
+=======
+	struct drm_i915_private *i915 = gvt->gt->i915;
+
+	if (IS_BROADWELL(i915))
+		return D_BDW;
+	else if (IS_SKYLAKE(i915))
+		return D_SKL;
+	else if (IS_KABYLAKE(i915))
+		return D_KBL;
+	else if (IS_BROXTON(i915))
+		return D_BXT;
+	else if (IS_COFFEELAKE(i915) || IS_COMETLAKE(i915))
+		return D_CFL;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -79,7 +98,11 @@ static void write_vreg(struct intel_vgpu *vgpu, unsigned int offset,
 	memcpy(&vgpu_vreg(vgpu, offset), p_data, bytes);
 }
 
+<<<<<<< HEAD
 static struct intel_gvt_mmio_info *find_mmio_info(struct intel_gvt *gvt,
+=======
+struct intel_gvt_mmio_info *intel_gvt_find_mmio_info(struct intel_gvt *gvt,
+>>>>>>> upstream/android-13
 						  unsigned int offset)
 {
 	struct intel_gvt_mmio_info *e;
@@ -92,7 +115,11 @@ static struct intel_gvt_mmio_info *find_mmio_info(struct intel_gvt *gvt,
 }
 
 static int new_mmio_info(struct intel_gvt *gvt,
+<<<<<<< HEAD
 		u32 offset, u8 flags, u32 size,
+=======
+		u32 offset, u16 flags, u32 size,
+>>>>>>> upstream/android-13
 		u32 addr_mask, u32 ro_mask, u32 device,
 		gvt_mmio_func read, gvt_mmio_func write)
 {
@@ -114,7 +141,11 @@ static int new_mmio_info(struct intel_gvt *gvt,
 			return -ENOMEM;
 
 		info->offset = i;
+<<<<<<< HEAD
 		p = find_mmio_info(gvt, info->offset);
+=======
+		p = intel_gvt_find_mmio_info(gvt, info->offset);
+>>>>>>> upstream/android-13
 		if (p) {
 			WARN(1, "dup mmio definition offset %x\n",
 				info->offset);
@@ -140,11 +171,16 @@ static int new_mmio_info(struct intel_gvt *gvt,
 }
 
 /**
+<<<<<<< HEAD
  * intel_gvt_render_mmio_to_ring_id - convert a mmio offset into ring id
+=======
+ * intel_gvt_render_mmio_to_engine - convert a mmio offset into the engine
+>>>>>>> upstream/android-13
  * @gvt: a GVT device
  * @offset: register offset
  *
  * Returns:
+<<<<<<< HEAD
  * Ring ID on success, negative error code if failed.
  */
 int intel_gvt_render_mmio_to_ring_id(struct intel_gvt *gvt,
@@ -159,6 +195,22 @@ int intel_gvt_render_mmio_to_ring_id(struct intel_gvt *gvt,
 			return id;
 	}
 	return -ENODEV;
+=======
+ * The engine containing the offset within its mmio page.
+ */
+const struct intel_engine_cs *
+intel_gvt_render_mmio_to_engine(struct intel_gvt *gvt, unsigned int offset)
+{
+	struct intel_engine_cs *engine;
+	enum intel_engine_id id;
+
+	offset &= ~GENMASK(11, 0);
+	for_each_engine(engine, gvt->gt, id)
+		if (engine->mmio_base == offset)
+			return engine;
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 #define offset_to_fence_num(offset) \
@@ -215,7 +267,11 @@ static int gamw_echo_dev_rw_ia_write(struct intel_vgpu *vgpu,
 {
 	u32 ips = (*(u32 *)p_data) & GAMW_ECO_ENABLE_64K_IPS_FIELD;
 
+<<<<<<< HEAD
 	if (INTEL_GEN(vgpu->gvt->dev_priv) <= 10) {
+=======
+	if (GRAPHICS_VER(vgpu->gvt->gt->i915) <= 10) {
+>>>>>>> upstream/android-13
 		if (ips == GAMW_ECO_ENABLE_64K_IPS_FIELD)
 			gvt_dbg_core("vgpu%d: ips enabled\n", vgpu->id);
 		else if (!ips)
@@ -251,7 +307,11 @@ static int fence_mmio_read(struct intel_vgpu *vgpu, unsigned int off,
 static int fence_mmio_write(struct intel_vgpu *vgpu, unsigned int off,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
+=======
+	struct intel_gvt *gvt = vgpu->gvt;
+>>>>>>> upstream/android-13
 	unsigned int fence_num = offset_to_fence_num(off);
 	int ret;
 
@@ -260,10 +320,17 @@ static int fence_mmio_write(struct intel_vgpu *vgpu, unsigned int off,
 		return ret;
 	write_vreg(vgpu, off, p_data, bytes);
 
+<<<<<<< HEAD
 	mmio_hw_access_pre(dev_priv);
 	intel_vgpu_write_fence(vgpu, fence_num,
 			vgpu_vreg64(vgpu, fence_num_to_offset(fence_num)));
 	mmio_hw_access_post(dev_priv);
+=======
+	mmio_hw_access_pre(gvt->gt);
+	intel_vgpu_write_fence(vgpu, fence_num,
+			vgpu_vreg64(vgpu, fence_num_to_offset(fence_num)));
+	mmio_hw_access_post(gvt->gt);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -276,20 +343,33 @@ static int mul_force_wake_write(struct intel_vgpu *vgpu,
 		unsigned int offset, void *p_data, unsigned int bytes)
 {
 	u32 old, new;
+<<<<<<< HEAD
 	uint32_t ack_reg_offset;
+=======
+	u32 ack_reg_offset;
+>>>>>>> upstream/android-13
 
 	old = vgpu_vreg(vgpu, offset);
 	new = CALC_MODE_MASK_REG(old, *(u32 *)p_data);
 
+<<<<<<< HEAD
 	if (IS_SKYLAKE(vgpu->gvt->dev_priv)
 		|| IS_KABYLAKE(vgpu->gvt->dev_priv)
 		|| IS_BROXTON(vgpu->gvt->dev_priv)) {
+=======
+	if (GRAPHICS_VER(vgpu->gvt->gt->i915)  >=  9) {
+>>>>>>> upstream/android-13
 		switch (offset) {
 		case FORCEWAKE_RENDER_GEN9_REG:
 			ack_reg_offset = FORCEWAKE_ACK_RENDER_GEN9_REG;
 			break;
+<<<<<<< HEAD
 		case FORCEWAKE_BLITTER_GEN9_REG:
 			ack_reg_offset = FORCEWAKE_ACK_BLITTER_GEN9_REG;
+=======
+		case FORCEWAKE_GT_GEN9_REG:
+			ack_reg_offset = FORCEWAKE_ACK_GT_GEN9_REG;
+>>>>>>> upstream/android-13
 			break;
 		case FORCEWAKE_MEDIA_GEN9_REG:
 			ack_reg_offset = FORCEWAKE_ACK_MEDIA_GEN9_REG;
@@ -311,7 +391,11 @@ static int mul_force_wake_write(struct intel_vgpu *vgpu,
 static int gdrst_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 			    void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	unsigned int engine_mask = 0;
+=======
+	intel_engine_mask_t engine_mask = 0;
+>>>>>>> upstream/android-13
 	u32 data;
 
 	write_vreg(vgpu, offset, p_data, bytes);
@@ -323,6 +407,7 @@ static int gdrst_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 	} else {
 		if (data & GEN6_GRDOM_RENDER) {
 			gvt_dbg_mmio("vgpu%d: request RCS reset\n", vgpu->id);
+<<<<<<< HEAD
 			engine_mask |= (1 << RCS);
 		}
 		if (data & GEN6_GRDOM_MEDIA) {
@@ -342,6 +427,31 @@ static int gdrst_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 			if (HAS_BSD2(vgpu->gvt->dev_priv))
 				engine_mask |= (1 << VCS2);
 		}
+=======
+			engine_mask |= BIT(RCS0);
+		}
+		if (data & GEN6_GRDOM_MEDIA) {
+			gvt_dbg_mmio("vgpu%d: request VCS reset\n", vgpu->id);
+			engine_mask |= BIT(VCS0);
+		}
+		if (data & GEN6_GRDOM_BLT) {
+			gvt_dbg_mmio("vgpu%d: request BCS Reset\n", vgpu->id);
+			engine_mask |= BIT(BCS0);
+		}
+		if (data & GEN6_GRDOM_VECS) {
+			gvt_dbg_mmio("vgpu%d: request VECS Reset\n", vgpu->id);
+			engine_mask |= BIT(VECS0);
+		}
+		if (data & GEN8_GRDOM_MEDIA2) {
+			gvt_dbg_mmio("vgpu%d: request VCS2 Reset\n", vgpu->id);
+			engine_mask |= BIT(VCS1);
+		}
+		if (data & GEN9_GRDOM_GUC) {
+			gvt_dbg_mmio("vgpu%d: request GUC Reset\n", vgpu->id);
+			vgpu_vreg_t(vgpu, GUC_STATUS) |= GS_MIA_IN_RESET;
+		}
+		engine_mask &= vgpu->gvt->gt->info.engine_mask;
+>>>>>>> upstream/android-13
 	}
 
 	/* vgpu_lock already hold by emulate mmio r/w */
@@ -437,6 +547,257 @@ static int dpy_reg_mmio_read(struct intel_vgpu *vgpu, unsigned int offset,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Only PIPE_A is enabled in current vGPU display and PIPE_A is tied to
+ *   TRANSCODER_A in HW. DDI/PORT could be PORT_x depends on
+ *   setup_virtual_dp_monitor().
+ * emulate_monitor_status_change() set up PLL for PORT_x as the initial enabled
+ *   DPLL. Later guest driver may setup a different DPLLx when setting mode.
+ * So the correct sequence to find DP stream clock is:
+ *   Check TRANS_DDI_FUNC_CTL on TRANSCODER_A to get PORT_x.
+ *   Check correct PLLx for PORT_x to get PLL frequency and DP bitrate.
+ * Then Refresh rate then can be calculated based on follow equations:
+ *   Pixel clock = h_total * v_total * refresh_rate
+ *   stream clock = Pixel clock
+ *   ls_clk = DP bitrate
+ *   Link M/N = strm_clk / ls_clk
+ */
+
+static u32 bdw_vgpu_get_dp_bitrate(struct intel_vgpu *vgpu, enum port port)
+{
+	u32 dp_br = 0;
+	u32 ddi_pll_sel = vgpu_vreg_t(vgpu, PORT_CLK_SEL(port));
+
+	switch (ddi_pll_sel) {
+	case PORT_CLK_SEL_LCPLL_2700:
+		dp_br = 270000 * 2;
+		break;
+	case PORT_CLK_SEL_LCPLL_1350:
+		dp_br = 135000 * 2;
+		break;
+	case PORT_CLK_SEL_LCPLL_810:
+		dp_br = 81000 * 2;
+		break;
+	case PORT_CLK_SEL_SPLL:
+	{
+		switch (vgpu_vreg_t(vgpu, SPLL_CTL) & SPLL_FREQ_MASK) {
+		case SPLL_FREQ_810MHz:
+			dp_br = 81000 * 2;
+			break;
+		case SPLL_FREQ_1350MHz:
+			dp_br = 135000 * 2;
+			break;
+		case SPLL_FREQ_2700MHz:
+			dp_br = 270000 * 2;
+			break;
+		default:
+			gvt_dbg_dpy("vgpu-%d PORT_%c can't get freq from SPLL 0x%08x\n",
+				    vgpu->id, port_name(port), vgpu_vreg_t(vgpu, SPLL_CTL));
+			break;
+		}
+		break;
+	}
+	case PORT_CLK_SEL_WRPLL1:
+	case PORT_CLK_SEL_WRPLL2:
+	{
+		u32 wrpll_ctl;
+		int refclk, n, p, r;
+
+		if (ddi_pll_sel == PORT_CLK_SEL_WRPLL1)
+			wrpll_ctl = vgpu_vreg_t(vgpu, WRPLL_CTL(DPLL_ID_WRPLL1));
+		else
+			wrpll_ctl = vgpu_vreg_t(vgpu, WRPLL_CTL(DPLL_ID_WRPLL2));
+
+		switch (wrpll_ctl & WRPLL_REF_MASK) {
+		case WRPLL_REF_PCH_SSC:
+			refclk = vgpu->gvt->gt->i915->dpll.ref_clks.ssc;
+			break;
+		case WRPLL_REF_LCPLL:
+			refclk = 2700000;
+			break;
+		default:
+			gvt_dbg_dpy("vgpu-%d PORT_%c WRPLL can't get refclk 0x%08x\n",
+				    vgpu->id, port_name(port), wrpll_ctl);
+			goto out;
+		}
+
+		r = wrpll_ctl & WRPLL_DIVIDER_REF_MASK;
+		p = (wrpll_ctl & WRPLL_DIVIDER_POST_MASK) >> WRPLL_DIVIDER_POST_SHIFT;
+		n = (wrpll_ctl & WRPLL_DIVIDER_FB_MASK) >> WRPLL_DIVIDER_FB_SHIFT;
+
+		dp_br = (refclk * n / 10) / (p * r) * 2;
+		break;
+	}
+	default:
+		gvt_dbg_dpy("vgpu-%d PORT_%c has invalid clock select 0x%08x\n",
+			    vgpu->id, port_name(port), vgpu_vreg_t(vgpu, PORT_CLK_SEL(port)));
+		break;
+	}
+
+out:
+	return dp_br;
+}
+
+static u32 bxt_vgpu_get_dp_bitrate(struct intel_vgpu *vgpu, enum port port)
+{
+	u32 dp_br = 0;
+	int refclk = vgpu->gvt->gt->i915->dpll.ref_clks.nssc;
+	enum dpio_phy phy = DPIO_PHY0;
+	enum dpio_channel ch = DPIO_CH0;
+	struct dpll clock = {0};
+	u32 temp;
+
+	/* Port to PHY mapping is fixed, see bxt_ddi_phy_info{} */
+	switch (port) {
+	case PORT_A:
+		phy = DPIO_PHY1;
+		ch = DPIO_CH0;
+		break;
+	case PORT_B:
+		phy = DPIO_PHY0;
+		ch = DPIO_CH0;
+		break;
+	case PORT_C:
+		phy = DPIO_PHY0;
+		ch = DPIO_CH1;
+		break;
+	default:
+		gvt_dbg_dpy("vgpu-%d no PHY for PORT_%c\n", vgpu->id, port_name(port));
+		goto out;
+	}
+
+	temp = vgpu_vreg_t(vgpu, BXT_PORT_PLL_ENABLE(port));
+	if (!(temp & PORT_PLL_ENABLE) || !(temp & PORT_PLL_LOCK)) {
+		gvt_dbg_dpy("vgpu-%d PORT_%c PLL_ENABLE 0x%08x isn't enabled or locked\n",
+			    vgpu->id, port_name(port), temp);
+		goto out;
+	}
+
+	clock.m1 = 2;
+	clock.m2 = (vgpu_vreg_t(vgpu, BXT_PORT_PLL(phy, ch, 0)) & PORT_PLL_M2_MASK) << 22;
+	if (vgpu_vreg_t(vgpu, BXT_PORT_PLL(phy, ch, 3)) & PORT_PLL_M2_FRAC_ENABLE)
+		clock.m2 |= vgpu_vreg_t(vgpu, BXT_PORT_PLL(phy, ch, 2)) & PORT_PLL_M2_FRAC_MASK;
+	clock.n = (vgpu_vreg_t(vgpu, BXT_PORT_PLL(phy, ch, 1)) & PORT_PLL_N_MASK) >> PORT_PLL_N_SHIFT;
+	clock.p1 = (vgpu_vreg_t(vgpu, BXT_PORT_PLL_EBB_0(phy, ch)) & PORT_PLL_P1_MASK) >> PORT_PLL_P1_SHIFT;
+	clock.p2 = (vgpu_vreg_t(vgpu, BXT_PORT_PLL_EBB_0(phy, ch)) & PORT_PLL_P2_MASK) >> PORT_PLL_P2_SHIFT;
+	clock.m = clock.m1 * clock.m2;
+	clock.p = clock.p1 * clock.p2;
+
+	if (clock.n == 0 || clock.p == 0) {
+		gvt_dbg_dpy("vgpu-%d PORT_%c PLL has invalid divider\n", vgpu->id, port_name(port));
+		goto out;
+	}
+
+	clock.vco = DIV_ROUND_CLOSEST_ULL(mul_u32_u32(refclk, clock.m), clock.n << 22);
+	clock.dot = DIV_ROUND_CLOSEST(clock.vco, clock.p);
+
+	dp_br = clock.dot / 5;
+
+out:
+	return dp_br;
+}
+
+static u32 skl_vgpu_get_dp_bitrate(struct intel_vgpu *vgpu, enum port port)
+{
+	u32 dp_br = 0;
+	enum intel_dpll_id dpll_id = DPLL_ID_SKL_DPLL0;
+
+	/* Find the enabled DPLL for the DDI/PORT */
+	if (!(vgpu_vreg_t(vgpu, DPLL_CTRL2) & DPLL_CTRL2_DDI_CLK_OFF(port)) &&
+	    (vgpu_vreg_t(vgpu, DPLL_CTRL2) & DPLL_CTRL2_DDI_SEL_OVERRIDE(port))) {
+		dpll_id += (vgpu_vreg_t(vgpu, DPLL_CTRL2) &
+			DPLL_CTRL2_DDI_CLK_SEL_MASK(port)) >>
+			DPLL_CTRL2_DDI_CLK_SEL_SHIFT(port);
+	} else {
+		gvt_dbg_dpy("vgpu-%d DPLL for PORT_%c isn't turned on\n",
+			    vgpu->id, port_name(port));
+		return dp_br;
+	}
+
+	/* Find PLL output frequency from correct DPLL, and get bir rate */
+	switch ((vgpu_vreg_t(vgpu, DPLL_CTRL1) &
+		DPLL_CTRL1_LINK_RATE_MASK(dpll_id)) >>
+		DPLL_CTRL1_LINK_RATE_SHIFT(dpll_id)) {
+		case DPLL_CTRL1_LINK_RATE_810:
+			dp_br = 81000 * 2;
+			break;
+		case DPLL_CTRL1_LINK_RATE_1080:
+			dp_br = 108000 * 2;
+			break;
+		case DPLL_CTRL1_LINK_RATE_1350:
+			dp_br = 135000 * 2;
+			break;
+		case DPLL_CTRL1_LINK_RATE_1620:
+			dp_br = 162000 * 2;
+			break;
+		case DPLL_CTRL1_LINK_RATE_2160:
+			dp_br = 216000 * 2;
+			break;
+		case DPLL_CTRL1_LINK_RATE_2700:
+			dp_br = 270000 * 2;
+			break;
+		default:
+			dp_br = 0;
+			gvt_dbg_dpy("vgpu-%d PORT_%c fail to get DPLL-%d freq\n",
+				    vgpu->id, port_name(port), dpll_id);
+	}
+
+	return dp_br;
+}
+
+static void vgpu_update_refresh_rate(struct intel_vgpu *vgpu)
+{
+	struct drm_i915_private *dev_priv = vgpu->gvt->gt->i915;
+	enum port port;
+	u32 dp_br, link_m, link_n, htotal, vtotal;
+
+	/* Find DDI/PORT assigned to TRANSCODER_A, expect B or D */
+	port = (vgpu_vreg_t(vgpu, TRANS_DDI_FUNC_CTL(TRANSCODER_A)) &
+		TRANS_DDI_PORT_MASK) >> TRANS_DDI_PORT_SHIFT;
+	if (port != PORT_B && port != PORT_D) {
+		gvt_dbg_dpy("vgpu-%d unsupported PORT_%c\n", vgpu->id, port_name(port));
+		return;
+	}
+
+	/* Calculate DP bitrate from PLL */
+	if (IS_BROADWELL(dev_priv))
+		dp_br = bdw_vgpu_get_dp_bitrate(vgpu, port);
+	else if (IS_BROXTON(dev_priv))
+		dp_br = bxt_vgpu_get_dp_bitrate(vgpu, port);
+	else
+		dp_br = skl_vgpu_get_dp_bitrate(vgpu, port);
+
+	/* Get DP link symbol clock M/N */
+	link_m = vgpu_vreg_t(vgpu, PIPE_LINK_M1(TRANSCODER_A));
+	link_n = vgpu_vreg_t(vgpu, PIPE_LINK_N1(TRANSCODER_A));
+
+	/* Get H/V total from transcoder timing */
+	htotal = (vgpu_vreg_t(vgpu, HTOTAL(TRANSCODER_A)) >> TRANS_HTOTAL_SHIFT);
+	vtotal = (vgpu_vreg_t(vgpu, VTOTAL(TRANSCODER_A)) >> TRANS_VTOTAL_SHIFT);
+
+	if (dp_br && link_n && htotal && vtotal) {
+		u64 pixel_clk = 0;
+		u32 new_rate = 0;
+		u32 *old_rate = &(intel_vgpu_port(vgpu, vgpu->display.port_num)->vrefresh_k);
+
+		/* Calcuate pixel clock by (ls_clk * M / N) */
+		pixel_clk = div_u64(mul_u32_u32(link_m, dp_br), link_n);
+		pixel_clk *= MSEC_PER_SEC;
+
+		/* Calcuate refresh rate by (pixel_clk / (h_total * v_total)) */
+		new_rate = DIV64_U64_ROUND_CLOSEST(mul_u64_u32_shr(pixel_clk, MSEC_PER_SEC, 0), mul_u32_u32(htotal + 1, vtotal + 1));
+
+		if (*old_rate != new_rate)
+			*old_rate = new_rate;
+
+		gvt_dbg_dpy("vgpu-%d PIPE_%c refresh rate updated to %d\n",
+			    vgpu->id, pipe_name(PIPE_A), new_rate);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int pipeconf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
@@ -445,6 +806,7 @@ static int pipeconf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 	write_vreg(vgpu, offset, p_data, bytes);
 	data = vgpu_vreg(vgpu, offset);
 
+<<<<<<< HEAD
 	if (data & PIPECONF_ENABLE)
 		vgpu_vreg(vgpu, offset) |= I965_PIPECONF_ACTIVE;
 	else
@@ -460,10 +822,36 @@ static int pipeconf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 static i915_reg_t force_nonpriv_white_list[] = {
 	GEN9_CS_DEBUG_MODE1, //_MMIO(0x20ec)
 	GEN9_CTX_PREEMPT_REG,//_MMIO(0x2248)
+=======
+	if (data & PIPECONF_ENABLE) {
+		vgpu_vreg(vgpu, offset) |= I965_PIPECONF_ACTIVE;
+		vgpu_update_refresh_rate(vgpu);
+		vgpu_update_vblank_emulation(vgpu, true);
+	} else {
+		vgpu_vreg(vgpu, offset) &= ~I965_PIPECONF_ACTIVE;
+		vgpu_update_vblank_emulation(vgpu, false);
+	}
+	return 0;
+}
+
+/* sorted in ascending order */
+static i915_reg_t force_nonpriv_white_list[] = {
+	_MMIO(0xd80),
+	GEN9_CS_DEBUG_MODE1, //_MMIO(0x20ec)
+	GEN9_CTX_PREEMPT_REG,//_MMIO(0x2248)
+	CL_PRIMITIVES_COUNT, //_MMIO(0x2340)
+	PS_INVOCATION_COUNT, //_MMIO(0x2348)
+	PS_DEPTH_COUNT, //_MMIO(0x2350)
+>>>>>>> upstream/android-13
 	GEN8_CS_CHICKEN1,//_MMIO(0x2580)
 	_MMIO(0x2690),
 	_MMIO(0x2694),
 	_MMIO(0x2698),
+<<<<<<< HEAD
+=======
+	_MMIO(0x2754),
+	_MMIO(0x28a0),
+>>>>>>> upstream/android-13
 	_MMIO(0x4de0),
 	_MMIO(0x4de4),
 	_MMIO(0x4dfc),
@@ -475,16 +863,28 @@ static i915_reg_t force_nonpriv_white_list[] = {
 	_MMIO(0x7704),
 	_MMIO(0x7708),
 	_MMIO(0x770c),
+<<<<<<< HEAD
+=======
+	_MMIO(0x83a8),
+>>>>>>> upstream/android-13
 	_MMIO(0xb110),
 	GEN8_L3SQCREG4,//_MMIO(0xb118)
 	_MMIO(0xe100),
 	_MMIO(0xe18c),
 	_MMIO(0xe48c),
 	_MMIO(0xe5f4),
+<<<<<<< HEAD
 };
 
 /* a simple bsearch */
 static inline bool in_whitelist(unsigned int reg)
+=======
+	_MMIO(0x64844),
+};
+
+/* a simple bsearch */
+static inline bool in_whitelist(u32 reg)
+>>>>>>> upstream/android-13
 {
 	int left = 0, right = ARRAY_SIZE(force_nonpriv_white_list);
 	i915_reg_t *array = force_nonpriv_white_list;
@@ -505,6 +905,7 @@ static inline bool in_whitelist(unsigned int reg)
 static int force_nonpriv_write(struct intel_vgpu *vgpu,
 	unsigned int offset, void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	u32 reg_nonpriv = *(u32 *)p_data;
 	int ring_id = intel_gvt_render_mmio_to_ring_id(vgpu->gvt, offset);
 	u32 ring_base;
@@ -526,6 +927,24 @@ static int force_nonpriv_write(struct intel_vgpu *vgpu,
 	} else
 		gvt_err("vgpu(%d) Invalid FORCE_NONPRIV write %x at offset %x\n",
 			vgpu->id, reg_nonpriv, offset);
+=======
+	u32 reg_nonpriv = (*(u32 *)p_data) & REG_GENMASK(25, 2);
+	const struct intel_engine_cs *engine =
+		intel_gvt_render_mmio_to_engine(vgpu->gvt, offset);
+
+	if (bytes != 4 || !IS_ALIGNED(offset, bytes) || !engine) {
+		gvt_err("vgpu(%d) Invalid FORCE_NONPRIV offset %x(%dB)\n",
+			vgpu->id, offset, bytes);
+		return -EINVAL;
+	}
+
+	if (!in_whitelist(reg_nonpriv) &&
+	    reg_nonpriv != i915_mmio_reg_offset(RING_NOPID(engine->mmio_base))) {
+		gvt_err("vgpu(%d) Invalid FORCE_NONPRIV write %x at offset %x\n",
+			vgpu->id, reg_nonpriv, offset);
+	} else
+		intel_vgpu_default_mmio_write(vgpu, offset, p_data, bytes);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -748,6 +1167,7 @@ static int south_chicken2_mmio_write(struct intel_vgpu *vgpu,
 static int pri_surf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
 	unsigned int index = DSPSURF_TO_PIPE(offset);
 	i915_reg_t surflive_reg = DSPSURFLIVE(index);
@@ -761,6 +1181,22 @@ static int pri_surf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 	vgpu_vreg_t(vgpu, surflive_reg) = vgpu_vreg(vgpu, offset);
 
 	set_bit(flip_event[index], vgpu->irq.flip_done_event[index]);
+=======
+	struct drm_i915_private *dev_priv = vgpu->gvt->gt->i915;
+	u32 pipe = DSPSURF_TO_PIPE(offset);
+	int event = SKL_FLIP_EVENT(pipe, PLANE_PRIMARY);
+
+	write_vreg(vgpu, offset, p_data, bytes);
+	vgpu_vreg_t(vgpu, DSPSURFLIVE(pipe)) = vgpu_vreg(vgpu, offset);
+
+	vgpu_vreg_t(vgpu, PIPE_FLIPCOUNT_G4X(pipe))++;
+
+	if (vgpu_vreg_t(vgpu, DSPCNTR(pipe)) & PLANE_CTL_ASYNC_FLIP)
+		intel_vgpu_trigger_virtual_event(vgpu, event);
+	else
+		set_bit(event, vgpu->irq.flip_done_event[pipe]);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -770,6 +1206,7 @@ static int pri_surf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 static int spr_surf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	unsigned int index = SPRSURF_TO_PIPE(offset);
 	i915_reg_t surflive_reg = SPRSURFLIVE(index);
 	int flip_event[] = {
@@ -782,12 +1219,51 @@ static int spr_surf_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 	vgpu_vreg_t(vgpu, surflive_reg) = vgpu_vreg(vgpu, offset);
 
 	set_bit(flip_event[index], vgpu->irq.flip_done_event[index]);
+=======
+	u32 pipe = SPRSURF_TO_PIPE(offset);
+	int event = SKL_FLIP_EVENT(pipe, PLANE_SPRITE0);
+
+	write_vreg(vgpu, offset, p_data, bytes);
+	vgpu_vreg_t(vgpu, SPRSURFLIVE(pipe)) = vgpu_vreg(vgpu, offset);
+
+	if (vgpu_vreg_t(vgpu, SPRCTL(pipe)) & PLANE_CTL_ASYNC_FLIP)
+		intel_vgpu_trigger_virtual_event(vgpu, event);
+	else
+		set_bit(event, vgpu->irq.flip_done_event[pipe]);
+
+	return 0;
+}
+
+static int reg50080_mmio_write(struct intel_vgpu *vgpu,
+			       unsigned int offset, void *p_data,
+			       unsigned int bytes)
+{
+	struct drm_i915_private *dev_priv = vgpu->gvt->gt->i915;
+	enum pipe pipe = REG_50080_TO_PIPE(offset);
+	enum plane_id plane = REG_50080_TO_PLANE(offset);
+	int event = SKL_FLIP_EVENT(pipe, plane);
+
+	write_vreg(vgpu, offset, p_data, bytes);
+	if (plane == PLANE_PRIMARY) {
+		vgpu_vreg_t(vgpu, DSPSURFLIVE(pipe)) = vgpu_vreg(vgpu, offset);
+		vgpu_vreg_t(vgpu, PIPE_FLIPCOUNT_G4X(pipe))++;
+	} else {
+		vgpu_vreg_t(vgpu, SPRSURFLIVE(pipe)) = vgpu_vreg(vgpu, offset);
+	}
+
+	if ((vgpu_vreg(vgpu, offset) & REG50080_FLIP_TYPE_MASK) == REG50080_FLIP_TYPE_ASYNC)
+		intel_vgpu_trigger_virtual_event(vgpu, event);
+	else
+		set_bit(event, vgpu->irq.flip_done_event[pipe]);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int trigger_aux_channel_interrupt(struct intel_vgpu *vgpu,
 		unsigned int reg)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
 	enum intel_gvt_event_type event;
 
@@ -801,6 +1277,24 @@ static int trigger_aux_channel_interrupt(struct intel_vgpu *vgpu,
 		event = AUX_CHANNEL_D;
 	else {
 		WARN_ON(true);
+=======
+	struct drm_i915_private *dev_priv = vgpu->gvt->gt->i915;
+	enum intel_gvt_event_type event;
+
+	if (reg == i915_mmio_reg_offset(DP_AUX_CH_CTL(AUX_CH_A)))
+		event = AUX_CHANNEL_A;
+	else if (reg == _PCH_DPB_AUX_CH_CTL ||
+		 reg == i915_mmio_reg_offset(DP_AUX_CH_CTL(AUX_CH_B)))
+		event = AUX_CHANNEL_B;
+	else if (reg == _PCH_DPC_AUX_CH_CTL ||
+		 reg == i915_mmio_reg_offset(DP_AUX_CH_CTL(AUX_CH_C)))
+		event = AUX_CHANNEL_C;
+	else if (reg == _PCH_DPD_AUX_CH_CTL ||
+		 reg == i915_mmio_reg_offset(DP_AUX_CH_CTL(AUX_CH_D)))
+		event = AUX_CHANNEL_D;
+	else {
+		drm_WARN_ON(&dev_priv->drm, true);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -832,7 +1326,11 @@ static int dp_aux_ch_ctl_trans_done(struct intel_vgpu *vgpu, u32 value,
 }
 
 static void dp_aux_ch_ctl_link_training(struct intel_vgpu_dpcd_data *dpcd,
+<<<<<<< HEAD
 		uint8_t t)
+=======
+		u8 t)
+>>>>>>> upstream/android-13
 {
 	if ((t & DPCD_TRAINING_PATTERN_SET_MASK) == DPCD_TRAINING_PATTERN_1) {
 		/* training pattern 1 for CR */
@@ -888,6 +1386,7 @@ static int dp_aux_ch_ctl_mmio_write(struct intel_vgpu *vgpu,
 	write_vreg(vgpu, offset, p_data, bytes);
 	data = vgpu_vreg(vgpu, offset);
 
+<<<<<<< HEAD
 	if ((IS_SKYLAKE(vgpu->gvt->dev_priv)
 		|| IS_KABYLAKE(vgpu->gvt->dev_priv)
 		|| IS_BROXTON(vgpu->gvt->dev_priv))
@@ -895,6 +1394,13 @@ static int dp_aux_ch_ctl_mmio_write(struct intel_vgpu *vgpu,
 		/* SKL DPB/C/D aux ctl register changed */
 		return 0;
 	} else if (IS_BROADWELL(vgpu->gvt->dev_priv) &&
+=======
+	if ((GRAPHICS_VER(vgpu->gvt->gt->i915) >= 9)
+		&& offset != _REG_SKL_DP_AUX_CH_CTL(port_index)) {
+		/* SKL DPB/C/D aux ctl register changed */
+		return 0;
+	} else if (IS_BROADWELL(vgpu->gvt->gt->i915) &&
+>>>>>>> upstream/android-13
 		   offset != _REG_HSW_DP_AUX_CH_CTL(port_index)) {
 		/* write to the data registers */
 		return 0;
@@ -918,7 +1424,11 @@ static int dp_aux_ch_ctl_mmio_write(struct intel_vgpu *vgpu,
 
 	if (op == GVT_AUX_NATIVE_WRITE) {
 		int t;
+<<<<<<< HEAD
 		uint8_t buf[16];
+=======
+		u8 buf[16];
+>>>>>>> upstream/android-13
 
 		if ((addr + len + 1) >= DPCD_SIZE) {
 			/*
@@ -1182,7 +1692,11 @@ static int pvinfo_mmio_read(struct intel_vgpu *vgpu, unsigned int offset,
 
 static int handle_g2v_notification(struct intel_vgpu *vgpu, int notification)
 {
+<<<<<<< HEAD
 	intel_gvt_gtt_type_t root_entry_type = GTT_TYPE_PPGTT_ROOT_L4_ENTRY;
+=======
+	enum intel_gvt_gtt_type root_entry_type = GTT_TYPE_PPGTT_ROOT_L4_ENTRY;
+>>>>>>> upstream/android-13
 	struct intel_vgpu_mm *mm;
 	u64 *pdps;
 
@@ -1191,7 +1705,11 @@ static int handle_g2v_notification(struct intel_vgpu *vgpu, int notification)
 	switch (notification) {
 	case VGT_G2V_PPGTT_L3_PAGE_TABLE_CREATE:
 		root_entry_type = GTT_TYPE_PPGTT_ROOT_L3_ENTRY;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case VGT_G2V_PPGTT_L4_PAGE_TABLE_CREATE:
 		mm = intel_vgpu_get_ppgtt_mm(vgpu, root_entry_type, pdps);
 		return PTR_ERR_OR_ZERO(mm);
@@ -1210,8 +1728,12 @@ static int handle_g2v_notification(struct intel_vgpu *vgpu, int notification)
 
 static int send_display_ready_uevent(struct intel_vgpu *vgpu, int ready)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
 	struct kobject *kobj = &dev_priv->drm.primary->kdev->kobj;
+=======
+	struct kobject *kobj = &vgpu->gvt->gt->i915->drm.primary->kdev->kobj;
+>>>>>>> upstream/android-13
 	char *env[3] = {NULL, NULL, NULL};
 	char vmid_str[20];
 	char display_ready_str[20];
@@ -1228,18 +1750,27 @@ static int send_display_ready_uevent(struct intel_vgpu *vgpu, int ready)
 static int pvinfo_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	u32 data;
 	int ret;
 
 	write_vreg(vgpu, offset, p_data, bytes);
 	data = vgpu_vreg(vgpu, offset);
+=======
+	u32 data = *(u32 *)p_data;
+	bool invalid_write = false;
+>>>>>>> upstream/android-13
 
 	switch (offset) {
 	case _vgtif_reg(display_ready):
 		send_display_ready_uevent(vgpu, data ? 1 : 0);
 		break;
 	case _vgtif_reg(g2v_notify):
+<<<<<<< HEAD
 		ret = handle_g2v_notification(vgpu, data);
+=======
+		handle_g2v_notification(vgpu, data);
+>>>>>>> upstream/android-13
 		break;
 	/* add xhot and yhot to handled list to avoid error log */
 	case _vgtif_reg(cursor_x_hot):
@@ -1256,26 +1787,51 @@ static int pvinfo_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 	case _vgtif_reg(execlist_context_descriptor_hi):
 		break;
 	case _vgtif_reg(rsv5[0])..._vgtif_reg(rsv5[3]):
+<<<<<<< HEAD
 		enter_failsafe_mode(vgpu, GVT_FAILSAFE_INSUFFICIENT_RESOURCE);
 		break;
 	default:
+=======
+		invalid_write = true;
+		enter_failsafe_mode(vgpu, GVT_FAILSAFE_INSUFFICIENT_RESOURCE);
+		break;
+	default:
+		invalid_write = true;
+>>>>>>> upstream/android-13
 		gvt_vgpu_err("invalid pvinfo write offset %x bytes %x data %x\n",
 				offset, bytes, data);
 		break;
 	}
+<<<<<<< HEAD
+=======
+
+	if (!invalid_write)
+		write_vreg(vgpu, offset, p_data, bytes);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int pf_write(struct intel_vgpu *vgpu,
 		unsigned int offset, void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	u32 val = *(u32 *)p_data;
 
 	if ((offset == _PS_1A_CTRL || offset == _PS_2A_CTRL ||
 	   offset == _PS_1B_CTRL || offset == _PS_2B_CTRL ||
 	   offset == _PS_1C_CTRL) && (val & PS_PLANE_SEL_MASK) != 0) {
+<<<<<<< HEAD
 		WARN_ONCE(true, "VM(%d): guest is trying to scaling a plane\n",
 			  vgpu->id);
+=======
+		drm_WARN_ONCE(&i915->drm, true,
+			      "VM(%d): guest is trying to scaling a plane\n",
+			      vgpu->id);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1287,12 +1843,22 @@ static int power_well_ctl_mmio_write(struct intel_vgpu *vgpu,
 {
 	write_vreg(vgpu, offset, p_data, bytes);
 
+<<<<<<< HEAD
 	if (vgpu_vreg(vgpu, offset) & HSW_PWR_WELL_CTL_REQ(HSW_DISP_PW_GLOBAL))
 		vgpu_vreg(vgpu, offset) |=
 			HSW_PWR_WELL_CTL_STATE(HSW_DISP_PW_GLOBAL);
 	else
 		vgpu_vreg(vgpu, offset) &=
 			~HSW_PWR_WELL_CTL_STATE(HSW_DISP_PW_GLOBAL);
+=======
+	if (vgpu_vreg(vgpu, offset) &
+	    HSW_PWR_WELL_CTL_REQ(HSW_PW_CTL_IDX_GLOBAL))
+		vgpu_vreg(vgpu, offset) |=
+			HSW_PWR_WELL_CTL_STATE(HSW_PW_CTL_IDX_GLOBAL);
+	else
+		vgpu_vreg(vgpu, offset) &=
+			~HSW_PWR_WELL_CTL_STATE(HSW_PW_CTL_IDX_GLOBAL);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1322,13 +1888,22 @@ static int fpga_dbg_mmio_write(struct intel_vgpu *vgpu,
 static int dma_ctrl_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	u32 mode;
 
 	write_vreg(vgpu, offset, p_data, bytes);
 	mode = vgpu_vreg(vgpu, offset);
 
 	if (GFX_MODE_BIT_SET_IN_MASK(mode, START_DMA)) {
+<<<<<<< HEAD
 		WARN_ONCE(1, "VM(%d): iGVT-g doesn't support GuC\n",
+=======
+		drm_WARN_ONCE(&i915->drm, 1,
+				"VM(%d): iGVT-g doesn't support GuC\n",
+>>>>>>> upstream/android-13
 				vgpu->id);
 		return 0;
 	}
@@ -1339,20 +1914,32 @@ static int dma_ctrl_write(struct intel_vgpu *vgpu, unsigned int offset,
 static int gen9_trtte_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
 	u32 trtte = *(u32 *)p_data;
 
 	if ((trtte & 1) && (trtte & (1 << 1)) == 0) {
 		WARN(1, "VM(%d): Use physical address for TRTT!\n",
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+	u32 trtte = *(u32 *)p_data;
+
+	if ((trtte & 1) && (trtte & (1 << 1)) == 0) {
+		drm_WARN(&i915->drm, 1,
+				"VM(%d): Use physical address for TRTT!\n",
+>>>>>>> upstream/android-13
 				vgpu->id);
 		return -EINVAL;
 	}
 	write_vreg(vgpu, offset, p_data, bytes);
+<<<<<<< HEAD
 	/* TRTTE is not per-context */
 
 	mmio_hw_access_pre(dev_priv);
 	I915_WRITE(_MMIO(offset), vgpu_vreg(vgpu, offset));
 	mmio_hw_access_post(dev_priv);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1360,6 +1947,7 @@ static int gen9_trtte_write(struct intel_vgpu *vgpu, unsigned int offset,
 static int gen9_trtt_chicken_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
 	u32 val = *(u32 *)p_data;
 
@@ -1369,6 +1957,8 @@ static int gen9_trtt_chicken_write(struct intel_vgpu *vgpu, unsigned int offset,
 		I915_WRITE(_MMIO(offset), val);
 		mmio_hw_access_post(dev_priv);
 	}
+=======
+>>>>>>> upstream/android-13
 	write_vreg(vgpu, offset, p_data, bytes);
 	return 0;
 }
@@ -1404,8 +1994,15 @@ static int mailbox_write(struct intel_vgpu *vgpu, unsigned int offset,
 
 	switch (cmd) {
 	case GEN9_PCODE_READ_MEM_LATENCY:
+<<<<<<< HEAD
 		if (IS_SKYLAKE(vgpu->gvt->dev_priv)
 			 || IS_KABYLAKE(vgpu->gvt->dev_priv)) {
+=======
+		if (IS_SKYLAKE(vgpu->gvt->gt->i915) ||
+		    IS_KABYLAKE(vgpu->gvt->gt->i915) ||
+		    IS_COFFEELAKE(vgpu->gvt->gt->i915) ||
+		    IS_COMETLAKE(vgpu->gvt->gt->i915)) {
+>>>>>>> upstream/android-13
 			/**
 			 * "Read memory latency" command on gen9.
 			 * Below memory latency values are read
@@ -1415,7 +2012,11 @@ static int mailbox_write(struct intel_vgpu *vgpu, unsigned int offset,
 				*data0 = 0x1e1a1100;
 			else
 				*data0 = 0x61514b3d;
+<<<<<<< HEAD
 		} else if (IS_BROXTON(vgpu->gvt->dev_priv)) {
+=======
+		} else if (IS_BROXTON(vgpu->gvt->gt->i915)) {
+>>>>>>> upstream/android-13
 			/**
 			 * "Read memory latency" command on gen9.
 			 * Below memory latency values are read
@@ -1428,8 +2029,15 @@ static int mailbox_write(struct intel_vgpu *vgpu, unsigned int offset,
 		}
 		break;
 	case SKL_PCODE_CDCLK_CONTROL:
+<<<<<<< HEAD
 		if (IS_SKYLAKE(vgpu->gvt->dev_priv)
 			 || IS_KABYLAKE(vgpu->gvt->dev_priv))
+=======
+		if (IS_SKYLAKE(vgpu->gvt->gt->i915) ||
+		    IS_KABYLAKE(vgpu->gvt->gt->i915) ||
+		    IS_COFFEELAKE(vgpu->gvt->gt->i915) ||
+		    IS_COMETLAKE(vgpu->gvt->gt->i915))
+>>>>>>> upstream/android-13
 			*data0 = SKL_CDCLK_READY_FOR_CHANGE;
 		break;
 	case GEN6_PCODE_READ_RC6VIDS:
@@ -1453,24 +2061,44 @@ static int hws_pga_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
 	u32 value = *(u32 *)p_data;
+<<<<<<< HEAD
 	int ring_id = intel_gvt_render_mmio_to_ring_id(vgpu->gvt, offset);
 
 	if (!intel_gvt_ggtt_validate_range(vgpu, value, I915_GTT_PAGE_SIZE)) {
+=======
+	const struct intel_engine_cs *engine =
+		intel_gvt_render_mmio_to_engine(vgpu->gvt, offset);
+
+	if (value != 0 &&
+	    !intel_gvt_ggtt_validate_range(vgpu, value, I915_GTT_PAGE_SIZE)) {
+>>>>>>> upstream/android-13
 		gvt_vgpu_err("write invalid HWSP address, reg:0x%x, value:0x%x\n",
 			      offset, value);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Need to emulate all the HWSP register write to ensure host can
 	 * update the VM CSB status correctly. Here listed registers can
 	 * support BDW, SKL or other platforms with same HWSP registers.
 	 */
+<<<<<<< HEAD
 	if (unlikely(ring_id < 0 || ring_id >= I915_NUM_ENGINES)) {
+=======
+	if (unlikely(!engine)) {
+>>>>>>> upstream/android-13
 		gvt_vgpu_err("access unknown hardware status page register:0x%x\n",
 			     offset);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	vgpu->hws_pga[ring_id] = value;
+=======
+	vgpu->hws_pga[engine->id] = value;
+>>>>>>> upstream/android-13
 	gvt_dbg_mmio("VM(%d) write: 0x%x to HWSP: 0x%x\n",
 		     vgpu->id, value, offset);
 
@@ -1482,7 +2110,11 @@ static int skl_power_well_ctl_write(struct intel_vgpu *vgpu,
 {
 	u32 v = *(u32 *)p_data;
 
+<<<<<<< HEAD
 	if (IS_BROXTON(vgpu->gvt->dev_priv))
+=======
+	if (IS_BROXTON(vgpu->gvt->gt->i915))
+>>>>>>> upstream/android-13
 		v &= (1 << 31) | (1 << 29);
 	else
 		v &= (1 << 31) | (1 << 29) | (1 << 9) |
@@ -1608,28 +2240,80 @@ static int bxt_gt_disp_pwron_write(struct intel_vgpu *vgpu,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bxt_edp_psr_imr_iir_write(struct intel_vgpu *vgpu,
+=======
+static int edp_psr_imr_iir_write(struct intel_vgpu *vgpu,
+>>>>>>> upstream/android-13
 		unsigned int offset, void *p_data, unsigned int bytes)
 {
 	vgpu_vreg(vgpu, offset) = 0;
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * FixMe:
+ * If guest fills non-priv batch buffer on ApolloLake/Broxton as Mesa i965 did:
+ * 717e7539124d (i965: Use a WC map and memcpy for the batch instead of pwrite.)
+ * Due to the missing flush of bb filled by VM vCPU, host GPU hangs on executing
+ * these MI_BATCH_BUFFER.
+ * Temporarily workaround this by setting SNOOP bit for PAT3 used by PPGTT
+ * PML4 PTE: PAT(0) PCD(1) PWT(1).
+ * The performance is still expected to be low, will need further improvement.
+ */
+static int bxt_ppat_low_write(struct intel_vgpu *vgpu, unsigned int offset,
+			      void *p_data, unsigned int bytes)
+{
+	u64 pat =
+		GEN8_PPAT(0, CHV_PPAT_SNOOP) |
+		GEN8_PPAT(1, 0) |
+		GEN8_PPAT(2, 0) |
+		GEN8_PPAT(3, CHV_PPAT_SNOOP) |
+		GEN8_PPAT(4, CHV_PPAT_SNOOP) |
+		GEN8_PPAT(5, CHV_PPAT_SNOOP) |
+		GEN8_PPAT(6, CHV_PPAT_SNOOP) |
+		GEN8_PPAT(7, CHV_PPAT_SNOOP);
+
+	vgpu_vreg(vgpu, offset) = lower_32_bits(pat);
+
+	return 0;
+}
+
+static int guc_status_read(struct intel_vgpu *vgpu,
+			   unsigned int offset, void *p_data,
+			   unsigned int bytes)
+{
+	/* keep MIA_IN_RESET before clearing */
+	read_vreg(vgpu, offset, p_data, bytes);
+	vgpu_vreg(vgpu, offset) &= ~GS_MIA_IN_RESET;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int mmio_read_from_hw(struct intel_vgpu *vgpu,
 		unsigned int offset, void *p_data, unsigned int bytes)
 {
 	struct intel_gvt *gvt = vgpu->gvt;
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = gvt->dev_priv;
 	int ring_id;
 	u32 ring_base;
 
 	ring_id = intel_gvt_render_mmio_to_ring_id(gvt, offset);
+=======
+	const struct intel_engine_cs *engine =
+		intel_gvt_render_mmio_to_engine(gvt, offset);
+
+>>>>>>> upstream/android-13
 	/**
 	 * Read HW reg in following case
 	 * a. the offset isn't a ring mmio
 	 * b. the offset's ring is running on hw.
 	 * c. the offset is ring time stamp mmio
 	 */
+<<<<<<< HEAD
 	if (ring_id >= 0)
 		ring_base = dev_priv->engine[ring_id]->mmio_base;
 
@@ -1639,6 +2323,17 @@ static int mmio_read_from_hw(struct intel_vgpu *vgpu,
 		mmio_hw_access_pre(dev_priv);
 		vgpu_vreg(vgpu, offset) = I915_READ(_MMIO(offset));
 		mmio_hw_access_post(dev_priv);
+=======
+
+	if (!engine ||
+	    vgpu == gvt->scheduler.engine_owner[engine->id] ||
+	    offset == i915_mmio_reg_offset(RING_TIMESTAMP(engine->mmio_base)) ||
+	    offset == i915_mmio_reg_offset(RING_TIMESTAMP_UDW(engine->mmio_base))) {
+		mmio_hw_access_pre(gvt->gt);
+		vgpu_vreg(vgpu, offset) =
+			intel_uncore_read(gvt->gt->uncore, _MMIO(offset));
+		mmio_hw_access_post(gvt->gt);
+>>>>>>> upstream/android-13
 	}
 
 	return intel_vgpu_default_mmio_read(vgpu, offset, p_data, bytes);
@@ -1647,11 +2342,17 @@ static int mmio_read_from_hw(struct intel_vgpu *vgpu,
 static int elsp_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
 	int ring_id = intel_gvt_render_mmio_to_ring_id(vgpu->gvt, offset);
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+	const struct intel_engine_cs *engine = intel_gvt_render_mmio_to_engine(vgpu->gvt, offset);
+>>>>>>> upstream/android-13
 	struct intel_vgpu_execlist *execlist;
 	u32 data = *(u32 *)p_data;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (WARN_ON(ring_id < 0 || ring_id >= I915_NUM_ENGINES))
 		return -EINVAL;
 
@@ -1663,6 +2364,34 @@ static int elsp_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		if(ret)
 			gvt_vgpu_err("fail submit workload on ring %d\n",
 				ring_id);
+=======
+	if (drm_WARN_ON(&i915->drm, !engine))
+		return -EINVAL;
+
+	/*
+	 * Due to d3_entered is used to indicate skipping PPGTT invalidation on
+	 * vGPU reset, it's set on D0->D3 on PCI config write, and cleared after
+	 * vGPU reset if in resuming.
+	 * In S0ix exit, the device power state also transite from D3 to D0 as
+	 * S3 resume, but no vGPU reset (triggered by QEMU devic model). After
+	 * S0ix exit, all engines continue to work. However the d3_entered
+	 * remains set which will break next vGPU reset logic (miss the expected
+	 * PPGTT invalidation).
+	 * Engines can only work in D0. Thus the 1st elsp write gives GVT a
+	 * chance to clear d3_entered.
+	 */
+	if (vgpu->d3_entered)
+		vgpu->d3_entered = false;
+
+	execlist = &vgpu->submission.execlist[engine->id];
+
+	execlist->elsp_dwords.data[3 - execlist->elsp_dwords.index] = data;
+	if (execlist->elsp_dwords.index == 3) {
+		ret = intel_vgpu_submit_execlist(vgpu, engine);
+		if(ret)
+			gvt_vgpu_err("fail submit workload on ring %s\n",
+				     engine->name);
+>>>>>>> upstream/android-13
 	}
 
 	++execlist->elsp_dwords.index;
@@ -1674,16 +2403,43 @@ static int ring_mode_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		void *p_data, unsigned int bytes)
 {
 	u32 data = *(u32 *)p_data;
+<<<<<<< HEAD
 	int ring_id = intel_gvt_render_mmio_to_ring_id(vgpu->gvt, offset);
 	bool enable_execlist;
 	int ret;
 
 	write_vreg(vgpu, offset, p_data, bytes);
 
+=======
+	const struct intel_engine_cs *engine =
+		intel_gvt_render_mmio_to_engine(vgpu->gvt, offset);
+	bool enable_execlist;
+	int ret;
+
+	(*(u32 *)p_data) &= ~_MASKED_BIT_ENABLE(1);
+	if (IS_COFFEELAKE(vgpu->gvt->gt->i915) ||
+	    IS_COMETLAKE(vgpu->gvt->gt->i915))
+		(*(u32 *)p_data) &= ~_MASKED_BIT_ENABLE(2);
+	write_vreg(vgpu, offset, p_data, bytes);
+
+	if (IS_MASKED_BITS_ENABLED(data, 1)) {
+		enter_failsafe_mode(vgpu, GVT_FAILSAFE_UNSUPPORTED_GUEST);
+		return 0;
+	}
+
+	if ((IS_COFFEELAKE(vgpu->gvt->gt->i915) ||
+	     IS_COMETLAKE(vgpu->gvt->gt->i915)) &&
+	    IS_MASKED_BITS_ENABLED(data, 2)) {
+		enter_failsafe_mode(vgpu, GVT_FAILSAFE_UNSUPPORTED_GUEST);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	/* when PPGTT mode enabled, we will check if guest has called
 	 * pvinfo, if not, we will treat this guest as non-gvtg-aware
 	 * guest, and stop emulating its cfg space, mmio, gtt, etc.
 	 */
+<<<<<<< HEAD
 	if (((data & _MASKED_BIT_ENABLE(GFX_PPGTT_ENABLE)) ||
 			(data & _MASKED_BIT_ENABLE(GFX_RUN_LIST_ENABLE)))
 			&& !vgpu->pv_notified) {
@@ -1697,13 +2453,33 @@ static int ring_mode_mmio_write(struct intel_vgpu *vgpu, unsigned int offset,
 		gvt_dbg_core("EXECLIST %s on ring %d\n",
 				(enable_execlist ? "enabling" : "disabling"),
 				ring_id);
+=======
+	if ((IS_MASKED_BITS_ENABLED(data, GFX_PPGTT_ENABLE) ||
+	    IS_MASKED_BITS_ENABLED(data, GFX_RUN_LIST_ENABLE)) &&
+	    !vgpu->pv_notified) {
+		enter_failsafe_mode(vgpu, GVT_FAILSAFE_UNSUPPORTED_GUEST);
+		return 0;
+	}
+	if (IS_MASKED_BITS_ENABLED(data, GFX_RUN_LIST_ENABLE) ||
+	    IS_MASKED_BITS_DISABLED(data, GFX_RUN_LIST_ENABLE)) {
+		enable_execlist = !!(data & GFX_RUN_LIST_ENABLE);
+
+		gvt_dbg_core("EXECLIST %s on ring %s\n",
+			     (enable_execlist ? "enabling" : "disabling"),
+			     engine->name);
+>>>>>>> upstream/android-13
 
 		if (!enable_execlist)
 			return 0;
 
 		ret = intel_vgpu_select_submission_ops(vgpu,
+<<<<<<< HEAD
 			       ENGINE_MASK(ring_id),
 			       INTEL_VGPU_EXECLIST_SUBMISSION);
+=======
+						       engine->mask,
+						       INTEL_VGPU_EXECLIST_SUBMISSION);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -1722,6 +2498,7 @@ static int gvt_reg_tlb_control_handler(struct intel_vgpu *vgpu,
 
 	switch (offset) {
 	case 0x4260:
+<<<<<<< HEAD
 		id = RCS;
 		break;
 	case 0x4264:
@@ -1735,6 +2512,21 @@ static int gvt_reg_tlb_control_handler(struct intel_vgpu *vgpu,
 		break;
 	case 0x4270:
 		id = VECS;
+=======
+		id = RCS0;
+		break;
+	case 0x4264:
+		id = VCS0;
+		break;
+	case 0x4268:
+		id = VCS1;
+		break;
+	case 0x426c:
+		id = BCS0;
+		break;
+	case 0x4270:
+		id = VECS0;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -1752,7 +2544,11 @@ static int ring_reset_ctl_write(struct intel_vgpu *vgpu,
 	write_vreg(vgpu, offset, p_data, bytes);
 	data = vgpu_vreg(vgpu, offset);
 
+<<<<<<< HEAD
 	if (data & _MASKED_BIT_ENABLE(RESET_CTL_REQUEST_RESET))
+=======
+	if (IS_MASKED_BITS_ENABLED(data, RESET_CTL_REQUEST_RESET))
+>>>>>>> upstream/android-13
 		data |= RESET_CTL_READY_TO_RESET;
 	else if (data & _MASKED_BIT_DISABLE(RESET_CTL_REQUEST_RESET))
 		data &= ~RESET_CTL_READY_TO_RESET;
@@ -1761,6 +2557,25 @@ static int ring_reset_ctl_write(struct intel_vgpu *vgpu,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int csfe_chicken1_mmio_write(struct intel_vgpu *vgpu,
+				    unsigned int offset, void *p_data,
+				    unsigned int bytes)
+{
+	u32 data = *(u32 *)p_data;
+
+	(*(u32 *)p_data) &= ~_MASKED_BIT_ENABLE(0x18);
+	write_vreg(vgpu, offset, p_data, bytes);
+
+	if (IS_MASKED_BITS_ENABLED(data, 0x10) ||
+	    IS_MASKED_BITS_ENABLED(data, 0x8))
+		enter_failsafe_mode(vgpu, GVT_FAILSAFE_UNSUPPORTED_GUEST);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 #define MMIO_F(reg, s, f, am, rm, d, r, w) do { \
 	ret = new_mmio_info(gvt, i915_mmio_reg_offset(reg), \
 		f, s, am, rm, d, r, w); \
@@ -1791,7 +2606,11 @@ static int ring_reset_ctl_write(struct intel_vgpu *vgpu,
 	MMIO_F(prefix(BLT_RING_BASE), s, f, am, rm, d, r, w); \
 	MMIO_F(prefix(GEN6_BSD_RING_BASE), s, f, am, rm, d, r, w); \
 	MMIO_F(prefix(VEBOX_RING_BASE), s, f, am, rm, d, r, w); \
+<<<<<<< HEAD
 	if (HAS_BSD2(dev_priv)) \
+=======
+	if (HAS_ENGINE(gvt->gt, VCS1)) \
+>>>>>>> upstream/android-13
 		MMIO_F(prefix(GEN8_BSD2_RING_BASE), s, f, am, rm, d, r, w); \
 } while (0)
 
@@ -1812,10 +2631,17 @@ static int ring_reset_ctl_write(struct intel_vgpu *vgpu,
 
 static int init_generic_mmio_info(struct intel_gvt *gvt)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = gvt->dev_priv;
 	int ret;
 
 	MMIO_RING_DFH(RING_IMR, D_ALL, F_CMD_ACCESS, NULL,
+=======
+	struct drm_i915_private *dev_priv = gvt->gt->i915;
+	int ret;
+
+	MMIO_RING_DFH(RING_IMR, D_ALL, 0, NULL,
+>>>>>>> upstream/android-13
 		intel_vgpu_reg_imr_handler);
 
 	MMIO_DFH(SDEIMR, D_ALL, 0, NULL, intel_vgpu_reg_imr_handler);
@@ -1823,7 +2649,12 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DFH(SDEIIR, D_ALL, 0, NULL, intel_vgpu_reg_iir_handler);
 	MMIO_D(SDEISR, D_ALL);
 
+<<<<<<< HEAD
 	MMIO_RING_DFH(RING_HWSTAM, D_ALL, F_CMD_ACCESS, NULL, NULL);
+=======
+	MMIO_RING_DFH(RING_HWSTAM, D_ALL, 0, NULL, NULL);
+
+>>>>>>> upstream/android-13
 
 	MMIO_DH(GEN8_GAMW_ECO_DEV_RW_IA, D_BDW_PLUS, NULL,
 		gamw_echo_dev_rw_ia_write);
@@ -1846,6 +2677,7 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DH(GEN7_SC_INSTDONE, D_BDW_PLUS, mmio_read_from_hw, NULL);
 
 	MMIO_GM_RDR(_MMIO(0x2148), D_ALL, NULL, NULL);
+<<<<<<< HEAD
 	MMIO_GM_RDR(CCID, D_ALL, NULL, NULL);
 	MMIO_GM_RDR(_MMIO(0x12198), D_ALL, NULL, NULL);
 	MMIO_D(GEN7_CXT_SIZE, D_ALL);
@@ -1859,6 +2691,22 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	/* RING MODE */
 #define RING_REG(base) _MMIO((base) + 0x29c)
 	MMIO_RING_DFH(RING_REG, D_ALL, F_MODE_MASK | F_CMD_ACCESS, NULL,
+=======
+	MMIO_GM_RDR(CCID(RENDER_RING_BASE), D_ALL, NULL, NULL);
+	MMIO_GM_RDR(_MMIO(0x12198), D_ALL, NULL, NULL);
+	MMIO_D(GEN7_CXT_SIZE, D_ALL);
+
+	MMIO_RING_DFH(RING_TAIL, D_ALL, 0, NULL, NULL);
+	MMIO_RING_DFH(RING_HEAD, D_ALL, 0, NULL, NULL);
+	MMIO_RING_DFH(RING_CTL, D_ALL, 0, NULL, NULL);
+	MMIO_RING_DFH(RING_ACTHD, D_ALL, 0, mmio_read_from_hw, NULL);
+	MMIO_RING_GM(RING_START, D_ALL, NULL, NULL);
+
+	/* RING MODE */
+#define RING_REG(base) _MMIO((base) + 0x29c)
+	MMIO_RING_DFH(RING_REG, D_ALL,
+		F_MODE_MASK | F_CMD_ACCESS | F_CMD_WRITE_PATCH, NULL,
+>>>>>>> upstream/android-13
 		ring_mode_mmio_write);
 #undef RING_REG
 
@@ -1881,7 +2729,12 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DFH(_MMIO(0x20dc), D_ALL, F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_3D_CHICKEN3, D_ALL, F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0x2088), D_ALL, F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
+<<<<<<< HEAD
 	MMIO_DFH(_MMIO(0x20e4), D_ALL, F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
+=======
+	MMIO_DFH(FF_SLICE_CS_CHICKEN2, D_ALL,
+		 F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
+>>>>>>> upstream/android-13
 	MMIO_DFH(_MMIO(0x2470), D_ALL, F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(GAM_ECOCHK, D_ALL, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(GEN7_COMMON_SLICE_CHICKEN1, D_ALL, F_MODE_MASK | F_CMD_ACCESS,
@@ -1967,6 +2820,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DH(DSPSURF(PIPE_A), D_ALL, NULL, pri_surf_mmio_write);
 	MMIO_D(DSPOFFSET(PIPE_A), D_ALL);
 	MMIO_D(DSPSURFLIVE(PIPE_A), D_ALL);
+<<<<<<< HEAD
+=======
+	MMIO_DH(REG_50080(PIPE_A, PLANE_PRIMARY), D_ALL, NULL,
+		reg50080_mmio_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(DSPCNTR(PIPE_B), D_ALL);
 	MMIO_D(DSPADDR(PIPE_B), D_ALL);
@@ -1976,6 +2834,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DH(DSPSURF(PIPE_B), D_ALL, NULL, pri_surf_mmio_write);
 	MMIO_D(DSPOFFSET(PIPE_B), D_ALL);
 	MMIO_D(DSPSURFLIVE(PIPE_B), D_ALL);
+<<<<<<< HEAD
+=======
+	MMIO_DH(REG_50080(PIPE_B, PLANE_PRIMARY), D_ALL, NULL,
+		reg50080_mmio_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(DSPCNTR(PIPE_C), D_ALL);
 	MMIO_D(DSPADDR(PIPE_C), D_ALL);
@@ -1985,6 +2848,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DH(DSPSURF(PIPE_C), D_ALL, NULL, pri_surf_mmio_write);
 	MMIO_D(DSPOFFSET(PIPE_C), D_ALL);
 	MMIO_D(DSPSURFLIVE(PIPE_C), D_ALL);
+<<<<<<< HEAD
+=======
+	MMIO_DH(REG_50080(PIPE_C, PLANE_PRIMARY), D_ALL, NULL,
+		reg50080_mmio_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(SPRCTL(PIPE_A), D_ALL);
 	MMIO_D(SPRLINOFF(PIPE_A), D_ALL);
@@ -1998,6 +2866,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(SPROFFSET(PIPE_A), D_ALL);
 	MMIO_D(SPRSCALE(PIPE_A), D_ALL);
 	MMIO_D(SPRSURFLIVE(PIPE_A), D_ALL);
+<<<<<<< HEAD
+=======
+	MMIO_DH(REG_50080(PIPE_A, PLANE_SPRITE0), D_ALL, NULL,
+		reg50080_mmio_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(SPRCTL(PIPE_B), D_ALL);
 	MMIO_D(SPRLINOFF(PIPE_B), D_ALL);
@@ -2011,6 +2884,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(SPROFFSET(PIPE_B), D_ALL);
 	MMIO_D(SPRSCALE(PIPE_B), D_ALL);
 	MMIO_D(SPRSURFLIVE(PIPE_B), D_ALL);
+<<<<<<< HEAD
+=======
+	MMIO_DH(REG_50080(PIPE_B, PLANE_SPRITE0), D_ALL, NULL,
+		reg50080_mmio_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(SPRCTL(PIPE_C), D_ALL);
 	MMIO_D(SPRLINOFF(PIPE_C), D_ALL);
@@ -2024,6 +2902,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(SPROFFSET(PIPE_C), D_ALL);
 	MMIO_D(SPRSCALE(PIPE_C), D_ALL);
 	MMIO_D(SPRSURFLIVE(PIPE_C), D_ALL);
+<<<<<<< HEAD
+=======
+	MMIO_DH(REG_50080(PIPE_C, PLANE_SPRITE0), D_ALL, NULL,
+		reg50080_mmio_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(HTOTAL(TRANSCODER_A), D_ALL);
 	MMIO_D(HBLANK(TRANSCODER_A), D_ALL);
@@ -2118,9 +3001,15 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(PF_VSCALE(PIPE_C), D_ALL);
 	MMIO_D(PF_HSCALE(PIPE_C), D_ALL);
 
+<<<<<<< HEAD
 	MMIO_D(WM0_PIPEA_ILK, D_ALL);
 	MMIO_D(WM0_PIPEB_ILK, D_ALL);
 	MMIO_D(WM0_PIPEC_IVB, D_ALL);
+=======
+	MMIO_D(WM0_PIPE_ILK(PIPE_A), D_ALL);
+	MMIO_D(WM0_PIPE_ILK(PIPE_B), D_ALL);
+	MMIO_D(WM0_PIPE_ILK(PIPE_C), D_ALL);
+>>>>>>> upstream/android-13
 	MMIO_D(WM1_LP_ILK, D_ALL);
 	MMIO_D(WM2_LP_ILK, D_ALL);
 	MMIO_D(WM3_LP_ILK, D_ALL);
@@ -2137,7 +3026,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 
 	MMIO_F(PCH_GMBUS0, 4 * 4, 0, 0, 0, D_ALL, gmbus_mmio_read,
 		gmbus_mmio_write);
+<<<<<<< HEAD
 	MMIO_F(PCH_GPIOA, 6 * 4, F_UNALIGN, 0, 0, D_ALL, NULL, NULL);
+=======
+	MMIO_F(PCH_GPIO_BASE, 6 * 4, F_UNALIGN, 0, 0, D_ALL, NULL, NULL);
+>>>>>>> upstream/android-13
 	MMIO_F(_MMIO(0xe4f00), 0x28, 0, 0, 0, D_ALL, NULL, NULL);
 
 	MMIO_F(_MMIO(_PCH_DPB_AUX_CH_CTL), 6 * 4, 0, 0, 0, D_PRE_SKL, NULL,
@@ -2338,9 +3231,15 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_F(_MMIO(0x7144c), 0xc, 0, 0, 0, D_PRE_SKL, NULL, NULL);
 	MMIO_F(_MMIO(0x7244c), 0xc, 0, 0, 0, D_PRE_SKL, NULL, NULL);
 
+<<<<<<< HEAD
 	MMIO_D(PIPE_WM_LINETIME(PIPE_A), D_ALL);
 	MMIO_D(PIPE_WM_LINETIME(PIPE_B), D_ALL);
 	MMIO_D(PIPE_WM_LINETIME(PIPE_C), D_ALL);
+=======
+	MMIO_D(WM_LINETIME(PIPE_A), D_ALL);
+	MMIO_D(WM_LINETIME(PIPE_B), D_ALL);
+	MMIO_D(WM_LINETIME(PIPE_C), D_ALL);
+>>>>>>> upstream/android-13
 	MMIO_D(SPLL_CTL, D_ALL);
 	MMIO_D(_MMIO(_WRPLL_CTL1), D_ALL);
 	MMIO_D(_MMIO(_WRPLL_CTL2), D_ALL);
@@ -2462,6 +3361,7 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(GEN6_RC6p_THRESHOLD, D_ALL);
 	MMIO_D(GEN6_RC6pp_THRESHOLD, D_ALL);
 	MMIO_D(GEN6_PMINTRMSK, D_ALL);
+<<<<<<< HEAD
 	/*
 	 * Use an arbitrary power well controlled by the PWR_WELL_CTL
 	 * register.
@@ -2473,6 +3373,12 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DH(HSW_PWR_WELL_CTL_KVMR, D_BDW, NULL, power_well_ctl_mmio_write);
 	MMIO_DH(HSW_PWR_WELL_CTL_DEBUG(HSW_DISP_PW_GLOBAL), D_BDW, NULL,
 		power_well_ctl_mmio_write);
+=======
+	MMIO_DH(HSW_PWR_WELL_CTL1, D_BDW, NULL, power_well_ctl_mmio_write);
+	MMIO_DH(HSW_PWR_WELL_CTL2, D_BDW, NULL, power_well_ctl_mmio_write);
+	MMIO_DH(HSW_PWR_WELL_CTL3, D_BDW, NULL, power_well_ctl_mmio_write);
+	MMIO_DH(HSW_PWR_WELL_CTL4, D_BDW, NULL, power_well_ctl_mmio_write);
+>>>>>>> upstream/android-13
 	MMIO_DH(HSW_PWR_WELL_CTL5, D_BDW, NULL, power_well_ctl_mmio_write);
 	MMIO_DH(HSW_PWR_WELL_CTL6, D_BDW, NULL, power_well_ctl_mmio_write);
 
@@ -2603,7 +3509,11 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DFH(_MMIO(0x4094), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
 
 	MMIO_DFH(ARB_MODE, D_ALL, F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
+<<<<<<< HEAD
 	MMIO_RING_GM_RDR(RING_BBADDR, D_ALL, NULL, NULL);
+=======
+	MMIO_RING_GM(RING_BBADDR, D_ALL, NULL, NULL);
+>>>>>>> upstream/android-13
 	MMIO_DFH(_MMIO(0x2220), D_ALL, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0x12220), D_ALL, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0x22220), D_ALL, F_CMD_ACCESS, NULL, NULL);
@@ -2613,12 +3523,26 @@ static int init_generic_mmio_info(struct intel_gvt *gvt)
 	MMIO_DFH(_MMIO(0x1a178), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0x1a17c), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0x2217c), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
+<<<<<<< HEAD
 	return 0;
 }
 
 static int init_broadwell_mmio_info(struct intel_gvt *gvt)
 {
 	struct drm_i915_private *dev_priv = gvt->dev_priv;
+=======
+
+	MMIO_DH(EDP_PSR_IMR, D_BDW_PLUS, NULL, edp_psr_imr_iir_write);
+	MMIO_DH(EDP_PSR_IIR, D_BDW_PLUS, NULL, edp_psr_imr_iir_write);
+	MMIO_DH(GUC_STATUS, D_ALL, guc_status_read, NULL);
+
+	return 0;
+}
+
+static int init_bdw_mmio_info(struct intel_gvt *gvt)
+{
+	struct drm_i915_private *dev_priv = gvt->gt->i915;
+>>>>>>> upstream/android-13
 	int ret;
 
 	MMIO_DH(GEN8_GT_IMR(0), D_BDW_PLUS, NULL, intel_vgpu_reg_imr_handler);
@@ -2683,7 +3607,11 @@ static int init_broadwell_mmio_info(struct intel_gvt *gvt)
 	MMIO_DH(GEN8_MASTER_IRQ, D_BDW_PLUS, NULL,
 		intel_vgpu_reg_master_irq_handler);
 
+<<<<<<< HEAD
 	MMIO_RING_DFH(RING_ACTHD_UDW, D_BDW_PLUS, F_CMD_ACCESS,
+=======
+	MMIO_RING_DFH(RING_ACTHD_UDW, D_BDW_PLUS, 0,
+>>>>>>> upstream/android-13
 		mmio_read_from_hw, NULL);
 
 #define RING_REG(base) _MMIO((base) + 0xd0)
@@ -2697,7 +3625,11 @@ static int init_broadwell_mmio_info(struct intel_gvt *gvt)
 #undef RING_REG
 
 #define RING_REG(base) _MMIO((base) + 0x234)
+<<<<<<< HEAD
 	MMIO_RING_F(RING_REG, 8, F_RO | F_CMD_ACCESS, 0, ~0, D_BDW_PLUS,
+=======
+	MMIO_RING_F(RING_REG, 8, F_RO, 0, ~0, D_BDW_PLUS,
+>>>>>>> upstream/android-13
 		NULL, NULL);
 #undef RING_REG
 
@@ -2723,16 +3655,27 @@ static int init_broadwell_mmio_info(struct intel_gvt *gvt)
 
 	MMIO_DH(GEN6_PCODE_MAILBOX, D_BDW_PLUS, NULL, mailbox_write);
 
+<<<<<<< HEAD
 	MMIO_D(GEN8_PRIVATE_PAT_LO, D_BDW_PLUS);
+=======
+	MMIO_D(GEN8_PRIVATE_PAT_LO, D_BDW_PLUS & ~D_BXT);
+>>>>>>> upstream/android-13
 	MMIO_D(GEN8_PRIVATE_PAT_HI, D_BDW_PLUS);
 
 	MMIO_D(GAMTARBMODE, D_BDW_PLUS);
 
 #define RING_REG(base) _MMIO((base) + 0x270)
+<<<<<<< HEAD
 	MMIO_RING_F(RING_REG, 32, 0, 0, 0, D_BDW_PLUS, NULL, NULL);
 #undef RING_REG
 
 	MMIO_RING_GM_RDR(RING_HWS_PGA, D_BDW_PLUS, NULL, hws_pga_write);
+=======
+	MMIO_RING_F(RING_REG, 32, F_CMD_ACCESS, 0, 0, D_BDW_PLUS, NULL, NULL);
+#undef RING_REG
+
+	MMIO_RING_GM(RING_HWS_PGA, D_BDW_PLUS, NULL, hws_pga_write);
+>>>>>>> upstream/android-13
 
 	MMIO_DFH(HDC_CHICKEN0, D_BDW_PLUS, F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
 
@@ -2741,7 +3684,11 @@ static int init_broadwell_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(CHICKEN_PIPESL_1(PIPE_C), D_BDW_PLUS);
 
 	MMIO_D(WM_MISC, D_BDW);
+<<<<<<< HEAD
 	MMIO_D(_MMIO(BDW_EDP_PSR_BASE), D_BDW);
+=======
+	MMIO_D(_MMIO(_SRD_CTL_EDP), D_BDW);
+>>>>>>> upstream/android-13
 
 	MMIO_D(_MMIO(0x6671c), D_BDW_PLUS);
 	MMIO_D(_MMIO(0x66c00), D_BDW_PLUS);
@@ -2766,9 +3713,16 @@ static int init_broadwell_mmio_info(struct intel_gvt *gvt)
 	MMIO_DFH(_MMIO(0xb100), D_BDW, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0xb10c), D_BDW, F_CMD_ACCESS, NULL, NULL);
 	MMIO_D(_MMIO(0xb110), D_BDW);
+<<<<<<< HEAD
 
 	MMIO_F(_MMIO(0x24d0), 48, F_CMD_ACCESS, 0, 0, D_BDW_PLUS,
 		NULL, force_nonpriv_write);
+=======
+	MMIO_D(GEN9_SCRATCH_LNCF1, D_BDW_PLUS);
+
+	MMIO_F(_MMIO(0x24d0), 48, F_CMD_ACCESS | F_CMD_WRITE_PATCH, 0, 0,
+		D_BDW_PLUS, NULL, force_nonpriv_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(_MMIO(0x44484), D_BDW_PLUS);
 	MMIO_D(_MMIO(0x4448c), D_BDW_PLUS);
@@ -2801,16 +3755,25 @@ static int init_broadwell_mmio_info(struct intel_gvt *gvt)
 	MMIO_DFH(_MMIO(0xe2a0), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0xe2b0), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
 	MMIO_DFH(_MMIO(0xe2c0), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
+<<<<<<< HEAD
+=======
+	MMIO_DFH(_MMIO(0x21f0), D_BDW_PLUS, F_CMD_ACCESS, NULL, NULL);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int init_skl_mmio_info(struct intel_gvt *gvt)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = gvt->dev_priv;
+=======
+	struct drm_i915_private *dev_priv = gvt->gt->i915;
+>>>>>>> upstream/android-13
 	int ret;
 
 	MMIO_DH(FORCEWAKE_RENDER_GEN9, D_SKL_PLUS, NULL, mul_force_wake_write);
 	MMIO_DH(FORCEWAKE_ACK_RENDER_GEN9, D_SKL_PLUS, NULL, NULL);
+<<<<<<< HEAD
 	MMIO_DH(FORCEWAKE_BLITTER_GEN9, D_SKL_PLUS, NULL, mul_force_wake_write);
 	MMIO_DH(FORCEWAKE_ACK_BLITTER_GEN9, D_SKL_PLUS, NULL, NULL);
 	MMIO_DH(FORCEWAKE_MEDIA_GEN9, D_SKL_PLUS, NULL, mul_force_wake_write);
@@ -2853,6 +3816,45 @@ static int init_skl_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(_MMIO(0x6c058), D_SKL_PLUS);
 	MMIO_D(_MMIO(0x6c05c), D_SKL_PLUS);
 	MMIO_DH(_MMIO(0x6c060), D_SKL_PLUS, dpll_status_read, NULL);
+=======
+	MMIO_DH(FORCEWAKE_GT_GEN9, D_SKL_PLUS, NULL, mul_force_wake_write);
+	MMIO_DH(FORCEWAKE_ACK_GT_GEN9, D_SKL_PLUS, NULL, NULL);
+	MMIO_DH(FORCEWAKE_MEDIA_GEN9, D_SKL_PLUS, NULL, mul_force_wake_write);
+	MMIO_DH(FORCEWAKE_ACK_MEDIA_GEN9, D_SKL_PLUS, NULL, NULL);
+
+	MMIO_F(DP_AUX_CH_CTL(AUX_CH_B), 6 * 4, 0, 0, 0, D_SKL_PLUS, NULL,
+						dp_aux_ch_ctl_mmio_write);
+	MMIO_F(DP_AUX_CH_CTL(AUX_CH_C), 6 * 4, 0, 0, 0, D_SKL_PLUS, NULL,
+						dp_aux_ch_ctl_mmio_write);
+	MMIO_F(DP_AUX_CH_CTL(AUX_CH_D), 6 * 4, 0, 0, 0, D_SKL_PLUS, NULL,
+						dp_aux_ch_ctl_mmio_write);
+
+	MMIO_D(HSW_PWR_WELL_CTL1, D_SKL_PLUS);
+	MMIO_DH(HSW_PWR_WELL_CTL2, D_SKL_PLUS, NULL, skl_power_well_ctl_write);
+
+	MMIO_DH(DBUF_CTL_S(0), D_SKL_PLUS, NULL, gen9_dbuf_ctl_mmio_write);
+
+	MMIO_D(GEN9_PG_ENABLE, D_SKL_PLUS);
+	MMIO_D(GEN9_MEDIA_PG_IDLE_HYSTERESIS, D_SKL_PLUS);
+	MMIO_D(GEN9_RENDER_PG_IDLE_HYSTERESIS, D_SKL_PLUS);
+	MMIO_DFH(GEN9_GAMT_ECO_REG_RW_IA, D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(MMCD_MISC_CTRL, D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DH(CHICKEN_PAR1_1, D_SKL_PLUS, NULL, NULL);
+	MMIO_D(DC_STATE_EN, D_SKL_PLUS);
+	MMIO_D(DC_STATE_DEBUG, D_SKL_PLUS);
+	MMIO_D(CDCLK_CTL, D_SKL_PLUS);
+	MMIO_DH(LCPLL1_CTL, D_SKL_PLUS, NULL, skl_lcpll_write);
+	MMIO_DH(LCPLL2_CTL, D_SKL_PLUS, NULL, skl_lcpll_write);
+	MMIO_D(_MMIO(_DPLL1_CFGCR1), D_SKL_PLUS);
+	MMIO_D(_MMIO(_DPLL2_CFGCR1), D_SKL_PLUS);
+	MMIO_D(_MMIO(_DPLL3_CFGCR1), D_SKL_PLUS);
+	MMIO_D(_MMIO(_DPLL1_CFGCR2), D_SKL_PLUS);
+	MMIO_D(_MMIO(_DPLL2_CFGCR2), D_SKL_PLUS);
+	MMIO_D(_MMIO(_DPLL3_CFGCR2), D_SKL_PLUS);
+	MMIO_D(DPLL_CTRL1, D_SKL_PLUS);
+	MMIO_D(DPLL_CTRL2, D_SKL_PLUS);
+	MMIO_DH(DPLL_STATUS, D_SKL_PLUS, dpll_status_read, NULL);
+>>>>>>> upstream/android-13
 
 	MMIO_DH(SKL_PS_WIN_POS(PIPE_A, 0), D_SKL_PLUS, NULL, pf_write);
 	MMIO_DH(SKL_PS_WIN_POS(PIPE_A, 1), D_SKL_PLUS, NULL, pf_write);
@@ -2971,6 +3973,7 @@ static int init_skl_mmio_info(struct intel_gvt *gvt)
 	MMIO_DH(_MMIO(_REG_701C4(PIPE_C, 3)), D_SKL_PLUS, NULL, NULL);
 	MMIO_DH(_MMIO(_REG_701C4(PIPE_C, 4)), D_SKL_PLUS, NULL, NULL);
 
+<<<<<<< HEAD
 	MMIO_D(_MMIO(0x70380), D_SKL_PLUS);
 	MMIO_D(_MMIO(0x71380), D_SKL_PLUS);
 	MMIO_D(_MMIO(0x72380), D_SKL_PLUS);
@@ -2989,11 +3992,33 @@ static int init_skl_mmio_info(struct intel_gvt *gvt)
 	MMIO_F(_MMIO(0xc800), 0x7f8, F_CMD_ACCESS, 0, 0, D_SKL_PLUS,
 		NULL, NULL);
 	MMIO_F(_MMIO(0xb020), 0x80, F_CMD_ACCESS, 0, 0, D_SKL_PLUS,
+=======
+	MMIO_D(_MMIO(_PLANE_CTL_3_A), D_SKL_PLUS);
+	MMIO_D(_MMIO(_PLANE_CTL_3_B), D_SKL_PLUS);
+	MMIO_D(_MMIO(0x72380), D_SKL_PLUS);
+	MMIO_D(_MMIO(0x7239c), D_SKL_PLUS);
+	MMIO_D(_MMIO(_PLANE_SURF_3_A), D_SKL_PLUS);
+	MMIO_D(_MMIO(_PLANE_SURF_3_B), D_SKL_PLUS);
+
+	MMIO_D(DMC_SSP_BASE, D_SKL_PLUS);
+	MMIO_D(DMC_HTP_SKL, D_SKL_PLUS);
+	MMIO_D(DMC_LAST_WRITE, D_SKL_PLUS);
+
+	MMIO_DFH(BDW_SCRATCH1, D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+
+	MMIO_D(SKL_DFSM, D_SKL_PLUS);
+	MMIO_D(DISPIO_CR_TX_BMU_CR0, D_SKL_PLUS);
+
+	MMIO_F(GEN9_GFX_MOCS(0), 0x7f8, F_CMD_ACCESS, 0, 0, D_SKL_PLUS,
+		NULL, NULL);
+	MMIO_F(GEN7_L3CNTLREG2, 0x80, F_CMD_ACCESS, 0, 0, D_SKL_PLUS,
+>>>>>>> upstream/android-13
 		NULL, NULL);
 
 	MMIO_D(RPM_CONFIG0, D_SKL_PLUS);
 	MMIO_D(_MMIO(0xd08), D_SKL_PLUS);
 	MMIO_D(RC6_LOCATION, D_SKL_PLUS);
+<<<<<<< HEAD
 	MMIO_DFH(_MMIO(0x20e0), D_SKL_PLUS, F_MODE_MASK, NULL, NULL);
 	MMIO_DFH(_MMIO(0x20ec), D_SKL_PLUS, F_MODE_MASK | F_CMD_ACCESS,
 		NULL, NULL);
@@ -3007,17 +4032,42 @@ static int init_skl_mmio_info(struct intel_gvt *gvt)
 	MMIO_DFH(_MMIO(0x4df4), D_SKL_PLUS, F_CMD_ACCESS,
 		NULL, gen9_trtte_write);
 	MMIO_DH(_MMIO(0x4dfc), D_SKL_PLUS, NULL, gen9_trtt_chicken_write);
+=======
+	MMIO_DFH(GEN7_FF_SLICE_CS_CHICKEN1, D_SKL_PLUS,
+		 F_MODE_MASK | F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(GEN9_CS_DEBUG_MODE1, D_SKL_PLUS, F_MODE_MASK | F_CMD_ACCESS,
+		NULL, NULL);
+
+	/* TRTT */
+	MMIO_DFH(TRVATTL3PTRDW(0), D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(TRVATTL3PTRDW(1), D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(TRVATTL3PTRDW(2), D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(TRVATTL3PTRDW(3), D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(TRVADR, D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(TRTTE, D_SKL_PLUS, F_CMD_ACCESS | F_PM_SAVE,
+		 NULL, gen9_trtte_write);
+	MMIO_DFH(_MMIO(0x4dfc), D_SKL_PLUS, F_PM_SAVE,
+		 NULL, gen9_trtt_chicken_write);
+>>>>>>> upstream/android-13
 
 	MMIO_D(_MMIO(0x46430), D_SKL_PLUS);
 
 	MMIO_D(_MMIO(0x46520), D_SKL_PLUS);
 
 	MMIO_D(_MMIO(0xc403c), D_SKL_PLUS);
+<<<<<<< HEAD
 	MMIO_D(_MMIO(0xb004), D_SKL_PLUS);
 	MMIO_DH(DMA_CTRL, D_SKL_PLUS, NULL, dma_ctrl_write);
 
 	MMIO_D(_MMIO(0x65900), D_SKL_PLUS);
 	MMIO_D(_MMIO(0x1082c0), D_SKL_PLUS);
+=======
+	MMIO_DFH(GEN8_GARBCNTL, D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DH(DMA_CTRL, D_SKL_PLUS, NULL, dma_ctrl_write);
+
+	MMIO_D(_MMIO(0x65900), D_SKL_PLUS);
+	MMIO_D(GEN6_STOLEN_RESERVED, D_SKL_PLUS);
+>>>>>>> upstream/android-13
 	MMIO_D(_MMIO(0x4068), D_SKL_PLUS);
 	MMIO_D(_MMIO(0x67054), D_SKL_PLUS);
 	MMIO_D(_MMIO(0x6e560), D_SKL_PLUS);
@@ -3042,21 +4092,37 @@ static int init_skl_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(_MMIO(_PLANE_KEYMSK_1(PIPE_C)), D_SKL_PLUS);
 
 	MMIO_D(_MMIO(0x44500), D_SKL_PLUS);
+<<<<<<< HEAD
 	MMIO_DFH(GEN9_CSFE_CHICKEN1_RCS, D_SKL_PLUS, F_CMD_ACCESS, NULL, NULL);
+=======
+#define CSFE_CHICKEN1_REG(base) _MMIO((base) + 0xD4)
+	MMIO_RING_DFH(CSFE_CHICKEN1_REG, D_SKL_PLUS, F_MODE_MASK | F_CMD_ACCESS,
+		      NULL, csfe_chicken1_mmio_write);
+#undef CSFE_CHICKEN1_REG
+>>>>>>> upstream/android-13
 	MMIO_DFH(GEN8_HDC_CHICKEN1, D_SKL_PLUS, F_MODE_MASK | F_CMD_ACCESS,
 		 NULL, NULL);
 	MMIO_DFH(GEN9_WM_CHICKEN3, D_SKL_PLUS, F_MODE_MASK | F_CMD_ACCESS,
 		 NULL, NULL);
 
+<<<<<<< HEAD
 	MMIO_D(_MMIO(0x4ab8), D_KBL);
 	MMIO_D(_MMIO(0x2248), D_KBL | D_SKL);
+=======
+	MMIO_DFH(GAMT_CHKN_BIT_REG, D_KBL | D_CFL, F_CMD_ACCESS, NULL, NULL);
+	MMIO_D(GEN9_CTX_PREEMPT_REG, D_SKL_PLUS & ~D_BXT);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int init_bxt_mmio_info(struct intel_gvt *gvt)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = gvt->dev_priv;
+=======
+	struct drm_i915_private *dev_priv = gvt->gt->i915;
+>>>>>>> upstream/android-13
 	int ret;
 
 	MMIO_F(_MMIO(0x80000), 0x3000, 0, 0, 0, D_BXT, NULL, NULL);
@@ -3216,19 +4282,41 @@ static int init_bxt_mmio_info(struct intel_gvt *gvt)
 	MMIO_D(HSW_TVIDEO_DIP_GCP(TRANSCODER_B), D_BXT);
 	MMIO_D(HSW_TVIDEO_DIP_GCP(TRANSCODER_C), D_BXT);
 
+<<<<<<< HEAD
 	MMIO_DH(EDP_PSR_IMR, D_BXT, NULL, bxt_edp_psr_imr_iir_write);
 	MMIO_DH(EDP_PSR_IIR, D_BXT, NULL, bxt_edp_psr_imr_iir_write);
 
+=======
+>>>>>>> upstream/android-13
 	MMIO_D(RC6_CTX_BASE, D_BXT);
 
 	MMIO_D(GEN8_PUSHBUS_CONTROL, D_BXT);
 	MMIO_D(GEN8_PUSHBUS_ENABLE, D_BXT);
 	MMIO_D(GEN8_PUSHBUS_SHIFT, D_BXT);
 	MMIO_D(GEN6_GFXPAUSE, D_BXT);
+<<<<<<< HEAD
 	MMIO_D(GEN8_L3SQCREG1, D_BXT);
 
 	MMIO_DFH(GEN9_CTX_PREEMPT_REG, D_BXT, F_CMD_ACCESS, NULL, NULL);
 
+=======
+	MMIO_DFH(GEN8_L3SQCREG1, D_BXT, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(GEN8_L3CNTLREG, D_BXT, F_CMD_ACCESS, NULL, NULL);
+	MMIO_DFH(_MMIO(0x20D8), D_BXT, F_CMD_ACCESS, NULL, NULL);
+	MMIO_F(GEN8_RING_CS_GPR(RENDER_RING_BASE, 0), 0x40, F_CMD_ACCESS,
+	       0, 0, D_BXT, NULL, NULL);
+	MMIO_F(GEN8_RING_CS_GPR(GEN6_BSD_RING_BASE, 0), 0x40, F_CMD_ACCESS,
+	       0, 0, D_BXT, NULL, NULL);
+	MMIO_F(GEN8_RING_CS_GPR(BLT_RING_BASE, 0), 0x40, F_CMD_ACCESS,
+	       0, 0, D_BXT, NULL, NULL);
+	MMIO_F(GEN8_RING_CS_GPR(VEBOX_RING_BASE, 0), 0x40, F_CMD_ACCESS,
+	       0, 0, D_BXT, NULL, NULL);
+
+	MMIO_DFH(GEN9_CTX_PREEMPT_REG, D_BXT, F_CMD_ACCESS, NULL, NULL);
+
+	MMIO_DH(GEN8_PRIVATE_PAT_LO, D_BXT, NULL, bxt_ppat_low_write);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3271,9 +4359,18 @@ void intel_gvt_clean_mmio_info(struct intel_gvt *gvt)
 	gvt->mmio.mmio_attribute = NULL;
 }
 
+<<<<<<< HEAD
 /* Special MMIO blocks. */
 static struct gvt_mmio_block mmio_blocks[] = {
 	{D_SKL_PLUS, _MMIO(CSR_MMIO_START_RANGE), 0x3000, NULL, NULL},
+=======
+/* Special MMIO blocks. registers in MMIO block ranges should not be command
+ * accessible (should have no F_CMD_ACCESS flag).
+ * otherwise, need to update cmd_reg_handler in cmd_parser.c
+ */
+static struct gvt_mmio_block mmio_blocks[] = {
+	{D_SKL_PLUS, _MMIO(DMC_MMIO_START_RANGE), 0x3000, NULL, NULL},
+>>>>>>> upstream/android-13
 	{D_ALL, _MMIO(MCHBAR_MIRROR_BASE_SNB), 0x40000, NULL, NULL},
 	{D_ALL, _MMIO(VGT_PVINFO_PAGE), VGT_PVINFO_SIZE,
 		pvinfo_mmio_read, pvinfo_mmio_write},
@@ -3295,7 +4392,11 @@ static struct gvt_mmio_block mmio_blocks[] = {
 int intel_gvt_setup_mmio_info(struct intel_gvt *gvt)
 {
 	struct intel_gvt_device_info *info = &gvt->device_info;
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = gvt->dev_priv;
+=======
+	struct drm_i915_private *i915 = gvt->gt->i915;
+>>>>>>> upstream/android-13
 	int size = info->mmio_size / 4 * sizeof(*gvt->mmio.mmio_attribute);
 	int ret;
 
@@ -3307,6 +4408,7 @@ int intel_gvt_setup_mmio_info(struct intel_gvt *gvt)
 	if (ret)
 		goto err;
 
+<<<<<<< HEAD
 	if (IS_BROADWELL(dev_priv)) {
 		ret = init_broadwell_mmio_info(gvt);
 		if (ret)
@@ -3314,13 +4416,29 @@ int intel_gvt_setup_mmio_info(struct intel_gvt *gvt)
 	} else if (IS_SKYLAKE(dev_priv)
 		|| IS_KABYLAKE(dev_priv)) {
 		ret = init_broadwell_mmio_info(gvt);
+=======
+	if (IS_BROADWELL(i915)) {
+		ret = init_bdw_mmio_info(gvt);
+		if (ret)
+			goto err;
+	} else if (IS_SKYLAKE(i915) ||
+		   IS_KABYLAKE(i915) ||
+		   IS_COFFEELAKE(i915) ||
+		   IS_COMETLAKE(i915)) {
+		ret = init_bdw_mmio_info(gvt);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err;
 		ret = init_skl_mmio_info(gvt);
 		if (ret)
 			goto err;
+<<<<<<< HEAD
 	} else if (IS_BROXTON(dev_priv)) {
 		ret = init_broadwell_mmio_info(gvt);
+=======
+	} else if (IS_BROXTON(i915)) {
+		ret = init_bdw_mmio_info(gvt);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err;
 		ret = init_skl_mmio_info(gvt);
@@ -3364,6 +4482,13 @@ int intel_gvt_for_each_tracked_mmio(struct intel_gvt *gvt,
 	}
 
 	for (i = 0; i < gvt->mmio.num_mmio_block; i++, block++) {
+<<<<<<< HEAD
+=======
+		/* pvinfo data doesn't come from hw mmio */
+		if (i915_mmio_reg_offset(block->offset) == VGT_PVINFO_PAGE)
+			continue;
+
+>>>>>>> upstream/android-13
 		for (j = 0; j < block->size; j += 4) {
 			ret = handler(gvt,
 				      i915_mmio_reg_offset(block->offset) + j,
@@ -3456,6 +4581,10 @@ bool intel_gvt_in_force_nonpriv_whitelist(struct intel_gvt *gvt,
  * @offset: register offset
  * @pdata: data buffer
  * @bytes: data length
+<<<<<<< HEAD
+=======
+ * @is_read: read or write
+>>>>>>> upstream/android-13
  *
  * Returns:
  * Zero on success, negative error code if failed.
@@ -3463,13 +4592,21 @@ bool intel_gvt_in_force_nonpriv_whitelist(struct intel_gvt *gvt,
 int intel_vgpu_mmio_reg_rw(struct intel_vgpu *vgpu, unsigned int offset,
 			   void *pdata, unsigned int bytes, bool is_read)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	struct intel_gvt *gvt = vgpu->gvt;
 	struct intel_gvt_mmio_info *mmio_info;
 	struct gvt_mmio_block *mmio_block;
 	gvt_mmio_func func;
 	int ret;
 
+<<<<<<< HEAD
 	if (WARN_ON(bytes > 8))
+=======
+	if (drm_WARN_ON(&i915->drm, bytes > 8))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -3486,7 +4623,11 @@ int intel_vgpu_mmio_reg_rw(struct intel_vgpu *vgpu, unsigned int offset,
 	/*
 	 * Normal tracked MMIOs.
 	 */
+<<<<<<< HEAD
 	mmio_info = find_mmio_info(gvt, offset);
+=======
+	mmio_info = intel_gvt_find_mmio_info(gvt, offset);
+>>>>>>> upstream/android-13
 	if (!mmio_info) {
 		gvt_dbg_mmio("untracked MMIO %08x len %d\n", offset, bytes);
 		goto default_rw;
@@ -3496,12 +4637,19 @@ int intel_vgpu_mmio_reg_rw(struct intel_vgpu *vgpu, unsigned int offset,
 		return mmio_info->read(vgpu, offset, pdata, bytes);
 	else {
 		u64 ro_mask = mmio_info->ro_mask;
+<<<<<<< HEAD
 		u32 old_vreg = 0, old_sreg = 0;
+=======
+		u32 old_vreg = 0;
+>>>>>>> upstream/android-13
 		u64 data = 0;
 
 		if (intel_gvt_mmio_has_mode_mask(gvt, mmio_info->offset)) {
 			old_vreg = vgpu_vreg(vgpu, offset);
+<<<<<<< HEAD
 			old_sreg = vgpu_sreg(vgpu, offset);
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (likely(!ro_mask))
@@ -3523,8 +4671,11 @@ int intel_vgpu_mmio_reg_rw(struct intel_vgpu *vgpu, unsigned int offset,
 
 			vgpu_vreg(vgpu, offset) = (old_vreg & ~mask)
 					| (vgpu_vreg(vgpu, offset) & mask);
+<<<<<<< HEAD
 			vgpu_sreg(vgpu, offset) = (old_sreg & ~mask)
 					| (vgpu_sreg(vgpu, offset) & mask);
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3535,3 +4686,42 @@ default_rw:
 		intel_vgpu_default_mmio_read(vgpu, offset, pdata, bytes) :
 		intel_vgpu_default_mmio_write(vgpu, offset, pdata, bytes);
 }
+<<<<<<< HEAD
+=======
+
+void intel_gvt_restore_fence(struct intel_gvt *gvt)
+{
+	struct intel_vgpu *vgpu;
+	int i, id;
+
+	idr_for_each_entry(&(gvt)->vgpu_idr, vgpu, id) {
+		mmio_hw_access_pre(gvt->gt);
+		for (i = 0; i < vgpu_fence_sz(vgpu); i++)
+			intel_vgpu_write_fence(vgpu, i, vgpu_vreg64(vgpu, fence_num_to_offset(i)));
+		mmio_hw_access_post(gvt->gt);
+	}
+}
+
+static int mmio_pm_restore_handler(struct intel_gvt *gvt, u32 offset, void *data)
+{
+	struct intel_vgpu *vgpu = data;
+	struct drm_i915_private *dev_priv = gvt->gt->i915;
+
+	if (gvt->mmio.mmio_attribute[offset >> 2] & F_PM_SAVE)
+		intel_uncore_write(&dev_priv->uncore, _MMIO(offset), vgpu_vreg(vgpu, offset));
+
+	return 0;
+}
+
+void intel_gvt_restore_mmio(struct intel_gvt *gvt)
+{
+	struct intel_vgpu *vgpu;
+	int id;
+
+	idr_for_each_entry(&(gvt)->vgpu_idr, vgpu, id) {
+		mmio_hw_access_pre(gvt->gt);
+		intel_gvt_for_each_tracked_mmio(gvt, mmio_pm_restore_handler, vgpu);
+		mmio_hw_access_post(gvt->gt);
+	}
+}
+>>>>>>> upstream/android-13

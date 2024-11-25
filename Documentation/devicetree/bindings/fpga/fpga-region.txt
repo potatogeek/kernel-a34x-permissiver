@@ -38,7 +38,11 @@ Partial Reconfiguration (PR)
 
 Partial Reconfiguration Region (PRR)
  * Also called a "reconfigurable partition"
+<<<<<<< HEAD
  * A PRR is a specific section of a FPGA reserved for reconfiguration.
+=======
+ * A PRR is a specific section of an FPGA reserved for reconfiguration.
+>>>>>>> upstream/android-13
  * A base (or static) FPGA image may create a set of PRR's that later may
    be independently reprogrammed many times.
  * The size and specific location of each PRR is fixed.
@@ -105,7 +109,11 @@ reprogrammed independently while the rest of the system continues to function.
 Sequence
 ========
 
+<<<<<<< HEAD
 When a DT overlay that targets a FPGA Region is applied, the FPGA Region will
+=======
+When a DT overlay that targets an FPGA Region is applied, the FPGA Region will
+>>>>>>> upstream/android-13
 do the following:
 
  1. Disable appropriate FPGA bridges.
@@ -134,8 +142,13 @@ The intended use is that a Device Tree overlay (DTO) can be used to reprogram an
 FPGA while an operating system is running.
 
 An FPGA Region that exists in the live Device Tree reflects the current state.
+<<<<<<< HEAD
 If the live tree shows a "firmware-name" property or child nodes under a FPGA
 Region, the FPGA already has been programmed.  A DTO that targets a FPGA Region
+=======
+If the live tree shows a "firmware-name" property or child nodes under an FPGA
+Region, the FPGA already has been programmed.  A DTO that targets an FPGA Region
+>>>>>>> upstream/android-13
 and adds the "firmware-name" property is taken as a request to reprogram the
 FPGA.  After reprogramming is successful, the overlay is accepted into the live
 tree.
@@ -152,9 +165,15 @@ These FPGA regions are children of FPGA bridges which are then children of the
 base FPGA region.  The "Full Reconfiguration to add PRR's" example below shows
 this.
 
+<<<<<<< HEAD
 If an FPGA Region does not specify a FPGA Manager, it will inherit the FPGA
 Manager specified by its ancestor FPGA Region.  This supports both the case
 where the same FPGA Manager is used for all of a FPGA as well the case where
+=======
+If an FPGA Region does not specify an FPGA Manager, it will inherit the FPGA
+Manager specified by its ancestor FPGA Region.  This supports both the case
+where the same FPGA Manager is used for all of an FPGA as well the case where
+>>>>>>> upstream/android-13
 a different FPGA Manager is used for each region.
 
 FPGA Regions do not inherit their ancestor FPGA regions' bridges.  This prevents
@@ -166,7 +185,11 @@ within the static image of the FPGA.
 Required properties:
 - compatible : should contain "fpga-region"
 - fpga-mgr : should contain a phandle to an FPGA Manager.  Child FPGA Regions
+<<<<<<< HEAD
 	inherit this property from their ancestor regions.  A fpga-mgr property
+=======
+	inherit this property from their ancestor regions.  An fpga-mgr property
+>>>>>>> upstream/android-13
 	in a region will override any inherited FPGA manager.
 - #address-cells, #size-cells, ranges : must be present to handle address space
 	mapping for child nodes.
@@ -175,12 +198,20 @@ Optional properties:
 - firmware-name : should contain the name of an FPGA image file located on the
 	firmware search path.  If this property shows up in a live device tree
 	it indicates that the FPGA has already been programmed with this image.
+<<<<<<< HEAD
 	If this property is in an overlay targeting a FPGA region, it is a
+=======
+	If this property is in an overlay targeting an FPGA region, it is a
+>>>>>>> upstream/android-13
 	request to program the FPGA with that image.
 - fpga-bridges : should contain a list of phandles to FPGA Bridges that must be
 	controlled during FPGA programming along with the parent FPGA bridge.
 	This property is optional if the FPGA Manager handles the bridges.
+<<<<<<< HEAD
         If the fpga-region is  the child of a fpga-bridge, the list should not
+=======
+        If the fpga-region is  the child of an fpga-bridge, the list should not
+>>>>>>> upstream/android-13
         contain the parent bridge.
 - partial-fpga-config : boolean, set if partial reconfiguration is to be done,
 	otherwise full reconfiguration is done.
@@ -245,6 +276,7 @@ Base tree contains:
 
 Overlay contains:
 
+<<<<<<< HEAD
 /dts-v1/ /plugin/;
 / {
 	fragment@0 {
@@ -275,6 +307,33 @@ Overlay contains:
 				reg = <0x0 0x10000>;
 			};
 		};
+=======
+/dts-v1/;
+/plugin/;
+
+&fpga_region0 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	firmware-name = "soc_system.rbf";
+	fpga-bridges = <&fpga_bridge1>;
+	ranges = <0x20000 0xff200000 0x100000>,
+		 <0x0 0xc0000000 0x20000000>;
+
+	gpio@10040 {
+		compatible = "altr,pio-1.0";
+		reg = <0x10040 0x20>;
+		altr,ngpio = <4>;
+		#gpio-cells = <2>;
+		clocks = <2>;
+		gpio-controller;
+	};
+
+	onchip-memory {
+		device_type = "memory";
+		compatible = "altr,onchipmem-15.1";
+		reg = <0x0 0x10000>;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -284,7 +343,11 @@ Supported Use Models
 
 In all cases the live DT must have the FPGA Manager, FPGA Bridges (if any), and
 a FPGA Region.  The target of the Device Tree Overlay is the FPGA Region.  Some
+<<<<<<< HEAD
 uses are specific to a FPGA device.
+=======
+uses are specific to an FPGA device.
+>>>>>>> upstream/android-13
 
  * No FPGA Bridges
    In this case, the FPGA Manager which programs the FPGA also handles the
@@ -305,7 +368,11 @@ uses are specific to a FPGA device.
    bridges need to exist in the FPGA that can gate the buses going to each FPGA
    region while the buses are enabled for other sections.  Before any partial
    reconfiguration can be done, a base FPGA image must be loaded which includes
+<<<<<<< HEAD
    PRR's with FPGA bridges.  The device tree should have a FPGA region for each
+=======
+   PRR's with FPGA bridges.  The device tree should have an FPGA region for each
+>>>>>>> upstream/android-13
    PRR.
 
 Device Tree Examples
@@ -371,6 +438,7 @@ Live Device Tree contains:
 	};
 
 DT Overlay contains:
+<<<<<<< HEAD
 /dts-v1/ /plugin/;
 / {
 fragment@0 {
@@ -390,6 +458,24 @@ fragment@0 {
 			#gpio-cells = <0x2>;
 			xlnx,gpio-width= <0x6>;
 		};
+=======
+
+/dts-v1/;
+/plugin/;
+
+&fpga_region0 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	firmware-name = "zynq-gpio.bin";
+
+	gpio1: gpio@40000000 {
+		compatible = "xlnx,xps-gpio-1.00.a";
+		reg = <0x40000000 0x10000>;
+		gpio-controller;
+		#gpio-cells = <0x2>;
+		xlnx,gpio-width= <0x6>;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -402,6 +488,7 @@ This example programs the FPGA to have two regions that can later be partially
 configured.  Each region has its own bridge in the FPGA fabric.
 
 DT Overlay contains:
+<<<<<<< HEAD
 /dts-v1/ /plugin/;
 / {
 	fragment@0 {
@@ -437,6 +524,39 @@ DT Overlay contains:
 					ranges;
 				};
 			};
+=======
+
+/dts-v1/;
+/plugin/;
+
+&fpga_region0 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	firmware-name = "base.rbf";
+
+	fpga-bridge@4400 {
+		compatible = "altr,freeze-bridge-controller";
+		reg = <0x4400 0x10>;
+
+		fpga_region1: fpga-region1 {
+			compatible = "fpga-region";
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			ranges;
+		};
+	};
+
+	fpga-bridge@4420 {
+		compatible = "altr,freeze-bridge-controller";
+		reg = <0x4420 0x10>;
+
+		fpga_region2: fpga-region2 {
+			compatible = "fpga-region";
+			#address-cells = <0x1>;
+			#size-cells = <0x1>;
+			ranges;
+>>>>>>> upstream/android-13
 		};
 	};
 };
@@ -451,6 +571,7 @@ differences are that the FPGA is partially reconfigured due to the
 "partial-fpga-config" boolean and the only bridge that is controlled during
 programming is the FPGA based bridge of fpga_region1.
 
+<<<<<<< HEAD
 /dts-v1/ /plugin/;
 / {
 	fragment@0 {
@@ -474,6 +595,25 @@ programming is the FPGA based bridge of fpga_region1.
 				gpio-controller;
 			};
 		};
+=======
+/dts-v1/;
+/plugin/;
+
+&fpga_region1 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	firmware-name = "soc_image2.rbf";
+	partial-fpga-config;
+
+	gpio@10040 {
+		compatible = "altr,pio-1.0";
+		reg = <0x10040 0x20>;
+		clocks = <0x2>;
+		altr,ngpio = <0x4>;
+		#gpio-cells = <0x2>;
+		gpio-controller;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -494,4 +634,8 @@ FPGA Bridges that exist on the FPGA fabric prior to the partial reconfiguration.
 --
 [1] www.altera.com/content/dam/altera-www/global/en_US/pdfs/literature/ug/ug_partrecon.pdf
 [2] tspace.library.utoronto.ca/bitstream/1807/67932/1/Byma_Stuart_A_201411_MAS_thesis.pdf
+<<<<<<< HEAD
 [3] http://www.xilinx.com/support/documentation/sw_manuals/xilinx14_1/ug702.pdf
+=======
+[3] https://www.xilinx.com/support/documentation/sw_manuals/xilinx14_1/ug702.pdf
+>>>>>>> upstream/android-13

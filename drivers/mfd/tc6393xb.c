@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Toshiba TC6393XB SoC support
  *
@@ -8,10 +12,13 @@
  *
  * Based on code written by Sharp/Lineo for 2.4 kernels
  * Based on locomo.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -122,14 +129,22 @@ enum {
 
 static int tc6393xb_nand_enable(struct platform_device *nand)
 {
+<<<<<<< HEAD
 	struct platform_device *dev = to_platform_device(nand->dev.parent);
 	struct tc6393xb *tc6393xb = platform_get_drvdata(dev);
+=======
+	struct tc6393xb *tc6393xb = dev_get_drvdata(nand->dev.parent);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&tc6393xb->lock, flags);
 
 	/* SMD buffer on */
+<<<<<<< HEAD
 	dev_dbg(&dev->dev, "SMD buffer on\n");
+=======
+	dev_dbg(nand->dev.parent, "SMD buffer on\n");
+>>>>>>> upstream/android-13
 	tmio_iowrite8(0xff, tc6393xb->scr + SCR_GPI_BCR(1));
 
 	raw_spin_unlock_irqrestore(&tc6393xb->lock, flags);
@@ -137,7 +152,11 @@ static int tc6393xb_nand_enable(struct platform_device *nand)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct resource tc6393xb_nand_resources[] = {
+=======
+static const struct resource tc6393xb_nand_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start	= 0x1000,
 		.end	= 0x1007,
@@ -155,7 +174,11 @@ static struct resource tc6393xb_nand_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource tc6393xb_mmc_resources[] = {
+=======
+static const struct resource tc6393xb_mmc_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start	= 0x800,
 		.end	= 0x9ff,
@@ -196,7 +219,11 @@ static const struct resource tc6393xb_ohci_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource tc6393xb_fb_resources[] = {
+=======
+static const struct resource tc6393xb_fb_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start	= 0x5000,
 		.end	= 0x51ff,
@@ -312,8 +339,12 @@ static int tc6393xb_fb_disable(struct platform_device *dev)
 
 int tc6393xb_lcd_set_power(struct platform_device *fb, bool on)
 {
+<<<<<<< HEAD
 	struct platform_device *dev = to_platform_device(fb->dev.parent);
 	struct tc6393xb *tc6393xb = platform_get_drvdata(dev);
+=======
+	struct tc6393xb *tc6393xb = dev_get_drvdata(fb->dev.parent);
+>>>>>>> upstream/android-13
 	u8 fer;
 	unsigned long flags;
 
@@ -334,8 +365,12 @@ EXPORT_SYMBOL(tc6393xb_lcd_set_power);
 
 int tc6393xb_lcd_mode(struct platform_device *fb,
 					const struct fb_videomode *mode) {
+<<<<<<< HEAD
 	struct platform_device *dev = to_platform_device(fb->dev.parent);
 	struct tc6393xb *tc6393xb = platform_get_drvdata(dev);
+=======
+	struct tc6393xb *tc6393xb = dev_get_drvdata(fb->dev.parent);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&tc6393xb->lock, flags);
@@ -351,8 +386,12 @@ EXPORT_SYMBOL(tc6393xb_lcd_mode);
 
 static int tc6393xb_mmc_enable(struct platform_device *mmc)
 {
+<<<<<<< HEAD
 	struct platform_device *dev = to_platform_device(mmc->dev.parent);
 	struct tc6393xb *tc6393xb = platform_get_drvdata(dev);
+=======
+	struct tc6393xb *tc6393xb = dev_get_drvdata(mmc->dev.parent);
+>>>>>>> upstream/android-13
 
 	tmio_core_mmc_enable(tc6393xb->scr + 0x200, 0,
 		tc6393xb_mmc_resources[0].start & 0xfffe);
@@ -362,8 +401,12 @@ static int tc6393xb_mmc_enable(struct platform_device *mmc)
 
 static int tc6393xb_mmc_resume(struct platform_device *mmc)
 {
+<<<<<<< HEAD
 	struct platform_device *dev = to_platform_device(mmc->dev.parent);
 	struct tc6393xb *tc6393xb = platform_get_drvdata(dev);
+=======
+	struct tc6393xb *tc6393xb = dev_get_drvdata(mmc->dev.parent);
+>>>>>>> upstream/android-13
 
 	tmio_core_mmc_resume(tc6393xb->scr + 0x200, 0,
 		tc6393xb_mmc_resources[0].start & 0xfffe);
@@ -373,16 +416,24 @@ static int tc6393xb_mmc_resume(struct platform_device *mmc)
 
 static void tc6393xb_mmc_pwr(struct platform_device *mmc, int state)
 {
+<<<<<<< HEAD
 	struct platform_device *dev = to_platform_device(mmc->dev.parent);
 	struct tc6393xb *tc6393xb = platform_get_drvdata(dev);
+=======
+	struct tc6393xb *tc6393xb = dev_get_drvdata(mmc->dev.parent);
+>>>>>>> upstream/android-13
 
 	tmio_core_mmc_pwr(tc6393xb->scr + 0x200, 0, state);
 }
 
 static void tc6393xb_mmc_clk_div(struct platform_device *mmc, int state)
 {
+<<<<<<< HEAD
 	struct platform_device *dev = to_platform_device(mmc->dev.parent);
 	struct tc6393xb *tc6393xb = platform_get_drvdata(dev);
+=======
+	struct tc6393xb *tc6393xb = dev_get_drvdata(mmc->dev.parent);
+>>>>>>> upstream/android-13
 
 	tmio_core_mmc_clk_div(tc6393xb->scr + 0x200, 0, state);
 }

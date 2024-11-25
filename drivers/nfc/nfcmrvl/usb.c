@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Marvell NFC-over-USB driver: USB interface related functions
  *
@@ -15,6 +16,14 @@
  * ARE EXPRESSLY DISCLAIMED.  The License provides additional details about
  * this warranty disclaimer.
  **/
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Marvell NFC-over-USB driver: USB interface related functions
+ *
+ * Copyright (C) 2014, Marvell International Ltd.
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/usb.h>
@@ -68,7 +77,10 @@ static int nfcmrvl_inc_tx(struct nfcmrvl_usb_drv_data *drv_data)
 static void nfcmrvl_bulk_complete(struct urb *urb)
 {
 	struct nfcmrvl_usb_drv_data *drv_data = urb->context;
+<<<<<<< HEAD
 	struct sk_buff *skb;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	dev_dbg(&drv_data->udev->dev, "urb %p status %d count %d\n",
@@ -78,6 +90,11 @@ static void nfcmrvl_bulk_complete(struct urb *urb)
 		return;
 
 	if (!urb->status) {
+<<<<<<< HEAD
+=======
+		struct sk_buff *skb;
+
+>>>>>>> upstream/android-13
 		skb = nci_skb_alloc(drv_data->priv->ndev, urb->actual_length,
 				    GFP_ATOMIC);
 		if (!skb) {
@@ -274,7 +291,11 @@ done:
 	return err;
 }
 
+<<<<<<< HEAD
 static struct nfcmrvl_if_ops usb_ops = {
+=======
+static const struct nfcmrvl_if_ops usb_ops = {
+>>>>>>> upstream/android-13
 	.nci_open = nfcmrvl_usb_nci_open,
 	.nci_close = nfcmrvl_usb_nci_close,
 	.nci_send = nfcmrvl_usb_nci_send,
@@ -296,7 +317,10 @@ static void nfcmrvl_waker(struct work_struct *work)
 static int nfcmrvl_probe(struct usb_interface *intf,
 			 const struct usb_device_id *id)
 {
+<<<<<<< HEAD
 	struct usb_endpoint_descriptor *ep_desc;
+=======
+>>>>>>> upstream/android-13
 	struct nfcmrvl_usb_drv_data *drv_data;
 	struct nfcmrvl_private *priv;
 	int i;
@@ -314,11 +338,17 @@ static int nfcmrvl_probe(struct usb_interface *intf,
 		return -ENOMEM;
 
 	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
+<<<<<<< HEAD
+=======
+		struct usb_endpoint_descriptor *ep_desc;
+
+>>>>>>> upstream/android-13
 		ep_desc = &intf->cur_altsetting->endpoint[i].desc;
 
 		if (!drv_data->bulk_tx_ep &&
 		    usb_endpoint_is_bulk_out(ep_desc)) {
 			drv_data->bulk_tx_ep = ep_desc;
+<<<<<<< HEAD
 			continue;
 		}
 
@@ -326,6 +356,11 @@ static int nfcmrvl_probe(struct usb_interface *intf,
 		    usb_endpoint_is_bulk_in(ep_desc)) {
 			drv_data->bulk_rx_ep = ep_desc;
 			continue;
+=======
+		} else if (!drv_data->bulk_rx_ep &&
+			   usb_endpoint_is_bulk_in(ep_desc)) {
+			drv_data->bulk_rx_ep = ep_desc;
+>>>>>>> upstream/android-13
 		}
 	}
 

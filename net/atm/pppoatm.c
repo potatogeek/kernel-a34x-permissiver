@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* net/atm/pppoatm.c - RFC2364 PPP over ATM/AAL5 */
 
 /* Copyright 1999-2000 by Mitchell Blank Jr */
@@ -6,10 +10,13 @@
 /* And help from Jens Axboe */
 
 /*
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  *
  * This driver provides the encapsulation and framing for sending
  * and receiving PPP frames in ATM AAL5 PDUs.
@@ -104,9 +111,17 @@ static inline struct pppoatm_vcc *chan_to_pvcc(const struct ppp_channel *chan)
  * doesn't want to be called in interrupt context, so we do it from
  * a tasklet
  */
+<<<<<<< HEAD
 static void pppoatm_wakeup_sender(unsigned long arg)
 {
 	ppp_output_wakeup((struct ppp_channel *) arg);
+=======
+static void pppoatm_wakeup_sender(struct tasklet_struct *t)
+{
+	struct pppoatm_vcc *pvcc = from_tasklet(pvcc, t, wakeup_tasklet);
+
+	ppp_output_wakeup(&pvcc->chan);
+>>>>>>> upstream/android-13
 }
 
 static void pppoatm_release_cb(struct atm_vcc *atmvcc)
@@ -219,9 +234,13 @@ static void pppoatm_push(struct atm_vcc *atmvcc, struct sk_buff *skb)
 			pvcc->chan.mtu += LLC_LEN;
 			break;
 		}
+<<<<<<< HEAD
 		pr_debug("Couldn't autodetect yet (skb: %02X %02X %02X %02X %02X %02X)\n",
 			 skb->data[0], skb->data[1], skb->data[2],
 			 skb->data[3], skb->data[4], skb->data[5]);
+=======
+		pr_debug("Couldn't autodetect yet (skb: %6ph)\n", skb->data);
+>>>>>>> upstream/android-13
 		goto error;
 	case e_vc:
 		break;
@@ -394,11 +413,15 @@ static int pppoatm_assign_vcc(struct atm_vcc *atmvcc, void __user *arg)
 	struct atm_backend_ppp be;
 	struct pppoatm_vcc *pvcc;
 	int err;
+<<<<<<< HEAD
 	/*
 	 * Each PPPoATM instance has its own tasklet - this is just a
 	 * prototypical one used to initialize them
 	 */
 	static const DECLARE_TASKLET(tasklet_proto, pppoatm_wakeup_sender, 0);
+=======
+
+>>>>>>> upstream/android-13
 	if (copy_from_user(&be, arg, sizeof be))
 		return -EFAULT;
 	if (be.encaps != PPPOATM_ENCAPS_AUTODETECT &&
@@ -420,8 +443,12 @@ static int pppoatm_assign_vcc(struct atm_vcc *atmvcc, void __user *arg)
 	pvcc->chan.ops = &pppoatm_ops;
 	pvcc->chan.mtu = atmvcc->qos.txtp.max_sdu - PPP_HDRLEN -
 	    (be.encaps == e_vc ? 0 : LLC_LEN);
+<<<<<<< HEAD
 	pvcc->wakeup_tasklet = tasklet_proto;
 	pvcc->wakeup_tasklet.data = (unsigned long) &pvcc->chan;
+=======
+	tasklet_setup(&pvcc->wakeup_tasklet, pppoatm_wakeup_sender);
+>>>>>>> upstream/android-13
 	err = ppp_register_channel(&pvcc->chan);
 	if (err != 0) {
 		kfree(pvcc);

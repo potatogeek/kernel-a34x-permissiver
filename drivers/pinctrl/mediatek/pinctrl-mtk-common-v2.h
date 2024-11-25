@@ -63,10 +63,17 @@ enum {
 	PINCTRL_PIN_REG_IES,
 	PINCTRL_PIN_REG_PULLEN,
 	PINCTRL_PIN_REG_PULLSEL,
+<<<<<<< HEAD
 	PINCTRL_PIN_REG_DRV_EH,
 	PINCTRL_PIN_REG_DRV_EN,
 	PINCTRL_PIN_REG_DRV_E0,
 	PINCTRL_PIN_REG_DRV_E1,
+=======
+	PINCTRL_PIN_REG_DRV_EN,
+	PINCTRL_PIN_REG_DRV_E0,
+	PINCTRL_PIN_REG_DRV_E1,
+	PINCTRL_PIN_REG_DRV_ADV,
+>>>>>>> upstream/android-13
 	PINCTRL_PIN_REG_MAX,
 };
 
@@ -81,7 +88,11 @@ enum {
 	DRV_GRP_MAX,
 };
 
+<<<<<<< HEAD
 static const char * const mtk_default_register_base_names[] = {
+=======
+static const char * const mtk_default_register_base_names[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	"base",
 };
 
@@ -163,6 +174,7 @@ struct mtk_eint_desc {
 };
 
 /**
+<<<<<<< HEAD
  * struct mtk_eh_pin_pinmux - entry recording (pin, pinmux) whose
  *                             eh can be enabled
  * @pin:                pin numbereint mux for this pin
@@ -174,6 +186,8 @@ struct mtk_eh_pin_pinmux {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct mtk_pin_desc - the structure that providing information
  *			       for each pin of chips
  * @number:		unique pin number from the global pin number space
@@ -215,10 +229,15 @@ struct mtk_pin_soc {
 	/* Specific parameters per SoC */
 	u8				gpio_m;
 	bool				ies_present;
+<<<<<<< HEAD
 	bool                            race_free_access;
 	const char * const              *base_names;
 	unsigned int                    nbase_names;
 	const struct mtk_eh_pin_pinmux  *eh_pin_pinmux;
+=======
+	const char * const		*base_names;
+	unsigned int			nbase_names;
+>>>>>>> upstream/android-13
 
 	/* Specific pinconfig operations */
 	int (*bias_disable_set)(struct mtk_pinctrl *hw,
@@ -265,6 +284,11 @@ struct mtk_pinctrl {
 	struct mtk_eint			*eint;
 	struct mtk_pinctrl_group	*groups;
 	const char          **grp_names;
+<<<<<<< HEAD
+=======
+	/* lock pin's register resource to avoid multiple threads issue*/
+	spinlock_t lock;
+>>>>>>> upstream/android-13
 };
 
 void mtk_rmw(struct mtk_pinctrl *pctl, u8 i, u32 reg, u32 mask, u32 set);
@@ -274,6 +298,7 @@ int mtk_hw_set_value(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 int mtk_hw_get_value(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 		     int field, int *value);
 
+<<<<<<< HEAD
 void mtk_eh_ctrl(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc,
 		 u16 mode);
 
@@ -281,6 +306,10 @@ int mtk_build_eint(struct mtk_pinctrl *hw, struct platform_device *pdev);
 
 extern const struct dev_pm_ops mtk_eint_pm_ops_v2;
 
+=======
+int mtk_build_eint(struct mtk_pinctrl *hw, struct platform_device *pdev);
+
+>>>>>>> upstream/android-13
 int mtk_pinconf_bias_disable_set(struct mtk_pinctrl *hw,
 				 const struct mtk_pin_desc *desc);
 int mtk_pinconf_bias_disable_get(struct mtk_pinctrl *hw,
@@ -301,6 +330,15 @@ int mtk_pinconf_bias_set_rev1(struct mtk_pinctrl *hw,
 int mtk_pinconf_bias_get_rev1(struct mtk_pinctrl *hw,
 			      const struct mtk_pin_desc *desc, bool pullup,
 			      int *res);
+<<<<<<< HEAD
+=======
+int mtk_pinconf_bias_set_combo(struct mtk_pinctrl *hw,
+				const struct mtk_pin_desc *desc,
+				u32 pullup, u32 enable);
+int mtk_pinconf_bias_get_combo(struct mtk_pinctrl *hw,
+			      const struct mtk_pin_desc *desc,
+			      u32 *pullup, u32 *enable);
+>>>>>>> upstream/android-13
 
 int mtk_pinconf_drive_set(struct mtk_pinctrl *hw,
 			  const struct mtk_pin_desc *desc, u32 arg);
@@ -327,6 +365,7 @@ int mtk_pinconf_adv_drive_set(struct mtk_pinctrl *hw,
 			      const struct mtk_pin_desc *desc, u32 arg);
 int mtk_pinconf_adv_drive_get(struct mtk_pinctrl *hw,
 			      const struct mtk_pin_desc *desc, u32 *val);
+<<<<<<< HEAD
 
 int mtk_pinconf_bias_set_combo(struct mtk_pinctrl *hw,
 				const struct mtk_pin_desc *desc,
@@ -335,6 +374,12 @@ int mtk_pinconf_bias_set_combo(struct mtk_pinctrl *hw,
 int mtk_pinconf_bias_get_combo(struct mtk_pinctrl *hw,
 			      const struct mtk_pin_desc *desc,
 			      u32 *pullup, u32 *enable);
+=======
+int mtk_pinconf_adv_drive_set_raw(struct mtk_pinctrl *hw,
+				  const struct mtk_pin_desc *desc, u32 arg);
+int mtk_pinconf_adv_drive_get_raw(struct mtk_pinctrl *hw,
+				  const struct mtk_pin_desc *desc, u32 *val);
+>>>>>>> upstream/android-13
 
 bool mtk_is_virt_gpio(struct mtk_pinctrl *hw, unsigned int gpio_n);
 #endif /* __PINCTRL_MTK_COMMON_V2_H */

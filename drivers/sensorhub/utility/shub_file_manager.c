@@ -25,6 +25,7 @@
 #include <linux/slab.h>
 #include <linux/notifier.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SHUB_KUNIT)
 #include <kunit/mock.h>
 #define __mockable __weak
@@ -34,6 +35,8 @@
 #define __visible_for_testing static
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define FILE_MANAGER	0xFB
 enum {
 	FM_READ = 0,
@@ -129,7 +132,11 @@ static int _shub_file_rw(char type, bool wait)
 	return result;
 }
 
+<<<<<<< HEAD
 __visible_for_testing int __mockable _shub_file_write(char *path, char *buf, int buf_len, long long pos, bool wait)
+=======
+static int _shub_file_write(char *path, char *buf, int buf_len, long long pos, bool wait)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -139,9 +146,12 @@ __visible_for_testing int __mockable _shub_file_write(char *path, char *buf, int
 	mutex_lock(&fm_mutex);
 	fm_msg.tx_buf_size =
 	    snprintf(fm_msg.tx_buf, sizeof(fm_msg.tx_buf), "%s,%d,%lld,%d,", path, buf_len, pos, wait);
+<<<<<<< HEAD
 
 	buf_len = fm_msg.tx_buf_size + buf_len > sizeof(fm_msg.tx_buf) ?
 		  sizeof(fm_msg.tx_buf) - fm_msg.tx_buf_size : buf_len;
+=======
+>>>>>>> upstream/android-13
 	memcpy(&fm_msg.tx_buf[fm_msg.tx_buf_size], buf, buf_len);
 	fm_msg.tx_buf_size += buf_len;
 	ret = _shub_file_rw(FM_WRITE, wait);
@@ -164,7 +174,11 @@ int shub_file_write(char *path, char *buf, int buf_len, long long pos)
 	return _shub_file_write(path, buf, buf_len, pos, true);
 }
 
+<<<<<<< HEAD
 int __mockable shub_file_read(char *path, char *buf, int buf_len, long long pos)
+=======
+int shub_file_read(char *path, char *buf, int buf_len, long long pos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -210,7 +224,11 @@ ssize_t shub_file_show(struct device *dev, struct device_attribute *attr, char *
 ssize_t shub_file_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
 	if (size < 1) {
+<<<<<<< HEAD
 		shub_errf("error %d", (int)size);
+=======
+		shub_errf("error %d", size);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -220,7 +238,11 @@ ssize_t shub_file_store(struct device *dev, struct device_attribute *attr, const
 
 	} else {
 		if (size < 5) {
+<<<<<<< HEAD
 			shub_errf("error %d", (int)size);
+=======
+			shub_errf("error %d", size);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
@@ -230,8 +252,12 @@ ssize_t shub_file_store(struct device *dev, struct device_attribute *attr, const
 		memset(fm_msg.rx_buf, 0, PAGE_SIZE);
 		memcpy(&fm_msg.result, &buf[1], sizeof(int32_t));
 		if (buf[0] == FM_READ && fm_msg.result > 0) {
+<<<<<<< HEAD
 			fm_msg.rx_buf_size = fm_msg.result > sizeof(fm_msg.rx_buf) ?
 					     sizeof(fm_msg.rx_buf) : fm_msg.result;
+=======
+			fm_msg.rx_buf_size = fm_msg.result;
+>>>>>>> upstream/android-13
 			memcpy(fm_msg.rx_buf, &buf[5], fm_msg.rx_buf_size);
 		}
 

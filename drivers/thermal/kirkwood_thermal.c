@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Kirkwood thermal sensor driver
  *
  * Copyright (C) 2012 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/err.h>
@@ -74,6 +81,10 @@ static int kirkwood_thermal_probe(struct platform_device *pdev)
 	struct thermal_zone_device *thermal = NULL;
 	struct kirkwood_thermal_priv *priv;
 	struct resource *res;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -91,6 +102,15 @@ static int kirkwood_thermal_probe(struct platform_device *pdev)
 			"Failed to register thermal zone device\n");
 		return PTR_ERR(thermal);
 	}
+<<<<<<< HEAD
+=======
+	ret = thermal_zone_device_enable(thermal);
+	if (ret) {
+		thermal_zone_device_unregister(thermal);
+		dev_err(&pdev->dev, "Failed to enable thermal zone device\n");
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, thermal);
 

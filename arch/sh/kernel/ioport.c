@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/kernel/ioport.c
  *
  * Copyright (C) 2000  Niibe Yutaka
  * Copyright (C) 2005 - 2007 Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
@@ -10,6 +15,12 @@
  */
 #include <linux/module.h>
 #include <linux/io.h>
+=======
+ */
+#include <linux/module.h>
+#include <linux/io.h>
+#include <asm/io_trapped.h>
+>>>>>>> upstream/android-13
 
 unsigned long sh_io_port_base __read_mostly = -1;
 EXPORT_SYMBOL(sh_io_port_base);

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * E3C EC168 DVB USB driver
  *
  * Copyright (C) 2009 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ec168.h"
@@ -319,7 +326,11 @@ static int ec168_streaming_ctrl(struct dvb_frontend *fe, int onoff)
 /* DVB USB Driver stuff */
 /* bInterfaceNumber 0 is HID
  * bInterfaceNumber 1 is DVB-T */
+<<<<<<< HEAD
 static struct dvb_usb_device_properties ec168_props = {
+=======
+static const struct dvb_usb_device_properties ec168_props = {
+>>>>>>> upstream/android-13
 	.driver_name = KBUILD_MODNAME,
 	.owner = THIS_MODULE,
 	.adapter_nr = adapter_nr,
@@ -342,6 +353,7 @@ static struct dvb_usb_device_properties ec168_props = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct dvb_usb_driver_info ec168_driver_info = {
 	.name = "E3C EC168 reference design",
 	.props = &ec168_props,
@@ -358,6 +370,19 @@ static const struct usb_device_id ec168_id[] = {
 		.driver_info = (kernel_ulong_t) &ec168_driver_info },
 	{ USB_DEVICE(USB_VID_E3C, USB_PID_E3C_EC168_5),
 		.driver_info = (kernel_ulong_t) &ec168_driver_info },
+=======
+static const struct usb_device_id ec168_id[] = {
+	{ DVB_USB_DEVICE(USB_VID_E3C, USB_PID_E3C_EC168,
+		     &ec168_props, "E3C EC168 reference design", NULL)},
+	{ DVB_USB_DEVICE(USB_VID_E3C, USB_PID_E3C_EC168_2,
+		     &ec168_props, "E3C EC168 reference design", NULL)},
+	{ DVB_USB_DEVICE(USB_VID_E3C, USB_PID_E3C_EC168_3,
+		     &ec168_props, "E3C EC168 reference design", NULL)},
+	{ DVB_USB_DEVICE(USB_VID_E3C, USB_PID_E3C_EC168_4,
+		     &ec168_props, "E3C EC168 reference design", NULL)},
+	{ DVB_USB_DEVICE(USB_VID_E3C, USB_PID_E3C_EC168_5,
+		     &ec168_props, "E3C EC168 reference design", NULL)},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(usb, ec168_id);

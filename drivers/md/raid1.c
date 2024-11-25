@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * raid1.c : Multiple Devices driver for Linux
  *
@@ -20,6 +24,7 @@
  *
  * Additions to bitmap code, (C) 2003-2004 Paul Clements, SteelEye Technology:
  * - persistent bitmap code
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * (for example /usr/src/linux/COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -37,6 +44,10 @@
 #include <linux/module.h>
 #include <linux/seq_file.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
+=======
+#include <linux/interval_tree_generic.h>
+>>>>>>> upstream/android-13
 
 #include <trace/events/block.h>
 
@@ -50,6 +61,7 @@
 	 (1L << MD_HAS_PPL) |		\
 	 (1L << MD_HAS_MULTIPLE_PPLS))
 
+<<<<<<< HEAD
 /*
  * Number of guaranteed r1bios in case of extreme VM load:
  */
@@ -75,6 +87,8 @@
  */
 static int max_queued_requests = 1024;
 
+=======
+>>>>>>> upstream/android-13
 static void allow_barrier(struct r1conf *conf, sector_t sector_nr);
 static void lower_barrier(struct r1conf *conf, sector_t sector_nr);
 
@@ -83,6 +97,76 @@ static void lower_barrier(struct r1conf *conf, sector_t sector_nr);
 
 #include "raid1-10.c"
 
+<<<<<<< HEAD
+=======
+#define START(node) ((node)->start)
+#define LAST(node) ((node)->last)
+INTERVAL_TREE_DEFINE(struct serial_info, node, sector_t, _subtree_last,
+		     START, LAST, static inline, raid1_rb);
+
+static int check_and_add_serial(struct md_rdev *rdev, struct r1bio *r1_bio,
+				struct serial_info *si, int idx)
+{
+	unsigned long flags;
+	int ret = 0;
+	sector_t lo = r1_bio->sector;
+	sector_t hi = lo + r1_bio->sectors;
+	struct serial_in_rdev *serial = &rdev->serial[idx];
+
+	spin_lock_irqsave(&serial->serial_lock, flags);
+	/* collision happened */
+	if (raid1_rb_iter_first(&serial->serial_rb, lo, hi))
+		ret = -EBUSY;
+	else {
+		si->start = lo;
+		si->last = hi;
+		raid1_rb_insert(si, &serial->serial_rb);
+	}
+	spin_unlock_irqrestore(&serial->serial_lock, flags);
+
+	return ret;
+}
+
+static void wait_for_serialization(struct md_rdev *rdev, struct r1bio *r1_bio)
+{
+	struct mddev *mddev = rdev->mddev;
+	struct serial_info *si;
+	int idx = sector_to_idx(r1_bio->sector);
+	struct serial_in_rdev *serial = &rdev->serial[idx];
+
+	if (WARN_ON(!mddev->serial_info_pool))
+		return;
+	si = mempool_alloc(mddev->serial_info_pool, GFP_NOIO);
+	wait_event(serial->serial_io_wait,
+		   check_and_add_serial(rdev, r1_bio, si, idx) == 0);
+}
+
+static void remove_serial(struct md_rdev *rdev, sector_t lo, sector_t hi)
+{
+	struct serial_info *si;
+	unsigned long flags;
+	int found = 0;
+	struct mddev *mddev = rdev->mddev;
+	int idx = sector_to_idx(lo);
+	struct serial_in_rdev *serial = &rdev->serial[idx];
+
+	spin_lock_irqsave(&serial->serial_lock, flags);
+	for (si = raid1_rb_iter_first(&serial->serial_rb, lo, hi);
+	     si; si = raid1_rb_iter_next(si, lo, hi)) {
+		if (si->start == lo && si->last == hi) {
+			raid1_rb_remove(si, &serial->serial_rb);
+			mempool_free(si, mddev->serial_info_pool);
+			found = 1;
+			break;
+		}
+	}
+	if (!found)
+		WARN(1, "The write IO is not recorded for serialization\n");
+	spin_unlock_irqrestore(&serial->serial_lock, flags);
+	wake_up(&serial->serial_io_wait);
+}
+
+>>>>>>> upstream/android-13
 /*
  * for resync bio, r1bio pointer can be retrieved from the per-bio
  * 'struct resync_pages'.
@@ -101,11 +185,14 @@ static void * r1bio_pool_alloc(gfp_t gfp_flags, void *data)
 	return kzalloc(size, gfp_flags);
 }
 
+<<<<<<< HEAD
 static void r1bio_pool_free(void *r1_bio, void *data)
 {
 	kfree(r1_bio);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define RESYNC_DEPTH 32
 #define RESYNC_SECTORS (RESYNC_BLOCK_SIZE >> 9)
 #define RESYNC_WINDOW (RESYNC_BLOCK_SIZE * RESYNC_DEPTH)
@@ -181,7 +268,11 @@ out_free_bio:
 	kfree(rps);
 
 out_free_r1bio:
+<<<<<<< HEAD
 	r1bio_pool_free(r1_bio, data);
+=======
+	rbio_pool_free(r1_bio, data);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -201,7 +292,11 @@ static void r1buf_pool_free(void *__r1_bio, void *data)
 	/* resync pages array stored in the 1st bio's .bi_private */
 	kfree(rp);
 
+<<<<<<< HEAD
 	r1bio_pool_free(r1bio, data);
+=======
+	rbio_pool_free(r1bio, data);
+>>>>>>> upstream/android-13
 }
 
 static void put_all_bios(struct r1conf *conf, struct r1bio *r1_bio)
@@ -266,22 +361,35 @@ static void reschedule_retry(struct r1bio *r1_bio)
 static void call_bio_endio(struct r1bio *r1_bio)
 {
 	struct bio *bio = r1_bio->master_bio;
+<<<<<<< HEAD
 	struct r1conf *conf = r1_bio->mddev->private;
+=======
+>>>>>>> upstream/android-13
 
 	if (!test_bit(R1BIO_Uptodate, &r1_bio->state))
 		bio->bi_status = BLK_STS_IOERR;
 
+<<<<<<< HEAD
 	bio_endio(bio);
 	/*
 	 * Wake up any possible resync thread that waits for the device
 	 * to go idle.
 	 */
 	allow_barrier(conf, r1_bio->sector);
+=======
+	if (blk_queue_io_stat(bio->bi_bdev->bd_disk->queue))
+		bio_end_io_acct(bio, r1_bio->start_time);
+	bio_endio(bio);
+>>>>>>> upstream/android-13
 }
 
 static void raid_end_bio_io(struct r1bio *r1_bio)
 {
 	struct bio *bio = r1_bio->master_bio;
+<<<<<<< HEAD
+=======
+	struct r1conf *conf = r1_bio->mddev->private;
+>>>>>>> upstream/android-13
 
 	/* if nobody has done the final endio yet, do it now */
 	if (!test_and_set_bit(R1BIO_Returned, &r1_bio->state)) {
@@ -292,6 +400,15 @@ static void raid_end_bio_io(struct r1bio *r1_bio)
 
 		call_bio_endio(r1_bio);
 	}
+<<<<<<< HEAD
+=======
+	/*
+	 * Wake up any possible resync thread that waits for the device
+	 * to go idle.  All I/Os, even write-behind writes, are done.
+	 */
+	allow_barrier(conf, r1_bio->sector);
+
+>>>>>>> upstream/android-13
 	free_r1bio(r1_bio);
 }
 
@@ -417,6 +534,11 @@ static void raid1_end_write_request(struct bio *bio)
 	int mirror = find_bio_disk(r1_bio, bio);
 	struct md_rdev *rdev = conf->mirrors[mirror].rdev;
 	bool discard_error;
+<<<<<<< HEAD
+=======
+	sector_t lo = r1_bio->sector;
+	sector_t hi = r1_bio->sector + r1_bio->sectors;
+>>>>>>> upstream/android-13
 
 	discard_error = bio->bi_status && bio_op(bio) == REQ_OP_DISCARD;
 
@@ -439,8 +561,11 @@ static void raid1_end_write_request(struct bio *bio)
 		/*
 		 * When the device is faulty, it is not necessary to
 		 * handle write error.
+<<<<<<< HEAD
 		 * For failfast, this is the only remaining device,
 		 * We need to retry the write without FailFast.
+=======
+>>>>>>> upstream/android-13
 		 */
 		if (!test_bit(Faulty, &rdev->flags))
 			set_bit(R1BIO_WriteError, &r1_bio->state);
@@ -488,6 +613,11 @@ static void raid1_end_write_request(struct bio *bio)
 	}
 
 	if (behind) {
+<<<<<<< HEAD
+=======
+		if (test_bit(CollisionCheck, &rdev->flags))
+			remove_serial(rdev, lo, hi);
+>>>>>>> upstream/android-13
 		if (test_bit(WriteMostly, &rdev->flags))
 			atomic_dec(&r1_bio->behind_remaining);
 
@@ -510,7 +640,12 @@ static void raid1_end_write_request(struct bio *bio)
 				call_bio_endio(r1_bio);
 			}
 		}
+<<<<<<< HEAD
 	}
+=======
+	} else if (rdev->mddev->serialize_policy)
+		remove_serial(rdev, lo, hi);
+>>>>>>> upstream/android-13
 	if (r1_bio->bios[mirror] == NULL)
 		rdev_dec_pending(rdev, conf->mddev);
 
@@ -752,6 +887,7 @@ static int read_balance(struct r1conf *conf, struct r1bio *r1_bio, int *max_sect
 	return best_disk;
 }
 
+<<<<<<< HEAD
 static int raid1_congested(struct mddev *mddev, int bits)
 {
 	struct r1conf *conf = mddev->private;
@@ -782,6 +918,8 @@ static int raid1_congested(struct mddev *mddev, int bits)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void flush_bio_list(struct r1conf *conf, struct bio *bio)
 {
 	/* flush any pending bitmap writes to disk before proceeding w/ I/O */
@@ -790,18 +928,32 @@ static void flush_bio_list(struct r1conf *conf, struct bio *bio)
 
 	while (bio) { /* submit pending writes */
 		struct bio *next = bio->bi_next;
+<<<<<<< HEAD
 		struct md_rdev *rdev = (void *)bio->bi_disk;
+=======
+		struct md_rdev *rdev = (void *)bio->bi_bdev;
+>>>>>>> upstream/android-13
 		bio->bi_next = NULL;
 		bio_set_dev(bio, rdev->bdev);
 		if (test_bit(Faulty, &rdev->flags)) {
 			bio_io_error(bio);
 		} else if (unlikely((bio_op(bio) == REQ_OP_DISCARD) &&
+<<<<<<< HEAD
 				    !blk_queue_discard(bio->bi_disk->queue)))
 			/* Just ignore it */
 			bio_endio(bio);
 		else
 			generic_make_request(bio);
 		bio = next;
+=======
+				    !blk_queue_discard(bio->bi_bdev->bd_disk->queue)))
+			/* Just ignore it */
+			bio_endio(bio);
+		else
+			submit_bio_noacct(bio);
+		bio = next;
+		cond_resched();
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -857,8 +1009,16 @@ static void flush_pending_writes(struct r1conf *conf)
  * backgroup IO calls must call raise_barrier.  Once that returns
  *    there is no normal IO happeing.  It must arrange to call
  *    lower_barrier when the particular background IO completes.
+<<<<<<< HEAD
  */
 static sector_t raise_barrier(struct r1conf *conf, sector_t sector_nr)
+=======
+ *
+ * If resync/recovery is interrupted, returns -EINTR;
+ * Otherwise, returns 0.
+ */
+static int raise_barrier(struct r1conf *conf, sector_t sector_nr)
+>>>>>>> upstream/android-13
 {
 	int idx = sector_to_idx(sector_nr);
 
@@ -1096,7 +1256,11 @@ static void alloc_behind_master_bio(struct r1bio *r1_bio,
 	int i = 0;
 	struct bio *behind_bio = NULL;
 
+<<<<<<< HEAD
 	behind_bio = bio_alloc_mddev(GFP_NOIO, vcnt, r1_bio->mddev);
+=======
+	behind_bio = bio_alloc_bioset(GFP_NOIO, vcnt, &r1_bio->mddev->bio_set);
+>>>>>>> upstream/android-13
 	if (!behind_bio)
 		return;
 
@@ -1200,7 +1364,11 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
 	const unsigned long do_sync = (bio->bi_opf & REQ_SYNC);
 	int max_sectors;
 	int rdisk;
+<<<<<<< HEAD
 	bool print_msg = !!r1_bio;
+=======
+	bool r1bio_existed = !!r1_bio;
+>>>>>>> upstream/android-13
 	char b[BDEVNAME_SIZE];
 
 	/*
@@ -1210,7 +1378,11 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
 	 */
 	gfp_t gfp = r1_bio ? (GFP_NOIO | __GFP_HIGH) : GFP_NOIO;
 
+<<<<<<< HEAD
 	if (print_msg) {
+=======
+	if (r1bio_existed) {
+>>>>>>> upstream/android-13
 		/* Need to get the block device name carefully */
 		struct md_rdev *rdev;
 		rcu_read_lock();
@@ -1242,7 +1414,11 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
 
 	if (rdisk < 0) {
 		/* couldn't find anywhere to read from */
+<<<<<<< HEAD
 		if (print_msg) {
+=======
+		if (r1bio_existed) {
+>>>>>>> upstream/android-13
 			pr_crit_ratelimited("md/raid1:%s: %s: unrecoverable I/O read error for block %llu\n",
 					    mdname(mddev),
 					    b,
@@ -1253,7 +1429,11 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
 	}
 	mirror = conf->mirrors + rdisk;
 
+<<<<<<< HEAD
 	if (print_msg)
+=======
+	if (r1bio_existed)
+>>>>>>> upstream/android-13
 		pr_info_ratelimited("md/raid1:%s: redirecting sector %llu to other mirror: %s\n",
 				    mdname(mddev),
 				    (unsigned long long)r1_bio->sector,
@@ -1274,7 +1454,11 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
 		struct bio *split = bio_split(bio, max_sectors,
 					      gfp, &conf->bio_split);
 		bio_chain(split, bio);
+<<<<<<< HEAD
 		generic_make_request(bio);
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		bio = split;
 		r1_bio->master_bio = bio;
 		r1_bio->sectors = max_sectors;
@@ -1282,6 +1466,12 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
 
 	r1_bio->read_disk = rdisk;
 
+<<<<<<< HEAD
+=======
+	if (!r1bio_existed && blk_queue_io_stat(bio->bi_bdev->bd_disk->queue))
+		r1_bio->start_time = bio_start_io_acct(bio);
+
+>>>>>>> upstream/android-13
 	read_bio = bio_clone_fast(bio, gfp, &mddev->bio_set);
 
 	r1_bio->bios[rdisk] = read_bio;
@@ -1297,10 +1487,17 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
 	read_bio->bi_private = r1_bio;
 
 	if (mddev->gendisk)
+<<<<<<< HEAD
 	        trace_block_bio_remap(read_bio->bi_disk->queue, read_bio,
 				disk_devt(mddev->gendisk), r1_bio->sector);
 
 	generic_make_request(read_bio);
+=======
+	        trace_block_bio_remap(read_bio, disk_devt(mddev->gendisk),
+				      r1_bio->sector);
+
+	submit_bio_noacct(read_bio);
+>>>>>>> upstream/android-13
 }
 
 static void raid1_write_request(struct mddev *mddev, struct bio *bio,
@@ -1316,6 +1513,10 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
 	struct raid1_plug_cb *plug = NULL;
 	int first_clone;
 	int max_sectors;
+<<<<<<< HEAD
+=======
+	bool write_behind = false;
+>>>>>>> upstream/android-13
 
 	if (mddev_is_clustered(mddev) &&
 	     md_cluster_ops->area_resyncing(mddev, WRITE,
@@ -1368,6 +1569,18 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
 	max_sectors = r1_bio->sectors;
 	for (i = 0;  i < disks; i++) {
 		struct md_rdev *rdev = rcu_dereference(conf->mirrors[i].rdev);
+<<<<<<< HEAD
+=======
+
+		/*
+		 * The write-behind io is only attempted on drives marked as
+		 * write-mostly, which means we could allocate write behind
+		 * bio later.
+		 */
+		if (rdev && test_bit(WriteMostly, &rdev->flags))
+			write_behind = true;
+
+>>>>>>> upstream/android-13
 		if (rdev && unlikely(test_bit(Blocked, &rdev->flags))) {
 			atomic_inc(&rdev->nr_pending);
 			blocked_rdev = rdev;
@@ -1441,16 +1654,37 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
 		goto retry_write;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * When using a bitmap, we may call alloc_behind_master_bio below.
+	 * alloc_behind_master_bio allocates a copy of the data payload a page
+	 * at a time and thus needs a new bio that can fit the whole payload
+	 * this bio in page sized chunks.
+	 */
+	if (write_behind && bitmap)
+		max_sectors = min_t(int, max_sectors,
+				    BIO_MAX_VECS * (PAGE_SIZE >> 9));
+>>>>>>> upstream/android-13
 	if (max_sectors < bio_sectors(bio)) {
 		struct bio *split = bio_split(bio, max_sectors,
 					      GFP_NOIO, &conf->bio_split);
 		bio_chain(split, bio);
+<<<<<<< HEAD
 		generic_make_request(bio);
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		bio = split;
 		r1_bio->master_bio = bio;
 		r1_bio->sectors = max_sectors;
 	}
 
+<<<<<<< HEAD
+=======
+	if (blk_queue_io_stat(bio->bi_bdev->bd_disk->queue))
+		r1_bio->start_time = bio_start_io_acct(bio);
+>>>>>>> upstream/android-13
 	atomic_set(&r1_bio->remaining, 1);
 	atomic_set(&r1_bio->behind_remaining, 0);
 
@@ -1458,16 +1692,27 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
 
 	for (i = 0; i < disks; i++) {
 		struct bio *mbio = NULL;
+<<<<<<< HEAD
 		if (!r1_bio->bios[i])
 			continue;
 
 
+=======
+		struct md_rdev *rdev = conf->mirrors[i].rdev;
+		if (!r1_bio->bios[i])
+			continue;
+
+>>>>>>> upstream/android-13
 		if (first_clone) {
 			/* do behind I/O ?
 			 * Not if there are too many, or cannot
 			 * allocate memory, or a reader on WriteMostly
 			 * is waiting for behind writes to flush */
 			if (bitmap &&
+<<<<<<< HEAD
+=======
+			    test_bit(WriteMostly, &rdev->flags) &&
+>>>>>>> upstream/android-13
 			    (atomic_read(&bitmap->behind_writes)
 			     < mddev->bitmap_info.max_write_behind) &&
 			    !waitqueue_active(&bitmap->behind_wait)) {
@@ -1486,9 +1731,18 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
 			mbio = bio_clone_fast(bio, GFP_NOIO, &mddev->bio_set);
 
 		if (r1_bio->behind_master_bio) {
+<<<<<<< HEAD
 			if (test_bit(WriteMostly, &conf->mirrors[i].rdev->flags))
 				atomic_inc(&r1_bio->behind_remaining);
 		}
+=======
+			if (test_bit(CollisionCheck, &rdev->flags))
+				wait_for_serialization(rdev, r1_bio);
+			if (test_bit(WriteMostly, &rdev->flags))
+				atomic_inc(&r1_bio->behind_remaining);
+		} else if (mddev->serialize_policy)
+			wait_for_serialization(rdev, r1_bio);
+>>>>>>> upstream/android-13
 
 		r1_bio->bios[i] = mbio;
 
@@ -1506,11 +1760,18 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
 		atomic_inc(&r1_bio->remaining);
 
 		if (mddev->gendisk)
+<<<<<<< HEAD
 			trace_block_bio_remap(mbio->bi_disk->queue,
 					      mbio, disk_devt(mddev->gendisk),
 					      r1_bio->sector);
 		/* flush_pending_writes() needs access to the rdev so...*/
 		mbio->bi_disk = (void *)conf->mirrors[i].rdev;
+=======
+			trace_block_bio_remap(mbio, disk_devt(mddev->gendisk),
+					      r1_bio->sector);
+		/* flush_pending_writes() needs access to the rdev so...*/
+		mbio->bi_bdev = (void *)conf->mirrors[i].rdev;
+>>>>>>> upstream/android-13
 
 		cb = blk_check_plugged(raid1_unplug, mddev, sizeof(*plug));
 		if (cb)
@@ -1588,12 +1849,21 @@ static void raid1_error(struct mddev *mddev, struct md_rdev *rdev)
 
 	/*
 	 * If it is not operational, then we have already marked it as dead
+<<<<<<< HEAD
 	 * else if it is the last working disks, ignore the error, let the
 	 * next level up know.
 	 * else mark the drive as failed
 	 */
 	spin_lock_irqsave(&conf->device_lock, flags);
 	if (test_bit(In_sync, &rdev->flags)
+=======
+	 * else if it is the last working disks with "fail_last_dev == false",
+	 * ignore the error, let the next level up know.
+	 * else mark the drive as failed
+	 */
+	spin_lock_irqsave(&conf->device_lock, flags);
+	if (test_bit(In_sync, &rdev->flags) && !mddev->fail_last_dev
+>>>>>>> upstream/android-13
 	    && (conf->raid_disks - mddev->degraded) == 1) {
 		/*
 		 * Don't fail the drive, act as though we were just a
@@ -1606,11 +1876,17 @@ static void raid1_error(struct mddev *mddev, struct md_rdev *rdev)
 		return;
 	}
 	set_bit(Blocked, &rdev->flags);
+<<<<<<< HEAD
 	if (test_and_clear_bit(In_sync, &rdev->flags)) {
 		mddev->degraded++;
 		set_bit(Faulty, &rdev->flags);
 	} else
 		set_bit(Faulty, &rdev->flags);
+=======
+	if (test_and_clear_bit(In_sync, &rdev->flags))
+		mddev->degraded++;
+	set_bit(Faulty, &rdev->flags);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&conf->device_lock, flags);
 	/*
 	 * if recovery is running, make sure it aborts.
@@ -1742,9 +2018,14 @@ static int raid1_add_disk(struct mddev *mddev, struct md_rdev *rdev)
 		first = last = rdev->saved_raid_disk;
 
 	for (mirror = first; mirror <= last; mirror++) {
+<<<<<<< HEAD
 		p = conf->mirrors+mirror;
 		if (!p->rdev) {
 
+=======
+		p = conf->mirrors + mirror;
+		if (!p->rdev) {
+>>>>>>> upstream/android-13
 			if (mddev->gendisk)
 				disk_stack_limits(mddev->gendisk, rdev->bdev,
 						  rdev->data_offset << 9);
@@ -1880,6 +2161,25 @@ static void abort_sync_write(struct mddev *mddev, struct r1bio *r1_bio)
 	} while (sectors_to_go > 0);
 }
 
+<<<<<<< HEAD
+=======
+static void put_sync_write_buf(struct r1bio *r1_bio, int uptodate)
+{
+	if (atomic_dec_and_test(&r1_bio->remaining)) {
+		struct mddev *mddev = r1_bio->mddev;
+		int s = r1_bio->sectors;
+
+		if (test_bit(R1BIO_MadeGood, &r1_bio->state) ||
+		    test_bit(R1BIO_WriteError, &r1_bio->state))
+			reschedule_retry(r1_bio);
+		else {
+			put_buf(r1_bio);
+			md_done_sync(mddev, s, uptodate);
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static void end_sync_write(struct bio *bio)
 {
 	int uptodate = !bio->bi_status;
@@ -1906,6 +2206,7 @@ static void end_sync_write(struct bio *bio)
 		)
 		set_bit(R1BIO_MadeGood, &r1_bio->state);
 
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&r1_bio->remaining)) {
 		int s = r1_bio->sectors;
 		if (test_bit(R1BIO_MadeGood, &r1_bio->state) ||
@@ -1916,6 +2217,9 @@ static void end_sync_write(struct bio *bio)
 			md_done_sync(mddev, s, uptodate);
 		}
 	}
+=======
+	put_sync_write_buf(r1_bio, uptodate);
+>>>>>>> upstream/android-13
 }
 
 static int r1_sync_page_io(struct md_rdev *rdev, sector_t sector,
@@ -2115,7 +2419,11 @@ static void process_checks(struct r1bio *r1_bio)
 		}
 	r1_bio->read_disk = primary;
 	for (i = 0; i < conf->raid_disks * 2; i++) {
+<<<<<<< HEAD
 		int j;
+=======
+		int j = 0;
+>>>>>>> upstream/android-13
 		struct bio *pbio = r1_bio->bios[primary];
 		struct bio *sbio = r1_bio->bios[i];
 		blk_status_t status = sbio->bi_status;
@@ -2123,14 +2431,23 @@ static void process_checks(struct r1bio *r1_bio)
 		struct page **spages = get_resync_pages(sbio)->pages;
 		struct bio_vec *bi;
 		int page_len[RESYNC_PAGES] = { 0 };
+<<<<<<< HEAD
+=======
+		struct bvec_iter_all iter_all;
+>>>>>>> upstream/android-13
 
 		if (sbio->bi_end_io != end_sync_read)
 			continue;
 		/* Now we can 'fixup' the error value */
 		sbio->bi_status = 0;
 
+<<<<<<< HEAD
 		bio_for_each_segment_all(bi, sbio, j)
 			page_len[j] = bi->bv_len;
+=======
+		bio_for_each_segment_all(bi, sbio, iter_all)
+			page_len[j++] = bi->bv_len;
+>>>>>>> upstream/android-13
 
 		if (!status) {
 			for (j = vcnt; j-- ; ) {
@@ -2194,6 +2511,7 @@ static void sync_request_write(struct mddev *mddev, struct r1bio *r1_bio)
 		atomic_inc(&r1_bio->remaining);
 		md_sync_acct(conf->mirrors[i].rdev->bdev, bio_sectors(wbio));
 
+<<<<<<< HEAD
 		generic_make_request(wbio);
 	}
 
@@ -2208,6 +2526,12 @@ static void sync_request_write(struct mddev *mddev, struct r1bio *r1_bio)
 			md_done_sync(mddev, s, 1);
 		}
 	}
+=======
+		submit_bio_noacct(wbio);
+	}
+
+	put_sync_write_buf(r1_bio, 1);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2890,7 +3214,11 @@ static sector_t raid1_sync_request(struct mddev *mddev, sector_t sector_nr,
 				md_sync_acct_bio(bio, nr_sectors);
 				if (read_targets == 1)
 					bio->bi_opf &= ~MD_FAILFAST;
+<<<<<<< HEAD
 				generic_make_request(bio);
+=======
+				submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 			}
 		}
 	} else {
@@ -2899,8 +3227,12 @@ static sector_t raid1_sync_request(struct mddev *mddev, sector_t sector_nr,
 		md_sync_acct_bio(bio, nr_sectors);
 		if (read_targets == 1)
 			bio->bi_opf &= ~MD_FAILFAST;
+<<<<<<< HEAD
 		generic_make_request(bio);
 
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 	}
 	return nr_sectors;
 }
@@ -2959,8 +3291,13 @@ static struct r1conf *setup_conf(struct mddev *mddev)
 	if (!conf->poolinfo)
 		goto abort;
 	conf->poolinfo->raid_disks = mddev->raid_disks * 2;
+<<<<<<< HEAD
 	err = mempool_init(&conf->r1bio_pool, NR_RAID1_BIOS, r1bio_pool_alloc,
 			   r1bio_pool_free, conf->poolinfo);
+=======
+	err = mempool_init(&conf->r1bio_pool, NR_RAID_BIOS, r1bio_pool_alloc,
+			   rbio_pool_free, conf->poolinfo);
+>>>>>>> upstream/android-13
 	if (err)
 		goto abort;
 
@@ -3101,7 +3438,11 @@ static int raid1_run(struct mddev *mddev)
 	}
 
 	mddev->degraded = 0;
+<<<<<<< HEAD
 	for (i=0; i < conf->raid_disks; i++)
+=======
+	for (i = 0; i < conf->raid_disks; i++)
+>>>>>>> upstream/android-13
 		if (conf->mirrors[i].rdev == NULL ||
 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
@@ -3143,7 +3484,11 @@ static int raid1_run(struct mddev *mddev)
 						  mddev->queue);
 	}
 
+<<<<<<< HEAD
 	ret =  md_integrity_register(mddev);
+=======
+	ret = md_integrity_register(mddev);
+>>>>>>> upstream/android-13
 	if (ret) {
 		md_unregister_thread(&mddev->thread);
 		goto abort;
@@ -3255,8 +3600,13 @@ static int raid1_reshape(struct mddev *mddev)
 	newpoolinfo->mddev = mddev;
 	newpoolinfo->raid_disks = raid_disks * 2;
 
+<<<<<<< HEAD
 	ret = mempool_init(&newpool, NR_RAID1_BIOS, r1bio_pool_alloc,
 			   r1bio_pool_free, newpoolinfo);
+=======
+	ret = mempool_init(&newpool, NR_RAID_BIOS, r1bio_pool_alloc,
+			   rbio_pool_free, newpoolinfo);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(newpoolinfo);
 		return ret;
@@ -3361,7 +3711,10 @@ static struct md_personality raid1_personality =
 	.check_reshape	= raid1_reshape,
 	.quiesce	= raid1_quiesce,
 	.takeover	= raid1_takeover,
+<<<<<<< HEAD
 	.congested	= raid1_congested,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init raid_init(void)

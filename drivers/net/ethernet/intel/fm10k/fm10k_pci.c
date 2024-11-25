@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/interrupt.h>
@@ -23,6 +27,11 @@ static const struct fm10k_info *fm10k_info_tbl[] = {
  */
 static const struct pci_device_id fm10k_pci_tbl[] = {
 	{ PCI_VDEVICE(INTEL, FM10K_DEV_ID_PF), fm10k_device_pf },
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(INTEL, FM10K_DEV_ID_SDI_FM10420_QDA2), fm10k_device_pf },
+	{ PCI_VDEVICE(INTEL, FM10K_DEV_ID_SDI_FM10420_DA2), fm10k_device_pf },
+>>>>>>> upstream/android-13
 	{ PCI_VDEVICE(INTEL, FM10K_DEV_ID_VF), fm10k_device_vf },
 	/* required last entry */
 	{ 0, }
@@ -219,8 +228,11 @@ static bool fm10k_prepare_for_reset(struct fm10k_intfc *interface)
 {
 	struct net_device *netdev = interface->netdev;
 
+<<<<<<< HEAD
 	WARN_ON(in_interrupt());
 
+=======
+>>>>>>> upstream/android-13
 	/* put off any impending NetWatchDogTimeout */
 	netif_trans_update(netdev);
 
@@ -342,7 +354,10 @@ static void fm10k_detach_subtask(struct fm10k_intfc *interface)
 	struct net_device *netdev = interface->netdev;
 	u32 __iomem *hw_addr;
 	u32 value;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	/* do nothing if netdev is still present or hw_addr is set */
 	if (netif_device_present(netdev) || interface->hw.hw_addr)
@@ -360,6 +375,11 @@ static void fm10k_detach_subtask(struct fm10k_intfc *interface)
 	hw_addr = READ_ONCE(interface->uc_addr);
 	value = readl(hw_addr);
 	if (~value) {
+<<<<<<< HEAD
+=======
+		int err;
+
+>>>>>>> upstream/android-13
 		/* Make sure the reset was initiated because we detached,
 		 * otherwise we might race with a different reset flow.
 		 */
@@ -627,6 +647,12 @@ void fm10k_update_stats(struct fm10k_intfc *interface)
 	net_stats->rx_errors = rx_errors;
 	net_stats->rx_dropped = interface->stats.nodesc_drop.count;
 
+<<<<<<< HEAD
+=======
+	/* Update VF statistics */
+	fm10k_iov_update_stats(interface);
+
+>>>>>>> upstream/android-13
 	clear_bit(__FM10K_UPDATING_STATS, interface->state);
 }
 
@@ -695,8 +721,11 @@ static void fm10k_watchdog_subtask(struct fm10k_intfc *interface)
  */
 static void fm10k_check_hang_subtask(struct fm10k_intfc *interface)
 {
+<<<<<<< HEAD
 	int i;
 
+=======
+>>>>>>> upstream/android-13
 	/* If we're down or resetting, just bail */
 	if (test_bit(__FM10K_DOWN, interface->state) ||
 	    test_bit(__FM10K_RESETTING, interface->state))
@@ -708,6 +737,11 @@ static void fm10k_check_hang_subtask(struct fm10k_intfc *interface)
 	interface->next_tx_hang_check = jiffies + (2 * HZ);
 
 	if (netif_carrier_ok(interface->netdev)) {
+<<<<<<< HEAD
+=======
+		int i;
+
+>>>>>>> upstream/android-13
 		/* Force detection of hung controller */
 		for (i = 0; i < interface->num_tx_queues; i++)
 			set_check_for_tx_hang(interface->tx_ring[i]);
@@ -895,7 +929,11 @@ static void fm10k_configure_tx_ring(struct fm10k_intfc *interface,
 
 	/* Map interrupt */
 	if (ring->q_vector) {
+<<<<<<< HEAD
 		txint = ring->q_vector->v_idx + NON_Q_VECTORS(hw);
+=======
+		txint = ring->q_vector->v_idx + NON_Q_VECTORS;
+>>>>>>> upstream/android-13
 		txint |= FM10K_INT_MAP_TIMER0;
 	}
 
@@ -1034,7 +1072,11 @@ static void fm10k_configure_rx_ring(struct fm10k_intfc *interface,
 
 	/* Map interrupt */
 	if (ring->q_vector) {
+<<<<<<< HEAD
 		rxint = ring->q_vector->v_idx + NON_Q_VECTORS(hw);
+=======
+		rxint = ring->q_vector->v_idx + NON_Q_VECTORS;
+>>>>>>> upstream/android-13
 		rxint |= FM10K_INT_MAP_TIMER1;
 	}
 
@@ -1366,7 +1408,10 @@ static irqreturn_t fm10k_msix_mbx_pf(int __always_unused irq, void *data)
 	struct fm10k_hw *hw = &interface->hw;
 	struct fm10k_mbx_info *mbx = &hw->mbx;
 	u32 eicr;
+<<<<<<< HEAD
 	s32 err = 0;
+=======
+>>>>>>> upstream/android-13
 
 	/* unmask any set bits related to this interrupt */
 	eicr = fm10k_read_reg(hw, FM10K_EICR);
@@ -1382,15 +1427,26 @@ static irqreturn_t fm10k_msix_mbx_pf(int __always_unused irq, void *data)
 
 	/* service mailboxes */
 	if (fm10k_mbx_trylock(interface)) {
+<<<<<<< HEAD
 		err = mbx->ops.process(hw, mbx);
+=======
+		s32 err = mbx->ops.process(hw, mbx);
+
+		if (err == FM10K_ERR_RESET_REQUESTED)
+			set_bit(FM10K_FLAG_RESET_REQUESTED, interface->flags);
+
+>>>>>>> upstream/android-13
 		/* handle VFLRE events */
 		fm10k_iov_event(interface);
 		fm10k_mbx_unlock(interface);
 	}
 
+<<<<<<< HEAD
 	if (err == FM10K_ERR_RESET_REQUESTED)
 		set_bit(FM10K_FLAG_RESET_REQUESTED, interface->flags);
 
+=======
+>>>>>>> upstream/android-13
 	/* if switch toggled state we should reset GLORTs */
 	if (eicr & FM10K_EICR_SWITCHNOTREADY) {
 		/* force link down for at least 4 seconds */
@@ -1717,10 +1773,16 @@ int fm10k_mbx_request_irq(struct fm10k_intfc *interface)
 void fm10k_qv_free_irq(struct fm10k_intfc *interface)
 {
 	int vector = interface->num_q_vectors;
+<<<<<<< HEAD
 	struct fm10k_hw *hw = &interface->hw;
 	struct msix_entry *entry;
 
 	entry = &interface->msix_entries[NON_Q_VECTORS(hw) + vector];
+=======
+	struct msix_entry *entry;
+
+	entry = &interface->msix_entries[NON_Q_VECTORS + vector];
+>>>>>>> upstream/android-13
 
 	while (vector) {
 		struct fm10k_q_vector *q_vector;
@@ -1757,7 +1819,11 @@ int fm10k_qv_request_irq(struct fm10k_intfc *interface)
 	unsigned int ri = 0, ti = 0;
 	int vector, err;
 
+<<<<<<< HEAD
 	entry = &interface->msix_entries[NON_Q_VECTORS(hw)];
+=======
+	entry = &interface->msix_entries[NON_Q_VECTORS];
+>>>>>>> upstream/android-13
 
 	for (vector = 0; vector < interface->num_q_vectors; vector++) {
 		struct fm10k_q_vector *q_vector = interface->q_vector[vector];
@@ -2061,10 +2127,13 @@ static int fm10k_sw_init(struct fm10k_intfc *interface,
 	interface->tx_itr = FM10K_TX_ITR_DEFAULT;
 	interface->rx_itr = FM10K_ITR_ADAPTIVE | FM10K_RX_ITR_DEFAULT;
 
+<<<<<<< HEAD
 	/* initialize udp port lists */
 	INIT_LIST_HEAD(&interface->vxlan_port);
 	INIT_LIST_HEAD(&interface->geneve_port);
 
+=======
+>>>>>>> upstream/android-13
 	/* Initialize the MAC/VLAN queue */
 	INIT_LIST_HEAD(&interface->macvlan_requests);
 
@@ -2228,6 +2297,10 @@ err_sw_init:
 err_ioremap:
 	free_netdev(netdev);
 err_alloc_netdev:
+<<<<<<< HEAD
+=======
+	pci_disable_pcie_error_reporting(pdev);
+>>>>>>> upstream/android-13
 	pci_release_mem_regions(pdev);
 err_pci_reg:
 err_dma:
@@ -2337,7 +2410,11 @@ static int fm10k_handle_resume(struct fm10k_intfc *interface)
 	/* Restart the MAC/VLAN request queue in-case of outstanding events */
 	fm10k_macvlan_schedule(interface);
 
+<<<<<<< HEAD
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2350,7 +2427,11 @@ static int fm10k_handle_resume(struct fm10k_intfc *interface)
  **/
 static int __maybe_unused fm10k_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct fm10k_intfc *interface = pci_get_drvdata(to_pci_dev(dev));
+=======
+	struct fm10k_intfc *interface = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct net_device *netdev = interface->netdev;
 	struct fm10k_hw *hw = &interface->hw;
 	int err;
@@ -2377,7 +2458,11 @@ static int __maybe_unused fm10k_resume(struct device *dev)
  **/
 static int __maybe_unused fm10k_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct fm10k_intfc *interface = pci_get_drvdata(to_pci_dev(dev));
+=======
+	struct fm10k_intfc *interface = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct net_device *netdev = interface->netdev;
 
 	netif_device_detach(netdev);
@@ -2440,8 +2525,11 @@ static pci_ers_result_t fm10k_io_slot_reset(struct pci_dev *pdev)
 		result = PCI_ERS_RESULT_RECOVERED;
 	}
 
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
 
+=======
+>>>>>>> upstream/android-13
 	return result;
 }
 

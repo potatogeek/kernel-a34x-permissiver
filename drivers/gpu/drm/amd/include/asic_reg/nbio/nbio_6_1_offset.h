@@ -2247,6 +2247,11 @@
 
 // addressBlock: nbio_nbif_rcc_strap_BIFDEC1[13440..14975]
 // base address: 0x3480
+<<<<<<< HEAD
+=======
+#define mmRCC_BIF_STRAP0                                                                               0x0000
+#define mmRCC_BIF_STRAP0_BASE_IDX                                                                      2
+>>>>>>> upstream/android-13
 #define mmRCC_DEV0_EPF0_STRAP0                                                                         0x000f
 #define mmRCC_DEV0_EPF0_STRAP0_BASE_IDX                                                                2
 

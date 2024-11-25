@@ -26,6 +26,7 @@
  *	Eric Anholt <eric@anholt.net>
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
@@ -33,6 +34,16 @@
 #include "psb_intel_drv.h"
 #include <drm/gma_drm.h>
 #include "psb_drv.h"
+=======
+
+#include <linux/delay.h>
+#include <linux/i2c-algo-bit.h>
+#include <linux/i2c.h>
+#include <linux/module.h>
+
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+>>>>>>> upstream/android-13
 #include "psb_intel_reg.h"
 
 #define _wait_for(COND, MS, W) ({ \
@@ -43,13 +54,21 @@
 			ret__ = -ETIMEDOUT;				\
 			break;						\
 		}							\
+<<<<<<< HEAD
 		if (W && !(in_atomic() || in_dbg_master())) msleep(W);	\
+=======
+		if (W && !(in_dbg_master()))				\
+			msleep(W);					\
+>>>>>>> upstream/android-13
 	}								\
 	ret__;								\
 })
 
 #define wait_for(COND, MS) _wait_for(COND, MS, 1)
+<<<<<<< HEAD
 #define wait_for_atomic(COND, MS) _wait_for(COND, MS, 0)
+=======
+>>>>>>> upstream/android-13
 
 #define GMBUS_REG_READ(reg) ioread32(dev_priv->gmbus_reg + (reg))
 #define GMBUS_REG_WRITE(reg, val) iowrite32((val), dev_priv->gmbus_reg + (reg))
@@ -195,7 +214,11 @@ intel_gpio_create(struct drm_psb_private *dev_priv, u32 pin)
 		 "gma500 GPIO%c", "?BACDE?F"[pin]);
 	gpio->adapter.owner = THIS_MODULE;
 	gpio->adapter.algo_data	= &gpio->algo;
+<<<<<<< HEAD
 	gpio->adapter.dev.parent = &dev_priv->dev->pdev->dev;
+=======
+	gpio->adapter.dev.parent = dev_priv->dev->dev;
+>>>>>>> upstream/android-13
 	gpio->algo.setsda = set_data;
 	gpio->algo.setscl = set_clock;
 	gpio->algo.getsda = get_data;
@@ -378,7 +401,11 @@ static const struct i2c_algorithm gmbus_algorithm = {
 };
 
 /**
+<<<<<<< HEAD
  * intel_gmbus_setup - instantiate all Intel i2c GMBuses
+=======
+ * gma_intel_setup_gmbus() - instantiate all Intel i2c GMBuses
+>>>>>>> upstream/android-13
  * @dev: DRM device
  */
 int gma_intel_setup_gmbus(struct drm_device *dev)
@@ -416,7 +443,11 @@ int gma_intel_setup_gmbus(struct drm_device *dev)
 			 "gma500 gmbus %s",
 			 names[i]);
 
+<<<<<<< HEAD
 		bus->adapter.dev.parent = &dev->pdev->dev;
+=======
+		bus->adapter.dev.parent = dev->dev;
+>>>>>>> upstream/android-13
 		bus->adapter.algo_data	= dev_priv;
 
 		bus->adapter.algo = &gmbus_algorithm;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Maxime Ripard. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016 Maxime Ripard. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CCU_NKMP_H_
@@ -35,6 +41,10 @@ struct ccu_nkmp {
 	struct ccu_div_internal		p;
 
 	unsigned int		fixed_post_div;
+<<<<<<< HEAD
+=======
+	unsigned int		max_rate;
+>>>>>>> upstream/android-13
 
 	struct ccu_common	common;
 };

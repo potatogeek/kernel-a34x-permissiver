@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Marvell NFC-over-I2C driver: I2C interface related functions
  *
@@ -15,16 +16,30 @@
  * ARE EXPRESSLY DISCLAIMED.  The License provides additional details about
  * this warranty disclaimer.
  **/
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Marvell NFC-over-I2C driver: I2C interface related functions
+ *
+ * Copyright (C) 2015, Marvell International Ltd.
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <linux/pm_runtime.h>
 #include <linux/nfc.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
 #include <linux/of_irq.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/nfc.h>
+#include <linux/delay.h>
+#include <linux/of_irq.h>
+>>>>>>> upstream/android-13
 #include <net/nfc/nci.h>
 #include <net/nfc/nci_core.h>
 #include "nfcmrvl.h"
@@ -49,11 +64,14 @@ static int nfcmrvl_i2c_read(struct nfcmrvl_i2c_drv_data *drv_data,
 		return -EBADMSG;
 	}
 
+<<<<<<< HEAD
 	if (nci_hdr.plen > NCI_MAX_PAYLOAD_SIZE) {
 		nfc_err(&drv_data->i2c->dev, "invalid packet payload size\n");
 		return -EBADMSG;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	*skb = nci_skb_alloc(drv_data->priv->ndev,
 			     nci_hdr.plen + NCI_CTRL_HDR_SIZE, GFP_KERNEL);
 	if (!*skb)
@@ -162,7 +180,11 @@ static void nfcmrvl_i2c_nci_update_config(struct nfcmrvl_private *priv,
 {
 }
 
+<<<<<<< HEAD
 static struct nfcmrvl_if_ops i2c_ops = {
+=======
+static const struct nfcmrvl_if_ops i2c_ops = {
+>>>>>>> upstream/android-13
 	.nci_open = nfcmrvl_i2c_nci_open,
 	.nci_close = nfcmrvl_i2c_nci_close,
 	.nci_send = nfcmrvl_i2c_nci_send,
@@ -198,8 +220,13 @@ static int nfcmrvl_i2c_parse_dt(struct device_node *node,
 static int nfcmrvl_i2c_probe(struct i2c_client *client,
 			     const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct nfcmrvl_i2c_drv_data *drv_data;
 	struct nfcmrvl_platform_data *pdata;
+=======
+	const struct nfcmrvl_platform_data *pdata;
+	struct nfcmrvl_i2c_drv_data *drv_data;
+>>>>>>> upstream/android-13
 	struct nfcmrvl_platform_data config;
 	int ret;
 
@@ -260,7 +287,11 @@ static int nfcmrvl_i2c_remove(struct i2c_client *client)
 }
 
 
+<<<<<<< HEAD
 static const struct of_device_id of_nfcmrvl_i2c_match[] = {
+=======
+static const struct of_device_id of_nfcmrvl_i2c_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "marvell,nfc-i2c", },
 	{},
 };
@@ -278,7 +309,10 @@ static struct i2c_driver nfcmrvl_i2c_driver = {
 	.remove = nfcmrvl_i2c_remove,
 	.driver = {
 		.name		= "nfcmrvl_i2c",
+<<<<<<< HEAD
 		.owner		= THIS_MODULE,
+=======
+>>>>>>> upstream/android-13
 		.of_match_table	= of_match_ptr(of_nfcmrvl_i2c_match),
 	},
 };

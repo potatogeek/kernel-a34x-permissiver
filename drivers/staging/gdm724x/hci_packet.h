@@ -28,7 +28,11 @@
 struct hci_packet {
 	__dev16 cmd_evt;
 	__dev16 len;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct tlv {
@@ -40,7 +44,11 @@ struct tlv {
 struct sdu_header {
 	__dev16 cmd_evt;
 	__dev16 len;
+<<<<<<< HEAD
 	__dev32 dftEpsId;
+=======
+	__dev32 dft_eps_id;
+>>>>>>> upstream/android-13
 	__dev32 bearer_ID;
 	__dev32 nic_type;
 } __packed;
@@ -51,7 +59,11 @@ struct sdu {
 	__dev32 dft_eps_ID;
 	__dev32 bearer_ID;
 	__dev32 nic_type;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct multi_sdu {
@@ -59,7 +71,11 @@ struct multi_sdu {
 	__dev16 len;
 	__dev16 num_packet;
 	__dev16 reserved;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct hci_pdn_table_ind {

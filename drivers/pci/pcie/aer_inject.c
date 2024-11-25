@@ -2,18 +2,34 @@
 /*
  * PCIe AER software error injection support.
  *
+<<<<<<< HEAD
  * Debuging PCIe AER code is quite difficult because it is hard to
  * trigger various real hardware errors. Software based error
  * injection can fake almost all kinds of errors with the help of a
  * user space helper tool aer-inject, which can be gotten from:
  *   http://www.kernel.org/pub/linux/utils/pci/aer-inject/
+=======
+ * Debugging PCIe AER code is quite difficult because it is hard to
+ * trigger various real hardware errors. Software based error
+ * injection can fake almost all kinds of errors with the help of a
+ * user space helper tool aer-inject, which can be gotten from:
+ *   https://www.kernel.org/pub/linux/utils/pci/aer-inject/
+>>>>>>> upstream/android-13
  *
  * Copyright 2009 Intel Corporation.
  *     Huang Ying <ying.huang@intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/init.h>
+=======
+#define dev_fmt(fmt) "aer_inject: " fmt
+
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <linux/miscdevice.h>
 #include <linux/pci.h>
 #include <linux/slab.h>
@@ -175,14 +191,56 @@ static u32 *find_pci_config_dword(struct aer_error *err, int where,
 	return target;
 }
 
+<<<<<<< HEAD
+=======
+static int aer_inj_read(struct pci_bus *bus, unsigned int devfn, int where,
+			int size, u32 *val)
+{
+	struct pci_ops *ops, *my_ops;
+	int rv;
+
+	ops = __find_pci_bus_ops(bus);
+	if (!ops)
+		return -1;
+
+	my_ops = bus->ops;
+	bus->ops = ops;
+	rv = ops->read(bus, devfn, where, size, val);
+	bus->ops = my_ops;
+
+	return rv;
+}
+
+static int aer_inj_write(struct pci_bus *bus, unsigned int devfn, int where,
+			 int size, u32 val)
+{
+	struct pci_ops *ops, *my_ops;
+	int rv;
+
+	ops = __find_pci_bus_ops(bus);
+	if (!ops)
+		return -1;
+
+	my_ops = bus->ops;
+	bus->ops = ops;
+	rv = ops->write(bus, devfn, where, size, val);
+	bus->ops = my_ops;
+
+	return rv;
+}
+
+>>>>>>> upstream/android-13
 static int aer_inj_read_config(struct pci_bus *bus, unsigned int devfn,
 			       int where, int size, u32 *val)
 {
 	u32 *sim;
 	struct aer_error *err;
 	unsigned long flags;
+<<<<<<< HEAD
 	struct pci_ops *ops;
 	struct pci_ops *my_ops;
+=======
+>>>>>>> upstream/android-13
 	int domain;
 	int rv;
 
@@ -203,6 +261,7 @@ static int aer_inj_read_config(struct pci_bus *bus, unsigned int devfn,
 		return 0;
 	}
 out:
+<<<<<<< HEAD
 	ops = __find_pci_bus_ops(bus);
 	/*
 	 * pci_lock must already be held, so we can directly
@@ -215,6 +274,9 @@ out:
 	bus->ops = ops;
 	rv = ops->read(bus, devfn, where, size, val);
 	bus->ops = my_ops;
+=======
+	rv = aer_inj_read(bus, devfn, where, size, val);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&inject_lock, flags);
 	return rv;
 }
@@ -226,8 +288,11 @@ static int aer_inj_write_config(struct pci_bus *bus, unsigned int devfn,
 	struct aer_error *err;
 	unsigned long flags;
 	int rw1cs;
+<<<<<<< HEAD
 	struct pci_ops *ops;
 	struct pci_ops *my_ops;
+=======
+>>>>>>> upstream/android-13
 	int domain;
 	int rv;
 
@@ -251,6 +316,7 @@ static int aer_inj_write_config(struct pci_bus *bus, unsigned int devfn,
 		return 0;
 	}
 out:
+<<<<<<< HEAD
 	ops = __find_pci_bus_ops(bus);
 	/*
 	 * pci_lock must already be held, so we can directly
@@ -263,6 +329,9 @@ out:
 	bus->ops = ops;
 	rv = ops->write(bus, devfn, where, size, val);
 	bus->ops = my_ops;
+=======
+	rv = aer_inj_write(bus, devfn, where, size, val);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&inject_lock, flags);
 	return rv;
 }
@@ -303,6 +372,7 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int find_aer_device_iter(struct device *device, void *data)
 {
 	struct pcie_device **result = data;
@@ -323,12 +393,18 @@ static int find_aer_device(struct pci_dev *dev, struct pcie_device **result)
 	return device_for_each_child(&dev->dev, result, find_aer_device_iter);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int aer_inject(struct aer_error_inj *einj)
 {
 	struct aer_error *err, *rperr;
 	struct aer_error *err_alloc = NULL, *rperr_alloc = NULL;
 	struct pci_dev *dev, *rpdev;
 	struct pcie_device *edev;
+<<<<<<< HEAD
+=======
+	struct device *device;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned int devfn = PCI_DEVFN(einj->dev, einj->fn);
 	int pos_cap_err, rp_pos_cap_err;
@@ -339,15 +415,27 @@ static int aer_inject(struct aer_error_inj *einj)
 	if (!dev)
 		return -ENODEV;
 	rpdev = pcie_find_root_port(dev);
+<<<<<<< HEAD
 	if (!rpdev) {
 		pci_err(dev, "aer_inject: Root port not found\n");
+=======
+	/* If Root Port not found, try to find an RCEC */
+	if (!rpdev)
+		rpdev = dev->rcec;
+	if (!rpdev) {
+		pci_err(dev, "Neither Root Port nor RCEC found\n");
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto out_put;
 	}
 
 	pos_cap_err = dev->aer_cap;
 	if (!pos_cap_err) {
+<<<<<<< HEAD
 		pci_err(dev, "aer_inject: Device doesn't support AER\n");
+=======
+		pci_err(dev, "Device doesn't support AER\n");
+>>>>>>> upstream/android-13
 		ret = -EPROTONOSUPPORT;
 		goto out_put;
 	}
@@ -358,7 +446,11 @@ static int aer_inject(struct aer_error_inj *einj)
 
 	rp_pos_cap_err = rpdev->aer_cap;
 	if (!rp_pos_cap_err) {
+<<<<<<< HEAD
 		pci_err(rpdev, "aer_inject: Root port doesn't support AER\n");
+=======
+		pci_err(rpdev, "Root port doesn't support AER\n");
+>>>>>>> upstream/android-13
 		ret = -EPROTONOSUPPORT;
 		goto out_put;
 	}
@@ -406,14 +498,22 @@ static int aer_inject(struct aer_error_inj *einj)
 	if (!aer_mask_override && einj->cor_status &&
 	    !(einj->cor_status & ~cor_mask)) {
 		ret = -EINVAL;
+<<<<<<< HEAD
 		pci_warn(dev, "aer_inject: The correctable error(s) is masked by device\n");
+=======
+		pci_warn(dev, "The correctable error(s) is masked by device\n");
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&inject_lock, flags);
 		goto out_put;
 	}
 	if (!aer_mask_override && einj->uncor_status &&
 	    !(einj->uncor_status & ~uncor_mask)) {
 		ret = -EINVAL;
+<<<<<<< HEAD
 		pci_warn(dev, "aer_inject: The uncorrectable error(s) is masked by device\n");
+=======
+		pci_warn(dev, "The uncorrectable error(s) is masked by device\n");
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&inject_lock, flags);
 		goto out_put;
 	}
@@ -464,6 +564,7 @@ static int aer_inject(struct aer_error_inj *einj)
 	if (ret)
 		goto out_put;
 
+<<<<<<< HEAD
 	if (find_aer_device(rpdev, &edev)) {
 		if (!get_service_data(edev)) {
 			dev_warn(&edev->device,
@@ -477,6 +578,21 @@ static int aer_inject(struct aer_error_inj *einj)
 		aer_irq(-1, edev);
 	} else {
 		pci_err(rpdev, "aer_inject: AER device not found\n");
+=======
+	device = pcie_port_find_device(rpdev, PCIE_PORT_SERVICE_AER);
+	if (device) {
+		edev = to_pcie_device(device);
+		if (!get_service_data(edev)) {
+			pci_warn(edev->port, "AER service is not initialized\n");
+			ret = -EPROTONOSUPPORT;
+			goto out_put;
+		}
+		pci_info(edev->port, "Injecting errors %08x/%08x into device %s\n",
+			 einj->cor_status, einj->uncor_status, pci_name(dev));
+		ret = irq_inject_interrupt(edev->irq);
+	} else {
+		pci_err(rpdev, "AER device not found\n");
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 	}
 out_put:

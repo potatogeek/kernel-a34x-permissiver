@@ -16,6 +16,10 @@ Required properties:
         "abracon,ab1803"
         "abracon,ab1804"
         "abracon,ab1805"
+<<<<<<< HEAD
+=======
+        "microcrystal,rv1805"
+>>>>>>> upstream/android-13
 	Using "abracon,abx80x" will enable chip autodetection.
  - "reg": I2C bus address of the device
 

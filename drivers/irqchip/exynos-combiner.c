@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010-2011 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
  * Combiner irqchip for EXYNOS
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/export.h>
@@ -69,8 +76,14 @@ static void combiner_handle_cascade_irq(struct irq_desc *desc)
 {
 	struct combiner_chip_data *chip_data = irq_desc_get_handler_data(desc);
 	struct irq_chip *chip = irq_desc_get_chip(desc);
+<<<<<<< HEAD
 	unsigned int cascade_irq, combiner_irq;
 	unsigned long status;
+=======
+	unsigned int combiner_irq;
+	unsigned long status;
+	int ret;
+>>>>>>> upstream/android-13
 
 	chained_irq_enter(chip, desc);
 
@@ -83,12 +96,18 @@ static void combiner_handle_cascade_irq(struct irq_desc *desc)
 		goto out;
 
 	combiner_irq = chip_data->hwirq_offset + __ffs(status);
+<<<<<<< HEAD
 	cascade_irq = irq_find_mapping(combiner_irq_domain, combiner_irq);
 
 	if (unlikely(!cascade_irq))
 		handle_bad_irq(desc);
 	else
 		generic_handle_irq(cascade_irq);
+=======
+	ret = generic_handle_domain_irq(combiner_irq_domain, combiner_irq);
+	if (unlikely(ret))
+		handle_bad_irq(desc);
+>>>>>>> upstream/android-13
 
  out:
 	chained_irq_exit(chip, desc);
@@ -182,10 +201,15 @@ static void __init combiner_init(void __iomem *combiner_base,
 	nr_irq = max_nr * IRQ_IN_COMBINER;
 
 	combiner_data = kcalloc(max_nr, sizeof (*combiner_data), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!combiner_data) {
 		pr_warn("%s: could not allocate combiner data\n", __func__);
 		return;
 	}
+=======
+	if (!combiner_data)
+		return;
+>>>>>>> upstream/android-13
 
 	combiner_irq_domain = irq_domain_add_linear(np, nr_irq,
 				&combiner_irq_domain_ops, combiner_data);

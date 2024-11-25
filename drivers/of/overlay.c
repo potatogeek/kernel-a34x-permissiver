@@ -49,15 +49,24 @@ struct target {
  * @overlay:	pointer to the __overlay__ node
  */
 struct fragment {
+<<<<<<< HEAD
 	struct device_node *target;
 	struct device_node *overlay;
+=======
+	struct device_node *overlay;
+	struct device_node *target;
+>>>>>>> upstream/android-13
 };
 
 /**
  * struct overlay_changeset
  * @id:			changeset identifier
  * @ovcs_list:		list on which we are located
+<<<<<<< HEAD
  * @fdt:		FDT that was unflattened to create @overlay_tree
+=======
+ * @fdt:		base of memory allocated to hold aligned FDT that was unflattened to create @overlay_tree
+>>>>>>> upstream/android-13
  * @overlay_tree:	expanded device tree that contains the fragment nodes
  * @count:		count of fragment structures
  * @fragments:		fragment nodes in the overlay expanded device tree
@@ -140,7 +149,11 @@ int of_overlay_notifier_register(struct notifier_block *nb)
 EXPORT_SYMBOL_GPL(of_overlay_notifier_register);
 
 /**
+<<<<<<< HEAD
  * of_overlay_notifier_register() - Unregister notifier for overlay operations
+=======
+ * of_overlay_notifier_unregister() - Unregister notifier for overlay operations
+>>>>>>> upstream/android-13
  * @nb:		Notifier block to unregister
  */
 int of_overlay_notifier_unregister(struct notifier_block *nb)
@@ -298,7 +311,11 @@ err_free_target_path:
  *
  * Update of property in symbols node is not allowed.
  *
+<<<<<<< HEAD
  * Returns 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+=======
+ * Return: 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+>>>>>>> upstream/android-13
  * invalid @overlay.
  */
 static int add_changeset_property(struct overlay_changeset *ovcs,
@@ -402,6 +419,7 @@ static int add_changeset_property(struct overlay_changeset *ovcs,
  *       a live devicetree created from Open Firmware.
  *
  * NOTE_2: Multiple mods of created nodes not supported.
+<<<<<<< HEAD
  *       If more than one fragment contains a node that does not already exist
  *       in the live tree, then for each fragment of_changeset_attach_node()
  *       will add a changeset entry to add the node.  When the changeset is
@@ -412,6 +430,10 @@ static int add_changeset_property(struct overlay_changeset *ovcs,
  *             create the same node.
  *
  * Returns 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+=======
+ *
+ * Return: 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+>>>>>>> upstream/android-13
  * invalid @overlay.
  */
 static int add_changeset_node(struct overlay_changeset *ovcs,
@@ -436,12 +458,18 @@ static int add_changeset_node(struct overlay_changeset *ovcs,
 
 		tchild->parent = target->np;
 		tchild->name = __of_get_property(node, "name", NULL);
+<<<<<<< HEAD
 		tchild->type = __of_get_property(node, "device_type", NULL);
 
 		if (!tchild->name)
 			tchild->name = "<NULL>";
 		if (!tchild->type)
 			tchild->type = "<NULL>";
+=======
+
+		if (!tchild->name)
+			tchild->name = "<NULL>";
+>>>>>>> upstream/android-13
 
 		/* ignore obsolete "linux,phandle" */
 		phandle = __of_get_property(node, "phandle", &size);
@@ -486,7 +514,11 @@ static int add_changeset_node(struct overlay_changeset *ovcs,
  *
  * Do not allow symbols node to have any children.
  *
+<<<<<<< HEAD
  * Returns 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+=======
+ * Return: 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+>>>>>>> upstream/android-13
  * invalid @overlay_node.
  */
 static int build_changeset_next_level(struct overlay_changeset *ovcs,
@@ -531,7 +563,11 @@ static int build_changeset_symbols_node(struct overlay_changeset *ovcs,
 	for_each_property_of_node(overlay_symbols_node, prop) {
 		ret = add_changeset_property(ovcs, target, prop, 1);
 		if (ret) {
+<<<<<<< HEAD
 			pr_debug("Failed to apply prop @%pOF/%s, err=%d\n",
+=======
+			pr_debug("Failed to apply symbols prop @%pOF/%s, err=%d\n",
+>>>>>>> upstream/android-13
 				 target->np, prop->name, ret);
 			return ret;
 		}
@@ -540,6 +576,101 @@ static int build_changeset_symbols_node(struct overlay_changeset *ovcs,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int find_dup_cset_node_entry(struct overlay_changeset *ovcs,
+		struct of_changeset_entry *ce_1)
+{
+	struct of_changeset_entry *ce_2;
+	char *fn_1, *fn_2;
+	int node_path_match;
+
+	if (ce_1->action != OF_RECONFIG_ATTACH_NODE &&
+	    ce_1->action != OF_RECONFIG_DETACH_NODE)
+		return 0;
+
+	ce_2 = ce_1;
+	list_for_each_entry_continue(ce_2, &ovcs->cset.entries, node) {
+		if ((ce_2->action != OF_RECONFIG_ATTACH_NODE &&
+		     ce_2->action != OF_RECONFIG_DETACH_NODE) ||
+		    of_node_cmp(ce_1->np->full_name, ce_2->np->full_name))
+			continue;
+
+		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
+		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
+		node_path_match = !strcmp(fn_1, fn_2);
+		kfree(fn_1);
+		kfree(fn_2);
+		if (node_path_match) {
+			pr_err("ERROR: multiple fragments add and/or delete node %pOF\n",
+			       ce_1->np);
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int find_dup_cset_prop(struct overlay_changeset *ovcs,
+		struct of_changeset_entry *ce_1)
+{
+	struct of_changeset_entry *ce_2;
+	char *fn_1, *fn_2;
+	int node_path_match;
+
+	if (ce_1->action != OF_RECONFIG_ADD_PROPERTY &&
+	    ce_1->action != OF_RECONFIG_REMOVE_PROPERTY &&
+	    ce_1->action != OF_RECONFIG_UPDATE_PROPERTY)
+		return 0;
+
+	ce_2 = ce_1;
+	list_for_each_entry_continue(ce_2, &ovcs->cset.entries, node) {
+		if ((ce_2->action != OF_RECONFIG_ADD_PROPERTY &&
+		     ce_2->action != OF_RECONFIG_REMOVE_PROPERTY &&
+		     ce_2->action != OF_RECONFIG_UPDATE_PROPERTY) ||
+		    of_node_cmp(ce_1->np->full_name, ce_2->np->full_name))
+			continue;
+
+		fn_1 = kasprintf(GFP_KERNEL, "%pOF", ce_1->np);
+		fn_2 = kasprintf(GFP_KERNEL, "%pOF", ce_2->np);
+		node_path_match = !strcmp(fn_1, fn_2);
+		kfree(fn_1);
+		kfree(fn_2);
+		if (node_path_match &&
+		    !of_prop_cmp(ce_1->prop->name, ce_2->prop->name)) {
+			pr_err("ERROR: multiple fragments add, update, and/or delete property %pOF/%s\n",
+			       ce_1->np, ce_1->prop->name);
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * changeset_dup_entry_check() - check for duplicate entries
+ * @ovcs:	Overlay changeset
+ *
+ * Check changeset @ovcs->cset for multiple {add or delete} node entries for
+ * the same node or duplicate {add, delete, or update} properties entries
+ * for the same property.
+ *
+ * Return: 0 on success, or -EINVAL if duplicate changeset entry found.
+ */
+static int changeset_dup_entry_check(struct overlay_changeset *ovcs)
+{
+	struct of_changeset_entry *ce_1;
+	int dup_entry = 0;
+
+	list_for_each_entry(ce_1, &ovcs->cset.entries, node) {
+		dup_entry |= find_dup_cset_node_entry(ovcs, ce_1);
+		dup_entry |= find_dup_cset_prop(ovcs, ce_1);
+	}
+
+	return dup_entry ? -EINVAL : 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * build_changeset() - populate overlay changeset in @ovcs from @ovcs->fragments
  * @ovcs:	Overlay changeset
@@ -549,7 +680,11 @@ static int build_changeset_symbols_node(struct overlay_changeset *ovcs,
  * any portions of the changeset that were successfully created will remain
  * in @ovcs->cset.
  *
+<<<<<<< HEAD
  * Returns 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+=======
+ * Return: 0 on success, -ENOMEM if memory allocation failure, or -EINVAL if
+>>>>>>> upstream/android-13
  * invalid overlay in @ovcs->fragments[].
  */
 static int build_changeset(struct overlay_changeset *ovcs)
@@ -575,7 +710,12 @@ static int build_changeset(struct overlay_changeset *ovcs)
 		ret = build_changeset_next_level(ovcs, &target,
 						 fragment->overlay);
 		if (ret) {
+<<<<<<< HEAD
 			pr_debug("apply failed '%pOF'\n", fragment->target);
+=======
+			pr_debug("fragment apply failed '%pOF'\n",
+				 fragment->target);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -588,12 +728,21 @@ static int build_changeset(struct overlay_changeset *ovcs)
 		ret = build_changeset_symbols_node(ovcs, &target,
 						   fragment->overlay);
 		if (ret) {
+<<<<<<< HEAD
 			pr_debug("apply failed '%pOF'\n", fragment->target);
+=======
+			pr_debug("symbols fragment apply failed '%pOF'\n",
+				 fragment->target);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return changeset_dup_entry_check(ovcs);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -636,14 +785,23 @@ static struct device_node *find_target(struct device_node *info_node)
 /**
  * init_overlay_changeset() - initialize overlay changeset from overlay tree
  * @ovcs:	Overlay changeset to build
+<<<<<<< HEAD
  * @fdt:	the FDT that was unflattened to create @tree
  * @tree:	Contains all the overlay fragments and overlay fixup nodes
+=======
+ * @fdt:	base of memory allocated to hold aligned FDT that was unflattened to create @tree
+ * @tree:	Contains the overlay fragments and overlay fixup nodes
+>>>>>>> upstream/android-13
  *
  * Initialize @ovcs.  Populate @ovcs->fragments with node information from
  * the top level of @tree.  The relevant top level nodes are the fragment
  * nodes and the __symbols__ node.  Any other top level node will be ignored.
  *
+<<<<<<< HEAD
  * Returns 0 on success, -ENOMEM if memory allocation failure, -EINVAL if error
+=======
+ * Return: 0 on success, -ENOMEM if memory allocation failure, -EINVAL if error
+>>>>>>> upstream/android-13
  * detected in @tree, or -ENOSPC if idr_alloc() error.
  */
 static int init_overlay_changeset(struct overlay_changeset *ovcs,
@@ -713,6 +871,10 @@ static int init_overlay_changeset(struct overlay_changeset *ovcs,
 		if (!fragment->target) {
 			of_node_put(fragment->overlay);
 			ret = -EINVAL;
+<<<<<<< HEAD
+=======
+			of_node_put(node);
+>>>>>>> upstream/android-13
 			goto err_free_fragments;
 		}
 
@@ -790,7 +952,11 @@ static void free_overlay_changeset(struct overlay_changeset *ovcs)
  * internal documentation
  *
  * of_overlay_apply() - Create and apply an overlay changeset
+<<<<<<< HEAD
  * @fdt:	the FDT that was unflattened to create @tree
+=======
+ * @fdt:	base of memory allocated to hold the aligned FDT
+>>>>>>> upstream/android-13
  * @tree:	Expanded overlay device tree
  * @ovcs_id:	Pointer to overlay changeset id
  *
@@ -870,7 +1036,13 @@ static int of_overlay_apply(const void *fdt, struct device_node *tree,
 	/*
 	 * after overlay_notify(), ovcs->overlay_tree related pointers may have
 	 * leaked to drivers, so can not kfree() tree, aka ovcs->overlay_tree;
+<<<<<<< HEAD
 	 * and can not free fdt, aka ovcs->fdt
+=======
+	 * and can not free memory containing aligned fdt.  The aligned fdt
+	 * is contained within the memory at ovcs->fdt, possibly at an offset
+	 * from ovcs->fdt.
+>>>>>>> upstream/android-13
 	 */
 	ret = overlay_notify(ovcs, OF_OVERLAY_PRE_APPLY);
 	if (ret) {
@@ -893,11 +1065,17 @@ static int of_overlay_apply(const void *fdt, struct device_node *tree,
 		goto err_free_overlay_changeset;
 	}
 
+<<<<<<< HEAD
 	of_populate_phandle_cache();
 
 	ret = __of_changeset_apply_notify(&ovcs->cset);
 	if (ret)
 		pr_err("overlay changeset entry notify error %d\n", ret);
+=======
+	ret = __of_changeset_apply_notify(&ovcs->cset);
+	if (ret)
+		pr_err("overlay apply changeset entry notify error %d\n", ret);
+>>>>>>> upstream/android-13
 	/* notify failure is not fatal, continue */
 
 	list_add_tail(&ovcs->ovcs_list, &ovcs_list);
@@ -933,6 +1111,7 @@ out:
 int of_overlay_fdt_apply(const void *overlay_fdt, u32 overlay_fdt_size,
 			 int *ovcs_id)
 {
+<<<<<<< HEAD
 	const void *new_fdt;
 	int ret;
 	u32 size;
@@ -940,6 +1119,15 @@ int of_overlay_fdt_apply(const void *overlay_fdt, u32 overlay_fdt_size,
 
 	*ovcs_id = 0;
 	ret = 0;
+=======
+	void *new_fdt;
+	void *new_fdt_align;
+	int ret;
+	u32 size;
+	struct device_node *overlay_root = NULL;
+
+	*ovcs_id = 0;
+>>>>>>> upstream/android-13
 
 	if (overlay_fdt_size < sizeof(struct fdt_header) ||
 	    fdt_check_header(overlay_fdt)) {
@@ -955,11 +1143,22 @@ int of_overlay_fdt_apply(const void *overlay_fdt, u32 overlay_fdt_size,
 	 * Must create permanent copy of FDT because of_fdt_unflatten_tree()
 	 * will create pointers to the passed in FDT in the unflattened tree.
 	 */
+<<<<<<< HEAD
 	new_fdt = kmemdup(overlay_fdt, size, GFP_KERNEL);
 	if (!new_fdt)
 		return -ENOMEM;
 
 	of_fdt_unflatten_tree(new_fdt, NULL, &overlay_root);
+=======
+	new_fdt = kmalloc(size + FDT_ALIGN_SIZE, GFP_KERNEL);
+	if (!new_fdt)
+		return -ENOMEM;
+
+	new_fdt_align = PTR_ALIGN(new_fdt, FDT_ALIGN_SIZE);
+	memcpy(new_fdt_align, overlay_fdt, size);
+
+	of_fdt_unflatten_tree(new_fdt_align, NULL, &overlay_root);
+>>>>>>> upstream/android-13
 	if (!overlay_root) {
 		pr_err("unable to unflatten overlay_fdt\n");
 		ret = -EINVAL;
@@ -1099,7 +1298,11 @@ static int overlay_removal_is_ok(struct overlay_changeset *remove_ovcs)
  * If an error is returned by an overlay changeset post-remove notifier
  * then no further overlay changeset post-remove notifier will be called.
  *
+<<<<<<< HEAD
  * Returns 0 on success, or a negative error number.  *ovcs_id is set to
+=======
+ * Return: 0 on success, or a negative error number.  *@ovcs_id is set to
+>>>>>>> upstream/android-13
  * zero after reverting the changeset, even if a subsequent error occurs.
  */
 int of_overlay_remove(int *ovcs_id)
@@ -1107,8 +1310,11 @@ int of_overlay_remove(int *ovcs_id)
 	struct overlay_changeset *ovcs;
 	int ret, ret_apply, ret_tmp;
 
+<<<<<<< HEAD
 	ret = 0;
 
+=======
+>>>>>>> upstream/android-13
 	if (devicetree_corrupt()) {
 		pr_err("suspect devicetree state, refuse to remove overlay\n");
 		ret = -EBUSY;
@@ -1137,6 +1343,7 @@ int of_overlay_remove(int *ovcs_id)
 
 	list_del(&ovcs->ovcs_list);
 
+<<<<<<< HEAD
 	/*
 	 * Disable phandle cache.  Avoids race condition that would arise
 	 * from removing cache entry when the associated node is deleted.
@@ -1148,6 +1355,10 @@ int of_overlay_remove(int *ovcs_id)
 
 	of_populate_phandle_cache();
 
+=======
+	ret_apply = 0;
+	ret = __of_changeset_revert_entries(&ovcs->cset, &ret_apply);
+>>>>>>> upstream/android-13
 	if (ret) {
 		if (ret_apply)
 			devicetree_state_flags |= DTSF_REVERT_FAIL;
@@ -1156,7 +1367,11 @@ int of_overlay_remove(int *ovcs_id)
 
 	ret = __of_changeset_revert_notify(&ovcs->cset);
 	if (ret)
+<<<<<<< HEAD
 		pr_err("overlay changeset entry notify error %d\n", ret);
+=======
+		pr_err("overlay remove changeset entry notify error %d\n", ret);
+>>>>>>> upstream/android-13
 	/* notify failure is not fatal, continue */
 
 	*ovcs_id = 0;
@@ -1186,7 +1401,11 @@ EXPORT_SYMBOL_GPL(of_overlay_remove);
  *
  * Removes all overlays from the system in the correct order.
  *
+<<<<<<< HEAD
  * Returns 0 on success, or a negative error number
+=======
+ * Return: 0 on success, or a negative error number
+>>>>>>> upstream/android-13
  */
 int of_overlay_remove_all(void)
 {

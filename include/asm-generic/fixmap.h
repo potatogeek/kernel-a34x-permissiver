@@ -16,6 +16,10 @@
 #define __ASM_GENERIC_FIXMAP_H
 
 #include <linux/bug.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm_types.h>
+>>>>>>> upstream/android-13
 
 #define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
 #define __virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)

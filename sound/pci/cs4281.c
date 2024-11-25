@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Driver for Cirrus Logic CS4281 based PCI soundcard
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>,
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Driver for Cirrus Logic CS4281 based PCI soundcard
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>,
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -40,7 +47,10 @@
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("Cirrus Logic CS4281");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Cirrus Logic,CS4281}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
@@ -709,7 +719,11 @@ static int snd_cs4281_trigger(struct snd_pcm_substream *substream, int cmd)
 
 static unsigned int snd_cs4281_rate(unsigned int rate, unsigned int *real_rate)
 {
+<<<<<<< HEAD
 	unsigned int val = ~0;
+=======
+	unsigned int val;
+>>>>>>> upstream/android-13
 	
 	if (real_rate)
 		*real_rate = rate;
@@ -722,9 +736,14 @@ static unsigned int snd_cs4281_rate(unsigned int rate, unsigned int *real_rate)
 	case 44100:	return 1;
 	case 48000:	return 0;
 	default:
+<<<<<<< HEAD
 		goto __variable;
 	}
       __variable:
+=======
+		break;
+	}
+>>>>>>> upstream/android-13
 	val = 1536000 / rate;
 	if (real_rate)
 		*real_rate = 1536000 / val;
@@ -796,6 +815,7 @@ static void snd_cs4281_mode(struct cs4281 *chip, struct cs4281_dma *dma,
 	snd_cs4281_pokeBA0(chip, dma->regFSIC, 0);
 }
 
+<<<<<<< HEAD
 static int snd_cs4281_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *hw_params)
 {
@@ -807,6 +827,8 @@ static int snd_cs4281_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_cs4281_playback_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -954,9 +976,12 @@ static int snd_cs4281_capture_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_cs4281_playback_ops = {
 	.open =		snd_cs4281_playback_open,
 	.close =	snd_cs4281_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_cs4281_hw_params,
 	.hw_free =	snd_cs4281_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_cs4281_playback_prepare,
 	.trigger =	snd_cs4281_trigger,
 	.pointer =	snd_cs4281_pointer,
@@ -965,9 +990,12 @@ static const struct snd_pcm_ops snd_cs4281_playback_ops = {
 static const struct snd_pcm_ops snd_cs4281_capture_ops = {
 	.open =		snd_cs4281_capture_open,
 	.close =	snd_cs4281_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	snd_cs4281_hw_params,
 	.hw_free =	snd_cs4281_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare =	snd_cs4281_capture_prepare,
 	.trigger =	snd_cs4281_trigger,
 	.pointer =	snd_cs4281_pointer,
@@ -990,8 +1018,13 @@ static int snd_cs4281_pcm(struct cs4281 *chip, int device)
 	strcpy(pcm->name, "CS4281");
 	chip->pcm = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(chip->pci), 64*1024, 512*1024);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV, &chip->pci->dev,
+				       64*1024, 512*1024);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1097,18 +1130,28 @@ static int snd_cs4281_mixer(struct cs4281 *chip)
 	struct snd_card *card = chip->card;
 	struct snd_ac97_template ac97;
 	int err;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_cs4281_ac97_write,
 		.read = snd_cs4281_ac97_read,
 	};
 
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(card, 0, &ops, chip, &chip->ac97_bus)) < 0)
+=======
+	err = snd_ac97_bus(card, 0, &ops, chip, &chip->ac97_bus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	chip->ac97_bus->private_free = snd_cs4281_mixer_free_ac97_bus;
 
 	memset(&ac97, 0, sizeof(ac97));
 	ac97.private_data = chip;
 	ac97.private_free = snd_cs4281_mixer_free_ac97;
+<<<<<<< HEAD
 	if ((err = snd_ac97_mixer(chip->ac97_bus, &ac97, &chip->ac97)) < 0)
 		return err;
 	if (chip->dual_codec) {
@@ -1119,6 +1162,22 @@ static int snd_cs4281_mixer(struct cs4281 *chip)
 	if ((err = snd_ctl_add(card, snd_ctl_new1(&snd_cs4281_fm_vol, chip))) < 0)
 		return err;
 	if ((err = snd_ctl_add(card, snd_ctl_new1(&snd_cs4281_pcm_vol, chip))) < 0)
+=======
+	err = snd_ac97_mixer(chip->ac97_bus, &ac97, &chip->ac97);
+	if (err < 0)
+		return err;
+	if (chip->dual_codec) {
+		ac97.num = 1;
+		err = snd_ac97_mixer(chip->ac97_bus, &ac97, &chip->ac97_secondary);
+		if (err < 0)
+			return err;
+	}
+	err = snd_ctl_add(card, snd_ctl_new1(&snd_cs4281_fm_vol, chip));
+	if (err < 0)
+		return err;
+	err = snd_ctl_add(card, snd_ctl_new1(&snd_cs4281_pcm_vol, chip));
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	return 0;
 }
@@ -1162,11 +1221,19 @@ static ssize_t snd_cs4281_BA1_read(struct snd_info_entry *entry,
 	return count;
 }
 
+<<<<<<< HEAD
 static struct snd_info_entry_ops snd_cs4281_proc_ops_BA0 = {
 	.read = snd_cs4281_BA0_read,
 };
 
 static struct snd_info_entry_ops snd_cs4281_proc_ops_BA1 = {
+=======
+static const struct snd_info_entry_ops snd_cs4281_proc_ops_BA0 = {
+	.read = snd_cs4281_BA0_read,
+};
+
+static const struct snd_info_entry_ops snd_cs4281_proc_ops_BA1 = {
+>>>>>>> upstream/android-13
 	.read = snd_cs4281_BA1_read,
 };
 
@@ -1174,8 +1241,12 @@ static void snd_cs4281_proc_init(struct cs4281 *chip)
 {
 	struct snd_info_entry *entry;
 
+<<<<<<< HEAD
 	if (! snd_card_proc_new(chip->card, "cs4281", &entry))
 		snd_info_set_text_ops(entry, chip, snd_cs4281_proc_read);
+=======
+	snd_card_ro_proc_new(chip->card, "cs4281", chip, snd_cs4281_proc_read);
+>>>>>>> upstream/android-13
 	if (! snd_card_proc_new(chip->card, "cs4281_BA0", &entry)) {
 		entry->content = SNDRV_INFO_CONTENT_DATA;
 		entry->private_data = chip;
@@ -1298,12 +1369,20 @@ static inline int snd_cs4281_create_gameport(struct cs4281 *chip) { return -ENOS
 static inline void snd_cs4281_free_gameport(struct cs4281 *chip) { }
 #endif /* IS_REACHABLE(CONFIG_GAMEPORT) */
 
+<<<<<<< HEAD
 static int snd_cs4281_free(struct cs4281 *chip)
 {
 	snd_cs4281_free_gameport(chip);
 
 	if (chip->irq >= 0)
 		synchronize_irq(chip->irq);
+=======
+static void snd_cs4281_free(struct snd_card *card)
+{
+	struct cs4281 *chip = card->private_data;
+
+	snd_cs4281_free_gameport(chip);
+>>>>>>> upstream/android-13
 
 	/* Mask interrupts */
 	snd_cs4281_pokeBA0(chip, BA0_HIMR, 0x7fffffff);
@@ -1311,6 +1390,7 @@ static int snd_cs4281_free(struct cs4281 *chip)
 	snd_cs4281_pokeBA0(chip, BA0_CLKCR1, 0);
 	/* Sound System Power Management - Turn Everything OFF */
 	snd_cs4281_pokeBA0(chip, BA0_SSPM, 0);
+<<<<<<< HEAD
 	/* PCI interface - D3 state */
 	pci_set_power_state(chip->pci, PCI_D3hot);
 
@@ -1329,12 +1409,15 @@ static int snd_cs4281_dev_free(struct snd_device *device)
 {
 	struct cs4281 *chip = device->device_data;
 	return snd_cs4281_free(chip);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int snd_cs4281_chip_init(struct cs4281 *chip); /* defined below */
 
 static int snd_cs4281_create(struct snd_card *card,
 			     struct pci_dev *pci,
+<<<<<<< HEAD
 			     struct cs4281 **rchip,
 			     int dual_codec)
 {
@@ -1353,6 +1436,16 @@ static int snd_cs4281_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+			     int dual_codec)
+{
+	struct cs4281 *chip = card->private_data;
+	int err;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	spin_lock_init(&chip->reg_lock);
 	chip->card = card;
 	chip->pci = pci;
@@ -1364,6 +1457,7 @@ static int snd_cs4281_create(struct snd_card *card,
 	}
 	chip->dual_codec = dual_codec;
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, "CS4281")) < 0) {
 		kfree(chip);
 		pci_disable_device(pci);
@@ -1401,6 +1495,31 @@ static int snd_cs4281_create(struct snd_card *card,
 	snd_cs4281_proc_init(chip);
 
 	*rchip = chip;
+=======
+	err = pcim_iomap_regions(pci, 0x03, "CS4281"); /* 2 BARs */
+	if (err < 0)
+		return err;
+	chip->ba0_addr = pci_resource_start(pci, 0);
+	chip->ba1_addr = pci_resource_start(pci, 1);
+
+	chip->ba0 = pcim_iomap_table(pci)[0];
+	chip->ba1 = pcim_iomap_table(pci)[1];
+	
+	if (devm_request_irq(&pci->dev, pci->irq, snd_cs4281_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, chip)) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return -ENOMEM;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_cs4281_free;
+
+	err = snd_cs4281_chip_init(chip);
+	if (err)
+		return err;
+
+	snd_cs4281_proc_init(chip);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1432,12 +1551,22 @@ static int snd_cs4281_chip_init(struct cs4281 *chip)
          * space between 0e4h and 0ffh to be written. */	
 	snd_cs4281_pokeBA0(chip, BA0_CWPR, 0x4281);
 	
+<<<<<<< HEAD
 	if ((tmp = snd_cs4281_peekBA0(chip, BA0_SERC1)) != (BA0_SERC1_SO1EN | BA0_SERC1_AC97)) {
+=======
+	tmp = snd_cs4281_peekBA0(chip, BA0_SERC1);
+	if (tmp != (BA0_SERC1_SO1EN | BA0_SERC1_AC97)) {
+>>>>>>> upstream/android-13
 		dev_err(chip->card->dev,
 			"SERC1 AC'97 check failed (0x%x)\n", tmp);
 		return -EIO;
 	}
+<<<<<<< HEAD
 	if ((tmp = snd_cs4281_peekBA0(chip, BA0_SERC2)) != (BA0_SERC2_SI1EN | BA0_SERC2_AC97)) {
+=======
+	tmp = snd_cs4281_peekBA0(chip, BA0_SERC2);
+	if (tmp != (BA0_SERC2_SI1EN | BA0_SERC2_AC97)) {
+>>>>>>> upstream/android-13
 		dev_err(chip->card->dev,
 			"SERC2 AC'97 check failed (0x%x)\n", tmp);
 		return -EIO;
@@ -1634,7 +1763,10 @@ static int snd_cs4281_chip_init(struct cs4281 *chip)
 					BA0_HISR_DMA(1) |
 					BA0_HISR_DMA(2) |
 					BA0_HISR_DMA(3)));
+<<<<<<< HEAD
 	synchronize_irq(chip->irq);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1786,7 +1918,12 @@ static int snd_cs4281_midi(struct cs4281 *chip, int device)
 	struct snd_rawmidi *rmidi;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_rawmidi_new(chip->card, "CS4281", device, 1, 1, &rmidi)) < 0)
+=======
+	err = snd_rawmidi_new(chip->card, "CS4281", device, 1, 1, &rmidi);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	strcpy(rmidi->name, "CS4281");
 	snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_OUTPUT, &snd_cs4281_midi_output);
@@ -1898,8 +2035,13 @@ static void snd_cs4281_opl3_command(struct snd_opl3 *opl3, unsigned short cmd,
 	spin_unlock_irqrestore(&opl3->reg_lock, flags);
 }
 
+<<<<<<< HEAD
 static int snd_cs4281_probe(struct pci_dev *pci,
 			    const struct pci_device_id *pci_id)
+=======
+static int __snd_cs4281_probe(struct pci_dev *pci,
+			      const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -1914,6 +2056,7 @@ static int snd_cs4281_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -1948,6 +2091,36 @@ static int snd_cs4281_probe(struct pci_dev *pci,
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	err = snd_cs4281_create(card, pci, dual_codec[dev]);
+	if (err < 0)
+		return err;
+
+	err = snd_cs4281_mixer(chip);
+	if (err < 0)
+		return err;
+	err = snd_cs4281_pcm(chip, 0);
+	if (err < 0)
+		return err;
+	err = snd_cs4281_midi(chip, 0);
+	if (err < 0)
+		return err;
+	err = snd_opl3_new(card, OPL3_HW_OPL3_CS4281, &opl3);
+	if (err < 0)
+		return err;
+	opl3->private_data = chip;
+	opl3->command = snd_cs4281_opl3_command;
+	snd_opl3_init(opl3);
+	err = snd_opl3_hwdep_new(opl3, 0, 1, NULL);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	snd_cs4281_create_gameport(chip);
 	strcpy(card->driver, "CS4281");
 	strcpy(card->shortname, "Cirrus Logic CS4281");
@@ -1956,19 +2129,32 @@ static int snd_cs4281_probe(struct pci_dev *pci,
 		chip->ba0_addr,
 		chip->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_cs4281_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+static int snd_cs4281_probe(struct pci_dev *pci,
+			    const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_cs4281_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1976,7 +2162,11 @@ static void snd_cs4281_remove(struct pci_dev *pci)
  */
 #ifdef CONFIG_PM_SLEEP
 
+<<<<<<< HEAD
 static int saved_regs[SUSPEND_REGISTERS] = {
+=======
+static const int saved_regs[SUSPEND_REGISTERS] = {
+>>>>>>> upstream/android-13
 	BA0_JSCTL,
 	BA0_GPIOR,
 	BA0_SSCR,
@@ -2002,8 +2192,11 @@ static int cs4281_suspend(struct device *dev)
 	unsigned int i;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(chip->pcm);
 
+=======
+>>>>>>> upstream/android-13
 	snd_ac97_suspend(chip->ac97);
 	snd_ac97_suspend(chip->ac97_secondary);
 
@@ -2076,7 +2269,10 @@ static struct pci_driver cs4281_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_cs4281_ids,
 	.probe = snd_cs4281_probe,
+<<<<<<< HEAD
 	.remove = snd_cs4281_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = CS4281_PM_OPS,
 	},

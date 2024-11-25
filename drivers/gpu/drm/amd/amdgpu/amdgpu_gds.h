@@ -24,6 +24,7 @@
 #ifndef __AMDGPU_GDS_H__
 #define __AMDGPU_GDS_H__
 
+<<<<<<< HEAD
 /* Because TTM request that alloacted buffer should be PAGE_SIZE aligned,
  * we should report GDS/GWS/OA size as PAGE_SIZE aligned
  * */
@@ -52,6 +53,16 @@ struct amdgpu_gds {
 	struct amdgpu_bo*		gds_gfx_bo;
 	struct amdgpu_bo*		gws_gfx_bo;
 	struct amdgpu_bo*		oa_gfx_bo;
+=======
+struct amdgpu_ring;
+struct amdgpu_bo;
+
+struct amdgpu_gds {
+	uint32_t gds_size;
+	uint32_t gws_size;
+	uint32_t oa_size;
+	uint32_t gds_compute_max_wave_id;
+>>>>>>> upstream/android-13
 };
 
 struct amdgpu_gds_reg_offset {

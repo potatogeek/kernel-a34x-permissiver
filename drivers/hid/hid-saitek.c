@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  HID driver for Saitek devices.
  *
@@ -11,6 +15,7 @@
  *  Fixes the mode button which cycles through three constantly pressed
  *  buttons. All three press events are mapped to one button and the
  *  missing release event is generated immediately.
+<<<<<<< HEAD
  *
  */
 
@@ -19,6 +24,11 @@
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+ */
+
+/*
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>

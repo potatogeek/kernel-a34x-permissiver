@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2013-2018  B.A.T.M.A.N. contributors:
  *
  * Linus Lüssing, Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Linus Lüssing, Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #include "bat_v.h"
@@ -25,13 +31,24 @@
 #include <linux/if_ether.h>
 #include <linux/init.h>
 #include <linux/jiffies.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/kref.h>
+=======
+#include <linux/kref.h>
+#include <linux/list.h>
+#include <linux/minmax.h>
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/netlink.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
+=======
+#include <linux/skbuff.h>
+#include <linux/spinlock.h>
+>>>>>>> upstream/android-13
 #include <linux/stddef.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
@@ -51,8 +68,11 @@
 #include "netlink.h"
 #include "originator.h"
 
+<<<<<<< HEAD
 struct sk_buff;
 
+=======
+>>>>>>> upstream/android-13
 static void batadv_v_iface_activate(struct batadv_hard_iface *hard_iface)
 {
 	struct batadv_priv *bat_priv = netdev_priv(hard_iface->soft_iface);
@@ -90,6 +110,10 @@ static int batadv_v_iface_enable(struct batadv_hard_iface *hard_iface)
 
 static void batadv_v_iface_disable(struct batadv_hard_iface *hard_iface)
 {
+<<<<<<< HEAD
+=======
+	batadv_v_ogm_iface_disable(hard_iface);
+>>>>>>> upstream/android-13
 	batadv_v_elp_iface_disable(hard_iface);
 }
 
@@ -117,8 +141,12 @@ static void batadv_v_iface_update_mac(struct batadv_hard_iface *hard_iface)
 
 	batadv_v_primary_iface_set(hard_iface);
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -129,6 +157,7 @@ batadv_v_hardif_neigh_init(struct batadv_hardif_neigh_node *hardif_neigh)
 		  batadv_v_elp_throughput_metric_update);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 /**
  * batadv_v_orig_print_neigh() - print neighbors for the originator table
@@ -215,6 +244,8 @@ static void batadv_v_neigh_print(struct batadv_priv *bat_priv,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_v_neigh_dump_neigh() - Dump a neighbour into a message
  * @msg: Netlink message to dump into
@@ -243,6 +274,11 @@ batadv_v_neigh_dump_neigh(struct sk_buff *msg, u32 portid, u32 seq,
 
 	if (nla_put(msg, BATADV_ATTR_NEIGH_ADDRESS, ETH_ALEN,
 		    hardif_neigh->addr) ||
+<<<<<<< HEAD
+=======
+	    nla_put_string(msg, BATADV_ATTR_HARD_IFNAME,
+			   hardif_neigh->if_incoming->net_dev->name) ||
+>>>>>>> upstream/android-13
 	    nla_put_u32(msg, BATADV_ATTR_HARD_IFINDEX,
 			hardif_neigh->if_incoming->net_dev->ifindex) ||
 	    nla_put_u32(msg, BATADV_ATTR_LAST_SEEN_MSECS,
@@ -347,6 +383,7 @@ batadv_v_neigh_dump(struct sk_buff *msg, struct netlink_callback *cb,
 	cb->args[1] = idx;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 /**
  * batadv_v_orig_print() - print the originator table
@@ -416,6 +453,8 @@ next:
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_v_orig_dump_subentry() - Dump an originator subentry into a message
  * @msg: Netlink message to dump into
@@ -464,6 +503,11 @@ batadv_v_orig_dump_subentry(struct sk_buff *msg, u32 portid, u32 seq,
 	if (nla_put(msg, BATADV_ATTR_ORIG_ADDRESS, ETH_ALEN, orig_node->orig) ||
 	    nla_put(msg, BATADV_ATTR_NEIGH_ADDRESS, ETH_ALEN,
 		    neigh_node->addr) ||
+<<<<<<< HEAD
+=======
+	    nla_put_string(msg, BATADV_ATTR_HARD_IFNAME,
+			   neigh_node->if_incoming->net_dev->name) ||
+>>>>>>> upstream/android-13
 	    nla_put_u32(msg, BATADV_ATTR_HARD_IFINDEX,
 			neigh_node->if_incoming->net_dev->ifindex) ||
 	    nla_put_u32(msg, BATADV_ATTR_THROUGHPUT, throughput) ||
@@ -528,8 +572,12 @@ batadv_v_orig_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
 	}
 
  out:
+<<<<<<< HEAD
 	if (neigh_node_best)
 		batadv_neigh_node_put(neigh_node_best);
+=======
+	batadv_neigh_node_put(neigh_node_best);
+>>>>>>> upstream/android-13
 
 	*sub_s = 0;
 	return 0;
@@ -695,6 +743,7 @@ static ssize_t batadv_v_store_sel_class(struct batadv_priv *bat_priv,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t batadv_v_show_sel_class(struct batadv_priv *bat_priv, char *buff)
 {
 	u32 class = atomic_read(&bat_priv->gw.sel_class);
@@ -702,6 +751,8 @@ static ssize_t batadv_v_show_sel_class(struct batadv_priv *bat_priv, char *buff)
 	return sprintf(buff, "%u.%u MBit\n", class / 10, class % 10);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_v_gw_throughput_get() - retrieve the GW-bandwidth for a given GW
  * @gw_node: the GW to retrieve the metric for
@@ -737,10 +788,15 @@ static int batadv_v_gw_throughput_get(struct batadv_gw_node *gw_node, u32 *bw)
 
 	ret = 0;
 out:
+<<<<<<< HEAD
 	if (router)
 		batadv_neigh_node_put(router);
 	if (router_ifinfo)
 		batadv_neigh_ifinfo_put(router_ifinfo);
+=======
+	batadv_neigh_node_put(router);
+	batadv_neigh_ifinfo_put(router_ifinfo);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -768,8 +824,12 @@ batadv_v_gw_get_best_gw_node(struct batadv_priv *bat_priv)
 		if (curr_gw && bw <= max_bw)
 			goto next;
 
+<<<<<<< HEAD
 		if (curr_gw)
 			batadv_gw_node_put(curr_gw);
+=======
+		batadv_gw_node_put(curr_gw);
+>>>>>>> upstream/android-13
 
 		curr_gw = gw_node;
 		kref_get(&curr_gw->refcount);
@@ -831,14 +891,20 @@ static bool batadv_v_gw_is_eligible(struct batadv_priv *bat_priv,
 
 	ret = true;
 out:
+<<<<<<< HEAD
 	if (curr_gw)
 		batadv_gw_node_put(curr_gw);
 	if (orig_gw)
 		batadv_gw_node_put(orig_gw);
+=======
+	batadv_gw_node_put(curr_gw);
+	batadv_gw_node_put(orig_gw);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 /* fails if orig_node has no router */
 static int batadv_v_gw_write_buffer_text(struct batadv_priv *bat_priv,
@@ -911,17 +977,28 @@ static void batadv_v_gw_print(struct batadv_priv *bat_priv,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_v_gw_dump_entry() - Dump a gateway into a message
  * @msg: Netlink message to dump into
  * @portid: Port making netlink request
+<<<<<<< HEAD
  * @seq: Sequence number of netlink message
+=======
+ * @cb: Control block containing additional options
+>>>>>>> upstream/android-13
  * @bat_priv: The bat priv with all the soft interface information
  * @gw_node: Gateway to be dumped
  *
  * Return: Error code, or 0 on success
  */
+<<<<<<< HEAD
 static int batadv_v_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
+=======
+static int batadv_v_gw_dump_entry(struct sk_buff *msg, u32 portid,
+				  struct netlink_callback *cb,
+>>>>>>> upstream/android-13
 				  struct batadv_priv *bat_priv,
 				  struct batadv_gw_node *gw_node)
 {
@@ -941,13 +1018,24 @@ static int batadv_v_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
 
 	curr_gw = batadv_gw_get_selected_gw_node(bat_priv);
 
+<<<<<<< HEAD
 	hdr = genlmsg_put(msg, portid, seq, &batadv_netlink_family,
 			  NLM_F_MULTI, BATADV_CMD_GET_GATEWAYS);
+=======
+	hdr = genlmsg_put(msg, portid, cb->nlh->nlmsg_seq,
+			  &batadv_netlink_family, NLM_F_MULTI,
+			  BATADV_CMD_GET_GATEWAYS);
+>>>>>>> upstream/android-13
 	if (!hdr) {
 		ret = -ENOBUFS;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	genl_dump_check_consistent(cb, hdr);
+
+>>>>>>> upstream/android-13
 	ret = -EMSGSIZE;
 
 	if (curr_gw == gw_node) {
@@ -980,6 +1068,15 @@ static int batadv_v_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	if (nla_put_u32(msg, BATADV_ATTR_HARD_IFINDEX,
+			router->if_incoming->net_dev->ifindex)) {
+		genlmsg_cancel(msg, hdr);
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	if (nla_put_u32(msg, BATADV_ATTR_BANDWIDTH_DOWN,
 			gw_node->bandwidth_down)) {
 		genlmsg_cancel(msg, hdr);
@@ -995,12 +1092,18 @@ static int batadv_v_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
 	ret = 0;
 
 out:
+<<<<<<< HEAD
 	if (curr_gw)
 		batadv_gw_node_put(curr_gw);
 	if (router_ifinfo)
 		batadv_neigh_ifinfo_put(router_ifinfo);
 	if (router)
 		batadv_neigh_node_put(router);
+=======
+	batadv_gw_node_put(curr_gw);
+	batadv_neigh_ifinfo_put(router_ifinfo);
+	batadv_neigh_node_put(router);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1018,6 +1121,7 @@ static void batadv_v_gw_dump(struct sk_buff *msg, struct netlink_callback *cb,
 	int idx_skip = cb->args[0];
 	int idx = 0;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	hlist_for_each_entry_rcu(gw_node, &bat_priv->gw.gateway_list, list) {
 		if (idx++ < idx_skip)
@@ -1025,6 +1129,17 @@ static void batadv_v_gw_dump(struct sk_buff *msg, struct netlink_callback *cb,
 
 		if (batadv_v_gw_dump_entry(msg, portid, cb->nlh->nlmsg_seq,
 					   bat_priv, gw_node)) {
+=======
+	spin_lock_bh(&bat_priv->gw.list_lock);
+	cb->seq = bat_priv->gw.generation << 1 | 1;
+
+	hlist_for_each_entry(gw_node, &bat_priv->gw.gateway_list, list) {
+		if (idx++ < idx_skip)
+			continue;
+
+		if (batadv_v_gw_dump_entry(msg, portid, cb, bat_priv,
+					   gw_node)) {
+>>>>>>> upstream/android-13
 			idx_skip = idx - 1;
 			goto unlock;
 		}
@@ -1032,7 +1147,11 @@ static void batadv_v_gw_dump(struct sk_buff *msg, struct netlink_callback *cb,
 
 	idx_skip = idx;
 unlock:
+<<<<<<< HEAD
 	rcu_read_unlock();
+=======
+	spin_unlock_bh(&bat_priv->gw.list_lock);
+>>>>>>> upstream/android-13
 
 	cb->args[0] = idx_skip;
 }
@@ -1050,6 +1169,7 @@ static struct batadv_algo_ops batadv_batman_v __read_mostly = {
 		.hardif_init = batadv_v_hardif_neigh_init,
 		.cmp = batadv_v_neigh_cmp,
 		.is_similar_or_better = batadv_v_neigh_is_sob,
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 		.print = batadv_v_neigh_print,
 #endif
@@ -1059,17 +1179,27 @@ static struct batadv_algo_ops batadv_batman_v __read_mostly = {
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 		.print = batadv_v_orig_print,
 #endif
+=======
+		.dump = batadv_v_neigh_dump,
+	},
+	.orig = {
+>>>>>>> upstream/android-13
 		.dump = batadv_v_orig_dump,
 	},
 	.gw = {
 		.init_sel_class = batadv_v_init_sel_class,
 		.store_sel_class = batadv_v_store_sel_class,
+<<<<<<< HEAD
 		.show_sel_class = batadv_v_show_sel_class,
 		.get_best_gw_node = batadv_v_gw_get_best_gw_node,
 		.is_eligible = batadv_v_gw_is_eligible,
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 		.print = batadv_v_gw_print,
 #endif
+=======
+		.get_best_gw_node = batadv_v_gw_get_best_gw_node,
+		.is_eligible = batadv_v_gw_is_eligible,
+>>>>>>> upstream/android-13
 		.dump = batadv_v_gw_dump,
 	},
 };
@@ -1086,6 +1216,14 @@ void batadv_v_hardif_init(struct batadv_hard_iface *hard_iface)
 	 */
 	atomic_set(&hard_iface->bat_v.throughput_override, 0);
 	atomic_set(&hard_iface->bat_v.elp_interval, 500);
+<<<<<<< HEAD
+=======
+
+	hard_iface->bat_v.aggr_len = 0;
+	skb_queue_head_init(&hard_iface->bat_v.aggr_list);
+	INIT_DELAYED_WORK(&hard_iface->bat_v.aggr_wq,
+			  batadv_v_ogm_aggr_work);
+>>>>>>> upstream/android-13
 }
 
 /**

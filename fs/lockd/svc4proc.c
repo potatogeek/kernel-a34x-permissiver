@@ -40,14 +40,33 @@ nlm4svc_retrieve_args(struct svc_rqst *rqstp, struct nlm_args *argp,
 
 	/* Obtain file pointer. Not used by FREE_ALL call. */
 	if (filp != NULL) {
+<<<<<<< HEAD
 		if ((error = nlm_lookup_file(rqstp, &file, &lock->fh)) != 0)
+=======
+		int mode = lock_to_openmode(&lock->fl);
+
+		error = nlm_lookup_file(rqstp, &file, lock);
+		if (error)
+>>>>>>> upstream/android-13
 			goto no_locks;
 		*filp = file;
 
 		/* Set up the missing parts of the file_lock structure */
+<<<<<<< HEAD
 		lock->fl.fl_file  = file->f_file;
 		lock->fl.fl_owner = (fl_owner_t) host;
 		lock->fl.fl_lmops = &nlmsvc_lock_operations;
+=======
+		lock->fl.fl_file  = file->f_file[mode];
+		lock->fl.fl_pid = current->tgid;
+		lock->fl.fl_lmops = &nlmsvc_lock_operations;
+		nlmsvc_locks_init_private(&lock->fl, host, (pid_t)lock->svid);
+		if (!lock->fl.fl_owner) {
+			/* lockowner allocation has failed */
+			nlmsvc_release_host(host);
+			return nlm_lck_denied_nolocks;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -94,6 +113,10 @@ __nlm4svc_proc_test(struct svc_rqst *rqstp, struct nlm_res *resp)
 	else
 		dprintk("lockd: TEST4        status %d\n", ntohl(resp->status));
 
+<<<<<<< HEAD
+=======
+	nlmsvc_release_lockowner(&argp->lock);
+>>>>>>> upstream/android-13
 	nlmsvc_release_host(host);
 	nlm_release_file(file);
 	return rc;
@@ -142,6 +165,10 @@ __nlm4svc_proc_lock(struct svc_rqst *rqstp, struct nlm_res *resp)
 	else
 		dprintk("lockd: LOCK         status %d\n", ntohl(resp->status));
 
+<<<<<<< HEAD
+=======
+	nlmsvc_release_lockowner(&argp->lock);
+>>>>>>> upstream/android-13
 	nlmsvc_release_host(host);
 	nlm_release_file(file);
 	return rc;
@@ -178,6 +205,10 @@ __nlm4svc_proc_cancel(struct svc_rqst *rqstp, struct nlm_res *resp)
 	resp->status = nlmsvc_cancel_blocked(SVC_NET(rqstp), file, &argp->lock);
 
 	dprintk("lockd: CANCEL        status %d\n", ntohl(resp->status));
+<<<<<<< HEAD
+=======
+	nlmsvc_release_lockowner(&argp->lock);
+>>>>>>> upstream/android-13
 	nlmsvc_release_host(host);
 	nlm_release_file(file);
 	return rpc_success;
@@ -217,6 +248,10 @@ __nlm4svc_proc_unlock(struct svc_rqst *rqstp, struct nlm_res *resp)
 	resp->status = nlmsvc_unlock(SVC_NET(rqstp), file, &argp->lock);
 
 	dprintk("lockd: UNLOCK        status %d\n", ntohl(resp->status));
+<<<<<<< HEAD
+=======
+	nlmsvc_release_lockowner(&argp->lock);
+>>>>>>> upstream/android-13
 	nlmsvc_release_host(host);
 	nlm_release_file(file);
 	return rpc_success;
@@ -365,6 +400,10 @@ nlm4svc_proc_share(struct svc_rqst *rqstp)
 	resp->status = nlmsvc_share_file(host, file, argp);
 
 	dprintk("lockd: SHARE         status %d\n", ntohl(resp->status));
+<<<<<<< HEAD
+=======
+	nlmsvc_release_lockowner(&argp->lock);
+>>>>>>> upstream/android-13
 	nlmsvc_release_host(host);
 	nlm_release_file(file);
 	return rpc_success;
@@ -399,6 +438,10 @@ nlm4svc_proc_unshare(struct svc_rqst *rqstp)
 	resp->status = nlmsvc_unshare_file(host, file, argp);
 
 	dprintk("lockd: UNSHARE       status %d\n", ntohl(resp->status));
+<<<<<<< HEAD
+=======
+	nlmsvc_release_lockowner(&argp->lock);
+>>>>>>> upstream/android-13
 	nlmsvc_release_host(host);
 	nlm_release_file(file);
 	return rpc_success;
@@ -474,11 +517,21 @@ nlm4svc_proc_granted_res(struct svc_rqst *rqstp)
         return rpc_success;
 }
 
+<<<<<<< HEAD
+=======
+static __be32
+nlm4svc_proc_unused(struct svc_rqst *rqstp)
+{
+	return rpc_proc_unavail;
+}
+
+>>>>>>> upstream/android-13
 
 /*
  * NLM Server procedures.
  */
 
+<<<<<<< HEAD
 #define nlm4svc_encode_norep	nlm4svc_encode_void
 #define nlm4svc_decode_norep	nlm4svc_decode_void
 #define nlm4svc_decode_testres	nlm4svc_decode_void
@@ -504,10 +557,15 @@ struct nlm_void			{ int dummy; };
    .pc_ressize	= sizeof(struct nlm_##rest),		\
    .pc_xdrressize = respsize,				\
  }
+=======
+struct nlm_void			{ int dummy; };
+
+>>>>>>> upstream/android-13
 #define	Ck	(1+XDR_QUADLEN(NLM_MAXCOOKIELEN))	/* cookie */
 #define	No	(1+1024/4)				/* netobj */
 #define	St	1					/* status */
 #define	Rg	4					/* range (offset + length) */
+<<<<<<< HEAD
 const struct svc_procedure nlmsvc_procedures4[] = {
   PROC(null,		void,		void,		void,	void, 1),
   PROC(test,		testargs,	testres,	args,	res, Ck+St+2+No+Rg),
@@ -535,4 +593,224 @@ const struct svc_procedure nlmsvc_procedures4[] = {
   PROC(nm_lock,		lockargs,	res,		args,	res, Ck+St),
   PROC(free_all,	notify,		void,		args,	void, 1),
 
+=======
+
+const struct svc_procedure nlmsvc_procedures4[24] = {
+	[NLMPROC_NULL] = {
+		.pc_func = nlm4svc_proc_null,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_void),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "NULL",
+	},
+	[NLMPROC_TEST] = {
+		.pc_func = nlm4svc_proc_test,
+		.pc_decode = nlm4svc_decode_testargs,
+		.pc_encode = nlm4svc_encode_testres,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St+2+No+Rg,
+		.pc_name = "TEST",
+	},
+	[NLMPROC_LOCK] = {
+		.pc_func = nlm4svc_proc_lock,
+		.pc_decode = nlm4svc_decode_lockargs,
+		.pc_encode = nlm4svc_encode_res,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St,
+		.pc_name = "LOCK",
+	},
+	[NLMPROC_CANCEL] = {
+		.pc_func = nlm4svc_proc_cancel,
+		.pc_decode = nlm4svc_decode_cancargs,
+		.pc_encode = nlm4svc_encode_res,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St,
+		.pc_name = "CANCEL",
+	},
+	[NLMPROC_UNLOCK] = {
+		.pc_func = nlm4svc_proc_unlock,
+		.pc_decode = nlm4svc_decode_unlockargs,
+		.pc_encode = nlm4svc_encode_res,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St,
+		.pc_name = "UNLOCK",
+	},
+	[NLMPROC_GRANTED] = {
+		.pc_func = nlm4svc_proc_granted,
+		.pc_decode = nlm4svc_decode_testargs,
+		.pc_encode = nlm4svc_encode_res,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St,
+		.pc_name = "GRANTED",
+	},
+	[NLMPROC_TEST_MSG] = {
+		.pc_func = nlm4svc_proc_test_msg,
+		.pc_decode = nlm4svc_decode_testargs,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "TEST_MSG",
+	},
+	[NLMPROC_LOCK_MSG] = {
+		.pc_func = nlm4svc_proc_lock_msg,
+		.pc_decode = nlm4svc_decode_lockargs,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "LOCK_MSG",
+	},
+	[NLMPROC_CANCEL_MSG] = {
+		.pc_func = nlm4svc_proc_cancel_msg,
+		.pc_decode = nlm4svc_decode_cancargs,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "CANCEL_MSG",
+	},
+	[NLMPROC_UNLOCK_MSG] = {
+		.pc_func = nlm4svc_proc_unlock_msg,
+		.pc_decode = nlm4svc_decode_unlockargs,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "UNLOCK_MSG",
+	},
+	[NLMPROC_GRANTED_MSG] = {
+		.pc_func = nlm4svc_proc_granted_msg,
+		.pc_decode = nlm4svc_decode_testargs,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "GRANTED_MSG",
+	},
+	[NLMPROC_TEST_RES] = {
+		.pc_func = nlm4svc_proc_null,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_res),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "TEST_RES",
+	},
+	[NLMPROC_LOCK_RES] = {
+		.pc_func = nlm4svc_proc_null,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_res),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "LOCK_RES",
+	},
+	[NLMPROC_CANCEL_RES] = {
+		.pc_func = nlm4svc_proc_null,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_res),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "CANCEL_RES",
+	},
+	[NLMPROC_UNLOCK_RES] = {
+		.pc_func = nlm4svc_proc_null,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_res),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "UNLOCK_RES",
+	},
+	[NLMPROC_GRANTED_RES] = {
+		.pc_func = nlm4svc_proc_granted_res,
+		.pc_decode = nlm4svc_decode_res,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_res),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "GRANTED_RES",
+	},
+	[NLMPROC_NSM_NOTIFY] = {
+		.pc_func = nlm4svc_proc_sm_notify,
+		.pc_decode = nlm4svc_decode_reboot,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_reboot),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "SM_NOTIFY",
+	},
+	[17] = {
+		.pc_func = nlm4svc_proc_unused,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_void),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = 0,
+		.pc_name = "UNUSED",
+	},
+	[18] = {
+		.pc_func = nlm4svc_proc_unused,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_void),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = 0,
+		.pc_name = "UNUSED",
+	},
+	[19] = {
+		.pc_func = nlm4svc_proc_unused,
+		.pc_decode = nlm4svc_decode_void,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_void),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = 0,
+		.pc_name = "UNUSED",
+	},
+	[NLMPROC_SHARE] = {
+		.pc_func = nlm4svc_proc_share,
+		.pc_decode = nlm4svc_decode_shareargs,
+		.pc_encode = nlm4svc_encode_shareres,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St+1,
+		.pc_name = "SHARE",
+	},
+	[NLMPROC_UNSHARE] = {
+		.pc_func = nlm4svc_proc_unshare,
+		.pc_decode = nlm4svc_decode_shareargs,
+		.pc_encode = nlm4svc_encode_shareres,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St+1,
+		.pc_name = "UNSHARE",
+	},
+	[NLMPROC_NM_LOCK] = {
+		.pc_func = nlm4svc_proc_nm_lock,
+		.pc_decode = nlm4svc_decode_lockargs,
+		.pc_encode = nlm4svc_encode_res,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_res),
+		.pc_xdrressize = Ck+St,
+		.pc_name = "NM_LOCK",
+	},
+	[NLMPROC_FREE_ALL] = {
+		.pc_func = nlm4svc_proc_free_all,
+		.pc_decode = nlm4svc_decode_notify,
+		.pc_encode = nlm4svc_encode_void,
+		.pc_argsize = sizeof(struct nlm_args),
+		.pc_ressize = sizeof(struct nlm_void),
+		.pc_xdrressize = St,
+		.pc_name = "FREE_ALL",
+	},
+>>>>>>> upstream/android-13
 };

@@ -12,12 +12,19 @@
  * Chris Zankel <chris@zankel.net>
  */
 
+<<<<<<< HEAD
 #include <linux/types.h>
 #include <linux/pci.h>
 #include <linux/time.h>
 #include <asm/platform.h>
 #include <asm/timex.h>
 #include <asm/param.h>		/* HZ */
+=======
+#include <linux/printk.h>
+#include <linux/types.h>
+#include <asm/platform.h>
+#include <asm/timex.h>
+>>>>>>> upstream/android-13
 
 #define _F(r,f,a,b)							\
 	r __platform_##f a b;                                   	\
@@ -28,14 +35,21 @@
  * (Please, refer to include/asm-xtensa/platform.h for more information)
  */
 
+<<<<<<< HEAD
+=======
+_F(void, init, (bp_tag_t *first), { });
+>>>>>>> upstream/android-13
 _F(void, setup, (char** cmd), { });
 _F(void, restart, (void), { while(1); });
 _F(void, halt, (void), { while(1); });
 _F(void, power_off, (void), { while(1); });
 _F(void, idle, (void), { __asm__ __volatile__ ("waiti 0" ::: "memory"); });
 _F(void, heartbeat, (void), { });
+<<<<<<< HEAD
 _F(int,  pcibios_fixup, (void), { return 0; });
 _F(void, pcibios_init, (void), { });
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_XTENSA_CALIBRATE_CCOUNT
 _F(void, calibrate_ccount, (void),

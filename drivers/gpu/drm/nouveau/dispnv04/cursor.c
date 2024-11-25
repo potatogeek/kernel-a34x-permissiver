@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 #include <drm/drmP.h>
+=======
+// SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 #include <drm/drm_mode.h>
 #include "nouveau_drv.h"
 #include "nouveau_reg.h"

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This file contains miscellaneous low-level functions for PPC 44x.
  *    Copyright 2007 David Gibson <dwg@au1.ibm.com>, IBM Corporation.
@@ -7,6 +8,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * This file contains miscellaneous low-level functions for PPC 44x.
+ *    Copyright 2007 David Gibson <dwg@au1.ibm.com>, IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <asm/reg.h>

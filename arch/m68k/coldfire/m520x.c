@@ -12,6 +12,10 @@
 
 /***************************************************************************/
 
+<<<<<<< HEAD
+=======
+#include <linux/clkdev.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/param.h>
 #include <linux/init.h>
@@ -48,6 +52,7 @@ DEFINE_CLK(0, "sys.0", 40, MCF_BUSCLK);
 DEFINE_CLK(0, "gpio.0", 41, MCF_BUSCLK);
 DEFINE_CLK(0, "sdram.0", 42, MCF_CLK);
 
+<<<<<<< HEAD
 struct clk *mcf_clks[] = {
 	&__clk_0_2, /* flexbus */
 	&__clk_0_12, /* fec.0 */
@@ -73,6 +78,31 @@ struct clk *mcf_clks[] = {
 	&__clk_0_41, /* gpio.0 */
 	&__clk_0_42, /* sdram.0 */
 	NULL,
+=======
+static struct clk_lookup m520x_clk_lookup[] = {
+	CLKDEV_INIT(NULL, "flexbus", &__clk_0_2),
+	CLKDEV_INIT("fec.0", NULL, &__clk_0_12),
+	CLKDEV_INIT("edma", NULL, &__clk_0_17),
+	CLKDEV_INIT("intc.0", NULL, &__clk_0_18),
+	CLKDEV_INIT("iack.0", NULL, &__clk_0_21),
+	CLKDEV_INIT("imx1-i2c.0", NULL, &__clk_0_22),
+	CLKDEV_INIT("mcfqspi.0", NULL, &__clk_0_23),
+	CLKDEV_INIT("mcfuart.0", NULL, &__clk_0_24),
+	CLKDEV_INIT("mcfuart.1", NULL, &__clk_0_25),
+	CLKDEV_INIT("mcfuart.2", NULL, &__clk_0_26),
+	CLKDEV_INIT("mcftmr.0", NULL, &__clk_0_28),
+	CLKDEV_INIT("mcftmr.1", NULL, &__clk_0_29),
+	CLKDEV_INIT("mcftmr.2", NULL, &__clk_0_30),
+	CLKDEV_INIT("mcftmr.3", NULL, &__clk_0_31),
+	CLKDEV_INIT("mcfpit.0", NULL, &__clk_0_32),
+	CLKDEV_INIT("mcfpit.1", NULL, &__clk_0_33),
+	CLKDEV_INIT("mcfeport.0", NULL, &__clk_0_34),
+	CLKDEV_INIT("mcfwdt.0", NULL, &__clk_0_35),
+	CLKDEV_INIT(NULL, "pll.0", &__clk_0_36),
+	CLKDEV_INIT(NULL, "sys.0", &__clk_0_40),
+	CLKDEV_INIT("gpio.0", NULL, &__clk_0_41),
+	CLKDEV_INIT("sdram.0", NULL, &__clk_0_42),
+>>>>>>> upstream/android-13
 };
 
 static struct clk * const enable_clks[] __initconst = {
@@ -115,6 +145,11 @@ static void __init m520x_clk_init(void)
 	/* make sure these clocks are disabled */
 	for (i = 0; i < ARRAY_SIZE(disable_clks); ++i)
 		__clk_init_disabled(disable_clks[i]);
+<<<<<<< HEAD
+=======
+
+	clkdev_add_table(m520x_clk_lookup, ARRAY_SIZE(m520x_clk_lookup));
+>>>>>>> upstream/android-13
 }
 
 /***************************************************************************/

@@ -8,11 +8,26 @@
 #define _ASM_S390_SCLP_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <asm/chpid.h>
 #include <asm/cpu.h>
 
 #define SCLP_CHP_INFO_MASK_SIZE		32
 #define SCLP_MAX_CORES			256
+=======
+
+#define SCLP_CHP_INFO_MASK_SIZE		32
+#define EARLY_SCCB_SIZE		PAGE_SIZE
+#define SCLP_MAX_CORES		512
+/* 144 + 16 * SCLP_MAX_CORES + 2 * (SCLP_MAX_CORES - 1) */
+#define EXT_SCCB_READ_SCP	(3 * PAGE_SIZE)
+/* 24 + 16 * SCLP_MAX_CORES */
+#define EXT_SCCB_READ_CPU	(3 * PAGE_SIZE)
+
+#ifndef __ASSEMBLY__
+#include <asm/chpid.h>
+#include <asm/cpu.h>
+>>>>>>> upstream/android-13
 
 struct sclp_chp_info {
 	u8 recognized[SCLP_CHP_INFO_MASK_SIZE];
@@ -78,6 +93,12 @@ struct sclp_info {
 	unsigned char has_skey : 1;
 	unsigned char has_kss : 1;
 	unsigned char has_gisaf : 1;
+<<<<<<< HEAD
+=======
+	unsigned char has_diag318 : 1;
+	unsigned char has_sipl : 1;
+	unsigned char has_dirq : 1;
+>>>>>>> upstream/android-13
 	unsigned int ibc;
 	unsigned int mtid;
 	unsigned int mtid_cp;
@@ -95,6 +116,10 @@ extern struct sclp_info sclp;
 struct zpci_report_error_header {
 	u8 version;	/* Interface version byte */
 	u8 action;	/* Action qualifier byte
+<<<<<<< HEAD
+=======
+			 * 0: Adapter Reset Request
+>>>>>>> upstream/android-13
 			 * 1: Deconfigure and repair action requested
 			 *	(OpenCrypto Problem Call Home)
 			 * 2: Informational Report
@@ -104,13 +129,28 @@ struct zpci_report_error_header {
 	u8 data[0];	/* Subsequent Data passed verbatim to SCLP ET 24 */
 } __packed;
 
+<<<<<<< HEAD
+=======
+extern char *sclp_early_sccb;
+
+void sclp_early_set_buffer(void *sccb);
+int sclp_early_read_info(void);
+int sclp_early_read_storage_info(void);
+>>>>>>> upstream/android-13
 int sclp_early_get_core_info(struct sclp_core_info *info);
 void sclp_early_get_ipl_info(struct sclp_ipl_info *info);
 void sclp_early_detect(void);
 void sclp_early_printk(const char *s);
+<<<<<<< HEAD
 void sclp_early_printk_force(const char *s);
 void __sclp_early_printk(const char *s, unsigned int len, unsigned int force);
 
+=======
+void __sclp_early_printk(const char *s, unsigned int len);
+
+int sclp_early_get_memsize(unsigned long *mem);
+int sclp_early_get_hsa_size(unsigned long *hsa_size);
+>>>>>>> upstream/android-13
 int _sclp_get_core_info(struct sclp_core_info *info);
 int sclp_core_configure(u8 core);
 int sclp_core_deconfigure(u8 core);
@@ -121,6 +161,11 @@ int sclp_chp_deconfigure(struct chp_id chpid);
 int sclp_chp_read_info(struct sclp_chp_info *info);
 int sclp_pci_configure(u32 fid);
 int sclp_pci_deconfigure(u32 fid);
+<<<<<<< HEAD
+=======
+int sclp_ap_configure(u32 apid);
+int sclp_ap_deconfigure(u32 apid);
+>>>>>>> upstream/android-13
 int sclp_pci_report(struct zpci_report_error_header *report, u32 fh, u32 fid);
 int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count);
 int memcpy_hsa_user(void __user *dest, unsigned long src, size_t count);
@@ -133,4 +178,8 @@ static inline int sclp_get_core_info(struct sclp_core_info *info, int early)
 	return _sclp_get_core_info(info);
 }
 
+<<<<<<< HEAD
+=======
+#endif /* __ASSEMBLY__ */
+>>>>>>> upstream/android-13
 #endif /* _ASM_S390_SCLP_H */

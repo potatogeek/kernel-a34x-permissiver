@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Samsung S5P/EXYNOS4 SoC series FIMC (video postprocessor) driver
  *
  * Copyright (C) 2012 - 2013 Samsung Electronics Co., Ltd.
  * Sylwester Nawrocki <s.nawrocki@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 2 of the License,
  * or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -77,17 +84,25 @@ static void fimc_m2m_shutdown(struct fimc_ctx *ctx)
 static int start_streaming(struct vb2_queue *q, unsigned int count)
 {
 	struct fimc_ctx *ctx = q->drv_priv;
+<<<<<<< HEAD
 	int ret;
 
 	ret = pm_runtime_get_sync(&ctx->fimc_dev->pdev->dev);
 	return ret > 0 ? 0 : ret;
+=======
+
+	return pm_runtime_resume_and_get(&ctx->fimc_dev->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static void stop_streaming(struct vb2_queue *q)
 {
 	struct fimc_ctx *ctx = q->drv_priv;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	fimc_m2m_shutdown(ctx);
 	fimc_m2m_job_finish(ctx, VB2_BUF_STATE_ERROR);
 	pm_runtime_put(&ctx->fimc_dev->pdev->dev);
@@ -119,12 +134,20 @@ static void fimc_device_run(void *priv)
 	}
 
 	src_vb = v4l2_m2m_next_src_buf(ctx->fh.m2m_ctx);
+<<<<<<< HEAD
 	ret = fimc_prepare_addr(ctx, &src_vb->vb2_buf, sf, &sf->paddr);
+=======
+	ret = fimc_prepare_addr(ctx, &src_vb->vb2_buf, sf, &sf->addr);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto dma_unlock;
 
 	dst_vb = v4l2_m2m_next_dst_buf(ctx->fh.m2m_ctx);
+<<<<<<< HEAD
 	ret = fimc_prepare_addr(ctx, &dst_vb->vb2_buf, df, &df->paddr);
+=======
+	ret = fimc_prepare_addr(ctx, &dst_vb->vb2_buf, df, &df->addr);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto dma_unlock;
 
@@ -156,8 +179,13 @@ static void fimc_device_run(void *priv)
 			fimc_hw_set_rgb_alpha(ctx);
 		fimc_hw_set_output_path(ctx);
 	}
+<<<<<<< HEAD
 	fimc_hw_set_input_addr(fimc, &sf->paddr);
 	fimc_hw_set_output_addr(fimc, &df->paddr, -1);
+=======
+	fimc_hw_set_input_addr(fimc, &sf->addr);
+	fimc_hw_set_output_addr(fimc, &df->addr, -1);
+>>>>>>> upstream/android-13
 
 	fimc_activate_capture(ctx);
 	ctx->state &= (FIMC_CTX_M2M | FIMC_CTX_CAP);
@@ -236,6 +264,7 @@ static int fimc_m2m_querycap(struct file *file, void *fh,
 				     struct v4l2_capability *cap)
 {
 	struct fimc_dev *fimc = video_drvdata(file);
+<<<<<<< HEAD
 	unsigned int caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_M2M_MPLANE;
 
 	__fimc_vidioc_querycap(&fimc->pdev->dev, cap, caps);
@@ -244,6 +273,15 @@ static int fimc_m2m_querycap(struct file *file, void *fh,
 
 static int fimc_m2m_enum_fmt_mplane(struct file *file, void *priv,
 				    struct v4l2_fmtdesc *f)
+=======
+
+	__fimc_vidioc_querycap(&fimc->pdev->dev, cap);
+	return 0;
+}
+
+static int fimc_m2m_enum_fmt(struct file *file, void *priv,
+			     struct v4l2_fmtdesc *f)
+>>>>>>> upstream/android-13
 {
 	struct fimc_fmt *fmt;
 
@@ -252,7 +290,10 @@ static int fimc_m2m_enum_fmt_mplane(struct file *file, void *priv,
 	if (!fmt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strncpy(f->description, fmt->name, sizeof(f->description) - 1);
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = fmt->fourcc;
 	return 0;
 }
@@ -383,12 +424,18 @@ static int fimc_m2m_s_fmt_mplane(struct file *file, void *fh,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fimc_m2m_cropcap(struct file *file, void *fh,
 			    struct v4l2_cropcap *cr)
+=======
+static int fimc_m2m_g_selection(struct file *file, void *fh,
+				struct v4l2_selection *s)
+>>>>>>> upstream/android-13
 {
 	struct fimc_ctx *ctx = fh_to_ctx(fh);
 	struct fimc_frame *frame;
 
+<<<<<<< HEAD
 	frame = ctx_get_frame(ctx, cr->type);
 	if (IS_ERR(frame))
 		return PTR_ERR(frame);
@@ -420,23 +467,89 @@ static int fimc_m2m_g_crop(struct file *file, void *fh, struct v4l2_crop *cr)
 }
 
 static int fimc_m2m_try_crop(struct fimc_ctx *ctx, struct v4l2_crop *cr)
+=======
+	frame = ctx_get_frame(ctx, s->type);
+	if (IS_ERR(frame))
+		return PTR_ERR(frame);
+
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP:
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+		if (s->type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
+			return -EINVAL;
+		break;
+	case V4L2_SEL_TGT_COMPOSE:
+	case V4L2_SEL_TGT_COMPOSE_DEFAULT:
+	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
+		if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+			return -EINVAL;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP:
+	case V4L2_SEL_TGT_COMPOSE:
+		s->r.left = frame->offs_h;
+		s->r.top = frame->offs_v;
+		s->r.width = frame->width;
+		s->r.height = frame->height;
+		break;
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+	case V4L2_SEL_TGT_COMPOSE_DEFAULT:
+	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
+		s->r.left = 0;
+		s->r.top = 0;
+		s->r.width = frame->o_width;
+		s->r.height = frame->o_height;
+		break;
+	default:
+		return -EINVAL;
+	}
+	return 0;
+}
+
+static int fimc_m2m_try_selection(struct fimc_ctx *ctx,
+				  struct v4l2_selection *s)
+>>>>>>> upstream/android-13
 {
 	struct fimc_dev *fimc = ctx->fimc_dev;
 	struct fimc_frame *f;
 	u32 min_size, halign, depth = 0;
 	int i;
 
+<<<<<<< HEAD
 	if (cr->c.top < 0 || cr->c.left < 0) {
+=======
+	if (s->r.top < 0 || s->r.left < 0) {
+>>>>>>> upstream/android-13
 		v4l2_err(&fimc->m2m.vfd,
 			"doesn't support negative values for top & left\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	if (cr->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 		f = &ctx->d_frame;
 	else if (cr->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		f = &ctx->s_frame;
 	else
 		return -EINVAL;
+=======
+	if (s->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+		f = &ctx->d_frame;
+		if (s->target != V4L2_SEL_TGT_COMPOSE)
+			return -EINVAL;
+	} else if (s->type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+		f = &ctx->s_frame;
+		if (s->target != V4L2_SEL_TGT_CROP)
+			return -EINVAL;
+	} else {
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	min_size = (f == &ctx->s_frame) ?
 		fimc->variant->min_inp_pixsize : fimc->variant->min_out_pixsize;
@@ -450,6 +563,7 @@ static int fimc_m2m_try_crop(struct fimc_ctx *ctx, struct v4l2_crop *cr)
 	for (i = 0; i < f->fmt->memplanes; i++)
 		depth += f->fmt->depth[i];
 
+<<<<<<< HEAD
 	v4l_bound_align_image(&cr->c.width, min_size, f->o_width,
 			      ffs(min_size) - 1,
 			      &cr->c.height, min_size, f->o_height,
@@ -466,11 +580,30 @@ static int fimc_m2m_try_crop(struct fimc_ctx *ctx, struct v4l2_crop *cr)
 
 	dbg("l:%d, t:%d, w:%d, h:%d, f_w: %d, f_h: %d",
 	    cr->c.left, cr->c.top, cr->c.width, cr->c.height,
+=======
+	v4l_bound_align_image(&s->r.width, min_size, f->o_width,
+			      ffs(min_size) - 1,
+			      &s->r.height, min_size, f->o_height,
+			      halign, 64/(ALIGN(depth, 8)));
+
+	/* adjust left/top if cropping rectangle is out of bounds */
+	if (s->r.left + s->r.width > f->o_width)
+		s->r.left = f->o_width - s->r.width;
+	if (s->r.top + s->r.height > f->o_height)
+		s->r.top = f->o_height - s->r.height;
+
+	s->r.left = round_down(s->r.left, min_size);
+	s->r.top  = round_down(s->r.top, fimc->variant->hor_offs_align);
+
+	dbg("l:%d, t:%d, w:%d, h:%d, f_w: %d, f_h: %d",
+	    s->r.left, s->r.top, s->r.width, s->r.height,
+>>>>>>> upstream/android-13
 	    f->f_width, f->f_height);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fimc_m2m_s_crop(struct file *file, void *fh, const struct v4l2_crop *crop)
 {
 	struct fimc_ctx *ctx = fh_to_ctx(fh);
@@ -495,16 +628,49 @@ static int fimc_m2m_s_crop(struct file *file, void *fh, const struct v4l2_crop *
 		ret = fimc_check_scaler_ratio(ctx, ctx->s_frame.width,
 				ctx->s_frame.height, cr.c.width,
 				cr.c.height, ctx->rotation);
+=======
+static int fimc_m2m_s_selection(struct file *file, void *fh,
+				struct v4l2_selection *s)
+{
+	struct fimc_ctx *ctx = fh_to_ctx(fh);
+	struct fimc_dev *fimc = ctx->fimc_dev;
+	struct fimc_frame *f;
+	int ret;
+
+	ret = fimc_m2m_try_selection(ctx, s);
+	if (ret)
+		return ret;
+
+	f = (s->type == V4L2_BUF_TYPE_VIDEO_OUTPUT) ?
+		&ctx->s_frame : &ctx->d_frame;
+
+	/* Check to see if scaling ratio is within supported range */
+	if (s->type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+		ret = fimc_check_scaler_ratio(ctx, s->r.width,
+				s->r.height, ctx->d_frame.width,
+				ctx->d_frame.height, ctx->rotation);
+	} else {
+		ret = fimc_check_scaler_ratio(ctx, ctx->s_frame.width,
+				ctx->s_frame.height, s->r.width,
+				s->r.height, ctx->rotation);
+>>>>>>> upstream/android-13
 	}
 	if (ret) {
 		v4l2_err(&fimc->m2m.vfd, "Out of scaler range\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	f->offs_h = cr.c.left;
 	f->offs_v = cr.c.top;
 	f->width  = cr.c.width;
 	f->height = cr.c.height;
+=======
+	f->offs_h = s->r.left;
+	f->offs_v = s->r.top;
+	f->width  = s->r.width;
+	f->height = s->r.height;
+>>>>>>> upstream/android-13
 
 	fimc_ctx_state_set(FIMC_PARAMS, ctx);
 
@@ -513,8 +679,13 @@ static int fimc_m2m_s_crop(struct file *file, void *fh, const struct v4l2_crop *
 
 static const struct v4l2_ioctl_ops fimc_m2m_ioctl_ops = {
 	.vidioc_querycap		= fimc_m2m_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= fimc_m2m_enum_fmt_mplane,
 	.vidioc_enum_fmt_vid_out_mplane	= fimc_m2m_enum_fmt_mplane,
+=======
+	.vidioc_enum_fmt_vid_cap	= fimc_m2m_enum_fmt,
+	.vidioc_enum_fmt_vid_out	= fimc_m2m_enum_fmt,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_cap_mplane	= fimc_m2m_g_fmt_mplane,
 	.vidioc_g_fmt_vid_out_mplane	= fimc_m2m_g_fmt_mplane,
 	.vidioc_try_fmt_vid_cap_mplane	= fimc_m2m_try_fmt_mplane,
@@ -528,9 +699,14 @@ static const struct v4l2_ioctl_ops fimc_m2m_ioctl_ops = {
 	.vidioc_expbuf			= v4l2_m2m_ioctl_expbuf,
 	.vidioc_streamon		= v4l2_m2m_ioctl_streamon,
 	.vidioc_streamoff		= v4l2_m2m_ioctl_streamoff,
+<<<<<<< HEAD
 	.vidioc_g_crop			= fimc_m2m_g_crop,
 	.vidioc_s_crop			= fimc_m2m_s_crop,
 	.vidioc_cropcap			= fimc_m2m_cropcap
+=======
+	.vidioc_g_selection		= fimc_m2m_g_selection,
+	.vidioc_s_selection		= fimc_m2m_s_selection,
+>>>>>>> upstream/android-13
 
 };
 
@@ -717,6 +893,11 @@ int fimc_register_m2m_device(struct fimc_dev *fimc,
 	vfd->release = video_device_release_empty;
 	vfd->lock = &fimc->lock;
 	vfd->vfl_dir = VFL_DIR_M2M;
+<<<<<<< HEAD
+=======
+	vfd->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_M2M_MPLANE;
+	set_bit(V4L2_FL_QUIRK_INVERTED_CROP, &vfd->flags);
+>>>>>>> upstream/android-13
 
 	snprintf(vfd->name, sizeof(vfd->name), "fimc.%d.m2m", fimc->id);
 	video_set_drvdata(vfd, fimc);
@@ -731,7 +912,11 @@ int fimc_register_m2m_device(struct fimc_dev *fimc,
 	if (ret)
 		goto err_me;
 
+<<<<<<< HEAD
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_vd;
 

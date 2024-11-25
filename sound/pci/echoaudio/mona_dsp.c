@@ -44,7 +44,12 @@ static int init_hw(struct echoaudio *chip, u16 device_id, u16 subdevice_id)
 	if (snd_BUG_ON((subdevice_id & 0xfff0) != MONA))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if ((err = init_dsp_comm_page(chip))) {
+=======
+	err = init_dsp_comm_page(chip);
+	if (err) {
+>>>>>>> upstream/android-13
 		dev_err(chip->card->dev,
 			"init_hw - could not initialize DSP comm page\n");
 		return err;
@@ -67,7 +72,12 @@ static int init_hw(struct echoaudio *chip, u16 device_id, u16 subdevice_id)
 	else
 		chip->dsp_code_to_load = FW_MONA_301_DSP;
 
+<<<<<<< HEAD
 	if ((err = load_firmware(chip)) < 0)
+=======
+	err = load_firmware(chip);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	chip->bad_board = false;
 
@@ -300,11 +310,14 @@ static int set_input_clock(struct echoaudio *chip, u16 clock)
 	u32 control_reg, clocks_from_dsp;
 	int err;
 
+<<<<<<< HEAD
 
 	/* Prevent two simultaneous calls to switch_asic() */
 	if (atomic_read(&chip->opencount))
 		return -EAGAIN;
 
+=======
+>>>>>>> upstream/android-13
 	/* Mask off the clock select bits */
 	control_reg = le32_to_cpu(chip->comm_page->control_register) &
 		GML_CLOCK_CLEAR_MASK;

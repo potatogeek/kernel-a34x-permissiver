@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _LMC_IOCTL_H_
 #define _LMC_IOCTL_H_
 /*	$Id: lmc_ioctl.h,v 1.15 2000/04/06 12:16:43 asj Exp $	*/
@@ -11,9 +15,12 @@
   * Rob Braun (bbraun@vix.com),
   * Michael Graff (explorer@vix.com) and
   * Matt Thomas (matt@3am-software.com).
+<<<<<<< HEAD
   *
   * This software may be used and distributed according to the terms
   * of the GNU General Public License version 2, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
   */
 
 #define LMCIOCGINFO             SIOCDEVPRIVATE+3 /* get current state */

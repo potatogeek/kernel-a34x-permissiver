@@ -468,6 +468,7 @@ static int fpu_emulate(u16 code, struct sh_fpu_soft_struct *fregs, struct pt_reg
 }
 
 /**
+<<<<<<< HEAD
  *	denormal_to_double - Given denormalized float number,
  *	                     store double float
  *
@@ -571,6 +572,8 @@ static int ieee_fpe_handler(struct pt_regs *regs)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * fpu_init - Initialize FPU registers
  * @fpu: Pointer to software emulated FPU registers.
  */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * adm1031.c - Part of lm_sensors, Linux kernel modules for hardware
  *	       monitoring
@@ -5,6 +9,7 @@
  * Supports adm1030 / adm1031
  * Copyright (C) 2004 Alexandre d'Alton <alex@alexdalton.org>
  * Reworked by Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -331,7 +338,11 @@ get_fan_auto_nearest(struct adm1031_data *data, int chan, u8 val, u8 reg)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_auto_channel(struct device *dev,
+=======
+static ssize_t fan_auto_channel_show(struct device *dev,
+>>>>>>> upstream/android-13
 				     struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
@@ -340,8 +351,13 @@ static ssize_t show_fan_auto_channel(struct device *dev,
 }
 
 static ssize_t
+<<<<<<< HEAD
 set_fan_auto_channel(struct device *dev, struct device_attribute *attr,
 		     const char *buf, size_t count)
+=======
+fan_auto_channel_store(struct device *dev, struct device_attribute *attr,
+		       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -392,6 +408,7 @@ set_fan_auto_channel(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(auto_fan1_channel, S_IRUGO | S_IWUSR,
 		show_fan_auto_channel, set_fan_auto_channel, 0);
 static SENSOR_DEVICE_ATTR(auto_fan2_channel, S_IRUGO | S_IWUSR,
@@ -399,6 +416,13 @@ static SENSOR_DEVICE_ATTR(auto_fan2_channel, S_IRUGO | S_IWUSR,
 
 /* Auto Temps */
 static ssize_t show_auto_temp_off(struct device *dev,
+=======
+static SENSOR_DEVICE_ATTR_RW(auto_fan1_channel, fan_auto_channel, 0);
+static SENSOR_DEVICE_ATTR_RW(auto_fan2_channel, fan_auto_channel, 1);
+
+/* Auto Temps */
+static ssize_t auto_temp_off_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
@@ -406,7 +430,11 @@ static ssize_t show_auto_temp_off(struct device *dev,
 	return sprintf(buf, "%d\n",
 		       AUTO_TEMP_OFF_FROM_REG(data->auto_temp[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_auto_temp_min(struct device *dev,
+=======
+static ssize_t auto_temp_min_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
@@ -415,8 +443,13 @@ static ssize_t show_auto_temp_min(struct device *dev,
 		       AUTO_TEMP_MIN_FROM_REG(data->auto_temp[nr]));
 }
 static ssize_t
+<<<<<<< HEAD
 set_auto_temp_min(struct device *dev, struct device_attribute *attr,
 		  const char *buf, size_t count)
+=======
+auto_temp_min_store(struct device *dev, struct device_attribute *attr,
+		    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -436,7 +469,11 @@ set_auto_temp_min(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t show_auto_temp_max(struct device *dev,
+=======
+static ssize_t auto_temp_max_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
@@ -445,8 +482,13 @@ static ssize_t show_auto_temp_max(struct device *dev,
 		       AUTO_TEMP_MAX_FROM_REG(data->auto_temp[nr]));
 }
 static ssize_t
+<<<<<<< HEAD
 set_auto_temp_max(struct device *dev, struct device_attribute *attr,
 		  const char *buf, size_t count)
+=======
+auto_temp_max_store(struct device *dev, struct device_attribute *attr,
+		    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -468,6 +510,7 @@ set_auto_temp_max(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define auto_temp_reg(offset)						\
 static SENSOR_DEVICE_ATTR(auto_temp##offset##_off, S_IRUGO,		\
 		show_auto_temp_off, NULL, offset - 1);			\
@@ -483,13 +526,33 @@ auto_temp_reg(3);
 /* pwm */
 static ssize_t show_pwm(struct device *dev,
 			struct device_attribute *attr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RO(auto_temp1_off, auto_temp_off, 0);
+static SENSOR_DEVICE_ATTR_RW(auto_temp1_min, auto_temp_min, 0);
+static SENSOR_DEVICE_ATTR_RW(auto_temp1_max, auto_temp_max, 0);
+static SENSOR_DEVICE_ATTR_RO(auto_temp2_off, auto_temp_off, 1);
+static SENSOR_DEVICE_ATTR_RW(auto_temp2_min, auto_temp_min, 1);
+static SENSOR_DEVICE_ATTR_RW(auto_temp2_max, auto_temp_max, 1);
+static SENSOR_DEVICE_ATTR_RO(auto_temp3_off, auto_temp_off, 2);
+static SENSOR_DEVICE_ATTR_RW(auto_temp3_min, auto_temp_min, 2);
+static SENSOR_DEVICE_ATTR_RW(auto_temp3_max, auto_temp_max, 2);
+
+/* pwm */
+static ssize_t pwm_show(struct device *dev, struct device_attribute *attr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
 	return sprintf(buf, "%d\n", PWM_FROM_REG(data->pwm[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev, struct device_attribute *attr,
 		       const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -517,12 +580,19 @@ static ssize_t set_pwm(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(pwm1, S_IRUGO | S_IWUSR, show_pwm, set_pwm, 0);
 static SENSOR_DEVICE_ATTR(pwm2, S_IRUGO | S_IWUSR, show_pwm, set_pwm, 1);
 static SENSOR_DEVICE_ATTR(auto_fan1_min_pwm, S_IRUGO | S_IWUSR,
 		show_pwm, set_pwm, 0);
 static SENSOR_DEVICE_ATTR(auto_fan2_min_pwm, S_IRUGO | S_IWUSR,
 		show_pwm, set_pwm, 1);
+=======
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2, pwm, 1);
+static SENSOR_DEVICE_ATTR_RW(auto_fan1_min_pwm, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(auto_fan2_min_pwm, pwm, 1);
+>>>>>>> upstream/android-13
 
 /* Fans */
 
@@ -572,9 +642,14 @@ static int trust_fan_readings(struct adm1031_data *data, int chan)
 	return res;
 }
 
+<<<<<<< HEAD
 
 static ssize_t show_fan(struct device *dev,
 			struct device_attribute *attr, char *buf)
+=======
+static ssize_t fan_show(struct device *dev, struct device_attribute *attr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
@@ -585,15 +660,25 @@ static ssize_t show_fan(struct device *dev,
 	return sprintf(buf, "%d\n", value);
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_div(struct device *dev,
 			    struct device_attribute *attr, char *buf)
+=======
+static ssize_t fan_div_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
 	return sprintf(buf, "%d\n", FAN_DIV_FROM_REG(data->fan_div[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev,
 			    struct device_attribute *attr, char *buf)
+=======
+static ssize_t fan_min_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
@@ -601,8 +686,14 @@ static ssize_t show_fan_min(struct device *dev,
 		       FAN_FROM_REG(data->fan_min[nr],
 				    FAN_DIV_FROM_REG(data->fan_div[nr])));
 }
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev, struct device_attribute *attr,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev,
+			     struct device_attribute *attr, const char *buf,
+			     size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -625,8 +716,14 @@ static ssize_t set_fan_min(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_div_store(struct device *dev,
+			     struct device_attribute *attr, const char *buf,
+			     size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -673,6 +770,7 @@ static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define fan_offset(offset)						\
 static SENSOR_DEVICE_ATTR(fan##offset##_input, S_IRUGO,			\
 		show_fan, NULL, offset - 1);				\
@@ -688,6 +786,18 @@ fan_offset(2);
 /* Temps */
 static ssize_t show_temp(struct device *dev,
 			 struct device_attribute *attr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RW(fan1_div, fan_div, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RW(fan2_div, fan_div, 1);
+
+/* Temps */
+static ssize_t temp_show(struct device *dev, struct device_attribute *attr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
@@ -697,7 +807,11 @@ static ssize_t show_temp(struct device *dev,
 	    (((data->ext_temp[nr] >> ((nr - 1) * 3)) & 7));
 	return sprintf(buf, "%d\n", TEMP_FROM_REG_EXT(data->temp[nr], ext));
 }
+<<<<<<< HEAD
 static ssize_t show_temp_offset(struct device *dev,
+=======
+static ssize_t temp_offset_show(struct device *dev,
+>>>>>>> upstream/android-13
 				struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
@@ -705,30 +819,48 @@ static ssize_t show_temp_offset(struct device *dev,
 	return sprintf(buf, "%d\n",
 		       TEMP_OFFSET_FROM_REG(data->temp_offset[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_temp_min(struct device *dev,
+=======
+static ssize_t temp_min_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_min[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev,
+=======
+static ssize_t temp_max_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_max[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_temp_crit(struct device *dev,
+=======
+static ssize_t temp_crit_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_crit[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_temp_offset(struct device *dev,
 			       struct device_attribute *attr, const char *buf,
 			       size_t count)
+=======
+static ssize_t temp_offset_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -748,8 +880,14 @@ static ssize_t set_temp_offset(struct device *dev,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t set_temp_min(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)
+=======
+static ssize_t temp_min_store(struct device *dev,
+			      struct device_attribute *attr, const char *buf,
+			      size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -769,8 +907,14 @@ static ssize_t set_temp_min(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t set_temp_max(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)
+=======
+static ssize_t temp_max_store(struct device *dev,
+			      struct device_attribute *attr, const char *buf,
+			      size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -790,8 +934,14 @@ static ssize_t set_temp_max(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t set_temp_crit(struct device *dev, struct device_attribute *attr,
 			     const char *buf, size_t count)
+=======
+static ssize_t temp_crit_store(struct device *dev,
+			       struct device_attribute *attr, const char *buf,
+			       size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1031_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -812,6 +962,7 @@ static ssize_t set_temp_crit(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define temp_reg(offset)						\
 static SENSOR_DEVICE_ATTR(temp##offset##_input, S_IRUGO,		\
 		show_temp, NULL, offset - 1);				\
@@ -827,6 +978,23 @@ static SENSOR_DEVICE_ATTR(temp##offset##_crit, S_IRUGO | S_IWUSR,	\
 temp_reg(1);
 temp_reg(2);
 temp_reg(3);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_offset, temp_offset, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp_min, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp_max, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit, temp_crit, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_offset, temp_offset, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_min, temp_min, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp_max, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_crit, temp_crit, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_offset, temp_offset, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_min, temp_min, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_max, temp_max, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_crit, temp_crit, 2);
+>>>>>>> upstream/android-13
 
 /* Alarms */
 static ssize_t alarms_show(struct device *dev, struct device_attribute *attr,
@@ -838,14 +1006,20 @@ static ssize_t alarms_show(struct device *dev, struct device_attribute *attr,
 
 static DEVICE_ATTR_RO(alarms);
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev,
 			  struct device_attribute *attr, char *buf)
+=======
+static ssize_t alarm_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
+>>>>>>> upstream/android-13
 {
 	int bitnr = to_sensor_dev_attr(attr)->index;
 	struct adm1031_data *data = adm1031_update_device(dev);
 	return sprintf(buf, "%d\n", (data->alarm >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan1_fault, S_IRUGO, show_alarm, NULL, 1);
 static SENSOR_DEVICE_ATTR(temp2_max_alarm, S_IRUGO, show_alarm, NULL, 2);
@@ -861,6 +1035,23 @@ static SENSOR_DEVICE_ATTR(temp3_min_alarm, S_IRUGO, show_alarm, NULL, 11);
 static SENSOR_DEVICE_ATTR(temp3_crit_alarm, S_IRUGO, show_alarm, NULL, 12);
 static SENSOR_DEVICE_ATTR(temp3_fault, S_IRUGO, show_alarm, NULL, 13);
 static SENSOR_DEVICE_ATTR(temp1_crit_alarm, S_IRUGO, show_alarm, NULL, 14);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(fan1_fault, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(temp2_max_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp2_min_alarm, alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(temp2_crit_alarm, alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(temp2_fault, alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_alarm, alarm, 7);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, alarm, 8);
+static SENSOR_DEVICE_ATTR_RO(fan2_fault, alarm, 9);
+static SENSOR_DEVICE_ATTR_RO(temp3_max_alarm, alarm, 10);
+static SENSOR_DEVICE_ATTR_RO(temp3_min_alarm, alarm, 11);
+static SENSOR_DEVICE_ATTR_RO(temp3_crit_alarm, alarm, 12);
+static SENSOR_DEVICE_ATTR_RO(temp3_fault, alarm, 13);
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_alarm, alarm, 14);
+>>>>>>> upstream/android-13
 
 /* Update Interval */
 static const unsigned int update_intervals[] = {
@@ -1042,8 +1233,14 @@ static void adm1031_init_client(struct i2c_client *client)
 	data->update_interval = update_intervals[i];
 }
 
+<<<<<<< HEAD
 static int adm1031_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id adm1031_id[];
+
+static int adm1031_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -1055,7 +1252,11 @@ static int adm1031_probe(struct i2c_client *client,
 
 	i2c_set_clientdata(client, data);
 	data->client = client;
+<<<<<<< HEAD
 	data->chip_type = id->driver_data;
+=======
+	data->chip_type = i2c_match_id(adm1031_id, client)->driver_data;
+>>>>>>> upstream/android-13
 	mutex_init(&data->update_lock);
 
 	if (data->chip_type == adm1030)
@@ -1088,7 +1289,11 @@ static struct i2c_driver adm1031_driver = {
 	.driver = {
 		.name = "adm1031",
 	},
+<<<<<<< HEAD
 	.probe		= adm1031_probe,
+=======
+	.probe_new	= adm1031_probe,
+>>>>>>> upstream/android-13
 	.id_table	= adm1031_id,
 	.detect		= adm1031_detect,
 	.address_list	= normal_i2c,

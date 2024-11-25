@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __PERF_SORT_H
 #define __PERF_SORT_H
+<<<<<<< HEAD
 #include "../builtin.h"
 
 #include <regex.h>
@@ -23,6 +24,21 @@
 #include "hist.h"
 #include "srcline.h"
 
+=======
+#include <regex.h>
+#include <stdbool.h>
+#include <linux/list.h>
+#include <linux/rbtree.h>
+#include "map_symbol.h"
+#include "symbol_conf.h"
+#include "callchain.h"
+#include "values.h"
+#include "hist.h"
+#include "stat.h"
+#include "spark.h"
+
+struct option;
+>>>>>>> upstream/android-13
 struct thread;
 
 extern regex_t parent_regex;
@@ -46,13 +62,25 @@ extern struct sort_entry sort_srcline;
 extern enum sort_type sort__first_dimension;
 extern const char default_mem_sort_order[];
 
+<<<<<<< HEAD
+=======
+struct res_sample {
+	u64 time;
+	int cpu;
+	int tid;
+};
+
+>>>>>>> upstream/android-13
 struct he_stat {
 	u64			period;
 	u64			period_sys;
 	u64			period_us;
 	u64			period_guest_sys;
 	u64			period_guest_us;
+<<<<<<< HEAD
 	u64			weight;
+=======
+>>>>>>> upstream/android-13
 	u32			nr_events;
 };
 
@@ -72,7 +100,16 @@ struct hist_entry_diff {
 
 		/* HISTC_WEIGHTED_DIFF */
 		s64	wdiff;
+<<<<<<< HEAD
 	};
+=======
+
+		/* PERF_HPP_DIFF__CYCLES */
+		s64	cycles;
+	};
+	struct stats	stats;
+	unsigned long	svals[NUM_SPARKS];
+>>>>>>> upstream/android-13
 };
 
 struct hist_entry_ops {
@@ -99,10 +136,21 @@ struct hist_entry {
 	struct thread		*thread;
 	struct comm		*comm;
 	struct namespace_id	cgroup_id;
+<<<<<<< HEAD
+=======
+	u64			cgroup;
+>>>>>>> upstream/android-13
 	u64			ip;
 	u64			transaction;
 	s32			socket;
 	s32			cpu;
+<<<<<<< HEAD
+=======
+	u64			code_page_size;
+	u64			weight;
+	u64			ins_lat;
+	u64			p_stage_cyc;
+>>>>>>> upstream/android-13
 	u8			cpumode;
 	u8			depth;
 
@@ -134,10 +182,21 @@ struct hist_entry {
 	char			*srcfile;
 	struct symbol		*parent;
 	struct branch_info	*branch_info;
+<<<<<<< HEAD
 	struct hists		*hists;
 	struct mem_info		*mem_info;
 	void			*raw_data;
 	u32			raw_size;
+=======
+	long			time;
+	struct hists		*hists;
+	struct mem_info		*mem_info;
+	struct block_info	*block_info;
+	void			*raw_data;
+	u32			raw_size;
+	int			num_res;
+	struct res_sample	*res_samples;
+>>>>>>> upstream/android-13
 	void			*trace_output;
 	struct perf_hpp_list	*hpp_list;
 	struct hist_entry	*parent_he;
@@ -145,8 +204,13 @@ struct hist_entry {
 	union {
 		/* this is for hierarchical entry structure */
 		struct {
+<<<<<<< HEAD
 			struct rb_root	hroot_in;
 			struct rb_root  hroot_out;
+=======
+			struct rb_root_cached	hroot_in;
+			struct rb_root_cached   hroot_out;
+>>>>>>> upstream/android-13
 		};				/* non-leaf entries */
 		struct rb_root	sorted_chain;	/* leaf entry has callchains */
 	};
@@ -158,6 +222,11 @@ static __pure inline bool hist_entry__has_callchains(struct hist_entry *he)
 	return he->callchain_size != 0;
 }
 
+<<<<<<< HEAD
+=======
+int hist_entry__sym_snprintf(struct hist_entry *he, char *bf, size_t size, unsigned int width);
+
+>>>>>>> upstream/android-13
 static inline bool hist_entry__has_pairs(struct hist_entry *he)
 {
 	return !list_empty(&he->pairs.node);
@@ -190,6 +259,7 @@ static inline float hist_entry__get_percent_limit(struct hist_entry *he)
 	return period * 100.0 / total_period;
 }
 
+<<<<<<< HEAD
 static inline u64 cl_address(u64 address)
 {
 	/* return the cacheline of the address */
@@ -202,6 +272,8 @@ static inline u64 cl_offset(u64 address)
 	return (address & (cacheline_size() - 1));
 }
 
+=======
+>>>>>>> upstream/android-13
 enum sort_mode {
 	SORT_MODE__NORMAL,
 	SORT_MODE__BRANCH,
@@ -228,7 +300,18 @@ enum sort_type {
 	SORT_TRACE,
 	SORT_SYM_SIZE,
 	SORT_DSO_SIZE,
+<<<<<<< HEAD
 	SORT_CGROUP_ID,
+=======
+	SORT_CGROUP,
+	SORT_CGROUP_ID,
+	SORT_SYM_IPC_NULL,
+	SORT_TIME,
+	SORT_CODE_PAGE_SIZE,
+	SORT_LOCAL_INS_LAT,
+	SORT_GLOBAL_INS_LAT,
+	SORT_PIPELINE_STAGE_CYC,
+>>>>>>> upstream/android-13
 
 	/* branch stack specific sort keys */
 	__SORT_BRANCH_STACK,
@@ -242,6 +325,10 @@ enum sort_type {
 	SORT_CYCLES,
 	SORT_SRCLINE_FROM,
 	SORT_SRCLINE_TO,
+<<<<<<< HEAD
+=======
+	SORT_SYM_IPC,
+>>>>>>> upstream/android-13
 
 	/* memory mode specific sort keys */
 	__SORT_MEMORY_MODE,
@@ -254,6 +341,11 @@ enum sort_type {
 	SORT_MEM_DCACHELINE,
 	SORT_MEM_IADDR_SYMBOL,
 	SORT_MEM_PHYS_DADDR,
+<<<<<<< HEAD
+=======
+	SORT_MEM_DATA_PAGE_SIZE,
+	SORT_MEM_BLOCKED,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -272,17 +364,40 @@ struct sort_entry {
 	u8	se_width_idx;
 };
 
+<<<<<<< HEAD
 extern struct sort_entry sort_thread;
 extern struct list_head hist_entry__sort_list;
 
 struct perf_evlist;
 struct tep_handle;
 int setup_sorting(struct perf_evlist *evlist);
+=======
+struct block_hist {
+	struct hists		block_hists;
+	struct perf_hpp_list	block_list;
+	struct perf_hpp_fmt	block_fmt;
+	int			block_idx;
+	bool			valid;
+	struct hist_entry	he;
+};
+
+extern struct sort_entry sort_thread;
+extern struct list_head hist_entry__sort_list;
+
+struct evlist;
+struct tep_handle;
+int setup_sorting(struct evlist *evlist);
+>>>>>>> upstream/android-13
 int setup_output_field(void);
 void reset_output_field(void);
 void sort__setup_elide(FILE *fp);
 void perf_hpp__set_elide(int idx, bool elide);
 
+<<<<<<< HEAD
+=======
+char *sort_help(const char *prefix);
+
+>>>>>>> upstream/android-13
 int report_parse_ignore_callees_opt(const struct option *opt, const char *arg, int unset);
 
 bool is_strict_order(const char *order);
@@ -290,7 +405,11 @@ bool is_strict_order(const char *order);
 int hpp_dimension__add_output(unsigned col);
 void reset_dimensions(void);
 int sort_dimension__add(struct perf_hpp_list *list, const char *tok,
+<<<<<<< HEAD
 			struct perf_evlist *evlist,
+=======
+			struct evlist *evlist,
+>>>>>>> upstream/android-13
 			int level);
 int output_field_add(struct perf_hpp_list *list, char *tok);
 int64_t
@@ -299,5 +418,10 @@ int64_t
 sort__daddr_cmp(struct hist_entry *left, struct hist_entry *right);
 int64_t
 sort__dcacheline_cmp(struct hist_entry *left, struct hist_entry *right);
+<<<<<<< HEAD
+=======
+int64_t
+_sort__sym_cmp(struct symbol *sym_l, struct symbol *sym_r);
+>>>>>>> upstream/android-13
 char *hist_entry__srcline(struct hist_entry *he);
 #endif	/* __PERF_SORT_H */

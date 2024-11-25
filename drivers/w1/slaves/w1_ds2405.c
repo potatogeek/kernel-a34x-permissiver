@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	w1_ds2405.c
  *
  * Copyright (c) 2017 Maciej S. Szmigiero <mail@maciej.szmigiero.name>
  * Based on w1_therm.c copyright (c) 2004 Evgeniy Polyakov <zbr@ioremap.net>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -216,7 +223,11 @@ static struct attribute *w1_ds2405_attrs[] = {
 
 ATTRIBUTE_GROUPS(w1_ds2405);
 
+<<<<<<< HEAD
 static struct w1_family_ops w1_ds2405_fops = {
+=======
+static const struct w1_family_ops w1_ds2405_fops = {
+>>>>>>> upstream/android-13
 	.groups = w1_ds2405_groups
 };
 

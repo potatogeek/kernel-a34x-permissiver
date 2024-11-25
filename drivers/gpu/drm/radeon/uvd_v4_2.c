@@ -23,7 +23,11 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "cikd.h"
@@ -40,7 +44,11 @@ int uvd_v4_2_resume(struct radeon_device *rdev)
 	uint64_t addr;
 	uint32_t size;
 
+<<<<<<< HEAD
 	/* programm the VCPU memory controller bits 0-27 */
+=======
+	/* program the VCPU memory controller bits 0-27 */
+>>>>>>> upstream/android-13
 
 	/* skip over the header of the new firmware format */
 	if (rdev->uvd.fw_header_present)

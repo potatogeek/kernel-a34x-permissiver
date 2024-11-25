@@ -2,8 +2,11 @@
 #ifndef __ASM_SH_CACHEFLUSH_H
 #define __ASM_SH_CACHEFLUSH_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 
 /*
@@ -46,6 +49,10 @@ extern void flush_cache_range(struct vm_area_struct *vma,
 #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
 extern void flush_dcache_page(struct page *page);
 extern void flush_icache_range(unsigned long start, unsigned long end);
+<<<<<<< HEAD
+=======
+#define flush_icache_user_range flush_icache_range
+>>>>>>> upstream/android-13
 extern void flush_icache_page(struct vm_area_struct *vma,
 				 struct page *page);
 extern void flush_cache_sigtramp(unsigned long address);
@@ -64,6 +71,11 @@ static inline void flush_anon_page(struct vm_area_struct *vma,
 	if (boot_cpu_data.dcache.n_aliases && PageAnon(page))
 		__flush_anon_page(page, vmaddr);
 }
+<<<<<<< HEAD
+=======
+
+#define ARCH_IMPLEMENTS_FLUSH_KERNEL_VMAP_RANGE 1
+>>>>>>> upstream/android-13
 static inline void flush_kernel_vmap_range(void *addr, int size)
 {
 	__flush_wback_region(addr, size);
@@ -73,12 +85,15 @@ static inline void invalidate_kernel_vmap_range(void *addr, int size)
 	__flush_invalidate_region(addr, size);
 }
 
+<<<<<<< HEAD
 #define ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
 static inline void flush_kernel_dcache_page(struct page *page)
 {
 	flush_dcache_page(page);
 }
 
+=======
+>>>>>>> upstream/android-13
 extern void copy_to_user_page(struct vm_area_struct *vma,
 	struct page *page, unsigned long vaddr, void *dst, const void *src,
 	unsigned long len);
@@ -108,5 +123,8 @@ static inline void *sh_cacheop_vaddr(void *vaddr)
 	return vaddr;
 }
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SH_CACHEFLUSH_H */

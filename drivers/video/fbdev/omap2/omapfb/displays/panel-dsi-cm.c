@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic DSI Command Mode panel driver
  *
  * Copyright (C) 2013 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* #define DEBUG */
@@ -412,7 +419,11 @@ static ssize_t dsicm_num_errors_show(struct device *dev,
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", errors);
+=======
+	return sysfs_emit(buf, "%d\n", errors);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dsicm_hw_revision_show(struct device *dev,
@@ -442,7 +453,11 @@ static ssize_t dsicm_hw_revision_show(struct device *dev,
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%02x.%02x.%02x\n", id1, id2, id3);
+=======
+	return sysfs_emit(buf, "%02x.%02x.%02x\n", id1, id2, id3);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dsicm_store_ulps(struct device *dev,
@@ -490,7 +505,11 @@ static ssize_t dsicm_show_ulps(struct device *dev,
 	t = ddata->ulps_enabled;
 	mutex_unlock(&ddata->lock);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n", t);
+=======
+	return sysfs_emit(buf, "%u\n", t);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dsicm_store_ulps_timeout(struct device *dev,
@@ -535,7 +554,11 @@ static ssize_t dsicm_show_ulps_timeout(struct device *dev,
 	t = ddata->ulps_timeout;
 	mutex_unlock(&ddata->lock);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n", t);
+=======
+	return sysfs_emit(buf, "%u\n", t);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(num_dsi_errors, S_IRUGO, dsicm_num_errors_show, NULL);

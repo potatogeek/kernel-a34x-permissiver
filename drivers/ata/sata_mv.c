@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sata_mv.c - Marvell SATA support
  *
@@ -9,6 +13,7 @@
  * Extensive overhaul and enhancement by Mark Lord <mlord@pobox.com>.
  *
  * Please ALWAYS copy linux-ide@vger.kernel.org on emails.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -679,10 +686,21 @@ static struct scsi_host_template mv5_sht = {
 };
 #endif
 static struct scsi_host_template mv6_sht = {
+<<<<<<< HEAD
 	ATA_NCQ_SHT(DRV_NAME),
 	.can_queue		= MV_MAX_Q_DEPTH - 1,
 	.sg_tablesize		= MV_MAX_SG_CT / 2,
 	.dma_boundary		= MV_DMA_BOUNDARY,
+=======
+	__ATA_BASE_SHT(DRV_NAME),
+	.can_queue		= MV_MAX_Q_DEPTH - 1,
+	.sg_tablesize		= MV_MAX_SG_CT / 2,
+	.dma_boundary		= MV_DMA_BOUNDARY,
+	.sdev_attrs             = ata_ncq_sdev_attrs,
+	.change_queue_depth	= ata_scsi_change_queue_depth,
+	.tag_alloc_policy	= BLK_TAG_ALLOC_RR,
+	.slave_configure	= ata_scsi_slave_config
+>>>>>>> upstream/android-13
 };
 
 static struct ata_port_operations mv5_ops = {
@@ -1159,9 +1177,14 @@ static void mv_set_irq_coalescing(struct ata_host *host,
 	spin_unlock_irqrestore(&host->lock, flags);
 }
 
+<<<<<<< HEAD
 /**
  *      mv_start_edma - Enable eDMA engine
  *      @base: port base address
+=======
+/*
+ *      mv_start_edma - Enable eDMA engine
+>>>>>>> upstream/android-13
  *      @pp: port private data
  *
  *      Verify the local cache of the eDMA state is accurate with a
@@ -1532,7 +1555,11 @@ static void mv_60x1_errata_sata25(struct ata_port *ap, int want_ncq)
 		writel(new, hpriv->base + GPIO_PORT_CTL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	mv_bmdma_enable - set a magic bit on GEN_IIE to allow bmdma
  *	@ap: Port being initialized
  *
@@ -1931,8 +1958,13 @@ static void mv_bmdma_start(struct ata_queued_cmd *qc)
 }
 
 /**
+<<<<<<< HEAD
  *	mv_bmdma_stop - Stop BMDMA transfer
  *	@qc: queued command to stop DMA on.
+=======
+ *	mv_bmdma_stop_ap - Stop BMDMA transfer
+ *	@ap: port to stop
+>>>>>>> upstream/android-13
  *
  *	Clears the ATA_DMA_START flag in the bmdma control register
  *
@@ -2023,7 +2055,11 @@ static void mv_rw_multi_errata_sata24(struct ata_queued_cmd *qc)
 				break;
 			case ATA_CMD_WRITE_MULTI_FUA_EXT:
 				tf->flags &= ~ATA_TFLAG_FUA; /* ugh */
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case ATA_CMD_WRITE_MULTI_EXT:
 				tf->command = ATA_CMD_PIO_WRITE_EXT;
 				break;
@@ -2057,7 +2093,11 @@ static enum ata_completion_errors mv_qc_prep(struct ata_queued_cmd *qc)
 	case ATA_PROT_DMA:
 		if (tf->command == ATA_CMD_DSM)
 			return AC_ERR_OK;
+<<<<<<< HEAD
 		/* fall-thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_PROT_NCQ:
 		break;	/* continue below */
 	case ATA_PROT_PIO:
@@ -2234,6 +2274,10 @@ static u8 mv_sff_check_status(struct ata_port *ap)
 
 /**
  *	mv_send_fis - Send a FIS, using the "Vendor-Unique FIS" register
+<<<<<<< HEAD
+=======
+ *	@ap: ATA port to send a FIS
+>>>>>>> upstream/android-13
  *	@fis: fis to be sent
  *	@nwords: number of 32-bit words in the fis
  */
@@ -2309,7 +2353,11 @@ static unsigned int mv_qc_issue_fis(struct ata_queued_cmd *qc)
 	switch (qc->tf.protocol) {
 	case ATAPI_PROT_PIO:
 		pp->pp_flags |= MV_PP_FLAG_FAKE_ATA_BUSY;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATAPI_PROT_NODATA:
 		ap->hsm_task_state = HSM_ST_FIRST;
 		break;
@@ -2360,7 +2408,11 @@ static unsigned int mv_qc_issue(struct ata_queued_cmd *qc)
 				return AC_ERR_OTHER;
 			break;  /* use bmdma for this */
 		}
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_PROT_NCQ:
 		mv_start_edma(ap, port_mmio, pp, qc->tf.protocol);
 		pp->req_idx = (pp->req_idx + 1) & MV_MAX_Q_DEPTH_MASK;
@@ -2389,7 +2441,11 @@ static unsigned int mv_qc_issue(struct ata_queued_cmd *qc)
 				      ": attempting PIO w/multiple DRQ: "
 				      "this may fail due to h/w errata\n");
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_PROT_NODATA:
 	case ATAPI_PROT_PIO:
 	case ATAPI_PROT_NODATA:
@@ -3262,7 +3318,11 @@ static void mv6_reset_flash(struct mv_host_priv *hpriv, void __iomem *mmio)
 	writel(tmp, mmio + GPIO_PORT_CTL);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *      mv6_reset_hc - Perform the 6xxx global soft reset
  *      @mmio: base address of the HBA
  *
@@ -3543,7 +3603,11 @@ static void mv_soc_65n_phy_errata(struct mv_host_priv *hpriv,
 	writel(reg, port_mmio + PHY_MODE9_GEN1);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	soc_is_65 - check if the soc is 65 nano device
  *
  *	Detect the type of the SoC, this is done by reading the PHYCFG_OFS
@@ -3877,7 +3941,11 @@ static int mv_chip_id(struct ata_host *host, unsigned int board_idx)
 				" and avoid the final two gigabytes on"
 				" all RocketRAID BIOS initialized drives.\n");
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case chip_6042:
 		hpriv->ops = &mv6xxx_ops;
 		hp_flags |= MV_HP_GEN_IIE;
@@ -3905,8 +3973,13 @@ static int mv_chip_id(struct ata_host *host, unsigned int board_idx)
 		break;
 
 	default:
+<<<<<<< HEAD
 		dev_err(host->dev, "BUG: invalid board index %u\n", board_idx);
 		return 1;
+=======
+		dev_alert(host->dev, "BUG: invalid board index %u\n", board_idx);
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	hpriv->hp_flags = hp_flags;
@@ -4333,6 +4406,7 @@ static struct pci_driver mv_pci_driver = {
 
 };
 
+<<<<<<< HEAD
 /* move to PCI layer or libata core? */
 static int pci_go_64(struct pci_dev *pdev)
 {
@@ -4365,6 +4439,8 @@ static int pci_go_64(struct pci_dev *pdev)
 	return rc;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  *      mv_print_info - Dump key info to kernel log for perusal.
  *      @host: ATA host to print info about
@@ -4449,9 +4525,17 @@ static int mv_pci_init_one(struct pci_dev *pdev,
 	host->iomap = pcim_iomap_table(pdev);
 	hpriv->base = host->iomap[MV_PRIMARY_BAR];
 
+<<<<<<< HEAD
 	rc = pci_go_64(pdev);
 	if (rc)
 		return rc;
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (rc) {
+		dev_err(&pdev->dev, "DMA enable failed\n");
+		return rc;
+	}
+>>>>>>> upstream/android-13
 
 	rc = mv_create_dma_pools(hpriv, &pdev->dev);
 	if (rc)

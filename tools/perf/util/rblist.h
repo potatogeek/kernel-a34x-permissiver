@@ -20,7 +20,11 @@
  */
 
 struct rblist {
+<<<<<<< HEAD
 	struct rb_root entries;
+=======
+	struct rb_root_cached entries;
+>>>>>>> upstream/android-13
 	unsigned int   nr_entries;
 
 	int (*node_cmp)(struct rb_node *rbn, const void *entry);

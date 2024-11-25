@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Local endpoint object management
  *
  * Copyright (C) 2016 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -20,6 +27,10 @@
 #include <linux/hashtable.h>
 #include <net/sock.h>
 #include <net/udp.h>
+<<<<<<< HEAD
+=======
+#include <net/udp_tunnel.h>
+>>>>>>> upstream/android-13
 #include <net/af_rxrpc.h>
 #include "ar-internal.h"
 
@@ -90,8 +101,13 @@ static struct rxrpc_local *rxrpc_alloc_local(struct rxrpc_net *rxnet,
 		init_rwsem(&local->defrag_sem);
 		skb_queue_head_init(&local->reject_queue);
 		skb_queue_head_init(&local->event_queue);
+<<<<<<< HEAD
 		local->client_conns = RB_ROOT;
 		spin_lock_init(&local->client_conns_lock);
+=======
+		local->client_bundles = RB_ROOT;
+		spin_lock_init(&local->client_bundles_lock);
+>>>>>>> upstream/android-13
 		spin_lock_init(&local->lock);
 		rwlock_init(&local->services_lock);
 		local->debug_id = atomic_inc_return(&rxrpc_debug_id);
@@ -110,6 +126,7 @@ static struct rxrpc_local *rxrpc_alloc_local(struct rxrpc_net *rxnet,
  */
 static int rxrpc_open_socket(struct rxrpc_local *local, struct net *net)
 {
+<<<<<<< HEAD
 	struct sock *usk;
 	int ret, opt;
 
@@ -119,11 +136,37 @@ static int rxrpc_open_socket(struct rxrpc_local *local, struct net *net)
 	/* create a socket to represent the local endpoint */
 	ret = sock_create_kern(net, local->srx.transport.family,
 			       local->srx.transport_type, 0, &local->socket);
+=======
+	struct udp_tunnel_sock_cfg tuncfg = {NULL};
+	struct sockaddr_rxrpc *srx = &local->srx;
+	struct udp_port_cfg udp_conf = {0};
+	struct sock *usk;
+	int ret;
+
+	_enter("%p{%d,%d}",
+	       local, srx->transport_type, srx->transport.family);
+
+	udp_conf.family = srx->transport.family;
+	udp_conf.use_udp_checksums = true;
+	if (udp_conf.family == AF_INET) {
+		udp_conf.local_ip = srx->transport.sin.sin_addr;
+		udp_conf.local_udp_port = srx->transport.sin.sin_port;
+#if IS_ENABLED(CONFIG_AF_RXRPC_IPV6)
+	} else {
+		udp_conf.local_ip6 = srx->transport.sin6.sin6_addr;
+		udp_conf.local_udp_port = srx->transport.sin6.sin6_port;
+		udp_conf.use_udp6_tx_checksums = true;
+		udp_conf.use_udp6_rx_checksums = true;
+#endif
+	}
+	ret = udp_sock_create(net, &udp_conf, &local->socket);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		_leave(" = %d [socket]", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* set the socket up */
 	usk = local->socket->sk;
 	inet_sk(usk)->mc_loop = 0;
@@ -168,10 +211,26 @@ static int rxrpc_open_socket(struct rxrpc_local *local, struct net *net)
 			_debug("setsockopt failed");
 			goto error;
 		}
+=======
+	tuncfg.encap_type = UDP_ENCAP_RXRPC;
+	tuncfg.encap_rcv = rxrpc_input_packet;
+	tuncfg.sk_user_data = local;
+	setup_udp_tunnel_sock(net, local->socket, &tuncfg);
+
+	/* set the socket up */
+	usk = local->socket->sk;
+	usk->sk_error_report = rxrpc_error_report;
+
+	switch (srx->transport.family) {
+	case AF_INET6:
+		/* we want to receive ICMPv6 errors */
+		ip6_sock_set_recverr(usk);
+>>>>>>> upstream/android-13
 
 		/* Fall through and set IPv4 options too otherwise we don't get
 		 * errors from IPv4 packets sent through the IPv6 socket.
 		 */
+<<<<<<< HEAD
 
 	case AF_INET:
 		/* we want to receive ICMP errors */
@@ -200,6 +259,18 @@ static int rxrpc_open_socket(struct rxrpc_local *local, struct net *net)
 			_debug("setsockopt failed");
 			goto error;
 		}
+=======
+		fallthrough;
+	case AF_INET:
+		/* we want to receive ICMP errors */
+		ip_sock_set_recverr(usk);
+
+		/* we want to set the don't fragment bit */
+		ip_sock_set_mtu_discover(usk, IP_PMTUDISC_DO);
+
+		/* We want receive timestamps. */
+		sock_enable_timestamps(usk);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -208,6 +279,7 @@ static int rxrpc_open_socket(struct rxrpc_local *local, struct net *net)
 
 	_leave(" = 0");
 	return 0;
+<<<<<<< HEAD
 
 error:
 	kernel_sock_shutdown(local->socket, SHUT_RDWR);
@@ -217,6 +289,8 @@ error:
 
 	_leave(" = %d", ret);
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*

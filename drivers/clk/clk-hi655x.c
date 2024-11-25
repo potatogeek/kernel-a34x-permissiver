@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Clock driver for Hi655x
  *
  * Copyright (c) 2017, Linaro Ltd.
  *
  * Author: Daniel Lezcano <daniel.lezcano@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -13,6 +18,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk-provider.h>
 #include <linux/module.h>
@@ -107,8 +114,13 @@ static int hi655x_clk_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	return of_clk_add_hw_provider(parent->of_node, of_clk_hw_simple_get,
 				     &hi655x_clk->clk_hw);
+=======
+	return devm_of_clk_add_hw_provider(&pdev->dev, of_clk_hw_simple_get,
+					   &hi655x_clk->clk_hw);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver hi655x_clk_driver = {

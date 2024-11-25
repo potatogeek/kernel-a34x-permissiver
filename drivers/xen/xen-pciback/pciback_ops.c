@@ -6,6 +6,10 @@
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+<<<<<<< HEAD
+=======
+#define dev_fmt pr_fmt
+>>>>>>> upstream/android-13
 
 #include <linux/moduleparam.h>
 #include <linux/wait.h>
@@ -14,9 +18,12 @@
 #include <linux/sched.h>
 #include "pciback.h"
 
+<<<<<<< HEAD
 int verbose_request;
 module_param(verbose_request, int, 0644);
 
+=======
+>>>>>>> upstream/android-13
 static irqreturn_t xen_pcibk_guest_interrupt(int irq, void *dev_id);
 
 /* Ensure a device is has the fake IRQ handler "turned on/off" and is
@@ -147,9 +154,12 @@ int xen_pcibk_enable_msi(struct xen_pcibk_device *pdev,
 	struct xen_pcibk_dev_data *dev_data;
 	int status;
 
+<<<<<<< HEAD
 	if (unlikely(verbose_request))
 		printk(KERN_DEBUG DRV_NAME ": %s: enable MSI\n", pci_name(dev));
 
+=======
+>>>>>>> upstream/android-13
 	if (dev->msi_enabled)
 		status = -EALREADY;
 	else if (dev->msix_enabled)
@@ -158,9 +168,14 @@ int xen_pcibk_enable_msi(struct xen_pcibk_device *pdev,
 		status = pci_enable_msi(dev);
 
 	if (status) {
+<<<<<<< HEAD
 		pr_warn_ratelimited("%s: error enabling MSI for guest %u: err %d\n",
 				    pci_name(dev), pdev->xdev->otherend_id,
 				    status);
+=======
+		dev_warn_ratelimited(&dev->dev, "error enabling MSI for guest %u: err %d\n",
+				     pdev->xdev->otherend_id, status);
+>>>>>>> upstream/android-13
 		op->value = 0;
 		return XEN_PCI_ERR_op_failed;
 	}
@@ -169,9 +184,14 @@ int xen_pcibk_enable_msi(struct xen_pcibk_device *pdev,
 	 * the local domain's IRQ number. */
 
 	op->value = dev->irq ? xen_pirq_from_irq(dev->irq) : 0;
+<<<<<<< HEAD
 	if (unlikely(verbose_request))
 		printk(KERN_DEBUG DRV_NAME ": %s: MSI: %d\n", pci_name(dev),
 			op->value);
+=======
+
+	dev_dbg(&dev->dev, "MSI: %d\n", op->value);
+>>>>>>> upstream/android-13
 
 	dev_data = pci_get_drvdata(dev);
 	if (dev_data)
@@ -184,10 +204,13 @@ static
 int xen_pcibk_disable_msi(struct xen_pcibk_device *pdev,
 			  struct pci_dev *dev, struct xen_pci_op *op)
 {
+<<<<<<< HEAD
 	if (unlikely(verbose_request))
 		printk(KERN_DEBUG DRV_NAME ": %s: disable MSI\n",
 		       pci_name(dev));
 
+=======
+>>>>>>> upstream/android-13
 	if (dev->msi_enabled) {
 		struct xen_pcibk_dev_data *dev_data;
 
@@ -198,9 +221,15 @@ int xen_pcibk_disable_msi(struct xen_pcibk_device *pdev,
 			dev_data->ack_intr = 1;
 	}
 	op->value = dev->irq ? xen_pirq_from_irq(dev->irq) : 0;
+<<<<<<< HEAD
 	if (unlikely(verbose_request))
 		printk(KERN_DEBUG DRV_NAME ": %s: MSI: %d\n", pci_name(dev),
 			op->value);
+=======
+
+	dev_dbg(&dev->dev, "MSI: %d\n", op->value);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -213,9 +242,13 @@ int xen_pcibk_enable_msix(struct xen_pcibk_device *pdev,
 	struct msix_entry *entries;
 	u16 cmd;
 
+<<<<<<< HEAD
 	if (unlikely(verbose_request))
 		printk(KERN_DEBUG DRV_NAME ": %s: enable MSI-X\n",
 		       pci_name(dev));
+=======
+	dev_dbg(&dev->dev, "enable MSI-X\n");
+>>>>>>> upstream/android-13
 
 	if (op->value > SH_INFO_MAX_VEC)
 		return -EINVAL;
@@ -248,6 +281,7 @@ int xen_pcibk_enable_msix(struct xen_pcibk_device *pdev,
 			if (entries[i].vector) {
 				op->msix_entries[i].vector =
 					xen_pirq_from_irq(entries[i].vector);
+<<<<<<< HEAD
 				if (unlikely(verbose_request))
 					printk(KERN_DEBUG DRV_NAME ": %s: " \
 						"MSI-X[%d]: %d\n",
@@ -259,6 +293,15 @@ int xen_pcibk_enable_msix(struct xen_pcibk_device *pdev,
 		pr_warn_ratelimited("%s: error enabling MSI-X for guest %u: err %d!\n",
 				    pci_name(dev), pdev->xdev->otherend_id,
 				    result);
+=======
+				dev_dbg(&dev->dev, "MSI-X[%d]: %d\n", i,
+					op->msix_entries[i].vector);
+			}
+		}
+	} else
+		dev_warn_ratelimited(&dev->dev, "error enabling MSI-X for guest %u: err %d!\n",
+				     pdev->xdev->otherend_id, result);
+>>>>>>> upstream/android-13
 	kfree(entries);
 
 	op->value = result;
@@ -273,10 +316,13 @@ static
 int xen_pcibk_disable_msix(struct xen_pcibk_device *pdev,
 			   struct pci_dev *dev, struct xen_pci_op *op)
 {
+<<<<<<< HEAD
 	if (unlikely(verbose_request))
 		printk(KERN_DEBUG DRV_NAME ": %s: disable MSI-X\n",
 			pci_name(dev));
 
+=======
+>>>>>>> upstream/android-13
 	if (dev->msix_enabled) {
 		struct xen_pcibk_dev_data *dev_data;
 
@@ -291,9 +337,15 @@ int xen_pcibk_disable_msix(struct xen_pcibk_device *pdev,
 	 * an undefined IRQ value of zero.
 	 */
 	op->value = dev->irq ? xen_pirq_from_irq(dev->irq) : 0;
+<<<<<<< HEAD
 	if (unlikely(verbose_request))
 		printk(KERN_DEBUG DRV_NAME ": %s: MSI-X: %d\n",
 		       pci_name(dev), op->value);
+=======
+
+	dev_dbg(&dev->dev, "MSI-X: %d\n", op->value);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
@@ -452,7 +504,11 @@ static irqreturn_t xen_pcibk_guest_interrupt(int irq, void *dev_id)
 		dev_data->handled++;
 		if ((dev_data->handled % 1000) == 0) {
 			if (xen_test_irq_shared(irq)) {
+<<<<<<< HEAD
 				pr_info("%s IRQ line is not shared "
+=======
+				dev_info(&dev->dev, "%s IRQ line is not shared "
+>>>>>>> upstream/android-13
 					"with other domains. Turning ISR off\n",
 					 dev_data->irq_name);
 				dev_data->ack_intr = 0;

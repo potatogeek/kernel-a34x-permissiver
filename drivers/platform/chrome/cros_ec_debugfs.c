@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cros_ec_debugfs - debug logs for Chrome OS EC
  *
@@ -16,26 +17,50 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+// Debug logs for the ChromeOS EC
+//
+// Copyright (C) 2015 Google, Inc.
+>>>>>>> upstream/android-13
 
 #include <linux/circ_buf.h>
 #include <linux/debugfs.h>
 #include <linux/delay.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/mfd/cros_ec.h>
 #include <linux/mfd/cros_ec_commands.h>
 #include <linux/mutex.h>
+=======
+#include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/platform_data/cros_ec_commands.h>
+#include <linux/platform_data/cros_ec_proto.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 #include <linux/poll.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/wait.h>
 
+<<<<<<< HEAD
+=======
+#define DRV_NAME "cros-ec-debugfs"
+
+>>>>>>> upstream/android-13
 #define LOG_SHIFT		14
 #define LOG_SIZE		(1 << LOG_SHIFT)
 #define LOG_POLL_SEC		10
 
 #define CIRC_ADD(idx, size, value)	(((idx) + (value)) & ((size) - 1))
 
+<<<<<<< HEAD
 /* struct cros_ec_debugfs - ChromeOS EC debugging information
+=======
+/**
+ * struct cros_ec_debugfs - EC debugging information.
+>>>>>>> upstream/android-13
  *
  * @ec: EC device this debugfs information belongs to
  * @dir: dentry for debugfs files
@@ -82,6 +107,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
 	int buf_space;
 	int ret;
 
+<<<<<<< HEAD
 	ret = cros_ec_cmd_xfer(ec->ec_dev, &snapshot_msg);
 	if (ret < 0) {
 		dev_err(ec->dev, "EC communication failed\n");
@@ -91,6 +117,11 @@ static void cros_ec_console_log_work(struct work_struct *__work)
 		dev_err(ec->dev, "EC failed to snapshot the console log\n");
 		goto resched;
 	}
+=======
+	ret = cros_ec_cmd_xfer_status(ec->ec_dev, &snapshot_msg);
+	if (ret < 0)
+		goto resched;
+>>>>>>> upstream/android-13
 
 	/* Loop until we have read everything, or there's an error. */
 	mutex_lock(&debug_info->log_mutex);
@@ -105,6 +136,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
 
 		memset(read_params, '\0', sizeof(*read_params));
 		read_params->subcmd = CONSOLE_READ_RECENT;
+<<<<<<< HEAD
 		ret = cros_ec_cmd_xfer(ec->ec_dev, debug_info->read_msg);
 		if (ret < 0) {
 			dev_err(ec->dev, "EC communication failed\n");
@@ -115,6 +147,12 @@ static void cros_ec_console_log_work(struct work_struct *__work)
 				"EC failed to read the console log\n");
 			break;
 		}
+=======
+		ret = cros_ec_cmd_xfer_status(ec->ec_dev,
+					      debug_info->read_msg);
+		if (ret < 0)
+			break;
+>>>>>>> upstream/android-13
 
 		/* If the buffer is empty, we're done here. */
 		if (ret == 0 || ec_buffer[0] == '\0')
@@ -142,7 +180,11 @@ static int cros_ec_console_log_open(struct inode *inode, struct file *file)
 {
 	file->private_data = inode->i_private;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cros_ec_console_log_read(struct file *file, char __user *buf,
@@ -263,7 +305,58 @@ static ssize_t cros_ec_pdinfo_read(struct file *file,
 				       read_buf, p - read_buf);
 }
 
+<<<<<<< HEAD
 const struct file_operations cros_ec_console_log_fops = {
+=======
+static bool cros_ec_uptime_is_supported(struct cros_ec_device *ec_dev)
+{
+	struct {
+		struct cros_ec_command cmd;
+		struct ec_response_uptime_info resp;
+	} __packed msg = {};
+	int ret;
+
+	msg.cmd.command = EC_CMD_GET_UPTIME_INFO;
+	msg.cmd.insize = sizeof(msg.resp);
+
+	ret = cros_ec_cmd_xfer_status(ec_dev, &msg.cmd);
+	if (ret == -EPROTO && msg.cmd.result == EC_RES_INVALID_COMMAND)
+		return false;
+
+	/* Other errors maybe a transient error, do not rule about support. */
+	return true;
+}
+
+static ssize_t cros_ec_uptime_read(struct file *file, char __user *user_buf,
+				   size_t count, loff_t *ppos)
+{
+	struct cros_ec_debugfs *debug_info = file->private_data;
+	struct cros_ec_device *ec_dev = debug_info->ec->ec_dev;
+	struct {
+		struct cros_ec_command cmd;
+		struct ec_response_uptime_info resp;
+	} __packed msg = {};
+	struct ec_response_uptime_info *resp;
+	char read_buf[32];
+	int ret;
+
+	resp = (struct ec_response_uptime_info *)&msg.resp;
+
+	msg.cmd.command = EC_CMD_GET_UPTIME_INFO;
+	msg.cmd.insize = sizeof(*resp);
+
+	ret = cros_ec_cmd_xfer_status(ec_dev, &msg.cmd);
+	if (ret < 0)
+		return ret;
+
+	ret = scnprintf(read_buf, sizeof(read_buf), "%u\n",
+			resp->time_since_ec_boot_ms);
+
+	return simple_read_from_buffer(user_buf, count, ppos, read_buf, ret);
+}
+
+static const struct file_operations cros_ec_console_log_fops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.open = cros_ec_console_log_open,
 	.read = cros_ec_console_log_read,
@@ -272,13 +365,27 @@ const struct file_operations cros_ec_console_log_fops = {
 	.release = cros_ec_console_log_release,
 };
 
+<<<<<<< HEAD
 const struct file_operations cros_ec_pdinfo_fops = {
+=======
+static const struct file_operations cros_ec_pdinfo_fops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.open = simple_open,
 	.read = cros_ec_pdinfo_read,
 	.llseek = default_llseek,
 };
 
+<<<<<<< HEAD
+=======
+static const struct file_operations cros_ec_uptime_fops = {
+	.owner = THIS_MODULE,
+	.open = simple_open,
+	.read = cros_ec_uptime_read,
+	.llseek = default_llseek,
+};
+
+>>>>>>> upstream/android-13
 static int ec_read_version_supported(struct cros_ec_dev *ec)
 {
 	struct ec_params_get_cmd_versions_v1 *params;
@@ -300,9 +407,14 @@ static int ec_read_version_supported(struct cros_ec_dev *ec)
 	params->cmd = EC_CMD_CONSOLE_READ;
 	response = (struct ec_response_get_cmd_versions *)msg->data;
 
+<<<<<<< HEAD
 	ret = cros_ec_cmd_xfer(ec->ec_dev, msg) >= 0 &&
 		msg->result == EC_RES_SUCCESS &&
 		(response->version_mask & EC_VER_MASK(1));
+=======
+	ret = cros_ec_cmd_xfer_status(ec->ec_dev, msg) >= 0 &&
+	      response->version_mask & EC_VER_MASK(1);
+>>>>>>> upstream/android-13
 
 	kfree(msg);
 
@@ -316,11 +428,20 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
 	int read_params_size;
 	int read_response_size;
 
+<<<<<<< HEAD
 	if (!ec_read_version_supported(ec)) {
 		dev_warn(ec->dev,
 			"device does not support reading the console log\n");
 		return 0;
 	}
+=======
+	/*
+	 * If the console log feature is not supported return silently and
+	 * don't create the console_log entry.
+	 */
+	if (!ec_read_version_supported(ec))
+		return 0;
+>>>>>>> upstream/android-13
 
 	buf = devm_kzalloc(ec->dev, LOG_SIZE, GFP_KERNEL);
 	if (!buf)
@@ -346,12 +467,17 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
 	mutex_init(&debug_info->log_mutex);
 	init_waitqueue_head(&debug_info->log_wq);
 
+<<<<<<< HEAD
 	if (!debugfs_create_file("console_log",
 				 S_IFREG | 0444,
 				 debug_info->dir,
 				 debug_info,
 				 &cros_ec_console_log_fops))
 		return -ENOMEM;
+=======
+	debugfs_create_file("console_log", S_IFREG | 0444, debug_info->dir,
+			    debug_info, &cros_ec_console_log_fops);
+>>>>>>> upstream/android-13
 
 	INIT_DELAYED_WORK(&debug_info->log_poll_work,
 			  cros_ec_console_log_work);
@@ -385,9 +511,14 @@ static int cros_ec_create_panicinfo(struct cros_ec_debugfs *debug_info)
 	msg->command = EC_CMD_GET_PANIC_INFO;
 	msg->insize = insize;
 
+<<<<<<< HEAD
 	ret = cros_ec_cmd_xfer(ec_dev, msg);
 	if (ret < 0) {
 		dev_warn(debug_info->ec->dev, "Cannot read panicinfo.\n");
+=======
+	ret = cros_ec_cmd_xfer_status(ec_dev, msg);
+	if (ret < 0) {
+>>>>>>> upstream/android-13
 		ret = 0;
 		goto free;
 	}
@@ -399,6 +530,7 @@ static int cros_ec_create_panicinfo(struct cros_ec_debugfs *debug_info)
 	debug_info->panicinfo_blob.data = msg->data;
 	debug_info->panicinfo_blob.size = ret;
 
+<<<<<<< HEAD
 	if (!debugfs_create_blob("panicinfo",
 				 S_IFREG | 0444,
 				 debug_info->dir,
@@ -406,6 +538,10 @@ static int cros_ec_create_panicinfo(struct cros_ec_debugfs *debug_info)
 		ret = -ENOMEM;
 		goto free;
 	}
+=======
+	debugfs_create_blob("panicinfo", S_IFREG | 0444, debug_info->dir,
+			    &debug_info->panicinfo_blob);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -414,6 +550,7 @@ free:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int cros_ec_create_pdinfo(struct cros_ec_debugfs *debug_info)
 {
 	if (!debugfs_create_file("pdinfo", 0444, debug_info->dir, debug_info,
@@ -425,6 +562,11 @@ static int cros_ec_create_pdinfo(struct cros_ec_debugfs *debug_info)
 
 int cros_ec_debugfs_init(struct cros_ec_dev *ec)
 {
+=======
+static int cros_ec_debugfs_probe(struct platform_device *pd)
+{
+	struct cros_ec_dev *ec = dev_get_drvdata(pd->dev.parent);
+>>>>>>> upstream/android-13
 	struct cros_ec_platform *ec_platform = dev_get_platdata(ec->dev);
 	const char *name = ec_platform->ec_name;
 	struct cros_ec_debugfs *debug_info;
@@ -436,8 +578,11 @@ int cros_ec_debugfs_init(struct cros_ec_dev *ec)
 
 	debug_info->ec = ec;
 	debug_info->dir = debugfs_create_dir(name, NULL);
+<<<<<<< HEAD
 	if (!debug_info->dir)
 		return -ENOMEM;
+=======
+>>>>>>> upstream/android-13
 
 	ret = cros_ec_create_panicinfo(debug_info);
 	if (ret)
@@ -447,18 +592,36 @@ int cros_ec_debugfs_init(struct cros_ec_dev *ec)
 	if (ret)
 		goto remove_debugfs;
 
+<<<<<<< HEAD
 	ret = cros_ec_create_pdinfo(debug_info);
 	if (ret)
 		goto remove_debugfs;
 
 	ec->debug_info = debug_info;
 
+=======
+	debugfs_create_file("pdinfo", 0444, debug_info->dir, debug_info,
+			    &cros_ec_pdinfo_fops);
+
+	if (cros_ec_uptime_is_supported(ec->ec_dev))
+		debugfs_create_file("uptime", 0444, debug_info->dir, debug_info,
+				    &cros_ec_uptime_fops);
+
+	debugfs_create_x32("last_resume_result", 0444, debug_info->dir,
+			   &ec->ec_dev->last_resume_result);
+
+	ec->debug_info = debug_info;
+
+	dev_set_drvdata(&pd->dev, ec);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 remove_debugfs:
 	debugfs_remove_recursive(debug_info->dir);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(cros_ec_debugfs_init);
 
 void cros_ec_debugfs_remove(struct cros_ec_dev *ec)
@@ -490,3 +653,53 @@ void cros_ec_debugfs_resume(struct cros_ec_dev *ec)
 		schedule_delayed_work(&ec->debug_info->log_poll_work, 0);
 }
 EXPORT_SYMBOL(cros_ec_debugfs_resume);
+=======
+
+static int cros_ec_debugfs_remove(struct platform_device *pd)
+{
+	struct cros_ec_dev *ec = dev_get_drvdata(pd->dev.parent);
+
+	debugfs_remove_recursive(ec->debug_info->dir);
+	cros_ec_cleanup_console_log(ec->debug_info);
+
+	return 0;
+}
+
+static int __maybe_unused cros_ec_debugfs_suspend(struct device *dev)
+{
+	struct cros_ec_dev *ec = dev_get_drvdata(dev);
+
+	if (ec->debug_info->log_buffer.buf)
+		cancel_delayed_work_sync(&ec->debug_info->log_poll_work);
+
+	return 0;
+}
+
+static int __maybe_unused cros_ec_debugfs_resume(struct device *dev)
+{
+	struct cros_ec_dev *ec = dev_get_drvdata(dev);
+
+	if (ec->debug_info->log_buffer.buf)
+		schedule_delayed_work(&ec->debug_info->log_poll_work, 0);
+
+	return 0;
+}
+
+static SIMPLE_DEV_PM_OPS(cros_ec_debugfs_pm_ops,
+			 cros_ec_debugfs_suspend, cros_ec_debugfs_resume);
+
+static struct platform_driver cros_ec_debugfs_driver = {
+	.driver = {
+		.name = DRV_NAME,
+		.pm = &cros_ec_debugfs_pm_ops,
+	},
+	.probe = cros_ec_debugfs_probe,
+	.remove = cros_ec_debugfs_remove,
+};
+
+module_platform_driver(cros_ec_debugfs_driver);
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Debug logs for ChromeOS EC");
+MODULE_ALIAS("platform:" DRV_NAME);
+>>>>>>> upstream/android-13

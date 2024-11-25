@@ -243,11 +243,19 @@ static long ceph_ioctl_lazyio(struct file *file)
 	struct ceph_file_info *fi = file->private_data;
 	struct inode *inode = file_inode(file);
 	struct ceph_inode_info *ci = ceph_inode(inode);
+<<<<<<< HEAD
+=======
+	struct ceph_mds_client *mdsc = ceph_inode_to_client(inode)->mdsc;
+>>>>>>> upstream/android-13
 
 	if ((fi->fmode & CEPH_FILE_MODE_LAZY) == 0) {
 		spin_lock(&ci->i_ceph_lock);
 		fi->fmode |= CEPH_FILE_MODE_LAZY;
 		ci->i_nr_by_mode[ffs(CEPH_FILE_MODE_LAZY)]++;
+<<<<<<< HEAD
+=======
+		__ceph_touch_fmode(ci, mdsc, fi->fmode);
+>>>>>>> upstream/android-13
 		spin_unlock(&ci->i_ceph_lock);
 		dout("ioctl_layzio: file %p marked lazy\n", file);
 

@@ -57,6 +57,10 @@ struct audio {
 	const struct audio_funcs *funcs;
 	struct dc_context *ctx;
 	unsigned int inst;
+<<<<<<< HEAD
+=======
+	bool enabled;
+>>>>>>> upstream/android-13
 };
 
 #endif  /* __DAL_AUDIO__ */

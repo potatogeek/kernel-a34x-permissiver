@@ -69,7 +69,10 @@ struct appledisplay {
 
 	struct delayed_work work;
 	int button_pressed;
+<<<<<<< HEAD
 	spinlock_t lock;
+=======
+>>>>>>> upstream/android-13
 	struct mutex sysfslock;		/* concurrent read and write */
 };
 
@@ -79,7 +82,10 @@ static void appledisplay_complete(struct urb *urb)
 {
 	struct appledisplay *pdata = urb->context;
 	struct device *dev = &pdata->udev->dev;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	int status = urb->status;
 	int retval;
 
@@ -91,7 +97,11 @@ static void appledisplay_complete(struct urb *urb)
 		dev_err(dev,
 			"OVERFLOW with data length %d, actual length is %d\n",
 			ACD_URB_BUFFER_LEN, pdata->urb->actual_length);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -ECONNRESET:
 	case -ENOENT:
 	case -ESHUTDOWN:
@@ -105,8 +115,11 @@ static void appledisplay_complete(struct urb *urb)
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&pdata->lock, flags);
 
+=======
+>>>>>>> upstream/android-13
 	switch(pdata->urbdata[1]) {
 	case ACD_BTN_BRIGHT_UP:
 	case ACD_BTN_BRIGHT_DOWN:
@@ -119,8 +132,11 @@ static void appledisplay_complete(struct urb *urb)
 		break;
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&pdata->lock, flags);
 
+=======
+>>>>>>> upstream/android-13
 exit:
 	retval = usb_submit_urb(pdata->urb, GFP_ATOMIC);
 	if (retval) {
@@ -234,7 +250,10 @@ static int appledisplay_probe(struct usb_interface *iface,
 
 	pdata->udev = udev;
 
+<<<<<<< HEAD
 	spin_lock_init(&pdata->lock);
+=======
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&pdata->work, appledisplay_work);
 	mutex_init(&pdata->sysfslock);
 
@@ -266,6 +285,10 @@ static int appledisplay_probe(struct usb_interface *iface,
 		usb_rcvintpipe(udev, int_in_endpointAddr),
 		pdata->urbdata, ACD_URB_BUFFER_LEN, appledisplay_complete,
 		pdata, 1);
+<<<<<<< HEAD
+=======
+	pdata->urb->transfer_flags = URB_NO_TRANSFER_DMA_MAP;
+>>>>>>> upstream/android-13
 	if (usb_submit_urb(pdata->urb, GFP_KERNEL)) {
 		retval = -EIO;
 		dev_err(&iface->dev, "Submitting URB failed\n");
@@ -311,8 +334,12 @@ error:
 		if (pdata->urb) {
 			usb_kill_urb(pdata->urb);
 			cancel_delayed_work_sync(&pdata->work);
+<<<<<<< HEAD
 			if (pdata->urbdata)
 				usb_free_coherent(pdata->udev, ACD_URB_BUFFER_LEN,
+=======
+			usb_free_coherent(pdata->udev, ACD_URB_BUFFER_LEN,
+>>>>>>> upstream/android-13
 					pdata->urbdata, pdata->urb->transfer_dma);
 			usb_free_urb(pdata->urb);
 		}
@@ -349,6 +376,7 @@ static struct usb_driver appledisplay_driver = {
 	.disconnect	= appledisplay_disconnect,
 	.id_table	= appledisplay_table,
 };
+<<<<<<< HEAD
 
 static int __init appledisplay_init(void)
 {
@@ -359,10 +387,16 @@ static void __exit appledisplay_exit(void)
 {
 	usb_deregister(&appledisplay_driver);
 }
+=======
+module_usb_driver(appledisplay_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Michael Hanselmann");
 MODULE_DESCRIPTION("Apple Cinema Display driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 
 module_init(appledisplay_init);
 module_exit(appledisplay_exit);
+=======
+>>>>>>> upstream/android-13

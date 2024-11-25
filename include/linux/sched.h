@@ -14,6 +14,7 @@
 #include <linux/pid.h>
 #include <linux/sem.h>
 #include <linux/shm.h>
+<<<<<<< HEAD
 #include <linux/kcov.h>
 #include <linux/mutex.h>
 #include <linux/plist.h>
@@ -29,6 +30,30 @@
 #include <linux/mm_event.h>
 #include <linux/task_io_accounting.h>
 #include <linux/rseq.h>
+=======
+#include <linux/mutex.h>
+#include <linux/plist.h>
+#include <linux/hrtimer.h>
+#include <linux/irqflags.h>
+#include <linux/seccomp.h>
+#include <linux/nodemask.h>
+#include <linux/rcupdate.h>
+#include <linux/refcount.h>
+#include <linux/resource.h>
+#include <linux/latencytop.h>
+#include <linux/sched/prio.h>
+#include <linux/sched/types.h>
+#include <linux/signal_types.h>
+#include <linux/syscall_user_dispatch.h>
+#include <linux/mm_types_task.h>
+#include <linux/task_io_accounting.h>
+#include <linux/posix-timers.h>
+#include <linux/rseq.h>
+#include <linux/seqlock.h>
+#include <linux/kcsan.h>
+#include <linux/android_vendor.h>
+#include <asm/kmap_size.h>
+>>>>>>> upstream/android-13
 #include <linux/android_kabi.h>
 
 /* task_struct member predeclarations (sorted alphabetically): */
@@ -36,10 +61,20 @@ struct audit_context;
 struct backing_dev_info;
 struct bio_list;
 struct blk_plug;
+<<<<<<< HEAD
+=======
+struct bpf_local_storage;
+struct bpf_run_ctx;
+struct capture_control;
+>>>>>>> upstream/android-13
 struct cfs_rq;
 struct fs_struct;
 struct futex_pi_state;
 struct io_context;
+<<<<<<< HEAD
+=======
+struct io_uring_task;
+>>>>>>> upstream/android-13
 struct mempolicy;
 struct nameidata;
 struct nsproxy;
@@ -49,6 +84,11 @@ struct pipe_inode_info;
 struct rcu_node;
 struct reclaim_state;
 struct robust_list_head;
+<<<<<<< HEAD
+=======
+struct root_domain;
+struct rq;
+>>>>>>> upstream/android-13
 struct sched_attr;
 struct sched_param;
 struct seq_file;
@@ -85,7 +125,13 @@ struct task_group;
 #define TASK_WAKING			0x0200
 #define TASK_NOLOAD			0x0400
 #define TASK_NEW			0x0800
+<<<<<<< HEAD
 #define TASK_STATE_MAX			0x1000
+=======
+/* RT specific auxilliary flag to mark RT lock waiters */
+#define TASK_RTLOCK_WAIT		0x1000
+#define TASK_STATE_MAX			0x2000
+>>>>>>> upstream/android-13
 
 /* Convenience macros for the sake of set_current_state: */
 #define TASK_KILLABLE			(TASK_WAKEKILL | TASK_UNINTERRUPTIBLE)
@@ -103,6 +149,7 @@ struct task_group;
 					 __TASK_TRACED | EXIT_DEAD | EXIT_ZOMBIE | \
 					 TASK_PARKED)
 
+<<<<<<< HEAD
 #define task_is_traced(task)		((task->state & __TASK_TRACED) != 0)
 
 #define task_is_stopped(task)		((task->state & __TASK_STOPPED) != 0)
@@ -114,6 +161,15 @@ struct task_group;
 					 (task->state & TASK_NOLOAD) == 0)
 
 #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+=======
+#define task_is_running(task)		(READ_ONCE((task)->__state) == TASK_RUNNING)
+
+#define task_is_traced(task)		((READ_ONCE(task->__state) & __TASK_TRACED) != 0)
+
+#define task_is_stopped(task)		((READ_ONCE(task->__state) & __TASK_STOPPED) != 0)
+
+#define task_is_stopped_or_traced(task)	((READ_ONCE(task->__state) & (__TASK_STOPPED | __TASK_TRACED)) != 0)
+>>>>>>> upstream/android-13
 
 /*
  * Special states are those that do not use the normal wait-loop pattern. See
@@ -122,6 +178,7 @@ struct task_group;
 #define is_special_task_state(state)				\
 	((state) & (__TASK_STOPPED | __TASK_TRACED | TASK_PARKED | TASK_DEAD))
 
+<<<<<<< HEAD
 #define __set_current_state(state_value)			\
 	do {							\
 		WARN_ON_ONCE(is_special_task_state(state_value));\
@@ -146,6 +203,39 @@ struct task_group;
 		raw_spin_unlock_irqrestore(&current->pi_lock, flags);	\
 	} while (0)
 #else
+=======
+#ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+# define debug_normal_state_change(state_value)				\
+	do {								\
+		WARN_ON_ONCE(is_special_task_state(state_value));	\
+		current->task_state_change = _THIS_IP_;			\
+	} while (0)
+
+# define debug_special_state_change(state_value)			\
+	do {								\
+		WARN_ON_ONCE(!is_special_task_state(state_value));	\
+		current->task_state_change = _THIS_IP_;			\
+	} while (0)
+
+# define debug_rtlock_wait_set_state()					\
+	do {								 \
+		current->saved_state_change = current->task_state_change;\
+		current->task_state_change = _THIS_IP_;			 \
+	} while (0)
+
+# define debug_rtlock_wait_restore_state()				\
+	do {								 \
+		current->task_state_change = current->saved_state_change;\
+	} while (0)
+
+#else
+# define debug_normal_state_change(cond)	do { } while (0)
+# define debug_special_state_change(cond)	do { } while (0)
+# define debug_rtlock_wait_set_state()		do { } while (0)
+# define debug_rtlock_wait_restore_state()	do { } while (0)
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * set_current_state() includes a barrier so that the write of current->state
  * is correctly serialised wrt the caller's subsequent test of whether to
@@ -153,57 +243,152 @@ struct task_group;
  *
  *   for (;;) {
  *	set_current_state(TASK_UNINTERRUPTIBLE);
+<<<<<<< HEAD
  *	if (!need_sleep)
  *		break;
+=======
+ *	if (CONDITION)
+ *	   break;
+>>>>>>> upstream/android-13
  *
  *	schedule();
  *   }
  *   __set_current_state(TASK_RUNNING);
  *
  * If the caller does not need such serialisation (because, for instance, the
+<<<<<<< HEAD
  * condition test and condition change and wakeup are under the same lock) then
+=======
+ * CONDITION test and condition change and wakeup are under the same lock) then
+>>>>>>> upstream/android-13
  * use __set_current_state().
  *
  * The above is typically ordered against the wakeup, which does:
  *
+<<<<<<< HEAD
  *   need_sleep = false;
  *   wake_up_state(p, TASK_UNINTERRUPTIBLE);
  *
  * where wake_up_state() executes a full memory barrier before accessing the
  * task state.
+=======
+ *   CONDITION = 1;
+ *   wake_up_state(p, TASK_UNINTERRUPTIBLE);
+ *
+ * where wake_up_state()/try_to_wake_up() executes a full memory barrier before
+ * accessing p->state.
+>>>>>>> upstream/android-13
  *
  * Wakeup will do: if (@state & p->state) p->state = TASK_RUNNING, that is,
  * once it observes the TASK_UNINTERRUPTIBLE store the waking CPU can issue a
  * TASK_RUNNING store which can collide with __set_current_state(TASK_RUNNING).
  *
  * However, with slightly different timing the wakeup TASK_RUNNING store can
+<<<<<<< HEAD
  * also collide with the TASK_UNINTERRUPTIBLE store. Loosing that store is not
+=======
+ * also collide with the TASK_UNINTERRUPTIBLE store. Losing that store is not
+>>>>>>> upstream/android-13
  * a problem either because that will result in one extra go around the loop
  * and our @cond test will save the day.
  *
  * Also see the comments of try_to_wake_up().
  */
 #define __set_current_state(state_value)				\
+<<<<<<< HEAD
 	current->state = (state_value)
 
 #define set_current_state(state_value)					\
 	smp_store_mb(current->state, (state_value))
+=======
+	do {								\
+		debug_normal_state_change((state_value));		\
+		WRITE_ONCE(current->__state, (state_value));		\
+	} while (0)
+
+#define set_current_state(state_value)					\
+	do {								\
+		debug_normal_state_change((state_value));		\
+		smp_store_mb(current->__state, (state_value));		\
+	} while (0)
+>>>>>>> upstream/android-13
 
 /*
  * set_special_state() should be used for those states when the blocking task
  * can not use the regular condition based wait-loop. In that case we must
+<<<<<<< HEAD
  * serialize against wakeups such that any possible in-flight TASK_RUNNING stores
  * will not collide with our state change.
+=======
+ * serialize against wakeups such that any possible in-flight TASK_RUNNING
+ * stores will not collide with our state change.
+>>>>>>> upstream/android-13
  */
 #define set_special_state(state_value)					\
 	do {								\
 		unsigned long flags; /* may shadow */			\
+<<<<<<< HEAD
 		raw_spin_lock_irqsave(&current->pi_lock, flags);	\
 		current->state = (state_value);				\
 		raw_spin_unlock_irqrestore(&current->pi_lock, flags);	\
 	} while (0)
 
 #endif
+=======
+									\
+		raw_spin_lock_irqsave(&current->pi_lock, flags);	\
+		debug_special_state_change((state_value));		\
+		WRITE_ONCE(current->__state, (state_value));		\
+		raw_spin_unlock_irqrestore(&current->pi_lock, flags);	\
+	} while (0)
+
+/*
+ * PREEMPT_RT specific variants for "sleeping" spin/rwlocks
+ *
+ * RT's spin/rwlock substitutions are state preserving. The state of the
+ * task when blocking on the lock is saved in task_struct::saved_state and
+ * restored after the lock has been acquired.  These operations are
+ * serialized by task_struct::pi_lock against try_to_wake_up(). Any non RT
+ * lock related wakeups while the task is blocked on the lock are
+ * redirected to operate on task_struct::saved_state to ensure that these
+ * are not dropped. On restore task_struct::saved_state is set to
+ * TASK_RUNNING so any wakeup attempt redirected to saved_state will fail.
+ *
+ * The lock operation looks like this:
+ *
+ *	current_save_and_set_rtlock_wait_state();
+ *	for (;;) {
+ *		if (try_lock())
+ *			break;
+ *		raw_spin_unlock_irq(&lock->wait_lock);
+ *		schedule_rtlock();
+ *		raw_spin_lock_irq(&lock->wait_lock);
+ *		set_current_state(TASK_RTLOCK_WAIT);
+ *	}
+ *	current_restore_rtlock_saved_state();
+ */
+#define current_save_and_set_rtlock_wait_state()			\
+	do {								\
+		lockdep_assert_irqs_disabled();				\
+		raw_spin_lock(&current->pi_lock);			\
+		current->saved_state = current->__state;		\
+		debug_rtlock_wait_set_state();				\
+		WRITE_ONCE(current->__state, TASK_RTLOCK_WAIT);		\
+		raw_spin_unlock(&current->pi_lock);			\
+	} while (0);
+
+#define current_restore_rtlock_saved_state()				\
+	do {								\
+		lockdep_assert_irqs_disabled();				\
+		raw_spin_lock(&current->pi_lock);			\
+		debug_rtlock_wait_restore_state();			\
+		WRITE_ONCE(current->__state, current->saved_state);	\
+		current->saved_state = TASK_RUNNING;			\
+		raw_spin_unlock(&current->pi_lock);			\
+	} while (0);
+
+#define get_current_state()	READ_ONCE(current->__state)
+>>>>>>> upstream/android-13
 
 /* Task command name length: */
 #define TASK_COMM_LEN			16
@@ -219,11 +404,23 @@ extern long schedule_timeout_uninterruptible(long timeout);
 extern long schedule_timeout_idle(long timeout);
 asmlinkage void schedule(void);
 extern void schedule_preempt_disabled(void);
+<<<<<<< HEAD
+=======
+asmlinkage void preempt_schedule_irq(void);
+#ifdef CONFIG_PREEMPT_RT
+ extern void schedule_rtlock(void);
+#endif
+>>>>>>> upstream/android-13
 
 extern int __must_check io_schedule_prepare(void);
 extern void io_schedule_finish(int token);
 extern long io_schedule_timeout(long timeout);
 extern void io_schedule(void);
+<<<<<<< HEAD
+=======
+extern struct task_struct *pick_migrate_task(struct rq *rq);
+extern int select_fallback_rq(int cpu, struct task_struct *p);
+>>>>>>> upstream/android-13
 
 /**
  * struct prev_cputime - snapshot of system and user cputime
@@ -242,6 +439,7 @@ struct prev_cputime {
 #endif
 };
 
+<<<<<<< HEAD
 /**
  * struct task_cputime - collected CPU time counts
  * @utime:		time spent in user mode, in nanoseconds
@@ -270,12 +468,29 @@ enum vtime_state {
 	VTIME_USER,
 	/* Task runs in kernelspace in a CPU with VTIME active: */
 	VTIME_SYS,
+=======
+enum vtime_state {
+	/* Task is sleeping or running in a CPU with VTIME inactive: */
+	VTIME_INACTIVE = 0,
+	/* Task is idle */
+	VTIME_IDLE,
+	/* Task runs in kernelspace in a CPU with VTIME active: */
+	VTIME_SYS,
+	/* Task runs in userspace in a CPU with VTIME active: */
+	VTIME_USER,
+	/* Task runs as guests in a CPU with VTIME active: */
+	VTIME_GUEST,
+>>>>>>> upstream/android-13
 };
 
 struct vtime {
 	seqcount_t		seqcount;
 	unsigned long long	starttime;
 	enum vtime_state	state;
+<<<<<<< HEAD
+=======
+	unsigned int		cpu;
+>>>>>>> upstream/android-13
 	u64			utime;
 	u64			stime;
 	u64			gtime;
@@ -293,6 +508,14 @@ enum uclamp_id {
 	UCLAMP_CNT
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SMP
+extern struct root_domain def_root_domain;
+extern struct mutex sched_domains_mutex;
+#endif
+
+>>>>>>> upstream/android-13
 struct sched_info {
 #ifdef CONFIG_SCHED_INFO
 	/* Cumulative counters: */
@@ -328,6 +551,7 @@ struct sched_info {
 # define SCHED_CAPACITY_SHIFT		SCHED_FIXEDPOINT_SHIFT
 # define SCHED_CAPACITY_SCALE		(1L << SCHED_CAPACITY_SHIFT)
 
+<<<<<<< HEAD
 static inline unsigned int scale_from_percent(unsigned int pct)
 {
 	WARN_ON(pct > 100);
@@ -335,6 +559,8 @@ static inline unsigned int scale_from_percent(unsigned int pct)
 	return ((SCHED_FIXEDPOINT_SCALE * pct) / 100);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct load_weight {
 	unsigned long			weight;
 	u32				inv_weight;
@@ -361,29 +587,55 @@ struct load_weight {
  * Only for tasks we track a moving average of the past instantaneous
  * estimated utilization. This allows to absorb sporadic drops in utilization
  * of an otherwise almost periodic task.
+<<<<<<< HEAD
+=======
+ *
+ * The UTIL_AVG_UNCHANGED flag is used to synchronize util_est with util_avg
+ * updates. When a task is dequeued, its util_est should not be updated if its
+ * util_avg has not been updated in the meantime.
+ * This information is mapped into the MSB bit of util_est.enqueued at dequeue
+ * time. Since max value of util_est.enqueued for a task is 1024 (PELT util_avg
+ * for a task) it is safe to use MSB.
+>>>>>>> upstream/android-13
  */
 struct util_est {
 	unsigned int			enqueued;
 	unsigned int			ewma;
 #define UTIL_EST_WEIGHT_SHIFT		2
+<<<<<<< HEAD
 } __attribute__((__aligned__(sizeof(u64))));
 
 /*
  * The load_avg/util_avg accumulates an infinite geometric series
  * (see __update_load_avg() in kernel/sched/fair.c).
+=======
+#define UTIL_AVG_UNCHANGED		0x80000000
+} __attribute__((__aligned__(sizeof(u64))));
+
+/*
+ * The load/runnable/util_avg accumulates an infinite geometric series
+ * (see __update_load_avg_cfs_rq() in kernel/sched/pelt.c).
+>>>>>>> upstream/android-13
  *
  * [load_avg definition]
  *
  *   load_avg = runnable% * scale_load_down(load)
  *
+<<<<<<< HEAD
  * where runnable% is the time ratio that a sched_entity is runnable.
  * For cfs_rq, it is the aggregated load_avg of all runnable and
  * blocked sched_entities.
+=======
+ * [runnable_avg definition]
+ *
+ *   runnable_avg = runnable% * SCHED_CAPACITY_SCALE
+>>>>>>> upstream/android-13
  *
  * [util_avg definition]
  *
  *   util_avg = running% * SCHED_CAPACITY_SCALE
  *
+<<<<<<< HEAD
  * where running% is the time ratio that a sched_entity is running on
  * a CPU. For cfs_rq, it is the aggregated util_avg of all runnable
  * and blocked sched_entities.
@@ -391,6 +643,17 @@ struct util_est {
  * load_avg and util_avg don't direcly factor frequency scaling and CPU
  * capacity scaling. The scaling is done through the rq_clock_pelt that
  * is used for computing those signals (see update_rq_clock_pelt())
+=======
+ * where runnable% is the time ratio that a sched_entity is runnable and
+ * running% the time ratio that a sched_entity is running.
+ *
+ * For cfs_rq, they are the aggregated values of all runnable and blocked
+ * sched_entities.
+ *
+ * The load/runnable/util_avg doesn't directly factor frequency scaling and CPU
+ * capacity scaling. The scaling is done through the rq_clock_pelt that is used
+ * for computing those signals (see update_rq_clock_pelt())
+>>>>>>> upstream/android-13
  *
  * N.B., the above ratios (runnable% and running%) themselves are in the
  * range of [0, 1]. To do fixed point arithmetics, we therefore scale them
@@ -414,11 +677,19 @@ struct util_est {
 struct sched_avg {
 	u64				last_update_time;
 	u64				load_sum;
+<<<<<<< HEAD
 	u64				runnable_load_sum;
 	u32				util_sum;
 	u32				period_contrib;
 	unsigned long			load_avg;
 	unsigned long			runnable_load_avg;
+=======
+	u64				runnable_sum;
+	u32				util_sum;
+	u32				period_contrib;
+	unsigned long			load_avg;
+	unsigned long			runnable_avg;
+>>>>>>> upstream/android-13
 	unsigned long			util_avg;
 	struct util_est			util_est;
 } ____cacheline_aligned;
@@ -462,7 +733,10 @@ struct sched_statistics {
 struct sched_entity {
 	/* For load-balancing: */
 	struct load_weight		load;
+<<<<<<< HEAD
 	unsigned long			runnable_weight;
+=======
+>>>>>>> upstream/android-13
 	struct rb_node			run_node;
 	struct list_head		group_node;
 	unsigned int			on_rq;
@@ -483,6 +757,11 @@ struct sched_entity {
 	struct cfs_rq			*cfs_rq;
 	/* rq "owned" by this entity/group: */
 	struct cfs_rq			*my_q;
+<<<<<<< HEAD
+=======
+	/* cached value of my_q->h_nr_running */
+	unsigned long			runnable_weight;
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_SMP
@@ -540,7 +819,11 @@ struct sched_dl_entity {
 
 	/*
 	 * Actual scheduling parameters. Initialized with the values above,
+<<<<<<< HEAD
 	 * they are continously updated during task execution. Note that
+=======
+	 * they are continuously updated during task execution. Note that
+>>>>>>> upstream/android-13
 	 * the remaining runtime could be < 0 in case we are in overrun.
 	 */
 	s64				runtime;	/* Remaining runtime for this instance	*/
@@ -572,7 +855,10 @@ struct sched_dl_entity {
 	 * overruns.
 	 */
 	unsigned int			dl_throttled      : 1;
+<<<<<<< HEAD
 	unsigned int			dl_boosted        : 1;
+=======
+>>>>>>> upstream/android-13
 	unsigned int			dl_yielded        : 1;
 	unsigned int			dl_non_contending : 1;
 	unsigned int			dl_overrun	  : 1;
@@ -591,6 +877,18 @@ struct sched_dl_entity {
 	 * time.
 	 */
 	struct hrtimer inactive_timer;
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_RT_MUTEXES
+	/*
+	 * Priority Inheritance. When a DEADLINE scheduling entity is boosted
+	 * pi_se points to the donor, otherwise points to the dl_se it belongs
+	 * to (the original one/itself).
+	 */
+	struct sched_dl_entity *pi_se;
+#endif
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_UCLAMP_TASK
@@ -632,18 +930,26 @@ union rcu_special {
 	struct {
 		u8			blocked;
 		u8			need_qs;
+<<<<<<< HEAD
 		u8			exp_need_qs;
 
 		/* Otherwise the compiler can store garbage here: */
 		u8			pad;
+=======
+		u8			exp_hint; /* Hint for performance. */
+		u8			need_mb; /* Readers need smp_mb(). */
+>>>>>>> upstream/android-13
 	} b; /* Bits. */
 	u32 s; /* Set of bits. */
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_FIVE
 struct task_integrity;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 enum perf_event_task_context {
 	perf_invalid_context = -1,
 	perf_hw_context = 0,
@@ -655,6 +961,16 @@ struct wake_q_node {
 	struct wake_q_node *next;
 };
 
+<<<<<<< HEAD
+=======
+struct kmap_ctrl {
+#ifdef CONFIG_KMAP_LOCAL
+	int				idx;
+	pte_t				pteval[KM_MAX_IDX];
+#endif
+};
+
+>>>>>>> upstream/android-13
 struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	/*
@@ -663,8 +979,17 @@ struct task_struct {
 	 */
 	struct thread_info		thread_info;
 #endif
+<<<<<<< HEAD
 	/* -1 unrunnable, 0 runnable, >0 stopped: */
 	volatile long			state;
+=======
+	unsigned int			__state;
+
+#ifdef CONFIG_PREEMPT_RT
+	/* saved state for "spinlock sleepers" */
+	unsigned int			saved_state;
+#endif
+>>>>>>> upstream/android-13
 
 	/*
 	 * This begins the randomizable portion of task_struct. Only
@@ -673,14 +998,23 @@ struct task_struct {
 	randomized_struct_fields_start
 
 	void				*stack;
+<<<<<<< HEAD
 	atomic_t			usage;
+=======
+	refcount_t			usage;
+>>>>>>> upstream/android-13
 	/* Per task flags (PF_*), defined further below: */
 	unsigned int			flags;
 	unsigned int			ptrace;
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 	struct llist_node		wake_entry;
 	int				on_cpu;
+=======
+	int				on_cpu;
+	struct __call_single_node	wake_entry;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	/* Current CPU: */
 	unsigned int			cpu;
@@ -700,9 +1034,12 @@ struct task_struct {
 	int				wake_cpu;
 #endif
 	int				on_rq;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_SCHED_CPU_PREFER
 	int				cpu_prefer;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	int				prio;
 	int				static_prio;
@@ -712,6 +1049,7 @@ struct task_struct {
 	const struct sched_class	*sched_class;
 	struct sched_entity		se;
 	struct sched_rt_entity		rt;
+<<<<<<< HEAD
 
 	/* task boost vendor fields */
 	u64				last_sleep_ts;
@@ -719,16 +1057,39 @@ struct task_struct {
 	u64				boost_period;
 	u64				boost_expires;
 	u64				last_enqueued_ts;
+=======
+	struct sched_dl_entity		dl;
+
+#ifdef CONFIG_SCHED_CORE
+	struct rb_node			core_node;
+	unsigned long			core_cookie;
+	unsigned int			core_occupation;
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CGROUP_SCHED
 	struct task_group		*sched_task_group;
 #endif
+<<<<<<< HEAD
 	struct sched_dl_entity		dl;
 
 #ifdef CONFIG_UCLAMP_TASK
 	/* Clamp values requested for a scheduling entity */
 	struct uclamp_se		uclamp_req[UCLAMP_CNT];
 	/* Effective clamp values used for a scheduling entity */
+=======
+
+#ifdef CONFIG_UCLAMP_TASK
+	/*
+	 * Clamp values requested for a scheduling entity.
+	 * Must be updated with task_rq_lock() held.
+	 */
+	struct uclamp_se		uclamp_req[UCLAMP_CNT];
+	/*
+	 * Effective clamp values used for a scheduling entity.
+	 * Must be updated with task_rq_lock() held.
+	 */
+>>>>>>> upstream/android-13
 	struct uclamp_se		uclamp[UCLAMP_CNT];
 #endif
 
@@ -743,8 +1104,19 @@ struct task_struct {
 
 	unsigned int			policy;
 	int				nr_cpus_allowed;
+<<<<<<< HEAD
 	cpumask_t			cpus_allowed;
 	cpumask_t			cpus_requested;
+=======
+	const cpumask_t			*cpus_ptr;
+	cpumask_t			*user_cpus_ptr;
+	cpumask_t			cpus_mask;
+	void				*migration_pending;
+#ifdef CONFIG_SMP
+	unsigned short			migration_disabled;
+#endif
+	unsigned short			migration_flags;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PREEMPT_RCU
 	int				rcu_read_lock_nesting;
@@ -761,6 +1133,17 @@ struct task_struct {
 	struct list_head		rcu_tasks_holdout_list;
 #endif /* #ifdef CONFIG_TASKS_RCU */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TASKS_TRACE_RCU
+	int				trc_reader_nesting;
+	int				trc_ipi_to_cpu;
+	union rcu_special		trc_reader_special;
+	bool				trc_reader_checked;
+	struct list_head		trc_holdout_list;
+#endif /* #ifdef CONFIG_TASKS_TRACE_RCU */
+
+>>>>>>> upstream/android-13
 	struct sched_info		sched_info;
 
 	struct list_head		tasks;
@@ -793,7 +1176,10 @@ struct task_struct {
 	unsigned			sched_reset_on_fork:1;
 	unsigned			sched_contributes_to_load:1;
 	unsigned			sched_migrated:1;
+<<<<<<< HEAD
 	unsigned			sched_remote_wakeup:1;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PSI
 	unsigned			sched_psi_wake_requeue:1;
 #endif
@@ -803,6 +1189,24 @@ struct task_struct {
 
 	/* Unserialized, strictly 'current' */
 
+<<<<<<< HEAD
+=======
+	/*
+	 * This field must not be in the scheduler word above due to wakelist
+	 * queueing no longer being serialized by p->on_cpu. However:
+	 *
+	 * p->XXX = X;			ttwu()
+	 * schedule()			  if (p->on_rq && ..) // false
+	 *   smp_mb__after_spinlock();	  if (smp_load_acquire(&p->on_cpu) && //true
+	 *   deactivate_task()		      ttwu_queue_wakelist())
+	 *     p->on_rq = 0;			p->sched_remote_wakeup = Y;
+	 *
+	 * guarantees all stores of 'current' are visible before
+	 * ->sched_remote_wakeup gets used, so it can be in this word.
+	 */
+	unsigned			sched_remote_wakeup:1;
+
+>>>>>>> upstream/android-13
 	/* Bit to tell LSMs we're in execve(): */
 	unsigned			in_execve:1;
 	unsigned			in_iowait:1;
@@ -811,9 +1215,16 @@ struct task_struct {
 #endif
 #ifdef CONFIG_MEMCG
 	unsigned			in_user_fault:1;
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG_KMEM
 	unsigned			memcg_kmem_skip_account:1;
 #endif
+=======
+#endif
+#ifdef CONFIG_LRU_GEN
+	/* whether the LRU algorithm may apply to this access */
+	unsigned			in_lru_fault:1;
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_COMPAT_BRK
 	unsigned			brk_randomized:1;
@@ -821,11 +1232,32 @@ struct task_struct {
 #ifdef CONFIG_CGROUPS
 	/* disallow userland-initiated cgroup migration */
 	unsigned			no_cgroup_migration:1;
+<<<<<<< HEAD
 #endif
 #ifdef CONFIG_BLK_CGROUP
 	/* to be used once the psi infrastructure lands upstream. */
 	unsigned			use_memdelay:1;
 #endif
+=======
+	/* task is frozen/stopped (used by the cgroup freezer) */
+	unsigned			frozen:1;
+#endif
+#ifdef CONFIG_BLK_CGROUP
+	unsigned			use_memdelay:1;
+#endif
+#ifdef CONFIG_PSI
+	/* Stalled due to lack of memory */
+	unsigned			in_memstall:1;
+#endif
+#ifdef CONFIG_PAGE_OWNER
+	/* Used by page_owner=on to detect recursion in page tracking. */
+	unsigned			in_page_owner:1;
+#endif
+#ifdef CONFIG_EVENTFD
+	/* Recursion prevention for eventfd_signal() */
+	unsigned			in_eventfd_signal:1;
+#endif
+>>>>>>> upstream/android-13
 
 	unsigned long			atomic_flags; /* Flags requiring atomic access. */
 
@@ -880,6 +1312,12 @@ struct task_struct {
 	/* CLONE_CHILD_CLEARTID: */
 	int __user			*clear_child_tid;
 
+<<<<<<< HEAD
+=======
+	/* PF_IO_WORKER */
+	void				*pf_io_worker;
+
+>>>>>>> upstream/android-13
 	u64				utime;
 	u64				stime;
 #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
@@ -907,15 +1345,27 @@ struct task_struct {
 	u64				start_time;
 
 	/* Boot based time in nsecs: */
+<<<<<<< HEAD
 	u64				real_start_time;
+=======
+	u64				start_boottime;
+>>>>>>> upstream/android-13
 
 	/* MM fault and swap info: this can arguably be seen as either mm-specific or thread-specific: */
 	unsigned long			min_flt;
 	unsigned long			maj_flt;
 
+<<<<<<< HEAD
 #ifdef CONFIG_POSIX_TIMERS
 	struct task_cputime		cputime_expires;
 	struct list_head		cpu_timers[3];
+=======
+	/* Empty if CONFIG_POSIX_CPUTIMERS=n */
+	struct posix_cputimers		posix_cputimers;
+
+#ifdef CONFIG_POSIX_CPU_TIMERS_TASK_WORK
+	struct posix_cputimers_work	posix_cputimers_work;
+>>>>>>> upstream/android-13
 #endif
 
 	/* Process credentials: */
@@ -929,6 +1379,14 @@ struct task_struct {
 	/* Effective (overridable) subjective task credentials (COW): */
 	const struct cred __rcu		*cred;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEYS
+	/* Cached requested key. */
+	struct key			*cached_requested_key;
+#endif
+
+>>>>>>> upstream/android-13
 	/*
 	 * executable name, excluding path.
 	 *
@@ -954,12 +1412,23 @@ struct task_struct {
 	/* Open file information: */
 	struct files_struct		*files;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_IO_URING
+	struct io_uring_task		*io_uring;
+#endif
+
+>>>>>>> upstream/android-13
 	/* Namespaces: */
 	struct nsproxy			*nsproxy;
 
 	/* Signal handlers: */
 	struct signal_struct		*signal;
+<<<<<<< HEAD
 	struct sighand_struct		*sighand;
+=======
+	struct sighand_struct __rcu		*sighand;
+>>>>>>> upstream/android-13
 	sigset_t			blocked;
 	sigset_t			real_blocked;
 	/* Restored if set_restore_sigmask() was used: */
@@ -971,12 +1440,23 @@ struct task_struct {
 
 	struct callback_head		*task_works;
 
+<<<<<<< HEAD
 	struct audit_context		*audit_context;
 #ifdef CONFIG_AUDITSYSCALL
+=======
+#ifdef CONFIG_AUDIT
+#ifdef CONFIG_AUDITSYSCALL
+	struct audit_context		*audit_context;
+#endif
+>>>>>>> upstream/android-13
 	kuid_t				loginuid;
 	unsigned int			sessionid;
 #endif
 	struct seccomp			seccomp;
+<<<<<<< HEAD
+=======
+	struct syscall_user_dispatch	syscall_dispatch;
+>>>>>>> upstream/android-13
 
 	/* Thread group tracking: */
 	u64				parent_exec_id;
@@ -989,6 +1469,10 @@ struct task_struct {
 	raw_spinlock_t			pi_lock;
 
 	struct wake_q_node		wake_q;
+<<<<<<< HEAD
+=======
+	int				wake_q_count;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_RT_MUTEXES
 	/* PI waiters blocked on a rt_mutex held by this task: */
@@ -998,15 +1482,20 @@ struct task_struct {
 	/* Deadlock detection and priority inheritance handling: */
 	struct rt_mutex_waiter		*pi_blocked_on;
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_MM_EVENT_STAT
 	struct mm_event_task	mm_event[MM_TYPE_NUM];
 	unsigned long		next_period;
 #endif
+=======
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_MUTEXES
 	/* Mutex deadlock detection: */
 	struct mutex_waiter		*blocked_on;
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_TRACE_IRQFLAGS
 	unsigned int			irq_events;
 	unsigned long			hardirq_enable_ip;
@@ -1021,6 +1510,22 @@ struct task_struct {
 	unsigned int			softirq_enable_event;
 	int				softirqs_enabled;
 	int				softirq_context;
+=======
+#ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+	int				non_block_count;
+#endif
+
+#ifdef CONFIG_TRACE_IRQFLAGS
+	struct irqtrace_events		irqtrace;
+	unsigned int			hardirq_threaded;
+	u64				hardirq_chain_key;
+	int				softirqs_enabled;
+	int				softirq_context;
+	int				irq_config;
+#endif
+#ifdef CONFIG_PREEMPT_RT
+	int				softirq_disable_cnt;
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_LOCKDEP
@@ -1031,7 +1536,11 @@ struct task_struct {
 	struct held_lock		held_locks[MAX_LOCK_DEPTH];
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_UBSAN
+=======
+#if defined(CONFIG_UBSAN) && !defined(CONFIG_UBSAN_TRAP)
+>>>>>>> upstream/android-13
 	unsigned int			in_ubsan;
 #endif
 
@@ -1053,9 +1562,18 @@ struct task_struct {
 
 	struct io_context		*io_context;
 
+<<<<<<< HEAD
 	/* Ptrace state: */
 	unsigned long			ptrace_message;
 	siginfo_t			*last_siginfo;
+=======
+#ifdef CONFIG_COMPACTION
+	struct capture_control		*capture_control;
+#endif
+	/* Ptrace state: */
+	unsigned long			ptrace_message;
+	kernel_siginfo_t		*last_siginfo;
+>>>>>>> upstream/android-13
 
 	struct task_io_accounting	ioac;
 #ifdef CONFIG_PSI
@@ -1073,8 +1591,13 @@ struct task_struct {
 #ifdef CONFIG_CPUSETS
 	/* Protected by ->alloc_lock: */
 	nodemask_t			mems_allowed;
+<<<<<<< HEAD
 	/* Seqence number to catch updates: */
 	seqcount_t			mems_allowed_seq;
+=======
+	/* Sequence number to catch updates: */
+	seqcount_spinlock_t		mems_allowed_seq;
+>>>>>>> upstream/android-13
 	int				cpuset_mem_spread_rotor;
 	int				cpuset_slab_spread_rotor;
 #endif
@@ -1084,7 +1607,11 @@ struct task_struct {
 	/* cg_list protected by css_set_lock and tsk->alloc_lock: */
 	struct list_head		cg_list;
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_INTEL_RDT
+=======
+#ifdef CONFIG_X86_CPU_RESCTRL
+>>>>>>> upstream/android-13
 	u32				closid;
 	u32				rmid;
 #endif
@@ -1095,6 +1622,11 @@ struct task_struct {
 #endif
 	struct list_head		pi_state_list;
 	struct futex_pi_state		*pi_state_cache;
+<<<<<<< HEAD
+=======
+	struct mutex			futex_exit_mutex;
+	unsigned int			futex_state;
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_PERF_EVENTS
 	struct perf_event_context	*perf_event_ctxp[perf_nr_task_contexts];
@@ -1162,7 +1694,10 @@ struct task_struct {
 
 #ifdef CONFIG_RSEQ
 	struct rseq __user *rseq;
+<<<<<<< HEAD
 	u32 rseq_len;
+=======
+>>>>>>> upstream/android-13
 	u32 rseq_sig;
 	/*
 	 * RmW on rseq_event_mask must be performed atomically
@@ -1173,7 +1708,14 @@ struct task_struct {
 
 	struct tlbflush_unmap_batch	tlb_ubc;
 
+<<<<<<< HEAD
 	struct rcu_head			rcu;
+=======
+	union {
+		refcount_t		rcu_users;
+		struct rcu_head		rcu;
+	};
+>>>>>>> upstream/android-13
 
 	/* Cache last used pipe for splice(): */
 	struct pipe_inode_info		*splice_pipe;
@@ -1208,10 +1750,26 @@ struct task_struct {
 	u64				timer_slack_ns;
 	u64				default_timer_slack_ns;
 
+<<<<<<< HEAD
 #ifdef CONFIG_KASAN
 	unsigned int			kasan_depth;
 #endif
 
+=======
+#if defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)
+	unsigned int			kasan_depth;
+#endif
+
+#ifdef CONFIG_KCSAN
+	struct kcsan_ctx		kcsan_ctx;
+#ifdef CONFIG_TRACE_IRQFLAGS
+	struct irqtrace_events		kcsan_save_irqtrace;
+#endif
+#endif
+
+	struct kunit			*kunit_test;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 	/* Index of current stored address in ret_stack: */
 	int				curr_ret_stack;
@@ -1261,6 +1819,12 @@ struct task_struct {
 
 	/* KCOV sequence number: */
 	int				kcov_sequence;
+<<<<<<< HEAD
+=======
+
+	/* Collect coverage from softirq context: */
+	unsigned int			kcov_softirq;
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_MEMCG
@@ -1286,22 +1850,39 @@ struct task_struct {
 	unsigned int			sequential_io;
 	unsigned int			sequential_io_avg;
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
 	unsigned long			task_state_change;
 #endif
 #ifdef CONFIG_FIVE
 	struct task_integrity		*integrity;
+=======
+	struct kmap_ctrl		kmap_ctrl;
+#ifdef CONFIG_DEBUG_ATOMIC_SLEEP
+	unsigned long			task_state_change;
+# ifdef CONFIG_PREEMPT_RT
+	unsigned long			saved_state_change;
+# endif
+>>>>>>> upstream/android-13
 #endif
 	int				pagefault_disabled;
 #ifdef CONFIG_MMU
 	struct task_struct		*oom_reaper_list;
+<<<<<<< HEAD
+=======
+	struct timer_list		oom_reaper_timer;
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_VMAP_STACK
 	struct vm_struct		*stack_vm_area;
 #endif
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	/* A live task holds one reference: */
+<<<<<<< HEAD
 	atomic_t			stack_refcount;
+=======
+	refcount_t			stack_refcount;
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_LIVEPATCH
 	int patch_state;
@@ -1310,6 +1891,7 @@ struct task_struct {
 	/* Used by LSM modules for access restriction: */
 	void				*security;
 #endif
+<<<<<<< HEAD
 	/* task is frozen/stopped (used by the cgroup freezer) */
 	ANDROID_KABI_USE(1, unsigned frozen:1);
 
@@ -1323,10 +1905,59 @@ struct task_struct {
 	 * Do the GENKSYMS hack to work around the CRC issues
 	 */
 #ifdef __GENKSYMS__
+=======
+#ifdef CONFIG_BPF_SYSCALL
+	/* Used by BPF task local storage */
+	struct bpf_local_storage __rcu	*bpf_storage;
+	/* Used for BPF run context */
+	struct bpf_run_ctx		*bpf_ctx;
+#endif
+
+#ifdef CONFIG_GCC_PLUGIN_STACKLEAK
+	unsigned long			lowest_stack;
+	unsigned long			prev_lowest_stack;
+#endif
+
+#ifdef CONFIG_X86_MCE
+	void __user			*mce_vaddr;
+	__u64				mce_kflags;
+	u64				mce_addr;
+	__u64				mce_ripv : 1,
+					mce_whole_page : 1,
+					__mce_reserved : 62;
+	struct callback_head		mce_kill_me;
+	int				mce_count;
+#endif
+	ANDROID_VENDOR_DATA_ARRAY(1, 64);
+
+	/*
+	 * [0] : ssdbg_wait.type	// CONFIG_SEC_DEBUG_DTASK
+	 * [1] : ssdbg_wait.data	// CONFIG_SEC_DEBUG_DTASK
+	 */
+	ANDROID_OEM_DATA_ARRAY(1, 6);
+
+#ifdef CONFIG_KRETPROBES
+	struct llist_head               kretprobe_instances;
+#endif
+
+#ifdef CONFIG_ARCH_HAS_PARANOID_L1D_FLUSH
+	/*
+	 * If L1D flush is supported on mm context switch
+	 * then we use this callback head to queue kill work
+	 * to kill tasks that are not running on SMT disabled
+	 * cores
+	 */
+	struct callback_head		l1d_flush_kill;
+#endif
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
 	ANDROID_KABI_RESERVE(5);
 	ANDROID_KABI_RESERVE(6);
+<<<<<<< HEAD
 #else
 	struct mutex			futex_exit_mutex;
 #endif
@@ -1340,6 +1971,10 @@ struct task_struct {
 	short nice_backup;
 	atomic_t inherit_types;
 #endif
+=======
+	ANDROID_KABI_RESERVE(7);
+	ANDROID_KABI_RESERVE(8);
+>>>>>>> upstream/android-13
 
 	/*
 	 * New fields for task_struct should be added above here, so that
@@ -1471,7 +2106,11 @@ static inline pid_t task_pgrp_nr(struct task_struct *tsk)
 
 static inline unsigned int task_state_index(struct task_struct *tsk)
 {
+<<<<<<< HEAD
 	unsigned int tsk_state = READ_ONCE(tsk->state);
+=======
+	unsigned int tsk_state = READ_ONCE(tsk->__state);
+>>>>>>> upstream/android-13
 	unsigned int state = (tsk_state | tsk->exit_state) & TASK_REPORT;
 
 	BUILD_BUG_ON_NOT_POWER_OF_2(TASK_REPORT_MAX);
@@ -1479,6 +2118,17 @@ static inline unsigned int task_state_index(struct task_struct *tsk)
 	if (tsk_state == TASK_IDLE)
 		state = TASK_REPORT_IDLE;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * We're lying here, but rather than expose a completely new task state
+	 * to userspace, we can make this appear as if the task has gone through
+	 * a regular rt_mutex_lock() call.
+	 */
+	if (tsk_state == TASK_RTLOCK_WAIT)
+		state = TASK_UNINTERRUPTIBLE;
+
+>>>>>>> upstream/android-13
 	return fls(state);
 }
 
@@ -1515,9 +2165,16 @@ extern struct pid *cad_pid;
 /*
  * Per process flags
  */
+<<<<<<< HEAD
 #define PF_IDLE			0x00000002	/* I am an IDLE thread */
 #define PF_EXITING		0x00000004	/* Getting shut down */
 #define PF_VCPU			0x00000010	/* I'm a virtual CPU */
+=======
+#define PF_VCPU			0x00000001	/* I'm a virtual CPU */
+#define PF_IDLE			0x00000002	/* I am an IDLE thread */
+#define PF_EXITING		0x00000004	/* Getting shut down */
+#define PF_IO_WORKER		0x00000010	/* Task is an IO worker */
+>>>>>>> upstream/android-13
 #define PF_WQ_WORKER		0x00000020	/* I'm a workqueue worker */
 #define PF_FORKNOEXEC		0x00000040	/* Forked but didn't exec */
 #define PF_MCE_PROCESS		0x00000080      /* Process policy on mce errors */
@@ -1527,12 +2184,16 @@ extern struct pid *cad_pid;
 #define PF_MEMALLOC		0x00000800	/* Allocating memory */
 #define PF_NPROC_EXCEEDED	0x00001000	/* set_user() noticed that RLIMIT_NPROC was exceeded */
 #define PF_USED_MATH		0x00002000	/* If unset the fpu must be initialized before use */
+<<<<<<< HEAD
 #define PF_USED_ASYNC		0x00004000	/* Used async_schedule*(), used by module init */
+=======
+>>>>>>> upstream/android-13
 #define PF_NOFREEZE		0x00008000	/* This thread should not be frozen */
 #define PF_FROZEN		0x00010000	/* Frozen for system suspend */
 #define PF_KSWAPD		0x00020000	/* I am kswapd */
 #define PF_MEMALLOC_NOFS	0x00040000	/* All allocation requests will inherit GFP_NOFS */
 #define PF_MEMALLOC_NOIO	0x00080000	/* All allocation requests will inherit GFP_NOIO */
+<<<<<<< HEAD
 #define PF_LESS_THROTTLE	0x00100000	/* Throttle me less: I clean memory */
 #define PF_KTHREAD		0x00200000	/* I am a kernel thread */
 #define PF_RANDOMIZE		0x00400000	/* Randomize virtual address space */
@@ -1542,6 +2203,16 @@ extern struct pid *cad_pid;
 #define PF_MCE_EARLY		0x08000000      /* Early kill for mce process policy */
 #define PF_MEMALLOC_NOCMA	0x10000000	/* All allocation request will have _GFP_MOVABLE cleared */
 #define PF_MUTEX_TESTER		0x20000000	/* Thread belongs to the rt mutex tester */
+=======
+#define PF_LOCAL_THROTTLE	0x00100000	/* Throttle writes only against the bdi I write to,
+						 * I am cleaning dirty pages from some other bdi. */
+#define PF_KTHREAD		0x00200000	/* I am a kernel thread */
+#define PF_RANDOMIZE		0x00400000	/* Randomize virtual address space */
+#define PF_SWAPWRITE		0x00800000	/* Allowed to write to swap */
+#define PF_NO_SETAFFINITY	0x04000000	/* Userland is not allowed to meddle with cpus_mask */
+#define PF_MCE_EARLY		0x08000000      /* Early kill for mce process policy */
+#define PF_MEMALLOC_PIN		0x10000000	/* Allocation context constrained to zones which allow long term pinning. */
+>>>>>>> upstream/android-13
 #define PF_FREEZER_SKIP		0x40000000	/* Freezer should not count it as freezable */
 #define PF_SUSPEND_TASK		0x80000000      /* This thread called freeze_processes() and should not be frozen */
 
@@ -1573,7 +2244,11 @@ extern struct pid *cad_pid;
 #define tsk_used_math(p)			((p)->flags & PF_USED_MATH)
 #define used_math()				tsk_used_math(current)
 
+<<<<<<< HEAD
 static inline bool is_percpu_thread(void)
+=======
+static __always_inline bool is_percpu_thread(void)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_SMP
 	return (current->flags & PF_NO_SETAFFINITY) &&
@@ -1591,6 +2266,10 @@ static inline bool is_percpu_thread(void)
 #define PFA_SPEC_SSB_FORCE_DISABLE	4	/* Speculative Store Bypass force disabled*/
 #define PFA_SPEC_IB_DISABLE		5	/* Indirect branch speculation restricted */
 #define PFA_SPEC_IB_FORCE_DISABLE	6	/* Indirect branch speculation permanently restricted */
+<<<<<<< HEAD
+=======
+#define PFA_SPEC_SSB_NOEXEC		7	/* Speculative Store Bypass clear on execve() */
+>>>>>>> upstream/android-13
 
 #define TASK_PFA_TEST(name, func)					\
 	static inline bool task_##func(struct task_struct *p)		\
@@ -1619,6 +2298,13 @@ TASK_PFA_TEST(SPEC_SSB_DISABLE, spec_ssb_disable)
 TASK_PFA_SET(SPEC_SSB_DISABLE, spec_ssb_disable)
 TASK_PFA_CLEAR(SPEC_SSB_DISABLE, spec_ssb_disable)
 
+<<<<<<< HEAD
+=======
+TASK_PFA_TEST(SPEC_SSB_NOEXEC, spec_ssb_noexec)
+TASK_PFA_SET(SPEC_SSB_NOEXEC, spec_ssb_noexec)
+TASK_PFA_CLEAR(SPEC_SSB_NOEXEC, spec_ssb_noexec)
+
+>>>>>>> upstream/android-13
 TASK_PFA_TEST(SPEC_SSB_FORCE_DISABLE, spec_ssb_force_disable)
 TASK_PFA_SET(SPEC_SSB_FORCE_DISABLE, spec_ssb_force_disable)
 
@@ -1638,9 +2324,30 @@ current_restore_flags(unsigned long orig_flags, unsigned long flags)
 
 extern int cpuset_cpumask_can_shrink(const struct cpumask *cur, const struct cpumask *trial);
 extern int task_can_attach(struct task_struct *p, const struct cpumask *cs_cpus_allowed);
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 extern void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask);
 extern int set_cpus_allowed_ptr(struct task_struct *p, const struct cpumask *new_mask);
+=======
+
+#ifdef CONFIG_RT_SOFTINT_OPTIMIZATION
+extern bool cpupri_check_rt(void);
+#else
+static inline bool cpupri_check_rt(void)
+{
+	return false;
+}
+#endif
+
+#ifdef CONFIG_SMP
+extern void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask);
+extern int set_cpus_allowed_ptr(struct task_struct *p, const struct cpumask *new_mask);
+extern int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src, int node);
+extern void release_user_cpus_ptr(struct task_struct *p);
+extern int dl_task_check_affinity(struct task_struct *p, const struct cpumask *mask);
+extern void force_compatible_cpus_allowed_ptr(struct task_struct *p);
+extern void relax_compatible_cpus_allowed_ptr(struct task_struct *p);
+>>>>>>> upstream/android-13
 #else
 static inline void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
 {
@@ -1651,10 +2358,28 @@ static inline int set_cpus_allowed_ptr(struct task_struct *p, const struct cpuma
 		return -EINVAL;
 	return 0;
 }
+<<<<<<< HEAD
 #endif
 
 #ifndef cpu_relax_yield
 #define cpu_relax_yield() cpu_relax()
+=======
+static inline int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src, int node)
+{
+	if (src->user_cpus_ptr)
+		return -EINVAL;
+	return 0;
+}
+static inline void release_user_cpus_ptr(struct task_struct *p)
+{
+	WARN_ON(p->user_cpus_ptr);
+}
+
+static inline int dl_task_check_affinity(struct task_struct *p, const struct cpumask *mask)
+{
+	return 0;
+}
+>>>>>>> upstream/android-13
 #endif
 
 extern int yield_to(struct task_struct *p, bool preempt);
@@ -1678,6 +2403,12 @@ extern int idle_cpu(int cpu);
 extern int available_idle_cpu(int cpu);
 extern int sched_setscheduler(struct task_struct *, int, const struct sched_param *);
 extern int sched_setscheduler_nocheck(struct task_struct *, int, const struct sched_param *);
+<<<<<<< HEAD
+=======
+extern void sched_set_fifo(struct task_struct *p);
+extern void sched_set_fifo_low(struct task_struct *p);
+extern void sched_set_normal(struct task_struct *p, int nice);
+>>>>>>> upstream/android-13
 extern int sched_setattr(struct task_struct *, const struct sched_attr *);
 extern int sched_setattr_nocheck(struct task_struct *, const struct sched_attr *);
 extern struct task_struct *idle_task(int cpu);
@@ -1688,7 +2419,11 @@ extern struct task_struct *idle_task(int cpu);
  *
  * Return: 1 if @p is an idle task. 0 otherwise.
  */
+<<<<<<< HEAD
 static inline bool is_idle_task(const struct task_struct *p)
+=======
+static __always_inline bool is_idle_task(const struct task_struct *p)
+>>>>>>> upstream/android-13
 {
 	return !!(p->flags & PF_IDLE);
 }
@@ -1766,11 +2501,27 @@ extern char *__get_task_comm(char *to, size_t len, struct task_struct *tsk);
 })
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 void scheduler_ipi(void);
 extern unsigned long wait_task_inactive(struct task_struct *, long match_state);
 #else
 static inline void scheduler_ipi(void) { }
 static inline unsigned long wait_task_inactive(struct task_struct *p, long match_state)
+=======
+static __always_inline void scheduler_ipi(void)
+{
+	/*
+	 * Fold TIF_NEED_RESCHED into the preempt_count; anybody setting
+	 * TIF_NEED_RESCHED remotely (for the first time) will also send
+	 * this IPI.
+	 */
+	preempt_fold_need_resched();
+}
+extern unsigned long wait_task_inactive(struct task_struct *, unsigned int match_state);
+#else
+static inline void scheduler_ipi(void) { }
+static inline unsigned long wait_task_inactive(struct task_struct *p, unsigned int match_state)
+>>>>>>> upstream/android-13
 {
 	return 1;
 }
@@ -1832,11 +2583,40 @@ static inline int test_tsk_need_resched(struct task_struct *tsk)
  * value indicates whether a reschedule was done in fact.
  * cond_resched_lock() will drop the spinlock before scheduling,
  */
+<<<<<<< HEAD
 #ifndef CONFIG_PREEMPT
 extern int _cond_resched(void);
 #else
 static inline int _cond_resched(void) { return 0; }
 #endif
+=======
+#if !defined(CONFIG_PREEMPTION) || defined(CONFIG_PREEMPT_DYNAMIC)
+extern int __cond_resched(void);
+
+#ifdef CONFIG_PREEMPT_DYNAMIC
+
+DECLARE_STATIC_CALL(cond_resched, __cond_resched);
+
+static __always_inline int _cond_resched(void)
+{
+	return static_call_mod(cond_resched)();
+}
+
+#else
+
+static inline int _cond_resched(void)
+{
+	return __cond_resched();
+}
+
+#endif /* CONFIG_PREEMPT_DYNAMIC */
+
+#else
+
+static inline int _cond_resched(void) { return 0; }
+
+#endif /* !defined(CONFIG_PREEMPTION) || defined(CONFIG_PREEMPT_DYNAMIC) */
+>>>>>>> upstream/android-13
 
 #define cond_resched() ({			\
 	___might_sleep(__FILE__, __LINE__, 0);	\
@@ -1844,12 +2624,30 @@ static inline int _cond_resched(void) { return 0; }
 })
 
 extern int __cond_resched_lock(spinlock_t *lock);
+<<<<<<< HEAD
+=======
+extern int __cond_resched_rwlock_read(rwlock_t *lock);
+extern int __cond_resched_rwlock_write(rwlock_t *lock);
+>>>>>>> upstream/android-13
 
 #define cond_resched_lock(lock) ({				\
 	___might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);\
 	__cond_resched_lock(lock);				\
 })
 
+<<<<<<< HEAD
+=======
+#define cond_resched_rwlock_read(lock) ({			\
+	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);	\
+	__cond_resched_rwlock_read(lock);			\
+})
+
+#define cond_resched_rwlock_write(lock) ({			\
+	__might_sleep(__FILE__, __LINE__, PREEMPT_LOCK_OFFSET);	\
+	__cond_resched_rwlock_write(lock);			\
+})
+
+>>>>>>> upstream/android-13
 static inline void cond_resched_rcu(void)
 {
 #if defined(CONFIG_DEBUG_ATOMIC_SLEEP) || !defined(CONFIG_PREEMPT_RCU)
@@ -1861,18 +2659,46 @@ static inline void cond_resched_rcu(void)
 
 /*
  * Does a critical section need to be broken due to another
+<<<<<<< HEAD
  * task waiting?: (technically does not depend on CONFIG_PREEMPT,
+=======
+ * task waiting?: (technically does not depend on CONFIG_PREEMPTION,
+>>>>>>> upstream/android-13
  * but a general need for low latency)
  */
 static inline int spin_needbreak(spinlock_t *lock)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	return spin_is_contended(lock);
 #else
 	return 0;
 #endif
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Check if a rwlock is contended.
+ * Returns non-zero if there is another task waiting on the rwlock.
+ * Returns zero if the lock is not contended or the system / underlying
+ * rwlock implementation does not support contention detection.
+ * Technically does not depend on CONFIG_PREEMPTION, but a general need
+ * for low latency.
+ */
+static inline int rwlock_needbreak(rwlock_t *lock)
+{
+#ifdef CONFIG_PREEMPTION
+	return rwlock_is_contended(lock);
+#else
+	return 0;
+#endif
+}
+
+>>>>>>> upstream/android-13
 static __always_inline bool need_resched(void)
 {
 	return unlikely(tif_need_resched());
@@ -1907,6 +2733,11 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
 
 #endif /* CONFIG_SMP */
 
+<<<<<<< HEAD
+=======
+extern bool sched_task_on_rq(struct task_struct *p);
+
+>>>>>>> upstream/android-13
 /*
  * In order to reduce various lock holder preemption latencies provide an
  * interface to see if a vCPU is currently running or not.
@@ -1916,7 +2747,14 @@ static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
  * running or not.
  */
 #ifndef vcpu_is_preempted
+<<<<<<< HEAD
 # define vcpu_is_preempted(cpu)	false
+=======
+static inline bool vcpu_is_preempted(int cpu)
+{
+	return false;
+}
+>>>>>>> upstream/android-13
 #endif
 
 extern long sched_setaffinity(pid_t pid, const struct cpumask *new_mask);
@@ -1926,6 +2764,14 @@ extern long sched_getaffinity(pid_t pid, struct cpumask *mask);
 #define TASK_SIZE_OF(tsk)	TASK_SIZE
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SMP
+/* Returns effective CPU energy utilization, as seen by the scheduler */
+unsigned long sched_cpu_util(int cpu, unsigned long max);
+#endif /* CONFIG_SMP */
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_RSEQ
 
 /*
@@ -1990,12 +2836,18 @@ static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
 {
 	if (clone_flags & CLONE_VM) {
 		t->rseq = NULL;
+<<<<<<< HEAD
 		t->rseq_len = 0;
+=======
+>>>>>>> upstream/android-13
 		t->rseq_sig = 0;
 		t->rseq_event_mask = 0;
 	} else {
 		t->rseq = current->rseq;
+<<<<<<< HEAD
 		t->rseq_len = current->rseq_len;
+=======
+>>>>>>> upstream/android-13
 		t->rseq_sig = current->rseq_sig;
 		t->rseq_event_mask = current->rseq_event_mask;
 	}
@@ -2004,7 +2856,10 @@ static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
 static inline void rseq_execve(struct task_struct *t)
 {
 	t->rseq = NULL;
+<<<<<<< HEAD
 	t->rseq_len = 0;
+=======
+>>>>>>> upstream/android-13
 	t->rseq_sig = 0;
 	t->rseq_event_mask = 0;
 }
@@ -2049,4 +2904,31 @@ static inline void rseq_syscall(struct pt_regs *regs)
 
 #endif
 
+<<<<<<< HEAD
+=======
+const struct sched_avg *sched_trace_cfs_rq_avg(struct cfs_rq *cfs_rq);
+char *sched_trace_cfs_rq_path(struct cfs_rq *cfs_rq, char *str, int len);
+int sched_trace_cfs_rq_cpu(struct cfs_rq *cfs_rq);
+
+const struct sched_avg *sched_trace_rq_avg_rt(struct rq *rq);
+const struct sched_avg *sched_trace_rq_avg_dl(struct rq *rq);
+const struct sched_avg *sched_trace_rq_avg_irq(struct rq *rq);
+
+int sched_trace_rq_cpu(struct rq *rq);
+int sched_trace_rq_cpu_capacity(struct rq *rq);
+int sched_trace_rq_nr_running(struct rq *rq);
+
+const struct cpumask *sched_trace_rd_span(struct root_domain *rd);
+
+#ifdef CONFIG_SCHED_CORE
+extern void sched_core_free(struct task_struct *tsk);
+extern void sched_core_fork(struct task_struct *p);
+extern int sched_core_share_pid(unsigned int cmd, pid_t pid, enum pid_type type,
+				unsigned long uaddr);
+#else
+static inline void sched_core_free(struct task_struct *tsk) { }
+static inline void sched_core_fork(struct task_struct *p) { }
+#endif
+
+>>>>>>> upstream/android-13
 #endif

@@ -15,6 +15,10 @@
 #define NETLINK_F_LISTEN_ALL_NSID	0x10
 #define NETLINK_F_CAP_ACK		0x20
 #define NETLINK_F_EXT_ACK		0x40
+<<<<<<< HEAD
+=======
+#define NETLINK_F_STRICT_CHK		0x80
+>>>>>>> upstream/android-13
 
 #define NLGRPSZ(x)	(ALIGN(x, sizeof(unsigned long) * 8) / 8)
 #define NLGRPLONGS(x)	(NLGRPSZ(x)/sizeof(unsigned long))

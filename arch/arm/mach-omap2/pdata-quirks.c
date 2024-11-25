@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Legacy platform_data quirks
  *
  * Copyright (C) 2013 Texas Instruments
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/davinci_emac.h>
@@ -13,7 +20,10 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
 #include <linux/ti_wilink_st.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/wl12xx.h>
 #include <linux/mmc/card.h>
 #include <linux/mmc/host.h>
@@ -27,14 +37,23 @@
 #include <linux/platform_data/ti-sysc.h>
 #include <linux/platform_data/wkup_m3.h>
 #include <linux/platform_data/asoc-ti-mcbsp.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/platform_data/ti-prm.h>
+
+#include "clockdomain.h"
+>>>>>>> upstream/android-13
 #include "common.h"
 #include "common-board-devices.h"
 #include "control.h"
 #include "omap_device.h"
 #include "omap-secure.h"
 #include "soc.h"
+<<<<<<< HEAD
 #include "hsmmc.h"
+=======
+>>>>>>> upstream/android-13
 
 static struct omap_hsmmc_platform_data __maybe_unused mmc_pdata[2];
 
@@ -46,6 +65,20 @@ struct pdata_init {
 static struct of_dev_auxdata omap_auxdata_lookup[];
 static struct twl4030_gpio_platform_data twl_gpio_auxdata;
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_OMAP_IOMMU)
+int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev, bool request,
+				    u8 *pwrst);
+#else
+static inline int omap_iommu_set_pwrdm_constraint(struct platform_device *pdev,
+						  bool request, u8 *pwrst)
+{
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MACH_NOKIA_N8X0
 static void __init omap2420_n8x0_legacy_init(void)
 {
@@ -86,12 +119,29 @@ static void __init hsmmc2_internal_input_clk(void)
 	omap_ctrl_writel(reg, OMAP343X_CONTROL_DEVCONF1);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OMAP_HWMOD
+>>>>>>> upstream/android-13
 static struct iommu_platform_data omap3_iommu_pdata = {
 	.reset_name = "mmu",
 	.assert_reset = omap_device_assert_hardreset,
 	.deassert_reset = omap_device_deassert_hardreset,
+<<<<<<< HEAD
 };
 
+=======
+	.device_enable = omap_device_enable,
+	.device_idle = omap_device_idle,
+};
+
+static struct iommu_platform_data omap3_iommu_isp_pdata = {
+	.device_enable = omap_device_enable,
+	.device_idle = omap_device_idle,
+};
+#endif
+
+>>>>>>> upstream/android-13
 static int omap3_sbc_t3730_twl_callback(struct device *dev,
 					   unsigned gpio,
 					   unsigned ngpio)
@@ -140,6 +190,7 @@ static void __init omap3_sbc_t3530_legacy_init(void)
 	omap3_sbc_t3x_usb_hub_init(167, "sb-t35 usb hub");
 }
 
+<<<<<<< HEAD
 static struct ti_st_plat_data wilink_pdata = {
 	.nshutdown_gpio = 137,
 	.dev_name = "/dev/ttyO1",
@@ -187,6 +238,8 @@ static void __init omap3_igep0030_rev_g_legacy_init(void)
 	platform_device_register(&btwilink_device);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init omap3_evm_legacy_init(void)
 {
 	hsmmc2_internal_input_clk();
@@ -269,7 +322,11 @@ static void __init nokia_n900_legacy_init(void)
 	mmc_pdata[0].name = "external";
 	mmc_pdata[1].name = "internal";
 
+<<<<<<< HEAD
 	if (omap_type() == OMAP2_DEVICE_TYPE_SEC) {
+=======
+	if (omap_type() != OMAP2_DEVICE_TYPE_GP) {
+>>>>>>> upstream/android-13
 		if (IS_ENABLED(CONFIG_ARM_ERRATA_430973)) {
 			pr_info("RX-51: Enabling ARM errata 430973 workaround\n");
 			/* set IBE to 1 */
@@ -289,8 +346,11 @@ static void __init omap3_tao3530_legacy_init(void)
 static void __init omap3_logicpd_torpedo_init(void)
 {
 	omap3_gpio126_127_129();
+<<<<<<< HEAD
 	platform_device_register(&wl128x_device);
 	platform_device_register(&btwilink_device);
+=======
+>>>>>>> upstream/android-13
 }
 
 /* omap3pandora legacy devices */
@@ -306,6 +366,7 @@ static void __init omap3_pandora_legacy_init(void)
 }
 #endif /* CONFIG_ARCH_OMAP3 */
 
+<<<<<<< HEAD
 #if defined(CONFIG_ARCH_OMAP4) || defined(CONFIG_SOC_OMAP5)
 static struct iommu_platform_data omap4_iommu_pdata = {
 	.reset_name = "mmu_cache",
@@ -322,6 +383,8 @@ static struct wkup_m3_platform_data wkup_m3_data = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SOC_OMAP5
 static void __init omap5_uevm_legacy_init(void)
 {
@@ -329,6 +392,13 @@ static void __init omap5_uevm_legacy_init(void)
 #endif
 
 #ifdef CONFIG_SOC_DRA7XX
+<<<<<<< HEAD
+=======
+static struct iommu_platform_data dra7_ipu1_dsp_iommu_pdata = {
+	.set_pwrdm_constraint = omap_iommu_set_pwrdm_constraint,
+};
+
+>>>>>>> upstream/android-13
 static struct omap_hsmmc_platform_data dra7_hsmmc_data_mmc1;
 static struct omap_hsmmc_platform_data dra7_hsmmc_data_mmc2;
 static struct omap_hsmmc_platform_data dra7_hsmmc_data_mmc3;
@@ -348,6 +418,70 @@ static void __init dra7x_evm_mmc_quirk(void)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static struct clockdomain *ti_sysc_find_one_clockdomain(struct clk *clk)
+{
+	struct clk_hw *hw = __clk_get_hw(clk);
+	struct clockdomain *clkdm = NULL;
+	struct clk_hw_omap *hwclk;
+
+	hwclk = to_clk_hw_omap(hw);
+	if (!omap2_clk_is_hw_omap(hw))
+		return NULL;
+
+	if (hwclk && hwclk->clkdm_name)
+		clkdm = clkdm_lookup(hwclk->clkdm_name);
+
+	return clkdm;
+}
+
+/**
+ * ti_sysc_clkdm_init - find clockdomain based on clock
+ * @fck: device functional clock
+ * @ick: device interface clock
+ * @dev: struct device
+ *
+ * Populate clockdomain based on clock. It is needed for
+ * clkdm_deny_idle() and clkdm_allow_idle() for blocking clockdomain
+ * clockdomain idle during reset, enable and idle.
+ *
+ * Note that we assume interconnect driver manages the clocks
+ * and do not need to populate oh->_clk for dynamically
+ * allocated modules.
+ */
+static int ti_sysc_clkdm_init(struct device *dev,
+			      struct clk *fck, struct clk *ick,
+			      struct ti_sysc_cookie *cookie)
+{
+	if (!IS_ERR(fck))
+		cookie->clkdm = ti_sysc_find_one_clockdomain(fck);
+	if (cookie->clkdm)
+		return 0;
+	if (!IS_ERR(ick))
+		cookie->clkdm = ti_sysc_find_one_clockdomain(ick);
+	if (cookie->clkdm)
+		return 0;
+
+	return -ENODEV;
+}
+
+static void ti_sysc_clkdm_deny_idle(struct device *dev,
+				    const struct ti_sysc_cookie *cookie)
+{
+	if (cookie->clkdm)
+		clkdm_deny_idle(cookie->clkdm);
+}
+
+static void ti_sysc_clkdm_allow_idle(struct device *dev,
+				     const struct ti_sysc_cookie *cookie)
+{
+	if (cookie->clkdm)
+		clkdm_allow_idle(cookie->clkdm);
+}
+
+#ifdef CONFIG_OMAP_HWMOD
+>>>>>>> upstream/android-13
 static int ti_sysc_enable_module(struct device *dev,
 				 const struct ti_sysc_cookie *cookie)
 {
@@ -374,15 +508,36 @@ static int ti_sysc_shutdown_module(struct device *dev,
 
 	return omap_hwmod_shutdown(cookie->data);
 }
+<<<<<<< HEAD
+=======
+#endif	/* CONFIG_OMAP_HWMOD */
+
+static bool ti_sysc_soc_type_gp(void)
+{
+	return omap_type() == OMAP2_DEVICE_TYPE_GP;
+}
+>>>>>>> upstream/android-13
 
 static struct of_dev_auxdata omap_auxdata_lookup[];
 
 static struct ti_sysc_platform_data ti_sysc_pdata = {
 	.auxdata = omap_auxdata_lookup,
+<<<<<<< HEAD
+=======
+	.soc_type_gp = ti_sysc_soc_type_gp,
+	.init_clockdomain = ti_sysc_clkdm_init,
+	.clkdm_deny_idle = ti_sysc_clkdm_deny_idle,
+	.clkdm_allow_idle = ti_sysc_clkdm_allow_idle,
+#ifdef CONFIG_OMAP_HWMOD
+>>>>>>> upstream/android-13
 	.init_module = omap_hwmod_init_module,
 	.enable_module = ti_sysc_enable_module,
 	.idle_module = ti_sysc_idle_module,
 	.shutdown_module = ti_sysc_shutdown_module,
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 };
 
 static struct pcs_pdata pcs_pdata;
@@ -393,6 +548,15 @@ void omap_pcs_legacy_init(int irq, void (*rearm)(void))
 	pcs_pdata.rearm = rearm;
 }
 
+<<<<<<< HEAD
+=======
+static struct ti_prm_platform_data ti_prm_pdata = {
+	.clkdm_deny_idle = clkdm_deny_idle,
+	.clkdm_allow_idle = clkdm_allow_idle,
+	.clkdm_lookup = clkdm_lookup,
+};
+
+>>>>>>> upstream/android-13
 /*
  * GPIOs for TWL are initialized by the I2C bus and need custom
  * handing until DSS has device tree bindings.
@@ -408,7 +572,11 @@ void omap_auxdata_legacy_init(struct device *dev)
 	dev->platform_data = &twl_gpio_auxdata;
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SND_OMAP_SOC_MCBSP)
+=======
+#if defined(CONFIG_ARCH_OMAP3) && IS_ENABLED(CONFIG_SND_SOC_OMAP_MCBSP)
+>>>>>>> upstream/android-13
 static struct omap_mcbsp_platform_data mcbsp_pdata;
 static void __init omap3_mcbsp_init(void)
 {
@@ -445,6 +613,11 @@ static struct of_dev_auxdata omap_auxdata_lookup[] = {
 #ifdef CONFIG_ARCH_OMAP3
 	OF_DEV_AUXDATA("ti,omap2-iommu", 0x5d000000, "5d000000.mmu",
 		       &omap3_iommu_pdata),
+<<<<<<< HEAD
+=======
+	OF_DEV_AUXDATA("ti,omap2-iommu", 0x480bd400, "480bd400.mmu",
+		       &omap3_iommu_isp_pdata),
+>>>>>>> upstream/android-13
 	OF_DEV_AUXDATA("ti,omap3-smartreflex-core", 0x480cb000,
 		       "480cb000.smartreflex", &omap_sr_pdata[OMAP_SR_CORE]),
 	OF_DEV_AUXDATA("ti,omap3-smartreflex-mpu-iva", 0x480c9000,
@@ -457,11 +630,16 @@ static struct of_dev_auxdata omap_auxdata_lookup[] = {
 		       &am35xx_emac_pdata),
 	OF_DEV_AUXDATA("nokia,n900-rom-rng", 0, NULL, rx51_secure_rng_call),
 	/* McBSP modules with sidetone core */
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SND_OMAP_SOC_MCBSP)
+=======
+#if IS_ENABLED(CONFIG_SND_SOC_OMAP_MCBSP)
+>>>>>>> upstream/android-13
 	OF_DEV_AUXDATA("ti,omap3-mcbsp", 0x49022000, "49022000.mcbsp", &mcbsp_pdata),
 	OF_DEV_AUXDATA("ti,omap3-mcbsp", 0x49024000, "49024000.mcbsp", &mcbsp_pdata),
 #endif
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_SOC_AM33XX
 	OF_DEV_AUXDATA("ti,am3352-wkup-m3", 0x44d00000, "44d00000.wkup_m3",
 		       &wkup_m3_data),
@@ -475,6 +653,9 @@ static struct of_dev_auxdata omap_auxdata_lookup[] = {
 		       &omap4_iommu_pdata),
 	OF_DEV_AUXDATA("ti,omap4-iommu", 0x55082000, "55082000.mmu",
 		       &omap4_iommu_pdata),
+=======
+#if defined(CONFIG_ARCH_OMAP4) || defined(CONFIG_SOC_OMAP5)
+>>>>>>> upstream/android-13
 	OF_DEV_AUXDATA("ti,omap4-smartreflex-iva", 0x4a0db000,
 		       "4a0db000.smartreflex", &omap_sr_pdata[OMAP_SR_IVA]),
 	OF_DEV_AUXDATA("ti,omap4-smartreflex-core", 0x4a0dd000,
@@ -489,10 +670,26 @@ static struct of_dev_auxdata omap_auxdata_lookup[] = {
 		       &dra7_hsmmc_data_mmc2),
 	OF_DEV_AUXDATA("ti,dra7-hsmmc", 0x480ad000, "480ad000.mmc",
 		       &dra7_hsmmc_data_mmc3),
+<<<<<<< HEAD
 #endif
 	/* Common auxdata */
 	OF_DEV_AUXDATA("ti,sysc", 0, NULL, &ti_sysc_pdata),
 	OF_DEV_AUXDATA("pinctrl-single", 0, NULL, &pcs_pdata),
+=======
+	OF_DEV_AUXDATA("ti,dra7-dsp-iommu", 0x40d01000, "40d01000.mmu",
+		       &dra7_ipu1_dsp_iommu_pdata),
+	OF_DEV_AUXDATA("ti,dra7-dsp-iommu", 0x41501000, "41501000.mmu",
+		       &dra7_ipu1_dsp_iommu_pdata),
+	OF_DEV_AUXDATA("ti,dra7-iommu", 0x58882000, "58882000.mmu",
+		       &dra7_ipu1_dsp_iommu_pdata),
+#endif
+	/* Common auxdata */
+	OF_DEV_AUXDATA("simple-pm-bus", 0, NULL, omap_auxdata_lookup),
+	OF_DEV_AUXDATA("ti,sysc", 0, NULL, &ti_sysc_pdata),
+	OF_DEV_AUXDATA("pinctrl-single", 0, NULL, &pcs_pdata),
+	OF_DEV_AUXDATA("ti,omap-prm-inst", 0, NULL, &ti_prm_pdata),
+	OF_DEV_AUXDATA("ti,omap-sdma", 0, NULL, &dma_plat_info),
+>>>>>>> upstream/android-13
 	{ /* sentinel */ },
 };
 
@@ -508,8 +705,11 @@ static struct pdata_init pdata_quirks[] __initdata = {
 	{ "nokia,omap3-n900", nokia_n900_legacy_init, },
 	{ "nokia,omap3-n9", hsmmc2_internal_input_clk, },
 	{ "nokia,omap3-n950", hsmmc2_internal_input_clk, },
+<<<<<<< HEAD
 	{ "isee,omap3-igep0020-rev-f", omap3_igep0020_rev_f_legacy_init, },
 	{ "isee,omap3-igep0030-rev-g", omap3_igep0030_rev_g_legacy_init, },
+=======
+>>>>>>> upstream/android-13
 	{ "logicpd,dm3730-torpedo-devkit", omap3_logicpd_torpedo_init, },
 	{ "ti,omap3-evm-37xx", omap3_evm_legacy_init, },
 	{ "ti,am3517-evm", am3517_evm_legacy_init, },
@@ -537,6 +737,30 @@ static void pdata_quirks_check(struct pdata_init *quirks)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static const char * const pdata_quirks_init_nodes[] = {
+	"prcm",
+	"prm",
+};
+
+static void __init
+pdata_quirks_init_clocks(const struct of_device_id *omap_dt_match_table)
+{
+	struct device_node *np;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(pdata_quirks_init_nodes); i++) {
+		np = of_find_node_by_name(NULL, pdata_quirks_init_nodes[i]);
+		if (!np)
+			continue;
+
+		of_platform_populate(np, omap_dt_match_table,
+				     omap_auxdata_lookup, NULL);
+	}
+}
+
+>>>>>>> upstream/android-13
 void __init pdata_quirks_init(const struct of_device_id *omap_dt_match_table)
 {
 	/*
@@ -550,6 +774,12 @@ void __init pdata_quirks_init(const struct of_device_id *omap_dt_match_table)
 	if (of_machine_is_compatible("ti,omap3"))
 		omap3_mcbsp_init();
 	pdata_quirks_check(auxdata_quirks);
+<<<<<<< HEAD
+=======
+
+	pdata_quirks_init_clocks(omap_dt_match_table);
+
+>>>>>>> upstream/android-13
 	of_platform_populate(NULL, omap_dt_match_table,
 			     omap_auxdata_lookup, NULL);
 	pdata_quirks_check(pdata_quirks);

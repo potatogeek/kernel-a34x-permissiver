@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/errno.h>
@@ -31,6 +37,10 @@ static DEFINE_IDA(ctrl_ida);
 static void spmi_dev_release(struct device *dev)
 {
 	struct spmi_device *sdev = to_spmi_device(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	kfree(sdev);
 }
 
@@ -41,6 +51,10 @@ static const struct device_type spmi_dev_type = {
 static void spmi_ctrl_release(struct device *dev)
 {
 	struct spmi_controller *ctrl = to_spmi_controller(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	ida_simple_remove(&ctrl_ida, ctrl->nr);
 	kfree(ctrl);
 }
@@ -351,7 +365,11 @@ fail_probe:
 	return err;
 }
 
+<<<<<<< HEAD
 static int spmi_drv_remove(struct device *dev)
+=======
+static void spmi_drv_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	const struct spmi_driver *sdrv = to_spmi_driver(dev->driver);
 
@@ -362,7 +380,18 @@ static int spmi_drv_remove(struct device *dev)
 	pm_runtime_disable(dev);
 	pm_runtime_set_suspended(dev);
 	pm_runtime_put_noidle(dev);
+<<<<<<< HEAD
 	return 0;
+=======
+}
+
+static void spmi_drv_shutdown(struct device *dev)
+{
+	const struct spmi_driver *sdrv = to_spmi_driver(dev->driver);
+
+	if (sdrv && sdrv->shutdown)
+		sdrv->shutdown(to_spmi_device(dev));
+>>>>>>> upstream/android-13
 }
 
 static int spmi_drv_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -381,6 +410,10 @@ static struct bus_type spmi_bus_type = {
 	.match		= spmi_device_match,
 	.probe		= spmi_drv_probe,
 	.remove		= spmi_drv_remove,
+<<<<<<< HEAD
+=======
+	.shutdown	= spmi_drv_shutdown,
+>>>>>>> upstream/android-13
 	.uevent		= spmi_drv_uevent,
 };
 
@@ -495,7 +528,11 @@ static void of_spmi_register_devices(struct spmi_controller *ctrl)
 			continue;
 
 		sdev->dev.of_node = node;
+<<<<<<< HEAD
 		sdev->usid = (u8) reg[0];
+=======
+		sdev->usid = (u8)reg[0];
+>>>>>>> upstream/android-13
 
 		err = spmi_device_add(sdev);
 		if (err) {
@@ -539,6 +576,10 @@ EXPORT_SYMBOL_GPL(spmi_controller_add);
 static int spmi_ctrl_remove_device(struct device *dev, void *data)
 {
 	struct spmi_device *spmidev = to_spmi_device(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (dev->type == &spmi_dev_type)
 		spmi_device_remove(spmidev);
 	return 0;
@@ -553,6 +594,7 @@ static int spmi_ctrl_remove_device(struct device *dev, void *data)
  */
 void spmi_controller_remove(struct spmi_controller *ctrl)
 {
+<<<<<<< HEAD
 	int dummy;
 
 	if (!ctrl)
@@ -560,6 +602,12 @@ void spmi_controller_remove(struct spmi_controller *ctrl)
 
 	dummy = device_for_each_child(&ctrl->dev, NULL,
 				      spmi_ctrl_remove_device);
+=======
+	if (!ctrl)
+		return;
+
+	device_for_each_child(&ctrl->dev, NULL, spmi_ctrl_remove_device);
+>>>>>>> upstream/android-13
 	device_del(&ctrl->dev);
 }
 EXPORT_SYMBOL_GPL(spmi_controller_remove);

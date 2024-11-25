@@ -47,7 +47,10 @@
 unsigned short ss;
 extern unsigned char breakpoint_insn[];
 sigjmp_buf jmpbuf;
+<<<<<<< HEAD
 static unsigned char altstack_data[SIGSTKSZ];
+=======
+>>>>>>> upstream/android-13
 
 static void enable_watchpoint(void)
 {
@@ -250,14 +253,24 @@ int main()
 	if (sigsetjmp(jmpbuf, 1) == 0) {
 		printf("[RUN]\tMOV SS; SYSENTER\n");
 		stack_t stack = {
+<<<<<<< HEAD
 			.ss_sp = altstack_data,
+=======
+			.ss_sp = malloc(sizeof(char) * SIGSTKSZ),
+>>>>>>> upstream/android-13
 			.ss_size = SIGSTKSZ,
 		};
 		if (sigaltstack(&stack, NULL) != 0)
 			err(1, "sigaltstack");
 		sethandler(SIGSEGV, handle_and_longjmp, SA_RESETHAND | SA_ONSTACK);
 		nr = SYS_getpid;
+<<<<<<< HEAD
 		asm volatile ("mov %[ss], %%ss; SYSENTER" : "+a" (nr)
+=======
+		free(stack.ss_sp);
+		/* Clear EBP first to make sure we segfault cleanly. */
+		asm volatile ("xorl %%ebp, %%ebp; mov %[ss], %%ss; SYSENTER" : "+a" (nr)
+>>>>>>> upstream/android-13
 			      : [ss] "m" (ss) : "flags", "rcx"
 #ifdef __x86_64__
 				, "r11"

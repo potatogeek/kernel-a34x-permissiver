@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* miscellaneous bits
  *
  * Copyright (C) 2002, 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -14,6 +21,10 @@
 #include <linux/errno.h>
 #include "internal.h"
 #include "afs_fs.h"
+<<<<<<< HEAD
+=======
+#include "protocol_uae.h"
+>>>>>>> upstream/android-13
 
 /*
  * convert an AFS abort code to a Linux error number
@@ -69,6 +80,7 @@ int afs_abort_to_error(u32 abort_code)
 	case AFSVL_PERM:		return -EACCES;
 	case AFSVL_NOMEM:		return -EREMOTEIO;
 
+<<<<<<< HEAD
 		/* Unified AFS error table; ET "uae" == 0x2f6df00 */
 	case 0x2f6df00:		return -EPERM;
 	case 0x2f6df01:		return -ENOENT;
@@ -97,6 +109,28 @@ int afs_abort_to_error(u32 abort_code)
 	case 0x2f6df69:		return -ENOTCONN;
 	case 0x2f6df6c:		return -ETIMEDOUT;
 	case 0x2f6df78:		return -EDQUOT;
+=======
+		/* Unified AFS error table */
+	case UAEPERM:			return -EPERM;
+	case UAENOENT:			return -ENOENT;
+	case UAEACCES:			return -EACCES;
+	case UAEBUSY:			return -EBUSY;
+	case UAEEXIST:			return -EEXIST;
+	case UAENOTDIR:			return -ENOTDIR;
+	case UAEISDIR:			return -EISDIR;
+	case UAEFBIG:			return -EFBIG;
+	case UAENOSPC:			return -ENOSPC;
+	case UAEROFS:			return -EROFS;
+	case UAEMLINK:			return -EMLINK;
+	case UAEDEADLK:			return -EDEADLK;
+	case UAENAMETOOLONG:		return -ENAMETOOLONG;
+	case UAENOLCK:			return -ENOLCK;
+	case UAENOTEMPTY:		return -ENOTEMPTY;
+	case UAELOOP:			return -ELOOP;
+	case UAEOVERFLOW:		return -EOVERFLOW;
+	case UAENOMEDIUM:		return -ENOMEDIUM;
+	case UAEDQUOT:			return -EDQUOT;
+>>>>>>> upstream/android-13
 
 		/* RXKAD abort codes; from include/rxrpc/packet.h.  ET "RXK" == 0x1260B00 */
 	case RXKADINCONSISTENCY: return -EPROTO;
@@ -118,3 +152,67 @@ int afs_abort_to_error(u32 abort_code)
 	default:		return -EREMOTEIO;
 	}
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Select the error to report from a set of errors.
+ */
+void afs_prioritise_error(struct afs_error *e, int error, u32 abort_code)
+{
+	switch (error) {
+	case 0:
+		return;
+	default:
+		if (e->error == -ETIMEDOUT ||
+		    e->error == -ETIME)
+			return;
+		fallthrough;
+	case -ETIMEDOUT:
+	case -ETIME:
+		if (e->error == -ENOMEM ||
+		    e->error == -ENONET)
+			return;
+		fallthrough;
+	case -ENOMEM:
+	case -ENONET:
+		if (e->error == -ERFKILL)
+			return;
+		fallthrough;
+	case -ERFKILL:
+		if (e->error == -EADDRNOTAVAIL)
+			return;
+		fallthrough;
+	case -EADDRNOTAVAIL:
+		if (e->error == -ENETUNREACH)
+			return;
+		fallthrough;
+	case -ENETUNREACH:
+		if (e->error == -EHOSTUNREACH)
+			return;
+		fallthrough;
+	case -EHOSTUNREACH:
+		if (e->error == -EHOSTDOWN)
+			return;
+		fallthrough;
+	case -EHOSTDOWN:
+		if (e->error == -ECONNREFUSED)
+			return;
+		fallthrough;
+	case -ECONNREFUSED:
+		if (e->error == -ECONNRESET)
+			return;
+		fallthrough;
+	case -ECONNRESET: /* Responded, but call expired. */
+		if (e->responded)
+			return;
+		e->error = error;
+		return;
+
+	case -ECONNABORTED:
+		e->responded = true;
+		e->error = afs_abort_to_error(abort_code);
+		return;
+	}
+}
+>>>>>>> upstream/android-13

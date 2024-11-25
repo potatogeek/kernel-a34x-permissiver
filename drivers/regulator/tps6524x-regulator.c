@@ -137,7 +137,10 @@ struct tps6524x {
 	struct spi_device	*spi;
 	struct mutex		lock;
 	struct regulator_desc	desc[N_REGULATORS];
+<<<<<<< HEAD
 	struct regulator_dev	*rdev[N_REGULATORS];
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __read_reg(struct tps6524x *hw, int reg)
@@ -565,7 +568,11 @@ static int is_supply_enabled(struct regulator_dev *rdev)
 	return read_field(hw, &info->enable);
 }
 
+<<<<<<< HEAD
 static struct regulator_ops regulator_ops = {
+=======
+static const struct regulator_ops regulator_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= is_supply_enabled,
 	.enable			= enable_supply,
 	.disable		= disable_supply,
@@ -584,6 +591,10 @@ static int pmic_probe(struct spi_device *spi)
 	const struct supply_info *info = supply_info;
 	struct regulator_init_data *init_data;
 	struct regulator_config config = { };
+<<<<<<< HEAD
+=======
+	struct regulator_dev *rdev;
+>>>>>>> upstream/android-13
 	int i;
 
 	init_data = dev_get_platdata(dev);
@@ -616,10 +627,16 @@ static int pmic_probe(struct spi_device *spi)
 		config.init_data = init_data;
 		config.driver_data = hw;
 
+<<<<<<< HEAD
 		hw->rdev[i] = devm_regulator_register(dev, &hw->desc[i],
 						      &config);
 		if (IS_ERR(hw->rdev[i]))
 			return PTR_ERR(hw->rdev[i]);
+=======
+		rdev = devm_regulator_register(dev, &hw->desc[i], &config);
+		if (IS_ERR(rdev))
+			return PTR_ERR(rdev);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

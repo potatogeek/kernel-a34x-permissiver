@@ -95,7 +95,11 @@ void fill_hpc_entries(struct ip22_hostdata *hd, struct scsi_cmnd *cmd, int din)
 	 */
 	hcp->desc.pbuf = 0;
 	hcp->desc.cntinfo = HPCDMA_EOX;
+<<<<<<< HEAD
 	dma_cache_sync(hd->dev, hd->cpu,
+=======
+	dma_sync_single_for_device(hd->dev, hd->dma,
+>>>>>>> upstream/android-13
 		       (unsigned long)(hcp + 1) - (unsigned long)hd->cpu,
 		       DMA_TO_DEVICE);
 }
@@ -187,7 +191,11 @@ static inline void init_hpc_chain(struct ip22_hostdata *hdata)
 		hcp++;
 		dma += sizeof(struct hpc_chunk);
 		start += sizeof(struct hpc_chunk);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	hcp--;
 	hcp->desc.pnext = hdata->dma;
 }
@@ -208,7 +216,11 @@ static struct scsi_host_template sgiwd93_template = {
 	.this_id		= 7,
 	.sg_tablesize		= SG_ALL,
 	.cmd_per_lun		= 8,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 };
 
 static int sgiwd93_probe(struct platform_device *pdev)
@@ -234,8 +246,13 @@ static int sgiwd93_probe(struct platform_device *pdev)
 
 	hdata = host_to_hostdata(host);
 	hdata->dev = &pdev->dev;
+<<<<<<< HEAD
 	hdata->cpu = dma_alloc_attrs(&pdev->dev, HPC_DMA_SIZE, &hdata->dma,
 				     GFP_KERNEL, DMA_ATTR_NON_CONSISTENT);
+=======
+	hdata->cpu = dma_alloc_noncoherent(&pdev->dev, HPC_DMA_SIZE,
+				&hdata->dma, DMA_TO_DEVICE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!hdata->cpu) {
 		printk(KERN_WARNING "sgiwd93: Could not allocate memory for "
 		       "host %d buffer.\n", unit);
@@ -274,8 +291,13 @@ static int sgiwd93_probe(struct platform_device *pdev)
 out_irq:
 	free_irq(irq, host);
 out_free:
+<<<<<<< HEAD
 	dma_free_attrs(&pdev->dev, HPC_DMA_SIZE, hdata->cpu, hdata->dma,
 		       DMA_ATTR_NON_CONSISTENT);
+=======
+	dma_free_noncoherent(&pdev->dev, HPC_DMA_SIZE, hdata->cpu, hdata->dma,
+			DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 out_put:
 	scsi_host_put(host);
 out:
@@ -291,8 +313,13 @@ static int sgiwd93_remove(struct platform_device *pdev)
 
 	scsi_remove_host(host);
 	free_irq(pd->irq, host);
+<<<<<<< HEAD
 	dma_free_attrs(&pdev->dev, HPC_DMA_SIZE, hdata->cpu, hdata->dma,
 		       DMA_ATTR_NON_CONSISTENT);
+=======
+	dma_free_noncoherent(&pdev->dev, HPC_DMA_SIZE, hdata->cpu, hdata->dma,
+			DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	scsi_host_put(host);
 	return 0;
 }

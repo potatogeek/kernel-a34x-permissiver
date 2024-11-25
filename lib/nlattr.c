@@ -44,6 +44,7 @@ static const u8 nla_attr_minlen[NLA_TYPE_MAX+1] = {
 	[NLA_S64]	= sizeof(s64),
 };
 
+<<<<<<< HEAD
 static int validate_nla_bitfield32(const struct nlattr *nla,
 				   u32 *valid_flags_allowed)
 {
@@ -59,6 +60,36 @@ static int validate_nla_bitfield32(const struct nlattr *nla,
 
 	/*disallow invalid bit values */
 	if (bf->value & ~*valid_flags_mask)
+=======
+/*
+ * Nested policies might refer back to the original
+ * policy in some cases, and userspace could try to
+ * abuse that and recurse by nesting in the right
+ * ways. Limit recursion to avoid this problem.
+ */
+#define MAX_POLICY_RECURSION_DEPTH	10
+
+static int __nla_validate_parse(const struct nlattr *head, int len, int maxtype,
+				const struct nla_policy *policy,
+				unsigned int validate,
+				struct netlink_ext_ack *extack,
+				struct nlattr **tb, unsigned int depth);
+
+static int validate_nla_bitfield32(const struct nlattr *nla,
+				   const u32 valid_flags_mask)
+{
+	const struct nla_bitfield32 *bf = nla_data(nla);
+
+	if (!valid_flags_mask)
+		return -EINVAL;
+
+	/*disallow invalid bit selector */
+	if (bf->selector & ~valid_flags_mask)
+		return -EINVAL;
+
+	/*disallow invalid bit values */
+	if (bf->value & ~valid_flags_mask)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*disallow valid bit values that are not selected*/
@@ -68,11 +99,298 @@ static int validate_nla_bitfield32(const struct nlattr *nla,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int validate_nla(const struct nlattr *nla, int maxtype,
 			const struct nla_policy *policy)
 {
 	const struct nla_policy *pt;
 	int minlen = 0, attrlen = nla_len(nla), type = nla_type(nla);
+=======
+static int nla_validate_array(const struct nlattr *head, int len, int maxtype,
+			      const struct nla_policy *policy,
+			      struct netlink_ext_ack *extack,
+			      unsigned int validate, unsigned int depth)
+{
+	const struct nlattr *entry;
+	int rem;
+
+	nla_for_each_attr(entry, head, len, rem) {
+		int ret;
+
+		if (nla_len(entry) == 0)
+			continue;
+
+		if (nla_len(entry) < NLA_HDRLEN) {
+			NL_SET_ERR_MSG_ATTR_POL(extack, entry, policy,
+						"Array element too short");
+			return -ERANGE;
+		}
+
+		ret = __nla_validate_parse(nla_data(entry), nla_len(entry),
+					   maxtype, policy, validate, extack,
+					   NULL, depth + 1);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
+void nla_get_range_unsigned(const struct nla_policy *pt,
+			    struct netlink_range_validation *range)
+{
+	WARN_ON_ONCE(pt->validation_type != NLA_VALIDATE_RANGE_PTR &&
+		     (pt->min < 0 || pt->max < 0));
+
+	range->min = 0;
+
+	switch (pt->type) {
+	case NLA_U8:
+		range->max = U8_MAX;
+		break;
+	case NLA_U16:
+	case NLA_BINARY:
+		range->max = U16_MAX;
+		break;
+	case NLA_U32:
+		range->max = U32_MAX;
+		break;
+	case NLA_U64:
+	case NLA_MSECS:
+		range->max = U64_MAX;
+		break;
+	default:
+		WARN_ON_ONCE(1);
+		return;
+	}
+
+	switch (pt->validation_type) {
+	case NLA_VALIDATE_RANGE:
+	case NLA_VALIDATE_RANGE_WARN_TOO_LONG:
+		range->min = pt->min;
+		range->max = pt->max;
+		break;
+	case NLA_VALIDATE_RANGE_PTR:
+		*range = *pt->range;
+		break;
+	case NLA_VALIDATE_MIN:
+		range->min = pt->min;
+		break;
+	case NLA_VALIDATE_MAX:
+		range->max = pt->max;
+		break;
+	default:
+		break;
+	}
+}
+
+static int nla_validate_range_unsigned(const struct nla_policy *pt,
+				       const struct nlattr *nla,
+				       struct netlink_ext_ack *extack,
+				       unsigned int validate)
+{
+	struct netlink_range_validation range;
+	u64 value;
+
+	switch (pt->type) {
+	case NLA_U8:
+		value = nla_get_u8(nla);
+		break;
+	case NLA_U16:
+		value = nla_get_u16(nla);
+		break;
+	case NLA_U32:
+		value = nla_get_u32(nla);
+		break;
+	case NLA_U64:
+	case NLA_MSECS:
+		value = nla_get_u64(nla);
+		break;
+	case NLA_BINARY:
+		value = nla_len(nla);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	nla_get_range_unsigned(pt, &range);
+
+	if (pt->validation_type == NLA_VALIDATE_RANGE_WARN_TOO_LONG &&
+	    pt->type == NLA_BINARY && value > range.max) {
+		pr_warn_ratelimited("netlink: '%s': attribute type %d has an invalid length.\n",
+				    current->comm, pt->type);
+		if (validate & NL_VALIDATE_STRICT_ATTRS) {
+			NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+						"invalid attribute length");
+			return -EINVAL;
+		}
+
+		/* this assumes min <= max (don't validate against min) */
+		return 0;
+	}
+
+	if (value < range.min || value > range.max) {
+		bool binary = pt->type == NLA_BINARY;
+
+		if (binary)
+			NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+						"binary attribute size out of range");
+		else
+			NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+						"integer out of range");
+
+		return -ERANGE;
+	}
+
+	return 0;
+}
+
+void nla_get_range_signed(const struct nla_policy *pt,
+			  struct netlink_range_validation_signed *range)
+{
+	switch (pt->type) {
+	case NLA_S8:
+		range->min = S8_MIN;
+		range->max = S8_MAX;
+		break;
+	case NLA_S16:
+		range->min = S16_MIN;
+		range->max = S16_MAX;
+		break;
+	case NLA_S32:
+		range->min = S32_MIN;
+		range->max = S32_MAX;
+		break;
+	case NLA_S64:
+		range->min = S64_MIN;
+		range->max = S64_MAX;
+		break;
+	default:
+		WARN_ON_ONCE(1);
+		return;
+	}
+
+	switch (pt->validation_type) {
+	case NLA_VALIDATE_RANGE:
+		range->min = pt->min;
+		range->max = pt->max;
+		break;
+	case NLA_VALIDATE_RANGE_PTR:
+		*range = *pt->range_signed;
+		break;
+	case NLA_VALIDATE_MIN:
+		range->min = pt->min;
+		break;
+	case NLA_VALIDATE_MAX:
+		range->max = pt->max;
+		break;
+	default:
+		break;
+	}
+}
+
+static int nla_validate_int_range_signed(const struct nla_policy *pt,
+					 const struct nlattr *nla,
+					 struct netlink_ext_ack *extack)
+{
+	struct netlink_range_validation_signed range;
+	s64 value;
+
+	switch (pt->type) {
+	case NLA_S8:
+		value = nla_get_s8(nla);
+		break;
+	case NLA_S16:
+		value = nla_get_s16(nla);
+		break;
+	case NLA_S32:
+		value = nla_get_s32(nla);
+		break;
+	case NLA_S64:
+		value = nla_get_s64(nla);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	nla_get_range_signed(pt, &range);
+
+	if (value < range.min || value > range.max) {
+		NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+					"integer out of range");
+		return -ERANGE;
+	}
+
+	return 0;
+}
+
+static int nla_validate_int_range(const struct nla_policy *pt,
+				  const struct nlattr *nla,
+				  struct netlink_ext_ack *extack,
+				  unsigned int validate)
+{
+	switch (pt->type) {
+	case NLA_U8:
+	case NLA_U16:
+	case NLA_U32:
+	case NLA_U64:
+	case NLA_MSECS:
+	case NLA_BINARY:
+		return nla_validate_range_unsigned(pt, nla, extack, validate);
+	case NLA_S8:
+	case NLA_S16:
+	case NLA_S32:
+	case NLA_S64:
+		return nla_validate_int_range_signed(pt, nla, extack);
+	default:
+		WARN_ON(1);
+		return -EINVAL;
+	}
+}
+
+static int nla_validate_mask(const struct nla_policy *pt,
+			     const struct nlattr *nla,
+			     struct netlink_ext_ack *extack)
+{
+	u64 value;
+
+	switch (pt->type) {
+	case NLA_U8:
+		value = nla_get_u8(nla);
+		break;
+	case NLA_U16:
+		value = nla_get_u16(nla);
+		break;
+	case NLA_U32:
+		value = nla_get_u32(nla);
+		break;
+	case NLA_U64:
+		value = nla_get_u64(nla);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	if (value & ~(u64)pt->mask) {
+		NL_SET_ERR_MSG_ATTR(extack, nla, "reserved bit set");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int validate_nla(const struct nlattr *nla, int maxtype,
+			const struct nla_policy *policy, unsigned int validate,
+			struct netlink_ext_ack *extack, unsigned int depth)
+{
+	u16 strict_start_type = policy[0].strict_start_type;
+	const struct nla_policy *pt;
+	int minlen = 0, attrlen = nla_len(nla), type = nla_type(nla);
+	int err = -ERANGE;
+
+	if (strict_start_type && type >= strict_start_type)
+		validate |= NL_VALIDATE_STRICT;
+>>>>>>> upstream/android-13
 
 	if (type <= 0 || type > maxtype)
 		return 0;
@@ -84,19 +402,66 @@ static int validate_nla(const struct nlattr *nla, int maxtype,
 	if (nla_attr_len[pt->type] && attrlen != nla_attr_len[pt->type]) {
 		pr_warn_ratelimited("netlink: '%s': attribute type %d has an invalid length.\n",
 				    current->comm, type);
+<<<<<<< HEAD
 	}
 
 	switch (pt->type) {
 	case NLA_FLAG:
 		if (attrlen > 0)
 			return -ERANGE;
+=======
+		if (validate & NL_VALIDATE_STRICT_ATTRS) {
+			NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+						"invalid attribute length");
+			return -EINVAL;
+		}
+	}
+
+	if (validate & NL_VALIDATE_NESTED) {
+		if ((pt->type == NLA_NESTED || pt->type == NLA_NESTED_ARRAY) &&
+		    !(nla->nla_type & NLA_F_NESTED)) {
+			NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+						"NLA_F_NESTED is missing");
+			return -EINVAL;
+		}
+		if (pt->type != NLA_NESTED && pt->type != NLA_NESTED_ARRAY &&
+		    pt->type != NLA_UNSPEC && (nla->nla_type & NLA_F_NESTED)) {
+			NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+						"NLA_F_NESTED not expected");
+			return -EINVAL;
+		}
+	}
+
+	switch (pt->type) {
+	case NLA_REJECT:
+		if (extack && pt->reject_message) {
+			NL_SET_BAD_ATTR(extack, nla);
+			extack->_msg = pt->reject_message;
+			return -EINVAL;
+		}
+		err = -EINVAL;
+		goto out_err;
+
+	case NLA_FLAG:
+		if (attrlen > 0)
+			goto out_err;
+>>>>>>> upstream/android-13
 		break;
 
 	case NLA_BITFIELD32:
 		if (attrlen != sizeof(struct nla_bitfield32))
+<<<<<<< HEAD
 			return -ERANGE;
 
 		return validate_nla_bitfield32(nla, pt->validation_data);
+=======
+			goto out_err;
+
+		err = validate_nla_bitfield32(nla, pt->bitfield32_valid);
+		if (err)
+			goto out_err;
+		break;
+>>>>>>> upstream/android-13
 
 	case NLA_NUL_STRING:
 		if (pt->len)
@@ -104,6 +469,7 @@ static int validate_nla(const struct nlattr *nla, int maxtype,
 		else
 			minlen = attrlen;
 
+<<<<<<< HEAD
 		if (!minlen || memchr(nla_data(nla), '\0', minlen) == NULL)
 			return -EINVAL;
 		/* fall through */
@@ -111,6 +477,17 @@ static int validate_nla(const struct nlattr *nla, int maxtype,
 	case NLA_STRING:
 		if (attrlen < 1)
 			return -ERANGE;
+=======
+		if (!minlen || memchr(nla_data(nla), '\0', minlen) == NULL) {
+			err = -EINVAL;
+			goto out_err;
+		}
+		fallthrough;
+
+	case NLA_STRING:
+		if (attrlen < 1)
+			goto out_err;
+>>>>>>> upstream/android-13
 
 		if (pt->len) {
 			char *buf = nla_data(nla);
@@ -119,12 +496,17 @@ static int validate_nla(const struct nlattr *nla, int maxtype,
 				attrlen--;
 
 			if (attrlen > pt->len)
+<<<<<<< HEAD
 				return -ERANGE;
+=======
+				goto out_err;
+>>>>>>> upstream/android-13
 		}
 		break;
 
 	case NLA_BINARY:
 		if (pt->len && attrlen > pt->len)
+<<<<<<< HEAD
 			return -ERANGE;
 		break;
 
@@ -139,12 +521,18 @@ static int validate_nla(const struct nlattr *nla, int maxtype,
 		if (attrlen < NLA_ALIGN(pt->len) + NLA_HDRLEN + nla_len(nla))
 			return -ERANGE;
 		break;
+=======
+			goto out_err;
+		break;
+
+>>>>>>> upstream/android-13
 	case NLA_NESTED:
 		/* a nested attributes is allowed to be empty; if its not,
 		 * it must have a size of at least NLA_HDRLEN.
 		 */
 		if (attrlen == 0)
 			break;
+<<<<<<< HEAD
 	default:
 		if (pt->len)
 			minlen = pt->len;
@@ -175,10 +563,113 @@ static int validate_nla(const struct nlattr *nla, int maxtype,
 int nla_validate(const struct nlattr *head, int len, int maxtype,
 		 const struct nla_policy *policy,
 		 struct netlink_ext_ack *extack)
+=======
+		if (attrlen < NLA_HDRLEN)
+			goto out_err;
+		if (pt->nested_policy) {
+			err = __nla_validate_parse(nla_data(nla), nla_len(nla),
+						   pt->len, pt->nested_policy,
+						   validate, extack, NULL,
+						   depth + 1);
+			if (err < 0) {
+				/*
+				 * return directly to preserve the inner
+				 * error message/attribute pointer
+				 */
+				return err;
+			}
+		}
+		break;
+	case NLA_NESTED_ARRAY:
+		/* a nested array attribute is allowed to be empty; if its not,
+		 * it must have a size of at least NLA_HDRLEN.
+		 */
+		if (attrlen == 0)
+			break;
+		if (attrlen < NLA_HDRLEN)
+			goto out_err;
+		if (pt->nested_policy) {
+			int err;
+
+			err = nla_validate_array(nla_data(nla), nla_len(nla),
+						 pt->len, pt->nested_policy,
+						 extack, validate, depth);
+			if (err < 0) {
+				/*
+				 * return directly to preserve the inner
+				 * error message/attribute pointer
+				 */
+				return err;
+			}
+		}
+		break;
+
+	case NLA_UNSPEC:
+		if (validate & NL_VALIDATE_UNSPEC) {
+			NL_SET_ERR_MSG_ATTR(extack, nla,
+					    "Unsupported attribute");
+			return -EINVAL;
+		}
+		if (attrlen < pt->len)
+			goto out_err;
+		break;
+
+	default:
+		if (pt->len)
+			minlen = pt->len;
+		else
+			minlen = nla_attr_minlen[pt->type];
+
+		if (attrlen < minlen)
+			goto out_err;
+	}
+
+	/* further validation */
+	switch (pt->validation_type) {
+	case NLA_VALIDATE_NONE:
+		/* nothing to do */
+		break;
+	case NLA_VALIDATE_RANGE_PTR:
+	case NLA_VALIDATE_RANGE:
+	case NLA_VALIDATE_RANGE_WARN_TOO_LONG:
+	case NLA_VALIDATE_MIN:
+	case NLA_VALIDATE_MAX:
+		err = nla_validate_int_range(pt, nla, extack, validate);
+		if (err)
+			return err;
+		break;
+	case NLA_VALIDATE_MASK:
+		err = nla_validate_mask(pt, nla, extack);
+		if (err)
+			return err;
+		break;
+	case NLA_VALIDATE_FUNCTION:
+		if (pt->validate) {
+			err = pt->validate(nla, extack);
+			if (err)
+				return err;
+		}
+		break;
+	}
+
+	return 0;
+out_err:
+	NL_SET_ERR_MSG_ATTR_POL(extack, nla, pt,
+				"Attribute failed policy validation");
+	return err;
+}
+
+static int __nla_validate_parse(const struct nlattr *head, int len, int maxtype,
+				const struct nla_policy *policy,
+				unsigned int validate,
+				struct netlink_ext_ack *extack,
+				struct nlattr **tb, unsigned int depth)
+>>>>>>> upstream/android-13
 {
 	const struct nlattr *nla;
 	int rem;
 
+<<<<<<< HEAD
 	nla_for_each_attr(nla, head, len, rem) {
 		int err = validate_nla(nla, maxtype, policy);
 
@@ -187,14 +678,85 @@ int nla_validate(const struct nlattr *head, int len, int maxtype,
 				extack->bad_attr = nla;
 			return err;
 		}
+=======
+	if (depth >= MAX_POLICY_RECURSION_DEPTH) {
+		NL_SET_ERR_MSG(extack,
+			       "allowed policy recursion depth exceeded");
+		return -EINVAL;
+	}
+
+	if (tb)
+		memset(tb, 0, sizeof(struct nlattr *) * (maxtype + 1));
+
+	nla_for_each_attr(nla, head, len, rem) {
+		u16 type = nla_type(nla);
+
+		if (type == 0 || type > maxtype) {
+			if (validate & NL_VALIDATE_MAXTYPE) {
+				NL_SET_ERR_MSG_ATTR(extack, nla,
+						    "Unknown attribute type");
+				return -EINVAL;
+			}
+			continue;
+		}
+		if (policy) {
+			int err = validate_nla(nla, maxtype, policy,
+					       validate, extack, depth);
+
+			if (err < 0)
+				return err;
+		}
+
+		if (tb)
+			tb[type] = (struct nlattr *)nla;
+	}
+
+	if (unlikely(rem > 0)) {
+		pr_warn_ratelimited("netlink: %d bytes leftover after parsing attributes in process `%s'.\n",
+				    rem, current->comm);
+		NL_SET_ERR_MSG(extack, "bytes leftover after parsing attributes");
+		if (validate & NL_VALIDATE_TRAILING)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(nla_validate);
 
 /**
  * nla_policy_len - Determin the max. length of a policy
+=======
+
+/**
+ * __nla_validate - Validate a stream of attributes
+ * @head: head of attribute stream
+ * @len: length of attribute stream
+ * @maxtype: maximum attribute type to be expected
+ * @policy: validation policy
+ * @validate: validation strictness
+ * @extack: extended ACK report struct
+ *
+ * Validates all attributes in the specified attribute stream against the
+ * specified policy. Validation depends on the validate flags passed, see
+ * &enum netlink_validation for more details on that.
+ * See documentation of struct nla_policy for more details.
+ *
+ * Returns 0 on success or a negative error code.
+ */
+int __nla_validate(const struct nlattr *head, int len, int maxtype,
+		   const struct nla_policy *policy, unsigned int validate,
+		   struct netlink_ext_ack *extack)
+{
+	return __nla_validate_parse(head, len, maxtype, policy, validate,
+				    extack, NULL, 0);
+}
+EXPORT_SYMBOL(__nla_validate);
+
+/**
+ * nla_policy_len - Determine the max. length of a policy
+>>>>>>> upstream/android-13
  * @policy: policy to use
  * @n: number of policies
  *
@@ -223,12 +785,17 @@ nla_policy_len(const struct nla_policy *p, int n)
 EXPORT_SYMBOL(nla_policy_len);
 
 /**
+<<<<<<< HEAD
  * nla_parse - Parse a stream of attributes into a tb buffer
+=======
+ * __nla_parse - Parse a stream of attributes into a tb buffer
+>>>>>>> upstream/android-13
  * @tb: destination array with maxtype+1 elements
  * @maxtype: maximum attribute type to be expected
  * @head: head of attribute stream
  * @len: length of attribute stream
  * @policy: validation policy
+<<<<<<< HEAD
  *
  * Parses a stream of attributes and stores a pointer to each attribute in
  * the tb array accessible via the attribute type. Attributes with a type
@@ -272,6 +839,26 @@ errout:
 	return err;
 }
 EXPORT_SYMBOL(nla_parse);
+=======
+ * @validate: validation strictness
+ * @extack: extended ACK pointer
+ *
+ * Parses a stream of attributes and stores a pointer to each attribute in
+ * the tb array accessible via the attribute type.
+ * Validation is controlled by the @validate parameter.
+ *
+ * Returns 0 on success or a negative error code.
+ */
+int __nla_parse(struct nlattr **tb, int maxtype,
+		const struct nlattr *head, int len,
+		const struct nla_policy *policy, unsigned int validate,
+		struct netlink_ext_ack *extack)
+{
+	return __nla_validate_parse(head, len, maxtype, policy, validate,
+				    extack, tb, 0);
+}
+EXPORT_SYMBOL(__nla_parse);
+>>>>>>> upstream/android-13
 
 /**
  * nla_find - Find a specific attribute in a stream of attributes
@@ -295,6 +882,7 @@ struct nlattr *nla_find(const struct nlattr *head, int len, int attrtype)
 EXPORT_SYMBOL(nla_find);
 
 /**
+<<<<<<< HEAD
  * nla_strlcpy - Copy string attribute payload into a sized buffer
  * @dst: where to copy the string to
  * @nla: attribute to copy the string from
@@ -310,10 +898,35 @@ size_t nla_strlcpy(char *dst, const struct nlattr *nla, size_t dstsize)
 {
 	size_t srclen = nla_len(nla);
 	char *src = nla_data(nla);
+=======
+ * nla_strscpy - Copy string attribute payload into a sized buffer
+ * @dst: Where to copy the string to.
+ * @nla: Attribute to copy the string from.
+ * @dstsize: Size of destination buffer.
+ *
+ * Copies at most dstsize - 1 bytes into the destination buffer.
+ * Unlike strlcpy the destination buffer is always padded out.
+ *
+ * Return:
+ * * srclen - Returns @nla length (not including the trailing %NUL).
+ * * -E2BIG - If @dstsize is 0 or greater than U16_MAX or @nla length greater
+ *            than @dstsize.
+ */
+ssize_t nla_strscpy(char *dst, const struct nlattr *nla, size_t dstsize)
+{
+	size_t srclen = nla_len(nla);
+	char *src = nla_data(nla);
+	ssize_t ret;
+	size_t len;
+
+	if (dstsize == 0 || WARN_ON_ONCE(dstsize > U16_MAX))
+		return -E2BIG;
+>>>>>>> upstream/android-13
 
 	if (srclen > 0 && src[srclen - 1] == '\0')
 		srclen--;
 
+<<<<<<< HEAD
 	if (dstsize > 0) {
 		size_t len = (srclen >= dstsize) ? dstsize - 1 : srclen;
 
@@ -324,6 +937,23 @@ size_t nla_strlcpy(char *dst, const struct nlattr *nla, size_t dstsize)
 	return srclen;
 }
 EXPORT_SYMBOL(nla_strlcpy);
+=======
+	if (srclen >= dstsize) {
+		len = dstsize - 1;
+		ret = -E2BIG;
+	} else {
+		len = srclen;
+		ret = len;
+	}
+
+	memcpy(dst, src, len);
+	/* Zero pad end of dst. */
+	memset(dst + len, 0, dstsize - len);
+
+	return ret;
+}
+EXPORT_SYMBOL(nla_strscpy);
+>>>>>>> upstream/android-13
 
 /**
  * nla_strdup - Copy string attribute payload into a newly allocated buffer
@@ -457,8 +1087,12 @@ EXPORT_SYMBOL(__nla_reserve);
 struct nlattr *__nla_reserve_64bit(struct sk_buff *skb, int attrtype,
 				   int attrlen, int padattr)
 {
+<<<<<<< HEAD
 	if (nla_need_padding_for_64bit(skb))
 		nla_align_64bit(skb, padattr);
+=======
+	nla_align_64bit(skb, padattr);
+>>>>>>> upstream/android-13
 
 	return __nla_reserve(skb, attrtype, attrlen);
 }

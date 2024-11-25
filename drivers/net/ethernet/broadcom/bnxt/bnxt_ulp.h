@@ -64,8 +64,22 @@ struct bnxt_en_dev {
 	#define BNXT_EN_FLAG_ROCE_CAP		(BNXT_EN_FLAG_ROCEV1_CAP | \
 						 BNXT_EN_FLAG_ROCEV2_CAP)
 	#define BNXT_EN_FLAG_MSIX_REQUESTED	0x4
+<<<<<<< HEAD
 	const struct bnxt_en_ops	*en_ops;
 	struct bnxt_ulp			ulp_tbl[BNXT_MAX_ULP];
+=======
+	#define BNXT_EN_FLAG_ULP_STOPPED	0x8
+	const struct bnxt_en_ops	*en_ops;
+	struct bnxt_ulp			ulp_tbl[BNXT_MAX_ULP];
+	int				l2_db_size;	/* Doorbell BAR size in
+							 * bytes mapped by L2
+							 * driver.
+							 */
+	int				l2_db_size_nc;	/* Doorbell BAR size in
+							 * bytes mapped as non-
+							 * cacheable.
+							 */
+>>>>>>> upstream/android-13
 };
 
 struct bnxt_en_ops {
@@ -90,8 +104,14 @@ static inline bool bnxt_ulp_registered(struct bnxt_en_dev *edev, int ulp_id)
 
 int bnxt_get_ulp_msix_num(struct bnxt *bp);
 int bnxt_get_ulp_msix_base(struct bnxt *bp);
+<<<<<<< HEAD
 void bnxt_ulp_stop(struct bnxt *bp);
 void bnxt_ulp_start(struct bnxt *bp);
+=======
+int bnxt_get_ulp_stat_ctxs(struct bnxt *bp);
+void bnxt_ulp_stop(struct bnxt *bp);
+void bnxt_ulp_start(struct bnxt *bp, int err);
+>>>>>>> upstream/android-13
 void bnxt_ulp_sriov_cfg(struct bnxt *bp, int num_vfs);
 void bnxt_ulp_shutdown(struct bnxt *bp);
 void bnxt_ulp_irq_stop(struct bnxt *bp);

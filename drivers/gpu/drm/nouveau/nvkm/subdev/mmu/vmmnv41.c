@@ -80,17 +80,27 @@ nv41_vmm_desc_12[] = {
 static void
 nv41_vmm_flush(struct nvkm_vmm *vmm, int level)
 {
+<<<<<<< HEAD
 	struct nvkm_subdev *subdev = &vmm->mmu->subdev;
 	struct nvkm_device *device = subdev->device;
 
 	mutex_lock(&subdev->mutex);
+=======
+	struct nvkm_device *device = vmm->mmu->subdev.device;
+
+	mutex_lock(&vmm->mmu->mutex);
+>>>>>>> upstream/android-13
 	nvkm_wr32(device, 0x100810, 0x00000022);
 	nvkm_msec(device, 2000,
 		if (nvkm_rd32(device, 0x100810) & 0x00000020)
 			break;
 	);
 	nvkm_wr32(device, 0x100810, 0x00000000);
+<<<<<<< HEAD
 	mutex_unlock(&subdev->mutex);
+=======
+	mutex_unlock(&vmm->mmu->mutex);
+>>>>>>> upstream/android-13
 }
 
 static const struct nvkm_vmm_func
@@ -104,10 +114,18 @@ nv41_vmm = {
 };
 
 int
+<<<<<<< HEAD
 nv41_vmm_new(struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	     struct lock_class_key *key, const char *name,
 	     struct nvkm_vmm **pvmm)
 {
 	return nv04_vmm_new_(&nv41_vmm, mmu, 0, addr, size,
+=======
+nv41_vmm_new(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	     void *argv, u32 argc, struct lock_class_key *key, const char *name,
+	     struct nvkm_vmm **pvmm)
+{
+	return nv04_vmm_new_(&nv41_vmm, mmu, 0, managed, addr, size,
+>>>>>>> upstream/android-13
 			     argv, argc, key, name, pvmm);
 }

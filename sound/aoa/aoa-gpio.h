@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Apple Onboard Audio GPIO definitions
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * GPL v2, can be found in COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AOA_GPIO_H

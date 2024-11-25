@@ -17,6 +17,10 @@
 
 #ifdef CONFIG_THERMAL_HWMON
 int thermal_add_hwmon_sysfs(struct thermal_zone_device *tz);
+<<<<<<< HEAD
+=======
+int devm_thermal_add_hwmon_sysfs(struct thermal_zone_device *tz);
+>>>>>>> upstream/android-13
 void thermal_remove_hwmon_sysfs(struct thermal_zone_device *tz);
 #else
 static inline int
@@ -25,6 +29,15 @@ thermal_add_hwmon_sysfs(struct thermal_zone_device *tz)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int
+devm_thermal_add_hwmon_sysfs(struct thermal_zone_device *tz)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline void
 thermal_remove_hwmon_sysfs(struct thermal_zone_device *tz)
 {

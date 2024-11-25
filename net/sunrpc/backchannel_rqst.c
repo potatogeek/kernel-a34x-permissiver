@@ -5,7 +5,11 @@
 
 NetApp provides this source code under the GPL v2 License.
 The GPL v2 license is available at
+<<<<<<< HEAD
 http://opensource.org/licenses/gpl-license.php.
+=======
+https://opensource.org/licenses/gpl-license.php.
+>>>>>>> upstream/android-13
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,12 +35,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define RPCDBG_FACILITY	RPCDBG_TRANS
 #endif
 
+<<<<<<< HEAD
+=======
+#define BC_MAX_SLOTS	64U
+
+unsigned int xprt_bc_max_slots(struct rpc_xprt *xprt)
+{
+	return BC_MAX_SLOTS;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Helper routines that track the number of preallocation elements
  * on the transport.
  */
 static inline int xprt_need_to_requeue(struct rpc_xprt *xprt)
 {
+<<<<<<< HEAD
 	return xprt->bc_alloc_count < atomic_read(&xprt->bc_free_slots);
 }
 
@@ -50,6 +65,9 @@ static inline int xprt_dec_alloc_count(struct rpc_xprt *xprt, unsigned int n)
 {
 	atomic_sub(n, &xprt->bc_free_slots);
 	return xprt->bc_alloc_count -= n;
+=======
+	return xprt->bc_alloc_count < xprt->bc_alloc_max;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -91,7 +109,10 @@ struct rpc_rqst *xprt_alloc_bc_req(struct rpc_xprt *xprt, gfp_t gfp_flags)
 		return NULL;
 
 	req->rq_xprt = xprt;
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&req->rq_list);
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&req->rq_bc_list);
 
 	/* Preallocate one XDR receive buffer */
@@ -117,7 +138,11 @@ out_free:
  * by the backchannel.  This function can be called multiple times
  * when creating new sessions that use the same rpc_xprt.  The
  * preallocated buffers are added to the pool of resources used by
+<<<<<<< HEAD
  * the rpc_xprt.  Anyone of these resources may be used used by an
+=======
+ * the rpc_xprt.  Any one of these resources may be used by an
+>>>>>>> upstream/android-13
  * incoming callback request.  It's up to the higher levels in the
  * stack to enforce that the maximum number of session slots is not
  * being exceeded.
@@ -146,6 +171,12 @@ int xprt_setup_bc(struct rpc_xprt *xprt, unsigned int min_reqs)
 
 	dprintk("RPC:       setup backchannel transport\n");
 
+<<<<<<< HEAD
+=======
+	if (min_reqs > BC_MAX_SLOTS)
+		min_reqs = BC_MAX_SLOTS;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We use a temporary list to keep track of the preallocated
 	 * buffers.  Once we're done building the list we splice it
@@ -173,7 +204,13 @@ int xprt_setup_bc(struct rpc_xprt *xprt, unsigned int min_reqs)
 	 */
 	spin_lock(&xprt->bc_pa_lock);
 	list_splice(&tmp_list, &xprt->bc_pa_list);
+<<<<<<< HEAD
 	xprt_inc_alloc_count(xprt, min_reqs);
+=======
+	xprt->bc_alloc_count += min_reqs;
+	xprt->bc_alloc_max += min_reqs;
+	atomic_add(min_reqs, &xprt->bc_slot_count);
+>>>>>>> upstream/android-13
 	spin_unlock(&xprt->bc_pa_lock);
 
 	dprintk("RPC:       setup backchannel transport done\n");
@@ -198,7 +235,11 @@ out_free:
 /**
  * xprt_destroy_backchannel - Destroys the backchannel preallocated structures.
  * @xprt:	the transport holding the preallocated strucures
+<<<<<<< HEAD
  * @max_reqs	the maximum number of preallocated structures to destroy
+=======
+ * @max_reqs:	the maximum number of preallocated structures to destroy
+>>>>>>> upstream/android-13
  *
  * Since these structures may have been allocated by multiple calls
  * to xprt_setup_backchannel, we only destroy up to the maximum number
@@ -221,11 +262,20 @@ void xprt_destroy_bc(struct rpc_xprt *xprt, unsigned int max_reqs)
 		goto out;
 
 	spin_lock_bh(&xprt->bc_pa_lock);
+<<<<<<< HEAD
 	xprt_dec_alloc_count(xprt, max_reqs);
+=======
+	xprt->bc_alloc_max -= min(max_reqs, xprt->bc_alloc_max);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(req, tmp, &xprt->bc_pa_list, rq_bc_pa_list) {
 		dprintk("RPC:        req=%p\n", req);
 		list_del(&req->rq_bc_pa_list);
 		xprt_free_allocation(req);
+<<<<<<< HEAD
+=======
+		xprt->bc_alloc_count--;
+		atomic_dec(&xprt->bc_slot_count);
+>>>>>>> upstream/android-13
 		if (--max_reqs == 0)
 			break;
 	}
@@ -236,11 +286,17 @@ out:
 		list_empty(&xprt->bc_pa_list) ? "true" : "false");
 }
 
+<<<<<<< HEAD
 static struct rpc_rqst *xprt_alloc_bc_request(struct rpc_xprt *xprt, __be32 xid)
+=======
+static struct rpc_rqst *xprt_get_bc_request(struct rpc_xprt *xprt, __be32 xid,
+		struct rpc_rqst *new)
+>>>>>>> upstream/android-13
 {
 	struct rpc_rqst *req = NULL;
 
 	dprintk("RPC:       allocate a backchannel request\n");
+<<<<<<< HEAD
 	if (atomic_read(&xprt->bc_free_slots) <= 0)
 		goto not_found;
 	if (list_empty(&xprt->bc_pa_list)) {
@@ -249,17 +305,35 @@ static struct rpc_rqst *xprt_alloc_bc_request(struct rpc_xprt *xprt, __be32 xid)
 			goto not_found;
 		list_add_tail(&req->rq_bc_pa_list, &xprt->bc_pa_list);
 		xprt->bc_alloc_count++;
+=======
+	if (list_empty(&xprt->bc_pa_list)) {
+		if (!new)
+			goto not_found;
+		if (atomic_read(&xprt->bc_slot_count) >= BC_MAX_SLOTS)
+			goto not_found;
+		list_add_tail(&new->rq_bc_pa_list, &xprt->bc_pa_list);
+		xprt->bc_alloc_count++;
+		atomic_inc(&xprt->bc_slot_count);
+>>>>>>> upstream/android-13
 	}
 	req = list_first_entry(&xprt->bc_pa_list, struct rpc_rqst,
 				rq_bc_pa_list);
 	req->rq_reply_bytes_recvd = 0;
+<<<<<<< HEAD
 	req->rq_bytes_sent = 0;
+=======
+>>>>>>> upstream/android-13
 	memcpy(&req->rq_private_buf, &req->rq_rcv_buf,
 			sizeof(req->rq_private_buf));
 	req->rq_xid = xid;
 	req->rq_connect_cookie = xprt->connect_cookie;
+<<<<<<< HEAD
 not_found:
 	dprintk("RPC:       backchannel req=%p\n", req);
+=======
+	dprintk("RPC:       backchannel req=%p\n", req);
+not_found:
+>>>>>>> upstream/android-13
 	return req;
 }
 
@@ -293,6 +367,10 @@ void xprt_free_bc_rqst(struct rpc_rqst *req)
 	if (xprt_need_to_requeue(xprt)) {
 		list_add_tail(&req->rq_bc_pa_list, &xprt->bc_pa_list);
 		xprt->bc_alloc_count++;
+<<<<<<< HEAD
+=======
+		atomic_inc(&xprt->bc_slot_count);
+>>>>>>> upstream/android-13
 		req = NULL;
 	}
 	spin_unlock_bh(&xprt->bc_pa_lock);
@@ -305,8 +383,13 @@ void xprt_free_bc_rqst(struct rpc_rqst *req)
 		 */
 		dprintk("RPC:       Last session removed req=%p\n", req);
 		xprt_free_allocation(req);
+<<<<<<< HEAD
 		return;
 	}
+=======
+	}
+	xprt_put(xprt);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -322,6 +405,7 @@ void xprt_free_bc_rqst(struct rpc_rqst *req)
  */
 struct rpc_rqst *xprt_lookup_bc_request(struct rpc_xprt *xprt, __be32 xid)
 {
+<<<<<<< HEAD
 	struct rpc_rqst *req;
 
 	spin_lock(&xprt->bc_pa_lock);
@@ -334,6 +418,29 @@ struct rpc_rqst *xprt_lookup_bc_request(struct rpc_xprt *xprt, __be32 xid)
 	req = xprt_alloc_bc_request(xprt, xid);
 found:
 	spin_unlock(&xprt->bc_pa_lock);
+=======
+	struct rpc_rqst *req, *new = NULL;
+
+	do {
+		spin_lock(&xprt->bc_pa_lock);
+		list_for_each_entry(req, &xprt->bc_pa_list, rq_bc_pa_list) {
+			if (req->rq_connect_cookie != xprt->connect_cookie)
+				continue;
+			if (req->rq_xid == xid)
+				goto found;
+		}
+		req = xprt_get_bc_request(xprt, xid, new);
+found:
+		spin_unlock(&xprt->bc_pa_lock);
+		if (new) {
+			if (req != new)
+				xprt_free_allocation(new);
+			break;
+		} else if (req)
+			break;
+		new = xprt_alloc_bc_req(xprt, GFP_KERNEL);
+	} while (new);
+>>>>>>> upstream/android-13
 	return req;
 }
 
@@ -350,13 +457,21 @@ void xprt_complete_bc_request(struct rpc_rqst *req, uint32_t copied)
 
 	spin_lock(&xprt->bc_pa_lock);
 	list_del(&req->rq_bc_pa_list);
+<<<<<<< HEAD
 	xprt_dec_alloc_count(xprt, 1);
+=======
+	xprt->bc_alloc_count--;
+>>>>>>> upstream/android-13
 	spin_unlock(&xprt->bc_pa_lock);
 
 	req->rq_private_buf.len = copied;
 	set_bit(RPC_BC_PA_IN_USE, &req->rq_bc_pa_state);
 
 	dprintk("RPC:       add callback request to list\n");
+<<<<<<< HEAD
+=======
+	xprt_get(xprt);
+>>>>>>> upstream/android-13
 	spin_lock(&bc_serv->sv_cb_lock);
 	list_add(&req->rq_bc_list, &bc_serv->sv_cb_list);
 	wake_up(&bc_serv->sv_cb_waitq);

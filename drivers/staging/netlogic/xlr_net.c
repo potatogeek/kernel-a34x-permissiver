@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2003-2012 Broadcom Corporation
  * All Rights Reserved
@@ -31,6 +32,14 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+/*
+ * Copyright (c) 2003-2012 Broadcom Corporation
+ * All Rights Reserved
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/phy.h>
 #include <linux/delay.h>
 #include <linux/netdevice.h>
@@ -114,8 +123,12 @@ static inline unsigned char *xlr_alloc_skb(void)
 	if (!skb)
 		return NULL;
 	skb_data = skb->data;
+<<<<<<< HEAD
 	skb_put(skb, MAC_SKB_BACK_PTR_SIZE);
 	skb_pull(skb, MAC_SKB_BACK_PTR_SIZE);
+=======
+	skb_reserve(skb, MAC_SKB_BACK_PTR_SIZE);
+>>>>>>> upstream/android-13
 	memcpy(skb_data, &skb, buf_len);
 
 	return skb->data;
@@ -212,10 +225,15 @@ static int xlr_net_fill_rx_ring(struct net_device *ndev)
 
 	for (i = 0; i < MAX_FRIN_SPILL / 4; i++) {
 		skb_data = xlr_alloc_skb();
+<<<<<<< HEAD
 		if (!skb_data) {
 			netdev_err(ndev, "SKB allocation failed\n");
 			return -ENOMEM;
 		}
+=======
+		if (!skb_data)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 		send_to_rfr_fifo(priv, skb_data);
 	}
 	netdev_info(ndev, "Rx ring setup done\n");
@@ -385,7 +403,11 @@ static void xlr_stats(struct net_device *ndev, struct rtnl_link_stats64 *stats)
 			    stats->rx_missed_errors);
 
 	stats->tx_aborted_errors = xlr_nae_rdreg(priv->base_addr,
+<<<<<<< HEAD
 			TX_EXCESSIVE_COLLISION_PACKET_COUNTER);
+=======
+						 TX_EXCESSIVE_COLLISION_PACKET_COUNTER);
+>>>>>>> upstream/android-13
 	stats->tx_carrier_errors = xlr_nae_rdreg(priv->base_addr,
 						 TX_DROP_FRAME_COUNTER);
 	stats->tx_fifo_errors = xlr_nae_rdreg(priv->base_addr,
@@ -415,11 +437,17 @@ static void *xlr_config_spill(struct xlr_net_priv *priv, int reg_start_0,
 
 	base = priv->base_addr;
 	spill_size = size;
+<<<<<<< HEAD
 	spill = kmalloc(spill_size + SMP_CACHE_BYTES, GFP_ATOMIC);
 	if (!spill) {
 		pr_err("Unable to allocate memory for spill area!\n");
 		return ZERO_SIZE_PTR;
 	}
+=======
+	spill = kmalloc(spill_size + SMP_CACHE_BYTES, GFP_KERNEL);
+	if (!spill)
+		return ZERO_SIZE_PTR;
+>>>>>>> upstream/android-13
 
 	spill = PTR_ALIGN(spill, SMP_CACHE_BYTES);
 	phys_addr = virt_to_phys(spill);
@@ -1008,8 +1036,12 @@ static int xlr_net_probe(struct platform_device *pdev)
 		priv->ndev = ndev;
 		priv->port_id = (pdev->id * 4) + port;
 		priv->nd = (struct xlr_net_data *)pdev->dev.platform_data;
+<<<<<<< HEAD
 		res = platform_get_resource(pdev, IORESOURCE_MEM, port);
 		priv->base_addr = devm_ioremap_resource(&pdev->dev, res);
+=======
+		priv->base_addr = devm_platform_ioremap_resource(pdev, port);
+>>>>>>> upstream/android-13
 		if (IS_ERR(priv->base_addr)) {
 			err = PTR_ERR(priv->base_addr);
 			goto err_gmac;

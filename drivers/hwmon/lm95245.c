@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 Alexander Stein <alexander.stein@systec-electronic.com>
  *
@@ -5,6 +9,7 @@
  * It reports up to two temperatures (its own plus an external one).
  *
  * This driver is based on lm95241.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -92,6 +99,7 @@ static const unsigned short normal_i2c[] = {
 #define LM95235_REVISION	0xB1
 #define LM95245_REVISION	0xB3
 
+<<<<<<< HEAD
 static const u8 lm95245_reg_address[] = {
 	LM95245_REG_R_LOCAL_TEMPH_S,
 	LM95245_REG_R_LOCAL_TEMPL_S,
@@ -105,6 +113,8 @@ static const u8 lm95245_reg_address[] = {
 	LM95245_REG_R_STATUS1,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Client data (each client gets its own) */
 struct lm95245_data {
 	struct regmap *regmap;
@@ -421,14 +431,24 @@ static umode_t lm95245_temp_is_visible(const void *data, u32 attr, int channel)
 	case hwmon_temp_max_hyst:
 	case hwmon_temp_crit_alarm:
 	case hwmon_temp_fault:
+<<<<<<< HEAD
 		return S_IRUGO;
+=======
+		return 0444;
+>>>>>>> upstream/android-13
 	case hwmon_temp_type:
 	case hwmon_temp_max:
 	case hwmon_temp_crit:
 	case hwmon_temp_offset:
+<<<<<<< HEAD
 		return S_IRUGO | S_IWUSR;
 	case hwmon_temp_crit_hyst:
 		return (channel == 0) ? S_IRUGO | S_IWUSR : S_IRUGO;
+=======
+		return 0644;
+	case hwmon_temp_crit_hyst:
+		return (channel == 0) ? 0644 : 0444;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
@@ -442,7 +462,11 @@ static umode_t lm95245_is_visible(const void *data,
 	case hwmon_chip:
 		switch (attr) {
 		case hwmon_chip_update_interval:
+<<<<<<< HEAD
 			return S_IRUGO | S_IWUSR;
+=======
+			return 0644;
+>>>>>>> upstream/android-13
 		default:
 			return 0;
 		}
@@ -541,6 +565,7 @@ static const struct regmap_config lm95245_regmap_config = {
 	.writeable_reg = lm95245_is_writeable_reg,
 	.volatile_reg = lm95245_is_volatile_reg,
 	.cache_type = REGCACHE_RBTREE,
+<<<<<<< HEAD
 	.use_single_rw = true,
 };
 
@@ -570,6 +595,22 @@ static const struct hwmon_channel_info lm95245_temp = {
 static const struct hwmon_channel_info *lm95245_info[] = {
 	&lm95245_chip,
 	&lm95245_temp,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+};
+
+static const struct hwmon_channel_info *lm95245_info[] = {
+	HWMON_CHANNEL_INFO(chip,
+			   HWMON_C_UPDATE_INTERVAL),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_CRIT | HWMON_T_CRIT_HYST |
+			   HWMON_T_CRIT_ALARM,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_MAX_HYST |
+			   HWMON_T_CRIT | HWMON_T_CRIT_HYST | HWMON_T_FAULT |
+			   HWMON_T_MAX_ALARM | HWMON_T_CRIT_ALARM |
+			   HWMON_T_TYPE | HWMON_T_OFFSET),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -584,8 +625,12 @@ static const struct hwmon_chip_info lm95245_chip_info = {
 	.info = lm95245_info,
 };
 
+<<<<<<< HEAD
 static int lm95245_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int lm95245_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct lm95245_data *data;
@@ -622,7 +667,11 @@ static const struct i2c_device_id lm95245_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, lm95245_id);
 
+<<<<<<< HEAD
 static const struct of_device_id lm95245_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused lm95245_of_match[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "national,lm95235" },
 	{ .compatible = "national,lm95245" },
 	{ },
@@ -635,7 +684,11 @@ static struct i2c_driver lm95245_driver = {
 		.name	= "lm95245",
 		.of_match_table = of_match_ptr(lm95245_of_match),
 	},
+<<<<<<< HEAD
 	.probe		= lm95245_probe,
+=======
+	.probe_new	= lm95245_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm95245_id,
 	.detect		= lm95245_detect,
 	.address_list	= normal_i2c,

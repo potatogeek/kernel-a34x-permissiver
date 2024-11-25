@@ -66,7 +66,11 @@ static const struct hc_driver ehci_xilinx_of_hc_driver = {
 	 * generic hardware linkage
 	 */
 	.irq			= ehci_irq,
+<<<<<<< HEAD
 	.flags			= HCD_MEMORY | HCD_USB2 | HCD_BH,
+=======
+	.flags			= HCD_MEMORY | HCD_DMA | HCD_USB2 | HCD_BH,
+>>>>>>> upstream/android-13
 
 	/*
 	 * basic lifecycle operations

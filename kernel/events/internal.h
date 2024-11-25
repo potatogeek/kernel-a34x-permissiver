@@ -4,13 +4,22 @@
 
 #include <linux/hardirq.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/refcount.h>
+>>>>>>> upstream/android-13
 
 /* Buffer handling */
 
 #define RING_BUFFER_WRITABLE		0x01
 
+<<<<<<< HEAD
 struct ring_buffer {
 	atomic_t			refcount;
+=======
+struct perf_buffer {
+	refcount_t			refcount;
+>>>>>>> upstream/android-13
 	struct rcu_head			rcu_head;
 #ifdef CONFIG_PERF_USE_VMALLOC
 	struct work_struct		work;
@@ -23,7 +32,11 @@ struct ring_buffer {
 	atomic_t			poll;		/* POLL_ for wakeups */
 
 	local_t				head;		/* write position    */
+<<<<<<< HEAD
 	local_t				nest;		/* nested writers    */
+=======
+	unsigned int			nest;		/* nested writers    */
+>>>>>>> upstream/android-13
 	local_t				events;		/* event limit       */
 	local_t				wakeup;		/* wakeup stamp      */
 	local_t				lost;		/* nr records lost   */
@@ -40,7 +53,11 @@ struct ring_buffer {
 
 	/* AUX area */
 	long				aux_head;
+<<<<<<< HEAD
 	local_t				aux_nest;
+=======
+	unsigned int			aux_nest;
+>>>>>>> upstream/android-13
 	long				aux_wakeup;	/* last aux_watermark boundary crossed by aux_head */
 	unsigned long			aux_pgoff;
 	int				aux_nr_pages;
@@ -48,11 +65,17 @@ struct ring_buffer {
 	atomic_t			aux_mmap_count;
 	unsigned long			aux_mmap_locked;
 	void				(*free_aux)(void *);
+<<<<<<< HEAD
 	atomic_t			aux_refcount;
+=======
+	refcount_t			aux_refcount;
+	int				aux_in_sampling;
+>>>>>>> upstream/android-13
 	void				**aux_pages;
 	void				*aux_priv;
 
 	struct perf_event_mmap_page	*user_page;
+<<<<<<< HEAD
 	void				*data_pages[0];
 };
 
@@ -67,6 +90,22 @@ static inline void rb_free_rcu(struct rcu_head *rcu_head)
 }
 
 static inline void rb_toggle_paused(struct ring_buffer *rb, bool pause)
+=======
+	void				*data_pages[];
+};
+
+extern void rb_free(struct perf_buffer *rb);
+
+static inline void rb_free_rcu(struct rcu_head *rcu_head)
+{
+	struct perf_buffer *rb;
+
+	rb = container_of(rcu_head, struct perf_buffer, rcu_head);
+	rb_free(rb);
+}
+
+static inline void rb_toggle_paused(struct perf_buffer *rb, bool pause)
+>>>>>>> upstream/android-13
 {
 	if (!pause && rb->nr_pages)
 		rb->paused = 0;
@@ -74,6 +113,7 @@ static inline void rb_toggle_paused(struct ring_buffer *rb, bool pause)
 		rb->paused = 1;
 }
 
+<<<<<<< HEAD
 extern struct ring_buffer *
 rb_alloc(int nr_pages, long watermark, int cpu, int flags);
 extern void perf_event_wakeup(struct perf_event *event);
@@ -84,6 +124,18 @@ extern struct ring_buffer *ring_buffer_get(struct perf_event *event);
 extern void ring_buffer_put(struct ring_buffer *rb);
 
 static inline bool rb_has_aux(struct ring_buffer *rb)
+=======
+extern struct perf_buffer *
+rb_alloc(int nr_pages, long watermark, int cpu, int flags);
+extern void perf_event_wakeup(struct perf_event *event);
+extern int rb_alloc_aux(struct perf_buffer *rb, struct perf_event *event,
+			pgoff_t pgoff, int nr_pages, long watermark, int flags);
+extern void rb_free_aux(struct perf_buffer *rb);
+extern struct perf_buffer *ring_buffer_get(struct perf_event *event);
+extern void ring_buffer_put(struct perf_buffer *rb);
+
+static inline bool rb_has_aux(struct perf_buffer *rb)
+>>>>>>> upstream/android-13
 {
 	return !!rb->aux_nr_pages;
 }
@@ -92,7 +144,11 @@ void perf_event_aux_event(struct perf_event *event, unsigned long head,
 			  unsigned long size, u64 flags);
 
 extern struct page *
+<<<<<<< HEAD
 perf_mmap_to_page(struct ring_buffer *rb, unsigned long pgoff);
+=======
+perf_mmap_to_page(struct perf_buffer *rb, unsigned long pgoff);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PERF_USE_VMALLOC
 /*
@@ -101,25 +157,46 @@ perf_mmap_to_page(struct ring_buffer *rb, unsigned long pgoff);
  * Required for architectures that have d-cache aliasing issues.
  */
 
+<<<<<<< HEAD
 static inline int page_order(struct ring_buffer *rb)
+=======
+static inline int page_order(struct perf_buffer *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->page_order;
 }
 
 #else
 
+<<<<<<< HEAD
 static inline int page_order(struct ring_buffer *rb)
+=======
+static inline int page_order(struct perf_buffer *rb)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 #endif
 
+<<<<<<< HEAD
 static inline unsigned long perf_data_size(struct ring_buffer *rb)
+=======
+static inline int data_page_nr(struct perf_buffer *rb)
+{
+	return rb->nr_pages << page_order(rb);
+}
+
+static inline unsigned long perf_data_size(struct perf_buffer *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->nr_pages << (PAGE_SHIFT + page_order(rb));
 }
 
+<<<<<<< HEAD
 static inline unsigned long perf_aux_size(struct ring_buffer *rb)
+=======
+static inline unsigned long perf_aux_size(struct perf_buffer *rb)
+>>>>>>> upstream/android-13
 {
 	return rb->aux_nr_pages << PAGE_SHIFT;
 }
@@ -139,7 +216,11 @@ static inline unsigned long perf_aux_size(struct ring_buffer *rb)
 			buf += written;					\
 		handle->size -= written;				\
 		if (!handle->size) {					\
+<<<<<<< HEAD
 			struct ring_buffer *rb = handle->rb;		\
+=======
+			struct perf_buffer *rb = handle->rb;	\
+>>>>>>> upstream/android-13
 									\
 			handle->page++;					\
 			handle->page &= rb->nr_pages - 1;		\
@@ -203,6 +284,7 @@ DEFINE_OUTPUT_COPY(__output_copy_user, arch_perf_out_copy_user)
 
 static inline int get_recursion_context(int *recursion)
 {
+<<<<<<< HEAD
 	int rctx;
 
 	if (unlikely(in_nmi()))
@@ -213,6 +295,14 @@ static inline int get_recursion_context(int *recursion)
 		rctx = 1;
 	else
 		rctx = 0;
+=======
+	unsigned int pc = preempt_count();
+	unsigned char rctx = 0;
+
+	rctx += !!(pc & (NMI_MASK));
+	rctx += !!(pc & (NMI_MASK | HARDIRQ_MASK));
+	rctx += !!(pc & (NMI_MASK | HARDIRQ_MASK | SOFTIRQ_OFFSET));
+>>>>>>> upstream/android-13
 
 	if (recursion[rctx])
 		return -1;

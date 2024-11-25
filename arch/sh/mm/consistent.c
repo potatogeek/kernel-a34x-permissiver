@@ -43,8 +43,12 @@ int __init platform_resource_setup_memory(struct platform_device *pdev,
 
 	r = pdev->resource + pdev->num_resources - 1;
 	if (r->flags) {
+<<<<<<< HEAD
 		pr_warning("%s: unable to find empty space for resource\n",
 			name);
+=======
+		pr_warn("%s: unable to find empty space for resource\n", name);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -54,12 +58,19 @@ int __init platform_resource_setup_memory(struct platform_device *pdev,
 
 	buf = dma_alloc_coherent(&pdev->dev, memsize, &dma_handle, GFP_KERNEL);
 	if (!buf) {
+<<<<<<< HEAD
 		pr_warning("%s: unable to allocate memory\n", name);
 		return -ENOMEM;
 	}
 
 	memset(buf, 0, memsize);
 
+=======
+		pr_warn("%s: unable to allocate memory\n", name);
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	r->flags = IORESOURCE_MEM;
 	r->start = dma_handle;
 	r->end = r->start + memsize - 1;

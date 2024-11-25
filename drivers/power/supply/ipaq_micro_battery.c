@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * h3xxx atmel micro companion support, battery subdevice
  * based on previous kernel 2.4 version
  * Author : Alessandro Gardich <gremlin@gremlin.it>
  * Author : Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -152,7 +160,11 @@ static int micro_batt_get_property(struct power_supply *b,
 		default:
 			val->intval = POWER_SUPPLY_TECHNOLOGY_UNKNOWN;
 			break;
+<<<<<<< HEAD
 		};
+=======
+		}
+>>>>>>> upstream/android-13
 		break;
 	case POWER_SUPPLY_PROP_STATUS:
 		val->intval = get_status(b);
@@ -171,7 +183,11 @@ static int micro_batt_get_property(struct power_supply *b,
 		break;
 	default:
 		return -EINVAL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -188,7 +204,11 @@ static int micro_ac_get_property(struct power_supply *b,
 		break;
 	default:
 		return -EINVAL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }

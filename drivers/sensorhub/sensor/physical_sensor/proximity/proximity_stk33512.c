@@ -61,7 +61,12 @@ int proximity_open_calibration_stk33512(void)
 
 void set_proximity_state_stk33512(struct proximity_data *data)
 {
+<<<<<<< HEAD
 	set_proximity_calibration();
+=======
+	if (!is_lcd_changed())
+		set_proximity_calibration();
+>>>>>>> upstream/android-13
 }
 
 struct proximity_chipset_funcs prox_stk33512_funcs = {

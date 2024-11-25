@@ -11,15 +11,24 @@
 #ifndef __LINUX_SAMSUNG_TUI_INF_H
 #define __LINUX_SAMSUNG_TUI_INF_H
 
+<<<<<<< HEAD
 #define STUI_TSP_TYPE_SLSI	0
 #define STUI_TSP_TYPE_ILITEK	1
 #define STUI_TSP_TYPE_NOVATEK	2
 #define STUI_TSP_TYPE_MELFAS	3
 #define STUI_TSP_TYPE_STM	4
+=======
+#define STUI_TSP_TYPE_SLSI		0
+#define STUI_TSP_TYPE_ILITEK	1
+#define STUI_TSP_TYPE_NOVATEK	2
+#define STUI_TSP_TYPE_MELFAS	3
+#define STUI_TSP_TYPE_STM		4
+>>>>>>> upstream/android-13
 #define STUI_TSP_TYPE_ZINITIX	5
 #define STUI_TSP_TYPE_SNAPTICS	6
 #define STUI_TSP_TYPE_GOODIX	7
 #define STUI_TSP_TYPE_FOCALTECH	8
+<<<<<<< HEAD
 #define STUI_TSP_TYPE_HIMAX	9
 
 #define STUI_MODE_OFF           0x00
@@ -27,6 +36,15 @@
 #define STUI_MODE_DISPLAY_SEC   0x02
 #define STUI_MODE_TOUCH_SEC     0x04
 #define STUI_MODE_ALL           (STUI_MODE_TUI_SESSION | STUI_MODE_DISPLAY_SEC | STUI_MODE_TOUCH_SEC)
+=======
+#define STUI_TSP_TYPE_HIMAX		9
+
+#define STUI_MODE_OFF			0x00
+#define STUI_MODE_TUI_SESSION	0x01
+#define STUI_MODE_DISPLAY_SEC	0x02
+#define STUI_MODE_TOUCH_SEC		0x04
+#define STUI_MODE_ALL			(STUI_MODE_TUI_SESSION | STUI_MODE_DISPLAY_SEC | STUI_MODE_TOUCH_SEC)
+>>>>>>> upstream/android-13
 
 
 int  stui_get_mode(void);

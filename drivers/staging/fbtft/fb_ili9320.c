@@ -8,7 +8,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/delay.h>
 
@@ -22,11 +25,18 @@
 
 static unsigned int read_devicecode(struct fbtft_par *par)
 {
+<<<<<<< HEAD
 	int ret;
 	u8 rxbuf[8] = {0, };
 
 	write_reg(par, 0x0000);
 	ret = par->fbtftops.read(par, rxbuf, 4);
+=======
+	u8 rxbuf[8] = {0, };
+
+	write_reg(par, 0x0000);
+	par->fbtftops.read(par, rxbuf, 4);
+>>>>>>> upstream/android-13
 	return (rxbuf[2] << 8) | rxbuf[3];
 }
 
@@ -214,7 +224,11 @@ static int set_var(struct fbtft_par *par)
 #define CURVE(num, idx)  curves[(num) * par->gamma.num_values + (idx)]
 static int set_gamma(struct fbtft_par *par, u32 *curves)
 {
+<<<<<<< HEAD
 	unsigned long mask[] = {
+=======
+	static const unsigned long mask[] = {
+>>>>>>> upstream/android-13
 		0x1f, 0x1f, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
 		0x1f, 0x1f, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
 	};

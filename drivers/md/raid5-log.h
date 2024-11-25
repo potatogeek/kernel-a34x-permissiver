@@ -45,6 +45,10 @@ extern void ppl_stripe_write_finished(struct stripe_head *sh);
 extern int ppl_modify_log(struct r5conf *conf, struct md_rdev *rdev, bool add);
 extern void ppl_quiesce(struct r5conf *conf, int quiesce);
 extern int ppl_handle_flush_request(struct r5l_log *log, struct bio *bio);
+<<<<<<< HEAD
+=======
+extern struct md_sysfs_entry ppl_write_hint;
+>>>>>>> upstream/android-13
 
 static inline bool raid5_has_log(struct r5conf *conf)
 {

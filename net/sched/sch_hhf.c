@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* net/sched/sch_hhf.c		Heavy-Hitter Filter (HHF)
  *
  * Copyright (C) 2013 Terry Lam <vtlam@google.com>
@@ -330,7 +334,11 @@ static struct sk_buff *dequeue_head(struct wdrr_bucket *bucket)
 	struct sk_buff *skb = bucket->head;
 
 	bucket->head = skb->next;
+<<<<<<< HEAD
 	skb->next = NULL;
+=======
+	skb_mark_not_on_list(skb);
+>>>>>>> upstream/android-13
 	return skb;
 }
 
@@ -518,7 +526,12 @@ static int hhf_change(struct Qdisc *sch, struct nlattr *opt,
 	if (!opt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_HHF_MAX, opt, hhf_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_HHF_MAX, opt, hhf_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -654,7 +667,11 @@ static int hhf_dump(struct Qdisc *sch, struct sk_buff *skb)
 	struct hhf_sched_data *q = qdisc_priv(sch);
 	struct nlattr *opts;
 
+<<<<<<< HEAD
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (opts == NULL)
 		goto nla_put_failure;
 
@@ -719,3 +736,7 @@ module_exit(hhf_module_exit)
 MODULE_AUTHOR("Terry Lam");
 MODULE_AUTHOR("Nandita Dukkipati");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Heavy-Hitter Filter (HHF)");
+>>>>>>> upstream/android-13

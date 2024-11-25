@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * davinci_nand.c - NAND Flash Driver for DaVinci family chips
  *
@@ -7,6 +11,7 @@
  *   Sander Huijsen <Shuijsen@optelecom-nkf.com>
  *   Troy Kisky <troy.kisky@boundarydevices.com>
  *   Dirk Behme <Dirk.Behme@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +26,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/io.h>
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
 #include <linux/slab.h>
@@ -51,6 +62,10 @@
  * outputs in a "wire-AND" configuration, with no per-chip signals.
  */
 struct davinci_nand_info {
+<<<<<<< HEAD
+=======
+	struct nand_controller	controller;
+>>>>>>> upstream/android-13
 	struct nand_chip	chip;
 
 	struct platform_device	*pdev;
@@ -94,6 +109,7 @@ static inline void davinci_nand_writel(struct davinci_nand_info *info,
 /*----------------------------------------------------------------------*/
 
 /*
+<<<<<<< HEAD
  * Access to hardware control lines:  ALE, CLE, secondary chipselect.
  */
 
@@ -135,6 +151,8 @@ static void nand_davinci_select_chip(struct mtd_info *mtd, int chip)
 /*----------------------------------------------------------------------*/
 
 /*
+=======
+>>>>>>> upstream/android-13
  * 1-bit hardware ECC ... context maintained for each core chipselect
  */
 
@@ -146,16 +164,27 @@ static inline uint32_t nand_davinci_readecc_1bit(struct mtd_info *mtd)
 			+ 4 * info->core_chipsel);
 }
 
+<<<<<<< HEAD
 static void nand_davinci_hwctl_1bit(struct mtd_info *mtd, int mode)
+=======
+static void nand_davinci_hwctl_1bit(struct nand_chip *chip, int mode)
+>>>>>>> upstream/android-13
 {
 	struct davinci_nand_info *info;
 	uint32_t nandcfr;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	info = to_davinci_nand(mtd);
 
 	/* Reset ECC hardware */
 	nand_davinci_readecc_1bit(mtd);
+=======
+	info = to_davinci_nand(nand_to_mtd(chip));
+
+	/* Reset ECC hardware */
+	nand_davinci_readecc_1bit(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&davinci_nand_lock, flags);
 
@@ -170,10 +199,17 @@ static void nand_davinci_hwctl_1bit(struct mtd_info *mtd, int mode)
 /*
  * Read hardware ECC value and pack into three bytes
  */
+<<<<<<< HEAD
 static int nand_davinci_calculate_1bit(struct mtd_info *mtd,
 				      const u_char *dat, u_char *ecc_code)
 {
 	unsigned int ecc_val = nand_davinci_readecc_1bit(mtd);
+=======
+static int nand_davinci_calculate_1bit(struct nand_chip *chip,
+				       const u_char *dat, u_char *ecc_code)
+{
+	unsigned int ecc_val = nand_davinci_readecc_1bit(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	unsigned int ecc24 = (ecc_val & 0x0fff) | ((ecc_val & 0x0fff0000) >> 4);
 
 	/* invert so that erased block ecc is correct */
@@ -185,10 +221,16 @@ static int nand_davinci_calculate_1bit(struct mtd_info *mtd,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nand_davinci_correct_1bit(struct mtd_info *mtd, u_char *dat,
 				     u_char *read_ecc, u_char *calc_ecc)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int nand_davinci_correct_1bit(struct nand_chip *chip, u_char *dat,
+				     u_char *read_ecc, u_char *calc_ecc)
+{
+>>>>>>> upstream/android-13
 	uint32_t eccNand = read_ecc[0] | (read_ecc[1] << 8) |
 					  (read_ecc[2] << 16);
 	uint32_t eccCalc = calc_ecc[0] | (calc_ecc[1] << 8) |
@@ -222,7 +264,11 @@ static int nand_davinci_correct_1bit(struct mtd_info *mtd, u_char *dat,
 /*
  * 4-bit hardware ECC ... context maintained over entire AEMIF
  *
+<<<<<<< HEAD
  * This is a syndrome engine, but we avoid NAND_ECC_HW_SYNDROME
+=======
+ * This is a syndrome engine, but we avoid NAND_ECC_PLACEMENT_INTERLEAVED
+>>>>>>> upstream/android-13
  * since that forces use of a problematic "infix OOB" layout.
  * Among other things, it trashes manufacturer bad block markers.
  * Also, and specific to this hardware, it ECC-protects the "prepad"
@@ -231,9 +277,15 @@ static int nand_davinci_correct_1bit(struct mtd_info *mtd, u_char *dat,
  * OOB without recomputing ECC.
  */
 
+<<<<<<< HEAD
 static void nand_davinci_hwctl_4bit(struct mtd_info *mtd, int mode)
 {
 	struct davinci_nand_info *info = to_davinci_nand(mtd);
+=======
+static void nand_davinci_hwctl_4bit(struct nand_chip *chip, int mode)
+{
+	struct davinci_nand_info *info = to_davinci_nand(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 val;
 
@@ -266,10 +318,17 @@ nand_davinci_readecc_4bit(struct davinci_nand_info *info, u32 code[4])
 }
 
 /* Terminate read ECC; or return ECC (as bytes) of data written to NAND. */
+<<<<<<< HEAD
 static int nand_davinci_calculate_4bit(struct mtd_info *mtd,
 		const u_char *dat, u_char *ecc_code)
 {
 	struct davinci_nand_info *info = to_davinci_nand(mtd);
+=======
+static int nand_davinci_calculate_4bit(struct nand_chip *chip,
+				       const u_char *dat, u_char *ecc_code)
+{
+	struct davinci_nand_info *info = to_davinci_nand(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	u32 raw_ecc[4], *p;
 	unsigned i;
 
@@ -303,11 +362,19 @@ static int nand_davinci_calculate_4bit(struct mtd_info *mtd,
 /* Correct up to 4 bits in data we just read, using state left in the
  * hardware plus the ecc_code computed when it was first written.
  */
+<<<<<<< HEAD
 static int nand_davinci_correct_4bit(struct mtd_info *mtd,
 		u_char *data, u_char *ecc_code, u_char *null)
 {
 	int i;
 	struct davinci_nand_info *info = to_davinci_nand(mtd);
+=======
+static int nand_davinci_correct_4bit(struct nand_chip *chip, u_char *data,
+				     u_char *ecc_code, u_char *null)
+{
+	int i;
+	struct davinci_nand_info *info = to_davinci_nand(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	unsigned short ecc10[8];
 	unsigned short *ecc16;
 	u32 syndrome[4];
@@ -427,6 +494,7 @@ correct:
 
 /*----------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 /*
  * NOTE:  NAND boot requires ALE == EM_A[1], CLE == EM_A[2], so that's
  * how these chips are normally wired.  This translates to both 8 and 16
@@ -474,6 +542,8 @@ static int nand_davinci_dev_ready(struct mtd_info *mtd)
 
 /*----------------------------------------------------------------------*/
 
+=======
+>>>>>>> upstream/android-13
 /* An ECC layout for using 4-bit ECC with small-page flash, storing
  * ten ECC bytes plus the manufacturer's bad block marker byte, and
  * and not overlapping the default BBT markers.
@@ -560,11 +630,19 @@ static struct davinci_nand_pdata
 		if (!of_property_read_string(pdev->dev.of_node,
 			"ti,davinci-ecc-mode", &mode)) {
 			if (!strncmp("none", mode, 4))
+<<<<<<< HEAD
 				pdata->ecc_mode = NAND_ECC_NONE;
 			if (!strncmp("soft", mode, 4))
 				pdata->ecc_mode = NAND_ECC_SOFT;
 			if (!strncmp("hw", mode, 2))
 				pdata->ecc_mode = NAND_ECC_HW;
+=======
+				pdata->engine_type = NAND_ECC_ENGINE_TYPE_NONE;
+			if (!strncmp("soft", mode, 4))
+				pdata->engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+			if (!strncmp("hw", mode, 2))
+				pdata->engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+>>>>>>> upstream/android-13
 		}
 		if (!of_property_read_u32(pdev->dev.of_node,
 			"ti,davinci-ecc-bits", &prop))
@@ -615,6 +693,7 @@ static int davinci_nand_attach_chip(struct nand_chip *chip)
 	if (IS_ERR(pdata))
 		return PTR_ERR(pdata);
 
+<<<<<<< HEAD
 	switch (info->chip.ecc.mode) {
 	case NAND_ECC_NONE:
 		pdata->ecc_bits = 0;
@@ -631,6 +710,35 @@ static int davinci_nand_attach_chip(struct nand_chip *chip)
 		break;
 	case NAND_ECC_HW:
 		if (pdata->ecc_bits == 4) {
+=======
+	/* Use board-specific ECC config */
+	chip->ecc.engine_type = pdata->engine_type;
+	chip->ecc.placement = pdata->ecc_placement;
+
+	switch (chip->ecc.engine_type) {
+	case NAND_ECC_ENGINE_TYPE_NONE:
+		pdata->ecc_bits = 0;
+		break;
+	case NAND_ECC_ENGINE_TYPE_SOFT:
+		pdata->ecc_bits = 0;
+		/*
+		 * This driver expects Hamming based ECC when engine_type is set
+		 * to NAND_ECC_ENGINE_TYPE_SOFT. Force ecc.algo to
+		 * NAND_ECC_ALGO_HAMMING to avoid adding an extra ->ecc_algo
+		 * field to davinci_nand_pdata.
+		 */
+		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+		break;
+	case NAND_ECC_ENGINE_TYPE_ON_HOST:
+		if (pdata->ecc_bits == 4) {
+			int chunks = mtd->writesize / 512;
+
+			if (!chunks || mtd->oobsize < 16) {
+				dev_dbg(&info->pdev->dev, "too small\n");
+				return -EINVAL;
+			}
+
+>>>>>>> upstream/android-13
 			/*
 			 * No sanity checks:  CPUs must support this,
 			 * and the chips may not use NAND_BUSWIDTH_16.
@@ -647,6 +755,7 @@ static int davinci_nand_attach_chip(struct nand_chip *chip)
 			if (ret == -EBUSY)
 				return ret;
 
+<<<<<<< HEAD
 			info->chip.ecc.calculate = nand_davinci_calculate_4bit;
 			info->chip.ecc.correct = nand_davinci_correct_4bit;
 			info->chip.ecc.hwctl = nand_davinci_hwctl_4bit;
@@ -663,11 +772,51 @@ static int davinci_nand_attach_chip(struct nand_chip *chip)
 		}
 		info->chip.ecc.size = 512;
 		info->chip.ecc.strength = pdata->ecc_bits;
+=======
+			chip->ecc.calculate = nand_davinci_calculate_4bit;
+			chip->ecc.correct = nand_davinci_correct_4bit;
+			chip->ecc.hwctl = nand_davinci_hwctl_4bit;
+			chip->ecc.bytes = 10;
+			chip->ecc.options = NAND_ECC_GENERIC_ERASED_CHECK;
+			chip->ecc.algo = NAND_ECC_ALGO_BCH;
+
+			/*
+			 * Update ECC layout if needed ... for 1-bit HW ECC, the
+			 * default is OK, but it allocates 6 bytes when only 3
+			 * are needed (for each 512 bytes). For 4-bit HW ECC,
+			 * the default is not usable: 10 bytes needed, not 6.
+			 *
+			 * For small page chips, preserve the manufacturer's
+			 * badblock marking data ... and make sure a flash BBT
+			 * table marker fits in the free bytes.
+			 */
+			if (chunks == 1) {
+				mtd_set_ooblayout(mtd,
+						  &hwecc4_small_ooblayout_ops);
+			} else if (chunks == 4 || chunks == 8) {
+				mtd_set_ooblayout(mtd,
+						  nand_get_large_page_ooblayout());
+				chip->ecc.read_page = nand_read_page_hwecc_oob_first;
+			} else {
+				return -EIO;
+			}
+		} else {
+			/* 1bit ecc hamming */
+			chip->ecc.calculate = nand_davinci_calculate_1bit;
+			chip->ecc.correct = nand_davinci_correct_1bit;
+			chip->ecc.hwctl = nand_davinci_hwctl_1bit;
+			chip->ecc.bytes = 3;
+			chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+		}
+		chip->ecc.size = 512;
+		chip->ecc.strength = pdata->ecc_bits;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Update ECC layout if needed ... for 1-bit HW ECC, the default
 	 * is OK, but it allocates 6 bytes when only 3 are needed (for
@@ -697,10 +846,116 @@ static int davinci_nand_attach_chip(struct nand_chip *chip)
 	}
 
 	return ret;
+=======
+	return ret;
+}
+
+static void nand_davinci_data_in(struct davinci_nand_info *info, void *buf,
+				 unsigned int len, bool force_8bit)
+{
+	u32 alignment = ((uintptr_t)buf | len) & 3;
+
+	if (force_8bit || (alignment & 1))
+		ioread8_rep(info->current_cs, buf, len);
+	else if (alignment & 3)
+		ioread16_rep(info->current_cs, buf, len >> 1);
+	else
+		ioread32_rep(info->current_cs, buf, len >> 2);
+}
+
+static void nand_davinci_data_out(struct davinci_nand_info *info,
+				  const void *buf, unsigned int len,
+				  bool force_8bit)
+{
+	u32 alignment = ((uintptr_t)buf | len) & 3;
+
+	if (force_8bit || (alignment & 1))
+		iowrite8_rep(info->current_cs, buf, len);
+	else if (alignment & 3)
+		iowrite16_rep(info->current_cs, buf, len >> 1);
+	else
+		iowrite32_rep(info->current_cs, buf, len >> 2);
+}
+
+static int davinci_nand_exec_instr(struct davinci_nand_info *info,
+				   const struct nand_op_instr *instr)
+{
+	unsigned int i, timeout_us;
+	u32 status;
+	int ret;
+
+	switch (instr->type) {
+	case NAND_OP_CMD_INSTR:
+		iowrite8(instr->ctx.cmd.opcode,
+			 info->current_cs + info->mask_cle);
+		break;
+
+	case NAND_OP_ADDR_INSTR:
+		for (i = 0; i < instr->ctx.addr.naddrs; i++) {
+			iowrite8(instr->ctx.addr.addrs[i],
+				 info->current_cs + info->mask_ale);
+		}
+		break;
+
+	case NAND_OP_DATA_IN_INSTR:
+		nand_davinci_data_in(info, instr->ctx.data.buf.in,
+				     instr->ctx.data.len,
+				     instr->ctx.data.force_8bit);
+		break;
+
+	case NAND_OP_DATA_OUT_INSTR:
+		nand_davinci_data_out(info, instr->ctx.data.buf.out,
+				      instr->ctx.data.len,
+				      instr->ctx.data.force_8bit);
+		break;
+
+	case NAND_OP_WAITRDY_INSTR:
+		timeout_us = instr->ctx.waitrdy.timeout_ms * 1000;
+		ret = readl_relaxed_poll_timeout(info->base + NANDFSR_OFFSET,
+						 status, status & BIT(0), 100,
+						 timeout_us);
+		if (ret)
+			return ret;
+
+		break;
+	}
+
+	if (instr->delay_ns)
+		ndelay(instr->delay_ns);
+
+	return 0;
+}
+
+static int davinci_nand_exec_op(struct nand_chip *chip,
+				const struct nand_operation *op,
+				bool check_only)
+{
+	struct davinci_nand_info *info = to_davinci_nand(nand_to_mtd(chip));
+	unsigned int i;
+
+	if (check_only)
+		return 0;
+
+	info->current_cs = info->vaddr + (op->cs * info->mask_chipsel);
+
+	for (i = 0; i < op->ninstrs; i++) {
+		int ret;
+
+		ret = davinci_nand_exec_instr(info, &op->instrs[i]);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct nand_controller_ops davinci_nand_controller_ops = {
 	.attach_chip = davinci_nand_attach_chip,
+<<<<<<< HEAD
+=======
+	.exec_op = davinci_nand_exec_op,
+>>>>>>> upstream/android-13
 };
 
 static int nand_davinci_probe(struct platform_device *pdev)
@@ -764,11 +1019,14 @@ static int nand_davinci_probe(struct platform_device *pdev)
 	mtd->dev.parent		= &pdev->dev;
 	nand_set_flash_node(&info->chip, pdev->dev.of_node);
 
+<<<<<<< HEAD
 	info->chip.IO_ADDR_R	= vaddr;
 	info->chip.IO_ADDR_W	= vaddr;
 	info->chip.chip_delay	= 0;
 	info->chip.select_chip	= nand_davinci_select_chip;
 
+=======
+>>>>>>> upstream/android-13
 	/* options such as NAND_BBT_USE_FLASH */
 	info->chip.bbt_options	= pdata->bbt_options;
 	/* options such as 16-bit widths */
@@ -785,6 +1043,7 @@ static int nand_davinci_probe(struct platform_device *pdev)
 	info->mask_ale		= pdata->mask_ale ? : MASK_ALE;
 	info->mask_cle		= pdata->mask_cle ? : MASK_CLE;
 
+<<<<<<< HEAD
 	/* Set address of hardware control function */
 	info->chip.cmd_ctrl	= nand_davinci_hwcontrol;
 	info->chip.dev_ready	= nand_davinci_dev_ready;
@@ -796,6 +1055,8 @@ static int nand_davinci_probe(struct platform_device *pdev)
 	/* Use board-specific ECC config */
 	info->chip.ecc.mode	= pdata->ecc_mode;
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irq(&davinci_nand_lock);
 
 	/* put CSxNAND into NAND mode */
@@ -806,7 +1067,13 @@ static int nand_davinci_probe(struct platform_device *pdev)
 	spin_unlock_irq(&davinci_nand_lock);
 
 	/* Scan to find existence of the device(s) */
+<<<<<<< HEAD
 	info->chip.dummy_controller.ops = &davinci_nand_controller_ops;
+=======
+	nand_controller_init(&info->controller);
+	info->controller.ops = &davinci_nand_controller_ops;
+	info->chip.controller = &info->controller;
+>>>>>>> upstream/android-13
 	ret = nand_scan(&info->chip, pdata->mask_chipsel ? 2 : 1);
 	if (ret < 0) {
 		dev_dbg(&pdev->dev, "no NAND chip(s) found\n");
@@ -835,6 +1102,7 @@ err_cleanup_nand:
 static int nand_davinci_remove(struct platform_device *pdev)
 {
 	struct davinci_nand_info *info = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	spin_lock_irq(&davinci_nand_lock);
 	if (info->chip.ecc.mode == NAND_ECC_HW_SYNDROME)
@@ -842,6 +1110,19 @@ static int nand_davinci_remove(struct platform_device *pdev)
 	spin_unlock_irq(&davinci_nand_lock);
 
 	nand_release(&info->chip);
+=======
+	struct nand_chip *chip = &info->chip;
+	int ret;
+
+	spin_lock_irq(&davinci_nand_lock);
+	if (chip->ecc.placement == NAND_ECC_PLACEMENT_INTERLEAVED)
+		ecc4_busy = false;
+	spin_unlock_irq(&davinci_nand_lock);
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

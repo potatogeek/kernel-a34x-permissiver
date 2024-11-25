@@ -146,12 +146,23 @@ static void xlgmac_ethtool_get_channels(struct net_device *netdev,
 	channel->tx_count = pdata->tx_q_count;
 }
 
+<<<<<<< HEAD
 static int xlgmac_ethtool_get_coalesce(struct net_device *netdev,
 				       struct ethtool_coalesce *ec)
 {
 	struct xlgmac_pdata *pdata = netdev_priv(netdev);
 
 	memset(ec, 0, sizeof(struct ethtool_coalesce));
+=======
+static int
+xlgmac_ethtool_get_coalesce(struct net_device *netdev,
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+{
+	struct xlgmac_pdata *pdata = netdev_priv(netdev);
+
+>>>>>>> upstream/android-13
 	ec->rx_coalesce_usecs = pdata->rx_usecs;
 	ec->rx_max_coalesced_frames = pdata->rx_frames;
 	ec->tx_max_coalesced_frames = pdata->tx_frames;
@@ -159,14 +170,23 @@ static int xlgmac_ethtool_get_coalesce(struct net_device *netdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xlgmac_ethtool_set_coalesce(struct net_device *netdev,
 				       struct ethtool_coalesce *ec)
+=======
+static int
+xlgmac_ethtool_set_coalesce(struct net_device *netdev,
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct xlgmac_pdata *pdata = netdev_priv(netdev);
 	struct xlgmac_hw_ops *hw_ops = &pdata->hw_ops;
 	unsigned int rx_frames, rx_riwt, rx_usecs;
 	unsigned int tx_frames;
 
+<<<<<<< HEAD
 	/* Check for not supported parameters */
 	if ((ec->rx_coalesce_usecs_irq) || (ec->rx_max_coalesced_frames_irq) ||
 	    (ec->tx_coalesce_usecs) || (ec->tx_coalesce_usecs_high) ||
@@ -181,6 +201,8 @@ static int xlgmac_ethtool_set_coalesce(struct net_device *netdev,
 	    (ec->rate_sample_interval))
 		return -EOPNOTSUPP;
 
+=======
+>>>>>>> upstream/android-13
 	rx_usecs = ec->rx_coalesce_usecs;
 	rx_riwt = hw_ops->usec_to_riwt(pdata, rx_usecs);
 	rx_frames = ec->rx_max_coalesced_frames;
@@ -257,6 +279,11 @@ static void xlgmac_ethtool_get_ethtool_stats(struct net_device *netdev,
 }
 
 static const struct ethtool_ops xlgmac_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo = xlgmac_ethtool_get_drvinfo,
 	.get_link = ethtool_op_get_link,
 	.get_msglevel = xlgmac_ethtool_get_msglevel,

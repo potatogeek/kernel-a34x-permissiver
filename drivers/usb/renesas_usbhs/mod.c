@@ -3,6 +3,10 @@
  * Renesas USB driver
  *
  * Copyright (C) 2011 Renesas Solutions Corp.
+<<<<<<< HEAD
+=======
+ * Copyright (C) 2019 Renesas Electronics Corporation
+>>>>>>> upstream/android-13
  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
  */
 #include <linux/interrupt.h>
@@ -10,6 +14,7 @@
 #include "common.h"
 #include "mod.h"
 
+<<<<<<< HEAD
 #define usbhs_priv_to_modinfo(priv) (&priv->mod_info)
 #define usbhs_mod_info_call(priv, func, param...)	\
 ({						\
@@ -19,6 +24,8 @@
 	 info->func(param);			\
 })
 
+=======
+>>>>>>> upstream/android-13
 /*
  *		autonomy
  *
@@ -41,7 +48,11 @@ static int usbhsm_autonomy_irq_vbus(struct usbhs_priv *priv,
 {
 	struct platform_device *pdev = usbhs_priv_to_pdev(priv);
 
+<<<<<<< HEAD
 	renesas_usbhs_call_notify_hotplug(pdev);
+=======
+	usbhsc_schedule_notify_hotplug(pdev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -50,12 +61,27 @@ void usbhs_mod_autonomy_mode(struct usbhs_priv *priv)
 {
 	struct usbhs_mod_info *info = usbhs_priv_to_modinfo(priv);
 
+<<<<<<< HEAD
 	info->irq_vbus		= usbhsm_autonomy_irq_vbus;
 	priv->pfunc.get_vbus	= usbhsm_autonomy_get_vbus;
+=======
+	info->irq_vbus = usbhsm_autonomy_irq_vbus;
+	info->get_vbus = usbhsm_autonomy_get_vbus;
+>>>>>>> upstream/android-13
 
 	usbhs_irq_callback_update(priv, NULL);
 }
 
+<<<<<<< HEAD
+=======
+void usbhs_mod_non_autonomy_mode(struct usbhs_priv *priv)
+{
+	struct usbhs_mod_info *info = usbhs_priv_to_modinfo(priv);
+
+	info->get_vbus = priv->pfunc->get_vbus;
+}
+
+>>>>>>> upstream/android-13
 /*
  *		host / gadget functions
  *
@@ -170,6 +196,7 @@ void usbhs_mod_remove(struct usbhs_priv *priv)
  */
 int usbhs_status_get_device_state(struct usbhs_irq_state *irq_state)
 {
+<<<<<<< HEAD
 	int state = irq_state->intsts0 & DVSQ_MASK;
 
 	switch (state) {
@@ -181,6 +208,9 @@ int usbhs_status_get_device_state(struct usbhs_irq_state *irq_state)
 	}
 
 	return -EIO;
+=======
+	return (int)irq_state->intsts0 & DVSQ_MASK;
+>>>>>>> upstream/android-13
 }
 
 int usbhs_status_get_ctrl_stage(struct usbhs_irq_state *irq_state)
@@ -349,10 +379,13 @@ void usbhs_irq_callback_update(struct usbhs_priv *priv, struct usbhs_mod *mod)
 	 *	usbhs_interrupt
 	 */
 
+<<<<<<< HEAD
 	/*
 	 * it don't enable DVSE (intenb0) here
 	 * but "mod->irq_dev_state" will be called.
 	 */
+=======
+>>>>>>> upstream/android-13
 	if (info->irq_vbus)
 		intenb0 |= VBSE;
 
@@ -363,6 +396,12 @@ void usbhs_irq_callback_update(struct usbhs_priv *priv, struct usbhs_mod *mod)
 		if (mod->irq_ctrl_stage)
 			intenb0 |= CTRE;
 
+<<<<<<< HEAD
+=======
+		if (mod->irq_dev_state)
+			intenb0 |= DVSE;
+
+>>>>>>> upstream/android-13
 		if (mod->irq_empty && mod->irq_bempsts) {
 			usbhs_write(priv, BEMPENB, mod->irq_bempsts);
 			intenb0 |= BEMPE;

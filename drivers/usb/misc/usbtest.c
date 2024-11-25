@@ -182,7 +182,11 @@ get_endpoints(struct usbtest_dev *dev, struct usb_interface *intf)
 			case USB_ENDPOINT_XFER_ISOC:
 				if (dev->info->iso)
 					endpoint_update(edi, &iso_in, &iso_out, e);
+<<<<<<< HEAD
 				/* FALLTHROUGH */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			default:
 				continue;
 			}
@@ -347,6 +351,17 @@ static unsigned get_maxpacket(struct usb_device *udev, int pipe)
 	return le16_to_cpup(&ep->desc.wMaxPacketSize);
 }
 
+<<<<<<< HEAD
+=======
+static int ss_isoc_get_packet_num(struct usb_device *udev, int pipe)
+{
+	struct usb_host_endpoint *ep = usb_pipe_endpoint(udev, pipe);
+
+	return USB_SS_MULT(ep->ss_ep_comp.bmAttributes)
+		* (1 + ep->ss_ep_comp.bMaxBurst);
+}
+
+>>>>>>> upstream/android-13
 static void simple_fill_buf(struct urb *urb)
 {
 	unsigned	i;
@@ -356,7 +371,11 @@ static void simple_fill_buf(struct urb *urb)
 
 	switch (pattern) {
 	default:
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		memset(buf, 0, len);
 		break;
@@ -673,7 +692,11 @@ static int get_altsetting(struct usbtest_dev *dev)
 		return dev->buf[0];
 	case 0:
 		retval = -ERANGE;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return retval;
 	}
@@ -1943,7 +1966,11 @@ static void complicated_callback(struct urb *urb)
 			dev_err(&ctx->dev->intf->dev,
 					"resubmit err %d\n",
 					status);
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -ENODEV:			/* disconnected */
 		case -ESHUTDOWN:		/* endpoint disabled */
 			ctx->submit_error = 1;
@@ -1976,8 +2003,18 @@ static struct urb *iso_alloc_urb(
 
 	if (bytes < 0 || !desc)
 		return NULL;
+<<<<<<< HEAD
 	maxp = usb_endpoint_maxp(desc);
 	maxp *= usb_endpoint_maxp_mult(desc);
+=======
+
+	maxp = usb_endpoint_maxp(desc);
+	if (udev->speed >= USB_SPEED_SUPER)
+		maxp *= ss_isoc_get_packet_num(udev, pipe);
+	else
+		maxp *= usb_endpoint_maxp_mult(desc);
+
+>>>>>>> upstream/android-13
 	packets = DIV_ROUND_UP(bytes, maxp);
 
 	urb = usb_alloc_urb(packets, GFP_KERNEL);
@@ -2030,7 +2067,11 @@ test_queue(struct usbtest_dev *dev, struct usbtest_param_32 *param,
 	unsigned		i;
 	unsigned long		packets = 0;
 	int			status = 0;
+<<<<<<< HEAD
 	struct urb		*urbs[MAX_SGLEN];
+=======
+	struct urb		**urbs;
+>>>>>>> upstream/android-13
 
 	if (!param->sglen || param->iterations > UINT_MAX / param->sglen)
 		return -EINVAL;
@@ -2038,6 +2079,13 @@ test_queue(struct usbtest_dev *dev, struct usbtest_param_32 *param,
 	if (param->sglen > MAX_SGLEN)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	urbs = kcalloc(param->sglen, sizeof(*urbs), GFP_KERNEL);
+	if (!urbs)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	memset(&context, 0, sizeof(context));
 	context.count = param->iterations * param->sglen;
 	context.dev = dev;
@@ -2065,17 +2113,37 @@ test_queue(struct usbtest_dev *dev, struct usbtest_param_32 *param,
 	packets *= param->iterations;
 
 	if (context.is_iso) {
+<<<<<<< HEAD
 		dev_info(&dev->intf->dev,
 			"iso period %d %sframes, wMaxPacket %d, transactions: %d\n",
 			1 << (desc->bInterval - 1),
 			(udev->speed == USB_SPEED_HIGH) ? "micro" : "",
 			usb_endpoint_maxp(desc),
 			usb_endpoint_maxp_mult(desc));
+=======
+		int transaction_num;
+
+		if (udev->speed >= USB_SPEED_SUPER)
+			transaction_num = ss_isoc_get_packet_num(udev, pipe);
+		else
+			transaction_num = usb_endpoint_maxp_mult(desc);
+
+		dev_info(&dev->intf->dev,
+			"iso period %d %sframes, wMaxPacket %d, transactions: %d\n",
+			1 << (desc->bInterval - 1),
+			(udev->speed >= USB_SPEED_HIGH) ? "micro" : "",
+			usb_endpoint_maxp(desc),
+			transaction_num);
+>>>>>>> upstream/android-13
 
 		dev_info(&dev->intf->dev,
 			"total %lu msec (%lu packets)\n",
 			(packets * (1 << (desc->bInterval - 1)))
+<<<<<<< HEAD
 				/ ((udev->speed == USB_SPEED_HIGH) ? 8 : 1),
+=======
+				/ ((udev->speed >= USB_SPEED_HIGH) ? 8 : 1),
+>>>>>>> upstream/android-13
 			packets);
 	}
 
@@ -2117,6 +2185,11 @@ test_queue(struct usbtest_dev *dev, struct usbtest_param_32 *param,
 	else if (context.errors >
 			(context.is_iso ? context.packet_count / 10 : 0))
 		status = -EIO;
+<<<<<<< HEAD
+=======
+
+	kfree(urbs);
+>>>>>>> upstream/android-13
 	return status;
 
 fail:
@@ -2124,6 +2197,11 @@ fail:
 		if (urbs[i])
 			simple_free_urb(urbs[i]);
 	}
+<<<<<<< HEAD
+=======
+
+	kfree(urbs);
+>>>>>>> upstream/android-13
 	return status;
 }
 

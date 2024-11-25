@@ -17,7 +17,11 @@
 #define PPC_LONG	stringify_in_c(.8byte)
 #define PPC_LONG_ALIGN	stringify_in_c(.balign 8)
 #define PPC_TLNEI	stringify_in_c(tdnei)
+<<<<<<< HEAD
 #define PPC_LLARX(t, a, b, eh)	PPC_LDARX(t, a, b, eh)
+=======
+#define PPC_LLARX	stringify_in_c(ldarx)
+>>>>>>> upstream/android-13
 #define PPC_STLCX	stringify_in_c(stdcx.)
 #define PPC_CNTLZL	stringify_in_c(cntlzd)
 #define PPC_MTOCRF(FXM, RS) MTOCRF((FXM), RS)
@@ -50,7 +54,11 @@
 #define PPC_LONG	stringify_in_c(.long)
 #define PPC_LONG_ALIGN	stringify_in_c(.balign 4)
 #define PPC_TLNEI	stringify_in_c(twnei)
+<<<<<<< HEAD
 #define PPC_LLARX(t, a, b, eh)	PPC_LWARX(t, a, b, eh)
+=======
+#define PPC_LLARX	stringify_in_c(lwarx)
+>>>>>>> upstream/android-13
 #define PPC_STLCX	stringify_in_c(stwcx.)
 #define PPC_CNTLZL	stringify_in_c(cntlzw)
 #define PPC_MTOCRF	stringify_in_c(mtcrf)

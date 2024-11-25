@@ -23,15 +23,27 @@ running, the suggested command should tell you.
 
 Again, keep in mind that this list assumes you are already functionally
 running a Linux kernel.  Also, not all tools are necessary on all
+<<<<<<< HEAD
 systems; obviously, if you don't have any ISDN hardware, for example,
 you probably needn't concern yourself with isdn4k-utils.
+=======
+systems; obviously, if you don't have any PC Card hardware, for example,
+you probably needn't concern yourself with pcmciautils.
+>>>>>>> upstream/android-13
 
 ====================== ===============  ========================================
         Program        Minimal version       Command to check the version
 ====================== ===============  ========================================
+<<<<<<< HEAD
 GNU C                  4.6              gcc --version
 GNU make               3.81             make --version
 binutils               2.20             ld -v
+=======
+GNU C                  5.1              gcc --version
+Clang/LLVM (optional)  10.0.1           clang --version
+GNU make               3.81             make --version
+binutils               2.23             ld -v
+>>>>>>> upstream/android-13
 flex                   2.5.35           flex --version
 bison                  2.0              bison --version
 util-linux             2.10o            fdformat --version
@@ -45,10 +57,15 @@ btrfs-progs            0.18             btrfsck
 pcmciautils            004              pccardctl -V
 quota-tools            3.09             quota -V
 PPP                    2.4.0            pppd --version
+<<<<<<< HEAD
 isdn4k-utils           3.1pre1          isdnctrl 2>&1|grep version
 nfs-utils              1.0.5            showmount --version
 procps                 3.2.0            ps --version
 oprofile               0.9              oprofiled --version
+=======
+nfs-utils              1.0.5            showmount --version
+procps                 3.2.0            ps --version
+>>>>>>> upstream/android-13
 udev                   081              udevd --version
 grub                   0.93             grub --version || grub-install --version
 mcelog                 0.6              mcelog --version
@@ -69,6 +86,18 @@ GCC
 The gcc version requirements may vary depending on the type of CPU in your
 computer.
 
+<<<<<<< HEAD
+=======
+Clang/LLVM (optional)
+---------------------
+
+The latest formal release of clang and LLVM utils (according to
+`releases.llvm.org <https://releases.llvm.org>`_) are supported for building
+kernels. Older releases aren't guaranteed to work, and we may drop workarounds
+from the kernel that were used to support older versions. Please see additional
+docs on :ref:`Building Linux with Clang/LLVM <kbuild_llvm>`.
+
+>>>>>>> upstream/android-13
 Make
 ----
 
@@ -77,9 +106,13 @@ You will need GNU make 3.81 or later to build the kernel.
 Binutils
 --------
 
+<<<<<<< HEAD
 The build system has, as of 4.13, switched to using thin archives (`ar T`)
 rather than incremental linking (`ld -r`) for built-in.a intermediate steps.
 This requires binutils 2.20 or newer.
+=======
+Binutils 2.23 or newer is needed to build the kernel.
+>>>>>>> upstream/android-13
 
 pkg-config
 ----------
@@ -132,7 +165,11 @@ Architectural changes
 ---------------------
 
 DevFS has been obsoleted in favour of udev
+<<<<<<< HEAD
 (http://www.kernel.org/pub/linux/utils/kernel/hotplug/)
+=======
+(https://www.kernel.org/pub/linux/utils/kernel/hotplug/)
+>>>>>>> upstream/android-13
 
 32-bit UID support is now in place.  Have fun!
 
@@ -279,12 +316,15 @@ which can be made by::
 
 as root.
 
+<<<<<<< HEAD
 Isdn4k-utils
 ------------
 
 Due to changes in the length of the phone number field, isdn4k-utils
 needs to be recompiled or (preferably) upgraded.
 
+=======
+>>>>>>> upstream/android-13
 NFS-utils
 ---------
 
@@ -326,7 +366,11 @@ Kernel documentation
 Sphinx
 ------
 
+<<<<<<< HEAD
 Please see :ref:`sphinx_install` in ``Documentation/doc-guide/sphinx.rst``
+=======
+Please see :ref:`sphinx_install` in :ref:`Documentation/doc-guide/sphinx.rst <sphinxdoc>`
+>>>>>>> upstream/android-13
 for details about Sphinx requirements.
 
 Getting updated software
@@ -340,6 +384,14 @@ gcc
 
 - <ftp://ftp.gnu.org/gnu/gcc/>
 
+<<<<<<< HEAD
+=======
+Clang/LLVM
+----------
+
+- :ref:`Getting LLVM <getting_llvm>`.
+
+>>>>>>> upstream/android-13
 Make
 ----
 
@@ -392,7 +444,12 @@ Mkinitrd
 E2fsprogs
 ---------
 
+<<<<<<< HEAD
 - <http://prdownloads.sourceforge.net/e2fsprogs/e2fsprogs-1.29.tar.gz>
+=======
+- <https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/>
+- <https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/>
+>>>>>>> upstream/android-13
 
 JFSutils
 --------
@@ -402,12 +459,21 @@ JFSutils
 Reiserfsprogs
 -------------
 
+<<<<<<< HEAD
 - <http://www.kernel.org/pub/linux/utils/fs/reiserfs/>
+=======
+- <https://git.kernel.org/pub/scm/linux/kernel/git/jeffm/reiserfsprogs.git/>
+>>>>>>> upstream/android-13
 
 Xfsprogs
 --------
 
+<<<<<<< HEAD
 - <ftp://oss.sgi.com/projects/xfs/>
+=======
+- <https://git.kernel.org/pub/scm/fs/xfs/xfsprogs-dev.git>
+- <https://www.kernel.org/pub/linux/utils/fs/xfs/xfsprogs/>
+>>>>>>> upstream/android-13
 
 Pcmciautils
 -----------
@@ -428,7 +494,11 @@ Intel P6 microcode
 udev
 ----
 
+<<<<<<< HEAD
 - <http://www.freedesktop.org/software/systemd/man/udev.html>
+=======
+- <https://www.freedesktop.org/software/systemd/man/udev.html>
+>>>>>>> upstream/android-13
 
 FUSE
 ----
@@ -446,12 +516,18 @@ Networking
 PPP
 ---
 
+<<<<<<< HEAD
 - <ftp://ftp.samba.org/pub/ppp/>
 
 Isdn4k-utils
 ------------
 
 - <ftp://ftp.isdn4linux.de/pub/isdn4linux/utils/>
+=======
+- <https://download.samba.org/pub/ppp/>
+- <https://git.ozlabs.org/?p=ppp.git>
+- <https://github.com/paulusmack/ppp/>
+>>>>>>> upstream/android-13
 
 NFS-utils
 ---------
@@ -461,7 +537,11 @@ NFS-utils
 Iptables
 --------
 
+<<<<<<< HEAD
 - <http://www.iptables.org/downloads.html>
+=======
+- <https://netfilter.org/projects/iptables/index.html>
+>>>>>>> upstream/android-13
 
 Ip-route2
 ---------
@@ -484,4 +564,8 @@ Kernel documentation
 Sphinx
 ------
 
+<<<<<<< HEAD
 - <http://www.sphinx-doc.org/>
+=======
+- <https://www.sphinx-doc.org/>
+>>>>>>> upstream/android-13

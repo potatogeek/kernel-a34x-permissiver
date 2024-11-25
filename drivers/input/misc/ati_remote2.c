@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ati_remote2 - ATI/Philips USB RF remote driver
  *
  * Copyright (C) 2005-2008 Ville Syrjala <syrjala@sci.fi>
  * Copyright (C) 2007-2008 Peter Stokes <linux@dadeos.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/usb/input.h>
@@ -71,7 +78,11 @@ static int ati_remote2_get_channel_mask(char *buffer,
 {
 	pr_debug("%s()\n", __func__);
 
+<<<<<<< HEAD
 	return sprintf(buffer, "0x%04x", *(unsigned int *)kp->arg);
+=======
+	return sprintf(buffer, "0x%04x\n", *(unsigned int *)kp->arg);
+>>>>>>> upstream/android-13
 }
 
 static int ati_remote2_set_mode_mask(const char *val,
@@ -87,7 +98,11 @@ static int ati_remote2_get_mode_mask(char *buffer,
 {
 	pr_debug("%s()\n", __func__);
 
+<<<<<<< HEAD
 	return sprintf(buffer, "0x%02x", *(unsigned int *)kp->arg);
+=======
+	return sprintf(buffer, "0x%02x\n", *(unsigned int *)kp->arg);
+>>>>>>> upstream/android-13
 }
 
 static unsigned int channel_mask = ATI_REMOTE2_MAX_CHANNEL_MASK;

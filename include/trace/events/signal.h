@@ -11,8 +11,12 @@
 
 #define TP_STORE_SIGINFO(__entry, info)				\
 	do {							\
+<<<<<<< HEAD
 		if (info == SEND_SIG_NOINFO ||			\
 		    info == SEND_SIG_FORCED) {			\
+=======
+		if (info == SEND_SIG_NOINFO) {			\
+>>>>>>> upstream/android-13
 			__entry->errno	= 0;			\
 			__entry->code	= SI_USER;		\
 		} else if (info == SEND_SIG_PRIV) {		\
@@ -50,7 +54,11 @@ enum {
  */
 TRACE_EVENT(signal_generate,
 
+<<<<<<< HEAD
 	TP_PROTO(int sig, struct siginfo *info, struct task_struct *task,
+=======
+	TP_PROTO(int sig, struct kernel_siginfo *info, struct task_struct *task,
+>>>>>>> upstream/android-13
 			int group, int result),
 
 	TP_ARGS(sig, info, task, group, result),
@@ -96,7 +104,11 @@ TRACE_EVENT(signal_generate,
  */
 TRACE_EVENT(signal_deliver,
 
+<<<<<<< HEAD
 	TP_PROTO(int sig, struct siginfo *info, struct k_sigaction *ka),
+=======
+	TP_PROTO(int sig, struct kernel_siginfo *info, struct k_sigaction *ka),
+>>>>>>> upstream/android-13
 
 	TP_ARGS(sig, info, ka),
 

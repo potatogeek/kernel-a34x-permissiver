@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Broadcom Corporation
  *
@@ -9,6 +10,11 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2015 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #define BCM2835_PLLA			0
@@ -66,3 +72,8 @@
 #define BCM2835_CLOCK_DSI1E		48
 #define BCM2835_CLOCK_DSI0P		49
 #define BCM2835_CLOCK_DSI1P		50
+<<<<<<< HEAD
+=======
+
+#define BCM2711_CLOCK_EMMC2		51
+>>>>>>> upstream/android-13

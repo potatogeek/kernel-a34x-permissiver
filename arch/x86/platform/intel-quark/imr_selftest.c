@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * imr_selftest.c -- Intel Isolated Memory Region self-test driver
  *
  * Copyright(c) 2013 Intel Corporation.
@@ -14,6 +18,11 @@
 #include <asm-generic/sections.h>
 #include <asm/cpu_device_id.h>
 #include <asm/imr.h>
+<<<<<<< HEAD
+=======
+#include <asm/io.h>
+
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/types.h>
@@ -103,7 +112,11 @@ static void __init imr_self_test(void)
 }
 
 static const struct x86_cpu_id imr_ids[] __initconst = {
+<<<<<<< HEAD
 	{ X86_VENDOR_INTEL, 5, 9 },	/* Intel Quark SoC X1000. */
+=======
+	X86_MATCH_VENDOR_FAM_MODEL(INTEL, 5, INTEL_FAM5_QUARK_X1000, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 

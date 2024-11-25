@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  i2c-pca-isa.c driver for PCA9564 on ISA boards
  *    Copyright (C) 2004 Arcom Control Systems
  *    Copyright (C) 2008 Pengutronix
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -170,7 +177,11 @@ static int pca_isa_probe(struct device *dev, unsigned int id)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static int pca_isa_remove(struct device *dev, unsigned int id)
+=======
+static void pca_isa_remove(struct device *dev, unsigned int id)
+>>>>>>> upstream/android-13
 {
 	i2c_del_adapter(&pca_isa_ops);
 
@@ -179,8 +190,11 @@ static int pca_isa_remove(struct device *dev, unsigned int id)
 		free_irq(irq, &pca_isa_ops);
 	}
 	release_region(base, IO_SIZE);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct isa_driver pca_isa_driver = {

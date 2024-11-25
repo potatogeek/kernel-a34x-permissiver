@@ -98,7 +98,10 @@ bool
 ixgb_adapter_stop(struct ixgb_hw *hw)
 {
 	u32 ctrl_reg;
+<<<<<<< HEAD
 	u32 icr_reg;
+=======
+>>>>>>> upstream/android-13
 
 	ENTER();
 
@@ -142,7 +145,11 @@ ixgb_adapter_stop(struct ixgb_hw *hw)
 	IXGB_WRITE_REG(hw, IMC, 0xffffffff);
 
 	/* Clear any pending interrupt events. */
+<<<<<<< HEAD
 	icr_reg = IXGB_READ_REG(hw, ICR);
+=======
+	IXGB_READ_REG(hw, ICR);
+>>>>>>> upstream/android-13
 
 	return ctrl_reg & IXGB_CTRL0_RST;
 }
@@ -274,7 +281,10 @@ bool
 ixgb_init_hw(struct ixgb_hw *hw)
 {
 	u32 i;
+<<<<<<< HEAD
 	u32 ctrl_reg;
+=======
+>>>>>>> upstream/android-13
 	bool status;
 
 	ENTER();
@@ -286,7 +296,11 @@ ixgb_init_hw(struct ixgb_hw *hw)
 	 */
 	pr_debug("Issuing a global reset to MAC\n");
 
+<<<<<<< HEAD
 	ctrl_reg = ixgb_mac_reset(hw);
+=======
+	ixgb_mac_reset(hw);
+>>>>>>> upstream/android-13
 
 	pr_debug("Issuing an EE reset to MAC\n");
 #ifdef HP_ZX1
@@ -949,8 +963,11 @@ bool ixgb_check_for_bad_link(struct ixgb_hw *hw)
 static void
 ixgb_clear_hw_cntrs(struct ixgb_hw *hw)
 {
+<<<<<<< HEAD
 	volatile u32 temp_reg;
 
+=======
+>>>>>>> upstream/android-13
 	ENTER();
 
 	/* if we are stopped or resetting exit gracefully */
@@ -959,6 +976,7 @@ ixgb_clear_hw_cntrs(struct ixgb_hw *hw)
 		return;
 	}
 
+<<<<<<< HEAD
 	temp_reg = IXGB_READ_REG(hw, TPRL);
 	temp_reg = IXGB_READ_REG(hw, TPRH);
 	temp_reg = IXGB_READ_REG(hw, GPRCL);
@@ -1019,6 +1037,68 @@ ixgb_clear_hw_cntrs(struct ixgb_hw *hw)
 	temp_reg = IXGB_READ_REG(hw, XOFFRXC);
 	temp_reg = IXGB_READ_REG(hw, XOFFTXC);
 	temp_reg = IXGB_READ_REG(hw, RJC);
+=======
+	IXGB_READ_REG(hw, TPRL);
+	IXGB_READ_REG(hw, TPRH);
+	IXGB_READ_REG(hw, GPRCL);
+	IXGB_READ_REG(hw, GPRCH);
+	IXGB_READ_REG(hw, BPRCL);
+	IXGB_READ_REG(hw, BPRCH);
+	IXGB_READ_REG(hw, MPRCL);
+	IXGB_READ_REG(hw, MPRCH);
+	IXGB_READ_REG(hw, UPRCL);
+	IXGB_READ_REG(hw, UPRCH);
+	IXGB_READ_REG(hw, VPRCL);
+	IXGB_READ_REG(hw, VPRCH);
+	IXGB_READ_REG(hw, JPRCL);
+	IXGB_READ_REG(hw, JPRCH);
+	IXGB_READ_REG(hw, GORCL);
+	IXGB_READ_REG(hw, GORCH);
+	IXGB_READ_REG(hw, TORL);
+	IXGB_READ_REG(hw, TORH);
+	IXGB_READ_REG(hw, RNBC);
+	IXGB_READ_REG(hw, RUC);
+	IXGB_READ_REG(hw, ROC);
+	IXGB_READ_REG(hw, RLEC);
+	IXGB_READ_REG(hw, CRCERRS);
+	IXGB_READ_REG(hw, ICBC);
+	IXGB_READ_REG(hw, ECBC);
+	IXGB_READ_REG(hw, MPC);
+	IXGB_READ_REG(hw, TPTL);
+	IXGB_READ_REG(hw, TPTH);
+	IXGB_READ_REG(hw, GPTCL);
+	IXGB_READ_REG(hw, GPTCH);
+	IXGB_READ_REG(hw, BPTCL);
+	IXGB_READ_REG(hw, BPTCH);
+	IXGB_READ_REG(hw, MPTCL);
+	IXGB_READ_REG(hw, MPTCH);
+	IXGB_READ_REG(hw, UPTCL);
+	IXGB_READ_REG(hw, UPTCH);
+	IXGB_READ_REG(hw, VPTCL);
+	IXGB_READ_REG(hw, VPTCH);
+	IXGB_READ_REG(hw, JPTCL);
+	IXGB_READ_REG(hw, JPTCH);
+	IXGB_READ_REG(hw, GOTCL);
+	IXGB_READ_REG(hw, GOTCH);
+	IXGB_READ_REG(hw, TOTL);
+	IXGB_READ_REG(hw, TOTH);
+	IXGB_READ_REG(hw, DC);
+	IXGB_READ_REG(hw, PLT64C);
+	IXGB_READ_REG(hw, TSCTC);
+	IXGB_READ_REG(hw, TSCTFC);
+	IXGB_READ_REG(hw, IBIC);
+	IXGB_READ_REG(hw, RFC);
+	IXGB_READ_REG(hw, LFC);
+	IXGB_READ_REG(hw, PFRC);
+	IXGB_READ_REG(hw, PFTC);
+	IXGB_READ_REG(hw, MCFRC);
+	IXGB_READ_REG(hw, MCFTC);
+	IXGB_READ_REG(hw, XONRXC);
+	IXGB_READ_REG(hw, XONTXC);
+	IXGB_READ_REG(hw, XOFFRXC);
+	IXGB_READ_REG(hw, XOFFTXC);
+	IXGB_READ_REG(hw, RJC);
+>>>>>>> upstream/android-13
 }
 
 /******************************************************************************
@@ -1161,18 +1241,25 @@ static void
 ixgb_optics_reset(struct ixgb_hw *hw)
 {
 	if (hw->phy_type == ixgb_phy_type_txn17401) {
+<<<<<<< HEAD
 		u16 mdio_reg;
 
+=======
+>>>>>>> upstream/android-13
 		ixgb_write_phy_reg(hw,
 				   MDIO_CTRL1,
 				   IXGB_PHY_ADDRESS,
 				   MDIO_MMD_PMAPMD,
 				   MDIO_CTRL1_RESET);
 
+<<<<<<< HEAD
 		mdio_reg = ixgb_read_phy_reg(hw,
 					     MDIO_CTRL1,
 					     IXGB_PHY_ADDRESS,
 					     MDIO_MMD_PMAPMD);
+=======
+		ixgb_read_phy_reg(hw, MDIO_CTRL1, IXGB_PHY_ADDRESS, MDIO_MMD_PMAPMD);
+>>>>>>> upstream/android-13
 	}
 }
 

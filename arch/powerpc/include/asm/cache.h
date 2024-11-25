@@ -6,7 +6,11 @@
 
 
 /* bytes per L1 cache line */
+<<<<<<< HEAD
 #if defined(CONFIG_PPC_8xx) || defined(CONFIG_403GCX)
+=======
+#if defined(CONFIG_PPC_8xx)
+>>>>>>> upstream/android-13
 #define L1_CACHE_SHIFT		4
 #define MAX_COPY_PREFETCH	1
 #define IFETCH_ALIGN_SHIFT	2
@@ -33,7 +37,12 @@
 
 #define IFETCH_ALIGN_BYTES	(1 << IFETCH_ALIGN_SHIFT)
 
+<<<<<<< HEAD
 #if defined(__powerpc64__) && !defined(__ASSEMBLY__)
+=======
+#if !defined(__ASSEMBLY__)
+#ifdef CONFIG_PPC64
+>>>>>>> upstream/android-13
 
 struct ppc_cache_info {
 	u32 size;
@@ -53,6 +62,7 @@ struct ppc64_caches {
 };
 
 extern struct ppc64_caches ppc64_caches;
+<<<<<<< HEAD
 #endif /* __powerpc64__ && ! __ASSEMBLY__ */
 
 #if defined(__ASSEMBLY__)
@@ -72,6 +82,54 @@ extern struct ppc64_caches ppc64_caches;
 #define __read_mostly __attribute__((__section__(".data..read_mostly")))
 
 #ifdef CONFIG_6xx
+=======
+
+static inline u32 l1_dcache_shift(void)
+{
+	return ppc64_caches.l1d.log_block_size;
+}
+
+static inline u32 l1_dcache_bytes(void)
+{
+	return ppc64_caches.l1d.block_size;
+}
+
+static inline u32 l1_icache_shift(void)
+{
+	return ppc64_caches.l1i.log_block_size;
+}
+
+static inline u32 l1_icache_bytes(void)
+{
+	return ppc64_caches.l1i.block_size;
+}
+#else
+static inline u32 l1_dcache_shift(void)
+{
+	return L1_CACHE_SHIFT;
+}
+
+static inline u32 l1_dcache_bytes(void)
+{
+	return L1_CACHE_BYTES;
+}
+
+static inline u32 l1_icache_shift(void)
+{
+	return L1_CACHE_SHIFT;
+}
+
+static inline u32 l1_icache_bytes(void)
+{
+	return L1_CACHE_BYTES;
+}
+
+#endif
+
+#define __read_mostly __section(".data..read_mostly")
+
+#ifdef CONFIG_PPC_BOOK3S_32
+>>>>>>> upstream/android-13
 extern long _get_L2CR(void);
 extern long _get_L3CR(void);
 extern void _set_L2CR(unsigned long);
@@ -102,6 +160,20 @@ static inline void dcbst(void *addr)
 {
 	__asm__ __volatile__ ("dcbst 0, %0" : : "r"(addr) : "memory");
 }
+<<<<<<< HEAD
+=======
+
+static inline void icbi(void *addr)
+{
+	asm volatile ("icbi 0, %0" : : "r"(addr) : "memory");
+}
+
+static inline void iccci(void *addr)
+{
+	asm volatile ("iccci 0, %0" : : "r"(addr) : "memory");
+}
+
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 #endif /* __KERNEL__ */
 #endif /* _ASM_POWERPC_CACHE_H */

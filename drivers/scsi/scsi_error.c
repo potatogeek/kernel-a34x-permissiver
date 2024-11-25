@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  scsi_error.c Copyright (C) 1997 Eric Youngdale
  *
@@ -59,8 +63,13 @@ static void scsi_eh_done(struct scsi_cmnd *scmd);
 #define HOST_RESET_SETTLE_TIME  (10)
 
 static int scsi_eh_try_stu(struct scsi_cmnd *scmd);
+<<<<<<< HEAD
 static int scsi_try_to_abort_cmd(struct scsi_host_template *,
 				 struct scsi_cmnd *);
+=======
+static enum scsi_disposition scsi_try_to_abort_cmd(struct scsi_host_template *,
+						   struct scsi_cmnd *);
+>>>>>>> upstream/android-13
 
 void scsi_eh_wakeup(struct Scsi_Host *shost)
 {
@@ -115,6 +124,45 @@ static int scsi_host_eh_past_deadline(struct Scsi_Host *shost)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static bool scsi_cmd_retry_allowed(struct scsi_cmnd *cmd)
+{
+	if (cmd->allowed == SCSI_CMD_RETRIES_NO_LIMIT)
+		return true;
+
+	return ++cmd->retries <= cmd->allowed;
+}
+
+static bool scsi_eh_should_retry_cmd(struct scsi_cmnd *cmd)
+{
+	struct scsi_device *sdev = cmd->device;
+	struct Scsi_Host *host = sdev->host;
+
+	if (host->hostt->eh_should_retry_cmd)
+		return  host->hostt->eh_should_retry_cmd(cmd);
+
+	return true;
+}
+
+static void scsi_eh_complete_abort(struct scsi_cmnd *scmd, struct Scsi_Host *shost)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(shost->host_lock, flags);
+	list_del_init(&scmd->eh_entry);
+	/*
+	 * If the abort succeeds, and there is no further
+	 * EH action, clear the ->last_reset time.
+	 */
+	if (list_empty(&shost->eh_abort_list) &&
+	    list_empty(&shost->eh_cmd_q))
+		if (shost->eh_deadline != -1)
+			shost->last_reset = 0;
+	spin_unlock_irqrestore(shost->host_lock, flags);
+}
+
+>>>>>>> upstream/android-13
 /**
  * scmd_eh_abort_handler - Handle command aborts
  * @work:	command to be aborted.
@@ -131,7 +179,12 @@ scmd_eh_abort_handler(struct work_struct *work)
 	struct scsi_cmnd *scmd =
 		container_of(work, struct scsi_cmnd, abort_work.work);
 	struct scsi_device *sdev = scmd->device;
+<<<<<<< HEAD
 	int rtn;
+=======
+	enum scsi_disposition rtn;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	if (scsi_host_eh_past_deadline(sdev->host)) {
 		SCSI_LOG_ERROR_RECOVERY(3,
@@ -150,16 +203,29 @@ scmd_eh_abort_handler(struct work_struct *work)
 						    "eh timeout, not retrying "
 						    "aborted command\n"));
 			} else if (!scsi_noretry_cmd(scmd) &&
+<<<<<<< HEAD
 			    (++scmd->retries <= scmd->allowed)) {
 				SCSI_LOG_ERROR_RECOVERY(3,
 					scmd_printk(KERN_WARNING, scmd,
 						    "retry aborted command\n"));
+=======
+				   scsi_cmd_retry_allowed(scmd) &&
+				scsi_eh_should_retry_cmd(scmd)) {
+				SCSI_LOG_ERROR_RECOVERY(3,
+					scmd_printk(KERN_WARNING, scmd,
+						    "retry aborted command\n"));
+				scsi_eh_complete_abort(scmd, sdev->host);
+>>>>>>> upstream/android-13
 				scsi_queue_insert(scmd, SCSI_MLQUEUE_EH_RETRY);
 				return;
 			} else {
 				SCSI_LOG_ERROR_RECOVERY(3,
 					scmd_printk(KERN_WARNING, scmd,
 						    "finish aborted command\n"));
+<<<<<<< HEAD
+=======
+				scsi_eh_complete_abort(scmd, sdev->host);
+>>>>>>> upstream/android-13
 				scsi_finish_command(scmd);
 				return;
 			}
@@ -172,6 +238,12 @@ scmd_eh_abort_handler(struct work_struct *work)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(sdev->host->host_lock, flags);
+	list_del_init(&scmd->eh_entry);
+	spin_unlock_irqrestore(sdev->host->host_lock, flags);
+>>>>>>> upstream/android-13
 	scsi_eh_scmd_add(scmd);
 }
 
@@ -202,6 +274,11 @@ scsi_abort_command(struct scsi_cmnd *scmd)
 	spin_lock_irqsave(shost->host_lock, flags);
 	if (shost->eh_deadline != -1 && !shost->last_reset)
 		shost->last_reset = jiffies;
+<<<<<<< HEAD
+=======
+	BUG_ON(!list_empty(&scmd->eh_entry));
+	list_add_tail(&scmd->eh_entry, &shost->eh_abort_list);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(shost->host_lock, flags);
 
 	scmd->eh_eflags |= SCSI_EH_ABORT_SCHEDULED;
@@ -221,7 +298,11 @@ scsi_abort_command(struct scsi_cmnd *scmd)
  */
 static void scsi_eh_reset(struct scsi_cmnd *scmd)
 {
+<<<<<<< HEAD
 	if (!blk_rq_is_passthrough(scmd->request)) {
+=======
+	if (!blk_rq_is_passthrough(scsi_cmd_to_rq(scmd))) {
+>>>>>>> upstream/android-13
 		struct scsi_driver *sdrv = scsi_cmd_to_driver(scmd);
 		if (sdrv->eh_reset)
 			sdrv->eh_reset(scmd);
@@ -297,6 +378,7 @@ enum blk_eh_timer_return scsi_times_out(struct request *req)
 
 	if (rtn == BLK_EH_DONE) {
 		/*
+<<<<<<< HEAD
 		 * For blk-mq, we must set the request state to complete now
 		 * before sending the request to the scsi error handler. This
 		 * will prevent a use-after-free in the event the LLD manages
@@ -310,6 +392,21 @@ enum blk_eh_timer_return scsi_times_out(struct request *req)
 		 */
 		if (req->q->mq_ops && !blk_mq_mark_complete(req))
 			return rtn;
+=======
+		 * Set the command to complete first in order to prevent a real
+		 * completion from releasing the command while error handling
+		 * is using it. If the command was already completed, then the
+		 * lower level driver beat the timeout handler, and it is safe
+		 * to return without escalating error recovery.
+		 *
+		 * If timeout handling lost the race to a real completion, the
+		 * block layer may ignore that due to a fake timeout injection,
+		 * so return RESET_TIMER to allow error handling another shot
+		 * at this command.
+		 */
+		if (test_and_set_bit(SCMD_STATE_COMPLETE, &scmd->state))
+			return BLK_EH_RESET_TIMER;
+>>>>>>> upstream/android-13
 		if (scsi_abort_command(scmd) != SUCCESS) {
 			set_host_byte(scmd, DID_TIME_OUT);
 			scsi_eh_scmd_add(scmd);
@@ -338,9 +435,12 @@ int scsi_block_when_processing_errors(struct scsi_device *sdev)
 
 	online = scsi_device_online(sdev);
 
+<<<<<<< HEAD
 	SCSI_LOG_ERROR_RECOVERY(5, sdev_printk(KERN_INFO, sdev,
 		"%s: rtn: %d\n", __func__, online));
 
+=======
+>>>>>>> upstream/android-13
 	return online;
 }
 EXPORT_SYMBOL(scsi_block_when_processing_errors);
@@ -442,8 +542,18 @@ static void scsi_report_sense(struct scsi_device *sdev,
 
 		if (sshdr->asc == 0x29) {
 			evt_type = SDEV_EVT_POWER_ON_RESET_OCCURRED;
+<<<<<<< HEAD
 			sdev_printk(KERN_WARNING, sdev,
 				    "Power-on or device reset occurred\n");
+=======
+			/*
+			 * Do not print message if it is an expected side-effect
+			 * of runtime PM.
+			 */
+			if (!sdev->silence_suspend)
+				sdev_printk(KERN_WARNING, sdev,
+					    "Power-on or device reset occurred\n");
+>>>>>>> upstream/android-13
 		}
 
 		if (sshdr->asc == 0x2a && sshdr->ascq == 0x01) {
@@ -480,7 +590,11 @@ static void scsi_report_sense(struct scsi_device *sdev,
  *	When a deferred error is detected the current command has
  *	not been executed and needs retrying.
  */
+<<<<<<< HEAD
 int scsi_check_sense(struct scsi_cmnd *scmd)
+=======
+enum scsi_disposition scsi_check_sense(struct scsi_cmnd *scmd)
+>>>>>>> upstream/android-13
 {
 	struct scsi_device *sdev = scmd->device;
 	struct scsi_sense_hdr sshdr;
@@ -494,7 +608,11 @@ int scsi_check_sense(struct scsi_cmnd *scmd)
 		return NEEDS_RETRY;
 
 	if (sdev->handler && sdev->handler->check_sense) {
+<<<<<<< HEAD
 		int rc;
+=======
+		enum scsi_disposition rc;
+>>>>>>> upstream/android-13
 
 		rc = sdev->handler->check_sense(sdev, &sshdr);
 		if (rc != SCSI_RETURN_NOT_HANDLED)
@@ -601,7 +719,11 @@ int scsi_check_sense(struct scsi_cmnd *scmd)
 			set_host_byte(scmd, DID_ALLOC_FAILURE);
 			return SUCCESS;
 		}
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case COPY_ABORTED:
 	case VOLUME_OVERFLOW:
 	case MISCOMPARE:
@@ -623,7 +745,11 @@ int scsi_check_sense(struct scsi_cmnd *scmd)
 			return ADD_TO_MLQUEUE;
 		else
 			set_host_byte(scmd, DID_TARGET_FAILURE);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case ILLEGAL_REQUEST:
 		if (sshdr.asc == 0x20 || /* Invalid command operation code */
@@ -705,7 +831,11 @@ static void scsi_handle_queue_full(struct scsi_device *sdev)
  *    don't allow for the possibility of retries here, and we are a lot
  *    more restrictive about what we consider acceptable.
  */
+<<<<<<< HEAD
 static int scsi_eh_completed_normally(struct scsi_cmnd *scmd)
+=======
+static enum scsi_disposition scsi_eh_completed_normally(struct scsi_cmnd *scmd)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * first check the host byte, to see if there is anything in there
@@ -724,6 +854,7 @@ static int scsi_eh_completed_normally(struct scsi_cmnd *scmd)
 		return FAILED;
 
 	/*
+<<<<<<< HEAD
 	 * next, check the message byte.
 	 */
 	if (msg_byte(scmd->result) != COMMAND_COMPLETE)
@@ -744,21 +875,48 @@ static int scsi_eh_completed_normally(struct scsi_cmnd *scmd)
 	case CONDITION_GOOD:
 	case INTERMEDIATE_GOOD:
 	case INTERMEDIATE_C_GOOD:
+=======
+	 * now, check the status byte to see if this indicates
+	 * anything special.
+	 */
+	switch (get_status_byte(scmd)) {
+	case SAM_STAT_GOOD:
+		scsi_handle_queue_ramp_up(scmd->device);
+		fallthrough;
+	case SAM_STAT_COMMAND_TERMINATED:
+		return SUCCESS;
+	case SAM_STAT_CHECK_CONDITION:
+		return scsi_check_sense(scmd);
+	case SAM_STAT_CONDITION_MET:
+	case SAM_STAT_INTERMEDIATE:
+	case SAM_STAT_INTERMEDIATE_CONDITION_MET:
+>>>>>>> upstream/android-13
 		/*
 		 * who knows?  FIXME(eric)
 		 */
 		return SUCCESS;
+<<<<<<< HEAD
 	case RESERVATION_CONFLICT:
+=======
+	case SAM_STAT_RESERVATION_CONFLICT:
+>>>>>>> upstream/android-13
 		if (scmd->cmnd[0] == TEST_UNIT_READY)
 			/* it is a success, we probed the device and
 			 * found it */
 			return SUCCESS;
 		/* otherwise, we failed to send the command */
 		return FAILED;
+<<<<<<< HEAD
 	case QUEUE_FULL:
 		scsi_handle_queue_full(scmd->device);
 		/* fall through */
 	case BUSY:
+=======
+	case SAM_STAT_TASK_SET_FULL:
+		scsi_handle_queue_full(scmd->device);
+		fallthrough;
+	case SAM_STAT_BUSY:
+>>>>>>> upstream/android-13
 		return NEEDS_RETRY;
 	default:
 		return FAILED;
@@ -786,10 +944,17 @@ static void scsi_eh_done(struct scsi_cmnd *scmd)
  * scsi_try_host_reset - ask host adapter to reset itself
  * @scmd:	SCSI cmd to send host reset.
  */
+<<<<<<< HEAD
 static int scsi_try_host_reset(struct scsi_cmnd *scmd)
 {
 	unsigned long flags;
 	int rtn;
+=======
+static enum scsi_disposition scsi_try_host_reset(struct scsi_cmnd *scmd)
+{
+	unsigned long flags;
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 	struct Scsi_Host *host = scmd->device->host;
 	struct scsi_host_template *hostt = host->hostt;
 
@@ -816,10 +981,17 @@ static int scsi_try_host_reset(struct scsi_cmnd *scmd)
  * scsi_try_bus_reset - ask host to perform a bus reset
  * @scmd:	SCSI cmd to send bus reset.
  */
+<<<<<<< HEAD
 static int scsi_try_bus_reset(struct scsi_cmnd *scmd)
 {
 	unsigned long flags;
 	int rtn;
+=======
+static enum scsi_disposition scsi_try_bus_reset(struct scsi_cmnd *scmd)
+{
+	unsigned long flags;
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 	struct Scsi_Host *host = scmd->device->host;
 	struct scsi_host_template *hostt = host->hostt;
 
@@ -858,10 +1030,17 @@ static void __scsi_report_device_reset(struct scsi_device *sdev, void *data)
  *    timer on it, and set the host back to a consistent state prior to
  *    returning.
  */
+<<<<<<< HEAD
 static int scsi_try_target_reset(struct scsi_cmnd *scmd)
 {
 	unsigned long flags;
 	int rtn;
+=======
+static enum scsi_disposition scsi_try_target_reset(struct scsi_cmnd *scmd)
+{
+	unsigned long flags;
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 	struct Scsi_Host *host = scmd->device->host;
 	struct scsi_host_template *hostt = host->hostt;
 
@@ -889,9 +1068,15 @@ static int scsi_try_target_reset(struct scsi_cmnd *scmd)
  *    timer on it, and set the host back to a consistent state prior to
  *    returning.
  */
+<<<<<<< HEAD
 static int scsi_try_bus_device_reset(struct scsi_cmnd *scmd)
 {
 	int rtn;
+=======
+static enum scsi_disposition scsi_try_bus_device_reset(struct scsi_cmnd *scmd)
+{
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 	struct scsi_host_template *hostt = scmd->device->host->hostt;
 
 	if (!hostt->eh_device_reset_handler)
@@ -920,8 +1105,13 @@ static int scsi_try_bus_device_reset(struct scsi_cmnd *scmd)
  *    if the device is temporarily unavailable (eg due to a
  *    link down on FibreChannel)
  */
+<<<<<<< HEAD
 static int scsi_try_to_abort_cmd(struct scsi_host_template *hostt,
 				 struct scsi_cmnd *scmd)
+=======
+static enum scsi_disposition
+scsi_try_to_abort_cmd(struct scsi_host_template *hostt, struct scsi_cmnd *scmd)
+>>>>>>> upstream/android-13
 {
 	if (!hostt->eh_abort_handler)
 		return FAILED;
@@ -968,7 +1158,10 @@ void scsi_eh_prep_cmnd(struct scsi_cmnd *scmd, struct scsi_eh_save *ses,
 	ses->cmnd = scmd->cmnd;
 	ses->data_direction = scmd->sc_data_direction;
 	ses->sdb = scmd->sdb;
+<<<<<<< HEAD
 	ses->next_rq = scmd->request->next_rq;
+=======
+>>>>>>> upstream/android-13
 	ses->result = scmd->result;
 	ses->resid_len = scmd->req.resid_len;
 	ses->underflow = scmd->underflow;
@@ -980,7 +1173,10 @@ void scsi_eh_prep_cmnd(struct scsi_cmnd *scmd, struct scsi_eh_save *ses,
 	scmd->cmnd = ses->eh_cmnd;
 	memset(scmd->cmnd, 0, BLK_MAX_CDB);
 	memset(&scmd->sdb, 0, sizeof(scmd->sdb));
+<<<<<<< HEAD
 	scmd->request->next_rq = NULL;
+=======
+>>>>>>> upstream/android-13
 	scmd->result = 0;
 	scmd->req.resid_len = 0;
 
@@ -1034,7 +1230,10 @@ void scsi_eh_restore_cmnd(struct scsi_cmnd* scmd, struct scsi_eh_save *ses)
 	scmd->cmnd = ses->cmnd;
 	scmd->sc_data_direction = ses->data_direction;
 	scmd->sdb = ses->sdb;
+<<<<<<< HEAD
 	scmd->request->next_rq = ses->next_rq;
+=======
+>>>>>>> upstream/android-13
 	scmd->result = ses->result;
 	scmd->req.resid_len = ses->resid_len;
 	scmd->underflow = ses->underflow;
@@ -1057,13 +1256,22 @@ EXPORT_SYMBOL(scsi_eh_restore_cmnd);
  * Return value:
  *    SUCCESS or FAILED or NEEDS_RETRY
  */
+<<<<<<< HEAD
 static int scsi_send_eh_cmnd(struct scsi_cmnd *scmd, unsigned char *cmnd,
 			     int cmnd_size, int timeout, unsigned sense_bytes)
+=======
+static enum scsi_disposition scsi_send_eh_cmnd(struct scsi_cmnd *scmd,
+	unsigned char *cmnd, int cmnd_size, int timeout, unsigned sense_bytes)
+>>>>>>> upstream/android-13
 {
 	struct scsi_device *sdev = scmd->device;
 	struct Scsi_Host *shost = sdev->host;
 	DECLARE_COMPLETION_ONSTACK(done);
+<<<<<<< HEAD
 	unsigned long timeleft = timeout;
+=======
+	unsigned long timeleft = timeout, delay;
+>>>>>>> upstream/android-13
 	struct scsi_eh_save ses;
 	const unsigned long stall_for = msecs_to_jiffies(100);
 	int rtn;
@@ -1074,7 +1282,33 @@ retry:
 
 	scsi_log_send(scmd);
 	scmd->scsi_done = scsi_eh_done;
+<<<<<<< HEAD
 	rtn = shost->hostt->queuecommand(shost, scmd);
+=======
+
+	/*
+	 * Lock sdev->state_mutex to avoid that scsi_device_quiesce() can
+	 * change the SCSI device state after we have examined it and before
+	 * .queuecommand() is called.
+	 */
+	mutex_lock(&sdev->state_mutex);
+	while (sdev->sdev_state == SDEV_BLOCK && timeleft > 0) {
+		mutex_unlock(&sdev->state_mutex);
+		SCSI_LOG_ERROR_RECOVERY(5, sdev_printk(KERN_DEBUG, sdev,
+			"%s: state %d <> %d\n", __func__, sdev->sdev_state,
+			SDEV_BLOCK));
+		delay = min(timeleft, stall_for);
+		timeleft -= delay;
+		msleep(jiffies_to_msecs(delay));
+		mutex_lock(&sdev->state_mutex);
+	}
+	if (sdev->sdev_state != SDEV_BLOCK)
+		rtn = shost->hostt->queuecommand(shost, scmd);
+	else
+		rtn = FAILED;
+	mutex_unlock(&sdev->state_mutex);
+
+>>>>>>> upstream/android-13
 	if (rtn) {
 		if (timeleft > stall_for) {
 			scsi_eh_restore_cmnd(scmd, &ses);
@@ -1143,14 +1377,25 @@ retry:
  *    that we obtain it on our own. This function will *not* return until
  *    the command either times out, or it completes.
  */
+<<<<<<< HEAD
 static int scsi_request_sense(struct scsi_cmnd *scmd)
+=======
+static enum scsi_disposition scsi_request_sense(struct scsi_cmnd *scmd)
+>>>>>>> upstream/android-13
 {
 	return scsi_send_eh_cmnd(scmd, NULL, 0, scmd->device->eh_timeout, ~0);
 }
 
+<<<<<<< HEAD
 static int scsi_eh_action(struct scsi_cmnd *scmd, int rtn)
 {
 	if (!blk_rq_is_passthrough(scmd->request)) {
+=======
+static enum scsi_disposition
+scsi_eh_action(struct scsi_cmnd *scmd, enum scsi_disposition rtn)
+{
+	if (!blk_rq_is_passthrough(scsi_cmd_to_rq(scmd))) {
+>>>>>>> upstream/android-13
 		struct scsi_driver *sdrv = scsi_cmd_to_driver(scmd);
 		if (sdrv->eh_action)
 			rtn = sdrv->eh_action(scmd, rtn);
@@ -1201,7 +1446,11 @@ int scsi_eh_get_sense(struct list_head *work_q,
 {
 	struct scsi_cmnd *scmd, *next;
 	struct Scsi_Host *shost;
+<<<<<<< HEAD
 	int rtn;
+=======
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If SCSI_EH_ABORT_SCHEDULED has been set, it is timeout IO,
@@ -1220,7 +1469,11 @@ int scsi_eh_get_sense(struct list_head *work_q,
 					     current->comm));
 			break;
 		}
+<<<<<<< HEAD
 		if (status_byte(scmd->result) != CHECK_CONDITION)
+=======
+		if (!scsi_status_is_check_condition(scmd->result))
+>>>>>>> upstream/android-13
 			/*
 			 * don't request sense if there's no check condition
 			 * status because the error we're processing isn't one
@@ -1247,11 +1500,26 @@ int scsi_eh_get_sense(struct list_head *work_q,
 		 * upper level.
 		 */
 		if (rtn == SUCCESS)
+<<<<<<< HEAD
 			/* we don't want this command reissued, just
 			 * finished with the sense data, so set
 			 * retries to the max allowed to ensure it
 			 * won't get reissued */
 			scmd->retries = scmd->allowed;
+=======
+			/*
+			 * We don't want this command reissued, just finished
+			 * with the sense data, so set retries to the max
+			 * allowed to ensure it won't get reissued. If the user
+			 * has requested infinite retries, we also want to
+			 * finish this command, so force completion by setting
+			 * retries and allowed to the same value.
+			 */
+			if (scmd->allowed == SCSI_CMD_RETRIES_NO_LIMIT)
+				scmd->retries = scmd->allowed = 1;
+			else
+				scmd->retries = scmd->allowed;
+>>>>>>> upstream/android-13
 		else if (rtn != NEEDS_RETRY)
 			continue;
 
@@ -1272,7 +1540,12 @@ EXPORT_SYMBOL_GPL(scsi_eh_get_sense);
 static int scsi_eh_tur(struct scsi_cmnd *scmd)
 {
 	static unsigned char tur_command[6] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
+<<<<<<< HEAD
 	int retry_cnt = 1, rtn;
+=======
+	int retry_cnt = 1;
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 
 retry_tur:
 	rtn = scsi_send_eh_cmnd(scmd, tur_command, 6,
@@ -1285,7 +1558,11 @@ retry_tur:
 	case NEEDS_RETRY:
 		if (retry_cnt--)
 			goto retry_tur;
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SUCCESS:
 		return 0;
 	default:
@@ -1360,7 +1637,12 @@ static int scsi_eh_try_stu(struct scsi_cmnd *scmd)
 	static unsigned char stu_command[6] = {START_STOP, 0, 0, 0, 1, 0};
 
 	if (scmd->device->allow_restart) {
+<<<<<<< HEAD
 		int i, rtn = NEEDS_RETRY;
+=======
+		int i;
+		enum scsi_disposition rtn = NEEDS_RETRY;
+>>>>>>> upstream/android-13
 
 		for (i = 0; rtn == NEEDS_RETRY && i < 2; i++)
 			rtn = scsi_send_eh_cmnd(scmd, stu_command, 6, scmd->device->request_queue->rq_timeout, 0);
@@ -1395,6 +1677,10 @@ static int scsi_eh_stu(struct Scsi_Host *shost,
 				sdev_printk(KERN_INFO, sdev,
 					    "%s: skip START_UNIT, past eh deadline\n",
 					    current->comm));
+<<<<<<< HEAD
+=======
+			scsi_device_put(sdev);
+>>>>>>> upstream/android-13
 			break;
 		}
 		stu_scmd = NULL;
@@ -1453,7 +1739,11 @@ static int scsi_eh_bus_device_reset(struct Scsi_Host *shost,
 {
 	struct scsi_cmnd *scmd, *bdr_scmd, *next;
 	struct scsi_device *sdev;
+<<<<<<< HEAD
 	int rtn;
+=======
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 
 	shost_for_each_device(sdev, shost) {
 		if (scsi_host_eh_past_deadline(shost)) {
@@ -1461,6 +1751,10 @@ static int scsi_eh_bus_device_reset(struct Scsi_Host *shost,
 				sdev_printk(KERN_INFO, sdev,
 					    "%s: skip BDR, past eh deadline\n",
 					     current->comm));
+<<<<<<< HEAD
+=======
+			scsi_device_put(sdev);
+>>>>>>> upstream/android-13
 			break;
 		}
 		bdr_scmd = NULL;
@@ -1519,7 +1813,11 @@ static int scsi_eh_target_reset(struct Scsi_Host *shost,
 
 	while (!list_empty(&tmp_list)) {
 		struct scsi_cmnd *next, *scmd;
+<<<<<<< HEAD
 		int rtn;
+=======
+		enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 		unsigned int id;
 
 		if (scsi_host_eh_past_deadline(shost)) {
@@ -1577,7 +1875,11 @@ static int scsi_eh_bus_reset(struct Scsi_Host *shost,
 	struct scsi_cmnd *scmd, *chan_scmd, *next;
 	LIST_HEAD(check_list);
 	unsigned int channel;
+<<<<<<< HEAD
 	int rtn;
+=======
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 
 	/*
 	 * we really want to loop over the various channels, and do this on
@@ -1648,7 +1950,11 @@ static int scsi_eh_host_reset(struct Scsi_Host *shost,
 {
 	struct scsi_cmnd *scmd, *next;
 	LIST_HEAD(check_list);
+<<<<<<< HEAD
 	int rtn;
+=======
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 
 	if (!list_empty(work_q)) {
 		scmd = list_entry(work_q->next,
@@ -1707,12 +2013,18 @@ static void scsi_eh_offline_sdevs(struct list_head *work_q,
  */
 int scsi_noretry_cmd(struct scsi_cmnd *scmd)
 {
+<<<<<<< HEAD
+=======
+	struct request *req = scsi_cmd_to_rq(scmd);
+
+>>>>>>> upstream/android-13
 	switch (host_byte(scmd->result)) {
 	case DID_OK:
 		break;
 	case DID_TIME_OUT:
 		goto check_type;
 	case DID_BUS_BUSY:
+<<<<<<< HEAD
 		return (scmd->request->cmd_flags & REQ_FAILFAST_TRANSPORT);
 	case DID_PARITY:
 		return (scmd->request->cmd_flags & REQ_FAILFAST_DEV);
@@ -1726,6 +2038,20 @@ int scsi_noretry_cmd(struct scsi_cmnd *scmd)
 	}
 
 	if (status_byte(scmd->result) != CHECK_CONDITION)
+=======
+		return req->cmd_flags & REQ_FAILFAST_TRANSPORT;
+	case DID_PARITY:
+		return req->cmd_flags & REQ_FAILFAST_DEV;
+	case DID_ERROR:
+		if (get_status_byte(scmd) == SAM_STAT_RESERVATION_CONFLICT)
+			return 0;
+		fallthrough;
+	case DID_SOFT_ERROR:
+		return req->cmd_flags & REQ_FAILFAST_DRIVER;
+	}
+
+	if (!scsi_status_is_check_condition(scmd->result))
+>>>>>>> upstream/android-13
 		return 0;
 
 check_type:
@@ -1733,11 +2059,18 @@ check_type:
 	 * assume caller has checked sense and determined
 	 * the check condition was retryable.
 	 */
+<<<<<<< HEAD
 	if (scmd->request->cmd_flags & REQ_FAILFAST_DEV ||
 	    blk_rq_is_passthrough(scmd->request))
 		return 1;
 	else
 		return 0;
+=======
+	if (req->cmd_flags & REQ_FAILFAST_DEV || blk_rq_is_passthrough(req))
+		return 1;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1754,9 +2087,15 @@ check_type:
  *    doesn't require the error handler read (i.e. we don't need to
  *    abort/reset), this function should return SUCCESS.
  */
+<<<<<<< HEAD
 int scsi_decide_disposition(struct scsi_cmnd *scmd)
 {
 	int rtn;
+=======
+enum scsi_disposition scsi_decide_disposition(struct scsi_cmnd *scmd)
+{
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 
 	/*
 	 * if the device is offline, then we clearly just pass the result back
@@ -1791,7 +2130,11 @@ int scsi_decide_disposition(struct scsi_cmnd *scmd)
 			set_host_byte(scmd, DID_TIME_OUT);
 			return SUCCESS;
 		}
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DID_NO_CONNECT:
 	case DID_BAD_TARGET:
 		/*
@@ -1827,15 +2170,30 @@ int scsi_decide_disposition(struct scsi_cmnd *scmd)
 		 * the fast io fail tmo fired), so send IO directly upwards.
 		 */
 		return SUCCESS;
+<<<<<<< HEAD
 	case DID_ERROR:
 		if (msg_byte(scmd->result) == COMMAND_COMPLETE &&
 		    status_byte(scmd->result) == RESERVATION_CONFLICT)
+=======
+	case DID_TRANSPORT_MARGINAL:
+		/*
+		 * caller has decided not to do retries on
+		 * abort success, so send IO directly upwards
+		 */
+		return SUCCESS;
+	case DID_ERROR:
+		if (get_status_byte(scmd) == SAM_STAT_RESERVATION_CONFLICT)
+>>>>>>> upstream/android-13
 			/*
 			 * execute reservation conflict processing code
 			 * lower down
 			 */
 			break;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DID_BUS_BUSY:
 	case DID_PARITY:
 		goto maybe_retry;
@@ -1858,6 +2216,7 @@ int scsi_decide_disposition(struct scsi_cmnd *scmd)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * next, check the message byte.
 	 */
 	if (msg_byte(scmd->result) != COMMAND_COMPLETE)
@@ -1868,13 +2227,24 @@ int scsi_decide_disposition(struct scsi_cmnd *scmd)
 	 */
 	switch (status_byte(scmd->result)) {
 	case QUEUE_FULL:
+=======
+	 * check the status byte to see if this indicates anything special.
+	 */
+	switch (get_status_byte(scmd)) {
+	case SAM_STAT_TASK_SET_FULL:
+>>>>>>> upstream/android-13
 		scsi_handle_queue_full(scmd->device);
 		/*
 		 * the case of trying to send too many commands to a
 		 * tagged queueing device.
 		 */
+<<<<<<< HEAD
 		/* FALLTHROUGH */
 	case BUSY:
+=======
+		fallthrough;
+	case SAM_STAT_BUSY:
+>>>>>>> upstream/android-13
 		/*
 		 * device can't talk to us at the moment.  Should only
 		 * occur (SAM-3) when the task queue is empty, so will cause
@@ -1882,6 +2252,7 @@ int scsi_decide_disposition(struct scsi_cmnd *scmd)
 		 * device.
 		 */
 		return ADD_TO_MLQUEUE;
+<<<<<<< HEAD
 	case GOOD:
 		if (scmd->cmnd[0] == REPORT_LUNS)
 			scmd->device->sdev_target->expecting_lun_change = 0;
@@ -1892,6 +2263,18 @@ int scsi_decide_disposition(struct scsi_cmnd *scmd)
 	case TASK_ABORTED:
 		goto maybe_retry;
 	case CHECK_CONDITION:
+=======
+	case SAM_STAT_GOOD:
+		if (scmd->cmnd[0] == REPORT_LUNS)
+			scmd->device->sdev_target->expecting_lun_change = 0;
+		scsi_handle_queue_ramp_up(scmd->device);
+		fallthrough;
+	case SAM_STAT_COMMAND_TERMINATED:
+		return SUCCESS;
+	case SAM_STAT_TASK_ABORTED:
+		goto maybe_retry;
+	case SAM_STAT_CHECK_CONDITION:
+>>>>>>> upstream/android-13
 		rtn = scsi_check_sense(scmd);
 		if (rtn == NEEDS_RETRY)
 			goto maybe_retry;
@@ -1900,16 +2283,27 @@ int scsi_decide_disposition(struct scsi_cmnd *scmd)
 		 * to collect the sense and redo the decide
 		 * disposition */
 		return rtn;
+<<<<<<< HEAD
 	case CONDITION_GOOD:
 	case INTERMEDIATE_GOOD:
 	case INTERMEDIATE_C_GOOD:
 	case ACA_ACTIVE:
+=======
+	case SAM_STAT_CONDITION_MET:
+	case SAM_STAT_INTERMEDIATE:
+	case SAM_STAT_INTERMEDIATE_CONDITION_MET:
+	case SAM_STAT_ACA_ACTIVE:
+>>>>>>> upstream/android-13
 		/*
 		 * who knows?  FIXME(eric)
 		 */
 		return SUCCESS;
 
+<<<<<<< HEAD
 	case RESERVATION_CONFLICT:
+=======
+	case SAM_STAT_RESERVATION_CONFLICT:
+>>>>>>> upstream/android-13
 		sdev_printk(KERN_INFO, scmd->device,
 			    "reservation conflict\n");
 		set_host_byte(scmd, DID_NEXUS_FAILURE);
@@ -1925,8 +2319,12 @@ maybe_retry:
 	 * the request was not marked fast fail.  Note that above,
 	 * even if the request is marked fast fail, we still requeue
 	 * for queue congestion conditions (QUEUE_FULL or BUSY) */
+<<<<<<< HEAD
 	if ((++scmd->retries) <= scmd->allowed
 	    && !scsi_noretry_cmd(scmd)) {
+=======
+	if (scsi_cmd_retry_allowed(scmd) && !scsi_noretry_cmd(scmd)) {
+>>>>>>> upstream/android-13
 		return NEEDS_RETRY;
 	} else {
 		/*
@@ -1938,7 +2336,11 @@ maybe_retry:
 
 static void eh_lock_door_done(struct request *req, blk_status_t status)
 {
+<<<<<<< HEAD
 	__blk_put_request(req->q, req);
+=======
+	blk_put_request(req);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1957,7 +2359,11 @@ static void scsi_eh_lock_door(struct scsi_device *sdev)
 	struct request *req;
 	struct scsi_request *rq;
 
+<<<<<<< HEAD
 	req = blk_get_request(sdev->request_queue, REQ_OP_SCSI_IN, 0);
+=======
+	req = blk_get_request(sdev->request_queue, REQ_OP_DRV_IN, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(req))
 		return;
 	rq = scsi_req(req);
@@ -1974,7 +2380,11 @@ static void scsi_eh_lock_door(struct scsi_device *sdev)
 	req->timeout = 10 * HZ;
 	rq->retries = 5;
 
+<<<<<<< HEAD
 	blk_execute_rq_nowait(req->q, NULL, req, 1, eh_lock_door_done);
+=======
+	blk_execute_rq_nowait(NULL, req, 1, eh_lock_door_done);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2072,8 +2482,13 @@ void scsi_eh_flush_done_q(struct list_head *done_q)
 	list_for_each_entry_safe(scmd, next, done_q, eh_entry) {
 		list_del_init(&scmd->eh_entry);
 		if (scsi_device_online(scmd->device) &&
+<<<<<<< HEAD
 		    !scsi_noretry_cmd(scmd) &&
 		    (++scmd->retries <= scmd->allowed)) {
+=======
+		    !scsi_noretry_cmd(scmd) && scsi_cmd_retry_allowed(scmd) &&
+			scsi_eh_should_retry_cmd(scmd)) {
+>>>>>>> upstream/android-13
 			SCSI_LOG_ERROR_RECOVERY(3,
 				scmd_printk(KERN_INFO, scmd,
 					     "%s: flush retry cmd\n",
@@ -2083,10 +2498,17 @@ void scsi_eh_flush_done_q(struct list_head *done_q)
 			/*
 			 * If just we got sense for the device (called
 			 * scsi_eh_get_sense), scmd->result is already
+<<<<<<< HEAD
 			 * set, do not set DRIVER_TIMEOUT.
 			 */
 			if (!scmd->result)
 				scmd->result |= (DRIVER_TIMEOUT << 24);
+=======
+			 * set, do not set DID_TIME_OUT.
+			 */
+			if (!scmd->result)
+				scmd->result |= (DID_TIME_OUT << 16);
+>>>>>>> upstream/android-13
 			SCSI_LOG_ERROR_RECOVERY(3,
 				scmd_printk(KERN_INFO, scmd,
 					     "%s: flush finish cmd\n",
@@ -2314,7 +2736,12 @@ scsi_ioctl_reset(struct scsi_device *dev, int __user *arg)
 	struct Scsi_Host *shost = dev->host;
 	struct request *rq;
 	unsigned long flags;
+<<<<<<< HEAD
 	int error = 0, rtn, val;
+=======
+	int error = 0, val;
+	enum scsi_disposition rtn;
+>>>>>>> upstream/android-13
 
 	if (!capable(CAP_SYS_ADMIN) || !capable(CAP_SYS_RAWIO))
 		return -EACCES;
@@ -2335,7 +2762,10 @@ scsi_ioctl_reset(struct scsi_device *dev, int __user *arg)
 
 	scmd = (struct scsi_cmnd *)(rq + 1);
 	scsi_init_command(dev, scmd);
+<<<<<<< HEAD
 	scmd->request = rq;
+=======
+>>>>>>> upstream/android-13
 	scmd->cmnd = scsi_req(rq)->cmd;
 
 	scmd->scsi_done		= scsi_reset_provider_done_command;
@@ -2357,22 +2787,38 @@ scsi_ioctl_reset(struct scsi_device *dev, int __user *arg)
 		rtn = scsi_try_bus_device_reset(scmd);
 		if (rtn == SUCCESS || (val & SG_SCSI_RESET_NO_ESCALATE))
 			break;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SG_SCSI_RESET_TARGET:
 		rtn = scsi_try_target_reset(scmd);
 		if (rtn == SUCCESS || (val & SG_SCSI_RESET_NO_ESCALATE))
 			break;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SG_SCSI_RESET_BUS:
 		rtn = scsi_try_bus_reset(scmd);
 		if (rtn == SUCCESS || (val & SG_SCSI_RESET_NO_ESCALATE))
 			break;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SG_SCSI_RESET_HOST:
 		rtn = scsi_try_host_reset(scmd);
 		if (rtn == SUCCESS)
 			break;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		rtn = FAILED;
 		break;
@@ -2395,14 +2841,20 @@ scsi_ioctl_reset(struct scsi_device *dev, int __user *arg)
 	wake_up(&shost->host_wait);
 	scsi_run_host_queues(shost);
 
+<<<<<<< HEAD
 	scsi_put_command(scmd);
+=======
+>>>>>>> upstream/android-13
 	kfree(rq);
 
 out_put_autopm_host:
 	scsi_autopm_put_host(shost);
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(scsi_ioctl_reset);
+=======
+>>>>>>> upstream/android-13
 
 bool scsi_command_normalize_sense(const struct scsi_cmnd *cmd,
 				  struct scsi_sense_hdr *sshdr)

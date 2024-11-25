@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Afatech AF9035 DVB USB driver
  *
  * Copyright (C) 2009 Antti Palosaari <crope@iki.fi>
  * Copyright (C) 2012 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef AF9035_H
@@ -69,6 +76,10 @@ struct state {
 	u8 dual_mode:1;
 	u8 no_read:1;
 	u8 af9033_i2c_addr[2];
+<<<<<<< HEAD
+=======
+	u8 it930x_addresses;
+>>>>>>> upstream/android-13
 	struct af9033_config af9033_config[2];
 	struct af9033_ops ops;
 	#define AF9035_I2C_CLIENT_MAX 4
@@ -77,6 +88,20 @@ struct state {
 	struct platform_device *platform_device_tuner[2];
 };
 
+<<<<<<< HEAD
+=======
+struct address_table {
+	u8 frontend_i2c_addr;
+	u8 tuner_i2c_addr;
+	u8 tuner_if_port;
+};
+
+static const struct address_table it930x_addresses_table[] = {
+	{ 0x67, 0x63, 1 },
+	{ 0x64, 0x60, 0 },
+};
+
+>>>>>>> upstream/android-13
 static const u32 clock_lut_af9035[] = {
 	20480000, /*      FPGA */
 	16384000, /* 16.38 MHz */

@@ -3,6 +3,10 @@
 #include <linux/bug.h>
 #include <linux/atomic.h>
 #include <linux/errseq.h>
+<<<<<<< HEAD
+=======
+#include <linux/log2.h>
+>>>>>>> upstream/android-13
 
 /*
  * An errseq_t is a way of recording errors in one place, and allowing any

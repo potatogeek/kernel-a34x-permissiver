@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # Makefile for cpupower
 #
 # Copyright (C) 2005,2006 Dominik Brodowski <linux@dominikbrodowski.net>
@@ -6,6 +10,7 @@
 #
 # Copyright (C) 2003,2004 Greg Kroah-Hartman <greg@kroah.com>
 #
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; version 2 of the License.
@@ -19,6 +24,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
+=======
+>>>>>>> upstream/android-13
 OUTPUT=./
 ifeq ("$(origin O)", "command line")
 	OUTPUT := $(O)/
@@ -30,7 +37,10 @@ OUTDIR := $(shell cd $(OUTPUT) && pwd)
 $(if $(OUTDIR),, $(error output directory "$(OUTPUT)" does not exist))
 endif
 
+<<<<<<< HEAD
 include ../../scripts/Makefile.arch
+=======
+>>>>>>> upstream/android-13
 
 # --- CONFIGURATION BEGIN ---
 
@@ -64,7 +74,11 @@ DESTDIR ?=
 # Package-related definitions. Distributions can modify the version
 # and _should_ modify the PACKAGE_BUGREPORT definition
 
+<<<<<<< HEAD
 VERSION=			$(shell ./utils/version-gen.sh)
+=======
+VERSION:=			$(shell ./utils/version-gen.sh)
+>>>>>>> upstream/android-13
 LIB_MAJ=			0.0.1
 LIB_MIN=			0
 
@@ -81,6 +95,7 @@ bindir ?=	/usr/bin
 sbindir ?=	/usr/sbin
 mandir ?=	/usr/man
 includedir ?=	/usr/include
+<<<<<<< HEAD
 ifeq ($(IS_64_BIT), 1)
 libdir ?=	/usr/lib64
 else
@@ -89,6 +104,12 @@ endif
 localedir ?=	/usr/share/locale
 docdir ?=       /usr/share/doc/packages/cpupower
 confdir ?=      /etc/
+=======
+localedir ?=	/usr/share/locale
+docdir ?=       /usr/share/doc/packages/cpupower
+confdir ?=      /etc/
+bash_completion_dir ?= /usr/share/bash-completion/completions
+>>>>>>> upstream/android-13
 
 # Toolchain: what tools do we use, and what options do they need:
 
@@ -96,7 +117,12 @@ CP = cp -fpR
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA  = ${INSTALL} -m 644
+<<<<<<< HEAD
 INSTALL_SCRIPT = ${INSTALL_PROGRAM}
+=======
+#bash completion scripts get sourced and so they should be rw only.
+INSTALL_SCRIPT = ${INSTALL} -m 644
+>>>>>>> upstream/android-13
 
 # If you are running a cross compiler, you may want to set this
 # to something more interesting, like "arm-linux-".  If you want
@@ -110,6 +136,17 @@ RANLIB = $(CROSS)ranlib
 HOSTCC = gcc
 MKDIR = mkdir
 
+<<<<<<< HEAD
+=======
+# 64bit library detection
+include ../../scripts/Makefile.arch
+
+ifeq ($(IS_64_BIT), 1)
+libdir ?=	/usr/lib64
+else
+libdir ?=	/usr/lib
+endif
+>>>>>>> upstream/android-13
 
 # Now we set up the build system
 #
@@ -129,7 +166,11 @@ WARNINGS += $(call cc-supports,-Wno-pointer-sign)
 WARNINGS += $(call cc-supports,-Wdeclaration-after-statement)
 WARNINGS += -Wshadow
 
+<<<<<<< HEAD
 CFLAGS += -DVERSION=\"$(VERSION)\" -DPACKAGE=\"$(PACKAGE)\" \
+=======
+override CFLAGS += -DVERSION=\"$(VERSION)\" -DPACKAGE=\"$(PACKAGE)\" \
+>>>>>>> upstream/android-13
 		-DPACKAGE_BUGREPORT=\"$(PACKAGE_BUGREPORT)\" -D_GNU_SOURCE
 
 UTIL_OBJS =  utils/helpers/amd.o utils/helpers/msr.o \
@@ -156,12 +197,20 @@ LIB_SRC = 	lib/cpufreq.c lib/cpupower.c lib/cpuidle.c
 LIB_OBJS = 	lib/cpufreq.o lib/cpupower.o lib/cpuidle.o
 LIB_OBJS :=	$(addprefix $(OUTPUT),$(LIB_OBJS))
 
+<<<<<<< HEAD
 CFLAGS +=	-pipe
+=======
+override CFLAGS +=	-pipe
+>>>>>>> upstream/android-13
 
 ifeq ($(strip $(NLS)),true)
 	INSTALL_NLS += install-gmo
 	COMPILE_NLS += create-gmo
+<<<<<<< HEAD
 	CFLAGS += -DNLS
+=======
+	override CFLAGS += -DNLS
+>>>>>>> upstream/android-13
 endif
 
 ifeq ($(strip $(CPUFREQ_BENCH)),true)
@@ -175,7 +224,11 @@ ifeq ($(strip $(STATIC)),true)
         UTIL_SRC += $(LIB_SRC)
 endif
 
+<<<<<<< HEAD
 CFLAGS += $(WARNINGS)
+=======
+override CFLAGS += $(WARNINGS)
+>>>>>>> upstream/android-13
 
 ifeq ($(strip $(V)),false)
 	QUIET=@
@@ -188,10 +241,17 @@ export QUIET ECHO
 
 # if DEBUG is enabled, then we do not strip or optimize
 ifeq ($(strip $(DEBUG)),true)
+<<<<<<< HEAD
 	CFLAGS += -O1 -g -DDEBUG
 	STRIPCMD = /bin/true -Since_we_are_debugging
 else
 	CFLAGS += $(OPTIMIZATION) -fomit-frame-pointer
+=======
+	override CFLAGS += -O1 -g -DDEBUG
+	STRIPCMD = /bin/true -Since_we_are_debugging
+else
+	override CFLAGS += $(OPTIMIZATION) -fomit-frame-pointer
+>>>>>>> upstream/android-13
 	STRIPCMD = $(STRIP) -s --remove-section=.note --remove-section=.comment
 endif
 
@@ -278,16 +338,28 @@ clean:
 	$(MAKE) -C bench O=$(OUTPUT) clean
 
 
+<<<<<<< HEAD
 install-lib:
+=======
+install-lib: libcpupower
+>>>>>>> upstream/android-13
 	$(INSTALL) -d $(DESTDIR)${libdir}
 	$(CP) $(OUTPUT)libcpupower.so* $(DESTDIR)${libdir}/
 	$(INSTALL) -d $(DESTDIR)${includedir}
 	$(INSTALL_DATA) lib/cpufreq.h $(DESTDIR)${includedir}/cpufreq.h
 	$(INSTALL_DATA) lib/cpuidle.h $(DESTDIR)${includedir}/cpuidle.h
 
+<<<<<<< HEAD
 install-tools:
 	$(INSTALL) -d $(DESTDIR)${bindir}
 	$(INSTALL_PROGRAM) $(OUTPUT)cpupower $(DESTDIR)${bindir}
+=======
+install-tools: $(OUTPUT)cpupower
+	$(INSTALL) -d $(DESTDIR)${bindir}
+	$(INSTALL_PROGRAM) $(OUTPUT)cpupower $(DESTDIR)${bindir}
+	$(INSTALL) -d $(DESTDIR)${bash_completion_dir}
+	$(INSTALL_SCRIPT) cpupower-completion.sh '$(DESTDIR)${bash_completion_dir}/cpupower'
+>>>>>>> upstream/android-13
 
 install-man:
 	$(INSTALL_DATA) -D man/cpupower.1 $(DESTDIR)${mandir}/man1/cpupower.1
@@ -299,14 +371,22 @@ install-man:
 	$(INSTALL_DATA) -D man/cpupower-info.1 $(DESTDIR)${mandir}/man1/cpupower-info.1
 	$(INSTALL_DATA) -D man/cpupower-monitor.1 $(DESTDIR)${mandir}/man1/cpupower-monitor.1
 
+<<<<<<< HEAD
 install-gmo:
+=======
+install-gmo: create-gmo
+>>>>>>> upstream/android-13
 	$(INSTALL) -d $(DESTDIR)${localedir}
 	for HLANG in $(LANGUAGES); do \
 		echo '$(INSTALL_DATA) -D $(OUTPUT)po/$$HLANG.gmo $(DESTDIR)${localedir}/$$HLANG/LC_MESSAGES/cpupower.mo'; \
 		$(INSTALL_DATA) -D $(OUTPUT)po/$$HLANG.gmo $(DESTDIR)${localedir}/$$HLANG/LC_MESSAGES/cpupower.mo; \
 	done;
 
+<<<<<<< HEAD
 install-bench:
+=======
+install-bench: compile-bench
+>>>>>>> upstream/android-13
 	@#DESTDIR must be set from outside to survive
 	@sbindir=$(sbindir) bindir=$(bindir) docdir=$(docdir) confdir=$(confdir) $(MAKE) -C bench O=$(OUTPUT) install
 

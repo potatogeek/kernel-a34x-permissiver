@@ -6,7 +6,10 @@
  */
 
 #include "check.h"
+<<<<<<< HEAD
 #include "aix.h"
+=======
+>>>>>>> upstream/android-13
 
 struct lvm_rec {
 	char lvm_id[4]; /* "_LVM" */
@@ -68,6 +71,7 @@ struct pvd {
 #define LVM_MAXLVS 256
 
 /**
+<<<<<<< HEAD
  * last_lba(): return number of last logical block of device
  * @bdev: block device
  *
@@ -84,13 +88,19 @@ static u64 last_lba(struct block_device *bdev)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * read_lba(): Read bytes from disk, starting at given LBA
  * @state
  * @lba
  * @buffer
  * @count
  *
+<<<<<<< HEAD
  * Description:  Reads @count bytes from @state->bdev into @buffer.
+=======
+ * Description:  Reads @count bytes from @state->disk into @buffer.
+>>>>>>> upstream/android-13
  * Returns number of bytes read on success, 0 on error.
  */
 static size_t read_lba(struct parsed_partitions *state, u64 lba, u8 *buffer,
@@ -98,7 +108,11 @@ static size_t read_lba(struct parsed_partitions *state, u64 lba, u8 *buffer,
 {
 	size_t totalreadcount = 0;
 
+<<<<<<< HEAD
 	if (!buffer || lba + count / 512 > last_lba(state->bdev))
+=======
+	if (!buffer || lba + count / 512 > get_capacity(state->disk) - 1ULL)
+>>>>>>> upstream/android-13
 		return 0;
 
 	while (count) {

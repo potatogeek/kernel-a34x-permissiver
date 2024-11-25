@@ -9,10 +9,19 @@ host1x-y = \
 	job.o \
 	debug.o \
 	mipi.o \
+<<<<<<< HEAD
+=======
+	fence.o \
+>>>>>>> upstream/android-13
 	hw/host1x01.o \
 	hw/host1x02.o \
 	hw/host1x04.o \
 	hw/host1x05.o \
+<<<<<<< HEAD
 	hw/host1x06.o
+=======
+	hw/host1x06.o \
+	hw/host1x07.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_TEGRA_HOST1X) += host1x.o

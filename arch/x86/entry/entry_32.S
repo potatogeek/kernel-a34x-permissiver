@@ -20,7 +20,11 @@
  *	1C(%esp) - %ds
  *	20(%esp) - %es
  *	24(%esp) - %fs
+<<<<<<< HEAD
  *	28(%esp) - %gs		saved iff !CONFIG_X86_32_LAZY_GS
+=======
+ *	28(%esp) - unused -- was %gs on old stackprotector kernels
+>>>>>>> upstream/android-13
  *	2C(%esp) - orig_eax
  *	30(%esp) - %eip
  *	34(%esp) - %cs
@@ -40,6 +44,7 @@
 #include <asm/processor-flags.h>
 #include <asm/irq_vectors.h>
 #include <asm/cpufeatures.h>
+<<<<<<< HEAD
 #include <asm/alternative-asm.h>
 #include <asm/asm.h>
 #include <asm/smap.h>
@@ -156,6 +161,21 @@
 
 #endif /* CONFIG_X86_32_LAZY_GS */
 
+=======
+#include <asm/alternative.h>
+#include <asm/asm.h>
+#include <asm/smap.h>
+#include <asm/frame.h>
+#include <asm/trapnr.h>
+#include <asm/nospec-branch.h>
+
+#include "calling.h"
+
+	.section .entry.text, "ax"
+
+#define PTI_SWITCH_MASK         (1 << PAGE_SHIFT)
+
+>>>>>>> upstream/android-13
 /* Unconditionally switch to user cr3 */
 .macro SWITCH_TO_USER_CR3 scratch_reg:req
 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_PTI
@@ -171,7 +191,11 @@
 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_PTI
 	.if \no_user_check == 0
 	/* coming from usermode? */
+<<<<<<< HEAD
 	testl	$SEGMENT_RPL_MASK, PT_CS(%esp)
+=======
+	testl	$USER_SEGMENT_RPL_MASK, PT_CS(%esp)
+>>>>>>> upstream/android-13
 	jz	.Lend_\@
 	.endif
 	/* On user-cr3? */
@@ -201,10 +225,133 @@
 .Lend_\@:
 .endm
 
+<<<<<<< HEAD
 .macro SAVE_ALL pt_regs_ax=%eax switch_stacks=0
 	cld
 	PUSH_GS
 	pushl	%fs
+=======
+#define CS_FROM_ENTRY_STACK	(1 << 31)
+#define CS_FROM_USER_CR3	(1 << 30)
+#define CS_FROM_KERNEL		(1 << 29)
+#define CS_FROM_ESPFIX		(1 << 28)
+
+.macro FIXUP_FRAME
+	/*
+	 * The high bits of the CS dword (__csh) are used for CS_FROM_*.
+	 * Clear them in case hardware didn't do this for us.
+	 */
+	andl	$0x0000ffff, 4*4(%esp)
+
+#ifdef CONFIG_VM86
+	testl	$X86_EFLAGS_VM, 5*4(%esp)
+	jnz	.Lfrom_usermode_no_fixup_\@
+#endif
+	testl	$USER_SEGMENT_RPL_MASK, 4*4(%esp)
+	jnz	.Lfrom_usermode_no_fixup_\@
+
+	orl	$CS_FROM_KERNEL, 4*4(%esp)
+
+	/*
+	 * When we're here from kernel mode; the (exception) stack looks like:
+	 *
+	 *  6*4(%esp) - <previous context>
+	 *  5*4(%esp) - flags
+	 *  4*4(%esp) - cs
+	 *  3*4(%esp) - ip
+	 *  2*4(%esp) - orig_eax
+	 *  1*4(%esp) - gs / function
+	 *  0*4(%esp) - fs
+	 *
+	 * Lets build a 5 entry IRET frame after that, such that struct pt_regs
+	 * is complete and in particular regs->sp is correct. This gives us
+	 * the original 6 entries as gap:
+	 *
+	 * 14*4(%esp) - <previous context>
+	 * 13*4(%esp) - gap / flags
+	 * 12*4(%esp) - gap / cs
+	 * 11*4(%esp) - gap / ip
+	 * 10*4(%esp) - gap / orig_eax
+	 *  9*4(%esp) - gap / gs / function
+	 *  8*4(%esp) - gap / fs
+	 *  7*4(%esp) - ss
+	 *  6*4(%esp) - sp
+	 *  5*4(%esp) - flags
+	 *  4*4(%esp) - cs
+	 *  3*4(%esp) - ip
+	 *  2*4(%esp) - orig_eax
+	 *  1*4(%esp) - gs / function
+	 *  0*4(%esp) - fs
+	 */
+
+	pushl	%ss		# ss
+	pushl	%esp		# sp (points at ss)
+	addl	$7*4, (%esp)	# point sp back at the previous context
+	pushl	7*4(%esp)	# flags
+	pushl	7*4(%esp)	# cs
+	pushl	7*4(%esp)	# ip
+	pushl	7*4(%esp)	# orig_eax
+	pushl	7*4(%esp)	# gs / function
+	pushl	7*4(%esp)	# fs
+.Lfrom_usermode_no_fixup_\@:
+.endm
+
+.macro IRET_FRAME
+	/*
+	 * We're called with %ds, %es, %fs, and %gs from the interrupted
+	 * frame, so we shouldn't use them.  Also, we may be in ESPFIX
+	 * mode and therefore have a nonzero SS base and an offset ESP,
+	 * so any attempt to access the stack needs to use SS.  (except for
+	 * accesses through %esp, which automatically use SS.)
+	 */
+	testl $CS_FROM_KERNEL, 1*4(%esp)
+	jz .Lfinished_frame_\@
+
+	/*
+	 * Reconstruct the 3 entry IRET frame right after the (modified)
+	 * regs->sp without lowering %esp in between, such that an NMI in the
+	 * middle doesn't scribble our stack.
+	 */
+	pushl	%eax
+	pushl	%ecx
+	movl	5*4(%esp), %eax		# (modified) regs->sp
+
+	movl	4*4(%esp), %ecx		# flags
+	movl	%ecx, %ss:-1*4(%eax)
+
+	movl	3*4(%esp), %ecx		# cs
+	andl	$0x0000ffff, %ecx
+	movl	%ecx, %ss:-2*4(%eax)
+
+	movl	2*4(%esp), %ecx		# ip
+	movl	%ecx, %ss:-3*4(%eax)
+
+	movl	1*4(%esp), %ecx		# eax
+	movl	%ecx, %ss:-4*4(%eax)
+
+	popl	%ecx
+	lea	-4*4(%eax), %esp
+	popl	%eax
+.Lfinished_frame_\@:
+.endm
+
+.macro SAVE_ALL pt_regs_ax=%eax switch_stacks=0 skip_gs=0 unwind_espfix=0
+	cld
+.if \skip_gs == 0
+	pushl	$0
+.endif
+	pushl	%fs
+
+	pushl	%eax
+	movl	$(__KERNEL_PERCPU), %eax
+	movl	%eax, %fs
+.if \unwind_espfix > 0
+	UNWIND_ESPFIX_STACK
+.endif
+	popl	%eax
+
+	FIXUP_FRAME
+>>>>>>> upstream/android-13
 	pushl	%es
 	pushl	%ds
 	pushl	\pt_regs_ax
@@ -217,19 +364,29 @@
 	movl	$(__USER_DS), %edx
 	movl	%edx, %ds
 	movl	%edx, %es
+<<<<<<< HEAD
 	movl	$(__KERNEL_PERCPU), %edx
 	movl	%edx, %fs
 	SET_KERNEL_GS %edx
 
+=======
+>>>>>>> upstream/android-13
 	/* Switch to kernel stack if necessary */
 .if \switch_stacks > 0
 	SWITCH_TO_KERNEL_STACK
 .endif
+<<<<<<< HEAD
 
 .endm
 
 .macro SAVE_ALL_NMI cr3_reg:req
 	SAVE_ALL
+=======
+.endm
+
+.macro SAVE_ALL_NMI cr3_reg:req unwind_espfix=0
+	SAVE_ALL unwind_espfix=\unwind_espfix
+>>>>>>> upstream/android-13
 
 	BUG_IF_WRONG_CR3
 
@@ -260,7 +417,12 @@
 1:	popl	%ds
 2:	popl	%es
 3:	popl	%fs
+<<<<<<< HEAD
 	POP_GS \pop
+=======
+	addl	$(4 + \pop), %esp	/* pop the unused "gs" slot */
+	IRET_FRAME
+>>>>>>> upstream/android-13
 .pushsection .fixup, "ax"
 4:	movl	$0, (%esp)
 	jmp	1b
@@ -272,7 +434,10 @@
 	_ASM_EXTABLE(1b, 4b)
 	_ASM_EXTABLE(2b, 5b)
 	_ASM_EXTABLE(3b, 6b)
+<<<<<<< HEAD
 	POP_GS_EX
+=======
+>>>>>>> upstream/android-13
 .endm
 
 .macro RESTORE_ALL_NMI cr3_reg:req pop=0
@@ -299,7 +464,12 @@
 
 .macro CHECK_AND_APPLY_ESPFIX
 #ifdef CONFIG_X86_ESPFIX32
+<<<<<<< HEAD
 #define GDT_ESPFIX_SS PER_CPU_VAR(gdt_page) + (GDT_ENTRY_ESPFIX_SS * 8)
+=======
+#define GDT_ESPFIX_OFFSET (GDT_ENTRY_ESPFIX_SS * 8)
+#define GDT_ESPFIX_SS PER_CPU_VAR(gdt_page) + GDT_ESPFIX_OFFSET
+>>>>>>> upstream/android-13
 
 	ALTERNATIVE	"jmp .Lend_\@", "", X86_BUG_ESPFIX
 
@@ -340,7 +510,11 @@
 	 * will soon execute iret and the tracer was already set to
 	 * the irqstate after the IRET:
 	 */
+<<<<<<< HEAD
 	DISABLE_INTERRUPTS(CLBR_ANY)
+=======
+	cli
+>>>>>>> upstream/android-13
 	lss	(%esp), %esp			/* switch to espfix segment */
 .Lend_\@:
 #endif /* CONFIG_X86_ESPFIX32 */
@@ -357,6 +531,7 @@
  * switch to it before we do any copying.
  */
 
+<<<<<<< HEAD
 #define CS_FROM_ENTRY_STACK	(1 << 31)
 #define CS_FROM_USER_CR3	(1 << 30)
 
@@ -364,6 +539,10 @@
 
 	ALTERNATIVE     "", "jmp .Lend_\@", X86_FEATURE_XENPV
 
+=======
+.macro SWITCH_TO_KERNEL_STACK
+
+>>>>>>> upstream/android-13
 	BUG_IF_WRONG_CR3
 
 	SWITCH_TO_KERNEL_CR3 scratch_reg=%eax
@@ -373,6 +552,7 @@
 	 * that register for the time this macro runs
 	 */
 
+<<<<<<< HEAD
 	/*
 	 * The high bits of the CS dword (__csh) are used for
 	 * CS_FROM_ENTRY_STACK and CS_FROM_USER_CR3. Clear them in case
@@ -380,6 +560,8 @@
 	 */
 	andl	$(0x0000ffff), PT_CS(%esp)
 
+=======
+>>>>>>> upstream/android-13
 	/* Are we on the entry stack? Bail out if not! */
 	movl	PER_CPU_VAR(cpu_entry_area), %ecx
 	addl	$CPU_ENTRY_AREA_entry_stack + SIZEOF_entry_stack, %ecx
@@ -519,8 +701,11 @@
  */
 .macro SWITCH_TO_ENTRY_STACK
 
+<<<<<<< HEAD
 	ALTERNATIVE     "", "jmp .Lend_\@", X86_FEATURE_XENPV
 
+=======
+>>>>>>> upstream/android-13
 	/* Bytes to copy */
 	movl	$PTREGS_SIZE, %ecx
 
@@ -619,11 +804,76 @@
 
 .Lend_\@:
 .endm
+<<<<<<< HEAD
+=======
+
+/**
+ * idtentry - Macro to generate entry stubs for simple IDT entries
+ * @vector:		Vector number
+ * @asmsym:		ASM symbol for the entry point
+ * @cfunc:		C function to be called
+ * @has_error_code:	Hardware pushed error code on stack
+ */
+.macro idtentry vector asmsym cfunc has_error_code:req
+SYM_CODE_START(\asmsym)
+	ASM_CLAC
+	cld
+
+	.if \has_error_code == 0
+		pushl	$0		/* Clear the error code */
+	.endif
+
+	/* Push the C-function address into the GS slot */
+	pushl	$\cfunc
+	/* Invoke the common exception entry */
+	jmp	handle_exception
+SYM_CODE_END(\asmsym)
+.endm
+
+.macro idtentry_irq vector cfunc
+	.p2align CONFIG_X86_L1_CACHE_SHIFT
+SYM_CODE_START_LOCAL(asm_\cfunc)
+	ASM_CLAC
+	SAVE_ALL switch_stacks=1
+	ENCODE_FRAME_POINTER
+	movl	%esp, %eax
+	movl	PT_ORIG_EAX(%esp), %edx		/* get the vector from stack */
+	movl	$-1, PT_ORIG_EAX(%esp)		/* no syscall to restart */
+	call	\cfunc
+	jmp	handle_exception_return
+SYM_CODE_END(asm_\cfunc)
+.endm
+
+.macro idtentry_sysvec vector cfunc
+	idtentry \vector asm_\cfunc \cfunc has_error_code=0
+.endm
+
+/*
+ * Include the defines which emit the idt entries which are shared
+ * shared between 32 and 64 bit and emit the __irqentry_text_* markers
+ * so the stacktrace boundary checks work.
+ */
+	.align 16
+	.globl __irqentry_text_start
+__irqentry_text_start:
+
+#include <asm/idtentry.h>
+
+	.align 16
+	.globl __irqentry_text_end
+__irqentry_text_end:
+
+>>>>>>> upstream/android-13
 /*
  * %eax: prev task
  * %edx: next task
  */
+<<<<<<< HEAD
 ENTRY(__switch_to_asm)
+=======
+.pushsection .text, "ax"
+SYM_CODE_START(__switch_to_asm)
+>>>>>>> upstream/android-13
 	/*
 	 * Save callee-saved registers
 	 * This must match the order in struct inactive_task_frame
@@ -632,6 +882,14 @@ ENTRY(__switch_to_asm)
 	pushl	%ebx
 	pushl	%edi
 	pushl	%esi
+<<<<<<< HEAD
+=======
+	/*
+	 * Flags are saved to prevent AC leakage. This could go
+	 * away if objtool would have 32bit support to verify
+	 * the STAC/CLAC correctness.
+	 */
+>>>>>>> upstream/android-13
 	pushfl
 
 	/* switch stack */
@@ -640,7 +898,11 @@ ENTRY(__switch_to_asm)
 
 #ifdef CONFIG_STACKPROTECTOR
 	movl	TASK_stack_canary(%edx), %ebx
+<<<<<<< HEAD
 	movl	%ebx, PER_CPU_VAR(stack_canary)+stack_canary_offset
+=======
+	movl	%ebx, PER_CPU_VAR(__stack_chk_guard)
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_RETPOLINE
@@ -654,15 +916,26 @@ ENTRY(__switch_to_asm)
 	FILL_RETURN_BUFFER %ebx, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_CTXSW
 #endif
 
+<<<<<<< HEAD
 	/* restore callee-saved registers */
 	popfl
+=======
+	/* Restore flags or the incoming task to restore AC state. */
+	popfl
+	/* restore callee-saved registers */
+>>>>>>> upstream/android-13
 	popl	%esi
 	popl	%edi
 	popl	%ebx
 	popl	%ebp
 
 	jmp	__switch_to
+<<<<<<< HEAD
 END(__switch_to_asm)
+=======
+SYM_CODE_END(__switch_to_asm)
+.popsection
+>>>>>>> upstream/android-13
 
 /*
  * The unwinder expects the last frame on the stack to always be at the same
@@ -671,7 +944,12 @@ END(__switch_to_asm)
  * asmlinkage function so its argument has to be pushed on the stack.  This
  * wrapper creates a proper "end of stack" frame header before the call.
  */
+<<<<<<< HEAD
 ENTRY(schedule_tail_wrapper)
+=======
+.pushsection .text, "ax"
+SYM_FUNC_START(schedule_tail_wrapper)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 
 	pushl	%eax
@@ -679,8 +957,15 @@ ENTRY(schedule_tail_wrapper)
 	popl	%eax
 
 	FRAME_END
+<<<<<<< HEAD
 	ret
 ENDPROC(schedule_tail_wrapper)
+=======
+	RET
+SYM_FUNC_END(schedule_tail_wrapper)
+.popsection
+
+>>>>>>> upstream/android-13
 /*
  * A newly forked process directly context switches into this address.
  *
@@ -688,7 +973,12 @@ ENDPROC(schedule_tail_wrapper)
  * ebx: kernel thread func (NULL for user thread)
  * edi: kernel thread arg
  */
+<<<<<<< HEAD
 ENTRY(ret_from_fork)
+=======
+.pushsection .text, "ax"
+SYM_CODE_START(ret_from_fork)
+>>>>>>> upstream/android-13
 	call	schedule_tail_wrapper
 
 	testl	%ebx, %ebx
@@ -697,6 +987,7 @@ ENTRY(ret_from_fork)
 2:
 	/* When we fork, we trace the syscall return in the child, too. */
 	movl    %esp, %eax
+<<<<<<< HEAD
 	call    syscall_return_slowpath
 	jmp     restore_all
 
@@ -706,10 +997,22 @@ ENTRY(ret_from_fork)
 	/*
 	 * A kernel thread is allowed to return here after successfully
 	 * calling do_execve().  Exit to userspace to complete the execve()
+=======
+	call    syscall_exit_to_user_mode
+	jmp     .Lsyscall_32_done
+
+	/* kernel thread */
+1:	movl	%edi, %eax
+	CALL_NOSPEC ebx
+	/*
+	 * A kernel thread is allowed to return here after successfully
+	 * calling kernel_execve().  Exit to userspace to complete the execve()
+>>>>>>> upstream/android-13
 	 * syscall.
 	 */
 	movl	$0, PT_EAX(%esp)
 	jmp	2b
+<<<<<<< HEAD
 END(ret_from_fork)
 
 /*
@@ -760,6 +1063,12 @@ END(resume_kernel)
 #endif
 
 GLOBAL(__begin_SYSENTER_singlestep_region)
+=======
+SYM_CODE_END(ret_from_fork)
+.popsection
+
+SYM_ENTRY(__begin_SYSENTER_singlestep_region, SYM_L_GLOBAL, SYM_A_NONE)
+>>>>>>> upstream/android-13
 /*
  * All code from here through __end_SYSENTER_singlestep_region is subject
  * to being single-stepped if a user program sets TF and executes SYSENTER.
@@ -769,6 +1078,7 @@ GLOBAL(__begin_SYSENTER_singlestep_region)
  * will ignore all of the single-step traps generated in this range.
  */
 
+<<<<<<< HEAD
 #ifdef CONFIG_XEN
 /*
  * Xen doesn't set %esp to be precisely what the normal SYSENTER
@@ -779,6 +1089,8 @@ ENTRY(xen_sysenter_target)
 	jmp	.Lsysenter_past_esp
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * 32-bit SYSENTER entry.
  *
@@ -811,7 +1123,11 @@ ENTRY(xen_sysenter_target)
  * ebp  user stack
  * 0(%ebp) arg6
  */
+<<<<<<< HEAD
 ENTRY(entry_SYSENTER_32)
+=======
+SYM_FUNC_START(entry_SYSENTER_32)
+>>>>>>> upstream/android-13
 	/*
 	 * On entry-stack with all userspace-regs live - save and
 	 * restore eflags and %eax to use it as scratch-reg for the cr3
@@ -829,9 +1145,14 @@ ENTRY(entry_SYSENTER_32)
 
 .Lsysenter_past_esp:
 	pushl	$__USER_DS		/* pt_regs->ss */
+<<<<<<< HEAD
 	pushl	%ebp			/* pt_regs->sp (stashed in bp) */
 	pushfl				/* pt_regs->flags (except IF = 0) */
 	orl	$X86_EFLAGS_IF, (%esp)	/* Fix IF */
+=======
+	pushl	$0			/* pt_regs->sp (placeholder) */
+	pushfl				/* pt_regs->flags (except IF = 0) */
+>>>>>>> upstream/android-13
 	pushl	$__USER_CS		/* pt_regs->cs */
 	pushl	$0			/* pt_regs->ip = 0 (placeholder) */
 	pushl	%eax			/* pt_regs->orig_ax */
@@ -860,6 +1181,7 @@ ENTRY(entry_SYSENTER_32)
 	jnz	.Lsysenter_fix_flags
 .Lsysenter_flags_fixed:
 
+<<<<<<< HEAD
 	/*
 	 * User mode is traced as though IRQs are on, and SYSENTER
 	 * turned them off.
@@ -874,6 +1196,16 @@ ENTRY(entry_SYSENTER_32)
 
 /* Opportunistic SYSEXIT */
 	TRACE_IRQS_ON			/* User mode traces as IRQs on. */
+=======
+	movl	%esp, %eax
+	call	do_SYSENTER_32
+	testl	%eax, %eax
+	jz	.Lsyscall_32_done
+
+	STACKLEAK_ERASE
+
+	/* Opportunistic SYSEXIT */
+>>>>>>> upstream/android-13
 
 	/*
 	 * Setup entry stack - we keep the pointer in %eax and do the
@@ -894,7 +1226,10 @@ ENTRY(entry_SYSENTER_32)
 	movl	PT_EIP(%esp), %edx	/* pt_regs->ip */
 	movl	PT_OLDESP(%esp), %ecx	/* pt_regs->sp */
 1:	mov	PT_FS(%esp), %fs
+<<<<<<< HEAD
 	PTGS_TO_GS
+=======
+>>>>>>> upstream/android-13
 
 	popl	%ebx			/* pt_regs->bx */
 	addl	$2*4, %esp		/* skip pt_regs->cx and pt_regs->dx */
@@ -930,14 +1265,22 @@ ENTRY(entry_SYSENTER_32)
 	jmp	1b
 .popsection
 	_ASM_EXTABLE(1b, 2b)
+<<<<<<< HEAD
 	PTGS_TO_GS_EX
+=======
+>>>>>>> upstream/android-13
 
 .Lsysenter_fix_flags:
 	pushl	$X86_EFLAGS_FIXED
 	popfl
 	jmp	.Lsysenter_flags_fixed
+<<<<<<< HEAD
 GLOBAL(__end_SYSENTER_singlestep_region)
 ENDPROC(entry_SYSENTER_32)
+=======
+SYM_ENTRY(__end_SYSENTER_singlestep_region, SYM_L_GLOBAL, SYM_A_NONE)
+SYM_FUNC_END(entry_SYSENTER_32)
+>>>>>>> upstream/android-13
 
 /*
  * 32-bit legacy system call entry.
@@ -967,12 +1310,17 @@ ENDPROC(entry_SYSENTER_32)
  * edi  arg5
  * ebp  arg6
  */
+<<<<<<< HEAD
 ENTRY(entry_INT80_32)
+=======
+SYM_FUNC_START(entry_INT80_32)
+>>>>>>> upstream/android-13
 	ASM_CLAC
 	pushl	%eax			/* pt_regs->orig_ax */
 
 	SAVE_ALL pt_regs_ax=$-ENOSYS switch_stacks=1	/* save rest */
 
+<<<<<<< HEAD
 	/*
 	 * User mode is traced as though IRQs are on, and the interrupt gate
 	 * turned them off.
@@ -989,6 +1337,17 @@ restore_all:
 .Lrestore_all_notrace:
 	CHECK_AND_APPLY_ESPFIX
 .Lrestore_nocheck:
+=======
+	movl	%esp, %eax
+	call	do_int80_syscall_32
+.Lsyscall_32_done:
+	STACKLEAK_ERASE
+
+restore_all_switch_stack:
+	SWITCH_TO_ENTRY_STACK
+	CHECK_AND_APPLY_ESPFIX
+
+>>>>>>> upstream/android-13
 	/* Switch back to user CR3 */
 	SWITCH_TO_USER_CR3 scratch_reg=%eax
 
@@ -1002,6 +1361,7 @@ restore_all:
 	 * when returning from IPI handler and when returning from
 	 * scheduler to user-space.
 	 */
+<<<<<<< HEAD
 	INTERRUPT_RETURN
 
 restore_all_kernel:
@@ -1015,6 +1375,14 @@ restore_all_kernel:
 ENTRY(iret_exc	)
 	pushl	$0				# no error code
 	pushl	$do_iret_error
+=======
+	iret
+
+.section .fixup, "ax"
+SYM_CODE_START(asm_iret_error)
+	pushl	$0				# no error code
+	pushl	$iret_error
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DEBUG_ENTRY
 	/*
@@ -1028,10 +1396,18 @@ ENTRY(iret_exc	)
 	popl	%eax
 #endif
 
+<<<<<<< HEAD
 	jmp	common_exception
 .previous
 	_ASM_EXTABLE(.Lirq_return, iret_exc)
 ENDPROC(entry_INT80_32)
+=======
+	jmp	handle_exception
+SYM_CODE_END(asm_iret_error)
+.previous
+	_ASM_EXTABLE(.Lirq_return, asm_iret_error)
+SYM_FUNC_END(entry_INT80_32)
+>>>>>>> upstream/android-13
 
 .macro FIXUP_ESPFIX_STACK
 /*
@@ -1040,23 +1416,53 @@ ENDPROC(entry_INT80_32)
  * We can't call C functions using the ESPFIX stack. This code reads
  * the high word of the segment base from the GDT and swiches to the
  * normal stack and adjusts ESP with the matching offset.
+<<<<<<< HEAD
  */
 #ifdef CONFIG_X86_ESPFIX32
 	/* fixup the stack */
 	mov	GDT_ESPFIX_SS + 4, %al /* bits 16..23 */
 	mov	GDT_ESPFIX_SS + 7, %ah /* bits 24..31 */
 	shl	$16, %eax
+=======
+ *
+ * We might be on user CR3 here, so percpu data is not mapped and we can't
+ * access the GDT through the percpu segment.  Instead, use SGDT to find
+ * the cpu_entry_area alias of the GDT.
+ */
+#ifdef CONFIG_X86_ESPFIX32
+	/* fixup the stack */
+	pushl	%ecx
+	subl	$2*4, %esp
+	sgdt	(%esp)
+	movl	2(%esp), %ecx				/* GDT address */
+	/*
+	 * Careful: ECX is a linear pointer, so we need to force base
+	 * zero.  %cs is the only known-linear segment we have right now.
+	 */
+	mov	%cs:GDT_ESPFIX_OFFSET + 4(%ecx), %al	/* bits 16..23 */
+	mov	%cs:GDT_ESPFIX_OFFSET + 7(%ecx), %ah	/* bits 24..31 */
+	shl	$16, %eax
+	addl	$2*4, %esp
+	popl	%ecx
+>>>>>>> upstream/android-13
 	addl	%esp, %eax			/* the adjusted stack pointer */
 	pushl	$__KERNEL_DS
 	pushl	%eax
 	lss	(%esp), %esp			/* switch to the normal stack segment */
 #endif
 .endm
+<<<<<<< HEAD
 .macro UNWIND_ESPFIX_STACK
+=======
+
+.macro UNWIND_ESPFIX_STACK
+	/* It's safe to clobber %eax, all other regs need to be preserved */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_ESPFIX32
 	movl	%ss, %eax
 	/* see if on espfix stack */
 	cmpw	$__ESPFIX_SS, %ax
+<<<<<<< HEAD
 	jne	27f
 	movl	$__KERNEL_DS, %eax
 	movl	%eax, %ds
@@ -1400,6 +1806,93 @@ ENTRY(debug)
 	pushl	$do_debug
 	jmp	common_exception
 END(debug)
+=======
+	jne	.Lno_fixup_\@
+	/* switch to normal stack */
+	FIXUP_ESPFIX_STACK
+.Lno_fixup_\@:
+#endif
+.endm
+
+SYM_CODE_START_LOCAL_NOALIGN(handle_exception)
+	/* the function address is in %gs's slot on the stack */
+	SAVE_ALL switch_stacks=1 skip_gs=1 unwind_espfix=1
+	ENCODE_FRAME_POINTER
+
+	movl	PT_GS(%esp), %edi		# get the function address
+
+	/* fixup orig %eax */
+	movl	PT_ORIG_EAX(%esp), %edx		# get the error code
+	movl	$-1, PT_ORIG_EAX(%esp)		# no syscall to restart
+
+	movl	%esp, %eax			# pt_regs pointer
+	CALL_NOSPEC edi
+
+handle_exception_return:
+#ifdef CONFIG_VM86
+	movl	PT_EFLAGS(%esp), %eax		# mix EFLAGS and CS
+	movb	PT_CS(%esp), %al
+	andl	$(X86_EFLAGS_VM | SEGMENT_RPL_MASK), %eax
+#else
+	/*
+	 * We can be coming here from child spawned by kernel_thread().
+	 */
+	movl	PT_CS(%esp), %eax
+	andl	$SEGMENT_RPL_MASK, %eax
+#endif
+	cmpl	$USER_RPL, %eax			# returning to v8086 or userspace ?
+	jnb	ret_to_user
+
+	PARANOID_EXIT_TO_KERNEL_MODE
+	BUG_IF_WRONG_CR3
+	RESTORE_REGS 4
+	jmp	.Lirq_return
+
+ret_to_user:
+	movl	%esp, %eax
+	jmp	restore_all_switch_stack
+SYM_CODE_END(handle_exception)
+
+SYM_CODE_START(asm_exc_double_fault)
+1:
+	/*
+	 * This is a task gate handler, not an interrupt gate handler.
+	 * The error code is on the stack, but the stack is otherwise
+	 * empty.  Interrupts are off.  Our state is sane with the following
+	 * exceptions:
+	 *
+	 *  - CR0.TS is set.  "TS" literally means "task switched".
+	 *  - EFLAGS.NT is set because we're a "nested task".
+	 *  - The doublefault TSS has back_link set and has been marked busy.
+	 *  - TR points to the doublefault TSS and the normal TSS is busy.
+	 *  - CR3 is the normal kernel PGD.  This would be delightful, except
+	 *    that the CPU didn't bother to save the old CR3 anywhere.  This
+	 *    would make it very awkward to return back to the context we came
+	 *    from.
+	 *
+	 * The rest of EFLAGS is sanitized for us, so we don't need to
+	 * worry about AC or DF.
+	 *
+	 * Don't even bother popping the error code.  It's always zero,
+	 * and ignoring it makes us a bit more robust against buggy
+	 * hypervisor task gate implementations.
+	 *
+	 * We will manually undo the task switch instead of doing a
+	 * task-switching IRET.
+	 */
+
+	clts				/* clear CR0.TS */
+	pushl	$X86_EFLAGS_FIXED
+	popfl				/* clear EFLAGS.NT */
+
+	call	doublefault_shim
+
+	/* We don't support returning, so we have no IRET here. */
+1:
+	hlt
+	jmp 1b
+SYM_CODE_END(asm_exc_double_fault)
+>>>>>>> upstream/android-13
 
 /*
  * NMI is doubly nasty.  It can happen on the first instruction of
@@ -1408,10 +1901,21 @@ END(debug)
  * switched stacks.  We handle both conditions by simply checking whether we
  * interrupted kernel code running on the SYSENTER stack.
  */
+<<<<<<< HEAD
 ENTRY(nmi)
 	ASM_CLAC
 
 #ifdef CONFIG_X86_ESPFIX32
+=======
+SYM_CODE_START(asm_exc_nmi)
+	ASM_CLAC
+
+#ifdef CONFIG_X86_ESPFIX32
+	/*
+	 * ESPFIX_SS is only ever set on the return to user path
+	 * after we've switched to the entry stack.
+	 */
+>>>>>>> upstream/android-13
 	pushl	%eax
 	movl	%ss, %eax
 	cmpw	$__ESPFIX_SS, %ax
@@ -1433,7 +1937,11 @@ ENTRY(nmi)
 	jb	.Lnmi_from_sysenter_stack
 
 	/* Not on SYSENTER stack. */
+<<<<<<< HEAD
 	call	do_nmi
+=======
+	call	exc_nmi
+>>>>>>> upstream/android-13
 	jmp	.Lnmi_return
 
 .Lnmi_from_sysenter_stack:
@@ -1443,10 +1951,22 @@ ENTRY(nmi)
 	 */
 	movl	%esp, %ebx
 	movl	PER_CPU_VAR(cpu_current_top_of_stack), %esp
+<<<<<<< HEAD
 	call	do_nmi
 	movl	%ebx, %esp
 
 .Lnmi_return:
+=======
+	call	exc_nmi
+	movl	%ebx, %esp
+
+.Lnmi_return:
+#ifdef CONFIG_X86_ESPFIX32
+	testl	$CS_FROM_ESPFIX, PT_CS(%esp)
+	jnz	.Lnmi_from_espfix
+#endif
+
+>>>>>>> upstream/android-13
 	CHECK_AND_APPLY_ESPFIX
 	RESTORE_ALL_NMI cr3_reg=%edi pop=4
 	jmp	.Lirq_return
@@ -1454,11 +1974,16 @@ ENTRY(nmi)
 #ifdef CONFIG_X86_ESPFIX32
 .Lnmi_espfix_stack:
 	/*
+<<<<<<< HEAD
 	 * create the pointer to lss back
+=======
+	 * Create the pointer to LSS back
+>>>>>>> upstream/android-13
 	 */
 	pushl	%ss
 	pushl	%esp
 	addl	$4, (%esp)
+<<<<<<< HEAD
 	/* copy the iret frame of 12 bytes */
 	.rept 3
 	pushl	16(%esp)
@@ -1503,6 +2028,45 @@ END(async_page_fault)
 #endif
 
 ENTRY(rewind_stack_do_exit)
+=======
+
+	/* Copy the (short) IRET frame */
+	pushl	4*4(%esp)	# flags
+	pushl	4*4(%esp)	# cs
+	pushl	4*4(%esp)	# ip
+
+	pushl	%eax		# orig_ax
+
+	SAVE_ALL_NMI cr3_reg=%edi unwind_espfix=1
+	ENCODE_FRAME_POINTER
+
+	/* clear CS_FROM_KERNEL, set CS_FROM_ESPFIX */
+	xorl	$(CS_FROM_ESPFIX | CS_FROM_KERNEL), PT_CS(%esp)
+
+	xorl	%edx, %edx			# zero error code
+	movl	%esp, %eax			# pt_regs pointer
+	jmp	.Lnmi_from_sysenter_stack
+
+.Lnmi_from_espfix:
+	RESTORE_ALL_NMI cr3_reg=%edi
+	/*
+	 * Because we cleared CS_FROM_KERNEL, IRET_FRAME 'forgot' to
+	 * fix up the gap and long frame:
+	 *
+	 *  3 - original frame	(exception)
+	 *  2 - ESPFIX block	(above)
+	 *  6 - gap		(FIXUP_FRAME)
+	 *  5 - long frame	(FIXUP_FRAME)
+	 *  1 - orig_ax
+	 */
+	lss	(1+5+6)*4(%esp), %esp			# back to espfix stack
+	jmp	.Lirq_return
+#endif
+SYM_CODE_END(asm_exc_nmi)
+
+.pushsection .text, "ax"
+SYM_CODE_START(rewind_stack_do_exit)
+>>>>>>> upstream/android-13
 	/* Prevent any naive code from trying to unwind to our caller. */
 	xorl	%ebp, %ebp
 
@@ -1511,4 +2075,9 @@ ENTRY(rewind_stack_do_exit)
 
 	call	do_exit
 1:	jmp 1b
+<<<<<<< HEAD
 END(rewind_stack_do_exit)
+=======
+SYM_CODE_END(rewind_stack_do_exit)
+.popsection
+>>>>>>> upstream/android-13

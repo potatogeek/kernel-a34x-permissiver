@@ -7,8 +7,13 @@
 #define _SPARC_IO_UNIT_H
 
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <asm/page.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 
 /* The io-unit handles all virtual to physical address translations
  * that occur between the SBUS and physical memory.  Access by

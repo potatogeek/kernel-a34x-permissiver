@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Idle daemon for PowerPC.  Idle daemon will handle any action
  * that needs to be taken when the system becomes idle.
@@ -12,11 +16,14 @@
  *    Copyright (c) 2003 Dave Engebretsen <engebret@us.ibm.com>
  *
  * 32-bit and 64-bit versions merged by Paul Mackerras <paulus@samba.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -45,6 +52,7 @@ static int __init powersave_off(char *arg)
 }
 __setup("powersave=off", powersave_off);
 
+<<<<<<< HEAD
 #ifdef CONFIG_HOTPLUG_CPU
 void arch_cpu_idle_dead(void)
 {
@@ -53,6 +61,8 @@ void arch_cpu_idle_dead(void)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 void arch_cpu_idle(void)
 {
 	ppc64_runlatch_off();
@@ -64,9 +74,15 @@ void arch_cpu_idle(void)
 		 * interrupts enabled, some don't.
 		 */
 		if (irqs_disabled())
+<<<<<<< HEAD
 			local_irq_enable();
 	} else {
 		local_irq_enable();
+=======
+			raw_local_irq_enable();
+	} else {
+		raw_local_irq_enable();
+>>>>>>> upstream/android-13
 		/*
 		 * Go into low thread priority and possibly
 		 * low power mode.
@@ -81,6 +97,34 @@ void arch_cpu_idle(void)
 
 int powersave_nap;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_970_NAP
+void power4_idle(void)
+{
+	if (!cpu_has_feature(CPU_FTR_CAN_NAP))
+		return;
+
+	if (!powersave_nap)
+		return;
+
+	if (!prep_irq_for_idle())
+		return;
+
+	if (cpu_has_feature(CPU_FTR_ALTIVEC))
+		asm volatile("DSSALL ; sync" ::: "memory");
+
+	power4_idle_nap();
+
+	/*
+	 * power4_idle_nap returns with interrupts enabled (soft and hard).
+	 * to our caller with interrupts enabled (soft and hard). Our caller
+	 * can cope with either interrupts disabled or enabled upon return.
+	 */
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SYSCTL
 /*
  * Register the sysctl to set/clear powersave_nap.

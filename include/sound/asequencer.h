@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Main header file for the ALSA sequencer
  *  Copyright (c) 1998-1999 by Frank van de Pol <fvdpol@coil.demon.nl>
  *            (c) 1998-1999 by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __SOUND_ASEQUENCER_H
 #define __SOUND_ASEQUENCER_H

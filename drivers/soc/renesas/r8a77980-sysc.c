@@ -6,7 +6,11 @@
  * Copyright (C) 2018 Cogent Embedded, Inc.
  */
 
+<<<<<<< HEAD
 #include <linux/bug.h>
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 
 #include <dt-bindings/power/r8a77980-sysc.h>
@@ -49,4 +53,9 @@ static const struct rcar_sysc_area r8a77980_areas[] __initconst = {
 const struct rcar_sysc_info r8a77980_sysc_info __initconst = {
 	.areas = r8a77980_areas,
 	.num_areas = ARRAY_SIZE(r8a77980_areas),
+<<<<<<< HEAD
+=======
+	.extmask_offs = 0x138,
+	.extmask_val = BIT(0),
+>>>>>>> upstream/android-13
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  sr.c Copyright (C) 1992 David Giller
  *           Copyright (C) 1993, 1994, 1995, 1999 Eric Youngdale
@@ -37,17 +41,32 @@
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/bio.h>
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/errno.h>
 #include <linux/cdrom.h>
 #include <linux/interrupt.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/blkdev.h>
+=======
+#include <linux/major.h>
+#include <linux/blkdev.h>
+#include <linux/blk-pm.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/slab.h>
 #include <linux/pm_runtime.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+
+>>>>>>> upstream/android-13
 #include <scsi/scsi.h>
 #include <scsi/scsi_dbg.h>
 #include <scsi/scsi_device.h>
@@ -76,10 +95,16 @@ MODULE_ALIAS_SCSI_DEVICE(TYPE_WORM);
 	 CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_DVD_RAM|CDC_GENERIC_PACKET| \
 	 CDC_MRW|CDC_MRW_W|CDC_RAM)
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(sr_mutex);
 static int sr_probe(struct device *);
 static int sr_remove(struct device *);
 static int sr_init_command(struct scsi_cmnd *SCpnt);
+=======
+static int sr_probe(struct device *);
+static int sr_remove(struct device *);
+static blk_status_t sr_init_command(struct scsi_cmnd *SCpnt);
+>>>>>>> upstream/android-13
 static int sr_done(struct scsi_cmnd *);
 static int sr_runtime_suspend(struct device *dev);
 
@@ -102,6 +127,11 @@ static struct scsi_driver sr_template = {
 static unsigned long sr_index_bits[SR_DISKS / BITS_PER_LONG];
 static DEFINE_SPINLOCK(sr_index_lock);
 
+<<<<<<< HEAD
+=======
+static struct lock_class_key sr_bio_compl_lkclass;
+
+>>>>>>> upstream/android-13
 /* This semaphore is used to mediate the 0->1 reference get in the
  * face of object destruction (i.e. we can't allow a get on an
  * object after last put) */
@@ -116,6 +146,11 @@ static void get_capabilities(struct scsi_cd *);
 static unsigned int sr_check_events(struct cdrom_device_info *cdi,
 				    unsigned int clearing, int slot);
 static int sr_packet(struct cdrom_device_info *, struct packet_command *);
+<<<<<<< HEAD
+=======
+static int sr_read_cdda_bpc(struct cdrom_device_info *cdi, void __user *ubuf,
+		u32 lba, u32 nr, u8 *last_sense);
+>>>>>>> upstream/android-13
 
 static const struct cdrom_device_ops sr_dops = {
 	.open			= sr_open,
@@ -129,8 +164,14 @@ static const struct cdrom_device_ops sr_dops = {
 	.get_mcn		= sr_get_mcn,
 	.reset			= sr_reset,
 	.audio_ioctl		= sr_audio_ioctl,
+<<<<<<< HEAD
 	.capability		= SR_CAPABILITIES,
 	.generic_packet		= sr_packet,
+=======
+	.generic_packet		= sr_packet,
+	.read_cdda_bpc		= sr_read_cdda_bpc,
+	.capability		= SR_CAPABILITIES,
+>>>>>>> upstream/android-13
 };
 
 static void sr_kref_release(struct kref *kref);
@@ -216,6 +257,11 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
 		return DISK_EVENT_EJECT_REQUEST;
 	else if (med->media_event_code == 2)
 		return DISK_EVENT_MEDIA_CHANGE;
+<<<<<<< HEAD
+=======
+	else if (med->media_event_code == 3)
+		return DISK_EVENT_MEDIA_CHANGE;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -322,7 +368,12 @@ static int sr_done(struct scsi_cmnd *SCpnt)
 	int good_bytes = (result == 0 ? this_count : 0);
 	int block_sectors = 0;
 	long error_sector;
+<<<<<<< HEAD
 	struct scsi_cd *cd = scsi_cd(SCpnt->request->rq_disk);
+=======
+	struct request *rq = scsi_cmd_to_rq(SCpnt);
+	struct scsi_cd *cd = scsi_cd(rq->rq_disk);
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 	scmd_printk(KERN_INFO, SCpnt, "done: %x\n", result);
@@ -334,7 +385,11 @@ static int sr_done(struct scsi_cmnd *SCpnt)
 	 * care is taken to avoid unnecessary additional work such as
 	 * memcpy's that could be avoided.
 	 */
+<<<<<<< HEAD
 	if (driver_byte(result) != 0 &&		/* An error occurred */
+=======
+	if (scsi_status_is_check_condition(result) &&
+>>>>>>> upstream/android-13
 	    (SCpnt->sense_buffer[0] & 0x7f) == 0x70) { /* Sense current */
 		switch (SCpnt->sense_buffer[2]) {
 		case MEDIUM_ERROR:
@@ -342,6 +397,7 @@ static int sr_done(struct scsi_cmnd *SCpnt)
 		case ILLEGAL_REQUEST:
 			if (!(SCpnt->sense_buffer[0] & 0x90))
 				break;
+<<<<<<< HEAD
 			error_sector = (SCpnt->sense_buffer[3] << 24) |
 				(SCpnt->sense_buffer[4] << 16) |
 				(SCpnt->sense_buffer[5] << 8) |
@@ -349,13 +405,23 @@ static int sr_done(struct scsi_cmnd *SCpnt)
 			if (SCpnt->request->bio != NULL)
 				block_sectors =
 					bio_sectors(SCpnt->request->bio);
+=======
+			error_sector =
+				get_unaligned_be32(&SCpnt->sense_buffer[3]);
+			if (rq->bio != NULL)
+				block_sectors = bio_sectors(rq->bio);
+>>>>>>> upstream/android-13
 			if (block_sectors < 4)
 				block_sectors = 4;
 			if (cd->device->sector_size == 2048)
 				error_sector <<= 2;
 			error_sector &= ~(block_sectors - 1);
+<<<<<<< HEAD
 			good_bytes = (error_sector -
 				      blk_rq_pos(SCpnt->request)) << 9;
+=======
+			good_bytes = (error_sector - blk_rq_pos(rq)) << 9;
+>>>>>>> upstream/android-13
 			if (good_bytes < 0 || good_bytes >= this_count)
 				good_bytes = 0;
 			/*
@@ -383,6 +449,7 @@ static int sr_done(struct scsi_cmnd *SCpnt)
 	return good_bytes;
 }
 
+<<<<<<< HEAD
 static int sr_init_command(struct scsi_cmnd *SCpnt)
 {
 	int block = 0, this_count, s_size;
@@ -400,6 +467,20 @@ static int sr_init_command(struct scsi_cmnd *SCpnt)
 	 * is used for a killable error condition */
 	ret = BLKPREP_KILL;
 
+=======
+static blk_status_t sr_init_command(struct scsi_cmnd *SCpnt)
+{
+	int block = 0, this_count, s_size;
+	struct scsi_cd *cd;
+	struct request *rq = scsi_cmd_to_rq(SCpnt);
+	blk_status_t ret;
+
+	ret = scsi_alloc_sgtables(SCpnt);
+	if (ret != BLK_STS_OK)
+		return ret;
+	cd = scsi_cd(rq->rq_disk);
+
+>>>>>>> upstream/android-13
 	SCSI_LOG_HLQUEUE(1, scmd_printk(KERN_INFO, SCpnt,
 		"Doing sr request, block = %d\n", block));
 
@@ -419,6 +500,7 @@ static int sr_init_command(struct scsi_cmnd *SCpnt)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * we do lazy blocksize switching (when reading XA sectors,
 	 * see CDROMREADMODE2 ioctl) 
@@ -432,6 +514,9 @@ static int sr_init_command(struct scsi_cmnd *SCpnt)
 				    "can't switch blocksize: in interrupt\n");
 	}
 
+=======
+	s_size = cd->device->sector_size;
+>>>>>>> upstream/android-13
 	if (s_size != 512 && s_size != 1024 && s_size != 2048) {
 		scmd_printk(KERN_ERR, SCpnt, "bad sector size %d\n", s_size);
 		goto out;
@@ -494,6 +579,7 @@ static int sr_init_command(struct scsi_cmnd *SCpnt)
 		SCpnt->sdb.length = this_count * s_size;
 	}
 
+<<<<<<< HEAD
 	SCpnt->cmnd[2] = (unsigned char) (block >> 24) & 0xff;
 	SCpnt->cmnd[3] = (unsigned char) (block >> 16) & 0xff;
 	SCpnt->cmnd[4] = (unsigned char) (block >> 8) & 0xff;
@@ -501,6 +587,11 @@ static int sr_init_command(struct scsi_cmnd *SCpnt)
 	SCpnt->cmnd[6] = SCpnt->cmnd[9] = 0;
 	SCpnt->cmnd[7] = (unsigned char) (this_count >> 8) & 0xff;
 	SCpnt->cmnd[8] = (unsigned char) this_count & 0xff;
+=======
+	put_unaligned_be32(block, &SCpnt->cmnd[2]);
+	SCpnt->cmnd[6] = SCpnt->cmnd[9] = 0;
+	put_unaligned_be16(this_count, &SCpnt->cmnd[7]);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We shouldn't disconnect in the middle of a sector, so with a dumb
@@ -510,6 +601,7 @@ static int sr_init_command(struct scsi_cmnd *SCpnt)
 	SCpnt->transfersize = cd->device->sector_size;
 	SCpnt->underflow = this_count << 9;
 	SCpnt->allowed = MAX_RETRIES;
+<<<<<<< HEAD
 
 	/*
 	 * This indicates that the command is ready from our end to be
@@ -518,6 +610,28 @@ static int sr_init_command(struct scsi_cmnd *SCpnt)
 	ret = BLKPREP_OK;
  out:
 	return ret;
+=======
+	SCpnt->cmd_len = 10;
+
+	/*
+	 * This indicates that the command is ready from our end to be queued.
+	 */
+	return BLK_STS_OK;
+ out:
+	scsi_free_sgtables(SCpnt);
+	return BLK_STS_IOERR;
+}
+
+static void sr_revalidate_disk(struct scsi_cd *cd)
+{
+	struct scsi_sense_hdr sshdr;
+
+	/* if the unit is not ready, nothing more to do */
+	if (scsi_test_unit_ready(cd->device, SR_TIMEOUT, MAX_RETRIES, &sshdr))
+		return;
+	sr_cd_check(&cd->cdi);
+	get_sectorsize(cd);
+>>>>>>> upstream/android-13
 }
 
 static int sr_block_open(struct block_device *bdev, fmode_t mode)
@@ -532,11 +646,20 @@ static int sr_block_open(struct block_device *bdev, fmode_t mode)
 
 	sdev = cd->device;
 	scsi_autopm_get_device(sdev);
+<<<<<<< HEAD
 	check_disk_change(bdev);
 
 	mutex_lock(&sr_mutex);
 	ret = cdrom_open(&cd->cdi, bdev, mode);
 	mutex_unlock(&sr_mutex);
+=======
+	if (bdev_check_media_change(bdev))
+		sr_revalidate_disk(cd);
+
+	mutex_lock(&cd->lock);
+	ret = cdrom_open(&cd->cdi, bdev, mode);
+	mutex_unlock(&cd->lock);
+>>>>>>> upstream/android-13
 
 	scsi_autopm_put_device(sdev);
 	if (ret)
@@ -549,21 +672,42 @@ out:
 static void sr_block_release(struct gendisk *disk, fmode_t mode)
 {
 	struct scsi_cd *cd = scsi_cd(disk);
+<<<<<<< HEAD
 	mutex_lock(&sr_mutex);
 	cdrom_release(&cd->cdi, mode);
 	scsi_cd_put(cd);
 	mutex_unlock(&sr_mutex);
+=======
+
+	mutex_lock(&cd->lock);
+	cdrom_release(&cd->cdi, mode);
+	mutex_unlock(&cd->lock);
+
+	scsi_cd_put(cd);
+>>>>>>> upstream/android-13
 }
 
 static int sr_block_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
 			  unsigned long arg)
 {
+<<<<<<< HEAD
 	struct scsi_cd *cd = scsi_cd(bdev->bd_disk);
+=======
+	struct gendisk *disk = bdev->bd_disk;
+	struct scsi_cd *cd = scsi_cd(disk);
+>>>>>>> upstream/android-13
 	struct scsi_device *sdev = cd->device;
 	void __user *argp = (void __user *)arg;
 	int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&sr_mutex);
+=======
+	if (bdev_is_partition(bdev) && !capable(CAP_SYS_RAWIO))
+		return -ENOIOCTLCMD;
+
+	mutex_lock(&cd->lock);
+>>>>>>> upstream/android-13
 
 	ret = scsi_ioctl_block_when_processing_errors(sdev, cmd,
 			(mode & FMODE_NDELAY) != 0);
@@ -572,6 +716,7 @@ static int sr_block_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
 
 	scsi_autopm_get_device(sdev);
 
+<<<<<<< HEAD
 	/*
 	 * Send SCSI addressing ioctls directly to mid level, send other
 	 * ioctls to cdrom/block level.
@@ -594,6 +739,19 @@ put:
 
 out:
 	mutex_unlock(&sr_mutex);
+=======
+	if (cmd != CDROMCLOSETRAY && cmd != CDROMEJECT) {
+		ret = cdrom_ioctl(&cd->cdi, bdev, mode, cmd, arg);
+		if (ret != -ENOSYS)
+			goto put;
+	}
+	ret = scsi_ioctl(sdev, disk, mode, cmd, argp);
+
+put:
+	scsi_autopm_put_device(sdev);
+out:
+	mutex_unlock(&cd->lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -614,6 +772,7 @@ static unsigned int sr_block_check_events(struct gendisk *disk,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int sr_block_revalidate_disk(struct gendisk *disk)
 {
 	struct scsi_sense_hdr sshdr;
@@ -634,18 +793,25 @@ out:
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct block_device_operations sr_bdops =
 {
 	.owner		= THIS_MODULE,
 	.open		= sr_block_open,
 	.release	= sr_block_release,
 	.ioctl		= sr_block_ioctl,
+<<<<<<< HEAD
 	.check_events	= sr_block_check_events,
 	.revalidate_disk = sr_block_revalidate_disk,
 	/* 
 	 * No compat_ioctl for now because sr_block_ioctl never
 	 * seems to pass arbitrary ioctls down to host drivers.
 	 */
+=======
+	.compat_ioctl	= blkdev_compat_ptr_ioctl,
+	.check_events	= sr_block_check_events,
+>>>>>>> upstream/android-13
 };
 
 static int sr_open(struct cdrom_device_info *cdi, int purpose)
@@ -670,11 +836,14 @@ error_out:
 
 static void sr_release(struct cdrom_device_info *cdi)
 {
+<<<<<<< HEAD
 	struct scsi_cd *cd = cdi->handle;
 
 	if (cd->device->sector_size > 2048)
 		sr_set_blocklength(cd, 2048);
 
+=======
+>>>>>>> upstream/android-13
 }
 
 static int sr_probe(struct device *dev)
@@ -696,9 +865,17 @@ static int sr_probe(struct device *dev)
 
 	kref_init(&cd->kref);
 
+<<<<<<< HEAD
 	disk = alloc_disk(1);
 	if (!disk)
 		goto fail_free;
+=======
+	disk = __alloc_disk_node(sdev->request_queue, NUMA_NO_NODE,
+				 &sr_bio_compl_lkclass);
+	if (!disk)
+		goto fail_free;
+	mutex_init(&cd->lock);
+>>>>>>> upstream/android-13
 
 	spin_lock(&sr_index_lock);
 	minor = find_first_zero_bit(sr_index_bits, SR_DISKS);
@@ -712,10 +889,18 @@ static int sr_probe(struct device *dev)
 
 	disk->major = SCSI_CDROM_MAJOR;
 	disk->first_minor = minor;
+<<<<<<< HEAD
+=======
+	disk->minors = 1;
+>>>>>>> upstream/android-13
 	sprintf(disk->disk_name, "sr%d", minor);
 	disk->fops = &sr_bdops;
 	disk->flags = GENHD_FL_CD | GENHD_FL_BLOCK_EVENTS_ON_EXCL_WRITE;
 	disk->events = DISK_EVENT_MEDIA_CHANGE | DISK_EVENT_EJECT_REQUEST;
+<<<<<<< HEAD
+=======
+	disk->event_flags = DISK_EVENT_FLAG_POLL | DISK_EVENT_FLAG_UEVENT;
+>>>>>>> upstream/android-13
 
 	blk_queue_rq_timeout(sdev->request_queue, SR_TIMEOUT);
 
@@ -744,10 +929,15 @@ static int sr_probe(struct device *dev)
 
 	set_capacity(disk, cd->capacity);
 	disk->private_data = &cd->driver;
+<<<<<<< HEAD
 	disk->queue = sdev->request_queue;
 	cd->cdi.disk = disk;
 
 	if (register_cdrom(&cd->cdi))
+=======
+
+	if (register_cdrom(disk, &cd->cdi))
+>>>>>>> upstream/android-13
 		goto fail_minor;
 
 	/*
@@ -758,7 +948,12 @@ static int sr_probe(struct device *dev)
 
 	dev_set_drvdata(dev, cd);
 	disk->flags |= GENHD_FL_REMOVABLE;
+<<<<<<< HEAD
 	device_add_disk(&sdev->sdev_gendev, disk);
+=======
+	sr_revalidate_disk(cd);
+	device_add_disk(&sdev->sdev_gendev, disk, NULL);
+>>>>>>> upstream/android-13
 
 	sdev_printk(KERN_DEBUG, sdev,
 		    "Attached scsi CD-ROM %s\n", cd->cdi.name);
@@ -772,6 +967,10 @@ fail_minor:
 	spin_unlock(&sr_index_lock);
 fail_put:
 	put_disk(disk);
+<<<<<<< HEAD
+=======
+	mutex_destroy(&cd->lock);
+>>>>>>> upstream/android-13
 fail_free:
 	kfree(cd);
 fail:
@@ -809,8 +1008,12 @@ static void get_sectorsize(struct scsi_cd *cd)
 	} else {
 		long last_written;
 
+<<<<<<< HEAD
 		cd->capacity = 1 + ((buffer[0] << 24) | (buffer[1] << 16) |
 				    (buffer[2] << 8) | buffer[3]);
+=======
+		cd->capacity = 1 + get_unaligned_be32(&buffer[0]);
+>>>>>>> upstream/android-13
 		/*
 		 * READ_CAPACITY doesn't return the correct size on
 		 * certain UDF media.  If last_written is larger, use
@@ -821,8 +1024,12 @@ static void get_sectorsize(struct scsi_cd *cd)
 		if (!cdrom_get_last_written(&cd->cdi, &last_written))
 			cd->capacity = max_t(long, cd->capacity, last_written);
 
+<<<<<<< HEAD
 		sector_size = (buffer[4] << 24) |
 		    (buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
+=======
+		sector_size = get_unaligned_be32(&buffer[4]);
+>>>>>>> upstream/android-13
 		switch (sector_size) {
 			/*
 			 * HP 4020i CD-Recorder reports 2340 byte sectors
@@ -834,10 +1041,17 @@ static void get_sectorsize(struct scsi_cd *cd)
 		case 2340:
 		case 2352:
 			sector_size = 2048;
+<<<<<<< HEAD
 			/* fall through */
 		case 2048:
 			cd->capacity *= 4;
 			/* fall through */
+=======
+			fallthrough;
+		case 2048:
+			cd->capacity *= 4;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 512:
 			break;
 		default:
@@ -883,7 +1097,11 @@ static void get_capabilities(struct scsi_cd *cd)
 
 
 	/* allocate transfer buffer */
+<<<<<<< HEAD
 	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
+=======
+	buffer = kmalloc(512, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!buffer) {
 		sr_printk(KERN_ERR, cd, "out of memory.\n");
 		return;
@@ -896,7 +1114,11 @@ static void get_capabilities(struct scsi_cd *cd)
 	rc = scsi_mode_sense(cd->device, 0, 0x2a, buffer, ms_len,
 			     SR_TIMEOUT, 3, &data, NULL);
 
+<<<<<<< HEAD
 	if (!scsi_status_is_good(rc) || data.length > ms_len ||
+=======
+	if (rc < 0 || data.length > ms_len ||
+>>>>>>> upstream/android-13
 	    data.header_length + data.block_descriptor_length > data.length) {
 		/* failed, drive doesn't have capabilities mode page */
 		cd->cdi.speed = 1;
@@ -910,13 +1132,21 @@ static void get_capabilities(struct scsi_cd *cd)
 	}
 
 	n = data.header_length + data.block_descriptor_length;
+<<<<<<< HEAD
 	cd->cdi.speed = ((buffer[n + 8] << 8) + buffer[n + 9]) / 176;
+=======
+	cd->cdi.speed = get_unaligned_be16(&buffer[n + 8]) / 176;
+>>>>>>> upstream/android-13
 	cd->readcd_known = 1;
 	cd->readcd_cdda = buffer[n + 5] & 0x01;
 	/* print some capability bits */
 	sr_printk(KERN_INFO, cd,
 		  "scsi3-mmc drive: %dx/%dx %s%s%s%s%s%s\n",
+<<<<<<< HEAD
 		  ((buffer[n + 14] << 8) + buffer[n + 15]) / 176,
+=======
+		  get_unaligned_be16(&buffer[n + 14]) / 176,
+>>>>>>> upstream/android-13
 		  cd->cdi.speed,
 		  buffer[n + 3] & 0x01 ? "writer " : "", /* CD Writer */
 		  buffer[n + 3] & 0x20 ? "dvd-ram " : "",
@@ -988,6 +1218,60 @@ static int sr_packet(struct cdrom_device_info *cdi,
 	return cgc->stat;
 }
 
+<<<<<<< HEAD
+=======
+static int sr_read_cdda_bpc(struct cdrom_device_info *cdi, void __user *ubuf,
+		u32 lba, u32 nr, u8 *last_sense)
+{
+	struct gendisk *disk = cdi->disk;
+	u32 len = nr * CD_FRAMESIZE_RAW;
+	struct scsi_request *req;
+	struct request *rq;
+	struct bio *bio;
+	int ret;
+
+	rq = blk_get_request(disk->queue, REQ_OP_DRV_IN, 0);
+	if (IS_ERR(rq))
+		return PTR_ERR(rq);
+	req = scsi_req(rq);
+
+	ret = blk_rq_map_user(disk->queue, rq, NULL, ubuf, len, GFP_KERNEL);
+	if (ret)
+		goto out_put_request;
+
+	req->cmd[0] = GPCMD_READ_CD;
+	req->cmd[1] = 1 << 2;
+	req->cmd[2] = (lba >> 24) & 0xff;
+	req->cmd[3] = (lba >> 16) & 0xff;
+	req->cmd[4] = (lba >>  8) & 0xff;
+	req->cmd[5] = lba & 0xff;
+	req->cmd[6] = (nr >> 16) & 0xff;
+	req->cmd[7] = (nr >>  8) & 0xff;
+	req->cmd[8] = nr & 0xff;
+	req->cmd[9] = 0xf8;
+	req->cmd_len = 12;
+	rq->timeout = 60 * HZ;
+	bio = rq->bio;
+
+	blk_execute_rq(disk, rq, 0);
+	if (scsi_req(rq)->result) {
+		struct scsi_sense_hdr sshdr;
+
+		scsi_normalize_sense(req->sense, req->sense_len,
+				     &sshdr);
+		*last_sense = sshdr.sense_key;
+		ret = -EIO;
+	}
+
+	if (blk_rq_unmap_user(bio))
+		ret = -EFAULT;
+out_put_request:
+	blk_put_request(rq);
+	return ret;
+}
+
+
+>>>>>>> upstream/android-13
 /**
  *	sr_kref_release - Called to free the scsi_cd structure
  *	@kref: pointer to embedded kref
@@ -1012,6 +1296,11 @@ static void sr_kref_release(struct kref *kref)
 
 	put_disk(disk);
 
+<<<<<<< HEAD
+=======
+	mutex_destroy(&cd->lock);
+
+>>>>>>> upstream/android-13
 	kfree(cd);
 }
 

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  *  This files contains card eeprom (93c46 or 93c56) programming routines,
  *  memory is addressed by 16 bits words.
  *
  *  This is part of rtl8180 OpenSource driver.
  *  Copyright (C) Andrea Merello 2004  <andrea.merello@gmail.com>
+<<<<<<< HEAD
  *  Released under the terms of GPL (General Public Licence)
+=======
+>>>>>>> upstream/android-13
  *
  *  Parts of this driver are based on the GPL part of the
  *  official realtek driver.
@@ -39,7 +46,10 @@ static void eprom_cs(struct net_device *dev, short bit)
 	udelay(EPROM_DELAY);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void eprom_ck_cycle(struct net_device *dev)
 {
 	u8 cmdreg;
@@ -58,7 +68,10 @@ static void eprom_ck_cycle(struct net_device *dev)
 	udelay(EPROM_DELAY);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void eprom_w(struct net_device *dev, short bit)
 {
 	u8 cmdreg;
@@ -76,7 +89,10 @@ static void eprom_w(struct net_device *dev, short bit)
 	udelay(EPROM_DELAY);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static short eprom_r(struct net_device *dev)
 {
 	u8 bit;
@@ -94,7 +110,10 @@ static short eprom_r(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void eprom_send_bits_string(struct net_device *dev, short b[], int len)
 {
 	int i;
@@ -105,7 +124,10 @@ static void eprom_send_bits_string(struct net_device *dev, short b[], int len)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 int eprom_read(struct net_device *dev, u32 addr)
 {
 	struct r8192_priv *priv = ieee80211_priv(dev);
@@ -119,12 +141,17 @@ int eprom_read(struct net_device *dev, u32 addr)
 	ret = 0;
 	/* enable EPROM programming */
 	write_nic_byte_E(dev, EPROM_CMD,
+<<<<<<< HEAD
 		       (EPROM_CMD_PROGRAM<<EPROM_CMD_OPERATING_MODE_SHIFT));
+=======
+		       (EPROM_CMD_PROGRAM << EPROM_CMD_OPERATING_MODE_SHIFT));
+>>>>>>> upstream/android-13
 	force_pci_posting(dev);
 	udelay(EPROM_DELAY);
 
 	if (priv->epromtype == EPROM_93c56) {
 		addr_str[7] = addr & 1;
+<<<<<<< HEAD
 		addr_str[6] = addr & (1<<1);
 		addr_str[5] = addr & (1<<2);
 		addr_str[4] = addr & (1<<3);
@@ -140,6 +167,23 @@ int eprom_read(struct net_device *dev, u32 addr)
 		addr_str[2] = addr & (1<<3);
 		addr_str[1] = addr & (1<<4);
 		addr_str[0] = addr & (1<<5);
+=======
+		addr_str[6] = addr & BIT(1);
+		addr_str[5] = addr & BIT(2);
+		addr_str[4] = addr & BIT(3);
+		addr_str[3] = addr & BIT(4);
+		addr_str[2] = addr & BIT(5);
+		addr_str[1] = addr & BIT(6);
+		addr_str[0] = addr & BIT(7);
+		addr_len = 8;
+	} else {
+		addr_str[5] = addr & 1;
+		addr_str[4] = addr & BIT(1);
+		addr_str[3] = addr & BIT(2);
+		addr_str[2] = addr & BIT(3);
+		addr_str[1] = addr & BIT(4);
+		addr_str[0] = addr & BIT(5);
+>>>>>>> upstream/android-13
 		addr_len = 6;
 	}
 	eprom_cs(dev, 1);
@@ -162,7 +206,11 @@ int eprom_read(struct net_device *dev, u32 addr)
 		if (err < 0)
 			return err;
 
+<<<<<<< HEAD
 		ret |= err<<(15-i);
+=======
+		ret |= err << (15 - i);
+>>>>>>> upstream/android-13
 	}
 
 	eprom_cs(dev, 0);
@@ -170,6 +218,10 @@ int eprom_read(struct net_device *dev, u32 addr)
 
 	/* disable EPROM programming */
 	write_nic_byte_E(dev, EPROM_CMD,
+<<<<<<< HEAD
 		       (EPROM_CMD_NORMAL<<EPROM_CMD_OPERATING_MODE_SHIFT));
+=======
+		       (EPROM_CMD_NORMAL << EPROM_CMD_OPERATING_MODE_SHIFT));
+>>>>>>> upstream/android-13
 	return ret;
 }

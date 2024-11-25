@@ -1,17 +1,25 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-iop32x/include/mach/irqs.h
  *
  * Author:	Rory Bolt <rorybolt@pacbell.net>
  * Copyright:	(C) 2002 Rory Bolt
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __IRQS_H
 #define __IRQS_H
 
+<<<<<<< HEAD
 /*
  * IOP80321 chipset interrupts
  */
@@ -46,5 +54,8 @@
 
 #define NR_IRQS			32
 
+=======
+#define NR_IRQS			33
+>>>>>>> upstream/android-13
 
 #endif

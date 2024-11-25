@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
  *
@@ -6,6 +7,11 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -75,13 +81,21 @@ static const struct clk_ops plldiv_ops = {
 	.set_rate = clk_plldiv_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_plldiv(struct regmap *regmap, const char *name,
 			 const char *parent_name)
 {
 	struct clk_plldiv *plldiv;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	plldiv = kzalloc(sizeof(*plldiv), GFP_KERNEL);
@@ -106,6 +120,7 @@ at91_clk_register_plldiv(struct regmap *regmap, const char *name,
 
 	return hw;
 }
+<<<<<<< HEAD
 
 static void __init
 of_at91sam9x5_clk_plldiv_setup(struct device_node *np)
@@ -131,3 +146,5 @@ of_at91sam9x5_clk_plldiv_setup(struct device_node *np)
 }
 CLK_OF_DECLARE(at91sam9x5_clk_plldiv, "atmel,at91sam9x5-clk-plldiv",
 	       of_at91sam9x5_clk_plldiv_setup);
+=======
+>>>>>>> upstream/android-13

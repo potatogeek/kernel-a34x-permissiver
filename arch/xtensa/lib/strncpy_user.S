@@ -13,8 +13,13 @@
 
 #include <linux/errno.h>
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <variant/core.h>
 #include <asm/asmmacro.h>
+=======
+#include <asm/asmmacro.h>
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 /*
  * char *__strncpy_user(char *dst, const char *src, size_t len)
@@ -50,7 +55,11 @@
 .text
 ENTRY(__strncpy_user)
 
+<<<<<<< HEAD
 	entry	sp, 16		# minimal stack frame
+=======
+	abi_entry_default
+>>>>>>> upstream/android-13
 	# a2/ dst, a3/ src, a4/ len
 	mov	a11, a2		# leave dst in return value register
 	beqz	a4, .Lret	# if len is zero
@@ -93,7 +102,11 @@ EX(10f)	s8i	a9, a11, 0		# store byte 0
 	bnez	a4, .Lsrcaligned	# if len is nonzero
 .Lret:
 	sub	a2, a11, a2		# compute strlen
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 /*
  * dst is word-aligned, src is word-aligned
@@ -148,14 +161,22 @@ EX(10f)	s8i	a9, a11, 0
 .Lz3:	# byte 3 is zero
 	addi	a11, a11, 3		# advance dst pointer
 	sub	a2, a11, a2		# compute strlen
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lz0:	# byte 0 is zero
 #ifdef __XTENSA_EB__
 	movi	a9, 0
 #endif /* __XTENSA_EB__ */
 EX(10f)	s8i	a9, a11, 0
 	sub	a2, a11, a2		# compute strlen
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lz1:	# byte 1 is zero
 #ifdef __XTENSA_EB__
 	extui   a9, a9, 16, 16
@@ -163,7 +184,11 @@ EX(10f)	s8i	a9, a11, 0
 EX(10f)	s16i	a9, a11, 0
 	addi	a11, a11, 1		# advance dst pointer
 	sub	a2, a11, a2		# compute strlen
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 .Lz2:	# byte 2 is zero
 #ifdef __XTENSA_EB__
 	extui   a9, a9, 16, 16
@@ -173,7 +198,11 @@ EX(10f)	s16i	a9, a11, 0
 EX(10f)	s8i	a9, a11, 2
 	addi	a11, a11, 2		# advance dst pointer
 	sub	a2, a11, a2		# compute strlen
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 	.align	4		# 1 mod 4 alignment for LOOPNEZ
 	.byte	0		# (0 mod 4 alignment for LBEG)
@@ -199,7 +228,11 @@ EX(10f)	s8i	a9, a11, 0
 
 .Lunalignedend:
 	sub	a2, a11, a2		# compute strlen
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13
 
 ENDPROC(__strncpy_user)
 
@@ -214,4 +247,8 @@ ENDPROC(__strncpy_user)
 10:
 11:
 	movi	a2, -EFAULT
+<<<<<<< HEAD
 	retw
+=======
+	abi_ret_default
+>>>>>>> upstream/android-13

@@ -10,7 +10,10 @@
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <asm/fixmap.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/pgalloc.h>
 #include <asm/tlbflush.h>
 
@@ -101,7 +104,10 @@ void set_pmd_at(struct mm_struct *mm, unsigned long addr,
 		pmd_t *pmdp, pmd_t pmd)
 {
 	*pmdp = pmd;
+<<<<<<< HEAD
 	flush_tlb_all();
+=======
+>>>>>>> upstream/android-13
 }
 
 void __init pagetable_init(void)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: ISC
+>>>>>>> upstream/android-13
 config WIL6210
 	tristate "Wilocity 60g WiFi card wil6210 support"
 	select WANT_DEV_COREDUMP
@@ -5,12 +9,20 @@ config WIL6210
 	depends on CFG80211
 	depends on PCI
 	default n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This module adds support for wireless adapter based on
 	  wil6210 chip by Wilocity. It supports operation on the
 	  60 GHz band, covered by the IEEE802.11ad standard.
 
+<<<<<<< HEAD
 	  http://wireless.kernel.org/en/users/Drivers/wil6210
+=======
+	  https://wireless.wiki.kernel.org/en/users/Drivers/wil6210
+>>>>>>> upstream/android-13
 
 	  If you choose to build it as a module, it will be called
 	  wil6210
@@ -19,7 +31,11 @@ config WIL6210_ISR_COR
 	bool "Use Clear-On-Read mode for ISR registers for wil6210"
 	depends on WIL6210
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  ISR registers on wil6210 chip may operate in either
 	  COR (Clear-On-Read) or W1C (Write-1-to-Clear) mode.
 	  For production code, use COR (say y); is default since
@@ -35,7 +51,11 @@ config WIL6210_TRACING
 	depends on WIL6210
 	depends on EVENT_TRACING
 	default n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to enable tracepoints for the wil6210 driver
 	  using the kernel tracing infrastructure.  Select this
 	  option if you are interested in debugging the driver.
@@ -47,7 +67,11 @@ config WIL6210_DEBUGFS
 	depends on WIL6210
 	depends on DEBUG_FS
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here to enable wil6210 debugfs support, using the
 	  kernel debugfs infrastructure. Select this
 	  option if you are interested in debugging the driver.

@@ -36,6 +36,19 @@ nvkm_bar_bar1_vmm(struct nvkm_device *device)
 	return device->bar->func->bar1.vmm(device->bar);
 }
 
+<<<<<<< HEAD
+=======
+void
+nvkm_bar_bar1_reset(struct nvkm_device *device)
+{
+	struct nvkm_bar *bar = device->bar;
+	if (bar) {
+		bar->func->bar1.init(bar);
+		bar->func->bar1.wait(bar);
+	}
+}
+
+>>>>>>> upstream/android-13
 struct nvkm_vmm *
 nvkm_bar_bar2_vmm(struct nvkm_device *device)
 {
@@ -49,6 +62,19 @@ nvkm_bar_bar2_vmm(struct nvkm_device *device)
 }
 
 void
+<<<<<<< HEAD
+=======
+nvkm_bar_bar2_reset(struct nvkm_device *device)
+{
+	struct nvkm_bar *bar = device->bar;
+	if (bar && bar->bar2) {
+		bar->func->bar2.init(bar);
+		bar->func->bar2.wait(bar);
+	}
+}
+
+void
+>>>>>>> upstream/android-13
 nvkm_bar_bar2_fini(struct nvkm_device *device)
 {
 	struct nvkm_bar *bar = device->bar;
@@ -114,9 +140,15 @@ nvkm_bar = {
 
 void
 nvkm_bar_ctor(const struct nvkm_bar_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_bar *bar)
 {
 	nvkm_subdev_ctor(&nvkm_bar, device, index, &bar->subdev);
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_bar *bar)
+{
+	nvkm_subdev_ctor(&nvkm_bar, device, type, inst, &bar->subdev);
+>>>>>>> upstream/android-13
 	bar->func = func;
 	spin_lock_init(&bar->lock);
 }

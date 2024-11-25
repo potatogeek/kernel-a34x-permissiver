@@ -22,6 +22,10 @@
 #include "octeon_iq.h"
 #include "response_manager.h"
 #include "octeon_device.h"
+<<<<<<< HEAD
+=======
+#include "octeon_mem_ops.h"
+>>>>>>> upstream/android-13
 
 #define MEMOPS_IDX   BAR1_INDEX_DYNAMIC_MAP
 

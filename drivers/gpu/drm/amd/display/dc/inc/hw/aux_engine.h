@@ -29,6 +29,11 @@
 #include "dc_ddc_types.h"
 #include "include/i2caux_interface.h"
 
+<<<<<<< HEAD
+=======
+enum aux_return_code_type;
+
+>>>>>>> upstream/android-13
 enum i2caux_transaction_operation {
 	I2CAUX_TRANSACTION_READ,
 	I2CAUX_TRANSACTION_WRITE
@@ -140,6 +145,12 @@ struct write_command_context {
 
 
 struct aux_engine_funcs {
+<<<<<<< HEAD
+=======
+	bool (*configure_timeout)(
+		struct ddc_service *ddc,
+		uint32_t timeout);
+>>>>>>> upstream/android-13
 	void (*destroy)(
 		struct aux_engine **ptr);
 	bool (*acquire_engine)(
@@ -159,7 +170,11 @@ struct aux_engine_funcs {
 		uint8_t *buffer,
 		uint8_t *reply_result,
 		uint32_t *sw_status);
+<<<<<<< HEAD
 	enum aux_channel_operation_result (*get_channel_status)(
+=======
+	enum aux_return_code_type (*get_channel_status)(
+>>>>>>> upstream/android-13
 		struct aux_engine *engine,
 		uint8_t *returned_bytes);
 	bool (*is_engine_available)(struct aux_engine *engine);

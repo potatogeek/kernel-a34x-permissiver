@@ -12,16 +12,29 @@ SYNOPSIS
 
 	**bpftool** [*OPTIONS*] **cgroup** *COMMAND*
 
+<<<<<<< HEAD
 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-f** | **--bpffs** } }
+=======
+	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
+	{ **-f** | **--bpffs** } }
+>>>>>>> upstream/android-13
 
 	*COMMANDS* :=
 	{ **show** | **list** | **tree** | **attach** | **detach** | **help** }
 
+<<<<<<< HEAD
 MAP COMMANDS
 =============
 
 |	**bpftool** **cgroup { show | list }** *CGROUP*
 |	**bpftool** **cgroup tree** [*CGROUP_ROOT*]
+=======
+CGROUP COMMANDS
+===============
+
+|	**bpftool** **cgroup** { **show** | **list** } *CGROUP* [**effective**]
+|	**bpftool** **cgroup tree** [*CGROUP_ROOT*] [**effective**]
+>>>>>>> upstream/android-13
 |	**bpftool** **cgroup attach** *CGROUP* *ATTACH_TYPE* *PROG* [*ATTACH_FLAGS*]
 |	**bpftool** **cgroup detach** *CGROUP* *ATTACH_TYPE* *PROG*
 |	**bpftool** **cgroup help**
@@ -29,18 +42,36 @@ MAP COMMANDS
 |	*PROG* := { **id** *PROG_ID* | **pinned** *FILE* | **tag** *PROG_TAG* }
 |	*ATTACH_TYPE* := { **ingress** | **egress** | **sock_create** | **sock_ops** | **device** |
 |		**bind4** | **bind6** | **post_bind4** | **post_bind6** | **connect4** | **connect6** |
+<<<<<<< HEAD
 |               **sendmsg4** | **sendmsg6** }
+=======
+|               **getpeername4** | **getpeername6** | **getsockname4** | **getsockname6** | **sendmsg4** |
+|               **sendmsg6** | **recvmsg4** | **recvmsg6** | **sysctl** | **getsockopt** | **setsockopt** |
+|               **sock_release** }
+>>>>>>> upstream/android-13
 |	*ATTACH_FLAGS* := { **multi** | **override** }
 
 DESCRIPTION
 ===========
+<<<<<<< HEAD
 	**bpftool cgroup { show | list }** *CGROUP*
+=======
+	**bpftool cgroup { show | list }** *CGROUP* [**effective**]
+>>>>>>> upstream/android-13
 		  List all programs attached to the cgroup *CGROUP*.
 
 		  Output will start with program ID followed by attach type,
 		  attach flags and program name.
 
+<<<<<<< HEAD
 	**bpftool cgroup tree** [*CGROUP_ROOT*]
+=======
+		  If **effective** is specified retrieve effective programs that
+		  will execute for events within a cgroup. This includes
+		  inherited along with attached ones.
+
+	**bpftool cgroup tree** [*CGROUP_ROOT*] [**effective**]
+>>>>>>> upstream/android-13
 		  Iterate over all cgroups in *CGROUP_ROOT* and list all
 		  attached programs. If *CGROUP_ROOT* is not specified,
 		  bpftool uses cgroup v2 mountpoint.
@@ -49,6 +80,13 @@ DESCRIPTION
 		  commands: it starts with absolute cgroup path, followed by
 		  program ID, attach type, attach flags and program name.
 
+<<<<<<< HEAD
+=======
+		  If **effective** is specified retrieve effective programs that
+		  will execute for events within a cgroup. This includes
+		  inherited along with attached ones.
+
+>>>>>>> upstream/android-13
 	**bpftool cgroup attach** *CGROUP* *ATTACH_TYPE* *PROG* [*ATTACH_FLAGS*]
 		  Attach program *PROG* to the cgroup *CGROUP* with attach type
 		  *ATTACH_TYPE* and optional *ATTACH_FLAGS*.
@@ -85,7 +123,23 @@ DESCRIPTION
 		  **sendmsg4** call to sendto(2), sendmsg(2), sendmmsg(2) for an
 		  unconnected udp4 socket (since 4.18);
 		  **sendmsg6** call to sendto(2), sendmsg(2), sendmmsg(2) for an
+<<<<<<< HEAD
 		  unconnected udp6 socket (since 4.18).
+=======
+		  unconnected udp6 socket (since 4.18);
+		  **recvmsg4** call to recvfrom(2), recvmsg(2), recvmmsg(2) for
+                  an unconnected udp4 socket (since 5.2);
+		  **recvmsg6** call to recvfrom(2), recvmsg(2), recvmmsg(2) for
+                  an unconnected udp6 socket (since 5.2);
+		  **sysctl** sysctl access (since 5.2);
+		  **getsockopt** call to getsockopt (since 5.3);
+		  **setsockopt** call to setsockopt (since 5.3);
+		  **getpeername4** call to getpeername(2) for an inet4 socket (since 5.8);
+		  **getpeername6** call to getpeername(2) for an inet6 socket (since 5.8);
+		  **getsockname4** call to getsockname(2) for an inet4 socket (since 5.8);
+		  **getsockname6** call to getsockname(2) for an inet6 socket (since 5.8).
+		  **sock_release** closing an userspace inet socket (since 5.9).
+>>>>>>> upstream/android-13
 
 	**bpftool cgroup detach** *CGROUP* *ATTACH_TYPE* *PROG*
 		  Detach *PROG* from the cgroup *CGROUP* and attach type
@@ -96,6 +150,7 @@ DESCRIPTION
 
 OPTIONS
 =======
+<<<<<<< HEAD
 	-h, --help
 		  Print short generic help message (similar to **bpftool help**).
 
@@ -108,6 +163,9 @@ OPTIONS
 
 	-p, --pretty
 		  Generate human-readable JSON output. Implies **-j**.
+=======
+	.. include:: common_options.rst
+>>>>>>> upstream/android-13
 
 	-f, --bpffs
 		  Show file names of pinned programs.
@@ -134,7 +192,10 @@ EXAMPLES
 ::
 
     ID       AttachType      AttachFlags     Name
+<<<<<<< HEAD
 
 SEE ALSO
 ========
 	**bpftool**\ (8), **bpftool-prog**\ (8), **bpftool-map**\ (8)
+=======
+>>>>>>> upstream/android-13

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * Numascale NumaConnect-specific PCI code
  *
  * Copyright (C) 2012 Numascale AS. All rights reserved.
@@ -15,6 +20,10 @@
 
 #include <linux/pci.h>
 #include <asm/pci_x86.h>
+<<<<<<< HEAD
+=======
+#include <asm/numachip/numachip.h>
+>>>>>>> upstream/android-13
 
 static u8 limit __read_mostly;
 

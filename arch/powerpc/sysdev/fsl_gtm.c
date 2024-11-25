@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale General-purpose Timers Module
  *
@@ -6,11 +10,14 @@
  *               Jerry Huang <Chang-Ming.Huang@freescale.com>
  * Copyright (c) MontaVista Software, Inc. 2008.
  *               Anton Vorontsov <avorontsov@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -90,7 +97,11 @@ static LIST_HEAD(gtms);
  */
 struct gtm_timer *gtm_get_timer16(void)
 {
+<<<<<<< HEAD
 	struct gtm *gtm = NULL;
+=======
+	struct gtm *gtm;
+>>>>>>> upstream/android-13
 	int i;
 
 	list_for_each_entry(gtm, &gtms, list_node) {
@@ -107,7 +118,11 @@ struct gtm_timer *gtm_get_timer16(void)
 		spin_unlock_irq(&gtm->lock);
 	}
 
+<<<<<<< HEAD
 	if (gtm)
+=======
+	if (!list_empty(&gtms))
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EBUSY);
 	return ERR_PTR(-ENODEV);
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010,2011 Google, Inc.
  * Copyright (C) 2011-2012 NVIDIA CORPORATION. All Rights Reserved.
@@ -10,6 +14,7 @@
  *
  * Portions based on mach-omap2's debug-macro.S
  * Copyright (C) 1994-1999 Russell King
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -20,6 +25,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/serial_reg.h>
@@ -158,7 +165,38 @@
 
 		.align
 99:		.word	.
+<<<<<<< HEAD
 		.word	tegra_uart_config
+=======
+#if defined(ZIMAGE)
+		.word	. + 4
+/*
+ * Storage for the state maintained by the macro.
+ *
+ * In the kernel proper, this data is located in arch/arm/mach-tegra/tegra.c.
+ * That's because this header is included from multiple files, and we only
+ * want a single copy of the data. In particular, the UART probing code above
+ * assumes it's running using physical addresses. This is true when this file
+ * is included from head.o, but not when included from debug.o. So we need
+ * to share the probe results between the two copies, rather than having
+ * to re-run the probing again later.
+ *
+ * In the decompressor, we put the storage right here, since common.c
+ * isn't included in the decompressor build. This storage data gets put in
+ * .text even though it's really data, since .data is discarded from the
+ * decompressor. Luckily, .text is writeable in the decompressor, unless
+ * CONFIG_ZBOOT_ROM. That dependency is handled in arch/arm/Kconfig.debug.
+ */
+		/* Debug UART initialization required */
+		.word	1
+		/* Debug UART physical address */
+		.word	0
+		/* Debug UART virtual address */
+		.word	0
+#else
+		.word	tegra_uart_config
+#endif
+>>>>>>> upstream/android-13
 		.ltorg
 
 		/* Load previously selected UART address */
@@ -173,7 +211,11 @@
 
 		.macro	senduart, rd, rx
 		cmp	\rx, #0
+<<<<<<< HEAD
 		strneb	\rd, [\rx, #UART_TX << UART_SHIFT]
+=======
+		strbne	\rd, [\rx, #UART_TX << UART_SHIFT]
+>>>>>>> upstream/android-13
 1001:
 		.endm
 
@@ -187,14 +229,19 @@
 1002:
 		.endm
 
+<<<<<<< HEAD
 		.macro	waituart, rd, rx
 #ifdef FLOW_CONTROL
+=======
+		.macro	waituartcts, rd, rx
+>>>>>>> upstream/android-13
 		cmp	\rx, #0
 		beq	1002f
 1001:		ldrb	\rd, [\rx, #UART_MSR << UART_SHIFT]
 		tst	\rd, #UART_MSR_CTS
 		beq	1001b
 1002:
+<<<<<<< HEAD
 #endif
 		.endm
 
@@ -224,3 +271,9 @@ tegra_uart_config:
 	/* Debug UART virtual address */
 	.word 0
 #endif
+=======
+		.endm
+
+		.macro	waituarttxrdy,rd,rx
+		.endm
+>>>>>>> upstream/android-13

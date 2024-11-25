@@ -62,7 +62,13 @@ nv10_sw = {
 };
 
 int
+<<<<<<< HEAD
 nv10_sw_new(struct nvkm_device *device, int index, struct nvkm_sw **psw)
 {
 	return nvkm_sw_new_(&nv10_sw, device, index, psw);
+=======
+nv10_sw_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_sw **psw)
+{
+	return nvkm_sw_new_(&nv10_sw, device, type, inst, psw);
+>>>>>>> upstream/android-13
 }

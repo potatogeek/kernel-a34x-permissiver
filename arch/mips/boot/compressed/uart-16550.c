@@ -19,8 +19,13 @@
 #endif
 
 #ifdef CONFIG_MACH_INGENIC
+<<<<<<< HEAD
 #define INGENIC_UART0_BASE_ADDR	0x10030000
 #define PORT(offset) (CKSEG1ADDR(INGENIC_UART0_BASE_ADDR) + (4 * offset))
+=======
+#define INGENIC_UART_BASE_ADDR	(0x10030000 + 0x1000 * CONFIG_ZBOOT_INGENIC_UART)
+#define PORT(offset) (CKSEG1ADDR(INGENIC_UART_BASE_ADDR) + (4 * offset))
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_CPU_XLR

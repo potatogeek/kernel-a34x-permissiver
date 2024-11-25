@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *
  * Copyright (c) 2011, Microsoft Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -14,11 +19,16 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Authors:
  *   Haiyang Zhang <haiyangz@microsoft.com>
  *   Hank Janssen  <hjanssen@microsoft.com>
  *   K. Y. Srinivasan <kys@microsoft.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _HYPERV_NET_H
@@ -117,9 +127,49 @@ struct ndis_recv_scale_param { /* NDIS_RECEIVE_SCALE_PARAMETERS */
 	u32 processor_masks_entry_size;
 };
 
+<<<<<<< HEAD
 /* Fwd declaration */
 struct ndis_tcp_ip_checksum_info;
 struct ndis_pkt_8021q_info;
+=======
+struct ndis_tcp_ip_checksum_info {
+	union {
+		struct {
+			u32 is_ipv4:1;
+			u32 is_ipv6:1;
+			u32 tcp_checksum:1;
+			u32 udp_checksum:1;
+			u32 ip_header_checksum:1;
+			u32 reserved:11;
+			u32 tcp_header_offset:10;
+		} transmit;
+		struct {
+			u32 tcp_checksum_failed:1;
+			u32 udp_checksum_failed:1;
+			u32 ip_checksum_failed:1;
+			u32 tcp_checksum_succeeded:1;
+			u32 udp_checksum_succeeded:1;
+			u32 ip_checksum_succeeded:1;
+			u32 loopback:1;
+			u32 tcp_checksum_value_invalid:1;
+			u32 ip_checksum_value_invalid:1;
+		} receive;
+		u32  value;
+	};
+};
+
+struct ndis_pkt_8021q_info {
+	union {
+		struct {
+			u32 pri:3; /* User Priority */
+			u32 cfi:1; /* Canonical Format ID */
+			u32 vlanid:12; /* VLAN ID */
+			u32 reserved:16;
+		};
+		u32 value;
+	};
+};
+>>>>>>> upstream/android-13
 
 /*
  * Represent netvsc packet which contains 1 RNDIS and 1 ethernet frame
@@ -154,6 +204,11 @@ struct netvsc_device_info {
 	u32  send_section_size;
 	u32  recv_section_size;
 
+<<<<<<< HEAD
+=======
+	struct bpf_prog *bprog;
+
+>>>>>>> upstream/android-13
 	u8 rss_key[NETVSC_HASH_KEYLEN];
 };
 
@@ -186,7 +241,13 @@ struct rndis_device {
 
 /* Interface */
 struct rndis_message;
+<<<<<<< HEAD
 struct netvsc_device;
+=======
+struct ndis_offload_params;
+struct netvsc_device;
+struct netvsc_channel;
+>>>>>>> upstream/android-13
 struct net_device_context;
 
 extern u32 netvsc_ring_bytes;
@@ -199,6 +260,7 @@ int netvsc_send(struct net_device *net,
 		struct hv_netvsc_packet *packet,
 		struct rndis_message *rndis_msg,
 		struct hv_page_buffer *page_buffer,
+<<<<<<< HEAD
 		struct sk_buff *skb);
 void netvsc_linkstatus_callback(struct net_device *net,
 				struct rndis_message *resp);
@@ -211,6 +273,29 @@ int netvsc_recv_callback(struct net_device *net,
 void netvsc_channel_cb(void *context);
 int netvsc_poll(struct napi_struct *napi, int budget);
 
+=======
+		struct sk_buff *skb,
+		bool xdp_tx);
+void netvsc_linkstatus_callback(struct net_device *net,
+				struct rndis_message *resp,
+				void *data, u32 data_buflen);
+int netvsc_recv_callback(struct net_device *net,
+			 struct netvsc_device *nvdev,
+			 struct netvsc_channel *nvchan);
+void netvsc_channel_cb(void *context);
+int netvsc_poll(struct napi_struct *napi, int budget);
+
+u32 netvsc_run_xdp(struct net_device *ndev, struct netvsc_channel *nvchan,
+		   struct xdp_buff *xdp);
+unsigned int netvsc_xdp_fraglen(unsigned int len);
+struct bpf_prog *netvsc_xdp_get(struct netvsc_device *nvdev);
+int netvsc_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+		   struct netlink_ext_ack *extack,
+		   struct netvsc_device *nvdev);
+int netvsc_vf_setxdp(struct net_device *vf_netdev, struct bpf_prog *prog);
+int netvsc_bpf(struct net_device *dev, struct netdev_bpf *bpf);
+
+>>>>>>> upstream/android-13
 int rndis_set_subchannel(struct net_device *ndev,
 			 struct netvsc_device *nvdev,
 			 struct netvsc_device_info *dev_info);
@@ -223,15 +308,28 @@ void rndis_filter_device_remove(struct hv_device *dev,
 				struct netvsc_device *nvdev);
 int rndis_filter_set_rss_param(struct rndis_device *rdev,
 			       const u8 *key);
+<<<<<<< HEAD
 int rndis_filter_receive(struct net_device *ndev,
 			 struct netvsc_device *net_dev,
 			 struct vmbus_channel *channel,
+=======
+int rndis_filter_set_offload_params(struct net_device *ndev,
+				    struct netvsc_device *nvdev,
+				    struct ndis_offload_params *req_offloads);
+int rndis_filter_receive(struct net_device *ndev,
+			 struct netvsc_device *net_dev,
+			 struct netvsc_channel *nvchan,
+>>>>>>> upstream/android-13
 			 void *data, u32 buflen);
 
 int rndis_filter_set_device_mac(struct netvsc_device *ndev,
 				const char *mac);
 
+<<<<<<< HEAD
 void netvsc_switch_datapath(struct net_device *nv_dev, bool vf);
+=======
+int netvsc_switch_datapath(struct net_device *nv_dev, bool vf);
+>>>>>>> upstream/android-13
 
 #define NVSP_INVALID_PROTOCOL_VERSION	((u32)0xFFFFFFFF)
 
@@ -527,6 +625,11 @@ struct nvsp_2_vsc_capability {
 			u64 ieee8021q:1;
 			u64 correlation_id:1;
 			u64 teaming:1;
+<<<<<<< HEAD
+=======
+			u64 vsubnetid:1;
+			u64 rsc:1;
+>>>>>>> upstream/android-13
 		};
 	};
 } __packed;
@@ -830,7 +933,12 @@ struct nvsp_message {
 
 #define NETVSC_SUPPORTED_HW_FEATURES (NETIF_F_RXCSUM | NETIF_F_IP_CSUM | \
 				      NETIF_F_TSO | NETIF_F_IPV6_CSUM | \
+<<<<<<< HEAD
 				      NETIF_F_TSO6)
+=======
+				      NETIF_F_TSO6 | NETIF_F_LRO | \
+				      NETIF_F_SG | NETIF_F_RXHASH)
+>>>>>>> upstream/android-13
 
 #define VRSS_SEND_TAB_SIZE 16  /* must be power of 2 */
 #define VRSS_CHANNEL_MAX 64
@@ -839,6 +947,35 @@ struct nvsp_message {
 #define RNDIS_MAX_PKT_DEFAULT 8
 #define RNDIS_PKT_ALIGN_DEFAULT 8
 
+<<<<<<< HEAD
+=======
+#define NETVSC_XDP_HDRM 256
+
+#define NETVSC_MIN_OUT_MSG_SIZE (sizeof(struct vmpacket_descriptor) + \
+				 sizeof(struct nvsp_message))
+#define NETVSC_MIN_IN_MSG_SIZE sizeof(struct vmpacket_descriptor)
+
+/* Estimated requestor size:
+ * out_ring_size/min_out_msg_size + in_ring_size/min_in_msg_size
+ */
+static inline u32 netvsc_rqstor_size(unsigned long ringbytes)
+{
+	return ringbytes / NETVSC_MIN_OUT_MSG_SIZE +
+		ringbytes / NETVSC_MIN_IN_MSG_SIZE;
+}
+
+/* XFER PAGE packets can specify a maximum of 375 ranges for NDIS >= 6.0
+ * and a maximum of 64 ranges for NDIS < 6.0 with no RSC; with RSC, this
+ * limit is raised to 562 (= NVSP_RSC_MAX).
+ */
+#define NETVSC_MAX_XFER_PAGE_RANGES NVSP_RSC_MAX
+#define NETVSC_XFER_HEADER_SIZE(rng_cnt) \
+		(offsetof(struct vmtransfer_page_packet_header, ranges) + \
+		(rng_cnt) * sizeof(struct vmtransfer_page_range))
+#define NETVSC_MAX_PKT_SIZE (NETVSC_XFER_HEADER_SIZE(NETVSC_MAX_XFER_PAGE_RANGES) + \
+		sizeof(struct nvsp_message) + (sizeof(u32) * VRSS_SEND_TAB_SIZE))
+
+>>>>>>> upstream/android-13
 struct multi_send_data {
 	struct sk_buff *skb; /* skb containing the pkt */
 	struct hv_netvsc_packet *pkt; /* netvsc pkt pending */
@@ -856,11 +993,36 @@ struct multi_recv_comp {
 	u32 next;	/* next entry for writing */
 };
 
+<<<<<<< HEAD
+=======
+#define NVSP_RSC_MAX 562 /* Max #RSC frags in a vmbus xfer page pkt */
+
+struct nvsc_rsc {
+	struct ndis_pkt_8021q_info vlan;
+	struct ndis_tcp_ip_checksum_info csum_info;
+	u32 hash_info;
+	u8 ppi_flags; /* valid/present bits for the above PPIs */
+	u8 is_last; /* last RNDIS msg in a vmtransfer_page */
+	u32 cnt; /* #fragments in an RSC packet */
+	u32 pktlen; /* Full packet length */
+	void *data[NVSP_RSC_MAX];
+	u32 len[NVSP_RSC_MAX];
+};
+
+#define NVSC_RSC_VLAN		BIT(0)	/* valid/present bit for 'vlan' */
+#define NVSC_RSC_CSUM_INFO	BIT(1)	/* valid/present bit for 'csum_info' */
+#define NVSC_RSC_HASH_INFO	BIT(2)	/* valid/present bit for 'hash_info' */
+
+>>>>>>> upstream/android-13
 struct netvsc_stats {
 	u64 packets;
 	u64 bytes;
 	u64 broadcast;
 	u64 multicast;
+<<<<<<< HEAD
+=======
+	u64 xdp_drop;
+>>>>>>> upstream/android-13
 	struct u64_stats_sync syncp;
 };
 
@@ -875,6 +1037,10 @@ struct netvsc_ethtool_stats {
 	unsigned long rx_no_memory;
 	unsigned long stop_queue;
 	unsigned long wake_queue;
+<<<<<<< HEAD
+=======
+	unsigned long vlan_error;
+>>>>>>> upstream/android-13
 };
 
 struct netvsc_ethtool_pcpu_stats {
@@ -950,17 +1116,37 @@ struct net_device_context {
 	u32 vf_alloc;
 	/* Serial number of the VF to team with */
 	u32 vf_serial;
+<<<<<<< HEAD
+=======
+
+	/* Is the current data path through the VF NIC? */
+	bool  data_path_is_vf;
+
+	/* Used to temporarily save the config info across hibernation */
+	struct netvsc_device_info *saved_netvsc_dev_info;
+>>>>>>> upstream/android-13
 };
 
 /* Per channel data */
 struct netvsc_channel {
 	struct vmbus_channel *channel;
 	struct netvsc_device *net_device;
+<<<<<<< HEAD
+=======
+	void *recv_buf; /* buffer to copy packets out from the receive buffer */
+>>>>>>> upstream/android-13
 	const struct vmpacket_descriptor *desc;
 	struct napi_struct napi;
 	struct multi_send_data msd;
 	struct multi_recv_comp mrc;
 	atomic_t queue_sends;
+<<<<<<< HEAD
+=======
+	struct nvsc_rsc rsc;
+
+	struct bpf_prog __rcu *bpf_prog;
+	struct xdp_rxq_info xdp_rxq;
+>>>>>>> upstream/android-13
 
 	struct netvsc_stats tx_stats;
 	struct netvsc_stats rx_stats;
@@ -1072,6 +1258,10 @@ struct rndis_set_request {
 	u32 info_buflen;
 	u32 info_buf_offset;
 	u32 dev_vc_handle;
+<<<<<<< HEAD
+=======
+	u8  info_buf[];
+>>>>>>> upstream/android-13
 };
 
 /* Response to NdisSetRequest */
@@ -1143,7 +1333,12 @@ struct rndis_oobd {
 /* Packet extension field contents associated with a Data message. */
 struct rndis_per_packet_info {
 	u32 size;
+<<<<<<< HEAD
 	u32 type;
+=======
+	u32 type:31;
+	u32 internal:1;
+>>>>>>> upstream/android-13
 	u32 ppi_offset;
 };
 
@@ -1164,6 +1359,7 @@ enum ndis_per_pkt_info_type {
 	MAX_PER_PKT_INFO
 };
 
+<<<<<<< HEAD
 struct ndis_pkt_8021q_info {
 	union {
 		struct {
@@ -1174,6 +1370,25 @@ struct ndis_pkt_8021q_info {
 		};
 		u32 value;
 	};
+=======
+enum rndis_per_pkt_info_interal_type {
+	RNDIS_PKTINFO_ID = 1,
+	/* Add more members here */
+
+	RNDIS_PKTINFO_MAX
+};
+
+#define RNDIS_PKTINFO_SUBALLOC BIT(0)
+#define RNDIS_PKTINFO_1ST_FRAG BIT(1)
+#define RNDIS_PKTINFO_LAST_FRAG BIT(2)
+
+#define RNDIS_PKTINFO_ID_V1 1
+
+struct rndis_pktinfo_id {
+	u8 ver;
+	u8 flag;
+	u16 pkt_id;
+>>>>>>> upstream/android-13
 };
 
 struct ndis_object_header {
@@ -1366,6 +1581,7 @@ struct ndis_offload_params {
 	};
 };
 
+<<<<<<< HEAD
 struct ndis_tcp_ip_checksum_info {
 	union {
 		struct {
@@ -1392,6 +1608,8 @@ struct ndis_tcp_ip_checksum_info {
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 struct ndis_tcp_lso_info {
 	union {
 		struct {
@@ -1645,4 +1863,11 @@ struct rndis_message {
 #define TRANSPORT_INFO_IPV6_TCP 0x10
 #define TRANSPORT_INFO_IPV6_UDP 0x20
 
+<<<<<<< HEAD
+=======
+#define RETRY_US_LO	5000
+#define RETRY_US_HI	10000
+#define RETRY_MAX	2000	/* >10 sec */
+
+>>>>>>> upstream/android-13
 #endif /* _HYPERV_NET_H */

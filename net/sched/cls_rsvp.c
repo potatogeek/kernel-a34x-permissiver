@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/cls_rsvp.c	Special RSVP packet classifier for IPv4.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/cls_rsvp.c	Special RSVP packet classifier for IPv4.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  */
 

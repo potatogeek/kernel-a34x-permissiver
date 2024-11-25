@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \file radeon_drv.c
  * ATI Radeon driver
  *
@@ -29,20 +33,49 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/radeon_drm.h>
 #include "radeon_drv.h"
 
 #include <drm/drm_pciids.h>
+=======
+
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/console.h>
 #include <linux/module.h>
 #include <linux/pm_runtime.h>
 #include <linux/vga_switcheroo.h>
+<<<<<<< HEAD
 #include <linux/compat.h>
 #include <drm/drm_gem.h>
 #include <drm/drm_fb_helper.h>
 
 #include <drm/drm_crtc_helper.h>
+=======
+#include <linux/mmu_notifier.h>
+#include <linux/pci.h>
+
+#include <drm/drm_aperture.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_file.h>
+#include <drm/drm_gem.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_pciids.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+#include <drm/radeon_drm.h>
+
+#include "radeon_drv.h"
+#include "radeon.h"
+#include "radeon_kms.h"
+#include "radeon_ttm.h"
+#include "radeon_device.h"
+#include "radeon_prime.h"
+>>>>>>> upstream/android-13
 
 /*
  * KMS wrapper.
@@ -103,6 +136,7 @@
 #define KMS_DRIVER_MAJOR	2
 #define KMS_DRIVER_MINOR	50
 #define KMS_DRIVER_PATCHLEVEL	0
+<<<<<<< HEAD
 int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags);
 void radeon_driver_unload_kms(struct drm_device *dev);
 void radeon_driver_lastclose_kms(struct drm_device *dev);
@@ -127,20 +161,29 @@ void radeon_gem_object_close(struct drm_gem_object *obj,
 struct dma_buf *radeon_gem_prime_export(struct drm_device *dev,
 					struct drm_gem_object *gobj,
 					int flags);
+=======
+int radeon_suspend_kms(struct drm_device *dev, bool suspend,
+		       bool fbcon, bool freeze);
+int radeon_resume_kms(struct drm_device *dev, bool resume, bool fbcon);
+>>>>>>> upstream/android-13
 extern int radeon_get_crtc_scanoutpos(struct drm_device *dev, unsigned int crtc,
 				      unsigned int flags, int *vpos, int *hpos,
 				      ktime_t *stime, ktime_t *etime,
 				      const struct drm_display_mode *mode);
 extern bool radeon_is_px(struct drm_device *dev);
+<<<<<<< HEAD
 extern const struct drm_ioctl_desc radeon_ioctls_kms[];
 extern int radeon_max_kms_ioctl;
 int radeon_mmap(struct file *filp, struct vm_area_struct *vma);
+=======
+>>>>>>> upstream/android-13
 int radeon_mode_dumb_mmap(struct drm_file *filp,
 			  struct drm_device *dev,
 			  uint32_t handle, uint64_t *offset_p);
 int radeon_mode_dumb_create(struct drm_file *file_priv,
 			    struct drm_device *dev,
 			    struct drm_mode_create_dumb *args);
+<<<<<<< HEAD
 struct sg_table *radeon_gem_prime_get_sg_table(struct drm_gem_object *obj);
 struct drm_gem_object *radeon_gem_prime_import_sg_table(struct drm_device *dev,
 							struct dma_buf_attachment *,
@@ -150,6 +193,8 @@ void radeon_gem_prime_unpin(struct drm_gem_object *obj);
 struct reservation_object *radeon_gem_prime_res_obj(struct drm_gem_object *);
 void *radeon_gem_prime_vmap(struct drm_gem_object *obj);
 void radeon_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
+=======
+>>>>>>> upstream/android-13
 
 /* atpx handler */
 #if defined(CONFIG_VGA_SWITCHEROO)
@@ -307,6 +352,7 @@ static struct pci_device_id pciidlist[] = {
 
 MODULE_DEVICE_TABLE(pci, pciidlist);
 
+<<<<<<< HEAD
 static struct drm_driver kms_driver;
 
 bool radeon_device_is_virtual(void);
@@ -331,11 +377,18 @@ static int radeon_kick_out_firmware_fb(struct pci_dev *pdev)
 
 	return 0;
 }
+=======
+static const struct drm_driver kms_driver;
+>>>>>>> upstream/android-13
 
 static int radeon_pci_probe(struct pci_dev *pdev,
 			    const struct pci_device_id *ent)
 {
 	unsigned long flags = 0;
+<<<<<<< HEAD
+=======
+	struct drm_device *dev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!ent)
@@ -372,11 +425,39 @@ static int radeon_pci_probe(struct pci_dev *pdev,
 		return -EPROBE_DEFER;
 
 	/* Get rid of things like offb */
+<<<<<<< HEAD
 	ret = radeon_kick_out_firmware_fb(pdev);
 	if (ret)
 		return ret;
 
 	return drm_get_pci_dev(pdev, ent, &kms_driver);
+=======
+	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &kms_driver);
+	if (ret)
+		return ret;
+
+	dev = drm_dev_alloc(&kms_driver, &pdev->dev);
+	if (IS_ERR(dev))
+		return PTR_ERR(dev);
+
+	ret = pci_enable_device(pdev);
+	if (ret)
+		goto err_free;
+
+	pci_set_drvdata(pdev, dev);
+
+	ret = drm_dev_register(dev, ent->driver_data);
+	if (ret)
+		goto err_agp;
+
+	return 0;
+
+err_agp:
+	pci_disable_device(pdev);
+err_free:
+	drm_dev_put(dev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -395,19 +476,41 @@ radeon_pci_shutdown(struct pci_dev *pdev)
 	 */
 	if (radeon_device_is_virtual())
 		radeon_pci_remove(pdev);
+<<<<<<< HEAD
+=======
+
+#if defined(CONFIG_PPC64) || defined(CONFIG_MACH_LOONGSON64)
+	/*
+	 * Some adapters need to be suspended before a
+	 * shutdown occurs in order to prevent an error
+	 * during kexec, shutdown or reboot.
+	 * Make this power and Loongson specific because
+	 * it breaks some other boards.
+	 */
+	radeon_suspend_kms(pci_get_drvdata(pdev), true, true, false);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static int radeon_pmops_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+=======
+	struct drm_device *drm_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	return radeon_suspend_kms(drm_dev, true, true, false);
 }
 
 static int radeon_pmops_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+=======
+	struct drm_device *drm_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	/* GPU comes up enabled by the bios on resume */
 	if (radeon_is_px(drm_dev)) {
@@ -421,15 +524,23 @@ static int radeon_pmops_resume(struct device *dev)
 
 static int radeon_pmops_freeze(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+=======
+	struct drm_device *drm_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	return radeon_suspend_kms(drm_dev, false, true, true);
 }
 
 static int radeon_pmops_thaw(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+=======
+	struct drm_device *drm_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	return radeon_resume_kms(drm_dev, false, true);
 }
 
@@ -437,7 +548,10 @@ static int radeon_pmops_runtime_suspend(struct device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!radeon_is_px(drm_dev)) {
 		pm_runtime_forbid(dev);
@@ -447,7 +561,11 @@ static int radeon_pmops_runtime_suspend(struct device *dev)
 	drm_dev->switch_power_state = DRM_SWITCH_POWER_CHANGING;
 	drm_kms_helper_poll_disable(drm_dev);
 
+<<<<<<< HEAD
 	ret = radeon_suspend_kms(drm_dev, false, false, false);
+=======
+	radeon_suspend_kms(drm_dev, false, false, false);
+>>>>>>> upstream/android-13
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_ignore_hotplug(pdev);
@@ -488,8 +606,12 @@ static int radeon_pmops_runtime_resume(struct device *dev)
 
 static int radeon_pmops_runtime_idle(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+=======
+	struct drm_device *drm_dev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct drm_crtc *crtc;
 
 	if (!radeon_is_px(drm_dev)) {
@@ -524,7 +646,11 @@ long radeon_drm_ioctl(struct file *filp,
 	}
 
 	ret = drm_ioctl(filp, cmd, arg);
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	pm_runtime_mark_last_busy(dev->dev);
 	pm_runtime_put_autosuspend(dev->dev);
 	return ret;
@@ -562,7 +688,11 @@ static const struct file_operations radeon_driver_kms_fops = {
 	.open = drm_open,
 	.release = drm_release,
 	.unlocked_ioctl = radeon_drm_ioctl,
+<<<<<<< HEAD
 	.mmap = radeon_mmap,
+=======
+	.mmap = drm_gem_mmap,
+>>>>>>> upstream/android-13
 	.poll = drm_poll,
 	.read = drm_read,
 #ifdef CONFIG_COMPAT
@@ -570,6 +700,7 @@ static const struct file_operations radeon_driver_kms_fops = {
 #endif
 };
 
+<<<<<<< HEAD
 static bool
 radeon_get_crtc_scanout_position(struct drm_device *dev, unsigned int pipe,
 				 bool in_vblank_irq, int *vpos, int *hpos,
@@ -585,11 +716,63 @@ static struct drm_driver kms_driver = {
 	    DRIVER_USE_AGP |
 	    DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED | DRIVER_GEM |
 	    DRIVER_PRIME | DRIVER_RENDER,
+=======
+static const struct drm_ioctl_desc radeon_ioctls_kms[] = {
+	DRM_IOCTL_DEF_DRV(RADEON_CP_INIT, drm_invalid_op, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(RADEON_CP_START, drm_invalid_op, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(RADEON_CP_STOP, drm_invalid_op, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(RADEON_CP_RESET, drm_invalid_op, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(RADEON_CP_IDLE, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_CP_RESUME, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_RESET, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_FULLSCREEN, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_SWAP, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_CLEAR, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_VERTEX, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_INDICES, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_TEXTURE, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_STIPPLE, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_INDIRECT, drm_invalid_op, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(RADEON_VERTEX2, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_CMDBUF, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_GETPARAM, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_FLIP, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_ALLOC, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_FREE, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_INIT_HEAP, drm_invalid_op, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
+	DRM_IOCTL_DEF_DRV(RADEON_IRQ_EMIT, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_IRQ_WAIT, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_SETPARAM, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_SURF_ALLOC, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_SURF_FREE, drm_invalid_op, DRM_AUTH),
+	/* KMS */
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_INFO, radeon_gem_info_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_CREATE, radeon_gem_create_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_MMAP, radeon_gem_mmap_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_SET_DOMAIN, radeon_gem_set_domain_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_PREAD, radeon_gem_pread_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_PWRITE, radeon_gem_pwrite_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_WAIT_IDLE, radeon_gem_wait_idle_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_CS, radeon_cs_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_INFO, radeon_info_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_SET_TILING, radeon_gem_set_tiling_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_GET_TILING, radeon_gem_get_tiling_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_BUSY, radeon_gem_busy_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_VA, radeon_gem_va_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_OP, radeon_gem_op_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(RADEON_GEM_USERPTR, radeon_gem_userptr_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
+};
+
+static const struct drm_driver kms_driver = {
+	.driver_features =
+	    DRIVER_GEM | DRIVER_RENDER | DRIVER_MODESET,
+>>>>>>> upstream/android-13
 	.load = radeon_driver_load_kms,
 	.open = radeon_driver_open_kms,
 	.postclose = radeon_driver_postclose_kms,
 	.lastclose = radeon_driver_lastclose_kms,
 	.unload = radeon_driver_unload_kms,
+<<<<<<< HEAD
 	.get_vblank_counter = radeon_get_vblank_counter_kms,
 	.enable_vblank = radeon_enable_vblank_kms,
 	.disable_vblank = radeon_disable_vblank_kms,
@@ -603,12 +786,17 @@ static struct drm_driver kms_driver = {
 	.gem_free_object_unlocked = radeon_gem_object_free,
 	.gem_open_object = radeon_gem_object_open,
 	.gem_close_object = radeon_gem_object_close,
+=======
+	.ioctls = radeon_ioctls_kms,
+	.num_ioctls = ARRAY_SIZE(radeon_ioctls_kms),
+>>>>>>> upstream/android-13
 	.dumb_create = radeon_mode_dumb_create,
 	.dumb_map_offset = radeon_mode_dumb_mmap,
 	.fops = &radeon_driver_kms_fops,
 
 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+<<<<<<< HEAD
 	.gem_prime_export = radeon_gem_prime_export,
 	.gem_prime_import = drm_gem_prime_import,
 	.gem_prime_pin = radeon_gem_prime_pin,
@@ -618,6 +806,10 @@ static struct drm_driver kms_driver = {
 	.gem_prime_import_sg_table = radeon_gem_prime_import_sg_table,
 	.gem_prime_vmap = radeon_gem_prime_vmap,
 	.gem_prime_vunmap = radeon_gem_prime_vunmap,
+=======
+	.gem_prime_import_sg_table = radeon_gem_prime_import_sg_table,
+	.gem_prime_mmap = drm_gem_prime_mmap,
+>>>>>>> upstream/android-13
 
 	.name = DRIVER_NAME,
 	.desc = DRIVER_DESC,
@@ -627,9 +819,12 @@ static struct drm_driver kms_driver = {
 	.patchlevel = KMS_DRIVER_PATCHLEVEL,
 };
 
+<<<<<<< HEAD
 static struct drm_driver *driver;
 static struct pci_driver *pdriver;
 
+=======
+>>>>>>> upstream/android-13
 static struct pci_driver radeon_kms_pci_driver = {
 	.name = DRIVER_NAME,
 	.id_table = pciidlist,
@@ -639,12 +834,17 @@ static struct pci_driver radeon_kms_pci_driver = {
 	.driver.pm = &radeon_pm_ops,
 };
 
+<<<<<<< HEAD
 static int __init radeon_init(void)
+=======
+static int __init radeon_module_init(void)
+>>>>>>> upstream/android-13
 {
 	if (vgacon_text_force() && radeon_modeset == -1) {
 		DRM_INFO("VGACON disable radeon kernel modesetting.\n");
 		radeon_modeset = 0;
 	}
+<<<<<<< HEAD
 	/* set to modesetting by default if not nomodeset */
 	if (radeon_modeset == -1)
 		radeon_modeset = 1;
@@ -658,10 +858,15 @@ static int __init radeon_init(void)
 		radeon_register_atpx_handler();
 
 	} else {
+=======
+
+	if (radeon_modeset == 0) {
+>>>>>>> upstream/android-13
 		DRM_ERROR("No UMS support in radeon module!\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	return pci_register_driver(pdriver);
 }
 
@@ -673,6 +878,23 @@ static void __exit radeon_exit(void)
 
 module_init(radeon_init);
 module_exit(radeon_exit);
+=======
+	DRM_INFO("radeon kernel modesetting enabled.\n");
+	radeon_register_atpx_handler();
+
+	return pci_register_driver(&radeon_kms_pci_driver);
+}
+
+static void __exit radeon_module_exit(void)
+{
+	pci_unregister_driver(&radeon_kms_pci_driver);
+	radeon_unregister_atpx_handler();
+	mmu_notifier_synchronize();
+}
+
+module_init(radeon_module_init);
+module_exit(radeon_module_exit);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);

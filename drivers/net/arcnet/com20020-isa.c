@@ -38,7 +38,11 @@
 #include <linux/netdevice.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 
 #include "arcdevice.h"
@@ -169,7 +173,11 @@ static int __init com20020_init(void)
 		dev->irq = 9;
 
 	if (com20020isa_probe(dev)) {
+<<<<<<< HEAD
 		free_netdev(dev);
+=======
+		free_arcdev(dev);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -182,7 +190,11 @@ static void __exit com20020_exit(void)
 	unregister_netdev(my_dev);
 	free_irq(my_dev->irq, my_dev);
 	release_region(my_dev->base_addr, ARCNET_TOTAL_SIZE);
+<<<<<<< HEAD
 	free_netdev(my_dev);
+=======
+	free_arcdev(my_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifndef MODULE
@@ -197,6 +209,7 @@ static int __init com20020isa_setup(char *s)
 	switch (ints[0]) {
 	default:		/* ERROR */
 		pr_info("Too many arguments\n");
+<<<<<<< HEAD
 	case 6:		/* Timeout */
 		timeout = ints[6];
 	case 5:		/* CKP value */
@@ -207,6 +220,24 @@ static int __init com20020isa_setup(char *s)
 		node = ints[3];
 	case 2:		/* IRQ */
 		irq = ints[2];
+=======
+		fallthrough;
+	case 6:		/* Timeout */
+		timeout = ints[6];
+		fallthrough;
+	case 5:		/* CKP value */
+		clockp = ints[5];
+		fallthrough;
+	case 4:		/* Backplane flag */
+		backplane = ints[4];
+		fallthrough;
+	case 3:		/* Node ID */
+		node = ints[3];
+		fallthrough;
+	case 2:		/* IRQ */
+		irq = ints[2];
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:		/* IO address */
 		io = ints[1];
 	}

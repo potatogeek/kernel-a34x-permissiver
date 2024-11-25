@@ -115,7 +115,11 @@ static int bgmac_probe(struct bcma_device *core)
 	struct ssb_sprom *sprom = &core->bus->sprom;
 	struct mii_bus *mii_bus;
 	struct bgmac *bgmac;
+<<<<<<< HEAD
 	const u8 *mac = NULL;
+=======
+	const u8 *mac;
+>>>>>>> upstream/android-13
 	int err;
 
 	bgmac = bgmac_alloc(&core->dev);
@@ -128,11 +132,20 @@ static int bgmac_probe(struct bcma_device *core)
 
 	bcma_set_drvdata(core, bgmac);
 
+<<<<<<< HEAD
 	if (bgmac->dev->of_node)
 		mac = of_get_mac_address(bgmac->dev->of_node);
 
 	/* If no MAC address assigned via device tree, check SPROM */
 	if (!mac) {
+=======
+	err = of_get_mac_address(bgmac->dev->of_node, bgmac->net_dev->dev_addr);
+	if (err == -EPROBE_DEFER)
+		return err;
+
+	/* If no MAC address assigned via device tree, check SPROM */
+	if (err) {
+>>>>>>> upstream/android-13
 		switch (core->core_unit) {
 		case 0:
 			mac = sprom->et0mac;
@@ -149,10 +162,16 @@ static int bgmac_probe(struct bcma_device *core)
 			err = -ENOTSUPP;
 			goto err;
 		}
+<<<<<<< HEAD
 	}
 
 	ether_addr_copy(bgmac->net_dev->dev_addr, mac);
 
+=======
+		ether_addr_copy(bgmac->net_dev->dev_addr, mac);
+	}
+
+>>>>>>> upstream/android-13
 	/* On BCM4706 we need common core to access PHY */
 	if (core->id.id == BCMA_CORE_4706_MAC_GBIT &&
 	    !core->bus->drv_gmac_cmn.core) {
@@ -217,7 +236,11 @@ static int bgmac_probe(struct bcma_device *core)
 	/* BCM 471X/535X family */
 	case BCMA_CHIP_ID_BCM4716:
 		bgmac->feature_flags |= BGMAC_FEAT_CLKCTLST;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case BCMA_CHIP_ID_BCM47162:
 		bgmac->feature_flags |= BGMAC_FEAT_FLW_CTRL2;
 		bgmac->feature_flags |= BGMAC_FEAT_SET_RXQ_CLK;

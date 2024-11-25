@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * linux/include/linux/jbd2.h
  *
@@ -5,10 +9,13 @@
  *
  * Copyright 1998-2000 Red Hat, Inc --- All Rights Reserved
  *
+<<<<<<< HEAD
  * This file is part of the Linux kernel and is made available under
  * the terms of the GNU General Public License, version 2, or at your
  * option, any later version, incorporated herein by reference.
  *
+=======
+>>>>>>> upstream/android-13
  * Definitions for transaction data structures for the buffer cache
  * filesystem journaling support.
  */
@@ -30,6 +37,10 @@
 #include <linux/timer.h>
 #include <linux/slab.h>
 #include <linux/bit_spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 #include <crypto/hash.h>
 #endif
 
@@ -63,13 +74,21 @@ void __jbd2_debug(int level, const char *file, const char *func,
 #define jbd_debug(n, fmt, a...) \
 	__jbd2_debug((n), __FILE__, __func__, __LINE__, (fmt), ##a)
 #else
+<<<<<<< HEAD
 #define jbd_debug(n, fmt, a...)    /**/
+=======
+#define jbd_debug(n, fmt, a...)  no_printk(fmt, ##a)
+>>>>>>> upstream/android-13
 #endif
 
 extern void *jbd2_alloc(size_t size, gfp_t flags);
 extern void jbd2_free(void *ptr, size_t size);
 
 #define JBD2_MIN_JOURNAL_BLOCKS 1024
+<<<<<<< HEAD
+=======
+#define JBD2_DEFAULT_FAST_COMMIT_BLOCKS 256
+>>>>>>> upstream/android-13
 
 #ifdef __KERNEL__
 
@@ -265,7 +284,14 @@ typedef struct journal_superblock_s
 /* 0x0050 */
 	__u8	s_checksum_type;	/* checksum type */
 	__u8	s_padding2[3];
+<<<<<<< HEAD
 	__u32	s_padding[42];
+=======
+/* 0x0054 */
+	__be32	s_num_fc_blks;		/* Number of fast commit blocks */
+/* 0x0058 */
+	__u32	s_padding[41];
+>>>>>>> upstream/android-13
 	__be32	s_checksum;		/* crc32c(superblock) */
 
 /* 0x0100 */
@@ -291,6 +317,10 @@ typedef struct journal_superblock_s
 #define JBD2_FEATURE_INCOMPAT_ASYNC_COMMIT	0x00000004
 #define JBD2_FEATURE_INCOMPAT_CSUM_V2		0x00000008
 #define JBD2_FEATURE_INCOMPAT_CSUM_V3		0x00000010
+<<<<<<< HEAD
+=======
+#define JBD2_FEATURE_INCOMPAT_FAST_COMMIT	0x00000020
+>>>>>>> upstream/android-13
 
 /* See "journal feature predicate functions" below */
 
@@ -301,7 +331,12 @@ typedef struct journal_superblock_s
 					JBD2_FEATURE_INCOMPAT_64BIT | \
 					JBD2_FEATURE_INCOMPAT_ASYNC_COMMIT | \
 					JBD2_FEATURE_INCOMPAT_CSUM_V2 | \
+<<<<<<< HEAD
 					JBD2_FEATURE_INCOMPAT_CSUM_V3)
+=======
+					JBD2_FEATURE_INCOMPAT_CSUM_V3 | \
+					JBD2_FEATURE_INCOMPAT_FAST_COMMIT)
+>>>>>>> upstream/android-13
 
 #ifdef __KERNEL__
 
@@ -316,7 +351,10 @@ enum jbd_state_bits {
 	BH_Revoked,		/* Has been revoked from the log */
 	BH_RevokeValid,		/* Revoked flag is valid */
 	BH_JBDDirty,		/* Is dirty but journaled */
+<<<<<<< HEAD
 	BH_State,		/* Pins most journal_head state */
+=======
+>>>>>>> upstream/android-13
 	BH_JournalHead,		/* Pins bh->b_private and jh->b_bh */
 	BH_Shadow,		/* IO on shadow buffer is running */
 	BH_Verified,		/* Metadata block has been verified ok */
@@ -345,6 +383,7 @@ static inline struct journal_head *bh2jh(struct buffer_head *bh)
 	return bh->b_private;
 }
 
+<<<<<<< HEAD
 static inline void jbd_lock_bh_state(struct buffer_head *bh)
 {
 	bit_spin_lock(BH_State, &bh->b_state);
@@ -365,6 +404,8 @@ static inline void jbd_unlock_bh_state(struct buffer_head *bh)
 	bit_spin_unlock(BH_State, &bh->b_state);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void jbd_lock_bh_journal_head(struct buffer_head *bh)
 {
 	bit_spin_lock(BH_JournalHead, &bh->b_state);
@@ -418,7 +459,11 @@ static inline void jbd_unlock_bh_journal_head(struct buffer_head *bh)
 #define JI_WAIT_DATA (1 << __JI_WAIT_DATA)
 
 /**
+<<<<<<< HEAD
  * struct jbd_inode - The jbd_inode type is the structure linking inodes in
+=======
+ * struct jbd2_inode - The jbd_inode type is the structure linking inodes in
+>>>>>>> upstream/android-13
  * ordered mode present in a transaction so that we can sync them during commit.
  */
 struct jbd2_inode {
@@ -475,12 +520,23 @@ struct jbd2_inode {
 struct jbd2_revoke_table_s;
 
 /**
+<<<<<<< HEAD
  * struct handle_s - The handle_s type is the concrete type associated with
  *     handle_t.
  * @h_transaction: Which compound transaction is this update a part of?
  * @h_journal: Which journal handle belongs to - used iff h_reserved set.
  * @h_rsv_handle: Handle reserved for finishing the logical operation.
  * @h_buffer_credits: Number of remaining buffers we are allowed to dirty.
+=======
+ * struct jbd2_journal_handle - The jbd2_journal_handle type is the concrete
+ *     type associated with handle_t.
+ * @h_transaction: Which compound transaction is this update a part of?
+ * @h_journal: Which journal handle belongs to - used iff h_reserved set.
+ * @h_rsv_handle: Handle reserved for finishing the logical operation.
+ * @h_total_credits: Number of remaining buffers we are allowed to add to
+ *	journal. These are dirty buffers and revoke descriptor blocks.
+ * @h_revoke_credits: Number of remaining revoke records available for handle
+>>>>>>> upstream/android-13
  * @h_ref: Reference count on this handle.
  * @h_err: Field for caller's use to track errors through large fs operations.
  * @h_sync: Flag for sync-on-close.
@@ -490,7 +546,12 @@ struct jbd2_revoke_table_s;
  * @h_type: For handle statistics.
  * @h_line_no: For handle statistics.
  * @h_start_jiffies: Handle Start time.
+<<<<<<< HEAD
  * @h_requested_credits: Holds @h_buffer_credits after handle is started.
+=======
+ * @h_requested_credits: Holds @h_total_credits after handle is started.
+ * @h_revoke_credits_requested: Holds @h_revoke_credits after handle is started.
+>>>>>>> upstream/android-13
  * @saved_alloc_context: Saved context while transaction is open.
  **/
 
@@ -507,7 +568,13 @@ struct jbd2_journal_handle
 	};
 
 	handle_t		*h_rsv_handle;
+<<<<<<< HEAD
 	int			h_buffer_credits;
+=======
+	int			h_total_credits;
+	int			h_revoke_credits;
+	int			h_revoke_credits_requested;
+>>>>>>> upstream/android-13
 	int			h_ref;
 	int			h_err;
 
@@ -550,6 +617,10 @@ struct transaction_chp_stats_s {
  * The transaction keeps track of all of the buffers modified by a
  * running transaction, and all of the buffers committed but not yet
  * flushed to home for finished transactions.
+<<<<<<< HEAD
+=======
+ * (Locking Documentation improved by LockDoc)
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -559,9 +630,15 @@ struct transaction_chp_stats_s {
  *      ->jbd_lock_bh_journal_head()	(This is "innermost")
  *
  *    j_state_lock
+<<<<<<< HEAD
  *    ->jbd_lock_bh_state()
  *
  *    jbd_lock_bh_state()
+=======
+ *    ->b_state_lock
+ *
+ *    b_state_lock
+>>>>>>> upstream/android-13
  *    ->j_list_lock
  *
  *    j_state_lock
@@ -591,6 +668,10 @@ struct transaction_s
 	enum {
 		T_RUNNING,
 		T_LOCKED,
+<<<<<<< HEAD
+=======
+		T_SWITCH,
+>>>>>>> upstream/android-13
 		T_FLUSH,
 		T_COMMIT,
 		T_COMMIT_DFLUSH,
@@ -604,18 +685,34 @@ struct transaction_s
 	 */
 	unsigned long		t_log_start;
 
+<<<<<<< HEAD
 	/* Number of buffers on the t_buffers list [j_list_lock] */
+=======
+	/* 
+	 * Number of buffers on the t_buffers list [j_list_lock, no locks
+	 * needed for jbd2 thread]
+	 */
+>>>>>>> upstream/android-13
 	int			t_nr_buffers;
 
 	/*
 	 * Doubly-linked circular list of all buffers reserved but not yet
+<<<<<<< HEAD
 	 * modified by this transaction [j_list_lock]
+=======
+	 * modified by this transaction [j_list_lock, no locks needed fo
+	 * jbd2 thread]
+>>>>>>> upstream/android-13
 	 */
 	struct journal_head	*t_reserved_list;
 
 	/*
 	 * Doubly-linked circular list of all metadata buffers owned by this
+<<<<<<< HEAD
 	 * transaction [j_list_lock]
+=======
+	 * transaction [j_list_lock, no locks needed for jbd2 thread]
+>>>>>>> upstream/android-13
 	 */
 	struct journal_head	*t_buffers;
 
@@ -639,14 +736,28 @@ struct transaction_s
 	struct journal_head	*t_checkpoint_io_list;
 
 	/*
+<<<<<<< HEAD
 	 * Doubly-linked circular list of metadata buffers being shadowed by log
 	 * IO.  The IO buffers on the iobuf list and the shadow buffers on this
 	 * list match each other one for one at all times. [j_list_lock]
+=======
+	 * Doubly-linked circular list of metadata buffers being
+	 * shadowed by log IO.  The IO buffers on the iobuf list and
+	 * the shadow buffers on this list match each other one for
+	 * one at all times. [j_list_lock, no locks needed for jbd2
+	 * thread]
+>>>>>>> upstream/android-13
 	 */
 	struct journal_head	*t_shadow_list;
 
 	/*
+<<<<<<< HEAD
 	 * List of inodes whose data we've modified in data=ordered mode.
+=======
+	 * List of inodes associated with the transaction; e.g., ext4 uses
+	 * this to track inodes in data=ordered and data=journal mode that
+	 * need special handling on transaction commit; also used by ocfs2.
+>>>>>>> upstream/android-13
 	 * [j_list_lock]
 	 */
 	struct list_head	t_inode_list;
@@ -667,28 +778,61 @@ struct transaction_s
 	unsigned long		t_start;
 
 	/*
+<<<<<<< HEAD
 	 * When commit was requested
+=======
+	 * When commit was requested [j_state_lock]
+>>>>>>> upstream/android-13
 	 */
 	unsigned long		t_requested;
 
 	/*
+<<<<<<< HEAD
 	 * Checkpointing stats [j_checkpoint_sem]
+=======
+	 * Checkpointing stats [j_list_lock]
+>>>>>>> upstream/android-13
 	 */
 	struct transaction_chp_stats_s t_chp_stats;
 
 	/*
 	 * Number of outstanding updates running on this transaction
+<<<<<<< HEAD
 	 * [t_handle_lock]
+=======
+	 * [none]
+>>>>>>> upstream/android-13
 	 */
 	atomic_t		t_updates;
 
 	/*
+<<<<<<< HEAD
 	 * Number of buffers reserved for use by all handles in this transaction
 	 * handle but not yet modified. [t_handle_lock]
+=======
+	 * Number of blocks reserved for this transaction in the journal.
+	 * This is including all credits reserved when starting transaction
+	 * handles as well as all journal descriptor blocks needed for this
+	 * transaction. [none]
+>>>>>>> upstream/android-13
 	 */
 	atomic_t		t_outstanding_credits;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Number of revoke records for this transaction added by already
+	 * stopped handles. [none]
+	 */
+	atomic_t		t_outstanding_revokes;
+
+	/*
+	 * How many handles used this transaction? [none]
+	 */
+	atomic_t		t_handle_count;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Forward and backward links for the circular list of all transactions
 	 * awaiting checkpoint. [j_list_lock]
 	 */
@@ -706,11 +850,14 @@ struct transaction_s
 	ktime_t			t_start_time;
 
 	/*
+<<<<<<< HEAD
 	 * How many handles used this transaction? [t_handle_lock]
 	 */
 	atomic_t		t_handle_count;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * This transaction is being forced and some process is
 	 * waiting for it to finish.
 	 */
@@ -756,6 +903,14 @@ jbd2_time_diff(unsigned long start, unsigned long end)
 
 #define JBD2_NR_BATCH	64
 
+<<<<<<< HEAD
+=======
+enum passtype {PASS_SCAN, PASS_REVOKE, PASS_REPLAY};
+
+#define JBD2_FC_REPLAY_STOP	0
+#define JBD2_FC_REPLAY_CONTINUE	1
+
+>>>>>>> upstream/android-13
 /**
  * struct journal_s - The journal_s type is the concrete type associated with
  *     journal_t.
@@ -763,11 +918,24 @@ jbd2_time_diff(unsigned long start, unsigned long end)
 struct journal_s
 {
 	/**
+<<<<<<< HEAD
 	 * @j_flags: General journaling state flags [j_state_lock]
+=======
+	 * @j_flags: General journaling state flags [j_state_lock,
+	 * no lock for quick racy checks]
+>>>>>>> upstream/android-13
 	 */
 	unsigned long		j_flags;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_atomic_flags: Atomic journaling state flags.
+	 */
+	unsigned long		j_atomic_flags;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_errno:
 	 *
 	 * Is there an outstanding uncleared error on the journal (from a prior
@@ -776,6 +944,14 @@ struct journal_s
 	int			j_errno;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_abort_mutex: Lock the whole aborting procedure.
+	 */
+	struct mutex		j_abort_mutex;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_sb_buffer: The first part of the superblock buffer.
 	 */
 	struct buffer_head	*j_sb_buffer;
@@ -798,7 +974,12 @@ struct journal_s
 	/**
 	 * @j_barrier_count:
 	 *
+<<<<<<< HEAD
 	 * Number of processes waiting to create a barrier lock [j_state_lock]
+=======
+	 * Number of processes waiting to create a barrier lock [j_state_lock,
+	 * no lock for quick racy checks]
+>>>>>>> upstream/android-13
 	 */
 	int			j_barrier_count;
 
@@ -811,7 +992,12 @@ struct journal_s
 	 * @j_running_transaction:
 	 *
 	 * Transactions: The current running transaction...
+<<<<<<< HEAD
 	 * [j_state_lock] [caller holding open handle]
+=======
+	 * [j_state_lock, no lock for quick racy checks] [caller holding
+	 * open handle]
+>>>>>>> upstream/android-13
 	 */
 	transaction_t		*j_running_transaction;
 
@@ -862,6 +1048,16 @@ struct journal_s
 	wait_queue_head_t	j_wait_reserved;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_fc_wait:
+	 *
+	 * Wait queue to wait for completion of async fast commits.
+	 */
+	wait_queue_head_t	j_fc_wait;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_checkpoint_mutex:
 	 *
 	 * Semaphore for locking against concurrent checkpoints.
@@ -879,6 +1075,32 @@ struct journal_s
 	struct buffer_head	*j_chkpt_bhs[JBD2_NR_BATCH];
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_shrinker:
+	 *
+	 * Journal head shrinker, reclaim buffer's journal head which
+	 * has been written back.
+	 */
+	struct shrinker		j_shrinker;
+
+	/**
+	 * @j_checkpoint_jh_count:
+	 *
+	 * Number of journal buffers on the checkpoint list. [j_list_lock]
+	 */
+	struct percpu_counter	j_checkpoint_jh_count;
+
+	/**
+	 * @j_shrink_transaction:
+	 *
+	 * Record next transaction will shrink on the checkpoint list.
+	 * [j_list_lock]
+	 */
+	transaction_t		*j_shrink_transaction;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_head:
 	 *
 	 * Journal head: identifies the first unused block in the journal.
@@ -919,6 +1141,34 @@ struct journal_s
 	unsigned long		j_last;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_fc_first:
+	 *
+	 * The block number of the first fast commit block in the journal
+	 * [j_state_lock].
+	 */
+	unsigned long		j_fc_first;
+
+	/**
+	 * @j_fc_off:
+	 *
+	 * Number of fast commit blocks currently allocated. Accessed only
+	 * during fast commit. Currently only process can do fast commit, so
+	 * this field is not protected by any lock.
+	 */
+	unsigned long		j_fc_off;
+
+	/**
+	 * @j_fc_last:
+	 *
+	 * The block number one beyond the last fast commit block in the journal
+	 * [j_state_lock].
+	 */
+	unsigned long		j_fc_last;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_dev: Device where we store the journal.
 	 */
 	struct block_device	*j_dev;
@@ -949,9 +1199,15 @@ struct journal_s
 	struct block_device	*j_fs_dev;
 
 	/**
+<<<<<<< HEAD
 	 * @j_maxlen: Total maximum capacity of the journal region on disk.
 	 */
 	unsigned int		j_maxlen;
+=======
+	 * @j_total_len: Total maximum capacity of the journal region on disk.
+	 */
+	unsigned int		j_total_len;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @j_reserved_credits:
@@ -991,7 +1247,11 @@ struct journal_s
 	 * @j_commit_sequence:
 	 *
 	 * Sequence number of the most recently committed transaction
+<<<<<<< HEAD
 	 * [j_state_lock].
+=======
+	 * [j_state_lock, no lock for quick racy checks]
+>>>>>>> upstream/android-13
 	 */
 	tid_t			j_commit_sequence;
 
@@ -999,7 +1259,11 @@ struct journal_s
 	 * @j_commit_request:
 	 *
 	 * Sequence number of the most recent transaction wanting commit
+<<<<<<< HEAD
 	 * [j_state_lock]
+=======
+	 * [j_state_lock, no lock for quick racy checks]
+>>>>>>> upstream/android-13
 	 */
 	tid_t			j_commit_request;
 
@@ -1027,6 +1291,16 @@ struct journal_s
 	int			j_max_transaction_buffers;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_revoke_records_per_block:
+	 *
+	 * Number of revoke records that fit in one descriptor block.
+	 */
+	int			j_revoke_records_per_block;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_commit_interval:
 	 *
 	 * What is the maximum transaction lifetime before we begin a commit?
@@ -1062,6 +1336,16 @@ struct journal_s
 	struct buffer_head	**j_wbuf;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_fc_wbuf: Array of fast commit bhs for fast commit. Accessed only
+	 * during a fast commit. Currently only process can do fast commit, so
+	 * this field is not protected by any lock.
+	 */
+	struct buffer_head	**j_fc_wbuf;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_wbufsize:
 	 *
 	 * Size of @j_wbuf array.
@@ -1069,6 +1353,16 @@ struct journal_s
 	int			j_wbufsize;
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @j_fc_wbufsize:
+	 *
+	 * Size of @j_fc_wbuf array.
+	 */
+	int			j_fc_wbufsize;
+
+	/**
+>>>>>>> upstream/android-13
 	 * @j_last_sync_writer:
 	 *
 	 * The pid of the last person to run a synchronous operation
@@ -1108,6 +1402,30 @@ struct journal_s
 	void			(*j_commit_callback)(journal_t *,
 						     transaction_t *);
 
+<<<<<<< HEAD
+=======
+	/**
+	 * @j_submit_inode_data_buffers:
+	 *
+	 * This function is called for all inodes associated with the
+	 * committing transaction marked with JI_WRITE_DATA flag
+	 * before we start to write out the transaction to the journal.
+	 */
+	int			(*j_submit_inode_data_buffers)
+					(struct jbd2_inode *);
+
+	/**
+	 * @j_finish_inode_data_buffers:
+	 *
+	 * This function is called for all inodes associated with the
+	 * committing transaction marked with JI_WAIT_DATA flag
+	 * after we have written the transaction to the journal
+	 * but before we write out the commit block.
+	 */
+	int			(*j_finish_inode_data_buffers)
+					(struct jbd2_inode *);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Journal statistics
 	 */
@@ -1167,12 +1485,43 @@ struct journal_s
 	 */
 	struct lockdep_map	j_trans_commit_map;
 #endif
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @j_fc_cleanup_callback:
+	 *
+	 * Clean-up after fast commit or full commit. JBD2 calls this function
+	 * after every commit operation.
+	 */
+	void (*j_fc_cleanup_callback)(struct journal_s *journal, int full, tid_t tid);
+
+	/**
+	 * @j_fc_replay_callback:
+	 *
+	 * File-system specific function that performs replay of a fast
+	 * commit. JBD2 calls this function for each fast commit block found in
+	 * the journal. This function should return JBD2_FC_REPLAY_CONTINUE
+	 * to indicate that the block was processed correctly and more fast
+	 * commit replay should continue. Return value of JBD2_FC_REPLAY_STOP
+	 * indicates the end of replay (no more blocks remaining). A negative
+	 * return value indicates error.
+	 */
+	int (*j_fc_replay_callback)(struct journal_s *journal,
+				    struct buffer_head *bh,
+				    enum passtype pass, int off,
+				    tid_t expected_commit_id);
+>>>>>>> upstream/android-13
 };
 
 #define jbd2_might_wait_for_commit(j) \
 	do { \
 		rwsem_acquire(&j->j_trans_commit_map, 0, 0, _THIS_IP_); \
+<<<<<<< HEAD
 		rwsem_release(&j->j_trans_commit_map, 1, _THIS_IP_); \
+=======
+		rwsem_release(&j->j_trans_commit_map, _THIS_IP_); \
+>>>>>>> upstream/android-13
 	} while (0)
 
 /* journal feature predicate functions */
@@ -1237,6 +1586,10 @@ JBD2_FEATURE_INCOMPAT_FUNCS(64bit,		64BIT)
 JBD2_FEATURE_INCOMPAT_FUNCS(async_commit,	ASYNC_COMMIT)
 JBD2_FEATURE_INCOMPAT_FUNCS(csum2,		CSUM_V2)
 JBD2_FEATURE_INCOMPAT_FUNCS(csum3,		CSUM_V3)
+<<<<<<< HEAD
+=======
+JBD2_FEATURE_INCOMPAT_FUNCS(fast_commit,	FAST_COMMIT)
+>>>>>>> upstream/android-13
 
 /*
  * Journal flag definitions
@@ -1250,7 +1603,22 @@ JBD2_FEATURE_INCOMPAT_FUNCS(csum3,		CSUM_V3)
 #define JBD2_ABORT_ON_SYNCDATA_ERR	0x040	/* Abort the journal on file
 						 * data write error in ordered
 						 * mode */
+<<<<<<< HEAD
 #define JBD2_REC_ERR	0x080	/* The errno in the sb has been recorded */
+=======
+#define JBD2_FAST_COMMIT_ONGOING	0x100	/* Fast commit is ongoing */
+#define JBD2_FULL_COMMIT_ONGOING	0x200	/* Full commit is ongoing */
+#define JBD2_JOURNAL_FLUSH_DISCARD	0x0001
+#define JBD2_JOURNAL_FLUSH_ZEROOUT	0x0002
+#define JBD2_JOURNAL_FLUSH_VALID	(JBD2_JOURNAL_FLUSH_DISCARD | \
+					JBD2_JOURNAL_FLUSH_ZEROOUT)
+
+/*
+ * Journal atomic flag definitions
+ */
+#define JBD2_CHECKPOINT_IO_ERROR	0x001	/* Detect io error while writing
+						 * buffer back to disk */
+>>>>>>> upstream/android-13
 
 /*
  * Function declarations for the journaling transaction and buffer
@@ -1259,7 +1627,11 @@ JBD2_FEATURE_INCOMPAT_FUNCS(csum3,		CSUM_V3)
 
 /* Filing buffers */
 extern void jbd2_journal_unfile_buffer(journal_t *, struct journal_head *);
+<<<<<<< HEAD
 extern void __jbd2_journal_refile_buffer(struct journal_head *);
+=======
+extern bool __jbd2_journal_refile_buffer(struct journal_head *);
+>>>>>>> upstream/android-13
 extern void jbd2_journal_refile_buffer(journal_t *, struct journal_head *);
 extern void __jbd2_journal_file_buffer(struct journal_head *, transaction_t *, int);
 extern void __journal_free_buffer(struct journal_head *bh);
@@ -1288,6 +1660,10 @@ extern void jbd2_journal_commit_transaction(journal_t *);
 
 /* Checkpoint list management */
 void __jbd2_journal_clean_checkpoint_list(journal_t *journal, bool destroy);
+<<<<<<< HEAD
+=======
+unsigned long jbd2_journal_shrink_checkpoint_list(journal_t *journal, unsigned long *nr_to_scan);
+>>>>>>> upstream/android-13
 int __jbd2_journal_remove_checkpoint(struct journal_head *);
 void jbd2_journal_destroy_checkpoint(journal_t *journal);
 void __jbd2_journal_insert_checkpoint(struct journal_head *, transaction_t *);
@@ -1360,6 +1736,7 @@ static inline handle_t *journal_current_handle(void)
 
 extern handle_t *jbd2_journal_start(journal_t *, int nblocks);
 extern handle_t *jbd2__journal_start(journal_t *, int blocks, int rsv_blocks,
+<<<<<<< HEAD
 				     gfp_t gfp_mask, unsigned int type,
 				     unsigned int line_no);
 extern int	 jbd2_journal_restart(handle_t *, int nblocks);
@@ -1368,6 +1745,18 @@ extern int	 jbd2_journal_start_reserved(handle_t *handle,
 				unsigned int type, unsigned int line_no);
 extern void	 jbd2_journal_free_reserved(handle_t *handle);
 extern int	 jbd2_journal_extend (handle_t *, int nblocks);
+=======
+				     int revoke_records, gfp_t gfp_mask,
+				     unsigned int type, unsigned int line_no);
+extern int	 jbd2_journal_restart(handle_t *, int nblocks);
+extern int	 jbd2__journal_restart(handle_t *, int nblocks,
+				       int revoke_records, gfp_t gfp_mask);
+extern int	 jbd2_journal_start_reserved(handle_t *handle,
+				unsigned int type, unsigned int line_no);
+extern void	 jbd2_journal_free_reserved(handle_t *handle);
+extern int	 jbd2_journal_extend(handle_t *handle, int nblocks,
+				     int revoke_records);
+>>>>>>> upstream/android-13
 extern int	 jbd2_journal_get_write_access(handle_t *, struct buffer_head *);
 extern int	 jbd2_journal_get_create_access (handle_t *, struct buffer_head *);
 extern int	 jbd2_journal_get_undo_access(handle_t *, struct buffer_head *);
@@ -1375,12 +1764,20 @@ void		 jbd2_journal_set_triggers(struct buffer_head *,
 					   struct jbd2_buffer_trigger_type *type);
 extern int	 jbd2_journal_dirty_metadata (handle_t *, struct buffer_head *);
 extern int	 jbd2_journal_forget (handle_t *, struct buffer_head *);
+<<<<<<< HEAD
 extern void	 journal_sync_buffer (struct buffer_head *);
 extern int	 jbd2_journal_invalidatepage(journal_t *,
 				struct page *, unsigned int, unsigned int);
 extern int	 jbd2_journal_try_to_free_buffers(journal_t *, struct page *, gfp_t);
 extern int	 jbd2_journal_stop(handle_t *);
 extern int	 jbd2_journal_flush (journal_t *);
+=======
+extern int	 jbd2_journal_invalidatepage(journal_t *,
+				struct page *, unsigned int, unsigned int);
+extern int	 jbd2_journal_try_to_free_buffers(journal_t *journal, struct page *page);
+extern int	 jbd2_journal_stop(handle_t *);
+extern int	 jbd2_journal_flush(journal_t *journal, unsigned int flags);
+>>>>>>> upstream/android-13
 extern void	 jbd2_journal_lock_updates (journal_t *);
 extern void	 jbd2_journal_unlock_updates (journal_t *);
 
@@ -1405,7 +1802,10 @@ extern int	   jbd2_journal_skip_recovery	(journal_t *);
 extern void	   jbd2_journal_update_sb_errno(journal_t *);
 extern int	   jbd2_journal_update_sb_log_tail	(journal_t *, tid_t,
 				unsigned long, int);
+<<<<<<< HEAD
 extern void	   __jbd2_journal_abort_hard	(journal_t *);
+=======
+>>>>>>> upstream/android-13
 extern void	   jbd2_journal_abort      (journal_t *, int);
 extern int	   jbd2_journal_errno      (journal_t *);
 extern void	   jbd2_journal_ack_err    (journal_t *);
@@ -1413,14 +1813,24 @@ extern int	   jbd2_journal_clear_err  (journal_t *);
 extern int	   jbd2_journal_bmap(journal_t *, unsigned long, unsigned long long *);
 extern int	   jbd2_journal_force_commit(journal_t *);
 extern int	   jbd2_journal_force_commit_nested(journal_t *);
+<<<<<<< HEAD
 extern int	   jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *inode);
 extern int	   jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *inode);
+=======
+>>>>>>> upstream/android-13
 extern int	   jbd2_journal_inode_ranged_write(handle_t *handle,
 			struct jbd2_inode *inode, loff_t start_byte,
 			loff_t length);
 extern int	   jbd2_journal_inode_ranged_wait(handle_t *handle,
 			struct jbd2_inode *inode, loff_t start_byte,
 			loff_t length);
+<<<<<<< HEAD
+=======
+extern int	   jbd2_journal_submit_inode_data_buffers(
+			struct jbd2_inode *jinode);
+extern int	   jbd2_journal_finish_inode_data_buffers(
+			struct jbd2_inode *jinode);
+>>>>>>> upstream/android-13
 extern int	   jbd2_journal_begin_ordered_truncate(journal_t *journal,
 				struct jbd2_inode *inode, loff_t new_size);
 extern void	   jbd2_journal_init_jbd_inode(struct jbd2_inode *jinode, struct inode *inode);
@@ -1505,6 +1915,24 @@ void __jbd2_log_wait_for_space(journal_t *journal);
 extern void __jbd2_journal_drop_transaction(journal_t *, transaction_t *);
 extern int jbd2_cleanup_journal_tail(journal_t *);
 
+<<<<<<< HEAD
+=======
+/* Fast commit related APIs */
+int jbd2_fc_begin_commit(journal_t *journal, tid_t tid);
+int jbd2_fc_end_commit(journal_t *journal);
+int jbd2_fc_end_commit_fallback(journal_t *journal);
+int jbd2_fc_get_buf(journal_t *journal, struct buffer_head **bh_out);
+int jbd2_submit_inode_data(struct jbd2_inode *jinode);
+int jbd2_wait_inode_data(journal_t *journal, struct jbd2_inode *jinode);
+int jbd2_fc_wait_bufs(journal_t *journal, int num_blks);
+int jbd2_fc_release_bufs(journal_t *journal);
+
+static inline int jbd2_journal_get_max_txn_bufs(journal_t *journal)
+{
+	return (journal->j_total_len - journal->j_fc_wbufsize) / 4;
+}
+
+>>>>>>> upstream/android-13
 /*
  * is_journal_abort
  *
@@ -1565,6 +1993,7 @@ static inline int jbd2_journal_has_csum_v2or3(journal_t *journal)
 	return journal->j_chksum_driver != NULL;
 }
 
+<<<<<<< HEAD
 /*
  * We reserve t_outstanding_credits >> JBD2_CONTROL_BLOCKS_SHIFT for
  * transaction control blocks.
@@ -1579,6 +2008,13 @@ static inline int jbd2_space_needed(journal_t *journal)
 {
 	int nblocks = journal->j_max_transaction_buffers;
 	return nblocks + (nblocks >> JBD2_CONTROL_BLOCKS_SHIFT);
+=======
+static inline int jbd2_journal_get_num_fc_blks(journal_superblock_t *jsb)
+{
+	int num_fc_blocks = be32_to_cpu(jsb->s_num_fc_blks);
+
+	return num_fc_blocks ? num_fc_blocks : JBD2_DEFAULT_FAST_COMMIT_BLOCKS;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1590,11 +2026,16 @@ static inline unsigned long jbd2_log_space_left(journal_t *journal)
 	long free = journal->j_free - 32;
 
 	if (journal->j_committing_transaction) {
+<<<<<<< HEAD
 		unsigned long committing = atomic_read(&journal->
 			j_committing_transaction->t_outstanding_credits);
 
 		/* Transaction + control blocks */
 		free -= committing + (committing >> JBD2_CONTROL_BLOCKS_SHIFT);
+=======
+		free -= atomic_read(&journal->
+                        j_committing_transaction->t_outstanding_credits);
+>>>>>>> upstream/android-13
 	}
 	return max_t(long, free, 0);
 }
@@ -1629,7 +2070,10 @@ static inline u32 jbd2_chksum(journal_t *journal, u32 crc,
 		JBD_MAX_CHECKSUM_SIZE);
 
 	desc.shash.tfm = journal->j_chksum_driver;
+<<<<<<< HEAD
 	desc.shash.flags = 0;
+=======
+>>>>>>> upstream/android-13
 	*(u32 *)desc.ctx = crc;
 
 	err = crypto_shash_update(&desc.shash, address, length);
@@ -1651,6 +2095,23 @@ static inline tid_t  jbd2_get_latest_transaction(journal_t *journal)
 	return tid;
 }
 
+<<<<<<< HEAD
+=======
+static inline int jbd2_handle_buffer_credits(handle_t *handle)
+{
+	journal_t *journal;
+
+	if (!handle->h_reserved)
+		journal = handle->h_transaction->t_journal;
+	else
+		journal = handle->h_journal;
+
+	return handle->h_total_credits -
+		DIV_ROUND_UP(handle->h_revoke_credits_requested,
+			     journal->j_revoke_records_per_block);
+}
+
+>>>>>>> upstream/android-13
 #ifdef __KERNEL__
 
 #define buffer_trace_init(bh)	do {} while (0)

@@ -2,12 +2,16 @@
 config ACADIA
 	bool "Acadia"
 	depends on 40x
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	select PPC40x_SIMPLE
 	select 405EZ
 	help
 	  This option enables support for the AMCC 405EZ Acadia evaluation board.
 
+<<<<<<< HEAD
 config EP405
 	bool "EP405/EP405PC"
 	depends on 40x
@@ -25,14 +29,30 @@ config HOTFOOT
 	select PCI
         help
 	 This option enables support for the ESTEEM 195E Hotfoot board.
+=======
+config HOTFOOT
+	bool "Hotfoot"
+	depends on 40x
+	select PPC40x_SIMPLE
+	select FORCE_PCI
+	help
+	  This option enables support for the ESTEEM 195E Hotfoot board.
+>>>>>>> upstream/android-13
 
 config KILAUEA
 	bool "Kilauea"
 	depends on 40x
+<<<<<<< HEAD
 	default n
 	select 405EX
 	select PPC40x_SIMPLE
 	select PPC4xx_PCI_EXPRESS
+=======
+	select 405EX
+	select PPC40x_SIMPLE
+	select PPC4xx_PCI_EXPRESS
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PCI_MSI
 	select PPC4xx_MSI
 	help
@@ -41,14 +61,20 @@ config KILAUEA
 config MAKALU
 	bool "Makalu"
 	depends on 40x
+<<<<<<< HEAD
 	default n
 	select 405EX
 	select PCI
+=======
+	select 405EX
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC4xx_PCI_EXPRESS
 	select PPC40x_SIMPLE
 	help
 	  This option enables support for the AMCC PPC405EX board.
 
+<<<<<<< HEAD
 config WALNUT
 	bool "Walnut"
 	depends on 40x
@@ -81,11 +107,17 @@ config OBS600
 	bool "OpenBlockS 600"
 	depends on 40x
 	default n
+=======
+config OBS600
+	bool "OpenBlockS 600"
+	depends on 40x
+>>>>>>> upstream/android-13
 	select 405EX
 	select PPC40x_SIMPLE
 	help
 	  This option enables support for PlatHome OpenBlockS 600 server
 
+<<<<<<< HEAD
 
 config PPC40x_SIMPLE
 	bool "Simple PowerPC 40x board support"
@@ -106,6 +138,14 @@ config 405GP
 	select IBM405_ERR51
 	select IBM_EMAC_ZMII if IBM_EMAC
 
+=======
+config PPC40x_SIMPLE
+	bool "Simple PowerPC 40x board support"
+	depends on 40x
+	help
+	  This option enables the simple PowerPC 40x platform support.
+
+>>>>>>> upstream/android-13
 config 405EX
 	bool
 	select IBM_EMAC_EMAC4 if IBM_EMAC
@@ -117,6 +157,7 @@ config 405EZ
 	select IBM_EMAC_MAL_CLR_ICINTSTAT if IBM_EMAC
 	select IBM_EMAC_MAL_COMMON_ERR if IBM_EMAC
 
+<<<<<<< HEAD
 config XILINX_VIRTEX
 	bool
 	select DEFAULT_UIMAGE
@@ -136,6 +177,8 @@ config STB03xxx
 	select IBM405_ERR77
 	select IBM405_ERR51
 
+=======
+>>>>>>> upstream/android-13
 config PPC4xx_GPIO
 	bool "PPC4xx GPIO support"
 	depends on 40x
@@ -143,6 +186,7 @@ config PPC4xx_GPIO
 	help
 	  Enable gpiolib support for ppc40x based boards
 
+<<<<<<< HEAD
 # 40x errata/workaround config symbols, selected by the CPU models above
 
 # All 405-based cores up until the 405GPR and 405EP have this errata.
@@ -157,6 +201,11 @@ config APM8018X
 	bool "APM8018X"
 	depends on 40x
 	default n
+=======
+config APM8018X
+	bool "APM8018X"
+	depends on 40x
+>>>>>>> upstream/android-13
 	select PPC40x_SIMPLE
 	help
 	  This option enables support for the AppliedMicro APM8018X evaluation

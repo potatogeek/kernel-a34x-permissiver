@@ -40,7 +40,11 @@
 #include <linux/slab.h>
 #include <linux/dma-mapping.h>
 #include <linux/kref.h>
+<<<<<<< HEAD
 #include <linux/idr.h>
+=======
+#include <linux/xarray.h>
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 #include <uapi/linux/if_ether.h>
 #include <rdma/ib_pack.h>
@@ -95,13 +99,21 @@ struct ib_sa_port {
 	struct delayed_work ib_cpi_work;
 	spinlock_t                   classport_lock; /* protects class port info set */
 	spinlock_t           ah_lock;
+<<<<<<< HEAD
 	u8                   port_num;
+=======
+	u32		     port_num;
+>>>>>>> upstream/android-13
 };
 
 struct ib_sa_device {
 	int                     start_port, end_port;
 	struct ib_event_handler event_handler;
+<<<<<<< HEAD
 	struct ib_sa_port port[0];
+=======
+	struct ib_sa_port port[];
+>>>>>>> upstream/android-13
 };
 
 struct ib_sa_query {
@@ -123,12 +135,15 @@ struct ib_sa_query {
 #define IB_SA_CANCEL			0x00000002
 #define IB_SA_QUERY_OPA			0x00000004
 
+<<<<<<< HEAD
 struct ib_sa_service_query {
 	void (*callback)(int, struct ib_sa_service_rec *, void *);
 	void *context;
 	struct ib_sa_query sa_query;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct ib_sa_path_query {
 	void (*callback)(int, struct sa_path_rec *, void *);
 	void *context;
@@ -174,7 +189,11 @@ static const struct nla_policy ib_nl_policy[LS_NLA_TYPE_MAX] = {
 };
 
 
+<<<<<<< HEAD
 static void ib_sa_add_one(struct ib_device *device);
+=======
+static int ib_sa_add_one(struct ib_device *device);
+>>>>>>> upstream/android-13
 static void ib_sa_remove_one(struct ib_device *device, void *client_data);
 
 static struct ib_client sa_client = {
@@ -183,15 +202,23 @@ static struct ib_client sa_client = {
 	.remove = ib_sa_remove_one
 };
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(idr_lock);
 static DEFINE_IDR(query_idr);
+=======
+static DEFINE_XARRAY_FLAGS(queries, XA_FLAGS_ALLOC | XA_FLAGS_LOCK_IRQ);
+>>>>>>> upstream/android-13
 
 static DEFINE_SPINLOCK(tid_lock);
 static u32 tid;
 
 #define PATH_REC_FIELD(field) \
 	.struct_offset_bytes = offsetof(struct sa_path_rec, field),	\
+<<<<<<< HEAD
 	.struct_size_bytes   = sizeof((struct sa_path_rec *)0)->field,	\
+=======
+	.struct_size_bytes   = sizeof_field(struct sa_path_rec, field),	\
+>>>>>>> upstream/android-13
 	.field_name          = "sa_path_rec:" #field
 
 static const struct ib_field path_rec_table[] = {
@@ -293,7 +320,11 @@ static const struct ib_field path_rec_table[] = {
 	.struct_offset_bytes = \
 		offsetof(struct sa_path_rec, field), \
 	.struct_size_bytes   = \
+<<<<<<< HEAD
 		sizeof((struct sa_path_rec *)0)->field,	\
+=======
+		sizeof_field(struct sa_path_rec, field),	\
+>>>>>>> upstream/android-13
 	.field_name          = "sa_path_rec:" #field
 
 static const struct ib_field opa_path_rec_table[] = {
@@ -421,7 +452,11 @@ static const struct ib_field opa_path_rec_table[] = {
 
 #define MCMEMBER_REC_FIELD(field) \
 	.struct_offset_bytes = offsetof(struct ib_sa_mcmember_rec, field),	\
+<<<<<<< HEAD
 	.struct_size_bytes   = sizeof ((struct ib_sa_mcmember_rec *) 0)->field,	\
+=======
+	.struct_size_bytes   = sizeof_field(struct ib_sa_mcmember_rec, field),	\
+>>>>>>> upstream/android-13
 	.field_name          = "sa_mcmember_rec:" #field
 
 static const struct ib_field mcmember_rec_table[] = {
@@ -503,6 +538,7 @@ static const struct ib_field mcmember_rec_table[] = {
 	  .size_bits    = 23 },
 };
 
+<<<<<<< HEAD
 #define SERVICE_REC_FIELD(field) \
 	.struct_offset_bytes = offsetof(struct ib_sa_service_rec, field),	\
 	.struct_size_bytes   = sizeof ((struct ib_sa_service_rec *) 0)->field,	\
@@ -554,6 +590,11 @@ static const struct ib_field service_rec_table[] = {
 #define CLASSPORTINFO_REC_FIELD(field) \
 	.struct_offset_bytes = offsetof(struct ib_class_port_info, field),	\
 	.struct_size_bytes   = sizeof((struct ib_class_port_info *)0)->field,	\
+=======
+#define CLASSPORTINFO_REC_FIELD(field) \
+	.struct_offset_bytes = offsetof(struct ib_class_port_info, field),	\
+	.struct_size_bytes   = sizeof_field(struct ib_class_port_info, field),	\
+>>>>>>> upstream/android-13
 	.field_name          = "ib_class_port_info:" #field
 
 static const struct ib_field ib_classport_info_rec_table[] = {
@@ -631,7 +672,11 @@ static const struct ib_field ib_classport_info_rec_table[] = {
 	.struct_offset_bytes =\
 		offsetof(struct opa_class_port_info, field),	\
 	.struct_size_bytes   = \
+<<<<<<< HEAD
 		sizeof((struct opa_class_port_info *)0)->field,	\
+=======
+		sizeof_field(struct opa_class_port_info, field),	\
+>>>>>>> upstream/android-13
 	.field_name          = "opa_class_port_info:" #field
 
 static const struct ib_field opa_classport_info_rec_table[] = {
@@ -711,7 +756,11 @@ static const struct ib_field opa_classport_info_rec_table[] = {
 
 #define GUIDINFO_REC_FIELD(field) \
 	.struct_offset_bytes = offsetof(struct ib_sa_guidinfo_rec, field),	\
+<<<<<<< HEAD
 	.struct_size_bytes   = sizeof((struct ib_sa_guidinfo_rec *) 0)->field,	\
+=======
+	.struct_size_bytes   = sizeof_field(struct ib_sa_guidinfo_rec, field),	\
+>>>>>>> upstream/android-13
 	.field_name          = "sa_guidinfo_rec:" #field
 
 static const struct ib_field guidinfo_rec_table[] = {
@@ -761,8 +810,14 @@ static void ib_nl_set_path_rec_attrs(struct sk_buff *skb,
 
 	/* Construct the family header first */
 	header = skb_put(skb, NLMSG_ALIGN(sizeof(*header)));
+<<<<<<< HEAD
 	memcpy(header->device_name, query->port->agent->device->name,
 	       LS_DEVICE_NAME_MAX);
+=======
+	strscpy_pad(header->device_name,
+		    dev_name(&query->port->agent->device->dev),
+		    LS_DEVICE_NAME_MAX);
+>>>>>>> upstream/android-13
 	header->port_num = query->port->port_num;
 
 	if ((comp_mask & IB_SA_PATH_REC_REVERSIBLE) &&
@@ -830,14 +885,30 @@ static int ib_nl_get_path_rec_attrs_len(ib_sa_comp_mask comp_mask)
 	return len;
 }
 
+<<<<<<< HEAD
 static int ib_nl_send_msg(struct ib_sa_query *query, gfp_t gfp_mask)
+=======
+static int ib_nl_make_request(struct ib_sa_query *query, gfp_t gfp_mask)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb = NULL;
 	struct nlmsghdr *nlh;
 	void *data;
+<<<<<<< HEAD
 	int ret = 0;
 	struct ib_sa_mad *mad;
 	int len;
+=======
+	struct ib_sa_mad *mad;
+	int len;
+	unsigned long flags;
+	unsigned long delay;
+	gfp_t gfp_flag;
+	int ret;
+
+	INIT_LIST_HEAD(&query->list);
+	query->seq = (u32)atomic_inc_return(&ib_nl_sa_request_seq);
+>>>>>>> upstream/android-13
 
 	mad = query->mad_buf->mad;
 	len = ib_nl_get_path_rec_attrs_len(mad->sa_hdr.comp_mask);
@@ -862,6 +933,7 @@ static int ib_nl_send_msg(struct ib_sa_query *query, gfp_t gfp_mask)
 	/* Repair the nlmsg header length */
 	nlmsg_end(skb, nlh);
 
+<<<<<<< HEAD
 	ret = rdma_nl_multicast(skb, RDMA_NL_GROUP_LS, gfp_mask);
 	if (!ret)
 		ret = len;
@@ -882,12 +954,25 @@ static int ib_nl_make_request(struct ib_sa_query *query, gfp_t gfp_mask)
 
 	/* Put the request on the list first.*/
 	spin_lock_irqsave(&ib_nl_request_lock, flags);
+=======
+	gfp_flag = ((gfp_mask & GFP_ATOMIC) == GFP_ATOMIC) ? GFP_ATOMIC :
+		GFP_NOWAIT;
+
+	spin_lock_irqsave(&ib_nl_request_lock, flags);
+	ret = rdma_nl_multicast(&init_net, skb, RDMA_NL_GROUP_LS, gfp_flag);
+
+	if (ret)
+		goto out;
+
+	/* Put the request on the list.*/
+>>>>>>> upstream/android-13
 	delay = msecs_to_jiffies(sa_local_svc_timeout_ms);
 	query->timeout = delay + jiffies;
 	list_add_tail(&query->list, &ib_nl_request_list);
 	/* Start the timeout if this is the only request */
 	if (ib_nl_request_list.next == &query->list)
 		queue_delayed_work(ib_nl_wq, &ib_nl_timed_work, delay);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&ib_nl_request_lock, flags);
 
 	ret = ib_nl_send_msg(query, gfp_mask);
@@ -900,6 +985,11 @@ static int ib_nl_make_request(struct ib_sa_query *query, gfp_t gfp_mask)
 	} else {
 		ret = 0;
 	}
+=======
+
+out:
+	spin_unlock_irqrestore(&ib_nl_request_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1037,8 +1127,13 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
 	    !(NETLINK_CB(skb).sk))
 		return -EPERM;
 
+<<<<<<< HEAD
 	ret = nla_parse(tb, LS_NLA_TYPE_MAX - 1, nlmsg_data(nlh),
 			nlmsg_len(nlh), ib_nl_policy, NULL);
+=======
+	ret = nla_parse_deprecated(tb, LS_NLA_TYPE_MAX - 1, nlmsg_data(nlh),
+				   nlmsg_len(nlh), ib_nl_policy, NULL);
+>>>>>>> upstream/android-13
 	attr = (const struct nlattr *)tb[LS_NLA_TYPE_TIMEOUT];
 	if (ret || !attr)
 		goto settimeout_out;
@@ -1089,8 +1184,13 @@ static inline int ib_nl_is_good_resolve_resp(const struct nlmsghdr *nlh)
 	if (nlh->nlmsg_flags & RDMA_NL_LS_F_ERR)
 		return 0;
 
+<<<<<<< HEAD
 	ret = nla_parse(tb, LS_NLA_TYPE_MAX - 1, nlmsg_data(nlh),
 			nlmsg_len(nlh), ib_nl_policy, NULL);
+=======
+	ret = nla_parse_deprecated(tb, LS_NLA_TYPE_MAX - 1, nlmsg_data(nlh),
+				   nlmsg_len(nlh), ib_nl_policy, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		return 0;
 
@@ -1156,7 +1256,11 @@ static void free_sm_ah(struct kref *kref)
 {
 	struct ib_sa_sm_ah *sm_ah = container_of(kref, struct ib_sa_sm_ah, ref);
 
+<<<<<<< HEAD
 	rdma_destroy_ah(sm_ah->ah);
+=======
+	rdma_destroy_ah(sm_ah->ah, 0);
+>>>>>>> upstream/android-13
 	kfree(sm_ah);
 }
 
@@ -1186,6 +1290,7 @@ EXPORT_SYMBOL(ib_sa_unregister_client);
 void ib_sa_cancel_query(int id, struct ib_sa_query *query)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 	struct ib_mad_agent *agent;
 	struct ib_mad_send_buf *mad_buf;
 
@@ -1197,6 +1302,17 @@ void ib_sa_cancel_query(int id, struct ib_sa_query *query)
 	agent = query->port->agent;
 	mad_buf = query->mad_buf;
 	spin_unlock_irqrestore(&idr_lock, flags);
+=======
+	struct ib_mad_send_buf *mad_buf;
+
+	xa_lock_irqsave(&queries, flags);
+	if (xa_load(&queries, id) != query) {
+		xa_unlock_irqrestore(&queries, flags);
+		return;
+	}
+	mad_buf = query->mad_buf;
+	xa_unlock_irqrestore(&queries, flags);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the query is still on the netlink request list, schedule
@@ -1204,11 +1320,19 @@ void ib_sa_cancel_query(int id, struct ib_sa_query *query)
 	 * sent to the MAD layer and has to be cancelled from there.
 	 */
 	if (!ib_nl_cancel_request(query))
+<<<<<<< HEAD
 		ib_cancel_mad(agent, mad_buf);
 }
 EXPORT_SYMBOL(ib_sa_cancel_query);
 
 static u8 get_src_path_mask(struct ib_device *device, u8 port_num)
+=======
+		ib_cancel_mad(mad_buf);
+}
+EXPORT_SYMBOL(ib_sa_cancel_query);
+
+static u8 get_src_path_mask(struct ib_device *device, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct ib_sa_device *sa_dev;
 	struct ib_sa_port   *port;
@@ -1227,6 +1351,7 @@ static u8 get_src_path_mask(struct ib_device *device, u8 port_num)
 	return src_path_mask;
 }
 
+<<<<<<< HEAD
 static int roce_resolve_route_from_path(struct sa_path_rec *rec,
 					const struct ib_gid_attr *attr)
 {
@@ -1267,6 +1392,9 @@ static int roce_resolve_route_from_path(struct sa_path_rec *rec,
 }
 
 static int init_ah_attr_grh_fields(struct ib_device *device, u8 port_num,
+=======
+static int init_ah_attr_grh_fields(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 				   struct sa_path_rec *rec,
 				   struct rdma_ah_attr *ah_attr,
 				   const struct ib_gid_attr *gid_attr)
@@ -1295,7 +1423,11 @@ static int init_ah_attr_grh_fields(struct ib_device *device, u8 port_num,
  * @port_num: Port on the specified device.
  * @rec: path record entry to use for ah attributes initialization.
  * @ah_attr: address handle attributes to initialization from path record.
+<<<<<<< HEAD
  * @sgid_attr: SGID attribute to consider during initialization.
+=======
+ * @gid_attr: SGID attribute to consider during initialization.
+>>>>>>> upstream/android-13
  *
  * When ib_init_ah_attr_from_path() returns success,
  * (a) for IB link layer it optionally contains a reference to SGID attribute
@@ -1304,7 +1436,11 @@ static int init_ah_attr_grh_fields(struct ib_device *device, u8 port_num,
  * User must invoke rdma_destroy_ah_attr() to release reference to SGID
  * attributes which are initialized using ib_init_ah_attr_from_path().
  */
+<<<<<<< HEAD
 int ib_init_ah_attr_from_path(struct ib_device *device, u8 port_num,
+=======
+int ib_init_ah_attr_from_path(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			      struct sa_path_rec *rec,
 			      struct rdma_ah_attr *ah_attr,
 			      const struct ib_gid_attr *gid_attr)
@@ -1408,6 +1544,7 @@ static void init_mad(struct ib_sa_query *query, struct ib_mad_agent *agent)
 	spin_unlock_irqrestore(&tid_lock, flags);
 }
 
+<<<<<<< HEAD
 static int send_mad(struct ib_sa_query *query, int timeout_ms, gfp_t gfp_mask)
 {
 	bool preload = gfpflags_allow_blocking(gfp_mask);
@@ -1427,12 +1564,38 @@ static int send_mad(struct ib_sa_query *query, int timeout_ms, gfp_t gfp_mask)
 		return id;
 
 	query->mad_buf->timeout_ms  = timeout_ms;
+=======
+static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
+		    gfp_t gfp_mask)
+{
+	unsigned long flags;
+	int ret, id;
+	const int nmbr_sa_query_retries = 10;
+
+	xa_lock_irqsave(&queries, flags);
+	ret = __xa_alloc(&queries, &id, query, xa_limit_32b, gfp_mask);
+	xa_unlock_irqrestore(&queries, flags);
+	if (ret < 0)
+		return ret;
+
+	query->mad_buf->timeout_ms  = timeout_ms / nmbr_sa_query_retries;
+	query->mad_buf->retries = nmbr_sa_query_retries;
+	if (!query->mad_buf->timeout_ms) {
+		/* Special case, very small timeout_ms */
+		query->mad_buf->timeout_ms = 1;
+		query->mad_buf->retries = timeout_ms;
+	}
+>>>>>>> upstream/android-13
 	query->mad_buf->context[0] = query;
 	query->id = id;
 
 	if ((query->flags & IB_SA_ENABLE_LOCAL_SERVICE) &&
 	    (!(query->flags & IB_SA_QUERY_OPA))) {
+<<<<<<< HEAD
 		if (!rdma_nl_chk_listeners(RDMA_NL_GROUP_LS)) {
+=======
+		if (rdma_nl_chk_listeners(RDMA_NL_GROUP_LS)) {
+>>>>>>> upstream/android-13
 			if (!ib_nl_make_request(query, gfp_mask))
 				return id;
 		}
@@ -1441,9 +1604,15 @@ static int send_mad(struct ib_sa_query *query, int timeout_ms, gfp_t gfp_mask)
 
 	ret = ib_post_send_mad(query->mad_buf, NULL);
 	if (ret) {
+<<<<<<< HEAD
 		spin_lock_irqsave(&idr_lock, flags);
 		idr_remove(&query_idr, id);
 		spin_unlock_irqrestore(&idr_lock, flags);
+=======
+		xa_lock_irqsave(&queries, flags);
+		__xa_erase(&queries, id);
+		xa_unlock_irqrestore(&queries, flags);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1467,17 +1636,26 @@ void ib_sa_pack_path(struct sa_path_rec *rec, void *attribute)
 EXPORT_SYMBOL(ib_sa_pack_path);
 
 static bool ib_sa_opa_pathrecord_support(struct ib_sa_client *client,
+<<<<<<< HEAD
 					 struct ib_device *device,
 					 u8 port_num)
 {
 	struct ib_sa_device *sa_dev = ib_get_client_data(device, &sa_client);
+=======
+					 struct ib_sa_device *sa_dev,
+					 u32 port_num)
+{
+>>>>>>> upstream/android-13
 	struct ib_sa_port *port;
 	unsigned long flags;
 	bool ret = false;
 
+<<<<<<< HEAD
 	if (!sa_dev)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	port = &sa_dev->port[port_num - sa_dev->start_port];
 	spin_lock_irqsave(&port->classport_lock, flags);
 	if (!port->classport_info.valid)
@@ -1497,24 +1675,39 @@ enum opa_pr_supported {
 	PR_IB_SUPPORTED
 };
 
+<<<<<<< HEAD
 /**
  * Check if current PR query can be an OPA query.
+=======
+/*
+ * opa_pr_query_possible - Check if current PR query can be an OPA query.
+ *
+>>>>>>> upstream/android-13
  * Retuns PR_NOT_SUPPORTED if a path record query is not
  * possible, PR_OPA_SUPPORTED if an OPA path record query
  * is possible and PR_IB_SUPPORTED if an IB path record
  * query is possible.
  */
 static int opa_pr_query_possible(struct ib_sa_client *client,
+<<<<<<< HEAD
 				 struct ib_device *device,
 				 u8 port_num,
 				 struct sa_path_rec *rec)
+=======
+				 struct ib_sa_device *sa_dev,
+				 struct ib_device *device, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct ib_port_attr port_attr;
 
 	if (ib_query_port(device, port_num, &port_attr))
 		return PR_NOT_SUPPORTED;
 
+<<<<<<< HEAD
 	if (ib_sa_opa_pathrecord_support(client, device, port_num))
+=======
+	if (ib_sa_opa_pathrecord_support(client, sa_dev, port_num))
+>>>>>>> upstream/android-13
 		return PR_OPA_SUPPORTED;
 
 	if (port_attr.lid >= be16_to_cpu(IB_MULTICAST_LID_BASE))
@@ -1595,10 +1788,17 @@ static void ib_sa_path_rec_release(struct ib_sa_query *sa_query)
  * the query.
  */
 int ib_sa_path_rec_get(struct ib_sa_client *client,
+<<<<<<< HEAD
 		       struct ib_device *device, u8 port_num,
 		       struct sa_path_rec *rec,
 		       ib_sa_comp_mask comp_mask,
 		       int timeout_ms, gfp_t gfp_mask,
+=======
+		       struct ib_device *device, u32 port_num,
+		       struct sa_path_rec *rec,
+		       ib_sa_comp_mask comp_mask,
+		       unsigned long timeout_ms, gfp_t gfp_mask,
+>>>>>>> upstream/android-13
 		       void (*callback)(int status,
 					struct sa_path_rec *resp,
 					void *context),
@@ -1629,7 +1829,11 @@ int ib_sa_path_rec_get(struct ib_sa_client *client,
 
 	query->sa_query.port     = port;
 	if (rec->rec_type == SA_PATH_REC_TYPE_OPA) {
+<<<<<<< HEAD
 		status = opa_pr_query_possible(client, device, port_num, rec);
+=======
+		status = opa_pr_query_possible(client, sa_dev, device, port_num);
+>>>>>>> upstream/android-13
 		if (status == PR_NOT_SUPPORTED) {
 			ret = -EINVAL;
 			goto err1;
@@ -1699,6 +1903,7 @@ err1:
 }
 EXPORT_SYMBOL(ib_sa_path_rec_get);
 
+<<<<<<< HEAD
 static void ib_sa_service_rec_callback(struct ib_sa_query *sa_query,
 				    int status,
 				    struct ib_sa_mad *mad)
@@ -1822,6 +2027,8 @@ err1:
 }
 EXPORT_SYMBOL(ib_sa_service_rec_query);
 
+=======
+>>>>>>> upstream/android-13
 static void ib_sa_mcmember_rec_callback(struct ib_sa_query *sa_query,
 					int status,
 					struct ib_sa_mad *mad)
@@ -1845,11 +2052,19 @@ static void ib_sa_mcmember_rec_release(struct ib_sa_query *sa_query)
 }
 
 int ib_sa_mcmember_rec_query(struct ib_sa_client *client,
+<<<<<<< HEAD
 			     struct ib_device *device, u8 port_num,
 			     u8 method,
 			     struct ib_sa_mcmember_rec *rec,
 			     ib_sa_comp_mask comp_mask,
 			     int timeout_ms, gfp_t gfp_mask,
+=======
+			     struct ib_device *device, u32 port_num,
+			     u8 method,
+			     struct ib_sa_mcmember_rec *rec,
+			     ib_sa_comp_mask comp_mask,
+			     unsigned long timeout_ms, gfp_t gfp_mask,
+>>>>>>> upstream/android-13
 			     void (*callback)(int status,
 					      struct ib_sa_mcmember_rec *resp,
 					      void *context),
@@ -1937,10 +2152,17 @@ static void ib_sa_guidinfo_rec_release(struct ib_sa_query *sa_query)
 }
 
 int ib_sa_guid_info_rec_query(struct ib_sa_client *client,
+<<<<<<< HEAD
 			      struct ib_device *device, u8 port_num,
 			      struct ib_sa_guidinfo_rec *rec,
 			      ib_sa_comp_mask comp_mask, u8 method,
 			      int timeout_ms, gfp_t gfp_mask,
+=======
+			      struct ib_device *device, u32 port_num,
+			      struct ib_sa_guidinfo_rec *rec,
+			      ib_sa_comp_mask comp_mask, u8 method,
+			      unsigned long timeout_ms, gfp_t gfp_mask,
+>>>>>>> upstream/android-13
 			      void (*callback)(int status,
 					       struct ib_sa_guidinfo_rec *resp,
 					       void *context),
@@ -2012,6 +2234,7 @@ err1:
 }
 EXPORT_SYMBOL(ib_sa_guid_info_rec_query);
 
+<<<<<<< HEAD
 bool ib_sa_sendonly_fullmem_support(struct ib_sa_client *client,
 				    struct ib_device *device,
 				    u8 port_num)
@@ -2036,6 +2259,8 @@ bool ib_sa_sendonly_fullmem_support(struct ib_sa_client *client,
 }
 EXPORT_SYMBOL(ib_sa_sendonly_fullmem_support);
 
+=======
+>>>>>>> upstream/android-13
 struct ib_classport_info_context {
 	struct completion	done;
 	struct ib_sa_query	*sa_query;
@@ -2107,7 +2332,11 @@ static void ib_sa_classport_info_rec_release(struct ib_sa_query *sa_query)
 }
 
 static int ib_sa_classport_info_rec_query(struct ib_sa_port *port,
+<<<<<<< HEAD
 					  int timeout_ms,
+=======
+					  unsigned long timeout_ms,
+>>>>>>> upstream/android-13
 					  void (*callback)(void *context),
 					  void *context,
 					  struct ib_sa_query **sa_query)
@@ -2235,9 +2464,15 @@ static void send_handler(struct ib_mad_agent *agent,
 			break;
 		}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&idr_lock, flags);
 	idr_remove(&query_idr, query->id);
 	spin_unlock_irqrestore(&idr_lock, flags);
+=======
+	xa_lock_irqsave(&queries, flags);
+	__xa_erase(&queries, query->id);
+	xa_unlock_irqrestore(&queries, flags);
+>>>>>>> upstream/android-13
 
 	free_mad(query);
 	if (query->client)
@@ -2323,7 +2558,12 @@ static void update_sm_ah(struct work_struct *work)
 					 cpu_to_be64(IB_SA_WELL_KNOWN_GUID));
 	}
 
+<<<<<<< HEAD
 	new_ah->ah = rdma_create_ah(port->agent->qp->pd, &ah_attr);
+=======
+	new_ah->ah = rdma_create_ah(port->agent->qp->pd, &ah_attr,
+				    RDMA_CREATE_AH_SLEEPABLE);
+>>>>>>> upstream/android-13
 	if (IS_ERR(new_ah->ah)) {
 		pr_warn("Couldn't create new SM AH\n");
 		kfree(new_ah);
@@ -2349,7 +2589,11 @@ static void ib_sa_event(struct ib_event_handler *handler,
 		unsigned long flags;
 		struct ib_sa_device *sa_dev =
 			container_of(handler, typeof(*sa_dev), event_handler);
+<<<<<<< HEAD
 		u8 port_num = event->element.port_num - sa_dev->start_port;
+=======
+		u32 port_num = event->element.port_num - sa_dev->start_port;
+>>>>>>> upstream/android-13
 		struct ib_sa_port *port = &sa_dev->port[port_num];
 
 		if (!rdma_cap_ib_sa(handler->device, port->port_num))
@@ -2379,20 +2623,34 @@ static void ib_sa_event(struct ib_event_handler *handler,
 	}
 }
 
+<<<<<<< HEAD
 static void ib_sa_add_one(struct ib_device *device)
+=======
+static int ib_sa_add_one(struct ib_device *device)
+>>>>>>> upstream/android-13
 {
 	struct ib_sa_device *sa_dev;
 	int s, e, i;
 	int count = 0;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	s = rdma_start_port(device);
 	e = rdma_end_port(device);
 
+<<<<<<< HEAD
 	sa_dev = kzalloc(sizeof *sa_dev +
 			 (e - s + 1) * sizeof (struct ib_sa_port),
 			 GFP_KERNEL);
 	if (!sa_dev)
 		return;
+=======
+	sa_dev = kzalloc(struct_size(sa_dev, port, e - s + 1), GFP_KERNEL);
+	if (!sa_dev)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	sa_dev->start_port = s;
 	sa_dev->end_port   = e;
@@ -2412,8 +2670,15 @@ static void ib_sa_add_one(struct ib_device *device)
 			ib_register_mad_agent(device, i + s, IB_QPT_GSI,
 					      NULL, 0, send_handler,
 					      recv_handler, sa_dev, 0);
+<<<<<<< HEAD
 		if (IS_ERR(sa_dev->port[i].agent))
 			goto err;
+=======
+		if (IS_ERR(sa_dev->port[i].agent)) {
+			ret = PTR_ERR(sa_dev->port[i].agent);
+			goto err;
+		}
+>>>>>>> upstream/android-13
 
 		INIT_WORK(&sa_dev->port[i].update_task, update_sm_ah);
 		INIT_DELAYED_WORK(&sa_dev->port[i].ib_cpi_work,
@@ -2422,8 +2687,15 @@ static void ib_sa_add_one(struct ib_device *device)
 		count++;
 	}
 
+<<<<<<< HEAD
 	if (!count)
 		goto free;
+=======
+	if (!count) {
+		ret = -EOPNOTSUPP;
+		goto free;
+	}
+>>>>>>> upstream/android-13
 
 	ib_set_client_data(device, &sa_client, sa_dev);
 
@@ -2442,7 +2714,11 @@ static void ib_sa_add_one(struct ib_device *device)
 			update_sm_ah(&sa_dev->port[i].update_task);
 	}
 
+<<<<<<< HEAD
 	return;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 err:
 	while (--i >= 0) {
@@ -2451,7 +2727,11 @@ err:
 	}
 free:
 	kfree(sa_dev);
+<<<<<<< HEAD
 	return;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void ib_sa_remove_one(struct ib_device *device, void *client_data)
@@ -2459,9 +2739,12 @@ static void ib_sa_remove_one(struct ib_device *device, void *client_data)
 	struct ib_sa_device *sa_dev = client_data;
 	int i;
 
+<<<<<<< HEAD
 	if (!sa_dev)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	ib_unregister_event_handler(&sa_dev->event_handler);
 	flush_workqueue(ib_wq);
 
@@ -2523,5 +2806,9 @@ void ib_sa_cleanup(void)
 	destroy_workqueue(ib_nl_wq);
 	mcast_cleanup();
 	ib_unregister_client(&sa_client);
+<<<<<<< HEAD
 	idr_destroy(&query_idr);
+=======
+	WARN_ON(!xa_empty(&queries));
+>>>>>>> upstream/android-13
 }

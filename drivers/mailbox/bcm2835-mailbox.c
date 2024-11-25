@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2010,2015 Broadcom
  *  Copyright (C) 2013-2014 Lubomir Rintel
  *  Copyright (C) 2013 Craig McGeachie
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -10,6 +15,8 @@
  * This device provides a mechanism for writing to the mailboxes,
  * that are shared between the ARM and the VideoCore processor
  *
+=======
+>>>>>>> upstream/android-13
  * Parts of the driver are based on:
  *  - arch/arm/mach-bcm2708/vcio.c file written by Gray Girling that was
  *    obtained from branch "rpi-3.6.y" of git://github.com/raspberrypi/
@@ -163,7 +170,10 @@ static int bcm2835_mbox_probe(struct platform_device *pdev)
 	mbox->regs = devm_ioremap_resource(&pdev->dev, iomem);
 	if (IS_ERR(mbox->regs)) {
 		ret = PTR_ERR(mbox->regs);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to remap mailbox regs: %d\n", ret);
+=======
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -178,7 +188,11 @@ static int bcm2835_mbox_probe(struct platform_device *pdev)
 	if (!mbox->controller.chans)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = mbox_controller_register(&mbox->controller);
+=======
+	ret = devm_mbox_controller_register(dev, &mbox->controller);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -188,6 +202,7 @@ static int bcm2835_mbox_probe(struct platform_device *pdev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int bcm2835_mbox_remove(struct platform_device *pdev)
 {
 	struct bcm2835_mbox *mbox = platform_get_drvdata(pdev);
@@ -195,6 +210,8 @@ static int bcm2835_mbox_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id bcm2835_mbox_of_match[] = {
 	{ .compatible = "brcm,bcm2835-mbox", },
 	{},
@@ -207,7 +224,10 @@ static struct platform_driver bcm2835_mbox_driver = {
 		.of_match_table = bcm2835_mbox_of_match,
 	},
 	.probe		= bcm2835_mbox_probe,
+<<<<<<< HEAD
 	.remove		= bcm2835_mbox_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(bcm2835_mbox_driver);
 

@@ -144,14 +144,22 @@ gk20a_volt = {
 };
 
 int
+<<<<<<< HEAD
 gk20a_volt_ctor(struct nvkm_device *device, int index,
+=======
+gk20a_volt_ctor(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+>>>>>>> upstream/android-13
 		const struct cvb_coef *coefs, int nb_coefs,
 		int vmin, struct gk20a_volt *volt)
 {
 	struct nvkm_device_tegra *tdev = device->func->tegra(device);
 	int i, uv;
 
+<<<<<<< HEAD
 	nvkm_volt_ctor(&gk20a_volt, device, index, &volt->base);
+=======
+	nvkm_volt_ctor(&gk20a_volt, device, type, inst, &volt->base);
+>>>>>>> upstream/android-13
 
 	uv = regulator_get_voltage(tdev->vdd);
 	nvkm_debug(&volt->base.subdev, "the default voltage is %duV\n", uv);
@@ -172,7 +180,11 @@ gk20a_volt_ctor(struct nvkm_device *device, int index,
 }
 
 int
+<<<<<<< HEAD
 gk20a_volt_new(struct nvkm_device *device, int index, struct nvkm_volt **pvolt)
+=======
+gk20a_volt_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_volt **pvolt)
+>>>>>>> upstream/android-13
 {
 	struct gk20a_volt *volt;
 
@@ -181,6 +193,10 @@ gk20a_volt_new(struct nvkm_device *device, int index, struct nvkm_volt **pvolt)
 		return -ENOMEM;
 	*pvolt = &volt->base;
 
+<<<<<<< HEAD
 	return gk20a_volt_ctor(device, index, gk20a_cvb_coef,
+=======
+	return gk20a_volt_ctor(device, type, inst, gk20a_cvb_coef,
+>>>>>>> upstream/android-13
 			       ARRAY_SIZE(gk20a_cvb_coef), 0, volt);
 }

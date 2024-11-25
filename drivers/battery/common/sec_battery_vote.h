@@ -33,7 +33,10 @@
 	GENERATE(VOTER_SYSOVLO)	\
 	GENERATE(VOTER_VBAT_OVP)	\
 	GENERATE(VOTER_STEP_CHARGE)	\
+<<<<<<< HEAD
 	GENERATE(VOTER_WPC_STEP_CHARGE)	\
+=======
+>>>>>>> upstream/android-13
 	GENERATE(VOTER_DC_STEP_CHARGE)	\
 	GENERATE(VOTER_TOPOFF_CHANGE)	\
 	GENERATE(VOTER_HMT)	\
@@ -42,7 +45,10 @@
 	GENERATE(VOTER_FULL_CAPACITY)	\
 	GENERATE(VOTER_WDT_EXPIRE)	\
 	GENERATE(VOTER_BATTERY)	\
+<<<<<<< HEAD
 	GENERATE(VOTER_IFCON_WA)	\
+=======
+>>>>>>> upstream/android-13
 	GENERATE(VOTER_USB_FAC_100MA)	\
 	GENERATE(VOTER_PASS_THROUGH)	\
 	GENERATE(VOTER_NO_BATTERY)	\
@@ -52,9 +58,12 @@
 	GENERATE(VOTER_MST)	\
 	GENERATE(VOTER_SRCCAP_TRANSIT)	\
 	GENERATE(VOTER_FW)	\
+<<<<<<< HEAD
 	GENERATE(VOTER_WL_TO_W)	\
 	GENERATE(VOTER_ABNORMAL_TA)	\
 	GENERATE(VOTER_PHM)	\
+=======
+>>>>>>> upstream/android-13
 	GENERATE(VOTER_MAX)
 
 #define GENERATE_ENUM(ENUM) ENUM,
@@ -108,6 +117,7 @@ do { \
 		break; \
 	} \
 	_sec_vote(vote, event, en, value, __func__, __LINE__); \
+<<<<<<< HEAD
 } while (0)
 
 #define sec_vote_refreshf(name) \
@@ -150,4 +160,8 @@ do { \
 } while (0); \
 ret; \
 })
+=======
+} while (0) \
+
+>>>>>>> upstream/android-13
 #endif

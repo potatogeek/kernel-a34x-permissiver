@@ -8,14 +8,21 @@
  */
 #ifndef __ASM_SH_CACHE_H
 #define __ASM_SH_CACHE_H
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/init.h>
 #include <cpu/cache.h>
 
 #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
 
+<<<<<<< HEAD
 #define __read_mostly __attribute__((__section__(".data..read_mostly")))
+=======
+#define __read_mostly __section(".data..read_mostly")
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 struct cache_info {
@@ -44,5 +51,8 @@ struct cache_info {
 	unsigned long flags;
 };
 #endif /* __ASSEMBLY__ */
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SH_CACHE_H */

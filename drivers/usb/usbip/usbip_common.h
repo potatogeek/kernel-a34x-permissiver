@@ -18,6 +18,10 @@
 #include <linux/usb.h>
 #include <linux/wait.h>
 #include <linux/sched/task.h>
+<<<<<<< HEAD
+=======
+#include <linux/kcov.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/usbip.h>
 
 #undef pr_fmt
@@ -280,6 +284,13 @@ struct usbip_device {
 		void (*reset)(struct usbip_device *);
 		void (*unusable)(struct usbip_device *);
 	} eh_ops;
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_KCOV
+	u64 kcov_handle;
+#endif
+>>>>>>> upstream/android-13
 };
 
 #define kthread_get_run(threadfn, data, namefmt, ...)			   \
@@ -340,4 +351,32 @@ static inline int interface_to_devnum(struct usb_interface *interface)
 	return udev->devnum;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KCOV
+
+static inline void usbip_kcov_handle_init(struct usbip_device *ud)
+{
+	ud->kcov_handle = kcov_common_handle();
+}
+
+static inline void usbip_kcov_remote_start(struct usbip_device *ud)
+{
+	kcov_remote_start_common(ud->kcov_handle);
+}
+
+static inline void usbip_kcov_remote_stop(void)
+{
+	kcov_remote_stop();
+}
+
+#else /* CONFIG_KCOV */
+
+static inline void usbip_kcov_handle_init(struct usbip_device *ud) { }
+static inline void usbip_kcov_remote_start(struct usbip_device *ud) { }
+static inline void usbip_kcov_remote_stop(void) { }
+
+#endif /* CONFIG_KCOV */
+
+>>>>>>> upstream/android-13
 #endif /* __USBIP_COMMON_H */

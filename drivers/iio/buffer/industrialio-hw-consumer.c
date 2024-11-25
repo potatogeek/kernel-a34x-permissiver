@@ -137,6 +137,7 @@ void iio_hw_consumer_free(struct iio_hw_consumer *hwc)
 }
 EXPORT_SYMBOL_GPL(iio_hw_consumer_free);
 
+<<<<<<< HEAD
 static void devm_iio_hw_consumer_release(struct device *dev, void *res)
 {
 	iio_hw_consumer_free(*(struct iio_hw_consumer **)res);
@@ -151,6 +152,11 @@ static int devm_iio_hw_consumer_match(struct device *dev, void *res, void *data)
 		return 0;
 	}
 	return *r == data;
+=======
+static void devm_iio_hw_consumer_release(void *iio_hwc)
+{
+	iio_hw_consumer_free(iio_hwc);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -160,13 +166,17 @@ static int devm_iio_hw_consumer_match(struct device *dev, void *res, void *data)
  * Managed iio_hw_consumer_alloc. iio_hw_consumer allocated with this function
  * is automatically freed on driver detach.
  *
+<<<<<<< HEAD
  * If an iio_hw_consumer allocated with this function needs to be freed
  * separately, devm_iio_hw_consumer_free() must be used.
  *
+=======
+>>>>>>> upstream/android-13
  * returns pointer to allocated iio_hw_consumer on success, NULL on failure.
  */
 struct iio_hw_consumer *devm_iio_hw_consumer_alloc(struct device *dev)
 {
+<<<<<<< HEAD
 	struct iio_hw_consumer **ptr, *iio_hwc;
 
 	ptr = devres_alloc(devm_iio_hw_consumer_release, sizeof(*ptr),
@@ -181,12 +191,26 @@ struct iio_hw_consumer *devm_iio_hw_consumer_alloc(struct device *dev)
 		*ptr = iio_hwc;
 		devres_add(dev, ptr);
 	}
+=======
+	struct iio_hw_consumer *iio_hwc;
+	int ret;
+
+	iio_hwc = iio_hw_consumer_alloc(dev);
+	if (IS_ERR(iio_hwc))
+		return iio_hwc;
+
+	ret = devm_add_action_or_reset(dev, devm_iio_hw_consumer_release,
+				       iio_hwc);
+	if (ret)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	return iio_hwc;
 }
 EXPORT_SYMBOL_GPL(devm_iio_hw_consumer_alloc);
 
 /**
+<<<<<<< HEAD
  * devm_iio_hw_consumer_free - Resource-managed iio_hw_consumer_free()
  * @dev: Pointer to consumer device.
  * @hwc: iio_hw_consumer to free.
@@ -204,6 +228,8 @@ void devm_iio_hw_consumer_free(struct device *dev, struct iio_hw_consumer *hwc)
 EXPORT_SYMBOL_GPL(devm_iio_hw_consumer_free);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * iio_hw_consumer_enable() - Enable IIO hardware consumer
  * @hwc: iio_hw_consumer to enable.
  *

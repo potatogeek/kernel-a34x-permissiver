@@ -117,7 +117,11 @@ static int aircable_process_packet(struct usb_serial_port *port,
 static void aircable_process_read_urb(struct urb *urb)
 {
 	struct usb_serial_port *port = urb->context;
+<<<<<<< HEAD
 	char *data = (char *)urb->transfer_buffer;
+=======
+	char *data = urb->transfer_buffer;
+>>>>>>> upstream/android-13
 	int has_headers;
 	int count;
 	int len;

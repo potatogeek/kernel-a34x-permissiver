@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config SECURITY_APPARMOR
 	bool "AppArmor support"
 	depends on SECURITY && NET
@@ -5,6 +9,11 @@ config SECURITY_APPARMOR
 	select SECURITY_PATH
 	select SECURITYFS
 	select SECURITY_NETWORK
+<<<<<<< HEAD
+=======
+	select ZLIB_INFLATE
+	select ZLIB_DEFLATE
+>>>>>>> upstream/android-13
 	default n
 	help
 	  This enables the AppArmor security module.
@@ -14,6 +23,7 @@ config SECURITY_APPARMOR
 
 	  If you are unsure how to answer this question, answer N.
 
+<<<<<<< HEAD
 config SECURITY_APPARMOR_BOOTPARAM_VALUE
 	int "AppArmor boot parameter default value"
 	depends on SECURITY_APPARMOR
@@ -30,6 +40,8 @@ config SECURITY_APPARMOR_BOOTPARAM_VALUE
 
 	  If you are unsure how to answer this question, answer 1.
 
+=======
+>>>>>>> upstream/android-13
 config SECURITY_APPARMOR_HASH
 	bool "Enable introspection of sha1 hashes for loaded profiles"
 	depends on SECURITY_APPARMOR
@@ -81,3 +93,23 @@ config SECURITY_APPARMOR_DEBUG_MESSAGES
 	  Set the default value of the apparmor.debug kernel parameter.
 	  When enabled, various debug messages will be logged to
 	  the kernel message buffer.
+<<<<<<< HEAD
+=======
+
+config SECURITY_APPARMOR_KUNIT_TEST
+	bool "Build KUnit tests for policy_unpack.c" if !KUNIT_ALL_TESTS
+	depends on KUNIT=y && SECURITY_APPARMOR
+	default KUNIT_ALL_TESTS
+	help
+	  This builds the AppArmor KUnit tests.
+
+	  KUnit tests run during boot and output the results to the debug log
+	  in TAP format (https://testanything.org/). Only useful for kernel devs
+	  running KUnit test harness and are not for inclusion into a
+	  production build.
+
+	  For more information on KUnit and unit tests in general please refer
+	  to the KUnit documentation in Documentation/dev-tools/kunit/.
+
+	  If unsure, say N.
+>>>>>>> upstream/android-13

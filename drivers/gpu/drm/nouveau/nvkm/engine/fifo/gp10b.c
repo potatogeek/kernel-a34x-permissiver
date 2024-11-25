@@ -26,7 +26,12 @@
 
 static const struct gk104_fifo_func
 gp10b_fifo = {
+<<<<<<< HEAD
 	.init_pbdma_timeout = gk208_fifo_init_pbdma_timeout,
+=======
+	.intr.fault = gp100_fifo_intr_fault,
+	.pbdma = &gm200_fifo_pbdma,
+>>>>>>> upstream/android-13
 	.fault.access = gk104_fifo_fault_access,
 	.fault.engine = gp100_fifo_fault_engine,
 	.fault.reason = gk104_fifo_fault_reason,
@@ -38,7 +43,14 @@ gp10b_fifo = {
 };
 
 int
+<<<<<<< HEAD
 gp10b_fifo_new(struct nvkm_device *device, int index, struct nvkm_fifo **pfifo)
 {
 	return gk104_fifo_new_(&gp10b_fifo, device, index, 512, pfifo);
+=======
+gp10b_fifo_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_fifo **pfifo)
+{
+	return gk104_fifo_new_(&gp10b_fifo, device, type, inst, 512, pfifo);
+>>>>>>> upstream/android-13
 }

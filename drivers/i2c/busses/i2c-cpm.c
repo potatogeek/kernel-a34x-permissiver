@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale CPM1/CPM2 I2C interface.
  * Copyright (c) 1999 Dan Malek (dmalek@jlc.net).
@@ -13,6 +17,7 @@
  *
  * Converted to of_platform_device. Renamed to i2c-cpm.c.
  * (C) 2007,2008 Jochen Friedrich <jochen@scram.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -543,7 +550,13 @@ static int cpm_i2c_setup(struct cpm_i2c *cpm)
 		}
 		out_be32(&rbdf[i].cbd_bufaddr, ((cpm->rxdma[i] + 1) & ~1));
 
+<<<<<<< HEAD
 		cpm->txbuf[i] = (unsigned char *)dma_alloc_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1, &cpm->txdma[i], GFP_KERNEL);
+=======
+		cpm->txbuf[i] = dma_alloc_coherent(&cpm->ofdev->dev,
+						   CPM_MAX_READ + 1,
+						   &cpm->txdma[i], GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!cpm->txbuf[i]) {
 			ret = -ENOMEM;
 			goto out_muram;

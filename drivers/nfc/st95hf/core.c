@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * --------------------------------------------------------------------
  * Driver for ST NFC Transceiver ST95HF
  * --------------------------------------------------------------------
  * Copyright (C) 2015 STMicroelectronics Pvt. Ltd. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -27,7 +34,10 @@
 #include <linux/nfc.h>
 #include <linux/of_gpio.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_irq.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/property.h>
 #include <linux/regulator/consumer.h>
 #include <linux/wait.h>
@@ -327,7 +337,11 @@ static int st95hf_echo_command(struct st95hf_context *st95context)
 					  &echo_response);
 	if (result) {
 		dev_err(&st95context->spicontext.spidev->dev,
+<<<<<<< HEAD
 			"err: echo response receieve error = 0x%x\n", result);
+=======
+			"err: echo response receive error = 0x%x\n", result);
+>>>>>>> upstream/android-13
 		return result;
 	}
 
@@ -672,7 +686,11 @@ static int st95hf_error_handling(struct st95hf_context *stcontext,
 			result = -ETIMEDOUT;
 		else
 			result = -EIO;
+<<<<<<< HEAD
 	return  result;
+=======
+		return result;
+>>>>>>> upstream/android-13
 	}
 
 	/* Check for CRC err only if CRC is present in the tag response */
@@ -781,9 +799,13 @@ static irqreturn_t st95hf_irq_thread_handler(int irq, void  *st95hfcontext)
 	int result = 0;
 	int res_len;
 	static bool wtx;
+<<<<<<< HEAD
 	struct device *dev;
 	struct device *spidevice;
 	struct nfc_digital_dev *nfcddev;
+=======
+	struct device *spidevice;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb_resp;
 	struct st95hf_context *stcontext  =
 		(struct st95hf_context *)st95hfcontext;
@@ -828,8 +850,11 @@ static irqreturn_t st95hf_irq_thread_handler(int irq, void  *st95hfcontext)
 		goto end;
 	}
 
+<<<<<<< HEAD
 	dev = &stcontext->nfcdev->dev;
 	nfcddev = stcontext->ddev;
+=======
+>>>>>>> upstream/android-13
 	if (skb_resp->data[2] == WTX_REQ_FROM_TAG) {
 		/* Request for new FWT from tag */
 		result = st95hf_handle_wtx(stcontext, true, skb_resp->data[3]);
@@ -941,10 +966,15 @@ static int st95hf_in_send_cmd(struct nfc_digital_dev *ddev,
 	int len_data_to_tag = 0;
 
 	skb_resp = nfc_alloc_recv_skb(MAX_RESPONSE_BUFFER_SIZE, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!skb_resp) {
 		rc = -ENOMEM;
 		goto error;
 	}
+=======
+	if (!skb_resp)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	switch (stcontext->current_rf_tech) {
 	case NFC_DIGITAL_RF_TECH_106A:
@@ -1001,7 +1031,10 @@ static int st95hf_in_send_cmd(struct nfc_digital_dev *ddev,
 
 free_skb_resp:
 	kfree_skb(skb_resp);
+<<<<<<< HEAD
 error:
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1055,7 +1088,11 @@ static void st95hf_abort_cmd(struct nfc_digital_dev *ddev)
 {
 }
 
+<<<<<<< HEAD
 static struct nfc_digital_ops st95hf_nfc_digital_ops = {
+=======
+static const struct nfc_digital_ops st95hf_nfc_digital_ops = {
+>>>>>>> upstream/android-13
 	.in_configure_hw = st95hf_in_configure_hw,
 	.in_send_cmd = st95hf_in_send_cmd,
 
@@ -1074,9 +1111,15 @@ static const struct spi_device_id st95hf_id[] = {
 };
 MODULE_DEVICE_TABLE(spi, st95hf_id);
 
+<<<<<<< HEAD
 static const struct of_device_id st95hf_spi_of_match[] = {
         { .compatible = "st,st95hf" },
         { },
+=======
+static const struct of_device_id st95hf_spi_of_match[] __maybe_unused = {
+	{ .compatible = "st,st95hf" },
+	{},
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(of, st95hf_spi_of_match);
 
@@ -1245,11 +1288,17 @@ static int st95hf_remove(struct spi_device *nfc_spi_dev)
 				 &reset_cmd,
 				 ST95HF_RESET_CMD_LEN,
 				 ASYNC);
+<<<<<<< HEAD
 	if (result) {
 		dev_err(&spictx->spidev->dev,
 			"ST95HF reset failed in remove() err = %d\n", result);
 		return result;
 	}
+=======
+	if (result)
+		dev_err(&spictx->spidev->dev,
+			"ST95HF reset failed in remove() err = %d\n", result);
+>>>>>>> upstream/android-13
 
 	/* wait for 3 ms to complete the controller reset process */
 	usleep_range(3000, 4000);
@@ -1258,7 +1307,11 @@ static int st95hf_remove(struct spi_device *nfc_spi_dev)
 	if (stcontext->st95hf_supply)
 		regulator_disable(stcontext->st95hf_supply);
 
+<<<<<<< HEAD
 	return result;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Register as SPI protocol driver */

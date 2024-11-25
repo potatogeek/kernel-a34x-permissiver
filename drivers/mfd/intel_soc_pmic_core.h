@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_soc_pmic_core.h - Intel SoC PMIC MFD Driver
  *
@@ -12,6 +13,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Intel SoC PMIC MFD Driver
+ *
+ * Copyright (C) 2012-2014 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author: Yang, Bin <bin.yang@intel.com>
  * Author: Zhu, Lejun <lejun.zhu@linux.intel.com>
  */

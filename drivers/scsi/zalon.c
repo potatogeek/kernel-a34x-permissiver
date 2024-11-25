@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Zalon 53c7xx device driver.
  * By Richard Hirst (rhirst@linuxcare.com)
@@ -88,7 +92,11 @@ zalon_probe(struct parisc_device *dev)
 	struct gsc_irq gsc_irq;
 	u32 zalon_vers;
 	int error = -ENODEV;
+<<<<<<< HEAD
 	void __iomem *zalon = ioremap_nocache(dev->hpa.start, 4096);
+=======
+	void __iomem *zalon = ioremap(dev->hpa.start, 4096);
+>>>>>>> upstream/android-13
 	void __iomem *io_port = zalon + GSC_SCSI_ZALON_OFFSET;
 	static int unit = 0;
 	struct Scsi_Host *host;
@@ -167,15 +175,22 @@ static const struct parisc_device_id zalon_tbl[] __initconst = {
 
 MODULE_DEVICE_TABLE(parisc, zalon_tbl);
 
+<<<<<<< HEAD
 static int __exit zalon_remove(struct parisc_device *dev)
+=======
+static void __exit zalon_remove(struct parisc_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct Scsi_Host *host = dev_get_drvdata(&dev->dev);
 
 	scsi_remove_host(host);
 	ncr53c8xx_release(host);
 	free_irq(dev->irq, host);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct parisc_driver zalon_driver __refdata = {

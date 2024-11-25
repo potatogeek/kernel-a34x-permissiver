@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* moxart.dtsi - Device Tree Include file for MOXA ART family SoC
  *
  * Copyright (C) 2013 Jonas Jensen <jonas.jensen@gmail.com>
@@ -9,6 +10,19 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* moxart.dtsi - Device Tree Include file for MOXA ART family SoC
+ *
+ * Copyright (C) 2013 Jonas Jensen <jonas.jensen@gmail.com>
+ */
+
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	compatible = "moxa,moxart";
 	model = "MOXART";
 	interrupt-parent = <&intc>;

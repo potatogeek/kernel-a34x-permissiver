@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble VT17xx
  *
  *   Lowlevel functions for WM8776 codec
  *
  *	Copyright (c) 2012 Ondrej Zary <linux@rainbow-software.org>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -52,7 +59,11 @@ static void snd_wm8776_activate_ctl(struct snd_wm8776 *wm,
 	unsigned int index_offset;
 
 	memset(&elem_id, 0, sizeof(elem_id));
+<<<<<<< HEAD
 	strlcpy(elem_id.name, ctl_name, sizeof(elem_id.name));
+=======
+	strscpy(elem_id.name, ctl_name, sizeof(elem_id.name));
+>>>>>>> upstream/android-13
 	elem_id.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
 	kctl = snd_ctl_find_id(card, &elem_id);
 	if (!kctl)
@@ -143,7 +154,11 @@ static const DECLARE_TLV_DB_SCALE(wm8776_ngth_tlv, -7800, 600, 0);
 static const DECLARE_TLV_DB_SCALE(wm8776_maxatten_lim_tlv, -1200, 100, 0);
 static const DECLARE_TLV_DB_SCALE(wm8776_maxatten_alc_tlv, -2100, 400, 0);
 
+<<<<<<< HEAD
 static struct snd_wm8776_ctl snd_wm8776_default_ctl[WM8776_CTL_COUNT] = {
+=======
+static const struct snd_wm8776_ctl snd_wm8776_default_ctl[WM8776_CTL_COUNT] = {
+>>>>>>> upstream/android-13
 	[WM8776_CTL_DAC_VOL] = {
 		.name = "Master Playback Volume",
 		.type = SNDRV_CTL_ELEM_TYPE_INTEGER,

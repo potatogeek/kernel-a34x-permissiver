@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Synopsys DesignWare Multimedia Card Interface driver
  *
  * Copyright (C) 2009 NXP Semiconductors
  * Copyright (C) 2009, 2010 Imagination Technologies Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -21,7 +28,10 @@
 #include <linux/mmc/host.h>
 #include <linux/mmc/mmc.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/clk.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "dw_mmc.h"
 #include "dw_mmc-pltfm.h"
@@ -102,6 +112,10 @@ static struct platform_driver dw_mci_pltfm_driver = {
 	.remove		= dw_mci_pltfm_remove,
 	.driver		= {
 		.name		= "dw_mmc",
+<<<<<<< HEAD
+=======
+		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table	= dw_mci_pltfm_match,
 		.pm		= &dw_mci_pltfm_pmops,
 	},

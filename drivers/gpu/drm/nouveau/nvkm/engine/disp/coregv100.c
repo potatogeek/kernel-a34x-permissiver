@@ -167,6 +167,10 @@ gv100_disp_core_fini(struct nv50_disp_chan *chan)
 	nvkm_mask(device, 0x6104e0, 0x00000010, 0x00000000);
 	gv100_disp_core_idle(chan);
 	nvkm_mask(device, 0x6104e0, 0x00000002, 0x00000000);
+<<<<<<< HEAD
+=======
+	chan->suspend_put = nvkm_rd32(device, 0x680000);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -181,7 +185,11 @@ gv100_disp_core_init(struct nv50_disp_chan *chan)
 	nvkm_wr32(device, 0x610b2c, 0x00000040);
 
 	nvkm_mask(device, 0x6104e0, 0x00000010, 0x00000010);
+<<<<<<< HEAD
 	nvkm_wr32(device, 0x680000, 0x00000000);
+=======
+	nvkm_wr32(device, 0x680000, chan->suspend_put);
+>>>>>>> upstream/android-13
 	nvkm_wr32(device, 0x6104e0, 0x00000013);
 	return gv100_disp_core_idle(chan);
 }

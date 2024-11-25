@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* sound/soc/rockchip/rockchip_i2s.c
  *
  * ALSA SoC Audio Layer - Rockchip I2S Controller driver
  *
  * Copyright (c) 2014 Rockchip Electronics Co. Ltd.
  * Author: Jianqun <jay.xu@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -18,6 +25,10 @@
 #include <linux/clk.h>
 #include <linux/pm_runtime.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/spinlock.h>
+>>>>>>> upstream/android-13
 #include <sound/pcm_params.h>
 #include <sound/dmaengine_pcm.h>
 
@@ -43,6 +54,12 @@ struct rk_i2s_dev {
 	struct regmap *regmap;
 	struct regmap *grf;
 
+<<<<<<< HEAD
+=======
+	bool has_capture;
+	bool has_playback;
+
+>>>>>>> upstream/android-13
 /*
  * Used to indicate the tx/rx status.
  * I2S controller hopes to start the tx and rx together,
@@ -52,6 +69,11 @@ struct rk_i2s_dev {
 	bool rx_start;
 	bool is_master_mode;
 	const struct rk_i2s_pins *pins;
+<<<<<<< HEAD
+=======
+	unsigned int bclk_ratio;
+	spinlock_t lock; /* tx/rx lock */
+>>>>>>> upstream/android-13
 };
 
 static int i2s_runtime_suspend(struct device *dev)
@@ -95,6 +117,10 @@ static void rockchip_snd_txctrl(struct rk_i2s_dev *i2s, int on)
 	unsigned int val = 0;
 	int retry = 10;
 
+<<<<<<< HEAD
+=======
+	spin_lock(&i2s->lock);
+>>>>>>> upstream/android-13
 	if (on) {
 		regmap_update_bits(i2s->regmap, I2S_DMACR,
 				   I2S_DMACR_TDE_ENABLE, I2S_DMACR_TDE_ENABLE);
@@ -135,6 +161,10 @@ static void rockchip_snd_txctrl(struct rk_i2s_dev *i2s, int on)
 			}
 		}
 	}
+<<<<<<< HEAD
+=======
+	spin_unlock(&i2s->lock);
+>>>>>>> upstream/android-13
 }
 
 static void rockchip_snd_rxctrl(struct rk_i2s_dev *i2s, int on)
@@ -142,6 +172,10 @@ static void rockchip_snd_rxctrl(struct rk_i2s_dev *i2s, int on)
 	unsigned int val = 0;
 	int retry = 10;
 
+<<<<<<< HEAD
+=======
+	spin_lock(&i2s->lock);
+>>>>>>> upstream/android-13
 	if (on) {
 		regmap_update_bits(i2s->regmap, I2S_DMACR,
 				   I2S_DMACR_RDE_ENABLE, I2S_DMACR_RDE_ENABLE);
@@ -182,6 +216,10 @@ static void rockchip_snd_rxctrl(struct rk_i2s_dev *i2s, int on)
 			}
 		}
 	}
+<<<<<<< HEAD
+=======
+	spin_unlock(&i2s->lock);
+>>>>>>> upstream/android-13
 }
 
 static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
@@ -189,7 +227,13 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 {
 	struct rk_i2s_dev *i2s = to_info(cpu_dai);
 	unsigned int mask = 0, val = 0;
+<<<<<<< HEAD
 
+=======
+	int ret = 0;
+
+	pm_runtime_get_sync(cpu_dai->dev);
+>>>>>>> upstream/android-13
 	mask = I2S_CKR_MSS_MASK;
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBS_CFS:
@@ -202,11 +246,17 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 		i2s->is_master_mode = false;
 		break;
 	default:
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto err_pm_put;
+>>>>>>> upstream/android-13
 	}
 
 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
 
+<<<<<<< HEAD
 	mask = I2S_CKR_CKP_MASK;
 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
 	case SND_SOC_DAIFMT_NB_NF:
@@ -217,6 +267,33 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 		break;
 	default:
 		return -EINVAL;
+=======
+	mask = I2S_CKR_CKP_MASK | I2S_CKR_TLP_MASK | I2S_CKR_RLP_MASK;
+	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
+	case SND_SOC_DAIFMT_NB_NF:
+		val = I2S_CKR_CKP_NORMAL |
+		      I2S_CKR_TLP_NORMAL |
+		      I2S_CKR_RLP_NORMAL;
+		break;
+	case SND_SOC_DAIFMT_NB_IF:
+		val = I2S_CKR_CKP_NORMAL |
+		      I2S_CKR_TLP_INVERTED |
+		      I2S_CKR_RLP_INVERTED;
+		break;
+	case SND_SOC_DAIFMT_IB_NF:
+		val = I2S_CKR_CKP_INVERTED |
+		      I2S_CKR_TLP_NORMAL |
+		      I2S_CKR_RLP_NORMAL;
+		break;
+	case SND_SOC_DAIFMT_IB_IF:
+		val = I2S_CKR_CKP_INVERTED |
+		      I2S_CKR_TLP_INVERTED |
+		      I2S_CKR_RLP_INVERTED;
+		break;
+	default:
+		ret = -EINVAL;
+		goto err_pm_put;
+>>>>>>> upstream/android-13
 	}
 
 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
@@ -232,6 +309,7 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 	case SND_SOC_DAIFMT_I2S:
 		val = I2S_TXCR_IBM_NORMAL;
 		break;
+<<<<<<< HEAD
 	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
 		val = I2S_TXCR_TFS_PCM;
 		break;
@@ -240,6 +318,17 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 		break;
 	default:
 		return -EINVAL;
+=======
+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
+		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
+		break;
+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
+		val = I2S_TXCR_TFS_PCM;
+		break;
+	default:
+		ret = -EINVAL;
+		goto err_pm_put;
+>>>>>>> upstream/android-13
 	}
 
 	regmap_update_bits(i2s->regmap, I2S_TXCR, mask, val);
@@ -255,6 +344,7 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 	case SND_SOC_DAIFMT_I2S:
 		val = I2S_RXCR_IBM_NORMAL;
 		break;
+<<<<<<< HEAD
 	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
 		val = I2S_RXCR_TFS_PCM;
 		break;
@@ -263,11 +353,29 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 		break;
 	default:
 		return -EINVAL;
+=======
+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
+		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
+		break;
+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
+		val = I2S_RXCR_TFS_PCM;
+		break;
+	default:
+		ret = -EINVAL;
+		goto err_pm_put;
+>>>>>>> upstream/android-13
 	}
 
 	regmap_update_bits(i2s->regmap, I2S_RXCR, mask, val);
 
+<<<<<<< HEAD
 	return 0;
+=======
+err_pm_put:
+	pm_runtime_put(cpu_dai->dev);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
@@ -275,17 +383,29 @@ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
 				  struct snd_soc_dai *dai)
 {
 	struct rk_i2s_dev *i2s = to_info(dai);
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	unsigned int val = 0;
 	unsigned int mclk_rate, bclk_rate, div_bclk, div_lrck;
 
 	if (i2s->is_master_mode) {
 		mclk_rate = clk_get_rate(i2s->mclk);
+<<<<<<< HEAD
 		bclk_rate = 2 * 32 * params_rate(params);
 		if (bclk_rate && mclk_rate % bclk_rate)
 			return -EINVAL;
 
 		div_bclk = mclk_rate / bclk_rate;
+=======
+		bclk_rate = i2s->bclk_ratio * params_rate(params);
+		if (!bclk_rate)
+			return -EINVAL;
+
+		div_bclk = DIV_ROUND_CLOSEST(mclk_rate, bclk_rate);
+>>>>>>> upstream/android-13
 		div_lrck = bclk_rate / params_rate(params);
 		regmap_update_bits(i2s->regmap, I2S_CKR,
 				   I2S_CKR_MDIV_MASK,
@@ -376,7 +496,11 @@ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
 			   I2S_DMACR_RDL(16));
 
 	val = I2S_CKR_TRCM_TXRX;
+<<<<<<< HEAD
 	if (dai->driver->symmetric_rates && rtd->dai_link->symmetric_rates)
+=======
+	if (dai->driver->symmetric_rate && rtd->dai_link->symmetric_rate)
+>>>>>>> upstream/android-13
 		val = I2S_CKR_TRCM_TXONLY;
 
 	regmap_update_bits(i2s->regmap, I2S_CKR,
@@ -416,12 +540,31 @@ static int rockchip_i2s_trigger(struct snd_pcm_substream *substream,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int rockchip_i2s_set_bclk_ratio(struct snd_soc_dai *dai,
+				       unsigned int ratio)
+{
+	struct rk_i2s_dev *i2s = to_info(dai);
+
+	i2s->bclk_ratio = ratio;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int rockchip_i2s_set_sysclk(struct snd_soc_dai *cpu_dai, int clk_id,
 				   unsigned int freq, int dir)
 {
 	struct rk_i2s_dev *i2s = to_info(cpu_dai);
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (freq == 0)
+		return 0;
+
+>>>>>>> upstream/android-13
 	ret = clk_set_rate(i2s->mclk, freq);
 	if (ret)
 		dev_err(i2s->dev, "Fail to set mclk %d\n", ret);
@@ -433,14 +576,24 @@ static int rockchip_i2s_dai_probe(struct snd_soc_dai *dai)
 {
 	struct rk_i2s_dev *i2s = snd_soc_dai_get_drvdata(dai);
 
+<<<<<<< HEAD
 	dai->capture_dma_data = &i2s->capture_dma_data;
 	dai->playback_dma_data = &i2s->playback_dma_data;
+=======
+	snd_soc_dai_init_dma_data(dai,
+		i2s->has_playback ? &i2s->playback_dma_data : NULL,
+		i2s->has_capture  ? &i2s->capture_dma_data  : NULL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static const struct snd_soc_dai_ops rockchip_i2s_dai_ops = {
 	.hw_params = rockchip_i2s_hw_params,
+<<<<<<< HEAD
+=======
+	.set_bclk_ratio	= rockchip_i2s_set_bclk_ratio,
+>>>>>>> upstream/android-13
 	.set_sysclk = rockchip_i2s_set_sysclk,
 	.set_fmt = rockchip_i2s_set_fmt,
 	.trigger = rockchip_i2s_trigger,
@@ -448,6 +601,7 @@ static const struct snd_soc_dai_ops rockchip_i2s_dai_ops = {
 
 static struct snd_soc_dai_driver rockchip_i2s_dai = {
 	.probe = rockchip_i2s_dai_probe,
+<<<<<<< HEAD
 	.playback = {
 		.stream_name = "Playback",
 		.channels_min = 2,
@@ -472,6 +626,10 @@ static struct snd_soc_dai_driver rockchip_i2s_dai = {
 	},
 	.ops = &rockchip_i2s_dai_ops,
 	.symmetric_rates = 1,
+=======
+	.ops = &rockchip_i2s_dai_ops,
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver rockchip_i2s_component = {
@@ -566,6 +724,7 @@ static const struct rk_i2s_pins rk3399_i2s_pins = {
 	.shift = 11,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id rockchip_i2s_match[] = {
 	{ .compatible = "rockchip,rk3066-i2s", },
 	{ .compatible = "rockchip,rk3188-i2s", },
@@ -574,21 +733,121 @@ static const struct of_device_id rockchip_i2s_match[] = {
 	{},
 };
 
+=======
+static const struct of_device_id rockchip_i2s_match[] __maybe_unused = {
+	{ .compatible = "rockchip,px30-i2s", },
+	{ .compatible = "rockchip,rk1808-i2s", },
+	{ .compatible = "rockchip,rk3036-i2s", },
+	{ .compatible = "rockchip,rk3066-i2s", },
+	{ .compatible = "rockchip,rk3128-i2s", },
+	{ .compatible = "rockchip,rk3188-i2s", },
+	{ .compatible = "rockchip,rk3228-i2s", },
+	{ .compatible = "rockchip,rk3288-i2s", },
+	{ .compatible = "rockchip,rk3308-i2s", },
+	{ .compatible = "rockchip,rk3328-i2s", },
+	{ .compatible = "rockchip,rk3366-i2s", },
+	{ .compatible = "rockchip,rk3368-i2s", },
+	{ .compatible = "rockchip,rk3399-i2s", .data = &rk3399_i2s_pins },
+	{ .compatible = "rockchip,rv1126-i2s", },
+	{},
+};
+
+static int rockchip_i2s_init_dai(struct rk_i2s_dev *i2s, struct resource *res,
+				 struct snd_soc_dai_driver **dp)
+{
+	struct device_node *node = i2s->dev->of_node;
+	struct snd_soc_dai_driver *dai;
+	struct property *dma_names;
+	const char *dma_name;
+	unsigned int val;
+
+	of_property_for_each_string(node, "dma-names", dma_names, dma_name) {
+		if (!strcmp(dma_name, "tx"))
+			i2s->has_playback = true;
+		if (!strcmp(dma_name, "rx"))
+			i2s->has_capture = true;
+	}
+
+	dai = devm_kmemdup(i2s->dev, &rockchip_i2s_dai,
+			   sizeof(*dai), GFP_KERNEL);
+	if (!dai)
+		return -ENOMEM;
+
+	if (i2s->has_playback) {
+		dai->playback.stream_name = "Playback";
+		dai->playback.channels_min = 2;
+		dai->playback.channels_max = 8;
+		dai->playback.rates = SNDRV_PCM_RATE_8000_192000;
+		dai->playback.formats = SNDRV_PCM_FMTBIT_S8 |
+					SNDRV_PCM_FMTBIT_S16_LE |
+					SNDRV_PCM_FMTBIT_S20_3LE |
+					SNDRV_PCM_FMTBIT_S24_LE |
+					SNDRV_PCM_FMTBIT_S32_LE;
+
+		i2s->playback_dma_data.addr = res->start + I2S_TXDR;
+		i2s->playback_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+		i2s->playback_dma_data.maxburst = 8;
+
+		if (!of_property_read_u32(node, "rockchip,playback-channels", &val)) {
+			if (val >= 2 && val <= 8)
+				dai->playback.channels_max = val;
+		}
+	}
+
+	if (i2s->has_capture) {
+		dai->capture.stream_name = "Capture";
+		dai->capture.channels_min = 2;
+		dai->capture.channels_max = 8;
+		dai->capture.rates = SNDRV_PCM_RATE_8000_192000;
+		dai->capture.formats = SNDRV_PCM_FMTBIT_S8 |
+				       SNDRV_PCM_FMTBIT_S16_LE |
+				       SNDRV_PCM_FMTBIT_S20_3LE |
+				       SNDRV_PCM_FMTBIT_S24_LE |
+				       SNDRV_PCM_FMTBIT_S32_LE;
+
+		i2s->capture_dma_data.addr = res->start + I2S_RXDR;
+		i2s->capture_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+		i2s->capture_dma_data.maxburst = 8;
+
+		if (!of_property_read_u32(node, "rockchip,capture-channels", &val)) {
+			if (val >= 2 && val <= 8)
+				dai->capture.channels_max = val;
+		}
+	}
+
+	if (dp)
+		*dp = dai;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int rockchip_i2s_probe(struct platform_device *pdev)
 {
 	struct device_node *node = pdev->dev.of_node;
 	const struct of_device_id *of_id;
 	struct rk_i2s_dev *i2s;
+<<<<<<< HEAD
 	struct snd_soc_dai_driver *soc_dai;
 	struct resource *res;
 	void __iomem *regs;
 	int ret;
 	int val;
+=======
+	struct snd_soc_dai_driver *dai;
+	struct resource *res;
+	void __iomem *regs;
+	int ret;
+>>>>>>> upstream/android-13
 
 	i2s = devm_kzalloc(&pdev->dev, sizeof(*i2s), GFP_KERNEL);
 	if (!i2s)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	spin_lock_init(&i2s->lock);
+>>>>>>> upstream/android-13
 	i2s->dev = &pdev->dev;
 
 	i2s->grf = syscon_regmap_lookup_by_phandle(node, "rockchip,grf");
@@ -615,6 +874,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
 	i2s->mclk = devm_clk_get(&pdev->dev, "i2s_clk");
 	if (IS_ERR(i2s->mclk)) {
 		dev_err(&pdev->dev, "Can't retrieve i2s master clock\n");
+<<<<<<< HEAD
 		return PTR_ERR(i2s->mclk);
 	}
 
@@ -622,12 +882,24 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
 	regs = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
+=======
+		ret = PTR_ERR(i2s->mclk);
+		goto err_clk;
+	}
+
+	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+	if (IS_ERR(regs)) {
+		ret = PTR_ERR(regs);
+		goto err_clk;
+	}
+>>>>>>> upstream/android-13
 
 	i2s->regmap = devm_regmap_init_mmio(&pdev->dev, regs,
 					    &rockchip_i2s_regmap_config);
 	if (IS_ERR(i2s->regmap)) {
 		dev_err(&pdev->dev,
 			"Failed to initialise managed register map\n");
+<<<<<<< HEAD
 		return PTR_ERR(i2s->regmap);
 	}
 
@@ -638,6 +910,13 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
 	i2s->capture_dma_data.addr = res->start + I2S_RXDR;
 	i2s->capture_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 	i2s->capture_dma_data.maxburst = 4;
+=======
+		ret = PTR_ERR(i2s->regmap);
+		goto err_clk;
+	}
+
+	i2s->bclk_ratio = 64;
+>>>>>>> upstream/android-13
 
 	dev_set_drvdata(&pdev->dev, i2s);
 
@@ -648,6 +927,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
 			goto err_pm_disable;
 	}
 
+<<<<<<< HEAD
 	soc_dai = devm_kmemdup(&pdev->dev, &rockchip_i2s_dai,
 			       sizeof(*soc_dai), GFP_KERNEL);
 	if (!soc_dai) {
@@ -668,6 +948,15 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
 	ret = devm_snd_soc_register_component(&pdev->dev,
 					      &rockchip_i2s_component,
 					      soc_dai, 1);
+=======
+	ret = rockchip_i2s_init_dai(i2s, res, &dai);
+	if (ret)
+		goto err_pm_disable;
+
+	ret = devm_snd_soc_register_component(&pdev->dev,
+					      &rockchip_i2s_component,
+					      dai, 1);
+>>>>>>> upstream/android-13
 
 	if (ret) {
 		dev_err(&pdev->dev, "Could not register DAI\n");
@@ -687,7 +976,12 @@ err_suspend:
 		i2s_runtime_suspend(&pdev->dev);
 err_pm_disable:
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
 
+=======
+err_clk:
+	clk_disable_unprepare(i2s->hclk);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

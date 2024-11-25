@@ -8,9 +8,15 @@
 
 #include <linux/export.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 
 #include <asm/cacheflush.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/cacheflush.h>
+>>>>>>> upstream/android-13
 
 /* string functions */
 

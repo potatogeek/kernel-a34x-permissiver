@@ -3,7 +3,11 @@
  *
  * Module Name: dsdebug - Parser/Interpreter interface - debugging
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -100,7 +104,11 @@ acpi_ds_dump_method_stack(acpi_status status,
 
 	/* Ignore control codes, they are not errors */
 
+<<<<<<< HEAD
 	if ((status & AE_CODE_MASK) == AE_CODE_CONTROL) {
+=======
+	if (ACPI_CNTL_EXCEPTION(status)) {
+>>>>>>> upstream/android-13
 		return_VOID;
 	}
 

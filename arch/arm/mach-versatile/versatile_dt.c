@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Versatile board support using the device tree
  *
@@ -5,6 +9,7 @@
  *  Copyright (C) 2009 Jeremy Kerr <jeremy.kerr@canonical.com>
  *  Copyright (C) 2004 ARM Limited
  *  Copyright (C) 2000 Deep Blue Solutions Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -29,8 +36,11 @@
 #include <linux/of_platform.h>
 #include <linux/slab.h>
 #include <linux/amba/bus.h>
+<<<<<<< HEAD
 #include <linux/amba/clcd.h>
 #include <linux/platform_data/video-clcd-versatile.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/amba/mmci.h>
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -47,17 +57,24 @@
  */
 #define VERSATILE_SYS_PCICTL_OFFSET           0x44
 #define VERSATILE_SYS_MCI_OFFSET              0x48
+<<<<<<< HEAD
 #define VERSATILE_SYS_CLCD_OFFSET             0x50
+=======
+>>>>>>> upstream/android-13
 
 /*
  * VERSATILE peripheral addresses
  */
 #define VERSATILE_MMCI0_BASE           0x10005000	/* MMC interface */
 #define VERSATILE_MMCI1_BASE           0x1000B000	/* MMC Interface */
+<<<<<<< HEAD
 #define VERSATILE_CLCD_BASE            0x10120000	/* CLCD */
 #define VERSATILE_SCTL_BASE            0x101E0000	/* System controller */
 #define VERSATILE_IB2_BASE             0x24000000	/* IB2 module */
 #define VERSATILE_IB2_CTL_BASE		(VERSATILE_IB2_BASE + 0x03000000)
+=======
+#define VERSATILE_SCTL_BASE            0x101E0000	/* System controller */
+>>>>>>> upstream/android-13
 
 /*
  * System controller bit assignment
@@ -71,7 +88,10 @@
 #define VERSATILE_TIMER4_EnSel	21
 
 static void __iomem *versatile_sys_base;
+<<<<<<< HEAD
 static void __iomem *versatile_ib2_ctrl;
+=======
+>>>>>>> upstream/android-13
 
 unsigned int mmc_status(struct device *dev)
 {
@@ -89,13 +109,17 @@ unsigned int mmc_status(struct device *dev)
 static struct mmci_platform_data mmc0_plat_data = {
 	.ocr_mask	= MMC_VDD_32_33|MMC_VDD_33_34,
 	.status		= mmc_status,
+<<<<<<< HEAD
 	.gpio_wp	= -1,
 	.gpio_cd	= -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct mmci_platform_data mmc1_plat_data = {
 	.ocr_mask	= MMC_VDD_32_33|MMC_VDD_33_34,
 	.status		= mmc_status,
+<<<<<<< HEAD
 	.gpio_wp	= -1,
 	.gpio_cd	= -1,
 };
@@ -250,6 +274,8 @@ static struct clcd_board clcd_plat_data = {
 	.setup		= versatile_clcd_setup,
 	.mmap		= versatile_clcd_mmap_dma,
 	.remove		= versatile_clcd_remove_dma,
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -261,7 +287,10 @@ static struct clcd_board clcd_plat_data = {
 struct of_dev_auxdata versatile_auxdata_lookup[] __initdata = {
 	OF_DEV_AUXDATA("arm,primecell", VERSATILE_MMCI0_BASE, "fpga:05", &mmc0_plat_data),
 	OF_DEV_AUXDATA("arm,primecell", VERSATILE_MMCI1_BASE, "fpga:0b", &mmc1_plat_data),
+<<<<<<< HEAD
 	OF_DEV_AUXDATA("arm,primecell", VERSATILE_CLCD_BASE, "dev:20", &clcd_plat_data),
+=======
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -316,12 +345,20 @@ static void __init versatile_dt_pci_init(void)
 		 * driver had it so we will keep it.
 		 */
 		writel(1, versatile_sys_base + VERSATILE_SYS_PCICTL_OFFSET);
+<<<<<<< HEAD
 		return;
+=======
+		goto out_put_node;
+>>>>>>> upstream/android-13
 	}
 
 	newprop = kzalloc(sizeof(*newprop), GFP_KERNEL);
 	if (!newprop)
+<<<<<<< HEAD
 		return;
+=======
+		goto out_put_node;
+>>>>>>> upstream/android-13
 
 	newprop->name = kstrdup("status", GFP_KERNEL);
 	newprop->value = kstrdup("disabled", GFP_KERNEL);
@@ -329,6 +366,12 @@ static void __init versatile_dt_pci_init(void)
 	of_update_property(np, newprop);
 
 	pr_info("Not plugged into PCI backplane!\n");
+<<<<<<< HEAD
+=======
+
+out_put_node:
+	of_node_put(np);
+>>>>>>> upstream/android-13
 }
 
 static void __init versatile_dt_init(void)
@@ -340,8 +383,11 @@ static void __init versatile_dt_init(void)
 		versatile_sys_base = of_iomap(np, 0);
 	WARN_ON(!versatile_sys_base);
 
+<<<<<<< HEAD
 	versatile_ib2_ctrl = ioremap(VERSATILE_IB2_CTL_BASE, SZ_4K);
 
+=======
+>>>>>>> upstream/android-13
 	versatile_dt_pci_init();
 
 	of_platform_default_populate(NULL, versatile_auxdata_lookup, NULL);

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/mach-x3proto/gpio.c
  *
  * Renesas SH-X3 Prototype Baseboard GPIO Support.
  *
  * Copyright (C) 2010 - 2012  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -71,7 +78,11 @@ static void x3proto_gpio_irq_handler(struct irq_desc *desc)
 
 	mask = __raw_readw(KEYDETR);
 	for_each_set_bit(pin, &mask, NR_BASEBOARD_GPIOS)
+<<<<<<< HEAD
 		generic_handle_irq(irq_linear_revmap(x3proto_irq_domain, pin));
+=======
+		generic_handle_domain_irq(x3proto_irq_domain, pin);
+>>>>>>> upstream/android-13
 
 	chip->irq_unmask(data);
 }

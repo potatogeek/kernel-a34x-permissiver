@@ -13,6 +13,7 @@
 
 #include <asm/tlb.h>
 
+<<<<<<< HEAD
 extern const char bad_pmd_string[];
 
 #define pmd_alloc_one(mm,address)       ({ BUG(); ((pmd_t *)2); })
@@ -64,6 +65,18 @@ static inline pgtable_t pte_alloc_one(struct mm_struct *mm,
 
 }
 
+=======
+#include <asm-generic/pgalloc.h>
+
+extern const char bad_pmd_string[];
+
+#define __pte_free_tlb(tlb,pte,addr)			\
+do {							\
+	pgtable_pte_page_dtor(pte);			\
+	tlb_remove_page((tlb), pte);			\
+} while (0)
+
+>>>>>>> upstream/android-13
 static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd, pte_t *pte)
 {
 	pmd_val(*pmd) = __pa((unsigned long)pte);
@@ -73,19 +86,25 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, pgtable_t page
 {
 	pmd_val(*pmd) = __pa((unsigned long)page_address(page));
 }
+<<<<<<< HEAD
 #define pmd_pgtable(pmd) pmd_page(pmd)
+=======
+>>>>>>> upstream/android-13
 
 /*
  * allocating and freeing a pmd is trivial: the 1-entry pmd is
  * inside the pgd, so has no extra memory associated with it.
  */
 #define pmd_free(mm, x)			do { } while (0)
+<<<<<<< HEAD
 #define __pmd_free_tlb(tlb, x, addr)	do { } while (0)
 
 static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 {
         free_page((unsigned long) pgd);
 }
+=======
+>>>>>>> upstream/android-13
 
 static inline pgd_t * pgd_alloc(struct mm_struct *mm)
 {
@@ -97,6 +116,9 @@ static inline pgd_t * pgd_alloc(struct mm_struct *mm)
      return new_pgd;
 }
 
+<<<<<<< HEAD
 #define pgd_populate(mm, pmd, pte) BUG()
 
+=======
+>>>>>>> upstream/android-13
 #endif /* SUN3_PGALLOC_H */

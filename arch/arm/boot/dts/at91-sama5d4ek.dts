@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+>>>>>>> upstream/android-13
 /*
  * at91-sama5d4ek.dts - Device Tree file for SAMA5D4 Evaluation Kit
  *
  *  Copyright (C) 2014 Atmel,
  *                2014 Nicolas Ferre <nicolas.ferre@atmel.com>
+<<<<<<< HEAD
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -41,6 +46,8 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "sama5d4.dtsi"
@@ -53,7 +60,11 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x20000000>;
 	};
 
@@ -115,7 +126,11 @@
 				wm8904: codec@1a {
 					compatible = "wlf,wm8904";
 					reg = <0x1a>;
+<<<<<<< HEAD
 					clocks = <&pck2>;
+=======
+					clocks = <&pmc PMC_TYPE_SYSTEM 10>;
+>>>>>>> upstream/android-13
 					clock-names = "mclk";
 				};
 

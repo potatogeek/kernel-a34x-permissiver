@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * probe-file.c : operate ftrace k/uprobe events files
  *
  * Written by Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <errno.h>
 #include <fcntl.h>
@@ -20,16 +27,31 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
+<<<<<<< HEAD
 #include "util.h"
+=======
+#include <linux/zalloc.h>
+#include "namespaces.h"
+>>>>>>> upstream/android-13
 #include "event.h"
 #include "strlist.h"
 #include "strfilter.h"
 #include "debug.h"
+<<<<<<< HEAD
 #include "cache.h"
 #include "color.h"
 #include "symbol.h"
 #include "thread.h"
 #include <api/fs/tracing_path.h>
+=======
+#include "build-id.h"
+#include "dso.h"
+#include "color.h"
+#include "symbol.h"
+#include "strbuf.h"
+#include <api/fs/tracing_path.h>
+#include <api/fs/fs.h>
+>>>>>>> upstream/android-13
 #include "probe-event.h"
 #include "probe-file.h"
 #include "session.h"
@@ -39,6 +61,7 @@
 /* 4096 - 2 ('\n' + '\0') */
 #define MAX_CMDLEN 4094
 
+<<<<<<< HEAD
 static void print_open_warning(int err, bool uprobe)
 {
 	char sbuf[STRERR_BUFSIZE];
@@ -77,6 +100,80 @@ static void print_both_open_warning(int kerr, int uerr)
 		pr_warning("Failed to open uprobe events: %s.\n",
 			   str_error_r(-uerr, sbuf, sizeof(sbuf)));
 	}
+=======
+static bool print_common_warning(int err, bool readwrite)
+{
+	if (err == -EACCES)
+		pr_warning("No permission to %s tracefs.\nPlease %s\n",
+			   readwrite ? "write" : "read",
+			   readwrite ? "run this command again with sudo." :
+				       "try 'sudo mount -o remount,mode=755 /sys/kernel/tracing/'");
+	else
+		return false;
+
+	return true;
+}
+
+static bool print_configure_probe_event(int kerr, int uerr)
+{
+	const char *config, *file;
+
+	if (kerr == -ENOENT && uerr == -ENOENT) {
+		file = "{k,u}probe_events";
+		config = "CONFIG_KPROBE_EVENTS=y and CONFIG_UPROBE_EVENTS=y";
+	} else if (kerr == -ENOENT) {
+		file = "kprobe_events";
+		config = "CONFIG_KPROBE_EVENTS=y";
+	} else if (uerr == -ENOENT) {
+		file = "uprobe_events";
+		config = "CONFIG_UPROBE_EVENTS=y";
+	} else
+		return false;
+
+	if (!debugfs__configured() && !tracefs__configured())
+		pr_warning("Debugfs or tracefs is not mounted\n"
+			   "Please try 'sudo mount -t tracefs nodev /sys/kernel/tracing/'\n");
+	else
+		pr_warning("%s/%s does not exist.\nPlease rebuild kernel with %s.\n",
+			   tracing_path_mount(), file, config);
+
+	return true;
+}
+
+static void print_open_warning(int err, bool uprobe, bool readwrite)
+{
+	char sbuf[STRERR_BUFSIZE];
+
+	if (print_common_warning(err, readwrite))
+		return;
+
+	if (print_configure_probe_event(uprobe ? 0 : err, uprobe ? err : 0))
+		return;
+
+	pr_warning("Failed to open %s/%cprobe_events: %s\n",
+		   tracing_path_mount(), uprobe ? 'u' : 'k',
+		   str_error_r(-err, sbuf, sizeof(sbuf)));
+}
+
+static void print_both_open_warning(int kerr, int uerr, bool readwrite)
+{
+	char sbuf[STRERR_BUFSIZE];
+
+	if (kerr == uerr && print_common_warning(kerr, readwrite))
+		return;
+
+	if (print_configure_probe_event(kerr, uerr))
+		return;
+
+	if (kerr < 0)
+		pr_warning("Failed to open %s/kprobe_events: %s.\n",
+			   tracing_path_mount(),
+			   str_error_r(-kerr, sbuf, sizeof(sbuf)));
+	if (uerr < 0)
+		pr_warning("Failed to open %s/uprobe_events: %s.\n",
+			   tracing_path_mount(),
+			   str_error_r(-uerr, sbuf, sizeof(sbuf)));
+>>>>>>> upstream/android-13
 }
 
 int open_trace_file(const char *trace_file, bool readwrite)
@@ -117,7 +214,11 @@ int probe_file__open(int flag)
 	else
 		fd = open_kprobe_events(flag & PF_FL_RW);
 	if (fd < 0)
+<<<<<<< HEAD
 		print_open_warning(fd, flag & PF_FL_UPROBE);
+=======
+		print_open_warning(fd, flag & PF_FL_UPROBE, flag & PF_FL_RW);
+>>>>>>> upstream/android-13
 
 	return fd;
 }
@@ -130,7 +231,11 @@ int probe_file__open_both(int *kfd, int *ufd, int flag)
 	*kfd = open_kprobe_events(flag & PF_FL_RW);
 	*ufd = open_uprobe_events(flag & PF_FL_RW);
 	if (*kfd < 0 && *ufd < 0) {
+<<<<<<< HEAD
 		print_both_open_warning(*kfd, *ufd);
+=======
+		print_both_open_warning(*kfd, *ufd, flag & PF_FL_RW);
+>>>>>>> upstream/android-13
 		return *kfd;
 	}
 
@@ -214,6 +319,12 @@ static struct strlist *__probe_file__get_namelist(int fd, bool include_group)
 		} else
 			ret = strlist__add(sl, tev.event);
 		clear_probe_trace_event(&tev);
+<<<<<<< HEAD
+=======
+		/* Skip if there is same name multi-probe event in the list */
+		if (ret == -EEXIST)
+			ret = 0;
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			break;
 	}
@@ -309,10 +420,22 @@ int probe_file__get_events(int fd, struct strfilter *filter,
 		p = strchr(ent->s, ':');
 		if ((p && strfilter__compare(filter, p + 1)) ||
 		    strfilter__compare(filter, ent->s)) {
+<<<<<<< HEAD
 			strlist__add(plist, ent->s);
 			ret = 0;
 		}
 	}
+=======
+			ret = strlist__add(plist, ent->s);
+			if (ret == -ENOMEM) {
+				pr_err("strlist__add failed with -ENOMEM\n");
+				goto out;
+			}
+			ret = 0;
+		}
+	}
+out:
+>>>>>>> upstream/android-13
 	strlist__delete(namelist);
 
 	return ret;
@@ -342,11 +465,19 @@ int probe_file__del_events(int fd, struct strfilter *filter)
 
 	ret = probe_file__get_events(fd, filter, namelist);
 	if (ret < 0)
+<<<<<<< HEAD
 		return ret;
 
 	ret = probe_file__del_strlist(fd, namelist);
 	strlist__delete(namelist);
 
+=======
+		goto out;
+
+	ret = probe_file__del_strlist(fd, namelist);
+out:
+	strlist__delete(namelist);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -519,7 +650,15 @@ static int probe_cache__load(struct probe_cache *pcache)
 				ret = -EINVAL;
 				goto out;
 			}
+<<<<<<< HEAD
 			strlist__add(entry->tevlist, buf);
+=======
+			ret = strlist__add(entry->tevlist, buf);
+			if (ret == -ENOMEM) {
+				pr_err("strlist__add failed with -ENOMEM\n");
+				goto out;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 out:
@@ -680,7 +819,16 @@ int probe_cache__add_entry(struct probe_cache *pcache,
 		command = synthesize_probe_trace_command(&tevs[i]);
 		if (!command)
 			goto out_err;
+<<<<<<< HEAD
 		strlist__add(entry->tevlist, command);
+=======
+		ret = strlist__add(entry->tevlist, command);
+		if (ret == -ENOMEM) {
+			pr_err("strlist__add failed with -ENOMEM\n");
+			goto out_err;
+		}
+
+>>>>>>> upstream/android-13
 		free(command);
 	}
 	list_add_tail(&entry->node, &pcache->entries);
@@ -696,8 +844,21 @@ out_err:
 #ifdef HAVE_GELF_GETNOTE_SUPPORT
 static unsigned long long sdt_note__get_addr(struct sdt_note *note)
 {
+<<<<<<< HEAD
 	return note->bit32 ? (unsigned long long)note->addr.a32[0]
 		 : (unsigned long long)note->addr.a64[0];
+=======
+	return note->bit32 ?
+		(unsigned long long)note->addr.a32[SDT_NOTE_IDX_LOC] :
+		(unsigned long long)note->addr.a64[SDT_NOTE_IDX_LOC];
+}
+
+static unsigned long long sdt_note__get_ref_ctr_offset(struct sdt_note *note)
+{
+	return note->bit32 ?
+		(unsigned long long)note->addr.a32[SDT_NOTE_IDX_REFCTR] :
+		(unsigned long long)note->addr.a64[SDT_NOTE_IDX_REFCTR];
+>>>>>>> upstream/android-13
 }
 
 static const char * const type_to_suffix[] = {
@@ -774,27 +935,95 @@ static char *synthesize_sdt_probe_command(struct sdt_note *note,
 					const char *sdtgrp)
 {
 	struct strbuf buf;
+<<<<<<< HEAD
 	char *ret = NULL, **args;
 	int i, args_count;
+=======
+	char *ret = NULL;
+	int i, args_count, err;
+	unsigned long long ref_ctr_offset;
+	char *arg;
+	int arg_idx = 0;
+>>>>>>> upstream/android-13
 
 	if (strbuf_init(&buf, 32) < 0)
 		return NULL;
 
+<<<<<<< HEAD
 	if (strbuf_addf(&buf, "p:%s/%s %s:0x%llx",
 				sdtgrp, note->name, pathname,
 				sdt_note__get_addr(note)) < 0)
+=======
+	err = strbuf_addf(&buf, "p:%s/%s %s:0x%llx",
+			sdtgrp, note->name, pathname,
+			sdt_note__get_addr(note));
+
+	ref_ctr_offset = sdt_note__get_ref_ctr_offset(note);
+	if (ref_ctr_offset && err >= 0)
+		err = strbuf_addf(&buf, "(0x%llx)", ref_ctr_offset);
+
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error;
 
 	if (!note->args)
 		goto out;
 
 	if (note->args) {
+<<<<<<< HEAD
 		args = argv_split(note->args, &args_count);
 
 		for (i = 0; i < args_count; ++i) {
 			if (synthesize_sdt_probe_arg(&buf, i, args[i]) < 0)
 				goto error;
 		}
+=======
+		char **args = argv_split(note->args, &args_count);
+
+		if (args == NULL)
+			goto error;
+
+		for (i = 0; i < args_count; ) {
+			/*
+			 * FIXUP: Arm64 ELF section '.note.stapsdt' uses string
+			 * format "-4@[sp, NUM]" if a probe is to access data in
+			 * the stack, e.g. below is an example for the SDT
+			 * Arguments:
+			 *
+			 *   Arguments: -4@[sp, 12] -4@[sp, 8] -4@[sp, 4]
+			 *
+			 * Since the string introduces an extra space character
+			 * in the middle of square brackets, the argument is
+			 * divided into two items.  Fixup for this case, if an
+			 * item contains sub string "[sp,", need to concatenate
+			 * the two items.
+			 */
+			if (strstr(args[i], "[sp,") && (i+1) < args_count) {
+				err = asprintf(&arg, "%s %s", args[i], args[i+1]);
+				i += 2;
+			} else {
+				err = asprintf(&arg, "%s", args[i]);
+				i += 1;
+			}
+
+			/* Failed to allocate memory */
+			if (err < 0) {
+				argv_free(args);
+				goto error;
+			}
+
+			if (synthesize_sdt_probe_arg(&buf, arg_idx, arg) < 0) {
+				free(arg);
+				argv_free(args);
+				goto error;
+			}
+
+			free(arg);
+			arg_idx++;
+		}
+
+		argv_free(args);
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -846,9 +1075,21 @@ int probe_cache__scan_sdt(struct probe_cache *pcache, const char *pathname)
 			break;
 		}
 
+<<<<<<< HEAD
 		strlist__add(entry->tevlist, buf);
 		free(buf);
 		entry = NULL;
+=======
+		ret = strlist__add(entry->tevlist, buf);
+
+		free(buf);
+		entry = NULL;
+
+		if (ret == -ENOMEM) {
+			pr_err("strlist__add failed with -ENOMEM\n");
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 	if (entry) {
 		list_del_init(&entry->node);
@@ -998,6 +1239,13 @@ int probe_cache__show_all_caches(struct strfilter *filter)
 enum ftrace_readme {
 	FTRACE_README_PROBE_TYPE_X = 0,
 	FTRACE_README_KRETPROBE_OFFSET,
+<<<<<<< HEAD
+=======
+	FTRACE_README_UPROBE_REF_CTR,
+	FTRACE_README_USER_ACCESS,
+	FTRACE_README_MULTIPROBE_EVENT,
+	FTRACE_README_IMMEDIATE_VALUE,
+>>>>>>> upstream/android-13
 	FTRACE_README_END,
 };
 
@@ -1009,6 +1257,13 @@ static struct {
 	[idx] = {.pattern = pat, .avail = false}
 	DEFINE_TYPE(FTRACE_README_PROBE_TYPE_X, "*type: * x8/16/32/64,*"),
 	DEFINE_TYPE(FTRACE_README_KRETPROBE_OFFSET, "*place (kretprobe): *"),
+<<<<<<< HEAD
+=======
+	DEFINE_TYPE(FTRACE_README_UPROBE_REF_CTR, "*ref_ctr_offset*"),
+	DEFINE_TYPE(FTRACE_README_USER_ACCESS, "*u]<offset>*"),
+	DEFINE_TYPE(FTRACE_README_MULTIPROBE_EVENT, "*Create/append/*"),
+	DEFINE_TYPE(FTRACE_README_IMMEDIATE_VALUE, "*\\imm-value,*"),
+>>>>>>> upstream/android-13
 };
 
 static bool scan_ftrace_readme(enum ftrace_readme type)
@@ -1064,3 +1319,26 @@ bool kretprobe_offset_is_supported(void)
 {
 	return scan_ftrace_readme(FTRACE_README_KRETPROBE_OFFSET);
 }
+<<<<<<< HEAD
+=======
+
+bool uprobe_ref_ctr_is_supported(void)
+{
+	return scan_ftrace_readme(FTRACE_README_UPROBE_REF_CTR);
+}
+
+bool user_access_is_supported(void)
+{
+	return scan_ftrace_readme(FTRACE_README_USER_ACCESS);
+}
+
+bool multiprobe_event_is_supported(void)
+{
+	return scan_ftrace_readme(FTRACE_README_MULTIPROBE_EVENT);
+}
+
+bool immediate_value_is_supported(void)
+{
+	return scan_ftrace_readme(FTRACE_README_IMMEDIATE_VALUE);
+}
+>>>>>>> upstream/android-13

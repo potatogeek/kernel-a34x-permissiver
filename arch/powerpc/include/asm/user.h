@@ -31,7 +31,11 @@
  *	to write an integer number of pages.
  */
 struct user {
+<<<<<<< HEAD
 	struct pt_regs	regs;			/* entire machine state */
+=======
+	struct user_pt_regs regs;		/* entire machine state */
+>>>>>>> upstream/android-13
 	size_t		u_tsize;		/* text size (pages) */
 	size_t		u_dsize;		/* data size (pages) */
 	size_t		u_ssize;		/* stack size (pages) */

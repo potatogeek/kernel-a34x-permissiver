@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /dts-v1/;
 
@@ -54,6 +58,23 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&uart2 {
+	/delete-property/dma-names;
+	bluetooth {
+		compatible = "ti,wl1283-st";
+		enable-gpios = <&gpio6 2 GPIO_ACTIVE_HIGH>; /* gpio 162 */
+		max-speed = <3000000>;
+	};
+};
+
+/* The DM3730 has a faster L3 than OMAP35, so increase pixel clock */
+&mt9p031_out {
+	pixel-clock-frequency = <90000000>;
+};
+
+>>>>>>> upstream/android-13
 &omap3_pmx_core {
 	mmc3_pins: pinmux_mm3_pins {
 		pinctrl-single,pins = <

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0 OR MIT
+>>>>>>> upstream/android-13
 /*
  * MTK ECC controller driver.
  * Copyright (C) 2016  MediaTek Inc.
  * Authors:	Xiaolei Li		<xiaolei.li@mediatek.com>
  *		Jorge Ramirez-Ortiz	<jorge.ramirez-ortiz@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -51,6 +58,10 @@
 
 struct mtk_ecc_caps {
 	u32 err_mask;
+<<<<<<< HEAD
+=======
+	u32 err_shift;
+>>>>>>> upstream/android-13
 	const u8 *ecc_strength;
 	const u32 *ecc_regs;
 	u8 num_ecc_strength;
@@ -84,7 +95,11 @@ static const u8 ecc_strength_mt2712[] = {
 };
 
 static const u8 ecc_strength_mt7622[] = {
+<<<<<<< HEAD
 	4, 6, 8, 10, 12, 14, 16
+=======
+	4, 6, 8, 10, 12
+>>>>>>> upstream/android-13
 };
 
 enum mtk_ecc_regs {
@@ -229,7 +244,11 @@ void mtk_ecc_get_stats(struct mtk_ecc *ecc, struct mtk_ecc_stats *stats,
 	for (i = 0; i < sectors; i++) {
 		offset = (i >> 2) << 2;
 		err = readl(ecc->regs + ECC_DECENUM0 + offset);
+<<<<<<< HEAD
 		err = err >> ((i % 4) * 8);
+=======
+		err = err >> ((i % 4) * ecc->caps->err_shift);
+>>>>>>> upstream/android-13
 		err &= ecc->caps->err_mask;
 		if (err == ecc->caps->err_mask) {
 			/* uncorrectable errors */
@@ -263,6 +282,7 @@ static void mtk_ecc_hw_init(struct mtk_ecc *ecc)
 
 static struct mtk_ecc *mtk_ecc_get(struct device_node *np)
 {
+<<<<<<< HEAD
 	struct mtk_ecc *ecc = NULL;
 	struct platform_device *pdev;
 	int ret;
@@ -282,6 +302,22 @@ static struct mtk_ecc *mtk_ecc_get(struct device_node *np)
 		pr_info("failed to enable clk.\n");
 		return NULL;
 	}
+=======
+	struct platform_device *pdev;
+	struct mtk_ecc *ecc;
+
+	pdev = of_find_device_by_node(np);
+	if (!pdev)
+		return ERR_PTR(-EPROBE_DEFER);
+
+	ecc = platform_get_drvdata(pdev);
+	if (!ecc) {
+		put_device(&pdev->dev);
+		return ERR_PTR(-EPROBE_DEFER);
+	}
+
+	clk_prepare_enable(ecc->clk);
+>>>>>>> upstream/android-13
 	mtk_ecc_hw_init(ecc);
 
 	return ecc;
@@ -462,6 +498,10 @@ EXPORT_SYMBOL(mtk_ecc_get_parity_bits);
 
 static const struct mtk_ecc_caps mtk_ecc_caps_mt2701 = {
 	.err_mask = 0x3f,
+<<<<<<< HEAD
+=======
+	.err_shift = 8,
+>>>>>>> upstream/android-13
 	.ecc_strength = ecc_strength_mt2701,
 	.ecc_regs = mt2701_ecc_regs,
 	.num_ecc_strength = 20,
@@ -472,6 +512,10 @@ static const struct mtk_ecc_caps mtk_ecc_caps_mt2701 = {
 
 static const struct mtk_ecc_caps mtk_ecc_caps_mt2712 = {
 	.err_mask = 0x7f,
+<<<<<<< HEAD
+=======
+	.err_shift = 8,
+>>>>>>> upstream/android-13
 	.ecc_strength = ecc_strength_mt2712,
 	.ecc_regs = mt2712_ecc_regs,
 	.num_ecc_strength = 23,
@@ -481,10 +525,18 @@ static const struct mtk_ecc_caps mtk_ecc_caps_mt2712 = {
 };
 
 static const struct mtk_ecc_caps mtk_ecc_caps_mt7622 = {
+<<<<<<< HEAD
 	.err_mask = 0x3f,
 	.ecc_strength = ecc_strength_mt7622,
 	.ecc_regs = mt7622_ecc_regs,
 	.num_ecc_strength = 7,
+=======
+	.err_mask = 0x1f,
+	.err_shift = 5,
+	.ecc_strength = ecc_strength_mt7622,
+	.ecc_regs = mt7622_ecc_regs,
+	.num_ecc_strength = 5,
+>>>>>>> upstream/android-13
 	.ecc_mode_shift = 4,
 	.parity_bits = 13,
 	.pg_irq_sel = 0,
@@ -528,10 +580,15 @@ static int mtk_ecc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ecc->regs = devm_ioremap_resource(dev, res);
+<<<<<<< HEAD
 	if (IS_ERR(ecc->regs)) {
 		dev_err(dev, "failed to map regs: %ld\n", PTR_ERR(ecc->regs));
 		return PTR_ERR(ecc->regs);
 	}
+=======
+	if (IS_ERR(ecc->regs))
+		return PTR_ERR(ecc->regs);
+>>>>>>> upstream/android-13
 
 	ecc->clk = devm_clk_get(dev, NULL);
 	if (IS_ERR(ecc->clk)) {
@@ -540,10 +597,15 @@ static int mtk_ecc_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "failed to get irq: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = dma_set_mask(dev, DMA_BIT_MASK(32));
 	if (ret) {
@@ -609,4 +671,8 @@ module_platform_driver(mtk_ecc_driver);
 
 MODULE_AUTHOR("Xiaolei Li <xiaolei.li@mediatek.com>");
 MODULE_DESCRIPTION("MTK Nand ECC Driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("Dual MIT/GPL");
+>>>>>>> upstream/android-13

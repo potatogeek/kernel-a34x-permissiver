@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ip_vs_proto_ah_esp.c:	AH/ESP IPSec load balancing support for IPVS
  *
  * Authors:	Julian Anastasov <ja@ssi.bg>, February 2002
  *		Wensong Zhang <wensong@linuxvirtualserver.org>
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		version 2 as published by the Free Software Foundation;
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"
@@ -129,7 +136,10 @@ struct ip_vs_protocol ip_vs_protocol_ah = {
 	.conn_out_get =		ah_esp_conn_out_get,
 	.snat_handler =		NULL,
 	.dnat_handler =		NULL,
+<<<<<<< HEAD
 	.csum_check =		NULL,
+=======
+>>>>>>> upstream/android-13
 	.state_transition =	NULL,
 	.register_app =		NULL,
 	.unregister_app =	NULL,
@@ -152,7 +162,10 @@ struct ip_vs_protocol ip_vs_protocol_esp = {
 	.conn_out_get =		ah_esp_conn_out_get,
 	.snat_handler =		NULL,
 	.dnat_handler =		NULL,
+<<<<<<< HEAD
 	.csum_check =		NULL,
+=======
+>>>>>>> upstream/android-13
 	.state_transition =	NULL,
 	.register_app =		NULL,
 	.unregister_app =	NULL,

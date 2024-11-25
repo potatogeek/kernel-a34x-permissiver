@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Rockchip PDM ALSA SoC Digital Audio Interface(DAI)  driver
  *
  * Copyright (C) 2017 Fuzhou Rockchip Electronics Co., Ltd
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,19 +17,39 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/clk.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/pm_runtime.h>
 #include <linux/regmap.h>
+=======
+#include <linux/of_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/rational.h>
+#include <linux/regmap.h>
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 #include <sound/dmaengine_pcm.h>
 #include <sound/pcm_params.h>
 
 #include "rockchip_pdm.h"
 
+<<<<<<< HEAD
 #define PDM_DMA_BURST_SIZE	(16) /* size * width: 16*4 = 64 bytes */
+=======
+#define PDM_DMA_BURST_SIZE	(8) /* size * width: 8*4 = 32 bytes */
+#define PDM_SIGNOFF_CLK_RATE	(100000000)
+
+enum rk_pdm_version {
+	RK_PDM_RK3229,
+	RK_PDM_RK3308,
+};
+>>>>>>> upstream/android-13
 
 struct rk_pdm_dev {
 	struct device *dev;
@@ -32,11 +57,17 @@ struct rk_pdm_dev {
 	struct clk *hclk;
 	struct regmap *regmap;
 	struct snd_dmaengine_dai_dma_data capture_dma_data;
+<<<<<<< HEAD
+=======
+	struct reset_control *reset;
+	enum rk_pdm_version version;
+>>>>>>> upstream/android-13
 };
 
 struct rk_pdm_clkref {
 	unsigned int sr;
 	unsigned int clk;
+<<<<<<< HEAD
 };
 
 static struct rk_pdm_clkref clkref[] = {
@@ -48,6 +79,46 @@ static struct rk_pdm_clkref clkref[] = {
 static unsigned int get_pdm_clk(unsigned int sr)
 {
 	unsigned int i, count, clk, div;
+=======
+	unsigned int clk_out;
+};
+
+struct rk_pdm_ds_ratio {
+	unsigned int ratio;
+	unsigned int sr;
+};
+
+static struct rk_pdm_clkref clkref[] = {
+	{ 8000, 40960000, 2048000 },
+	{ 11025, 56448000, 2822400 },
+	{ 12000, 61440000, 3072000 },
+	{ 8000, 98304000, 2048000 },
+	{ 12000, 98304000, 3072000 },
+};
+
+static struct rk_pdm_ds_ratio ds_ratio[] = {
+	{ 0, 192000 },
+	{ 0, 176400 },
+	{ 0, 128000 },
+	{ 1, 96000 },
+	{ 1, 88200 },
+	{ 1, 64000 },
+	{ 2, 48000 },
+	{ 2, 44100 },
+	{ 2, 32000 },
+	{ 3, 24000 },
+	{ 3, 22050 },
+	{ 3, 16000 },
+	{ 4, 12000 },
+	{ 4, 11025 },
+	{ 4, 8000 },
+};
+
+static unsigned int get_pdm_clk(struct rk_pdm_dev *pdm, unsigned int sr,
+				unsigned int *clk_src, unsigned int *clk_out)
+{
+	unsigned int i, count, clk, div, rate;
+>>>>>>> upstream/android-13
 
 	clk = 0;
 	if (!sr)
@@ -59,14 +130,49 @@ static unsigned int get_pdm_clk(unsigned int sr)
 			continue;
 		div = sr / clkref[i].sr;
 		if ((div & (div - 1)) == 0) {
+<<<<<<< HEAD
 			clk = clkref[i].clk;
+=======
+			*clk_out = clkref[i].clk_out;
+			rate = clk_round_rate(pdm->clk, clkref[i].clk);
+			if (rate != clkref[i].clk)
+				continue;
+			clk = clkref[i].clk;
+			*clk_src = clkref[i].clk;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	return clk;
 }
 
+=======
+	if (!clk) {
+		clk = clk_round_rate(pdm->clk, PDM_SIGNOFF_CLK_RATE);
+		*clk_src = clk;
+	}
+	return clk;
+}
+
+static unsigned int get_pdm_ds_ratio(unsigned int sr)
+{
+	unsigned int i, count, ratio;
+
+	ratio = 0;
+	if (!sr)
+		return ratio;
+
+	count = ARRAY_SIZE(ds_ratio);
+	for (i = 0; i < count; i++) {
+		if (sr == ds_ratio[i].sr)
+			ratio = ds_ratio[i].ratio;
+	}
+	return ratio;
+}
+
+>>>>>>> upstream/android-13
 static inline struct rk_pdm_dev *to_info(struct snd_soc_dai *dai)
 {
 	return snd_soc_dai_get_drvdata(dai);
@@ -95,6 +201,7 @@ static int rockchip_pdm_hw_params(struct snd_pcm_substream *substream,
 	struct rk_pdm_dev *pdm = to_info(dai);
 	unsigned int val = 0;
 	unsigned int clk_rate, clk_div, samplerate;
+<<<<<<< HEAD
 	int ret;
 
 	samplerate = params_rate(params);
@@ -129,12 +236,66 @@ static int rockchip_pdm_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+=======
+	unsigned int clk_src, clk_out = 0;
+	unsigned long m, n;
+	bool change;
+	int ret;
+
+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+		return 0;
+
+	samplerate = params_rate(params);
+	clk_rate = get_pdm_clk(pdm, samplerate, &clk_src, &clk_out);
+	if (!clk_rate)
+		return -EINVAL;
+
+	ret = clk_set_rate(pdm->clk, clk_src);
+	if (ret)
+		return -EINVAL;
+
+	if (pdm->version == RK_PDM_RK3308) {
+		rational_best_approximation(clk_out, clk_src,
+					    GENMASK(16 - 1, 0),
+					    GENMASK(16 - 1, 0),
+					    &m, &n);
+
+		val = (m << PDM_FD_NUMERATOR_SFT) |
+			(n << PDM_FD_DENOMINATOR_SFT);
+		regmap_update_bits_check(pdm->regmap, PDM_CTRL1,
+					 PDM_FD_NUMERATOR_MSK |
+					 PDM_FD_DENOMINATOR_MSK,
+					 val, &change);
+		if (change) {
+			reset_control_assert(pdm->reset);
+			reset_control_deassert(pdm->reset);
+			rockchip_pdm_rxctrl(pdm, 0);
+		}
+		clk_div = n / m;
+		if (clk_div >= 40)
+			val = PDM_CLK_FD_RATIO_40;
+		else if (clk_div <= 35)
+			val = PDM_CLK_FD_RATIO_35;
+		else
+			return -EINVAL;
+		regmap_update_bits(pdm->regmap, PDM_CLK_CTRL,
+				   PDM_CLK_FD_RATIO_MSK,
+				   val);
+	}
+	val = get_pdm_ds_ratio(samplerate);
+>>>>>>> upstream/android-13
 	regmap_update_bits(pdm->regmap, PDM_CLK_CTRL, PDM_DS_RATIO_MSK, val);
 	regmap_update_bits(pdm->regmap, PDM_HPF_CTRL,
 			   PDM_HPF_CF_MSK, PDM_HPF_60HZ);
 	regmap_update_bits(pdm->regmap, PDM_HPF_CTRL,
 			   PDM_HPF_LE | PDM_HPF_RE, PDM_HPF_LE | PDM_HPF_RE);
 	regmap_update_bits(pdm->regmap, PDM_CLK_CTRL, PDM_CLK_EN, PDM_CLK_EN);
+<<<<<<< HEAD
+=======
+	if (pdm->version != RK_PDM_RK3229)
+		regmap_update_bits(pdm->regmap, PDM_CTRL0,
+				   PDM_MODE_MSK, PDM_MODE_LJ);
+>>>>>>> upstream/android-13
 
 	val = 0;
 	switch (params_format(params)) {
@@ -160,6 +321,7 @@ static int rockchip_pdm_hw_params(struct snd_pcm_substream *substream,
 	switch (params_channels(params)) {
 	case 8:
 		val |= PDM_PATH3_EN;
+<<<<<<< HEAD
 		/* fallthrough */
 	case 6:
 		val |= PDM_PATH2_EN;
@@ -167,6 +329,15 @@ static int rockchip_pdm_hw_params(struct snd_pcm_substream *substream,
 	case 4:
 		val |= PDM_PATH1_EN;
 		/* fallthrough */
+=======
+		fallthrough;
+	case 6:
+		val |= PDM_PATH2_EN;
+		fallthrough;
+	case 4:
+		val |= PDM_PATH1_EN;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		val |= PDM_PATH0_EN;
 		break;
@@ -176,6 +347,7 @@ static int rockchip_pdm_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE) {
 		regmap_update_bits(pdm->regmap, PDM_CTRL0,
 				   PDM_PATH_MSK | PDM_VDW_MSK,
@@ -186,6 +358,14 @@ static int rockchip_pdm_hw_params(struct snd_pcm_substream *substream,
 				   PDM_RX_MASK | PDM_RX_CLR_MASK,
 				   PDM_RX_STOP | PDM_RX_CLR_WR);
 	}
+=======
+	regmap_update_bits(pdm->regmap, PDM_CTRL0,
+			   PDM_PATH_MSK | PDM_VDW_MSK,
+			   val);
+	/* all channels share the single FIFO */
+	regmap_update_bits(pdm->regmap, PDM_DMA_CTRL, PDM_DMA_RDL_MSK,
+			   PDM_DMA_RDL(8 * params_channels(params)));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -273,7 +453,11 @@ static struct snd_soc_dai_driver rockchip_pdm_dai = {
 		.formats = ROCKCHIP_PDM_FORMATS,
 	},
 	.ops = &rockchip_pdm_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver rockchip_pdm_component = {
@@ -343,6 +527,10 @@ static bool rockchip_pdm_rd_reg(struct device *dev, unsigned int reg)
 	case PDM_INT_CLR:
 	case PDM_INT_ST:
 	case PDM_DATA_VALID:
+<<<<<<< HEAD
+=======
+	case PDM_RXFIFO_DATA:
+>>>>>>> upstream/android-13
 	case PDM_VERSION:
 		return true;
 	default:
@@ -354,19 +542,46 @@ static bool rockchip_pdm_volatile_reg(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
 	case PDM_SYSCONFIG:
+<<<<<<< HEAD
 	case PDM_INT_CLR:
 	case PDM_INT_ST:
+=======
+	case PDM_FIFO_CTRL:
+	case PDM_INT_CLR:
+	case PDM_INT_ST:
+	case PDM_RXFIFO_DATA:
+>>>>>>> upstream/android-13
 		return true;
 	default:
 		return false;
 	}
 }
 
+<<<<<<< HEAD
+=======
+static bool rockchip_pdm_precious_reg(struct device *dev, unsigned int reg)
+{
+	switch (reg) {
+	case PDM_RXFIFO_DATA:
+		return true;
+	default:
+		return false;
+	}
+}
+
+static const struct reg_default rockchip_pdm_reg_defaults[] = {
+	{0x04, 0x78000017},
+	{0x08, 0x0bb8ea60},
+	{0x18, 0x0000001f},
+};
+
+>>>>>>> upstream/android-13
 static const struct regmap_config rockchip_pdm_regmap_config = {
 	.reg_bits = 32,
 	.reg_stride = 4,
 	.val_bits = 32,
 	.max_register = PDM_VERSION,
+<<<<<<< HEAD
 	.writeable_reg = rockchip_pdm_wr_reg,
 	.readable_reg = rockchip_pdm_rd_reg,
 	.volatile_reg = rockchip_pdm_volatile_reg,
@@ -375,6 +590,33 @@ static const struct regmap_config rockchip_pdm_regmap_config = {
 
 static int rockchip_pdm_probe(struct platform_device *pdev)
 {
+=======
+	.reg_defaults = rockchip_pdm_reg_defaults,
+	.num_reg_defaults = ARRAY_SIZE(rockchip_pdm_reg_defaults),
+	.writeable_reg = rockchip_pdm_wr_reg,
+	.readable_reg = rockchip_pdm_rd_reg,
+	.volatile_reg = rockchip_pdm_volatile_reg,
+	.precious_reg = rockchip_pdm_precious_reg,
+	.cache_type = REGCACHE_FLAT,
+};
+
+static const struct of_device_id rockchip_pdm_match[] __maybe_unused = {
+	{ .compatible = "rockchip,pdm",
+	  .data = (void *)RK_PDM_RK3229 },
+	{ .compatible = "rockchip,px30-pdm",
+	  .data = (void *)RK_PDM_RK3308 },
+	{ .compatible = "rockchip,rk1808-pdm",
+	  .data = (void *)RK_PDM_RK3308 },
+	{ .compatible = "rockchip,rk3308-pdm",
+	  .data = (void *)RK_PDM_RK3308 },
+	{},
+};
+MODULE_DEVICE_TABLE(of, rockchip_pdm_match);
+
+static int rockchip_pdm_probe(struct platform_device *pdev)
+{
+	const struct of_device_id *match;
+>>>>>>> upstream/android-13
 	struct rk_pdm_dev *pdm;
 	struct resource *res;
 	void __iomem *regs;
@@ -384,8 +626,22 @@ static int rockchip_pdm_probe(struct platform_device *pdev)
 	if (!pdm)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	match = of_match_device(rockchip_pdm_match, &pdev->dev);
+	if (match)
+		pdm->version = (enum rk_pdm_version)match->data;
+
+	if (pdm->version == RK_PDM_RK3308) {
+		pdm->reset = devm_reset_control_get(&pdev->dev, "pdm-m");
+		if (IS_ERR(pdm->reset))
+			return PTR_ERR(pdm->reset);
+	}
+
+	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 
@@ -429,6 +685,10 @@ static int rockchip_pdm_probe(struct platform_device *pdev)
 		goto err_suspend;
 	}
 
+<<<<<<< HEAD
+=======
+	rockchip_pdm_rxctrl(pdm, 0);
+>>>>>>> upstream/android-13
 	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
 	if (ret) {
 		dev_err(&pdev->dev, "could not register pcm: %d\n", ret);
@@ -497,12 +757,15 @@ static const struct dev_pm_ops rockchip_pdm_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(rockchip_pdm_suspend, rockchip_pdm_resume)
 };
 
+<<<<<<< HEAD
 static const struct of_device_id rockchip_pdm_match[] = {
 	{ .compatible = "rockchip,pdm", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, rockchip_pdm_match);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver rockchip_pdm_driver = {
 	.probe  = rockchip_pdm_probe,
 	.remove = rockchip_pdm_remove,

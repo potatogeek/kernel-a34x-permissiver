@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Digianswer Bluetooth USB driver
  *
  *  Copyright (C) 2004-2007  Marcel Holtmann <marcel@holtmann.org>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -352,7 +359,11 @@ static int bpa10x_send_frame(struct hci_dev *hdev, struct sk_buff *skb)
 
 	usb_free_urb(urb);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int bpa10x_set_diag(struct hci_dev *hdev, bool enable)
@@ -374,7 +385,12 @@ static int bpa10x_set_diag(struct hci_dev *hdev, bool enable)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bpa10x_probe(struct usb_interface *intf, const struct usb_device_id *id)
+=======
+static int bpa10x_probe(struct usb_interface *intf,
+			const struct usb_device_id *id)
+>>>>>>> upstream/android-13
 {
 	struct bpa10x_data *data;
 	struct hci_dev *hdev;

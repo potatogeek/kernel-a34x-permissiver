@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IP Payload Compression Protocol (IPComp) for IPv6 - RFC3173
  *
  * Copyright (C)2003 USAGI/WIDE Project
  *
  * Author	Mitsuru KANDA  <mk@linux-ipv6.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 /*
  * [Memo]
@@ -103,6 +110,10 @@ static struct xfrm_state *ipcomp6_tunnel_create(struct xfrm_state *x)
 	t->props.mode = x->props.mode;
 	memcpy(t->props.saddr.a6, x->props.saddr.a6, sizeof(struct in6_addr));
 	memcpy(&t->mark, &x->mark, sizeof(t->mark));
+<<<<<<< HEAD
+=======
+	t->if_id = x->if_id;
+>>>>>>> upstream/android-13
 
 	if (xfrm_init_state(t))
 		goto error;
@@ -183,18 +194,28 @@ static int ipcomp6_rcv_cb(struct sk_buff *skb, int err)
 }
 
 static const struct xfrm_type ipcomp6_type = {
+<<<<<<< HEAD
 	.description	= "IPCOMP6",
+=======
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.proto		= IPPROTO_COMP,
 	.init_state	= ipcomp6_init_state,
 	.destructor	= ipcomp_destroy,
 	.input		= ipcomp_input,
 	.output		= ipcomp_output,
+<<<<<<< HEAD
 	.hdr_offset	= xfrm6_find_1stfragopt,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct xfrm6_protocol ipcomp6_protocol = {
 	.handler	= xfrm6_rcv,
+<<<<<<< HEAD
+=======
+	.input_handler	= xfrm_input,
+>>>>>>> upstream/android-13
 	.cb_handler	= ipcomp6_rcv_cb,
 	.err_handler	= ipcomp6_err,
 	.priority	= 0,
@@ -218,8 +239,12 @@ static void __exit ipcomp6_fini(void)
 {
 	if (xfrm6_protocol_deregister(&ipcomp6_protocol, IPPROTO_COMP) < 0)
 		pr_info("%s: can't remove protocol\n", __func__);
+<<<<<<< HEAD
 	if (xfrm_unregister_type(&ipcomp6_type, AF_INET6) < 0)
 		pr_info("%s: can't remove xfrm type\n", __func__);
+=======
+	xfrm_unregister_type(&ipcomp6_type, AF_INET6);
+>>>>>>> upstream/android-13
 }
 
 module_init(ipcomp6_init);

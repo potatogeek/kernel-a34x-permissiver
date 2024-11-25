@@ -115,7 +115,11 @@ struct vudc_device {
 	struct list_head dev_entry;
 };
 
+<<<<<<< HEAD
 extern const struct attribute_group vudc_attr_group;
+=======
+extern const struct attribute_group *vudc_groups[];
+>>>>>>> upstream/android-13
 
 /* visible everywhere */
 

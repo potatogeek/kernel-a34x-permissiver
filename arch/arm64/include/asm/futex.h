@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,12 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_FUTEX_H
 #define __ASM_FUTEX_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/futex.h>
 #include <linux/uaccess.h>
 
@@ -29,7 +38,11 @@
 do {									\
 	unsigned int loops = FUTEX_MAX_LOOPS;				\
 									\
+<<<<<<< HEAD
 	uaccess_enable();						\
+=======
+	uaccess_enable_privileged();					\
+>>>>>>> upstream/android-13
 	asm volatile(							\
 "	prfm	pstl1strm, %2\n"					\
 "1:	ldxr	%w1, %2\n"						\
@@ -52,7 +65,11 @@ do {									\
 	  "+r" (loops)							\
 	: "r" (oparg), "Ir" (-EFAULT), "Ir" (-EAGAIN)			\
 	: "memory");							\
+<<<<<<< HEAD
 	uaccess_disable();						\
+=======
+	uaccess_disable_privileged();					\
+>>>>>>> upstream/android-13
 } while (0)
 
 static inline int
@@ -61,7 +78,12 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *_uaddr)
 	int oldval = 0, ret, tmp;
 	u32 __user *uaddr = __uaccess_mask_ptr(_uaddr);
 
+<<<<<<< HEAD
 	pagefault_disable();
+=======
+	if (!access_ok(_uaddr, sizeof(u32)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 
 	switch (op) {
 	case FUTEX_OP_SET:
@@ -88,8 +110,11 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *_uaddr)
 		ret = -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	pagefault_enable();
 
+=======
+>>>>>>> upstream/android-13
 	if (!ret)
 		*oval = oldval;
 
@@ -105,11 +130,19 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *_uaddr,
 	u32 val, tmp;
 	u32 __user *uaddr;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, _uaddr, sizeof(u32)))
 		return -EFAULT;
 
 	uaddr = __uaccess_mask_ptr(_uaddr);
 	uaccess_enable();
+=======
+	if (!access_ok(_uaddr, sizeof(u32)))
+		return -EFAULT;
+
+	uaddr = __uaccess_mask_ptr(_uaddr);
+	uaccess_enable_privileged();
+>>>>>>> upstream/android-13
 	asm volatile("// futex_atomic_cmpxchg_inatomic\n"
 "	prfm	pstl1strm, %2\n"
 "1:	ldxr	%w1, %2\n"
@@ -132,7 +165,11 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *_uaddr,
 	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp), "+r" (loops)
 	: "r" (oldval), "r" (newval), "Ir" (-EFAULT), "Ir" (-EAGAIN)
 	: "memory");
+<<<<<<< HEAD
 	uaccess_disable();
+=======
+	uaccess_disable_privileged();
+>>>>>>> upstream/android-13
 
 	if (!ret)
 		*uval = val;
@@ -140,5 +177,8 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *_uaddr,
 	return ret;
 }
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_FUTEX_H */

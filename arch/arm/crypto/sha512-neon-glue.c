@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sha512-neon-glue.c - accelerated SHA-384/512 for ARM NEON
  *
  * Copyright (C) 2015 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,6 +15,13 @@
 
 #include <crypto/internal/hash.h>
 #include <crypto/sha.h>
+=======
+ */
+
+#include <crypto/internal/hash.h>
+#include <crypto/internal/simd.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <crypto/sha512_base.h>
 #include <linux/crypto.h>
 #include <linux/module.h>
@@ -30,7 +42,11 @@ static int sha512_neon_update(struct shash_desc *desc, const u8 *data,
 {
 	struct sha512_state *sctx = shash_desc_ctx(desc);
 
+<<<<<<< HEAD
 	if (!may_use_simd() ||
+=======
+	if (!crypto_simd_usable() ||
+>>>>>>> upstream/android-13
 	    (sctx->count[0] % SHA512_BLOCK_SIZE) + len < SHA512_BLOCK_SIZE)
 		return sha512_arm_update(desc, data, len);
 
@@ -45,7 +61,11 @@ static int sha512_neon_update(struct shash_desc *desc, const u8 *data,
 static int sha512_neon_finup(struct shash_desc *desc, const u8 *data,
 			     unsigned int len, u8 *out)
 {
+<<<<<<< HEAD
 	if (!may_use_simd())
+=======
+	if (!crypto_simd_usable())
+>>>>>>> upstream/android-13
 		return sha512_arm_finup(desc, data, len, out);
 
 	kernel_neon_begin();

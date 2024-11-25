@@ -58,11 +58,18 @@ static void __check_element(mempool_t *pool, void *element, size_t size)
 static void check_element(mempool_t *pool, void *element)
 {
 	/* Mempools backed by slab allocator */
+<<<<<<< HEAD
 	if (pool->free == mempool_free_slab || pool->free == mempool_kfree)
 		__check_element(pool, element, ksize(element));
 
 	/* Mempools backed by page allocator */
 	if (pool->free == mempool_free_pages) {
+=======
+	if (pool->free == mempool_free_slab || pool->free == mempool_kfree) {
+		__check_element(pool, element, ksize(element));
+	} else if (pool->free == mempool_free_pages) {
+		/* Mempools backed by page allocator */
+>>>>>>> upstream/android-13
 		int order = (int)(long)pool->pool_data;
 		void *addr = kmap_atomic((struct page *)element);
 
@@ -82,11 +89,18 @@ static void __poison_element(void *element, size_t size)
 static void poison_element(mempool_t *pool, void *element)
 {
 	/* Mempools backed by slab allocator */
+<<<<<<< HEAD
 	if (pool->alloc == mempool_alloc_slab || pool->alloc == mempool_kmalloc)
 		__poison_element(element, ksize(element));
 
 	/* Mempools backed by page allocator */
 	if (pool->alloc == mempool_alloc_pages) {
+=======
+	if (pool->alloc == mempool_alloc_slab || pool->alloc == mempool_kmalloc) {
+		__poison_element(element, ksize(element));
+	} else if (pool->alloc == mempool_alloc_pages) {
+		/* Mempools backed by page allocator */
+>>>>>>> upstream/android-13
 		int order = (int)(long)pool->pool_data;
 		void *addr = kmap_atomic((struct page *)element);
 
@@ -106,17 +120,31 @@ static inline void poison_element(mempool_t *pool, void *element)
 static __always_inline void kasan_poison_element(mempool_t *pool, void *element)
 {
 	if (pool->alloc == mempool_alloc_slab || pool->alloc == mempool_kmalloc)
+<<<<<<< HEAD
 		kasan_poison_kfree(element, _RET_IP_);
 	if (pool->alloc == mempool_alloc_pages)
 		kasan_free_pages(element, (unsigned long)pool->pool_data);
+=======
+		kasan_slab_free_mempool(element);
+	else if (pool->alloc == mempool_alloc_pages)
+		kasan_poison_pages(element, (unsigned long)pool->pool_data,
+				   false);
+>>>>>>> upstream/android-13
 }
 
 static void kasan_unpoison_element(mempool_t *pool, void *element)
 {
 	if (pool->alloc == mempool_alloc_slab || pool->alloc == mempool_kmalloc)
+<<<<<<< HEAD
 		kasan_unpoison_slab(element);
 	if (pool->alloc == mempool_alloc_pages)
 		kasan_alloc_pages(element, (unsigned long)pool->pool_data);
+=======
+		kasan_unpoison_range(element, __ksize(element));
+	else if (pool->alloc == mempool_alloc_pages)
+		kasan_unpoison_pages(element, (unsigned long)pool->pool_data,
+				     false);
+>>>>>>> upstream/android-13
 }
 
 static __always_inline void add_element(mempool_t *pool, void *element)
@@ -222,6 +250,11 @@ EXPORT_SYMBOL(mempool_init_node);
  *
  * Like mempool_create(), but initializes the pool in (i.e. embedded in another
  * structure).
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success, negative error code otherwise.
+>>>>>>> upstream/android-13
  */
 int mempool_init(mempool_t *pool, int min_nr, mempool_alloc_t *alloc_fn,
 		 mempool_free_t *free_fn, void *pool_data)
@@ -245,11 +278,20 @@ EXPORT_SYMBOL(mempool_init);
  * functions. This function might sleep. Both the alloc_fn() and the free_fn()
  * functions might sleep - as long as the mempool_alloc() function is not called
  * from IRQ contexts.
+<<<<<<< HEAD
+=======
+ *
+ * Return: pointer to the created memory pool object or %NULL on error.
+>>>>>>> upstream/android-13
  */
 mempool_t *mempool_create(int min_nr, mempool_alloc_t *alloc_fn,
 				mempool_free_t *free_fn, void *pool_data)
 {
+<<<<<<< HEAD
 	return mempool_create_node(min_nr,alloc_fn,free_fn, pool_data,
+=======
+	return mempool_create_node(min_nr, alloc_fn, free_fn, pool_data,
+>>>>>>> upstream/android-13
 				   GFP_KERNEL, NUMA_NO_NODE);
 }
 EXPORT_SYMBOL(mempool_create);
@@ -289,6 +331,11 @@ EXPORT_SYMBOL(mempool_create_node);
  * Note, the caller must guarantee that no mempool_destroy is called
  * while this function is running. mempool_alloc() & mempool_free()
  * might be called (eg. from IRQ contexts) while this function executes.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success, negative error code otherwise.
+>>>>>>> upstream/android-13
  */
 int mempool_resize(mempool_t *pool, int new_min_nr)
 {
@@ -363,6 +410,11 @@ EXPORT_SYMBOL(mempool_resize);
  * *never* fails when called from process contexts. (it might
  * fail if called from an IRQ context.)
  * Note: using __GFP_ZERO is not supported.
+<<<<<<< HEAD
+=======
+ *
+ * Return: pointer to the allocated element or %NULL on error.
+>>>>>>> upstream/android-13
  */
 void *mempool_alloc(mempool_t *pool, gfp_t gfp_mask)
 {
@@ -481,7 +533,11 @@ void mempool_free(void *element, mempool_t *pool)
 	 * ensures that there will be frees which return elements to the
 	 * pool waking up the waiters.
 	 */
+<<<<<<< HEAD
 	if (unlikely(pool->curr_nr < pool->min_nr)) {
+=======
+	if (unlikely(READ_ONCE(pool->curr_nr) < pool->min_nr)) {
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&pool->lock, flags);
 		if (likely(pool->curr_nr < pool->min_nr)) {
 			add_element(pool, element);

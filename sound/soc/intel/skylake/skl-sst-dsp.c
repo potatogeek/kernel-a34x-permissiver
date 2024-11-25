@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * skl-sst-dsp.c - SKL SST library generic function
  *
@@ -5,6 +9,7 @@
  * Author:Rafal Redzimski <rafal.f.redzimski@intel.com>
  *	Jeeja KP <jeeja.kp@intel.com>
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as version 2, as
@@ -14,13 +19,19 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <sound/pcm.h>
 
 #include "../common/sst-dsp.h"
 #include "../common/sst-ipc.h"
 #include "../common/sst-dsp-priv.h"
+<<<<<<< HEAD
 #include "skl-sst-ipc.h"
+=======
+#include "skl.h"
+>>>>>>> upstream/android-13
 
 /* various timeout values */
 #define SKL_DSP_PU_TO		50
@@ -41,7 +52,11 @@ void skl_dsp_set_state_locked(struct sst_dsp *ctx, int state)
  */
 void skl_dsp_init_core_state(struct sst_dsp *ctx)
 {
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	int i;
 
 	skl->cores.state[SKL_DSP_CORE0_ID] = SKL_DSP_RUNNING;
@@ -56,7 +71,11 @@ void skl_dsp_init_core_state(struct sst_dsp *ctx)
 /* Get the mask for all enabled cores */
 unsigned int skl_dsp_get_enabled_cores(struct sst_dsp *ctx)
 {
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	unsigned int core_mask, en_cores_mask;
 	u32 val;
 
@@ -343,7 +362,11 @@ irqreturn_t skl_dsp_sst_interrupt(int irq, void *dev_id)
  */
 int skl_dsp_get_core(struct sst_dsp *ctx, unsigned int core_id)
 {
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (core_id >= skl->cores.count) {
@@ -372,7 +395,11 @@ EXPORT_SYMBOL_GPL(skl_dsp_get_core);
 
 int skl_dsp_put_core(struct sst_dsp *ctx, unsigned int core_id)
 {
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (core_id >= skl->cores.count) {
@@ -430,7 +457,11 @@ struct sst_dsp *skl_dsp_ctx_init(struct device *dev,
 
 	/* Initialise SST Audio DSP */
 	if (sst->ops->init) {
+<<<<<<< HEAD
 		ret = sst->ops->init(sst, NULL);
+=======
+		ret = sst->ops->init(sst);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return NULL;
 	}

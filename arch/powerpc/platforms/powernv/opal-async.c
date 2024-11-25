@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PowerNV OPAL asynchronous completion interfaces
  *
  * Copyright 2013-2017 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -108,7 +115,11 @@ static int __opal_async_release_token(int token)
 	 */
 	case ASYNC_TOKEN_DISPATCHED:
 		opal_async_tokens[token].state = ASYNC_TOKEN_ABANDONED;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		rc = 1;
 	}

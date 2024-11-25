@@ -27,6 +27,10 @@
 #define mmMM_INDEX                                                              0x0
 #define mmMM_INDEX_HI                                                           0x6
 #define mmMM_DATA                                                               0x1
+<<<<<<< HEAD
+=======
+#define mmCC_BIF_BX_FUSESTRAP0							0x14D7
+>>>>>>> upstream/android-13
 #define mmBUS_CNTL                                                              0x1508
 #define mmCONFIG_CNTL                                                           0x1509
 #define mmCONFIG_MEMSIZE                                                        0x150a

@@ -25,6 +25,7 @@ int topology_max_mnest;
 
 static inline int __stsi(void *sysinfo, int fc, int sel1, int sel2, int *lvl)
 {
+<<<<<<< HEAD
 	register int r0 asm("0") = (fc << 28) | sel1;
 	register int r1 asm("1") = sel2;
 	int rc = 0;
@@ -38,6 +39,24 @@ static inline int __stsi(void *sysinfo, int fc, int sel1, int sel2, int *lvl)
 		: "+d" (r0), "+d" (rc)
 		: "d" (r1), "a" (sysinfo), "K" (-EOPNOTSUPP)
 		: "cc", "memory");
+=======
+	int r0 = (fc << 28) | sel1;
+	int rc = 0;
+
+	asm volatile(
+		"	lr	0,%[r0]\n"
+		"	lr	1,%[r1]\n"
+		"	stsi	0(%[sysinfo])\n"
+		"0:	jz	2f\n"
+		"1:	lhi	%[rc],%[retval]\n"
+		"2:	lr	%[r0],0\n"
+		EX_TABLE(0b, 1b)
+		: [r0] "+d" (r0), [rc] "+d" (rc)
+		: [r1] "d" (sel2),
+		  [sysinfo] "a" (sysinfo),
+		  [retval] "K" (-EOPNOTSUPP)
+		: "cc", "0", "1", "memory");
+>>>>>>> upstream/android-13
 	*lvl = ((unsigned int) r0) >> 28;
 	return rc;
 }
@@ -545,8 +564,11 @@ static __init int stsi_init_debugfs(void)
 	int lvl, i;
 
 	stsi_root = debugfs_create_dir("stsi", arch_debugfs_dir);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(stsi_root))
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	lvl = stsi(NULL, 0, 0, 0);
 	if (lvl > 0)
 		stsi_0_0_0 = lvl;

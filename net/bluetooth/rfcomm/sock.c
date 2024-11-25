@@ -24,7 +24,11 @@
 /*
  * RFCOMM sockets.
  */
+<<<<<<< HEAD
 
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/debugfs.h>
 #include <linux/sched/signal.h>
@@ -64,15 +68,22 @@ static void rfcomm_sk_data_ready(struct rfcomm_dlc *d, struct sk_buff *skb)
 static void rfcomm_sk_state_change(struct rfcomm_dlc *d, int err)
 {
 	struct sock *sk = d->owner, *parent;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!sk)
 		return;
 
 	BT_DBG("dlc %p state %ld err %d", d, d->state, err);
 
+<<<<<<< HEAD
 	local_irq_save(flags);
 	bh_lock_sock(sk);
+=======
+	lock_sock(sk);
+>>>>>>> upstream/android-13
 
 	if (err)
 		sk->sk_err = err;
@@ -93,8 +104,12 @@ static void rfcomm_sk_state_change(struct rfcomm_dlc *d, int err)
 		sk->sk_state_change(sk);
 	}
 
+<<<<<<< HEAD
 	bh_unlock_sock(sk);
 	local_irq_restore(flags);
+=======
+	release_sock(sk);
+>>>>>>> upstream/android-13
 
 	if (parent && sock_flag(sk, SOCK_ZAPPED)) {
 		/* We have to drop DLC lock here, otherwise
@@ -221,7 +236,11 @@ static void __rfcomm_sock_close(struct sock *sk)
 	case BT_CONFIG:
 	case BT_CONNECTED:
 		rfcomm_dlc_close(d, 0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		sock_set_flag(sk, SOCK_ZAPPED);
@@ -647,7 +666,12 @@ static int rfcomm_sock_recvmsg(struct socket *sock, struct msghdr *msg,
 	return len;
 }
 
+<<<<<<< HEAD
 static int rfcomm_sock_setsockopt_old(struct socket *sock, int optname, char __user *optval, unsigned int optlen)
+=======
+static int rfcomm_sock_setsockopt_old(struct socket *sock, int optname,
+		sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	int err = 0;
@@ -659,7 +683,11 @@ static int rfcomm_sock_setsockopt_old(struct socket *sock, int optname, char __u
 
 	switch (optname) {
 	case RFCOMM_LM:
+<<<<<<< HEAD
 		if (get_user(opt, (u32 __user *) optval)) {
+=======
+		if (copy_from_sockptr(&opt, optval, sizeof(u32))) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -688,7 +716,12 @@ static int rfcomm_sock_setsockopt_old(struct socket *sock, int optname, char __u
 	return err;
 }
 
+<<<<<<< HEAD
 static int rfcomm_sock_setsockopt(struct socket *sock, int level, int optname, char __user *optval, unsigned int optlen)
+=======
+static int rfcomm_sock_setsockopt(struct socket *sock, int level, int optname,
+		sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	struct bt_security sec;
@@ -716,7 +749,11 @@ static int rfcomm_sock_setsockopt(struct socket *sock, int level, int optname, c
 		sec.level = BT_SECURITY_LOW;
 
 		len = min_t(unsigned int, sizeof(sec), optlen);
+<<<<<<< HEAD
 		if (copy_from_user((char *) &sec, optval, len)) {
+=======
+		if (copy_from_sockptr(&sec, optval, len)) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -735,7 +772,11 @@ static int rfcomm_sock_setsockopt(struct socket *sock, int level, int optname, c
 			break;
 		}
 
+<<<<<<< HEAD
 		if (get_user(opt, (u32 __user *) optval)) {
+=======
+		if (copy_from_sockptr(&opt, optval, sizeof(u32))) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -909,6 +950,16 @@ static int rfcomm_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned lon
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_COMPAT
+static int rfcomm_sock_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+{
+	return rfcomm_sock_ioctl(sock, cmd, (unsigned long)compat_ptr(arg));
+}
+#endif
+
+>>>>>>> upstream/android-13
 static int rfcomm_sock_shutdown(struct socket *sock, int how)
 {
 	struct sock *sk = sock->sk;
@@ -968,7 +1019,11 @@ int rfcomm_connect_ind(struct rfcomm_session *s, u8 channel, struct rfcomm_dlc *
 	if (!parent)
 		return 0;
 
+<<<<<<< HEAD
 	bh_lock_sock(parent);
+=======
+	lock_sock(parent);
+>>>>>>> upstream/android-13
 
 	/* Check for backlog size */
 	if (sk_acceptq_is_full(parent)) {
@@ -995,7 +1050,11 @@ int rfcomm_connect_ind(struct rfcomm_session *s, u8 channel, struct rfcomm_dlc *
 	result = 1;
 
 done:
+<<<<<<< HEAD
 	bh_unlock_sock(parent);
+=======
+	release_sock(parent);
+>>>>>>> upstream/android-13
 
 	if (test_bit(BT_SK_DEFER_SETUP, &bt_sk(parent)->flags))
 		parent->sk_state_change(parent);
@@ -1020,6 +1079,7 @@ static int rfcomm_sock_debugfs_show(struct seq_file *f, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rfcomm_sock_debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, rfcomm_sock_debugfs_show, inode->i_private);
@@ -1031,6 +1091,9 @@ static const struct file_operations rfcomm_sock_debugfs_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(rfcomm_sock_debugfs);
+>>>>>>> upstream/android-13
 
 static struct dentry *rfcomm_sock_debugfs;
 
@@ -1049,9 +1112,19 @@ static const struct proto_ops rfcomm_sock_ops = {
 	.setsockopt	= rfcomm_sock_setsockopt,
 	.getsockopt	= rfcomm_sock_getsockopt,
 	.ioctl		= rfcomm_sock_ioctl,
+<<<<<<< HEAD
 	.poll		= bt_sock_poll,
 	.socketpair	= sock_no_socketpair,
 	.mmap		= sock_no_mmap
+=======
+	.gettstamp	= sock_gettstamp,
+	.poll		= bt_sock_poll,
+	.socketpair	= sock_no_socketpair,
+	.mmap		= sock_no_mmap,
+#ifdef CONFIG_COMPAT
+	.compat_ioctl	= rfcomm_sock_compat_ioctl,
+#endif
+>>>>>>> upstream/android-13
 };
 
 static const struct net_proto_family rfcomm_sock_family_ops = {

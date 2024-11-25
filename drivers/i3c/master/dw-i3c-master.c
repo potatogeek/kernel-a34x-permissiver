@@ -221,7 +221,11 @@ struct dw_i3c_xfer {
 	struct completion comp;
 	int ret;
 	unsigned int ncmds;
+<<<<<<< HEAD
 	struct dw_i3c_cmd cmds[0];
+=======
+	struct dw_i3c_cmd cmds[];
+>>>>>>> upstream/android-13
 };
 
 struct dw_i3c_master {
@@ -603,7 +607,11 @@ static int dw_i3c_master_bus_init(struct i3c_master_controller *m)
 		ret = dw_i2c_clk_cfg(master);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case I3C_BUS_MODE_PURE:
 		ret = dw_i3c_clk_cfg(master);
 		if (ret)
@@ -793,6 +801,13 @@ static int dw_i3c_master_daa(struct i3c_master_controller *m)
 		return -ENOMEM;
 
 	pos = dw_i3c_master_get_free_pos(master);
+<<<<<<< HEAD
+=======
+	if (pos < 0) {
+		dw_i3c_master_free_xfer(xfer);
+		return pos;
+	}
+>>>>>>> upstream/android-13
 	cmd = &xfer->cmds[0];
 	cmd->cmd_hi = 0x1;
 	cmd->cmd_lo = COMMAND_PORT_DEV_COUNT(master->maxdevs - pos) |
@@ -816,11 +831,14 @@ static int dw_i3c_master_daa(struct i3c_master_controller *m)
 
 	dw_i3c_master_free_xfer(xfer);
 
+<<<<<<< HEAD
 	i3c_master_disec_locked(m, I3C_BROADCAST_ADDR,
 				I3C_CCC_EVENT_HJ |
 				I3C_CCC_EVENT_MR |
 				I3C_CCC_EVENT_SIR);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -899,6 +917,25 @@ static int dw_i3c_master_reattach_i3c_dev(struct i3c_dev_desc *dev,
 	struct dw_i3c_i2c_dev_data *data = i3c_dev_get_master_data(dev);
 	struct i3c_master_controller *m = i3c_dev_get_master(dev);
 	struct dw_i3c_master *master = to_dw_i3c_master(m);
+<<<<<<< HEAD
+=======
+	int pos;
+
+	pos = dw_i3c_master_get_free_pos(master);
+
+	if (data->index > pos && pos > 0) {
+		writel(0,
+		       master->regs +
+		       DEV_ADDR_TABLE_LOC(master->datstartaddr, data->index));
+
+		master->addrs[data->index] = 0;
+		master->free_pos |= BIT(data->index);
+
+		data->index = pos;
+		master->addrs[pos] = dev->info.dyn_addr;
+		master->free_pos &= ~BIT(pos);
+	}
+>>>>>>> upstream/android-13
 
 	writel(DEV_ADDR_TABLE_DYNAMIC_ADDR(dev->info.dyn_addr),
 	       master->regs +
@@ -1033,12 +1070,20 @@ static int dw_i3c_master_attach_i2c_dev(struct i2c_dev_desc *dev)
 		return -ENOMEM;
 
 	data->index = pos;
+<<<<<<< HEAD
 	master->addrs[pos] = dev->boardinfo->base.addr;
+=======
+	master->addrs[pos] = dev->addr;
+>>>>>>> upstream/android-13
 	master->free_pos &= ~BIT(pos);
 	i2c_dev_set_master_data(dev, data);
 
 	writel(DEV_ADDR_TABLE_LEGACY_I2C_DEV |
+<<<<<<< HEAD
 	       DEV_ADDR_TABLE_STATIC_ADDR(dev->boardinfo->base.addr),
+=======
+	       DEV_ADDR_TABLE_STATIC_ADDR(dev->addr),
+>>>>>>> upstream/android-13
 	       master->regs +
 	       DEV_ADDR_TABLE_LOC(master->datstartaddr, data->index));
 
@@ -1100,15 +1145,22 @@ static const struct i3c_master_controller_ops dw_mipi_i3c_ops = {
 static int dw_i3c_probe(struct platform_device *pdev)
 {
 	struct dw_i3c_master *master;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret, irq;
 
 	master = devm_kzalloc(&pdev->dev, sizeof(*master), GFP_KERNEL);
 	if (!master)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	master->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	master->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(master->regs))
 		return PTR_ERR(master->regs);
 

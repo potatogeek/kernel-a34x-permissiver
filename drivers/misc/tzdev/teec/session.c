@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -410,6 +414,10 @@ static uint32_t tzdev_teec_prepare_session(TEEC_Session *session,
 	cmd.base.cmd = CMD_PREPARE_SESSION;
 	cmd.base.serial = ses->serial;
 	cmd.ctx_id = ctx->id;
+<<<<<<< HEAD
+=======
+	cmd.ta_src = IW_TA_SRC_DEFAULT;
+>>>>>>> upstream/android-13
 
 	if (shm && shm_size != 0) {
 		cmd.buf_desc.offset = shm->offset;

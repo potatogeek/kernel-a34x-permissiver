@@ -20,7 +20,11 @@ RAVE SP consists of the following sub-devices:
 Device				 Description
 ------				 -----------
 rave-sp-wdt			: Watchdog
+<<<<<<< HEAD
 rave-sp-nvmem			: Interface to onborad EEPROM
+=======
+rave-sp-nvmem			: Interface to onboard EEPROM
+>>>>>>> upstream/android-13
 rave-sp-backlight		: Display backlight
 rave-sp-hwmon			: Interface to onboard hardware sensors
 rave-sp-leds			: Interface to onboard LEDs

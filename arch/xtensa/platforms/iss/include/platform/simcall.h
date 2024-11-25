@@ -6,12 +6,17 @@
  * for more details.
  *
  * Copyright (C) 2001 Tensilica Inc.
+<<<<<<< HEAD
  * Copyright (C) 2017 Cadence Design Systems Inc.
+=======
+ * Copyright (C) 2017 - 2021 Cadence Design Systems Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _XTENSA_PLATFORM_ISS_SIMCALL_H
 #define _XTENSA_PLATFORM_ISS_SIMCALL_H
 
+<<<<<<< HEAD
 
 /*
  *  System call like services offered by the simulator host.
@@ -84,6 +89,25 @@ static inline int __simc(int a, int b, int c, int d)
 static inline int simc_exit(int exit_code)
 {
 	return __simc(SYS_exit, exit_code, 0, 0);
+=======
+#include <linux/bug.h>
+
+#ifdef CONFIG_XTENSA_SIMCALL_ISS
+#include <platform/simcall-iss.h>
+#endif
+#ifdef CONFIG_XTENSA_SIMCALL_GDBIO
+#include <platform/simcall-gdbio.h>
+#endif
+
+static inline int simc_exit(int exit_code)
+{
+#ifdef SYS_exit
+	return __simc(SYS_exit, exit_code, 0, 0);
+#else
+	WARN_ONCE(1, "%s: not implemented\n", __func__);
+	return -1;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline int simc_open(const char *file, int flags, int mode)
@@ -98,7 +122,16 @@ static inline int simc_close(int fd)
 
 static inline int simc_ioctl(int fd, int request, void *arg)
 {
+<<<<<<< HEAD
 	return __simc(SYS_ioctl, fd, request, (int) arg);
+=======
+#ifdef SYS_ioctl
+	return __simc(SYS_ioctl, fd, request, (int) arg);
+#else
+	WARN_ONCE(1, "%s: not implemented\n", __func__);
+	return -1;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline int simc_read(int fd, void *buf, size_t count)
@@ -113,9 +146,20 @@ static inline int simc_write(int fd, const void *buf, size_t count)
 
 static inline int simc_poll(int fd)
 {
+<<<<<<< HEAD
 	struct timeval tv = { .tv_sec = 0, .tv_usec = 0 };
 
 	return __simc(SYS_select_one, fd, XTISS_SELECT_ONE_READ, (int)&tv);
+=======
+#ifdef SYS_select_one
+	long timeval[2] = { 0, 0 };
+
+	return __simc(SYS_select_one, fd, XTISS_SELECT_ONE_READ, (int)&timeval);
+#else
+	WARN_ONCE(1, "%s: not implemented\n", __func__);
+	return -1;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline int simc_lseek(int fd, uint32_t off, int whence)
@@ -125,18 +169,47 @@ static inline int simc_lseek(int fd, uint32_t off, int whence)
 
 static inline int simc_argc(void)
 {
+<<<<<<< HEAD
 	return __simc(SYS_iss_argc, 0, 0, 0);
+=======
+#ifdef SYS_iss_argc
+	return __simc(SYS_iss_argc, 0, 0, 0);
+#else
+	WARN_ONCE(1, "%s: not implemented\n", __func__);
+	return 0;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline int simc_argv_size(void)
 {
+<<<<<<< HEAD
 	return __simc(SYS_iss_argv_size, 0, 0, 0);
+=======
+#ifdef SYS_iss_argv_size
+	return __simc(SYS_iss_argv_size, 0, 0, 0);
+#else
+	WARN_ONCE(1, "%s: not implemented\n", __func__);
+	return 0;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline void simc_argv(void *buf)
 {
+<<<<<<< HEAD
 	__simc(SYS_iss_set_argv, (int)buf, 0, 0);
 }
 
 #endif /* _XTENSA_PLATFORM_ISS_SIMCALL_H */
 
+=======
+#ifdef SYS_iss_set_argv
+	__simc(SYS_iss_set_argv, (int)buf, 0, 0);
+#else
+	WARN_ONCE(1, "%s: not implemented\n", __func__);
+#endif
+}
+
+#endif /* _XTENSA_PLATFORM_ISS_SIMCALL_H */
+>>>>>>> upstream/android-13

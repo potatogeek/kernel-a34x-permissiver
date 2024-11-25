@@ -16,7 +16,12 @@
 struct font_desc {
     int idx;
     const char *name;
+<<<<<<< HEAD
     int width, height;
+=======
+    unsigned int width, height;
+    unsigned int charcount;
+>>>>>>> upstream/android-13
     const void *data;
     int pref;
 };
@@ -32,6 +37,11 @@ struct font_desc {
 #define ACORN8x8_IDX	8
 #define	MINI4x6_IDX	9
 #define FONT6x10_IDX	10
+<<<<<<< HEAD
+=======
+#define TER16x32_IDX	11
+#define FONT6x8_IDX	12
+>>>>>>> upstream/android-13
 
 extern const struct font_desc	font_vga_8x8,
 			font_vga_8x16,
@@ -43,7 +53,13 @@ extern const struct font_desc	font_vga_8x8,
 			font_sun_12x22,
 			font_acorn_8x8,
 			font_mini_4x6,
+<<<<<<< HEAD
 			font_6x10;
+=======
+			font_6x10,
+			font_ter_16x32,
+			font_6x8;
+>>>>>>> upstream/android-13
 
 /* Find a font with a specific name */
 

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 /*
  * Universal Flash Storage Host controller driver
  *
  * This code is based on drivers/scsi/ufs/ufshci.h
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Universal Flash Storage Host controller driver
+>>>>>>> upstream/android-13
  * Copyright (C) 2011-2013 Samsung India Software Operations
  *
  * Authors:
  *	Santosh Yaraganavi <santosh.sy@samsung.com>
  *	Vinayak Holikatti <h.vinayak@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,6 +38,8 @@
  * circumstances will the contributor of this Program be liable for
  * any damages of any kind arising from your use or distribution of
  * this program.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _UFSHCI_H
@@ -80,6 +89,7 @@ enum {
 	REG_UFS_CRYPTOCAP			= 0x104,
 
 	UFSHCI_CRYPTO_REG_SPACE_SIZE		= 0x400,
+<<<<<<< HEAD
 
 	/* MTK PATCH: vendor-specific registers */
 	REG_UFS_MTK_START = 0x2100, /* the start offset of MTK registers */
@@ -96,6 +106,8 @@ enum {
 	REG_UFS_MTK_SW_DGB			= 0x22C4,
 	REG_UFS_MTK_PROBE			= 0x22C8,
 	REG_UFS_MTK_SIZE = (REG_UFS_MTK_PROBE - REG_UFS_MTK_START + 16)
+=======
+>>>>>>> upstream/android-13
 };
 
 /* Controller capability masks */
@@ -115,6 +127,7 @@ enum {
 #define MINOR_VERSION_NUM_MASK		UFS_MASK(0xFFFF, 0)
 #define MAJOR_VERSION_NUM_MASK		UFS_MASK(0xFFFF, 16)
 
+<<<<<<< HEAD
 /* Controller UFSHCI version */
 enum {
 	UFSHCI_VERSION_10 = 0x00010000, /* 1.0 */
@@ -122,6 +135,19 @@ enum {
 	UFSHCI_VERSION_20 = 0x00000200, /* 2.0 */
 	UFSHCI_VERSION_21 = 0x00000210, /* 2.1 */
 };
+=======
+/*
+ * Controller UFSHCI version
+ * - 2.x and newer use the following scheme:
+ *   major << 8 + minor << 4
+ * - 1.x has been converted to match this in
+ *   ufshcd_get_ufs_version()
+ */
+static inline u32 ufshci_version(u32 major, u32 minor)
+{
+	return (major << 8) + (minor << 4);
+}
+>>>>>>> upstream/android-13
 
 /*
  * HCDDID - Host Controller Identification Descriptor
@@ -179,7 +205,12 @@ enum {
 #define INT_FATAL_ERRORS	(DEVICE_FATAL_ERROR |\
 				CONTROLLER_FATAL_ERROR |\
 				SYSTEM_BUS_FATAL_ERROR |\
+<<<<<<< HEAD
 				CRYPTO_ENGINE_FATAL_ERROR)
+=======
+				CRYPTO_ENGINE_FATAL_ERROR |\
+				UIC_LINK_LOST)
+>>>>>>> upstream/android-13
 
 /* HCS - Host Controller Status 30h */
 #define DEVICE_PRESENT				0x1
@@ -479,7 +510,11 @@ struct utp_transfer_cmd_desc {
 };
 
 #define sizeof_utp_transfer_cmd_desc(hba)	\
+<<<<<<< HEAD
 	(sizeof(struct utp_transfer_cmd_desc) + SG_ALL * (hba)->sg_entry_size)
+=======
+	(sizeof(struct utp_transfer_cmd_desc) + SG_UFS * (hba)->sg_entry_size)
+>>>>>>> upstream/android-13
 
 /**
  * struct request_desc_header - Descriptor Header common to both UTRD and UTMRD
@@ -531,6 +566,7 @@ struct utp_task_req_desc {
 	struct request_desc_header header;
 
 	/* DW 4-11 - Task request UPIU structure */
+<<<<<<< HEAD
 	struct utp_upiu_header	req_header;
 	__be32			input_param1;
 	__be32			input_param2;
@@ -542,6 +578,23 @@ struct utp_task_req_desc {
 	__be32			output_param1;
 	__be32			output_param2;
 	__be32			__reserved2[3];
+=======
+	struct {
+		struct utp_upiu_header	req_header;
+		__be32			input_param1;
+		__be32			input_param2;
+		__be32			input_param3;
+		__be32			__reserved1[2];
+	} upiu_req;
+
+	/* DW 12-19 - Task Management Response UPIU structure */
+	struct {
+		struct utp_upiu_header	rsp_header;
+		__be32			output_param1;
+		__be32			output_param2;
+		__be32			__reserved2[3];
+	} upiu_rsp;
+>>>>>>> upstream/android-13
 };
 
 #endif /* End of Header */

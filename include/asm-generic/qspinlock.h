@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Queued spinlock
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Queued spinlock
+ *
+>>>>>>> upstream/android-13
  * (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
  * (C) Copyright 2015 Hewlett-Packard Enterprise Development LP
  *
@@ -20,7 +27,13 @@
 #define __ASM_GENERIC_QSPINLOCK_H
 
 #include <asm-generic/qspinlock_types.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/atomic.h>
+
+#ifndef queued_spin_is_locked
+>>>>>>> upstream/android-13
 /**
  * queued_spin_is_locked - is the spinlock locked?
  * @lock: Pointer to queued spinlock structure
@@ -34,6 +47,10 @@ static __always_inline int queued_spin_is_locked(struct qspinlock *lock)
 	 */
 	return atomic_read(&lock->val);
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 /**
  * queued_spin_value_unlocked - is the spinlock structure unlocked?
@@ -59,6 +76,19 @@ static __always_inline int queued_spin_is_contended(struct qspinlock *lock)
 {
 	return atomic_read(&lock->val) & ~_Q_LOCKED_MASK;
 }
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+static __always_inline u8 __queued_spin_get_locked_val(void)
+{
+	int cpu = raw_smp_processor_id();
+
+	return (cpu << _Q_OWNER_OFFSET) | _Q_DBGEN_VAL | _Q_LOCKED_VAL;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * queued_spin_trylock - try to acquire the queued spinlock
  * @lock : Pointer to queued spinlock structure
@@ -66,20 +96,38 @@ static __always_inline int queued_spin_is_contended(struct qspinlock *lock)
  */
 static __always_inline int queued_spin_trylock(struct qspinlock *lock)
 {
+<<<<<<< HEAD
 	if (!atomic_read(&lock->val) &&
 	   (atomic_cmpxchg_acquire(&lock->val, 0, _Q_LOCKED_VAL) == 0))
 		return 1;
 	return 0;
+=======
+	int val = atomic_read(&lock->val);
+
+	if (unlikely(val))
+		return 0;
+
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+	return likely(atomic_try_cmpxchg_acquire(&lock->val, &val, __queued_spin_get_locked_val()));
+#else
+	return likely(atomic_try_cmpxchg_acquire(&lock->val, &val, _Q_LOCKED_VAL));
+#endif
+>>>>>>> upstream/android-13
 }
 
 extern void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
 
+<<<<<<< HEAD
+=======
+#ifndef queued_spin_lock
+>>>>>>> upstream/android-13
 /**
  * queued_spin_lock - acquire a queued spinlock
  * @lock: Pointer to queued spinlock structure
  */
 static __always_inline void queued_spin_lock(struct qspinlock *lock)
 {
+<<<<<<< HEAD
 	u32 val;
 
 	val = atomic_cmpxchg_acquire(&lock->val, 0, _Q_LOCKED_VAL);
@@ -87,6 +135,20 @@ static __always_inline void queued_spin_lock(struct qspinlock *lock)
 		return;
 	queued_spin_lock_slowpath(lock, val);
 }
+=======
+	int val = 0;
+
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+	if (likely(atomic_try_cmpxchg_acquire(&lock->val, &val, __queued_spin_get_locked_val())))
+#else
+	if (likely(atomic_try_cmpxchg_acquire(&lock->val, &val, _Q_LOCKED_VAL)))
+#endif
+		return;
+
+	queued_spin_lock_slowpath(lock, val);
+}
+#endif
+>>>>>>> upstream/android-13
 
 #ifndef queued_spin_unlock
 /**

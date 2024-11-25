@@ -72,7 +72,11 @@ static struct scsi_host_template qlogicfas_driver_template = {
 	.can_queue		= 1,
 	.this_id		= -1,
 	.sg_tablesize		= SG_ALL,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING,
+=======
+	.dma_boundary		= PAGE_SIZE - 1,
+>>>>>>> upstream/android-13
 };
 
 /*====================================================================*/
@@ -254,8 +258,17 @@ static void qlogic_release(struct pcmcia_device *link)
 static int qlogic_resume(struct pcmcia_device *link)
 {
 	scsi_info_t *info = link->priv;
+<<<<<<< HEAD
 
 	pcmcia_enable_device(link);
+=======
+	int ret;
+
+	ret = pcmcia_enable_device(link);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	if ((info->manf_id == MANFID_MACNICA) ||
 	    (info->manf_id == MANFID_PIONEER) ||
 	    (info->manf_id == 0x0098)) {
@@ -300,6 +313,7 @@ static struct pcmcia_driver qlogic_cs_driver = {
 	.resume		= qlogic_resume,
 };
 
+<<<<<<< HEAD
 static int __init init_qlogic_cs(void)
 {
 	return pcmcia_register_driver(&qlogic_cs_driver);
@@ -315,3 +329,9 @@ MODULE_DESCRIPTION("Driver for the PCMCIA Qlogic FAS SCSI controllers");
 MODULE_LICENSE("GPL");
 module_init(init_qlogic_cs);
 module_exit(exit_qlogic_cs);
+=======
+MODULE_AUTHOR("Tom Zerucha, Michael Griffith");
+MODULE_DESCRIPTION("Driver for the PCMCIA Qlogic FAS SCSI controllers");
+MODULE_LICENSE("GPL");
+module_pcmcia_driver(qlogic_cs_driver);
+>>>>>>> upstream/android-13

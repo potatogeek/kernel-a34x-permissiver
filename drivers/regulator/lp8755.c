@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * LP8755 High Performance Power Management Unit : System Interface Driver
  * (based on rev. 0.26)
  * Copyright 2012 Texas Instruments
  *
  * Author: Daniel(Geon Si) Jeong <daniel.jeong@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -53,6 +60,7 @@ struct lp8755_chip {
 	struct regulator_dev *rdev[LP8755_BUCK_MAX];
 };
 
+<<<<<<< HEAD
 /**
  *lp8755_read : read a single register value from lp8755.
  *@pchip : device to read from
@@ -90,16 +98,25 @@ static int lp8755_update_bits(struct lp8755_chip *pchip, unsigned int reg,
 	return regmap_update_bits(pchip->regmap, reg, mask, val);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int lp8755_buck_enable_time(struct regulator_dev *rdev)
 {
 	int ret;
 	unsigned int regval;
 	enum lp8755_bucks id = rdev_get_id(rdev);
+<<<<<<< HEAD
 	struct lp8755_chip *pchip = rdev_get_drvdata(rdev);
 
 	ret = lp8755_read(pchip, 0x12 + id, &regval);
 	if (ret < 0) {
 		dev_err(pchip->dev, "i2c access error %s\n", __func__);
+=======
+
+	ret = regmap_read(rdev->regmap, 0x12 + id, &regval);
+	if (ret < 0) {
+		dev_err(&rdev->dev, "i2c access error %s\n", __func__);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	return (regval & 0xff) * 100;
@@ -119,17 +136,29 @@ static int lp8755_buck_set_mode(struct regulator_dev *rdev, unsigned int mode)
 		break;
 	case REGULATOR_MODE_NORMAL:
 		/* enable automatic pwm/pfm mode */
+<<<<<<< HEAD
 		ret = lp8755_update_bits(pchip, 0x08 + id, 0x20, 0x00);
+=======
+		ret = regmap_update_bits(rdev->regmap, 0x08 + id, 0x20, 0x00);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto err_i2c;
 		break;
 	case REGULATOR_MODE_IDLE:
 		/* enable automatic pwm/pfm/lppfm mode */
+<<<<<<< HEAD
 		ret = lp8755_update_bits(pchip, 0x08 + id, 0x20, 0x20);
 		if (ret < 0)
 			goto err_i2c;
 
 		ret = lp8755_update_bits(pchip, 0x10, 0x01, 0x01);
+=======
+		ret = regmap_update_bits(rdev->regmap, 0x08 + id, 0x20, 0x20);
+		if (ret < 0)
+			goto err_i2c;
+
+		ret = regmap_update_bits(rdev->regmap, 0x10, 0x01, 0x01);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto err_i2c;
 		break;
@@ -139,12 +168,20 @@ static int lp8755_buck_set_mode(struct regulator_dev *rdev, unsigned int mode)
 		regbval = (0x01 << id);
 	}
 
+<<<<<<< HEAD
 	ret = lp8755_update_bits(pchip, 0x06, 0x01 << id, regbval);
+=======
+	ret = regmap_update_bits(rdev->regmap, 0x06, 0x01 << id, regbval);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto err_i2c;
 	return ret;
 err_i2c:
+<<<<<<< HEAD
 	dev_err(pchip->dev, "i2c access error %s\n", __func__);
+=======
+	dev_err(&rdev->dev, "i2c access error %s\n", __func__);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -153,9 +190,14 @@ static unsigned int lp8755_buck_get_mode(struct regulator_dev *rdev)
 	int ret;
 	unsigned int regval;
 	enum lp8755_bucks id = rdev_get_id(rdev);
+<<<<<<< HEAD
 	struct lp8755_chip *pchip = rdev_get_drvdata(rdev);
 
 	ret = lp8755_read(pchip, 0x06, &regval);
+=======
+
+	ret = regmap_read(rdev->regmap, 0x06, &regval);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto err_i2c;
 
@@ -163,7 +205,11 @@ static unsigned int lp8755_buck_get_mode(struct regulator_dev *rdev)
 	if (regval & (0x01 << id))
 		return REGULATOR_MODE_FAST;
 
+<<<<<<< HEAD
 	ret = lp8755_read(pchip, 0x08 + id, &regval);
+=======
+	ret = regmap_read(rdev->regmap, 0x08 + id, &regval);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto err_i2c;
 
@@ -175,6 +221,7 @@ static unsigned int lp8755_buck_get_mode(struct regulator_dev *rdev)
 	return REGULATOR_MODE_NORMAL;
 
 err_i2c:
+<<<<<<< HEAD
 	dev_err(pchip->dev, "i2c access error %s\n", __func__);
 	return 0;
 }
@@ -226,6 +273,15 @@ err_i2c:
 	dev_err(pchip->dev, "i2c access error %s\n", __func__);
 	return ret;
 }
+=======
+	dev_err(&rdev->dev, "i2c access error %s\n", __func__);
+	return 0;
+}
+
+static const unsigned int lp8755_buck_ramp_table[] = {
+	30000, 15000, 7500, 3800, 1900, 940, 470, 230
+};
+>>>>>>> upstream/android-13
 
 static const struct regulator_ops lp8755_buck_ops = {
 	.map_voltage = regulator_map_voltage_linear,
@@ -238,7 +294,11 @@ static const struct regulator_ops lp8755_buck_ops = {
 	.enable_time = lp8755_buck_enable_time,
 	.set_mode = lp8755_buck_set_mode,
 	.get_mode = lp8755_buck_get_mode,
+<<<<<<< HEAD
 	.set_ramp_delay = lp8755_buck_set_ramp,
+=======
+	.set_ramp_delay = regulator_set_ramp_delay_regmap,
+>>>>>>> upstream/android-13
 };
 
 #define lp8755_rail(_id) "lp8755_buck"#_id
@@ -282,7 +342,11 @@ static int lp8755_init_data(struct lp8755_chip *pchip)
 	struct lp8755_platform_data *pdata = pchip->pdata;
 
 	/* read back  muti-phase configuration */
+<<<<<<< HEAD
 	ret = lp8755_read(pchip, 0x3D, &regval);
+=======
+	ret = regmap_read(pchip->regmap, 0x3D, &regval);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto out_i2c_error;
 	pchip->mphase = regval & 0x0F;
@@ -313,9 +377,19 @@ out_i2c_error:
 	.enable_mask = LP8755_BUCK_EN_M,\
 	.vsel_reg = LP8755_REG_BUCK##_id,\
 	.vsel_mask = LP8755_BUCK_VOUT_M,\
+<<<<<<< HEAD
 }
 
 static struct regulator_desc lp8755_regulators[] = {
+=======
+	.ramp_reg = (LP8755_BUCK##_id) + 0x7,\
+	.ramp_mask = 0x7,\
+	.ramp_delay_table = lp8755_buck_ramp_table,\
+	.n_ramp_values = ARRAY_SIZE(lp8755_buck_ramp_table),\
+}
+
+static const struct regulator_desc lp8755_regulators[] = {
+>>>>>>> upstream/android-13
 	lp8755_buck_desc(0),
 	lp8755_buck_desc(1),
 	lp8755_buck_desc(2),
@@ -360,11 +434,19 @@ static irqreturn_t lp8755_irq_handler(int irq, void *data)
 	struct lp8755_chip *pchip = data;
 
 	/* read flag0 register */
+<<<<<<< HEAD
 	ret = lp8755_read(pchip, 0x0D, &flag0);
 	if (ret < 0)
 		goto err_i2c;
 	/* clear flag register to pull up int. pin */
 	ret = lp8755_write(pchip, 0x0D, 0x00);
+=======
+	ret = regmap_read(pchip->regmap, 0x0D, &flag0);
+	if (ret < 0)
+		goto err_i2c;
+	/* clear flag register to pull up int. pin */
+	ret = regmap_write(pchip->regmap, 0x0D, 0x00);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto err_i2c;
 
@@ -372,6 +454,7 @@ static irqreturn_t lp8755_irq_handler(int irq, void *data)
 	for (icnt = 0; icnt < LP8755_BUCK_MAX; icnt++)
 		if ((flag0 & (0x4 << icnt))
 		    && (pchip->irqmask & (0x04 << icnt))
+<<<<<<< HEAD
 		    && (pchip->rdev[icnt] != NULL))
 			regulator_notifier_call_chain(pchip->rdev[icnt],
 						      LP8755_EVENT_PWR_FAULT,
@@ -401,6 +484,40 @@ static irqreturn_t lp8755_irq_handler(int irq, void *data)
 				regulator_notifier_call_chain(pchip->rdev[icnt],
 							      LP8755_EVENT_OVP,
 							      NULL);
+=======
+		    && (pchip->rdev[icnt] != NULL)) {
+			regulator_notifier_call_chain(pchip->rdev[icnt],
+						      LP8755_EVENT_PWR_FAULT,
+						      NULL);
+		}
+
+	/* read flag1 register */
+	ret = regmap_read(pchip->regmap, 0x0E, &flag1);
+	if (ret < 0)
+		goto err_i2c;
+	/* clear flag register to pull up int. pin */
+	ret = regmap_write(pchip->regmap, 0x0E, 0x00);
+	if (ret < 0)
+		goto err_i2c;
+
+	/* send OCP event to all regulator devices */
+	if ((flag1 & 0x01) && (pchip->irqmask & 0x01))
+		for (icnt = 0; icnt < LP8755_BUCK_MAX; icnt++)
+			if (pchip->rdev[icnt] != NULL) {
+				regulator_notifier_call_chain(pchip->rdev[icnt],
+							      LP8755_EVENT_OCP,
+							      NULL);
+			}
+
+	/* send OVP event to all regulator devices */
+	if ((flag1 & 0x02) && (pchip->irqmask & 0x02))
+		for (icnt = 0; icnt < LP8755_BUCK_MAX; icnt++)
+			if (pchip->rdev[icnt] != NULL) {
+				regulator_notifier_call_chain(pchip->rdev[icnt],
+							      LP8755_EVENT_OVP,
+							      NULL);
+			}
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 
 err_i2c:
@@ -418,7 +535,11 @@ static int lp8755_int_config(struct lp8755_chip *pchip)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	ret = lp8755_read(pchip, 0x0F, &regval);
+=======
+	ret = regmap_read(pchip->regmap, 0x0F, &regval);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(pchip->dev, "i2c access error %s\n", __func__);
 		return ret;
@@ -497,7 +618,11 @@ static int lp8755_probe(struct i2c_client *client,
 err:
 	/* output disable */
 	for (icnt = 0; icnt < LP8755_BUCK_MAX; icnt++)
+<<<<<<< HEAD
 		lp8755_write(pchip, icnt, 0x00);
+=======
+		regmap_write(pchip->regmap, icnt, 0x00);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -508,7 +633,11 @@ static int lp8755_remove(struct i2c_client *client)
 	struct lp8755_chip *pchip = i2c_get_clientdata(client);
 
 	for (icnt = 0; icnt < LP8755_BUCK_MAX; icnt++)
+<<<<<<< HEAD
 		lp8755_write(pchip, icnt, 0x00);
+=======
+		regmap_write(pchip->regmap, icnt, 0x00);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

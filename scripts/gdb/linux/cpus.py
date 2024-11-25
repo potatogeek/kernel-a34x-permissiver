@@ -16,6 +16,12 @@ import gdb
 from linux import tasks, utils
 
 
+<<<<<<< HEAD
+=======
+task_type = utils.CachedType("struct task_struct")
+
+
+>>>>>>> upstream/android-13
 MAX_CPUS = 4096
 
 
@@ -135,6 +141,10 @@ and can help identify the state of hotplugged CPUs"""
         gdb.write("Online CPUs   : {}\n".format(list(each_online_cpu())))
         gdb.write("Active CPUs   : {}\n".format(list(each_active_cpu())))
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 LxCpus()
 
 
@@ -155,6 +165,26 @@ Note that VAR has to be quoted as string."""
 
 PerCpu()
 
+<<<<<<< HEAD
+=======
+def get_current_task(cpu):
+    task_ptr_type = task_type.get_type().pointer()
+
+    if utils.is_target_arch("x86"):
+         var_ptr = gdb.parse_and_eval("&current_task")
+         return per_cpu(var_ptr, cpu).dereference()
+    elif utils.is_target_arch("aarch64"):
+         current_task_addr = gdb.parse_and_eval("$SP_EL0")
+         if((current_task_addr >> 63) != 0):
+             current_task = current_task_addr.cast(task_ptr_type)
+             return current_task.dereference()
+         else:
+             raise gdb.GdbError("Sorry, obtaining the current task is not allowed "
+                                "while running in userspace(EL0)")
+    else:
+        raise gdb.GdbError("Sorry, obtaining the current task is not yet "
+                           "supported with this arch")
+>>>>>>> upstream/android-13
 
 class LxCurrentFunc(gdb.Function):
     """Return current task.
@@ -166,8 +196,12 @@ number. If CPU is omitted, the CPU of the current context is used."""
         super(LxCurrentFunc, self).__init__("lx_current")
 
     def invoke(self, cpu=-1):
+<<<<<<< HEAD
         var_ptr = gdb.parse_and_eval("&current_task")
         return per_cpu(var_ptr, cpu).dereference()
+=======
+        return get_current_task(cpu)
+>>>>>>> upstream/android-13
 
 
 LxCurrentFunc()

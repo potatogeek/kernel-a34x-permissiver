@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Cryptographic API.
  *
@@ -14,6 +15,11 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Cryptographic API.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -122,6 +128,10 @@ static int lzo_sdecompress(struct crypto_scomp *tfm, const u8 *src,
 
 static struct crypto_alg alg = {
 	.cra_name		= "lzo",
+<<<<<<< HEAD
+=======
+	.cra_driver_name	= "lzo-generic",
+>>>>>>> upstream/android-13
 	.cra_flags		= CRYPTO_ALG_TYPE_COMPRESS,
 	.cra_ctxsize		= sizeof(struct lzo_ctx),
 	.cra_module		= THIS_MODULE,
@@ -167,7 +177,11 @@ static void __exit lzo_mod_fini(void)
 	crypto_unregister_scomp(&scomp);
 }
 
+<<<<<<< HEAD
 module_init(lzo_mod_init);
+=======
+subsys_initcall(lzo_mod_init);
+>>>>>>> upstream/android-13
 module_exit(lzo_mod_fini);
 
 MODULE_LICENSE("GPL");

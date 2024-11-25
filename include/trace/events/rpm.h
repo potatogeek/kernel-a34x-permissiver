@@ -74,6 +74,15 @@ DEFINE_EVENT(rpm_internal, rpm_idle,
 
 	TP_ARGS(dev, flags)
 );
+<<<<<<< HEAD
+=======
+DEFINE_EVENT(rpm_internal, rpm_usage,
+
+	TP_PROTO(struct device *dev, int flags),
+
+	TP_ARGS(dev, flags)
+);
+>>>>>>> upstream/android-13
 
 TRACE_EVENT(rpm_return_int,
 	TP_PROTO(struct device *dev, unsigned long ip, int ret),

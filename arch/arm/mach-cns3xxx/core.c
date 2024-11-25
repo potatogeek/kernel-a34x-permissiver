@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 1999 - 2003 ARM Limited
  * Copyright 2000 Deep Blue Solutions Ltd
  * Copyright 2008 Cavium Networks
+<<<<<<< HEAD
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, Version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -90,7 +97,11 @@ void __init cns3xxx_map_io(void)
 /* used by entry-macro.S */
 void __init cns3xxx_init_irq(void)
 {
+<<<<<<< HEAD
 	gic_init(0, 29, IOMEM(CNS3XXX_TC11MP_GIC_DIST_BASE_VIRT),
+=======
+	gic_init(IOMEM(CNS3XXX_TC11MP_GIC_DIST_BASE_VIRT),
+>>>>>>> upstream/android-13
 		 IOMEM(CNS3XXX_TC11MP_GIC_CPU_BASE_VIRT));
 }
 
@@ -192,12 +203,15 @@ static irqreturn_t cns3xxx_timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction cns3xxx_timer_irq = {
 	.name		= "timer",
 	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
 	.handler	= cns3xxx_timer_interrupt,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Set up the clock source and clock events devices
  */
@@ -248,7 +262,13 @@ static void __init __cns3xxx_timer_init(unsigned int timer_irq)
 	writel(val, cns3xxx_tmr1 + TIMER1_2_CONTROL_OFFSET);
 
 	/* Make irqs happen for the system timer */
+<<<<<<< HEAD
 	setup_irq(timer_irq, &cns3xxx_timer_irq);
+=======
+	if (request_irq(timer_irq, cns3xxx_timer_interrupt,
+			IRQF_TIMER | IRQF_IRQPOLL, "timer", NULL))
+		pr_err("Failed to request irq %d (timer)\n", timer_irq);
+>>>>>>> upstream/android-13
 
 	cns3xxx_clockevents_init(timer_irq);
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
  * privcmd.c
  *
@@ -24,9 +28,12 @@
 #include <linux/miscdevice.h>
 #include <linux/moduleparam.h>
 
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
 #include <asm/tlb.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/xen/hypervisor.h>
 #include <asm/xen/hypercall.h>
 
@@ -259,7 +266,11 @@ static long privcmd_ioctl_mmap(struct file *file, void __user *udata)
 	LIST_HEAD(pagelist);
 	struct mmap_gfn_state state;
 
+<<<<<<< HEAD
 	/* We only support privcmd_ioctl_mmap_batch for auto translated. */
+=======
+	/* We only support privcmd_ioctl_mmap_batch for non-auto-translated. */
+>>>>>>> upstream/android-13
 	if (xen_feature(XENFEAT_auto_translated_physmap))
 		return -ENOSYS;
 
@@ -277,7 +288,11 @@ static long privcmd_ioctl_mmap(struct file *file, void __user *udata)
 	if (rc || list_empty(&pagelist))
 		goto out;
 
+<<<<<<< HEAD
 	down_write(&mm->mmap_sem);
+=======
+	mmap_write_lock(mm);
+>>>>>>> upstream/android-13
 
 	{
 		struct page *page = list_first_entry(&pagelist,
@@ -302,7 +317,11 @@ static long privcmd_ioctl_mmap(struct file *file, void __user *udata)
 
 
 out_up:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 
 out:
 	free_page_list(&pagelist);
@@ -422,6 +441,7 @@ static int alloc_empty_pages(struct vm_area_struct *vma, int numpgs)
 	int rc;
 	struct page **pages;
 
+<<<<<<< HEAD
 	pages = kcalloc(numpgs, sizeof(pages[0]), GFP_KERNEL);
 	if (pages == NULL)
 		return -ENOMEM;
@@ -431,6 +451,17 @@ static int alloc_empty_pages(struct vm_area_struct *vma, int numpgs)
 		pr_warn("%s Could not alloc %d pfns rc:%d\n", __func__,
 			numpgs, rc);
 		kfree(pages);
+=======
+	pages = kvcalloc(numpgs, sizeof(pages[0]), GFP_KERNEL);
+	if (pages == NULL)
+		return -ENOMEM;
+
+	rc = xen_alloc_unpopulated_pages(numpgs, pages);
+	if (rc != 0) {
+		pr_warn("%s Could not alloc %d pfns rc:%d\n", __func__,
+			numpgs, rc);
+		kvfree(pages);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 	BUG_ON(vma->vm_private_data != NULL);
@@ -459,14 +490,22 @@ static long privcmd_ioctl_mmap_batch(
 			return -EFAULT;
 		/* Returns per-frame error in m.arr. */
 		m.err = NULL;
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, m.arr, m.num * sizeof(*m.arr)))
+=======
+		if (!access_ok(m.arr, m.num * sizeof(*m.arr)))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		break;
 	case 2:
 		if (copy_from_user(&m, udata, sizeof(struct privcmd_mmapbatch_v2)))
 			return -EFAULT;
 		/* Returns per-frame error code in m.err. */
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, m.err, m.num * (sizeof(*m.err))))
+=======
+		if (!access_ok(m.err, m.num * (sizeof(*m.err))))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		break;
 	default:
@@ -498,7 +537,11 @@ static long privcmd_ioctl_mmap_batch(
 		}
 	}
 
+<<<<<<< HEAD
 	down_write(&mm->mmap_sem);
+=======
+	mmap_write_lock(mm);
+>>>>>>> upstream/android-13
 
 	vma = find_vma(mm, m.addr);
 	if (!vma ||
@@ -554,7 +597,11 @@ static long privcmd_ioctl_mmap_batch(
 	BUG_ON(traverse_pages_block(m.num, sizeof(xen_pfn_t),
 				    &pagelist, mmap_batch_fn, &state));
 
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 
 	if (state.global_error) {
 		/* Write back errors in second pass. */
@@ -575,19 +622,31 @@ out:
 	return ret;
 
 out_unlock:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	goto out;
 }
 
 static int lock_pages(
 	struct privcmd_dm_op_buf kbufs[], unsigned int num,
+<<<<<<< HEAD
 	struct page *pages[], unsigned int nr_pages)
+=======
+	struct page *pages[], unsigned int nr_pages, unsigned int *pinned)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
 	for (i = 0; i < num; i++) {
 		unsigned int requested;
+<<<<<<< HEAD
 		int pinned;
+=======
+		int page_count;
+>>>>>>> upstream/android-13
 
 		requested = DIV_ROUND_UP(
 			offset_in_page(kbufs[i].uptr) + kbufs[i].size,
@@ -595,6 +654,7 @@ static int lock_pages(
 		if (requested > nr_pages)
 			return -ENOSPC;
 
+<<<<<<< HEAD
 		pinned = get_user_pages_fast(
 			(unsigned long) kbufs[i].uptr,
 			requested, FOLL_WRITE, pages);
@@ -603,6 +663,17 @@ static int lock_pages(
 
 		nr_pages -= pinned;
 		pages += pinned;
+=======
+		page_count = pin_user_pages_fast(
+			(unsigned long) kbufs[i].uptr,
+			requested, FOLL_WRITE, pages);
+		if (page_count < 0)
+			return page_count;
+
+		*pinned += page_count;
+		nr_pages -= page_count;
+		pages += page_count;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -610,6 +681,7 @@ static int lock_pages(
 
 static void unlock_pages(struct page *pages[], unsigned int nr_pages)
 {
+<<<<<<< HEAD
 	unsigned int i;
 
 	if (!pages)
@@ -619,6 +691,9 @@ static void unlock_pages(struct page *pages[], unsigned int nr_pages)
 		if (pages[i])
 			put_page(pages[i]);
 	}
+=======
+	unpin_user_pages_dirty_lock(pages, nr_pages, true);
+>>>>>>> upstream/android-13
 }
 
 static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
@@ -631,6 +706,10 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
 	struct xen_dm_op_buf *xbufs = NULL;
 	unsigned int i;
 	long rc;
+<<<<<<< HEAD
+=======
+	unsigned int pinned = 0;
+>>>>>>> upstream/android-13
 
 	if (copy_from_user(&kdata, udata, sizeof(kdata)))
 		return -EFAULT;
@@ -661,7 +740,11 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
 			goto out;
 		}
 
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, kbufs[i].uptr,
+=======
+		if (!access_ok(kbufs[i].uptr,
+>>>>>>> upstream/android-13
 			       kbufs[i].size)) {
 			rc = -EFAULT;
 			goto out;
@@ -684,9 +767,17 @@ static long privcmd_ioctl_dm_op(struct file *file, void __user *udata)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	rc = lock_pages(kbufs, kdata.num, pages, nr_pages);
 	if (rc)
 		goto out;
+=======
+	rc = lock_pages(kbufs, kdata.num, pages, nr_pages, &pinned);
+	if (rc < 0) {
+		nr_pages = pinned;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < kdata.num; i++) {
 		set_xen_guest_handle(xbufs[i].h, kbufs[i].uptr);
@@ -723,6 +814,7 @@ static long privcmd_ioctl_restrict(struct file *file, void __user *udata)
 	return 0;
 }
 
+<<<<<<< HEAD
 struct remap_pfn {
 	struct mm_struct *mm;
 	struct page **pages;
@@ -743,6 +835,8 @@ static int remap_pfn_fn(pte_t *ptep, pgtable_t token, unsigned long addr,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static long privcmd_ioctl_mmap_resource(struct file *file,
 				struct privcmd_mmap_resource __user *udata)
 {
@@ -777,7 +871,11 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
 		return __put_user(xdata.nr_frames, &udata->num);
 	}
 
+<<<<<<< HEAD
 	down_write(&mm->mmap_sem);
+=======
+	mmap_write_lock(mm);
+>>>>>>> upstream/android-13
 
 	vma = find_vma(mm, kdata.addr);
 	if (!vma || vma->vm_ops != &privcmd_vm_ops) {
@@ -791,7 +889,12 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (xen_feature(XENFEAT_auto_translated_physmap)) {
+=======
+	if (IS_ENABLED(CONFIG_XEN_AUTO_XLATE) &&
+	    xen_feature(XENFEAT_auto_translated_physmap)) {
+>>>>>>> upstream/android-13
 		unsigned int nr = DIV_ROUND_UP(kdata.num, XEN_PFN_PER_PAGE);
 		struct page **pages;
 		unsigned int i;
@@ -821,6 +924,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
 	if (rc)
 		goto out;
 
+<<<<<<< HEAD
 	if (xen_feature(XENFEAT_auto_translated_physmap)) {
 		struct remap_pfn r = {
 			.mm = vma->vm_mm,
@@ -831,10 +935,16 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
 		rc = apply_to_page_range(r.mm, kdata.addr,
 					 kdata.num << PAGE_SHIFT,
 					 remap_pfn_fn, &r);
+=======
+	if (IS_ENABLED(CONFIG_XEN_AUTO_XLATE) &&
+	    xen_feature(XENFEAT_auto_translated_physmap)) {
+		rc = xen_remap_vma_range(vma, kdata.addr, kdata.num << PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	} else {
 		unsigned int domid =
 			(xdata.flags & XENMEM_rsrc_acq_caller_owned) ?
 			DOMID_SELF : kdata.dom;
+<<<<<<< HEAD
 		int num;
 
 		num = xen_remap_domain_mfn_array(vma,
@@ -843,13 +953,27 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
 						 vma->vm_page_prot,
 						 domid,
 						 vma->vm_private_data);
+=======
+		int num, *errs = (int *)pfns;
+
+		BUILD_BUG_ON(sizeof(*errs) > sizeof(*pfns));
+		num = xen_remap_domain_mfn_array(vma,
+						 kdata.addr & PAGE_MASK,
+						 pfns, kdata.num, errs,
+						 vma->vm_page_prot,
+						 domid);
+>>>>>>> upstream/android-13
 		if (num < 0)
 			rc = num;
 		else if (num != kdata.num) {
 			unsigned int i;
 
 			for (i = 0; i < num; i++) {
+<<<<<<< HEAD
 				rc = pfns[i];
+=======
+				rc = errs[i];
+>>>>>>> upstream/android-13
 				if (rc < 0)
 					break;
 			}
@@ -858,7 +982,11 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
 	}
 
 out:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	kfree(pfns);
 
 	return rc;
@@ -940,11 +1068,19 @@ static void privcmd_close(struct vm_area_struct *vma)
 
 	rc = xen_unmap_domain_gfn_range(vma, numgfns, pages);
 	if (rc == 0)
+<<<<<<< HEAD
 		free_xenballooned_pages(numpgs, pages);
 	else
 		pr_crit("unable to unmap MFN range: leaking %d pages. rc=%d\n",
 			numpgs, rc);
 	kfree(pages);
+=======
+		xen_free_unpopulated_pages(numpgs, pages);
+	else
+		pr_crit("unable to unmap MFN range: leaking %d pages. rc=%d\n",
+			numpgs, rc);
+	kvfree(pages);
+>>>>>>> upstream/android-13
 }
 
 static vm_fault_t privcmd_fault(struct vm_fault *vmf)
@@ -978,8 +1114,12 @@ static int privcmd_mmap(struct file *file, struct vm_area_struct *vma)
  * on a per pfn/pte basis. Mapping calls that fail with ENOENT
  * can be then retried until success.
  */
+<<<<<<< HEAD
 static int is_mapped_fn(pte_t *pte, struct page *pmd_page,
 	                unsigned long addr, void *data)
+=======
+static int is_mapped_fn(pte_t *pte, unsigned long addr, void *data)
+>>>>>>> upstream/android-13
 {
 	return pte_none(*pte) ? 0 : -EBUSY;
 }

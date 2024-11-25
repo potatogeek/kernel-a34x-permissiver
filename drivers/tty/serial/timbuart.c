@@ -87,9 +87,13 @@ static void timbuart_rx_chars(struct uart_port *port)
 		tty_insert_flip_char(tport, ch, TTY_NORMAL);
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&port->lock);
 	tty_flip_buffer_push(tport);
 	spin_lock(&port->lock);
+=======
+	tty_flip_buffer_push(tport);
+>>>>>>> upstream/android-13
 
 	dev_dbg(port->dev, "%s - total read %d bytes\n",
 		__func__, port->icount.rx);
@@ -172,9 +176,15 @@ static void timbuart_handle_rx_port(struct uart_port *port, u32 isr, u32 *ier)
 	dev_dbg(port->dev, "%s - leaving\n", __func__);
 }
 
+<<<<<<< HEAD
 static void timbuart_tasklet(unsigned long arg)
 {
 	struct timbuart_port *uart = (struct timbuart_port *)arg;
+=======
+static void timbuart_tasklet(struct tasklet_struct *t)
+{
+	struct timbuart_port *uart = from_tasklet(uart, t, tasklet);
+>>>>>>> upstream/android-13
 	u32 isr, ier = 0;
 
 	spin_lock(&uart->port.lock);
@@ -451,7 +461,11 @@ static int timbuart_probe(struct platform_device *dev)
 	}
 	uart->port.irq = irq;
 
+<<<<<<< HEAD
 	tasklet_init(&uart->tasklet, timbuart_tasklet, (unsigned long)uart);
+=======
+	tasklet_setup(&uart->tasklet, timbuart_tasklet);
+>>>>>>> upstream/android-13
 
 	err = uart_register_driver(&timbuart_driver);
 	if (err)

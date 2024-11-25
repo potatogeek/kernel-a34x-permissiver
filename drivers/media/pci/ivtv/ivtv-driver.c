@@ -23,7 +23,10 @@
  * Driver for the Conexant CX23415/CX23416 chip.
  * Author: Kevin Thayer (nufan_wfk at yahoo.com)
  * License: GPL
+<<<<<<< HEAD
  * http://www.ivtvdriver.org
+=======
+>>>>>>> upstream/android-13
  *
  * -----
  * MPG600/MPG160 support by  T.Adachi <tadachi@tadachi-net.com>
@@ -276,9 +279,12 @@ MODULE_PARM_DESC(ivtv_first_minor, "Set device node number assigned to first car
 
 MODULE_AUTHOR("Kevin Thayer, Chris Kennedy, Hans Verkuil");
 MODULE_DESCRIPTION("CX23415/CX23416 driver");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE
     ("CX23415/CX23416 MPEG2 encoder (WinTV PVR-150/250/350/500,\n"
 		"\t\t\tYuan MPG series and similar)");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 MODULE_VERSION(IVTV_VERSION);
@@ -723,7 +729,11 @@ done:
 		IVTV_ERR("              %s based\n", chipname);
 		IVTV_ERR("Defaulting to %s card\n", itv->card->name);
 		IVTV_ERR("Please mail the vendor/device and subsystem vendor/device IDs and what kind of\n");
+<<<<<<< HEAD
 		IVTV_ERR("card you have to the ivtv-devel mailinglist (www.ivtvdriver.org)\n");
+=======
+		IVTV_ERR("card you have to the linux-media mailinglist (www.linuxtv.org)\n");
+>>>>>>> upstream/android-13
 		IVTV_ERR("Prefix your subject line with [UNKNOWN IVTV CARD].\n");
 	}
 	itv->v4l2_cap = itv->card->v4l2_capabilities;
@@ -738,8 +748,11 @@ done:
  */
 static int ivtv_init_struct1(struct ivtv *itv)
 {
+<<<<<<< HEAD
 	struct sched_param param = { .sched_priority = 99 };
 
+=======
+>>>>>>> upstream/android-13
 	itv->base_addr = pci_resource_start(itv->pdev, 0);
 	itv->enc_mbox.max_mbox = 2; /* the encoder has 3 mailboxes (0-2) */
 	itv->dec_mbox.max_mbox = 1; /* the decoder has 2 mailboxes (0-1) */
@@ -759,7 +772,11 @@ static int ivtv_init_struct1(struct ivtv *itv)
 		return -1;
 	}
 	/* must use the FIFO scheduler as it is realtime sensitive */
+<<<<<<< HEAD
 	sched_setscheduler(itv->irq_worker_task, SCHED_FIFO, &param);
+=======
+	sched_set_fifo(itv->irq_worker_task);
+>>>>>>> upstream/android-13
 
 	kthread_init_work(&itv->irq_work, ivtv_irq_work_handler);
 
@@ -876,6 +893,14 @@ static int ivtv_setup_pci(struct ivtv *itv, struct pci_dev *pdev,
 		pci_read_config_word(pdev, PCI_COMMAND, &cmd);
 		if (!(cmd & PCI_COMMAND_MASTER)) {
 			IVTV_ERR("Bus Mastering is not enabled\n");
+<<<<<<< HEAD
+=======
+			if (itv->has_cx23415)
+				release_mem_region(itv->base_addr + IVTV_DECODER_OFFSET,
+						   IVTV_DECODER_SIZE);
+			release_mem_region(itv->base_addr, IVTV_ENCODER_SIZE);
+			release_mem_region(itv->base_addr + IVTV_REG_OFFSET, IVTV_REG_SIZE);
+>>>>>>> upstream/android-13
 			return -ENXIO;
 		}
 	}
@@ -910,7 +935,11 @@ static void ivtv_load_and_init_modules(struct ivtv *itv)
 
 	/* check which i2c devices are actually found */
 	for (i = 0; i < 32; i++) {
+<<<<<<< HEAD
 		u32 device = 1 << i;
+=======
+		u32 device = BIT(i);
+>>>>>>> upstream/android-13
 
 		if (!(device & hw))
 			continue;
@@ -1042,7 +1071,11 @@ static int ivtv_probe(struct pci_dev *pdev, const struct pci_device_id *pci_id)
 	/* map io memory */
 	IVTV_DEBUG_INFO("attempting ioremap at 0x%llx len 0x%08x\n",
 		   (u64)itv->base_addr + IVTV_ENCODER_OFFSET, IVTV_ENCODER_SIZE);
+<<<<<<< HEAD
 	itv->enc_mem = ioremap_nocache(itv->base_addr + IVTV_ENCODER_OFFSET,
+=======
+	itv->enc_mem = ioremap(itv->base_addr + IVTV_ENCODER_OFFSET,
+>>>>>>> upstream/android-13
 				       IVTV_ENCODER_SIZE);
 	if (!itv->enc_mem) {
 		IVTV_ERR("ioremap failed. Can't get a window into CX23415/6 encoder memory\n");
@@ -1056,7 +1089,11 @@ static int ivtv_probe(struct pci_dev *pdev, const struct pci_device_id *pci_id)
 	if (itv->has_cx23415) {
 		IVTV_DEBUG_INFO("attempting ioremap at 0x%llx len 0x%08x\n",
 				(u64)itv->base_addr + IVTV_DECODER_OFFSET, IVTV_DECODER_SIZE);
+<<<<<<< HEAD
 		itv->dec_mem = ioremap_nocache(itv->base_addr + IVTV_DECODER_OFFSET,
+=======
+		itv->dec_mem = ioremap(itv->base_addr + IVTV_DECODER_OFFSET,
+>>>>>>> upstream/android-13
 				IVTV_DECODER_SIZE);
 		if (!itv->dec_mem) {
 			IVTV_ERR("ioremap failed. Can't get a window into CX23415 decoder memory\n");
@@ -1075,7 +1112,11 @@ static int ivtv_probe(struct pci_dev *pdev, const struct pci_device_id *pci_id)
 	IVTV_DEBUG_INFO("attempting ioremap at 0x%llx len 0x%08x\n",
 		   (u64)itv->base_addr + IVTV_REG_OFFSET, IVTV_REG_SIZE);
 	itv->reg_mem =
+<<<<<<< HEAD
 	    ioremap_nocache(itv->base_addr + IVTV_REG_OFFSET, IVTV_REG_SIZE);
+=======
+	    ioremap(itv->base_addr + IVTV_REG_OFFSET, IVTV_REG_SIZE);
+>>>>>>> upstream/android-13
 	if (!itv->reg_mem) {
 		IVTV_ERR("ioremap failed. Can't get a window into CX23415/6 register space\n");
 		IVTV_ERR("Each capture card with a CX23415/6 needs 64 kB of vmalloc address space for this window\n");
@@ -1391,7 +1432,11 @@ int ivtv_init_on_first_open(struct ivtv *itv)
 
 static void ivtv_remove(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct v4l2_device *v4l2_dev = dev_get_drvdata(&pdev->dev);
+=======
+	struct v4l2_device *v4l2_dev = pci_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 	struct ivtv *itv = to_ivtv(v4l2_dev);
 	int i;
 

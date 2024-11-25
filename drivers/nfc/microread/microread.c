@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HCI based Driver for Inside Secure microread NFC Chip
  *
  * Copyright (C) 2013  Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -26,7 +33,10 @@
 #include <linux/nfc.h>
 #include <net/nfc/nfc.h>
 #include <net/nfc/hci.h>
+<<<<<<< HEAD
 #include <net/nfc/llc.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "microread.h"
 
@@ -142,7 +152,11 @@
 #define MICROREAD_ELT_ID_SE2 0x04
 #define MICROREAD_ELT_ID_SE3 0x05
 
+<<<<<<< HEAD
 static struct nfc_hci_gate microread_gates[] = {
+=======
+static const struct nfc_hci_gate microread_gates[] = {
+>>>>>>> upstream/android-13
 	{MICROREAD_GATE_ID_ADM, MICROREAD_PIPE_ID_ADMIN},
 	{MICROREAD_GATE_ID_LOOPBACK, MICROREAD_PIPE_ID_HDS_LOOPBACK},
 	{MICROREAD_GATE_ID_IDT, MICROREAD_PIPE_ID_HDS_IDT},
@@ -163,7 +177,11 @@ static struct nfc_hci_gate microread_gates[] = {
 #define MICROREAD_CMD_TAILROOM	2
 
 struct microread_info {
+<<<<<<< HEAD
 	struct nfc_phy_ops *phy_ops;
+=======
+	const struct nfc_phy_ops *phy_ops;
+>>>>>>> upstream/android-13
 	void *phy_id;
 
 	struct nfc_hci_dev *hdev;
@@ -369,13 +387,20 @@ static int microread_complete_target_discovered(struct nfc_hci_dev *hdev,
 static void microread_im_transceive_cb(void *context, struct sk_buff *skb,
 				       int err)
 {
+<<<<<<< HEAD
 	struct microread_info *info = context;
+=======
+	const struct microread_info *info = context;
+>>>>>>> upstream/android-13
 
 	switch (info->async_cb_type) {
 	case MICROREAD_CB_TYPE_READER_ALL:
 		if (err == 0) {
 			if (skb->len == 0) {
+<<<<<<< HEAD
 				err = -EPROTO;
+=======
+>>>>>>> upstream/android-13
 				kfree_skb(skb);
 				info->async_cb(info->async_cb_context, NULL,
 					       -EPROTO);
@@ -637,7 +662,11 @@ static int microread_event_received(struct nfc_hci_dev *hdev, u8 pipe,
 	return r;
 }
 
+<<<<<<< HEAD
 static struct nfc_hci_ops microread_hci_ops = {
+=======
+static const struct nfc_hci_ops microread_hci_ops = {
+>>>>>>> upstream/android-13
 	.open = microread_open,
 	.close = microread_close,
 	.hci_ready = microread_hci_ready,
@@ -653,9 +682,15 @@ static struct nfc_hci_ops microread_hci_ops = {
 	.event_received = microread_event_received,
 };
 
+<<<<<<< HEAD
 int microread_probe(void *phy_id, struct nfc_phy_ops *phy_ops, char *llc_name,
 		    int phy_headroom, int phy_tailroom, int phy_payload,
 		    struct nfc_hci_dev **hdev)
+=======
+int microread_probe(void *phy_id, const struct nfc_phy_ops *phy_ops,
+		    const char *llc_name, int phy_headroom, int phy_tailroom,
+		    int phy_payload, struct nfc_hci_dev **hdev)
+>>>>>>> upstream/android-13
 {
 	struct microread_info *info;
 	unsigned long quirks = 0;

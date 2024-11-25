@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  *  fs/cifs/dns_resolve.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) 2007 Igor Mammedov
  *   Author(s): Igor Mammedov (niallain@gmail.com)
@@ -10,6 +15,7 @@
  *   Contains the CIFS DFS upcall routines used for hostname to
  *   IP address translation.
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -23,6 +29,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -36,6 +44,10 @@
  * dns_resolve_server_name_to_ip - Resolve UNC server name to ip address.
  * @unc: UNC path specifying the server (with '/' as delimiter)
  * @ip_addr: Where to return the IP address.
+<<<<<<< HEAD
+=======
+ * @expiry: Where to return the expiry time for the dns record.
+>>>>>>> upstream/android-13
  *
  * The IP address will be returned in string form, and the caller is
  * responsible for freeing it.
@@ -43,7 +55,11 @@
  * Returns length of result on success, -ve on error.
  */
 int
+<<<<<<< HEAD
 dns_resolve_server_name_to_ip(const char *unc, char **ip_addr)
+=======
+dns_resolve_server_name_to_ip(const char *unc, char **ip_addr, time64_t *expiry)
+>>>>>>> upstream/android-13
 {
 	struct sockaddr_storage ss;
 	const char *hostname, *sep;
@@ -77,13 +93,24 @@ dns_resolve_server_name_to_ip(const char *unc, char **ip_addr)
 		goto name_is_IP_address;
 
 	/* Perform the upcall */
+<<<<<<< HEAD
 	rc = dns_query(NULL, hostname, len, NULL, ip_addr, NULL);
+=======
+	rc = dns_query(current->nsproxy->net_ns, NULL, hostname, len,
+		       NULL, ip_addr, expiry, false);
+>>>>>>> upstream/android-13
 	if (rc < 0)
 		cifs_dbg(FYI, "%s: unable to resolve: %*.*s\n",
 			 __func__, len, len, hostname);
 	else
+<<<<<<< HEAD
 		cifs_dbg(FYI, "%s: resolved: %*.*s to %s\n",
 			 __func__, len, len, hostname, *ip_addr);
+=======
+		cifs_dbg(FYI, "%s: resolved: %*.*s to %s expiry %llu\n",
+			 __func__, len, len, hostname, *ip_addr,
+			 expiry ? (*expiry) : 0);
+>>>>>>> upstream/android-13
 	return rc;
 
 name_is_IP_address:

@@ -41,6 +41,7 @@ config ACPI_APEI_PCIEAER
 	  Turn on this option to enable the corresponding support.
 
 config ACPI_APEI_SEA
+<<<<<<< HEAD
 	bool "APEI Synchronous External Abort logging/recovering support"
 	depends on ARM64 && ACPI_APEI_GHES
 	default y
@@ -54,6 +55,11 @@ config ACPI_APEI_SEA
 	  form a HW error record for the OS to parse and handle. This
 	  option allows the OS to look for such hardware error record, and
 	  take appropriate action.
+=======
+	bool
+	depends on ARM64 && ACPI_APEI_GHES
+	default y
+>>>>>>> upstream/android-13
 
 config ACPI_APEI_MEMORY_FAILURE
 	bool "APEI memory error recovering support"

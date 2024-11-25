@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2002
  *
@@ -14,6 +15,11 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2002
+>>>>>>> upstream/android-13
  */
 
 #ifndef H_JFS_XATTR
@@ -30,12 +36,20 @@ struct jfs_ea {
 	u8 flag;	/* Unused? */
 	u8 namelen;	/* Length of name */
 	__le16 valuelen;	/* Length of value */
+<<<<<<< HEAD
 	char name[0];	/* Attribute name (includes null-terminator) */
+=======
+	char name[];	/* Attribute name (includes null-terminator) */
+>>>>>>> upstream/android-13
 };			/* Value immediately follows name */
 
 struct jfs_ea_list {
 	__le32 size;		/* overall size */
+<<<<<<< HEAD
 	struct jfs_ea ea[0];	/* Variable length list */
+=======
+	struct jfs_ea ea[];	/* Variable length list */
+>>>>>>> upstream/android-13
 };
 
 /* Macros for defining maxiumum number of bytes supported for EAs */

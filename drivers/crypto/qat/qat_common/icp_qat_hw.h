@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef _ICP_QAT_HW_H_
 #define _ICP_QAT_HW_H_
 
@@ -105,8 +110,43 @@ enum icp_qat_hw_auth_mode {
 };
 
 struct icp_qat_hw_auth_config {
+<<<<<<< HEAD
 	uint32_t config;
 	uint32_t reserved;
+=======
+	__u32 config;
+	__u32 reserved;
+};
+
+struct icp_qat_hw_ucs_cipher_config {
+	__u32 val;
+	__u32 reserved[3];
+};
+
+enum icp_qat_slice_mask {
+	ICP_ACCEL_MASK_CIPHER_SLICE = BIT(0),
+	ICP_ACCEL_MASK_AUTH_SLICE = BIT(1),
+	ICP_ACCEL_MASK_PKE_SLICE = BIT(2),
+	ICP_ACCEL_MASK_COMPRESS_SLICE = BIT(3),
+	ICP_ACCEL_MASK_LZS_SLICE = BIT(4),
+	ICP_ACCEL_MASK_EIA3_SLICE = BIT(5),
+	ICP_ACCEL_MASK_SHA3_SLICE = BIT(6),
+};
+
+enum icp_qat_capabilities_mask {
+	ICP_ACCEL_CAPABILITIES_CRYPTO_SYMMETRIC = BIT(0),
+	ICP_ACCEL_CAPABILITIES_CRYPTO_ASYMMETRIC = BIT(1),
+	ICP_ACCEL_CAPABILITIES_CIPHER = BIT(2),
+	ICP_ACCEL_CAPABILITIES_AUTHENTICATION = BIT(3),
+	ICP_ACCEL_CAPABILITIES_RESERVED_1 = BIT(4),
+	ICP_ACCEL_CAPABILITIES_COMPRESSION = BIT(5),
+	ICP_ACCEL_CAPABILITIES_LZS_COMPRESSION = BIT(6),
+	ICP_ACCEL_CAPABILITIES_RAND = BIT(7),
+	ICP_ACCEL_CAPABILITIES_ZUC = BIT(8),
+	ICP_ACCEL_CAPABILITIES_SHA3 = BIT(9),
+	/* Bits 10-25 are currently reserved */
+	ICP_ACCEL_CAPABILITIES_AES_V2 = BIT(26)
+>>>>>>> upstream/android-13
 };
 
 #define QAT_AUTH_MODE_BITPOS 4
@@ -131,7 +171,11 @@ struct icp_qat_hw_auth_config {
 
 struct icp_qat_hw_auth_counter {
 	__be32 counter;
+<<<<<<< HEAD
 	uint32_t reserved;
+=======
+	__u32 reserved;
+>>>>>>> upstream/android-13
 };
 
 #define QAT_AUTH_COUNT_MASK 0xFFFFFFFF
@@ -191,9 +235,15 @@ struct icp_qat_hw_auth_setup {
 
 struct icp_qat_hw_auth_sha512 {
 	struct icp_qat_hw_auth_setup inner_setup;
+<<<<<<< HEAD
 	uint8_t state1[ICP_QAT_HW_SHA512_STATE1_SZ];
 	struct icp_qat_hw_auth_setup outer_setup;
 	uint8_t state2[ICP_QAT_HW_SHA512_STATE2_SZ];
+=======
+	__u8 state1[ICP_QAT_HW_SHA512_STATE1_SZ];
+	struct icp_qat_hw_auth_setup outer_setup;
+	__u8 state2[ICP_QAT_HW_SHA512_STATE2_SZ];
+>>>>>>> upstream/android-13
 };
 
 struct icp_qat_hw_auth_algo_blk {
@@ -227,8 +277,13 @@ enum icp_qat_hw_cipher_mode {
 };
 
 struct icp_qat_hw_cipher_config {
+<<<<<<< HEAD
 	uint32_t val;
 	uint32_t reserved;
+=======
+	__u32 val;
+	__u32 reserved;
+>>>>>>> upstream/android-13
 };
 
 enum icp_qat_hw_cipher_dir {
@@ -296,10 +351,26 @@ enum icp_qat_hw_cipher_convert {
 
 struct icp_qat_hw_cipher_aes256_f8 {
 	struct icp_qat_hw_cipher_config cipher_config;
+<<<<<<< HEAD
 	uint8_t key[ICP_QAT_HW_AES_256_F8_KEY_SZ];
 };
 
 struct icp_qat_hw_cipher_algo_blk {
 	struct icp_qat_hw_cipher_aes256_f8 aes;
+=======
+	__u8 key[ICP_QAT_HW_AES_256_F8_KEY_SZ];
+};
+
+struct icp_qat_hw_ucs_cipher_aes256_f8 {
+	struct icp_qat_hw_ucs_cipher_config cipher_config;
+	__u8 key[ICP_QAT_HW_AES_256_F8_KEY_SZ];
+};
+
+struct icp_qat_hw_cipher_algo_blk {
+	union {
+		struct icp_qat_hw_cipher_aes256_f8 aes;
+		struct icp_qat_hw_ucs_cipher_aes256_f8 ucs_aes;
+	};
+>>>>>>> upstream/android-13
 } __aligned(64);
 #endif

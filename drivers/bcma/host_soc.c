@@ -172,14 +172,21 @@ int __init bcma_host_soc_register(struct bcma_soc *soc)
 	/* iomap only first core. We have to read some register on this core
 	 * to scan the bus.
 	 */
+<<<<<<< HEAD
 	bus->mmio = ioremap_nocache(BCMA_ADDR_BASE, BCMA_CORE_SIZE * 1);
+=======
+	bus->mmio = ioremap(BCMA_ADDR_BASE, BCMA_CORE_SIZE * 1);
+>>>>>>> upstream/android-13
 	if (!bus->mmio)
 		return -ENOMEM;
 
 	/* Host specific */
 	bus->hosttype = BCMA_HOSTTYPE_SOC;
 	bus->ops = &bcma_host_soc_ops;
+<<<<<<< HEAD
 	bus->host_pdev = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	/* Initialize struct, detect chip */
 	bcma_init_bus(bus);
@@ -213,6 +220,11 @@ static int bcma_host_soc_probe(struct platform_device *pdev)
 	if (!bus)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	bus->dev = dev;
+
+>>>>>>> upstream/android-13
 	/* Map MMIO */
 	bus->mmio = of_iomap(np, 0);
 	if (!bus->mmio)
@@ -221,7 +233,10 @@ static int bcma_host_soc_probe(struct platform_device *pdev)
 	/* Host specific */
 	bus->hosttype = BCMA_HOSTTYPE_SOC;
 	bus->ops = &bcma_host_soc_ops;
+<<<<<<< HEAD
 	bus->host_pdev = pdev;
+=======
+>>>>>>> upstream/android-13
 
 	/* Initialize struct, detect chip */
 	bcma_init_bus(bus);

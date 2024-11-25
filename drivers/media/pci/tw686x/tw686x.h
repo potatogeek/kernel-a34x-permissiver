@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 VanguardiaSur - www.vanguardiasur.com.ar
  *
  * Copyright (C) 2015 Industrial Research Institute for Automation
  * and Measurements PIAP
  * Written by Krzysztof Ha?asa
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mutex.h>
@@ -114,12 +121,21 @@ struct tw686x_dma_ops {
 	u32 hw_dma_mode;
 };
 
+<<<<<<< HEAD
 /**
  * struct tw686x_dev - global device status
  * @lock: spinlock controlling access to the
  *        shared device registers (DMA enable/disable).
  */
 struct tw686x_dev {
+=======
+/* struct tw686x_dev - global device status */
+struct tw686x_dev {
+	/*
+	 * spinlock controlling access to the shared device registers
+	 * (DMA enable/disable)
+	 */
+>>>>>>> upstream/android-13
 	spinlock_t lock;
 
 	struct v4l2_device v4l2_dev;

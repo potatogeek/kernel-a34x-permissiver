@@ -11,6 +11,7 @@
 #include <linux/device.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
 #define PNETIDS_LEN		64	/* Total utility string length in bytes
 					 * to cover up to 4 PNETIDs of 16 bytes
 					 * for up to 4 device ports
@@ -19,5 +20,7 @@
 #define MAX_PNETID_PORTS	(PNETIDS_LEN / MAX_PNETID_LEN)
 					/* Max. # of ports with a PNETID */
 
+=======
+>>>>>>> upstream/android-13
 int pnet_id_by_dev_port(struct device *dev, unsigned short port, u8 *pnetid);
 #endif /* _ASM_S390_PNET_H */

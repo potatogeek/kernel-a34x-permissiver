@@ -17,6 +17,7 @@ static struct rc_map_table dib0700_nec_table[] = {
 	/* Key codes for the Pixelview SBTVD remote */
 	{ 0x866b13, KEY_MUTE },
 	{ 0x866b12, KEY_POWER },
+<<<<<<< HEAD
 	{ 0x866b01, KEY_1 },
 	{ 0x866b02, KEY_2 },
 	{ 0x866b03, KEY_3 },
@@ -27,6 +28,18 @@ static struct rc_map_table dib0700_nec_table[] = {
 	{ 0x866b08, KEY_8 },
 	{ 0x866b09, KEY_9 },
 	{ 0x866b00, KEY_0 },
+=======
+	{ 0x866b01, KEY_NUMERIC_1 },
+	{ 0x866b02, KEY_NUMERIC_2 },
+	{ 0x866b03, KEY_NUMERIC_3 },
+	{ 0x866b04, KEY_NUMERIC_4 },
+	{ 0x866b05, KEY_NUMERIC_5 },
+	{ 0x866b06, KEY_NUMERIC_6 },
+	{ 0x866b07, KEY_NUMERIC_7 },
+	{ 0x866b08, KEY_NUMERIC_8 },
+	{ 0x866b09, KEY_NUMERIC_9 },
+	{ 0x866b00, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x866b0d, KEY_CHANNELUP },
 	{ 0x866b19, KEY_CHANNELDOWN },
 	{ 0x866b10, KEY_VOLUMEUP },
@@ -60,6 +73,7 @@ static struct rc_map_table dib0700_nec_table[] = {
 	/* Key codes for the Elgato EyeTV Diversity silver remote */
 	{ 0x4501, KEY_POWER },
 	{ 0x4502, KEY_MUTE },
+<<<<<<< HEAD
 	{ 0x4503, KEY_1 },
 	{ 0x4504, KEY_2 },
 	{ 0x4505, KEY_3 },
@@ -71,6 +85,19 @@ static struct rc_map_table dib0700_nec_table[] = {
 	{ 0x450b, KEY_9 },
 	{ 0x450c, KEY_LAST },
 	{ 0x450d, KEY_0 },
+=======
+	{ 0x4503, KEY_NUMERIC_1 },
+	{ 0x4504, KEY_NUMERIC_2 },
+	{ 0x4505, KEY_NUMERIC_3 },
+	{ 0x4506, KEY_NUMERIC_4 },
+	{ 0x4507, KEY_NUMERIC_5 },
+	{ 0x4508, KEY_NUMERIC_6 },
+	{ 0x4509, KEY_NUMERIC_7 },
+	{ 0x450a, KEY_NUMERIC_8 },
+	{ 0x450b, KEY_NUMERIC_9 },
+	{ 0x450c, KEY_LAST },
+	{ 0x450d, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x450e, KEY_ENTER },
 	{ 0x450f, KEY_RED },
 	{ 0x4510, KEY_CHANNELUP },

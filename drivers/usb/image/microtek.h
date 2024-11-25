@@ -21,7 +21,11 @@ struct mts_transfer_context
 	void *data;
 	unsigned data_length;
 	int data_pipe;
+<<<<<<< HEAD
 	int fragment;
+=======
+	struct scatterlist *curr_sg;
+>>>>>>> upstream/android-13
 
 	u8 *scsi_status; /* status returned from ep_response after command completion */
 };

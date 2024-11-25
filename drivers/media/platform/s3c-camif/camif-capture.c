@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * s3c24xx/s3c64xx SoC series Camera Interface (CAMIF) driver
  *
@@ -6,10 +10,13 @@
  *
  * Based on drivers/media/platform/s5p-fimc,
  * Copyright (C) 2010 - 2012 Samsung Electronics Co., Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 #define pr_fmt(fmt) "%s:%d " fmt, __func__, __LINE__
 
@@ -550,7 +557,11 @@ static int s3c_camif_open(struct file *file)
 	if (ret < 0)
 		goto unlock;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(camif->dev);
+=======
+	ret = pm_runtime_resume_and_get(camif->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto err_pm;
 
@@ -640,6 +651,7 @@ static int s3c_camif_vidioc_querycap(struct file *file, void *priv,
 {
 	struct camif_vp *vp = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, S3C_CAMIF_DRIVER_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, S3C_CAMIF_DRIVER_NAME, sizeof(cap->card));
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s.%d",
@@ -648,6 +660,12 @@ static int s3c_camif_vidioc_querycap(struct file *file, void *priv,
 	cap->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_CAPTURE;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->driver, S3C_CAMIF_DRIVER_NAME, sizeof(cap->driver));
+	strscpy(cap->card, S3C_CAMIF_DRIVER_NAME, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s.%d",
+		 dev_name(vp->camif->dev), vp->id);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -661,7 +679,11 @@ static int s3c_camif_vidioc_enum_input(struct file *file, void *priv,
 		return -EINVAL;
 
 	input->type = V4L2_INPUT_TYPE_CAMERA;
+<<<<<<< HEAD
 	strlcpy(input->name, sensor->name, sizeof(input->name));
+=======
+	strscpy(input->name, sensor->name, sizeof(input->name));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -688,10 +710,14 @@ static int s3c_camif_vidioc_enum_fmt(struct file *file, void *priv,
 	if (!fmt)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, fmt->name, sizeof(f->description));
 	f->pixelformat = fmt->fourcc;
 
 	pr_debug("fmt(%d): %s\n", f->index, f->description);
+=======
+	f->pixelformat = fmt->fourcc;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -805,10 +831,17 @@ static int s3c_camif_vidioc_s_fmt(struct file *file, void *priv,
 	if (vp->owner == NULL)
 		vp->owner = priv;
 
+<<<<<<< HEAD
 	pr_debug("%ux%u. payload: %u. fmt: %s. %d %d. sizeimage: %d. bpl: %d\n",
 		out_frame->f_width, out_frame->f_height, vp->payload, fmt->name,
 		pix->width * pix->height * fmt->depth, fmt->depth,
 		pix->sizeimage, pix->bytesperline);
+=======
+	pr_debug("%ux%u. payload: %u. fmt: 0x%08x. %d %d. sizeimage: %d. bpl: %d\n",
+		 out_frame->f_width, out_frame->f_height, vp->payload,
+		 fmt->fourcc, pix->width * pix->height * fmt->depth,
+		 fmt->depth, pix->sizeimage, pix->bytesperline);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1166,8 +1199,14 @@ int s3c_camif_register_video_node(struct camif_dev *camif, int idx)
 		goto err_me_cleanup;
 
 	vfd->ctrl_handler = &vp->ctrl_handler;
+<<<<<<< HEAD
 
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER, -1);
+=======
+	vfd->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_CAPTURE;
+
+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_ctrlh_free;
 
@@ -1208,7 +1247,11 @@ static const u32 camif_mbus_formats[] = {
  */
 
 static int s3c_camif_subdev_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 					struct v4l2_subdev_pad_config *cfg,
+=======
+					struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index >= ARRAY_SIZE(camif_mbus_formats))
@@ -1219,14 +1262,22 @@ static int s3c_camif_subdev_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int s3c_camif_subdev_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				    struct v4l2_subdev_pad_config *cfg,
+=======
+				    struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				    struct v4l2_subdev_format *fmt)
 {
 	struct camif_dev *camif = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *mf = &fmt->format;
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		mf = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
+=======
+		mf = v4l2_subdev_get_try_format(sd, sd_state, fmt->pad);
+>>>>>>> upstream/android-13
 		fmt->format = *mf;
 		return 0;
 	}
@@ -1287,7 +1338,11 @@ static void __camif_subdev_try_format(struct camif_dev *camif,
 }
 
 static int s3c_camif_subdev_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				    struct v4l2_subdev_pad_config *cfg,
+=======
+				    struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				    struct v4l2_subdev_format *fmt)
 {
 	struct camif_dev *camif = v4l2_get_subdevdata(sd);
@@ -1315,7 +1370,11 @@ static int s3c_camif_subdev_set_fmt(struct v4l2_subdev *sd,
 	__camif_subdev_try_format(camif, mf, fmt->pad);
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		mf = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
+=======
+		mf = v4l2_subdev_get_try_format(sd, sd_state, fmt->pad);
+>>>>>>> upstream/android-13
 		*mf = fmt->format;
 		mutex_unlock(&camif->lock);
 		return 0;
@@ -1354,7 +1413,11 @@ static int s3c_camif_subdev_set_fmt(struct v4l2_subdev *sd,
 }
 
 static int s3c_camif_subdev_get_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 					  struct v4l2_subdev_pad_config *cfg,
+=======
+					  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					  struct v4l2_subdev_selection *sel)
 {
 	struct camif_dev *camif = v4l2_get_subdevdata(sd);
@@ -1367,7 +1430,11 @@ static int s3c_camif_subdev_get_selection(struct v4l2_subdev *sd,
 		return -EINVAL;
 
 	if (sel->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		sel->r = *v4l2_subdev_get_try_crop(sd, cfg, sel->pad);
+=======
+		sel->r = *v4l2_subdev_get_try_crop(sd, sd_state, sel->pad);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1441,7 +1508,11 @@ static void __camif_try_crop(struct camif_dev *camif, struct v4l2_rect *r)
 }
 
 static int s3c_camif_subdev_set_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 					  struct v4l2_subdev_pad_config *cfg,
+=======
+					  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					  struct v4l2_subdev_selection *sel)
 {
 	struct camif_dev *camif = v4l2_get_subdevdata(sd);
@@ -1455,7 +1526,11 @@ static int s3c_camif_subdev_set_selection(struct v4l2_subdev *sd,
 	__camif_try_crop(camif, &sel->r);
 
 	if (sel->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		*v4l2_subdev_get_try_crop(sd, cfg, sel->pad) = sel->r;
+=======
+		*v4l2_subdev_get_try_crop(sd, sd_state, sel->pad) = sel->r;
+>>>>>>> upstream/android-13
 	} else {
 		unsigned long flags;
 		unsigned int i;
@@ -1555,7 +1630,11 @@ int s3c_camif_create_subdev(struct camif_dev *camif)
 
 	v4l2_subdev_init(sd, &s3c_camif_subdev_ops);
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+<<<<<<< HEAD
 	strlcpy(sd->name, "S3C-CAMIF", sizeof(sd->name));
+=======
+	strscpy(sd->name, "S3C-CAMIF", sizeof(sd->name));
+>>>>>>> upstream/android-13
 
 	camif->pads[CAMIF_SD_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
 	camif->pads[CAMIF_SD_PAD_SOURCE_C].flags = MEDIA_PAD_FL_SOURCE;

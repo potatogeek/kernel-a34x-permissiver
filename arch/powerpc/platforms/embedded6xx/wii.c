@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/platforms/embedded6xx/wii.c
  *
  * Nintendo Wii board-specific support
  * Copyright (C) 2008-2009 The GameCube Linux Team
  * Copyright (C) 2008,2009 Albert Herranz
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define DRV_MODULE_NAME "wii"
 #define pr_fmt(fmt) DRV_MODULE_NAME ": " fmt
@@ -54,10 +61,13 @@
 static void __iomem *hw_ctrl;
 static void __iomem *hw_gpio;
 
+<<<<<<< HEAD
 unsigned long wii_hole_start;
 unsigned long wii_hole_size;
 
 
+=======
+>>>>>>> upstream/android-13
 static int __init page_aligned(unsigned long x)
 {
 	return !(x & (PAGE_SIZE-1));
@@ -69,6 +79,7 @@ void __init wii_memory_fixups(void)
 
 	BUG_ON(memblock.memory.cnt != 2);
 	BUG_ON(!page_aligned(p[0].base) || !page_aligned(p[1].base));
+<<<<<<< HEAD
 
 	/* determine hole */
 	wii_hole_start = ALIGN(p[0].base + p[0].size, PAGE_SIZE);
@@ -93,6 +104,8 @@ unsigned long __init wii_mmu_mapin_mem2(unsigned long top)
 	}
 	setbat(4, PAGE_OFFSET+delta, delta, bl, PAGE_KERNEL_X);
 	return delta + bl;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void __noreturn wii_spin(void)
@@ -116,7 +129,11 @@ static void __iomem *wii_ioremap_hw_regs(char *name, char *compatible)
 	}
 	error = of_address_to_resource(np, 0, &res);
 	if (error) {
+<<<<<<< HEAD
 		pr_err("no valid reg found for %s\n", np->name);
+=======
+		pr_err("no valid reg found for %pOFn\n", np);
+>>>>>>> upstream/android-13
 		goto out_put;
 	}
 
@@ -205,6 +222,7 @@ static void wii_shutdown(void)
 	flipper_quiesce();
 }
 
+<<<<<<< HEAD
 define_machine(wii) {
 	.name			= "wii",
 	.probe			= wii_probe,
@@ -218,6 +236,8 @@ define_machine(wii) {
 	.machine_shutdown	= wii_shutdown,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id wii_of_bus[] = {
 	{ .compatible = "nintendo,hollywood", },
 	{ },
@@ -233,3 +253,18 @@ static int __init wii_device_probe(void)
 }
 device_initcall(wii_device_probe);
 
+<<<<<<< HEAD
+=======
+define_machine(wii) {
+	.name			= "wii",
+	.probe			= wii_probe,
+	.setup_arch		= wii_setup_arch,
+	.restart		= wii_restart,
+	.halt			= wii_halt,
+	.init_IRQ		= wii_pic_probe,
+	.get_irq		= flipper_pic_get_irq,
+	.calibrate_decr		= generic_calibrate_decr,
+	.progress		= udbg_progress,
+	.machine_shutdown	= wii_shutdown,
+};
+>>>>>>> upstream/android-13

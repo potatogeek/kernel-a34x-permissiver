@@ -25,6 +25,7 @@ Multitouch Library
 .. kernel-doc:: drivers/input/input-mt.c
    :export:
 
+<<<<<<< HEAD
 Polled input devices
 --------------------
 
@@ -34,6 +35,8 @@ Polled input devices
 .. kernel-doc:: drivers/input/input-polldev.c
    :export:
 
+=======
+>>>>>>> upstream/android-13
 Matrix keyboards/keypads
 ------------------------
 

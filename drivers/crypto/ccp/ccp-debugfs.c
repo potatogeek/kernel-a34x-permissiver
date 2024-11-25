@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AMD Cryptographic Coprocessor (CCP) driver
  *
  * Copyright (C) 2017 Advanced Micro Devices, Inc.
  *
  * Author: Gary R Hook <gary.hook@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -286,10 +293,14 @@ void ccp5_debugfs_setup(struct ccp_device *ccp)
 {
 	struct ccp_cmd_queue *cmd_q;
 	char name[MAX_NAME_LEN + 1];
+<<<<<<< HEAD
 	struct dentry *debugfs_info;
 	struct dentry *debugfs_stats;
 	struct dentry *debugfs_q_instance;
 	struct dentry *debugfs_q_stats;
+=======
+	struct dentry *debugfs_q_instance;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!debugfs_initialized())
@@ -299,6 +310,7 @@ void ccp5_debugfs_setup(struct ccp_device *ccp)
 	if (!ccp_debugfs_dir)
 		ccp_debugfs_dir = debugfs_create_dir(KBUILD_MODNAME, NULL);
 	mutex_unlock(&ccp_debugfs_lock);
+<<<<<<< HEAD
 	if (!ccp_debugfs_dir)
 		return;
 
@@ -317,6 +329,16 @@ void ccp5_debugfs_setup(struct ccp_device *ccp)
 					    &ccp_debugfs_stats_ops);
 	if (!debugfs_stats)
 		goto err;
+=======
+
+	ccp->debugfs_instance = debugfs_create_dir(ccp->name, ccp_debugfs_dir);
+
+	debugfs_create_file("info", 0400, ccp->debugfs_instance, ccp,
+			    &ccp_debugfs_info_ops);
+
+	debugfs_create_file("stats", 0600, ccp->debugfs_instance, ccp,
+			    &ccp_debugfs_stats_ops);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ccp->cmd_q_count; i++) {
 		cmd_q = &ccp->cmd_q[i];
@@ -325,6 +347,7 @@ void ccp5_debugfs_setup(struct ccp_device *ccp)
 
 		debugfs_q_instance =
 			debugfs_create_dir(name, ccp->debugfs_instance);
+<<<<<<< HEAD
 		if (!debugfs_q_instance)
 			goto err;
 
@@ -340,6 +363,14 @@ void ccp5_debugfs_setup(struct ccp_device *ccp)
 
 err:
 	debugfs_remove_recursive(ccp->debugfs_instance);
+=======
+
+		debugfs_create_file("stats", 0600, debugfs_q_instance, cmd_q,
+				    &ccp_debugfs_queue_ops);
+	}
+
+	return;
+>>>>>>> upstream/android-13
 }
 
 void ccp5_debugfs_destroy(void)

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Conexant CX23885/7/8 PCIe bridge
  *
  *  Various common ioctl() support functions
  *
  *  Copyright (c) 2009 Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx23885.h"
@@ -31,9 +38,15 @@ int cx23885_g_chip_info(struct file *file, void *fh,
 	if (chip->match.addr == 1) {
 		if (dev->v4l_device == NULL)
 			return -EINVAL;
+<<<<<<< HEAD
 		strlcpy(chip->name, "cx23417", sizeof(chip->name));
 	} else {
 		strlcpy(chip->name, dev->v4l2_dev.name, sizeof(chip->name));
+=======
+		strscpy(chip->name, "cx23417", sizeof(chip->name));
+	} else {
+		strscpy(chip->name, dev->v4l2_dev.name, sizeof(chip->name));
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }

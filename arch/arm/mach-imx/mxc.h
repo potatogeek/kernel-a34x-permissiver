@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2004-2007, 2010-2015 Freescale Semiconductor, Inc.
  * Copyright (C) 2008 Juergen Beisert (kernel@pengutronix.de)
@@ -15,17 +16,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2004-2007, 2010-2015 Freescale Semiconductor, Inc.
+ * Copyright (C) 2008 Juergen Beisert (kernel@pengutronix.de)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ARCH_MXC_H__
 #define __ASM_ARCH_MXC_H__
 
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <soc/imx/cpu.h>
+>>>>>>> upstream/android-13
 
 #ifndef __ASM_ARCH_MXC_HARDWARE_H__
 #error "Do not include directly."
 #endif
 
+<<<<<<< HEAD
 #define MXC_CPU_MX1		1
 #define MXC_CPU_MX21		21
 #define MXC_CPU_MX25		25
@@ -47,6 +59,11 @@
 
 #ifndef __ASSEMBLY__
 extern unsigned int __mxc_cpu_type;
+=======
+#define IMX_DDR_TYPE_LPDDR2		1
+
+#ifndef __ASSEMBLY__
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SOC_IMX6SL
 static inline bool cpu_is_imx6sl(void)
@@ -80,6 +97,14 @@ static inline bool cpu_is_imx6ull(void)
 	return __mxc_cpu_type == MXC_CPU_IMX6ULL;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool cpu_is_imx6ulz(void)
+{
+	return __mxc_cpu_type == MXC_CPU_IMX6ULZ;
+}
+
+>>>>>>> upstream/android-13
 static inline bool cpu_is_imx6sll(void)
 {
 	return __mxc_cpu_type == MXC_CPU_IMX6SLL;

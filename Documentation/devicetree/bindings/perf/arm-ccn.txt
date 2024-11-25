@@ -6,6 +6,10 @@ Required properties:
 	"arm,ccn-502"
 	"arm,ccn-504"
 	"arm,ccn-508"
+<<<<<<< HEAD
+=======
+	"arm,ccn-512"
+>>>>>>> upstream/android-13
 
 - reg: (standard registers property) physical address and size
 	(16MB) of the configuration registers block

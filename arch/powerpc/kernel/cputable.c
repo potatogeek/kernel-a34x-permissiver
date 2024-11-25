@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2001 Ben. Herrenschmidt (benh@kernel.crashing.org)
  *
  *  Modifications for ppc64:
  *      Copyright (C) 2003 Dave Engebretsen <engebret@us.ibm.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/string.h>
@@ -17,9 +24,15 @@
 #include <linux/export.h>
 #include <linux/jump_label.h>
 
+<<<<<<< HEAD
 #include <asm/oprofile_impl.h>
 #include <asm/cputable.h>
 #include <asm/prom.h>		/* for PTRRELOC on ARCH=ppc */
+=======
+#include <asm/cputable.h>
+#include <asm/prom.h>		/* for PTRRELOC on ARCH=ppc */
+#include <asm/mce.h>
+>>>>>>> upstream/android-13
 #include <asm/mmu.h>
 #include <asm/setup.h>
 
@@ -39,7 +52,10 @@ const char *powerpc_base_platform;
  * and ppc64
  */
 #ifdef CONFIG_PPC32
+<<<<<<< HEAD
 extern void __setup_cpu_e200(unsigned long offset, struct cpu_spec* spec);
+=======
+>>>>>>> upstream/android-13
 extern void __setup_cpu_e500v1(unsigned long offset, struct cpu_spec* spec);
 extern void __setup_cpu_e500v2(unsigned long offset, struct cpu_spec* spec);
 extern void __setup_cpu_e500mc(unsigned long offset, struct cpu_spec* spec);
@@ -63,17 +79,24 @@ extern void __setup_cpu_7410(unsigned long offset, struct cpu_spec* spec);
 extern void __setup_cpu_745x(unsigned long offset, struct cpu_spec* spec);
 #endif /* CONFIG_PPC32 */
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
+=======
+#include <asm/cpu_setup_power.h>
+>>>>>>> upstream/android-13
 extern void __setup_cpu_ppc970(unsigned long offset, struct cpu_spec* spec);
 extern void __setup_cpu_ppc970MP(unsigned long offset, struct cpu_spec* spec);
 extern void __setup_cpu_pa6t(unsigned long offset, struct cpu_spec* spec);
 extern void __restore_cpu_pa6t(void);
 extern void __restore_cpu_ppc970(void);
+<<<<<<< HEAD
 extern void __setup_cpu_power7(unsigned long offset, struct cpu_spec* spec);
 extern void __restore_cpu_power7(void);
 extern void __setup_cpu_power8(unsigned long offset, struct cpu_spec* spec);
 extern void __restore_cpu_power8(void);
 extern void __setup_cpu_power9(unsigned long offset, struct cpu_spec* spec);
 extern void __restore_cpu_power9(void);
+=======
+>>>>>>> upstream/android-13
 extern long __machine_check_early_realmode_p7(struct pt_regs *regs);
 extern long __machine_check_early_realmode_p8(struct pt_regs *regs);
 extern long __machine_check_early_realmode_p9(struct pt_regs *regs);
@@ -122,7 +145,23 @@ extern void __restore_cpu_e6500(void);
 #define COMMON_USER2_POWER9	(COMMON_USER2_POWER8 | \
 				 PPC_FEATURE2_ARCH_3_00 | \
 				 PPC_FEATURE2_HAS_IEEE128 | \
+<<<<<<< HEAD
 				 PPC_FEATURE2_DARN )
+=======
+				 PPC_FEATURE2_DARN | \
+				 PPC_FEATURE2_SCV)
+#define COMMON_USER_POWER10	COMMON_USER_POWER9
+#define COMMON_USER2_POWER10	(PPC_FEATURE2_ARCH_3_1 | \
+				 PPC_FEATURE2_MMA | \
+				 PPC_FEATURE2_ARCH_3_00 | \
+				 PPC_FEATURE2_HAS_IEEE128 | \
+				 PPC_FEATURE2_DARN | \
+				 PPC_FEATURE2_SCV | \
+				 PPC_FEATURE2_ARCH_2_07 | \
+				 PPC_FEATURE2_DSCR | \
+				 PPC_FEATURE2_ISEL | PPC_FEATURE2_TAR | \
+				 PPC_FEATURE2_VEC_CRYPTO)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_BOOK3E_64
 #define COMMON_USER_BOOKE	(COMMON_USER_PPC64 | PPC_FEATURE_BOOKE)
@@ -148,7 +187,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.cpu_setup		= __setup_cpu_ppc970,
 		.cpu_restore		= __restore_cpu_ppc970,
 		.oprofile_cpu_type	= "ppc64/970",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "ppc970",
 	},
 	{	/* PPC970FX */
@@ -166,7 +208,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.cpu_setup		= __setup_cpu_ppc970,
 		.cpu_restore		= __restore_cpu_ppc970,
 		.oprofile_cpu_type	= "ppc64/970",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "ppc970",
 	},
 	{	/* PPC970MP DD1.0 - no DEEPNAP, use regular 970 init */
@@ -184,7 +229,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.cpu_setup		= __setup_cpu_ppc970,
 		.cpu_restore		= __restore_cpu_ppc970,
 		.oprofile_cpu_type	= "ppc64/970MP",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "ppc970",
 	},
 	{	/* PPC970MP */
@@ -202,7 +250,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.cpu_setup		= __setup_cpu_ppc970MP,
 		.cpu_restore		= __restore_cpu_ppc970,
 		.oprofile_cpu_type	= "ppc64/970MP",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "ppc970",
 	},
 	{	/* PPC970GX */
@@ -219,7 +270,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_IBM,
 		.cpu_setup		= __setup_cpu_ppc970,
 		.oprofile_cpu_type	= "ppc64/970",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "ppc970",
 	},
 	{	/* Power5 GR */
@@ -234,12 +288,15 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power5",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
 		/* SIHV / SIPR bits are implemented on POWER4+ (GQ)
 		 * and above but only works on POWER5 and above
 		 */
 		.oprofile_mmcra_sihv	= MMCRA_SIHV,
 		.oprofile_mmcra_sipr	= MMCRA_SIPR,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "power5",
 	},
 	{	/* Power5++ */
@@ -253,9 +310,12 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.dcache_bsize		= 128,
 		.num_pmcs		= 6,
 		.oprofile_cpu_type	= "ppc64/power5++",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
 		.oprofile_mmcra_sihv	= MMCRA_SIHV,
 		.oprofile_mmcra_sipr	= MMCRA_SIPR,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "power5+",
 	},
 	{	/* Power5 GS */
@@ -270,9 +330,12 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power5+",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
 		.oprofile_mmcra_sihv	= MMCRA_SIHV,
 		.oprofile_mmcra_sipr	= MMCRA_SIPR,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "power5+",
 	},
 	{	/* POWER6 in P5+ mode; 2.04-compliant processor */
@@ -285,7 +348,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.icache_bsize		= 128,
 		.dcache_bsize		= 128,
 		.oprofile_cpu_type	= "ppc64/ibm-compat-v1",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "power5+",
 	},
 	{	/* Power6 */
@@ -301,11 +367,14 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power6",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
 		.oprofile_mmcra_sihv	= POWER6_MMCRA_SIHV,
 		.oprofile_mmcra_sipr	= POWER6_MMCRA_SIPR,
 		.oprofile_mmcra_clear	= POWER6_MMCRA_THRM |
 			POWER6_MMCRA_OTHER,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "power6x",
 	},
 	{	/* 2.05-compliant processor, i.e. Power6 "architected" mode */
@@ -318,7 +387,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.icache_bsize		= 128,
 		.dcache_bsize		= 128,
 		.oprofile_cpu_type	= "ppc64/ibm-compat-v1",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "power6",
 	},
 	{	/* 2.06-compliant processor, i.e. Power7 "architected" mode */
@@ -331,7 +403,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.mmu_features		= MMU_FTRS_POWER7,
 		.icache_bsize		= 128,
 		.dcache_bsize		= 128,
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.oprofile_cpu_type	= "ppc64/ibm-compat-v1",
 		.cpu_setup		= __setup_cpu_power7,
 		.cpu_restore		= __restore_cpu_power7,
@@ -348,7 +423,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.mmu_features		= MMU_FTRS_POWER8,
 		.icache_bsize		= 128,
 		.dcache_bsize		= 128,
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.oprofile_cpu_type	= "ppc64/ibm-compat-v1",
 		.cpu_setup		= __setup_cpu_power8,
 		.cpu_restore		= __restore_cpu_power8,
@@ -365,12 +443,33 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.mmu_features		= MMU_FTRS_POWER9,
 		.icache_bsize		= 128,
 		.dcache_bsize		= 128,
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.oprofile_cpu_type	= "ppc64/ibm-compat-v1",
 		.cpu_setup		= __setup_cpu_power9,
 		.cpu_restore		= __restore_cpu_power9,
 		.platform		= "power9",
 	},
+<<<<<<< HEAD
+=======
+	{	/* 3.1-compliant processor, i.e. Power10 "architected" mode */
+		.pvr_mask		= 0xffffffff,
+		.pvr_value		= 0x0f000006,
+		.cpu_name		= "POWER10 (architected)",
+		.cpu_features		= CPU_FTRS_POWER10,
+		.cpu_user_features	= COMMON_USER_POWER10,
+		.cpu_user_features2	= COMMON_USER2_POWER10,
+		.mmu_features		= MMU_FTRS_POWER10,
+		.icache_bsize		= 128,
+		.dcache_bsize		= 128,
+		.oprofile_cpu_type	= "ppc64/ibm-compat-v1",
+		.cpu_setup		= __setup_cpu_power10,
+		.cpu_restore		= __restore_cpu_power10,
+		.platform		= "power10",
+	},
+>>>>>>> upstream/android-13
 	{	/* Power7 */
 		.pvr_mask		= 0xffff0000,
 		.pvr_value		= 0x003f0000,
@@ -384,7 +483,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power7",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power7,
 		.cpu_restore		= __restore_cpu_power7,
 		.machine_check_early	= __machine_check_early_realmode_p7,
@@ -403,7 +505,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power7",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_POWER4,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power7,
 		.cpu_restore		= __restore_cpu_power7,
 		.machine_check_early	= __machine_check_early_realmode_p7,
@@ -422,7 +527,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power8",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power8,
 		.cpu_restore		= __restore_cpu_power8,
 		.machine_check_early	= __machine_check_early_realmode_p8,
@@ -441,7 +549,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power8",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power8,
 		.cpu_restore		= __restore_cpu_power8,
 		.machine_check_early	= __machine_check_early_realmode_p8,
@@ -460,7 +571,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power8",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power8,
 		.cpu_restore		= __restore_cpu_power8,
 		.machine_check_early	= __machine_check_early_realmode_p8,
@@ -479,7 +593,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power9",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power9,
 		.cpu_restore		= __restore_cpu_power9,
 		.machine_check_early	= __machine_check_early_realmode_p9,
@@ -498,7 +615,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power9",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power9,
 		.cpu_restore		= __restore_cpu_power9,
 		.machine_check_early	= __machine_check_early_realmode_p9,
@@ -517,12 +637,36 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 6,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/power9",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_INVALID,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_power9,
 		.cpu_restore		= __restore_cpu_power9,
 		.machine_check_early	= __machine_check_early_realmode_p9,
 		.platform		= "power9",
 	},
+<<<<<<< HEAD
+=======
+	{	/* Power10 */
+		.pvr_mask		= 0xffff0000,
+		.pvr_value		= 0x00800000,
+		.cpu_name		= "POWER10 (raw)",
+		.cpu_features		= CPU_FTRS_POWER10,
+		.cpu_user_features	= COMMON_USER_POWER10,
+		.cpu_user_features2	= COMMON_USER2_POWER10,
+		.mmu_features		= MMU_FTRS_POWER10,
+		.icache_bsize		= 128,
+		.dcache_bsize		= 128,
+		.num_pmcs		= 6,
+		.pmc_type		= PPC_PMC_IBM,
+		.oprofile_cpu_type	= "ppc64/power10",
+		.cpu_setup		= __setup_cpu_power10,
+		.cpu_restore		= __restore_cpu_power10,
+		.machine_check_early	= __machine_check_early_realmode_p10,
+		.platform		= "power10",
+	},
+>>>>>>> upstream/android-13
 	{	/* Cell Broadband Engine */
 		.pvr_mask		= 0xffff0000,
 		.pvr_value		= 0x00700000,
@@ -537,7 +681,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.num_pmcs		= 4,
 		.pmc_type		= PPC_PMC_IBM,
 		.oprofile_cpu_type	= "ppc64/cell-be",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_CELL,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "ppc-cell-be",
 	},
 	{	/* PA Semi PA6T */
@@ -554,7 +701,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.cpu_setup		= __setup_cpu_pa6t,
 		.cpu_restore		= __restore_cpu_pa6t,
 		.oprofile_cpu_type	= "ppc64/pa6t",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_PA6T,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "pa6t",
 	},
 	{	/* default match */
@@ -574,6 +724,7 @@ static struct cpu_spec __initdata cpu_specs[] = {
 
 #ifdef CONFIG_PPC32
 #ifdef CONFIG_PPC_BOOK3S_32
+<<<<<<< HEAD
 	{	/* 601 */
 		.pvr_mask		= 0xffff0000,
 		.pvr_value		= 0x00010000,
@@ -626,6 +777,9 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc603",
 	},
+=======
+#ifdef CONFIG_PPC_BOOK3S_604
+>>>>>>> upstream/android-13
 	{	/* 604 */
 		.pvr_mask		= 0xffff0000,
 		.pvr_value		= 0x00040000,
@@ -770,7 +924,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc750",
 		.oprofile_cpu_type      = "ppc/750",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 	},
 	{	/* 745/755 */
 		.pvr_mask		= 0xfffff000,
@@ -802,7 +959,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc750",
 		.oprofile_cpu_type      = "ppc/750",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 	},
 	{	/* 750FX rev 2.0 must disable HID0[DPM] */
 		.pvr_mask		= 0xffffffff,
@@ -819,7 +979,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc750",
 		.oprofile_cpu_type      = "ppc/750",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 	},
 	{	/* 750FX (All revs except 2.0) */
 		.pvr_mask		= 0xffff0000,
@@ -836,7 +999,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc750",
 		.oprofile_cpu_type      = "ppc/750",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 	},
 	{	/* 750GX */
 		.pvr_mask		= 0xffff0000,
@@ -853,7 +1019,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc750",
 		.oprofile_cpu_type      = "ppc/750",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 	},
 	{	/* 740/750 (L2CR bit need fixup for 740) */
 		.pvr_mask		= 0xffff0000,
@@ -932,7 +1101,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -950,7 +1122,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -968,7 +1143,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -986,7 +1164,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -1004,7 +1185,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -1022,7 +1206,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -1040,7 +1227,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -1058,7 +1248,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -1075,7 +1268,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -1093,7 +1289,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
+=======
+>>>>>>> upstream/android-13
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
@@ -1111,10 +1310,57 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.pmc_type		= PPC_PMC_G4,
 		.cpu_setup		= __setup_cpu_745x,
 		.oprofile_cpu_type      = "ppc/7450",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_G4,
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc7450",
 	},
+=======
+		.machine_check		= machine_check_generic,
+		.platform		= "ppc7450",
+	},
+#endif /* CONFIG_PPC_BOOK3S_604 */
+#ifdef CONFIG_PPC_BOOK3S_603
+	{	/* 603 */
+		.pvr_mask		= 0xffff0000,
+		.pvr_value		= 0x00030000,
+		.cpu_name		= "603",
+		.cpu_features		= CPU_FTRS_603,
+		.cpu_user_features	= COMMON_USER | PPC_FEATURE_PPC_LE,
+		.mmu_features		= 0,
+		.icache_bsize		= 32,
+		.dcache_bsize		= 32,
+		.cpu_setup		= __setup_cpu_603,
+		.machine_check		= machine_check_generic,
+		.platform		= "ppc603",
+	},
+	{	/* 603e */
+		.pvr_mask		= 0xffff0000,
+		.pvr_value		= 0x00060000,
+		.cpu_name		= "603e",
+		.cpu_features		= CPU_FTRS_603,
+		.cpu_user_features	= COMMON_USER | PPC_FEATURE_PPC_LE,
+		.mmu_features		= 0,
+		.icache_bsize		= 32,
+		.dcache_bsize		= 32,
+		.cpu_setup		= __setup_cpu_603,
+		.machine_check		= machine_check_generic,
+		.platform		= "ppc603",
+	},
+	{	/* 603ev */
+		.pvr_mask		= 0xffff0000,
+		.pvr_value		= 0x00070000,
+		.cpu_name		= "603ev",
+		.cpu_features		= CPU_FTRS_603,
+		.cpu_user_features	= COMMON_USER | PPC_FEATURE_PPC_LE,
+		.mmu_features		= 0,
+		.icache_bsize		= 32,
+		.dcache_bsize		= 32,
+		.cpu_setup		= __setup_cpu_603,
+		.machine_check		= machine_check_generic,
+		.platform		= "ppc603",
+	},
+>>>>>>> upstream/android-13
 	{	/* 82xx (8240, 8245, 8260 are all 603e cores) */
 		.pvr_mask		= 0x7fff0000,
 		.pvr_value		= 0x00810000,
@@ -1183,7 +1429,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_83xx,
 		.num_pmcs		= 4,
 		.oprofile_cpu_type	= "ppc/e300",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_FSL_EMB,
+=======
+>>>>>>> upstream/android-13
 		.platform		= "ppc603",
 	},
 	{	/* e300c4 (e300c1, plus one IU) */
@@ -1200,10 +1449,18 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_83xx,
 		.num_pmcs		= 4,
 		.oprofile_cpu_type	= "ppc/e300",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_FSL_EMB,
 		.platform		= "ppc603",
 	},
 #endif
+=======
+		.platform		= "ppc603",
+	},
+#endif
+#endif /* CONFIG_PPC_BOOK3S_603 */
+#ifdef CONFIG_PPC_BOOK3S_604
+>>>>>>> upstream/android-13
 	{	/* default match, we assume split I/D cache & TB (non-601)... */
 		.pvr_mask		= 0x00000000,
 		.pvr_value		= 0x00000000,
@@ -1216,6 +1473,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_generic,
 		.platform		= "ppc603",
 	},
+<<<<<<< HEAD
+=======
+#endif /* CONFIG_PPC_BOOK3S_604 */
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC_BOOK3S_32 */
 #ifdef CONFIG_PPC_8xx
 	{	/* 8xx */
@@ -1234,6 +1495,7 @@ static struct cpu_spec __initdata cpu_specs[] = {
 	},
 #endif /* CONFIG_PPC_8xx */
 #ifdef CONFIG_40x
+<<<<<<< HEAD
 	{	/* 403GC */
 		.pvr_mask		= 0xffffff00,
 		.pvr_value		= 0x00200200,
@@ -1297,6 +1559,8 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_4xx,
 		.platform		= "ppc405",
 	},
+=======
+>>>>>>> upstream/android-13
 	{	/* STB 04xxx */
 		.pvr_mask		= 0xffff0000,
 		.pvr_value		= 0x41810000,
@@ -1387,6 +1651,7 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_4xx,
 		.platform		= "ppc405",
 	},
+<<<<<<< HEAD
 	{	/* Xilinx Virtex-II Pro  */
 		.pvr_mask		= 0xfffff000,
 		.pvr_value		= 0x20010000,
@@ -1413,6 +1678,8 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_4xx,
 		.platform		= "ppc405",
 	},
+=======
+>>>>>>> upstream/android-13
 	{	/* 405EP */
 		.pvr_mask		= 0xffff0000,
 		.pvr_value		= 0x51210000,
@@ -1599,6 +1866,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 
 #endif /* CONFIG_40x */
 #ifdef CONFIG_44x
+<<<<<<< HEAD
+=======
+#ifndef CONFIG_PPC_47x
+>>>>>>> upstream/android-13
 	{
 		.pvr_mask		= 0xf0000fff,
 		.pvr_value		= 0x40000850,
@@ -1802,6 +2073,7 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_440A,
 		.platform		= "ppc440",
 	},
+<<<<<<< HEAD
 	{ /* 440 in Xilinx Virtex-5 FXT */
 		.pvr_mask		= 0xfffffff0,
 		.pvr_value		= 0x7ff21910,
@@ -1815,6 +2087,8 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_440A,
 		.platform		= "ppc440",
 	},
+=======
+>>>>>>> upstream/android-13
 	{ /* 460EX */
 		.pvr_mask		= 0xffff0006,
 		.pvr_value		= 0x13020002,
@@ -1894,7 +2168,23 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_440A,
 		.platform		= "ppc440",
 	},
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_47x
+=======
+	{	/* default match */
+		.pvr_mask		= 0x00000000,
+		.pvr_value		= 0x00000000,
+		.cpu_name		= "(generic 44x PPC)",
+		.cpu_features		= CPU_FTRS_44X,
+		.cpu_user_features	= COMMON_USER_BOOKE,
+		.mmu_features		= MMU_FTR_TYPE_44x,
+		.icache_bsize		= 32,
+		.dcache_bsize		= 32,
+		.machine_check		= machine_check_4xx,
+		.platform		= "ppc440",
+	}
+#else /* CONFIG_PPC_47x */
+>>>>>>> upstream/android-13
 	{ /* 476 DD2 core */
 		.pvr_mask		= 0xffffffff,
 		.pvr_value		= 0x11a52080,
@@ -1951,6 +2241,7 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.machine_check		= machine_check_47x,
 		.platform		= "ppc470",
 	},
+<<<<<<< HEAD
 #endif /* CONFIG_PPC_47x */
 	{	/* default match */
 		.pvr_mask		= 0x00000000,
@@ -2010,6 +2301,22 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.platform		= "ppc5554",
 	}
 #endif /* CONFIG_E200 */
+=======
+	{	/* default match */
+		.pvr_mask		= 0x00000000,
+		.pvr_value		= 0x00000000,
+		.cpu_name		= "(generic 47x PPC)",
+		.cpu_features		= CPU_FTRS_47X,
+		.cpu_user_features	= COMMON_USER_BOOKE,
+		.mmu_features		= MMU_FTR_TYPE_47x,
+		.icache_bsize		= 32,
+		.dcache_bsize		= 128,
+		.machine_check		= machine_check_47x,
+		.platform		= "ppc470",
+	}
+#endif /* CONFIG_PPC_47x */
+#endif /* CONFIG_44x */
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC32 */
 #ifdef CONFIG_E500
 #ifdef CONFIG_PPC32
@@ -2028,7 +2335,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.dcache_bsize		= 32,
 		.num_pmcs		= 4,
 		.oprofile_cpu_type	= "ppc/e500",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_FSL_EMB,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_e500v1,
 		.machine_check		= machine_check_e500,
 		.platform		= "ppc8540",
@@ -2048,7 +2358,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.dcache_bsize		= 32,
 		.num_pmcs		= 4,
 		.oprofile_cpu_type	= "ppc/e500",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_FSL_EMB,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_e500v2,
 		.machine_check		= machine_check_e500,
 		.platform		= "ppc8548",
@@ -2068,7 +2381,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.dcache_bsize		= 64,
 		.num_pmcs		= 4,
 		.oprofile_cpu_type	= "ppc/e500mc",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_FSL_EMB,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_e500mc,
 		.machine_check		= machine_check_e500mc,
 		.platform		= "ppce500mc",
@@ -2090,7 +2406,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.dcache_bsize		= 64,
 		.num_pmcs		= 4,
 		.oprofile_cpu_type	= "ppc/e500mc",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_FSL_EMB,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_e5500,
 #ifndef CONFIG_PPC32
 		.cpu_restore		= __restore_cpu_e5500,
@@ -2113,7 +2432,10 @@ static struct cpu_spec __initdata cpu_specs[] = {
 		.dcache_bsize		= 64,
 		.num_pmcs		= 6,
 		.oprofile_cpu_type	= "ppc/e6500",
+<<<<<<< HEAD
 		.oprofile_type		= PPC_OPROFILE_FSL_EMB,
+=======
+>>>>>>> upstream/android-13
 		.cpu_setup		= __setup_cpu_e6500,
 #ifndef CONFIG_PPC32
 		.cpu_restore		= __restore_cpu_e6500,
@@ -2147,7 +2469,15 @@ void __init set_cur_cpu_spec(struct cpu_spec *s)
 	struct cpu_spec *t = &the_cpu_spec;
 
 	t = PTRRELOC(t);
+<<<<<<< HEAD
 	*t = *s;
+=======
+	/*
+	 * use memcpy() instead of *t = *s so that GCC replaces it
+	 * by __memcpy() when KASAN is active
+	 */
+	memcpy(t, s, sizeof(*t));
+>>>>>>> upstream/android-13
 
 	*PTRRELOC(&cur_cpu_spec) = &the_cpu_spec;
 }
@@ -2161,8 +2491,16 @@ static struct cpu_spec * __init setup_cpu_spec(unsigned long offset,
 	t = PTRRELOC(t);
 	old = *t;
 
+<<<<<<< HEAD
 	/* Copy everything, then do fixups */
 	*t = *s;
+=======
+	/*
+	 * Copy everything, then do fixups. Use memcpy() instead of *t = *s
+	 * so that GCC replaces it by __memcpy() when KASAN is active
+	 */
+	memcpy(t, s, sizeof(*t));
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we are overriding a previous value derived from the real
@@ -2172,10 +2510,13 @@ static struct cpu_spec * __init setup_cpu_spec(unsigned long offset,
 	if (old.num_pmcs && !s->num_pmcs) {
 		t->num_pmcs = old.num_pmcs;
 		t->pmc_type = old.pmc_type;
+<<<<<<< HEAD
 		t->oprofile_type = old.oprofile_type;
 		t->oprofile_mmcra_sihv = old.oprofile_mmcra_sihv;
 		t->oprofile_mmcra_sipr = old.oprofile_mmcra_sipr;
 		t->oprofile_mmcra_clear = old.oprofile_mmcra_clear;
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * If we have passed through this logic once before and
@@ -2193,7 +2534,10 @@ static struct cpu_spec * __init setup_cpu_spec(unsigned long offset,
 		 */
 		if (old.oprofile_cpu_type != NULL) {
 			t->oprofile_cpu_type = old.oprofile_cpu_type;
+<<<<<<< HEAD
 			t->oprofile_type = old.oprofile_type;
+=======
+>>>>>>> upstream/android-13
 			t->cpu_features |= old.cpu_features & CPU_FTR_PMAO_BUG;
 		}
 	}

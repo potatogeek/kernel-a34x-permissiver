@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0
 config EMBEDDED6xx
 	bool "Embedded 6xx/7xx/7xxx-based boards"
+<<<<<<< HEAD
 	depends on 6xx && BROKEN_ON_SMP
+=======
+	depends on PPC_BOOK3S_32 && BROKEN_ON_SMP
+>>>>>>> upstream/android-13
 
 config LINKSTATION
 	bool "Linkstation / Kurobox(HG) from Buffalo"
@@ -52,7 +56,11 @@ config MVME5100
 	bool "Motorola/Emerson MVME5100"
 	depends on EMBEDDED6xx
 	select MPIC
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select PPC_INDIRECT_PCI
 	select PPC_I8259
 	select PPC_NATIVE
@@ -63,7 +71,11 @@ config MVME5100
 
 config TSI108_BRIDGE
 	bool
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select MPIC
 	select MPIC_WEIRD
 
@@ -71,11 +83,14 @@ config MPC10X_BRIDGE
 	bool
 	select PPC_INDIRECT_PCI
 
+<<<<<<< HEAD
 config MV64X60
 	bool
 	select PPC_INDIRECT_PCI
 	select CHECK_CACHE_COHERENCY
 
+=======
+>>>>>>> upstream/android-13
 config GAMECUBE_COMMON
 	bool
 

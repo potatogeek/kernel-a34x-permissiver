@@ -152,7 +152,11 @@ enum {D_PRT, D_PRO, D_UNI, D_MOD, D_SLV, D_LUN, D_DLY};
 #include <linux/hdreg.h>
 #include <linux/cdrom.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/blkdev.h>
+=======
+#include <linux/blk-mq.h>
+>>>>>>> upstream/android-13
 #include <linux/blkpg.h>
 #include <linux/mutex.h>
 #include <linux/uaccess.h>
@@ -206,7 +210,12 @@ module_param_array(drive3, int, NULL, 0);
 #define ATAPI_WRITE_10		0x2a
 
 static int pf_open(struct block_device *bdev, fmode_t mode);
+<<<<<<< HEAD
 static void do_pf_request(struct request_queue * q);
+=======
+static blk_status_t pf_queue_rq(struct blk_mq_hw_ctx *hctx,
+				const struct blk_mq_queue_data *bd);
+>>>>>>> upstream/android-13
 static int pf_ioctl(struct block_device *bdev, fmode_t mode,
 		    unsigned int cmd, unsigned long arg);
 static int pf_getgeo(struct block_device *bdev, struct hd_geometry *geo);
@@ -238,6 +247,11 @@ struct pf_unit {
 	int present;		/* device present ? */
 	char name[PF_NAMELEN];	/* pf0, pf1, ... */
 	struct gendisk *disk;
+<<<<<<< HEAD
+=======
+	struct blk_mq_tag_set tag_set;
+	struct list_head rq_list;
+>>>>>>> upstream/android-13
 };
 
 static struct pf_unit units[PF_UNITS];
@@ -273,10 +287,21 @@ static const struct block_device_operations pf_fops = {
 	.open		= pf_open,
 	.release	= pf_release,
 	.ioctl		= pf_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= pf_ioctl,
+>>>>>>> upstream/android-13
 	.getgeo		= pf_getgeo,
 	.check_events	= pf_check_events,
 };
 
+<<<<<<< HEAD
+=======
+static const struct blk_mq_ops pf_mq_ops = {
+	.queue_rq	= pf_queue_rq,
+};
+
+>>>>>>> upstream/android-13
 static void __init pf_init_units(void)
 {
 	struct pf_unit *pf;
@@ -284,6 +309,7 @@ static void __init pf_init_units(void)
 
 	pf_drive_count = 0;
 	for (unit = 0, pf = units; unit < PF_UNITS; unit++, pf++) {
+<<<<<<< HEAD
 		struct gendisk *disk = alloc_disk(1);
 		if (!disk)
 			continue;
@@ -292,6 +318,21 @@ static void __init pf_init_units(void)
 			put_disk(disk);
 			return;
 		}
+=======
+		struct gendisk *disk;
+
+		if (blk_mq_alloc_sq_tag_set(&pf->tag_set, &pf_mq_ops, 1,
+				BLK_MQ_F_SHOULD_MERGE))
+			continue;
+
+		disk = blk_mq_alloc_disk(&pf->tag_set, pf);
+		if (IS_ERR(disk)) {
+			blk_mq_free_tag_set(&pf->tag_set);
+			continue;
+		}
+
+		INIT_LIST_HEAD(&pf->rq_list);
+>>>>>>> upstream/android-13
 		blk_queue_max_segments(disk->queue, cluster);
 		blk_queue_bounce_limit(disk->queue, BLK_BOUNCE_HIGH);
 		pf->disk = disk;
@@ -302,8 +343,15 @@ static void __init pf_init_units(void)
 		snprintf(pf->name, PF_NAMELEN, "%s%d", name, unit);
 		disk->major = major;
 		disk->first_minor = unit;
+<<<<<<< HEAD
 		strcpy(disk->disk_name, pf->name);
 		disk->fops = &pf_fops;
+=======
+		disk->minors = 1;
+		strcpy(disk->disk_name, pf->name);
+		disk->fops = &pf_fops;
+		disk->events = DISK_EVENT_MEDIA_CHANGE;
+>>>>>>> upstream/android-13
 		if (!(*drives[unit])[D_PRT])
 			pf_drive_count++;
 	}
@@ -746,8 +794,17 @@ static int pf_detect(void)
 		return 0;
 
 	printk("%s: No ATAPI disk detected\n", name);
+<<<<<<< HEAD
 	for (pf = units, unit = 0; unit < PF_UNITS; pf++, unit++)
 		put_disk(pf->disk);
+=======
+	for (pf = units, unit = 0; unit < PF_UNITS; pf++, unit++) {
+		if (!pf->disk)
+			continue;
+		blk_cleanup_disk(pf->disk);
+		blk_mq_free_tag_set(&pf->tag_set);
+	}
+>>>>>>> upstream/android-13
 	pi_unregister_driver(par_drv);
 	return -1;
 }
@@ -784,11 +841,15 @@ static int pf_queue;
 static int set_next_request(void)
 {
 	struct pf_unit *pf;
+<<<<<<< HEAD
 	struct request_queue *q;
+=======
+>>>>>>> upstream/android-13
 	int old_pos = pf_queue;
 
 	do {
 		pf = &units[pf_queue];
+<<<<<<< HEAD
 		q = pf->present ? pf->disk->queue : NULL;
 		if (++pf_queue == PF_UNITS)
 			pf_queue = 0;
@@ -796,6 +857,16 @@ static int set_next_request(void)
 			pf_req = blk_fetch_request(q);
 			if (pf_req)
 				break;
+=======
+		if (++pf_queue == PF_UNITS)
+			pf_queue = 0;
+		if (pf->present && !list_empty(&pf->rq_list)) {
+			pf_req = list_first_entry(&pf->rq_list, struct request,
+							queuelist);
+			list_del_init(&pf_req->queuelist);
+			blk_mq_start_request(pf_req);
+			break;
+>>>>>>> upstream/android-13
 		}
 	} while (pf_queue != old_pos);
 
@@ -804,8 +875,17 @@ static int set_next_request(void)
 
 static void pf_end_request(blk_status_t err)
 {
+<<<<<<< HEAD
 	if (pf_req && !__blk_end_request_cur(pf_req, err))
 		pf_req = NULL;
+=======
+	if (!pf_req)
+		return;
+	if (!blk_update_request(pf_req, err, blk_rq_cur_bytes(pf_req))) {
+		__blk_mq_end_request(pf_req, err);
+		pf_req = NULL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void pf_request(void)
@@ -842,9 +922,23 @@ repeat:
 	}
 }
 
+<<<<<<< HEAD
 static void do_pf_request(struct request_queue *q)
 {
 	pf_request();
+=======
+static blk_status_t pf_queue_rq(struct blk_mq_hw_ctx *hctx,
+				const struct blk_mq_queue_data *bd)
+{
+	struct pf_unit *pf = hctx->queue->queuedata;
+
+	spin_lock_irq(&pf_spin_lock);
+	list_add_tail(&bd->rq->queuelist, &pf->rq_list);
+	pf_request();
+	spin_unlock_irq(&pf_spin_lock);
+
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 static int pf_next_buf(void)
@@ -998,8 +1092,18 @@ static int __init pf_init(void)
 	pf_busy = 0;
 
 	if (register_blkdev(major, name)) {
+<<<<<<< HEAD
 		for (pf = units, unit = 0; unit < PF_UNITS; pf++, unit++)
 			put_disk(pf->disk);
+=======
+		for (pf = units, unit = 0; unit < PF_UNITS; pf++, unit++) {
+			if (!pf->disk)
+				continue;
+			blk_cleanup_queue(pf->disk->queue);
+			blk_mq_free_tag_set(&pf->tag_set);
+			put_disk(pf->disk);
+		}
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
@@ -1020,12 +1124,27 @@ static void __exit pf_exit(void)
 	int unit;
 	unregister_blkdev(major, name);
 	for (pf = units, unit = 0; unit < PF_UNITS; pf++, unit++) {
+<<<<<<< HEAD
 		if (!pf->present)
 			continue;
 		del_gendisk(pf->disk);
 		blk_cleanup_queue(pf->disk->queue);
 		put_disk(pf->disk);
 		pi_release(pf->pi);
+=======
+		if (!pf->disk)
+			continue;
+
+		if (pf->present)
+			del_gendisk(pf->disk);
+
+		blk_cleanup_queue(pf->disk->queue);
+		blk_mq_free_tag_set(&pf->tag_set);
+		put_disk(pf->disk);
+
+		if (pf->present)
+			pi_release(pf->pi);
+>>>>>>> upstream/android-13
 	}
 }
 

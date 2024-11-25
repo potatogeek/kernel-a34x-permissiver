@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig RAS
 	bool "Reliability, Availability and Serviceability (RAS) features"
 	help
@@ -30,6 +34,10 @@ menuconfig RAS
 
 if RAS
 
+<<<<<<< HEAD
 source arch/x86/ras/Kconfig
+=======
+source "arch/x86/ras/Kconfig"
+>>>>>>> upstream/android-13
 
 endif

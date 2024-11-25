@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  * This file contains error recovery level zero functions used by
  * the iSCSI Target driver.
@@ -6,6 +10,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/sched/signal.h>
@@ -770,6 +777,7 @@ void iscsit_handle_time2retain_timeout(struct timer_list *t)
 
 	pr_err("Time2Retain timer expired for SID: %u, cleaning up"
 			" iSCSI session.\n", sess->sid);
+<<<<<<< HEAD
 	{
 	struct iscsi_tiqn *tiqn = tpg->tpg_tiqn;
 
@@ -787,6 +795,12 @@ void iscsit_handle_time2retain_timeout(struct timer_list *t)
 
 	spin_unlock_bh(&se_tpg->session_lock);
 	iscsit_close_session(sess);
+=======
+
+	iscsit_fill_cxn_timeout_err_stats(sess);
+	spin_unlock_bh(&se_tpg->session_lock);
+	iscsit_close_session(sess, false);
+>>>>>>> upstream/android-13
 }
 
 void iscsit_start_time2retain_handler(struct iscsi_session *sess)
@@ -815,14 +829,22 @@ void iscsit_start_time2retain_handler(struct iscsi_session *sess)
 		  jiffies + sess->sess_ops->DefaultTime2Retain * HZ);
 }
 
+<<<<<<< HEAD
 /*
  *	Called with spin_lock_bh(&struct se_portal_group->session_lock) held
  */
+=======
+>>>>>>> upstream/android-13
 int iscsit_stop_time2retain_timer(struct iscsi_session *sess)
 {
 	struct iscsi_portal_group *tpg = sess->tpg;
 	struct se_portal_group *se_tpg = &tpg->tpg_se_tpg;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&se_tpg->session_lock);
+
+>>>>>>> upstream/android-13
 	if (sess->time2retain_timer_flags & ISCSI_TF_EXPIRED)
 		return -1;
 

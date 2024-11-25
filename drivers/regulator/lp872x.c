@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2012 Texas Instruments
  *
  * Author: Milo(Woogyom) Kim <milo.kim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -353,6 +360,7 @@ static int lp872x_buck_get_voltage_sel(struct regulator_dev *rdev)
 	return val & LP872X_VOUT_M;
 }
 
+<<<<<<< HEAD
 static int lp8725_buck_set_current_limit(struct regulator_dev *rdev,
 					int min_uA, int max_uA)
 {
@@ -411,6 +419,8 @@ static int lp8725_buck_get_current_limit(struct regulator_dev *rdev)
 			lp8725_buck_uA[val] : -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int lp872x_buck_set_mode(struct regulator_dev *rdev, unsigned int mode)
 {
 	struct lp872x *lp = rdev_get_drvdata(rdev);
@@ -478,7 +488,11 @@ static unsigned int lp872x_buck_get_mode(struct regulator_dev *rdev)
 	return val & mask ? REGULATOR_MODE_FAST : REGULATOR_MODE_NORMAL;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops lp872x_ldo_ops = {
+=======
+static const struct regulator_ops lp872x_ldo_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage = regulator_list_voltage_table,
 	.map_voltage = regulator_map_voltage_ascend,
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
@@ -489,7 +503,11 @@ static struct regulator_ops lp872x_ldo_ops = {
 	.enable_time = lp872x_regulator_enable_time,
 };
 
+<<<<<<< HEAD
 static struct regulator_ops lp8720_buck_ops = {
+=======
+static const struct regulator_ops lp8720_buck_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage = regulator_list_voltage_table,
 	.map_voltage = regulator_map_voltage_ascend,
 	.set_voltage_sel = lp872x_buck_set_voltage_sel,
@@ -502,7 +520,11 @@ static struct regulator_ops lp8720_buck_ops = {
 	.get_mode = lp872x_buck_get_mode,
 };
 
+<<<<<<< HEAD
 static struct regulator_ops lp8725_buck_ops = {
+=======
+static const struct regulator_ops lp8725_buck_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage = regulator_list_voltage_table,
 	.map_voltage = regulator_map_voltage_ascend,
 	.set_voltage_sel = lp872x_buck_set_voltage_sel,
@@ -513,11 +535,19 @@ static struct regulator_ops lp8725_buck_ops = {
 	.enable_time = lp872x_regulator_enable_time,
 	.set_mode = lp872x_buck_set_mode,
 	.get_mode = lp872x_buck_get_mode,
+<<<<<<< HEAD
 	.set_current_limit = lp8725_buck_set_current_limit,
 	.get_current_limit = lp8725_buck_get_current_limit,
 };
 
 static struct regulator_desc lp8720_regulator_desc[] = {
+=======
+	.set_current_limit = regulator_set_current_limit_regmap,
+	.get_current_limit = regulator_get_current_limit_regmap,
+};
+
+static const struct regulator_desc lp8720_regulator_desc[] = {
+>>>>>>> upstream/android-13
 	{
 		.name = "ldo1",
 		.of_match = of_match_ptr("ldo1"),
@@ -602,7 +632,11 @@ static struct regulator_desc lp8720_regulator_desc[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct regulator_desc lp8725_regulator_desc[] = {
+=======
+static const struct regulator_desc lp8725_regulator_desc[] = {
+>>>>>>> upstream/android-13
 	{
 		.name = "ldo1",
 		.of_match = of_match_ptr("ldo1"),
@@ -712,6 +746,13 @@ static struct regulator_desc lp8725_regulator_desc[] = {
 		.owner = THIS_MODULE,
 		.enable_reg = LP872X_GENERAL_CFG,
 		.enable_mask = LP8725_BUCK1_EN_M,
+<<<<<<< HEAD
+=======
+		.curr_table = lp8725_buck_uA,
+		.n_current_limits = ARRAY_SIZE(lp8725_buck_uA),
+		.csel_reg = LP8725_BUCK1_VOUT2,
+		.csel_mask = LP8725_BUCK_CL_M,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "buck2",
@@ -724,6 +765,13 @@ static struct regulator_desc lp8725_regulator_desc[] = {
 		.owner = THIS_MODULE,
 		.enable_reg = LP872X_GENERAL_CFG,
 		.enable_mask = LP8725_BUCK2_EN_M,
+<<<<<<< HEAD
+=======
+		.curr_table = lp8725_buck_uA,
+		.n_current_limits = ARRAY_SIZE(lp8725_buck_uA),
+		.csel_reg = LP8725_BUCK2_VOUT2,
+		.csel_mask = LP8725_BUCK_CL_M,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -820,7 +868,11 @@ static struct regulator_init_data
 
 static int lp872x_regulator_register(struct lp872x *lp)
 {
+<<<<<<< HEAD
 	struct regulator_desc *desc;
+=======
+	const struct regulator_desc *desc;
+>>>>>>> upstream/android-13
 	struct regulator_config cfg = { };
 	struct regulator_dev *rdev;
 	int i;
@@ -946,7 +998,11 @@ static int lp872x_probe(struct i2c_client *cl, const struct i2c_device_id *id)
 	struct lp872x *lp;
 	struct lp872x_platform_data *pdata;
 	int ret;
+<<<<<<< HEAD
 	const int lp872x_num_regulators[] = {
+=======
+	static const int lp872x_num_regulators[] = {
+>>>>>>> upstream/android-13
 		[LP8720] = LP8720_NUM_REGULATORS,
 		[LP8725] = LP8725_NUM_REGULATORS,
 	};

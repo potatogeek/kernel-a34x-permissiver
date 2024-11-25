@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  m62332.c - Support for Mitsubishi m62332 DAC
  *
@@ -5,6 +9,7 @@
  *
  *  Based on max517 driver:
  *  Copyright (C) 2010, 2011 Roland Stigge <stigge@antcom.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -213,9 +220,12 @@ static int m62332_probe(struct i2c_client *client,
 	if (IS_ERR(data->vcc))
 		return PTR_ERR(data->vcc);
 
+<<<<<<< HEAD
 	/* establish that the iio_dev is a child of the i2c device */
 	indio_dev->dev.parent = &client->dev;
 
+=======
+>>>>>>> upstream/android-13
 	indio_dev->num_channels = ARRAY_SIZE(m62332_channels);
 	indio_dev->channels = m62332_channels;
 	indio_dev->modes = INDIO_DIRECT_MODE;

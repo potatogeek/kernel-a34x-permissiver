@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2014  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2014  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../pci.h"
@@ -63,7 +68,11 @@ void rtl8723_write_fw(struct ieee80211_hw *hw,
 	u32 page_nums, remain_size;
 	u32 page, offset;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_FW, DBG_TRACE, "FW size is %d bytes,\n", size);
+=======
+	rtl_dbg(rtlpriv, COMP_FW, DBG_TRACE, "FW size is %d bytes,\n", size);
+>>>>>>> upstream/android-13
 
 	rtl_fill_dummy(bufferptr, &size);
 
@@ -85,7 +94,11 @@ void rtl8723_write_fw(struct ieee80211_hw *hw,
 		page = page_nums;
 		rtl_fw_page_write(hw, page, (bufferptr + offset), remain_size);
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_FW, DBG_TRACE, "FW write done.\n");
+=======
+	rtl_dbg(rtlpriv, COMP_FW, DBG_TRACE, "FW write done.\n");
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rtl8723_write_fw);
 
@@ -131,8 +144,13 @@ void rtl8723be_firmware_selfreset(struct ieee80211_hw *hw)
 	u1b_tmp = rtl_read_byte(rtlpriv, REG_SYS_FUNC_EN + 1);
 	rtl_write_byte(rtlpriv, REG_SYS_FUNC_EN + 1, (u1b_tmp | BIT(2)));
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "  _8051Reset8723be(): 8051 reset success .\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"_8051Reset8723be(): 8051 reset success .\n");
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rtl8723be_firmware_selfreset);
 
@@ -165,9 +183,15 @@ int rtl8723_fw_free_to_go(struct ieee80211_hw *hw, bool is_8723be,
 	do {
 		value32 = rtl_read_dword(rtlpriv, REG_MCUFWDL);
 		if (value32 & WINTINI_RDY) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_FW, DBG_TRACE,
 				 "Polling FW ready success!! REG_MCUFWDL:0x%08x .\n",
 				 value32);
+=======
+			rtl_dbg(rtlpriv, COMP_FW, DBG_TRACE,
+				"Polling FW ready success!! REG_MCUFWDL:0x%08x .\n",
+				value32);
+>>>>>>> upstream/android-13
 			err = 0;
 			goto exit;
 		}
@@ -210,10 +234,17 @@ int rtl8723_download_fw(struct ieee80211_hw *hw,
 	else
 		max_page = 8;
 	if (rtlpriv->cfg->ops->is_fw_header(pfwheader)) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_FW, DBG_LOUD,
 			 "Firmware Version(%d), Signature(%#x), Size(%d)\n",
 			 pfwheader->version, pfwheader->signature,
 			 (int)sizeof(struct rtlwifi_firmware_header));
+=======
+		rtl_dbg(rtlpriv, COMP_FW, DBG_LOUD,
+			"Firmware Version(%d), Signature(%#x), Size(%d)\n",
+			pfwheader->version, pfwheader->signature,
+			(int)sizeof(struct rtlwifi_firmware_header));
+>>>>>>> upstream/android-13
 
 		pfwdata = pfwdata + sizeof(struct rtlwifi_firmware_header);
 		fwsize = fwsize - sizeof(struct rtlwifi_firmware_header);
@@ -245,7 +276,10 @@ bool rtl8723_cmd_send_packet(struct ieee80211_hw *hw,
 	struct rtl8192_tx_ring *ring;
 	struct rtl_tx_desc *pdesc;
 	struct sk_buff *pskb = NULL;
+<<<<<<< HEAD
 	u8 own;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	ring = &rtlpci->tx_ring[BEACON_QUEUE];
@@ -255,9 +289,12 @@ bool rtl8723_cmd_send_packet(struct ieee80211_hw *hw,
 	spin_lock_irqsave(&rtlpriv->locks.irq_th_lock, flags);
 
 	pdesc = &ring->desc[0];
+<<<<<<< HEAD
 	own = (u8)rtlpriv->cfg->ops->get_desc(hw, (u8 *)pdesc, true,
 					      HW_DESC_OWN);
 
+=======
+>>>>>>> upstream/android-13
 	rtlpriv->cfg->ops->fill_tx_cmddesc(hw, (u8 *)pdesc, 1, 1, skb);
 
 	__skb_queue_tail(&ring->queue, skb);

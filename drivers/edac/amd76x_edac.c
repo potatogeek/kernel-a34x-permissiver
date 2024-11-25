@@ -179,7 +179,10 @@ static int amd76x_process_error_info(struct mem_ctl_info *mci,
 static void amd76x_check(struct mem_ctl_info *mci)
 {
 	struct amd76x_error_info info;
+<<<<<<< HEAD
 	edac_dbg(3, "\n");
+=======
+>>>>>>> upstream/android-13
 	amd76x_get_error_info(mci, &info);
 	amd76x_process_error_info(mci, &info, 1);
 }

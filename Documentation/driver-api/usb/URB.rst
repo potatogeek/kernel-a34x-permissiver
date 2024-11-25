@@ -47,7 +47,11 @@ called USB Request Block, or URB for short.
 The URB structure
 =================
 
+<<<<<<< HEAD
 Some of the fields in struct :c:type:`urb` are::
+=======
+Some of the fields in struct urb are::
+>>>>>>> upstream/android-13
 
   struct urb
   {
@@ -240,7 +244,11 @@ How to do isochronous (ISO) transfers?
 ======================================
 
 Besides the fields present on a bulk transfer, for ISO, you also
+<<<<<<< HEAD
 also have to set ``urb->interval`` to say how often to make transfers; it's
+=======
+have to set ``urb->interval`` to say how often to make transfers; it's
+>>>>>>> upstream/android-13
 often one per frame (which is once every microframe for highspeed devices).
 The actual interval used will be a power of two that's no bigger than what
 you specify. You can use the :c:func:`usb_fill_int_urb` macro to fill

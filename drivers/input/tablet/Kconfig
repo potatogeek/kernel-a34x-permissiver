@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Tablet driver configuration
 #
@@ -37,6 +41,7 @@ config TABLET_USB_AIPTEK
 	  To compile this driver as a module, choose M here: the
 	  module will be called aiptek.
 
+<<<<<<< HEAD
 config TABLET_USB_GTCO
         tristate "GTCO CalComp/InterWrite USB Support"
         depends on USB && INPUT
@@ -49,6 +54,8 @@ config TABLET_USB_GTCO
           To compile this driver as a module, choose M here: the
           module will be called gtco.
 
+=======
+>>>>>>> upstream/android-13
 config TABLET_USB_HANWANG
 	tristate "Hanwang Art Master III tablet support (USB)"
 	depends on USB_ARCH_HAS_HCD

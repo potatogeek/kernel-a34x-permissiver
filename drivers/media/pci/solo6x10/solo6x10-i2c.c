@@ -1,11 +1,18 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010-2013 Bluecherry, LLC <http://www.bluecherrydvr.com>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2010-2013 Bluecherry, LLC <https://www.bluecherrydvr.com>
+>>>>>>> upstream/android-13
  *
  * Original author:
  * Ben Collins <bcollins@ubuntu.com>
  *
  * Additional work by:
  * John Brooks <john.brooks@bluecherry.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* XXX: The SOLO6x10 i2c does not have separate interrupts for each i2c
@@ -192,7 +201,11 @@ int solo_i2c_isr(struct solo_dev *solo_dev)
 		}
 
 		solo_dev->i2c_state = IIC_STATE_WRITE;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IIC_STATE_WRITE:
 		ret = solo_i2c_handle_write(solo_dev);
 		break;

@@ -51,6 +51,10 @@
 
 	/* Will be filled by the bootloader */
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0>;
 	};
 

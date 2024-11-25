@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * OMFS (as used by RIO Karma) directory operations.
  * Copyright (C) 2005 Bob Copeland <me@bobcopeland.com>
  * Released under GPL v2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * OMFS (as used by RIO Karma) directory operations.
+ * Copyright (C) 2005 Bob Copeland <me@bobcopeland.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -279,13 +286,23 @@ out_free_inode:
 	return err;
 }
 
+<<<<<<< HEAD
 static int omfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int omfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	return omfs_add_node(dir, dentry, mode | S_IFDIR);
 }
 
+<<<<<<< HEAD
 static int omfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		bool excl)
+=======
+static int omfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	return omfs_add_node(dir, dentry, mode | S_IFREG);
 }
@@ -369,9 +386,15 @@ static bool omfs_fill_chain(struct inode *dir, struct dir_context *ctx,
 	return true;
 }
 
+<<<<<<< HEAD
 static int omfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 		       struct inode *new_dir, struct dentry *new_dentry,
 		       unsigned int flags)
+=======
+static int omfs_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		       struct dentry *old_dentry, struct inode *new_dir,
+		       struct dentry *new_dentry, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct inode *new_inode = d_inode(new_dentry);
 	struct inode *old_inode = d_inode(old_dentry);

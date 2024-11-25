@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * PXA3xx U2D header
  *
  * Copyright (C) 2010 CompuLab Ltd.
  *
  * Igor Grinberg <grinberg@compulab.co.il>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __PXA310_U2D__
 #define __PXA310_U2D__

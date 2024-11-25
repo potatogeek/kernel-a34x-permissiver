@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013-2014, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -13,6 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013-2014, NVIDIA CORPORATION.  All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Based on drivers/misc/eeprom/sunxi_sid.c
  */
 
@@ -27,6 +34,10 @@
 #include <linux/kobject.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <linux/random.h>
 
 #include <soc/tegra/fuse.h>
@@ -57,6 +68,13 @@ static u32 tegra20_fuse_read(struct tegra_fuse *fuse, unsigned int offset)
 	u32 value = 0;
 	int err;
 
+<<<<<<< HEAD
+=======
+	err = pm_runtime_resume_and_get(fuse->dev);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&fuse->apbdma.lock);
 
 	fuse->apbdma.config.src_addr = fuse->phys + FUSE_BEGIN + offset;
@@ -77,8 +95,11 @@ static u32 tegra20_fuse_read(struct tegra_fuse *fuse, unsigned int offset)
 
 	reinit_completion(&fuse->apbdma.wait);
 
+<<<<<<< HEAD
 	clk_prepare_enable(fuse->clk);
 
+=======
+>>>>>>> upstream/android-13
 	dmaengine_submit(dma_desc);
 	dma_async_issue_pending(fuse->apbdma.chan);
 	time_left = wait_for_completion_timeout(&fuse->apbdma.wait,
@@ -89,10 +110,16 @@ static u32 tegra20_fuse_read(struct tegra_fuse *fuse, unsigned int offset)
 	else
 		value = *fuse->apbdma.virt;
 
+<<<<<<< HEAD
 	clk_disable_unprepare(fuse->clk);
 
 out:
 	mutex_unlock(&fuse->apbdma.lock);
+=======
+out:
+	mutex_unlock(&fuse->apbdma.lock);
+	pm_runtime_put(fuse->dev);
+>>>>>>> upstream/android-13
 	return value;
 }
 
@@ -110,7 +137,11 @@ static int tegra20_fuse_probe(struct tegra_fuse *fuse)
 	dma_cap_zero(mask);
 	dma_cap_set(DMA_SLAVE, mask);
 
+<<<<<<< HEAD
 	fuse->apbdma.chan = __dma_request_channel(&mask, dma_filter, NULL);
+=======
+	fuse->apbdma.chan = dma_request_channel(mask, dma_filter, NULL);
+>>>>>>> upstream/android-13
 	if (!fuse->apbdma.chan)
 		return -EPROBE_DEFER;
 
@@ -175,4 +206,9 @@ const struct tegra_fuse_soc tegra20_fuse_soc = {
 	.speedo_init = tegra20_init_speedo_data,
 	.probe = tegra20_fuse_probe,
 	.info = &tegra20_fuse_info,
+<<<<<<< HEAD
+=======
+	.soc_attr_group = &tegra_soc_attr_group,
+	.clk_suspend_on = false,
+>>>>>>> upstream/android-13
 };

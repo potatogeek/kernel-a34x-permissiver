@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  chromeos_pstore.c - Driver to instantiate Chromebook ramoops device
  *
@@ -7,6 +8,12 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, version 2 of the License.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+// Driver to instantiate Chromebook ramoops device.
+//
+// Copyright (C) 2013 Google, Inc.
+>>>>>>> upstream/android-13
 
 #include <linux/acpi.h>
 #include <linux/dmi.h>
@@ -62,7 +69,12 @@ static struct ramoops_platform_data chromeos_ramoops_data = {
 	.record_size	= 0x40000,
 	.console_size	= 0x20000,
 	.ftrace_size	= 0x20000,
+<<<<<<< HEAD
 	.dump_oops	= 1,
+=======
+	.pmsg_size	= 0x20000,
+	.max_reason	= KMSG_DUMP_OOPS,
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device chromeos_ramoops = {
@@ -138,5 +150,10 @@ static void __exit chromeos_pstore_exit(void)
 module_init(chromeos_pstore_init);
 module_exit(chromeos_pstore_exit);
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Chrome OS pstore module");
 MODULE_LICENSE("GPL");
+=======
+MODULE_DESCRIPTION("ChromeOS pstore module");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

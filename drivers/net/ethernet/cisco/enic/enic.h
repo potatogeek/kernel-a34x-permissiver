@@ -33,8 +33,11 @@
 
 #define DRV_NAME		"enic"
 #define DRV_DESCRIPTION		"Cisco VIC Ethernet NIC Driver"
+<<<<<<< HEAD
 #define DRV_VERSION		"2.3.0.53"
 #define DRV_COPYRIGHT		"Copyright 2008-2013 Cisco Systems, Inc"
+=======
+>>>>>>> upstream/android-13
 
 #define ENIC_BARS_MAX		6
 

@@ -21,6 +21,7 @@
 #endif
 #include <asm/cmpxchg.h>
 
+<<<<<<< HEAD
 #define ia64_native_get_psr_i()	(ia64_native_getreg(_IA64_REG_PSR) & IA64_PSR_I)
 
 #define ia64_native_set_rr0_to_rr4(val0, val1, val2, val3, val4)	\
@@ -30,6 +31,15 @@ do {									\
 	ia64_native_set_rr(0x4000000000000000UL, (val2));		\
 	ia64_native_set_rr(0x6000000000000000UL, (val3));		\
 	ia64_native_set_rr(0x8000000000000000UL, (val4));		\
+=======
+#define ia64_set_rr0_to_rr4(val0, val1, val2, val3, val4)		\
+do {									\
+	ia64_set_rr(0x0000000000000000UL, (val0));			\
+	ia64_set_rr(0x2000000000000000UL, (val1));			\
+	ia64_set_rr(0x4000000000000000UL, (val2));			\
+	ia64_set_rr(0x6000000000000000UL, (val3));			\
+	ia64_set_rr(0x8000000000000000UL, (val4));			\
+>>>>>>> upstream/android-13
 } while (0)
 
 /*
@@ -85,6 +95,7 @@ extern unsigned long __bad_increment_for_ia64_fetch_and_add (void);
 
 #endif
 
+<<<<<<< HEAD
 
 #ifndef __ASSEMBLY__
 
@@ -122,4 +133,6 @@ extern unsigned long __bad_increment_for_ia64_fetch_and_add (void);
 
 #endif /* !__ASSEMBLY__ */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _UAPI_ASM_IA64_INTRINSICS_H */

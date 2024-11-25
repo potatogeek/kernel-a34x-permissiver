@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008 Renesas Solutions Corp.
  *
@@ -7,6 +8,13 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * Copyright (C) 2008 Renesas Solutions Corp.
+ *
+ * Hitachi UL SolutionEngine 7721 Support.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_SH_SE7721_H

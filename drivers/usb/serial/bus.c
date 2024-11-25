@@ -16,19 +16,27 @@
 static int usb_serial_device_match(struct device *dev,
 						struct device_driver *drv)
 {
+<<<<<<< HEAD
 	struct usb_serial_driver *driver;
 	const struct usb_serial_port *port;
+=======
+	const struct usb_serial_port *port = to_usb_serial_port(dev);
+	struct usb_serial_driver *driver = to_usb_serial_driver(drv);
+>>>>>>> upstream/android-13
 
 	/*
 	 * drivers are already assigned to ports in serial_probe so it's
 	 * a simple check here.
 	 */
+<<<<<<< HEAD
 	port = to_usb_serial_port(dev);
 	if (!port)
 		return 0;
 
 	driver = to_usb_serial_driver(drv);
 
+=======
+>>>>>>> upstream/android-13
 	if (driver == port->serial->type)
 		return 1;
 
@@ -37,16 +45,24 @@ static int usb_serial_device_match(struct device *dev,
 
 static int usb_serial_device_probe(struct device *dev)
 {
+<<<<<<< HEAD
 	struct usb_serial_driver *driver;
 	struct usb_serial_port *port;
+=======
+	struct usb_serial_port *port = to_usb_serial_port(dev);
+	struct usb_serial_driver *driver;
+>>>>>>> upstream/android-13
 	struct device *tty_dev;
 	int retval = 0;
 	int minor;
 
+<<<<<<< HEAD
 	port = to_usb_serial_port(dev);
 	if (!port)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	/* make sure suspend/resume doesn't race against port_probe */
 	retval = usb_autopm_get_interface(port->serial->interface);
 	if (retval)
@@ -84,6 +100,7 @@ err_autopm_put:
 	return retval;
 }
 
+<<<<<<< HEAD
 static int usb_serial_device_remove(struct device *dev)
 {
 	struct usb_serial_driver *driver;
@@ -96,6 +113,15 @@ static int usb_serial_device_remove(struct device *dev)
 	if (!port)
 		return -ENODEV;
 
+=======
+static void usb_serial_device_remove(struct device *dev)
+{
+	struct usb_serial_port *port = to_usb_serial_port(dev);
+	struct usb_serial_driver *driver;
+	int minor;
+	int autopm_err;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Make sure suspend/resume doesn't race against port_remove.
 	 *
@@ -109,15 +135,22 @@ static int usb_serial_device_remove(struct device *dev)
 
 	driver = port->serial->type;
 	if (driver->port_remove)
+<<<<<<< HEAD
 		retval = driver->port_remove(port);
+=======
+		driver->port_remove(port);
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "%s converter now disconnected from ttyUSB%d\n",
 		 driver->description, minor);
 
 	if (!autopm_err)
 		usb_autopm_put_interface(port->serial->interface);
+<<<<<<< HEAD
 
 	return retval;
+=======
+>>>>>>> upstream/android-13
 }
 
 static ssize_t new_id_store(struct device_driver *driver,

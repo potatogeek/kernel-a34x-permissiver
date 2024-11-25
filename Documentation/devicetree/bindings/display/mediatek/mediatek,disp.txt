@@ -9,7 +9,11 @@ function block.
 
 All DISP device tree nodes must be siblings to the central MMSYS_CONFIG node.
 For a description of the MMSYS_CONFIG binding, see
+<<<<<<< HEAD
 Documentation/devicetree/bindings/arm/mediatek/mediatek,mmsys.txt.
+=======
+Documentation/devicetree/bindings/arm/mediatek/mediatek,mmsys.yaml.
+>>>>>>> upstream/android-13
 
 DISP function blocks
 ====================
@@ -23,6 +27,7 @@ connected to.
 
 For a description of the display interface sink function blocks, see
 Documentation/devicetree/bindings/display/mediatek/mediatek,dsi.txt and
+<<<<<<< HEAD
 Documentation/devicetree/bindings/display/mediatek/mediatek,dpi.txt.
 
 Required properties (all function blocks):
@@ -41,6 +46,30 @@ Required properties (all function blocks):
 	"mediatek,<chip>-disp-mutex" - display mutex
 	"mediatek,<chip>-disp-od"    - overdrive
   the supported chips are mt2701, mt2712 and mt8173.
+=======
+Documentation/devicetree/bindings/display/mediatek/mediatek,dpi.yaml.
+
+Required properties (all function blocks):
+- compatible: "mediatek,<chip>-disp-<function>", one of
+	"mediatek,<chip>-disp-ovl"   		- overlay (4 layers, blending, csc)
+	"mediatek,<chip>-disp-ovl-2l"           - overlay (2 layers, blending, csc)
+	"mediatek,<chip>-disp-rdma"  		- read DMA / line buffer
+	"mediatek,<chip>-disp-wdma"  		- write DMA
+	"mediatek,<chip>-disp-ccorr"            - color correction
+	"mediatek,<chip>-disp-color" 		- color processor
+	"mediatek,<chip>-disp-dither"           - dither
+	"mediatek,<chip>-disp-aal"   		- adaptive ambient light controller
+	"mediatek,<chip>-disp-gamma" 		- gamma correction
+	"mediatek,<chip>-disp-merge" 		- merge streams from two RDMA sources
+	"mediatek,<chip>-disp-postmask" 	- control round corner for display frame
+	"mediatek,<chip>-disp-split" 		- split stream to two encoders
+	"mediatek,<chip>-disp-ufoe"  		- data compression engine
+	"mediatek,<chip>-dsi"        		- DSI controller, see mediatek,dsi.txt
+	"mediatek,<chip>-dpi"        		- DPI controller, see mediatek,dpi.txt
+	"mediatek,<chip>-disp-mutex" 		- display mutex
+	"mediatek,<chip>-disp-od"    		- overdrive
+  the supported chips are mt2701, mt7623, mt2712, mt8167, mt8173, mt8183 and mt8192.
+>>>>>>> upstream/android-13
 - reg: Physical base address and length of the function block register space
 - interrupts: The interrupt signal from the function block (required, except for
   merge and split function blocks).
@@ -49,17 +78,39 @@ Required properties (all function blocks):
   For most function blocks this is just a single clock input. Only the DSI and
   DPI controller nodes have multiple clock inputs. These are documented in
   mediatek,dsi.txt and mediatek,dpi.txt, respectively.
+<<<<<<< HEAD
+=======
+  An exception is that the mt8183 mutex is always free running with no clocks property.
+>>>>>>> upstream/android-13
 
 Required properties (DMA function blocks):
 - compatible: Should be one of
 	"mediatek,<chip>-disp-ovl"
 	"mediatek,<chip>-disp-rdma"
 	"mediatek,<chip>-disp-wdma"
+<<<<<<< HEAD
   the supported chips are mt2701 and mt8173.
 - iommus: Should point to the respective IOMMU block with master port as
   argument, see Documentation/devicetree/bindings/iommu/mediatek,iommu.txt
   for details.
 
+=======
+  the supported chips are mt2701, mt8167 and mt8173.
+- larb: Should contain a phandle pointing to the local arbiter device as defined
+  in Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml
+- iommus: Should point to the respective IOMMU block with master port as
+  argument, see Documentation/devicetree/bindings/iommu/mediatek,iommu.yaml
+  for details.
+
+Optional properties (RDMA function blocks):
+- mediatek,rdma-fifo-size: rdma fifo size may be different even in same SOC, add this
+  property to the corresponding rdma
+  the value is the Max value which defined in hardware data sheet.
+  mediatek,rdma-fifo-size of mt8173-rdma0 is 8K
+  mediatek,rdma-fifo-size of mt8183-rdma0 is 5K
+  mediatek,rdma-fifo-size of mt8183-rdma1 is 2K
+
+>>>>>>> upstream/android-13
 Examples:
 
 mmsys: clock-controller@14000000 {
@@ -76,6 +127,10 @@ ovl0: ovl@1400c000 {
 	power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
 	clocks = <&mmsys CLK_MM_DISP_OVL0>;
 	iommus = <&iommu M4U_PORT_DISP_OVL0>;
+<<<<<<< HEAD
+=======
+	mediatek,larb = <&larb0>;
+>>>>>>> upstream/android-13
 };
 
 ovl1: ovl@1400d000 {
@@ -85,6 +140,10 @@ ovl1: ovl@1400d000 {
 	power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
 	clocks = <&mmsys CLK_MM_DISP_OVL1>;
 	iommus = <&iommu M4U_PORT_DISP_OVL1>;
+<<<<<<< HEAD
+=======
+	mediatek,larb = <&larb4>;
+>>>>>>> upstream/android-13
 };
 
 rdma0: rdma@1400e000 {
@@ -94,6 +153,11 @@ rdma0: rdma@1400e000 {
 	power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
 	clocks = <&mmsys CLK_MM_DISP_RDMA0>;
 	iommus = <&iommu M4U_PORT_DISP_RDMA0>;
+<<<<<<< HEAD
+=======
+	mediatek,larb = <&larb0>;
+	mediatek,rdma-fifosize = <8192>;
+>>>>>>> upstream/android-13
 };
 
 rdma1: rdma@1400f000 {
@@ -103,6 +167,10 @@ rdma1: rdma@1400f000 {
 	power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
 	clocks = <&mmsys CLK_MM_DISP_RDMA1>;
 	iommus = <&iommu M4U_PORT_DISP_RDMA1>;
+<<<<<<< HEAD
+=======
+	mediatek,larb = <&larb4>;
+>>>>>>> upstream/android-13
 };
 
 rdma2: rdma@14010000 {
@@ -112,6 +180,10 @@ rdma2: rdma@14010000 {
 	power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
 	clocks = <&mmsys CLK_MM_DISP_RDMA2>;
 	iommus = <&iommu M4U_PORT_DISP_RDMA2>;
+<<<<<<< HEAD
+=======
+	mediatek,larb = <&larb4>;
+>>>>>>> upstream/android-13
 };
 
 wdma0: wdma@14011000 {
@@ -121,6 +193,10 @@ wdma0: wdma@14011000 {
 	power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
 	clocks = <&mmsys CLK_MM_DISP_WDMA0>;
 	iommus = <&iommu M4U_PORT_DISP_WDMA0>;
+<<<<<<< HEAD
+=======
+	mediatek,larb = <&larb0>;
+>>>>>>> upstream/android-13
 };
 
 wdma1: wdma@14012000 {
@@ -130,6 +206,10 @@ wdma1: wdma@14012000 {
 	power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
 	clocks = <&mmsys CLK_MM_DISP_WDMA1>;
 	iommus = <&iommu M4U_PORT_DISP_WDMA1>;
+<<<<<<< HEAD
+=======
+	mediatek,larb = <&larb4>;
+>>>>>>> upstream/android-13
 };
 
 color0: color@14013000 {

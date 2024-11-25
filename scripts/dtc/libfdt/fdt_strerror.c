@@ -40,7 +40,11 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
+<<<<<<< HEAD
 #define FDT_ERRTABSIZE	(sizeof(fdt_errtable) / sizeof(fdt_errtable[0]))
+=======
+#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+>>>>>>> upstream/android-13
 
 const char *fdt_strerror(int errval)
 {
@@ -48,7 +52,11 @@ const char *fdt_strerror(int errval)
 		return "<valid offset/length>";
 	else if (errval == 0)
 		return "<no error>";
+<<<<<<< HEAD
 	else if (errval > -FDT_ERRTABSIZE) {
+=======
+	else if (-errval < FDT_ERRTABSIZE) {
+>>>>>>> upstream/android-13
 		const char *s = fdt_errtable[-errval].str;
 
 		if (s)

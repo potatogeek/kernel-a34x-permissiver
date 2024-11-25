@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2004 James Cleverdon, IBM.
  * Subject to the GNU Public License, v.2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2004 James Cleverdon, IBM.
+>>>>>>> upstream/android-13
  *
  * Flat APIC subarch code.
  *
@@ -8,6 +14,7 @@
  * Martin Bligh, Andi Kleen, James Bottomley, John Stultz, and
  * James Cleverdon.
  */
+<<<<<<< HEAD
 #include <linux/errno.h>
 #include <linux/threads.h>
 #include <linux/cpumask.h>
@@ -23,6 +30,17 @@
 
 #include <linux/acpi.h>
 
+=======
+#include <linux/cpumask.h>
+#include <linux/export.h>
+#include <linux/acpi.h>
+
+#include <asm/jailhouse_para.h>
+#include <asm/apic.h>
+
+#include "local.h"
+
+>>>>>>> upstream/android-13
 static struct apic apic_physflat;
 static struct apic apic_flat;
 
@@ -59,7 +77,11 @@ static void _flat_send_IPI_mask(unsigned long mask, int vector)
 	unsigned long flags;
 
 	local_irq_save(flags);
+<<<<<<< HEAD
 	__default_send_IPI_dest_field(mask, vector, apic->dest_logical);
+=======
+	__default_send_IPI_dest_field(mask, vector, APIC_DEST_LOGICAL);
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 }
 
@@ -77,11 +99,16 @@ flat_send_IPI_mask_allbutself(const struct cpumask *cpumask, int vector)
 	int cpu = smp_processor_id();
 
 	if (cpu < BITS_PER_LONG)
+<<<<<<< HEAD
 		clear_bit(cpu, &mask);
+=======
+		__clear_bit(cpu, &mask);
+>>>>>>> upstream/android-13
 
 	_flat_send_IPI_mask(mask, vector);
 }
 
+<<<<<<< HEAD
 static void flat_send_IPI_allbutself(int vector)
 {
 	int cpu = smp_processor_id();
@@ -111,6 +138,8 @@ static void flat_send_IPI_all(int vector)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned int flat_get_apic_id(unsigned long x)
 {
 	return (x >> 24) & 0xFF;
@@ -148,6 +177,7 @@ static struct apic apic_flat __ro_after_init = {
 	.apic_id_valid			= default_apic_id_valid,
 	.apic_id_registered		= flat_apic_id_registered,
 
+<<<<<<< HEAD
 	.irq_delivery_mode		= dest_Fixed,
 	.irq_dest_mode			= 1, /* logical */
 
@@ -157,6 +187,15 @@ static struct apic apic_flat __ro_after_init = {
 
 	.init_apic_ldr			= flat_init_apic_ldr,
 
+=======
+	.delivery_mode			= APIC_DELIVERY_MODE_FIXED,
+	.dest_mode_logical		= true,
+
+	.disable_esr			= 0,
+
+	.check_apicid_used		= NULL,
+	.init_apic_ldr			= flat_init_apic_ldr,
+>>>>>>> upstream/android-13
 	.ioapic_phys_id_map		= NULL,
 	.setup_apic_routing		= NULL,
 	.cpu_present_to_apicid		= default_cpu_present_to_apicid,
@@ -172,9 +211,15 @@ static struct apic apic_flat __ro_after_init = {
 	.send_IPI			= default_send_IPI_single,
 	.send_IPI_mask			= flat_send_IPI_mask,
 	.send_IPI_mask_allbutself	= flat_send_IPI_mask_allbutself,
+<<<<<<< HEAD
 	.send_IPI_allbutself		= flat_send_IPI_allbutself,
 	.send_IPI_all			= flat_send_IPI_all,
 	.send_IPI_self			= apic_send_IPI_self,
+=======
+	.send_IPI_allbutself		= default_send_IPI_allbutself,
+	.send_IPI_all			= default_send_IPI_all,
+	.send_IPI_self			= default_send_IPI_self,
+>>>>>>> upstream/android-13
 
 	.inquire_remote_apic		= default_inquire_remote_apic,
 
@@ -224,6 +269,7 @@ static void physflat_init_apic_ldr(void)
 	 */
 }
 
+<<<<<<< HEAD
 static void physflat_send_IPI_allbutself(int vector)
 {
 	default_send_IPI_mask_allbutself_phys(cpu_online_mask, vector);
@@ -234,6 +280,8 @@ static void physflat_send_IPI_all(int vector)
 	default_send_IPI_mask_sequence_phys(cpu_online_mask, vector);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int physflat_probe(void)
 {
 	if (apic == &apic_physflat || num_possible_cpus() > 8 ||
@@ -251,6 +299,7 @@ static struct apic apic_physflat __ro_after_init = {
 	.apic_id_valid			= default_apic_id_valid,
 	.apic_id_registered		= flat_apic_id_registered,
 
+<<<<<<< HEAD
 	.irq_delivery_mode		= dest_Fixed,
 	.irq_dest_mode			= 0, /* physical */
 
@@ -260,6 +309,15 @@ static struct apic apic_physflat __ro_after_init = {
 
 	.init_apic_ldr			= physflat_init_apic_ldr,
 
+=======
+	.delivery_mode			= APIC_DELIVERY_MODE_FIXED,
+	.dest_mode_logical		= false,
+
+	.disable_esr			= 0,
+
+	.check_apicid_used		= NULL,
+	.init_apic_ldr			= physflat_init_apic_ldr,
+>>>>>>> upstream/android-13
 	.ioapic_phys_id_map		= NULL,
 	.setup_apic_routing		= NULL,
 	.cpu_present_to_apicid		= default_cpu_present_to_apicid,
@@ -275,9 +333,15 @@ static struct apic apic_physflat __ro_after_init = {
 	.send_IPI			= default_send_IPI_single_phys,
 	.send_IPI_mask			= default_send_IPI_mask_sequence_phys,
 	.send_IPI_mask_allbutself	= default_send_IPI_mask_allbutself_phys,
+<<<<<<< HEAD
 	.send_IPI_allbutself		= physflat_send_IPI_allbutself,
 	.send_IPI_all			= physflat_send_IPI_all,
 	.send_IPI_self			= apic_send_IPI_self,
+=======
+	.send_IPI_allbutself		= default_send_IPI_allbutself,
+	.send_IPI_all			= default_send_IPI_all,
+	.send_IPI_self			= default_send_IPI_self,
+>>>>>>> upstream/android-13
 
 	.inquire_remote_apic		= default_inquire_remote_apic,
 

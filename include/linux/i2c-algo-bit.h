@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ------------------------------------------------------------------------- */
 /* i2c-algo-bit.h i2c driver algorithms for bit-shift adapters               */
 /* ------------------------------------------------------------------------- */
@@ -21,10 +22,25 @@
 
 /* With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and even
    Frodo Looijaard <frodol@dds.nl> */
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * i2c-algo-bit.h: i2c driver algorithms for bit-shift adapters
+ *
+ *   Copyright (C) 1995-99 Simon G. Vogl
+ * With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and even
+ * Frodo Looijaard <frodol@dds.nl>
+ */
+>>>>>>> upstream/android-13
 
 #ifndef _LINUX_I2C_ALGO_BIT_H
 #define _LINUX_I2C_ALGO_BIT_H
 
+<<<<<<< HEAD
+=======
+#include <linux/i2c.h>
+
+>>>>>>> upstream/android-13
 /* --- Defines for bit-adapters ---------------------------------------	*/
 /*
  * This struct contains the hw-dependent functions of bit-style adapters to
@@ -46,6 +62,10 @@ struct i2c_algo_bit_data {
 				   minimum 5 us for standard-mode I2C and SMBus,
 				   maximum 50 us for SMBus */
 	int timeout;		/* in jiffies */
+<<<<<<< HEAD
+=======
+	bool can_do_atomic;	/* callbacks don't sleep, we can be atomic */
+>>>>>>> upstream/android-13
 };
 
 int i2c_bit_add_bus(struct i2c_adapter *);

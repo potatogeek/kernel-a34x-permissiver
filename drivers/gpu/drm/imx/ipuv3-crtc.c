@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * i.MX IPUv3 Graphics driver
  *
  * Copyright (C) 2011 Sascha Hauer, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +32,29 @@
 #include <drm/drm_fb_cma_helper.h>
 
 #include <video/imx-ipu-v3.h>
+=======
+ */
+
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/device.h>
+#include <linux/dma-mapping.h>
+#include <linux/errno.h>
+#include <linux/export.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+
+#include <video/imx-ipu-v3.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_managed.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+
+>>>>>>> upstream/android-13
 #include "imx-drm.h"
 #include "ipuv3-plane.h"
 
@@ -42,6 +70,10 @@ struct ipu_crtc {
 	struct ipu_dc		*dc;
 	struct ipu_di		*di;
 	int			irq;
+<<<<<<< HEAD
+=======
+	struct drm_pending_vblank_event *event;
+>>>>>>> upstream/android-13
 };
 
 static inline struct ipu_crtc *to_ipu_crtc(struct drm_crtc *crtc)
@@ -50,7 +82,11 @@ static inline struct ipu_crtc *to_ipu_crtc(struct drm_crtc *crtc)
 }
 
 static void ipu_crtc_atomic_enable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				   struct drm_crtc_state *old_state)
+=======
+				   struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct ipu_crtc *ipu_crtc = to_ipu_crtc(crtc);
 	struct ipu_soc *ipu = dev_get_drvdata(ipu_crtc->dev->parent);
@@ -82,8 +118,15 @@ static void ipu_crtc_disable_planes(struct ipu_crtc *ipu_crtc,
 }
 
 static void ipu_crtc_atomic_disable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *old_crtc_state)
 {
+=======
+				    struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *old_crtc_state = drm_atomic_get_old_crtc_state(state,
+									      crtc);
+>>>>>>> upstream/android-13
 	struct ipu_crtc *ipu_crtc = to_ipu_crtc(crtc);
 	struct ipu_soc *ipu = dev_get_drvdata(ipu_crtc->dev->parent);
 
@@ -112,6 +155,7 @@ static void imx_drm_crtc_reset(struct drm_crtc *crtc)
 {
 	struct imx_crtc_state *state;
 
+<<<<<<< HEAD
 	if (crtc->state) {
 		if (crtc->state->mode_blob)
 			drm_property_blob_put(crtc->state->mode_blob);
@@ -126,6 +170,17 @@ static void imx_drm_crtc_reset(struct drm_crtc *crtc)
 	}
 
 	state->base.crtc = crtc;
+=======
+	if (crtc->state)
+		__drm_atomic_helper_crtc_destroy_state(crtc->state);
+
+	kfree(to_imx_crtc_state(crtc->state));
+	crtc->state = NULL;
+
+	state = kzalloc(sizeof(*state), GFP_KERNEL);
+	if (state)
+		__drm_atomic_helper_crtc_reset(crtc, &state->base);
+>>>>>>> upstream/android-13
 }
 
 static struct drm_crtc_state *imx_drm_crtc_duplicate_state(struct drm_crtc *crtc)
@@ -169,7 +224,10 @@ static void ipu_disable_vblank(struct drm_crtc *crtc)
 
 static const struct drm_crtc_funcs ipu_crtc_funcs = {
 	.set_config = drm_atomic_helper_set_config,
+<<<<<<< HEAD
 	.destroy = drm_crtc_cleanup,
+=======
+>>>>>>> upstream/android-13
 	.page_flip = drm_atomic_helper_page_flip,
 	.reset = imx_drm_crtc_reset,
 	.atomic_duplicate_state = imx_drm_crtc_duplicate_state,
@@ -181,8 +239,36 @@ static const struct drm_crtc_funcs ipu_crtc_funcs = {
 static irqreturn_t ipu_irq_handler(int irq, void *dev_id)
 {
 	struct ipu_crtc *ipu_crtc = dev_id;
+<<<<<<< HEAD
 
 	drm_crtc_handle_vblank(&ipu_crtc->base);
+=======
+	struct drm_crtc *crtc = &ipu_crtc->base;
+	unsigned long flags;
+	int i;
+
+	drm_crtc_handle_vblank(crtc);
+
+	if (ipu_crtc->event) {
+		for (i = 0; i < ARRAY_SIZE(ipu_crtc->plane); i++) {
+			struct ipu_plane *plane = ipu_crtc->plane[i];
+
+			if (!plane)
+				continue;
+
+			if (ipu_plane_atomic_update_pending(&plane->base))
+				break;
+		}
+
+		if (i == ARRAY_SIZE(ipu_crtc->plane)) {
+			spin_lock_irqsave(&crtc->dev->event_lock, flags);
+			drm_crtc_send_vblank_event(crtc, ipu_crtc->event);
+			ipu_crtc->event = NULL;
+			drm_crtc_vblank_put(crtc);
+			spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -210,29 +296,54 @@ static bool ipu_crtc_mode_fixup(struct drm_crtc *crtc,
 }
 
 static int ipu_crtc_atomic_check(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				 struct drm_crtc_state *state)
 {
 	u32 primary_plane_mask = drm_plane_mask(crtc->primary);
 
 	if (state->active && (primary_plane_mask & state->plane_mask) == 0)
+=======
+				 struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
+									  crtc);
+	u32 primary_plane_mask = drm_plane_mask(crtc->primary);
+
+	if (crtc_state->active && (primary_plane_mask & crtc_state->plane_mask) == 0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return 0;
 }
 
 static void ipu_crtc_atomic_begin(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				  struct drm_crtc_state *old_crtc_state)
+=======
+				  struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	drm_crtc_vblank_on(crtc);
 }
 
 static void ipu_crtc_atomic_flush(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				  struct drm_crtc_state *old_crtc_state)
 {
 	spin_lock_irq(&crtc->dev->event_lock);
 	if (crtc->state->event) {
 		WARN_ON(drm_crtc_vblank_get(crtc));
 		drm_crtc_arm_vblank_event(crtc, crtc->state->event);
+=======
+				  struct drm_atomic_state *state)
+{
+	spin_lock_irq(&crtc->dev->event_lock);
+	if (crtc->state->event) {
+		struct ipu_crtc *ipu_crtc = to_ipu_crtc(crtc);
+
+		WARN_ON(drm_crtc_vblank_get(crtc));
+		ipu_crtc->event = crtc->state->event;
+>>>>>>> upstream/android-13
 		crtc->state->event = NULL;
 	}
 	spin_unlock_irq(&crtc->dev->event_lock);
@@ -277,17 +388,37 @@ static void ipu_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	sig_cfg.enable_pol = !(imx_crtc_state->bus_flags & DRM_BUS_FLAG_DE_LOW);
 	/* Default to driving pixel data on negative clock edges */
 	sig_cfg.clk_pol = !!(imx_crtc_state->bus_flags &
+<<<<<<< HEAD
 			     DRM_BUS_FLAG_PIXDATA_POSEDGE);
+=======
+			     DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE);
+>>>>>>> upstream/android-13
 	sig_cfg.bus_format = imx_crtc_state->bus_format;
 	sig_cfg.v_to_h_sync = 0;
 	sig_cfg.hsync_pin = imx_crtc_state->di_hsync_pin;
 	sig_cfg.vsync_pin = imx_crtc_state->di_vsync_pin;
 
 	drm_display_mode_to_videomode(mode, &sig_cfg.mode);
+<<<<<<< HEAD
 
 	ipu_dc_init_sync(ipu_crtc->dc, ipu_crtc->di,
 			 mode->flags & DRM_MODE_FLAG_INTERLACE,
 			 imx_crtc_state->bus_format, mode->hdisplay);
+=======
+	if (!IS_ALIGNED(sig_cfg.mode.hactive, 8)) {
+		unsigned int new_hactive = ALIGN(sig_cfg.mode.hactive, 8);
+
+		dev_warn(ipu_crtc->dev, "8-pixel align hactive %d -> %d\n",
+			 sig_cfg.mode.hactive, new_hactive);
+
+		sig_cfg.mode.hfront_porch = new_hactive - sig_cfg.mode.hactive;
+		sig_cfg.mode.hactive = new_hactive;
+	}
+
+	ipu_dc_init_sync(ipu_crtc->dc, ipu_crtc->di,
+			 mode->flags & DRM_MODE_FLAG_INTERLACE,
+			 imx_crtc_state->bus_format, sig_cfg.mode.hactive);
+>>>>>>> upstream/android-13
 	ipu_di_init_sync_panel(ipu_crtc->di, &sig_cfg);
 }
 
@@ -301,21 +432,34 @@ static const struct drm_crtc_helper_funcs ipu_helper_funcs = {
 	.atomic_enable = ipu_crtc_atomic_enable,
 };
 
+<<<<<<< HEAD
 static void ipu_put_resources(struct ipu_crtc *ipu_crtc)
 {
+=======
+static void ipu_put_resources(struct drm_device *dev, void *ptr)
+{
+	struct ipu_crtc *ipu_crtc = ptr;
+
+>>>>>>> upstream/android-13
 	if (!IS_ERR_OR_NULL(ipu_crtc->dc))
 		ipu_dc_put(ipu_crtc->dc);
 	if (!IS_ERR_OR_NULL(ipu_crtc->di))
 		ipu_di_put(ipu_crtc->di);
 }
 
+<<<<<<< HEAD
 static int ipu_get_resources(struct ipu_crtc *ipu_crtc,
 		struct ipu_client_platformdata *pdata)
+=======
+static int ipu_get_resources(struct drm_device *dev, struct ipu_crtc *ipu_crtc,
+			     struct ipu_client_platformdata *pdata)
+>>>>>>> upstream/android-13
 {
 	struct ipu_soc *ipu = dev_get_drvdata(ipu_crtc->dev->parent);
 	int ret;
 
 	ipu_crtc->dc = ipu_dc_get(ipu, pdata->dc);
+<<<<<<< HEAD
 	if (IS_ERR(ipu_crtc->dc)) {
 		ret = PTR_ERR(ipu_crtc->dc);
 		goto err_out;
@@ -368,6 +512,58 @@ static int ipu_crtc_init(struct ipu_crtc *ipu_crtc,
 		dev_err(ipu_crtc->dev, "getting plane 0 resources failed with %d.\n",
 			ret);
 		goto err_put_resources;
+=======
+	if (IS_ERR(ipu_crtc->dc))
+		return PTR_ERR(ipu_crtc->dc);
+
+	ret = drmm_add_action_or_reset(dev, ipu_put_resources, ipu_crtc);
+	if (ret)
+		return ret;
+
+	ipu_crtc->di = ipu_di_get(ipu, pdata->di);
+	if (IS_ERR(ipu_crtc->di))
+		return PTR_ERR(ipu_crtc->di);
+
+	return 0;
+}
+
+static int ipu_drm_bind(struct device *dev, struct device *master, void *data)
+{
+	struct ipu_client_platformdata *pdata = dev->platform_data;
+	struct ipu_soc *ipu = dev_get_drvdata(dev->parent);
+	struct drm_device *drm = data;
+	struct ipu_plane *primary_plane;
+	struct ipu_crtc *ipu_crtc;
+	struct drm_crtc *crtc;
+	int dp = -EINVAL;
+	int ret;
+
+	if (pdata->dp >= 0)
+		dp = IPU_DP_FLOW_SYNC_BG;
+	primary_plane = ipu_plane_init(drm, ipu, pdata->dma[0], dp, 0,
+				       DRM_PLANE_TYPE_PRIMARY);
+	if (IS_ERR(primary_plane))
+		return PTR_ERR(primary_plane);
+
+	ipu_crtc = drmm_crtc_alloc_with_planes(drm, struct ipu_crtc, base,
+					       &primary_plane->base, NULL,
+					       &ipu_crtc_funcs, NULL);
+	if (IS_ERR(ipu_crtc))
+		return PTR_ERR(ipu_crtc);
+
+	ipu_crtc->dev = dev;
+	ipu_crtc->plane[0] = primary_plane;
+
+	crtc = &ipu_crtc->base;
+	crtc->port = pdata->of_node;
+	drm_crtc_helper_add(crtc, &ipu_helper_funcs);
+
+	ret = ipu_get_resources(drm, ipu_crtc, pdata);
+	if (ret) {
+		dev_err(ipu_crtc->dev, "getting resources failed with %d.\n",
+			ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	/* If this crtc is using the DP, add an overlay plane */
@@ -376,6 +572,7 @@ static int ipu_crtc_init(struct ipu_crtc *ipu_crtc,
 						IPU_DP_FLOW_SYNC_FG,
 						drm_crtc_mask(&ipu_crtc->base),
 						DRM_PLANE_TYPE_OVERLAY);
+<<<<<<< HEAD
 		if (IS_ERR(ipu_crtc->plane[1])) {
 			ipu_crtc->plane[1] = NULL;
 		} else {
@@ -386,6 +583,10 @@ static int ipu_crtc_init(struct ipu_crtc *ipu_crtc,
 				goto err_put_plane0_res;
 			}
 		}
+=======
+		if (IS_ERR(ipu_crtc->plane[1]))
+			ipu_crtc->plane[1] = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	ipu_crtc->irq = ipu_plane_irq(ipu_crtc->plane[0]);
@@ -393,12 +594,17 @@ static int ipu_crtc_init(struct ipu_crtc *ipu_crtc,
 			"imx_drm", ipu_crtc);
 	if (ret < 0) {
 		dev_err(ipu_crtc->dev, "irq request failed with %d.\n", ret);
+<<<<<<< HEAD
 		goto err_put_plane1_res;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 	/* Only enable IRQ when we actually need it to trigger work. */
 	disable_irq(ipu_crtc->irq);
 
 	return 0;
+<<<<<<< HEAD
 
 err_put_plane1_res:
 	if (ipu_crtc->plane[1])
@@ -442,11 +648,16 @@ static void ipu_drm_unbind(struct device *dev, struct device *master,
 	if (ipu_crtc->plane[1])
 		ipu_plane_put_resources(ipu_crtc->plane[1]);
 	ipu_plane_put_resources(ipu_crtc->plane[0]);
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct component_ops ipu_crtc_ops = {
 	.bind = ipu_drm_bind,
+<<<<<<< HEAD
 	.unbind = ipu_drm_unbind,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int ipu_drm_probe(struct platform_device *pdev)

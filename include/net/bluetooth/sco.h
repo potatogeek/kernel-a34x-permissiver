@@ -46,4 +46,9 @@ struct sco_conninfo {
 	__u8  dev_class[3];
 };
 
+<<<<<<< HEAD
+=======
+#define SCO_CMSG_PKT_STATUS	0x01
+
+>>>>>>> upstream/android-13
 #endif /* __SCO_H */

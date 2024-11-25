@@ -98,7 +98,11 @@ Example
 	};
 
 	msi_c: msi-controller@c {
+<<<<<<< HEAD
 		reg = <0xb 0xf00>;
+=======
+		reg = <0xc 0xf00>;
+>>>>>>> upstream/android-13
 		compatible = "vendor-b,another-controller";
 		msi-controller;
 		/* Each device has some unique ID */

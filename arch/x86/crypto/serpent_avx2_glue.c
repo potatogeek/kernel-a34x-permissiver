@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for x86_64/AVX2 assembler optimized version of Serpent
  *
  * Copyright © 2012-2013 Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -17,13 +24,20 @@
 #include <crypto/algapi.h>
 #include <crypto/internal/simd.h>
 #include <crypto/serpent.h>
+<<<<<<< HEAD
 #include <crypto/xts.h>
 #include <asm/crypto/glue_helper.h>
 #include <asm/crypto/serpent-avx.h>
+=======
+
+#include "serpent-avx.h"
+#include "ecb_cbc_helpers.h"
+>>>>>>> upstream/android-13
 
 #define SERPENT_AVX2_PARALLEL_BLOCKS 16
 
 /* 16-way AVX2 parallel cipher functions */
+<<<<<<< HEAD
 asmlinkage void serpent_ecb_enc_16way(struct serpent_ctx *ctx, u8 *dst,
 				      const u8 *src);
 asmlinkage void serpent_ecb_dec_16way(struct serpent_ctx *ctx, u8 *dst,
@@ -36,6 +50,11 @@ asmlinkage void serpent_xts_enc_16way(struct serpent_ctx *ctx, u8 *dst,
 				      const u8 *src, le128 *iv);
 asmlinkage void serpent_xts_dec_16way(struct serpent_ctx *ctx, u8 *dst,
 				      const u8 *src, le128 *iv);
+=======
+asmlinkage void serpent_ecb_enc_16way(const void *ctx, u8 *dst, const u8 *src);
+asmlinkage void serpent_ecb_dec_16way(const void *ctx, u8 *dst, const u8 *src);
+asmlinkage void serpent_cbc_dec_16way(const void *ctx, u8 *dst, const u8 *src);
+>>>>>>> upstream/android-13
 
 static int serpent_setkey_skcipher(struct crypto_skcipher *tfm,
 				   const u8 *key, unsigned int keylen)
@@ -43,6 +62,7 @@ static int serpent_setkey_skcipher(struct crypto_skcipher *tfm,
 	return __serpent_setkey(crypto_skcipher_ctx(tfm), key, keylen);
 }
 
+<<<<<<< HEAD
 static const struct common_glue_ctx serpent_enc = {
 	.num_funcs = 3,
 	.fpu_blocks_limit = 8,
@@ -142,21 +162,45 @@ static const struct common_glue_ctx serpent_dec_xts = {
 static int ecb_encrypt(struct skcipher_request *req)
 {
 	return glue_ecb_req_128bit(&serpent_enc, req);
+=======
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	ECB_WALK_START(req, SERPENT_BLOCK_SIZE, SERPENT_PARALLEL_BLOCKS);
+	ECB_BLOCK(SERPENT_AVX2_PARALLEL_BLOCKS, serpent_ecb_enc_16way);
+	ECB_BLOCK(SERPENT_PARALLEL_BLOCKS, serpent_ecb_enc_8way_avx);
+	ECB_BLOCK(1, __serpent_encrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&serpent_dec, req);
+=======
+	ECB_WALK_START(req, SERPENT_BLOCK_SIZE, SERPENT_PARALLEL_BLOCKS);
+	ECB_BLOCK(SERPENT_AVX2_PARALLEL_BLOCKS, serpent_ecb_dec_16way);
+	ECB_BLOCK(SERPENT_PARALLEL_BLOCKS, serpent_ecb_dec_8way_avx);
+	ECB_BLOCK(1, __serpent_decrypt);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_encrypt_req_128bit(GLUE_FUNC_CAST(__serpent_encrypt),
 					   req);
+=======
+	CBC_WALK_START(req, SERPENT_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(__serpent_encrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_decrypt_req_128bit(&serpent_dec_cbc, req);
 }
 
@@ -183,6 +227,13 @@ static int xts_decrypt(struct skcipher_request *req)
 	return glue_xts_req_128bit(&serpent_dec_xts, req,
 				   XTS_TWEAK_CAST(__serpent_encrypt),
 				   &ctx->tweak_ctx, &ctx->crypt_ctx);
+=======
+	CBC_WALK_START(req, SERPENT_BLOCK_SIZE, SERPENT_PARALLEL_BLOCKS);
+	CBC_DEC_BLOCK(SERPENT_AVX2_PARALLEL_BLOCKS, serpent_cbc_dec_16way);
+	CBC_DEC_BLOCK(SERPENT_PARALLEL_BLOCKS, serpent_cbc_dec_8way_avx);
+	CBC_DEC_BLOCK(1, __serpent_decrypt);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct skcipher_alg serpent_algs[] = {
@@ -213,6 +264,7 @@ static struct skcipher_alg serpent_algs[] = {
 		.setkey			= serpent_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "__ctr(serpent)",
 		.base.cra_driver_name	= "__ctr-serpent-avx2",
@@ -242,6 +294,8 @@ static struct skcipher_alg serpent_algs[] = {
 		.setkey			= xts_serpent_setkey,
 		.encrypt		= xts_encrypt,
 		.decrypt		= xts_decrypt,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 

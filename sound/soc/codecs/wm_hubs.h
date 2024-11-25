@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * wm_hubs.h  --  WM899x common code
  *
  * Copyright 2009 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _WM_HUBS_H
@@ -60,7 +67,11 @@ extern int wm_hubs_handle_analogue_pdata(struct snd_soc_component *,
 					 int lineout1_diff, int lineout2_diff,
 					 int lineout1fb, int lineout2fb,
 					 int jd_scthr, int jd_thr,
+<<<<<<< HEAD
 					 int micbias1_dly, int micbias2_dly,
+=======
+					 int micbias1_delay, int micbias2_delay,
+>>>>>>> upstream/android-13
 					 int micbias1_lvl, int micbias2_lvl);
 
 extern irqreturn_t wm_hubs_dcs_done(int irq, void *data);

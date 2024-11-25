@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
  *
@@ -12,6 +13,15 @@
  */
 
 #include <linux/io.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014, The Linux Foundation. All rights reserved.
+ */
+
+#include <linux/io.h>
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of.h>
@@ -80,6 +90,7 @@ struct qcom_apq8064_sata_phy {
 };
 
 /* Helper function to do poll and timeout */
+<<<<<<< HEAD
 static int read_poll_timeout(void __iomem *addr, u32 mask)
 {
 	unsigned long timeout = jiffies + msecs_to_jiffies(TIMEOUT_MS);
@@ -92,6 +103,14 @@ static int read_poll_timeout(void __iomem *addr, u32 mask)
 	} while (!time_after(jiffies, timeout));
 
 	return (readl_relaxed(addr) & mask) ? 0 : -ETIMEDOUT;
+=======
+static int poll_timeout(void __iomem *addr, u32 mask)
+{
+	u32 val;
+
+	return readl_relaxed_poll_timeout(addr, val, (val & mask),
+					DELAY_INTERVAL_US, TIMEOUT_MS * 1000);
+>>>>>>> upstream/android-13
 }
 
 static int qcom_apq8064_sata_phy_init(struct phy *generic_phy)
@@ -145,21 +164,33 @@ static int qcom_apq8064_sata_phy_init(struct phy *generic_phy)
 	writel_relaxed(0x05, base + UNIPHY_PLL_LKDET_CFG2);
 
 	/* PLL Lock wait */
+<<<<<<< HEAD
 	ret = read_poll_timeout(base + UNIPHY_PLL_STATUS, UNIPHY_PLL_LOCK);
+=======
+	ret = poll_timeout(base + UNIPHY_PLL_STATUS, UNIPHY_PLL_LOCK);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(phy->dev, "poll timeout UNIPHY_PLL_STATUS\n");
 		return ret;
 	}
 
 	/* TX Calibration */
+<<<<<<< HEAD
 	ret = read_poll_timeout(base + SATA_PHY_TX_IMCAL_STAT, SATA_PHY_TX_CAL);
+=======
+	ret = poll_timeout(base + SATA_PHY_TX_IMCAL_STAT, SATA_PHY_TX_CAL);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(phy->dev, "poll timeout SATA_PHY_TX_IMCAL_STAT\n");
 		return ret;
 	}
 
 	/* RX Calibration */
+<<<<<<< HEAD
 	ret = read_poll_timeout(base + SATA_PHY_RX_IMCAL_STAT, SATA_PHY_RX_CAL);
+=======
+	ret = poll_timeout(base + SATA_PHY_RX_IMCAL_STAT, SATA_PHY_RX_CAL);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(phy->dev, "poll timeout SATA_PHY_RX_IMCAL_STAT\n");
 		return ret;
@@ -214,7 +245,10 @@ static int qcom_apq8064_sata_phy_probe(struct platform_device *pdev)
 {
 	struct qcom_apq8064_sata_phy *phy;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct phy_provider *phy_provider;
 	struct phy *generic_phy;
 	int ret;
@@ -223,8 +257,12 @@ static int qcom_apq8064_sata_phy_probe(struct platform_device *pdev)
 	if (!phy)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	phy->mmio = devm_ioremap_resource(dev, res);
+=======
+	phy->mmio = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(phy->mmio))
 		return PTR_ERR(phy->mmio);
 

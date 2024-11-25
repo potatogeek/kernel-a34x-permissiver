@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -13,6 +14,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * refcounttree.c
+ *
+ * Copyright (C) 2009 Oracle.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sort.h>
@@ -162,6 +170,10 @@ ocfs2_refcount_cache_get_super(struct ocfs2_caching_info *ci)
 }
 
 static void ocfs2_refcount_cache_lock(struct ocfs2_caching_info *ci)
+<<<<<<< HEAD
+=======
+__acquires(&rf->rf_lock)
+>>>>>>> upstream/android-13
 {
 	struct ocfs2_refcount_tree *rf = cache_info_to_refcount(ci);
 
@@ -169,6 +181,10 @@ static void ocfs2_refcount_cache_lock(struct ocfs2_caching_info *ci)
 }
 
 static void ocfs2_refcount_cache_unlock(struct ocfs2_caching_info *ci)
+<<<<<<< HEAD
+=======
+__releases(&rf->rf_lock)
+>>>>>>> upstream/android-13
 {
 	struct ocfs2_refcount_tree *rf = cache_info_to_refcount(ci);
 
@@ -984,7 +1000,11 @@ static int ocfs2_get_refcount_cpos_end(struct ocfs2_caching_info *ci,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (!eb || (eb && !eb->h_next_leaf_blk)) {
+=======
+	if (!eb || !eb->h_next_leaf_blk) {
+>>>>>>> upstream/android-13
 		/*
 		 * We are the last extent rec, so any high cpos should
 		 * be stored in this leaf refcount block.
@@ -1069,7 +1089,11 @@ static int ocfs2_get_refcount_rec(struct ocfs2_caching_info *ci,
 				  struct buffer_head **ret_bh)
 {
 	int ret = 0, i, found;
+<<<<<<< HEAD
 	u32 low_cpos, uninitialized_var(cpos_end);
+=======
+	u32 low_cpos, cpos_end;
+>>>>>>> upstream/android-13
 	struct ocfs2_extent_list *el;
 	struct ocfs2_extent_rec *rec = NULL;
 	struct ocfs2_extent_block *eb = NULL;
@@ -4135,7 +4159,10 @@ static int ocfs2_create_reflink_node(struct inode *s_inode,
 	struct buffer_head *ref_root_bh = NULL;
 	struct ocfs2_cached_dealloc_ctxt dealloc;
 	struct ocfs2_super *osb = OCFS2_SB(s_inode->i_sb);
+<<<<<<< HEAD
 	struct ocfs2_refcount_block *rb;
+=======
+>>>>>>> upstream/android-13
 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)s_bh->b_data;
 	struct ocfs2_refcount_tree *ref_tree;
 
@@ -4162,7 +4189,10 @@ static int ocfs2_create_reflink_node(struct inode *s_inode,
 		mlog_errno(ret);
 		goto out;
 	}
+<<<<<<< HEAD
 	rb = (struct ocfs2_refcount_block *)ref_root_bh->b_data;
+=======
+>>>>>>> upstream/android-13
 
 	ret = ocfs2_duplicate_extent_list(s_inode, t_inode, t_bh,
 					  &ref_tree->rf_ci, ref_root_bh,
@@ -4354,7 +4384,11 @@ static inline int ocfs2_may_create(struct inode *dir, struct dentry *child)
 		return -EEXIST;
 	if (IS_DEADDIR(dir))
 		return -ENOENT;
+<<<<<<< HEAD
 	return inode_permission(dir, MAY_WRITE | MAY_EXEC);
+=======
+	return inode_permission(&init_user_ns, dir, MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -4408,7 +4442,11 @@ static int ocfs2_vfs_reflink(struct dentry *old_dentry, struct inode *dir,
 	 * file.
 	 */
 	if (!preserve) {
+<<<<<<< HEAD
 		error = inode_permission(inode, MAY_READ);
+=======
+		error = inode_permission(&init_user_ns, inode, MAY_READ);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	}
@@ -4468,9 +4506,15 @@ out:
 }
 
 /* Update destination inode size, if necessary. */
+<<<<<<< HEAD
 static int ocfs2_reflink_update_dest(struct inode *dest,
 				     struct buffer_head *d_bh,
 				     loff_t newlen)
+=======
+int ocfs2_reflink_update_dest(struct inode *dest,
+			      struct buffer_head *d_bh,
+			      loff_t newlen)
+>>>>>>> upstream/android-13
 {
 	handle_t *handle;
 	int ret;
@@ -4507,6 +4551,7 @@ out_commit:
 }
 
 /* Remap the range pos_in:len in s_inode to pos_out:len in t_inode. */
+<<<<<<< HEAD
 static int ocfs2_reflink_remap_extent(struct inode *s_inode,
 				      struct buffer_head *s_bh,
 				      loff_t pos_in,
@@ -4515,6 +4560,16 @@ static int ocfs2_reflink_remap_extent(struct inode *s_inode,
 				      loff_t pos_out,
 				      loff_t len,
 				      struct ocfs2_cached_dealloc_ctxt *dealloc)
+=======
+static loff_t ocfs2_reflink_remap_extent(struct inode *s_inode,
+					 struct buffer_head *s_bh,
+					 loff_t pos_in,
+					 struct inode *t_inode,
+					 struct buffer_head *t_bh,
+					 loff_t pos_out,
+					 loff_t len,
+					 struct ocfs2_cached_dealloc_ctxt *dealloc)
+>>>>>>> upstream/android-13
 {
 	struct ocfs2_extent_tree s_et;
 	struct ocfs2_extent_tree t_et;
@@ -4522,8 +4577,14 @@ static int ocfs2_reflink_remap_extent(struct inode *s_inode,
 	struct buffer_head *ref_root_bh = NULL;
 	struct ocfs2_refcount_tree *ref_tree;
 	struct ocfs2_super *osb;
+<<<<<<< HEAD
 	loff_t pstart, plen;
 	u32 p_cluster, num_clusters, slast, spos, tpos;
+=======
+	loff_t remapped_bytes = 0;
+	loff_t pstart, plen;
+	u32 p_cluster, num_clusters, slast, spos, tpos, remapped_clus = 0;
+>>>>>>> upstream/android-13
 	unsigned int ext_flags;
 	int ret = 0;
 
@@ -4605,6 +4666,7 @@ static int ocfs2_reflink_remap_extent(struct inode *s_inode,
 next_loop:
 		spos += num_clusters;
 		tpos += num_clusters;
+<<<<<<< HEAD
 	}
 
 out:
@@ -4623,12 +4685,40 @@ static int ocfs2_reflink_remap_blocks(struct inode *s_inode,
 				      struct buffer_head *t_bh,
 				      loff_t pos_out,
 				      loff_t len)
+=======
+		remapped_clus += num_clusters;
+	}
+
+	goto out;
+out_unlock_refcount:
+	ocfs2_unlock_refcount_tree(osb, ref_tree, 1);
+	brelse(ref_root_bh);
+out:
+	remapped_bytes = ocfs2_clusters_to_bytes(t_inode->i_sb, remapped_clus);
+	remapped_bytes = min_t(loff_t, len, remapped_bytes);
+
+	return remapped_bytes > 0 ? remapped_bytes : ret;
+}
+
+/* Set up refcount tree and remap s_inode to t_inode. */
+loff_t ocfs2_reflink_remap_blocks(struct inode *s_inode,
+				  struct buffer_head *s_bh,
+				  loff_t pos_in,
+				  struct inode *t_inode,
+				  struct buffer_head *t_bh,
+				  loff_t pos_out,
+				  loff_t len)
+>>>>>>> upstream/android-13
 {
 	struct ocfs2_cached_dealloc_ctxt dealloc;
 	struct ocfs2_super *osb;
 	struct ocfs2_dinode *dis;
 	struct ocfs2_dinode *dit;
+<<<<<<< HEAD
 	int ret;
+=======
+	loff_t ret;
+>>>>>>> upstream/android-13
 
 	osb = OCFS2_SB(s_inode->i_sb);
 	dis = (struct ocfs2_dinode *)s_bh->b_data;
@@ -4700,7 +4790,11 @@ static int ocfs2_reflink_remap_blocks(struct inode *s_inode,
 	/* Actually remap extents now. */
 	ret = ocfs2_reflink_remap_extent(s_inode, s_bh, pos_in, t_inode, t_bh,
 					 pos_out, len, &dealloc);
+<<<<<<< HEAD
 	if (ret) {
+=======
+	if (ret < 0) {
+>>>>>>> upstream/android-13
 		mlog_errno(ret);
 		goto out;
 	}
@@ -4715,10 +4809,17 @@ out:
 }
 
 /* Lock an inode and grab a bh pointing to the inode. */
+<<<<<<< HEAD
 static int ocfs2_reflink_inodes_lock(struct inode *s_inode,
 				     struct buffer_head **bh_s,
 				     struct inode *t_inode,
 				     struct buffer_head **bh_t)
+=======
+int ocfs2_reflink_inodes_lock(struct inode *s_inode,
+			      struct buffer_head **bh_s,
+			      struct inode *t_inode,
+			      struct buffer_head **bh_t)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode1 = s_inode;
 	struct inode *inode2 = t_inode;
@@ -4809,10 +4910,17 @@ out_i1:
 }
 
 /* Unlock both inodes and release buffers. */
+<<<<<<< HEAD
 static void ocfs2_reflink_inodes_unlock(struct inode *s_inode,
 					struct buffer_head *s_bh,
 					struct inode *t_inode,
 					struct buffer_head *t_bh)
+=======
+void ocfs2_reflink_inodes_unlock(struct inode *s_inode,
+				 struct buffer_head *s_bh,
+				 struct inode *t_inode,
+				 struct buffer_head *t_bh)
+>>>>>>> upstream/android-13
 {
 	ocfs2_inode_unlock(s_inode, 1);
 	ocfs2_rw_unlock(s_inode, 1);
@@ -4824,6 +4932,7 @@ static void ocfs2_reflink_inodes_unlock(struct inode *s_inode,
 	}
 	unlock_two_nondirectories(s_inode, t_inode);
 }
+<<<<<<< HEAD
 
 /* Link a range of blocks from one file to another. */
 int ocfs2_reflink_remap_range(struct file *file_in,
@@ -4903,3 +5012,5 @@ out_unlock:
 	ocfs2_reflink_inodes_unlock(inode_in, in_bh, inode_out, out_bh);
 	return ret;
 }
+=======
+>>>>>>> upstream/android-13

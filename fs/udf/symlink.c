@@ -52,7 +52,11 @@ static int udf_pc_to_char(struct super_block *sb, unsigned char *from,
 				elen += pc->lengthComponentIdent;
 				break;
 			}
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 2:
 			if (tolen == 0)
 				return -ENAMETOOLONG;
@@ -122,7 +126,11 @@ static int udf_symlink_filler(struct file *file, struct page *page)
 
 	down_read(&iinfo->i_data_sem);
 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB) {
+<<<<<<< HEAD
 		symlink = iinfo->i_ext.i_data + iinfo->i_lenEAttr;
+=======
+		symlink = iinfo->i_data + iinfo->i_lenEAttr;
+>>>>>>> upstream/android-13
 	} else {
 		bh = sb_bread(inode->i_sb, pos);
 
@@ -152,14 +160,24 @@ out_unmap:
 	return err;
 }
 
+<<<<<<< HEAD
 static int udf_symlink_getattr(const struct path *path, struct kstat *stat,
 				u32 request_mask, unsigned int flags)
+=======
+static int udf_symlink_getattr(struct user_namespace *mnt_userns,
+			       const struct path *path, struct kstat *stat,
+			       u32 request_mask, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry = path->dentry;
 	struct inode *inode = d_backing_inode(dentry);
 	struct page *page;
 
+<<<<<<< HEAD
 	generic_fillattr(inode, stat);
+=======
+	generic_fillattr(&init_user_ns, inode, stat);
+>>>>>>> upstream/android-13
 	page = read_mapping_page(inode->i_mapping, 0, NULL);
 	if (IS_ERR(page))
 		return PTR_ERR(page);

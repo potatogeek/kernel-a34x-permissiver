@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 ARM Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2017 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/uaccess.h>
@@ -26,7 +32,11 @@ void memcpy_flushcache(void *dst, const void *src, size_t cnt)
 	 * barrier to order the cache maintenance against the memcpy.
 	 */
 	memcpy(dst, src, cnt);
+<<<<<<< HEAD
 	__clean_dcache_area_pop(dst, cnt);
+=======
+	dcache_clean_pop((unsigned long)dst, (unsigned long)dst + cnt);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(memcpy_flushcache);
 
@@ -39,9 +49,18 @@ void memcpy_page_flushcache(char *to, struct page *page, size_t offset,
 unsigned long __copy_user_flushcache(void *to, const void __user *from,
 				     unsigned long n)
 {
+<<<<<<< HEAD
 	unsigned long rc = __arch_copy_from_user(to, from, n);
 
 	/* See above */
 	__clean_dcache_area_pop(to, n - rc);
+=======
+	unsigned long rc;
+
+	rc = raw_copy_from_user(to, from, n);
+
+	/* See above */
+	dcache_clean_pop((unsigned long)to, (unsigned long)to + n - rc);
+>>>>>>> upstream/android-13
 	return rc;
 }

@@ -7,17 +7,26 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
+=======
+#include <asm/barrier.h>
+>>>>>>> upstream/android-13
 #include <asm/unistd.h>
 #include <asm/errno.h>
 
 #include <asm/vdso/compat_barrier.h>
 
+<<<<<<< HEAD
 #define __VDSO_USE_SYSCALL		ULLONG_MAX
 
 #define VDSO_HAS_CLOCK_GETRES		1
 
 #define VDSO_HAS_TIME			1
 
+=======
+#define VDSO_HAS_CLOCK_GETRES		1
+
+>>>>>>> upstream/android-13
 #define BUILD_VDSO32			1
 
 static __always_inline
@@ -44,6 +53,26 @@ long clock_gettime_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
 	register struct __kernel_timespec *ts asm("r1") = _ts;
 	register clockid_t clkid asm("r0") = _clkid;
 	register long ret asm ("r0");
+<<<<<<< HEAD
+=======
+	register long nr asm("r7") = __NR_compat_clock_gettime64;
+
+	asm volatile(
+	"	swi #0\n"
+	: "=r" (ret)
+	: "r" (clkid), "r" (ts), "r" (nr)
+	: "memory");
+
+	return ret;
+}
+
+static __always_inline
+long clock_gettime32_fallback(clockid_t _clkid, struct old_timespec32 *_ts)
+{
+	register struct old_timespec32 *ts asm("r1") = _ts;
+	register clockid_t clkid asm("r0") = _clkid;
+	register long ret asm ("r0");
+>>>>>>> upstream/android-13
 	register long nr asm("r7") = __NR_compat_clock_gettime;
 
 	asm volatile(
@@ -61,6 +90,26 @@ int clock_getres_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
 	register struct __kernel_timespec *ts asm("r1") = _ts;
 	register clockid_t clkid asm("r0") = _clkid;
 	register long ret asm ("r0");
+<<<<<<< HEAD
+=======
+	register long nr asm("r7") = __NR_compat_clock_getres_time64;
+
+	asm volatile(
+	"       swi #0\n"
+	: "=r" (ret)
+	: "r" (clkid), "r" (ts), "r" (nr)
+	: "memory");
+
+	return ret;
+}
+
+static __always_inline
+int clock_getres32_fallback(clockid_t _clkid, struct old_timespec32 *_ts)
+{
+	register struct old_timespec32 *ts asm("r1") = _ts;
+	register clockid_t clkid asm("r0") = _clkid;
+	register long ret asm ("r0");
+>>>>>>> upstream/android-13
 	register long nr asm("r7") = __NR_compat_clock_getres;
 
 	asm volatile(
@@ -72,16 +121,30 @@ int clock_getres_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
 	return ret;
 }
 
+<<<<<<< HEAD
 static __always_inline u64 __arch_get_hw_counter(s32 clock_mode)
+=======
+static __always_inline u64 __arch_get_hw_counter(s32 clock_mode,
+						 const struct vdso_data *vd)
+>>>>>>> upstream/android-13
 {
 	u64 res;
 
 	/*
+<<<<<<< HEAD
 	 * clock_mode == 0 implies that vDSO are enabled otherwise
 	 * fallback on syscall.
 	 */
 	if (clock_mode)
 		return __VDSO_USE_SYSCALL;
+=======
+	 * Core checks for mode already, so this raced against a concurrent
+	 * update. Return something. Core will do another round and then
+	 * see the mode change and fallback to the syscall.
+	 */
+	if (clock_mode != VDSO_CLOCKMODE_ARCHTIMER)
+		return 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * This isb() is required to prevent that the counter value
@@ -121,6 +184,28 @@ static __always_inline const struct vdso_data *__arch_get_vdso_data(void)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TIME_NS
+static __always_inline
+const struct vdso_data *__arch_get_timens_vdso_data(const struct vdso_data *vd)
+{
+	const struct vdso_data *ret;
+
+	/* See __arch_get_vdso_data(). */
+	asm volatile("mov %0, %1" : "=r"(ret) : "r"(_timens_data));
+
+	return ret;
+}
+#endif
+
+static inline bool vdso_clocksource_ok(const struct vdso_data *vd)
+{
+	return vd->clock_mode == VDSO_CLOCKMODE_ARCHTIMER;
+}
+#define vdso_clocksource_ok	vdso_clocksource_ok
+
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 #endif /* __ASM_VDSO_GETTIMEOFDAY_H */

@@ -4,16 +4,22 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTW_WLAN_UTIL_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <drv_types.h>
 #include <rtw_debug.h>
 #include <hal_com_h2c.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 #include <linux/inetdevice.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static unsigned char ARTHEROS_OUI1[] = {0x00, 0x03, 0x7f};
 static unsigned char ARTHEROS_OUI2[] = {0x00, 0x13, 0x74};
 
@@ -29,11 +35,14 @@ static unsigned char AIRGOCAP_OUI[] = {0x00, 0x0a, 0xf5};
 static unsigned char RSN_TKIP_CIPHER[4] = {0x00, 0x0f, 0xac, 0x02};
 static unsigned char WPA_TKIP_CIPHER[4] = {0x00, 0x50, 0xf2, 0x02};
 
+<<<<<<< HEAD
 extern unsigned char RTW_WPA_OUI[];
 extern unsigned char WPA_TKIP_CIPHER[4];
 
 #define R2T_PHY_DELAY	(0)
 
+=======
+>>>>>>> upstream/android-13
 /* define WAIT_FOR_BCN_TO_MIN	(3000) */
 #define WAIT_FOR_BCN_TO_MIN	(6000)
 #define WAIT_FOR_BCN_TO_MAX	(20000)
@@ -54,6 +63,7 @@ static u8 rtw_basic_rate_ofdm[3] = {
 	IEEE80211_OFDM_RATE_24MB | IEEE80211_BASIC_RATE_MASK
 };
 
+<<<<<<< HEAD
 int cckrates_included(unsigned char *rate, int ratelen)
 {
 	int	i;
@@ -95,12 +105,20 @@ u8 networktype_to_raid_ex(struct adapter *adapter, struct sta_info *psta)
 		if (psta->ra_mask & 0xfff00000)
 			rf_type = RF_2T2R;
 	}
+=======
+u8 networktype_to_raid_ex(struct adapter *adapter, struct sta_info *psta)
+{
+	u8 raid;
+>>>>>>> upstream/android-13
 
 	switch (psta->wireless_mode) {
 	case WIRELESS_11B:
 		raid = RATEID_IDX_B;
 		break;
+<<<<<<< HEAD
 	case WIRELESS_11A:
+=======
+>>>>>>> upstream/android-13
 	case WIRELESS_11G:
 		raid = RATEID_IDX_G;
 		break;
@@ -108,6 +126,7 @@ u8 networktype_to_raid_ex(struct adapter *adapter, struct sta_info *psta)
 		raid = RATEID_IDX_BG;
 		break;
 	case WIRELESS_11_24N:
+<<<<<<< HEAD
 	case WIRELESS_11_5N:
 	case WIRELESS_11A_5N:
 	case WIRELESS_11G_24N:
@@ -115,10 +134,15 @@ u8 networktype_to_raid_ex(struct adapter *adapter, struct sta_info *psta)
 			raid = RATEID_IDX_GN_N2SS;
 		else
 			raid = RATEID_IDX_GN_N1SS;
+=======
+	case WIRELESS_11G_24N:
+		raid = RATEID_IDX_GN_N1SS;
+>>>>>>> upstream/android-13
 		break;
 	case WIRELESS_11B_24N:
 	case WIRELESS_11BG_24N:
 		if (psta->bw_mode == CHANNEL_WIDTH_20) {
+<<<<<<< HEAD
 			if (rf_type == RF_2T2R)
 				raid = RATEID_IDX_BGN_20M_2SS_BN;
 			else
@@ -128,6 +152,11 @@ u8 networktype_to_raid_ex(struct adapter *adapter, struct sta_info *psta)
 				raid = RATEID_IDX_BGN_40M_2SS;
 			else
 				raid = RATEID_IDX_BGN_40M_1SS;
+=======
+			raid = RATEID_IDX_BGN_20M_1SS_BN;
+		} else {
+			raid = RATEID_IDX_BGN_40M_1SS;
+>>>>>>> upstream/android-13
 		}
 		break;
 	default:
@@ -285,12 +314,20 @@ void UpdateBrateTblForSoftAP(u8 *bssrateset, u32 bssratelen)
 void Save_DM_Func_Flag(struct adapter *padapter)
 {
 	u8 bSaveFlag = true;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	rtw_hal_set_hwreg(padapter, HW_VAR_DM_FUNC_OP, (u8 *)(&bSaveFlag));
 }
 
 void Restore_DM_Func_Flag(struct adapter *padapter)
 {
 	u8 bSaveFlag = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	rtw_hal_set_hwreg(padapter, HW_VAR_DM_FUNC_OP, (u8 *)(&bSaveFlag));
 }
 
@@ -302,6 +339,7 @@ void Switch_DM_Func(struct adapter *padapter, u32 mode, u8 enable)
 		rtw_hal_set_hwreg(padapter, HW_VAR_DM_FUNC_CLR, (u8 *)(&mode));
 }
 
+<<<<<<< HEAD
 static void Set_NETYPE0_MSR(struct adapter *padapter, u8 type)
 {
 	rtw_hal_set_hwreg(padapter, HW_VAR_MEDIA_STATUS, (u8 *)(&type));
@@ -310,6 +348,11 @@ static void Set_NETYPE0_MSR(struct adapter *padapter, u8 type)
 void Set_MSR(struct adapter *padapter, u8 type)
 {
 	Set_NETYPE0_MSR(padapter, type);
+=======
+void Set_MSR(struct adapter *padapter, u8 type)
+{
+	rtw_hal_set_hwreg(padapter, HW_VAR_MEDIA_STATUS, (u8 *)(&type));
+>>>>>>> upstream/android-13
 }
 
 inline u8 rtw_get_oper_ch(struct adapter *adapter)
@@ -331,6 +374,7 @@ inline void rtw_set_oper_ch(struct adapter *adapter, u8 ch)
 		dvobj->on_oper_ch_time = jiffies;
 
 #ifdef DBG_CH_SWITCH
+<<<<<<< HEAD
 		cnt += snprintf(msg+cnt, len-cnt, "switch to ch %3u", ch);
 
 		for (i = 0; i < dvobj->iface_nums; i++) {
@@ -348,6 +392,25 @@ inline void rtw_set_oper_ch(struct adapter *adapter, u8 ch)
 		}
 
 		DBG_871X(FUNC_ADPT_FMT" %s\n", FUNC_ADPT_ARG(adapter), msg);
+=======
+		cnt += scnprintf(msg+cnt, len-cnt, "switch to ch %3u", ch);
+
+		for (i = 0; i < dvobj->iface_nums; i++) {
+			struct adapter *iface = dvobj->padapters[i];
+
+			cnt += scnprintf(msg+cnt, len-cnt, " [%s:", ADPT_ARG(iface));
+			if (iface->mlmeextpriv.cur_channel == ch)
+				cnt += scnprintf(msg+cnt, len-cnt, "C");
+			else
+				cnt += scnprintf(msg+cnt, len-cnt, "_");
+			if (iface->wdinfo.listen_channel == ch && !rtw_p2p_chk_state(&iface->wdinfo, P2P_STATE_NONE))
+				cnt += scnprintf(msg+cnt, len-cnt, "L");
+			else
+				cnt += scnprintf(msg+cnt, len-cnt, "_");
+			cnt += scnprintf(msg+cnt, len-cnt, "]");
+		}
+
+>>>>>>> upstream/android-13
 #endif /* DBG_CH_SWITCH */
 	}
 
@@ -378,6 +441,7 @@ u8 rtw_get_center_ch(u8 channel, u8 chnl_bw, u8 chnl_offset)
 {
 	u8 center_ch = channel;
 
+<<<<<<< HEAD
 	if (chnl_bw == CHANNEL_WIDTH_80) {
 		if ((channel == 36) || (channel == 40) || (channel == 44) || (channel == 48))
 			center_ch = 42;
@@ -394,6 +458,9 @@ u8 rtw_get_center_ch(u8 channel, u8 chnl_bw, u8 chnl_offset)
 		else if (channel <= 14)
 			center_ch = 7;
 	} else if (chnl_bw == CHANNEL_WIDTH_40) {
+=======
+	if (chnl_bw == CHANNEL_WIDTH_40) {
+>>>>>>> upstream/android-13
 		if (chnl_offset == HAL_PRIME_CHNL_OFFSET_LOWER)
 			center_ch = channel + 2;
 		else
@@ -428,6 +495,7 @@ void set_channel_bwmode(struct adapter *padapter, unsigned char channel, unsigne
 {
 	u8 center_ch, chnl_offset80 = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 
+<<<<<<< HEAD
 	if (padapter->bNotifyChannelChange)
 		DBG_871X("[%s] ch = %d, offset = %d, bwmode = %d\n", __func__, channel, channel_offset, bwmode);
 
@@ -441,6 +509,10 @@ void set_channel_bwmode(struct adapter *padapter, unsigned char channel, unsigne
 		else
 			chnl_offset80 = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 	}
+=======
+	center_ch = rtw_get_center_ch(channel, bwmode, channel_offset);
+
+>>>>>>> upstream/android-13
 
 	/* set Channel */
 	if (mutex_lock_interruptible(&(adapter_to_dvobj(padapter)->setch_mutex)))
@@ -456,15 +528,26 @@ void set_channel_bwmode(struct adapter *padapter, unsigned char channel, unsigne
 	mutex_unlock(&(adapter_to_dvobj(padapter)->setch_mutex));
 }
 
+<<<<<<< HEAD
 __inline u8 *get_my_bssid(struct wlan_bssid_ex *pnetwork)
 {
 	return pnetwork->MacAddress;
+=======
+inline u8 *get_my_bssid(struct wlan_bssid_ex *pnetwork)
+{
+	return pnetwork->mac_address;
+>>>>>>> upstream/android-13
 }
 
 u16 get_beacon_interval(struct wlan_bssid_ex *bss)
 {
 	__le16 val;
+<<<<<<< HEAD
 	memcpy((unsigned char *)&val, rtw_get_beacon_interval_from_ie(bss->IEs), 2);
+=======
+
+	memcpy((unsigned char *)&val, rtw_get_beacon_interval_from_ie(bss->ies), 2);
+>>>>>>> upstream/android-13
 
 	return le16_to_cpu(val);
 }
@@ -518,7 +601,11 @@ unsigned int decide_wait_for_beacon_timeout(unsigned int bcn_interval)
 	else if ((bcn_interval << 2) > WAIT_FOR_BCN_TO_MAX)
 		return WAIT_FOR_BCN_TO_MAX;
 	else
+<<<<<<< HEAD
 		return ((bcn_interval << 2));
+=======
+		return bcn_interval << 2;
+>>>>>>> upstream/android-13
 }
 
 void invalidate_cam_all(struct adapter *padapter)
@@ -537,6 +624,10 @@ void invalidate_cam_all(struct adapter *padapter)
 static u32 _ReadCAM(struct adapter *padapter, u32 addr)
 {
 	u32 count = 0, cmd;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	cmd = CAM_POLLINIG | addr;
 	rtw_write32(padapter, RWCAM, cmd);
 
@@ -547,6 +638,7 @@ static u32 _ReadCAM(struct adapter *padapter, u32 addr)
 
 	return rtw_read32(padapter, REG_CAMREAD);
 }
+<<<<<<< HEAD
 void read_cam(struct adapter *padapter, u8 entry, u8 *get_key)
 {
 	u32 j, addr, cmd;
@@ -560,6 +652,20 @@ void read_cam(struct adapter *padapter, u8 entry, u8 *get_key)
 			memcpy(get_key+(j-2)*4, &cmd, 4);
 	}
 	/* DBG_8192C("*********************************\n"); */
+=======
+
+void read_cam(struct adapter *padapter, u8 entry, u8 *get_key)
+{
+	u32 j, addr, cmd;
+
+	addr = entry << 3;
+
+	for (j = 0; j < 6; j++) {
+		cmd = _ReadCAM(padapter, addr+j);
+		if (j > 1) /* get key from cam */
+			memcpy(get_key+(j-2)*4, &cmd, 4);
+	}
+>>>>>>> upstream/android-13
 }
 
 void _write_cam(struct adapter *padapter, u8 entry, u16 ctrl, u8 *mac, u8 *key)
@@ -611,6 +717,7 @@ inline void clear_cam_entry(struct adapter *adapter, u8 id)
 	clear_cam_cache(adapter, id);
 }
 
+<<<<<<< HEAD
 inline void write_cam_from_cache(struct adapter *adapter, u8 id)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
@@ -624,6 +731,8 @@ inline void write_cam_from_cache(struct adapter *adapter, u8 id)
 	_write_cam(adapter, id, cache.ctrl, cache.mac, cache.key);
 }
 
+=======
+>>>>>>> upstream/android-13
 void write_cam_cache(struct adapter *adapter, u8 id, u16 ctrl, u8 *mac, u8 *key)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
@@ -684,6 +793,7 @@ static s16 _rtw_camid_search(struct adapter *adapter, u8 *addr, s16 kid)
 		break;
 	}
 
+<<<<<<< HEAD
 	if (addr)
 		DBG_871X(FUNC_ADPT_FMT" addr:"MAC_FMT" kid:%d, return cam_id:%d\n"
 			 , FUNC_ADPT_ARG(adapter), MAC_ARG(addr), kid, cam_id);
@@ -691,6 +801,8 @@ static s16 _rtw_camid_search(struct adapter *adapter, u8 *addr, s16 kid)
 		DBG_871X(FUNC_ADPT_FMT" addr:%p kid:%d, return cam_id:%d\n"
 			 , FUNC_ADPT_ARG(adapter), addr, kid, cam_id);
 
+=======
+>>>>>>> upstream/android-13
 	return cam_id;
 }
 
@@ -722,8 +834,14 @@ s16 rtw_camid_alloc(struct adapter *adapter, struct sta_info *sta, u8 kid)
 		&& !sta) {
 		/* AP/Ad-hoc mode group key: static alloction to default key by key ID */
 		if (kid > 3) {
+<<<<<<< HEAD
 			DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" group key with invalid key id:%u\n"
 				, FUNC_ADPT_ARG(adapter), kid);
+=======
+			netdev_dbg(adapter->pnetdev,
+				   FUNC_ADPT_FMT " group key with invalid key id:%u\n",
+				   FUNC_ADPT_ARG(adapter), kid);
+>>>>>>> upstream/android-13
 			rtw_warn_on(1);
 			goto bitmap_handle;
 		}
@@ -745,11 +863,20 @@ s16 rtw_camid_alloc(struct adapter *adapter, struct sta_info *sta, u8 kid)
 		i = _rtw_camid_search(adapter, addr, kid);
 		if (i >= 0) {
 			/* Fix issue that pairwise and group key have same key id. Pairwise key first, group key can overwirte group only(ex: rekey) */
+<<<<<<< HEAD
 			if (sta || _rtw_camid_is_gk(adapter, i) == true)
 				cam_id = i;
 			else
 				DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" group key id:%u the same key id as pairwise key\n"
 					, FUNC_ADPT_ARG(adapter), kid);
+=======
+			if (sta || _rtw_camid_is_gk(adapter, i))
+				cam_id = i;
+			else
+				netdev_dbg(adapter->pnetdev,
+					   FUNC_ADPT_FMT " group key id:%u the same key id as pairwise key\n",
+					   FUNC_ADPT_ARG(adapter), kid);
+>>>>>>> upstream/android-13
 			goto bitmap_handle;
 		}
 
@@ -759,11 +886,22 @@ s16 rtw_camid_alloc(struct adapter *adapter, struct sta_info *sta, u8 kid)
 
 		if (i == TOTAL_CAM_ENTRY) {
 			if (sta)
+<<<<<<< HEAD
 				DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" pairwise key with "MAC_FMT" id:%u no room\n"
 				, FUNC_ADPT_ARG(adapter), MAC_ARG(sta->hwaddr), kid);
 			else
 				DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" group key id:%u no room\n"
 				, FUNC_ADPT_ARG(adapter), kid);
+=======
+				netdev_dbg(adapter->pnetdev,
+					   FUNC_ADPT_FMT " pairwise key with %pM id:%u no room\n",
+					   FUNC_ADPT_ARG(adapter),
+					   MAC_ARG(sta->hwaddr), kid);
+			else
+				netdev_dbg(adapter->pnetdev,
+					   FUNC_ADPT_FMT " group key id:%u no room\n",
+					   FUNC_ADPT_ARG(adapter), kid);
+>>>>>>> upstream/android-13
 			rtw_warn_on(1);
 			goto bitmap_handle;
 		}
@@ -843,6 +981,35 @@ int WMM_param_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static void sort_wmm_ac_params(u32 *inx, u32 *edca)
+{
+	u32 i, j, change_inx = false;
+
+	/* entry indx: 0->vo, 1->vi, 2->be, 3->bk. */
+	for (i = 0; i < 4; i++) {
+		for (j = i + 1; j < 4; j++) {
+			/* compare CW and AIFS */
+			if ((edca[j] & 0xFFFF) < (edca[i] & 0xFFFF)) {
+				change_inx = true;
+			} else if ((edca[j] & 0xFFFF) == (edca[i] & 0xFFFF)) {
+				/* compare TXOP */
+				if ((edca[j] >> 16) > (edca[i] >> 16))
+					change_inx = true;
+			}
+
+			if (change_inx) {
+				swap(edca[i], edca[j]);
+				swap(inx[i], inx[j]);
+
+				change_inx = false;
+			}
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 void WMMOnAssocRsp(struct adapter *padapter)
 {
 	u8 ACI, ACM, AIFS, ECWMin, ECWMax, aSifsTime;
@@ -852,7 +1019,11 @@ void WMMOnAssocRsp(struct adapter *padapter)
 	u32 edca[4], inx[4];
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
+<<<<<<< HEAD
 	struct xmit_priv 	*pxmitpriv = &padapter->xmitpriv;
+=======
+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+>>>>>>> upstream/android-13
 	struct registry_priv *pregpriv = &padapter->registrypriv;
 
 	acm_mask = 0;
@@ -867,7 +1038,11 @@ void WMMOnAssocRsp(struct adapter *padapter)
 
 		AIFS = aSifsTime + (2 * pmlmeinfo->slotTime);
 
+<<<<<<< HEAD
 		if (pmlmeext->cur_wireless_mode & (WIRELESS_11G | WIRELESS_11A)) {
+=======
+		if (pmlmeext->cur_wireless_mode & WIRELESS_11G) {
+>>>>>>> upstream/android-13
 			ECWMin = 4;
 			ECWMax = 10;
 		} else if (pmlmeext->cur_wireless_mode & WIRELESS_11B) {
@@ -889,7 +1064,11 @@ void WMMOnAssocRsp(struct adapter *padapter)
 		TXOP = 0x2f;
 		acParm = AIFS | (ECWMin << 8) | (ECWMax << 12) | (TXOP << 16);
 		rtw_hal_set_hwreg(padapter, HW_VAR_AC_PARAM_VO, (u8 *)(&acParm));
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		edca[0] = edca[1] = edca[2] = edca[3] = 0;
 
 		for (i = 0; i < 4; i++) {
@@ -930,8 +1109,11 @@ void WMMOnAssocRsp(struct adapter *padapter)
 				edca[XMIT_VO_QUEUE] = acParm;
 				break;
 			}
+<<<<<<< HEAD
 
 			DBG_871X("WMM(%x): %x, %x\n", ACI, ACM, acParm);
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (padapter->registrypriv.acm_method == 1)
@@ -941,6 +1123,7 @@ void WMMOnAssocRsp(struct adapter *padapter)
 
 		inx[0] = 0; inx[1] = 1; inx[2] = 2; inx[3] = 3;
 
+<<<<<<< HEAD
 		if (pregpriv->wifi_spec == 1) {
 			u32 j, tmp, change_inx = false;
 
@@ -975,6 +1158,13 @@ void WMMOnAssocRsp(struct adapter *padapter)
 			pxmitpriv->wmm_para_seq[i] = inx[i];
 			DBG_871X("wmm_para_seq(%d): %d\n", i, pxmitpriv->wmm_para_seq[i]);
 		}
+=======
+		if (pregpriv->wifi_spec == 1)
+			sort_wmm_ac_params(inx, edca);
+
+		for (i = 0; i < 4; i++)
+			pxmitpriv->wmm_para_seq[i] = inx[i];
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -987,7 +1177,11 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 	struct registry_priv *pregistrypriv = &padapter->registrypriv;
+<<<<<<< HEAD
 	struct ht_priv 		*phtpriv = &pmlmepriv->htpriv;
+=======
+	struct ht_priv *phtpriv = &pmlmepriv->htpriv;
+>>>>>>> upstream/android-13
 	u8 cbw40_enable = 0;
 
 	if (!pIE)
@@ -996,10 +1190,14 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 	if (phtpriv->ht_option == false)
 		return;
 
+<<<<<<< HEAD
 	if (pmlmeext->cur_bwmode >= CHANNEL_WIDTH_80)
 		return;
 
 	if (pIE->Length > sizeof(struct HT_info_element))
+=======
+	if (pIE->length > sizeof(struct HT_info_element))
+>>>>>>> upstream/android-13
 		return;
 
 	pHT_info = (struct HT_info_element *)pIE->data;
@@ -1007,9 +1205,16 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 	if (pmlmeext->cur_channel > 14) {
 		if ((pregistrypriv->bw_mode & 0xf0) > 0)
 			cbw40_enable = 1;
+<<<<<<< HEAD
 	} else
 		if ((pregistrypriv->bw_mode & 0x0f) > 0)
 			cbw40_enable = 1;
+=======
+	} else {
+		if ((pregistrypriv->bw_mode & 0x0f) > 0)
+			cbw40_enable = 1;
+	}
+>>>>>>> upstream/android-13
 
 	if ((pHT_info->infos[0] & BIT(2)) && cbw40_enable) {
 		new_bwmode = CHANNEL_WIDTH_40;
@@ -1028,7 +1233,11 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 			new_ch_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 			break;
 		}
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		new_bwmode = CHANNEL_WIDTH_20;
 		new_ch_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 	}
@@ -1041,8 +1250,14 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 
 		/* update HT info also */
 		HT_info_handler(padapter, pIE);
+<<<<<<< HEAD
 	} else
 		pmlmeinfo->bwmode_updated = false;
+=======
+	} else {
+		pmlmeinfo->bwmode_updated = false;
+	}
+>>>>>>> upstream/android-13
 
 	if (true == pmlmeinfo->bwmode_updated) {
 		struct sta_info *psta;
@@ -1052,7 +1267,11 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 		/* set_channel_bwmode(padapter, pmlmeext->cur_channel, pmlmeext->cur_ch_offset, pmlmeext->cur_bwmode); */
 
 		/* update ap's stainfo */
+<<<<<<< HEAD
 		psta = rtw_get_stainfo(pstapriv, cur_network->MacAddress);
+=======
+		psta = rtw_get_stainfo(pstapriv, cur_network->mac_address);
+>>>>>>> upstream/android-13
 		if (psta) {
 			struct ht_priv *phtpriv_sta = &psta->htpriv;
 
@@ -1060,7 +1279,11 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 				/*  bwmode */
 				psta->bw_mode = pmlmeext->cur_bwmode;
 				phtpriv_sta->ch_offset = pmlmeext->cur_ch_offset;
+<<<<<<< HEAD
 			} else{
+=======
+			} else {
+>>>>>>> upstream/android-13
 				psta->bw_mode = CHANNEL_WIDTH_20;
 				phtpriv_sta->ch_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 			}
@@ -1073,13 +1296,21 @@ static void bwmode_update_check(struct adapter *padapter, struct ndis_80211_var_
 void HT_caps_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 {
 	unsigned int	i;
+<<<<<<< HEAD
 	u8 rf_type;
+=======
+>>>>>>> upstream/android-13
 	u8 max_AMPDU_len, min_MPDU_spacing;
 	u8 cur_ldpc_cap = 0, cur_stbc_cap = 0;
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
+<<<<<<< HEAD
 	struct mlme_priv 	*pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv 		*phtpriv = &pmlmepriv->htpriv;
+=======
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	struct ht_priv *phtpriv = &pmlmepriv->htpriv;
+>>>>>>> upstream/android-13
 
 	if (!pIE)
 		return;
@@ -1089,12 +1320,21 @@ void HT_caps_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 
 	pmlmeinfo->HT_caps_enable = 1;
 
+<<<<<<< HEAD
 	for (i = 0; i < (pIE->Length); i++) {
 		if (i != 2) {
 			/* 	Commented by Albert 2010/07/12 */
 			/* 	Got the endian issue here. */
 			pmlmeinfo->HT_caps.u.HT_cap[i] &= (pIE->data[i]);
 		} else{
+=======
+	for (i = 0; i < (pIE->length); i++) {
+		if (i != 2) {
+			/* Commented by Albert 2010/07/12 */
+			/* Got the endian issue here. */
+			pmlmeinfo->HT_caps.u.HT_cap[i] &= (pIE->data[i]);
+		} else {
+>>>>>>> upstream/android-13
 			/* modify from  fw by Thomas 2010/11/17 */
 			if ((pmlmeinfo->HT_caps.u.HT_cap_element.AMPDU_para & 0x3) > (pIE->data[i] & 0x3))
 				max_AMPDU_len = (pIE->data[i] & 0x3);
@@ -1109,13 +1349,17 @@ void HT_caps_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 			pmlmeinfo->HT_caps.u.HT_cap_element.AMPDU_para = max_AMPDU_len | min_MPDU_spacing;
 		}
 	}
+<<<<<<< HEAD
 	rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
+=======
+>>>>>>> upstream/android-13
 
 	/* update the MCS set */
 	for (i = 0; i < 16; i++)
 		pmlmeinfo->HT_caps.u.HT_cap_element.MCS_rate[i] &= pmlmeext->default_supported_mcs_set[i];
 
 	/* update the MCS rates */
+<<<<<<< HEAD
 	switch (rf_type) {
 	case RF_1T1R:
 	case RF_1T2R:
@@ -1153,6 +1397,30 @@ void HT_caps_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 			SET_FLAG(cur_stbc_cap, (STBC_HT_ENABLE_TX | STBC_HT_CAP_TX));
 			DBG_871X("Enable HT Tx STBC!\n");
 		}
+=======
+	set_mcs_rate_by_mask(pmlmeinfo->HT_caps.u.HT_cap_element.MCS_rate, MCS_RATE_1R);
+
+	if (check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
+		/*  Config STBC setting */
+		if (TEST_FLAG(phtpriv->stbc_cap, STBC_HT_ENABLE_TX) &&
+		    GET_HT_CAPABILITY_ELE_TX_STBC(pIE->data))
+			SET_FLAG(cur_stbc_cap, STBC_HT_ENABLE_TX);
+
+		phtpriv->stbc_cap = cur_stbc_cap;
+	} else {
+		/*  Config LDPC Coding Capability */
+		if (TEST_FLAG(phtpriv->ldpc_cap, LDPC_HT_ENABLE_TX) &&
+		    GET_HT_CAPABILITY_ELE_LDPC_CAP(pIE->data))
+			SET_FLAG(cur_ldpc_cap, (LDPC_HT_ENABLE_TX | LDPC_HT_CAP_TX));
+
+		phtpriv->ldpc_cap = cur_ldpc_cap;
+
+		/*  Config STBC setting */
+		if (TEST_FLAG(phtpriv->stbc_cap, STBC_HT_ENABLE_TX) &&
+		    GET_HT_CAPABILITY_ELE_RX_STBC(pIE->data))
+			SET_FLAG(cur_stbc_cap, (STBC_HT_ENABLE_TX | STBC_HT_CAP_TX));
+
+>>>>>>> upstream/android-13
 		phtpriv->stbc_cap = cur_stbc_cap;
 	}
 }
@@ -1161,8 +1429,13 @@ void HT_info_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 {
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
+<<<<<<< HEAD
 	struct mlme_priv 	*pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv 		*phtpriv = &pmlmepriv->htpriv;
+=======
+	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	struct ht_priv *phtpriv = &pmlmepriv->htpriv;
+>>>>>>> upstream/android-13
 
 	if (!pIE)
 		return;
@@ -1170,6 +1443,7 @@ void HT_info_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 	if (phtpriv->ht_option == false)
 		return;
 
+<<<<<<< HEAD
 	if (pIE->Length > sizeof(struct HT_info_element))
 		return;
 
@@ -1177,21 +1451,39 @@ void HT_info_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 	memcpy(&(pmlmeinfo->HT_info), pIE->data, pIE->Length);
 
 	return;
+=======
+	if (pIE->length > sizeof(struct HT_info_element))
+		return;
+
+	pmlmeinfo->HT_info_enable = 1;
+	memcpy(&(pmlmeinfo->HT_info), pIE->data, pIE->length);
+>>>>>>> upstream/android-13
 }
 
 void HTOnAssocRsp(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	unsigned char 	max_AMPDU_len;
 	unsigned char 	min_MPDU_spacing;
+=======
+	unsigned char max_AMPDU_len;
+	unsigned char min_MPDU_spacing;
+>>>>>>> upstream/android-13
 	/* struct registry_priv  *pregpriv = &padapter->registrypriv; */
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 
+<<<<<<< HEAD
 	DBG_871X("%s\n", __func__);
 
 	if ((pmlmeinfo->HT_info_enable) && (pmlmeinfo->HT_caps_enable)) {
 		pmlmeinfo->HT_enable = 1;
 	} else{
+=======
+	if ((pmlmeinfo->HT_info_enable) && (pmlmeinfo->HT_caps_enable)) {
+		pmlmeinfo->HT_enable = 1;
+	} else {
+>>>>>>> upstream/android-13
 		pmlmeinfo->HT_enable = 0;
 		/* set_channel_bwmode(padapter, pmlmeext->cur_channel, pmlmeext->cur_ch_offset, pmlmeext->cur_bwmode); */
 		return;
@@ -1216,11 +1508,19 @@ void ERP_IE_handler(struct adapter *padapter, struct ndis_80211_var_ie *pIE)
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 
+<<<<<<< HEAD
 	if (pIE->Length > 1)
 		return;
 
 	pmlmeinfo->ERP_enable = 1;
 	memcpy(&(pmlmeinfo->ERP_IE), pIE->data, pIE->Length);
+=======
+	if (pIE->length > 1)
+		return;
+
+	pmlmeinfo->ERP_enable = 1;
+	memcpy(&(pmlmeinfo->ERP_IE), pIE->data, pIE->length);
+>>>>>>> upstream/android-13
 }
 
 void VCS_update(struct adapter *padapter, struct sta_info *psta)
@@ -1239,7 +1539,11 @@ void VCS_update(struct adapter *padapter, struct sta_info *psta)
 		if (pregpriv->vcs_type == 1) { /* 1:RTS/CTS 2:CTS to self */
 			psta->rtsen = 1;
 			psta->cts2self = 0;
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			psta->rtsen = 0;
 			psta->cts2self = 1;
 		}
@@ -1251,11 +1555,19 @@ void VCS_update(struct adapter *padapter, struct sta_info *psta)
 			if (pregpriv->vcs_type == 1) {
 				psta->rtsen = 1;
 				psta->cts2self = 0;
+<<<<<<< HEAD
 			} else{
 				psta->rtsen = 0;
 				psta->cts2self = 1;
 			}
 		} else{
+=======
+			} else {
+				psta->rtsen = 0;
+				psta->cts2self = 1;
+			}
+		} else {
+>>>>>>> upstream/android-13
 			psta->rtsen = 0;
 			psta->cts2self = 0;
 		}
@@ -1279,8 +1591,13 @@ void update_ldpc_stbc_cap(struct sta_info *psta)
 
 int rtw_check_bcn_info(struct adapter *Adapter, u8 *pframe, u32 packet_len)
 {
+<<<<<<< HEAD
 	unsigned int		len;
 	unsigned char 	*p;
+=======
+	unsigned int len;
+	unsigned char *p;
+>>>>>>> upstream/android-13
 	unsigned short	val16, subtype;
 	struct wlan_network *cur_network = &(Adapter->mlmepriv.cur_network);
 	/* u8 wpa_ie[255], rsn_ie[255]; */
@@ -1291,19 +1608,29 @@ int rtw_check_bcn_info(struct adapter *Adapter, u8 *pframe, u32 packet_len)
 	unsigned char *pbuf;
 	u32 wpa_ielen = 0;
 	u8 *pbssid = GetAddr3Ptr(pframe);
+<<<<<<< HEAD
 	u32 hidden_ssid = 0;
 	struct HT_info_element *pht_info = NULL;
 	struct rtw_ieee80211_ht_cap *pht_cap = NULL;
+=======
+	struct HT_info_element *pht_info = NULL;
+	struct ieee80211_ht_cap *pht_cap = NULL;
+>>>>>>> upstream/android-13
 	u32 bcn_channel;
 	unsigned short	ht_cap_info;
 	unsigned char ht_info_infos_0;
 	struct mlme_priv *pmlmepriv = &Adapter->mlmepriv;
+<<<<<<< HEAD
+=======
+	int ssid_len;
+>>>>>>> upstream/android-13
 
 	if (is_client_associated_to_ap(Adapter) == false)
 		return true;
 
 	len = packet_len - sizeof(struct ieee80211_hdr_3addr);
 
+<<<<<<< HEAD
 	if (len > MAX_IE_SZ) {
 		DBG_871X("%s IE too long for survey event\n", __func__);
 		return _FAIL;
@@ -1320,6 +1647,17 @@ int rtw_check_bcn_info(struct adapter *Adapter, u8 *pframe, u32 packet_len)
 		DBG_871X("%s rtw_zmalloc fail !!!\n", __func__);
 		return true;
 	}
+=======
+	if (len > MAX_IE_SZ)
+		return _FAIL;
+
+	if (memcmp(cur_network->network.mac_address, pbssid, 6))
+		return true;
+
+	bssid = rtw_zmalloc(sizeof(struct wlan_bssid_ex));
+	if (!bssid)
+		return true;
+>>>>>>> upstream/android-13
 
 	if ((pmlmepriv->timeBcnInfoChkStart != 0) && (jiffies_to_msecs(jiffies - pmlmepriv->timeBcnInfoChkStart) > DISCONNECT_BY_CHK_BCN_FAIL_OBSERV_PERIOD_IN_MS)) {
 		pmlmepriv->timeBcnInfoChkStart = 0;
@@ -1329,6 +1667,7 @@ int rtw_check_bcn_info(struct adapter *Adapter, u8 *pframe, u32 packet_len)
 	subtype = GetFrameSubType(pframe) >> 4;
 
 	if (subtype == WIFI_BEACON)
+<<<<<<< HEAD
 		bssid->Reserved[0] = 1;
 
 	bssid->Length = sizeof(struct wlan_bssid_ex) - MAX_IE_SZ + len;
@@ -1418,11 +1757,82 @@ int rtw_check_bcn_info(struct adapter *Adapter, u8 *pframe, u32 packet_len)
 			goto _mismatch;
 		}
 	}
+=======
+		bssid->reserved[0] = 1;
+
+	bssid->length = sizeof(struct wlan_bssid_ex) - MAX_IE_SZ + len;
+
+	/* below is to copy the information element */
+	bssid->ie_length = len;
+	memcpy(bssid->ies, (pframe + sizeof(struct ieee80211_hdr_3addr)), bssid->ie_length);
+
+	/* check bw and channel offset */
+	/* parsing HT_CAP_IE */
+	p = rtw_get_ie(bssid->ies + _FIXED_IE_LENGTH_, WLAN_EID_HT_CAPABILITY, &len, bssid->ie_length - _FIXED_IE_LENGTH_);
+	if (p && len > 0) {
+		pht_cap = (struct ieee80211_ht_cap *)(p + 2);
+		ht_cap_info = le16_to_cpu(pht_cap->cap_info);
+	} else {
+		ht_cap_info = 0;
+	}
+	/* parsing HT_INFO_IE */
+	p = rtw_get_ie(bssid->ies + _FIXED_IE_LENGTH_, WLAN_EID_HT_OPERATION, &len, bssid->ie_length - _FIXED_IE_LENGTH_);
+	if (p && len > 0) {
+		pht_info = (struct HT_info_element *)(p + 2);
+		ht_info_infos_0 = pht_info->infos[0];
+	} else {
+		ht_info_infos_0 = 0;
+	}
+	if (ht_cap_info != cur_network->bcn_info.ht_cap_info ||
+	    ((ht_info_infos_0&0x03) != (cur_network->bcn_info.ht_info_infos_0&0x03))) {
+		{
+			/* bcn_info_update */
+			cur_network->bcn_info.ht_cap_info = ht_cap_info;
+			cur_network->bcn_info.ht_info_infos_0 = ht_info_infos_0;
+			/* to do : need to check that whether modify related register of BB or not */
+		}
+		/* goto _mismatch; */
+	}
+
+	/* Checking for channel */
+	p = rtw_get_ie(bssid->ies + _FIXED_IE_LENGTH_, WLAN_EID_DS_PARAMS, &len, bssid->ie_length - _FIXED_IE_LENGTH_);
+	if (p) {
+		bcn_channel = *(p + 2);
+	} else {/* In 5G, some ap do not have DSSET IE checking HT info for channel */
+		rtw_get_ie(bssid->ies + _FIXED_IE_LENGTH_, WLAN_EID_HT_OPERATION,
+			   &len, bssid->ie_length - _FIXED_IE_LENGTH_);
+		if (pht_info)
+			bcn_channel = pht_info->primary_channel;
+		else /* we don't find channel IE, so don't check it */
+			bcn_channel = Adapter->mlmeextpriv.cur_channel;
+	}
+
+	if (bcn_channel != Adapter->mlmeextpriv.cur_channel)
+		goto _mismatch;
+
+	/* checking SSID */
+	ssid_len = 0;
+	p = rtw_get_ie(bssid->ies + _FIXED_IE_LENGTH_, WLAN_EID_SSID, &len, bssid->ie_length - _FIXED_IE_LENGTH_);
+	if (p) {
+		ssid_len = *(p + 1);
+		if (ssid_len > NDIS_802_11_LENGTH_SSID)
+			ssid_len = 0;
+	}
+	memcpy(bssid->ssid.ssid, (p + 2), ssid_len);
+	bssid->ssid.ssid_length = ssid_len;
+
+	if (memcmp(bssid->ssid.ssid, cur_network->network.ssid.ssid, 32) ||
+			bssid->ssid.ssid_length != cur_network->network.ssid.ssid_length)
+		if (bssid->ssid.ssid[0] != '\0' &&
+		    bssid->ssid.ssid_length != 0) /* not hidden ssid */
+			goto _mismatch;
+>>>>>>> upstream/android-13
 
 	/* check encryption info */
 	val16 = rtw_get_capability((struct wlan_bssid_ex *)bssid);
 
 	if (val16 & BIT(4))
+<<<<<<< HEAD
 		bssid->Privacy = 1;
 	else
 		bssid->Privacy = 0;
@@ -1491,17 +1901,71 @@ int rtw_check_bcn_info(struct adapter *Adapter, u8 *pframe, u32 packet_len)
 
 _mismatch:
 	kfree((u8 *)bssid);
+=======
+		bssid->privacy = 1;
+	else
+		bssid->privacy = 0;
+
+	if (cur_network->network.privacy != bssid->privacy)
+		goto _mismatch;
+
+	rtw_get_sec_ie(bssid->ies, bssid->ie_length, NULL, &rsn_len, NULL, &wpa_len);
+
+	if (rsn_len > 0)
+		encryp_protocol = ENCRYP_PROTOCOL_WPA2;
+	else if (wpa_len > 0)
+		encryp_protocol = ENCRYP_PROTOCOL_WPA;
+	else
+		if (bssid->privacy)
+			encryp_protocol = ENCRYP_PROTOCOL_WEP;
+
+	if (cur_network->bcn_info.encryp_protocol != encryp_protocol)
+		goto _mismatch;
+
+	if (encryp_protocol == ENCRYP_PROTOCOL_WPA || encryp_protocol == ENCRYP_PROTOCOL_WPA2) {
+		pbuf = rtw_get_wpa_ie(&bssid->ies[12], &wpa_ielen, bssid->ie_length-12);
+		if (pbuf && (wpa_ielen > 0)) {
+			rtw_parse_wpa_ie(pbuf, wpa_ielen + 2, &group_cipher,
+					 &pairwise_cipher, &is_8021x);
+		} else {
+			pbuf = rtw_get_wpa2_ie(&bssid->ies[12], &wpa_ielen, bssid->ie_length-12);
+
+			if (pbuf && (wpa_ielen > 0))
+				rtw_parse_wpa2_ie(pbuf, wpa_ielen + 2, &group_cipher,
+						  &pairwise_cipher, &is_8021x);
+		}
+
+		if (pairwise_cipher != cur_network->bcn_info.pairwise_cipher ||
+		    group_cipher != cur_network->bcn_info.group_cipher)
+			goto _mismatch;
+
+		if (is_8021x != cur_network->bcn_info.is_8021x)
+			goto _mismatch;
+	}
+
+	kfree(bssid);
+	return _SUCCESS;
+
+_mismatch:
+	kfree(bssid);
+>>>>>>> upstream/android-13
 
 	if (pmlmepriv->NumOfBcnInfoChkFail == 0)
 		pmlmepriv->timeBcnInfoChkStart = jiffies;
 
 	pmlmepriv->NumOfBcnInfoChkFail++;
+<<<<<<< HEAD
 	DBG_871X("%s by "ADPT_FMT" - NumOfChkFail = %d (SeqNum of this Beacon frame = %d).\n", __func__, ADPT_ARG(Adapter), pmlmepriv->NumOfBcnInfoChkFail, GetSequence(pframe));
 
 	if ((pmlmepriv->timeBcnInfoChkStart != 0) && (jiffies_to_msecs(jiffies - pmlmepriv->timeBcnInfoChkStart) <= DISCONNECT_BY_CHK_BCN_FAIL_OBSERV_PERIOD_IN_MS)
 		&& (pmlmepriv->NumOfBcnInfoChkFail >= DISCONNECT_BY_CHK_BCN_FAIL_THRESHOLD)) {
 		DBG_871X("%s by "ADPT_FMT" - NumOfChkFail = %d >= threshold : %d (in %d ms), return FAIL.\n", __func__, ADPT_ARG(Adapter), pmlmepriv->NumOfBcnInfoChkFail,
 			DISCONNECT_BY_CHK_BCN_FAIL_THRESHOLD, jiffies_to_msecs(jiffies - pmlmepriv->timeBcnInfoChkStart));
+=======
+
+	if ((pmlmepriv->timeBcnInfoChkStart != 0) && (jiffies_to_msecs(jiffies - pmlmepriv->timeBcnInfoChkStart) <= DISCONNECT_BY_CHK_BCN_FAIL_OBSERV_PERIOD_IN_MS)
+		&& (pmlmepriv->NumOfBcnInfoChkFail >= DISCONNECT_BY_CHK_BCN_FAIL_THRESHOLD)) {
+>>>>>>> upstream/android-13
 		pmlmepriv->timeBcnInfoChkStart = 0;
 		pmlmepriv->NumOfBcnInfoChkFail = 0;
 		return _FAIL;
@@ -1521,21 +1985,36 @@ void update_beacon_info(struct adapter *padapter, u8 *pframe, uint pkt_len, stru
 	for (i = 0; i < len;) {
 		pIE = (struct ndis_80211_var_ie *)(pframe + (_BEACON_IE_OFFSET_ + WLAN_HDR_A3_LEN) + i);
 
+<<<<<<< HEAD
 		switch (pIE->ElementID) {
 		case _VENDOR_SPECIFIC_IE_:
 			/* to update WMM paramter set while receiving beacon */
 			if (!memcmp(pIE->data, WMM_PARA_OUI, 6) && pIE->Length == WLAN_WMM_LEN)	/* WMM */
+=======
+		switch (pIE->element_id) {
+		case WLAN_EID_VENDOR_SPECIFIC:
+			/* to update WMM parameter set while receiving beacon */
+			if (!memcmp(pIE->data, WMM_PARA_OUI, 6) && pIE->length == WLAN_WMM_LEN)	/* WMM */
+>>>>>>> upstream/android-13
 				if (WMM_param_handler(padapter, pIE))
 					report_wmm_edca_update(padapter);
 
 			break;
 
+<<<<<<< HEAD
 		case _HT_EXTRA_INFO_IE_:	/* HT info */
+=======
+		case WLAN_EID_HT_OPERATION:	/* HT info */
+>>>>>>> upstream/android-13
 			/* HT_info_handler(padapter, pIE); */
 			bwmode_update_check(padapter, pIE);
 			break;
 
+<<<<<<< HEAD
 		case _ERPINFO_IE_:
+=======
+		case WLAN_EID_ERP_INFO:
+>>>>>>> upstream/android-13
 			ERP_IE_handler(padapter, pIE);
 			VCS_update(padapter, psta);
 			break;
@@ -1544,7 +2023,11 @@ void update_beacon_info(struct adapter *padapter, u8 *pframe, uint pkt_len, stru
 			break;
 		}
 
+<<<<<<< HEAD
 		i += (pIE->Length + 2);
+=======
+		i += (pIE->length + 2);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1557,35 +2040,64 @@ unsigned int is_ap_in_tkip(struct adapter *padapter)
 	struct wlan_bssid_ex		*cur_network = &(pmlmeinfo->network);
 
 	if (rtw_get_capability((struct wlan_bssid_ex *)cur_network) & WLAN_CAPABILITY_PRIVACY) {
+<<<<<<< HEAD
 		for (i = sizeof(struct ndis_802_11_fix_ie); i < pmlmeinfo->network.IELength;) {
 			pIE = (struct ndis_80211_var_ie *)(pmlmeinfo->network.IEs + i);
 
 			switch (pIE->ElementID) {
 			case _VENDOR_SPECIFIC_IE_:
+=======
+		for (i = sizeof(struct ndis_802_11_fix_ie); i < pmlmeinfo->network.ie_length;) {
+			pIE = (struct ndis_80211_var_ie *)(pmlmeinfo->network.ies + i);
+
+			switch (pIE->element_id) {
+			case WLAN_EID_VENDOR_SPECIFIC:
+>>>>>>> upstream/android-13
 				if ((!memcmp(pIE->data, RTW_WPA_OUI, 4)) && (!memcmp((pIE->data + 12), WPA_TKIP_CIPHER, 4)))
 					return true;
 
 				break;
 
+<<<<<<< HEAD
 			case _RSN_IE_2_:
 				if (!memcmp((pIE->data + 8), RSN_TKIP_CIPHER, 4))
 					return true;
+=======
+			case WLAN_EID_RSN:
+				if (!memcmp((pIE->data + 8), RSN_TKIP_CIPHER, 4))
+					return true;
+				break;
+>>>>>>> upstream/android-13
 
 			default:
 				break;
 			}
 
+<<<<<<< HEAD
 			i += (pIE->Length + 2);
 		}
 
 		return false;
 	} else
 		return false;
+=======
+			i += (pIE->length + 2);
+		}
+
+		return false;
+	} else {
+		return false;
+	}
+>>>>>>> upstream/android-13
 }
 
 int support_short_GI(struct adapter *padapter, struct HT_caps_element *pHT_caps, u8 bwmode)
 {
+<<<<<<< HEAD
 	unsigned char 				bit_offset;
+=======
+	unsigned char bit_offset;
+>>>>>>> upstream/android-13
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 
@@ -1620,6 +2132,7 @@ void Update_RA_Entry(struct adapter *padapter, struct sta_info *psta)
 	rtw_hal_update_ra_mask(psta, 0);
 }
 
+<<<<<<< HEAD
 void enable_rate_adaptive(struct adapter *padapter, struct sta_info *psta);
 void enable_rate_adaptive(struct adapter *padapter, struct sta_info *psta)
 {
@@ -1630,6 +2143,39 @@ void set_sta_rate(struct adapter *padapter, struct sta_info *psta)
 {
 	/* rate adaptive */
 	enable_rate_adaptive(padapter, psta);
+=======
+void set_sta_rate(struct adapter *padapter, struct sta_info *psta)
+{
+	/* rate adaptive */
+	Update_RA_Entry(padapter, psta);
+}
+
+static u32 get_realtek_assoc_AP_vender(struct ndis_80211_var_ie *pIE)
+{
+	u32 Vender = HT_IOT_PEER_REALTEK;
+
+	if (pIE->length >= 5) {
+		if (pIE->data[4] == 1)
+			/* if (pIE->data[5] & RT_HT_CAP_USE_LONG_PREAMBLE) */
+			/* bssDesc->BssHT.RT2RT_HT_Mode |= RT_HT_CAP_USE_LONG_PREAMBLE; */
+			if (pIE->data[5] & RT_HT_CAP_USE_92SE)
+				/* bssDesc->BssHT.RT2RT_HT_Mode |= RT_HT_CAP_USE_92SE; */
+				Vender = HT_IOT_PEER_REALTEK_92SE;
+
+		if (pIE->data[5] & RT_HT_CAP_USE_SOFTAP)
+			Vender = HT_IOT_PEER_REALTEK_SOFTAP;
+
+		if (pIE->data[4] == 2) {
+			if (pIE->data[6] & RT_HT_CAP_USE_JAGUAR_BCUT)
+				Vender = HT_IOT_PEER_REALTEK_JAGUAR_BCUTAP;
+
+			if (pIE->data[6] & RT_HT_CAP_USE_JAGUAR_CCUT)
+				Vender = HT_IOT_PEER_REALTEK_JAGUAR_CCUTAP;
+		}
+	}
+
+	return Vender;
+>>>>>>> upstream/android-13
 }
 
 unsigned char check_assoc_AP(u8 *pframe, uint len)
@@ -1640,6 +2186,7 @@ unsigned char check_assoc_AP(u8 *pframe, uint len)
 	for (i = sizeof(struct ndis_802_11_fix_ie); i < len;) {
 		pIE = (struct ndis_80211_var_ie *)(pframe + i);
 
+<<<<<<< HEAD
 		switch (pIE->ElementID) {
 		case _VENDOR_SPECIFIC_IE_:
 			if ((!memcmp(pIE->data, ARTHEROS_OUI1, 3)) || (!memcmp(pIE->data, ARTHEROS_OUI2, 3))) {
@@ -1691,16 +2238,43 @@ unsigned char check_assoc_AP(u8 *pframe, uint len)
 				DBG_871X("link to Airgo Cap\n");
 				return HT_IOT_PEER_AIRGO;
 			} else
+=======
+		switch (pIE->element_id) {
+		case WLAN_EID_VENDOR_SPECIFIC:
+			if ((!memcmp(pIE->data, ARTHEROS_OUI1, 3)) || (!memcmp(pIE->data, ARTHEROS_OUI2, 3)))
+				return HT_IOT_PEER_ATHEROS;
+			else if ((!memcmp(pIE->data, BROADCOM_OUI1, 3)) ||
+				 (!memcmp(pIE->data, BROADCOM_OUI2, 3)) ||
+				 (!memcmp(pIE->data, BROADCOM_OUI3, 3)))
+				return HT_IOT_PEER_BROADCOM;
+			else if (!memcmp(pIE->data, MARVELL_OUI, 3))
+				return HT_IOT_PEER_MARVELL;
+			else if (!memcmp(pIE->data, RALINK_OUI, 3))
+				return HT_IOT_PEER_RALINK;
+			else if (!memcmp(pIE->data, CISCO_OUI, 3))
+				return HT_IOT_PEER_CISCO;
+			else if (!memcmp(pIE->data, REALTEK_OUI, 3))
+				return get_realtek_assoc_AP_vender(pIE);
+			else if (!memcmp(pIE->data, AIRGOCAP_OUI, 3))
+				return HT_IOT_PEER_AIRGO;
+			else
+>>>>>>> upstream/android-13
 				break;
 
 		default:
 			break;
 		}
 
+<<<<<<< HEAD
 		i += (pIE->Length + 2);
 	}
 
 	DBG_871X("link to new AP\n");
+=======
+		i += (pIE->length + 2);
+	}
+
+>>>>>>> upstream/android-13
 	return HT_IOT_PEER_UNKNOWN;
 }
 
@@ -1751,7 +2325,11 @@ void update_capinfo(struct adapter *Adapter, u16 updateCap)
 				pmlmeinfo->preamble_mode = PREAMBLE_SHORT;
 				rtw_hal_set_hwreg(Adapter, HW_VAR_ACK_PREAMBLE, (u8 *)&ShortPreamble);
 			}
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			/*  Long Preamble */
 			if (pmlmeinfo->preamble_mode != PREAMBLE_LONG) { /*  PREAMBLE_SHORT or PREAMBLE_AUTO */
 				ShortPreamble = false;
@@ -1761,6 +2339,7 @@ void update_capinfo(struct adapter *Adapter, u16 updateCap)
 		}
 	}
 
+<<<<<<< HEAD
 	if (updateCap & cIBSS)
 		/* Filen: See 802.11-2007 p.91 */
 		pmlmeinfo->slotTime = NON_SHORT_SLOT_TIME;
@@ -1769,15 +2348,32 @@ void update_capinfo(struct adapter *Adapter, u16 updateCap)
 		if (pmlmeext->cur_wireless_mode & (WIRELESS_11_24N | WIRELESS_11A | WIRELESS_11_5N | WIRELESS_11AC))
 			pmlmeinfo->slotTime = SHORT_SLOT_TIME;
 		else if (pmlmeext->cur_wireless_mode & (WIRELESS_11G)) {
+=======
+	if (updateCap & cIBSS) {
+		/* Filen: See 802.11-2007 p.91 */
+		pmlmeinfo->slotTime = NON_SHORT_SLOT_TIME;
+	} else {
+		/* Filen: See 802.11-2007 p.90 */
+		if (pmlmeext->cur_wireless_mode & (WIRELESS_11_24N)) {
+			pmlmeinfo->slotTime = SHORT_SLOT_TIME;
+		} else if (pmlmeext->cur_wireless_mode & (WIRELESS_11G)) {
+>>>>>>> upstream/android-13
 			if ((updateCap & cShortSlotTime) /* && (!(pMgntInfo->pHTInfo->RT2RT_HT_Mode & RT_HT_CAP_USE_LONG_PREAMBLE)) */)
 				/*  Short Slot Time */
 				pmlmeinfo->slotTime = SHORT_SLOT_TIME;
 			else
 				/*  Long Slot Time */
 				pmlmeinfo->slotTime = NON_SHORT_SLOT_TIME;
+<<<<<<< HEAD
 		} else
 			/* B Mode */
 			pmlmeinfo->slotTime = NON_SHORT_SLOT_TIME;
+=======
+		} else {
+			/* B Mode */
+			pmlmeinfo->slotTime = NON_SHORT_SLOT_TIME;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	rtw_hal_set_hwreg(Adapter, HW_VAR_SLOT_TIME, &pmlmeinfo->slotTime);
@@ -1785,6 +2381,7 @@ void update_capinfo(struct adapter *Adapter, u16 updateCap)
 
 void update_wireless_mode(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	int ratelen, network_type = 0;
 	u32 SIFS_Timer;
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
@@ -1793,10 +2390,19 @@ void update_wireless_mode(struct adapter *padapter)
 	unsigned char 		*rate = cur_network->SupportedRates;
 
 	ratelen = rtw_get_rateset_len(cur_network->SupportedRates);
+=======
+	int network_type = 0;
+	u32 SIFS_Timer;
+	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
+	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
+	struct wlan_bssid_ex *cur_network = &(pmlmeinfo->network);
+	unsigned char *rate = cur_network->supported_rates;
+>>>>>>> upstream/android-13
 
 	if ((pmlmeinfo->HT_info_enable) && (pmlmeinfo->HT_caps_enable))
 		pmlmeinfo->HT_enable = 1;
 
+<<<<<<< HEAD
 	if (pmlmeext->cur_channel > 14) {
 		if (pmlmeinfo->VHT_enable)
 			network_type = WIRELESS_11AC;
@@ -1817,6 +2423,17 @@ void update_wireless_mode(struct adapter *padapter)
 		else
 			network_type |= WIRELESS_11G;
 	}
+=======
+	if (pmlmeinfo->HT_enable)
+		network_type = WIRELESS_11_24N;
+
+	if (rtw_is_cckratesonly_included(rate))
+		network_type |= WIRELESS_11B;
+	else if (rtw_is_cckrates_included(rate))
+		network_type |= WIRELESS_11BG;
+	else
+		network_type |= WIRELESS_11G;
+>>>>>>> upstream/android-13
 
 	pmlmeext->cur_wireless_mode = network_type & padapter->registrypriv.wireless_mode;
 
@@ -1829,17 +2446,29 @@ void update_wireless_mode(struct adapter *padapter)
 
 	if (pmlmeext->cur_wireless_mode & WIRELESS_11B)
 		update_mgnt_tx_rate(padapter, IEEE80211_CCK_RATE_1MB);
+<<<<<<< HEAD
 	 else
+=======
+	else
+>>>>>>> upstream/android-13
 		update_mgnt_tx_rate(padapter, IEEE80211_OFDM_RATE_6MB);
 }
 
 void update_sta_basic_rate(struct sta_info *psta, u8 wireless_mode)
 {
+<<<<<<< HEAD
 	if (IsSupportedTxCCK(wireless_mode)) {
 		/*  Only B, B/G, and B/G/N AP could use CCK rate */
 		memcpy(psta->bssrateset, rtw_basic_rate_cck, 4);
 		psta->bssratelen = 4;
 	} else{
+=======
+	if (is_supported_tx_cck(wireless_mode)) {
+		/*  Only B, B/G, and B/G/N AP could use CCK rate */
+		memcpy(psta->bssrateset, rtw_basic_rate_cck, 4);
+		psta->bssratelen = 4;
+	} else {
+>>>>>>> upstream/android-13
 		memcpy(psta->bssrateset, rtw_basic_rate_ofdm, 3);
 		psta->bssratelen = 3;
 	}
@@ -1853,7 +2482,11 @@ int update_sta_support_rate(struct adapter *padapter, u8 *pvar_ie, uint var_ie_l
 	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 
+<<<<<<< HEAD
 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
+=======
+	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, WLAN_EID_SUPP_RATES, &ie_len, var_ie_len);
+>>>>>>> upstream/android-13
 	if (!pIE)
 		return _FAIL;
 	if (ie_len > sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates))
@@ -1862,7 +2495,11 @@ int update_sta_support_rate(struct adapter *padapter, u8 *pvar_ie, uint var_ie_l
 	memcpy(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates, pIE->data, ie_len);
 	supportRateNum = ie_len;
 
+<<<<<<< HEAD
 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _EXT_SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
+=======
+	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, WLAN_EID_EXT_SUPP_RATES, &ie_len, var_ie_len);
+>>>>>>> upstream/android-13
 	if (pIE && (ie_len <= sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates) - supportRateNum))
 		memcpy((pmlmeinfo->FW_sta_info[cam_idx].SupportedRates + supportRateNum), pIE->data, ie_len);
 
@@ -1872,7 +2509,11 @@ int update_sta_support_rate(struct adapter *padapter, u8 *pvar_ie, uint var_ie_l
 void process_addba_req(struct adapter *padapter, u8 *paddba_req, u8 *addr)
 {
 	struct sta_info *psta;
+<<<<<<< HEAD
 	u16 tid, start_seq, param;
+=======
+	u16 tid, param;
+>>>>>>> upstream/android-13
 	struct recv_reorder_ctrl *preorder_ctrl;
 	struct sta_priv *pstapriv = &padapter->stapriv;
 	struct ADDBA_request *preq = (struct ADDBA_request *)paddba_req;
@@ -1882,13 +2523,17 @@ void process_addba_req(struct adapter *padapter, u8 *paddba_req, u8 *addr)
 	psta = rtw_get_stainfo(pstapriv, addr);
 
 	if (psta) {
+<<<<<<< HEAD
 		start_seq = le16_to_cpu(preq->BA_starting_seqctrl) >> 4;
 
+=======
+>>>>>>> upstream/android-13
 		param = le16_to_cpu(preq->BA_para_set);
 		tid = (param>>2)&0x0f;
 
 		preorder_ctrl = &psta->recvreorder_ctrl[tid];
 
+<<<<<<< HEAD
 		#ifdef CONFIG_UPDATE_INDICATE_SEQ_WHILE_PROCESS_ADDBA_REQ
 		preorder_ctrl->indicate_seq = start_seq;
 		#ifdef DBG_RX_SEQ
@@ -1898,6 +2543,9 @@ void process_addba_req(struct adapter *padapter, u8 *paddba_req, u8 *addr)
 		#else
 		preorder_ctrl->indicate_seq = 0xffff;
 		#endif
+=======
+		preorder_ctrl->indicate_seq = 0xffff;
+>>>>>>> upstream/android-13
 
 		preorder_ctrl->enable = pmlmeinfo->accept_addba_req;
 	}
@@ -1941,11 +2589,17 @@ void adaptive_early_32k(struct mlme_ext_priv *pmlmeext, u8 *pframe, uint len)
 	tsf = tsf << 32;
 	tsf |= le32_to_cpu(*pbuf);
 
+<<<<<<< HEAD
 	/* DBG_871X("%s(): tsf_upper = 0x%08x, tsf_lower = 0x%08x\n", __func__, (u32)(tsf>>32), (u32)tsf); */
 
 	/* delay = (timestamp mod 1024*100)/1000 (unit: ms) */
 	/* delay_ms = do_div(tsf, (pmlmeinfo->bcn_interval*1024))/1000; */
 	delay_ms = rtw_modular64(tsf, (pmlmeinfo->bcn_interval*1024));
+=======
+	/* delay = (timestamp mod 1024*100)/1000 (unit: ms) */
+	/* delay_ms = do_div(tsf, (pmlmeinfo->bcn_interval*1024))/1000; */
+	delay_ms = do_div(tsf, (pmlmeinfo->bcn_interval*1024));
+>>>>>>> upstream/android-13
 	delay_ms = delay_ms/1000;
 
 	if (delay_ms >= 8)
@@ -1956,12 +2610,18 @@ void adaptive_early_32k(struct mlme_ext_priv *pmlmeext, u8 *pframe, uint len)
 		/* pmlmeext->bcn_delay_ratio[delay_ms] = (pmlmeext->bcn_delay_cnt[delay_ms] * 100) /pmlmeext->bcn_cnt; */
 
 /*
+<<<<<<< HEAD
 	DBG_871X("%s(): (a)bcn_cnt = %d\n", __func__, pmlmeext->bcn_cnt);
 
 
 	for (i = 0; i<9; i++)
 	{
 		DBG_871X("%s():bcn_delay_cnt[%d]=%d,  bcn_delay_ratio[%d]=%d\n", __func__, i,
+=======
+
+	for (i = 0; i<9; i++)
+	{
+>>>>>>> upstream/android-13
 			pmlmeext->bcn_delay_cnt[i] , i, pmlmeext->bcn_delay_ratio[i]);
 	}
 */
@@ -1976,6 +2636,7 @@ void adaptive_early_32k(struct mlme_ext_priv *pmlmeext, u8 *pframe, uint len)
 		DrvBcnEarly = 0xff;
 		DrvBcnTimeOut = 0xff;
 
+<<<<<<< HEAD
 		DBG_871X("%s(): bcn_cnt = %d\n", __func__, pmlmeext->bcn_cnt);
 
 		for (i = 0; i < 9; i++) {
@@ -1996,6 +2657,19 @@ void adaptive_early_32k(struct mlme_ext_priv *pmlmeext, u8 *pframe, uint len)
 				DrvBcnTimeOut = i;
 				DBG_871X("%s(): DrvBcnTimeOut = %d\n", __func__, DrvBcnTimeOut);
 			}
+=======
+		for (i = 0; i < 9; i++) {
+			pmlmeext->bcn_delay_ratio[i] = (pmlmeext->bcn_delay_cnt[i] * 100) / pmlmeext->bcn_cnt;
+
+			ratio_20_delay += pmlmeext->bcn_delay_ratio[i];
+			ratio_80_delay += pmlmeext->bcn_delay_ratio[i];
+
+			if (ratio_20_delay > 20 && DrvBcnEarly == 0xff)
+				DrvBcnEarly = i;
+
+			if (ratio_80_delay > 80 && DrvBcnTimeOut == 0xff)
+				DrvBcnTimeOut = i;
+>>>>>>> upstream/android-13
 
 			/* reset adaptive_early_32k cnt */
 			pmlmeext->bcn_delay_cnt[i] = 0;
@@ -2009,11 +2683,14 @@ void adaptive_early_32k(struct mlme_ext_priv *pmlmeext, u8 *pframe, uint len)
 	}
 }
 
+<<<<<<< HEAD
 void beacon_timing_control(struct adapter *padapter)
 {
 	rtw_hal_bcn_related_reg_setting(padapter);
 }
 
+=======
+>>>>>>> upstream/android-13
 void rtw_alloc_macid(struct adapter *padapter, struct sta_info *psta)
 {
 	int i;
@@ -2037,6 +2714,7 @@ void rtw_alloc_macid(struct adapter *padapter, struct sta_info *psta)
 	}
 	spin_unlock_bh(&pdvobj->lock);
 
+<<<<<<< HEAD
 	if (i > (NUM_STA-1)) {
 		psta->mac_id = NUM_STA;
 		DBG_871X("  no room for more MACIDs\n");
@@ -2044,6 +2722,12 @@ void rtw_alloc_macid(struct adapter *padapter, struct sta_info *psta)
 		psta->mac_id = i;
 		DBG_871X("%s = %d\n", __func__, psta->mac_id);
 	}
+=======
+	if (i > (NUM_STA - 1))
+		psta->mac_id = NUM_STA;
+	else
+		psta->mac_id = i;
+>>>>>>> upstream/android-13
 }
 
 void rtw_release_macid(struct adapter *padapter, struct sta_info *psta)
@@ -2060,19 +2744,30 @@ void rtw_release_macid(struct adapter *padapter, struct sta_info *psta)
 	spin_lock_bh(&pdvobj->lock);
 	if (psta->mac_id < NUM_STA && psta->mac_id != 1) {
 		if (pdvobj->macid[psta->mac_id] == true) {
+<<<<<<< HEAD
 			DBG_871X("%s = %d\n", __func__, psta->mac_id);
+=======
+>>>>>>> upstream/android-13
 			pdvobj->macid[psta->mac_id] = false;
 			psta->mac_id = NUM_STA;
 		}
 	}
 	spin_unlock_bh(&pdvobj->lock);
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 /* For 8188E RA */
 u8 rtw_search_max_mac_id(struct adapter *padapter)
 {
 	u8 max_mac_id = 0;
 	struct dvobj_priv *pdvobj = adapter_to_dvobj(padapter);
 	int i;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	spin_lock_bh(&pdvobj->lock);
 	for (i = (NUM_STA-1); i >= 0 ; i--) {
 		if (pdvobj->macid[i] == true)
@@ -2091,6 +2786,7 @@ struct adapter *dvobj_get_port0_adapter(struct dvobj_priv *dvobj)
 
 	return dvobj->padapters;
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_GPIO_API
 int rtw_get_gpio(struct net_device *netdev, int gpio_num)
@@ -2268,3 +2964,5 @@ void rtw_set_sec_pn(struct adapter *padapter)
 #define CIPHER_WPA_EAP "WPA-EAP IEEE8021X"
 
 #endif /* CONFIG_PNO_SUPPORT */
+=======
+>>>>>>> upstream/android-13

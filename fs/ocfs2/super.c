@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * super.c
  *
  * load/unload driver, mount/dismount volumes
  *
  * Copyright (C) 2002, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -85,6 +93,10 @@ static struct dentry *ocfs2_debugfs_root;
 
 MODULE_AUTHOR("Oracle");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("OCFS2 cluster file system");
 
 struct mount_options
@@ -134,7 +146,11 @@ static int ocfs2_get_sector(struct super_block *sb,
 			    int block,
 			    int sect_size);
 static struct inode *ocfs2_alloc_inode(struct super_block *sb);
+<<<<<<< HEAD
 static void ocfs2_destroy_inode(struct inode *inode);
+=======
+static void ocfs2_free_inode(struct inode *inode);
+>>>>>>> upstream/android-13
 static int ocfs2_susp_quotas(struct ocfs2_super *osb, int unsuspend);
 static int ocfs2_enable_quotas(struct ocfs2_super *osb);
 static void ocfs2_disable_quotas(struct ocfs2_super *osb);
@@ -147,7 +163,11 @@ static struct dquot **ocfs2_get_dquots(struct inode *inode)
 static const struct super_operations ocfs2_sops = {
 	.statfs		= ocfs2_statfs,
 	.alloc_inode	= ocfs2_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= ocfs2_destroy_inode,
+=======
+	.free_inode	= ocfs2_free_inode,
+>>>>>>> upstream/android-13
 	.drop_inode	= ocfs2_drop_inode,
 	.evict_inode	= ocfs2_evict_inode,
 	.sync_fs	= ocfs2_sync_fs,
@@ -189,6 +209,10 @@ enum {
 	Opt_dir_resv_level,
 	Opt_journal_async_commit,
 	Opt_err_cont,
+<<<<<<< HEAD
+=======
+	Opt_nocluster,
+>>>>>>> upstream/android-13
 	Opt_err,
 };
 
@@ -222,6 +246,10 @@ static const match_table_t tokens = {
 	{Opt_dir_resv_level, "dir_resv_level=%u"},
 	{Opt_journal_async_commit, "journal_async_commit"},
 	{Opt_err_cont, "errors=continue"},
+<<<<<<< HEAD
+=======
+	{Opt_nocluster, "nocluster"},
+>>>>>>> upstream/android-13
 	{Opt_err, NULL}
 };
 
@@ -234,11 +262,16 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 	int i, out = 0;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => Id: %-s  Uuid: %-s  Gen: 0x%X  Label: %-s\n",
 			"Device", osb->dev_str, osb->uuid_str,
 			osb->fs_generation, osb->vol_label);
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
 			"%10s => State: %d  Flags: 0x%lX\n", "Volume",
 			atomic_read(&osb->vol_state), osb->osb_flags);
@@ -248,17 +281,36 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 			osb->sb->s_blocksize, osb->s_clustersize);
 
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+			"%10s => State: %d  Flags: 0x%lX\n", "Volume",
+			atomic_read(&osb->vol_state), osb->osb_flags);
+
+	out += scnprintf(buf + out, len - out,
+			"%10s => Block: %lu  Cluster: %d\n", "Sizes",
+			osb->sb->s_blocksize, osb->s_clustersize);
+
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => Compat: 0x%X  Incompat: 0x%X  "
 			"ROcompat: 0x%X\n",
 			"Features", osb->s_feature_compat,
 			osb->s_feature_incompat, osb->s_feature_ro_compat);
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => Opts: 0x%lX  AtimeQuanta: %u\n", "Mount",
 			osb->s_mount_opt, osb->s_atime_quantum);
 
 	if (cconn) {
+<<<<<<< HEAD
 		out += snprintf(buf + out, len - out,
+=======
+		out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 				"%10s => Stack: %s  Name: %*s  "
 				"Version: %d.%d\n", "Cluster",
 				(*osb->osb_cluster_stack == '\0' ?
@@ -269,7 +321,11 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 	}
 
 	spin_lock_irqsave(&osb->dc_task_lock, flags);
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => Pid: %d  Count: %lu  WakeSeq: %lu  "
 			"WorkSeq: %lu\n", "DownCnvt",
 			(osb->dc_task ?  task_pid_nr(osb->dc_task) : -1),
@@ -278,11 +334,16 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 	spin_unlock_irqrestore(&osb->dc_task_lock, flags);
 
 	spin_lock(&osb->osb_lock);
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "%10s => Pid: %d  Nodes:",
+=======
+	out += scnprintf(buf + out, len - out, "%10s => Pid: %d  Nodes:",
+>>>>>>> upstream/android-13
 			"Recovery",
 			(osb->recovery_thread_task ?
 			 task_pid_nr(osb->recovery_thread_task) : -1));
 	if (rm->rm_used == 0)
+<<<<<<< HEAD
 		out += snprintf(buf + out, len - out, " None\n");
 	else {
 		for (i = 0; i < rm->rm_used; i++)
@@ -293,17 +354,37 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 	spin_unlock(&osb->osb_lock);
 
 	out += snprintf(buf + out, len - out,
+=======
+		out += scnprintf(buf + out, len - out, " None\n");
+	else {
+		for (i = 0; i < rm->rm_used; i++)
+			out += scnprintf(buf + out, len - out, " %d",
+					rm->rm_entries[i]);
+		out += scnprintf(buf + out, len - out, "\n");
+	}
+	spin_unlock(&osb->osb_lock);
+
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => Pid: %d  Interval: %lu\n", "Commit",
 			(osb->commit_task ? task_pid_nr(osb->commit_task) : -1),
 			osb->osb_commit_interval);
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => State: %d  TxnId: %lu  NumTxns: %d\n",
 			"Journal", osb->journal->j_state,
 			osb->journal->j_trans_id,
 			atomic_read(&osb->journal->j_num_trans));
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => GlobalAllocs: %d  LocalAllocs: %d  "
 			"SubAllocs: %d  LAWinMoves: %d  SAExtends: %d\n",
 			"Stats",
@@ -313,7 +394,11 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 			atomic_read(&osb->alloc_stats.moves),
 			atomic_read(&osb->alloc_stats.bg_extends));
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => State: %u  Descriptor: %llu  Size: %u bits  "
 			"Default: %u bits\n",
 			"LocalAlloc", osb->local_alloc_state,
@@ -321,7 +406,11 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 			osb->local_alloc_bits, osb->local_alloc_default_bits);
 
 	spin_lock(&osb->osb_lock);
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"%10s => InodeSlot: %d  StolenInodes: %d, "
 			"MetaSlot: %d  StolenMeta: %d\n", "Steal",
 			osb->s_inode_steal_slot,
@@ -330,6 +419,7 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 			atomic_read(&osb->s_num_meta_stolen));
 	spin_unlock(&osb->osb_lock);
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "OrphanScan => ");
 	out += snprintf(buf + out, len - out, "Local: %u  Global: %u ",
 			os->os_count, os->os_seqno);
@@ -344,6 +434,22 @@ static int ocfs2_osb_dump(struct ocfs2_super *osb, char *buf, int len)
 			"Slots", "Num", "RecoGen");
 	for (i = 0; i < osb->max_slots; ++i) {
 		out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out, "OrphanScan => ");
+	out += scnprintf(buf + out, len - out, "Local: %u  Global: %u ",
+			os->os_count, os->os_seqno);
+	out += scnprintf(buf + out, len - out, " Last Scan: ");
+	if (atomic_read(&os->os_state) == ORPHAN_SCAN_INACTIVE)
+		out += scnprintf(buf + out, len - out, "Disabled\n");
+	else
+		out += scnprintf(buf + out, len - out, "%lu seconds ago\n",
+				(unsigned long)(ktime_get_seconds() - os->os_scantime));
+
+	out += scnprintf(buf + out, len - out, "%10s => %3s  %10s\n",
+			"Slots", "Num", "RecoGen");
+	for (i = 0; i < osb->max_slots; ++i) {
+		out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 				"%10s  %c %3d  %10d\n",
 				" ",
 				(i == osb->slot_num ? '*' : ' '),
@@ -575,6 +681,7 @@ static struct inode *ocfs2_alloc_inode(struct super_block *sb)
 	return &oi->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void ocfs2_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -586,6 +693,13 @@ static void ocfs2_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, ocfs2_i_callback);
 }
 
+=======
+static void ocfs2_free_inode(struct inode *inode)
+{
+	kmem_cache_free(ocfs2_inode_cachep, OCFS2_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static unsigned long long ocfs2_max_file_offset(unsigned int bbits,
 						unsigned int cbits)
 {
@@ -600,7 +714,10 @@ static unsigned long long ocfs2_max_file_offset(unsigned int bbits,
 	 */
 
 #if BITS_PER_LONG == 32
+<<<<<<< HEAD
 # if defined(CONFIG_LBDAF)
+=======
+>>>>>>> upstream/android-13
 	BUILD_BUG_ON(sizeof(sector_t) != 8);
 	/*
 	 * We might be limited by page cache size.
@@ -614,6 +731,7 @@ static unsigned long long ocfs2_max_file_offset(unsigned int bbits,
 		 */
 		bitshift = 31;
 	}
+<<<<<<< HEAD
 # else
 	/*
 	 * We are limited by the size of sector_t. Use block size, as
@@ -623,6 +741,8 @@ static unsigned long long ocfs2_max_file_offset(unsigned int bbits,
 	trim = 1;
 	bitshift = 31;
 # endif
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	/*
@@ -649,6 +769,16 @@ static int ocfs2_remount(struct super_block *sb, int *flags, char *data)
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	tmp = OCFS2_MOUNT_NOCLUSTER;
+	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
+		ret = -EINVAL;
+		mlog(ML_ERROR, "Cannot change nocluster option on remount\n");
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	tmp = OCFS2_MOUNT_HB_LOCAL | OCFS2_MOUNT_HB_GLOBAL |
 		OCFS2_MOUNT_HB_NONE;
 	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
@@ -889,6 +1019,10 @@ static int ocfs2_verify_userspace_stack(struct ocfs2_super *osb,
 	}
 
 	if (ocfs2_userspace_stack(osb) &&
+<<<<<<< HEAD
+=======
+	    !(osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
+>>>>>>> upstream/android-13
 	    strncmp(osb->osb_cluster_stack, mopt->cluster_stack,
 		    OCFS2_STACK_LABEL_LEN)) {
 		mlog(ML_ERROR,
@@ -956,8 +1090,13 @@ static int ocfs2_enable_quotas(struct ocfs2_super *osb)
 			status = -ENOENT;
 			goto out_quota_off;
 		}
+<<<<<<< HEAD
 		status = dquot_enable(inode[type], type, QFMT_OCFS2,
 				      DQUOT_USAGE_ENABLED);
+=======
+		status = dquot_load_quota_inode(inode[type], type, QFMT_OCFS2,
+						DQUOT_USAGE_ENABLED);
+>>>>>>> upstream/android-13
 		if (status < 0)
 			goto out_quota_off;
 	}
@@ -993,8 +1132,11 @@ static void ocfs2_disable_quotas(struct ocfs2_super *osb)
 		 * quota files */
 		dquot_disable(sb, type, DQUOT_USAGE_ENABLED |
 					DQUOT_LIMITS_ENABLED);
+<<<<<<< HEAD
 		if (!inode)
 			continue;
+=======
+>>>>>>> upstream/android-13
 		iput(inode);
 	}
 }
@@ -1109,6 +1251,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
 
 	osb->osb_debug_root = debugfs_create_dir(osb->uuid_str,
 						 ocfs2_debugfs_root);
+<<<<<<< HEAD
 	if (!osb->osb_debug_root) {
 		status = -EINVAL;
 		mlog(ML_ERROR, "Unable to create per-mount debugfs root.\n");
@@ -1136,6 +1279,15 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
 			goto read_super_error;
 		}
 	}
+=======
+
+	debugfs_create_file("fs_state", S_IFREG|S_IRUSR, osb->osb_debug_root,
+			    osb, &ocfs2_osb_debug_fops);
+
+	if (ocfs2_meta_ecc(osb))
+		ocfs2_blockcheck_stats_debugfs_install( &osb->osb_ecc_stats,
+							osb->osb_debug_root);
+>>>>>>> upstream/android-13
 
 	status = ocfs2_mount_volume(sb);
 	if (status < 0)
@@ -1150,6 +1302,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
 		goto read_super_error;
 	}
 
+<<<<<<< HEAD
 	root = d_make_root(inode);
 	if (!root) {
 		status = -ENOMEM;
@@ -1161,6 +1314,8 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
 
 	ocfs2_complete_mount_recovery(osb);
 
+=======
+>>>>>>> upstream/android-13
 	osb->osb_dev_kset = kset_create_and_add(sb->s_id, NULL,
 						&ocfs2_kset->kobj);
 	if (!osb->osb_dev_kset) {
@@ -1178,6 +1333,20 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
 		goto read_super_error;
 	}
 
+<<<<<<< HEAD
+=======
+	root = d_make_root(inode);
+	if (!root) {
+		status = -ENOMEM;
+		mlog_errno(status);
+		goto read_super_error;
+	}
+
+	sb->s_root = root;
+
+	ocfs2_complete_mount_recovery(osb);
+
+>>>>>>> upstream/android-13
 	if (ocfs2_mount_local(osb))
 		snprintf(nodestr, sizeof(nodestr), "local");
 	else
@@ -1189,6 +1358,14 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
 	       osb->s_mount_opt & OCFS2_MOUNT_DATA_WRITEBACK ? "writeback" :
 	       "ordered");
 
+<<<<<<< HEAD
+=======
+	if ((osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
+	   !(osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT))
+		printk(KERN_NOTICE "ocfs2: The shared device (%s) is mounted "
+		       "without cluster aware mode.\n", osb->dev_str);
+
+>>>>>>> upstream/android-13
 	atomic_set(&osb->vol_state, VOLUME_MOUNTED);
 	wake_up(&osb->osb_mount_event);
 
@@ -1495,6 +1672,12 @@ static int ocfs2_parse_options(struct super_block *sb,
 		case Opt_journal_async_commit:
 			mopt->mount_opt |= OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT;
 			break;
+<<<<<<< HEAD
+=======
+		case Opt_nocluster:
+			mopt->mount_opt |= OCFS2_MOUNT_NOCLUSTER;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			mlog(ML_ERROR,
 			     "Unrecognized mount option \"%s\" "
@@ -1606,6 +1789,12 @@ static int ocfs2_show_options(struct seq_file *s, struct dentry *root)
 	if (opts & OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT)
 		seq_printf(s, ",journal_async_commit");
 
+<<<<<<< HEAD
+=======
+	if (opts & OCFS2_MOUNT_NOCLUSTER)
+		seq_printf(s, ",nocluster");
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1622,11 +1811,14 @@ static int __init ocfs2_init(void)
 		goto out2;
 
 	ocfs2_debugfs_root = debugfs_create_dir("ocfs2", NULL);
+<<<<<<< HEAD
 	if (!ocfs2_debugfs_root) {
 		status = -ENOMEM;
 		mlog(ML_ERROR, "Unable to create ocfs2 debugfs root.\n");
 		goto out3;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	ocfs2_set_locking_protocol();
 
@@ -1848,6 +2040,11 @@ static int ocfs2_mount_volume(struct super_block *sb)
 	if (ocfs2_is_hard_readonly(osb))
 		goto leave;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&osb->obs_trim_fs_mutex);
+
+>>>>>>> upstream/android-13
 	status = ocfs2_dlm_init(osb);
 	if (status < 0) {
 		mlog_errno(status);
@@ -1913,8 +2110,11 @@ static void ocfs2_dismount_volume(struct super_block *sb, int mnt_err)
 
 	kset_unregister(osb->osb_dev_kset);
 
+<<<<<<< HEAD
 	debugfs_remove(osb->osb_ctxt);
 
+=======
+>>>>>>> upstream/android-13
 	/* Orphan scan should be stopped as early as possible */
 	ocfs2_orphan_scan_stop(osb);
 
@@ -1970,7 +2170,11 @@ static void ocfs2_dismount_volume(struct super_block *sb, int mnt_err)
 		ocfs2_dlm_shutdown(osb, hangup_needed);
 
 	ocfs2_blockcheck_stats_debugfs_remove(&osb->osb_ecc_stats);
+<<<<<<< HEAD
 	debugfs_remove(osb->osb_debug_root);
+=======
+	debugfs_remove_recursive(osb->osb_debug_root);
+>>>>>>> upstream/android-13
 
 	if (hangup_needed)
 		ocfs2_cluster_hangup(osb->uuid_str, strlen(osb->uuid_str));
@@ -2205,11 +2409,25 @@ static int ocfs2_initialize_super(struct super_block *sb,
 	}
 
 	if (ocfs2_clusterinfo_valid(osb)) {
+<<<<<<< HEAD
 		osb->osb_stackflags =
 			OCFS2_RAW_SB(di)->s_cluster_info.ci_stackflags;
 		strlcpy(osb->osb_cluster_stack,
 		       OCFS2_RAW_SB(di)->s_cluster_info.ci_stack,
 		       OCFS2_STACK_LABEL_LEN + 1);
+=======
+		/*
+		 * ci_stack and ci_cluster in ocfs2_cluster_info may not be null
+		 * terminated, so make sure no overflow happens here by using
+		 * memcpy. Destination strings will always be null terminated
+		 * because osb is allocated using kzalloc.
+		 */
+		osb->osb_stackflags =
+			OCFS2_RAW_SB(di)->s_cluster_info.ci_stackflags;
+		memcpy(osb->osb_cluster_stack,
+		       OCFS2_RAW_SB(di)->s_cluster_info.ci_stack,
+		       OCFS2_STACK_LABEL_LEN);
+>>>>>>> upstream/android-13
 		if (strlen(osb->osb_cluster_stack) != OCFS2_STACK_LABEL_LEN) {
 			mlog(ML_ERROR,
 			     "couldn't mount because of an invalid "
@@ -2218,9 +2436,15 @@ static int ocfs2_initialize_super(struct super_block *sb,
 			status = -EINVAL;
 			goto bail;
 		}
+<<<<<<< HEAD
 		strlcpy(osb->osb_cluster_name,
 			OCFS2_RAW_SB(di)->s_cluster_info.ci_cluster,
 			OCFS2_CLUSTER_NAME_LEN + 1);
+=======
+		memcpy(osb->osb_cluster_name,
+			OCFS2_RAW_SB(di)->s_cluster_info.ci_cluster,
+			OCFS2_CLUSTER_NAME_LEN);
+>>>>>>> upstream/android-13
 	} else {
 		/* The empty string is identical with classic tools that
 		 * don't know about s_cluster_info. */

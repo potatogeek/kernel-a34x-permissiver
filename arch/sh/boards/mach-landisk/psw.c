@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/landisk/psw.c
  *
@@ -5,10 +9,13 @@
  *
  * Copyright (C) 2006-2007  Paul Mundt
  * Copyright (C) 2007  kogiidena
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/init.h>

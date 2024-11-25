@@ -17,7 +17,11 @@ struct tcf_mirred {
 static inline bool is_tcf_mirred_egress_redirect(const struct tc_action *a)
 {
 #ifdef CONFIG_NET_CLS_ACT
+<<<<<<< HEAD
 	if (a->ops && a->ops->type == TCA_ACT_MIRRED)
+=======
+	if (a->ops && a->ops->id == TCA_ID_MIRRED)
+>>>>>>> upstream/android-13
 		return to_mirred(a)->tcfm_eaction == TCA_EGRESS_REDIR;
 #endif
 	return false;
@@ -26,12 +30,37 @@ static inline bool is_tcf_mirred_egress_redirect(const struct tc_action *a)
 static inline bool is_tcf_mirred_egress_mirror(const struct tc_action *a)
 {
 #ifdef CONFIG_NET_CLS_ACT
+<<<<<<< HEAD
 	if (a->ops && a->ops->type == TCA_ACT_MIRRED)
+=======
+	if (a->ops && a->ops->id == TCA_ID_MIRRED)
+>>>>>>> upstream/android-13
 		return to_mirred(a)->tcfm_eaction == TCA_EGRESS_MIRROR;
 #endif
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool is_tcf_mirred_ingress_redirect(const struct tc_action *a)
+{
+#ifdef CONFIG_NET_CLS_ACT
+	if (a->ops && a->ops->id == TCA_ID_MIRRED)
+		return to_mirred(a)->tcfm_eaction == TCA_INGRESS_REDIR;
+#endif
+	return false;
+}
+
+static inline bool is_tcf_mirred_ingress_mirror(const struct tc_action *a)
+{
+#ifdef CONFIG_NET_CLS_ACT
+	if (a->ops && a->ops->id == TCA_ID_MIRRED)
+		return to_mirred(a)->tcfm_eaction == TCA_INGRESS_MIRROR;
+#endif
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static inline struct net_device *tcf_mirred_dev(const struct tc_action *a)
 {
 	return rtnl_dereference(to_mirred(a)->tcfm_dev);

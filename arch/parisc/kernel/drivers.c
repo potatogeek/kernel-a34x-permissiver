@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * drivers.c
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * drivers.c
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 1999 The Puffin Group
  * Copyright (c) 2001 Matthew Wilcox for Hewlett Packard
  * Copyright (c) 2001 Helge Deller <deller@gmx.de>
@@ -34,13 +41,24 @@
 #include <linux/spinlock.h>
 #include <linux/string.h>
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <asm/hardware.h>
 #include <asm/io.h>
 #include <asm/pdc.h>
 #include <asm/parisc-device.h>
+<<<<<<< HEAD
 
 /* See comments in include/asm-parisc/pci.h */
 const struct dma_map_ops *hppa_dma_ops __read_mostly;
+=======
+#include <asm/ropes.h>
+
+/* See comments in include/asm-parisc/pci.h */
+const struct dma_map_ops *hppa_dma_ops __ro_after_init;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(hppa_dma_ops);
 
 static struct device root = {
@@ -135,6 +153,7 @@ static int parisc_driver_probe(struct device *dev)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int __exit parisc_driver_remove(struct device *dev)
 {
 	struct parisc_device *pa_dev = to_parisc_device(dev);
@@ -143,6 +162,15 @@ static int __exit parisc_driver_remove(struct device *dev)
 		pa_drv->remove(pa_dev);
 
 	return 0;
+=======
+static void __exit parisc_driver_remove(struct device *dev)
+{
+	struct parisc_device *pa_dev = to_parisc_device(dev);
+	struct parisc_driver *pa_drv = to_parisc_driver(dev->driver);
+
+	if (pa_drv->remove)
+		pa_drv->remove(pa_dev);
+>>>>>>> upstream/android-13
 }
 	
 
@@ -257,6 +285,33 @@ static struct parisc_device *find_device_by_addr(unsigned long hpa)
 	return ret ? d.dev : NULL;
 }
 
+<<<<<<< HEAD
+=======
+static int __init is_IKE_device(struct device *dev, void *data)
+{
+	struct parisc_device *pdev = to_parisc_device(dev);
+
+	if (!check_dev(dev))
+		return 0;
+	if (pdev->id.hw_type != HPHW_BCPORT)
+		return 0;
+	if (IS_IKE(pdev) ||
+		(pdev->id.hversion == REO_MERCED_PORT) ||
+		(pdev->id.hversion == REOG_MERCED_PORT)) {
+			return 1;
+	}
+	return 0;
+}
+
+int __init machine_has_merced_bus(void)
+{
+	int ret;
+
+	ret = for_each_padev(is_IKE_device, NULL);
+	return ret ? 1 : 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * find_pa_parent_type - Find a parent of a specific type
  * @dev: The device to start searching from

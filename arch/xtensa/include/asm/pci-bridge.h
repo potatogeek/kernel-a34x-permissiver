@@ -11,8 +11,11 @@
 #ifndef _XTENSA_PCI_BRIDGE_H
 #define _XTENSA_PCI_BRIDGE_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 struct device_node;
 struct pci_controller;
 
@@ -84,5 +87,8 @@ int early_write_config_byte(struct pci_controller*, int, int, int, u8);
 int early_write_config_word(struct pci_controller*, int, int, int, u16);
 int early_write_config_dword(struct pci_controller*, int, int, int, u32);
 
+<<<<<<< HEAD
 #endif	/* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif	/* _XTENSA_PCI_BRIDGE_H */

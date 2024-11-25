@@ -14,6 +14,10 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqdomain.h>
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 #include <linux/interrupt.h>
 #include <linux/slab.h>

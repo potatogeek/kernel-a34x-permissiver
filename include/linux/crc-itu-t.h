@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *	crc-itu-t.h - CRC ITU-T V.41 routine
  *
@@ -5,9 +9,12 @@
  *   Width 16
  *   Poly  0x1021 (x^16 + x^12 + x^15 + 1)
  *   Init  0
+<<<<<<< HEAD
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2. See the file COPYING for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef CRC_ITU_T_H

@@ -38,7 +38,10 @@ struct pci_controller {
 	struct resource *io_resource;
 	unsigned long io_offset;
 	unsigned long io_map_base;
+<<<<<<< HEAD
 	struct resource *busn_resource;
+=======
+>>>>>>> upstream/android-13
 
 #ifndef CONFIG_PCI_DOMAINS_GENERIC
 	unsigned int index;
@@ -108,7 +111,10 @@ extern unsigned long PCIBIOS_MIN_MEM;
 
 #define HAVE_PCI_MMAP
 #define ARCH_GENERIC_PCI_MMAP_RESOURCE
+<<<<<<< HEAD
 #define HAVE_ARCH_PCI_RESOURCE_TO_USER
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Dynamic DMA mapping stuff.

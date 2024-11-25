@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Maxime Ripard
  * Maxime Ripard <maxime.ripard@free-electrons.com>
@@ -9,6 +10,16 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Maxime Ripard
+ * Maxime Ripard <maxime.ripard@free-electrons.com>
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #include "ccu_frac.h"
 #include "ccu_gate.h"
@@ -136,6 +147,16 @@ static long ccu_nm_round_rate(struct clk_hw *hw, unsigned long rate,
 		return rate;
 	}
 
+<<<<<<< HEAD
+=======
+	if (nm->max_rate && rate > nm->max_rate) {
+		rate = nm->max_rate;
+		if (nm->common.features & CCU_FEATURE_FIXED_POSTDIV)
+			rate /= nm->fixed_post_div;
+		return rate;
+	}
+
+>>>>>>> upstream/android-13
 	if (ccu_frac_helper_has_rate(&nm->common, &nm->frac, rate)) {
 		if (nm->common.features & CCU_FEATURE_FIXED_POSTDIV)
 			rate /= nm->fixed_post_div;

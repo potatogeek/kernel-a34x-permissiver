@@ -6,6 +6,10 @@
  * (C) Copyright 2014 - 2015, Xilinx, Inc.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
@@ -18,6 +22,10 @@
 #include <linux/of_platform.h>
 #include <linux/of_irq.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
+=======
+#include <linux/pci-ecam.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/irqchip/chained_irq.h>
 
@@ -25,6 +33,10 @@
 
 /* Bridge core config registers */
 #define BRCFG_PCIE_RX0			0x00000000
+<<<<<<< HEAD
+=======
+#define BRCFG_PCIE_RX1			0x00000004
+>>>>>>> upstream/android-13
 #define BRCFG_INTERRUPT			0x00000010
 #define BRCFG_PCIE_RX_MSG_FILTER	0x00000020
 
@@ -124,11 +136,18 @@
 #define E_ECAM_CR_ENABLE		BIT(0)
 #define E_ECAM_SIZE_LOC			GENMASK(20, 16)
 #define E_ECAM_SIZE_SHIFT		16
+<<<<<<< HEAD
 #define ECAM_BUS_LOC_SHIFT		20
 #define ECAM_DEV_LOC_SHIFT		12
 #define NWL_ECAM_VALUE_DEFAULT		12
 
 #define CFG_DMA_REG_BAR			GENMASK(2, 0)
+=======
+#define NWL_ECAM_VALUE_DEFAULT		12
+
+#define CFG_DMA_REG_BAR			GENMASK(2, 0)
+#define CFG_PCIE_CACHE			GENMASK(7, 0)
+>>>>>>> upstream/android-13
 
 #define INT_PCI_MSI_NR			(2 * 32)
 
@@ -166,9 +185,15 @@ struct nwl_pcie {
 	int irq_misc;
 	u32 ecam_value;
 	u8 last_busno;
+<<<<<<< HEAD
 	u8 root_busno;
 	struct nwl_msi msi;
 	struct irq_domain *legacy_irq_domain;
+=======
+	struct nwl_msi msi;
+	struct irq_domain *legacy_irq_domain;
+	struct clk *clk;
+>>>>>>> upstream/android-13
 	raw_spinlock_t leg_mask_lock;
 };
 
@@ -217,6 +242,7 @@ static bool nwl_pcie_valid_device(struct pci_bus *bus, unsigned int devfn)
 	struct nwl_pcie *pcie = bus->sysdata;
 
 	/* Check link before accessing downstream ports */
+<<<<<<< HEAD
 	if (bus->number != pcie->root_busno) {
 		if (!nwl_pcie_link_up(pcie))
 			return false;
@@ -224,6 +250,13 @@ static bool nwl_pcie_valid_device(struct pci_bus *bus, unsigned int devfn)
 
 	/* Only one device down on each root port */
 	if (bus->number == pcie->root_busno && devfn > 0)
+=======
+	if (!pci_is_root_bus(bus)) {
+		if (!nwl_pcie_link_up(pcie))
+			return false;
+	} else if (devfn > 0)
+		/* Only one device down on each root port */
+>>>>>>> upstream/android-13
 		return false;
 
 	return true;
@@ -243,15 +276,22 @@ static void __iomem *nwl_pcie_map_bus(struct pci_bus *bus, unsigned int devfn,
 				      int where)
 {
 	struct nwl_pcie *pcie = bus->sysdata;
+<<<<<<< HEAD
 	int relbus;
+=======
+>>>>>>> upstream/android-13
 
 	if (!nwl_pcie_valid_device(bus, devfn))
 		return NULL;
 
+<<<<<<< HEAD
 	relbus = (bus->number << ECAM_BUS_LOC_SHIFT) |
 			(devfn << ECAM_DEV_LOC_SHIFT);
 
 	return pcie->ecam_base + relbus + where;
+=======
+	return pcie->ecam_base + PCIE_ECAM_OFFSET(bus->number, devfn, where);
+>>>>>>> upstream/android-13
 }
 
 /* PCIe operations */
@@ -324,18 +364,26 @@ static void nwl_pcie_leg_handler(struct irq_desc *desc)
 	struct nwl_pcie *pcie;
 	unsigned long status;
 	u32 bit;
+<<<<<<< HEAD
 	u32 virq;
+=======
+>>>>>>> upstream/android-13
 
 	chained_irq_enter(chip, desc);
 	pcie = irq_desc_get_handler_data(desc);
 
 	while ((status = nwl_bridge_readl(pcie, MSGF_LEG_STATUS) &
 				MSGF_LEG_SR_MASKALL) != 0) {
+<<<<<<< HEAD
 		for_each_set_bit(bit, &status, PCI_NUM_INTX) {
 			virq = irq_find_mapping(pcie->legacy_irq_domain, bit);
 			if (virq)
 				generic_handle_irq(virq);
 		}
+=======
+		for_each_set_bit(bit, &status, PCI_NUM_INTX)
+			generic_handle_domain_irq(pcie->legacy_irq_domain, bit);
+>>>>>>> upstream/android-13
 	}
 
 	chained_irq_exit(chip, desc);
@@ -346,16 +394,23 @@ static void nwl_pcie_handle_msi_irq(struct nwl_pcie *pcie, u32 status_reg)
 	struct nwl_msi *msi;
 	unsigned long status;
 	u32 bit;
+<<<<<<< HEAD
 	u32 virq;
+=======
+>>>>>>> upstream/android-13
 
 	msi = &pcie->msi;
 
 	while ((status = nwl_bridge_readl(pcie, status_reg)) != 0) {
 		for_each_set_bit(bit, &status, 32) {
 			nwl_bridge_writel(pcie, 1 << bit, status_reg);
+<<<<<<< HEAD
 			virq = irq_find_mapping(msi->dev_domain, bit);
 			if (virq)
 				generic_handle_irq(virq);
+=======
+			generic_handle_domain_irq(msi->dev_domain, bit);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -382,13 +437,20 @@ static void nwl_pcie_msi_handler_low(struct irq_desc *desc)
 
 static void nwl_mask_leg_irq(struct irq_data *data)
 {
+<<<<<<< HEAD
 	struct irq_desc *desc = irq_to_desc(data->irq);
 	struct nwl_pcie *pcie;
+=======
+	struct nwl_pcie *pcie = irq_data_get_irq_chip_data(data);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 mask;
 	u32 val;
 
+<<<<<<< HEAD
 	pcie = irq_desc_get_chip_data(desc);
+=======
+>>>>>>> upstream/android-13
 	mask = 1 << (data->hwirq - 1);
 	raw_spin_lock_irqsave(&pcie->leg_mask_lock, flags);
 	val = nwl_bridge_readl(pcie, MSGF_LEG_MASK);
@@ -398,13 +460,20 @@ static void nwl_mask_leg_irq(struct irq_data *data)
 
 static void nwl_unmask_leg_irq(struct irq_data *data)
 {
+<<<<<<< HEAD
 	struct irq_desc *desc = irq_to_desc(data->irq);
 	struct nwl_pcie *pcie;
+=======
+	struct nwl_pcie *pcie = irq_data_get_irq_chip_data(data);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 mask;
 	u32 val;
 
+<<<<<<< HEAD
 	pcie = irq_desc_get_chip_data(desc);
+=======
+>>>>>>> upstream/android-13
 	mask = 1 << (data->hwirq - 1);
 	raw_spin_lock_irqsave(&pcie->leg_mask_lock, flags);
 	val = nwl_bridge_readl(pcie, MSGF_LEG_MASK);
@@ -438,11 +507,18 @@ static const struct irq_domain_ops legacy_domain_ops = {
 #ifdef CONFIG_PCI_MSI
 static struct irq_chip nwl_msi_irq_chip = {
 	.name = "nwl_pcie:msi",
+<<<<<<< HEAD
 	.irq_enable = unmask_msi_irq,
 	.irq_disable = mask_msi_irq,
 	.irq_mask = mask_msi_irq,
 	.irq_unmask = unmask_msi_irq,
 
+=======
+	.irq_enable = pci_msi_unmask_irq,
+	.irq_disable = pci_msi_mask_irq,
+	.irq_mask = pci_msi_mask_irq,
+	.irq_unmask = pci_msi_unmask_irq,
+>>>>>>> upstream/android-13
 };
 
 static struct msi_domain_info nwl_msi_domain_info = {
@@ -587,7 +663,10 @@ static int nwl_pcie_enable_msi(struct nwl_pcie *pcie)
 	/* Get msi_1 IRQ number */
 	msi->irq_msi1 = platform_get_irq_byname(pdev, "msi1");
 	if (msi->irq_msi1 < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to get IRQ#%d\n", msi->irq_msi1);
+=======
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto err;
 	}
@@ -598,7 +677,10 @@ static int nwl_pcie_enable_msi(struct nwl_pcie *pcie)
 	/* Get msi_0 IRQ number */
 	msi->irq_msi0 = platform_get_irq_byname(pdev, "msi0");
 	if (msi->irq_msi0 < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to get IRQ#%d\n", msi->irq_msi0);
+=======
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto err;
 	}
@@ -690,6 +772,14 @@ static int nwl_pcie_bridge_init(struct nwl_pcie *pcie)
 	nwl_bridge_writel(pcie, CFG_ENABLE_MSG_FILTER_MASK,
 			  BRCFG_PCIE_RX_MSG_FILTER);
 
+<<<<<<< HEAD
+=======
+	/* This routes the PCIe DMA traffic to go through CCI path */
+	if (of_dma_is_coherent(dev->of_node))
+		nwl_bridge_writel(pcie, nwl_bridge_readl(pcie, BRCFG_PCIE_RX1) |
+				  CFG_PCIE_CACHE, BRCFG_PCIE_RX1);
+
+>>>>>>> upstream/android-13
 	err = nwl_wait_for_link(pcie);
 	if (err)
 		return err;
@@ -729,11 +819,16 @@ static int nwl_pcie_bridge_init(struct nwl_pcie *pcie)
 
 	/* Get misc IRQ number */
 	pcie->irq_misc = platform_get_irq_byname(pdev, "misc");
+<<<<<<< HEAD
 	if (pcie->irq_misc < 0) {
 		dev_err(dev, "failed to get misc IRQ %d\n",
 			pcie->irq_misc);
 		return -EINVAL;
 	}
+=======
+	if (pcie->irq_misc < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	err = devm_request_irq(dev, pcie->irq_misc,
 			       nwl_pcie_misc_handler, IRQF_SHARED,
@@ -776,6 +871,7 @@ static int nwl_pcie_parse_dt(struct nwl_pcie *pcie,
 			     struct platform_device *pdev)
 {
 	struct device *dev = pcie->dev;
+<<<<<<< HEAD
 	struct device_node *node = dev->of_node;
 	struct resource *res;
 	const char *type;
@@ -786,6 +882,9 @@ static int nwl_pcie_parse_dt(struct nwl_pcie *pcie,
 		dev_err(dev, "invalid \"device_type\" %s\n", type);
 		return -EINVAL;
 	}
+=======
+	struct resource *res;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "breg");
 	pcie->breg_base = devm_ioremap_resource(dev, res);
@@ -807,10 +906,15 @@ static int nwl_pcie_parse_dt(struct nwl_pcie *pcie,
 
 	/* Get intx IRQ number */
 	pcie->irq_intx = platform_get_irq_byname(pdev, "intx");
+<<<<<<< HEAD
 	if (pcie->irq_intx < 0) {
 		dev_err(dev, "failed to get intx IRQ %d\n", pcie->irq_intx);
 		return pcie->irq_intx;
 	}
+=======
+	if (pcie->irq_intx < 0)
+		return pcie->irq_intx;
+>>>>>>> upstream/android-13
 
 	irq_set_chained_handler_and_data(pcie->irq_intx,
 					 nwl_pcie_leg_handler, pcie);
@@ -827,12 +931,17 @@ static int nwl_pcie_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct nwl_pcie *pcie;
+<<<<<<< HEAD
 	struct pci_bus *bus;
 	struct pci_bus *child;
 	struct pci_host_bridge *bridge;
 	int err;
 	resource_size_t iobase = 0;
 	LIST_HEAD(res);
+=======
+	struct pci_host_bridge *bridge;
+	int err;
+>>>>>>> upstream/android-13
 
 	bridge = devm_pci_alloc_host_bridge(dev, sizeof(*pcie));
 	if (!bridge)
@@ -849,12 +958,26 @@ static int nwl_pcie_probe(struct platform_device *pdev)
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	pcie->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(pcie->clk))
+		return PTR_ERR(pcie->clk);
+
+	err = clk_prepare_enable(pcie->clk);
+	if (err) {
+		dev_err(dev, "can't enable PCIe ref clock\n");
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	err = nwl_pcie_bridge_init(pcie);
 	if (err) {
 		dev_err(dev, "HW Initialization failed\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = devm_of_pci_get_host_bridge_resources(dev, 0, 0xff, &res,
 						    &iobase);
 	if (err) {
@@ -879,11 +1002,22 @@ static int nwl_pcie_probe(struct platform_device *pdev)
 	bridge->ops = &nwl_pcie_ops;
 	bridge->map_irq = of_irq_parse_and_map_pci;
 	bridge->swizzle_irq = pci_common_swizzle;
+=======
+	err = nwl_pcie_init_irq_domain(pcie);
+	if (err) {
+		dev_err(dev, "Failed creating IRQ Domain\n");
+		return err;
+	}
+
+	bridge->sysdata = pcie;
+	bridge->ops = &nwl_pcie_ops;
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_PCI_MSI)) {
 		err = nwl_pcie_enable_msi(pcie);
 		if (err < 0) {
 			dev_err(dev, "failed to enable MSI support: %d\n", err);
+<<<<<<< HEAD
 			goto error;
 		}
 	}
@@ -903,6 +1037,13 @@ static int nwl_pcie_probe(struct platform_device *pdev)
 error:
 	pci_free_resource_list(&res);
 	return err;
+=======
+			return err;
+		}
+	}
+
+	return pci_host_probe(bridge);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver nwl_pcie_driver = {

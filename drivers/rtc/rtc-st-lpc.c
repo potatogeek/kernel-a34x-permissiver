@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * rtc-st-lpc.c - ST's LPC RTC, powered by the Low Power Timer
  *
@@ -7,11 +11,14 @@
  *         Lee Jones <lee.jones@linaro.org> for STMicroelectronics
  *
  * Based on the original driver written by Stuart Menefy.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -45,7 +52,10 @@
 struct st_rtc {
 	struct rtc_device *rtc_dev;
 	struct rtc_wkalrm alarm;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	unsigned long clkrate;
 	void __iomem *ioaddr;
@@ -166,10 +176,13 @@ static int st_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
 	now_secs = rtc_tm_to_time64(&now);
 	alarm_secs = rtc_tm_to_time64(&t->time);
 
+<<<<<<< HEAD
 	/* Invalid alarm time */
 	if (now_secs > alarm_secs)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	memcpy(&rtc->alarm, t, sizeof(struct rtc_wkalrm));
 
 	/* Now many secs to fire */
@@ -182,7 +195,11 @@ static int st_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct rtc_class_ops st_rtc_ops = {
+=======
+static const struct rtc_class_ops st_rtc_ops = {
+>>>>>>> upstream/android-13
 	.read_time		= st_rtc_read_time,
 	.set_time		= st_rtc_set_time,
 	.read_alarm		= st_rtc_read_alarm,
@@ -194,7 +211,10 @@ static int st_rtc_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct st_rtc *rtc;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	uint32_t mode;
 	int ret = 0;
 
@@ -218,8 +238,12 @@ static int st_rtc_probe(struct platform_device *pdev)
 
 	spin_lock_init(&rtc->lock);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rtc->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	rtc->ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rtc->ioaddr))
 		return PTR_ERR(rtc->ioaddr);
 
@@ -261,7 +285,11 @@ static int st_rtc_probe(struct platform_device *pdev)
 	rtc->rtc_dev->range_max = U64_MAX;
 	do_div(rtc->rtc_dev->range_max, rtc->clkrate);
 
+<<<<<<< HEAD
 	ret = rtc_register_device(rtc->rtc_dev);
+=======
+	ret = devm_rtc_register_device(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 	if (ret) {
 		clk_disable_unprepare(rtc->clk);
 		return ret;

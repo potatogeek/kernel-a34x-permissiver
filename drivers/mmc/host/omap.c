@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/host/omap.c
  *
@@ -5,10 +9,13 @@
  *  Written by Tuukka Tikkanen and Juha Yrjölä<juha.yrjola@nokia.com>
  *  Misc hacks here and there by Tony Lindgren <tony@atomide.com>
  *  Other hacks (DMA, SD, etc) by David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -881,9 +888,15 @@ static void mmc_omap_cover_timer(struct timer_list *t)
 	tasklet_schedule(&slot->cover_tasklet);
 }
 
+<<<<<<< HEAD
 static void mmc_omap_cover_handler(unsigned long param)
 {
 	struct mmc_omap_slot *slot = (struct mmc_omap_slot *)param;
+=======
+static void mmc_omap_cover_handler(struct tasklet_struct *t)
+{
+	struct mmc_omap_slot *slot = from_tasklet(slot, t, cover_tasklet);
+>>>>>>> upstream/android-13
 	int cover_open = mmc_omap_cover_is_open(slot);
 
 	mmc_detect_change(slot->mmc, 0);
@@ -1247,7 +1260,11 @@ static int mmc_omap_new_slot(struct mmc_omap_host *host, int id)
 
 	mmc->caps = 0;
 	if (host->pdata->slots[id].wires >= 4)
+<<<<<<< HEAD
 		mmc->caps |= MMC_CAP_4_BIT_DATA | MMC_CAP_ERASE;
+=======
+		mmc->caps |= MMC_CAP_4_BIT_DATA;
+>>>>>>> upstream/android-13
 
 	mmc->ops = &mmc_omap_ops;
 	mmc->f_min = 400000;
@@ -1272,8 +1289,12 @@ static int mmc_omap_new_slot(struct mmc_omap_host *host, int id)
 
 	if (slot->pdata->get_cover_state != NULL) {
 		timer_setup(&slot->cover_timer, mmc_omap_cover_timer, 0);
+<<<<<<< HEAD
 		tasklet_init(&slot->cover_tasklet, mmc_omap_cover_handler,
 			     (unsigned long)slot);
+=======
+		tasklet_setup(&slot->cover_tasklet, mmc_omap_cover_handler);
+>>>>>>> upstream/android-13
 	}
 
 	r = mmc_add_host(mmc);
@@ -1507,6 +1528,10 @@ static struct platform_driver mmc_omap_driver = {
 	.remove		= mmc_omap_remove,
 	.driver		= {
 		.name	= DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(mmc_omap_match),
 	},
 };

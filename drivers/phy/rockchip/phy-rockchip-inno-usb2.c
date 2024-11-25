@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Rockchip USB2.0 PHY with Innosilicon IP block driver
  *
  * Copyright (C) 2016 Fuzhou Rockchip Electronics Co., Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -55,6 +62,7 @@ enum rockchip_usb2phy_host_state {
 };
 
 /**
+<<<<<<< HEAD
  * Different states involved in USB charger detection.
  * USB_CHG_STATE_UNDEFINED	USB charger is not connected or detection
  *				process is not yet started.
@@ -65,6 +73,18 @@ enum rockchip_usb2phy_host_state {
  * USB_CHG_STATE_SECONDARY_DONE	Secondary detection is completed (Detects
  *				between DCP and CDP).
  * USB_CHG_STATE_DETECTED	USB charger type is determined.
+=======
+ * enum usb_chg_state - Different states involved in USB charger detection.
+ * @USB_CHG_STATE_UNDEFINED:	USB charger is not connected or detection
+ *				process is not yet started.
+ * @USB_CHG_STATE_WAIT_FOR_DCD:	Waiting for Data pins contact.
+ * @USB_CHG_STATE_DCD_DONE:	Data pin contact is detected.
+ * @USB_CHG_STATE_PRIMARY_DONE:	Primary detection is completed (Detects
+ *				between SDP and DCP/CDP).
+ * @USB_CHG_STATE_SECONDARY_DONE: Secondary detection is completed (Detects
+ *				  between DCP and CDP).
+ * @USB_CHG_STATE_DETECTED:	USB charger type is determined.
+>>>>>>> upstream/android-13
  */
 enum usb_chg_state {
 	USB_CHG_STATE_UNDEFINED = 0,
@@ -94,7 +114,11 @@ struct usb2phy_reg {
 };
 
 /**
+<<<<<<< HEAD
  * struct rockchip_chg_det_reg: usb charger detect registers
+=======
+ * struct rockchip_chg_det_reg - usb charger detect registers
+>>>>>>> upstream/android-13
  * @cp_det: charging port detected successfully.
  * @dcp_det: dedicated charging port detected successfully.
  * @dp_det: assert data pin connect successfully.
@@ -120,7 +144,11 @@ struct rockchip_chg_det_reg {
 };
 
 /**
+<<<<<<< HEAD
  * struct rockchip_usb2phy_port_cfg: usb-phy port configuration.
+=======
+ * struct rockchip_usb2phy_port_cfg - usb-phy port configuration.
+>>>>>>> upstream/android-13
  * @phy_sus: phy suspend register.
  * @bvalid_det_en: vbus valid rise detection enable register.
  * @bvalid_det_st: vbus valid rise detection status register.
@@ -148,10 +176,18 @@ struct rockchip_usb2phy_port_cfg {
 };
 
 /**
+<<<<<<< HEAD
  * struct rockchip_usb2phy_cfg: usb-phy configuration.
  * @reg: the address offset of grf for usb-phy config.
  * @num_ports: specify how many ports that the phy has.
  * @clkout_ctl: keep on/turn off output clk of phy.
+=======
+ * struct rockchip_usb2phy_cfg - usb-phy configuration.
+ * @reg: the address offset of grf for usb-phy config.
+ * @num_ports: specify how many ports that the phy has.
+ * @clkout_ctl: keep on/turn off output clk of phy.
+ * @port_cfgs: usb-phy port configurations.
+>>>>>>> upstream/android-13
  * @chg_det: charger detection registers.
  */
 struct rockchip_usb2phy_cfg {
@@ -163,12 +199,19 @@ struct rockchip_usb2phy_cfg {
 };
 
 /**
+<<<<<<< HEAD
  * struct rockchip_usb2phy_port: usb-phy port data.
  * @port_id: flag for otg port or host port.
  * @suspended: phy suspended flag.
  * @utmi_avalid: utmi avalid status usage flag.
  *	true	- use avalid to get vbus status
  *	flase	- use bvalid to get vbus status
+=======
+ * struct rockchip_usb2phy_port - usb-phy port data.
+ * @phy: generic phy.
+ * @port_id: flag for otg port or host port.
+ * @suspended: phy suspended flag.
+>>>>>>> upstream/android-13
  * @vbus_attached: otg device vbus status.
  * @bvalid_irq: IRQ number assigned for vbus valid rise detection.
  * @ls_irq: IRQ number assigned for linestate detection.
@@ -178,7 +221,11 @@ struct rockchip_usb2phy_cfg {
  * @chg_work: charge detect work.
  * @otg_sm_work: OTG state machine work.
  * @sm_work: HOST state machine work.
+<<<<<<< HEAD
  * @phy_cfg: port register configuration, assigned by driver data.
+=======
+ * @port_cfg: port register configuration, assigned by driver data.
+>>>>>>> upstream/android-13
  * @event_nb: hold event notification callback.
  * @state: define OTG enumeration states before device reset.
  * @mode: the dr_mode of the controller.
@@ -187,7 +234,10 @@ struct rockchip_usb2phy_port {
 	struct phy	*phy;
 	unsigned int	port_id;
 	bool		suspended;
+<<<<<<< HEAD
 	bool		utmi_avalid;
+=======
+>>>>>>> upstream/android-13
 	bool		vbus_attached;
 	int		bvalid_irq;
 	int		ls_irq;
@@ -203,12 +253,21 @@ struct rockchip_usb2phy_port {
 };
 
 /**
+<<<<<<< HEAD
  * struct rockchip_usb2phy: usb2.0 phy driver data.
+=======
+ * struct rockchip_usb2phy - usb2.0 phy driver data.
+ * @dev: pointer to device.
+>>>>>>> upstream/android-13
  * @grf: General Register Files regmap.
  * @usbgrf: USB General Register Files regmap.
  * @clk: clock struct of phy input clk.
  * @clk480m: clock struct of phy output clk.
+<<<<<<< HEAD
  * @clk_hw: clock struct of phy output clk management.
+=======
+ * @clk480m_hw: clock struct of phy output clk management.
+>>>>>>> upstream/android-13
  * @chg_state: states involved in USB charger detection.
  * @chg_type: USB charger types.
  * @dcd_retries: The retry count used to track Data contact
@@ -542,12 +601,17 @@ static void rockchip_usb2phy_otg_sm_work(struct work_struct *work)
 	unsigned long delay;
 	bool vbus_attach, sch_work, notify_charger;
 
+<<<<<<< HEAD
 	if (rport->utmi_avalid)
 		vbus_attach = property_enabled(rphy->grf,
 					       &rport->port_cfg->utmi_avalid);
 	else
 		vbus_attach = property_enabled(rphy->grf,
 					       &rport->port_cfg->utmi_bvalid);
+=======
+	vbus_attach = property_enabled(rphy->grf,
+				       &rport->port_cfg->utmi_bvalid);
+>>>>>>> upstream/android-13
 
 	sch_work = false;
 	notify_charger = false;
@@ -560,7 +624,11 @@ static void rockchip_usb2phy_otg_sm_work(struct work_struct *work)
 		rport->state = OTG_STATE_B_IDLE;
 		if (!vbus_attach)
 			rockchip_usb2phy_power_off(rport->phy);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OTG_STATE_B_IDLE:
 		if (extcon_get_state(rphy->edev, EXTCON_USB_HOST) > 0) {
 			dev_dbg(&rport->phy->dev, "usb otg host connect\n");
@@ -768,16 +836,28 @@ static void rockchip_chg_detect_work(struct work_struct *work)
 			rphy->chg_type = POWER_SUPPLY_TYPE_USB_DCP;
 		else
 			rphy->chg_type = POWER_SUPPLY_TYPE_USB_CDP;
+<<<<<<< HEAD
 		/* fall through */
 	case USB_CHG_STATE_SECONDARY_DONE:
 		rphy->chg_state = USB_CHG_STATE_DETECTED;
 		delay = 0;
 		/* fall through */
+=======
+		fallthrough;
+	case USB_CHG_STATE_SECONDARY_DONE:
+		rphy->chg_state = USB_CHG_STATE_DETECTED;
+		delay = 0;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_CHG_STATE_DETECTED:
 		/* put the controller in normal mode */
 		property_enable(base, &rphy->phy_cfg->chg_det.opmode, true);
 		rockchip_usb2phy_otg_sm_work(&rport->otg_sm_work.work);
+<<<<<<< HEAD
 		dev_info(&rport->phy->dev, "charger = %s\n",
+=======
+		dev_dbg(&rport->phy->dev, "charger = %s\n",
+>>>>>>> upstream/android-13
 			 chg_to_string(rphy->chg_type));
 		return;
 	default:
@@ -849,7 +929,11 @@ static void rockchip_usb2phy_sm_work(struct work_struct *work)
 			dev_dbg(&rport->phy->dev, "FS/LS online\n");
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PHY_STATE_CONNECT:
 		if (rport->suspended) {
 			dev_dbg(&rport->phy->dev, "Connected\n");
@@ -1021,9 +1105,12 @@ static int rockchip_usb2phy_otg_port_init(struct rockchip_usb2phy *rphy,
 	INIT_DELAYED_WORK(&rport->chg_work, rockchip_chg_detect_work);
 	INIT_DELAYED_WORK(&rport->otg_sm_work, rockchip_usb2phy_otg_sm_work);
 
+<<<<<<< HEAD
 	rport->utmi_avalid =
 		of_property_read_bool(child_np, "rockchip,utmi-avalid");
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Some SoCs use one interrupt with otg-id/otg-bvalid/linestate
 	 * interrupts muxed together, so probe the otg-mux interrupt first,
@@ -1116,8 +1203,13 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
 	}
 
 	if (of_property_read_u32(np, "reg", &reg)) {
+<<<<<<< HEAD
 		dev_err(dev, "the reg property is not assigned in %s node\n",
 			np->name);
+=======
+		dev_err(dev, "the reg property is not assigned in %pOFn node\n",
+			np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1143,8 +1235,13 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
 	}
 
 	if (!rphy->phy_cfg) {
+<<<<<<< HEAD
 		dev_err(dev, "no phy-config can be matched with %s node\n",
 			np->name);
+=======
+		dev_err(dev, "no phy-config can be matched with %pOFn node\n",
+			np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1168,8 +1265,13 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
 		struct phy *phy;
 
 		/* This driver aims to support both otg-port and host-port */
+<<<<<<< HEAD
 		if (of_node_cmp(child_np->name, "host-port") &&
 		    of_node_cmp(child_np->name, "otg-port"))
+=======
+		if (!of_node_name_eq(child_np, "host-port") &&
+		    !of_node_name_eq(child_np, "otg-port"))
+>>>>>>> upstream/android-13
 			goto next_child;
 
 		phy = devm_phy_create(dev, child_np, &rockchip_usb2phy_ops);
@@ -1183,7 +1285,11 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
 		phy_set_drvdata(rport->phy, rport);
 
 		/* initialize otg/host port separately */
+<<<<<<< HEAD
 		if (!of_node_cmp(child_np->name, "host-port")) {
+=======
+		if (of_node_name_eq(child_np, "host-port")) {
+>>>>>>> upstream/android-13
 			ret = rockchip_usb2phy_host_port_init(rphy, rport,
 							      child_np);
 			if (ret)
@@ -1197,8 +1303,15 @@ static int rockchip_usb2phy_probe(struct platform_device *pdev)
 
 next_child:
 		/* to prevent out of boundary */
+<<<<<<< HEAD
 		if (++index >= rphy->phy_cfg->num_ports)
 			break;
+=======
+		if (++index >= rphy->phy_cfg->num_ports) {
+			of_node_put(child_np);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
@@ -1273,6 +1386,52 @@ static const struct rockchip_usb2phy_cfg rk3228_phy_cfgs[] = {
 	{ /* sentinel */ }
 };
 
+<<<<<<< HEAD
+=======
+static const struct rockchip_usb2phy_cfg rk3308_phy_cfgs[] = {
+	{
+		.reg = 0x100,
+		.num_ports	= 2,
+		.clkout_ctl	= { 0x108, 4, 4, 1, 0 },
+		.port_cfgs	= {
+			[USB2PHY_PORT_OTG] = {
+				.phy_sus	= { 0x0100, 8, 0, 0, 0x1d1 },
+				.bvalid_det_en	= { 0x3020, 2, 2, 0, 1 },
+				.bvalid_det_st	= { 0x3024, 2, 2, 0, 1 },
+				.bvalid_det_clr = { 0x3028, 2, 2, 0, 1 },
+				.ls_det_en	= { 0x3020, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x3024, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x3028, 0, 0, 0, 1 },
+				.utmi_avalid	= { 0x0120, 10, 10, 0, 1 },
+				.utmi_bvalid	= { 0x0120, 9, 9, 0, 1 },
+				.utmi_ls	= { 0x0120, 5, 4, 0, 1 },
+			},
+			[USB2PHY_PORT_HOST] = {
+				.phy_sus	= { 0x0104, 8, 0, 0, 0x1d1 },
+				.ls_det_en	= { 0x3020, 1, 1, 0, 1 },
+				.ls_det_st	= { 0x3024, 1, 1, 0, 1 },
+				.ls_det_clr	= { 0x3028, 1, 1, 0, 1 },
+				.utmi_ls	= { 0x0120, 17, 16, 0, 1 },
+				.utmi_hstdet	= { 0x0120, 19, 19, 0, 1 }
+			}
+		},
+		.chg_det = {
+			.opmode		= { 0x0100, 3, 0, 5, 1 },
+			.cp_det		= { 0x0120, 24, 24, 0, 1 },
+			.dcp_det	= { 0x0120, 23, 23, 0, 1 },
+			.dp_det		= { 0x0120, 25, 25, 0, 1 },
+			.idm_sink_en	= { 0x0108, 8, 8, 0, 1 },
+			.idp_sink_en	= { 0x0108, 7, 7, 0, 1 },
+			.idp_src_en	= { 0x0108, 9, 9, 0, 1 },
+			.rdm_pdwn_en	= { 0x0108, 10, 10, 0, 1 },
+			.vdm_src_en	= { 0x0108, 12, 12, 0, 1 },
+			.vdp_src_en	= { 0x0108, 11, 11, 0, 1 },
+		},
+	},
+	{ /* sentinel */ }
+};
+
+>>>>>>> upstream/android-13
 static const struct rockchip_usb2phy_cfg rk3328_phy_cfgs[] = {
 	{
 		.reg = 0x100,
@@ -1440,7 +1599,13 @@ static const struct rockchip_usb2phy_cfg rv1108_phy_cfgs[] = {
 };
 
 static const struct of_device_id rockchip_usb2phy_dt_match[] = {
+<<<<<<< HEAD
 	{ .compatible = "rockchip,rk3228-usb2phy", .data = &rk3228_phy_cfgs },
+=======
+	{ .compatible = "rockchip,px30-usb2phy", .data = &rk3328_phy_cfgs },
+	{ .compatible = "rockchip,rk3228-usb2phy", .data = &rk3228_phy_cfgs },
+	{ .compatible = "rockchip,rk3308-usb2phy", .data = &rk3308_phy_cfgs },
+>>>>>>> upstream/android-13
 	{ .compatible = "rockchip,rk3328-usb2phy", .data = &rk3328_phy_cfgs },
 	{ .compatible = "rockchip,rk3366-usb2phy", .data = &rk3366_phy_cfgs },
 	{ .compatible = "rockchip,rk3399-usb2phy", .data = &rk3399_phy_cfgs },

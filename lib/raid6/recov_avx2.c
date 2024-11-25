@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Intel Corporation
  * Author: Jim Kukunas <james.t.kukunas@linux.intel.com>
@@ -10,6 +11,14 @@
 
 #ifdef CONFIG_AS_AVX2
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Intel Corporation
+ * Author: Jim Kukunas <james.t.kukunas@linux.intel.com>
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/raid/pq.h>
 #include "x86.h"
 
@@ -317,7 +326,10 @@ const struct raid6_recov_calls raid6_recov_avx2 = {
 #endif
 	.priority = 2,
 };
+<<<<<<< HEAD
 
 #else
 #warning "your version of binutils lacks AVX2 support"
 #endif
+=======
+>>>>>>> upstream/android-13

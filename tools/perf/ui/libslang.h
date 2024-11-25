@@ -10,7 +10,16 @@
 #ifndef HAVE_LONG_LONG
 #define HAVE_LONG_LONG __GLIBC_HAVE_LONG_LONG
 #endif
+<<<<<<< HEAD
 #include <slang.h>
+=======
+
+#ifdef HAVE_SLANG_INCLUDE_SUBDIR
+#include <slang/slang.h>
+#else
+#include <slang.h>
+#endif
+>>>>>>> upstream/android-13
 
 #if SLANG_VERSION < 20104
 #define slsmg_printf(msg, args...) \

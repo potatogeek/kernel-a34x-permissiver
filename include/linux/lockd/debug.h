@@ -10,8 +10,11 @@
 #ifndef LINUX_LOCKD_DEBUG_H
 #define LINUX_LOCKD_DEBUG_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/sunrpc/debug.h>
 
 /*
@@ -25,8 +28,11 @@
 # define ifdebug(flag)		if (0)
 #endif
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Debug flags
  */

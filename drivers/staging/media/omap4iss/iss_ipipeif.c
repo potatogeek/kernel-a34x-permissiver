@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * TI OMAP4 ISS V4L2 Driver - ISP IPIPEIF module
  *
  * Copyright (C) 2012 Texas Instruments, Inc.
  *
  * Author: Sergio Aguirre <sergio.a.aguirre@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -361,11 +368,20 @@ static int ipipeif_set_stream(struct v4l2_subdev *sd, int enable)
 
 static struct v4l2_mbus_framefmt *
 __ipipeif_get_format(struct iss_ipipeif_device *ipipeif,
+<<<<<<< HEAD
 		     struct v4l2_subdev_pad_config *cfg, unsigned int pad,
 		     enum v4l2_subdev_format_whence which)
 {
 	if (which == V4L2_SUBDEV_FORMAT_TRY)
 		return v4l2_subdev_get_try_format(&ipipeif->subdev, cfg, pad);
+=======
+		     struct v4l2_subdev_state *sd_state, unsigned int pad,
+		     enum v4l2_subdev_format_whence which)
+{
+	if (which == V4L2_SUBDEV_FORMAT_TRY)
+		return v4l2_subdev_get_try_format(&ipipeif->subdev, sd_state,
+						  pad);
+>>>>>>> upstream/android-13
 	return &ipipeif->formats[pad];
 }
 
@@ -378,7 +394,11 @@ __ipipeif_get_format(struct iss_ipipeif_device *ipipeif,
  */
 static void
 ipipeif_try_format(struct iss_ipipeif_device *ipipeif,
+<<<<<<< HEAD
 		   struct v4l2_subdev_pad_config *cfg, unsigned int pad,
+=======
+		   struct v4l2_subdev_state *sd_state, unsigned int pad,
+>>>>>>> upstream/android-13
 		   struct v4l2_mbus_framefmt *fmt,
 		   enum v4l2_subdev_format_whence which)
 {
@@ -407,7 +427,12 @@ ipipeif_try_format(struct iss_ipipeif_device *ipipeif,
 		break;
 
 	case IPIPEIF_PAD_SOURCE_ISIF_SF:
+<<<<<<< HEAD
 		format = __ipipeif_get_format(ipipeif, cfg, IPIPEIF_PAD_SINK,
+=======
+		format = __ipipeif_get_format(ipipeif, sd_state,
+					      IPIPEIF_PAD_SINK,
+>>>>>>> upstream/android-13
 					      which);
 		memcpy(fmt, format, sizeof(*fmt));
 
@@ -422,7 +447,12 @@ ipipeif_try_format(struct iss_ipipeif_device *ipipeif,
 		break;
 
 	case IPIPEIF_PAD_SOURCE_VP:
+<<<<<<< HEAD
 		format = __ipipeif_get_format(ipipeif, cfg, IPIPEIF_PAD_SINK,
+=======
+		format = __ipipeif_get_format(ipipeif, sd_state,
+					      IPIPEIF_PAD_SINK,
+>>>>>>> upstream/android-13
 					      which);
 		memcpy(fmt, format, sizeof(*fmt));
 
@@ -446,7 +476,11 @@ ipipeif_try_format(struct iss_ipipeif_device *ipipeif,
  * return -EINVAL or zero on success
  */
 static int ipipeif_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct iss_ipipeif_device *ipipeif = v4l2_get_subdevdata(sd);
@@ -466,7 +500,12 @@ static int ipipeif_enum_mbus_code(struct v4l2_subdev *sd,
 		if (code->index != 0)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		format = __ipipeif_get_format(ipipeif, cfg, IPIPEIF_PAD_SINK,
+=======
+		format = __ipipeif_get_format(ipipeif, sd_state,
+					      IPIPEIF_PAD_SINK,
+>>>>>>> upstream/android-13
 					      code->which);
 
 		code->code = format->code;
@@ -480,7 +519,11 @@ static int ipipeif_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int ipipeif_enum_frame_size(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
+=======
+				   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				   struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct iss_ipipeif_device *ipipeif = v4l2_get_subdevdata(sd);
@@ -492,7 +535,11 @@ static int ipipeif_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = 1;
 	format.height = 1;
+<<<<<<< HEAD
 	ipipeif_try_format(ipipeif, cfg, fse->pad, &format, fse->which);
+=======
+	ipipeif_try_format(ipipeif, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->min_width = format.width;
 	fse->min_height = format.height;
 
@@ -502,7 +549,11 @@ static int ipipeif_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = -1;
 	format.height = -1;
+<<<<<<< HEAD
 	ipipeif_try_format(ipipeif, cfg, fse->pad, &format, fse->which);
+=======
+	ipipeif_try_format(ipipeif, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->max_width = format.width;
 	fse->max_height = format.height;
 
@@ -519,13 +570,21 @@ static int ipipeif_enum_frame_size(struct v4l2_subdev *sd,
  * to the format type.
  */
 static int ipipeif_get_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_format *fmt)
 {
 	struct iss_ipipeif_device *ipipeif = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __ipipeif_get_format(ipipeif, cfg, fmt->pad, fmt->which);
+=======
+	format = __ipipeif_get_format(ipipeif, sd_state, fmt->pad, fmt->which);
+>>>>>>> upstream/android-13
 	if (!format)
 		return -EINVAL;
 
@@ -543,21 +602,35 @@ static int ipipeif_get_format(struct v4l2_subdev *sd,
  * to the format type.
  */
 static int ipipeif_set_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_format *fmt)
 {
 	struct iss_ipipeif_device *ipipeif = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __ipipeif_get_format(ipipeif, cfg, fmt->pad, fmt->which);
 	if (!format)
 		return -EINVAL;
 
 	ipipeif_try_format(ipipeif, cfg, fmt->pad, &fmt->format, fmt->which);
+=======
+	format = __ipipeif_get_format(ipipeif, sd_state, fmt->pad, fmt->which);
+	if (!format)
+		return -EINVAL;
+
+	ipipeif_try_format(ipipeif, sd_state, fmt->pad, &fmt->format,
+			   fmt->which);
+>>>>>>> upstream/android-13
 	*format = fmt->format;
 
 	/* Propagate the format from sink to source */
 	if (fmt->pad == IPIPEIF_PAD_SINK) {
+<<<<<<< HEAD
 		format = __ipipeif_get_format(ipipeif, cfg,
 					      IPIPEIF_PAD_SOURCE_ISIF_SF,
 					      fmt->which);
@@ -570,6 +643,22 @@ static int ipipeif_set_format(struct v4l2_subdev *sd,
 					      fmt->which);
 		*format = fmt->format;
 		ipipeif_try_format(ipipeif, cfg, IPIPEIF_PAD_SOURCE_VP, format,
+=======
+		format = __ipipeif_get_format(ipipeif, sd_state,
+					      IPIPEIF_PAD_SOURCE_ISIF_SF,
+					      fmt->which);
+		*format = fmt->format;
+		ipipeif_try_format(ipipeif, sd_state,
+				   IPIPEIF_PAD_SOURCE_ISIF_SF,
+				   format, fmt->which);
+
+		format = __ipipeif_get_format(ipipeif, sd_state,
+					      IPIPEIF_PAD_SOURCE_VP,
+					      fmt->which);
+		*format = fmt->format;
+		ipipeif_try_format(ipipeif, sd_state, IPIPEIF_PAD_SOURCE_VP,
+				   format,
+>>>>>>> upstream/android-13
 				   fmt->which);
 	}
 
@@ -612,7 +701,11 @@ static int ipipeif_init_formats(struct v4l2_subdev *sd,
 	format.format.code = MEDIA_BUS_FMT_SGRBG10_1X10;
 	format.format.width = 4096;
 	format.format.height = 4096;
+<<<<<<< HEAD
 	ipipeif_set_format(sd, fh ? fh->pad : NULL, &format);
+=======
+	ipipeif_set_format(sd, fh ? fh->state : NULL, &format);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -738,7 +831,11 @@ static int ipipeif_init_entities(struct iss_ipipeif_device *ipipeif)
 
 	v4l2_subdev_init(sd, &ipipeif_v4l2_ops);
 	sd->internal_ops = &ipipeif_v4l2_internal_ops;
+<<<<<<< HEAD
 	strlcpy(sd->name, "OMAP4 ISS ISP IPIPEIF", sizeof(sd->name));
+=======
+	strscpy(sd->name, "OMAP4 ISS ISP IPIPEIF", sizeof(sd->name));
+>>>>>>> upstream/android-13
 	sd->grp_id = BIT(16);	/* group ID for iss subdevs */
 	v4l2_set_subdevdata(sd, ipipeif);
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;

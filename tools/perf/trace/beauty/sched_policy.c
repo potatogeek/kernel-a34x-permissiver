@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: LGPL-2.1
+>>>>>>> upstream/android-13
 #include <sched.h>
 
 /*
@@ -17,6 +21,11 @@
 static size_t syscall_arg__scnprintf_sched_policy(char *bf, size_t size,
 						  struct syscall_arg *arg)
 {
+<<<<<<< HEAD
+=======
+	bool show_prefix = arg->show_string_prefix;
+	const char *prefix = "SCHED_";
+>>>>>>> upstream/android-13
 	const char *policies[] = {
 		"NORMAL", "FIFO", "RR", "BATCH", "ISO", "IDLE", "DEADLINE",
 	};
@@ -26,13 +35,21 @@ static size_t syscall_arg__scnprintf_sched_policy(char *bf, size_t size,
 
 	policy &= SCHED_POLICY_MASK;
 	if (policy <= SCHED_DEADLINE)
+<<<<<<< HEAD
 		printed = scnprintf(bf, size, "%s", policies[policy]);
+=======
+		printed = scnprintf(bf, size, "%s%s", show_prefix ? prefix : "", policies[policy]);
+>>>>>>> upstream/android-13
 	else
 		printed = scnprintf(bf, size, "%#x", policy);
 
 #define	P_POLICY_FLAG(n) \
 	if (flags & SCHED_##n) { \
+<<<<<<< HEAD
 		printed += scnprintf(bf + printed, size - printed, "|%s", #n); \
+=======
+		printed += scnprintf(bf + printed, size - printed, "|%s%s", show_prefix ? prefix : "",  #n); \
+>>>>>>> upstream/android-13
 		flags &= ~SCHED_##n; \
 	}
 

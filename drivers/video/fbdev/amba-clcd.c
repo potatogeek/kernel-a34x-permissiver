@@ -30,14 +30,18 @@
 #include <video/of_display_timing.h>
 #include <video/videomode.h>
 
+<<<<<<< HEAD
 #include "amba-clcd-nomadik.h"
 #include "amba-clcd-versatile.h"
 
+=======
+>>>>>>> upstream/android-13
 #define to_clcd(info)	container_of(info, struct clcd_fb, fb)
 
 /* This is limited to 16 characters when displayed by X startup */
 static const char *clcd_name = "CLCD FB";
 
+<<<<<<< HEAD
 /*
  * Unfortunately, the enable/disable functions may be called either from
  * process or IRQ context, and we _need_ to delay.  This is _not_ good.
@@ -51,6 +55,8 @@ static inline void clcdfb_sleep(unsigned int ms)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void clcdfb_set_start(struct clcd_fb *fb)
 {
 	unsigned long ustart = fb->fb.fix.smem_start;
@@ -80,7 +86,11 @@ static void clcdfb_disable(struct clcd_fb *fb)
 		val &= ~CNTL_LCDPWR;
 		writel(val, fb->regs + fb->off_cntl);
 
+<<<<<<< HEAD
 		clcdfb_sleep(20);
+=======
+		msleep(20);
+>>>>>>> upstream/android-13
 	}
 	if (val & CNTL_LCDEN) {
 		val &= ~CNTL_LCDEN;
@@ -112,7 +122,11 @@ static void clcdfb_enable(struct clcd_fb *fb, u32 cntl)
 	cntl |= CNTL_LCDEN;
 	writel(cntl, fb->regs + fb->off_cntl);
 
+<<<<<<< HEAD
 	clcdfb_sleep(20);
+=======
+	msleep(20);
+>>>>>>> upstream/android-13
 
 	/*
 	 * and now apply power.
@@ -223,6 +237,7 @@ clcdfb_set_bitfields(struct clcd_fb *fb, struct fb_var_screeninfo *var)
 			var->blue.length = 4;
 		}
 		break;
+<<<<<<< HEAD
 	case 24:
 		if (fb->vendor->packed_24_bit_pixels) {
 			var->red.length = 8;
@@ -232,6 +247,8 @@ clcdfb_set_bitfields(struct clcd_fb *fb, struct fb_var_screeninfo *var)
 			ret = -EINVAL;
 		}
 		break;
+=======
+>>>>>>> upstream/android-13
 	case 32:
 		/* If we can't do 888, reject */
 		caps &= CLCD_CAP_888;
@@ -318,12 +335,15 @@ static int clcdfb_set_par(struct fb_info *info)
 
 	clcdfb_disable(fb);
 
+<<<<<<< HEAD
 	/* Some variants must be clocked here */
 	if (fb->vendor->clock_timregs && !fb->clk_enabled) {
 		fb->clk_enabled = true;
 		clk_enable(fb->clk);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	writel(regs.tim0, fb->regs + CLCD_TIM0);
 	writel(regs.tim1, fb->regs + CLCD_TIM1);
 	writel(regs.tim2, fb->regs + CLCD_TIM2);
@@ -441,7 +461,11 @@ static int clcdfb_mmap(struct fb_info *info,
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct fb_ops clcdfb_ops = {
+=======
+static const struct fb_ops clcdfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= clcdfb_check_var,
 	.fb_set_par	= clcdfb_set_par,
@@ -465,6 +489,7 @@ static int clcdfb_register(struct clcd_fb *fb)
 		fb->off_ienb = CLCD_PL111_IENB;
 		fb->off_cntl = CLCD_PL111_CNTL;
 	} else {
+<<<<<<< HEAD
 		if (of_machine_is_compatible("arm,versatile-ab") ||
 		    of_machine_is_compatible("arm,versatile-pb")) {
 			fb->off_ienb = CLCD_PL111_IENB;
@@ -473,6 +498,10 @@ static int clcdfb_register(struct clcd_fb *fb)
 			fb->off_ienb = CLCD_PL110_IENB;
 			fb->off_cntl = CLCD_PL110_CNTL;
 		}
+=======
+		fb->off_ienb = CLCD_PL110_IENB;
+		fb->off_cntl = CLCD_PL110_CNTL;
+>>>>>>> upstream/android-13
 	}
 
 	fb->clk = clk_get(&fb->dev->dev, NULL);
@@ -585,8 +614,15 @@ static int clcdfb_of_get_dpi_panel_mode(struct device_node *node,
 	struct videomode video;
 
 	err = of_get_display_timing(node, "panel-timing", &timing);
+<<<<<<< HEAD
 	if (err)
 		return err;
+=======
+	if (err) {
+		pr_err("%pOF: problems parsing panel-timing (%d)\n", node, err);
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	videomode_from_timing(&timing, &video);
 
@@ -624,6 +660,7 @@ static int clcdfb_snprintf_mode(char *buf, int size, struct fb_videomode *mode)
 			mode->refresh);
 }
 
+<<<<<<< HEAD
 static int clcdfb_of_get_backlight(struct device_node *panel,
 				   struct clcd_panel *clcd_panel)
 {
@@ -638,6 +675,19 @@ static int clcdfb_of_get_backlight(struct device_node *panel,
 		if (!clcd_panel->backlight)
 			return -EPROBE_DEFER;
 	}
+=======
+static int clcdfb_of_get_backlight(struct device *dev,
+				   struct clcd_panel *clcd_panel)
+{
+	struct backlight_device *backlight;
+
+	/* Look up the optional backlight device */
+	backlight = devm_of_find_backlight(dev);
+	if (IS_ERR(backlight))
+		return PTR_ERR(backlight);
+
+	clcd_panel->backlight = backlight;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -713,6 +763,7 @@ static int clcdfb_of_init_tft_panel(struct clcd_fb *fb, u32 r0, u32 g0, u32 b0)
 	if (r0 != 0 && b0 == 0)
 		fb->panel->bgr_connection = true;
 
+<<<<<<< HEAD
 	if (fb->panel->caps && fb->vendor->st_bitmux_control) {
 		/*
 		 * Set up the special bits for the Nomadik control register
@@ -749,6 +800,8 @@ static int clcdfb_of_init_tft_panel(struct clcd_fb *fb, u32 r0, u32 g0, u32 b0)
 			fb->panel->cntl |= CNTL_ST_CDWID_12;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return fb->panel->caps ? 0 : -EINVAL;
 }
 
@@ -775,6 +828,7 @@ static int clcdfb_of_init_display(struct clcd_fb *fb)
 	if (!panel)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (fb->vendor->init_panel) {
 		err = fb->vendor->init_panel(fb, panel);
 		if (err)
@@ -782,6 +836,9 @@ static int clcdfb_of_init_display(struct clcd_fb *fb)
 	}
 
 	err = clcdfb_of_get_backlight(panel, fb->panel);
+=======
+	err = clcdfb_of_get_backlight(&fb->dev->dev, fb->panel);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -941,7 +998,10 @@ static struct clcd_board *clcdfb_of_get_board(struct amba_device *dev)
 static int clcdfb_probe(struct amba_device *dev, const struct amba_id *id)
 {
 	struct clcd_board *board = dev_get_platdata(&dev->dev);
+<<<<<<< HEAD
 	struct clcd_vendor_data *vendor = id->data;
+=======
+>>>>>>> upstream/android-13
 	struct clcd_fb *fb;
 	int ret;
 
@@ -951,12 +1011,15 @@ static int clcdfb_probe(struct amba_device *dev, const struct amba_id *id)
 	if (!board)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (vendor->init_board) {
 		ret = vendor->init_board(dev, board);
 		if (ret)
 			return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = dma_set_mask_and_coherent(&dev->dev, DMA_BIT_MASK(32));
 	if (ret)
 		goto out;
@@ -974,7 +1037,10 @@ static int clcdfb_probe(struct amba_device *dev, const struct amba_id *id)
 	}
 
 	fb->dev = dev;
+<<<<<<< HEAD
 	fb->vendor = vendor;
+=======
+>>>>>>> upstream/android-13
 	fb->board = board;
 
 	dev_info(&fb->dev->dev, "PL%03x designer %02x rev%u at 0x%08llx\n",
@@ -1000,7 +1066,11 @@ static int clcdfb_probe(struct amba_device *dev, const struct amba_id *id)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int clcdfb_remove(struct amba_device *dev)
+=======
+static void clcdfb_remove(struct amba_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct clcd_fb *fb = amba_get_drvdata(dev);
 
@@ -1017,6 +1087,7 @@ static int clcdfb_remove(struct amba_device *dev)
 	kfree(fb);
 
 	amba_release_regions(dev);
+<<<<<<< HEAD
 
 	return 0;
 }
@@ -1034,10 +1105,15 @@ static struct clcd_vendor_data vendor_nomadik = {
 	.init_panel = nomadik_clcd_init_panel,
 };
 
+=======
+}
+
+>>>>>>> upstream/android-13
 static const struct amba_id clcdfb_id_table[] = {
 	{
 		.id	= 0x00041110,
 		.mask	= 0x000ffffe,
+<<<<<<< HEAD
 		.data	= &vendor_arm,
 	},
 	/* ST Electronics Nomadik variant */
@@ -1045,6 +1121,8 @@ static const struct amba_id clcdfb_id_table[] = {
 		.id	= 0x00180110,
 		.mask	= 0x00fffffe,
 		.data	= &vendor_nomadik,
+=======
+>>>>>>> upstream/android-13
 	},
 	{ 0, 0 },
 };

@@ -25,7 +25,10 @@
 #include "rndis.h"
 #include "configfs.h"
 
+<<<<<<< HEAD
 #define F_RNDIS_LOG "[USB_RNDIS]"
+=======
+>>>>>>> upstream/android-13
 /*
  * This function is an RNDIS Ethernet port -- a Microsoft protocol that's
  * been promoted instead of the standard CDC Ethernet.  The published RNDIS
@@ -67,6 +70,7 @@
  *   - MS-Windows drivers sometimes emit undocumented requests.
  */
 
+<<<<<<< HEAD
 static unsigned int rndis_dl_max_pkt_per_xfer = 10;
 module_param(rndis_dl_max_pkt_per_xfer, uint, 0644);
 MODULE_PARM_DESC(rndis_dl_max_pkt_per_xfer,
@@ -83,6 +87,13 @@ MODULE_PARM_DESC(f_rndis_debug,
 	pr_notice("F_RNDIS,%s, " fmt, __func__, ## args)
 static struct f_rndis *_rndis;
 static spinlock_t rndis_lock;
+=======
+/* Maximum packets per transfer for DL aggregation */
+#define RNDIS_DL_MAX_PKT_PER_XFER 10
+/* Maximum packets per transfer for UL aggregation */
+#define RNDIS_UL_MAX_PKT_PER_XFER 3
+
+>>>>>>> upstream/android-13
 struct f_rndis {
 	struct gether			port;
 	u8				ctrl_id, data_id;
@@ -90,7 +101,12 @@ struct f_rndis {
 	u32				vendorID;
 	const char			*manufacturer;
 	struct rndis_params		*params;
+<<<<<<< HEAD
 	int				config;
+=======
+	u32				rndis_dl_max_pkt_per_xfer;
+	u32				rndis_ul_max_pkt_per_xfer;
+>>>>>>> upstream/android-13
 
 	struct usb_ep			*notify;
 	struct usb_request		*notify_req;
@@ -107,9 +123,15 @@ static unsigned int bitrate(struct usb_gadget *g)
 {
 	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
 		return 4250000000U;
+<<<<<<< HEAD
 	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
 		return 3750000000U;
 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+=======
+	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER)
+		return 3750000000U;
+	else if (gadget_is_dualspeed(g) && g->speed >= USB_SPEED_HIGH)
+>>>>>>> upstream/android-13
 		return 13 * 512 * 8 * 1000 * 8;
 	else
 		return 19 * 64 * 1 * 1000 * 8;
@@ -133,9 +155,15 @@ static struct usb_interface_descriptor rndis_control_intf = {
 	/* .bInterfaceNumber = DYNAMIC */
 	/* status endpoint is optional; this could be patched later */
 	.bNumEndpoints =	1,
+<<<<<<< HEAD
 	.bInterfaceClass =	USB_CLASS_WIRELESS_CONTROLLER,
 	.bInterfaceSubClass =	0x01,
 	.bInterfaceProtocol =	0x03,
+=======
+	.bInterfaceClass =	USB_CLASS_COMM,
+	.bInterfaceSubClass =   USB_CDC_SUBCLASS_ACM,
+	.bInterfaceProtocol =   USB_CDC_ACM_PROTO_VENDOR,
+>>>>>>> upstream/android-13
 	/* .iInterface = DYNAMIC */
 };
 
@@ -194,9 +222,15 @@ rndis_iad_descriptor = {
 
 	.bFirstInterface =	0, /* XXX, hardcoded */
 	.bInterfaceCount = 	2,	// control + data
+<<<<<<< HEAD
 	.bFunctionClass =	USB_CLASS_WIRELESS_CONTROLLER,
 	.bFunctionSubClass =	0x01,
 	.bFunctionProtocol =	0x03,
+=======
+	.bFunctionClass =	USB_CLASS_COMM,
+	.bFunctionSubClass =	USB_CDC_SUBCLASS_ETHERNET,
+	.bFunctionProtocol =	USB_CDC_PROTO_NONE,
+>>>>>>> upstream/android-13
 	/* .iFunction = DYNAMIC */
 };
 
@@ -341,7 +375,10 @@ static struct usb_ss_ep_comp_descriptor ss_bulk_comp_desc = {
 	/* the following 2 values can be tweaked if necessary */
 	/* .bMaxBurst =		0, */
 	/* .bmAttributes =	0, */
+<<<<<<< HEAD
 	.bMaxBurst =		4,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct usb_descriptor_header *eth_ss_function[] = {
@@ -390,6 +427,7 @@ static struct sk_buff *rndis_add_header(struct gether *port,
 					struct sk_buff *skb)
 {
 	struct sk_buff *skb2;
+<<<<<<< HEAD
 	struct rndis_packet_msg_type *header = NULL;
 	struct f_rndis *rndis = func_to_rndis(&port->func);
 
@@ -419,6 +457,17 @@ static struct sk_buff *rndis_add_header(struct gether *port,
 		dev_kfree_skb(skb);
 		return skb2;
 	}
+=======
+
+	if (!skb)
+		return NULL;
+
+	skb2 = skb_realloc_headroom(skb, sizeof(struct rndis_packet_msg_type));
+	rndis_add_hdr(skb2);
+
+	dev_kfree_skb(skb);
+	return skb2;
+>>>>>>> upstream/android-13
 }
 
 static void rndis_response_available(void *_rndis)
@@ -449,6 +498,7 @@ static void rndis_response_available(void *_rndis)
 
 static void rndis_response_complete(struct usb_ep *ep, struct usb_request *req)
 {
+<<<<<<< HEAD
 	struct f_rndis			*rndis;
 	int				status = req->status;
 	struct usb_composite_dev	*cdev;
@@ -467,6 +517,12 @@ static void rndis_response_complete(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 	cdev = rndis->port.func.config->cdev;
+=======
+	struct f_rndis			*rndis = req->context;
+	struct usb_composite_dev	*cdev = rndis->port.func.config->cdev;
+	int				status = req->status;
+
+>>>>>>> upstream/android-13
 	/* after TX:
 	 *  - USB_CDC_GET_ENCAPSULATED_RESPONSE (ep0/control)
 	 *  - RNDIS_RESPONSE_AVAILABLE (status/irq)
@@ -476,20 +532,32 @@ static void rndis_response_complete(struct usb_ep *ep, struct usb_request *req)
 	case -ESHUTDOWN:
 		/* connection gone */
 		atomic_set(&rndis->notify_count, 0);
+<<<<<<< HEAD
 		goto out;
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		DBG(cdev, "RNDIS %s response error %d, %d/%d\n",
 			ep->name, status,
 			req->actual, req->length);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
 	case 0:
 		if (ep != rndis->notify)
 			goto out;
+=======
+		fallthrough;
+	case 0:
+		if (ep != rndis->notify)
+			break;
+>>>>>>> upstream/android-13
 
 		/* handle multiple pending RNDIS_RESPONSE_AVAILABLE
 		 * notifications by resending until we're done
 		 */
 		if (atomic_dec_and_test(&rndis->notify_count))
+<<<<<<< HEAD
 			goto out;
 		notify_ep = rndis->notify;
 		spin_unlock(&rndis_lock);
@@ -506,10 +574,21 @@ static void rndis_response_complete(struct usb_ep *ep, struct usb_request *req)
 	}
 out:
 	spin_unlock(&rndis_lock);
+=======
+			break;
+		status = usb_ep_queue(rndis->notify, req, GFP_ATOMIC);
+		if (status) {
+			atomic_dec(&rndis->notify_count);
+			DBG(cdev, "notify/1 --> %d\n", status);
+		}
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void rndis_command_complete(struct usb_ep *ep, struct usb_request *req)
 {
+<<<<<<< HEAD
 	struct f_rndis			*rndis;
 	struct usb_composite_dev	*cdev;
 	int				status;
@@ -528,12 +607,19 @@ static void rndis_command_complete(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 	cdev = rndis->port.func.config->cdev;
+=======
+	struct f_rndis			*rndis = req->context;
+	int				status;
+	rndis_init_msg_type		*buf;
+
+>>>>>>> upstream/android-13
 	/* received RNDIS command from USB_CDC_SEND_ENCAPSULATED_COMMAND */
 //	spin_lock(&dev->lock);
 	status = rndis_msg_parser(rndis->params, (u8 *) req->buf);
 	if (status < 0)
 		pr_err("RNDIS command error %d, %d/%d\n",
 			status, req->actual, req->length);
+<<<<<<< HEAD
 	buf = (rndis_init_msg_type *)req->buf;
 	if (buf->MessageType == RNDIS_MSG_INIT) {
 		if (buf->MaxTransferSize > 2048) {
@@ -551,6 +637,24 @@ static void rndis_command_complete(struct usb_ep *ep, struct usb_request *req)
 			rndis->port.multi_pkt_xfer = 0;
 	}
 	spin_unlock(&rndis_lock);
+=======
+
+	buf = (rndis_init_msg_type *)req->buf;
+
+	if (buf->MessageType == RNDIS_MSG_INIT) {
+		if (buf->MaxTransferSize > 2048)
+			rndis->port.multi_pkt_xfer = 1;
+		else
+			rndis->port.multi_pkt_xfer = 0;
+		pr_debug("%s: MaxTransferSize: %d : Multi_pkt_txr: %s\n",
+				__func__, buf->MaxTransferSize,
+				rndis->port.multi_pkt_xfer ? "enabled" :
+							    "disabled");
+		if (rndis->rndis_dl_max_pkt_per_xfer <= 1)
+			rndis->port.multi_pkt_xfer = 0;
+	}
+//	spin_unlock(&dev->lock);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -563,12 +667,15 @@ rndis_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 	u16			w_index = le16_to_cpu(ctrl->wIndex);
 	u16			w_value = le16_to_cpu(ctrl->wValue);
 	u16			w_length = le16_to_cpu(ctrl->wLength);
+<<<<<<< HEAD
 	spin_lock(&rndis_lock);
 	if (!rndis || !rndis->notify) {
 		pr_notice("%s():rndis is NULL.\n", __func__);
 		spin_unlock(&rndis_lock);
 		return -EFAULT;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	/* composite driver infrastructure handles everything except
 	 * CDC class messages; interface activation uses set_alt().
@@ -596,8 +703,11 @@ rndis_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 		else {
 			u8 *buf;
 			u32 n;
+<<<<<<< HEAD
 			u32 MsgType, MsgLength, MsgID;
 			__le32 *tmp;
+=======
+>>>>>>> upstream/android-13
 
 			/* return the result */
 			buf = rndis_get_next_response(rndis->params, &n);
@@ -605,10 +715,13 @@ rndis_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 				memcpy(req->buf, buf, n);
 				req->complete = rndis_response_complete;
 				req->context = rndis;
+<<<<<<< HEAD
 				tmp = (__le32 *)buf;
 				MsgType   = get_unaligned_le32(tmp++);
 				MsgLength = get_unaligned_le32(tmp++);
 				MsgID = get_unaligned_le32(tmp++);
+=======
+>>>>>>> upstream/android-13
 				rndis_free_response(rndis->params, buf);
 				value = n;
 			}
@@ -630,6 +743,7 @@ invalid:
 			w_value, w_index, w_length);
 		req->zero = (value < w_length);
 		req->length = value;
+<<<<<<< HEAD
 		spin_unlock(&rndis_lock);
 		value = usb_ep_queue(cdev->gadget->ep0, req, GFP_ATOMIC);
 		spin_lock(&rndis_lock);
@@ -637,6 +751,12 @@ invalid:
 			ERROR(cdev, "rndis response on err %d\n", value);
 	}
 	spin_unlock(&rndis_lock);
+=======
+		value = usb_ep_queue(cdev->gadget->ep0, req, GFP_ATOMIC);
+		if (value < 0)
+			ERROR(cdev, "rndis response on err %d\n", value);
+	}
+>>>>>>> upstream/android-13
 
 	/* device either stalls (value < 0) or reports success */
 	return value;
@@ -655,7 +775,10 @@ static int rndis_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 		usb_ep_disable(rndis->notify);
 
 		if (!rndis->notify->desc) {
+<<<<<<< HEAD
 			F_RNDIS_DBG("init rndis ctrl %d\n", intf);
+=======
+>>>>>>> upstream/android-13
 			VDBG(cdev, "init rndis ctrl %d\n", intf);
 			if (config_ep_by_speed(cdev->gadget, f, rndis->notify))
 				goto fail;
@@ -718,18 +841,30 @@ static void rndis_disable(struct usb_function *f)
 {
 	struct f_rndis		*rndis = func_to_rndis(f);
 	struct usb_composite_dev *cdev = f->config->cdev;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (!rndis->notify->enabled)
 		return;
 
 	DBG(cdev, "rndis deactivated\n");
+<<<<<<< HEAD
 	spin_lock_irqsave(&rndis_lock, flags);
 	rndis_uninit(rndis->params);
 	spin_unlock_irqrestore(&rndis_lock, flags);
 	gether_disconnect(&rndis->port);
 
 	usb_ep_disable(rndis->notify);
+=======
+
+	rndis_uninit(rndis->params);
+	gether_disconnect(&rndis->port);
+
+	usb_ep_disable(rndis->notify);
+	rndis->notify->desc = NULL;
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------------------------------------------------------*/
@@ -746,7 +881,10 @@ static void rndis_open(struct gether *geth)
 	struct f_rndis		*rndis = func_to_rndis(&geth->func);
 	struct usb_composite_dev *cdev = geth->func.config->cdev;
 
+<<<<<<< HEAD
 	F_RNDIS_DBG("\n");
+=======
+>>>>>>> upstream/android-13
 	DBG(cdev, "%s\n", __func__);
 
 	rndis_set_param_medium(rndis->params, RNDIS_MEDIUM_802_3,
@@ -758,7 +896,10 @@ static void rndis_close(struct gether *geth)
 {
 	struct f_rndis		*rndis = func_to_rndis(&geth->func);
 
+<<<<<<< HEAD
 	F_RNDIS_DBG("\n");
+=======
+>>>>>>> upstream/android-13
 	DBG(geth->func.config->cdev, "%s\n", __func__);
 
 	rndis_set_param_medium(rndis->params, RNDIS_MEDIUM_802_3, 0);
@@ -801,6 +942,12 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 		f->os_desc_table[0].os_desc = &rndis_opts->rndis_os_desc;
 	}
 
+<<<<<<< HEAD
+=======
+	rndis_iad_descriptor.bFunctionClass = rndis_opts->class;
+	rndis_iad_descriptor.bFunctionSubClass = rndis_opts->subclass;
+	rndis_iad_descriptor.bFunctionProtocol = rndis_opts->protocol;
+>>>>>>> upstream/android-13
 
 	/*
 	 * in drivers/usb/gadget/configfs.c:configfs_composite_bind()
@@ -809,6 +956,7 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 	 * with list_for_each_entry, so we assume no race condition
 	 * with regard to rndis_opts->bound access
 	 */
+<<<<<<< HEAD
 	if (rndis_opts) {
 		if (!rndis_opts->bound) {
 			gether_set_gadget(rndis_opts->net, cdev->gadget);
@@ -817,6 +965,14 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 				goto fail;
 			rndis_opts->bound = true;
 		}
+=======
+	if (!rndis_opts->bound) {
+		gether_set_gadget(rndis_opts->net, cdev->gadget);
+		status = gether_register_netdev(rndis_opts->net);
+		if (status)
+			goto fail;
+		rndis_opts->bound = true;
+>>>>>>> upstream/android-13
 	}
 
 	us = usb_gstrings_attach(cdev, rndis_strings,
@@ -879,12 +1035,16 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 	rndis->notify_req = usb_ep_alloc_request(ep, GFP_KERNEL);
 	if (!rndis->notify_req)
 		goto fail;
+<<<<<<< HEAD
 #if defined(CONFIG_64BIT) && defined(CONFIG_MTK_LM_MODE)
 	rndis->notify_req->buf = kmalloc(STATUS_BYTECOUNT,
 					GFP_KERNEL | GFP_DMA);
 #else
 	rndis->notify_req->buf = kmalloc(STATUS_BYTECOUNT, GFP_KERNEL);
 #endif
+=======
+	rndis->notify_req->buf = kmalloc(STATUS_BYTECOUNT, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rndis->notify_req->buf)
 		goto fail;
 	rndis->notify_req->length = STATUS_BYTECOUNT;
@@ -904,7 +1064,11 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 	ss_notify_desc.bEndpointAddress = fs_notify_desc.bEndpointAddress;
 
 	status = usb_assign_descriptors(f, eth_fs_function, eth_hs_function,
+<<<<<<< HEAD
 			eth_ss_function, NULL);
+=======
+			eth_ss_function, eth_ss_function);
+>>>>>>> upstream/android-13
 	if (status)
 		goto fail;
 
@@ -913,7 +1077,13 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 
 	rndis_set_param_medium(rndis->params, RNDIS_MEDIUM_802_3, 0);
 	rndis_set_host_mac(rndis->params, rndis->ethaddr);
+<<<<<<< HEAD
 	rndis_set_max_pkt_xfer(rndis->params, rndis_ul_max_pkt_per_xfer);
+=======
+	rndis_set_max_pkt_xfer(rndis->params, RNDIS_UL_MAX_PKT_PER_XFER);
+	rndis->rndis_dl_max_pkt_per_xfer = RNDIS_DL_MAX_PKT_PER_XFER;
+	rndis->rndis_ul_max_pkt_per_xfer = RNDIS_UL_MAX_PKT_PER_XFER;
+>>>>>>> upstream/android-13
 
 	if (rndis->manufacturer && rndis->vendorID &&
 			rndis_set_param_vendor(rndis->params, rndis->vendorID,
@@ -927,7 +1097,11 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
 	 * until we're activated via set_alt().
 	 */
 
+<<<<<<< HEAD
 	INFO(cdev, "RNDIS: %s speed IN/%s OUT/%s NOTIFY/%s\n",
+=======
+	DBG(cdev, "RNDIS: %s speed IN/%s OUT/%s NOTIFY/%s\n",
+>>>>>>> upstream/android-13
 			gadget_is_superspeed(c->cdev->gadget) ? "super" :
 			gadget_is_dualspeed(c->cdev->gadget) ? "dual" : "full",
 			rndis->port.in_ep->name, rndis->port.out_ep->name,
@@ -985,11 +1159,29 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(rndis);
 /* f_rndis_opts_ifname */
 USB_ETHERNET_CONFIGFS_ITEM_ATTR_IFNAME(rndis);
 
+<<<<<<< HEAD
+=======
+/* f_rndis_opts_class */
+USB_ETHER_CONFIGFS_ITEM_ATTR_U8_RW(rndis, class);
+
+/* f_rndis_opts_subclass */
+USB_ETHER_CONFIGFS_ITEM_ATTR_U8_RW(rndis, subclass);
+
+/* f_rndis_opts_protocol */
+USB_ETHER_CONFIGFS_ITEM_ATTR_U8_RW(rndis, protocol);
+
+>>>>>>> upstream/android-13
 static struct configfs_attribute *rndis_attrs[] = {
 	&rndis_opts_attr_dev_addr,
 	&rndis_opts_attr_host_addr,
 	&rndis_opts_attr_qmult,
 	&rndis_opts_attr_ifname,
+<<<<<<< HEAD
+=======
+	&rndis_opts_attr_class,
+	&rndis_opts_attr_subclass,
+	&rndis_opts_attr_protocol,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1029,7 +1221,11 @@ static struct usb_function_instance *rndis_alloc_inst(void)
 
 	mutex_init(&opts->lock);
 	opts->func_inst.free_func_inst = rndis_free_inst;
+<<<<<<< HEAD
 	opts->net = gether_setup_name_default("rndis");
+=======
+	opts->net = gether_setup_default();
+>>>>>>> upstream/android-13
 	if (IS_ERR(opts->net)) {
 		struct net_device *net = opts->net;
 		kfree(opts);
@@ -1037,6 +1233,12 @@ static struct usb_function_instance *rndis_alloc_inst(void)
 	}
 	INIT_LIST_HEAD(&opts->rndis_os_desc.ext_prop);
 
+<<<<<<< HEAD
+=======
+	opts->class = rndis_iad_descriptor.bFunctionClass;
+	opts->subclass = rndis_iad_descriptor.bFunctionSubClass;
+	opts->protocol = rndis_iad_descriptor.bFunctionProtocol;
+>>>>>>> upstream/android-13
 
 	descs[0] = &opts->rndis_os_desc;
 	names[0] = "rndis";
@@ -1058,15 +1260,22 @@ static void rndis_free(struct usb_function *f)
 {
 	struct f_rndis *rndis;
 	struct f_rndis_opts *opts;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	rndis = func_to_rndis(f);
 	rndis_deregister(rndis->params);
 	opts = container_of(f->fi, struct f_rndis_opts, func_inst);
+<<<<<<< HEAD
 	spin_lock_irqsave(&rndis_lock, flags);
 	kfree(rndis);
 	_rndis = NULL;
 	spin_unlock_irqrestore(&rndis_lock, flags);
+=======
+	kfree(rndis);
+>>>>>>> upstream/android-13
 	mutex_lock(&opts->lock);
 	opts->refcnt--;
 	mutex_unlock(&opts->lock);
@@ -1095,7 +1304,10 @@ static struct usb_function *rndis_alloc(struct usb_function_instance *fi)
 	if (!rndis)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	_rndis = rndis;
+=======
+>>>>>>> upstream/android-13
 	opts = container_of(fi, struct f_rndis_opts, func_inst);
 	mutex_lock(&opts->lock);
 	opts->refcnt++;
@@ -1113,8 +1325,13 @@ static struct usb_function *rndis_alloc(struct usb_function_instance *fi)
 	rndis->port.header_len = sizeof(struct rndis_packet_msg_type);
 	rndis->port.wrap = rndis_add_header;
 	rndis->port.unwrap = rndis_rm_hdr;
+<<<<<<< HEAD
 	rndis->port.ul_max_pkts_per_xfer = rndis_ul_max_pkt_per_xfer;
 	rndis->port.dl_max_pkts_per_xfer = rndis_dl_max_pkt_per_xfer;
+=======
+	rndis->port.ul_max_pkts_per_xfer = RNDIS_UL_MAX_PKT_PER_XFER;
+	rndis->port.dl_max_pkts_per_xfer = RNDIS_DL_MAX_PKT_PER_XFER;
+>>>>>>> upstream/android-13
 
 	rndis->port.func.name = "rndis";
 	/* descriptors are per-instance copies */
@@ -1124,7 +1341,10 @@ static struct usb_function *rndis_alloc(struct usb_function_instance *fi)
 	rndis->port.func.setup = rndis_setup;
 	rndis->port.func.disable = rndis_disable;
 	rndis->port.func.free_func = rndis_free;
+<<<<<<< HEAD
 	spin_lock_init(&rndis_lock);
+=======
+>>>>>>> upstream/android-13
 
 	params = rndis_register(rndis_response_available, rndis);
 	if (IS_ERR(params)) {

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Apple Motion Sensor driver (joystick emulation)
  *
  * Copyright (C) 2005 Stelian Pop (stelian@popies.net)
  * Copyright (C) 2006 Michael Hanselmann (linux-kernel@hansmi.ch)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -29,9 +36,14 @@ MODULE_PARM_DESC(invert, "Invert input data on X and Y axis");
 
 static DEFINE_MUTEX(ams_input_mutex);
 
+<<<<<<< HEAD
 static void ams_idev_poll(struct input_polled_dev *dev)
 {
 	struct input_dev *idev = dev->input;
+=======
+static void ams_idev_poll(struct input_dev *idev)
+{
+>>>>>>> upstream/android-13
 	s8 x, y, z;
 
 	mutex_lock(&ams_info.lock);
@@ -63,6 +75,7 @@ static int ams_input_enable(void)
 	ams_info.ycalib = y;
 	ams_info.zcalib = z;
 
+<<<<<<< HEAD
 	ams_info.idev = input_allocate_polled_device();
 	if (!ams_info.idev)
 		return -ENOMEM;
@@ -71,6 +84,12 @@ static int ams_input_enable(void)
 	ams_info.idev->poll_interval = 25;
 
 	input = ams_info.idev->input;
+=======
+	input = input_allocate_device();
+	if (!input)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	input->name = "Apple Motion Sensor";
 	input->id.bustype = ams_info.bustype;
 	input->id.vendor = 0;
@@ -79,6 +98,7 @@ static int ams_input_enable(void)
 	input_set_abs_params(input, ABS_X, -50, 50, 3, 0);
 	input_set_abs_params(input, ABS_Y, -50, 50, 3, 0);
 	input_set_abs_params(input, ABS_Z, -50, 50, 3, 0);
+<<<<<<< HEAD
 
 	set_bit(EV_ABS, input->evbit);
 	set_bit(EV_KEY, input->evbit);
@@ -94,13 +114,39 @@ static int ams_input_enable(void)
 	joystick = true;
 
 	return 0;
+=======
+	input_set_capability(input, EV_KEY, BTN_TOUCH);
+
+	error = input_setup_polling(input, ams_idev_poll);
+	if (error)
+		goto err_free_input;
+
+	input_set_poll_interval(input, 25);
+
+	error = input_register_device(input);
+	if (error)
+		goto err_free_input;
+
+	ams_info.idev = input;
+	joystick = true;
+
+	return 0;
+
+err_free_input:
+	input_free_device(input);
+	return error;
+>>>>>>> upstream/android-13
 }
 
 static void ams_input_disable(void)
 {
 	if (ams_info.idev) {
+<<<<<<< HEAD
 		input_unregister_polled_device(ams_info.idev);
 		input_free_polled_device(ams_info.idev);
+=======
+		input_unregister_device(ams_info.idev);
+>>>>>>> upstream/android-13
 		ams_info.idev = NULL;
 	}
 

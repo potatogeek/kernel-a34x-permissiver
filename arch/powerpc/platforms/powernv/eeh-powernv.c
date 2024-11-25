@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * The file intends to implement the platform dependent EEH operations on
  * powernv platform. Actually, the powernv was created in order to fully
@@ -9,6 +10,13 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * PowerNV Platform dependent EEH operations
+ *
+ * Copyright Benjamin Herrenschmidt & Gavin Shan, IBM Corporation 2013.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -40,6 +48,7 @@
 
 #include "powernv.h"
 #include "pci.h"
+<<<<<<< HEAD
 
 static int eeh_event_irq = -EINVAL;
 
@@ -105,6 +114,16 @@ static int pnv_eeh_init(void)
 	ppc_md.pcibios_bus_add_device = pnv_pcibios_bus_add_device;
 
 	return 0;
+=======
+#include "../../../../drivers/pci/pci.h"
+
+static int eeh_event_irq = -EINVAL;
+
+static void pnv_pcibios_bus_add_device(struct pci_dev *pdev)
+{
+	dev_dbg(&pdev->dev, "EEH: Setting up device\n");
+	eeh_probe_device(pdev);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t pnv_eeh_event(int irq, void *data)
@@ -150,7 +169,11 @@ static ssize_t pnv_eeh_ei_write(struct file *filp,
 		return -EINVAL;
 
 	/* Retrieve PE */
+<<<<<<< HEAD
 	pe = eeh_pe_get(hose, pe_no, 0);
+=======
+	pe = eeh_pe_get(hose, pe_no);
+>>>>>>> upstream/android-13
 	if (!pe)
 		return -ENODEV;
 
@@ -205,6 +228,28 @@ PNV_EEH_DBGFS_ENTRY(inbB, 0xE10);
 
 #endif /* CONFIG_DEBUG_FS */
 
+<<<<<<< HEAD
+=======
+static void pnv_eeh_enable_phbs(void)
+{
+	struct pci_controller *hose;
+	struct pnv_phb *phb;
+
+	list_for_each_entry(hose, &hose_list, list_node) {
+		phb = hose->private_data;
+		/*
+		 * If EEH is enabled, we're going to rely on that.
+		 * Otherwise, we restore to conventional mechanism
+		 * to clear frozen PE during PCI config access.
+		 */
+		if (eeh_enabled())
+			phb->flags |= PNV_PHB_FLAG_EEH;
+		else
+			phb->flags &= ~PNV_PHB_FLAG_EEH;
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * pnv_eeh_post_init - EEH platform dependent post initialization
  *
@@ -219,6 +264,7 @@ int pnv_eeh_post_init(void)
 	struct pnv_phb *phb;
 	int ret = 0;
 
+<<<<<<< HEAD
 	/* Probe devices & build address cache */
 	eeh_probe_devices();
 	eeh_addr_cache_build();
@@ -230,6 +276,9 @@ int pnv_eeh_post_init(void)
 		else
 			pr_info("EEH: No capable adapters found\n");
 	}
+=======
+	eeh_show_enabled();
+>>>>>>> upstream/android-13
 
 	/* Register OPAL event notifier */
 	eeh_event_irq = opal_event_request(ilog2(OPAL_EVENT_PCI_ERROR));
@@ -251,6 +300,7 @@ int pnv_eeh_post_init(void)
 	if (!eeh_enabled())
 		disable_irq(eeh_event_irq);
 
+<<<<<<< HEAD
 	list_for_each_entry(hose, &hose_list, list_node) {
 		phb = hose->private_data;
 
@@ -264,6 +314,13 @@ int pnv_eeh_post_init(void)
 		else
 			phb->flags &= ~PNV_PHB_FLAG_EEH;
 
+=======
+	pnv_eeh_enable_phbs();
+
+	list_for_each_entry(hose, &hose_list, list_node) {
+		phb = hose->private_data;
+
+>>>>>>> upstream/android-13
 		/* Create debugfs entries */
 #ifdef CONFIG_DEBUG_FS
 		if (phb->has_dbgfs || !phb->dbgfs)
@@ -352,6 +409,7 @@ static int pnv_eeh_find_ecap(struct pci_dn *pdn, int cap)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * pnv_eeh_probe - Do probe on PCI device
  * @pdn: PCI device node
@@ -374,6 +432,43 @@ static void *pnv_eeh_probe(struct pci_dn *pdn, void *data)
 	struct pci_controller *hose = pdn->phb;
 	struct pnv_phb *phb = hose->private_data;
 	struct eeh_dev *edev = pdn_to_eeh_dev(pdn);
+=======
+static struct eeh_pe *pnv_eeh_get_upstream_pe(struct pci_dev *pdev)
+{
+	struct pci_controller *hose = pdev->bus->sysdata;
+	struct pnv_phb *phb = hose->private_data;
+	struct pci_dev *parent = pdev->bus->self;
+
+#ifdef CONFIG_PCI_IOV
+	/* for VFs we use the PF's PE as the upstream PE */
+	if (pdev->is_virtfn)
+		parent = pdev->physfn;
+#endif
+
+	/* otherwise use the PE of our parent bridge */
+	if (parent) {
+		struct pnv_ioda_pe *ioda_pe = pnv_ioda_get_pe(parent);
+
+		return eeh_pe_get(phb->hose, ioda_pe->pe_number);
+	}
+
+	return NULL;
+}
+
+/**
+ * pnv_eeh_probe - Do probe on PCI device
+ * @pdev: pci_dev to probe
+ *
+ * Create, or find the existing, eeh_dev for this pci_dev.
+ */
+static struct eeh_dev *pnv_eeh_probe(struct pci_dev *pdev)
+{
+	struct pci_dn *pdn = pci_get_pdn(pdev);
+	struct pci_controller *hose = pdn->phb;
+	struct pnv_phb *phb = hose->private_data;
+	struct eeh_dev *edev = pdn_to_eeh_dev(pdn);
+	struct eeh_pe *upstream_pe;
+>>>>>>> upstream/android-13
 	uint32_t pcie_flags;
 	int ret;
 	int config_addr = (pdn->busno << 8) | (pdn->devfn);
@@ -387,6 +482,7 @@ static void *pnv_eeh_probe(struct pci_dn *pdn, void *data)
 	if (!edev || edev->pe)
 		return NULL;
 
+<<<<<<< HEAD
 	/* Skip for PCI-ISA bridge */
 	if ((pdn->class_code >> 8) == PCI_CLASS_BRIDGE_ISA)
 		return NULL;
@@ -399,12 +495,33 @@ static void *pnv_eeh_probe(struct pci_dn *pdn, void *data)
 
 	/* Initialize eeh device */
 	edev->class_code = pdn->class_code;
+=======
+	/* already configured? */
+	if (edev->pdev) {
+		pr_debug("%s: found existing edev for %04x:%02x:%02x.%01x\n",
+			__func__, hose->global_number, config_addr >> 8,
+			PCI_SLOT(config_addr), PCI_FUNC(config_addr));
+		return edev;
+	}
+
+	/* Skip for PCI-ISA bridge */
+	if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA)
+		return NULL;
+
+	eeh_edev_dbg(edev, "Probing device\n");
+
+	/* Initialize eeh device */
+>>>>>>> upstream/android-13
 	edev->mode	&= 0xFFFFFF00;
 	edev->pcix_cap = pnv_eeh_find_cap(pdn, PCI_CAP_ID_PCIX);
 	edev->pcie_cap = pnv_eeh_find_cap(pdn, PCI_CAP_ID_EXP);
 	edev->af_cap   = pnv_eeh_find_cap(pdn, PCI_CAP_ID_AF);
 	edev->aer_cap  = pnv_eeh_find_ecap(pdn, PCI_EXT_CAP_ID_ERR);
+<<<<<<< HEAD
 	if ((edev->class_code >> 8) == PCI_CLASS_BRIDGE_PCI) {
+=======
+	if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_PCI) {
+>>>>>>> upstream/android-13
 		edev->mode |= EEH_DEV_BRIDGE;
 		if (edev->pcie_cap) {
 			pnv_pci_cfg_read(pdn, edev->pcie_cap + PCI_EXP_FLAGS,
@@ -419,12 +536,21 @@ static void *pnv_eeh_probe(struct pci_dn *pdn, void *data)
 
 	edev->pe_config_addr = phb->ioda.pe_rmap[config_addr];
 
+<<<<<<< HEAD
 	/* Create PE */
 	ret = eeh_add_to_parent_pe(edev);
 	if (ret) {
 		pr_warn("%s: Can't add PCI dev %04x:%02x:%02x.%01x to parent PE (%x)\n",
 			__func__, hose->global_number, pdn->busno,
 			PCI_SLOT(pdn->devfn), PCI_FUNC(pdn->devfn), ret);
+=======
+	upstream_pe = pnv_eeh_get_upstream_pe(pdev);
+
+	/* Create PE */
+	ret = eeh_pe_tree_insert(edev, upstream_pe);
+	if (ret) {
+		eeh_edev_warn(edev, "Failed to add device to PE (code %d)\n", ret);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -473,12 +599,26 @@ static void *pnv_eeh_probe(struct pci_dn *pdn, void *data)
 	 * Enable EEH explicitly so that we will do EEH check
 	 * while accessing I/O stuff
 	 */
+<<<<<<< HEAD
 	eeh_add_flag(EEH_ENABLED);
+=======
+	if (!eeh_has_flag(EEH_ENABLED)) {
+		enable_irq(eeh_event_irq);
+		pnv_eeh_enable_phbs();
+		eeh_add_flag(EEH_ENABLED);
+	}
+>>>>>>> upstream/android-13
 
 	/* Save memory bars */
 	eeh_save_bars(edev);
 
+<<<<<<< HEAD
 	return NULL;
+=======
+	eeh_edev_dbg(edev, "EEH enabled on device\n");
+
+	return edev;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -551,6 +691,7 @@ static int pnv_eeh_set_option(struct eeh_pe *pe, int option)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * pnv_eeh_get_pe_addr - Retrieve PE address
  * @pe: EEH PE
@@ -563,6 +704,8 @@ static int pnv_eeh_get_pe_addr(struct eeh_pe *pe)
 	return pe->addr;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void pnv_eeh_get_phb_diag(struct eeh_pe *pe)
 {
 	struct pnv_phb *phb = pe->phb->private_data;
@@ -604,7 +747,11 @@ static int pnv_eeh_get_phb_state(struct eeh_pe *pe)
 			  EEH_STATE_MMIO_ENABLED |
 			  EEH_STATE_DMA_ENABLED);
 	} else if (!(pe->state & EEH_PE_ISOLATED)) {
+<<<<<<< HEAD
 		eeh_pe_state_mark(pe, EEH_PE_ISOLATED);
+=======
+		eeh_pe_mark_isolated(pe);
+>>>>>>> upstream/android-13
 		pnv_eeh_get_phb_diag(pe);
 
 		if (eeh_has_flag(EEH_EARLY_DUMP_LOG))
@@ -706,7 +853,11 @@ static int pnv_eeh_get_pe_state(struct eeh_pe *pe)
 		if (phb->freeze_pe)
 			phb->freeze_pe(phb, pe->addr);
 
+<<<<<<< HEAD
 		eeh_pe_state_mark(pe, EEH_PE_ISOLATED);
+=======
+		eeh_pe_mark_isolated(pe);
+>>>>>>> upstream/android-13
 		pnv_eeh_get_phb_diag(pe);
 
 		if (eeh_has_flag(EEH_EARLY_DUMP_LOG))
@@ -857,7 +1008,11 @@ static int __pnv_eeh_bridge_reset(struct pci_dev *dev, int option)
 	int aer = edev ? edev->aer_cap : 0;
 	u32 ctrl;
 
+<<<<<<< HEAD
 	pr_debug("%s: Reset PCI bus %04x:%02x with option %d\n",
+=======
+	pr_debug("%s: Secondary Reset PCI bus %04x:%02x with option %d\n",
+>>>>>>> upstream/android-13
 		 __func__, pci_domain_nr(dev->bus),
 		 dev->bus->number, option);
 
@@ -866,6 +1021,7 @@ static int __pnv_eeh_bridge_reset(struct pci_dev *dev, int option)
 	case EEH_RESET_HOT:
 		/* Don't report linkDown event */
 		if (aer) {
+<<<<<<< HEAD
 			eeh_ops->read_config(pdn, aer + PCI_ERR_UNCOR_MASK,
 					     4, &ctrl);
 			ctrl |= PCI_ERR_UNC_SURPDN;
@@ -876,22 +1032,47 @@ static int __pnv_eeh_bridge_reset(struct pci_dev *dev, int option)
 		eeh_ops->read_config(pdn, PCI_BRIDGE_CONTROL, 2, &ctrl);
 		ctrl |= PCI_BRIDGE_CTL_BUS_RESET;
 		eeh_ops->write_config(pdn, PCI_BRIDGE_CONTROL, 2, ctrl);
+=======
+			eeh_ops->read_config(edev, aer + PCI_ERR_UNCOR_MASK,
+					     4, &ctrl);
+			ctrl |= PCI_ERR_UNC_SURPDN;
+			eeh_ops->write_config(edev, aer + PCI_ERR_UNCOR_MASK,
+					      4, ctrl);
+		}
+
+		eeh_ops->read_config(edev, PCI_BRIDGE_CONTROL, 2, &ctrl);
+		ctrl |= PCI_BRIDGE_CTL_BUS_RESET;
+		eeh_ops->write_config(edev, PCI_BRIDGE_CONTROL, 2, ctrl);
+>>>>>>> upstream/android-13
 
 		msleep(EEH_PE_RST_HOLD_TIME);
 		break;
 	case EEH_RESET_DEACTIVATE:
+<<<<<<< HEAD
 		eeh_ops->read_config(pdn, PCI_BRIDGE_CONTROL, 2, &ctrl);
 		ctrl &= ~PCI_BRIDGE_CTL_BUS_RESET;
 		eeh_ops->write_config(pdn, PCI_BRIDGE_CONTROL, 2, ctrl);
+=======
+		eeh_ops->read_config(edev, PCI_BRIDGE_CONTROL, 2, &ctrl);
+		ctrl &= ~PCI_BRIDGE_CTL_BUS_RESET;
+		eeh_ops->write_config(edev, PCI_BRIDGE_CONTROL, 2, ctrl);
+>>>>>>> upstream/android-13
 
 		msleep(EEH_PE_RST_SETTLE_TIME);
 
 		/* Continue reporting linkDown event */
 		if (aer) {
+<<<<<<< HEAD
 			eeh_ops->read_config(pdn, aer + PCI_ERR_UNCOR_MASK,
 					     4, &ctrl);
 			ctrl &= ~PCI_ERR_UNC_SURPDN;
 			eeh_ops->write_config(pdn, aer + PCI_ERR_UNCOR_MASK,
+=======
+			eeh_ops->read_config(edev, aer + PCI_ERR_UNCOR_MASK,
+					     4, &ctrl);
+			ctrl &= ~PCI_ERR_UNC_SURPDN;
+			eeh_ops->write_config(edev, aer + PCI_ERR_UNCOR_MASK,
+>>>>>>> upstream/android-13
 					      4, ctrl);
 		}
 
@@ -915,6 +1096,13 @@ static int pnv_eeh_bridge_reset(struct pci_dev *pdev, int option)
 	if (!dn || !of_get_property(dn, "ibm,reset-by-firmware", NULL))
 		return __pnv_eeh_bridge_reset(pdev, option);
 
+<<<<<<< HEAD
+=======
+	pr_debug("%s: FW reset PCI bus %04x:%02x with option %d\n",
+		 __func__, pci_domain_nr(pdev->bus),
+		 pdev->bus->number, option);
+
+>>>>>>> upstream/android-13
 	switch (option) {
 	case EEH_RESET_FUNDAMENTAL:
 		scope = OPAL_RESET_PCI_FUNDAMENTAL;
@@ -956,11 +1144,19 @@ void pnv_pci_reset_secondary_bus(struct pci_dev *dev)
 static void pnv_eeh_wait_for_pending(struct pci_dn *pdn, const char *type,
 				     int pos, u16 mask)
 {
+<<<<<<< HEAD
+=======
+	struct eeh_dev *edev = pdn->edev;
+>>>>>>> upstream/android-13
 	int i, status = 0;
 
 	/* Wait for Transaction Pending bit to be cleared */
 	for (i = 0; i < 4; i++) {
+<<<<<<< HEAD
 		eeh_ops->read_config(pdn, pos, 2, &status);
+=======
+		eeh_ops->read_config(edev, pos, 2, &status);
+>>>>>>> upstream/android-13
 		if (!(status & mask))
 			return;
 
@@ -981,7 +1177,11 @@ static int pnv_eeh_do_flr(struct pci_dn *pdn, int option)
 	if (WARN_ON(!edev->pcie_cap))
 		return -ENOTTY;
 
+<<<<<<< HEAD
 	eeh_ops->read_config(pdn, edev->pcie_cap + PCI_EXP_DEVCAP, 4, &reg);
+=======
+	eeh_ops->read_config(edev, edev->pcie_cap + PCI_EXP_DEVCAP, 4, &reg);
+>>>>>>> upstream/android-13
 	if (!(reg & PCI_EXP_DEVCAP_FLR))
 		return -ENOTTY;
 
@@ -991,18 +1191,32 @@ static int pnv_eeh_do_flr(struct pci_dn *pdn, int option)
 		pnv_eeh_wait_for_pending(pdn, "",
 					 edev->pcie_cap + PCI_EXP_DEVSTA,
 					 PCI_EXP_DEVSTA_TRPND);
+<<<<<<< HEAD
 		eeh_ops->read_config(pdn, edev->pcie_cap + PCI_EXP_DEVCTL,
 				     4, &reg);
 		reg |= PCI_EXP_DEVCTL_BCR_FLR;
 		eeh_ops->write_config(pdn, edev->pcie_cap + PCI_EXP_DEVCTL,
+=======
+		eeh_ops->read_config(edev, edev->pcie_cap + PCI_EXP_DEVCTL,
+				     4, &reg);
+		reg |= PCI_EXP_DEVCTL_BCR_FLR;
+		eeh_ops->write_config(edev, edev->pcie_cap + PCI_EXP_DEVCTL,
+>>>>>>> upstream/android-13
 				      4, reg);
 		msleep(EEH_PE_RST_HOLD_TIME);
 		break;
 	case EEH_RESET_DEACTIVATE:
+<<<<<<< HEAD
 		eeh_ops->read_config(pdn, edev->pcie_cap + PCI_EXP_DEVCTL,
 				     4, &reg);
 		reg &= ~PCI_EXP_DEVCTL_BCR_FLR;
 		eeh_ops->write_config(pdn, edev->pcie_cap + PCI_EXP_DEVCTL,
+=======
+		eeh_ops->read_config(edev, edev->pcie_cap + PCI_EXP_DEVCTL,
+				     4, &reg);
+		reg &= ~PCI_EXP_DEVCTL_BCR_FLR;
+		eeh_ops->write_config(edev, edev->pcie_cap + PCI_EXP_DEVCTL,
+>>>>>>> upstream/android-13
 				      4, reg);
 		msleep(EEH_PE_RST_SETTLE_TIME);
 		break;
@@ -1019,7 +1233,11 @@ static int pnv_eeh_do_af_flr(struct pci_dn *pdn, int option)
 	if (WARN_ON(!edev->af_cap))
 		return -ENOTTY;
 
+<<<<<<< HEAD
 	eeh_ops->read_config(pdn, edev->af_cap + PCI_AF_CAP, 1, &cap);
+=======
+	eeh_ops->read_config(edev, edev->af_cap + PCI_AF_CAP, 1, &cap);
+>>>>>>> upstream/android-13
 	if (!(cap & PCI_AF_CAP_TP) || !(cap & PCI_AF_CAP_FLR))
 		return -ENOTTY;
 
@@ -1034,12 +1252,20 @@ static int pnv_eeh_do_af_flr(struct pci_dn *pdn, int option)
 		pnv_eeh_wait_for_pending(pdn, "AF",
 					 edev->af_cap + PCI_AF_CTRL,
 					 PCI_AF_STATUS_TP << 8);
+<<<<<<< HEAD
 		eeh_ops->write_config(pdn, edev->af_cap + PCI_AF_CTRL,
+=======
+		eeh_ops->write_config(edev, edev->af_cap + PCI_AF_CTRL,
+>>>>>>> upstream/android-13
 				      1, PCI_AF_CTRL_FLR);
 		msleep(EEH_PE_RST_HOLD_TIME);
 		break;
 	case EEH_RESET_DEACTIVATE:
+<<<<<<< HEAD
 		eeh_ops->write_config(pdn, edev->af_cap + PCI_AF_CTRL, 1, 0);
+=======
+		eeh_ops->write_config(edev, edev->af_cap + PCI_AF_CTRL, 1, 0);
+>>>>>>> upstream/android-13
 		msleep(EEH_PE_RST_SETTLE_TIME);
 		break;
 	}
@@ -1054,7 +1280,11 @@ static int pnv_eeh_reset_vf_pe(struct eeh_pe *pe, int option)
 	int ret;
 
 	/* The VF PE should have only one child device */
+<<<<<<< HEAD
 	edev = list_first_entry_or_null(&pe->edevs, struct eeh_dev, list);
+=======
+	edev = list_first_entry_or_null(&pe->edevs, struct eeh_dev, entry);
+>>>>>>> upstream/android-13
 	pdn = eeh_dev_to_pdn(edev);
 	if (!pdn)
 		return -ENXIO;
@@ -1133,6 +1363,7 @@ static int pnv_eeh_reset(struct eeh_pe *pe, int option)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * If dealing with the root bus (or the bus underneath the
 	 * root port), we reset the bus underneath the root port.
@@ -1182,6 +1413,40 @@ static int pnv_eeh_wait_state(struct eeh_pe *pe, int max_wait)
 	}
 
 	return EEH_STATE_NOT_SUPPORT;
+=======
+	if (pci_is_root_bus(bus))
+		return pnv_eeh_root_reset(hose, option);
+
+	/*
+	 * For hot resets try use the generic PCI error recovery reset
+	 * functions. These correctly handles the case where the secondary
+	 * bus is behind a hotplug slot and it will use the slot provided
+	 * reset methods to prevent spurious hotplug events during the reset.
+	 *
+	 * Fundemental resets need to be handled internally to EEH since the
+	 * PCI core doesn't really have a concept of a fundemental reset,
+	 * mainly because there's no standard way to generate one. Only a
+	 * few devices require an FRESET so it should be fine.
+	 */
+	if (option != EEH_RESET_FUNDAMENTAL) {
+		/*
+		 * NB: Skiboot and pnv_eeh_bridge_reset() also no-op the
+		 *     de-assert step. It's like the OPAL reset API was
+		 *     poorly designed or something...
+		 */
+		if (option == EEH_RESET_DEACTIVATE)
+			return 0;
+
+		rc = pci_bus_error_reset(bus->self);
+		if (!rc)
+			return 0;
+	}
+
+	/* otherwise, use the generic bridge reset. this might call into FW */
+	if (pci_is_root_bus(bus->parent))
+		return pnv_eeh_root_reset(hose, option);
+	return pnv_eeh_bridge_reset(bus->self, option);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1290,9 +1555,17 @@ static inline bool pnv_eeh_cfg_blocked(struct pci_dn *pdn)
 	return false;
 }
 
+<<<<<<< HEAD
 static int pnv_eeh_read_config(struct pci_dn *pdn,
 			       int where, int size, u32 *val)
 {
+=======
+static int pnv_eeh_read_config(struct eeh_dev *edev,
+			       int where, int size, u32 *val)
+{
+	struct pci_dn *pdn = eeh_dev_to_pdn(edev);
+
+>>>>>>> upstream/android-13
 	if (!pdn)
 		return PCIBIOS_DEVICE_NOT_FOUND;
 
@@ -1304,9 +1577,17 @@ static int pnv_eeh_read_config(struct pci_dn *pdn,
 	return pnv_pci_cfg_read(pdn, where, size, val);
 }
 
+<<<<<<< HEAD
 static int pnv_eeh_write_config(struct pci_dn *pdn,
 				int where, int size, u32 val)
 {
+=======
+static int pnv_eeh_write_config(struct eeh_dev *edev,
+				int where, int size, u32 val)
+{
+	struct pci_dn *pdn = eeh_dev_to_pdn(edev);
+
+>>>>>>> upstream/android-13
 	if (!pdn)
 		return PCIBIOS_DEVICE_NOT_FOUND;
 
@@ -1418,7 +1699,11 @@ static int pnv_eeh_get_pe(struct pci_controller *hose,
 	}
 
 	/* Find the PE according to PE# */
+<<<<<<< HEAD
 	dev_pe = eeh_pe_get(hose, pe_no, 0);
+=======
+	dev_pe = eeh_pe_get(hose, pe_no);
+>>>>>>> upstream/android-13
 	if (!dev_pe)
 		return -EEXIST;
 
@@ -1611,7 +1896,11 @@ static int pnv_eeh_next_error(struct eeh_pe **pe)
 		if ((ret == EEH_NEXT_ERR_FROZEN_PE  ||
 		    ret == EEH_NEXT_ERR_FENCED_PHB) &&
 		    !((*pe)->state & EEH_PE_ISOLATED)) {
+<<<<<<< HEAD
 			eeh_pe_state_mark(*pe, EEH_PE_ISOLATED);
+=======
+			eeh_pe_mark_isolated(*pe);
+>>>>>>> upstream/android-13
 			pnv_eeh_get_phb_diag(*pe);
 
 			if (eeh_has_flag(EEH_EARLY_DUMP_LOG))
@@ -1640,7 +1929,11 @@ static int pnv_eeh_next_error(struct eeh_pe **pe)
 			}
 
 			/* We possibly migrate to another PE */
+<<<<<<< HEAD
 			eeh_pe_state_mark(*pe, EEH_PE_ISOLATED);
+=======
+			eeh_pe_mark_isolated(*pe);
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -1660,16 +1953,24 @@ static int pnv_eeh_next_error(struct eeh_pe **pe)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int pnv_eeh_restore_config(struct pci_dn *pdn)
 {
 	struct eeh_dev *edev = pdn_to_eeh_dev(pdn);
 	struct pnv_phb *phb;
 	s64 ret = 0;
 	int config_addr = (pdn->busno << 8) | (pdn->devfn);
+=======
+static int pnv_eeh_restore_config(struct eeh_dev *edev)
+{
+	struct pnv_phb *phb;
+	s64 ret = 0;
+>>>>>>> upstream/android-13
 
 	if (!edev)
 		return -EEXIST;
 
+<<<<<<< HEAD
 	/*
 	 * We have to restore the PCI config space after reset since the
 	 * firmware can't see SRIOV VFs.
@@ -1688,6 +1989,18 @@ static int pnv_eeh_restore_config(struct pci_dn *pdn)
 	if (ret) {
 		pr_warn("%s: Can't reinit PCI dev 0x%x (%lld)\n",
 			__func__, config_addr, ret);
+=======
+	if (edev->physfn)
+		return 0;
+
+	phb = edev->controller->private_data;
+	ret = opal_pci_reinit(phb->opal_id,
+			      OPAL_REINIT_PCI_DEV, edev->bdfn);
+
+	if (ret) {
+		pr_warn("%s: Can't reinit PCI dev 0x%x (%lld)\n",
+			__func__, edev->bdfn, ret);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -1696,6 +2009,7 @@ static int pnv_eeh_restore_config(struct pci_dn *pdn)
 
 static struct eeh_ops pnv_eeh_ops = {
 	.name                   = "powernv",
+<<<<<<< HEAD
 	.init                   = pnv_eeh_init,
 	.probe			= pnv_eeh_probe,
 	.set_option             = pnv_eeh_set_option,
@@ -1703,6 +2017,12 @@ static struct eeh_ops pnv_eeh_ops = {
 	.get_state              = pnv_eeh_get_state,
 	.reset                  = pnv_eeh_reset,
 	.wait_state             = pnv_eeh_wait_state,
+=======
+	.probe			= pnv_eeh_probe,
+	.set_option             = pnv_eeh_set_option,
+	.get_state              = pnv_eeh_get_state,
+	.reset                  = pnv_eeh_reset,
+>>>>>>> upstream/android-13
 	.get_log                = pnv_eeh_get_log,
 	.configure_bridge       = pnv_eeh_configure_bridge,
 	.err_inject		= pnv_eeh_err_inject,
@@ -1739,9 +2059,50 @@ DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, pnv_pci_fixup_vf_mps);
  */
 static int __init eeh_powernv_init(void)
 {
+<<<<<<< HEAD
 	int ret = -EINVAL;
 
 	ret = eeh_ops_register(&pnv_eeh_ops);
+=======
+	int max_diag_size = PNV_PCI_DIAG_BUF_SIZE;
+	struct pci_controller *hose;
+	struct pnv_phb *phb;
+	int ret = -EINVAL;
+
+	if (!firmware_has_feature(FW_FEATURE_OPAL)) {
+		pr_warn("%s: OPAL is required !\n", __func__);
+		return -EINVAL;
+	}
+
+	/* Set probe mode */
+	eeh_add_flag(EEH_PROBE_MODE_DEV);
+
+	/*
+	 * P7IOC blocks PCI config access to frozen PE, but PHB3
+	 * doesn't do that. So we have to selectively enable I/O
+	 * prior to collecting error log.
+	 */
+	list_for_each_entry(hose, &hose_list, list_node) {
+		phb = hose->private_data;
+
+		if (phb->model == PNV_PHB_MODEL_P7IOC)
+			eeh_add_flag(EEH_ENABLE_IO_FOR_LOG);
+
+		if (phb->diag_data_size > max_diag_size)
+			max_diag_size = phb->diag_data_size;
+
+		break;
+	}
+
+	/*
+	 * eeh_init() allocates the eeh_pe and its aux data buf so the
+	 * size needs to be set before calling eeh_init().
+	 */
+	eeh_set_pe_aux_size(max_diag_size);
+	ppc_md.pcibios_bus_add_device = pnv_pcibios_bus_add_device;
+
+	ret = eeh_init(&pnv_eeh_ops);
+>>>>>>> upstream/android-13
 	if (!ret)
 		pr_info("EEH: PowerNV platform initialized\n");
 	else
@@ -1749,4 +2110,8 @@ static int __init eeh_powernv_init(void)
 
 	return ret;
 }
+<<<<<<< HEAD
 machine_early_initcall(powernv, eeh_powernv_init);
+=======
+machine_arch_initcall(powernv, eeh_powernv_init);
+>>>>>>> upstream/android-13

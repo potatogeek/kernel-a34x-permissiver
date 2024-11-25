@@ -59,7 +59,11 @@ struct vic_provinfo {
 		u16 type;
 		u16 length;
 		u8 value[0];
+<<<<<<< HEAD
 	} tlv[0];
+=======
+	} tlv[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define VIC_PROVINFO_ADD_TLV(vp, tlvtype, tlvlen, data) \

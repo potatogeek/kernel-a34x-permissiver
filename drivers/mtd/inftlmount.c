@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * inftlmount.c -- INFTL mount code with extensive checks.
  *
@@ -7,6 +11,7 @@
  * Based heavily on the nftlmount.c code which is:
  * Author: Fabrice Bellard (fabrice.bellard@netgem.com)
  * Copyright © 2000 Netgem S.A.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -143,7 +150,11 @@ static int find_boot_record(struct INFTLrecord *inftl)
 			 "    NoOfBootImageBlocks   = %d\n"
 			 "    NoOfBinaryPartitions  = %d\n"
 			 "    NoOfBDTLPartitions    = %d\n"
+<<<<<<< HEAD
 			 "    BlockMultiplerBits    = %d\n"
+=======
+			 "    BlockMultiplierBits   = %d\n"
+>>>>>>> upstream/android-13
 			 "    FormatFlgs            = %d\n"
 			 "    OsakVersion           = 0x%x\n"
 			 "    PercentUsed           = %d\n",
@@ -272,20 +283,28 @@ static int find_boot_record(struct INFTLrecord *inftl)
 		/* Memory alloc */
 		inftl->PUtable = kmalloc_array(inftl->nb_blocks, sizeof(u16),
 					       GFP_KERNEL);
+<<<<<<< HEAD
 		if (!inftl->PUtable) {
 			printk(KERN_WARNING "INFTL: allocation of PUtable "
 				"failed (%zd bytes)\n",
 				inftl->nb_blocks * sizeof(u16));
 			return -ENOMEM;
 		}
+=======
+		if (!inftl->PUtable)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 
 		inftl->VUtable = kmalloc_array(inftl->nb_blocks, sizeof(u16),
 					       GFP_KERNEL);
 		if (!inftl->VUtable) {
 			kfree(inftl->PUtable);
+<<<<<<< HEAD
 			printk(KERN_WARNING "INFTL: allocation of VUtable "
 				"failed (%zd bytes)\n",
 				inftl->nb_blocks * sizeof(u16));
+=======
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 
@@ -343,7 +362,11 @@ static int check_free_sectors(struct INFTLrecord *inftl, unsigned int address,
 
 	buf = kmalloc(SECTORSIZE + mtd->oobsize, GFP_KERNEL);
 	if (!buf)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	ret = -1;
 	for (i = 0; i < len; i += SECTORSIZE) {
@@ -571,12 +594,17 @@ int INFTL_mount(struct INFTLrecord *s)
 
 	/* Temporary buffer to store ANAC numbers. */
 	ANACtable = kcalloc(s->nb_blocks, sizeof(u8), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!ANACtable) {
 		printk(KERN_WARNING "INFTL: allocation of ANACtable "
 				"failed (%zd bytes)\n",
 				s->nb_blocks * sizeof(u8));
 		return -ENOMEM;
 	}
+=======
+	if (!ANACtable)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/*
 	 * First pass is to explore each physical unit, and construct the

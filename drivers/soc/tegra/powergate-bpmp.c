@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved
  *
@@ -9,13 +10,21 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016-2017, NVIDIA CORPORATION. All rights reserved
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/pm_domain.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <soc/tegra/bpmp.h>
 #include <soc/tegra/bpmp-abi.h>

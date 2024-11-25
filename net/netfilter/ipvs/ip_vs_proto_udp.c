@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ip_vs_proto_udp.c:	UDP load balancing support for IPVS
  *
  * Authors:     Wensong Zhang <wensong@linuxvirtualserver.org>
  *              Julian Anastasov <ja@ssi.bg>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
@@ -12,6 +17,10 @@
  * Changes:     Hans Schillstrom <hans.schillstrom@ericsson.com>
  *              Network name space (netns) aware.
  *
+=======
+ * Changes:     Hans Schillstrom <hans.schillstrom@ericsson.com>
+ *              Network name space (netns) aware.
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"
@@ -23,12 +32,22 @@
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 #include <linux/udp.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 
 #include <net/ip_vs.h>
 #include <net/ip.h>
 #include <net/ip6_checksum.h>
 
 static int
+<<<<<<< HEAD
+=======
+udp_csum_check(int af, struct sk_buff *skb, struct ip_vs_protocol *pp);
+
+static int
+>>>>>>> upstream/android-13
 udp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 		  struct ip_vs_proto_data *pd,
 		  int *verdict, struct ip_vs_conn **cpp,
@@ -133,14 +152,23 @@ udp_partial_csum_update(int af, struct udphdr *uhdr,
 }
 
 
+<<<<<<< HEAD
 static int
+=======
+INDIRECT_CALLABLE_SCOPE int
+>>>>>>> upstream/android-13
 udp_snat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 		 struct ip_vs_conn *cp, struct ip_vs_iphdr *iph)
 {
 	struct udphdr *udph;
 	unsigned int udphoff = iph->len;
+<<<<<<< HEAD
 	int oldlen;
 	int payload_csum = 0;
+=======
+	bool payload_csum = false;
+	int oldlen;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IP_VS_IPV6
 	if (cp->af == AF_INET6 && iph->fragoffs)
@@ -149,14 +177,22 @@ udp_snat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 	oldlen = skb->len - udphoff;
 
 	/* csum_check requires unshared skb */
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, udphoff+sizeof(*udph)))
+=======
+	if (skb_ensure_writable(skb, udphoff + sizeof(*udph)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (unlikely(cp->app != NULL)) {
 		int ret;
 
 		/* Some checks before mangling */
+<<<<<<< HEAD
 		if (pp->csum_check && !pp->csum_check(cp->af, skb, pp))
+=======
+		if (!udp_csum_check(cp->af, skb, pp))
+>>>>>>> upstream/android-13
 			return 0;
 
 		/*
@@ -168,7 +204,11 @@ udp_snat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 		if (ret == 1)
 			oldlen = skb->len - udphoff;
 		else
+<<<<<<< HEAD
 			payload_csum = 1;
+=======
+			payload_csum = true;
+>>>>>>> upstream/android-13
 	}
 
 	udph = (void *)skb_network_header(skb) + udphoff;
@@ -186,7 +226,11 @@ udp_snat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 		udp_fast_csum_update(cp->af, udph, &cp->daddr, &cp->vaddr,
 				     cp->dport, cp->vport);
 		if (skb->ip_summed == CHECKSUM_COMPLETE)
+<<<<<<< HEAD
 			skb->ip_summed = (cp->app && pp->csum_check) ?
+=======
+			skb->ip_summed = cp->app ?
+>>>>>>> upstream/android-13
 					 CHECKSUM_UNNECESSARY : CHECKSUM_NONE;
 	} else {
 		/* full checksum calculation */
@@ -222,8 +266,13 @@ udp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 {
 	struct udphdr *udph;
 	unsigned int udphoff = iph->len;
+<<<<<<< HEAD
 	int oldlen;
 	int payload_csum = 0;
+=======
+	bool payload_csum = false;
+	int oldlen;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IP_VS_IPV6
 	if (cp->af == AF_INET6 && iph->fragoffs)
@@ -232,14 +281,22 @@ udp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 	oldlen = skb->len - udphoff;
 
 	/* csum_check requires unshared skb */
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, udphoff+sizeof(*udph)))
+=======
+	if (skb_ensure_writable(skb, udphoff + sizeof(*udph)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (unlikely(cp->app != NULL)) {
 		int ret;
 
 		/* Some checks before mangling */
+<<<<<<< HEAD
 		if (pp->csum_check && !pp->csum_check(cp->af, skb, pp))
+=======
+		if (!udp_csum_check(cp->af, skb, pp))
+>>>>>>> upstream/android-13
 			return 0;
 
 		/*
@@ -252,7 +309,11 @@ udp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 		if (ret == 1)
 			oldlen = skb->len - udphoff;
 		else
+<<<<<<< HEAD
 			payload_csum = 1;
+=======
+			payload_csum = true;
+>>>>>>> upstream/android-13
 	}
 
 	udph = (void *)skb_network_header(skb) + udphoff;
@@ -270,7 +331,11 @@ udp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 		udp_fast_csum_update(cp->af, udph, &cp->vaddr, &cp->daddr,
 				     cp->vport, cp->dport);
 		if (skb->ip_summed == CHECKSUM_COMPLETE)
+<<<<<<< HEAD
 			skb->ip_summed = (cp->app && pp->csum_check) ?
+=======
+			skb->ip_summed = cp->app ?
+>>>>>>> upstream/android-13
 					 CHECKSUM_UNNECESSARY : CHECKSUM_NONE;
 	} else {
 		/* full checksum calculation */
@@ -319,7 +384,11 @@ udp_csum_check(int af, struct sk_buff *skb, struct ip_vs_protocol *pp)
 		case CHECKSUM_NONE:
 			skb->csum = skb_checksum(skb, udphoff,
 						 skb->len - udphoff, 0);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case CHECKSUM_COMPLETE:
 #ifdef CONFIG_IP_VS_IPV6
 			if (af == AF_INET6) {
@@ -494,7 +563,10 @@ struct ip_vs_protocol ip_vs_protocol_udp = {
 	.conn_out_get =		ip_vs_conn_out_get_proto,
 	.snat_handler =		udp_snat_handler,
 	.dnat_handler =		udp_dnat_handler,
+<<<<<<< HEAD
 	.csum_check =		udp_csum_check,
+=======
+>>>>>>> upstream/android-13
 	.state_transition =	udp_state_transition,
 	.state_name =		udp_state_name,
 	.register_app =		udp_register_app,

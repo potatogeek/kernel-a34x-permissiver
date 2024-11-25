@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __STORAGE_COMMON__
@@ -107,8 +114,14 @@ struct scsi_drv_cmdq {
 struct scsi_init_func_params {
 	__le16 num_tasks;
 	u8 log_page_size;
+<<<<<<< HEAD
 	u8 debug_mode;
 	u8 reserved2[12];
+=======
+	u8 log_page_size_conn;
+	u8 debug_mode;
+	u8 reserved2[11];
+>>>>>>> upstream/android-13
 };
 
 /* SCSI RQ/CQ/CMDQ firmware function init parameters */

@@ -1,4 +1,5 @@
 #!/bin/sh
+<<<<<<< HEAD
 # description: event trigger - test synthetic event create remove
 do_reset() {
     reset_trigger
@@ -8,10 +9,18 @@ do_reset() {
 
 fail() { #msg
     do_reset
+=======
+# SPDX-License-Identifier: GPL-2.0
+# description: event trigger - test synthetic event create remove
+# requires: set_event synthetic_events
+
+fail() { #msg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -26,6 +35,8 @@ clear_synthetic_events
 reset_tracer
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 echo "Test create synthetic event"
 
 echo 'wakeup_latency  u64 lat pid_t pid char comm[16]' > synthetic_events
@@ -49,6 +60,9 @@ if [ -d events/synthetic/wakeup_latency ]; then
     fail "Created wakeup_latency synthetic event with an invalid format"
 fi
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

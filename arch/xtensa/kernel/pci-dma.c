@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * DMA coherent memory allocation.
  *
@@ -6,6 +7,12 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * DMA coherent memory allocation.
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) 2002 - 2005 Tensilica Inc.
  * Copyright (C) 2015 Cadence Design Systems Inc.
  *
@@ -15,8 +22,12 @@
  * Joe Taylor <joe@tensilica.com, joetylr@yahoo.com>
  */
 
+<<<<<<< HEAD
 #include <linux/dma-contiguous.h>
 #include <linux/dma-noncoherent.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-direct.h>
 #include <linux/gfp.h>
 #include <linux/highmem.h>
@@ -48,8 +59,13 @@ static void do_cache_op(phys_addr_t paddr, size_t size,
 		}
 }
 
+<<<<<<< HEAD
 void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	switch (dir) {
 	case DMA_BIDIRECTIONAL:
@@ -66,8 +82,13 @@ void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 	}
 }
 
+<<<<<<< HEAD
 void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	switch (dir) {
 	case DMA_BIDIRECTIONAL:
@@ -85,6 +106,7 @@ void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
 bool platform_vaddr_cached(const void *p)
 {
@@ -210,3 +232,21 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
 	if (!dma_release_from_contiguous(dev, page, count))
 		__free_pages(page, get_order(size));
 }
+=======
+void arch_dma_prep_coherent(struct page *page, size_t size)
+{
+	__invalidate_dcache_range((unsigned long)page_address(page), size);
+}
+
+/*
+ * Memory caching is platform-dependent in noMMU xtensa configurations.
+ * This function should be implemented in platform code in order to enable
+ * coherent DMA memory operations when CONFIG_MMU is not enabled.
+ */
+#ifdef CONFIG_MMU
+void *arch_dma_set_uncached(void *p, size_t size)
+{
+	return p + XCHAL_KSEG_BYPASS_VADDR - XCHAL_KSEG_CACHED_VADDR;
+}
+#endif /* CONFIG_MMU */
+>>>>>>> upstream/android-13

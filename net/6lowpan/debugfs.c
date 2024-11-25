@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -6,6 +7,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Authors:
  * (C) 2015 Pengutronix, Alexander Aring <aar@pengutronix.de>
@@ -41,9 +46,15 @@ static int lowpan_ctx_flag_active_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(lowpan_ctx_flag_active_fops,
 			lowpan_ctx_flag_active_get,
 			lowpan_ctx_flag_active_set, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(lowpan_ctx_flag_active_fops,
+			 lowpan_ctx_flag_active_get,
+			 lowpan_ctx_flag_active_set, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int lowpan_ctx_flag_c_set(void *data, u64 val)
 {
@@ -66,8 +77,13 @@ static int lowpan_ctx_flag_c_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(lowpan_ctx_flag_c_fops, lowpan_ctx_flag_c_get,
 			lowpan_ctx_flag_c_set, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(lowpan_ctx_flag_c_fops, lowpan_ctx_flag_c_get,
+			 lowpan_ctx_flag_c_set, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int lowpan_ctx_plen_set(void *data, u64 val)
 {
@@ -97,8 +113,13 @@ static int lowpan_ctx_plen_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(lowpan_ctx_plen_fops, lowpan_ctx_plen_get,
 			lowpan_ctx_plen_set, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(lowpan_ctx_plen_fops, lowpan_ctx_plen_get,
+			 lowpan_ctx_plen_set, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int lowpan_ctx_pfx_show(struct seq_file *file, void *offset)
 {
@@ -169,6 +190,7 @@ static const struct file_operations lowpan_ctx_pfx_fops = {
 	.release	= single_release,
 };
 
+<<<<<<< HEAD
 static int lowpan_dev_debugfs_ctx_init(struct net_device *dev,
 				       struct dentry *ctx, u8 id)
 {
@@ -177,10 +199,22 @@ static int lowpan_dev_debugfs_ctx_init(struct net_device *dev,
 	char buf[32];
 
 	WARN_ON_ONCE(id > LOWPAN_IPHC_CTX_TABLE_SIZE);
+=======
+static void lowpan_dev_debugfs_ctx_init(struct net_device *dev,
+					struct dentry *ctx, u8 id)
+{
+	struct lowpan_dev *ldev = lowpan_dev(dev);
+	struct dentry *root;
+	char buf[32];
+
+	if (WARN_ON_ONCE(id >= LOWPAN_IPHC_CTX_TABLE_SIZE))
+		return;
+>>>>>>> upstream/android-13
 
 	sprintf(buf, "%d", id);
 
 	root = debugfs_create_dir(buf, ctx);
+<<<<<<< HEAD
 	if (!root)
 		return -EINVAL;
 
@@ -209,6 +243,20 @@ static int lowpan_dev_debugfs_ctx_init(struct net_device *dev,
 		return -EINVAL;
 
 	return 0;
+=======
+
+	debugfs_create_file("active", 0644, root, &ldev->ctx.table[id],
+			    &lowpan_ctx_flag_active_fops);
+
+	debugfs_create_file("compression", 0644, root, &ldev->ctx.table[id],
+			    &lowpan_ctx_flag_c_fops);
+
+	debugfs_create_file("prefix", 0644, root, &ldev->ctx.table[id],
+			    &lowpan_ctx_pfx_fops);
+
+	debugfs_create_file("prefix_len", 0644, root, &ldev->ctx.table[id],
+			    &lowpan_ctx_plen_fops);
+>>>>>>> upstream/android-13
 }
 
 static int lowpan_context_show(struct seq_file *file, void *offset)
@@ -232,6 +280,7 @@ static int lowpan_context_show(struct seq_file *file, void *offset)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int lowpan_context_open(struct inode *inode, struct file *file)
 {
@@ -244,6 +293,9 @@ static const struct file_operations lowpan_context_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(lowpan_context);
+>>>>>>> upstream/android-13
 
 static int lowpan_short_addr_get(void *data, u64 *val)
 {
@@ -256,6 +308,7 @@ static int lowpan_short_addr_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(lowpan_short_addr_fops, lowpan_short_addr_get,
 			NULL, "0x%04llx\n");
 
@@ -317,6 +370,44 @@ remove_root:
 	lowpan_dev_debugfs_exit(dev);
 fail:
 	return -EINVAL;
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(lowpan_short_addr_fops, lowpan_short_addr_get, NULL,
+			 "0x%04llx\n");
+
+static void lowpan_dev_debugfs_802154_init(const struct net_device *dev,
+					  struct lowpan_dev *ldev)
+{
+	struct dentry *root;
+
+	if (!lowpan_is_ll(dev, LOWPAN_LLTYPE_IEEE802154))
+		return;
+
+	root = debugfs_create_dir("ieee802154", ldev->iface_debugfs);
+
+	debugfs_create_file("short_addr", 0444, root,
+			    lowpan_802154_dev(dev)->wdev->ieee802154_ptr,
+			    &lowpan_short_addr_fops);
+}
+
+void lowpan_dev_debugfs_init(struct net_device *dev)
+{
+	struct lowpan_dev *ldev = lowpan_dev(dev);
+	struct dentry *contexts;
+	int i;
+
+	/* creating the root */
+	ldev->iface_debugfs = debugfs_create_dir(dev->name, lowpan_debugfs);
+
+	contexts = debugfs_create_dir("contexts", ldev->iface_debugfs);
+
+	debugfs_create_file("show", 0644, contexts, &lowpan_dev(dev)->ctx,
+			    &lowpan_context_fops);
+
+	for (i = 0; i < LOWPAN_IPHC_CTX_TABLE_SIZE; i++)
+		lowpan_dev_debugfs_ctx_init(dev, contexts, i);
+
+	lowpan_dev_debugfs_802154_init(dev, ldev);
+>>>>>>> upstream/android-13
 }
 
 void lowpan_dev_debugfs_exit(struct net_device *dev)
@@ -324,6 +415,7 @@ void lowpan_dev_debugfs_exit(struct net_device *dev)
 	debugfs_remove_recursive(lowpan_dev(dev)->iface_debugfs);
 }
 
+<<<<<<< HEAD
 int __init lowpan_debugfs_init(void)
 {
 	lowpan_debugfs = debugfs_create_dir("6lowpan", NULL);
@@ -331,6 +423,11 @@ int __init lowpan_debugfs_init(void)
 		return -EINVAL;
 
 	return 0;
+=======
+void __init lowpan_debugfs_init(void)
+{
+	lowpan_debugfs = debugfs_create_dir("6lowpan", NULL);
+>>>>>>> upstream/android-13
 }
 
 void lowpan_debugfs_exit(void)

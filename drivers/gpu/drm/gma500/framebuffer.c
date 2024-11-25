@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /**************************************************************************
  * Copyright (c) 2007-2011, Intel Corporation.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -40,6 +45,34 @@
 #include "psb_intel_drv.h"
 #include "framebuffer.h"
 #include "gtt.h"
+=======
+ **************************************************************************/
+
+#include <linux/console.h>
+#include <linux/delay.h>
+#include <linux/errno.h>
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/mm.h>
+#include <linux/module.h>
+#include <linux/pfn_t.h>
+#include <linux/slab.h>
+#include <linux/string.h>
+#include <linux/tty.h>
+
+#include <drm/drm.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+
+#include "framebuffer.h"
+#include "gem.h"
+#include "gtt.h"
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+#include "psb_intel_reg.h"
+>>>>>>> upstream/android-13
 
 static const struct drm_framebuffer_funcs psb_fb_funcs = {
 	.destroy = drm_gem_fb_destroy,
@@ -52,8 +85,13 @@ static int psbfb_setcolreg(unsigned regno, unsigned red, unsigned green,
 			   unsigned blue, unsigned transp,
 			   struct fb_info *info)
 {
+<<<<<<< HEAD
 	struct psb_fbdev *fbdev = info->par;
 	struct drm_framebuffer *fb = fbdev->psb_fb_helper.fb;
+=======
+	struct drm_fb_helper *fb_helper = info->par;
+	struct drm_framebuffer *fb = fb_helper->fb;
+>>>>>>> upstream/android-13
 	uint32_t v;
 
 	if (!fb)
@@ -87,6 +125,7 @@ static int psbfb_setcolreg(unsigned regno, unsigned red, unsigned green,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int psbfb_pan(struct fb_var_screeninfo *var, struct fb_info *info)
 {
 	struct psb_fbdev *fbdev = info->par;
@@ -115,6 +154,15 @@ static vm_fault_t psbfb_vm_fault(struct vm_fault *vmf)
 	struct drm_device *dev = psbfb->base.dev;
 	struct drm_psb_private *dev_priv = dev->dev_private;
 	struct gtt_range *gtt = to_gtt_range(psbfb->base.obj[0]);
+=======
+static vm_fault_t psbfb_vm_fault(struct vm_fault *vmf)
+{
+	struct vm_area_struct *vma = vmf->vma;
+	struct drm_framebuffer *fb = vma->vm_private_data;
+	struct drm_device *dev = fb->dev;
+	struct drm_psb_private *dev_priv = dev->dev_private;
+	struct gtt_range *gtt = to_gtt_range(fb->obj[0]);
+>>>>>>> upstream/android-13
 	int page_num;
 	int i;
 	unsigned long address;
@@ -157,27 +205,40 @@ static const struct vm_operations_struct psbfb_vm_ops = {
 
 static int psbfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	struct psb_fbdev *fbdev = info->par;
 	struct psb_framebuffer *psbfb = &fbdev->pfb;
+=======
+	struct drm_fb_helper *fb_helper = info->par;
+	struct drm_framebuffer *fb = fb_helper->fb;
+>>>>>>> upstream/android-13
 
 	if (vma->vm_pgoff != 0)
 		return -EINVAL;
 	if (vma->vm_pgoff > (~0UL >> PAGE_SHIFT))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!psbfb->addr_space)
 		psbfb->addr_space = vma->vm_file->f_mapping;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If this is a GEM object then info->screen_base is the virtual
 	 * kernel remapping of the object. FIXME: Review if this is
 	 * suitable for our mmap work
 	 */
 	vma->vm_ops = &psbfb_vm_ops;
+<<<<<<< HEAD
 	vma->vm_private_data = (void *)psbfb;
+=======
+	vma->vm_private_data = (void *)fb;
+>>>>>>> upstream/android-13
 	vma->vm_flags |= VM_IO | VM_MIXEDMAP | VM_DONTEXPAND | VM_DONTDUMP;
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops psbfb_ops = {
 	.owner = THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
@@ -201,6 +262,9 @@ static struct fb_ops psbfb_roll_ops = {
 };
 
 static struct fb_ops psbfb_unaccel_ops = {
+=======
+static const struct fb_ops psbfb_unaccel_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 	.fb_setcolreg = psbfb_setcolreg,
@@ -215,15 +279,25 @@ static struct fb_ops psbfb_unaccel_ops = {
  *	@dev: our DRM device
  *	@fb: framebuffer to set up
  *	@mode_cmd: mode description
+<<<<<<< HEAD
  *	@gt: backing object
+=======
+ *	@obj: backing object
+>>>>>>> upstream/android-13
  *
  *	Configure and fill in the boilerplate for our frame buffer. Return
  *	0 on success or an error code if we fail.
  */
 static int psb_framebuffer_init(struct drm_device *dev,
+<<<<<<< HEAD
 					struct psb_framebuffer *fb,
 					const struct drm_mode_fb_cmd2 *mode_cmd,
 					struct gtt_range *gt)
+=======
+					struct drm_framebuffer *fb,
+					const struct drm_mode_fb_cmd2 *mode_cmd,
+					struct drm_gem_object *obj)
+>>>>>>> upstream/android-13
 {
 	const struct drm_format_info *info;
 	int ret;
@@ -232,16 +306,26 @@ static int psb_framebuffer_init(struct drm_device *dev,
 	 * Reject unknown formats, YUV formats, and formats with more than
 	 * 4 bytes per pixel.
 	 */
+<<<<<<< HEAD
 	info = drm_format_info(mode_cmd->pixel_format);
+=======
+	info = drm_get_format_info(dev, mode_cmd);
+>>>>>>> upstream/android-13
 	if (!info || !info->depth || info->cpp[0] > 4)
 		return -EINVAL;
 
 	if (mode_cmd->pitches[0] & 63)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	drm_helper_mode_fill_fb_struct(dev, &fb->base, mode_cmd);
 	fb->base.obj[0] = &gt->gem;
 	ret = drm_framebuffer_init(dev, &fb->base, &psb_fb_funcs);
+=======
+	drm_helper_mode_fill_fb_struct(dev, fb, mode_cmd);
+	fb->obj[0] = obj;
+	ret = drm_framebuffer_init(dev, fb, &psb_fb_funcs);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev->dev, "framebuffer init failed: %d\n", ret);
 		return ret;
@@ -253,7 +337,11 @@ static int psb_framebuffer_init(struct drm_device *dev,
  *	psb_framebuffer_create	-	create a framebuffer backed by gt
  *	@dev: our DRM device
  *	@mode_cmd: the description of the requested mode
+<<<<<<< HEAD
  *	@gt: the backing object
+=======
+ *	@obj: the backing object
+>>>>>>> upstream/android-13
  *
  *	Create a framebuffer object backed by the gt, and fill in the
  *	boilerplate required
@@ -264,21 +352,35 @@ static int psb_framebuffer_init(struct drm_device *dev,
 static struct drm_framebuffer *psb_framebuffer_create
 			(struct drm_device *dev,
 			 const struct drm_mode_fb_cmd2 *mode_cmd,
+<<<<<<< HEAD
 			 struct gtt_range *gt)
 {
 	struct psb_framebuffer *fb;
+=======
+			 struct drm_gem_object *obj)
+{
+	struct drm_framebuffer *fb;
+>>>>>>> upstream/android-13
 	int ret;
 
 	fb = kzalloc(sizeof(*fb), GFP_KERNEL);
 	if (!fb)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	ret = psb_framebuffer_init(dev, fb, mode_cmd, gt);
+=======
+	ret = psb_framebuffer_init(dev, fb, mode_cmd, obj);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(fb);
 		return ERR_PTR(ret);
 	}
+<<<<<<< HEAD
 	return &fb->base;
+=======
+	return fb;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -299,6 +401,10 @@ static struct gtt_range *psbfb_alloc(struct drm_device *dev, int aligned_size)
 	/* Begin by trying to use stolen memory backing */
 	backing = psb_gtt_alloc_range(dev, aligned_size, "fb", 1, PAGE_SIZE);
 	if (backing) {
+<<<<<<< HEAD
+=======
+		backing->gem.funcs = &psb_gem_object_funcs;
+>>>>>>> upstream/android-13
 		drm_gem_private_object_init(dev, &backing->gem, aligned_size);
 		return backing;
 	}
@@ -307,11 +413,16 @@ static struct gtt_range *psbfb_alloc(struct drm_device *dev, int aligned_size)
 
 /**
  *	psbfb_create		-	create a framebuffer
+<<<<<<< HEAD
  *	@fbdev: the framebuffer device
+=======
+ *	@fb_helper: the framebuffer helper
+>>>>>>> upstream/android-13
  *	@sizes: specification of the layout
  *
  *	Create a framebuffer to the specifications provided
  */
+<<<<<<< HEAD
 static int psbfb_create(struct psb_fbdev *fbdev,
 				struct drm_fb_helper_surface_size *sizes)
 {
@@ -320,13 +431,26 @@ static int psbfb_create(struct psb_fbdev *fbdev,
 	struct fb_info *info;
 	struct drm_framebuffer *fb;
 	struct psb_framebuffer *psbfb = &fbdev->pfb;
+=======
+static int psbfb_create(struct drm_fb_helper *fb_helper,
+				struct drm_fb_helper_surface_size *sizes)
+{
+	struct drm_device *dev = fb_helper->dev;
+	struct drm_psb_private *dev_priv = dev->dev_private;
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct fb_info *info;
+	struct drm_framebuffer *fb;
+>>>>>>> upstream/android-13
 	struct drm_mode_fb_cmd2 mode_cmd;
 	int size;
 	int ret;
 	struct gtt_range *backing;
 	u32 bpp, depth;
+<<<<<<< HEAD
 	int gtt_roll = 0;
 	int pitch_lines = 0;
+=======
+>>>>>>> upstream/android-13
 
 	mode_cmd.width = sizes->surface_width;
 	mode_cmd.height = sizes->surface_height;
@@ -337,6 +461,7 @@ static int psbfb_create(struct psb_fbdev *fbdev,
 	if (bpp == 24)
 		bpp = 32;
 
+<<<<<<< HEAD
 	do {
 		/*
 		 * Acceleration via the GTT requires pitch to be
@@ -385,10 +510,26 @@ static int psbfb_create(struct psb_fbdev *fbdev,
 	memset(dev_priv->vram_addr + backing->offset, 0, size);
 
 	info = drm_fb_helper_alloc_fbi(&fbdev->psb_fb_helper);
+=======
+	mode_cmd.pitches[0] = ALIGN(mode_cmd.width * DIV_ROUND_UP(bpp, 8), 64);
+
+	size = mode_cmd.pitches[0] * mode_cmd.height;
+	size = ALIGN(size, PAGE_SIZE);
+
+	/* Allocate the framebuffer in the GTT with stolen page backing */
+	backing = psbfb_alloc(dev, size);
+	if (backing == NULL)
+		return -ENOMEM;
+
+	memset(dev_priv->vram_addr + backing->offset, 0, size);
+
+	info = drm_fb_helper_alloc_fbi(fb_helper);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info)) {
 		ret = PTR_ERR(info);
 		goto out;
 	}
+<<<<<<< HEAD
 	info->par = fbdev;
 
 	mode_cmd.pixel_format = drm_mode_legacy_fb_format(bpp, depth);
@@ -417,6 +558,24 @@ static int psbfb_create(struct psb_fbdev *fbdev,
 	info->fix.smem_start = dev->mode_config.fb_base;
 	info->fix.smem_len = size;
 	info->fix.ywrapstep = gtt_roll;
+=======
+
+	mode_cmd.pixel_format = drm_mode_legacy_fb_format(bpp, depth);
+
+	fb = psb_framebuffer_create(dev, &mode_cmd, &backing->gem);
+	if (IS_ERR(fb)) {
+		ret = PTR_ERR(fb);
+		goto out;
+	}
+
+	fb_helper->fb = fb;
+
+	info->fbops = &psbfb_unaccel_ops;
+
+	info->fix.smem_start = dev->mode_config.fb_base;
+	info->fix.smem_len = size;
+	info->fix.ywrapstep = 0;
+>>>>>>> upstream/android-13
 	info->fix.ypanstep = 0;
 
 	/* Accessed stolen memory directly */
@@ -428,6 +587,7 @@ static int psbfb_create(struct psb_fbdev *fbdev,
 		info->apertures->ranges[0].size = dev_priv->gtt.stolen_size;
 	}
 
+<<<<<<< HEAD
 	drm_fb_helper_fill_var(info, &fbdev->psb_fb_helper,
 				sizes->fb_width, sizes->fb_height);
 
@@ -438,6 +598,16 @@ static int psbfb_create(struct psb_fbdev *fbdev,
 
 	dev_dbg(dev->dev, "allocated %dx%d fb\n",
 					psbfb->base.width, psbfb->base.height);
+=======
+	drm_fb_helper_fill_info(info, fb_helper, sizes);
+
+	info->fix.mmio_start = pci_resource_start(pdev, 0);
+	info->fix.mmio_len = pci_resource_len(pdev, 0);
+
+	/* Use default scratch pixmap (info->pixmap.flags = FB_PIXMAP_SYSTEM) */
+
+	dev_dbg(dev->dev, "allocated %dx%d fb\n", fb->width, fb->height);
+>>>>>>> upstream/android-13
 
 	return 0;
 out:
@@ -457,8 +627,13 @@ static struct drm_framebuffer *psb_user_framebuffer_create
 			(struct drm_device *dev, struct drm_file *filp,
 			 const struct drm_mode_fb_cmd2 *cmd)
 {
+<<<<<<< HEAD
 	struct gtt_range *r;
 	struct drm_gem_object *obj;
+=======
+	struct drm_gem_object *obj;
+	struct drm_framebuffer *fb;
+>>>>>>> upstream/android-13
 
 	/*
 	 *	Find the GEM object and thus the gtt range object that is
@@ -469,6 +644,7 @@ static struct drm_framebuffer *psb_user_framebuffer_create
 		return ERR_PTR(-ENOENT);
 
 	/* Let the core code do all the work */
+<<<<<<< HEAD
 	r = container_of(obj, struct gtt_range, gem);
 	return psb_framebuffer_create(dev, cmd, r);
 }
@@ -479,6 +655,19 @@ static int psbfb_probe(struct drm_fb_helper *helper,
 	struct psb_fbdev *psb_fbdev =
 		container_of(helper, struct psb_fbdev, psb_fb_helper);
 	struct drm_device *dev = psb_fbdev->psb_fb_helper.dev;
+=======
+	fb = psb_framebuffer_create(dev, cmd, obj);
+	if (IS_ERR(fb))
+		drm_gem_object_put(obj);
+
+	return fb;
+}
+
+static int psbfb_probe(struct drm_fb_helper *fb_helper,
+				struct drm_fb_helper_surface_size *sizes)
+{
+	struct drm_device *dev = fb_helper->dev;
+>>>>>>> upstream/android-13
 	struct drm_psb_private *dev_priv = dev->dev_private;
 	unsigned int fb_size;
 	int bytespp;
@@ -499,13 +688,18 @@ static int psbfb_probe(struct drm_fb_helper *helper,
                 sizes->surface_depth = 16;
         }
 
+<<<<<<< HEAD
 	return psbfb_create(psb_fbdev, sizes);
+=======
+	return psbfb_create(fb_helper, sizes);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_fb_helper_funcs psb_fb_helper_funcs = {
 	.fb_probe = psbfb_probe,
 };
 
+<<<<<<< HEAD
 static int psb_fbdev_destroy(struct drm_device *dev, struct psb_fbdev *fbdev)
 {
 	struct psb_framebuffer *psbfb = &fbdev->pfb;
@@ -518,21 +712,48 @@ static int psb_fbdev_destroy(struct drm_device *dev, struct psb_fbdev *fbdev)
 
 	if (psbfb->base.obj[0])
 		drm_gem_object_put_unlocked(psbfb->base.obj[0]);
+=======
+static int psb_fbdev_destroy(struct drm_device *dev,
+			     struct drm_fb_helper *fb_helper)
+{
+	struct drm_framebuffer *fb = fb_helper->fb;
+
+	drm_fb_helper_unregister_fbi(fb_helper);
+
+	drm_fb_helper_fini(fb_helper);
+	drm_framebuffer_unregister_private(fb);
+	drm_framebuffer_cleanup(fb);
+
+	if (fb->obj[0])
+		drm_gem_object_put(fb->obj[0]);
+	kfree(fb);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int psb_fbdev_init(struct drm_device *dev)
 {
+<<<<<<< HEAD
 	struct psb_fbdev *fbdev;
 	struct drm_psb_private *dev_priv = dev->dev_private;
 	int ret;
 
 	fbdev = kzalloc(sizeof(struct psb_fbdev), GFP_KERNEL);
 	if (!fbdev) {
+=======
+	struct drm_fb_helper *fb_helper;
+	struct drm_psb_private *dev_priv = dev->dev_private;
+	int ret;
+
+	fb_helper = kzalloc(sizeof(*fb_helper), GFP_KERNEL);
+	if (!fb_helper) {
+>>>>>>> upstream/android-13
 		dev_err(dev->dev, "no memory\n");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	dev_priv->fbdev = fbdev;
 
 	drm_fb_helper_prepare(dev, &fbdev->psb_fb_helper, &psb_fb_helper_funcs);
@@ -550,15 +771,35 @@ int psb_fbdev_init(struct drm_device *dev)
 	drm_helper_disable_unused_functions(dev);
 
 	ret = drm_fb_helper_initial_config(&fbdev->psb_fb_helper, 32);
+=======
+	dev_priv->fb_helper = fb_helper;
+
+	drm_fb_helper_prepare(dev, fb_helper, &psb_fb_helper_funcs);
+
+	ret = drm_fb_helper_init(dev, fb_helper);
+	if (ret)
+		goto free;
+
+	/* disable all the possible outputs/crtcs before entering KMS mode */
+	drm_helper_disable_unused_functions(dev);
+
+	ret = drm_fb_helper_initial_config(fb_helper, 32);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fini;
 
 	return 0;
 
 fini:
+<<<<<<< HEAD
 	drm_fb_helper_fini(&fbdev->psb_fb_helper);
 free:
 	kfree(fbdev);
+=======
+	drm_fb_helper_fini(fb_helper);
+free:
+	kfree(fb_helper);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -566,12 +807,21 @@ static void psb_fbdev_fini(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
 
+<<<<<<< HEAD
 	if (!dev_priv->fbdev)
 		return;
 
 	psb_fbdev_destroy(dev, dev_priv->fbdev);
 	kfree(dev_priv->fbdev);
 	dev_priv->fbdev = NULL;
+=======
+	if (!dev_priv->fb_helper)
+		return;
+
+	psb_fbdev_destroy(dev, dev_priv->fb_helper);
+	kfree(dev_priv->fb_helper);
+	dev_priv->fb_helper = NULL;
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_mode_config_funcs psb_mode_funcs = {
@@ -606,6 +856,7 @@ static void psb_setup_outputs(struct drm_device *dev)
 			break;
 		case INTEL_OUTPUT_SDVO:
 			crtc_mask = dev_priv->ops->sdvo_mask;
+<<<<<<< HEAD
 			clone_mask = (1 << INTEL_OUTPUT_SDVO);
 			break;
 		case INTEL_OUTPUT_LVDS:
@@ -622,15 +873,41 @@ static void psb_setup_outputs(struct drm_device *dev)
 			break;
 		case INTEL_OUTPUT_HDMI:
 		        crtc_mask = dev_priv->ops->hdmi_mask;
+=======
+			clone_mask = 0;
+			break;
+		case INTEL_OUTPUT_LVDS:
+			crtc_mask = dev_priv->ops->lvds_mask;
+			clone_mask = 0;
+			break;
+		case INTEL_OUTPUT_MIPI:
+			crtc_mask = (1 << 0);
+			clone_mask = 0;
+			break;
+		case INTEL_OUTPUT_MIPI2:
+			crtc_mask = (1 << 2);
+			clone_mask = 0;
+			break;
+		case INTEL_OUTPUT_HDMI:
+			crtc_mask = dev_priv->ops->hdmi_mask;
+>>>>>>> upstream/android-13
 			clone_mask = (1 << INTEL_OUTPUT_HDMI);
 			break;
 		case INTEL_OUTPUT_DISPLAYPORT:
 			crtc_mask = (1 << 0) | (1 << 1);
+<<<<<<< HEAD
 			clone_mask = (1 << INTEL_OUTPUT_DISPLAYPORT);
 			break;
 		case INTEL_OUTPUT_EDP:
 			crtc_mask = (1 << 1);
 			clone_mask = (1 << INTEL_OUTPUT_EDP);
+=======
+			clone_mask = 0;
+			break;
+		case INTEL_OUTPUT_EDP:
+			crtc_mask = (1 << 1);
+			clone_mask = 0;
+>>>>>>> upstream/android-13
 		}
 		encoder->possible_crtcs = crtc_mask;
 		encoder->possible_clones =
@@ -642,6 +919,10 @@ void psb_modeset_init(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
 	struct psb_intel_mode_device *mode_dev = &dev_priv->mode_dev;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	int i;
 
 	drm_mode_config_init(dev);
@@ -653,8 +934,12 @@ void psb_modeset_init(struct drm_device *dev)
 
 	/* set memory base */
 	/* Oaktrail and Poulsbo should use BAR 2*/
+<<<<<<< HEAD
 	pci_read_config_dword(dev->pdev, PSB_BSM, (u32 *)
 					&(dev->mode_config.fb_base));
+=======
+	pci_read_config_dword(pdev, PSB_BSM, (u32 *)&(dev->mode_config.fb_base));
+>>>>>>> upstream/android-13
 
 	/* num pipes is 2 for PSB but 1 for Mrst */
 	for (i = 0; i < dev_priv->num_pipe; i++)

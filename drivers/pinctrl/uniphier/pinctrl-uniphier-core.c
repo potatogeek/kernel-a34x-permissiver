@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -12,6 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright (C) 2015-2017 Socionext Inc.
+//   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
 
 #include <linux/list.h>
 #include <linux/mfd/syscon.h>
@@ -39,14 +46,22 @@ struct uniphier_pinctrl_reg_region {
 	struct list_head node;
 	unsigned int base;
 	unsigned int nregs;
+<<<<<<< HEAD
 	u32 vals[0];
+=======
+	u32 vals[];
+>>>>>>> upstream/android-13
 };
 
 struct uniphier_pinctrl_priv {
 	struct pinctrl_desc pctldesc;
 	struct pinctrl_dev *pctldev;
 	struct regmap *regmap;
+<<<<<<< HEAD
 	struct uniphier_pinctrl_socdata *socdata;
+=======
+	const struct uniphier_pinctrl_socdata *socdata;
+>>>>>>> upstream/android-13
 	struct list_head reg_regions;
 };
 
@@ -869,7 +884,11 @@ const struct dev_pm_ops uniphier_pinctrl_pm_ops = {
 };
 
 int uniphier_pinctrl_probe(struct platform_device *pdev,
+<<<<<<< HEAD
 			   struct uniphier_pinctrl_socdata *socdata)
+=======
+			   const struct uniphier_pinctrl_socdata *socdata)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &pdev->dev;
 	struct uniphier_pinctrl_priv *priv;

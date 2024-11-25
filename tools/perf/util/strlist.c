@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (c) 2009 Arnaldo Carvalho de Melo <acme@redhat.com>
  *
@@ -6,11 +7,23 @@
 
 #include "strlist.h"
 #include "util.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * (c) 2009 Arnaldo Carvalho de Melo <acme@redhat.com>
+ */
+
+#include "strlist.h"
+>>>>>>> upstream/android-13
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 static
 struct rb_node *strlist__node_new(struct rblist *rblist, const void *entry)

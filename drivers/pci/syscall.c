@@ -7,6 +7,10 @@
 
 #include <linux/errno.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 #include <linux/syscalls.h>
 #include <linux/uaccess.h>
 #include "pci.h"
@@ -18,11 +22,20 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned long, bus, unsigned long, dfn,
 	u8 byte;
 	u16 word;
 	u32 dword;
+<<<<<<< HEAD
 	long err;
 	int cfg_ret;
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
+=======
+	int err, cfg_ret;
+
+	err = -EPERM;
+	dev = NULL;
+	if (!capable(CAP_SYS_ADMIN))
+		goto error;
+>>>>>>> upstream/android-13
 
 	err = -ENODEV;
 	dev = pci_get_domain_bus_and_slot(0, bus, dfn);
@@ -90,7 +103,12 @@ SYSCALL_DEFINE5(pciconfig_write, unsigned long, bus, unsigned long, dfn,
 	u32 dword;
 	int err = 0;
 
+<<<<<<< HEAD
 	if (!capable(CAP_SYS_ADMIN))
+=======
+	if (!capable(CAP_SYS_ADMIN) ||
+	    security_locked_down(LOCKDOWN_PCI_ACCESS))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	dev = pci_get_domain_bus_and_slot(0, bus, dfn);

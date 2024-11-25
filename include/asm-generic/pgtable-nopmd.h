@@ -45,12 +45,20 @@ static inline pmd_t * pmd_offset(pud_t * pud, unsigned long address)
 {
 	return (pmd_t *)pud;
 }
+<<<<<<< HEAD
+=======
+#define pmd_offset pmd_offset
+>>>>>>> upstream/android-13
 
 #define pmd_val(x)				(pud_val((x).pud))
 #define __pmd(x)				((pmd_t) { __pud(x) } )
 
 #define pud_page(pud)				(pmd_page((pmd_t){ pud }))
+<<<<<<< HEAD
 #define pud_page_vaddr(pud)			(pmd_page_vaddr((pmd_t){ pud }))
+=======
+#define pud_pgtable(pud)			((pmd_t *)(pmd_page_vaddr((pmd_t){ pud })))
+>>>>>>> upstream/android-13
 
 /*
  * allocating and freeing a pmd is trivial: the 1-entry pmd is
@@ -60,7 +68,11 @@ static inline pmd_t * pmd_offset(pud_t * pud, unsigned long address)
 static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
 {
 }
+<<<<<<< HEAD
 #define __pmd_free_tlb(tlb, x, a)		do { } while (0)
+=======
+#define pmd_free_tlb(tlb, x, a)		do { } while (0)
+>>>>>>> upstream/android-13
 
 #undef  pmd_addr_end
 #define pmd_addr_end(addr, end)			(end)

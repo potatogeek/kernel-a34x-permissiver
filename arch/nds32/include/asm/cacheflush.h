@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef __NDS32_CACHEFLUSH_H__
@@ -9,7 +13,15 @@
 #define PG_dcache_dirty PG_arch_1
 
 void flush_icache_range(unsigned long start, unsigned long end);
+<<<<<<< HEAD
 void flush_icache_page(struct vm_area_struct *vma, struct page *page);
+=======
+#define flush_icache_range flush_icache_range
+
+void flush_icache_page(struct vm_area_struct *vma, struct page *page);
+#define flush_icache_page flush_icache_page
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_CACHE_ALIASING
 void flush_cache_mm(struct mm_struct *mm);
 void flush_cache_dup_mm(struct mm_struct *mm);
@@ -32,20 +44,32 @@ void copy_from_user_page(struct vm_area_struct *vma, struct page *page,
 void flush_anon_page(struct vm_area_struct *vma,
 		     struct page *page, unsigned long vaddr);
 
+<<<<<<< HEAD
 #define ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
 void flush_kernel_dcache_page(struct page *page);
+=======
+#define ARCH_IMPLEMENTS_FLUSH_KERNEL_VMAP_RANGE 1
+>>>>>>> upstream/android-13
 void flush_kernel_vmap_range(void *addr, int size);
 void invalidate_kernel_vmap_range(void *addr, int size);
 #define flush_dcache_mmap_lock(mapping)   xa_lock_irq(&(mapping)->i_pages)
 #define flush_dcache_mmap_unlock(mapping) xa_unlock_irq(&(mapping)->i_pages)
 
 #else
+<<<<<<< HEAD
 #include <asm-generic/cacheflush.h>
 #undef flush_icache_range
 #undef flush_icache_page
 #undef flush_icache_user_range
 void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
 	                     unsigned long addr, int len);
+=======
+void flush_icache_user_page(struct vm_area_struct *vma, struct page *page,
+	                     unsigned long addr, int len);
+#define flush_icache_user_page flush_icache_user_page
+
+#include <asm-generic/cacheflush.h>
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* __NDS32_CACHEFLUSH_H__ */

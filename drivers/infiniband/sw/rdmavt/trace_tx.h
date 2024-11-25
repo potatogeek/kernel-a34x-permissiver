@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #if !defined(__RVT_TRACE_TX_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __RVT_TRACE_TX_H
@@ -51,7 +57,11 @@
 #include <linux/trace_seq.h>
 
 #include <rdma/ib_verbs.h>
+<<<<<<< HEAD
 #include <rdma/rdma_vt.h>
+=======
+#include <rdma/rdmavt_qp.h>
+>>>>>>> upstream/android-13
 
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM rvt_tx
@@ -111,7 +121,11 @@ TRACE_EVENT(
 		__field(int, wr_num_sge)
 	),
 	TP_fast_assign(
+<<<<<<< HEAD
 		RDI_DEV_ASSIGN(ib_to_rvt(qp->ibqp.device))
+=======
+		RDI_DEV_ASSIGN(ib_to_rvt(qp->ibqp.device));
+>>>>>>> upstream/android-13
 		__entry->wqe = wqe;
 		__entry->wr_id = wqe->wr.wr_id;
 		__entry->qpn = qp->ibqp.qp_num;
@@ -153,6 +167,51 @@ TRACE_EVENT(
 	)
 );
 
+<<<<<<< HEAD
+=======
+TRACE_EVENT(
+	rvt_qp_send_completion,
+	TP_PROTO(struct rvt_qp *qp, struct rvt_swqe *wqe, u32 idx),
+	TP_ARGS(qp, wqe, idx),
+	TP_STRUCT__entry(
+		RDI_DEV_ENTRY(ib_to_rvt(qp->ibqp.device))
+		__field(struct rvt_swqe *, wqe)
+		__field(u64, wr_id)
+		__field(u32, qpn)
+		__field(u32, qpt)
+		__field(u32, length)
+		__field(u32, idx)
+		__field(u32, ssn)
+		__field(enum ib_wr_opcode, opcode)
+		__field(int, send_flags)
+	),
+	TP_fast_assign(
+		RDI_DEV_ASSIGN(ib_to_rvt(qp->ibqp.device));
+		__entry->wqe = wqe;
+		__entry->wr_id = wqe->wr.wr_id;
+		__entry->qpn = qp->ibqp.qp_num;
+		__entry->qpt = qp->ibqp.qp_type;
+		__entry->length = wqe->length;
+		__entry->idx = idx;
+		__entry->ssn = wqe->ssn;
+		__entry->opcode = wqe->wr.opcode;
+		__entry->send_flags = wqe->wr.send_flags;
+	),
+	TP_printk(
+		"[%s] qpn 0x%x qpt %u wqe %p idx %u wr_id %llx length %u ssn %u opcode %x send_flags %x",
+		__get_str(dev),
+		__entry->qpn,
+		__entry->qpt,
+		__entry->wqe,
+		__entry->idx,
+		__entry->wr_id,
+		__entry->length,
+		__entry->ssn,
+		__entry->opcode,
+		__entry->send_flags
+	)
+);
+>>>>>>> upstream/android-13
 #endif /* __RVT_TRACE_TX_H */
 
 #undef TRACE_INCLUDE_PATH

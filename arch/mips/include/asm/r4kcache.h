@@ -15,13 +15,21 @@
 #include <linux/stringify.h>
 
 #include <asm/asm.h>
+<<<<<<< HEAD
+=======
+#include <asm/asm-eva.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheops.h>
 #include <asm/compiler.h>
 #include <asm/cpu-features.h>
 #include <asm/cpu-type.h>
 #include <asm/mipsmtregs.h>
 #include <asm/mmzone.h>
+<<<<<<< HEAD
 #include <linux/uaccess.h> /* for uaccess_kernel() */
+=======
+#include <asm/unroll.h>
+>>>>>>> upstream/android-13
 
 extern void (*r4k_blast_dcache)(void);
 extern void (*r4k_blast_icache)(void);
@@ -39,16 +47,25 @@ extern void (*r4k_blast_icache)(void);
  */
 #define INDEX_BASE	CKSEG0
 
+<<<<<<< HEAD
 #define cache_op(op,addr)						\
+=======
+#define _cache_op(insn, op, addr)					\
+>>>>>>> upstream/android-13
 	__asm__ __volatile__(						\
 	"	.set	push					\n"	\
 	"	.set	noreorder				\n"	\
 	"	.set "MIPS_ISA_ARCH_LEVEL"			\n"	\
+<<<<<<< HEAD
 	"	cache	%0, %1					\n"	\
+=======
+	"	" insn("%0", "%1") "				\n"	\
+>>>>>>> upstream/android-13
 	"	.set	pop					\n"	\
 	:								\
 	: "i" (op), "R" (*(unsigned char *)(addr)))
 
+<<<<<<< HEAD
 #ifdef CONFIG_MIPS_MT
 
 #define __iflush_prologue						\
@@ -94,13 +111,25 @@ static inline void flush_icache_line_indexed(unsigned long addr)
 	__iflush_prologue
 	cache_op(Index_Invalidate_I, addr);
 	__iflush_epilogue
+=======
+#define cache_op(op, addr)						\
+	_cache_op(kernel_cache, op, addr)
+
+static inline void flush_icache_line_indexed(unsigned long addr)
+{
+	cache_op(Index_Invalidate_I, addr);
+>>>>>>> upstream/android-13
 }
 
 static inline void flush_dcache_line_indexed(unsigned long addr)
 {
+<<<<<<< HEAD
 	__dflush_prologue
 	cache_op(Index_Writeback_Inv_D, addr);
 	__dflush_epilogue
+=======
+	cache_op(Index_Writeback_Inv_D, addr);
+>>>>>>> upstream/android-13
 }
 
 static inline void flush_scache_line_indexed(unsigned long addr)
@@ -110,9 +139,14 @@ static inline void flush_scache_line_indexed(unsigned long addr)
 
 static inline void flush_icache_line(unsigned long addr)
 {
+<<<<<<< HEAD
 	__iflush_prologue
 	switch (boot_cpu_type()) {
 	case CPU_LOONGSON2:
+=======
+	switch (boot_cpu_type()) {
+	case CPU_LOONGSON2EF:
+>>>>>>> upstream/android-13
 		cache_op(Hit_Invalidate_I_Loongson2, addr);
 		break;
 
@@ -120,21 +154,32 @@ static inline void flush_icache_line(unsigned long addr)
 		cache_op(Hit_Invalidate_I, addr);
 		break;
 	}
+<<<<<<< HEAD
 	__iflush_epilogue
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline void flush_dcache_line(unsigned long addr)
 {
+<<<<<<< HEAD
 	__dflush_prologue
 	cache_op(Hit_Writeback_Inv_D, addr);
 	__dflush_epilogue
+=======
+	cache_op(Hit_Writeback_Inv_D, addr);
+>>>>>>> upstream/android-13
 }
 
 static inline void invalidate_dcache_line(unsigned long addr)
 {
+<<<<<<< HEAD
 	__dflush_prologue
 	cache_op(Hit_Invalidate_D, addr);
 	__dflush_epilogue
+=======
+	cache_op(Hit_Invalidate_D, addr);
+>>>>>>> upstream/android-13
 }
 
 static inline void invalidate_scache_line(unsigned long addr)
@@ -147,6 +192,7 @@ static inline void flush_scache_line(unsigned long addr)
 	cache_op(Hit_Writeback_Inv_SD, addr);
 }
 
+<<<<<<< HEAD
 #define protected_cache_op(op,addr)				\
 ({								\
 	int __err = 0;						\
@@ -171,6 +217,11 @@ static inline void flush_scache_line(unsigned long addr)
 
 
 #define protected_cachee_op(op,addr)				\
+=======
+#ifdef CONFIG_EVA
+
+#define protected_cache_op(op, addr)				\
+>>>>>>> upstream/android-13
 ({								\
 	int __err = 0;						\
 	__asm__ __volatile__(					\
@@ -186,12 +237,43 @@ static inline void flush_scache_line(unsigned long addr)
 	"	j	2b			\n"		\
 	"	.previous			\n"		\
 	"	.section __ex_table,\"a\"	\n"		\
+<<<<<<< HEAD
 	"	"STR(PTR)" 1b, 3b		\n"		\
+=======
+	"	"STR(PTR_WD)" 1b, 3b		\n"		\
+>>>>>>> upstream/android-13
 	"	.previous"					\
 	: "+r" (__err)						\
 	: "i" (op), "r" (addr), "i" (-EFAULT));			\
 	__err;							\
 })
+<<<<<<< HEAD
+=======
+#else
+
+#define protected_cache_op(op, addr)				\
+({								\
+	int __err = 0;						\
+	__asm__ __volatile__(					\
+	"	.set	push			\n"		\
+	"	.set	noreorder		\n"		\
+	"	.set "MIPS_ISA_ARCH_LEVEL"	\n"		\
+	"1:	cache	%1, (%2)		\n"		\
+	"2:	.insn				\n"		\
+	"	.set	pop			\n"		\
+	"	.section .fixup,\"ax\"		\n"		\
+	"3:	li	%0, %3			\n"		\
+	"	j	2b			\n"		\
+	"	.previous			\n"		\
+	"	.section __ex_table,\"a\"	\n"		\
+	"	"STR(PTR_WD)" 1b, 3b		\n"		\
+	"	.previous"					\
+	: "+r" (__err)						\
+	: "i" (op), "r" (addr), "i" (-EFAULT));			\
+	__err;							\
+})
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * The next two are for badland addresses like signal trampolines.
@@ -199,6 +281,7 @@ static inline void flush_scache_line(unsigned long addr)
 static inline int protected_flush_icache_line(unsigned long addr)
 {
 	switch (boot_cpu_type()) {
+<<<<<<< HEAD
 	case CPU_LOONGSON2:
 		return protected_cache_op(Hit_Invalidate_I_Loongson2, addr);
 
@@ -208,6 +291,13 @@ static inline int protected_flush_icache_line(unsigned long addr)
 #else
 		return protected_cache_op(Hit_Invalidate_I, addr);
 #endif
+=======
+	case CPU_LOONGSON2EF:
+		return protected_cache_op(Hit_Invalidate_I_Loongson2, addr);
+
+	default:
+		return protected_cache_op(Hit_Invalidate_I, addr);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -219,20 +309,28 @@ static inline int protected_flush_icache_line(unsigned long addr)
  */
 static inline int protected_writeback_dcache_line(unsigned long addr)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_EVA
 	return protected_cachee_op(Hit_Writeback_Inv_D, addr);
 #else
 	return protected_cache_op(Hit_Writeback_Inv_D, addr);
 #endif
+=======
+	return protected_cache_op(Hit_Writeback_Inv_D, addr);
+>>>>>>> upstream/android-13
 }
 
 static inline int protected_writeback_scache_line(unsigned long addr)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_EVA
 	return protected_cachee_op(Hit_Writeback_Inv_SD, addr);
 #else
 	return protected_cache_op(Hit_Writeback_Inv_SD, addr);
 #endif
+=======
+	return protected_cache_op(Hit_Writeback_Inv_SD, addr);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -243,6 +341,7 @@ static inline void invalidate_tcache_page(unsigned long addr)
 	cache_op(Page_Invalidate_T, addr);
 }
 
+<<<<<<< HEAD
 #ifndef CONFIG_CPU_MIPSR6
 #define cache16_unroll32(base,op)					\
 	__asm__ __volatile__(						\
@@ -575,6 +674,12 @@ static inline void invalidate_tcache_page(unsigned long addr)
 		:							\
 		: "r" (base),						\
 		  "i" (op));
+=======
+#define cache_unroll(times, insn, op, addr, lsize) do {			\
+	int i = 0;							\
+	unroll(times, _cache_op, insn, op, (addr) + (i++ * (lsize)));	\
+} while (0)
+>>>>>>> upstream/android-13
 
 /* build blast_xxx, blast_xxx_page, blast_xxx_page_indexed */
 #define __BUILD_BLAST_CACHE(pfx, desc, indexop, hitop, lsize, extra)	\
@@ -587,6 +692,7 @@ static inline void extra##blast_##pfx##cache##lsize(void)		\
 			       current_cpu_data.desc.waybit;		\
 	unsigned long ws, addr;						\
 									\
+<<<<<<< HEAD
 	__##pfx##flush_prologue						\
 									\
 	for (ws = 0; ws < ws_end; ws += ws_inc)				\
@@ -594,6 +700,12 @@ static inline void extra##blast_##pfx##cache##lsize(void)		\
 			cache##lsize##_unroll32(addr|ws, indexop);	\
 									\
 	__##pfx##flush_epilogue						\
+=======
+	for (ws = 0; ws < ws_end; ws += ws_inc)				\
+		for (addr = start; addr < end; addr += lsize * 32)	\
+			cache_unroll(32, kernel_cache, indexop,		\
+				     addr | ws, lsize);			\
+>>>>>>> upstream/android-13
 }									\
 									\
 static inline void extra##blast_##pfx##cache##lsize##_page(unsigned long page) \
@@ -601,6 +713,7 @@ static inline void extra##blast_##pfx##cache##lsize##_page(unsigned long page) \
 	unsigned long start = page;					\
 	unsigned long end = page + PAGE_SIZE;				\
 									\
+<<<<<<< HEAD
 	__##pfx##flush_prologue						\
 									\
 	do {								\
@@ -609,6 +722,12 @@ static inline void extra##blast_##pfx##cache##lsize##_page(unsigned long page) \
 	} while (start < end);						\
 									\
 	__##pfx##flush_epilogue						\
+=======
+	do {								\
+		cache_unroll(32, kernel_cache, hitop, start, lsize);	\
+		start += lsize * 32;					\
+	} while (start < end);						\
+>>>>>>> upstream/android-13
 }									\
 									\
 static inline void extra##blast_##pfx##cache##lsize##_page_indexed(unsigned long page) \
@@ -621,6 +740,7 @@ static inline void extra##blast_##pfx##cache##lsize##_page_indexed(unsigned long
 			       current_cpu_data.desc.waybit;		\
 	unsigned long ws, addr;						\
 									\
+<<<<<<< HEAD
 	__##pfx##flush_prologue						\
 									\
 	for (ws = 0; ws < ws_end; ws += ws_inc)				\
@@ -628,6 +748,12 @@ static inline void extra##blast_##pfx##cache##lsize##_page_indexed(unsigned long
 			cache##lsize##_unroll32(addr|ws, indexop);	\
 									\
 	__##pfx##flush_epilogue						\
+=======
+	for (ws = 0; ws < ws_end; ws += ws_inc)				\
+		for (addr = start; addr < end; addr += lsize * 32)	\
+			cache_unroll(32, kernel_cache, indexop,		\
+				     addr | ws, lsize);			\
+>>>>>>> upstream/android-13
 }
 
 __BUILD_BLAST_CACHE(d, dcache, Index_Writeback_Inv_D, Hit_Writeback_Inv_D, 16, )
@@ -657,6 +783,7 @@ static inline void blast_##pfx##cache##lsize##_user_page(unsigned long page) \
 	unsigned long start = page;					\
 	unsigned long end = page + PAGE_SIZE;				\
 									\
+<<<<<<< HEAD
 	__##pfx##flush_prologue						\
 									\
 	do {								\
@@ -665,6 +792,12 @@ static inline void blast_##pfx##cache##lsize##_user_page(unsigned long page) \
 	} while (start < end);						\
 									\
 	__##pfx##flush_epilogue						\
+=======
+	do {								\
+		cache_unroll(32, user_cache, hitop, start, lsize);	\
+		start += lsize * 32;					\
+	} while (start < end);						\
+>>>>>>> upstream/android-13
 }
 
 __BUILD_BLAST_USER_CACHE(d, dcache, Index_Writeback_Inv_D, Hit_Writeback_Inv_D,
@@ -686,14 +819,18 @@ static inline void prot##extra##blast_##pfx##cache##_range(unsigned long start, 
 	unsigned long addr = start & ~(lsize - 1);			\
 	unsigned long aend = (end - 1) & ~(lsize - 1);			\
 									\
+<<<<<<< HEAD
 	__##pfx##flush_prologue						\
 									\
+=======
+>>>>>>> upstream/android-13
 	while (1) {							\
 		prot##cache_op(hitop, addr);				\
 		if (addr == aend)					\
 			break;						\
 		addr += lsize;						\
 	}								\
+<<<<<<< HEAD
 									\
 	__##pfx##flush_epilogue						\
 }
@@ -738,6 +875,12 @@ __BUILD_PROT_BLAST_CACHE_RANGE(d, dcache, Hit_Writeback_Inv_D)
 __BUILD_PROT_BLAST_CACHE_RANGE(i, icache, Hit_Invalidate_I)
 
 #endif
+=======
+}
+
+__BUILD_BLAST_CACHE_RANGE(d, dcache, Hit_Writeback_Inv_D, protected_, )
+__BUILD_BLAST_CACHE_RANGE(i, icache, Hit_Invalidate_I, protected_, )
+>>>>>>> upstream/android-13
 __BUILD_BLAST_CACHE_RANGE(s, scache, Hit_Writeback_Inv_SD, protected_, )
 __BUILD_BLAST_CACHE_RANGE(i, icache, Hit_Invalidate_I_Loongson2, \
 	protected_, loongson2_)
@@ -761,7 +904,12 @@ static inline void blast_##pfx##cache##lsize##_node(long node)		\
 									\
 	for (ws = 0; ws < ws_end; ws += ws_inc)				\
 		for (addr = start; addr < end; addr += lsize * 32)	\
+<<<<<<< HEAD
 			cache##lsize##_unroll32(addr|ws, indexop);	\
+=======
+			cache_unroll(32, kernel_cache, indexop,		\
+				     addr | ws, lsize);			\
+>>>>>>> upstream/android-13
 }
 
 __BUILD_BLAST_CACHE_NODE(s, scache, Index_Writeback_Inv_SD, Hit_Writeback_Inv_SD, 16)

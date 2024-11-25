@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2008  by Andreas Eversberg <andreas@eversberg.eu>
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2008  by Andreas Eversberg <andreas@eversberg.eu>
+ *
+>>>>>>> upstream/android-13
  * Quick API description:
  *
  * A clock source registers using mISDN_register_clock:
@@ -30,7 +37,10 @@
  *
  * To get current clock, call mISDN_clock_get. The signed short value
  * counts the number of samples since. Time since last clock event is added.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>

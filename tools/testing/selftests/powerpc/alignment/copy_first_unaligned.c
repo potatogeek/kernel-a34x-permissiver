@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016, Chris Smart, IBM Corporation.
  *
@@ -9,6 +10,14 @@
  * Calls to copy_first which are not 128-byte aligned should be
  * caught and sent a SIGBUS.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016, Chris Smart, IBM Corporation.
+ *
+ * Calls to copy_first which are not 128-byte aligned should be
+ * caught and sent a SIGBUS.
+>>>>>>> upstream/android-13
  */
 
 #include <signal.h>

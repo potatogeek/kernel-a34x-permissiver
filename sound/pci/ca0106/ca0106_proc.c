@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2004 James Courtier-Dutton <James@superbug.demon.co.uk>
  *  Driver CA0106 chips. e.g. Sound Blaster Audigy LS and Live 24bit
@@ -44,6 +48,7 @@
  *
  *  This code was initially based on code from ALSA's emu10k1x.c which is:
  *  Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -59,6 +64,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/init.h>
@@ -80,7 +87,11 @@ struct snd_ca0106_category_str {
 	const char *name;
 };
 
+<<<<<<< HEAD
 static struct snd_ca0106_category_str snd_ca0106_con_category[] = {
+=======
+static const struct snd_ca0106_category_str snd_ca0106_con_category[] = {
+>>>>>>> upstream/android-13
 	{ IEC958_AES1_CON_DAT, "DAT" },
 	{ IEC958_AES1_CON_VCR, "VCR" },
 	{ IEC958_AES1_CON_MICROPHONE, "microphone" },
@@ -424,6 +435,7 @@ static void snd_ca0106_proc_i2c_write(struct snd_info_entry *entry,
 
 int snd_ca0106_proc_init(struct snd_ca0106 *emu)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	
 	if(! snd_card_proc_new(emu->card, "iec958", &entry))
@@ -449,5 +461,22 @@ int snd_ca0106_proc_init(struct snd_ca0106 *emu)
 	}
 	if(! snd_card_proc_new(emu->card, "ca0106_regs2", &entry)) 
 		snd_info_set_text_ops(entry, emu, snd_ca0106_proc_reg_read2);
+=======
+	snd_card_ro_proc_new(emu->card, "iec958", emu, snd_ca0106_proc_iec958);
+	snd_card_rw_proc_new(emu->card, "ca0106_reg32", emu,
+			     snd_ca0106_proc_reg_read32,
+			     snd_ca0106_proc_reg_write32);
+	snd_card_ro_proc_new(emu->card, "ca0106_reg16", emu,
+			     snd_ca0106_proc_reg_read16);
+	snd_card_ro_proc_new(emu->card, "ca0106_reg8", emu,
+			     snd_ca0106_proc_reg_read8);
+	snd_card_rw_proc_new(emu->card, "ca0106_regs1", emu,
+			     snd_ca0106_proc_reg_read1,
+			     snd_ca0106_proc_reg_write);
+	snd_card_rw_proc_new(emu->card, "ca0106_i2c", emu, NULL,
+			     snd_ca0106_proc_i2c_write);
+	snd_card_ro_proc_new(emu->card, "ca0106_regs2", emu,
+			     snd_ca0106_proc_reg_read2);
+>>>>>>> upstream/android-13
 	return 0;
 }

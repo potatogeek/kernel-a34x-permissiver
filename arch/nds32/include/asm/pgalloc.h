@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef _ASMNDS32_PGALLOC_H
@@ -9,6 +13,7 @@
 #include <asm/tlbflush.h>
 #include <asm/proc-fns.h>
 
+<<<<<<< HEAD
 /*
  * Since we have only two-level page tables, these are trivial
  */
@@ -16,10 +21,15 @@
 #define pmd_free(mm, pmd)			do { } while (0)
 #define pgd_populate(mm, pmd, pte)	BUG()
 #define pmd_pgtable(pmd) pmd_page(pmd)
+=======
+#define __HAVE_ARCH_PTE_ALLOC_ONE
+#include <asm-generic/pgalloc.h>	/* for pte_{alloc,free}_one */
+>>>>>>> upstream/android-13
 
 extern pgd_t *pgd_alloc(struct mm_struct *mm);
 extern void pgd_free(struct mm_struct *mm, pgd_t * pgd);
 
+<<<<<<< HEAD
 #define check_pgt_cache()		do { } while (0)
 
 static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
@@ -39,6 +49,13 @@ static inline pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long addr)
 	pgtable_t pte;
 
 	pte = alloc_pages(GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_ZERO, 0);
+=======
+static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
+{
+	pgtable_t pte;
+
+	pte = __pte_alloc_one(mm, GFP_PGTABLE_USER);
+>>>>>>> upstream/android-13
 	if (pte)
 		cpu_dcache_wb_page((unsigned long)page_address(pte));
 
@@ -46,6 +63,7 @@ static inline pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long addr)
 }
 
 /*
+<<<<<<< HEAD
  * Free one PTE table.
  */
 static inline void pte_free_kernel(struct mm_struct *mm, pte_t * pte)
@@ -61,6 +79,8 @@ static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Populate the pmdp entry with a pointer to the pte.  This pmd is part
  * of the mm address space.
  *

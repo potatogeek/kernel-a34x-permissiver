@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NV04_DEVINIT_H__
 #define __NV04_DEVINIT_H__
 #define nv04_devinit(p) container_of((p), struct nv04_devinit, base)
@@ -11,7 +15,11 @@ struct nv04_devinit {
 };
 
 int nv04_devinit_new_(const struct nvkm_devinit_func *, struct nvkm_device *,
+<<<<<<< HEAD
 		      int, struct nvkm_devinit **);
+=======
+		      enum nvkm_subdev_type, int, struct nvkm_devinit **);
+>>>>>>> upstream/android-13
 void *nv04_devinit_dtor(struct nvkm_devinit *);
 void nv04_devinit_preinit(struct nvkm_devinit *);
 void nv04_devinit_fini(struct nvkm_devinit *);

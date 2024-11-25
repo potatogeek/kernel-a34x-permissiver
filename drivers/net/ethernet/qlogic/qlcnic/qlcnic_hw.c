@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic qlcnic NIC Driver
  * Copyright (c) 2009-2013 QLogic Corporation
  *
  * See LICENSE.qlcnic for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic qlcnic NIC Driver
+ * Copyright (c) 2009-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -461,12 +468,19 @@ int qlcnic_82xx_sre_macaddr_change(struct qlcnic_adapter *adapter, u8 *addr,
 int qlcnic_nic_del_mac(struct qlcnic_adapter *adapter, const u8 *addr)
 {
 	struct qlcnic_mac_vlan_list *cur;
+<<<<<<< HEAD
 	struct list_head *head;
 	int err = -EINVAL;
 
 	/* Delete MAC from the existing list */
 	list_for_each(head, &adapter->mac_list) {
 		cur = list_entry(head, struct qlcnic_mac_vlan_list, list);
+=======
+	int err = -EINVAL;
+
+	/* Delete MAC from the existing list */
+	list_for_each_entry(cur, &adapter->mac_list, list) {
+>>>>>>> upstream/android-13
 		if (ether_addr_equal(addr, cur->mac_addr)) {
 			err = qlcnic_sre_macaddr_change(adapter, cur->mac_addr,
 							0, QLCNIC_MAC_DEL);
@@ -484,11 +498,17 @@ int qlcnic_nic_add_mac(struct qlcnic_adapter *adapter, const u8 *addr, u16 vlan,
 		       enum qlcnic_mac_type mac_type)
 {
 	struct qlcnic_mac_vlan_list *cur;
+<<<<<<< HEAD
 	struct list_head *head;
 
 	/* look up if already exists */
 	list_for_each(head, &adapter->mac_list) {
 		cur = list_entry(head, struct qlcnic_mac_vlan_list, list);
+=======
+
+	/* look up if already exists */
+	list_for_each_entry(cur, &adapter->mac_list, list) {
+>>>>>>> upstream/android-13
 		if (ether_addr_equal(addr, cur->mac_addr) &&
 		    cur->vlan_id == vlan)
 			return 0;
@@ -1649,7 +1669,10 @@ int qlcnic_82xx_shutdown(struct pci_dev *pdev)
 {
 	struct qlcnic_adapter *adapter = pci_get_drvdata(pdev);
 	struct net_device *netdev = adapter->netdev;
+<<<<<<< HEAD
 	int retval;
+=======
+>>>>>>> upstream/android-13
 
 	netif_device_detach(netdev);
 
@@ -1662,6 +1685,7 @@ int qlcnic_82xx_shutdown(struct pci_dev *pdev)
 
 	clear_bit(__QLCNIC_RESETTING, &adapter->state);
 
+<<<<<<< HEAD
 	retval = pci_save_state(pdev);
 	if (retval)
 		return retval;
@@ -1670,6 +1694,10 @@ int qlcnic_82xx_shutdown(struct pci_dev *pdev)
 		pci_enable_wake(pdev, PCI_D3cold, 1);
 		pci_enable_wake(pdev, PCI_D3hot, 1);
 	}
+=======
+	if (qlcnic_wol_supported(adapter))
+		device_wakeup_enable(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2007 IBM Corporation
  *
  *  Author: Cedric Le Goater <clg@fr.ibm.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, version 2 of the
  *  License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/nsproxy.h>
@@ -23,7 +30,11 @@ static void *get_mq(struct ctl_table *table)
 }
 
 static int proc_mq_dointvec(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			    void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+			    void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct ctl_table mq_table;
 	memcpy(&mq_table, table, sizeof(mq_table));
@@ -33,7 +44,11 @@ static int proc_mq_dointvec(struct ctl_table *table, int write,
 }
 
 static int proc_mq_dointvec_minmax(struct ctl_table *table, int write,
+<<<<<<< HEAD
 	void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct ctl_table mq_table;
 	memcpy(&mq_table, table, sizeof(mq_table));

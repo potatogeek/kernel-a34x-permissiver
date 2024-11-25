@@ -6,6 +6,7 @@
 #include "lkdtm.h"
 #include <linux/refcount.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_REFCOUNT_FULL
 #define REFCOUNT_MAX		(UINT_MAX - 1)
 #define REFCOUNT_SATURATED	UINT_MAX
@@ -14,6 +15,8 @@
 #define REFCOUNT_SATURATED	(INT_MIN / 2)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void overflow_check(refcount_t *ref)
 {
 	switch (refcount_read(ref)) {
@@ -127,7 +130,11 @@ void lkdtm_REFCOUNT_DEC_ZERO(void)
 static void check_negative(refcount_t *ref, int start)
 {
 	/*
+<<<<<<< HEAD
 	 * CONFIG_REFCOUNT_FULL refuses to move a refcount at all on an
+=======
+	 * refcount_t refuses to move a refcount at all on an
+>>>>>>> upstream/android-13
 	 * over-sub, so we have to track our starting position instead of
 	 * looking only at zero-pinning.
 	 */
@@ -210,7 +217,10 @@ static void check_from_zero(refcount_t *ref)
 
 /*
  * A refcount_inc() from zero should pin to zero or saturate and may WARN.
+<<<<<<< HEAD
  * Only CONFIG_REFCOUNT_FULL provides this protection currently.
+=======
+>>>>>>> upstream/android-13
  */
 void lkdtm_REFCOUNT_INC_ZERO(void)
 {

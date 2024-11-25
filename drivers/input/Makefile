@@ -6,6 +6,7 @@
 # Each configuration option enables a list of files.
 
 obj-$(CONFIG_INPUT)		+= input-core.o
+<<<<<<< HEAD
 input-core-y := input.o input-compat.o input-mt.o ff-core.o
 
 ifeq ($(filter y m, $(CONFIG_INPUT_SEC_INPUT)),)
@@ -15,6 +16,12 @@ endif
 
 obj-$(CONFIG_INPUT_FF_MEMLESS)	+= ff-memless.o
 obj-$(CONFIG_INPUT_POLLDEV)	+= input-polldev.o
+=======
+input-core-y := input.o input-compat.o input-mt.o input-poller.o ff-core.o
+input-core-y += touchscreen.o
+
+obj-$(CONFIG_INPUT_FF_MEMLESS)	+= ff-memless.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_INPUT_SPARSEKMAP)	+= sparse-keymap.o
 obj-$(CONFIG_INPUT_MATRIXKMAP)	+= matrix-keymap.o
 

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * This contains encryption functions for per-file encryption.
  *
  * Copyright (C) 2015, Google, Inc.
@@ -18,6 +19,13 @@
  *
  * The usage of AES-XTS should conform to recommendations in NIST
  * Special Publication 800-38E and IEEE P1619/D16.
+=======
+ * Utility functions for file contents encryption/decryption on
+ * block device-based filesystems.
+ *
+ * Copyright (C) 2015, Google, Inc.
+ * Copyright (C) 2015, Motorola Mobility
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pagemap.h>
@@ -26,12 +34,36 @@
 #include <linux/namei.h>
 #include "fscrypt_private.h"
 
+<<<<<<< HEAD
 void fscrypt_decrypt_bio(struct bio *bio)
 {
 	struct bio_vec *bv;
 	int i;
 
 	bio_for_each_segment_all(bv, bio, i) {
+=======
+/**
+ * fscrypt_decrypt_bio() - decrypt the contents of a bio
+ * @bio: the bio to decrypt
+ *
+ * Decrypt the contents of a "read" bio following successful completion of the
+ * underlying disk read.  The bio must be reading a whole number of blocks of an
+ * encrypted file directly into the page cache.  If the bio is reading the
+ * ciphertext into bounce pages instead of the page cache (for example, because
+ * the file is also compressed, so decompression is required after decryption),
+ * then this function isn't applicable.  This function may sleep, so it must be
+ * called from a workqueue rather than from the bio's bi_end_io callback.
+ *
+ * This function sets PG_error on any pages that contain any blocks that failed
+ * to be decrypted.  The filesystem must not mark such pages uptodate.
+ */
+void fscrypt_decrypt_bio(struct bio *bio)
+{
+	struct bio_vec *bv;
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bv, bio, iter_all) {
+>>>>>>> upstream/android-13
 		struct page *page = bv->bv_page;
 		int ret = fscrypt_decrypt_pagecache_blocks(page, bv->bv_len,
 							   bv->bv_offset);
@@ -41,6 +73,7 @@ void fscrypt_decrypt_bio(struct bio *bio)
 }
 EXPORT_SYMBOL(fscrypt_decrypt_bio);
 
+<<<<<<< HEAD
 static int fscrypt_zeroout_range_inlinecrypt(const struct inode *inode,
 					     pgoff_t lblk,
 					     sector_t pblk, unsigned int len)
@@ -86,6 +119,50 @@ static int fscrypt_zeroout_range_inlinecrypt(const struct inode *inode,
 		bio_reset(bio);
 	} while (len != 0);
 	err = 0;
+=======
+static int fscrypt_zeroout_range_inline_crypt(const struct inode *inode,
+					      pgoff_t lblk, sector_t pblk,
+					      unsigned int len)
+{
+	const unsigned int blockbits = inode->i_blkbits;
+	const unsigned int blocks_per_page = 1 << (PAGE_SHIFT - blockbits);
+	struct bio *bio;
+	int ret, err = 0;
+	int num_pages = 0;
+
+	/* This always succeeds since __GFP_DIRECT_RECLAIM is set. */
+	bio = bio_alloc(GFP_NOFS, BIO_MAX_VECS);
+
+	while (len) {
+		unsigned int blocks_this_page = min(len, blocks_per_page);
+		unsigned int bytes_this_page = blocks_this_page << blockbits;
+
+		if (num_pages == 0) {
+			fscrypt_set_bio_crypt_ctx(bio, inode, lblk, GFP_NOFS);
+			bio_set_dev(bio, inode->i_sb->s_bdev);
+			bio->bi_iter.bi_sector =
+					pblk << (blockbits - SECTOR_SHIFT);
+			bio_set_op_attrs(bio, REQ_OP_WRITE, 0);
+		}
+		ret = bio_add_page(bio, ZERO_PAGE(0), bytes_this_page, 0);
+		if (WARN_ON(ret != bytes_this_page)) {
+			err = -EIO;
+			goto out;
+		}
+		num_pages++;
+		len -= blocks_this_page;
+		lblk += blocks_this_page;
+		pblk += blocks_this_page;
+		if (num_pages == BIO_MAX_VECS || !len ||
+		    !fscrypt_mergeable_bio(bio, inode, lblk)) {
+			err = submit_bio_wait(bio);
+			if (err)
+				goto out;
+			bio_reset(bio);
+			num_pages = 0;
+		}
+	}
+>>>>>>> upstream/android-13
 out:
 	bio_put(bio);
 	return err;
@@ -126,10 +203,17 @@ int fscrypt_zeroout_range(const struct inode *inode, pgoff_t lblk,
 		return 0;
 
 	if (fscrypt_inode_uses_inline_crypto(inode))
+<<<<<<< HEAD
 		return fscrypt_zeroout_range_inlinecrypt(inode, lblk, pblk,
 							 len);
 
 	BUILD_BUG_ON(ARRAY_SIZE(pages) > BIO_MAX_PAGES);
+=======
+		return fscrypt_zeroout_range_inline_crypt(inode, lblk, pblk,
+							  len);
+
+	BUILD_BUG_ON(ARRAY_SIZE(pages) > BIO_MAX_VECS);
+>>>>>>> upstream/android-13
 	nr_pages = min_t(unsigned int, ARRAY_SIZE(pages),
 			 (len + blocks_per_page - 1) >> blocks_per_page_bits);
 

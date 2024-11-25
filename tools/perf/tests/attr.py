@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 #! /usr/bin/python
 # SPDX-License-Identifier: GPL-2.0
 
+=======
+# SPDX-License-Identifier: GPL-2.0
+
+from __future__ import print_function
+
+>>>>>>> upstream/android-13
 import os
 import sys
 import glob
@@ -8,7 +15,15 @@ import optparse
 import tempfile
 import logging
 import shutil
+<<<<<<< HEAD
 import ConfigParser
+=======
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+>>>>>>> upstream/android-13
 
 def data_equal(a, b):
     # Allow multiple values in assignment separated by '|'
@@ -100,20 +115,32 @@ class Event(dict):
     def equal(self, other):
         for t in Event.terms:
             log.debug("      [%s] %s %s" % (t, self[t], other[t]));
+<<<<<<< HEAD
             if not self.has_key(t) or not other.has_key(t):
+=======
+            if t not in self or t not in other:
+>>>>>>> upstream/android-13
                 return False
             if not data_equal(self[t], other[t]):
                 return False
         return True
 
     def optional(self):
+<<<<<<< HEAD
         if self.has_key('optional') and self['optional'] == '1':
+=======
+        if 'optional' in self and self['optional'] == '1':
+>>>>>>> upstream/android-13
             return True
         return False
 
     def diff(self, other):
         for t in Event.terms:
+<<<<<<< HEAD
             if not self.has_key(t) or not other.has_key(t):
+=======
+            if t not in self or t not in other:
+>>>>>>> upstream/android-13
                 continue
             if not data_equal(self[t], other[t]):
                 log.warning("expected %s=%s, got %s" % (t, self[t], other[t]))
@@ -134,7 +161,11 @@ class Event(dict):
 #   - expected values assignments
 class Test(object):
     def __init__(self, path, options):
+<<<<<<< HEAD
         parser = ConfigParser.SafeConfigParser()
+=======
+        parser = configparser.SafeConfigParser()
+>>>>>>> upstream/android-13
         parser.read(path)
 
         log.warning("running '%s'" % path)
@@ -193,7 +224,11 @@ class Test(object):
         return True
 
     def load_events(self, path, events):
+<<<<<<< HEAD
         parser_event = ConfigParser.SafeConfigParser()
+=======
+        parser_event = configparser.SafeConfigParser()
+>>>>>>> upstream/android-13
         parser_event.read(path)
 
         # The event record section header contains 'event' word,
@@ -207,7 +242,11 @@ class Test(object):
             # Read parent event if there's any
             if (':' in section):
                 base = section[section.index(':') + 1:]
+<<<<<<< HEAD
                 parser_base = ConfigParser.SafeConfigParser()
+=======
+                parser_base = configparser.SafeConfigParser()
+>>>>>>> upstream/android-13
                 parser_base.read(self.test_dir + '/' + base)
                 base_items = parser_base.items('event')
 
@@ -322,9 +361,15 @@ def run_tests(options):
     for f in glob.glob(options.test_dir + '/' + options.test):
         try:
             Test(f, options).run()
+<<<<<<< HEAD
         except Unsup, obj:
             log.warning("unsupp  %s" % obj.getMsg())
         except Notest, obj:
+=======
+        except Unsup as obj:
+            log.warning("unsupp  %s" % obj.getMsg())
+        except Notest as obj:
+>>>>>>> upstream/android-13
             log.warning("skipped %s" % obj.getMsg())
 
 def setup_log(verbose):
@@ -363,7 +408,11 @@ def main():
     parser.add_option("-p", "--perf",
                       action="store", type="string", dest="perf")
     parser.add_option("-v", "--verbose",
+<<<<<<< HEAD
                       action="count", dest="verbose")
+=======
+                      default=0, action="count", dest="verbose")
+>>>>>>> upstream/android-13
 
     options, args = parser.parse_args()
     if args:
@@ -373,7 +422,11 @@ def main():
     setup_log(options.verbose)
 
     if not options.test_dir:
+<<<<<<< HEAD
         print 'FAILED no -d option specified'
+=======
+        print('FAILED no -d option specified')
+>>>>>>> upstream/android-13
         sys.exit(-1)
 
     if not options.test:
@@ -382,8 +435,13 @@ def main():
     try:
         run_tests(options)
 
+<<<<<<< HEAD
     except Fail, obj:
         print "FAILED %s" % obj.getMsg();
+=======
+    except Fail as obj:
+        print("FAILED %s" % obj.getMsg())
+>>>>>>> upstream/android-13
         sys.exit(-1)
 
     sys.exit(0)

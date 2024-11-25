@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006-2009 Texas Instruments Inc
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2006-2009 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 #ifndef _DM644X_CCDC_H
 #define _DM644X_CCDC_H
@@ -152,7 +158,11 @@ struct ccdc_params_raw {
 	 * order in memory(bottom to top)
 	 */
 	unsigned char image_invert_enable;
+<<<<<<< HEAD
 	/* configurable paramaters */
+=======
+	/* configurable parameters */
+>>>>>>> upstream/android-13
 	struct ccdc_config_params_raw config_params;
 };
 

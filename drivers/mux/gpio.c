@@ -7,22 +7,35 @@
  * Author: Peter Rosin <peda@axentia.se>
  */
 
+<<<<<<< HEAD
 #include <linux/err.h>
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/mux/driver.h>
 #include <linux/of_platform.h>
+=======
+#include <linux/bitmap.h>
+#include <linux/err.h>
+#include <linux/gpio/consumer.h>
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/mux/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/property.h>
 
 struct mux_gpio {
 	struct gpio_descs *gpios;
+<<<<<<< HEAD
 	int *val;
+=======
+>>>>>>> upstream/android-13
 };
 
 static int mux_gpio_set(struct mux_control *mux, int state)
 {
 	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
@@ -31,6 +44,16 @@ static int mux_gpio_set(struct mux_control *mux, int state)
 	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
 				       mux_gpio->gpios->desc,
 				       mux_gpio->val);
+=======
+	DECLARE_BITMAP(values, BITS_PER_TYPE(state));
+	u32 value = state;
+
+	bitmap_from_arr32(values, &value, BITS_PER_TYPE(value));
+
+	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
+				       mux_gpio->gpios->desc,
+				       mux_gpio->gpios->info, values);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -58,12 +81,17 @@ static int mux_gpio_probe(struct platform_device *pdev)
 	if (pins < 0)
 		return pins;
 
+<<<<<<< HEAD
 	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
 				       pins * sizeof(*mux_gpio->val));
+=======
+	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio));
+>>>>>>> upstream/android-13
 	if (IS_ERR(mux_chip))
 		return PTR_ERR(mux_chip);
 
 	mux_gpio = mux_chip_priv(mux_chip);
+<<<<<<< HEAD
 	mux_gpio->val = (int *)(mux_gpio + 1);
 	mux_chip->ops = &mux_gpio_ops;
 
@@ -76,6 +104,16 @@ static int mux_gpio_probe(struct platform_device *pdev)
 	}
 	WARN_ON(pins != mux_gpio->gpios->ndescs);
 	mux_chip->mux->states = 1 << pins;
+=======
+	mux_chip->ops = &mux_gpio_ops;
+
+	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
+	if (IS_ERR(mux_gpio->gpios))
+		return dev_err_probe(dev, PTR_ERR(mux_gpio->gpios),
+				     "failed to get gpios\n");
+	WARN_ON(pins != mux_gpio->gpios->ndescs);
+	mux_chip->mux->states = BIT(pins);
+>>>>>>> upstream/android-13
 
 	ret = device_property_read_u32(dev, "idle-state", (u32 *)&idle_state);
 	if (ret >= 0 && idle_state != MUX_IDLE_AS_IS) {
@@ -100,7 +138,11 @@ static int mux_gpio_probe(struct platform_device *pdev)
 static struct platform_driver mux_gpio_driver = {
 	.driver = {
 		.name = "gpio-mux",
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(mux_gpio_dt_ids),
+=======
+		.of_match_table	= mux_gpio_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe = mux_gpio_probe,
 };

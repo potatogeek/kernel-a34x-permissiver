@@ -66,6 +66,7 @@ sha@f8034000 {
 	dmas = <&dma1 2 17>;
 	dma-names = "tx";
 };
+<<<<<<< HEAD
 
 * Eliptic Curve Cryptography (I2C)
 
@@ -79,3 +80,5 @@ atecc508a@c0 {
 	compatible = "atmel,atecc508a";
 	reg = <0xC0>;
 };
+=======
+>>>>>>> upstream/android-13

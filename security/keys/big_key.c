@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Large capacity key type
  *
  * Copyright (C) 2017 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -8,6 +9,14 @@
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Large capacity key type
+ *
+ * Copyright (C) 2017-2020 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+ * Copyright (C) 2013 Red Hat, Inc. All Rights Reserved.
+ * Written by David Howells (dhowells@redhat.com)
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "big_key: "fmt
@@ -16,6 +25,7 @@
 #include <linux/file.h>
 #include <linux/shmem_fs.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/scatterlist.h>
 #include <linux/random.h>
 #include <linux/vmalloc.h>
@@ -30,6 +40,12 @@ struct big_key_buf {
 	struct scatterlist	*sg;
 	struct page		*pages[];
 };
+=======
+#include <linux/random.h>
+#include <keys/user-type.h>
+#include <keys/big_key-type.h>
+#include <crypto/chacha20poly1305.h>
+>>>>>>> upstream/android-13
 
 /*
  * Layout of key payload words.
@@ -42,6 +58,7 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
  * Crypto operation with big_key data
  */
 enum big_key_op {
@@ -50,6 +67,8 @@ enum big_key_op {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * If the data is under this limit, there's no point creating a shm file to
  * hold it as the permanently resident metadata for the shmem fs will be at
  * least as large as the data.
@@ -57,6 +76,7 @@ enum big_key_op {
 #define BIG_KEY_FILE_THRESHOLD (sizeof(struct inode) + sizeof(struct dentry))
 
 /*
+<<<<<<< HEAD
  * Key size for big_key data encryption
  */
 #define ENC_KEY_SIZE 32
@@ -67,6 +87,8 @@ enum big_key_op {
 #define ENC_AUTHTAG_SIZE 16
 
 /*
+=======
+>>>>>>> upstream/android-13
  * big_key defined keys take an arbitrary string as the description and an
  * arbitrary blob of data as the payload
  */
@@ -79,6 +101,7 @@ struct key_type key_type_big_key = {
 	.destroy		= big_key_destroy,
 	.describe		= big_key_describe,
 	.read			= big_key_read,
+<<<<<<< HEAD
 	/* no ->update(); don't add it without changing big_key_crypt() nonce */
 };
 
@@ -199,16 +222,31 @@ nomem:
 }
 
 /*
+=======
+	.update			= big_key_update,
+};
+
+/*
+>>>>>>> upstream/android-13
  * Preparse a big key
  */
 int big_key_preparse(struct key_preparsed_payload *prep)
 {
+<<<<<<< HEAD
 	struct big_key_buf *buf;
 	struct path *path = (struct path *)&prep->payload.data[big_key_path];
 	struct file *file;
 	u8 *enckey;
 	ssize_t written;
 	size_t datalen = prep->datalen, enclen = datalen + ENC_AUTHTAG_SIZE;
+=======
+	struct path *path = (struct path *)&prep->payload.data[big_key_path];
+	struct file *file;
+	u8 *buf, *enckey;
+	ssize_t written;
+	size_t datalen = prep->datalen;
+	size_t enclen = datalen + CHACHA20POLY1305_AUTHTAG_SIZE;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (datalen <= 0 || datalen > 1024 * 1024 || !prep->data)
@@ -224,6 +262,7 @@ int big_key_preparse(struct key_preparsed_payload *prep)
 		 * to be swapped out if needed.
 		 *
 		 * File content is stored encrypted with randomly generated key.
+<<<<<<< HEAD
 		 */
 		loff_t pos = 0;
 
@@ -234,10 +273,24 @@ int big_key_preparse(struct key_preparsed_payload *prep)
 
 		/* generate random key */
 		enckey = kmalloc(ENC_KEY_SIZE, GFP_KERNEL);
+=======
+		 * Since the key is random for each file, we can set the nonce
+		 * to zero, provided we never define a ->update() call.
+		 */
+		loff_t pos = 0;
+
+		buf = kvmalloc(enclen, GFP_KERNEL);
+		if (!buf)
+			return -ENOMEM;
+
+		/* generate random key */
+		enckey = kmalloc(CHACHA20POLY1305_KEY_SIZE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!enckey) {
 			ret = -ENOMEM;
 			goto error;
 		}
+<<<<<<< HEAD
 		ret = get_random_bytes_wait(enckey, ENC_KEY_SIZE);
 		if (unlikely(ret))
 			goto err_enckey;
@@ -246,6 +299,15 @@ int big_key_preparse(struct key_preparsed_payload *prep)
 		ret = big_key_crypt(BIG_KEY_ENC, buf, datalen, enckey);
 		if (ret)
 			goto err_enckey;
+=======
+		ret = get_random_bytes_wait(enckey, CHACHA20POLY1305_KEY_SIZE);
+		if (unlikely(ret))
+			goto err_enckey;
+
+		/* encrypt data */
+		chacha20poly1305_encrypt(buf, prep->data, datalen, NULL, 0,
+					 0, enckey);
+>>>>>>> upstream/android-13
 
 		/* save aligned data to file */
 		file = shmem_kernel_file_setup("", enclen, 0);
@@ -254,11 +316,19 @@ int big_key_preparse(struct key_preparsed_payload *prep)
 			goto err_enckey;
 		}
 
+<<<<<<< HEAD
 		written = kernel_write(file, buf->virt, enclen, &pos);
 		if (written != enclen) {
 			ret = written;
 			if (written >= 0)
 				ret = -ENOMEM;
+=======
+		written = kernel_write(file, buf, enclen, &pos);
+		if (written != enclen) {
+			ret = written;
+			if (written >= 0)
+				ret = -EIO;
+>>>>>>> upstream/android-13
 			goto err_fput;
 		}
 
@@ -269,7 +339,11 @@ int big_key_preparse(struct key_preparsed_payload *prep)
 		*path = file->f_path;
 		path_get(path);
 		fput(file);
+<<<<<<< HEAD
 		big_key_free_buffer(buf);
+=======
+		kvfree_sensitive(buf, enclen);
+>>>>>>> upstream/android-13
 	} else {
 		/* Just store the data in a buffer */
 		void *data = kmalloc(datalen, GFP_KERNEL);
@@ -285,9 +359,15 @@ int big_key_preparse(struct key_preparsed_payload *prep)
 err_fput:
 	fput(file);
 err_enckey:
+<<<<<<< HEAD
 	kzfree(enckey);
 error:
 	big_key_free_buffer(buf);
+=======
+	kfree_sensitive(enckey);
+error:
+	kvfree_sensitive(buf, enclen);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -301,7 +381,11 @@ void big_key_free_preparse(struct key_preparsed_payload *prep)
 
 		path_put(path);
 	}
+<<<<<<< HEAD
 	kzfree(prep->payload.data[big_key_data]);
+=======
+	kfree_sensitive(prep->payload.data[big_key_data]);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -333,11 +417,35 @@ void big_key_destroy(struct key *key)
 		path->mnt = NULL;
 		path->dentry = NULL;
 	}
+<<<<<<< HEAD
 	kzfree(key->payload.data[big_key_data]);
+=======
+	kfree_sensitive(key->payload.data[big_key_data]);
+>>>>>>> upstream/android-13
 	key->payload.data[big_key_data] = NULL;
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Update a big key
+ */
+int big_key_update(struct key *key, struct key_preparsed_payload *prep)
+{
+	int ret;
+
+	ret = key_payload_reserve(key, prep->datalen);
+	if (ret < 0)
+		return ret;
+
+	if (key_is_positive(key))
+		big_key_destroy(key);
+
+	return generic_key_instantiate(key, prep);
+}
+
+/*
+>>>>>>> upstream/android-13
  * describe the big_key key
  */
 void big_key_describe(const struct key *key, struct seq_file *m)
@@ -365,6 +473,7 @@ long big_key_read(const struct key *key, char *buffer, size_t buflen)
 		return datalen;
 
 	if (datalen > BIG_KEY_FILE_THRESHOLD) {
+<<<<<<< HEAD
 		struct big_key_buf *buf;
 		struct path *path = (struct path *)&key->payload.data[big_key_path];
 		struct file *file;
@@ -373,6 +482,15 @@ long big_key_read(const struct key *key, char *buffer, size_t buflen)
 		loff_t pos = 0;
 
 		buf = big_key_alloc_buffer(enclen);
+=======
+		struct path *path = (struct path *)&key->payload.data[big_key_path];
+		struct file *file;
+		u8 *buf, *enckey = (u8 *)key->payload.data[big_key_data];
+		size_t enclen = datalen + CHACHA20POLY1305_AUTHTAG_SIZE;
+		loff_t pos = 0;
+
+		buf = kvmalloc(enclen, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!buf)
 			return -ENOMEM;
 
@@ -383,6 +501,7 @@ long big_key_read(const struct key *key, char *buffer, size_t buflen)
 		}
 
 		/* read file to kernel and decrypt */
+<<<<<<< HEAD
 		ret = kernel_read(file, buf->virt, enclen, &pos);
 		if (ret >= 0 && ret != enclen) {
 			ret = -EIO;
@@ -391,17 +510,37 @@ long big_key_read(const struct key *key, char *buffer, size_t buflen)
 
 		ret = big_key_crypt(BIG_KEY_DEC, buf, enclen, enckey);
 		if (ret)
+=======
+		ret = kernel_read(file, buf, enclen, &pos);
+		if (ret != enclen) {
+			if (ret >= 0)
+				ret = -EIO;
+			goto err_fput;
+		}
+
+		ret = chacha20poly1305_decrypt(buf, buf, enclen, NULL, 0, 0,
+					       enckey) ? 0 : -EBADMSG;
+		if (unlikely(ret))
+>>>>>>> upstream/android-13
 			goto err_fput;
 
 		ret = datalen;
 
 		/* copy out decrypted data */
+<<<<<<< HEAD
 		memcpy(buffer, buf->virt, datalen);
+=======
+		memcpy(buffer, buf, datalen);
+>>>>>>> upstream/android-13
 
 err_fput:
 		fput(file);
 error:
+<<<<<<< HEAD
 		big_key_free_buffer(buf);
+=======
+		kvfree_sensitive(buf, enclen);
+>>>>>>> upstream/android-13
 	} else {
 		ret = datalen;
 		memcpy(buffer, key->payload.data[big_key_data], datalen);
@@ -415,6 +554,7 @@ error:
  */
 static int __init big_key_init(void)
 {
+<<<<<<< HEAD
 	int ret;
 
 	/* init block cipher */
@@ -448,6 +588,9 @@ static int __init big_key_init(void)
 free_aead:
 	crypto_free_aead(big_key_aead);
 	return ret;
+=======
+	return register_key_type(&key_type_big_key);
+>>>>>>> upstream/android-13
 }
 
 late_initcall(big_key_init);

@@ -3,7 +3,11 @@
  *
  * Module Name: dswload2 - Dispatcher second pass namespace load callbacks
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -15,6 +19,12 @@
 #include "acinterp.h"
 #include "acnamesp.h"
 #include "acevents.h"
+<<<<<<< HEAD
+=======
+#ifdef ACPI_EXEC_APP
+#include "aecommon.h"
+#endif
+>>>>>>> upstream/android-13
 
 #define _COMPONENT          ACPI_DISPATCHER
 ACPI_MODULE_NAME("dswload2")
@@ -24,7 +34,11 @@ ACPI_MODULE_NAME("dswload2")
  * FUNCTION:    acpi_ds_load2_begin_op
  *
  * PARAMETERS:  walk_state      - Current state of the parse tree walk
+<<<<<<< HEAD
  *              out_op          - Wher to return op if a new one is created
+=======
+ *              out_op          - Where to return op if a new one is created
+>>>>>>> upstream/android-13
  *
  * RETURN:      Status
  *
@@ -211,7 +225,11 @@ acpi_ds_load2_begin_op(struct acpi_walk_state *walk_state,
 				break;
 			}
 
+<<<<<<< HEAD
 			/*lint -fallthrough */
+=======
+			ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 		default:
 
@@ -296,6 +314,17 @@ acpi_ds_load2_begin_op(struct acpi_walk_state *walk_state,
 		}
 #endif
 
+<<<<<<< HEAD
+=======
+		/*
+		 * For name creation opcodes, the full namepath prefix must
+		 * exist, except for the final (new) nameseg.
+		 */
+		if (walk_state->op_info->flags & AML_NAMED) {
+			flags |= ACPI_NS_PREFIX_MUST_EXIST;
+		}
+
+>>>>>>> upstream/android-13
 		/* Add new entry or lookup existing entry */
 
 		status =
@@ -363,9 +392,17 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
 	struct acpi_namespace_node *node;
 	union acpi_parse_object *arg;
 	struct acpi_namespace_node *new_node;
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
 	u32 i;
 	u8 region_space;
+=======
+	u32 i;
+	u8 region_space;
+#ifdef ACPI_EXEC_APP
+	union acpi_operand_object *obj_desc;
+	char *namepath;
+>>>>>>> upstream/android-13
 #endif
 
 	ACPI_FUNCTION_TRACE(ds_load2_end_op);
@@ -453,7 +490,10 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
 	arg = op->common.value.arg;
 
 	switch (walk_state->op_info->type) {
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 
 	case AML_TYPE_CREATE_FIELD:
 		/*
@@ -461,6 +501,14 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
 		 * be evaluated later during the execution phase
 		 */
 		status = acpi_ds_create_buffer_field(op, walk_state);
+<<<<<<< HEAD
+=======
+		if (ACPI_FAILURE(status)) {
+			ACPI_EXCEPTION((AE_INFO, status,
+					"CreateBufferField failure"));
+			goto cleanup;
+			}
+>>>>>>> upstream/android-13
 		break;
 
 	case AML_TYPE_NAMED_FIELD:
@@ -550,12 +598,18 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
 		}
 
 		break;
+<<<<<<< HEAD
 #endif				/* ACPI_NO_METHOD_EXECUTION */
+=======
+>>>>>>> upstream/android-13
 
 	case AML_TYPE_NAMED_COMPLEX:
 
 		switch (op->common.aml_opcode) {
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 		case AML_REGION_OP:
 		case AML_DATA_REGION_OP:
 
@@ -601,6 +655,32 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
 		case AML_NAME_OP:
 
 			status = acpi_ds_create_node(walk_state, node, op);
+<<<<<<< HEAD
+=======
+			if (ACPI_FAILURE(status)) {
+				goto cleanup;
+			}
+#ifdef ACPI_EXEC_APP
+			/*
+			 * acpi_exec support for namespace initialization file (initialize
+			 * Name opcodes in this code.)
+			 */
+			namepath = acpi_ns_get_external_pathname(node);
+			status = ae_lookup_init_file_entry(namepath, &obj_desc);
+			if (ACPI_SUCCESS(status)) {
+
+				/* Detach any existing object, attach new object */
+
+				if (node->object) {
+					acpi_ns_detach_object(node);
+				}
+				acpi_ns_attach_object(node, obj_desc,
+						      obj_desc->common.type);
+			}
+			ACPI_FREE(namepath);
+			status = AE_OK;
+#endif
+>>>>>>> upstream/android-13
 			break;
 
 		case AML_METHOD_OP:
@@ -643,8 +723,11 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
 			}
 			break;
 
+<<<<<<< HEAD
 #endif				/* ACPI_NO_METHOD_EXECUTION */
 
+=======
+>>>>>>> upstream/android-13
 		default:
 
 			/* All NAMED_COMPLEX opcodes must be handled above */

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * I2C bus driver for Conexant Digicolor SoCs
  *
  * Author: Baruch Siach <baruch@tkos.co.il>
  *
  * Copyright (C) 2015 Paradox Innovation Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -21,7 +28,10 @@
 #include <linux/of.h>
 #include <linux/platform_device.h>
 
+<<<<<<< HEAD
 #define DEFAULT_FREQ		100000
+=======
+>>>>>>> upstream/android-13
 #define TIMEOUT_MS		100
 
 #define II_CONTROL		0x0
@@ -164,12 +174,19 @@ static irqreturn_t dc_i2c_irq(int irq, void *dev_id)
 {
 	struct dc_i2c *i2c = dev_id;
 	int cmd_status = dc_i2c_cmd_status(i2c);
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u8 addr_cmd;
 
 	writeb_relaxed(1, i2c->regs + II_INTFLAG_CLEAR);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&i2c->lock, flags);
+=======
+	spin_lock(&i2c->lock);
+>>>>>>> upstream/android-13
 
 	if (cmd_status == II_CMD_STATUS_ACK_BAD
 	    || cmd_status == II_CMD_STATUS_ABORT) {
@@ -191,7 +208,11 @@ static irqreturn_t dc_i2c_irq(int irq, void *dev_id)
 			break;
 		}
 		i2c->state = STATE_WRITE;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case STATE_WRITE:
 		if (i2c->msgbuf_ptr < i2c->msg->len)
 			dc_i2c_write_buf(i2c);
@@ -211,7 +232,11 @@ static irqreturn_t dc_i2c_irq(int irq, void *dev_id)
 	}
 
 out:
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&i2c->lock, flags);
+=======
+	spin_unlock(&i2c->lock);
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -294,7 +319,10 @@ static int dc_i2c_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct dc_i2c *i2c;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0, irq;
 
 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct dc_i2c), GFP_KERNEL);
@@ -303,7 +331,11 @@ static int dc_i2c_probe(struct platform_device *pdev)
 
 	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
 				 &i2c->frequency))
+<<<<<<< HEAD
 		i2c->frequency = DEFAULT_FREQ;
+=======
+		i2c->frequency = I2C_MAX_STANDARD_MODE_FREQ;
+>>>>>>> upstream/android-13
 
 	i2c->dev = &pdev->dev;
 	platform_set_drvdata(pdev, i2c);
@@ -315,8 +347,12 @@ static int dc_i2c_probe(struct platform_device *pdev)
 	if (IS_ERR(i2c->clk))
 		return PTR_ERR(i2c->clk);
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	i2c->regs = devm_ioremap_resource(&pdev->dev, r);
+=======
+	i2c->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2c->regs))
 		return PTR_ERR(i2c->regs);
 

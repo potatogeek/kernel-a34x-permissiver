@@ -10,8 +10,13 @@
 #include <linux/slab.h>
 #include <linux/usb.h>
 #include <linux/usb/hcd.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "gbphy.h"
 
 /* Greybus USB request types */

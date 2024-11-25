@@ -33,6 +33,10 @@ static const struct clk_ops omap_gate_clkdm_clk_ops = {
 	.init		= &omap2_init_clk_clkdm,
 	.enable		= &omap2_clkops_enable_clkdm,
 	.disable	= &omap2_clkops_disable_clkdm,
+<<<<<<< HEAD
+=======
+	.restore_context = clk_gate_restore_context,
+>>>>>>> upstream/android-13
 };
 
 const struct clk_ops omap_gate_clk_ops = {
@@ -40,6 +44,10 @@ const struct clk_ops omap_gate_clk_ops = {
 	.enable		= &omap2_dflt_clk_enable,
 	.disable	= &omap2_dflt_clk_disable,
 	.is_enabled	= &omap2_dflt_clk_is_enabled,
+<<<<<<< HEAD
+=======
+	.restore_context = clk_gate_restore_context,
+>>>>>>> upstream/android-13
 };
 
 static const struct clk_ops omap_gate_clk_hsdiv_restore_ops = {
@@ -47,12 +55,20 @@ static const struct clk_ops omap_gate_clk_hsdiv_restore_ops = {
 	.enable		= &omap36xx_gate_clk_enable_with_hsdiv_restore,
 	.disable	= &omap2_dflt_clk_disable,
 	.is_enabled	= &omap2_dflt_clk_is_enabled,
+<<<<<<< HEAD
+=======
+	.restore_context = clk_gate_restore_context,
+>>>>>>> upstream/android-13
 };
 
 /**
  * omap36xx_gate_clk_enable_with_hsdiv_restore - enable clocks suffering
  *         from HSDivider PWRDN problem Implements Errata ID: i556.
+<<<<<<< HEAD
  * @clk: DPLL output struct clk
+=======
+ * @hw: DPLL output struct clk_hw
+>>>>>>> upstream/android-13
  *
  * 3630 only: dpll3_m3_ck, dpll4_m2_ck, dpll4_m3_ck, dpll4_m4_ck,
  * dpll4_m5_ck & dpll4_m6_ck dividers gets loaded with reset
@@ -120,7 +136,11 @@ static struct clk *_register_gate(struct device *dev, const char *name,
 
 	init.flags = flags;
 
+<<<<<<< HEAD
 	clk = ti_clk_register(NULL, &clk_hw->hw, name);
+=======
+	clk = ti_clk_register_omap_hw(NULL, &clk_hw->hw, name);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(clk))
 		kfree(clk_hw);
@@ -128,6 +148,7 @@ static struct clk *_register_gate(struct device *dev, const char *name,
 	return clk;
 }
 
+<<<<<<< HEAD
 struct clk_hw *ti_clk_build_component_gate(struct ti_clk_gate *setup)
 {
 	struct clk_hw_omap *gate;
@@ -158,6 +179,8 @@ struct clk_hw *ti_clk_build_component_gate(struct ti_clk_gate *setup)
 	return &gate->hw;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init _of_ti_gate_clk_setup(struct device_node *node,
 					 const struct clk_ops *ops,
 					 const struct clk_hw_omap_ops *hw_ops)
@@ -179,7 +202,11 @@ static void __init _of_ti_gate_clk_setup(struct device_node *node,
 	}
 
 	if (of_clk_get_parent_count(node) != 1) {
+<<<<<<< HEAD
 		pr_err("%s must have 1 parent\n", node->name);
+=======
+		pr_err("%pOFn must have 1 parent\n", node);
+>>>>>>> upstream/android-13
 		return;
 	}
 

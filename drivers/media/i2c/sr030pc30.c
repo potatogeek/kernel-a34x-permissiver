@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for SiliconFile SR030PC30 VGA (1/10-Inch) Image Sensor with ISP
  *
@@ -9,11 +13,14 @@
  *
  * Based on mt9v011 Micron Digital Image Sensor driver
  * Copyright (c) 2009 Mauro Carvalho Chehab
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/i2c.h>
@@ -472,7 +479,11 @@ static int sr030pc30_s_ctrl(struct v4l2_ctrl *ctrl)
 }
 
 static int sr030pc30_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (!code || code->pad ||
@@ -484,7 +495,11 @@ static int sr030pc30_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int sr030pc30_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *mf;
@@ -529,7 +544,11 @@ static const struct sr030pc30_format *try_fmt(struct v4l2_subdev *sd,
 
 /* Return nearest media bus frame format. */
 static int sr030pc30_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct sr030pc30_info *info = sd ? to_sr030pc30(sd) : NULL;
@@ -545,7 +564,11 @@ static int sr030pc30_set_fmt(struct v4l2_subdev *sd,
 
 	fmt = try_fmt(sd, mf);
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		cfg->try_fmt = *mf;
+=======
+		sd_state->pads->try_fmt = *mf;
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -569,7 +592,11 @@ static int sr030pc30_base_config(struct v4l2_subdev *sd)
 	if (!ret)
 		ret = sr030pc30_pwr_ctrl(sd, false, false);
 
+<<<<<<< HEAD
 	if (!ret && !info->pdata)
+=======
+	if (ret)
+>>>>>>> upstream/android-13
 		return ret;
 
 	expmin = EXPOS_MIN_MS * info->pdata->clk_rate / (8 * 1000);
@@ -703,7 +730,10 @@ static int sr030pc30_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	sd = &info->sd;
+<<<<<<< HEAD
 	strcpy(sd->name, MODULE_NAME);
+=======
+>>>>>>> upstream/android-13
 	info->pdata = client->dev.platform_data;
 
 	v4l2_i2c_subdev_init(sd, client, &sr030pc30_ops);

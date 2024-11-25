@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright 2008 Vitaly Mayatskikh <vmayatsk@redhat.com>
  * Copyright 2002 Andi Kleen, SuSE Labs.
  * Subject to the GNU Public License v2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2008 Vitaly Mayatskikh <vmayatsk@redhat.com>
+ * Copyright 2002 Andi Kleen, SuSE Labs.
+>>>>>>> upstream/android-13
  *
  * Functions to copy from and to user space.
  */
@@ -11,10 +18,42 @@
 #include <asm/asm-offsets.h>
 #include <asm/thread_info.h>
 #include <asm/cpufeatures.h>
+<<<<<<< HEAD
 #include <asm/alternative-asm.h>
 #include <asm/asm.h>
 #include <asm/smap.h>
 #include <asm/export.h>
+=======
+#include <asm/alternative.h>
+#include <asm/asm.h>
+#include <asm/smap.h>
+#include <asm/export.h>
+#include <asm/trapnr.h>
+
+.macro ALIGN_DESTINATION
+	/* check for bad alignment of destination */
+	movl %edi,%ecx
+	andl $7,%ecx
+	jz 102f				/* already aligned */
+	subl $8,%ecx
+	negl %ecx
+	subl %ecx,%edx
+100:	movb (%rsi),%al
+101:	movb %al,(%rdi)
+	incq %rsi
+	incq %rdi
+	decl %ecx
+	jnz 100b
+102:
+	.section .fixup,"ax"
+103:	addl %ecx,%edx			/* ecx is zerorest also */
+	jmp .Lcopy_user_handle_tail
+	.previous
+
+	_ASM_EXTABLE_CPY(100b, 103b)
+	_ASM_EXTABLE_CPY(101b, 103b)
+	.endm
+>>>>>>> upstream/android-13
 
 /*
  * copy_user_generic_unrolled - memory copy with exception handling.
@@ -29,7 +68,11 @@
  * Output:
  * eax uncopied bytes or 0 if successful.
  */
+<<<<<<< HEAD
 ENTRY(copy_user_generic_unrolled)
+=======
+SYM_FUNC_START(copy_user_generic_unrolled)
+>>>>>>> upstream/android-13
 	ASM_STAC
 	cmpl $8,%edx
 	jb 20f		/* less then 8 bytes, go to byte copy loop */
@@ -80,7 +123,11 @@ ENTRY(copy_user_generic_unrolled)
 	jnz 21b
 23:	xor %eax,%eax
 	ASM_CLAC
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 	.section .fixup,"ax"
 30:	shll $6,%ecx
@@ -89,6 +136,7 @@ ENTRY(copy_user_generic_unrolled)
 40:	leal (%rdx,%rcx,8),%edx
 	jmp 60f
 50:	movl %ecx,%edx
+<<<<<<< HEAD
 60:	jmp copy_user_handle_tail /* ecx is zerorest also */
 	.previous
 
@@ -113,6 +161,32 @@ ENTRY(copy_user_generic_unrolled)
 	_ASM_EXTABLE(21b,50b)
 	_ASM_EXTABLE(22b,50b)
 ENDPROC(copy_user_generic_unrolled)
+=======
+60:	jmp .Lcopy_user_handle_tail /* ecx is zerorest also */
+	.previous
+
+	_ASM_EXTABLE_CPY(1b, 30b)
+	_ASM_EXTABLE_CPY(2b, 30b)
+	_ASM_EXTABLE_CPY(3b, 30b)
+	_ASM_EXTABLE_CPY(4b, 30b)
+	_ASM_EXTABLE_CPY(5b, 30b)
+	_ASM_EXTABLE_CPY(6b, 30b)
+	_ASM_EXTABLE_CPY(7b, 30b)
+	_ASM_EXTABLE_CPY(8b, 30b)
+	_ASM_EXTABLE_CPY(9b, 30b)
+	_ASM_EXTABLE_CPY(10b, 30b)
+	_ASM_EXTABLE_CPY(11b, 30b)
+	_ASM_EXTABLE_CPY(12b, 30b)
+	_ASM_EXTABLE_CPY(13b, 30b)
+	_ASM_EXTABLE_CPY(14b, 30b)
+	_ASM_EXTABLE_CPY(15b, 30b)
+	_ASM_EXTABLE_CPY(16b, 30b)
+	_ASM_EXTABLE_CPY(18b, 40b)
+	_ASM_EXTABLE_CPY(19b, 40b)
+	_ASM_EXTABLE_CPY(21b, 50b)
+	_ASM_EXTABLE_CPY(22b, 50b)
+SYM_FUNC_END(copy_user_generic_unrolled)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(copy_user_generic_unrolled)
 
 /* Some CPUs run faster using the string copy instructions.
@@ -133,7 +207,11 @@ EXPORT_SYMBOL(copy_user_generic_unrolled)
  * Output:
  * eax uncopied bytes or 0 if successful.
  */
+<<<<<<< HEAD
 ENTRY(copy_user_generic_string)
+=======
+SYM_FUNC_START(copy_user_generic_string)
+>>>>>>> upstream/android-13
 	ASM_STAC
 	cmpl $8,%edx
 	jb 2f		/* less than 8 bytes, go to byte copy loop */
@@ -148,17 +226,30 @@ ENTRY(copy_user_generic_string)
 	movsb
 	xorl %eax,%eax
 	ASM_CLAC
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 	.section .fixup,"ax"
 11:	leal (%rdx,%rcx,8),%ecx
 12:	movl %ecx,%edx		/* ecx is zerorest also */
+<<<<<<< HEAD
 	jmp copy_user_handle_tail
 	.previous
 
 	_ASM_EXTABLE(1b,11b)
 	_ASM_EXTABLE(3b,12b)
 ENDPROC(copy_user_generic_string)
+=======
+	jmp .Lcopy_user_handle_tail
+	.previous
+
+	_ASM_EXTABLE_CPY(1b, 11b)
+	_ASM_EXTABLE_CPY(3b, 12b)
+SYM_FUNC_END(copy_user_generic_string)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(copy_user_generic_string)
 
 /*
@@ -173,7 +264,11 @@ EXPORT_SYMBOL(copy_user_generic_string)
  * Output:
  * eax uncopied bytes or 0 if successful.
  */
+<<<<<<< HEAD
 ENTRY(copy_user_enhanced_fast_string)
+=======
+SYM_FUNC_START(copy_user_enhanced_fast_string)
+>>>>>>> upstream/android-13
 	ASM_STAC
 	cmpl $64,%edx
 	jb .L_copy_short_string	/* less then 64 bytes, avoid the costly 'rep' */
@@ -182,6 +277,7 @@ ENTRY(copy_user_enhanced_fast_string)
 	movsb
 	xorl %eax,%eax
 	ASM_CLAC
+<<<<<<< HEAD
 	ret
 
 	.section .fixup,"ax"
@@ -194,6 +290,57 @@ ENDPROC(copy_user_enhanced_fast_string)
 EXPORT_SYMBOL(copy_user_enhanced_fast_string)
 
 /*
+=======
+	RET
+
+	.section .fixup,"ax"
+12:	movl %ecx,%edx		/* ecx is zerorest also */
+	jmp .Lcopy_user_handle_tail
+	.previous
+
+	_ASM_EXTABLE_CPY(1b, 12b)
+SYM_FUNC_END(copy_user_enhanced_fast_string)
+EXPORT_SYMBOL(copy_user_enhanced_fast_string)
+
+/*
+ * Try to copy last bytes and clear the rest if needed.
+ * Since protection fault in copy_from/to_user is not a normal situation,
+ * it is not necessary to optimize tail handling.
+ * Don't try to copy the tail if machine check happened
+ *
+ * Input:
+ * rdi destination
+ * rsi source
+ * rdx count
+ *
+ * Output:
+ * eax uncopied bytes or 0 if successful.
+ */
+SYM_CODE_START_LOCAL(.Lcopy_user_handle_tail)
+	movl %edx,%ecx
+	cmp $X86_TRAP_MC,%eax		/* check if X86_TRAP_MC */
+	je 3f
+1:	rep movsb
+2:	mov %ecx,%eax
+	ASM_CLAC
+	RET
+
+	/*
+	 * Return zero to pretend that this copy succeeded. This
+	 * is counter-intuitive, but needed to prevent the code
+	 * in lib/iov_iter.c from retrying and running back into
+	 * the poison cache line again. The machine check handler
+	 * will ensure that a SIGBUS is sent to the task.
+	 */
+3:	xorl %eax,%eax
+	ASM_CLAC
+	RET
+
+	_ASM_EXTABLE_CPY(1b, 2b)
+SYM_CODE_END(.Lcopy_user_handle_tail)
+
+/*
+>>>>>>> upstream/android-13
  * copy_user_nocache - Uncached memory copy with exception handling
  * This will force destination out of cache for more performance.
  *
@@ -202,7 +349,11 @@ EXPORT_SYMBOL(copy_user_enhanced_fast_string)
  *  - Require 8-byte alignment when size is 8 bytes or larger.
  *  - Require 4-byte alignment when size is 4 bytes.
  */
+<<<<<<< HEAD
 ENTRY(__copy_user_nocache)
+=======
+SYM_FUNC_START(__copy_user_nocache)
+>>>>>>> upstream/android-13
 	ASM_STAC
 
 	/* If size is less than 8 bytes, go to 4-byte copy */
@@ -299,7 +450,11 @@ ENTRY(__copy_user_nocache)
 	xorl %eax,%eax
 	ASM_CLAC
 	sfence
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 	.section .fixup,"ax"
 .L_fixup_4x8b_copy:
@@ -316,6 +471,7 @@ ENTRY(__copy_user_nocache)
 	movl %ecx,%edx
 .L_fixup_handle_tail:
 	sfence
+<<<<<<< HEAD
 	jmp copy_user_handle_tail
 	.previous
 
@@ -342,4 +498,32 @@ ENTRY(__copy_user_nocache)
 	_ASM_EXTABLE(40b,.L_fixup_1b_copy)
 	_ASM_EXTABLE(41b,.L_fixup_1b_copy)
 ENDPROC(__copy_user_nocache)
+=======
+	jmp .Lcopy_user_handle_tail
+	.previous
+
+	_ASM_EXTABLE_CPY(1b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(2b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(3b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(4b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(5b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(6b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(7b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(8b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(9b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(10b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(11b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(12b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(13b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(14b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(15b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(16b, .L_fixup_4x8b_copy)
+	_ASM_EXTABLE_CPY(20b, .L_fixup_8b_copy)
+	_ASM_EXTABLE_CPY(21b, .L_fixup_8b_copy)
+	_ASM_EXTABLE_CPY(30b, .L_fixup_4b_copy)
+	_ASM_EXTABLE_CPY(31b, .L_fixup_4b_copy)
+	_ASM_EXTABLE_CPY(40b, .L_fixup_1b_copy)
+	_ASM_EXTABLE_CPY(41b, .L_fixup_1b_copy)
+SYM_FUNC_END(__copy_user_nocache)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(__copy_user_nocache)

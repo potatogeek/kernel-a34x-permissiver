@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001 Jens Axboe <axboe@kernel.dk>
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2001 Jens Axboe <axboe@kernel.dk>
+>>>>>>> upstream/android-13
  */
 #include <linux/mm.h>
 #include <linux/swap.h>
@@ -29,12 +35,20 @@
 #include <linux/workqueue.h>
 #include <linux/cgroup.h>
 #include <linux/blk-cgroup.h>
+<<<<<<< HEAD
 #include <linux/blk-crypto.h>
+=======
+#include <linux/highmem.h>
+#include <linux/sched/sysctl.h>
+#include <linux/blk-crypto.h>
+#include <linux/xarray.h>
+>>>>>>> upstream/android-13
 
 #include <trace/events/block.h>
 #include "blk.h"
 #include "blk-rq-qos.h"
 
+<<<<<<< HEAD
 /*
  * Test patch to inline a certain number of bi_io_vec's inside the bio
  * itself, to shrink a bio data allocation from two mempool calls to one
@@ -51,6 +65,41 @@ static struct biovec_slab bvec_slabs[BVEC_POOL_NR] __read_mostly = {
 	BV(1, 1), BV(4, 4), BV(16, 16), BV(64, 64), BV(128, 128), BV(BIO_MAX_PAGES, max),
 };
 #undef BV
+=======
+struct bio_alloc_cache {
+	struct bio_list		free_list;
+	unsigned int		nr;
+};
+
+static struct biovec_slab {
+	int nr_vecs;
+	char *name;
+	struct kmem_cache *slab;
+} bvec_slabs[] __read_mostly = {
+	{ .nr_vecs = 16, .name = "biovec-16" },
+	{ .nr_vecs = 64, .name = "biovec-64" },
+	{ .nr_vecs = 128, .name = "biovec-128" },
+	{ .nr_vecs = BIO_MAX_VECS, .name = "biovec-max" },
+};
+
+static struct biovec_slab *biovec_slab(unsigned short nr_vecs)
+{
+	switch (nr_vecs) {
+	/* smaller bios use inline vecs */
+	case 5 ... 16:
+		return &bvec_slabs[0];
+	case 17 ... 64:
+		return &bvec_slabs[1];
+	case 65 ... 128:
+		return &bvec_slabs[2];
+	case 129 ... BIO_MAX_VECS:
+		return &bvec_slabs[3];
+	default:
+		BUG();
+		return NULL;
+	}
+}
+>>>>>>> upstream/android-13
 
 /*
  * fs_bio_set is the bio_set containing bio and iovec memory pools used by
@@ -69,6 +118,7 @@ struct bio_slab {
 	char name[8];
 };
 static DEFINE_MUTEX(bio_slab_lock);
+<<<<<<< HEAD
 static struct bio_slab *bio_slabs;
 static unsigned int bio_slab_nr, bio_slab_max;
 
@@ -126,11 +176,63 @@ static struct kmem_cache *bio_find_or_create_slab(unsigned int extra_size)
 out_unlock:
 	mutex_unlock(&bio_slab_lock);
 	return slab;
+=======
+static DEFINE_XARRAY(bio_slabs);
+
+static struct bio_slab *create_bio_slab(unsigned int size)
+{
+	struct bio_slab *bslab = kzalloc(sizeof(*bslab), GFP_KERNEL);
+
+	if (!bslab)
+		return NULL;
+
+	snprintf(bslab->name, sizeof(bslab->name), "bio-%d", size);
+	bslab->slab = kmem_cache_create(bslab->name, size,
+			ARCH_KMALLOC_MINALIGN, SLAB_HWCACHE_ALIGN, NULL);
+	if (!bslab->slab)
+		goto fail_alloc_slab;
+
+	bslab->slab_ref = 1;
+	bslab->slab_size = size;
+
+	if (!xa_err(xa_store(&bio_slabs, size, bslab, GFP_KERNEL)))
+		return bslab;
+
+	kmem_cache_destroy(bslab->slab);
+
+fail_alloc_slab:
+	kfree(bslab);
+	return NULL;
+}
+
+static inline unsigned int bs_bio_slab_size(struct bio_set *bs)
+{
+	return bs->front_pad + sizeof(struct bio) + bs->back_pad;
+}
+
+static struct kmem_cache *bio_find_or_create_slab(struct bio_set *bs)
+{
+	unsigned int size = bs_bio_slab_size(bs);
+	struct bio_slab *bslab;
+
+	mutex_lock(&bio_slab_lock);
+	bslab = xa_load(&bio_slabs, size);
+	if (bslab)
+		bslab->slab_ref++;
+	else
+		bslab = create_bio_slab(size);
+	mutex_unlock(&bio_slab_lock);
+
+	if (bslab)
+		return bslab->slab;
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static void bio_put_slab(struct bio_set *bs)
 {
 	struct bio_slab *bslab = NULL;
+<<<<<<< HEAD
 	unsigned int i;
 
 	mutex_lock(&bio_slab_lock);
@@ -145,18 +247,38 @@ static void bio_put_slab(struct bio_set *bs)
 	if (WARN(!bslab, KERN_ERR "bio: unable to find slab!\n"))
 		goto out;
 
+=======
+	unsigned int slab_size = bs_bio_slab_size(bs);
+
+	mutex_lock(&bio_slab_lock);
+
+	bslab = xa_load(&bio_slabs, slab_size);
+	if (WARN(!bslab, KERN_ERR "bio: unable to find slab!\n"))
+		goto out;
+
+	WARN_ON_ONCE(bslab->slab != bs->bio_slab);
+
+>>>>>>> upstream/android-13
 	WARN_ON(!bslab->slab_ref);
 
 	if (--bslab->slab_ref)
 		goto out;
 
+<<<<<<< HEAD
 	kmem_cache_destroy(bslab->slab);
 	bslab->slab = NULL;
+=======
+	xa_erase(&bio_slabs, slab_size);
+
+	kmem_cache_destroy(bslab->slab);
+	kfree(bslab);
+>>>>>>> upstream/android-13
 
 out:
 	mutex_unlock(&bio_slab_lock);
 }
 
+<<<<<<< HEAD
 unsigned int bvec_nr_vecs(unsigned short idx)
 {
 	return bvec_slabs[--idx].nr_vecs;
@@ -241,11 +363,73 @@ fallback:
 
 	(*idx)++;
 	return bvl;
+=======
+void bvec_free(mempool_t *pool, struct bio_vec *bv, unsigned short nr_vecs)
+{
+	BIO_BUG_ON(nr_vecs > BIO_MAX_VECS);
+
+	if (nr_vecs == BIO_MAX_VECS)
+		mempool_free(bv, pool);
+	else if (nr_vecs > BIO_INLINE_VECS)
+		kmem_cache_free(biovec_slab(nr_vecs)->slab, bv);
+}
+
+/*
+ * Make the first allocation restricted and don't dump info on allocation
+ * failures, since we'll fall back to the mempool in case of failure.
+ */
+static inline gfp_t bvec_alloc_gfp(gfp_t gfp)
+{
+	return (gfp & ~(__GFP_DIRECT_RECLAIM | __GFP_IO)) |
+		__GFP_NOMEMALLOC | __GFP_NORETRY | __GFP_NOWARN;
+}
+
+struct bio_vec *bvec_alloc(mempool_t *pool, unsigned short *nr_vecs,
+		gfp_t gfp_mask)
+{
+	struct biovec_slab *bvs = biovec_slab(*nr_vecs);
+
+	if (WARN_ON_ONCE(!bvs))
+		return NULL;
+
+	/*
+	 * Upgrade the nr_vecs request to take full advantage of the allocation.
+	 * We also rely on this in the bvec_free path.
+	 */
+	*nr_vecs = bvs->nr_vecs;
+
+	/*
+	 * Try a slab allocation first for all smaller allocations.  If that
+	 * fails and __GFP_DIRECT_RECLAIM is set retry with the mempool.
+	 * The mempool is sized to handle up to BIO_MAX_VECS entries.
+	 */
+	if (*nr_vecs < BIO_MAX_VECS) {
+		struct bio_vec *bvl;
+
+		bvl = kmem_cache_alloc(bvs->slab, bvec_alloc_gfp(gfp_mask));
+		if (likely(bvl) || !(gfp_mask & __GFP_DIRECT_RECLAIM))
+			return bvl;
+		*nr_vecs = BIO_MAX_VECS;
+	}
+
+	return mempool_alloc(pool, gfp_mask);
+>>>>>>> upstream/android-13
 }
 
 void bio_uninit(struct bio *bio)
 {
+<<<<<<< HEAD
 	bio_disassociate_task(bio);
+=======
+#ifdef CONFIG_BLK_CGROUP
+	if (bio->bi_blkg) {
+		blkg_put(bio->bi_blkg);
+		bio->bi_blkg = NULL;
+	}
+#endif
+	if (bio_integrity(bio))
+		bio_integrity_free(bio);
+>>>>>>> upstream/android-13
 
 	bio_crypt_free_ctx(bio);
 }
@@ -259,7 +443,11 @@ static void bio_free(struct bio *bio)
 	bio_uninit(bio);
 
 	if (bs) {
+<<<<<<< HEAD
 		bvec_free(&bs->bvec_pool, bio->bi_io_vec, BVEC_POOL_IDX(bio));
+=======
+		bvec_free(&bs->bvec_pool, bio->bi_io_vec, bio->bi_max_vecs);
+>>>>>>> upstream/android-13
 
 		/*
 		 * If we have front padding, adjust the bio pointer before freeing
@@ -282,12 +470,52 @@ static void bio_free(struct bio *bio)
 void bio_init(struct bio *bio, struct bio_vec *table,
 	      unsigned short max_vecs)
 {
+<<<<<<< HEAD
 	memset(bio, 0, sizeof(*bio));
 	atomic_set(&bio->__bi_remaining, 1);
 	atomic_set(&bio->__bi_cnt, 1);
 
 	bio->bi_io_vec = table;
 	bio->bi_max_vecs = max_vecs;
+=======
+	bio->bi_next = NULL;
+	bio->bi_bdev = NULL;
+	bio->bi_opf = 0;
+	bio->bi_flags = 0;
+	bio->bi_ioprio = 0;
+	bio->bi_write_hint = 0;
+	bio->bi_status = 0;
+	bio->bi_iter.bi_sector = 0;
+	bio->bi_iter.bi_size = 0;
+	bio->bi_iter.bi_idx = 0;
+	bio->bi_iter.bi_bvec_done = 0;
+	bio->bi_end_io = NULL;
+	bio->bi_private = NULL;
+#ifdef CONFIG_BLK_CGROUP
+	bio->bi_blkg = NULL;
+	bio->bi_issue.value = 0;
+#ifdef CONFIG_BLK_CGROUP_IOCOST
+	bio->bi_iocost_cost = 0;
+#endif
+#endif
+#ifdef CONFIG_BLK_INLINE_ENCRYPTION
+	bio->bi_crypt_context = NULL;
+#if IS_ENABLED(CONFIG_DM_DEFAULT_KEY)
+	bio->bi_skip_dm_default_key = false;
+#endif
+#endif
+#ifdef CONFIG_BLK_DEV_INTEGRITY
+	bio->bi_integrity = NULL;
+#endif
+	bio->bi_vcnt = 0;
+
+	atomic_set(&bio->__bi_remaining, 1);
+	atomic_set(&bio->__bi_cnt, 1);
+
+	bio->bi_max_vecs = max_vecs;
+	bio->bi_io_vec = table;
+	bio->bi_pool = NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(bio_init);
 
@@ -303,12 +531,17 @@ EXPORT_SYMBOL(bio_init);
  */
 void bio_reset(struct bio *bio)
 {
+<<<<<<< HEAD
 	unsigned long flags = bio->bi_flags & (~0UL << BIO_RESET_BITS);
 
 	bio_uninit(bio);
 
 	memset(bio, 0, BIO_RESET_BYTES);
 	bio->bi_flags = flags;
+=======
+	bio_uninit(bio);
+	memset(bio, 0, BIO_RESET_BYTES);
+>>>>>>> upstream/android-13
 	atomic_set(&bio->__bi_remaining, 1);
 }
 EXPORT_SYMBOL(bio_reset);
@@ -331,7 +564,11 @@ static void bio_chain_endio(struct bio *bio)
 /**
  * bio_chain - chain bio completions
  * @bio: the target bio
+<<<<<<< HEAD
  * @parent: the @bio's parent bio
+=======
+ * @parent: the parent bio of @bio
+>>>>>>> upstream/android-13
  *
  * The caller won't have a bi_end_io called when @bio completes - instead,
  * @parent's bi_end_io won't be called until both @parent and @bio have
@@ -362,7 +599,11 @@ static void bio_alloc_rescue(struct work_struct *work)
 		if (!bio)
 			break;
 
+<<<<<<< HEAD
 		generic_make_request(bio);
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -409,6 +650,7 @@ static void punt_bios_to_rescuer(struct bio_set *bs)
  * @nr_iovecs:	number of iovecs to pre-allocate
  * @bs:		the bio_set to allocate from.
  *
+<<<<<<< HEAD
  * Description:
  *   If @bs is NULL, uses kmalloc() to allocate the bio; else the allocation is
  *   backed by the @bs's mempool.
@@ -527,6 +769,99 @@ struct bio *bio_alloc_bioset(gfp_t gfp_mask, unsigned int nr_iovecs,
 	bio->bi_pool = bs;
 	bio->bi_max_vecs = nr_iovecs;
 	bio->bi_io_vec = bvl;
+=======
+ * Allocate a bio from the mempools in @bs.
+ *
+ * If %__GFP_DIRECT_RECLAIM is set then bio_alloc will always be able to
+ * allocate a bio.  This is due to the mempool guarantees.  To make this work,
+ * callers must never allocate more than 1 bio at a time from the general pool.
+ * Callers that need to allocate more than 1 bio must always submit the
+ * previously allocated bio for IO before attempting to allocate a new one.
+ * Failure to do so can cause deadlocks under memory pressure.
+ *
+ * Note that when running under submit_bio_noacct() (i.e. any block driver),
+ * bios are not submitted until after you return - see the code in
+ * submit_bio_noacct() that converts recursion into iteration, to prevent
+ * stack overflows.
+ *
+ * This would normally mean allocating multiple bios under submit_bio_noacct()
+ * would be susceptible to deadlocks, but we have
+ * deadlock avoidance code that resubmits any blocked bios from a rescuer
+ * thread.
+ *
+ * However, we do not guarantee forward progress for allocations from other
+ * mempools. Doing multiple allocations from the same mempool under
+ * submit_bio_noacct() should be avoided - instead, use bio_set's front_pad
+ * for per bio allocations.
+ *
+ * Returns: Pointer to new bio on success, NULL on failure.
+ */
+struct bio *bio_alloc_bioset(gfp_t gfp_mask, unsigned short nr_iovecs,
+			     struct bio_set *bs)
+{
+	gfp_t saved_gfp = gfp_mask;
+	struct bio *bio;
+	void *p;
+
+	/* should not use nobvec bioset for nr_iovecs > 0 */
+	if (WARN_ON_ONCE(!mempool_initialized(&bs->bvec_pool) && nr_iovecs > 0))
+		return NULL;
+
+	/*
+	 * submit_bio_noacct() converts recursion to iteration; this means if
+	 * we're running beneath it, any bios we allocate and submit will not be
+	 * submitted (and thus freed) until after we return.
+	 *
+	 * This exposes us to a potential deadlock if we allocate multiple bios
+	 * from the same bio_set() while running underneath submit_bio_noacct().
+	 * If we were to allocate multiple bios (say a stacking block driver
+	 * that was splitting bios), we would deadlock if we exhausted the
+	 * mempool's reserve.
+	 *
+	 * We solve this, and guarantee forward progress, with a rescuer
+	 * workqueue per bio_set. If we go to allocate and there are bios on
+	 * current->bio_list, we first try the allocation without
+	 * __GFP_DIRECT_RECLAIM; if that fails, we punt those bios we would be
+	 * blocking to the rescuer workqueue before we retry with the original
+	 * gfp_flags.
+	 */
+	if (current->bio_list &&
+	    (!bio_list_empty(&current->bio_list[0]) ||
+	     !bio_list_empty(&current->bio_list[1])) &&
+	    bs->rescue_workqueue)
+		gfp_mask &= ~__GFP_DIRECT_RECLAIM;
+
+	p = mempool_alloc(&bs->bio_pool, gfp_mask);
+	if (!p && gfp_mask != saved_gfp) {
+		punt_bios_to_rescuer(bs);
+		gfp_mask = saved_gfp;
+		p = mempool_alloc(&bs->bio_pool, gfp_mask);
+	}
+	if (unlikely(!p))
+		return NULL;
+
+	bio = p + bs->front_pad;
+	if (nr_iovecs > BIO_INLINE_VECS) {
+		struct bio_vec *bvl = NULL;
+
+		bvl = bvec_alloc(&bs->bvec_pool, &nr_iovecs, gfp_mask);
+		if (!bvl && gfp_mask != saved_gfp) {
+			punt_bios_to_rescuer(bs);
+			gfp_mask = saved_gfp;
+			bvl = bvec_alloc(&bs->bvec_pool, &nr_iovecs, gfp_mask);
+		}
+		if (unlikely(!bvl))
+			goto err_free;
+
+		bio_init(bio, bvl, nr_iovecs);
+	} else if (nr_iovecs) {
+		bio_init(bio, bio->bi_inline_vecs, BIO_INLINE_VECS);
+	} else {
+		bio_init(bio, NULL, 0);
+	}
+
+	bio->bi_pool = bs;
+>>>>>>> upstream/android-13
 	return bio;
 
 err_free:
@@ -535,6 +870,7 @@ err_free:
 }
 EXPORT_SYMBOL(bio_alloc_bioset);
 
+<<<<<<< HEAD
 void zero_fill_bio_iter(struct bio *bio, struct bvec_iter start)
 {
 	unsigned long flags;
@@ -549,6 +885,173 @@ void zero_fill_bio_iter(struct bio *bio, struct bvec_iter start)
 	}
 }
 EXPORT_SYMBOL(zero_fill_bio_iter);
+=======
+/**
+ * bio_kmalloc - kmalloc a bio for I/O
+ * @gfp_mask:   the GFP_* mask given to the slab allocator
+ * @nr_iovecs:	number of iovecs to pre-allocate
+ *
+ * Use kmalloc to allocate and initialize a bio.
+ *
+ * Returns: Pointer to new bio on success, NULL on failure.
+ */
+struct bio *bio_kmalloc(gfp_t gfp_mask, unsigned short nr_iovecs)
+{
+	struct bio *bio;
+
+	if (nr_iovecs > UIO_MAXIOV)
+		return NULL;
+
+	bio = kmalloc(struct_size(bio, bi_inline_vecs, nr_iovecs), gfp_mask);
+	if (unlikely(!bio))
+		return NULL;
+	bio_init(bio, nr_iovecs ? bio->bi_inline_vecs : NULL, nr_iovecs);
+	bio->bi_pool = NULL;
+	return bio;
+}
+EXPORT_SYMBOL(bio_kmalloc);
+
+void zero_fill_bio(struct bio *bio)
+{
+	struct bio_vec bv;
+	struct bvec_iter iter;
+
+	bio_for_each_segment(bv, bio, iter)
+		memzero_bvec(&bv);
+}
+EXPORT_SYMBOL(zero_fill_bio);
+
+/**
+ * bio_truncate - truncate the bio to small size of @new_size
+ * @bio:	the bio to be truncated
+ * @new_size:	new size for truncating the bio
+ *
+ * Description:
+ *   Truncate the bio to new size of @new_size. If bio_op(bio) is
+ *   REQ_OP_READ, zero the truncated part. This function should only
+ *   be used for handling corner cases, such as bio eod.
+ */
+void bio_truncate(struct bio *bio, unsigned new_size)
+{
+	struct bio_vec bv;
+	struct bvec_iter iter;
+	unsigned int done = 0;
+	bool truncated = false;
+
+	if (new_size >= bio->bi_iter.bi_size)
+		return;
+
+	if (bio_op(bio) != REQ_OP_READ)
+		goto exit;
+
+	bio_for_each_segment(bv, bio, iter) {
+		if (done + bv.bv_len > new_size) {
+			unsigned offset;
+
+			if (!truncated)
+				offset = new_size - done;
+			else
+				offset = 0;
+			zero_user(bv.bv_page, bv.bv_offset + offset,
+				  bv.bv_len - offset);
+			truncated = true;
+		}
+		done += bv.bv_len;
+	}
+
+ exit:
+	/*
+	 * Don't touch bvec table here and make it really immutable, since
+	 * fs bio user has to retrieve all pages via bio_for_each_segment_all
+	 * in its .end_bio() callback.
+	 *
+	 * It is enough to truncate bio by updating .bi_size since we can make
+	 * correct bvec with the updated .bi_size for drivers.
+	 */
+	bio->bi_iter.bi_size = new_size;
+}
+
+/**
+ * guard_bio_eod - truncate a BIO to fit the block device
+ * @bio:	bio to truncate
+ *
+ * This allows us to do IO even on the odd last sectors of a device, even if the
+ * block size is some multiple of the physical sector size.
+ *
+ * We'll just truncate the bio to the size of the device, and clear the end of
+ * the buffer head manually.  Truly out-of-range accesses will turn into actual
+ * I/O errors, this only handles the "we need to be able to do I/O at the final
+ * sector" case.
+ */
+void guard_bio_eod(struct bio *bio)
+{
+	sector_t maxsector = bdev_nr_sectors(bio->bi_bdev);
+
+	if (!maxsector)
+		return;
+
+	/*
+	 * If the *whole* IO is past the end of the device,
+	 * let it through, and the IO layer will turn it into
+	 * an EIO.
+	 */
+	if (unlikely(bio->bi_iter.bi_sector >= maxsector))
+		return;
+
+	maxsector -= bio->bi_iter.bi_sector;
+	if (likely((bio->bi_iter.bi_size >> 9) <= maxsector))
+		return;
+
+	bio_truncate(bio, maxsector << 9);
+}
+
+#define ALLOC_CACHE_MAX		512
+#define ALLOC_CACHE_SLACK	 64
+
+static void bio_alloc_cache_prune(struct bio_alloc_cache *cache,
+				  unsigned int nr)
+{
+	unsigned int i = 0;
+	struct bio *bio;
+
+	while ((bio = bio_list_pop(&cache->free_list)) != NULL) {
+		cache->nr--;
+		bio_free(bio);
+		if (++i == nr)
+			break;
+	}
+}
+
+static int bio_cpu_dead(unsigned int cpu, struct hlist_node *node)
+{
+	struct bio_set *bs;
+
+	bs = hlist_entry_safe(node, struct bio_set, cpuhp_dead);
+	if (bs->cache) {
+		struct bio_alloc_cache *cache = per_cpu_ptr(bs->cache, cpu);
+
+		bio_alloc_cache_prune(cache, -1U);
+	}
+	return 0;
+}
+
+static void bio_alloc_cache_destroy(struct bio_set *bs)
+{
+	int cpu;
+
+	if (!bs->cache)
+		return;
+
+	cpuhp_state_remove_instance_nocalls(CPUHP_BIO_DEAD, &bs->cpuhp_dead);
+	for_each_possible_cpu(cpu) {
+		struct bio_alloc_cache *cache;
+
+		cache = per_cpu_ptr(bs->cache, cpu);
+		bio_alloc_cache_prune(cache, -1U);
+	}
+	free_percpu(bs->cache);
+}
+>>>>>>> upstream/android-13
 
 /**
  * bio_put - release a reference to a bio
@@ -560,6 +1063,7 @@ EXPORT_SYMBOL(zero_fill_bio_iter);
  **/
 void bio_put(struct bio *bio)
 {
+<<<<<<< HEAD
 	if (!bio_flagged(bio, BIO_REFFED))
 		bio_free(bio);
 	else {
@@ -570,10 +1074,30 @@ void bio_put(struct bio *bio)
 		 */
 		if (atomic_dec_and_test(&bio->__bi_cnt))
 			bio_free(bio);
+=======
+	if (unlikely(bio_flagged(bio, BIO_REFFED))) {
+		BIO_BUG_ON(!atomic_read(&bio->__bi_cnt));
+		if (!atomic_dec_and_test(&bio->__bi_cnt))
+			return;
+	}
+
+	if (bio_flagged(bio, BIO_PERCPU_CACHE)) {
+		struct bio_alloc_cache *cache;
+
+		bio_uninit(bio);
+		cache = per_cpu_ptr(bio->bi_pool->cache, get_cpu());
+		bio_list_add_head(&cache->free_list, bio);
+		if (++cache->nr > ALLOC_CACHE_MAX + ALLOC_CACHE_SLACK)
+			bio_alloc_cache_prune(cache, ALLOC_CACHE_SLACK);
+		put_cpu();
+	} else {
+		bio_free(bio);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(bio_put);
 
+<<<<<<< HEAD
 inline int bio_phys_segments(struct request_queue *q, struct bio *bio)
 {
 	if (unlikely(!bio_flagged(bio, BIO_SEG_VALID)))
@@ -583,6 +1107,8 @@ inline int bio_phys_segments(struct request_queue *q, struct bio *bio)
 }
 EXPORT_SYMBOL(bio_phys_segments);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * 	__bio_clone_fast - clone a bio that shares the original bio's biovec
  * 	@bio: destination bio
@@ -596,6 +1122,7 @@ EXPORT_SYMBOL(bio_phys_segments);
  */
 void __bio_clone_fast(struct bio *bio, struct bio *bio_src)
 {
+<<<<<<< HEAD
 	BUG_ON(bio->bi_pool && BVEC_POOL_IDX(bio));
 
 	/*
@@ -607,18 +1134,37 @@ void __bio_clone_fast(struct bio *bio, struct bio *bio_src)
 	bio_set_flag(bio, BIO_CLONED);
 	if (bio_flagged(bio_src, BIO_THROTTLED))
 		bio_set_flag(bio, BIO_THROTTLED);
+=======
+	WARN_ON_ONCE(bio->bi_pool && bio->bi_max_vecs);
+
+	/*
+	 * most users will be overriding ->bi_bdev with a new target,
+	 * so we don't set nor calculate new physical/hw segment counts here
+	 */
+	bio->bi_bdev = bio_src->bi_bdev;
+	bio_set_flag(bio, BIO_CLONED);
+	if (bio_flagged(bio_src, BIO_THROTTLED))
+		bio_set_flag(bio, BIO_THROTTLED);
+	if (bio_flagged(bio_src, BIO_REMAPPED))
+		bio_set_flag(bio, BIO_REMAPPED);
+>>>>>>> upstream/android-13
 	bio->bi_opf = bio_src->bi_opf;
 	bio->bi_ioprio = bio_src->bi_ioprio;
 	bio->bi_write_hint = bio_src->bi_write_hint;
 	bio->bi_iter = bio_src->bi_iter;
 	bio->bi_io_vec = bio_src->bi_io_vec;
 
+<<<<<<< HEAD
 #if defined(CONFIG_MTK_HW_FDE)
 	/* for FDE */
 	bio->bi_hw_fde = bio_src->bi_hw_fde;
 	bio->bi_key_idx = bio_src->bi_key_idx;
 #endif
 	bio_clone_blkcg_association(bio, bio_src);
+=======
+	bio_clone_blkg_association(bio, bio_src);
+	blkcg_bio_issue_init(bio);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__bio_clone_fast);
 
@@ -640,6 +1186,7 @@ struct bio *bio_clone_fast(struct bio *bio, gfp_t gfp_mask, struct bio_set *bs)
 
 	__bio_clone_fast(b, bio);
 
+<<<<<<< HEAD
 	bio_crypt_clone(b, bio, gfp_mask);
 
 	if (bio_integrity(bio) &&
@@ -712,11 +1259,119 @@ int bio_add_pc_page(struct request_queue *q, struct bio *bio, struct page
 	 * setup the new entry, we might clear it again later if we
 	 * cannot add the page
 	 */
+=======
+	if (bio_crypt_clone(b, bio, gfp_mask) < 0)
+		goto err_put;
+
+	if (bio_integrity(bio) &&
+	    bio_integrity_clone(b, bio, gfp_mask) < 0)
+		goto err_put;
+
+	return b;
+
+err_put:
+	bio_put(b);
+	return NULL;
+}
+EXPORT_SYMBOL(bio_clone_fast);
+
+const char *bio_devname(struct bio *bio, char *buf)
+{
+	return bdevname(bio->bi_bdev, buf);
+}
+EXPORT_SYMBOL(bio_devname);
+
+static inline bool page_is_mergeable(const struct bio_vec *bv,
+		struct page *page, unsigned int len, unsigned int off,
+		bool *same_page)
+{
+	size_t bv_end = bv->bv_offset + bv->bv_len;
+	phys_addr_t vec_end_addr = page_to_phys(bv->bv_page) + bv_end - 1;
+	phys_addr_t page_addr = page_to_phys(page);
+
+	if (vec_end_addr + 1 != page_addr + off)
+		return false;
+	if (xen_domain() && !xen_biovec_phys_mergeable(bv, page))
+		return false;
+
+	*same_page = ((vec_end_addr & PAGE_MASK) == page_addr);
+	if (*same_page)
+		return true;
+	return (bv->bv_page + bv_end / PAGE_SIZE) == (page + off / PAGE_SIZE);
+}
+
+/*
+ * Try to merge a page into a segment, while obeying the hardware segment
+ * size limit.  This is not for normal read/write bios, but for passthrough
+ * or Zone Append operations that we can't split.
+ */
+static bool bio_try_merge_hw_seg(struct request_queue *q, struct bio *bio,
+				 struct page *page, unsigned len,
+				 unsigned offset, bool *same_page)
+{
+	struct bio_vec *bv = &bio->bi_io_vec[bio->bi_vcnt - 1];
+	unsigned long mask = queue_segment_boundary(q);
+	phys_addr_t addr1 = page_to_phys(bv->bv_page) + bv->bv_offset;
+	phys_addr_t addr2 = page_to_phys(page) + offset + len - 1;
+
+	if ((addr1 | mask) != (addr2 | mask))
+		return false;
+	if (bv->bv_len + len > queue_max_segment_size(q))
+		return false;
+	return __bio_try_merge_page(bio, page, len, offset, same_page);
+}
+
+/**
+ * bio_add_hw_page - attempt to add a page to a bio with hw constraints
+ * @q: the target queue
+ * @bio: destination bio
+ * @page: page to add
+ * @len: vec entry length
+ * @offset: vec entry offset
+ * @max_sectors: maximum number of sectors that can be added
+ * @same_page: return if the segment has been merged inside the same page
+ *
+ * Add a page to a bio while respecting the hardware max_sectors, max_segment
+ * and gap limitations.
+ */
+int bio_add_hw_page(struct request_queue *q, struct bio *bio,
+		struct page *page, unsigned int len, unsigned int offset,
+		unsigned int max_sectors, bool *same_page)
+{
+	struct bio_vec *bvec;
+
+	if (WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED)))
+		return 0;
+
+	if (((bio->bi_iter.bi_size + len) >> 9) > max_sectors)
+		return 0;
+
+	if (bio->bi_vcnt > 0) {
+		if (bio_try_merge_hw_seg(q, bio, page, len, offset, same_page))
+			return len;
+
+		/*
+		 * If the queue doesn't support SG gaps and adding this segment
+		 * would create a gap, disallow it.
+		 */
+		bvec = &bio->bi_io_vec[bio->bi_vcnt - 1];
+		if (bvec_gap_to_prev(q, bvec, offset))
+			return 0;
+	}
+
+	if (bio_full(bio, len))
+		return 0;
+
+	if (bio->bi_vcnt >= queue_max_segments(q))
+		return 0;
+
+>>>>>>> upstream/android-13
 	bvec = &bio->bi_io_vec[bio->bi_vcnt];
 	bvec->bv_page = page;
 	bvec->bv_len = len;
 	bvec->bv_offset = offset;
 	bio->bi_vcnt++;
+<<<<<<< HEAD
 	bio->bi_phys_segments++;
 	bio->bi_iter.bi_size += len;
 
@@ -749,10 +1404,38 @@ int bio_add_pc_page(struct request_queue *q, struct bio *bio, struct page
 	bio->bi_iter.bi_size -= len;
 	blk_recount_segments(q, bio);
 	return 0;
+=======
+	bio->bi_iter.bi_size += len;
+	return len;
+}
+
+/**
+ * bio_add_pc_page	- attempt to add page to passthrough bio
+ * @q: the target queue
+ * @bio: destination bio
+ * @page: page to add
+ * @len: vec entry length
+ * @offset: vec entry offset
+ *
+ * Attempt to add a page to the bio_vec maplist. This can fail for a
+ * number of reasons, such as the bio being full or target block device
+ * limitations. The target block device must allow bio's up to PAGE_SIZE,
+ * so it is always possible to add a single page to an empty bio.
+ *
+ * This should only be used by passthrough bios.
+ */
+int bio_add_pc_page(struct request_queue *q, struct bio *bio,
+		struct page *page, unsigned int len, unsigned int offset)
+{
+	bool same_page = false;
+	return bio_add_hw_page(q, bio, page, len, offset,
+			queue_max_hw_sectors(q), &same_page);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(bio_add_pc_page);
 
 /**
+<<<<<<< HEAD
  * __bio_try_merge_page - try appending data to an existing bvec.
  * @bio: destination bio
  * @page: page to add
@@ -767,6 +1450,58 @@ EXPORT_SYMBOL(bio_add_pc_page);
  */
 bool __bio_try_merge_page(struct bio *bio, struct page *page,
 		unsigned int len, unsigned int off)
+=======
+ * bio_add_zone_append_page - attempt to add page to zone-append bio
+ * @bio: destination bio
+ * @page: page to add
+ * @len: vec entry length
+ * @offset: vec entry offset
+ *
+ * Attempt to add a page to the bio_vec maplist of a bio that will be submitted
+ * for a zone-append request. This can fail for a number of reasons, such as the
+ * bio being full or the target block device is not a zoned block device or
+ * other limitations of the target block device. The target block device must
+ * allow bio's up to PAGE_SIZE, so it is always possible to add a single page
+ * to an empty bio.
+ *
+ * Returns: number of bytes added to the bio, or 0 in case of a failure.
+ */
+int bio_add_zone_append_page(struct bio *bio, struct page *page,
+			     unsigned int len, unsigned int offset)
+{
+	struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+	bool same_page = false;
+
+	if (WARN_ON_ONCE(bio_op(bio) != REQ_OP_ZONE_APPEND))
+		return 0;
+
+	if (WARN_ON_ONCE(!blk_queue_is_zoned(q)))
+		return 0;
+
+	return bio_add_hw_page(q, bio, page, len, offset,
+			       queue_max_zone_append_sectors(q), &same_page);
+}
+EXPORT_SYMBOL_GPL(bio_add_zone_append_page);
+
+/**
+ * __bio_try_merge_page - try appending data to an existing bvec.
+ * @bio: destination bio
+ * @page: start page to add
+ * @len: length of the data to add
+ * @off: offset of the data relative to @page
+ * @same_page: return if the segment has been merged inside the same page
+ *
+ * Try to add the data at @page + @off to the last bvec of @bio.  This is a
+ * useful optimisation for file systems with a block size smaller than the
+ * page size.
+ *
+ * Warn if (@len, @off) crosses pages in case that @same_page is true.
+ *
+ * Return %true on success or %false on failure.
+ */
+bool __bio_try_merge_page(struct bio *bio, struct page *page,
+		unsigned int len, unsigned int off, bool *same_page)
+>>>>>>> upstream/android-13
 {
 	if (WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED)))
 		return false;
@@ -774,7 +1509,15 @@ bool __bio_try_merge_page(struct bio *bio, struct page *page,
 	if (bio->bi_vcnt > 0) {
 		struct bio_vec *bv = &bio->bi_io_vec[bio->bi_vcnt - 1];
 
+<<<<<<< HEAD
 		if (page == bv->bv_page && off == bv->bv_offset + bv->bv_len) {
+=======
+		if (page_is_mergeable(bv, page, len, off, same_page)) {
+			if (bio->bi_iter.bi_size > BIO_MAX_BYTES - len) {	
+				*same_page = false;
+				return false;
+			}
+>>>>>>> upstream/android-13
 			bv->bv_len += len;
 			bio->bi_iter.bi_size += len;
 			return true;
@@ -785,11 +1528,19 @@ bool __bio_try_merge_page(struct bio *bio, struct page *page,
 EXPORT_SYMBOL_GPL(__bio_try_merge_page);
 
 /**
+<<<<<<< HEAD
  * __bio_add_page - add page to a bio in a new segment
  * @bio: destination bio
  * @page: page to add
  * @len: length of the data to add
  * @off: offset of the data in @page
+=======
+ * __bio_add_page - add page(s) to a bio in a new segment
+ * @bio: destination bio
+ * @page: start page to add
+ * @len: length of the data to add, may cross pages
+ * @off: offset of the data relative to @page, may cross pages
+>>>>>>> upstream/android-13
  *
  * Add the data at @page + @off to @bio as a new bvec.  The caller must ensure
  * that @bio has space for another bvec.
@@ -800,7 +1551,11 @@ void __bio_add_page(struct bio *bio, struct page *page,
 	struct bio_vec *bv = &bio->bi_io_vec[bio->bi_vcnt];
 
 	WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED));
+<<<<<<< HEAD
 	WARN_ON_ONCE(bio_full(bio));
+=======
+	WARN_ON_ONCE(bio_full(bio, len));
+>>>>>>> upstream/android-13
 
 	bv->bv_page = page;
 	bv->bv_offset = off;
@@ -815,6 +1570,7 @@ void __bio_add_page(struct bio *bio, struct page *page,
 EXPORT_SYMBOL_GPL(__bio_add_page);
 
 /**
+<<<<<<< HEAD
  *	bio_add_page	-	attempt to add page to bio
  *	@bio: destination bio
  *	@page: page to add
@@ -822,13 +1578,29 @@ EXPORT_SYMBOL_GPL(__bio_add_page);
  *	@offset: vec entry offset
  *
  *	Attempt to add a page to the bio_vec maplist. This will only fail
+=======
+ *	bio_add_page	-	attempt to add page(s) to bio
+ *	@bio: destination bio
+ *	@page: start page to add
+ *	@len: vec entry length, may cross pages
+ *	@offset: vec entry offset relative to @page, may cross pages
+ *
+ *	Attempt to add page(s) to the bio_vec maplist. This will only fail
+>>>>>>> upstream/android-13
  *	if either bio->bi_vcnt == bio->bi_max_vecs or it's a cloned bio.
  */
 int bio_add_page(struct bio *bio, struct page *page,
 		 unsigned int len, unsigned int offset)
 {
+<<<<<<< HEAD
 	if (!__bio_try_merge_page(bio, page, len, offset)) {
 		if (bio_full(bio))
+=======
+	bool same_page = false;
+
+	if (!__bio_try_merge_page(bio, page, len, offset, &same_page)) {
+		if (bio_full(bio, len))
+>>>>>>> upstream/android-13
 			return 0;
 		__bio_add_page(bio, page, len, offset);
 	}
@@ -836,6 +1608,65 @@ int bio_add_page(struct bio *bio, struct page *page,
 }
 EXPORT_SYMBOL(bio_add_page);
 
+<<<<<<< HEAD
+=======
+void bio_release_pages(struct bio *bio, bool mark_dirty)
+{
+	struct bvec_iter_all iter_all;
+	struct bio_vec *bvec;
+
+	if (bio_flagged(bio, BIO_NO_PAGE_REF))
+		return;
+
+	bio_for_each_segment_all(bvec, bio, iter_all) {
+		if (mark_dirty && !PageCompound(bvec->bv_page))
+			set_page_dirty_lock(bvec->bv_page);
+		put_page(bvec->bv_page);
+	}
+}
+EXPORT_SYMBOL_GPL(bio_release_pages);
+
+static void __bio_iov_bvec_set(struct bio *bio, struct iov_iter *iter)
+{
+	WARN_ON_ONCE(bio->bi_max_vecs);
+
+	bio->bi_vcnt = iter->nr_segs;
+	bio->bi_io_vec = (struct bio_vec *)iter->bvec;
+	bio->bi_iter.bi_bvec_done = iter->iov_offset;
+	bio->bi_iter.bi_size = iter->count;
+	bio_set_flag(bio, BIO_NO_PAGE_REF);
+	bio_set_flag(bio, BIO_CLONED);
+}
+
+static int bio_iov_bvec_set(struct bio *bio, struct iov_iter *iter)
+{
+	__bio_iov_bvec_set(bio, iter);
+	iov_iter_advance(iter, iter->count);
+	return 0;
+}
+
+static int bio_iov_bvec_set_append(struct bio *bio, struct iov_iter *iter)
+{
+	struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+	struct iov_iter i = *iter;
+
+	iov_iter_truncate(&i, queue_max_zone_append_sectors(q) << 9);
+	__bio_iov_bvec_set(bio, &i);
+	iov_iter_advance(iter, i.count);
+	return 0;
+}
+
+static void bio_put_pages(struct page **pages, size_t size, size_t off)
+{
+	size_t i, nr = DIV_ROUND_UP(size + (off & ~PAGE_MASK), PAGE_SIZE);
+
+	for (i = 0; i < nr; i++)
+		put_page(pages[i]);
+}
+
+#define PAGE_PTRS_PER_BVEC     (sizeof(struct bio_vec) / sizeof(struct page *))
+
+>>>>>>> upstream/android-13
 /**
  * __bio_iov_iter_get_pages - pin user or kernel pages and add them to a bio
  * @bio: bio to add pages to
@@ -844,6 +1675,7 @@ EXPORT_SYMBOL(bio_add_page);
  * Pins pages from *iter and appends them to @bio's bvec array. The
  * pages will have to be released using put_page() when done.
  * For multi-segment *iter, this function only adds pages from the
+<<<<<<< HEAD
  * the next non-empty segment of the iov iterator.
  */
 static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
@@ -880,10 +1712,57 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
 	bv[0].bv_len -= offset;
 	bv[nr_pages - 1].bv_len -= nr_pages * PAGE_SIZE - offset - size;
 
+=======
+ * next non-empty segment of the iov iterator.
+ */
+static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+{
+	unsigned short nr_pages = bio->bi_max_vecs - bio->bi_vcnt;
+	unsigned short entries_left = bio->bi_max_vecs - bio->bi_vcnt;
+	unsigned int bytes_left = BIO_MAX_BYTES - bio->bi_iter.bi_size;
+	struct bio_vec *bv = bio->bi_io_vec + bio->bi_vcnt;
+	struct page **pages = (struct page **)bv;
+	bool same_page = false;
+	ssize_t size, left;
+	unsigned len, i;
+	size_t offset;
+
+	/*
+	 * Move page array up in the allocated memory for the bio vecs as far as
+	 * possible so that we can start filling biovecs from the beginning
+	 * without overwriting the temporary page array.
+	*/
+	BUILD_BUG_ON(PAGE_PTRS_PER_BVEC < 2);
+	pages += entries_left * (PAGE_PTRS_PER_BVEC - 1);
+
+	size = iov_iter_get_pages(iter, pages, bytes_left, nr_pages, &offset);
+	if (unlikely(size <= 0))
+		return size ? size : -EFAULT;
+
+	for (left = size, i = 0; left > 0; left -= len, i++) {
+		struct page *page = pages[i];
+
+		len = min_t(size_t, PAGE_SIZE - offset, left);
+
+		if (__bio_try_merge_page(bio, page, len, offset, &same_page)) {
+			if (same_page)
+				put_page(page);
+		} else {
+			if (WARN_ON_ONCE(bio_full(bio, len))) {
+				bio_put_pages(pages + i, left, offset);
+				return -EINVAL;
+			}
+			__bio_add_page(bio, page, len, offset);
+		}
+		offset = 0;
+	}
+
+>>>>>>> upstream/android-13
 	iov_iter_advance(iter, size);
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * bio_iov_iter_get_pages - pin user or kernel pages and add them to a bio
  * @bio: bio to add pages to
@@ -909,6 +1788,100 @@ int bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
 	} while (iov_iter_count(iter) && !bio_full(bio));
 
 	return 0;
+=======
+static int __bio_iov_append_get_pages(struct bio *bio, struct iov_iter *iter)
+{
+	unsigned short nr_pages = bio->bi_max_vecs - bio->bi_vcnt;
+	unsigned short entries_left = bio->bi_max_vecs - bio->bi_vcnt;
+	unsigned int bytes_left = BIO_MAX_BYTES - bio->bi_iter.bi_size;
+	struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+	unsigned int max_append_sectors = queue_max_zone_append_sectors(q);
+	struct bio_vec *bv = bio->bi_io_vec + bio->bi_vcnt;
+	struct page **pages = (struct page **)bv;
+	ssize_t size, left;
+	unsigned len, i;
+	size_t offset;
+	int ret = 0;
+
+	if (WARN_ON_ONCE(!max_append_sectors))
+		return 0;
+
+	/*
+	 * Move page array up in the allocated memory for the bio vecs as far as
+	 * possible so that we can start filling biovecs from the beginning
+	 * without overwriting the temporary page array.
+	 */
+	BUILD_BUG_ON(PAGE_PTRS_PER_BVEC < 2);
+	pages += entries_left * (PAGE_PTRS_PER_BVEC - 1);
+
+	size = iov_iter_get_pages(iter, pages, bytes_left, nr_pages, &offset);
+	if (unlikely(size <= 0))
+		return size ? size : -EFAULT;
+
+	for (left = size, i = 0; left > 0; left -= len, i++) {
+		struct page *page = pages[i];
+		bool same_page = false;
+
+		len = min_t(size_t, PAGE_SIZE - offset, left);
+		if (bio_add_hw_page(q, bio, page, len, offset,
+				max_append_sectors, &same_page) != len) {
+			bio_put_pages(pages + i, left, offset);
+			ret = -EINVAL;
+			break;
+		}
+		if (same_page)
+			put_page(page);
+		offset = 0;
+	}
+
+	iov_iter_advance(iter, size - left);
+	return ret;
+}
+
+/**
+ * bio_iov_iter_get_pages - add user or kernel pages to a bio
+ * @bio: bio to add pages to
+ * @iter: iov iterator describing the region to be added
+ *
+ * This takes either an iterator pointing to user memory, or one pointing to
+ * kernel pages (BVEC iterator). If we're adding user pages, we pin them and
+ * map them into the kernel. On IO completion, the caller should put those
+ * pages. For bvec based iterators bio_iov_iter_get_pages() uses the provided
+ * bvecs rather than copying them. Hence anyone issuing kiocb based IO needs
+ * to ensure the bvecs and pages stay referenced until the submitted I/O is
+ * completed by a call to ->ki_complete() or returns with an error other than
+ * -EIOCBQUEUED. The caller needs to check if the bio is flagged BIO_NO_PAGE_REF
+ * on IO completion. If it isn't, then pages should be released.
+ *
+ * The function tries, but does not guarantee, to pin as many pages as
+ * fit into the bio, or are requested in @iter, whatever is smaller. If
+ * MM encounters an error pinning the requested pages, it stops. Error
+ * is returned only if 0 pages could be pinned.
+ *
+ * It's intended for direct IO, so doesn't do PSI tracking, the caller is
+ * responsible for setting BIO_WORKINGSET if necessary.
+ */
+int bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+{
+	int ret = 0;
+
+	if (iov_iter_is_bvec(iter)) {
+		if (bio_op(bio) == REQ_OP_ZONE_APPEND)
+			return bio_iov_bvec_set_append(bio, iter);
+		return bio_iov_bvec_set(bio, iter);
+	}
+
+	do {
+		if (bio_op(bio) == REQ_OP_ZONE_APPEND)
+			ret = __bio_iov_append_get_pages(bio, iter);
+		else
+			ret = __bio_iov_iter_get_pages(bio, iter);
+	} while (!ret && iov_iter_count(iter) && !bio_full(bio, 0));
+
+	/* don't account direct I/O as memory stall */
+	bio_clear_flag(bio, BIO_WORKINGSET);
+	return bio->bi_vcnt ? 0 : ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(bio_iov_iter_get_pages);
 
@@ -930,13 +1903,31 @@ static void submit_bio_wait_endio(struct bio *bio)
  */
 int submit_bio_wait(struct bio *bio)
 {
+<<<<<<< HEAD
 	DECLARE_COMPLETION_ONSTACK_MAP(done, bio->bi_disk->lockdep_map);
+=======
+	DECLARE_COMPLETION_ONSTACK_MAP(done,
+			bio->bi_bdev->bd_disk->lockdep_map);
+	unsigned long hang_check;
+>>>>>>> upstream/android-13
 
 	bio->bi_private = &done;
 	bio->bi_end_io = submit_bio_wait_endio;
 	bio->bi_opf |= REQ_SYNC;
 	submit_bio(bio);
+<<<<<<< HEAD
 	wait_for_completion_io(&done);
+=======
+
+	/* Prevent hang_check timer from firing at us during very long I/O */
+	hang_check = sysctl_hung_task_timeout_secs;
+	if (hang_check)
+		while (!wait_for_completion_io_timeout(&done,
+					hang_check * (HZ/2)))
+			;
+	else
+		wait_for_completion_io(&done);
+>>>>>>> upstream/android-13
 
 	return blk_status_to_errno(bio->bi_status);
 }
@@ -966,6 +1957,7 @@ EXPORT_SYMBOL(bio_advance);
 void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
 			struct bio *src, struct bvec_iter *src_iter)
 {
+<<<<<<< HEAD
 	struct bio_vec src_bv, dst_bv;
 	void *src_p, *dst_p;
 	unsigned bytes;
@@ -990,6 +1982,20 @@ void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
 
 		bio_advance_iter(src, src_iter, bytes);
 		bio_advance_iter(dst, dst_iter, bytes);
+=======
+	while (src_iter->bi_size && dst_iter->bi_size) {
+		struct bio_vec src_bv = bio_iter_iovec(src, *src_iter);
+		struct bio_vec dst_bv = bio_iter_iovec(dst, *dst_iter);
+		unsigned int bytes = min(src_bv.bv_len, dst_bv.bv_len);
+		void *src_buf;
+
+		src_buf = bvec_kmap_local(&src_bv);
+		memcpy_to_bvec(&dst_bv, src_buf);
+		kunmap_local(src_buf);
+
+		bio_advance_iter_single(src, src_iter, bytes);
+		bio_advance_iter_single(dst, dst_iter, bytes);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(bio_copy_data_iter);
@@ -1011,6 +2017,7 @@ void bio_copy_data(struct bio *dst, struct bio *src)
 }
 EXPORT_SYMBOL(bio_copy_data);
 
+<<<<<<< HEAD
 /**
  * bio_list_copy_data - copy contents of data buffers from one chain of bios to
  * another
@@ -1139,10 +2146,19 @@ void bio_free_pages(struct bio *bio)
 	int i;
 
 	bio_for_each_segment_all(bvec, bio, i)
+=======
+void bio_free_pages(struct bio *bio)
+{
+	struct bio_vec *bvec;
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bvec, bio, iter_all)
+>>>>>>> upstream/android-13
 		__free_page(bvec->bv_page);
 }
 EXPORT_SYMBOL(bio_free_pages);
 
+<<<<<<< HEAD
 /**
  *	bio_uncopy_user	-	finish previously mapped bio
  *	@bio: bio being terminated
@@ -1566,6 +2582,8 @@ cleanup:
 	return ERR_PTR(-ENOMEM);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * bio_set_pages_dirty() and bio_check_pages_dirty() are support functions
  * for performing direct-IO in BIOs.
@@ -1598,13 +2616,20 @@ cleanup:
 void bio_set_pages_dirty(struct bio *bio)
 {
 	struct bio_vec *bvec;
+<<<<<<< HEAD
 	int i;
 
 	bio_for_each_segment_all(bvec, bio, i) {
+=======
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bvec, bio, iter_all) {
+>>>>>>> upstream/android-13
 		if (!PageCompound(bvec->bv_page))
 			set_page_dirty_lock(bvec->bv_page);
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(bio_set_pages_dirty);
 
 static void bio_release_pages(struct bio *bio)
@@ -1615,6 +2640,8 @@ static void bio_release_pages(struct bio *bio)
 	bio_for_each_segment_all(bvec, bio, i)
 		put_page(bvec->bv_page);
 }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * bio_check_pages_dirty() will check that all the BIO's pages are still dirty.
@@ -1648,8 +2675,12 @@ static void bio_dirty_fn(struct work_struct *work)
 	while ((bio = next) != NULL) {
 		next = bio->bi_private;
 
+<<<<<<< HEAD
 		bio_set_pages_dirty(bio);
 		bio_release_pages(bio);
+=======
+		bio_release_pages(bio, true);
+>>>>>>> upstream/android-13
 		bio_put(bio);
 	}
 }
@@ -1658,14 +2689,24 @@ void bio_check_pages_dirty(struct bio *bio)
 {
 	struct bio_vec *bvec;
 	unsigned long flags;
+<<<<<<< HEAD
 	int i;
 
 	bio_for_each_segment_all(bvec, bio, i) {
+=======
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bvec, bio, iter_all) {
+>>>>>>> upstream/android-13
 		if (!PageDirty(bvec->bv_page) && !PageCompound(bvec->bv_page))
 			goto defer;
 	}
 
+<<<<<<< HEAD
 	bio_release_pages(bio);
+=======
+	bio_release_pages(bio, false);
+>>>>>>> upstream/android-13
 	bio_put(bio);
 	return;
 defer:
@@ -1675,6 +2716,7 @@ defer:
 	spin_unlock_irqrestore(&bio_dirty_lock, flags);
 	schedule_work(&bio_dirty_work);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(bio_check_pages_dirty);
 
 void generic_start_io_acct(struct request_queue *q, int op,
@@ -1718,6 +2760,8 @@ void bio_flush_dcache_pages(struct bio *bi)
 }
 EXPORT_SYMBOL(bio_flush_dcache_pages);
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static inline bool bio_remaining_done(struct bio *bio)
 {
@@ -1749,14 +2793,19 @@ static inline bool bio_remaining_done(struct bio *bio)
  *
  *   bio_endio() can be called several times on a bio that has been chained
  *   using bio_chain().  The ->bi_end_io() function will only be called the
+<<<<<<< HEAD
  *   last time.  At this point the BLK_TA_COMPLETE tracing event will be
  *   generated if BIO_TRACE_COMPLETION is set.
+=======
+ *   last time.
+>>>>>>> upstream/android-13
  **/
 void bio_endio(struct bio *bio)
 {
 again:
 	if (!bio_remaining_done(bio))
 		return;
+<<<<<<< HEAD
 
 	if (!blk_crypto_endio(bio))
 		return;
@@ -1766,6 +2815,18 @@ again:
 
 	if (bio->bi_disk)
 		rq_qos_done_bio(bio->bi_disk->queue, bio);
+=======
+	if (!bio_integrity_endio(bio))
+		return;
+
+	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACKED))
+		rq_qos_done_bio(bio->bi_bdev->bd_disk->queue, bio);
+
+	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
+		trace_block_bio_complete(bio->bi_bdev->bd_disk->queue, bio);
+		bio_clear_flag(bio, BIO_TRACE_COMPLETION);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Need to have a real endio function for chained bios, otherwise
@@ -1780,12 +2841,15 @@ again:
 		goto again;
 	}
 
+<<<<<<< HEAD
 	if (bio->bi_disk && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
 		trace_block_bio_complete(bio->bi_disk->queue, bio,
 					 blk_status_to_errno(bio->bi_status));
 		bio_clear_flag(bio, BIO_TRACE_COMPLETION);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	blk_throtl_bio_endio(bio);
 	/* release cgroup info */
 	bio_uninit(bio);
@@ -1805,8 +2869,13 @@ EXPORT_SYMBOL(bio_endio);
  * @bio, and updates @bio to represent the remaining sectors.
  *
  * Unless this is a discard request the newly allocated bio will point
+<<<<<<< HEAD
  * to @bio's bi_io_vec; it is the caller's responsibility to ensure that
  * @bio is not freed before the split.
+=======
+ * to @bio's bi_io_vec. It is the caller's responsibility to ensure that
+ * neither @bio nor @bs are freed before the split bio.
+>>>>>>> upstream/android-13
  */
 struct bio *bio_split(struct bio *bio, int sectors,
 		      gfp_t gfp, struct bio_set *bs)
@@ -1816,6 +2885,13 @@ struct bio *bio_split(struct bio *bio, int sectors,
 	BUG_ON(sectors <= 0);
 	BUG_ON(sectors >= bio_sectors(bio));
 
+<<<<<<< HEAD
+=======
+	/* Zone append commands cannot be split */
+	if (WARN_ON_ONCE(bio_op(bio) == REQ_OP_ZONE_APPEND))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	split = bio_clone_fast(bio, gfp, bs);
 	if (!split)
 		return NULL;
@@ -1826,7 +2902,10 @@ struct bio *bio_split(struct bio *bio, int sectors,
 		bio_integrity_trim(split);
 
 	bio_advance(bio, split->bi_iter.bi_size);
+<<<<<<< HEAD
 	bio->bi_iter.bi_done = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (bio_flagged(bio, BIO_TRACE_COMPLETION))
 		bio_set_flag(split, BIO_TRACE_COMPLETION);
@@ -1840,26 +2919,45 @@ EXPORT_SYMBOL(bio_split);
  * @bio:	bio to trim
  * @offset:	number of sectors to trim from the front of @bio
  * @size:	size we want to trim @bio to, in sectors
+<<<<<<< HEAD
  */
 void bio_trim(struct bio *bio, int offset, int size)
 {
 	/* 'bio' is a cloned bio which we need to trim to match
 	 * the given offset and size.
 	 */
+=======
+ *
+ * This function is typically used for bios that are cloned and submitted
+ * to the underlying device in parts.
+ */
+void bio_trim(struct bio *bio, sector_t offset, sector_t size)
+{
+	if (WARN_ON_ONCE(offset > BIO_MAX_SECTORS || size > BIO_MAX_SECTORS ||
+			 offset + size > bio_sectors(bio)))
+		return;
+>>>>>>> upstream/android-13
 
 	size <<= 9;
 	if (offset == 0 && size == bio->bi_iter.bi_size)
 		return;
 
+<<<<<<< HEAD
 	bio_clear_flag(bio, BIO_SEG_VALID);
 
 	bio_advance(bio, offset << 9);
 
+=======
+	bio_advance(bio, offset << 9);
+>>>>>>> upstream/android-13
 	bio->bi_iter.bi_size = size;
 
 	if (bio_integrity(bio))
 		bio_integrity_trim(bio);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(bio_trim);
 
@@ -1869,7 +2967,11 @@ EXPORT_SYMBOL_GPL(bio_trim);
  */
 int biovec_init_pool(mempool_t *pool, int pool_entries)
 {
+<<<<<<< HEAD
 	struct biovec_slab *bp = bvec_slabs + BVEC_POOL_MAX;
+=======
+	struct biovec_slab *bp = bvec_slabs + ARRAY_SIZE(bvec_slabs) - 1;
+>>>>>>> upstream/android-13
 
 	return mempool_init_slab_pool(pool, pool_entries, bp->slab);
 }
@@ -1882,6 +2984,10 @@ int biovec_init_pool(mempool_t *pool, int pool_entries)
  */
 void bioset_exit(struct bio_set *bs)
 {
+<<<<<<< HEAD
+=======
+	bio_alloc_cache_destroy(bs);
+>>>>>>> upstream/android-13
 	if (bs->rescue_workqueue)
 		destroy_workqueue(bs->rescue_workqueue);
 	bs->rescue_workqueue = NULL;
@@ -1922,15 +3028,27 @@ int bioset_init(struct bio_set *bs,
 		unsigned int front_pad,
 		int flags)
 {
+<<<<<<< HEAD
 	unsigned int back_pad = BIO_INLINE_VECS * sizeof(struct bio_vec);
 
 	bs->front_pad = front_pad;
+=======
+	bs->front_pad = front_pad;
+	if (flags & BIOSET_NEED_BVECS)
+		bs->back_pad = BIO_INLINE_VECS * sizeof(struct bio_vec);
+	else
+		bs->back_pad = 0;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&bs->rescue_lock);
 	bio_list_init(&bs->rescue_list);
 	INIT_WORK(&bs->rescue_work, bio_alloc_rescue);
 
+<<<<<<< HEAD
 	bs->bio_slab = bio_find_or_create_slab(front_pad + back_pad);
+=======
+	bs->bio_slab = bio_find_or_create_slab(bs);
+>>>>>>> upstream/android-13
 	if (!bs->bio_slab)
 		return -ENOMEM;
 
@@ -1941,12 +3059,27 @@ int bioset_init(struct bio_set *bs,
 	    biovec_init_pool(&bs->bvec_pool, pool_size))
 		goto bad;
 
+<<<<<<< HEAD
 	if (!(flags & BIOSET_NEED_RESCUER))
 		return 0;
 
 	bs->rescue_workqueue = alloc_workqueue("bioset", WQ_MEM_RECLAIM, 0);
 	if (!bs->rescue_workqueue)
 		goto bad;
+=======
+	if (flags & BIOSET_NEED_RESCUER) {
+		bs->rescue_workqueue = alloc_workqueue("bioset",
+							WQ_MEM_RECLAIM, 0);
+		if (!bs->rescue_workqueue)
+			goto bad;
+	}
+	if (flags & BIOSET_PERCPU_CACHE) {
+		bs->cache = alloc_percpu(struct bio_alloc_cache);
+		if (!bs->cache)
+			goto bad;
+		cpuhp_state_add_instance_nocalls(CPUHP_BIO_DEAD, &bs->cpuhp_dead);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 bad:
@@ -1973,6 +3106,7 @@ int bioset_init_from_src(struct bio_set *bs, struct bio_set *src)
 }
 EXPORT_SYMBOL(bioset_init_from_src);
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_CGROUP
 
 #ifdef CONFIG_MEMCG
@@ -2103,6 +3237,64 @@ static int __init init_bio(void)
 
 	bio_integrity_init();
 	biovec_init_slabs();
+=======
+/**
+ * bio_alloc_kiocb - Allocate a bio from bio_set based on kiocb
+ * @kiocb:	kiocb describing the IO
+ * @nr_vecs:	number of iovecs to pre-allocate
+ * @bs:		bio_set to allocate from
+ *
+ * Description:
+ *    Like @bio_alloc_bioset, but pass in the kiocb. The kiocb is only
+ *    used to check if we should dip into the per-cpu bio_set allocation
+ *    cache. The allocation uses GFP_KERNEL internally. On return, the
+ *    bio is marked BIO_PERCPU_CACHEABLE, and the final put of the bio
+ *    MUST be done from process context, not hard/soft IRQ.
+ *
+ */
+struct bio *bio_alloc_kiocb(struct kiocb *kiocb, unsigned short nr_vecs,
+			    struct bio_set *bs)
+{
+	struct bio_alloc_cache *cache;
+	struct bio *bio;
+
+	if (!(kiocb->ki_flags & IOCB_ALLOC_CACHE) || nr_vecs > BIO_INLINE_VECS)
+		return bio_alloc_bioset(GFP_KERNEL, nr_vecs, bs);
+
+	cache = per_cpu_ptr(bs->cache, get_cpu());
+	bio = bio_list_pop(&cache->free_list);
+	if (bio) {
+		cache->nr--;
+		put_cpu();
+		bio_init(bio, nr_vecs ? bio->bi_inline_vecs : NULL, nr_vecs);
+		bio->bi_pool = bs;
+		bio_set_flag(bio, BIO_PERCPU_CACHE);
+		return bio;
+	}
+	put_cpu();
+	bio = bio_alloc_bioset(GFP_KERNEL, nr_vecs, bs);
+	bio_set_flag(bio, BIO_PERCPU_CACHE);
+	return bio;
+}
+EXPORT_SYMBOL_GPL(bio_alloc_kiocb);
+
+static int __init init_bio(void)
+{
+	int i;
+
+	bio_integrity_init();
+
+	for (i = 0; i < ARRAY_SIZE(bvec_slabs); i++) {
+		struct biovec_slab *bvs = bvec_slabs + i;
+
+		bvs->slab = kmem_cache_create(bvs->name,
+				bvs->nr_vecs * sizeof(struct bio_vec), 0,
+				SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL);
+	}
+
+	cpuhp_setup_state_multi(CPUHP_BIO_DEAD, "block/bio:dead", NULL,
+					bio_cpu_dead);
+>>>>>>> upstream/android-13
 
 	if (bioset_init(&fs_bio_set, BIO_POOL_SIZE, 0, BIOSET_NEED_BVECS))
 		panic("bio: can't allocate bios\n");

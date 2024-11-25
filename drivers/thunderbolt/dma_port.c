@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Thunderbolt DMA configuration based mailbox support
  *
  * Copyright (C) 2017, Intel Corporation
  * Authors: Michael Jamet <michael.jamet@intel.com>
  *          Mika Westerberg <mika.westerberg@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -302,6 +309,7 @@ static int dma_port_request(struct tb_dma_port *dma, u32 in,
 	return status_to_errno(out);
 }
 
+<<<<<<< HEAD
 static int dma_port_flash_read_block(struct tb_dma_port *dma, u32 address,
 				     void *buf, u32 size)
 {
@@ -311,6 +319,15 @@ static int dma_port_flash_read_block(struct tb_dma_port *dma, u32 address,
 
 	dwaddress = address / 4;
 	dwords = size / 4;
+=======
+static int dma_port_flash_read_block(void *data, unsigned int dwaddress,
+				     void *buf, size_t dwords)
+{
+	struct tb_dma_port *dma = data;
+	struct tb_switch *sw = dma->sw;
+	int ret;
+	u32 in;
+>>>>>>> upstream/android-13
 
 	in = MAIL_IN_CMD_FLASH_READ << MAIL_IN_CMD_SHIFT;
 	if (dwords < MAIL_DATA_DWORDS)
@@ -326,6 +343,7 @@ static int dma_port_flash_read_block(struct tb_dma_port *dma, u32 address,
 			     dma->base + MAIL_DATA, dwords, DMA_PORT_TIMEOUT);
 }
 
+<<<<<<< HEAD
 static int dma_port_flash_write_block(struct tb_dma_port *dma, u32 address,
 				      const void *buf, u32 size)
 {
@@ -334,20 +352,39 @@ static int dma_port_flash_write_block(struct tb_dma_port *dma, u32 address,
 	int ret;
 
 	dwords = size / 4;
+=======
+static int dma_port_flash_write_block(void *data, unsigned int dwaddress,
+				      const void *buf, size_t dwords)
+{
+	struct tb_dma_port *dma = data;
+	struct tb_switch *sw = dma->sw;
+	int ret;
+	u32 in;
+>>>>>>> upstream/android-13
 
 	/* Write the block to MAIL_DATA registers */
 	ret = dma_port_write(sw->tb->ctl, buf, tb_route(sw), dma->port,
 			    dma->base + MAIL_DATA, dwords, DMA_PORT_TIMEOUT);
+<<<<<<< HEAD
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	in = MAIL_IN_CMD_FLASH_WRITE << MAIL_IN_CMD_SHIFT;
 
 	/* CSS header write is always done to the same magic address */
+<<<<<<< HEAD
 	if (address >= DMA_PORT_CSS_ADDRESS) {
 		dwaddress = DMA_PORT_CSS_ADDRESS;
 		in |= MAIL_IN_CSS;
 	} else {
 		dwaddress = address / 4;
 	}
+=======
+	if (dwaddress >= DMA_PORT_CSS_ADDRESS)
+		in |= MAIL_IN_CSS;
+>>>>>>> upstream/android-13
 
 	in |= ((dwords - 1) << MAIL_IN_DWORDS_SHIFT) & MAIL_IN_DWORDS_MASK;
 	in |= (dwaddress << MAIL_IN_ADDRESS_SHIFT) & MAIL_IN_ADDRESS_MASK;
@@ -366,6 +403,7 @@ static int dma_port_flash_write_block(struct tb_dma_port *dma, u32 address,
 int dma_port_flash_read(struct tb_dma_port *dma, unsigned int address,
 			void *buf, size_t size)
 {
+<<<<<<< HEAD
 	unsigned int retries = DMA_PORT_RETRIES;
 	unsigned int offset;
 
@@ -395,6 +433,10 @@ int dma_port_flash_read(struct tb_dma_port *dma, unsigned int address,
 	} while (size > 0);
 
 	return 0;
+=======
+	return tb_nvm_read_data(address, buf, size, DMA_PORT_RETRIES,
+				dma_port_flash_read_block, dma);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -411,6 +453,7 @@ int dma_port_flash_read(struct tb_dma_port *dma, unsigned int address,
 int dma_port_flash_write(struct tb_dma_port *dma, unsigned int address,
 			 const void *buf, size_t size)
 {
+<<<<<<< HEAD
 	unsigned int retries = DMA_PORT_RETRIES;
 	unsigned int offset;
 
@@ -445,6 +488,13 @@ int dma_port_flash_write(struct tb_dma_port *dma, unsigned int address,
 	} while (size > 0);
 
 	return 0;
+=======
+	if (address >= DMA_PORT_CSS_ADDRESS && size > DMA_PORT_CSS_MAX_SIZE)
+		return -E2BIG;
+
+	return tb_nvm_write_data(address, buf, size, DMA_PORT_RETRIES,
+				 dma_port_flash_write_block, dma);
+>>>>>>> upstream/android-13
 }
 
 /**

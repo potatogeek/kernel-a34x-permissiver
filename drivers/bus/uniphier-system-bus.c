@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -185,7 +191,10 @@ static int uniphier_system_bus_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct uniphier_system_bus_priv *priv;
+<<<<<<< HEAD
 	struct resource *regs;
+=======
+>>>>>>> upstream/android-13
 	const __be32 *ranges;
 	u32 cells, addr, size;
 	u64 paddr;
@@ -195,8 +204,12 @@ static int uniphier_system_bus_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->membase = devm_ioremap_resource(dev, regs);
+=======
+	priv->membase = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->membase))
 		return PTR_ERR(priv->membase);
 

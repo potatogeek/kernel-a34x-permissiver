@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -271,14 +275,22 @@ restart:
 				continue;
 			tw = inet_twsk(sk);
 			if ((tw->tw_family != family) ||
+<<<<<<< HEAD
 				refcount_read(&twsk_net(tw)->count))
+=======
+				refcount_read(&twsk_net(tw)->ns.count))
+>>>>>>> upstream/android-13
 				continue;
 
 			if (unlikely(!refcount_inc_not_zero(&tw->tw_refcnt)))
 				continue;
 
 			if (unlikely((tw->tw_family != family) ||
+<<<<<<< HEAD
 				     refcount_read(&twsk_net(tw)->count))) {
+=======
+				     refcount_read(&twsk_net(tw)->ns.count))) {
+>>>>>>> upstream/android-13
 				inet_twsk_put(tw);
 				goto restart;
 			}

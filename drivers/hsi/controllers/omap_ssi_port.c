@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* OMAP SSI port driver.
  *
  * Copyright (C) 2010 Nokia Corporation. All rights reserved.
  * Copyright (C) 2014 Sebastian Reichel <sre@kernel.org>
  *
  * Contact: Carlos Chinea <carlos.chinea@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mod_devicetable.h>
@@ -57,7 +64,11 @@ static void ssi_debug_remove_port(struct hsi_port *port)
 	debugfs_remove_recursive(omap_port->dir);
 }
 
+<<<<<<< HEAD
 static int ssi_debug_port_show(struct seq_file *m, void *p __maybe_unused)
+=======
+static int ssi_port_regs_show(struct seq_file *m, void *p __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	struct hsi_port *port = m->private;
 	struct omap_ssi_port *omap_port = hsi_port_drvdata(port);
@@ -132,6 +143,7 @@ static int ssi_debug_port_show(struct seq_file *m, void *p __maybe_unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ssi_port_regs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, ssi_debug_port_show, inode->i_private);
@@ -143,6 +155,9 @@ static const struct file_operations ssi_port_regs_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(ssi_port_regs);
+>>>>>>> upstream/android-13
 
 static int ssi_div_get(void *data, u64 *val)
 {
@@ -172,7 +187,11 @@ static int ssi_div_set(void *data, u64 val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(ssi_sst_div_fops, ssi_div_get, ssi_div_set, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(ssi_sst_div_fops, ssi_div_get, ssi_div_set, "%llu\n");
+>>>>>>> upstream/android-13
 
 static int ssi_debug_add_port(struct omap_ssi_port *omap_port,
 				     struct dentry *dir)
@@ -187,8 +206,13 @@ static int ssi_debug_add_port(struct omap_ssi_port *omap_port,
 	dir = debugfs_create_dir("sst", dir);
 	if (!dir)
 		return -ENOMEM;
+<<<<<<< HEAD
 	debugfs_create_file("divisor", S_IRUGO | S_IWUSR, dir, port,
 			    &ssi_sst_div_fops);
+=======
+	debugfs_create_file_unsafe("divisor", 0644, dir, port,
+				   &ssi_sst_div_fops);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1061,10 +1085,15 @@ static int ssi_port_irq(struct hsi_port *port, struct platform_device *pd)
 	int err;
 
 	err = platform_get_irq(pd, 0);
+<<<<<<< HEAD
 	if (err < 0) {
 		dev_err(&port->device, "Port IRQ resource missing\n");
 		return err;
 	}
+=======
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	omap_port->irq = err;
 	err = devm_request_threaded_irq(&port->device, omap_port->irq, NULL,
 				ssi_pio_thread, IRQF_ONESHOT, "SSI PORT", port);

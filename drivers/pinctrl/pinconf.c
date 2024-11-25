@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Core driver for the pin config portions of the pin control subsystem
  *
@@ -5,8 +9,11 @@
  * Written on behalf of Linaro for ST-Ericsson
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) "pinconfig core: " fmt
 
@@ -17,7 +24,10 @@
 #include <linux/slab.h>
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
 #include <linux/uaccess.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/machine.h>
 #include <linux/pinctrl/pinctrl.h>
 #include <linux/pinctrl/pinconf.h>
@@ -366,6 +376,7 @@ static int pinconf_groups_show(struct seq_file *s, void *what)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pinconf_pins_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, pinconf_pins_show, inode->i_private);
@@ -608,16 +619,27 @@ static const struct file_operations pinconf_dbg_pinconfig_fops = {
 	.release = single_release,
 	.owner = THIS_MODULE,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(pinconf_pins);
+DEFINE_SHOW_ATTRIBUTE(pinconf_groups);
+>>>>>>> upstream/android-13
 
 void pinconf_init_device_debugfs(struct dentry *devroot,
 			 struct pinctrl_dev *pctldev)
 {
+<<<<<<< HEAD
 	debugfs_create_file("pinconf-pins", S_IFREG | S_IRUGO,
 			    devroot, pctldev, &pinconf_pins_ops);
 	debugfs_create_file("pinconf-groups", S_IFREG | S_IRUGO,
 			    devroot, pctldev, &pinconf_groups_ops);
 	debugfs_create_file("pinconf-config",  (S_IRUGO | S_IWUSR | S_IWGRP),
 			    devroot, pctldev, &pinconf_dbg_pinconfig_fops);
+=======
+	debugfs_create_file("pinconf-pins", 0444,
+			    devroot, pctldev, &pinconf_pins_fops);
+	debugfs_create_file("pinconf-groups", 0444,
+			    devroot, pctldev, &pinconf_groups_fops);
+>>>>>>> upstream/android-13
 }
 
 #endif

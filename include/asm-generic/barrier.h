@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Generic barrier definitions.
  *
@@ -6,11 +10,14 @@
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_GENERIC_BARRIER_H
 #define __ASM_GENERIC_BARRIER_H
@@ -18,6 +25,10 @@
 #ifndef __ASSEMBLY__
 
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <asm/rwonce.h>
+>>>>>>> upstream/android-13
 
 #ifndef nop
 #define nop()	asm volatile ("nop")
@@ -50,10 +61,13 @@
 #define dma_wmb()	wmb()
 #endif
 
+<<<<<<< HEAD
 #ifndef read_barrier_depends
 #define read_barrier_depends()		do { } while (0)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __smp_mb
 #define __smp_mb()	mb()
 #endif
@@ -66,10 +80,13 @@
 #define __smp_wmb()	wmb()
 #endif
 
+<<<<<<< HEAD
 #ifndef __smp_read_barrier_depends
 #define __smp_read_barrier_depends()	read_barrier_depends()
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SMP
 
 #ifndef smp_mb
@@ -84,10 +101,13 @@
 #define smp_wmb()	__smp_wmb()
 #endif
 
+<<<<<<< HEAD
 #ifndef smp_read_barrier_depends
 #define smp_read_barrier_depends()	__smp_read_barrier_depends()
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #else	/* !CONFIG_SMP */
 
 #ifndef smp_mb
@@ -102,10 +122,13 @@
 #define smp_wmb()	barrier()
 #endif
 
+<<<<<<< HEAD
 #ifndef smp_read_barrier_depends
 #define smp_read_barrier_depends()	do { } while (0)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_SMP */
 
 #ifndef __smp_store_mb
@@ -132,10 +155,17 @@ do {									\
 #ifndef __smp_load_acquire
 #define __smp_load_acquire(p)						\
 ({									\
+<<<<<<< HEAD
 	typeof(*p) ___p1 = READ_ONCE(*p);				\
 	compiletime_assert_atomic_type(*p);				\
 	__smp_mb();							\
 	___p1;								\
+=======
+	__unqual_scalar_typeof(*p) ___p1 = READ_ONCE(*p);		\
+	compiletime_assert_atomic_type(*p);				\
+	__smp_mb();							\
+	(typeof(*p))___p1;						\
+>>>>>>> upstream/android-13
 })
 #endif
 
@@ -187,10 +217,17 @@ do {									\
 #ifndef smp_load_acquire
 #define smp_load_acquire(p)						\
 ({									\
+<<<<<<< HEAD
 	typeof(*p) ___p1 = READ_ONCE(*p);				\
 	compiletime_assert_atomic_type(*p);				\
 	barrier();							\
 	___p1;								\
+=======
+	__unqual_scalar_typeof(*p) ___p1 = READ_ONCE(*p);		\
+	compiletime_assert_atomic_type(*p);				\
+	barrier();							\
+	(typeof(*p))___p1;						\
+>>>>>>> upstream/android-13
 })
 #endif
 
@@ -200,7 +237,10 @@ do {									\
 #define virt_mb() __smp_mb()
 #define virt_rmb() __smp_rmb()
 #define virt_wmb() __smp_wmb()
+<<<<<<< HEAD
 #define virt_read_barrier_depends() __smp_read_barrier_depends()
+=======
+>>>>>>> upstream/android-13
 #define virt_store_mb(var, value) __smp_store_mb(var, value)
 #define virt_mb__before_atomic() __smp_mb__before_atomic()
 #define virt_mb__after_atomic()	__smp_mb__after_atomic()
@@ -233,14 +273,22 @@ do {									\
 #ifndef smp_cond_load_relaxed
 #define smp_cond_load_relaxed(ptr, cond_expr) ({		\
 	typeof(ptr) __PTR = (ptr);				\
+<<<<<<< HEAD
 	typeof(*ptr) VAL;					\
+=======
+	__unqual_scalar_typeof(*ptr) VAL;			\
+>>>>>>> upstream/android-13
 	for (;;) {						\
 		VAL = READ_ONCE(*__PTR);			\
 		if (cond_expr)					\
 			break;					\
 		cpu_relax();					\
 	}							\
+<<<<<<< HEAD
 	VAL;							\
+=======
+	(typeof(*ptr))VAL;					\
+>>>>>>> upstream/android-13
 })
 #endif
 
@@ -254,6 +302,7 @@ do {									\
  */
 #ifndef smp_cond_load_acquire
 #define smp_cond_load_acquire(ptr, cond_expr) ({		\
+<<<<<<< HEAD
 	typeof(*ptr) _val;					\
 	_val = smp_cond_load_relaxed(ptr, cond_expr);		\
 	smp_acquire__after_ctrl_dep();				\
@@ -261,5 +310,24 @@ do {									\
 })
 #endif
 
+=======
+	__unqual_scalar_typeof(*ptr) _val;			\
+	_val = smp_cond_load_relaxed(ptr, cond_expr);		\
+	smp_acquire__after_ctrl_dep();				\
+	(typeof(*ptr))_val;					\
+})
+#endif
+
+/*
+ * pmem_wmb() ensures that all stores for which the modification
+ * are written to persistent storage by preceding instructions have
+ * updated persistent storage before any data  access or data transfer
+ * caused by subsequent instructions is initiated.
+ */
+#ifndef pmem_wmb
+#define pmem_wmb()	wmb()
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 #endif /* __ASM_GENERIC_BARRIER_H */

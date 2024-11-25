@@ -7,7 +7,11 @@
 #ifndef BTRFS_RAID56_H
 #define BTRFS_RAID56_H
 
+<<<<<<< HEAD
 static inline int nr_parity_stripes(struct map_lookup *map)
+=======
+static inline int nr_parity_stripes(const struct map_lookup *map)
+>>>>>>> upstream/android-13
 {
 	if (map->type & BTRFS_BLOCK_GROUP_RAID5)
 		return 1;
@@ -17,7 +21,11 @@ static inline int nr_parity_stripes(struct map_lookup *map)
 		return 0;
 }
 
+<<<<<<< HEAD
 static inline int nr_data_stripes(struct map_lookup *map)
+=======
+static inline int nr_data_stripes(const struct map_lookup *map)
+>>>>>>> upstream/android-13
 {
 	return map->num_stripes - nr_parity_stripes(map);
 }

@@ -32,7 +32,10 @@
 #include <linux/uaccess.h>
 #include <asm/mpic.h>
 #include <asm/kvm_para.h>
+<<<<<<< HEAD
 #include <asm/kvm_host.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/kvm_ppc.h>
 #include <kvm/iodev.h>
 

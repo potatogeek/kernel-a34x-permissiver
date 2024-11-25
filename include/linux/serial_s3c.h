@@ -27,6 +27,22 @@
 #define S3C2410_UERSTAT	  (0x14)
 #define S3C2410_UFSTAT	  (0x18)
 #define S3C2410_UMSTAT	  (0x1C)
+<<<<<<< HEAD
+=======
+#define S3C2410_UINTP	(0x30)
+#define S3C2410_UINTS	(0x34)
+#define S3C2410_UINTM	(0x38)
+
+#define USI_CON		  (0xC4)
+#define USI_OPTION	  (0xC8)
+
+#define USI_CON_RESET			(1<<0)
+#define USI_CON_RESET_MASK		(1<<0)
+
+#define USI_OPTION_HWACG_CLKREQ_ON	(1<<1)
+#define USI_OPTION_HWACG_CLKSTOP_ON	(1<<2)
+#define USI_OPTION_HWACG_MASK		(3<<1)
+>>>>>>> upstream/android-13
 
 #define S3C2410_LCON_CFGMASK	  ((0xF<<3)|(0x3))
 
@@ -221,6 +237,20 @@
 #define S5PV210_UFCON_RXTRIG64	(5<<4)
 #define S5PV210_UFCON_RXTRIG128	(6<<4)
 #define S5PV210_UFCON_RXTRIG256	(7<<4)
+<<<<<<< HEAD
+=======
+#define S5PV210_UFCON_RXTRIG_SHIFT  (4)
+
+#define S5PV210_UMCON_RTSTRIG255	(0<<5)
+#define S5PV210_UMCON_RTSTRIG224	(1<<5)
+#define S5PV210_UMCON_RTSTRIG192	(2<<5)
+#define S5PV210_UMCON_RTSTRIG160	(3<<5)
+#define S5PV210_UMCON_RTSTRIG128	(4<<5)
+#define S5PV210_UMCON_RTSTRIG96		(5<<5)
+#define S5PV210_UMCON_RTSTRIG64		(6<<5)
+#define S5PV210_UMCON_RTSTRIG32		(7<<5)
+#define S5PV210_UMCON_RTSTRIG_SHIFT	(5)
+>>>>>>> upstream/android-13
 
 #define S5PV210_UFSTAT_TXFULL	(1<<24)
 #define S5PV210_UFSTAT_RXFULL	(1<<8)
@@ -246,17 +276,50 @@
 				 S5PV210_UFCON_TXTRIG4 |	\
 				 S5PV210_UFCON_RXTRIG4)
 
+<<<<<<< HEAD
 #ifndef __ASSEMBLY__
 
 #include <linux/serial_core.h>
+=======
+#define APPLE_S5L_UCON_RXTO_ENA		9
+#define APPLE_S5L_UCON_RXTHRESH_ENA	12
+#define APPLE_S5L_UCON_TXTHRESH_ENA	13
+#define APPLE_S5L_UCON_RXTO_ENA_MSK	(1 << APPLE_S5L_UCON_RXTO_ENA)
+#define APPLE_S5L_UCON_RXTHRESH_ENA_MSK	(1 << APPLE_S5L_UCON_RXTHRESH_ENA)
+#define APPLE_S5L_UCON_TXTHRESH_ENA_MSK	(1 << APPLE_S5L_UCON_TXTHRESH_ENA)
+
+#define APPLE_S5L_UCON_DEFAULT		(S3C2410_UCON_TXIRQMODE | \
+					 S3C2410_UCON_RXIRQMODE | \
+					 S3C2410_UCON_RXFIFO_TOI)
+
+#define APPLE_S5L_UTRSTAT_RXTHRESH	(1<<4)
+#define APPLE_S5L_UTRSTAT_TXTHRESH	(1<<5)
+#define APPLE_S5L_UTRSTAT_RXTO		(1<<9)
+#define APPLE_S5L_UTRSTAT_ALL_FLAGS	(0x3f0)
+
+#ifndef __ASSEMBLY__
+
+#include <linux/serial_core.h>
+struct uart_port;
+unsigned int uart_xmit_size;
+>>>>>>> upstream/android-13
 
 /* configuration structure for per-machine configurations for the
  * serial port
  *
  * the pointer is setup by the machine specific initialisation from the
+<<<<<<< HEAD
  * arch/arm/mach-s3c2410/ directory.
 */
 
+=======
+ * arch/arm/mach-s3c/ directory.
+*/
+
+typedef void (*s3c_wake_peer_t)(struct uart_port *port);
+extern s3c_wake_peer_t s3c2410_serial_wake_peer[CONFIG_SERIAL_SAMSUNG_UARTS];
+
+>>>>>>> upstream/android-13
 struct s3c2410_uartcfg {
 	unsigned char	   hwport;	 /* hardware port number */
 	unsigned char	   unused;

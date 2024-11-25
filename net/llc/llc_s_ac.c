@@ -27,7 +27,11 @@
 
 
 /**
+<<<<<<< HEAD
  *	llc_sap_action_unit_data_ind - forward UI PDU to network layer
+=======
+ *	llc_sap_action_unitdata_ind - forward UI PDU to network layer
+>>>>>>> upstream/android-13
  *	@sap: SAP
  *	@skb: the event to forward
  *
@@ -79,7 +83,11 @@ int llc_sap_action_send_xid_c(struct llc_sap *sap, struct sk_buff *skb)
 	struct llc_sap_state_ev *ev = llc_sap_ev(skb);
 	int rc;
 
+<<<<<<< HEAD
 	llc_pdu_header_init(skb, LLC_PDU_TYPE_U, ev->saddr.lsap,
+=======
+	llc_pdu_header_init(skb, LLC_PDU_TYPE_U_XID, ev->saddr.lsap,
+>>>>>>> upstream/android-13
 			    ev->daddr.lsap, LLC_PDU_CMD);
 	llc_pdu_init_as_xid_cmd(skb, LLC_XID_NULL_CLASS_2, 0);
 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);

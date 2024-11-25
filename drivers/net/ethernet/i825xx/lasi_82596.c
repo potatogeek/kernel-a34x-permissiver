@@ -96,6 +96,7 @@
 
 #define OPT_SWAP_PORT	0x0001	/* Need to wordswp on the MPU port */
 
+<<<<<<< HEAD
 #define LIB82596_DMA_ATTR	DMA_ATTR_NON_CONSISTENT
 
 #define DMA_WBACK(ndev, addr, len) \
@@ -108,11 +109,19 @@
 	do { dma_cache_sync((ndev)->dev.parent, (void *)addr, len, DMA_BIDIRECTIONAL); } while (0)
 
 #define SYSBUS      0x0000006c;
+=======
+#define SYSBUS      0x0000006c
+>>>>>>> upstream/android-13
 
 /* big endian CPU, 82596 "big" endian mode */
 #define SWAP32(x)   (((u32)(x)<<16) | ((((u32)(x)))>>16))
 #define SWAP16(x)   (x)
 
+<<<<<<< HEAD
+=======
+#define NONCOHERENT_DMA 1
+
+>>>>>>> upstream/android-13
 #include "lib82596.c"
 
 MODULE_AUTHOR("Richard Hirst");
@@ -143,7 +152,12 @@ static void mpu_port(struct net_device *dev, int c, dma_addr_t x)
 	}
 
 	gsc_writel(a, dev->base_addr + PA_CPU_PORT_L_ACCESS);
+<<<<<<< HEAD
 	udelay(1);
+=======
+	if (!running_on_qemu)
+		udelay(1);
+>>>>>>> upstream/android-13
 	gsc_writel(b, dev->base_addr + PA_CPU_PORT_L_ACCESS);
 }
 
@@ -154,7 +168,11 @@ lan_init_chip(struct parisc_device *dev)
 {
 	struct	net_device *netdevice;
 	struct i596_private *lp;
+<<<<<<< HEAD
 	int	retval;
+=======
+	int retval = -ENOMEM;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!dev->irq) {
@@ -185,6 +203,7 @@ lan_init_chip(struct parisc_device *dev)
 
 	lp = netdev_priv(netdevice);
 	lp->options = dev->id.sversion == 0x72 ? OPT_SWAP_PORT : 0;
+<<<<<<< HEAD
 
 	retval = i82596_probe(netdevice);
 	if (retval) {
@@ -195,15 +214,43 @@ lan_init_chip(struct parisc_device *dev)
 }
 
 static int __exit lan_remove_chip(struct parisc_device *pdev)
+=======
+	lp->dma = dma_alloc_noncoherent(&dev->dev,
+			sizeof(struct i596_dma), &lp->dma_addr,
+			DMA_BIDIRECTIONAL, GFP_KERNEL);
+	if (!lp->dma)
+		goto out_free_netdev;
+
+	retval = i82596_probe(netdevice);
+	if (retval)
+		goto out_free_dma;
+	return 0;
+
+out_free_dma:
+	dma_free_noncoherent(&dev->dev, sizeof(struct i596_dma),
+		       lp->dma, lp->dma_addr, DMA_BIDIRECTIONAL);
+out_free_netdev:
+	free_netdev(netdevice);
+	return retval;
+}
+
+static void __exit lan_remove_chip(struct parisc_device *pdev)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev = parisc_get_drvdata(pdev);
 	struct i596_private *lp = netdev_priv(dev);
 
 	unregister_netdev (dev);
+<<<<<<< HEAD
 	dma_free_attrs(&pdev->dev, sizeof(struct i596_private), lp->dma,
 		       lp->dma_addr, LIB82596_DMA_ATTR);
 	free_netdev (dev);
 	return 0;
+=======
+	dma_free_noncoherent(&pdev->dev, sizeof(struct i596_private), lp->dma,
+		       lp->dma_addr, DMA_BIDIRECTIONAL);
+	free_netdev (dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct parisc_device_id lan_tbl[] __initconst = {

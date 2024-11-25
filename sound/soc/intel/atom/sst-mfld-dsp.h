@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef __SST_MFLD_DSP_H__
 #define __SST_MFLD_DSP_H__
 /*
@@ -7,6 +11,7 @@
  *  Authors:	Vinod Koul <vinod.koul@linux.intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -16,6 +21,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -264,7 +271,11 @@ struct snd_sst_tstamp {
 	u32 channel_peak[8];
 } __packed;
 
+<<<<<<< HEAD
 /* Stream type params struture for Alloc stream */
+=======
+/* Stream type params structure for Alloc stream */
+>>>>>>> upstream/android-13
 struct snd_sst_str_type {
 	u8 codec_type;		/* Codec type */
 	u8 str_type;		/* 1 = voice 2 = music */
@@ -366,7 +377,11 @@ struct snd_wma_params {
 	u8 reserved;	/* reserved */
 } __packed;
 
+<<<<<<< HEAD
 /* Codec params struture */
+=======
+/* Codec params structure */
+>>>>>>> upstream/android-13
 union  snd_sst_codec_params {
 	struct snd_pcm_params pcm_params;
 	struct snd_mp3_params mp3_params;

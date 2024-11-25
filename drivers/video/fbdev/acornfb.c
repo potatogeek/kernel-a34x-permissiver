@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/video/acornfb.c
  *
  *  Copyright (C) 1998-2001 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Frame buffer code for Acorn platforms
  *
  * NOTE: Most of the modes with X!=640 will disappear shortly.
@@ -33,7 +40,10 @@
 #include <mach/hardware.h>
 #include <asm/irq.h>
 #include <asm/mach-types.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "acornfb.h"
 
@@ -607,7 +617,11 @@ acornfb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops acornfb_ops = {
+=======
+static const struct fb_ops acornfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= acornfb_check_var,
 	.fb_set_par	= acornfb_set_par,
@@ -861,6 +875,10 @@ static void acornfb_parse_dram(char *opt)
 		case 'M':
 		case 'm':
 			size *= 1024;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 'K':
 		case 'k':
 			size *= 1024;
@@ -924,6 +942,7 @@ static int acornfb_detect_monitortype(void)
 	return 4;
 }
 
+<<<<<<< HEAD
 /*
  * This enables the unused memory to be freed on older Acorn machines.
  * We are freeing memory on behalf of the architecture initialisation
@@ -958,6 +977,8 @@ free_unused_pages(unsigned int virtual_start, unsigned int virtual_end)
 	printk("acornfb: freed %dK memory\n", mb_freed);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int acornfb_probe(struct platform_device *dev)
 {
 	unsigned long size;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/head.S
  *
@@ -5,14 +9,21 @@
  *  Copyright (c) 2003 ARM Limited
  *  All Rights Reserved
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Kernel startup code for all 32-bit CPUs
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/assembler.h>
 #include <asm/cp15.h>
@@ -21,12 +32,18 @@
 #include <asm/asm-offsets.h>
 #include <asm/memory.h>
 #include <asm/thread_info.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_DEBUG_LL) && !defined(CONFIG_DEBUG_SEMIHOSTING)
 #include CONFIG_DEBUG_LL_INCLUDE
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * swapper_pg_dir is the virtual address of the initial page table.
  * We place the page tables 16K below KERNEL_RAM_VADDR.  Therefore, we must
@@ -34,7 +51,11 @@
  * the least significant 16 bits to be 0x8000, but we could probably
  * relax this restriction to KERNEL_RAM_VADDR >= PAGE_OFFSET + 0x4000.
  */
+<<<<<<< HEAD
 #define KERNEL_RAM_VADDR	(PAGE_OFFSET + TEXT_OFFSET)
+=======
+#define KERNEL_RAM_VADDR	(KERNEL_OFFSET + TEXT_OFFSET)
+>>>>>>> upstream/android-13
 #if (KERNEL_RAM_VADDR & 0xffff) != 0x8000
 #error KERNEL_RAM_VADDR must start at 0xXXXX8000
 #endif
@@ -51,6 +72,26 @@
 	.globl	swapper_pg_dir
 	.equ	swapper_pg_dir, KERNEL_RAM_VADDR - PG_DIR_SIZE
 
+<<<<<<< HEAD
+=======
+	/*
+	 * This needs to be assigned at runtime when the linker symbols are
+	 * resolved. These are unsigned 64bit really, but in this assembly code
+	 * We store them as 32bit.
+	 */
+	.pushsection .data
+	.align	2
+	.globl	kernel_sec_start
+	.globl	kernel_sec_end
+kernel_sec_start:
+	.long	0
+	.long	0
+kernel_sec_end:
+	.long	0
+	.long	0
+	.popsection
+
+>>>>>>> upstream/android-13
 	.macro	pgtbl, rd, phys
 	add	\rd, \phys, #TEXT_OFFSET
 	sub	\rd, \rd, #PG_DIR_SIZE
@@ -106,10 +147,15 @@ ENTRY(stext)
 #endif
 
 #ifndef CONFIG_XIP_KERNEL
+<<<<<<< HEAD
 	adr	r3, 2f
 	ldmia	r3, {r4, r8}
 	sub	r4, r3, r4			@ (PHYS_OFFSET - PAGE_OFFSET)
 	add	r8, r8, r4			@ PHYS_OFFSET
+=======
+	adr_l	r8, _text			@ __pa(_text)
+	sub	r8, r8, #TEXT_OFFSET		@ PHYS_OFFSET
+>>>>>>> upstream/android-13
 #else
 	ldr	r8, =PLAT_PHYS_OFFSET		@ always constant in this case
 #endif
@@ -161,10 +207,13 @@ ENTRY(stext)
 1:	b	__enable_mmu
 ENDPROC(stext)
 	.ltorg
+<<<<<<< HEAD
 #ifndef CONFIG_XIP_KERNEL
 2:	.long	.
 	.long	PAGE_OFFSET
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Setup the initial page tables.  We only setup the barest
@@ -227,11 +276,16 @@ __create_page_tables:
 	 * Create identity mapping to cater for __enable_mmu.
 	 * This identity mapping will be removed by paging_init().
 	 */
+<<<<<<< HEAD
 	adr	r0, __turn_mmu_on_loc
 	ldmia	r0, {r3, r5, r6}
 	sub	r0, r0, r3			@ virt->phys offset
 	add	r5, r5, r0			@ phys __turn_mmu_on
 	add	r6, r6, r0			@ phys __turn_mmu_on_end
+=======
+	adr_l	r5, __turn_mmu_on		@ _pa(__turn_mmu_on)
+	adr_l	r6, __turn_mmu_on_end		@ _pa(__turn_mmu_on_end)
+>>>>>>> upstream/android-13
 	mov	r5, r5, lsr #SECTION_SHIFT
 	mov	r6, r6, lsr #SECTION_SHIFT
 
@@ -242,16 +296,42 @@ __create_page_tables:
 	blo	1b
 
 	/*
+<<<<<<< HEAD
 	 * Map our RAM from the start to the end of the kernel .bss section.
 	 */
 	add	r0, r4, #PAGE_OFFSET >> (SECTION_SHIFT - PMD_ORDER)
 	ldr	r6, =(_end - 1)
 	orr	r3, r8, r7
+=======
+	 * The main matter: map in the kernel using section mappings, and
+	 * set two variables to indicate the physical start and end of the
+	 * kernel.
+	 */
+	add	r0, r4, #KERNEL_OFFSET >> (SECTION_SHIFT - PMD_ORDER)
+	ldr	r6, =(_end - 1)
+	adr_l	r5, kernel_sec_start		@ _pa(kernel_sec_start)
+#if defined CONFIG_CPU_ENDIAN_BE8 || defined CONFIG_CPU_ENDIAN_BE32
+	str	r8, [r5, #4]			@ Save physical start of kernel (BE)
+#else
+	str	r8, [r5]			@ Save physical start of kernel (LE)
+#endif
+	orr	r3, r8, r7			@ Add the MMU flags
+>>>>>>> upstream/android-13
 	add	r6, r4, r6, lsr #(SECTION_SHIFT - PMD_ORDER)
 1:	str	r3, [r0], #1 << PMD_ORDER
 	add	r3, r3, #1 << SECTION_SHIFT
 	cmp	r0, r6
 	bls	1b
+<<<<<<< HEAD
+=======
+	eor	r3, r3, r7			@ Remove the MMU flags
+	adr_l	r5, kernel_sec_end		@ _pa(kernel_sec_end)
+#if defined CONFIG_CPU_ENDIAN_BE8 || defined CONFIG_CPU_ENDIAN_BE32
+	str	r3, [r5, #4]			@ Save physical end of kernel (BE)
+#else
+	str	r3, [r5]			@ Save physical end of kernel (LE)
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_XIP_KERNEL
 	/*
@@ -277,11 +357,18 @@ __create_page_tables:
 	 * We map 2 sections in case the ATAGs/DTB crosses a section boundary.
 	 */
 	mov	r0, r2, lsr #SECTION_SHIFT
+<<<<<<< HEAD
 	movs	r0, r0, lsl #SECTION_SHIFT
 	subne	r3, r0, r8
 	addne	r3, r3, #PAGE_OFFSET
 	addne	r3, r4, r3, lsr #(SECTION_SHIFT - PMD_ORDER)
 	orrne	r6, r7, r0
+=======
+	cmp	r2, #0
+	ldrne	r3, =FDT_FIXED_BASE >> (SECTION_SHIFT - PMD_ORDER)
+	addne	r3, r3, r4
+	orrne	r6, r7, r0, lsl #SECTION_SHIFT
+>>>>>>> upstream/android-13
 	strne	r6, [r3], #1 << PMD_ORDER
 	addne	r6, r6, #1 << SECTION_SHIFT
 	strne	r6, [r3]
@@ -354,11 +441,14 @@ __create_page_tables:
 	ret	lr
 ENDPROC(__create_page_tables)
 	.ltorg
+<<<<<<< HEAD
 	.align
 __turn_mmu_on_loc:
 	.long	.
 	.long	__turn_mmu_on
 	.long	__turn_mmu_on_end
+=======
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_SMP)
 	.text
@@ -394,11 +484,17 @@ ENTRY(secondary_startup)
 	/*
 	 * Use the page tables supplied from  __cpu_up.
 	 */
+<<<<<<< HEAD
 	adr	r4, __secondary_data
 	ldmia	r4, {r5, r7, r12}		@ address to jump to after
 	sub	lr, r4, r5			@ mmu has been enabled
 	add	r3, r7, lr
 	ldrd	r4, [r3, #0]			@ get secondary_data.pgdir
+=======
+	adr_l	r3, secondary_data
+	mov_l	r12, __secondary_switched
+	ldrd	r4, r5, [r3, #0]		@ get secondary_data.pgdir
+>>>>>>> upstream/android-13
 ARM_BE8(eor	r4, r4, r5)			@ Swap r5 and r4 in BE:
 ARM_BE8(eor	r5, r4, r5)			@ it can be done in 3 steps
 ARM_BE8(eor	r4, r4, r5)			@ without using a temp reg.
@@ -412,15 +508,22 @@ ARM_BE8(eor	r4, r4, r5)			@ without using a temp reg.
 ENDPROC(secondary_startup)
 ENDPROC(secondary_startup_arm)
 
+<<<<<<< HEAD
 	/*
 	 * r6  = &secondary_data
 	 */
 ENTRY(__secondary_switched)
 	ldr	sp, [r7, #12]			@ get secondary_data.stack
+=======
+ENTRY(__secondary_switched)
+	ldr_l	r7, secondary_data + 12		@ get secondary_data.stack
+	mov	sp, r7
+>>>>>>> upstream/android-13
 	mov	fp, #0
 	b	secondary_start_kernel
 ENDPROC(__secondary_switched)
 
+<<<<<<< HEAD
 	.align
 
 	.type	__secondary_data, %object
@@ -428,6 +531,8 @@ __secondary_data:
 	.long	.
 	.long	secondary_data
 	.long	__secondary_switched
+=======
+>>>>>>> upstream/android-13
 #endif /* defined(CONFIG_SMP) */
 
 
@@ -542,6 +647,7 @@ ARM_BE8(rev	r0, r0)			@ byteswap if big endian
 	retne	lr
 
 __fixup_smp_on_up:
+<<<<<<< HEAD
 	adr	r0, 1f
 	ldmia	r0, {r3 - r5}
 	sub	r3, r0, r3
@@ -555,6 +661,13 @@ ENDPROC(__fixup_smp)
 	.word	__smpalt_begin
 	.word	__smpalt_end
 
+=======
+	adr_l	r4, __smpalt_begin
+	adr_l	r5, __smpalt_end
+	b	__do_fixup_smp_on_up
+ENDPROC(__fixup_smp)
+
+>>>>>>> upstream/android-13
 	.pushsection .data
 	.align	2
 	.globl	smp_on_up
@@ -568,14 +681,25 @@ smp_on_up:
 __do_fixup_smp_on_up:
 	cmp	r4, r5
 	reths	lr
+<<<<<<< HEAD
 	ldmia	r4!, {r0, r6}
  ARM(	str	r6, [r0, r3]	)
  THUMB(	add	r0, r0, r3	)
+=======
+	ldmia	r4, {r0, r6}
+ ARM(	str	r6, [r0, r4]	)
+ THUMB(	add	r0, r0, r4	)
+	add	r4, r4, #8
+>>>>>>> upstream/android-13
 #ifdef __ARMEB__
  THUMB(	mov	r6, r6, ror #16	)	@ Convert word order for big-endian.
 #endif
  THUMB(	strh	r6, [r0], #2	)	@ For Thumb-2, store as two halfwords
+<<<<<<< HEAD
  THUMB(	mov	r6, r6, lsr #16	)	@ to be robust against misaligned r3.
+=======
+ THUMB(	mov	r6, r6, lsr #16	)	@ to be robust against misaligned r0.
+>>>>>>> upstream/android-13
  THUMB(	strh	r6, [r0]	)
 	b	__do_fixup_smp_on_up
 ENDPROC(__do_fixup_smp_on_up)
@@ -584,11 +708,15 @@ ENTRY(fixup_smp)
 	stmfd	sp!, {r4 - r6, lr}
 	mov	r4, r0
 	add	r5, r0, r1
+<<<<<<< HEAD
 	mov	r3, #0
+=======
+>>>>>>> upstream/android-13
 	bl	__do_fixup_smp_on_up
 	ldmfd	sp!, {r4 - r6, pc}
 ENDPROC(fixup_smp)
 
+<<<<<<< HEAD
 #ifdef __ARMEB__
 #define LOW_OFFSET	0x4
 #define HIGH_OFFSET	0x0
@@ -727,4 +855,6 @@ __pv_offset:
 	.size	__pv_offset, . -__pv_offset
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include "head-common.S"

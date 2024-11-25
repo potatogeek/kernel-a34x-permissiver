@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006
  * NTT (Nippon Telegraph and Telephone Corporation).
@@ -14,10 +15,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2006
+ * NTT (Nippon Telegraph and Telephone Corporation).
+>>>>>>> upstream/android-13
  */
 
 /*
  * Algorithm Specification
+<<<<<<< HEAD
  *  http://info.isl.ntt.co.jp/crypt/eng/camellia/specifications.html
  */
 
@@ -27,6 +35,9 @@
  * This implementation assumes that all memory addresses passed
  * as parameters are four-byte aligned.
  *
+=======
+ *  https://info.isl.ntt.co.jp/crypt/eng/camellia/specifications.html
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crypto.h>
@@ -982,12 +993,18 @@ camellia_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 {
 	struct camellia_ctx *cctx = crypto_tfm_ctx(tfm);
 	const unsigned char *key = (const unsigned char *)in_key;
+<<<<<<< HEAD
 	u32 *flags = &tfm->crt_flags;
 
 	if (key_len != 16 && key_len != 24 && key_len != 32) {
 		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
 		return -EINVAL;
 	}
+=======
+
+	if (key_len != 16 && key_len != 24 && key_len != 32)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	cctx->key_length = key_len;
 
@@ -1009,16 +1026,26 @@ camellia_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 static void camellia_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	const struct camellia_ctx *cctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	const __be32 *src = (const __be32 *)in;
 	__be32 *dst = (__be32 *)out;
+=======
+>>>>>>> upstream/android-13
 	unsigned int max;
 
 	u32 tmp[4];
 
+<<<<<<< HEAD
 	tmp[0] = be32_to_cpu(src[0]);
 	tmp[1] = be32_to_cpu(src[1]);
 	tmp[2] = be32_to_cpu(src[2]);
 	tmp[3] = be32_to_cpu(src[3]);
+=======
+	tmp[0] = get_unaligned_be32(in);
+	tmp[1] = get_unaligned_be32(in + 4);
+	tmp[2] = get_unaligned_be32(in + 8);
+	tmp[3] = get_unaligned_be32(in + 12);
+>>>>>>> upstream/android-13
 
 	if (cctx->key_length == 16)
 		max = 24;
@@ -1028,25 +1055,42 @@ static void camellia_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	camellia_do_encrypt(cctx->key_table, tmp, max);
 
 	/* do_encrypt returns 0,1 swapped with 2,3 */
+<<<<<<< HEAD
 	dst[0] = cpu_to_be32(tmp[2]);
 	dst[1] = cpu_to_be32(tmp[3]);
 	dst[2] = cpu_to_be32(tmp[0]);
 	dst[3] = cpu_to_be32(tmp[1]);
+=======
+	put_unaligned_be32(tmp[2], out);
+	put_unaligned_be32(tmp[3], out + 4);
+	put_unaligned_be32(tmp[0], out + 8);
+	put_unaligned_be32(tmp[1], out + 12);
+>>>>>>> upstream/android-13
 }
 
 static void camellia_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	const struct camellia_ctx *cctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	const __be32 *src = (const __be32 *)in;
 	__be32 *dst = (__be32 *)out;
+=======
+>>>>>>> upstream/android-13
 	unsigned int max;
 
 	u32 tmp[4];
 
+<<<<<<< HEAD
 	tmp[0] = be32_to_cpu(src[0]);
 	tmp[1] = be32_to_cpu(src[1]);
 	tmp[2] = be32_to_cpu(src[2]);
 	tmp[3] = be32_to_cpu(src[3]);
+=======
+	tmp[0] = get_unaligned_be32(in);
+	tmp[1] = get_unaligned_be32(in + 4);
+	tmp[2] = get_unaligned_be32(in + 8);
+	tmp[3] = get_unaligned_be32(in + 12);
+>>>>>>> upstream/android-13
 
 	if (cctx->key_length == 16)
 		max = 24;
@@ -1056,10 +1100,17 @@ static void camellia_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	camellia_do_decrypt(cctx->key_table, tmp, max);
 
 	/* do_decrypt returns 0,1 swapped with 2,3 */
+<<<<<<< HEAD
 	dst[0] = cpu_to_be32(tmp[2]);
 	dst[1] = cpu_to_be32(tmp[3]);
 	dst[2] = cpu_to_be32(tmp[0]);
 	dst[3] = cpu_to_be32(tmp[1]);
+=======
+	put_unaligned_be32(tmp[2], out);
+	put_unaligned_be32(tmp[3], out + 4);
+	put_unaligned_be32(tmp[0], out + 8);
+	put_unaligned_be32(tmp[1], out + 12);
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_alg camellia_alg = {
@@ -1069,7 +1120,10 @@ static struct crypto_alg camellia_alg = {
 	.cra_flags		=	CRYPTO_ALG_TYPE_CIPHER,
 	.cra_blocksize		=	CAMELLIA_BLOCK_SIZE,
 	.cra_ctxsize		=	sizeof(struct camellia_ctx),
+<<<<<<< HEAD
 	.cra_alignmask		=	3,
+=======
+>>>>>>> upstream/android-13
 	.cra_module		=	THIS_MODULE,
 	.cra_u			=	{
 		.cipher = {
@@ -1092,7 +1146,11 @@ static void __exit camellia_fini(void)
 	crypto_unregister_alg(&camellia_alg);
 }
 
+<<<<<<< HEAD
 module_init(camellia_init);
+=======
+subsys_initcall(camellia_init);
+>>>>>>> upstream/android-13
 module_exit(camellia_fini);
 
 MODULE_DESCRIPTION("Camellia Cipher Algorithm");

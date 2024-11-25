@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* DVB USB compliant linux driver for mobile DVB-T USB devices based on
  * reference designs made by DiBcom (http://www.dibcom.fr/) (DiB3000M-B)
  *
@@ -6,11 +10,15 @@
  * based on GPL code from DiBcom, which has
  * Copyright (C) 2004 Amaury Demol for DiBcom
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the Free
  *	Software Foundation, version 2.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 #include "dibusb.h"
 

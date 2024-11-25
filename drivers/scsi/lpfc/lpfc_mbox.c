@@ -1,7 +1,11 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Broadcom. All Rights Reserved. The term *
+=======
+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+>>>>>>> upstream/android-13
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.     *
  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -94,7 +98,11 @@ lpfc_dump_static_vport(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb,
 	memset(mp->virt, 0, LPFC_BPL_SIZE);
 	INIT_LIST_HEAD(&mp->list);
 	/* save address for completion */
+<<<<<<< HEAD
 	pmb->context1 = (uint8_t *)mp;
+=======
+	pmb->ctx_buf = (uint8_t *)mp;
+>>>>>>> upstream/android-13
 	mb->un.varWords[3] = putPaddrLow(mp->phys);
 	mb->un.varWords[4] = putPaddrHigh(mp->phys);
 	mb->un.varDmp.sli4_length = sizeof(struct static_vport_info);
@@ -139,7 +147,11 @@ lpfc_dump_mem(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb, uint16_t offset,
 	void *ctx;
 
 	mb = &pmb->u.mb;
+<<<<<<< HEAD
 	ctx = pmb->context2;
+=======
+	ctx = pmb->ctx_buf;
+>>>>>>> upstream/android-13
 
 	/* Setup to dump VPD region */
 	memset(pmb, 0, sizeof (LPFC_MBOXQ_t));
@@ -151,7 +163,11 @@ lpfc_dump_mem(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb, uint16_t offset,
 	mb->un.varDmp.word_cnt = (DMP_RSP_SIZE / sizeof (uint32_t));
 	mb->un.varDmp.co = 0;
 	mb->un.varDmp.resp_offset = 0;
+<<<<<<< HEAD
 	pmb->context2 = ctx;
+=======
+	pmb->ctx_buf = ctx;
+>>>>>>> upstream/android-13
 	mb->mbxOwner = OWN_HOST;
 	return;
 }
@@ -172,7 +188,11 @@ lpfc_dump_wakeup_param(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 
 	mb = &pmb->u.mb;
 	/* Save context so that we can restore after memset */
+<<<<<<< HEAD
 	ctx = pmb->context2;
+=======
+	ctx = pmb->ctx_buf;
+>>>>>>> upstream/android-13
 
 	/* Setup to dump VPD region */
 	memset(pmb, 0, sizeof(LPFC_MBOXQ_t));
@@ -186,7 +206,11 @@ lpfc_dump_wakeup_param(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 	mb->un.varDmp.word_cnt = WAKE_UP_PARMS_WORD_SIZE;
 	mb->un.varDmp.co = 0;
 	mb->un.varDmp.resp_offset = 0;
+<<<<<<< HEAD
 	pmb->context2 = ctx;
+=======
+	pmb->ctx_buf = ctx;
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -304,7 +328,11 @@ lpfc_read_topology(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb,
 	/* Save address for later completion and set the owner to host so that
 	 * the FW knows this mailbox is available for processing.
 	 */
+<<<<<<< HEAD
 	pmb->context1 = (uint8_t *)mp;
+=======
+	pmb->ctx_buf = (uint8_t *)mp;
+>>>>>>> upstream/android-13
 	mb->mbxOwner = OWN_HOST;
 	return (0);
 }
@@ -513,15 +541,27 @@ lpfc_init_link(struct lpfc_hba * phba,
 		break;
 	}
 
+<<<<<<< HEAD
 	if ((phba->pcidev->device == PCI_DEVICE_ID_LANCER_G6_FC ||
 	     phba->pcidev->device == PCI_DEVICE_ID_LANCER_G7_FC) &&
+=======
+	/* Topology handling for ASIC_GEN_NUM 0xC and later */
+	if ((phba->sli4_hba.pc_sli4_params.sli_family == LPFC_SLI_INTF_FAMILY_G6 ||
+	     phba->sli4_hba.pc_sli4_params.if_type == LPFC_SLI_INTF_IF_TYPE_6) &&
+	    !(phba->sli4_hba.pc_sli4_params.pls) &&
+>>>>>>> upstream/android-13
 	    mb->un.varInitLnk.link_flags & FLAGS_TOPOLOGY_MODE_LOOP) {
 		mb->un.varInitLnk.link_flags = FLAGS_TOPOLOGY_MODE_PT_PT;
 		phba->cfg_topology = FLAGS_TOPOLOGY_MODE_PT_PT;
 	}
 
 	/* Enable asynchronous ABTS responses from firmware */
+<<<<<<< HEAD
 	mb->un.varInitLnk.link_flags |= FLAGS_IMED_ABORT;
+=======
+	if (phba->sli_rev == LPFC_SLI_REV3 && !phba->cfg_fcp_wait_abts_rsp)
+		mb->un.varInitLnk.link_flags |= FLAGS_IMED_ABORT;
+>>>>>>> upstream/android-13
 
 	/* NEW_FEATURE
 	 * Setting up the link speed
@@ -631,7 +671,11 @@ lpfc_read_sparam(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb, int vpi)
 		mb->un.varRdSparm.vpi = phba->vpi_ids[vpi];
 
 	/* save address for completion */
+<<<<<<< HEAD
 	pmb->context1 = mp;
+=======
+	pmb->ctx_buf = mp;
+>>>>>>> upstream/android-13
 
 	return (0);
 }
@@ -783,7 +827,11 @@ lpfc_reg_rpi(struct lpfc_hba *phba, uint16_t vpi, uint32_t did,
 	memcpy(sparam, param, sizeof (struct serv_parm));
 
 	/* save address for completion */
+<<<<<<< HEAD
 	pmb->context1 = (uint8_t *) mp;
+=======
+	pmb->ctx_buf = (uint8_t *)mp;
+>>>>>>> upstream/android-13
 
 	mb->mbxCommand = MBX_REG_LOGIN64;
 	mb->un.varRegLogin.un.sp64.tus.f.bdeSize = sizeof (struct serv_parm);
@@ -858,7 +906,11 @@ lpfc_sli4_unreg_all_rpis(struct lpfc_vport *vport)
 		mbox->u.mb.un.varUnregLogin.rsvd1 = 0x4000;
 		mbox->vport = vport;
 		mbox->mbox_cmpl = lpfc_sli_def_mbox_cmpl;
+<<<<<<< HEAD
 		mbox->context1 = NULL;
+=======
+		mbox->ctx_ndlp = NULL;
+>>>>>>> upstream/android-13
 		rc = lpfc_sli_issue_mbox(phba, mbox, MBX_NOWAIT);
 		if (rc == MBX_NOT_FINISHED)
 			mempool_free(mbox, phba->mbox_mem_pool);
@@ -867,9 +919,13 @@ lpfc_sli4_unreg_all_rpis(struct lpfc_vport *vport)
 
 /**
  * lpfc_reg_vpi - Prepare a mailbox command for registering vport identifier
+<<<<<<< HEAD
  * @phba: pointer to lpfc hba data structure.
  * @vpi: virtual N_Port identifier.
  * @sid: Fibre Channel S_ID (N_Port_ID assigned to a virtual N_Port).
+=======
+ * @vport: pointer to a vport object.
+>>>>>>> upstream/android-13
  * @pmb: pointer to the driver internal queue element for mailbox command.
  *
  * The registration vport identifier mailbox command is used to activate a
@@ -1198,7 +1254,11 @@ lpfc_config_hbq(struct lpfc_hba *phba, uint32_t id,
 /**
  * lpfc_config_ring - Prepare a mailbox command for configuring an IOCB ring
  * @phba: pointer to lpfc hba data structure.
+<<<<<<< HEAD
  * @ring:
+=======
+ * @ring: ring number/index
+>>>>>>> upstream/android-13
  * @pmb: pointer to the driver internal queue element for mailbox command.
  *
  * The configure ring mailbox command is used to configure an IOCB ring. This
@@ -1298,8 +1358,11 @@ lpfc_config_port(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 	if (phba->sli_rev == LPFC_SLI_REV3 && phba->vpd.sli3Feat.cerbm) {
 		if (phba->cfg_enable_bg)
 			mb->un.varCfgPort.cbg = 1; /* configure BlockGuard */
+<<<<<<< HEAD
 		if (phba->cfg_enable_dss)
 			mb->un.varCfgPort.cdss = 1; /* Configure Security */
+=======
+>>>>>>> upstream/android-13
 		mb->un.varCfgPort.cerbm = 1; /* Request HBQs */
 		mb->un.varCfgPort.ccrp = 1; /* Command Ring Polling */
 		mb->un.varCfgPort.max_hbq = lpfc_sli_hbq_count();
@@ -1379,7 +1442,12 @@ lpfc_config_port(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
 	 */
 
 	if (phba->cfg_hostmem_hgp && phba->sli_rev != 3) {
+<<<<<<< HEAD
 		phba->host_gp = &phba->mbox->us.s2.host[0];
+=======
+		phba->host_gp = (struct lpfc_hgp __iomem *)
+				 &phba->mbox->us.s2.host[0];
+>>>>>>> upstream/android-13
 		phba->hbq_put = NULL;
 		offset = (uint8_t *)&phba->mbox->us.s2.host -
 			(uint8_t *)phba->slim2p.virt;
@@ -1613,7 +1681,11 @@ lpfc_mbox_dev_check(struct lpfc_hba *phba)
 /**
  * lpfc_mbox_tmo_val - Retrieve mailbox command timeout value
  * @phba: pointer to lpfc hba data structure.
+<<<<<<< HEAD
  * @cmd: mailbox command code.
+=======
+ * @mboxq: pointer to the driver internal queue element for mailbox command.
+>>>>>>> upstream/android-13
  *
  * This routine retrieves the proper timeout value according to the mailbox
  * command code.
@@ -1700,6 +1772,10 @@ lpfc_sli4_mbx_sge_set(struct lpfcMboxq *mbox, uint32_t sgentry,
  * lpfc_sli4_mbx_sge_get - Get a sge entry from non-embedded mailbox command
  * @mbox: pointer to lpfc mbox command.
  * @sgentry: sge entry index.
+<<<<<<< HEAD
+=======
+ * @sge: pointer to lpfc mailbox sge to load into.
+>>>>>>> upstream/android-13
  *
  * This routine gets an entry from the non-embedded mailbox command at the sge
  * index location.
@@ -1767,6 +1843,10 @@ lpfc_sli4_mbox_cmd_free(struct lpfc_hba *phba, struct lpfcMboxq *mbox)
  * @subsystem: The sli4 config sub mailbox subsystem.
  * @opcode: The sli4 config sub mailbox command opcode.
  * @length: Length of the sli4 config mailbox command (including sub-header).
+<<<<<<< HEAD
+=======
+ * @emb: True if embedded mbox command should be setup.
+>>>>>>> upstream/android-13
  *
  * This routine sets up the header fields of SLI4 specific mailbox command
  * for sending IOCTL command.
@@ -1827,9 +1907,15 @@ lpfc_sli4_config(struct lpfc_hba *phba, struct lpfcMboxq *mbox,
 		 * page, this is used as a priori size of SLI4_PAGE_SIZE for
 		 * the later DMA memory free.
 		 */
+<<<<<<< HEAD
 		viraddr = dma_zalloc_coherent(&phba->pcidev->dev,
 					      SLI4_PAGE_SIZE, &phyaddr,
 					      GFP_KERNEL);
+=======
+		viraddr = dma_alloc_coherent(&phba->pcidev->dev,
+					     SLI4_PAGE_SIZE, &phyaddr,
+					     GFP_KERNEL);
+>>>>>>> upstream/android-13
 		/* In case of malloc fails, proceed with whatever we have */
 		if (!viraddr)
 			break;
@@ -2012,6 +2098,10 @@ lpfc_sli_config_mbox_opcode_get(struct lpfc_hba *phba, LPFC_MBOXQ_t *mbox)
 /**
  * lpfc_sli4_mbx_read_fcf_rec - Allocate and construct read fcf mbox cmd
  * @phba: pointer to lpfc hba data structure.
+<<<<<<< HEAD
+=======
+ * @mboxq: pointer to lpfc mbox command.
+>>>>>>> upstream/android-13
  * @fcf_index: index to fcf table.
  *
  * This routine routine allocates and constructs non-embedded mailbox command
@@ -2068,6 +2158,10 @@ lpfc_sli4_mbx_read_fcf_rec(struct lpfc_hba *phba,
 
 /**
  * lpfc_request_features: Configure SLI4 REQUEST_FEATURES mailbox
+<<<<<<< HEAD
+=======
+ * @phba: pointer to lpfc hba data structure.
+>>>>>>> upstream/android-13
  * @mboxq: pointer to lpfc mbox command.
  *
  * This routine sets up the mailbox for an SLI4 REQUEST_FEATURES
@@ -2095,8 +2189,19 @@ lpfc_request_features(struct lpfc_hba *phba, struct lpfcMboxq *mboxq)
 	if (phba->nvmet_support) {
 		bf_set(lpfc_mbx_rq_ftr_rq_mrqp, &mboxq->u.mqe.un.req_ftrs, 1);
 		/* iaab/iaar NOT set for now */
+<<<<<<< HEAD
 		 bf_set(lpfc_mbx_rq_ftr_rq_iaab, &mboxq->u.mqe.un.req_ftrs, 0);
 		 bf_set(lpfc_mbx_rq_ftr_rq_iaar, &mboxq->u.mqe.un.req_ftrs, 0);
+=======
+		bf_set(lpfc_mbx_rq_ftr_rq_iaab, &mboxq->u.mqe.un.req_ftrs, 0);
+		bf_set(lpfc_mbx_rq_ftr_rq_iaar, &mboxq->u.mqe.un.req_ftrs, 0);
+	}
+
+	/* Enable Application Services Header for appheader VMID */
+	if (phba->cfg_vmid_app_header) {
+		bf_set(lpfc_mbx_rq_ftr_rq_ashdr, &mboxq->u.mqe.un.req_ftrs, 1);
+		bf_set(lpfc_ftr_ashdr, &phba->sli4_hba.sli4_flags, 1);
+>>>>>>> upstream/android-13
 	}
 	return;
 }
@@ -2288,7 +2393,11 @@ lpfc_sli4_dump_cfg_rg23(struct lpfc_hba *phba, struct lpfcMboxq *mbox)
 	INIT_LIST_HEAD(&mp->list);
 
 	/* save address for completion */
+<<<<<<< HEAD
 	mbox->context1 = (uint8_t *) mp;
+=======
+	mbox->ctx_buf = (uint8_t *)mp;
+>>>>>>> upstream/android-13
 
 	mb->mbxCommand = MBX_DUMP_MEMORY;
 	mb->un.varDmp.type = DMP_NV_PARAMS;
@@ -2305,7 +2414,11 @@ lpfc_mbx_cmpl_rdp_link_stat(struct lpfc_hba *phba, LPFC_MBOXQ_t *mboxq)
 	MAILBOX_t *mb;
 	int rc = FAILURE;
 	struct lpfc_rdp_context *rdp_context =
+<<<<<<< HEAD
 			(struct lpfc_rdp_context *)(mboxq->context2);
+=======
+			(struct lpfc_rdp_context *)(mboxq->ctx_ndlp);
+>>>>>>> upstream/android-13
 
 	mb = &mboxq->u.mb;
 	if (mb->mbxStatus)
@@ -2323,9 +2436,15 @@ mbx_failed:
 static void
 lpfc_mbx_cmpl_rdp_page_a2(struct lpfc_hba *phba, LPFC_MBOXQ_t *mbox)
 {
+<<<<<<< HEAD
 	struct lpfc_dmabuf *mp = (struct lpfc_dmabuf *) mbox->context1;
 	struct lpfc_rdp_context *rdp_context =
 			(struct lpfc_rdp_context *)(mbox->context2);
+=======
+	struct lpfc_dmabuf *mp = (struct lpfc_dmabuf *)mbox->ctx_buf;
+	struct lpfc_rdp_context *rdp_context =
+			(struct lpfc_rdp_context *)(mbox->ctx_ndlp);
+>>>>>>> upstream/android-13
 
 	if (bf_get(lpfc_mqe_status, &mbox->u.mqe))
 		goto error_mbuf_free;
@@ -2341,7 +2460,11 @@ lpfc_mbx_cmpl_rdp_page_a2(struct lpfc_hba *phba, LPFC_MBOXQ_t *mbox)
 	lpfc_read_lnk_stat(phba, mbox);
 	mbox->vport = rdp_context->ndlp->vport;
 	mbox->mbox_cmpl = lpfc_mbx_cmpl_rdp_link_stat;
+<<<<<<< HEAD
 	mbox->context2 = (struct lpfc_rdp_context *) rdp_context;
+=======
+	mbox->ctx_ndlp = (struct lpfc_rdp_context *)rdp_context;
+>>>>>>> upstream/android-13
 	if (lpfc_sli_issue_mbox(phba, mbox, MBX_NOWAIT) == MBX_NOT_FINISHED)
 		goto error_cmd_free;
 
@@ -2359,9 +2482,15 @@ void
 lpfc_mbx_cmpl_rdp_page_a0(struct lpfc_hba *phba, LPFC_MBOXQ_t *mbox)
 {
 	int rc;
+<<<<<<< HEAD
 	struct lpfc_dmabuf *mp = (struct lpfc_dmabuf *) (mbox->context1);
 	struct lpfc_rdp_context *rdp_context =
 			(struct lpfc_rdp_context *)(mbox->context2);
+=======
+	struct lpfc_dmabuf *mp = (struct lpfc_dmabuf *)(mbox->ctx_buf);
+	struct lpfc_rdp_context *rdp_context =
+			(struct lpfc_rdp_context *)(mbox->ctx_ndlp);
+>>>>>>> upstream/android-13
 
 	if (bf_get(lpfc_mqe_status, &mbox->u.mqe))
 		goto error;
@@ -2375,7 +2504,11 @@ lpfc_mbx_cmpl_rdp_page_a0(struct lpfc_hba *phba, LPFC_MBOXQ_t *mbox)
 	INIT_LIST_HEAD(&mp->list);
 
 	/* save address for completion */
+<<<<<<< HEAD
 	mbox->context1 = mp;
+=======
+	mbox->ctx_buf = mp;
+>>>>>>> upstream/android-13
 	mbox->vport = rdp_context->ndlp->vport;
 
 	bf_set(lpfc_mqe_command, &mbox->u.mqe, MBX_DUMP_MEMORY);
@@ -2391,7 +2524,11 @@ lpfc_mbx_cmpl_rdp_page_a0(struct lpfc_hba *phba, LPFC_MBOXQ_t *mbox)
 	mbox->u.mqe.un.mem_dump_type3.addr_hi = putPaddrHigh(mp->phys);
 
 	mbox->mbox_cmpl = lpfc_mbx_cmpl_rdp_page_a2;
+<<<<<<< HEAD
 	mbox->context2 = (struct lpfc_rdp_context *) rdp_context;
+=======
+	mbox->ctx_ndlp = (struct lpfc_rdp_context *)rdp_context;
+>>>>>>> upstream/android-13
 	rc = lpfc_sli_issue_mbox(phba, mbox, MBX_NOWAIT);
 	if (rc == MBX_NOT_FINISHED)
 		goto error;
@@ -2407,7 +2544,11 @@ error:
 
 
 /*
+<<<<<<< HEAD
  * lpfc_sli4_dump_sfp_pagea0 - Dump sli4 read SFP Diagnostic.
+=======
+ * lpfc_sli4_dump_page_a0 - Dump sli4 read SFP Diagnostic.
+>>>>>>> upstream/android-13
  * @phba: pointer to the hba structure containing.
  * @mbox: pointer to lpfc mbox command to initialize.
  *
@@ -2436,7 +2577,11 @@ lpfc_sli4_dump_page_a0(struct lpfc_hba *phba, struct lpfcMboxq *mbox)
 
 	bf_set(lpfc_mqe_command, &mbox->u.mqe, MBX_DUMP_MEMORY);
 	/* save address for completion */
+<<<<<<< HEAD
 	mbox->context1 = mp;
+=======
+	mbox->ctx_buf = mp;
+>>>>>>> upstream/android-13
 
 	bf_set(lpfc_mbx_memory_dump_type3_type,
 		&mbox->u.mqe.un.mem_dump_type3, DMP_LMSD);

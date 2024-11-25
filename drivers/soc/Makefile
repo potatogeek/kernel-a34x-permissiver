@@ -4,20 +4,35 @@
 #
 
 obj-$(CONFIG_ARCH_ACTIONS)	+= actions/
+<<<<<<< HEAD
 obj-$(CONFIG_ARCH_AT91)		+= atmel/
 obj-y				+= bcm/
+=======
+obj-y				+= aspeed/
+obj-$(CONFIG_ARCH_AT91)		+= atmel/
+obj-y				+= bcm/
+obj-$(CONFIG_SOC_CANAAN)	+= canaan/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ARCH_DOVE)		+= dove/
 obj-$(CONFIG_MACH_DOVE)		+= dove/
 obj-y				+= fsl/
 obj-$(CONFIG_ARCH_GEMINI)	+= gemini/
+<<<<<<< HEAD
 obj-$(CONFIG_ARCH_MXC)		+= imx/
 obj-$(CONFIG_SOC_XWAY)		+= lantiq/
+=======
+obj-y				+= imx/
+obj-y				+= ixp4xx/
+obj-$(CONFIG_SOC_XWAY)		+= lantiq/
+obj-$(CONFIG_LITEX_SOC_CONTROLLER) += litex/
+>>>>>>> upstream/android-13
 obj-y				+= mediatek/
 obj-y				+= amlogic/
 obj-y				+= qcom/
 obj-y				+= renesas/
 obj-$(CONFIG_ARCH_ROCKCHIP)	+= rockchip/
 obj-$(CONFIG_SOC_SAMSUNG)	+= samsung/
+<<<<<<< HEAD
 obj-$(CONFIG_ARCH_SUNXI)	+= sunxi/
 obj-$(CONFIG_ARCH_TEGRA)	+= tegra/
 obj-$(CONFIG_SOC_TI)		+= ti/
@@ -25,3 +40,12 @@ obj-$(CONFIG_ARCH_U8500)	+= ux500/
 obj-$(CONFIG_PLAT_VERSATILE)	+= versatile/
 obj-y				+= xilinx/
 obj-$(CONFIG_ARCH_ZX)		+= zte/
+=======
+obj-$(CONFIG_SOC_SIFIVE)	+= sifive/
+obj-y				+= sunxi/
+obj-$(CONFIG_ARCH_TEGRA)	+= tegra/
+obj-y				+= ti/
+obj-$(CONFIG_ARCH_U8500)	+= ux500/
+obj-$(CONFIG_PLAT_VERSATILE)	+= versatile/
+obj-y				+= xilinx/
+>>>>>>> upstream/android-13

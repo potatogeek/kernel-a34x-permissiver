@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Zoran ZR36016 basic configuration functions
  *
  * Copyright (C) 2001 Wolfgang Scherr <scherr@net4you.at>
+<<<<<<< HEAD
  *
  * $Id: zr36016.c,v 1.1.2.14 2003/08/20 19:46:55 rbultje Exp $
  *
@@ -34,6 +39,13 @@
 #include <asm/io.h>
 
 /* v4l  API */
+=======
+ */
+
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 /* headerfile of this module */
 #include "zr36016.h"
@@ -66,6 +78,7 @@ MODULE_PARM_DESC(debug, "Debug level (0-4)");
    ========================================================================= */
 
 /* read and write functions */
+<<<<<<< HEAD
 static u8
 zr36016_read (struct zr36016 *ptr,
 	      u16             reg)
@@ -84,10 +97,24 @@ zr36016_read (struct zr36016 *ptr,
 
 	dprintk(4, "%s: reading from 0x%04x: %02x\n", ptr->name, reg,
 		value);
+=======
+static u8 zr36016_read(struct zr36016 *ptr, u16 reg)
+{
+	u8 value = 0;
+
+	/* just in case something is wrong... */
+	if (ptr->codec->master_data->readreg)
+		value = (ptr->codec->master_data->readreg(ptr->codec, reg)) & 0xFF;
+	else
+		pr_err("%s: invalid I/O setup, nothing read!\n", ptr->name);
+
+	dprintk(4, "%s: reading from 0x%04x: %02x\n", ptr->name, reg, value);
+>>>>>>> upstream/android-13
 
 	return value;
 }
 
+<<<<<<< HEAD
 static void
 zr36016_write (struct zr36016 *ptr,
 	       u16             reg,
@@ -104,11 +131,23 @@ zr36016_write (struct zr36016 *ptr,
 			KERN_ERR
 			"%s: invalid I/O setup, nothing written!\n",
 			ptr->name);
+=======
+static void zr36016_write(struct zr36016 *ptr, u16 reg, u8 value)
+{
+	dprintk(4, "%s: writing 0x%02x to 0x%04x\n", ptr->name, value, reg);
+
+	// just in case something is wrong...
+	if (ptr->codec->master_data->writereg)
+		ptr->codec->master_data->writereg(ptr->codec, reg, value);
+	else
+		pr_err("%s: invalid I/O setup, nothing written!\n", ptr->name);
+>>>>>>> upstream/android-13
 }
 
 /* indirect read and write functions */
 /* the 016 supports auto-addr-increment, but
  * writing it all time cost not much and is safer... */
+<<<<<<< HEAD
 static u8
 zr36016_readi (struct zr36016 *ptr,
 	       u16             reg)
@@ -135,10 +174,30 @@ static void
 zr36016_writei (struct zr36016 *ptr,
 		u16             reg,
 		u8              value)
+=======
+static u8 zr36016_readi(struct zr36016 *ptr, u16 reg)
+{
+	u8 value = 0;
+
+	/* just in case something is wrong... */
+	if ((ptr->codec->master_data->writereg) && (ptr->codec->master_data->readreg)) {
+		ptr->codec->master_data->writereg(ptr->codec, ZR016_IADDR, reg & 0x0F);	// ADDR
+		value = (ptr->codec->master_data->readreg(ptr->codec, ZR016_IDATA)) & 0xFF;	// DATA
+	} else {
+		pr_err("%s: invalid I/O setup, nothing read (i)!\n", ptr->name);
+	}
+
+	dprintk(4, "%s: reading indirect from 0x%04x: %02x\n", ptr->name, reg, value);
+	return value;
+}
+
+static void zr36016_writei(struct zr36016 *ptr, u16 reg, u8 value)
+>>>>>>> upstream/android-13
 {
 	dprintk(4, "%s: writing indirect 0x%02x to 0x%04x\n", ptr->name,
 		value, reg);
 
+<<<<<<< HEAD
 	// just in case something is wrong...
 	if (ptr->codec->master_data->writereg) {
 		ptr->codec->master_data->writereg(ptr->codec, ZR016_IADDR, reg & 0x0F);	// ADDR
@@ -148,6 +207,15 @@ zr36016_writei (struct zr36016 *ptr,
 			KERN_ERR
 			"%s: invalid I/O setup, nothing written (i)!\n",
 			ptr->name);
+=======
+	/* just in case something is wrong... */
+	if (ptr->codec->master_data->writereg) {
+		ptr->codec->master_data->writereg(ptr->codec, ZR016_IADDR, reg & 0x0F);	// ADDR
+		ptr->codec->master_data->writereg(ptr->codec, ZR016_IDATA, value & 0x0FF);	// DATA
+	} else {
+		pr_err("%s: invalid I/O setup, nothing written (i)!\n", ptr->name);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* =========================================================================
@@ -157,8 +225,12 @@ zr36016_writei (struct zr36016 *ptr,
    ========================================================================= */
 
 /* version kept in datastructure */
+<<<<<<< HEAD
 static u8
 zr36016_read_version (struct zr36016 *ptr)
+=======
+static u8 zr36016_read_version(struct zr36016 *ptr)
+>>>>>>> upstream/android-13
 {
 	ptr->version = zr36016_read(ptr, 0) >> 4;
 	return ptr->version;
@@ -170,11 +242,19 @@ zr36016_read_version (struct zr36016 *ptr)
    basic test of "connectivity", writes/reads to/from PAX-Lo register
    ========================================================================= */
 
+<<<<<<< HEAD
 static int
 zr36016_basic_test (struct zr36016 *ptr)
 {
 	if (debug) {
 		int i;
+=======
+static int zr36016_basic_test(struct zr36016 *ptr)
+{
+	if (debug) {
+		int i;
+
+>>>>>>> upstream/android-13
 		zr36016_writei(ptr, ZR016I_PAX_LO, 0x55);
 		dprintk(1, KERN_INFO "%s: registers: ", ptr->name);
 		for (i = 0; i <= 0x0b; i++)
@@ -185,27 +265,40 @@ zr36016_basic_test (struct zr36016 *ptr)
 	// it back in both cases
 	zr36016_writei(ptr, ZR016I_PAX_LO, 0x00);
 	if (zr36016_readi(ptr, ZR016I_PAX_LO) != 0x0) {
+<<<<<<< HEAD
 		dprintk(1,
 			KERN_ERR
 			"%s: attach failed, can't connect to vfe processor!\n",
 			ptr->name);
+=======
+		pr_err("%s: attach failed, can't connect to vfe processor!\n", ptr->name);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 	zr36016_writei(ptr, ZR016I_PAX_LO, 0x0d0);
 	if (zr36016_readi(ptr, ZR016I_PAX_LO) != 0x0d0) {
+<<<<<<< HEAD
 		dprintk(1,
 			KERN_ERR
 			"%s: attach failed, can't connect to vfe processor!\n",
 			ptr->name);
+=======
+		pr_err("%s: attach failed, can't connect to vfe processor!\n", ptr->name);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 	// we allow version numbers from 0-3, should be enough, though
 	zr36016_read_version(ptr);
 	if (ptr->version & 0x0c) {
+<<<<<<< HEAD
 		dprintk(1,
 			KERN_ERR
 			"%s: attach failed, suspicious version %d found...\n",
 			ptr->name, ptr->version);
+=======
+		pr_err("%s: attach failed, suspicious version %d found...\n", ptr->name,
+		       ptr->version);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 
@@ -219,6 +312,7 @@ zr36016_basic_test (struct zr36016 *ptr)
    ========================================================================= */
 
 #if 0
+<<<<<<< HEAD
 static int zr36016_pushit (struct zr36016 *ptr,
 			   u16             startreg,
 			   u16             len,
@@ -229,6 +323,18 @@ static int zr36016_pushit (struct zr36016 *ptr,
 	dprintk(4, "%s: write data block to 0x%04x (len=%d)\n",
 		ptr->name, startreg,len);
 	while (i<len) {
+=======
+static int zr36016_pushit(struct zr36016 *ptr,
+			  u16             startreg,
+			   u16             len,
+			   const char     *data)
+{
+	int i = 0;
+
+	dprintk(4, "%s: write data block to 0x%04x (len=%d)\n",
+		ptr->name, startreg, len);
+	while (i < len) {
+>>>>>>> upstream/android-13
 		zr36016_writei(ptr, startreg++,  data[i++]);
 	}
 
@@ -242,8 +348,12 @@ static int zr36016_pushit (struct zr36016 *ptr,
    //TODO//
    ========================================================================= */
 
+<<<<<<< HEAD
 static void
 zr36016_init (struct zr36016 *ptr)
+=======
+static void zr36016_init(struct zr36016 *ptr)
+>>>>>>> upstream/android-13
 {
 	// stop any processing
 	zr36016_write(ptr, ZR016_GOSTOP, 0);
@@ -283,11 +393,17 @@ zr36016_init (struct zr36016 *ptr)
 
 /* set compression/expansion mode and launches codec -
    this should be the last call from the master before starting processing */
+<<<<<<< HEAD
 static int
 zr36016_set_mode (struct videocodec *codec,
 		  int                mode)
 {
 	struct zr36016 *ptr = (struct zr36016 *) codec->data;
+=======
+static int zr36016_set_mode(struct videocodec *codec, int mode)
+{
+	struct zr36016 *ptr = (struct zr36016 *)codec->data;
+>>>>>>> upstream/android-13
 
 	dprintk(2, "%s: set_mode %d call\n", ptr->name, mode);
 
@@ -301,6 +417,7 @@ zr36016_set_mode (struct videocodec *codec,
 }
 
 /* set picture size */
+<<<<<<< HEAD
 static int
 zr36016_set_video (struct videocodec   *codec,
 		   struct tvnorm       *norm,
@@ -311,6 +428,15 @@ zr36016_set_video (struct videocodec   *codec,
 
 	dprintk(2, "%s: set_video %d.%d, %d/%d-%dx%d (0x%x) call\n",
 		ptr->name, norm->HStart, norm->VStart,
+=======
+static int zr36016_set_video(struct videocodec *codec, const struct tvnorm *norm,
+			     struct vfe_settings *cap, struct vfe_polarity *pol)
+{
+	struct zr36016 *ptr = (struct zr36016 *)codec->data;
+
+	dprintk(2, "%s: set_video %d.%d, %d/%d-%dx%d (0x%x) call\n",
+		ptr->name, norm->h_start, norm->v_start,
+>>>>>>> upstream/android-13
 		cap->x, cap->y, cap->width, cap->height,
 		cap->decimation);
 
@@ -320,6 +446,7 @@ zr36016_set_video (struct videocodec   *codec,
 	ptr->width = cap->width;
 	ptr->height = cap->height;
 	/* (Ronald) This is ugly. zoran_device.c, line 387
+<<<<<<< HEAD
 	 * already mentions what happens if HStart is even
 	 * (blue faces, etc., cr/cb inversed). There's probably
 	 * some good reason why HStart is 0 instead of 1, so I'm
@@ -331,6 +458,19 @@ zr36016_set_video (struct videocodec   *codec,
 	 * really don't get it. values of 16 (VStart) already break
 	 * it here. Just '0' seems to work. More testing needed! */
 	ptr->yoff = norm->VStart + cap->y;
+=======
+	 * already mentions what happens if h_start is even
+	 * (blue faces, etc., cr/cb inversed). There's probably
+	 * some good reason why h_start is 0 instead of 1, so I'm
+	 * leaving it to this for now, but really... This can be
+	 * done a lot simpler */
+	ptr->xoff = (norm->h_start ? norm->h_start : 1) + cap->x;
+	/* Something to note here (I don't understand it), setting
+	 * v_start too high will cause the codec to 'not work'. I
+	 * really don't get it. values of 16 (v_start) already break
+	 * it here. Just '0' seems to work. More testing needed! */
+	ptr->yoff = norm->v_start + cap->y;
+>>>>>>> upstream/android-13
 	/* (Ronald) dzjeeh, can't this thing do hor_decimation = 4? */
 	ptr->xdec = ((cap->decimation & 0xff) == 1) ? 0 : 1;
 	ptr->ydec = (((cap->decimation >> 8) & 0xff) == 1) ? 0 : 1;
@@ -339,6 +479,7 @@ zr36016_set_video (struct videocodec   *codec,
 }
 
 /* additional control functions */
+<<<<<<< HEAD
 static int
 zr36016_control (struct videocodec *codec,
 		 int                type,
@@ -350,6 +491,14 @@ zr36016_control (struct videocodec *codec,
 
 	dprintk(2, "%s: control %d call with %d byte\n", ptr->name, type,
 		size);
+=======
+static int zr36016_control(struct videocodec *codec, int type, int size, void *data)
+{
+	struct zr36016 *ptr = (struct zr36016 *)codec->data;
+	int *ival = (int *)data;
+
+	dprintk(2, "%s: control %d call with %d byte\n", ptr->name, type, size);
+>>>>>>> upstream/android-13
 
 	switch (type) {
 	case CODEC_G_STATUS:	/* get last status - we don't know it ... */
@@ -393,16 +542,24 @@ zr36016_control (struct videocodec *codec,
    Deinitializes Zoran's JPEG processor
    ========================================================================= */
 
+<<<<<<< HEAD
 static int
 zr36016_unset (struct videocodec *codec)
+=======
+static int zr36016_unset(struct videocodec *codec)
+>>>>>>> upstream/android-13
 {
 	struct zr36016 *ptr = codec->data;
 
 	if (ptr) {
 		/* do wee need some codec deinit here, too ???? */
 
+<<<<<<< HEAD
 		dprintk(1, "%s: finished codec #%d\n", ptr->name,
 			ptr->num);
+=======
+		dprintk(1, "%s: finished codec #%d\n", ptr->name, ptr->num);
+>>>>>>> upstream/android-13
 		kfree(ptr);
 		codec->data = NULL;
 
@@ -422,12 +579,17 @@ zr36016_unset (struct videocodec *codec)
    (the given size is determined by the processor with the video interface)
    ========================================================================= */
 
+<<<<<<< HEAD
 static int
 zr36016_setup (struct videocodec *codec)
+=======
+static int zr36016_setup(struct videocodec *codec)
+>>>>>>> upstream/android-13
 {
 	struct zr36016 *ptr;
 	int res;
 
+<<<<<<< HEAD
 	dprintk(2, "zr36016: initializing VFE subsystem #%d.\n",
 		zr36016_codecs);
 
@@ -445,6 +607,21 @@ zr36016_setup (struct videocodec *codec)
 
 	snprintf(ptr->name, sizeof(ptr->name), "zr36016[%d]",
 		 zr36016_codecs);
+=======
+	dprintk(2, "zr36016: initializing VFE subsystem #%d.\n", zr36016_codecs);
+
+	if (zr36016_codecs == MAX_CODECS) {
+		pr_err("zr36016: Can't attach more codecs!\n");
+		return -ENOSPC;
+	}
+	//mem structure init
+	ptr = kzalloc(sizeof(*ptr), GFP_KERNEL);
+	codec->data = ptr;
+	if (!ptr)
+		return -ENOMEM;
+
+	snprintf(ptr->name, sizeof(ptr->name), "zr36016[%d]", zr36016_codecs);
+>>>>>>> upstream/android-13
 	ptr->num = zr36016_codecs++;
 	ptr->codec = codec;
 
@@ -462,8 +639,12 @@ zr36016_setup (struct videocodec *codec)
 	ptr->ydec = 0;
 	zr36016_init(ptr);
 
+<<<<<<< HEAD
 	dprintk(1, KERN_INFO "%s: codec v%d attached and running\n",
 		ptr->name, ptr->version);
+=======
+	dprintk(1, KERN_INFO "%s: codec v%d attached and running\n", ptr->name, ptr->version);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -471,33 +652,53 @@ zr36016_setup (struct videocodec *codec)
 static const struct videocodec zr36016_codec = {
 	.owner = THIS_MODULE,
 	.name = "zr36016",
+<<<<<<< HEAD
 	.magic = 0L,		// magic not used
+=======
+	.magic = 0L,		/* magic not used */
+>>>>>>> upstream/android-13
 	.flags =
 	    CODEC_FLAG_HARDWARE | CODEC_FLAG_VFE | CODEC_FLAG_ENCODER |
 	    CODEC_FLAG_DECODER,
 	.type = CODEC_TYPE_ZR36016,
+<<<<<<< HEAD
 	.setup = zr36016_setup,	// functionality
+=======
+	.setup = zr36016_setup,	/* functionality */
+>>>>>>> upstream/android-13
 	.unset = zr36016_unset,
 	.set_mode = zr36016_set_mode,
 	.set_video = zr36016_set_video,
 	.control = zr36016_control,
+<<<<<<< HEAD
 	// others are not used
+=======
+	/* others are not used */
+>>>>>>> upstream/android-13
 };
 
 /* =========================================================================
    HOOK IN DRIVER AS KERNEL MODULE
    ========================================================================= */
 
+<<<<<<< HEAD
 static int __init
 zr36016_init_module (void)
+=======
+static int __init zr36016_init_module(void)
+>>>>>>> upstream/android-13
 {
 	//dprintk(1, "ZR36016 driver %s\n",ZR016_VERSION);
 	zr36016_codecs = 0;
 	return videocodec_register(&zr36016_codec);
 }
 
+<<<<<<< HEAD
 static void __exit
 zr36016_cleanup_module (void)
+=======
+static void __exit zr36016_cleanup_module(void)
+>>>>>>> upstream/android-13
 {
 	if (zr36016_codecs) {
 		dprintk(1,
@@ -511,6 +712,10 @@ module_init(zr36016_init_module);
 module_exit(zr36016_cleanup_module);
 
 MODULE_AUTHOR("Wolfgang Scherr <scherr@net4you.at>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Driver module for ZR36016 video frontends "
 		   ZR016_VERSION);
+=======
+MODULE_DESCRIPTION("Driver module for ZR36016 video frontends");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

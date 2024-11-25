@@ -9,9 +9,15 @@
  */
 
 #include "check.h"
+<<<<<<< HEAD
 #include "osf.h"
 
 #define MAX_OSF_PARTITIONS 18
+=======
+
+#define MAX_OSF_PARTITIONS 18
+#define DISKLABELMAGIC (0x82564557UL)
+>>>>>>> upstream/android-13
 
 int osf_partition(struct parsed_partitions *state)
 {

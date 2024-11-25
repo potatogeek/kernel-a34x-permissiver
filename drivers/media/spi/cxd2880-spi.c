@@ -10,6 +10,10 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": %s: " fmt, __func__
 
 #include <linux/spi/spi.h>
+<<<<<<< HEAD
+=======
+#include <linux/regulator/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/ktime.h>
 
 #include <media/dvb_demux.h>
@@ -51,6 +55,10 @@ struct cxd2880_dvb_spi {
 	struct mutex spi_mutex; /* For SPI access exclusive control */
 	int feed_count;
 	int all_pid_feed_count;
+<<<<<<< HEAD
+=======
+	struct regulator *vcc_supply;
+>>>>>>> upstream/android-13
 	u8 *ts_buf;
 	struct cxd2880_pid_filter_config filter_config;
 };
@@ -145,7 +153,11 @@ static int cxd2880_spi_read_ts(struct spi_device *spi,
 
 	ret = spi_sync(spi, &message);
 	if (ret)
+<<<<<<< HEAD
 		pr_err("spi_write_then_read failed\n");
+=======
+		pr_err("spi_sync failed\n");
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -399,7 +411,11 @@ static int cxd2880_start_feed(struct dvb_demux_feed *feed)
 							      dvb_spi,
 							      "cxd2880_ts_read");
 		if (IS_ERR(dvb_spi->cxd2880_ts_read_thread)) {
+<<<<<<< HEAD
 			pr_err("kthread_run failed/\n");
+=======
+			pr_err("kthread_run failed\n");
+>>>>>>> upstream/android-13
 			kfree(dvb_spi->ts_buf);
 			dvb_spi->ts_buf = NULL;
 			memset(&dvb_spi->filter_config, 0,
@@ -446,7 +462,11 @@ static int cxd2880_stop_feed(struct dvb_demux_feed *feed)
 		 * in dvb_spi->all_pid_feed_count.
 		 */
 		if (dvb_spi->all_pid_feed_count <= 0) {
+<<<<<<< HEAD
 			pr_err("PID %d not found.\n", feed->pid);
+=======
+			pr_err("PID %d not found\n", feed->pid);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 		dvb_spi->all_pid_feed_count--;
@@ -483,7 +503,11 @@ static int cxd2880_stop_feed(struct dvb_demux_feed *feed)
 
 		ret_stop = kthread_stop(dvb_spi->cxd2880_ts_read_thread);
 		if (ret_stop) {
+<<<<<<< HEAD
 			pr_err("'kthread_stop failed. (%d)\n", ret_stop);
+=======
+			pr_err("kthread_stop failed. (%d)\n", ret_stop);
+>>>>>>> upstream/android-13
 			ret = ret_stop;
 		}
 		kfree(dvb_spi->ts_buf);
@@ -510,7 +534,11 @@ cxd2880_spi_probe(struct spi_device *spi)
 	struct cxd2880_config config;
 
 	if (!spi) {
+<<<<<<< HEAD
 		pr_err("invalid arg.\n");
+=======
+		pr_err("invalid arg\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -518,9 +546,28 @@ cxd2880_spi_probe(struct spi_device *spi)
 	if (!dvb_spi)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	dvb_spi->spi = spi;
 	mutex_init(&dvb_spi->spi_mutex);
 	dev_set_drvdata(&spi->dev, dvb_spi);
+=======
+	dvb_spi->vcc_supply = devm_regulator_get_optional(&spi->dev, "vcc");
+	if (IS_ERR(dvb_spi->vcc_supply)) {
+		if (PTR_ERR(dvb_spi->vcc_supply) == -EPROBE_DEFER) {
+			ret = -EPROBE_DEFER;
+			goto fail_regulator;
+		}
+		dvb_spi->vcc_supply = NULL;
+	} else {
+		ret = regulator_enable(dvb_spi->vcc_supply);
+		if (ret)
+			goto fail_regulator;
+	}
+
+	dvb_spi->spi = spi;
+	mutex_init(&dvb_spi->spi_mutex);
+	spi_set_drvdata(spi, dvb_spi);
+>>>>>>> upstream/android-13
 	config.spi = spi;
 	config.spi_mutex = &dvb_spi->spi_mutex;
 
@@ -581,7 +628,11 @@ cxd2880_spi_probe(struct spi_device *spi)
 	ret = dvb_spi->demux.dmx.connect_frontend(&dvb_spi->demux.dmx,
 						  &dvb_spi->dmx_fe);
 	if (ret < 0) {
+<<<<<<< HEAD
 		pr_err("dvb_register_frontend() failed\n");
+=======
+		pr_err("connect_frontend() failed\n");
+>>>>>>> upstream/android-13
 		goto fail_fe_conn;
 	}
 
@@ -603,6 +654,12 @@ fail_frontend:
 fail_attach:
 	dvb_unregister_adapter(&dvb_spi->adapter);
 fail_adapter:
+<<<<<<< HEAD
+=======
+	if (dvb_spi->vcc_supply)
+		regulator_disable(dvb_spi->vcc_supply);
+fail_regulator:
+>>>>>>> upstream/android-13
 	kfree(dvb_spi);
 	return ret;
 }
@@ -617,7 +674,11 @@ cxd2880_spi_remove(struct spi_device *spi)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	dvb_spi = dev_get_drvdata(&spi->dev);
+=======
+	dvb_spi = spi_get_drvdata(spi);
+>>>>>>> upstream/android-13
 
 	if (!dvb_spi) {
 		pr_err("failed\n");
@@ -631,6 +692,12 @@ cxd2880_spi_remove(struct spi_device *spi)
 	dvb_frontend_detach(&dvb_spi->dvb_fe);
 	dvb_unregister_adapter(&dvb_spi->adapter);
 
+<<<<<<< HEAD
+=======
+	if (dvb_spi->vcc_supply)
+		regulator_disable(dvb_spi->vcc_supply);
+
+>>>>>>> upstream/android-13
 	kfree(dvb_spi);
 	pr_info("cxd2880_spi remove ok.\n");
 

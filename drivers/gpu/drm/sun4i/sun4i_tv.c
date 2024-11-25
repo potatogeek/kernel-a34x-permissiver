@@ -1,17 +1,25 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Free Electrons
  * Copyright (C) 2015 NextThing Co
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/component.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
 #include <linux/regmap.h>
 #include <linux/reset.h>
@@ -21,6 +29,20 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_of.h>
 #include <drm/drm_panel.h>
+=======
+#include <linux/module.h>
+#include <linux/of_address.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+#include <linux/reset.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "sun4i_crtc.h"
 #include "sun4i_drv.h"
@@ -469,12 +491,17 @@ static void sun4i_tv_mode_set(struct drm_encoder *encoder,
 	regmap_write(tv->regs, SUN4I_TVE_SLAVE_REG, 0);
 }
 
+<<<<<<< HEAD
 static struct drm_encoder_helper_funcs sun4i_tv_helper_funcs = {
+=======
+static const struct drm_encoder_helper_funcs sun4i_tv_helper_funcs = {
+>>>>>>> upstream/android-13
 	.disable	= sun4i_tv_disable,
 	.enable		= sun4i_tv_enable,
 	.mode_set	= sun4i_tv_mode_set,
 };
 
+<<<<<<< HEAD
 static void sun4i_tv_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
@@ -484,6 +511,8 @@ static struct drm_encoder_funcs sun4i_tv_funcs = {
 	.destroy	= sun4i_tv_destroy,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int sun4i_tv_comp_get_modes(struct drm_connector *connector)
 {
 	int i;
@@ -514,7 +543,11 @@ static int sun4i_tv_comp_mode_valid(struct drm_connector *connector,
 	return MODE_OK;
 }
 
+<<<<<<< HEAD
 static struct drm_connector_helper_funcs sun4i_tv_comp_connector_helper_funcs = {
+=======
+static const struct drm_connector_helper_funcs sun4i_tv_comp_connector_helper_funcs = {
+>>>>>>> upstream/android-13
 	.get_modes	= sun4i_tv_comp_get_modes,
 	.mode_valid	= sun4i_tv_comp_mode_valid,
 };
@@ -533,7 +566,11 @@ static const struct drm_connector_funcs sun4i_tv_comp_connector_funcs = {
 	.atomic_destroy_state	= drm_atomic_helper_connector_destroy_state,
 };
 
+<<<<<<< HEAD
 static struct regmap_config sun4i_tv_regmap_config = {
+=======
+static const struct regmap_config sun4i_tv_regmap_config = {
+>>>>>>> upstream/android-13
 	.reg_bits	= 32,
 	.val_bits	= 32,
 	.reg_stride	= 4,
@@ -594,11 +631,16 @@ static int sun4i_tv_bind(struct device *dev, struct device *master,
 
 	drm_encoder_helper_add(&tv->encoder,
 			       &sun4i_tv_helper_funcs);
+<<<<<<< HEAD
 	ret = drm_encoder_init(drm,
 			       &tv->encoder,
 			       &sun4i_tv_funcs,
 			       DRM_MODE_ENCODER_TVDAC,
 			       NULL);
+=======
+	ret = drm_simple_encoder_init(drm, &tv->encoder,
+				      DRM_MODE_ENCODER_TVDAC);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "Couldn't initialise the TV encoder\n");
 		goto err_disable_clk;

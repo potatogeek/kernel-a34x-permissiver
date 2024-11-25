@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  WM8505/WM8650 SD/MMC Host Controller
  *
  *  Copyright (C) 2010 Tony Prisk
  *  Copyright (C) 2008 WonderMedia Technologies, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -19,7 +26,10 @@
 #include <linux/io.h>
 #include <linux/irq.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 
 #include <linux/of.h>
@@ -994,6 +1004,10 @@ static struct platform_driver wmt_mci_driver = {
 	.remove = wmt_mci_remove,
 	.driver = {
 		.name = DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm = wmt_mci_pm_ops,
 		.of_match_table = wmt_mci_dt_ids,
 	},

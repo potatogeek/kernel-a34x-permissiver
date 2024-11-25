@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CS4271 ASoC codec driver
  *
  * Copyright (c) 2010 Alexander Sverdlin <subaparts@yandex.ru>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver support CS4271 codec being master or slave, working
  * in control port mode, connected either via SPI or I2C.
  * The data format accepted is I2S or left-justified.
@@ -223,10 +230,17 @@ static int cs4271_set_dai_fmt(struct snd_soc_dai *codec_dai,
 
 	switch (format & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBS_CFS:
+<<<<<<< HEAD
 		cs4271->master = 0;
 		break;
 	case SND_SOC_DAIFMT_CBM_CFM:
 		cs4271->master = 1;
+=======
+		cs4271->master = false;
+		break;
+	case SND_SOC_DAIFMT_CBM_CFM:
+		cs4271->master = true;
+>>>>>>> upstream/android-13
 		val |= CS4271_MODE1_MASTER;
 		break;
 	default:
@@ -343,7 +357,11 @@ static struct cs4271_clk_cfg cs4271_clk_tab[] = {
 	{0, CS4271_MODE1_MODE_4X, 256,  CS4271_MODE1_DIV_2},
 };
 
+<<<<<<< HEAD
 #define CS4171_NR_RATIOS ARRAY_SIZE(cs4271_clk_tab)
+=======
+#define CS4271_NR_RATIOS ARRAY_SIZE(cs4271_clk_tab)
+>>>>>>> upstream/android-13
 
 static int cs4271_hw_params(struct snd_pcm_substream *substream,
 			    struct snd_pcm_hw_params *params,
@@ -365,9 +383,15 @@ static int cs4271_hw_params(struct snd_pcm_substream *substream,
 		 */
 
 		if ((substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
+<<<<<<< HEAD
 		     !dai->capture_active) ||
 		    (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
 		     !dai->playback_active)) {
+=======
+		     !snd_soc_dai_stream_active(dai, SNDRV_PCM_STREAM_CAPTURE)) ||
+		    (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
+		     !snd_soc_dai_stream_active(dai, SNDRV_PCM_STREAM_PLAYBACK))) {
+>>>>>>> upstream/android-13
 			ret = regmap_update_bits(cs4271->regmap, CS4271_MODE2,
 						 CS4271_MODE2_PDN,
 						 CS4271_MODE2_PDN);
@@ -392,13 +416,21 @@ static int cs4271_hw_params(struct snd_pcm_substream *substream,
 		val = CS4271_MODE1_MODE_4X;
 
 	ratio = cs4271->mclk / cs4271->rate;
+<<<<<<< HEAD
 	for (i = 0; i < CS4171_NR_RATIOS; i++)
+=======
+	for (i = 0; i < CS4271_NR_RATIOS; i++)
+>>>>>>> upstream/android-13
 		if ((cs4271_clk_tab[i].master == cs4271->master) &&
 		    (cs4271_clk_tab[i].speed_mode == val) &&
 		    (cs4271_clk_tab[i].ratio == ratio))
 			break;
 
+<<<<<<< HEAD
 	if (i == CS4171_NR_RATIOS) {
+=======
+	if (i == CS4271_NR_RATIOS) {
+>>>>>>> upstream/android-13
 		dev_err(component->dev, "Invalid sample rate\n");
 		return -EINVAL;
 	}
@@ -490,7 +522,11 @@ static struct snd_soc_dai_driver cs4271_dai = {
 		.formats	= CS4271_PCM_FORMATS,
 	},
 	.ops = &cs4271_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int cs4271_reset(struct snd_soc_component *component)

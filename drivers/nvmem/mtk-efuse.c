@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 MediaTek Inc.
  * Author: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 MediaTek Inc.
+ * Author: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -56,7 +63,10 @@ static int mtk_efuse_probe(struct platform_device *pdev)
 	econfig.stride = 4;
 	econfig.word_size = 4;
 	econfig.reg_read = mtk_reg_read;
+<<<<<<< HEAD
 	econfig.read_only = true;
+=======
+>>>>>>> upstream/android-13
 	econfig.size = resource_size(res);
 	econfig.priv = priv;
 	econfig.dev = dev;

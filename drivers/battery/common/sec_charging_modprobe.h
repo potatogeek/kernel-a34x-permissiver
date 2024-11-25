@@ -26,8 +26,11 @@ enum sec_chg_dev_info {
 	SC_DEV_SEC_DIR_CHG = 0x8,
 	SC_DEV_WRL_CHG = 0x10,
 	SC_DEV_SB_MFC = 0x20,
+<<<<<<< HEAD
 	SC_DEV_MAIN_LIM = 0x40,
 	SC_DEV_SUB_LIM = 0x80,
+=======
+>>>>>>> upstream/android-13
 };
 
 struct dev_init_info {

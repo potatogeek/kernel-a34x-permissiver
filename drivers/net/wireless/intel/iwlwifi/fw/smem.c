@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -61,6 +62,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include "iwl-drv.h"
 #include "runtime.h"
 #include "fw/api/commands.h"
@@ -71,6 +80,11 @@ static void iwl_parse_shared_mem_22000(struct iwl_fw_runtime *fwrt,
 	struct iwl_shared_mem_cfg *mem_cfg = (void *)pkt->data;
 	int i, lmac;
 	int lmac_num = le32_to_cpu(mem_cfg->lmac_num);
+<<<<<<< HEAD
+=======
+	u8 api_ver = iwl_fw_lookup_notif_ver(fwrt->fw, SYSTEM_GROUP,
+					     SHARED_MEM_CFG_CMD, 0);
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(lmac_num > ARRAY_SIZE(mem_cfg->lmac_smem)))
 		return;
@@ -80,6 +94,15 @@ static void iwl_parse_shared_mem_22000(struct iwl_fw_runtime *fwrt,
 		ARRAY_SIZE(mem_cfg->lmac_smem[0].txfifo_size);
 	fwrt->smem_cfg.rxfifo2_size = le32_to_cpu(mem_cfg->rxfifo2_size);
 
+<<<<<<< HEAD
+=======
+	if (api_ver >= 4 &&
+	    !WARN_ON_ONCE(iwl_rx_packet_payload_len(pkt) < sizeof(*mem_cfg))) {
+		fwrt->smem_cfg.rxfifo2_control_size =
+			le32_to_cpu(mem_cfg->rxfifo2_control_size);
+	}
+
+>>>>>>> upstream/android-13
 	for (lmac = 0; lmac < lmac_num; lmac++) {
 		struct iwl_shared_mem_lmac_cfg *lmac_cfg =
 			&mem_cfg->lmac_smem[lmac];
@@ -151,7 +174,11 @@ void iwl_get_shared_mem_conf(struct iwl_fw_runtime *fwrt)
 	}
 
 	pkt = cmd.resp_pkt;
+<<<<<<< HEAD
 	if (fwrt->trans->cfg->device_family >= IWL_DEVICE_FAMILY_22000)
+=======
+	if (fwrt->trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_22000)
+>>>>>>> upstream/android-13
 		iwl_parse_shared_mem_22000(fwrt, pkt);
 	else
 		iwl_parse_shared_mem(fwrt, pkt);

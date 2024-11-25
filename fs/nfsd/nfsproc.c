@@ -11,6 +11,7 @@
 #include "xdr.h"
 #include "vfs.h"
 
+<<<<<<< HEAD
 typedef struct svc_rqst	svc_rqst;
 typedef struct svc_buf	svc_buf;
 
@@ -35,6 +36,16 @@ nfsd_return_dirop(__be32 err, struct nfsd_diropres *resp)
 	if (err) return err;
 	return fh_getattr(&resp->fh, &resp->stat);
 }
+=======
+#define NFSDDBG_FACILITY		NFSDDBG_PROC
+
+static __be32
+nfsd_proc_null(struct svc_rqst *rqstp)
+{
+	return rpc_success;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Get a file's attributes
  * N.B. After this call resp->fh needs an fh_put
@@ -44,6 +55,7 @@ nfsd_proc_getattr(struct svc_rqst *rqstp)
 {
 	struct nfsd_fhandle *argp = rqstp->rq_argp;
 	struct nfsd_attrstat *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	__be32 nfserr;
 	dprintk("nfsd: GETATTR  %s\n", SVCFH_fmt(&argp->fh));
 
@@ -51,6 +63,19 @@ nfsd_proc_getattr(struct svc_rqst *rqstp)
 	nfserr = fh_verify(rqstp, &resp->fh, 0,
 			NFSD_MAY_NOP | NFSD_MAY_BYPASS_GSS_ON_ROOT);
 	return nfsd_return_attrs(nfserr, resp);
+=======
+
+	dprintk("nfsd: GETATTR  %s\n", SVCFH_fmt(&argp->fh));
+
+	fh_copy(&resp->fh, &argp->fh);
+	resp->status = fh_verify(rqstp, &resp->fh, 0,
+				 NFSD_MAY_NOP | NFSD_MAY_BYPASS_GSS_ON_ROOT);
+	if (resp->status != nfs_ok)
+		goto out;
+	resp->status = fh_getattr(&resp->fh, &resp->stat);
+out:
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -64,7 +89,10 @@ nfsd_proc_setattr(struct svc_rqst *rqstp)
 	struct nfsd_attrstat *resp = rqstp->rq_resp;
 	struct iattr *iap = &argp->attrs;
 	struct svc_fh *fhp;
+<<<<<<< HEAD
 	__be32 nfserr;
+=======
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: SETATTR  %s, valid=%x, size=%ld\n",
 		SVCFH_fmt(&argp->fh),
@@ -94,16 +122,28 @@ nfsd_proc_setattr(struct svc_rqst *rqstp)
 		 * Solaris, at least, doesn't seem to care what the time
 		 * request is.  We require it be within 30 minutes of now.
 		 */
+<<<<<<< HEAD
 		time_t delta = iap->ia_atime.tv_sec - get_seconds();
 
 		nfserr = fh_verify(rqstp, fhp, 0, NFSD_MAY_NOP);
 		if (nfserr)
 			goto done;
+=======
+		time64_t delta = iap->ia_atime.tv_sec - ktime_get_real_seconds();
+
+		resp->status = fh_verify(rqstp, fhp, 0, NFSD_MAY_NOP);
+		if (resp->status != nfs_ok)
+			goto out;
+>>>>>>> upstream/android-13
 
 		if (delta < 0)
 			delta = -delta;
 		if (delta < MAX_TOUCH_TIME_ERROR &&
+<<<<<<< HEAD
 		    setattr_prepare(fhp->fh_dentry, iap) != 0) {
+=======
+		    setattr_prepare(&init_user_ns, fhp->fh_dentry, iap) != 0) {
+>>>>>>> upstream/android-13
 			/*
 			 * Turn off ATTR_[AM]TIME_SET but leave ATTR_[AM]TIME.
 			 * This will cause notify_change to set these times
@@ -113,16 +153,30 @@ nfsd_proc_setattr(struct svc_rqst *rqstp)
 		}
 	}
 
+<<<<<<< HEAD
 	nfserr = nfsd_setattr(rqstp, fhp, iap, 0, (time_t)0);
 done:
 	return nfsd_return_attrs(nfserr, resp);
+=======
+	resp->status = nfsd_setattr(rqstp, fhp, iap, 0, (time64_t)0);
+	if (resp->status != nfs_ok)
+		goto out;
+
+	resp->status = fh_getattr(&resp->fh, &resp->stat);
+out:
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /* Obsolete, replaced by MNTPROC_MNT. */
 static __be32
 nfsd_proc_root(struct svc_rqst *rqstp)
 {
+<<<<<<< HEAD
 	return nfs_ok;
+=======
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -136,17 +190,32 @@ nfsd_proc_lookup(struct svc_rqst *rqstp)
 {
 	struct nfsd_diropargs *argp = rqstp->rq_argp;
 	struct nfsd_diropres *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	__be32	nfserr;
+=======
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: LOOKUP   %s %.*s\n",
 		SVCFH_fmt(&argp->fh), argp->len, argp->name);
 
 	fh_init(&resp->fh, NFS_FHSIZE);
+<<<<<<< HEAD
 	nfserr = nfsd_lookup(rqstp, &argp->fh, argp->name, argp->len,
 				 &resp->fh);
 
 	fh_put(&argp->fh);
 	return nfsd_return_dirop(nfserr, resp);
+=======
+	resp->status = nfsd_lookup(rqstp, &argp->fh, argp->name, argp->len,
+				   &resp->fh);
+	fh_put(&argp->fh);
+	if (resp->status != nfs_ok)
+		goto out;
+
+	resp->status = fh_getattr(&resp->fh, &resp->stat);
+out:
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -155,18 +224,32 @@ nfsd_proc_lookup(struct svc_rqst *rqstp)
 static __be32
 nfsd_proc_readlink(struct svc_rqst *rqstp)
 {
+<<<<<<< HEAD
 	struct nfsd_readlinkargs *argp = rqstp->rq_argp;
 	struct nfsd_readlinkres *resp = rqstp->rq_resp;
 	__be32	nfserr;
+=======
+	struct nfsd_fhandle *argp = rqstp->rq_argp;
+	struct nfsd_readlinkres *resp = rqstp->rq_resp;
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: READLINK %s\n", SVCFH_fmt(&argp->fh));
 
 	/* Read the symlink. */
 	resp->len = NFS_MAXPATHLEN;
+<<<<<<< HEAD
 	nfserr = nfsd_readlink(rqstp, &argp->fh, argp->buffer, &resp->len);
 
 	fh_put(&argp->fh);
 	return nfserr;
+=======
+	resp->page = *(rqstp->rq_next_page++);
+	resp->status = nfsd_readlink(rqstp, &argp->fh,
+				     page_address(resp->page), &resp->len);
+
+	fh_put(&argp->fh);
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -178,12 +261,19 @@ nfsd_proc_read(struct svc_rqst *rqstp)
 {
 	struct nfsd_readargs *argp = rqstp->rq_argp;
 	struct nfsd_readres *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	__be32	nfserr;
+=======
+	unsigned int len;
+	u32 eof;
+	int v;
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: READ    %s %d bytes at %d\n",
 		SVCFH_fmt(&argp->fh),
 		argp->count, argp->offset);
 
+<<<<<<< HEAD
 	/* Obtain buffer pointer for payload. 19 is 1 word for
 	 * status, 17 words for fattr, and 1 word for the byte count.
 	 */
@@ -206,13 +296,47 @@ nfsd_proc_read(struct svc_rqst *rqstp)
 
 	if (nfserr) return nfserr;
 	return fh_getattr(&resp->fh, &resp->stat);
+=======
+	argp->count = min_t(u32, argp->count, NFSSVC_MAXBLKSIZE_V2);
+
+	v = 0;
+	len = argp->count;
+	resp->pages = rqstp->rq_next_page;
+	while (len > 0) {
+		struct page *page = *(rqstp->rq_next_page++);
+
+		rqstp->rq_vec[v].iov_base = page_address(page);
+		rqstp->rq_vec[v].iov_len = min_t(unsigned int, len, PAGE_SIZE);
+		len -= rqstp->rq_vec[v].iov_len;
+		v++;
+	}
+
+	/* Obtain buffer pointer for payload. 19 is 1 word for
+	 * status, 17 words for fattr, and 1 word for the byte count.
+	 */
+	svc_reserve_auth(rqstp, (19<<2) + argp->count + 4);
+
+	resp->count = argp->count;
+	fh_copy(&resp->fh, &argp->fh);
+	resp->status = nfsd_read(rqstp, &resp->fh, argp->offset,
+				 rqstp->rq_vec, v, &resp->count, &eof);
+	if (resp->status == nfs_ok)
+		resp->status = fh_getattr(&resp->fh, &resp->stat);
+	else if (resp->status == nfserr_jukebox)
+		return rpc_drop_reply;
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /* Reserved */
 static __be32
 nfsd_proc_writecache(struct svc_rqst *rqstp)
 {
+<<<<<<< HEAD
 	return nfs_ok;
+=======
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -224,6 +348,7 @@ nfsd_proc_write(struct svc_rqst *rqstp)
 {
 	struct nfsd_writeargs *argp = rqstp->rq_argp;
 	struct nfsd_attrstat *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	__be32	nfserr;
 	unsigned long cnt = argp->len;
 	unsigned int nvecs;
@@ -240,6 +365,25 @@ nfsd_proc_write(struct svc_rqst *rqstp)
 			    argp->offset, rqstp->rq_vec, nvecs,
 			    &cnt, NFS_DATA_SYNC);
 	return nfsd_return_attrs(nfserr, resp);
+=======
+	unsigned long cnt = argp->len;
+	unsigned int nvecs;
+
+	dprintk("nfsd: WRITE    %s %u bytes at %d\n",
+		SVCFH_fmt(&argp->fh),
+		argp->len, argp->offset);
+
+	nvecs = svc_fill_write_vector(rqstp, &argp->payload);
+
+	resp->status = nfsd_write(rqstp, fh_copy(&resp->fh, &argp->fh),
+				  argp->offset, rqstp->rq_vec, nvecs,
+				  &cnt, NFS_DATA_SYNC, NULL);
+	if (resp->status == nfs_ok)
+		resp->status = fh_getattr(&resp->fh, &resp->stat);
+	else if (resp->status == nfserr_jukebox)
+		return rpc_drop_reply;
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -259,7 +403,10 @@ nfsd_proc_create(struct svc_rqst *rqstp)
 	struct inode	*inode;
 	struct dentry	*dchild;
 	int		type, mode;
+<<<<<<< HEAD
 	__be32		nfserr;
+=======
+>>>>>>> upstream/android-13
 	int		hosterr;
 	dev_t		rdev = 0, wanted = new_decode_dev(attr->ia_size);
 
@@ -267,24 +414,38 @@ nfsd_proc_create(struct svc_rqst *rqstp)
 		SVCFH_fmt(dirfhp), argp->len, argp->name);
 
 	/* First verify the parent file handle */
+<<<<<<< HEAD
 	nfserr = fh_verify(rqstp, dirfhp, S_IFDIR, NFSD_MAY_EXEC);
 	if (nfserr)
+=======
+	resp->status = fh_verify(rqstp, dirfhp, S_IFDIR, NFSD_MAY_EXEC);
+	if (resp->status != nfs_ok)
+>>>>>>> upstream/android-13
 		goto done; /* must fh_put dirfhp even on error */
 
 	/* Check for NFSD_MAY_WRITE in nfsd_create if necessary */
 
+<<<<<<< HEAD
 	nfserr = nfserr_exist;
+=======
+	resp->status = nfserr_exist;
+>>>>>>> upstream/android-13
 	if (isdotent(argp->name, argp->len))
 		goto done;
 	hosterr = fh_want_write(dirfhp);
 	if (hosterr) {
+<<<<<<< HEAD
 		nfserr = nfserrno(hosterr);
+=======
+		resp->status = nfserrno(hosterr);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
 	fh_lock_nested(dirfhp, I_MUTEX_PARENT);
 	dchild = lookup_one_len(argp->name, dirfhp->fh_dentry, argp->len);
 	if (IS_ERR(dchild)) {
+<<<<<<< HEAD
 		nfserr = nfserrno(PTR_ERR(dchild));
 		goto out_unlock;
 	}
@@ -295,12 +456,28 @@ nfsd_proc_create(struct svc_rqst *rqstp)
 	dput(dchild);
 	if (nfserr) {
 		if (nfserr != nfserr_noent)
+=======
+		resp->status = nfserrno(PTR_ERR(dchild));
+		goto out_unlock;
+	}
+	fh_init(newfhp, NFS_FHSIZE);
+	resp->status = fh_compose(newfhp, dirfhp->fh_export, dchild, dirfhp);
+	if (!resp->status && d_really_is_negative(dchild))
+		resp->status = nfserr_noent;
+	dput(dchild);
+	if (resp->status) {
+		if (resp->status != nfserr_noent)
+>>>>>>> upstream/android-13
 			goto out_unlock;
 		/*
 		 * If the new file handle wasn't verified, we can't tell
 		 * whether the file exists or not. Time to bail ...
 		 */
+<<<<<<< HEAD
 		nfserr = nfserr_acces;
+=======
+		resp->status = nfserr_acces;
+>>>>>>> upstream/android-13
 		if (!newfhp->fh_dentry) {
 			printk(KERN_WARNING 
 				"nfsd_proc_create: file handle not verified\n");
@@ -326,18 +503,30 @@ nfsd_proc_create(struct svc_rqst *rqstp)
 					rdev = inode->i_rdev;
 					attr->ia_valid |= ATTR_SIZE;
 
+<<<<<<< HEAD
 					/* FALLTHROUGH */
+=======
+					fallthrough;
+>>>>>>> upstream/android-13
 				case S_IFIFO:
 					/* this is probably a permission check..
 					 * at least IRIX implements perm checking on
 					 *   echo thing > device-special-file-or-pipe
 					 * by doing a CREATE with type==0
 					 */
+<<<<<<< HEAD
 					nfserr = nfsd_permission(rqstp,
 								 newfhp->fh_export,
 								 newfhp->fh_dentry,
 								 NFSD_MAY_WRITE|NFSD_MAY_LOCAL_ACCESS);
 					if (nfserr && nfserr != nfserr_rofs)
+=======
+					resp->status = nfsd_permission(rqstp,
+								 newfhp->fh_export,
+								 newfhp->fh_dentry,
+								 NFSD_MAY_WRITE|NFSD_MAY_LOCAL_ACCESS);
+					if (resp->status && resp->status != nfserr_rofs)
+>>>>>>> upstream/android-13
 						goto out_unlock;
 				}
 			} else
@@ -373,6 +562,7 @@ nfsd_proc_create(struct svc_rqst *rqstp)
 		attr->ia_valid &= ~ATTR_SIZE;
 
 		/* Make sure the type and device matches */
+<<<<<<< HEAD
 		nfserr = nfserr_exist;
 		if (inode && type != (inode->i_mode & S_IFMT))
 			goto out_unlock;
@@ -383,6 +573,19 @@ nfsd_proc_create(struct svc_rqst *rqstp)
 		/* File doesn't exist. Create it and set attrs */
 		nfserr = nfsd_create_locked(rqstp, dirfhp, argp->name,
 					argp->len, attr, type, rdev, newfhp);
+=======
+		resp->status = nfserr_exist;
+		if (inode && inode_wrong_type(inode, type))
+			goto out_unlock;
+	}
+
+	resp->status = nfs_ok;
+	if (!inode) {
+		/* File doesn't exist. Create it and set attrs */
+		resp->status = nfsd_create_locked(rqstp, dirfhp, argp->name,
+						  argp->len, attr, type, rdev,
+						  newfhp);
+>>>>>>> upstream/android-13
 	} else if (type == S_IFREG) {
 		dprintk("nfsd:   existing %s, valid=%x, size=%ld\n",
 			argp->name, attr->ia_valid, (long) attr->ia_size);
@@ -392,7 +595,12 @@ nfsd_proc_create(struct svc_rqst *rqstp)
 		 */
 		attr->ia_valid &= ATTR_SIZE;
 		if (attr->ia_valid)
+<<<<<<< HEAD
 			nfserr = nfsd_setattr(rqstp, newfhp, attr, 0, (time_t)0);
+=======
+			resp->status = nfsd_setattr(rqstp, newfhp, attr, 0,
+						    (time64_t)0);
+>>>>>>> upstream/android-13
 	}
 
 out_unlock:
@@ -401,47 +609,82 @@ out_unlock:
 	fh_drop_write(dirfhp);
 done:
 	fh_put(dirfhp);
+<<<<<<< HEAD
 	return nfsd_return_dirop(nfserr, resp);
+=======
+	if (resp->status != nfs_ok)
+		goto out;
+	resp->status = fh_getattr(&resp->fh, &resp->stat);
+out:
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 static __be32
 nfsd_proc_remove(struct svc_rqst *rqstp)
 {
 	struct nfsd_diropargs *argp = rqstp->rq_argp;
+<<<<<<< HEAD
 	__be32	nfserr;
+=======
+	struct nfsd_stat *resp = rqstp->rq_resp;
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: REMOVE   %s %.*s\n", SVCFH_fmt(&argp->fh),
 		argp->len, argp->name);
 
 	/* Unlink. -SIFDIR means file must not be a directory */
+<<<<<<< HEAD
 	nfserr = nfsd_unlink(rqstp, &argp->fh, -S_IFDIR, argp->name, argp->len);
 	fh_put(&argp->fh);
 	return nfserr;
+=======
+	resp->status = nfsd_unlink(rqstp, &argp->fh, -S_IFDIR,
+				   argp->name, argp->len);
+	fh_put(&argp->fh);
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 static __be32
 nfsd_proc_rename(struct svc_rqst *rqstp)
 {
 	struct nfsd_renameargs *argp = rqstp->rq_argp;
+<<<<<<< HEAD
 	__be32	nfserr;
+=======
+	struct nfsd_stat *resp = rqstp->rq_resp;
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: RENAME   %s %.*s -> \n",
 		SVCFH_fmt(&argp->ffh), argp->flen, argp->fname);
 	dprintk("nfsd:        ->  %s %.*s\n",
 		SVCFH_fmt(&argp->tfh), argp->tlen, argp->tname);
 
+<<<<<<< HEAD
 	nfserr = nfsd_rename(rqstp, &argp->ffh, argp->fname, argp->flen,
 				    &argp->tfh, argp->tname, argp->tlen);
 	fh_put(&argp->ffh);
 	fh_put(&argp->tfh);
 	return nfserr;
+=======
+	resp->status = nfsd_rename(rqstp, &argp->ffh, argp->fname, argp->flen,
+				   &argp->tfh, argp->tname, argp->tlen);
+	fh_put(&argp->ffh);
+	fh_put(&argp->tfh);
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 static __be32
 nfsd_proc_link(struct svc_rqst *rqstp)
 {
 	struct nfsd_linkargs *argp = rqstp->rq_argp;
+<<<<<<< HEAD
 	__be32	nfserr;
+=======
+	struct nfsd_stat *resp = rqstp->rq_resp;
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: LINK     %s ->\n",
 		SVCFH_fmt(&argp->ffh));
@@ -450,41 +693,76 @@ nfsd_proc_link(struct svc_rqst *rqstp)
 		argp->tlen,
 		argp->tname);
 
+<<<<<<< HEAD
 	nfserr = nfsd_link(rqstp, &argp->tfh, argp->tname, argp->tlen,
 				  &argp->ffh);
 	fh_put(&argp->ffh);
 	fh_put(&argp->tfh);
 	return nfserr;
+=======
+	resp->status = nfsd_link(rqstp, &argp->tfh, argp->tname, argp->tlen,
+				 &argp->ffh);
+	fh_put(&argp->ffh);
+	fh_put(&argp->tfh);
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 static __be32
 nfsd_proc_symlink(struct svc_rqst *rqstp)
 {
 	struct nfsd_symlinkargs *argp = rqstp->rq_argp;
+<<<<<<< HEAD
 	struct svc_fh	newfh;
 	__be32		nfserr;
 
 	if (argp->tlen > NFS_MAXPATHLEN)
 		return nfserr_nametoolong;
+=======
+	struct nfsd_stat *resp = rqstp->rq_resp;
+	struct svc_fh	newfh;
+
+	if (argp->tlen > NFS_MAXPATHLEN) {
+		resp->status = nfserr_nametoolong;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	argp->tname = svc_fill_symlink_pathname(rqstp, &argp->first,
 						page_address(rqstp->rq_arg.pages[0]),
 						argp->tlen);
+<<<<<<< HEAD
 	if (IS_ERR(argp->tname))
 		return nfserrno(PTR_ERR(argp->tname));
+=======
+	if (IS_ERR(argp->tname)) {
+		resp->status = nfserrno(PTR_ERR(argp->tname));
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: SYMLINK  %s %.*s -> %.*s\n",
 		SVCFH_fmt(&argp->ffh), argp->flen, argp->fname,
 		argp->tlen, argp->tname);
 
 	fh_init(&newfh, NFS_FHSIZE);
+<<<<<<< HEAD
 	nfserr = nfsd_symlink(rqstp, &argp->ffh, argp->fname, argp->flen,
 						 argp->tname, &newfh);
+=======
+	resp->status = nfsd_symlink(rqstp, &argp->ffh, argp->fname, argp->flen,
+				    argp->tname, &newfh);
+>>>>>>> upstream/android-13
 
 	kfree(argp->tname);
 	fh_put(&argp->ffh);
 	fh_put(&newfh);
+<<<<<<< HEAD
 	return nfserr;
+=======
+out:
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -496,7 +774,10 @@ nfsd_proc_mkdir(struct svc_rqst *rqstp)
 {
 	struct nfsd_createargs *argp = rqstp->rq_argp;
 	struct nfsd_diropres *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	__be32	nfserr;
+=======
+>>>>>>> upstream/android-13
 
 	dprintk("nfsd: MKDIR    %s %.*s\n", SVCFH_fmt(&argp->fh), argp->len, argp->name);
 
@@ -507,10 +788,22 @@ nfsd_proc_mkdir(struct svc_rqst *rqstp)
 
 	argp->attrs.ia_valid &= ~ATTR_SIZE;
 	fh_init(&resp->fh, NFS_FHSIZE);
+<<<<<<< HEAD
 	nfserr = nfsd_create(rqstp, &argp->fh, argp->name, argp->len,
 				    &argp->attrs, S_IFDIR, 0, &resp->fh);
 	fh_put(&argp->fh);
 	return nfsd_return_dirop(nfserr, resp);
+=======
+	resp->status = nfsd_create(rqstp, &argp->fh, argp->name, argp->len,
+				   &argp->attrs, S_IFDIR, 0, &resp->fh);
+	fh_put(&argp->fh);
+	if (resp->status != nfs_ok)
+		goto out;
+
+	resp->status = fh_getattr(&resp->fh, &resp->stat);
+out:
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -520,6 +813,7 @@ static __be32
 nfsd_proc_rmdir(struct svc_rqst *rqstp)
 {
 	struct nfsd_diropargs *argp = rqstp->rq_argp;
+<<<<<<< HEAD
 	__be32	nfserr;
 
 	dprintk("nfsd: RMDIR    %s %.*s\n", SVCFH_fmt(&argp->fh), argp->len, argp->name);
@@ -527,6 +821,43 @@ nfsd_proc_rmdir(struct svc_rqst *rqstp)
 	nfserr = nfsd_unlink(rqstp, &argp->fh, S_IFDIR, argp->name, argp->len);
 	fh_put(&argp->fh);
 	return nfserr;
+=======
+	struct nfsd_stat *resp = rqstp->rq_resp;
+
+	dprintk("nfsd: RMDIR    %s %.*s\n", SVCFH_fmt(&argp->fh), argp->len, argp->name);
+
+	resp->status = nfsd_unlink(rqstp, &argp->fh, S_IFDIR,
+				   argp->name, argp->len);
+	fh_put(&argp->fh);
+	return rpc_success;
+}
+
+static void nfsd_init_dirlist_pages(struct svc_rqst *rqstp,
+				    struct nfsd_readdirres *resp,
+				    u32 count)
+{
+	struct xdr_buf *buf = &resp->dirlist;
+	struct xdr_stream *xdr = &resp->xdr;
+
+	count = clamp(count, (u32)(XDR_UNIT * 2), svc_max_payload(rqstp));
+
+	memset(buf, 0, sizeof(*buf));
+
+	/* Reserve room for the NULL ptr & eof flag (-2 words) */
+	buf->buflen = count - XDR_UNIT * 2;
+	buf->pages = rqstp->rq_next_page;
+	rqstp->rq_next_page++;
+
+	/* This is xdr_init_encode(), but it assumes that
+	 * the head kvec has already been consumed. */
+	xdr_set_scratch_buffer(xdr, NULL, 0);
+	xdr->buf = buf;
+	xdr->page_ptr = buf->pages;
+	xdr->iov = NULL;
+	xdr->p = page_address(*buf->pages);
+	xdr->end = (void *)xdr->p + min_t(u32, buf->buflen, PAGE_SIZE);
+	xdr->rqst = NULL;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -537,14 +868,18 @@ nfsd_proc_readdir(struct svc_rqst *rqstp)
 {
 	struct nfsd_readdirargs *argp = rqstp->rq_argp;
 	struct nfsd_readdirres *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	int		count;
 	__be32		nfserr;
+=======
+>>>>>>> upstream/android-13
 	loff_t		offset;
 
 	dprintk("nfsd: READDIR  %s %d bytes at %d\n",
 		SVCFH_fmt(&argp->fh),		
 		argp->count, argp->cookie);
 
+<<<<<<< HEAD
 	/* Shrink to the client read size */
 	count = (argp->count >> 2) - 2;
 
@@ -568,6 +903,19 @@ nfsd_proc_readdir(struct svc_rqst *rqstp)
 
 	fh_put(&argp->fh);
 	return nfserr;
+=======
+	nfsd_init_dirlist_pages(rqstp, resp, argp->count);
+
+	resp->common.err = nfs_ok;
+	resp->cookie_offset = 0;
+	offset = argp->cookie;
+	resp->status = nfsd_readdir(rqstp, &argp->fh, &offset,
+				    &resp->common, nfssvc_encode_entry);
+	nfssvc_encode_nfscookie(resp, offset);
+
+	fh_put(&argp->fh);
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -578,6 +926,7 @@ nfsd_proc_statfs(struct svc_rqst *rqstp)
 {
 	struct nfsd_fhandle *argp = rqstp->rq_argp;
 	struct nfsd_statfsres *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	__be32	nfserr;
 
 	dprintk("nfsd: STATFS   %s\n", SVCFH_fmt(&argp->fh));
@@ -586,13 +935,25 @@ nfsd_proc_statfs(struct svc_rqst *rqstp)
 			NFSD_MAY_BYPASS_GSS_ON_ROOT);
 	fh_put(&argp->fh);
 	return nfserr;
+=======
+
+	dprintk("nfsd: STATFS   %s\n", SVCFH_fmt(&argp->fh));
+
+	resp->status = nfsd_statfs(rqstp, &argp->fh, &resp->stats,
+				   NFSD_MAY_BYPASS_GSS_ON_ROOT);
+	fh_put(&argp->fh);
+	return rpc_success;
+>>>>>>> upstream/android-13
 }
 
 /*
  * NFSv2 Server procedures.
  * Only the results of non-idempotent operations are cached.
  */
+<<<<<<< HEAD
 struct nfsd_void { int dummy; };
+=======
+>>>>>>> upstream/android-13
 
 #define ST 1		/* status */
 #define FH 8		/* filehandle */
@@ -601,6 +962,7 @@ struct nfsd_void { int dummy; };
 static const struct svc_procedure nfsd_procedures2[18] = {
 	[NFSPROC_NULL] = {
 		.pc_func = nfsd_proc_null,
+<<<<<<< HEAD
 		.pc_decode = nfssvc_decode_void,
 		.pc_encode = nfssvc_encode_void,
 		.pc_argsize = sizeof(struct nfsd_void),
@@ -613,20 +975,45 @@ static const struct svc_procedure nfsd_procedures2[18] = {
 		.pc_decode = nfssvc_decode_fhandle,
 		.pc_encode = nfssvc_encode_attrstat,
 		.pc_release = nfssvc_release_fhandle,
+=======
+		.pc_decode = nfssvc_decode_voidarg,
+		.pc_encode = nfssvc_encode_voidres,
+		.pc_argsize = sizeof(struct nfsd_voidargs),
+		.pc_ressize = sizeof(struct nfsd_voidres),
+		.pc_cachetype = RC_NOCACHE,
+		.pc_xdrressize = 0,
+		.pc_name = "NULL",
+	},
+	[NFSPROC_GETATTR] = {
+		.pc_func = nfsd_proc_getattr,
+		.pc_decode = nfssvc_decode_fhandleargs,
+		.pc_encode = nfssvc_encode_attrstatres,
+		.pc_release = nfssvc_release_attrstat,
+>>>>>>> upstream/android-13
 		.pc_argsize = sizeof(struct nfsd_fhandle),
 		.pc_ressize = sizeof(struct nfsd_attrstat),
 		.pc_cachetype = RC_NOCACHE,
 		.pc_xdrressize = ST+AT,
+<<<<<<< HEAD
+=======
+		.pc_name = "GETATTR",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_SETATTR] = {
 		.pc_func = nfsd_proc_setattr,
 		.pc_decode = nfssvc_decode_sattrargs,
+<<<<<<< HEAD
 		.pc_encode = nfssvc_encode_attrstat,
 		.pc_release = nfssvc_release_fhandle,
+=======
+		.pc_encode = nfssvc_encode_attrstatres,
+		.pc_release = nfssvc_release_attrstat,
+>>>>>>> upstream/android-13
 		.pc_argsize = sizeof(struct nfsd_sattrargs),
 		.pc_ressize = sizeof(struct nfsd_attrstat),
 		.pc_cachetype = RC_REPLBUFF,
 		.pc_xdrressize = ST+AT,
+<<<<<<< HEAD
 	},
 	[NFSPROC_ROOT] = {
 		.pc_func = nfsd_proc_root,
@@ -636,16 +1023,34 @@ static const struct svc_procedure nfsd_procedures2[18] = {
 		.pc_ressize = sizeof(struct nfsd_void),
 		.pc_cachetype = RC_NOCACHE,
 		.pc_xdrressize = ST,
+=======
+		.pc_name = "SETATTR",
+	},
+	[NFSPROC_ROOT] = {
+		.pc_func = nfsd_proc_root,
+		.pc_decode = nfssvc_decode_voidarg,
+		.pc_encode = nfssvc_encode_voidres,
+		.pc_argsize = sizeof(struct nfsd_voidargs),
+		.pc_ressize = sizeof(struct nfsd_voidres),
+		.pc_cachetype = RC_NOCACHE,
+		.pc_xdrressize = 0,
+		.pc_name = "ROOT",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_LOOKUP] = {
 		.pc_func = nfsd_proc_lookup,
 		.pc_decode = nfssvc_decode_diropargs,
 		.pc_encode = nfssvc_encode_diropres,
+<<<<<<< HEAD
 		.pc_release = nfssvc_release_fhandle,
+=======
+		.pc_release = nfssvc_release_diropres,
+>>>>>>> upstream/android-13
 		.pc_argsize = sizeof(struct nfsd_diropargs),
 		.pc_ressize = sizeof(struct nfsd_diropres),
 		.pc_cachetype = RC_NOCACHE,
 		.pc_xdrressize = ST+FH+AT,
+<<<<<<< HEAD
 	},
 	[NFSPROC_READLINK] = {
 		.pc_func = nfsd_proc_readlink,
@@ -655,16 +1060,34 @@ static const struct svc_procedure nfsd_procedures2[18] = {
 		.pc_ressize = sizeof(struct nfsd_readlinkres),
 		.pc_cachetype = RC_NOCACHE,
 		.pc_xdrressize = ST+1+NFS_MAXPATHLEN/4,
+=======
+		.pc_name = "LOOKUP",
+	},
+	[NFSPROC_READLINK] = {
+		.pc_func = nfsd_proc_readlink,
+		.pc_decode = nfssvc_decode_fhandleargs,
+		.pc_encode = nfssvc_encode_readlinkres,
+		.pc_argsize = sizeof(struct nfsd_fhandle),
+		.pc_ressize = sizeof(struct nfsd_readlinkres),
+		.pc_cachetype = RC_NOCACHE,
+		.pc_xdrressize = ST+1+NFS_MAXPATHLEN/4,
+		.pc_name = "READLINK",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_READ] = {
 		.pc_func = nfsd_proc_read,
 		.pc_decode = nfssvc_decode_readargs,
 		.pc_encode = nfssvc_encode_readres,
+<<<<<<< HEAD
 		.pc_release = nfssvc_release_fhandle,
+=======
+		.pc_release = nfssvc_release_readres,
+>>>>>>> upstream/android-13
 		.pc_argsize = sizeof(struct nfsd_readargs),
 		.pc_ressize = sizeof(struct nfsd_readres),
 		.pc_cachetype = RC_NOCACHE,
 		.pc_xdrressize = ST+AT+1+NFSSVC_MAXBLKSIZE_V2/4,
+<<<<<<< HEAD
 	},
 	[NFSPROC_WRITECACHE] = {
 		.pc_func = nfsd_proc_writecache,
@@ -674,81 +1097,164 @@ static const struct svc_procedure nfsd_procedures2[18] = {
 		.pc_ressize = sizeof(struct nfsd_void),
 		.pc_cachetype = RC_NOCACHE,
 		.pc_xdrressize = ST,
+=======
+		.pc_name = "READ",
+	},
+	[NFSPROC_WRITECACHE] = {
+		.pc_func = nfsd_proc_writecache,
+		.pc_decode = nfssvc_decode_voidarg,
+		.pc_encode = nfssvc_encode_voidres,
+		.pc_argsize = sizeof(struct nfsd_voidargs),
+		.pc_ressize = sizeof(struct nfsd_voidres),
+		.pc_cachetype = RC_NOCACHE,
+		.pc_xdrressize = 0,
+		.pc_name = "WRITECACHE",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_WRITE] = {
 		.pc_func = nfsd_proc_write,
 		.pc_decode = nfssvc_decode_writeargs,
+<<<<<<< HEAD
 		.pc_encode = nfssvc_encode_attrstat,
 		.pc_release = nfssvc_release_fhandle,
+=======
+		.pc_encode = nfssvc_encode_attrstatres,
+		.pc_release = nfssvc_release_attrstat,
+>>>>>>> upstream/android-13
 		.pc_argsize = sizeof(struct nfsd_writeargs),
 		.pc_ressize = sizeof(struct nfsd_attrstat),
 		.pc_cachetype = RC_REPLBUFF,
 		.pc_xdrressize = ST+AT,
+<<<<<<< HEAD
+=======
+		.pc_name = "WRITE",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_CREATE] = {
 		.pc_func = nfsd_proc_create,
 		.pc_decode = nfssvc_decode_createargs,
 		.pc_encode = nfssvc_encode_diropres,
+<<<<<<< HEAD
 		.pc_release = nfssvc_release_fhandle,
+=======
+		.pc_release = nfssvc_release_diropres,
+>>>>>>> upstream/android-13
 		.pc_argsize = sizeof(struct nfsd_createargs),
 		.pc_ressize = sizeof(struct nfsd_diropres),
 		.pc_cachetype = RC_REPLBUFF,
 		.pc_xdrressize = ST+FH+AT,
+<<<<<<< HEAD
+=======
+		.pc_name = "CREATE",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_REMOVE] = {
 		.pc_func = nfsd_proc_remove,
 		.pc_decode = nfssvc_decode_diropargs,
+<<<<<<< HEAD
 		.pc_encode = nfssvc_encode_void,
 		.pc_argsize = sizeof(struct nfsd_diropargs),
 		.pc_ressize = sizeof(struct nfsd_void),
 		.pc_cachetype = RC_REPLSTAT,
 		.pc_xdrressize = ST,
+=======
+		.pc_encode = nfssvc_encode_statres,
+		.pc_argsize = sizeof(struct nfsd_diropargs),
+		.pc_ressize = sizeof(struct nfsd_stat),
+		.pc_cachetype = RC_REPLSTAT,
+		.pc_xdrressize = ST,
+		.pc_name = "REMOVE",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_RENAME] = {
 		.pc_func = nfsd_proc_rename,
 		.pc_decode = nfssvc_decode_renameargs,
+<<<<<<< HEAD
 		.pc_encode = nfssvc_encode_void,
 		.pc_argsize = sizeof(struct nfsd_renameargs),
 		.pc_ressize = sizeof(struct nfsd_void),
 		.pc_cachetype = RC_REPLSTAT,
 		.pc_xdrressize = ST,
+=======
+		.pc_encode = nfssvc_encode_statres,
+		.pc_argsize = sizeof(struct nfsd_renameargs),
+		.pc_ressize = sizeof(struct nfsd_stat),
+		.pc_cachetype = RC_REPLSTAT,
+		.pc_xdrressize = ST,
+		.pc_name = "RENAME",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_LINK] = {
 		.pc_func = nfsd_proc_link,
 		.pc_decode = nfssvc_decode_linkargs,
+<<<<<<< HEAD
 		.pc_encode = nfssvc_encode_void,
 		.pc_argsize = sizeof(struct nfsd_linkargs),
 		.pc_ressize = sizeof(struct nfsd_void),
 		.pc_cachetype = RC_REPLSTAT,
 		.pc_xdrressize = ST,
+=======
+		.pc_encode = nfssvc_encode_statres,
+		.pc_argsize = sizeof(struct nfsd_linkargs),
+		.pc_ressize = sizeof(struct nfsd_stat),
+		.pc_cachetype = RC_REPLSTAT,
+		.pc_xdrressize = ST,
+		.pc_name = "LINK",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_SYMLINK] = {
 		.pc_func = nfsd_proc_symlink,
 		.pc_decode = nfssvc_decode_symlinkargs,
+<<<<<<< HEAD
 		.pc_encode = nfssvc_encode_void,
 		.pc_argsize = sizeof(struct nfsd_symlinkargs),
 		.pc_ressize = sizeof(struct nfsd_void),
 		.pc_cachetype = RC_REPLSTAT,
 		.pc_xdrressize = ST,
+=======
+		.pc_encode = nfssvc_encode_statres,
+		.pc_argsize = sizeof(struct nfsd_symlinkargs),
+		.pc_ressize = sizeof(struct nfsd_stat),
+		.pc_cachetype = RC_REPLSTAT,
+		.pc_xdrressize = ST,
+		.pc_name = "SYMLINK",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_MKDIR] = {
 		.pc_func = nfsd_proc_mkdir,
 		.pc_decode = nfssvc_decode_createargs,
 		.pc_encode = nfssvc_encode_diropres,
+<<<<<<< HEAD
 		.pc_release = nfssvc_release_fhandle,
+=======
+		.pc_release = nfssvc_release_diropres,
+>>>>>>> upstream/android-13
 		.pc_argsize = sizeof(struct nfsd_createargs),
 		.pc_ressize = sizeof(struct nfsd_diropres),
 		.pc_cachetype = RC_REPLBUFF,
 		.pc_xdrressize = ST+FH+AT,
+<<<<<<< HEAD
+=======
+		.pc_name = "MKDIR",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_RMDIR] = {
 		.pc_func = nfsd_proc_rmdir,
 		.pc_decode = nfssvc_decode_diropargs,
+<<<<<<< HEAD
 		.pc_encode = nfssvc_encode_void,
 		.pc_argsize = sizeof(struct nfsd_diropargs),
 		.pc_ressize = sizeof(struct nfsd_void),
 		.pc_cachetype = RC_REPLSTAT,
 		.pc_xdrressize = ST,
+=======
+		.pc_encode = nfssvc_encode_statres,
+		.pc_argsize = sizeof(struct nfsd_diropargs),
+		.pc_ressize = sizeof(struct nfsd_stat),
+		.pc_cachetype = RC_REPLSTAT,
+		.pc_xdrressize = ST,
+		.pc_name = "RMDIR",
+>>>>>>> upstream/android-13
 	},
 	[NFSPROC_READDIR] = {
 		.pc_func = nfsd_proc_readdir,
@@ -757,15 +1263,27 @@ static const struct svc_procedure nfsd_procedures2[18] = {
 		.pc_argsize = sizeof(struct nfsd_readdirargs),
 		.pc_ressize = sizeof(struct nfsd_readdirres),
 		.pc_cachetype = RC_NOCACHE,
+<<<<<<< HEAD
 	},
 	[NFSPROC_STATFS] = {
 		.pc_func = nfsd_proc_statfs,
 		.pc_decode = nfssvc_decode_fhandle,
+=======
+		.pc_name = "READDIR",
+	},
+	[NFSPROC_STATFS] = {
+		.pc_func = nfsd_proc_statfs,
+		.pc_decode = nfssvc_decode_fhandleargs,
+>>>>>>> upstream/android-13
 		.pc_encode = nfssvc_encode_statfsres,
 		.pc_argsize = sizeof(struct nfsd_fhandle),
 		.pc_ressize = sizeof(struct nfsd_statfsres),
 		.pc_cachetype = RC_NOCACHE,
 		.pc_xdrressize = ST+5,
+<<<<<<< HEAD
+=======
+		.pc_name = "STATFS",
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -826,6 +1344,10 @@ nfserrno (int errno)
 		{ nfserr_serverfault, -ENFILE },
 		{ nfserr_io, -EUCLEAN },
 		{ nfserr_perm, -ENOKEY },
+<<<<<<< HEAD
+=======
+		{ nfserr_no_grace, -ENOGRACE},
+>>>>>>> upstream/android-13
 	};
 	int	i;
 

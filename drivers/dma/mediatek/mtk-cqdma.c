@@ -1,7 +1,18 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 
 /*
  * Copyright (c) 2018-2019 MediaTek Inc.
+=======
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2018-2019 MediaTek Inc.
+
+/*
+ * Driver for MediaTek Command-Queue DMA Controller
+ *
+ * Author: Shun-Chih Yu <shun-chih.yu@mediatek.com>
+ *
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -129,7 +140,10 @@ struct mtk_cqdma_vchan {
  * @clk:                    The clock that device internal is using
  * @dma_requests:           The number of VCs the device supports to
  * @dma_channels:           The number of PCs the device supports to
+<<<<<<< HEAD
  * @dma_mask:               A mask for DMA capability
+=======
+>>>>>>> upstream/android-13
  * @vc:                     The pointer to all available VCs
  * @pc:                     The pointer to all the underlying PCs
  */
@@ -139,7 +153,10 @@ struct mtk_cqdma_device {
 
 	u32 dma_requests;
 	u32 dma_channels;
+<<<<<<< HEAD
 	u32 dma_mask;
+=======
+>>>>>>> upstream/android-13
 	struct mtk_cqdma_vchan *vc;
 	struct mtk_cqdma_pchan **pc;
 };
@@ -354,9 +371,15 @@ static struct mtk_cqdma_vdesc
 	return ret;
 }
 
+<<<<<<< HEAD
 static void mtk_cqdma_tasklet_cb(unsigned long data)
 {
 	struct mtk_cqdma_pchan *pc = (struct mtk_cqdma_pchan *)data;
+=======
+static void mtk_cqdma_tasklet_cb(struct tasklet_struct *t)
+{
+	struct mtk_cqdma_pchan *pc = from_tasklet(pc, t, tasklet);
+>>>>>>> upstream/android-13
 	struct mtk_cqdma_vdesc *cvd = NULL;
 	unsigned long flags;
 
@@ -739,10 +762,14 @@ static void mtk_cqdma_hw_deinit(struct mtk_cqdma_device *cqdma)
 }
 
 static const struct of_device_id mtk_cqdma_match[] = {
+<<<<<<< HEAD
 	{ .compatible = "mediatek,cqdma" },
 	{ .compatible = "mediatek,mt6765-cqdma" },
 	{ .compatible = "mediatek,mt6893-cqdma" },
 	{ .compatible = "mediatek,mt6877-cqdma" },
+=======
+	{ .compatible = "mediatek,mt6765-cqdma" },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, mtk_cqdma_match);
@@ -805,6 +832,7 @@ static int mtk_cqdma_probe(struct platform_device *pdev)
 		cqdma->dma_channels = MTK_CQDMA_NR_PCHANS;
 	}
 
+<<<<<<< HEAD
 	if (pdev->dev.of_node)
 		err = of_property_read_u32(pdev->dev.of_node,
 					   "dma-channel-mask",
@@ -820,6 +848,8 @@ static int mtk_cqdma_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	cqdma->pc = devm_kcalloc(&pdev->dev, cqdma->dma_channels,
 				 sizeof(*cqdma->pc), GFP_KERNEL);
 	if (!cqdma->pc)
@@ -835,6 +865,7 @@ static int mtk_cqdma_probe(struct platform_device *pdev)
 		INIT_LIST_HEAD(&cqdma->pc[i]->queue);
 		spin_lock_init(&cqdma->pc[i]->lock);
 		refcount_set(&cqdma->pc[i]->refcnt, 0);
+<<<<<<< HEAD
 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
 		if (!res) {
 			dev_err(&pdev->dev, "No mem resource for %s\n",
@@ -842,16 +873,28 @@ static int mtk_cqdma_probe(struct platform_device *pdev)
 			return -EINVAL;
 		}
 		cqdma->pc[i]->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+		cqdma->pc[i]->base = devm_platform_ioremap_resource(pdev, i);
+>>>>>>> upstream/android-13
 		if (IS_ERR(cqdma->pc[i]->base))
 			return PTR_ERR(cqdma->pc[i]->base);
 
 		/* allocate IRQ resource */
+<<<<<<< HEAD
 		cqdma->pc[i]->irq = platform_get_irq(pdev, i);
 		if (!cqdma->pc[i]->irq) {
+=======
+		res = platform_get_resource(pdev, IORESOURCE_IRQ, i);
+		if (!res) {
+>>>>>>> upstream/android-13
 			dev_err(&pdev->dev, "No irq resource for %s\n",
 				dev_name(&pdev->dev));
 			return -EINVAL;
 		}
+<<<<<<< HEAD
+=======
+		cqdma->pc[i]->irq = res->start;
+>>>>>>> upstream/android-13
 
 		err = devm_request_irq(&pdev->dev, cqdma->pc[i]->irq,
 				       mtk_cqdma_irq, 0, dev_name(&pdev->dev),
@@ -899,8 +942,12 @@ static int mtk_cqdma_probe(struct platform_device *pdev)
 
 	/* initialize tasklet for each PC */
 	for (i = 0; i < cqdma->dma_channels; ++i)
+<<<<<<< HEAD
 		tasklet_init(&cqdma->pc[i]->tasklet, mtk_cqdma_tasklet_cb,
 			     (unsigned long)cqdma->pc[i]);
+=======
+		tasklet_setup(&cqdma->pc[i]->tasklet, mtk_cqdma_tasklet_cb);
+>>>>>>> upstream/android-13
 
 	dev_info(&pdev->dev, "MediaTek CQDMA driver registered\n");
 
@@ -919,12 +966,15 @@ static int mtk_cqdma_remove(struct platform_device *pdev)
 	unsigned long flags;
 	int i;
 
+<<<<<<< HEAD
 	dma_async_device_unregister(&cqdma->ddev);
 	of_dma_controller_free(pdev->dev.of_node);
 
 	/* disable hardware */
 	mtk_cqdma_hw_deinit(cqdma);
 
+=======
+>>>>>>> upstream/android-13
 	/* kill VC task */
 	for (i = 0; i < cqdma->dma_requests; i++) {
 		vc = &cqdma->vc[i];
@@ -946,11 +996,19 @@ static int mtk_cqdma_remove(struct platform_device *pdev)
 		tasklet_kill(&cqdma->pc[i]->tasklet);
 	}
 
+<<<<<<< HEAD
 	devm_kfree(&pdev->dev, cqdma->vc);
 	for (i = 0; i < cqdma->dma_channels; ++i)
 		devm_kfree(&pdev->dev, cqdma->pc[i]);
 	devm_kfree(&pdev->dev, cqdma->pc);
 	devm_kfree(&pdev->dev, cqdma);
+=======
+	/* disable hardware */
+	mtk_cqdma_hw_deinit(cqdma);
+
+	dma_async_device_unregister(&cqdma->ddev);
+	of_dma_controller_free(pdev->dev.of_node);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

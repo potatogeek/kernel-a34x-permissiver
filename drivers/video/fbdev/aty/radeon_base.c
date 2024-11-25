@@ -269,11 +269,15 @@ static bool force_measure_pll = 0;
 static bool nomtrr = 0;
 static bool force_sleep;
 static bool ignore_devlist;
+<<<<<<< HEAD
 #ifdef CONFIG_PMAC_BACKLIGHT
 static int backlight = 1;
 #else
 static int backlight = 0;
 #endif
+=======
+static int backlight = IS_BUILTIN(CONFIG_PMAC_BACKLIGHT);
+>>>>>>> upstream/android-13
 
 /* Note about this function: we have some rare cases where we must not schedule,
  * this typically happen with our special "wake up early" hook which allows us to
@@ -849,12 +853,15 @@ static int radeonfb_check_var (struct fb_var_screeninfo *var, struct fb_info *in
 		case 9 ... 16:
 			v.bits_per_pixel = 16;
 			break;
+<<<<<<< HEAD
 		case 17 ... 24:
 #if 0 /* Doesn't seem to work */
 			v.bits_per_pixel = 24;
 			break;
 #endif			
 			return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 		case 25 ... 32:
 			v.bits_per_pixel = 32;
 			break;
@@ -1650,14 +1657,22 @@ static int radeonfb_set_par(struct fb_info *info)
 	struct fb_var_screeninfo *mode = &info->var;
 	struct radeon_regs *newmode;
 	int hTotal, vTotal, hSyncStart, hSyncEnd,
+<<<<<<< HEAD
 	    hSyncPol, vSyncStart, vSyncEnd, vSyncPol, cSync;
+=======
+	    vSyncStart, vSyncEnd;
+>>>>>>> upstream/android-13
 	u8 hsync_adj_tab[] = {0, 0x12, 9, 9, 6, 5};
 	u8 hsync_fudge_fp[] = {2, 2, 0, 0, 5, 5};
 	u32 sync, h_sync_pol, v_sync_pol, dotClock, pixClock;
 	int i, freq;
 	int format = 0;
 	int nopllcalc = 0;
+<<<<<<< HEAD
 	int hsync_start, hsync_fudge, bytpp, hsync_wid, vsync_wid;
+=======
+	int hsync_start, hsync_fudge, hsync_wid, vsync_wid;
+>>>>>>> upstream/android-13
 	int primary_mon = PRIMARY_MONITOR(rinfo);
 	int depth = var_to_depth(mode);
 	int use_rmx = 0;
@@ -1730,6 +1745,7 @@ static int radeonfb_set_par(struct fb_info *info)
 	else if (vsync_wid > 0x1f)	/* max */
 		vsync_wid = 0x1f;
 
+<<<<<<< HEAD
 	hSyncPol = mode->sync & FB_SYNC_HOR_HIGH_ACT ? 0 : 1;
 	vSyncPol = mode->sync & FB_SYNC_VERT_HIGH_ACT ? 0 : 1;
 
@@ -1737,6 +1753,9 @@ static int radeonfb_set_par(struct fb_info *info)
 
 	format = radeon_get_dstbpp(depth);
 	bytpp = mode->bits_per_pixel >> 3;
+=======
+	format = radeon_get_dstbpp(depth);
+>>>>>>> upstream/android-13
 
 	if ((primary_mon == MT_DFP) || (primary_mon == MT_LCD))
 		hsync_fudge = hsync_fudge_fp[format-1];
@@ -1965,7 +1984,11 @@ static int radeonfb_set_par(struct fb_info *info)
 }
 
 
+<<<<<<< HEAD
 static struct fb_ops radeonfb_ops = {
+=======
+static const struct fb_ops radeonfb_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_check_var		= radeonfb_check_var,
 	.fb_set_par		= radeonfb_set_par,
@@ -2216,9 +2239,14 @@ static ssize_t radeon_show_edid1(struct file *filp, struct kobject *kobj,
 				 struct bin_attribute *bin_attr,
 				 char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
 	struct pci_dev *pdev = to_pci_dev(dev);
         struct fb_info *info = pci_get_drvdata(pdev);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+	struct fb_info *info = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
         struct radeonfb_info *rinfo = info->par;
 
 	return radeon_show_one_edid(buf, off, count, rinfo->mon1_EDID);
@@ -2229,9 +2257,14 @@ static ssize_t radeon_show_edid2(struct file *filp, struct kobject *kobj,
 				 struct bin_attribute *bin_attr,
 				 char *buf, loff_t off, size_t count)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
 	struct pci_dev *pdev = to_pci_dev(dev);
         struct fb_info *info = pci_get_drvdata(pdev);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+	struct fb_info *info = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
         struct radeonfb_info *rinfo = info->par;
 
 	return radeon_show_one_edid(buf, off, count, rinfo->mon2_EDID);
@@ -2294,8 +2327,11 @@ static int radeonfb_pci_register(struct pci_dev *pdev,
 
 	info = framebuffer_alloc(sizeof(struct radeonfb_info), &pdev->dev);
 	if (!info) {
+<<<<<<< HEAD
 		printk (KERN_ERR "radeonfb (%s): could not allocate memory\n",
 			pci_name(pdev));
+=======
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_disable;
 	}
@@ -2552,6 +2588,7 @@ static void radeonfb_pci_unregister(struct pci_dev *pdev)
 	if (rinfo->mon2_EDID)
 		sysfs_remove_bin_file(&rinfo->pdev->dev.kobj, &edid2_attr);
 
+<<<<<<< HEAD
 #if 0
 	/* restore original state
 	 * 
@@ -2562,6 +2599,8 @@ static void radeonfb_pci_unregister(struct pci_dev *pdev)
         radeon_write_mode (rinfo, &rinfo->init_state, 1);
  #endif
 
+=======
+>>>>>>> upstream/android-13
 	del_timer_sync(&rinfo->lvds_timer);
 	arch_phys_wc_del(rinfo->wc_cookie);
         unregister_framebuffer(info);
@@ -2585,16 +2624,28 @@ static void radeonfb_pci_unregister(struct pci_dev *pdev)
         framebuffer_release(info);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM
+#define RADEONFB_PCI_PM_OPS (&radeonfb_pci_pm_ops)
+#else
+#define RADEONFB_PCI_PM_OPS NULL
+#endif
+>>>>>>> upstream/android-13
 
 static struct pci_driver radeonfb_driver = {
 	.name		= "radeonfb",
 	.id_table	= radeonfb_pci_table,
 	.probe		= radeonfb_pci_register,
 	.remove		= radeonfb_pci_unregister,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend       	= radeonfb_pci_suspend,
 	.resume		= radeonfb_pci_resume,
 #endif /* CONFIG_PM */
+=======
+	.driver.pm	= RADEONFB_PCI_PM_OPS,
+>>>>>>> upstream/android-13
 };
 
 #ifndef MODULE

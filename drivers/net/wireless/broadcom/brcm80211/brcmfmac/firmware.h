@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2013 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #ifndef BRCMFMAC_FIRMWARE_H
 #define BRCMFMAC_FIRMWARE_H
@@ -43,6 +49,16 @@ static const char BRCM_ ## fw_name ## _FIRMWARE_BASENAME[] = \
 	BRCMF_FW_DEFAULT_PATH fw_base; \
 MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH fw_base ".bin")
 
+<<<<<<< HEAD
+=======
+/* Firmware and Country Local Matrix files */
+#define BRCMF_FW_CLM_DEF(fw_name, fw_base) \
+static const char BRCM_ ## fw_name ## _FIRMWARE_BASENAME[] = \
+	BRCMF_FW_DEFAULT_PATH fw_base; \
+MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH fw_base ".bin"); \
+MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH fw_base ".clm_blob")
+
+>>>>>>> upstream/android-13
 #define BRCMF_FW_ENTRY(chipid, mask, name) \
 	{ chipid, mask, BRCM_ ## name ## _FIRMWARE_BASENAME }
 
@@ -70,7 +86,12 @@ struct brcmf_fw_request {
 	u16 domain_nr;
 	u16 bus_nr;
 	u32 n_items;
+<<<<<<< HEAD
 	struct brcmf_fw_item items[0];
+=======
+	const char *board_type;
+	struct brcmf_fw_item items[];
+>>>>>>> upstream/android-13
 };
 
 struct brcmf_fw_name {

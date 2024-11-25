@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* 8390 core for ISA devices needing bus delays */
 
 static const char version[] =
@@ -40,9 +44,15 @@ void eip_set_multicast_list(struct net_device *dev)
 }
 EXPORT_SYMBOL(eip_set_multicast_list);
 
+<<<<<<< HEAD
 void eip_tx_timeout(struct net_device *dev)
 {
 	__ei_tx_timeout(dev);
+=======
+void eip_tx_timeout(struct net_device *dev, unsigned int txqueue)
+{
+	__ei_tx_timeout(dev, txqueue);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(eip_tx_timeout);
 

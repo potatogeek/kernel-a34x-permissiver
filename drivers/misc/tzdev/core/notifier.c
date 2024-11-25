@@ -40,6 +40,10 @@ int tzdev_blocking_notifier_register(enum tzdev_blocking_notifier_type type,
 
 	return blocking_notifier_chain_register(blocking_head[type], nb);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(tzdev_blocking_notifier_register);
+>>>>>>> upstream/android-13
 
 int tzdev_blocking_notifier_unregister(enum tzdev_blocking_notifier_type type,
 		struct notifier_block *nb)
@@ -48,6 +52,10 @@ int tzdev_blocking_notifier_unregister(enum tzdev_blocking_notifier_type type,
 
 	return blocking_notifier_chain_unregister(blocking_head[type], nb);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(tzdev_blocking_notifier_unregister);
+>>>>>>> upstream/android-13
 
 int tzdev_blocking_notifier_run(enum tzdev_blocking_notifier_type type)
 {

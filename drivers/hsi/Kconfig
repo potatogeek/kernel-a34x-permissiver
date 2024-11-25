@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # HSI driver configuration
 #
 menuconfig HSI
 	tristate "HSI support"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  The "High speed synchronous Serial Interface" is
 	  synchronous serial interface used mainly to connect
 	  application engines and cellular modems.

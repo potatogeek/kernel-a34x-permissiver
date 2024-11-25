@@ -24,6 +24,10 @@
 #include <linux/timer.h>
 #include <linux/kernel_stat.h>
 #include <linux/sched/signal.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ccwdev.h>
 #include <asm/cio.h>
@@ -136,7 +140,11 @@ static int ccw_uevent(struct device *dev, struct kobj_uevent_env *env)
 
 static void io_subchannel_irq(struct subchannel *);
 static int io_subchannel_probe(struct subchannel *);
+<<<<<<< HEAD
 static int io_subchannel_remove(struct subchannel *);
+=======
+static void io_subchannel_remove(struct subchannel *);
+>>>>>>> upstream/android-13
 static void io_subchannel_shutdown(struct subchannel *);
 static int io_subchannel_sch_event(struct subchannel *, int);
 static int io_subchannel_chp_event(struct subchannel *, struct chp_link *,
@@ -148,6 +156,7 @@ static struct css_device_id io_subchannel_ids[] = {
 	{ /* end of list */ },
 };
 
+<<<<<<< HEAD
 static int io_subchannel_prepare(struct subchannel *sch)
 {
 	struct ccw_device *cdev;
@@ -161,6 +170,8 @@ static int io_subchannel_prepare(struct subchannel *sch)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int io_subchannel_settle(void)
 {
 	int ret;
@@ -185,7 +196,10 @@ static struct css_driver io_subchannel_driver = {
 	.probe = io_subchannel_probe,
 	.remove = io_subchannel_remove,
 	.shutdown = io_subchannel_shutdown,
+<<<<<<< HEAD
 	.prepare = io_subchannel_prepare,
+=======
+>>>>>>> upstream/android-13
 	.settle = io_subchannel_settle,
 };
 
@@ -634,6 +648,7 @@ static const struct attribute_group *ccwdev_attr_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static int ccw_device_add(struct ccw_device *cdev)
 {
 	struct device *dev = &cdev->dev;
@@ -646,6 +661,12 @@ static int match_dev_id(struct device *dev, void *data)
 {
 	struct ccw_device *cdev = to_ccwdev(dev);
 	struct ccw_dev_id *dev_id = data;
+=======
+static int match_dev_id(struct device *dev, const void *data)
+{
+	struct ccw_device *cdev = to_ccwdev(dev);
+	struct ccw_dev_id *dev_id = (void *)data;
+>>>>>>> upstream/android-13
 
 	return ccw_dev_id_is_equal(&cdev->private->dev_id, dev_id);
 }
@@ -687,6 +708,12 @@ ccw_device_release(struct device *dev)
 	struct ccw_device *cdev;
 
 	cdev = to_ccwdev(dev);
+<<<<<<< HEAD
+=======
+	cio_gp_dma_free(cdev->private->dma_pool, cdev->private->dma_area,
+			sizeof(*cdev->private->dma_area));
+	cio_gp_dma_destroy(cdev->private->dma_pool, &cdev->dev);
+>>>>>>> upstream/android-13
 	/* Release reference of parent subchannel. */
 	put_device(cdev->dev.parent);
 	kfree(cdev->private);
@@ -696,6 +723,7 @@ ccw_device_release(struct device *dev)
 static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
 {
 	struct ccw_device *cdev;
+<<<<<<< HEAD
 
 	cdev  = kzalloc(sizeof(*cdev), GFP_KERNEL);
 	if (cdev) {
@@ -706,6 +734,50 @@ static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
 	}
 	kfree(cdev);
 	return ERR_PTR(-ENOMEM);
+=======
+	struct gen_pool *dma_pool;
+	int ret;
+
+	cdev  = kzalloc(sizeof(*cdev), GFP_KERNEL);
+	if (!cdev) {
+		ret = -ENOMEM;
+		goto err_cdev;
+	}
+	cdev->private = kzalloc(sizeof(struct ccw_device_private),
+				GFP_KERNEL | GFP_DMA);
+	if (!cdev->private) {
+		ret = -ENOMEM;
+		goto err_priv;
+	}
+
+	cdev->dev.dma_mask = sch->dev.dma_mask;
+	ret = dma_set_coherent_mask(&cdev->dev, sch->dev.coherent_dma_mask);
+	if (ret)
+		goto err_coherent_mask;
+
+	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
+	if (!dma_pool) {
+		ret = -ENOMEM;
+		goto err_dma_pool;
+	}
+	cdev->private->dma_pool = dma_pool;
+	cdev->private->dma_area = cio_gp_dma_zalloc(dma_pool, &cdev->dev,
+					sizeof(*cdev->private->dma_area));
+	if (!cdev->private->dma_area) {
+		ret = -ENOMEM;
+		goto err_dma_area;
+	}
+	return cdev;
+err_dma_area:
+	cio_gp_dma_destroy(dma_pool, &cdev->dev);
+err_dma_pool:
+err_coherent_mask:
+	kfree(cdev->private);
+err_priv:
+	kfree(cdev);
+err_cdev:
+	return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 }
 
 static void ccw_device_todo(struct work_struct *work);
@@ -731,6 +803,10 @@ static int io_subchannel_initialize_dev(struct subchannel *sch,
 	cdev->ccwlock = sch->lock;
 	cdev->dev.parent = &sch->dev;
 	cdev->dev.release = ccw_device_release;
+<<<<<<< HEAD
+=======
+	cdev->dev.bus = &ccw_bus_type;
+>>>>>>> upstream/android-13
 	cdev->dev.groups = ccwdev_attr_groups;
 	/* Do first half of device_register. */
 	device_initialize(&cdev->dev);
@@ -832,7 +908,11 @@ static void io_subchannel_register(struct ccw_device *cdev)
 		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
 	}
 	/* make it known to the system */
+<<<<<<< HEAD
 	ret = ccw_device_add(cdev);
+=======
+	ret = device_add(&cdev->dev);
+>>>>>>> upstream/android-13
 	if (ret) {
 		CIO_MSG_EVENT(0, "Could not register ccw dev 0.%x.%04x: %d\n",
 			      cdev->private->dev_id.ssid,
@@ -852,6 +932,7 @@ out_err:
 		wake_up(&ccw_device_init_wq);
 }
 
+<<<<<<< HEAD
 static void ccw_device_call_sch_unregister(struct ccw_device *cdev)
 {
 	struct subchannel *sch;
@@ -865,6 +946,8 @@ static void ccw_device_call_sch_unregister(struct ccw_device *cdev)
 	put_device(&sch->dev);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * subchannel recognition done. Called from the state machine.
  */
@@ -886,7 +969,11 @@ io_subchannel_recog_done(struct ccw_device *cdev)
 			wake_up(&ccw_device_init_wq);
 		break;
 	case DEV_STATE_OFFLINE:
+<<<<<<< HEAD
 		/* 
+=======
+		/*
+>>>>>>> upstream/android-13
 		 * We can't register the device in interrupt context so
 		 * we schedule a work item.
 		 */
@@ -1044,7 +1131,11 @@ static int io_subchannel_probe(struct subchannel *sch)
 			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
 		}
 		cdev = sch_get_cdev(sch);
+<<<<<<< HEAD
 		rc = ccw_device_add(cdev);
+=======
+		rc = device_add(&cdev->dev);
+>>>>>>> upstream/android-13
 		if (rc) {
 			/* Release online reference. */
 			put_device(&cdev->dev);
@@ -1067,6 +1158,17 @@ static int io_subchannel_probe(struct subchannel *sch)
 	if (!io_priv)
 		goto out_schedule;
 
+<<<<<<< HEAD
+=======
+	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
+				sizeof(*io_priv->dma_area),
+				&io_priv->dma_area_dma, GFP_KERNEL);
+	if (!io_priv->dma_area) {
+		kfree(io_priv);
+		goto out_schedule;
+	}
+
+>>>>>>> upstream/android-13
 	set_io_private(sch, io_priv);
 	css_schedule_eval(sch->schid);
 	return 0;
@@ -1078,7 +1180,11 @@ out_schedule:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int io_subchannel_remove(struct subchannel *sch)
+=======
+static void io_subchannel_remove(struct subchannel *sch)
+>>>>>>> upstream/android-13
 {
 	struct io_subchannel_private *io_priv = to_io_private(sch);
 	struct ccw_device *cdev;
@@ -1093,9 +1199,16 @@ static int io_subchannel_remove(struct subchannel *sch)
 	set_io_private(sch, NULL);
 	spin_unlock_irq(sch->lock);
 out_free:
+<<<<<<< HEAD
 	kfree(io_priv);
 	sysfs_remove_group(&sch->dev.kobj, &io_subchannel_attr_group);
 	return 0;
+=======
+	dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
+			  io_priv->dma_area, io_priv->dma_area_dma);
+	kfree(io_priv);
+	sysfs_remove_group(&sch->dev.kobj, &io_subchannel_attr_group);
+>>>>>>> upstream/android-13
 }
 
 static void io_subchannel_verify(struct subchannel *sch)
@@ -1138,7 +1251,12 @@ static int io_subchannel_chp_event(struct subchannel *sch,
 				   struct chp_link *link, int event)
 {
 	struct ccw_device *cdev = sch_get_cdev(sch);
+<<<<<<< HEAD
 	int mask;
+=======
+	int mask, chpid, valid_bit;
+	int path_event[8];
+>>>>>>> upstream/android-13
 
 	mask = chp_ssd_get_mask(&sch->ssd_info, link);
 	if (!mask)
@@ -1173,6 +1291,21 @@ static int io_subchannel_chp_event(struct subchannel *sch,
 			cdev->private->path_new_mask |= mask;
 		io_subchannel_verify(sch);
 		break;
+<<<<<<< HEAD
+=======
+	case CHP_FCES_EVENT:
+		/* Forward Endpoint Security event */
+		for (chpid = 0, valid_bit = 0x80; chpid < 8; chpid++,
+				valid_bit >>= 1) {
+			if (mask & valid_bit)
+				path_event[chpid] = PE_PATH_FCES_EVENT;
+			else
+				path_event[chpid] = PE_NONE;
+		}
+		if (cdev && cdev->drv && cdev->drv->path_event)
+			cdev->drv->path_event(cdev, path_event);
+		break;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -1235,7 +1368,11 @@ static int recovery_check(struct device *dev, void *data)
 		sch = to_subchannel(cdev->dev.parent);
 		if ((sch->schib.pmcw.pam & sch->opm) == sch->vpm)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DEV_STATE_DISCONNECTED:
 		CIO_MSG_EVENT(3, "recovery: trigger 0.%x.%04x\n",
 			      cdev->private->dev_id.ssid,
@@ -1390,7 +1527,11 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
 	}
 	if (device_is_disconnected(cdev))
 		return IO_SCH_REPROBE;
+<<<<<<< HEAD
 	if (cdev->online && !cdev->private->flags.resuming)
+=======
+	if (cdev->online)
+>>>>>>> upstream/android-13
 		return IO_SCH_VERIFY;
 	if (cdev->private->state == DEV_STATE_NOT_OPER)
 		return IO_SCH_UNREG_ATTACH;
@@ -1482,11 +1623,14 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
 		break;
 	case IO_SCH_UNREG_ATTACH:
 		spin_lock_irqsave(sch->lock, flags);
+<<<<<<< HEAD
 		if (cdev->private->flags.resuming) {
 			/* Device will be handled later. */
 			rc = 0;
 			goto out_unlock;
 		}
+=======
+>>>>>>> upstream/android-13
 		sch_set_cdev(sch, NULL);
 		spin_unlock_irqrestore(sch->lock, flags);
 		/* Unregister ccw device. */
@@ -1499,8 +1643,12 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
 	switch (action) {
 	case IO_SCH_ORPH_UNREG:
 	case IO_SCH_UNREG:
+<<<<<<< HEAD
 		if (!cdev || !cdev->private->flags.resuming)
 			css_sch_device_unregister(sch);
+=======
+		css_sch_device_unregister(sch);
+>>>>>>> upstream/android-13
 		break;
 	case IO_SCH_ORPH_ATTACH:
 	case IO_SCH_UNREG_ATTACH:
@@ -1598,6 +1746,7 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
 		return ERR_CAST(sch);
 
 	io_priv = kzalloc(sizeof(*io_priv), GFP_KERNEL | GFP_DMA);
+<<<<<<< HEAD
 	if (!io_priv) {
 		put_device(&sch->dev);
 		return ERR_PTR(-ENOMEM);
@@ -1605,6 +1754,21 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
 	set_io_private(sch, io_priv);
 	cdev = io_subchannel_create_ccwdev(sch);
 	if (IS_ERR(cdev)) {
+=======
+	if (!io_priv)
+		goto err_priv;
+	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
+				sizeof(*io_priv->dma_area),
+				&io_priv->dma_area_dma, GFP_KERNEL);
+	if (!io_priv->dma_area)
+		goto err_dma_area;
+	set_io_private(sch, io_priv);
+	cdev = io_subchannel_create_ccwdev(sch);
+	if (IS_ERR(cdev)) {
+		dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
+				  io_priv->dma_area, io_priv->dma_area_dma);
+		set_io_private(sch, NULL);
+>>>>>>> upstream/android-13
 		put_device(&sch->dev);
 		kfree(io_priv);
 		return cdev;
@@ -1612,6 +1776,15 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
 	cdev->drv = drv;
 	ccw_device_set_int_class(cdev);
 	return cdev;
+<<<<<<< HEAD
+=======
+
+err_dma_area:
+	kfree(io_priv);
+err_priv:
+	put_device(&sch->dev);
+	return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 }
 
 void __init ccw_device_destroy_console(struct ccw_device *cdev)
@@ -1620,6 +1793,11 @@ void __init ccw_device_destroy_console(struct ccw_device *cdev)
 	struct io_subchannel_private *io_priv = to_io_private(sch);
 
 	set_io_private(sch, NULL);
+<<<<<<< HEAD
+=======
+	dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
+			  io_priv->dma_area, io_priv->dma_area_dma);
+>>>>>>> upstream/android-13
 	put_device(&sch->dev);
 	put_device(&cdev->dev);
 	kfree(io_priv);
@@ -1641,6 +1819,7 @@ void ccw_device_wait_idle(struct ccw_device *cdev)
 		cio_tsch(sch);
 		if (sch->schib.scsw.cmd.actl == 0)
 			break;
+<<<<<<< HEAD
 		udelay_simple(100);
 	}
 }
@@ -1668,6 +1847,13 @@ __ccwdev_check_busid(struct device *dev, void *id)
 }
 
 
+=======
+		udelay(100);
+	}
+}
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * get_ccwdev_by_busid() - obtain device from a bus id
  * @cdrv: driver the device is owned by
@@ -1684,8 +1870,12 @@ struct ccw_device *get_ccwdev_by_busid(struct ccw_driver *cdrv,
 {
 	struct device *dev;
 
+<<<<<<< HEAD
 	dev = driver_find_device(&cdrv->driver, NULL, (void *)bus_id,
 				 __ccwdev_check_busid);
+=======
+	dev = driver_find_device_by_name(&cdrv->driver, bus_id);
+>>>>>>> upstream/android-13
 
 	return dev ? to_ccwdev(dev) : NULL;
 }
@@ -1719,7 +1909,11 @@ ccw_device_probe (struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ccw_device_remove(struct device *dev)
+=======
+static void ccw_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct ccw_device *cdev = to_ccwdev(dev);
 	struct ccw_driver *cdrv = cdev->drv;
@@ -1753,8 +1947,11 @@ static int ccw_device_remove(struct device *dev)
 	spin_unlock_irq(cdev->ccwlock);
 	io_subchannel_quiesce(sch);
 	__disable_cmf(cdev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void ccw_device_shutdown(struct device *dev)
@@ -1767,6 +1964,7 @@ static void ccw_device_shutdown(struct device *dev)
 	__disable_cmf(cdev);
 }
 
+<<<<<<< HEAD
 static int ccw_device_pm_prepare(struct device *dev)
 {
 	struct ccw_device *cdev = to_ccwdev(dev);
@@ -1996,6 +2194,8 @@ static const struct dev_pm_ops ccw_pm_ops = {
 	.restore = ccw_device_pm_restore,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct bus_type ccw_bus_type = {
 	.name   = "ccw",
 	.match  = ccw_bus_match,
@@ -2003,7 +2203,10 @@ static struct bus_type ccw_bus_type = {
 	.probe  = ccw_device_probe,
 	.remove = ccw_device_remove,
 	.shutdown = ccw_device_shutdown,
+<<<<<<< HEAD
 	.pm = &ccw_pm_ops,
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -2065,12 +2268,21 @@ static void ccw_device_todo(struct work_struct *work)
 	case CDEV_TODO_UNREG_EVAL:
 		if (!sch_is_pseudo_sch(sch))
 			css_schedule_eval(sch->schid);
+<<<<<<< HEAD
 		/* fall-through */
 	case CDEV_TODO_UNREG:
 		if (sch_is_pseudo_sch(sch))
 			ccw_device_unregister(cdev);
 		else
 			ccw_device_call_sch_unregister(cdev);
+=======
+		fallthrough;
+	case CDEV_TODO_UNREG:
+		spin_lock_irq(sch->lock);
+		sch_set_cdev(sch, NULL);
+		spin_unlock_irq(sch->lock);
+		ccw_device_unregister(cdev);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;

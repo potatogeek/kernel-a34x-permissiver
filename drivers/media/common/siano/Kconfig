@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Siano Mobile Silicon Digital TV device configuration
 #
@@ -15,7 +19,11 @@ config SMS_SIANO_RC
 	depends on SMS_USB_DRV || SMS_SDIO_DRV
 	depends on MEDIA_COMMON_OPTIONS
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Choose Y to select Remote Controller support for Siano driver.
 
 config SMS_SIANO_DEBUGFS
@@ -24,7 +32,11 @@ config SMS_SIANO_DEBUGFS
 	depends on DEBUG_FS
 	depends on SMS_USB_DRV = SMS_SDIO_DRV
 
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Choose Y to enable visualizing a dump of the frontend
 	  statistics response packets via debugfs. Currently, works
 	  only with Siano USB devices.

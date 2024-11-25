@@ -688,8 +688,14 @@ static void esas2r_doorbell_interrupt(struct esas2r_adapter *a, u32 doorbell)
 		esas2r_local_reset_adapter(a);
 	}
 
+<<<<<<< HEAD
 	if (!(doorbell & DRBL_FORCE_INT))
 		esas2r_trace_exit();
+=======
+	if (!(doorbell & DRBL_FORCE_INT)) {
+		esas2r_trace_exit();
+	}
+>>>>>>> upstream/android-13
 }
 
 void esas2r_force_interrupt(struct esas2r_adapter *a)
@@ -862,10 +868,18 @@ void esas2r_send_reset_ae(struct esas2r_adapter *a, bool pwr_mgt)
 	ae.byflags = 0;
 	ae.bylength = (u8)sizeof(struct atto_vda_ae_hdr);
 
+<<<<<<< HEAD
 	if (pwr_mgt)
 		esas2r_hdebug("*** sending power management AE ***");
 	else
 		esas2r_hdebug("*** sending reset AE ***");
+=======
+	if (pwr_mgt) {
+		esas2r_hdebug("*** sending power management AE ***");
+	} else {
+		esas2r_hdebug("*** sending reset AE ***");
+	}
+>>>>>>> upstream/android-13
 
 	esas2r_queue_fw_event(a, fw_event_vda_ae, &ae,
 			      sizeof(union atto_vda_ae));

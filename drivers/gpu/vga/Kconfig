@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config VGA_ARB
 	bool "VGA Arbitration" if EXPERT
 	default y
@@ -21,10 +25,19 @@ config VGA_SWITCHEROO
 	bool "Laptop Hybrid Graphics - GPU switching support"
 	depends on X86
 	depends on ACPI
+<<<<<<< HEAD
+=======
+	depends on PCI
+	depends on (FRAMEBUFFER_CONSOLE=n || FB=y)
+>>>>>>> upstream/android-13
 	select VGA_ARB
 	help
 	  Many laptops released in 2008/9/10 have two GPUs with a multiplexer
 	  to switch between them. This adds support for dynamic switching when
+<<<<<<< HEAD
           X isn't running and delayed switching until the next logoff. This
+=======
+	  X isn't running and delayed switching until the next logoff. This
+>>>>>>> upstream/android-13
 	  feature is called hybrid graphics, ATI PowerXpress, and Nvidia
 	  HybridPower.

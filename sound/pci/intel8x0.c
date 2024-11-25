@@ -1,13 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for Intel ICH (i8x0) chipsets
  *
  *	Copyright (c) 2000 Jaroslav Kysela <perex@perex.cz>
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *   This code also contains alpha support for SiS 735 chipsets provided
  *   by Mike Pieper <mptei@users.sourceforge.net>. We have no datasheet
  *   for SiS735, so the code is not fully functional.
  *
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,6 +32,9 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
  *
+=======
+
+>>>>>>> upstream/android-13
  */      
 
 #include <linux/io.h>
@@ -38,15 +49,19 @@
 #include <sound/ac97_codec.h>
 #include <sound/info.h>
 #include <sound/initval.h>
+<<<<<<< HEAD
 /* for 440MX workaround */
 #include <asm/pgtable.h>
 #ifdef CONFIG_X86
 #include <asm/set_memory.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("Intel 82801AA,82901AB,i810,i820,i830,i840,i845,MX440; SiS 7012; Ali 5455");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Intel,82801AA-ICH},"
 		"{Intel,82901AB-ICH0},"
 		"{Intel,82801BA-ICH2},"
@@ -70,6 +85,8 @@ MODULE_SUPPORTED_DEVICE("{{Intel,82801AA-ICH},"
 		"{AMD,AMD768},"
 		"{AMD,AMD8111},"
 	        "{ALI,M5455}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index = SNDRV_DEFAULT_IDX1;	/* Index 0-MAX */
 static char *id = SNDRV_DEFAULT_STR1;	/* ID for this card */
@@ -86,7 +103,11 @@ MODULE_PARM_DESC(index, "Index value for Intel i8x0 soundcard.");
 module_param(id, charp, 0444);
 MODULE_PARM_DESC(id, "ID string for Intel i8x0 soundcard.");
 module_param(ac97_clock, int, 0444);
+<<<<<<< HEAD
 MODULE_PARM_DESC(ac97_clock, "AC'97 codec clock (0 = whitelist + auto-detect, 1 = force autodetect).");
+=======
+MODULE_PARM_DESC(ac97_clock, "AC'97 codec clock (0 = allowlist + auto-detect, 1 = force autodetect).");
+>>>>>>> upstream/android-13
 module_param(ac97_quirk, charp, 0444);
 MODULE_PARM_DESC(ac97_quirk, "AC'97 workaround for strange hardware.");
 module_param(buggy_semaphore, bool, 0444);
@@ -122,7 +143,11 @@ enum { \
 	ICH_REG_##name##_PICB	= base + 0x08,	/* word - position in current buffer */ \
 	ICH_REG_##name##_PIV	= base + 0x0a,	/* byte - prefetched index value */ \
 	ICH_REG_##name##_CR	= base + 0x0b,	/* byte - control register */ \
+<<<<<<< HEAD
 };
+=======
+}
+>>>>>>> upstream/android-13
 
 /* busmaster blocks */
 DEFINE_REGSET(OFF, 0);		/* offset */
@@ -374,7 +399,11 @@ struct ichdev {
 	unsigned int ali_slot;			/* ALI DMA slot */
 	struct ac97_pcm *pcm;
 	int pcm_open_flag;
+<<<<<<< HEAD
 	unsigned int page_attr_changed: 1;
+=======
+	unsigned int prepared:1;
+>>>>>>> upstream/android-13
 	unsigned int suspended: 1;
 };
 
@@ -414,14 +443,22 @@ struct intel8x0 {
 	struct snd_ac97 *ac97[3];
 	unsigned int ac97_sdin[3];
 	unsigned int max_codecs, ncodecs;
+<<<<<<< HEAD
 	unsigned int *codec_bit;
+=======
+	const unsigned int *codec_bit;
+>>>>>>> upstream/android-13
 	unsigned int codec_isr_bits;
 	unsigned int codec_ready_bits;
 
 	spinlock_t reg_lock;
 	
 	u32 bdbars_count;
+<<<<<<< HEAD
 	struct snd_dma_buffer bdbars;
+=======
+	struct snd_dma_buffer *bdbars;
+>>>>>>> upstream/android-13
 	u32 int_sta_reg;		/* interrupt status register */
 	u32 int_sta_mask;		/* interrupt status mask */
 };
@@ -581,7 +618,12 @@ static unsigned short snd_intel8x0_codec_read(struct snd_ac97 *ac97,
 		res = 0xffff;
 	} else {
 		res = iagetword(chip, reg + ac97->num * 0x80);
+<<<<<<< HEAD
 		if ((tmp = igetdword(chip, ICHREG(GLOB_STA))) & ICH_RCS) {
+=======
+		tmp = igetdword(chip, ICHREG(GLOB_STA));
+		if (tmp & ICH_RCS) {
+>>>>>>> upstream/android-13
 			/* reset RCS and preserve other R/WC bits */
 			iputdword(chip, ICHREG(GLOB_STA), tmp &
 				  ~(chip->codec_ready_bits | ICH_GSCI));
@@ -602,7 +644,12 @@ static void snd_intel8x0_codec_read_test(struct intel8x0 *chip,
 
 	if (snd_intel8x0_codec_semaphore(chip, codec) >= 0) {
 		iagetword(chip, codec * 0x80);
+<<<<<<< HEAD
 		if ((tmp = igetdword(chip, ICHREG(GLOB_STA))) & ICH_RCS) {
+=======
+		tmp = igetdword(chip, ICHREG(GLOB_STA));
+		if (tmp & ICH_RCS) {
+>>>>>>> upstream/android-13
 			/* reset RCS and preserve other R/WC bits */
 			iputdword(chip, ICHREG(GLOB_STA), tmp &
 				  ~(chip->codec_ready_bits | ICH_GSCI));
@@ -724,6 +771,7 @@ static void snd_intel8x0_setup_periods(struct intel8x0 *chip, struct ichdev *ich
 	iputbyte(chip, port + ichdev->roff_sr, ICH_FIFOE | ICH_BCIS | ICH_LVBCI);
 }
 
+<<<<<<< HEAD
 #ifdef __i386__
 /*
  * Intel 82443MX running a 100MHz processor system bus has a hardware bug,
@@ -743,6 +791,8 @@ static void fill_nocache(void *buf, int size, int nocache)
 #define fill_nocache(buf, size, nocache) do { ; } while (0)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  *  Interrupt handler
  */
@@ -754,6 +804,12 @@ static inline void snd_intel8x0_update(struct intel8x0 *chip, struct ichdev *ich
 	int status, civ, i, step;
 	int ack = 0;
 
+<<<<<<< HEAD
+=======
+	if (!(ichdev->prepared || chip->in_measurement) || ichdev->suspended)
+		return;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&chip->reg_lock, flags);
 	status = igetbyte(chip, port + ichdev->roff_sr);
 	civ = igetbyte(chip, port + ICH_REG_OFF_CIV);
@@ -850,7 +906,11 @@ static int snd_intel8x0_pcm_trigger(struct snd_pcm_substream *substream, int cmd
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_RESUME:
 		ichdev->suspended = 0;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_START:
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
 		val = ICH_IOCE | ICH_STARTBM;
@@ -858,7 +918,11 @@ static int snd_intel8x0_pcm_trigger(struct snd_pcm_substream *substream, int cmd
 		break;
 	case SNDRV_PCM_TRIGGER_SUSPEND:
 		ichdev->suspended = 1;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_STOP:
 		val = 0;
 		break;
@@ -883,7 +947,11 @@ static int snd_intel8x0_ali_trigger(struct snd_pcm_substream *substream, int cmd
 	struct intel8x0 *chip = snd_pcm_substream_chip(substream);
 	struct ichdev *ichdev = get_ichdev(substream);
 	unsigned long port = ichdev->reg_offset;
+<<<<<<< HEAD
 	static int fiforeg[] = {
+=======
+	static const int fiforeg[] = {
+>>>>>>> upstream/android-13
 		ICHREG(ALI_FIFOCR1), ICHREG(ALI_FIFOCR2), ICHREG(ALI_FIFOCR3)
 	};
 	unsigned int val, fifo;
@@ -892,7 +960,11 @@ static int snd_intel8x0_ali_trigger(struct snd_pcm_substream *substream, int cmd
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_RESUME:
 		ichdev->suspended = 0;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_START:
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
@@ -909,7 +981,11 @@ static int snd_intel8x0_ali_trigger(struct snd_pcm_substream *substream, int cmd
 		break;
 	case SNDRV_PCM_TRIGGER_SUSPEND:
 		ichdev->suspended = 1;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_TRIGGER_STOP:
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
 		/* pause */
@@ -938,6 +1014,7 @@ static int snd_intel8x0_hw_params(struct snd_pcm_substream *substream,
 {
 	struct intel8x0 *chip = snd_pcm_substream_chip(substream);
 	struct ichdev *ichdev = get_ichdev(substream);
+<<<<<<< HEAD
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int dbl = params_rate(hw_params) > 48000;
 	int err;
@@ -958,6 +1035,15 @@ static int snd_intel8x0_hw_params(struct snd_pcm_substream *substream,
 	if (ichdev->pcm_open_flag) {
 		snd_ac97_pcm_close(ichdev->pcm);
 		ichdev->pcm_open_flag = 0;
+=======
+	int dbl = params_rate(hw_params) > 48000;
+	int err;
+
+	if (ichdev->pcm_open_flag) {
+		snd_ac97_pcm_close(ichdev->pcm);
+		ichdev->pcm_open_flag = 0;
+		ichdev->prepared = 0;
+>>>>>>> upstream/android-13
 	}
 	err = snd_ac97_pcm_open(ichdev->pcm, params_rate(hw_params),
 				params_channels(hw_params),
@@ -974,18 +1060,27 @@ static int snd_intel8x0_hw_params(struct snd_pcm_substream *substream,
 
 static int snd_intel8x0_hw_free(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct intel8x0 *chip = snd_pcm_substream_chip(substream);
+=======
+>>>>>>> upstream/android-13
 	struct ichdev *ichdev = get_ichdev(substream);
 
 	if (ichdev->pcm_open_flag) {
 		snd_ac97_pcm_close(ichdev->pcm);
 		ichdev->pcm_open_flag = 0;
+<<<<<<< HEAD
 	}
 	if (chip->fix_nocache && ichdev->page_attr_changed) {
 		fill_nocache(substream->runtime->dma_area, substream->runtime->dma_bytes, 0);
 		ichdev->page_attr_changed = 0;
 	}
 	return snd_pcm_lib_free_pages(substream);
+=======
+		ichdev->prepared = 0;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void snd_intel8x0_setup_pcm_out(struct intel8x0 *chip,
@@ -1058,6 +1153,10 @@ static int snd_intel8x0_pcm_prepare(struct snd_pcm_substream *substream)
 			ichdev->pos_shift = (runtime->sample_bits > 16) ? 2 : 1;
 	}
 	snd_intel8x0_setup_periods(chip, ichdev);
+<<<<<<< HEAD
+=======
+	ichdev->prepared = 1;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1180,7 +1279,12 @@ static int snd_intel8x0_pcm_open(struct snd_pcm_substream *substream, struct ich
 		runtime->hw.buffer_bytes_max = 64*1024;
 		runtime->hw.period_bytes_max = 64*1024;
 	}
+<<<<<<< HEAD
 	if ((err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS)) < 0)
+=======
+	err = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	runtime->private_data = ichdev;
 	return 0;
@@ -1370,7 +1474,10 @@ static int snd_intel8x0_ali_spdifout_close(struct snd_pcm_substream *substream)
 static const struct snd_pcm_ops snd_intel8x0_playback_ops = {
 	.open =		snd_intel8x0_playback_open,
 	.close =	snd_intel8x0_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1381,7 +1488,10 @@ static const struct snd_pcm_ops snd_intel8x0_playback_ops = {
 static const struct snd_pcm_ops snd_intel8x0_capture_ops = {
 	.open =		snd_intel8x0_capture_open,
 	.close =	snd_intel8x0_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1392,7 +1502,10 @@ static const struct snd_pcm_ops snd_intel8x0_capture_ops = {
 static const struct snd_pcm_ops snd_intel8x0_capture_mic_ops = {
 	.open =		snd_intel8x0_mic_open,
 	.close =	snd_intel8x0_mic_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1403,7 +1516,10 @@ static const struct snd_pcm_ops snd_intel8x0_capture_mic_ops = {
 static const struct snd_pcm_ops snd_intel8x0_capture_mic2_ops = {
 	.open =		snd_intel8x0_mic2_open,
 	.close =	snd_intel8x0_mic2_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1414,7 +1530,10 @@ static const struct snd_pcm_ops snd_intel8x0_capture_mic2_ops = {
 static const struct snd_pcm_ops snd_intel8x0_capture2_ops = {
 	.open =		snd_intel8x0_capture2_open,
 	.close =	snd_intel8x0_capture2_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1425,7 +1544,10 @@ static const struct snd_pcm_ops snd_intel8x0_capture2_ops = {
 static const struct snd_pcm_ops snd_intel8x0_spdif_ops = {
 	.open =		snd_intel8x0_spdif_open,
 	.close =	snd_intel8x0_spdif_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1436,7 +1558,10 @@ static const struct snd_pcm_ops snd_intel8x0_spdif_ops = {
 static const struct snd_pcm_ops snd_intel8x0_ali_playback_ops = {
 	.open =		snd_intel8x0_playback_open,
 	.close =	snd_intel8x0_playback_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1447,7 +1572,10 @@ static const struct snd_pcm_ops snd_intel8x0_ali_playback_ops = {
 static const struct snd_pcm_ops snd_intel8x0_ali_capture_ops = {
 	.open =		snd_intel8x0_capture_open,
 	.close =	snd_intel8x0_capture_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1458,7 +1586,10 @@ static const struct snd_pcm_ops snd_intel8x0_ali_capture_ops = {
 static const struct snd_pcm_ops snd_intel8x0_ali_capture_mic_ops = {
 	.open =		snd_intel8x0_mic_open,
 	.close =	snd_intel8x0_mic_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1469,7 +1600,10 @@ static const struct snd_pcm_ops snd_intel8x0_ali_capture_mic_ops = {
 static const struct snd_pcm_ops snd_intel8x0_ali_ac97spdifout_ops = {
 	.open =		snd_intel8x0_ali_ac97spdifout_open,
 	.close =	snd_intel8x0_ali_ac97spdifout_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1481,7 +1615,10 @@ static const struct snd_pcm_ops snd_intel8x0_ali_ac97spdifout_ops = {
 static struct snd_pcm_ops snd_intel8x0_ali_spdifin_ops = {
 	.open =		snd_intel8x0_ali_spdifin_open,
 	.close =	snd_intel8x0_ali_spdifin_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1492,7 +1629,10 @@ static struct snd_pcm_ops snd_intel8x0_ali_spdifin_ops = {
 static struct snd_pcm_ops snd_intel8x0_ali_spdifout_ops = {
 	.open =		snd_intel8x0_ali_spdifout_open,
 	.close =	snd_intel8x0_ali_spdifout_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params =	snd_intel8x0_hw_params,
 	.hw_free =	snd_intel8x0_hw_free,
 	.prepare =	snd_intel8x0_pcm_prepare,
@@ -1510,8 +1650,16 @@ struct ich_pcm_table {
 	int ac97_idx;
 };
 
+<<<<<<< HEAD
 static int snd_intel8x0_pcm1(struct intel8x0 *chip, int device,
 			     struct ich_pcm_table *rec)
+=======
+#define intel8x0_dma_type(chip) \
+	((chip)->fix_nocache ? SNDRV_DMA_TYPE_DEV_WC : SNDRV_DMA_TYPE_DEV)
+
+static int snd_intel8x0_pcm1(struct intel8x0 *chip, int device,
+			     const struct ich_pcm_table *rec)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm *pcm;
 	int err;
@@ -1540,9 +1688,15 @@ static int snd_intel8x0_pcm1(struct intel8x0 *chip, int device,
 		strcpy(pcm->name, chip->card->shortname);
 	chip->pcm[device] = pcm;
 
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 					      snd_dma_pci_data(chip->pci),
 					      rec->prealloc_size, rec->prealloc_max_size);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, intel8x0_dma_type(chip),
+				       &chip->pci->dev,
+				       rec->prealloc_size, rec->prealloc_max_size);
+>>>>>>> upstream/android-13
 
 	if (rec->playback_ops &&
 	    rec->playback_ops->open == snd_intel8x0_playback_open) {
@@ -1566,7 +1720,11 @@ static int snd_intel8x0_pcm1(struct intel8x0 *chip, int device,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct ich_pcm_table intel_pcms[] = {
+=======
+static const struct ich_pcm_table intel_pcms[] = {
+>>>>>>> upstream/android-13
 	{
 		.playback_ops = &snd_intel8x0_playback_ops,
 		.capture_ops = &snd_intel8x0_capture_ops,
@@ -1603,7 +1761,11 @@ static struct ich_pcm_table intel_pcms[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct ich_pcm_table nforce_pcms[] = {
+=======
+static const struct ich_pcm_table nforce_pcms[] = {
+>>>>>>> upstream/android-13
 	{
 		.playback_ops = &snd_intel8x0_playback_ops,
 		.capture_ops = &snd_intel8x0_capture_ops,
@@ -1626,7 +1788,11 @@ static struct ich_pcm_table nforce_pcms[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct ich_pcm_table ali_pcms[] = {
+=======
+static const struct ich_pcm_table ali_pcms[] = {
+>>>>>>> upstream/android-13
 	{
 		.playback_ops = &snd_intel8x0_ali_playback_ops,
 		.capture_ops = &snd_intel8x0_ali_capture_ops,
@@ -1661,7 +1827,11 @@ static struct ich_pcm_table ali_pcms[] = {
 static int snd_intel8x0_pcm(struct intel8x0 *chip)
 {
 	int i, tblsize, device, err;
+<<<<<<< HEAD
 	struct ich_pcm_table *tbl, *rec;
+=======
+	const struct ich_pcm_table *tbl, *rec;
+>>>>>>> upstream/android-13
 
 	switch (chip->device_type) {
 	case DEVICE_INTEL_ICH4:
@@ -2206,12 +2376,21 @@ static int snd_intel8x0_mixer(struct intel8x0 *chip, int ac97_clock,
 	int err;
 	unsigned int i, codecs;
 	unsigned int glob_sta = 0;
+<<<<<<< HEAD
 	struct snd_ac97_bus_ops *ops;
 	static struct snd_ac97_bus_ops standard_bus_ops = {
 		.write = snd_intel8x0_codec_write,
 		.read = snd_intel8x0_codec_read,
 	};
 	static struct snd_ac97_bus_ops ali_bus_ops = {
+=======
+	const struct snd_ac97_bus_ops *ops;
+	static const struct snd_ac97_bus_ops standard_bus_ops = {
+		.write = snd_intel8x0_codec_write,
+		.read = snd_intel8x0_codec_read,
+	};
+	static const struct snd_ac97_bus_ops ali_bus_ops = {
+>>>>>>> upstream/android-13
 		.write = snd_intel8x0_ali_codec_write,
 		.read = snd_intel8x0_ali_codec_read,
 	};
@@ -2274,7 +2453,12 @@ static int snd_intel8x0_mixer(struct intel8x0 *chip, int ac97_clock,
 			udelay(1);
 		}
 	}
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(chip->card, 0, ops, chip, &pbus)) < 0)
+=======
+	err = snd_ac97_bus(chip->card, 0, ops, chip, &pbus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto __err;
 	pbus->private_free = snd_intel8x0_mixer_free_ac97_bus;
 	if (ac97_clock >= 8000 && ac97_clock <= 48000)
@@ -2290,7 +2474,12 @@ static int snd_intel8x0_mixer(struct intel8x0 *chip, int ac97_clock,
 	ac97.pci = chip->pci;
 	for (i = 0; i < codecs; i++) {
 		ac97.num = i;
+<<<<<<< HEAD
 		if ((err = snd_ac97_mixer(pbus, &ac97, &chip->ac97[i])) < 0) {
+=======
+		err = snd_ac97_mixer(pbus, &ac97, &chip->ac97[i]);
+		if (err < 0) {
+>>>>>>> upstream/android-13
 			if (err != -EACCES)
 				dev_err(chip->card->dev,
 					"Unable to initialize codec #%d\n", i);
@@ -2396,7 +2585,11 @@ static void do_ali_reset(struct intel8x0 *chip)
 }
 
 #ifdef CONFIG_SND_AC97_POWER_SAVE
+<<<<<<< HEAD
 static struct snd_pci_quirk ich_chip_reset_mode[] = {
+=======
+static const struct snd_pci_quirk ich_chip_reset_mode[] = {
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x1014, 0x051f, "Thinkpad R32", 1),
 	{ } /* end */
 };
@@ -2575,11 +2768,21 @@ static int snd_intel8x0_chip_init(struct intel8x0 *chip, int probing)
 	int err;
 	
 	if (chip->device_type != DEVICE_ALI) {
+<<<<<<< HEAD
 		if ((err = snd_intel8x0_ich_chip_init(chip, probing)) < 0)
 			return err;
 		iagetword(chip, 0);	/* clear semaphore flag */
 	} else {
 		if ((err = snd_intel8x0_ali_chip_init(chip, probing)) < 0)
+=======
+		err = snd_intel8x0_ich_chip_init(chip, probing);
+		if (err < 0)
+			return err;
+		iagetword(chip, 0);	/* clear semaphore flag */
+	} else {
+		err = snd_intel8x0_ali_chip_init(chip, probing);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 	}
 
@@ -2605,8 +2808,14 @@ static int snd_intel8x0_chip_init(struct intel8x0 *chip, int probing)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_intel8x0_free(struct intel8x0 *chip)
 {
+=======
+static void snd_intel8x0_free(struct snd_card *card)
+{
+	struct intel8x0 *chip = card->private_data;
+>>>>>>> upstream/android-13
 	unsigned int i;
 
 	if (chip->irq < 0)
@@ -2629,6 +2838,7 @@ static int snd_intel8x0_free(struct intel8x0 *chip)
       __hw_end:
 	if (chip->irq >= 0)
 		free_irq(chip->irq, chip);
+<<<<<<< HEAD
 	if (chip->bdbars.area) {
 		if (chip->fix_nocache)
 			fill_nocache(chip->bdbars.area, chip->bdbars.bytes, 0);
@@ -2642,6 +2852,8 @@ static int snd_intel8x0_free(struct intel8x0 *chip)
 	pci_disable_device(chip->pci);
 	kfree(chip);
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -2655,6 +2867,7 @@ static int intel8x0_suspend(struct device *dev)
 	int i;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	for (i = 0; i < chip->pcm_devs; i++)
 		snd_pcm_suspend_all(chip->pcm[i]);
 	/* clear nocache */
@@ -2668,6 +2881,8 @@ static int intel8x0_suspend(struct device *dev)
 			}
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < chip->ncodecs; i++)
 		snd_ac97_suspend(chip->ac97[i]);
 	if (chip->device_type == DEVICE_INTEL_ICH4)
@@ -2676,6 +2891,10 @@ static int intel8x0_suspend(struct device *dev)
 	if (chip->irq >= 0) {
 		free_irq(chip->irq, chip);
 		chip->irq = -1;
+<<<<<<< HEAD
+=======
+		card->sync_irq = -1;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -2696,7 +2915,11 @@ static int intel8x0_resume(struct device *dev)
 		return -EIO;
 	}
 	chip->irq = pci->irq;
+<<<<<<< HEAD
 	synchronize_irq(chip->irq);
+=======
+	card->sync_irq = chip->irq;
+>>>>>>> upstream/android-13
 
 	/* re-initialize mixer stuff */
 	if (chip->device_type == DEVICE_INTEL_ICH4 && !spdif_aclink) {
@@ -2708,6 +2931,7 @@ static int intel8x0_resume(struct device *dev)
 			  ICH_PCM_SPDIF_1011);
 	}
 
+<<<<<<< HEAD
 	/* refill nocache */
 	if (chip->fix_nocache)
 		fill_nocache(chip->bdbars.area, chip->bdbars.bytes, 1);
@@ -2727,6 +2951,11 @@ static int intel8x0_resume(struct device *dev)
 		}
 	}
 
+=======
+	for (i = 0; i < chip->ncodecs; i++)
+		snd_ac97_resume(chip->ac97[i]);
+
+>>>>>>> upstream/android-13
 	/* resume status */
 	for (i = 0; i < chip->bdbars_count; i++) {
 		struct ichdev *ichdev = &chip->ichd[i];
@@ -2764,6 +2993,11 @@ static void intel8x0_measure_ac97_clock(struct intel8x0 *chip)
 
 	if (chip->ac97_bus->clock != 48000)
 		return; /* specified in module option */
+<<<<<<< HEAD
+=======
+	if (chip->inside_vm && !ac97_clock)
+		return; /* no measurement on VM */
+>>>>>>> upstream/android-13
 
       __again:
 	subs = chip->pcm[0]->streams[0].substream;
@@ -2873,7 +3107,11 @@ static void intel8x0_measure_ac97_clock(struct intel8x0 *chip)
 	snd_ac97_update_power(chip->ac97[0], AC97_PCM_FRONT_DAC_RATE, 0);
 }
 
+<<<<<<< HEAD
 static struct snd_pci_quirk intel8x0_clock_list[] = {
+=======
+static const struct snd_pci_quirk intel8x0_clock_list[] = {
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x0e11, 0x008a, "AD1885", 41000),
 	SND_PCI_QUIRK(0x1014, 0x0581, "AD1981B", 48000),
 	SND_PCI_QUIRK(0x1028, 0x00be, "AD1885", 44100),
@@ -2891,7 +3129,11 @@ static int intel8x0_in_clock_list(struct intel8x0 *chip)
 	wl = snd_pci_quirk_lookup(pci, intel8x0_clock_list);
 	if (!wl)
 		return 0;
+<<<<<<< HEAD
 	dev_info(chip->card->dev, "white list rate for %04x:%04x is %i\n",
+=======
+	dev_info(chip->card->dev, "allow list rate for %04x:%04x is %i\n",
+>>>>>>> upstream/android-13
 	       pci->subsystem_vendor, pci->subsystem_device, wl->value);
 	chip->ac97_bus->clock = wl->value;
 	return 1;
@@ -2933,6 +3175,7 @@ static void snd_intel8x0_proc_read(struct snd_info_entry * entry,
 
 static void snd_intel8x0_proc_init(struct intel8x0 *chip)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 
 	if (! snd_card_proc_new(chip->card, "intel8x0", &entry))
@@ -2943,6 +3186,10 @@ static int snd_intel8x0_dev_free(struct snd_device *device)
 {
 	struct intel8x0 *chip = device->device_data;
 	return snd_intel8x0_free(chip);
+=======
+	snd_card_ro_proc_new(chip->card, "intel8x0", chip,
+			     snd_intel8x0_proc_read);
+>>>>>>> upstream/android-13
 }
 
 struct ich_reg_info {
@@ -2950,10 +3197,17 @@ struct ich_reg_info {
 	unsigned int offset;
 };
 
+<<<<<<< HEAD
 static unsigned int ich_codec_bits[3] = {
 	ICH_PCR, ICH_SCR, ICH_TCR
 };
 static unsigned int sis_codec_bits[3] = {
+=======
+static const unsigned int ich_codec_bits[3] = {
+	ICH_PCR, ICH_SCR, ICH_TCR
+};
+static const unsigned int sis_codec_bits[3] = {
+>>>>>>> upstream/android-13
 	ICH_PCR, ICH_SCR, ICH_SIS_TCR
 };
 
@@ -2988,28 +3242,45 @@ fini:
 	return result;
 }
 
+<<<<<<< HEAD
 static int snd_intel8x0_create(struct snd_card *card,
 			       struct pci_dev *pci,
 			       unsigned long device_type,
 			       struct intel8x0 **r_intel8x0)
 {
 	struct intel8x0 *chip;
+=======
+static int snd_intel8x0_init(struct snd_card *card,
+			     struct pci_dev *pci,
+			     unsigned long device_type)
+{
+	struct intel8x0 *chip = card->private_data;
+>>>>>>> upstream/android-13
 	int err;
 	unsigned int i;
 	unsigned int int_sta_masks;
 	struct ichdev *ichdev;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
 		.dev_free =	snd_intel8x0_dev_free,
 	};
 
 	static unsigned int bdbars[] = {
+=======
+
+	static const unsigned int bdbars[] = {
+>>>>>>> upstream/android-13
 		3, /* DEVICE_INTEL */
 		6, /* DEVICE_INTEL_ICH4 */
 		3, /* DEVICE_SIS */
 		6, /* DEVICE_ALI */
 		4, /* DEVICE_NFORCE */
 	};
+<<<<<<< HEAD
 	static struct ich_reg_info intel_regs[6] = {
+=======
+	static const struct ich_reg_info intel_regs[6] = {
+>>>>>>> upstream/android-13
 		{ ICH_PIINT, 0 },
 		{ ICH_POINT, 0x10 },
 		{ ICH_MCINT, 0x20 },
@@ -3017,13 +3288,21 @@ static int snd_intel8x0_create(struct snd_card *card,
 		{ ICH_P2INT, 0x50 },
 		{ ICH_SPINT, 0x60 },
 	};
+<<<<<<< HEAD
 	static struct ich_reg_info nforce_regs[4] = {
+=======
+	static const struct ich_reg_info nforce_regs[4] = {
+>>>>>>> upstream/android-13
 		{ ICH_PIINT, 0 },
 		{ ICH_POINT, 0x10 },
 		{ ICH_MCINT, 0x20 },
 		{ ICH_NVSPINT, 0x70 },
 	};
+<<<<<<< HEAD
 	static struct ich_reg_info ali_regs[6] = {
+=======
+	static const struct ich_reg_info ali_regs[6] = {
+>>>>>>> upstream/android-13
 		{ ALI_INT_PCMIN, 0x40 },
 		{ ALI_INT_PCMOUT, 0x50 },
 		{ ALI_INT_MICIN, 0x60 },
@@ -3031,6 +3310,7 @@ static int snd_intel8x0_create(struct snd_card *card,
 		{ ALI_INT_SPDIFIN, 0xa0 },
 		{ ALI_INT_SPDIFOUT, 0xb0 },
 	};
+<<<<<<< HEAD
 	struct ich_reg_info *tbl;
 
 	*r_intel8x0 = NULL;
@@ -3043,6 +3323,14 @@ static int snd_intel8x0_create(struct snd_card *card,
 		pci_disable_device(pci);
 		return -ENOMEM;
 	}
+=======
+	const struct ich_reg_info *tbl;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&chip->reg_lock);
 	chip->device_type = device_type;
 	chip->card = card;
@@ -3057,10 +3345,20 @@ static int snd_intel8x0_create(struct snd_card *card,
 
 	chip->inside_vm = snd_intel8x0_inside_vm(pci);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Intel 82443MX running a 100MHz processor system bus has a hardware
+	 * bug, which aborts PCI busmaster for audio transfer.  A workaround
+	 * is to set the pages as non-cached.  For details, see the errata in
+	 *     http://download.intel.com/design/chipsets/specupdt/24505108.pdf
+	 */
+>>>>>>> upstream/android-13
 	if (pci->vendor == PCI_VENDOR_ID_INTEL &&
 	    pci->device == PCI_DEVICE_ID_INTEL_440MX)
 		chip->fix_nocache = 1; /* enable workaround */
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, card->shortname)) < 0) {
 		kfree(chip);
 		pci_disable_device(pci);
@@ -3093,6 +3391,26 @@ static int snd_intel8x0_create(struct snd_card *card,
 		snd_intel8x0_free(chip);
 		return -EIO;
 	}
+=======
+	err = pci_request_regions(pci, card->shortname);
+	if (err < 0)
+		return err;
+
+	if (device_type == DEVICE_ALI) {
+		/* ALI5455 has no ac97 region */
+		chip->bmaddr = pcim_iomap(pci, 0, 0);
+	} else {
+		if (pci_resource_flags(pci, 2) & IORESOURCE_MEM) /* ICH4 and Nforce */
+			chip->addr = pcim_iomap(pci, 2, 0);
+		else
+			chip->addr = pcim_iomap(pci, 0, 0);
+		if (pci_resource_flags(pci, 3) & IORESOURCE_MEM) /* ICH4 */
+			chip->bmaddr = pcim_iomap(pci, 3, 0);
+		else
+			chip->bmaddr = pcim_iomap(pci, 1, 0);
+	}
+
+>>>>>>> upstream/android-13
 	chip->bdbars_count = bdbars[device_type];
 
 	/* initialize offsets */
@@ -3128,6 +3446,7 @@ static int snd_intel8x0_create(struct snd_card *card,
 
 	/* allocate buffer descriptor lists */
 	/* the start of each lists must be aligned to 8 bytes */
+<<<<<<< HEAD
 	if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(pci),
 				chip->bdbars_count * sizeof(u32) * ICH_MAX_FRAGS * 2,
 				&chip->bdbars) < 0) {
@@ -3146,6 +3465,22 @@ static int snd_intel8x0_create(struct snd_card *card,
 		ichdev->bdbar = ((__le32 *)chip->bdbars.area) +
 			(i * ICH_MAX_FRAGS * 2);
 		ichdev->bdbar_addr = chip->bdbars.addr +
+=======
+	chip->bdbars = snd_devm_alloc_pages(&pci->dev, intel8x0_dma_type(chip),
+					    chip->bdbars_count * sizeof(u32) *
+					    ICH_MAX_FRAGS * 2);
+	if (!chip->bdbars)
+		return -ENOMEM;
+
+	/* tables must be aligned to 8 bytes here, but the kernel pages
+	   are much bigger, so we don't care (on i386) */
+	int_sta_masks = 0;
+	for (i = 0; i < chip->bdbars_count; i++) {
+		ichdev = &chip->ichd[i];
+		ichdev->bdbar = ((__le32 *)chip->bdbars->area) +
+			(i * ICH_MAX_FRAGS * 2);
+		ichdev->bdbar_addr = chip->bdbars->addr +
+>>>>>>> upstream/android-13
 			(i * sizeof(u32) * ICH_MAX_FRAGS * 2);
 		int_sta_masks |= ichdev->int_sta_mask;
 	}
@@ -3178,6 +3513,7 @@ static int snd_intel8x0_create(struct snd_card *card,
 	for (i = 0; i < chip->max_codecs; i++)
 		chip->codec_isr_bits |= chip->codec_bit[i];
 
+<<<<<<< HEAD
 	if ((err = snd_intel8x0_chip_init(chip, 1)) < 0) {
 		snd_intel8x0_free(chip);
 		return err;
@@ -3198,6 +3534,27 @@ static int snd_intel8x0_create(struct snd_card *card,
 	}
 
 	*r_intel8x0 = chip;
+=======
+	err = snd_intel8x0_chip_init(chip, 1);
+	if (err < 0)
+		return err;
+
+	/* request irq after initializaing int_sta_mask, etc */
+	/* NOTE: we don't use devm version here since it's released /
+	 * re-acquired in PM callbacks.
+	 * It's released explicitly in snd_intel8x0_free(), too.
+	 */
+	if (request_irq(pci->irq, snd_intel8x0_interrupt,
+			IRQF_SHARED, KBUILD_MODNAME, chip)) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return -EBUSY;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+
+	card->private_free = snd_intel8x0_free;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3230,12 +3587,20 @@ static struct shortname_table {
 	{ 0, NULL },
 };
 
+<<<<<<< HEAD
 static struct snd_pci_quirk spdif_aclink_defaults[] = {
+=======
+static const struct snd_pci_quirk spdif_aclink_defaults[] = {
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x147b, 0x1c1a, "ASUS KN8", 1),
 	{ } /* end */
 };
 
+<<<<<<< HEAD
 /* look up white/black list for SPDIF over ac-link */
+=======
+/* look up allow/deny list for SPDIF over ac-link */
+>>>>>>> upstream/android-13
 static int check_default_spdif_aclink(struct pci_dev *pci)
 {
 	const struct snd_pci_quirk *w;
@@ -3255,17 +3620,30 @@ static int check_default_spdif_aclink(struct pci_dev *pci)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_intel8x0_probe(struct pci_dev *pci,
 			      const struct pci_device_id *pci_id)
+=======
+static int __snd_intel8x0_probe(struct pci_dev *pci,
+				const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card;
 	struct intel8x0 *chip;
 	int err;
 	struct shortname_table *name;
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index, id, THIS_MODULE, 0, &card);
 	if (err < 0)
 		return err;
+=======
+	err = snd_devm_card_new(&pci->dev, index, id, THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+>>>>>>> upstream/android-13
 
 	if (spdif_aclink < 0)
 		spdif_aclink = check_default_spdif_aclink(pci);
@@ -3299,6 +3677,7 @@ static int snd_intel8x0_probe(struct pci_dev *pci,
 			buggy_irq = 0;
 	}
 
+<<<<<<< HEAD
 	if ((err = snd_intel8x0_create(card, pci, pci_id->driver_data,
 				       &chip)) < 0) {
 		snd_card_free(card);
@@ -3314,6 +3693,18 @@ static int snd_intel8x0_probe(struct pci_dev *pci,
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_intel8x0_init(card, pci, pci_id->driver_data);
+	if (err < 0)
+		return err;
+
+	err = snd_intel8x0_mixer(chip, ac97_clock, ac97_quirk);
+	if (err < 0)
+		return err;
+	err = snd_intel8x0_pcm(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	
 	snd_intel8x0_proc_init(chip);
 
@@ -3330,24 +3721,41 @@ static int snd_intel8x0_probe(struct pci_dev *pci,
 		}
 	}
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	pci_set_drvdata(pci, card);
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_intel8x0_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+static int snd_intel8x0_probe(struct pci_dev *pci,
+			      const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_intel8x0_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver intel8x0_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_intel8x0_ids,
 	.probe = snd_intel8x0_probe,
+<<<<<<< HEAD
 	.remove = snd_intel8x0_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = INTEL8X0_PM_OPS,
 	},

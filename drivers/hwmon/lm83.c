@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm83.c - Part of lm_sensors, Linux kernel modules for hardware
  *          monitoring
@@ -15,6 +19,7 @@
  * Also supports the LM82 temp sensor, which is basically a stripped down
  * model of the LM83.  Datasheet is here:
  * http://www.national.com/pf/LM/LM82.html
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -158,7 +165,11 @@ static struct lm83_data *lm83_update_device(struct device *dev)
  * Sysfs stuff
  */
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -166,8 +177,14 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
 			const char *buf, size_t count)
+=======
+static ssize_t temp_store(struct device *dev,
+			  struct device_attribute *devattr, const char *buf,
+			  size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct lm83_data *data = dev_get_drvdata(dev);
@@ -195,8 +212,13 @@ static ssize_t alarms_show(struct device *dev, struct device_attribute *dummy,
 	return sprintf(buf, "%d\n", data->alarms);
 }
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev, struct device_attribute
 			  *devattr, char *buf)
+=======
+static ssize_t alarm_show(struct device *dev,
+			  struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct lm83_data *data = lm83_update_device(dev);
@@ -205,6 +227,7 @@ static ssize_t show_alarm(struct device *dev, struct device_attribute
 	return sprintf(buf, "%d\n", (data->alarms >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, show_temp, NULL, 1);
 static SENSOR_DEVICE_ATTR(temp3_input, S_IRUGO, show_temp, NULL, 2);
@@ -235,6 +258,33 @@ static SENSOR_DEVICE_ATTR(temp4_fault, S_IRUGO, show_alarm, NULL, 10);
 static SENSOR_DEVICE_ATTR(temp4_max_alarm, S_IRUGO, show_alarm, NULL, 12);
 static SENSOR_DEVICE_ATTR(temp2_fault, S_IRUGO, show_alarm, NULL, 13);
 static SENSOR_DEVICE_ATTR(temp2_max_alarm, S_IRUGO, show_alarm, NULL, 15);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 2);
+static SENSOR_DEVICE_ATTR_RO(temp4_input, temp, 3);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp, 4);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp, 5);
+static SENSOR_DEVICE_ATTR_RW(temp3_max, temp, 6);
+static SENSOR_DEVICE_ATTR_RW(temp4_max, temp, 7);
+static SENSOR_DEVICE_ATTR_RO(temp1_crit, temp, 8);
+static SENSOR_DEVICE_ATTR_RO(temp2_crit, temp, 8);
+static SENSOR_DEVICE_ATTR_RW(temp3_crit, temp, 8);
+static SENSOR_DEVICE_ATTR_RO(temp4_crit, temp, 8);
+
+/* Individual alarm files */
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp3_crit_alarm, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_fault, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp3_max_alarm, alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(temp2_crit_alarm, alarm, 8);
+static SENSOR_DEVICE_ATTR_RO(temp4_crit_alarm, alarm, 9);
+static SENSOR_DEVICE_ATTR_RO(temp4_fault, alarm, 10);
+static SENSOR_DEVICE_ATTR_RO(temp4_max_alarm, alarm, 12);
+static SENSOR_DEVICE_ATTR_RO(temp2_fault, alarm, 13);
+static SENSOR_DEVICE_ATTR_RO(temp2_max_alarm, alarm, 15);
+>>>>>>> upstream/android-13
 /* Raw alarm file for compatibility */
 static DEVICE_ATTR_RO(alarms);
 
@@ -330,8 +380,14 @@ static int lm83_detect(struct i2c_client *new_client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lm83_probe(struct i2c_client *new_client,
 		      const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id lm83_id[];
+
+static int lm83_probe(struct i2c_client *new_client)
+>>>>>>> upstream/android-13
 {
 	struct device *hwmon_dev;
 	struct lm83_data *data;
@@ -351,7 +407,11 @@ static int lm83_probe(struct i2c_client *new_client,
 	 * declare 1 and 3 common, and then 2 and 4 only for the LM83.
 	 */
 	data->groups[0] = &lm83_group;
+<<<<<<< HEAD
 	if (id->driver_data == lm83)
+=======
+	if (i2c_match_id(lm83_id, new_client)->driver_data == lm83)
+>>>>>>> upstream/android-13
 		data->groups[1] = &lm83_group_opt;
 
 	hwmon_dev = devm_hwmon_device_register_with_groups(&new_client->dev,
@@ -376,7 +436,11 @@ static struct i2c_driver lm83_driver = {
 	.driver = {
 		.name	= "lm83",
 	},
+<<<<<<< HEAD
 	.probe		= lm83_probe,
+=======
+	.probe_new	= lm83_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm83_id,
 	.detect		= lm83_detect,
 	.address_list	= normal_i2c,

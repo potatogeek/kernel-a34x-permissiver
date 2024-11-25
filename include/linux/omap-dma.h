@@ -1,8 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __LINUX_OMAP_DMA_H
 #define __LINUX_OMAP_DMA_H
+<<<<<<< HEAD
 #include <linux/omap-dmaengine.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  *  Legacy OMAP DMA handling defines and functions
  *
@@ -131,7 +134,10 @@
 #define IS_WORD_16			BIT(0xd)
 #define ENABLE_16XX_MODE		BIT(0xe)
 #define HS_CHANNELS_RESERVED		BIT(0xf)
+<<<<<<< HEAD
 #define DMA_ENGINE_HANDLE_IRQ		BIT(0x10)
+=======
+>>>>>>> upstream/android-13
 
 /* Defines for DMA Capabilities */
 #define DMA_HAS_TRANSPARENT_CAPS	(0x1 << 18)
@@ -241,9 +247,12 @@ struct omap_dma_lch {
 	void (*callback)(int lch, u16 ch_status, void *data);
 	void *data;
 	long flags;
+<<<<<<< HEAD
 	/* required for Dynamic chaining */
 	int prev_linked_ch;
 	int next_linked_ch;
+=======
+>>>>>>> upstream/android-13
 	int state;
 	int chain_id;
 	int status;
@@ -305,7 +314,10 @@ extern void omap_set_dma_priority(int lch, int dst_port, int priority);
 extern int omap_request_dma(int dev_id, const char *dev_name,
 			void (*callback)(int lch, u16 ch_status, void *data),
 			void *data, int *dma_ch);
+<<<<<<< HEAD
 extern void omap_enable_dma_irq(int ch, u16 irq_bits);
+=======
+>>>>>>> upstream/android-13
 extern void omap_disable_dma_irq(int ch, u16 irq_bits);
 extern void omap_free_dma(int ch);
 extern void omap_start_dma(int lch);
@@ -314,7 +326,10 @@ extern void omap_set_dma_transfer_params(int lch, int data_type,
 					 int elem_count, int frame_count,
 					 int sync_mode,
 					 int dma_trigger, int src_or_dst_synch);
+<<<<<<< HEAD
 extern void omap_set_dma_write_mode(int lch, enum omap_dma_write_mode mode);
+=======
+>>>>>>> upstream/android-13
 extern void omap_set_dma_channel_mode(int lch, enum omap_dma_channel_mode mode);
 
 extern void omap_set_dma_src_params(int lch, int src_port, int src_amode,
@@ -331,6 +346,7 @@ extern void omap_set_dma_dest_data_pack(int lch, int enable);
 extern void omap_set_dma_dest_burst_mode(int lch,
 					 enum omap_dma_burst_mode burst_mode);
 
+<<<<<<< HEAD
 extern void omap_set_dma_params(int lch,
 				struct omap_dma_channel_params *params);
 
@@ -339,14 +355,19 @@ extern void omap_dma_link_lch(int lch_head, int lch_queue);
 extern int omap_set_dma_callback(int lch,
 			void (*callback)(int lch, u16 ch_status, void *data),
 			void *data);
+=======
+>>>>>>> upstream/android-13
 extern dma_addr_t omap_get_dma_src_pos(int lch);
 extern dma_addr_t omap_get_dma_dst_pos(int lch);
 extern int omap_get_dma_active_status(int lch);
 extern int omap_dma_running(void);
+<<<<<<< HEAD
 extern void omap_dma_set_global_params(int arb_rate, int max_fifo_depth,
 				       int tparams);
 void omap_dma_global_context_save(void);
 void omap_dma_global_context_restore(void);
+=======
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_ARCH_OMAP1) && IS_ENABLED(CONFIG_FB_OMAP)
 #include <mach/lcd_dma.h>

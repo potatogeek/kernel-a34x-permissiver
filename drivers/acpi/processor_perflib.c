@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * processor_perflib.c - ACPI Processor P-States Library ($Revision: 71 $)
  *
@@ -6,6 +10,7 @@
  *  Copyright (C) 2004       Dominik Brodowski <linux@brodo.de>
  *  Copyright (C) 2004  Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
  *  			- Added processor hotplug support
+<<<<<<< HEAD
  *
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,6 +27,12 @@
  *
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) "ACPI: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -33,12 +44,16 @@
 #include <asm/cpufeature.h>
 #endif
 
+<<<<<<< HEAD
 #define PREFIX "ACPI: "
 
 #define ACPI_PROCESSOR_CLASS		"processor"
 #define ACPI_PROCESSOR_FILE_PERFORMANCE	"performance"
 #define _COMPONENT		ACPI_PROCESSOR_COMPONENT
 ACPI_MODULE_NAME("processor_perflib");
+=======
+#define ACPI_PROCESSOR_FILE_PERFORMANCE	"performance"
+>>>>>>> upstream/android-13
 
 static DEFINE_MUTEX(performance_mutex);
 
@@ -63,6 +78,7 @@ module_param(ignore_ppc, int, 0644);
 MODULE_PARM_DESC(ignore_ppc, "If the frequency of your machine gets wrongly" \
 		 "limited by BIOS, this should help");
 
+<<<<<<< HEAD
 #define PPC_REGISTERED   1
 #define PPC_IN_USE       2
 
@@ -108,12 +124,19 @@ static int acpi_processor_ppc_notifier(struct notifier_block *nb,
 static struct notifier_block acpi_ppc_notifier_block = {
 	.notifier_call = acpi_processor_ppc_notifier,
 };
+=======
+static bool acpi_processor_ppc_in_use;
+>>>>>>> upstream/android-13
 
 static int acpi_processor_get_platform_limit(struct acpi_processor *pr)
 {
 	acpi_status status = 0;
 	unsigned long long ppc = 0;
+<<<<<<< HEAD
 
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!pr)
 		return -EINVAL;
@@ -123,6 +146,7 @@ static int acpi_processor_get_platform_limit(struct acpi_processor *pr)
 	 * (e.g. 0 = states 0..n; 1 = states 1..n; etc.
 	 */
 	status = acpi_evaluate_integer(pr->handle, "_PPC", NULL, &ppc);
+<<<<<<< HEAD
 
 	if (status != AE_NOT_FOUND)
 		acpi_processor_ppc_status |= PPC_IN_USE;
@@ -130,6 +154,15 @@ static int acpi_processor_get_platform_limit(struct acpi_processor *pr)
 	if (ACPI_FAILURE(status) && status != AE_NOT_FOUND) {
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PPC"));
 		return -ENODEV;
+=======
+	if (status != AE_NOT_FOUND) {
+		acpi_processor_ppc_in_use = true;
+
+		if (ACPI_FAILURE(status)) {
+			acpi_evaluation_failure_warn(pr->handle, "_PPC", status);
+			return -ENODEV;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	pr_debug("CPU %d: _PPC is %d - frequency %s limited\n", pr->id,
@@ -137,6 +170,20 @@ static int acpi_processor_get_platform_limit(struct acpi_processor *pr)
 
 	pr->performance_platform_limit = (int)ppc;
 
+<<<<<<< HEAD
+=======
+	if (ppc >= pr->performance->state_count ||
+	    unlikely(!freq_qos_request_active(&pr->perflib_req)))
+		return 0;
+
+	ret = freq_qos_update_request(&pr->perflib_req,
+			pr->performance->states[ppc].core_frequency * 1000);
+	if (ret < 0) {
+		pr_warn("Failed to update perflib freq constraint: CPU%d (%d)\n",
+			pr->id, ret);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -145,7 +192,11 @@ static int acpi_processor_get_platform_limit(struct acpi_processor *pr)
  * acpi_processor_ppc_ost: Notify firmware the _PPC evaluation status
  * @handle: ACPI processor handle
  * @status: the status code of _PPC evaluation
+<<<<<<< HEAD
  *	0: success. OSPM is now using the performance state specificed.
+=======
+ *	0: success. OSPM is now using the performance state specified.
+>>>>>>> upstream/android-13
  *	1: failure. OSPM has not changed the number of P-states in use
  */
 static void acpi_processor_ppc_ost(acpi_handle handle, int status)
@@ -181,7 +232,11 @@ void acpi_processor_ppc_has_changed(struct acpi_processor *pr, int event_flag)
 			acpi_processor_ppc_ost(pr->handle, 0);
 	}
 	if (ret >= 0)
+<<<<<<< HEAD
 		cpufreq_update_policy(pr->id);
+=======
+		cpufreq_update_limits(pr->id);
+>>>>>>> upstream/android-13
 }
 
 int acpi_processor_get_bios_limit(int cpu, unsigned int *limit)
@@ -197,6 +252,7 @@ int acpi_processor_get_bios_limit(int cpu, unsigned int *limit)
 }
 EXPORT_SYMBOL(acpi_processor_get_bios_limit);
 
+<<<<<<< HEAD
 void acpi_processor_ppc_init(void)
 {
 	if (!cpufreq_register_notifier
@@ -214,6 +270,44 @@ void acpi_processor_ppc_exit(void)
 					    CPUFREQ_POLICY_NOTIFIER);
 
 	acpi_processor_ppc_status &= ~PPC_REGISTERED;
+=======
+void acpi_processor_ignore_ppc_init(void)
+{
+	if (ignore_ppc < 0)
+		ignore_ppc = 0;
+}
+
+void acpi_processor_ppc_init(struct cpufreq_policy *policy)
+{
+	unsigned int cpu;
+
+	for_each_cpu(cpu, policy->related_cpus) {
+		struct acpi_processor *pr = per_cpu(processors, cpu);
+		int ret;
+
+		if (!pr)
+			continue;
+
+		ret = freq_qos_add_request(&policy->constraints,
+					   &pr->perflib_req,
+					   FREQ_QOS_MAX, INT_MAX);
+		if (ret < 0)
+			pr_err("Failed to add freq constraint for CPU%d (%d)\n",
+			       cpu, ret);
+	}
+}
+
+void acpi_processor_ppc_exit(struct cpufreq_policy *policy)
+{
+	unsigned int cpu;
+
+	for_each_cpu(cpu, policy->related_cpus) {
+		struct acpi_processor *pr = per_cpu(processors, cpu);
+
+		if (pr)
+			freq_qos_remove_request(&pr->perflib_req);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int acpi_processor_get_performance_control(struct acpi_processor *pr)
@@ -224,17 +318,27 @@ static int acpi_processor_get_performance_control(struct acpi_processor *pr)
 	union acpi_object *pct = NULL;
 	union acpi_object obj = { 0 };
 
+<<<<<<< HEAD
 
 	status = acpi_evaluate_object(pr->handle, "_PCT", NULL, &buffer);
 	if (ACPI_FAILURE(status)) {
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PCT"));
+=======
+	status = acpi_evaluate_object(pr->handle, "_PCT", NULL, &buffer);
+	if (ACPI_FAILURE(status)) {
+		acpi_evaluation_failure_warn(pr->handle, "_PCT", status);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	pct = (union acpi_object *)buffer.pointer;
 	if (!pct || (pct->type != ACPI_TYPE_PACKAGE)
 	    || (pct->package.count != 2)) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PCT data\n");
+=======
+		pr_err("Invalid _PCT data\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
@@ -248,7 +352,11 @@ static int acpi_processor_get_performance_control(struct acpi_processor *pr)
 	if ((obj.type != ACPI_TYPE_BUFFER)
 	    || (obj.buffer.length < sizeof(struct acpi_pct_register))
 	    || (obj.buffer.pointer == NULL)) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PCT data (control_register)\n");
+=======
+		pr_err("Invalid _PCT data (control_register)\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
@@ -264,7 +372,11 @@ static int acpi_processor_get_performance_control(struct acpi_processor *pr)
 	if ((obj.type != ACPI_TYPE_BUFFER)
 	    || (obj.buffer.length < sizeof(struct acpi_pct_register))
 	    || (obj.buffer.pointer == NULL)) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PCT data (status_register)\n");
+=======
+		pr_err("Invalid _PCT data (status_register)\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
@@ -272,7 +384,11 @@ static int acpi_processor_get_performance_control(struct acpi_processor *pr)
 	memcpy(&pr->performance->status_register, obj.buffer.pointer,
 	       sizeof(struct acpi_pct_register));
 
+<<<<<<< HEAD
       end:
+=======
+end:
+>>>>>>> upstream/android-13
 	kfree(buffer.pointer);
 
 	return result;
@@ -324,22 +440,37 @@ static int acpi_processor_get_performance_states(struct acpi_processor *pr)
 	int i;
 	int last_invalid = -1;
 
+<<<<<<< HEAD
 
 	status = acpi_evaluate_object(pr->handle, "_PSS", NULL, &buffer);
 	if (ACPI_FAILURE(status)) {
 		ACPI_EXCEPTION((AE_INFO, status, "Evaluating _PSS"));
+=======
+	status = acpi_evaluate_object(pr->handle, "_PSS", NULL, &buffer);
+	if (ACPI_FAILURE(status)) {
+		acpi_evaluation_failure_warn(pr->handle, "_PSS", status);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
 	pss = buffer.pointer;
 	if (!pss || (pss->type != ACPI_TYPE_PACKAGE)) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PSS data\n");
+=======
+		pr_err("Invalid _PSS data\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
 
+<<<<<<< HEAD
 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Found %d performance states\n",
 			  pss->package.count));
+=======
+	acpi_handle_debug(pr->handle, "Found %d performance states\n",
+			  pss->package.count);
+>>>>>>> upstream/android-13
 
 	pr->performance->state_count = pss->package.count;
 	pr->performance->states =
@@ -358,12 +489,21 @@ static int acpi_processor_get_performance_states(struct acpi_processor *pr)
 		state.length = sizeof(struct acpi_processor_px);
 		state.pointer = px;
 
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Extracting state %d\n", i));
+=======
+		acpi_handle_debug(pr->handle, "Extracting state %d\n", i);
+>>>>>>> upstream/android-13
 
 		status = acpi_extract_package(&(pss->package.elements[i]),
 					      &format, &state);
 		if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 			ACPI_EXCEPTION((AE_INFO, status, "Invalid _PSS data"));
+=======
+			acpi_handle_warn(pr->handle, "Invalid _PSS data: %s\n",
+					 acpi_format_exception(status));
+>>>>>>> upstream/android-13
 			result = -EFAULT;
 			kfree(pr->performance->states);
 			goto end;
@@ -371,22 +511,37 @@ static int acpi_processor_get_performance_states(struct acpi_processor *pr)
 
 		amd_fixup_frequency(px, i);
 
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+=======
+		acpi_handle_debug(pr->handle,
+>>>>>>> upstream/android-13
 				  "State [%d]: core_frequency[%d] power[%d] transition_latency[%d] bus_master_latency[%d] control[0x%x] status[0x%x]\n",
 				  i,
 				  (u32) px->core_frequency,
 				  (u32) px->power,
 				  (u32) px->transition_latency,
 				  (u32) px->bus_master_latency,
+<<<<<<< HEAD
 				  (u32) px->control, (u32) px->status));
 
 		/*
  		 * Check that ACPI's u64 MHz will be valid as u32 KHz in cpufreq
+=======
+				  (u32) px->control, (u32) px->status);
+
+		/*
+		 * Check that ACPI's u64 MHz will be valid as u32 KHz in cpufreq
+>>>>>>> upstream/android-13
 		 */
 		if (!px->core_frequency ||
 		    ((u32)(px->core_frequency * 1000) !=
 		     (px->core_frequency * 1000))) {
+<<<<<<< HEAD
 			printk(KERN_ERR FW_BUG PREFIX
+=======
+			pr_err(FW_BUG
+>>>>>>> upstream/android-13
 			       "Invalid BIOS _PSS frequency found for processor %d: 0x%llx MHz\n",
 			       pr->id, px->core_frequency);
 			if (last_invalid == -1)
@@ -404,8 +559,13 @@ static int acpi_processor_get_performance_states(struct acpi_processor *pr)
 	}
 
 	if (last_invalid == 0) {
+<<<<<<< HEAD
 		printk(KERN_ERR FW_BUG PREFIX
 		       "No valid BIOS _PSS frequency found for processor %d\n", pr->id);
+=======
+		pr_err(FW_BUG
+			   "No valid BIOS _PSS frequency found for processor %d\n", pr->id);
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		kfree(pr->performance->states);
 		pr->performance->states = NULL;
@@ -414,7 +574,11 @@ static int acpi_processor_get_performance_states(struct acpi_processor *pr)
 	if (last_invalid > 0)
 		pr->performance->state_count = last_invalid;
 
+<<<<<<< HEAD
       end:
+=======
+end:
+>>>>>>> upstream/android-13
 	kfree(buffer.pointer);
 
 	return result;
@@ -428,8 +592,13 @@ int acpi_processor_get_performance_info(struct acpi_processor *pr)
 		return -EINVAL;
 
 	if (!acpi_has_method(pr->handle, "_PCT")) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 				  "ACPI-based processor performance control unavailable\n"));
+=======
+		acpi_handle_debug(pr->handle,
+				  "ACPI-based processor performance control unavailable\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -455,7 +624,11 @@ int acpi_processor_get_performance_info(struct acpi_processor *pr)
 #ifdef CONFIG_X86
 	if (acpi_has_method(pr->handle, "_PPC")) {
 		if(boot_cpu_has(X86_FEATURE_EST))
+<<<<<<< HEAD
 			printk(KERN_WARNING FW_BUG "BIOS needs update for CPU "
+=======
+			pr_warn(FW_BUG "BIOS needs update for CPU "
+>>>>>>> upstream/android-13
 			       "frequency support\n");
 	}
 #endif
@@ -470,27 +643,45 @@ int acpi_processor_pstate_control(void)
 	if (!acpi_gbl_FADT.smi_command || !acpi_gbl_FADT.pstate_control)
 		return 0;
 
+<<<<<<< HEAD
 	ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 			  "Writing pstate_control [0x%x] to smi_command [0x%x]\n",
 			  acpi_gbl_FADT.pstate_control, acpi_gbl_FADT.smi_command));
+=======
+	pr_debug("Writing pstate_control [0x%x] to smi_command [0x%x]\n",
+		 acpi_gbl_FADT.pstate_control, acpi_gbl_FADT.smi_command);
+>>>>>>> upstream/android-13
 
 	status = acpi_os_write_port(acpi_gbl_FADT.smi_command,
 				    (u32)acpi_gbl_FADT.pstate_control, 8);
 	if (ACPI_SUCCESS(status))
 		return 1;
 
+<<<<<<< HEAD
 	ACPI_EXCEPTION((AE_INFO, status,
 			"Failed to write pstate_control [0x%x] to smi_command [0x%x]",
 			acpi_gbl_FADT.pstate_control, acpi_gbl_FADT.smi_command));
+=======
+	pr_warn("Failed to write pstate_control [0x%x] to smi_command [0x%x]: %s\n",
+		acpi_gbl_FADT.pstate_control, acpi_gbl_FADT.smi_command,
+		acpi_format_exception(status));
+>>>>>>> upstream/android-13
 	return -EIO;
 }
 
 int acpi_processor_notify_smm(struct module *calling_module)
 {
+<<<<<<< HEAD
 	static int is_done = 0;
 	int result;
 
 	if (!(acpi_processor_ppc_status & PPC_REGISTERED))
+=======
+	static int is_done;
+	int result;
+
+	if (!acpi_processor_cpufreq_init)
+>>>>>>> upstream/android-13
 		return -EBUSY;
 
 	if (!try_module_get(calling_module))
@@ -513,7 +704,11 @@ int acpi_processor_notify_smm(struct module *calling_module)
 
 	result = acpi_processor_pstate_control();
 	if (!result) {
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "No SMI port or pstate_control\n"));
+=======
+		pr_debug("No SMI port or pstate_control\n");
+>>>>>>> upstream/android-13
 		module_put(calling_module);
 		return 0;
 	}
@@ -526,7 +721,11 @@ int acpi_processor_notify_smm(struct module *calling_module)
 	 * we can allow the cpufreq driver to be rmmod'ed. */
 	is_done = 1;
 
+<<<<<<< HEAD
 	if (!(acpi_processor_ppc_status & PPC_IN_USE))
+=======
+	if (!acpi_processor_ppc_in_use)
+>>>>>>> upstream/android-13
 		module_put(calling_module);
 
 	return 0;
@@ -550,13 +749,21 @@ int acpi_processor_get_psd(acpi_handle handle, struct acpi_psd_package *pdomain)
 
 	psd = buffer.pointer;
 	if (!psd || (psd->type != ACPI_TYPE_PACKAGE)) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PSD data\n");
+=======
+		pr_err("Invalid _PSD data\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
 
 	if (psd->package.count != 1) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PSD data\n");
+=======
+		pr_err("Invalid _PSD data\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
@@ -567,19 +774,31 @@ int acpi_processor_get_psd(acpi_handle handle, struct acpi_psd_package *pdomain)
 	status = acpi_extract_package(&(psd->package.elements[0]),
 		&format, &state);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PSD data\n");
+=======
+		pr_err("Invalid _PSD data\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
 
 	if (pdomain->num_entries != ACPI_PSD_REV0_ENTRIES) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Unknown _PSD:num_entries\n");
+=======
+		pr_err("Unknown _PSD:num_entries\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
 
 	if (pdomain->revision != ACPI_PSD_REV0_REVISION) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Unknown _PSD:revision\n");
+=======
+		pr_err("Unknown _PSD:revision\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
@@ -587,7 +806,11 @@ int acpi_processor_get_psd(acpi_handle handle, struct acpi_psd_package *pdomain)
 	if (pdomain->coord_type != DOMAIN_COORD_TYPE_SW_ALL &&
 	    pdomain->coord_type != DOMAIN_COORD_TYPE_SW_ANY &&
 	    pdomain->coord_type != DOMAIN_COORD_TYPE_HW_ALL) {
+<<<<<<< HEAD
 		printk(KERN_ERR PREFIX "Invalid _PSD:coord_type\n");
+=======
+		pr_err("Invalid _PSD:coord_type\n");
+>>>>>>> upstream/android-13
 		result = -EFAULT;
 		goto end;
 	}
@@ -643,7 +866,10 @@ int acpi_processor_preregister_performance(
 			continue;
 
 		pr->performance = per_cpu_ptr(performance, i);
+<<<<<<< HEAD
 		cpumask_set_cpu(i, pr->performance->shared_cpu_map);
+=======
+>>>>>>> upstream/android-13
 		pdomain = &(pr->performance->domain_info);
 		if (acpi_processor_get_psd(pr->handle, pdomain)) {
 			retval = -EINVAL;
@@ -654,7 +880,11 @@ int acpi_processor_preregister_performance(
 		goto err_ret;
 
 	/*
+<<<<<<< HEAD
 	 * Now that we have _PSD data from all CPUs, lets setup P-state 
+=======
+	 * Now that we have _PSD data from all CPUs, lets setup P-state
+>>>>>>> upstream/android-13
 	 * domain info.
 	 */
 	for_each_possible_cpu(i) {
@@ -720,7 +950,11 @@ int acpi_processor_preregister_performance(
 			if (match_pdomain->domain != pdomain->domain)
 				continue;
 
+<<<<<<< HEAD
 			match_pr->performance->shared_type = 
+=======
+			match_pr->performance->shared_type =
+>>>>>>> upstream/android-13
 					pr->performance->shared_type;
 			cpumask_copy(match_pr->performance->shared_cpu_map,
 				     pr->performance->shared_cpu_map);
@@ -737,7 +971,11 @@ err_ret:
 		if (retval) {
 			cpumask_clear(pr->performance->shared_cpu_map);
 			cpumask_set_cpu(i, pr->performance->shared_cpu_map);
+<<<<<<< HEAD
 			pr->performance->shared_type = CPUFREQ_SHARED_TYPE_ALL;
+=======
+			pr->performance->shared_type = CPUFREQ_SHARED_TYPE_NONE;
+>>>>>>> upstream/android-13
 		}
 		pr->performance = NULL; /* Will be set for real in register */
 	}
@@ -755,7 +993,11 @@ acpi_processor_register_performance(struct acpi_processor_performance
 {
 	struct acpi_processor *pr;
 
+<<<<<<< HEAD
 	if (!(acpi_processor_ppc_status & PPC_REGISTERED))
+=======
+	if (!acpi_processor_cpufreq_init)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	mutex_lock(&performance_mutex);

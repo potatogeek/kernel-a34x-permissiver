@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Event char devices, giving access to raw input device events.
  *
  * Copyright (c) 1999-2002 Vojtech Pavlik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -27,11 +34,18 @@
 #include <linux/device.h>
 #include <linux/cdev.h>
 #include "input-compat.h"
+<<<<<<< HEAD
+=======
+#include <trace/hooks/evdev.h>
+>>>>>>> upstream/android-13
 
 struct evdev {
 	int open;
 	struct input_handle handle;
+<<<<<<< HEAD
 	wait_queue_head_t wait;
+=======
+>>>>>>> upstream/android-13
 	struct evdev_client __rcu *grab;
 	struct list_head client_list;
 	spinlock_t client_lock; /* protects client_list */
@@ -46,6 +60,10 @@ struct evdev_client {
 	unsigned int tail;
 	unsigned int packet_head; /* [future] position of the first element of next packet */
 	spinlock_t buffer_lock; /* protects access to buffer, head and tail */
+<<<<<<< HEAD
+=======
+	wait_queue_head_t wait;
+>>>>>>> upstream/android-13
 	struct fasync_struct *fasync;
 	struct evdev *evdev;
 	struct list_head node;
@@ -247,6 +265,12 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
 static void __pass_event(struct evdev_client *client,
 			 const struct input_event *event)
 {
+<<<<<<< HEAD
+=======
+	trace_android_vh_pass_input_event(client->head, client->tail, client->bufsize,
+		event->type, event->code, event->value);
+
+>>>>>>> upstream/android-13
 	client->buffer[client->head++] = *event;
 	client->head &= client->bufsize - 1;
 
@@ -278,7 +302,10 @@ static void evdev_pass_values(struct evdev_client *client,
 			const struct input_value *vals, unsigned int count,
 			ktime_t *ev_time)
 {
+<<<<<<< HEAD
 	struct evdev *evdev = client->evdev;
+=======
+>>>>>>> upstream/android-13
 	const struct input_value *v;
 	struct input_event event;
 	struct timespec64 ts;
@@ -315,11 +342,20 @@ static void evdev_pass_values(struct evdev_client *client,
 	spin_unlock(&client->buffer_lock);
 
 	if (wakeup)
+<<<<<<< HEAD
 		wake_up_interruptible(&evdev->wait);
 }
 
 #if IS_ENABLED(CONFIG_SEC_INPUT_BOOSTER)
 static void evdev_ib_trigger(struct work_struct *work)
+=======
+		wake_up_interruptible_poll(&client->wait,
+			EPOLLIN | EPOLLOUT | EPOLLRDNORM | EPOLLWRNORM);
+}
+
+#if IS_ENABLED(CONFIG_SEC_INPUT_BOOSTER)
+static void evdev_ib_trigger(struct work_struct* work)
+>>>>>>> upstream/android-13
 {
 	struct ib_event_work *ib_work = container_of(work, struct ib_event_work, evdev_work);
 	struct ib_event_data ib_data;
@@ -489,11 +525,19 @@ static void evdev_hangup(struct evdev *evdev)
 	struct evdev_client *client;
 
 	spin_lock(&evdev->client_lock);
+<<<<<<< HEAD
 	list_for_each_entry(client, &evdev->client_list, node)
 		kill_fasync(&client->fasync, SIGIO, POLL_HUP);
 	spin_unlock(&evdev->client_lock);
 
 	wake_up_interruptible(&evdev->wait);
+=======
+	list_for_each_entry(client, &evdev->client_list, node) {
+		kill_fasync(&client->fasync, SIGIO, POLL_HUP);
+		wake_up_interruptible_poll(&client->wait, EPOLLHUP | EPOLLERR);
+	}
+	spin_unlock(&evdev->client_lock);
+>>>>>>> upstream/android-13
 }
 
 static int evdev_release(struct inode *inode, struct file *file)
@@ -535,6 +579,7 @@ static int evdev_open(struct inode *inode, struct file *file)
 {
 	struct evdev *evdev = container_of(inode->i_cdev, struct evdev, cdev);
 	unsigned int bufsize = evdev_compute_buffer_size(evdev->handle.dev);
+<<<<<<< HEAD
 	unsigned int size = sizeof(struct evdev_client) +
 					bufsize * sizeof(struct input_event);
 	struct evdev_client *client;
@@ -546,6 +591,16 @@ static int evdev_open(struct inode *inode, struct file *file)
 	if (!client)
 		return -ENOMEM;
 
+=======
+	struct evdev_client *client;
+	int error;
+
+	client = kvzalloc(struct_size(client, buffer, bufsize), GFP_KERNEL);
+	if (!client)
+		return -ENOMEM;
+
+	init_waitqueue_head(&client->wait);
+>>>>>>> upstream/android-13
 	client->bufsize = bufsize;
 	spin_lock_init(&client->buffer_lock);
 	client->evdev = evdev;
@@ -556,7 +611,11 @@ static int evdev_open(struct inode *inode, struct file *file)
 		goto err_free_client;
 
 	file->private_data = client;
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -662,7 +721,11 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
 			break;
 
 		if (!(file->f_flags & O_NONBLOCK)) {
+<<<<<<< HEAD
 			error = wait_event_interruptible(evdev->wait,
+=======
+			error = wait_event_interruptible(client->wait,
+>>>>>>> upstream/android-13
 					client->packet_head != client->tail ||
 					!evdev->exist || client->revoked);
 			if (error)
@@ -680,7 +743,11 @@ static __poll_t evdev_poll(struct file *file, poll_table *wait)
 	struct evdev *evdev = client->evdev;
 	__poll_t mask;
 
+<<<<<<< HEAD
 	poll_wait(file, &evdev->wait, wait);
+=======
+	poll_wait(file, &client->wait, wait);
+>>>>>>> upstream/android-13
 
 	if (evdev->exist && !client->revoked)
 		mask = EPOLLOUT | EPOLLWRNORM;
@@ -1013,7 +1080,11 @@ static int evdev_revoke(struct evdev *evdev, struct evdev_client *client,
 	client->revoked = true;
 	evdev_ungrab(evdev, client);
 	input_flush_device(&evdev->handle, file);
+<<<<<<< HEAD
 	wake_up_interruptible(&evdev->wait);
+=======
+	wake_up_interruptible_poll(&client->wait, EPOLLHUP | EPOLLERR);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1425,7 +1496,10 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
 	INIT_LIST_HEAD(&evdev->client_list);
 	spin_lock_init(&evdev->client_lock);
 	mutex_init(&evdev->mutex);
+<<<<<<< HEAD
 	init_waitqueue_head(&evdev->wait);
+=======
+>>>>>>> upstream/android-13
 	evdev->exist = true;
 
 	dev_no = minor;

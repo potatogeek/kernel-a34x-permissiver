@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2016,2018, The Linux Foundation. All rights reserved.
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+/* SPDX-License-Identifier: ISC */
+/*
+ * Copyright (c) 2012-2016,2018-2019, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef WIL6210_TXRX_EDMA_H
@@ -23,9 +29,15 @@
 #define WIL_SRING_SIZE_ORDER_MIN	(WIL_RING_SIZE_ORDER_MIN)
 #define WIL_SRING_SIZE_ORDER_MAX	(WIL_RING_SIZE_ORDER_MAX)
 /* RX sring order should be bigger than RX ring order */
+<<<<<<< HEAD
 #define WIL_RX_SRING_SIZE_ORDER_DEFAULT	(11)
 #define WIL_TX_SRING_SIZE_ORDER_DEFAULT	(12)
 #define WIL_RX_BUFF_ARR_SIZE_DEFAULT (1536)
+=======
+#define WIL_RX_SRING_SIZE_ORDER_DEFAULT	(12)
+#define WIL_TX_SRING_SIZE_ORDER_DEFAULT	(14)
+#define WIL_RX_BUFF_ARR_SIZE_DEFAULT (2600)
+>>>>>>> upstream/android-13
 
 #define WIL_DEFAULT_RX_STATUS_RING_ID 0
 #define WIL_RX_DESC_RING_ID 0
@@ -57,7 +69,11 @@
 
 #define WIL_RX_EDMA_DLPF_LU_MISS_TID_POS	5
 
+<<<<<<< HEAD
 #define WIL_RX_EDMA_MID_VALID_BIT		BIT(22)
+=======
+#define WIL_RX_EDMA_MID_VALID_BIT		BIT(20)
+>>>>>>> upstream/android-13
 
 #define WIL_EDMA_DESC_TX_MAC_CFG_0_QID_POS 16
 #define WIL_EDMA_DESC_TX_MAC_CFG_0_QID_LEN 6
@@ -255,8 +271,13 @@ struct wil_ring_tx_status {
  *		     calculated, Bit1- L4Err - TCP/UDP Checksum Error
  *	bit      7 : Reserved:1
  *	bit  8..19 : Flow ID:12 - MSDU flow ID
+<<<<<<< HEAD
  *	bit 20..21 : MID:2 - The MAC ID
  *	bit     22 : MID_V:1 - The MAC ID field is valid
+=======
+ *	bit     20 : MID_V:1 - The MAC ID field is valid
+ *	bit 21..22 : MID:2 - The MAC ID
+>>>>>>> upstream/android-13
  *	bit     23 : L3T:1 - IP types: 0-IPv6, 1-IPv4
  *	bit     24 : L4T:1 - Layer 4 Type: 0-UDP, 1-TCP
  *	bit     25 : BC:1 - The received MPDU is broadcast
@@ -366,6 +387,15 @@ static inline u8 wil_rx_status_get_mcs(void *msg)
 			    16, 21);
 }
 
+<<<<<<< HEAD
+=======
+static inline u8 wil_rx_status_get_cb_mode(void *msg)
+{
+	return WIL_GET_BITS(((struct wil_rx_status_compressed *)msg)->d1,
+			    22, 23);
+}
+
+>>>>>>> upstream/android-13
 static inline u16 wil_rx_status_get_flow_id(void *msg)
 {
 	return WIL_GET_BITS(((struct wil_rx_status_compressed *)msg)->d0,
@@ -415,18 +445,30 @@ static inline u8 wil_rx_status_get_tid(void *msg)
 		return val & WIL_RX_EDMA_DLPF_LU_MISS_CID_TID_MASK;
 }
 
+<<<<<<< HEAD
 static inline int wil_rx_status_get_desc_rdy_bit(void *msg)
 {
 	return WIL_GET_BITS(((struct wil_rx_status_compressed *)msg)->d0,
 			    31, 31);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int wil_rx_status_get_eop(void *msg) /* EoP = End of Packet */
 {
 	return WIL_GET_BITS(((struct wil_rx_status_compressed *)msg)->d0,
 			    30, 30);
 }
 
+<<<<<<< HEAD
+=======
+static inline void wil_rx_status_reset_buff_id(struct wil_status_ring *s)
+{
+	((struct wil_rx_status_compressed *)
+		(s->va + (s->elem_size * s->swhead)))->buff_id = 0;
+}
+
+>>>>>>> upstream/android-13
 static inline __le16 wil_rx_status_get_buff_id(void *msg)
 {
 	return ((struct wil_rx_status_compressed *)msg)->buff_id;
@@ -484,7 +526,11 @@ static inline int wil_rx_status_get_mid(void *msg)
 		return 0; /* use the default MID */
 
 	return WIL_GET_BITS(((struct wil_rx_status_compressed *)msg)->d0,
+<<<<<<< HEAD
 			    20, 21);
+=======
+			    21, 22);
+>>>>>>> upstream/android-13
 }
 
 static inline int wil_rx_status_get_error(void *msg)
@@ -511,6 +557,48 @@ static inline int wil_rx_status_get_l4_rx_status(void *msg)
 			    5, 6);
 }
 
+<<<<<<< HEAD
+=======
+/* L4	L3	Expected result
+ * 0	0	Ok. No L3 and no L4 known protocols found.
+ *		Treated as L2 packet. (no offloads on this packet)
+ * 0	1	Ok. It means that L3 was found, and checksum check passed.
+ *		No known L4 protocol was found.
+ * 0	2	It means that L3 protocol was found, and checksum check failed.
+ *		No L4 known protocol was found.
+ * 1	any	Ok. It means that L4 was found, and checksum check passed.
+ * 3	0	Not a possible scenario.
+ * 3	1	Recalculate. It means that L3 protocol was found, and checksum
+ *		passed. But L4 checksum failed. Need to see if really failed,
+ *		or due to fragmentation.
+ * 3	2	Both L3 and L4 checksum check failed.
+ */
+static inline int wil_rx_status_get_checksum(void *msg,
+					     struct wil_net_stats *stats)
+{
+	int l3_rx_status = wil_rx_status_get_l3_rx_status(msg);
+	int l4_rx_status = wil_rx_status_get_l4_rx_status(msg);
+
+	if (l4_rx_status == 1)
+		return CHECKSUM_UNNECESSARY;
+
+	if (l4_rx_status == 0 && l3_rx_status == 1)
+		return CHECKSUM_UNNECESSARY;
+
+	if (l3_rx_status == 0 && l4_rx_status == 0)
+		/* L2 packet */
+		return CHECKSUM_NONE;
+
+	/* If HW reports bad checksum, let IP stack re-check it
+	 * For example, HW doesn't understand Microsoft IP stack that
+	 * mis-calculates TCP checksum - if it should be 0x0,
+	 * it writes 0xffff in violation of RFC 1624
+	 */
+	stats->rx_csum_err++;
+	return CHECKSUM_NONE;
+}
+
+>>>>>>> upstream/android-13
 static inline int wil_rx_status_get_security(void *msg)
 {
 	return WIL_GET_BITS(((struct wil_rx_status_compressed *)msg)->d0,

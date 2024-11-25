@@ -28,12 +28,15 @@
 #include <linux/suspend.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 #define SPM_LOG_BUF_SIZE 64
 static int spm_irq;
 static char spm_reason[SPM_LOG_BUF_SIZE];
 #endif /* CONFIG_SEC_PM */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * struct wakeup_irq_node - stores data and relationships for IRQs logged as
  * either base or nested wakeup reasons during suspend/resume flow.
@@ -154,6 +157,7 @@ static struct wakeup_irq_node *find_node_in_list(struct list_head *head,
 	return NULL;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 void log_wakeup_reason_spm(int irq, char *wakesrc_str,
 			unsigned int assert_pc)
@@ -187,6 +191,8 @@ void log_wakeup_reason_spm(int irq, char *wakesrc_str,
 }
 #endif /* CONFIG_SEC_PM */
 
+=======
+>>>>>>> upstream/android-13
 void log_irq_wakeup_reason(int irq)
 {
 	unsigned long flags;
@@ -283,6 +289,10 @@ void log_suspend_abort_reason(const char *fmt, ...)
 	__log_abort_or_abnormal_wake(true, fmt, args);
 	va_end(args);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(log_suspend_abort_reason);
+>>>>>>> upstream/android-13
 
 void log_abnormal_wakeup_reason(const char *fmt, ...)
 {
@@ -292,6 +302,10 @@ void log_abnormal_wakeup_reason(const char *fmt, ...)
 	__log_abort_or_abnormal_wake(false, fmt, args);
 	va_end(args);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(log_abnormal_wakeup_reason);
+>>>>>>> upstream/android-13
 
 void clear_wakeup_reasons(void)
 {
@@ -329,11 +343,15 @@ static void print_wakeup_sources(void)
 	else if (wakeup_reason == RESUME_ABNORMAL)
 		pr_info("Resume caused by %s\n", non_irq_wake_reason);
 	else
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 		pr_info("Resume caused by IRQ %d, SPM%s", spm_irq, spm_reason);
 #else
 		pr_info("Resume cause unknown\n");
 #endif /* CONFIG_SEC_PM  */
+=======
+		pr_info("Resume cause unknown\n");
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&wakeup_reason_lock, flags);
 }
@@ -362,12 +380,16 @@ static ssize_t last_resume_reason_show(struct kobject *kobj,
 	else if (wakeup_reason == RESUME_ABNORMAL)
 		buf_offset = scnprintf(buf, PAGE_SIZE, "-1 %s",
 				       non_irq_wake_reason);
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 	else
 		buf_offset += scnprintf(buf + buf_offset,
 				PAGE_SIZE - buf_offset,
 				"%d SPM%s\n", spm_irq, spm_reason);
 #endif /* CONFIG_SEC_PM */
+=======
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&wakeup_reason_lock, flags);
 
 	return buf_offset;
@@ -426,9 +448,12 @@ static int wakeup_reason_pm_event(struct notifier_block *notifier,
 		last_monotime = ktime_get();
 		/* monotonic time since boot including the time spent in suspend */
 		last_stime = ktime_get_boottime();
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 		spm_reason[0] = '\0';
 #endif /* CONFIG_SEC_PM  */
+=======
+>>>>>>> upstream/android-13
 		clear_wakeup_reasons();
 		break;
 	case PM_POST_SUSPEND:

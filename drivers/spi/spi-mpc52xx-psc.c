@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC52xx PSC in SPI mode driver.
  *
  * Maintainer: Dragos Carp
  *
  * Copyright (C) 2006 TOPTICA Photonics AG.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -238,8 +245,12 @@ static void mpc52xx_psc_spi_work(struct work_struct *work)
 				break;
 			m->actual_length += t->len;
 
+<<<<<<< HEAD
 			if (t->delay_usecs)
 				udelay(t->delay_usecs);
+=======
+			spi_transfer_delay_exec(t);
+>>>>>>> upstream/android-13
 
 			if (cs_change)
 				mpc52xx_psc_spi_deactivate_cs(spi);
@@ -270,7 +281,11 @@ static int mpc52xx_psc_spi_setup(struct spi_device *spi)
 		return -EINVAL;
 
 	if (!cs) {
+<<<<<<< HEAD
 		cs = kzalloc(sizeof *cs, GFP_KERNEL);
+=======
+		cs = kzalloc(sizeof(*cs), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!cs)
 			return -ENOMEM;
 		spi->controller_state = cs;
@@ -370,7 +385,11 @@ static int mpc52xx_psc_spi_do_probe(struct device *dev, u32 regaddr,
 	struct spi_master *master;
 	int ret;
 
+<<<<<<< HEAD
 	master = spi_alloc_master(dev, sizeof *mps);
+=======
+	master = spi_alloc_master(dev, sizeof(*mps));
+>>>>>>> upstream/android-13
 	if (master == NULL)
 		return -ENOMEM;
 

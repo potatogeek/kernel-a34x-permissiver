@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SBP2 driver (SCSI over IEEE1394)
  *
  * Copyright (C) 2005-2007  Kristian Hoegsberg <krh@bitplanet.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -421,7 +428,11 @@ static void sbp2_status_write(struct fw_card *card, struct fw_request *request,
 			      void *payload, size_t length, void *callback_data)
 {
 	struct sbp2_logical_unit *lu = callback_data;
+<<<<<<< HEAD
 	struct sbp2_orb *orb;
+=======
+	struct sbp2_orb *orb = NULL, *iter;
+>>>>>>> upstream/android-13
 	struct sbp2_status status;
 	unsigned long flags;
 
@@ -446,17 +457,30 @@ static void sbp2_status_write(struct fw_card *card, struct fw_request *request,
 
 	/* Lookup the orb corresponding to this status write. */
 	spin_lock_irqsave(&lu->tgt->lock, flags);
+<<<<<<< HEAD
 	list_for_each_entry(orb, &lu->orb_list, link) {
 		if (STATUS_GET_ORB_HIGH(status) == 0 &&
 		    STATUS_GET_ORB_LOW(status) == orb->request_bus) {
 			orb->rcode = RCODE_COMPLETE;
 			list_del(&orb->link);
+=======
+	list_for_each_entry(iter, &lu->orb_list, link) {
+		if (STATUS_GET_ORB_HIGH(status) == 0 &&
+		    STATUS_GET_ORB_LOW(status) == iter->request_bus) {
+			iter->rcode = RCODE_COMPLETE;
+			list_del(&iter->link);
+			orb = iter;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 	spin_unlock_irqrestore(&lu->tgt->lock, flags);
 
+<<<<<<< HEAD
 	if (&orb->link != &lu->orb_list) {
+=======
+	if (orb) {
+>>>>>>> upstream/android-13
 		orb->callback(orb, &status);
 		kref_put(&orb->kref, free_orb); /* orb callback reference */
 	} else {
@@ -1144,10 +1168,13 @@ static int sbp2_probe(struct fw_unit *unit, const struct ieee1394_device_id *id)
 	if (device->is_local)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (dma_get_max_seg_size(device->card->device) > SBP2_MAX_SEG_SIZE)
 		WARN_ON(dma_set_max_seg_size(device->card->device,
 					     SBP2_MAX_SEG_SIZE));
 
+=======
+>>>>>>> upstream/android-13
 	shost = scsi_host_alloc(&scsi_driver_template, sizeof(*tgt));
 	if (shost == NULL)
 		return -ENOMEM;
@@ -1610,7 +1637,11 @@ static struct scsi_host_template scsi_driver_template = {
 	.eh_abort_handler	= sbp2_scsi_abort,
 	.this_id		= -1,
 	.sg_tablesize		= SG_ALL,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+	.max_segment_size	= SBP2_MAX_SEG_SIZE,
+>>>>>>> upstream/android-13
 	.can_queue		= 1,
 	.sdev_attrs		= sbp2_scsi_sysfs_attrs,
 };

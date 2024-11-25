@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * EPSON TOYOCOM RTC-7301SF/DG Driver
  *
@@ -319,11 +323,18 @@ static irqreturn_t rtc7301_irq_handler(int irq, void *dev_id)
 {
 	struct rtc_device *rtc = dev_id;
 	struct rtc7301_priv *priv = dev_get_drvdata(rtc->dev.parent);
+<<<<<<< HEAD
 	unsigned long flags;
 	irqreturn_t ret = IRQ_NONE;
 	u8 alrm_ctrl;
 
 	spin_lock_irqsave(&priv->lock, flags);
+=======
+	irqreturn_t ret = IRQ_NONE;
+	u8 alrm_ctrl;
+
+	spin_lock(&priv->lock);
+>>>>>>> upstream/android-13
 
 	rtc7301_select_bank(priv, 1);
 
@@ -334,7 +345,11 @@ static irqreturn_t rtc7301_irq_handler(int irq, void *dev_id)
 		rtc_update_irq(rtc, 1, RTC_IRQF | RTC_AF);
 	}
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&priv->lock, flags);
+=======
+	spin_unlock(&priv->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -353,21 +368,31 @@ static void rtc7301_init(struct rtc7301_priv *priv)
 
 static int __init rtc7301_rtc_probe(struct platform_device *dev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *regs;
 	struct rtc7301_priv *priv;
 	struct rtc_device *rtc;
 	int ret;
 
+<<<<<<< HEAD
 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
 	if (!res)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	priv = devm_kzalloc(&dev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	regs = devm_ioremap_resource(&dev->dev, res);
+=======
+	regs = devm_platform_ioremap_resource(dev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 

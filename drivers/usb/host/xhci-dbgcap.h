@@ -84,6 +84,7 @@ enum dbc_state {
 	DS_STALLED,
 };
 
+<<<<<<< HEAD
 struct dbc_request {
 	void				*buf;
 	unsigned int			length;
@@ -101,11 +102,17 @@ struct dbc_request {
 	unsigned			direction:1;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct dbc_ep {
 	struct xhci_dbc			*dbc;
 	struct list_head		list_pending;
 	struct xhci_ring		*ring;
+<<<<<<< HEAD
 	unsigned			direction:1;
+=======
+	unsigned int			direction:1;
+>>>>>>> upstream/android-13
 };
 
 #define DBC_QUEUE_SIZE			16
@@ -127,12 +134,24 @@ struct dbc_port {
 	struct kfifo			write_fifo;
 
 	bool				registered;
+<<<<<<< HEAD
 	struct dbc_ep			*in;
 	struct dbc_ep			*out;
+=======
+};
+
+struct dbc_driver {
+	int (*configure)(struct xhci_dbc *dbc);
+	void (*disconnect)(struct xhci_dbc *dbc);
+>>>>>>> upstream/android-13
 };
 
 struct xhci_dbc {
 	spinlock_t			lock;		/* device access */
+<<<<<<< HEAD
+=======
+	struct device			*dev;
+>>>>>>> upstream/android-13
 	struct xhci_hcd			*xhci;
 	struct dbc_regs __iomem		*regs;
 	struct xhci_ring		*ring_evt;
@@ -150,7 +169,29 @@ struct xhci_dbc {
 	unsigned			resume_required:1;
 	struct dbc_ep			eps[2];
 
+<<<<<<< HEAD
 	struct dbc_port			port;
+=======
+	const struct dbc_driver		*driver;
+	void				*priv;
+};
+
+struct dbc_request {
+	void				*buf;
+	unsigned int			length;
+	dma_addr_t			dma;
+	void				(*complete)(struct xhci_dbc *dbc,
+						    struct dbc_request *req);
+	struct list_head		list_pool;
+	int				status;
+	unsigned int			actual;
+
+	struct xhci_dbc			*dbc;
+	struct list_head		list_pending;
+	dma_addr_t			trb_dma;
+	union xhci_trb			*trb;
+	unsigned			direction:1;
+>>>>>>> upstream/android-13
 };
 
 #define dbc_bulkout_ctx(d)		\
@@ -178,6 +219,7 @@ enum evtreturn {
 	EVT_DISC,
 };
 
+<<<<<<< HEAD
 static inline struct dbc_ep *get_in_ep(struct xhci_hcd *xhci)
 {
 	struct xhci_dbc		*dbc = xhci->dbc;
@@ -189,12 +231,22 @@ static inline struct dbc_ep *get_out_ep(struct xhci_hcd *xhci)
 {
 	struct xhci_dbc		*dbc = xhci->dbc;
 
+=======
+static inline struct dbc_ep *get_in_ep(struct xhci_dbc *dbc)
+{
+	return &dbc->eps[BULK_IN];
+}
+
+static inline struct dbc_ep *get_out_ep(struct xhci_dbc *dbc)
+{
+>>>>>>> upstream/android-13
 	return &dbc->eps[BULK_OUT];
 }
 
 #ifdef CONFIG_USB_XHCI_DBGCAP
 int xhci_dbc_init(struct xhci_hcd *xhci);
 void xhci_dbc_exit(struct xhci_hcd *xhci);
+<<<<<<< HEAD
 int xhci_dbc_tty_register_driver(struct xhci_hcd *xhci);
 void xhci_dbc_tty_unregister_driver(void);
 int xhci_dbc_tty_register_device(struct xhci_hcd *xhci);
@@ -202,6 +254,15 @@ void xhci_dbc_tty_unregister_device(struct xhci_hcd *xhci);
 struct dbc_request *dbc_alloc_request(struct dbc_ep *dep, gfp_t gfp_flags);
 void dbc_free_request(struct dbc_ep *dep, struct dbc_request *req);
 int dbc_ep_queue(struct dbc_ep *dep, struct dbc_request *req, gfp_t gfp_flags);
+=======
+int xhci_dbc_tty_probe(struct xhci_hcd *xhci);
+void xhci_dbc_tty_remove(struct xhci_dbc *dbc);
+struct dbc_request *dbc_alloc_request(struct xhci_dbc *dbc,
+				      unsigned int direction,
+				      gfp_t flags);
+void dbc_free_request(struct dbc_request *req);
+int dbc_ep_queue(struct dbc_request *req);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 int xhci_dbc_suspend(struct xhci_hcd *xhci);
 int xhci_dbc_resume(struct xhci_hcd *xhci);

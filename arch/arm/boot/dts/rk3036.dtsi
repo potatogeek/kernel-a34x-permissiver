@@ -6,6 +6,10 @@
 #include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/clock/rk3036-cru.h>
 #include <dt-bindings/soc/rockchip,boot-mode.h>
+<<<<<<< HEAD
+=======
+#include <dt-bindings/power/rk3036-power.h>
+>>>>>>> upstream/android-13
 
 / {
 	#address-cells = <1>;
@@ -54,6 +58,7 @@
 		};
 	};
 
+<<<<<<< HEAD
 	amba {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -72,6 +77,8 @@
 		};
 	};
 
+=======
+>>>>>>> upstream/android-13
 	arm-pmu {
 		compatible = "arm,cortex-a7-pmu";
 		interrupts = <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
@@ -101,7 +108,11 @@
 		#clock-cells = <0>;
 	};
 
+<<<<<<< HEAD
 	bus_intmem@10080000 {
+=======
+	bus_intmem: sram@10080000 {
+>>>>>>> upstream/android-13
 		compatible = "mmio-sram";
 		reg = <0x10080000 0x2000>;
 		#address-cells = <1>;
@@ -129,10 +140,38 @@
 		assigned-clock-rates = <100000000>;
 		clocks = <&cru SCLK_GPU>, <&cru SCLK_GPU>;
 		clock-names = "bus", "core";
+<<<<<<< HEAD
+=======
+		power-domains = <&power RK3036_PD_GPU>;
+>>>>>>> upstream/android-13
 		resets = <&cru SRST_GPU>;
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
+=======
+	vpu: video-codec@10108000 {
+		compatible = "rockchip,rk3036-vpu";
+		reg = <0x10108000 0x800>;
+		interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "vdpu";
+		clocks = <&cru ACLK_VCODEC>, <&cru HCLK_VCODEC>;
+		clock-names = "aclk", "hclk";
+		iommus = <&vpu_mmu>;
+		power-domains = <&power RK3036_PD_VPU>;
+	};
+
+	vpu_mmu: iommu@10108800 {
+		compatible = "rockchip,iommu";
+		reg = <0x10108800 0x100>;
+		interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&cru ACLK_VCODEC>, <&cru HCLK_VCODEC>;
+		clock-names = "aclk", "iface";
+		power-domains = <&power RK3036_PD_VPU>;
+		#iommu-cells = <0>;
+	};
+
+>>>>>>> upstream/android-13
 	vop: vop@10118000 {
 		compatible = "rockchip,rk3036-vop";
 		reg = <0x10118000 0x19c>;
@@ -142,6 +181,10 @@
 		resets = <&cru SRST_LCDC1_A>, <&cru SRST_LCDC1_H>, <&cru SRST_LCDC1_D>;
 		reset-names = "axi", "ahb", "dclk";
 		iommus = <&vop_mmu>;
+<<<<<<< HEAD
+=======
+		power-domains = <&power RK3036_PD_VIO>;
+>>>>>>> upstream/android-13
 		status = "disabled";
 
 		vop_out: port {
@@ -158,13 +201,37 @@
 		compatible = "rockchip,iommu";
 		reg = <0x10118300 0x100>;
 		interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 		interrupt-names = "vop_mmu";
 		clocks = <&cru ACLK_LCDC>, <&cru HCLK_LCDC>;
 		clock-names = "aclk", "iface";
+=======
+		clocks = <&cru ACLK_LCDC>, <&cru HCLK_LCDC>;
+		clock-names = "aclk", "iface";
+		power-domains = <&power RK3036_PD_VIO>;
+>>>>>>> upstream/android-13
 		#iommu-cells = <0>;
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
+=======
+	qos_gpu: qos@1012d000 {
+		compatible = "rockchip,rk3036-qos", "syscon";
+		reg = <0x1012d000 0x20>;
+	};
+
+	qos_vpu: qos@1012e000 {
+		compatible = "rockchip,rk3036-qos", "syscon";
+		reg = <0x1012e000 0x20>;
+	};
+
+	qos_vio: qos@1012f000 {
+		compatible = "rockchip,rk3036-qos", "syscon";
+		reg = <0x1012f000 0x20>;
+	};
+
+>>>>>>> upstream/android-13
 	gic: interrupt-controller@10139000 {
 		compatible = "arm,gic-400";
 		interrupt-controller;
@@ -224,7 +291,11 @@
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
 	sdmmc: dwmmc@10214000 {
+=======
+	sdmmc: mmc@10214000 {
+>>>>>>> upstream/android-13
 		compatible = "rockchip,rk3036-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x10214000 0x4000>;
 		clock-frequency = <37500000>;
@@ -238,7 +309,11 @@
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
 	sdio: dwmmc@10218000 {
+=======
+	sdio: mmc@10218000 {
+>>>>>>> upstream/android-13
 		compatible = "rockchip,rk3036-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x10218000 0x4000>;
 		max-frequency = <37500000>;
@@ -252,7 +327,11 @@
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
 	emmc: dwmmc@1021c000 {
+=======
+	emmc: mmc@1021c000 {
+>>>>>>> upstream/android-13
 		compatible = "rockchip,rk3036-dw-mshc", "rockchip,rk3288-dw-mshc";
 		reg = <0x1021c000 0x4000>;
 		interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
@@ -263,7 +342,11 @@
 		clocks = <&cru HCLK_EMMC>, <&cru SCLK_EMMC>,
 			 <&cru SCLK_EMMC_DRV>, <&cru SCLK_EMMC_SAMPLE>;
 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+<<<<<<< HEAD
 		default-sample-phase = <158>;
+=======
+		rockchip,default-sample-phase = <158>;
+>>>>>>> upstream/android-13
 		disable-wp;
 		dmas = <&pdma 12>;
 		dma-names = "rx-tx";
@@ -281,14 +364,36 @@
 		compatible = "rockchip,rk3036-i2s", "rockchip,rk3066-i2s";
 		reg = <0x10220000 0x4000>;
 		interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 		clock-names = "i2s_clk", "i2s_hclk";
 		clocks = <&cru SCLK_I2S>, <&cru HCLK_I2S>;
 		dmas = <&pdma 0>, <&pdma 1>;
 		dma-names = "tx", "rx";
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2s_bus>;
+<<<<<<< HEAD
+=======
+		#sound-dai-cells = <0>;
+		status = "disabled";
+	};
+
+	nfc: nand-controller@10500000 {
+		compatible = "rockchip,rk3036-nfc",
+			     "rockchip,rk2928-nfc";
+		reg = <0x10500000 0x4000>;
+		interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&cru HCLK_NANDC>, <&cru SCLK_NANDC>;
+		clock-names = "ahb", "nfc";
+		assigned-clocks = <&cru SCLK_NANDC>;
+		assigned-clock-rates = <150000000>;
+		pinctrl-0 = <&flash_ale &flash_bus8 &flash_cle &flash_csn0
+			     &flash_rdn &flash_rdy &flash_wrn>;
+		pinctrl-names = "default";
+>>>>>>> upstream/android-13
 		status = "disabled";
 	};
 
@@ -306,6 +411,40 @@
 		compatible = "rockchip,rk3036-grf", "syscon", "simple-mfd";
 		reg = <0x20008000 0x1000>;
 
+<<<<<<< HEAD
+=======
+		power: power-controller {
+			compatible = "rockchip,rk3036-power-controller";
+			#power-domain-cells = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			power-domain@RK3036_PD_VIO {
+				reg = <RK3036_PD_VIO>;
+				clocks = <&cru ACLK_LCDC>,
+					 <&cru HCLK_LCDC>,
+					 <&cru SCLK_LCDC>;
+				pm_qos = <&qos_vio>;
+				#power-domain-cells = <0>;
+			};
+
+			power-domain@RK3036_PD_VPU {
+				reg = <RK3036_PD_VPU>;
+				clocks = <&cru ACLK_VCODEC>,
+					 <&cru HCLK_VCODEC>;
+				pm_qos = <&qos_vpu>;
+				#power-domain-cells = <0>;
+			};
+
+			power-domain@RK3036_PD_GPU {
+				reg = <RK3036_PD_GPU>;
+				clocks = <&cru SCLK_GPU>;
+				pm_qos = <&qos_gpu>;
+				#power-domain-cells = <0>;
+			};
+		};
+
+>>>>>>> upstream/android-13
 		reboot-mode {
 			compatible = "syscon-reboot-mode";
 			offset = <0x1d8>;
@@ -359,7 +498,10 @@
 		reg = <0x20050000 0x10>;
 		#pwm-cells = <3>;
 		clocks = <&cru PCLK_PWM>;
+<<<<<<< HEAD
 		clock-names = "pwm";
+=======
+>>>>>>> upstream/android-13
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm0_pin>;
 		status = "disabled";
@@ -370,7 +512,10 @@
 		reg = <0x20050010 0x10>;
 		#pwm-cells = <3>;
 		clocks = <&cru PCLK_PWM>;
+<<<<<<< HEAD
 		clock-names = "pwm";
+=======
+>>>>>>> upstream/android-13
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm1_pin>;
 		status = "disabled";
@@ -381,7 +526,10 @@
 		reg = <0x20050020 0x10>;
 		#pwm-cells = <3>;
 		clocks = <&cru PCLK_PWM>;
+<<<<<<< HEAD
 		clock-names = "pwm";
+=======
+>>>>>>> upstream/android-13
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm2_pin>;
 		status = "disabled";
@@ -392,7 +540,10 @@
 		reg = <0x20050030 0x10>;
 		#pwm-cells = <2>;
 		clocks = <&cru PCLK_PWM>;
+<<<<<<< HEAD
 		clock-names = "pwm";
+=======
+>>>>>>> upstream/android-13
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm3_pin>;
 		status = "disabled";
@@ -483,7 +634,11 @@
 		compatible = "rockchip,rockchip-spi";
 		reg = <0x20074000 0x1000>;
 		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 		clocks =<&cru PCLK_SPI>, <&cru SCLK_SPI>;
+=======
+		clocks = <&cru PCLK_SPI>, <&cru SCLK_SPI>;
+>>>>>>> upstream/android-13
 		clock-names = "apb-pclk","spi_pclk";
 		dmas = <&pdma 8>, <&pdma 9>;
 		dma-names = "tx", "rx";
@@ -494,6 +649,21 @@
 		status = "disabled";
 	};
 
+<<<<<<< HEAD
+=======
+	pdma: pdma@20078000 {
+		compatible = "arm,pl330", "arm,primecell";
+		reg = <0x20078000 0x4000>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
+		#dma-cells = <1>;
+		arm,pl330-broken-no-flushp;
+		arm,pl330-periph-burst;
+		clocks = <&cru ACLK_DMAC2>;
+		clock-names = "apb_pclk";
+	};
+
+>>>>>>> upstream/android-13
 	pinctrl: pinctrl {
 		compatible = "rockchip,rk3036-pinctrl";
 		rockchip,grf = <&grf>;
@@ -550,30 +720,47 @@
 
 		pwm0 {
 			pwm0_pin: pwm0-pin {
+<<<<<<< HEAD
 				rockchip,pins = <0 0 RK_FUNC_2 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PA0 2 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		pwm1 {
 			pwm1_pin: pwm1-pin {
+<<<<<<< HEAD
 				rockchip,pins = <0 1 RK_FUNC_2 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PA1 2 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		pwm2 {
 			pwm2_pin: pwm2-pin {
+<<<<<<< HEAD
 				rockchip,pins = <0 1 2 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PA1 2 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		pwm3 {
 			pwm3_pin: pwm3-pin {
+<<<<<<< HEAD
 				rockchip,pins = <0 27 1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PD3 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		sdmmc {
 			sdmmc_clk: sdmmc-clk {
+<<<<<<< HEAD
 				rockchip,pins = <1 16 RK_FUNC_1 &pcfg_pull_none>;
 			};
 
@@ -594,11 +781,34 @@
 						<1 19 RK_FUNC_1 &pcfg_pull_default>,
 						<1 20 RK_FUNC_1 &pcfg_pull_default>,
 						<1 21 RK_FUNC_1 &pcfg_pull_default>;
+=======
+				rockchip,pins = <1 RK_PC0 1 &pcfg_pull_none>;
+			};
+
+			sdmmc_cmd: sdmmc-cmd {
+				rockchip,pins = <1 RK_PB7 1 &pcfg_pull_default>;
+			};
+
+			sdmmc_cd: sdmmc-cd {
+				rockchip,pins = <1 RK_PC1 1 &pcfg_pull_default>;
+			};
+
+			sdmmc_bus1: sdmmc-bus1 {
+				rockchip,pins = <1 RK_PC2 1 &pcfg_pull_default>;
+			};
+
+			sdmmc_bus4: sdmmc-bus4 {
+				rockchip,pins = <1 RK_PC2 1 &pcfg_pull_default>,
+						<1 RK_PC3 1 &pcfg_pull_default>,
+						<1 RK_PC4 1 &pcfg_pull_default>,
+						<1 RK_PC5 1 &pcfg_pull_default>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		sdio {
 			sdio_bus1: sdio-bus1 {
+<<<<<<< HEAD
 				rockchip,pins = <0 11 RK_FUNC_1 &pcfg_pull_default>;
 			};
 
@@ -615,6 +825,24 @@
 
 			sdio_clk: sdio-clk {
 				rockchip,pins = <0 9 RK_FUNC_1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PB3 1 &pcfg_pull_default>;
+			};
+
+			sdio_bus4: sdio-bus4 {
+				rockchip,pins = <0 RK_PB3 1 &pcfg_pull_default>,
+						<0 RK_PB4 1 &pcfg_pull_default>,
+						<0 RK_PB5 1 &pcfg_pull_default>,
+						<0 RK_PB6 1 &pcfg_pull_default>;
+			};
+
+			sdio_cmd: sdio-cmd {
+				rockchip,pins = <0 RK_PB0 1 &pcfg_pull_default>;
+			};
+
+			sdio_clk: sdio-clk {
+				rockchip,pins = <0 RK_PB1 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
@@ -624,6 +852,7 @@
 			 * We also have external pulls, so disable the internal ones.
 			 */
 			emmc_clk: emmc-clk {
+<<<<<<< HEAD
 				rockchip,pins = <2 4 RK_FUNC_2 &pcfg_pull_none>;
 			};
 
@@ -640,11 +869,67 @@
 						<1 29 RK_FUNC_2 &pcfg_pull_default>,
 						<1 30 RK_FUNC_2 &pcfg_pull_default>,
 						<1 31 RK_FUNC_2 &pcfg_pull_default>;
+=======
+				rockchip,pins = <2 RK_PA4 2 &pcfg_pull_none>;
+			};
+
+			emmc_cmd: emmc-cmd {
+				rockchip,pins = <2 RK_PA1 2 &pcfg_pull_default>;
+			};
+
+			emmc_bus8: emmc-bus8 {
+				rockchip,pins = <1 RK_PD0 2 &pcfg_pull_default>,
+						<1 RK_PD1 2 &pcfg_pull_default>,
+						<1 RK_PD2 2 &pcfg_pull_default>,
+						<1 RK_PD3 2 &pcfg_pull_default>,
+						<1 RK_PD4 2 &pcfg_pull_default>,
+						<1 RK_PD5 2 &pcfg_pull_default>,
+						<1 RK_PD6 2 &pcfg_pull_default>,
+						<1 RK_PD7 2 &pcfg_pull_default>;
+			};
+		};
+
+		nfc {
+			flash_ale: flash-ale {
+				rockchip,pins = <2 RK_PA0 1 &pcfg_pull_default>;
+			};
+
+			flash_bus8: flash-bus8 {
+				rockchip,pins = <1 RK_PD0 1 &pcfg_pull_default>,
+						<1 RK_PD1 1 &pcfg_pull_default>,
+						<1 RK_PD2 1 &pcfg_pull_default>,
+						<1 RK_PD3 1 &pcfg_pull_default>,
+						<1 RK_PD4 1 &pcfg_pull_default>,
+						<1 RK_PD5 1 &pcfg_pull_default>,
+						<1 RK_PD6 1 &pcfg_pull_default>,
+						<1 RK_PD7 1 &pcfg_pull_default>;
+			};
+
+			flash_cle: flash-cle {
+				rockchip,pins = <2 RK_PA1 1 &pcfg_pull_default>;
+			};
+
+			flash_csn0: flash-csn0 {
+				rockchip,pins = <2 RK_PA6 1 &pcfg_pull_default>;
+			};
+
+			flash_rdn: flash-rdn {
+				rockchip,pins = <2 RK_PA3 1 &pcfg_pull_default>;
+			};
+
+			flash_rdy: flash-rdy {
+				rockchip,pins = <2 RK_PA4 1 &pcfg_pull_default>;
+			};
+
+			flash_wrn: flash-wrn {
+				rockchip,pins = <2 RK_PA2 1 &pcfg_pull_default>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		emac {
 			emac_xfer: emac-xfer {
+<<<<<<< HEAD
 				rockchip,pins = <2 10 RK_FUNC_1 &pcfg_pull_default>, /* crs_dvalid */
 						<2 13 RK_FUNC_1 &pcfg_pull_default>, /* tx_en */
 						<2 14 RK_FUNC_1 &pcfg_pull_default>, /* mac_clk */
@@ -658,52 +943,99 @@
 			emac_mdio: emac-mdio {
 				rockchip,pins = <2 12 RK_FUNC_1 &pcfg_pull_default>, /* mac_md */
 						<2 25 RK_FUNC_1 &pcfg_pull_default>; /* mac_mdclk */
+=======
+				rockchip,pins = <2 RK_PB2 1 &pcfg_pull_default>, /* crs_dvalid */
+						<2 RK_PB5 1 &pcfg_pull_default>, /* tx_en */
+						<2 RK_PB6 1 &pcfg_pull_default>, /* mac_clk */
+						<2 RK_PB7 1 &pcfg_pull_default>, /* rx_err */
+						<2 RK_PC0 1 &pcfg_pull_default>, /* rxd1 */
+						<2 RK_PC1 1 &pcfg_pull_default>, /* rxd0 */
+						<2 RK_PC2 1 &pcfg_pull_default>, /* txd1 */
+						<2 RK_PC3 1 &pcfg_pull_default>; /* txd0 */
+			};
+
+			emac_mdio: emac-mdio {
+				rockchip,pins = <2 RK_PB4 1 &pcfg_pull_default>, /* mac_md */
+						<2 RK_PD1 1 &pcfg_pull_default>; /* mac_mdclk */
+>>>>>>> upstream/android-13
 			};
 		};
 
 		i2c0 {
 			i2c0_xfer: i2c0-xfer {
+<<<<<<< HEAD
 				rockchip,pins = <0 0 RK_FUNC_1 &pcfg_pull_none>,
 						<0 1 RK_FUNC_1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PA0 1 &pcfg_pull_none>,
+						<0 RK_PA1 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		i2c1 {
 			i2c1_xfer: i2c1-xfer {
+<<<<<<< HEAD
 				rockchip,pins = <0 2 RK_FUNC_1 &pcfg_pull_none>,
 						<0 3 RK_FUNC_1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PA2 1 &pcfg_pull_none>,
+						<0 RK_PA3 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		i2c2 {
 			i2c2_xfer: i2c2-xfer {
+<<<<<<< HEAD
 				rockchip,pins = <2 20 RK_FUNC_1 &pcfg_pull_none>,
 						<2 21 RK_FUNC_1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <2 RK_PC4 1 &pcfg_pull_none>,
+						<2 RK_PC5 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		i2s {
 			i2s_bus: i2s-bus {
+<<<<<<< HEAD
 				rockchip,pins = <1 0 RK_FUNC_1 &pcfg_pull_default>,
 						<1 1 RK_FUNC_1 &pcfg_pull_default>,
 						<1 2 RK_FUNC_1 &pcfg_pull_default>,
 						<1 3 RK_FUNC_1 &pcfg_pull_default>,
 						<1 4 RK_FUNC_1 &pcfg_pull_default>,
 						<1 5 RK_FUNC_1 &pcfg_pull_default>;
+=======
+				rockchip,pins = <1 RK_PA0 1 &pcfg_pull_default>,
+						<1 RK_PA1 1 &pcfg_pull_default>,
+						<1 RK_PA2 1 &pcfg_pull_default>,
+						<1 RK_PA3 1 &pcfg_pull_default>,
+						<1 RK_PA4 1 &pcfg_pull_default>,
+						<1 RK_PA5 1 &pcfg_pull_default>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		hdmi {
 			hdmi_ctl: hdmi-ctl {
+<<<<<<< HEAD
 				rockchip,pins = <1 8  RK_FUNC_1 &pcfg_pull_none>,
 						<1 9  RK_FUNC_1 &pcfg_pull_none>,
 						<1 10 RK_FUNC_1 &pcfg_pull_none>,
 						<1 11 RK_FUNC_1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <1 RK_PB0 1 &pcfg_pull_none>,
+						<1 RK_PB1 1 &pcfg_pull_none>,
+						<1 RK_PB2 1 &pcfg_pull_none>,
+						<1 RK_PB3 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		uart0 {
 			uart0_xfer: uart0-xfer {
+<<<<<<< HEAD
 				rockchip,pins = <0 16 RK_FUNC_1 &pcfg_pull_default>,
 						<0 17 RK_FUNC_1 &pcfg_pull_none>;
 			};
@@ -714,27 +1046,50 @@
 
 			uart0_rts: uart0-rts {
 				rockchip,pins = <0 19 RK_FUNC_1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <0 RK_PC0 1 &pcfg_pull_default>,
+						<0 RK_PC1 1 &pcfg_pull_none>;
+			};
+
+			uart0_cts: uart0-cts {
+				rockchip,pins = <0 RK_PC2 1 &pcfg_pull_default>;
+			};
+
+			uart0_rts: uart0-rts {
+				rockchip,pins = <0 RK_PC3 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 		};
 
 		uart1 {
 			uart1_xfer: uart1-xfer {
+<<<<<<< HEAD
 				rockchip,pins = <2 22 RK_FUNC_1 &pcfg_pull_default>,
 						<2 23 RK_FUNC_1 &pcfg_pull_none>;
+=======
+				rockchip,pins = <2 RK_PC6 1 &pcfg_pull_default>,
+						<2 RK_PC7 1 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 			/* no rts / cts for uart1 */
 		};
 
 		uart2 {
 			uart2_xfer: uart2-xfer {
+<<<<<<< HEAD
 				rockchip,pins = <1 18 RK_FUNC_2 &pcfg_pull_default>,
 						<1 19 RK_FUNC_2 &pcfg_pull_none>;
+=======
+				rockchip,pins = <1 RK_PC2 2 &pcfg_pull_default>,
+						<1 RK_PC3 2 &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 			};
 			/* no rts / cts for uart2 */
 		};
 
 		spi-pins {
 			spi_txd:spi-txd {
+<<<<<<< HEAD
 				rockchip,pins = <1 29 RK_FUNC_3 &pcfg_pull_default>;
 			};
 
@@ -748,11 +1103,30 @@
 
 			spi_cs0:spi-cs0 {
 				rockchip,pins = <1 30 RK_FUNC_3 &pcfg_pull_default>;
+=======
+				rockchip,pins = <1 RK_PD5 3 &pcfg_pull_default>;
+			};
+
+			spi_rxd:spi-rxd {
+				rockchip,pins = <1 RK_PD4 3 &pcfg_pull_default>;
+			};
+
+			spi_clk:spi-clk {
+				rockchip,pins = <2 RK_PA0 2 &pcfg_pull_default>;
+			};
+
+			spi_cs0:spi-cs0 {
+				rockchip,pins = <1 RK_PD6 3 &pcfg_pull_default>;
+>>>>>>> upstream/android-13
 
 			};
 
 			spi_cs1:spi-cs1 {
+<<<<<<< HEAD
 				rockchip,pins = <1 31 RK_FUNC_3 &pcfg_pull_default>;
+=======
+				rockchip,pins = <1 RK_PD7 3 &pcfg_pull_default>;
+>>>>>>> upstream/android-13
 
 			};
 		};

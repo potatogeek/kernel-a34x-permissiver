@@ -179,7 +179,11 @@ static int owl_pll_set_rate(struct clk_hw *hw, unsigned long rate,
 
 	regmap_write(common->regmap, pll_hw->reg, reg);
 
+<<<<<<< HEAD
 	udelay(PLL_STABILITY_WAIT_US);
+=======
+	udelay(pll_hw->delay);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

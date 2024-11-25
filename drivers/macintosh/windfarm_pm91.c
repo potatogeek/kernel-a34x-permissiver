@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control. SMU based 1 CPU desktop control loops
  *
  * (c) Copyright 2005 Benjamin Herrenschmidt, IBM Corp.
  *                    <benh@kernel.crashing.org>
  *
+<<<<<<< HEAD
  * Released under the term of the GNU GPL v2.
  *
+=======
+>>>>>>> upstream/android-13
  * The algorithm used is the PID control algorithm, used the same
  * way the published Darwin code does, using the same values that
  * are present in the Darwin 8.2 snapshot property lists (note however

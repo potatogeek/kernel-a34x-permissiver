@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Backlight driver for Analog Devices ADP5520/ADP5501 MFD PMICs
  *
  * Copyright 2009 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -66,6 +73,7 @@ static int adp5520_bl_set(struct backlight_device *bl, int brightness)
 
 static int adp5520_bl_update_status(struct backlight_device *bl)
 {
+<<<<<<< HEAD
 	int brightness = bl->props.brightness;
 
 	if (bl->props.power != FB_BLANK_UNBLANK)
@@ -75,6 +83,9 @@ static int adp5520_bl_update_status(struct backlight_device *bl)
 		brightness = 0;
 
 	return adp5520_bl_set(bl, brightness);
+=======
+	return adp5520_bl_set(bl, backlight_get_brightness(bl));
+>>>>>>> upstream/android-13
 }
 
 static int adp5520_bl_get_brightness(struct backlight_device *bl)
@@ -391,7 +402,11 @@ static struct platform_driver adp5520_bl_driver = {
 
 module_platform_driver(adp5520_bl_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ADP5520(01) Backlight Driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:adp5520-backlight");

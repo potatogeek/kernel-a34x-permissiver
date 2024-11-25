@@ -96,7 +96,11 @@ struct pcm_stream_info {
  * @had_spinlock: driver lock
  * @aes_bits: IEC958 status bits
  * @buff_done: id of current buffer done intr
+<<<<<<< HEAD
  * @dev: platoform device handle
+=======
+ * @dev: platform device handle
+>>>>>>> upstream/android-13
  * @chmap: holds channel map info
  */
 struct snd_intelhad {
@@ -127,7 +131,10 @@ struct snd_intelhad {
 	union aud_cfg aud_config;	/* AUD_CONFIG reg value cache */
 	struct work_struct hdmi_audio_wq;
 	struct mutex mutex; /* for protecting chmap and eld */
+<<<<<<< HEAD
 	bool need_reset;
+=======
+>>>>>>> upstream/android-13
 	struct snd_jack *jack;
 };
 

@@ -1,18 +1,31 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * String handling functions for PowerPC.
  *
  * Copyright (C) 1996 Paul Mackerras.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <asm/processor.h>
 #include <asm/errno.h>
 #include <asm/ppc_asm.h>
 #include <asm/export.h>
+<<<<<<< HEAD
 
+=======
+#include <asm/kasan.h>
+
+#ifndef CONFIG_KASAN
+>>>>>>> upstream/android-13
 _GLOBAL(__memset16)
 	rlwimi	r4,r4,16,0,15
 	/* fall through */
@@ -29,8 +42,14 @@ _GLOBAL(__memset64)
 EXPORT_SYMBOL(__memset16)
 EXPORT_SYMBOL(__memset32)
 EXPORT_SYMBOL(__memset64)
+<<<<<<< HEAD
 
 _GLOBAL(memset)
+=======
+#endif
+
+_GLOBAL_KASAN(memset)
+>>>>>>> upstream/android-13
 	neg	r0,r3
 	rlwimi	r4,r4,8,16,23
 	andi.	r0,r0,7			/* # bytes to be 8-byte aligned */
@@ -40,7 +59,11 @@ _GLOBAL(memset)
 .Lms:	PPC_MTOCRF(1,r0)
 	mr	r6,r3
 	blt	cr1,8f
+<<<<<<< HEAD
 	beq+	3f			/* if already 8-byte aligned */
+=======
+	beq	3f			/* if already 8-byte aligned */
+>>>>>>> upstream/android-13
 	subf	r5,r0,r5
 	bf	31,1f
 	stb	r4,0(r6)
@@ -85,7 +108,11 @@ _GLOBAL(memset)
 	addi	r6,r6,8
 8:	cmpwi	r5,0
 	PPC_MTOCRF(1,r5)
+<<<<<<< HEAD
 	beqlr+
+=======
+	beqlr
+>>>>>>> upstream/android-13
 	bf	29,9f
 	stw	r4,0(r6)
 	addi	r6,r6,4
@@ -96,8 +123,14 @@ _GLOBAL(memset)
 	stb	r4,0(r6)
 	blr
 EXPORT_SYMBOL(memset)
+<<<<<<< HEAD
 
 _GLOBAL_TOC(memmove)
+=======
+EXPORT_SYMBOL_KASAN(memset)
+
+_GLOBAL_TOC_KASAN(memmove)
+>>>>>>> upstream/android-13
 	cmplw	0,r3,r4
 	bgt	backwards_memcpy
 	b	memcpy
@@ -139,3 +172,7 @@ _GLOBAL(backwards_memcpy)
 	mtctr	r7
 	b	1b
 EXPORT_SYMBOL(memmove)
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_KASAN(memmove)
+>>>>>>> upstream/android-13

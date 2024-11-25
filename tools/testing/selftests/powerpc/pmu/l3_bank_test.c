@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014, Michael Ellerman, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2014, Michael Ellerman, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -20,6 +26,12 @@ static int l3_bank_test(void)
 	char *p;
 	int i;
 
+<<<<<<< HEAD
+=======
+	// The L3 bank logic is only used on Power8 or later
+	SKIP_IF(!have_hwcap2(PPC_FEATURE2_ARCH_2_07));
+
+>>>>>>> upstream/android-13
 	p = malloc(MALLOC_SIZE);
 	FAIL_IF(!p);
 

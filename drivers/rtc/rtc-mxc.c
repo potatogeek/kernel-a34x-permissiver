@@ -8,6 +8,10 @@
 #include <linux/slab.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_wakeirq.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
@@ -69,6 +73,7 @@ struct rtc_plat_data {
 	enum imx_rtc_type devtype;
 };
 
+<<<<<<< HEAD
 static const struct platform_device_id imx_rtc_devtype[] = {
 	{
 		.name = "imx1-rtc",
@@ -83,13 +88,18 @@ static const struct platform_device_id imx_rtc_devtype[] = {
 MODULE_DEVICE_TABLE(platform, imx_rtc_devtype);
 
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id imx_rtc_dt_ids[] = {
 	{ .compatible = "fsl,imx1-rtc", .data = (const void *)IMX1_RTC },
 	{ .compatible = "fsl,imx21-rtc", .data = (const void *)IMX21_RTC },
 	{}
 };
 MODULE_DEVICE_TABLE(of, imx_rtc_dt_ids);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static inline int is_imx1_rtc(struct rtc_plat_data *data)
 {
@@ -183,8 +193,14 @@ static void mxc_rtc_irq_enable(struct device *dev, unsigned int bit,
 	struct rtc_plat_data *pdata = dev_get_drvdata(dev);
 	void __iomem *ioaddr = pdata->ioaddr;
 	u32 reg;
+<<<<<<< HEAD
 
 	spin_lock_irq(&pdata->rtc->irq_lock);
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&pdata->rtc->irq_lock, flags);
+>>>>>>> upstream/android-13
 	reg = readw(ioaddr + RTC_RTCIENR);
 
 	if (enabled)
@@ -193,7 +209,11 @@ static void mxc_rtc_irq_enable(struct device *dev, unsigned int bit,
 		reg &= ~bit;
 
 	writew(reg, ioaddr + RTC_RTCIENR);
+<<<<<<< HEAD
 	spin_unlock_irq(&pdata->rtc->irq_lock);
+=======
+	spin_unlock_irqrestore(&pdata->rtc->irq_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 /* This function is the RTC interrupt service routine. */
@@ -202,11 +222,18 @@ static irqreturn_t mxc_rtc_interrupt(int irq, void *dev_id)
 	struct platform_device *pdev = dev_id;
 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
 	void __iomem *ioaddr = pdata->ioaddr;
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 status;
 	u32 events = 0;
 
 	spin_lock_irqsave(&pdata->rtc->irq_lock, flags);
+=======
+	u32 status;
+	u32 events = 0;
+
+	spin_lock(&pdata->rtc->irq_lock);
+>>>>>>> upstream/android-13
 	status = readw(ioaddr + RTC_RTCISR) & readw(ioaddr + RTC_RTCIENR);
 	/* clear interrupt sources */
 	writew(status, ioaddr + RTC_RTCISR);
@@ -222,7 +249,11 @@ static irqreturn_t mxc_rtc_interrupt(int irq, void *dev_id)
 		events |= (RTC_PF | RTC_IRQF);
 
 	rtc_update_irq(pdata->rtc, 1, events);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&pdata->rtc->irq_lock, flags);
+=======
+	spin_unlock(&pdata->rtc->irq_lock);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -253,6 +284,7 @@ static int mxc_rtc_read_time(struct device *dev, struct rtc_time *tm)
 /*
  * This function sets the internal RTC time based on tm in Gregorian date.
  */
+<<<<<<< HEAD
 static int mxc_rtc_set_mmss(struct device *dev, time64_t time)
 {
 	struct rtc_plat_data *pdata = dev_get_drvdata(dev);
@@ -267,6 +299,11 @@ static int mxc_rtc_set_mmss(struct device *dev, time64_t time)
 		tm.tm_year = 70;
 		time = rtc_tm_to_time64(&tm);
 	}
+=======
+static int mxc_rtc_set_time(struct device *dev, struct rtc_time *tm)
+{
+	time64_t time = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 
 	/* Avoid roll-over from reading the different registers */
 	do {
@@ -310,26 +347,47 @@ static int mxc_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 /* RTC layer */
 static const struct rtc_class_ops mxc_rtc_ops = {
 	.read_time		= mxc_rtc_read_time,
+<<<<<<< HEAD
 	.set_mmss64		= mxc_rtc_set_mmss,
+=======
+	.set_time		= mxc_rtc_set_time,
+>>>>>>> upstream/android-13
 	.read_alarm		= mxc_rtc_read_alarm,
 	.set_alarm		= mxc_rtc_set_alarm,
 	.alarm_irq_enable	= mxc_rtc_alarm_irq_enable,
 };
 
+<<<<<<< HEAD
 static int mxc_rtc_probe(struct platform_device *pdev)
 {
 	struct resource *res;
+=======
+static void mxc_rtc_action(void *p)
+{
+	struct rtc_plat_data *pdata = p;
+
+	clk_disable_unprepare(pdata->clk_ref);
+	clk_disable_unprepare(pdata->clk_ipg);
+}
+
+static int mxc_rtc_probe(struct platform_device *pdev)
+{
+>>>>>>> upstream/android-13
 	struct rtc_device *rtc;
 	struct rtc_plat_data *pdata = NULL;
 	u32 reg;
 	unsigned long rate;
 	int ret;
+<<<<<<< HEAD
 	const struct of_device_id *of_id;
+=======
+>>>>>>> upstream/android-13
 
 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	of_id = of_match_device(imx_rtc_dt_ids, &pdev->dev);
 	if (of_id)
 		pdata->devtype = (enum imx_rtc_type)of_id->data;
@@ -341,6 +399,38 @@ static int mxc_rtc_probe(struct platform_device *pdev)
 	if (IS_ERR(pdata->ioaddr))
 		return PTR_ERR(pdata->ioaddr);
 
+=======
+	pdata->devtype = (enum imx_rtc_type)of_device_get_match_data(&pdev->dev);
+
+	pdata->ioaddr = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(pdata->ioaddr))
+		return PTR_ERR(pdata->ioaddr);
+
+	rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc))
+		return PTR_ERR(rtc);
+
+	pdata->rtc = rtc;
+	rtc->ops = &mxc_rtc_ops;
+	if (is_imx1_rtc(pdata)) {
+		struct rtc_time tm;
+
+		/* 9bit days + hours minutes seconds */
+		rtc->range_max = (1 << 9) * 86400 - 1;
+
+		/*
+		 * Set the start date as beginning of the current year. This can
+		 * be overridden using device tree.
+		 */
+		rtc_time64_to_tm(ktime_get_real_seconds(), &tm);
+		rtc->start_secs =  mktime64(tm.tm_year, 1, 1, 0, 0, 0);
+		rtc->set_start_time = true;
+	} else {
+		/* 16bit days + hours minutes seconds */
+		rtc->range_max = (1 << 16) * 86400ULL - 1;
+	}
+
+>>>>>>> upstream/android-13
 	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
 	if (IS_ERR(pdata->clk_ipg)) {
 		dev_err(&pdev->dev, "unable to get ipg clock!\n");
@@ -353,6 +443,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
 
 	pdata->clk_ref = devm_clk_get(&pdev->dev, "ref");
 	if (IS_ERR(pdata->clk_ref)) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "unable to get ref clock!\n");
 		ret = PTR_ERR(pdata->clk_ref);
 		goto exit_put_clk_ipg;
@@ -361,6 +452,22 @@ static int mxc_rtc_probe(struct platform_device *pdev)
 	ret = clk_prepare_enable(pdata->clk_ref);
 	if (ret)
 		goto exit_put_clk_ipg;
+=======
+		clk_disable_unprepare(pdata->clk_ipg);
+		dev_err(&pdev->dev, "unable to get ref clock!\n");
+		return PTR_ERR(pdata->clk_ref);
+	}
+
+	ret = clk_prepare_enable(pdata->clk_ref);
+	if (ret) {
+		clk_disable_unprepare(pdata->clk_ipg);
+		return ret;
+	}
+
+	ret = devm_add_action_or_reset(&pdev->dev, mxc_rtc_action, pdata);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	rate = clk_get_rate(pdata->clk_ref);
 
@@ -372,16 +479,24 @@ static int mxc_rtc_probe(struct platform_device *pdev)
 		reg = RTC_INPUT_CLK_38400HZ;
 	else {
 		dev_err(&pdev->dev, "rtc clock is not valid (%lu)\n", rate);
+<<<<<<< HEAD
 		ret = -EINVAL;
 		goto exit_put_clk_ref;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	reg |= RTC_ENABLE_BIT;
 	writew(reg, (pdata->ioaddr + RTC_RTCCTL));
 	if (((readw(pdata->ioaddr + RTC_RTCCTL)) & RTC_ENABLE_BIT) == 0) {
 		dev_err(&pdev->dev, "hardware module can't be enabled!\n");
+<<<<<<< HEAD
 		ret = -EIO;
 		goto exit_put_clk_ref;
+=======
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, pdata);
@@ -396,6 +511,7 @@ static int mxc_rtc_probe(struct platform_device *pdev)
 		pdata->irq = -1;
 	}
 
+<<<<<<< HEAD
 	if (pdata->irq >= 0)
 		device_init_wakeup(&pdev->dev, 1);
 
@@ -414,10 +530,21 @@ exit_put_clk_ref:
 	clk_disable_unprepare(pdata->clk_ref);
 exit_put_clk_ipg:
 	clk_disable_unprepare(pdata->clk_ipg);
+=======
+	if (pdata->irq >= 0) {
+		device_init_wakeup(&pdev->dev, 1);
+		ret = dev_pm_set_wake_irq(&pdev->dev, pdata->irq);
+		if (ret)
+			dev_err(&pdev->dev, "failed to enable irq wake\n");
+	}
+
+	ret = devm_rtc_register_device(rtc);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mxc_rtc_remove(struct platform_device *pdev)
 {
 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
@@ -461,6 +588,14 @@ static struct platform_driver mxc_rtc_driver = {
 	.id_table = imx_rtc_devtype,
 	.probe = mxc_rtc_probe,
 	.remove = mxc_rtc_remove,
+=======
+static struct platform_driver mxc_rtc_driver = {
+	.driver = {
+		   .name	= "mxc_rtc",
+		   .of_match_table = imx_rtc_dt_ids,
+	},
+	.probe = mxc_rtc_probe,
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(mxc_rtc_driver)

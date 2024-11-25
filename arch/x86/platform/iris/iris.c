@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Eurobraille/Iris power off support.
  *
@@ -5,6 +9,7 @@
  * It is shutdown by a special I/O sequence which this module provides.
  *
  *  Copyright (C) Shérab <Sebastien.Hinderer@ens-lyon.org>
+<<<<<<< HEAD
  *
  * This program is free software ; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with the program ; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/moduleparam.h>
@@ -40,7 +47,10 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sébastien Hinderer <Sebastien.Hinderer@ens-lyon.org>");
 MODULE_DESCRIPTION("A power_off handler for Iris devices from EuroBraille");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Eurobraille/Iris");
+=======
+>>>>>>> upstream/android-13
 
 static bool force;
 

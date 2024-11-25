@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
    Copyright (c) 2011,2012 Intel Corp.
 
@@ -9,6 +10,12 @@
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+   Copyright (c) 2011,2012 Intel Corp.
+
+>>>>>>> upstream/android-13
 */
 
 #include <net/bluetooth/bluetooth.h>
@@ -85,7 +92,11 @@ struct amp_ctrl *amp_ctrl_lookup(struct amp_mgr *mgr, u8 id)
 {
 	struct amp_ctrl *ctrl;
 
+<<<<<<< HEAD
 	BT_DBG("mgr %p id %d", mgr, id);
+=======
+	BT_DBG("mgr %p id %u", mgr, id);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mgr->amp_ctrls_lock);
 	list_for_each_entry(ctrl, &mgr->amp_ctrls, list) {
@@ -161,7 +172,10 @@ static int hmac_sha256(u8 *key, u8 ksize, char *plaintext, u8 psize, u8 *output)
 	}
 
 	shash->tfm = tfm;
+<<<<<<< HEAD
 	shash->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	ret = crypto_shash_digest(shash, plaintext, psize, output);
 
@@ -187,7 +201,11 @@ int phylink_gen_key(struct hci_conn *conn, u8 *data, u8 *len, u8 *type)
 
 	/* Legacy key */
 	if (conn->key_type < 3) {
+<<<<<<< HEAD
 		bt_dev_err(hdev, "legacy key type %d", conn->key_type);
+=======
+		bt_dev_err(hdev, "legacy key type %u", conn->key_type);
+>>>>>>> upstream/android-13
 		return -EACCES;
 	}
 
@@ -265,7 +283,11 @@ void amp_read_loc_assoc_frag(struct hci_dev *hdev, u8 phy_handle)
 	struct hci_request req;
 	int err;
 
+<<<<<<< HEAD
 	BT_DBG("%s handle %d", hdev->name, phy_handle);
+=======
+	BT_DBG("%s handle %u", hdev->name, phy_handle);
+>>>>>>> upstream/android-13
 
 	cp.phy_handle = phy_handle;
 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);

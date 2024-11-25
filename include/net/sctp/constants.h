@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -6,6 +10,7 @@
  *
  * This file is part of the SCTP kernel implementation
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -71,7 +78,11 @@ enum { SCTP_DEFAULT_INSTREAMS = SCTP_MAX_STREAM };
 					 SCTP_NUM_AUTH_CHUNK_TYPES)
 
 /* These are the different flavours of event.  */
+<<<<<<< HEAD
 enum sctp_event {
+=======
+enum sctp_event_type {
+>>>>>>> upstream/android-13
 	SCTP_EVENT_T_CHUNK = 1,
 	SCTP_EVENT_T_TIMEOUT,
 	SCTP_EVENT_T_OTHER,
@@ -92,6 +103,10 @@ enum sctp_event_timeout {
 	SCTP_EVENT_TIMEOUT_T5_SHUTDOWN_GUARD,
 	SCTP_EVENT_TIMEOUT_HEARTBEAT,
 	SCTP_EVENT_TIMEOUT_RECONF,
+<<<<<<< HEAD
+=======
+	SCTP_EVENT_TIMEOUT_PROBE,
+>>>>>>> upstream/android-13
 	SCTP_EVENT_TIMEOUT_SACK,
 	SCTP_EVENT_TIMEOUT_AUTOCLOSE,
 };
@@ -148,11 +163,14 @@ SCTP_SUBTYPE_CONSTRUCTOR(PRIMITIVE,	enum sctp_event_primitive, primitive)
 #define sctp_chunk_is_data(a) (a->chunk_hdr->type == SCTP_CID_DATA || \
 			       a->chunk_hdr->type == SCTP_CID_I_DATA)
 
+<<<<<<< HEAD
 /* Calculate the actual data size in a data chunk */
 #define SCTP_DATA_SNDSIZE(c) ((int)((unsigned long)(c->chunk_end) - \
 				    (unsigned long)(c->chunk_hdr) - \
 				    sctp_datachk_len(&c->asoc->stream)))
 
+=======
+>>>>>>> upstream/android-13
 /* Internal error codes */
 enum sctp_ierror {
 	SCTP_IERROR_NO_ERROR	        = 0,
@@ -220,6 +238,26 @@ enum sctp_sock_state {
 	SCTP_SS_CLOSING        = TCP_CLOSE_WAIT,
 };
 
+<<<<<<< HEAD
+=======
+enum sctp_plpmtud_state {
+	SCTP_PL_DISABLED,
+	SCTP_PL_BASE,
+	SCTP_PL_SEARCH,
+	SCTP_PL_COMPLETE,
+	SCTP_PL_ERROR,
+};
+
+#define	SCTP_BASE_PLPMTU	1200
+#define	SCTP_MAX_PLPMTU		9000
+#define	SCTP_MIN_PLPMTU		512
+
+#define	SCTP_MAX_PROBES		3
+
+#define SCTP_PL_BIG_STEP	32
+#define SCTP_PL_MIN_STEP	4
+
+>>>>>>> upstream/android-13
 /* These functions map various type to printable names.  */
 const char *sctp_cname(const union sctp_subtype id);	/* chunk types */
 const char *sctp_oname(const union sctp_subtype id);	/* other events */
@@ -306,6 +344,23 @@ enum { SCTP_MAX_GABS = 16 };
 				 * functions simpler to write.
 				 */
 
+<<<<<<< HEAD
+=======
+#define SCTP_DEFAULT_UDP_PORT 9899	/* default UDP tunneling port */
+
+/* These are the values for pf exposure, UNUSED is to keep compatible with old
+ * applications by default.
+ */
+enum {
+	SCTP_PF_EXPOSE_UNSET,
+	SCTP_PF_EXPOSE_DISABLE,
+	SCTP_PF_EXPOSE_ENABLE,
+};
+#define SCTP_PF_EXPOSE_MAX	SCTP_PF_EXPOSE_ENABLE
+
+#define SCTP_PS_RETRANS_MAX	0xffff
+
+>>>>>>> upstream/android-13
 /* These return values describe the success or failure of a number of
  * routines which form the lower interface to SCTP_outqueue.
  */
@@ -348,8 +403,12 @@ enum {
 #define SCTP_SCOPE_POLICY_MAX	SCTP_SCOPE_POLICY_LINK
 
 /* Based on IPv4 scoping <draft-stewart-tsvwg-sctp-ipv4-00.txt>,
+<<<<<<< HEAD
  * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 198.18.0.0/24,
  * 192.88.99.0/24.
+=======
+ * SCTP IPv4 unusable addresses: 0.0.0.0/8, 224.0.0.0/4, 192.88.99.0/24.
+>>>>>>> upstream/android-13
  * Also, RFC 8.4, non-unicast addresses are not considered valid SCTP
  * addresses.
  */
@@ -357,7 +416,10 @@ enum {
 	((htonl(INADDR_BROADCAST) == a) ||  \
 	 ipv4_is_multicast(a) ||	    \
 	 ipv4_is_zeronet(a) ||		    \
+<<<<<<< HEAD
 	 ipv4_is_test_198(a) ||		    \
+=======
+>>>>>>> upstream/android-13
 	 ipv4_is_anycast_6to4(a))
 
 /* Flags used for the bind address copy functions.  */
@@ -430,4 +492,9 @@ enum {
  */
 #define SCTP_AUTH_RANDOM_LENGTH 32
 
+<<<<<<< HEAD
+=======
+#define SCTP_PROBE_TIMER_MIN	5000
+
+>>>>>>> upstream/android-13
 #endif /* __sctp_constants_h__ */

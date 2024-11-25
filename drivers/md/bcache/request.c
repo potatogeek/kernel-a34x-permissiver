@@ -62,6 +62,7 @@ static void bch_data_insert_keys(struct closure *cl)
 	struct bkey *replace_key = op->replace ? &op->replace_key : NULL;
 	int ret;
 
+<<<<<<< HEAD
 	/*
 	 * If we're looping, might already be waiting on
 	 * another journal write - can't wait on more than one journal write at
@@ -74,6 +75,8 @@ static void bch_data_insert_keys(struct closure *cl)
 		closure_sync(&s->cl);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (!op->replace)
 		journal_ref = bch_journal(op->c, &op->insert_keys,
 					  op->flush_journal ? cl : NULL);
@@ -111,7 +114,11 @@ static int bch_keylist_realloc(struct keylist *l, unsigned int u64s,
 	 * bch_data_insert_keys() will insert the keys created so far
 	 * and finish the rest when the keylist is empty.
 	 */
+<<<<<<< HEAD
 	if (newsize * sizeof(uint64_t) > block_bytes(c) - sizeof(struct jset))
+=======
+	if (newsize * sizeof(uint64_t) > block_bytes(c->cache) - sizeof(struct jset))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	return __bch_keylist_realloc(l, u64s);
@@ -122,7 +129,11 @@ static void bch_data_invalidate(struct closure *cl)
 	struct data_insert_op *op = container_of(cl, struct data_insert_op, cl);
 	struct bio *bio = op->bio;
 
+<<<<<<< HEAD
 	pr_debug("invalidating %i sectors from %llu",
+=======
+	pr_debug("invalidating %i sectors from %llu\n",
+>>>>>>> upstream/android-13
 		 bio_sectors(bio), (uint64_t) bio->bi_iter.bi_sector);
 
 	while (bio_sectors(bio)) {
@@ -311,11 +322,19 @@ err:
  * data is written it calls bch_journal, and after the keys have been added to
  * the next journal write they're inserted into the btree.
  *
+<<<<<<< HEAD
  * It inserts the data in s->cache_bio; bi_sector is used for the key offset,
  * and op->inode is used for the key inode.
  *
  * If s->bypass is true, instead of inserting the data it invalidates the
  * region of the cache represented by s->cache_bio and op->inode.
+=======
+ * It inserts the data in op->bio; bi_sector is used for the key offset,
+ * and op->inode is used for the key inode.
+ *
+ * If op->bypass is true, instead of inserting the data it invalidates the
+ * region of the cache represented by op->bio and op->inode.
+>>>>>>> upstream/android-13
  */
 void bch_data_insert(struct closure *cl)
 {
@@ -329,12 +348,22 @@ void bch_data_insert(struct closure *cl)
 	bch_data_insert_start(cl);
 }
 
+<<<<<<< HEAD
 /* Congested? */
 
 unsigned int bch_get_congested(struct cache_set *c)
 {
 	int i;
 	long rand;
+=======
+/*
+ * Congested?  Return 0 (not congested) or the limit (in sectors)
+ * beyond which we should bypass the cache due to congestion.
+ */
+unsigned int bch_get_congested(const struct cache_set *c)
+{
+	int i;
+>>>>>>> upstream/android-13
 
 	if (!c->congested_read_threshold_us &&
 	    !c->congested_write_threshold_us)
@@ -353,8 +382,12 @@ unsigned int bch_get_congested(struct cache_set *c)
 	if (i > 0)
 		i = fract_exp_two(i, 6);
 
+<<<<<<< HEAD
 	rand = get_random_int();
 	i -= bitmap_weight(&rand, BITS_PER_LONG);
+=======
+	i -= hweight32(get_random_u32());
+>>>>>>> upstream/android-13
 
 	return i > 0 ? i : 1;
 }
@@ -376,7 +409,11 @@ static bool check_should_bypass(struct cached_dev *dc, struct bio *bio)
 {
 	struct cache_set *c = dc->disk.c;
 	unsigned int mode = cache_mode(dc);
+<<<<<<< HEAD
 	unsigned int sectors, congested = bch_get_congested(c);
+=======
+	unsigned int sectors, congested;
+>>>>>>> upstream/android-13
 	struct task_struct *task = current;
 	struct io *i;
 
@@ -406,9 +443,15 @@ static bool check_should_bypass(struct cached_dev *dc, struct bio *bio)
 			goto skip;
 	}
 
+<<<<<<< HEAD
 	if (bio->bi_iter.bi_sector & (c->sb.block_size - 1) ||
 	    bio_sectors(bio) & (c->sb.block_size - 1)) {
 		pr_debug("skipping unaligned io");
+=======
+	if (bio->bi_iter.bi_sector & (c->cache->sb.block_size - 1) ||
+	    bio_sectors(bio) & (c->cache->sb.block_size - 1)) {
+		pr_debug("skipping unaligned io\n");
+>>>>>>> upstream/android-13
 		goto skip;
 	}
 
@@ -419,6 +462,10 @@ static bool check_should_bypass(struct cached_dev *dc, struct bio *bio)
 			goto rescale;
 	}
 
+<<<<<<< HEAD
+=======
+	congested = bch_get_congested(c);
+>>>>>>> upstream/android-13
 	if (!congested && !dc->sequential_cutoff)
 		goto rescale;
 
@@ -486,6 +533,10 @@ struct search {
 	unsigned int		read_dirty_data:1;
 	unsigned int		cache_missed:1;
 
+<<<<<<< HEAD
+=======
+	struct block_device	*orig_bdev;
+>>>>>>> upstream/android-13
 	unsigned long		start_time;
 
 	struct btree_op		op;
@@ -661,7 +712,11 @@ static void backing_request_endio(struct bio *bio)
 		 */
 		if (unlikely(s->iop.writeback &&
 			     bio->bi_opf & REQ_PREFLUSH)) {
+<<<<<<< HEAD
 			pr_err("Can't flush %s: returned bi_status %i",
+=======
+			pr_err("Can't flush %s: returned bi_status %i\n",
+>>>>>>> upstream/android-13
 				dc->backing_dev_name, bio->bi_status);
 		} else {
 			/* set to orig_bio->bi_status in bio_complete() */
@@ -679,9 +734,15 @@ static void backing_request_endio(struct bio *bio)
 static void bio_complete(struct search *s)
 {
 	if (s->orig_bio) {
+<<<<<<< HEAD
 		generic_end_io_acct(s->d->disk->queue, bio_op(s->orig_bio),
 				    &s->d->disk->part0, s->start_time);
 
+=======
+		/* Count on bcache device */
+		bio_end_io_acct_remapped(s->orig_bio, s->start_time,
+					 s->orig_bdev);
+>>>>>>> upstream/android-13
 		trace_bcache_request_end(s->d, s->orig_bio);
 		s->orig_bio->bi_status = s->iop.status;
 		bio_endio(s->orig_bio);
@@ -713,18 +774,31 @@ static void search_free(struct closure *cl)
 {
 	struct search *s = container_of(cl, struct search, cl);
 
+<<<<<<< HEAD
 	atomic_dec(&s->d->c->search_inflight);
+=======
+	atomic_dec(&s->iop.c->search_inflight);
+>>>>>>> upstream/android-13
 
 	if (s->iop.bio)
 		bio_put(s->iop.bio);
 
 	bio_complete(s);
 	closure_debug_destroy(cl);
+<<<<<<< HEAD
 	mempool_free(s, &s->d->c->search);
 }
 
 static inline struct search *search_alloc(struct bio *bio,
 					  struct bcache_device *d)
+=======
+	mempool_free(s, &s->iop.c->search);
+}
+
+static inline struct search *search_alloc(struct bio *bio,
+		struct bcache_device *d, struct block_device *orig_bdev,
+		unsigned long start_time)
+>>>>>>> upstream/android-13
 {
 	struct search *s;
 
@@ -741,8 +815,14 @@ static inline struct search *search_alloc(struct bio *bio,
 	s->recoverable		= 1;
 	s->write		= op_is_write(bio_op(bio));
 	s->read_dirty_data	= 0;
+<<<<<<< HEAD
 	s->start_time		= jiffies;
 
+=======
+	/* Count on the bcache device */
+	s->orig_bdev		= orig_bdev;
+	s->start_time		= start_time;
+>>>>>>> upstream/android-13
 	s->iop.c		= d->c;
 	s->iop.bio		= NULL;
 	s->iop.inode		= d->id;
@@ -763,13 +843,22 @@ static void cached_dev_bio_complete(struct closure *cl)
 	struct search *s = container_of(cl, struct search, cl);
 	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
 
+<<<<<<< HEAD
 	search_free(cl);
 	cached_dev_put(dc);
+=======
+	cached_dev_put(dc);
+	search_free(cl);
+>>>>>>> upstream/android-13
 }
 
 /* Process reads */
 
+<<<<<<< HEAD
 static void cached_dev_cache_miss_done(struct closure *cl)
+=======
+static void cached_dev_read_error_done(struct closure *cl)
+>>>>>>> upstream/android-13
 {
 	struct search *s = container_of(cl, struct search, cl);
 
@@ -807,7 +896,26 @@ static void cached_dev_read_error(struct closure *cl)
 		closure_bio_submit(s->iop.c, bio, cl);
 	}
 
+<<<<<<< HEAD
 	continue_at(cl, cached_dev_cache_miss_done, NULL);
+=======
+	continue_at(cl, cached_dev_read_error_done, NULL);
+}
+
+static void cached_dev_cache_miss_done(struct closure *cl)
+{
+	struct search *s = container_of(cl, struct search, cl);
+	struct bcache_device *d = s->d;
+
+	if (s->iop.replace_collision)
+		bch_mark_cache_miss_collision(s->iop.c, s->d);
+
+	if (s->iop.bio)
+		bio_free_pages(s->iop.bio);
+
+	cached_dev_bio_complete(cl);
+	closure_put(&d->cl);
+>>>>>>> upstream/android-13
 }
 
 static void cached_dev_read_done(struct closure *cl)
@@ -840,6 +948,10 @@ static void cached_dev_read_done(struct closure *cl)
 	if (verify(dc) && s->recoverable && !s->read_dirty_data)
 		bch_data_verify(dc, s->orig_bio);
 
+<<<<<<< HEAD
+=======
+	closure_get(&dc->disk.cl);
+>>>>>>> upstream/android-13
 	bio_complete(s);
 
 	if (s->iop.bio &&
@@ -872,9 +984,15 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
 				 struct bio *bio, unsigned int sectors)
 {
 	int ret = MAP_CONTINUE;
+<<<<<<< HEAD
 	unsigned int reada = 0;
 	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
 	struct bio *miss, *cache_bio;
+=======
+	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
+	struct bio *miss, *cache_bio;
+	unsigned int size_limit;
+>>>>>>> upstream/android-13
 
 	s->cache_missed = 1;
 
@@ -884,6 +1002,7 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
 		goto out_submit;
 	}
 
+<<<<<<< HEAD
 	if (!(bio->bi_opf & REQ_RAHEAD) &&
 	    !(bio->bi_opf & (REQ_META|REQ_PRIO)) &&
 	    s->iop.c->gc_stats.in_use < CUTOFF_CACHE_READA)
@@ -891,6 +1010,12 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
 			      get_capacity(bio->bi_disk) - bio_end_sector(bio));
 
 	s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
+=======
+	/* Limitation for valid replace key size and cache_bio bvecs number */
+	size_limit = min_t(unsigned int, BIO_MAX_VECS * PAGE_SECTORS,
+			   (1 << KEY_SIZE_BITS) - 1);
+	s->insert_bio_sectors = min3(size_limit, sectors, bio_sectors(bio));
+>>>>>>> upstream/android-13
 
 	s->iop.replace_key = KEY(s->iop.inode,
 				 bio->bi_iter.bi_sector + s->insert_bio_sectors,
@@ -902,7 +1027,12 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
 
 	s->iop.replace = true;
 
+<<<<<<< HEAD
 	miss = bio_next_split(bio, sectors, GFP_NOIO, &s->d->bio_split);
+=======
+	miss = bio_next_split(bio, s->insert_bio_sectors, GFP_NOIO,
+			      &s->d->bio_split);
+>>>>>>> upstream/android-13
 
 	/* btree_search_recurse()'s btree iterator is no good anymore */
 	ret = miss == bio ? MAP_DONE : -EINTR;
@@ -924,9 +1054,12 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
 	if (bch_bio_alloc_pages(cache_bio, __GFP_NOWARN|GFP_NOIO))
 		goto out_put;
 
+<<<<<<< HEAD
 	if (reada)
 		bch_mark_cache_readahead(s->iop.c, s->d);
 
+=======
+>>>>>>> upstream/android-13
 	s->cache_miss	= miss;
 	s->iop.bio	= cache_bio;
 	bio_get(cache_bio);
@@ -1067,6 +1200,10 @@ struct detached_dev_io_private {
 	unsigned long		start_time;
 	bio_end_io_t		*bi_end_io;
 	void			*bi_private;
+<<<<<<< HEAD
+=======
+	struct block_device	*orig_bdev;
+>>>>>>> upstream/android-13
 };
 
 static void detached_dev_end_io(struct bio *bio)
@@ -1077,8 +1214,13 @@ static void detached_dev_end_io(struct bio *bio)
 	bio->bi_end_io = ddip->bi_end_io;
 	bio->bi_private = ddip->bi_private;
 
+<<<<<<< HEAD
 	generic_end_io_acct(ddip->d->disk->queue, bio_op(bio),
 			    &ddip->d->disk->part0, ddip->start_time);
+=======
+	/* Count on the bcache device */
+	bio_end_io_acct_remapped(bio, ddip->start_time, ddip->orig_bdev);
+>>>>>>> upstream/android-13
 
 	if (bio->bi_status) {
 		struct cached_dev *dc = container_of(ddip->d,
@@ -1091,7 +1233,12 @@ static void detached_dev_end_io(struct bio *bio)
 	bio->bi_end_io(bio);
 }
 
+<<<<<<< HEAD
 static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
+=======
+static void detached_dev_do_request(struct bcache_device *d, struct bio *bio,
+		struct block_device *orig_bdev, unsigned long start_time)
+>>>>>>> upstream/android-13
 {
 	struct detached_dev_io_private *ddip;
 	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
@@ -1103,7 +1250,13 @@ static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
 	 */
 	ddip = kzalloc(sizeof(struct detached_dev_io_private), GFP_NOIO);
 	ddip->d = d;
+<<<<<<< HEAD
 	ddip->start_time = jiffies;
+=======
+	/* Count on the bcache device */
+	ddip->orig_bdev = orig_bdev;
+	ddip->start_time = start_time;
+>>>>>>> upstream/android-13
 	ddip->bi_end_io = bio->bi_end_io;
 	ddip->bi_private = bio->bi_private;
 	bio->bi_end_io = detached_dev_end_io;
@@ -1113,7 +1266,11 @@ static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
 	    !blk_queue_discard(bdev_get_queue(dc->bdev)))
 		bio->bi_end_io(bio);
 	else
+<<<<<<< HEAD
 		generic_make_request(bio);
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 }
 
 static void quit_max_writeback_rate(struct cache_set *c,
@@ -1156,12 +1313,22 @@ static void quit_max_writeback_rate(struct cache_set *c,
 
 /* Cached devices - read & write stuff */
 
+<<<<<<< HEAD
 static blk_qc_t cached_dev_make_request(struct request_queue *q,
 					struct bio *bio)
 {
 	struct search *s;
 	struct bcache_device *d = bio->bi_disk->private_data;
 	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
+=======
+blk_qc_t cached_dev_submit_bio(struct bio *bio)
+{
+	struct search *s;
+	struct block_device *orig_bdev = bio->bi_bdev;
+	struct bcache_device *d = orig_bdev->bd_disk->private_data;
+	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
+	unsigned long start_time;
+>>>>>>> upstream/android-13
 	int rw = bio_data_dir(bio);
 
 	if (unlikely((d->c && test_bit(CACHE_SET_IO_DISABLE, &d->c->flags)) ||
@@ -1186,22 +1353,34 @@ static blk_qc_t cached_dev_make_request(struct request_queue *q,
 		}
 	}
 
+<<<<<<< HEAD
 	generic_start_io_acct(q,
 			      bio_op(bio),
 			      bio_sectors(bio),
 			      &d->disk->part0);
+=======
+	start_time = bio_start_io_acct(bio);
+>>>>>>> upstream/android-13
 
 	bio_set_dev(bio, dc->bdev);
 	bio->bi_iter.bi_sector += dc->sb.data_offset;
 
 	if (cached_dev_get(dc)) {
+<<<<<<< HEAD
 		s = search_alloc(bio, d);
+=======
+		s = search_alloc(bio, d, orig_bdev, start_time);
+>>>>>>> upstream/android-13
 		trace_bcache_request_start(s->d, bio);
 
 		if (!bio->bi_iter.bi_size) {
 			/*
 			 * can't call bch_journal_meta from under
+<<<<<<< HEAD
 			 * generic_make_request
+=======
+			 * submit_bio_noacct
+>>>>>>> upstream/android-13
 			 */
 			continue_at_nobarrier(&s->cl,
 					      cached_dev_nodata,
@@ -1216,7 +1395,11 @@ static blk_qc_t cached_dev_make_request(struct request_queue *q,
 		}
 	} else
 		/* I/O request sent to backing device */
+<<<<<<< HEAD
 		detached_dev_do_request(d, bio);
+=======
+		detached_dev_do_request(d, bio, orig_bdev, start_time);
+>>>>>>> upstream/android-13
 
 	return BLK_QC_T_NONE;
 }
@@ -1228,6 +1411,7 @@ static int cached_dev_ioctl(struct bcache_device *d, fmode_t mode,
 
 	if (dc->io_disable)
 		return -EIO;
+<<<<<<< HEAD
 
 	return __blkdev_driver_ioctl(dc->bdev, mode, cmd, arg);
 }
@@ -1255,14 +1439,22 @@ static int cached_dev_congested(void *data, int bits)
 	}
 
 	return ret;
+=======
+	if (!dc->bdev->bd_disk->fops->ioctl)
+		return -ENOTTY;
+	return dc->bdev->bd_disk->fops->ioctl(dc->bdev, mode, cmd, arg);
+>>>>>>> upstream/android-13
 }
 
 void bch_cached_dev_request_init(struct cached_dev *dc)
 {
+<<<<<<< HEAD
 	struct gendisk *g = dc->disk.disk;
 
 	g->queue->make_request_fn		= cached_dev_make_request;
 	g->queue->backing_dev_info->congested_fn = cached_dev_congested;
+=======
+>>>>>>> upstream/android-13
 	dc->disk.cache_miss			= cached_dev_cache_miss;
 	dc->disk.ioctl				= cached_dev_ioctl;
 }
@@ -1296,12 +1488,20 @@ static void flash_dev_nodata(struct closure *cl)
 	continue_at(cl, search_free, NULL);
 }
 
+<<<<<<< HEAD
 static blk_qc_t flash_dev_make_request(struct request_queue *q,
 					     struct bio *bio)
 {
 	struct search *s;
 	struct closure *cl;
 	struct bcache_device *d = bio->bi_disk->private_data;
+=======
+blk_qc_t flash_dev_submit_bio(struct bio *bio)
+{
+	struct search *s;
+	struct closure *cl;
+	struct bcache_device *d = bio->bi_bdev->bd_disk->private_data;
+>>>>>>> upstream/android-13
 
 	if (unlikely(d->c && test_bit(CACHE_SET_IO_DISABLE, &d->c->flags))) {
 		bio->bi_status = BLK_STS_IOERR;
@@ -1309,9 +1509,13 @@ static blk_qc_t flash_dev_make_request(struct request_queue *q,
 		return BLK_QC_T_NONE;
 	}
 
+<<<<<<< HEAD
 	generic_start_io_acct(q, bio_op(bio), bio_sectors(bio), &d->disk->part0);
 
 	s = search_alloc(bio, d);
+=======
+	s = search_alloc(bio, d, bio->bi_bdev, bio_start_io_acct(bio));
+>>>>>>> upstream/android-13
 	cl = &s->cl;
 	bio = &s->bio.bio;
 
@@ -1319,8 +1523,12 @@ static blk_qc_t flash_dev_make_request(struct request_queue *q,
 
 	if (!bio->bi_iter.bi_size) {
 		/*
+<<<<<<< HEAD
 		 * can't call bch_journal_meta from under
 		 * generic_make_request
+=======
+		 * can't call bch_journal_meta from under submit_bio_noacct
+>>>>>>> upstream/android-13
 		 */
 		continue_at_nobarrier(&s->cl,
 				      flash_dev_nodata,
@@ -1350,6 +1558,7 @@ static int flash_dev_ioctl(struct bcache_device *d, fmode_t mode,
 	return -ENOTTY;
 }
 
+<<<<<<< HEAD
 static int flash_dev_congested(void *data, int bits)
 {
 	struct bcache_device *d = data;
@@ -1372,6 +1581,10 @@ void bch_flash_dev_request_init(struct bcache_device *d)
 
 	g->queue->make_request_fn		= flash_dev_make_request;
 	g->queue->backing_dev_info->congested_fn = flash_dev_congested;
+=======
+void bch_flash_dev_request_init(struct bcache_device *d)
+{
+>>>>>>> upstream/android-13
 	d->cache_miss				= flash_dev_cache_miss;
 	d->ioctl				= flash_dev_ioctl;
 }

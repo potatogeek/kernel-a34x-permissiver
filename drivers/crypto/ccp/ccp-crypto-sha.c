@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * AMD Cryptographic Coprocessor (CCP) SHA crypto API support
  *
@@ -9,6 +10,16 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * AMD Cryptographic Coprocessor (CCP) SHA crypto API support
+ *
+ * Copyright (C) 2013,2018 Advanced Micro Devices, Inc.
+ *
+ * Author: Tom Lendacky <thomas.lendacky@amd.com>
+ * Author: Gary R Hook <gary.hook@amd.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,8 +31,15 @@
 #include <crypto/hash.h>
 #include <crypto/hmac.h>
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
 #include <crypto/scatterwalk.h>
+=======
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+#include <crypto/scatterwalk.h>
+#include <linux/string.h>
+>>>>>>> upstream/android-13
 
 #include "ccp-crypto.h"
 
@@ -275,9 +293,12 @@ static int ccp_sha_setkey(struct crypto_ahash *tfm, const u8 *key,
 {
 	struct ccp_ctx *ctx = crypto_tfm_ctx(crypto_ahash_tfm(tfm));
 	struct crypto_shash *shash = ctx->u.sha.hmac_tfm;
+<<<<<<< HEAD
 
 	SHASH_DESC_ON_STACK(sdesc, shash);
 
+=======
+>>>>>>> upstream/android-13
 	unsigned int block_size = crypto_shash_blocksize(shash);
 	unsigned int digest_size = crypto_shash_digestsize(shash);
 	int i, ret;
@@ -292,6 +313,7 @@ static int ccp_sha_setkey(struct crypto_ahash *tfm, const u8 *key,
 
 	if (key_len > block_size) {
 		/* Must hash the input key */
+<<<<<<< HEAD
 		sdesc->tfm = shash;
 		sdesc->flags = crypto_ahash_get_flags(tfm) &
 			CRYPTO_TFM_REQ_MAY_SLEEP;
@@ -302,6 +324,12 @@ static int ccp_sha_setkey(struct crypto_ahash *tfm, const u8 *key,
 			crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 			return -EINVAL;
 		}
+=======
+		ret = crypto_shash_tfm_digest(shash, key, key_len,
+					      ctx->u.sha.key);
+		if (ret)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		key_len = digest_size;
 	} else {
@@ -436,7 +464,11 @@ static int ccp_register_hmac_alg(struct list_head *head,
 	*ccp_alg = *base_alg;
 	INIT_LIST_HEAD(&ccp_alg->entry);
 
+<<<<<<< HEAD
 	strncpy(ccp_alg->child_alg, def->name, CRYPTO_MAX_ALG_NAME);
+=======
+	strscpy(ccp_alg->child_alg, def->name, CRYPTO_MAX_ALG_NAME);
+>>>>>>> upstream/android-13
 
 	alg = &ccp_alg->alg;
 	alg->setkey = ccp_sha_setkey;
@@ -498,6 +530,10 @@ static int ccp_register_sha_alg(struct list_head *head,
 	snprintf(base->cra_driver_name, CRYPTO_MAX_ALG_NAME, "%s",
 		 def->drv_name);
 	base->cra_flags = CRYPTO_ALG_ASYNC |
+<<<<<<< HEAD
+=======
+			  CRYPTO_ALG_ALLOCATES_MEMORY |
+>>>>>>> upstream/android-13
 			  CRYPTO_ALG_KERN_DRIVER_ONLY |
 			  CRYPTO_ALG_NEED_FALLBACK;
 	base->cra_blocksize = def->block_size;

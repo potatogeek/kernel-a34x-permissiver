@@ -1,14 +1,28 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
 // Copyright(c) 2015-17 Intel Corporation.
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
+/* Copyright(c) 2015-17 Intel Corporation. */
+>>>>>>> upstream/android-13
 #include <sound/soc.h>
 
 #ifndef __SDW_CADENCE_H
 #define __SDW_CADENCE_H
 
+<<<<<<< HEAD
 /**
  * struct sdw_cdns_pdi: PDI (Physical Data Interface) instance
  *
  * @assigned: pdi assigned
+=======
+#define SDW_CADENCE_GSYNC_KHZ		4 /* 4 kHz */
+#define SDW_CADENCE_GSYNC_HZ		(SDW_CADENCE_GSYNC_KHZ * 1000)
+
+/**
+ * struct sdw_cdns_pdi: PDI (Physical Data Interface) instance
+ *
+>>>>>>> upstream/android-13
  * @num: pdi number
  * @intel_alh_id: link identifier
  * @l_ch_num: low channel for PDI
@@ -18,7 +32,10 @@
  * @type: stream type, PDM or PCM
  */
 struct sdw_cdns_pdi {
+<<<<<<< HEAD
 	bool assigned;
+=======
+>>>>>>> upstream/android-13
 	int num;
 	int intel_alh_id;
 	int l_ch_num;
@@ -29,6 +46,7 @@ struct sdw_cdns_pdi {
 };
 
 /**
+<<<<<<< HEAD
  * struct sdw_cdns_port: Cadence port structure
  *
  * @num: port number
@@ -46,6 +64,8 @@ struct sdw_cdns_port {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct sdw_cdns_streams: Cadence stream data structure
  *
  * @num_bd: number of bidirectional streams
@@ -95,20 +115,39 @@ struct sdw_cdns_stream_config {
  * struct sdw_cdns_dma_data: Cadence DMA data
  *
  * @name: SoundWire stream name
+<<<<<<< HEAD
  * @nr_ports: Number of ports
  * @port: Ports
  * @bus: Bus handle
  * @stream_type: Stream type
  * @link_id: Master link id
+=======
+ * @stream: stream runtime
+ * @pdi: PDI used for this dai
+ * @bus: Bus handle
+ * @stream_type: Stream type
+ * @link_id: Master link id
+ * @hw_params: hw_params to be applied in .prepare step
+ * @suspended: status set when suspended, to be used in .prepare
+>>>>>>> upstream/android-13
  */
 struct sdw_cdns_dma_data {
 	char *name;
 	struct sdw_stream_runtime *stream;
+<<<<<<< HEAD
 	int nr_ports;
 	struct sdw_cdns_port **port;
 	struct sdw_bus *bus;
 	enum sdw_stream_type stream_type;
 	int link_id;
+=======
+	struct sdw_cdns_pdi *pdi;
+	struct sdw_bus *bus;
+	enum sdw_stream_type stream_type;
+	int link_id;
+	struct snd_pcm_hw_params *hw_params;
+	bool suspended;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -142,10 +181,24 @@ struct sdw_cdns {
 	struct sdw_cdns_streams pcm;
 	struct sdw_cdns_streams pdm;
 
+<<<<<<< HEAD
+=======
+	int pdi_loopback_source;
+	int pdi_loopback_target;
+
+>>>>>>> upstream/android-13
 	void __iomem *registers;
 
 	bool link_up;
 	unsigned int msg_count;
+<<<<<<< HEAD
+=======
+	bool interrupt_enabled;
+
+	struct work_struct work;
+
+	struct list_head list;
+>>>>>>> upstream/android-13
 };
 
 #define bus_to_cdns(_bus) container_of(_bus, struct sdw_cdns, bus)
@@ -160,6 +213,7 @@ irqreturn_t sdw_cdns_thread(int irq, void *dev_id);
 
 int sdw_cdns_init(struct sdw_cdns *cdns);
 int sdw_cdns_pdi_init(struct sdw_cdns *cdns,
+<<<<<<< HEAD
 			struct sdw_cdns_stream_config config);
 int sdw_cdns_enable_interrupt(struct sdw_cdns *cdns);
 
@@ -178,6 +232,25 @@ int sdw_cdns_pcm_set_stream(struct snd_soc_dai *dai,
 				void *stream, int direction);
 int sdw_cdns_pdm_set_stream(struct snd_soc_dai *dai,
 				void *stream, int direction);
+=======
+		      struct sdw_cdns_stream_config config);
+int sdw_cdns_exit_reset(struct sdw_cdns *cdns);
+int sdw_cdns_enable_interrupt(struct sdw_cdns *cdns, bool state);
+
+bool sdw_cdns_is_clock_stop(struct sdw_cdns *cdns);
+int sdw_cdns_clock_stop(struct sdw_cdns *cdns, bool block_wake);
+int sdw_cdns_clock_restart(struct sdw_cdns *cdns, bool bus_reset);
+
+#ifdef CONFIG_DEBUG_FS
+void sdw_cdns_debugfs_init(struct sdw_cdns *cdns, struct dentry *root);
+#endif
+
+struct sdw_cdns_pdi *sdw_cdns_alloc_pdi(struct sdw_cdns *cdns,
+					struct sdw_cdns_streams *stream,
+					u32 ch, u32 dir, int dai_id);
+void sdw_cdns_config_stream(struct sdw_cdns *cdns,
+			    u32 ch, u32 dir, struct sdw_cdns_pdi *pdi);
+>>>>>>> upstream/android-13
 
 enum sdw_command_response
 cdns_reset_page_addr(struct sdw_bus *bus, unsigned int dev_num);
@@ -187,13 +260,25 @@ cdns_xfer_msg(struct sdw_bus *bus, struct sdw_msg *msg);
 
 enum sdw_command_response
 cdns_xfer_msg_defer(struct sdw_bus *bus,
+<<<<<<< HEAD
 		struct sdw_msg *msg, struct sdw_defer *defer);
 
 enum sdw_command_response
 cdns_reset_page_addr(struct sdw_bus *bus, unsigned int dev_num);
+=======
+		    struct sdw_msg *msg, struct sdw_defer *defer);
+>>>>>>> upstream/android-13
 
 int cdns_bus_conf(struct sdw_bus *bus, struct sdw_bus_params *params);
 
 int cdns_set_sdw_stream(struct snd_soc_dai *dai,
+<<<<<<< HEAD
 		void *stream, bool pcm, int direction);
+=======
+			void *stream, bool pcm, int direction);
+
+void sdw_cdns_check_self_clearing_bits(struct sdw_cdns *cdns, const char *string,
+				       bool initial_delay, int reset_iterations);
+
+>>>>>>> upstream/android-13
 #endif /* __SDW_CADENCE_H */

@@ -60,6 +60,10 @@
 #include "ntb_hw_intel.h"
 #include "ntb_hw_gen1.h"
 #include "ntb_hw_gen3.h"
+<<<<<<< HEAD
+=======
+#include "ntb_hw_gen4.h"
+>>>>>>> upstream/android-13
 
 #define NTB_NAME	"ntb_hw_intel"
 #define NTB_DESC	"Intel(R) PCI-E Non-Transparent Bridge Driver"
@@ -180,7 +184,11 @@ int ndev_mw_to_bar(struct intel_ntb_dev *ndev, int idx)
 	return ndev->reg->mw_bar[idx];
 }
 
+<<<<<<< HEAD
 static inline int ndev_db_addr(struct intel_ntb_dev *ndev,
+=======
+void ndev_db_addr(struct intel_ntb_dev *ndev,
+>>>>>>> upstream/android-13
 			       phys_addr_t *db_addr, resource_size_t *db_size,
 			       phys_addr_t reg_addr, unsigned long reg)
 {
@@ -196,8 +204,11 @@ static inline int ndev_db_addr(struct intel_ntb_dev *ndev,
 		*db_size = ndev->reg->db_size;
 		dev_dbg(&ndev->ntb.pdev->dev, "Peer db size %llx\n", *db_size);
 	}
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 u64 ndev_db_read(struct intel_ntb_dev *ndev,
@@ -764,6 +775,11 @@ static ssize_t ndev_debugfs_read(struct file *filp, char __user *ubuf,
 		return ndev_ntb_debugfs_read(filp, ubuf, count, offp);
 	else if (pdev_is_gen3(ndev->ntb.pdev))
 		return ndev_ntb3_debugfs_read(filp, ubuf, count, offp);
+<<<<<<< HEAD
+=======
+	else if (pdev_is_gen4(ndev->ntb.pdev))
+		return ndev_ntb4_debugfs_read(filp, ubuf, count, offp);
+>>>>>>> upstream/android-13
 
 	return -ENXIO;
 }
@@ -1111,6 +1127,7 @@ int intel_ntb_db_clear_mask(struct ntb_dev *ntb, u64 db_bits)
 				  ndev->self_reg->db_mask);
 }
 
+<<<<<<< HEAD
 int intel_ntb_peer_db_addr(struct ntb_dev *ntb, phys_addr_t *db_addr,
 			   resource_size_t *db_size)
 {
@@ -1118,6 +1135,30 @@ int intel_ntb_peer_db_addr(struct ntb_dev *ntb, phys_addr_t *db_addr,
 
 	return ndev_db_addr(ndev, db_addr, db_size, ndev->peer_addr,
 			    ndev->peer_reg->db_bell);
+=======
+static int intel_ntb_peer_db_addr(struct ntb_dev *ntb, phys_addr_t *db_addr,
+			   resource_size_t *db_size, u64 *db_data, int db_bit)
+{
+	u64 db_bits;
+	struct intel_ntb_dev *ndev = ntb_ndev(ntb);
+
+	if (unlikely(db_bit >= BITS_PER_LONG_LONG))
+		return -EINVAL;
+
+	db_bits = BIT_ULL(db_bit);
+
+	if (unlikely(db_bits & ~ntb_ndev(ntb)->db_valid_mask))
+		return -EINVAL;
+
+	ndev_db_addr(ndev, db_addr, db_size, ndev->peer_addr,
+			    ndev->peer_reg->db_bell);
+
+	if (db_data)
+		*db_data = db_bits;
+
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int intel_ntb_peer_db_set(struct ntb_dev *ntb, u64 db_bits)
@@ -1189,7 +1230,11 @@ int intel_ntb_peer_spad_write(struct ntb_dev *ntb, int pidx, int sidx,
 			       ndev->peer_reg->spad);
 }
 
+<<<<<<< HEAD
 static u64 xeon_db_ioread(void __iomem *mmio)
+=======
+static u64 xeon_db_ioread(const void __iomem *mmio)
+>>>>>>> upstream/android-13
 {
 	return (u64)ioread16(mmio);
 }
@@ -1755,14 +1800,21 @@ static int intel_ntb_init_pci(struct intel_ntb_dev *ndev, struct pci_dev *pdev)
 
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (rc) {
 		rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (rc) {
+		rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (rc)
 			goto err_dma_mask;
 		dev_warn(&pdev->dev, "Cannot DMA highmem\n");
 	}
 
+<<<<<<< HEAD
 	rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (rc) {
 		rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
@@ -1775,6 +1827,8 @@ static int intel_ntb_init_pci(struct intel_ntb_dev *ndev, struct pci_dev *pdev)
 	if (rc)
 		goto err_dma_mask;
 
+=======
+>>>>>>> upstream/android-13
 	ndev->self_mmio = pci_iomap(pdev, 0, 0);
 	if (!ndev->self_mmio) {
 		rc = -EIO;
@@ -1845,6 +1899,7 @@ static int intel_ntb_pci_probe(struct pci_dev *pdev,
 	int rc, node;
 
 	node = dev_to_node(&pdev->dev);
+<<<<<<< HEAD
 
 	if (pdev_is_gen1(pdev)) {
 		ndev = kzalloc_node(sizeof(*ndev), GFP_KERNEL, node);
@@ -1855,6 +1910,17 @@ static int intel_ntb_pci_probe(struct pci_dev *pdev,
 
 		ndev_init_struct(ndev, pdev);
 
+=======
+	ndev = kzalloc_node(sizeof(*ndev), GFP_KERNEL, node);
+	if (!ndev) {
+		rc = -ENOMEM;
+		goto err_ndev;
+	}
+
+	ndev_init_struct(ndev, pdev);
+
+	if (pdev_is_gen1(pdev)) {
+>>>>>>> upstream/android-13
 		rc = intel_ntb_init_pci(ndev, pdev);
 		if (rc)
 			goto err_init_pci;
@@ -1862,6 +1928,7 @@ static int intel_ntb_pci_probe(struct pci_dev *pdev,
 		rc = xeon_init_dev(ndev);
 		if (rc)
 			goto err_init_dev;
+<<<<<<< HEAD
 
 	} else if (pdev_is_gen3(pdev)) {
 		ndev = kzalloc_node(sizeof(*ndev), GFP_KERNEL, node);
@@ -1873,6 +1940,10 @@ static int intel_ntb_pci_probe(struct pci_dev *pdev,
 		ndev_init_struct(ndev, pdev);
 		ndev->ntb.ops = &intel_ntb3_ops;
 
+=======
+	} else if (pdev_is_gen3(pdev)) {
+		ndev->ntb.ops = &intel_ntb3_ops;
+>>>>>>> upstream/android-13
 		rc = intel_ntb_init_pci(ndev, pdev);
 		if (rc)
 			goto err_init_pci;
@@ -1880,10 +1951,25 @@ static int intel_ntb_pci_probe(struct pci_dev *pdev,
 		rc = gen3_init_dev(ndev);
 		if (rc)
 			goto err_init_dev;
+<<<<<<< HEAD
 
 	} else {
 		rc = -EINVAL;
 		goto err_ndev;
+=======
+	} else if (pdev_is_gen4(pdev)) {
+		ndev->ntb.ops = &intel_ntb4_ops;
+		rc = intel_ntb_init_pci(ndev, pdev);
+		if (rc)
+			goto err_init_pci;
+
+		rc = gen4_init_dev(ndev);
+		if (rc)
+			goto err_init_dev;
+	} else {
+		rc = -EINVAL;
+		goto err_init_pci;
+>>>>>>> upstream/android-13
 	}
 
 	ndev_reset_unsafe_flags(ndev);
@@ -1902,7 +1988,11 @@ static int intel_ntb_pci_probe(struct pci_dev *pdev,
 
 err_register:
 	ndev_deinit_debugfs(ndev);
+<<<<<<< HEAD
 	if (pdev_is_gen1(pdev) || pdev_is_gen3(pdev))
+=======
+	if (pdev_is_gen1(pdev) || pdev_is_gen3(pdev) || pdev_is_gen4(pdev))
+>>>>>>> upstream/android-13
 		xeon_deinit_dev(ndev);
 err_init_dev:
 	intel_ntb_deinit_pci(ndev);
@@ -1918,7 +2008,11 @@ static void intel_ntb_pci_remove(struct pci_dev *pdev)
 
 	ntb_unregister_device(&ndev->ntb);
 	ndev_deinit_debugfs(ndev);
+<<<<<<< HEAD
 	if (pdev_is_gen1(pdev) || pdev_is_gen3(pdev))
+=======
+	if (pdev_is_gen1(pdev) || pdev_is_gen3(pdev) || pdev_is_gen4(pdev))
+>>>>>>> upstream/android-13
 		xeon_deinit_dev(ndev);
 	intel_ntb_deinit_pci(ndev);
 	kfree(ndev);
@@ -2023,6 +2117,10 @@ static const struct file_operations intel_ntb_debugfs_info = {
 };
 
 static const struct pci_device_id intel_ntb_pci_tbl[] = {
+<<<<<<< HEAD
+=======
+	/* GEN1 */
+>>>>>>> upstream/android-13
 	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_B2B_JSF)},
 	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_B2B_SNB)},
 	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_B2B_IVT)},
@@ -2038,7 +2136,16 @@ static const struct pci_device_id intel_ntb_pci_tbl[] = {
 	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_SS_IVT)},
 	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_SS_HSX)},
 	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_SS_BDX)},
+<<<<<<< HEAD
 	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_B2B_SKX)},
+=======
+
+	/* GEN3 */
+	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_B2B_SKX)},
+
+	/* GEN4 */
+	{PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_NTB_B2B_ICX)},
+>>>>>>> upstream/android-13
 	{0}
 };
 MODULE_DEVICE_TABLE(pci, intel_ntb_pci_tbl);

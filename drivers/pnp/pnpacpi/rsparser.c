@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pnpacpi -- PnP ACPI driver
  *
@@ -5,6 +9,7 @@
  * Copyright (c) 2004 Li Shaohua <shaohua.li@intel.com>
  * Copyright (C) 2008 Hewlett-Packard Development Company, L.P.
  *	Bjorn Helgaas <bjorn.helgaas@hp.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +20,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/acpi.h>
@@ -215,7 +222,11 @@ static acpi_status pnpacpi_allocated_resource(struct acpi_resource *res,
 		if (i >= 0) {
 			flags = acpi_dev_irq_flags(gpio->triggering,
 						   gpio->polarity,
+<<<<<<< HEAD
 						   gpio->sharable);
+=======
+						   gpio->shareable);
+>>>>>>> upstream/android-13
 		} else {
 			flags = IORESOURCE_DISABLED;
 		}
@@ -324,7 +335,11 @@ static __init void pnpacpi_parse_irq_option(struct pnp_dev *dev,
 		if (p->interrupts[i])
 			__set_bit(p->interrupts[i], map.bits);
 
+<<<<<<< HEAD
 	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->sharable);
+=======
+	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable);
+>>>>>>> upstream/android-13
 	pnp_register_irq_resource(dev, option_flags, &map, flags);
 }
 
@@ -348,7 +363,11 @@ static __init void pnpacpi_parse_ext_irq_option(struct pnp_dev *dev,
 		}
 	}
 
+<<<<<<< HEAD
 	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->sharable);
+=======
+	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable);
+>>>>>>> upstream/android-13
 	pnp_register_irq_resource(dev, option_flags, &map, flags);
 }
 
@@ -681,7 +700,11 @@ static void pnpacpi_encode_irq(struct pnp_dev *dev,
 	decode_irq_flags(dev, p->flags, &triggering, &polarity, &shareable);
 	irq->triggering = triggering;
 	irq->polarity = polarity;
+<<<<<<< HEAD
 	irq->sharable = shareable;
+=======
+	irq->shareable = shareable;
+>>>>>>> upstream/android-13
 	irq->interrupt_count = 1;
 	irq->interrupts[0] = p->start;
 
@@ -689,7 +712,11 @@ static void pnpacpi_encode_irq(struct pnp_dev *dev,
 		(int) p->start,
 		triggering == ACPI_LEVEL_SENSITIVE ? "level" : "edge",
 		polarity == ACPI_ACTIVE_LOW ? "low" : "high",
+<<<<<<< HEAD
 		irq->sharable == ACPI_SHARED ? "shared" : "exclusive",
+=======
+		irq->shareable == ACPI_SHARED ? "shared" : "exclusive",
+>>>>>>> upstream/android-13
 		irq->descriptor_length);
 }
 
@@ -711,14 +738,22 @@ static void pnpacpi_encode_ext_irq(struct pnp_dev *dev,
 	extended_irq->producer_consumer = ACPI_CONSUMER;
 	extended_irq->triggering = triggering;
 	extended_irq->polarity = polarity;
+<<<<<<< HEAD
 	extended_irq->sharable = shareable;
+=======
+	extended_irq->shareable = shareable;
+>>>>>>> upstream/android-13
 	extended_irq->interrupt_count = 1;
 	extended_irq->interrupts[0] = p->start;
 
 	pnp_dbg(&dev->dev, "  encode irq %d %s %s %s\n", (int) p->start,
 		triggering == ACPI_LEVEL_SENSITIVE ? "level" : "edge",
 		polarity == ACPI_ACTIVE_LOW ? "low" : "high",
+<<<<<<< HEAD
 		extended_irq->sharable == ACPI_SHARED ? "shared" : "exclusive");
+=======
+		extended_irq->shareable == ACPI_SHARED ? "shared" : "exclusive");
+>>>>>>> upstream/android-13
 }
 
 static void pnpacpi_encode_dma(struct pnp_dev *dev,

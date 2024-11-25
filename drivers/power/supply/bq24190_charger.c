@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the TI bq24190 battery charger.
  *
  * Author: Mark A. Greer <mgreer@animalcreek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,14 +18,27 @@
 #include <linux/delay.h>
 #include <linux/of_irq.h>
 #include <linux/of_device.h>
+=======
+ */
+
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/interrupt.h>
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/power_supply.h>
 #include <linux/power/bq24190_charger.h>
 #include <linux/regulator/driver.h>
 #include <linux/regulator/machine.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/i2c.h>
+=======
+#include <linux/i2c.h>
+#include <linux/extcon-provider.h>
+>>>>>>> upstream/android-13
 
 #define	BQ24190_MANUFACTURER	"Texas Instruments"
 
@@ -43,6 +61,10 @@
 #define BQ24190_REG_POC_CHG_CONFIG_DISABLE		0x0
 #define BQ24190_REG_POC_CHG_CONFIG_CHARGE		0x1
 #define BQ24190_REG_POC_CHG_CONFIG_OTG			0x2
+<<<<<<< HEAD
+=======
+#define BQ24190_REG_POC_CHG_CONFIG_OTG_ALT		0x3
+>>>>>>> upstream/android-13
 #define BQ24190_REG_POC_SYS_MIN_MASK		(BIT(3) | BIT(2) | BIT(1))
 #define BQ24190_REG_POC_SYS_MIN_SHIFT		1
 #define BQ24190_REG_POC_SYS_MIN_MIN			3000
@@ -142,7 +164,11 @@
 #define BQ24190_REG_VPRS_PN_MASK		(BIT(5) | BIT(4) | BIT(3))
 #define BQ24190_REG_VPRS_PN_SHIFT		3
 #define BQ24190_REG_VPRS_PN_24190			0x4
+<<<<<<< HEAD
 #define BQ24190_REG_VPRS_PN_24192			0x5 /* Also 24193 */
+=======
+#define BQ24190_REG_VPRS_PN_24192			0x5 /* Also 24193, 24196 */
+>>>>>>> upstream/android-13
 #define BQ24190_REG_VPRS_PN_24192I			0x3
 #define BQ24190_REG_VPRS_TS_PROFILE_MASK	BIT(2)
 #define BQ24190_REG_VPRS_TS_PROFILE_SHIFT	2
@@ -159,6 +185,10 @@
 struct bq24190_dev_info {
 	struct i2c_client		*client;
 	struct device			*dev;
+<<<<<<< HEAD
+=======
+	struct extcon_dev		*edev;
+>>>>>>> upstream/android-13
 	struct power_supply		*charger;
 	struct power_supply		*battery;
 	struct delayed_work		input_current_limit_work;
@@ -174,6 +204,14 @@ struct bq24190_dev_info {
 	u8				watchdog;
 };
 
+<<<<<<< HEAD
+=======
+static const unsigned int bq24190_usb_extcon_cable[] = {
+	EXTCON_USB,
+	EXTCON_NONE,
+};
+
+>>>>>>> upstream/android-13
 /*
  * The tables below provide a 2-way mapping for the value that goes in
  * the register field and the real-world value that it represents.
@@ -402,9 +440,13 @@ static struct bq24190_sysfs_field_info bq24190_sysfs_field_tbl[] = {
 static struct attribute *
 	bq24190_sysfs_attrs[ARRAY_SIZE(bq24190_sysfs_field_tbl) + 1];
 
+<<<<<<< HEAD
 static const struct attribute_group bq24190_sysfs_attr_group = {
 	.attrs = bq24190_sysfs_attrs,
 };
+=======
+ATTRIBUTE_GROUPS(bq24190_sysfs);
+>>>>>>> upstream/android-13
 
 static void bq24190_sysfs_init_attrs(void)
 {
@@ -481,8 +523,15 @@ static ssize_t bq24190_sysfs_store(struct device *dev,
 		return ret;
 
 	ret = pm_runtime_get_sync(bdi->dev);
+<<<<<<< HEAD
 	if (ret < 0)
 		return ret;
+=======
+	if (ret < 0) {
+		pm_runtime_put_noidle(bdi->dev);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	ret = bq24190_write_mask(bdi, info->reg, info->mask, info->shift, v);
 	if (ret)
@@ -493,6 +542,7 @@ static ssize_t bq24190_sysfs_store(struct device *dev,
 
 	return count;
 }
+<<<<<<< HEAD
 
 static int bq24190_sysfs_create_group(struct bq24190_dev_info *bdi)
 {
@@ -513,6 +563,8 @@ static int bq24190_sysfs_create_group(struct bq24190_dev_info *bdi)
 }
 
 static inline void bq24190_sysfs_remove_group(struct bq24190_dev_info *bdi) {}
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_REGULATOR
@@ -568,7 +620,15 @@ static int bq24190_vbus_is_enabled(struct regulator_dev *dev)
 	pm_runtime_mark_last_busy(bdi->dev);
 	pm_runtime_put_autosuspend(bdi->dev);
 
+<<<<<<< HEAD
 	return ret ? ret : val == BQ24190_REG_POC_CHG_CONFIG_OTG;
+=======
+	if (ret)
+		return ret;
+
+	return (val == BQ24190_REG_POC_CHG_CONFIG_OTG ||
+		val == BQ24190_REG_POC_CHG_CONFIG_OTG_ALT);
+>>>>>>> upstream/android-13
 }
 
 static const struct regulator_ops bq24190_vbus_ops = {
@@ -579,6 +639,10 @@ static const struct regulator_ops bq24190_vbus_ops = {
 
 static const struct regulator_desc bq24190_vbus_desc = {
 	.name = "usb_otg_vbus",
+<<<<<<< HEAD
+=======
+	.of_match = "usb-otg-vbus",
+>>>>>>> upstream/android-13
 	.type = REGULATOR_VOLTAGE,
 	.owner = THIS_MODULE,
 	.ops = &bq24190_vbus_ops,
@@ -692,7 +756,11 @@ static int bq24190_register_reset(struct bq24190_dev_info *bdi)
 	 *   { .type = "bq24190", .addr = 0x6b, .properties = pe, .irq = irq };
 	 * struct i2c_adapter ad = { ... };
 	 * i2c_add_adapter(&ad);
+<<<<<<< HEAD
 	 * i2c_new_device(&ad, &bi);
+=======
+	 * i2c_new_client_device(&ad, &bi);
+>>>>>>> upstream/android-13
 	 */
 	if (device_property_read_bool(bdi->dev, "disable-reset"))
 		return 0;
@@ -1537,6 +1605,23 @@ static const struct power_supply_desc bq24190_battery_desc = {
 	.property_is_writeable	= bq24190_battery_property_is_writeable,
 };
 
+<<<<<<< HEAD
+=======
+static int bq24190_configure_usb_otg(struct bq24190_dev_info *bdi, u8 ss_reg)
+{
+	bool otg_enabled;
+	int ret;
+
+	otg_enabled = !!(ss_reg & BQ24190_REG_SS_VBUS_STAT_MASK);
+	ret = extcon_set_state_sync(bdi->edev, EXTCON_USB, otg_enabled);
+	if (ret < 0)
+		dev_err(bdi->dev, "Can't set extcon state to %d: %d\n",
+			otg_enabled, ret);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static void bq24190_check_status(struct bq24190_dev_info *bdi)
 {
 	const u8 battery_mask_ss = BQ24190_REG_SS_CHRG_STAT_MASK;
@@ -1606,8 +1691,15 @@ static void bq24190_check_status(struct bq24190_dev_info *bdi)
 		bdi->ss_reg = ss_reg;
 	}
 
+<<<<<<< HEAD
 	if (alert_charger || alert_battery)
 		power_supply_changed(bdi->charger);
+=======
+	if (alert_charger || alert_battery) {
+		power_supply_changed(bdi->charger);
+		bq24190_configure_usb_otg(bdi, ss_reg);
+	}
+>>>>>>> upstream/android-13
 	if (alert_battery && bdi->battery)
 		power_supply_changed(bdi->battery);
 
@@ -1647,8 +1739,17 @@ static int bq24190_hw_init(struct bq24190_dev_info *bdi)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	if (v != BQ24190_REG_VPRS_PN_24190 &&
 	    v != BQ24190_REG_VPRS_PN_24192I) {
+=======
+	switch (v) {
+	case BQ24190_REG_VPRS_PN_24190:
+	case BQ24190_REG_VPRS_PN_24192:
+	case BQ24190_REG_VPRS_PN_24192I:
+		break;
+	default:
+>>>>>>> upstream/android-13
 		dev_err(bdi->dev, "Error unknown model: 0x%02x\n", v);
 		return -ENODEV;
 	}
@@ -1704,7 +1805,11 @@ static int bq24190_get_config(struct bq24190_dev_info *bdi)
 static int bq24190_probe(struct i2c_client *client,
 		const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+=======
+	struct i2c_adapter *adapter = client->adapter;
+>>>>>>> upstream/android-13
 	struct device *dev = &client->dev;
 	struct power_supply_config charger_cfg = {}, battery_cfg = {};
 	struct bq24190_dev_info *bdi;
@@ -1737,6 +1842,17 @@ static int bq24190_probe(struct i2c_client *client,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	bdi->edev = devm_extcon_dev_allocate(dev, bq24190_usb_extcon_cable);
+	if (IS_ERR(bdi->edev))
+		return PTR_ERR(bdi->edev);
+
+	ret = devm_extcon_dev_register(dev, bdi->edev);
+	if (ret < 0)
+		return ret;
+
+>>>>>>> upstream/android-13
 	pm_runtime_enable(dev);
 	pm_runtime_use_autosuspend(dev);
 	pm_runtime_set_autosuspend_delay(dev, 600);
@@ -1746,10 +1862,22 @@ static int bq24190_probe(struct i2c_client *client,
 		goto out_pmrt;
 	}
 
+<<<<<<< HEAD
 	charger_cfg.drv_data = bdi;
 	charger_cfg.of_node = dev->of_node;
 	charger_cfg.supplied_to = bq24190_charger_supplied_to;
 	charger_cfg.num_supplicants = ARRAY_SIZE(bq24190_charger_supplied_to),
+=======
+#ifdef CONFIG_SYSFS
+	bq24190_sysfs_init_attrs();
+	charger_cfg.attr_grp = bq24190_sysfs_groups;
+#endif
+
+	charger_cfg.drv_data = bdi;
+	charger_cfg.of_node = dev->of_node;
+	charger_cfg.supplied_to = bq24190_charger_supplied_to;
+	charger_cfg.num_supplicants = ARRAY_SIZE(bq24190_charger_supplied_to);
+>>>>>>> upstream/android-13
 	bdi->charger = power_supply_register(dev, &bq24190_charger_desc,
 						&charger_cfg);
 	if (IS_ERR(bdi->charger)) {
@@ -1783,11 +1911,17 @@ static int bq24190_probe(struct i2c_client *client,
 		goto out_charger;
 	}
 
+<<<<<<< HEAD
 	ret = bq24190_sysfs_create_group(bdi);
 	if (ret < 0) {
 		dev_err(dev, "Can't create sysfs entries\n");
 		goto out_charger;
 	}
+=======
+	ret = bq24190_configure_usb_otg(bdi, bdi->ss_reg);
+	if (ret < 0)
+		goto out_charger;
+>>>>>>> upstream/android-13
 
 	bdi->initialized = true;
 
@@ -1797,12 +1931,20 @@ static int bq24190_probe(struct i2c_client *client,
 			"bq24190-charger", bdi);
 	if (ret < 0) {
 		dev_err(dev, "Can't set up irq handler\n");
+<<<<<<< HEAD
 		goto out_sysfs;
+=======
+		goto out_charger;
+>>>>>>> upstream/android-13
 	}
 
 	ret = bq24190_register_vbus_regulator(bdi);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto out_sysfs;
+=======
+		goto out_charger;
+>>>>>>> upstream/android-13
 
 	enable_irq_wake(client->irq);
 
@@ -1811,9 +1953,12 @@ static int bq24190_probe(struct i2c_client *client,
 
 	return 0;
 
+<<<<<<< HEAD
 out_sysfs:
 	bq24190_sysfs_remove_group(bdi);
 
+=======
+>>>>>>> upstream/android-13
 out_charger:
 	if (!IS_ERR_OR_NULL(bdi->battery))
 		power_supply_unregister(bdi->battery);
@@ -1838,7 +1983,10 @@ static int bq24190_remove(struct i2c_client *client)
 	}
 
 	bq24190_register_reset(bdi);
+<<<<<<< HEAD
 	bq24190_sysfs_remove_group(bdi);
+=======
+>>>>>>> upstream/android-13
 	if (bdi->battery)
 		power_supply_unregister(bdi->battery);
 	power_supply_unregister(bdi->charger);
@@ -1941,11 +2089,18 @@ static const struct dev_pm_ops bq24190_pm_ops = {
 
 static const struct i2c_device_id bq24190_i2c_ids[] = {
 	{ "bq24190" },
+<<<<<<< HEAD
 	{ "bq24192i" },
+=======
+	{ "bq24192" },
+	{ "bq24192i" },
+	{ "bq24196" },
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(i2c, bq24190_i2c_ids);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static const struct of_device_id bq24190_of_match[] = {
 	{ .compatible = "ti,bq24190", },
@@ -1958,6 +2113,16 @@ static const struct of_device_id bq24190_of_match[] = {
 	{ },
 };
 #endif
+=======
+static const struct of_device_id bq24190_of_match[] = {
+	{ .compatible = "ti,bq24190", },
+	{ .compatible = "ti,bq24192", },
+	{ .compatible = "ti,bq24192i", },
+	{ .compatible = "ti,bq24196", },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, bq24190_of_match);
+>>>>>>> upstream/android-13
 
 static struct i2c_driver bq24190_driver = {
 	.probe		= bq24190_probe,
@@ -1966,7 +2131,11 @@ static struct i2c_driver bq24190_driver = {
 	.driver = {
 		.name		= "bq24190-charger",
 		.pm		= &bq24190_pm_ops,
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(bq24190_of_match),
+=======
+		.of_match_table	= bq24190_of_match,
+>>>>>>> upstream/android-13
 	},
 };
 module_i2c_driver(bq24190_driver);

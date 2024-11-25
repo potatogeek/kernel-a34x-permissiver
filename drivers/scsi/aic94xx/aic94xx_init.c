@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Aic94xx SAS/SATA driver initialization.
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -22,6 +27,8 @@
  * along with the aic94xx driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -58,6 +65,10 @@ static struct scsi_host_template aic94xx_sht = {
 	/* .name is initialized */
 	.name			= "aic94xx",
 	.queuecommand		= sas_queuecommand,
+<<<<<<< HEAD
+=======
+	.dma_need_drain		= ata_scsi_dma_need_drain,
+>>>>>>> upstream/android-13
 	.target_alloc		= sas_target_alloc,
 	.slave_configure	= sas_slave_configure,
 	.scan_finished		= asd_scan_finished,
@@ -68,11 +79,22 @@ static struct scsi_host_template aic94xx_sht = {
 	.this_id		= -1,
 	.sg_tablesize		= SG_ALL,
 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
 	.eh_device_reset_handler	= sas_eh_device_reset_handler,
 	.eh_target_reset_handler	= sas_eh_target_reset_handler,
 	.target_destroy		= sas_target_destroy,
 	.ioctl			= sas_ioctl,
+=======
+	.eh_device_reset_handler	= sas_eh_device_reset_handler,
+	.eh_target_reset_handler	= sas_eh_target_reset_handler,
+	.slave_alloc		= sas_slave_alloc,
+	.target_destroy		= sas_target_destroy,
+	.ioctl			= sas_ioctl,
+#ifdef CONFIG_COMPAT
+	.compat_ioctl		= sas_ioctl,
+#endif
+>>>>>>> upstream/android-13
 	.track_queue_depth	= 1,
 };
 
@@ -545,7 +567,11 @@ static int asd_create_ha_caches(struct asd_ha_struct *asd_ha)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * asd_free_edbs -- free empty data buffers
  * asd_ha: pointer to host adapter structure
  */
@@ -584,8 +610,12 @@ static void asd_destroy_ha_caches(struct asd_ha_struct *asd_ha)
 	if (asd_ha->hw_prof.scb_ext)
 		asd_free_coherent(asd_ha, asd_ha->hw_prof.scb_ext);
 
+<<<<<<< HEAD
 	if (asd_ha->hw_prof.ddb_bitmap)
 		kfree(asd_ha->hw_prof.ddb_bitmap);
+=======
+	kfree(asd_ha->hw_prof.ddb_bitmap);
+>>>>>>> upstream/android-13
 	asd_ha->hw_prof.ddb_bitmap = NULL;
 
 	for (i = 0; i < ASD_MAX_PHYS; i++) {
@@ -660,12 +690,19 @@ Err:
 
 static void asd_destroy_global_caches(void)
 {
+<<<<<<< HEAD
 	if (asd_dma_token_cache)
 		kmem_cache_destroy(asd_dma_token_cache);
 	asd_dma_token_cache = NULL;
 
 	if (asd_ascb_cache)
 		kmem_cache_destroy(asd_ascb_cache);
+=======
+	kmem_cache_destroy(asd_dma_token_cache);
+	asd_dma_token_cache = NULL;
+
+	kmem_cache_destroy(asd_ascb_cache);
+>>>>>>> upstream/android-13
 	asd_ascb_cache = NULL;
 }
 
@@ -770,6 +807,7 @@ static int asd_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	if (err)
 		goto Err_remove;
 
+<<<<<<< HEAD
 	err = -ENODEV;
 	if (!pci_set_dma_mask(dev, DMA_BIT_MASK(64))
 	    && !pci_set_consistent_dma_mask(dev, DMA_BIT_MASK(64)))
@@ -778,6 +816,13 @@ static int asd_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 		 && !pci_set_consistent_dma_mask(dev, DMA_BIT_MASK(32)))
 		;
 	else {
+=======
+	err = dma_set_mask_and_coherent(&dev->dev, DMA_BIT_MASK(64));
+	if (err)
+		err = dma_set_mask_and_coherent(&dev->dev, DMA_BIT_MASK(32));
+	if (err) {
+		err = -ENODEV;
+>>>>>>> upstream/android-13
 		asd_printk("no suitable DMA mask for %s\n", pci_name(dev));
 		goto Err_remove;
 	}

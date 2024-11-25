@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_PROCESSOR_H
 #define _ASM_POWERPC_PROCESSOR_H
 
 /*
  * Copyright (C) 2001 PPC 64 Team, IBM Corp
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -10,6 +15,12 @@
  * 2 of the License, or (at your option) any later version.
  */
 
+=======
+ */
+
+#include <vdso/processor.h>
+
+>>>>>>> upstream/android-13
 #include <asm/reg.h>
 
 #ifdef CONFIG_VSX
@@ -32,15 +43,25 @@
 /* Default SMT priority is set to 3. Use 11- 13bits to save priority. */
 #define PPR_PRIORITY 3
 #ifdef __ASSEMBLY__
+<<<<<<< HEAD
 #define INIT_PPR (PPR_PRIORITY << 50)
 #else
 #define INIT_PPR ((u64)PPR_PRIORITY << 50)
+=======
+#define DEFAULT_PPR (PPR_PRIORITY << 50)
+#else
+#define DEFAULT_PPR ((u64)PPR_PRIORITY << 50)
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 #endif /* CONFIG_PPC64 */
 
 #ifndef __ASSEMBLY__
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <asm/thread_info.h>
+=======
+#include <linux/thread_info.h>
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include <asm/hw_breakpoint.h>
 
@@ -67,6 +88,7 @@ extern int _chrp_type;
 
 #endif /* defined(__KERNEL__) && defined(CONFIG_PPC32) */
 
+<<<<<<< HEAD
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
@@ -83,10 +105,21 @@ extern int _chrp_type;
 
 #ifdef __KERNEL__
 
+=======
+#ifdef __KERNEL__
+
+#ifdef CONFIG_PPC64
+#include <asm/task_size_64.h>
+#else
+#include <asm/task_size_32.h>
+#endif
+
+>>>>>>> upstream/android-13
 struct task_struct;
 void start_thread(struct pt_regs *regs, unsigned long fdptr, unsigned long sp);
 void release_thread(struct task_struct *);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 
 #if CONFIG_TASK_SIZE > CONFIG_KERNEL_START
@@ -187,6 +220,8 @@ typedef struct {
 	unsigned long seg;
 } mm_segment_t;
 
+=======
+>>>>>>> upstream/android-13
 #define TS_FPR(i) fp_state.fpr[i][TS_FPROFFSET]
 #define TS_CKFPR(i) ckfp_state.fpr[i][TS_FPROFFSET]
 
@@ -248,13 +283,17 @@ struct thread_struct {
 	unsigned long	ksp_vsid;
 #endif
 	struct pt_regs	*regs;		/* Pointer to saved register state */
+<<<<<<< HEAD
 	mm_segment_t	addr_limit;	/* for get_fs() validation */
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BOOKE
 	/* BookE base exception scratch space; align on cacheline */
 	unsigned long	normsave[8] ____cacheline_aligned;
 #endif
 #ifdef CONFIG_PPC32
 	void		*pgdir;		/* root of page-table tree */
+<<<<<<< HEAD
 	unsigned long	ksp_limit;	/* if ksp <= ksp_limit stack overflow */
 #endif
 	/* Debug Registers */
@@ -265,14 +304,49 @@ struct thread_struct {
 	unsigned int	align_ctl;	/* alignment handling control */
 #ifdef CONFIG_HAVE_HW_BREAKPOINT
 	struct perf_event *ptrace_bps[HBP_NUM];
+=======
+#ifdef CONFIG_PPC_RTAS
+	unsigned long	rtas_sp;	/* stack pointer for when in RTAS */
+#endif
+#if defined(CONFIG_PPC_BOOK3S_32) && defined(CONFIG_PPC_KUAP)
+	unsigned long	kuap;		/* opened segments for user access */
+#endif
+	unsigned long	srr0;
+	unsigned long	srr1;
+	unsigned long	dar;
+	unsigned long	dsisr;
+#ifdef CONFIG_PPC_BOOK3S_32
+	unsigned long	r0, r3, r4, r5, r6, r8, r9, r11;
+	unsigned long	lr, ctr;
+#endif
+#endif /* CONFIG_PPC32 */
+	/* Debug Registers */
+	struct debug_reg debug;
+#ifdef CONFIG_PPC_FPU_REGS
+	struct thread_fp_state	fp_state;
+	struct thread_fp_state	*fp_save_area;
+#endif
+	int		fpexc_mode;	/* floating-point exception mode */
+	unsigned int	align_ctl;	/* alignment handling control */
+#ifdef CONFIG_HAVE_HW_BREAKPOINT
+	struct perf_event *ptrace_bps[HBP_NUM_MAX];
+>>>>>>> upstream/android-13
 	/*
 	 * Helps identify source of single-step exception and subsequent
 	 * hw-breakpoint enablement
 	 */
+<<<<<<< HEAD
 	struct perf_event *last_hit_ubp;
 #endif /* CONFIG_HAVE_HW_BREAKPOINT */
 	struct arch_hw_breakpoint hw_brk; /* info on the hardware breakpoint */
 	unsigned long	trap_nr;	/* last trap # on this thread */
+=======
+	struct perf_event *last_hit_ubp[HBP_NUM_MAX];
+#endif /* CONFIG_HAVE_HW_BREAKPOINT */
+	struct arch_hw_breakpoint hw_brk[HBP_NUM_MAX]; /* hardware breakpoint info */
+	unsigned long	trap_nr;	/* last trap # on this thread */
+	u8 load_slb;			/* Ages out SLB preload cache entries */
+>>>>>>> upstream/android-13
 	u8 load_fp;
 #ifdef CONFIG_ALTIVEC
 	u8 load_vec;
@@ -303,6 +377,10 @@ struct thread_struct {
 	unsigned long	tm_tar;
 	unsigned long	tm_ppr;
 	unsigned long	tm_dscr;
+<<<<<<< HEAD
+=======
+	unsigned long   tm_amr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Checkpointed FP and VSX 0-31 register set.
@@ -317,11 +395,14 @@ struct thread_struct {
 	struct thread_vr_state ckvr_state; /* Checkpointed VR state */
 	unsigned long	ckvrsave; /* Checkpointed VRSAVE */
 #endif /* CONFIG_PPC_TRANSACTIONAL_MEM */
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_MEM_KEYS
 	unsigned long	amr;
 	unsigned long	iamr;
 	unsigned long	uamor;
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KVM_BOOK3S_32_HANDLER
 	void*		kvm_shadow_vcpu; /* KVM internal data */
 #endif /* CONFIG_KVM_BOOK3S_32_HANDLER */
@@ -341,7 +422,10 @@ struct thread_struct {
 	 * onwards.
 	 */
 	int		dscr_inherit;
+<<<<<<< HEAD
 	unsigned long	ppr;	/* used to save/restore SMT priority */
+=======
+>>>>>>> upstream/android-13
 	unsigned long	tidr;
 #endif
 #ifdef CONFIG_PPC_BOOK3S_64
@@ -356,15 +440,26 @@ struct thread_struct {
 	unsigned 	mmcr0;
 
 	unsigned 	used_ebb;
+<<<<<<< HEAD
 	unsigned int	used_vas;
+=======
+	unsigned long   mmcr3;
+	unsigned long   sier2;
+	unsigned long   sier3;
+
+>>>>>>> upstream/android-13
 #endif
 };
 
 #define ARCH_MIN_TASKALIGN 16
 
 #define INIT_SP		(sizeof(init_stack) + (unsigned long) &init_stack)
+<<<<<<< HEAD
 #define INIT_SP_LIMIT \
 	(_ALIGN_UP(sizeof(init_thread_info), 16) + (unsigned long) &init_stack)
+=======
+#define INIT_SP_LIMIT	((unsigned long)&init_stack)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SPE
 #define SPEFSCR_INIT \
@@ -374,11 +469,25 @@ struct thread_struct {
 #define SPEFSCR_INIT
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 #define INIT_THREAD { \
 	.ksp = INIT_SP, \
 	.ksp_limit = INIT_SP_LIMIT, \
 	.addr_limit = KERNEL_DS, \
+=======
+#if defined(CONFIG_PPC_BOOK3S_32) && defined(CONFIG_PPC_KUAP)
+#define INIT_THREAD { \
+	.ksp = INIT_SP, \
+	.pgdir = swapper_pg_dir, \
+	.kuap = ~0UL, /* KUAP_NONE */ \
+	.fpexc_mode = MSR_FE0 | MSR_FE1, \
+	SPEFSCR_INIT \
+}
+#elif defined(CONFIG_PPC32)
+#define INIT_THREAD { \
+	.ksp = INIT_SP, \
+>>>>>>> upstream/android-13
 	.pgdir = swapper_pg_dir, \
 	.fpexc_mode = MSR_FE0 | MSR_FE1, \
 	SPEFSCR_INIT \
@@ -386,6 +495,7 @@ struct thread_struct {
 #else
 #define INIT_THREAD  { \
 	.ksp = INIT_SP, \
+<<<<<<< HEAD
 	.addr_limit = KERNEL_DS, \
 	.fpexc_mode = 0, \
 	.ppr = INIT_PPR, \
@@ -394,6 +504,13 @@ struct thread_struct {
 #endif
 
 #define task_pt_regs(tsk)	((struct pt_regs *)(tsk)->thread.regs)
+=======
+	.fpexc_mode = 0, \
+}
+#endif
+
+#define task_pt_regs(tsk)	((tsk)->thread.regs)
+>>>>>>> upstream/android-13
 
 unsigned long get_wchan(struct task_struct *p);
 
@@ -435,12 +552,16 @@ static inline unsigned long __pack_fe01(unsigned int fpmode)
 }
 
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 #define cpu_relax()	do { HMT_low(); HMT_medium(); barrier(); } while (0)
+=======
+>>>>>>> upstream/android-13
 
 #define spin_begin()	HMT_low()
 
 #define spin_cpu_relax()	barrier()
 
+<<<<<<< HEAD
 #define spin_cpu_yield()	spin_cpu_relax()
 
 #define spin_end()	HMT_medium()
@@ -458,6 +579,10 @@ do {								\
 
 #else
 #define cpu_relax()	barrier()
+=======
+#define spin_end()	HMT_medium()
+
+>>>>>>> upstream/android-13
 #endif
 
 /* Check that a certain kernel stack pointer is valid in task_struct p */
@@ -491,6 +616,7 @@ static inline void prefetchw(const void *x)
 
 #define HAVE_ARCH_PICK_MMAP_LAYOUT
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC64
 static inline unsigned long get_clean_sp(unsigned long sp, int is_32)
 {
@@ -503,12 +629,22 @@ static inline unsigned long get_clean_sp(unsigned long sp, int is_32)
 {
 	return sp;
 }
+=======
+/* asm stubs */
+extern unsigned long isa300_idle_stop_noloss(unsigned long psscr_val);
+extern unsigned long isa300_idle_stop_mayloss(unsigned long psscr_val);
+extern unsigned long isa206_idle_insn_mayloss(unsigned long type);
+#ifdef CONFIG_PPC_970_NAP
+extern void power4_idle_nap(void);
+void power4_idle_nap_return(void);
+>>>>>>> upstream/android-13
 #endif
 
 extern unsigned long cpuidle_disable;
 enum idle_boot_override {IDLE_NO_OVERRIDE = 0, IDLE_POWERSAVE_OFF};
 
 extern int powersave_nap;	/* set if nap mode can be used in idle loop */
+<<<<<<< HEAD
 extern unsigned long power7_idle_insn(unsigned long type); /* PNV_THREAD_NAP/etc*/
 extern void power7_idle_type(unsigned long type);
 extern unsigned long power9_idle_stop(unsigned long psscr_val);
@@ -523,6 +659,14 @@ extern int fix_alignment(struct pt_regs *);
 extern void cvt_fd(float *from, double *to);
 extern void cvt_df(double *from, float *to);
 extern void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
+=======
+
+extern void power7_idle_type(unsigned long type);
+extern void arch300_idle_type(unsigned long stop_psscr_val,
+			      unsigned long stop_psscr_mask);
+
+extern int fix_alignment(struct pt_regs *);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC64
 /*
@@ -535,6 +679,11 @@ extern void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #define NET_IP_ALIGN	0
 #endif
 
+<<<<<<< HEAD
+=======
+int do_mathemu(struct pt_regs *regs);
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif /* __ASSEMBLY__ */
 #endif /* _ASM_POWERPC_PROCESSOR_H */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014, National Instruments Corp. All rights reserved.
  *
  * Driver for NI Ettus Research USRP E3x0 Button Driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -73,6 +80,7 @@ static int e3x0_button_probe(struct platform_device *pdev)
 	int error;
 
 	irq_press = platform_get_irq_byname(pdev, "press");
+<<<<<<< HEAD
 	if (irq_press < 0) {
 		dev_err(&pdev->dev, "No IRQ for 'press', error=%d\n",
 			irq_press);
@@ -85,6 +93,14 @@ static int e3x0_button_probe(struct platform_device *pdev)
 			irq_release);
 		return irq_release;
 	}
+=======
+	if (irq_press < 0)
+		return irq_press;
+
+	irq_release = platform_get_irq_byname(pdev, "release");
+	if (irq_release < 0)
+		return irq_release;
+>>>>>>> upstream/android-13
 
 	input = devm_input_allocate_device(&pdev->dev);
 	if (!input)

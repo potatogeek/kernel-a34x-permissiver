@@ -19,6 +19,10 @@
 #include <linux/sched/rt.h>
 #include <linux/sched/debug.h>
 #include <linux/sched/task.h>
+<<<<<<< HEAD
+=======
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/mm.h>
 #include <linux/fs.h>
@@ -51,6 +55,7 @@
 #include <linux/of.h>
 #include <linux/rcupdate.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_ION
 #include "mtk/ion_drv.h"
 #endif
@@ -58,6 +63,13 @@
 #include <asm/ptrace.h>
 #include <asm/irq_regs.h>
 
+=======
+#include <asm/ptrace.h>
+#include <asm/irq_regs.h>
+
+#include <trace/hooks/sysrqcrash.h>
+
+>>>>>>> upstream/android-13
 /* Whether we react on sysrq keys or just ignore them */
 static int __read_mostly sysrq_enabled = CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE;
 static bool __read_mostly sysrq_always_enabled;
@@ -67,6 +79,22 @@ static bool sysrq_on(void)
 	return sysrq_enabled || sysrq_always_enabled;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * sysrq_mask - Getter for sysrq_enabled mask.
+ *
+ * Return: 1 if sysrq is always enabled, enabled sysrq_key_op mask otherwise.
+ */
+int sysrq_mask(void)
+{
+	if (sysrq_always_enabled)
+		return 1;
+	return sysrq_enabled;
+}
+EXPORT_SYMBOL_GPL(sysrq_mask);
+
+>>>>>>> upstream/android-13
 /*
  * A value of 1 means 'all', other nonzero values are an op mask:
  */
@@ -97,7 +125,11 @@ static void sysrq_handle_loglevel(int key)
 	pr_info("Loglevel set to %d\n", i);
 	console_loglevel = i;
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_loglevel_op = {
+=======
+static const struct sysrq_key_op sysrq_loglevel_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_loglevel,
 	.help_msg	= "loglevel(0-9)",
 	.action_msg	= "Changing Loglevel",
@@ -108,16 +140,27 @@ static struct sysrq_key_op sysrq_loglevel_op = {
 static void sysrq_handle_SAK(int key)
 {
 	struct work_struct *SAK_work = &vc_cons[fg_console].SAK_work;
+<<<<<<< HEAD
 	schedule_work(SAK_work);
 }
 static struct sysrq_key_op sysrq_SAK_op = {
+=======
+
+	schedule_work(SAK_work);
+}
+static const struct sysrq_key_op sysrq_SAK_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_SAK,
 	.help_msg	= "sak(k)",
 	.action_msg	= "SAK",
 	.enable_mask	= SYSRQ_ENABLE_KEYBOARD,
 };
 #else
+<<<<<<< HEAD
 #define sysrq_SAK_op (*(struct sysrq_key_op *)NULL)
+=======
+#define sysrq_SAK_op (*(const struct sysrq_key_op *)NULL)
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_VT
@@ -126,14 +169,22 @@ static void sysrq_handle_unraw(int key)
 	vt_reset_unicode(fg_console);
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_unraw_op = {
+=======
+static const struct sysrq_key_op sysrq_unraw_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_unraw,
 	.help_msg	= "unraw(r)",
 	.action_msg	= "Keyboard mode set to system default",
 	.enable_mask	= SYSRQ_ENABLE_KEYBOARD,
 };
 #else
+<<<<<<< HEAD
 #define sysrq_unraw_op (*(struct sysrq_key_op *)NULL)
+=======
+#define sysrq_unraw_op (*(const struct sysrq_key_op *)NULL)
+>>>>>>> upstream/android-13
 #endif /* CONFIG_VT */
 
 static void sysrq_handle_crash(int key)
@@ -141,9 +192,17 @@ static void sysrq_handle_crash(int key)
 	/* release the RCU read lock before crashing */
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	panic("sysrq triggered crash\n");
 }
 static struct sysrq_key_op sysrq_crash_op = {
+=======
+	trace_android_vh_sysrq_crash(current);
+
+	panic("sysrq triggered crash\n");
+}
+static const struct sysrq_key_op sysrq_crash_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_crash,
 	.help_msg	= "crash(c)",
 	.action_msg	= "Trigger a crash",
@@ -156,18 +215,31 @@ static void sysrq_handle_reboot(int key)
 	local_irq_enable();
 	emergency_restart();
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_reboot_op = {
+=======
+static const struct sysrq_key_op sysrq_reboot_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_reboot,
 	.help_msg	= "reboot(b)",
 	.action_msg	= "Resetting",
 	.enable_mask	= SYSRQ_ENABLE_BOOT,
 };
 
+<<<<<<< HEAD
+=======
+const struct sysrq_key_op *__sysrq_reboot_op = &sysrq_reboot_op;
+
+>>>>>>> upstream/android-13
 static void sysrq_handle_sync(int key)
 {
 	emergency_sync();
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_sync_op = {
+=======
+static const struct sysrq_key_op sysrq_sync_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_sync,
 	.help_msg	= "sync(s)",
 	.action_msg	= "Emergency Sync",
@@ -179,7 +251,11 @@ static void sysrq_handle_show_timers(int key)
 	sysrq_timer_list_show();
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_show_timers_op = {
+=======
+static const struct sysrq_key_op sysrq_show_timers_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_show_timers,
 	.help_msg	= "show-all-timers(q)",
 	.action_msg	= "Show clockevent devices & pending hrtimers (no others)",
@@ -189,7 +265,11 @@ static void sysrq_handle_mountro(int key)
 {
 	emergency_remount();
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_mountro_op = {
+=======
+static const struct sysrq_key_op sysrq_mountro_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_mountro,
 	.help_msg	= "unmount(u)",
 	.action_msg	= "Emergency Remount R/O",
@@ -202,17 +282,29 @@ static void sysrq_handle_showlocks(int key)
 	debug_show_all_locks();
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_showlocks_op = {
+=======
+static const struct sysrq_key_op sysrq_showlocks_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_showlocks,
 	.help_msg	= "show-all-locks(d)",
 	.action_msg	= "Show Locks Held",
 };
 #else
+<<<<<<< HEAD
 #define sysrq_showlocks_op (*(struct sysrq_key_op *)NULL)
 #endif
 
 #ifdef CONFIG_SMP
 static DEFINE_SPINLOCK(show_lock);
+=======
+#define sysrq_showlocks_op (*(const struct sysrq_key_op *)NULL)
+#endif
+
+#ifdef CONFIG_SMP
+static DEFINE_RAW_SPINLOCK(show_lock);
+>>>>>>> upstream/android-13
 
 static void showacpu(void *dummy)
 {
@@ -222,10 +314,17 @@ static void showacpu(void *dummy)
 	if (idle_cpu(smp_processor_id()))
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&show_lock, flags);
 	pr_info("CPU%d:\n", smp_processor_id());
 	show_stack(NULL, NULL);
 	spin_unlock_irqrestore(&show_lock, flags);
+=======
+	raw_spin_lock_irqsave(&show_lock, flags);
+	pr_info("CPU%d:\n", smp_processor_id());
+	show_stack(NULL, NULL, KERN_INFO);
+	raw_spin_unlock_irqrestore(&show_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static void sysrq_showregs_othercpus(struct work_struct *dummy)
@@ -245,7 +344,11 @@ static void sysrq_handle_showallcpus(int key)
 	if (!trigger_all_cpu_backtrace()) {
 		struct pt_regs *regs = NULL;
 
+<<<<<<< HEAD
 		if (in_irq())
+=======
+		if (in_hardirq())
+>>>>>>> upstream/android-13
 			regs = get_irq_regs();
 		if (regs) {
 			pr_info("CPU%d:\n", smp_processor_id());
@@ -255,7 +358,11 @@ static void sysrq_handle_showallcpus(int key)
 	}
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_showallcpus_op = {
+=======
+static const struct sysrq_key_op sysrq_showallcpus_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_showallcpus,
 	.help_msg	= "show-backtrace-all-active-cpus(l)",
 	.action_msg	= "Show backtrace of all active CPUs",
@@ -267,13 +374,21 @@ static void sysrq_handle_showregs(int key)
 {
 	struct pt_regs *regs = NULL;
 
+<<<<<<< HEAD
 	if (in_irq())
+=======
+	if (in_hardirq())
+>>>>>>> upstream/android-13
 		regs = get_irq_regs();
 	if (regs)
 		show_regs(regs);
 	perf_event_print_debug();
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_showregs_op = {
+=======
+static const struct sysrq_key_op sysrq_showregs_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_showregs,
 	.help_msg	= "show-registers(p)",
 	.action_msg	= "Show Regs",
@@ -285,23 +400,38 @@ static void sysrq_handle_showstate(int key)
 	show_state();
 	show_workqueue_state();
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_showstate_op = {
+=======
+static const struct sysrq_key_op sysrq_showstate_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_showstate,
 	.help_msg	= "show-task-states(t)",
 	.action_msg	= "Show State",
 	.enable_mask	= SYSRQ_ENABLE_DUMP,
 };
 
+<<<<<<< HEAD
+=======
+extern void mm_debug_dump_tasks(void);
+
+>>>>>>> upstream/android-13
 static void sysrq_handle_showstate_blocked(int key)
 {
 	show_state_filter(TASK_UNINTERRUPTIBLE);
 	show_mem(0, NULL);
+<<<<<<< HEAD
 	dump_tasks(NULL, NULL);
 #ifdef CONFIG_MTK_ION
 	ion_mm_heap_memory_detail();
 #endif
 }
 static struct sysrq_key_op sysrq_showstate_blocked_op = {
+=======
+	mm_debug_dump_tasks();
+}
+static const struct sysrq_key_op sysrq_showstate_blocked_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_showstate_blocked,
 	.help_msg	= "show-blocked-tasks(w)",
 	.action_msg	= "Show Blocked State",
@@ -315,20 +445,29 @@ static void sysrq_ftrace_dump(int key)
 {
 	ftrace_dump(DUMP_ALL);
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_ftrace_dump_op = {
+=======
+static const struct sysrq_key_op sysrq_ftrace_dump_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_ftrace_dump,
 	.help_msg	= "dump-ftrace-buffer(z)",
 	.action_msg	= "Dump ftrace buffer",
 	.enable_mask	= SYSRQ_ENABLE_DUMP,
 };
 #else
+<<<<<<< HEAD
 #define sysrq_ftrace_dump_op (*(struct sysrq_key_op *)NULL)
+=======
+#define sysrq_ftrace_dump_op (*(const struct sysrq_key_op *)NULL)
+>>>>>>> upstream/android-13
 #endif
 
 static void sysrq_handle_showmem(int key)
 {
 	static DEFINE_RATELIMIT_STATE(showmem_rs, DEFAULT_RATELIMIT_INTERVAL, 1);
 	show_mem(0, NULL);
+<<<<<<< HEAD
 	if (__ratelimit(&showmem_rs)) {
 		dump_tasks(NULL, NULL);
 #ifdef CONFIG_MTK_ION
@@ -338,6 +477,12 @@ static void sysrq_handle_showmem(int key)
 	}
 }
 static struct sysrq_key_op sysrq_showmem_op = {
+=======
+	if (__ratelimit(&showmem_rs))
+		mm_debug_dump_tasks();
+}
+static const struct sysrq_key_op sysrq_showmem_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_showmem,
 	.help_msg	= "show-memory-usage(m)",
 	.action_msg	= "Show Memory",
@@ -358,7 +503,11 @@ static void send_sig_all(int sig)
 		if (is_global_init(p))
 			continue;
 
+<<<<<<< HEAD
 		do_send_sig_info(sig, SEND_SIG_FORCED, p, PIDTYPE_MAX);
+=======
+		do_send_sig_info(sig, SEND_SIG_PRIV, p, PIDTYPE_MAX);
+>>>>>>> upstream/android-13
 	}
 	read_unlock(&tasklist_lock);
 }
@@ -368,7 +517,11 @@ static void sysrq_handle_term(int key)
 	send_sig_all(SIGTERM);
 	console_loglevel = CONSOLE_LOGLEVEL_DEBUG;
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_term_op = {
+=======
+static const struct sysrq_key_op sysrq_term_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_term,
 	.help_msg	= "terminate-all-tasks(e)",
 	.action_msg	= "Terminate All Tasks",
@@ -398,32 +551,50 @@ static void sysrq_handle_moom(int key)
 {
 	schedule_work(&moom_work);
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_moom_op = {
+=======
+static const struct sysrq_key_op sysrq_moom_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_moom,
 	.help_msg	= "memory-full-oom-kill(f)",
 	.action_msg	= "Manual OOM execution",
 	.enable_mask	= SYSRQ_ENABLE_SIGNAL,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
+=======
+>>>>>>> upstream/android-13
 static void sysrq_handle_thaw(int key)
 {
 	emergency_thaw_all();
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_thaw_op = {
+=======
+static const struct sysrq_key_op sysrq_thaw_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_thaw,
 	.help_msg	= "thaw-filesystems(j)",
 	.action_msg	= "Emergency Thaw of all frozen filesystems",
 	.enable_mask	= SYSRQ_ENABLE_SIGNAL,
 };
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static void sysrq_handle_kill(int key)
 {
 	send_sig_all(SIGKILL);
 	console_loglevel = CONSOLE_LOGLEVEL_DEBUG;
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_kill_op = {
+=======
+static const struct sysrq_key_op sysrq_kill_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_kill,
 	.help_msg	= "kill-all-tasks(i)",
 	.action_msg	= "Kill All Tasks",
@@ -434,7 +605,11 @@ static void sysrq_handle_unrt(int key)
 {
 	normalize_rt_tasks();
 }
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_unrt_op = {
+=======
+static const struct sysrq_key_op sysrq_unrt_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_unrt,
 	.help_msg	= "nice-all-RT-tasks(n)",
 	.action_msg	= "Nice All RT Tasks",
@@ -444,7 +619,11 @@ static struct sysrq_key_op sysrq_unrt_op = {
 /* Key Operations table and lock */
 static DEFINE_SPINLOCK(sysrq_key_table_lock);
 
+<<<<<<< HEAD
 static struct sysrq_key_op *sysrq_key_table[36] = {
+=======
+static const struct sysrq_key_op *sysrq_key_table[62] = {
+>>>>>>> upstream/android-13
 	&sysrq_loglevel_op,		/* 0 */
 	&sysrq_loglevel_op,		/* 1 */
 	&sysrq_loglevel_op,		/* 2 */
@@ -501,6 +680,35 @@ static struct sysrq_key_op *sysrq_key_table[36] = {
 	/* y: May be registered on sparc64 for global register dump */
 	NULL,				/* y */
 	&sysrq_ftrace_dump_op,		/* z */
+<<<<<<< HEAD
+=======
+	NULL,				/* A */
+	NULL,				/* B */
+	NULL,				/* C */
+	NULL,				/* D */
+	NULL,				/* E */
+	NULL,				/* F */
+	NULL,				/* G */
+	NULL,				/* H */
+	NULL,				/* I */
+	NULL,				/* J */
+	NULL,				/* K */
+	NULL,				/* L */
+	NULL,				/* M */
+	NULL,				/* N */
+	NULL,				/* O */
+	NULL,				/* P */
+	NULL,				/* Q */
+	NULL,				/* R */
+	NULL,				/* S */
+	NULL,				/* T */
+	NULL,				/* U */
+	NULL,				/* V */
+	NULL,				/* W */
+	NULL,				/* X */
+	NULL,				/* Y */
+	NULL,				/* Z */
+>>>>>>> upstream/android-13
 };
 
 /* key2index calculation, -1 on invalid index */
@@ -512,6 +720,11 @@ static int sysrq_key_table_key2index(int key)
 		retval = key - '0';
 	else if ((key >= 'a') && (key <= 'z'))
 		retval = key + 10 - 'a';
+<<<<<<< HEAD
+=======
+	else if ((key >= 'A') && (key <= 'Z'))
+		retval = key + 36 - 'A';
+>>>>>>> upstream/android-13
 	else
 		retval = -1;
 	return retval;
@@ -520,6 +733,7 @@ static int sysrq_key_table_key2index(int key)
 /*
  * get and put functions for the table, exposed to modules.
  */
+<<<<<<< HEAD
 struct sysrq_key_op *__sysrq_get_key_op(int key)
 {
         struct sysrq_key_op *op_p = NULL;
@@ -538,14 +752,45 @@ static void __sysrq_put_key_op(int key, struct sysrq_key_op *op_p)
 
         if (i != -1)
                 sysrq_key_table[i] = op_p;
+=======
+static const struct sysrq_key_op *__sysrq_get_key_op(int key)
+{
+	const struct sysrq_key_op *op_p = NULL;
+	int i;
+
+	i = sysrq_key_table_key2index(key);
+	if (i != -1)
+		op_p = sysrq_key_table[i];
+
+	return op_p;
+}
+
+static void __sysrq_put_key_op(int key, const struct sysrq_key_op *op_p)
+{
+	int i = sysrq_key_table_key2index(key);
+
+	if (i != -1)
+		sysrq_key_table[i] = op_p;
+>>>>>>> upstream/android-13
 }
 
 void __handle_sysrq(int key, bool check_mask)
 {
+<<<<<<< HEAD
 	struct sysrq_key_op *op_p;
 	int orig_log_level;
 	int i;
 
+=======
+	const struct sysrq_key_op *op_p;
+	int orig_log_level;
+	int orig_suppress_printk;
+	int i;
+
+	orig_suppress_printk = suppress_printk;
+	suppress_printk = 0;
+
+>>>>>>> upstream/android-13
 	rcu_sysrq_start();
 	rcu_read_lock();
 	/*
@@ -557,8 +802,13 @@ void __handle_sysrq(int key, bool check_mask)
 	orig_log_level = console_loglevel;
 	console_loglevel = CONSOLE_LOGLEVEL_DEFAULT;
 
+<<<<<<< HEAD
         op_p = __sysrq_get_key_op(key);
         if (op_p) {
+=======
+	op_p = __sysrq_get_key_op(key);
+	if (op_p) {
+>>>>>>> upstream/android-13
 		/*
 		 * Should we check for enabled operations (/proc/sysrq-trigger
 		 * should not) and is the invoked operation enabled?
@@ -591,6 +841,11 @@ void __handle_sysrq(int key, bool check_mask)
 	}
 	rcu_read_unlock();
 	rcu_sysrq_end();
+<<<<<<< HEAD
+=======
+
+	suppress_printk = orig_suppress_printk;
+>>>>>>> upstream/android-13
 }
 
 void handle_sysrq(int key)
@@ -605,6 +860,7 @@ static int sysrq_reset_downtime_ms;
 
 /* Simple translation table for the SysRq keys */
 static const unsigned char sysrq_xlate[KEY_CNT] =
+<<<<<<< HEAD
         "\000\0331234567890-=\177\t"                    /* 0x00 - 0x0f */
         "qwertyuiop[]\r\000as"                          /* 0x10 - 0x1f */
         "dfghjkl;'`\000\\zxcv"                          /* 0x20 - 0x2f */
@@ -612,6 +868,15 @@ static const unsigned char sysrq_xlate[KEY_CNT] =
         "\206\207\210\211\212\000\000789-456+1"         /* 0x40 - 0x4f */
         "230\177\000\000\213\214\000\000\000\000\000\000\000\000\000\000" /* 0x50 - 0x5f */
         "\r\000/";                                      /* 0x60 - 0x6f */
+=======
+	"\000\0331234567890-=\177\t"                    /* 0x00 - 0x0f */
+	"qwertyuiop[]\r\000as"                          /* 0x10 - 0x1f */
+	"dfghjkl;'`\000\\zxcv"                          /* 0x20 - 0x2f */
+	"bnm,./\000*\000 \000\201\202\203\204\205"      /* 0x30 - 0x3f */
+	"\206\207\210\211\212\000\000789-456+1"         /* 0x40 - 0x4f */
+	"230\177\000\000\213\214\000\000\000\000\000\000\000\000\000\000" /* 0x50 - 0x5f */
+	"\r\000/";                                      /* 0x60 - 0x6f */
+>>>>>>> upstream/android-13
 
 struct sysrq_state {
 	struct input_handle handle;
@@ -619,6 +884,11 @@ struct sysrq_state {
 	unsigned long key_down[BITS_TO_LONGS(KEY_CNT)];
 	unsigned int alt;
 	unsigned int alt_use;
+<<<<<<< HEAD
+=======
+	unsigned int shift;
+	unsigned int shift_use;
+>>>>>>> upstream/android-13
 	bool active;
 	bool need_reinject;
 	bool reinjecting;
@@ -670,8 +940,12 @@ static void sysrq_do_reset(struct timer_list *t)
 
 	state->reset_requested = true;
 
+<<<<<<< HEAD
 	ksys_sync();
 	kernel_restart(NULL);
+=======
+	orderly_reboot();
+>>>>>>> upstream/android-13
 }
 
 static void sysrq_handle_reset_request(struct sysrq_state *state)
@@ -746,6 +1020,11 @@ static void sysrq_of_get_keyreset_config(void)
 
 	/* Get reset timeout if any. */
 	of_property_read_u32(np, "timeout-ms", &sysrq_reset_downtime_ms);
+<<<<<<< HEAD
+=======
+
+	of_node_put(np);
+>>>>>>> upstream/android-13
 }
 #else
 static void sysrq_of_get_keyreset_config(void)
@@ -802,10 +1081,26 @@ static bool sysrq_handle_keypress(struct sysrq_state *sysrq,
 		}
 		break;
 
+<<<<<<< HEAD
+=======
+	case KEY_LEFTSHIFT:
+	case KEY_RIGHTSHIFT:
+		if (!value)
+			sysrq->shift = KEY_RESERVED;
+		else if (value != 2)
+			sysrq->shift = code;
+		break;
+
+>>>>>>> upstream/android-13
 	case KEY_SYSRQ:
 		if (value == 1 && sysrq->alt != KEY_RESERVED) {
 			sysrq->active = true;
 			sysrq->alt_use = sysrq->alt;
+<<<<<<< HEAD
+=======
+			/* either RESERVED (for released) or actual code */
+			sysrq->shift_use = sysrq->shift;
+>>>>>>> upstream/android-13
 			/*
 			 * If nothing else will be pressed we'll need
 			 * to re-inject Alt-SysRq keysroke.
@@ -828,8 +1123,17 @@ static bool sysrq_handle_keypress(struct sysrq_state *sysrq,
 
 	default:
 		if (sysrq->active && value && value != 2) {
+<<<<<<< HEAD
 			sysrq->need_reinject = false;
 			__handle_sysrq(sysrq_xlate[code], true);
+=======
+			unsigned char c = sysrq_xlate[code];
+
+			sysrq->need_reinject = false;
+			if (sysrq->shift_use != KEY_RESERVED)
+				c = toupper(c);
+			__handle_sysrq(c, true);
+>>>>>>> upstream/android-13
 		}
 		break;
 	}
@@ -977,8 +1281,11 @@ static struct input_handler sysrq_handler = {
 	.id_table	= sysrq_ids,
 };
 
+<<<<<<< HEAD
 static bool sysrq_handler_registered;
 
+=======
+>>>>>>> upstream/android-13
 static inline void sysrq_register_handler(void)
 {
 	int error;
@@ -988,16 +1295,23 @@ static inline void sysrq_register_handler(void)
 	error = input_register_handler(&sysrq_handler);
 	if (error)
 		pr_err("Failed to register input handler, error %d", error);
+<<<<<<< HEAD
 	else
 		sysrq_handler_registered = true;
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline void sysrq_unregister_handler(void)
 {
+<<<<<<< HEAD
 	if (sysrq_handler_registered) {
 		input_unregister_handler(&sysrq_handler);
 		sysrq_handler_registered = false;
 	}
+=======
+	input_unregister_handler(&sysrq_handler);
+>>>>>>> upstream/android-13
 }
 
 static int sysrq_reset_seq_param_set(const char *buffer,
@@ -1063,9 +1377,16 @@ int sysrq_toggle_support(int enable_mask)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int __sysrq_swap_key_ops(int key, struct sysrq_key_op *insert_op_p,
                                 struct sysrq_key_op *remove_op_p)
+=======
+EXPORT_SYMBOL_GPL(sysrq_toggle_support);
+
+static int __sysrq_swap_key_ops(int key, const struct sysrq_key_op *insert_op_p,
+				const struct sysrq_key_op *remove_op_p)
+>>>>>>> upstream/android-13
 {
 	int retval;
 
@@ -1088,13 +1409,21 @@ static int __sysrq_swap_key_ops(int key, struct sysrq_key_op *insert_op_p,
 	return retval;
 }
 
+<<<<<<< HEAD
 int register_sysrq_key(int key, struct sysrq_key_op *op_p)
+=======
+int register_sysrq_key(int key, const struct sysrq_key_op *op_p)
+>>>>>>> upstream/android-13
 {
 	return __sysrq_swap_key_ops(key, op_p, NULL);
 }
 EXPORT_SYMBOL(register_sysrq_key);
 
+<<<<<<< HEAD
 int unregister_sysrq_key(int key, struct sysrq_key_op *op_p)
+=======
+int unregister_sysrq_key(int key, const struct sysrq_key_op *op_p)
+>>>>>>> upstream/android-13
 {
 	return __sysrq_swap_key_ops(key, NULL, op_p);
 }
@@ -1118,15 +1447,25 @@ static ssize_t write_sysrq_trigger(struct file *file, const char __user *buf,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_sysrq_trigger_operations = {
 	.write		= write_sysrq_trigger,
 	.llseek		= noop_llseek,
+=======
+static const struct proc_ops sysrq_trigger_proc_ops = {
+	.proc_write	= write_sysrq_trigger,
+	.proc_lseek	= noop_llseek,
+>>>>>>> upstream/android-13
 };
 
 static void sysrq_init_procfs(void)
 {
 	if (!proc_create("sysrq-trigger", S_IWUSR, NULL,
+<<<<<<< HEAD
 			 &proc_sysrq_trigger_operations))
+=======
+			 &sysrq_trigger_proc_ops))
+>>>>>>> upstream/android-13
 		pr_err("Failed to register proc interface\n");
 }
 

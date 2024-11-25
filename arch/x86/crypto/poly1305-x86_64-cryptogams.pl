@@ -109,7 +109,11 @@ sub declare_function() {
 	my ($name, $align, $nargs) = @_;
 	if($kernel) {
 		$code .= ".align $align\n";
+<<<<<<< HEAD
 		$code .= "ENTRY($name)\n";
+=======
+		$code .= "SYM_FUNC_START($name)\n";
+>>>>>>> upstream/android-13
 		$code .= ".L$name:\n";
 	} else {
 		$code .= ".globl	$name\n";
@@ -122,7 +126,11 @@ sub declare_function() {
 sub end_function() {
 	my ($name) = @_;
 	if($kernel) {
+<<<<<<< HEAD
 		$code .= "ENDPROC($name)\n";
+=======
+		$code .= "SYM_FUNC_END($name)\n";
+>>>>>>> upstream/android-13
 	} else {
 		$code .= ".size   $name,.-$name\n";
 	}
@@ -251,7 +259,11 @@ $code.=<<___;
 	mov	%rax,8($ctx)
 	mov	%rax,16($ctx)
 
+<<<<<<< HEAD
 	cmp	\$0,$inp
+=======
+	test	$inp,$inp
+>>>>>>> upstream/android-13
 	je	.Lno_key
 ___
 $code.=<<___ if (!$kernel);
@@ -297,7 +309,11 @@ ___
 $code.=<<___;
 	mov	\$1,%eax
 .Lno_key:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 ___
 &end_function("poly1305_init_x86_64");
 
@@ -373,7 +389,11 @@ $code.=<<___;
 .cfi_adjust_cfa_offset	-48
 .Lno_data:
 .Lblocks_epilogue:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .cfi_endproc
 ___
 &end_function("poly1305_blocks_x86_64");
@@ -399,15 +419,22 @@ $code.=<<___;
 	mov	%rax,0($mac)	# write result
 	mov	%rcx,8($mac)
 
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 ___
 &end_function("poly1305_emit_x86_64");
 if ($avx) {
 
+<<<<<<< HEAD
 if($kernel) {
 	$code .= "#ifdef CONFIG_AS_AVX\n";
 }
 
+=======
+>>>>>>> upstream/android-13
 ########################################################################
 # Layout of opaque area is following.
 #
@@ -433,7 +460,11 @@ ___
 	&poly1305_iteration();
 $code.=<<___;
 	pop $ctx
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	__poly1305_block,.-__poly1305_block
 
 .type	__poly1305_init_avx,\@abi-omnipotent
@@ -598,7 +629,11 @@ __poly1305_init_avx:
 
 	lea	-48-64($ctx),$ctx	# size [de-]optimization
 	pop %rbp
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	__poly1305_init_avx,.-__poly1305_init_avx
 ___
 
@@ -751,7 +786,11 @@ $code.=<<___;
 .cfi_restore	%rbp
 .Lno_data_avx:
 .Lblocks_avx_epilogue:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .cfi_endproc
 
 .align	32
@@ -1456,7 +1495,11 @@ $code.=<<___	if (!$win64);
 ___
 $code.=<<___;
 	vzeroupper
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .cfi_endproc
 ___
 &end_function("poly1305_blocks_avx");
@@ -1512,6 +1555,7 @@ $code.=<<___;
 	mov	%rax,0($mac)	# write result
 	mov	%rcx,8($mac)
 
+<<<<<<< HEAD
 	ret
 ___
 &end_function("poly1305_emit_avx");
@@ -1526,6 +1570,14 @@ if ($kernel) {
 	$code .= "#ifdef CONFIG_AS_AVX2\n";
 }
 
+=======
+	RET
+___
+&end_function("poly1305_emit_avx");
+
+if ($avx>1) {
+
+>>>>>>> upstream/android-13
 my ($H0,$H1,$H2,$H3,$H4, $MASK, $T4,$T0,$T1,$T2,$T3, $D0,$D1,$D2,$D3,$D4) =
     map("%ymm$_",(0..15));
 my $S4=$MASK;
@@ -1687,7 +1739,11 @@ $code.=<<___;
 .cfi_restore 	%rbp
 .Lno_data_avx2$suffix:
 .Lblocks_avx2_epilogue$suffix:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .cfi_endproc
 
 .align	32
@@ -2213,7 +2269,11 @@ $code.=<<___	if (!$win64);
 ___
 $code.=<<___;
 	vzeroupper
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .cfi_endproc
 ___
 if($avx > 2 && $avx512) {
@@ -2804,7 +2864,11 @@ $code.=<<___	if (!$win64);
 .cfi_def_cfa_register	%rsp
 ___
 $code.=<<___;
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .cfi_endproc
 ___
 
@@ -2816,10 +2880,13 @@ ___
 poly1305_blocks_avxN(0);
 &end_function("poly1305_blocks_avx2");
 
+<<<<<<< HEAD
 if($kernel) {
 	$code .= "#endif\n";
 }
 
+=======
+>>>>>>> upstream/android-13
 #######################################################################
 if ($avx>2) {
 # On entry we have input length divisible by 64. But since inner loop
@@ -2909,7 +2976,11 @@ $code.=<<___	if ($flavour =~ /elf32/);
 ___
 $code.=<<___;
 	mov	\$1,%eax
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	poly1305_init_base2_44,.-poly1305_init_base2_44
 ___
 {
@@ -3026,7 +3097,11 @@ poly1305_blocks_vpmadd52:
 	jnz		.Lblocks_vpmadd52_4x
 
 .Lno_data_vpmadd52:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	poly1305_blocks_vpmadd52,.-poly1305_blocks_vpmadd52
 ___
 }
@@ -3467,7 +3542,11 @@ poly1305_blocks_vpmadd52_4x:
 	vzeroall
 
 .Lno_data_vpmadd52_4x:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	poly1305_blocks_vpmadd52_4x,.-poly1305_blocks_vpmadd52_4x
 ___
 }
@@ -3840,7 +3919,11 @@ $code.=<<___;
 	vzeroall
 
 .Lno_data_vpmadd52_8x:
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	poly1305_blocks_vpmadd52_8x,.-poly1305_blocks_vpmadd52_8x
 ___
 }
@@ -3877,7 +3960,11 @@ poly1305_emit_base2_44:
 	mov	%rax,0($mac)	# write result
 	mov	%rcx,8($mac)
 
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	poly1305_emit_base2_44,.-poly1305_emit_base2_44
 ___
 }	}	}
@@ -3932,7 +4019,11 @@ xor128_encrypt_n_pad:
 
 .Ldone_enc:
 	mov	$otp,%rax
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	xor128_encrypt_n_pad,.-xor128_encrypt_n_pad
 
 .globl	xor128_decrypt_n_pad
@@ -3983,7 +4074,11 @@ xor128_decrypt_n_pad:
 
 .Ldone_dec:
 	mov	$otp,%rax
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	xor128_decrypt_n_pad,.-xor128_decrypt_n_pad
 ___
 }
@@ -4125,7 +4220,11 @@ avx_handler:
 	pop	%rbx
 	pop	%rdi
 	pop	%rsi
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 .size	avx_handler,.-avx_handler
 
 .section	.pdata

@@ -373,7 +373,11 @@ struct clk *davinci_pll_clk_register(struct device *dev,
 	char pllout_name[MAX_NAME_SIZE];
 	char postdiv_name[MAX_NAME_SIZE];
 	char pllen_name[MAX_NAME_SIZE];
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct davinci_pll_clk *pllout;
 	struct davinci_pllen_clk *pllen;
 	struct clk *oscin_clk = NULL;
@@ -651,7 +655,11 @@ static int davinci_pll_sysclk_rate_change(struct notifier_block *nb,
 		pllcmd = readl(pll->base + PLLCMD);
 		pllcmd |= PLLCMD_GOSET;
 		writel(pllcmd, pll->base + PLLCMD);
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PRE_RATE_CHANGE:
 		/* Wait until for outstanding changes to take effect */
 		do {
@@ -778,12 +786,23 @@ int of_davinci_pll_init(struct device *dev, struct device_node *node,
 		int i;
 
 		clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
+<<<<<<< HEAD
 		if (!clk_data)
 			return -ENOMEM;
+=======
+		if (!clk_data) {
+			of_node_put(child);
+			return -ENOMEM;
+		}
+>>>>>>> upstream/android-13
 
 		clks = kmalloc_array(n_clks, sizeof(*clks), GFP_KERNEL);
 		if (!clks) {
 			kfree(clk_data);
+<<<<<<< HEAD
+=======
+			of_node_put(child);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 
@@ -907,7 +926,10 @@ static int davinci_pll_probe(struct platform_device *pdev)
 	struct davinci_pll_platform_data *pdata;
 	const struct of_device_id *of_id;
 	davinci_pll_init pll_init = NULL;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 
 	of_id = of_match_device(davinci_pll_of_match, dev);
@@ -927,8 +949,12 @@ static int davinci_pll_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 

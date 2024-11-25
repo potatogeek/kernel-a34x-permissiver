@@ -3,6 +3,10 @@
 #define _ASM_X86_NUMA_H
 
 #include <linux/nodemask.h>
+<<<<<<< HEAD
+=======
+#include <linux/errno.h>
+>>>>>>> upstream/android-13
 
 #include <asm/topology.h>
 #include <asm/apicdef.h>
@@ -62,12 +66,20 @@ extern void numa_clear_node(int cpu);
 extern void __init init_cpu_to_node(void);
 extern void numa_add_cpu(int cpu);
 extern void numa_remove_cpu(int cpu);
+<<<<<<< HEAD
+=======
+extern void init_gi_nodes(void);
+>>>>>>> upstream/android-13
 #else	/* CONFIG_NUMA */
 static inline void numa_set_node(int cpu, int node)	{ }
 static inline void numa_clear_node(int cpu)		{ }
 static inline void init_cpu_to_node(void)		{ }
 static inline void numa_add_cpu(int cpu)		{ }
 static inline void numa_remove_cpu(int cpu)		{ }
+<<<<<<< HEAD
+=======
+static inline void init_gi_nodes(void)			{ }
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_NUMA */
 
 #ifdef CONFIG_DEBUG_PER_CPU_MAPS
@@ -77,7 +89,16 @@ void debug_cpumask_set_cpu(int cpu, int node, bool enable);
 #ifdef CONFIG_NUMA_EMU
 #define FAKE_NODE_MIN_SIZE	((u64)32 << 20)
 #define FAKE_NODE_MIN_HASH_MASK	(~(FAKE_NODE_MIN_SIZE - 1UL))
+<<<<<<< HEAD
 void numa_emu_cmdline(char *);
+=======
+int numa_emu_cmdline(char *str);
+#else /* CONFIG_NUMA_EMU */
+static inline int numa_emu_cmdline(char *str)
+{
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_NUMA_EMU */
 
 #endif	/* _ASM_X86_NUMA_H */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,15 +23,31 @@
 
 #include <linux/of_irq.h>
 
+=======
+ */
+
+#include <linux/delay.h>
+#include <linux/interconnect.h>
+#include <linux/of_irq.h>
+
+#include <drm/drm_debugfs.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_vblank.h>
+
+>>>>>>> upstream/android-13
 #include "msm_drv.h"
 #include "msm_gem.h"
 #include "msm_mmu.h"
 #include "mdp5_kms.h"
 
+<<<<<<< HEAD
 static const char *iommu_ports[] = {
 		"mdp_0",
 };
 
+=======
+>>>>>>> upstream/android-13
 static int mdp5_hw_init(struct msm_kms *kms)
 {
 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
@@ -144,26 +165,52 @@ static int mdp5_global_obj_init(struct mdp5_kms *mdp5_kms)
 
 	state->mdp5_kms = mdp5_kms;
 
+<<<<<<< HEAD
 	drm_atomic_private_obj_init(&mdp5_kms->glob_state,
+=======
+	drm_atomic_private_obj_init(mdp5_kms->dev, &mdp5_kms->glob_state,
+>>>>>>> upstream/android-13
 				    &state->base,
 				    &mdp5_global_state_funcs);
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mdp5_prepare_commit(struct msm_kms *kms, struct drm_atomic_state *state)
 {
 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
 	struct device *dev = &mdp5_kms->pdev->dev;
+=======
+static void mdp5_enable_commit(struct msm_kms *kms)
+{
+	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
+	pm_runtime_get_sync(&mdp5_kms->pdev->dev);
+}
+
+static void mdp5_disable_commit(struct msm_kms *kms)
+{
+	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
+	pm_runtime_put_sync(&mdp5_kms->pdev->dev);
+}
+
+static void mdp5_prepare_commit(struct msm_kms *kms, struct drm_atomic_state *state)
+{
+	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
+>>>>>>> upstream/android-13
 	struct mdp5_global_state *global_state;
 
 	global_state = mdp5_get_existing_global_state(mdp5_kms);
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(dev);
 
+=======
+>>>>>>> upstream/android-13
 	if (mdp5_kms->smp)
 		mdp5_smp_prepare_commit(mdp5_kms->smp, &global_state->smp);
 }
 
+<<<<<<< HEAD
 static void mdp5_complete_commit(struct msm_kms *kms, struct drm_atomic_state *state)
 {
 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
@@ -171,11 +218,32 @@ static void mdp5_complete_commit(struct msm_kms *kms, struct drm_atomic_state *s
 	struct mdp5_global_state *global_state;
 
 	drm_atomic_helper_wait_for_vblanks(mdp5_kms->dev, state);
+=======
+static void mdp5_flush_commit(struct msm_kms *kms, unsigned crtc_mask)
+{
+	/* TODO */
+}
+
+static void mdp5_wait_flush(struct msm_kms *kms, unsigned crtc_mask)
+{
+	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
+	struct drm_crtc *crtc;
+
+	for_each_crtc_mask(mdp5_kms->dev, crtc, crtc_mask)
+		mdp5_crtc_wait_for_commit_done(crtc);
+}
+
+static void mdp5_complete_commit(struct msm_kms *kms, unsigned crtc_mask)
+{
+	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
+	struct mdp5_global_state *global_state;
+>>>>>>> upstream/android-13
 
 	global_state = mdp5_get_existing_global_state(mdp5_kms);
 
 	if (mdp5_kms->smp)
 		mdp5_smp_complete_commit(mdp5_kms->smp, &global_state->smp);
+<<<<<<< HEAD
 
 	pm_runtime_put_sync(dev);
 }
@@ -184,6 +252,8 @@ static void mdp5_wait_for_crtc_commit_done(struct msm_kms *kms,
 						struct drm_crtc *crtc)
 {
 	mdp5_crtc_wait_for_commit_done(crtc);
+=======
+>>>>>>> upstream/android-13
 }
 
 static long mdp5_round_pixclk(struct msm_kms *kms, unsigned long rate,
@@ -205,6 +275,7 @@ static int mdp5_set_split_display(struct msm_kms *kms,
 							  slave_encoder);
 }
 
+<<<<<<< HEAD
 static void mdp5_set_encoder_mode(struct msm_kms *kms,
 				  struct drm_encoder *encoder,
 				  bool cmd_mode)
@@ -212,6 +283,8 @@ static void mdp5_set_encoder_mode(struct msm_kms *kms,
 	mdp5_encoder_set_intf_mode(encoder, cmd_mode);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void mdp5_kms_destroy(struct msm_kms *kms)
 {
 	struct mdp5_kms *mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
@@ -225,10 +298,18 @@ static void mdp5_kms_destroy(struct msm_kms *kms)
 		mdp5_pipe_destroy(mdp5_kms->hwpipes[i]);
 
 	if (aspace) {
+<<<<<<< HEAD
 		aspace->mmu->funcs->detach(aspace->mmu,
 				iommu_ports, ARRAY_SIZE(iommu_ports));
 		msm_gem_address_space_put(aspace);
 	}
+=======
+		aspace->mmu->funcs->detach(aspace->mmu);
+		msm_gem_address_space_put(aspace);
+	}
+
+	mdp_kms_destroy(&mdp5_kms->base);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_DEBUG_FS
@@ -256,6 +337,7 @@ static struct drm_info_list mdp5_debugfs_list[] = {
 
 static int mdp5_kms_debugfs_init(struct msm_kms *kms, struct drm_minor *minor)
 {
+<<<<<<< HEAD
 	struct drm_device *dev = minor->dev;
 	int ret;
 
@@ -267,6 +349,11 @@ static int mdp5_kms_debugfs_init(struct msm_kms *kms, struct drm_minor *minor)
 		dev_err(dev->dev, "could not install mdp5_debugfs_list\n");
 		return ret;
 	}
+=======
+	drm_debugfs_create_files(mdp5_debugfs_list,
+				 ARRAY_SIZE(mdp5_debugfs_list),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -281,6 +368,7 @@ static const struct mdp_kms_funcs kms_funcs = {
 		.irq             = mdp5_irq,
 		.enable_vblank   = mdp5_enable_vblank,
 		.disable_vblank  = mdp5_disable_vblank,
+<<<<<<< HEAD
 		.prepare_commit  = mdp5_prepare_commit,
 		.complete_commit = mdp5_complete_commit,
 		.wait_for_crtc_commit_done = mdp5_wait_for_crtc_commit_done,
@@ -288,6 +376,17 @@ static const struct mdp_kms_funcs kms_funcs = {
 		.round_pixclk    = mdp5_round_pixclk,
 		.set_split_display = mdp5_set_split_display,
 		.set_encoder_mode = mdp5_set_encoder_mode,
+=======
+		.flush_commit    = mdp5_flush_commit,
+		.enable_commit   = mdp5_enable_commit,
+		.disable_commit  = mdp5_disable_commit,
+		.prepare_commit  = mdp5_prepare_commit,
+		.wait_flush      = mdp5_wait_flush,
+		.complete_commit = mdp5_complete_commit,
+		.get_format      = mdp_get_format,
+		.round_pixclk    = mdp5_round_pixclk,
+		.set_split_display = mdp5_set_split_display,
+>>>>>>> upstream/android-13
 		.destroy         = mdp5_kms_destroy,
 #ifdef CONFIG_DEBUG_FS
 		.debugfs_init    = mdp5_kms_debugfs_init,
@@ -296,13 +395,24 @@ static const struct mdp_kms_funcs kms_funcs = {
 	.set_irqmask         = mdp5_set_irqmask,
 };
 
+<<<<<<< HEAD
 int mdp5_disable(struct mdp5_kms *mdp5_kms)
+=======
+static int mdp5_disable(struct mdp5_kms *mdp5_kms)
+>>>>>>> upstream/android-13
 {
 	DBG("");
 
 	mdp5_kms->enable_count--;
 	WARN_ON(mdp5_kms->enable_count < 0);
 
+<<<<<<< HEAD
+=======
+	if (mdp5_kms->tbu_rt_clk)
+		clk_disable_unprepare(mdp5_kms->tbu_rt_clk);
+	if (mdp5_kms->tbu_clk)
+		clk_disable_unprepare(mdp5_kms->tbu_clk);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(mdp5_kms->ahb_clk);
 	clk_disable_unprepare(mdp5_kms->axi_clk);
 	clk_disable_unprepare(mdp5_kms->core_clk);
@@ -312,7 +422,11 @@ int mdp5_disable(struct mdp5_kms *mdp5_kms)
 	return 0;
 }
 
+<<<<<<< HEAD
 int mdp5_enable(struct mdp5_kms *mdp5_kms)
+=======
+static int mdp5_enable(struct mdp5_kms *mdp5_kms)
+>>>>>>> upstream/android-13
 {
 	DBG("");
 
@@ -323,6 +437,13 @@ int mdp5_enable(struct mdp5_kms *mdp5_kms)
 	clk_prepare_enable(mdp5_kms->core_clk);
 	if (mdp5_kms->lut_clk)
 		clk_prepare_enable(mdp5_kms->lut_clk);
+<<<<<<< HEAD
+=======
+	if (mdp5_kms->tbu_clk)
+		clk_prepare_enable(mdp5_kms->tbu_clk);
+	if (mdp5_kms->tbu_rt_clk)
+		clk_prepare_enable(mdp5_kms->tbu_rt_clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -337,7 +458,11 @@ static struct drm_encoder *construct_encoder(struct mdp5_kms *mdp5_kms,
 
 	encoder = mdp5_encoder_init(dev, intf, ctl);
 	if (IS_ERR(encoder)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to construct encoder\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to construct encoder\n");
+>>>>>>> upstream/android-13
 		return encoder;
 	}
 
@@ -418,7 +543,11 @@ static int modeset_init_intf(struct mdp5_kms *mdp5_kms,
 		int dsi_id = get_dsi_id_from_intf(hw_cfg, intf->num);
 
 		if ((dsi_id >= ARRAY_SIZE(priv->dsi)) || (dsi_id < 0)) {
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to find dsi from intf %d\n",
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to find dsi from intf %d\n",
+>>>>>>> upstream/android-13
 				intf->num);
 			ret = -EINVAL;
 			break;
@@ -440,10 +569,20 @@ static int modeset_init_intf(struct mdp5_kms *mdp5_kms,
 		}
 
 		ret = msm_dsi_modeset_init(priv->dsi[dsi_id], dev, encoder);
+<<<<<<< HEAD
 		break;
 	}
 	default:
 		dev_err(dev->dev, "unknown intf: %d\n", intf->type);
+=======
+		if (!ret)
+			mdp5_encoder_set_intf_mode(encoder, msm_dsi_is_cmd_mode(priv->dsi[dsi_id]));
+
+		break;
+	}
+	default:
+		DRM_DEV_ERROR(dev->dev, "unknown intf: %d\n", intf->type);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		break;
 	}
@@ -455,14 +594,20 @@ static int modeset_init(struct mdp5_kms *mdp5_kms)
 {
 	struct drm_device *dev = mdp5_kms->dev;
 	struct msm_drm_private *priv = dev->dev_private;
+<<<<<<< HEAD
 	const struct mdp5_cfg_hw *hw_cfg;
+=======
+>>>>>>> upstream/android-13
 	unsigned int num_crtcs;
 	int i, ret, pi = 0, ci = 0;
 	struct drm_plane *primary[MAX_BASES] = { NULL };
 	struct drm_plane *cursor[MAX_BASES] = { NULL };
 
+<<<<<<< HEAD
 	hw_cfg = mdp5_cfg_get_hw_config(mdp5_kms->cfg);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Construct encoders and modeset initialize connector devices
 	 * for each external display interface.
@@ -500,7 +645,11 @@ static int modeset_init(struct mdp5_kms *mdp5_kms)
 		plane = mdp5_plane_init(dev, type);
 		if (IS_ERR(plane)) {
 			ret = PTR_ERR(plane);
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to construct plane %d (%d)\n", i, ret);
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to construct plane %d (%d)\n", i, ret);
+>>>>>>> upstream/android-13
 			goto fail;
 		}
 		priv->planes[priv->num_planes++] = plane;
@@ -517,7 +666,11 @@ static int modeset_init(struct mdp5_kms *mdp5_kms)
 		crtc  = mdp5_crtc_init(dev, primary[i], cursor[i], i);
 		if (IS_ERR(crtc)) {
 			ret = PTR_ERR(crtc);
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to construct crtc %d (%d)\n", i, ret);
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to construct crtc %d (%d)\n", i, ret);
+>>>>>>> upstream/android-13
 			goto fail;
 		}
 		priv->crtcs[priv->num_crtcs++] = crtc;
@@ -552,7 +705,11 @@ static void read_mdp_hw_revision(struct mdp5_kms *mdp5_kms,
 	*major = FIELD(version, MDP5_HW_VERSION_MAJOR);
 	*minor = FIELD(version, MDP5_HW_VERSION_MINOR);
 
+<<<<<<< HEAD
 	dev_info(dev, "MDP5 version v%d.%d", *major, *minor);
+=======
+	DRM_DEV_INFO(dev, "MDP5 version v%d.%d", *major, *minor);
+>>>>>>> upstream/android-13
 }
 
 static int get_clk(struct platform_device *pdev, struct clk **clkp,
@@ -561,7 +718,11 @@ static int get_clk(struct platform_device *pdev, struct clk **clkp,
 	struct device *dev = &pdev->dev;
 	struct clk *clk = msm_clk_get(pdev, name);
 	if (IS_ERR(clk) && mandatory) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to get %s (%ld)\n", name, PTR_ERR(clk));
+=======
+		DRM_DEV_ERROR(dev, "failed to get %s (%ld)\n", name, PTR_ERR(clk));
+>>>>>>> upstream/android-13
 		return PTR_ERR(clk);
 	}
 	if (IS_ERR(clk))
@@ -572,6 +733,7 @@ static int get_clk(struct platform_device *pdev, struct clk **clkp,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct drm_encoder *get_encoder_from_crtc(struct drm_crtc *crtc)
 {
 	struct drm_device *dev = crtc->dev;
@@ -664,6 +826,8 @@ static u32 mdp5_get_vblank_counter(struct drm_device *dev, unsigned int pipe)
 	return mdp5_encoder_get_framecount(encoder);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 {
 	struct msm_drm_private *priv = dev->dev_private;
@@ -673,6 +837,10 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 	struct msm_kms *kms;
 	struct msm_gem_address_space *aspace;
 	int irq, i, ret;
+<<<<<<< HEAD
+=======
+	struct device *iommu_dev;
+>>>>>>> upstream/android-13
 
 	/* priv->kms would have been populated by the MDP5 driver */
 	kms = priv->kms;
@@ -680,6 +848,7 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 		return NULL;
 
 	mdp5_kms = to_mdp5_kms(to_mdp_kms(kms));
+<<<<<<< HEAD
 
 	mdp_kms_init(&mdp5_kms->base, &kms_funcs);
 
@@ -689,6 +858,20 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 	if (irq < 0) {
 		ret = irq;
 		dev_err(&pdev->dev, "failed to get irq: %d\n", ret);
+=======
+	pdev = mdp5_kms->pdev;
+
+	ret = mdp_kms_init(&mdp5_kms->base, &kms_funcs);
+	if (ret) {
+		DRM_DEV_ERROR(&pdev->dev, "failed to init kms\n");
+		goto fail;
+	}
+
+	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
+	if (irq < 0) {
+		ret = irq;
+		DRM_DEV_ERROR(&pdev->dev, "failed to get irq: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -712,14 +895,32 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 	mdelay(16);
 
 	if (config->platform.iommu) {
+<<<<<<< HEAD
 		aspace = msm_gem_address_space_create(&pdev->dev,
 				config->platform.iommu, "mdp5");
 		if (IS_ERR(aspace)) {
+=======
+		struct msm_mmu *mmu;
+
+		iommu_dev = &pdev->dev;
+		if (!dev_iommu_fwspec_get(iommu_dev))
+			iommu_dev = iommu_dev->parent;
+
+		mmu = msm_iommu_new(iommu_dev, config->platform.iommu);
+
+		aspace = msm_gem_address_space_create(mmu, "mdp5",
+			0x1000, 0x100000000 - 0x1000);
+
+		if (IS_ERR(aspace)) {
+			if (!IS_ERR(mmu))
+				mmu->funcs->destroy(mmu);
+>>>>>>> upstream/android-13
 			ret = PTR_ERR(aspace);
 			goto fail;
 		}
 
 		kms->aspace = aspace;
+<<<<<<< HEAD
 
 		ret = aspace->mmu->funcs->attach(aspace->mmu, iommu_ports,
 				ARRAY_SIZE(iommu_ports));
@@ -730,6 +931,10 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 		}
 	} else {
 		dev_info(&pdev->dev,
+=======
+	} else {
+		DRM_DEV_INFO(&pdev->dev,
+>>>>>>> upstream/android-13
 			 "no iommu, fallback to phys contig buffers for scanout\n");
 		aspace = NULL;
 	}
@@ -738,7 +943,11 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 
 	ret = modeset_init(mdp5_kms);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "modeset_init failed: %d\n", ret);
+=======
+		DRM_DEV_ERROR(&pdev->dev, "modeset_init failed: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -747,10 +956,14 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
 	dev->mode_config.max_width = 0xffff;
 	dev->mode_config.max_height = 0xffff;
 
+<<<<<<< HEAD
 	dev->driver->get_vblank_timestamp = drm_calc_vbltimestamp_from_scanoutpos;
 	dev->driver->get_scanout_position = mdp5_get_scanoutpos;
 	dev->driver->get_vblank_counter = mdp5_get_vblank_counter;
 	dev->max_vblank_count = 0xffffffff;
+=======
+	dev->max_vblank_count = 0; /* max_vblank_count is set on each CRTC */
+>>>>>>> upstream/android-13
 	dev->vblank_disable_immediate = true;
 
 	return kms;
@@ -795,7 +1008,11 @@ static int construct_pipes(struct mdp5_kms *mdp5_kms, int cnt,
 		hwpipe = mdp5_pipe_init(pipes[i], offsets[i], caps);
 		if (IS_ERR(hwpipe)) {
 			ret = PTR_ERR(hwpipe);
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to construct pipe for %s (%d)\n",
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to construct pipe for %s (%d)\n",
+>>>>>>> upstream/android-13
 					pipe2name(pipes[i]), ret);
 			return ret;
 		}
@@ -867,7 +1084,11 @@ static int hwmixer_init(struct mdp5_kms *mdp5_kms)
 		mixer = mdp5_mixer_init(&hw_cfg->lm.instances[i]);
 		if (IS_ERR(mixer)) {
 			ret = PTR_ERR(mixer);
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to construct LM%d (%d)\n",
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to construct LM%d (%d)\n",
+>>>>>>> upstream/android-13
 				i, ret);
 			return ret;
 		}
@@ -897,7 +1118,11 @@ static int interface_init(struct mdp5_kms *mdp5_kms)
 
 		intf = kzalloc(sizeof(*intf), GFP_KERNEL);
 		if (!intf) {
+<<<<<<< HEAD
 			dev_err(dev->dev, "failed to construct INTF%d\n", i);
+=======
+			DRM_DEV_ERROR(dev->dev, "failed to construct INTF%d\n", i);
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 
@@ -958,6 +1183,11 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
 
 	/* optional clocks: */
 	get_clk(pdev, &mdp5_kms->lut_clk, "lut", false);
+<<<<<<< HEAD
+=======
+	get_clk(pdev, &mdp5_kms->tbu_clk, "tbu", false);
+	get_clk(pdev, &mdp5_kms->tbu_rt_clk, "tbu_rt", false);
+>>>>>>> upstream/android-13
 
 	/* we need to set a default rate before enabling.  Set a safe
 	 * rate first, then figure out hw revision, and then set a
@@ -1049,9 +1279,52 @@ static const struct component_ops mdp5_ops = {
 	.unbind = mdp5_unbind,
 };
 
+<<<<<<< HEAD
 static int mdp5_dev_probe(struct platform_device *pdev)
 {
 	DBG("");
+=======
+static int mdp5_setup_interconnect(struct platform_device *pdev)
+{
+	struct icc_path *path0 = of_icc_get(&pdev->dev, "mdp0-mem");
+	struct icc_path *path1 = of_icc_get(&pdev->dev, "mdp1-mem");
+	struct icc_path *path_rot = of_icc_get(&pdev->dev, "rotator-mem");
+
+	if (IS_ERR(path0))
+		return PTR_ERR(path0);
+
+	if (!path0) {
+		/* no interconnect support is not necessarily a fatal
+		 * condition, the platform may simply not have an
+		 * interconnect driver yet.  But warn about it in case
+		 * bootloader didn't setup bus clocks high enough for
+		 * scanout.
+		 */
+		dev_warn(&pdev->dev, "No interconnect support may cause display underflows!\n");
+		return 0;
+	}
+
+	icc_set_bw(path0, 0, MBps_to_icc(6400));
+
+	if (!IS_ERR_OR_NULL(path1))
+		icc_set_bw(path1, 0, MBps_to_icc(6400));
+	if (!IS_ERR_OR_NULL(path_rot))
+		icc_set_bw(path_rot, 0, MBps_to_icc(6400));
+
+	return 0;
+}
+
+static int mdp5_dev_probe(struct platform_device *pdev)
+{
+	int ret;
+
+	DBG("");
+
+	ret = mdp5_setup_interconnect(pdev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	return component_add(&pdev->dev, &mdp5_ops);
 }
 

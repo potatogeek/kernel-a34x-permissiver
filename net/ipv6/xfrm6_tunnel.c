@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C)2003,2004 USAGI/WIDE Project
  *
@@ -14,11 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C)2003,2004 USAGI/WIDE Project
+ *
+>>>>>>> upstream/android-13
  * Authors	Mitsuru KANDA  <mk@linux-ipv6.org>
  *		YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
  *
  * Based on net/ipv4/xfrm4_tunnel.c
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/xfrm.h>
@@ -91,7 +101,11 @@ static struct xfrm6_tunnel_spi *__xfrm6_tunnel_spi_lookup(struct net *net, const
 
 	hlist_for_each_entry_rcu(x6spi,
 			     &xfrm6_tn->spi_byaddr[xfrm6_tunnel_spi_hash_byaddr(saddr)],
+<<<<<<< HEAD
 			     list_byaddr) {
+=======
+			     list_byaddr, lockdep_is_held(&xfrm6_tunnel_spi_lock)) {
+>>>>>>> upstream/android-13
 		if (xfrm6_addr_equal(&x6spi->addr, saddr))
 			return x6spi;
 	}
@@ -304,7 +318,10 @@ static void xfrm6_tunnel_destroy(struct xfrm_state *x)
 }
 
 static const struct xfrm_type xfrm6_tunnel_type = {
+<<<<<<< HEAD
 	.description	= "IP6IP6",
+=======
+>>>>>>> upstream/android-13
 	.owner          = THIS_MODULE,
 	.proto		= IPPROTO_IPV6,
 	.init_state	= xfrm6_tunnel_init_state,
@@ -316,13 +333,21 @@ static const struct xfrm_type xfrm6_tunnel_type = {
 static struct xfrm6_tunnel xfrm6_tunnel_handler __read_mostly = {
 	.handler	= xfrm6_tunnel_rcv,
 	.err_handler	= xfrm6_tunnel_err,
+<<<<<<< HEAD
 	.priority	= 2,
+=======
+	.priority	= 3,
+>>>>>>> upstream/android-13
 };
 
 static struct xfrm6_tunnel xfrm46_tunnel_handler __read_mostly = {
 	.handler	= xfrm6_tunnel_rcv,
 	.err_handler	= xfrm6_tunnel_err,
+<<<<<<< HEAD
 	.priority	= 2,
+=======
+	.priority	= 3,
+>>>>>>> upstream/android-13
 };
 
 static int __net_init xfrm6_tunnel_net_init(struct net *net)

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Line 6 Linux USB driver
  *
  * Copyright (C) 2004-2010 Markus Grabner (grabner@icg.tugraz.at)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -39,11 +46,17 @@
 	Stages of POD startup procedure
 */
 enum {
+<<<<<<< HEAD
 	POD_STARTUP_INIT = 1,
 	POD_STARTUP_VERSIONREQ,
 	POD_STARTUP_WORKQUEUE,
 	POD_STARTUP_SETUP,
 	POD_STARTUP_LAST = POD_STARTUP_SETUP - 1
+=======
+	POD_STARTUP_VERSIONREQ,
+	POD_STARTUP_SETUP,
+	POD_STARTUP_DONE,
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -63,12 +76,15 @@ struct usb_line6_pod {
 	/* Instrument monitor level */
 	int monitor_level;
 
+<<<<<<< HEAD
 	/* Timer for device initialization */
 	struct timer_list startup_timer;
 
 	/* Work handler for device initialization */
 	struct work_struct startup_work;
 
+=======
+>>>>>>> upstream/android-13
 	/* Current progress in startup procedure */
 	int startup_progress;
 
@@ -82,6 +98,11 @@ struct usb_line6_pod {
 	int device_id;
 };
 
+<<<<<<< HEAD
+=======
+#define line6_to_pod(x)		container_of(x, struct usb_line6_pod, line6)
+
+>>>>>>> upstream/android-13
 #define POD_SYSEX_CODE 3
 
 /* *INDENT-OFF* */
@@ -120,7 +141,11 @@ enum {
 	POD_BUSY_MIDISEND
 };
 
+<<<<<<< HEAD
 static struct snd_ratden pod_ratden = {
+=======
+static const struct snd_ratden pod_ratden = {
+>>>>>>> upstream/android-13
 	.num_min = 78125,
 	.num_max = 78125,
 	.num_step = 1,
@@ -173,10 +198,13 @@ static const char pod_version_header[] = {
 	0xf2, 0x7e, 0x7f, 0x06, 0x02
 };
 
+<<<<<<< HEAD
 /* forward declarations: */
 static void pod_startup2(struct timer_list *t);
 static void pod_startup3(struct usb_line6_pod *pod);
 
+=======
+>>>>>>> upstream/android-13
 static char *pod_alloc_sysex_buffer(struct usb_line6_pod *pod, int code,
 				    int size)
 {
@@ -189,14 +217,25 @@ static char *pod_alloc_sysex_buffer(struct usb_line6_pod *pod, int code,
 */
 static void line6_pod_process_message(struct usb_line6 *line6)
 {
+<<<<<<< HEAD
 	struct usb_line6_pod *pod = (struct usb_line6_pod *) line6;
+=======
+	struct usb_line6_pod *pod = line6_to_pod(line6);
+>>>>>>> upstream/android-13
 	const unsigned char *buf = pod->line6.buffer_message;
 
 	if (memcmp(buf, pod_version_header, sizeof(pod_version_header)) == 0) {
 		pod->firmware_version = buf[13] * 100 + buf[14] * 10 + buf[15];
 		pod->device_id = ((int)buf[8] << 16) | ((int)buf[9] << 8) |
 				 (int) buf[10];
+<<<<<<< HEAD
 		pod_startup3(pod);
+=======
+		if (pod->startup_progress == POD_STARTUP_VERSIONREQ) {
+			pod->startup_progress = POD_STARTUP_SETUP;
+			schedule_delayed_work(&line6->startup_work, 0);
+		}
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -281,6 +320,7 @@ static ssize_t device_id_show(struct device *dev,
 	context). After the last one has finished, the device is ready to use.
 */
 
+<<<<<<< HEAD
 static void pod_startup1(struct usb_line6_pod *pod)
 {
 	CHECK_STARTUP_PROGRESS(pod->startup_progress, POD_STARTUP_INIT);
@@ -321,6 +361,29 @@ static void pod_startup4(struct work_struct *work)
 
 	/* ALSA audio interface: */
 	snd_card_register(line6->card);
+=======
+static void pod_startup(struct usb_line6 *line6)
+{
+	struct usb_line6_pod *pod = line6_to_pod(line6);
+
+	switch (pod->startup_progress) {
+	case POD_STARTUP_VERSIONREQ:
+		/* request firmware version: */
+		line6_version_request_async(line6);
+		break;
+	case POD_STARTUP_SETUP:
+		/* serial number: */
+		line6_read_serial_number(&pod->line6, &pod->serial_number);
+
+		/* ALSA audio interface: */
+		if (snd_card_register(line6->card))
+			dev_err(line6->ifcdev, "Failed to register POD card.\n");
+		pod->startup_progress = POD_STARTUP_DONE;
+		break;
+	default:
+		break;
+	}
+>>>>>>> upstream/android-13
 }
 
 /* POD special files: */
@@ -356,7 +419,11 @@ static int snd_pod_control_monitor_get(struct snd_kcontrol *kcontrol,
 				       struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_line6_pcm *line6pcm = snd_kcontrol_chip(kcontrol);
+<<<<<<< HEAD
 	struct usb_line6_pod *pod = (struct usb_line6_pod *)line6pcm->line6;
+=======
+	struct usb_line6_pod *pod = line6_to_pod(line6pcm->line6);
+>>>>>>> upstream/android-13
 
 	ucontrol->value.integer.value[0] = pod->monitor_level;
 	return 0;
@@ -367,7 +434,11 @@ static int snd_pod_control_monitor_put(struct snd_kcontrol *kcontrol,
 				       struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_line6_pcm *line6pcm = snd_kcontrol_chip(kcontrol);
+<<<<<<< HEAD
 	struct usb_line6_pod *pod = (struct usb_line6_pod *)line6pcm->line6;
+=======
+	struct usb_line6_pod *pod = line6_to_pod(line6pcm->line6);
+>>>>>>> upstream/android-13
 
 	if (ucontrol->value.integer.value[0] == pod->monitor_level)
 		return 0;
@@ -390,6 +461,7 @@ static const struct snd_kcontrol_new pod_control_monitor = {
 };
 
 /*
+<<<<<<< HEAD
 	POD device disconnected.
 */
 static void line6_pod_disconnect(struct usb_line6 *line6)
@@ -401,12 +473,15 @@ static void line6_pod_disconnect(struct usb_line6 *line6)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
 	 Try to init POD device.
 */
 static int pod_init(struct usb_line6 *line6,
 		    const struct usb_device_id *id)
 {
 	int err;
+<<<<<<< HEAD
 	struct usb_line6_pod *pod = (struct usb_line6_pod *) line6;
 
 	line6->process_message = line6_pod_process_message;
@@ -414,17 +489,26 @@ static int pod_init(struct usb_line6 *line6,
 
 	timer_setup(&pod->startup_timer, NULL, 0);
 	INIT_WORK(&pod->startup_work, pod_startup4);
+=======
+	struct usb_line6_pod *pod = line6_to_pod(line6);
+
+	line6->process_message = line6_pod_process_message;
+	line6->startup = pod_startup;
+>>>>>>> upstream/android-13
 
 	/* create sysfs entries: */
 	err = snd_card_add_dev_attr(line6->card, &pod_dev_attr_group);
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	/* initialize MIDI subsystem: */
 	err = line6_init_midi(line6);
 	if (err < 0)
 		return err;
 
+=======
+>>>>>>> upstream/android-13
 	/* initialize PCM subsystem: */
 	err = line6_init_pcm(line6, &pod_pcm_properties);
 	if (err < 0)
@@ -446,7 +530,12 @@ static int pod_init(struct usb_line6 *line6,
 		pod->monitor_level = POD_SYSTEM_INVALID;
 
 		/* initiate startup procedure: */
+<<<<<<< HEAD
 		pod_startup1(pod);
+=======
+		schedule_delayed_work(&line6->startup_work,
+				      msecs_to_jiffies(POD_STARTUP_DELAY));
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

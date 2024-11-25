@@ -7,7 +7,11 @@ static int s390_call__parse(struct arch *arch, struct ins_operands *ops,
 	char *endptr, *tok, *name;
 	struct map *map = ms->map;
 	struct addr_map_symbol target = {
+<<<<<<< HEAD
 		.map = map,
+=======
+		.ms = { .map = map, },
+>>>>>>> upstream/android-13
 	};
 
 	tok = strchr(ops->raw, ',');
@@ -38,15 +42,25 @@ static int s390_call__parse(struct arch *arch, struct ins_operands *ops,
 		return -1;
 	target.addr = map__objdump_2mem(map, ops->target.addr);
 
+<<<<<<< HEAD
 	if (map_groups__find_ams(&target) == 0 &&
 	    map__rip_2objdump(target.map, map->map_ip(target.map, target.addr)) == ops->target.addr)
 		ops->target.sym = target.sym;
+=======
+	if (maps__find_ams(ms->maps, &target) == 0 &&
+	    map__rip_2objdump(target.ms.map, map->map_ip(target.ms.map, target.addr)) == ops->target.addr)
+		ops->target.sym = target.ms.sym;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int call__scnprintf(struct ins *ins, char *bf, size_t size,
+<<<<<<< HEAD
 			   struct ins_operands *ops);
+=======
+			   struct ins_operands *ops, int max_ins_name);
+>>>>>>> upstream/android-13
 
 static struct ins_ops s390_call_ops = {
 	.parse	   = s390_call__parse,
@@ -100,8 +114,11 @@ out_free_source:
 	return -1;
 }
 
+<<<<<<< HEAD
 static int mov__scnprintf(struct ins *ins, char *bf, size_t size,
 			  struct ins_operands *ops);
+=======
+>>>>>>> upstream/android-13
 
 static struct ins_ops s390_mov_ops = {
 	.parse	   = s390_mov__parse,
@@ -166,8 +183,15 @@ static int s390__annotate_init(struct arch *arch, char *cpuid __maybe_unused)
 	if (!arch->initialized) {
 		arch->initialized = true;
 		arch->associate_instruction_ops = s390__associate_ins_ops;
+<<<<<<< HEAD
 		if (cpuid)
 			err = s390__cpuid_parse(arch, cpuid);
+=======
+		if (cpuid) {
+			if (s390__cpuid_parse(arch, cpuid))
+				err = SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return err;

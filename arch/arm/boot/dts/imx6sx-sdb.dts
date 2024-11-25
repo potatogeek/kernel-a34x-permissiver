@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Copyright (C) 2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
 
 #include "imx6sx-sdb.dtsi"
 
@@ -117,15 +123,30 @@
 		#size-cells = <1>;
 		compatible = "micron,n25q256a", "jedec,spi-nor";
 		spi-max-frequency = <29000000>;
+<<<<<<< HEAD
 		reg = <0>;
 	};
 
 	flash1: n25q256a@1 {
+=======
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <1>;
+		reg = <0>;
+	};
+
+	flash1: n25q256a@2 {
+>>>>>>> upstream/android-13
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "micron,n25q256a", "jedec,spi-nor";
 		spi-max-frequency = <29000000>;
+<<<<<<< HEAD
 		reg = <1>;
+=======
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <1>;
+		reg = <2>;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -136,3 +157,23 @@
 &reg_soc {
 	vin-supply = <&sw1a_reg>;
 };
+<<<<<<< HEAD
+=======
+
+&reg_vdd1p1 {
+	vin-supply = <&vgen6_reg>;
+};
+
+&reg_vdd2p5 {
+	vin-supply = <&vgen6_reg>;
+};
+
+&reg_can_stby {
+	/* Transceiver EN/STBY is active low on RevB board */
+	gpio = <&gpio4 27 GPIO_ACTIVE_LOW>;
+};
+
+&snvs_pwrkey {
+	status = "okay";
+};
+>>>>>>> upstream/android-13

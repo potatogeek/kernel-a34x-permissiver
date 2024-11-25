@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register map access API - MMIO support
  *
@@ -15,6 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register map access API - MMIO support
+//
+// Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
 
 #include <linux/clk.h>
 #include <linux/err.h>
@@ -27,7 +35,12 @@
 
 struct regmap_mmio_context {
 	void __iomem *regs;
+<<<<<<< HEAD
 	unsigned val_bytes;
+=======
+	unsigned int val_bytes;
+	bool relaxed_mmio;
+>>>>>>> upstream/android-13
 
 	bool attached_clk;
 	struct clk *clk;
@@ -87,6 +100,16 @@ static void regmap_mmio_write8(struct regmap_mmio_context *ctx,
 	writeb(val, ctx->regs + reg);
 }
 
+<<<<<<< HEAD
+=======
+static void regmap_mmio_write8_relaxed(struct regmap_mmio_context *ctx,
+				unsigned int reg,
+				unsigned int val)
+{
+	writeb_relaxed(val, ctx->regs + reg);
+}
+
+>>>>>>> upstream/android-13
 static void regmap_mmio_write16le(struct regmap_mmio_context *ctx,
 				  unsigned int reg,
 				  unsigned int val)
@@ -94,6 +117,16 @@ static void regmap_mmio_write16le(struct regmap_mmio_context *ctx,
 	writew(val, ctx->regs + reg);
 }
 
+<<<<<<< HEAD
+=======
+static void regmap_mmio_write16le_relaxed(struct regmap_mmio_context *ctx,
+				  unsigned int reg,
+				  unsigned int val)
+{
+	writew_relaxed(val, ctx->regs + reg);
+}
+
+>>>>>>> upstream/android-13
 static void regmap_mmio_write16be(struct regmap_mmio_context *ctx,
 				  unsigned int reg,
 				  unsigned int val)
@@ -108,6 +141,16 @@ static void regmap_mmio_write32le(struct regmap_mmio_context *ctx,
 	writel(val, ctx->regs + reg);
 }
 
+<<<<<<< HEAD
+=======
+static void regmap_mmio_write32le_relaxed(struct regmap_mmio_context *ctx,
+				  unsigned int reg,
+				  unsigned int val)
+{
+	writel_relaxed(val, ctx->regs + reg);
+}
+
+>>>>>>> upstream/android-13
 static void regmap_mmio_write32be(struct regmap_mmio_context *ctx,
 				  unsigned int reg,
 				  unsigned int val)
@@ -122,6 +165,16 @@ static void regmap_mmio_write64le(struct regmap_mmio_context *ctx,
 {
 	writeq(val, ctx->regs + reg);
 }
+<<<<<<< HEAD
+=======
+
+static void regmap_mmio_write64le_relaxed(struct regmap_mmio_context *ctx,
+				  unsigned int reg,
+				  unsigned int val)
+{
+	writeq_relaxed(val, ctx->regs + reg);
+}
+>>>>>>> upstream/android-13
 #endif
 
 static int regmap_mmio_write(void *context, unsigned int reg, unsigned int val)
@@ -149,12 +202,30 @@ static unsigned int regmap_mmio_read8(struct regmap_mmio_context *ctx,
 	return readb(ctx->regs + reg);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int regmap_mmio_read8_relaxed(struct regmap_mmio_context *ctx,
+				      unsigned int reg)
+{
+	return readb_relaxed(ctx->regs + reg);
+}
+
+>>>>>>> upstream/android-13
 static unsigned int regmap_mmio_read16le(struct regmap_mmio_context *ctx,
 				         unsigned int reg)
 {
 	return readw(ctx->regs + reg);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int regmap_mmio_read16le_relaxed(struct regmap_mmio_context *ctx,
+						 unsigned int reg)
+{
+	return readw_relaxed(ctx->regs + reg);
+}
+
+>>>>>>> upstream/android-13
 static unsigned int regmap_mmio_read16be(struct regmap_mmio_context *ctx,
 				         unsigned int reg)
 {
@@ -167,6 +238,15 @@ static unsigned int regmap_mmio_read32le(struct regmap_mmio_context *ctx,
 	return readl(ctx->regs + reg);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int regmap_mmio_read32le_relaxed(struct regmap_mmio_context *ctx,
+						 unsigned int reg)
+{
+	return readl_relaxed(ctx->regs + reg);
+}
+
+>>>>>>> upstream/android-13
 static unsigned int regmap_mmio_read32be(struct regmap_mmio_context *ctx,
 				         unsigned int reg)
 {
@@ -179,6 +259,15 @@ static unsigned int regmap_mmio_read64le(struct regmap_mmio_context *ctx,
 {
 	return readq(ctx->regs + reg);
 }
+<<<<<<< HEAD
+=======
+
+static unsigned int regmap_mmio_read64le_relaxed(struct regmap_mmio_context *ctx,
+						 unsigned int reg)
+{
+	return readq_relaxed(ctx->regs + reg);
+}
+>>>>>>> upstream/android-13
 #endif
 
 static int regmap_mmio_read(void *context, unsigned int reg, unsigned int *val)
@@ -249,6 +338,10 @@ static struct regmap_mmio_context *regmap_mmio_gen_context(struct device *dev,
 
 	ctx->regs = regs;
 	ctx->val_bytes = config->val_bits / 8;
+<<<<<<< HEAD
+=======
+	ctx->relaxed_mmio = config->use_relaxed_mmio;
+>>>>>>> upstream/android-13
 	ctx->clk = ERR_PTR(-ENODEV);
 
 	switch (regmap_get_val_endian(dev, &regmap_mmio, config)) {
@@ -259,6 +352,7 @@ static struct regmap_mmio_context *regmap_mmio_gen_context(struct device *dev,
 #endif
 		switch (config->val_bits) {
 		case 8:
+<<<<<<< HEAD
 			ctx->reg_read = regmap_mmio_read8;
 			ctx->reg_write = regmap_mmio_write8;
 			break;
@@ -274,6 +368,43 @@ static struct regmap_mmio_context *regmap_mmio_gen_context(struct device *dev,
 		case 64:
 			ctx->reg_read = regmap_mmio_read64le;
 			ctx->reg_write = regmap_mmio_write64le;
+=======
+			if (ctx->relaxed_mmio) {
+				ctx->reg_read = regmap_mmio_read8_relaxed;
+				ctx->reg_write = regmap_mmio_write8_relaxed;
+			} else {
+				ctx->reg_read = regmap_mmio_read8;
+				ctx->reg_write = regmap_mmio_write8;
+			}
+			break;
+		case 16:
+			if (ctx->relaxed_mmio) {
+				ctx->reg_read = regmap_mmio_read16le_relaxed;
+				ctx->reg_write = regmap_mmio_write16le_relaxed;
+			} else {
+				ctx->reg_read = regmap_mmio_read16le;
+				ctx->reg_write = regmap_mmio_write16le;
+			}
+			break;
+		case 32:
+			if (ctx->relaxed_mmio) {
+				ctx->reg_read = regmap_mmio_read32le_relaxed;
+				ctx->reg_write = regmap_mmio_write32le_relaxed;
+			} else {
+				ctx->reg_read = regmap_mmio_read32le;
+				ctx->reg_write = regmap_mmio_write32le;
+			}
+			break;
+#ifdef CONFIG_64BIT
+		case 64:
+			if (ctx->relaxed_mmio) {
+				ctx->reg_read = regmap_mmio_read64le_relaxed;
+				ctx->reg_write = regmap_mmio_write64le_relaxed;
+			} else {
+				ctx->reg_read = regmap_mmio_read64le;
+				ctx->reg_write = regmap_mmio_write64le;
+			}
+>>>>>>> upstream/android-13
 			break;
 #endif
 		default:

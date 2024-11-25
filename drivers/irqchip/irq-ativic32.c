@@ -10,6 +10,11 @@
 #include <linux/irqchip.h>
 #include <nds32_intrinsic.h>
 
+<<<<<<< HEAD
+=======
+unsigned long wake_mask;
+
+>>>>>>> upstream/android-13
 static void ativic32_ack_irq(struct irq_data *data)
 {
 	__nds32__mtsr_dsb(BIT(data->hwirq), NDS32_SR_INT_PEND2);
@@ -27,11 +32,46 @@ static void ativic32_unmask_irq(struct irq_data *data)
 	__nds32__mtsr_dsb(int_mask2 | (BIT(data->hwirq)), NDS32_SR_INT_MASK2);
 }
 
+<<<<<<< HEAD
+=======
+static int nointc_set_wake(struct irq_data *data, unsigned int on)
+{
+	unsigned long int_mask = __nds32__mfsr(NDS32_SR_INT_MASK);
+	static unsigned long irq_orig_bit;
+	u32 bit = 1 << data->hwirq;
+
+	if (on) {
+		if (int_mask & bit)
+			__assign_bit(data->hwirq, &irq_orig_bit, true);
+		else
+			__assign_bit(data->hwirq, &irq_orig_bit, false);
+
+		__assign_bit(data->hwirq, &int_mask, true);
+		__assign_bit(data->hwirq, &wake_mask, true);
+
+	} else {
+		if (!(irq_orig_bit & bit))
+			__assign_bit(data->hwirq, &int_mask, false);
+
+		__assign_bit(data->hwirq, &wake_mask, false);
+		__assign_bit(data->hwirq, &irq_orig_bit, false);
+	}
+
+	__nds32__mtsr_dsb(int_mask, NDS32_SR_INT_MASK);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct irq_chip ativic32_chip = {
 	.name = "ativic32",
 	.irq_ack = ativic32_ack_irq,
 	.irq_mask = ativic32_mask_irq,
 	.irq_unmask = ativic32_unmask_irq,
+<<<<<<< HEAD
+=======
+	.irq_set_wake = nointc_set_wake,
+>>>>>>> upstream/android-13
 };
 
 static unsigned int __initdata nivic_map[6] = { 6, 2, 10, 16, 24, 32 };
@@ -61,7 +101,11 @@ static int ativic32_irq_domain_map(struct irq_domain *id, unsigned int virq,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct irq_domain_ops ativic32_ops = {
+=======
+static const struct irq_domain_ops ativic32_ops = {
+>>>>>>> upstream/android-13
 	.map = ativic32_irq_domain_map,
 	.xlate = irq_domain_xlate_onecell
 };

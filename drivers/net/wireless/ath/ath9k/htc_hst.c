@@ -30,6 +30,10 @@ static int htc_issue_send(struct htc_target *target, struct sk_buff* skb,
 	hdr->endpoint_id = epid;
 	hdr->flags = flags;
 	hdr->payload_len = cpu_to_be16(len);
+<<<<<<< HEAD
+=======
+	memset(hdr->control, 0, sizeof(hdr->control));
+>>>>>>> upstream/android-13
 
 	status = target->hif->send(target->hif_dev, endpoint->ul_pipeid, skb);
 
@@ -173,7 +177,10 @@ static int htc_config_pipe_credits(struct htc_target *target)
 	time_left = wait_for_completion_timeout(&target->cmd_wait, HZ);
 	if (!time_left) {
 		dev_err(target->dev, "HTC credit config timeout\n");
+<<<<<<< HEAD
 		kfree_skb(skb);
+=======
+>>>>>>> upstream/android-13
 		return -ETIMEDOUT;
 	}
 
@@ -209,7 +216,10 @@ static int htc_setup_complete(struct htc_target *target)
 	time_left = wait_for_completion_timeout(&target->cmd_wait, HZ);
 	if (!time_left) {
 		dev_err(target->dev, "HTC start timeout\n");
+<<<<<<< HEAD
 		kfree_skb(skb);
+=======
+>>>>>>> upstream/android-13
 		return -ETIMEDOUT;
 	}
 
@@ -274,6 +284,13 @@ int htc_connect_service(struct htc_target *target,
 	conn_msg->dl_pipeid = endpoint->dl_pipeid;
 	conn_msg->ul_pipeid = endpoint->ul_pipeid;
 
+<<<<<<< HEAD
+=======
+	/* To prevent infoleak */
+	conn_msg->svc_meta_len = 0;
+	conn_msg->pad = 0;
+
+>>>>>>> upstream/android-13
 	ret = htc_issue_send(target, skb, skb->len, 0, ENDPOINT0);
 	if (ret)
 		goto err;
@@ -282,7 +299,10 @@ int htc_connect_service(struct htc_target *target,
 	if (!time_left) {
 		dev_err(target->dev, "Service connection timeout for: %d\n",
 			service_connreq->service_id);
+<<<<<<< HEAD
 		kfree_skb(skb);
+=======
+>>>>>>> upstream/android-13
 		return -ETIMEDOUT;
 	}
 

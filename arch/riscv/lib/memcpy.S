@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Regents of the University of California
  *
@@ -9,13 +10,23 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
 #include <asm/asm.h>
 
 /* void *memcpy(void *, const void *, size_t) */
+<<<<<<< HEAD
 ENTRY(memcpy)
+=======
+ENTRY(__memcpy)
+WEAK(memcpy)
+>>>>>>> upstream/android-13
 	move t6, a0  /* Preserve return value */
 
 	/* Defer to byte-oriented copy for small sizes */
@@ -112,4 +123,8 @@ ENTRY(memcpy)
 	bltu a1, a3, 5b
 6:
 	ret
+<<<<<<< HEAD
 END(memcpy)
+=======
+END(__memcpy)
+>>>>>>> upstream/android-13

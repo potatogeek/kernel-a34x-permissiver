@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015-2017 Intel Corporation.
  *
@@ -44,6 +45,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015-2017 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _ASPM_H
 #define _ASPM_H
 
@@ -57,6 +65,7 @@ enum aspm_mode {
 	ASPM_MODE_DYNAMIC = 2,	/* ASPM enabled/disabled dynamically */
 };
 
+<<<<<<< HEAD
 /* Time after which the timer interrupt will re-enable ASPM */
 #define ASPM_TIMER_MS 1000
 /* Time for which interrupts are ignored after a timer has been scheduled */
@@ -317,6 +326,22 @@ static inline void aspm_exit(struct hfi1_devdata *dd)
 
 	/* Turn on ASPM on exit to conserve power */
 	aspm_enable(dd);
+=======
+void aspm_init(struct hfi1_devdata *dd);
+void aspm_exit(struct hfi1_devdata *dd);
+void aspm_hw_disable_l1(struct hfi1_devdata *dd);
+void __aspm_ctx_disable(struct hfi1_ctxtdata *rcd);
+void aspm_disable_all(struct hfi1_devdata *dd);
+void aspm_enable_all(struct hfi1_devdata *dd);
+
+static inline void aspm_ctx_disable(struct hfi1_ctxtdata *rcd)
+{
+	/* Quickest exit for minimum impact */
+	if (likely(!rcd->aspm_intr_supported))
+		return;
+
+	__aspm_ctx_disable(rcd);
+>>>>>>> upstream/android-13
 }
 
 #endif /* _ASPM_H */

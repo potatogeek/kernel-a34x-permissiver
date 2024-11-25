@@ -106,6 +106,7 @@
 	 *			  int blocks)
 	 */
 	.text
+<<<<<<< HEAD
 ENTRY(sha512_ce_transform)
 	frame_push	3
 
@@ -115,15 +116,26 @@ ENTRY(sha512_ce_transform)
 
 	/* load state */
 0:	ld1		{v8.2d-v11.2d}, [x19]
+=======
+SYM_FUNC_START(sha512_ce_transform)
+	/* load state */
+	ld1		{v8.2d-v11.2d}, [x0]
+>>>>>>> upstream/android-13
 
 	/* load first 4 round constants */
 	adr_l		x3, .Lsha512_rcon
 	ld1		{v20.2d-v23.2d}, [x3], #64
 
 	/* load input */
+<<<<<<< HEAD
 1:	ld1		{v12.2d-v15.2d}, [x20], #64
 	ld1		{v16.2d-v19.2d}, [x20], #64
 	sub		w21, w21, #1
+=======
+0:	ld1		{v12.2d-v15.2d}, [x1], #64
+	ld1		{v16.2d-v19.2d}, [x1], #64
+	sub		w2, w2, #1
+>>>>>>> upstream/android-13
 
 CPU_LE(	rev64		v12.16b, v12.16b	)
 CPU_LE(	rev64		v13.16b, v13.16b	)
@@ -201,6 +213,7 @@ CPU_LE(	rev64		v19.16b, v19.16b	)
 	add		v10.2d, v10.2d, v2.2d
 	add		v11.2d, v11.2d, v3.2d
 
+<<<<<<< HEAD
 	/* handled all input blocks? */
 	cbz		w21, 3f
 
@@ -217,3 +230,14 @@ CPU_LE(	rev64		v19.16b, v19.16b	)
 	frame_pop
 	ret
 ENDPROC(sha512_ce_transform)
+=======
+	cond_yield	3f, x4, x5
+	/* handled all input blocks? */
+	cbnz		w2, 0b
+
+	/* store new state */
+3:	st1		{v8.2d-v11.2d}, [x0]
+	mov		w0, w2
+	ret
+SYM_FUNC_END(sha512_ce_transform)
+>>>>>>> upstream/android-13

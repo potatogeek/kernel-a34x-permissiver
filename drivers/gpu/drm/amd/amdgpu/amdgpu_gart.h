@@ -40,15 +40,23 @@ struct amdgpu_bo;
 #define AMDGPU_GPU_PAGES_IN_CPU_PAGE (PAGE_SIZE / AMDGPU_GPU_PAGE_SIZE)
 
 struct amdgpu_gart {
+<<<<<<< HEAD
 	u64				table_addr;
 	struct amdgpu_bo		*robj;
+=======
+	struct amdgpu_bo		*bo;
+	/* CPU kmapped address of gart table */
+>>>>>>> upstream/android-13
 	void				*ptr;
 	unsigned			num_gpu_pages;
 	unsigned			num_cpu_pages;
 	unsigned			table_size;
+<<<<<<< HEAD
 #ifdef CONFIG_DRM_AMDGPU_GART_DEBUGFS
 	struct page			**pages;
 #endif
+=======
+>>>>>>> upstream/android-13
 	bool				ready;
 
 	/* Asic default pte flags */
@@ -60,14 +68,23 @@ void amdgpu_gart_table_vram_free(struct amdgpu_device *adev);
 int amdgpu_gart_table_vram_pin(struct amdgpu_device *adev);
 void amdgpu_gart_table_vram_unpin(struct amdgpu_device *adev);
 int amdgpu_gart_init(struct amdgpu_device *adev);
+<<<<<<< HEAD
 void amdgpu_gart_fini(struct amdgpu_device *adev);
+=======
+void amdgpu_gart_dummy_page_fini(struct amdgpu_device *adev);
+>>>>>>> upstream/android-13
 int amdgpu_gart_unbind(struct amdgpu_device *adev, uint64_t offset,
 		       int pages);
 int amdgpu_gart_map(struct amdgpu_device *adev, uint64_t offset,
 		    int pages, dma_addr_t *dma_addr, uint64_t flags,
 		    void *dst);
 int amdgpu_gart_bind(struct amdgpu_device *adev, uint64_t offset,
+<<<<<<< HEAD
 		     int pages, struct page **pagelist,
 		     dma_addr_t *dma_addr, uint64_t flags);
 
+=======
+		     int pages, dma_addr_t *dma_addr, uint64_t flags);
+void amdgpu_gart_invalidate_tlb(struct amdgpu_device *adev);
+>>>>>>> upstream/android-13
 #endif

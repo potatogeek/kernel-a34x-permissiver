@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * gl518sm.c - Part of lm_sensors, Linux kernel modules for hardware
  *             monitoring
@@ -6,6 +10,7 @@
  * Copyright (C) 2004 Hong-Gunn Chew <hglinux@gunnet.org> and
  * Jean Delvare <jdelvare@suse.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Ported to Linux 2.6 by Hong-Gunn Chew with the help of Jean Delvare
  * and advice of Greg Kroah-Hartman.
  *
@@ -264,7 +271,11 @@ show(RAW, alarms, alarms);
 show(BOOL, beep_enable, beep_enable);
 show(BEEP_MASK, beep_mask, beep_mask);
 
+<<<<<<< HEAD
 static ssize_t show_fan_input(struct device *dev,
+=======
+static ssize_t fan_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *attr, char *buf)
 {
 	int nr = to_sensor_dev_attr(attr)->index;
@@ -273,8 +284,13 @@ static ssize_t show_fan_input(struct device *dev,
 					DIV_FROM_REG(data->fan_div[nr])));
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev,
 			    struct device_attribute *attr, char *buf)
+=======
+static ssize_t fan_min_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct gl518_data *data = gl518_update_device(dev);
@@ -282,8 +298,13 @@ static ssize_t show_fan_min(struct device *dev,
 					DIV_FROM_REG(data->fan_div[nr])));
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_div(struct device *dev,
 			    struct device_attribute *attr, char *buf)
+=======
+static ssize_t fan_div_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+>>>>>>> upstream/android-13
 {
 	int nr = to_sensor_dev_attr(attr)->index;
 	struct gl518_data *data = gl518_update_device(dev);
@@ -350,8 +371,14 @@ set_high(IN, in_max3, voltage_max[3], GL518_REG_VIN3_LIMIT);
 set_bits(BOOL, beep_enable, beep_enable, GL518_REG_CONF, 0x04, 2);
 set(BEEP_MASK, beep_mask, beep_mask, GL518_REG_ALARM);
 
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev, struct device_attribute *attr,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev,
+			     struct device_attribute *attr, const char *buf,
+			     size_t count)
+>>>>>>> upstream/android-13
 {
 	struct gl518_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -383,8 +410,14 @@ static ssize_t set_fan_min(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
 			   const char *buf, size_t count)
+=======
+static ssize_t fan_div_store(struct device *dev,
+			     struct device_attribute *attr, const char *buf,
+			     size_t count)
+>>>>>>> upstream/android-13
 {
 	struct gl518_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -427,6 +460,7 @@ static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp_input1, NULL);
 static DEVICE_ATTR(temp1_max, S_IWUSR|S_IRUGO, show_temp_max1, set_temp_max1);
 static DEVICE_ATTR(temp1_max_hyst, S_IWUSR|S_IRUGO,
@@ -461,6 +495,38 @@ static DEVICE_ATTR(beep_mask, S_IWUSR|S_IRUGO,
 	show_beep_mask, set_beep_mask);
 
 static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
+=======
+static DEVICE_ATTR(temp1_input, 0444, show_temp_input1, NULL);
+static DEVICE_ATTR(temp1_max, 0644, show_temp_max1, set_temp_max1);
+static DEVICE_ATTR(temp1_max_hyst, 0644,
+		   show_temp_hyst1, set_temp_hyst1);
+static DEVICE_ATTR(fan1_auto, 0644, show_fan_auto1, set_fan_auto1);
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan_input, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan_input, 1);
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RW(fan1_div, fan_div, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_div, fan_div, 1);
+static DEVICE_ATTR(in0_input, 0444, show_in_input0, NULL);
+static DEVICE_ATTR(in1_input, 0444, show_in_input1, NULL);
+static DEVICE_ATTR(in2_input, 0444, show_in_input2, NULL);
+static DEVICE_ATTR(in3_input, 0444, show_in_input3, NULL);
+static DEVICE_ATTR(in0_min, 0644, show_in_min0, set_in_min0);
+static DEVICE_ATTR(in1_min, 0644, show_in_min1, set_in_min1);
+static DEVICE_ATTR(in2_min, 0644, show_in_min2, set_in_min2);
+static DEVICE_ATTR(in3_min, 0644, show_in_min3, set_in_min3);
+static DEVICE_ATTR(in0_max, 0644, show_in_max0, set_in_max0);
+static DEVICE_ATTR(in1_max, 0644, show_in_max1, set_in_max1);
+static DEVICE_ATTR(in2_max, 0644, show_in_max2, set_in_max2);
+static DEVICE_ATTR(in3_max, 0644, show_in_max3, set_in_max3);
+static DEVICE_ATTR(alarms, 0444, show_alarms, NULL);
+static DEVICE_ATTR(beep_enable, 0644,
+		   show_beep_enable, set_beep_enable);
+static DEVICE_ATTR(beep_mask, 0644,
+		   show_beep_mask, set_beep_mask);
+
+static ssize_t alarm_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  char *buf)
 {
 	int bitnr = to_sensor_dev_attr(attr)->index;
@@ -468,6 +534,7 @@ static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%u\n", (data->alarms >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(in1_alarm, S_IRUGO, show_alarm, NULL, 1);
 static SENSOR_DEVICE_ATTR(in2_alarm, S_IRUGO, show_alarm, NULL, 2);
@@ -478,14 +545,31 @@ static SENSOR_DEVICE_ATTR(fan2_alarm, S_IRUGO, show_alarm, NULL, 6);
 
 static ssize_t show_beep(struct device *dev, struct device_attribute *attr,
 			  char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(in1_alarm, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(in2_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(in3_alarm, alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(temp1_alarm, alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, alarm, 6);
+
+static ssize_t beep_show(struct device *dev, struct device_attribute *attr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	int bitnr = to_sensor_dev_attr(attr)->index;
 	struct gl518_data *data = gl518_update_device(dev);
 	return sprintf(buf, "%u\n", (data->beep_mask >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static ssize_t set_beep(struct device *dev, struct device_attribute *attr,
 			const char *buf, size_t count)
+=======
+static ssize_t beep_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct gl518_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -511,6 +595,7 @@ static ssize_t set_beep(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_beep, S_IRUGO|S_IWUSR, show_beep, set_beep, 0);
 static SENSOR_DEVICE_ATTR(in1_beep, S_IRUGO|S_IWUSR, show_beep, set_beep, 1);
 static SENSOR_DEVICE_ATTR(in2_beep, S_IRUGO|S_IWUSR, show_beep, set_beep, 2);
@@ -518,6 +603,15 @@ static SENSOR_DEVICE_ATTR(in3_beep, S_IRUGO|S_IWUSR, show_beep, set_beep, 3);
 static SENSOR_DEVICE_ATTR(temp1_beep, S_IRUGO|S_IWUSR, show_beep, set_beep, 4);
 static SENSOR_DEVICE_ATTR(fan1_beep, S_IRUGO|S_IWUSR, show_beep, set_beep, 5);
 static SENSOR_DEVICE_ATTR(fan2_beep, S_IRUGO|S_IWUSR, show_beep, set_beep, 6);
+=======
+static SENSOR_DEVICE_ATTR_RW(in0_beep, beep, 0);
+static SENSOR_DEVICE_ATTR_RW(in1_beep, beep, 1);
+static SENSOR_DEVICE_ATTR_RW(in2_beep, beep, 2);
+static SENSOR_DEVICE_ATTR_RW(in3_beep, beep, 3);
+static SENSOR_DEVICE_ATTR_RW(temp1_beep, beep, 4);
+static SENSOR_DEVICE_ATTR_RW(fan1_beep, beep, 5);
+static SENSOR_DEVICE_ATTR_RW(fan2_beep, beep, 6);
+>>>>>>> upstream/android-13
 
 static struct attribute *gl518_attributes[] = {
 	&dev_attr_in3_input.attr,
@@ -626,8 +720,12 @@ static void gl518_init_client(struct i2c_client *client)
 	gl518_write_value(client, GL518_REG_CONF, 0x40 | regvalue);
 }
 
+<<<<<<< HEAD
 static int gl518_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
+=======
+static int gl518_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -668,7 +766,11 @@ static struct i2c_driver gl518_driver = {
 	.driver = {
 		.name	= "gl518sm",
 	},
+<<<<<<< HEAD
 	.probe		= gl518_probe,
+=======
+	.probe_new	= gl518_probe,
+>>>>>>> upstream/android-13
 	.id_table	= gl518_id,
 	.detect		= gl518_detect,
 	.address_list	= normal_i2c,

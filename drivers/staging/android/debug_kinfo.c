@@ -12,6 +12,11 @@
 #include <linux/module.h>
 #include <linux/of_address.h>
 #include <linux/of_reserved_mem.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+#include <asm/module.h>
+>>>>>>> upstream/android-13
 #include "debug_kinfo.h"
 
 /*
@@ -79,7 +84,10 @@ static int build_info_set(const char *str, const struct kernel_param *kp)
 	}
 
 Exit:
+<<<<<<< HEAD
 	vunmap(all_info_addr);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -128,7 +136,11 @@ static int debug_kinfo_probe(struct platform_device *pdev)
 	all_info_addr = rmem->priv;
 	all_info_size = rmem->size;
 
+<<<<<<< HEAD
 	memset(all_info_addr, 0, all_info_size);
+=======
+	memset(all_info_addr, 0, sizeof(struct kernel_all_info));
+>>>>>>> upstream/android-13
 	all_info = (struct kernel_all_info *)all_info_addr;
 	info = &(all_info->info);
 	info->enabled_all = IS_ENABLED(CONFIG_KALLSYMS_ALL);
@@ -140,6 +152,7 @@ static int debug_kinfo_probe(struct platform_device *pdev)
 	info->bit_per_long = BITS_PER_LONG;
 	info->module_name_len = MODULE_NAME_LEN;
 	info->symbol_len = KSYM_SYMBOL_LEN;
+<<<<<<< HEAD
 	info->_addresses_pa = (u64)virt_to_phys((volatile void *)kallsyms_addresses);
 	info->_relative_pa = (u64)virt_to_phys((volatile void *)kallsyms_relative_base);
 	info->_stext_pa = (u64)virt_to_phys(_stext);
@@ -154,12 +167,44 @@ static int debug_kinfo_probe(struct platform_device *pdev)
 	info->_markers_pa = (u64)virt_to_phys((volatile void *)kallsyms_markers);
 	info->thread_size = THREAD_SIZE;
 	info->swapper_pg_dir_pa = (u64)virt_to_phys(swapper_pg_dir);
+=======
+	if (!info->enabled_base_relative)
+		info->_addresses_pa = (u64)__pa_symbol((volatile void *)kallsyms_addresses);
+	else {
+		info->_relative_pa = (u64)__pa_symbol((volatile void *)kallsyms_relative_base);
+		info->_offsets_pa = (u64)__pa_symbol((volatile void *)kallsyms_offsets);
+	}
+	info->_stext_pa = (u64)__pa_symbol(_stext);
+	info->_etext_pa = (u64)__pa_symbol(_etext);
+	info->_sinittext_pa = (u64)__pa_symbol(_sinittext);
+	info->_einittext_pa = (u64)__pa_symbol(_einittext);
+	info->_end_pa = (u64)__pa_symbol(_end);
+	info->_names_pa = (u64)__pa_symbol((volatile void *)kallsyms_names);
+	info->_token_table_pa = (u64)__pa_symbol((volatile void *)kallsyms_token_table);
+	info->_token_index_pa = (u64)__pa_symbol((volatile void *)kallsyms_token_index);
+	info->_markers_pa = (u64)__pa_symbol((volatile void *)kallsyms_markers);
+	info->thread_size = THREAD_SIZE;
+	info->swapper_pg_dir_pa = (u64)__pa_symbol(swapper_pg_dir);
+>>>>>>> upstream/android-13
 	strlcpy(info->last_uts_release, init_utsname()->release, sizeof(info->last_uts_release));
 	info->enabled_modules_tree_lookup = IS_ENABLED(CONFIG_MODULES_TREE_LOOKUP);
 	info->mod_core_layout_offset = offsetof(struct module, core_layout);
 	info->mod_init_layout_offset = offsetof(struct module, init_layout);
 	info->mod_kallsyms_offset = offsetof(struct module, kallsyms);
+<<<<<<< HEAD
 
+=======
+#if defined(CONFIG_RANDOMIZE_BASE) && defined(MODULES_VSIZE)
+	info->module_start_va = module_alloc_base;
+	info->module_end_va = info->module_start_va + MODULES_VSIZE;
+#elif defined(CONFIG_MODULES) && defined(MODULES_VADDR)
+	info->module_start_va = MODULES_VADDR;
+	info->module_end_va = MODULES_END;
+#else
+	info->module_start_va = VMALLOC_START;
+	info->module_end_va = VMALLOC_END;
+#endif
+>>>>>>> upstream/android-13
 	update_kernel_all_info(all_info);
 
 	return 0;

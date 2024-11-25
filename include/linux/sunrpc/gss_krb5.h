@@ -71,10 +71,17 @@ struct gss_krb5_enctype {
 	const u32		keyed_cksum;	/* is it a keyed cksum? */
 	const u32		keybytes;	/* raw key len, in bytes */
 	const u32		keylength;	/* final key len, in bytes */
+<<<<<<< HEAD
 	u32 (*encrypt) (struct crypto_skcipher *tfm,
 			void *iv, void *in, void *out,
 			int length);		/* encryption function */
 	u32 (*decrypt) (struct crypto_skcipher *tfm,
+=======
+	u32 (*encrypt) (struct crypto_sync_skcipher *tfm,
+			void *iv, void *in, void *out,
+			int length);		/* encryption function */
+	u32 (*decrypt) (struct crypto_sync_skcipher *tfm,
+>>>>>>> upstream/android-13
 			void *iv, void *in, void *out,
 			int length);		/* decryption function */
 	u32 (*mk_key) (const struct gss_krb5_enctype *gk5e,
@@ -83,7 +90,11 @@ struct gss_krb5_enctype {
 	u32 (*encrypt_v2) (struct krb5_ctx *kctx, u32 offset,
 			   struct xdr_buf *buf,
 			   struct page **pages); /* v2 encryption function */
+<<<<<<< HEAD
 	u32 (*decrypt_v2) (struct krb5_ctx *kctx, u32 offset,
+=======
+	u32 (*decrypt_v2) (struct krb5_ctx *kctx, u32 offset, u32 len,
+>>>>>>> upstream/android-13
 			   struct xdr_buf *buf, u32 *headskip,
 			   u32 *tailskip);	/* v2 decryption function */
 };
@@ -98,6 +109,7 @@ struct krb5_ctx {
 	u32			enctype;
 	u32			flags;
 	const struct gss_krb5_enctype *gk5e; /* enctype-specific info */
+<<<<<<< HEAD
 	struct crypto_skcipher	*enc;
 	struct crypto_skcipher	*seq;
 	struct crypto_skcipher *acceptor_enc;
@@ -109,6 +121,19 @@ struct krb5_ctx {
 	s32			endtime;
 	u32			seq_send;
 	u64			seq_send64;
+=======
+	struct crypto_sync_skcipher *enc;
+	struct crypto_sync_skcipher *seq;
+	struct crypto_sync_skcipher *acceptor_enc;
+	struct crypto_sync_skcipher *initiator_enc;
+	struct crypto_sync_skcipher *acceptor_enc_aux;
+	struct crypto_sync_skcipher *initiator_enc_aux;
+	u8			Ksess[GSS_KRB5_MAX_KEYLEN]; /* session key */
+	u8			cksum[GSS_KRB5_MAX_KEYLEN];
+	atomic_t		seq_send;
+	atomic64_t		seq_send64;
+	time64_t		endtime;
+>>>>>>> upstream/android-13
 	struct xdr_netobj	mech_used;
 	u8			initiator_sign[GSS_KRB5_MAX_KEYLEN];
 	u8			acceptor_sign[GSS_KRB5_MAX_KEYLEN];
@@ -118,8 +143,11 @@ struct krb5_ctx {
 	u8			acceptor_integ[GSS_KRB5_MAX_KEYLEN];
 };
 
+<<<<<<< HEAD
 extern spinlock_t krb5_seq_lock;
 
+=======
+>>>>>>> upstream/android-13
 /* The length of the Kerberos GSS token header */
 #define GSS_KRB5_TOK_HDR_LEN	(16)
 
@@ -143,14 +171,20 @@ enum sgn_alg {
 	SGN_ALG_MD2_5 = 0x0001,
 	SGN_ALG_DES_MAC = 0x0002,
 	SGN_ALG_3 = 0x0003,		/* not published */
+<<<<<<< HEAD
 	SGN_ALG_HMAC_MD5 = 0x0011,	/* microsoft w2k; no support */
+=======
+>>>>>>> upstream/android-13
 	SGN_ALG_HMAC_SHA1_DES3_KD = 0x0004
 };
 enum seal_alg {
 	SEAL_ALG_NONE = 0xffff,
 	SEAL_ALG_DES = 0x0000,
 	SEAL_ALG_1 = 0x0001,		/* not published */
+<<<<<<< HEAD
 	SEAL_ALG_MICROSOFT_RC4 = 0x0010,/* microsoft w2k; no support */
+=======
+>>>>>>> upstream/android-13
 	SEAL_ALG_DES3KD = 0x0002
 };
 
@@ -257,11 +291,16 @@ gss_wrap_kerberos(struct gss_ctx *ctx_id, int offset,
 		struct xdr_buf *outbuf, struct page **pages);
 
 u32
+<<<<<<< HEAD
 gss_unwrap_kerberos(struct gss_ctx *ctx_id, int offset,
+=======
+gss_unwrap_kerberos(struct gss_ctx *ctx_id, int offset, int len,
+>>>>>>> upstream/android-13
 		struct xdr_buf *buf);
 
 
 u32
+<<<<<<< HEAD
 krb5_encrypt(struct crypto_skcipher *key,
 	     void *iv, void *in, void *out, int length);
 
@@ -275,11 +314,30 @@ gss_encrypt_xdr_buf(struct crypto_skcipher *tfm, struct xdr_buf *outbuf,
 
 int
 gss_decrypt_xdr_buf(struct crypto_skcipher *tfm, struct xdr_buf *inbuf,
+=======
+krb5_encrypt(struct crypto_sync_skcipher *key,
+	     void *iv, void *in, void *out, int length);
+
+u32
+krb5_decrypt(struct crypto_sync_skcipher *key,
+	     void *iv, void *in, void *out, int length); 
+
+int
+gss_encrypt_xdr_buf(struct crypto_sync_skcipher *tfm, struct xdr_buf *outbuf,
+		    int offset, struct page **pages);
+
+int
+gss_decrypt_xdr_buf(struct crypto_sync_skcipher *tfm, struct xdr_buf *inbuf,
+>>>>>>> upstream/android-13
 		    int offset);
 
 s32
 krb5_make_seq_num(struct krb5_ctx *kctx,
+<<<<<<< HEAD
 		struct crypto_skcipher *key,
+=======
+		struct crypto_sync_skcipher *key,
+>>>>>>> upstream/android-13
 		int direction,
 		u32 seqnum, unsigned char *cksum, unsigned char *buf);
 
@@ -314,6 +372,7 @@ gss_krb5_aes_encrypt(struct krb5_ctx *kctx, u32 offset,
 		     struct page **pages);
 
 u32
+<<<<<<< HEAD
 gss_krb5_aes_decrypt(struct krb5_ctx *kctx, u32 offset,
 		     struct xdr_buf *buf, u32 *plainoffset,
 		     u32 *plainlen);
@@ -327,5 +386,11 @@ int
 krb5_rc4_setup_enc_key(struct krb5_ctx *kctx,
 		       struct crypto_skcipher *cipher,
 		       s32 seqnum);
+=======
+gss_krb5_aes_decrypt(struct krb5_ctx *kctx, u32 offset, u32 len,
+		     struct xdr_buf *buf, u32 *plainoffset,
+		     u32 *plainlen);
+
+>>>>>>> upstream/android-13
 void
 gss_krb5_make_confounder(char *p, u32 conflen);

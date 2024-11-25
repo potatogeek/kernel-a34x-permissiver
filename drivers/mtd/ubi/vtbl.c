@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) International Business Machines Corp., 2006
  * Copyright (c) Nokia Corporation, 2006, 2007
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
@@ -795,7 +802,11 @@ static int check_attaching_info(const struct ubi_device *ubi,
  */
 int ubi_read_volume_table(struct ubi_device *ubi, struct ubi_attach_info *ai)
 {
+<<<<<<< HEAD
 	int i, err;
+=======
+	int err;
+>>>>>>> upstream/android-13
 	struct ubi_ainf_volume *av;
 
 	empty_vtbl_record.crc = cpu_to_be32(0xf116c36b);
@@ -864,11 +875,15 @@ int ubi_read_volume_table(struct ubi_device *ubi, struct ubi_attach_info *ai)
 
 out_free:
 	vfree(ubi->vtbl);
+<<<<<<< HEAD
 	for (i = 0; i < ubi->vtbl_slots + UBI_INT_VOL_COUNT; i++) {
 		ubi_fastmap_destroy_checkmap(ubi->volumes[i]);
 		kfree(ubi->volumes[i]);
 		ubi->volumes[i] = NULL;
 	}
+=======
+	ubi_free_all_volumes(ubi);
+>>>>>>> upstream/android-13
 	return err;
 }
 

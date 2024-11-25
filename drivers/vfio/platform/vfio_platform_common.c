@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 - Virtual Open Systems
  * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
@@ -12,6 +13,16 @@
  * GNU General Public License for more details.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 - Virtual Open Systems
+ * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
+ */
+
+#define dev_fmt(fmt)	"VFIO: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/acpi.h>
 #include <linux/iommu.h>
@@ -63,7 +74,11 @@ static int vfio_platform_acpi_probe(struct vfio_platform_device *vdev,
 
 	adev = ACPI_COMPANION(dev);
 	if (!adev) {
+<<<<<<< HEAD
 		pr_err("VFIO: ACPI companion device not found for %s\n",
+=======
+		dev_err(dev, "ACPI companion device not found for %s\n",
+>>>>>>> upstream/android-13
 			vdev->name);
 		return -ENODEV;
 	}
@@ -224,6 +239,7 @@ static int vfio_platform_call_reset(struct vfio_platform_device *vdev,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static void vfio_platform_release(void *device_data)
 {
 	struct vfio_platform_device *vdev = device_data;
@@ -286,6 +302,54 @@ static int vfio_platform_open(void *device_data)
 	vdev->refcnt++;
 
 	mutex_unlock(&driver_lock);
+=======
+static void vfio_platform_close_device(struct vfio_device *core_vdev)
+{
+	struct vfio_platform_device *vdev =
+		container_of(core_vdev, struct vfio_platform_device, vdev);
+	const char *extra_dbg = NULL;
+	int ret;
+
+	ret = vfio_platform_call_reset(vdev, &extra_dbg);
+	if (WARN_ON(ret && vdev->reset_required)) {
+		dev_warn(
+			vdev->device,
+			"reset driver is required and reset call failed in release (%d) %s\n",
+			ret, extra_dbg ? extra_dbg : "");
+	}
+	pm_runtime_put(vdev->device);
+	vfio_platform_regions_cleanup(vdev);
+	vfio_platform_irq_cleanup(vdev);
+}
+
+static int vfio_platform_open_device(struct vfio_device *core_vdev)
+{
+	struct vfio_platform_device *vdev =
+		container_of(core_vdev, struct vfio_platform_device, vdev);
+	const char *extra_dbg = NULL;
+	int ret;
+
+	ret = vfio_platform_regions_init(vdev);
+	if (ret)
+		return ret;
+
+	ret = vfio_platform_irq_init(vdev);
+	if (ret)
+		goto err_irq;
+
+	ret = pm_runtime_get_sync(vdev->device);
+	if (ret < 0)
+		goto err_rst;
+
+	ret = vfio_platform_call_reset(vdev, &extra_dbg);
+	if (ret && vdev->reset_required) {
+		dev_warn(
+			vdev->device,
+			"reset driver is required and reset call failed in open (%d) %s\n",
+			ret, extra_dbg ? extra_dbg : "");
+		goto err_rst;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 
 err_rst:
@@ -293,6 +357,7 @@ err_rst:
 	vfio_platform_irq_cleanup(vdev);
 err_irq:
 	vfio_platform_regions_cleanup(vdev);
+<<<<<<< HEAD
 err_reg:
 	mutex_unlock(&driver_lock);
 	module_put(THIS_MODULE);
@@ -303,6 +368,17 @@ static long vfio_platform_ioctl(void *device_data,
 				unsigned int cmd, unsigned long arg)
 {
 	struct vfio_platform_device *vdev = device_data;
+=======
+	return ret;
+}
+
+static long vfio_platform_ioctl(struct vfio_device *core_vdev,
+				unsigned int cmd, unsigned long arg)
+{
+	struct vfio_platform_device *vdev =
+		container_of(core_vdev, struct vfio_platform_device, vdev);
+
+>>>>>>> upstream/android-13
 	unsigned long minsz;
 
 	if (cmd == VFIO_DEVICE_GET_INFO) {
@@ -414,7 +490,11 @@ static ssize_t vfio_platform_read_mmio(struct vfio_platform_region *reg,
 
 	if (!reg->ioaddr) {
 		reg->ioaddr =
+<<<<<<< HEAD
 			ioremap_nocache(reg->addr, reg->size);
+=======
+			ioremap(reg->addr, reg->size);
+>>>>>>> upstream/android-13
 
 		if (!reg->ioaddr)
 			return -ENOMEM;
@@ -461,10 +541,18 @@ err:
 	return -EFAULT;
 }
 
+<<<<<<< HEAD
 static ssize_t vfio_platform_read(void *device_data, char __user *buf,
 				  size_t count, loff_t *ppos)
 {
 	struct vfio_platform_device *vdev = device_data;
+=======
+static ssize_t vfio_platform_read(struct vfio_device *core_vdev,
+				  char __user *buf, size_t count, loff_t *ppos)
+{
+	struct vfio_platform_device *vdev =
+		container_of(core_vdev, struct vfio_platform_device, vdev);
+>>>>>>> upstream/android-13
 	unsigned int index = VFIO_PLATFORM_OFFSET_TO_INDEX(*ppos);
 	loff_t off = *ppos & VFIO_PLATFORM_OFFSET_MASK;
 
@@ -491,7 +579,11 @@ static ssize_t vfio_platform_write_mmio(struct vfio_platform_region *reg,
 
 	if (!reg->ioaddr) {
 		reg->ioaddr =
+<<<<<<< HEAD
 			ioremap_nocache(reg->addr, reg->size);
+=======
+			ioremap(reg->addr, reg->size);
+>>>>>>> upstream/android-13
 
 		if (!reg->ioaddr)
 			return -ENOMEM;
@@ -537,10 +629,18 @@ err:
 	return -EFAULT;
 }
 
+<<<<<<< HEAD
 static ssize_t vfio_platform_write(void *device_data, const char __user *buf,
 				   size_t count, loff_t *ppos)
 {
 	struct vfio_platform_device *vdev = device_data;
+=======
+static ssize_t vfio_platform_write(struct vfio_device *core_vdev, const char __user *buf,
+				   size_t count, loff_t *ppos)
+{
+	struct vfio_platform_device *vdev =
+		container_of(core_vdev, struct vfio_platform_device, vdev);
+>>>>>>> upstream/android-13
 	unsigned int index = VFIO_PLATFORM_OFFSET_TO_INDEX(*ppos);
 	loff_t off = *ppos & VFIO_PLATFORM_OFFSET_MASK;
 
@@ -579,9 +679,16 @@ static int vfio_platform_mmap_mmio(struct vfio_platform_region region,
 			       req_len, vma->vm_page_prot);
 }
 
+<<<<<<< HEAD
 static int vfio_platform_mmap(void *device_data, struct vm_area_struct *vma)
 {
 	struct vfio_platform_device *vdev = device_data;
+=======
+static int vfio_platform_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma)
+{
+	struct vfio_platform_device *vdev =
+		container_of(core_vdev, struct vfio_platform_device, vdev);
+>>>>>>> upstream/android-13
 	unsigned int index;
 
 	index = vma->vm_pgoff >> (VFIO_PLATFORM_OFFSET_SHIFT - PAGE_SHIFT);
@@ -621,8 +728,13 @@ static int vfio_platform_mmap(void *device_data, struct vm_area_struct *vma)
 
 static const struct vfio_device_ops vfio_platform_ops = {
 	.name		= "vfio-platform",
+<<<<<<< HEAD
 	.open		= vfio_platform_open,
 	.release	= vfio_platform_release,
+=======
+	.open_device	= vfio_platform_open_device,
+	.close_device	= vfio_platform_close_device,
+>>>>>>> upstream/android-13
 	.ioctl		= vfio_platform_ioctl,
 	.read		= vfio_platform_read,
 	.write		= vfio_platform_write,
@@ -637,7 +749,11 @@ static int vfio_platform_of_probe(struct vfio_platform_device *vdev,
 	ret = device_property_read_string(dev, "compatible",
 					  &vdev->compat);
 	if (ret)
+<<<<<<< HEAD
 		pr_err("VFIO: Cannot retrieve compat for %s\n", vdev->name);
+=======
+		dev_err(dev, "Cannot retrieve compat for %s\n", vdev->name);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -665,49 +781,81 @@ int vfio_platform_probe_common(struct vfio_platform_device *vdev,
 	struct iommu_group *group;
 	int ret;
 
+<<<<<<< HEAD
 	if (!vdev)
 		return -EINVAL;
+=======
+	vfio_init_group_dev(&vdev->vdev, dev, &vfio_platform_ops);
+>>>>>>> upstream/android-13
 
 	ret = vfio_platform_acpi_probe(vdev, dev);
 	if (ret)
 		ret = vfio_platform_of_probe(vdev, dev);
 
 	if (ret)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto out_uninit;
+>>>>>>> upstream/android-13
 
 	vdev->device = dev;
 
 	ret = vfio_platform_get_reset(vdev);
 	if (ret && vdev->reset_required) {
+<<<<<<< HEAD
 		pr_err("VFIO: No reset function found for device %s\n",
 		       vdev->name);
 		return ret;
+=======
+		dev_err(dev, "No reset function found for device %s\n",
+			vdev->name);
+		goto out_uninit;
+>>>>>>> upstream/android-13
 	}
 
 	group = vfio_iommu_group_get(dev);
 	if (!group) {
+<<<<<<< HEAD
 		pr_err("VFIO: No IOMMU group for device %s\n", vdev->name);
+=======
+		dev_err(dev, "No IOMMU group for device %s\n", vdev->name);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto put_reset;
 	}
 
+<<<<<<< HEAD
 	ret = vfio_add_group_dev(dev, &vfio_platform_ops, vdev);
+=======
+	ret = vfio_register_group_dev(&vdev->vdev);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto put_iommu;
 
 	mutex_init(&vdev->igate);
 
+<<<<<<< HEAD
 	pm_runtime_enable(vdev->device);
+=======
+	pm_runtime_enable(dev);
+>>>>>>> upstream/android-13
 	return 0;
 
 put_iommu:
 	vfio_iommu_group_put(group, dev);
 put_reset:
 	vfio_platform_put_reset(vdev);
+<<<<<<< HEAD
+=======
+out_uninit:
+	vfio_uninit_group_dev(&vdev->vdev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(vfio_platform_probe_common);
 
+<<<<<<< HEAD
 struct vfio_platform_device *vfio_platform_remove_common(struct device *dev)
 {
 	struct vfio_platform_device *vdev;
@@ -721,6 +869,16 @@ struct vfio_platform_device *vfio_platform_remove_common(struct device *dev)
 	}
 
 	return vdev;
+=======
+void vfio_platform_remove_common(struct vfio_platform_device *vdev)
+{
+	vfio_unregister_group_dev(&vdev->vdev);
+
+	pm_runtime_disable(vdev->device);
+	vfio_platform_put_reset(vdev);
+	vfio_uninit_group_dev(&vdev->vdev);
+	vfio_iommu_group_put(vdev->vdev.dev->iommu_group, vdev->vdev.dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(vfio_platform_remove_common);
 

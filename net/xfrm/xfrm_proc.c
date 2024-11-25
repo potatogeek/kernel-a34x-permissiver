@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * xfrm_proc.c
  *
  * Copyright (C)2006-2007 USAGI/WIDE Project
  *
  * Authors:	Masahide NAKAMURA <nakam@linux-ipv6.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright © 2005-2009 Samsung Electronics
  *  Copyright © 2007 Nokia Corporation
@@ -12,10 +16,13 @@
  *	Flex-OneNAND support
  *	Amul Kumar Saha <amul.saha at samsung.com>
  *	OTP support
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -135,7 +142,11 @@ static const struct mtd_ooblayout_ops onenand_oob_128_ooblayout_ops = {
 	.free = onenand_ooblayout_128_free,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * onenand_oob_32_64 - oob info for large (2KB) page
  */
 static int onenand_ooblayout_32_64_ecc(struct mtd_info *mtd, int section,
@@ -195,7 +206,11 @@ static const unsigned char ffchars[] = {
 
 /**
  * onenand_readw - [OneNAND Interface] Read OneNAND register
+<<<<<<< HEAD
  * @param addr		address to read
+=======
+ * @addr:		address to read
+>>>>>>> upstream/android-13
  *
  * Read OneNAND register
  */
@@ -206,8 +221,13 @@ static unsigned short onenand_readw(void __iomem *addr)
 
 /**
  * onenand_writew - [OneNAND Interface] Write OneNAND register with value
+<<<<<<< HEAD
  * @param value		value to write
  * @param addr		address to write
+=======
+ * @value:		value to write
+ * @addr:		address to write
+>>>>>>> upstream/android-13
  *
  * Write OneNAND register with value
  */
@@ -218,8 +238,13 @@ static void onenand_writew(unsigned short value, void __iomem *addr)
 
 /**
  * onenand_block_address - [DEFAULT] Get block address
+<<<<<<< HEAD
  * @param this		onenand chip data structure
  * @param block		the block
+=======
+ * @this:		onenand chip data structure
+ * @block:		the block
+>>>>>>> upstream/android-13
  * @return		translated block address if DDP, otherwise same
  *
  * Setup Start Address 1 Register (F100h)
@@ -235,8 +260,13 @@ static int onenand_block_address(struct onenand_chip *this, int block)
 
 /**
  * onenand_bufferram_address - [DEFAULT] Get bufferram address
+<<<<<<< HEAD
  * @param this		onenand chip data structure
  * @param block		the block
+=======
+ * @this:		onenand chip data structure
+ * @block:		the block
+>>>>>>> upstream/android-13
  * @return		set DBS value if DDP, otherwise 0
  *
  * Setup Start Address 2 Register (F101h) for DDP
@@ -252,8 +282,13 @@ static int onenand_bufferram_address(struct onenand_chip *this, int block)
 
 /**
  * onenand_page_address - [DEFAULT] Get page address
+<<<<<<< HEAD
  * @param page		the page address
  * @param sector	the sector address
+=======
+ * @page:		the page address
+ * @sector:	the sector address
+>>>>>>> upstream/android-13
  * @return		combined page and sector address
  *
  * Setup Start Address 8 Register (F107h)
@@ -271,10 +306,17 @@ static int onenand_page_address(int page, int sector)
 
 /**
  * onenand_buffer_address - [DEFAULT] Get buffer address
+<<<<<<< HEAD
  * @param dataram1	DataRAM index
  * @param sectors	the sector address
  * @param count		the number of sectors
  * @return		the start buffer value
+=======
+ * @dataram1:	DataRAM index
+ * @sectors:	the sector address
+ * @count:		the number of sectors
+ * Return:		the start buffer value
+>>>>>>> upstream/android-13
  *
  * Setup Start Buffer Register (F200h)
  */
@@ -298,8 +340,13 @@ static int onenand_buffer_address(int dataram1, int sectors, int count)
 
 /**
  * flexonenand_block- For given address return block number
+<<<<<<< HEAD
  * @param this         - OneNAND device structure
  * @param addr		- Address for which block number is needed
+=======
+ * @this:         - OneNAND device structure
+ * @addr:		- Address for which block number is needed
+>>>>>>> upstream/android-13
  */
 static unsigned flexonenand_block(struct onenand_chip *this, loff_t addr)
 {
@@ -362,7 +409,11 @@ EXPORT_SYMBOL(onenand_addr);
 
 /**
  * onenand_get_density - [DEFAULT] Get OneNAND density
+<<<<<<< HEAD
  * @param dev_id	OneNAND device ID
+=======
+ * @dev_id:	OneNAND device ID
+>>>>>>> upstream/android-13
  *
  * Get OneNAND density from device ID
  */
@@ -374,8 +425,13 @@ static inline int onenand_get_density(int dev_id)
 
 /**
  * flexonenand_region - [Flex-OneNAND] Return erase region of addr
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param addr		address whose erase region needs to be identified
+=======
+ * @mtd:		MTD device structure
+ * @addr:		address whose erase region needs to be identified
+>>>>>>> upstream/android-13
  */
 int flexonenand_region(struct mtd_info *mtd, loff_t addr)
 {
@@ -390,10 +446,17 @@ EXPORT_SYMBOL(flexonenand_region);
 
 /**
  * onenand_command - [DEFAULT] Send command to OneNAND device
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param cmd		the command to be sent
  * @param addr		offset to read from or write to
  * @param len		number of bytes to read or write
+=======
+ * @mtd:		MTD device structure
+ * @cmd:		the command to be sent
+ * @addr:		offset to read from or write to
+ * @len:		number of bytes to read or write
+>>>>>>> upstream/android-13
  *
  * Send command to OneNAND device. This function is used for middle/large page
  * devices (1KB/2KB Bytes per page)
@@ -522,7 +585,11 @@ static int onenand_command(struct mtd_info *mtd, int cmd, loff_t addr, size_t le
 
 /**
  * onenand_read_ecc - return ecc status
+<<<<<<< HEAD
  * @param this		onenand chip structure
+=======
+ * @this:		onenand chip structure
+>>>>>>> upstream/android-13
  */
 static inline int onenand_read_ecc(struct onenand_chip *this)
 {
@@ -546,8 +613,13 @@ static inline int onenand_read_ecc(struct onenand_chip *this)
 
 /**
  * onenand_wait - [DEFAULT] wait until the command is done
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param state		state to select the max. timeout value
+=======
+ * @mtd:		MTD device structure
+ * @state:		state to select the max. timeout value
+>>>>>>> upstream/android-13
  *
  * Wait for command done. This applies to all OneNAND command
  * Read can take up to 30us, erase up to 2ms and program up to 350us
@@ -628,8 +700,13 @@ static int onenand_wait(struct mtd_info *mtd, int state)
 
 /*
  * onenand_interrupt - [DEFAULT] onenand interrupt handler
+<<<<<<< HEAD
  * @param irq		onenand interrupt number
  * @param dev_id	interrupt data
+=======
+ * @irq:		onenand interrupt number
+ * @dev_id:	interrupt data
+>>>>>>> upstream/android-13
  *
  * complete the work
  */
@@ -646,8 +723,13 @@ static irqreturn_t onenand_interrupt(int irq, void *data)
 
 /*
  * onenand_interrupt_wait - [DEFAULT] wait until the command is done
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param state		state to select the max. timeout value
+=======
+ * @mtd:		MTD device structure
+ * @state:		state to select the max. timeout value
+>>>>>>> upstream/android-13
  *
  * Wait for command done.
  */
@@ -662,8 +744,13 @@ static int onenand_interrupt_wait(struct mtd_info *mtd, int state)
 
 /*
  * onenand_try_interrupt_wait - [DEFAULT] try interrupt wait
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param state		state to select the max. timeout value
+=======
+ * @mtd:		MTD device structure
+ * @state:		state to select the max. timeout value
+>>>>>>> upstream/android-13
  *
  * Try interrupt based wait (It is used one-time)
  */
@@ -692,7 +779,11 @@ static int onenand_try_interrupt_wait(struct mtd_info *mtd, int state)
 
 /*
  * onenand_setup_wait - [OneNAND Interface] setup onenand wait method
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  *
  * There's two method to wait onenand work
  * 1. polling - read interrupt status register
@@ -727,8 +818,13 @@ static void onenand_setup_wait(struct mtd_info *mtd)
 
 /**
  * onenand_bufferram_offset - [DEFAULT] BufferRAM offset
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param area		BufferRAM area
+=======
+ * @mtd:		MTD data structure
+ * @area:		BufferRAM area
+>>>>>>> upstream/android-13
  * @return		offset given area
  *
  * Return BufferRAM offset given area
@@ -750,11 +846,19 @@ static inline int onenand_bufferram_offset(struct mtd_info *mtd, int area)
 
 /**
  * onenand_read_bufferram - [OneNAND Interface] Read the bufferram area
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param area		BufferRAM area
  * @param buffer	the databuffer to put/get data
  * @param offset	offset to read from or write to
  * @param count		number of bytes to read/write
+=======
+ * @mtd:		MTD data structure
+ * @area:		BufferRAM area
+ * @buffer:	the databuffer to put/get data
+ * @offset:	offset to read from or write to
+ * @count:		number of bytes to read/write
+>>>>>>> upstream/android-13
  *
  * Read the BufferRAM area
  */
@@ -786,11 +890,19 @@ static int onenand_read_bufferram(struct mtd_info *mtd, int area,
 
 /**
  * onenand_sync_read_bufferram - [OneNAND Interface] Read the bufferram area with Sync. Burst mode
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param area		BufferRAM area
  * @param buffer	the databuffer to put/get data
  * @param offset	offset to read from or write to
  * @param count		number of bytes to read/write
+=======
+ * @mtd:		MTD data structure
+ * @area:		BufferRAM area
+ * @buffer:	the databuffer to put/get data
+ * @offset:	offset to read from or write to
+ * @count:		number of bytes to read/write
+>>>>>>> upstream/android-13
  *
  * Read the BufferRAM area with Sync. Burst Mode
  */
@@ -826,11 +938,19 @@ static int onenand_sync_read_bufferram(struct mtd_info *mtd, int area,
 
 /**
  * onenand_write_bufferram - [OneNAND Interface] Write the bufferram area
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param area		BufferRAM area
  * @param buffer	the databuffer to put/get data
  * @param offset	offset to read from or write to
  * @param count		number of bytes to read/write
+=======
+ * @mtd:		MTD data structure
+ * @area:		BufferRAM area
+ * @buffer:	the databuffer to put/get data
+ * @offset:	offset to read from or write to
+ * @count:		number of bytes to read/write
+>>>>>>> upstream/android-13
  *
  * Write the BufferRAM area
  */
@@ -867,8 +987,13 @@ static int onenand_write_bufferram(struct mtd_info *mtd, int area,
 
 /**
  * onenand_get_2x_blockpage - [GENERIC] Get blockpage at 2x program mode
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param addr		address to check
+=======
+ * @mtd:		MTD data structure
+ * @addr:		address to check
+>>>>>>> upstream/android-13
  * @return		blockpage address
  *
  * Get blockpage address at 2x program mode
@@ -891,8 +1016,13 @@ static int onenand_get_2x_blockpage(struct mtd_info *mtd, loff_t addr)
 
 /**
  * onenand_check_bufferram - [GENERIC] Check BufferRAM information
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param addr		address to check
+=======
+ * @mtd:		MTD data structure
+ * @addr:		address to check
+>>>>>>> upstream/android-13
  * @return		1 if there are valid data, otherwise 0
  *
  * Check bufferram if there is data we required
@@ -933,9 +1063,15 @@ static int onenand_check_bufferram(struct mtd_info *mtd, loff_t addr)
 
 /**
  * onenand_update_bufferram - [GENERIC] Update BufferRAM information
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param addr		address to update
  * @param valid		valid flag
+=======
+ * @mtd:		MTD data structure
+ * @addr:		address to update
+ * @valid:		valid flag
+>>>>>>> upstream/android-13
  *
  * Update BufferRAM information
  */
@@ -966,9 +1102,15 @@ static void onenand_update_bufferram(struct mtd_info *mtd, loff_t addr,
 
 /**
  * onenand_invalidate_bufferram - [GENERIC] Invalidate BufferRAM information
+<<<<<<< HEAD
  * @param mtd		MTD data structure
  * @param addr		start address to invalidate
  * @param len		length to invalidate
+=======
+ * @mtd:		MTD data structure
+ * @addr:		start address to invalidate
+ * @len:		length to invalidate
+>>>>>>> upstream/android-13
  *
  * Invalidate BufferRAM information
  */
@@ -989,8 +1131,13 @@ static void onenand_invalidate_bufferram(struct mtd_info *mtd, loff_t addr,
 
 /**
  * onenand_get_device - [GENERIC] Get chip for selected access
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param new_state	the state which is requested
+=======
+ * @mtd:		MTD device structure
+ * @new_state:	the state which is requested
+>>>>>>> upstream/android-13
  *
  * Get the device and lock it for exclusive access
  */
@@ -1027,7 +1174,11 @@ static int onenand_get_device(struct mtd_info *mtd, int new_state)
 
 /**
  * onenand_release_device - [GENERIC] release chip
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  *
  * Deselect, release chip lock and wake up anyone waiting on the device
  */
@@ -1046,15 +1197,23 @@ static void onenand_release_device(struct mtd_info *mtd)
 
 /**
  * onenand_transfer_auto_oob - [INTERN] oob auto-placement transfer
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param buf		destination address
  * @param column	oob offset to read from
  * @param thislen	oob length to read
+=======
+ * @mtd:		MTD device structure
+ * @buf:		destination address
+ * @column:	oob offset to read from
+ * @thislen:	oob length to read
+>>>>>>> upstream/android-13
  */
 static int onenand_transfer_auto_oob(struct mtd_info *mtd, uint8_t *buf, int column,
 				int thislen)
 {
 	struct onenand_chip *this = mtd->priv;
+<<<<<<< HEAD
 	int ret;
 
 	this->read_bufferram(mtd, ONENAND_SPARERAM, this->oob_buf, 0,
@@ -1065,13 +1224,26 @@ static int onenand_transfer_auto_oob(struct mtd_info *mtd, uint8_t *buf, int col
 		return ret;
 
 	return 0;
+=======
+
+	this->read_bufferram(mtd, ONENAND_SPARERAM, this->oob_buf, 0,
+			     mtd->oobsize);
+	return mtd_ooblayout_get_databytes(mtd, buf, this->oob_buf,
+					   column, thislen);
+>>>>>>> upstream/android-13
 }
 
 /**
  * onenand_recover_lsb - [Flex-OneNAND] Recover LSB page data
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param addr		address to recover
  * @param status	return value from onenand_wait / onenand_bbt_wait
+=======
+ * @mtd:		MTD device structure
+ * @addr:		address to recover
+ * @status:	return value from onenand_wait / onenand_bbt_wait
+>>>>>>> upstream/android-13
  *
  * MLC NAND Flash cell has paired pages - LSB page and MSB page. LSB page has
  * lower page address and MSB page has higher page address in paired pages.
@@ -1112,9 +1284,15 @@ static int onenand_recover_lsb(struct mtd_info *mtd, loff_t addr, int status)
 
 /**
  * onenand_mlc_read_ops_nolock - MLC OneNAND read main and/or out-of-band
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		offset to read from
  * @param ops:		oob operation description structure
+=======
+ * @mtd:		MTD device structure
+ * @from:		offset to read from
+ * @ops:		oob operation description structure
+>>>>>>> upstream/android-13
  *
  * MLC OneNAND / Flex-OneNAND has 4KB page size and 4KB dataram.
  * So, read-while-load is not present.
@@ -1214,9 +1392,15 @@ static int onenand_mlc_read_ops_nolock(struct mtd_info *mtd, loff_t from,
 
 /**
  * onenand_read_ops_nolock - [OneNAND Interface] OneNAND read main and/or out-of-band
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		offset to read from
  * @param ops:		oob operation description structure
+=======
+ * @mtd:		MTD device structure
+ * @from:		offset to read from
+ * @ops:		oob operation description structure
+>>>>>>> upstream/android-13
  *
  * OneNAND read main and/or out-of-band data
  */
@@ -1343,9 +1527,15 @@ static int onenand_read_ops_nolock(struct mtd_info *mtd, loff_t from,
 
 /**
  * onenand_read_oob_nolock - [MTD Interface] OneNAND read out-of-band
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		offset to read from
  * @param ops:		oob operation description structure
+=======
+ * @mtd:		MTD device structure
+ * @from:		offset to read from
+ * @ops:		oob operation description structure
+>>>>>>> upstream/android-13
  *
  * OneNAND read out-of-band data from the spare area
  */
@@ -1438,10 +1628,17 @@ static int onenand_read_oob_nolock(struct mtd_info *mtd, loff_t from,
 
 /**
  * onenand_read_oob - [MTD Interface] Read main and/or out-of-band
+<<<<<<< HEAD
  * @param mtd:		MTD device structure
  * @param from:		offset to read from
  * @param ops:		oob operation description structure
 
+=======
+ * @mtd:		MTD device structure
+ * @from:		offset to read from
+ * @ops:		oob operation description structure
+ *
+>>>>>>> upstream/android-13
  * Read main and/or out-of-band
  */
 static int onenand_read_oob(struct mtd_info *mtd, loff_t from,
@@ -1474,8 +1671,13 @@ static int onenand_read_oob(struct mtd_info *mtd, loff_t from,
 
 /**
  * onenand_bbt_wait - [DEFAULT] wait until the command is done
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param state		state to select the max. timeout value
+=======
+ * @mtd:		MTD device structure
+ * @state:		state to select the max. timeout value
+>>>>>>> upstream/android-13
  *
  * Wait for command done.
  */
@@ -1525,9 +1727,15 @@ static int onenand_bbt_wait(struct mtd_info *mtd, int state)
 
 /**
  * onenand_bbt_read_oob - [MTD Interface] OneNAND read out-of-band for bbt scan
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		offset to read from
  * @param ops		oob operation description structure
+=======
+ * @mtd:		MTD device structure
+ * @from:		offset to read from
+ * @ops:		oob operation description structure
+>>>>>>> upstream/android-13
  *
  * OneNAND read out-of-band data from the spare area for bbt scan
  */
@@ -1602,9 +1810,15 @@ int onenand_bbt_read_oob(struct mtd_info *mtd, loff_t from,
 #ifdef CONFIG_MTD_ONENAND_VERIFY_WRITE
 /**
  * onenand_verify_oob - [GENERIC] verify the oob contents after a write
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param buf		the databuffer to verify
  * @param to		offset to read from
+=======
+ * @mtd:		MTD device structure
+ * @buf:		the databuffer to verify
+ * @to:		offset to read from
+>>>>>>> upstream/android-13
  */
 static int onenand_verify_oob(struct mtd_info *mtd, const u_char *buf, loff_t to)
 {
@@ -1630,10 +1844,17 @@ static int onenand_verify_oob(struct mtd_info *mtd, const u_char *buf, loff_t to
 
 /**
  * onenand_verify - [GENERIC] verify the chip contents after a write
+<<<<<<< HEAD
  * @param mtd          MTD device structure
  * @param buf          the databuffer to verify
  * @param addr         offset to read from
  * @param len          number of bytes to read and compare
+=======
+ * @mtd:          MTD device structure
+ * @buf:          the databuffer to verify
+ * @addr:         offset to read from
+ * @len:          number of bytes to read and compare
+>>>>>>> upstream/android-13
  */
 static int onenand_verify(struct mtd_info *mtd, const u_char *buf, loff_t addr, size_t len)
 {
@@ -1692,11 +1913,19 @@ static void onenand_panic_wait(struct mtd_info *mtd)
 
 /**
  * onenand_panic_write - [MTD Interface] write buffer to FLASH in a panic context
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param to		offset to write to
  * @param len		number of bytes to write
  * @param retlen	pointer to variable to store the number of written bytes
  * @param buf		the data to write
+=======
+ * @mtd:		MTD device structure
+ * @to:		offset to write to
+ * @len:		number of bytes to write
+ * @retlen:	pointer to variable to store the number of written bytes
+ * @buf:		the data to write
+>>>>>>> upstream/android-13
  *
  * Write with ECC
  */
@@ -1770,11 +1999,19 @@ static int onenand_panic_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 /**
  * onenand_fill_auto_oob - [INTERN] oob auto-placement transfer
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param oob_buf	oob buffer
  * @param buf		source address
  * @param column	oob offset to write to
  * @param thislen	oob length to write
+=======
+ * @mtd:		MTD device structure
+ * @oob_buf:	oob buffer
+ * @buf:		source address
+ * @column:	oob offset to write to
+ * @thislen:	oob length to write
+>>>>>>> upstream/android-13
  */
 static int onenand_fill_auto_oob(struct mtd_info *mtd, u_char *oob_buf,
 				  const u_char *buf, int column, int thislen)
@@ -1784,9 +2021,15 @@ static int onenand_fill_auto_oob(struct mtd_info *mtd, u_char *oob_buf,
 
 /**
  * onenand_write_ops_nolock - [OneNAND Interface] write main and/or out-of-band
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param to		offset to write to
  * @param ops		oob operation description structure
+=======
+ * @mtd:		MTD device structure
+ * @to:		offset to write to
+ * @ops:		oob operation description structure
+>>>>>>> upstream/android-13
  *
  * Write main and/or oob with ECC
  */
@@ -1965,12 +2208,18 @@ static int onenand_write_ops_nolock(struct mtd_info *mtd, loff_t to,
 
 /**
  * onenand_write_oob_nolock - [INTERN] OneNAND write out-of-band
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param to		offset to write to
  * @param len		number of bytes to write
  * @param retlen	pointer to variable to store the number of written bytes
  * @param buf		the data to write
  * @param mode		operation mode
+=======
+ * @mtd:		MTD device structure
+ * @to:			offset to write to
+ * @ops:                oob operation description structure
+>>>>>>> upstream/android-13
  *
  * OneNAND write out-of-band
  */
@@ -2078,9 +2327,15 @@ static int onenand_write_oob_nolock(struct mtd_info *mtd, loff_t to,
 
 /**
  * onenand_write_oob - [MTD Interface] NAND write data and/or out-of-band
+<<<<<<< HEAD
  * @param mtd:		MTD device structure
  * @param to:		offset to write
  * @param ops:		oob operation description structure
+=======
+ * @mtd:		MTD device structure
+ * @to:			offset to write
+ * @ops:		oob operation description structure
+>>>>>>> upstream/android-13
  */
 static int onenand_write_oob(struct mtd_info *mtd, loff_t to,
 			     struct mtd_oob_ops *ops)
@@ -2109,9 +2364,15 @@ static int onenand_write_oob(struct mtd_info *mtd, loff_t to,
 
 /**
  * onenand_block_isbad_nolock - [GENERIC] Check if a block is marked bad
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param ofs		offset from device start
  * @param allowbbt	1, if its allowed to access the bbt area
+=======
+ * @mtd:		MTD device structure
+ * @ofs:		offset from device start
+ * @allowbbt:	1, if its allowed to access the bbt area
+>>>>>>> upstream/android-13
  *
  * Check, if the block is bad. Either by reading the bad block table or
  * calling of the scan function.
@@ -2152,9 +2413,15 @@ static int onenand_multiblock_erase_verify(struct mtd_info *mtd,
 
 /**
  * onenand_multiblock_erase - [INTERN] erase block(s) using multiblock erase
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param instr		erase instruction
  * @param region	erase region
+=======
+ * @mtd:		MTD device structure
+ * @instr:		erase instruction
+ * @block_size:		block size
+>>>>>>> upstream/android-13
  *
  * Erase one or more blocks up to 64 block at a time
  */
@@ -2262,10 +2529,17 @@ static int onenand_multiblock_erase(struct mtd_info *mtd,
 
 /**
  * onenand_block_by_block_erase - [INTERN] erase block(s) using regular erase
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param instr		erase instruction
  * @param region	erase region
  * @param block_size	erase block size
+=======
+ * @mtd:		MTD device structure
+ * @instr:		erase instruction
+ * @region:	erase region
+ * @block_size:	erase block size
+>>>>>>> upstream/android-13
  *
  * Erase one or more blocks one block at a time
  */
@@ -2334,8 +2608,13 @@ static int onenand_block_by_block_erase(struct mtd_info *mtd,
 
 /**
  * onenand_erase - [MTD Interface] erase block(s)
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param instr		erase instruction
+=======
+ * @mtd:		MTD device structure
+ * @instr:		erase instruction
+>>>>>>> upstream/android-13
  *
  * Erase one or more blocks
  */
@@ -2399,7 +2678,11 @@ static int onenand_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 /**
  * onenand_sync - [MTD Interface] sync
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  *
  * Sync is actually a wait for chip ready function
  */
@@ -2416,8 +2699,13 @@ static void onenand_sync(struct mtd_info *mtd)
 
 /**
  * onenand_block_isbad - [MTD Interface] Check whether the block at the given offset is bad
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
+=======
+ * @mtd:		MTD device structure
+ * @ofs:		offset relative to mtd start
+>>>>>>> upstream/android-13
  *
  * Check whether the block is bad
  */
@@ -2433,8 +2721,13 @@ static int onenand_block_isbad(struct mtd_info *mtd, loff_t ofs)
 
 /**
  * onenand_default_block_markbad - [DEFAULT] mark a block bad
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param ofs		offset from device start
+=======
+ * @mtd:		MTD device structure
+ * @ofs:		offset from device start
+>>>>>>> upstream/android-13
  *
  * This is the default implementation, which can be overridden by
  * a hardware specific driver.
@@ -2458,7 +2751,11 @@ static int onenand_default_block_markbad(struct mtd_info *mtd, loff_t ofs)
                 bbm->bbt[block >> 2] |= 0x01 << ((block & 0x03) << 1);
 
         /* We write two bytes, so we don't have to mess with 16-bit access */
+<<<<<<< HEAD
         ofs += mtd->oobsize + (bbm->badblockpos & ~0x01);
+=======
+        ofs += mtd->oobsize + (this->badblockpos & ~0x01);
+>>>>>>> upstream/android-13
 	/* FIXME : What to do when marking SLC block in partition
 	 * 	   with MLC erasesize? For now, it is not advisable to
 	 *	   create partitions containing both SLC and MLC regions.
@@ -2468,8 +2765,13 @@ static int onenand_default_block_markbad(struct mtd_info *mtd, loff_t ofs)
 
 /**
  * onenand_block_markbad - [MTD Interface] Mark the block at the given offset as bad
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
+=======
+ * @mtd:		MTD device structure
+ * @ofs:		offset relative to mtd start
+>>>>>>> upstream/android-13
  *
  * Mark the block as bad
  */
@@ -2494,10 +2796,17 @@ static int onenand_block_markbad(struct mtd_info *mtd, loff_t ofs)
 
 /**
  * onenand_do_lock_cmd - [OneNAND Interface] Lock or unlock block(s)
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
  * @param len		number of bytes to lock or unlock
  * @param cmd		lock or unlock command
+=======
+ * @mtd:		MTD device structure
+ * @ofs:		offset relative to mtd start
+ * @len:		number of bytes to lock or unlock
+ * @cmd:		lock or unlock command
+>>>>>>> upstream/android-13
  *
  * Lock or unlock one or more blocks
  */
@@ -2574,9 +2883,15 @@ static int onenand_do_lock_cmd(struct mtd_info *mtd, loff_t ofs, size_t len, int
 
 /**
  * onenand_lock - [MTD Interface] Lock block(s)
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
  * @param len		number of bytes to unlock
+=======
+ * @mtd:		MTD device structure
+ * @ofs:		offset relative to mtd start
+ * @len:		number of bytes to unlock
+>>>>>>> upstream/android-13
  *
  * Lock one or more blocks
  */
@@ -2592,9 +2907,15 @@ static int onenand_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 
 /**
  * onenand_unlock - [MTD Interface] Unlock block(s)
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param ofs		offset relative to mtd start
  * @param len		number of bytes to unlock
+=======
+ * @mtd:		MTD device structure
+ * @ofs:		offset relative to mtd start
+ * @len:		number of bytes to unlock
+>>>>>>> upstream/android-13
  *
  * Unlock one or more blocks
  */
@@ -2610,7 +2931,11 @@ static int onenand_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
 
 /**
  * onenand_check_lock_status - [OneNAND Interface] Check lock status
+<<<<<<< HEAD
  * @param this		onenand chip data structure
+=======
+ * @this:		onenand chip data structure
+>>>>>>> upstream/android-13
  *
  * Check lock status
  */
@@ -2644,7 +2969,11 @@ static int onenand_check_lock_status(struct onenand_chip *this)
 
 /**
  * onenand_unlock_all - [OneNAND Interface] unlock all blocks
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  *
  * Unlock all blocks
  */
@@ -2691,10 +3020,17 @@ static void onenand_unlock_all(struct mtd_info *mtd)
 
 /**
  * onenand_otp_command - Send OTP specific command to OneNAND device
+<<<<<<< HEAD
  * @param mtd	 MTD device structure
  * @param cmd	 the command to be sent
  * @param addr	 offset to read from or write to
  * @param len	 number of bytes to read or write
+=======
+ * @mtd:	 MTD device structure
+ * @cmd:	 the command to be sent
+ * @addr:	 offset to read from or write to
+ * @len:	 number of bytes to read or write
+>>>>>>> upstream/android-13
  */
 static int onenand_otp_command(struct mtd_info *mtd, int cmd, loff_t addr,
 				size_t len)
@@ -2766,11 +3102,17 @@ static int onenand_otp_command(struct mtd_info *mtd, int cmd, loff_t addr,
 
 /**
  * onenand_otp_write_oob_nolock - [INTERN] OneNAND write out-of-band, specific to OTP
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param to		offset to write to
  * @param len		number of bytes to write
  * @param retlen	pointer to variable to store the number of written bytes
  * @param buf		the data to write
+=======
+ * @mtd:		MTD device structure
+ * @to:			offset to write to
+ * @ops:                oob operation description structure
+>>>>>>> upstream/android-13
  *
  * OneNAND write out-of-band only for OTP
  */
@@ -2856,7 +3198,11 @@ static int onenand_otp_write_oob_nolock(struct mtd_info *mtd, loff_t to,
 
 		/* Exit OTP access mode */
 		this->command(mtd, ONENAND_CMD_RESET, 0, 0);
+<<<<<<< HEAD
 		this->wait(mtd, FL_RESETING);
+=======
+		this->wait(mtd, FL_RESETTING);
+>>>>>>> upstream/android-13
 
 		status = this->read_word(this->base + ONENAND_REG_CTRL_STATUS);
 		status &= 0x60;
@@ -2897,11 +3243,19 @@ typedef int (*otp_op_t)(struct mtd_info *mtd, loff_t form, size_t len,
 
 /**
  * do_otp_read - [DEFAULT] Read OTP block area
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		The offset to read
  * @param len		number of bytes to read
  * @param retlen	pointer to variable to store the number of readbytes
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @from:		The offset to read
+ * @len:		number of bytes to read
+ * @retlen:	pointer to variable to store the number of readbytes
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Read OTP block area.
  */
@@ -2927,18 +3281,30 @@ static int do_otp_read(struct mtd_info *mtd, loff_t from, size_t len,
 
 	/* Exit OTP access mode */
 	this->command(mtd, ONENAND_CMD_RESET, 0, 0);
+<<<<<<< HEAD
 	this->wait(mtd, FL_RESETING);
+=======
+	this->wait(mtd, FL_RESETTING);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 /**
  * do_otp_write - [DEFAULT] Write OTP block area
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param to		The offset to write
  * @param len		number of bytes to write
  * @param retlen	pointer to variable to store the number of write bytes
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @to:		The offset to write
+ * @len:		number of bytes to write
+ * @retlen:	pointer to variable to store the number of write bytes
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Write OTP block area.
  */
@@ -2971,18 +3337,30 @@ static int do_otp_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 	/* Exit OTP access mode */
 	this->command(mtd, ONENAND_CMD_RESET, 0, 0);
+<<<<<<< HEAD
 	this->wait(mtd, FL_RESETING);
+=======
+	this->wait(mtd, FL_RESETTING);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 /**
  * do_otp_lock - [DEFAULT] Lock OTP block area
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		The offset to lock
  * @param len		number of bytes to lock
  * @param retlen	pointer to variable to store the number of lock bytes
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @from:		The offset to lock
+ * @len:		number of bytes to lock
+ * @retlen:	pointer to variable to store the number of lock bytes
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Lock OTP block area.
  */
@@ -3011,7 +3389,11 @@ static int do_otp_lock(struct mtd_info *mtd, loff_t from, size_t len,
 
 		/* Exit OTP access mode */
 		this->command(mtd, ONENAND_CMD_RESET, 0, 0);
+<<<<<<< HEAD
 		this->wait(mtd, FL_RESETING);
+=======
+		this->wait(mtd, FL_RESETTING);
+>>>>>>> upstream/android-13
 	} else {
 		ops.mode = MTD_OPS_PLACE_OOB;
 		ops.ooblen = len;
@@ -3026,6 +3408,7 @@ static int do_otp_lock(struct mtd_info *mtd, loff_t from, size_t len,
 
 /**
  * onenand_otp_walk - [DEFAULT] Handle OTP operation
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		The offset to read/write
  * @param len		number of bytes to read/write
@@ -3033,6 +3416,15 @@ static int do_otp_lock(struct mtd_info *mtd, loff_t from, size_t len,
  * @param buf		the databuffer to put/get data
  * @param action	do given action
  * @param mode		specify user and factory
+=======
+ * @mtd:		MTD device structure
+ * @from:		The offset to read/write
+ * @len:		number of bytes to read/write
+ * @retlen:	pointer to variable to store the number of read bytes
+ * @buf:		the databuffer to put/get data
+ * @action:	do given action
+ * @mode:		specify user and factory
+>>>>>>> upstream/android-13
  *
  * Handle OTP operation.
  */
@@ -3107,10 +3499,17 @@ static int onenand_otp_walk(struct mtd_info *mtd, loff_t from, size_t len,
 
 /**
  * onenand_get_fact_prot_info - [MTD Interface] Read factory OTP info
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param len		number of bytes to read
  * @param retlen	pointer to variable to store the number of read bytes
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @len:		number of bytes to read
+ * @retlen:	pointer to variable to store the number of read bytes
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Read factory OTP info.
  */
@@ -3123,11 +3522,19 @@ static int onenand_get_fact_prot_info(struct mtd_info *mtd, size_t len,
 
 /**
  * onenand_read_fact_prot_reg - [MTD Interface] Read factory OTP area
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		The offset to read
  * @param len		number of bytes to read
  * @param retlen	pointer to variable to store the number of read bytes
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @from:		The offset to read
+ * @len:		number of bytes to read
+ * @retlen:	pointer to variable to store the number of read bytes
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Read factory OTP area.
  */
@@ -3139,10 +3546,17 @@ static int onenand_read_fact_prot_reg(struct mtd_info *mtd, loff_t from,
 
 /**
  * onenand_get_user_prot_info - [MTD Interface] Read user OTP info
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param retlen	pointer to variable to store the number of read bytes
  * @param len		number of bytes to read
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @retlen:	pointer to variable to store the number of read bytes
+ * @len:		number of bytes to read
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Read user OTP info.
  */
@@ -3155,11 +3569,19 @@ static int onenand_get_user_prot_info(struct mtd_info *mtd, size_t len,
 
 /**
  * onenand_read_user_prot_reg - [MTD Interface] Read user OTP area
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		The offset to read
  * @param len		number of bytes to read
  * @param retlen	pointer to variable to store the number of read bytes
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @from:		The offset to read
+ * @len:		number of bytes to read
+ * @retlen:	pointer to variable to store the number of read bytes
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Read user OTP area.
  */
@@ -3171,25 +3593,46 @@ static int onenand_read_user_prot_reg(struct mtd_info *mtd, loff_t from,
 
 /**
  * onenand_write_user_prot_reg - [MTD Interface] Write user OTP area
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		The offset to write
  * @param len		number of bytes to write
  * @param retlen	pointer to variable to store the number of write bytes
  * @param buf		the databuffer to put/get data
+=======
+ * @mtd:		MTD device structure
+ * @from:		The offset to write
+ * @len:		number of bytes to write
+ * @retlen:	pointer to variable to store the number of write bytes
+ * @buf:		the databuffer to put/get data
+>>>>>>> upstream/android-13
  *
  * Write user OTP area.
  */
 static int onenand_write_user_prot_reg(struct mtd_info *mtd, loff_t from,
+<<<<<<< HEAD
 			size_t len, size_t *retlen, u_char *buf)
 {
 	return onenand_otp_walk(mtd, from, len, retlen, buf, do_otp_write, MTD_OTP_USER);
+=======
+			size_t len, size_t *retlen, const u_char *buf)
+{
+	return onenand_otp_walk(mtd, from, len, retlen, (u_char *)buf,
+				do_otp_write, MTD_OTP_USER);
+>>>>>>> upstream/android-13
 }
 
 /**
  * onenand_lock_user_prot_reg - [MTD Interface] Lock user OTP area
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param from		The offset to lock
  * @param len		number of bytes to unlock
+=======
+ * @mtd:		MTD device structure
+ * @from:		The offset to lock
+ * @len:		number of bytes to unlock
+>>>>>>> upstream/android-13
  *
  * Write lock mark on spare area in page 0 in OTP block
  */
@@ -3242,7 +3685,11 @@ static int onenand_lock_user_prot_reg(struct mtd_info *mtd, loff_t from,
 
 /**
  * onenand_check_features - Check and set OneNAND features
+<<<<<<< HEAD
  * @param mtd		MTD data structure
+=======
+ * @mtd:		MTD data structure
+>>>>>>> upstream/android-13
  *
  * Check and set OneNAND features
  * - lock scheme
@@ -3260,6 +3707,12 @@ static void onenand_check_features(struct mtd_info *mtd)
 
 	/* Lock scheme */
 	switch (density) {
+<<<<<<< HEAD
+=======
+	case ONENAND_DEVICE_DENSITY_8Gb:
+		this->options |= ONENAND_HAS_NOP_1;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ONENAND_DEVICE_DENSITY_4Gb:
 		if (ONENAND_IS_DDP(this))
 			this->options |= ONENAND_HAS_2PLANE;
@@ -3280,12 +3733,21 @@ static void onenand_check_features(struct mtd_info *mtd)
 			if ((this->version_id & 0xf) == 0xe)
 				this->options |= ONENAND_HAS_NOP_1;
 		}
+<<<<<<< HEAD
+=======
+		this->options |= ONENAND_HAS_UNLOCK_ALL;
+		break;
+>>>>>>> upstream/android-13
 
 	case ONENAND_DEVICE_DENSITY_2Gb:
 		/* 2Gb DDP does not have 2 plane */
 		if (!ONENAND_IS_DDP(this))
 			this->options |= ONENAND_HAS_2PLANE;
 		this->options |= ONENAND_HAS_UNLOCK_ALL;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	case ONENAND_DEVICE_DENSITY_1Gb:
 		/* A-Die has all block unlock */
@@ -3326,8 +3788,13 @@ static void onenand_check_features(struct mtd_info *mtd)
 
 /**
  * onenand_print_device_info - Print device & version ID
+<<<<<<< HEAD
  * @param device        device ID
  * @param version	version ID
+=======
+ * @device:        device ID
+ * @version:	version ID
+>>>>>>> upstream/android-13
  *
  * Print device & version ID
  */
@@ -3357,7 +3824,11 @@ static const struct onenand_manufacturers onenand_manuf_ids[] = {
 
 /**
  * onenand_check_maf - Check manufacturer ID
+<<<<<<< HEAD
  * @param manuf         manufacturer ID
+=======
+ * @manuf:         manufacturer ID
+>>>>>>> upstream/android-13
  *
  * Check manufacturer ID
  */
@@ -3382,9 +3853,15 @@ static int onenand_check_maf(int manuf)
 }
 
 /**
+<<<<<<< HEAD
 * flexonenand_get_boundary	- Reads the SLC boundary
 * @param onenand_info		- onenand info structure
 **/
+=======
+ * flexonenand_get_boundary	- Reads the SLC boundary
+ * @mtd:		MTD data structure
+ */
+>>>>>>> upstream/android-13
 static int flexonenand_get_boundary(struct mtd_info *mtd)
 {
 	struct onenand_chip *this = mtd->priv;
@@ -3410,7 +3887,11 @@ static int flexonenand_get_boundary(struct mtd_info *mtd)
 		this->boundary[die] = bdry & FLEXONENAND_PI_MASK;
 
 		this->command(mtd, ONENAND_CMD_RESET, 0, 0);
+<<<<<<< HEAD
 		this->wait(mtd, FL_RESETING);
+=======
+		this->wait(mtd, FL_RESETTING);
+>>>>>>> upstream/android-13
 
 		printk(KERN_INFO "Die %d boundary: %d%s\n", die,
 		       this->boundary[die], locked ? "(Locked)" : "(Unlocked)");
@@ -3424,7 +3905,11 @@ static int flexonenand_get_boundary(struct mtd_info *mtd)
 /**
  * flexonenand_get_size - Fill up fields in onenand_chip and mtd_info
  * 			  boundary[], diesize[], mtd->size, mtd->erasesize
+<<<<<<< HEAD
  * @param mtd		- MTD device structure
+=======
+ * @mtd:		- MTD device structure
+>>>>>>> upstream/android-13
  */
 static void flexonenand_get_size(struct mtd_info *mtd)
 {
@@ -3495,9 +3980,15 @@ static void flexonenand_get_size(struct mtd_info *mtd)
 
 /**
  * flexonenand_check_blocks_erased - Check if blocks are erased
+<<<<<<< HEAD
  * @param mtd_info	- mtd info structure
  * @param start		- first erase block to check
  * @param end		- last erase block to check
+=======
+ * @mtd:	mtd info structure
+ * @start:	first erase block to check
+ * @end:	last erase block to check
+>>>>>>> upstream/android-13
  *
  * Converting an unerased block from MLC to SLC
  * causes byte values to change. Since both data and its ECC
@@ -3550,9 +4041,14 @@ static int flexonenand_check_blocks_erased(struct mtd_info *mtd, int start, int 
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * flexonenand_set_boundary	- Writes the SLC boundary
  * @param mtd			- mtd info structure
+=======
+/*
+ * flexonenand_set_boundary	- Writes the SLC boundary
+>>>>>>> upstream/android-13
  */
 static int flexonenand_set_boundary(struct mtd_info *mtd, int die,
 				    int boundary, int lock)
@@ -3632,7 +4128,11 @@ static int flexonenand_set_boundary(struct mtd_info *mtd, int die,
 	ret = this->wait(mtd, FL_WRITING);
 out:
 	this->write_word(ONENAND_CMD_RESET, this->base + ONENAND_REG_COMMAND);
+<<<<<<< HEAD
 	this->wait(mtd, FL_RESETING);
+=======
+	this->wait(mtd, FL_RESETTING);
+>>>>>>> upstream/android-13
 	if (!ret)
 		/* Recalculate device size on boundary change*/
 		flexonenand_get_size(mtd);
@@ -3642,7 +4142,11 @@ out:
 
 /**
  * onenand_chip_probe - [OneNAND Interface] The generic chip probe
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  *
  * OneNAND detection method:
  *   Compare the values from command with ones from register
@@ -3668,7 +4172,11 @@ static int onenand_chip_probe(struct mtd_info *mtd)
 	/* Reset OneNAND to read default register values */
 	this->write_word(ONENAND_CMD_RESET, this->base + ONENAND_BOOTRAM);
 	/* Wait reset */
+<<<<<<< HEAD
 	this->wait(mtd, FL_RESETING);
+=======
+	this->wait(mtd, FL_RESETTING);
+>>>>>>> upstream/android-13
 
 	/* Restore system configuration 1 */
 	this->write_word(syscfg, this->base + ONENAND_REG_SYS_CFG1);
@@ -3690,7 +4198,11 @@ static int onenand_chip_probe(struct mtd_info *mtd)
 
 /**
  * onenand_probe - [OneNAND Interface] Probe the OneNAND device
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  */
 static int onenand_probe(struct mtd_info *mtd)
 {
@@ -3785,7 +4297,11 @@ static int onenand_probe(struct mtd_info *mtd)
 
 /**
  * onenand_suspend - [MTD Interface] Suspend the OneNAND flash
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  */
 static int onenand_suspend(struct mtd_info *mtd)
 {
@@ -3794,7 +4310,11 @@ static int onenand_suspend(struct mtd_info *mtd)
 
 /**
  * onenand_resume - [MTD Interface] Resume the OneNAND flash
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  */
 static void onenand_resume(struct mtd_info *mtd)
 {
@@ -3809,8 +4329,13 @@ static void onenand_resume(struct mtd_info *mtd)
 
 /**
  * onenand_scan - [OneNAND Interface] Scan for the OneNAND device
+<<<<<<< HEAD
  * @param mtd		MTD device structure
  * @param maxchips	Number of chips to scan for
+=======
+ * @mtd:		MTD device structure
+ * @maxchips:	Number of chips to scan for
+>>>>>>> upstream/android-13
  *
  * This fills out all the not initialized function pointers
  * with the defaults.
@@ -3877,6 +4402,12 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 		if (!this->oob_buf) {
 			if (this->options & ONENAND_PAGEBUF_ALLOC) {
 				this->options &= ~ONENAND_PAGEBUF_ALLOC;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MTD_ONENAND_VERIFY_WRITE
+				kfree(this->verify_buf);
+#endif
+>>>>>>> upstream/android-13
 				kfree(this->page_buf);
 			}
 			return -ENOMEM;
@@ -3967,6 +4498,12 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 	if (!(this->options & ONENAND_SKIP_INITIAL_UNLOCKING))
 		this->unlock_all(mtd);
 
+<<<<<<< HEAD
+=======
+	/* Set the bad block marker position */
+	this->badblockpos = ONENAND_BADBLOCK_POS;
+
+>>>>>>> upstream/android-13
 	ret = this->scan_bbt(mtd);
 	if ((!FLEXONENAND(this)) || ret)
 		return ret;
@@ -3981,7 +4518,11 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 
 /**
  * onenand_release - [OneNAND Interface] Free resources held by the OneNAND device
+<<<<<<< HEAD
  * @param mtd		MTD device structure
+=======
+ * @mtd:		MTD device structure
+>>>>>>> upstream/android-13
  */
 void onenand_release(struct mtd_info *mtd)
 {

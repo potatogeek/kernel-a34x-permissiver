@@ -77,13 +77,20 @@
 
 #include <linux/sched.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/buffer_head.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/genhd.h>
 #include <linux/blkdev.h>
 #include <linux/mm.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/crc32c.h>
+=======
+#include <crypto/hash.h>
+>>>>>>> upstream/android-13
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
@@ -152,11 +159,16 @@ struct btrfsic_block {
 	struct list_head ref_to_list;	/* list */
 	struct list_head ref_from_list;	/* list */
 	struct btrfsic_block *next_in_same_bio;
+<<<<<<< HEAD
 	void *orig_bio_bh_private;
 	union {
 		bio_end_io_t *bio;
 		bh_end_io_t *bh;
 	} orig_bio_bh_end_io;
+=======
+	void *orig_bio_private;
+	bio_end_io_t *orig_bio_end_io;
+>>>>>>> upstream/android-13
 	int submit_bio_bh_rw;
 	u64 flush_gen; /* only valid if !never_written */
 };
@@ -237,7 +249,10 @@ struct btrfsic_stack_frame {
 struct btrfsic_state {
 	u32 print_mask;
 	int include_extent_data;
+<<<<<<< HEAD
 	int csum_size;
+=======
+>>>>>>> upstream/android-13
 	struct list_head all_blocks_list;
 	struct btrfsic_block_hashtable block_hashtable;
 	struct btrfsic_block_link_hashtable block_link_hashtable;
@@ -248,6 +263,7 @@ struct btrfsic_state {
 	u32 datablock_size;
 };
 
+<<<<<<< HEAD
 static void btrfsic_block_init(struct btrfsic_block *b);
 static struct btrfsic_block *btrfsic_block_alloc(void);
 static void btrfsic_block_free(struct btrfsic_block *b);
@@ -289,6 +305,8 @@ static struct btrfsic_stack_frame *btrfsic_stack_frame_alloc(void);
 static void btrfsic_stack_frame_free(struct btrfsic_stack_frame *sf);
 static int btrfsic_process_superblock(struct btrfsic_state *state,
 				      struct btrfs_fs_devices *fs_devices);
+=======
+>>>>>>> upstream/android-13
 static int btrfsic_process_metablock(struct btrfsic_state *state,
 				     struct btrfsic_block *block,
 				     struct btrfsic_block_data_ctx *block_ctx,
@@ -318,6 +336,7 @@ static int btrfsic_map_block(struct btrfsic_state *state, u64 bytenr, u32 len,
 static void btrfsic_release_block_ctx(struct btrfsic_block_data_ctx *block_ctx);
 static int btrfsic_read_block(struct btrfsic_state *state,
 			      struct btrfsic_block_data_ctx *block_ctx);
+<<<<<<< HEAD
 static void btrfsic_dump_database(struct btrfsic_state *state);
 static int btrfsic_test_for_metadata(struct btrfsic_state *state,
 				     char **datav, unsigned int num_pages);
@@ -327,12 +346,17 @@ static void btrfsic_process_written_block(struct btrfsic_dev_state *dev_state,
 					  struct bio *bio, int *bio_is_patched,
 					  struct buffer_head *bh,
 					  int submit_bio_bh_rw);
+=======
+>>>>>>> upstream/android-13
 static int btrfsic_process_written_superblock(
 		struct btrfsic_state *state,
 		struct btrfsic_block *const block,
 		struct btrfs_super_block *const super_hdr);
 static void btrfsic_bio_end_io(struct bio *bp);
+<<<<<<< HEAD
 static void btrfsic_bh_end_io(struct buffer_head *bh, int uptodate);
+=======
+>>>>>>> upstream/android-13
 static int btrfsic_is_block_ref_by_superblock(const struct btrfsic_state *state,
 					      const struct btrfsic_block *block,
 					      int recursion_level);
@@ -399,8 +423,13 @@ static void btrfsic_block_init(struct btrfsic_block *b)
 	b->never_written = 0;
 	b->mirror_num = 0;
 	b->next_in_same_bio = NULL;
+<<<<<<< HEAD
 	b->orig_bio_bh_private = NULL;
 	b->orig_bio_bh_end_io.bio = NULL;
+=======
+	b->orig_bio_private = NULL;
+	b->orig_bio_end_io = NULL;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&b->collision_resolving_node);
 	INIT_LIST_HEAD(&b->all_blocks_node);
 	INIT_LIST_HEAD(&b->ref_to_list);
@@ -636,12 +665,18 @@ static int btrfsic_process_superblock(struct btrfsic_state *state,
 	int ret = 0;
 	int pass;
 
+<<<<<<< HEAD
 	BUG_ON(NULL == state);
 	selected_super = kzalloc(sizeof(*selected_super), GFP_NOFS);
 	if (NULL == selected_super) {
 		pr_info("btrfsic: error, kmalloc failed!\n");
 		return -ENOMEM;
 	}
+=======
+	selected_super = kzalloc(sizeof(*selected_super), GFP_NOFS);
+	if (!selected_super)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(device, dev_head, dev_list) {
 		int i;
@@ -669,8 +704,11 @@ static int btrfsic_process_superblock(struct btrfsic_state *state,
 		return -1;
 	}
 
+<<<<<<< HEAD
 	state->csum_size = btrfs_super_csum_size(selected_super);
 
+=======
+>>>>>>> upstream/android-13
 	for (pass = 0; pass < 3; pass++) {
 		int num_copies;
 		int mirror_num;
@@ -768,29 +806,52 @@ static int btrfsic_process_superblock_dev_mirror(
 	struct btrfs_fs_info *fs_info = state->fs_info;
 	struct btrfs_super_block *super_tmp;
 	u64 dev_bytenr;
+<<<<<<< HEAD
 	struct buffer_head *bh;
 	struct btrfsic_block *superblock_tmp;
 	int pass;
 	struct block_device *const superblock_bdev = device->bdev;
+=======
+	struct btrfsic_block *superblock_tmp;
+	int pass;
+	struct block_device *const superblock_bdev = device->bdev;
+	struct page *page;
+	struct address_space *mapping = superblock_bdev->bd_inode->i_mapping;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	/* super block bytenr is always the unmapped device bytenr */
 	dev_bytenr = btrfs_sb_offset(superblock_mirror_num);
 	if (dev_bytenr + BTRFS_SUPER_INFO_SIZE > device->commit_total_bytes)
 		return -1;
+<<<<<<< HEAD
 	bh = __bread(superblock_bdev, dev_bytenr / BTRFS_BDEV_BLOCKSIZE,
 		     BTRFS_SUPER_INFO_SIZE);
 	if (NULL == bh)
 		return -1;
 	super_tmp = (struct btrfs_super_block *)
 	    (bh->b_data + (dev_bytenr & (BTRFS_BDEV_BLOCKSIZE - 1)));
+=======
+
+	page = read_cache_page_gfp(mapping, dev_bytenr >> PAGE_SHIFT, GFP_NOFS);
+	if (IS_ERR(page))
+		return -1;
+
+	super_tmp = page_address(page);
+>>>>>>> upstream/android-13
 
 	if (btrfs_super_bytenr(super_tmp) != dev_bytenr ||
 	    btrfs_super_magic(super_tmp) != BTRFS_MAGIC ||
 	    memcmp(device->uuid, super_tmp->dev_item.uuid, BTRFS_UUID_SIZE) ||
 	    btrfs_super_nodesize(super_tmp) != state->metablock_size ||
 	    btrfs_super_sectorsize(super_tmp) != state->datablock_size) {
+<<<<<<< HEAD
 		brelse(bh);
 		return 0;
+=======
+		ret = 0;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	superblock_tmp =
@@ -800,9 +861,14 @@ static int btrfsic_process_superblock_dev_mirror(
 	if (NULL == superblock_tmp) {
 		superblock_tmp = btrfsic_block_alloc();
 		if (NULL == superblock_tmp) {
+<<<<<<< HEAD
 			pr_info("btrfsic: error, kmalloc failed!\n");
 			brelse(bh);
 			return -1;
+=======
+			ret = -1;
+			goto out;
+>>>>>>> upstream/android-13
 		}
 		/* for superblock, only the dev_bytenr makes sense */
 		superblock_tmp->dev_bytenr = dev_bytenr;
@@ -886,8 +952,13 @@ static int btrfsic_process_superblock_dev_mirror(
 					      mirror_num)) {
 				pr_info("btrfsic: btrfsic_map_block(bytenr @%llu, mirror %d) failed!\n",
 				       next_bytenr, mirror_num);
+<<<<<<< HEAD
 				brelse(bh);
 				return -1;
+=======
+				ret = -1;
+				goto out;
+>>>>>>> upstream/android-13
 			}
 
 			next_block = btrfsic_block_lookup_or_add(
@@ -896,8 +967,13 @@ static int btrfsic_process_superblock_dev_mirror(
 					mirror_num, NULL);
 			if (NULL == next_block) {
 				btrfsic_release_block_ctx(&tmp_next_block_ctx);
+<<<<<<< HEAD
 				brelse(bh);
 				return -1;
+=======
+				ret = -1;
+				goto out;
+>>>>>>> upstream/android-13
 			}
 
 			next_block->disk_key = tmp_disk_key;
@@ -908,16 +984,27 @@ static int btrfsic_process_superblock_dev_mirror(
 					BTRFSIC_GENERATION_UNKNOWN);
 			btrfsic_release_block_ctx(&tmp_next_block_ctx);
 			if (NULL == l) {
+<<<<<<< HEAD
 				brelse(bh);
 				return -1;
+=======
+				ret = -1;
+				goto out;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
 	if (state->print_mask & BTRFSIC_PRINT_MASK_INITIAL_ALL_TREES)
 		btrfsic_dump_tree_sub(state, superblock_tmp, 0);
 
+<<<<<<< HEAD
 	brelse(bh);
 	return 0;
+=======
+out:
+	put_page(page);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static struct btrfsic_stack_frame *btrfsic_stack_frame_alloc(void)
@@ -925,9 +1012,13 @@ static struct btrfsic_stack_frame *btrfsic_stack_frame_alloc(void)
 	struct btrfsic_stack_frame *sf;
 
 	sf = kzalloc(sizeof(*sf), GFP_NOFS);
+<<<<<<< HEAD
 	if (NULL == sf)
 		pr_info("btrfsic: alloc memory failed!\n");
 	else
+=======
+	if (sf)
+>>>>>>> upstream/android-13
 		sf->magic = BTRFSIC_BLOCK_STACK_FRAME_MAGIC_NUMBER;
 	return sf;
 }
@@ -939,7 +1030,11 @@ static void btrfsic_stack_frame_free(struct btrfsic_stack_frame *sf)
 	kfree(sf);
 }
 
+<<<<<<< HEAD
 static int btrfsic_process_metablock(
+=======
+static noinline_for_stack int btrfsic_process_metablock(
+>>>>>>> upstream/android-13
 		struct btrfsic_state *state,
 		struct btrfsic_block *const first_block,
 		struct btrfsic_block_data_ctx *const first_block_ctx,
@@ -963,7 +1058,11 @@ static int btrfsic_process_metablock(
 	sf->prev = NULL;
 
 continue_with_new_stack_frame:
+<<<<<<< HEAD
 	sf->block->generation = le64_to_cpu(sf->hdr->generation);
+=======
+	sf->block->generation = btrfs_stack_header_generation(sf->hdr);
+>>>>>>> upstream/android-13
 	if (0 == sf->hdr->level) {
 		struct btrfs_leaf *const leafhdr =
 		    (struct btrfs_leaf *)sf->hdr;
@@ -1201,6 +1300,7 @@ static void btrfsic_read_from_block_data(
 	void *dstv, u32 offset, size_t len)
 {
 	size_t cur;
+<<<<<<< HEAD
 	size_t offset_in_page;
 	char *kaddr;
 	char *dst = (char *)dstv;
@@ -1219,6 +1319,26 @@ static void btrfsic_read_from_block_data(
 		dst += cur;
 		len -= cur;
 		offset_in_page = 0;
+=======
+	size_t pgoff;
+	char *kaddr;
+	char *dst = (char *)dstv;
+	size_t start_offset = offset_in_page(block_ctx->start);
+	unsigned long i = (start_offset + offset) >> PAGE_SHIFT;
+
+	WARN_ON(offset + len > block_ctx->len);
+	pgoff = offset_in_page(start_offset + offset);
+
+	while (len > 0) {
+		cur = min(len, ((size_t)PAGE_SIZE - pgoff));
+		BUG_ON(i >= DIV_ROUND_UP(block_ctx->len, PAGE_SIZE));
+		kaddr = block_ctx->datav[i];
+		memcpy(dst, kaddr + pgoff, cur);
+
+		dst += cur;
+		len -= cur;
+		pgoff = 0;
+>>>>>>> upstream/android-13
 		i++;
 	}
 }
@@ -1317,7 +1437,10 @@ static int btrfsic_create_link_to_next_block(
 	if (NULL == l) {
 		l = btrfsic_block_link_alloc();
 		if (NULL == l) {
+<<<<<<< HEAD
 			pr_info("btrfsic: error, kmalloc failed!\n");
+=======
+>>>>>>> upstream/android-13
 			btrfsic_release_block_ctx(next_block_ctx);
 			*next_blockp = NULL;
 			return -1;
@@ -1474,7 +1597,10 @@ static int btrfsic_handle_extent_data(
 					mirror_num,
 					&block_was_created);
 			if (NULL == next_block) {
+<<<<<<< HEAD
 				pr_info("btrfsic: error, kmalloc failed!\n");
+=======
+>>>>>>> upstream/android-13
 				btrfsic_release_block_ctx(&next_block_ctx);
 				return -1;
 			}
@@ -1569,12 +1695,20 @@ static void btrfsic_release_block_ctx(struct btrfsic_block_data_ctx *block_ctx)
 		BUG_ON(!block_ctx->pagev);
 		num_pages = (block_ctx->len + (u64)PAGE_SIZE - 1) >>
 			    PAGE_SHIFT;
+<<<<<<< HEAD
 		while (num_pages > 0) {
 			num_pages--;
 			if (block_ctx->datav[num_pages]) {
 				kunmap(block_ctx->pagev[num_pages]);
 				block_ctx->datav[num_pages] = NULL;
 			}
+=======
+		/* Pages must be unmapped in reverse order */
+		while (num_pages > 0) {
+			num_pages--;
+			if (block_ctx->datav[num_pages])
+				block_ctx->datav[num_pages] = NULL;
+>>>>>>> upstream/android-13
 			if (block_ctx->pagev[num_pages]) {
 				__free_page(block_ctx->pagev[num_pages]);
 				block_ctx->pagev[num_pages] = NULL;
@@ -1593,13 +1727,21 @@ static int btrfsic_read_block(struct btrfsic_state *state,
 {
 	unsigned int num_pages;
 	unsigned int i;
+<<<<<<< HEAD
+=======
+	size_t size;
+>>>>>>> upstream/android-13
 	u64 dev_bytenr;
 	int ret;
 
 	BUG_ON(block_ctx->datav);
 	BUG_ON(block_ctx->pagev);
 	BUG_ON(block_ctx->mem_to_free);
+<<<<<<< HEAD
 	if (block_ctx->dev_bytenr & ((u64)PAGE_SIZE - 1)) {
+=======
+	if (!PAGE_ALIGNED(block_ctx->dev_bytenr)) {
+>>>>>>> upstream/android-13
 		pr_info("btrfsic: read_block() with unaligned bytenr %llu\n",
 		       block_ctx->dev_bytenr);
 		return -1;
@@ -1607,9 +1749,14 @@ static int btrfsic_read_block(struct btrfsic_state *state,
 
 	num_pages = (block_ctx->len + (u64)PAGE_SIZE - 1) >>
 		    PAGE_SHIFT;
+<<<<<<< HEAD
 	block_ctx->mem_to_free = kcalloc(sizeof(*block_ctx->datav) +
 						sizeof(*block_ctx->pagev),
 					 num_pages, GFP_NOFS);
+=======
+	size = sizeof(*block_ctx->datav) + sizeof(*block_ctx->pagev);
+	block_ctx->mem_to_free = kcalloc(num_pages, size, GFP_NOFS);
+>>>>>>> upstream/android-13
 	if (!block_ctx->mem_to_free)
 		return -ENOMEM;
 	block_ctx->datav = block_ctx->mem_to_free;
@@ -1651,7 +1798,11 @@ static int btrfsic_read_block(struct btrfsic_state *state,
 		i = j;
 	}
 	for (i = 0; i < num_pages; i++)
+<<<<<<< HEAD
 		block_ctx->datav[i] = kmap(block_ctx->pagev[i]);
+=======
+		block_ctx->datav[i] = page_address(block_ctx->pagev[i]);
+>>>>>>> upstream/android-13
 
 	return block_ctx->len;
 }
@@ -1705,6 +1856,7 @@ static void btrfsic_dump_database(struct btrfsic_state *state)
  * Test whether the disk block contains a tree block (leaf or node)
  * (note that this test fails for the super block)
  */
+<<<<<<< HEAD
 static int btrfsic_test_for_metadata(struct btrfsic_state *state,
 				     char **datav, unsigned int num_pages)
 {
@@ -1712,6 +1864,16 @@ static int btrfsic_test_for_metadata(struct btrfsic_state *state,
 	struct btrfs_header *h;
 	u8 csum[BTRFS_CSUM_SIZE];
 	u32 crc = ~(u32)0;
+=======
+static noinline_for_stack int btrfsic_test_for_metadata(
+		struct btrfsic_state *state,
+		char **datav, unsigned int num_pages)
+{
+	struct btrfs_fs_info *fs_info = state->fs_info;
+	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+	struct btrfs_header *h;
+	u8 csum[BTRFS_CSUM_SIZE];
+>>>>>>> upstream/android-13
 	unsigned int i;
 
 	if (num_pages * PAGE_SIZE < state->metablock_size)
@@ -1719,18 +1881,34 @@ static int btrfsic_test_for_metadata(struct btrfsic_state *state,
 	num_pages = state->metablock_size >> PAGE_SHIFT;
 	h = (struct btrfs_header *)datav[0];
 
+<<<<<<< HEAD
 	if (memcmp(h->fsid, fs_info->fsid, BTRFS_FSID_SIZE))
 		return 1;
 
+=======
+	if (memcmp(h->fsid, fs_info->fs_devices->fsid, BTRFS_FSID_SIZE))
+		return 1;
+
+	shash->tfm = fs_info->csum_shash;
+	crypto_shash_init(shash);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < num_pages; i++) {
 		u8 *data = i ? datav[i] : (datav[i] + BTRFS_CSUM_SIZE);
 		size_t sublen = i ? PAGE_SIZE :
 				    (PAGE_SIZE - BTRFS_CSUM_SIZE);
 
+<<<<<<< HEAD
 		crc = crc32c(crc, data, sublen);
 	}
 	btrfs_csum_final(crc, csum);
 	if (memcmp(csum, h->csum, state->csum_size))
+=======
+		crypto_shash_update(shash, data, sublen);
+	}
+	crypto_shash_final(shash, csum);
+	if (memcmp(csum, h->csum, fs_info->csum_size))
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0; /* is metadata */
@@ -1740,7 +1918,10 @@ static void btrfsic_process_written_block(struct btrfsic_dev_state *dev_state,
 					  u64 dev_bytenr, char **mapped_datav,
 					  unsigned int num_pages,
 					  struct bio *bio, int *bio_is_patched,
+<<<<<<< HEAD
 					  struct buffer_head *bh,
+=======
+>>>>>>> upstream/android-13
 					  int submit_bio_bh_rw)
 {
 	int is_metadata;
@@ -1777,7 +1958,11 @@ again:
 				return;
 			}
 			is_metadata = 1;
+<<<<<<< HEAD
 			BUG_ON(BTRFS_SUPER_INFO_SIZE & (PAGE_SIZE - 1));
+=======
+			BUG_ON(!PAGE_ALIGNED(BTRFS_SUPER_INFO_SIZE));
+>>>>>>> upstream/android-13
 			processed_len = BTRFS_SUPER_INFO_SIZE;
 			if (state->print_mask &
 			    BTRFSIC_PRINT_MASK_TREE_BEFORE_SB_WRITE) {
@@ -1899,9 +2084,15 @@ again:
 				block->is_iodone = 0;
 				BUG_ON(NULL == bio_is_patched);
 				if (!*bio_is_patched) {
+<<<<<<< HEAD
 					block->orig_bio_bh_private =
 					    bio->bi_private;
 					block->orig_bio_bh_end_io.bio =
+=======
+					block->orig_bio_private =
+					    bio->bi_private;
+					block->orig_bio_end_io =
+>>>>>>> upstream/android-13
 					    bio->bi_end_io;
 					block->next_in_same_bio = NULL;
 					bio->bi_private = block;
@@ -1913,6 +2104,7 @@ again:
 					    bio->bi_private;
 
 					BUG_ON(NULL == chained_block);
+<<<<<<< HEAD
 					block->orig_bio_bh_private =
 					    chained_block->orig_bio_bh_private;
 					block->orig_bio_bh_end_io.bio =
@@ -1932,6 +2124,19 @@ again:
 				block->is_iodone = 1;
 				block->orig_bio_bh_private = NULL;
 				block->orig_bio_bh_end_io.bio = NULL;
+=======
+					block->orig_bio_private =
+					    chained_block->orig_bio_private;
+					block->orig_bio_end_io =
+					    chained_block->orig_bio_end_io;
+					block->next_in_same_bio = chained_block;
+					bio->bi_private = block;
+				}
+			} else {
+				block->is_iodone = 1;
+				block->orig_bio_private = NULL;
+				block->orig_bio_end_io = NULL;
+>>>>>>> upstream/android-13
 				block->next_in_same_bio = NULL;
 			}
 		}
@@ -2022,7 +2227,10 @@ again:
 
 		block = btrfsic_block_alloc();
 		if (NULL == block) {
+<<<<<<< HEAD
 			pr_info("btrfsic: error, kmalloc failed!\n");
+=======
+>>>>>>> upstream/android-13
 			btrfsic_release_block_ctx(&block_ctx);
 			goto continue_loop;
 		}
@@ -2039,8 +2247,13 @@ again:
 			block->is_iodone = 0;
 			BUG_ON(NULL == bio_is_patched);
 			if (!*bio_is_patched) {
+<<<<<<< HEAD
 				block->orig_bio_bh_private = bio->bi_private;
 				block->orig_bio_bh_end_io.bio = bio->bi_end_io;
+=======
+				block->orig_bio_private = bio->bi_private;
+				block->orig_bio_end_io = bio->bi_end_io;
+>>>>>>> upstream/android-13
 				block->next_in_same_bio = NULL;
 				bio->bi_private = block;
 				bio->bi_end_io = btrfsic_bio_end_io;
@@ -2051,6 +2264,7 @@ again:
 				    bio->bi_private;
 
 				BUG_ON(NULL == chained_block);
+<<<<<<< HEAD
 				block->orig_bio_bh_private =
 				    chained_block->orig_bio_bh_private;
 				block->orig_bio_bh_end_io.bio =
@@ -2069,6 +2283,19 @@ again:
 			block->is_iodone = 1;
 			block->orig_bio_bh_private = NULL;
 			block->orig_bio_bh_end_io.bio = NULL;
+=======
+				block->orig_bio_private =
+				    chained_block->orig_bio_private;
+				block->orig_bio_end_io =
+				    chained_block->orig_bio_end_io;
+				block->next_in_same_bio = chained_block;
+				bio->bi_private = block;
+			}
+		} else {
+			block->is_iodone = 1;
+			block->orig_bio_private = NULL;
+			block->orig_bio_end_io = NULL;
+>>>>>>> upstream/android-13
 			block->next_in_same_bio = NULL;
 		}
 		if (state->print_mask & BTRFSIC_PRINT_MASK_VERBOSE)
@@ -2109,8 +2336,13 @@ static void btrfsic_bio_end_io(struct bio *bp)
 		iodone_w_error = 1;
 
 	BUG_ON(NULL == block);
+<<<<<<< HEAD
 	bp->bi_private = block->orig_bio_bh_private;
 	bp->bi_end_io = block->orig_bio_bh_end_io.bio;
+=======
+	bp->bi_private = block->orig_bio_private;
+	bp->bi_end_io = block->orig_bio_end_io;
+>>>>>>> upstream/android-13
 
 	do {
 		struct btrfsic_block *next_block;
@@ -2143,6 +2375,7 @@ static void btrfsic_bio_end_io(struct bio *bp)
 	bp->bi_end_io(bp);
 }
 
+<<<<<<< HEAD
 static void btrfsic_bh_end_io(struct buffer_head *bh, int uptodate)
 {
 	struct btrfsic_block *block = (struct btrfsic_block *)bh->b_private;
@@ -2175,6 +2408,8 @@ static void btrfsic_bh_end_io(struct buffer_head *bh, int uptodate)
 	bh->b_end_io(bh, uptodate);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int btrfsic_process_written_superblock(
 		struct btrfsic_state *state,
 		struct btrfsic_block *const superblock,
@@ -2282,7 +2517,10 @@ static int btrfsic_process_written_superblock(
 					mirror_num,
 					&was_created);
 			if (NULL == next_block) {
+<<<<<<< HEAD
 				pr_info("btrfsic: error, kmalloc failed!\n");
+=======
+>>>>>>> upstream/android-13
 				btrfsic_release_block_ctx(&tmp_next_block_ctx);
 				return -1;
 			}
@@ -2326,7 +2564,11 @@ static int btrfsic_check_all_ref_blocks(struct btrfsic_state *state,
 		 * write operations. Therefore it keeps the linkage
 		 * information for a block until a block is
 		 * rewritten. This can temporarily cause incorrect
+<<<<<<< HEAD
 		 * and even circular linkage informations. This
+=======
+		 * and even circular linkage information. This
+>>>>>>> upstream/android-13
 		 * causes no harm unless such blocks are referenced
 		 * by the most recent super block.
 		 */
@@ -2590,10 +2832,15 @@ static struct btrfsic_block_link *btrfsic_block_link_lookup_or_add(
 						&state->block_link_hashtable);
 	if (NULL == l) {
 		l = btrfsic_block_link_alloc();
+<<<<<<< HEAD
 		if (NULL == l) {
 			pr_info("btrfsic: error, kmalloc failed!\n");
 			return NULL;
 		}
+=======
+		if (!l)
+			return NULL;
+>>>>>>> upstream/android-13
 
 		l->block_ref_to = next_block;
 		l->block_ref_from = from_block;
@@ -2637,10 +2884,16 @@ static struct btrfsic_block *btrfsic_block_lookup_or_add(
 		struct btrfsic_dev_state *dev_state;
 
 		block = btrfsic_block_alloc();
+<<<<<<< HEAD
 		if (NULL == block) {
 			pr_info("btrfsic: error, kmalloc failed!\n");
 			return NULL;
 		}
+=======
+		if (!block)
+			return NULL;
+
+>>>>>>> upstream/android-13
 		dev_state = btrfsic_dev_state_lookup(block_ctx->dev->bdev->bd_dev);
 		if (NULL == dev_state) {
 			pr_info("btrfsic: error, lookup dev_state failed!\n");
@@ -2727,6 +2980,7 @@ static struct btrfsic_dev_state *btrfsic_dev_state_lookup(dev_t dev)
 						  &btrfsic_dev_state_hashtable);
 }
 
+<<<<<<< HEAD
 int btrfsic_submit_bh(int op, int op_flags, struct buffer_head *bh)
 {
 	struct btrfsic_dev_state *dev_state;
@@ -2784,6 +3038,8 @@ int btrfsic_submit_bh(int op, int op_flags, struct buffer_head *bh)
 	return submit_bh(op, op_flags, bh);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __btrfsic_submit_bio(struct bio *bio)
 {
 	struct btrfsic_dev_state *dev_state;
@@ -2794,10 +3050,17 @@ static void __btrfsic_submit_bio(struct bio *bio)
 	mutex_lock(&btrfsic_mutex);
 	/* since btrfsic_submit_bio() is also called before
 	 * btrfsic_mount(), this might return NULL */
+<<<<<<< HEAD
 	dev_state = btrfsic_dev_state_lookup(bio_dev(bio) + bio->bi_partno);
 	if (NULL != dev_state &&
 	    (bio_op(bio) == REQ_OP_WRITE) && bio_has_data(bio)) {
 		unsigned int i = 0;
+=======
+	dev_state = btrfsic_dev_state_lookup(bio->bi_bdev->bd_dev);
+	if (NULL != dev_state &&
+	    (bio_op(bio) == REQ_OP_WRITE) && bio_has_data(bio)) {
+		int i = 0;
+>>>>>>> upstream/android-13
 		u64 dev_bytenr;
 		u64 cur_bytenr;
 		struct bio_vec bvec;
@@ -2810,10 +3073,16 @@ static void __btrfsic_submit_bio(struct bio *bio)
 		bio_is_patched = 0;
 		if (dev_state->state->print_mask &
 		    BTRFSIC_PRINT_MASK_SUBMIT_BIO_BH)
+<<<<<<< HEAD
 			pr_info("submit_bio(rw=%d,0x%x, bi_vcnt=%u, bi_sector=%llu (bytenr %llu), bi_disk=%p)\n",
 			       bio_op(bio), bio->bi_opf, segs,
 			       (unsigned long long)bio->bi_iter.bi_sector,
 			       dev_bytenr, bio->bi_disk);
+=======
+			pr_info("submit_bio(rw=%d,0x%x, bi_vcnt=%u, bi_sector=%llu (bytenr %llu), bi_bdev=%p)\n",
+			       bio_op(bio), bio->bi_opf, segs,
+			       bio->bi_iter.bi_sector, dev_bytenr, bio->bi_bdev);
+>>>>>>> upstream/android-13
 
 		mapped_datav = kmalloc_array(segs,
 					     sizeof(*mapped_datav), GFP_NOFS);
@@ -2823,7 +3092,11 @@ static void __btrfsic_submit_bio(struct bio *bio)
 
 		bio_for_each_segment(bvec, bio, iter) {
 			BUG_ON(bvec.bv_len != PAGE_SIZE);
+<<<<<<< HEAD
 			mapped_datav[i] = kmap(bvec.bv_page);
+=======
+			mapped_datav[i] = page_address(bvec.bv_page);
+>>>>>>> upstream/android-13
 			i++;
 
 			if (dev_state->state->print_mask &
@@ -2835,15 +3108,24 @@ static void __btrfsic_submit_bio(struct bio *bio)
 		btrfsic_process_written_block(dev_state, dev_bytenr,
 					      mapped_datav, segs,
 					      bio, &bio_is_patched,
+<<<<<<< HEAD
 					      NULL, bio->bi_opf);
 		bio_for_each_segment(bvec, bio, iter)
 			kunmap(bvec.bv_page);
+=======
+					      bio->bi_opf);
+>>>>>>> upstream/android-13
 		kfree(mapped_datav);
 	} else if (NULL != dev_state && (bio->bi_opf & REQ_PREFLUSH)) {
 		if (dev_state->state->print_mask &
 		    BTRFSIC_PRINT_MASK_SUBMIT_BIO_BH)
+<<<<<<< HEAD
 			pr_info("submit_bio(rw=%d,0x%x FLUSH, disk=%p)\n",
 			       bio_op(bio), bio->bi_opf, bio->bi_disk);
+=======
+			pr_info("submit_bio(rw=%d,0x%x FLUSH, bdev=%p)\n",
+			       bio_op(bio), bio->bi_opf, bio->bi_bdev);
+>>>>>>> upstream/android-13
 		if (!dev_state->dummy_block_for_bio_bh_flush.is_iodone) {
 			if ((dev_state->state->print_mask &
 			     (BTRFSIC_PRINT_MASK_SUBMIT_BIO_BH |
@@ -2859,8 +3141,13 @@ static void __btrfsic_submit_bio(struct bio *bio)
 			block->iodone_w_error = 0;
 			block->flush_gen = dev_state->last_flush_gen + 1;
 			block->submit_bio_bh_rw = bio->bi_opf;
+<<<<<<< HEAD
 			block->orig_bio_bh_private = bio->bi_private;
 			block->orig_bio_bh_end_io.bio = bio->bi_end_io;
+=======
+			block->orig_bio_private = bio->bi_private;
+			block->orig_bio_end_io = bio->bi_end_io;
+>>>>>>> upstream/android-13
 			block->next_in_same_bio = NULL;
 			bio->bi_private = block;
 			bio->bi_end_io = btrfsic_bio_end_io;
@@ -2891,21 +3178,34 @@ int btrfsic_mount(struct btrfs_fs_info *fs_info,
 	struct list_head *dev_head = &fs_devices->devices;
 	struct btrfs_device *device;
 
+<<<<<<< HEAD
 	if (fs_info->nodesize & ((u64)PAGE_SIZE - 1)) {
+=======
+	if (!PAGE_ALIGNED(fs_info->nodesize)) {
+>>>>>>> upstream/android-13
 		pr_info("btrfsic: cannot handle nodesize %d not being a multiple of PAGE_SIZE %ld!\n",
 		       fs_info->nodesize, PAGE_SIZE);
 		return -1;
 	}
+<<<<<<< HEAD
 	if (fs_info->sectorsize & ((u64)PAGE_SIZE - 1)) {
+=======
+	if (!PAGE_ALIGNED(fs_info->sectorsize)) {
+>>>>>>> upstream/android-13
 		pr_info("btrfsic: cannot handle sectorsize %d not being a multiple of PAGE_SIZE %ld!\n",
 		       fs_info->sectorsize, PAGE_SIZE);
 		return -1;
 	}
 	state = kvzalloc(sizeof(*state), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!state) {
 		pr_info("btrfs check-integrity: allocation failed!\n");
 		return -ENOMEM;
 	}
+=======
+	if (!state)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	if (!btrfsic_is_initialized) {
 		mutex_init(&btrfsic_mutex);
@@ -2916,7 +3216,10 @@ int btrfsic_mount(struct btrfs_fs_info *fs_info,
 	state->fs_info = fs_info;
 	state->print_mask = print_mask;
 	state->include_extent_data = including_extent_data;
+<<<<<<< HEAD
 	state->csum_size = 0;
+=======
+>>>>>>> upstream/android-13
 	state->metablock_size = fs_info->nodesize;
 	state->datablock_size = fs_info->sectorsize;
 	INIT_LIST_HEAD(&state->all_blocks_list);
@@ -2934,7 +3237,10 @@ int btrfsic_mount(struct btrfs_fs_info *fs_info,
 
 		ds = btrfsic_dev_state_alloc();
 		if (NULL == ds) {
+<<<<<<< HEAD
 			pr_info("btrfs check-integrity: kmalloc() failed!\n");
+=======
+>>>>>>> upstream/android-13
 			mutex_unlock(&btrfsic_mutex);
 			return -ENOMEM;
 		}

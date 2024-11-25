@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+ *
+>>>>>>> upstream/android-13
  * Author: Virupax Sadashivpetimath <virupax.sadashivpetimath@stericsson.com>
  *
  * RTC clock driver for the RTC part of the AB8500 Power management chip.
@@ -46,7 +53,10 @@
 #define RTC_STATUS_DATA			0x01
 
 #define COUNTS_PER_SEC			(0xF000 / 60)
+<<<<<<< HEAD
 #define AB8500_RTC_EPOCH		2000
+=======
+>>>>>>> upstream/android-13
 
 static const u8 ab8500_rtc_time_regs[] = {
 	AB8500_RTC_WATCH_TMIN_HI_REG, AB8500_RTC_WATCH_TMIN_MID_REG,
@@ -59,6 +69,7 @@ static const u8 ab8500_rtc_alarm_regs[] = {
 	AB8500_RTC_ALRM_MIN_LOW_REG
 };
 
+<<<<<<< HEAD
 /* Calculate the seconds from 1970 to 01-01-2000 00:00:00 */
 static unsigned long get_elapsed_seconds(int year)
 {
@@ -76,6 +87,8 @@ static unsigned long get_elapsed_seconds(int year)
 	return secs;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ab8500_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
 	unsigned long timeout = jiffies + HZ;
@@ -118,10 +131,14 @@ static int ab8500_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	secs =	secs / COUNTS_PER_SEC;
 	secs =	secs + (mins * 60);
 
+<<<<<<< HEAD
 	/* Add back the initially subtracted number of seconds */
 	secs += get_elapsed_seconds(AB8500_RTC_EPOCH);
 
 	rtc_time_to_tm(secs, tm);
+=======
+	rtc_time64_to_tm(secs, tm);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -131,6 +148,7 @@ static int ab8500_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	unsigned char buf[ARRAY_SIZE(ab8500_rtc_time_regs)];
 	unsigned long no_secs, no_mins, secs = 0;
 
+<<<<<<< HEAD
 	if (tm->tm_year < (AB8500_RTC_EPOCH - 1900)) {
 		dev_dbg(dev, "year should be equal to or greater than %d\n",
 				AB8500_RTC_EPOCH);
@@ -145,6 +163,9 @@ static int ab8500_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	 * we only have a small counter in the RTC.
 	 */
 	secs -= get_elapsed_seconds(AB8500_RTC_EPOCH);
+=======
+	secs = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 
 	no_mins = secs / 60;
 
@@ -202,12 +223,18 @@ static int ab8500_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	mins = (buf[0] << 16) | (buf[1] << 8) | (buf[2]);
 	secs = mins * 60;
 
+<<<<<<< HEAD
 	/* Add back the initially subtracted number of seconds */
 	secs += get_elapsed_seconds(AB8500_RTC_EPOCH);
 
 	rtc_time_to_tm(secs, &alarm->time);
 
 	return rtc_valid_tm(&alarm->time);
+=======
+	rtc_time64_to_tm(secs, &alarm->time);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ab8500_rtc_irq_enable(struct device *dev, unsigned int enabled)
@@ -224,6 +251,7 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	unsigned long mins, secs = 0, cursec = 0;
 	struct rtc_time curtm;
 
+<<<<<<< HEAD
 	if (alarm->time.tm_year < (AB8500_RTC_EPOCH - 1900)) {
 		dev_dbg(dev, "year should be equal to or greater than %d\n",
 				AB8500_RTC_EPOCH);
@@ -232,6 +260,10 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 
 	/* Get the number of seconds since 1970 */
 	rtc_tm_to_time(&alarm->time, &secs);
+=======
+	/* Get the number of seconds since 1970 */
+	secs = rtc_tm_to_time64(&alarm->time);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check whether alarm is set less than 1min.
@@ -239,18 +271,25 @@ static int ab8500_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
 	 * return -EINVAL, so UIE EMUL can take it up, incase of UIE_ON
 	 */
 	ab8500_rtc_read_time(dev, &curtm); /* Read current time */
+<<<<<<< HEAD
 	rtc_tm_to_time(&curtm, &cursec);
+=======
+	cursec = rtc_tm_to_time64(&curtm);
+>>>>>>> upstream/android-13
 	if ((secs - cursec) < 59) {
 		dev_dbg(dev, "Alarm less than 1 minute not supported\r\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Convert it to the number of seconds since 01-01-2000 00:00:00, since
 	 * we only have a small counter in the RTC.
 	 */
 	secs -= get_elapsed_seconds(AB8500_RTC_EPOCH);
 
+=======
+>>>>>>> upstream/android-13
 	mins = secs / 60;
 
 	buf[2] = mins & 0xFF;
@@ -360,6 +399,7 @@ static DEVICE_ATTR(rtc_calibration, S_IRUGO | S_IWUSR,
 		   ab8500_sysfs_show_rtc_calibration,
 		   ab8500_sysfs_store_rtc_calibration);
 
+<<<<<<< HEAD
 static int ab8500_sysfs_rtc_register(struct device *dev)
 {
 	return device_create_file(dev, &dev_attr_rtc_calibration);
@@ -369,6 +409,16 @@ static void ab8500_sysfs_rtc_unregister(struct device *dev)
 {
 	device_remove_file(dev, &dev_attr_rtc_calibration);
 }
+=======
+static struct attribute *ab8500_rtc_attrs[] = {
+	&dev_attr_rtc_calibration.attr,
+	NULL
+};
+
+static const struct attribute_group ab8500_rtc_sysfs_files = {
+	.attrs	= ab8500_rtc_attrs,
+};
+>>>>>>> upstream/android-13
 
 static irqreturn_t rtc_alarm_handler(int irq, void *data)
 {
@@ -429,6 +479,7 @@ static int ab8500_rtc_probe(struct platform_device *pdev)
 
 	device_init_wakeup(&pdev->dev, true);
 
+<<<<<<< HEAD
 	rtc = devm_rtc_device_register(&pdev->dev, "ab8500-rtc",
 				(struct rtc_class_ops *)platid->driver_data,
 				THIS_MODULE);
@@ -437,6 +488,13 @@ static int ab8500_rtc_probe(struct platform_device *pdev)
 		err = PTR_ERR(rtc);
 		return err;
 	}
+=======
+	rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc))
+		return PTR_ERR(rtc);
+
+	rtc->ops = (struct rtc_class_ops *)platid->driver_data;
+>>>>>>> upstream/android-13
 
 	err = devm_request_threaded_irq(&pdev->dev, irq, NULL,
 			rtc_alarm_handler, IRQF_ONESHOT,
@@ -447,6 +505,7 @@ static int ab8500_rtc_probe(struct platform_device *pdev)
 	dev_pm_set_wake_irq(&pdev->dev, irq);
 	platform_set_drvdata(pdev, rtc);
 
+<<<<<<< HEAD
 	err = ab8500_sysfs_rtc_register(&pdev->dev);
 	if (err) {
 		dev_err(&pdev->dev, "sysfs RTC failed to register\n");
@@ -456,13 +515,29 @@ static int ab8500_rtc_probe(struct platform_device *pdev)
 	rtc->uie_unsupported = 1;
 
 	return 0;
+=======
+	rtc->uie_unsupported = 1;
+
+	rtc->range_max = (1ULL << 24) * 60 - 1; // 24-bit minutes + 59 secs
+	rtc->start_secs = RTC_TIMESTAMP_BEGIN_2000;
+	rtc->set_start_time = true;
+
+	err = rtc_add_group(rtc, &ab8500_rtc_sysfs_files);
+	if (err)
+		return err;
+
+	return devm_rtc_register_device(rtc);
+>>>>>>> upstream/android-13
 }
 
 static int ab8500_rtc_remove(struct platform_device *pdev)
 {
 	dev_pm_clear_wake_irq(&pdev->dev);
 	device_init_wakeup(&pdev->dev, false);
+<<<<<<< HEAD
 	ab8500_sysfs_rtc_unregister(&pdev->dev);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

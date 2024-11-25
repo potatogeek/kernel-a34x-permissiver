@@ -3,7 +3,11 @@
 		****** perf by examples ******
 		------------------------------
 
+<<<<<<< HEAD
 [ From an e-mail by Ingo Molnar, http://lkml.org/lkml/2009/8/4/346 ]
+=======
+[ From an e-mail by Ingo Molnar, https://lore.kernel.org/lkml/20090804195717.GA5998@elte.hu ]
+>>>>>>> upstream/android-13
 
 
 First, discovery/enumeration of available counters can be done via

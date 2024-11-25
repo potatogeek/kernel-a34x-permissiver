@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for NXP PN533 NFC Chip
  *
  * Copyright (C) 2011 Instituto Nokia de Tecnologia
  * Copyright (C) 2012-2013 Tieto Poland
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,15 @@
 #define PN533_DEVICE_PASORI  0x2
 #define PN533_DEVICE_ACR122U 0x3
 #define PN533_DEVICE_PN532   0x4
+=======
+ */
+
+#define PN533_DEVICE_STD		0x1
+#define PN533_DEVICE_PASORI		0x2
+#define PN533_DEVICE_ACR122U		0x3
+#define PN533_DEVICE_PN532		0x4
+#define PN533_DEVICE_PN532_AUTOPOLL	0x5
+>>>>>>> upstream/android-13
 
 #define PN533_ALL_PROTOCOLS (NFC_PROTO_JEWEL_MASK | NFC_PROTO_MIFARE_MASK |\
 			     NFC_PROTO_FELICA_MASK | NFC_PROTO_ISO14443_MASK |\
@@ -55,6 +69,14 @@
 
 /* Preamble (1), SoPC (2), ACK Code (2), Postamble (1) */
 #define PN533_STD_FRAME_ACK_SIZE 6
+<<<<<<< HEAD
+=======
+/*
+ * Preamble (1), SoPC (2), Packet Length (1), Packet Length Checksum (1),
+ * Specific Application Level Error Code (1) , Postamble (1)
+ */
+#define PN533_STD_ERROR_FRAME_SIZE 8
+>>>>>>> upstream/android-13
 #define PN533_STD_FRAME_CHECKSUM(f) (f->data[f->datalen])
 #define PN533_STD_FRAME_POSTAMBLE(f) (f->data[f->datalen + 1])
 /* Half start code (3), LEN (4) should be 0xffff for extended frame */
@@ -82,6 +104,10 @@
 #define PN533_CMD_IN_ATR 0x50
 #define PN533_CMD_IN_RELEASE 0x52
 #define PN533_CMD_IN_JUMP_FOR_DEP 0x56
+<<<<<<< HEAD
+=======
+#define PN533_CMD_IN_AUTOPOLL 0x60
+>>>>>>> upstream/android-13
 
 #define PN533_CMD_TG_INIT_AS_TARGET 0x8c
 #define PN533_CMD_TG_GET_DATA 0x86
@@ -96,6 +122,12 @@
 #define PN533_CMD_MI_MASK 0x40
 #define PN533_CMD_RET_SUCCESS 0x00
 
+<<<<<<< HEAD
+=======
+#define PN533_FRAME_DATALEN_ACK 0x00
+#define PN533_FRAME_DATALEN_ERROR 0x01
+#define PN533_FRAME_DATALEN_EXTENDED 0xFF
+>>>>>>> upstream/android-13
 
 enum  pn533_protocol_type {
 	PN533_PROTO_REQ_ACK_RESP = 0,
@@ -219,21 +251,50 @@ struct pn533_phy_ops {
 			  struct sk_buff *out);
 	int (*send_ack)(struct pn533 *dev, gfp_t flags);
 	void (*abort_cmd)(struct pn533 *priv, gfp_t flags);
+<<<<<<< HEAD
 };
 
 
 struct pn533 *pn533_register_device(u32 device_type,
 				u32 protocols,
+=======
+	/*
+	 * dev_up and dev_down are optional.
+	 * They are used to inform the phy layer that the nfc chip
+	 * is going to be really used very soon. The phy layer can then
+	 * bring up it's interface to the chip and have it suspended for power
+	 * saving reasons otherwise.
+	 */
+	int (*dev_up)(struct pn533 *priv);
+	int (*dev_down)(struct pn533 *priv);
+};
+
+
+struct pn533 *pn53x_common_init(u32 device_type,
+>>>>>>> upstream/android-13
 				enum pn533_protocol_type protocol_type,
 				void *phy,
 				struct pn533_phy_ops *phy_ops,
 				struct pn533_frame_ops *fops,
+<<<<<<< HEAD
 				struct device *dev,
 				struct device *parent);
 
 int pn533_finalize_setup(struct pn533 *dev);
 void pn533_unregister_device(struct pn533 *priv);
 void pn533_recv_frame(struct pn533 *dev, struct sk_buff *skb, int status);
+=======
+				struct device *dev);
+
+int pn533_finalize_setup(struct pn533 *dev);
+void pn53x_common_clean(struct pn533 *priv);
+void pn533_recv_frame(struct pn533 *dev, struct sk_buff *skb, int status);
+int pn532_i2c_nfc_alloc(struct pn533 *priv, u32 protocols,
+			struct device *parent);
+int pn53x_register_nfc(struct pn533 *priv, u32 protocols,
+			struct device *parent);
+void pn53x_unregister_nfc(struct pn533 *priv);
+>>>>>>> upstream/android-13
 
 bool pn533_rx_frame_is_cmd_response(struct pn533 *dev, void *frame);
 bool pn533_rx_frame_is_ack(void *_frame);

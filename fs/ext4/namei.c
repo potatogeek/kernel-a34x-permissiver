@@ -70,7 +70,12 @@ static struct buffer_head *ext4_append(handle_t *handle,
 	inode->i_size += inode->i_sb->s_blocksize;
 	EXT4_I(inode)->i_disksize = inode->i_size;
 	BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, bh);
+=======
+	err = ext4_journal_get_write_access(handle, inode->i_sb, bh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err) {
 		brelse(bh);
 		ext4_std_error(inode->i_sb, err);
@@ -109,7 +114,14 @@ static struct buffer_head *__ext4_read_dirblock(struct inode *inode,
 	struct ext4_dir_entry *dirent;
 	int is_dx_block = 0;
 
+<<<<<<< HEAD
 	bh = ext4_bread(NULL, inode, block, 0);
+=======
+	if (ext4_simulate_fail(inode->i_sb, EXT4_SIM_DIRBLOCK_EIO))
+		bh = ERR_PTR(-EIO);
+	else
+		bh = ext4_bread(NULL, inode, block, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bh)) {
 		__ext4_warning(inode->i_sb, func, line,
 			       "inode #%lu: lblock %lu: comm %s: "
@@ -153,21 +165,41 @@ static struct buffer_head *__ext4_read_dirblock(struct inode *inode,
 	 * caller is sure it should be an index block.
 	 */
 	if (is_dx_block && type == INDEX) {
+<<<<<<< HEAD
 		if (ext4_dx_csum_verify(inode, dirent))
 			set_buffer_verified(bh);
 		else {
 			ext4_error_inode(inode, func, line, block,
 					 "Directory index failed checksum");
+=======
+		if (ext4_dx_csum_verify(inode, dirent) &&
+		    !ext4_simulate_fail(inode->i_sb, EXT4_SIM_DIRBLOCK_CRC))
+			set_buffer_verified(bh);
+		else {
+			ext4_error_inode_err(inode, func, line, block,
+					     EFSBADCRC,
+					     "Directory index failed checksum");
+>>>>>>> upstream/android-13
 			brelse(bh);
 			return ERR_PTR(-EFSBADCRC);
 		}
 	}
 	if (!is_dx_block) {
+<<<<<<< HEAD
 		if (ext4_dirent_csum_verify(inode, dirent))
 			set_buffer_verified(bh);
 		else {
 			ext4_error_inode(inode, func, line, block,
 					 "Directory block failed checksum");
+=======
+		if (ext4_dirblock_csum_verify(inode, bh) &&
+		    !ext4_simulate_fail(inode->i_sb, EXT4_SIM_DIRBLOCK_CRC))
+			set_buffer_verified(bh);
+		else {
+			ext4_error_inode_err(inode, func, line, block,
+					     EFSBADCRC,
+					     "Directory block failed checksum");
+>>>>>>> upstream/android-13
 			brelse(bh);
 			return ERR_PTR(-EFSBADCRC);
 		}
@@ -175,10 +207,13 @@ static struct buffer_head *__ext4_read_dirblock(struct inode *inode,
 	return bh;
 }
 
+<<<<<<< HEAD
 #ifndef assert
 #define assert(test) J_ASSERT(test)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DX_DEBUG
 #define dxtrace(command) command
 #else
@@ -226,13 +261,21 @@ struct dx_root
 		u8 unused_flags;
 	}
 	info;
+<<<<<<< HEAD
 	struct dx_entry	entries[0];
+=======
+	struct dx_entry	entries[];
+>>>>>>> upstream/android-13
 };
 
 struct dx_node
 {
 	struct fake_dirent fake;
+<<<<<<< HEAD
 	struct dx_entry	entries[0];
+=======
+	struct dx_entry	entries[];
+>>>>>>> upstream/android-13
 };
 
 
@@ -290,14 +333,26 @@ static int ext4_htree_next_block(struct inode *dir, __u32 hash,
 				 __u32 *start_hash);
 static struct buffer_head * ext4_dx_find_entry(struct inode *dir,
 		struct ext4_filename *fname,
+<<<<<<< HEAD
 		struct ext4_dir_entry_2 **res_dir, ext4_lblk_t *lblk);
+=======
+		struct ext4_dir_entry_2 **res_dir);
+>>>>>>> upstream/android-13
 static int ext4_dx_add_entry(handle_t *handle, struct ext4_filename *fname,
 			     struct inode *dir, struct inode *inode);
 
 /* checksumming functions */
+<<<<<<< HEAD
 void initialize_dirent_tail(struct ext4_dir_entry_tail *t,
 			    unsigned int blocksize)
 {
+=======
+void ext4_initialize_dirent_tail(struct buffer_head *bh,
+				 unsigned int blocksize)
+{
+	struct ext4_dir_entry_tail *t = EXT4_DIRENT_TAIL(bh->b_data, blocksize);
+
+>>>>>>> upstream/android-13
 	memset(t, 0, sizeof(struct ext4_dir_entry_tail));
 	t->det_rec_len = ext4_rec_len_to_disk(
 			sizeof(struct ext4_dir_entry_tail), blocksize);
@@ -306,17 +361,28 @@ void initialize_dirent_tail(struct ext4_dir_entry_tail *t,
 
 /* Walk through a dirent block to find a checksum "dirent" at the tail */
 static struct ext4_dir_entry_tail *get_dirent_tail(struct inode *inode,
+<<<<<<< HEAD
 						   struct ext4_dir_entry *de)
+=======
+						   struct buffer_head *bh)
+>>>>>>> upstream/android-13
 {
 	struct ext4_dir_entry_tail *t;
 
 #ifdef PARANOID
 	struct ext4_dir_entry *d, *top;
 
+<<<<<<< HEAD
 	d = de;
 	top = (struct ext4_dir_entry *)(((void *)de) +
 		(EXT4_BLOCK_SIZE(inode->i_sb) -
 		sizeof(struct ext4_dir_entry_tail)));
+=======
+	d = (struct ext4_dir_entry *)bh->b_data;
+	top = (struct ext4_dir_entry *)(bh->b_data +
+		(EXT4_BLOCK_SIZE(inode->i_sb) -
+		 sizeof(struct ext4_dir_entry_tail)));
+>>>>>>> upstream/android-13
 	while (d < top && d->rec_len)
 		d = (struct ext4_dir_entry *)(((void *)d) +
 		    le16_to_cpu(d->rec_len));
@@ -326,7 +392,11 @@ static struct ext4_dir_entry_tail *get_dirent_tail(struct inode *inode,
 
 	t = (struct ext4_dir_entry_tail *)d;
 #else
+<<<<<<< HEAD
 	t = EXT4_DIRENT_TAIL(de, EXT4_BLOCK_SIZE(inode->i_sb));
+=======
+	t = EXT4_DIRENT_TAIL(bh->b_data, EXT4_BLOCK_SIZE(inode->i_sb));
+>>>>>>> upstream/android-13
 #endif
 
 	if (t->det_reserved_zero1 ||
@@ -338,8 +408,12 @@ static struct ext4_dir_entry_tail *get_dirent_tail(struct inode *inode,
 	return t;
 }
 
+<<<<<<< HEAD
 static __le32 ext4_dirent_csum(struct inode *inode,
 			       struct ext4_dir_entry *dirent, int size)
+=======
+static __le32 ext4_dirblock_csum(struct inode *inode, void *dirent, int size)
+>>>>>>> upstream/android-13
 {
 	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
 	struct ext4_inode_info *ei = EXT4_I(inode);
@@ -359,40 +433,63 @@ static void __warn_no_space_for_csum(struct inode *inode, const char *func,
 		"No space for directory leaf checksum. Please run e2fsck -D.");
 }
 
+<<<<<<< HEAD
 int ext4_dirent_csum_verify(struct inode *inode, struct ext4_dir_entry *dirent)
+=======
+int ext4_dirblock_csum_verify(struct inode *inode, struct buffer_head *bh)
+>>>>>>> upstream/android-13
 {
 	struct ext4_dir_entry_tail *t;
 
 	if (!ext4_has_metadata_csum(inode->i_sb))
 		return 1;
 
+<<<<<<< HEAD
 	t = get_dirent_tail(inode, dirent);
+=======
+	t = get_dirent_tail(inode, bh);
+>>>>>>> upstream/android-13
 	if (!t) {
 		warn_no_space_for_csum(inode);
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (t->det_checksum != ext4_dirent_csum(inode, dirent,
 						(void *)t - (void *)dirent))
+=======
+	if (t->det_checksum != ext4_dirblock_csum(inode, bh->b_data,
+						  (char *)t - bh->b_data))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return 1;
 }
 
+<<<<<<< HEAD
 static void ext4_dirent_csum_set(struct inode *inode,
 				 struct ext4_dir_entry *dirent)
+=======
+static void ext4_dirblock_csum_set(struct inode *inode,
+				 struct buffer_head *bh)
+>>>>>>> upstream/android-13
 {
 	struct ext4_dir_entry_tail *t;
 
 	if (!ext4_has_metadata_csum(inode->i_sb))
 		return;
 
+<<<<<<< HEAD
 	t = get_dirent_tail(inode, dirent);
+=======
+	t = get_dirent_tail(inode, bh);
+>>>>>>> upstream/android-13
 	if (!t) {
 		warn_no_space_for_csum(inode);
 		return;
 	}
 
+<<<<<<< HEAD
 	t->det_checksum = ext4_dirent_csum(inode, dirent,
 					   (void *)t - (void *)dirent);
 }
@@ -402,6 +499,17 @@ int ext4_handle_dirty_dirent_node(handle_t *handle,
 				  struct buffer_head *bh)
 {
 	ext4_dirent_csum_set(inode, (struct ext4_dir_entry *)bh->b_data);
+=======
+	t->det_checksum = ext4_dirblock_csum(inode, bh->b_data,
+					     (char *)t - bh->b_data);
+}
+
+int ext4_handle_dirty_dirblock(handle_t *handle,
+			       struct inode *inode,
+			       struct buffer_head *bh)
+{
+	ext4_dirblock_csum_set(inode, bh);
+>>>>>>> upstream/android-13
 	return ext4_handle_dirty_metadata(handle, inode, bh);
 }
 
@@ -639,6 +747,7 @@ static struct stats dx_show_leaf(struct inode *dir,
 
 				name  = de->name;
 				len = de->name_len;
+<<<<<<< HEAD
 				if (IS_ENCRYPTED(dir))
 					res = fscrypt_get_encryption_info(dir);
 				if (res) {
@@ -646,6 +755,9 @@ static struct stats dx_show_leaf(struct inode *dir,
 					       " fname crypto: %d\n", res);
 				}
 				if (!fscrypt_has_encryption_key(dir)) {
+=======
+				if (!IS_ENCRYPTED(dir)) {
+>>>>>>> upstream/android-13
 					/* Directory is not encrypted */
 					ext4fs_dirhash(dir, de->name,
 						de->name_len, &h);
@@ -659,8 +771,12 @@ static struct stats dx_show_leaf(struct inode *dir,
 
 					/* Directory is encrypted */
 					res = fscrypt_fname_alloc_buffer(
+<<<<<<< HEAD
 						dir, len,
 						&fname_crypto_str);
+=======
+						len, &fname_crypto_str);
+>>>>>>> upstream/android-13
 					if (res)
 						printk(KERN_WARNING "Error "
 							"allocating crypto "
@@ -741,6 +857,32 @@ struct stats dx_show_entries(struct dx_hash_info *hinfo, struct inode *dir,
 		       (space/bcount)*100/blocksize);
 	return (struct stats) { names, space, bcount};
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Linear search cross check
+ */
+static inline void htree_rep_invariant_check(struct dx_entry *at,
+					     struct dx_entry *target,
+					     u32 hash, unsigned int n)
+{
+	while (n--) {
+		dxtrace(printk(KERN_CONT ","));
+		if (dx_get_hash(++at) > hash) {
+			at--;
+			break;
+		}
+	}
+	ASSERT(at == target - 1);
+}
+#else /* DX_DEBUG */
+static inline void htree_rep_invariant_check(struct dx_entry *at,
+					     struct dx_entry *target,
+					     u32 hash, unsigned int n)
+{
+}
+>>>>>>> upstream/android-13
 #endif /* DX_DEBUG */
 
 /*
@@ -853,6 +995,7 @@ dx_probe(struct ext4_filename *fname, struct inode *dir,
 				p = m + 1;
 		}
 
+<<<<<<< HEAD
 		if (0) { // linear search cross check
 			unsigned n = count - 1;
 			at = entries;
@@ -867,6 +1010,9 @@ dx_probe(struct ext4_filename *fname, struct inode *dir,
 			}
 			assert (at == p - 1);
 		}
+=======
+		htree_rep_invariant_check(entries, p, hash, count - 1);
+>>>>>>> upstream/android-13
 
 		at = p - 1;
 		dxtrace(printk(KERN_CONT " %x->%u\n",
@@ -972,7 +1118,11 @@ static int ext4_htree_next_block(struct inode *dir, __u32 hash,
 	 * If the hash is 1, then continue only if the next page has a
 	 * continuation hash of any value.  This is used for readdir
 	 * handling.  Otherwise, check to see if the hash matches the
+<<<<<<< HEAD
 	 * desired contiuation hash.  If it doesn't, return since
+=======
+	 * desired continuation hash.  If it doesn't, return since
+>>>>>>> upstream/android-13
 	 * there's no point to read in the successive index pages.
 	 */
 	bhash = dx_get_hash(p->at);
@@ -1027,25 +1177,43 @@ static int htree_dirblock_to_tree(struct file *dir_file,
 					   dir->i_sb->s_blocksize -
 					   ext4_dir_rec_len(0,
 							   csum ? NULL : dir));
+<<<<<<< HEAD
 #ifdef CONFIG_FS_ENCRYPTION
 	/* Check if the directory is encrypted */
 	if (IS_ENCRYPTED(dir)) {
 		err = fscrypt_get_encryption_info(dir);
+=======
+	/* Check if the directory is encrypted */
+	if (IS_ENCRYPTED(dir)) {
+		err = fscrypt_prepare_readdir(dir);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			brelse(bh);
 			return err;
 		}
+<<<<<<< HEAD
 		err = fscrypt_fname_alloc_buffer(dir, EXT4_NAME_LEN,
 						     &fname_crypto_str);
+=======
+		err = fscrypt_fname_alloc_buffer(EXT4_NAME_LEN,
+						 &fname_crypto_str);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			brelse(bh);
 			return err;
 		}
 	}
+<<<<<<< HEAD
 #endif
 	for (; de < top; de = ext4_next_entry(de, dir->i_sb->s_blocksize)) {
 		if (ext4_check_dir_entry(dir, NULL, de, bh,
 				bh->b_data, bh->b_size, block,
+=======
+
+	for (; de < top; de = ext4_next_entry(de, dir->i_sb->s_blocksize)) {
+		if (ext4_check_dir_entry(dir, NULL, de, bh,
+				bh->b_data, bh->b_size,
+>>>>>>> upstream/android-13
 				(block<<EXT4_BLOCK_SIZE_BITS(dir->i_sb))
 					 + ((char *)de - bh->b_data))) {
 			/* silently ignore the rest of the block */
@@ -1100,9 +1268,13 @@ static int htree_dirblock_to_tree(struct file *dir_file,
 	}
 errout:
 	brelse(bh);
+<<<<<<< HEAD
 #ifdef CONFIG_FS_ENCRYPTION
 	fscrypt_fname_free_buffer(&fname_crypto_str);
 #endif
+=======
+	fscrypt_fname_free_buffer(&fname_crypto_str);
+>>>>>>> upstream/android-13
 	return count;
 }
 
@@ -1143,10 +1315,17 @@ int ext4_htree_fill_tree(struct file *dir_file, __u32 start_hash,
 		hinfo.seed = EXT4_SB(dir->i_sb)->s_hash_seed;
 		if (ext4_has_inline_data(dir)) {
 			int has_inline_data = 1;
+<<<<<<< HEAD
 			count = htree_inlinedir_to_tree(dir_file, dir, 0,
 							&hinfo, start_hash,
 							start_minor_hash,
 							&has_inline_data);
+=======
+			count = ext4_inlinedir_to_tree(dir_file, dir, 0,
+						       &hinfo, start_hash,
+						       start_minor_hash,
+						       &has_inline_data);
+>>>>>>> upstream/android-13
 			if (has_inline_data) {
 				*next_hash = ~0;
 				return count;
@@ -1229,12 +1408,19 @@ errout:
 static inline int search_dirblock(struct buffer_head *bh,
 				  struct inode *dir,
 				  struct ext4_filename *fname,
+<<<<<<< HEAD
 				  ext4_lblk_t lblk,
+=======
+>>>>>>> upstream/android-13
 				  unsigned int offset,
 				  struct ext4_dir_entry_2 **res_dir)
 {
 	return ext4_search_dir(bh, bh->b_data, dir->i_sb->s_blocksize, dir,
+<<<<<<< HEAD
 			       fname, lblk, offset, res_dir);
+=======
+			       fname, offset, res_dir);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1305,8 +1491,13 @@ static void dx_insert_block(struct dx_frame *frame, u32 hash, ext4_lblk_t block)
 	struct dx_entry *old = frame->at, *new = old + 1;
 	int count = dx_get_count(entries);
 
+<<<<<<< HEAD
 	assert(count < dx_get_limit(entries));
 	assert(old < entries + count);
+=======
+	ASSERT(count < dx_get_limit(entries));
+	ASSERT(old < entries + count);
+>>>>>>> upstream/android-13
 	memmove(new + 1, new, (char *)(entries + count) - (char *)(new));
 	dx_set_hash(new, hash);
 	dx_set_block(new, block);
@@ -1354,7 +1545,11 @@ static int ext4_ci_compare(const struct inode *parent, const struct qstr *name,
 		/* Handle invalid character sequence as either an error
 		 * or as an opaque byte sequence.
 		 */
+<<<<<<< HEAD
 		if (sb_has_enc_strict_mode(sb))
+=======
+		if (sb_has_strict_encoding(sb))
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 		else if (name->len != entry.len)
 			ret = 1;
@@ -1373,7 +1568,12 @@ int ext4_fname_setup_ci_filename(struct inode *dir, const struct qstr *iname,
 	struct dx_hash_info *hinfo = &name->hinfo;
 	int len;
 
+<<<<<<< HEAD
 	if (!needs_casefold(dir)) {
+=======
+	if (!IS_CASEFOLDED(dir) || !dir->i_sb->s_encoding ||
+	    (IS_ENCRYPTED(dir) && !fscrypt_has_encryption_key(dir))) {
+>>>>>>> upstream/android-13
 		cf_name->name = NULL;
 		return 0;
 	}
@@ -1424,7 +1624,12 @@ static bool ext4_match(struct inode *parent,
 #endif
 
 #ifdef CONFIG_UNICODE
+<<<<<<< HEAD
 	if (needs_casefold(parent)) {
+=======
+	if (parent->i_sb->s_encoding && IS_CASEFOLDED(parent) &&
+	    (!IS_ENCRYPTED(parent) || fscrypt_has_encryption_key(parent))) {
+>>>>>>> upstream/android-13
 		if (fname->cf_name.name) {
 			struct qstr cf = {.name = fname->cf_name.name,
 					  .len = fname->cf_name.len};
@@ -1452,8 +1657,12 @@ static bool ext4_match(struct inode *parent,
  */
 int ext4_search_dir(struct buffer_head *bh, char *search_buf, int buf_size,
 		    struct inode *dir, struct ext4_filename *fname,
+<<<<<<< HEAD
 		    ext4_lblk_t lblk, unsigned int offset,
 		    struct ext4_dir_entry_2 **res_dir)
+=======
+		    unsigned int offset, struct ext4_dir_entry_2 **res_dir)
+>>>>>>> upstream/android-13
 {
 	struct ext4_dir_entry_2 * de;
 	char * dlimit;
@@ -1461,15 +1670,26 @@ int ext4_search_dir(struct buffer_head *bh, char *search_buf, int buf_size,
 
 	de = (struct ext4_dir_entry_2 *)search_buf;
 	dlimit = search_buf + buf_size;
+<<<<<<< HEAD
 	while ((char *) de < dlimit) {
 		/* this code is executed quadratically often */
 		/* do minimal checking `by hand' */
 		if ((char *) de + de->name_len <= dlimit &&
+=======
+	while ((char *) de < dlimit - EXT4_BASE_DIR_LEN) {
+		/* this code is executed quadratically often */
+		/* do minimal checking `by hand' */
+		if (de->name + de->name_len <= dlimit &&
+>>>>>>> upstream/android-13
 		    ext4_match(dir, fname, de)) {
 			/* found a match - just to be sure, do
 			 * a full check */
 			if (ext4_check_dir_entry(dir, NULL, de, bh, search_buf,
+<<<<<<< HEAD
 						 buf_size, lblk, offset))
+=======
+						 buf_size, offset))
+>>>>>>> upstream/android-13
 				return -1;
 			*res_dir = de;
 			return 1;
@@ -1515,7 +1735,11 @@ static int is_dx_internal_node(struct inode *dir, ext4_lblk_t block,
 static struct buffer_head *__ext4_find_entry(struct inode *dir,
 					     struct ext4_filename *fname,
 					     struct ext4_dir_entry_2 **res_dir,
+<<<<<<< HEAD
 					     int *inlined, ext4_lblk_t *lblk)
+=======
+					     int *inlined)
+>>>>>>> upstream/android-13
 {
 	struct super_block *sb;
 	struct buffer_head *bh_use[NAMEI_RA_SIZE];
@@ -1539,8 +1763,11 @@ static struct buffer_head *__ext4_find_entry(struct inode *dir,
 		int has_inline_data = 1;
 		ret = ext4_find_inline_entry(dir, fname, res_dir,
 					     &has_inline_data);
+<<<<<<< HEAD
 		if (lblk)
 			*lblk = 0;
+=======
+>>>>>>> upstream/android-13
 		if (has_inline_data) {
 			if (inlined)
 				*inlined = 1;
@@ -1559,7 +1786,11 @@ static struct buffer_head *__ext4_find_entry(struct inode *dir,
 		goto restart;
 	}
 	if (is_dx(dir)) {
+<<<<<<< HEAD
 		ret = ext4_dx_find_entry(dir, fname, res_dir, lblk);
+=======
+		ret = ext4_dx_find_entry(dir, fname, res_dir);
+>>>>>>> upstream/android-13
 		/*
 		 * On success, or if the error was file not found,
 		 * return.  Otherwise, fall back to doing a search the
@@ -1606,8 +1837,14 @@ restart:
 			goto next;
 		wait_on_buffer(bh);
 		if (!buffer_uptodate(bh)) {
+<<<<<<< HEAD
 			EXT4_ERROR_INODE(dir, "reading directory lblock %lu",
 					 (unsigned long) block);
+=======
+			EXT4_ERROR_INODE_ERR(dir, EIO,
+					     "reading directory lblock %lu",
+					     (unsigned long) block);
+>>>>>>> upstream/android-13
 			brelse(bh);
 			ret = ERR_PTR(-EIO);
 			goto cleanup_and_exit;
@@ -1615,20 +1852,33 @@ restart:
 		if (!buffer_verified(bh) &&
 		    !is_dx_internal_node(dir, block,
 					 (struct ext4_dir_entry *)bh->b_data) &&
+<<<<<<< HEAD
 		    !ext4_dirent_csum_verify(dir,
 				(struct ext4_dir_entry *)bh->b_data)) {
 			EXT4_ERROR_INODE(dir, "checksumming directory "
 					 "block %lu", (unsigned long)block);
+=======
+		    !ext4_dirblock_csum_verify(dir, bh)) {
+			EXT4_ERROR_INODE_ERR(dir, EFSBADCRC,
+					     "checksumming directory "
+					     "block %lu", (unsigned long)block);
+>>>>>>> upstream/android-13
 			brelse(bh);
 			ret = ERR_PTR(-EFSBADCRC);
 			goto cleanup_and_exit;
 		}
 		set_buffer_verified(bh);
+<<<<<<< HEAD
 		i = search_dirblock(bh, dir, fname, block,
 			    block << EXT4_BLOCK_SIZE_BITS(sb), res_dir);
 		if (i == 1) {
 			if (lblk)
 				*lblk = block;
+=======
+		i = search_dirblock(bh, dir, fname,
+			    block << EXT4_BLOCK_SIZE_BITS(sb), res_dir);
+		if (i == 1) {
+>>>>>>> upstream/android-13
 			EXT4_I(dir)->i_dir_start_lookup = block;
 			ret = bh;
 			goto cleanup_and_exit;
@@ -1663,7 +1913,11 @@ cleanup_and_exit:
 static struct buffer_head *ext4_find_entry(struct inode *dir,
 					   const struct qstr *d_name,
 					   struct ext4_dir_entry_2 **res_dir,
+<<<<<<< HEAD
 					   int *inlined, ext4_lblk_t *lblk)
+=======
+					   int *inlined)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct ext4_filename fname;
@@ -1675,7 +1929,11 @@ static struct buffer_head *ext4_find_entry(struct inode *dir,
 	if (err)
 		return ERR_PTR(err);
 
+<<<<<<< HEAD
 	bh = __ext4_find_entry(dir, &fname, res_dir, inlined, lblk);
+=======
+	bh = __ext4_find_entry(dir, &fname, res_dir, inlined);
+>>>>>>> upstream/android-13
 
 	ext4_fname_free_filename(&fname);
 	return bh;
@@ -1690,13 +1948,21 @@ static struct buffer_head *ext4_lookup_entry(struct inode *dir,
 	struct buffer_head *bh;
 
 	err = ext4_fname_prepare_lookup(dir, dentry, &fname);
+<<<<<<< HEAD
 	generic_set_encrypted_ci_d_ops(dir, dentry);
+=======
+	generic_set_encrypted_ci_d_ops(dentry);
+>>>>>>> upstream/android-13
 	if (err == -ENOENT)
 		return NULL;
 	if (err)
 		return ERR_PTR(err);
 
+<<<<<<< HEAD
 	bh = __ext4_find_entry(dir, &fname, res_dir, NULL, NULL);
+=======
+	bh = __ext4_find_entry(dir, &fname, res_dir, NULL);
+>>>>>>> upstream/android-13
 
 	ext4_fname_free_filename(&fname);
 	return bh;
@@ -1704,7 +1970,11 @@ static struct buffer_head *ext4_lookup_entry(struct inode *dir,
 
 static struct buffer_head * ext4_dx_find_entry(struct inode *dir,
 			struct ext4_filename *fname,
+<<<<<<< HEAD
 			struct ext4_dir_entry_2 **res_dir, ext4_lblk_t *lblk)
+=======
+			struct ext4_dir_entry_2 **res_dir)
+>>>>>>> upstream/android-13
 {
 	struct super_block * sb = dir->i_sb;
 	struct dx_frame frames[EXT4_HTREE_LEVEL], *frame;
@@ -1720,13 +1990,20 @@ static struct buffer_head * ext4_dx_find_entry(struct inode *dir,
 		return (struct buffer_head *) frame;
 	do {
 		block = dx_get_block(frame->at);
+<<<<<<< HEAD
 		if (lblk)
 			*lblk = block;
+=======
+>>>>>>> upstream/android-13
 		bh = ext4_read_dirblock(dir, block, DIRENT_HTREE);
 		if (IS_ERR(bh))
 			goto errout;
 
+<<<<<<< HEAD
 		retval = search_dirblock(bh, dir, fname, block,
+=======
+		retval = search_dirblock(bh, dir, fname,
+>>>>>>> upstream/android-13
 					 block << EXT4_BLOCK_SIZE_BITS(sb),
 					 res_dir);
 		if (retval == 1)
@@ -1768,6 +2045,7 @@ static struct dentry *ext4_lookup(struct inode *dir, struct dentry *dentry, unsi
 
 	bh = ext4_lookup_entry(dir, dentry, &de);
 	if (IS_ERR(bh))
+<<<<<<< HEAD
 		return (struct dentry *) bh;
 	inode = NULL;
 	if (bh) {
@@ -1780,6 +2058,17 @@ static struct dentry *ext4_lookup(struct inode *dir, struct dentry *dentry, unsi
 			return ERR_PTR(-EFSCORRUPTED);
 		}
 		brelse(bh);
+=======
+		return ERR_CAST(bh);
+	inode = NULL;
+	if (bh) {
+		__u32 ino = le32_to_cpu(de->inode);
+		brelse(bh);
+		if (!ext4_valid_inum(dir->i_sb, ino)) {
+			EXT4_ERROR_INODE(dir, "bad inode number: %u", ino);
+			return ERR_PTR(-EFSCORRUPTED);
+		}
+>>>>>>> upstream/android-13
 		if (unlikely(ino == dir->i_ino)) {
 			EXT4_ERROR_INODE(dir, "'%pd' linked to parent dir",
 					 dentry);
@@ -1788,9 +2077,14 @@ static struct dentry *ext4_lookup(struct inode *dir, struct dentry *dentry, unsi
 		inode = ext4_iget(dir->i_sb, ino, EXT4_IGET_NORMAL);
 		if (inode == ERR_PTR(-ESTALE)) {
 			EXT4_ERROR_INODE(dir,
+<<<<<<< HEAD
 					"deleted inode referenced: %u"
 					"at parent inode : %lu",
 					ino, dir->i_ino);
+=======
+					 "deleted inode referenced: %u",
+					 ino);
+>>>>>>> upstream/android-13
 			return ERR_PTR(-EFSCORRUPTED);
 		}
 		if (!IS_ERR(inode) && IS_ENCRYPTED(dir) &&
@@ -1821,6 +2115,7 @@ static struct dentry *ext4_lookup(struct inode *dir, struct dentry *dentry, unsi
 struct dentry *ext4_get_parent(struct dentry *child)
 {
 	__u32 ino;
+<<<<<<< HEAD
 	static const struct qstr dotdot = QSTR_INIT("..", 2);
 	struct ext4_dir_entry_2 * de;
 	struct buffer_head *bh;
@@ -1828,6 +2123,14 @@ struct dentry *ext4_get_parent(struct dentry *child)
 	bh = ext4_find_entry(d_inode(child), &dotdot, &de, NULL, NULL);
 	if (IS_ERR(bh))
 		return (struct dentry *) bh;
+=======
+	struct ext4_dir_entry_2 * de;
+	struct buffer_head *bh;
+
+	bh = ext4_find_entry(d_inode(child), &dotdot_name, &de, NULL);
+	if (IS_ERR(bh))
+		return ERR_CAST(bh);
+>>>>>>> upstream/android-13
 	if (!bh)
 		return ERR_PTR(-ENOENT);
 	ino = le32_to_cpu(de->inode);
@@ -1861,7 +2164,18 @@ dx_move_dirents(struct inode *dir, char *from, char *to,
 		memcpy (to, de, rec_len);
 		((struct ext4_dir_entry_2 *) to)->rec_len =
 				ext4_rec_len_to_disk(rec_len, blocksize);
+<<<<<<< HEAD
 		de->inode = 0;
+=======
+
+		/* wipe dir_entry excluding the rec_len field */
+		de->inode = 0;
+		memset(&de->name_len, 0, ext4_rec_len_from_disk(de->rec_len,
+								blocksize) -
+					 offsetof(struct ext4_dir_entry_2,
+								name_len));
+
+>>>>>>> upstream/android-13
 		map++;
 		to += rec_len;
 	}
@@ -1900,25 +2214,41 @@ static struct ext4_dir_entry_2 *dx_pack_dirents(struct inode *dir, char *base,
  * Returns pointer to de in block into which the new entry will be inserted.
  */
 static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+<<<<<<< HEAD
 			struct buffer_head **bh, struct dx_frame *frame,
 			struct dx_hash_info *hinfo, ext4_lblk_t *newblock)
+=======
+			struct buffer_head **bh,struct dx_frame *frame,
+			struct dx_hash_info *hinfo)
+>>>>>>> upstream/android-13
 {
 	unsigned blocksize = dir->i_sb->s_blocksize;
 	unsigned count, continued;
 	struct buffer_head *bh2;
+<<<<<<< HEAD
+=======
+	ext4_lblk_t newblock;
+>>>>>>> upstream/android-13
 	u32 hash2;
 	struct dx_map_entry *map;
 	char *data1 = (*bh)->b_data, *data2;
 	unsigned split, move, size;
 	struct ext4_dir_entry_2 *de = NULL, *de2;
+<<<<<<< HEAD
 	struct ext4_dir_entry_tail *t;
+=======
+>>>>>>> upstream/android-13
 	int	csum_size = 0;
 	int	err = 0, i;
 
 	if (ext4_has_metadata_csum(dir->i_sb))
 		csum_size = sizeof(struct ext4_dir_entry_tail);
 
+<<<<<<< HEAD
 	bh2 = ext4_append(handle, dir, newblock);
+=======
+	bh2 = ext4_append(handle, dir, &newblock);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bh2)) {
 		brelse(*bh);
 		*bh = NULL;
@@ -1926,12 +2256,22 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
 	}
 
 	BUFFER_TRACE(*bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, *bh);
+=======
+	err = ext4_journal_get_write_access(handle, dir->i_sb, *bh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err)
 		goto journal_error;
 
 	BUFFER_TRACE(frame->bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, frame->bh);
+=======
+	err = ext4_journal_get_write_access(handle, dir->i_sb, frame->bh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err)
 		goto journal_error;
 
@@ -1982,11 +2322,16 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
 					    (char *) de2,
 					    blocksize);
 	if (csum_size) {
+<<<<<<< HEAD
 		t = EXT4_DIRENT_TAIL(data2, blocksize);
 		initialize_dirent_tail(t, blocksize);
 
 		t = EXT4_DIRENT_TAIL(data1, blocksize);
 		initialize_dirent_tail(t, blocksize);
+=======
+		ext4_initialize_dirent_tail(*bh, blocksize);
+		ext4_initialize_dirent_tail(bh2, blocksize);
+>>>>>>> upstream/android-13
 	}
 
 	dxtrace(dx_show_leaf(dir, hinfo, (struct ext4_dir_entry_2 *) data1,
@@ -1999,8 +2344,13 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
 		swap(*bh, bh2);
 		de = de2;
 	}
+<<<<<<< HEAD
 	dx_insert_block(frame, hash2 + continued, *newblock);
 	err = ext4_handle_dirty_dirent_node(handle, dir, bh2);
+=======
+	dx_insert_block(frame, hash2 + continued, newblock);
+	err = ext4_handle_dirty_dirblock(handle, dir, bh2);
+>>>>>>> upstream/android-13
 	if (err)
 		goto journal_error;
 	err = ext4_handle_dirty_dx_node(handle, dir, frame->bh);
@@ -2019,7 +2369,10 @@ journal_error:
 }
 
 int ext4_find_dest_de(struct inode *dir, struct inode *inode,
+<<<<<<< HEAD
 		      ext4_lblk_t lblk,
+=======
+>>>>>>> upstream/android-13
 		      struct buffer_head *bh,
 		      void *buf, int buf_size,
 		      struct ext4_filename *fname,
@@ -2035,7 +2388,11 @@ int ext4_find_dest_de(struct inode *dir, struct inode *inode,
 	top = buf + buf_size - reclen;
 	while ((char *) de <= top) {
 		if (ext4_check_dir_entry(dir, NULL, de, bh,
+<<<<<<< HEAD
 					 buf, buf_size, lblk, offset))
+=======
+					 buf, buf_size, offset))
+>>>>>>> upstream/android-13
 			return -EFSCORRUPTED;
 		if (ext4_match(dir, fname, de))
 			return -EEXIST;
@@ -2096,24 +2453,40 @@ void ext4_insert_dentry(struct inode *dir,
 static int add_dirent_to_buf(handle_t *handle, struct ext4_filename *fname,
 			     struct inode *dir,
 			     struct inode *inode, struct ext4_dir_entry_2 *de,
+<<<<<<< HEAD
 			     ext4_lblk_t blk,
+=======
+>>>>>>> upstream/android-13
 			     struct buffer_head *bh)
 {
 	unsigned int	blocksize = dir->i_sb->s_blocksize;
 	int		csum_size = 0;
+<<<<<<< HEAD
 	int		err;
+=======
+	int		err, err2;
+>>>>>>> upstream/android-13
 
 	if (ext4_has_metadata_csum(inode->i_sb))
 		csum_size = sizeof(struct ext4_dir_entry_tail);
 
 	if (!de) {
+<<<<<<< HEAD
 		err = ext4_find_dest_de(dir, inode, blk, bh, bh->b_data,
+=======
+		err = ext4_find_dest_de(dir, inode, bh, bh->b_data,
+>>>>>>> upstream/android-13
 					blocksize - csum_size, fname, &de);
 		if (err)
 			return err;
 	}
 	BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, bh);
+=======
+	err = ext4_journal_get_write_access(handle, dir->i_sb, bh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err) {
 		ext4_std_error(dir->i_sb, err);
 		return err;
@@ -2136,12 +2509,21 @@ static int add_dirent_to_buf(handle_t *handle, struct ext4_filename *fname,
 	dir->i_mtime = dir->i_ctime = current_time(dir);
 	ext4_update_dx_flag(dir);
 	inode_inc_iversion(dir);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, dir);
 	BUFFER_TRACE(bh, "call ext4_handle_dirty_metadata");
 	err = ext4_handle_dirty_dirent_node(handle, dir, bh);
 	if (err)
 		ext4_std_error(dir->i_sb, err);
 	return 0;
+=======
+	err2 = ext4_mark_inode_dirty(handle, dir);
+	BUFFER_TRACE(bh, "call ext4_handle_dirty_metadata");
+	err = ext4_handle_dirty_dirblock(handle, dir, bh);
+	if (err)
+		ext4_std_error(dir->i_sb, err);
+	return err ? err : err2;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2157,8 +2539,12 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
 	struct dx_frame	frames[EXT4_HTREE_LEVEL], *frame;
 	struct dx_entry *entries;
 	struct ext4_dir_entry_2	*de, *de2;
+<<<<<<< HEAD
 	struct ext4_dir_entry_tail *t;
 	char		*data1, *top;
+=======
+	char		*data2, *top;
+>>>>>>> upstream/android-13
 	unsigned	len;
 	int		retval;
 	unsigned	blocksize;
@@ -2172,7 +2558,12 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
 	blocksize =  dir->i_sb->s_blocksize;
 	dxtrace(printk(KERN_DEBUG "Creating index: inode %lu\n", dir->i_ino));
 	BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 	retval = ext4_journal_get_write_access(handle, bh);
+=======
+	retval = ext4_journal_get_write_access(handle, dir->i_sb, bh,
+					       EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (retval) {
 		ext4_std_error(dir->i_sb, retval);
 		brelse(bh);
@@ -2198,6 +2589,7 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
 		return PTR_ERR(bh2);
 	}
 	ext4_set_inode_flag(dir, EXT4_INODE_INDEX);
+<<<<<<< HEAD
 	data1 = bh2->b_data;
 
 	memcpy (data1, de, len);
@@ -2213,6 +2605,21 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
 		t = EXT4_DIRENT_TAIL(data1, blocksize);
 		initialize_dirent_tail(t, blocksize);
 	}
+=======
+	data2 = bh2->b_data;
+
+	memcpy(data2, de, len);
+	memset(de, 0, len); /* wipe old data */
+	de = (struct ext4_dir_entry_2 *) data2;
+	top = data2 + len;
+	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top)
+		de = de2;
+	de->rec_len = ext4_rec_len_to_disk(data2 + (blocksize - csum_size) -
+					   (char *) de, blocksize);
+
+	if (csum_size)
+		ext4_initialize_dirent_tail(bh2, blocksize);
+>>>>>>> upstream/android-13
 
 	/* Initialize the root; the dot dirents already exist */
 	de = (struct ext4_dir_entry_2 *) (&root->dotdot);
@@ -2250,18 +2657,31 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
 
 	retval = ext4_handle_dirty_dx_node(handle, dir, frame->bh);
 	if (retval)
+<<<<<<< HEAD
 		goto out_frames;	
 	retval = ext4_handle_dirty_dirent_node(handle, dir, bh2);
 	if (retval)
 		goto out_frames;	
 
 	de = do_split(handle, dir, &bh2, frame, &fname->hinfo, &block);
+=======
+		goto out_frames;
+	retval = ext4_handle_dirty_dirblock(handle, dir, bh2);
+	if (retval)
+		goto out_frames;
+
+	de = do_split(handle,dir, &bh2, frame, &fname->hinfo);
+>>>>>>> upstream/android-13
 	if (IS_ERR(de)) {
 		retval = PTR_ERR(de);
 		goto out_frames;
 	}
 
+<<<<<<< HEAD
 	retval = add_dirent_to_buf(handle, fname, dir, inode, de, block, bh2);
+=======
+	retval = add_dirent_to_buf(handle, fname, dir, inode, de, bh2);
+>>>>>>> upstream/android-13
 out_frames:
 	/*
 	 * Even if the block split failed, we have to properly write
@@ -2291,7 +2711,10 @@ static int ext4_add_entry(handle_t *handle, struct dentry *dentry,
 	struct inode *dir = d_inode(dentry->d_parent);
 	struct buffer_head *bh = NULL;
 	struct ext4_dir_entry_2 *de;
+<<<<<<< HEAD
 	struct ext4_dir_entry_tail *t;
+=======
+>>>>>>> upstream/android-13
 	struct super_block *sb;
 	struct ext4_filename fname;
 	int	retval;
@@ -2308,15 +2731,26 @@ static int ext4_add_entry(handle_t *handle, struct dentry *dentry,
 	if (!dentry->d_name.len)
 		return -EINVAL;
 
+<<<<<<< HEAD
 #ifdef CONFIG_UNICODE
 	if (sb_has_enc_strict_mode(sb) && IS_CASEFOLDED(dir) &&
+=======
+	if (fscrypt_is_nokey_name(dentry))
+		return -ENOKEY;
+
+#ifdef CONFIG_UNICODE
+	if (sb_has_strict_encoding(sb) && IS_CASEFOLDED(dir) &&
+>>>>>>> upstream/android-13
 	    sb->s_encoding && utf8_validate(sb->s_encoding, &dentry->d_name))
 		return -EINVAL;
 #endif
 
+<<<<<<< HEAD
 	if (fscrypt_is_nokey_name(dentry))
 		return -ENOKEY;
 
+=======
+>>>>>>> upstream/android-13
 	retval = ext4_fname_setup_filename(dir, &dentry->d_name, 0, &fname);
 	if (retval)
 		return retval;
@@ -2344,7 +2778,13 @@ static int ext4_add_entry(handle_t *handle, struct dentry *dentry,
 		}
 		ext4_clear_inode_flag(dir, EXT4_INODE_INDEX);
 		dx_fallback++;
+<<<<<<< HEAD
 		ext4_mark_inode_dirty(handle, dir);
+=======
+		retval = ext4_mark_inode_dirty(handle, dir);
+		if (unlikely(retval))
+			goto out;
+>>>>>>> upstream/android-13
 	}
 	blocks = dir->i_size >> sb->s_blocksize_bits;
 	for (block = 0; block < blocks; block++) {
@@ -2360,7 +2800,11 @@ static int ext4_add_entry(handle_t *handle, struct dentry *dentry,
 			goto out;
 		}
 		retval = add_dirent_to_buf(handle, &fname, dir, inode,
+<<<<<<< HEAD
 					   NULL, block, bh);
+=======
+					   NULL, bh);
+>>>>>>> upstream/android-13
 		if (retval != -ENOSPC)
 			goto out;
 
@@ -2384,12 +2828,19 @@ add_to_new_block:
 	de->inode = 0;
 	de->rec_len = ext4_rec_len_to_disk(blocksize - csum_size, blocksize);
 
+<<<<<<< HEAD
 	if (csum_size) {
 		t = EXT4_DIRENT_TAIL(bh->b_data, blocksize);
 		initialize_dirent_tail(t, blocksize);
 	}
 
 	retval = add_dirent_to_buf(handle, &fname, dir, inode, de, block, bh);
+=======
+	if (csum_size)
+		ext4_initialize_dirent_tail(bh, blocksize);
+
+	retval = add_dirent_to_buf(handle, &fname, dir, inode, de, bh);
+>>>>>>> upstream/android-13
 out:
 	ext4_fname_free_filename(&fname);
 	brelse(bh);
@@ -2411,7 +2862,10 @@ static int ext4_dx_add_entry(handle_t *handle, struct ext4_filename *fname,
 	struct ext4_dir_entry_2 *de;
 	int restart;
 	int err;
+<<<<<<< HEAD
 	ext4_lblk_t lblk;
+=======
+>>>>>>> upstream/android-13
 
 again:
 	restart = 0;
@@ -2420,8 +2874,12 @@ again:
 		return PTR_ERR(frame);
 	entries = frame->entries;
 	at = frame->at;
+<<<<<<< HEAD
 	lblk = dx_get_block(frame->at);
 	bh = ext4_read_dirblock(dir, lblk, DIRENT_HTREE);
+=======
+	bh = ext4_read_dirblock(dir, dx_get_block(frame->at), DIRENT_HTREE);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bh)) {
 		err = PTR_ERR(bh);
 		bh = NULL;
@@ -2429,11 +2887,19 @@ again:
 	}
 
 	BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, bh);
 	if (err)
 		goto journal_error;
 
 	err = add_dirent_to_buf(handle, fname, dir, inode, NULL, lblk, bh);
+=======
+	err = ext4_journal_get_write_access(handle, sb, bh, EXT4_JTR_NONE);
+	if (err)
+		goto journal_error;
+
+	err = add_dirent_to_buf(handle, fname, dir, inode, NULL, bh);
+>>>>>>> upstream/android-13
 	if (err != -ENOSPC)
 		goto cleanup;
 
@@ -2486,7 +2952,12 @@ again:
 		node2->fake.rec_len = ext4_rec_len_to_disk(sb->s_blocksize,
 							   sb->s_blocksize);
 		BUFFER_TRACE(frame->bh, "get_write_access");
+<<<<<<< HEAD
 		err = ext4_journal_get_write_access(handle, frame->bh);
+=======
+		err = ext4_journal_get_write_access(handle, sb, frame->bh,
+						    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (err)
 			goto journal_error;
 		if (!add_level) {
@@ -2496,8 +2967,14 @@ again:
 				       icount1, icount2));
 
 			BUFFER_TRACE(frame->bh, "get_write_access"); /* index root */
+<<<<<<< HEAD
 			err = ext4_journal_get_write_access(handle,
 							     (frame - 1)->bh);
+=======
+			err = ext4_journal_get_write_access(handle, sb,
+							    (frame - 1)->bh,
+							    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 			if (err)
 				goto journal_error;
 
@@ -2509,7 +2986,11 @@ again:
 
 			/* Which index block gets the new entry? */
 			if (at - entries >= icount1) {
+<<<<<<< HEAD
 				frame->at = at = at - entries - icount1 + entries2;
+=======
+				frame->at = at - entries - icount1 + entries2;
+>>>>>>> upstream/android-13
 				frame->entries = entries = entries2;
 				swap(frame->bh, bh2);
 			}
@@ -2527,7 +3008,11 @@ again:
 				goto journal_error;
 			err = ext4_handle_dirty_dx_node(handle, dir,
 							frame->bh);
+<<<<<<< HEAD
 			if (err)
+=======
+			if (restart || err)
+>>>>>>> upstream/android-13
 				goto journal_error;
 		} else {
 			struct dx_root *dxroot;
@@ -2552,12 +3037,20 @@ again:
 			goto journal_error;
 		}
 	}
+<<<<<<< HEAD
 	de = do_split(handle, dir, &bh, frame, &fname->hinfo, &lblk);
+=======
+	de = do_split(handle, dir, &bh, frame, &fname->hinfo);
+>>>>>>> upstream/android-13
 	if (IS_ERR(de)) {
 		err = PTR_ERR(de);
 		goto cleanup;
 	}
+<<<<<<< HEAD
 	err = add_dirent_to_buf(handle, fname, dir, inode, de, lblk, bh);
+=======
+	err = add_dirent_to_buf(handle, fname, dir, inode, de, bh);
+>>>>>>> upstream/android-13
 	goto cleanup;
 
 journal_error:
@@ -2577,10 +3070,15 @@ cleanup:
  * ext4_generic_delete_entry deletes a directory entry by merging it
  * with the previous entry
  */
+<<<<<<< HEAD
 int ext4_generic_delete_entry(handle_t *handle,
 			      struct inode *dir,
 			      struct ext4_dir_entry_2 *de_del,
 			      ext4_lblk_t lblk,
+=======
+int ext4_generic_delete_entry(struct inode *dir,
+			      struct ext4_dir_entry_2 *de_del,
+>>>>>>> upstream/android-13
 			      struct buffer_head *bh,
 			      void *entry_buf,
 			      int buf_size,
@@ -2595,18 +3093,42 @@ int ext4_generic_delete_entry(handle_t *handle,
 	de = (struct ext4_dir_entry_2 *)entry_buf;
 	while (i < buf_size - csum_size) {
 		if (ext4_check_dir_entry(dir, NULL, de, bh,
+<<<<<<< HEAD
 					 entry_buf, buf_size, lblk, i))
 			return -EFSCORRUPTED;
 		if (de == de_del)  {
 			if (pde)
+=======
+					 entry_buf, buf_size, i))
+			return -EFSCORRUPTED;
+		if (de == de_del)  {
+			if (pde) {
+>>>>>>> upstream/android-13
 				pde->rec_len = ext4_rec_len_to_disk(
 					ext4_rec_len_from_disk(pde->rec_len,
 							       blocksize) +
 					ext4_rec_len_from_disk(de->rec_len,
 							       blocksize),
 					blocksize);
+<<<<<<< HEAD
 			else
 				de->inode = 0;
+=======
+
+				/* wipe entire dir_entry */
+				memset(de, 0, ext4_rec_len_from_disk(de->rec_len,
+								blocksize));
+			} else {
+				/* wipe dir_entry excluding the rec_len field */
+				de->inode = 0;
+				memset(&de->name_len, 0,
+					ext4_rec_len_from_disk(de->rec_len,
+								blocksize) -
+					offsetof(struct ext4_dir_entry_2,
+								name_len));
+			}
+
+>>>>>>> upstream/android-13
 			inode_inc_iversion(dir);
 			return 0;
 		}
@@ -2620,7 +3142,10 @@ int ext4_generic_delete_entry(handle_t *handle,
 static int ext4_delete_entry(handle_t *handle,
 			     struct inode *dir,
 			     struct ext4_dir_entry_2 *de_del,
+<<<<<<< HEAD
 			     ext4_lblk_t lblk,
+=======
+>>>>>>> upstream/android-13
 			     struct buffer_head *bh)
 {
 	int err, csum_size = 0;
@@ -2637,18 +3162,31 @@ static int ext4_delete_entry(handle_t *handle,
 		csum_size = sizeof(struct ext4_dir_entry_tail);
 
 	BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, bh);
 	if (unlikely(err))
 		goto out;
 
 	err = ext4_generic_delete_entry(handle, dir, de_del, lblk,
 					bh, bh->b_data,
+=======
+	err = ext4_journal_get_write_access(handle, dir->i_sb, bh,
+					    EXT4_JTR_NONE);
+	if (unlikely(err))
+		goto out;
+
+	err = ext4_generic_delete_entry(dir, de_del, bh, bh->b_data,
+>>>>>>> upstream/android-13
 					dir->i_sb->s_blocksize, csum_size);
 	if (err)
 		goto out;
 
 	BUFFER_TRACE(bh, "call ext4_handle_dirty_metadata");
+<<<<<<< HEAD
 	err = ext4_handle_dirty_dirent_node(handle, dir, bh);
+=======
+	err = ext4_handle_dirty_dirblock(handle, dir, bh);
+>>>>>>> upstream/android-13
 	if (unlikely(err))
 		goto out;
 
@@ -2670,7 +3208,11 @@ out:
  * for checking S_ISDIR(inode) (since the INODE_INDEX feature will not be set
  * on regular files) and to avoid creating huge/slow non-HTREE directories.
  */
+<<<<<<< HEAD
 static void ext4_inc_count(handle_t *handle, struct inode *inode)
+=======
+static void ext4_inc_count(struct inode *inode)
+>>>>>>> upstream/android-13
 {
 	inc_nlink(inode);
 	if (is_dx(inode) &&
@@ -2682,13 +3224,18 @@ static void ext4_inc_count(handle_t *handle, struct inode *inode)
  * If a directory had nlink == 1, then we should let it be 1. This indicates
  * directory has >EXT4_LINK_MAX subdirs.
  */
+<<<<<<< HEAD
 static void ext4_dec_count(handle_t *handle, struct inode *inode)
+=======
+static void ext4_dec_count(struct inode *inode)
+>>>>>>> upstream/android-13
 {
 	if (!S_ISDIR(inode->i_mode) || inode->i_nlink > 2)
 		drop_nlink(inode);
 }
 
 
+<<<<<<< HEAD
 static int ext4_add_nondir(handle_t *handle,
 		struct dentry *dentry, struct inode *inode)
 {
@@ -2701,6 +3248,31 @@ static int ext4_add_nondir(handle_t *handle,
 	drop_nlink(inode);
 	unlock_new_inode(inode);
 	iput(inode);
+=======
+/*
+ * Add non-directory inode to a directory. On success, the inode reference is
+ * consumed by dentry is instantiation. This is also indicated by clearing of
+ * *inodep pointer. On failure, the caller is responsible for dropping the
+ * inode reference in the safe context.
+ */
+static int ext4_add_nondir(handle_t *handle,
+		struct dentry *dentry, struct inode **inodep)
+{
+	struct inode *dir = d_inode(dentry->d_parent);
+	struct inode *inode = *inodep;
+	int err = ext4_add_entry(handle, dentry, inode);
+	if (!err) {
+		err = ext4_mark_inode_dirty(handle, inode);
+		if (IS_DIRSYNC(dir))
+			ext4_handle_sync(handle);
+		d_instantiate_new(dentry, inode);
+		*inodep = NULL;
+		return err;
+	}
+	drop_nlink(inode);
+	ext4_orphan_add(handle, inode);
+	unlock_new_inode(inode);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -2712,8 +3284,13 @@ static int ext4_add_nondir(handle_t *handle,
  * If the create succeeds, we fill in the inode information
  * with d_instantiate().
  */
+<<<<<<< HEAD
 static int ext4_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		       bool excl)
+=======
+static int ext4_create(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	handle_t *handle;
 	struct inode *inode;
@@ -2726,27 +3303,48 @@ static int ext4_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	credits = (EXT4_DATA_TRANS_BLOCKS(dir->i_sb) +
 		   EXT4_INDEX_EXTRA_TRANS_BLOCKS + 3);
 retry:
+<<<<<<< HEAD
 	inode = ext4_new_inode_start_handle(dir, mode, &dentry->d_name, 0,
 					    NULL, EXT4_HT_DIR, credits);
+=======
+	inode = ext4_new_inode_start_handle(mnt_userns, dir, mode, &dentry->d_name,
+					    0, NULL, EXT4_HT_DIR, credits);
+>>>>>>> upstream/android-13
 	handle = ext4_journal_current_handle();
 	err = PTR_ERR(inode);
 	if (!IS_ERR(inode)) {
 		inode->i_op = &ext4_file_inode_operations;
 		inode->i_fop = &ext4_file_operations;
 		ext4_set_aops(inode);
+<<<<<<< HEAD
 		err = ext4_add_nondir(handle, dentry, inode);
 		if (!err && IS_DIRSYNC(dir))
 			ext4_handle_sync(handle);
 	}
 	if (handle)
 		ext4_journal_stop(handle);
+=======
+		err = ext4_add_nondir(handle, dentry, &inode);
+		if (!err)
+			ext4_fc_track_create(handle, dentry);
+	}
+	if (handle)
+		ext4_journal_stop(handle);
+	if (!IS_ERR_OR_NULL(inode))
+		iput(inode);
+>>>>>>> upstream/android-13
 	if (err == -ENOSPC && ext4_should_retry_alloc(dir->i_sb, &retries))
 		goto retry;
 	return err;
 }
 
+<<<<<<< HEAD
 static int ext4_mknod(struct inode *dir, struct dentry *dentry,
 		      umode_t mode, dev_t rdev)
+=======
+static int ext4_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode, dev_t rdev)
+>>>>>>> upstream/android-13
 {
 	handle_t *handle;
 	struct inode *inode;
@@ -2759,25 +3357,46 @@ static int ext4_mknod(struct inode *dir, struct dentry *dentry,
 	credits = (EXT4_DATA_TRANS_BLOCKS(dir->i_sb) +
 		   EXT4_INDEX_EXTRA_TRANS_BLOCKS + 3);
 retry:
+<<<<<<< HEAD
 	inode = ext4_new_inode_start_handle(dir, mode, &dentry->d_name, 0,
 					    NULL, EXT4_HT_DIR, credits);
+=======
+	inode = ext4_new_inode_start_handle(mnt_userns, dir, mode, &dentry->d_name,
+					    0, NULL, EXT4_HT_DIR, credits);
+>>>>>>> upstream/android-13
 	handle = ext4_journal_current_handle();
 	err = PTR_ERR(inode);
 	if (!IS_ERR(inode)) {
 		init_special_inode(inode, inode->i_mode, rdev);
 		inode->i_op = &ext4_special_inode_operations;
+<<<<<<< HEAD
 		err = ext4_add_nondir(handle, dentry, inode);
 		if (!err && IS_DIRSYNC(dir))
 			ext4_handle_sync(handle);
 	}
 	if (handle)
 		ext4_journal_stop(handle);
+=======
+		err = ext4_add_nondir(handle, dentry, &inode);
+		if (!err)
+			ext4_fc_track_create(handle, dentry);
+	}
+	if (handle)
+		ext4_journal_stop(handle);
+	if (!IS_ERR_OR_NULL(inode))
+		iput(inode);
+>>>>>>> upstream/android-13
 	if (err == -ENOSPC && ext4_should_retry_alloc(dir->i_sb, &retries))
 		goto retry;
 	return err;
 }
 
+<<<<<<< HEAD
 static int ext4_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int ext4_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+			struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	handle_t *handle;
 	struct inode *inode;
@@ -2788,7 +3407,11 @@ static int ext4_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
 		return err;
 
 retry:
+<<<<<<< HEAD
 	inode = ext4_new_inode_start_handle(dir, mode,
+=======
+	inode = ext4_new_inode_start_handle(mnt_userns, dir, mode,
+>>>>>>> upstream/android-13
 					    NULL, 0, NULL,
 					    EXT4_HT_DIR,
 			EXT4_MAXQUOTAS_INIT_BLOCKS(dir->i_sb) +
@@ -2846,12 +3469,19 @@ struct ext4_dir_entry_2 *ext4_init_dot_dotdot(struct inode *inode,
 	return ext4_next_entry(de, blocksize);
 }
 
+<<<<<<< HEAD
 static int ext4_init_new_dir(handle_t *handle, struct inode *dir,
+=======
+int ext4_init_new_dir(handle_t *handle, struct inode *dir,
+>>>>>>> upstream/android-13
 			     struct inode *inode)
 {
 	struct buffer_head *dir_block = NULL;
 	struct ext4_dir_entry_2 *de;
+<<<<<<< HEAD
 	struct ext4_dir_entry_tail *t;
+=======
+>>>>>>> upstream/android-13
 	ext4_lblk_t block = 0;
 	unsigned int blocksize = dir->i_sb->s_blocksize;
 	int csum_size = 0;
@@ -2875,6 +3505,7 @@ static int ext4_init_new_dir(handle_t *handle, struct inode *dir,
 	de = (struct ext4_dir_entry_2 *)dir_block->b_data;
 	ext4_init_dot_dotdot(inode, de, blocksize, csum_size, dir->i_ino, 0);
 	set_nlink(inode, 2);
+<<<<<<< HEAD
 	if (csum_size) {
 		t = EXT4_DIRENT_TAIL(dir_block->b_data, blocksize);
 		initialize_dirent_tail(t, blocksize);
@@ -2882,6 +3513,13 @@ static int ext4_init_new_dir(handle_t *handle, struct inode *dir,
 
 	BUFFER_TRACE(dir_block, "call ext4_handle_dirty_metadata");
 	err = ext4_handle_dirty_dirent_node(handle, inode, dir_block);
+=======
+	if (csum_size)
+		ext4_initialize_dirent_tail(dir_block, blocksize);
+
+	BUFFER_TRACE(dir_block, "call ext4_handle_dirty_metadata");
+	err = ext4_handle_dirty_dirblock(handle, inode, dir_block);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 	set_buffer_verified(dir_block);
@@ -2890,11 +3528,20 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ext4_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	handle_t *handle;
 	struct inode *inode;
 	int err, credits, retries = 0;
+=======
+static int ext4_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode)
+{
+	handle_t *handle;
+	struct inode *inode;
+	int err, err2 = 0, credits, retries = 0;
+>>>>>>> upstream/android-13
 
 	if (EXT4_DIR_LINK_MAX(dir))
 		return -EMLINK;
@@ -2906,7 +3553,11 @@ static int ext4_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	credits = (EXT4_DATA_TRANS_BLOCKS(dir->i_sb) +
 		   EXT4_INDEX_EXTRA_TRANS_BLOCKS + 3);
 retry:
+<<<<<<< HEAD
 	inode = ext4_new_inode_start_handle(dir, S_IFDIR | mode,
+=======
+	inode = ext4_new_inode_start_handle(mnt_userns, dir, S_IFDIR | mode,
+>>>>>>> upstream/android-13
 					    &dentry->d_name,
 					    0, NULL, EXT4_HT_DIR, credits);
 	handle = ext4_journal_current_handle();
@@ -2925,23 +3576,45 @@ retry:
 	if (err) {
 out_clear_inode:
 		clear_nlink(inode);
+<<<<<<< HEAD
 		unlock_new_inode(inode);
 		ext4_mark_inode_dirty(handle, inode);
 		iput(inode);
 		goto out_stop;
 	}
 	ext4_inc_count(handle, dir);
+=======
+		ext4_orphan_add(handle, inode);
+		unlock_new_inode(inode);
+		err2 = ext4_mark_inode_dirty(handle, inode);
+		if (unlikely(err2))
+			err = err2;
+		ext4_journal_stop(handle);
+		iput(inode);
+		goto out_retry;
+	}
+	ext4_inc_count(dir);
+
+>>>>>>> upstream/android-13
 	ext4_update_dx_flag(dir);
 	err = ext4_mark_inode_dirty(handle, dir);
 	if (err)
 		goto out_clear_inode;
 	d_instantiate_new(dentry, inode);
+<<<<<<< HEAD
+=======
+	ext4_fc_track_create(handle, dentry);
+>>>>>>> upstream/android-13
 	if (IS_DIRSYNC(dir))
 		ext4_handle_sync(handle);
 
 out_stop:
 	if (handle)
 		ext4_journal_stop(handle);
+<<<<<<< HEAD
+=======
+out_retry:
+>>>>>>> upstream/android-13
 	if (err == -ENOSPC && ext4_should_retry_alloc(dir->i_sb, &retries))
 		goto retry;
 	return err;
@@ -2970,13 +3643,18 @@ bool ext4_empty_dir(struct inode *inode)
 	if (inode->i_size < ext4_dir_rec_len(1, NULL) +
 					ext4_dir_rec_len(2, NULL)) {
 		EXT4_ERROR_INODE(inode, "invalid size");
+<<<<<<< HEAD
 		return true;
+=======
+		return false;
+>>>>>>> upstream/android-13
 	}
 	/* The first directory block must not be a hole,
 	 * so treat it as DIRENT_HTREE
 	 */
 	bh = ext4_read_dirblock(inode, 0, DIRENT_HTREE);
 	if (IS_ERR(bh))
+<<<<<<< HEAD
 		return true;
 
 	de = (struct ext4_dir_entry_2 *) bh->b_data;
@@ -2997,6 +3675,26 @@ bool ext4_empty_dir(struct inode *inode)
 		ext4_warning_inode(inode, "directory missing '..'");
 		brelse(bh);
 		return true;
+=======
+		return false;
+
+	de = (struct ext4_dir_entry_2 *) bh->b_data;
+	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
+				 0) ||
+	    le32_to_cpu(de->inode) != inode->i_ino || strcmp(".", de->name)) {
+		ext4_warning_inode(inode, "directory missing '.'");
+		brelse(bh);
+		return false;
+	}
+	offset = ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
+	de = ext4_next_entry(de, sb->s_blocksize);
+	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
+				 offset) ||
+	    le32_to_cpu(de->inode) == 0 || strcmp("..", de->name)) {
+		ext4_warning_inode(inode, "directory missing '..'");
+		brelse(bh);
+		return false;
+>>>>>>> upstream/android-13
 	}
 	offset += ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
 	while (offset < inode->i_size) {
@@ -3010,12 +3708,20 @@ bool ext4_empty_dir(struct inode *inode)
 				continue;
 			}
 			if (IS_ERR(bh))
+<<<<<<< HEAD
 				return true;
+=======
+				return false;
+>>>>>>> upstream/android-13
 		}
 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
 					(offset & (sb->s_blocksize - 1)));
 		if (ext4_check_dir_entry(inode, NULL, de, bh,
+<<<<<<< HEAD
 					 bh->b_data, bh->b_size, 0, offset)) {
+=======
+					 bh->b_data, bh->b_size, offset)) {
+>>>>>>> upstream/android-13
 			offset = (offset | (sb->s_blocksize - 1)) + 1;
 			continue;
 		}
@@ -3029,6 +3735,7 @@ bool ext4_empty_dir(struct inode *inode)
 	return true;
 }
 
+<<<<<<< HEAD
 /*
  * ext4_orphan_add() links an unlinked or truncated inode into a list of
  * such inodes, starting at the superblock, in case we crash before the
@@ -3203,6 +3910,8 @@ out_brelse:
 	goto out_err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ext4_rmdir(struct inode *dir, struct dentry *dentry)
 {
 	int retval;
@@ -3210,8 +3919,11 @@ static int ext4_rmdir(struct inode *dir, struct dentry *dentry)
 	struct buffer_head *bh;
 	struct ext4_dir_entry_2 *de;
 	handle_t *handle = NULL;
+<<<<<<< HEAD
 	ext4_lblk_t lblk;
 
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
 		return -EIO;
@@ -3226,7 +3938,11 @@ static int ext4_rmdir(struct inode *dir, struct dentry *dentry)
 		return retval;
 
 	retval = -ENOENT;
+<<<<<<< HEAD
 	bh = ext4_find_entry(dir, &dentry->d_name, &de, NULL, &lblk);
+=======
+	bh = ext4_find_entry(dir, &dentry->d_name, &de, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bh))
 		return PTR_ERR(bh);
 	if (!bh)
@@ -3253,7 +3969,11 @@ static int ext4_rmdir(struct inode *dir, struct dentry *dentry)
 	if (IS_DIRSYNC(dir))
 		ext4_handle_sync(handle);
 
+<<<<<<< HEAD
 	retval = ext4_delete_entry(handle, dir, de, lblk, bh);
+=======
+	retval = ext4_delete_entry(handle, dir, de, bh);
+>>>>>>> upstream/android-13
 	if (retval)
 		goto end_rmdir;
 	if (!EXT4_DIR_LINK_EMPTY(inode))
@@ -3269,6 +3989,7 @@ static int ext4_rmdir(struct inode *dir, struct dentry *dentry)
 	inode->i_size = 0;
 	ext4_orphan_add(handle, inode);
 	inode->i_ctime = dir->i_ctime = dir->i_mtime = current_time(inode);
+<<<<<<< HEAD
 	/* @fs.sec -- 868333f69f69eab81cceeb26fac51f0b4de49c70 -- */
 	/* log unlinker's uid or first 4 bytes of comm
 	 * to ext4_inode->i_version_hi */
@@ -3289,6 +4010,15 @@ static int ext4_rmdir(struct inode *dir, struct dentry *dentry)
 	ext4_dec_count(handle, dir);
 	ext4_update_dx_flag(dir);
 	ext4_mark_inode_dirty(handle, dir);
+=======
+	retval = ext4_mark_inode_dirty(handle, inode);
+	if (retval)
+		goto end_rmdir;
+	ext4_dec_count(dir);
+	ext4_update_dx_flag(dir);
+	ext4_fc_track_unlink(handle, dentry);
+	retval = ext4_mark_inode_dirty(handle, dir);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_UNICODE
 	/* VFS negative dentries are incompatible with Encoding and
@@ -3308,6 +4038,7 @@ end_rmdir:
 	return retval;
 }
 
+<<<<<<< HEAD
 static int ext4_unlink(struct inode *dir, struct dentry *dentry)
 {
 	int retval;
@@ -3349,11 +4080,39 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
 		retval = PTR_ERR(handle);
 		handle = NULL;
 		goto end_unlink;
+=======
+int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
+		  struct inode *inode)
+{
+	int retval = -ENOENT;
+	struct buffer_head *bh;
+	struct ext4_dir_entry_2 *de;
+	int skip_remove_dentry = 0;
+
+	bh = ext4_find_entry(dir, d_name, &de, NULL);
+	if (IS_ERR(bh))
+		return PTR_ERR(bh);
+
+	if (!bh)
+		return -ENOENT;
+
+	if (le32_to_cpu(de->inode) != inode->i_ino) {
+		/*
+		 * It's okay if we find dont find dentry which matches
+		 * the inode. That's because it might have gotten
+		 * renamed to a different inode number
+		 */
+		if (EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
+			skip_remove_dentry = 1;
+		else
+			goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (IS_DIRSYNC(dir))
 		ext4_handle_sync(handle);
 
+<<<<<<< HEAD
 	retval = ext4_delete_entry(handle, dir, de, lblk, bh);
 	if (retval)
 		goto end_unlink;
@@ -3363,11 +4122,29 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
 	if (inode->i_nlink == 0)
 		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
 				   dentry->d_name.len, dentry->d_name.name);
+=======
+	if (!skip_remove_dentry) {
+		retval = ext4_delete_entry(handle, dir, de, bh);
+		if (retval)
+			goto out;
+		dir->i_ctime = dir->i_mtime = current_time(dir);
+		ext4_update_dx_flag(dir);
+		retval = ext4_mark_inode_dirty(handle, dir);
+		if (retval)
+			goto out;
+	} else {
+		retval = 0;
+	}
+	if (inode->i_nlink == 0)
+		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
+				   d_name->len, d_name->name);
+>>>>>>> upstream/android-13
 	else
 		drop_nlink(inode);
 	if (!inode->i_nlink)
 		ext4_orphan_add(handle, inode);
 	inode->i_ctime = current_time(inode);
+<<<<<<< HEAD
 	/* log unlinker's uid or first 4 bytes of comm
 	 * to ext4_inode->i_version_hi */
 	if (current_uid().val) {
@@ -3385,6 +4162,45 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
 	}
 	ext4_mark_inode_dirty(handle, inode);
 
+=======
+	retval = ext4_mark_inode_dirty(handle, inode);
+
+out:
+	brelse(bh);
+	return retval;
+}
+
+static int ext4_unlink(struct inode *dir, struct dentry *dentry)
+{
+	handle_t *handle;
+	int retval;
+
+	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
+		return -EIO;
+
+	trace_ext4_unlink_enter(dir, dentry);
+	/*
+	 * Initialize quotas before so that eventual writes go
+	 * in separate transaction
+	 */
+	retval = dquot_initialize(dir);
+	if (retval)
+		goto out_trace;
+	retval = dquot_initialize(d_inode(dentry));
+	if (retval)
+		goto out_trace;
+
+	handle = ext4_journal_start(dir, EXT4_HT_DIR,
+				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
+	if (IS_ERR(handle)) {
+		retval = PTR_ERR(handle);
+		goto out_trace;
+	}
+
+	retval = __ext4_unlink(handle, dir, &dentry->d_name, d_inode(dentry));
+	if (!retval)
+		ext4_fc_track_unlink(handle, dentry);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_UNICODE
 	/* VFS negative dentries are incompatible with Encoding and
 	 * Case-insensitiveness. Eventually we'll want avoid
@@ -3395,16 +4211,27 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
 	if (IS_CASEFOLDED(dir))
 		d_invalidate(dentry);
 #endif
+<<<<<<< HEAD
 
 end_unlink:
 	brelse(bh);
 	if (handle)
 		ext4_journal_stop(handle);
+=======
+	if (handle)
+		ext4_journal_stop(handle);
+
+out_trace:
+>>>>>>> upstream/android-13
 	trace_ext4_unlink_exit(dentry, retval);
 	return retval;
 }
 
+<<<<<<< HEAD
 static int ext4_symlink(struct inode *dir,
+=======
+static int ext4_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+>>>>>>> upstream/android-13
 			struct dentry *dentry, const char *symname)
 {
 	handle_t *handle;
@@ -3445,7 +4272,11 @@ static int ext4_symlink(struct inode *dir,
 			  EXT4_INDEX_EXTRA_TRANS_BLOCKS + 3;
 	}
 
+<<<<<<< HEAD
 	inode = ext4_new_inode_start_handle(dir, S_IFLNK|S_IRWXUGO,
+=======
+	inode = ext4_new_inode_start_handle(mnt_userns, dir, S_IFLNK|S_IRWXUGO,
+>>>>>>> upstream/android-13
 					    &dentry->d_name, 0, NULL,
 					    EXT4_HT_DIR, credits);
 	handle = ext4_journal_current_handle();
@@ -3473,13 +4304,22 @@ static int ext4_symlink(struct inode *dir,
 		 * for transaction commit if we are running out of space
 		 * and thus we deadlock. So we have to stop transaction now
 		 * and restart it when symlink contents is written.
+<<<<<<< HEAD
 		 * 
+=======
+		 *
+>>>>>>> upstream/android-13
 		 * To keep fs consistent in case of crash, we have to put inode
 		 * to orphan list in the mean time.
 		 */
 		drop_nlink(inode);
 		err = ext4_orphan_add(handle, inode);
+<<<<<<< HEAD
 		ext4_journal_stop(handle);
+=======
+		if (handle)
+			ext4_journal_stop(handle);
+>>>>>>> upstream/android-13
 		handle = NULL;
 		if (err)
 			goto err_drop_inode;
@@ -3514,12 +4354,20 @@ static int ext4_symlink(struct inode *dir,
 		inode->i_size = disk_link.len - 1;
 	}
 	EXT4_I(inode)->i_disksize = inode->i_size;
+<<<<<<< HEAD
 	err = ext4_add_nondir(handle, dentry, inode);
 	if (!err && IS_DIRSYNC(dir))
 		ext4_handle_sync(handle);
 
 	if (handle)
 		ext4_journal_stop(handle);
+=======
+	err = ext4_add_nondir(handle, dentry, &inode);
+	if (handle)
+		ext4_journal_stop(handle);
+	if (inode)
+		iput(inode);
+>>>>>>> upstream/android-13
 	goto out_free_encrypted_link;
 
 err_drop_inode:
@@ -3534,12 +4382,58 @@ out_free_encrypted_link:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ext4_link(struct dentry *old_dentry,
 		     struct inode *dir, struct dentry *dentry)
 {
 	handle_t *handle;
 	struct inode *inode = d_inode(old_dentry);
 	int err, retries = 0;
+=======
+int __ext4_link(struct inode *dir, struct inode *inode, struct dentry *dentry)
+{
+	handle_t *handle;
+	int err, retries = 0;
+retry:
+	handle = ext4_journal_start(dir, EXT4_HT_DIR,
+		(EXT4_DATA_TRANS_BLOCKS(dir->i_sb) +
+		 EXT4_INDEX_EXTRA_TRANS_BLOCKS) + 1);
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+
+	if (IS_DIRSYNC(dir))
+		ext4_handle_sync(handle);
+
+	inode->i_ctime = current_time(inode);
+	ext4_inc_count(inode);
+	ihold(inode);
+
+	err = ext4_add_entry(handle, dentry, inode);
+	if (!err) {
+		err = ext4_mark_inode_dirty(handle, inode);
+		/* this can happen only for tmpfile being
+		 * linked the first time
+		 */
+		if (inode->i_nlink == 1)
+			ext4_orphan_del(handle, inode);
+		d_instantiate(dentry, inode);
+		ext4_fc_track_link(handle, dentry);
+	} else {
+		drop_nlink(inode);
+		iput(inode);
+	}
+	ext4_journal_stop(handle);
+	if (err == -ENOSPC && ext4_should_retry_alloc(dir->i_sb, &retries))
+		goto retry;
+	return err;
+}
+
+static int ext4_link(struct dentry *old_dentry,
+		     struct inode *dir, struct dentry *dentry)
+{
+	struct inode *inode = d_inode(old_dentry);
+	int err;
+>>>>>>> upstream/android-13
 
 	if (inode->i_nlink >= EXT4_LINK_MAX)
 		return -EMLINK;
@@ -3556,6 +4450,7 @@ static int ext4_link(struct dentry *old_dentry,
 	err = dquot_initialize(dir);
 	if (err)
 		return err;
+<<<<<<< HEAD
 
 retry:
 	handle = ext4_journal_start(dir, EXT4_HT_DIR,
@@ -3591,6 +4486,11 @@ retry:
 }
 
 
+=======
+	return __ext4_link(dir, inode, dentry);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Try to find buffer head where contains the parent block.
  * It should be the inode block if it is inlined or the 1st block
@@ -3631,7 +4531,10 @@ struct ext4_renament {
 	int dir_nlink_delta;
 
 	/* entry for "dentry" */
+<<<<<<< HEAD
 	ext4_lblk_t lblk;
+=======
+>>>>>>> upstream/android-13
 	struct buffer_head *bh;
 	struct ext4_dir_entry_2 *de;
 	int inlined;
@@ -3654,7 +4557,12 @@ static int ext4_rename_dir_prepare(handle_t *handle, struct ext4_renament *ent)
 	if (le32_to_cpu(ent->parent_de->inode) != ent->dir->i_ino)
 		return -EFSCORRUPTED;
 	BUFFER_TRACE(ent->dir_bh, "get_write_access");
+<<<<<<< HEAD
 	return ext4_journal_get_write_access(handle, ent->dir_bh);
+=======
+	return ext4_journal_get_write_access(handle, ent->dir->i_sb,
+					     ent->dir_bh, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 }
 
 static int ext4_rename_dir_finish(handle_t *handle, struct ext4_renament *ent,
@@ -3670,9 +4578,14 @@ static int ext4_rename_dir_finish(handle_t *handle, struct ext4_renament *ent,
 							   ent->inode,
 							   ent->dir_bh);
 		} else {
+<<<<<<< HEAD
 			retval = ext4_handle_dirty_dirent_node(handle,
 							       ent->inode,
 							       ent->dir_bh);
+=======
+			retval = ext4_handle_dirty_dirblock(handle, ent->inode,
+							    ent->dir_bh);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		retval = ext4_mark_inode_dirty(handle, ent->inode);
@@ -3687,10 +4600,18 @@ static int ext4_rename_dir_finish(handle_t *handle, struct ext4_renament *ent,
 static int ext4_setent(handle_t *handle, struct ext4_renament *ent,
 		       unsigned ino, unsigned file_type)
 {
+<<<<<<< HEAD
 	int retval;
 
 	BUFFER_TRACE(ent->bh, "get write access");
 	retval = ext4_journal_get_write_access(handle, ent->bh);
+=======
+	int retval, retval2;
+
+	BUFFER_TRACE(ent->bh, "get write access");
+	retval = ext4_journal_get_write_access(handle, ent->dir->i_sb, ent->bh,
+					       EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 	ent->de->inode = cpu_to_le32(ino);
@@ -3699,6 +4620,7 @@ static int ext4_setent(handle_t *handle, struct ext4_renament *ent,
 	inode_inc_iversion(ent->dir);
 	ent->dir->i_ctime = ent->dir->i_mtime =
 		current_time(ent->dir);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, ent->dir);
 	BUFFER_TRACE(ent->bh, "call ext4_handle_dirty_metadata");
 	if (!ent->inlined) {
@@ -3711,6 +4633,18 @@ static int ext4_setent(handle_t *handle, struct ext4_renament *ent,
 	}
 
 	return 0;
+=======
+	retval = ext4_mark_inode_dirty(handle, ent->dir);
+	BUFFER_TRACE(ent->bh, "call ext4_handle_dirty_metadata");
+	if (!ent->inlined) {
+		retval2 = ext4_handle_dirty_dirblock(handle, ent->dir, ent->bh);
+		if (unlikely(retval2)) {
+			ext4_std_error(ent->dir->i_sb, retval2);
+			return retval2;
+		}
+	}
+	return retval;
+>>>>>>> upstream/android-13
 }
 
 static void ext4_resetent(handle_t *handle, struct ext4_renament *ent,
@@ -3724,8 +4658,12 @@ static void ext4_resetent(handle_t *handle, struct ext4_renament *ent,
 	 * so the old->de may no longer valid and need to find it again
 	 * before reset old inode info.
 	 */
+<<<<<<< HEAD
 	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL,
 				 NULL);
+=======
+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(old.bh))
 		retval = PTR_ERR(old.bh);
 	if (!old.bh)
@@ -3745,6 +4683,7 @@ static int ext4_find_delete_entry(handle_t *handle, struct inode *dir,
 	int retval = -ENOENT;
 	struct buffer_head *bh;
 	struct ext4_dir_entry_2 *de;
+<<<<<<< HEAD
 	ext4_lblk_t lblk;
 
 	bh = ext4_find_entry(dir, d_name, &de, NULL, &lblk);
@@ -3752,6 +4691,14 @@ static int ext4_find_delete_entry(handle_t *handle, struct inode *dir,
 		return PTR_ERR(bh);
 	if (bh) {
 		retval = ext4_delete_entry(handle, dir, de, lblk, bh);
+=======
+
+	bh = ext4_find_entry(dir, d_name, &de, NULL);
+	if (IS_ERR(bh))
+		return PTR_ERR(bh);
+	if (bh) {
+		retval = ext4_delete_entry(handle, dir, de, bh);
+>>>>>>> upstream/android-13
 		brelse(bh);
 	}
 	return retval;
@@ -3775,8 +4722,12 @@ static void ext4_rename_delete(handle_t *handle, struct ext4_renament *ent,
 		retval = ext4_find_delete_entry(handle, ent->dir,
 						&ent->dentry->d_name);
 	} else {
+<<<<<<< HEAD
 		retval = ext4_delete_entry(handle, ent->dir, ent->de,
 						ent->lblk, ent->bh);
+=======
+		retval = ext4_delete_entry(handle, ent->dir, ent->de, ent->bh);
+>>>>>>> upstream/android-13
 		if (retval == -ENOENT) {
 			retval = ext4_find_delete_entry(handle, ent->dir,
 							&ent->dentry->d_name);
@@ -3794,14 +4745,25 @@ static void ext4_update_dir_count(handle_t *handle, struct ext4_renament *ent)
 {
 	if (ent->dir_nlink_delta) {
 		if (ent->dir_nlink_delta == -1)
+<<<<<<< HEAD
 			ext4_dec_count(handle, ent->dir);
 		else
 			ext4_inc_count(handle, ent->dir);
+=======
+			ext4_dec_count(ent->dir);
+		else
+			ext4_inc_count(ent->dir);
+>>>>>>> upstream/android-13
 		ext4_mark_inode_dirty(handle, ent->dir);
 	}
 }
 
+<<<<<<< HEAD
 static struct inode *ext4_whiteout_for_rename(struct ext4_renament *ent,
+=======
+static struct inode *ext4_whiteout_for_rename(struct user_namespace *mnt_userns,
+					      struct ext4_renament *ent,
+>>>>>>> upstream/android-13
 					      int credits, handle_t **h)
 {
 	struct inode *wh;
@@ -3815,7 +4777,12 @@ static struct inode *ext4_whiteout_for_rename(struct ext4_renament *ent,
 	credits += (EXT4_MAXQUOTAS_TRANS_BLOCKS(ent->dir->i_sb) +
 		    EXT4_XATTR_TRANS_BLOCKS + 4);
 retry:
+<<<<<<< HEAD
 	wh = ext4_new_inode_start_handle(ent->dir, S_IFCHR | WHITEOUT_MODE,
+=======
+	wh = ext4_new_inode_start_handle(mnt_userns, ent->dir,
+					 S_IFCHR | WHITEOUT_MODE,
+>>>>>>> upstream/android-13
 					 &ent->dentry->d_name, 0, NULL,
 					 EXT4_HT_DIR, credits);
 
@@ -3842,9 +4809,15 @@ retry:
  * while new_{dentry,inode) refers to the destination dentry/inode
  * This comes from rename(const char *oldpath, const char *newpath)
  */
+<<<<<<< HEAD
 static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 		       struct inode *new_dir, struct dentry *new_dentry,
 		       unsigned int flags)
+=======
+static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		       struct dentry *old_dentry, struct inode *new_dir,
+		       struct dentry *new_dentry, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	handle_t *handle = NULL;
 	struct ext4_renament old = {
@@ -3889,8 +4862,12 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 			return retval;
 	}
 
+<<<<<<< HEAD
 	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL,
 				&old.lblk);
+=======
+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(old.bh))
 		return PTR_ERR(old.bh);
 	/*
@@ -3904,7 +4881,11 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 		goto release_bh;
 
 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
+<<<<<<< HEAD
 				 &new.de, &new.inlined, NULL);
+=======
+				 &new.de, &new.inlined);
+>>>>>>> upstream/android-13
 	if (IS_ERR(new.bh)) {
 		retval = PTR_ERR(new.bh);
 		new.bh = NULL;
@@ -3928,7 +4909,11 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 			goto release_bh;
 		}
 	} else {
+<<<<<<< HEAD
 		whiteout = ext4_whiteout_for_rename(&old, credits, &handle);
+=======
+		whiteout = ext4_whiteout_for_rename(mnt_userns, &old, credits, &handle);
+>>>>>>> upstream/android-13
 		if (IS_ERR(whiteout)) {
 			retval = PTR_ERR(whiteout);
 			goto release_bh;
@@ -3972,7 +4957,14 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 				     EXT4_FT_CHRDEV);
 		if (retval)
 			goto end_rename;
+<<<<<<< HEAD
 		ext4_mark_inode_dirty(handle, whiteout);
+=======
+		retval = ext4_mark_inode_dirty(handle, whiteout);
+		if (unlikely(retval))
+			goto end_rename;
+
+>>>>>>> upstream/android-13
 	}
 	if (!new.bh) {
 		retval = ext4_add_entry(handle, new.dentry, old.inode);
@@ -3993,7 +4985,13 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 	 * rename.
 	 */
 	old.inode->i_ctime = current_time(old.inode);
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, old.inode);
+=======
+	retval = ext4_mark_inode_dirty(handle, old.inode);
+	if (unlikely(retval))
+		goto end_rename;
+>>>>>>> upstream/android-13
 
 	if (!whiteout) {
 		/*
@@ -4003,7 +5001,11 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 	}
 
 	if (new.inode) {
+<<<<<<< HEAD
 		ext4_dec_count(handle, new.inode);
+=======
+		ext4_dec_count(new.inode);
+>>>>>>> upstream/android-13
 		new.inode->i_ctime = current_time(new.inode);
 	}
 	old.dir->i_ctime = old.dir->i_mtime = current_time(old.dir);
@@ -4013,13 +5015,18 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 		if (retval)
 			goto end_rename;
 
+<<<<<<< HEAD
 		ext4_dec_count(handle, old.dir);
+=======
+		ext4_dec_count(old.dir);
+>>>>>>> upstream/android-13
 		if (new.inode) {
 			/* checked ext4_empty_dir above, can't have another
 			 * parent, ext4_dec_count() won't work for many-linked
 			 * dirs */
 			clear_nlink(new.inode);
 		} else {
+<<<<<<< HEAD
 			ext4_inc_count(handle, new.dir);
 			ext4_update_dx_flag(new.dir);
 			ext4_mark_inode_dirty(handle, new.dir);
@@ -4028,6 +5035,40 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 	ext4_mark_inode_dirty(handle, old.dir);
 	if (new.inode) {
 		ext4_mark_inode_dirty(handle, new.inode);
+=======
+			ext4_inc_count(new.dir);
+			ext4_update_dx_flag(new.dir);
+			retval = ext4_mark_inode_dirty(handle, new.dir);
+			if (unlikely(retval))
+				goto end_rename;
+		}
+	}
+	retval = ext4_mark_inode_dirty(handle, old.dir);
+	if (unlikely(retval))
+		goto end_rename;
+
+	if (S_ISDIR(old.inode->i_mode)) {
+		/*
+		 * We disable fast commits here that's because the
+		 * replay code is not yet capable of changing dot dot
+		 * dirents in directories.
+		 */
+		ext4_fc_mark_ineligible(old.inode->i_sb,
+			EXT4_FC_REASON_RENAME_DIR, handle);
+	} else {
+		if (new.inode)
+			ext4_fc_track_unlink(handle, new.dentry);
+		__ext4_fc_track_link(handle, old.inode, new.dentry);
+		__ext4_fc_track_unlink(handle, old.inode, old.dentry);
+		if (whiteout)
+			__ext4_fc_track_create(handle, whiteout, old.dentry);
+	}
+
+	if (new.inode) {
+		retval = ext4_mark_inode_dirty(handle, new.inode);
+		if (unlikely(retval))
+			goto end_rename;
+>>>>>>> upstream/android-13
 		if (!new.inode->i_nlink)
 			ext4_orphan_add(handle, new.inode);
 	}
@@ -4088,7 +5129,11 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 		return retval;
 
 	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name,
+<<<<<<< HEAD
 				 &old.de, &old.inlined, NULL);
+=======
+				 &old.de, &old.inlined);
+>>>>>>> upstream/android-13
 	if (IS_ERR(old.bh))
 		return PTR_ERR(old.bh);
 	/*
@@ -4102,7 +5147,11 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 		goto end_rename;
 
 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
+<<<<<<< HEAD
 				 &new.de, &new.inlined, NULL);
+=======
+				 &new.de, &new.inlined);
+>>>>>>> upstream/android-13
 	if (IS_ERR(new.bh)) {
 		retval = PTR_ERR(new.bh);
 		new.bh = NULL;
@@ -4167,9 +5216,20 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 	ctime = current_time(old.inode);
 	old.inode->i_ctime = ctime;
 	new.inode->i_ctime = ctime;
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, old.inode);
 	ext4_mark_inode_dirty(handle, new.inode);
 
+=======
+	retval = ext4_mark_inode_dirty(handle, old.inode);
+	if (unlikely(retval))
+		goto end_rename;
+	retval = ext4_mark_inode_dirty(handle, new.inode);
+	if (unlikely(retval))
+		goto end_rename;
+	ext4_fc_mark_ineligible(new.inode->i_sb,
+				EXT4_FC_REASON_CROSS_RENAME, handle);
+>>>>>>> upstream/android-13
 	if (old.dir_bh) {
 		retval = ext4_rename_dir_finish(handle, &old, new.dir->i_ino);
 		if (retval)
@@ -4194,7 +5254,12 @@ end_rename:
 	return retval;
 }
 
+<<<<<<< HEAD
 static int ext4_rename2(struct inode *old_dir, struct dentry *old_dentry,
+=======
+static int ext4_rename2(struct user_namespace *mnt_userns,
+			struct inode *old_dir, struct dentry *old_dentry,
+>>>>>>> upstream/android-13
 			struct inode *new_dir, struct dentry *new_dentry,
 			unsigned int flags)
 {
@@ -4216,7 +5281,11 @@ static int ext4_rename2(struct inode *old_dir, struct dentry *old_dentry,
 					 new_dir, new_dentry);
 	}
 
+<<<<<<< HEAD
 	return ext4_rename(old_dir, old_dentry, new_dir, new_dentry, flags);
+=======
+	return ext4_rename(mnt_userns, old_dir, old_dentry, new_dir, new_dentry, flags);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -4239,6 +5308,11 @@ const struct inode_operations ext4_dir_inode_operations = {
 	.get_acl	= ext4_get_acl,
 	.set_acl	= ext4_set_acl,
 	.fiemap         = ext4_fiemap,
+<<<<<<< HEAD
+=======
+	.fileattr_get	= ext4_fileattr_get,
+	.fileattr_set	= ext4_fileattr_set,
+>>>>>>> upstream/android-13
 };
 
 const struct inode_operations ext4_special_inode_operations = {

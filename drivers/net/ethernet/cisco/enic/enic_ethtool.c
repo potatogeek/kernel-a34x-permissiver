@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copyright 2013 Cisco Systems, Inc.  All rights reserved.
  *
  * This program is free software; you may redistribute it and/or modify
@@ -147,7 +151,10 @@ static void enic_get_drvinfo(struct net_device *netdev,
 		return;
 
 	strlcpy(drvinfo->driver, DRV_NAME, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, DRV_VERSION, sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(drvinfo->fw_version, fw_info->fw_version,
 		sizeof(drvinfo->fw_version));
 	strlcpy(drvinfo->bus_info, pci_name(enic->pdev),
@@ -241,7 +248,11 @@ static int enic_set_ringparam(struct net_device *netdev,
 	}
 	enic_init_vnic_resources(enic);
 	if (running) {
+<<<<<<< HEAD
 		err = dev_open(netdev);
+=======
+		err = dev_open(netdev, NULL);
+>>>>>>> upstream/android-13
 		if (err)
 			goto err_out;
 	}
@@ -299,7 +310,13 @@ static void enic_set_msglevel(struct net_device *netdev, u32 value)
 }
 
 static int enic_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 	struct ethtool_coalesce *ecmd)
+=======
+			     struct ethtool_coalesce *ecmd,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct enic *enic = netdev_priv(netdev);
 	struct enic_rx_coal *rxcoal = &enic->rx_coalesce_setting;
@@ -324,6 +341,7 @@ static int enic_coalesce_valid(struct enic *enic,
 	u32 rx_coalesce_usecs_low = min_t(u32, coalesce_usecs_max,
 					  ec->rx_coalesce_usecs_low);
 
+<<<<<<< HEAD
 	if (ec->rx_max_coalesced_frames		||
 	    ec->rx_coalesce_usecs_irq		||
 	    ec->rx_max_coalesced_frames_irq	||
@@ -343,6 +361,8 @@ static int enic_coalesce_valid(struct enic *enic,
 	    ec->rate_sample_interval)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if ((vnic_dev_get_intr_mode(enic->vdev) != VNIC_DEV_INTR_MODE_MSIX) &&
 	    ec->tx_coalesce_usecs)
 		return -EINVAL;
@@ -363,7 +383,13 @@ static int enic_coalesce_valid(struct enic *enic,
 }
 
 static int enic_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 	struct ethtool_coalesce *ecmd)
+=======
+			     struct ethtool_coalesce *ecmd,
+			     struct kernel_ethtool_coalesce *kernel_coal,
+			     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct enic *enic = netdev_priv(netdev);
 	u32 tx_coalesce_usecs;
@@ -454,7 +480,10 @@ static int enic_grxclsrule(struct enic *enic, struct ethtool_rxnfc *cmd)
 		break;
 	default:
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	fsp->h_u.tcp_ip4_spec.ip4src = flow_get_u32_src(&n->keys);
@@ -636,6 +665,13 @@ static int enic_get_ts_info(struct net_device *netdev,
 }
 
 static const struct ethtool_ops enic_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_USE_ADAPTIVE_RX |
+				     ETHTOOL_COALESCE_RX_USECS_LOW |
+				     ETHTOOL_COALESCE_RX_USECS_HIGH,
+>>>>>>> upstream/android-13
 	.get_drvinfo = enic_get_drvinfo,
 	.get_msglevel = enic_get_msglevel,
 	.set_msglevel = enic_set_msglevel,

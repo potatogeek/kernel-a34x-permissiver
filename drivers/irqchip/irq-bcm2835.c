@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Copyright 2010 Broadcom
  * Copyright 2012 Simon Arlott, Chris Boot, Stephen Warren
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Quirk 1: Shortcut interrupts don't set the bank 1/2 register pending bits
  *
  * If an interrupt fires on bank 1 that isn't in the shortcuts list, bit 8
@@ -70,6 +77,10 @@
 					| SHORTCUT1_MASK | SHORTCUT2_MASK)
 
 #define REG_FIQ_CONTROL		0x0c
+<<<<<<< HEAD
+=======
+#define FIQ_CONTROL_ENABLE	BIT(7)
+>>>>>>> upstream/android-13
 
 #define NR_BANKS		3
 #define IRQS_PER_BANK		32
@@ -144,6 +155,10 @@ static int __init armctrl_of_init(struct device_node *node,
 {
 	void __iomem *base;
 	int irq, b, i;
+<<<<<<< HEAD
+=======
+	u32 reg;
+>>>>>>> upstream/android-13
 
 	base = of_iomap(node, 0);
 	if (!base)
@@ -166,6 +181,22 @@ static int __init armctrl_of_init(struct device_node *node,
 				handle_level_irq);
 			irq_set_probe(irq);
 		}
+<<<<<<< HEAD
+=======
+
+		reg = readl_relaxed(intc.enable[b]);
+		if (reg) {
+			writel_relaxed(reg, intc.disable[b]);
+			pr_err(FW_BUG "Bootloader left irq enabled: "
+			       "bank %d irq %*pbl\n", b, IRQS_PER_BANK, &reg);
+		}
+	}
+
+	reg = readl_relaxed(base + REG_FIQ_CONTROL);
+	if (reg & FIQ_CONTROL_ENABLE) {
+		writel_relaxed(0, base + REG_FIQ_CONTROL);
+		pr_err(FW_BUG "Bootloader left fiq enabled\n");
+>>>>>>> upstream/android-13
 	}
 
 	if (is_2836) {
@@ -248,7 +279,11 @@ static void bcm2836_chained_handle_irq(struct irq_desc *desc)
 	u32 hwirq;
 
 	while ((hwirq = get_next_armctrl_hwirq()) != ~0)
+<<<<<<< HEAD
 		generic_handle_irq(irq_linear_revmap(intc.domain, hwirq));
+=======
+		generic_handle_domain_irq(intc.domain, hwirq);
+>>>>>>> upstream/android-13
 }
 
 IRQCHIP_DECLARE(bcm2835_armctrl_ic, "brcm,bcm2835-armctrl-ic",

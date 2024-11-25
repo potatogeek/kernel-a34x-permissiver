@@ -1,11 +1,19 @@
 # SPDX-License-Identifier: GPL-2.0
 config AMIGAONE
 	bool "Eyetech AmigaOne/MAI Teron"
+<<<<<<< HEAD
 	depends on 6xx && BROKEN_ON_SMP
 	select PPC_I8259
 	select PPC_INDIRECT_PCI
 	select PPC_UDBG_16550
 	select PCI
+=======
+	depends on PPC_BOOK3S_32 && BROKEN_ON_SMP
+	select PPC_I8259
+	select PPC_INDIRECT_PCI
+	select PPC_UDBG_16550
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	select NOT_COHERENT_CACHE
 	select CHECK_CACHE_COHERENCY
 	select DEFAULT_UIMAGE

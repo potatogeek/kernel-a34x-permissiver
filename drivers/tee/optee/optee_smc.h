@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016, Linaro Limited
  * All rights reserved.
@@ -23,6 +24,11 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause) */
+/*
+ * Copyright (c) 2015-2021, Linaro Limited
+>>>>>>> upstream/android-13
  */
 #ifndef OPTEE_SMC_H
 #define OPTEE_SMC_H
@@ -61,10 +67,17 @@
 /*
  * Function specified by SMC Calling convention
  *
+<<<<<<< HEAD
  * Return one of the following UIDs if using API specified in this file
  * without further extentions:
  * 65cb6b93-af0c-4617-8ed6-644a8d1140f8
  * see also OPTEE_SMC_UID_* in optee_msg.h
+=======
+ * Return the following UID if using API specified in this file
+ * without further extensions:
+ * 384fb3e0-e7f8-11e3-af63-0002a5d5c51b.
+ * see also OPTEE_MSG_UID_* in optee_msg.h
+>>>>>>> upstream/android-13
  */
 #define OPTEE_SMC_FUNCID_CALLS_UID OPTEE_MSG_FUNCID_CALLS_UID
 #define OPTEE_SMC_CALLS_UID \
@@ -75,7 +88,11 @@
 /*
  * Function specified by SMC Calling convention
  *
+<<<<<<< HEAD
  * Returns 2.0 if using API specified in this file without further extentions.
+=======
+ * Returns 2.0 if using API specified in this file without further extensions.
+>>>>>>> upstream/android-13
  * see also OPTEE_MSG_REVISION_* in optee_msg.h
  */
 #define OPTEE_SMC_FUNCID_CALLS_REVISION OPTEE_MSG_FUNCID_CALLS_REVISION
@@ -131,8 +148,13 @@ struct optee_smc_call_get_os_revision_result {
  *
  * Call register usage:
  * a0	SMC Function ID, OPTEE_SMC*CALL_WITH_ARG
+<<<<<<< HEAD
  * a1	Upper 32bit of a 64bit physical pointer to a struct optee_msg_arg
  * a2	Lower 32bit of a 64bit physical pointer to a struct optee_msg_arg
+=======
+ * a1	Upper 32 bits of a 64-bit physical pointer to a struct optee_msg_arg
+ * a2	Lower 32 bits of a 64-bit physical pointer to a struct optee_msg_arg
+>>>>>>> upstream/android-13
  * a3	Cache settings, not used if physical pointer is in a predefined shared
  *	memory area else per OPTEE_SMC_SHM_*
  * a4-6	Not used
@@ -161,7 +183,11 @@ struct optee_smc_call_get_os_revision_result {
  *					optee_msg_arg.
  * OPTEE_SMC_RETURN_ETHREAD_LIMIT	Number of Trusted OS threads exceeded,
  *					try again later.
+<<<<<<< HEAD
  * OPTEE_SMC_RETURN_EBADADDR		Bad physcial pointer to struct
+=======
+ * OPTEE_SMC_RETURN_EBADADDR		Bad physical pointer to struct
+>>>>>>> upstream/android-13
  *					optee_msg_arg.
  * OPTEE_SMC_RETURN_EBADCMD		Bad/unknown cmd in struct optee_msg_arg
  * OPTEE_SMC_RETURN_IS_RPC()		Call suspended by RPC call to normal
@@ -236,6 +262,13 @@ struct optee_smc_get_shm_config_result {
  * secure world accepts command buffers located in any parts of non-secure RAM
  */
 #define OPTEE_SMC_SEC_CAP_DYNAMIC_SHM		BIT(2)
+<<<<<<< HEAD
+=======
+/* Secure world is built with virtualization support */
+#define OPTEE_SMC_SEC_CAP_VIRTUALIZATION	BIT(3)
+/* Secure world supports Shared Memory with a NULL reference */
+#define OPTEE_SMC_SEC_CAP_MEMREF_NULL		BIT(4)
+>>>>>>> upstream/android-13
 
 #define OPTEE_SMC_FUNCID_EXCHANGE_CAPABILITIES	9
 #define OPTEE_SMC_EXCHANGE_CAPABILITIES \
@@ -264,8 +297,13 @@ struct optee_smc_exchange_capabilities_result {
  *
  * Normal return register usage:
  * a0	OPTEE_SMC_RETURN_OK
+<<<<<<< HEAD
  * a1	Upper 32bit of a 64bit Shared memory cookie
  * a2	Lower 32bit of a 64bit Shared memory cookie
+=======
+ * a1	Upper 32 bits of a 64-bit Shared memory cookie
+ * a2	Lower 32 bits of a 64-bit Shared memory cookie
+>>>>>>> upstream/android-13
  * a3-7	Preserved
  *
  * Cache empty return register usage:
@@ -313,6 +351,34 @@ struct optee_smc_disable_shm_cache_result {
 	OPTEE_SMC_FAST_CALL_VAL(OPTEE_SMC_FUNCID_ENABLE_SHM_CACHE)
 
 /*
+<<<<<<< HEAD
+=======
+ * Query OP-TEE about number of supported threads
+ *
+ * Normal World OS or Hypervisor issues this call to find out how many
+ * threads OP-TEE supports. That is how many standard calls can be issued
+ * in parallel before OP-TEE will return OPTEE_SMC_RETURN_ETHREAD_LIMIT.
+ *
+ * Call requests usage:
+ * a0	SMC Function ID, OPTEE_SMC_GET_THREAD_COUNT
+ * a1-6 Not used
+ * a7	Hypervisor Client ID register
+ *
+ * Normal return register usage:
+ * a0	OPTEE_SMC_RETURN_OK
+ * a1	Number of threads
+ * a2-7 Preserved
+ *
+ * Error return:
+ * a0	OPTEE_SMC_RETURN_UNKNOWN_FUNCTION   Requested call is not implemented
+ * a1-7	Preserved
+ */
+#define OPTEE_SMC_FUNCID_GET_THREAD_COUNT	15
+#define OPTEE_SMC_GET_THREAD_COUNT \
+	OPTEE_SMC_FAST_CALL_VAL(OPTEE_SMC_FUNCID_GET_THREAD_COUNT)
+
+/*
+>>>>>>> upstream/android-13
  * Resume from RPC (for example after processing a foreign interrupt)
  *
  * Call register usage:
@@ -360,6 +426,7 @@ struct optee_smc_disable_shm_cache_result {
  *
  * "Return" register usage:
  * a0	SMC Function ID, OPTEE_SMC_CALL_RETURN_FROM_RPC.
+<<<<<<< HEAD
  * a1	Upper 32bits of 64bit physical pointer to allocated
  *	memory, (a1 == 0 && a2 == 0) if size was 0 or if memory can't
  *	be allocated.
@@ -370,6 +437,18 @@ struct optee_smc_disable_shm_cache_result {
  * a4	Upper 32bits of 64bit Shared memory cookie used when freeing
  *	the memory or doing an RPC
  * a5	Lower 32bits of 64bit Shared memory cookie used when freeing
+=======
+ * a1	Upper 32 bits of 64-bit physical pointer to allocated
+ *	memory, (a1 == 0 && a2 == 0) if size was 0 or if memory can't
+ *	be allocated.
+ * a2	Lower 32 bits of 64-bit physical pointer to allocated
+ *	memory, (a1 == 0 && a2 == 0) if size was 0 or if memory can't
+ *	be allocated
+ * a3	Preserved
+ * a4	Upper 32 bits of 64-bit Shared memory cookie used when freeing
+ *	the memory or doing an RPC
+ * a5	Lower 32 bits of 64-bit Shared memory cookie used when freeing
+>>>>>>> upstream/android-13
  *	the memory or doing an RPC
  * a6-7	Preserved
  */
@@ -382,9 +461,15 @@ struct optee_smc_disable_shm_cache_result {
  *
  * "Call" register usage:
  * a0	This value, OPTEE_SMC_RETURN_RPC_FREE
+<<<<<<< HEAD
  * a1	Upper 32bits of 64bit shared memory cookie belonging to this
  *	argument memory
  * a2	Lower 32bits of 64bit shared memory cookie belonging to this
+=======
+ * a1	Upper 32 bits of 64-bit shared memory cookie belonging to this
+ *	argument memory
+ * a2	Lower 32 bits of 64-bit shared memory cookie belonging to this
+>>>>>>> upstream/android-13
  *	argument memory
  * a3-7	Resume information, must be preserved
  *
@@ -398,7 +483,11 @@ struct optee_smc_disable_shm_cache_result {
 	OPTEE_SMC_RPC_VAL(OPTEE_SMC_RPC_FUNC_FREE)
 
 /*
+<<<<<<< HEAD
  * Deliver foreign interrupt to normal world.
+=======
+ * Deliver a foreign interrupt in normal world.
+>>>>>>> upstream/android-13
  *
  * "Call" register usage:
  * a0	OPTEE_SMC_RETURN_RPC_FOREIGN_INTR
@@ -408,7 +497,11 @@ struct optee_smc_disable_shm_cache_result {
  * a0	SMC Function ID, OPTEE_SMC_CALL_RETURN_FROM_RPC.
  * a1-7	Preserved
  */
+<<<<<<< HEAD
 #define OPTEE_SMC_RPC_FUNC_FOREIGN_INTR		4
+=======
+#define OPTEE_SMC_RPC_FUNC_FOREIGN_INTR	4
+>>>>>>> upstream/android-13
 #define OPTEE_SMC_RETURN_RPC_FOREIGN_INTR \
 	OPTEE_SMC_RPC_VAL(OPTEE_SMC_RPC_FUNC_FOREIGN_INTR)
 
@@ -424,10 +517,17 @@ struct optee_smc_disable_shm_cache_result {
  *
  * "Call" register usage:
  * a0	OPTEE_SMC_RETURN_RPC_CMD
+<<<<<<< HEAD
  * a1	Upper 32bit of a 64bit Shared memory cookie holding a
  *	struct optee_msg_arg, must be preserved, only the data should
  *	be updated
  * a2	Lower 32bit of a 64bit Shared memory cookie holding a
+=======
+ * a1	Upper 32 bits of a 64-bit Shared memory cookie holding a
+ *	struct optee_msg_arg, must be preserved, only the data should
+ *	be updated
+ * a2	Lower 32 bits of a 64-bit Shared memory cookie holding a
+>>>>>>> upstream/android-13
  *	struct optee_msg_arg, must be preserved, only the data should
  *	be updated
  * a3-7	Resume information, must be preserved

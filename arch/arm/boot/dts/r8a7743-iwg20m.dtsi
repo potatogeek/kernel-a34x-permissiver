@@ -31,10 +31,13 @@
 	};
 };
 
+<<<<<<< HEAD
 &cmt0 {
 	status = "okay";
 };
 
+=======
+>>>>>>> upstream/android-13
 &extal_clk {
 	clock-frequency = <20000000>;
 };
@@ -88,11 +91,14 @@
 	};
 };
 
+<<<<<<< HEAD
 &rwdt {
 	timeout-sec = <60>;
 	status = "okay";
 };
 
+=======
+>>>>>>> upstream/android-13
 &sdhi0 {
 	pinctrl-0 = <&sdhi0_pins>;
 	pinctrl-names = "default";

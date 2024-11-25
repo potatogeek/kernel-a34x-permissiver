@@ -151,7 +151,11 @@ enum {D_PRT, D_PRO, D_UNI, D_MOD, D_GEO, D_SBY, D_DLY, D_SLV};
 #include <linux/delay.h>
 #include <linux/hdreg.h>
 #include <linux/cdrom.h>	/* for the eject ioctl */
+<<<<<<< HEAD
 #include <linux/blkdev.h>
+=======
+#include <linux/blk-mq.h>
+>>>>>>> upstream/android-13
 #include <linux/blkpg.h>
 #include <linux/kernel.h>
 #include <linux/mutex.h>
@@ -236,10 +240,23 @@ struct pd_unit {
 	int alt_geom;
 	char name[PD_NAMELEN];	/* pda, pdb, etc ... */
 	struct gendisk *gd;
+<<<<<<< HEAD
+=======
+	struct blk_mq_tag_set tag_set;
+	struct list_head rq_list;
+>>>>>>> upstream/android-13
 };
 
 static struct pd_unit pd[PD_UNITS];
 
+<<<<<<< HEAD
+=======
+struct pd_req {
+	/* for REQ_OP_DRV_IN: */
+	enum action (*func)(struct pd_unit *disk);
+};
+
+>>>>>>> upstream/android-13
 static char pd_scratch[512];	/* scratch block buffer */
 
 static char *pd_errs[17] = { "ERR", "INDEX", "ECC", "DRQ", "SEEK", "WRERR",
@@ -399,9 +416,23 @@ static int set_next_request(void)
 		if (++pd_queue == PD_UNITS)
 			pd_queue = 0;
 		if (q) {
+<<<<<<< HEAD
 			pd_req = blk_fetch_request(q);
 			if (pd_req)
 				break;
+=======
+			struct pd_unit *disk = q->queuedata;
+
+			if (list_empty(&disk->rq_list))
+				continue;
+
+			pd_req = list_first_entry(&disk->rq_list,
+							struct request,
+							queuelist);
+			list_del_init(&pd_req->queuelist);
+			blk_mq_start_request(pd_req);
+			break;
+>>>>>>> upstream/android-13
 		}
 	} while (pd_queue != old_pos);
 
@@ -412,7 +443,10 @@ static void run_fsm(void)
 {
 	while (1) {
 		enum action res;
+<<<<<<< HEAD
 		unsigned long saved_flags;
+=======
+>>>>>>> upstream/android-13
 		int stop = 0;
 
 		if (!phase) {
@@ -426,13 +460,18 @@ static void run_fsm(void)
 				pd_claimed = 1;
 				if (!pi_schedule_claimed(pi_current, run_fsm))
 					return;
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case 1:
 				pd_claimed = 2;
 				pi_current->proto->connect(pi_current);
 		}
 
 		switch(res = phase()) {
+<<<<<<< HEAD
 			case Ok: case Fail:
 				pi_disconnect(pi_current);
 				pd_claimed = 0;
@@ -447,6 +486,27 @@ static void run_fsm(void)
 				if (stop)
 					return;
 				/* fall through */
+=======
+			case Ok: case Fail: {
+				blk_status_t err;
+
+				err = res == Ok ? 0 : BLK_STS_IOERR;
+				pi_disconnect(pi_current);
+				pd_claimed = 0;
+				phase = NULL;
+				spin_lock_irq(&pd_lock);
+				if (!blk_update_request(pd_req, err,
+						blk_rq_cur_bytes(pd_req))) {
+					__blk_mq_end_request(pd_req, err);
+					pd_req = NULL;
+					stop = !set_next_request();
+				}
+				spin_unlock_irq(&pd_lock);
+				if (stop)
+					return;
+				}
+				fallthrough;
+>>>>>>> upstream/android-13
 			case Hold:
 				schedule_fsm();
 				return;
@@ -488,8 +548,14 @@ static enum action do_pd_io_start(void)
 
 static enum action pd_special(void)
 {
+<<<<<<< HEAD
 	enum action (*func)(struct pd_unit *) = pd_req->special;
 	return func(pd_current);
+=======
+	struct pd_req *req = blk_mq_rq_to_pdu(pd_req);
+
+	return req->func(pd_current);
+>>>>>>> upstream/android-13
 }
 
 static int pd_next_buf(void)
@@ -505,11 +571,25 @@ static int pd_next_buf(void)
 	if (pd_count)
 		return 0;
 	spin_lock_irqsave(&pd_lock, saved_flags);
+<<<<<<< HEAD
 	__blk_end_request_cur(pd_req, 0);
 	pd_count = blk_rq_cur_sectors(pd_req);
 	pd_buf = bio_data(pd_req->bio);
 	spin_unlock_irqrestore(&pd_lock, saved_flags);
 	return 0;
+=======
+	if (!blk_update_request(pd_req, 0, blk_rq_cur_bytes(pd_req))) {
+		__blk_mq_end_request(pd_req, 0);
+		pd_req = NULL;
+		pd_count = 0;
+		pd_buf = NULL;
+	} else {
+		pd_count = blk_rq_cur_sectors(pd_req);
+		pd_buf = bio_data(pd_req->bio);
+	}
+	spin_unlock_irqrestore(&pd_lock, saved_flags);
+	return !pd_count;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long pd_timeout;
@@ -726,6 +806,7 @@ static enum action pd_identify(struct pd_unit *disk)
 
 /* end of io request engine */
 
+<<<<<<< HEAD
 static void do_pd_request(struct request_queue * q)
 {
 	if (pd_req)
@@ -735,19 +816,47 @@ static void do_pd_request(struct request_queue * q)
 		return;
 
 	schedule_fsm();
+=======
+static blk_status_t pd_queue_rq(struct blk_mq_hw_ctx *hctx,
+				const struct blk_mq_queue_data *bd)
+{
+	struct pd_unit *disk = hctx->queue->queuedata;
+
+	spin_lock_irq(&pd_lock);
+	if (!pd_req) {
+		pd_req = bd->rq;
+		blk_mq_start_request(pd_req);
+	} else
+		list_add_tail(&bd->rq->queuelist, &disk->rq_list);
+	spin_unlock_irq(&pd_lock);
+
+	run_fsm();
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 static int pd_special_command(struct pd_unit *disk,
 		      enum action (*func)(struct pd_unit *disk))
 {
 	struct request *rq;
+<<<<<<< HEAD
+=======
+	struct pd_req *req;
+>>>>>>> upstream/android-13
 
 	rq = blk_get_request(disk->gd->queue, REQ_OP_DRV_IN, 0);
 	if (IS_ERR(rq))
 		return PTR_ERR(rq);
+<<<<<<< HEAD
 
 	rq->special = func;
 	blk_execute_rq(disk->gd->queue, disk->gd, rq, 0);
+=======
+	req = blk_mq_rq_to_pdu(rq);
+
+	req->func = func;
+	blk_execute_rq(disk->gd, rq, 0);
+>>>>>>> upstream/android-13
 	blk_put_request(rq);
 	return 0;
 }
@@ -825,6 +934,7 @@ static unsigned int pd_check_events(struct gendisk *p, unsigned int clearing)
 	return r ? DISK_EVENT_MEDIA_CHANGE : 0;
 }
 
+<<<<<<< HEAD
 static int pd_revalidate(struct gendisk *p)
 {
 	struct pd_unit *disk = p->private_data;
@@ -835,27 +945,66 @@ static int pd_revalidate(struct gendisk *p)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct block_device_operations pd_fops = {
 	.owner		= THIS_MODULE,
 	.open		= pd_open,
 	.release	= pd_release,
 	.ioctl		= pd_ioctl,
+<<<<<<< HEAD
 	.getgeo		= pd_getgeo,
 	.check_events	= pd_check_events,
 	.revalidate_disk= pd_revalidate
+=======
+	.compat_ioctl	= pd_ioctl,
+	.getgeo		= pd_getgeo,
+	.check_events	= pd_check_events,
+>>>>>>> upstream/android-13
 };
 
 /* probing */
 
+<<<<<<< HEAD
 static void pd_probe_drive(struct pd_unit *disk)
 {
 	struct gendisk *p = alloc_disk(1 << PD_BITS);
 	if (!p)
 		return;
+=======
+static const struct blk_mq_ops pd_mq_ops = {
+	.queue_rq	= pd_queue_rq,
+};
+
+static void pd_probe_drive(struct pd_unit *disk)
+{
+	struct gendisk *p;
+
+	memset(&disk->tag_set, 0, sizeof(disk->tag_set));
+	disk->tag_set.ops = &pd_mq_ops;
+	disk->tag_set.cmd_size = sizeof(struct pd_req);
+	disk->tag_set.nr_hw_queues = 1;
+	disk->tag_set.nr_maps = 1;
+	disk->tag_set.queue_depth = 2;
+	disk->tag_set.numa_node = NUMA_NO_NODE;
+	disk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING;
+
+	if (blk_mq_alloc_tag_set(&disk->tag_set))
+		return;
+
+	p = blk_mq_alloc_disk(&disk->tag_set, disk);
+	if (IS_ERR(p)) {
+		blk_mq_free_tag_set(&disk->tag_set);
+		return;
+	}
+	disk->gd = p;
+
+>>>>>>> upstream/android-13
 	strcpy(p->disk_name, disk->name);
 	p->fops = &pd_fops;
 	p->major = major;
 	p->first_minor = (disk - pd) << PD_BITS;
+<<<<<<< HEAD
 	disk->gd = p;
 	p->private_data = disk;
 	p->queue = blk_init_queue(do_pd_request, &pd_lock);
@@ -864,6 +1013,12 @@ static void pd_probe_drive(struct pd_unit *disk)
 		put_disk(p);
 		return;
 	}
+=======
+	p->minors = 1 << PD_BITS;
+	p->events = DISK_EVENT_MEDIA_CHANGE;
+	p->private_data = disk;
+
+>>>>>>> upstream/android-13
 	blk_queue_max_hw_sectors(p->queue, cluster);
 	blk_queue_bounce_limit(p->queue, BLK_BOUNCE_HIGH);
 
@@ -895,6 +1050,10 @@ static int pd_detect(void)
 		disk->standby = parm[D_SBY];
 		if (parm[D_PRT])
 			pd_drive_count++;
+<<<<<<< HEAD
+=======
+		INIT_LIST_HEAD(&disk->rq_list);
+>>>>>>> upstream/android-13
 	}
 
 	par_drv = pi_register_driver(name);
@@ -971,8 +1130,13 @@ static void __exit pd_exit(void)
 		if (p) {
 			disk->gd = NULL;
 			del_gendisk(p);
+<<<<<<< HEAD
 			blk_cleanup_queue(p->queue);
 			put_disk(p);
+=======
+			blk_cleanup_disk(p);
+			blk_mq_free_tag_set(&disk->tag_set);
+>>>>>>> upstream/android-13
 			pi_release(disk->pi);
 		}
 	}

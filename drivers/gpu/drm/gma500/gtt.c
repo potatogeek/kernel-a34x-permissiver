@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2007, Intel Corporation.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -15,15 +20,25 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Thomas Hellstrom <thomas-at-tungstengraphics.com>
  *	    Alan Cox <alan@linux.intel.com>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <linux/shmem_fs.h>
 #include <asm/set_memory.h>
 #include "psb_drv.h"
 #include "blitter.h"
+=======
+#include <linux/shmem_fs.h>
+
+#include <asm/set_memory.h>
+
+#include "psb_drv.h"
+>>>>>>> upstream/android-13
 
 
 /*
@@ -107,16 +122,24 @@ static int psb_gtt_insert(struct drm_device *dev, struct gtt_range *r,
 	}
 
 	/* Write our page entries into the GTT itself */
+<<<<<<< HEAD
 	for (i = r->roll; i < r->npage; i++) {
 		pte = psb_gtt_mask_pte(page_to_pfn(r->pages[i]),
 				       PSB_MMU_CACHED_MEMORY);
 		iowrite32(pte, gtt_slot++);
 	}
 	for (i = 0; i < r->roll; i++) {
+=======
+	for (i = 0; i < r->npage; i++) {
+>>>>>>> upstream/android-13
 		pte = psb_gtt_mask_pte(page_to_pfn(r->pages[i]),
 				       PSB_MMU_CACHED_MEMORY);
 		iowrite32(pte, gtt_slot++);
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/* Make sure all the entries are set before we return */
 	ioread32(gtt_slot - 1);
 
@@ -152,6 +175,7 @@ static void psb_gtt_remove(struct drm_device *dev, struct gtt_range *r)
 }
 
 /**
+<<<<<<< HEAD
  *	psb_gtt_roll	-	set scrolling position
  *	@dev: our DRM device
  *	@r: the gtt mapping we are using
@@ -195,6 +219,8 @@ void psb_gtt_roll(struct drm_device *dev, struct gtt_range *r, int roll)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	psb_gtt_attach_pages	-	attach and pin GEM pages
  *	@gt: the gtt range
  *
@@ -287,6 +313,7 @@ void psb_gtt_unpin(struct gtt_range *gt)
 	struct drm_device *dev = gt->gem.dev;
 	struct drm_psb_private *dev_priv = dev->dev_private;
 	u32 gpu_base = dev_priv->gtt.gatt_start;
+<<<<<<< HEAD
 	int ret;
 
 	/* While holding the gtt_mutex no new blits can be initiated */
@@ -299,6 +326,11 @@ void psb_gtt_unpin(struct gtt_range *gt)
 		goto out;
 	}
 
+=======
+
+	mutex_lock(&dev_priv->gtt_mutex);
+
+>>>>>>> upstream/android-13
 	WARN_ON(!gt->in_gart);
 
 	gt->in_gart--;
@@ -309,7 +341,10 @@ void psb_gtt_unpin(struct gtt_range *gt)
 		psb_gtt_detach_pages(gt);
 	}
 
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev_priv->gtt_mutex);
 }
 
@@ -357,7 +392,10 @@ struct gtt_range *psb_gtt_alloc_range(struct drm_device *dev, int len,
 	gt->resource.name = name;
 	gt->stolen = backed;
 	gt->in_gart = backed;
+<<<<<<< HEAD
 	gt->roll = 0;
+=======
+>>>>>>> upstream/android-13
 	/* Ensure this is set for non GEM objects */
 	gt->gem.dev = dev;
 	ret = allocate_resource(dev_priv->gtt_mem, &gt->resource,
@@ -399,13 +437,21 @@ static void psb_gtt_alloc(struct drm_device *dev)
 void psb_gtt_takedown(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 
 	if (dev_priv->gtt_map) {
 		iounmap(dev_priv->gtt_map);
 		dev_priv->gtt_map = NULL;
 	}
 	if (dev_priv->gtt_initialized) {
+<<<<<<< HEAD
 		pci_write_config_word(dev->pdev, PSB_GMCH_CTRL,
+=======
+		pci_write_config_word(pdev, PSB_GMCH_CTRL,
+>>>>>>> upstream/android-13
 				      dev_priv->gmch_ctrl);
 		PSB_WVDC32(dev_priv->pge_ctl, PSB_PGETBL_CTL);
 		(void) PSB_RVDC32(PSB_PGETBL_CTL);
@@ -417,6 +463,10 @@ void psb_gtt_takedown(struct drm_device *dev)
 int psb_gtt_init(struct drm_device *dev, int resume)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	unsigned gtt_pages;
 	unsigned long stolen_size, vram_stolen_size;
 	unsigned i, num_pages;
@@ -435,8 +485,13 @@ int psb_gtt_init(struct drm_device *dev, int resume)
 	pg = &dev_priv->gtt;
 
 	/* Enable the GTT */
+<<<<<<< HEAD
 	pci_read_config_word(dev->pdev, PSB_GMCH_CTRL, &dev_priv->gmch_ctrl);
 	pci_write_config_word(dev->pdev, PSB_GMCH_CTRL,
+=======
+	pci_read_config_word(pdev, PSB_GMCH_CTRL, &dev_priv->gmch_ctrl);
+	pci_write_config_word(pdev, PSB_GMCH_CTRL,
+>>>>>>> upstream/android-13
 			      dev_priv->gmch_ctrl | _PSB_GMCH_ENABLED);
 
 	dev_priv->pge_ctl = PSB_RVDC32(PSB_PGETBL_CTL);
@@ -456,8 +511,13 @@ int psb_gtt_init(struct drm_device *dev, int resume)
 	 */
 	pg->mmu_gatt_start = 0xE0000000;
 
+<<<<<<< HEAD
 	pg->gtt_start = pci_resource_start(dev->pdev, PSB_GTT_RESOURCE);
 	gtt_pages = pci_resource_len(dev->pdev, PSB_GTT_RESOURCE)
+=======
+	pg->gtt_start = pci_resource_start(pdev, PSB_GTT_RESOURCE);
+	gtt_pages = pci_resource_len(pdev, PSB_GTT_RESOURCE)
+>>>>>>> upstream/android-13
 								>> PAGE_SHIFT;
 	/* CDV doesn't report this. In which case the system has 64 gtt pages */
 	if (pg->gtt_start == 0 || gtt_pages == 0) {
@@ -466,10 +526,17 @@ int psb_gtt_init(struct drm_device *dev, int resume)
 		pg->gtt_start = dev_priv->pge_ctl;
 	}
 
+<<<<<<< HEAD
 	pg->gatt_start = pci_resource_start(dev->pdev, PSB_GATT_RESOURCE);
 	pg->gatt_pages = pci_resource_len(dev->pdev, PSB_GATT_RESOURCE)
 								>> PAGE_SHIFT;
 	dev_priv->gtt_mem = &dev->pdev->resource[PSB_GATT_RESOURCE];
+=======
+	pg->gatt_start = pci_resource_start(pdev, PSB_GATT_RESOURCE);
+	pg->gatt_pages = pci_resource_len(pdev, PSB_GATT_RESOURCE)
+								>> PAGE_SHIFT;
+	dev_priv->gtt_mem = &pdev->resource[PSB_GATT_RESOURCE];
+>>>>>>> upstream/android-13
 
 	if (pg->gatt_pages == 0 || pg->gatt_start == 0) {
 		static struct resource fudge;	/* Preferably peppermint */
@@ -490,7 +557,11 @@ int psb_gtt_init(struct drm_device *dev, int resume)
 		dev_priv->gtt_mem = &fudge;
 	}
 
+<<<<<<< HEAD
 	pci_read_config_dword(dev->pdev, PSB_BSM, &dev_priv->stolen_base);
+=======
+	pci_read_config_dword(pdev, PSB_BSM, &dev_priv->stolen_base);
+>>>>>>> upstream/android-13
 	vram_stolen_size = pg->gtt_phys_start - dev_priv->stolen_base
 								- PAGE_SIZE;
 
@@ -514,7 +585,11 @@ int psb_gtt_init(struct drm_device *dev, int resume)
 	 *	Map the GTT and the stolen memory area
 	 */
 	if (!resume)
+<<<<<<< HEAD
 		dev_priv->gtt_map = ioremap_nocache(pg->gtt_phys_start,
+=======
+		dev_priv->gtt_map = ioremap(pg->gtt_phys_start,
+>>>>>>> upstream/android-13
 						gtt_pages << PAGE_SHIFT);
 	if (!dev_priv->gtt_map) {
 		dev_err(dev->dev, "Failure to map gtt.\n");

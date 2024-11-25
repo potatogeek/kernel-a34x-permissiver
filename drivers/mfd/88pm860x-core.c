@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Base driver for Marvell 88PM8607
  *
  * Copyright (C) 2009 Marvell International Ltd.
  *
  * Author: Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -29,53 +36,90 @@
 
 #define INT_STATUS_NUM			3
 
+<<<<<<< HEAD
 static struct resource bk0_resources[] = {
+=======
+static const struct resource bk0_resources[] = {
+>>>>>>> upstream/android-13
 	{2, 2, "duty cycle", IORESOURCE_REG, },
 	{3, 3, "always on",  IORESOURCE_REG, },
 	{3, 3, "current",    IORESOURCE_REG, },
 };
+<<<<<<< HEAD
 static struct resource bk1_resources[] = {
+=======
+static const struct resource bk1_resources[] = {
+>>>>>>> upstream/android-13
 	{4, 4, "duty cycle", IORESOURCE_REG, },
 	{5, 5, "always on",  IORESOURCE_REG, },
 	{5, 5, "current",    IORESOURCE_REG, },
 };
+<<<<<<< HEAD
 static struct resource bk2_resources[] = {
+=======
+static const struct resource bk2_resources[] = {
+>>>>>>> upstream/android-13
 	{6, 6, "duty cycle", IORESOURCE_REG, },
 	{7, 7, "always on",  IORESOURCE_REG, },
 	{5, 5, "current",    IORESOURCE_REG, },
 };
 
+<<<<<<< HEAD
 static struct resource led0_resources[] = {
+=======
+static const struct resource led0_resources[] = {
+>>>>>>> upstream/android-13
 	/* RGB1 Red LED */
 	{0xd, 0xd, "control", IORESOURCE_REG, },
 	{0xc, 0xc, "blink",   IORESOURCE_REG, },
 };
+<<<<<<< HEAD
 static struct resource led1_resources[] = {
+=======
+static const struct resource led1_resources[] = {
+>>>>>>> upstream/android-13
 	/* RGB1 Green LED */
 	{0xe, 0xe, "control", IORESOURCE_REG, },
 	{0xc, 0xc, "blink",   IORESOURCE_REG, },
 };
+<<<<<<< HEAD
 static struct resource led2_resources[] = {
+=======
+static const struct resource led2_resources[] = {
+>>>>>>> upstream/android-13
 	/* RGB1 Blue LED */
 	{0xf, 0xf, "control", IORESOURCE_REG, },
 	{0xc, 0xc, "blink",   IORESOURCE_REG, },
 };
+<<<<<<< HEAD
 static struct resource led3_resources[] = {
+=======
+static const struct resource led3_resources[] = {
+>>>>>>> upstream/android-13
 	/* RGB2 Red LED */
 	{0x9, 0x9, "control", IORESOURCE_REG, },
 	{0x8, 0x8, "blink",   IORESOURCE_REG, },
 };
+<<<<<<< HEAD
 static struct resource led4_resources[] = {
+=======
+static const struct resource led4_resources[] = {
+>>>>>>> upstream/android-13
 	/* RGB2 Green LED */
 	{0xa, 0xa, "control", IORESOURCE_REG, },
 	{0x8, 0x8, "blink",   IORESOURCE_REG, },
 };
+<<<<<<< HEAD
 static struct resource led5_resources[] = {
+=======
+static const struct resource led5_resources[] = {
+>>>>>>> upstream/android-13
 	/* RGB2 Blue LED */
 	{0xb, 0xb, "control", IORESOURCE_REG, },
 	{0x8, 0x8, "blink",   IORESOURCE_REG, },
 };
 
+<<<<<<< HEAD
 static struct resource buck1_resources[] = {
 	{0x24, 0x24, "buck set", IORESOURCE_REG, },
 };
@@ -122,6 +166,54 @@ static struct resource ldo_vibrator_resources[] = {
 	{0x28, 0x28, "ldo set", IORESOURCE_REG, },
 };
 static struct resource ldo14_resources[] = {
+=======
+static const struct resource buck1_resources[] = {
+	{0x24, 0x24, "buck set", IORESOURCE_REG, },
+};
+static const struct resource buck2_resources[] = {
+	{0x25, 0x25, "buck set", IORESOURCE_REG, },
+};
+static const struct resource buck3_resources[] = {
+	{0x26, 0x26, "buck set", IORESOURCE_REG, },
+};
+static const struct resource ldo1_resources[] = {
+	{0x10, 0x10, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo2_resources[] = {
+	{0x11, 0x11, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo3_resources[] = {
+	{0x12, 0x12, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo4_resources[] = {
+	{0x13, 0x13, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo5_resources[] = {
+	{0x14, 0x14, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo6_resources[] = {
+	{0x15, 0x15, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo7_resources[] = {
+	{0x16, 0x16, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo8_resources[] = {
+	{0x17, 0x17, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo9_resources[] = {
+	{0x18, 0x18, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo10_resources[] = {
+	{0x19, 0x19, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo12_resources[] = {
+	{0x1a, 0x1a, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo_vibrator_resources[] = {
+	{0x28, 0x28, "ldo set", IORESOURCE_REG, },
+};
+static const struct resource ldo14_resources[] = {
+>>>>>>> upstream/android-13
 	{0x1b, 0x1b, "ldo set", IORESOURCE_REG, },
 };
 
@@ -1181,12 +1273,21 @@ static int pm860x_probe(struct i2c_client *client)
 	 */
 	if (pdata->companion_addr && (pdata->companion_addr != client->addr)) {
 		chip->companion_addr = pdata->companion_addr;
+<<<<<<< HEAD
 		chip->companion = i2c_new_dummy(chip->client->adapter,
 						chip->companion_addr);
 		if (!chip->companion) {
 			dev_err(&client->dev,
 				"Failed to allocate I2C companion device\n");
 			return -ENODEV;
+=======
+		chip->companion = i2c_new_dummy_device(chip->client->adapter,
+						chip->companion_addr);
+		if (IS_ERR(chip->companion)) {
+			dev_err(&client->dev,
+				"Failed to allocate I2C companion device\n");
+			return PTR_ERR(chip->companion);
+>>>>>>> upstream/android-13
 		}
 		chip->regmap_companion = regmap_init_i2c(chip->companion,
 							&pm860x_regmap_config);

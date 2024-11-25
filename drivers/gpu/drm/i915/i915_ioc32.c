@@ -28,9 +28,16 @@
  */
 #include <linux/compat.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/i915_drm.h>
 #include "i915_drv.h"
+=======
+#include <drm/drm_ioctl.h>
+
+#include "i915_drv.h"
+#include "i915_ioc32.h"
+>>>>>>> upstream/android-13
 
 struct drm_i915_getparam32 {
 	s32 param;
@@ -46,11 +53,16 @@ static int compat_i915_getparam(struct file *file, unsigned int cmd,
 				unsigned long arg)
 {
 	struct drm_i915_getparam32 req32;
+<<<<<<< HEAD
 	drm_i915_getparam_t __user *request;
+=======
+	struct drm_i915_getparam req;
+>>>>>>> upstream/android-13
 
 	if (copy_from_user(&req32, (void __user *)arg, sizeof(req32)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	request = compat_alloc_user_space(sizeof(*request));
 	if (!access_ok(VERIFY_WRITE, request, sizeof(*request)) ||
 	    __put_user(req32.param, &request->param) ||
@@ -60,6 +72,13 @@ static int compat_i915_getparam(struct file *file, unsigned int cmd,
 
 	return drm_ioctl(file, DRM_IOCTL_I915_GETPARAM,
 			 (unsigned long)request);
+=======
+	req.param = req32.param;
+	req.value = compat_ptr(req32.value);
+
+	return drm_ioctl_kernel(file, i915_getparam_ioctl, &req,
+				DRM_RENDER_ALLOW);
+>>>>>>> upstream/android-13
 }
 
 static drm_ioctl_compat_t *i915_compat_ioctls[] = {
@@ -67,7 +86,11 @@ static drm_ioctl_compat_t *i915_compat_ioctls[] = {
 };
 
 /**
+<<<<<<< HEAD
  * i915_compat_ioctl - handle the mistakes of the past
+=======
+ * i915_ioc32_compat_ioctl - handle the mistakes of the past
+>>>>>>> upstream/android-13
  * @filp: the file pointer
  * @cmd: the ioctl command (and encoded flags)
  * @arg: the ioctl argument (from userspace)
@@ -75,7 +98,11 @@ static drm_ioctl_compat_t *i915_compat_ioctls[] = {
  * Called whenever a 32-bit process running under a 64-bit kernel
  * performs an ioctl on /dev/dri/card<n>.
  */
+<<<<<<< HEAD
 long i915_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+=======
+long i915_ioc32_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+>>>>>>> upstream/android-13
 {
 	unsigned int nr = DRM_IOCTL_NR(cmd);
 	drm_ioctl_compat_t *fn = NULL;

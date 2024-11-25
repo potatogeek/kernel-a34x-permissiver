@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -395,10 +402,17 @@ void rt2x00link_start_watchdog(struct rt2x00_dev *rt2x00dev)
 	struct link *link = &rt2x00dev->link;
 
 	if (test_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags) &&
+<<<<<<< HEAD
 	    rt2x00dev->ops->lib->watchdog)
 		ieee80211_queue_delayed_work(rt2x00dev->hw,
 					     &link->watchdog_work,
 					     WATCHDOG_INTERVAL);
+=======
+	    rt2x00dev->ops->lib->watchdog && !link->watchdog_disabled)
+		ieee80211_queue_delayed_work(rt2x00dev->hw,
+					     &link->watchdog_work,
+					     link->watchdog_interval);
+>>>>>>> upstream/android-13
 }
 
 void rt2x00link_stop_watchdog(struct rt2x00_dev *rt2x00dev)
@@ -424,11 +438,25 @@ static void rt2x00link_watchdog(struct work_struct *work)
 	if (test_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags))
 		ieee80211_queue_delayed_work(rt2x00dev->hw,
 					     &link->watchdog_work,
+<<<<<<< HEAD
 					     WATCHDOG_INTERVAL);
+=======
+					     link->watchdog_interval);
+>>>>>>> upstream/android-13
 }
 
 void rt2x00link_register(struct rt2x00_dev *rt2x00dev)
 {
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&rt2x00dev->link.watchdog_work, rt2x00link_watchdog);
 	INIT_DELAYED_WORK(&rt2x00dev->link.work, rt2x00link_tuner);
+=======
+	struct link *link = &rt2x00dev->link;
+
+	INIT_DELAYED_WORK(&link->work, rt2x00link_tuner);
+	INIT_DELAYED_WORK(&link->watchdog_work, rt2x00link_watchdog);
+
+	if (link->watchdog_interval == 0)
+		link->watchdog_interval = WATCHDOG_INTERVAL;
+>>>>>>> upstream/android-13
 }

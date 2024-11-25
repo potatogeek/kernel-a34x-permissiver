@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006, 2007, 2009 Rusty Russell, IBM Corporation
  * Copyright (C) 2009, 2010, 2011 Red Hat, Inc.
  * Copyright (C) 2009, 2010, 2011 Amit Shah <amit.shah@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cdev.h>
 #include <linux/debugfs.h>
@@ -41,6 +48,10 @@
 #include "../tty/hvc/hvc_console.h"
 
 #define is_rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
+<<<<<<< HEAD
+=======
+#define VIRTCONS_MAX_PORTS 0x8000
+>>>>>>> upstream/android-13
 
 /*
  * This is a global struct for storing common data for all the devices
@@ -125,7 +136,11 @@ struct port_buffer {
 	unsigned int sgpages;
 
 	/* sg is used if spages > 0. sg must be the last in is struct */
+<<<<<<< HEAD
 	struct scatterlist sg[0];
+=======
+	struct scatterlist sg[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -448,12 +463,21 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
 		/*
 		 * Allocate DMA memory from ancestor. When a virtio
 		 * device is created by remoteproc, the DMA memory is
+<<<<<<< HEAD
 		 * associated with the grandparent device:
 		 * vdev => rproc => platform-dev.
 		 */
 		if (!vdev->dev.parent || !vdev->dev.parent->parent)
 			goto free_buf;
 		buf->dev = vdev->dev.parent->parent;
+=======
+		 * associated with the parent device:
+		 * virtioY => remoteprocX#vdevYbuffer.
+		 */
+		buf->dev = vdev->dev.parent;
+		if (!buf->dev)
+			goto free_buf;
+>>>>>>> upstream/android-13
 
 		/* Increase device refcnt to avoid freeing it */
 		get_device(buf->dev);
@@ -488,7 +512,11 @@ static struct port_buffer *get_inbuf(struct port *port)
 
 	buf = virtqueue_get_buf(port->in_vq, &len);
 	if (buf) {
+<<<<<<< HEAD
 		buf->len = len;
+=======
+		buf->len = min_t(size_t, len, buf->size);
+>>>>>>> upstream/android-13
 		buf->offset = 0;
 		port->stats.bytes_received += len;
 	}
@@ -884,7 +912,11 @@ static int pipe_to_sg(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
 		return 0;
 
 	/* Try lock this page */
+<<<<<<< HEAD
 	if (pipe_buf_steal(pipe, buf) == 0) {
+=======
+	if (pipe_buf_try_steal(pipe, buf)) {
+>>>>>>> upstream/android-13
 		/* Get reference and unlock page for moving */
 		get_page(buf->page);
 		unlock_page(buf->page);
@@ -932,6 +964,10 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
 		.pos = *ppos,
 		.u.data = &sgl,
 	};
+<<<<<<< HEAD
+=======
+	unsigned int occupancy;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Rproc_serial does not yet support splice. To support splice
@@ -942,6 +978,7 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
 	if (is_rproc_serial(port->out_vq->vdev))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/*
 	 * pipe->nrbufs == 0 means there are no data to transfer,
 	 * so this returns just 0 for no data.
@@ -951,12 +988,24 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
 		ret = 0;
 		goto error_out;
 	}
+=======
+	pipe_lock(pipe);
+	ret = 0;
+	if (pipe_empty(pipe->head, pipe->tail))
+		goto error_out;
+>>>>>>> upstream/android-13
 
 	ret = wait_port_writable(port, filp->f_flags & O_NONBLOCK);
 	if (ret < 0)
 		goto error_out;
 
+<<<<<<< HEAD
 	buf = alloc_buf(port->portdev->vdev, 0, pipe->nrbufs);
+=======
+	occupancy = pipe_occupancy(pipe->head, pipe->tail);
+	buf = alloc_buf(port->portdev->vdev, 0, occupancy);
+
+>>>>>>> upstream/android-13
 	if (!buf) {
 		ret = -ENOMEM;
 		goto error_out;
@@ -964,7 +1013,11 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
 
 	sgl.n = 0;
 	sgl.len = 0;
+<<<<<<< HEAD
 	sgl.size = pipe->nrbufs;
+=======
+	sgl.size = occupancy;
+>>>>>>> upstream/android-13
 	sgl.sg = buf->sg;
 	sg_init_table(sgl.sg, sgl.size);
 	ret = __splice_from_pipe(pipe, &sd, pipe_to_sg);
@@ -1309,7 +1362,11 @@ static const struct attribute_group port_attribute_group = {
 	.attrs = port_sysfs_entries,
 };
 
+<<<<<<< HEAD
 static int debugfs_show(struct seq_file *s, void *data)
+=======
+static int port_debugfs_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct port *port = s->private;
 
@@ -1327,6 +1384,7 @@ static int debugfs_show(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, debugfs_show, inode->i_private);
@@ -1339,6 +1397,9 @@ static const struct file_operations port_debugfs_ops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(port_debugfs);
+>>>>>>> upstream/android-13
 
 static void set_console_size(struct port *port, u16 rows, u16 cols)
 {
@@ -1482,6 +1543,7 @@ static int add_port(struct ports_device *portdev, u32 id)
 	 */
 	send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
 
+<<<<<<< HEAD
 	if (pdrvdata.debugfs_dir) {
 		/*
 		 * Finally, create the debugfs file that we can use to
@@ -1494,6 +1556,17 @@ static int add_port(struct ports_device *portdev, u32 id)
 							 port,
 							 &port_debugfs_ops);
 	}
+=======
+	/*
+	 * Finally, create the debugfs file that we can use to
+	 * inspect a port's state at any time
+	 */
+	snprintf(debugfs_name, sizeof(debugfs_name), "vport%up%u",
+		 port->portdev->vdev->index, id);
+	port->debugfs_file = debugfs_create_file(debugfs_name, 0444,
+						 pdrvdata.debugfs_dir,
+						 port, &port_debugfs_fops);
+>>>>>>> upstream/android-13
 	return 0;
 
 free_inbufs:
@@ -1738,7 +1811,11 @@ static void control_work_handler(struct work_struct *work)
 	while ((buf = virtqueue_get_buf(vq, &len))) {
 		spin_unlock(&portdev->c_ivq_lock);
 
+<<<<<<< HEAD
 		buf->len = len;
+=======
+		buf->len = min_t(size_t, len, buf->size);
+>>>>>>> upstream/android-13
 		buf->offset = 0;
 
 		handle_control_message(vq->vdev, portdev, buf);
@@ -1985,6 +2062,16 @@ static void virtcons_remove(struct virtio_device *vdev)
 	list_del(&portdev->list);
 	spin_unlock_irq(&pdrvdata_lock);
 
+<<<<<<< HEAD
+=======
+	/* Device is going away, exit any polling for buffers */
+	virtio_break_device(vdev);
+	if (use_multiport(portdev))
+		flush_work(&portdev->control_work);
+	else
+		flush_work(&portdev->config_work);
+
+>>>>>>> upstream/android-13
 	/* Disable interrupts for vqs */
 	vdev->config->reset(vdev);
 	/* Finish up work that's lined up */
@@ -2065,6 +2152,17 @@ static int virtcons_probe(struct virtio_device *vdev)
 	    virtio_cread_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
 				 struct virtio_console_config, max_nr_ports,
 				 &portdev->max_nr_ports) == 0) {
+<<<<<<< HEAD
+=======
+		if (portdev->max_nr_ports == 0 ||
+		    portdev->max_nr_ports > VIRTCONS_MAX_PORTS) {
+			dev_err(&vdev->dev,
+				"Invalidate max_nr_ports %d",
+				portdev->max_nr_ports);
+			err = -EINVAL;
+			goto free;
+		}
+>>>>>>> upstream/android-13
 		multiport = true;
 	}
 
@@ -2138,18 +2236,30 @@ fail:
 	return err;
 }
 
+<<<<<<< HEAD
 static struct virtio_device_id id_table[] = {
+=======
+static const struct virtio_device_id id_table[] = {
+>>>>>>> upstream/android-13
 	{ VIRTIO_ID_CONSOLE, VIRTIO_DEV_ANY_ID },
 	{ 0 },
 };
 MODULE_DEVICE_TABLE(virtio, id_table);
 
+<<<<<<< HEAD
 static unsigned int features[] = {
+=======
+static const unsigned int features[] = {
+>>>>>>> upstream/android-13
 	VIRTIO_CONSOLE_F_SIZE,
 	VIRTIO_CONSOLE_F_MULTIPORT,
 };
 
+<<<<<<< HEAD
 static struct virtio_device_id rproc_serial_id_table[] = {
+=======
+static const struct virtio_device_id rproc_serial_id_table[] = {
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_REMOTEPROC)
 	{ VIRTIO_ID_RPROC_SERIAL, VIRTIO_DEV_ANY_ID },
 #endif
@@ -2157,7 +2267,11 @@ static struct virtio_device_id rproc_serial_id_table[] = {
 };
 MODULE_DEVICE_TABLE(virtio, rproc_serial_id_table);
 
+<<<<<<< HEAD
 static unsigned int rproc_serial_features[] = {
+=======
+static const unsigned int rproc_serial_features[] = {
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_PM_SLEEP
@@ -2258,7 +2372,11 @@ static struct virtio_driver virtio_rproc_serial = {
 	.remove =	virtcons_remove,
 };
 
+<<<<<<< HEAD
 static int __init init(void)
+=======
+static int __init virtio_console_init(void)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -2270,8 +2388,11 @@ static int __init init(void)
 	}
 
 	pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
+<<<<<<< HEAD
 	if (!pdrvdata.debugfs_dir)
 		pr_warn("Error creating debugfs dir for virtio-ports\n");
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&pdrvdata.consoles);
 	INIT_LIST_HEAD(&pdrvdata.portdevs);
 
@@ -2295,7 +2416,11 @@ free:
 	return err;
 }
 
+<<<<<<< HEAD
 static void __exit fini(void)
+=======
+static void __exit virtio_console_fini(void)
+>>>>>>> upstream/android-13
 {
 	reclaim_dma_bufs();
 
@@ -2305,8 +2430,13 @@ static void __exit fini(void)
 	class_destroy(pdrvdata.class);
 	debugfs_remove_recursive(pdrvdata.debugfs_dir);
 }
+<<<<<<< HEAD
 module_init(init);
 module_exit(fini);
+=======
+module_init(virtio_console_init);
+module_exit(virtio_console_fini);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("Virtio console driver");
 MODULE_LICENSE("GPL");

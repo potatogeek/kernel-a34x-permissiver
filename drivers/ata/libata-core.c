@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  libata-core.c - helper library for ATA
  *
@@ -24,6 +25,15 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  libata-core.c - helper library for ATA
+ *
+ *  Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
+ *  Copyright 2003-2004 Jeff Garzik
+ *
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
@@ -38,6 +48,13 @@
  *	http://www.qic.org (QIC157 - Tape and DSC)
  *	http://www.ce-ata.org (CE-ATA: not supported)
  *
+<<<<<<< HEAD
+=======
+ * libata is essentially a library of internal helper functions for
+ * low-level ATA host controller drivers.  As such, the API/ABI is
+ * likely to change as new drivers are added and updated.
+ * Do not depend on ABI/API stability.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -71,6 +88,10 @@
 #include <linux/leds.h>
 #include <linux/pm_runtime.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <asm/setup.h>
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/libata.h>
@@ -78,11 +99,14 @@
 #include "libata.h"
 #include "libata-transport.h"
 
+<<<<<<< HEAD
 /* debounce timing parameters in msecs { interval, duration, timeout } */
 const unsigned long sata_deb_timing_normal[]		= {   5,  100, 2000 };
 const unsigned long sata_deb_timing_hotplug[]		= {  25,  500, 2000 };
 const unsigned long sata_deb_timing_long[]		= { 100, 2000, 5000 };
 
+=======
+>>>>>>> upstream/android-13
 const struct ata_port_operations ata_base_port_ops = {
 	.prereset		= ata_std_prereset,
 	.postreset		= ata_std_postreset,
@@ -97,6 +121,10 @@ const struct ata_port_operations sata_port_ops = {
 	.qc_defer		= ata_std_qc_defer,
 	.hardreset		= sata_std_hardreset,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(sata_port_ops);
+>>>>>>> upstream/android-13
 
 static unsigned int ata_dev_init_params(struct ata_device *dev,
 					u16 heads, u16 sectors);
@@ -106,6 +134,7 @@ static unsigned long ata_dev_blacklisted(const struct ata_device *dev);
 
 atomic_t ata_print_id = ATOMIC_INIT(0);
 
+<<<<<<< HEAD
 struct ata_force_param {
 	const char	*name;
 	unsigned int	cbl;
@@ -114,6 +143,17 @@ struct ata_force_param {
 	unsigned int	horkage_on;
 	unsigned int	horkage_off;
 	unsigned int	lflags;
+=======
+#ifdef CONFIG_ATA_FORCE
+struct ata_force_param {
+	const char	*name;
+	u8		cbl;
+	u8		spd_limit;
+	unsigned long	xfer_mask;
+	unsigned int	horkage_on;
+	unsigned int	horkage_off;
+	u16		lflags;
+>>>>>>> upstream/android-13
 };
 
 struct ata_force_ent {
@@ -125,10 +165,18 @@ struct ata_force_ent {
 static struct ata_force_ent *ata_force_tbl;
 static int ata_force_tbl_size;
 
+<<<<<<< HEAD
 static char ata_force_param_buf[PAGE_SIZE] __initdata;
 /* param_buf is thrown away after initialization, disallow read */
 module_param_string(force, ata_force_param_buf, sizeof(ata_force_param_buf), 0);
 MODULE_PARM_DESC(force, "Force ATA configurations including cable type, link speed and transfer mode (see Documentation/admin-guide/kernel-parameters.rst for details)");
+=======
+static char ata_force_param_buf[COMMAND_LINE_SIZE] __initdata;
+/* param_buf is thrown away after initialization, disallow read */
+module_param_string(force, ata_force_param_buf, sizeof(ata_force_param_buf), 0);
+MODULE_PARM_DESC(force, "Force ATA configurations including cable type, link speed and transfer mode (see Documentation/admin-guide/kernel-parameters.rst for details)");
+#endif
+>>>>>>> upstream/android-13
 
 static int atapi_enabled = 1;
 module_param(atapi_enabled, int, 0444);
@@ -175,6 +223,15 @@ MODULE_DESCRIPTION("Library module for ATA devices");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
 
+<<<<<<< HEAD
+=======
+static inline bool ata_dev_print_info(struct ata_device *dev)
+{
+	struct ata_eh_context *ehc = &dev->link->eh_context;
+
+	return ehc->i.flags & ATA_EHI_PRINTINFO;
+}
+>>>>>>> upstream/android-13
 
 static bool ata_sstatus_online(u32 sstatus)
 {
@@ -206,7 +263,11 @@ struct ata_link *ata_link_next(struct ata_link *link, struct ata_port *ap,
 		case ATA_LITER_PMP_FIRST:
 			if (sata_pmp_attached(ap))
 				return ap->pmp_link;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case ATA_LITER_HOST_FIRST:
 			return &ap->link;
 		}
@@ -217,11 +278,19 @@ struct ata_link *ata_link_next(struct ata_link *link, struct ata_port *ap,
 		case ATA_LITER_HOST_FIRST:
 			if (sata_pmp_attached(ap))
 				return ap->pmp_link;
+<<<<<<< HEAD
 			/* fall through */
 		case ATA_LITER_PMP_FIRST:
 			if (unlikely(ap->slave_link))
 				return ap->slave_link;
 			/* fall through */
+=======
+			fallthrough;
+		case ATA_LITER_PMP_FIRST:
+			if (unlikely(ap->slave_link))
+				return ap->slave_link;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case ATA_LITER_EDGE:
 			return NULL;
 		}
@@ -239,6 +308,10 @@ struct ata_link *ata_link_next(struct ata_link *link, struct ata_port *ap,
 
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_link_next);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_dev_next - device iteration helper
@@ -292,6 +365,10 @@ struct ata_device *ata_dev_next(struct ata_device *dev, struct ata_link *link,
 		goto next;
 	return dev;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_dev_next);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_dev_phys_link - find physical link for a device
@@ -318,6 +395,10 @@ struct ata_link *ata_dev_phys_link(struct ata_device *dev)
 	return ap->slave_link;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ATA_FORCE
+>>>>>>> upstream/android-13
 /**
  *	ata_force_cbl - force cable type according to libata.force
  *	@ap: ATA port of interest
@@ -498,6 +579,14 @@ static void ata_force_horkage(struct ata_device *dev)
 			       fe->param.name);
 	}
 }
+<<<<<<< HEAD
+=======
+#else
+static inline void ata_force_link_limits(struct ata_link *link) { }
+static inline void ata_force_xfermask(struct ata_device *dev) { }
+static inline void ata_force_horkage(struct ata_device *dev) { }
+#endif
+>>>>>>> upstream/android-13
 
 /**
  *	atapi_cmd_type - Determine ATAPI command type from SCSI opcode
@@ -531,11 +620,16 @@ int atapi_cmd_type(u8 opcode)
 	case ATA_12:
 		if (atapi_passthru16)
 			return ATAPI_PASS_THRU;
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return ATAPI_MISC;
 	}
 }
+<<<<<<< HEAD
 
 /**
  *	ata_tf_to_fis - Convert ATA taskfile to SATA FIS structure
@@ -609,6 +703,9 @@ void ata_tf_from_fis(const u8 *fis, struct ata_taskfile *tf)
 	tf->nsect	= fis[12];
 	tf->hob_nsect	= fis[13];
 }
+=======
+EXPORT_SYMBOL_GPL(atapi_cmd_type);
+>>>>>>> upstream/android-13
 
 static const u8 ata_rw_cmds[] = {
 	/* pio multi */
@@ -786,11 +883,17 @@ int ata_build_rw_tf(struct ata_taskfile *tf, struct ata_device *dev,
 		if (tf->flags & ATA_TFLAG_FUA)
 			tf->device |= 1 << 7;
 
+<<<<<<< HEAD
 		if (dev->flags & ATA_DFLAG_NCQ_PRIO) {
 			if (class == IOPRIO_CLASS_RT)
 				tf->hob_nsect |= ATA_PRIO_HIGH <<
 						 ATA_SHIFT_PRIO;
 		}
+=======
+		if (dev->flags & ATA_DFLAG_NCQ_PRIO_ENABLE &&
+		    class == IOPRIO_CLASS_RT)
+			tf->hob_nsect |= ATA_PRIO_HIGH << ATA_SHIFT_PRIO;
+>>>>>>> upstream/android-13
 	} else if (dev->flags & ATA_DFLAG_LBA) {
 		tf->flags |= ATA_TFLAG_LBA;
 
@@ -883,6 +986,10 @@ unsigned long ata_pack_xfermask(unsigned long pio_mask,
 		((mwdma_mask << ATA_SHIFT_MWDMA) & ATA_MASK_MWDMA) |
 		((udma_mask << ATA_SHIFT_UDMA) & ATA_MASK_UDMA);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_pack_xfermask);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_unpack_xfermask - Unpack xfer_mask into pio, mwdma and udma masks
@@ -938,6 +1045,10 @@ u8 ata_xfer_mask2mode(unsigned long xfer_mask)
 			return ent->base + highbit - ent->shift;
 	return 0xff;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_xfer_mask2mode);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_xfer_mode2mask - Find matching xfer_mask for XFER_*
@@ -961,6 +1072,10 @@ unsigned long ata_xfer_mode2mask(u8 xfer_mode)
 				& ~((1 << ent->shift) - 1);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_xfer_mode2mask);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_xfer_mode2shift - Find matching xfer_shift for XFER_*
@@ -983,6 +1098,10 @@ int ata_xfer_mode2shift(unsigned long xfer_mode)
 			return ent->shift;
 	return -1;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_xfer_mode2shift);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_mode_string - convert xfer_mask to string
@@ -1029,6 +1148,10 @@ const char *ata_mode_string(unsigned long xfer_mask)
 		return xfer_mode_str[highbit];
 	return "<n/a>";
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_mode_string);
+>>>>>>> upstream/android-13
 
 const char *sata_spd_string(unsigned int spd)
 {
@@ -1109,6 +1232,10 @@ unsigned int ata_dev_classify(const struct ata_taskfile *tf)
 	DPRINTK("unknown device\n");
 	return ATA_DEV_UNKNOWN;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_dev_classify);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_id_string - Convert IDENTIFY DEVICE page into string
@@ -1145,6 +1272,10 @@ void ata_id_string(const u16 *id, unsigned char *s,
 		len -= 2;
 	}
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_id_string);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_id_c_string - Convert IDENTIFY DEVICE page into C string
@@ -1172,6 +1303,10 @@ void ata_id_c_string(const u16 *id, unsigned char *s,
 		p--;
 	*p = '\0';
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_id_c_string);
+>>>>>>> upstream/android-13
 
 static u64 ata_id_n_sectors(const u16 *id)
 {
@@ -1338,8 +1473,12 @@ static int ata_set_max_sectors(struct ata_device *dev, u64 new_sectors)
  */
 static int ata_hpa_resize(struct ata_device *dev)
 {
+<<<<<<< HEAD
 	struct ata_eh_context *ehc = &dev->link->eh_context;
 	int print_info = ehc->i.flags & ATA_EHI_PRINTINFO;
+=======
+	bool print_info = ata_dev_print_info(dev);
+>>>>>>> upstream/android-13
 	bool unlock_hpa = ata_ignore_hpa || dev->flags & ATA_DFLAG_UNLOCK_HPA;
 	u64 sectors = ata_id_n_sectors(dev->id);
 	u64 native_sectors;
@@ -1529,6 +1668,10 @@ unsigned long ata_id_xfermask(const u16 *id)
 
 	return ata_pack_xfermask(pio_mask, mwdma_mask, udma_mask);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_id_xfermask);
+>>>>>>> upstream/android-13
 
 static void ata_qc_complete_internal(struct ata_queued_cmd *qc)
 {
@@ -1786,6 +1929,10 @@ unsigned int ata_pio_need_iordy(const struct ata_device *adev)
 		return 1;
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_pio_need_iordy);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_pio_mask_no_iordy	-	Return the non IORDY mask
@@ -1826,6 +1973,10 @@ unsigned int ata_do_dev_read_id(struct ata_device *dev,
 	return ata_exec_internal(dev, tf, NULL, DMA_FROM_DEVICE,
 				     id, sizeof(id[0]) * ATA_ID_WORDS, 0);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_do_dev_read_id);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_dev_read_id - Read ID data from the specified device
@@ -1869,7 +2020,11 @@ retry:
 	switch (class) {
 	case ATA_DEV_SEMB:
 		class = ATA_DEV_ATA;	/* some hard drives report SEMB sig */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_DEV_ATA:
 	case ATA_DEV_ZAC:
 		tf.command = ATA_CMD_ID_ATA;
@@ -2073,7 +2228,11 @@ unsigned int ata_read_log_page(struct ata_device *dev, u8 log,
 
 retry:
 	ata_tf_init(dev, &tf);
+<<<<<<< HEAD
 	if (dev->dma_mode && ata_id_has_read_log_dma_ext(dev->id) &&
+=======
+	if (ata_dma_enabled(dev) && ata_id_has_read_log_dma_ext(dev->id) &&
+>>>>>>> upstream/android-13
 	    !(dev->horkage & ATA_HORKAGE_NO_DMA_LOG)) {
 		tf.command = ATA_CMD_READ_LOG_DMA_EXT;
 		tf.protocol = ATA_PROT_DMA;
@@ -2092,6 +2251,7 @@ retry:
 	err_mask = ata_exec_internal(dev, &tf, NULL, DMA_FROM_DEVICE,
 				     buf, sectors * ATA_SECT_SIZE, 0);
 
+<<<<<<< HEAD
 	if (err_mask && dma) {
 		dev->horkage |= ATA_HORKAGE_NO_DMA_LOG;
 		ata_dev_warn(dev, "READ LOG DMA EXT failed, trying PIO\n");
@@ -2099,6 +2259,18 @@ retry:
 	}
 
 	DPRINTK("EXIT, err_mask=%x\n", err_mask);
+=======
+	if (err_mask) {
+		if (dma) {
+			dev->horkage |= ATA_HORKAGE_NO_DMA_LOG;
+			goto retry;
+		}
+		ata_dev_err(dev,
+			    "Read log 0x%02x page 0x%02x failed, Emask 0x%x\n",
+			    (unsigned int)log, (unsigned int)page, err_mask);
+	}
+
+>>>>>>> upstream/android-13
 	return err_mask;
 }
 
@@ -2127,12 +2299,17 @@ static bool ata_identify_page_supported(struct ata_device *dev, u8 page)
 	 */
 	err = ata_read_log_page(dev, ATA_LOG_IDENTIFY_DEVICE, 0, ap->sector_buf,
 				1);
+<<<<<<< HEAD
 	if (err) {
 		ata_dev_info(dev,
 			     "failed to get Device Identify Log Emask 0x%x\n",
 			     err);
 		return false;
 	}
+=======
+	if (err)
+		return false;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ap->sector_buf[8]; i++) {
 		if (ap->sector_buf[9 + i] == page)
@@ -2196,11 +2373,15 @@ static void ata_dev_config_ncq_send_recv(struct ata_device *dev)
 	}
 	err_mask = ata_read_log_page(dev, ATA_LOG_NCQ_SEND_RECV,
 				     0, ap->sector_buf, 1);
+<<<<<<< HEAD
 	if (err_mask) {
 		ata_dev_dbg(dev,
 			    "failed to get NCQ Send/Recv Log Emask 0x%x\n",
 			    err_mask);
 	} else {
+=======
+	if (!err_mask) {
+>>>>>>> upstream/android-13
 		u8 *cmds = dev->ncq_send_recv_cmds;
 
 		dev->flags |= ATA_DFLAG_NCQ_SEND_RECV;
@@ -2226,11 +2407,15 @@ static void ata_dev_config_ncq_non_data(struct ata_device *dev)
 	}
 	err_mask = ata_read_log_page(dev, ATA_LOG_NCQ_NON_DATA,
 				     0, ap->sector_buf, 1);
+<<<<<<< HEAD
 	if (err_mask) {
 		ata_dev_dbg(dev,
 			    "failed to get NCQ Non-Data Log Emask 0x%x\n",
 			    err_mask);
 	} else {
+=======
+	if (!err_mask) {
+>>>>>>> upstream/android-13
 		u8 *cmds = dev->ncq_non_data_cmds;
 
 		memcpy(cmds, ap->sector_buf, ATA_LOG_NCQ_NON_DATA_SIZE);
@@ -2242,16 +2427,22 @@ static void ata_dev_config_ncq_prio(struct ata_device *dev)
 	struct ata_port *ap = dev->link->ap;
 	unsigned int err_mask;
 
+<<<<<<< HEAD
 	if (!(dev->flags & ATA_DFLAG_NCQ_PRIO_ENABLE)) {
 		dev->flags &= ~ATA_DFLAG_NCQ_PRIO;
 		return;
 	}
+=======
+	if (!ata_identify_page_supported(dev, ATA_LOG_SATA_SETTINGS))
+		return;
+>>>>>>> upstream/android-13
 
 	err_mask = ata_read_log_page(dev,
 				     ATA_LOG_IDENTIFY_DEVICE,
 				     ATA_LOG_SATA_SETTINGS,
 				     ap->sector_buf,
 				     1);
+<<<<<<< HEAD
 	if (err_mask) {
 		ata_dev_dbg(dev,
 			    "failed to get Identify Device data, Emask 0x%x\n",
@@ -2266,6 +2457,40 @@ static void ata_dev_config_ncq_prio(struct ata_device *dev)
 		ata_dev_dbg(dev, "SATA page does not support priority\n");
 	}
 
+=======
+	if (err_mask)
+		goto not_supported;
+
+	if (!(ap->sector_buf[ATA_LOG_NCQ_PRIO_OFFSET] & BIT(3)))
+		goto not_supported;
+
+	dev->flags |= ATA_DFLAG_NCQ_PRIO;
+
+	return;
+
+not_supported:
+	dev->flags &= ~ATA_DFLAG_NCQ_PRIO_ENABLE;
+	dev->flags &= ~ATA_DFLAG_NCQ_PRIO;
+}
+
+static bool ata_dev_check_adapter(struct ata_device *dev,
+				  unsigned short vendor_id)
+{
+	struct pci_dev *pcidev = NULL;
+	struct device *parent_dev = NULL;
+
+	for (parent_dev = dev->tdev.parent; parent_dev != NULL;
+	     parent_dev = parent_dev->parent) {
+		if (dev_is_pci(parent_dev)) {
+			pcidev = to_pci_dev(parent_dev);
+			if (pcidev->vendor == vendor_id)
+				return true;
+			break;
+		}
+	}
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static int ata_dev_config_ncq(struct ata_device *dev,
@@ -2280,10 +2505,25 @@ static int ata_dev_config_ncq(struct ata_device *dev,
 		desc[0] = '\0';
 		return 0;
 	}
+<<<<<<< HEAD
+=======
+	if (!IS_ENABLED(CONFIG_SATA_HOST))
+		return 0;
+>>>>>>> upstream/android-13
 	if (dev->horkage & ATA_HORKAGE_NONCQ) {
 		snprintf(desc, desc_sz, "NCQ (not used)");
 		return 0;
 	}
+<<<<<<< HEAD
+=======
+
+	if (dev->horkage & ATA_HORKAGE_NO_NCQ_ON_ATI &&
+	    ata_dev_check_adapter(dev, PCI_VENDOR_ID_ATI)) {
+		snprintf(desc, desc_sz, "NCQ (not used)");
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (ap->flags & ATA_FLAG_NCQ) {
 		hdepth = min(ap->scsi_host->can_queue, ATA_MAX_QUEUE);
 		dev->flags |= ATA_DFLAG_NCQ;
@@ -2413,11 +2653,16 @@ static void ata_dev_config_trusted(struct ata_device *dev)
 
 	err = ata_read_log_page(dev, ATA_LOG_IDENTIFY_DEVICE, ATA_LOG_SECURITY,
 			ap->sector_buf, 1);
+<<<<<<< HEAD
 	if (err) {
 		ata_dev_dbg(dev,
 			    "failed to read Security Log, Emask 0x%x\n", err);
 		return;
 	}
+=======
+	if (err)
+		return;
+>>>>>>> upstream/android-13
 
 	trusted_cap = get_unaligned_le64(&ap->sector_buf[40]);
 	if (!(trusted_cap & (1ULL << 63))) {
@@ -2430,6 +2675,110 @@ static void ata_dev_config_trusted(struct ata_device *dev)
 		dev->flags |= ATA_DFLAG_TRUSTED;
 }
 
+<<<<<<< HEAD
+=======
+static int ata_dev_config_lba(struct ata_device *dev)
+{
+	struct ata_port *ap = dev->link->ap;
+	const u16 *id = dev->id;
+	const char *lba_desc;
+	char ncq_desc[24];
+	int ret;
+
+	dev->flags |= ATA_DFLAG_LBA;
+
+	if (ata_id_has_lba48(id)) {
+		lba_desc = "LBA48";
+		dev->flags |= ATA_DFLAG_LBA48;
+		if (dev->n_sectors >= (1UL << 28) &&
+		    ata_id_has_flush_ext(id))
+			dev->flags |= ATA_DFLAG_FLUSH_EXT;
+	} else {
+		lba_desc = "LBA";
+	}
+
+	/* config NCQ */
+	ret = ata_dev_config_ncq(dev, ncq_desc, sizeof(ncq_desc));
+
+	/* print device info to dmesg */
+	if (ata_msg_drv(ap) && ata_dev_print_info(dev))
+		ata_dev_info(dev,
+			     "%llu sectors, multi %u: %s %s\n",
+			     (unsigned long long)dev->n_sectors,
+			     dev->multi_count, lba_desc, ncq_desc);
+
+	return ret;
+}
+
+static void ata_dev_config_chs(struct ata_device *dev)
+{
+	struct ata_port *ap = dev->link->ap;
+	const u16 *id = dev->id;
+
+	if (ata_id_current_chs_valid(id)) {
+		/* Current CHS translation is valid. */
+		dev->cylinders = id[54];
+		dev->heads     = id[55];
+		dev->sectors   = id[56];
+	} else {
+		/* Default translation */
+		dev->cylinders	= id[1];
+		dev->heads	= id[3];
+		dev->sectors	= id[6];
+	}
+
+	/* print device info to dmesg */
+	if (ata_msg_drv(ap) && ata_dev_print_info(dev))
+		ata_dev_info(dev,
+			     "%llu sectors, multi %u, CHS %u/%u/%u\n",
+			     (unsigned long long)dev->n_sectors,
+			     dev->multi_count, dev->cylinders,
+			     dev->heads, dev->sectors);
+}
+
+static void ata_dev_config_devslp(struct ata_device *dev)
+{
+	u8 *sata_setting = dev->link->ap->sector_buf;
+	unsigned int err_mask;
+	int i, j;
+
+	/*
+	 * Check device sleep capability. Get DevSlp timing variables
+	 * from SATA Settings page of Identify Device Data Log.
+	 */
+	if (!ata_id_has_devslp(dev->id) ||
+	    !ata_identify_page_supported(dev, ATA_LOG_SATA_SETTINGS))
+		return;
+
+	err_mask = ata_read_log_page(dev,
+				     ATA_LOG_IDENTIFY_DEVICE,
+				     ATA_LOG_SATA_SETTINGS,
+				     sata_setting, 1);
+	if (err_mask)
+		return;
+
+	dev->flags |= ATA_DFLAG_DEVSLP;
+	for (i = 0; i < ATA_LOG_DEVSLP_SIZE; i++) {
+		j = ATA_LOG_DEVSLP_OFFSET + i;
+		dev->devslp_timing[i] = sata_setting[j];
+	}
+}
+
+static void ata_dev_print_features(struct ata_device *dev)
+{
+	if (!(dev->flags & ATA_DFLAG_FEATURES_MASK))
+		return;
+
+	ata_dev_info(dev,
+		     "Features:%s%s%s%s%s\n",
+		     dev->flags & ATA_DFLAG_TRUSTED ? " Trust" : "",
+		     dev->flags & ATA_DFLAG_DA ? " Dev-Attention" : "",
+		     dev->flags & ATA_DFLAG_DEVSLP ? " Dev-Sleep" : "",
+		     dev->flags & ATA_DFLAG_NCQ_SEND_RECV ? " NCQ-sndrcv" : "",
+		     dev->flags & ATA_DFLAG_NCQ_PRIO ? " NCQ-prio" : "");
+}
+
+>>>>>>> upstream/android-13
 /**
  *	ata_dev_configure - Configure the specified ATA/ATAPI device
  *	@dev: Target device to configure
@@ -2446,8 +2795,12 @@ static void ata_dev_config_trusted(struct ata_device *dev)
 int ata_dev_configure(struct ata_device *dev)
 {
 	struct ata_port *ap = dev->link->ap;
+<<<<<<< HEAD
 	struct ata_eh_context *ehc = &dev->link->eh_context;
 	int print_info = ehc->i.flags & ATA_EHI_PRINTINFO;
+=======
+	bool print_info = ata_dev_print_info(dev);
+>>>>>>> upstream/android-13
 	const u16 *id = dev->id;
 	unsigned long xfer_mask;
 	unsigned int err_mask;
@@ -2574,6 +2927,7 @@ int ata_dev_configure(struct ata_device *dev)
 					dev->multi_count = cnt;
 		}
 
+<<<<<<< HEAD
 		if (ata_id_has_lba(id)) {
 			const char *lba_desc;
 			char ncq_desc[24];
@@ -2655,10 +3009,33 @@ int ata_dev_configure(struct ata_device *dev)
 					dev->devslp_timing[i] = sata_setting[j];
 				}
 		}
+=======
+		/* print device info to dmesg */
+		if (ata_msg_drv(ap) && print_info)
+			ata_dev_info(dev, "%s: %s, %s, max %s\n",
+				     revbuf, modelbuf, fwrevbuf,
+				     ata_mode_string(xfer_mask));
+
+		if (ata_id_has_lba(id)) {
+			rc = ata_dev_config_lba(dev);
+			if (rc)
+				return rc;
+		} else {
+			ata_dev_config_chs(dev);
+		}
+
+		ata_dev_config_devslp(dev);
+>>>>>>> upstream/android-13
 		ata_dev_config_sense_reporting(dev);
 		ata_dev_config_zac(dev);
 		ata_dev_config_trusted(dev);
 		dev->cdb_len = 32;
+<<<<<<< HEAD
+=======
+
+		if (ata_msg_drv(ap) && print_info)
+			ata_dev_print_features(dev);
+>>>>>>> upstream/android-13
 	}
 
 	/* ATAPI-specific feature tests */
@@ -2798,6 +3175,10 @@ int ata_cable_40wire(struct ata_port *ap)
 {
 	return ATA_CBL_PATA40;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_cable_40wire);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_cable_80wire	-	return 80 wire cable type
@@ -2811,6 +3192,10 @@ int ata_cable_80wire(struct ata_port *ap)
 {
 	return ATA_CBL_PATA80;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_cable_80wire);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_cable_unknown	-	return unknown PATA cable.
@@ -2823,6 +3208,10 @@ int ata_cable_unknown(struct ata_port *ap)
 {
 	return ATA_CBL_PATA_UNK;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_cable_unknown);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_cable_ignore	-	return ignored PATA cable.
@@ -2835,6 +3224,10 @@ int ata_cable_ignore(struct ata_port *ap)
 {
 	return ATA_CBL_PATA_IGN;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_cable_ignore);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_cable_sata	-	return SATA cable type
@@ -2847,6 +3240,10 @@ int ata_cable_sata(struct ata_port *ap)
 {
 	return ATA_CBL_SATA;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_cable_sata);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_bus_probe - Reset and probe ATA bus
@@ -2969,7 +3366,11 @@ int ata_bus_probe(struct ata_port *ap)
 	case -ENODEV:
 		/* give it just one more chance */
 		tries[dev->devno] = min(tries[dev->devno], 1);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -EIO:
 		if (tries[dev->devno] == 1) {
 			/* This is the last chance, better to slow
@@ -3029,6 +3430,10 @@ struct ata_device *ata_dev_pair(struct ata_device *adev)
 		return NULL;
 	return pair;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_dev_pair);
+>>>>>>> upstream/android-13
 
 /**
  *	sata_down_spd_limit - adjust SATA spd limit downward
@@ -3110,6 +3515,7 @@ int sata_down_spd_limit(struct ata_link *link, u32 spd_limit)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __sata_set_spd_needed(struct ata_link *link, u32 *scontrol)
 {
 	struct ata_link *host_link = &link->ap->link;
@@ -3356,6 +3762,9 @@ int ata_timing_compute(struct ata_device *adev, unsigned short speed,
 	return 0;
 }
 
+=======
+#ifdef CONFIG_ATA_ACPI
+>>>>>>> upstream/android-13
 /**
  *	ata_timing_cycle2mode - find xfer mode for the specified cycle duration
  *	@xfer_shift: ATA_SHIFT_* value for transfer type to examine.
@@ -3406,6 +3815,10 @@ u8 ata_timing_cycle2mode(unsigned int xfer_shift, int cycle)
 
 	return last_mode;
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 /**
  *	ata_down_xfermask_limit - adjust dev xfer masks downward
@@ -3463,7 +3876,11 @@ int ata_down_xfermask_limit(struct ata_device *dev, unsigned int sel)
 
 	case ATA_DNXFER_FORCE_PIO0:
 		pio_mask &= 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATA_DNXFER_FORCE_PIO:
 		mwdma_mask = 0;
 		udma_mask = 0;
@@ -3677,6 +4094,10 @@ int ata_do_set_mode(struct ata_link *link, struct ata_device **r_failed_dev)
 		*r_failed_dev = dev;
 	return rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_do_set_mode);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_wait_ready - wait for link to become ready
@@ -3786,6 +4207,7 @@ int ata_wait_after_reset(struct ata_link *link, unsigned long deadline,
 
 	return ata_wait_ready(link, deadline, check_ready);
 }
+<<<<<<< HEAD
 
 /**
  *	sata_link_debounce - debounce SATA phy status
@@ -3996,6 +4418,9 @@ int sata_link_scr_lpm(struct ata_link *link, enum ata_lpm_policy policy,
 	ehc->i.serror &= ~SERR_PHYRDY_CHG;
 	return sata_scr_write(link, SCR_ERROR, SERR_PHYRDY_CHG);
 }
+=======
+EXPORT_SYMBOL_GPL(ata_wait_after_reset);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_std_prereset - prepare for reset
@@ -4041,6 +4466,7 @@ int ata_std_prereset(struct ata_link *link, unsigned long deadline)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 /**
  *	sata_link_hardreset - reset link via SATA phy reset
@@ -4153,6 +4579,9 @@ int sata_link_hardreset(struct ata_link *link, const unsigned long *timing,
 	DPRINTK("EXIT, rc=%d\n", rc);
 	return rc;
 }
+=======
+EXPORT_SYMBOL_GPL(ata_std_prereset);
+>>>>>>> upstream/android-13
 
 /**
  *	sata_std_hardreset - COMRESET w/o waiting or classification
@@ -4179,6 +4608,10 @@ int sata_std_hardreset(struct ata_link *link, unsigned int *class,
 	rc = sata_link_hardreset(link, timing, deadline, &online, NULL);
 	return online ? -EAGAIN : rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(sata_std_hardreset);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_std_postreset - standard postreset callback
@@ -4207,6 +4640,10 @@ void ata_std_postreset(struct ata_link *link, unsigned int *classes)
 
 	DPRINTK("EXIT\n");
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_std_postreset);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_dev_same_device - Determine whether new ID matches configured device
@@ -4427,6 +4864,11 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
 	{ "VRFDFC22048UCHC-TE*", NULL,		ATA_HORKAGE_NODMA },
 	/* Odd clown on sil3726/4726 PMPs */
 	{ "Config  Disk",	NULL,		ATA_HORKAGE_DISABLE },
+<<<<<<< HEAD
+=======
+	/* Similar story with ASMedia 1092 */
+	{ "ASMT109x- Config",	NULL,		ATA_HORKAGE_DISABLE },
+>>>>>>> upstream/android-13
 
 	/* Weird ATAPI devices */
 	{ "TORiSAN DVD-ROM DRD-N216", NULL,	ATA_HORKAGE_MAX_SEC_128 },
@@ -4477,9 +4919,13 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
 
 	/* drives which fail FPDMA_AA activation (some may freeze afterwards)
 	   the ST disks also have LPM issues */
+<<<<<<< HEAD
 	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
 						ATA_HORKAGE_NOLPM, },
 	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
+=======
+	{ "ST1000LM024 HN-M101MBB", NULL,	ATA_HORKAGE_BROKEN_FPDMA_AA |
+>>>>>>> upstream/android-13
 						ATA_HORKAGE_NOLPM, },
 	{ "VB0250EAVER",	"HPG7",		ATA_HORKAGE_BROKEN_FPDMA_AA },
 
@@ -4570,15 +5016,34 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
 	{ "Crucial_CT*MX100*",		"MU01",	ATA_HORKAGE_NO_NCQ_TRIM |
 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+<<<<<<< HEAD
+=======
+	{ "Samsung SSD 840 EVO*",	NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+						ATA_HORKAGE_NO_DMA_LOG |
+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+>>>>>>> upstream/android-13
 	{ "Samsung SSD 840*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+<<<<<<< HEAD
+=======
+	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+						ATA_HORKAGE_ZERO_AFTER_TRIM |
+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+						ATA_HORKAGE_ZERO_AFTER_TRIM |
+						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+>>>>>>> upstream/android-13
 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
 
 	/* devices that don't properly handle TRIM commands */
 	{ "SuperSSpeed S238*",		NULL,	ATA_HORKAGE_NOTRIM, },
+<<<<<<< HEAD
+=======
+	{ "M88V29*",			NULL,	ATA_HORKAGE_NOTRIM, },
+>>>>>>> upstream/android-13
 
 	/*
 	 * As defined, the DRAT (Deterministic Read After Trim) and RZAT
@@ -4995,11 +5460,19 @@ int ata_std_qc_defer(struct ata_queued_cmd *qc)
 
 	return ATA_DEFER_LINK;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_std_qc_defer);
+>>>>>>> upstream/android-13
 
 enum ata_completion_errors ata_noop_qc_prep(struct ata_queued_cmd *qc)
 {
 	return AC_ERR_OK;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_noop_qc_prep);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_sg_init - Associate command with scatter-gather table.
@@ -5315,7 +5788,11 @@ void ata_qc_complete(struct ata_queued_cmd *qc)
 			    qc->tf.feature != SETFEATURES_RA_ON &&
 			    qc->tf.feature != SETFEATURES_RA_OFF)
 				break;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case ATA_CMD_INIT_DEV_PARAMS: /* CHS translation changed */
 		case ATA_CMD_SET_MULTI: /* multi_count changed */
 			/* revalidate device */
@@ -5343,6 +5820,10 @@ void ata_qc_complete(struct ata_queued_cmd *qc)
 		__ata_qc_complete(qc);
 	}
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_qc_complete);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_qc_get_active - get bitmask of active qcs
@@ -5369,6 +5850,7 @@ u64 ata_qc_get_active(struct ata_port *ap)
 EXPORT_SYMBOL_GPL(ata_qc_get_active);
 
 /**
+<<<<<<< HEAD
  *	ata_qc_complete_multiple - Complete multiple qcs successfully
  *	@ap: port in question
  *	@qc_active: new qc_active mask
@@ -5427,6 +5909,8 @@ int ata_qc_complete_multiple(struct ata_port *ap, u64 qc_active)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	ata_qc_issue - issue taskfile to device
  *	@qc: command to issue to device
  *
@@ -5502,6 +5986,7 @@ err:
 }
 
 /**
+<<<<<<< HEAD
  *	sata_scr_valid - test whether SCRs are accessible
  *	@link: ATA link to test SCR accessibility for
  *
@@ -5607,6 +6092,8 @@ int sata_scr_write_flush(struct ata_link *link, int reg, u32 val)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	ata_phys_link_online - test whether the given link is online
  *	@link: ATA link to test
  *
@@ -5679,6 +6166,10 @@ bool ata_link_online(struct ata_link *link)
 	return ata_phys_link_online(link) ||
 		(slave && ata_phys_link_online(slave));
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_link_online);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_link_offline - test whether the given link is offline
@@ -5705,6 +6196,10 @@ bool ata_link_offline(struct ata_link *link)
 	return ata_phys_link_offline(link) &&
 		(!slave || ata_phys_link_offline(slave));
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_link_offline);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 static void ata_port_request_pm(struct ata_port *ap, pm_message_t mesg,
@@ -5891,6 +6386,10 @@ int ata_host_suspend(struct ata_host *host, pm_message_t mesg)
 	host->dev->power.power_state = mesg;
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_suspend);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_host_resume - resume host
@@ -5902,6 +6401,10 @@ void ata_host_resume(struct ata_host *host)
 {
 	host->dev->power.power_state = PMSG_ON;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_resume);
+>>>>>>> upstream/android-13
 #endif
 
 const struct device_type ata_port_type = {
@@ -5987,7 +6490,11 @@ void ata_link_init(struct ata_port *ap, struct ata_link *link, int pmp)
  *	sata_link_init_spd - Initialize link->sata_spd_limit
  *	@link: Link to configure sata_spd_limit for
  *
+<<<<<<< HEAD
  *	Initialize @link->[hw_]sata_spd_limit to the currently
+=======
+ *	Initialize ``link->[hw_]sata_spd_limit`` to the currently
+>>>>>>> upstream/android-13
  *	configured value.
  *
  *	LOCKING:
@@ -6121,6 +6628,10 @@ void ata_host_put(struct ata_host *host)
 {
 	kref_put(&host->kref, ata_host_release);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_put);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_host_alloc - allocate and init basic ATA host resources
@@ -6194,6 +6705,10 @@ struct ata_host *ata_host_alloc(struct device *dev, int max_ports)
 	kfree(host);
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_alloc);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_host_alloc_pinfo - alloc host and init with port_info array
@@ -6242,6 +6757,7 @@ struct ata_host *ata_host_alloc_pinfo(struct device *dev,
 
 	return host;
 }
+<<<<<<< HEAD
 
 /**
  *	ata_slave_link_init - initialize slave link
@@ -6304,6 +6820,9 @@ int ata_slave_link_init(struct ata_port *ap)
 	ap->slave_link = link;
 	return 0;
 }
+=======
+EXPORT_SYMBOL_GPL(ata_host_alloc_pinfo);
+>>>>>>> upstream/android-13
 
 static void ata_host_stop(struct device *gendev, void *res)
 {
@@ -6412,7 +6931,11 @@ int ata_host_start(struct ata_host *host)
 			have_stop = 1;
 	}
 
+<<<<<<< HEAD
 	if (host->ops->host_stop)
+=======
+	if (host->ops && host->ops->host_stop)
+>>>>>>> upstream/android-13
 		have_stop = 1;
 
 	if (have_stop) {
@@ -6452,9 +6975,16 @@ int ata_host_start(struct ata_host *host)
 	devres_free(start_dr);
 	return rc;
 }
+<<<<<<< HEAD
 
 /**
  *	ata_sas_host_init - Initialize a host struct for sas (ipr, libsas)
+=======
+EXPORT_SYMBOL_GPL(ata_host_start);
+
+/**
+ *	ata_host_init - Initialize a host struct for sas (ipr, libsas)
+>>>>>>> upstream/android-13
  *	@host:	host to initialize
  *	@dev:	device host is attached to
  *	@ops:	port_ops
@@ -6470,6 +7000,10 @@ void ata_host_init(struct ata_host *host, struct device *dev,
 	host->ops = ops;
 	kref_init(&host->kref);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_init);
+>>>>>>> upstream/android-13
 
 void __ata_port_probe(struct ata_port *ap)
 {
@@ -6625,6 +7159,10 @@ int ata_host_register(struct ata_host *host, struct scsi_host_template *sht)
 	return rc;
 
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_register);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_host_activate - start host, request IRQ and register it
@@ -6687,6 +7225,10 @@ int ata_host_activate(struct ata_host *host, int irq,
 
 	return rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_activate);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_port_detach - Detach ATA port in preparation of device removal
@@ -6762,6 +7304,10 @@ void ata_host_detach(struct ata_host *host)
 	/* the host is dead now, dissociate ACPI */
 	ata_acpi_dissociate(host);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_host_detach);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI
 
@@ -6782,6 +7328,10 @@ void ata_pci_remove_one(struct pci_dev *pdev)
 
 	ata_host_detach(host);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_pci_remove_one);
+>>>>>>> upstream/android-13
 
 void ata_pci_shutdown_one(struct pci_dev *pdev)
 {
@@ -6802,6 +7352,10 @@ void ata_pci_shutdown_one(struct pci_dev *pdev)
 			ap->ops->port_stop(ap);
 	}
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_pci_shutdown_one);
+>>>>>>> upstream/android-13
 
 /* move to PCI subsystem */
 int pci_test_config_bits(struct pci_dev *pdev, const struct pci_bits *bits)
@@ -6836,6 +7390,10 @@ int pci_test_config_bits(struct pci_dev *pdev, const struct pci_bits *bits)
 
 	return (tmp == bits->val) ? 1 : 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(pci_test_config_bits);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 void ata_pci_device_do_suspend(struct pci_dev *pdev, pm_message_t mesg)
@@ -6846,6 +7404,10 @@ void ata_pci_device_do_suspend(struct pci_dev *pdev, pm_message_t mesg)
 	if (mesg.event & PM_EVENT_SLEEP)
 		pci_set_power_state(pdev, PCI_D3hot);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_pci_device_do_suspend);
+>>>>>>> upstream/android-13
 
 int ata_pci_device_do_resume(struct pci_dev *pdev)
 {
@@ -6864,6 +7426,10 @@ int ata_pci_device_do_resume(struct pci_dev *pdev)
 	pci_set_master(pdev);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_pci_device_do_resume);
+>>>>>>> upstream/android-13
 
 int ata_pci_device_suspend(struct pci_dev *pdev, pm_message_t mesg)
 {
@@ -6878,6 +7444,10 @@ int ata_pci_device_suspend(struct pci_dev *pdev, pm_message_t mesg)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_pci_device_suspend);
+>>>>>>> upstream/android-13
 
 int ata_pci_device_resume(struct pci_dev *pdev)
 {
@@ -6889,8 +7459,13 @@ int ata_pci_device_resume(struct pci_dev *pdev)
 		ata_host_resume(host);
 	return rc;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
 
+=======
+EXPORT_SYMBOL_GPL(ata_pci_device_resume);
+#endif /* CONFIG_PM */
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PCI */
 
 /**
@@ -6912,7 +7487,13 @@ int ata_platform_remove_one(struct platform_device *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+EXPORT_SYMBOL_GPL(ata_platform_remove_one);
+
+#ifdef CONFIG_ATA_FORCE
+>>>>>>> upstream/android-13
 static int __init ata_parse_force_one(char **cur,
 				      struct ata_force_ent *force_ent,
 				      const char **reason)
@@ -6930,6 +7511,11 @@ static int __init ata_parse_force_one(char **cur,
 		{ "ncq",	.horkage_off	= ATA_HORKAGE_NONCQ },
 		{ "noncqtrim",	.horkage_on	= ATA_HORKAGE_NO_NCQ_TRIM },
 		{ "ncqtrim",	.horkage_off	= ATA_HORKAGE_NO_NCQ_TRIM },
+<<<<<<< HEAD
+=======
+		{ "noncqati",	.horkage_on	= ATA_HORKAGE_NO_NCQ_ON_ATI },
+		{ "ncqati",	.horkage_off	= ATA_HORKAGE_NO_NCQ_ON_ATI },
+>>>>>>> upstream/android-13
 		{ "dump_id",	.horkage_on	= ATA_HORKAGE_DUMP_ID },
 		{ "pio0",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 0) },
 		{ "pio1",	.xfer_mask	= 1 << (ATA_SHIFT_PIO + 1) },
@@ -7092,6 +7678,18 @@ static void __init ata_parse_force_param(void)
 	ata_force_tbl_size = idx;
 }
 
+<<<<<<< HEAD
+=======
+static void ata_free_force_param(void)
+{
+	kfree(ata_force_tbl);
+}
+#else
+static inline void ata_parse_force_param(void) { }
+static inline void ata_free_force_param(void) { }
+#endif
+
+>>>>>>> upstream/android-13
 static int __init ata_init(void)
 {
 	int rc;
@@ -7100,7 +7698,11 @@ static int __init ata_init(void)
 
 	rc = ata_sff_init();
 	if (rc) {
+<<<<<<< HEAD
 		kfree(ata_force_tbl);
+=======
+		ata_free_force_param();
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -7124,7 +7726,11 @@ static void __exit ata_exit(void)
 	ata_release_transport(ata_scsi_transport_template);
 	libata_transport_exit();
 	ata_sff_exit();
+<<<<<<< HEAD
 	kfree(ata_force_tbl);
+=======
+	ata_free_force_param();
+>>>>>>> upstream/android-13
 }
 
 subsys_initcall(ata_init);
@@ -7136,6 +7742,10 @@ int ata_ratelimit(void)
 {
 	return __ratelimit(&ratelimit);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_ratelimit);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_msleep - ATA EH owner aware msleep
@@ -7168,6 +7778,10 @@ void ata_msleep(struct ata_port *ap, unsigned int msecs)
 	if (owns_eh)
 		ata_eh_acquire(ap);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_msleep);
+>>>>>>> upstream/android-13
 
 /**
  *	ata_wait_register - wait until register value changes
@@ -7214,6 +7828,7 @@ u32 ata_wait_register(struct ata_port *ap, void __iomem *reg, u32 mask, u32 val,
 
 	return tmp;
 }
+<<<<<<< HEAD
 
 /**
  *	sata_lpm_ignore_phy_events - test if PHY event should be ignored
@@ -7246,6 +7861,9 @@ bool sata_lpm_ignore_phy_events(struct ata_link *link)
 	return false;
 }
 EXPORT_SYMBOL_GPL(sata_lpm_ignore_phy_events);
+=======
+EXPORT_SYMBOL_GPL(ata_wait_register);
+>>>>>>> upstream/android-13
 
 /*
  * Dummy port_ops
@@ -7267,10 +7885,18 @@ struct ata_port_operations ata_dummy_port_ops = {
 	.sched_eh		= ata_std_sched_eh,
 	.end_eh			= ata_std_end_eh,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_dummy_port_ops);
+>>>>>>> upstream/android-13
 
 const struct ata_port_info ata_dummy_port_info = {
 	.port_ops		= &ata_dummy_port_ops,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ata_dummy_port_info);
+>>>>>>> upstream/android-13
 
 /*
  * Utility print functions
@@ -7338,6 +7964,7 @@ void ata_print_version(const struct device *dev, const char *version)
 	dev_printk(KERN_DEBUG, dev, "version %s\n", version);
 }
 EXPORT_SYMBOL(ata_print_version);
+<<<<<<< HEAD
 
 /*
  * libata is essentially a library of internal helper functions for
@@ -7462,3 +8089,5 @@ EXPORT_SYMBOL_GPL(ata_cable_ignore);
 EXPORT_SYMBOL_GPL(ata_cable_sata);
 EXPORT_SYMBOL_GPL(ata_host_get);
 EXPORT_SYMBOL_GPL(ata_host_put);
+=======
+>>>>>>> upstream/android-13

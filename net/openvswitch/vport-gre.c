@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2014 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007-2014 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -68,7 +74,11 @@ static struct vport *gre_tnl_create(const struct vport_parms *parms)
 		return ERR_CAST(dev);
 	}
 
+<<<<<<< HEAD
 	err = dev_change_flags(dev, dev->flags | IFF_UP);
+=======
+	err = dev_change_flags(dev, dev->flags | IFF_UP, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		rtnl_delete_link(dev);
 		rtnl_unlock();

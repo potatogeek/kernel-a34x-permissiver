@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/hpfs/super.c
  *
@@ -191,8 +195,12 @@ static int hpfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_bavail = sbi->sb_n_free;
 	buf->f_files = sbi->sb_dirband_size / 4;
 	buf->f_ffree = hpfs_get_free_dnodes(s);
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 	buf->f_namelen = 254;
 
 	hpfs_unlock(s);
@@ -238,6 +246,7 @@ static struct inode *hpfs_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void hpfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -249,6 +258,13 @@ static void hpfs_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, hpfs_i_callback);
 }
 
+=======
+static void hpfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(hpfs_inode_cachep, hpfs_i(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct hpfs_inode_info *ei = (struct hpfs_inode_info *) foo;
@@ -532,7 +548,11 @@ static int hpfs_show_options(struct seq_file *seq, struct dentry *root)
 static const struct super_operations hpfs_sops =
 {
 	.alloc_inode	= hpfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= hpfs_destroy_inode,
+=======
+	.free_inode	= hpfs_free_inode,
+>>>>>>> upstream/android-13
 	.evict_inode	= hpfs_evict_inode,
 	.put_super	= hpfs_put_super,
 	.statfs		= hpfs_statfs,
@@ -619,6 +639,11 @@ static int hpfs_fill_super(struct super_block *s, void *options, int silent)
 	s->s_magic = HPFS_SUPER_MAGIC;
 	s->s_op = &hpfs_sops;
 	s->s_d_op = &hpfs_dentry_operations;
+<<<<<<< HEAD
+=======
+	s->s_time_min =  local_to_gmt(s, 0);
+	s->s_time_max =  local_to_gmt(s, U32_MAX);
+>>>>>>> upstream/android-13
 
 	sbi->sb_root = le32_to_cpu(superblock->root);
 	sbi->sb_fs_size = le32_to_cpu(superblock->n_sectors);
@@ -795,3 +820,7 @@ static void __exit exit_hpfs_fs(void)
 module_init(init_hpfs_fs)
 module_exit(exit_hpfs_fs)
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13

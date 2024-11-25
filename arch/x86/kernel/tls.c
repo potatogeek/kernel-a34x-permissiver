@@ -164,10 +164,15 @@ int do_set_thread_area(struct task_struct *p, int idx,
 		savesegment(fs, sel);
 		if (sel == modified_sel)
 			loadsegment(fs, sel);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 		savesegment(gs, sel);
 		if (sel == modified_sel)
 			load_gs_index(sel);
+<<<<<<< HEAD
 #endif
 
 #ifdef CONFIG_X86_32_LAZY_GS
@@ -175,6 +180,8 @@ int do_set_thread_area(struct task_struct *p, int idx,
 		if (sel == modified_sel)
 			loadsegment(gs, sel);
 #endif
+=======
+>>>>>>> upstream/android-13
 	} else {
 #ifdef CONFIG_X86_64
 		if (p->thread.fsindex == modified_sel)
@@ -256,6 +263,7 @@ int regset_tls_active(struct task_struct *target,
 }
 
 int regset_tls_get(struct task_struct *target, const struct user_regset *regset,
+<<<<<<< HEAD
 		   unsigned int pos, unsigned int count,
 		   void *kbuf, void __user *ubuf)
 {
@@ -286,6 +294,18 @@ int regset_tls_get(struct task_struct *target, const struct user_regset *regset,
 		}
 	}
 
+=======
+		   struct membuf to)
+{
+	const struct desc_struct *tls;
+	struct user_desc v;
+	int pos;
+
+	for (pos = 0, tls = target->thread.tls_array; to.left; pos++, tls++) {
+		fill_user_desc(&v, GDT_ENTRY_TLS_MIN + pos, tls);
+		membuf_write(&to, &v, sizeof(v));
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Ceph cache definitions.
  *
  *  Copyright (C) 2013 by Adfin Solutions, Inc. All Rights Reserved.
  *  Written by Milosz Tanski (milosz@adfin.com)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -21,6 +26,13 @@
  *
  */
 
+=======
+ */
+
+#include <linux/ceph/ceph_debug.h>
+
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include "super.h"
 #include "cache.h"
 
@@ -44,7 +56,11 @@ struct ceph_fscache_entry {
 	size_t uniq_len;
 	/* The following members must be last */
 	struct ceph_fsid fsid;
+<<<<<<< HEAD
 	char uniquifier[0];
+=======
+	char uniquifier[];
+>>>>>>> upstream/android-13
 };
 
 static const struct fscache_cookie_def ceph_fscache_fsid_object_def = {
@@ -62,7 +78,11 @@ void ceph_fscache_unregister(void)
 	fscache_unregister_netfs(&ceph_cache_netfs);
 }
 
+<<<<<<< HEAD
 int ceph_fscache_register_fs(struct ceph_fs_client* fsc)
+=======
+int ceph_fscache_register_fs(struct ceph_fs_client* fsc, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	const struct ceph_fsid *fsid = &fsc->client->fsid;
 	const char *fscache_uniq = fsc->mount_options->fscache_uniq;
@@ -79,8 +99,13 @@ int ceph_fscache_register_fs(struct ceph_fs_client* fsc)
 		if (uniq_len && memcmp(ent->uniquifier, fscache_uniq, uniq_len))
 			continue;
 
+<<<<<<< HEAD
 		pr_err("fscache cookie already registered for fsid %pU\n", fsid);
 		pr_err("  use fsc=%%s mount option to specify a uniquifier\n");
+=======
+		errorfc(fc, "fscache cookie already registered for fsid %pU, use fsc=<uniquifier> option",
+		       fsid);
+>>>>>>> upstream/android-13
 		err = -EBUSY;
 		goto out_unlock;
 	}
@@ -108,7 +133,11 @@ int ceph_fscache_register_fs(struct ceph_fs_client* fsc)
 		list_add_tail(&ent->list, &ceph_fscache_list);
 	} else {
 		kfree(ent);
+<<<<<<< HEAD
 		pr_err("unable to register fscache cookie for fsid %pU\n",
+=======
+		errorfc(fc, "unable to register fscache cookie for fsid %pU",
+>>>>>>> upstream/android-13
 		       fsid);
 		/* all other fs ignore this error */
 	}
@@ -185,7 +214,10 @@ void ceph_fscache_unregister_inode_cookie(struct ceph_inode_info* ci)
 
 	ci->fscache = NULL;
 
+<<<<<<< HEAD
 	fscache_uncache_all_inode_pages(cookie, &ci->vfs_inode);
+=======
+>>>>>>> upstream/android-13
 	fscache_relinquish_cookie(cookie, &ci->i_vino, false);
 }
 
@@ -206,7 +238,10 @@ void ceph_fscache_file_set_cookie(struct inode *inode, struct file *filp)
 		dout("fscache_file_set_cookie %p %p disabling cache\n",
 		     inode, filp);
 		fscache_disable_cookie(ci->fscache, &ci->i_vino, false);
+<<<<<<< HEAD
 		fscache_uncache_all_inode_pages(ci->fscache, inode);
+=======
+>>>>>>> upstream/android-13
 	} else {
 		fscache_enable_cookie(ci->fscache, &ci->i_vino, i_size_read(inode),
 				      ceph_fscache_can_enable, inode);
@@ -217,6 +252,7 @@ void ceph_fscache_file_set_cookie(struct inode *inode, struct file *filp)
 	}
 }
 
+<<<<<<< HEAD
 static void ceph_readpage_from_fscache_complete(struct page *page, void *data, int error)
 {
 	if (!error)
@@ -319,6 +355,8 @@ void ceph_invalidate_fscache_page(struct inode* inode, struct page *page)
 	fscache_uncache_page(ci->fscache, page);
 }
 
+=======
+>>>>>>> upstream/android-13
 void ceph_fscache_unregister_fs(struct ceph_fs_client* fsc)
 {
 	if (fscache_cookie_valid(fsc->fscache)) {
@@ -341,6 +379,7 @@ void ceph_fscache_unregister_fs(struct ceph_fs_client* fsc)
 	}
 	fsc->fscache = NULL;
 }
+<<<<<<< HEAD
 
 /*
  * caller should hold CEPH_CAP_FILE_{RD,CACHE}
@@ -362,3 +401,5 @@ void ceph_fscache_revalidate_cookie(struct ceph_inode_info *ci)
 	}
 	mutex_unlock(&ci->i_truncate_mutex);
 }
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Rostislav Lisovy <lisovy@gmail.com>, PiKRON s.r.o.
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Rostislav Lisovy <lisovy@gmail.com>, PiKRON s.r.o.
+>>>>>>> upstream/android-13
  */
 
 #include "imx53.dtsi"
@@ -125,7 +131,12 @@
 &ecspi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
+<<<<<<< HEAD
 	cs-gpios = <&gpio2 30 0>, <&gpio3 19 0>, <&gpio2 16 0>, <&gpio2 17 0>;
+=======
+	cs-gpios = <&gpio2 30 GPIO_ACTIVE_LOW>, <&gpio3 19 GPIO_ACTIVE_LOW>,
+		   <&gpio2 16 GPIO_ACTIVE_LOW>, <&gpio2 17 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

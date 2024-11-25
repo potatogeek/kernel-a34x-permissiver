@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Intel Corporation.  All rights reserved.
  *
@@ -31,6 +32,14 @@
  */
 
 #if !defined(OPA_SMI_H)
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2014 Intel Corporation.  All rights reserved.
+ */
+
+#ifndef OPA_SMI_H
+>>>>>>> upstream/android-13
 #define OPA_SMI_H
 
 #include <rdma/ib_mad.h>
@@ -98,7 +107,11 @@ struct opa_smp {
 
 struct opa_node_description {
 	u8 data[64];
+<<<<<<< HEAD
 } __attribute__ ((packed));
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 struct opa_node_info {
 	u8      base_version;
@@ -114,7 +127,11 @@ struct opa_node_info {
 	__be32  revision;
 	u8      local_port_num;
 	u8      vendor_id[3];   /* network byte order */
+<<<<<<< HEAD
 } __attribute__ ((packed));
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 #define OPA_PARTITION_TABLE_BLK_SIZE 32
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  *
@@ -9,12 +10,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
 #include <linux/completion.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/iio/adc/qcom-vadc-common.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/iio.h>
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
@@ -28,8 +38,11 @@
 
 #include <dt-bindings/iio/qcom,spmi-vadc.h>
 
+<<<<<<< HEAD
 #include "qcom-vadc-common.h"
 
+=======
+>>>>>>> upstream/android-13
 /* VADC register and bit definitions */
 #define VADC_REVISION2				0x1
 #define VADC_REVISION2_SUPPORTED_VADC		1
@@ -915,8 +928,11 @@ static int vadc_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
 	indio_dev->dev.of_node = node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = pdev->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &vadc_info;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) IBM Corporation, 2010
  *
@@ -24,6 +29,7 @@
 #include <linux/uaccess.h>
 
 __wsum csum_and_copy_from_user(const void __user *src, void *dst,
+<<<<<<< HEAD
 			       int len, __wsum sum, int *err_ptr)
 {
 	unsigned int csum;
@@ -102,5 +108,32 @@ __wsum csum_and_copy_to_user(const void *src, void __user *dst, int len,
 out:
 	prevent_write_to_user(dst, len);
 	return (__force __wsum)csum;
+=======
+			       int len)
+{
+	__wsum csum;
+
+	if (unlikely(!user_read_access_begin(src, len)))
+		return 0;
+
+	csum = csum_partial_copy_generic((void __force *)src, dst, len);
+
+	user_read_access_end();
+	return csum;
+}
+EXPORT_SYMBOL(csum_and_copy_from_user);
+
+__wsum csum_and_copy_to_user(const void *src, void __user *dst, int len)
+{
+	__wsum csum;
+
+	if (unlikely(!user_write_access_begin(dst, len)))
+		return 0;
+
+	csum = csum_partial_copy_generic(src, (void __force *)dst, len);
+
+	user_write_access_end();
+	return csum;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(csum_and_copy_to_user);

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Aic94xx SAS/SATA driver header file.
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
  *
+<<<<<<< HEAD
  * This file is licensed under GPLv2.
  *
  * This file is part of the aic94xx driver.
@@ -22,6 +27,8 @@
  * along with the aic94xx driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  * $Id: //depot/aic94xx/aic94xx.h#31 $
  */
 
@@ -50,7 +57,11 @@
 #ifdef ASD_DEBUG
 #define ASD_DPRINTK asd_printk
 #else
+<<<<<<< HEAD
 #define ASD_DPRINTK(fmt, ...)
+=======
+#define ASD_DPRINTK(fmt, ...) no_printk(fmt, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 #endif
 
 /* 2*ITNL timeout + 1 second */
@@ -59,6 +70,7 @@
 extern struct kmem_cache *asd_dma_token_cache;
 extern struct kmem_cache *asd_ascb_cache;
 
+<<<<<<< HEAD
 static inline void asd_stringify_sas_addr(char *p, const u8 *sas_addr)
 {
 	int i;
@@ -67,6 +79,8 @@ static inline void asd_stringify_sas_addr(char *p, const u8 *sas_addr)
 	*p = '\0';
 }
 
+=======
+>>>>>>> upstream/android-13
 struct asd_ha_struct;
 struct asd_ascb;
 

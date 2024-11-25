@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
   This contains the functions to handle the enhanced descriptors.
 
   Copyright (C) 2007-2014  STMicroelectronics Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -14,6 +19,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -201,6 +208,14 @@ static int enh_desc_get_rx_status(void *data, struct stmmac_extra_stats *x,
 	if (unlikely(rdes0 & RDES0_OWN))
 		return dma_own;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(!(rdes0 & RDES0_LAST_DESCRIPTOR))) {
+		stats->rx_length_errors++;
+		return discard_frame;
+	}
+
+>>>>>>> upstream/android-13
 	if (unlikely(rdes0 & RDES0_ERROR_SUMMARY)) {
 		if (unlikely(rdes0 & RDES0_DESCRIPTOR_ERROR)) {
 			x->rx_desc++;
@@ -231,9 +246,16 @@ static int enh_desc_get_rx_status(void *data, struct stmmac_extra_stats *x,
 	 * It doesn't match with the information reported into the databook.
 	 * At any rate, we need to understand if the CSUM hw computation is ok
 	 * and report this info to the upper layers. */
+<<<<<<< HEAD
 	ret = enh_desc_coe_rdes0(!!(rdes0 & RDES0_IPC_CSUM_ERROR),
 				 !!(rdes0 & RDES0_FRAME_TYPE),
 				 !!(rdes0 & ERDES0_RX_MAC_ADDR));
+=======
+	if (likely(ret == good_frame))
+		ret = enh_desc_coe_rdes0(!!(rdes0 & RDES0_IPC_CSUM_ERROR),
+					 !!(rdes0 & RDES0_FRAME_TYPE),
+					 !!(rdes0 & ERDES0_RX_MAC_ADDR));
+>>>>>>> upstream/android-13
 
 	if (unlikely(rdes0 & RDES0_DRIBBLING))
 		x->dribbling_bit++;
@@ -259,15 +281,30 @@ static int enh_desc_get_rx_status(void *data, struct stmmac_extra_stats *x,
 }
 
 static void enh_desc_init_rx_desc(struct dma_desc *p, int disable_rx_ic,
+<<<<<<< HEAD
 				  int mode, int end)
 {
 	p->des0 |= cpu_to_le32(RDES0_OWN);
 	p->des1 |= cpu_to_le32(BUF_SIZE_8KiB & ERDES1_BUFFER1_SIZE_MASK);
+=======
+				  int mode, int end, int bfsize)
+{
+	int bfsize1;
+
+	p->des0 |= cpu_to_le32(RDES0_OWN);
+
+	bfsize1 = min(bfsize, BUF_SIZE_8KiB);
+	p->des1 |= cpu_to_le32(bfsize1 & ERDES1_BUFFER1_SIZE_MASK);
+>>>>>>> upstream/android-13
 
 	if (mode == STMMAC_CHAIN_MODE)
 		ehn_desc_rx_set_on_chain(p);
 	else
+<<<<<<< HEAD
 		ehn_desc_rx_set_on_ring(p, end);
+=======
+		ehn_desc_rx_set_on_ring(p, end, bfsize);
+>>>>>>> upstream/android-13
 
 	if (disable_rx_ic)
 		p->des1 |= cpu_to_le32(ERDES1_DISABLE_IC);
@@ -417,19 +454,35 @@ static int enh_desc_get_rx_timestamp_status(void *desc, void *next_desc,
 	}
 }
 
+<<<<<<< HEAD
 static void enh_desc_display_ring(void *head, unsigned int size, bool rx)
 {
 	struct dma_extended_desc *ep = (struct dma_extended_desc *)head;
+=======
+static void enh_desc_display_ring(void *head, unsigned int size, bool rx,
+				  dma_addr_t dma_rx_phy, unsigned int desc_size)
+{
+	struct dma_extended_desc *ep = (struct dma_extended_desc *)head;
+	dma_addr_t dma_addr;
+>>>>>>> upstream/android-13
 	int i;
 
 	pr_info("Extended %s descriptor ring:\n", rx ? "RX" : "TX");
 
 	for (i = 0; i < size; i++) {
 		u64 x;
+<<<<<<< HEAD
 
 		x = *(u64 *)ep;
 		pr_info("%03d [0x%x]: 0x%x 0x%x 0x%x 0x%x\n",
 			i, (unsigned int)virt_to_phys(ep),
+=======
+		dma_addr = dma_rx_phy + i * sizeof(*ep);
+
+		x = *(u64 *)ep;
+		pr_info("%03d [%pad]: 0x%x 0x%x 0x%x 0x%x\n",
+			i, &dma_addr,
+>>>>>>> upstream/android-13
 			(unsigned int)x, (unsigned int)(x >> 32),
 			ep->basic.des2, ep->basic.des3);
 		ep++;

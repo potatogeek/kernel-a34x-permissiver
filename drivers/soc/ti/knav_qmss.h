@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Keystone Navigator QMSS driver internal header
  *
@@ -5,6 +9,7 @@
  * Author:	Sandeep Nair <sandeep_n@ti.com>
  *		Cyril Chemparathy <cyril@ti.com>
  *		Santosh Shilimkar <santosh.shilimkar@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __KNAV_QMSS_H__
@@ -75,7 +82,11 @@ struct knav_reg_config {
 	u32		link_ram_size0;
 	u32		link_ram_base1;
 	u32		__pad2[2];
+<<<<<<< HEAD
 	u32		starvation[0];
+=======
+	u32		starvation[];
+>>>>>>> upstream/android-13
 };
 
 struct knav_reg_region {
@@ -240,14 +251,22 @@ struct knav_pool {
 };
 
 /**
+<<<<<<< HEAD
  * struct knav_queue_inst:		qmss queue instace properties
+=======
+ * struct knav_queue_inst:		qmss queue instance properties
+>>>>>>> upstream/android-13
  * @descs:				descriptor pointer
  * @desc_head, desc_tail, desc_count:	descriptor counters
  * @acc:				accumulator channel pointer
  * @kdev:				qmss device pointer
  * @range:				range info
  * @qmgr:				queue manager info
+<<<<<<< HEAD
  * @id:					queue instace id
+=======
+ * @id:					queue instance id
+>>>>>>> upstream/android-13
  * @irq_num:				irq line number
  * @notify_needed:			notifier needed based on queue type
  * @num_notifiers:			total notifiers
@@ -274,7 +293,11 @@ struct knav_queue_inst {
 /**
  * struct knav_queue:			qmss queue properties
  * @reg_push, reg_pop, reg_peek:	push, pop queue registers
+<<<<<<< HEAD
  * @inst:				qmss queue instace properties
+=======
+ * @inst:				qmss queue instance properties
+>>>>>>> upstream/android-13
  * @notifier_fn:			notifier function
  * @notifier_fn_arg:			notifier function argument
  * @notifier_enabled:			notier enabled for a give queue

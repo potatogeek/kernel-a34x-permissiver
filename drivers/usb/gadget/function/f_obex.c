@@ -432,7 +432,11 @@ static struct usb_function_instance *obex_alloc_inst(void)
 		return ERR_PTR(-ENOMEM);
 
 	opts->func_inst.free_func_inst = obex_free_inst;
+<<<<<<< HEAD
 	ret = gserial_alloc_line(&opts->port_num);
+=======
+	ret = gserial_alloc_line_no_console(&opts->port_num);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(opts);
 		return ERR_PTR(ret);

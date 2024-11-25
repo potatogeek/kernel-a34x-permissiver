@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  GPL LICENSE SUMMARY
  *
@@ -18,6 +19,12 @@
  *  The full GNU General Public License is included in this distribution
  *  in the file called LICENSE.GPL.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright(c) 2010 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  *  Contact Information:
  *    Intel Corporation
  *    2200 Mission College Blvd.

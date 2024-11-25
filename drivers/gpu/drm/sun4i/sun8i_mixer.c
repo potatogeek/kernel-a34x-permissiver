@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 Icenowy Zheng <icenowy@aosc.io>
  *
  * Based on sun4i_backend.c, which is:
  *   Copyright (C) 2015 Free Electrons
  *   Copyright (C) 2015 NextThing Co
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,288 +26,476 @@
 
 #include <linux/component.h>
 #include <linux/dma-mapping.h>
+=======
+ */
+
+#include <linux/component.h>
+#include <linux/dma-mapping.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of_device.h>
 #include <linux/of_graph.h>
 #include <linux/reset.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_probe_helper.h>
+
+>>>>>>> upstream/android-13
 #include "sun4i_drv.h"
 #include "sun8i_mixer.h"
 #include "sun8i_ui_layer.h"
 #include "sun8i_vi_layer.h"
 #include "sunxi_engine.h"
 
+<<<<<<< HEAD
+=======
+struct de2_fmt_info {
+	u32	drm_fmt;
+	u32	de2_fmt;
+};
+
+>>>>>>> upstream/android-13
 static const struct de2_fmt_info de2_formats[] = {
 	{
 		.drm_fmt = DRM_FORMAT_ARGB8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_ABGR8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_RGBA8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_BGRA8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_XRGB8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_XRGB8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_XBGR8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_XBGR8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_RGBX8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBX8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_BGRX8888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRX8888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_RGB888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGB888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_BGR888,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGR888,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_RGB565,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGB565,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_BGR565,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGR565,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_ARGB4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_XRGB4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_ABGR4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_XBGR4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_RGBA4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_RGBX4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_BGRA4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_BGRX4444,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA4444,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_ARGB1555,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB1555,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_XRGB1555,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB1555,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_ABGR1555,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR1555,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_XBGR1555,
 		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR1555,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_RGBA5551,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA5551,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_RGBX5551,
 		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA5551,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_BGRA5551,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA5551,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		/* for DE2 VI layer which ignores alpha */
 		.drm_fmt = DRM_FORMAT_BGRX5551,
 		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA5551,
+<<<<<<< HEAD
 		.rgb = true,
 		.csc = SUN8I_CSC_MODE_OFF,
+=======
+	},
+	{
+		.drm_fmt = DRM_FORMAT_ARGB2101010,
+		.de2_fmt = SUN8I_MIXER_FBFMT_ARGB2101010,
+	},
+	{
+		.drm_fmt = DRM_FORMAT_ABGR2101010,
+		.de2_fmt = SUN8I_MIXER_FBFMT_ABGR2101010,
+	},
+	{
+		.drm_fmt = DRM_FORMAT_RGBA1010102,
+		.de2_fmt = SUN8I_MIXER_FBFMT_RGBA1010102,
+	},
+	{
+		.drm_fmt = DRM_FORMAT_BGRA1010102,
+		.de2_fmt = SUN8I_MIXER_FBFMT_BGRA1010102,
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_UYVY,
 		.de2_fmt = SUN8I_MIXER_FBFMT_UYVY,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_VYUY,
 		.de2_fmt = SUN8I_MIXER_FBFMT_VYUY,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YUYV,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YUYV,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YVYU,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YVYU,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_NV16,
 		.de2_fmt = SUN8I_MIXER_FBFMT_NV16,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_NV61,
 		.de2_fmt = SUN8I_MIXER_FBFMT_NV61,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_NV12,
 		.de2_fmt = SUN8I_MIXER_FBFMT_NV12,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_NV21,
 		.de2_fmt = SUN8I_MIXER_FBFMT_NV21,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YUV422,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YUV422,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YUV420,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YUV420,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YUV411,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YUV411,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YUV2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YVU422,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YUV422,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YVU2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YVU420,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YUV420,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YVU2RGB,
+=======
+>>>>>>> upstream/android-13
 	},
 	{
 		.drm_fmt = DRM_FORMAT_YVU411,
 		.de2_fmt = SUN8I_MIXER_FBFMT_YUV411,
+<<<<<<< HEAD
 		.rgb = false,
 		.csc = SUN8I_CSC_MODE_YVU2RGB,
 	},
 };
 
 const struct de2_fmt_info *sun8i_mixer_format_info(u32 format)
+=======
+	},
+	{
+		.drm_fmt = DRM_FORMAT_P010,
+		.de2_fmt = SUN8I_MIXER_FBFMT_P010_YUV,
+	},
+	{
+		.drm_fmt = DRM_FORMAT_P210,
+		.de2_fmt = SUN8I_MIXER_FBFMT_P210_YUV,
+	},
+};
+
+int sun8i_mixer_drm_format_to_hw(u32 format, u32 *hw_format)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(de2_formats); ++i)
+<<<<<<< HEAD
 		if (de2_formats[i].drm_fmt == format)
 			return &de2_formats[i];
 
 	return NULL;
+=======
+		if (de2_formats[i].drm_fmt == format) {
+			*hw_format = de2_formats[i].de2_fmt;
+			return 0;
+		}
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static void sun8i_mixer_commit(struct sunxi_engine *engine)
@@ -334,10 +527,17 @@ static struct drm_plane **sun8i_layers_init(struct drm_device *drm,
 			dev_err(drm->dev,
 				"Couldn't initialize overlay plane\n");
 			return ERR_CAST(layer);
+<<<<<<< HEAD
 		};
 
 		planes[i] = &layer->plane;
 	};
+=======
+		}
+
+		planes[i] = &layer->plane;
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < mixer->cfg->ui_num; i++) {
 		struct sun8i_ui_layer *layer;
@@ -347,10 +547,17 @@ static struct drm_plane **sun8i_layers_init(struct drm_device *drm,
 			dev_err(drm->dev, "Couldn't initialize %s plane\n",
 				i ? "overlay" : "primary");
 			return ERR_CAST(layer);
+<<<<<<< HEAD
 		};
 
 		planes[mixer->cfg->vi_num + i] = &layer->plane;
 	};
+=======
+		}
+
+		planes[mixer->cfg->vi_num + i] = &layer->plane;
+	}
+>>>>>>> upstream/android-13
 
 	return planes;
 }
@@ -360,7 +567,11 @@ static const struct sunxi_engine_ops sun8i_engine_ops = {
 	.layers_init	= sun8i_layers_init,
 };
 
+<<<<<<< HEAD
 static struct regmap_config sun8i_mixer_regmap_config = {
+=======
+static const struct regmap_config sun8i_mixer_regmap_config = {
+>>>>>>> upstream/android-13
 	.reg_bits	= 32,
 	.val_bits	= 32,
 	.reg_stride	= 4,
@@ -369,6 +580,7 @@ static struct regmap_config sun8i_mixer_regmap_config = {
 
 static int sun8i_mixer_of_get_id(struct device_node *node)
 {
+<<<<<<< HEAD
 	struct device_node *port, *ep;
 	int ret = -EINVAL;
 
@@ -401,6 +613,24 @@ static int sun8i_mixer_of_get_id(struct device_node *node)
 	of_node_put(port);
 
 	return ret;
+=======
+	struct device_node *ep, *remote;
+	struct of_endpoint of_ep;
+
+	/* Output port is 1, and we want the first endpoint. */
+	ep = of_graph_get_endpoint_by_regs(node, 1, -1);
+	if (!ep)
+		return -EINVAL;
+
+	remote = of_graph_get_remote_endpoint(ep);
+	of_node_put(ep);
+	if (!remote)
+		return -EINVAL;
+
+	of_graph_parse_endpoint(remote, &of_ep);
+	of_node_put(remote);
+	return of_ep.id;
+>>>>>>> upstream/android-13
 }
 
 static int sun8i_mixer_bind(struct device *dev, struct device *master,
@@ -412,6 +642,10 @@ static int sun8i_mixer_bind(struct device *dev, struct device *master,
 	struct sun8i_mixer *mixer;
 	struct resource *res;
 	void __iomem *regs;
+<<<<<<< HEAD
+=======
+	unsigned int base;
+>>>>>>> upstream/android-13
 	int plane_cnt;
 	int i, ret;
 
@@ -435,6 +669,22 @@ static int sun8i_mixer_bind(struct device *dev, struct device *master,
 	mixer->engine.ops = &sun8i_engine_ops;
 	mixer->engine.node = dev->of_node;
 
+<<<<<<< HEAD
+=======
+	if (of_find_property(dev->of_node, "iommus", NULL)) {
+		/*
+		 * This assume we have the same DMA constraints for
+		 * all our the mixers in our pipeline. This sounds
+		 * bad, but it has always been the case for us, and
+		 * DRM doesn't do per-device allocation either, so we
+		 * would need to fix DRM first...
+		 */
+		ret = of_dma_configure(drm->dev, dev->of_node, true);
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * While this function can fail, we shouldn't do anything
 	 * if this happens. Some early DE2 DT entries don't provide
@@ -500,33 +750,83 @@ static int sun8i_mixer_bind(struct device *dev, struct device *master,
 
 	list_add_tail(&mixer->engine.list, &drv->engine_list);
 
+<<<<<<< HEAD
 	/* Reset the registers */
 	for (i = 0x0; i < 0x20000; i += 4)
 		regmap_write(mixer->engine.regs, i, 0);
+=======
+	base = sun8i_blender_base(mixer);
+
+	/* Reset registers and disable unused sub-engines */
+	if (mixer->cfg->is_de3) {
+		for (i = 0; i < DE3_MIXER_UNIT_SIZE; i += 4)
+			regmap_write(mixer->engine.regs, i, 0);
+
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_FCE_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_PEAK_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_LCTI_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_BLS_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_FCC_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_DNS_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_DRC_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_FMT_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_CDC0_EN, 0);
+		regmap_write(mixer->engine.regs, SUN50I_MIXER_CDC1_EN, 0);
+	} else {
+		for (i = 0; i < DE2_MIXER_UNIT_SIZE; i += 4)
+			regmap_write(mixer->engine.regs, i, 0);
+
+		regmap_write(mixer->engine.regs, SUN8I_MIXER_FCE_EN, 0);
+		regmap_write(mixer->engine.regs, SUN8I_MIXER_BWS_EN, 0);
+		regmap_write(mixer->engine.regs, SUN8I_MIXER_LTI_EN, 0);
+		regmap_write(mixer->engine.regs, SUN8I_MIXER_PEAK_EN, 0);
+		regmap_write(mixer->engine.regs, SUN8I_MIXER_ASE_EN, 0);
+		regmap_write(mixer->engine.regs, SUN8I_MIXER_FCC_EN, 0);
+		regmap_write(mixer->engine.regs, SUN8I_MIXER_DCSC_EN, 0);
+	}
+>>>>>>> upstream/android-13
 
 	/* Enable the mixer */
 	regmap_write(mixer->engine.regs, SUN8I_MIXER_GLOBAL_CTL,
 		     SUN8I_MIXER_GLOBAL_CTL_RT_EN);
 
 	/* Set background color to black */
+<<<<<<< HEAD
 	regmap_write(mixer->engine.regs, SUN8I_MIXER_BLEND_BKCOLOR,
+=======
+	regmap_write(mixer->engine.regs, SUN8I_MIXER_BLEND_BKCOLOR(base),
+>>>>>>> upstream/android-13
 		     SUN8I_MIXER_BLEND_COLOR_BLACK);
 
 	/*
 	 * Set fill color of bottom plane to black. Generally not needed
 	 * except when VI plane is at bottom (zpos = 0) and enabled.
 	 */
+<<<<<<< HEAD
 	regmap_write(mixer->engine.regs, SUN8I_MIXER_BLEND_PIPE_CTL,
 		     SUN8I_MIXER_BLEND_PIPE_CTL_FC_EN(0));
 	regmap_write(mixer->engine.regs, SUN8I_MIXER_BLEND_ATTR_FCOLOR(0),
+=======
+	regmap_write(mixer->engine.regs, SUN8I_MIXER_BLEND_PIPE_CTL(base),
+		     SUN8I_MIXER_BLEND_PIPE_CTL_FC_EN(0));
+	regmap_write(mixer->engine.regs, SUN8I_MIXER_BLEND_ATTR_FCOLOR(base, 0),
+>>>>>>> upstream/android-13
 		     SUN8I_MIXER_BLEND_COLOR_BLACK);
 
 	plane_cnt = mixer->cfg->vi_num + mixer->cfg->ui_num;
 	for (i = 0; i < plane_cnt; i++)
+<<<<<<< HEAD
 		regmap_write(mixer->engine.regs, SUN8I_MIXER_BLEND_MODE(i),
 			     SUN8I_MIXER_BLEND_MODE_DEF);
 
 	regmap_update_bits(mixer->engine.regs, SUN8I_MIXER_BLEND_PIPE_CTL,
+=======
+		regmap_write(mixer->engine.regs,
+			     SUN8I_MIXER_BLEND_MODE(base, i),
+			     SUN8I_MIXER_BLEND_MODE_DEF);
+
+	regmap_update_bits(mixer->engine.regs, SUN8I_MIXER_BLEND_PIPE_CTL(base),
+>>>>>>> upstream/android-13
 			   SUN8I_MIXER_BLEND_PIPE_CTL_EN_MSK, 0);
 
 	return 0;
@@ -570,6 +870,10 @@ static int sun8i_mixer_remove(struct platform_device *pdev)
 static const struct sun8i_mixer_cfg sun8i_a83t_mixer0_cfg = {
 	.ccsc		= 0,
 	.scaler_mask	= 0xf,
+<<<<<<< HEAD
+=======
+	.scanline_yuv	= 2048,
+>>>>>>> upstream/android-13
 	.ui_num		= 3,
 	.vi_num		= 1,
 };
@@ -577,6 +881,10 @@ static const struct sun8i_mixer_cfg sun8i_a83t_mixer0_cfg = {
 static const struct sun8i_mixer_cfg sun8i_a83t_mixer1_cfg = {
 	.ccsc		= 1,
 	.scaler_mask	= 0x3,
+<<<<<<< HEAD
+=======
+	.scanline_yuv	= 2048,
+>>>>>>> upstream/android-13
 	.ui_num		= 1,
 	.vi_num		= 1,
 };
@@ -585,18 +893,78 @@ static const struct sun8i_mixer_cfg sun8i_h3_mixer0_cfg = {
 	.ccsc		= 0,
 	.mod_rate	= 432000000,
 	.scaler_mask	= 0xf,
+<<<<<<< HEAD
+=======
+	.scanline_yuv	= 2048,
+>>>>>>> upstream/android-13
 	.ui_num		= 3,
 	.vi_num		= 1,
 };
 
+<<<<<<< HEAD
+=======
+static const struct sun8i_mixer_cfg sun8i_r40_mixer0_cfg = {
+	.ccsc		= 0,
+	.mod_rate	= 297000000,
+	.scaler_mask	= 0xf,
+	.scanline_yuv	= 2048,
+	.ui_num		= 3,
+	.vi_num		= 1,
+};
+
+static const struct sun8i_mixer_cfg sun8i_r40_mixer1_cfg = {
+	.ccsc		= 1,
+	.mod_rate	= 297000000,
+	.scaler_mask	= 0x3,
+	.scanline_yuv	= 2048,
+	.ui_num		= 1,
+	.vi_num		= 1,
+};
+
+>>>>>>> upstream/android-13
 static const struct sun8i_mixer_cfg sun8i_v3s_mixer_cfg = {
 	.vi_num = 2,
 	.ui_num = 1,
 	.scaler_mask = 0x3,
+<<<<<<< HEAD
+=======
+	.scanline_yuv = 2048,
+>>>>>>> upstream/android-13
 	.ccsc = 0,
 	.mod_rate = 150000000,
 };
 
+<<<<<<< HEAD
+=======
+static const struct sun8i_mixer_cfg sun50i_a64_mixer0_cfg = {
+	.ccsc		= 0,
+	.mod_rate	= 297000000,
+	.scaler_mask	= 0xf,
+	.scanline_yuv	= 4096,
+	.ui_num		= 3,
+	.vi_num		= 1,
+};
+
+static const struct sun8i_mixer_cfg sun50i_a64_mixer1_cfg = {
+	.ccsc		= 1,
+	.mod_rate	= 297000000,
+	.scaler_mask	= 0x3,
+	.scanline_yuv	= 2048,
+	.ui_num		= 1,
+	.vi_num		= 1,
+};
+
+static const struct sun8i_mixer_cfg sun50i_h6_mixer0_cfg = {
+	.ccsc		= 0,
+	.is_de3		= true,
+	.mod_rate	= 600000000,
+	.scaler_mask	= 0xf,
+	.scanline_yuv	= 4096,
+	.ui_num		= 3,
+	.vi_num		= 1,
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id sun8i_mixer_of_table[] = {
 	{
 		.compatible = "allwinner,sun8i-a83t-de2-mixer-0",
@@ -611,9 +979,35 @@ static const struct of_device_id sun8i_mixer_of_table[] = {
 		.data = &sun8i_h3_mixer0_cfg,
 	},
 	{
+<<<<<<< HEAD
 		.compatible = "allwinner,sun8i-v3s-de2-mixer",
 		.data = &sun8i_v3s_mixer_cfg,
 	},
+=======
+		.compatible = "allwinner,sun8i-r40-de2-mixer-0",
+		.data = &sun8i_r40_mixer0_cfg,
+	},
+	{
+		.compatible = "allwinner,sun8i-r40-de2-mixer-1",
+		.data = &sun8i_r40_mixer1_cfg,
+	},
+	{
+		.compatible = "allwinner,sun8i-v3s-de2-mixer",
+		.data = &sun8i_v3s_mixer_cfg,
+	},
+	{
+		.compatible = "allwinner,sun50i-a64-de2-mixer-0",
+		.data = &sun50i_a64_mixer0_cfg,
+	},
+	{
+		.compatible = "allwinner,sun50i-a64-de2-mixer-1",
+		.data = &sun50i_a64_mixer1_cfg,
+	},
+	{
+		.compatible = "allwinner,sun50i-h6-de3-mixer-0",
+		.data = &sun50i_h6_mixer0_cfg,
+	},
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, sun8i_mixer_of_table);

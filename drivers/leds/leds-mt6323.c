@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LED driver for Mediatek MT6323 PMIC
  *
  * Copyright (C) 2017 Sean Wang <sean.wang@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/leds.h>
@@ -258,6 +265,7 @@ static int mt6323_led_set_blink(struct led_classdev *cdev,
 	int ret;
 
 	/*
+<<<<<<< HEAD
 	 * Units are in ms, if over the hardware able
 	 * to support, fallback into software blink
 	 */
@@ -267,6 +275,8 @@ static int mt6323_led_set_blink(struct led_classdev *cdev,
 		return -EINVAL;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * LED subsystem requires a default user
 	 * friendly blink pattern for the LED so using
 	 * 1Hz duty cycle 50% here if without specific
@@ -278,6 +288,18 @@ static int mt6323_led_set_blink(struct led_classdev *cdev,
 	}
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Units are in ms, if over the hardware able
+	 * to support, fallback into software blink
+	 */
+	period = *delay_on + *delay_off;
+
+	if (period > MT6323_MAX_PERIOD)
+		return -EINVAL;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Calculate duty_hw based on the percentage of period during
 	 * which the led is ON.
 	 */
@@ -351,11 +373,14 @@ static int mt6323_led_set_dt_default(struct led_classdev *cdev,
 	const char *state;
 	int ret = 0;
 
+<<<<<<< HEAD
 	led->cdev.name = of_get_property(np, "label", NULL) ? : np->name;
 	led->cdev.default_trigger = of_get_property(np,
 						    "linux,default-trigger",
 						    NULL);
 
+=======
+>>>>>>> upstream/android-13
 	state = of_get_property(np, "default-state", NULL);
 	if (state) {
 		if (!strcmp(state, "keep")) {
@@ -378,9 +403,15 @@ static int mt6323_led_set_dt_default(struct led_classdev *cdev,
 static int mt6323_led_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node;
 	struct device_node *child;
 	struct mt6397_chip *hw = dev_get_drvdata(pdev->dev.parent);
+=======
+	struct device_node *np = dev_of_node(dev);
+	struct device_node *child;
+	struct mt6397_chip *hw = dev_get_drvdata(dev->parent);
+>>>>>>> upstream/android-13
 	struct mt6323_leds *leds;
 	struct mt6323_led *led;
 	int ret;
@@ -411,6 +442,11 @@ static int mt6323_led_probe(struct platform_device *pdev)
 	}
 
 	for_each_available_child_of_node(np, child) {
+<<<<<<< HEAD
+=======
+		struct led_init_data init_data = {};
+
+>>>>>>> upstream/android-13
 		ret = of_property_read_u32(child, "reg", &reg);
 		if (ret) {
 			dev_err(dev, "Failed to read led 'reg' property\n");
@@ -446,6 +482,7 @@ static int mt6323_led_probe(struct platform_device *pdev)
 			goto put_child_node;
 		}
 
+<<<<<<< HEAD
 		ret = devm_led_classdev_register(dev, &leds->led[reg]->cdev);
 		if (ret) {
 			dev_err(&pdev->dev, "Failed to register LED: %d\n",
@@ -453,6 +490,16 @@ static int mt6323_led_probe(struct platform_device *pdev)
 			goto put_child_node;
 		}
 		leds->led[reg]->cdev.dev->of_node = child;
+=======
+		init_data.fwnode = of_fwnode_handle(child);
+
+		ret = devm_led_classdev_register_ext(dev, &leds->led[reg]->cdev,
+						     &init_data);
+		if (ret) {
+			dev_err(dev, "Failed to register LED: %d\n", ret);
+			goto put_child_node;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

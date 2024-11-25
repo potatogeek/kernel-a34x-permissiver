@@ -16,6 +16,11 @@
 
 #include "bnx2fc.h"
 
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+
+>>>>>>> upstream/android-13
 static struct list_head adapter_list;
 static struct list_head if_list;
 static u32 adapter_count;
@@ -50,7 +55,11 @@ struct workqueue_struct *bnx2fc_wq;
  * Here the io threads are per cpu but the l2 thread is just one
  */
 struct fcoe_percpu_s bnx2fc_global;
+<<<<<<< HEAD
 DEFINE_SPINLOCK(bnx2fc_global_lock);
+=======
+static DEFINE_SPINLOCK(bnx2fc_global_lock);
+>>>>>>> upstream/android-13
 
 static struct cnic_ulp_ops bnx2fc_cnic_cb;
 static struct libfc_function_template bnx2fc_libfc_fcn_templ;
@@ -80,7 +89,11 @@ static int bnx2fc_bind_pcidev(struct bnx2fc_hba *hba);
 static void bnx2fc_unbind_pcidev(struct bnx2fc_hba *hba);
 static struct fc_lport *bnx2fc_if_create(struct bnx2fc_interface *interface,
 				  struct device *parent, int npiv);
+<<<<<<< HEAD
 static void bnx2fc_destroy_work(struct work_struct *work);
+=======
+static void bnx2fc_port_destroy(struct fcoe_port *port);
+>>>>>>> upstream/android-13
 
 static struct bnx2fc_hba *bnx2fc_hba_lookup(struct net_device *phys_dev);
 static struct bnx2fc_interface *bnx2fc_interface_lookup(struct net_device
@@ -108,22 +121,38 @@ MODULE_PARM_DESC(debug_logging,
 		"\t\t0x10 - fcoe L2 fame related logs.\n"
 		"\t\t0xff - LOG all messages.");
 
+<<<<<<< HEAD
 uint bnx2fc_devloss_tmo;
+=======
+static uint bnx2fc_devloss_tmo;
+>>>>>>> upstream/android-13
 module_param_named(devloss_tmo, bnx2fc_devloss_tmo, uint, S_IRUGO);
 MODULE_PARM_DESC(devloss_tmo, " Change devloss_tmo for the remote ports "
 	"attached via bnx2fc.");
 
+<<<<<<< HEAD
 uint bnx2fc_max_luns = BNX2FC_MAX_LUN;
+=======
+static uint bnx2fc_max_luns = BNX2FC_MAX_LUN;
+>>>>>>> upstream/android-13
 module_param_named(max_luns, bnx2fc_max_luns, uint, S_IRUGO);
 MODULE_PARM_DESC(max_luns, " Change the default max_lun per SCSI host. Default "
 	"0xffff.");
 
+<<<<<<< HEAD
 uint bnx2fc_queue_depth;
+=======
+static uint bnx2fc_queue_depth;
+>>>>>>> upstream/android-13
 module_param_named(queue_depth, bnx2fc_queue_depth, uint, S_IRUGO);
 MODULE_PARM_DESC(queue_depth, " Change the default queue depth of SCSI devices "
 	"attached via bnx2fc.");
 
+<<<<<<< HEAD
 uint bnx2fc_log_fka;
+=======
+static uint bnx2fc_log_fka;
+>>>>>>> upstream/android-13
 module_param_named(log_fka, bnx2fc_log_fka, uint, S_IRUGO|S_IWUSR);
 MODULE_PARM_DESC(log_fka, " Print message to kernel log when fcoe is "
 	"initiating a FIP keep alive when debug logging is enabled.");
@@ -150,15 +179,22 @@ static void bnx2fc_clean_rx_queue(struct fc_lport *lp)
 	struct fcoe_rcv_info *fr;
 	struct sk_buff_head *list;
 	struct sk_buff *skb, *next;
+<<<<<<< HEAD
 	struct sk_buff *head;
+=======
+>>>>>>> upstream/android-13
 
 	bg = &bnx2fc_global;
 	spin_lock_bh(&bg->fcoe_rx_list.lock);
 	list = &bg->fcoe_rx_list;
+<<<<<<< HEAD
 	head = list->next;
 	for (skb = head; skb != (struct sk_buff *)list;
 	     skb = next) {
 		next = skb->next;
+=======
+	skb_queue_walk_safe(list, skb, next) {
+>>>>>>> upstream/android-13
 		fr = fcoe_dev_from_skb(skb);
 		if (fr->fr_dev == lp) {
 			__skb_unlink(skb, list);
@@ -350,7 +386,11 @@ static int bnx2fc_xmit(struct fc_lport *lport, struct fc_frame *fp)
 			return -ENOMEM;
 		}
 		frag = &skb_shinfo(skb)->frags[skb_shinfo(skb)->nr_frags - 1];
+<<<<<<< HEAD
 		cp = kmap_atomic(skb_frag_page(frag)) + frag->page_offset;
+=======
+		cp = kmap_atomic(skb_frag_page(frag)) + skb_frag_off(frag);
+>>>>>>> upstream/android-13
 	} else {
 		cp = skb_put(skb, tlen);
 	}
@@ -432,11 +472,17 @@ static int bnx2fc_rcv(struct sk_buff *skb, struct net_device *dev,
 	struct fc_lport *lport;
 	struct bnx2fc_interface *interface;
 	struct fcoe_ctlr *ctlr;
+<<<<<<< HEAD
 	struct fc_frame_header *fh;
 	struct fcoe_rcv_info *fr;
 	struct fcoe_percpu_s *bg;
 	struct sk_buff *tmp_skb;
 	unsigned short oxid;
+=======
+	struct fcoe_rcv_info *fr;
+	struct fcoe_percpu_s *bg;
+	struct sk_buff *tmp_skb;
+>>>>>>> upstream/android-13
 
 	interface = container_of(ptype, struct bnx2fc_interface,
 				 fcoe_packet_type);
@@ -468,9 +514,12 @@ static int bnx2fc_rcv(struct sk_buff *skb, struct net_device *dev,
 		goto err;
 
 	skb_set_transport_header(skb, sizeof(struct fcoe_hdr));
+<<<<<<< HEAD
 	fh = (struct fc_frame_header *) skb_transport_header(skb);
 
 	oxid = ntohs(fh->fh_ox_id);
+=======
+>>>>>>> upstream/android-13
 
 	fr = fcoe_dev_from_skb(skb);
 	fr->fr_dev = lport;
@@ -515,7 +564,12 @@ static int bnx2fc_l2_rcv_thread(void *arg)
 
 static void bnx2fc_recv_frame(struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	u32 fr_len;
+=======
+	u64 crc_err;
+	u32 fr_len, fr_crc;
+>>>>>>> upstream/android-13
 	struct fc_lport *lport;
 	struct fcoe_rcv_info *fr;
 	struct fc_stats *stats;
@@ -549,6 +603,14 @@ static void bnx2fc_recv_frame(struct sk_buff *skb)
 	skb_pull(skb, sizeof(struct fcoe_hdr));
 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
 
+<<<<<<< HEAD
+=======
+	stats = per_cpu_ptr(lport->stats, get_cpu());
+	stats->RxFrames++;
+	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
+	put_cpu();
+
+>>>>>>> upstream/android-13
 	fp = (struct fc_frame *)skb;
 	fc_frame_init(fp);
 	fr_dev(fp) = lport;
@@ -631,6 +693,7 @@ static void bnx2fc_recv_frame(struct sk_buff *skb)
 		return;
 	}
 
+<<<<<<< HEAD
 	stats = per_cpu_ptr(lport->stats, smp_processor_id());
 	stats->RxFrames++;
 	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
@@ -641,6 +704,17 @@ static void bnx2fc_recv_frame(struct sk_buff *skb)
 			printk(KERN_WARNING PFX "dropping frame with "
 			       "CRC error\n");
 		stats->InvalidCRCCount++;
+=======
+	fr_crc = le32_to_cpu(fr_crc(fp));
+
+	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
+		stats = per_cpu_ptr(lport->stats, get_cpu());
+		crc_err = (stats->InvalidCRCCount++);
+		put_cpu();
+		if (crc_err < 5)
+			printk(KERN_WARNING PFX "dropping frame with "
+			       "CRC error\n");
+>>>>>>> upstream/android-13
 		kfree_skb(skb);
 		return;
 	}
@@ -669,7 +743,14 @@ static int bnx2fc_percpu_io_thread(void *arg)
 
 			list_for_each_entry_safe(work, tmp, &work_list, list) {
 				list_del_init(&work->list);
+<<<<<<< HEAD
 				bnx2fc_process_cq_compl(work->tgt, work->wqe);
+=======
+				bnx2fc_process_cq_compl(work->tgt, work->wqe,
+							work->rq_data,
+							work->num_rq,
+							work->task);
+>>>>>>> upstream/android-13
 				kfree(work);
 			}
 
@@ -911,9 +992,12 @@ static void bnx2fc_indicate_netevent(void *context, unsigned long event,
 				__bnx2fc_destroy(interface);
 		}
 		mutex_unlock(&bnx2fc_dev_lock);
+<<<<<<< HEAD
 
 		/* Ensure ALL destroy work has been completed before return */
 		flush_workqueue(bnx2fc_wq);
+=======
+>>>>>>> upstream/android-13
 		return;
 
 	default:
@@ -951,7 +1035,11 @@ static void bnx2fc_indicate_netevent(void *context, unsigned long event,
 				 */
 				if (interface->enabled)
 					fcoe_ctlr_link_up(ctlr);
+<<<<<<< HEAD
 			};
+=======
+			}
+>>>>>>> upstream/android-13
 		} else if (fcoe_ctlr_link_down(ctlr)) {
 			switch (cdev->enabled) {
 			case FCOE_CTLR_DISABLED:
@@ -971,7 +1059,11 @@ static void bnx2fc_indicate_netevent(void *context, unsigned long event,
 				put_cpu();
 				fcoe_clean_pending_queue(lport);
 				wait_for_upload = 1;
+<<<<<<< HEAD
 			};
+=======
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	mutex_unlock(&bnx2fc_dev_lock);
@@ -1077,9 +1169,14 @@ static int bnx2fc_fip_recv(struct sk_buff *skb, struct net_device *dev,
 /**
  * bnx2fc_update_src_mac - Update Ethernet MAC filters.
  *
+<<<<<<< HEAD
  * @fip: FCoE controller.
  * @old: Unicast MAC address to delete if the MAC is non-zero.
  * @new: Unicast MAC address to add.
+=======
+ * @lport: The local port
+ * @addr: Location of data to copy
+>>>>>>> upstream/android-13
  *
  * Remove any previously-set unicast MAC filter.
  * Add secondary FCoE MAC address filter for our OUI.
@@ -1220,8 +1317,13 @@ static int bnx2fc_vport_destroy(struct fc_vport *vport)
 	mutex_unlock(&n_port->lp_mutex);
 	bnx2fc_free_vport(interface->hba, port->lport);
 	bnx2fc_port_shutdown(port->lport);
+<<<<<<< HEAD
 	bnx2fc_interface_put(interface);
 	queue_work(bnx2fc_wq, &port->destroy_work);
+=======
+	bnx2fc_port_destroy(port);
+	bnx2fc_interface_put(interface);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1530,7 +1632,10 @@ static struct fc_lport *bnx2fc_if_create(struct bnx2fc_interface *interface,
 	port->lport = lport;
 	port->priv = interface;
 	port->get_netdev = bnx2fc_netdev;
+<<<<<<< HEAD
 	INIT_WORK(&port->destroy_work, bnx2fc_destroy_work);
+=======
+>>>>>>> upstream/android-13
 
 	/* Configure fcoe_port */
 	rc = bnx2fc_lport_config(lport);
@@ -1658,15 +1763,24 @@ static void __bnx2fc_destroy(struct bnx2fc_interface *interface)
 	bnx2fc_interface_cleanup(interface);
 	bnx2fc_stop(interface);
 	list_del(&interface->list);
+<<<<<<< HEAD
 	bnx2fc_interface_put(interface);
 	queue_work(bnx2fc_wq, &port->destroy_work);
+=======
+	bnx2fc_port_destroy(port);
+	bnx2fc_interface_put(interface);
+>>>>>>> upstream/android-13
 }
 
 /**
  * bnx2fc_destroy - Destroy a bnx2fc FCoE interface
  *
+<<<<<<< HEAD
  * @buffer: The name of the Ethernet interface to be destroyed
  * @kp:     The associated kernel parameter
+=======
+ * @netdev: The net device that the FCoE interface is on
+>>>>>>> upstream/android-13
  *
  * Called from sysfs.
  *
@@ -1700,6 +1814,7 @@ netdev_err:
 	return rc;
 }
 
+<<<<<<< HEAD
 static void bnx2fc_destroy_work(struct work_struct *work)
 {
 	struct fcoe_port *port;
@@ -1709,6 +1824,14 @@ static void bnx2fc_destroy_work(struct work_struct *work)
 	lport = port->lport;
 
 	BNX2FC_HBA_DBG(lport, "Entered bnx2fc_destroy_work\n");
+=======
+static void bnx2fc_port_destroy(struct fcoe_port *port)
+{
+	struct fc_lport *lport;
+
+	lport = port->lport;
+	BNX2FC_HBA_DBG(lport, "Entered %s, destroying lport %p\n", __func__, lport);
+>>>>>>> upstream/android-13
 
 	bnx2fc_if_destroy(lport);
 }
@@ -1802,7 +1925,11 @@ static void bnx2fc_unbind_pcidev(struct bnx2fc_hba *hba)
 /**
  * bnx2fc_ulp_get_stats - cnic callback to populate FCoE stats
  *
+<<<<<<< HEAD
  * @handle:    transport handle pointing to adapter struture
+=======
+ * @handle:    transport handle pointing to adapter structure
+>>>>>>> upstream/android-13
  */
 static int bnx2fc_ulp_get_stats(void *handle)
 {
@@ -2094,7 +2221,11 @@ static int __bnx2fc_disable(struct fcoe_ctlr *ctlr)
 {
 	struct bnx2fc_interface *interface = fcoe_ctlr_priv(ctlr);
 
+<<<<<<< HEAD
 	if (interface->enabled == true) {
+=======
+	if (interface->enabled) {
+>>>>>>> upstream/android-13
 		if (!ctlr->lp) {
 			pr_err(PFX "__bnx2fc_disable: lport not found\n");
 			return -ENODEV;
@@ -2107,7 +2238,11 @@ static int __bnx2fc_disable(struct fcoe_ctlr *ctlr)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Deperecated: Use bnx2fc_enabled()
  */
 static int bnx2fc_disable(struct net_device *netdev)
@@ -2192,7 +2327,11 @@ static int __bnx2fc_enable(struct fcoe_ctlr *ctlr)
 	struct cnic_fc_npiv_tbl *npiv_tbl;
 	struct fc_lport *lport;
 
+<<<<<<< HEAD
 	if (interface->enabled == false) {
+=======
+	if (!interface->enabled) {
+>>>>>>> upstream/android-13
 		if (!ctlr->lp) {
 			pr_err(PFX "__bnx2fc_enable: lport not found\n");
 			return -ENODEV;
@@ -2235,7 +2374,11 @@ done:
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Deprecated: Use bnx2fc_enabled()
  */
 static int bnx2fc_enable(struct net_device *netdev)
@@ -2283,7 +2426,11 @@ static int bnx2fc_ctlr_enabled(struct fcoe_ctlr_device *cdev)
 	case FCOE_CTLR_UNUSED:
 	default:
 		return -ENOTSUPP;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 enum bnx2fc_create_link_state {
@@ -2529,7 +2676,11 @@ static struct bnx2fc_hba *bnx2fc_hba_lookup(struct net_device
 /**
  * bnx2fc_ulp_exit - shuts down adapter instance and frees all resources
  *
+<<<<<<< HEAD
  * @dev		cnic device handle
+=======
+ * @dev:	cnic device handle
+>>>>>>> upstream/android-13
  */
 static void bnx2fc_ulp_exit(struct cnic_dev *dev)
 {
@@ -2562,9 +2713,12 @@ static void bnx2fc_ulp_exit(struct cnic_dev *dev)
 			__bnx2fc_destroy(interface);
 	mutex_unlock(&bnx2fc_dev_lock);
 
+<<<<<<< HEAD
 	/* Ensure ALL destroy work has been completed before return */
 	flush_workqueue(bnx2fc_wq);
 
+=======
+>>>>>>> upstream/android-13
 	bnx2fc_ulp_stop(hba);
 	/* unregister cnic device */
 	if (test_and_clear_bit(BNX2FC_CNIC_REGISTERED, &hba->reg_with_cnic))
@@ -2664,7 +2818,12 @@ static int bnx2fc_cpu_offline(unsigned int cpu)
 	/* Free all work in the list */
 	list_for_each_entry_safe(work, tmp, &p->work_list, list) {
 		list_del_init(&work->list);
+<<<<<<< HEAD
 		bnx2fc_process_cq_compl(work->tgt, work->wqe);
+=======
+		bnx2fc_process_cq_compl(work->tgt, work->wqe, work->rq_data,
+					work->num_rq, work->task);
+>>>>>>> upstream/android-13
 		kfree(work);
 	}
 
@@ -2961,7 +3120,11 @@ static struct device_attribute *bnx2fc_host_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * scsi_host_template structure used while registering with SCSI-ml
  */
 static struct scsi_host_template bnx2fc_shost_template = {
@@ -2977,9 +3140,15 @@ static struct scsi_host_template bnx2fc_shost_template = {
 	.change_queue_depth	= scsi_change_queue_depth,
 	.this_id		= -1,
 	.cmd_per_lun		= 3,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
 	.sg_tablesize		= BNX2FC_MAX_BDS_PER_CMD,
 	.max_sectors		= 1024,
+=======
+	.sg_tablesize		= BNX2FC_MAX_BDS_PER_CMD,
+	.dma_boundary           = 0x7fff,
+	.max_sectors		= 0x3fbf,
+>>>>>>> upstream/android-13
 	.track_queue_depth	= 1,
 	.slave_configure	= bnx2fc_slave_configure,
 	.shost_attrs		= bnx2fc_host_attrs,
@@ -2994,7 +3163,11 @@ static struct libfc_function_template bnx2fc_libfc_fcn_templ = {
 	.rport_event_callback	= bnx2fc_rport_event_handler,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * bnx2fc_cnic_cb - global template of bnx2fc - cnic driver interface
  *			structure carrying callback function pointers
  */

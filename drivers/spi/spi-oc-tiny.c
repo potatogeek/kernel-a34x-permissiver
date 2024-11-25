@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 /*
  * OpenCores tiny SPI master driver
  *
  * http://opencores.org/project,tiny_spi
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * OpenCores tiny SPI master driver
+ *
+ * https://opencores.org/project,tiny_spi
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2011 Thomas Chou <thomas@wytron.com.tw>
  *
@@ -9,10 +17,13 @@
  * Copyright (c) 2006 Ben Dooks
  * Copyright (c) 2006 Simtec Electronics
  *	Ben Dooks <ben@simtec.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -23,7 +34,10 @@
 #include <linux/spi/spi_bitbang.h>
 #include <linux/spi/spi_oc_tiny.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 
 #define DRV_NAME "spi_oc_tiny"
@@ -53,8 +67,11 @@ struct tiny_spi {
 	unsigned int txc, rxc;
 	const u8 *txp;
 	u8 *rxp;
+<<<<<<< HEAD
 	int gpio_cs_count;
 	int *gpio_cs;
+=======
+>>>>>>> upstream/android-13
 };
 
 static inline struct tiny_spi *tiny_spi_to_hw(struct spi_device *sdev)
@@ -69,6 +86,7 @@ static unsigned int tiny_spi_baud(struct spi_device *spi, unsigned int hz)
 	return min(DIV_ROUND_UP(hw->freq, hz * 2), (1U << hw->baudwidth)) - 1;
 }
 
+<<<<<<< HEAD
 static void tiny_spi_chipselect(struct spi_device *spi, int is_active)
 {
 	struct tiny_spi *hw = tiny_spi_to_hw(spi);
@@ -79,6 +97,8 @@ static void tiny_spi_chipselect(struct spi_device *spi, int is_active)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int tiny_spi_setup_transfer(struct spi_device *spi,
 				   struct spi_transfer *t)
 {
@@ -102,7 +122,11 @@ static int tiny_spi_setup(struct spi_device *spi)
 		hw->speed_hz = spi->max_speed_hz;
 		hw->baud = tiny_spi_baud(spi, hw->speed_hz);
 	}
+<<<<<<< HEAD
 	hw->mode = spi->mode & (SPI_CPOL | SPI_CPHA);
+=======
+	hw->mode = spi->mode & SPI_MODE_X_MASK;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -206,11 +230,15 @@ static int tiny_spi_of_probe(struct platform_device *pdev)
 {
 	struct tiny_spi *hw = platform_get_drvdata(pdev);
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 	u32 val;
 
 	if (!np)
 		return 0;
+<<<<<<< HEAD
 	hw->gpio_cs_count = of_gpio_count(np);
 	if (hw->gpio_cs_count > 0) {
 		hw->gpio_cs = devm_kcalloc(&pdev->dev,
@@ -224,6 +252,8 @@ static int tiny_spi_of_probe(struct platform_device *pdev)
 		if (hw->gpio_cs[i] < 0)
 			return -ENODEV;
 	}
+=======
+>>>>>>> upstream/android-13
 	hw->bitbang.master->dev.of_node = pdev->dev.of_node;
 	if (!of_property_read_u32(np, "clock-frequency", &val))
 		hw->freq = val;
@@ -243,8 +273,11 @@ static int tiny_spi_probe(struct platform_device *pdev)
 	struct tiny_spi_platform_data *platp = dev_get_platdata(&pdev->dev);
 	struct tiny_spi *hw;
 	struct spi_master *master;
+<<<<<<< HEAD
 	struct resource *res;
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 	int err = -ENODEV;
 
 	master = spi_alloc_master(&pdev->dev, sizeof(struct tiny_spi));
@@ -253,9 +286,15 @@ static int tiny_spi_probe(struct platform_device *pdev)
 
 	/* setup the master state. */
 	master->bus_num = pdev->id;
+<<<<<<< HEAD
 	master->num_chipselect = 255;
 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH;
 	master->setup = tiny_spi_setup;
+=======
+	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH;
+	master->setup = tiny_spi_setup;
+	master->use_gpio_descriptors = true;
+>>>>>>> upstream/android-13
 
 	hw = spi_master_get_devdata(master);
 	platform_set_drvdata(pdev, hw);
@@ -263,12 +302,19 @@ static int tiny_spi_probe(struct platform_device *pdev)
 	/* setup the state for the bitbang driver */
 	hw->bitbang.master = master;
 	hw->bitbang.setup_transfer = tiny_spi_setup_transfer;
+<<<<<<< HEAD
 	hw->bitbang.chipselect = tiny_spi_chipselect;
 	hw->bitbang.txrx_bufs = tiny_spi_txrx_bufs;
 
 	/* find and map our resources */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hw->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	hw->bitbang.txrx_bufs = tiny_spi_txrx_bufs;
+
+	/* find and map our resources */
+	hw->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hw->base)) {
 		err = PTR_ERR(hw->base);
 		goto exit;
@@ -284,12 +330,15 @@ static int tiny_spi_probe(struct platform_device *pdev)
 	}
 	/* find platform data */
 	if (platp) {
+<<<<<<< HEAD
 		hw->gpio_cs_count = platp->gpio_cs_count;
 		hw->gpio_cs = platp->gpio_cs;
 		if (platp->gpio_cs_count && !platp->gpio_cs) {
 			err = -EBUSY;
 			goto exit;
 		}
+=======
+>>>>>>> upstream/android-13
 		hw->freq = platp->freq;
 		hw->baudwidth = platp->baudwidth;
 	} else {
@@ -297,6 +346,7 @@ static int tiny_spi_probe(struct platform_device *pdev)
 		if (err)
 			goto exit;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < hw->gpio_cs_count; i++) {
 		err = gpio_request(hw->gpio_cs[i], dev_name(&pdev->dev));
 		if (err)
@@ -304,6 +354,8 @@ static int tiny_spi_probe(struct platform_device *pdev)
 		gpio_direction_output(hw->gpio_cs[i], 1);
 	}
 	hw->bitbang.master->num_chipselect = max(1, hw->gpio_cs_count);
+=======
+>>>>>>> upstream/android-13
 
 	/* register our spi controller */
 	err = spi_bitbang_start(&hw->bitbang);
@@ -313,9 +365,12 @@ static int tiny_spi_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
 exit_gpio:
 	while (i-- > 0)
 		gpio_free(hw->gpio_cs[i]);
+=======
+>>>>>>> upstream/android-13
 exit:
 	spi_master_put(master);
 	return err;
@@ -325,11 +380,16 @@ static int tiny_spi_remove(struct platform_device *pdev)
 {
 	struct tiny_spi *hw = platform_get_drvdata(pdev);
 	struct spi_master *master = hw->bitbang.master;
+<<<<<<< HEAD
 	unsigned int i;
 
 	spi_bitbang_stop(&hw->bitbang);
 	for (i = 0; i < hw->gpio_cs_count; i++)
 		gpio_free(hw->gpio_cs[i]);
+=======
+
+	spi_bitbang_stop(&hw->bitbang);
+>>>>>>> upstream/android-13
 	spi_master_put(master);
 	return 0;
 }

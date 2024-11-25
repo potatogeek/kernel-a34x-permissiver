@@ -53,3 +53,10 @@
 &pcie {
 	status = "disabled";
 };
+<<<<<<< HEAD
+=======
+
+&sata {
+	status = "okay";
+};
+>>>>>>> upstream/android-13

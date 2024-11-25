@@ -25,11 +25,16 @@
 #include <syscall.h>
 #include <assert.h>
 #include <signal.h>
+<<<<<<< HEAD
+=======
+#include <limits.h>
+>>>>>>> upstream/android-13
 
 #include "rseq.h"
 
 #define ARRAY_SIZE(arr)	(sizeof(arr) / sizeof((arr)[0]))
 
+<<<<<<< HEAD
 __attribute__((tls_model("initial-exec"))) __thread
 volatile struct rseq __rseq_abi = {
 	.cpu_id = RSEQ_CPU_ID_UNINITIALIZED,
@@ -37,6 +42,23 @@ volatile struct rseq __rseq_abi = {
 
 static __attribute__((tls_model("initial-exec"))) __thread
 volatile int refcount;
+=======
+__thread volatile struct rseq __rseq_abi = {
+	.cpu_id = RSEQ_CPU_ID_UNINITIALIZED,
+};
+
+/*
+ * Shared with other libraries. This library may take rseq ownership if it is
+ * still 0 when executing the library constructor. Set to 1 by library
+ * constructor when handling rseq. Set to 0 in destructor if handling rseq.
+ */
+int __rseq_handled;
+
+/* Whether this library have ownership of rseq registration. */
+static int rseq_ownership;
+
+static __thread volatile uint32_t __rseq_refcount;
+>>>>>>> upstream/android-13
 
 static void signal_off_save(sigset_t *oldset)
 {
@@ -69,8 +91,19 @@ int rseq_register_current_thread(void)
 	int rc, ret = 0;
 	sigset_t oldset;
 
+<<<<<<< HEAD
 	signal_off_save(&oldset);
 	if (refcount++)
+=======
+	if (!rseq_ownership)
+		return 0;
+	signal_off_save(&oldset);
+	if (__rseq_refcount == UINT_MAX) {
+		ret = -1;
+		goto end;
+	}
+	if (__rseq_refcount++)
+>>>>>>> upstream/android-13
 		goto end;
 	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq), 0, RSEQ_SIG);
 	if (!rc) {
@@ -78,9 +111,15 @@ int rseq_register_current_thread(void)
 		goto end;
 	}
 	if (errno != EBUSY)
+<<<<<<< HEAD
 		__rseq_abi.cpu_id = -2;
 	ret = -1;
 	refcount--;
+=======
+		__rseq_abi.cpu_id = RSEQ_CPU_ID_REGISTRATION_FAILED;
+	ret = -1;
+	__rseq_refcount--;
+>>>>>>> upstream/android-13
 end:
 	signal_restore(oldset);
 	return ret;
@@ -91,13 +130,28 @@ int rseq_unregister_current_thread(void)
 	int rc, ret = 0;
 	sigset_t oldset;
 
+<<<<<<< HEAD
 	signal_off_save(&oldset);
 	if (--refcount)
+=======
+	if (!rseq_ownership)
+		return 0;
+	signal_off_save(&oldset);
+	if (!__rseq_refcount) {
+		ret = -1;
+		goto end;
+	}
+	if (--__rseq_refcount)
+>>>>>>> upstream/android-13
 		goto end;
 	rc = sys_rseq(&__rseq_abi, sizeof(struct rseq),
 		      RSEQ_FLAG_UNREGISTER, RSEQ_SIG);
 	if (!rc)
 		goto end;
+<<<<<<< HEAD
+=======
+	__rseq_refcount = 1;
+>>>>>>> upstream/android-13
 	ret = -1;
 end:
 	signal_restore(oldset);
@@ -115,3 +169,23 @@ int32_t rseq_fallback_current_cpu(void)
 	}
 	return cpu;
 }
+<<<<<<< HEAD
+=======
+
+void __attribute__((constructor)) rseq_init(void)
+{
+	/* Check whether rseq is handled by another library. */
+	if (__rseq_handled)
+		return;
+	__rseq_handled = 1;
+	rseq_ownership = 1;
+}
+
+void __attribute__((destructor)) rseq_fini(void)
+{
+	if (!rseq_ownership)
+		return;
+	__rseq_handled = 0;
+	rseq_ownership = 0;
+}
+>>>>>>> upstream/android-13

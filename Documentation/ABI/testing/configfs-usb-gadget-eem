@@ -4,6 +4,7 @@ KernelVersion:	3.11
 Description:
 		The attributes:
 
+<<<<<<< HEAD
 		ifname		- network device interface name associated with
 				this function instance
 		qmult		- queue length multiplier for high and
@@ -12,3 +13,15 @@ Description:
 				Ethernet over USB link
 		dev_addr	- MAC address of device's end of this
 				Ethernet over USB link
+=======
+		==========	=============================================
+		ifname		network device interface name associated with
+				this function instance
+		qmult		queue length multiplier for high and
+				super speed
+		host_addr	MAC address of host's end of this
+				Ethernet over USB link
+		dev_addr	MAC address of device's end of this
+				Ethernet over USB link
+		==========	=============================================
+>>>>>>> upstream/android-13

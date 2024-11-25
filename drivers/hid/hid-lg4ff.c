@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Force feedback support for Logitech Gaming Wheels
  *
@@ -8,6 +12,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -103,6 +110,13 @@ static const signed short lg4ff_wheel_effects[] = {
 	-1
 };
 
+<<<<<<< HEAD
+=======
+static const signed short no_wheel_effects[] = {
+	-1
+};
+
+>>>>>>> upstream/android-13
 struct lg4ff_wheel {
 	const u32 product_id;
 	const signed short *ff_effects;
@@ -137,6 +151,10 @@ struct lg4ff_alternate_mode {
 };
 
 static const struct lg4ff_wheel lg4ff_devices[] = {
+<<<<<<< HEAD
+=======
+	{USB_DEVICE_ID_LOGITECH_WINGMAN_FG,  no_wheel_effects,    40, 180, NULL},
+>>>>>>> upstream/android-13
 	{USB_DEVICE_ID_LOGITECH_WINGMAN_FFG, lg4ff_wheel_effects, 40, 180, NULL},
 	{USB_DEVICE_ID_LOGITECH_WHEEL,       lg4ff_wheel_effects, 40, 270, NULL},
 	{USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,  lg4ff_wheel_effects, 40, 270, NULL},
@@ -346,6 +364,10 @@ int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
 			rd[5] = rd[3];
 			rd[6] = 0x7F;
 			return 1;
+<<<<<<< HEAD
+=======
+		case USB_DEVICE_ID_LOGITECH_WINGMAN_FG:
+>>>>>>> upstream/android-13
 		case USB_DEVICE_ID_LOGITECH_WINGMAN_FFG:
 		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL:
 		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2:

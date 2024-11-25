@@ -57,17 +57,29 @@
     },
     {
         "EventCode": "0x24",
+<<<<<<< HEAD
         "UMask": "0x41",
         "BriefDescription": "Demand Data Read requests that hit L2 cache",
         "Counter": "0,1,2,3",
         "EventName": "L2_RQSTS.DEMAND_DATA_RD_HIT",
         "PublicDescription": "This event counts the number of demand Data Read requests that hit L2 cache. Only not rejected loads are counted.",
+=======
+        "UMask": "0xc1",
+        "BriefDescription": "Demand Data Read requests that hit L2 cache",
+        "Counter": "0,1,2,3",
+        "EventName": "L2_RQSTS.DEMAND_DATA_RD_HIT",
+        "PublicDescription": "Counts the number of demand Data Read requests, initiated by load instructions, that hit L2 cache.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "200003",
         "CounterHTOff": "0,1,2,3,4,5,6,7"
     },
     {
         "EventCode": "0x24",
+<<<<<<< HEAD
         "UMask": "0x42",
+=======
+        "UMask": "0xc2",
+>>>>>>> upstream/android-13
         "BriefDescription": "RFO requests that hit L2 cache.",
         "Counter": "0,1,2,3",
         "EventName": "L2_RQSTS.RFO_HIT",
@@ -76,7 +88,11 @@
     },
     {
         "EventCode": "0x24",
+<<<<<<< HEAD
         "UMask": "0x44",
+=======
+        "UMask": "0xc4",
+>>>>>>> upstream/android-13
         "BriefDescription": "L2 cache hits when fetching instructions, code reads.",
         "Counter": "0,1,2,3",
         "EventName": "L2_RQSTS.CODE_RD_HIT",
@@ -85,7 +101,11 @@
     },
     {
         "EventCode": "0x24",
+<<<<<<< HEAD
         "UMask": "0x50",
+=======
+        "UMask": "0xd0",
+>>>>>>> upstream/android-13
         "BriefDescription": "L2 prefetch requests that hit L2 cache",
         "Counter": "0,1,2,3",
         "EventName": "L2_RQSTS.L2_PF_HIT",
@@ -396,24 +416,40 @@
     {
         "EventCode": "0xD0",
         "UMask": "0x11",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops that miss the STLB. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops that miss the STLB.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.STLB_MISS_LOADS",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts load uops with true STLB miss retired to the architected path. True STLB miss is an uop triggering page walk that gets completed without blocks, and later gets retired. This page walk can end up with or without a fault.",
+=======
+        "PublicDescription": "This event counts load uops with true STLB miss retired to the architected path. True STLB miss is an uop triggering page walk that gets completed without blocks, and later gets retired. This page walk can end up with or without a fault.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD0",
         "UMask": "0x12",
+<<<<<<< HEAD
         "BriefDescription": "Retired store uops that miss the STLB. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired store uops that miss the STLB.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.STLB_MISS_STORES",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts store uops true STLB miss retired to the architected path. True STLB miss is an uop triggering page walk that gets completed without blocks, and later gets retired. This page walk can end up with or without a fault.",
+=======
+        "PublicDescription": "This event counts store uops with true STLB miss retired to the architected path. True STLB miss is an uop triggering page walk that gets completed without blocks, and later gets retired. This page walk can end up with or without a fault.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "L1_Hit_Indication": "1",
         "CounterHTOff": "0,1,2,3"
@@ -421,37 +457,61 @@
     {
         "EventCode": "0xD0",
         "UMask": "0x21",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops with locked access. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops with locked access.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.LOCK_LOADS",
         "Errata": "BDM35",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts load uops with locked access retired to the architected path.",
+=======
+        "PublicDescription": "This event counts load uops with locked access retired to the architected path.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100007",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD0",
         "UMask": "0x41",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops that split across a cacheline boundary.(Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops that split across a cacheline boundary.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.SPLIT_LOADS",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts line-splitted load uops retired to the architected path. A line split is across 64B cache-line which includes a page split (4K).",
+=======
+        "PublicDescription": "This event counts line-splitted load uops retired to the architected path. A line split is across 64B cache-line which includes a page split (4K).",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD0",
         "UMask": "0x42",
+<<<<<<< HEAD
         "BriefDescription": "Retired store uops that split across a cacheline boundary. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired store uops that split across a cacheline boundary.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.SPLIT_STORES",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts line-splitted store uops retired to the architected path. A line split is across 64B cache-line which includes a page split (4K).",
+=======
+        "PublicDescription": "This event counts line-splitted store uops retired to the architected path. A line split is across 64B cache-line which includes a page split (4K).",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "L1_Hit_Indication": "1",
         "CounterHTOff": "0,1,2,3"
@@ -459,24 +519,40 @@
     {
         "EventCode": "0xD0",
         "UMask": "0x81",
+<<<<<<< HEAD
         "BriefDescription": "All retired load uops. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "All retired load uops.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.ALL_LOADS",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts load uops retired to the architected path with a filter on bits 0 and 1 applied.\nNote: This event ?ounts AVX-256bit load/store double-pump memory uops as a single uop at retirement. This event also counts SW prefetches.",
+=======
+        "PublicDescription": "This event counts load uops retired to the architected path with a filter on bits 0 and 1 applied.\nNote: This event counts AVX-256bit load/store double-pump memory uops as a single uop at retirement. This event also counts SW prefetches.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "2000003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD0",
         "UMask": "0x82",
+<<<<<<< HEAD
         "BriefDescription": "Retired store uops that split across a cacheline boundary. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "All retired store uops.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_UOPS_RETIRED.ALL_STORES",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts store uops retired to the architected path with a filter on bits 0 and 1 applied.\nNote: This event ?ounts AVX-256bit load/store double-pump memory uops as a single uop at retirement.",
+=======
+        "PublicDescription": "This event counts store uops retired to the architected path with a filter on bits 0 and 1 applied.\nNote: This event counts AVX-256bit load/store double-pump memory uops as a single uop at retirement.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "2000003",
         "L1_Hit_Indication": "1",
         "CounterHTOff": "0,1,2,3"
@@ -484,69 +560,113 @@
     {
         "EventCode": "0xD1",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops with L1 cache hits as data sources. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops with L1 cache hits as data sources.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L1_HIT",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data source were hits in the nearest-level (L1) cache.\nNote: Only two data-sources of L1/FB are applicable for AVX-256bit  even though the corresponding AVX load could be serviced by a deeper level in the memory hierarchy. Data source is reported for the Low-half load. This event also counts SW prefetches independent of the actual data source.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were hits in the nearest-level (L1) cache.\nNote: Only two data-sources of L1/FB are applicable for AVX-256bit  even though the corresponding AVX load could be serviced by a deeper level in the memory hierarchy. Data source is reported for the Low-half load. This event also counts SW prefetches independent of the actual data source.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "2000003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD1",
         "UMask": "0x2",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops with L2 cache hits as data sources. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops with L2 cache hits as data sources.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L2_HIT",
         "Errata": "BDM35",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were hits in the mid-level (L2) cache.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were hits in the mid-level (L2) cache.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD1",
         "UMask": "0x4",
+<<<<<<< HEAD
         "BriefDescription": "Hit in last-level (L3) cache. Excludes Unknown data-source. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops which data sources were data hits in L3 without snoops required.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L3_HIT",
         "Errata": "BDM100",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were data hits in the last-level (L3) cache without snoops required.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were data hits in the last-level (L3) cache without snoops required.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "50021",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD1",
         "UMask": "0x8",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops misses in L1 cache as data sources. Uses PEBS.",
+=======
+        "BriefDescription": "Retired load uops misses in L1 cache as data sources.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L1_MISS",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were misses in the nearest-level (L1) cache. Counting excludes unknown and UC data source.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were misses in the nearest-level (L1) cache. Counting excludes unknown and UC data source.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD1",
         "UMask": "0x10",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops with L2 cache misses as data sources. Uses PEBS.",
+=======
+        "BriefDescription": "Miss in mid-level (L2) cache. Excludes Unknown data-source.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.L2_MISS",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were misses in the mid-level (L2) cache. Counting excludes unknown and UC data source.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were misses in the mid-level (L2) cache. Counting excludes unknown and UC data source.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "50021",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD1",
         "UMask": "0x20",
+<<<<<<< HEAD
         "BriefDescription": "Miss in last-level (L3) cache. Excludes Unknown data-source. (Precise Event - PEBS).",
+=======
+        "BriefDescription": "Miss in last-level (L3) cache. Excludes Unknown data-source.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
@@ -558,83 +678,135 @@
     {
         "EventCode": "0xD1",
         "UMask": "0x40",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops which data sources were load uops missed L1 but hit FB due to preceding miss to the same cache line with data not ready. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops which data sources were load uops missed L1 but hit FB due to preceding miss to the same cache line with data not ready.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_RETIRED.HIT_LFB",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were load uops missed L1 but hit a fill buffer due to a preceding miss to the same cache line with the data not ready.\nNote: Only two data-sources of L1/FB are applicable for AVX-256bit  even though the corresponding AVX load could be serviced by a deeper level in the memory hierarchy. Data source is reported for the Low-half load.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were load uops missed L1 but hit a fill buffer due to a preceding miss to the same cache line with the data not ready.\nNote: Only two data-sources of L1/FB are applicable for AVX-256bit  even though the corresponding AVX load could be serviced by a deeper level in the memory hierarchy. Data source is reported for the Low-half load.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD2",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops which data sources were L3 hit and cross-core snoop missed in on-pkg core cache. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops which data sources were L3 hit and cross-core snoop missed in on-pkg core cache.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_L3_HIT_RETIRED.XSNP_MISS",
         "Errata": "BDM100",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were L3 Hit and a cross-core snoop missed in the on-pkg core cache.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were L3 Hit and a cross-core snoop missed in the on-pkg core cache.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "20011",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD2",
         "UMask": "0x2",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops which data sources were L3 and cross-core snoop hits in on-pkg core cache. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops which data sources were L3 and cross-core snoop hits in on-pkg core cache.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_L3_HIT_RETIRED.XSNP_HIT",
         "Errata": "BDM100",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were L3 hit and a cross-core snoop hit in the on-pkg core cache.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were L3 hit and a cross-core snoop hit in the on-pkg core cache.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "20011",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD2",
         "UMask": "0x4",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops which data sources were HitM responses from shared L3. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops which data sources were HitM responses from shared L3.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_L3_HIT_RETIRED.XSNP_HITM",
         "Errata": "BDM100",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were HitM responses from a core on same socket (shared L3).",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were HitM responses from a core on same socket (shared L3).",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "20011",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD2",
         "UMask": "0x8",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uops which data sources were hits in L3 without snoops required. (Precise Event - PEBS)",
+=======
+        "BriefDescription": "Retired load uops which data sources were hits in L3 without snoops required.",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_L3_HIT_RETIRED.XSNP_NONE",
         "Errata": "BDM100",
+<<<<<<< HEAD
         "PublicDescription": "This is a precise version (that is, uses PEBS) of the event that counts retired load uops which data sources were hits in the last-level (L3) cache without snoops required.",
+=======
+        "PublicDescription": "This event counts retired load uops which data sources were hits in the last-level (L3) cache without snoops required.",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD3",
         "UMask": "0x1",
+<<<<<<< HEAD
+=======
+        "BriefDescription": "Data from local DRAM either Snoop not needed or Snoop Miss (RspI)",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
         "EventName": "MEM_LOAD_UOPS_L3_MISS_RETIRED.LOCAL_DRAM",
         "Errata": "BDE70, BDM100",
+<<<<<<< HEAD
         "PublicDescription": "This event counts retired load uops where the data came from local DRAM. This does not include hardware prefetches. This is a precise event.",
+=======
+        "PublicDescription": "Retired load uop whose Data Source was: local DRAM either Snoop not needed or Snoop Miss (RspI).",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100007",
         "CounterHTOff": "0,1,2,3"
     },
     {
         "EventCode": "0xD3",
         "UMask": "0x4",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uop whose Data Source was: remote DRAM either Snoop not needed or Snoop Miss (RspI) (Precise Event)",
+=======
+        "BriefDescription": "Retired load uop whose Data Source was: remote DRAM either Snoop not needed or Snoop Miss (RspI)",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
@@ -646,7 +818,11 @@
     {
         "EventCode": "0xD3",
         "UMask": "0x10",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uop whose Data Source was: Remote cache HITM (Precise Event)",
+=======
+        "BriefDescription": "Retired load uop whose Data Source was: Remote cache HITM",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
@@ -658,7 +834,11 @@
     {
         "EventCode": "0xD3",
         "UMask": "0x20",
+<<<<<<< HEAD
         "BriefDescription": "Retired load uop whose Data Source was: forwarded from remote cache (Precise Event)",
+=======
+        "BriefDescription": "Retired load uop whose Data Source was: forwarded from remote cache",
+>>>>>>> upstream/android-13
         "Data_LA": "1",
         "PEBS": "1",
         "Counter": "0,1,2,3",
@@ -810,12 +990,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all requests that hit in the L3",
         "MSRValue": "0x3f803c8fff",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_REQUESTS.LLC_HIT.ANY_RESPONSE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all requests that hit in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all requests hit in the L3",
+        "MSRValue": "0x3F803C8FFF",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_REQUESTS.LLC_HIT.ANY_RESPONSE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all requests hit in the L3",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -823,12 +1012,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all data/code/rfo reads (demand & prefetch) that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
         "MSRValue": "0x10003c07f7",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_READS.LLC_HIT.HITM_OTHER_CORE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all data/code/rfo reads (demand & prefetch) that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all data/code/rfo reads (demand & prefetch) hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+        "MSRValue": "0x10003C07F7",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_READS.LLC_HIT.HITM_OTHER_CORE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all data/code/rfo reads (demand & prefetch) hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -836,12 +1034,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all data/code/rfo reads (demand & prefetch) that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
         "MSRValue": "0x04003c07f7",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_READS.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all data/code/rfo reads (demand & prefetch) that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all data/code/rfo reads (demand & prefetch) hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+        "MSRValue": "0x04003C07F7",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_READS.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all data/code/rfo reads (demand & prefetch) hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -849,12 +1056,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all demand & prefetch code reads that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
         "MSRValue": "0x04003c0244",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_CODE_RD.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all demand & prefetch code reads that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all demand & prefetch code reads hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+        "MSRValue": "0x04003C0244",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_CODE_RD.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all demand & prefetch code reads hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -862,12 +1078,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all demand & prefetch RFOs that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
         "MSRValue": "0x10003c0122",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_RFO.LLC_HIT.HITM_OTHER_CORE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all demand & prefetch RFOs that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all demand & prefetch RFOs hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+        "MSRValue": "0x10003C0122",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_RFO.LLC_HIT.HITM_OTHER_CORE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all demand & prefetch RFOs hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -875,12 +1100,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all demand & prefetch RFOs that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
         "MSRValue": "0x04003c0122",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_RFO.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all demand & prefetch RFOs that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all demand & prefetch RFOs hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+        "MSRValue": "0x04003C0122",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_RFO.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all demand & prefetch RFOs hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -888,12 +1122,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all demand & prefetch data reads that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
         "MSRValue": "0x10003c0091",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_DATA_RD.LLC_HIT.HITM_OTHER_CORE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all demand & prefetch data reads that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all demand & prefetch data reads hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+        "MSRValue": "0x10003C0091",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_DATA_RD.LLC_HIT.HITM_OTHER_CORE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all demand & prefetch data reads hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -901,12 +1144,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all demand & prefetch data reads that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
         "MSRValue": "0x04003c0091",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.ALL_DATA_RD.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all demand & prefetch data reads that hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all demand & prefetch data reads hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+        "MSRValue": "0x04003C0091",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.ALL_DATA_RD.LLC_HIT.HIT_OTHER_CORE_NO_FWD",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all demand & prefetch data reads hit in the L3 and the snoops to sibling cores hit in either E/S state and the line is not forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -914,12 +1166,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts prefetch (that bring data to LLC only) code reads that hit in the L3",
         "MSRValue": "0x3f803c0200",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.PF_LLC_CODE_RD.LLC_HIT.ANY_RESPONSE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts prefetch (that bring data to LLC only) code reads that hit in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts prefetch (that bring data to LLC only) code reads hit in the L3",
+        "MSRValue": "0x3F803C0200",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.PF_LLC_CODE_RD.LLC_HIT.ANY_RESPONSE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts prefetch (that bring data to LLC only) code reads hit in the L3",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -927,12 +1188,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all prefetch (that bring data to LLC only) RFOs that hit in the L3",
         "MSRValue": "0x3f803c0100",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.PF_LLC_RFO.LLC_HIT.ANY_RESPONSE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all prefetch (that bring data to LLC only) RFOs that hit in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all prefetch (that bring data to LLC only) RFOs hit in the L3",
+        "MSRValue": "0x3F803C0100",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.PF_LLC_RFO.LLC_HIT.ANY_RESPONSE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all prefetch (that bring data to LLC only) RFOs hit in the L3",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -940,12 +1210,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all demand data writes (RFOs) that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
         "MSRValue": "0x10003c0002",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.DEMAND_RFO.LLC_HIT.HITM_OTHER_CORE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all demand data writes (RFOs) that hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all demand data writes (RFOs) hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+        "MSRValue": "0x10003C0002",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.DEMAND_RFO.LLC_HIT.HITM_OTHER_CORE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all demand data writes (RFOs) hit in the L3 and the snoop to one of the sibling cores hits the line in M state and the line is forwarded",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     },
@@ -953,12 +1232,21 @@
         "Offcore": "1",
         "EventCode": "0xB7, 0xBB",
         "UMask": "0x1",
+<<<<<<< HEAD
         "BriefDescription": "Counts all demand data writes (RFOs) that hit in the L3",
         "MSRValue": "0x3f803c0002",
         "Counter": "0,1,2,3",
         "EventName": "OFFCORE_RESPONSE.DEMAND_RFO.LLC_HIT.ANY_RESPONSE",
         "MSRIndex": "0x1a6,0x1a7",
         "PublicDescription": "Counts all demand data writes (RFOs) that hit in the L3 Offcore response can be programmed only with a specific pair of event select and counter MSR, and with specific event codes and predefine mask bit value in a dedicated MSR to specify attributes of the offcore transaction.",
+=======
+        "BriefDescription": "Counts all demand data writes (RFOs) hit in the L3",
+        "MSRValue": "0x3F803C0002",
+        "Counter": "0,1,2,3",
+        "EventName": "OFFCORE_RESPONSE.DEMAND_RFO.LLC_HIT.ANY_RESPONSE",
+        "MSRIndex": "0x1a6,0x1a7",
+        "PublicDescription": "Counts all demand data writes (RFOs) hit in the L3",
+>>>>>>> upstream/android-13
         "SampleAfterValue": "100003",
         "CounterHTOff": "0,1,2,3"
     }

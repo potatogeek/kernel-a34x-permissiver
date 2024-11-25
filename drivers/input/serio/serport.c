@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Input device TTY line discipline
  *
@@ -7,11 +11,14 @@
  * 'serial io port' abstraction that the input device drivers use.
  */
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/uaccess.h>
 #include <linux/kernel.h>
@@ -118,7 +125,12 @@ static void serport_ldisc_close(struct tty_struct *tty)
  * 'interrupt' routine.
  */
 
+<<<<<<< HEAD
 static void serport_ldisc_receive(struct tty_struct *tty, const unsigned char *cp, char *fp, int count)
+=======
+static void serport_ldisc_receive(struct tty_struct *tty,
+		const unsigned char *cp, const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct serport *serport = (struct serport*) tty->disc_data;
 	unsigned long flags;
@@ -160,7 +172,13 @@ out:
  * returning 0 characters.
  */
 
+<<<<<<< HEAD
 static ssize_t serport_ldisc_read(struct tty_struct * tty, struct file * file, unsigned char __user * buf, size_t nr)
+=======
+static ssize_t serport_ldisc_read(struct tty_struct * tty, struct file * file,
+				  unsigned char *kbuf, size_t nr,
+				  void **cookie, unsigned long offset)
+>>>>>>> upstream/android-13
 {
 	struct serport *serport = (struct serport*) tty->disc_data;
 	struct serio *serio;
@@ -226,7 +244,11 @@ static int serport_ldisc_ioctl(struct tty_struct *tty, struct file *file,
 
 #ifdef CONFIG_COMPAT
 #define COMPAT_SPIOCSTYPE	_IOW('q', 0x01, compat_ulong_t)
+<<<<<<< HEAD
 static long serport_ldisc_compat_ioctl(struct tty_struct *tty,
+=======
+static int serport_ldisc_compat_ioctl(struct tty_struct *tty,
+>>>>>>> upstream/android-13
 				       struct file *file,
 				       unsigned int cmd, unsigned long arg)
 {
@@ -275,6 +297,10 @@ static void serport_ldisc_write_wakeup(struct tty_struct * tty)
 
 static struct tty_ldisc_ops serport_ldisc = {
 	.owner =	THIS_MODULE,
+<<<<<<< HEAD
+=======
+	.num =		N_MOUSE,
+>>>>>>> upstream/android-13
 	.name =		"input",
 	.open =		serport_ldisc_open,
 	.close =	serport_ldisc_close,
@@ -295,7 +321,11 @@ static struct tty_ldisc_ops serport_ldisc = {
 static int __init serport_init(void)
 {
 	int retval;
+<<<<<<< HEAD
 	retval = tty_register_ldisc(N_MOUSE, &serport_ldisc);
+=======
+	retval = tty_register_ldisc(&serport_ldisc);
+>>>>>>> upstream/android-13
 	if (retval)
 		printk(KERN_ERR "serport.c: Error registering line discipline.\n");
 
@@ -304,7 +334,11 @@ static int __init serport_init(void)
 
 static void __exit serport_exit(void)
 {
+<<<<<<< HEAD
 	tty_unregister_ldisc(N_MOUSE);
+=======
+	tty_unregister_ldisc(&serport_ldisc);
+>>>>>>> upstream/android-13
 }
 
 module_init(serport_init);

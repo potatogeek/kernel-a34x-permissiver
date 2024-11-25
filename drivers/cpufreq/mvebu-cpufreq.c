@@ -84,9 +84,16 @@ static int __init armada_xp_pmsu_cpufreq_init(void)
 
 		ret = dev_pm_opp_add(cpu_dev, clk_get_rate(clk) / 2, 0);
 		if (ret) {
+<<<<<<< HEAD
 			clk_put(clk);
 			dev_err(cpu_dev, "Failed to register OPPs\n");
 			goto opp_register_failed;
+=======
+			dev_pm_opp_remove(cpu_dev, clk_get_rate(clk));
+			clk_put(clk);
+			dev_err(cpu_dev, "Failed to register OPPs\n");
+			return ret;
+>>>>>>> upstream/android-13
 		}
 
 		ret = dev_pm_opp_set_sharing_cpus(cpu_dev,
@@ -99,11 +106,14 @@ static int __init armada_xp_pmsu_cpufreq_init(void)
 
 	platform_device_register_simple("cpufreq-dt", -1, NULL, 0);
 	return 0;
+<<<<<<< HEAD
 
 opp_register_failed:
 	/* As registering has failed remove all the opp for all cpus */
 	dev_pm_opp_cpumask_remove_table(cpu_possible_mask);
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 device_initcall(armada_xp_pmsu_cpufreq_init);

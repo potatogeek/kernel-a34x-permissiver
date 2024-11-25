@@ -10,9 +10,13 @@
 #include <linux/io.h>
 #include <linux/irq.h>
 #include <linux/memblock.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <linux/of_fdt.h>
 #include <asm/pgalloc.h>
+=======
+#include <linux/of_fdt.h>
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <asm/cacheflush.h>
 #include <asm/kexec-internal.h>
@@ -149,11 +153,14 @@ void machine_crash_shutdown(struct pt_regs *regs)
 	pr_info("Loading crashdump kernel...\n");
 }
 
+<<<<<<< HEAD
 /*
  * Function pointer to optional machine-specific reinitialization
  */
 void (*kexec_reinit)(void);
 
+=======
+>>>>>>> upstream/android-13
 void machine_kexec(struct kimage *image)
 {
 	unsigned long page_list, reboot_entry_phys;
@@ -189,9 +196,12 @@ void machine_kexec(struct kimage *image)
 
 	pr_info("Bye!\n");
 
+<<<<<<< HEAD
 	if (kexec_reinit)
 		kexec_reinit();
 
+=======
+>>>>>>> upstream/android-13
 	soft_restart(reboot_entry_phys);
 }
 

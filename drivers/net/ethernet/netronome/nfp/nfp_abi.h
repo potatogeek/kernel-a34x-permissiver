@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause) */
 /*
  * Copyright (C) 2018 Netronome Systems, Inc.
@@ -31,6 +32,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef __NFP_ABI__
 #define __NFP_ABI__ 1

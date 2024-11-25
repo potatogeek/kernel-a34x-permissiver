@@ -76,8 +76,13 @@
 		bits-per-pixel = <16>;
 		fsl,pcr = <0xfa208b80>;
 		bus-width = <18>;
+<<<<<<< HEAD
 		native-mode = <&wvga_timings>;
 		display-timings {
+=======
+		display-timings {
+			native-mode = <&wvga_timings>;
+>>>>>>> upstream/android-13
 			wvga_timings: 640x480 {
 				hactive = <640>;
 				vactive = <480>;
@@ -304,8 +309,11 @@
 };
 
 &usbhost1 {
+<<<<<<< HEAD
 	phy_type = "serial";
 	dr_mode = "host";
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

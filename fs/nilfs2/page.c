@@ -69,7 +69,10 @@ struct buffer_head *nilfs_grab_buffer(struct inode *inode,
 
 /**
  * nilfs_forget_buffer - discard dirty state
+<<<<<<< HEAD
  * @inode: owner inode of the buffer
+=======
+>>>>>>> upstream/android-13
  * @bh: buffer head of the buffer to be discarded
  */
 void nilfs_forget_buffer(struct buffer_head *bh)
@@ -289,7 +292,11 @@ repeat:
  * @dmap: destination page cache
  * @smap: source page cache
  *
+<<<<<<< HEAD
  * No pages must no be added to the cache during this process.
+=======
+ * No pages must be added to the cache during this process.
+>>>>>>> upstream/android-13
  * This must be ensured by the caller.
  */
 void nilfs_copy_back_pages(struct address_space *dmap,
@@ -298,7 +305,10 @@ void nilfs_copy_back_pages(struct address_space *dmap,
 	struct pagevec pvec;
 	unsigned int i, n;
 	pgoff_t index = 0;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	pagevec_init(&pvec);
 repeat:
@@ -313,11 +323,16 @@ repeat:
 		lock_page(page);
 		dpage = find_lock_page(dmap, offset);
 		if (dpage) {
+<<<<<<< HEAD
 			/* override existing page on the destination cache */
+=======
+			/* overwrite existing page in the destination cache */
+>>>>>>> upstream/android-13
 			WARN_ON(PageDirty(dpage));
 			nilfs_copy_page(dpage, page, 0);
 			unlock_page(dpage);
 			put_page(dpage);
+<<<<<<< HEAD
 		} else {
 			struct page *page2;
 
@@ -326,22 +341,45 @@ repeat:
 			page2 = radix_tree_delete(&smap->i_pages, offset);
 			WARN_ON(page2 != page);
 
+=======
+			/* Do we not need to remove page from smap here? */
+		} else {
+			struct page *p;
+
+			/* move the page to the destination cache */
+			xa_lock_irq(&smap->i_pages);
+			p = __xa_erase(&smap->i_pages, offset);
+			WARN_ON(page != p);
+>>>>>>> upstream/android-13
 			smap->nrpages--;
 			xa_unlock_irq(&smap->i_pages);
 
 			xa_lock_irq(&dmap->i_pages);
+<<<<<<< HEAD
 			err = radix_tree_insert(&dmap->i_pages, offset, page);
 			if (unlikely(err < 0)) {
 				WARN_ON(err == -EEXIST);
 				page->mapping = NULL;
 				put_page(page); /* for cache */
+=======
+			p = __xa_store(&dmap->i_pages, offset, page, GFP_NOFS);
+			if (unlikely(p)) {
+				/* Probably -ENOMEM */
+				page->mapping = NULL;
+				put_page(page);
+>>>>>>> upstream/android-13
 			} else {
 				page->mapping = dmap;
 				dmap->nrpages++;
 				if (PageDirty(page))
+<<<<<<< HEAD
 					radix_tree_tag_set(&dmap->i_pages,
 							   offset,
 							   PAGECACHE_TAG_DIRTY);
+=======
+					__xa_set_mark(&dmap->i_pages, offset,
+							PAGECACHE_TAG_DIRTY);
+>>>>>>> upstream/android-13
 			}
 			xa_unlock_irq(&dmap->i_pages);
 		}
@@ -393,9 +431,14 @@ void nilfs_clear_dirty_page(struct page *page, bool silent)
 	BUG_ON(!PageLocked(page));
 
 	if (!silent)
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_WARNING,
 			  "discard dirty page: offset=%lld, ino=%lu",
 			  page_offset(page), inode->i_ino);
+=======
+		nilfs_warn(sb, "discard dirty page: offset=%lld, ino=%lu",
+			   page_offset(page), inode->i_ino);
+>>>>>>> upstream/android-13
 
 	ClearPageUptodate(page);
 	ClearPageMappedToDisk(page);
@@ -411,9 +454,15 @@ void nilfs_clear_dirty_page(struct page *page, bool silent)
 		do {
 			lock_buffer(bh);
 			if (!silent)
+<<<<<<< HEAD
 				nilfs_msg(sb, KERN_WARNING,
 					  "discard dirty block: blocknr=%llu, size=%zu",
 					  (u64)bh->b_blocknr, bh->b_size);
+=======
+				nilfs_warn(sb,
+					   "discard dirty block: blocknr=%llu, size=%zu",
+					   (u64)bh->b_blocknr, bh->b_size);
+>>>>>>> upstream/android-13
 
 			set_mask_bits(&bh->b_state, clear_bits, 0);
 			unlock_buffer(bh);
@@ -467,8 +516,12 @@ int __nilfs_clear_page_dirty(struct page *page)
 	if (mapping) {
 		xa_lock_irq(&mapping->i_pages);
 		if (test_bit(PG_dirty, &page->flags)) {
+<<<<<<< HEAD
 			radix_tree_tag_clear(&mapping->i_pages,
 					     page_index(page),
+=======
+			__xa_clear_mark(&mapping->i_pages, page_index(page),
+>>>>>>> upstream/android-13
 					     PAGECACHE_TAG_DIRTY);
 			xa_unlock_irq(&mapping->i_pages);
 			return clear_page_dirty_for_io(page);

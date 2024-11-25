@@ -1,6 +1,10 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: test for the preemptirqsoff tracer
+<<<<<<< HEAD
+=======
+# requires: preemptoff:tracer irqsoff:tracer
+>>>>>>> upstream/android-13
 
 MOD=preemptirq_delay_test
 
@@ -17,11 +21,23 @@ unsup() { #msg
     exit_unsupported
 }
 
+<<<<<<< HEAD
 modprobe $MOD || unsup "$MOD module not available"
 rmmod $MOD
 
 grep -q "preemptoff" available_tracers || unsup "preemptoff tracer not enabled"
 grep -q "irqsoff" available_tracers || unsup "irqsoff tracer not enabled"
+=======
+unres() { #msg
+    reset_tracer
+    rmmod $MOD || true
+    echo $1
+    exit_unresolved
+}
+
+modprobe $MOD || unres "$MOD module not available"
+rmmod $MOD
+>>>>>>> upstream/android-13
 
 reset_tracer
 

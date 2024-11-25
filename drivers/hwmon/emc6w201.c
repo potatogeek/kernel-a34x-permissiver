@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * emc6w201.c - Hardware monitoring driver for the SMSC EMC6W201
  * Copyright (C) 2011  Jean Delvare <jdelvare@suse.de>
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * emc6w201.c - Hardware monitoring driver for the SMSC EMC6W201
+ * Copyright (C) 2011  Jean Delvare <jdelvare@suse.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -189,8 +196,13 @@ static struct emc6w201_data *emc6w201_update_device(struct device *dev)
 
 static const s16 nominal_mv[6] = { 2500, 1500, 3300, 5000, 1500, 1500 };
 
+<<<<<<< HEAD
 static ssize_t show_in(struct device *dev, struct device_attribute *devattr,
 	char *buf)
+=======
+static ssize_t in_show(struct device *dev, struct device_attribute *devattr,
+		       char *buf)
+>>>>>>> upstream/android-13
 {
 	struct emc6w201_data *data = emc6w201_update_device(dev);
 	int sf = to_sensor_dev_attr_2(devattr)->index;
@@ -200,8 +212,13 @@ static ssize_t show_in(struct device *dev, struct device_attribute *devattr,
 		       (unsigned)data->in[sf][nr] * nominal_mv[nr] / 0xC0);
 }
 
+<<<<<<< HEAD
 static ssize_t set_in(struct device *dev, struct device_attribute *devattr,
 		      const char *buf, size_t count)
+=======
+static ssize_t in_store(struct device *dev, struct device_attribute *devattr,
+			const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct emc6w201_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -228,8 +245,13 @@ static ssize_t set_in(struct device *dev, struct device_attribute *devattr,
 	return err < 0 ? err : count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
 	char *buf)
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct emc6w201_data *data = emc6w201_update_device(dev);
 	int sf = to_sensor_dev_attr_2(devattr)->index;
@@ -238,8 +260,14 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
 	return sprintf(buf, "%d\n", (int)data->temp[sf][nr] * 1000);
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
 			const char *buf, size_t count)
+=======
+static ssize_t temp_store(struct device *dev,
+			  struct device_attribute *devattr, const char *buf,
+			  size_t count)
+>>>>>>> upstream/android-13
 {
 	struct emc6w201_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -266,8 +294,13 @@ static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
 	return err < 0 ? err : count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan(struct device *dev, struct device_attribute *devattr,
 	char *buf)
+=======
+static ssize_t fan_show(struct device *dev, struct device_attribute *devattr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct emc6w201_data *data = emc6w201_update_device(dev);
 	int sf = to_sensor_dev_attr_2(devattr)->index;
@@ -282,8 +315,13 @@ static ssize_t show_fan(struct device *dev, struct device_attribute *devattr,
 	return sprintf(buf, "%u\n", rpm);
 }
 
+<<<<<<< HEAD
 static ssize_t set_fan(struct device *dev, struct device_attribute *devattr,
 		       const char *buf, size_t count)
+=======
+static ssize_t fan_store(struct device *dev, struct device_attribute *devattr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct emc6w201_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -312,6 +350,7 @@ static ssize_t set_fan(struct device *dev, struct device_attribute *devattr,
 	return err < 0 ? err : count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR_2(in0_input, S_IRUGO, show_in, NULL, 0, input);
 static SENSOR_DEVICE_ATTR_2(in0_min, S_IRUGO | S_IWUSR, show_in, set_in,
 			    0, min);
@@ -389,6 +428,56 @@ static SENSOR_DEVICE_ATTR_2(fan4_min, S_IRUGO | S_IWUSR, show_fan, set_fan,
 static SENSOR_DEVICE_ATTR_2(fan5_input, S_IRUGO, show_fan, NULL, 4, input);
 static SENSOR_DEVICE_ATTR_2(fan5_min, S_IRUGO | S_IWUSR, show_fan, set_fan,
 			    4, min);
+=======
+static SENSOR_DEVICE_ATTR_2_RO(in0_input, in, 0, input);
+static SENSOR_DEVICE_ATTR_2_RW(in0_min, in, 0, min);
+static SENSOR_DEVICE_ATTR_2_RW(in0_max, in, 0, max);
+static SENSOR_DEVICE_ATTR_2_RO(in1_input, in, 1, input);
+static SENSOR_DEVICE_ATTR_2_RW(in1_min, in, 1, min);
+static SENSOR_DEVICE_ATTR_2_RW(in1_max, in, 1, max);
+static SENSOR_DEVICE_ATTR_2_RO(in2_input, in, 2, input);
+static SENSOR_DEVICE_ATTR_2_RW(in2_min, in, 2, min);
+static SENSOR_DEVICE_ATTR_2_RW(in2_max, in, 2, max);
+static SENSOR_DEVICE_ATTR_2_RO(in3_input, in, 3, input);
+static SENSOR_DEVICE_ATTR_2_RW(in3_min, in, 3, min);
+static SENSOR_DEVICE_ATTR_2_RW(in3_max, in, 3, max);
+static SENSOR_DEVICE_ATTR_2_RO(in4_input, in, 4, input);
+static SENSOR_DEVICE_ATTR_2_RW(in4_min, in, 4, min);
+static SENSOR_DEVICE_ATTR_2_RW(in4_max, in, 4, max);
+static SENSOR_DEVICE_ATTR_2_RO(in5_input, in, 5, input);
+static SENSOR_DEVICE_ATTR_2_RW(in5_min, in, 5, min);
+static SENSOR_DEVICE_ATTR_2_RW(in5_max, in, 5, max);
+
+static SENSOR_DEVICE_ATTR_2_RO(temp1_input, temp, 0, input);
+static SENSOR_DEVICE_ATTR_2_RW(temp1_min, temp, 0, min);
+static SENSOR_DEVICE_ATTR_2_RW(temp1_max, temp, 0, max);
+static SENSOR_DEVICE_ATTR_2_RO(temp2_input, temp, 1, input);
+static SENSOR_DEVICE_ATTR_2_RW(temp2_min, temp, 1, min);
+static SENSOR_DEVICE_ATTR_2_RW(temp2_max, temp, 1, max);
+static SENSOR_DEVICE_ATTR_2_RO(temp3_input, temp, 2, input);
+static SENSOR_DEVICE_ATTR_2_RW(temp3_min, temp, 2, min);
+static SENSOR_DEVICE_ATTR_2_RW(temp3_max, temp, 2, max);
+static SENSOR_DEVICE_ATTR_2_RO(temp4_input, temp, 3, input);
+static SENSOR_DEVICE_ATTR_2_RW(temp4_min, temp, 3, min);
+static SENSOR_DEVICE_ATTR_2_RW(temp4_max, temp, 3, max);
+static SENSOR_DEVICE_ATTR_2_RO(temp5_input, temp, 4, input);
+static SENSOR_DEVICE_ATTR_2_RW(temp5_min, temp, 4, min);
+static SENSOR_DEVICE_ATTR_2_RW(temp5_max, temp, 4, max);
+static SENSOR_DEVICE_ATTR_2_RO(temp6_input, temp, 5, input);
+static SENSOR_DEVICE_ATTR_2_RW(temp6_min, temp, 5, min);
+static SENSOR_DEVICE_ATTR_2_RW(temp6_max, temp, 5, max);
+
+static SENSOR_DEVICE_ATTR_2_RO(fan1_input, fan, 0, input);
+static SENSOR_DEVICE_ATTR_2_RW(fan1_min, fan, 0, min);
+static SENSOR_DEVICE_ATTR_2_RO(fan2_input, fan, 1, input);
+static SENSOR_DEVICE_ATTR_2_RW(fan2_min, fan, 1, min);
+static SENSOR_DEVICE_ATTR_2_RO(fan3_input, fan, 2, input);
+static SENSOR_DEVICE_ATTR_2_RW(fan3_min, fan, 2, min);
+static SENSOR_DEVICE_ATTR_2_RO(fan4_input, fan, 3, input);
+static SENSOR_DEVICE_ATTR_2_RW(fan4_min, fan, 3, min);
+static SENSOR_DEVICE_ATTR_2_RO(fan5_input, fan, 4, input);
+static SENSOR_DEVICE_ATTR_2_RW(fan5_min, fan, 4, min);
+>>>>>>> upstream/android-13
 
 static struct attribute *emc6w201_attrs[] = {
 	&sensor_dev_attr_in0_input.dev_attr.attr,
@@ -485,8 +574,12 @@ static int emc6w201_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int emc6w201_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
+=======
+static int emc6w201_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct emc6w201_data *data;
@@ -516,7 +609,11 @@ static struct i2c_driver emc6w201_driver = {
 	.driver = {
 		.name	= "emc6w201",
 	},
+<<<<<<< HEAD
 	.probe		= emc6w201_probe,
+=======
+	.probe_new	= emc6w201_probe,
+>>>>>>> upstream/android-13
 	.id_table	= emc6w201_id,
 	.detect		= emc6w201_detect,
 	.address_list	= normal_i2c,

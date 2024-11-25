@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2000-2006, 2014-2018, Ericsson AB
  * Copyright (c) 2004-2005, 2010-2011, Wind River Systems
+<<<<<<< HEAD
+=======
+ * Copyright (c) 2020-2021, Red Hat Inc
+>>>>>>> upstream/android-13
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +45,10 @@ struct tipc_subscription;
 struct tipc_plist;
 struct tipc_nlist;
 struct tipc_group;
+<<<<<<< HEAD
+=======
+struct tipc_uaddr;
+>>>>>>> upstream/android-13
 
 /*
  * TIPC name types reserved for internal TIPC use (both current and planned)
@@ -49,6 +57,7 @@ struct tipc_group;
 #define TIPC_PUBL_SCOPE_NUM	(TIPC_NODE_SCOPE + 1)
 #define TIPC_NAMETBL_SIZE	1024	/* must be a power of 2 */
 
+<<<<<<< HEAD
 /**
  * struct publication - info about a published (name or) name sequence
  * @type: name sequence type
@@ -61,6 +70,20 @@ struct tipc_group;
  * @binding_node: all publications from the same node which bound this one
  * - Remote publications: in node->publ_list
  *   Used by node/name distr to withdraw publications when node is lost
+=======
+#define TIPC_ANY_SCOPE 10      /* Both node and cluster scope will match */
+
+/**
+ * struct publication - info about a published service address or range
+ * @sr: service range represented by this publication
+ * @sk: address of socket bound to this publication
+ * @scope: scope of publication, TIPC_NODE_SCOPE or TIPC_CLUSTER_SCOPE
+ * @key: publication key, unique across the cluster
+ * @id: publication id
+ * @binding_node: all publications from the same node which bound this one
+ * - Remote publications: in node->publ_list;
+ * Used by node/name distr to withdraw publications when node is lost
+>>>>>>> upstream/android-13
  * - Local/node scope publications: in name_table->node_scope list
  * - Local/cluster scope publications: in name_table->cluster_scope list
  * @binding_sock: all publications from the same socket which bound this one
@@ -69,6 +92,7 @@ struct tipc_group;
  *   Used by closest_first and multicast receive lookup algorithms
  * @all_publ: all publications identical to this one, whatever node and scope
  *   Used by round-robin lookup algorithm
+<<<<<<< HEAD
  * @rcu: RCU callback head used for deferred freeing
  */
 struct publication {
@@ -79,22 +103,48 @@ struct publication {
 	u32 node;
 	u32 port;
 	u32 key;
+=======
+ * @list: to form a list of publications in temporal order
+ * @rcu: RCU callback head used for deferred freeing
+ */
+struct publication {
+	struct tipc_service_range sr;
+	struct tipc_socket_addr sk;
+	u16 scope;
+	u32 key;
+	u32 id;
+>>>>>>> upstream/android-13
 	struct list_head binding_node;
 	struct list_head binding_sock;
 	struct list_head local_publ;
 	struct list_head all_publ;
+<<<<<<< HEAD
+=======
+	struct list_head list;
+>>>>>>> upstream/android-13
 	struct rcu_head rcu;
 };
 
 /**
  * struct name_table - table containing all existing port name publications
+<<<<<<< HEAD
  * @seq_hlist: name sequence hash lists
+=======
+ * @services: name sequence hash lists
+>>>>>>> upstream/android-13
  * @node_scope: all local publications with node scope
  *               - used by name_distr during re-init of name table
  * @cluster_scope: all local publications with cluster scope
  *               - used by name_distr to send bulk updates to new nodes
  *               - used by name_distr during re-init of name table
+<<<<<<< HEAD
  * @local_publ_count: number of publications issued by this node
+=======
+ * @cluster_scope_lock: lock for accessing @cluster_scope
+ * @local_publ_count: number of publications issued by this node
+ * @rc_dests: destination node counter
+ * @snd_nxt: next sequence number to be used
+>>>>>>> upstream/android-13
  */
 struct name_table {
 	struct hlist_head services[TIPC_NAMETBL_SIZE];
@@ -102,6 +152,7 @@ struct name_table {
 	struct list_head cluster_scope;
 	rwlock_t cluster_scope_lock;
 	u32 local_publ_count;
+<<<<<<< HEAD
 };
 
 int tipc_nl_name_table_dump(struct sk_buff *skb, struct netlink_callback *cb);
@@ -127,6 +178,36 @@ struct publication *tipc_nametbl_insert_publ(struct net *net, u32 type,
 struct publication *tipc_nametbl_remove_publ(struct net *net, u32 type,
 					     u32 lower, u32 upper,
 					     u32 node, u32 key);
+=======
+	u32 rc_dests;
+	u32 snd_nxt;
+};
+
+int tipc_nl_name_table_dump(struct sk_buff *skb, struct netlink_callback *cb);
+bool tipc_nametbl_lookup_anycast(struct net *net, struct tipc_uaddr *ua,
+				 struct tipc_socket_addr *sk);
+void tipc_nametbl_lookup_mcast_sockets(struct net *net, struct tipc_uaddr *ua,
+				       struct list_head *dports);
+void tipc_nametbl_lookup_mcast_nodes(struct net *net, struct tipc_uaddr *ua,
+				     struct tipc_nlist *nodes);
+bool tipc_nametbl_lookup_group(struct net *net, struct tipc_uaddr *ua,
+			       struct list_head *dsts, int *dstcnt,
+			       u32 exclude, bool mcast);
+void tipc_nametbl_build_group(struct net *net, struct tipc_group *grp,
+			      struct tipc_uaddr *ua);
+struct publication *tipc_nametbl_publish(struct net *net, struct tipc_uaddr *ua,
+					 struct tipc_socket_addr *sk, u32 key);
+void tipc_nametbl_withdraw(struct net *net, struct tipc_uaddr *ua,
+			   struct tipc_socket_addr *sk, u32 key);
+struct publication *tipc_nametbl_insert_publ(struct net *net,
+					     struct tipc_uaddr *ua,
+					     struct tipc_socket_addr *sk,
+					     u32 key);
+struct publication *tipc_nametbl_remove_publ(struct net *net,
+					     struct tipc_uaddr *ua,
+					     struct tipc_socket_addr *sk,
+					     u32 key);
+>>>>>>> upstream/android-13
 bool tipc_nametbl_subscribe(struct tipc_subscription *s);
 void tipc_nametbl_unsubscribe(struct tipc_subscription *s);
 int tipc_nametbl_init(struct net *net);

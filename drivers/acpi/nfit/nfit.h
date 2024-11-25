@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * NVDIMM Firmware Interface Table - NFIT
  *
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __NFIT_H__
 #define __NFIT_H__
@@ -24,8 +31,14 @@
 /* ACPI 6.1 */
 #define UUID_NFIT_BUS "2f10e7a4-9e91-11e4-89d3-123b93f75cba"
 
+<<<<<<< HEAD
 /* http://pmem.io/documents/NVDIMM_DSM_Interface-V1.6.pdf */
 #define UUID_NFIT_DIMM "4309ac30-0d11-11e4-9191-0800200c9a66"
+=======
+/* https://pmem.io/documents/NVDIMM_DSM_Interface-V1.6.pdf */
+#define UUID_NFIT_DIMM "4309ac30-0d11-11e4-9191-0800200c9a66"
+#define UUID_INTEL_BUS "c7d8acd4-2df8-4b82-9f65-a325335af149"
+>>>>>>> upstream/android-13
 
 /* https://github.com/HewlettPackard/hpe-nvm/blob/master/Documentation/ */
 #define UUID_NFIT_DIMM_N_HPE1 "9002c334-acf3-4c0e-9642-a235f0d53bc6"
@@ -41,7 +54,11 @@
 		| ACPI_NFIT_MEM_RESTORE_FAILED | ACPI_NFIT_MEM_FLUSH_FAILED \
 		| ACPI_NFIT_MEM_NOT_ARMED | ACPI_NFIT_MEM_MAP_FAILED)
 
+<<<<<<< HEAD
 #define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_HYPERV
+=======
+#define NVDIMM_CMD_MAX 31
+>>>>>>> upstream/android-13
 
 #define NVDIMM_STANDARD_CMDMASK \
 (1 << ND_CMD_SMART | 1 << ND_CMD_SMART_THRESHOLD | 1 << ND_CMD_DIMM_FLAGS \
@@ -63,14 +80,58 @@ enum nvdimm_family_cmds {
 	NVDIMM_INTEL_QUERY_FWUPDATE = 16,
 	NVDIMM_INTEL_SET_THRESHOLD = 17,
 	NVDIMM_INTEL_INJECT_ERROR = 18,
+<<<<<<< HEAD
 };
 
+=======
+	NVDIMM_INTEL_GET_SECURITY_STATE = 19,
+	NVDIMM_INTEL_SET_PASSPHRASE = 20,
+	NVDIMM_INTEL_DISABLE_PASSPHRASE = 21,
+	NVDIMM_INTEL_UNLOCK_UNIT = 22,
+	NVDIMM_INTEL_FREEZE_LOCK = 23,
+	NVDIMM_INTEL_SECURE_ERASE = 24,
+	NVDIMM_INTEL_OVERWRITE = 25,
+	NVDIMM_INTEL_QUERY_OVERWRITE = 26,
+	NVDIMM_INTEL_SET_MASTER_PASSPHRASE = 27,
+	NVDIMM_INTEL_MASTER_SECURE_ERASE = 28,
+	NVDIMM_INTEL_FW_ACTIVATE_DIMMINFO = 29,
+	NVDIMM_INTEL_FW_ACTIVATE_ARM = 30,
+};
+
+enum nvdimm_bus_family_cmds {
+	NVDIMM_BUS_INTEL_FW_ACTIVATE_BUSINFO = 1,
+	NVDIMM_BUS_INTEL_FW_ACTIVATE = 2,
+};
+
+#define NVDIMM_INTEL_SECURITY_CMDMASK \
+(1 << NVDIMM_INTEL_GET_SECURITY_STATE | 1 << NVDIMM_INTEL_SET_PASSPHRASE \
+| 1 << NVDIMM_INTEL_DISABLE_PASSPHRASE | 1 << NVDIMM_INTEL_UNLOCK_UNIT \
+| 1 << NVDIMM_INTEL_FREEZE_LOCK | 1 << NVDIMM_INTEL_SECURE_ERASE \
+| 1 << NVDIMM_INTEL_OVERWRITE | 1 << NVDIMM_INTEL_QUERY_OVERWRITE \
+| 1 << NVDIMM_INTEL_SET_MASTER_PASSPHRASE \
+| 1 << NVDIMM_INTEL_MASTER_SECURE_ERASE)
+
+#define NVDIMM_INTEL_FW_ACTIVATE_CMDMASK \
+(1 << NVDIMM_INTEL_FW_ACTIVATE_DIMMINFO | 1 << NVDIMM_INTEL_FW_ACTIVATE_ARM)
+
+#define NVDIMM_BUS_INTEL_FW_ACTIVATE_CMDMASK \
+(1 << NVDIMM_BUS_INTEL_FW_ACTIVATE_BUSINFO | 1 << NVDIMM_BUS_INTEL_FW_ACTIVATE)
+
+>>>>>>> upstream/android-13
 #define NVDIMM_INTEL_CMDMASK \
 (NVDIMM_STANDARD_CMDMASK | 1 << NVDIMM_INTEL_GET_MODES \
  | 1 << NVDIMM_INTEL_GET_FWINFO | 1 << NVDIMM_INTEL_START_FWUPDATE \
  | 1 << NVDIMM_INTEL_SEND_FWUPDATE | 1 << NVDIMM_INTEL_FINISH_FWUPDATE \
  | 1 << NVDIMM_INTEL_QUERY_FWUPDATE | 1 << NVDIMM_INTEL_SET_THRESHOLD \
+<<<<<<< HEAD
  | 1 << NVDIMM_INTEL_INJECT_ERROR | 1 << NVDIMM_INTEL_LATCH_SHUTDOWN)
+=======
+ | 1 << NVDIMM_INTEL_INJECT_ERROR | 1 << NVDIMM_INTEL_LATCH_SHUTDOWN \
+ | NVDIMM_INTEL_SECURITY_CMDMASK | NVDIMM_INTEL_FW_ACTIVATE_CMDMASK)
+
+#define NVDIMM_INTEL_DENY_CMDMASK \
+(NVDIMM_INTEL_SECURITY_CMDMASK | NVDIMM_INTEL_FW_ACTIVATE_CMDMASK)
+>>>>>>> upstream/android-13
 
 enum nfit_uuids {
 	/* for simplicity alias the uuid index with the family id */
@@ -79,6 +140,14 @@ enum nfit_uuids {
 	NFIT_DEV_DIMM_N_HPE2 = NVDIMM_FAMILY_HPE2,
 	NFIT_DEV_DIMM_N_MSFT = NVDIMM_FAMILY_MSFT,
 	NFIT_DEV_DIMM_N_HYPERV = NVDIMM_FAMILY_HYPERV,
+<<<<<<< HEAD
+=======
+	/*
+	 * to_nfit_bus_uuid() expects to translate bus uuid family ids
+	 * to a UUID index using NVDIMM_FAMILY_MAX as an offset
+	 */
+	NFIT_BUS_INTEL = NVDIMM_FAMILY_MAX + NVDIMM_BUS_FAMILY_INTEL,
+>>>>>>> upstream/android-13
 	NFIT_SPA_VOLATILE,
 	NFIT_SPA_PM,
 	NFIT_SPA_DCR,
@@ -133,34 +202,69 @@ struct nfit_spa {
 	unsigned long ars_state;
 	u32 clear_err_unit;
 	u32 max_ars;
+<<<<<<< HEAD
 	struct acpi_nfit_system_address spa[0];
+=======
+	struct acpi_nfit_system_address spa[];
+>>>>>>> upstream/android-13
 };
 
 struct nfit_dcr {
 	struct list_head list;
+<<<<<<< HEAD
 	struct acpi_nfit_control_region dcr[0];
+=======
+	struct acpi_nfit_control_region dcr[];
+>>>>>>> upstream/android-13
 };
 
 struct nfit_bdw {
 	struct list_head list;
+<<<<<<< HEAD
 	struct acpi_nfit_data_region bdw[0];
+=======
+	struct acpi_nfit_data_region bdw[];
+>>>>>>> upstream/android-13
 };
 
 struct nfit_idt {
 	struct list_head list;
+<<<<<<< HEAD
 	struct acpi_nfit_interleave idt[0];
+=======
+	struct acpi_nfit_interleave idt[];
+>>>>>>> upstream/android-13
 };
 
 struct nfit_flush {
 	struct list_head list;
+<<<<<<< HEAD
 	struct acpi_nfit_flush_address flush[0];
+=======
+	struct acpi_nfit_flush_address flush[];
+>>>>>>> upstream/android-13
 };
 
 struct nfit_memdev {
 	struct list_head list;
+<<<<<<< HEAD
 	struct acpi_nfit_memory_map memdev[0];
 };
 
+=======
+	struct acpi_nfit_memory_map memdev[];
+};
+
+enum nfit_mem_flags {
+	NFIT_MEM_LSR,
+	NFIT_MEM_LSW,
+	NFIT_MEM_DIRTY,
+	NFIT_MEM_DIRTY_COUNT,
+};
+
+#define NFIT_DIMM_ID_LEN	22
+
+>>>>>>> upstream/android-13
 /* assembled tables for a given dimm/memory-device */
 struct nfit_mem {
 	struct nvdimm *nvdimm;
@@ -178,11 +282,23 @@ struct nfit_mem {
 	struct list_head list;
 	struct acpi_device *adev;
 	struct acpi_nfit_desc *acpi_desc;
+<<<<<<< HEAD
 	struct resource *flush_wpq;
 	unsigned long dsm_mask;
 	int family;
 	bool has_lsr;
 	bool has_lsw;
+=======
+	enum nvdimm_fwa_state fwa_state;
+	enum nvdimm_fwa_result fwa_result;
+	int fwa_count;
+	char id[NFIT_DIMM_ID_LEN+1];
+	struct resource *flush_wpq;
+	unsigned long dsm_mask;
+	unsigned long flags;
+	u32 dirty_shutdown;
+	int family;
+>>>>>>> upstream/android-13
 };
 
 enum scrub_flags {
@@ -216,11 +332,24 @@ struct acpi_nfit_desc {
 	unsigned long scrub_flags;
 	unsigned long dimm_cmd_force_en;
 	unsigned long bus_cmd_force_en;
+<<<<<<< HEAD
 	unsigned long bus_nfit_cmd_force_en;
+=======
+	unsigned long bus_dsm_mask;
+	unsigned long family_dsm_mask[NVDIMM_BUS_FAMILY_MAX + 1];
+>>>>>>> upstream/android-13
 	unsigned int platform_cap;
 	unsigned int scrub_tmo;
 	int (*blk_do_io)(struct nd_blk_region *ndbr, resource_size_t dpa,
 			void *iobuf, u64 len, int rw);
+<<<<<<< HEAD
+=======
+	enum nvdimm_fwa_state fwa_state;
+	enum nvdimm_fwa_capability fwa_cap;
+	int fwa_count;
+	bool fwa_noidle;
+	bool fwa_nosuspend;
+>>>>>>> upstream/android-13
 };
 
 enum scrub_mode {
@@ -291,6 +420,33 @@ static inline struct acpi_nfit_desc *to_acpi_desc(
 	return container_of(nd_desc, struct acpi_nfit_desc, nd_desc);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PROVE_LOCKING
+static inline void nfit_device_lock(struct device *dev)
+{
+	device_lock(dev);
+	mutex_lock(&dev->lockdep_mutex);
+}
+
+static inline void nfit_device_unlock(struct device *dev)
+{
+	mutex_unlock(&dev->lockdep_mutex);
+	device_unlock(dev);
+}
+#else
+static inline void nfit_device_lock(struct device *dev)
+{
+	device_lock(dev);
+}
+
+static inline void nfit_device_unlock(struct device *dev)
+{
+	device_unlock(dev);
+}
+#endif
+
+>>>>>>> upstream/android-13
 const guid_t *to_nfit_uuid(enum nfit_uuids id);
 int acpi_nfit_init(struct acpi_nfit_desc *acpi_desc, void *nfit, acpi_size sz);
 void acpi_nfit_shutdown(void *data);
@@ -299,4 +455,9 @@ void __acpi_nvdimm_notify(struct device *dev, u32 event);
 int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
 		unsigned int cmd, void *buf, unsigned int buf_len, int *cmd_rc);
 void acpi_nfit_desc_init(struct acpi_nfit_desc *acpi_desc, struct device *dev);
+<<<<<<< HEAD
+=======
+bool intel_fwa_supported(struct nvdimm_bus *nvdimm_bus);
+extern struct device_attribute dev_attr_firmware_activate_noidle;
+>>>>>>> upstream/android-13
 #endif /* __NFIT_H__ */

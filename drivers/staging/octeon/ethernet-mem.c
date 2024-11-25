@@ -9,6 +9,7 @@
 #include <linux/netdevice.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include <asm/octeon/octeon.h>
 
 #include "ethernet-mem.h"
@@ -16,6 +17,12 @@
 
 #include <asm/octeon/cvmx-fpa.h>
 
+=======
+#include "octeon-ethernet.h"
+#include "ethernet-mem.h"
+#include "ethernet-defines.h"
+
+>>>>>>> upstream/android-13
 /**
  * cvm_oct_fill_hw_skbuff - fill the supplied hardware pool with skbuffs
  * @pool:     Pool to allocate an skbuff for

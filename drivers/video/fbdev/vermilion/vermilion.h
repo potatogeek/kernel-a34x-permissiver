@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) Intel Corp. 2007.
  * All Rights Reserved.
@@ -6,6 +10,7 @@
  * develop this driver.
  *
  * This file is part of the Vermilion Range fb driver.
+<<<<<<< HEAD
  * The Vermilion Range fb driver is free software;
  * you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  *
  * Authors:
  *   Thomas Hellström <thomas-at-tungstengraphics-dot-com>

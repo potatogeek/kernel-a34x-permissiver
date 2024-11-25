@@ -18,7 +18,11 @@ static unsigned int nft_do_chain_ipv4(void *priv,
 	struct nft_pktinfo pkt;
 
 	nft_set_pktinfo(&pkt, skb, state);
+<<<<<<< HEAD
 	nft_set_pktinfo_ipv4(&pkt, skb);
+=======
+	nft_set_pktinfo_ipv4(&pkt);
+>>>>>>> upstream/android-13
 
 	return nft_do_chain(&pkt, priv);
 }
@@ -62,7 +66,11 @@ static unsigned int nft_do_chain_arp(void *priv, struct sk_buff *skb,
 	struct nft_pktinfo pkt;
 
 	nft_set_pktinfo(&pkt, skb, state);
+<<<<<<< HEAD
 	nft_set_pktinfo_unspec(&pkt, skb);
+=======
+	nft_set_pktinfo_unspec(&pkt);
+>>>>>>> upstream/android-13
 
 	return nft_do_chain(&pkt, priv);
 }
@@ -102,7 +110,11 @@ static unsigned int nft_do_chain_ipv6(void *priv,
 	struct nft_pktinfo pkt;
 
 	nft_set_pktinfo(&pkt, skb, state);
+<<<<<<< HEAD
 	nft_set_pktinfo_ipv6(&pkt, skb);
+=======
+	nft_set_pktinfo_ipv6(&pkt);
+>>>>>>> upstream/android-13
 
 	return nft_do_chain(&pkt, priv);
 }
@@ -149,10 +161,17 @@ static unsigned int nft_do_chain_inet(void *priv, struct sk_buff *skb,
 
 	switch (state->pf) {
 	case NFPROTO_IPV4:
+<<<<<<< HEAD
 		nft_set_pktinfo_ipv4(&pkt, skb);
 		break;
 	case NFPROTO_IPV6:
 		nft_set_pktinfo_ipv6(&pkt, skb);
+=======
+		nft_set_pktinfo_ipv4(&pkt);
+		break;
+	case NFPROTO_IPV6:
+		nft_set_pktinfo_ipv6(&pkt);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -161,16 +180,59 @@ static unsigned int nft_do_chain_inet(void *priv, struct sk_buff *skb,
 	return nft_do_chain(&pkt, priv);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int nft_do_chain_inet_ingress(void *priv, struct sk_buff *skb,
+					      const struct nf_hook_state *state)
+{
+	struct nf_hook_state ingress_state = *state;
+	struct nft_pktinfo pkt;
+
+	switch (skb->protocol) {
+	case htons(ETH_P_IP):
+		/* Original hook is NFPROTO_NETDEV and NF_NETDEV_INGRESS. */
+		ingress_state.pf = NFPROTO_IPV4;
+		ingress_state.hook = NF_INET_INGRESS;
+		nft_set_pktinfo(&pkt, skb, &ingress_state);
+
+		if (nft_set_pktinfo_ipv4_ingress(&pkt) < 0)
+			return NF_DROP;
+		break;
+	case htons(ETH_P_IPV6):
+		ingress_state.pf = NFPROTO_IPV6;
+		ingress_state.hook = NF_INET_INGRESS;
+		nft_set_pktinfo(&pkt, skb, &ingress_state);
+
+		if (nft_set_pktinfo_ipv6_ingress(&pkt) < 0)
+			return NF_DROP;
+		break;
+	default:
+		return NF_ACCEPT;
+	}
+
+	return nft_do_chain(&pkt, priv);
+}
+
+>>>>>>> upstream/android-13
 static const struct nft_chain_type nft_chain_filter_inet = {
 	.name		= "filter",
 	.type		= NFT_CHAIN_T_DEFAULT,
 	.family		= NFPROTO_INET,
+<<<<<<< HEAD
 	.hook_mask	= (1 << NF_INET_LOCAL_IN) |
+=======
+	.hook_mask	= (1 << NF_INET_INGRESS) |
+			  (1 << NF_INET_LOCAL_IN) |
+>>>>>>> upstream/android-13
 			  (1 << NF_INET_LOCAL_OUT) |
 			  (1 << NF_INET_FORWARD) |
 			  (1 << NF_INET_PRE_ROUTING) |
 			  (1 << NF_INET_POST_ROUTING),
 	.hooks		= {
+<<<<<<< HEAD
+=======
+		[NF_INET_INGRESS]	= nft_do_chain_inet_ingress,
+>>>>>>> upstream/android-13
 		[NF_INET_LOCAL_IN]	= nft_do_chain_inet,
 		[NF_INET_LOCAL_OUT]	= nft_do_chain_inet,
 		[NF_INET_FORWARD]	= nft_do_chain_inet,
@@ -193,7 +255,11 @@ static inline void nft_chain_filter_inet_init(void) {}
 static inline void nft_chain_filter_inet_fini(void) {}
 #endif /* CONFIG_NF_TABLES_IPV6 */
 
+<<<<<<< HEAD
 #ifdef CONFIG_NF_TABLES_BRIDGE
+=======
+#if IS_ENABLED(CONFIG_NF_TABLES_BRIDGE)
+>>>>>>> upstream/android-13
 static unsigned int
 nft_do_chain_bridge(void *priv,
 		    struct sk_buff *skb,
@@ -205,6 +271,7 @@ nft_do_chain_bridge(void *priv,
 
 	switch (eth_hdr(skb)->h_proto) {
 	case htons(ETH_P_IP):
+<<<<<<< HEAD
 		nft_set_pktinfo_ipv4_validate(&pkt, skb);
 		break;
 	case htons(ETH_P_IPV6):
@@ -212,6 +279,15 @@ nft_do_chain_bridge(void *priv,
 		break;
 	default:
 		nft_set_pktinfo_unspec(&pkt, skb);
+=======
+		nft_set_pktinfo_ipv4_validate(&pkt);
+		break;
+	case htons(ETH_P_IPV6):
+		nft_set_pktinfo_ipv6_validate(&pkt);
+		break;
+	default:
+		nft_set_pktinfo_unspec(&pkt);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -260,6 +336,7 @@ static unsigned int nft_do_chain_netdev(void *priv, struct sk_buff *skb,
 
 	switch (skb->protocol) {
 	case htons(ETH_P_IP):
+<<<<<<< HEAD
 		nft_set_pktinfo_ipv4_validate(&pkt, skb);
 		break;
 	case htons(ETH_P_IPV6):
@@ -267,6 +344,15 @@ static unsigned int nft_do_chain_netdev(void *priv, struct sk_buff *skb,
 		break;
 	default:
 		nft_set_pktinfo_unspec(&pkt, skb);
+=======
+		nft_set_pktinfo_ipv4_validate(&pkt);
+		break;
+	case htons(ETH_P_IPV6):
+		nft_set_pktinfo_ipv6_validate(&pkt);
+		break;
+	default:
+		nft_set_pktinfo_unspec(&pkt);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -287,6 +373,7 @@ static void nft_netdev_event(unsigned long event, struct net_device *dev,
 			     struct nft_ctx *ctx)
 {
 	struct nft_base_chain *basechain = nft_base_chain(ctx->chain);
+<<<<<<< HEAD
 
 	switch (event) {
 	case NETDEV_UNREGISTER:
@@ -309,12 +396,41 @@ static void nft_netdev_event(unsigned long event, struct net_device *dev,
 		strncpy(basechain->dev_name, dev->name, IFNAMSIZ);
 		break;
 	}
+=======
+	struct nft_hook *hook, *found = NULL;
+	int n = 0;
+
+	if (event != NETDEV_UNREGISTER)
+		return;
+
+	list_for_each_entry(hook, &basechain->hook_list, list) {
+		if (hook->ops.dev == dev)
+			found = hook;
+
+		n++;
+	}
+	if (!found)
+		return;
+
+	if (n > 1) {
+		nf_unregister_net_hook(ctx->net, &found->ops);
+		list_del_rcu(&found->list);
+		kfree_rcu(found, rcu);
+		return;
+	}
+
+	__nft_release_basechain(ctx);
+>>>>>>> upstream/android-13
 }
 
 static int nf_tables_netdev_event(struct notifier_block *this,
 				  unsigned long event, void *ptr)
 {
 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
+<<<<<<< HEAD
+=======
+	struct nftables_pernet *nft_net;
+>>>>>>> upstream/android-13
 	struct nft_table *table;
 	struct nft_chain *chain, *nr;
 	struct nft_ctx ctx = {
@@ -325,8 +441,17 @@ static int nf_tables_netdev_event(struct notifier_block *this,
 	    event != NETDEV_CHANGENAME)
 		return NOTIFY_DONE;
 
+<<<<<<< HEAD
 	mutex_lock(&ctx.net->nft.commit_mutex);
 	list_for_each_entry(table, &ctx.net->nft.tables, list) {
+=======
+	if (!check_net(ctx.net))
+		return NOTIFY_DONE;
+
+	nft_net = nft_pernet(ctx.net);
+	mutex_lock(&nft_net->commit_mutex);
+	list_for_each_entry(table, &nft_net->tables, list) {
+>>>>>>> upstream/android-13
 		if (table->family != NFPROTO_NETDEV)
 			continue;
 
@@ -340,7 +465,11 @@ static int nf_tables_netdev_event(struct notifier_block *this,
 			nft_netdev_event(event, dev, &ctx);
 		}
 	}
+<<<<<<< HEAD
 	mutex_unlock(&ctx.net->nft.commit_mutex);
+=======
+	mutex_unlock(&nft_net->commit_mutex);
+>>>>>>> upstream/android-13
 
 	return NOTIFY_DONE;
 }

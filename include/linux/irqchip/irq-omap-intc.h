@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * irq-omap-intc.h - INTC Idle Functions
  *
@@ -13,6 +14,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/**
+ * irq-omap-intc.h - INTC Idle Functions
+ *
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com
+ *
+ * Author: Felipe Balbi <balbi@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __INCLUDE_LINUX_IRQCHIP_IRQ_OMAP_INTC_H

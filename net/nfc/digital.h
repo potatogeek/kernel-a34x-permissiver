@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NFC Digital Protocol stack
  * Copyright (c) 2013, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * NFC Digital Protocol stack
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DIGITAL_H

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NAND Flash Controller Device Driver
  * Copyright © 2009-2010, Intel Corporation and its suppliers.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * NAND Flash Controller Device Driver
+ * Copyright © 2009-2010, Intel Corporation and its suppliers.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -37,10 +44,18 @@ NAND_ECC_CAPS_SINGLE(denali_pci_ecc_caps, denali_calc_ecc_bytes, 512, 8, 15);
 
 static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 {
+<<<<<<< HEAD
 	int ret;
 	resource_size_t csr_base, mem_base;
 	unsigned long csr_len, mem_len;
 	struct denali_nand_info *denali;
+=======
+	resource_size_t csr_base, mem_base;
+	unsigned long csr_len, mem_len;
+	struct denali_controller *denali;
+	struct denali_chip *dchip;
+	int nsels, ret, i;
+>>>>>>> upstream/android-13
 
 	denali = devm_kzalloc(&dev->dev, sizeof(*denali), GFP_KERNEL);
 	if (!denali)
@@ -72,7 +87,10 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	denali->dev = &dev->dev;
 	denali->irq = dev->irq;
 	denali->ecc_caps = &denali_pci_ecc_caps;
+<<<<<<< HEAD
 	denali->nand.ecc.options |= NAND_ECC_MAXIMIZE;
+=======
+>>>>>>> upstream/android-13
 	denali->clk_rate = 50000000;		/* 50 MHz */
 	denali->clk_x_rate = 200000000;		/* 200 MHz */
 
@@ -82,37 +100,85 @@ static int denali_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	denali->reg = ioremap_nocache(csr_base, csr_len);
+=======
+	denali->reg = ioremap(csr_base, csr_len);
+>>>>>>> upstream/android-13
 	if (!denali->reg) {
 		dev_err(&dev->dev, "Spectra: Unable to remap memory region\n");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	denali->host = ioremap_nocache(mem_base, mem_len);
 	if (!denali->host) {
 		dev_err(&dev->dev, "Spectra: ioremap_nocache failed!");
 		ret = -ENOMEM;
 		goto failed_remap_reg;
+=======
+	denali->host = ioremap(mem_base, mem_len);
+	if (!denali->host) {
+		dev_err(&dev->dev, "Spectra: ioremap failed!");
+		ret = -ENOMEM;
+		goto out_unmap_reg;
+>>>>>>> upstream/android-13
 	}
 
 	ret = denali_init(denali);
 	if (ret)
+<<<<<<< HEAD
 		goto failed_remap_mem;
+=======
+		goto out_unmap_host;
+
+	nsels = denali->nbanks;
+
+	dchip = devm_kzalloc(denali->dev, struct_size(dchip, sels, nsels),
+			     GFP_KERNEL);
+	if (!dchip) {
+		ret = -ENOMEM;
+		goto out_remove_denali;
+	}
+
+	dchip->chip.base.ecc.user_conf.flags |= NAND_ECC_MAXIMIZE_STRENGTH;
+
+	dchip->nsels = nsels;
+
+	for (i = 0; i < nsels; i++)
+		dchip->sels[i].bank = i;
+
+	ret = denali_chip_init(denali, dchip);
+	if (ret)
+		goto out_remove_denali;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(dev, denali);
 
 	return 0;
 
+<<<<<<< HEAD
 failed_remap_mem:
 	iounmap(denali->host);
 failed_remap_reg:
+=======
+out_remove_denali:
+	denali_remove(denali);
+out_unmap_host:
+	iounmap(denali->host);
+out_unmap_reg:
+>>>>>>> upstream/android-13
 	iounmap(denali->reg);
 	return ret;
 }
 
 static void denali_pci_remove(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	struct denali_nand_info *denali = pci_get_drvdata(dev);
+=======
+	struct denali_controller *denali = pci_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	denali_remove(denali);
 	iounmap(denali->reg);

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/clk/at91/clk-slow.c
  *
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -40,7 +47,11 @@ static const struct clk_ops sam9260_slow_ops = {
 	.get_parent = clk_sam9260_slow_get_parent,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_sam9260_slow(struct regmap *regmap,
 			       const char *name,
 			       const char **parent_names,
@@ -48,7 +59,11 @@ at91_clk_register_sam9260_slow(struct regmap *regmap,
 {
 	struct clk_sam9260_slow *slowck;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!name)
@@ -79,6 +94,7 @@ at91_clk_register_sam9260_slow(struct regmap *regmap,
 
 	return hw;
 }
+<<<<<<< HEAD
 
 static void __init of_at91sam9260_clk_slow_setup(struct device_node *np)
 {
@@ -109,3 +125,5 @@ static void __init of_at91sam9260_clk_slow_setup(struct device_node *np)
 
 CLK_OF_DECLARE(at91sam9260_clk_slow, "atmel,at91sam9260-clk-slow",
 	       of_at91sam9260_clk_slow_setup);
+=======
+>>>>>>> upstream/android-13

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  w83795.c - Linux kernel driver for hardware monitoring
  *  Copyright (C) 2008 Nuvoton Technology Corp.
  *                Wei Song
  *  Copyright (C) 2010 Jean Delvare <jdelvare@suse.de>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation - version 2.
@@ -18,6 +23,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  *  02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Supports following chips:
  *
  *  Chip       #vin   #fanin #pwm #temp #dts wchipid  vendid  i2c  ISA
@@ -2140,15 +2147,25 @@ static void w83795_apply_temp_config(struct w83795_data *data, u8 config,
 		if (temp_chan >= 4)
 			break;
 		data->temp_mode |= 1 << temp_chan;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0x3: /* Thermistor */
 		data->has_temp |= 1 << temp_chan;
 		break;
 	}
 }
 
+<<<<<<< HEAD
 static int w83795_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id w83795_id[];
+
+static int w83795_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	int i;
 	u8 tmp;
@@ -2161,7 +2178,11 @@ static int w83795_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	i2c_set_clientdata(client, data);
+<<<<<<< HEAD
 	data->chip_type = id->driver_data;
+=======
+	data->chip_type = i2c_match_id(w83795_id, client)->driver_data;
+>>>>>>> upstream/android-13
 	data->bank = i2c_smbus_read_byte_data(client, W83795_REG_BANKSEL);
 	mutex_init(&data->update_lock);
 
@@ -2269,7 +2290,11 @@ static struct i2c_driver w83795_driver = {
 	.driver = {
 		   .name = "w83795",
 	},
+<<<<<<< HEAD
 	.probe		= w83795_probe,
+=======
+	.probe_new	= w83795_probe,
+>>>>>>> upstream/android-13
 	.remove		= w83795_remove,
 	.id_table	= w83795_id,
 

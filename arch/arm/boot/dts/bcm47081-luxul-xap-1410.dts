@@ -15,7 +15,12 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x08000000>;
 	};
 
@@ -43,8 +48,11 @@
 
 	gpio-keys {
 		compatible = "gpio-keys";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 
 		restart {
 			label = "Reset";
@@ -58,6 +66,24 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &usb3_phy {
 	status = "okay";
+=======
+&srab {
+	status = "okay";
+
+	ports {
+		port@4 {
+			reg = <4>;
+			label = "poe";
+		};
+
+		port@5 {
+			reg = <5>;
+			label = "cpu";
+			ethernet = <&gmac0>;
+		};
+	};
+>>>>>>> upstream/android-13
 };

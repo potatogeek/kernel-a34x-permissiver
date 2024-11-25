@@ -1,12 +1,24 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef _LINUX_RANGE_H
 #define _LINUX_RANGE_H
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 struct range {
 	u64   start;
 	u64   end;
 };
 
+<<<<<<< HEAD
+=======
+static inline u64 range_len(const struct range *range)
+{
+	return range->end - range->start + 1;
+}
+
+>>>>>>> upstream/android-13
 int add_range(struct range *range, int az, int nr_range,
 		u64 start, u64 end);
 

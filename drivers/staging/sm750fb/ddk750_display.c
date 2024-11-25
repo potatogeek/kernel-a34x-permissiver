@@ -5,7 +5,11 @@
 #include "ddk750_power.h"
 #include "ddk750_dvi.h"
 
+<<<<<<< HEAD
 static void setDisplayControl(int ctrl, int disp_state)
+=======
+static void set_display_control(int ctrl, int disp_state)
+>>>>>>> upstream/android-13
 {
 	/* state != 0 means turn on both timing & plane en_bit */
 	unsigned long reg, val, reserved;
@@ -85,7 +89,11 @@ static void primary_wait_vertical_sync(int delay)
 	}
 }
 
+<<<<<<< HEAD
 static void swPanelPowerSequence(int disp, int delay)
+=======
+static void sw_panel_power_sequence(int disp, int delay)
+>>>>>>> upstream/android-13
 {
 	unsigned int reg;
 
@@ -111,7 +119,11 @@ static void swPanelPowerSequence(int disp, int delay)
 	primary_wait_vertical_sync(delay);
 }
 
+<<<<<<< HEAD
 void ddk750_setLogicalDispOut(enum disp_output output)
+=======
+void ddk750_set_logical_disp_out(enum disp_output output)
+>>>>>>> upstream/android-13
 {
 	unsigned int reg;
 
@@ -137,22 +149,39 @@ void ddk750_setLogicalDispOut(enum disp_output output)
 
 	if (output & PRI_TP_USAGE) {
 		/* set primary timing and plane en_bit */
+<<<<<<< HEAD
 		setDisplayControl(0, (output & PRI_TP_MASK) >> PRI_TP_OFFSET);
+=======
+		set_display_control(0, (output & PRI_TP_MASK) >> PRI_TP_OFFSET);
+>>>>>>> upstream/android-13
 	}
 
 	if (output & SEC_TP_USAGE) {
 		/* set secondary timing and plane en_bit*/
+<<<<<<< HEAD
 		setDisplayControl(1, (output & SEC_TP_MASK) >> SEC_TP_OFFSET);
+=======
+		set_display_control(1, (output & SEC_TP_MASK) >> SEC_TP_OFFSET);
+>>>>>>> upstream/android-13
 	}
 
 	if (output & PNL_SEQ_USAGE) {
 		/* set  panel sequence */
+<<<<<<< HEAD
 		swPanelPowerSequence((output & PNL_SEQ_MASK) >> PNL_SEQ_OFFSET,
 				     4);
 	}
 
 	if (output & DAC_USAGE)
 		setDAC((output & DAC_MASK) >> DAC_OFFSET);
+=======
+		sw_panel_power_sequence((output & PNL_SEQ_MASK) >>
+					PNL_SEQ_OFFSET, 4);
+	}
+
+	if (output & DAC_USAGE)
+		set_DAC((output & DAC_MASK) >> DAC_OFFSET);
+>>>>>>> upstream/android-13
 
 	if (output & DPMS_USAGE)
 		ddk750_set_dpms((output & DPMS_MASK) >> DPMS_OFFSET);

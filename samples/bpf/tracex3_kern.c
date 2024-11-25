@@ -8,6 +8,7 @@
 #include <linux/netdevice.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 struct bpf_map_def SEC("maps") my_map = {
@@ -16,11 +17,26 @@ struct bpf_map_def SEC("maps") my_map = {
 	.value_size = sizeof(u64),
 	.max_entries = 4096,
 };
+=======
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, long);
+	__type(value, u64);
+	__uint(max_entries, 4096);
+} my_map SEC(".maps");
+>>>>>>> upstream/android-13
 
 /* kprobe is NOT a stable ABI. If kernel internals change this bpf+kprobe
  * example will no longer be meaningful
  */
+<<<<<<< HEAD
 SEC("kprobe/blk_start_request")
+=======
+SEC("kprobe/blk_mq_start_request")
+>>>>>>> upstream/android-13
 int bpf_prog1(struct pt_regs *ctx)
 {
 	long rq = PT_REGS_PARM1(ctx);
@@ -41,6 +57,7 @@ static unsigned int log2l(unsigned long long n)
 
 #define SLOTS 100
 
+<<<<<<< HEAD
 struct bpf_map_def SEC("maps") lat_map = {
 	.type = BPF_MAP_TYPE_PERCPU_ARRAY,
 	.key_size = sizeof(u32),
@@ -49,6 +66,16 @@ struct bpf_map_def SEC("maps") lat_map = {
 };
 
 SEC("kprobe/blk_account_io_completion")
+=======
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__uint(key_size, sizeof(u32));
+	__uint(value_size, sizeof(u64));
+	__uint(max_entries, SLOTS);
+} lat_map SEC(".maps");
+
+SEC("kprobe/blk_account_io_done")
+>>>>>>> upstream/android-13
 int bpf_prog2(struct pt_regs *ctx)
 {
 	long rq = PT_REGS_PARM1(ctx);

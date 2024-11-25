@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * blockcheck.c
  *
  * Checksum and ECC codes for the OCFS2 userspace library.
  *
  * Copyright (C) 2006, 2008 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -15,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -132,7 +140,11 @@ u32 ocfs2_hamming_encode(u32 parity, void *data, unsigned int d, unsigned int nr
 		 * parity bits that are part of the bit number
 		 * representation.  Huh?
 		 *
+<<<<<<< HEAD
 		 * <wikipedia href="http://en.wikipedia.org/wiki/Hamming_code">
+=======
+		 * <wikipedia href="https://en.wikipedia.org/wiki/Hamming_code">
+>>>>>>> upstream/android-13
 		 * In other words, the parity bit at position 2^k
 		 * checks bits in positions having bit k set in
 		 * their binary representation.  Conversely, for
@@ -237,6 +249,7 @@ static int blockcheck_u64_get(void *data, u64 *val)
 	*val = *(u64 *)data;
 	return 0;
 }
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(blockcheck_fops, blockcheck_u64_get, NULL, "%llu\n");
 
 static struct dentry *blockcheck_debugfs_create(const char *name,
@@ -246,10 +259,14 @@ static struct dentry *blockcheck_debugfs_create(const char *name,
 	return debugfs_create_file(name, S_IFREG | S_IRUSR, parent, value,
 				   &blockcheck_fops);
 }
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(blockcheck_fops, blockcheck_u64_get, NULL, "%llu\n");
+>>>>>>> upstream/android-13
 
 static void ocfs2_blockcheck_debug_remove(struct ocfs2_blockcheck_stats *stats)
 {
 	if (stats) {
+<<<<<<< HEAD
 		debugfs_remove(stats->b_debug_check);
 		stats->b_debug_check = NULL;
 		debugfs_remove(stats->b_debug_failure);
@@ -257,10 +274,14 @@ static void ocfs2_blockcheck_debug_remove(struct ocfs2_blockcheck_stats *stats)
 		debugfs_remove(stats->b_debug_recover);
 		stats->b_debug_recover = NULL;
 		debugfs_remove(stats->b_debug_dir);
+=======
+		debugfs_remove_recursive(stats->b_debug_dir);
+>>>>>>> upstream/android-13
 		stats->b_debug_dir = NULL;
 	}
 }
 
+<<<<<<< HEAD
 static int ocfs2_blockcheck_debug_install(struct ocfs2_blockcheck_stats *stats,
 					  struct dentry *parent)
 {
@@ -301,6 +322,30 @@ static inline int ocfs2_blockcheck_debug_install(struct ocfs2_blockcheck_stats *
 						 struct dentry *parent)
 {
 	return 0;
+=======
+static void ocfs2_blockcheck_debug_install(struct ocfs2_blockcheck_stats *stats,
+					   struct dentry *parent)
+{
+	struct dentry *dir;
+
+	dir = debugfs_create_dir("blockcheck", parent);
+	stats->b_debug_dir = dir;
+
+	debugfs_create_file("blocks_checked", S_IFREG | S_IRUSR, dir,
+			    &stats->b_check_count, &blockcheck_fops);
+
+	debugfs_create_file("checksums_failed", S_IFREG | S_IRUSR, dir,
+			    &stats->b_failure_count, &blockcheck_fops);
+
+	debugfs_create_file("ecc_recoveries", S_IFREG | S_IRUSR, dir,
+			    &stats->b_recover_count, &blockcheck_fops);
+
+}
+#else
+static inline void ocfs2_blockcheck_debug_install(struct ocfs2_blockcheck_stats *stats,
+						  struct dentry *parent)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void ocfs2_blockcheck_debug_remove(struct ocfs2_blockcheck_stats *stats)
@@ -309,10 +354,17 @@ static inline void ocfs2_blockcheck_debug_remove(struct ocfs2_blockcheck_stats *
 #endif  /* CONFIG_DEBUG_FS */
 
 /* Always-called wrappers for starting and stopping the debugfs files */
+<<<<<<< HEAD
 int ocfs2_blockcheck_stats_debugfs_install(struct ocfs2_blockcheck_stats *stats,
 					   struct dentry *parent)
 {
 	return ocfs2_blockcheck_debug_install(stats, parent);
+=======
+void ocfs2_blockcheck_stats_debugfs_install(struct ocfs2_blockcheck_stats *stats,
+					    struct dentry *parent)
+{
+	ocfs2_blockcheck_debug_install(stats, parent);
+>>>>>>> upstream/android-13
 }
 
 void ocfs2_blockcheck_stats_debugfs_remove(struct ocfs2_blockcheck_stats *stats)

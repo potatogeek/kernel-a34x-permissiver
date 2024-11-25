@@ -1,21 +1,36 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * A driver for the CMOS camera controller in the Marvell 88ALP01 "cafe"
  * multifunction chip.  Currently works with the Omnivision OV7670
  * sensor.
  *
  * The data sheet for this device can be found at:
+<<<<<<< HEAD
  *    http://www.marvell.com/products/pc_connectivity/88alp01/
  *
  * Copyright 2006-11 One Laptop Per Child Association, Inc.
  * Copyright 2006-11 Jonathan Corbet <corbet@lwn.net>
+=======
+ *    http://wiki.laptop.org/images/5/5c/88ALP01_Datasheet_July_2007.pdf
+ *
+ * Copyright 2006-11 One Laptop Per Child Association, Inc.
+ * Copyright 2006-11 Jonathan Corbet <corbet@lwn.net>
+ * Copyright 2018 Lubomir Rintel <lkundrak@v3.sk>
+>>>>>>> upstream/android-13
  *
  * Written by Jonathan Corbet, corbet@lwn.net.
  *
  * v4l2_device/v4l2_subdev conversion by:
  * Copyright (C) 2009 Hans Verkuil <hverkuil@xs4all.nl>
+<<<<<<< HEAD
  *
  * This file may be distributed under the terms of the GNU General
  * Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -27,10 +42,18 @@
 #include <linux/slab.h>
 #include <linux/videodev2.h>
 #include <media/v4l2-device.h>
+<<<<<<< HEAD
+=======
+#include <media/i2c/ov7670.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/wait.h>
 #include <linux/delay.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/clkdev.h>
+>>>>>>> upstream/android-13
 
 #include "mcam-core.h"
 
@@ -43,15 +66,22 @@
 MODULE_AUTHOR("Jonathan Corbet <corbet@lwn.net>");
 MODULE_DESCRIPTION("Marvell 88ALP01 CMOS Camera Controller driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Video");
 
 
 
+=======
+>>>>>>> upstream/android-13
 
 struct cafe_camera {
 	int registered;			/* Fully initialized? */
 	struct mcam_camera mcam;
 	struct pci_dev *pdev;
+<<<<<<< HEAD
+=======
+	struct i2c_adapter *i2c_adapter;
+>>>>>>> upstream/android-13
 	wait_queue_head_t smbus_wait;	/* Waiting on i2c events */
 };
 
@@ -341,7 +371,11 @@ static int cafe_smbus_setup(struct cafe_camera *cam)
 		return -ENOMEM;
 	adap->owner = THIS_MODULE;
 	adap->algo = &cafe_smbus_algo;
+<<<<<<< HEAD
 	strcpy(adap->name, "cafe_ccic");
+=======
+	strscpy(adap->name, "cafe_ccic", sizeof(adap->name));
+>>>>>>> upstream/android-13
 	adap->dev.parent = &cam->pdev->dev;
 	i2c_set_adapdata(adap, cam);
 	ret = i2c_add_adapter(adap);
@@ -351,15 +385,24 @@ static int cafe_smbus_setup(struct cafe_camera *cam)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	cam->mcam.i2c_adapter = adap;
+=======
+	cam->i2c_adapter = adap;
+>>>>>>> upstream/android-13
 	cafe_smbus_enable_irq(cam);
 	return 0;
 }
 
 static void cafe_smbus_shutdown(struct cafe_camera *cam)
 {
+<<<<<<< HEAD
 	i2c_del_adapter(cam->mcam.i2c_adapter);
 	kfree(cam->mcam.i2c_adapter);
+=======
+	i2c_del_adapter(cam->i2c_adapter);
+	kfree(cam->i2c_adapter);
+>>>>>>> upstream/android-13
 }
 
 
@@ -452,6 +495,32 @@ static irqreturn_t cafe_irq(int irq, void *data)
 	return IRQ_RETVAL(handled);
 }
 
+<<<<<<< HEAD
+=======
+/* -------------------------------------------------------------------------- */
+
+static struct ov7670_config sensor_cfg = {
+	/*
+	 * Exclude QCIF mode, because it only captures a tiny portion
+	 * of the sensor FOV
+	 */
+	.min_width = 320,
+	.min_height = 240,
+
+	/*
+	 * Set the clock speed for the XO 1; I don't believe this
+	 * driver has ever run anywhere else.
+	 */
+	.clock_speed = 45,
+	.use_smbus = 1,
+};
+
+static struct i2c_board_info ov7670_info = {
+	.type = "ov7670",
+	.addr = 0x42 >> 1,
+	.platform_data = &sensor_cfg,
+};
+>>>>>>> upstream/android-13
 
 /* -------------------------------------------------------------------------- */
 /*
@@ -464,6 +533,11 @@ static int cafe_pci_probe(struct pci_dev *pdev,
 	int ret;
 	struct cafe_camera *cam;
 	struct mcam_camera *mcam;
+<<<<<<< HEAD
+=======
+	struct v4l2_async_subdev *asd;
+	struct i2c_client *i2c_dev;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Start putting together one of our big camera structures.
@@ -472,6 +546,10 @@ static int cafe_pci_probe(struct pci_dev *pdev,
 	cam = kzalloc(sizeof(struct cafe_camera), GFP_KERNEL);
 	if (cam == NULL)
 		goto out;
+<<<<<<< HEAD
+=======
+	pci_set_drvdata(pdev, cam);
+>>>>>>> upstream/android-13
 	cam->pdev = pdev;
 	mcam = &cam->mcam;
 	mcam->chip_id = MCAM_CAFE;
@@ -482,12 +560,15 @@ static int cafe_pci_probe(struct pci_dev *pdev,
 	mcam->dev = &pdev->dev;
 	snprintf(mcam->bus_info, sizeof(mcam->bus_info), "PCI:%s", pci_name(pdev));
 	/*
+<<<<<<< HEAD
 	 * Set the clock speed for the XO 1; I don't believe this
 	 * driver has ever run anywhere else.
 	 */
 	mcam->clock_speed = 45;
 	mcam->use_smbus = 1;
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Vmalloc mode for buffers is traditional with this driver.
 	 * We *might* be able to run DMA_contig, especially on a system
 	 * with CMA in it.
@@ -513,11 +594,18 @@ static int cafe_pci_probe(struct pci_dev *pdev,
 		goto out_iounmap;
 
 	/*
+<<<<<<< HEAD
 	 * Initialize the controller and leave it powered up.  It will
 	 * stay that way until the sensor driver shows up.
 	 */
 	cafe_ctlr_init(mcam);
 	cafe_ctlr_power_up(mcam);
+=======
+	 * Initialize the controller.
+	 */
+	cafe_ctlr_init(mcam);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Set up I2C/SMBUS communications.  We have to drop the mutex here
 	 * because the sensor could attach in this call chain, leading to
@@ -527,12 +615,45 @@ static int cafe_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto out_pdown;
 
+<<<<<<< HEAD
 	ret = mccic_register(mcam);
 	if (ret == 0) {
 		cam->registered = 1;
 		return 0;
 	}
 
+=======
+	v4l2_async_notifier_init(&mcam->notifier);
+
+	asd = v4l2_async_notifier_add_i2c_subdev(&mcam->notifier,
+					i2c_adapter_id(cam->i2c_adapter),
+					ov7670_info.addr,
+					struct v4l2_async_subdev);
+	if (IS_ERR(asd)) {
+		ret = PTR_ERR(asd);
+		goto out_smbus_shutdown;
+	}
+
+	ret = mccic_register(mcam);
+	if (ret)
+		goto out_smbus_shutdown;
+
+	clkdev_create(mcam->mclk, "xclk", "%d-%04x",
+		i2c_adapter_id(cam->i2c_adapter), ov7670_info.addr);
+
+	i2c_dev = i2c_new_client_device(cam->i2c_adapter, &ov7670_info);
+	if (IS_ERR(i2c_dev)) {
+		ret = PTR_ERR(i2c_dev);
+		goto out_mccic_shutdown;
+	}
+
+	cam->registered = 1;
+	return 0;
+
+out_mccic_shutdown:
+	mccic_shutdown(mcam);
+out_smbus_shutdown:
+>>>>>>> upstream/android-13
 	cafe_smbus_shutdown(cam);
 out_pdown:
 	cafe_ctlr_power_down(mcam);
@@ -562,8 +683,12 @@ static void cafe_shutdown(struct cafe_camera *cam)
 
 static void cafe_pci_remove(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct v4l2_device *v4l2_dev = dev_get_drvdata(&pdev->dev);
 	struct cafe_camera *cam = to_cam(v4l2_dev);
+=======
+	struct cafe_camera *cam = pci_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 
 	if (cam == NULL) {
 		printk(KERN_WARNING "pci_remove on unknown pdev %p\n", pdev);
@@ -574,6 +699,7 @@ static void cafe_pci_remove(struct pci_dev *pdev)
 }
 
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /*
  * Basic power management.
@@ -589,10 +715,21 @@ static int cafe_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 		return ret;
 	mccic_suspend(&cam->mcam);
 	pci_disable_device(pdev);
+=======
+/*
+ * Basic power management.
+ */
+static int __maybe_unused cafe_pci_suspend(struct device *dev)
+{
+	struct cafe_camera *cam = dev_get_drvdata(dev);
+
+	mccic_suspend(&cam->mcam);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 
+<<<<<<< HEAD
 static int cafe_pci_resume(struct pci_dev *pdev)
 {
 	struct v4l2_device *v4l2_dev = dev_get_drvdata(&pdev->dev);
@@ -606,12 +743,21 @@ static int cafe_pci_resume(struct pci_dev *pdev)
 		cam_warn(cam, "Unable to re-enable device on resume!\n");
 		return ret;
 	}
+=======
+static int __maybe_unused cafe_pci_resume(struct device *dev)
+{
+	struct cafe_camera *cam = dev_get_drvdata(dev);
+
+>>>>>>> upstream/android-13
 	cafe_ctlr_init(&cam->mcam);
 	return mccic_resume(&cam->mcam);
 }
 
+<<<<<<< HEAD
 #endif  /* CONFIG_PM */
 
+=======
+>>>>>>> upstream/android-13
 static const struct pci_device_id cafe_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL,
 		     PCI_DEVICE_ID_MARVELL_88ALP01_CCIC) },
@@ -620,15 +766,24 @@ static const struct pci_device_id cafe_ids[] = {
 
 MODULE_DEVICE_TABLE(pci, cafe_ids);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(cafe_pci_pm_ops, cafe_pci_suspend, cafe_pci_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver cafe_pci_driver = {
 	.name = "cafe1000-ccic",
 	.id_table = cafe_ids,
 	.probe = cafe_pci_probe,
 	.remove = cafe_pci_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = cafe_pci_suspend,
 	.resume = cafe_pci_resume,
 #endif
+=======
+	.driver.pm = &cafe_pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 

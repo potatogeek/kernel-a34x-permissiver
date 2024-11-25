@@ -49,6 +49,7 @@ static int kgdb_transition_check(char *buffer)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int kdb_read_get_key(char *buffer, size_t bufsize)
 {
 #define ESCAPE_UDELAY 1000
@@ -57,6 +58,90 @@ static int kdb_read_get_key(char *buffer, size_t bufsize)
 	char *ped = escape_data;
 	int escape_delay = 0;
 	get_char_func *f, *f_escape = NULL;
+=======
+/**
+ * kdb_handle_escape() - validity check on an accumulated escape sequence.
+ * @buf:	Accumulated escape characters to be examined. Note that buf
+ *		is not a string, it is an array of characters and need not be
+ *		nil terminated.
+ * @sz:		Number of accumulated escape characters.
+ *
+ * Return: -1 if the escape sequence is unwanted, 0 if it is incomplete,
+ * otherwise it returns a mapped key value to pass to the upper layers.
+ */
+static int kdb_handle_escape(char *buf, size_t sz)
+{
+	char *lastkey = buf + sz - 1;
+
+	switch (sz) {
+	case 1:
+		if (*lastkey == '\e')
+			return 0;
+		break;
+
+	case 2: /* \e<something> */
+		if (*lastkey == '[')
+			return 0;
+		break;
+
+	case 3:
+		switch (*lastkey) {
+		case 'A': /* \e[A, up arrow */
+			return 16;
+		case 'B': /* \e[B, down arrow */
+			return 14;
+		case 'C': /* \e[C, right arrow */
+			return 6;
+		case 'D': /* \e[D, left arrow */
+			return 2;
+		case '1': /* \e[<1,3,4>], may be home, del, end */
+		case '3':
+		case '4':
+			return 0;
+		}
+		break;
+
+	case 4:
+		if (*lastkey == '~') {
+			switch (buf[2]) {
+			case '1': /* \e[1~, home */
+				return 1;
+			case '3': /* \e[3~, del */
+				return 4;
+			case '4': /* \e[4~, end */
+				return 5;
+			}
+		}
+		break;
+	}
+
+	return -1;
+}
+
+/**
+ * kdb_getchar() - Read a single character from a kdb console (or consoles).
+ *
+ * Other than polling the various consoles that are currently enabled,
+ * most of the work done in this function is dealing with escape sequences.
+ *
+ * An escape key could be the start of a vt100 control sequence such as \e[D
+ * (left arrow) or it could be a character in its own right.  The standard
+ * method for detecting the difference is to wait for 2 seconds to see if there
+ * are any other characters.  kdb is complicated by the lack of a timer service
+ * (interrupts are off), by multiple input sources. Escape sequence processing
+ * has to be done as states in the polling loop.
+ *
+ * Return: The key pressed or a control code derived from an escape sequence.
+ */
+char kdb_getchar(void)
+{
+#define ESCAPE_UDELAY 1000
+#define ESCAPE_DELAY (2*1000000/ESCAPE_UDELAY) /* 2 seconds worth of udelays */
+	char buf[4];	/* longest vt100 escape sequence is 4 bytes */
+	char *pbuf = buf;
+	int escape_delay = 0;
+	get_char_func *f, *f_prev = NULL;
+>>>>>>> upstream/android-13
 	int key;
 
 	for (f = &kdb_poll_funcs[0]; ; ++f) {
@@ -65,6 +150,7 @@ static int kdb_read_get_key(char *buffer, size_t bufsize)
 			touch_nmi_watchdog();
 			f = &kdb_poll_funcs[0];
 		}
+<<<<<<< HEAD
 		if (escape_delay == 2) {
 			*ped = '\0';
 			ped = escape_data;
@@ -76,10 +162,14 @@ static int kdb_read_get_key(char *buffer, size_t bufsize)
 				--escape_delay;
 			break;
 		}
+=======
+
+>>>>>>> upstream/android-13
 		key = (*f)();
 		if (key == -1) {
 			if (escape_delay) {
 				udelay(ESCAPE_UDELAY);
+<<<<<<< HEAD
 				--escape_delay;
 			}
 			continue;
@@ -168,6 +258,34 @@ static int kdb_read_get_key(char *buffer, size_t bufsize)
 		break;	/* A key to process */
 	}
 	return key;
+=======
+				if (--escape_delay == 0)
+					return '\e';
+			}
+			continue;
+		}
+
+		/*
+		 * When the first character is received (or we get a change
+		 * input source) we set ourselves up to handle an escape
+		 * sequences (just in case).
+		 */
+		if (f_prev != f) {
+			f_prev = f;
+			pbuf = buf;
+			escape_delay = ESCAPE_DELAY;
+		}
+
+		*pbuf++ = key;
+		key = kdb_handle_escape(buf, pbuf - buf);
+		if (key < 0) /* no escape sequence; return best character */
+			return buf[pbuf - buf == 2 ? 1 : 0];
+		if (key > 0)
+			return key;
+	}
+
+	unreachable();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -188,6 +306,7 @@ static int kdb_read_get_key(char *buffer, size_t bufsize)
  *	function.  It is not reentrant - it relies on the fact
  *	that while kdb is running on only one "master debug" cpu.
  * Remarks:
+<<<<<<< HEAD
  *
  * The buffer size must be >= 2.  A buffer size of 2 means that the caller only
  * wants a single key.
@@ -199,6 +318,9 @@ static int kdb_read_get_key(char *buffer, size_t bufsize)
  * (interrupts are off), by multiple input sources and by the need to sometimes
  * return after just one key.  Escape sequence processing has to be done as
  * states in the polling loop.
+=======
+ *	The buffer size must be >= 2.
+>>>>>>> upstream/android-13
  */
 
 static char *kdb_read(char *buffer, size_t bufsize)
@@ -233,9 +355,13 @@ static char *kdb_read(char *buffer, size_t bufsize)
 	*cp = '\0';
 	kdb_printf("%s", buffer);
 poll_again:
+<<<<<<< HEAD
 	key = kdb_read_get_key(buffer, bufsize);
 	if (key == -1)
 		return buffer;
+=======
+	key = kdb_getchar();
+>>>>>>> upstream/android-13
 	if (key != 9)
 		tab = 0;
 	switch (key) {
@@ -446,7 +572,11 @@ poll_again:
 char *kdb_getstr(char *buffer, size_t bufsize, const char *prompt)
 {
 	if (prompt && kdb_prompt_str != prompt)
+<<<<<<< HEAD
 		strncpy(kdb_prompt_str, prompt, CMD_BUFLEN);
+=======
+		strscpy(kdb_prompt_str, prompt, CMD_BUFLEN);
+>>>>>>> upstream/android-13
 	kdb_printf(kdb_prompt_str);
 	kdb_nextline = 1;	/* Prompt and input resets line number */
 	return kdb_read(buffer, bufsize);
@@ -552,6 +682,47 @@ static int kdb_search_string(char *searched, char *searchfor)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void kdb_msg_write(const char *msg, int msg_len)
+{
+	struct console *c;
+	const char *cp;
+	int len;
+
+	if (msg_len == 0)
+		return;
+
+	cp = msg;
+	len = msg_len;
+
+	while (len--) {
+		dbg_io_ops->write_char(*cp);
+		cp++;
+	}
+
+	for_each_console(c) {
+		if (!(c->flags & CON_ENABLED))
+			continue;
+		if (c == dbg_io_ops->cons)
+			continue;
+		/*
+		 * Set oops_in_progress to encourage the console drivers to
+		 * disregard their internal spin locks: in the current calling
+		 * context the risk of deadlock is a bigger problem than risks
+		 * due to re-entering the console driver. We operate directly on
+		 * oops_in_progress rather than using bust_spinlocks() because
+		 * the calls bust_spinlocks() makes on exit are not appropriate
+		 * for this calling context.
+		 */
+		++oops_in_progress;
+		c->write(c, msg, msg_len);
+		--oops_in_progress;
+		touch_nmi_watchdog();
+	}
+}
+
+>>>>>>> upstream/android-13
 int vkdb_printf(enum kdb_msgsrc src, const char *fmt, va_list ap)
 {
 	int diag;
@@ -563,8 +734,12 @@ int vkdb_printf(enum kdb_msgsrc src, const char *fmt, va_list ap)
 	int this_cpu, old_cpu;
 	char *cp, *cp2, *cphold = NULL, replaced_byte = ' ';
 	char *moreprompt = "more> ";
+<<<<<<< HEAD
 	struct console *c = console_drivers;
 	unsigned long uninitialized_var(flags);
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	/* Serialize kdb_printf if multiple cpus try to write at once.
 	 * But if any cpu goes recursive in kdb, just print the output,
@@ -701,6 +876,7 @@ kdb_printit:
 	 */
 	retlen = strlen(kdb_buffer);
 	cp = (char *) printk_skip_headers(kdb_buffer);
+<<<<<<< HEAD
 	if (!dbg_kdb_mode && kgdb_connected) {
 		gdbstub_msg_write(cp, retlen - (cp - kdb_buffer));
 	} else {
@@ -718,6 +894,13 @@ kdb_printit:
 			c = c->next;
 		}
 	}
+=======
+	if (!dbg_kdb_mode && kgdb_connected)
+		gdbstub_msg_write(cp, retlen - (cp - kdb_buffer));
+	else
+		kdb_msg_write(cp, retlen - (cp - kdb_buffer));
+
+>>>>>>> upstream/android-13
 	if (logging) {
 		saved_loglevel = console_loglevel;
 		console_loglevel = CONSOLE_LOGLEVEL_SILENT;
@@ -750,7 +933,11 @@ kdb_printit:
 
 	/* check for having reached the LINES number of printed lines */
 	if (kdb_nextline >= linecount) {
+<<<<<<< HEAD
 		char buf1[16] = "";
+=======
+		char ch;
+>>>>>>> upstream/android-13
 
 		/* Watch out for recursion here.  Any routine that calls
 		 * kdb_printf will come back through here.  And kdb_read
@@ -766,6 +953,7 @@ kdb_printit:
 			moreprompt = "more> ";
 
 		kdb_input_flush();
+<<<<<<< HEAD
 		c = console_drivers;
 
 		if (dbg_io_ops && !dbg_io_ops->is_console) {
@@ -781,25 +969,37 @@ kdb_printit:
 			touch_nmi_watchdog();
 			c = c->next;
 		}
+=======
+		kdb_msg_write(moreprompt, strlen(moreprompt));
+>>>>>>> upstream/android-13
 
 		if (logging)
 			printk("%s", moreprompt);
 
+<<<<<<< HEAD
 		kdb_read(buf1, 2); /* '2' indicates to return
 				    * immediately after getting one key. */
+=======
+		ch = kdb_getchar();
+>>>>>>> upstream/android-13
 		kdb_nextline = 1;	/* Really set output line 1 */
 
 		/* empty and reset the buffer: */
 		kdb_buffer[0] = '\0';
 		next_avail = kdb_buffer;
 		size_avail = sizeof(kdb_buffer);
+<<<<<<< HEAD
 		if ((buf1[0] == 'q') || (buf1[0] == 'Q')) {
+=======
+		if ((ch == 'q') || (ch == 'Q')) {
+>>>>>>> upstream/android-13
 			/* user hit q or Q */
 			KDB_FLAG_SET(CMD_INTERRUPT); /* command interrupted */
 			KDB_STATE_CLEAR(PAGER);
 			/* end of command output; back to normal mode */
 			kdb_grepping_flag = 0;
 			kdb_printf("\n");
+<<<<<<< HEAD
 		} else if (buf1[0] == ' ') {
 			kdb_printf("\r");
 			suspend_grep = 1; /* for this recursion */
@@ -808,16 +1008,33 @@ kdb_printit:
 			kdb_printf("\r");
 			suspend_grep = 1; /* for this recursion */
 		} else if (buf1[0] == '/' && !kdb_grepping_flag) {
+=======
+		} else if (ch == ' ') {
+			kdb_printf("\r");
+			suspend_grep = 1; /* for this recursion */
+		} else if (ch == '\n' || ch == '\r') {
+			kdb_nextline = linecount - 1;
+			kdb_printf("\r");
+			suspend_grep = 1; /* for this recursion */
+		} else if (ch == '/' && !kdb_grepping_flag) {
+>>>>>>> upstream/android-13
 			kdb_printf("\r");
 			kdb_getstr(kdb_grep_string, KDB_GREP_STRLEN,
 				   kdbgetenv("SEARCHPROMPT") ?: "search> ");
 			*strchrnul(kdb_grep_string, '\n') = '\0';
 			kdb_grepping_flag += KDB_GREPPING_FLAG_SEARCH;
 			suspend_grep = 1; /* for this recursion */
+<<<<<<< HEAD
 		} else if (buf1[0] && buf1[0] != '\n') {
 			/* user hit something other than enter */
 			suspend_grep = 1; /* for this recursion */
 			if (buf1[0] != '/')
+=======
+		} else if (ch) {
+			/* user hit something unexpected */
+			suspend_grep = 1; /* for this recursion */
+			if (ch != '/')
+>>>>>>> upstream/android-13
 				kdb_printf(
 				    "\nOnly 'q', 'Q' or '/' are processed at "
 				    "more prompt, input ignored\n");

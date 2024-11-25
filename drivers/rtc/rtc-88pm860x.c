@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Real Time Clock driver for Marvell 88PM860x PMIC
  *
  * Copyright (c) 2010 Marvell International Ltd.
  * Author:	Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -31,7 +38,10 @@ struct pm860x_rtc_info {
 
 	int			irq;
 	int			vrtc;
+<<<<<<< HEAD
 	int			(*sync)(unsigned int ticks);
+=======
+>>>>>>> upstream/android-13
 };
 
 #define REG_VRTC_MEAS1		0x7D
@@ -79,6 +89,7 @@ static int pm860x_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Calculate the next alarm time given the requested alarm time mask
  * and the current time.
@@ -106,6 +117,8 @@ static void rtc_next_alarm_time(struct rtc_time *next, struct rtc_time *now,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int pm860x_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
 	struct pm860x_rtc_info *info = dev_get_drvdata(dev);
@@ -126,7 +139,11 @@ static int pm860x_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
 		base, data, ticks);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(ticks, tm);
+=======
+	rtc_time64_to_tm(ticks, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -137,6 +154,7 @@ static int pm860x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	unsigned char buf[4];
 	unsigned long ticks, base, data;
 
+<<<<<<< HEAD
 	if (tm->tm_year > 206) {
 		dev_dbg(info->dev, "Set time %d out of range. "
 			"Please set time between 1970 to 2106.\n",
@@ -144,6 +162,9 @@ static int pm860x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 		return -EINVAL;
 	}
 	rtc_tm_to_time(tm, &ticks);
+=======
+	ticks = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 
 	/* load 32-bit read-only counter */
 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
@@ -158,8 +179,11 @@ static int pm860x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	pm860x_page_reg_write(info->i2c, REG2_DATA, (base >> 8) & 0xFF);
 	pm860x_page_reg_write(info->i2c, REG3_DATA, base & 0xFF);
 
+<<<<<<< HEAD
 	if (info->sync)
 		info->sync(ticks);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -183,7 +207,11 @@ static int pm860x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
 		base, data, ticks);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(ticks, &alrm->time);
+=======
+	rtc_time64_to_tm(ticks, &alrm->time);
+>>>>>>> upstream/android-13
 	ret = pm860x_reg_read(info->i2c, PM8607_RTC1);
 	alrm->enabled = (ret & ALARM_EN) ? 1 : 0;
 	alrm->pending = (ret & (ALARM | ALARM_WAKEUP)) ? 1 : 0;
@@ -193,7 +221,10 @@ static int pm860x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 static int pm860x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 {
 	struct pm860x_rtc_info *info = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct rtc_time now_tm, alarm_tm;
+=======
+>>>>>>> upstream/android-13
 	unsigned long ticks, base, data;
 	unsigned char buf[8];
 	int mask;
@@ -206,6 +237,7 @@ static int pm860x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
 		(buf[5] << 8) | buf[7];
 
+<<<<<<< HEAD
 	/* load 32-bit read-only counter */
 	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
 	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
@@ -218,6 +250,9 @@ static int pm860x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	rtc_next_alarm_time(&alarm_tm, &now_tm, &alrm->time);
 	/* get new ticks for alarm in 24 hours */
 	rtc_tm_to_time(&alarm_tm, &ticks);
+=======
+	ticks = rtc_tm_to_time64(&alrm->time);
+>>>>>>> upstream/android-13
 	data = ticks - base;
 
 	buf[0] = data & 0xff;
@@ -312,12 +347,17 @@ static int pm860x_rtc_dt_init(struct platform_device *pdev,
 	return 0;
 }
 #else
+<<<<<<< HEAD
 #define pm860x_rtc_dt_init(x, y)	(-1)
+=======
+#define pm860x_rtc_dt_init(x, y)	do { } while (0)
+>>>>>>> upstream/android-13
 #endif
 
 static int pm860x_rtc_probe(struct platform_device *pdev)
 {
 	struct pm860x_chip *chip = dev_get_drvdata(pdev->dev.parent);
+<<<<<<< HEAD
 	struct pm860x_rtc_pdata *pdata = NULL;
 	struct pm860x_rtc_info *info;
 	struct rtc_time tm;
@@ -326,15 +366,25 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
 
 	pdata = dev_get_platdata(&pdev->dev);
 
+=======
+	struct pm860x_rtc_info *info;
+	int ret;
+
+>>>>>>> upstream/android-13
 	info = devm_kzalloc(&pdev->dev, sizeof(struct pm860x_rtc_info),
 			    GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
 	info->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (info->irq < 0) {
 		dev_err(&pdev->dev, "No IRQ resource!\n");
 		return info->irq;
 	}
+=======
+	if (info->irq < 0)
+		return info->irq;
+>>>>>>> upstream/android-13
 
 	info->chip = chip;
 	info->i2c = (chip->id == CHIP_PM8607) ? chip->client : chip->companion;
@@ -360,6 +410,7 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
 	pm860x_page_reg_write(info->i2c, REG2_ADDR, REG2_DATA);
 	pm860x_page_reg_write(info->i2c, REG3_ADDR, REG3_DATA);
 
+<<<<<<< HEAD
 	ret = pm860x_rtc_read_time(&pdev->dev, &tm);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Failed to read initial time.\n");
@@ -389,6 +440,14 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
 	info->rtc_dev->ops = &pm860x_rtc_ops;
 
 	ret = rtc_register_device(info->rtc_dev);
+=======
+	pm860x_rtc_dt_init(pdev, info);
+
+	info->rtc_dev->ops = &pm860x_rtc_ops;
+	info->rtc_dev->range_max = U32_MAX;
+
+	ret = devm_rtc_register_device(info->rtc_dev);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -400,12 +459,15 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
 
 #ifdef VRTC_CALIBRATION
 	/* <00> -- 2.7V, <01> -- 2.9V, <10> -- 3.1V, <11> -- 3.3V */
+<<<<<<< HEAD
 	if (pm860x_rtc_dt_init(pdev, info)) {
 		if (pdata && pdata->vrtc)
 			info->vrtc = pdata->vrtc & 0x3;
 		else
 			info->vrtc = 1;
 	}
+=======
+>>>>>>> upstream/android-13
 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, MEAS2_VRTC);
 
 	/* calibrate VRTC */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/fat/file.c
  *
@@ -24,9 +28,15 @@ static int fat_ioctl_get_attributes(struct inode *inode, u32 __user *user_attr)
 {
 	u32 attr;
 
+<<<<<<< HEAD
 	inode_lock(inode);
 	attr = fat_make_attrs(inode);
 	inode_unlock(inode);
+=======
+	inode_lock_shared(inode);
+	attr = fat_make_attrs(inode);
+	inode_unlock_shared(inode);
+>>>>>>> upstream/android-13
 
 	return put_user(attr, user_attr);
 }
@@ -94,7 +104,11 @@ static int fat_ioctl_set_attributes(struct file *file, u32 __user *user_attr)
 		goto out_unlock_inode;
 
 	/* This MUST be done before doing anything irreversible... */
+<<<<<<< HEAD
 	err = fat_setattr(file->f_path.dentry, &ia);
+=======
+	err = fat_setattr(file_mnt_user_ns(file), file->f_path.dentry, &ia);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_unlock_inode;
 
@@ -171,6 +185,7 @@ long fat_generic_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,
 				      unsigned long arg)
@@ -180,6 +195,8 @@ static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int fat_file_release(struct inode *inode, struct file *filp)
 {
 	if ((filp->f_mode & FMODE_WRITE) &&
@@ -203,7 +220,11 @@ int fat_file_fsync(struct file *filp, loff_t start, loff_t end, int datasync)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	return blkdev_issue_flush(inode->i_sb->s_bdev, GFP_KERNEL, NULL);
+=======
+	return blkdev_issue_flush(inode->i_sb->s_bdev);
+>>>>>>> upstream/android-13
 }
 
 
@@ -214,11 +235,18 @@ const struct file_operations fat_file_operations = {
 	.mmap		= generic_file_mmap,
 	.release	= fat_file_release,
 	.unlocked_ioctl	= fat_generic_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= fat_generic_compat_ioctl,
 #endif
 	.fsync		= fat_file_fsync,
 	.splice_read	= generic_file_splice_read,
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+	.fsync		= fat_file_fsync,
+	.splice_read	= generic_file_splice_read,
+	.splice_write	= iter_file_splice_write,
+>>>>>>> upstream/android-13
 	.fallocate	= fat_fallocate,
 };
 
@@ -232,7 +260,11 @@ static int fat_cont_expand(struct inode *inode, loff_t size)
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
 	inode->i_ctime = inode->i_mtime = current_time(inode);
+=======
+	fat_truncate_time(inode, NULL, S_CTIME|S_MTIME);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	if (IS_SYNC(inode)) {
 		int err2;
@@ -335,7 +367,11 @@ static int fat_free(struct inode *inode, int skip)
 		MSDOS_I(inode)->i_logstart = 0;
 	}
 	MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
+<<<<<<< HEAD
 	inode->i_ctime = inode->i_mtime = current_time(inode);
+=======
+	fat_truncate_time(inode, NULL, S_CTIME|S_MTIME);
+>>>>>>> upstream/android-13
 	if (wait) {
 		err = fat_sync_inode(inode);
 		if (err) {
@@ -403,11 +439,19 @@ void fat_truncate_blocks(struct inode *inode, loff_t offset)
 	fat_flush_inodes(inode->i_sb, inode, NULL);
 }
 
+<<<<<<< HEAD
 int fat_getattr(const struct path *path, struct kstat *stat,
 		u32 request_mask, unsigned int flags)
 {
 	struct inode *inode = d_inode(path->dentry);
 	generic_fillattr(inode, stat);
+=======
+int fat_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		struct kstat *stat, u32 request_mask, unsigned int flags)
+{
+	struct inode *inode = d_inode(path->dentry);
+	generic_fillattr(mnt_userns, inode, stat);
+>>>>>>> upstream/android-13
 	stat->blksize = MSDOS_SB(inode->i_sb)->cluster_size;
 
 	if (MSDOS_SB(inode->i_sb)->options.nfs == FAT_NFS_NOSTALE_RO) {
@@ -456,12 +500,22 @@ static int fat_sanitize_mode(const struct msdos_sb_info *sbi,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fat_allow_set_time(struct msdos_sb_info *sbi, struct inode *inode)
 {
 	umode_t allow_utime = sbi->options.allow_utime;
 
 	if (!uid_eq(current_fsuid(), inode->i_uid)) {
 		if (in_group_p(inode->i_gid))
+=======
+static int fat_allow_set_time(struct user_namespace *mnt_userns,
+			      struct msdos_sb_info *sbi, struct inode *inode)
+{
+	umode_t allow_utime = sbi->options.allow_utime;
+
+	if (!uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode))) {
+		if (in_group_p(i_gid_into_mnt(mnt_userns, inode)))
+>>>>>>> upstream/android-13
 			allow_utime >>= 3;
 		if (allow_utime & MAY_WRITE)
 			return 1;
@@ -475,7 +529,12 @@ static int fat_allow_set_time(struct msdos_sb_info *sbi, struct inode *inode)
 /* valid file mode bits */
 #define FAT_VALID_MODE	(S_IFREG | S_IFDIR | S_IRWXUGO)
 
+<<<<<<< HEAD
 int fat_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+int fat_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(dentry->d_sb);
 	struct inode *inode = d_inode(dentry);
@@ -485,11 +544,19 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 	/* Check for setting the inode time. */
 	ia_valid = attr->ia_valid;
 	if (ia_valid & TIMES_SET_FLAGS) {
+<<<<<<< HEAD
 		if (fat_allow_set_time(sbi, inode))
 			attr->ia_valid &= ~TIMES_SET_FLAGS;
 	}
 
 	error = setattr_prepare(dentry, attr);
+=======
+		if (fat_allow_set_time(mnt_userns, sbi, inode))
+			attr->ia_valid &= ~TIMES_SET_FLAGS;
+	}
+
+	error = setattr_prepare(mnt_userns, dentry, attr);
+>>>>>>> upstream/android-13
 	attr->ia_valid = ia_valid;
 	if (error) {
 		if (sbi->options.quiet)
@@ -547,7 +614,23 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 		up_write(&MSDOS_I(inode)->truncate_lock);
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, attr);
+=======
+	/*
+	 * setattr_copy can't truncate these appropriately, so we'll
+	 * copy them ourselves
+	 */
+	if (attr->ia_valid & ATTR_ATIME)
+		fat_truncate_time(inode, &attr->ia_atime, S_ATIME);
+	if (attr->ia_valid & ATTR_CTIME)
+		fat_truncate_time(inode, &attr->ia_ctime, S_CTIME);
+	if (attr->ia_valid & ATTR_MTIME)
+		fat_truncate_time(inode, &attr->ia_mtime, S_MTIME);
+	attr->ia_valid &= ~(ATTR_ATIME|ATTR_CTIME|ATTR_MTIME);
+
+	setattr_copy(mnt_userns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 out:
 	return error;
@@ -557,4 +640,8 @@ EXPORT_SYMBOL_GPL(fat_setattr);
 const struct inode_operations fat_file_inode_operations = {
 	.setattr	= fat_setattr,
 	.getattr	= fat_getattr,
+<<<<<<< HEAD
+=======
+	.update_time	= fat_update_time,
+>>>>>>> upstream/android-13
 };

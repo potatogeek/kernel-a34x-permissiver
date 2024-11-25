@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* ECDH key-agreement protocol
  *
  * Copyright (c) 2016, Intel Corporation
  * Authors: Salvator Benedetto <salvatore.benedetto@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -27,6 +34,7 @@ static inline struct ecdh_ctx *ecdh_get_ctx(struct crypto_kpp *tfm)
 	return kpp_tfm_ctx(tfm);
 }
 
+<<<<<<< HEAD
 static unsigned int ecdh_supported_curve(unsigned int curve_id)
 {
 	switch (curve_id) {
@@ -36,11 +44,14 @@ static unsigned int ecdh_supported_curve(unsigned int curve_id)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ecdh_set_secret(struct crypto_kpp *tfm, const void *buf,
 			   unsigned int len)
 {
 	struct ecdh_ctx *ctx = ecdh_get_ctx(tfm);
 	struct ecdh params;
+<<<<<<< HEAD
 	unsigned int ndigits;
 
 	if (crypto_ecdh_decode_key(buf, len, &params) < 0 ||
@@ -54,6 +65,13 @@ static int ecdh_set_secret(struct crypto_kpp *tfm, const void *buf,
 	ctx->curve_id = params.curve_id;
 	ctx->ndigits = ndigits;
 
+=======
+
+	if (crypto_ecdh_decode_key(buf, len, &params) < 0 ||
+	    params.key_size > sizeof(u64) * ctx->ndigits)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (!params.key || !params.key_size)
 		return ecc_gen_privkey(ctx->curve_id, ctx->ndigits,
 				       ctx->private_key);
@@ -130,7 +148,11 @@ static int ecdh_compute_value(struct kpp_request *req)
 
 	/* fall through */
 free_all:
+<<<<<<< HEAD
 	kzfree(shared_secret);
+=======
+	kfree_sensitive(shared_secret);
+>>>>>>> upstream/android-13
 free_pubkey:
 	kfree(public_key);
 	return ret;
@@ -144,31 +166,142 @@ static unsigned int ecdh_max_size(struct crypto_kpp *tfm)
 	return ctx->ndigits << (ECC_DIGITS_TO_BYTES_SHIFT + 1);
 }
 
+<<<<<<< HEAD
 static struct kpp_alg ecdh = {
+=======
+static int ecdh_nist_p192_init_tfm(struct crypto_kpp *tfm)
+{
+	struct ecdh_ctx *ctx = ecdh_get_ctx(tfm);
+
+	ctx->curve_id = ECC_CURVE_NIST_P192;
+	ctx->ndigits = ECC_CURVE_NIST_P192_DIGITS;
+
+	return 0;
+}
+
+static struct kpp_alg ecdh_nist_p192 = {
+>>>>>>> upstream/android-13
 	.set_secret = ecdh_set_secret,
 	.generate_public_key = ecdh_compute_value,
 	.compute_shared_secret = ecdh_compute_value,
 	.max_size = ecdh_max_size,
+<<<<<<< HEAD
 	.base = {
 		.cra_name = "ecdh",
 		.cra_driver_name = "ecdh-generic",
+=======
+	.init = ecdh_nist_p192_init_tfm,
+	.base = {
+		.cra_name = "ecdh-nist-p192",
+		.cra_driver_name = "ecdh-nist-p192-generic",
+>>>>>>> upstream/android-13
 		.cra_priority = 100,
 		.cra_module = THIS_MODULE,
 		.cra_ctxsize = sizeof(struct ecdh_ctx),
 	},
 };
 
+<<<<<<< HEAD
 static int ecdh_init(void)
 {
 	return crypto_register_kpp(&ecdh);
+=======
+static int ecdh_nist_p256_init_tfm(struct crypto_kpp *tfm)
+{
+	struct ecdh_ctx *ctx = ecdh_get_ctx(tfm);
+
+	ctx->curve_id = ECC_CURVE_NIST_P256;
+	ctx->ndigits = ECC_CURVE_NIST_P256_DIGITS;
+
+	return 0;
+}
+
+static struct kpp_alg ecdh_nist_p256 = {
+	.set_secret = ecdh_set_secret,
+	.generate_public_key = ecdh_compute_value,
+	.compute_shared_secret = ecdh_compute_value,
+	.max_size = ecdh_max_size,
+	.init = ecdh_nist_p256_init_tfm,
+	.base = {
+		.cra_name = "ecdh-nist-p256",
+		.cra_driver_name = "ecdh-nist-p256-generic",
+		.cra_priority = 100,
+		.cra_module = THIS_MODULE,
+		.cra_ctxsize = sizeof(struct ecdh_ctx),
+	},
+};
+
+static int ecdh_nist_p384_init_tfm(struct crypto_kpp *tfm)
+{
+	struct ecdh_ctx *ctx = ecdh_get_ctx(tfm);
+
+	ctx->curve_id = ECC_CURVE_NIST_P384;
+	ctx->ndigits = ECC_CURVE_NIST_P384_DIGITS;
+
+	return 0;
+}
+
+static struct kpp_alg ecdh_nist_p384 = {
+	.set_secret = ecdh_set_secret,
+	.generate_public_key = ecdh_compute_value,
+	.compute_shared_secret = ecdh_compute_value,
+	.max_size = ecdh_max_size,
+	.init = ecdh_nist_p384_init_tfm,
+	.base = {
+		.cra_name = "ecdh-nist-p384",
+		.cra_driver_name = "ecdh-nist-p384-generic",
+		.cra_priority = 100,
+		.cra_module = THIS_MODULE,
+		.cra_ctxsize = sizeof(struct ecdh_ctx),
+	},
+};
+
+static bool ecdh_nist_p192_registered;
+
+static int ecdh_init(void)
+{
+	int ret;
+
+	/* NIST p192 will fail to register in FIPS mode */
+	ret = crypto_register_kpp(&ecdh_nist_p192);
+	ecdh_nist_p192_registered = ret == 0;
+
+	ret = crypto_register_kpp(&ecdh_nist_p256);
+	if (ret)
+		goto nist_p256_error;
+
+	ret = crypto_register_kpp(&ecdh_nist_p384);
+	if (ret)
+		goto nist_p384_error;
+
+	return 0;
+
+nist_p384_error:
+	crypto_unregister_kpp(&ecdh_nist_p256);
+
+nist_p256_error:
+	if (ecdh_nist_p192_registered)
+		crypto_unregister_kpp(&ecdh_nist_p192);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void ecdh_exit(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_kpp(&ecdh);
 }
 
 module_init(ecdh_init);
+=======
+	if (ecdh_nist_p192_registered)
+		crypto_unregister_kpp(&ecdh_nist_p192);
+	crypto_unregister_kpp(&ecdh_nist_p256);
+	crypto_unregister_kpp(&ecdh_nist_p384);
+}
+
+subsys_initcall(ecdh_init);
+>>>>>>> upstream/android-13
 module_exit(ecdh_exit);
 MODULE_ALIAS_CRYPTO("ecdh");
 MODULE_LICENSE("GPL");

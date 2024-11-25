@@ -45,8 +45,11 @@
 
 /dts-v1/;
 
+<<<<<<< HEAD
 /include/ "skeleton.dtsi"
 
+=======
+>>>>>>> upstream/android-13
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clock/qcom,gcc-mdm9615.h>
 #include <dt-bindings/reset/qcom,gcc-mdm9615.h>
@@ -54,6 +57,11 @@
 #include <dt-bindings/soc/qcom,gsbi.h>
 
 / {
+<<<<<<< HEAD
+=======
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "Qualcomm MDM9615";
 	compatible = "qcom,mdm9615";
 	interrupt-parent = <&intc>;
@@ -98,7 +106,11 @@
 		ranges;
 		compatible = "simple-bus";
 
+<<<<<<< HEAD
 		L2: l2-cache@2040000 {
+=======
+		L2: cache-controller@2040000 {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl310-cache";
 			reg = <0x02040000 0x1000>;
 			arm,data-latency = <2 2 0>;
@@ -128,6 +140,10 @@
 		msmgpio: pinctrl@800000 {
 			compatible = "qcom,mdm9615-pinctrl";
 			gpio-controller;
+<<<<<<< HEAD
+=======
+			gpio-ranges = <&msmgpio 0 0 88>;
+>>>>>>> upstream/android-13
 			#gpio-cells = <2>;
 			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-controller;
@@ -323,6 +339,7 @@
 
 				pmicgpio: gpio@150 {
 					compatible = "qcom,pm8018-gpio", "qcom,ssbi-gpio";
+<<<<<<< HEAD
 					interrupt-parent = <&pmicintc>;
 					interrupts = <24 IRQ_TYPE_NONE>,
 						     <25 IRQ_TYPE_NONE>,
@@ -331,6 +348,12 @@
 						     <28 IRQ_TYPE_NONE>,
 						     <29 IRQ_TYPE_NONE>;
 					gpio-controller;
+=======
+					interrupt-controller;
+					#interrupt-cells = <2>;
+					gpio-controller;
+					gpio-ranges = <&pmicgpio 0 0 6>;
+>>>>>>> upstream/android-13
 					#gpio-cells = <2>;
 				};
 			};

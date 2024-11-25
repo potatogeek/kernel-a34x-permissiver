@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Driver for the Korg 1212 IO PCI card
  *
  *	Copyright (c) 2001 Haroldo Gamal <gamal@alternex.com.br>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -44,7 +51,11 @@
 #if K1212_DEBUG_LEVEL > 0
 #define K1212_DEBUG_PRINTK(fmt,args...)	printk(KERN_DEBUG fmt,##args)
 #else
+<<<<<<< HEAD
 #define K1212_DEBUG_PRINTK(fmt,...)
+=======
+#define K1212_DEBUG_PRINTK(fmt,...)	do { } while (0)
+>>>>>>> upstream/android-13
 #endif
 #if K1212_DEBUG_LEVEL > 1
 #define K1212_DEBUG_PRINTK_VERBOSE(fmt,args...)	printk(KERN_DEBUG fmt,##args)
@@ -334,10 +345,17 @@ struct snd_korg1212 {
         unsigned long inIRQ;
         void __iomem *iobase;
 
+<<<<<<< HEAD
 	struct snd_dma_buffer dma_dsp;
         struct snd_dma_buffer dma_play;
         struct snd_dma_buffer dma_rec;
 	struct snd_dma_buffer dma_shared;
+=======
+	struct snd_dma_buffer *dma_dsp;
+	struct snd_dma_buffer *dma_play;
+	struct snd_dma_buffer *dma_rec;
+	struct snd_dma_buffer *dma_shared;
+>>>>>>> upstream/android-13
 
 	u32 DataBufsSize;
 
@@ -402,7 +420,10 @@ struct snd_korg1212 {
 
 MODULE_DESCRIPTION("korg1212");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{KORG,korg1212}}");
+=======
+>>>>>>> upstream/android-13
 MODULE_FIRMWARE("korg/k1212.dsp");
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;     /* Index 0-MAX */
@@ -429,7 +450,11 @@ static const struct pci_device_id snd_korg1212_ids[] = {
 
 MODULE_DEVICE_TABLE(pci, snd_korg1212_ids);
 
+<<<<<<< HEAD
 static char *stateName[] = {
+=======
+static const char * const stateName[] = {
+>>>>>>> upstream/android-13
 	"Non-existent",
 	"Uninitialized",
 	"DSP download in process",
@@ -469,7 +494,11 @@ static const char * const channelName[] = {
 	"SPDIF-R",
 };
 
+<<<<<<< HEAD
 static u16 ClockSourceSelector[] = {
+=======
+static const u16 ClockSourceSelector[] = {
+>>>>>>> upstream/android-13
 	0x8000,   // selects source as ADAT at 44.1 kHz
 	0x0000,   // selects source as ADAT at 48 kHz
 	0x8001,   // selects source as S/PDIF at 44.1 kHz
@@ -827,12 +856,20 @@ static inline int snd_korg1212_use_is_exclusive(struct snd_korg1212 *korg1212)
 
 static int snd_korg1212_SetRate(struct snd_korg1212 *korg1212, int rate)
 {
+<<<<<<< HEAD
         static enum ClockSourceIndex s44[] = {
+=======
+	static const enum ClockSourceIndex s44[] = {
+>>>>>>> upstream/android-13
 		K1212_CLKIDX_AdatAt44_1K,
 		K1212_CLKIDX_WordAt44_1K,
 		K1212_CLKIDX_LocalAt44_1K
 	};
+<<<<<<< HEAD
         static enum ClockSourceIndex s48[] = {
+=======
+	static const enum ClockSourceIndex s48[] = {
+>>>>>>> upstream/android-13
 		K1212_CLKIDX_AdatAt48K,
 		K1212_CLKIDX_WordAt48K,
 		K1212_CLKIDX_LocalAt48K
@@ -1215,8 +1252,13 @@ static int snd_korg1212_downloadDSPCode(struct snd_korg1212 *korg1212)
         snd_korg1212_setCardState(korg1212, K1212_STATE_DSP_IN_PROCESS);
 
         rc = snd_korg1212_Send1212Command(korg1212, K1212_DB_StartDSPDownload,
+<<<<<<< HEAD
                                      UpperWordSwap(korg1212->dma_dsp.addr),
                                      0, 0, 0);
+=======
+					  UpperWordSwap(korg1212->dma_dsp->addr),
+					  0, 0, 0);
+>>>>>>> upstream/android-13
 	if (rc)
 		K1212_DEBUG_PRINTK("K1212_DEBUG: Start DSP Download RC = %d [%s]\n",
 				   rc, stateName[korg1212->cardState]);
@@ -1397,7 +1439,11 @@ static int snd_korg1212_playback_open(struct snd_pcm_substream *substream)
 	snd_korg1212_OpenCard(korg1212);
 
         runtime->hw = snd_korg1212_playback_info;
+<<<<<<< HEAD
 	snd_pcm_set_runtime_buffer(substream, &korg1212->dma_play);
+=======
+	snd_pcm_set_runtime_buffer(substream, korg1212->dma_play);
+>>>>>>> upstream/android-13
 
         spin_lock_irqsave(&korg1212->lock, flags);
 
@@ -1428,7 +1474,11 @@ static int snd_korg1212_capture_open(struct snd_pcm_substream *substream)
 	snd_korg1212_OpenCard(korg1212);
 
         runtime->hw = snd_korg1212_capture_info;
+<<<<<<< HEAD
 	snd_pcm_set_runtime_buffer(substream, &korg1212->dma_rec);
+=======
+	snd_pcm_set_runtime_buffer(substream, korg1212->dma_rec);
+>>>>>>> upstream/android-13
 
         spin_lock_irqsave(&korg1212->lock, flags);
 
@@ -1542,7 +1592,12 @@ static int snd_korg1212_hw_params(struct snd_pcm_substream *substream,
 	        return 0;
 	}
 
+<<<<<<< HEAD
         if ((err = snd_korg1212_SetRate(korg1212, params_rate(params))) < 0) {
+=======
+	err = snd_korg1212_SetRate(korg1212, params_rate(params));
+	if (err < 0) {
+>>>>>>> upstream/android-13
                 spin_unlock_irqrestore(&korg1212->lock, flags);
                 return err;
         }
@@ -2033,7 +2088,11 @@ static int snd_korg1212_control_sync_put(struct snd_kcontrol *kcontrol,
 		.private_value = ord,								\
         }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_korg1212_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_korg1212_controls[] = {
+>>>>>>> upstream/android-13
         MON_MIXER(8, "Analog"),
 	MON_MIXER(10, "SPDIF"), 
         MON_MIXER(0, "ADAT-1"), MON_MIXER(1, "ADAT-2"), MON_MIXER(2, "ADAT-3"), MON_MIXER(3, "ADAT-4"),
@@ -2090,6 +2149,7 @@ static void snd_korg1212_proc_read(struct snd_info_entry *entry,
 
 static void snd_korg1212_proc_init(struct snd_korg1212 *korg1212)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 
 	if (! snd_card_proc_new(korg1212->card, "korg1212", &entry))
@@ -2161,10 +2221,27 @@ static int snd_korg1212_dev_free(struct snd_device *device)
 
 static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
 			       struct snd_korg1212 **rchip)
+=======
+	snd_card_ro_proc_new(korg1212->card, "korg1212", korg1212,
+			     snd_korg1212_proc_read);
+}
+
+static void
+snd_korg1212_free(struct snd_card *card)
+{
+	struct snd_korg1212 *korg1212 = card->private_data;
+
+	snd_korg1212_TurnOffIdleMonitor(korg1212);
+	snd_korg1212_DisableCardInterrupts(korg1212);
+}
+
+static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci)
+>>>>>>> upstream/android-13
 
 {
         int err, rc;
         unsigned int i;
+<<<<<<< HEAD
 	unsigned ioport_size, iomem_size, iomem2_size;
         struct snd_korg1212 * korg1212;
 	const struct firmware *dsp_code;
@@ -2183,6 +2260,18 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
                 return -ENOMEM;
 	}
 
+=======
+	__maybe_unused unsigned iomem_size;
+	__maybe_unused unsigned ioport_size;
+	__maybe_unused unsigned iomem2_size;
+	struct snd_korg1212 *korg1212 = card->private_data;
+	const struct firmware *dsp_code;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+                return err;
+
+>>>>>>> upstream/android-13
 	korg1212->card = card;
 	korg1212->pci = pci;
 
@@ -2211,11 +2300,17 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
         for (i=0; i<kAudioChannels; i++)
                 korg1212->volumePhase[i] = 0;
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, "korg1212")) < 0) {
 		kfree(korg1212);
 		pci_disable_device(pci);
 		return err;
 	}
+=======
+	err = pcim_iomap_regions_request_all(pci, 1 << 0, "korg1212");
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
         korg1212->iomem = pci_resource_start(korg1212->pci, 0);
         korg1212->ioport = pci_resource_start(korg1212->pci, 1);
@@ -2235,6 +2330,7 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
 		   korg1212->iomem2, iomem2_size,
 		   stateName[korg1212->cardState]);
 
+<<<<<<< HEAD
         if ((korg1212->iobase = ioremap(korg1212->iomem, iomem_size)) == NULL) {
 		snd_printk(KERN_ERR "korg1212: unable to remap memory region 0x%lx-0x%lx\n", korg1212->iomem,
                            korg1212->iomem + iomem_size - 1);
@@ -2243,16 +2339,29 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
         }
 
         err = request_irq(pci->irq, snd_korg1212_interrupt,
+=======
+	korg1212->iobase = pcim_iomap_table(pci)[0];
+
+	err = devm_request_irq(&pci->dev, pci->irq, snd_korg1212_interrupt,
+>>>>>>> upstream/android-13
                           IRQF_SHARED,
                           KBUILD_MODNAME, korg1212);
 
         if (err) {
 		snd_printk(KERN_ERR "korg1212: unable to grab IRQ %d\n", pci->irq);
+<<<<<<< HEAD
                 snd_korg1212_free(korg1212);
+=======
+>>>>>>> upstream/android-13
                 return -EBUSY;
         }
 
         korg1212->irq = pci->irq;
+<<<<<<< HEAD
+=======
+	card->sync_irq = korg1212->irq;
+	card->private_free = snd_korg1212_free;
+>>>>>>> upstream/android-13
 
 	pci_set_master(korg1212->pci);
 
@@ -2291,6 +2400,7 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
                    korg1212->idRegPtr,
 		   stateName[korg1212->cardState]);
 
+<<<<<<< HEAD
 	if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(pci),
 				sizeof(struct KorgSharedBuffer), &korg1212->dma_shared) < 0) {
 		snd_printk(KERN_ERR "korg1212: can not allocate shared buffer memory (%zd bytes)\n", sizeof(struct KorgSharedBuffer));
@@ -2299,10 +2409,20 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
         }
         korg1212->sharedBufferPtr = (struct KorgSharedBuffer *)korg1212->dma_shared.area;
         korg1212->sharedBufferPhy = korg1212->dma_shared.addr;
+=======
+	korg1212->dma_shared = snd_devm_alloc_pages(&pci->dev,
+						    SNDRV_DMA_TYPE_DEV,
+						    sizeof(struct KorgSharedBuffer));
+	if (!korg1212->dma_shared)
+		return -ENOMEM;
+	korg1212->sharedBufferPtr = (struct KorgSharedBuffer *)korg1212->dma_shared->area;
+	korg1212->sharedBufferPhy = korg1212->dma_shared->addr;
+>>>>>>> upstream/android-13
 
         K1212_DEBUG_PRINTK("K1212_DEBUG: Shared Buffer Area = 0x%p (0x%08lx), %d bytes\n", korg1212->sharedBufferPtr, korg1212->sharedBufferPhy, sizeof(struct KorgSharedBuffer));
 
 #ifndef K1212_LARGEALLOC
+<<<<<<< HEAD
 
         korg1212->DataBufsSize = sizeof(struct KorgAudioBuffer) * kNumBuffers;
 
@@ -2314,10 +2434,21 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
         }
 	korg1212->playDataBufsPtr = (struct KorgAudioBuffer *)korg1212->dma_play.area;
 	korg1212->PlayDataPhy = korg1212->dma_play.addr;
+=======
+        korg1212->DataBufsSize = sizeof(struct KorgAudioBuffer) * kNumBuffers;
+	korg1212->dma_play = snd_devm_alloc_pages(&pci->dev, SNDRV_DMA_TYPE_DEV,
+						  korg1212->DataBufsSize);
+	if (!korg1212->dma_play)
+		return -ENOMEM;
+
+	korg1212->playDataBufsPtr = (struct KorgAudioBuffer *)korg1212->dma_play->area;
+	korg1212->PlayDataPhy = korg1212->dma_play->addr;
+>>>>>>> upstream/android-13
 
         K1212_DEBUG_PRINTK("K1212_DEBUG: Play Data Area = 0x%p (0x%08x), %d bytes\n",
 		korg1212->playDataBufsPtr, korg1212->PlayDataPhy, korg1212->DataBufsSize);
 
+<<<<<<< HEAD
 	if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(pci),
 				korg1212->DataBufsSize, &korg1212->dma_rec) < 0) {
 		snd_printk(KERN_ERR "korg1212: can not allocate record data buffer memory (%d bytes)\n", korg1212->DataBufsSize);
@@ -2326,6 +2457,15 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
         }
         korg1212->recordDataBufsPtr = (struct KorgAudioBuffer *)korg1212->dma_rec.area;
         korg1212->RecDataPhy = korg1212->dma_rec.addr;
+=======
+	korg1212->dma_rec = snd_devm_alloc_pages(&pci->dev, SNDRV_DMA_TYPE_DEV,
+						 korg1212->DataBufsSize);
+	if (!korg1212->dma_rec)
+		return -ENOMEM;
+
+	korg1212->recordDataBufsPtr = (struct KorgAudioBuffer *)korg1212->dma_rec->area;
+	korg1212->RecDataPhy = korg1212->dma_rec->addr;
+>>>>>>> upstream/android-13
 
         K1212_DEBUG_PRINTK("K1212_DEBUG: Record Data Area = 0x%p (0x%08x), %d bytes\n",
 		korg1212->recordDataBufsPtr, korg1212->RecDataPhy, korg1212->DataBufsSize);
@@ -2349,6 +2489,7 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
 	err = request_firmware(&dsp_code, "korg/k1212.dsp", &pci->dev);
 	if (err < 0) {
 		snd_printk(KERN_ERR "firmware not available\n");
+<<<<<<< HEAD
 		snd_korg1212_free(korg1212);
 		return err;
 	}
@@ -2366,6 +2507,23 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
 		   stateName[korg1212->cardState]);
 
 	memcpy(korg1212->dma_dsp.area, dsp_code->data, dsp_code->size);
+=======
+		return err;
+	}
+
+	korg1212->dma_dsp = snd_devm_alloc_pages(&pci->dev, SNDRV_DMA_TYPE_DEV,
+						 dsp_code->size);
+	if (!korg1212->dma_dsp) {
+		release_firmware(dsp_code);
+		return -ENOMEM;
+	}
+
+        K1212_DEBUG_PRINTK("K1212_DEBUG: DSP Code area = 0x%p (0x%08x) %d bytes [%s]\n",
+		   korg1212->dma_dsp->area, korg1212->dma_dsp->addr, dsp_code->size,
+		   stateName[korg1212->cardState]);
+
+	memcpy(korg1212->dma_dsp->area, dsp_code->data, dsp_code->size);
+>>>>>>> upstream/android-13
 
 	release_firmware(dsp_code);
 
@@ -2374,11 +2532,14 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
 	if (rc)
 		K1212_DEBUG_PRINTK("K1212_DEBUG: Reboot Card - RC = %d [%s]\n", rc, stateName[korg1212->cardState]);
 
+<<<<<<< HEAD
         if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, korg1212, &ops)) < 0) {
                 snd_korg1212_free(korg1212);
                 return err;
         }
         
+=======
+>>>>>>> upstream/android-13
 	snd_korg1212_EnableCardInterrupts(korg1212);
 
 	mdelay(CARD_BOOT_DELAY_IN_MS);
@@ -2399,7 +2560,12 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
                korg1212->RoutingTablePhy, LowerWordSwap(korg1212->RoutingTablePhy),
                korg1212->AdatTimeCodePhy, LowerWordSwap(korg1212->AdatTimeCodePhy));
 
+<<<<<<< HEAD
         if ((err = snd_pcm_new(korg1212->card, "korg1212", 0, 1, 1, &korg1212->pcm)) < 0)
+=======
+	err = snd_pcm_new(korg1212->card, "korg1212", 0, 1, 1, &korg1212->pcm);
+	if (err < 0)
+>>>>>>> upstream/android-13
                 return err;
 
 	korg1212->pcm->private_data = korg1212;
@@ -2419,10 +2585,15 @@ static int snd_korg1212_create(struct snd_card *card, struct pci_dev *pci,
         }
 
         snd_korg1212_proc_init(korg1212);
+<<<<<<< HEAD
         
         * rchip = korg1212;
 	return 0;
 
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2445,6 +2616,7 @@ snd_korg1212_probe(struct pci_dev *pci,
 		dev++;
 		return -ENOENT;
 	}
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -2454,6 +2626,17 @@ snd_korg1212_probe(struct pci_dev *pci,
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*korg1212), &card);
+	if (err < 0)
+		return err;
+	korg1212 = card->private_data;
+
+	err = snd_korg1212_create(card, pci);
+	if (err < 0)
+		goto error;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, "korg1212");
 	strcpy(card->shortname, "korg1212");
@@ -2462,6 +2645,7 @@ snd_korg1212_probe(struct pci_dev *pci,
 
         K1212_DEBUG_PRINTK("K1212_DEBUG: %s\n", card->longname);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
@@ -2474,13 +2658,28 @@ snd_korg1212_probe(struct pci_dev *pci,
 static void snd_korg1212_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		goto error;
+	pci_set_drvdata(pci, card);
+	dev++;
+	return 0;
+
+ error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver korg1212_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_korg1212_ids,
 	.probe = snd_korg1212_probe,
+<<<<<<< HEAD
 	.remove = snd_korg1212_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(korg1212_driver);

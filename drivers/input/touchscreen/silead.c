@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* -------------------------------------------------------------------------
  * Copyright (C) 2014-2015, Intel Corporation
  *
@@ -5,6 +9,7 @@
  *  gslX68X.c
  *  Copyright (C) 2010-2015, Shanghai Sileadinc Co.Ltd
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  * -------------------------------------------------------------------------
  */
 
@@ -297,7 +304,11 @@ static int silead_ts_load_fw(struct i2c_client *client)
 
 	dev_dbg(dev, "Firmware file name: %s", data->fw_name);
 
+<<<<<<< HEAD
 	error = request_firmware(&fw, data->fw_name, dev);
+=======
+	error = firmware_request_platform(&fw, data->fw_name, dev);
+>>>>>>> upstream/android-13
 	if (error) {
 		dev_err(dev, "Firmware request error %d\n", error);
 		return error;
@@ -530,7 +541,11 @@ static int silead_ts_probe(struct i2c_client *client,
 
 	silead_ts_read_props(client);
 
+<<<<<<< HEAD
 	/* We must have the IRQ provided by DT or ACPI subsytem */
+=======
+	/* We must have the IRQ provided by DT or ACPI subsystem */
+>>>>>>> upstream/android-13
 	if (client->irq <= 0)
 		return -ENODEV;
 

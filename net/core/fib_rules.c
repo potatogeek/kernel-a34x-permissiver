@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/core/fib_rules.c		Generic Routing Rules
  *
@@ -5,6 +6,12 @@
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * net/core/fib_rules.c		Generic Routing Rules
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  */
 
@@ -17,6 +24,23 @@
 #include <net/sock.h>
 #include <net/fib_rules.h>
 #include <net/ip_tunnels.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+
+#if defined(CONFIG_IPV6) && defined(CONFIG_IPV6_MULTIPLE_TABLES)
+#ifdef CONFIG_IP_MULTIPLE_TABLES
+#define INDIRECT_CALL_MT(f, f2, f1, ...) \
+	INDIRECT_CALL_INET(f, f2, f1, __VA_ARGS__)
+#else
+#define INDIRECT_CALL_MT(f, f2, f1, ...) INDIRECT_CALL_1(f, f2, __VA_ARGS__)
+#endif
+#elif defined(CONFIG_IP_MULTIPLE_TABLES)
+#define INDIRECT_CALL_MT(f, f2, f1, ...) INDIRECT_CALL_1(f, f1, __VA_ARGS__)
+#else
+#define INDIRECT_CALL_MT(f, f2, f1, ...) f(__VA_ARGS__)
+#endif
+>>>>>>> upstream/android-13
 
 static const struct fib_kuid_range fib_kuid_range_unset = {
 	KUIDT_INIT(0),
@@ -46,7 +70,11 @@ int fib_default_rule_add(struct fib_rules_ops *ops,
 {
 	struct fib_rule *r;
 
+<<<<<<< HEAD
 	r = kzalloc(ops->rule_size, GFP_KERNEL);
+=======
+	r = kzalloc(ops->rule_size, GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (r == NULL)
 		return -ENOMEM;
 
@@ -270,7 +298,14 @@ static int fib_rule_match(struct fib_rule *rule, struct fib_rules_ops *ops,
 	    uid_gt(fl->flowi_uid, rule->uid_range.end))
 		goto out;
 
+<<<<<<< HEAD
 	ret = ops->match(rule, fl, flags);
+=======
+	ret = INDIRECT_CALL_MT(ops->match,
+			       fib6_rule_match,
+			       fib4_rule_match,
+			       rule, fl, flags);
+>>>>>>> upstream/android-13
 out:
 	return (rule->flags & FIB_RULE_INVERT) ? !ret : ret;
 }
@@ -301,9 +336,21 @@ jumped:
 		} else if (rule->action == FR_ACT_NOP)
 			continue;
 		else
+<<<<<<< HEAD
 			err = ops->action(rule, fl, flags, arg);
 
 		if (!err && ops->suppress && ops->suppress(rule, arg))
+=======
+			err = INDIRECT_CALL_MT(ops->action,
+					       fib6_rule_action,
+					       fib4_rule_action,
+					       rule, fl, flags, arg);
+
+		if (!err && ops->suppress && INDIRECT_CALL_MT(ops->suppress,
+							      fib6_rule_suppress,
+							      fib4_rule_suppress,
+							      rule, flags, arg))
+>>>>>>> upstream/android-13
 			continue;
 
 		if (err != -EAGAIN) {
@@ -324,6 +371,7 @@ out:
 }
 EXPORT_SYMBOL_GPL(fib_rules_lookup);
 
+<<<<<<< HEAD
 static int call_fib_rule_notifier(struct notifier_block *nb, struct net *net,
 				  enum fib_event_type event_type,
 				  struct fib_rule *rule, int family)
@@ -334,6 +382,20 @@ static int call_fib_rule_notifier(struct notifier_block *nb, struct net *net,
 	};
 
 	return call_fib_notifier(nb, net, event_type, &info.info);
+=======
+static int call_fib_rule_notifier(struct notifier_block *nb,
+				  enum fib_event_type event_type,
+				  struct fib_rule *rule, int family,
+				  struct netlink_ext_ack *extack)
+{
+	struct fib_rule_notifier_info info = {
+		.info.family = family,
+		.info.extack = extack,
+		.rule = rule,
+	};
+
+	return call_fib_notifier(nb, event_type, &info.info);
+>>>>>>> upstream/android-13
 }
 
 static int call_fib_rule_notifiers(struct net *net,
@@ -353,20 +415,41 @@ static int call_fib_rule_notifiers(struct net *net,
 }
 
 /* Called with rcu_read_lock() */
+<<<<<<< HEAD
 int fib_rules_dump(struct net *net, struct notifier_block *nb, int family)
 {
 	struct fib_rules_ops *ops;
 	struct fib_rule *rule;
+=======
+int fib_rules_dump(struct net *net, struct notifier_block *nb, int family,
+		   struct netlink_ext_ack *extack)
+{
+	struct fib_rules_ops *ops;
+	struct fib_rule *rule;
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	ops = lookup_rules_ops(net, family);
 	if (!ops)
 		return -EAFNOSUPPORT;
+<<<<<<< HEAD
 	list_for_each_entry_rcu(rule, &ops->rules_list, list)
 		call_fib_rule_notifier(nb, net, FIB_EVENT_RULE_ADD, rule,
 				       family);
 	rules_ops_put(ops);
 
 	return 0;
+=======
+	list_for_each_entry_rcu(rule, &ops->rules_list, list) {
+		err = call_fib_rule_notifier(nb, FIB_EVENT_RULE_ADD,
+					     rule, family, extack);
+		if (err)
+			break;
+	}
+	rules_ops_put(ops);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(fib_rules_dump);
 
@@ -514,7 +597,11 @@ static int fib_nl2rule(struct sk_buff *skb, struct nlmsghdr *nlh,
 			goto errout;
 	}
 
+<<<<<<< HEAD
 	nlrule = kzalloc(ops->rule_size, GFP_KERNEL);
+=======
+	nlrule = kzalloc(ops->rule_size, GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!nlrule) {
 		err = -ENOMEM;
 		goto errout;
@@ -536,7 +623,11 @@ static int fib_nl2rule(struct sk_buff *skb, struct nlmsghdr *nlh,
 		struct net_device *dev;
 
 		nlrule->iifindex = -1;
+<<<<<<< HEAD
 		nla_strlcpy(nlrule->iifname, tb[FRA_IIFNAME], IFNAMSIZ);
+=======
+		nla_strscpy(nlrule->iifname, tb[FRA_IIFNAME], IFNAMSIZ);
+>>>>>>> upstream/android-13
 		dev = __dev_get_by_name(net, nlrule->iifname);
 		if (dev)
 			nlrule->iifindex = dev->ifindex;
@@ -546,7 +637,11 @@ static int fib_nl2rule(struct sk_buff *skb, struct nlmsghdr *nlh,
 		struct net_device *dev;
 
 		nlrule->oifindex = -1;
+<<<<<<< HEAD
 		nla_strlcpy(nlrule->oifname, tb[FRA_OIFNAME], IFNAMSIZ);
+=======
+		nla_strscpy(nlrule->oifname, tb[FRA_OIFNAME], IFNAMSIZ);
+>>>>>>> upstream/android-13
 		dev = __dev_get_by_name(net, nlrule->oifname);
 		if (dev)
 			nlrule->oifindex = dev->ifindex;
@@ -746,7 +841,12 @@ int fib_nl_newrule(struct sk_buff *skb, struct nlmsghdr *nlh,
 		goto errout;
 	}
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*frh), tb, FRA_MAX, ops->policy, extack);
+=======
+	err = nlmsg_parse_deprecated(nlh, sizeof(*frh), tb, FRA_MAX,
+				     ops->policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		NL_SET_ERR_MSG(extack, "Error parsing msg");
 		goto errout;
@@ -853,7 +953,12 @@ int fib_nl_delrule(struct sk_buff *skb, struct nlmsghdr *nlh,
 		goto errout;
 	}
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*frh), tb, FRA_MAX, ops->policy, extack);
+=======
+	err = nlmsg_parse_deprecated(nlh, sizeof(*frh), tb, FRA_MAX,
+				     ops->policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		NL_SET_ERR_MSG(extack, "Error parsing msg");
 		goto errout;
@@ -1063,13 +1168,56 @@ skip:
 	return err;
 }
 
+<<<<<<< HEAD
 static int fib_nl_dumprule(struct sk_buff *skb, struct netlink_callback *cb)
 {
+=======
+static int fib_valid_dumprule_req(const struct nlmsghdr *nlh,
+				   struct netlink_ext_ack *extack)
+{
+	struct fib_rule_hdr *frh;
+
+	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*frh))) {
+		NL_SET_ERR_MSG(extack, "Invalid header for fib rule dump request");
+		return -EINVAL;
+	}
+
+	frh = nlmsg_data(nlh);
+	if (frh->dst_len || frh->src_len || frh->tos || frh->table ||
+	    frh->res1 || frh->res2 || frh->action || frh->flags) {
+		NL_SET_ERR_MSG(extack,
+			       "Invalid values in header for fib rule dump request");
+		return -EINVAL;
+	}
+
+	if (nlmsg_attrlen(nlh, sizeof(*frh))) {
+		NL_SET_ERR_MSG(extack, "Invalid data after header in fib rule dump request");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int fib_nl_dumprule(struct sk_buff *skb, struct netlink_callback *cb)
+{
+	const struct nlmsghdr *nlh = cb->nlh;
+>>>>>>> upstream/android-13
 	struct net *net = sock_net(skb->sk);
 	struct fib_rules_ops *ops;
 	int idx = 0, family;
 
+<<<<<<< HEAD
 	family = rtnl_msg_family(cb->nlh);
+=======
+	if (cb->strict_check) {
+		int err = fib_valid_dumprule_req(nlh, cb->extack);
+
+		if (err < 0)
+			return err;
+	}
+
+	family = rtnl_msg_family(nlh);
+>>>>>>> upstream/android-13
 	if (family != AF_UNSPEC) {
 		/* Protocol specific dump request */
 		ops = lookup_rules_ops(net, family);
@@ -1105,7 +1253,11 @@ static void notify_rule_change(int event, struct fib_rule *rule,
 {
 	struct net *net;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	int err = -ENOBUFS;
+=======
+	int err = -ENOMEM;
+>>>>>>> upstream/android-13
 
 	net = ops->fro_net;
 	skb = nlmsg_new(fib_rule_nlmsg_size(ops, rule), GFP_KERNEL);

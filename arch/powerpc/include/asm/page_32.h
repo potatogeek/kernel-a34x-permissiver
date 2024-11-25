@@ -16,6 +16,7 @@
 #define ARCH_DMA_MINALIGN	L1_CACHE_BYTES
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PTE_64BIT
 #define PTE_FLAGS_OFFSET	4	/* offset of PTE flags, in bytes */
 #else
@@ -23,6 +24,10 @@
 #endif
 
 #ifdef CONFIG_PPC_256K_PAGES
+=======
+#if defined(CONFIG_PPC_256K_PAGES) || \
+    (defined(CONFIG_PPC_8xx) && defined(CONFIG_PPC_16K_PAGES))
+>>>>>>> upstream/android-13
 #define PTE_SHIFT	(PAGE_SHIFT - PTE_T_LOG2 - 2)	/* 1/4 of a page */
 #else
 #define PTE_SHIFT	(PAGE_SHIFT - PTE_T_LOG2)	/* full page */
@@ -39,6 +44,11 @@ typedef unsigned long long pte_basic_t;
 typedef unsigned long pte_basic_t;
 #endif
 
+<<<<<<< HEAD
+=======
+#include <asm/bug.h>
+
+>>>>>>> upstream/android-13
 /*
  * Clear page using the dcbz instruction, which doesn't cause any
  * memory traffic (except to write out any cache lines which get
@@ -48,6 +58,11 @@ static inline void clear_page(void *addr)
 {
 	unsigned int i;
 
+<<<<<<< HEAD
+=======
+	WARN_ON((unsigned long)addr & (L1_CACHE_BYTES - 1));
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < PAGE_SIZE / L1_CACHE_BYTES; i++, addr += L1_CACHE_BYTES)
 		dcbz(addr);
 }

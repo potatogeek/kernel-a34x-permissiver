@@ -9,8 +9,12 @@
 
 #include <rtl8192c_recv.h>
 
+<<<<<<< HEAD
 typedef struct rxreport_8723b
 {
+=======
+struct rxreport_8723b {
+>>>>>>> upstream/android-13
 	/* DWORD 0 */
 	u32 pktlen:14;
 	u32 crc32:1;
@@ -80,6 +84,7 @@ typedef struct rxreport_8723b
 
 	/* DWORD 5 */
 	u32 tsfl;
+<<<<<<< HEAD
 } RXREPORT, *PRXREPORT;
 
 typedef struct phystatus_8723b
@@ -126,6 +131,9 @@ typedef struct phystatus_8723b
 	u32 antselb:1;
 	u32 antsel:1;
 } PHYSTATUS, *PPHYSTATUS;
+=======
+};
+>>>>>>> upstream/android-13
 
 s32 rtl8723bs_init_recv_priv(struct adapter *padapter);
 void rtl8723bs_free_recv_priv(struct adapter *padapter);

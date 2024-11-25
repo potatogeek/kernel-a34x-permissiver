@@ -27,11 +27,38 @@
 #include "cache.h"
 #include "vfs.h"
 #include "netns.h"
+<<<<<<< HEAD
+=======
+#include "filecache.h"
+
+#include "trace.h"
+>>>>>>> upstream/android-13
 
 #define NFSDDBG_FACILITY	NFSDDBG_SVC
 
 extern struct svc_program	nfsd_program;
 static int			nfsd(void *vrqstp);
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
+static int			nfsd_acl_rpcbind_set(struct net *,
+						     const struct svc_program *,
+						     u32, int,
+						     unsigned short,
+						     unsigned short);
+static __be32			nfsd_acl_init_request(struct svc_rqst *,
+						const struct svc_program *,
+						struct svc_process_info *);
+#endif
+static int			nfsd_rpcbind_set(struct net *,
+						 const struct svc_program *,
+						 u32, int,
+						 unsigned short,
+						 unsigned short);
+static __be32			nfsd_init_request(struct svc_rqst *,
+						const struct svc_program *,
+						struct svc_process_info *);
+>>>>>>> upstream/android-13
 
 /*
  * nfsd_mutex protects nn->nfsd_serv -- both the pointer itself and the members
@@ -63,7 +90,11 @@ DEFINE_MUTEX(nfsd_mutex);
  * version 4.1 DRC caches.
  * nfsd_drc_pages_used tracks the current version 4.1 DRC memory usage.
  */
+<<<<<<< HEAD
 spinlock_t	nfsd_drc_lock;
+=======
+DEFINE_SPINLOCK(nfsd_drc_lock);
+>>>>>>> upstream/android-13
 unsigned long	nfsd_drc_max_mem;
 unsigned long	nfsd_drc_mem_used;
 
@@ -76,16 +107,28 @@ static const struct svc_version *nfsd_acl_version[] = {
 
 #define NFSD_ACL_MINVERS            2
 #define NFSD_ACL_NRVERS		ARRAY_SIZE(nfsd_acl_version)
+<<<<<<< HEAD
 static const struct svc_version *nfsd_acl_versions[NFSD_ACL_NRVERS];
+=======
+>>>>>>> upstream/android-13
 
 static struct svc_program	nfsd_acl_program = {
 	.pg_prog		= NFS_ACL_PROGRAM,
 	.pg_nvers		= NFSD_ACL_NRVERS,
+<<<<<<< HEAD
 	.pg_vers		= nfsd_acl_versions,
+=======
+	.pg_vers		= nfsd_acl_version,
+>>>>>>> upstream/android-13
 	.pg_name		= "nfsacl",
 	.pg_class		= "nfsd",
 	.pg_stats		= &nfsd_acl_svcstats,
 	.pg_authenticate	= &svc_set_client,
+<<<<<<< HEAD
+=======
+	.pg_init_request	= nfsd_acl_init_request,
+	.pg_rpcbind_set		= nfsd_acl_rpcbind_set,
+>>>>>>> upstream/android-13
 };
 
 static struct svc_stat	nfsd_acl_svcstats = {
@@ -105,7 +148,10 @@ static const struct svc_version *nfsd_version[] = {
 
 #define NFSD_MINVERS    	2
 #define NFSD_NRVERS		ARRAY_SIZE(nfsd_version)
+<<<<<<< HEAD
 static const struct svc_version *nfsd_versions[NFSD_NRVERS];
+=======
+>>>>>>> upstream/android-13
 
 struct svc_program		nfsd_program = {
 #if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
@@ -113,11 +159,16 @@ struct svc_program		nfsd_program = {
 #endif
 	.pg_prog		= NFS_PROGRAM,		/* program number */
 	.pg_nvers		= NFSD_NRVERS,		/* nr of entries in nfsd_version */
+<<<<<<< HEAD
 	.pg_vers		= nfsd_versions,	/* version table */
+=======
+	.pg_vers		= nfsd_version,		/* version table */
+>>>>>>> upstream/android-13
 	.pg_name		= "nfsd",		/* program name */
 	.pg_class		= "nfsd",		/* authentication class */
 	.pg_stats		= &nfsd_svcstats,	/* version table */
 	.pg_authenticate	= &svc_set_client,	/* export authentication */
+<<<<<<< HEAD
 
 };
 
@@ -128,11 +179,76 @@ static bool nfsd_supported_minorversions[NFSD_SUPPORTED_MINOR_VERSION + 1] = {
 };
 
 int nfsd_vers(int vers, enum vers_op change)
+=======
+	.pg_init_request	= nfsd_init_request,
+	.pg_rpcbind_set		= nfsd_rpcbind_set,
+};
+
+static bool
+nfsd_support_version(int vers)
+{
+	if (vers >= NFSD_MINVERS && vers < NFSD_NRVERS)
+		return nfsd_version[vers] != NULL;
+	return false;
+}
+
+static bool *
+nfsd_alloc_versions(void)
+{
+	bool *vers = kmalloc_array(NFSD_NRVERS, sizeof(bool), GFP_KERNEL);
+	unsigned i;
+
+	if (vers) {
+		/* All compiled versions are enabled by default */
+		for (i = 0; i < NFSD_NRVERS; i++)
+			vers[i] = nfsd_support_version(i);
+	}
+	return vers;
+}
+
+static bool *
+nfsd_alloc_minorversions(void)
+{
+	bool *vers = kmalloc_array(NFSD_SUPPORTED_MINOR_VERSION + 1,
+			sizeof(bool), GFP_KERNEL);
+	unsigned i;
+
+	if (vers) {
+		/* All minor versions are enabled by default */
+		for (i = 0; i <= NFSD_SUPPORTED_MINOR_VERSION; i++)
+			vers[i] = nfsd_support_version(4);
+	}
+	return vers;
+}
+
+void
+nfsd_netns_free_versions(struct nfsd_net *nn)
+{
+	kfree(nn->nfsd_versions);
+	kfree(nn->nfsd4_minorversions);
+	nn->nfsd_versions = NULL;
+	nn->nfsd4_minorversions = NULL;
+}
+
+static void
+nfsd_netns_init_versions(struct nfsd_net *nn)
+{
+	if (!nn->nfsd_versions) {
+		nn->nfsd_versions = nfsd_alloc_versions();
+		nn->nfsd4_minorversions = nfsd_alloc_minorversions();
+		if (!nn->nfsd_versions || !nn->nfsd4_minorversions)
+			nfsd_netns_free_versions(nn);
+	}
+}
+
+int nfsd_vers(struct nfsd_net *nn, int vers, enum vers_op change)
+>>>>>>> upstream/android-13
 {
 	if (vers < NFSD_MINVERS || vers >= NFSD_NRVERS)
 		return 0;
 	switch(change) {
 	case NFSD_SET:
+<<<<<<< HEAD
 		nfsd_versions[vers] = nfsd_version[vers];
 #if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
 		if (vers < NFSD_ACL_NRVERS)
@@ -150,16 +266,37 @@ int nfsd_vers(int vers, enum vers_op change)
 		return nfsd_versions[vers] != NULL;
 	case NFSD_AVAIL:
 		return nfsd_version[vers] != NULL;
+=======
+		if (nn->nfsd_versions)
+			nn->nfsd_versions[vers] = nfsd_support_version(vers);
+		break;
+	case NFSD_CLEAR:
+		nfsd_netns_init_versions(nn);
+		if (nn->nfsd_versions)
+			nn->nfsd_versions[vers] = false;
+		break;
+	case NFSD_TEST:
+		if (nn->nfsd_versions)
+			return nn->nfsd_versions[vers];
+		fallthrough;
+	case NFSD_AVAIL:
+		return nfsd_support_version(vers);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
 static void
+<<<<<<< HEAD
 nfsd_adjust_nfsd_versions4(void)
+=======
+nfsd_adjust_nfsd_versions4(struct nfsd_net *nn)
+>>>>>>> upstream/android-13
 {
 	unsigned i;
 
 	for (i = 0; i <= NFSD_SUPPORTED_MINOR_VERSION; i++) {
+<<<<<<< HEAD
 		if (nfsd_supported_minorversions[i])
 			return;
 	}
@@ -167,10 +304,20 @@ nfsd_adjust_nfsd_versions4(void)
 }
 
 int nfsd_minorversion(u32 minorversion, enum vers_op change)
+=======
+		if (nn->nfsd4_minorversions[i])
+			return;
+	}
+	nfsd_vers(nn, 4, NFSD_CLEAR);
+}
+
+int nfsd_minorversion(struct nfsd_net *nn, u32 minorversion, enum vers_op change)
+>>>>>>> upstream/android-13
 {
 	if (minorversion > NFSD_SUPPORTED_MINOR_VERSION &&
 	    change != NFSD_AVAIL)
 		return -1;
+<<<<<<< HEAD
 	switch(change) {
 	case NFSD_SET:
 		nfsd_supported_minorversions[minorversion] = true;
@@ -184,6 +331,31 @@ int nfsd_minorversion(u32 minorversion, enum vers_op change)
 		return nfsd_supported_minorversions[minorversion];
 	case NFSD_AVAIL:
 		return minorversion <= NFSD_SUPPORTED_MINOR_VERSION;
+=======
+
+	switch(change) {
+	case NFSD_SET:
+		if (nn->nfsd4_minorversions) {
+			nfsd_vers(nn, 4, NFSD_SET);
+			nn->nfsd4_minorversions[minorversion] =
+				nfsd_vers(nn, 4, NFSD_TEST);
+		}
+		break;
+	case NFSD_CLEAR:
+		nfsd_netns_init_versions(nn);
+		if (nn->nfsd4_minorversions) {
+			nn->nfsd4_minorversions[minorversion] = false;
+			nfsd_adjust_nfsd_versions4(nn);
+		}
+		break;
+	case NFSD_TEST:
+		if (nn->nfsd4_minorversions)
+			return nn->nfsd4_minorversions[minorversion];
+		return nfsd_vers(nn, 4, NFSD_TEST);
+	case NFSD_AVAIL:
+		return minorversion <= NFSD_SUPPORTED_MINOR_VERSION &&
+			nfsd_vers(nn, 4, NFSD_AVAIL);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -205,7 +377,11 @@ int nfsd_nrthreads(struct net *net)
 	return rv;
 }
 
+<<<<<<< HEAD
 static int nfsd_init_socks(struct net *net)
+=======
+static int nfsd_init_socks(struct net *net, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int error;
 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
@@ -214,12 +390,20 @@ static int nfsd_init_socks(struct net *net)
 		return 0;
 
 	error = svc_create_xprt(nn->nfsd_serv, "udp", net, PF_INET, NFS_PORT,
+<<<<<<< HEAD
 					SVC_SOCK_DEFAULTS);
+=======
+					SVC_SOCK_DEFAULTS, cred);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
 	error = svc_create_xprt(nn->nfsd_serv, "tcp", net, PF_INET, NFS_PORT,
+<<<<<<< HEAD
 					SVC_SOCK_DEFAULTS);
+=======
+					SVC_SOCK_DEFAULTS, cred);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 
@@ -228,29 +412,45 @@ static int nfsd_init_socks(struct net *net)
 
 static int nfsd_users = 0;
 
+<<<<<<< HEAD
 static int nfsd_startup_generic(int nrservs)
+=======
+static int nfsd_startup_generic(void)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	if (nfsd_users++)
 		return 0;
 
+<<<<<<< HEAD
 	/*
 	 * Readahead param cache - will no-op if it already exists.
 	 * (Note therefore results will be suboptimal if number of
 	 * threads is modified after nfsd start.)
 	 */
 	ret = nfsd_racache_init(2*nrservs);
+=======
+	ret = nfsd_file_cache_init();
+>>>>>>> upstream/android-13
 	if (ret)
 		goto dec_users;
 
 	ret = nfs4_state_start();
 	if (ret)
+<<<<<<< HEAD
 		goto out_racache;
 	return 0;
 
 out_racache:
 	nfsd_racache_shutdown();
+=======
+		goto out_file_cache;
+	return 0;
+
+out_file_cache:
+	nfsd_file_cache_shutdown();
+>>>>>>> upstream/android-13
 dec_users:
 	nfsd_users--;
 	return ret;
@@ -262,6 +462,7 @@ static void nfsd_shutdown_generic(void)
 		return;
 
 	nfs4_state_shutdown();
+<<<<<<< HEAD
 	nfsd_racache_shutdown();
 }
 
@@ -275,6 +476,46 @@ static bool nfsd_needs_lockd(void)
 }
 
 static int nfsd_startup_net(int nrservs, struct net *net)
+=======
+	nfsd_file_cache_shutdown();
+}
+
+static bool nfsd_needs_lockd(struct nfsd_net *nn)
+{
+	return nfsd_vers(nn, 2, NFSD_TEST) || nfsd_vers(nn, 3, NFSD_TEST);
+}
+
+void nfsd_copy_boot_verifier(__be32 verf[2], struct nfsd_net *nn)
+{
+	int seq = 0;
+
+	do {
+		read_seqbegin_or_lock(&nn->boot_lock, &seq);
+		/*
+		 * This is opaque to client, so no need to byte-swap. Use
+		 * __force to keep sparse happy. y2038 time_t overflow is
+		 * irrelevant in this usage
+		 */
+		verf[0] = (__force __be32)nn->nfssvc_boot.tv_sec;
+		verf[1] = (__force __be32)nn->nfssvc_boot.tv_nsec;
+	} while (need_seqretry(&nn->boot_lock, seq));
+	done_seqretry(&nn->boot_lock, seq);
+}
+
+static void nfsd_reset_boot_verifier_locked(struct nfsd_net *nn)
+{
+	ktime_get_real_ts64(&nn->nfssvc_boot);
+}
+
+void nfsd_reset_boot_verifier(struct nfsd_net *nn)
+{
+	write_seqlock(&nn->boot_lock);
+	nfsd_reset_boot_verifier_locked(nn);
+	write_sequnlock(&nn->boot_lock);
+}
+
+static int nfsd_startup_net(struct net *net, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
 	int ret;
@@ -282,6 +523,7 @@ static int nfsd_startup_net(int nrservs, struct net *net)
 	if (nn->nfsd_net_up)
 		return 0;
 
+<<<<<<< HEAD
 	ret = nfsd_startup_generic(nrservs);
 	if (ret)
 		return ret;
@@ -307,6 +549,41 @@ out_lockd:
 	if (nn->lockd_up) {
 		lockd_down(net);
 		nn->lockd_up = 0;
+=======
+	ret = nfsd_startup_generic();
+	if (ret)
+		return ret;
+	ret = nfsd_init_socks(net, cred);
+	if (ret)
+		goto out_socks;
+
+	if (nfsd_needs_lockd(nn) && !nn->lockd_up) {
+		ret = lockd_up(net, cred);
+		if (ret)
+			goto out_socks;
+		nn->lockd_up = true;
+	}
+
+	ret = nfsd_file_cache_start_net(net);
+	if (ret)
+		goto out_lockd;
+	ret = nfs4_state_start_net(net);
+	if (ret)
+		goto out_filecache;
+
+#ifdef CONFIG_NFSD_V4_2_INTER_SSC
+	nfsd4_ssc_init_umount_work(nn);
+#endif
+	nn->nfsd_net_up = true;
+	return 0;
+
+out_filecache:
+	nfsd_file_cache_shutdown_net(net);
+out_lockd:
+	if (nn->lockd_up) {
+		lockd_down(net);
+		nn->lockd_up = false;
+>>>>>>> upstream/android-13
 	}
 out_socks:
 	nfsd_shutdown_generic();
@@ -317,10 +594,18 @@ static void nfsd_shutdown_net(struct net *net)
 {
 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
 
+<<<<<<< HEAD
 	nfs4_state_shutdown_net(net);
 	if (nn->lockd_up) {
 		lockd_down(net);
 		nn->lockd_up = 0;
+=======
+	nfsd_file_cache_shutdown_net(net);
+	nfs4_state_shutdown_net(net);
+	if (nn->lockd_up) {
+		lockd_down(net);
+		nn->lockd_up = false;
+>>>>>>> upstream/android-13
 	}
 	nn->nfsd_net_up = false;
 	nfsd_shutdown_generic();
@@ -421,20 +706,35 @@ static void nfsd_last_thread(struct svc_serv *serv, struct net *net)
 	nfsd_export_flush(net);
 }
 
+<<<<<<< HEAD
 void nfsd_reset_versions(void)
+=======
+void nfsd_reset_versions(struct nfsd_net *nn)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < NFSD_NRVERS; i++)
+<<<<<<< HEAD
 		if (nfsd_vers(i, NFSD_TEST))
+=======
+		if (nfsd_vers(nn, i, NFSD_TEST))
+>>>>>>> upstream/android-13
 			return;
 
 	for (i = 0; i < NFSD_NRVERS; i++)
 		if (i != 4)
+<<<<<<< HEAD
 			nfsd_vers(i, NFSD_SET);
 		else {
 			int minor = 0;
 			while (nfsd_minorversion(minor, NFSD_SET) >= 0)
+=======
+			nfsd_vers(nn, i, NFSD_SET);
+		else {
+			int minor = 0;
+			while (nfsd_minorversion(nn, minor, NFSD_SET) >= 0)
+>>>>>>> upstream/android-13
 				minor++;
 		}
 }
@@ -457,7 +757,10 @@ static void set_max_drc(void)
 	nfsd_drc_max_mem = (nr_free_buffer_pages()
 					>> NFSD_DRC_SIZE_SHIFT) * PAGE_SIZE;
 	nfsd_drc_mem_used = 0;
+<<<<<<< HEAD
 	spin_lock_init(&nfsd_drc_lock);
+=======
+>>>>>>> upstream/android-13
 	dprintk("%s nfsd_drc_max_mem %lu \n", __func__, nfsd_drc_max_mem);
 }
 
@@ -490,6 +793,45 @@ static const struct svc_serv_ops nfsd_thread_sv_ops = {
 	.svo_module		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
+=======
+static void nfsd_complete_shutdown(struct net *net)
+{
+	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+
+	WARN_ON(!mutex_is_locked(&nfsd_mutex));
+
+	nn->nfsd_serv = NULL;
+	complete(&nn->nfsd_shutdown_complete);
+}
+
+void nfsd_shutdown_threads(struct net *net)
+{
+	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+	struct svc_serv *serv;
+
+	mutex_lock(&nfsd_mutex);
+	serv = nn->nfsd_serv;
+	if (serv == NULL) {
+		mutex_unlock(&nfsd_mutex);
+		return;
+	}
+
+	svc_get(serv);
+	/* Kill outstanding nfsd threads */
+	serv->sv_ops->svo_setup(serv, NULL, 0);
+	nfsd_destroy(net);
+	mutex_unlock(&nfsd_mutex);
+	/* Wait for shutdown of nfsd_serv to complete */
+	wait_for_completion(&nn->nfsd_shutdown_complete);
+}
+
+bool i_am_nfsd(void)
+{
+	return kthread_func(current) == nfsd;
+}
+
+>>>>>>> upstream/android-13
 int nfsd_create_serv(struct net *net)
 {
 	int error;
@@ -502,16 +844,28 @@ int nfsd_create_serv(struct net *net)
 	}
 	if (nfsd_max_blksize == 0)
 		nfsd_max_blksize = nfsd_get_default_max_blksize();
+<<<<<<< HEAD
 	nfsd_reset_versions();
+=======
+	nfsd_reset_versions(nn);
+>>>>>>> upstream/android-13
 	nn->nfsd_serv = svc_create_pooled(&nfsd_program, nfsd_max_blksize,
 						&nfsd_thread_sv_ops);
 	if (nn->nfsd_serv == NULL)
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+	init_completion(&nn->nfsd_shutdown_complete);
+>>>>>>> upstream/android-13
 
 	nn->nfsd_serv->sv_maxconn = nn->max_connections;
 	error = svc_bind(nn->nfsd_serv, net);
 	if (error < 0) {
 		svc_destroy(nn->nfsd_serv);
+<<<<<<< HEAD
+=======
+		nfsd_complete_shutdown(net);
+>>>>>>> upstream/android-13
 		return error;
 	}
 
@@ -524,7 +878,11 @@ int nfsd_create_serv(struct net *net)
 #endif
 	}
 	atomic_inc(&nn->ntf_refcnt);
+<<<<<<< HEAD
 	ktime_get_real_ts64(&nn->nfssvc_boot); /* record boot time */
+=======
+	nfsd_reset_boot_verifier(nn);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -560,7 +918,11 @@ void nfsd_destroy(struct net *net)
 		svc_shutdown_net(nn->nfsd_serv, net);
 	svc_destroy(nn->nfsd_serv);
 	if (destroy)
+<<<<<<< HEAD
 		nn->nfsd_serv = NULL;
+=======
+		nfsd_complete_shutdown(net);
+>>>>>>> upstream/android-13
 }
 
 int nfsd_set_nrthreads(int n, int *nthreads, struct net *net)
@@ -622,7 +984,11 @@ int nfsd_set_nrthreads(int n, int *nthreads, struct net *net)
  * this is the first time nrservs is nonzero.
  */
 int
+<<<<<<< HEAD
 nfsd_svc(int nrservs, struct net *net)
+=======
+nfsd_svc(int nrservs, struct net *net, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int	error;
 	bool	nfsd_up_before;
@@ -638,13 +1004,23 @@ nfsd_svc(int nrservs, struct net *net)
 	if (nrservs == 0 && nn->nfsd_serv == NULL)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	strlcpy(nn->nfsd_name, utsname()->nodename,
+		sizeof(nn->nfsd_name));
+
+>>>>>>> upstream/android-13
 	error = nfsd_create_serv(net);
 	if (error)
 		goto out;
 
 	nfsd_up_before = nn->nfsd_net_up;
 
+<<<<<<< HEAD
 	error = nfsd_startup_net(nrservs, net);
+=======
+	error = nfsd_startup_net(net, cred);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_destroy;
 	error = nn->nfsd_serv->sv_ops->svo_setup(nn->nfsd_serv,
@@ -666,6 +1042,104 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
+static bool
+nfsd_support_acl_version(int vers)
+{
+	if (vers >= NFSD_ACL_MINVERS && vers < NFSD_ACL_NRVERS)
+		return nfsd_acl_version[vers] != NULL;
+	return false;
+}
+
+static int
+nfsd_acl_rpcbind_set(struct net *net, const struct svc_program *progp,
+		     u32 version, int family, unsigned short proto,
+		     unsigned short port)
+{
+	if (!nfsd_support_acl_version(version) ||
+	    !nfsd_vers(net_generic(net, nfsd_net_id), version, NFSD_TEST))
+		return 0;
+	return svc_generic_rpcbind_set(net, progp, version, family,
+			proto, port);
+}
+
+static __be32
+nfsd_acl_init_request(struct svc_rqst *rqstp,
+		      const struct svc_program *progp,
+		      struct svc_process_info *ret)
+{
+	struct nfsd_net *nn = net_generic(SVC_NET(rqstp), nfsd_net_id);
+	int i;
+
+	if (likely(nfsd_support_acl_version(rqstp->rq_vers) &&
+	    nfsd_vers(nn, rqstp->rq_vers, NFSD_TEST)))
+		return svc_generic_init_request(rqstp, progp, ret);
+
+	ret->mismatch.lovers = NFSD_ACL_NRVERS;
+	for (i = NFSD_ACL_MINVERS; i < NFSD_ACL_NRVERS; i++) {
+		if (nfsd_support_acl_version(rqstp->rq_vers) &&
+		    nfsd_vers(nn, i, NFSD_TEST)) {
+			ret->mismatch.lovers = i;
+			break;
+		}
+	}
+	if (ret->mismatch.lovers == NFSD_ACL_NRVERS)
+		return rpc_prog_unavail;
+	ret->mismatch.hivers = NFSD_ACL_MINVERS;
+	for (i = NFSD_ACL_NRVERS - 1; i >= NFSD_ACL_MINVERS; i--) {
+		if (nfsd_support_acl_version(rqstp->rq_vers) &&
+		    nfsd_vers(nn, i, NFSD_TEST)) {
+			ret->mismatch.hivers = i;
+			break;
+		}
+	}
+	return rpc_prog_mismatch;
+}
+#endif
+
+static int
+nfsd_rpcbind_set(struct net *net, const struct svc_program *progp,
+		 u32 version, int family, unsigned short proto,
+		 unsigned short port)
+{
+	if (!nfsd_vers(net_generic(net, nfsd_net_id), version, NFSD_TEST))
+		return 0;
+	return svc_generic_rpcbind_set(net, progp, version, family,
+			proto, port);
+}
+
+static __be32
+nfsd_init_request(struct svc_rqst *rqstp,
+		  const struct svc_program *progp,
+		  struct svc_process_info *ret)
+{
+	struct nfsd_net *nn = net_generic(SVC_NET(rqstp), nfsd_net_id);
+	int i;
+
+	if (likely(nfsd_vers(nn, rqstp->rq_vers, NFSD_TEST)))
+		return svc_generic_init_request(rqstp, progp, ret);
+
+	ret->mismatch.lovers = NFSD_NRVERS;
+	for (i = NFSD_MINVERS; i < NFSD_NRVERS; i++) {
+		if (nfsd_vers(nn, i, NFSD_TEST)) {
+			ret->mismatch.lovers = i;
+			break;
+		}
+	}
+	if (ret->mismatch.lovers == NFSD_NRVERS)
+		return rpc_prog_unavail;
+	ret->mismatch.hivers = NFSD_MINVERS;
+	for (i = NFSD_NRVERS - 1; i >= NFSD_MINVERS; i--) {
+		if (nfsd_vers(nn, i, NFSD_TEST)) {
+			ret->mismatch.hivers = i;
+			break;
+		}
+	}
+	return rpc_prog_mismatch;
+}
+>>>>>>> upstream/android-13
 
 /*
  * This is the NFS server kernel thread
@@ -746,6 +1220,7 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 static __be32 map_new_errors(u32 vers, __be32 nfserr)
 {
 	if (nfserr == nfserr_jukebox && vers == 2)
@@ -802,11 +1277,32 @@ nfsd_dispatch(struct svc_rqst *rqstp, __be32 *statp)
 		*statp = rpc_garbage_args;
 		return 1;
 	}
+=======
+/**
+ * nfsd_dispatch - Process an NFS or NFSACL Request
+ * @rqstp: incoming request
+ * @statp: pointer to location of accept_stat field in RPC Reply buffer
+ *
+ * This RPC dispatcher integrates the NFS server's duplicate reply cache.
+ *
+ * Return values:
+ *  %0: Processing complete; do not send a Reply
+ *  %1: Processing complete; send Reply in rqstp->rq_res
+ */
+int nfsd_dispatch(struct svc_rqst *rqstp, __be32 *statp)
+{
+	const struct svc_procedure *proc = rqstp->rq_procinfo;
+	struct kvec *argv = &rqstp->rq_arg.head[0];
+	struct kvec *resv = &rqstp->rq_res.head[0];
+	__be32 *p;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Give the xdr decoder a chance to change this if it wants
 	 * (necessary in the NFSv4.0 compound case)
 	 */
 	rqstp->rq_cachetype = proc->pc_cachetype;
+<<<<<<< HEAD
 	/* Decode arguments */
 	if (proc->pc_decode &&
 	    !proc->pc_decode(rqstp, (__be32*)rqstp->rq_arg.head[0].iov_base)) {
@@ -859,6 +1355,82 @@ nfsd_dispatch(struct svc_rqst *rqstp, __be32 *statp)
 
 	/* Store reply in cache. */
 	nfsd_cache_update(rqstp, rqstp->rq_cachetype, statp + 1);
+=======
+
+	svcxdr_init_decode(rqstp);
+	if (!proc->pc_decode(rqstp, argv->iov_base))
+		goto out_decode_err;
+
+	switch (nfsd_cache_lookup(rqstp)) {
+	case RC_DOIT:
+		break;
+	case RC_REPLY:
+		goto out_cached_reply;
+	case RC_DROPIT:
+		goto out_dropit;
+	}
+
+	/*
+	 * Need to grab the location to store the status, as
+	 * NFSv4 does some encoding while processing
+	 */
+	p = resv->iov_base + resv->iov_len;
+	svcxdr_init_encode(rqstp);
+
+	*statp = proc->pc_func(rqstp);
+	if (*statp == rpc_drop_reply || test_bit(RQ_DROPME, &rqstp->rq_flags))
+		goto out_update_drop;
+
+	if (!proc->pc_encode(rqstp, p))
+		goto out_encode_err;
+
+	nfsd_cache_update(rqstp, rqstp->rq_cachetype, statp + 1);
+out_cached_reply:
+	return 1;
+
+out_decode_err:
+	trace_nfsd_garbage_args_err(rqstp);
+	*statp = rpc_garbage_args;
+	return 1;
+
+out_update_drop:
+	nfsd_cache_update(rqstp, RC_NOCACHE, NULL);
+out_dropit:
+	return 0;
+
+out_encode_err:
+	trace_nfsd_cant_encode_err(rqstp);
+	nfsd_cache_update(rqstp, RC_NOCACHE, NULL);
+	*statp = rpc_system_err;
+	return 1;
+}
+
+/**
+ * nfssvc_decode_voidarg - Decode void arguments
+ * @rqstp: Server RPC transaction context
+ * @p: buffer containing arguments to decode
+ *
+ * Return values:
+ *   %0: Arguments were not valid
+ *   %1: Decoding was successful
+ */
+int nfssvc_decode_voidarg(struct svc_rqst *rqstp, __be32 *p)
+{
+	return 1;
+}
+
+/**
+ * nfssvc_encode_voidres - Encode void results
+ * @rqstp: Server RPC transaction context
+ * @p: buffer in which to encode results
+ *
+ * Return values:
+ *   %0: Local error while encoding
+ *   %1: Encoding was successful
+ */
+int nfssvc_encode_voidres(struct svc_rqst *rqstp, __be32 *p)
+{
+>>>>>>> upstream/android-13
 	return 1;
 }
 

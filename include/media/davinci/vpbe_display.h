@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
  *
@@ -9,6 +10,11 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 #ifndef VPBE_DISPLAY_H
 #define VPBE_DISPLAY_H

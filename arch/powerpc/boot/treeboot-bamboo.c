@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright IBM Corporation, 2007
  * Josh Boyer <jwboyer@linux.vnet.ibm.com>
  *
  * Based on ebony wrapper:
  * Copyright 2007 David Gibson, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2 of the License
+=======
+>>>>>>> upstream/android-13
  */
 #include "ops.h"
 #include "stdio.h"

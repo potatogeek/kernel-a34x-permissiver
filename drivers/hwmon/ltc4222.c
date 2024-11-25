@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Linear Technology LTC4222 Dual Hot Swap controller
  *
  * Copyright (c) 2014 Guenter Roeck
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -94,7 +101,11 @@ static int ltc4222_get_value(struct device *dev, u8 reg)
 	return val;
 }
 
+<<<<<<< HEAD
 static ssize_t ltc4222_show_value(struct device *dev,
+=======
+static ssize_t ltc4222_value_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -103,10 +114,17 @@ static ssize_t ltc4222_show_value(struct device *dev,
 	value = ltc4222_get_value(dev, attr->index);
 	if (value < 0)
 		return value;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", value);
 }
 
 static ssize_t ltc4222_show_bool(struct device *dev,
+=======
+	return sysfs_emit(buf, "%d\n", value);
+}
+
+static ssize_t ltc4222_bool_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute_2 *attr = to_sensor_dev_attr_2(da);
@@ -121,6 +139,7 @@ static ssize_t ltc4222_show_bool(struct device *dev,
 	if (fault)		/* Clear reported faults in chip register */
 		regmap_update_bits(regmap, attr->nr, attr->index, 0);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", !!fault);
 }
 
@@ -133,12 +152,23 @@ static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, ltc4222_show_value, NULL,
 			  LTC4222_SOURCE2);
 static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, ltc4222_show_value, NULL,
 			  LTC4222_ADIN2);
+=======
+	return sysfs_emit(buf, "%d\n", !!fault);
+}
+
+/* Voltages */
+static SENSOR_DEVICE_ATTR_RO(in1_input, ltc4222_value, LTC4222_SOURCE1);
+static SENSOR_DEVICE_ATTR_RO(in2_input, ltc4222_value, LTC4222_ADIN1);
+static SENSOR_DEVICE_ATTR_RO(in3_input, ltc4222_value, LTC4222_SOURCE2);
+static SENSOR_DEVICE_ATTR_RO(in4_input, ltc4222_value, LTC4222_ADIN2);
+>>>>>>> upstream/android-13
 
 /*
  * Voltage alarms
  * UV/OV faults are associated with the input voltage, and power bad and fet
  * faults are associated with the output voltage.
  */
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR_2(in1_min_alarm, S_IRUGO, ltc4222_show_bool, NULL,
 			    LTC4222_FAULT1, FAULT_UV);
 static SENSOR_DEVICE_ATTR_2(in1_max_alarm, S_IRUGO, ltc4222_show_bool, NULL,
@@ -164,6 +194,31 @@ static SENSOR_DEVICE_ATTR_2(curr1_max_alarm, S_IRUGO, ltc4222_show_bool, NULL,
 			    LTC4222_FAULT1, FAULT_OC);
 static SENSOR_DEVICE_ATTR_2(curr2_max_alarm, S_IRUGO, ltc4222_show_bool, NULL,
 			    LTC4222_FAULT2, FAULT_OC);
+=======
+static SENSOR_DEVICE_ATTR_2_RO(in1_min_alarm, ltc4222_bool, LTC4222_FAULT1,
+			       FAULT_UV);
+static SENSOR_DEVICE_ATTR_2_RO(in1_max_alarm, ltc4222_bool, LTC4222_FAULT1,
+			       FAULT_OV);
+static SENSOR_DEVICE_ATTR_2_RO(in2_alarm, ltc4222_bool, LTC4222_FAULT1,
+			       FAULT_POWER_BAD | FAULT_FET_BAD);
+
+static SENSOR_DEVICE_ATTR_2_RO(in3_min_alarm, ltc4222_bool, LTC4222_FAULT2,
+			       FAULT_UV);
+static SENSOR_DEVICE_ATTR_2_RO(in3_max_alarm, ltc4222_bool, LTC4222_FAULT2,
+			       FAULT_OV);
+static SENSOR_DEVICE_ATTR_2_RO(in4_alarm, ltc4222_bool, LTC4222_FAULT2,
+			       FAULT_POWER_BAD | FAULT_FET_BAD);
+
+/* Current (via sense resistor) */
+static SENSOR_DEVICE_ATTR_RO(curr1_input, ltc4222_value, LTC4222_SENSE1);
+static SENSOR_DEVICE_ATTR_RO(curr2_input, ltc4222_value, LTC4222_SENSE2);
+
+/* Overcurrent alarm */
+static SENSOR_DEVICE_ATTR_2_RO(curr1_max_alarm, ltc4222_bool, LTC4222_FAULT1,
+			       FAULT_OC);
+static SENSOR_DEVICE_ATTR_2_RO(curr2_max_alarm, ltc4222_bool, LTC4222_FAULT2,
+			       FAULT_OC);
+>>>>>>> upstream/android-13
 
 static struct attribute *ltc4222_attrs[] = {
 	&sensor_dev_attr_in1_input.dev_attr.attr,
@@ -192,8 +247,12 @@ static const struct regmap_config ltc4222_regmap_config = {
 	.max_register = LTC4222_ADC_CONTROL,
 };
 
+<<<<<<< HEAD
 static int ltc4222_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int ltc4222_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -226,7 +285,11 @@ static struct i2c_driver ltc4222_driver = {
 	.driver = {
 		   .name = "ltc4222",
 		   },
+<<<<<<< HEAD
 	.probe = ltc4222_probe,
+=======
+	.probe_new = ltc4222_probe,
+>>>>>>> upstream/android-13
 	.id_table = ltc4222_id,
 };
 

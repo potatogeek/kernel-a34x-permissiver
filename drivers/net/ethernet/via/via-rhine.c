@@ -2,7 +2,11 @@
 /*
 	Written 1998-2001 by Donald Becker.
 
+<<<<<<< HEAD
 	Current Maintainer: Roger Luethi <rl@hellgate.ch>
+=======
+	Current Maintainer: Kevin Brace <kevinbrace@bracecomputerlab.com>
+>>>>>>> upstream/android-13
 
 	This software may be used and distributed according to the terms of
 	the GNU General Public License (GPL), incorporated herein by reference.
@@ -32,8 +36,11 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #define DRV_NAME	"via-rhine"
+<<<<<<< HEAD
 #define DRV_VERSION	"1.5.1"
 #define DRV_RELDATE	"2010-10-09"
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 
@@ -117,10 +124,13 @@ static const int multicast_filter_limit = 32;
 #include <linux/uaccess.h>
 #include <linux/dmi.h>
 
+<<<<<<< HEAD
 /* These identify the driver base version and may not be removed. */
 static const char version[] =
 	"v1.10-LK" DRV_VERSION " " DRV_RELDATE " Written by Donald Becker";
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
 MODULE_DESCRIPTION("VIA Rhine PCI Fast Ethernet driver");
 MODULE_LICENSE("GPL");
@@ -243,7 +253,11 @@ enum rhine_revs {
 	VT8233		= 0x60,	/* Integrated MAC */
 	VT8235		= 0x74,	/* Integrated MAC */
 	VT8237		= 0x78,	/* Integrated MAC */
+<<<<<<< HEAD
 	VTunknown1	= 0x7C,
+=======
+	VT8251		= 0x7C,	/* Integrated MAC */
+>>>>>>> upstream/android-13
 	VT6105		= 0x80,
 	VT6105_B0	= 0x83,
 	VT6105L		= 0x8A,
@@ -506,7 +520,11 @@ static void mdio_write(struct net_device *dev, int phy_id, int location, int val
 static int  rhine_open(struct net_device *dev);
 static void rhine_reset_task(struct work_struct *work);
 static void rhine_slow_event_task(struct work_struct *work);
+<<<<<<< HEAD
 static void rhine_tx_timeout(struct net_device *dev);
+=======
+static void rhine_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static netdev_tx_t rhine_start_tx(struct sk_buff *skb,
 				  struct net_device *dev);
 static irqreturn_t rhine_interrupt(int irq, void *dev_instance);
@@ -571,7 +589,10 @@ static void rhine_ack_events(struct rhine_private *rp, u32 mask)
 	if (rp->quirks & rqStatusWBRace)
 		iowrite8(mask >> 16, ioaddr + IntrStatus2);
 	iowrite16(mask, ioaddr + IntrStatus);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -863,7 +884,10 @@ static int rhine_napipoll(struct napi_struct *napi, int budget)
 	if (work_done < budget) {
 		napi_complete_done(napi, work_done);
 		iowrite16(enable_mask, ioaddr + IntrEnable);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 	return work_done;
 }
@@ -892,7 +916,11 @@ static const struct net_device_ops rhine_netdev_ops = {
 	.ndo_set_rx_mode	 = rhine_set_rx_mode,
 	.ndo_validate_addr	 = eth_validate_addr,
 	.ndo_set_mac_address 	 = eth_mac_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		 = netdev_ioctl,
+=======
+	.ndo_eth_ioctl		 = netdev_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout 	 = rhine_tx_timeout,
 	.ndo_vlan_rx_add_vid	 = rhine_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	 = rhine_vlan_rx_kill_vid,
@@ -1053,11 +1081,14 @@ static int rhine_init_one_pci(struct pci_dev *pdev,
 	u32 quirks = 0;
 #endif
 
+<<<<<<< HEAD
 /* when built into the kernel, we only print version if device is found */
 #ifndef MODULE
 	pr_info_once("%s\n", version);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	rc = pci_enable_device(pdev);
 	if (rc)
 		goto err_out;
@@ -1126,6 +1157,7 @@ err_out:
 
 static int rhine_init_one_platform(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *match;
 	const u32 *quirks;
 	int irq;
@@ -1138,6 +1170,17 @@ static int rhine_init_one_platform(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ioaddr = devm_ioremap_resource(&pdev->dev, res);
+=======
+	const u32 *quirks;
+	int irq;
+	void __iomem *ioaddr;
+
+	quirks = of_device_get_match_data(&pdev->dev);
+	if (!quirks)
+		return -EINVAL;
+
+	ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ioaddr))
 		return PTR_ERR(ioaddr);
 
@@ -1145,10 +1188,13 @@ static int rhine_init_one_platform(struct platform_device *pdev)
 	if (!irq)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	quirks = match->data;
 	if (!quirks)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	return rhine_init_one_common(&pdev->dev, *quirks,
 				     (long)ioaddr, ioaddr, irq);
 }
@@ -1519,7 +1565,11 @@ static void rhine_init_cam_filter(struct net_device *dev)
 
 /**
  * rhine_update_vcam - update VLAN CAM filters
+<<<<<<< HEAD
  * @rp: rhine_private data of this Rhine
+=======
+ * @dev: rhine_private data of this Rhine
+>>>>>>> upstream/android-13
  *
  * Update VLAN CAM filters to match configuration change.
  */
@@ -1710,6 +1760,11 @@ static int rhine_open(struct net_device *dev)
 		goto out_free_ring;
 
 	alloc_tbufs(dev);
+<<<<<<< HEAD
+=======
+	enable_mmio(rp->pioaddr, rp->quirks);
+	rhine_power_init(dev);
+>>>>>>> upstream/android-13
 	rhine_chip_reset(dev);
 	rhine_task_enable(rp);
 	init_registers(dev);
@@ -1765,7 +1820,11 @@ out_unlock:
 	mutex_unlock(&rp->task_lock);
 }
 
+<<<<<<< HEAD
 static void rhine_tx_timeout(struct net_device *dev)
+=======
+static void rhine_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct rhine_private *rp = netdev_priv(dev);
 	void __iomem *ioaddr = rp->base;
@@ -1893,7 +1952,10 @@ static netdev_tx_t rhine_start_tx(struct sk_buff *skb,
 static void rhine_irq_disable(struct rhine_private *rp)
 {
 	iowrite16(0x0000, rp->base + IntrEnable);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 /* The interrupt handler does all of the Rx thread work and cleans up
@@ -2299,7 +2361,10 @@ static void netdev_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *i
 	struct device *hwdev = dev->dev.parent;
 
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, dev_name(hwdev), sizeof(info->bus_info));
 }
 
@@ -2621,9 +2686,12 @@ static int __init rhine_init(void)
 	int ret_pci, ret_platform;
 
 /* when a module, this is printed whether or not devices are found in probe */
+<<<<<<< HEAD
 #ifdef MODULE
 	pr_info("%s\n", version);
 #endif
+=======
+>>>>>>> upstream/android-13
 	if (dmi_check_system(rhine_dmi_table)) {
 		/* these BIOSes fail at PXE boot if chip is in D3 */
 		avoid_D3 = true;

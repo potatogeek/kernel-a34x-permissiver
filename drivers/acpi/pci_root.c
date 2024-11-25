@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  pci_root.c - ACPI PCI Root Bridge Driver ($Revision: 40 $)
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -19,6 +24,12 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
+=======
+ */
+
+#define pr_fmt(fmt) "ACPI: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -28,7 +39,10 @@
 #include <linux/pm_runtime.h>
 #include <linux/pci.h>
 #include <linux/pci-acpi.h>
+<<<<<<< HEAD
 #include <linux/pci-aspm.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/dmar.h>
 #include <linux/acpi.h>
 #include <linux/slab.h>
@@ -38,8 +52,11 @@
 
 #include "internal.h"
 
+<<<<<<< HEAD
 #define _COMPONENT		ACPI_PCI_COMPONENT
 ACPI_MODULE_NAME("pci_root");
+=======
+>>>>>>> upstream/android-13
 #define ACPI_PCI_ROOT_CLASS		"pci_bridge"
 #define ACPI_PCI_ROOT_DEVICE_NAME	"PCI Root Bridge"
 static int acpi_pci_root_add(struct acpi_device *device,
@@ -72,11 +89,17 @@ static struct acpi_scan_handler pci_root_handler = {
 	},
 };
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(osc_lock);
 
 /**
  * acpi_is_root_bridge - determine whether an ACPI CA node is a PCI root bridge
  * @handle - the ACPI CA node in question.
+=======
+/**
+ * acpi_is_root_bridge - determine whether an ACPI CA node is a PCI root bridge
+ * @handle:  the ACPI CA node in question.
+>>>>>>> upstream/android-13
  *
  * Note: we could make this API take a struct acpi_device * instead, but
  * for now, it's more convenient to operate on an acpi_handle.
@@ -145,6 +168,11 @@ static struct pci_osc_bit_struct pci_osc_support_bit[] = {
 	{ OSC_PCI_CLOCK_PM_SUPPORT, "ClockPM" },
 	{ OSC_PCI_SEGMENT_GROUPS_SUPPORT, "Segments" },
 	{ OSC_PCI_MSI_SUPPORT, "MSI" },
+<<<<<<< HEAD
+=======
+	{ OSC_PCI_EDR_SUPPORT, "EDR" },
+	{ OSC_PCI_HPX_TYPE_3_SUPPORT, "HPX-Type3" },
+>>>>>>> upstream/android-13
 };
 
 static struct pci_osc_bit_struct pci_osc_control_bit[] = {
@@ -154,6 +182,10 @@ static struct pci_osc_bit_struct pci_osc_control_bit[] = {
 	{ OSC_PCI_EXPRESS_AER_CONTROL, "AER" },
 	{ OSC_PCI_EXPRESS_CAPABILITY_CONTROL, "PCIeCapability" },
 	{ OSC_PCI_EXPRESS_LTR_CONTROL, "LTR" },
+<<<<<<< HEAD
+=======
+	{ OSC_PCI_EXPRESS_DPC_CONTROL, "DPC" },
+>>>>>>> upstream/android-13
 };
 
 static void decode_osc_bits(struct acpi_pci_root *root, char *msg, u32 word,
@@ -166,7 +198,11 @@ static void decode_osc_bits(struct acpi_pci_root *root, char *msg, u32 word,
 	buf[0] = '\0';
 	for (i = 0, entry = table; i < size; i++, entry++)
 		if (word & entry->bit)
+<<<<<<< HEAD
 			len += snprintf(buf + len, sizeof(buf) - len, "%s%s",
+=======
+			len += scnprintf(buf + len, sizeof(buf) - len, "%s%s",
+>>>>>>> upstream/android-13
 					len ? " " : "", entry->desc);
 
 	dev_info(&root->device->dev, "_OSC: %s [%s]\n", msg, buf);
@@ -236,12 +272,16 @@ static acpi_status acpi_pci_query_osc(struct acpi_pci_root *root,
 
 static acpi_status acpi_pci_osc_support(struct acpi_pci_root *root, u32 flags)
 {
+<<<<<<< HEAD
 	acpi_status status;
 
 	mutex_lock(&osc_lock);
 	status = acpi_pci_query_osc(root, flags, NULL);
 	mutex_unlock(&osc_lock);
 	return status;
+=======
+	return acpi_pci_query_osc(root, flags, NULL);
+>>>>>>> upstream/android-13
 }
 
 struct acpi_pci_root *acpi_pci_find_root(acpi_handle handle)
@@ -366,10 +406,17 @@ EXPORT_SYMBOL_GPL(acpi_get_pci_dev);
  * _OSC bits the BIOS has granted control of, but its contents are meaningless
  * on failure.
  **/
+<<<<<<< HEAD
 acpi_status acpi_pci_osc_control_set(acpi_handle handle, u32 *mask, u32 req)
 {
 	struct acpi_pci_root *root;
 	acpi_status status = AE_OK;
+=======
+static acpi_status acpi_pci_osc_control_set(acpi_handle handle, u32 *mask, u32 req)
+{
+	struct acpi_pci_root *root;
+	acpi_status status;
+>>>>>>> upstream/android-13
 	u32 ctrl, capbuf[3];
 
 	if (!mask)
@@ -383,18 +430,29 @@ acpi_status acpi_pci_osc_control_set(acpi_handle handle, u32 *mask, u32 req)
 	if (!root)
 		return AE_NOT_EXIST;
 
+<<<<<<< HEAD
 	mutex_lock(&osc_lock);
 
 	*mask = ctrl | root->osc_control_set;
 	/* No need to evaluate _OSC if the control was already granted. */
 	if ((root->osc_control_set & ctrl) == ctrl)
 		goto out;
+=======
+	*mask = ctrl | root->osc_control_set;
+	/* No need to evaluate _OSC if the control was already granted. */
+	if ((root->osc_control_set & ctrl) == ctrl)
+		return AE_OK;
+>>>>>>> upstream/android-13
 
 	/* Need to check the available controls bits before requesting them. */
 	while (*mask) {
 		status = acpi_pci_query_osc(root, root->osc_support_set, mask);
 		if (ACPI_FAILURE(status))
+<<<<<<< HEAD
 			goto out;
+=======
+			return status;
+>>>>>>> upstream/android-13
 		if (ctrl == *mask)
 			break;
 		decode_osc_control(root, "platform does not support",
@@ -405,14 +463,19 @@ acpi_status acpi_pci_osc_control_set(acpi_handle handle, u32 *mask, u32 req)
 	if ((ctrl & req) != req) {
 		decode_osc_control(root, "not requesting control; platform does not support",
 				   req & ~(ctrl));
+<<<<<<< HEAD
 		status = AE_SUPPORT;
 		goto out;
+=======
+		return AE_SUPPORT;
+>>>>>>> upstream/android-13
 	}
 
 	capbuf[OSC_QUERY_DWORD] = 0;
 	capbuf[OSC_SUPPORT_DWORD] = root->osc_support_set;
 	capbuf[OSC_CONTROL_DWORD] = ctrl;
 	status = acpi_pci_run_osc(handle, capbuf, mask);
+<<<<<<< HEAD
 	if (ACPI_SUCCESS(status))
 		root->osc_control_set = *mask;
 out:
@@ -422,6 +485,17 @@ out:
 EXPORT_SYMBOL(acpi_pci_osc_control_set);
 
 static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
+=======
+	if (ACPI_FAILURE(status))
+		return status;
+
+	root->osc_control_set = *mask;
+	return AE_OK;
+}
+
+static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm,
+				 bool is_pcie)
+>>>>>>> upstream/android-13
 {
 	u32 support, control, requested;
 	acpi_status status;
@@ -445,20 +519,40 @@ static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
 	 * PCI domains, so we indicate this in _OSC support capabilities.
 	 */
 	support = OSC_PCI_SEGMENT_GROUPS_SUPPORT;
+<<<<<<< HEAD
+=======
+	support |= OSC_PCI_HPX_TYPE_3_SUPPORT;
+>>>>>>> upstream/android-13
 	if (pci_ext_cfg_avail())
 		support |= OSC_PCI_EXT_CONFIG_SUPPORT;
 	if (pcie_aspm_support_enabled())
 		support |= OSC_PCI_ASPM_SUPPORT | OSC_PCI_CLOCK_PM_SUPPORT;
 	if (pci_msi_enabled())
 		support |= OSC_PCI_MSI_SUPPORT;
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_PCIE_EDR))
+		support |= OSC_PCI_EDR_SUPPORT;
+>>>>>>> upstream/android-13
 
 	decode_osc_support(root, "OS supports", support);
 	status = acpi_pci_osc_support(root, support);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		dev_info(&device->dev, "_OSC failed (%s)%s\n",
 			 acpi_format_exception(status),
 			 pcie_aspm_support_enabled() ? "; disabling ASPM" : "");
 		*no_aspm = 1;
+=======
+		*no_aspm = 1;
+
+		/* _OSC is optional for PCI host bridges */
+		if ((status == AE_NOT_FOUND) && !is_pcie)
+			return;
+
+		dev_info(&device->dev, "_OSC: platform retains control of PCIe features (%s)\n",
+			 acpi_format_exception(status));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -485,6 +579,7 @@ static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
 	if (IS_ENABLED(CONFIG_HOTPLUG_PCI_SHPC))
 		control |= OSC_PCI_SHPC_NATIVE_HP_CONTROL;
 
+<<<<<<< HEAD
 	if (pci_aer_available()) {
 		if (aer_acpi_firmware_first())
 			dev_info(&device->dev,
@@ -492,6 +587,19 @@ static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
 		else
 			control |= OSC_PCI_EXPRESS_AER_CONTROL;
 	}
+=======
+	if (pci_aer_available())
+		control |= OSC_PCI_EXPRESS_AER_CONTROL;
+
+	/*
+	 * Per the Downstream Port Containment Related Enhancements ECN to
+	 * the PCI Firmware Spec, r3.2, sec 4.5.1, table 4-5,
+	 * OSC_PCI_EXPRESS_DPC_CONTROL indicates the OS supports both DPC
+	 * and EDR.
+	 */
+	if (IS_ENABLED(CONFIG_PCIE_DPC) && IS_ENABLED(CONFIG_PCIE_EDR))
+		control |= OSC_PCI_EXPRESS_DPC_CONTROL;
+>>>>>>> upstream/android-13
 
 	requested = control;
 	status = acpi_pci_osc_control_set(handle, &control,
@@ -510,7 +618,11 @@ static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
 	} else {
 		decode_osc_control(root, "OS requested", requested);
 		decode_osc_control(root, "platform willing to grant", control);
+<<<<<<< HEAD
 		dev_info(&device->dev, "_OSC failed (%s); disabling ASPM\n",
+=======
+		dev_info(&device->dev, "_OSC: platform retains control of PCIe features (%s)\n",
+>>>>>>> upstream/android-13
 			acpi_format_exception(status));
 
 		/*
@@ -534,6 +646,10 @@ static int acpi_pci_root_add(struct acpi_device *device,
 	acpi_handle handle = device->handle;
 	int no_aspm = 0;
 	bool hotadd = system_state == SYSTEM_RUNNING;
+<<<<<<< HEAD
+=======
+	bool is_pcie;
+>>>>>>> upstream/android-13
 
 	root = kzalloc(sizeof(struct acpi_pci_root), GFP_KERNEL);
 	if (!root)
@@ -585,13 +701,22 @@ static int acpi_pci_root_add(struct acpi_device *device,
 		goto end;
 	}
 
+<<<<<<< HEAD
 	pr_info(PREFIX "%s [%s] (domain %04x %pR)\n",
+=======
+	pr_info("%s [%s] (domain %04x %pR)\n",
+>>>>>>> upstream/android-13
 	       acpi_device_name(device), acpi_device_bid(device),
 	       root->segment, &root->secondary);
 
 	root->mcfg_addr = acpi_pci_root_get_mcfg_addr(handle);
 
+<<<<<<< HEAD
 	negotiate_os_control(root, &no_aspm);
+=======
+	is_pcie = strcmp(acpi_device_hid(device), "PNP0A08") == 0;
+	negotiate_os_control(root, &no_aspm, is_pcie);
+>>>>>>> upstream/android-13
 
 	/*
 	 * TBD: Need PCI interface for enumeration/configuration of roots.
@@ -720,9 +845,13 @@ static void acpi_pci_root_validate_resources(struct device *dev,
 			 * our resources no longer match the ACPI _CRS, but
 			 * the kernel resource tree doesn't allow overlaps.
 			 */
+<<<<<<< HEAD
 			if (resource_overlaps(res1, res2)) {
 				res2->start = min(res1->start, res2->start);
 				res2->end = max(res1->end, res2->end);
+=======
+			if (resource_union(res1, res2, res2)) {
+>>>>>>> upstream/android-13
 				dev_info(dev, "host bridge window expanded to %pR; %pR ignored\n",
 					 res2, res1);
 				free = true;
@@ -884,6 +1013,10 @@ struct pci_bus *acpi_pci_root_create(struct acpi_pci_root *root,
 	int node = acpi_get_node(device->handle);
 	struct pci_bus *bus;
 	struct pci_host_bridge *host_bridge;
+<<<<<<< HEAD
+=======
+	union acpi_object *obj;
+>>>>>>> upstream/android-13
 
 	info->root = root;
 	info->bridge = device;
@@ -919,6 +1052,22 @@ struct pci_bus *acpi_pci_root_create(struct acpi_pci_root *root,
 		host_bridge->native_pme = 0;
 	if (!(root->osc_control_set & OSC_PCI_EXPRESS_LTR_CONTROL))
 		host_bridge->native_ltr = 0;
+<<<<<<< HEAD
+=======
+	if (!(root->osc_control_set & OSC_PCI_EXPRESS_DPC_CONTROL))
+		host_bridge->native_dpc = 0;
+
+	/*
+	 * Evaluate the "PCI Boot Configuration" _DSM Function.  If it
+	 * exists and returns 0, we must preserve any PCI resource
+	 * assignments made by firmware for this host bridge.
+	 */
+	obj = acpi_evaluate_dsm(ACPI_HANDLE(bus->bridge), &pci_acpi_dsm_guid, 1,
+				DSM_PCI_PRESERVE_BOOT_CONFIG, NULL);
+	if (obj && obj->type == ACPI_TYPE_INTEGER && obj->integer.value == 0)
+		host_bridge->preserve_config = 1;
+	ACPI_FREE(obj);
+>>>>>>> upstream/android-13
 
 	pci_scan_child_bus(bus);
 	pci_set_host_bridge_release(host_bridge, acpi_pci_root_release_info,

@@ -4,7 +4,11 @@
 #endif
 
 #include <linux/hash.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/debug_locks.h>
 
 /*
@@ -49,8 +53,11 @@ enum vcpu_state {
 
 struct pv_node {
 	struct mcs_spinlock	mcs;
+<<<<<<< HEAD
 	struct mcs_spinlock	__res[3];
 
+=======
+>>>>>>> upstream/android-13
 	int			cpu;
 	u8			state;
 };
@@ -91,7 +98,11 @@ static inline bool pv_hybrid_queued_unfair_trylock(struct qspinlock *lock)
 
 		if (!(val & _Q_LOCKED_PENDING_MASK) &&
 		   (cmpxchg_acquire(&lock->locked, 0, _Q_LOCKED_VAL) == 0)) {
+<<<<<<< HEAD
 			qstat_inc(qstat_pv_lock_stealing, true);
+=======
+			lockevent_inc(pv_lock_stealing);
+>>>>>>> upstream/android-13
 			return true;
 		}
 		if (!(val & _Q_TAIL_MASK) || (val & _Q_PENDING_MASK))
@@ -221,7 +232,11 @@ static struct qspinlock **pv_hash(struct qspinlock *lock, struct pv_node *node)
 		hopcnt++;
 		if (!cmpxchg(&he->lock, NULL, lock)) {
 			WRITE_ONCE(he->node, node);
+<<<<<<< HEAD
 			qstat_hop(hopcnt);
+=======
+			lockevent_pv_hop(hopcnt);
+>>>>>>> upstream/android-13
 			return &he->lock;
 		}
 	}
@@ -281,7 +296,11 @@ static void pv_init_node(struct mcs_spinlock *node)
 {
 	struct pv_node *pn = (struct pv_node *)node;
 
+<<<<<<< HEAD
 	BUILD_BUG_ON(sizeof(struct pv_node) > 5*sizeof(struct mcs_spinlock));
+=======
+	BUILD_BUG_ON(sizeof(struct pv_node) > sizeof(struct qnode));
+>>>>>>> upstream/android-13
 
 	pn->cpu = smp_processor_id();
 	pn->state = vcpu_running;
@@ -322,8 +341,13 @@ static void pv_wait_node(struct mcs_spinlock *node, struct mcs_spinlock *prev)
 		smp_store_mb(pn->state, vcpu_halted);
 
 		if (!READ_ONCE(node->locked)) {
+<<<<<<< HEAD
 			qstat_inc(qstat_pv_wait_node, true);
 			qstat_inc(qstat_pv_wait_early, wait_early);
+=======
+			lockevent_inc(pv_wait_node);
+			lockevent_cond_inc(pv_wait_early, wait_early);
+>>>>>>> upstream/android-13
 			pv_wait(&pn->state, vcpu_halted);
 		}
 
@@ -341,7 +365,12 @@ static void pv_wait_node(struct mcs_spinlock *node, struct mcs_spinlock *prev)
 		 * So it is better to spin for a while in the hope that the
 		 * MCS lock will be released soon.
 		 */
+<<<<<<< HEAD
 		qstat_inc(qstat_pv_spurious_wakeup, !READ_ONCE(node->locked));
+=======
+		lockevent_cond_inc(pv_spurious_wakeup,
+				  !READ_ONCE(node->locked));
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -418,7 +447,11 @@ pv_wait_head_or_lock(struct qspinlock *lock, struct mcs_spinlock *node)
 	/*
 	 * Tracking # of slowpath locking operations
 	 */
+<<<<<<< HEAD
 	qstat_inc(qstat_lock_slowpath, true);
+=======
+	lockevent_inc(lock_slowpath);
+>>>>>>> upstream/android-13
 
 	for (;; waitcnt++) {
 		/*
@@ -466,8 +499,13 @@ pv_wait_head_or_lock(struct qspinlock *lock, struct mcs_spinlock *node)
 			}
 		}
 		WRITE_ONCE(pn->state, vcpu_hashed);
+<<<<<<< HEAD
 		qstat_inc(qstat_pv_wait_head, true);
 		qstat_inc(qstat_pv_wait_again, waitcnt);
+=======
+		lockevent_inc(pv_wait_head);
+		lockevent_cond_inc(pv_wait_again, waitcnt);
+>>>>>>> upstream/android-13
 		pv_wait(&lock->locked, _Q_SLOW_VAL);
 
 		/*
@@ -530,7 +568,11 @@ __pv_queued_spin_unlock_slowpath(struct qspinlock *lock, u8 locked)
 	 * vCPU is harmless other than the additional latency in completing
 	 * the unlock.
 	 */
+<<<<<<< HEAD
 	qstat_inc(qstat_pv_kick_unlock, true);
+=======
+	lockevent_inc(pv_kick_unlock);
+>>>>>>> upstream/android-13
 	pv_kick(node->cpu);
 }
 

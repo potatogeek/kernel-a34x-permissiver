@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright 2011-2014 Autronica Fire and Security AS
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -9,6 +10,15 @@
  *	2011-2014 Arvid Brodin, arvid.brodin@alten.se
  *
  * Routines for handling Netlink messages for HSR.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright 2011-2014 Autronica Fire and Security AS
+ *
+ * Author(s):
+ *	2011-2014 Arvid Brodin, arvid.brodin@alten.se
+ *
+ * Routines for handling Netlink messages for HSR and PRP.
+>>>>>>> upstream/android-13
  */
 
 #include "hsr_netlink.h"
@@ -26,9 +36,15 @@ static const struct nla_policy hsr_policy[IFLA_HSR_MAX + 1] = {
 	[IFLA_HSR_VERSION]	= { .type = NLA_U8 },
 	[IFLA_HSR_SUPERVISION_ADDR]	= { .len = ETH_ALEN },
 	[IFLA_HSR_SEQ_NR]		= { .type = NLA_U16 },
+<<<<<<< HEAD
 };
 
 
+=======
+	[IFLA_HSR_PROTOCOL]		= { .type = NLA_U8 },
+};
+
+>>>>>>> upstream/android-13
 /* Here, it seems a netdevice has already been allocated for us, and the
  * hsr_dev_setup routine has been executed. Nice!
  */
@@ -36,6 +52,7 @@ static int hsr_newlink(struct net *src_net, struct net_device *dev,
 		       struct nlattr *tb[], struct nlattr *data[],
 		       struct netlink_ext_ack *extack)
 {
+<<<<<<< HEAD
 	struct net_device *link[2];
 	unsigned char multicast_spec, hsr_version;
 
@@ -58,12 +75,49 @@ static int hsr_newlink(struct net *src_net, struct net_device *dev,
 		return -ENODEV;
 	if (link[0] == link[1])
 		return -EINVAL;
+=======
+	enum hsr_version proto_version;
+	unsigned char multicast_spec;
+	u8 proto = HSR_PROTOCOL_HSR;
+	struct net_device *link[2];
+
+	if (!data) {
+		NL_SET_ERR_MSG_MOD(extack, "No slave devices specified");
+		return -EINVAL;
+	}
+	if (!data[IFLA_HSR_SLAVE1]) {
+		NL_SET_ERR_MSG_MOD(extack, "Slave1 device not specified");
+		return -EINVAL;
+	}
+	link[0] = __dev_get_by_index(src_net,
+				     nla_get_u32(data[IFLA_HSR_SLAVE1]));
+	if (!link[0]) {
+		NL_SET_ERR_MSG_MOD(extack, "Slave1 does not exist");
+		return -EINVAL;
+	}
+	if (!data[IFLA_HSR_SLAVE2]) {
+		NL_SET_ERR_MSG_MOD(extack, "Slave2 device not specified");
+		return -EINVAL;
+	}
+	link[1] = __dev_get_by_index(src_net,
+				     nla_get_u32(data[IFLA_HSR_SLAVE2]));
+	if (!link[1]) {
+		NL_SET_ERR_MSG_MOD(extack, "Slave2 does not exist");
+		return -EINVAL;
+	}
+
+	if (link[0] == link[1]) {
+		NL_SET_ERR_MSG_MOD(extack, "Slave1 and Slave2 are same");
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	if (!data[IFLA_HSR_MULTICAST_SPEC])
 		multicast_spec = 0;
 	else
 		multicast_spec = nla_get_u8(data[IFLA_HSR_MULTICAST_SPEC]);
 
+<<<<<<< HEAD
 	if (!data[IFLA_HSR_VERSION]) {
 		hsr_version = 0;
 	} else {
@@ -71,15 +125,61 @@ static int hsr_newlink(struct net *src_net, struct net_device *dev,
 		if (hsr_version > 1) {
 			NL_SET_ERR_MSG_MOD(extack,
 					   "Only versions 0..1 are supported");
+=======
+	if (data[IFLA_HSR_PROTOCOL])
+		proto = nla_get_u8(data[IFLA_HSR_PROTOCOL]);
+
+	if (proto >= HSR_PROTOCOL_MAX) {
+		NL_SET_ERR_MSG_MOD(extack, "Unsupported protocol");
+		return -EINVAL;
+	}
+
+	if (!data[IFLA_HSR_VERSION]) {
+		proto_version = HSR_V0;
+	} else {
+		if (proto == HSR_PROTOCOL_PRP) {
+			NL_SET_ERR_MSG_MOD(extack, "PRP version unsupported");
+			return -EINVAL;
+		}
+
+		proto_version = nla_get_u8(data[IFLA_HSR_VERSION]);
+		if (proto_version > HSR_V1) {
+			NL_SET_ERR_MSG_MOD(extack,
+					   "Only HSR version 0/1 supported");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	}
 
+<<<<<<< HEAD
 	return hsr_dev_finalize(dev, link, multicast_spec, hsr_version);
+=======
+	if (proto == HSR_PROTOCOL_PRP)
+		proto_version = PRP_V1;
+
+	return hsr_dev_finalize(dev, link, multicast_spec, proto_version, extack);
+}
+
+static void hsr_dellink(struct net_device *dev, struct list_head *head)
+{
+	struct hsr_priv *hsr = netdev_priv(dev);
+
+	del_timer_sync(&hsr->prune_timer);
+	del_timer_sync(&hsr->announce_timer);
+
+	hsr_debugfs_term(hsr);
+	hsr_del_ports(hsr);
+
+	hsr_del_self_node(hsr);
+	hsr_del_nodes(&hsr->node_db);
+
+	unregister_netdevice_queue(dev, head);
+>>>>>>> upstream/android-13
 }
 
 static int hsr_fill_info(struct sk_buff *skb, const struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct hsr_priv *hsr;
 	struct hsr_port *port;
 	int res;
@@ -103,11 +203,35 @@ static int hsr_fill_info(struct sk_buff *skb, const struct net_device *dev)
 	rcu_read_unlock();
 	if (res)
 		goto nla_put_failure;
+=======
+	struct hsr_priv *hsr = netdev_priv(dev);
+	u8 proto = HSR_PROTOCOL_HSR;
+	struct hsr_port *port;
+
+	port = hsr_port_get_hsr(hsr, HSR_PT_SLAVE_A);
+	if (port) {
+		if (nla_put_u32(skb, IFLA_HSR_SLAVE1, port->dev->ifindex))
+			goto nla_put_failure;
+	}
+
+	port = hsr_port_get_hsr(hsr, HSR_PT_SLAVE_B);
+	if (port) {
+		if (nla_put_u32(skb, IFLA_HSR_SLAVE2, port->dev->ifindex))
+			goto nla_put_failure;
+	}
+>>>>>>> upstream/android-13
 
 	if (nla_put(skb, IFLA_HSR_SUPERVISION_ADDR, ETH_ALEN,
 		    hsr->sup_multicast_addr) ||
 	    nla_put_u16(skb, IFLA_HSR_SEQ_NR, hsr->sequence_nr))
 		goto nla_put_failure;
+<<<<<<< HEAD
+=======
+	if (hsr->prot_version == PRP_V1)
+		proto = HSR_PROTOCOL_PRP;
+	if (nla_put_u8(skb, IFLA_HSR_PROTOCOL, proto))
+		goto nla_put_failure;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -122,11 +246,18 @@ static struct rtnl_link_ops hsr_link_ops __read_mostly = {
 	.priv_size	= sizeof(struct hsr_priv),
 	.setup		= hsr_dev_setup,
 	.newlink	= hsr_newlink,
+<<<<<<< HEAD
 	.fill_info	= hsr_fill_info,
 };
 
 
 
+=======
+	.dellink	= hsr_dellink,
+	.fill_info	= hsr_fill_info,
+};
+
+>>>>>>> upstream/android-13
 /* attribute policy */
 static const struct nla_policy hsr_genl_policy[HSR_A_MAX + 1] = {
 	[HSR_A_NODE_ADDR] = { .len = ETH_ALEN },
@@ -144,8 +275,11 @@ static const struct genl_multicast_group hsr_mcgrps[] = {
 	{ .name = "hsr-network", },
 };
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 /* This is called if for some node with MAC address addr, we only get frames
  * over one of the slave interfaces. This would indicate an open network ring
  * (i.e. a link has failed somewhere).
@@ -162,7 +296,12 @@ void hsr_nl_ringerror(struct hsr_priv *hsr, unsigned char addr[ETH_ALEN],
 	if (!skb)
 		goto fail;
 
+<<<<<<< HEAD
 	msg_head = genlmsg_put(skb, 0, 0, &hsr_genl_family, 0, HSR_C_RING_ERROR);
+=======
+	msg_head = genlmsg_put(skb, 0, 0, &hsr_genl_family, 0,
+			       HSR_C_RING_ERROR);
+>>>>>>> upstream/android-13
 	if (!msg_head)
 		goto nla_put_failure;
 
@@ -207,7 +346,10 @@ void hsr_nl_nodedown(struct hsr_priv *hsr, unsigned char addr[ETH_ALEN])
 	if (!msg_head)
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	res = nla_put(skb, HSR_A_NODE_ADDR, ETH_ALEN, addr);
 	if (res < 0)
 		goto nla_put_failure;
@@ -227,7 +369,10 @@ fail:
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* HSR_C_GET_NODE_STATUS lets userspace query the internal HSR node table
  * about the status of a specific node in the network, defined by its MAC
  * address.
@@ -281,8 +426,13 @@ static int hsr_get_node_status(struct sk_buff *skb_in, struct genl_info *info)
 	}
 
 	msg_head = genlmsg_put(skb_out, NETLINK_CB(skb_in).portid,
+<<<<<<< HEAD
 				info->snd_seq, &hsr_genl_family, 0,
 				HSR_C_SET_NODE_STATUS);
+=======
+			       info->snd_seq, &hsr_genl_family, 0,
+			       HSR_C_SET_NODE_STATUS);
+>>>>>>> upstream/android-13
 	if (!msg_head) {
 		res = -ENOMEM;
 		goto nla_put_failure;
@@ -294,6 +444,7 @@ static int hsr_get_node_status(struct sk_buff *skb_in, struct genl_info *info)
 
 	hsr = netdev_priv(hsr_dev);
 	res = hsr_get_node_data(hsr,
+<<<<<<< HEAD
 			(unsigned char *) nla_data(info->attrs[HSR_A_NODE_ADDR]),
 			hsr_node_addr_b,
 			&addr_b_ifindex,
@@ -301,21 +452,44 @@ static int hsr_get_node_status(struct sk_buff *skb_in, struct genl_info *info)
 			&hsr_node_if1_seq,
 			&hsr_node_if2_age,
 			&hsr_node_if2_seq);
+=======
+				(unsigned char *)
+				nla_data(info->attrs[HSR_A_NODE_ADDR]),
+					 hsr_node_addr_b,
+					 &addr_b_ifindex,
+					 &hsr_node_if1_age,
+					 &hsr_node_if1_seq,
+					 &hsr_node_if2_age,
+					 &hsr_node_if2_seq);
+>>>>>>> upstream/android-13
 	if (res < 0)
 		goto nla_put_failure;
 
 	res = nla_put(skb_out, HSR_A_NODE_ADDR, ETH_ALEN,
+<<<<<<< HEAD
 					nla_data(info->attrs[HSR_A_NODE_ADDR]));
+=======
+		      nla_data(info->attrs[HSR_A_NODE_ADDR]));
+>>>>>>> upstream/android-13
 	if (res < 0)
 		goto nla_put_failure;
 
 	if (addr_b_ifindex > -1) {
 		res = nla_put(skb_out, HSR_A_NODE_ADDR_B, ETH_ALEN,
+<<<<<<< HEAD
 								hsr_node_addr_b);
 		if (res < 0)
 			goto nla_put_failure;
 
 		res = nla_put_u32(skb_out, HSR_A_ADDR_B_IFINDEX, addr_b_ifindex);
+=======
+			      hsr_node_addr_b);
+		if (res < 0)
+			goto nla_put_failure;
+
+		res = nla_put_u32(skb_out, HSR_A_ADDR_B_IFINDEX,
+				  addr_b_ifindex);
+>>>>>>> upstream/android-13
 		if (res < 0)
 			goto nla_put_failure;
 	}
@@ -406,8 +580,13 @@ restart:
 	}
 
 	msg_head = genlmsg_put(skb_out, NETLINK_CB(skb_in).portid,
+<<<<<<< HEAD
 				info->snd_seq, &hsr_genl_family, 0,
 				HSR_C_SET_NODE_LIST);
+=======
+			       info->snd_seq, &hsr_genl_family, 0,
+			       HSR_C_SET_NODE_LIST);
+>>>>>>> upstream/android-13
 	if (!msg_head) {
 		res = -ENOMEM;
 		goto nla_put_failure;
@@ -459,19 +638,32 @@ fail:
 	return res;
 }
 
+<<<<<<< HEAD
 
 static const struct genl_ops hsr_ops[] = {
 	{
 		.cmd = HSR_C_GET_NODE_STATUS,
 		.flags = 0,
 		.policy = hsr_genl_policy,
+=======
+static const struct genl_small_ops hsr_ops[] = {
+	{
+		.cmd = HSR_C_GET_NODE_STATUS,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.flags = 0,
+>>>>>>> upstream/android-13
 		.doit = hsr_get_node_status,
 		.dumpit = NULL,
 	},
 	{
 		.cmd = HSR_C_GET_NODE_LIST,
+<<<<<<< HEAD
 		.flags = 0,
 		.policy = hsr_genl_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.flags = 0,
+>>>>>>> upstream/android-13
 		.doit = hsr_get_node_list,
 		.dumpit = NULL,
 	},
@@ -482,10 +674,18 @@ static struct genl_family hsr_genl_family __ro_after_init = {
 	.name = "HSR",
 	.version = 1,
 	.maxattr = HSR_A_MAX,
+<<<<<<< HEAD
 	.netnsok = true,
 	.module = THIS_MODULE,
 	.ops = hsr_ops,
 	.n_ops = ARRAY_SIZE(hsr_ops),
+=======
+	.policy = hsr_genl_policy,
+	.netnsok = true,
+	.module = THIS_MODULE,
+	.small_ops = hsr_ops,
+	.n_small_ops = ARRAY_SIZE(hsr_ops),
+>>>>>>> upstream/android-13
 	.mcgrps = hsr_mcgrps,
 	.n_mcgrps = ARRAY_SIZE(hsr_mcgrps),
 };
@@ -502,6 +702,10 @@ int __init hsr_netlink_init(void)
 	if (rc)
 		goto fail_genl_register_family;
 
+<<<<<<< HEAD
+=======
+	hsr_debugfs_create_root();
+>>>>>>> upstream/android-13
 	return 0;
 
 fail_genl_register_family:

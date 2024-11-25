@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: ftrace - function glob filters
+<<<<<<< HEAD
 
 # Make sure that function glob matching filter works.
 
@@ -9,6 +10,12 @@ if ! grep -q function available_tracers; then
     exit_unsupported
 fi
 
+=======
+# requires: set_ftrace_filter function:tracer
+
+# Make sure that function glob matching filter works.
+
+>>>>>>> upstream/android-13
 disable_tracing
 clear_trace
 

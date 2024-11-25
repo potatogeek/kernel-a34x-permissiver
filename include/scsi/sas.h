@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * SAS structures and definitions header file
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SAS_H_
@@ -341,7 +348,11 @@ struct ssp_response_iu {
 	__be32 response_data_len;
 
 	u8     resp_data[0];
+<<<<<<< HEAD
 	u8     sense_data[0];
+=======
+	u8     sense_data[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct ssp_command_iu {
@@ -363,7 +374,11 @@ struct ssp_command_iu {
 	u8    add_cdb_len:6;
 
 	u8    cdb[16];
+<<<<<<< HEAD
 	u8    add_cdb[0];
+=======
+	u8    add_cdb[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct xfer_rdy_iu {
@@ -572,7 +587,11 @@ struct ssp_response_iu {
 	__be32 response_data_len;
 
 	u8     resp_data[0];
+<<<<<<< HEAD
 	u8     sense_data[0];
+=======
+	u8     sense_data[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct ssp_command_iu {
@@ -594,7 +613,11 @@ struct ssp_command_iu {
 	u8    _r_c:2;
 
 	u8    cdb[16];
+<<<<<<< HEAD
 	u8    add_cdb[0];
+=======
+	u8    add_cdb[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct xfer_rdy_iu {

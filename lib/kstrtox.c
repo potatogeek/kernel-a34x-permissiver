@@ -14,11 +14,20 @@
  */
 #include <linux/ctype.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/math64.h>
 #include <linux/export.h>
 #include <linux/types.h>
 #include <linux/uaccess.h>
+=======
+#include <linux/export.h>
+#include <linux/kstrtox.h>
+#include <linux/math64.h>
+#include <linux/types.h>
+#include <linux/uaccess.h>
+
+>>>>>>> upstream/android-13
 #include "kstrtox.h"
 
 const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
@@ -39,20 +48,34 @@ const char *_parse_integer_fixup_radix(const char *s, unsigned int *base)
 
 /*
  * Convert non-negative integer string representation in explicitly given radix
+<<<<<<< HEAD
  * to an integer.
+=======
+ * to an integer. A maximum of max_chars characters will be converted.
+ *
+>>>>>>> upstream/android-13
  * Return number of characters consumed maybe or-ed with overflow bit.
  * If overflow occurs, result integer (incorrect) is still returned.
  *
  * Don't you dare use this function.
  */
+<<<<<<< HEAD
 unsigned int _parse_integer(const char *s, unsigned int base, unsigned long long *p)
+=======
+unsigned int _parse_integer_limit(const char *s, unsigned int base, unsigned long long *p,
+				  size_t max_chars)
+>>>>>>> upstream/android-13
 {
 	unsigned long long res;
 	unsigned int rv;
 
 	res = 0;
 	rv = 0;
+<<<<<<< HEAD
 	while (1) {
+=======
+	while (max_chars--) {
+>>>>>>> upstream/android-13
 		unsigned int c = *s;
 		unsigned int lc = c | 0x20; /* don't tolower() this line */
 		unsigned int val;
@@ -82,6 +105,14 @@ unsigned int _parse_integer(const char *s, unsigned int base, unsigned long long
 	return rv;
 }
 
+<<<<<<< HEAD
+=======
+unsigned int _parse_integer(const char *s, unsigned int base, unsigned long long *p)
+{
+	return _parse_integer_limit(s, base, p, INT_MAX);
+}
+
+>>>>>>> upstream/android-13
 static int _kstrtoull(const char *s, unsigned int base, unsigned long long *res)
 {
 	unsigned long long _res;
@@ -115,8 +146,12 @@ static int _kstrtoull(const char *s, unsigned int base, unsigned long long *res)
  * @res: Where to write the result of the conversion on success.
  *
  * Returns 0 on success, -ERANGE on overflow and -EINVAL on parsing error.
+<<<<<<< HEAD
  * Used as a replacement for the obsolete simple_strtoull. Return code must
  * be checked.
+=======
+ * Preferred over simple_strtoull(). Return code must be checked.
+>>>>>>> upstream/android-13
  */
 int kstrtoull(const char *s, unsigned int base, unsigned long long *res)
 {
@@ -139,8 +174,12 @@ EXPORT_SYMBOL(kstrtoull);
  * @res: Where to write the result of the conversion on success.
  *
  * Returns 0 on success, -ERANGE on overflow and -EINVAL on parsing error.
+<<<<<<< HEAD
  * Used as a replacement for the obsolete simple_strtoull. Return code must
  * be checked.
+=======
+ * Preferred over simple_strtoll(). Return code must be checked.
+>>>>>>> upstream/android-13
  */
 int kstrtoll(const char *s, unsigned int base, long long *res)
 {
@@ -175,7 +214,11 @@ int _kstrtoul(const char *s, unsigned int base, unsigned long *res)
 	rv = kstrtoull(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (unsigned long long)(unsigned long)tmp)
+=======
+	if (tmp != (unsigned long)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -191,7 +234,11 @@ int _kstrtol(const char *s, unsigned int base, long *res)
 	rv = kstrtoll(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (long long)(long)tmp)
+=======
+	if (tmp != (long)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -211,8 +258,12 @@ EXPORT_SYMBOL(_kstrtol);
  * @res: Where to write the result of the conversion on success.
  *
  * Returns 0 on success, -ERANGE on overflow and -EINVAL on parsing error.
+<<<<<<< HEAD
  * Used as a replacement for the obsolete simple_strtoull. Return code must
  * be checked.
+=======
+ * Preferred over simple_strtoul(). Return code must be checked.
+>>>>>>> upstream/android-13
  */
 int kstrtouint(const char *s, unsigned int base, unsigned int *res)
 {
@@ -222,7 +273,11 @@ int kstrtouint(const char *s, unsigned int base, unsigned int *res)
 	rv = kstrtoull(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (unsigned long long)(unsigned int)tmp)
+=======
+	if (tmp != (unsigned int)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -242,8 +297,12 @@ EXPORT_SYMBOL(kstrtouint);
  * @res: Where to write the result of the conversion on success.
  *
  * Returns 0 on success, -ERANGE on overflow and -EINVAL on parsing error.
+<<<<<<< HEAD
  * Used as a replacement for the obsolete simple_strtoull. Return code must
  * be checked.
+=======
+ * Preferred over simple_strtol(). Return code must be checked.
+>>>>>>> upstream/android-13
  */
 int kstrtoint(const char *s, unsigned int base, int *res)
 {
@@ -253,7 +312,11 @@ int kstrtoint(const char *s, unsigned int base, int *res)
 	rv = kstrtoll(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (long long)(int)tmp)
+=======
+	if (tmp != (int)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -268,7 +331,11 @@ int kstrtou16(const char *s, unsigned int base, u16 *res)
 	rv = kstrtoull(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (unsigned long long)(u16)tmp)
+=======
+	if (tmp != (u16)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -283,7 +350,11 @@ int kstrtos16(const char *s, unsigned int base, s16 *res)
 	rv = kstrtoll(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (long long)(s16)tmp)
+=======
+	if (tmp != (s16)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -298,7 +369,11 @@ int kstrtou8(const char *s, unsigned int base, u8 *res)
 	rv = kstrtoull(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (unsigned long long)(u8)tmp)
+=======
+	if (tmp != (u8)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -313,7 +388,11 @@ int kstrtos8(const char *s, unsigned int base, s8 *res)
 	rv = kstrtoll(s, base, &tmp);
 	if (rv < 0)
 		return rv;
+<<<<<<< HEAD
 	if (tmp != (long long)(s8)tmp)
+=======
+	if (tmp != (s8)tmp)
+>>>>>>> upstream/android-13
 		return -ERANGE;
 	*res = tmp;
 	return 0;
@@ -359,6 +438,10 @@ int kstrtobool(const char *s, bool *res)
 		default:
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

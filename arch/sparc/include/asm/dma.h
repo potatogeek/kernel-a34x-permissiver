@@ -91,6 +91,7 @@ extern int isa_dma_bridge_buggy;
 #endif
 
 #ifdef CONFIG_SPARC32
+<<<<<<< HEAD
 
 /* Routines for data transfer buffers. */
 struct device;
@@ -139,6 +140,12 @@ extern const struct sparc32_dma_ops *sparc32_dma_ops;
 	sparc32_dma_ops->unmap_dma_area(dev, ba, len)
 #endif /* CONFIG_SBUS */
 
+=======
+struct device;
+
+unsigned long sparc_dma_alloc_resource(struct device *dev, size_t len);
+bool sparc_dma_free_resource(void *cpu_addr, size_t size);
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* !(_ASM_SPARC_DMA_H) */

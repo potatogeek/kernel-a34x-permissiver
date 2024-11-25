@@ -68,10 +68,20 @@ nvkm_fb_bios_memtype(struct nvkm_bios *bios)
 
 	if (nvbios_M0203Em(bios, ramcfg, &ver, &hdr, &M0203E)) {
 		switch (M0203E.type) {
+<<<<<<< HEAD
 		case M0203E_TYPE_DDR2 : return NVKM_RAM_TYPE_DDR2;
 		case M0203E_TYPE_DDR3 : return NVKM_RAM_TYPE_DDR3;
 		case M0203E_TYPE_GDDR3: return NVKM_RAM_TYPE_GDDR3;
 		case M0203E_TYPE_GDDR5: return NVKM_RAM_TYPE_GDDR5;
+=======
+		case M0203E_TYPE_DDR2  : return NVKM_RAM_TYPE_DDR2;
+		case M0203E_TYPE_DDR3  : return NVKM_RAM_TYPE_DDR3;
+		case M0203E_TYPE_GDDR3 : return NVKM_RAM_TYPE_GDDR3;
+		case M0203E_TYPE_GDDR5 : return NVKM_RAM_TYPE_GDDR5;
+		case M0203E_TYPE_GDDR5X: return NVKM_RAM_TYPE_GDDR5X;
+		case M0203E_TYPE_GDDR6 : return NVKM_RAM_TYPE_GDDR6;
+		case M0203E_TYPE_HBM2  : return NVKM_RAM_TYPE_HBM2;
+>>>>>>> upstream/android-13
 		default:
 			nvkm_warn(subdev, "M0203E type %02x\n", M0203E.type);
 			return NVKM_RAM_TYPE_UNKNOWN;
@@ -119,7 +129,39 @@ nvkm_fb_oneinit(struct nvkm_subdev *subdev)
 		nvkm_debug(subdev, "%d comptags\n", tags);
 	}
 
+<<<<<<< HEAD
 	return nvkm_mm_init(&fb->tags, 0, 0, tags, 1);
+=======
+	return nvkm_mm_init(&fb->tags.mm, 0, 0, tags, 1);
+}
+
+static int
+nvkm_fb_init_scrub_vpr(struct nvkm_fb *fb)
+{
+	struct nvkm_subdev *subdev = &fb->subdev;
+	int ret;
+
+	nvkm_debug(subdev, "VPR locked, running scrubber binary\n");
+
+	if (!fb->vpr_scrubber.size) {
+		nvkm_warn(subdev, "VPR locked, but no scrubber binary!\n");
+		return 0;
+	}
+
+	ret = fb->func->vpr.scrub(fb);
+	if (ret) {
+		nvkm_error(subdev, "VPR scrubber binary failed\n");
+		return ret;
+	}
+
+	if (fb->func->vpr.scrub_required(fb)) {
+		nvkm_error(subdev, "VPR still locked after scrub!\n");
+		return -EIO;
+	}
+
+	nvkm_debug(subdev, "VPR scrubber binary successful\n");
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -151,6 +193,17 @@ nvkm_fb_init(struct nvkm_subdev *subdev)
 
 	if (fb->func->init_unkn)
 		fb->func->init_unkn(fb);
+<<<<<<< HEAD
+=======
+
+	if (fb->func->vpr.scrub_required &&
+	    fb->func->vpr.scrub_required(fb)) {
+		ret = nvkm_fb_init_scrub_vpr(fb);
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -166,9 +219,19 @@ nvkm_fb_dtor(struct nvkm_subdev *subdev)
 	for (i = 0; i < fb->tile.regions; i++)
 		fb->func->tile.fini(fb, i, &fb->tile.region[i]);
 
+<<<<<<< HEAD
 	nvkm_mm_fini(&fb->tags);
 	nvkm_ram_del(&fb->ram);
 
+=======
+	nvkm_mm_fini(&fb->tags.mm);
+	mutex_destroy(&fb->tags.mutex);
+
+	nvkm_ram_del(&fb->ram);
+
+	nvkm_blob_dtor(&fb->vpr_scrubber);
+
+>>>>>>> upstream/android-13
 	if (fb->func->dtor)
 		return fb->func->dtor(fb);
 	return fb;
@@ -184,6 +247,7 @@ nvkm_fb = {
 
 void
 nvkm_fb_ctor(const struct nvkm_fb_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	     int index, struct nvkm_fb *fb)
 {
 	nvkm_subdev_ctor(&nvkm_fb, device, index, &fb->subdev);
@@ -191,14 +255,31 @@ nvkm_fb_ctor(const struct nvkm_fb_func *func, struct nvkm_device *device,
 	fb->tile.regions = fb->func->tile.regions;
 	fb->page = nvkm_longopt(device->cfgopt, "NvFbBigPage",
 				fb->func->default_bigpage);
+=======
+	     enum nvkm_subdev_type type, int inst, struct nvkm_fb *fb)
+{
+	nvkm_subdev_ctor(&nvkm_fb, device, type, inst, &fb->subdev);
+	fb->func = func;
+	fb->tile.regions = fb->func->tile.regions;
+	fb->page = nvkm_longopt(device->cfgopt, "NvFbBigPage", fb->func->default_bigpage);
+	mutex_init(&fb->tags.mutex);
+>>>>>>> upstream/android-13
 }
 
 int
 nvkm_fb_new_(const struct nvkm_fb_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	     int index, struct nvkm_fb **pfb)
 {
 	if (!(*pfb = kzalloc(sizeof(**pfb), GFP_KERNEL)))
 		return -ENOMEM;
 	nvkm_fb_ctor(func, device, index, *pfb);
+=======
+	     enum nvkm_subdev_type type, int inst, struct nvkm_fb **pfb)
+{
+	if (!(*pfb = kzalloc(sizeof(**pfb), GFP_KERNEL)))
+		return -ENOMEM;
+	nvkm_fb_ctor(func, device, type, inst, *pfb);
+>>>>>>> upstream/android-13
 	return 0;
 }

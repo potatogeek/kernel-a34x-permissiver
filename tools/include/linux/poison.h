@@ -35,12 +35,17 @@
  */
 #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
 
+<<<<<<< HEAD
 /********** mm/debug-pagealloc.c **********/
 #ifdef CONFIG_PAGE_POISONING_ZERO
 #define PAGE_POISON 0x00
 #else
 #define PAGE_POISON 0xaa
 #endif
+=======
+/********** mm/page_poison.c **********/
+#define PAGE_POISON 0xaa
+>>>>>>> upstream/android-13
 
 /********** mm/page_alloc.c ************/
 
@@ -87,9 +92,12 @@
 #define MUTEX_DEBUG_INIT	0x11
 #define MUTEX_DEBUG_FREE	0x22
 
+<<<<<<< HEAD
 /********** lib/flex_array.c **********/
 #define FLEX_ARRAY_FREE	0x6c	/* for use-after-free poisoning */
 
+=======
+>>>>>>> upstream/android-13
 /********** security/ **********/
 #define KEY_DESTROY		0xbd
 

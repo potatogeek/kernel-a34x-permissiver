@@ -12,7 +12,10 @@
 
 #include "coda_int.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
+=======
+>>>>>>> upstream/android-13
 static struct ctl_table_header *fs_table_header;
 
 static struct ctl_table coda_table[] = {
@@ -62,6 +65,7 @@ void coda_sysctl_clean(void)
 		fs_table_header = NULL;
 	}
 }
+<<<<<<< HEAD
 
 #else
 void coda_sysctl_init(void)
@@ -72,3 +76,5 @@ void coda_sysctl_clean(void)
 {
 }
 #endif
+=======
+>>>>>>> upstream/android-13

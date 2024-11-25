@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for watchdog device controlled through GPIO-line
  *
  * Author: 2013, Alexander Shiyan <shc_work@mail.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -17,6 +24,15 @@
 #include <linux/platform_device.h>
 #include <linux/watchdog.h>
 
+<<<<<<< HEAD
+=======
+static bool nowayout = WATCHDOG_NOWAYOUT;
+module_param(nowayout, bool, 0);
+MODULE_PARM_DESC(nowayout,
+		"Watchdog cannot be stopped once started (default="
+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+
+>>>>>>> upstream/android-13
 #define SOFT_TIMEOUT_MIN	1
 #define SOFT_TIMEOUT_DEF	60
 
@@ -154,13 +170,19 @@ static int gpio_wdt_probe(struct platform_device *pdev)
 	priv->wdd.parent	= dev;
 	priv->wdd.timeout	= SOFT_TIMEOUT_DEF;
 
+<<<<<<< HEAD
 	watchdog_init_timeout(&priv->wdd, 0, &pdev->dev);
+=======
+	watchdog_init_timeout(&priv->wdd, 0, dev);
+	watchdog_set_nowayout(&priv->wdd, nowayout);
+>>>>>>> upstream/android-13
 
 	watchdog_stop_on_reboot(&priv->wdd);
 
 	if (priv->always_running)
 		gpio_wdt_start(&priv->wdd);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(&priv->wdd);
 
 	return ret;
@@ -173,6 +195,9 @@ static int gpio_wdt_remove(struct platform_device *pdev)
 	watchdog_unregister_device(&priv->wdd);
 
 	return 0;
+=======
+	return devm_watchdog_register_device(dev, &priv->wdd);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id gpio_wdt_dt_ids[] = {
@@ -187,7 +212,10 @@ static struct platform_driver gpio_wdt_driver = {
 		.of_match_table	= gpio_wdt_dt_ids,
 	},
 	.probe	= gpio_wdt_probe,
+<<<<<<< HEAD
 	.remove	= gpio_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_GPIO_WATCHDOG_ARCH_INITCALL

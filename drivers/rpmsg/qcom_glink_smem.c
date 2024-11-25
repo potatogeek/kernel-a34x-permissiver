@@ -201,7 +201,11 @@ struct qcom_glink *qcom_glink_smem_register(struct device *parent,
 	dev->parent = parent;
 	dev->of_node = node;
 	dev->release = qcom_glink_smem_release;
+<<<<<<< HEAD
 	dev_set_name(dev, "%s:%s", node->parent->name, node->name);
+=======
+	dev_set_name(dev, "%s:%pOFn", dev_name(parent->parent), node);
+>>>>>>> upstream/android-13
 	ret = device_register(dev);
 	if (ret) {
 		pr_err("failed to register glink edge\n");

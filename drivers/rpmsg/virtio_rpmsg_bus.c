@@ -11,6 +11,7 @@
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/virtio.h>
@@ -26,6 +27,25 @@
 #include <linux/rpmsg.h>
 #include <linux/mutex.h>
 #include <linux/of_device.h>
+=======
+#include <linux/dma-mapping.h>
+#include <linux/idr.h>
+#include <linux/jiffies.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/of_device.h>
+#include <linux/rpmsg.h>
+#include <linux/rpmsg/byteorder.h>
+#include <linux/rpmsg/ns.h>
+#include <linux/scatterlist.h>
+#include <linux/slab.h>
+#include <linux/sched.h>
+#include <linux/virtio.h>
+#include <linux/virtio_ids.h>
+#include <linux/virtio_config.h>
+#include <linux/wait.h>
+>>>>>>> upstream/android-13
 
 #include "rpmsg_internal.h"
 
@@ -47,7 +67,10 @@
  * @endpoints_lock: lock of the endpoints set
  * @sendq:	wait queue of sending contexts waiting for a tx buffers
  * @sleepers:	number of senders that are waiting for a tx buffer
+<<<<<<< HEAD
  * @ns_ept:	the bus's name service endpoint
+=======
+>>>>>>> upstream/android-13
  *
  * This structure stores the rpmsg state of a given virtio remote processor
  * device (there might be several virtio proc devices for each physical
@@ -66,7 +89,10 @@ struct virtproc_info {
 	struct mutex endpoints_lock;
 	wait_queue_head_t sendq;
 	atomic_t sleepers;
+<<<<<<< HEAD
 	struct rpmsg_endpoint *ns_ept;
+=======
+>>>>>>> upstream/android-13
 };
 
 /* The feature bitmap for virtio rpmsg */
@@ -84,6 +110,7 @@ struct virtproc_info {
  * Every message sent(/received) on the rpmsg bus begins with this header.
  */
 struct rpmsg_hdr {
+<<<<<<< HEAD
 	u32 src;
 	u32 dst;
 	u32 reserved;
@@ -123,6 +150,24 @@ enum rpmsg_ns_flags {
 
 /**
  * @vrp: the remote processor this channel belongs to
+=======
+	__rpmsg32 src;
+	__rpmsg32 dst;
+	__rpmsg32 reserved;
+	__rpmsg16 len;
+	__rpmsg16 flags;
+	u8 data[];
+} __packed;
+
+
+/**
+ * struct virtio_rpmsg_channel - rpmsg channel descriptor
+ * @rpdev: the rpmsg channel device
+ * @vrp: the virtio remote processor device this channel belongs to
+ *
+ * This structure stores the channel that links the rpmsg device to the virtio
+ * remote processor device.
+>>>>>>> upstream/android-13
  */
 struct virtio_rpmsg_channel {
 	struct rpmsg_device rpdev;
@@ -161,9 +206,12 @@ struct virtio_rpmsg_channel {
  */
 #define RPMSG_RESERVED_ADDRESSES	(1024)
 
+<<<<<<< HEAD
 /* Address 53 is reserved for advertising remote services */
 #define RPMSG_NS_ADDR			(53)
 
+=======
+>>>>>>> upstream/android-13
 static void virtio_rpmsg_destroy_ept(struct rpmsg_endpoint *ept);
 static int virtio_rpmsg_send(struct rpmsg_endpoint *ept, void *data, int len);
 static int virtio_rpmsg_sendto(struct rpmsg_endpoint *ept, void *data, int len,
@@ -175,6 +223,11 @@ static int virtio_rpmsg_trysendto(struct rpmsg_endpoint *ept, void *data,
 				  int len, u32 dst);
 static int virtio_rpmsg_trysend_offchannel(struct rpmsg_endpoint *ept, u32 src,
 					   u32 dst, void *data, int len);
+<<<<<<< HEAD
+=======
+static struct rpmsg_device *__rpmsg_create_channel(struct virtproc_info *vrp,
+						   struct rpmsg_channel_info *chinfo);
+>>>>>>> upstream/android-13
 
 static const struct rpmsg_endpoint_ops virtio_endpoint_ops = {
 	.destroy_ept = virtio_rpmsg_destroy_ept,
@@ -279,6 +332,27 @@ free_ept:
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static struct rpmsg_device *virtio_rpmsg_create_channel(struct rpmsg_device *rpdev,
+							struct rpmsg_channel_info *chinfo)
+{
+	struct virtio_rpmsg_channel *vch = to_virtio_rpmsg_channel(rpdev);
+	struct virtproc_info *vrp = vch->vrp;
+
+	return __rpmsg_create_channel(vrp, chinfo);
+}
+
+static int virtio_rpmsg_release_channel(struct rpmsg_device *rpdev,
+					struct rpmsg_channel_info *chinfo)
+{
+	struct virtio_rpmsg_channel *vch = to_virtio_rpmsg_channel(rpdev);
+	struct virtproc_info *vrp = vch->vrp;
+
+	return rpmsg_unregister_device(&vrp->vdev->dev, chinfo);
+}
+
+>>>>>>> upstream/android-13
 static struct rpmsg_endpoint *virtio_rpmsg_create_ept(struct rpmsg_device *rpdev,
 						      rpmsg_rx_cb_t cb,
 						      void *priv,
@@ -335,8 +409,13 @@ static int virtio_rpmsg_announce_create(struct rpmsg_device *rpdev)
 		struct rpmsg_ns_msg nsm;
 
 		strncpy(nsm.name, rpdev->id.name, RPMSG_NAME_SIZE);
+<<<<<<< HEAD
 		nsm.addr = rpdev->ept->addr;
 		nsm.flags = RPMSG_NS_CREATE;
+=======
+		nsm.addr = cpu_to_rpmsg32(rpdev, rpdev->ept->addr);
+		nsm.flags = cpu_to_rpmsg32(rpdev, RPMSG_NS_CREATE);
+>>>>>>> upstream/android-13
 
 		err = rpmsg_sendto(rpdev->ept, &nsm, sizeof(nsm), RPMSG_NS_ADDR);
 		if (err)
@@ -359,8 +438,13 @@ static int virtio_rpmsg_announce_destroy(struct rpmsg_device *rpdev)
 		struct rpmsg_ns_msg nsm;
 
 		strncpy(nsm.name, rpdev->id.name, RPMSG_NAME_SIZE);
+<<<<<<< HEAD
 		nsm.addr = rpdev->ept->addr;
 		nsm.flags = RPMSG_NS_DESTROY;
+=======
+		nsm.addr = cpu_to_rpmsg32(rpdev, rpdev->ept->addr);
+		nsm.flags = cpu_to_rpmsg32(rpdev, RPMSG_NS_DESTROY);
+>>>>>>> upstream/android-13
 
 		err = rpmsg_sendto(rpdev->ept, &nsm, sizeof(nsm), RPMSG_NS_ADDR);
 		if (err)
@@ -371,6 +455,11 @@ static int virtio_rpmsg_announce_destroy(struct rpmsg_device *rpdev)
 }
 
 static const struct rpmsg_device_ops virtio_rpmsg_ops = {
+<<<<<<< HEAD
+=======
+	.create_channel = virtio_rpmsg_create_channel,
+	.release_channel = virtio_rpmsg_release_channel,
+>>>>>>> upstream/android-13
 	.create_ept = virtio_rpmsg_create_ept,
 	.announce_create = virtio_rpmsg_announce_create,
 	.announce_destroy = virtio_rpmsg_announce_destroy,
@@ -389,8 +478,13 @@ static void virtio_rpmsg_release_device(struct device *dev)
  * this function will be used to create both static and dynamic
  * channels.
  */
+<<<<<<< HEAD
 static struct rpmsg_device *rpmsg_create_channel(struct virtproc_info *vrp,
 						 struct rpmsg_channel_info *chinfo)
+=======
+static struct rpmsg_device *__rpmsg_create_channel(struct virtproc_info *vrp,
+						   struct rpmsg_channel_info *chinfo)
+>>>>>>> upstream/android-13
 {
 	struct virtio_rpmsg_channel *vch;
 	struct rpmsg_device *rpdev;
@@ -419,6 +513,10 @@ static struct rpmsg_device *rpmsg_create_channel(struct virtproc_info *vrp,
 	rpdev->src = chinfo->src;
 	rpdev->dst = chinfo->dst;
 	rpdev->ops = &virtio_rpmsg_ops;
+<<<<<<< HEAD
+=======
+	rpdev->little_endian = virtio_is_little_endian(vrp->vdev);
+>>>>>>> upstream/android-13
 
 	/*
 	 * rpmsg server channels has predefined local address (for now),
@@ -612,18 +710,32 @@ static int rpmsg_send_offchannel_raw(struct rpmsg_device *rpdev,
 		}
 	}
 
+<<<<<<< HEAD
 	msg->len = len;
 	msg->flags = 0;
 	msg->src = src;
 	msg->dst = dst;
+=======
+	msg->len = cpu_to_rpmsg16(rpdev, len);
+	msg->flags = 0;
+	msg->src = cpu_to_rpmsg32(rpdev, src);
+	msg->dst = cpu_to_rpmsg32(rpdev, dst);
+>>>>>>> upstream/android-13
 	msg->reserved = 0;
 	memcpy(msg->data, data, len);
 
 	dev_dbg(dev, "TX From 0x%x, To 0x%x, Len %d, Flags %d, Reserved %d\n",
+<<<<<<< HEAD
 		msg->src, msg->dst, msg->len, msg->flags, msg->reserved);
 #if defined(CONFIG_DYNAMIC_DEBUG)
 	dynamic_hex_dump("rpmsg_virtio TX: ", DUMP_PREFIX_NONE, 16, 1,
 			 msg, sizeof(*msg) + msg->len, true);
+=======
+		src, dst, len, msg->flags, msg->reserved);
+#if defined(CONFIG_DYNAMIC_DEBUG)
+	dynamic_hex_dump("rpmsg_virtio TX: ", DUMP_PREFIX_NONE, 16, 1,
+			 msg, sizeof(*msg) + len, true);
+>>>>>>> upstream/android-13
 #endif
 
 	rpmsg_sg_init(&sg, msg, sizeof(*msg) + len);
@@ -704,6 +816,7 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
 {
 	struct rpmsg_endpoint *ept;
 	struct scatterlist sg;
+<<<<<<< HEAD
 	int err;
 
 	dev_dbg(dev, "From: 0x%x, To: 0x%x, Len: %d, Flags: %d, Reserved: %d\n",
@@ -711,6 +824,20 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
 #if defined(CONFIG_DYNAMIC_DEBUG)
 	dynamic_hex_dump("rpmsg_virtio RX: ", DUMP_PREFIX_NONE, 16, 1,
 			 msg, sizeof(*msg) + msg->len, true);
+=======
+	bool little_endian = virtio_is_little_endian(vrp->vdev);
+	unsigned int msg_len = __rpmsg16_to_cpu(little_endian, msg->len);
+	int err;
+
+	dev_dbg(dev, "From: 0x%x, To: 0x%x, Len: %d, Flags: %d, Reserved: %d\n",
+		__rpmsg32_to_cpu(little_endian, msg->src),
+		__rpmsg32_to_cpu(little_endian, msg->dst), msg_len,
+		__rpmsg16_to_cpu(little_endian, msg->flags),
+		__rpmsg32_to_cpu(little_endian, msg->reserved));
+#if defined(CONFIG_DYNAMIC_DEBUG)
+	dynamic_hex_dump("rpmsg_virtio RX: ", DUMP_PREFIX_NONE, 16, 1,
+			 msg, sizeof(*msg) + msg_len, true);
+>>>>>>> upstream/android-13
 #endif
 
 	/*
@@ -718,15 +845,24 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
 	 * the reported payload length.
 	 */
 	if (len > vrp->buf_size ||
+<<<<<<< HEAD
 	    msg->len > (len - sizeof(struct rpmsg_hdr))) {
 		dev_warn(dev, "inbound msg too big: (%d, %d)\n", len, msg->len);
+=======
+	    msg_len > (len - sizeof(struct rpmsg_hdr))) {
+		dev_warn(dev, "inbound msg too big: (%d, %d)\n", len, msg_len);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	/* use the dst addr to fetch the callback of the appropriate user */
 	mutex_lock(&vrp->endpoints_lock);
 
+<<<<<<< HEAD
 	ept = idr_find(&vrp->endpoints, msg->dst);
+=======
+	ept = idr_find(&vrp->endpoints, __rpmsg32_to_cpu(little_endian, msg->dst));
+>>>>>>> upstream/android-13
 
 	/* let's make sure no one deallocates ept while we use it */
 	if (ept)
@@ -739,8 +875,13 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
 		mutex_lock(&ept->cb_lock);
 
 		if (ept->cb)
+<<<<<<< HEAD
 			ept->cb(ept->rpdev, msg->data, msg->len, ept->priv,
 				msg->src);
+=======
+			ept->cb(ept->rpdev, msg->data, msg_len, ept->priv,
+				__rpmsg32_to_cpu(little_endian, msg->src));
+>>>>>>> upstream/android-13
 
 		mutex_unlock(&ept->cb_lock);
 
@@ -811,6 +952,7 @@ static void rpmsg_xmit_done(struct virtqueue *svq)
 	wake_up_interruptible(&vrp->sendq);
 }
 
+<<<<<<< HEAD
 /* invoked when a name service announcement arrives */
 static int rpmsg_ns_cb(struct rpmsg_device *rpdev, void *data, int len,
 		       void *priv, u32 src)
@@ -865,6 +1007,49 @@ static int rpmsg_ns_cb(struct rpmsg_device *rpdev, void *data, int len,
 	}
 
 	return 0;
+=======
+/*
+ * Called to expose to user a /dev/rpmsg_ctrlX interface allowing to
+ * create endpoint-to-endpoint communication without associated RPMsg channel.
+ * The endpoints are rattached to the ctrldev RPMsg device.
+ */
+static struct rpmsg_device *rpmsg_virtio_add_ctrl_dev(struct virtio_device *vdev)
+{
+	struct virtproc_info *vrp = vdev->priv;
+	struct virtio_rpmsg_channel *vch;
+	struct rpmsg_device *rpdev_ctrl;
+	int err = 0;
+
+	vch = kzalloc(sizeof(*vch), GFP_KERNEL);
+	if (!vch)
+		return ERR_PTR(-ENOMEM);
+
+	/* Link the channel to the vrp */
+	vch->vrp = vrp;
+
+	/* Assign public information to the rpmsg_device */
+	rpdev_ctrl = &vch->rpdev;
+	rpdev_ctrl->ops = &virtio_rpmsg_ops;
+
+	rpdev_ctrl->dev.parent = &vrp->vdev->dev;
+	rpdev_ctrl->dev.release = virtio_rpmsg_release_device;
+	rpdev_ctrl->little_endian = virtio_is_little_endian(vrp->vdev);
+
+	err = rpmsg_ctrldev_register_device(rpdev_ctrl);
+	if (err) {
+		kfree(vch);
+		return ERR_PTR(err);
+	}
+
+	return rpdev_ctrl;
+}
+
+static void rpmsg_virtio_del_ctrl_dev(struct rpmsg_device *rpdev_ctrl)
+{
+	if (!rpdev_ctrl)
+		return;
+	kfree(to_virtio_rpmsg_channel(rpdev_ctrl));
+>>>>>>> upstream/android-13
 }
 
 static int rpmsg_probe(struct virtio_device *vdev)
@@ -873,6 +1058,11 @@ static int rpmsg_probe(struct virtio_device *vdev)
 	static const char * const names[] = { "input", "output" };
 	struct virtqueue *vqs[2];
 	struct virtproc_info *vrp;
+<<<<<<< HEAD
+=======
+	struct virtio_rpmsg_channel *vch = NULL;
+	struct rpmsg_device *rpdev_ns, *rpdev_ctrl;
+>>>>>>> upstream/android-13
 	void *bufs_va;
 	int err = 0, i;
 	size_t total_buf_space;
@@ -912,7 +1102,11 @@ static int rpmsg_probe(struct virtio_device *vdev)
 	total_buf_space = vrp->num_bufs * vrp->buf_size;
 
 	/* allocate coherent memory for the buffers */
+<<<<<<< HEAD
 	bufs_va = dma_alloc_coherent(vdev->dev.parent->parent,
+=======
+	bufs_va = dma_alloc_coherent(vdev->dev.parent,
+>>>>>>> upstream/android-13
 				     total_buf_space, &vrp->bufs_dma,
 				     GFP_KERNEL);
 	if (!bufs_va) {
@@ -920,7 +1114,11 @@ static int rpmsg_probe(struct virtio_device *vdev)
 		goto vqs_del;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(&vdev->dev, "buffers: va %p, dma %pad\n",
+=======
+	dev_dbg(&vdev->dev, "buffers: va %pK, dma %pad\n",
+>>>>>>> upstream/android-13
 		bufs_va, &vrp->bufs_dma);
 
 	/* half of the buffers is dedicated for RX */
@@ -946,6 +1144,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
 
 	vdev->priv = vrp;
 
+<<<<<<< HEAD
 	/* if supported by the remote processor, enable the name service */
 	if (virtio_has_feature(vdev, VIRTIO_RPMSG_F_NS)) {
 		/* a dedicated endpoint handles the name service msgs */
@@ -956,6 +1155,36 @@ static int rpmsg_probe(struct virtio_device *vdev)
 			err = -ENOMEM;
 			goto free_coherent;
 		}
+=======
+	rpdev_ctrl = rpmsg_virtio_add_ctrl_dev(vdev);
+	if (IS_ERR(rpdev_ctrl)) {
+		err = PTR_ERR(rpdev_ctrl);
+		goto free_coherent;
+	}
+
+	/* if supported by the remote processor, enable the name service */
+	if (virtio_has_feature(vdev, VIRTIO_RPMSG_F_NS)) {
+		vch = kzalloc(sizeof(*vch), GFP_KERNEL);
+		if (!vch) {
+			err = -ENOMEM;
+			goto free_ctrldev;
+		}
+
+		/* Link the channel to our vrp */
+		vch->vrp = vrp;
+
+		/* Assign public information to the rpmsg_device */
+		rpdev_ns = &vch->rpdev;
+		rpdev_ns->ops = &virtio_rpmsg_ops;
+		rpdev_ns->little_endian = virtio_is_little_endian(vrp->vdev);
+
+		rpdev_ns->dev.parent = &vrp->vdev->dev;
+		rpdev_ns->dev.release = virtio_rpmsg_release_device;
+
+		err = rpmsg_ns_register_device(rpdev_ns);
+		if (err)
+			goto free_vch;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -979,8 +1208,17 @@ static int rpmsg_probe(struct virtio_device *vdev)
 
 	return 0;
 
+<<<<<<< HEAD
 free_coherent:
 	dma_free_coherent(vdev->dev.parent->parent, total_buf_space,
+=======
+free_vch:
+	kfree(vch);
+free_ctrldev:
+	rpmsg_virtio_del_ctrl_dev(rpdev_ctrl);
+free_coherent:
+	dma_free_coherent(vdev->dev.parent, total_buf_space,
+>>>>>>> upstream/android-13
 			  bufs_va, vrp->bufs_dma);
 vqs_del:
 	vdev->config->del_vqs(vrp->vdev);
@@ -1008,14 +1246,21 @@ static void rpmsg_remove(struct virtio_device *vdev)
 	if (ret)
 		dev_warn(&vdev->dev, "can't remove rpmsg device: %d\n", ret);
 
+<<<<<<< HEAD
 	if (vrp->ns_ept)
 		__rpmsg_destroy_ept(vrp, vrp->ns_ept);
 
+=======
+>>>>>>> upstream/android-13
 	idr_destroy(&vrp->endpoints);
 
 	vdev->config->del_vqs(vrp->vdev);
 
+<<<<<<< HEAD
 	dma_free_coherent(vdev->dev.parent->parent, total_buf_space,
+=======
+	dma_free_coherent(vdev->dev.parent, total_buf_space,
+>>>>>>> upstream/android-13
 			  vrp->rbufs, vrp->bufs_dma);
 
 	kfree(vrp);

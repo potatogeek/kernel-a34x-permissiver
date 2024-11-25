@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmdebug.c
  *
  * debug functionality for the dlm
  *
  * Copyright (C) 2004, 2008 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -32,9 +40,15 @@
 #include <linux/debugfs.h>
 #include <linux/export.h>
 
+<<<<<<< HEAD
 #include "cluster/heartbeat.h"
 #include "cluster/nodemanager.h"
 #include "cluster/tcp.h"
+=======
+#include "../cluster/heartbeat.h"
+#include "../cluster/nodemanager.h"
+#include "../cluster/tcp.h"
+>>>>>>> upstream/android-13
 
 #include "dlmapi.h"
 #include "dlmcommon.h"
@@ -42,7 +56,11 @@
 #include "dlmdebug.h"
 
 #define MLOG_MASK_PREFIX ML_DLM
+<<<<<<< HEAD
 #include "cluster/masklog.h"
+=======
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 static int stringify_lockname(const char *lockname, int locklen, char *buf,
 			      int len);
@@ -259,11 +277,19 @@ static int stringify_lockname(const char *lockname, int locklen, char *buf,
 		memcpy((__be64 *)&inode_blkno_be,
 		       (char *)&lockname[OCFS2_DENTRY_LOCK_INO_START],
 		       sizeof(__be64));
+<<<<<<< HEAD
 		out += snprintf(buf + out, len - out, "%.*s%08x",
 				OCFS2_DENTRY_LOCK_INO_START - 1, lockname,
 				(unsigned int)be64_to_cpu(inode_blkno_be));
 	} else
 		out += snprintf(buf + out, len - out, "%.*s",
+=======
+		out += scnprintf(buf + out, len - out, "%.*s%08x",
+				OCFS2_DENTRY_LOCK_INO_START - 1, lockname,
+				(unsigned int)be64_to_cpu(inode_blkno_be));
+	} else
+		out += scnprintf(buf + out, len - out, "%.*s",
+>>>>>>> upstream/android-13
 				locklen, lockname);
 	return out;
 }
@@ -275,7 +301,11 @@ static int stringify_nodemap(unsigned long *nodemap, int maxnodes,
 	int i = -1;
 
 	while ((i = find_next_bit(nodemap, maxnodes, i + 1)) < maxnodes)
+<<<<<<< HEAD
 		out += snprintf(buf + out, len - out, "%d ", i);
+=======
+		out += scnprintf(buf + out, len - out, "%d ", i);
+>>>>>>> upstream/android-13
 
 	return out;
 }
@@ -293,13 +323,18 @@ static int dump_mle(struct dlm_master_list_entry *mle, char *buf, int len)
 		mle_type = "MIG";
 
 	out += stringify_lockname(mle->mname, mle->mnamelen, buf + out, len - out);
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"\t%3s\tmas=%3u\tnew=%3u\tevt=%1d\tuse=%1d\tref=%3d\n",
 			mle_type, mle->master, mle->new_master,
 			!list_empty(&mle->hb_events),
 			!!mle->inuse,
 			kref_read(&mle->mle_refs));
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "Maybe=");
 	out += stringify_nodemap(mle->maybe_map, O2NM_MAX_NODES,
 				 buf + out, len - out);
@@ -321,6 +356,29 @@ static int dump_mle(struct dlm_master_list_entry *mle, char *buf, int len)
 	out += snprintf(buf + out, len - out, "\n");
 
 	out += snprintf(buf + out, len - out, "\n");
+=======
+	out += scnprintf(buf + out, len - out, "Maybe=");
+	out += stringify_nodemap(mle->maybe_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	out += scnprintf(buf + out, len - out, "Vote=");
+	out += stringify_nodemap(mle->vote_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	out += scnprintf(buf + out, len - out, "Response=");
+	out += stringify_nodemap(mle->response_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	out += scnprintf(buf + out, len - out, "Node=");
+	out += stringify_nodemap(mle->node_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	out += scnprintf(buf + out, len - out, "\n");
+>>>>>>> upstream/android-13
 
 	return out;
 }
@@ -368,7 +426,11 @@ static int debug_purgelist_print(struct dlm_ctxt *dlm, char *buf, int len)
 	int out = 0;
 	unsigned long total = 0;
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Dumping Purgelist for Domain: %s\n", dlm->name);
 
 	spin_lock(&dlm->spinlock);
@@ -380,13 +442,21 @@ static int debug_purgelist_print(struct dlm_ctxt *dlm, char *buf, int len)
 		out += stringify_lockname(res->lockname.name,
 					  res->lockname.len,
 					  buf + out, len - out);
+<<<<<<< HEAD
 		out += snprintf(buf + out, len - out, "\t%ld\n",
+=======
+		out += scnprintf(buf + out, len - out, "\t%ld\n",
+>>>>>>> upstream/android-13
 				(jiffies - res->last_used)/HZ);
 		spin_unlock(&res->spinlock);
 	}
 	spin_unlock(&dlm->spinlock);
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "Total on list: %lu\n", total);
+=======
+	out += scnprintf(buf + out, len - out, "Total on list: %lu\n", total);
+>>>>>>> upstream/android-13
 
 	return out;
 }
@@ -425,7 +495,11 @@ static int debug_mle_print(struct dlm_ctxt *dlm, char *buf, int len)
 	int i, out = 0;
 	unsigned long total = 0, longest = 0, bucket_count = 0;
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Dumping MLEs for Domain: %s\n", dlm->name);
 
 	spin_lock(&dlm->master_lock);
@@ -443,7 +517,11 @@ static int debug_mle_print(struct dlm_ctxt *dlm, char *buf, int len)
 	}
 	spin_unlock(&dlm->master_lock);
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Total: %lu, Longest: %lu\n", total, longest);
 	return out;
 }
@@ -482,7 +560,11 @@ static int dump_lock(struct dlm_lock *lock, int list_type, char *buf, int len)
 
 #define DEBUG_LOCK_VERSION	1
 	spin_lock(&lock->spinlock);
+<<<<<<< HEAD
 	out = snprintf(buf, len, "LOCK:%d,%d,%d,%d,%d,%d:%lld,%d,%d,%d,%d,%d,"
+=======
+	out = scnprintf(buf, len, "LOCK:%d,%d,%d,%d,%d,%d:%lld,%d,%d,%d,%d,%d,"
+>>>>>>> upstream/android-13
 		       "%d,%d,%d,%d\n",
 		       DEBUG_LOCK_VERSION,
 		       list_type, lock->ml.type, lock->ml.convert_type,
@@ -506,6 +588,7 @@ static int dump_lockres(struct dlm_lock_resource *res, char *buf, int len)
 	int i;
 	int out = 0;
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "NAME:");
 	out += stringify_lockname(res->lockname.name, res->lockname.len,
 				  buf + out, len - out);
@@ -513,6 +596,15 @@ static int dump_lockres(struct dlm_lock_resource *res, char *buf, int len)
 
 #define DEBUG_LRES_VERSION	1
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out, "NAME:");
+	out += stringify_lockname(res->lockname.name, res->lockname.len,
+				  buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+#define DEBUG_LRES_VERSION	1
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"LRES:%d,%d,%d,%ld,%d,%d,%d,%d,%d,%d,%d\n",
 			DEBUG_LRES_VERSION,
 			res->owner, res->state, res->last_used,
@@ -524,6 +616,7 @@ static int dump_lockres(struct dlm_lock_resource *res, char *buf, int len)
 			kref_read(&res->refs));
 
 	/* refmap */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "RMAP:");
 	out += stringify_nodemap(res->refmap, O2NM_MAX_NODES,
 				 buf + out, len - out);
@@ -535,6 +628,19 @@ static int dump_lockres(struct dlm_lock_resource *res, char *buf, int len)
 		out += snprintf(buf + out, len - out,
 					"%02x", (unsigned char)res->lvb[i]);
 	out += snprintf(buf + out, len - out, "\n");
+=======
+	out += scnprintf(buf + out, len - out, "RMAP:");
+	out += stringify_nodemap(res->refmap, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	/* lvb */
+	out += scnprintf(buf + out, len - out, "LVBX:");
+	for (i = 0; i < DLM_LVB_LEN; i++)
+		out += scnprintf(buf + out, len - out,
+					"%02x", (unsigned char)res->lvb[i]);
+	out += scnprintf(buf + out, len - out, "\n");
+>>>>>>> upstream/android-13
 
 	/* granted */
 	list_for_each_entry(lock, &res->granted, list)
@@ -548,7 +654,11 @@ static int dump_lockres(struct dlm_lock_resource *res, char *buf, int len)
 	list_for_each_entry(lock, &res->blocked, list)
 		out += dump_lock(lock, 2, buf + out, len - out);
 
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "\n");
+=======
+	out += scnprintf(buf + out, len - out, "\n");
+>>>>>>> upstream/android-13
 
 	return out;
 }
@@ -698,22 +808,35 @@ static int debug_state_print(struct dlm_ctxt *dlm, char *buf, int len)
 	}
 
 	/* Domain: xxxxxxxxxx  Key: 0xdfbac769 */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Domain: %s  Key: 0x%08x  Protocol: %d.%d\n",
 			dlm->name, dlm->key, dlm->dlm_locking_proto.pv_major,
 			dlm->dlm_locking_proto.pv_minor);
 
 	/* Thread Pid: xxx  Node: xxx  State: xxxxx */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Thread Pid: %d  Node: %d  State: %s\n",
 			task_pid_nr(dlm->dlm_thread_task), dlm->node_num, state);
 
 	/* Number of Joins: xxx  Joining Node: xxx */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Number of Joins: %d  Joining Node: %d\n",
 			dlm->num_joins, dlm->joining_node);
 
 	/* Domain Map: xx xx xx */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "Domain Map: ");
 	out += stringify_nodemap(dlm->domain_map, O2NM_MAX_NODES,
 				 buf + out, len - out);
@@ -733,6 +856,27 @@ static int debug_state_print(struct dlm_ctxt *dlm, char *buf, int len)
 
 	/* Lock Resources: xxx (xxx) */
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out, "Domain Map: ");
+	out += stringify_nodemap(dlm->domain_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	/* Exit Domain Map: xx xx xx */
+	out += scnprintf(buf + out, len - out, "Exit Domain Map: ");
+	out += stringify_nodemap(dlm->exit_domain_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	/* Live Map: xx xx xx */
+	out += scnprintf(buf + out, len - out, "Live Map: ");
+	out += stringify_nodemap(dlm->live_nodes_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	/* Lock Resources: xxx (xxx) */
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Lock Resources: %d (%d)\n",
 			atomic_read(&dlm->res_cur_count),
 			atomic_read(&dlm->res_tot_count));
@@ -744,29 +888,49 @@ static int debug_state_print(struct dlm_ctxt *dlm, char *buf, int len)
 		cur_mles += atomic_read(&dlm->mle_cur_count[i]);
 
 	/* MLEs: xxx (xxx) */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
 			"MLEs: %d (%d)\n", cur_mles, tot_mles);
 
 	/*  Blocking: xxx (xxx) */
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+			"MLEs: %d (%d)\n", cur_mles, tot_mles);
+
+	/*  Blocking: xxx (xxx) */
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"  Blocking: %d (%d)\n",
 			atomic_read(&dlm->mle_cur_count[DLM_MLE_BLOCK]),
 			atomic_read(&dlm->mle_tot_count[DLM_MLE_BLOCK]));
 
 	/*  Mastery: xxx (xxx) */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"  Mastery: %d (%d)\n",
 			atomic_read(&dlm->mle_cur_count[DLM_MLE_MASTER]),
 			atomic_read(&dlm->mle_tot_count[DLM_MLE_MASTER]));
 
 	/*  Migration: xxx (xxx) */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"  Migration: %d (%d)\n",
 			atomic_read(&dlm->mle_cur_count[DLM_MLE_MIGRATION]),
 			atomic_read(&dlm->mle_tot_count[DLM_MLE_MIGRATION]));
 
 	/* Lists: Dirty=Empty  Purge=InUse  PendingASTs=Empty  ... */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Lists: Dirty=%s  Purge=%s  PendingASTs=%s  "
 			"PendingBASTs=%s\n",
 			(list_empty(&dlm->dirty_list) ? "Empty" : "InUse"),
@@ -775,12 +939,20 @@ static int debug_state_print(struct dlm_ctxt *dlm, char *buf, int len)
 			(list_empty(&dlm->pending_basts) ? "Empty" : "InUse"));
 
 	/* Purge Count: xxx  Refs: xxx */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Purge Count: %d  Refs: %d\n", dlm->purge_count,
 			kref_read(&dlm->dlm_refs));
 
 	/* Dead Node: xxx */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Dead Node: %d\n", dlm->reco.dead_node);
 
 	/* What about DLM_RECO_STATE_FINALIZE? */
@@ -790,12 +962,17 @@ static int debug_state_print(struct dlm_ctxt *dlm, char *buf, int len)
 		state = "INACTIVE";
 
 	/* Recovery Pid: xxxx  Master: xxx  State: xxxx */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out,
+=======
+	out += scnprintf(buf + out, len - out,
+>>>>>>> upstream/android-13
 			"Recovery Pid: %d  Master: %d  State: %s\n",
 			task_pid_nr(dlm->dlm_reco_thread_task),
 			dlm->reco.new_master, state);
 
 	/* Recovery Map: xx xx */
+<<<<<<< HEAD
 	out += snprintf(buf + out, len - out, "Recovery Map: ");
 	out += stringify_nodemap(dlm->recovery_map, O2NM_MAX_NODES,
 				 buf + out, len - out);
@@ -803,6 +980,15 @@ static int debug_state_print(struct dlm_ctxt *dlm, char *buf, int len)
 
 	/* Recovery Node State: */
 	out += snprintf(buf + out, len - out, "Recovery Node State:\n");
+=======
+	out += scnprintf(buf + out, len - out, "Recovery Map: ");
+	out += stringify_nodemap(dlm->recovery_map, O2NM_MAX_NODES,
+				 buf + out, len - out);
+	out += scnprintf(buf + out, len - out, "\n");
+
+	/* Recovery Node State: */
+	out += scnprintf(buf + out, len - out, "Recovery Node State:\n");
+>>>>>>> upstream/android-13
 	list_for_each_entry(node, &dlm->reco.node_data, list) {
 		switch (node->state) {
 		case DLM_RECO_NODE_DATA_INIT:
@@ -830,7 +1016,11 @@ static int debug_state_print(struct dlm_ctxt *dlm, char *buf, int len)
 			state = "BAD";
 			break;
 		}
+<<<<<<< HEAD
 		out += snprintf(buf + out, len - out, "\t%u - %s\n",
+=======
+		out += scnprintf(buf + out, len - out, "\t%u - %s\n",
+>>>>>>> upstream/android-13
 				node->node_num, state);
 	}
 
@@ -866,6 +1056,7 @@ static const struct file_operations debug_state_fops = {
 /* end  - debug state funcs */
 
 /* files in subroot */
+<<<<<<< HEAD
 int dlm_debug_init(struct dlm_ctxt *dlm)
 {
 	struct dlm_debug_ctxt *dc = dlm->dlm_debug_ctxt;
@@ -953,10 +1144,38 @@ int dlm_create_debugfs_subroot(struct dlm_ctxt *dlm)
 bail:
 	dlm_destroy_debugfs_subroot(dlm);
 	return -ENOMEM;
+=======
+void dlm_debug_init(struct dlm_ctxt *dlm)
+{
+	/* for dumping dlm_ctxt */
+	debugfs_create_file(DLM_DEBUGFS_DLM_STATE, S_IFREG|S_IRUSR,
+			    dlm->dlm_debugfs_subroot, dlm, &debug_state_fops);
+
+	/* for dumping lockres */
+	debugfs_create_file(DLM_DEBUGFS_LOCKING_STATE, S_IFREG|S_IRUSR,
+			    dlm->dlm_debugfs_subroot, dlm, &debug_lockres_fops);
+
+	/* for dumping mles */
+	debugfs_create_file(DLM_DEBUGFS_MLE_STATE, S_IFREG|S_IRUSR,
+			    dlm->dlm_debugfs_subroot, dlm, &debug_mle_fops);
+
+	/* for dumping lockres on the purge list */
+	debugfs_create_file(DLM_DEBUGFS_PURGE_LIST, S_IFREG|S_IRUSR,
+			    dlm->dlm_debugfs_subroot, dlm,
+			    &debug_purgelist_fops);
+}
+
+/* subroot - domain dir */
+void dlm_create_debugfs_subroot(struct dlm_ctxt *dlm)
+{
+	dlm->dlm_debugfs_subroot = debugfs_create_dir(dlm->name,
+						      dlm_debugfs_root);
+>>>>>>> upstream/android-13
 }
 
 void dlm_destroy_debugfs_subroot(struct dlm_ctxt *dlm)
 {
+<<<<<<< HEAD
 	debugfs_remove(dlm->dlm_debugfs_subroot);
 }
 
@@ -969,6 +1188,15 @@ int dlm_create_debugfs_root(void)
 		return -ENOMEM;
 	}
 	return 0;
+=======
+	debugfs_remove_recursive(dlm->dlm_debugfs_subroot);
+}
+
+/* debugfs root */
+void dlm_create_debugfs_root(void)
+{
+	dlm_debugfs_root = debugfs_create_dir(DLM_DEBUGFS_DIR, NULL);
+>>>>>>> upstream/android-13
 }
 
 void dlm_destroy_debugfs_root(void)

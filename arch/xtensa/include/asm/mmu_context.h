@@ -18,10 +18,17 @@
 #include <linux/stringify.h>
 #include <linux/sched.h>
 #include <linux/mm_types.h>
+<<<<<<< HEAD
 
 #include <asm/vectors.h>
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/vectors.h>
+
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
 #include <asm-generic/mm_hooks.h>
@@ -111,6 +118,10 @@ static inline void activate_context(struct mm_struct *mm, unsigned int cpu)
  * to -1 says the process has never run on any core.
  */
 
+<<<<<<< HEAD
+=======
+#define init_new_context init_new_context
+>>>>>>> upstream/android-13
 static inline int init_new_context(struct task_struct *tsk,
 		struct mm_struct *mm)
 {
@@ -136,24 +147,35 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 		activate_context(next, cpu);
 }
 
+<<<<<<< HEAD
 #define activate_mm(prev, next)	switch_mm((prev), (next), NULL)
 #define deactivate_mm(tsk, mm)	do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Destroy context related info for an mm_struct that is about
  * to be put to rest.
  */
+<<<<<<< HEAD
+=======
+#define destroy_context destroy_context
+>>>>>>> upstream/android-13
 static inline void destroy_context(struct mm_struct *mm)
 {
 	invalidate_page_directory();
 }
 
 
+<<<<<<< HEAD
 static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {
 	/* Nothing to do. */
 
 }
+=======
+#include <asm-generic/mmu_context.h>
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_MMU */
 #endif /* _XTENSA_MMU_CONTEXT_H */

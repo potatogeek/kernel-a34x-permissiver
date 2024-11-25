@@ -10,7 +10,12 @@
 /*
  * Function signature: void exynos_smc(u32 cmd, u32 arg1, u32 arg2, u32 arg3)
  */
+<<<<<<< HEAD
 
+=======
+	.arch armv7-a
+	.arch_extension sec
+>>>>>>> upstream/android-13
 ENTRY(exynos_smc)
 	stmfd	sp!, {r4-r11, lr}
 	dsb

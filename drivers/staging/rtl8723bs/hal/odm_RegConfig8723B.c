@@ -8,10 +8,17 @@
 #include "odm_precomp.h"
 
 void odm_ConfigRFReg_8723B(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm,
 	u32 Addr,
 	u32 Data,
 	ODM_RF_RADIO_PATH_E RF_PATH,
+=======
+	struct dm_odm_t *pDM_Odm,
+	u32 Addr,
+	u32 Data,
+	enum rf_path RF_PATH,
+>>>>>>> upstream/android-13
 	u32 RegAddr
 )
 {
@@ -38,6 +45,7 @@ void odm_ConfigRFReg_8723B(
 				PHY_SetRFReg(pDM_Odm->Adapter, RF_PATH, RegAddr, bRFRegOffsetMask, Data);
 				udelay(1);
 				getvalue = PHY_QueryRFReg(pDM_Odm->Adapter, RF_PATH, Addr, bMaskDWord);
+<<<<<<< HEAD
 				ODM_RT_TRACE(
 					pDM_Odm,
 					ODM_COMP_INIT,
@@ -49,6 +57,8 @@ void odm_ConfigRFReg_8723B(
 						count
 					)
 				);
+=======
+>>>>>>> upstream/android-13
 				if (count > 5)
 					break;
 			}
@@ -86,6 +96,7 @@ void odm_ConfigRFReg_8723B(
 				getvalue = PHY_QueryRFReg(
 					pDM_Odm->Adapter, RF_PATH, Addr, bMaskDWord
 				);
+<<<<<<< HEAD
 				ODM_RT_TRACE(
 					pDM_Odm,
 					ODM_COMP_INIT,
@@ -97,6 +108,8 @@ void odm_ConfigRFReg_8723B(
 						count
 					)
 				);
+=======
+>>>>>>> upstream/android-13
 
 				if (count > 5)
 					break;
@@ -106,7 +119,11 @@ void odm_ConfigRFReg_8723B(
 }
 
 
+<<<<<<< HEAD
 void odm_ConfigRF_RadioA_8723B(PDM_ODM_T pDM_Odm, u32 Addr, u32 Data)
+=======
+void odm_ConfigRF_RadioA_8723B(struct dm_odm_t *pDM_Odm, u32 Addr, u32 Data)
+>>>>>>> upstream/android-13
 {
 	u32  content = 0x1000; /*  RF_Content: radioa_txt */
 	u32 maskforPhySet = (u32)(content&0xE000);
@@ -115,6 +132,7 @@ void odm_ConfigRF_RadioA_8723B(PDM_ODM_T pDM_Odm, u32 Addr, u32 Data)
 		pDM_Odm,
 		Addr,
 		Data,
+<<<<<<< HEAD
 		ODM_RF_PATH_A,
 		Addr|maskforPhySet
 	);
@@ -148,6 +166,20 @@ void odm_ConfigMAC_8723B(PDM_ODM_T pDM_Odm, u32 Addr, u8 Data)
 
 void odm_ConfigBB_AGC_8723B(
 	PDM_ODM_T pDM_Odm,
+=======
+		RF_PATH_A,
+		Addr|maskforPhySet
+	);
+}
+
+void odm_ConfigMAC_8723B(struct dm_odm_t *pDM_Odm, u32 Addr, u8 Data)
+{
+	rtw_write8(pDM_Odm->Adapter, Addr, Data);
+}
+
+void odm_ConfigBB_AGC_8723B(
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	u32 Addr,
 	u32 Bitmask,
 	u32 Data
@@ -156,6 +188,7 @@ void odm_ConfigBB_AGC_8723B(
 	PHY_SetBBReg(pDM_Odm->Adapter, Addr, Bitmask, Data);
 	/*  Add 1us delay between BB/RF register setting. */
 	udelay(1);
+<<<<<<< HEAD
 
 	ODM_RT_TRACE(
 		pDM_Odm,
@@ -174,6 +207,13 @@ void odm_ConfigBB_PHY_REG_PG_8723B(
 	u32 Band,
 	u32 RfPath,
 	u32 TxNum,
+=======
+}
+
+void odm_ConfigBB_PHY_REG_PG_8723B(
+	struct dm_odm_t *pDM_Odm,
+	u32 RfPath,
+>>>>>>> upstream/android-13
 	u32 Addr,
 	u32 Bitmask,
 	u32 Data
@@ -182,6 +222,7 @@ void odm_ConfigBB_PHY_REG_PG_8723B(
 	if (Addr == 0xfe || Addr == 0xffe)
 		msleep(50);
 	else {
+<<<<<<< HEAD
 		PHY_StoreTxPowerByRate(pDM_Odm->Adapter, Band, RfPath, TxNum, Addr, Bitmask, Data);
 	}
 	ODM_RT_TRACE(
@@ -199,6 +240,14 @@ void odm_ConfigBB_PHY_REG_PG_8723B(
 
 void odm_ConfigBB_PHY_8723B(
 	PDM_ODM_T pDM_Odm,
+=======
+		PHY_StoreTxPowerByRate(pDM_Odm->Adapter, RfPath, Addr, Bitmask, Data);
+	}
+}
+
+void odm_ConfigBB_PHY_8723B(
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	u32 Addr,
 	u32 Bitmask,
 	u32 Data
@@ -222,6 +271,7 @@ void odm_ConfigBB_PHY_8723B(
 
 	/*  Add 1us delay between BB/RF register setting. */
 	udelay(1);
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_TRACE, ("===> ODM_ConfigBBWithHeaderFile: [PHY_REG] %08X %08X\n", Addr, Data));
 }
 
@@ -229,6 +279,13 @@ void odm_ConfigBB_TXPWR_LMT_8723B(
 	PDM_ODM_T pDM_Odm,
 	u8 *Regulation,
 	u8 *Band,
+=======
+}
+
+void odm_ConfigBB_TXPWR_LMT_8723B(
+	struct dm_odm_t *pDM_Odm,
+	u8 *Regulation,
+>>>>>>> upstream/android-13
 	u8 *Bandwidth,
 	u8 *RateSection,
 	u8 *RfPath,
@@ -239,7 +296,10 @@ void odm_ConfigBB_TXPWR_LMT_8723B(
 	PHY_SetTxPowerLimit(
 		pDM_Odm->Adapter,
 		Regulation,
+<<<<<<< HEAD
 		Band,
+=======
+>>>>>>> upstream/android-13
 		Bandwidth,
 		RateSection,
 		RfPath,

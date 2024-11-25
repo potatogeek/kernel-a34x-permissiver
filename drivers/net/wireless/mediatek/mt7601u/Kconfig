@@ -1,6 +1,14 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config MT7601U
 	tristate "MediaTek MT7601U (USB) support"
 	depends on MAC80211
 	depends on USB
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This adds support for MT7601U-based wireless USB dongles.

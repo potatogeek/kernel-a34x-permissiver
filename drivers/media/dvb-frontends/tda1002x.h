@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
     TDA10021/TDA10023  - Single Chip Cable Channel Receiver driver module
 			 used on the the Siemens DVB-C cards
@@ -6,6 +10,7 @@
     Copyright (C) 2004 Markus Schulz <msc@antzsystem.de>
 		   Support for TDA10021
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef TDA1002x_H

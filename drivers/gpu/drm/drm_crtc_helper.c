@@ -29,6 +29,7 @@
  *      Jesse Barnes <jesse.barnes@intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/export.h>
 #include <linux/moduleparam.h>
@@ -43,6 +44,28 @@
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_edid.h>
+=======
+#include <linux/export.h>
+#include <linux/kernel.h>
+#include <linux/moduleparam.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_atomic_uapi.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_encoder.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_print.h>
+#include <drm/drm_vblank.h>
+
+#include "drm_crtc_helper_internal.h"
+>>>>>>> upstream/android-13
 
 /**
  * DOC: overview
@@ -92,6 +115,11 @@ bool drm_helper_encoder_in_use(struct drm_encoder *encoder)
 	struct drm_connector_list_iter conn_iter;
 	struct drm_device *dev = encoder->dev;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(drm_drv_uses_atomic_modeset(dev));
+
+>>>>>>> upstream/android-13
 	/*
 	 * We can expect this mutex to be locked if we are not panicking.
 	 * Locking is currently fubar in the panic handler.
@@ -130,6 +158,11 @@ bool drm_helper_crtc_in_use(struct drm_crtc *crtc)
 	struct drm_encoder *encoder;
 	struct drm_device *dev = crtc->dev;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(drm_drv_uses_atomic_modeset(dev));
+
+>>>>>>> upstream/android-13
 	/*
 	 * We can expect this mutex to be locked if we are not panicking.
 	 * Locking is currently fubar in the panic handler.
@@ -152,14 +185,20 @@ drm_encoder_disable(struct drm_encoder *encoder)
 	if (!encoder_funcs)
 		return;
 
+<<<<<<< HEAD
 	drm_bridge_disable(encoder->bridge);
 
+=======
+>>>>>>> upstream/android-13
 	if (encoder_funcs->disable)
 		(*encoder_funcs->disable)(encoder);
 	else if (encoder_funcs->dpms)
 		(*encoder_funcs->dpms)(encoder, DRM_MODE_DPMS_OFF);
+<<<<<<< HEAD
 
 	drm_bridge_post_disable(encoder->bridge);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void __drm_helper_disable_unused_functions(struct drm_device *dev)
@@ -179,6 +218,10 @@ static void __drm_helper_disable_unused_functions(struct drm_device *dev)
 
 	drm_for_each_crtc(crtc, dev) {
 		const struct drm_crtc_helper_funcs *crtc_funcs = crtc->helper_private;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		crtc->enabled = drm_helper_crtc_in_use(crtc);
 		if (!crtc->enabled) {
 			if (crtc_funcs->disable)
@@ -211,8 +254,12 @@ static void __drm_helper_disable_unused_functions(struct drm_device *dev)
  */
 void drm_helper_disable_unused_functions(struct drm_device *dev)
 {
+<<<<<<< HEAD
 	if (drm_core_check_feature(dev, DRIVER_ATOMIC))
 		DRM_ERROR("Called for atomic driver, this is not what you want.\n");
+=======
+	WARN_ON(drm_drv_uses_atomic_modeset(dev));
+>>>>>>> upstream/android-13
 
 	drm_modeset_lock_all(dev);
 	__drm_helper_disable_unused_functions(dev);
@@ -239,10 +286,13 @@ drm_crtc_prepare_encoders(struct drm_device *dev)
 		/* Disable unused encoders */
 		if (encoder->crtc == NULL)
 			drm_encoder_disable(encoder);
+<<<<<<< HEAD
 		/* Disable encoders whose CRTC is about to change */
 		if (encoder_funcs->get_crtc &&
 		    encoder->crtc != (*encoder_funcs->get_crtc)(encoder))
 			drm_encoder_disable(encoder);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -280,6 +330,11 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 	struct drm_encoder *encoder;
 	bool ret = true;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(drm_drv_uses_atomic_modeset(dev));
+
+>>>>>>> upstream/android-13
 	drm_warn_on_modeset_not_all_locked(dev);
 
 	saved_enabled = crtc->enabled;
@@ -318,6 +373,7 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 		if (!encoder_funcs)
 			continue;
 
+<<<<<<< HEAD
 		ret = drm_bridge_mode_fixup(encoder->bridge,
 			mode, adjusted_mode);
 		if (!ret) {
@@ -325,6 +381,8 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 			goto done;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		encoder_funcs = encoder->helper_private;
 		if (encoder_funcs->mode_fixup) {
 			if (!(ret = encoder_funcs->mode_fixup(encoder, mode,
@@ -356,6 +414,7 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 		if (!encoder_funcs)
 			continue;
 
+<<<<<<< HEAD
 		drm_bridge_disable(encoder->bridge);
 
 		/* Disable the encoders as the first thing we do. */
@@ -363,6 +422,11 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 			encoder_funcs->prepare(encoder);
 
 		drm_bridge_post_disable(encoder->bridge);
+=======
+		/* Disable the encoders as the first thing we do. */
+		if (encoder_funcs->prepare)
+			encoder_funcs->prepare(encoder);
+>>>>>>> upstream/android-13
 	}
 
 	drm_crtc_prepare_encoders(dev);
@@ -385,6 +449,7 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 		if (!encoder_funcs)
 			continue;
 
+<<<<<<< HEAD
 		DRM_DEBUG_KMS("[ENCODER:%d:%s] set [MODE:%d:%s]\n",
 			encoder->base.id, encoder->name,
 			mode->base.id, mode->name);
@@ -392,6 +457,12 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 			encoder_funcs->mode_set(encoder, mode, adjusted_mode);
 
 		drm_bridge_mode_set(encoder->bridge, mode, adjusted_mode);
+=======
+		DRM_DEBUG_KMS("[ENCODER:%d:%s] set [MODE:%s]\n",
+			encoder->base.id, encoder->name, mode->name);
+		if (encoder_funcs->mode_set)
+			encoder_funcs->mode_set(encoder, mode, adjusted_mode);
+>>>>>>> upstream/android-13
 	}
 
 	/* Now enable the clocks, plane, pipe, and connectors that we set up. */
@@ -406,12 +477,17 @@ bool drm_crtc_helper_set_mode(struct drm_crtc *crtc,
 		if (!encoder_funcs)
 			continue;
 
+<<<<<<< HEAD
 		drm_bridge_pre_enable(encoder->bridge);
 
 		if (encoder_funcs->commit)
 			encoder_funcs->commit(encoder);
 
 		drm_bridge_enable(encoder->bridge);
+=======
+		if (encoder_funcs->commit)
+			encoder_funcs->commit(encoder);
+>>>>>>> upstream/android-13
 	}
 
 	/* Calculate and store various constants which
@@ -473,6 +549,25 @@ drm_crtc_helper_disable(struct drm_crtc *crtc)
 	__drm_helper_disable_unused_functions(dev);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * For connectors that support multiple encoders, either the
+ * .atomic_best_encoder() or .best_encoder() operation must be implemented.
+ */
+struct drm_encoder *
+drm_connector_get_single_encoder(struct drm_connector *connector)
+{
+	struct drm_encoder *encoder;
+
+	WARN_ON(hweight32(connector->possible_encoders) > 1);
+	drm_connector_for_each_possible_encoder(connector, encoder)
+		return encoder;
+
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 /**
  * drm_crtc_helper_set_config - set a new config from userspace
  * @set: mode set configuration
@@ -539,6 +634,12 @@ int drm_crtc_helper_set_config(struct drm_mode_set *set,
 
 	crtc_funcs = set->crtc->helper_private;
 
+<<<<<<< HEAD
+=======
+	dev = set->crtc->dev;
+	WARN_ON(drm_drv_uses_atomic_modeset(dev));
+
+>>>>>>> upstream/android-13
 	if (!set->mode)
 		set->fb = NULL;
 
@@ -554,8 +655,11 @@ int drm_crtc_helper_set_config(struct drm_mode_set *set,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	dev = set->crtc->dev;
 
+=======
+>>>>>>> upstream/android-13
 	drm_warn_on_modeset_not_all_locked(dev);
 
 	/*
@@ -637,7 +741,15 @@ int drm_crtc_helper_set_config(struct drm_mode_set *set,
 		new_encoder = connector->encoder;
 		for (ro = 0; ro < set->num_connectors; ro++) {
 			if (set->connectors[ro] == connector) {
+<<<<<<< HEAD
 				new_encoder = connector_funcs->best_encoder(connector);
+=======
+				if (connector_funcs->best_encoder)
+					new_encoder = connector_funcs->best_encoder(connector);
+				else
+					new_encoder = drm_connector_get_single_encoder(connector);
+
+>>>>>>> upstream/android-13
 				/* if we can't get an encoder for a connector
 				   we are setting now - then fail */
 				if (new_encoder == NULL)
@@ -809,13 +921,17 @@ static int drm_helper_choose_encoder_dpms(struct drm_encoder *encoder)
 /* Helper which handles bridge ordering around encoder dpms */
 static void drm_helper_encoder_dpms(struct drm_encoder *encoder, int mode)
 {
+<<<<<<< HEAD
 	struct drm_bridge *bridge = encoder->bridge;
+=======
+>>>>>>> upstream/android-13
 	const struct drm_encoder_helper_funcs *encoder_funcs;
 
 	encoder_funcs = encoder->helper_private;
 	if (!encoder_funcs)
 		return;
 
+<<<<<<< HEAD
 	if (mode == DRM_MODE_DPMS_ON)
 		drm_bridge_pre_enable(bridge);
 	else
@@ -828,6 +944,10 @@ static void drm_helper_encoder_dpms(struct drm_encoder *encoder, int mode)
 		drm_bridge_enable(bridge);
 	else
 		drm_bridge_post_disable(bridge);
+=======
+	if (encoder_funcs->dpms)
+		encoder_funcs->dpms(encoder, mode);
+>>>>>>> upstream/android-13
 }
 
 static int drm_helper_choose_crtc_dpms(struct drm_crtc *crtc)
@@ -874,6 +994,11 @@ int drm_helper_connector_dpms(struct drm_connector *connector, int mode)
 	struct drm_crtc *crtc = encoder ? encoder->crtc : NULL;
 	int old_dpms, encoder_dpms = DRM_MODE_DPMS_OFF;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(drm_drv_uses_atomic_modeset(connector->dev));
+
+>>>>>>> upstream/android-13
 	if (mode == connector->dpms)
 		return 0;
 
@@ -887,6 +1012,10 @@ int drm_helper_connector_dpms(struct drm_connector *connector, int mode)
 	if (mode < old_dpms) {
 		if (crtc) {
 			const struct drm_crtc_helper_funcs *crtc_funcs = crtc->helper_private;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (crtc_funcs->dpms)
 				(*crtc_funcs->dpms) (crtc,
 						     drm_helper_choose_crtc_dpms(crtc));
@@ -901,6 +1030,10 @@ int drm_helper_connector_dpms(struct drm_connector *connector, int mode)
 			drm_helper_encoder_dpms(encoder, encoder_dpms);
 		if (crtc) {
 			const struct drm_crtc_helper_funcs *crtc_funcs = crtc->helper_private;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (crtc_funcs->dpms)
 				(*crtc_funcs->dpms) (crtc,
 						     drm_helper_choose_crtc_dpms(crtc));
@@ -945,6 +1078,11 @@ void drm_helper_resume_force_mode(struct drm_device *dev)
 	int encoder_dpms;
 	bool ret;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(drm_drv_uses_atomic_modeset(dev));
+
+>>>>>>> upstream/android-13
 	drm_modeset_lock_all(dev);
 	drm_for_each_crtc(crtc, dev) {
 
@@ -985,6 +1123,7 @@ void drm_helper_resume_force_mode(struct drm_device *dev)
 EXPORT_SYMBOL(drm_helper_resume_force_mode);
 
 /**
+<<<<<<< HEAD
  * drm_helper_crtc_mode_set - mode_set implementation for atomic plane helpers
  * @crtc: DRM CRTC
  * @mode: DRM display mode which userspace requested
@@ -1098,3 +1237,38 @@ int drm_helper_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
 	return drm_plane_helper_commit(plane, plane_state, old_fb);
 }
 EXPORT_SYMBOL(drm_helper_crtc_mode_set_base);
+=======
+ * drm_helper_force_disable_all - Forcibly turn off all enabled CRTCs
+ * @dev: DRM device whose CRTCs to turn off
+ *
+ * Drivers may want to call this on unload to ensure that all displays are
+ * unlit and the GPU is in a consistent, low power state. Takes modeset locks.
+ *
+ * Note: This should only be used by non-atomic legacy drivers. For an atomic
+ * version look at drm_atomic_helper_shutdown().
+ *
+ * Returns:
+ * Zero on success, error code on failure.
+ */
+int drm_helper_force_disable_all(struct drm_device *dev)
+{
+	struct drm_crtc *crtc;
+	int ret = 0;
+
+	drm_modeset_lock_all(dev);
+	drm_for_each_crtc(crtc, dev)
+		if (crtc->enabled) {
+			struct drm_mode_set set = {
+				.crtc = crtc,
+			};
+
+			ret = drm_mode_set_config_internal(&set);
+			if (ret)
+				goto out;
+		}
+out:
+	drm_modeset_unlock_all(dev);
+	return ret;
+}
+EXPORT_SYMBOL(drm_helper_force_disable_all);
+>>>>>>> upstream/android-13

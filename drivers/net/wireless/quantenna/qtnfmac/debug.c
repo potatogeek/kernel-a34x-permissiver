@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016 Quantenna Communications, Inc.
  * All rights reserved.
@@ -27,6 +28,18 @@ void qtnf_debugfs_init(struct qtnf_bus *bus, const char *name)
 		pr_warn("failed to create debugfs root dir\n");
 		bus->dbg_dir = NULL;
 	}
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/* Copyright (c) 2015-2016 Quantenna Communications. All rights reserved. */
+
+#include "debug.h"
+
+void qtnf_debugfs_init(struct qtnf_bus *bus, const char *name)
+{
+	struct dentry *parent = qtnf_get_debugfs_dir();
+
+	bus->dbg_dir = debugfs_create_dir(name, parent);
+>>>>>>> upstream/android-13
 }
 
 void qtnf_debugfs_remove(struct qtnf_bus *bus)
@@ -38,9 +51,13 @@ void qtnf_debugfs_remove(struct qtnf_bus *bus)
 void qtnf_debugfs_add_entry(struct qtnf_bus *bus, const char *name,
 			    int (*fn)(struct seq_file *seq, void *data))
 {
+<<<<<<< HEAD
 	struct dentry *entry;
 
 	entry = debugfs_create_devm_seqfile(bus->dev, name, bus->dbg_dir, fn);
 	if (IS_ERR_OR_NULL(entry))
 		pr_warn("failed to add entry (%s)\n", name);
+=======
+	debugfs_create_devm_seqfile(bus->dev, name, bus->dbg_dir, fn);
+>>>>>>> upstream/android-13
 }

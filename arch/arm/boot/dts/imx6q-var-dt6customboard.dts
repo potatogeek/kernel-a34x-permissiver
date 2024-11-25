@@ -144,8 +144,13 @@
 };
 
 &ecspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH>,
 		   <&gpio4 10 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio4 9 GPIO_ACTIVE_LOW>,
+		   <&gpio4 10 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -203,6 +208,10 @@
 };
 
 &pwm2 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

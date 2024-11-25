@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016-2017 The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -9,6 +10,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2016-2017 The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef __A5XX_GPU_H__
 #define __A5XX_GPU_H__
@@ -40,17 +45,35 @@ struct a5xx_gpu {
 	struct msm_ringbuffer *next_ring;
 
 	struct drm_gem_object *preempt_bo[MSM_GPU_MAX_RINGS];
+<<<<<<< HEAD
+=======
+	struct drm_gem_object *preempt_counters_bo[MSM_GPU_MAX_RINGS];
+>>>>>>> upstream/android-13
 	struct a5xx_preempt_record *preempt[MSM_GPU_MAX_RINGS];
 	uint64_t preempt_iova[MSM_GPU_MAX_RINGS];
 
 	atomic_t preempt_state;
 	struct timer_list preempt_timer;
+<<<<<<< HEAD
+=======
+
+	struct drm_gem_object *shadow_bo;
+	uint64_t shadow_iova;
+	uint32_t *shadow;
+
+	/* True if the microcode supports the WHERE_AM_I opcode */
+	bool has_whereami;
+>>>>>>> upstream/android-13
 };
 
 #define to_a5xx_gpu(x) container_of(x, struct a5xx_gpu, base)
 
 #ifdef CONFIG_DEBUG_FS
+<<<<<<< HEAD
 int a5xx_debugfs_init(struct msm_gpu *gpu, struct drm_minor *minor);
+=======
+void a5xx_debugfs_init(struct msm_gpu *gpu, struct drm_minor *minor);
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -149,6 +172,12 @@ static inline int spin_usecs(struct msm_gpu *gpu, uint32_t usecs,
 	return -ETIMEDOUT;
 }
 
+<<<<<<< HEAD
+=======
+#define shadowptr(a5xx_gpu, ring) ((a5xx_gpu)->shadow_iova + \
+		((ring)->id * sizeof(uint32_t)))
+
+>>>>>>> upstream/android-13
 bool a5xx_idle(struct msm_gpu *gpu, struct msm_ringbuffer *ring);
 void a5xx_set_hwcg(struct msm_gpu *gpu, bool state);
 
@@ -158,6 +187,11 @@ void a5xx_preempt_trigger(struct msm_gpu *gpu);
 void a5xx_preempt_irq(struct msm_gpu *gpu);
 void a5xx_preempt_fini(struct msm_gpu *gpu);
 
+<<<<<<< HEAD
+=======
+void a5xx_flush(struct msm_gpu *gpu, struct msm_ringbuffer *ring, bool sync);
+
+>>>>>>> upstream/android-13
 /* Return true if we are in a preempt state */
 static inline bool a5xx_in_preempt(struct a5xx_gpu *a5xx_gpu)
 {

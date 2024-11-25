@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sata_sil24.c - Driver for Silicon Image 3124/3132 SATA-2 controllers
  *
  * Copyright 2005  Tejun Heo
  *
  * Based on preview driver from Silicon Image.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -384,11 +391,21 @@ static struct pci_driver sil24_pci_driver = {
 };
 
 static struct scsi_host_template sil24_sht = {
+<<<<<<< HEAD
 	ATA_NCQ_SHT(DRV_NAME),
+=======
+	__ATA_BASE_SHT(DRV_NAME),
+>>>>>>> upstream/android-13
 	.can_queue		= SIL24_MAX_CMDS,
 	.sg_tablesize		= SIL24_MAX_SGE,
 	.dma_boundary		= ATA_DMA_BOUNDARY,
 	.tag_alloc_policy	= BLK_TAG_ALLOC_FIFO,
+<<<<<<< HEAD
+=======
+	.sdev_attrs		= ata_ncq_sdev_attrs,
+	.change_queue_depth	= ata_scsi_change_queue_depth,
+	.slave_configure	= ata_scsi_slave_config
+>>>>>>> upstream/android-13
 };
 
 static struct ata_port_operations sil24_ops = {
@@ -1214,7 +1231,10 @@ static int sil24_port_start(struct ata_port *ap)
 	cb = dmam_alloc_coherent(dev, cb_size, &cb_dma, GFP_KERNEL);
 	if (!cb)
 		return -ENOMEM;
+<<<<<<< HEAD
 	memset(cb, 0, cb_size);
+=======
+>>>>>>> upstream/android-13
 
 	pp->cmd_block = cb;
 	pp->cmd_block_dma = cb_dma;
@@ -1314,6 +1334,7 @@ static int sil24_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	host->iomap = iomap;
 
 	/* configure and activate the device */
+<<<<<<< HEAD
 	if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
 		rc = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64));
 		if (rc) {
@@ -1336,6 +1357,12 @@ static int sil24_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 				"32-bit consistent DMA enable failed\n");
 			return rc;
 		}
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (rc) {
+		dev_err(&pdev->dev, "DMA enable failed\n");
+		return rc;
+>>>>>>> upstream/android-13
 	}
 
 	/* Set max read request size to 4096.  This slightly increases

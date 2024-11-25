@@ -5,6 +5,10 @@
  * Very small subset of simple string routines
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/compiler_attributes.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 void *memcpy(void *dest, const void *src, size_t n)
@@ -27,3 +31,22 @@ void *memset(void *s, int c, size_t n)
 		ss[i] = c;
 	return s;
 }
+<<<<<<< HEAD
+=======
+
+void * __weak memmove(void *dest, const void *src, size_t n)
+{
+	unsigned int i;
+	const char *s = src;
+	char *d = dest;
+
+	if ((uintptr_t)dest < (uintptr_t)src) {
+		for (i = 0; i < n; i++)
+			d[i] = s[i];
+	} else {
+		for (i = n; i > 0; i--)
+			d[i - 1] = s[i - 1];
+	}
+	return dest;
+}
+>>>>>>> upstream/android-13

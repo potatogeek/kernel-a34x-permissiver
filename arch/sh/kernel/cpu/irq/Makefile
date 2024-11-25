@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 #
 # Makefile for the Linux/SuperH CPU-specific IRQ handlers.
 #
 obj-$(CONFIG_SUPERH32)			+= imask.o
 obj-$(CONFIG_CPU_SH5)			+= intc-sh5.o
+=======
+# SPDX-License-Identifier: GPL-2.0
+#
+# Makefile for the Linux/SuperH CPU-specific IRQ handlers.
+#
+obj-y					+= imask.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_CPU_HAS_IPR_IRQ)		+= ipr.o

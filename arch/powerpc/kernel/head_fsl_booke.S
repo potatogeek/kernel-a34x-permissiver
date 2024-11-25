@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Kernel execution entry point code.
  *
@@ -23,19 +27,29 @@
  *	PowerPC 44x support, Matt Porter <mporter@kernel.crashing.org>
  *    Copyright 2004 Freescale Semiconductor, Inc
  *	PowerPC e500 modifications, Kumar Gala <galak@kernel.crashing.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/threads.h>
+<<<<<<< HEAD
 #include <asm/processor.h>
 #include <asm/page.h>
 #include <asm/mmu.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/processor.h>
+#include <asm/page.h>
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include <asm/cputable.h>
 #include <asm/thread_info.h>
 #include <asm/ppc_asm.h>
@@ -83,7 +97,11 @@ _ENTRY(_start);
 	mr	r23,r3
 	mr	r25,r4
 
+<<<<<<< HEAD
 	bl	0f
+=======
+	bcl	20,31,$+4
+>>>>>>> upstream/android-13
 0:	mflr	r8
 	addis	r3,r8,(is_second_reloc - 0b)@ha
 	lwz	r19,(is_second_reloc - 0b)@l(r3)
@@ -117,7 +135,11 @@ _ENTRY(_start);
 
 1:
 	/*
+<<<<<<< HEAD
 	 * We have the runtime (virutal) address of our base.
+=======
+	 * We have the runtime (virtual) address of our base.
+>>>>>>> upstream/android-13
 	 * We calculate our shift of offset from a 64M page.
 	 * We could map the 64M page we belong to at PAGE_OFFSET and
 	 * get going from there.
@@ -159,6 +181,11 @@ _ENTRY(_start);
  */
 
 _ENTRY(__early_start)
+<<<<<<< HEAD
+=======
+	LOAD_REG_ADDR_PIC(r20, kernstart_virt_addr)
+	lwz     r20,0(r20)
+>>>>>>> upstream/android-13
 
 #define ENTRY_MAPPING_BOOT_SETUP
 #include "fsl_booke_entry_mapping.S"
@@ -189,6 +216,7 @@ set_ivor:
 
 	/* Setup the defaults for TLB entries */
 	li	r2,(MAS4_TSIZED(BOOK3E_PAGESZ_4K))@l
+<<<<<<< HEAD
 #ifdef CONFIG_E200
 	oris	r2,r2,MAS4_TLBSELD(1)@h
 #endif
@@ -201,6 +229,10 @@ set_ivor:
 	mtspr	SPRN_HID0, r2
 #endif
 
+=======
+	mtspr	SPRN_MAS4, r2
+
+>>>>>>> upstream/android-13
 #if !defined(CONFIG_BDI_SWITCH)
 	/*
 	 * The Abatron BDI JTAG debugger does not tolerate others
@@ -243,11 +275,23 @@ set_ivor:
 	li	r0,0
 	stwu	r0,THREAD_SIZE-STACK_FRAME_OVERHEAD(r1)
 
+<<<<<<< HEAD
 	CURRENT_THREAD_INFO(r22, r1)
 	stw	r24, TI_CPU(r22)
 
 	bl	early_init
 
+=======
+#ifdef CONFIG_SMP
+	stw	r24, TASK_CPU(r2)
+#endif
+
+	bl	early_init
+
+#ifdef CONFIG_KASAN
+	bl	kasan_early_init
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_RELOCATABLE
 	mr	r3,r30
 	mr	r4,r31
@@ -284,8 +328,13 @@ set_ivor:
 	ori	r6, r6, swapper_pg_dir@l
 	lis	r5, abatron_pteptrs@h
 	ori	r5, r5, abatron_pteptrs@l
+<<<<<<< HEAD
 	lis	r4, KERNELBASE@h
 	ori	r4, r4, KERNELBASE@l
+=======
+	lis     r3, kernstart_virt_addr@ha
+	lwz     r4, kernstart_virt_addr@l(r3)
+>>>>>>> upstream/android-13
 	stw	r5, 0(r4)	/* Save abatron_pteptrs at a fixed location */
 	stw	r6, 0(r5)
 
@@ -367,6 +416,7 @@ interrupt_base:
 	CRITICAL_EXCEPTION(0x0100, CRITICAL, CriticalInput, unknown_exception)
 
 	/* Machine Check Interrupt */
+<<<<<<< HEAD
 #ifdef CONFIG_E200
 	/* no RFMCI, MCSRRs on E200 */
 	CRITICAL_EXCEPTION(0x0200, MACHINE_CHECK, MachineCheck, \
@@ -387,12 +437,36 @@ interrupt_base:
 1:
 	addi	r3,r1,STACK_FRAME_OVERHEAD
 	EXC_XFER_EE_LITE(0x0300, CacheLockingException)
+=======
+	MCHECK_EXCEPTION(0x0200, MachineCheck, machine_check_exception)
+
+	/* Data Storage Interrupt */
+	START_EXCEPTION(DataStorage)
+	NORMAL_EXCEPTION_PROLOG(0x300, DATA_STORAGE)
+	mfspr	r5,SPRN_ESR		/* Grab the ESR, save it */
+	stw	r5,_ESR(r11)
+	mfspr	r4,SPRN_DEAR		/* Grab the DEAR, save it */
+	stw	r4, _DEAR(r11)
+	andis.	r10,r5,(ESR_ILK|ESR_DLK)@h
+	bne	1f
+	prepare_transfer_to_handler
+	bl	do_page_fault
+	b	interrupt_return
+1:
+	prepare_transfer_to_handler
+	bl	CacheLockingException
+	b	interrupt_return
+>>>>>>> upstream/android-13
 
 	/* Instruction Storage Interrupt */
 	INSTRUCTION_STORAGE_EXCEPTION
 
 	/* External Input Interrupt */
+<<<<<<< HEAD
 	EXCEPTION(0x0500, EXTERNAL, ExternalInput, do_IRQ, EXC_XFER_LITE)
+=======
+	EXCEPTION(0x0500, EXTERNAL, ExternalInput, do_IRQ)
+>>>>>>> upstream/android-13
 
 	/* Alignment Interrupt */
 	ALIGNMENT_EXCEPTION
@@ -404,6 +478,7 @@ interrupt_base:
 #ifdef CONFIG_PPC_FPU
 	FP_UNAVAILABLE_EXCEPTION
 #else
+<<<<<<< HEAD
 #ifdef CONFIG_E200
 	/* E200 treats 'normal' floating point instructions as FP Unavail exception */
 	EXCEPTION(0x0800, FP_UNAVAIL, FloatingPointUnavailable, \
@@ -412,24 +487,38 @@ interrupt_base:
 	EXCEPTION(0x0800, FP_UNAVAIL, FloatingPointUnavailable, \
 		  unknown_exception, EXC_XFER_EE)
 #endif
+=======
+	EXCEPTION(0x0800, FP_UNAVAIL, FloatingPointUnavailable, unknown_exception)
+>>>>>>> upstream/android-13
 #endif
 
 	/* System Call Interrupt */
 	START_EXCEPTION(SystemCall)
+<<<<<<< HEAD
 	NORMAL_EXCEPTION_PROLOG(SYSCALL)
 	EXC_XFER_EE_LITE(0x0c00, DoSyscall)
 
 	/* Auxiliary Processor Unavailable Interrupt */
 	EXCEPTION(0x2900, AP_UNAVAIL, AuxillaryProcessorUnavailable, \
 		  unknown_exception, EXC_XFER_EE)
+=======
+	SYSCALL_ENTRY   0xc00 BOOKE_INTERRUPT_SYSCALL SPRN_SRR1
+
+	/* Auxiliary Processor Unavailable Interrupt */
+	EXCEPTION(0x2900, AP_UNAVAIL, AuxillaryProcessorUnavailable, unknown_exception)
+>>>>>>> upstream/android-13
 
 	/* Decrementer Interrupt */
 	DECREMENTER_EXCEPTION
 
 	/* Fixed Internal Timer Interrupt */
 	/* TODO: Add FIT support */
+<<<<<<< HEAD
 	EXCEPTION(0x3100, FIT, FixedIntervalTimer, \
 		  unknown_exception, EXC_XFER_EE)
+=======
+	EXCEPTION(0x3100, FIT, FixedIntervalTimer, unknown_exception)
+>>>>>>> upstream/android-13
 
 	/* Watchdog Timer Interrupt */
 #ifdef CONFIG_BOOKE_WDT
@@ -517,7 +606,11 @@ END_BTB_FLUSH_SECTION
 #endif
 #endif
 
+<<<<<<< HEAD
 	bne	2f			/* Bail if permission/valid mismach */
+=======
+	bne	2f			/* Bail if permission/valid mismatch */
+>>>>>>> upstream/android-13
 
 	/* Jump to common tlb load */
 	b	finish_tlb_load
@@ -612,7 +705,11 @@ END_BTB_FLUSH_SECTION
 #endif
 #endif
 
+<<<<<<< HEAD
 	bne	2f			/* Bail if permission mismach */
+=======
+	bne	2f			/* Bail if permission mismatch */
+>>>>>>> upstream/android-13
 
 	/* Jump to common TLB load point */
 	b	finish_tlb_load
@@ -630,6 +727,7 @@ END_BTB_FLUSH_SECTION
 	mfspr	r10, SPRN_SPRG_RSCRATCH0
 	b	InstructionStorage
 
+<<<<<<< HEAD
 /* Define SPE handlers for e200 and e500v2 */
 #ifdef CONFIG_SPE
 	/* SPE Unavailable */
@@ -643,10 +741,26 @@ END_BTB_FLUSH_SECTION
 #elif defined(CONFIG_SPE_POSSIBLE)
 	EXCEPTION(0x2020, SPE_UNAVAIL, SPEUnavailable, \
 		  unknown_exception, EXC_XFER_EE)
+=======
+/* Define SPE handlers for e500v2 */
+#ifdef CONFIG_SPE
+	/* SPE Unavailable */
+	START_EXCEPTION(SPEUnavailable)
+	NORMAL_EXCEPTION_PROLOG(0x2010, SPE_UNAVAIL)
+	beq	1f
+	bl	load_up_spe
+	b	fast_exception_return
+1:	prepare_transfer_to_handler
+	bl	KernelSPE
+	b	interrupt_return
+#elif defined(CONFIG_SPE_POSSIBLE)
+	EXCEPTION(0x2020, SPE_UNAVAIL, SPEUnavailable, unknown_exception)
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SPE_POSSIBLE */
 
 	/* SPE Floating Point Data */
 #ifdef CONFIG_SPE
+<<<<<<< HEAD
 	EXCEPTION(0x2030, SPE_FP_DATA, SPEFloatingPointData,
 		  SPEFloatingPointException, EXC_XFER_EE)
 
@@ -658,14 +772,39 @@ END_BTB_FLUSH_SECTION
 		  unknown_exception, EXC_XFER_EE)
 	EXCEPTION(0x2050, SPE_FP_ROUND, SPEFloatingPointRound, \
 		  unknown_exception, EXC_XFER_EE)
+=======
+	START_EXCEPTION(SPEFloatingPointData)
+	NORMAL_EXCEPTION_PROLOG(0x2030, SPE_FP_DATA)
+	prepare_transfer_to_handler
+	bl	SPEFloatingPointException
+	REST_NVGPRS(r1)
+	b	interrupt_return
+
+	/* SPE Floating Point Round */
+	START_EXCEPTION(SPEFloatingPointRound)
+	NORMAL_EXCEPTION_PROLOG(0x2050, SPE_FP_ROUND)
+	prepare_transfer_to_handler
+	bl	SPEFloatingPointRoundException
+	REST_NVGPRS(r1)
+	b	interrupt_return
+#elif defined(CONFIG_SPE_POSSIBLE)
+	EXCEPTION(0x2040, SPE_FP_DATA, SPEFloatingPointData, unknown_exception)
+	EXCEPTION(0x2050, SPE_FP_ROUND, SPEFloatingPointRound, unknown_exception)
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SPE_POSSIBLE */
 
 
 	/* Performance Monitor */
 	EXCEPTION(0x2060, PERFORMANCE_MONITOR, PerformanceMonitor, \
+<<<<<<< HEAD
 		  performance_monitor_exception, EXC_XFER_STD)
 
 	EXCEPTION(0x2070, DOORBELL, Doorbell, doorbell_exception, EXC_XFER_STD)
+=======
+		  performance_monitor_exception)
+
+	EXCEPTION(0x2070, DOORBELL, Doorbell, doorbell_exception)
+>>>>>>> upstream/android-13
 
 	CRITICAL_EXCEPTION(0x2080, DOORBELL_CRITICAL, \
 			   CriticalDoorbell, unknown_exception)
@@ -680,10 +819,17 @@ END_BTB_FLUSH_SECTION
 			   unknown_exception)
 
 	/* Hypercall */
+<<<<<<< HEAD
 	EXCEPTION(0, HV_SYSCALL, Hypercall, unknown_exception, EXC_XFER_EE)
 
 	/* Embedded Hypervisor Privilege */
 	EXCEPTION(0, HV_PRIV, Ehvpriv, unknown_exception, EXC_XFER_EE)
+=======
+	EXCEPTION(0, HV_SYSCALL, Hypercall, unknown_exception)
+
+	/* Embedded Hypervisor Privilege */
+	EXCEPTION(0, HV_PRIV, Ehvpriv, unknown_exception)
+>>>>>>> upstream/android-13
 
 interrupt_end:
 
@@ -717,8 +863,12 @@ finish_tlb_load:
 
 	/* Get the next_tlbcam_idx percpu var */
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 	lwz	r12, THREAD_INFO-THREAD(r12)
 	lwz	r15, TI_CPU(r12)
+=======
+	lwz	r15, TASK_CPU-THREAD(r12)
+>>>>>>> upstream/android-13
 	lis     r14, __per_cpu_offset@h
 	ori     r14, r14, __per_cpu_offset@l
 	rlwinm  r15, r15, 2, 0, 29
@@ -813,6 +963,7 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_BIG_PHYS)
 #endif
 3:	mtspr	SPRN_MAS2, r12
 
+<<<<<<< HEAD
 #ifdef CONFIG_E200
 	/* Round robin TLB1 entries assignment */
 	mfspr	r12, SPRN_MAS0
@@ -838,6 +989,8 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_BIG_PHYS)
 	mtspr	SPRN_MAS0,r12
 #endif /* CONFIG_E200 */
 
+=======
+>>>>>>> upstream/android-13
 tlb_write_entry:
 	tlbwe
 
@@ -898,9 +1051,15 @@ KernelSPE:
 	ori	r3,r3,87f@l
 	mr	r4,r2		/* current */
 	lwz	r5,_NIP(r1)
+<<<<<<< HEAD
 	bl	printk
 #endif
 	b	ret_from_except
+=======
+	bl	_printk
+#endif
+	b	interrupt_return
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PRINTK
 87:	.string	"SPE used in kernel  (task=%p, pc=%x)  \n"
 #endif
@@ -939,6 +1098,7 @@ get_phys_addr:
  * Global functions
  */
 
+<<<<<<< HEAD
 #ifdef CONFIG_E200
 /* Adjust or setup IVORs for e200 */
 _GLOBAL(__setup_e200_ivors)
@@ -954,6 +1114,8 @@ _GLOBAL(__setup_e200_ivors)
 	blr
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_E500
 #ifndef CONFIG_PPC_E500MC
 /* Adjust or setup IVORs for e500v1/v2 */
@@ -1040,6 +1202,7 @@ _GLOBAL(abort)
 	mtspr	SPRN_DBCR0,r13
 	isync
 
+<<<<<<< HEAD
 _GLOBAL(set_context)
 
 #ifdef CONFIG_BDI_SWITCH
@@ -1054,6 +1217,8 @@ _GLOBAL(set_context)
 	isync			/* Force context change */
 	blr
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SMP
 /* When we get here, r24 needs to hold the CPU # */
 	.globl __secondary_start
@@ -1076,7 +1241,16 @@ __secondary_start:
 	mr	r5,r25		/* phys kernel start */
 	rlwinm	r5,r5,0,~0x3ffffff	/* aligned 64M */
 	subf	r4,r5,r4	/* memstart_addr - phys kernel start */
+<<<<<<< HEAD
 	li	r5,0		/* no device tree */
+=======
+	lis	r7,KERNELBASE@h
+	ori	r7,r7,KERNELBASE@l
+	cmpw	r20,r7		/* if kernstart_virt_addr != KERNELBASE, randomized */
+	beq	2f
+	li	r4,0
+2:	li	r5,0		/* no device tree */
+>>>>>>> upstream/android-13
 	li	r6,0		/* not boot cpu */
 	bl	restore_to_as0
 
@@ -1089,10 +1263,17 @@ __secondary_start:
 	mr	r4,r24		/* Why? */
 	bl	call_setup_cpu
 
+<<<<<<< HEAD
 	/* get current_thread_info and current */
 	lis	r1,secondary_ti@ha
 	lwz	r1,secondary_ti@l(r1)
 	lwz	r2,TI_TASK(r1)
+=======
+	/* get current's stack and current */
+	lis	r2,secondary_current@ha
+	lwz	r2,secondary_current@l(r2)
+	lwz	r1,TASK_STACK(r2)
+>>>>>>> upstream/android-13
 
 	/* stack */
 	addi	r1,r1,THREAD_SIZE-STACK_FRAME_OVERHEAD
@@ -1124,6 +1305,57 @@ __secondary_hold_acknowledge:
 #endif
 
 /*
+<<<<<<< HEAD
+=======
+ * Create a 64M tlb by address and entry
+ * r3 - entry
+ * r4 - virtual address
+ * r5/r6 - physical address
+ */
+_GLOBAL(create_kaslr_tlb_entry)
+	lis     r7,0x1000               /* Set MAS0(TLBSEL) = 1 */
+	rlwimi  r7,r3,16,4,15           /* Setup MAS0 = TLBSEL | ESEL(r6) */
+	mtspr   SPRN_MAS0,r7            /* Write MAS0 */
+
+	lis     r3,(MAS1_VALID|MAS1_IPROT)@h
+	ori     r3,r3,(MAS1_TSIZE(BOOK3E_PAGESZ_64M))@l
+	mtspr   SPRN_MAS1,r3            /* Write MAS1 */
+
+	lis     r3,MAS2_EPN_MASK(BOOK3E_PAGESZ_64M)@h
+	ori     r3,r3,MAS2_EPN_MASK(BOOK3E_PAGESZ_64M)@l
+	and     r3,r3,r4
+	ori	r3,r3,MAS2_M_IF_NEEDED@l
+	mtspr   SPRN_MAS2,r3            /* Write MAS2(EPN) */
+
+#ifdef CONFIG_PHYS_64BIT
+	ori     r8,r6,(MAS3_SW|MAS3_SR|MAS3_SX)
+	mtspr   SPRN_MAS3,r8            /* Write MAS3(RPN) */
+	mtspr	SPRN_MAS7,r5
+#else
+	ori     r8,r5,(MAS3_SW|MAS3_SR|MAS3_SX)
+	mtspr   SPRN_MAS3,r8            /* Write MAS3(RPN) */
+#endif
+
+	tlbwe                           /* Write TLB */
+	isync
+	sync
+	blr
+
+/*
+ * Return to the start of the relocated kernel and run again
+ * r3 - virtual address of fdt
+ * r4 - entry of the kernel
+ */
+_GLOBAL(reloc_kernel_entry)
+	mfmsr	r7
+	rlwinm	r7, r7, 0, ~(MSR_IS | MSR_DS)
+
+	mtspr	SPRN_SRR0,r4
+	mtspr	SPRN_SRR1,r7
+	rfi
+
+/*
+>>>>>>> upstream/android-13
  * Create a tlb entry with the same effective and physical address as
  * the tlb entry used by the current running code. But set the TS to 1.
  * Then switch to the address space 1. It will return with the r3 set to
@@ -1148,7 +1380,11 @@ _GLOBAL(switch_to_as1)
 	bne	1b
 
 	/* Get the tlb entry used by the current running code */
+<<<<<<< HEAD
 	bl	0f
+=======
+	bcl	20,31,$+4
+>>>>>>> upstream/android-13
 0:	mflr	r4
 	tlbsx	0,r4
 
@@ -1182,7 +1418,11 @@ _GLOBAL(switch_to_as1)
 _GLOBAL(restore_to_as0)
 	mflr	r0
 
+<<<<<<< HEAD
 	bl	0f
+=======
+	bcl	20,31,$+4
+>>>>>>> upstream/android-13
 0:	mflr	r9
 	addi	r9,r9,1f - 0b
 
@@ -1228,6 +1468,7 @@ _GLOBAL(restore_to_as0)
 	*/
 3:	mr	r3,r5
 	bl	_start
+<<<<<<< HEAD
 
 /*
  * We put a few things here that have to be page-aligned. This stuff
@@ -1251,3 +1492,5 @@ swapper_pg_dir:
  */
 abatron_pteptrs:
 	.space	8
+=======
+>>>>>>> upstream/android-13

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/mfd/aat2870-core.c
  *
  * Copyright (c) 2011, NVIDIA Corporation.
  * Author: Jin Park <jinyoungp@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +26,11 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/debugfs.h>
 #include <linux/slab.h>
@@ -235,7 +245,11 @@ static ssize_t aat2870_dump_reg(struct aat2870_data *aat2870, char *buf)
 
 	count += sprintf(buf, "aat2870 registers\n");
 	for (addr = 0; addr < AAT2870_REG_NUM; addr++) {
+<<<<<<< HEAD
 		count += sprintf(buf + count, "0x%02x: ", addr);
+=======
+		count += snprintf(buf + count, PAGE_SIZE - count, "0x%02x: ", addr);
+>>>>>>> upstream/android-13
 		if (count >= PAGE_SIZE - 1)
 			break;
 
@@ -335,6 +349,7 @@ static const struct file_operations aat2870_reg_fops = {
 static void aat2870_init_debugfs(struct aat2870_data *aat2870)
 {
 	aat2870->dentry_root = debugfs_create_dir("aat2870", NULL);
+<<<<<<< HEAD
 	if (!aat2870->dentry_root) {
 		dev_warn(aat2870->dev,
 			 "Failed to create debugfs root directory\n");
@@ -353,14 +368,24 @@ static void aat2870_uninit_debugfs(struct aat2870_data *aat2870)
 {
 	debugfs_remove_recursive(aat2870->dentry_root);
 }
+=======
+
+	debugfs_create_file("regs", 0644, aat2870->dentry_root, aat2870,
+			    &aat2870_reg_fops);
+}
+
+>>>>>>> upstream/android-13
 #else
 static inline void aat2870_init_debugfs(struct aat2870_data *aat2870)
 {
 }
+<<<<<<< HEAD
 
 static inline void aat2870_uninit_debugfs(struct aat2870_data *aat2870)
 {
 }
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_DEBUG_FS */
 
 static int aat2870_i2c_probe(struct i2c_client *client,
@@ -440,6 +465,7 @@ out_disable:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int aat2870_i2c_remove(struct i2c_client *client)
 {
 	struct aat2870_data *aat2870 = i2c_get_clientdata(client);
@@ -454,6 +480,8 @@ static int aat2870_i2c_remove(struct i2c_client *client)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int aat2870_i2c_suspend(struct device *dev)
 {
@@ -492,6 +520,7 @@ static const struct i2c_device_id aat2870_i2c_id_table[] = {
 	{ "aat2870", 0 },
 	{ }
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(i2c, aat2870_i2c_id_table);
 
 static struct i2c_driver aat2870_i2c_driver = {
@@ -501,6 +530,16 @@ static struct i2c_driver aat2870_i2c_driver = {
 	},
 	.probe		= aat2870_i2c_probe,
 	.remove		= aat2870_i2c_remove,
+=======
+
+static struct i2c_driver aat2870_i2c_driver = {
+	.driver = {
+		.name			= "aat2870",
+		.pm			= &aat2870_pm_ops,
+		.suppress_bind_attrs	= true,
+	},
+	.probe		= aat2870_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table	= aat2870_i2c_id_table,
 };
 
@@ -509,6 +548,7 @@ static int __init aat2870_init(void)
 	return i2c_add_driver(&aat2870_i2c_driver);
 }
 subsys_initcall(aat2870_init);
+<<<<<<< HEAD
 
 static void __exit aat2870_exit(void)
 {
@@ -519,3 +559,5 @@ module_exit(aat2870_exit);
 MODULE_DESCRIPTION("Core support for the AnalogicTech AAT2870");
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jin Park <jinyoungp@nvidia.com>");
+=======
+>>>>>>> upstream/android-13

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ChaCha20-Poly1305 AEAD, RFC7539
  *
  * Copyright (C) 2015 Martin Willi
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/aead.h>
@@ -20,10 +27,13 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include "internal.h"
 
 #define CHACHAPOLY_IV_SIZE	12
 
+=======
+>>>>>>> upstream/android-13
 struct chachapoly_instance_ctx {
 	struct crypto_skcipher_spawn chacha;
 	struct crypto_ahash_spawn poly;
@@ -141,6 +151,7 @@ static int chacha_decrypt(struct aead_request *req)
 
 	chacha_iv(creq->iv, req, 1);
 
+<<<<<<< HEAD
 	sg_init_table(rctx->src, 2);
 	src = scatterwalk_ffwd(rctx->src, req->src, req->assoclen);
 	dst = src;
@@ -149,6 +160,12 @@ static int chacha_decrypt(struct aead_request *req)
 		sg_init_table(rctx->dst, 2);
 		dst = scatterwalk_ffwd(rctx->dst, req->dst, req->assoclen);
 	}
+=======
+	src = scatterwalk_ffwd(rctx->src, req->src, req->assoclen);
+	dst = src;
+	if (req->src != req->dst)
+		dst = scatterwalk_ffwd(rctx->dst, req->dst, req->assoclen);
+>>>>>>> upstream/android-13
 
 	skcipher_request_set_callback(&creq->req, rctx->flags,
 				      chacha_decrypt_done, req);
@@ -184,6 +201,7 @@ static int poly_tail(struct aead_request *req)
 	struct chachapoly_ctx *ctx = crypto_aead_ctx(tfm);
 	struct chachapoly_req_ctx *rctx = aead_request_ctx(req);
 	struct poly_req *preq = &rctx->u.poly;
+<<<<<<< HEAD
 	__le64 len;
 	int err;
 
@@ -193,6 +211,13 @@ static int poly_tail(struct aead_request *req)
 	len = cpu_to_le64(rctx->cryptlen);
 	memcpy(&preq->tail.cryptlen, &len, sizeof(len));
 	sg_set_buf(preq->src, &preq->tail, sizeof(preq->tail));
+=======
+	int err;
+
+	preq->tail.assoclen = cpu_to_le64(rctx->assoclen);
+	preq->tail.cryptlen = cpu_to_le64(rctx->cryptlen);
+	sg_init_one(preq->src, &preq->tail, sizeof(preq->tail));
+>>>>>>> upstream/android-13
 
 	ahash_request_set_callback(&preq->req, rctx->flags,
 				   poly_tail_done, req);
@@ -217,6 +242,7 @@ static int poly_cipherpad(struct aead_request *req)
 	struct chachapoly_ctx *ctx = crypto_aead_ctx(crypto_aead_reqtfm(req));
 	struct chachapoly_req_ctx *rctx = aead_request_ctx(req);
 	struct poly_req *preq = &rctx->u.poly;
+<<<<<<< HEAD
 	unsigned int padlen, bs = POLY1305_BLOCK_SIZE;
 	int err;
 
@@ -224,6 +250,14 @@ static int poly_cipherpad(struct aead_request *req)
 	memset(preq->pad, 0, sizeof(preq->pad));
 	sg_init_table(preq->src, 1);
 	sg_set_buf(preq->src, &preq->pad, padlen);
+=======
+	unsigned int padlen;
+	int err;
+
+	padlen = -rctx->cryptlen % POLY1305_BLOCK_SIZE;
+	memset(preq->pad, 0, sizeof(preq->pad));
+	sg_init_one(preq->src, preq->pad, padlen);
+>>>>>>> upstream/android-13
 
 	ahash_request_set_callback(&preq->req, rctx->flags,
 				   poly_cipherpad_done, req);
@@ -253,7 +287,10 @@ static int poly_cipher(struct aead_request *req)
 	if (rctx->cryptlen == req->cryptlen) /* encrypting */
 		crypt = req->dst;
 
+<<<<<<< HEAD
 	sg_init_table(rctx->src, 2);
+=======
+>>>>>>> upstream/android-13
 	crypt = scatterwalk_ffwd(rctx->src, crypt, req->assoclen);
 
 	ahash_request_set_callback(&preq->req, rctx->flags,
@@ -278,6 +315,7 @@ static int poly_adpad(struct aead_request *req)
 	struct chachapoly_ctx *ctx = crypto_aead_ctx(crypto_aead_reqtfm(req));
 	struct chachapoly_req_ctx *rctx = aead_request_ctx(req);
 	struct poly_req *preq = &rctx->u.poly;
+<<<<<<< HEAD
 	unsigned int padlen, bs = POLY1305_BLOCK_SIZE;
 	int err;
 
@@ -285,6 +323,14 @@ static int poly_adpad(struct aead_request *req)
 	memset(preq->pad, 0, sizeof(preq->pad));
 	sg_init_table(preq->src, 1);
 	sg_set_buf(preq->src, preq->pad, padlen);
+=======
+	unsigned int padlen;
+	int err;
+
+	padlen = -rctx->assoclen % POLY1305_BLOCK_SIZE;
+	memset(preq->pad, 0, sizeof(preq->pad));
+	sg_init_one(preq->src, preq->pad, padlen);
+>>>>>>> upstream/android-13
 
 	ahash_request_set_callback(&preq->req, rctx->flags,
 				   poly_adpad_done, req);
@@ -334,8 +380,12 @@ static int poly_setkey(struct aead_request *req)
 	struct poly_req *preq = &rctx->u.poly;
 	int err;
 
+<<<<<<< HEAD
 	sg_init_table(preq->src, 1);
 	sg_set_buf(preq->src, rctx->key, sizeof(rctx->key));
+=======
+	sg_init_one(preq->src, rctx->key, sizeof(rctx->key));
+>>>>>>> upstream/android-13
 
 	ahash_request_set_callback(&preq->req, rctx->flags,
 				   poly_setkey_done, req);
@@ -393,9 +443,14 @@ static int poly_genkey(struct aead_request *req)
 		rctx->assoclen -= 8;
 	}
 
+<<<<<<< HEAD
 	sg_init_table(creq->src, 1);
 	memset(rctx->key, 0, sizeof(rctx->key));
 	sg_set_buf(creq->src, rctx->key, sizeof(rctx->key));
+=======
+	memset(rctx->key, 0, sizeof(rctx->key));
+	sg_init_one(creq->src, rctx->key, sizeof(rctx->key));
+>>>>>>> upstream/android-13
 
 	chacha_iv(creq->iv, req, 0);
 
@@ -430,6 +485,7 @@ static int chacha_encrypt(struct aead_request *req)
 
 	chacha_iv(creq->iv, req, 1);
 
+<<<<<<< HEAD
 	sg_init_table(rctx->src, 2);
 	src = scatterwalk_ffwd(rctx->src, req->src, req->assoclen);
 	dst = src;
@@ -438,6 +494,12 @@ static int chacha_encrypt(struct aead_request *req)
 		sg_init_table(rctx->dst, 2);
 		dst = scatterwalk_ffwd(rctx->dst, req->dst, req->assoclen);
 	}
+=======
+	src = scatterwalk_ffwd(rctx->src, req->src, req->assoclen);
+	dst = src;
+	if (req->src != req->dst)
+		dst = scatterwalk_ffwd(rctx->dst, req->dst, req->assoclen);
+>>>>>>> upstream/android-13
 
 	skcipher_request_set_callback(&creq->req, rctx->flags,
 				      chacha_encrypt_done, req);
@@ -500,7 +562,10 @@ static int chachapoly_setkey(struct crypto_aead *aead, const u8 *key,
 			     unsigned int keylen)
 {
 	struct chachapoly_ctx *ctx = crypto_aead_ctx(aead);
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (keylen != ctx->saltlen + CHACHA_KEY_SIZE)
 		return -EINVAL;
@@ -511,11 +576,15 @@ static int chachapoly_setkey(struct crypto_aead *aead, const u8 *key,
 	crypto_skcipher_clear_flags(ctx->chacha, CRYPTO_TFM_REQ_MASK);
 	crypto_skcipher_set_flags(ctx->chacha, crypto_aead_get_flags(aead) &
 					       CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 
 	err = crypto_skcipher_setkey(ctx->chacha, key, keylen);
 	crypto_aead_set_flags(aead, crypto_skcipher_get_flags(ctx->chacha) &
 				    CRYPTO_TFM_RES_MASK);
 	return err;
+=======
+	return crypto_skcipher_setkey(ctx->chacha, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int chachapoly_setauthsize(struct crypto_aead *tfm,
@@ -585,6 +654,7 @@ static void chachapoly_free(struct aead_instance *inst)
 static int chachapoly_create(struct crypto_template *tmpl, struct rtattr **tb,
 			     const char *name, unsigned int ivsize)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct aead_instance *inst;
 	struct skcipher_alg *chacha;
@@ -592,11 +662,19 @@ static int chachapoly_create(struct crypto_template *tmpl, struct rtattr **tb,
 	struct hash_alg_common *poly_hash;
 	struct chachapoly_instance_ctx *ctx;
 	const char *chacha_name, *poly_name;
+=======
+	u32 mask;
+	struct aead_instance *inst;
+	struct chachapoly_instance_ctx *ctx;
+	struct skcipher_alg *chacha;
+	struct hash_alg_common *poly;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (ivsize > CHACHAPOLY_IV_SIZE)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	algt = crypto_get_attr_type(tb);
 	if (IS_ERR(algt))
 		return PTR_ERR(algt);
@@ -652,10 +730,44 @@ static int chachapoly_create(struct crypto_template *tmpl, struct rtattr **tb,
 	/* Not a stream cipher? */
 	if (chacha->base.cra_blocksize != 1)
 		goto out_drop_chacha;
+=======
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_AEAD, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	ctx = aead_instance_ctx(inst);
+	ctx->saltlen = CHACHAPOLY_IV_SIZE - ivsize;
+
+	err = crypto_grab_skcipher(&ctx->chacha, aead_crypto_instance(inst),
+				   crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	chacha = crypto_spawn_skcipher_alg(&ctx->chacha);
+
+	err = crypto_grab_ahash(&ctx->poly, aead_crypto_instance(inst),
+				crypto_attr_alg_name(tb[2]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	poly = crypto_spawn_ahash_alg(&ctx->poly);
+
+	err = -EINVAL;
+	if (poly->digestsize != POLY1305_DIGEST_SIZE)
+		goto err_free_inst;
+	/* Need 16-byte IV size, including Initial Block Counter value */
+	if (crypto_skcipher_alg_ivsize(chacha) != CHACHA_IV_SIZE)
+		goto err_free_inst;
+	/* Not a stream cipher? */
+	if (chacha->base.cra_blocksize != 1)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = -ENAMETOOLONG;
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
 		     "%s(%s,%s)", name, chacha->base.cra_name,
+<<<<<<< HEAD
 		     poly->cra_name) >= CRYPTO_MAX_ALG_NAME)
 		goto out_drop_chacha;
 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
@@ -670,6 +782,20 @@ static int chachapoly_create(struct crypto_template *tmpl, struct rtattr **tb,
 	inst->alg.base.cra_blocksize = 1;
 	inst->alg.base.cra_alignmask = chacha->base.cra_alignmask |
 				       poly->cra_alignmask;
+=======
+		     poly->base.cra_name) >= CRYPTO_MAX_ALG_NAME)
+		goto err_free_inst;
+	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+		     "%s(%s,%s)", name, chacha->base.cra_driver_name,
+		     poly->base.cra_driver_name) >= CRYPTO_MAX_ALG_NAME)
+		goto err_free_inst;
+
+	inst->alg.base.cra_priority = (chacha->base.cra_priority +
+				       poly->base.cra_priority) / 2;
+	inst->alg.base.cra_blocksize = 1;
+	inst->alg.base.cra_alignmask = chacha->base.cra_alignmask |
+				       poly->base.cra_alignmask;
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_ctxsize = sizeof(struct chachapoly_ctx) +
 				     ctx->saltlen;
 	inst->alg.ivsize = ivsize;
@@ -685,6 +811,7 @@ static int chachapoly_create(struct crypto_template *tmpl, struct rtattr **tb,
 	inst->free = chachapoly_free;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto out_drop_chacha;
 
@@ -699,6 +826,13 @@ err_drop_poly:
 err_free_inst:
 	kfree(inst);
 	goto out_put_poly;
+=======
+	if (err) {
+err_free_inst:
+		chachapoly_free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int rfc7539_create(struct crypto_template *tmpl, struct rtattr **tb)
@@ -711,6 +845,7 @@ static int rfc7539esp_create(struct crypto_template *tmpl, struct rtattr **tb)
 	return chachapoly_create(tmpl, tb, "rfc7539esp", 8);
 }
 
+<<<<<<< HEAD
 static struct crypto_template rfc7539_tmpl = {
 	.name = "rfc7539",
 	.create = rfc7539_create,
@@ -721,10 +856,23 @@ static struct crypto_template rfc7539esp_tmpl = {
 	.name = "rfc7539esp",
 	.create = rfc7539esp_create,
 	.module = THIS_MODULE,
+=======
+static struct crypto_template rfc7539_tmpls[] = {
+	{
+		.name = "rfc7539",
+		.create = rfc7539_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "rfc7539esp",
+		.create = rfc7539esp_create,
+		.module = THIS_MODULE,
+	},
+>>>>>>> upstream/android-13
 };
 
 static int __init chacha20poly1305_module_init(void)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = crypto_register_template(&rfc7539_tmpl);
@@ -736,15 +884,27 @@ static int __init chacha20poly1305_module_init(void)
 		crypto_unregister_template(&rfc7539_tmpl);
 
 	return err;
+=======
+	return crypto_register_templates(rfc7539_tmpls,
+					 ARRAY_SIZE(rfc7539_tmpls));
+>>>>>>> upstream/android-13
 }
 
 static void __exit chacha20poly1305_module_exit(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_template(&rfc7539esp_tmpl);
 	crypto_unregister_template(&rfc7539_tmpl);
 }
 
 module_init(chacha20poly1305_module_init);
+=======
+	crypto_unregister_templates(rfc7539_tmpls,
+				    ARRAY_SIZE(rfc7539_tmpls));
+}
+
+subsys_initcall(chacha20poly1305_module_init);
+>>>>>>> upstream/android-13
 module_exit(chacha20poly1305_module_exit);
 
 MODULE_LICENSE("GPL");

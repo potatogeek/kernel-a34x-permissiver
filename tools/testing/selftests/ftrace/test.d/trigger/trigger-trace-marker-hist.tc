@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: trace_marker trigger - test histogram trigger
+<<<<<<< HEAD
 # flags: instance
 
 do_reset() {
@@ -11,10 +12,17 @@ do_reset() {
 
 fail() { #msg
     do_reset
+=======
+# requires: set_event events/ftrace/print/trigger events/ftrace/print/hist
+# flags: instance
+
+fail() { #msg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -38,12 +46,18 @@ fi
 do_reset
 
 echo "Test histogram trace_marker tigger"
+=======
+echo "Test histogram trace_marker trigger"
+>>>>>>> upstream/android-13
 
 echo 'hist:keys=common_pid' > events/ftrace/print/trigger
 for i in `seq 1 10` ; do echo "hello" > trace_marker; done
 grep 'hitcount: *10$' events/ftrace/print/hist > /dev/null || \
     fail "hist trigger did not trigger correct times on trace_marker"
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

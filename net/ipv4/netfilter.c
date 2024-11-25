@@ -25,6 +25,10 @@ int ip_route_me_harder(struct net *net, struct sock *sk, struct sk_buff *skb, un
 	__be32 saddr = iph->saddr;
 	__u8 flags;
 	struct net_device *dev = skb_dst(skb)->dev;
+<<<<<<< HEAD
+=======
+	struct flow_keys flkeys;
+>>>>>>> upstream/android-13
 	unsigned int hh_len;
 
 	sk = sk_to_full_sk(sk);
@@ -48,6 +52,10 @@ int ip_route_me_harder(struct net *net, struct sock *sk, struct sk_buff *skb, un
 		fl4.flowi4_oif = l3mdev_master_ifindex(dev);
 	fl4.flowi4_mark = skb->mark;
 	fl4.flowi4_flags = flags;
+<<<<<<< HEAD
+=======
+	fib4_rules_early_flow_dissect(net, skb, &fl4, &flkeys);
+>>>>>>> upstream/android-13
 	rt = ip_route_output_key(net, &fl4);
 	if (IS_ERR(rt))
 		return PTR_ERR(rt);
@@ -82,6 +90,7 @@ int ip_route_me_harder(struct net *net, struct sock *sk, struct sk_buff *skb, un
 }
 EXPORT_SYMBOL(ip_route_me_harder);
 
+<<<<<<< HEAD
 int nf_ip_reroute(struct sk_buff *skb, const struct nf_queue_entry *entry)
 {
 	const struct ip_rt_info *rt_info = nf_queue_entry_reroute(entry);
@@ -100,6 +109,8 @@ int nf_ip_reroute(struct sk_buff *skb, const struct nf_queue_entry *entry)
 }
 EXPORT_SYMBOL_GPL(nf_ip_reroute);
 
+=======
+>>>>>>> upstream/android-13
 int nf_ip_route(struct net *net, struct dst_entry **dst, struct flowi *fl,
 		bool strict __always_unused)
 {

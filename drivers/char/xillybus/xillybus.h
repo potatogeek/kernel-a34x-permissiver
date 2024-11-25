@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/misc/xillybus.h
  *
  * Copyright 2011 Xillybus Ltd, http://xillybus.com
  *
  * Header file for the Xillybus FPGA/host framework.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the smems of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __XILLYBUS_H
@@ -33,7 +40,12 @@ struct xilly_buffer {
 
 struct xilly_idt_handle {
 	unsigned char *chandesc;
+<<<<<<< HEAD
 	unsigned char *idt;
+=======
+	unsigned char *names;
+	int names_len;
+>>>>>>> upstream/android-13
 	int entries;
 };
 
@@ -97,7 +109,10 @@ struct xilly_endpoint {
 	struct device *dev;
 	struct xilly_endpoint_hardware *ephw;
 
+<<<<<<< HEAD
 	struct list_head ep_list;
+=======
+>>>>>>> upstream/android-13
 	int dma_using_dac; /* =1 if 64-bit DMA is used, =0 otherwise. */
 	__iomem void *registers;
 	int fatal_error;
@@ -105,12 +120,15 @@ struct xilly_endpoint {
 	struct mutex register_mutex;
 	wait_queue_head_t ep_wait;
 
+<<<<<<< HEAD
 	/* Channels and message handling */
 	struct cdev cdev;
 
 	int major;
 	int lowest_minor; /* Highest minor = lowest_minor + num_channels - 1 */
 
+=======
+>>>>>>> upstream/android-13
 	int num_channels; /* EXCLUDING message buffer */
 	struct xilly_channel **channels;
 	int msg_counter;

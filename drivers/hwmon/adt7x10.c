@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * adt7x10.c - Part of lm_sensors, Linux kernel modules for hardware
  *	 monitoring
@@ -5,6 +9,7 @@
  * Hartmut Knaack <knaack.h@gmx.de> 2012-07-22
  * based on lm75.c by Frodo Looijaard <frodol@dds.nl>
  * and adt7410.c from iio-staging by Sonic Zhang <sonic.zhang@analog.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -230,9 +237,14 @@ static int ADT7X10_REG_TO_TEMP(struct adt7x10_data *data, s16 reg)
 
 /* sysfs attributes for hwmon */
 
+<<<<<<< HEAD
 static ssize_t adt7x10_show_temp(struct device *dev,
 				 struct device_attribute *da,
 				 char *buf)
+=======
+static ssize_t adt7x10_temp_show(struct device *dev,
+				 struct device_attribute *da, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct adt7x10_data *data = dev_get_drvdata(dev);
@@ -250,9 +262,15 @@ static ssize_t adt7x10_show_temp(struct device *dev,
 		       data->temp[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t adt7x10_set_temp(struct device *dev,
 				struct device_attribute *da,
 				const char *buf, size_t count)
+=======
+static ssize_t adt7x10_temp_store(struct device *dev,
+				  struct device_attribute *da,
+				  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct adt7x10_data *data = dev_get_drvdata(dev);
@@ -273,9 +291,14 @@ static ssize_t adt7x10_set_temp(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t adt7x10_show_t_hyst(struct device *dev,
 				   struct device_attribute *da,
 				   char *buf)
+=======
+static ssize_t adt7x10_t_hyst_show(struct device *dev,
+				   struct device_attribute *da, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct adt7x10_data *data = dev_get_drvdata(dev);
@@ -294,9 +317,15 @@ static ssize_t adt7x10_show_t_hyst(struct device *dev,
 		       ADT7X10_REG_TO_TEMP(data, data->temp[nr]) - hyst);
 }
 
+<<<<<<< HEAD
 static ssize_t adt7x10_set_t_hyst(struct device *dev,
 				  struct device_attribute *da,
 				  const char *buf, size_t count)
+=======
+static ssize_t adt7x10_t_hyst_store(struct device *dev,
+				    struct device_attribute *da,
+				    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adt7x10_data *data = dev_get_drvdata(dev);
 	int limit, ret;
@@ -317,9 +346,14 @@ static ssize_t adt7x10_set_t_hyst(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t adt7x10_show_alarm(struct device *dev,
 				  struct device_attribute *da,
 				  char *buf)
+=======
+static ssize_t adt7x10_alarm_show(struct device *dev,
+				  struct device_attribute *da, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	int ret;
@@ -339,6 +373,7 @@ static ssize_t name_show(struct device *dev, struct device_attribute *da,
 	return sprintf(buf, "%s\n", data->name);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, adt7x10_show_temp, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO,
 			  adt7x10_show_temp, adt7x10_set_temp, 1);
@@ -358,6 +393,21 @@ static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO, adt7x10_show_alarm,
 			  NULL, ADT7X10_STAT_T_HIGH);
 static SENSOR_DEVICE_ATTR(temp1_crit_alarm, S_IRUGO, adt7x10_show_alarm,
 			  NULL, ADT7X10_STAT_T_CRIT);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, adt7x10_temp, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, adt7x10_temp, 1);
+static SENSOR_DEVICE_ATTR_RW(temp1_min, adt7x10_temp, 2);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit, adt7x10_temp, 3);
+static SENSOR_DEVICE_ATTR_RW(temp1_max_hyst, adt7x10_t_hyst, 1);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_hyst, adt7x10_t_hyst, 2);
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_hyst, adt7x10_t_hyst, 3);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_alarm, adt7x10_alarm,
+			     ADT7X10_STAT_T_LOW);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, adt7x10_alarm,
+			     ADT7X10_STAT_T_HIGH);
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_alarm, adt7x10_alarm,
+			     ADT7X10_STAT_T_CRIT);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR_RO(name);
 
 static struct attribute *adt7x10_attributes[] = {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
  *
@@ -13,6 +14,11 @@
  *  The full GNU General Public License is included in this distribution in
  *  the file called "COPYING".
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (C) 2017 Chelsio Communications.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CXGB4_CUDBG_H__
@@ -39,6 +45,10 @@ enum CXGB4_ETHTOOL_DUMP_FLAGS {
 	CXGB4_ETH_DUMP_NONE = ETH_FW_DUMP_DISABLE,
 	CXGB4_ETH_DUMP_MEM = (1 << 0), /* On-Chip Memory Dumps */
 	CXGB4_ETH_DUMP_HW = (1 << 1), /* various FW and HW dumps */
+<<<<<<< HEAD
+=======
+	CXGB4_ETH_DUMP_FLASH = (1 << 2), /* Dump flash memory */
+>>>>>>> upstream/android-13
 };
 
 #define CXGB4_ETH_DUMP_ALL (CXGB4_ETH_DUMP_MEM | CXGB4_ETH_DUMP_HW)

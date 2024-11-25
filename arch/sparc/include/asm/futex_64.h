@@ -38,8 +38,11 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
 	if (unlikely((((unsigned long) uaddr) & 0x3UL)))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	pagefault_disable();
 
+=======
+>>>>>>> upstream/android-13
 	switch (op) {
 	case FUTEX_OP_SET:
 		__futex_cas_op("mov\t%4, %1", ret, oldval, uaddr, oparg);
@@ -60,8 +63,11 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
 		ret = -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	pagefault_enable();
 
+=======
+>>>>>>> upstream/android-13
 	if (!ret)
 		*oval = oldval;
 

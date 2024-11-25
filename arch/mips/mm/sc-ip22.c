@@ -12,7 +12,10 @@
 
 #include <asm/bcache.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/bootinfo.h>
 #include <asm/sgi/ip22.h>
 #include <asm/sgi/mc.h>

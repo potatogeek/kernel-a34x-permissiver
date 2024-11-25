@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Universal Interface for Intel High Definition Audio Codec
  *
@@ -8,6 +12,7 @@
  *
  * Based on patch_cmedia.c and patch_realtek.c
  * Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *  This driver is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -32,7 +39,11 @@
 #include <linux/module.h>
 #include <sound/core.h>
 #include <sound/jack.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 #include "hda_auto_parser.h"
 #include "hda_beep.h"
@@ -333,15 +344,29 @@ static void stac_gpio_set(struct hda_codec *codec, unsigned int mask,
 }
 
 /* hook for controlling mic-mute LED GPIO */
+<<<<<<< HEAD
 static void stac_capture_led_update(struct hda_codec *codec)
 {
 	struct sigmatel_spec *spec = codec->spec;
 
 	if (spec->gen.micmute_led.led_value)
+=======
+static int stac_capture_led_update(struct led_classdev *led_cdev,
+				   enum led_brightness brightness)
+{
+	struct hda_codec *codec = dev_to_hda_codec(led_cdev->dev->parent);
+	struct sigmatel_spec *spec = codec->spec;
+
+	if (brightness)
+>>>>>>> upstream/android-13
 		spec->gpio_data |= spec->mic_mute_led_gpio;
 	else
 		spec->gpio_data &= ~spec->mic_mute_led_gpio;
 	stac_gpio_set(codec, spec->gpio_mask, spec->gpio_dir, spec->gpio_data);
+<<<<<<< HEAD
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int stac_vrefout_set(struct hda_codec *codec,
@@ -379,10 +404,16 @@ static unsigned int stac_vref_led_power_filter(struct hda_codec *codec,
 }
 
 /* update mute-LED accoring to the master switch */
+<<<<<<< HEAD
 static void stac_update_led_status(struct hda_codec *codec, int enabled)
 {
 	struct sigmatel_spec *spec = codec->spec;
 	int muted = !enabled;
+=======
+static void stac_update_led_status(struct hda_codec *codec, bool muted)
+{
+	struct sigmatel_spec *spec = codec->spec;
+>>>>>>> upstream/android-13
 
 	if (!spec->gpio_led)
 		return;
@@ -406,9 +437,19 @@ static void stac_update_led_status(struct hda_codec *codec, int enabled)
 }
 
 /* vmaster hook to update mute LED */
+<<<<<<< HEAD
 static void stac_vmaster_hook(void *private_data, int val)
 {
 	stac_update_led_status(private_data, val);
+=======
+static int stac_vmaster_hook(struct led_classdev *led_cdev,
+			     enum led_brightness brightness)
+{
+	struct hda_codec *codec = dev_to_hda_codec(led_cdev->dev->parent);
+
+	stac_update_led_status(codec, brightness);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* automute hook to handle GPIO mute and EAPD updates */
@@ -808,7 +849,11 @@ static int find_mute_led_cfg(struct hda_codec *codec, int default_polarity)
 static bool has_builtin_speaker(struct hda_codec *codec)
 {
 	struct sigmatel_spec *spec = codec->spec;
+<<<<<<< HEAD
 	hda_nid_t *nid_pin;
+=======
+	const hda_nid_t *nid_pin;
+>>>>>>> upstream/android-13
 	int nids, i;
 
 	if (spec->gen.autocfg.line_out_type == AUTO_PIN_SPEAKER_OUT) {
@@ -838,11 +883,19 @@ static int stac_auto_create_beep_ctls(struct hda_codec *codec,
 	struct sigmatel_spec *spec = codec->spec;
 	u32 caps = query_amp_caps(codec, nid, HDA_OUTPUT);
 	struct snd_kcontrol_new *knew;
+<<<<<<< HEAD
 	static struct snd_kcontrol_new abeep_mute_ctl =
 		HDA_CODEC_MUTE(NULL, 0, 0, 0);
 	static struct snd_kcontrol_new dbeep_mute_ctl =
 		HDA_CODEC_MUTE_BEEP(NULL, 0, 0, 0);
 	static struct snd_kcontrol_new beep_vol_ctl =
+=======
+	static const struct snd_kcontrol_new abeep_mute_ctl =
+		HDA_CODEC_MUTE(NULL, 0, 0, 0);
+	static const struct snd_kcontrol_new dbeep_mute_ctl =
+		HDA_CODEC_MUTE_BEEP(NULL, 0, 0, 0);
+	static const struct snd_kcontrol_new beep_vol_ctl =
+>>>>>>> upstream/android-13
 		HDA_CODEC_VOLUME(NULL, 0, 0, 0);
 
 	/* check for mute support for the amp */
@@ -988,6 +1041,7 @@ static int stac_create_spdif_mux_ctls(struct hda_codec *codec)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  */
 
@@ -997,6 +1051,8 @@ static const struct hda_verb stac9200_core_init[] = {
 	{}
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct hda_verb stac9200_eapd_init[] = {
 	/* set dac0mux for dac converter */
 	{0x07, AC_VERB_SET_CONNECT_SEL, 0x00},
@@ -2204,7 +2260,11 @@ static void hp_envy_ts_fixup_dac_bind(struct hda_codec *codec,
 					    int action)
 {
 	struct sigmatel_spec *spec = codec->spec;
+<<<<<<< HEAD
 	static hda_nid_t preferred_pairs[] = {
+=======
+	static const hda_nid_t preferred_pairs[] = {
+>>>>>>> upstream/android-13
 		0xd, 0x13,
 		0
 	};
@@ -3151,7 +3211,11 @@ static void fixup_hp_headphone(struct hda_codec *codec, hda_nid_t pin)
 	unsigned int pin_cfg = snd_hda_codec_get_pincfg(codec, pin);
 
 	/* It was changed in the BIOS to just satisfy MS DTM.
+<<<<<<< HEAD
 	 * Lets turn it back into slaved HP
+=======
+	 * Lets turn it back into follower HP
+>>>>>>> upstream/android-13
 	 */
 	pin_cfg = (pin_cfg & (~AC_DEFCFG_DEVICE)) |
 		(AC_JACK_HP_OUT << AC_DEFCFG_DEVICE_SHIFT);
@@ -4293,6 +4357,12 @@ static int stac_parse_auto_config(struct hda_codec *codec)
 
 	spec->gen.automute_hook = stac_update_outputs;
 
+<<<<<<< HEAD
+=======
+	if (spec->gpio_led)
+		snd_hda_gen_add_mute_led_cdev(codec, stac_vmaster_hook);
+
+>>>>>>> upstream/android-13
 	err = snd_hda_gen_parse_auto_config(codec, &spec->gen.autocfg);
 	if (err < 0)
 		return err;
@@ -4334,9 +4404,12 @@ static int stac_parse_auto_config(struct hda_codec *codec)
 	}
 #endif
 
+<<<<<<< HEAD
 	if (spec->gpio_led)
 		spec->gen.vmaster_mute.hook = stac_vmaster_hook;
 
+=======
+>>>>>>> upstream/android-13
 	if (spec->aloopback_ctl &&
 	    snd_hda_get_bool_hint(codec, "loopback") == 1) {
 		unsigned int wr_verb =
@@ -4396,6 +4469,7 @@ static int stac_init(struct hda_codec *codec)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void stac_shutup(struct hda_codec *codec)
 {
 	struct sigmatel_spec *spec = codec->spec;
@@ -4408,6 +4482,8 @@ static void stac_shutup(struct hda_codec *codec)
 				~spec->eapd_mask);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define stac_free	snd_hda_gen_free
 
 #ifdef CONFIG_SND_PROC_FS
@@ -4460,7 +4536,19 @@ static void stac927x_proc_hook(struct snd_info_buffer *buffer,
 #ifdef CONFIG_PM
 static int stac_suspend(struct hda_codec *codec)
 {
+<<<<<<< HEAD
 	stac_shutup(codec);
+=======
+	struct sigmatel_spec *spec = codec->spec;
+
+	snd_hda_shutup_pins(codec);
+
+	if (spec->eapd_mask)
+		stac_gpio_set(codec, spec->gpio_mask,
+				spec->gpio_dir, spec->gpio_data &
+				~spec->eapd_mask);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 #else
@@ -4476,7 +4564,10 @@ static const struct hda_codec_ops stac_patch_ops = {
 #ifdef CONFIG_PM
 	.suspend = stac_suspend,
 #endif
+<<<<<<< HEAD
 	.reboot_notify = stac_shutup,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int alloc_stac_spec(struct hda_codec *codec)
@@ -4658,7 +4749,11 @@ static void stac_setup_gpio(struct hda_codec *codec)
 		spec->gpio_dir |= spec->mic_mute_led_gpio;
 		spec->mic_enabled = 0;
 		spec->gpio_data |= spec->mic_mute_led_gpio;
+<<<<<<< HEAD
 		snd_hda_gen_add_micmute_led(codec, stac_capture_led_update);
+=======
+		snd_hda_gen_add_micmute_led_cdev(codec, stac_capture_led_update);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -4930,7 +5025,11 @@ static int patch_stac927x(struct hda_codec *codec)
 	 * The below flag enables the longer delay (see get_response
 	 * in hda_intel.c).
 	 */
+<<<<<<< HEAD
 	codec->bus->needs_damn_long_delay = 1;
+=======
+	codec->bus->core.needs_damn_long_delay = 1;
+>>>>>>> upstream/android-13
 
 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_PROBE);
 

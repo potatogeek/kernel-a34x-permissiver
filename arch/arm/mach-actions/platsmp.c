@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Actions Semi Leopard
  *
@@ -7,11 +11,14 @@
  * Author: Actions Semi, Inc.
  *
  * Copyright (c) 2017 Andreas Färber
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -39,10 +46,13 @@ static void __iomem *sps_base_addr;
 static void __iomem *timer_base_addr;
 static int ncores;
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(boot_lock);
 
 void owl_secondary_startup(void);
 
+=======
+>>>>>>> upstream/android-13
 static int s500_wakeup_secondary(unsigned int cpu)
 {
 	int ret;
@@ -84,7 +94,10 @@ static int s500_wakeup_secondary(unsigned int cpu)
 
 static int s500_smp_boot_secondary(unsigned int cpu, struct task_struct *idle)
 {
+<<<<<<< HEAD
 	unsigned long timeout;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = s500_wakeup_secondary(cpu);
@@ -93,6 +106,7 @@ static int s500_smp_boot_secondary(unsigned int cpu, struct task_struct *idle)
 
 	udelay(10);
 
+<<<<<<< HEAD
 	spin_lock(&boot_lock);
 
 	smp_send_reschedule(cpu);
@@ -108,6 +122,13 @@ static int s500_smp_boot_secondary(unsigned int cpu, struct task_struct *idle)
 
 	spin_unlock(&boot_lock);
 
+=======
+	smp_send_reschedule(cpu);
+
+	writel(0, timer_base_addr + OWL_CPU1_ADDR + (cpu - 1) * 4);
+	writel(0, timer_base_addr + OWL_CPU1_FLAG + (cpu - 1) * 4);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

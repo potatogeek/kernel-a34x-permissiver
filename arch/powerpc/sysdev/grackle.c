@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Functions for setting up and using a MPC106 northbridge
  * Extracted from arch/powerpc/platforms/powermac/pci.c.
  *
  * Copyright (C) 2003 Benjamin Herrenschmuidt (benh@kernel.crashing.org)
  * Copyright (C) 1997 Paul Mackerras (paulus@samba.org)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/pci.h>

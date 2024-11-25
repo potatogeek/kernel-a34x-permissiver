@@ -9,6 +9,7 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_btree.h"
 #include "xfs_bit.h"
@@ -22,16 +23,31 @@
 #include "scrub/common.h"
 #include "scrub/btree.h"
 #include "scrub/trace.h"
+=======
+#include "xfs_btree.h"
+#include "xfs_alloc.h"
+#include "xfs_rmap.h"
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+#include "scrub/btree.h"
+#include "xfs_ag.h"
+>>>>>>> upstream/android-13
 
 /*
  * Set us up to scrub free space btrees.
  */
 int
 xchk_setup_ag_allocbt(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_inode	*ip)
 {
 	return xchk_setup_ag_btree(sc, ip, false);
+=======
+	struct xfs_scrub	*sc)
+{
+	return xchk_setup_ag_btree(sc, false);
+>>>>>>> upstream/android-13
 }
 
 /* Free space btree scrubber. */
@@ -98,6 +114,7 @@ xchk_allocbt_xref(
 STATIC int
 xchk_allocbt_rec(
 	struct xchk_btree	*bs,
+<<<<<<< HEAD
 	union xfs_btree_rec	*rec)
 {
 	struct xfs_mount	*mp = bs->cur->bc_mp;
@@ -105,6 +122,14 @@ xchk_allocbt_rec(
 	xfs_agblock_t		bno;
 	xfs_extlen_t		len;
 	int			error = 0;
+=======
+	const union xfs_btree_rec *rec)
+{
+	struct xfs_mount	*mp = bs->cur->bc_mp;
+	xfs_agnumber_t		agno = bs->cur->bc_ag.pag->pag_agno;
+	xfs_agblock_t		bno;
+	xfs_extlen_t		len;
+>>>>>>> upstream/android-13
 
 	bno = be32_to_cpu(rec->alloc.ar_startblock);
 	len = be32_to_cpu(rec->alloc.ar_blockcount);
@@ -116,7 +141,11 @@ xchk_allocbt_rec(
 
 	xchk_allocbt_xref(bs->sc, bno, len);
 
+<<<<<<< HEAD
 	return error;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Scrub the freespace btrees for some AG. */
@@ -125,12 +154,19 @@ xchk_allocbt(
 	struct xfs_scrub	*sc,
 	xfs_btnum_t		which)
 {
+<<<<<<< HEAD
 	struct xfs_owner_info	oinfo;
 	struct xfs_btree_cur	*cur;
 
 	xfs_rmap_ag_owner(&oinfo, XFS_RMAP_OWN_AG);
 	cur = which == XFS_BTNUM_BNO ? sc->sa.bno_cur : sc->sa.cnt_cur;
 	return xchk_btree(sc, cur, xchk_allocbt_rec, &oinfo, NULL);
+=======
+	struct xfs_btree_cur	*cur;
+
+	cur = which == XFS_BTNUM_BNO ? sc->sa.bno_cur : sc->sa.cnt_cur;
+	return xchk_btree(sc, cur, xchk_allocbt_rec, &XFS_RMAP_OINFO_AG, NULL);
+>>>>>>> upstream/android-13
 }
 
 int

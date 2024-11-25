@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Rockchip machine ASoC driver for RK3288 boards that have an HDMI and analog
  * audio output
@@ -6,6 +10,7 @@
  *
  * Authors: Sjoerd Simons <sjoerd.simons@collabora.com>,
  *	    Romain Perier <romain.perier@collabora.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -78,9 +85,15 @@ static int rk_hw_params(struct snd_pcm_substream *substream,
 			struct snd_pcm_hw_params *params)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	int mclk;
 
 	switch (params_rate(params)) {
@@ -151,6 +164,7 @@ static const struct snd_soc_ops rk_ops = {
 	.hw_params = rk_hw_params,
 };
 
+<<<<<<< HEAD
 static struct snd_soc_dai_link_component rk_codecs[] = {
 	{ },
 	{
@@ -158,17 +172,31 @@ static struct snd_soc_dai_link_component rk_codecs[] = {
 		.dai_name = "i2s-hifi",
 	},
 };
+=======
+SND_SOC_DAILINK_DEFS(audio,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, NULL),
+			   COMP_CODEC("hdmi-audio-codec.2.auto", "i2s-hifi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+>>>>>>> upstream/android-13
 
 static struct snd_soc_dai_link rk_dailink = {
 	.name = "Codecs",
 	.stream_name = "Audio",
 	.init = rk_init,
 	.ops = &rk_ops,
+<<<<<<< HEAD
 	.codecs = rk_codecs,
 	.num_codecs = ARRAY_SIZE(rk_codecs),
 	/* Set codecs as slave */
 	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 		SND_SOC_DAIFMT_CBS_CFS,
+=======
+	/* Set codecs as slave */
+	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+		SND_SOC_DAIFMT_CBS_CFS,
+	SND_SOC_DAILINK_REG(audio),
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_card snd_soc_card_rk = {
@@ -244,15 +272,25 @@ static int snd_rk_mc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	rk_dailink.cpu_of_node = of_parse_phandle(np, "rockchip,i2s-controller",
 						  0);
 	if (!rk_dailink.cpu_of_node) {
+=======
+	rk_dailink.cpus->of_node = of_parse_phandle(np, "rockchip,i2s-controller",
+						  0);
+	if (!rk_dailink.cpus->of_node) {
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev,
 			"Property 'rockchip,i2s-controller' missing or invalid\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	rk_dailink.platform_of_node = rk_dailink.cpu_of_node;
+=======
+	rk_dailink.platforms->of_node = rk_dailink.cpus->of_node;
+>>>>>>> upstream/android-13
 
 	ret = snd_soc_of_parse_audio_routing(card, "rockchip,routing");
 	if (ret) {
@@ -286,7 +324,10 @@ static struct platform_driver rockchip_sound_driver = {
 	.probe = snd_rk_mc_probe,
 	.driver = {
 		.name = DRV_NAME,
+<<<<<<< HEAD
 		.owner = THIS_MODULE,
+=======
+>>>>>>> upstream/android-13
 		.pm = &snd_soc_pm_ops,
 		.of_match_table = rockchip_sound_of_match,
 	},

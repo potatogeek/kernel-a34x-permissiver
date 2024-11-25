@@ -647,7 +647,11 @@ static void td_submit_urb (
 		/* ... and periodic urbs have extra accounting */
 		periodic = ohci_to_hcd(ohci)->self.bandwidth_int_reqs++ == 0
 			&& ohci_to_hcd(ohci)->self.bandwidth_isoc_reqs == 0;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PIPE_BULK:
 		info = is_out
 			? TD_T_TOGGLE | TD_CC | TD_DP_OUT
@@ -879,11 +883,19 @@ static void ed_halted(struct ohci_hcd *ohci, struct td *td, int cc)
 	case TD_DATAUNDERRUN:
 		if ((urb->transfer_flags & URB_SHORT_NOT_OK) == 0)
 			break;
+<<<<<<< HEAD
 		/* fallthrough */
 	case TD_CC_STALL:
 		if (usb_pipecontrol (urb->pipe))
 			break;
 		/* fallthrough */
+=======
+		fallthrough;
+	case TD_CC_STALL:
+		if (usb_pipecontrol (urb->pipe))
+			break;
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		ohci_dbg (ohci,
 			"urb %p path %s ep%d%s %08x cc %d --> status %d\n",

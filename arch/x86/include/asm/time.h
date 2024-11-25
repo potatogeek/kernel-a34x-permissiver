@@ -7,6 +7,10 @@
 
 extern void hpet_time_init(void);
 extern void time_init(void);
+<<<<<<< HEAD
+=======
+extern bool pit_timer_init(void);
+>>>>>>> upstream/android-13
 
 extern struct clock_event_device *global_clock_event;
 

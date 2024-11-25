@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HCI based Driver for Inside Secure microread NFC Chip
  *
@@ -14,6 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2013 Intel Corporation. All rights reserved.
+ *
+ * HCI based Driver for Inside Secure microread NFC Chip
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -21,7 +29,10 @@
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
 #include <linux/nfc.h>
+<<<<<<< HEAD
 #include <net/nfc/hci.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/nfc/llc.h>
 
 #include "../mei_phy.h"
@@ -55,15 +66,22 @@ static int microread_mei_probe(struct mei_cl_device *cldev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int microread_mei_remove(struct mei_cl_device *cldev)
+=======
+static void microread_mei_remove(struct mei_cl_device *cldev)
+>>>>>>> upstream/android-13
 {
 	struct nfc_mei_phy *phy = mei_cldev_get_drvdata(cldev);
 
 	microread_remove(phy->hdev);
 
 	nfc_mei_phy_free(phy);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct mei_cl_device_id microread_mei_tbl[] = {

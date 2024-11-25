@@ -17,16 +17,27 @@ __sum16 nf_ip_checksum(struct sk_buff *skb, unsigned int hook,
 	case CHECKSUM_COMPLETE:
 		if (hook != NF_INET_PRE_ROUTING && hook != NF_INET_LOCAL_IN)
 			break;
+<<<<<<< HEAD
 		if ((protocol == 0 && !csum_fold(skb->csum)) ||
+=======
+		if ((protocol != IPPROTO_TCP && protocol != IPPROTO_UDP &&
+		    !csum_fold(skb->csum)) ||
+>>>>>>> upstream/android-13
 		    !csum_tcpudp_magic(iph->saddr, iph->daddr,
 				       skb->len - dataoff, protocol,
 				       skb->csum)) {
 			skb->ip_summed = CHECKSUM_UNNECESSARY;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
 	case CHECKSUM_NONE:
 		if (protocol == 0)
+=======
+		fallthrough;
+	case CHECKSUM_NONE:
+		if (protocol != IPPROTO_TCP && protocol != IPPROTO_UDP)
+>>>>>>> upstream/android-13
 			skb->csum = 0;
 		else
 			skb->csum = csum_tcpudp_nofold(iph->saddr, iph->daddr,
@@ -50,7 +61,11 @@ static __sum16 nf_ip_checksum_partial(struct sk_buff *skb, unsigned int hook,
 	case CHECKSUM_COMPLETE:
 		if (len == skb->len - dataoff)
 			return nf_ip_checksum(skb, hook, dataoff, protocol);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CHECKSUM_NONE:
 		skb->csum = csum_tcpudp_nofold(iph->saddr, iph->daddr, protocol,
 					       skb->len - dataoff, 0);
@@ -78,7 +93,11 @@ __sum16 nf_ip6_checksum(struct sk_buff *skb, unsigned int hook,
 			skb->ip_summed = CHECKSUM_UNNECESSARY;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CHECKSUM_NONE:
 		skb->csum = ~csum_unfold(
 				csum_ipv6_magic(&ip6h->saddr, &ip6h->daddr,
@@ -105,7 +124,11 @@ static __sum16 nf_ip6_checksum_partial(struct sk_buff *skb, unsigned int hook,
 	case CHECKSUM_COMPLETE:
 		if (len == skb->len - dataoff)
 			return nf_ip6_checksum(skb, hook, dataoff, protocol);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CHECKSUM_NONE:
 		hsum = skb_checksum(skb, 0, dataoff, 0);
 		skb->csum = ~csum_unfold(csum_ipv6_magic(&ip6h->saddr,
@@ -162,7 +185,11 @@ EXPORT_SYMBOL_GPL(nf_checksum_partial);
 int nf_route(struct net *net, struct dst_entry **dst, struct flowi *fl,
 	     bool strict, unsigned short family)
 {
+<<<<<<< HEAD
 	const struct nf_ipv6_ops *v6ops;
+=======
+	const struct nf_ipv6_ops *v6ops __maybe_unused;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	switch (family) {
@@ -170,9 +197,13 @@ int nf_route(struct net *net, struct dst_entry **dst, struct flowi *fl,
 		ret = nf_ip_route(net, dst, fl, strict);
 		break;
 	case AF_INET6:
+<<<<<<< HEAD
 		v6ops = rcu_dereference(nf_ipv6_ops);
 		if (v6ops)
 			ret = v6ops->route(net, dst, fl, strict);
+=======
+		ret = nf_ip6_route(net, dst, fl, strict);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -180,6 +211,28 @@ int nf_route(struct net *net, struct dst_entry **dst, struct flowi *fl,
 }
 EXPORT_SYMBOL_GPL(nf_route);
 
+<<<<<<< HEAD
+=======
+static int nf_ip_reroute(struct sk_buff *skb, const struct nf_queue_entry *entry)
+{
+#ifdef CONFIG_INET
+	const struct ip_rt_info *rt_info = nf_queue_entry_reroute(entry);
+
+	if (entry->state.hook == NF_INET_LOCAL_OUT) {
+		const struct iphdr *iph = ip_hdr(skb);
+
+		if (!(iph->tos == rt_info->tos &&
+		      skb->mark == rt_info->mark &&
+		      iph->daddr == rt_info->daddr &&
+		      iph->saddr == rt_info->saddr))
+			return ip_route_me_harder(entry->state.net, entry->state.sk,
+						  skb, RTN_UNSPEC);
+	}
+#endif
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int nf_reroute(struct sk_buff *skb, struct nf_queue_entry *entry)
 {
 	const struct nf_ipv6_ops *v6ops;

@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /* Copyright (C) 2003-2011 Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (C) 2003-2011 Jozsef Kadlecsik <kadlec@netfilter.org>
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -147,6 +152,7 @@ ip_set_get_ip6_port(const struct sk_buff *skb, bool src,
 }
 EXPORT_SYMBOL_GPL(ip_set_get_ip6_port);
 #endif
+<<<<<<< HEAD
 
 bool
 ip_set_get_ip_port(const struct sk_buff *skb, u8 pf, bool src, __be16 *port)
@@ -175,3 +181,5 @@ ip_set_get_ip_port(const struct sk_buff *skb, u8 pf, bool src, __be16 *port)
 	}
 }
 EXPORT_SYMBOL_GPL(ip_set_get_ip_port);
+=======
+>>>>>>> upstream/android-13

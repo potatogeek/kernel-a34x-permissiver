@@ -22,12 +22,16 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 #include <linux/init.h>
 
 #include "numa_internal.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_DISCONTIGMEM
 /*
  * 4) physnode_map     - the mapping between a pfn and owning node
@@ -62,6 +66,8 @@ void memory_present(int nid, unsigned long start, unsigned long end)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 extern unsigned long highend_pfn, highstart_pfn;
 
 void __init initmem_init(void)

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CCM: Counter with CBC-MAC
  *
  * (C) Copyright IBM Corp. 2007 - Joy Latten <latten@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -11,6 +16,12 @@
  */
 
 #include <crypto/internal/aead.h>
+=======
+ */
+
+#include <crypto/internal/aead.h>
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 #include <crypto/internal/skcipher.h>
 #include <crypto/scatterwalk.h>
@@ -20,8 +31,11 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include "internal.h"
 
+=======
+>>>>>>> upstream/android-13
 struct ccm_instance_ctx {
 	struct crypto_skcipher_spawn ctr;
 	struct crypto_ahash_spawn mac;
@@ -50,7 +64,14 @@ struct crypto_ccm_req_priv_ctx {
 	u32 flags;
 	struct scatterlist src[3];
 	struct scatterlist dst[3];
+<<<<<<< HEAD
 	struct skcipher_request skreq;
+=======
+	union {
+		struct ahash_request ahreq;
+		struct skcipher_request skreq;
+	};
+>>>>>>> upstream/android-13
 };
 
 struct cbcmac_tfm_ctx {
@@ -93,26 +114,39 @@ static int crypto_ccm_setkey(struct crypto_aead *aead, const u8 *key,
 	struct crypto_ccm_ctx *ctx = crypto_aead_ctx(aead);
 	struct crypto_skcipher *ctr = ctx->ctr;
 	struct crypto_ahash *mac = ctx->mac;
+<<<<<<< HEAD
 	int err = 0;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	crypto_skcipher_clear_flags(ctr, CRYPTO_TFM_REQ_MASK);
 	crypto_skcipher_set_flags(ctr, crypto_aead_get_flags(aead) &
 				       CRYPTO_TFM_REQ_MASK);
 	err = crypto_skcipher_setkey(ctr, key, keylen);
+<<<<<<< HEAD
 	crypto_aead_set_flags(aead, crypto_skcipher_get_flags(ctr) &
 			      CRYPTO_TFM_RES_MASK);
 	if (err)
 		goto out;
+=======
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	crypto_ahash_clear_flags(mac, CRYPTO_TFM_REQ_MASK);
 	crypto_ahash_set_flags(mac, crypto_aead_get_flags(aead) &
 				    CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_ahash_setkey(mac, key, keylen);
 	crypto_aead_set_flags(aead, crypto_ahash_get_flags(mac) &
 			      CRYPTO_TFM_RES_MASK);
 
 out:
 	return err;
+=======
+	return crypto_ahash_setkey(mac, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int crypto_ccm_setauthsize(struct crypto_aead *tfm,
@@ -181,7 +215,11 @@ static int crypto_ccm_auth(struct aead_request *req, struct scatterlist *plain,
 	struct crypto_ccm_req_priv_ctx *pctx = crypto_ccm_reqctx(req);
 	struct crypto_aead *aead = crypto_aead_reqtfm(req);
 	struct crypto_ccm_ctx *ctx = crypto_aead_ctx(aead);
+<<<<<<< HEAD
 	AHASH_REQUEST_ON_STACK(ahreq, ctx->mac);
+=======
+	struct ahash_request *ahreq = &pctx->ahreq;
+>>>>>>> upstream/android-13
 	unsigned int assoclen = req->assoclen;
 	struct scatterlist sg[3];
 	u8 *odata = pctx->odata;
@@ -427,7 +465,11 @@ static int crypto_ccm_init_tfm(struct crypto_aead *tfm)
 	crypto_aead_set_reqsize(
 		tfm,
 		align + sizeof(struct crypto_ccm_req_priv_ctx) +
+<<<<<<< HEAD
 		crypto_skcipher_reqsize(ctr));
+=======
+		max(crypto_ahash_reqsize(mac), crypto_skcipher_reqsize(ctr)));
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -458,6 +500,7 @@ static int crypto_ccm_create_common(struct crypto_template *tmpl,
 				    const char *ctr_name,
 				    const char *mac_name)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct aead_instance *inst;
 	struct skcipher_alg *ctr;
@@ -504,6 +547,39 @@ static int crypto_ccm_create_common(struct crypto_template *tmpl,
 	if (err)
 		goto err_drop_mac;
 
+=======
+	u32 mask;
+	struct aead_instance *inst;
+	struct ccm_instance_ctx *ictx;
+	struct skcipher_alg *ctr;
+	struct hash_alg_common *mac;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_AEAD, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*ictx), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	ictx = aead_instance_ctx(inst);
+
+	err = crypto_grab_ahash(&ictx->mac, aead_crypto_instance(inst),
+				mac_name, 0, mask | CRYPTO_ALG_ASYNC);
+	if (err)
+		goto err_free_inst;
+	mac = crypto_spawn_ahash_alg(&ictx->mac);
+
+	err = -EINVAL;
+	if (strncmp(mac->base.cra_name, "cbcmac(", 7) != 0 ||
+	    mac->digestsize != 16)
+		goto err_free_inst;
+
+	err = crypto_grab_skcipher(&ictx->ctr, aead_crypto_instance(inst),
+				   ctr_name, 0, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 	ctr = crypto_spawn_skcipher_alg(&ictx->ctr);
 
 	/* The skcipher algorithm must be CTR mode, using 16-byte blocks. */
@@ -511,23 +587,40 @@ static int crypto_ccm_create_common(struct crypto_template *tmpl,
 	if (strncmp(ctr->base.cra_name, "ctr(", 4) != 0 ||
 	    crypto_skcipher_alg_ivsize(ctr) != 16 ||
 	    ctr->base.cra_blocksize != 1)
+<<<<<<< HEAD
 		goto err_drop_ctr;
 
 	/* ctr and cbcmac must use the same underlying block cipher. */
 	if (strcmp(ctr->base.cra_name + 4, mac->base.cra_name + 7) != 0)
 		goto err_drop_ctr;
+=======
+		goto err_free_inst;
+
+	/* ctr and cbcmac must use the same underlying block cipher. */
+	if (strcmp(ctr->base.cra_name + 4, mac->base.cra_name + 7) != 0)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = -ENAMETOOLONG;
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
 		     "ccm(%s", ctr->base.cra_name + 4) >= CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto err_drop_ctr;
+=======
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
 		     "ccm_base(%s,%s)", ctr->base.cra_driver_name,
 		     mac->base.cra_driver_name) >= CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto err_drop_ctr;
 
 	inst->alg.base.cra_flags = ctr->base.cra_flags & CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_priority = (mac->base.cra_priority +
 				       ctr->base.cra_priority) / 2;
 	inst->alg.base.cra_blocksize = 1;
@@ -547,6 +640,7 @@ static int crypto_ccm_create_common(struct crypto_template *tmpl,
 	inst->free = crypto_ccm_free;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto err_drop_ctr;
 
@@ -561,6 +655,13 @@ err_drop_mac:
 err_free_inst:
 	kfree(inst);
 	goto out_put_mac;
+=======
+	if (err) {
+err_free_inst:
+		crypto_ccm_free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int crypto_ccm_create(struct crypto_template *tmpl, struct rtattr **tb)
@@ -584,12 +685,15 @@ static int crypto_ccm_create(struct crypto_template *tmpl, struct rtattr **tb)
 	return crypto_ccm_create_common(tmpl, tb, ctr_name, mac_name);
 }
 
+<<<<<<< HEAD
 static struct crypto_template crypto_ccm_tmpl = {
 	.name = "ccm",
 	.create = crypto_ccm_create,
 	.module = THIS_MODULE,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int crypto_ccm_base_create(struct crypto_template *tmpl,
 				  struct rtattr **tb)
 {
@@ -607,18 +711,24 @@ static int crypto_ccm_base_create(struct crypto_template *tmpl,
 	return crypto_ccm_create_common(tmpl, tb, ctr_name, mac_name);
 }
 
+<<<<<<< HEAD
 static struct crypto_template crypto_ccm_base_tmpl = {
 	.name = "ccm_base",
 	.create = crypto_ccm_base_create,
 	.module = THIS_MODULE,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int crypto_rfc4309_setkey(struct crypto_aead *parent, const u8 *key,
 				 unsigned int keylen)
 {
 	struct crypto_rfc4309_ctx *ctx = crypto_aead_ctx(parent);
 	struct crypto_aead *child = ctx->child;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	if (keylen < 3)
 		return -EINVAL;
@@ -629,11 +739,15 @@ static int crypto_rfc4309_setkey(struct crypto_aead *parent, const u8 *key,
 	crypto_aead_clear_flags(child, CRYPTO_TFM_REQ_MASK);
 	crypto_aead_set_flags(child, crypto_aead_get_flags(parent) &
 				     CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_aead_setkey(child, key, keylen);
 	crypto_aead_set_flags(parent, crypto_aead_get_flags(child) &
 				      CRYPTO_TFM_RES_MASK);
 
 	return err;
+=======
+	return crypto_aead_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int crypto_rfc4309_setauthsize(struct crypto_aead *parent,
@@ -758,6 +872,7 @@ static void crypto_rfc4309_free(struct aead_instance *inst)
 static int crypto_rfc4309_create(struct crypto_template *tmpl,
 				 struct rtattr **tb)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct aead_instance *inst;
 	struct crypto_aead_spawn *spawn;
@@ -775,17 +890,35 @@ static int crypto_rfc4309_create(struct crypto_template *tmpl,
 	ccm_name = crypto_attr_alg_name(tb[1]);
 	if (IS_ERR(ccm_name))
 		return PTR_ERR(ccm_name);
+=======
+	u32 mask;
+	struct aead_instance *inst;
+	struct crypto_aead_spawn *spawn;
+	struct aead_alg *alg;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_AEAD, &mask);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
 	if (!inst)
 		return -ENOMEM;
 
 	spawn = aead_instance_ctx(inst);
+<<<<<<< HEAD
 	crypto_set_aead_spawn(spawn, aead_crypto_instance(inst));
 	err = crypto_grab_aead(spawn, ccm_name, 0,
 			       crypto_requires_sync(algt->type, algt->mask));
 	if (err)
 		goto out_free_inst;
+=======
+	err = crypto_grab_aead(spawn, aead_crypto_instance(inst),
+			       crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	alg = crypto_spawn_aead_alg(spawn);
 
@@ -793,11 +926,19 @@ static int crypto_rfc4309_create(struct crypto_template *tmpl,
 
 	/* We only support 16-byte blocks. */
 	if (crypto_aead_alg_ivsize(alg) != 16)
+<<<<<<< HEAD
 		goto out_drop_alg;
 
 	/* Not a stream cipher? */
 	if (alg->base.cra_blocksize != 1)
 		goto out_drop_alg;
+=======
+		goto err_free_inst;
+
+	/* Not a stream cipher? */
+	if (alg->base.cra_blocksize != 1)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = -ENAMETOOLONG;
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
@@ -806,9 +947,14 @@ static int crypto_rfc4309_create(struct crypto_template *tmpl,
 	    snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
 		     "rfc4309(%s)", alg->base.cra_driver_name) >=
 	    CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto out_drop_alg;
 
 	inst->alg.base.cra_flags = alg->base.cra_flags & CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_priority = alg->base.cra_priority;
 	inst->alg.base.cra_blocksize = 1;
 	inst->alg.base.cra_alignmask = alg->base.cra_alignmask;
@@ -830,6 +976,7 @@ static int crypto_rfc4309_create(struct crypto_template *tmpl,
 	inst->free = crypto_rfc4309_free;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto out_drop_alg;
 
@@ -849,6 +996,15 @@ static struct crypto_template crypto_rfc4309_tmpl = {
 	.module = THIS_MODULE,
 };
 
+=======
+	if (err) {
+err_free_inst:
+		crypto_rfc4309_free(inst);
+	}
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int crypto_cbcmac_digest_setkey(struct crypto_shash *parent,
 				     const u8 *inkey, unsigned int keylen)
 {
@@ -916,7 +1072,11 @@ static int cbcmac_init_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_cipher *cipher;
 	struct crypto_instance *inst = (void *)tfm->__crt_alg;
+<<<<<<< HEAD
 	struct crypto_spawn *spawn = crypto_instance_ctx(inst);
+=======
+	struct crypto_cipher_spawn *spawn = crypto_instance_ctx(inst);
+>>>>>>> upstream/android-13
 	struct cbcmac_tfm_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	cipher = crypto_spawn_cipher(spawn);
@@ -937,6 +1097,7 @@ static void cbcmac_exit_tfm(struct crypto_tfm *tfm)
 static int cbcmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 {
 	struct shash_instance *inst;
+<<<<<<< HEAD
 	struct crypto_alg *alg;
 	int err;
 
@@ -959,6 +1120,31 @@ static int cbcmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 				CRYPTO_ALG_TYPE_MASK);
 	if (err)
 		goto out_free_inst;
+=======
+	struct crypto_cipher_spawn *spawn;
+	struct crypto_alg *alg;
+	u32 mask;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SHASH, &mask);
+	if (err)
+		return err;
+
+	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
+	if (!inst)
+		return -ENOMEM;
+	spawn = shash_instance_ctx(inst);
+
+	err = crypto_grab_cipher(spawn, shash_crypto_instance(inst),
+				 crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	alg = crypto_spawn_cipher_alg(spawn);
+
+	err = crypto_inst_setname(shash_crypto_instance(inst), tmpl->name, alg);
+	if (err)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	inst->alg.base.cra_priority = alg->cra_priority;
 	inst->alg.base.cra_blocksize = 1;
@@ -977,6 +1163,7 @@ static int cbcmac_create(struct crypto_template *tmpl, struct rtattr **tb)
 	inst->alg.final = crypto_cbcmac_digest_final;
 	inst->alg.setkey = crypto_cbcmac_digest_setkey;
 
+<<<<<<< HEAD
 	err = shash_register_instance(tmpl, inst);
 
 out_free_inst:
@@ -993,10 +1180,41 @@ static struct crypto_template crypto_cbcmac_tmpl = {
 	.create = cbcmac_create,
 	.free = shash_free_instance,
 	.module = THIS_MODULE,
+=======
+	inst->free = shash_free_singlespawn_instance;
+
+	err = shash_register_instance(tmpl, inst);
+	if (err) {
+err_free_inst:
+		shash_free_singlespawn_instance(inst);
+	}
+	return err;
+}
+
+static struct crypto_template crypto_ccm_tmpls[] = {
+	{
+		.name = "cbcmac",
+		.create = cbcmac_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "ccm_base",
+		.create = crypto_ccm_base_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "ccm",
+		.create = crypto_ccm_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "rfc4309",
+		.create = crypto_rfc4309_create,
+		.module = THIS_MODULE,
+	},
+>>>>>>> upstream/android-13
 };
 
 static int __init crypto_ccm_module_init(void)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = crypto_register_template(&crypto_cbcmac_tmpl);
@@ -1025,10 +1243,15 @@ out_undo_base:
 out_undo_cbcmac:
 	crypto_register_template(&crypto_cbcmac_tmpl);
 	goto out;
+=======
+	return crypto_register_templates(crypto_ccm_tmpls,
+					 ARRAY_SIZE(crypto_ccm_tmpls));
+>>>>>>> upstream/android-13
 }
 
 static void __exit crypto_ccm_module_exit(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_template(&crypto_rfc4309_tmpl);
 	crypto_unregister_template(&crypto_ccm_tmpl);
 	crypto_unregister_template(&crypto_ccm_base_tmpl);
@@ -1036,6 +1259,13 @@ static void __exit crypto_ccm_module_exit(void)
 }
 
 module_init(crypto_ccm_module_init);
+=======
+	crypto_unregister_templates(crypto_ccm_tmpls,
+				    ARRAY_SIZE(crypto_ccm_tmpls));
+}
+
+subsys_initcall(crypto_ccm_module_init);
+>>>>>>> upstream/android-13
 module_exit(crypto_ccm_module_exit);
 
 MODULE_LICENSE("GPL");
@@ -1043,3 +1273,8 @@ MODULE_DESCRIPTION("Counter with CBC MAC");
 MODULE_ALIAS_CRYPTO("ccm_base");
 MODULE_ALIAS_CRYPTO("rfc4309");
 MODULE_ALIAS_CRYPTO("ccm");
+<<<<<<< HEAD
+=======
+MODULE_ALIAS_CRYPTO("cbcmac");
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

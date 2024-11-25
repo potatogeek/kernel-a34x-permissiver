@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * This file contains the Itanium PMU register description tables
+<<<<<<< HEAD
  * and pmc checker used by perfmon.c.
+=======
+ * and pmc checker.
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2002-2003  Hewlett Packard Co
  *               Stephane Eranian <eranian@hpl.hp.com>

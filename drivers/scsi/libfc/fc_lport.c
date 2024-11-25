@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2007 Intel Corporation. All rights reserved.
  *
@@ -14,6 +15,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2007 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 
@@ -96,16 +103,29 @@
 #include <scsi/fc/fc_gs.h>
 
 #include <scsi/libfc.h>
+<<<<<<< HEAD
 #include <scsi/fc_encode.h>
 #include <linux/scatterlist.h>
 
+=======
+#include <linux/scatterlist.h>
+
+#include "fc_encode.h"
+>>>>>>> upstream/android-13
 #include "fc_libfc.h"
 
 /* Fabric IDs to use for point-to-point mode, chosen on whims. */
 #define FC_LOCAL_PTP_FID_LO   0x010101
 #define FC_LOCAL_PTP_FID_HI   0x010102
 
+<<<<<<< HEAD
 #define	DNS_DELAY	      3 /* Discovery delay after RSCN (in seconds)*/
+=======
+#define	DNS_DELAY		3 /* Discovery delay after RSCN (in seconds)*/
+#define	MAX_CT_PAYLOAD		2048
+#define	DISCOVERED_PORTS	4
+#define	NUMBER_OF_PORTS		1
+>>>>>>> upstream/android-13
 
 static void fc_lport_error(struct fc_lport *, struct fc_frame *);
 
@@ -417,7 +437,11 @@ static void fc_lport_recv_rlir_req(struct fc_lport *lport, struct fc_frame *fp)
 /**
  * fc_lport_recv_echo_req() - Handle received ECHO request
  * @lport: The local port receiving the ECHO
+<<<<<<< HEAD
  * @fp:	   ECHO request frame
+=======
+ * @in_fp: ECHO request frame
+>>>>>>> upstream/android-13
  */
 static void fc_lport_recv_echo_req(struct fc_lport *lport,
 				   struct fc_frame *in_fp)
@@ -452,7 +476,11 @@ static void fc_lport_recv_echo_req(struct fc_lport *lport,
 /**
  * fc_lport_recv_rnid_req() - Handle received Request Node ID data request
  * @lport: The local port receiving the RNID
+<<<<<<< HEAD
  * @fp:	   The RNID request frame
+=======
+ * @in_fp: The RNID request frame
+>>>>>>> upstream/android-13
  */
 static void fc_lport_recv_rnid_req(struct fc_lport *lport,
 				   struct fc_frame *in_fp)
@@ -715,7 +743,11 @@ static void fc_lport_disc_callback(struct fc_lport *lport,
 }
 
 /**
+<<<<<<< HEAD
  * fc_rport_enter_ready() - Enter the ready state and start discovery
+=======
+ * fc_lport_enter_ready() - Enter the ready state and start discovery
+>>>>>>> upstream/android-13
  * @lport: The local port that is ready
  */
 static void fc_lport_enter_ready(struct fc_lport *lport)
@@ -759,7 +791,11 @@ static void fc_lport_set_port_id(struct fc_lport *lport, u32 port_id,
 }
 
 /**
+<<<<<<< HEAD
  * fc_lport_set_port_id() - set the local port Port ID for point-to-multipoint
+=======
+ * fc_lport_set_local_id() - set the local port Port ID for point-to-multipoint
+>>>>>>> upstream/android-13
  * @lport: The local port which will have its Port ID set.
  * @port_id: The new port ID.
  *
@@ -1197,7 +1233,11 @@ static void fc_lport_ms_resp(struct fc_seq *sp, struct fc_frame *fp,
 	struct fc_lport *lport = lp_arg;
 	struct fc_frame_header *fh;
 	struct fc_ct_hdr *ct;
+<<<<<<< HEAD
 
+=======
+	struct fc_host_attrs *fc_host = shost_to_fc_host(lport->host);
+>>>>>>> upstream/android-13
 	FC_LPORT_DBG(lport, "Received a ms %s\n", fc_els_resp_type(fp));
 
 	if (fp == ERR_PTR(-FC_EX_CLOSED))
@@ -1231,7 +1271,17 @@ static void fc_lport_ms_resp(struct fc_seq *sp, struct fc_frame *fp,
 
 		switch (lport->state) {
 		case LPORT_ST_RHBA:
+<<<<<<< HEAD
 			if (ntohs(ct->ct_cmd) == FC_FS_ACC)
+=======
+			if ((ntohs(ct->ct_cmd) == FC_FS_RJT) && fc_host->fdmi_version == FDMI_V2) {
+				FC_LPORT_DBG(lport, "Error for FDMI-V2, fall back to FDMI-V1\n");
+				fc_host->fdmi_version = FDMI_V1;
+
+				fc_lport_enter_ms(lport, LPORT_ST_RHBA);
+
+			} else if (ntohs(ct->ct_cmd) == FC_FS_ACC)
+>>>>>>> upstream/android-13
 				fc_lport_enter_ms(lport, LPORT_ST_RPA);
 			else /* Error Skip RPA */
 				fc_lport_enter_scr(lport);
@@ -1337,6 +1387,10 @@ static void fc_lport_enter_scr(struct fc_lport *lport)
 /**
  * fc_lport_enter_ns() - register some object with the name server
  * @lport: Fibre Channel local port to register
+<<<<<<< HEAD
+=======
+ * @state: Local port state
+>>>>>>> upstream/android-13
  */
 static void fc_lport_enter_ns(struct fc_lport *lport, enum fc_lport_state state)
 {
@@ -1404,7 +1458,11 @@ static struct fc_rport_operations fc_lport_rport_ops = {
 };
 
 /**
+<<<<<<< HEAD
  * fc_rport_enter_dns() - Create a fc_rport for the name server
+=======
+ * fc_lport_enter_dns() - Create a fc_rport for the name server
+>>>>>>> upstream/android-13
  * @lport: The local port requesting a remote port for the name server
  */
 static void fc_lport_enter_dns(struct fc_lport *lport)
@@ -1435,6 +1493,10 @@ err:
 /**
  * fc_lport_enter_ms() - management server commands
  * @lport: Fibre Channel local port to register
+<<<<<<< HEAD
+=======
+ * @state: Local port state
+>>>>>>> upstream/android-13
  */
 static void fc_lport_enter_ms(struct fc_lport *lport, enum fc_lport_state state)
 {
@@ -1443,7 +1505,11 @@ static void fc_lport_enter_ms(struct fc_lport *lport, enum fc_lport_state state)
 	int size = sizeof(struct fc_ct_hdr);
 	size_t len;
 	int numattrs;
+<<<<<<< HEAD
 
+=======
+	struct fc_host_attrs *fc_host = shost_to_fc_host(lport->host);
+>>>>>>> upstream/android-13
 	lockdep_assert_held(&lport->lp_mutex);
 
 	FC_LPORT_DBG(lport, "Entered %s state from %s state\n",
@@ -1456,10 +1522,17 @@ static void fc_lport_enter_ms(struct fc_lport *lport, enum fc_lport_state state)
 	case LPORT_ST_RHBA:
 		cmd = FC_FDMI_RHBA;
 		/* Number of HBA Attributes */
+<<<<<<< HEAD
 		numattrs = 10;
 		len = sizeof(struct fc_fdmi_rhba);
 		len -= sizeof(struct fc_fdmi_attr_entry);
 		len += (numattrs * FC_FDMI_ATTR_ENTRY_HEADER_LEN);
+=======
+		numattrs = 11;
+		len = sizeof(struct fc_fdmi_rhba);
+		len -= sizeof(struct fc_fdmi_attr_entry);
+
+>>>>>>> upstream/android-13
 		len += FC_FDMI_HBA_ATTR_NODENAME_LEN;
 		len += FC_FDMI_HBA_ATTR_MANUFACTURER_LEN;
 		len += FC_FDMI_HBA_ATTR_SERIALNUMBER_LEN;
@@ -1470,6 +1543,24 @@ static void fc_lport_enter_ms(struct fc_lport *lport, enum fc_lport_state state)
 		len += FC_FDMI_HBA_ATTR_OPTIONROMVERSION_LEN;
 		len += FC_FDMI_HBA_ATTR_FIRMWAREVERSION_LEN;
 		len += FC_FDMI_HBA_ATTR_OSNAMEVERSION_LEN;
+<<<<<<< HEAD
+=======
+		len += FC_FDMI_HBA_ATTR_MAXCTPAYLOAD_LEN;
+
+
+		if (fc_host->fdmi_version == FDMI_V2) {
+			numattrs += 7;
+			len += FC_FDMI_HBA_ATTR_NODESYMBLNAME_LEN;
+			len += FC_FDMI_HBA_ATTR_VENDORSPECIFICINFO_LEN;
+			len += FC_FDMI_HBA_ATTR_NUMBEROFPORTS_LEN;
+			len += FC_FDMI_HBA_ATTR_FABRICNAME_LEN;
+			len += FC_FDMI_HBA_ATTR_BIOSVERSION_LEN;
+			len += FC_FDMI_HBA_ATTR_BIOSSTATE_LEN;
+			len += FC_FDMI_HBA_ATTR_VENDORIDENTIFIER_LEN;
+		}
+
+		len += (numattrs * FC_FDMI_ATTR_ENTRY_HEADER_LEN);
+>>>>>>> upstream/android-13
 
 		size += len;
 		break;
@@ -1479,7 +1570,10 @@ static void fc_lport_enter_ms(struct fc_lport *lport, enum fc_lport_state state)
 		numattrs = 6;
 		len = sizeof(struct fc_fdmi_rpa);
 		len -= sizeof(struct fc_fdmi_attr_entry);
+<<<<<<< HEAD
 		len += (numattrs * FC_FDMI_ATTR_ENTRY_HEADER_LEN);
+=======
+>>>>>>> upstream/android-13
 		len += FC_FDMI_PORT_ATTR_FC4TYPES_LEN;
 		len += FC_FDMI_PORT_ATTR_SUPPORTEDSPEED_LEN;
 		len += FC_FDMI_PORT_ATTR_CURRENTPORTSPEED_LEN;
@@ -1487,6 +1581,25 @@ static void fc_lport_enter_ms(struct fc_lport *lport, enum fc_lport_state state)
 		len += FC_FDMI_PORT_ATTR_OSDEVICENAME_LEN;
 		len += FC_FDMI_PORT_ATTR_HOSTNAME_LEN;
 
+<<<<<<< HEAD
+=======
+		if (fc_host->fdmi_version == FDMI_V2) {
+			numattrs += 10;
+			len += FC_FDMI_PORT_ATTR_NODENAME_LEN;
+			len += FC_FDMI_PORT_ATTR_PORTNAME_LEN;
+			len += FC_FDMI_PORT_ATTR_SYMBOLICNAME_LEN;
+			len += FC_FDMI_PORT_ATTR_PORTTYPE_LEN;
+			len += FC_FDMI_PORT_ATTR_SUPPORTEDCLASSSRVC_LEN;
+			len += FC_FDMI_PORT_ATTR_FABRICNAME_LEN;
+			len += FC_FDMI_PORT_ATTR_CURRENTFC4TYPE_LEN;
+			len += FC_FDMI_PORT_ATTR_PORTSTATE_LEN;
+			len += FC_FDMI_PORT_ATTR_DISCOVEREDPORTS_LEN;
+			len += FC_FDMI_PORT_ATTR_PORTID_LEN;
+		}
+
+		len += (numattrs * FC_FDMI_ATTR_ENTRY_HEADER_LEN);
+
+>>>>>>> upstream/android-13
 		size += len;
 		break;
 	case LPORT_ST_DPRT:
@@ -1519,7 +1632,11 @@ static void fc_lport_enter_ms(struct fc_lport *lport, enum fc_lport_state state)
 }
 
 /**
+<<<<<<< HEAD
  * fc_rport_enter_fdmi() - Create a fc_rport for the management server
+=======
+ * fc_lport_enter_fdmi() - Create a fc_rport for the management server
+>>>>>>> upstream/android-13
  * @lport: The local port requesting a remote port for the management server
  */
 static void fc_lport_enter_fdmi(struct fc_lport *lport)
@@ -1556,6 +1673,10 @@ static void fc_lport_timeout(struct work_struct *work)
 	struct fc_lport *lport =
 		container_of(work, struct fc_lport,
 			     retry_work.work);
+<<<<<<< HEAD
+=======
+	struct fc_host_attrs *fc_host = shost_to_fc_host(lport->host);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&lport->lp_mutex);
 
@@ -1583,12 +1704,26 @@ static void fc_lport_timeout(struct work_struct *work)
 		fc_lport_enter_fdmi(lport);
 		break;
 	case LPORT_ST_RHBA:
+<<<<<<< HEAD
+=======
+		if (fc_host->fdmi_version == FDMI_V2) {
+			FC_LPORT_DBG(lport, "timeout for FDMI-V2 RHBA,fall back to FDMI-V1\n");
+			fc_host->fdmi_version = FDMI_V1;
+			fc_lport_enter_ms(lport, LPORT_ST_RHBA);
+			break;
+		}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case LPORT_ST_RPA:
 	case LPORT_ST_DHBA:
 	case LPORT_ST_DPRT:
 		FC_LPORT_DBG(lport, "Skipping lport state %s to SCR\n",
 			     fc_lport_state(lport));
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case LPORT_ST_SCR:
 		fc_lport_enter_scr(lport);
 		break;
@@ -1650,7 +1785,11 @@ err:
 EXPORT_SYMBOL(fc_lport_logo_resp);
 
 /**
+<<<<<<< HEAD
  * fc_rport_enter_logo() - Logout of the fabric
+=======
+ * fc_lport_enter_logo() - Logout of the fabric
+>>>>>>> upstream/android-13
  * @lport: The local port to be logged out
  */
 static void fc_lport_enter_logo(struct fc_lport *lport)
@@ -1792,7 +1931,11 @@ err:
 EXPORT_SYMBOL(fc_lport_flogi_resp);
 
 /**
+<<<<<<< HEAD
  * fc_rport_enter_flogi() - Send a FLOGI request to the fabric manager
+=======
+ * fc_lport_enter_flogi() - Send a FLOGI request to the fabric manager
+>>>>>>> upstream/android-13
  * @lport: Fibre Channel local port to be logged in to the fabric
  */
 static void fc_lport_enter_flogi(struct fc_lport *lport)
@@ -1849,6 +1992,16 @@ EXPORT_SYMBOL(fc_lport_config);
  */
 int fc_lport_init(struct fc_lport *lport)
 {
+<<<<<<< HEAD
+=======
+	struct fc_host_attrs *fc_host;
+
+	fc_host = shost_to_fc_host(lport->host);
+
+	/* Set FDMI version to FDMI-2 specification*/
+	fc_host->fdmi_version = FDMI_V2;
+
+>>>>>>> upstream/android-13
 	fc_host_port_type(lport->host) = FC_PORTTYPE_NPORT;
 	fc_host_node_name(lport->host) = lport->wwnn;
 	fc_host_port_name(lport->host) = lport->wwpn;
@@ -1857,6 +2010,10 @@ int fc_lport_init(struct fc_lport *lport)
 	       sizeof(fc_host_supported_fc4s(lport->host)));
 	fc_host_supported_fc4s(lport->host)[2] = 1;
 	fc_host_supported_fc4s(lport->host)[7] = 1;
+<<<<<<< HEAD
+=======
+	fc_host_num_discovered_ports(lport->host) = 4;
+>>>>>>> upstream/android-13
 
 	/* This value is also unchanging */
 	memset(fc_host_active_fc4s(lport->host), 0,
@@ -1869,8 +2026,32 @@ int fc_lport_init(struct fc_lport *lport)
 		fc_host_supported_speeds(lport->host) |= FC_PORTSPEED_1GBIT;
 	if (lport->link_supported_speeds & FC_PORTSPEED_10GBIT)
 		fc_host_supported_speeds(lport->host) |= FC_PORTSPEED_10GBIT;
+<<<<<<< HEAD
 	fc_fc4_add_lport(lport);
 
+=======
+	if (lport->link_supported_speeds & FC_PORTSPEED_40GBIT)
+		fc_host_supported_speeds(lport->host) |= FC_PORTSPEED_40GBIT;
+	if (lport->link_supported_speeds & FC_PORTSPEED_100GBIT)
+		fc_host_supported_speeds(lport->host) |= FC_PORTSPEED_100GBIT;
+	if (lport->link_supported_speeds & FC_PORTSPEED_25GBIT)
+		fc_host_supported_speeds(lport->host) |= FC_PORTSPEED_25GBIT;
+	if (lport->link_supported_speeds & FC_PORTSPEED_50GBIT)
+		fc_host_supported_speeds(lport->host) |= FC_PORTSPEED_50GBIT;
+	if (lport->link_supported_speeds & FC_PORTSPEED_100GBIT)
+		fc_host_supported_speeds(lport->host) |= FC_PORTSPEED_100GBIT;
+
+	fc_fc4_add_lport(lport);
+
+	fc_host_num_discovered_ports(lport->host) = DISCOVERED_PORTS;
+	fc_host_port_state(lport->host) = FC_PORTSTATE_ONLINE;
+	fc_host_max_ct_payload(lport->host) = MAX_CT_PAYLOAD;
+	fc_host_num_ports(lport->host) = NUMBER_OF_PORTS;
+	fc_host_bootbios_state(lport->host) = 0X00000000;
+	snprintf(fc_host_bootbios_version(lport->host),
+		FC_SYMBOLIC_NAME_SIZE, "%s", "Unknown");
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(fc_lport_init);
@@ -1944,6 +2125,10 @@ static void fc_lport_bsg_resp(struct fc_seq *sp, struct fc_frame *fp,
  * @job:   The BSG Passthrough job
  * @lport: The local port sending the request
  * @did:   The destination port id
+<<<<<<< HEAD
+=======
+ * @tov:   The timeout period (in ms)
+>>>>>>> upstream/android-13
  */
 static int fc_lport_els_request(struct bsg_job *job,
 				struct fc_lport *lport,

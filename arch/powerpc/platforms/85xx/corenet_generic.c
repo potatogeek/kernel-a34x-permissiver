@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Corenet based SoC DS Setup
  *
  * Maintained by Kumar Gala (see MAINTAINERS for contact information)
  *
  * Copyright 2009-2011 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -16,18 +23,29 @@
 #include <linux/kdev_t.h>
 #include <linux/delay.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/time.h>
 #include <asm/machdep.h>
 #include <asm/pci-bridge.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ppc-pci.h>
 #include <mm/mmu_decl.h>
 #include <asm/prom.h>
 #include <asm/udbg.h>
 #include <asm/mpic.h>
 #include <asm/ehv_pic.h>
+<<<<<<< HEAD
 #include <soc/fsl/qe/qe_ic.h>
+=======
+#include <asm/swiotlb.h>
+>>>>>>> upstream/android-13
 
 #include <linux/of_platform.h>
 #include <sysdev/fsl_soc.h>
@@ -41,8 +59,11 @@ void __init corenet_gen_pic_init(void)
 	unsigned int flags = MPIC_BIG_ENDIAN | MPIC_SINGLE_DEST_CPU |
 		MPIC_NO_RESET;
 
+<<<<<<< HEAD
 	struct device_node *np;
 
+=======
+>>>>>>> upstream/android-13
 	if (ppc_md.get_irq == mpic_get_coreint_irq)
 		flags |= MPIC_ENABLE_COREINT;
 
@@ -50,6 +71,7 @@ void __init corenet_gen_pic_init(void)
 	BUG_ON(mpic == NULL);
 
 	mpic_init(mpic);
+<<<<<<< HEAD
 
 	np = of_find_compatible_node(NULL, NULL, "fsl,qe-ic");
 	if (np) {
@@ -57,6 +79,8 @@ void __init corenet_gen_pic_init(void)
 				qe_ic_cascade_high_mpic);
 		of_node_put(np);
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -68,6 +92,7 @@ void __init corenet_gen_setup_arch(void)
 
 	swiotlb_detect_4g();
 
+<<<<<<< HEAD
 #if defined(CONFIG_FSL_PCI) && defined(CONFIG_ZONE_DMA32)
 	/*
 	 * Inbound windows don't cover the full lower 4 GiB
@@ -81,6 +106,9 @@ void __init corenet_gen_setup_arch(void)
 	pr_info("%s board\n", ppc_md.name);
 
 	mpc85xx_qe_init();
+=======
+	pr_info("%s board\n", ppc_md.name);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id of_device_ids[] = {
@@ -131,6 +159,10 @@ int __init corenet_gen_publish_devices(void)
 {
 	return of_platform_bus_probe(NULL, of_device_ids, NULL);
 }
+<<<<<<< HEAD
+=======
+machine_arch_initcall(corenet_generic, corenet_gen_publish_devices);
+>>>>>>> upstream/android-13
 
 static const char * const boards[] __initconst = {
 	"fsl,P2041RDB",
@@ -231,9 +263,12 @@ define_machine(corenet_generic) {
 	.power_save		= e500_idle,
 #endif
 };
+<<<<<<< HEAD
 
 machine_arch_initcall(corenet_generic, corenet_gen_publish_devices);
 
 #ifdef CONFIG_SWIOTLB
 machine_arch_initcall(corenet_generic, swiotlb_setup_bus_notifier);
 #endif
+=======
+>>>>>>> upstream/android-13

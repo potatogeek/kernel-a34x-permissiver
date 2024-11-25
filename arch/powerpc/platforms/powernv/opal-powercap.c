@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PowerNV OPAL Powercap interface
  *
  * Copyright 2017 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)     "opal-powercap: " fmt
@@ -17,7 +24,11 @@
 
 #include <asm/opal.h>
 
+<<<<<<< HEAD
 DEFINE_MUTEX(powercap_mutex);
+=======
+static DEFINE_MUTEX(powercap_mutex);
+>>>>>>> upstream/android-13
 
 static struct kobject *powercap_kobj;
 
@@ -199,7 +210,11 @@ void __init opal_powercap_init(void)
 		}
 
 		j = 0;
+<<<<<<< HEAD
 		pcaps[i].pg.name = node->name;
+=======
+		pcaps[i].pg.name = kasprintf(GFP_KERNEL, "%pOFn", node);
+>>>>>>> upstream/android-13
 		if (has_min) {
 			powercap_add_attr(min, "powercap-min",
 					  &pcaps[i].pattrs[j]);
@@ -237,6 +252,10 @@ out_pcaps_pattrs:
 	while (--i >= 0) {
 		kfree(pcaps[i].pattrs);
 		kfree(pcaps[i].pg.attrs);
+<<<<<<< HEAD
+=======
+		kfree(pcaps[i].pg.name);
+>>>>>>> upstream/android-13
 	}
 	kobject_put(powercap_kobj);
 out_pcaps:

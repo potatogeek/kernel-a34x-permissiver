@@ -51,14 +51,24 @@ struct arpt_error {
 extern void *arpt_alloc_initial_table(const struct xt_table *);
 int arpt_register_table(struct net *net, const struct xt_table *table,
 			const struct arpt_replace *repl,
+<<<<<<< HEAD
 			const struct nf_hook_ops *ops, struct xt_table **res);
 void arpt_unregister_table(struct net *net, struct xt_table *table,
 			   const struct nf_hook_ops *ops);
+=======
+			const struct nf_hook_ops *ops);
+void arpt_unregister_table(struct net *net, const char *name);
+void arpt_unregister_table_pre_exit(struct net *net, const char *name);
+>>>>>>> upstream/android-13
 extern unsigned int arpt_do_table(struct sk_buff *skb,
 				  const struct nf_hook_state *state,
 				  struct xt_table *table);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
+=======
+#ifdef CONFIG_NETFILTER_XTABLES_COMPAT
+>>>>>>> upstream/android-13
 #include <net/compat.h>
 
 struct compat_arpt_entry {
@@ -67,7 +77,11 @@ struct compat_arpt_entry {
 	__u16 next_offset;
 	compat_uint_t comefrom;
 	struct compat_xt_counters counters;
+<<<<<<< HEAD
 	unsigned char elems[0];
+=======
+	unsigned char elems[];
+>>>>>>> upstream/android-13
 };
 
 static inline struct xt_entry_target *

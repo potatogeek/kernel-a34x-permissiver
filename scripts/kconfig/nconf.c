@@ -1,14 +1,26 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2008 Nir Tzachar <nir.tzachar@gmail.com?
  * Released under the terms of the GNU GPL v2.0.
  *
  * Derived from menuconfig.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2008 Nir Tzachar <nir.tzachar@gmail.com>
+ *
+ * Derived from menuconfig.
+>>>>>>> upstream/android-13
  */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
 #include <string.h>
+<<<<<<< HEAD
+=======
+#include <strings.h>
+>>>>>>> upstream/android-13
 #include <stdlib.h>
 
 #include "lkc.h"
@@ -268,7 +280,11 @@ static int mwin_max_cols;
 static MENU *curses_menu;
 static ITEM *curses_menu_items[MAX_MENU_ITEMS];
 static struct mitem k_menu_items[MAX_MENU_ITEMS];
+<<<<<<< HEAD
 static int items_num;
+=======
+static unsigned int items_num;
+>>>>>>> upstream/android-13
 static int global_exit;
 /* the currently selected button */
 static const char *current_instructions = menu_instructions;
@@ -370,18 +386,30 @@ static void print_function_line(void)
 	int lines = getmaxy(stdscr);
 
 	for (i = 0; i < function_keys_num; i++) {
+<<<<<<< HEAD
 		(void) wattrset(main_window, attributes[FUNCTION_HIGHLIGHT]);
 		mvwprintw(main_window, lines-3, offset,
 				"%s",
 				function_keys[i].key_str);
 		(void) wattrset(main_window, attributes[FUNCTION_TEXT]);
+=======
+		wattrset(main_window, attr_function_highlight);
+		mvwprintw(main_window, lines-3, offset,
+				"%s",
+				function_keys[i].key_str);
+		wattrset(main_window, attr_function_text);
+>>>>>>> upstream/android-13
 		offset += strlen(function_keys[i].key_str);
 		mvwprintw(main_window, lines-3,
 				offset, "%s",
 				function_keys[i].func);
 		offset += strlen(function_keys[i].func) + skip;
 	}
+<<<<<<< HEAD
 	(void) wattrset(main_window, attributes[NORMAL]);
+=======
+	wattrset(main_window, attr_normal);
+>>>>>>> upstream/android-13
 }
 
 /* help */
@@ -496,8 +524,17 @@ typedef enum {MATCH_TINKER_PATTERN_UP, MATCH_TINKER_PATTERN_DOWN,
 /* return the index of the matched item, or -1 if no such item exists */
 static int get_mext_match(const char *match_str, match_f flag)
 {
+<<<<<<< HEAD
 	int match_start = item_index(current_item(curses_menu));
 	int index;
+=======
+	int match_start, index;
+
+	/* Do not search if the menu is empty (i.e. items_num == 0) */
+	match_start = item_index(current_item(curses_menu));
+	if (match_start == ERR)
+		return -1;
+>>>>>>> upstream/android-13
 
 	if (flag == FIND_NEXT_MATCH_DOWN)
 		++match_start;
@@ -627,6 +664,7 @@ static int item_is_tag(char tag)
 
 static char filename[PATH_MAX+1];
 static char menu_backtitle[PATH_MAX+128];
+<<<<<<< HEAD
 static const char *set_config_filename(const char *config_filename)
 {
 	int size;
@@ -640,6 +678,14 @@ static const char *set_config_filename(const char *config_filename)
 	if (size >= sizeof(filename))
 		filename[sizeof(filename)-1] = '\0';
 	return menu_backtitle;
+=======
+static void set_config_filename(const char *config_filename)
+{
+	snprintf(menu_backtitle, sizeof(menu_backtitle), "%s - %s",
+		 config_filename, rootmenu.prompt->text);
+
+	snprintf(filename, sizeof(filename), "%s", config_filename);
+>>>>>>> upstream/android-13
 }
 
 /* return = 0 means we are successful.
@@ -755,7 +801,10 @@ static void build_conf(struct menu *menu)
 			switch (ptype) {
 			case P_MENU:
 				child_count++;
+<<<<<<< HEAD
 				prompt = prompt;
+=======
+>>>>>>> upstream/android-13
 				if (single_menu_mode) {
 					item_make(menu, 'm',
 						"%s%*c%s",
@@ -804,7 +853,11 @@ static void build_conf(struct menu *menu)
 		}
 
 		val = sym_get_tristate_value(sym);
+<<<<<<< HEAD
 		if (sym_is_changable(sym)) {
+=======
+		if (sym_is_changeable(sym)) {
+>>>>>>> upstream/android-13
 			switch (type) {
 			case S_BOOLEAN:
 				item_make(menu, 't', "[%c]",
@@ -858,7 +911,11 @@ static void build_conf(struct menu *menu)
 		} else {
 			switch (type) {
 			case S_BOOLEAN:
+<<<<<<< HEAD
 				if (sym_is_changable(sym))
+=======
+				if (sym_is_changeable(sym))
+>>>>>>> upstream/android-13
 					item_make(menu, 't', "[%c]",
 						val == no ? ' ' : '*');
 				else
@@ -877,7 +934,11 @@ static void build_conf(struct menu *menu)
 					ch = ' ';
 					break;
 				}
+<<<<<<< HEAD
 				if (sym_is_changable(sym)) {
+=======
+				if (sym_is_changeable(sym)) {
+>>>>>>> upstream/android-13
 					if (sym->rev_dep.tri == mod)
 						item_make(menu,
 							't', "{%c}", ch);
@@ -897,14 +958,22 @@ static void build_conf(struct menu *menu)
 				item_add_str("%*c%s%s", tmp, ' ',
 						menu_get_prompt(menu),
 						(sym_has_value(sym) ||
+<<<<<<< HEAD
 						 !sym_is_changable(sym)) ? "" :
+=======
+						 !sym_is_changeable(sym)) ? "" :
+>>>>>>> upstream/android-13
 						" (NEW)");
 				goto conf_childs;
 			}
 		}
 		item_add_str("%*c%s%s", indent + 1, ' ',
 				menu_get_prompt(menu),
+<<<<<<< HEAD
 				(sym_has_value(sym) || !sym_is_changable(sym)) ?
+=======
+				(sym_has_value(sym) || !sym_is_changeable(sym)) ?
+>>>>>>> upstream/android-13
 				"" : " (NEW)");
 		if (menu->prompt && menu->prompt->type == P_MENU) {
 			item_add_str("  %s", menu_is_empty(menu) ? "----" : "--->");
@@ -957,6 +1026,7 @@ static void show_menu(const char *prompt, const char *instructions,
 	current_instructions = instructions;
 
 	clear();
+<<<<<<< HEAD
 	(void) wattrset(main_window, attributes[NORMAL]);
 	print_in_middle(stdscr, 1, 0, getmaxx(stdscr),
 			menu_backtitle,
@@ -967,6 +1037,17 @@ static void show_menu(const char *prompt, const char *instructions,
 	(void) wattrset(main_window, attributes[MAIN_MENU_HEADING]);
 	mvwprintw(main_window, 0, 3, " %s ", prompt);
 	(void) wattrset(main_window, attributes[NORMAL]);
+=======
+	print_in_middle(stdscr, 1, getmaxx(stdscr),
+			menu_backtitle,
+			attr_main_heading);
+
+	wattrset(main_window, attr_main_menu_box);
+	box(main_window, 0, 0);
+	wattrset(main_window, attr_main_menu_heading);
+	mvwprintw(main_window, 0, 3, " %s ", prompt);
+	wattrset(main_window, attr_normal);
+>>>>>>> upstream/android-13
 
 	set_menu_items(curses_menu, curses_menu_items);
 
@@ -1069,7 +1150,10 @@ static int do_match(int key, struct match_state *state, int *ans)
 static void conf(struct menu *menu)
 {
 	struct menu *submenu = NULL;
+<<<<<<< HEAD
 	const char *prompt = menu_get_prompt(menu);
+=======
+>>>>>>> upstream/android-13
 	struct symbol *sym;
 	int res;
 	int current_index = 0;
@@ -1087,9 +1171,14 @@ static void conf(struct menu *menu)
 		if (!child_count)
 			break;
 
+<<<<<<< HEAD
 		show_menu(prompt ? prompt : "Main Menu",
 				menu_instructions,
 				current_index, &last_top_row);
+=======
+		show_menu(menu_get_prompt(menu), menu_instructions,
+			  current_index, &last_top_row);
+>>>>>>> upstream/android-13
 		keypad((menu_win(curses_menu)), TRUE);
 		while (!global_exit) {
 			if (match_state.in_search) {
@@ -1405,7 +1494,11 @@ static void conf_load(void)
 				return;
 			if (!conf_read(dialog_input_result)) {
 				set_config_filename(dialog_input_result);
+<<<<<<< HEAD
 				sym_set_change_count(1);
+=======
+				conf_set_changed(true);
+>>>>>>> upstream/android-13
 				return;
 			}
 			btn_dialog(main_window, "File does not exist!", 0);
@@ -1439,8 +1532,12 @@ static void conf_save(void)
 				set_config_filename(dialog_input_result);
 				return;
 			}
+<<<<<<< HEAD
 			btn_dialog(main_window, "Can't create file! "
 				"Probably a nonexistent directory.",
+=======
+			btn_dialog(main_window, "Can't create file!",
+>>>>>>> upstream/android-13
 				1, "<OK>");
 			break;
 		case 1:
@@ -1525,9 +1622,15 @@ int main(int ac, char **av)
 	menu_opts_on(curses_menu, O_NONCYCLIC);
 	menu_opts_on(curses_menu, O_IGNORECASE);
 	set_menu_mark(curses_menu, " ");
+<<<<<<< HEAD
 	set_menu_fore(curses_menu, attributes[MAIN_MENU_FORE]);
 	set_menu_back(curses_menu, attributes[MAIN_MENU_BACK]);
 	set_menu_grey(curses_menu, attributes[MAIN_MENU_GREY]);
+=======
+	set_menu_fore(curses_menu, attr_main_menu_fore);
+	set_menu_back(curses_menu, attr_main_menu_back);
+	set_menu_grey(curses_menu, attr_main_menu_grey);
+>>>>>>> upstream/android-13
 
 	set_config_filename(conf_get_configname());
 	setup_windows();

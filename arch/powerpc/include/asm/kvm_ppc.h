@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2008
  *
@@ -36,6 +41,11 @@
 #endif
 #ifdef CONFIG_KVM_BOOK3S_64_HANDLER
 #include <asm/paca.h>
+<<<<<<< HEAD
+=======
+#include <asm/xive.h>
+#include <asm/cpu_has_feature.h>
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -67,6 +77,7 @@ enum xlate_readwrite {
 	XLATE_WRITE		/* check for write permissions */
 };
 
+<<<<<<< HEAD
 extern int kvmppc_vcpu_run(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu);
 extern int __kvmppc_vcpu_run(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu);
 extern void kvmppc_handler_highmem(void);
@@ -89,6 +100,30 @@ extern int kvmppc_handle_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			       u64 val, unsigned int bytes,
 			       int is_default_endian);
 extern int kvmppc_handle_vsx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+extern int kvmppc_vcpu_run(struct kvm_vcpu *vcpu);
+extern int __kvmppc_vcpu_run(struct kvm_vcpu *vcpu);
+extern void kvmppc_handler_highmem(void);
+
+extern void kvmppc_dump_vcpu(struct kvm_vcpu *vcpu);
+extern int kvmppc_handle_load(struct kvm_vcpu *vcpu,
+                              unsigned int rt, unsigned int bytes,
+			      int is_default_endian);
+extern int kvmppc_handle_loads(struct kvm_vcpu *vcpu,
+                               unsigned int rt, unsigned int bytes,
+			       int is_default_endian);
+extern int kvmppc_handle_vsx_load(struct kvm_vcpu *vcpu,
+				unsigned int rt, unsigned int bytes,
+			int is_default_endian, int mmio_sign_extend);
+extern int kvmppc_handle_vmx_load(struct kvm_vcpu *vcpu,
+		unsigned int rt, unsigned int bytes, int is_default_endian);
+extern int kvmppc_handle_vmx_store(struct kvm_vcpu *vcpu,
+		unsigned int rs, unsigned int bytes, int is_default_endian);
+extern int kvmppc_handle_store(struct kvm_vcpu *vcpu,
+			       u64 val, unsigned int bytes,
+			       int is_default_endian);
+extern int kvmppc_handle_vsx_store(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 				int rs, unsigned int bytes,
 				int is_default_endian);
 
@@ -99,10 +134,16 @@ extern int kvmppc_ld(struct kvm_vcpu *vcpu, ulong *eaddr, int size, void *ptr,
 		     bool data);
 extern int kvmppc_st(struct kvm_vcpu *vcpu, ulong *eaddr, int size, void *ptr,
 		     bool data);
+<<<<<<< HEAD
 extern int kvmppc_emulate_instruction(struct kvm_run *run,
                                       struct kvm_vcpu *vcpu);
 extern int kvmppc_emulate_loadstore(struct kvm_vcpu *vcpu);
 extern int kvmppc_emulate_mmio(struct kvm_run *run, struct kvm_vcpu *vcpu);
+=======
+extern int kvmppc_emulate_instruction(struct kvm_vcpu *vcpu);
+extern int kvmppc_emulate_loadstore(struct kvm_vcpu *vcpu);
+extern int kvmppc_emulate_mmio(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 extern void kvmppc_emulate_dec(struct kvm_vcpu *vcpu);
 extern u32 kvmppc_get_dec(struct kvm_vcpu *vcpu, u64 tb);
 extern void kvmppc_decrementer_func(struct kvm_vcpu *vcpu);
@@ -116,8 +157,11 @@ extern void kvmppc_mmu_map(struct kvm_vcpu *vcpu, u64 gvaddr, gpa_t gpaddr,
                            unsigned int gtlb_idx);
 extern void kvmppc_mmu_priv_switch(struct kvm_vcpu *vcpu, int usermode);
 extern void kvmppc_mmu_switch_pid(struct kvm_vcpu *vcpu, u32 pid);
+<<<<<<< HEAD
 extern void kvmppc_mmu_destroy(struct kvm_vcpu *vcpu);
 extern int kvmppc_mmu_init(struct kvm_vcpu *vcpu);
+=======
+>>>>>>> upstream/android-13
 extern int kvmppc_mmu_dtlb_index(struct kvm_vcpu *vcpu, gva_t eaddr);
 extern int kvmppc_mmu_itlb_index(struct kvm_vcpu *vcpu, gva_t eaddr);
 extern gpa_t kvmppc_mmu_xlate(struct kvm_vcpu *vcpu, unsigned int gtlb_index,
@@ -128,8 +172,12 @@ extern int kvmppc_xlate(struct kvm_vcpu *vcpu, ulong eaddr,
 			enum xlate_instdata xlid, enum xlate_readwrite xlrw,
 			struct kvmppc_pte *pte);
 
+<<<<<<< HEAD
 extern struct kvm_vcpu *kvmppc_core_vcpu_create(struct kvm *kvm,
                                                 unsigned int id);
+=======
+extern int kvmppc_core_vcpu_create(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 extern void kvmppc_core_vcpu_free(struct kvm_vcpu *vcpu);
 extern int kvmppc_core_vcpu_setup(struct kvm_vcpu *vcpu);
 extern int kvmppc_core_check_processor_compat(void);
@@ -141,6 +189,11 @@ extern void kvmppc_core_vcpu_put(struct kvm_vcpu *vcpu);
 
 extern int kvmppc_core_prepare_to_enter(struct kvm_vcpu *vcpu);
 extern int kvmppc_core_pending_dec(struct kvm_vcpu *vcpu);
+<<<<<<< HEAD
+=======
+extern void kvmppc_core_queue_machine_check(struct kvm_vcpu *vcpu, ulong flags);
+extern void kvmppc_core_queue_syscall(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 extern void kvmppc_core_queue_program(struct kvm_vcpu *vcpu, ulong flags);
 extern void kvmppc_core_queue_fpunavail(struct kvm_vcpu *vcpu);
 extern void kvmppc_core_queue_vec_unavail(struct kvm_vcpu *vcpu);
@@ -194,12 +247,15 @@ extern struct kvmppc_spapr_tce_table *kvmppc_find_table(
 		(iommu_tce_check_ioba((stt)->page_shift, (stt)->offset, \
 				(stt)->size, (ioba), (npages)) ?        \
 				H_PARAMETER : H_SUCCESS)
+<<<<<<< HEAD
 extern long kvmppc_tce_validate(struct kvmppc_spapr_tce_table *tt,
 		unsigned long tce);
 extern long kvmppc_gpa_to_ua(struct kvm *kvm, unsigned long gpa,
 		unsigned long *ua, unsigned long **prmap);
 extern void kvmppc_tce_put(struct kvmppc_spapr_tce_table *tt,
 		unsigned long idx, unsigned long tce);
+=======
+>>>>>>> upstream/android-13
 extern long kvmppc_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
 			     unsigned long ioba, unsigned long tce);
 extern long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
@@ -215,6 +271,7 @@ extern void kvm_free_hpt_cma(struct page *page, unsigned long nr_pages);
 extern int kvmppc_core_init_vm(struct kvm *kvm);
 extern void kvmppc_core_destroy_vm(struct kvm *kvm);
 extern void kvmppc_core_free_memslot(struct kvm *kvm,
+<<<<<<< HEAD
 				     struct kvm_memory_slot *free,
 				     struct kvm_memory_slot *dont);
 extern int kvmppc_core_create_memslot(struct kvm *kvm,
@@ -227,6 +284,18 @@ extern void kvmppc_core_commit_memory_region(struct kvm *kvm,
 				const struct kvm_userspace_memory_region *mem,
 				const struct kvm_memory_slot *old,
 				const struct kvm_memory_slot *new);
+=======
+				     struct kvm_memory_slot *slot);
+extern int kvmppc_core_prepare_memory_region(struct kvm *kvm,
+				struct kvm_memory_slot *memslot,
+				const struct kvm_userspace_memory_region *mem,
+				enum kvm_mr_change change);
+extern void kvmppc_core_commit_memory_region(struct kvm *kvm,
+				const struct kvm_userspace_memory_region *mem,
+				const struct kvm_memory_slot *old,
+				const struct kvm_memory_slot *new,
+				enum kvm_mr_change change);
+>>>>>>> upstream/android-13
 extern int kvm_vm_ioctl_get_smmu_info(struct kvm *kvm,
 				      struct kvm_ppc_smmu_info *info);
 extern void kvmppc_core_flush_memslot(struct kvm *kvm,
@@ -271,6 +340,10 @@ union kvmppc_one_reg {
 		u64	addr;
 		u64	length;
 	}	vpaval;
+<<<<<<< HEAD
+=======
+	u64	xive_timaval[2];
+>>>>>>> upstream/android-13
 };
 
 struct kvmppc_ops {
@@ -283,15 +356,23 @@ struct kvmppc_ops {
 			   union kvmppc_one_reg *val);
 	void (*vcpu_load)(struct kvm_vcpu *vcpu, int cpu);
 	void (*vcpu_put)(struct kvm_vcpu *vcpu);
+<<<<<<< HEAD
 	void (*set_msr)(struct kvm_vcpu *vcpu, u64 msr);
 	int (*vcpu_run)(struct kvm_run *run, struct kvm_vcpu *vcpu);
 	struct kvm_vcpu *(*vcpu_create)(struct kvm *kvm, unsigned int id);
+=======
+	void (*inject_interrupt)(struct kvm_vcpu *vcpu, int vec, u64 srr1_flags);
+	void (*set_msr)(struct kvm_vcpu *vcpu, u64 msr);
+	int (*vcpu_run)(struct kvm_vcpu *vcpu);
+	int (*vcpu_create)(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 	void (*vcpu_free)(struct kvm_vcpu *vcpu);
 	int (*check_requests)(struct kvm_vcpu *vcpu);
 	int (*get_dirty_log)(struct kvm *kvm, struct kvm_dirty_log *log);
 	void (*flush_memslot)(struct kvm *kvm, struct kvm_memory_slot *memslot);
 	int (*prepare_memory_region)(struct kvm *kvm,
 				     struct kvm_memory_slot *memslot,
+<<<<<<< HEAD
 				     const struct kvm_userspace_memory_region *mem);
 	void (*commit_memory_region)(struct kvm *kvm,
 				     const struct kvm_userspace_memory_region *mem,
@@ -311,6 +392,24 @@ struct kvmppc_ops {
 	void (*destroy_vm)(struct kvm *kvm);
 	int (*get_smmu_info)(struct kvm *kvm, struct kvm_ppc_smmu_info *info);
 	int (*emulate_op)(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+				     const struct kvm_userspace_memory_region *mem,
+				     enum kvm_mr_change change);
+	void (*commit_memory_region)(struct kvm *kvm,
+				     const struct kvm_userspace_memory_region *mem,
+				     const struct kvm_memory_slot *old,
+				     const struct kvm_memory_slot *new,
+				     enum kvm_mr_change change);
+	bool (*unmap_gfn_range)(struct kvm *kvm, struct kvm_gfn_range *range);
+	bool (*age_gfn)(struct kvm *kvm, struct kvm_gfn_range *range);
+	bool (*test_age_gfn)(struct kvm *kvm, struct kvm_gfn_range *range);
+	bool (*set_spte_gfn)(struct kvm *kvm, struct kvm_gfn_range *range);
+	void (*free_memslot)(struct kvm_memory_slot *slot);
+	int (*init_vm)(struct kvm *kvm);
+	void (*destroy_vm)(struct kvm *kvm);
+	int (*get_smmu_info)(struct kvm *kvm, struct kvm_ppc_smmu_info *info);
+	int (*emulate_op)(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 			  unsigned int inst, int *advance);
 	int (*emulate_mtspr)(struct kvm_vcpu *vcpu, int sprn, ulong spr_val);
 	int (*emulate_mfspr)(struct kvm_vcpu *vcpu, int sprn, ulong *spr_val);
@@ -327,6 +426,18 @@ struct kvmppc_ops {
 	int (*set_smt_mode)(struct kvm *kvm, unsigned long mode,
 			    unsigned long flags);
 	void (*giveup_ext)(struct kvm_vcpu *vcpu, ulong msr);
+<<<<<<< HEAD
+=======
+	int (*enable_nested)(struct kvm *kvm);
+	int (*load_from_eaddr)(struct kvm_vcpu *vcpu, ulong *eaddr, void *ptr,
+			       int size);
+	int (*store_to_eaddr)(struct kvm_vcpu *vcpu, ulong *eaddr, void *ptr,
+			      int size);
+	int (*enable_svm)(struct kvm *kvm);
+	int (*svm_off)(struct kvm *kvm);
+	int (*enable_dawr1)(struct kvm *kvm);
+	bool (*hash_v3_possible)(void);
+>>>>>>> upstream/android-13
 };
 
 extern struct kvmppc_ops *kvmppc_hv_ops;
@@ -563,6 +674,12 @@ extern void kvm_hv_vm_activated(void);
 extern void kvm_hv_vm_deactivated(void);
 extern bool kvm_hv_mode_active(void);
 
+<<<<<<< HEAD
+=======
+extern void kvmppc_check_need_tlb_flush(struct kvm *kvm, int pcpu,
+					struct kvm_nested_guest *nested);
+
+>>>>>>> upstream/android-13
 #else
 static inline void __init kvm_cma_reserve(void)
 {}
@@ -615,6 +732,10 @@ extern void kvmppc_free_pimap(struct kvm *kvm);
 extern int kvmppc_xics_rm_complete(struct kvm_vcpu *vcpu, u32 hcall);
 extern void kvmppc_xics_free_icp(struct kvm_vcpu *vcpu);
 extern int kvmppc_xics_hcall(struct kvm_vcpu *vcpu, u32 cmd);
+<<<<<<< HEAD
+=======
+extern int kvmppc_xive_xics_hcall(struct kvm_vcpu *vcpu, u32 req);
+>>>>>>> upstream/android-13
 extern u64 kvmppc_xics_get_icp(struct kvm_vcpu *vcpu);
 extern int kvmppc_xics_set_icp(struct kvm_vcpu *vcpu, u64 icpval);
 extern int kvmppc_xics_connect_vcpu(struct kvm_device *dev,
@@ -637,9 +758,15 @@ extern int h_ipi_redirect;
 static inline struct kvmppc_passthru_irqmap *kvmppc_get_passthru_irqmap(
 				struct kvm *kvm)
 	{ return NULL; }
+<<<<<<< HEAD
 static inline void kvmppc_alloc_host_rm_ops(void) {};
 static inline void kvmppc_free_host_rm_ops(void) {};
 static inline void kvmppc_free_pimap(struct kvm *kvm) {};
+=======
+static inline void kvmppc_alloc_host_rm_ops(void) {}
+static inline void kvmppc_free_host_rm_ops(void) {}
+static inline void kvmppc_free_pimap(struct kvm *kvm) {}
+>>>>>>> upstream/android-13
 static inline int kvmppc_xics_rm_complete(struct kvm_vcpu *vcpu, u32 hcall)
 	{ return 0; }
 static inline int kvmppc_xics_enabled(struct kvm_vcpu *vcpu)
@@ -647,6 +774,11 @@ static inline int kvmppc_xics_enabled(struct kvm_vcpu *vcpu)
 static inline void kvmppc_xics_free_icp(struct kvm_vcpu *vcpu) { }
 static inline int kvmppc_xics_hcall(struct kvm_vcpu *vcpu, u32 cmd)
 	{ return 0; }
+<<<<<<< HEAD
+=======
+static inline int kvmppc_xive_xics_hcall(struct kvm_vcpu *vcpu, u32 req)
+	{ return 0; }
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_KVM_XIVE
@@ -664,21 +796,51 @@ extern int kvmppc_xive_get_xive(struct kvm *kvm, u32 irq, u32 *server,
 				u32 *priority);
 extern int kvmppc_xive_int_on(struct kvm *kvm, u32 irq);
 extern int kvmppc_xive_int_off(struct kvm *kvm, u32 irq);
+<<<<<<< HEAD
 extern void kvmppc_xive_init_module(void);
 extern void kvmppc_xive_exit_module(void);
+=======
+>>>>>>> upstream/android-13
 
 extern int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 				    struct kvm_vcpu *vcpu, u32 cpu);
 extern void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu);
 extern int kvmppc_xive_set_mapped(struct kvm *kvm, unsigned long guest_irq,
+<<<<<<< HEAD
 				  struct irq_desc *host_desc);
 extern int kvmppc_xive_clr_mapped(struct kvm *kvm, unsigned long guest_irq,
 				  struct irq_desc *host_desc);
+=======
+				  unsigned long host_irq);
+extern int kvmppc_xive_clr_mapped(struct kvm *kvm, unsigned long guest_irq,
+				  unsigned long host_irq);
+>>>>>>> upstream/android-13
 extern u64 kvmppc_xive_get_icp(struct kvm_vcpu *vcpu);
 extern int kvmppc_xive_set_icp(struct kvm_vcpu *vcpu, u64 icpval);
 
 extern int kvmppc_xive_set_irq(struct kvm *kvm, int irq_source_id, u32 irq,
 			       int level, bool line_status);
+<<<<<<< HEAD
+=======
+extern void kvmppc_xive_push_vcpu(struct kvm_vcpu *vcpu);
+extern void kvmppc_xive_pull_vcpu(struct kvm_vcpu *vcpu);
+extern void kvmppc_xive_rearm_escalation(struct kvm_vcpu *vcpu);
+
+static inline int kvmppc_xive_enabled(struct kvm_vcpu *vcpu)
+{
+	return vcpu->arch.irq_type == KVMPPC_IRQ_XIVE;
+}
+
+extern int kvmppc_xive_native_connect_vcpu(struct kvm_device *dev,
+					   struct kvm_vcpu *vcpu, u32 cpu);
+extern void kvmppc_xive_native_cleanup_vcpu(struct kvm_vcpu *vcpu);
+extern int kvmppc_xive_native_get_vp(struct kvm_vcpu *vcpu,
+				     union kvmppc_one_reg *val);
+extern int kvmppc_xive_native_set_vp(struct kvm_vcpu *vcpu,
+				     union kvmppc_one_reg *val);
+extern bool kvmppc_xive_native_supported(void);
+
+>>>>>>> upstream/android-13
 #else
 static inline int kvmppc_xive_set_xive(struct kvm *kvm, u32 irq, u32 server,
 				       u32 priority) { return -1; }
@@ -686,8 +848,11 @@ static inline int kvmppc_xive_get_xive(struct kvm *kvm, u32 irq, u32 *server,
 				       u32 *priority) { return -1; }
 static inline int kvmppc_xive_int_on(struct kvm *kvm, u32 irq) { return -1; }
 static inline int kvmppc_xive_int_off(struct kvm *kvm, u32 irq) { return -1; }
+<<<<<<< HEAD
 static inline void kvmppc_xive_init_module(void) { }
 static inline void kvmppc_xive_exit_module(void) { }
+=======
+>>>>>>> upstream/android-13
 
 static inline int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
 					   struct kvm_vcpu *vcpu, u32 cpu) { return -EBUSY; }
@@ -701,8 +866,41 @@ static inline int kvmppc_xive_set_icp(struct kvm_vcpu *vcpu, u64 icpval) { retur
 
 static inline int kvmppc_xive_set_irq(struct kvm *kvm, int irq_source_id, u32 irq,
 				      int level, bool line_status) { return -ENODEV; }
+<<<<<<< HEAD
 #endif /* CONFIG_KVM_XIVE */
 
+=======
+static inline void kvmppc_xive_push_vcpu(struct kvm_vcpu *vcpu) { }
+static inline void kvmppc_xive_pull_vcpu(struct kvm_vcpu *vcpu) { }
+static inline void kvmppc_xive_rearm_escalation(struct kvm_vcpu *vcpu) { }
+
+static inline int kvmppc_xive_enabled(struct kvm_vcpu *vcpu)
+	{ return 0; }
+static inline int kvmppc_xive_native_connect_vcpu(struct kvm_device *dev,
+			  struct kvm_vcpu *vcpu, u32 cpu) { return -EBUSY; }
+static inline void kvmppc_xive_native_cleanup_vcpu(struct kvm_vcpu *vcpu) { }
+static inline int kvmppc_xive_native_get_vp(struct kvm_vcpu *vcpu,
+					    union kvmppc_one_reg *val)
+{ return 0; }
+static inline int kvmppc_xive_native_set_vp(struct kvm_vcpu *vcpu,
+					    union kvmppc_one_reg *val)
+{ return -ENOENT; }
+
+#endif /* CONFIG_KVM_XIVE */
+
+#if defined(CONFIG_PPC_POWERNV) && defined(CONFIG_KVM_BOOK3S_64_HANDLER)
+static inline bool xics_on_xive(void)
+{
+	return xive_enabled() && cpu_has_feature(CPU_FTR_HVMODE);
+}
+#else
+static inline bool xics_on_xive(void)
+{
+	return false;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Prototypes for functions called only from assembler code.
  * Having prototypes reduces sparse errors.
@@ -717,9 +915,15 @@ long kvmppc_rm_h_stuff_tce(struct kvm_vcpu *vcpu,
 			   unsigned long tce_value, unsigned long npages);
 long int kvmppc_rm_h_confer(struct kvm_vcpu *vcpu, int target,
                             unsigned int yield_count);
+<<<<<<< HEAD
 long kvmppc_h_random(struct kvm_vcpu *vcpu);
 void kvmhv_commence_exit(int trap);
 long kvmppc_realmode_machine_check(struct kvm_vcpu *vcpu);
+=======
+long kvmppc_rm_h_random(struct kvm_vcpu *vcpu);
+void kvmhv_commence_exit(int trap);
+void kvmppc_realmode_machine_check(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 void kvmppc_subcore_enter_guest(void);
 void kvmppc_subcore_exit_guest(void);
 long kvmppc_realmode_hmi_handler(void);
@@ -729,14 +933,23 @@ long kvmppc_h_remove(struct kvm_vcpu *vcpu, unsigned long flags,
                      unsigned long pte_index, unsigned long avpn);
 long kvmppc_h_bulk_remove(struct kvm_vcpu *vcpu);
 long kvmppc_h_protect(struct kvm_vcpu *vcpu, unsigned long flags,
+<<<<<<< HEAD
                       unsigned long pte_index, unsigned long avpn,
                       unsigned long va);
+=======
+                      unsigned long pte_index, unsigned long avpn);
+>>>>>>> upstream/android-13
 long kvmppc_h_read(struct kvm_vcpu *vcpu, unsigned long flags,
                    unsigned long pte_index);
 long kvmppc_h_clear_ref(struct kvm_vcpu *vcpu, unsigned long flags,
                         unsigned long pte_index);
 long kvmppc_h_clear_mod(struct kvm_vcpu *vcpu, unsigned long flags,
                         unsigned long pte_index);
+<<<<<<< HEAD
+=======
+long kvmppc_rm_h_page_init(struct kvm_vcpu *vcpu, unsigned long flags,
+			   unsigned long dest, unsigned long src);
+>>>>>>> upstream/android-13
 long kvmppc_hpte_hv_fault(struct kvm_vcpu *vcpu, unsigned long addr,
                           unsigned long slb_v, unsigned int status, bool data);
 unsigned long kvmppc_rm_h_xirr(struct kvm_vcpu *vcpu);
@@ -746,6 +959,10 @@ int kvmppc_rm_h_ipi(struct kvm_vcpu *vcpu, unsigned long server,
                     unsigned long mfrr);
 int kvmppc_rm_h_cppr(struct kvm_vcpu *vcpu, unsigned long cppr);
 int kvmppc_rm_h_eoi(struct kvm_vcpu *vcpu, unsigned long xirr);
+<<<<<<< HEAD
+=======
+void kvmppc_guest_entry_inject_int(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 
 /*
  * Host-side operations we want to set up while running in real
@@ -842,9 +1059,15 @@ static inline void kvmppc_mmu_flush_icache(kvm_pfn_t pfn)
 
 	/* Clear i-cache for new pages */
 	page = pfn_to_page(pfn);
+<<<<<<< HEAD
 	if (!test_bit(PG_arch_1, &page->flags)) {
 		flush_dcache_icache_page(page);
 		set_bit(PG_arch_1, &page->flags);
+=======
+	if (!test_bit(PG_dcache_clean, &page->flags)) {
+		flush_dcache_icache_page(page);
+		set_bit(PG_dcache_clean, &page->flags);
+>>>>>>> upstream/android-13
 	}
 }
 

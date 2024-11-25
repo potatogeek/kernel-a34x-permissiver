@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: LGPL-2.1
+=======
+// SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
+>>>>>>> upstream/android-13
 
 /*
  * Copyright (C) 2013-2015 Alexei Starovoitov <ast@kernel.org>
  * Copyright (C) 2015 Wang Nan <wangnan0@huawei.com>
  * Copyright (C) 2015 Huawei Inc.
  * Copyright (C) 2017 Nicira, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not,  see <http://www.gnu.org/licenses>
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef _GNU_SOURCE
@@ -25,6 +32,13 @@
 #include <string.h>
 
 #include "libbpf.h"
+<<<<<<< HEAD
+=======
+#include "libbpf_internal.h"
+
+/* make sure libbpf doesn't use kernel-only integer typedefs */
+#pragma GCC poison u8 u16 u32 u64 s8 s16 s32 s64
+>>>>>>> upstream/android-13
 
 #define ERRNO_OFFSET(e)		((e) - __LIBBPF_ERRNO__START)
 #define ERRCODE_OFFSET(c)	ERRNO_OFFSET(LIBBPF_ERRNO__##c)
@@ -43,12 +57,20 @@ static const char *libbpf_strerror_table[NR_ERRNO] = {
 	[ERRCODE_OFFSET(PROGTYPE)]	= "Kernel doesn't support this program type",
 	[ERRCODE_OFFSET(WRNGPID)]	= "Wrong pid in netlink message",
 	[ERRCODE_OFFSET(INVSEQ)]	= "Invalid netlink sequence",
+<<<<<<< HEAD
+=======
+	[ERRCODE_OFFSET(NLPARSE)]	= "Incorrect netlink message parsing",
+>>>>>>> upstream/android-13
 };
 
 int libbpf_strerror(int err, char *buf, size_t size)
 {
 	if (!buf || !size)
+<<<<<<< HEAD
 		return -1;
+=======
+		return libbpf_err(-EINVAL);
+>>>>>>> upstream/android-13
 
 	err = err > 0 ? err : -err;
 
@@ -57,7 +79,11 @@ int libbpf_strerror(int err, char *buf, size_t size)
 
 		ret = strerror_r(err, buf, size);
 		buf[size - 1] = '\0';
+<<<<<<< HEAD
 		return ret;
+=======
+		return libbpf_err_errno(ret);
+>>>>>>> upstream/android-13
 	}
 
 	if (err < __LIBBPF_ERRNO__END) {
@@ -71,5 +97,9 @@ int libbpf_strerror(int err, char *buf, size_t size)
 
 	snprintf(buf, size, "Unknown libbpf error %d", err);
 	buf[size - 1] = '\0';
+<<<<<<< HEAD
 	return -1;
+=======
+	return libbpf_err(-ENOENT);
+>>>>>>> upstream/android-13
 }

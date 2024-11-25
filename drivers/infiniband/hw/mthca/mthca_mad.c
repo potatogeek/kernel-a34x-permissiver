@@ -58,8 +58,14 @@ static int mthca_update_rate(struct mthca_dev *dev, u8 port_num)
 
 	ret = ib_query_port(&dev->ib_dev, port_num, tprops);
 	if (ret) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "ib_query_port failed (%d) for %s port %d\n",
 		       ret, dev->ib_dev.name, port_num);
+=======
+		dev_warn(&dev->ib_dev.dev,
+			 "ib_query_port failed (%d) forport %d\n", ret,
+			 port_num);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -88,13 +94,21 @@ static void update_sm_ah(struct mthca_dev *dev,
 	rdma_ah_set_port_num(&ah_attr, port_num);
 
 	new_ah = rdma_create_ah(dev->send_agent[port_num - 1][0]->qp->pd,
+<<<<<<< HEAD
 				&ah_attr);
+=======
+				&ah_attr, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(new_ah))
 		return;
 
 	spin_lock_irqsave(&dev->sm_lock, flags);
 	if (dev->sm_ah[port_num - 1])
+<<<<<<< HEAD
 		rdma_destroy_ah(dev->sm_ah[port_num - 1]);
+=======
+		rdma_destroy_ah(dev->sm_ah[port_num - 1], 0);
+>>>>>>> upstream/android-13
 	dev->sm_ah[port_num - 1] = new_ah;
 	spin_unlock_irqrestore(&dev->sm_lock, flags);
 }
@@ -161,7 +175,11 @@ static void node_desc_override(struct ib_device *dev,
 }
 
 static void forward_trap(struct mthca_dev *dev,
+<<<<<<< HEAD
 			 u8 port_num,
+=======
+			 u32 port_num,
+>>>>>>> upstream/android-13
 			 const struct ib_mad *mad)
 {
 	int qpn = mad->mad_hdr.mgmt_class != IB_MGMT_CLASS_SUBN_LID_ROUTED;
@@ -195,6 +213,7 @@ static void forward_trap(struct mthca_dev *dev,
 	}
 }
 
+<<<<<<< HEAD
 int mthca_process_mad(struct ib_device *ibdev,
 		      int mad_flags,
 		      u8 port_num,
@@ -203,11 +222,18 @@ int mthca_process_mad(struct ib_device *ibdev,
 		      const struct ib_mad_hdr *in, size_t in_mad_size,
 		      struct ib_mad_hdr *out, size_t *out_mad_size,
 		      u16 *out_mad_pkey_index)
+=======
+int mthca_process_mad(struct ib_device *ibdev, int mad_flags, u32 port_num,
+		      const struct ib_wc *in_wc, const struct ib_grh *in_grh,
+		      const struct ib_mad *in, struct ib_mad *out,
+		      size_t *out_mad_size, u16 *out_mad_pkey_index)
+>>>>>>> upstream/android-13
 {
 	int err;
 	u16 slid = in_wc ? ib_lid_cpu16(in_wc->slid) : be16_to_cpu(IB_LID_PERMISSIVE);
 	u16 prev_lid = 0;
 	struct ib_port_attr pattr;
+<<<<<<< HEAD
 	const struct ib_mad *in_mad = (const struct ib_mad *)in;
 	struct ib_mad *out_mad = (struct ib_mad *)out;
 
@@ -219,6 +245,12 @@ int mthca_process_mad(struct ib_device *ibdev,
 	if (in_mad->mad_hdr.method == IB_MGMT_METHOD_TRAP &&
 	    slid == 0) {
 		forward_trap(to_mdev(ibdev), port_num, in_mad);
+=======
+
+	/* Forward locally generated traps to the SM */
+	if (in->mad_hdr.method == IB_MGMT_METHOD_TRAP && !slid) {
+		forward_trap(to_mdev(ibdev), port_num, in);
+>>>>>>> upstream/android-13
 		return IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_CONSUMED;
 	}
 
@@ -228,17 +260,26 @@ int mthca_process_mad(struct ib_device *ibdev,
 	 * Only handle PMA and Mellanox vendor-specific class gets and
 	 * sets for other classes.
 	 */
+<<<<<<< HEAD
 	if (in_mad->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_LID_ROUTED ||
 	    in_mad->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE) {
 		if (in_mad->mad_hdr.method   != IB_MGMT_METHOD_GET &&
 		    in_mad->mad_hdr.method   != IB_MGMT_METHOD_SET &&
 		    in_mad->mad_hdr.method   != IB_MGMT_METHOD_TRAP_REPRESS)
+=======
+	if (in->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_LID_ROUTED ||
+	    in->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE) {
+		if (in->mad_hdr.method != IB_MGMT_METHOD_GET &&
+		    in->mad_hdr.method != IB_MGMT_METHOD_SET &&
+		    in->mad_hdr.method != IB_MGMT_METHOD_TRAP_REPRESS)
+>>>>>>> upstream/android-13
 			return IB_MAD_RESULT_SUCCESS;
 
 		/*
 		 * Don't process SMInfo queries or vendor-specific
 		 * MADs -- the SMA can't handle them.
 		 */
+<<<<<<< HEAD
 		if (in_mad->mad_hdr.attr_id == IB_SMP_ATTR_SM_INFO ||
 		    ((in_mad->mad_hdr.attr_id & IB_SMP_ATTR_VENDOR_MASK) ==
 		     IB_SMP_ATTR_VENDOR_MASK))
@@ -262,6 +303,30 @@ int mthca_process_mad(struct ib_device *ibdev,
 			    mad_flags & IB_MAD_IGNORE_MKEY,
 			    mad_flags & IB_MAD_IGNORE_BKEY,
 			    port_num, in_wc, in_grh, in_mad, out_mad);
+=======
+		if (in->mad_hdr.attr_id == IB_SMP_ATTR_SM_INFO ||
+		    ((in->mad_hdr.attr_id & IB_SMP_ATTR_VENDOR_MASK) ==
+		     IB_SMP_ATTR_VENDOR_MASK))
+			return IB_MAD_RESULT_SUCCESS;
+	} else if (in->mad_hdr.mgmt_class == IB_MGMT_CLASS_PERF_MGMT ||
+		   in->mad_hdr.mgmt_class == MTHCA_VENDOR_CLASS1     ||
+		   in->mad_hdr.mgmt_class == MTHCA_VENDOR_CLASS2) {
+		if (in->mad_hdr.method != IB_MGMT_METHOD_GET &&
+		    in->mad_hdr.method != IB_MGMT_METHOD_SET)
+			return IB_MAD_RESULT_SUCCESS;
+	} else
+		return IB_MAD_RESULT_SUCCESS;
+	if ((in->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_LID_ROUTED ||
+	     in->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE) &&
+	    in->mad_hdr.method == IB_MGMT_METHOD_SET &&
+	    in->mad_hdr.attr_id == IB_SMP_ATTR_PORT_INFO &&
+	    !ib_query_port(ibdev, port_num, &pattr))
+		prev_lid = ib_lid_cpu16(pattr.lid);
+
+	err = mthca_MAD_IFC(to_mdev(ibdev), mad_flags & IB_MAD_IGNORE_MKEY,
+			    mad_flags & IB_MAD_IGNORE_BKEY, port_num, in_wc,
+			    in_grh, in, out);
+>>>>>>> upstream/android-13
 	if (err == -EBADMSG)
 		return IB_MAD_RESULT_SUCCESS;
 	else if (err) {
@@ -269,6 +334,7 @@ int mthca_process_mad(struct ib_device *ibdev,
 		return IB_MAD_RESULT_FAILURE;
 	}
 
+<<<<<<< HEAD
 	if (!out_mad->mad_hdr.status) {
 		smp_snoop(ibdev, port_num, in_mad, prev_lid);
 		node_desc_override(ibdev, out_mad);
@@ -279,6 +345,18 @@ int mthca_process_mad(struct ib_device *ibdev,
 		out_mad->mad_hdr.status |= cpu_to_be16(1 << 15);
 
 	if (in_mad->mad_hdr.method == IB_MGMT_METHOD_TRAP_REPRESS)
+=======
+	if (!out->mad_hdr.status) {
+		smp_snoop(ibdev, port_num, in, prev_lid);
+		node_desc_override(ibdev, out);
+	}
+
+	/* set return bit in status of directed route responses */
+	if (in->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE)
+		out->mad_hdr.status |= cpu_to_be16(1 << 15);
+
+	if (in->mad_hdr.method == IB_MGMT_METHOD_TRAP_REPRESS)
+>>>>>>> upstream/android-13
 		/* no response for trap repress */
 		return IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_CONSUMED;
 
@@ -346,6 +424,11 @@ void mthca_free_agents(struct mthca_dev *dev)
 		}
 
 		if (dev->sm_ah[p])
+<<<<<<< HEAD
 			rdma_destroy_ah(dev->sm_ah[p]);
+=======
+			rdma_destroy_ah(dev->sm_ah[p],
+					RDMA_DESTROY_AH_SLEEPABLE);
+>>>>>>> upstream/android-13
 	}
 }

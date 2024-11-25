@@ -2,7 +2,11 @@
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM dma_fence
 
+<<<<<<< HEAD
 #if !defined(_TRACE_FENCE_H) || defined(TRACE_HEADER_MULTI_READ)
+=======
+#if !defined(_TRACE_DMA_FENCE_H) || defined(TRACE_HEADER_MULTI_READ)
+>>>>>>> upstream/android-13
 #define _TRACE_DMA_FENCE_H
 
 #include <linux/tracepoint.h>
@@ -23,8 +27,13 @@ DECLARE_EVENT_CLASS(dma_fence,
 	),
 
 	TP_fast_assign(
+<<<<<<< HEAD
 		__assign_str(driver, fence->ops->get_driver_name(fence))
 		__assign_str(timeline, fence->ops->get_timeline_name(fence))
+=======
+		__assign_str(driver, fence->ops->get_driver_name(fence));
+		__assign_str(timeline, fence->ops->get_timeline_name(fence));
+>>>>>>> upstream/android-13
 		__entry->context = fence->context;
 		__entry->seqno = fence->seqno;
 	),

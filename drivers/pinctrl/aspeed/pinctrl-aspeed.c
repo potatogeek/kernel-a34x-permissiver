@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/syscon.h>
@@ -14,17 +20,24 @@
 #include "../core.h"
 #include "pinctrl-aspeed.h"
 
+<<<<<<< HEAD
 static const char *const aspeed_pinmux_ips[] = {
 	[ASPEED_IP_SCU] = "SCU",
 	[ASPEED_IP_GFX] = "GFX",
 	[ASPEED_IP_LPC] = "LPC",
 };
 
+=======
+>>>>>>> upstream/android-13
 int aspeed_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
 {
 	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
 
+<<<<<<< HEAD
 	return pdata->ngroups;
+=======
+	return pdata->pinmux.ngroups;
+>>>>>>> upstream/android-13
 }
 
 const char *aspeed_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
@@ -32,7 +45,11 @@ const char *aspeed_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
 {
 	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
 
+<<<<<<< HEAD
 	return pdata->groups[group].name;
+=======
+	return pdata->pinmux.groups[group].name;
+>>>>>>> upstream/android-13
 }
 
 int aspeed_pinctrl_get_group_pins(struct pinctrl_dev *pctldev,
@@ -41,8 +58,13 @@ int aspeed_pinctrl_get_group_pins(struct pinctrl_dev *pctldev,
 {
 	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
 
+<<<<<<< HEAD
 	*pins = &pdata->groups[group].pins[0];
 	*npins = pdata->groups[group].npins;
+=======
+	*pins = &pdata->pinmux.groups[group].pins[0];
+	*npins = pdata->pinmux.groups[group].npins;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -57,7 +79,11 @@ int aspeed_pinmux_get_fn_count(struct pinctrl_dev *pctldev)
 {
 	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
 
+<<<<<<< HEAD
 	return pdata->nfunctions;
+=======
+	return pdata->pinmux.nfunctions;
+>>>>>>> upstream/android-13
 }
 
 const char *aspeed_pinmux_get_fn_name(struct pinctrl_dev *pctldev,
@@ -65,7 +91,11 @@ const char *aspeed_pinmux_get_fn_name(struct pinctrl_dev *pctldev,
 {
 	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
 
+<<<<<<< HEAD
 	return pdata->functions[function].name;
+=======
+	return pdata->pinmux.functions[function].name;
+>>>>>>> upstream/android-13
 }
 
 int aspeed_pinmux_get_fn_groups(struct pinctrl_dev *pctldev,
@@ -75,12 +105,18 @@ int aspeed_pinmux_get_fn_groups(struct pinctrl_dev *pctldev,
 {
 	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
 
+<<<<<<< HEAD
 	*groups = pdata->functions[function].groups;
 	*num_groups = pdata->functions[function].ngroups;
+=======
+	*groups = pdata->pinmux.functions[function].groups;
+	*num_groups = pdata->pinmux.functions[function].ngroups;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void aspeed_sig_desc_print_val(
 		const struct aspeed_sig_desc *desc, bool enable, u32 rv)
 {
@@ -242,15 +278,31 @@ static int aspeed_sig_expr_set(const struct aspeed_sig_expr *expr,
 	}
 
 	ret = aspeed_sig_expr_eval(expr, enable, maps);
+=======
+static int aspeed_sig_expr_enable(struct aspeed_pinmux_data *ctx,
+				  const struct aspeed_sig_expr *expr)
+{
+	int ret;
+
+	pr_debug("Enabling signal %s for %s\n", expr->signal,
+		 expr->function);
+
+	ret = aspeed_sig_expr_eval(ctx, expr, true);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	if (!ret)
+<<<<<<< HEAD
 		return -EPERM;
+=======
+		return aspeed_sig_expr_set(ctx, expr, true);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int aspeed_sig_expr_enable(const struct aspeed_sig_expr *expr,
 				   struct regmap * const *maps)
 {
@@ -272,16 +324,32 @@ static int aspeed_sig_expr_disable(const struct aspeed_sig_expr *expr,
 	int ret;
 
 	ret = aspeed_sig_expr_eval(expr, true, maps);
+=======
+static int aspeed_sig_expr_disable(struct aspeed_pinmux_data *ctx,
+				   const struct aspeed_sig_expr *expr)
+{
+	int ret;
+
+	pr_debug("Disabling signal %s for %s\n", expr->signal,
+		 expr->function);
+
+	ret = aspeed_sig_expr_eval(ctx, expr, true);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	if (ret)
+<<<<<<< HEAD
 		return aspeed_sig_expr_set(expr, false, maps);
+=======
+		return aspeed_sig_expr_set(ctx, expr, false);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * Disable a signal on a pin by disabling all provided signal expressions.
  *
  * @exprs: The list of signal expressions (from a priority level on a pin)
@@ -291,6 +359,18 @@ static int aspeed_sig_expr_disable(const struct aspeed_sig_expr *expr,
  */
 static int aspeed_disable_sig(const struct aspeed_sig_expr **exprs,
 			       struct regmap * const *maps)
+=======
+ * aspeed_disable_sig() - Disable a signal on a pin by disabling all provided
+ * signal expressions.
+ *
+ * @ctx: The pinmux context
+ * @exprs: The list of signal expressions (from a priority level on a pin)
+ *
+ * Return: 0 if all expressions are disabled, otherwise a negative error code
+ */
+static int aspeed_disable_sig(struct aspeed_pinmux_data *ctx,
+			      const struct aspeed_sig_expr **exprs)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 
@@ -298,7 +378,11 @@ static int aspeed_disable_sig(const struct aspeed_sig_expr **exprs,
 		return true;
 
 	while (*exprs && !ret) {
+<<<<<<< HEAD
 		ret = aspeed_sig_expr_disable(*exprs, maps);
+=======
+		ret = aspeed_sig_expr_disable(ctx, *exprs);
+>>>>>>> upstream/android-13
 		exprs++;
 	}
 
@@ -306,8 +390,13 @@ static int aspeed_disable_sig(const struct aspeed_sig_expr **exprs,
 }
 
 /**
+<<<<<<< HEAD
  * Search for the signal expression needed to enable the pin's signal for the
  * requested function.
+=======
+ * aspeed_find_expr_by_name - Search for the signal expression needed to
+ * enable the pin's signal for the requested function.
+>>>>>>> upstream/android-13
  *
  * @exprs: List of signal expressions (haystack)
  * @name: The name of the requested function (needle)
@@ -397,11 +486,18 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
 {
 	int i;
 	int ret;
+<<<<<<< HEAD
 	const struct aspeed_pinctrl_data *pdata =
 		pinctrl_dev_get_drvdata(pctldev);
 	const struct aspeed_pin_group *pgroup = &pdata->groups[group];
 	const struct aspeed_pin_function *pfunc =
 		&pdata->functions[function];
+=======
+	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
+	const struct aspeed_pin_group *pgroup = &pdata->pinmux.groups[group];
+	const struct aspeed_pin_function *pfunc =
+		&pdata->pinmux.functions[function];
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < pgroup->npins; i++) {
 		int pin = pgroup->pins[i];
@@ -410,7 +506,11 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
 		const struct aspeed_sig_expr **funcs;
 		const struct aspeed_sig_expr ***prios;
 
+<<<<<<< HEAD
 		pr_debug("Muxing pin %d for %s\n", pin, pfunc->name);
+=======
+		pr_debug("Muxing pin %s for %s\n", pdesc->name, pfunc->name);
+>>>>>>> upstream/android-13
 
 		if (!pdesc)
 			return -EINVAL;
@@ -427,7 +527,11 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
 			if (expr)
 				break;
 
+<<<<<<< HEAD
 			ret = aspeed_disable_sig(funcs, pdata->maps);
+=======
+			ret = aspeed_disable_sig(&pdata->pinmux, funcs);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 
@@ -447,9 +551,18 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
 			return -ENXIO;
 		}
 
+<<<<<<< HEAD
 		ret = aspeed_sig_expr_enable(expr, pdata->maps);
 		if (ret)
 			return ret;
+=======
+		ret = aspeed_sig_expr_enable(&pdata->pinmux, expr);
+		if (ret)
+			return ret;
+
+		pr_debug("Muxed pin %s as %s for %s\n", pdesc->name, expr->signal,
+			 expr->function);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -458,6 +571,7 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
 static bool aspeed_expr_is_gpio(const struct aspeed_sig_expr *expr)
 {
 	/*
+<<<<<<< HEAD
 	 * The signal type is GPIO if the signal name has "GPI" as a prefix.
 	 * strncmp (rather than strcmp) is used to implement the prefix
 	 * requirement.
@@ -466,6 +580,78 @@ static bool aspeed_expr_is_gpio(const struct aspeed_sig_expr *expr)
 	 * expr->signal might look like "GPIT0" in the GPI case.
 	 */
 	return strncmp(expr->signal, "GPI", 3) == 0;
+=======
+	 * We need to differentiate between GPIO and non-GPIO signals to
+	 * implement the gpio_request_enable() interface. For better or worse
+	 * the ASPEED pinctrl driver uses the expression names to determine
+	 * whether an expression will mux a pin for GPIO.
+	 *
+	 * Generally we have the following - A GPIO such as B1 has:
+	 *
+	 *    - expr->signal set to "GPIOB1"
+	 *    - expr->function set to "GPIOB1"
+	 *
+	 * Using this fact we can determine whether the provided expression is
+	 * a GPIO expression by testing the signal name for the string prefix
+	 * "GPIO".
+	 *
+	 * However, some GPIOs are input-only, and the ASPEED datasheets name
+	 * them differently. An input-only GPIO such as T0 has:
+	 *
+	 *    - expr->signal set to "GPIT0"
+	 *    - expr->function set to "GPIT0"
+	 *
+	 * It's tempting to generalise the prefix test from "GPIO" to "GPI" to
+	 * account for both GPIOs and GPIs, but in doing so we run aground on
+	 * another feature:
+	 *
+	 * Some pins in the ASPEED BMC SoCs have a "pass-through" GPIO
+	 * function where the input state of one pin is replicated as the
+	 * output state of another (as if they were shorted together - a mux
+	 * configuration that is typically enabled by hardware strapping).
+	 * This feature allows the BMC to pass e.g. power button state through
+	 * to the host while the BMC is yet to boot, but take control of the
+	 * button state once the BMC has booted by muxing each pin as a
+	 * separate, pin-specific GPIO.
+	 *
+	 * Conceptually this pass-through mode is a form of GPIO and is named
+	 * as such in the datasheets, e.g. "GPID0". This naming similarity
+	 * trips us up with the simple GPI-prefixed-signal-name scheme
+	 * discussed above, as the pass-through configuration is not what we
+	 * want when muxing a pin as GPIO for the GPIO subsystem.
+	 *
+	 * On e.g. the AST2400, a pass-through function "GPID0" is grouped on
+	 * balls A18 and D16, where we have:
+	 *
+	 *    For ball A18:
+	 *    - expr->signal set to "GPID0IN"
+	 *    - expr->function set to "GPID0"
+	 *
+	 *    For ball D16:
+	 *    - expr->signal set to "GPID0OUT"
+	 *    - expr->function set to "GPID0"
+	 *
+	 * By contrast, the pin-specific GPIO expressions for the same pins are
+	 * as follows:
+	 *
+	 *    For ball A18:
+	 *    - expr->signal looks like "GPIOD0"
+	 *    - expr->function looks like "GPIOD0"
+	 *
+	 *    For ball D16:
+	 *    - expr->signal looks like "GPIOD1"
+	 *    - expr->function looks like "GPIOD1"
+	 *
+	 * Testing both the signal _and_ function names gives us the means
+	 * differentiate the pass-through GPIO pinmux configuration from the
+	 * pin-specific configuration that the GPIO subsystem is after: An
+	 * expression is a pin-specific (non-pass-through) GPIO configuration
+	 * if the signal prefix is "GPI" and the signal name matches the
+	 * function name.
+	 */
+	return !strncmp(expr->signal, "GPI", 3) &&
+			!strcmp(expr->signal, expr->function);
+>>>>>>> upstream/android-13
 }
 
 static bool aspeed_gpio_in_exprs(const struct aspeed_sig_expr **exprs)
@@ -487,8 +673,12 @@ int aspeed_gpio_request_enable(struct pinctrl_dev *pctldev,
 			       unsigned int offset)
 {
 	int ret;
+<<<<<<< HEAD
 	const struct aspeed_pinctrl_data *pdata =
 		pinctrl_dev_get_drvdata(pctldev);
+=======
+	struct aspeed_pinctrl_data *pdata = pinctrl_dev_get_drvdata(pctldev);
+>>>>>>> upstream/android-13
 	const struct aspeed_pin_desc *pdesc = pdata->pins[offset].drv_data;
 	const struct aspeed_sig_expr ***prios, **funcs, *expr;
 
@@ -500,12 +690,21 @@ int aspeed_gpio_request_enable(struct pinctrl_dev *pctldev,
 	if (!prios)
 		return -ENXIO;
 
+<<<<<<< HEAD
+=======
+	pr_debug("Muxing pin %s for GPIO\n", pdesc->name);
+
+>>>>>>> upstream/android-13
 	/* Disable any functions of higher priority than GPIO */
 	while ((funcs = *prios)) {
 		if (aspeed_gpio_in_exprs(funcs))
 			break;
 
+<<<<<<< HEAD
 		ret = aspeed_disable_sig(funcs, pdata->maps);
+=======
+		ret = aspeed_disable_sig(&pdata->pinmux, funcs);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -529,14 +728,31 @@ int aspeed_gpio_request_enable(struct pinctrl_dev *pctldev,
 	 * lowest-priority signal type. As such it has no associated
 	 * expression.
 	 */
+<<<<<<< HEAD
 	if (!expr)
 		return 0;
+=======
+	if (!expr) {
+		pr_debug("Muxed pin %s as GPIO\n", pdesc->name);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * If GPIO is not the lowest priority signal type, assume there is only
 	 * one expression defined to enable the GPIO function
 	 */
+<<<<<<< HEAD
 	return aspeed_sig_expr_enable(expr, pdata->maps);
+=======
+	ret = aspeed_sig_expr_enable(&pdata->pinmux, expr);
+	if (ret)
+		return ret;
+
+	pr_debug("Muxed pin %s as %s\n", pdesc->name, expr->signal);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int aspeed_pinctrl_probe(struct platform_device *pdev,
@@ -552,12 +768,23 @@ int aspeed_pinctrl_probe(struct platform_device *pdev,
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	pdata->maps[ASPEED_IP_SCU] = syscon_node_to_regmap(parent->of_node);
 	if (IS_ERR(pdata->maps[ASPEED_IP_SCU])) {
 		dev_err(&pdev->dev, "No regmap for syscon pincontroller parent\n");
 		return PTR_ERR(pdata->maps[ASPEED_IP_SCU]);
 	}
 
+=======
+	pdata->scu = syscon_node_to_regmap(parent->of_node);
+	if (IS_ERR(pdata->scu)) {
+		dev_err(&pdev->dev, "No regmap for syscon pincontroller parent\n");
+		return PTR_ERR(pdata->scu);
+	}
+
+	pdata->pinmux.maps[ASPEED_IP_SCU] = pdata->scu;
+
+>>>>>>> upstream/android-13
 	pctl = pinctrl_register(pdesc, &pdev->dev, pdata);
 
 	if (IS_ERR(pctl)) {
@@ -592,6 +819,7 @@ static inline const struct aspeed_pin_config *find_pinconf_config(
 	return NULL;
 }
 
+<<<<<<< HEAD
 /**
  * @param: pinconf configuration parameter
  * @arg: The supported argument for @param, or -1 if any value is supported
@@ -622,17 +850,31 @@ static const struct aspeed_pin_config_map pin_config_map[] = {
 };
 
 static const struct aspeed_pin_config_map *find_pinconf_map(
+=======
+enum aspeed_pin_config_map_type { MAP_TYPE_ARG, MAP_TYPE_VAL };
+
+static const struct aspeed_pin_config_map *find_pinconf_map(
+		const struct aspeed_pinctrl_data *pdata,
+>>>>>>> upstream/android-13
 		enum pin_config_param param,
 		enum aspeed_pin_config_map_type type,
 		s64 value)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(pin_config_map); i++) {
 		const struct aspeed_pin_config_map *elem;
 		bool match;
 
 		elem = &pin_config_map[i];
+=======
+	for (i = 0; i < pdata->nconfmaps; i++) {
+		const struct aspeed_pin_config_map *elem;
+		bool match;
+
+		elem = &pdata->confmaps[i];
+>>>>>>> upstream/android-13
 
 		switch (type) {
 		case MAP_TYPE_ARG:
@@ -666,12 +908,21 @@ int aspeed_pin_config_get(struct pinctrl_dev *pctldev, unsigned int offset,
 	if (!pconf)
 		return -ENOTSUPP;
 
+<<<<<<< HEAD
 	rc = regmap_read(pdata->maps[ASPEED_IP_SCU], pconf->reg, &val);
 	if (rc < 0)
 		return rc;
 
 	pmap = find_pinconf_map(param, MAP_TYPE_VAL,
 			(val & BIT(pconf->bit)) >> pconf->bit);
+=======
+	rc = regmap_read(pdata->scu, pconf->reg, &val);
+	if (rc < 0)
+		return rc;
+
+	pmap = find_pinconf_map(pdata, param, MAP_TYPE_VAL,
+			(val & pconf->mask) >> __ffs(pconf->mask));
+>>>>>>> upstream/android-13
 
 	if (!pmap)
 		return -EINVAL;
@@ -714,6 +965,7 @@ int aspeed_pin_config_set(struct pinctrl_dev *pctldev, unsigned int offset,
 		if (!pconf)
 			return -ENOTSUPP;
 
+<<<<<<< HEAD
 		pmap = find_pinconf_map(param, MAP_TYPE_ARG, arg);
 
 		if (unlikely(WARN_ON(!pmap)))
@@ -723,13 +975,30 @@ int aspeed_pin_config_set(struct pinctrl_dev *pctldev, unsigned int offset,
 
 		rc = regmap_update_bits(pdata->maps[ASPEED_IP_SCU], pconf->reg,
 				BIT(pconf->bit), val);
+=======
+		pmap = find_pinconf_map(pdata, param, MAP_TYPE_ARG, arg);
+
+		if (WARN_ON(!pmap))
+			return -EINVAL;
+
+		val = pmap->val << __ffs(pconf->mask);
+
+		rc = regmap_update_bits(pdata->scu, pconf->reg,
+					pconf->mask, val);
+>>>>>>> upstream/android-13
 
 		if (rc < 0)
 			return rc;
 
+<<<<<<< HEAD
 		pr_debug("%s: Set SCU%02X[%d]=%d for param %d(=%d) on pin %d\n",
 				__func__, pconf->reg, pconf->bit, pmap->val,
 				param, arg, offset);
+=======
+		pr_debug("%s: Set SCU%02X[0x%08X]=0x%X for param %d(=%d) on pin %d\n",
+				__func__, pconf->reg, pconf->mask,
+				val, param, arg, offset);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

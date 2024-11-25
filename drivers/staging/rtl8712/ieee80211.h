@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -14,6 +19,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -25,6 +32,7 @@
 #ifndef __IEEE80211_H
 #define __IEEE80211_H
 
+<<<<<<< HEAD
 #include "osdep_service.h"
 #include "drv_types.h"
 #include "wifi.h"
@@ -33,6 +41,10 @@
 
 #define MGMT_QUEUE_NUM 5
 #define ETH_ALEN	6
+=======
+#include <linux/ieee80211.h>
+
+>>>>>>> upstream/android-13
 #define IEEE_CMD_SET_WPA_PARAM			1
 #define IEEE_CMD_SET_WPA_IE			2
 #define IEEE_CMD_SET_ENCRYPTION			3
@@ -113,6 +125,7 @@ struct ieee_param {
 	} u;
 };
 
+<<<<<<< HEAD
 #define IEEE80211_DATA_LEN		2304
 /* Maximum size for the MA-UNITDATA primitive, 802.11 standard section
  * 6.2.1.1.2.
@@ -269,6 +282,13 @@ enum eap_type {
 #ifndef ETH_P_80211_RAW
 #define ETH_P_80211_RAW (ETH_P_ECONET + 1)
 #endif
+=======
+#define MIN_FRAG_THRESHOLD     256U
+#define	MAX_FRAG_THRESHOLD     2346U
+
+/* QoS,QOS */
+#define NORMAL_ACK			0
+>>>>>>> upstream/android-13
 
 /* IEEE 802.11 defines */
 
@@ -283,6 +303,7 @@ struct ieee80211_snap_hdr {
 
 #define SNAP_SIZE sizeof(struct ieee80211_snap_hdr)
 
+<<<<<<< HEAD
 #define WLAN_FC_GET_TYPE(fc) ((fc) & IEEE80211_FCTL_FTYPE)
 #define WLAN_FC_GET_STYPE(fc) ((fc) & IEEE80211_FCTL_STYPE)
 
@@ -335,6 +356,8 @@ struct ieee80211_snap_hdr {
 #define IEEE80211_24GHZ_BAND     BIT(0)
 #define IEEE80211_52GHZ_BAND     BIT(1)
 
+=======
+>>>>>>> upstream/android-13
 #define IEEE80211_CCK_RATE_LEN			4
 #define IEEE80211_NUM_OFDM_RATESLEN	8
 
@@ -342,7 +365,10 @@ struct ieee80211_snap_hdr {
 #define IEEE80211_CCK_RATE_2MB		        0x04
 #define IEEE80211_CCK_RATE_5MB		        0x0B
 #define IEEE80211_CCK_RATE_11MB		        0x16
+<<<<<<< HEAD
 #define IEEE80211_OFDM_RATE_LEN			8
+=======
+>>>>>>> upstream/android-13
 #define IEEE80211_OFDM_RATE_6MB		        0x0C
 #define IEEE80211_OFDM_RATE_9MB		        0x12
 #define IEEE80211_OFDM_RATE_12MB		0x18
@@ -353,6 +379,7 @@ struct ieee80211_snap_hdr {
 #define IEEE80211_OFDM_RATE_54MB		0x6C
 #define IEEE80211_BASIC_RATE_MASK		0x80
 
+<<<<<<< HEAD
 #define IEEE80211_CCK_RATE_1MB_MASK		BIT(0)
 #define IEEE80211_CCK_RATE_2MB_MASK		BIT(1)
 #define IEEE80211_CCK_RATE_5MB_MASK		BIT(2)
@@ -614,12 +641,17 @@ struct ieee80211_txb {
 /* SWEEP TABLE ENTRIES NUMBER*/
 #define MAX_SWEEP_TAB_ENTRIES		  42
 #define MAX_SWEEP_TAB_ENTRIES_PER_PACKET  7
+=======
+#define WEP_KEYS 4
+
+>>>>>>> upstream/android-13
 /* MAX_RATES_LENGTH needs to be 12.  The spec says 8, and many APs
  * only use 8, and then use extended rates for the remaining supported
  * rates.  Other APs, however, stick all of their supported rates on the
  * main rates information element...
  */
 #define MAX_RATES_LENGTH                  ((u8)12)
+<<<<<<< HEAD
 #define MAX_RATES_EX_LENGTH               ((u8)16)
 #define MAX_NETWORK_COUNT                  128
 #define MAX_CHANNEL_NUMBER                 161
@@ -735,11 +767,20 @@ static inline int ieee80211_get_hdrlen(u16 fc)
 	return hdrlen;
 }
 
+=======
+#define MAX_WPA_IE_LEN 128
+
+>>>>>>> upstream/android-13
 struct registry_priv;
 
 u8 *r8712_set_ie(u8 *pbuf, sint index, uint len, u8 *source, uint *frlen);
 u8 *r8712_get_ie(u8 *pbuf, sint index, uint *len, sint limit);
+<<<<<<< HEAD
 unsigned char *r8712_get_wpa_ie(unsigned char *pie, uint *rsn_ie_len, int limit);
+=======
+unsigned char *r8712_get_wpa_ie(unsigned char *pie, uint *rsn_ie_len,
+				int limit);
+>>>>>>> upstream/android-13
 unsigned char *r8712_get_wpa2_ie(unsigned char *pie, uint *rsn_ie_len,
 				 int limit);
 int r8712_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher,

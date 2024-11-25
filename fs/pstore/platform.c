@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Persistent Storage - platform driver interface parts.
  *
  * Copyright (C) 2007-2008 Google, Inc.
  * Copyright (C) 2010 Intel Corporation <tony.luck@intel.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "pstore: " fmt
@@ -44,9 +51,12 @@
 #include <linux/uaccess.h>
 #include <linux/jiffies.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_LOG_HOOK_PMSG
 #include <linux/sec_debug.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
@@ -59,9 +69,28 @@ static int pstore_update_ms = -1;
 module_param_named(update_ms, pstore_update_ms, int, 0600);
 MODULE_PARM_DESC(update_ms, "milliseconds before pstore updates its content "
 		 "(default is -1, which means runtime updates are disabled; "
+<<<<<<< HEAD
 		 "enabling this option is not safe, it may lead to further "
 		 "corruption on Oopses)");
 
+=======
+		 "enabling this option may not be safe; it may lead to further "
+		 "corruption on Oopses)");
+
+/* Names should be in the same order as the enum pstore_type_id */
+static const char * const pstore_type_names[] = {
+	"dmesg",
+	"mce",
+	"console",
+	"ftrace",
+	"rtas",
+	"powerpc-ofw",
+	"powerpc-common",
+	"pmsg",
+	"powerpc-opal",
+};
+
+>>>>>>> upstream/android-13
 static int pstore_new_entry;
 
 static void pstore_timefunc(struct timer_list *);
@@ -71,6 +100,7 @@ static void pstore_dowork(struct work_struct *);
 static DECLARE_WORK(pstore_work, pstore_dowork);
 
 /*
+<<<<<<< HEAD
  * pstore_lock just protects "psinfo" during
  * calls to pstore_register()
  */
@@ -78,12 +108,30 @@ static DEFINE_SPINLOCK(pstore_lock);
 struct pstore_info *psinfo;
 
 static char *backend;
+=======
+ * psinfo_lock protects "psinfo" during calls to
+ * pstore_register(), pstore_unregister(), and
+ * the filesystem mount/unmount routines.
+ */
+static DEFINE_MUTEX(psinfo_lock);
+struct pstore_info *psinfo;
+
+static char *backend;
+module_param(backend, charp, 0444);
+MODULE_PARM_DESC(backend, "specific backend to use");
+
+>>>>>>> upstream/android-13
 static char *compress =
 #ifdef CONFIG_PSTORE_COMPRESS_DEFAULT
 		CONFIG_PSTORE_COMPRESS_DEFAULT;
 #else
 		NULL;
 #endif
+<<<<<<< HEAD
+=======
+module_param(compress, charp, 0444);
+MODULE_PARM_DESC(compress, "compression to use");
+>>>>>>> upstream/android-13
 
 /* Compression parameters */
 static struct crypto_comp *tfm;
@@ -97,7 +145,11 @@ static char *big_oops_buf;
 static size_t big_oops_buf_sz;
 
 /* How much of the console log to snapshot */
+<<<<<<< HEAD
 unsigned long kmsg_bytes = PSTORE_DEFAULT_KMSG_BYTES;
+=======
+unsigned long kmsg_bytes = CONFIG_PSTORE_DEFAULT_KMSG_BYTES;
+>>>>>>> upstream/android-13
 
 void pstore_set_kmsg_bytes(int bytes)
 {
@@ -107,6 +159,7 @@ void pstore_set_kmsg_bytes(int bytes)
 /* Tag each group of saved records with a sequence number */
 static int	oopscount;
 
+<<<<<<< HEAD
 static const char *get_reason_str(enum kmsg_dump_reason reason)
 {
 	switch (reason) {
@@ -135,13 +188,60 @@ static const char *get_reason_str(enum kmsg_dump_reason reason)
 static bool pstore_cannot_wait(enum kmsg_dump_reason reason)
 {
 	/* In NMI path, pstore shouldn't block regardless of reason. */
+=======
+const char *pstore_type_to_name(enum pstore_type_id type)
+{
+	BUILD_BUG_ON(ARRAY_SIZE(pstore_type_names) != PSTORE_TYPE_MAX);
+
+	if (WARN_ON_ONCE(type >= PSTORE_TYPE_MAX))
+		return "unknown";
+
+	return pstore_type_names[type];
+}
+EXPORT_SYMBOL_GPL(pstore_type_to_name);
+
+enum pstore_type_id pstore_name_to_type(const char *name)
+{
+	int i;
+
+	for (i = 0; i < PSTORE_TYPE_MAX; i++) {
+		if (!strcmp(pstore_type_names[i], name))
+			return i;
+	}
+
+	return PSTORE_TYPE_MAX;
+}
+EXPORT_SYMBOL_GPL(pstore_name_to_type);
+
+static void pstore_timer_kick(void)
+{
+	if (pstore_update_ms < 0)
+		return;
+
+	mod_timer(&pstore_timer, jiffies + msecs_to_jiffies(pstore_update_ms));
+}
+
+static bool pstore_cannot_block_path(enum kmsg_dump_reason reason)
+{
+	/*
+	 * In case of NMI path, pstore shouldn't be blocked
+	 * regardless of reason.
+	 */
+>>>>>>> upstream/android-13
 	if (in_nmi())
 		return true;
 
 	switch (reason) {
 	/* In panic case, other cpus are stopped by smp_send_stop(). */
 	case KMSG_DUMP_PANIC:
+<<<<<<< HEAD
 	/* Emergency restart shouldn't be blocked. */
+=======
+	/*
+	 * Emergency restart shouldn't be blocked by spinning on
+	 * pstore_info::buf_lock.
+	 */
+>>>>>>> upstream/android-13
 	case KMSG_DUMP_EMERG:
 		return true;
 	default:
@@ -265,6 +365,7 @@ static int pstore_compress(const void *in, void *out,
 	return outlen;
 }
 
+<<<<<<< HEAD
 static int pstore_decompress(void *in, void *out,
 			     unsigned int inlen, unsigned int outlen)
 {
@@ -279,6 +380,8 @@ static int pstore_decompress(void *in, void *out,
 	return outlen;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void allocate_buf_for_compression(void)
 {
 	struct crypto_comp *ctx;
@@ -325,7 +428,11 @@ static void allocate_buf_for_compression(void)
 	big_oops_buf_sz = size;
 	big_oops_buf = buf;
 
+<<<<<<< HEAD
 	pr_info("Using compression: %s\n", zbackend->name);
+=======
+	pr_info("Using crash dump compression: %s\n", zbackend->name);
+>>>>>>> upstream/android-13
 }
 
 static void free_buf_for_compression(void)
@@ -377,13 +484,19 @@ void pstore_record_init(struct pstore_record *record,
 }
 
 /*
+<<<<<<< HEAD
  * callback from kmsg_dump. (s2,l2) has the most recently
  * written bytes, older bytes are in (s1,l1). Save as much
  * as we can from the end of the buffer.
+=======
+ * callback from kmsg_dump. Save as much as we can (up to kmsg_bytes) from the
+ * end of the buffer.
+>>>>>>> upstream/android-13
  */
 static void pstore_dump(struct kmsg_dumper *dumper,
 			enum kmsg_dump_reason reason)
 {
+<<<<<<< HEAD
 	unsigned long	total = 0;
 	const char	*why;
 	unsigned int	part = 1;
@@ -404,6 +517,29 @@ static void pstore_dump(struct kmsg_dumper *dumper,
 		}
 	}
 
+=======
+	struct kmsg_dump_iter iter;
+	unsigned long	total = 0;
+	const char	*why;
+	unsigned int	part = 1;
+	unsigned long	flags = 0;
+	int		ret;
+
+	why = kmsg_dump_reason_str(reason);
+
+	if (pstore_cannot_block_path(reason)) {
+		if (!spin_trylock_irqsave(&psinfo->buf_lock, flags)) {
+			pr_err("dump skipped in %s path because of concurrent dump\n",
+					in_nmi() ? "NMI" : why);
+			return;
+		}
+	} else {
+		spin_lock_irqsave(&psinfo->buf_lock, flags);
+	}
+
+	kmsg_dump_rewind(&iter);
+
+>>>>>>> upstream/android-13
 	oopscount++;
 	while (total < kmsg_bytes) {
 		char *dst;
@@ -434,7 +570,11 @@ static void pstore_dump(struct kmsg_dumper *dumper,
 		dst_size -= header_size;
 
 		/* Write dump contents. */
+<<<<<<< HEAD
 		if (!kmsg_dump_get_buffer(dumper, true, dst + header_size,
+=======
+		if (!kmsg_dump_get_buffer(&iter, true, dst + header_size,
+>>>>>>> upstream/android-13
 					  dst_size, &dump_size))
 			break;
 
@@ -455,14 +595,25 @@ static void pstore_dump(struct kmsg_dumper *dumper,
 		}
 
 		ret = psinfo->write(&record);
+<<<<<<< HEAD
 		if (ret == 0 && reason == KMSG_DUMP_OOPS && pstore_is_mounted())
 			pstore_new_entry = 1;
+=======
+		if (ret == 0 && reason == KMSG_DUMP_OOPS) {
+			pstore_new_entry = 1;
+			pstore_timer_kick();
+		}
+>>>>>>> upstream/android-13
 
 		total += record.size;
 		part++;
 	}
+<<<<<<< HEAD
 
 	up(&psinfo->buf_lock);
+=======
+	spin_unlock_irqrestore(&psinfo->buf_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static struct kmsg_dumper pstore_dumper = {
@@ -487,6 +638,12 @@ static void pstore_console_write(struct console *con, const char *s, unsigned c)
 {
 	struct pstore_record record;
 
+<<<<<<< HEAD
+=======
+	if (!c)
+		return;
+
+>>>>>>> upstream/android-13
 	pstore_record_init(&record, psinfo);
 	record.type = PSTORE_TYPE_CONSOLE;
 
@@ -496,14 +653,29 @@ static void pstore_console_write(struct console *con, const char *s, unsigned c)
 }
 
 static struct console pstore_console = {
+<<<<<<< HEAD
 	.name	= "pstore",
 	.write	= pstore_console_write,
 	.flags	= CON_PRINTBUFFER | CON_ENABLED | CON_ANYTIME,
+=======
+	.write	= pstore_console_write,
+>>>>>>> upstream/android-13
 	.index	= -1,
 };
 
 static void pstore_register_console(void)
 {
+<<<<<<< HEAD
+=======
+	/* Show which backend is going to get console writes. */
+	strscpy(pstore_console.name, psinfo->name,
+		sizeof(pstore_console.name));
+	/*
+	 * Always initialize flags here since prior unregister_console()
+	 * calls may have changed settings (specifically CON_ENABLED).
+	 */
+	pstore_console.flags = CON_PRINTBUFFER | CON_ENABLED | CON_ANYTIME;
+>>>>>>> upstream/android-13
 	register_console(&pstore_console);
 }
 
@@ -530,10 +702,13 @@ static int pstore_write_user_compat(struct pstore_record *record,
 		goto out;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_LOG_HOOK_PMSG		
 	sec_log_hook_pmsg((char *)buf, record->size);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	ret = record->psi->write(record);
 
 	kfree(record->buf);
@@ -552,8 +727,11 @@ out:
  */
 int pstore_register(struct pstore_info *psi)
 {
+<<<<<<< HEAD
 	struct module *owner = psi->owner;
 
+=======
+>>>>>>> upstream/android-13
 	if (backend && strcmp(backend, psi->name)) {
 		pr_warn("ignoring unexpected backend '%s'\n", psi->name);
 		return -EPERM;
@@ -573,11 +751,19 @@ int pstore_register(struct pstore_info *psi)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	spin_lock(&pstore_lock);
 	if (psinfo) {
 		pr_warn("backend '%s' already loaded: ignoring '%s'\n",
 			psinfo->name, psi->name);
 		spin_unlock(&pstore_lock);
+=======
+	mutex_lock(&psinfo_lock);
+	if (psinfo) {
+		pr_warn("backend '%s' already loaded: ignoring '%s'\n",
+			psinfo->name, psi->name);
+		mutex_unlock(&psinfo_lock);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
@@ -585,6 +771,7 @@ int pstore_register(struct pstore_info *psi)
 		psi->write_user = pstore_write_user_compat;
 	psinfo = psi;
 	mutex_init(&psinfo->read_mutex);
+<<<<<<< HEAD
 	sema_init(&psinfo->buf_lock, 1);
 	spin_unlock(&pstore_lock);
 
@@ -592,15 +779,27 @@ int pstore_register(struct pstore_info *psi)
 		psinfo = NULL;
 		return -EINVAL;
 	}
+=======
+	spin_lock_init(&psinfo->buf_lock);
+>>>>>>> upstream/android-13
 
 	if (psi->flags & PSTORE_FLAGS_DMESG)
 		allocate_buf_for_compression();
 
+<<<<<<< HEAD
 	if (pstore_is_mounted())
 		pstore_get_records(0);
 
 	if (psi->flags & PSTORE_FLAGS_DMESG)
 		pstore_register_kmsg();
+=======
+	pstore_get_records(0);
+
+	if (psi->flags & PSTORE_FLAGS_DMESG) {
+		pstore_dumper.max_reason = psinfo->max_reason;
+		pstore_register_kmsg();
+	}
+>>>>>>> upstream/android-13
 	if (psi->flags & PSTORE_FLAGS_CONSOLE)
 		pstore_register_console();
 	if (psi->flags & PSTORE_FLAGS_FTRACE)
@@ -609,33 +808,61 @@ int pstore_register(struct pstore_info *psi)
 		pstore_register_pmsg();
 
 	/* Start watching for new records, if desired. */
+<<<<<<< HEAD
 	if (pstore_update_ms >= 0) {
 		pstore_timer.expires = jiffies +
 			msecs_to_jiffies(pstore_update_ms);
 		add_timer(&pstore_timer);
 	}
+=======
+	pstore_timer_kick();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Update the module parameter backend, so it is visible
 	 * through /sys/module/pstore/parameters/backend
 	 */
+<<<<<<< HEAD
 	backend = psi->name;
 
 	pr_info("Registered %s as persistent store backend\n", psi->name);
 
 	module_put(owner);
 
+=======
+	backend = kstrdup(psi->name, GFP_KERNEL);
+
+	pr_info("Registered %s as persistent store backend\n", psi->name);
+
+	mutex_unlock(&psinfo_lock);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(pstore_register);
 
 void pstore_unregister(struct pstore_info *psi)
 {
+<<<<<<< HEAD
 	/* Stop timer and make sure all work has finished. */
 	pstore_update_ms = -1;
 	del_timer_sync(&pstore_timer);
 	flush_work(&pstore_work);
 
+=======
+	/* It's okay to unregister nothing. */
+	if (!psi)
+		return;
+
+	mutex_lock(&psinfo_lock);
+
+	/* Only one backend can be registered at a time. */
+	if (WARN_ON(psi != psinfo)) {
+		mutex_unlock(&psinfo_lock);
+		return;
+	}
+
+	/* Unregister all callbacks. */
+>>>>>>> upstream/android-13
 	if (psi->flags & PSTORE_FLAGS_PMSG)
 		pstore_unregister_pmsg();
 	if (psi->flags & PSTORE_FLAGS_FTRACE)
@@ -645,17 +872,39 @@ void pstore_unregister(struct pstore_info *psi)
 	if (psi->flags & PSTORE_FLAGS_DMESG)
 		pstore_unregister_kmsg();
 
+<<<<<<< HEAD
 	free_buf_for_compression();
 
 	psinfo = NULL;
 	backend = NULL;
+=======
+	/* Stop timer and make sure all work has finished. */
+	del_timer_sync(&pstore_timer);
+	flush_work(&pstore_work);
+
+	/* Remove all backend records from filesystem tree. */
+	pstore_put_backend_records(psi);
+
+	free_buf_for_compression();
+
+	psinfo = NULL;
+	kfree(backend);
+	backend = NULL;
+	mutex_unlock(&psinfo_lock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pstore_unregister);
 
 static void decompress_record(struct pstore_record *record)
 {
+<<<<<<< HEAD
 	int unzipped_len;
 	char *decompressed;
+=======
+	int ret;
+	int unzipped_len;
+	char *unzipped, *workspace;
+>>>>>>> upstream/android-13
 
 	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESS) || !record->compressed)
 		return;
@@ -666,6 +915,7 @@ static void decompress_record(struct pstore_record *record)
 		return;
 	}
 
+<<<<<<< HEAD
 	/* No compression method has created the common buffer. */
 	if (!big_oops_buf) {
 		pr_warn("no decompression buffer allocated\n");
@@ -695,6 +945,44 @@ static void decompress_record(struct pstore_record *record)
 	/* Swap out compresed contents with decompressed contents. */
 	kfree(record->buf);
 	record->buf = decompressed;
+=======
+	/* Missing compression buffer means compression was not initialized. */
+	if (!big_oops_buf) {
+		pr_warn("no decompression method initialized!\n");
+		return;
+	}
+
+	/* Allocate enough space to hold max decompression and ECC. */
+	unzipped_len = big_oops_buf_sz;
+	workspace = kmalloc(unzipped_len + record->ecc_notice_size,
+			    GFP_KERNEL);
+	if (!workspace)
+		return;
+
+	/* After decompression "unzipped_len" is almost certainly smaller. */
+	ret = crypto_comp_decompress(tfm, record->buf, record->size,
+					  workspace, &unzipped_len);
+	if (ret) {
+		pr_err("crypto_comp_decompress failed, ret = %d!\n", ret);
+		kfree(workspace);
+		return;
+	}
+
+	/* Append ECC notice to decompressed buffer. */
+	memcpy(workspace + unzipped_len, record->buf + record->size,
+	       record->ecc_notice_size);
+
+	/* Copy decompressed contents into an minimum-sized allocation. */
+	unzipped = kmemdup(workspace, unzipped_len + record->ecc_notice_size,
+			   GFP_KERNEL);
+	kfree(workspace);
+	if (!unzipped)
+		return;
+
+	/* Swap out compressed contents with decompressed contents. */
+	kfree(record->buf);
+	record->buf = unzipped;
+>>>>>>> upstream/android-13
 	record->size = unzipped_len;
 	record->compressed = false;
 }
@@ -777,12 +1065,19 @@ static void pstore_timefunc(struct timer_list *unused)
 		schedule_work(&pstore_work);
 	}
 
+<<<<<<< HEAD
 	if (pstore_update_ms >= 0)
 		mod_timer(&pstore_timer,
 			  jiffies + msecs_to_jiffies(pstore_update_ms));
 }
 
 void __init pstore_choose_compression(void)
+=======
+	pstore_timer_kick();
+}
+
+static void __init pstore_choose_compression(void)
+>>>>>>> upstream/android-13
 {
 	const struct pstore_zbackend *step;
 
@@ -824,11 +1119,14 @@ static void __exit pstore_exit(void)
 }
 module_exit(pstore_exit)
 
+<<<<<<< HEAD
 module_param(compress, charp, 0444);
 MODULE_PARM_DESC(compress, "Pstore compression to use");
 
 module_param(backend, charp, 0444);
 MODULE_PARM_DESC(backend, "Pstore backend to use");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Tony Luck <tony.luck@intel.com>");
 MODULE_LICENSE("GPL");

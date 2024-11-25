@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2015 Russell King
  *
@@ -5,14 +6,27 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  Copyright (C) 2015 Russell King
+ *
+>>>>>>> upstream/android-13
  * This assembly is required to safely remap the physical address space
  * for Keystone 2
  */
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <asm/asm-offsets.h>
 #include <asm/cp15.h>
 #include <asm/memory.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/asm-offsets.h>
+#include <asm/cp15.h>
+#include <asm/memory.h>
+>>>>>>> upstream/android-13
 
 	.section ".idmap.text", "ax"
 
@@ -32,16 +46,25 @@ ENTRY(lpae_pgtables_remap_asm)
 	ldr	r6, =(_end - 1)
 	add	r7, r2, #0x1000
 	add	r6, r7, r6, lsr #SECTION_SHIFT - L2_ORDER
+<<<<<<< HEAD
 	add	r7, r7, #PAGE_OFFSET >> (SECTION_SHIFT - L2_ORDER)
 1:	ldrd	r4, [r7]
 	adds	r4, r4, r0
 	adc	r5, r5, r1
 	strd	r4, [r7], #1 << L2_ORDER
+=======
+	add	r7, r7, #KERNEL_OFFSET >> (SECTION_SHIFT - L2_ORDER)
+1:	ldrd	r4, r5, [r7]
+	adds	r4, r4, r0
+	adc	r5, r5, r1
+	strd	r4, r5, [r7], #1 << L2_ORDER
+>>>>>>> upstream/android-13
 	cmp	r7, r6
 	bls	1b
 
 	/* Update level 2 entries for the boot data */
 	add	r7, r2, #0x1000
+<<<<<<< HEAD
 	add	r7, r7, r3, lsr #SECTION_SHIFT - L2_ORDER
 	bic	r7, r7, #(1 << L2_ORDER) - 1
 	ldrd	r4, [r7]
@@ -52,14 +75,33 @@ ENTRY(lpae_pgtables_remap_asm)
 	adds	r4, r4, r0
 	adc	r5, r5, r1
 	strd	r4, [r7]
+=======
+	movw	r3, #FDT_FIXED_BASE >> (SECTION_SHIFT - L2_ORDER)
+	add	r7, r7, r3
+	ldrd	r4, r5, [r7]
+	adds	r4, r4, r0
+	adc	r5, r5, r1
+	strd	r4, r5, [r7], #1 << L2_ORDER
+	ldrd	r4, r5, [r7]
+	adds	r4, r4, r0
+	adc	r5, r5, r1
+	strd	r4, r5, [r7]
+>>>>>>> upstream/android-13
 
 	/* Update level 1 entries */
 	mov	r6, #4
 	mov	r7, r2
+<<<<<<< HEAD
 2:	ldrd	r4, [r7]
 	adds	r4, r4, r0
 	adc	r5, r5, r1
 	strd	r4, [r7], #1 << L1_ORDER
+=======
+2:	ldrd	r4, r5, [r7]
+	adds	r4, r4, r0
+	adc	r5, r5, r1
+	strd	r4, r5, [r7], #1 << L1_ORDER
+>>>>>>> upstream/android-13
 	subs	r6, r6, #1
 	bne	2b
 

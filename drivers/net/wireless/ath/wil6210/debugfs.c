@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018, The Linux Foundation. All rights reserved.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
+ * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -63,7 +70,13 @@ static void wil_print_desc_edma(struct seq_file *s, struct wil6210_priv *wil,
 			&ring->va[idx].rx.enhanced;
 		u16 buff_id = le16_to_cpu(rx_d->mac.buff_id);
 
+<<<<<<< HEAD
 		has_skb = wil->rx_buff_mgmt.buff_arr[buff_id].skb;
+=======
+		if (wil->rx_buff_mgmt.buff_arr &&
+		    wil_val_in_range(buff_id, 0, wil->rx_buff_mgmt.size))
+			has_skb = wil->rx_buff_mgmt.buff_arr[buff_id].skb;
+>>>>>>> upstream/android-13
 		seq_printf(s, "%c", (has_skb) ? _h : _s);
 	} else {
 		struct wil_tx_enhanced_desc *d =
@@ -71,9 +84,15 @@ static void wil_print_desc_edma(struct seq_file *s, struct wil6210_priv *wil,
 			&ring->va[idx].tx.enhanced;
 
 		num_of_descs = (u8)d->mac.d[2];
+<<<<<<< HEAD
 		has_skb = ring->ctx[idx].skb;
 		if (num_of_descs >= 1)
 			seq_printf(s, "%c", ring->ctx[idx].skb ? _h : _s);
+=======
+		has_skb = ring->ctx && ring->ctx[idx].skb;
+		if (num_of_descs >= 1)
+			seq_printf(s, "%c", has_skb ? _h : _s);
+>>>>>>> upstream/android-13
 		else
 			/* num_of_descs == 0, it's a frag in a list of descs */
 			seq_printf(s, "%c", has_skb ? 'h' : _s);
@@ -84,7 +103,11 @@ static void wil_print_ring(struct seq_file *s, struct wil6210_priv *wil,
 			   const char *name, struct wil_ring *ring,
 			   char _s, char _h)
 {
+<<<<<<< HEAD
 	void __iomem *x = wmi_addr(wil, ring->hwtail);
+=======
+	void __iomem *x;
+>>>>>>> upstream/android-13
 	u32 v;
 
 	seq_printf(s, "RING %s = {\n", name);
@@ -96,7 +119,25 @@ static void wil_print_ring(struct seq_file *s, struct wil6210_priv *wil,
 	else
 		seq_printf(s, "  swtail = %d\n", ring->swtail);
 	seq_printf(s, "  swhead = %d\n", ring->swhead);
+<<<<<<< HEAD
 	seq_printf(s, "  hwtail = [0x%08x] -> ", ring->hwtail);
+=======
+	if (wil->use_enhanced_dma_hw) {
+		int ring_id = ring->is_rx ?
+			WIL_RX_DESC_RING_ID : ring - wil->ring_tx;
+		/* SUBQ_CONS is a table of 32 entries, one for each Q pair.
+		 * lower 16bits are for even ring_id and upper 16bits are for
+		 * odd ring_id
+		 */
+		x = wmi_addr(wil, RGF_DMA_SCM_SUBQ_CONS + 4 * (ring_id / 2));
+		v = readl_relaxed(x);
+
+		v = (ring_id % 2 ? (v >> 16) : (v & 0xffff));
+		seq_printf(s, "  hwhead = %u\n", v);
+	}
+	seq_printf(s, "  hwtail = [0x%08x] -> ", ring->hwtail);
+	x = wmi_addr(wil, ring->hwtail);
+>>>>>>> upstream/android-13
 	if (x) {
 		v = readl(x);
 		seq_printf(s, "0x%08x = %d\n", v, v);
@@ -124,7 +165,11 @@ static void wil_print_ring(struct seq_file *s, struct wil6210_priv *wil,
 	seq_puts(s, "}\n");
 }
 
+<<<<<<< HEAD
 static int wil_ring_debugfs_show(struct seq_file *s, void *data)
+=======
+static int ring_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	uint i;
 	struct wil6210_priv *wil = s->private;
@@ -162,7 +207,11 @@ static int wil_ring_debugfs_show(struct seq_file *s, void *data)
 
 			snprintf(name, sizeof(name), "tx_%2d", i);
 
+<<<<<<< HEAD
 			if (cid < WIL6210_MAX_CID)
+=======
+			if (cid < wil->max_assoc_sta)
+>>>>>>> upstream/android-13
 				seq_printf(s,
 					   "\n%pM CID %d TID %d 1x%s BACK([%u] %u TU A%s) [%3d|%3d] idle %s\n",
 					   wil->sta[cid].addr, cid, tid,
@@ -183,6 +232,7 @@ static int wil_ring_debugfs_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_ring_seq_open(struct inode *inode, struct file *file)
 {
@@ -195,11 +245,18 @@ static const struct file_operations fops_ring = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(ring);
+>>>>>>> upstream/android-13
 
 static void wil_print_sring(struct seq_file *s, struct wil6210_priv *wil,
 			    struct wil_status_ring *sring)
 {
+<<<<<<< HEAD
 	void __iomem *x = wmi_addr(wil, sring->hwtail);
+=======
+	void __iomem *x;
+>>>>>>> upstream/android-13
 	int sring_idx = sring - wil->srings;
 	u32 v;
 
@@ -210,7 +267,23 @@ static void wil_print_sring(struct seq_file *s, struct wil6210_priv *wil,
 	seq_printf(s, "  size   = %d\n", sring->size);
 	seq_printf(s, "  elem_size   = %zu\n", sring->elem_size);
 	seq_printf(s, "  swhead = %d\n", sring->swhead);
+<<<<<<< HEAD
 	seq_printf(s, "  hwtail = [0x%08x] -> ", sring->hwtail);
+=======
+	if (wil->use_enhanced_dma_hw) {
+		/* COMPQ_PROD is a table of 32 entries, one for each Q pair.
+		 * lower 16bits are for even ring_id and upper 16bits are for
+		 * odd ring_id
+		 */
+		x = wmi_addr(wil, RGF_DMA_SCM_COMPQ_PROD + 4 * (sring_idx / 2));
+		v = readl_relaxed(x);
+
+		v = (sring_idx % 2 ? (v >> 16) : (v & 0xffff));
+		seq_printf(s, "  hwhead = %u\n", v);
+	}
+	seq_printf(s, "  hwtail = [0x%08x] -> ", sring->hwtail);
+	x = wmi_addr(wil, sring->hwtail);
+>>>>>>> upstream/android-13
 	if (x) {
 		v = readl_relaxed(x);
 		seq_printf(s, "0x%08x = %d\n", v, v);
@@ -218,6 +291,11 @@ static void wil_print_sring(struct seq_file *s, struct wil6210_priv *wil,
 		seq_puts(s, "???\n");
 	}
 	seq_printf(s, "  desc_rdy_pol   = %d\n", sring->desc_rdy_pol);
+<<<<<<< HEAD
+=======
+	seq_printf(s, "  invalid_buff_id_cnt   = %d\n",
+		   sring->invalid_buff_id_cnt);
+>>>>>>> upstream/android-13
 
 	if (sring->va && (sring->size <= (1 << WIL_RING_SIZE_ORDER_MAX))) {
 		uint i;
@@ -240,7 +318,11 @@ static void wil_print_sring(struct seq_file *s, struct wil6210_priv *wil,
 	seq_puts(s, "}\n");
 }
 
+<<<<<<< HEAD
 static int wil_srings_debugfs_show(struct seq_file *s, void *data)
+=======
+static int srings_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	int i = 0;
@@ -251,6 +333,7 @@ static int wil_srings_debugfs_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_srings_seq_open(struct inode *inode, struct file *file)
 {
@@ -263,6 +346,9 @@ static const struct file_operations fops_srings = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(srings);
+>>>>>>> upstream/android-13
 
 static void wil_seq_hexdump(struct seq_file *s, void *p, int len,
 			    const char *prefix)
@@ -280,6 +366,14 @@ static void wil_print_mbox_ring(struct seq_file *s, const char *prefix,
 
 	wil_halp_vote(wil);
 
+<<<<<<< HEAD
+=======
+	if (wil_mem_access_lock(wil)) {
+		wil_halp_unvote(wil);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	wil_memcpy_fromio_32(&r, off, sizeof(r));
 	wil_mbox_ring_le2cpus(&r);
 	/*
@@ -345,10 +439,18 @@ static void wil_print_mbox_ring(struct seq_file *s, const char *prefix,
 	}
  out:
 	seq_puts(s, "}\n");
+<<<<<<< HEAD
 	wil_halp_unvote(wil);
 }
 
 static int wil_mbox_debugfs_show(struct seq_file *s, void *data)
+=======
+	wil_mem_access_unlock(wil);
+	wil_halp_unvote(wil);
+}
+
+static int mbox_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	int ret;
@@ -366,6 +468,7 @@ static int wil_mbox_debugfs_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_mbox_seq_open(struct inode *inode, struct file *file)
 {
@@ -378,6 +481,9 @@ static const struct file_operations fops_mbox = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(mbox);
+>>>>>>> upstream/android-13
 
 static int wil_debugfs_iomem_x32_set(void *data, u64 val)
 {
@@ -390,7 +496,12 @@ static int wil_debugfs_iomem_x32_set(void *data, u64 val)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	writel(val, (void __iomem *)d->offset);
+=======
+	writel_relaxed(val, (void __iomem *)d->offset);
+
+>>>>>>> upstream/android-13
 	wmb(); /* make sure write propagated to HW */
 
 	wil_pm_runtime_put(wil);
@@ -416,6 +527,7 @@ static int wil_debugfs_iomem_x32_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(fops_iomem_x32, wil_debugfs_iomem_x32_get,
 			wil_debugfs_iomem_x32_set, "0x%08llx\n");
 
@@ -426,17 +538,31 @@ static struct dentry *wil_debugfs_create_iomem_x32(const char *name,
 						   struct wil6210_priv *wil)
 {
 	struct dentry *file;
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(fops_iomem_x32, wil_debugfs_iomem_x32_get,
+			 wil_debugfs_iomem_x32_set, "0x%08llx\n");
+
+static void wil_debugfs_create_iomem_x32(const char *name, umode_t mode,
+					 struct dentry *parent, void *value,
+					 struct wil6210_priv *wil)
+{
+>>>>>>> upstream/android-13
 	struct wil_debugfs_iomem_data *data = &wil->dbg_data.data_arr[
 					      wil->dbg_data.iomem_data_count];
 
 	data->wil = wil;
 	data->offset = value;
 
+<<<<<<< HEAD
 	file = debugfs_create_file(name, mode, parent, data, &fops_iomem_x32);
 	if (!IS_ERR_OR_NULL(file))
 		wil->dbg_data.iomem_data_count++;
 
 	return file;
+=======
+	debugfs_create_file_unsafe(name, mode, parent, data, &fops_iomem_x32);
+	wil->dbg_data.iomem_data_count++;
+>>>>>>> upstream/android-13
 }
 
 static int wil_debugfs_ulong_set(void *data, u64 val)
@@ -451,6 +577,7 @@ static int wil_debugfs_ulong_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(wil_fops_ulong, wil_debugfs_ulong_get,
 			wil_debugfs_ulong_set, "0x%llx\n");
 
@@ -467,6 +594,17 @@ static struct dentry *wil_debugfs_create_ulong(const char *name, umode_t mode,
  * @dbg - directory on the debugfs, where files will be created
  * @base - base address used in address calculation
  * @tbl - table with file descriptions. Should be terminated with empty element.
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(wil_fops_ulong, wil_debugfs_ulong_get,
+			 wil_debugfs_ulong_set, "0x%llx\n");
+
+/**
+ * wil6210_debugfs_init_offset - create set of debugfs files
+ * @wil: driver's context, used for printing
+ * @dbg: directory on the debugfs, where files will be created
+ * @base: base address used in address calculation
+ * @tbl: table with file descriptions. Should be terminated with empty element.
+>>>>>>> upstream/android-13
  *
  * Creates files accordingly to the @tbl.
  */
@@ -477,6 +615,7 @@ static void wil6210_debugfs_init_offset(struct wil6210_priv *wil,
 	int i;
 
 	for (i = 0; tbl[i].name; i++) {
+<<<<<<< HEAD
 		struct dentry *f;
 
 		switch (tbl[i].type) {
@@ -508,6 +647,32 @@ static void wil6210_debugfs_init_offset(struct wil6210_priv *wil,
 		if (IS_ERR_OR_NULL(f))
 			wil_err(wil, "Create file \"%s\": err %ld\n",
 				tbl[i].name, PTR_ERR(f));
+=======
+		switch (tbl[i].type) {
+		case doff_u32:
+			debugfs_create_u32(tbl[i].name, tbl[i].mode, dbg,
+					   base + tbl[i].off);
+			break;
+		case doff_x32:
+			debugfs_create_x32(tbl[i].name, tbl[i].mode, dbg,
+					   base + tbl[i].off);
+			break;
+		case doff_ulong:
+			debugfs_create_file_unsafe(tbl[i].name, tbl[i].mode,
+						   dbg, base + tbl[i].off,
+						   &wil_fops_ulong);
+			break;
+		case doff_io32:
+			wil_debugfs_create_iomem_x32(tbl[i].name, tbl[i].mode,
+						     dbg, base + tbl[i].off,
+						     wil);
+			break;
+		case doff_u8:
+			debugfs_create_u8(tbl[i].name, tbl[i].mode, dbg,
+					  base + tbl[i].off);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -522,6 +687,7 @@ static const struct dbg_off isr_off[] = {
 	{},
 };
 
+<<<<<<< HEAD
 static int wil6210_debugfs_create_ISR(struct wil6210_priv *wil,
 				      const char *name,
 				      struct dentry *parent, u32 off)
@@ -535,6 +701,16 @@ static int wil6210_debugfs_create_ISR(struct wil6210_priv *wil,
 				    isr_off);
 
 	return 0;
+=======
+static void wil6210_debugfs_create_ISR(struct wil6210_priv *wil,
+				       const char *name, struct dentry *parent,
+				       u32 off)
+{
+	struct dentry *d = debugfs_create_dir(name, parent);
+
+	wil6210_debugfs_init_offset(wil, d, (void * __force)wil->csr + off,
+				    isr_off);
+>>>>>>> upstream/android-13
 }
 
 static const struct dbg_off pseudo_isr_off[] = {
@@ -544,6 +720,7 @@ static const struct dbg_off pseudo_isr_off[] = {
 	{},
 };
 
+<<<<<<< HEAD
 static int wil6210_debugfs_create_pseudo_ISR(struct wil6210_priv *wil,
 					     struct dentry *parent)
 {
@@ -556,6 +733,15 @@ static int wil6210_debugfs_create_pseudo_ISR(struct wil6210_priv *wil,
 				    pseudo_isr_off);
 
 	return 0;
+=======
+static void wil6210_debugfs_create_pseudo_ISR(struct wil6210_priv *wil,
+					      struct dentry *parent)
+{
+	struct dentry *d = debugfs_create_dir("PSEUDO_ISR", parent);
+
+	wil6210_debugfs_init_offset(wil, d, (void * __force)wil->csr,
+				    pseudo_isr_off);
+>>>>>>> upstream/android-13
 }
 
 static const struct dbg_off lgc_itr_cnt_off[] = {
@@ -603,6 +789,7 @@ static int wil6210_debugfs_create_ITR_CNT(struct wil6210_priv *wil,
 	struct dentry *d, *dtx, *drx;
 
 	d = debugfs_create_dir("ITR_CNT", parent);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(d))
 		return -ENODEV;
 
@@ -610,6 +797,11 @@ static int wil6210_debugfs_create_ITR_CNT(struct wil6210_priv *wil,
 	drx = debugfs_create_dir("RX", d);
 	if (IS_ERR_OR_NULL(dtx) || IS_ERR_OR_NULL(drx))
 		return -ENODEV;
+=======
+
+	dtx = debugfs_create_dir("TX", d);
+	drx = debugfs_create_dir("RX", d);
+>>>>>>> upstream/android-13
 
 	wil6210_debugfs_init_offset(wil, d, (void * __force)wil->csr,
 				    lgc_itr_cnt_off);
@@ -622,7 +814,11 @@ static int wil6210_debugfs_create_ITR_CNT(struct wil6210_priv *wil,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wil_memread_debugfs_show(struct seq_file *s, void *data)
+=======
+static int memread_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	void __iomem *a;
@@ -632,6 +828,15 @@ static int wil_memread_debugfs_show(struct seq_file *s, void *data)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	ret = wil_mem_access_lock(wil);
+	if (ret) {
+		wil_pm_runtime_put(wil);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	a = wmi_buffer(wil, cpu_to_le32(mem_addr));
 
 	if (a)
@@ -639,10 +844,15 @@ static int wil_memread_debugfs_show(struct seq_file *s, void *data)
 	else
 		seq_printf(s, "[0x%08x] = INVALID\n", mem_addr);
 
+<<<<<<< HEAD
+=======
+	wil_mem_access_unlock(wil);
+>>>>>>> upstream/android-13
 	wil_pm_runtime_put(wil);
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_memread_seq_open(struct inode *inode, struct file *file)
 {
@@ -655,6 +865,9 @@ static const struct file_operations fops_memread = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(memread);
+>>>>>>> upstream/android-13
 
 static ssize_t wil_read_file_ioblob(struct file *file, char __user *user_buf,
 				    size_t count, loff_t *ppos)
@@ -668,10 +881,13 @@ static ssize_t wil_read_file_ioblob(struct file *file, char __user *user_buf,
 	size_t unaligned_bytes, aligned_count, ret;
 	int rc;
 
+<<<<<<< HEAD
 	if (test_bit(wil_status_suspending, wil_blob->wil->status) ||
 	    test_bit(wil_status_suspended, wil_blob->wil->status))
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	if (pos < 0)
 		return -EINVAL;
 
@@ -698,11 +914,25 @@ static ssize_t wil_read_file_ioblob(struct file *file, char __user *user_buf,
 		return rc;
 	}
 
+<<<<<<< HEAD
+=======
+	rc = wil_mem_access_lock(wil);
+	if (rc) {
+		kfree(buf);
+		wil_pm_runtime_put(wil);
+		return rc;
+	}
+
+>>>>>>> upstream/android-13
 	wil_memcpy_fromio_32(buf, (const void __iomem *)
 			     wil_blob->blob.data + aligned_pos, aligned_count);
 
 	ret = copy_to_user(user_buf, buf + unaligned_bytes, count);
 
+<<<<<<< HEAD
+=======
+	wil_mem_access_unlock(wil);
+>>>>>>> upstream/android-13
 	wil_pm_runtime_put(wil);
 
 	kfree(buf);
@@ -772,6 +1002,47 @@ static const struct file_operations fops_rxon = {
 	.open  = simple_open,
 };
 
+<<<<<<< HEAD
+=======
+static ssize_t wil_write_file_rbufcap(struct file *file,
+				      const char __user *buf,
+				      size_t count, loff_t *ppos)
+{
+	struct wil6210_priv *wil = file->private_data;
+	int val;
+	int rc;
+
+	rc = kstrtoint_from_user(buf, count, 0, &val);
+	if (rc) {
+		wil_err(wil, "Invalid argument\n");
+		return rc;
+	}
+	/* input value: negative to disable, 0 to use system default,
+	 * 1..ring size to set descriptor threshold
+	 */
+	wil_info(wil, "%s RBUFCAP, descriptors threshold - %d\n",
+		 val < 0 ? "Disabling" : "Enabling", val);
+
+	if (!wil->ring_rx.va || val > wil->ring_rx.size) {
+		wil_err(wil, "Invalid descriptors threshold, %d\n", val);
+		return -EINVAL;
+	}
+
+	rc = wmi_rbufcap_cfg(wil, val < 0 ? 0 : 1, val < 0 ? 0 : val);
+	if (rc) {
+		wil_err(wil, "RBUFCAP config failed: %d\n", rc);
+		return rc;
+	}
+
+	return count;
+}
+
+static const struct file_operations fops_rbufcap = {
+	.write = wil_write_file_rbufcap,
+	.open  = simple_open,
+};
+
+>>>>>>> upstream/android-13
 /* block ack control, write:
  * - "add <ringid> <agg_size> <timeout>" to trigger ADDBA
  * - "del_tx <ringid> <reason>" to trigger DELBA for Tx side
@@ -834,14 +1105,22 @@ static ssize_t wil_write_back(struct file *file, const char __user *buf,
 				"BACK: del_rx require at least 2 params\n");
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		if (p1 < 0 || p1 >= WIL6210_MAX_CID) {
+=======
+		if (p1 < 0 || p1 >= wil->max_assoc_sta) {
+>>>>>>> upstream/android-13
 			wil_err(wil, "BACK: invalid CID %d\n", p1);
 			return -EINVAL;
 		}
 		if (rc < 4)
 			p3 = WLAN_REASON_QSTA_LEAVE_QBSS;
 		sta = &wil->sta[p1];
+<<<<<<< HEAD
 		wmi_delba_rx(wil, sta->mid, mk_cidxtid(p1, p2), p3);
+=======
+		wmi_delba_rx(wil, sta->mid, p1, p2, p3);
+>>>>>>> upstream/android-13
 	} else {
 		wil_err(wil, "BACK: Unrecognized command \"%s\"\n", cmd);
 		return -EINVAL;
@@ -933,9 +1212,14 @@ static ssize_t wil_read_pmccfg(struct file *file, char __user *user_buf,
 	" - \"alloc <num descriptors> <descriptor_size>\" to allocate pmc\n"
 	" - \"free\" to free memory allocated for pmc\n";
 
+<<<<<<< HEAD
 	sprintf(text, "Last command status: %d\n\n%s",
 		wil_pmc_last_cmd_status(wil),
 		help);
+=======
+	snprintf(text, sizeof(text), "Last command status: %d\n\n%s",
+		 wil_pmc_last_cmd_status(wil), help);
+>>>>>>> upstream/android-13
 
 	return simple_read_from_buffer(user_buf, count, ppos, text,
 				       strlen(text) + 1);
@@ -953,6 +1237,21 @@ static const struct file_operations fops_pmcdata = {
 	.llseek		= wil_pmc_llseek,
 };
 
+<<<<<<< HEAD
+=======
+static int wil_pmcring_seq_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, wil_pmcring_read, inode->i_private);
+}
+
+static const struct file_operations fops_pmcring = {
+	.open		= wil_pmcring_seq_open,
+	.release	= single_release,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+};
+
+>>>>>>> upstream/android-13
 /*---tx_mgmt---*/
 /* Write mgmt frame to this file to send it */
 static ssize_t wil_write_file_txmgmt(struct file *file, const char __user *buf,
@@ -1046,8 +1345,12 @@ static void wil_seq_print_skb(struct seq_file *s, struct sk_buff *skb)
 	if (nr_frags) {
 		seq_printf(s, "    nr_frags = %d\n", nr_frags);
 		for (i = 0; i < nr_frags; i++) {
+<<<<<<< HEAD
 			const struct skb_frag_struct *frag =
 					&skb_shinfo(skb)->frags[i];
+=======
+			const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+>>>>>>> upstream/android-13
 
 			len = skb_frag_size(frag);
 			p = skb_frag_address_safe(frag);
@@ -1058,7 +1361,11 @@ static void wil_seq_print_skb(struct seq_file *s, struct sk_buff *skb)
 }
 
 /*---------Tx/Rx descriptor------------*/
+<<<<<<< HEAD
 static int wil_txdesc_debugfs_show(struct seq_file *s, void *data)
+=======
+static int txdesc_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	struct wil_ring *ring;
@@ -1114,19 +1421,31 @@ static int wil_txdesc_debugfs_show(struct seq_file *s, void *data)
 
 	if (wil->use_enhanced_dma_hw) {
 		if (tx) {
+<<<<<<< HEAD
 			skb = ring->ctx[txdesc_idx].skb;
 		} else {
+=======
+			skb = ring->ctx ? ring->ctx[txdesc_idx].skb : NULL;
+		} else if (wil->rx_buff_mgmt.buff_arr) {
+>>>>>>> upstream/android-13
 			struct wil_rx_enhanced_desc *rx_d =
 				(struct wil_rx_enhanced_desc *)
 				&ring->va[txdesc_idx].rx.enhanced;
 			u16 buff_id = le16_to_cpu(rx_d->mac.buff_id);
 
 			if (!wil_val_in_range(buff_id, 0,
+<<<<<<< HEAD
 					      wil->rx_buff_mgmt.size)) {
 				seq_printf(s, "invalid buff_id %d\n", buff_id);
 				return 0;
 			}
 			skb = wil->rx_buff_mgmt.buff_arr[buff_id].skb;
+=======
+					      wil->rx_buff_mgmt.size))
+				seq_printf(s, "invalid buff_id %d\n", buff_id);
+			else
+				skb = wil->rx_buff_mgmt.buff_arr[buff_id].skb;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		skb = ring->ctx[txdesc_idx].skb;
@@ -1151,6 +1470,7 @@ static int wil_txdesc_debugfs_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_txdesc_seq_open(struct inode *inode, struct file *file)
 {
@@ -1166,11 +1486,21 @@ static const struct file_operations fops_txdesc = {
 
 /*---------Tx/Rx status message------------*/
 static int wil_status_msg_debugfs_show(struct seq_file *s, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(txdesc);
+
+/*---------Tx/Rx status message------------*/
+static int status_msg_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	int sring_idx = dbg_sring_index;
 	struct wil_status_ring *sring;
+<<<<<<< HEAD
 	bool tx = sring_idx == wil->tx_sring_idx ? 1 : 0;
+=======
+	bool tx;
+>>>>>>> upstream/android-13
 	u32 status_msg_idx = dbg_status_msg_index;
 	u32 *u;
 
@@ -1180,6 +1510,10 @@ static int wil_status_msg_debugfs_show(struct seq_file *s, void *data)
 	}
 
 	sring = &wil->srings[sring_idx];
+<<<<<<< HEAD
+=======
+	tx = !sring->is_rx;
+>>>>>>> upstream/android-13
 
 	if (!sring->va) {
 		seq_printf(s, "No %cX status ring\n", tx ? 'T' : 'R');
@@ -1207,6 +1541,7 @@ static int wil_status_msg_debugfs_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_status_msg_seq_open(struct inode *inode, struct file *file)
 {
@@ -1220,6 +1555,9 @@ static const struct file_operations fops_status_msg = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(status_msg);
+>>>>>>> upstream/android-13
 
 static int wil_print_rx_buff(struct seq_file *s, struct list_head *lh)
 {
@@ -1237,7 +1575,11 @@ static int wil_print_rx_buff(struct seq_file *s, struct list_head *lh)
 	return i;
 }
 
+<<<<<<< HEAD
 static int wil_rx_buff_mgmt_debugfs_show(struct seq_file *s, void *data)
+=======
+static int rx_buff_mgmt_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	struct wil_rx_buff_mgmt *rbm = &wil->rx_buff_mgmt;
@@ -1262,6 +1604,7 @@ static int wil_rx_buff_mgmt_debugfs_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_rx_buff_mgmt_seq_open(struct inode *inode, struct file *file)
 {
@@ -1275,6 +1618,9 @@ static const struct file_operations fops_rx_buff_mgmt = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(rx_buff_mgmt);
+>>>>>>> upstream/android-13
 
 /*---------beamforming------------*/
 static char *wil_bfstatus_str(u32 status)
@@ -1304,7 +1650,11 @@ static bool is_all_zeros(void * const x_, size_t sz)
 	return true;
 }
 
+<<<<<<< HEAD
 static int wil_bf_debugfs_show(struct seq_file *s, void *data)
+=======
+static int bf_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	int rc;
 	int i;
@@ -1320,22 +1670,39 @@ static int wil_bf_debugfs_show(struct seq_file *s, void *data)
 
 	memset(&reply, 0, sizeof(reply));
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wil->sta); i++) {
 		u32 status;
+=======
+	for (i = 0; i < wil->max_assoc_sta; i++) {
+		u32 status;
+		u8 bf_mcs;
+>>>>>>> upstream/android-13
 
 		cmd.cid = i;
 		rc = wmi_call(wil, WMI_NOTIFY_REQ_CMDID, vif->mid,
 			      &cmd, sizeof(cmd),
 			      WMI_NOTIFY_REQ_DONE_EVENTID, &reply,
+<<<<<<< HEAD
 			      sizeof(reply), 20);
+=======
+			      sizeof(reply), WIL_WMI_CALL_GENERAL_TO_MS);
+>>>>>>> upstream/android-13
 		/* if reply is all-0, ignore this CID */
 		if (rc || is_all_zeros(&reply.evt, sizeof(reply.evt)))
 			continue;
 
 		status = le32_to_cpu(reply.evt.status);
+<<<<<<< HEAD
 		seq_printf(s, "CID %d {\n"
 			   "  TSF = 0x%016llx\n"
 			   "  TxMCS = %2d TxTpt = %4d\n"
+=======
+		bf_mcs = le16_to_cpu(reply.evt.bf_mcs);
+		seq_printf(s, "CID %d {\n"
+			   "  TSF = 0x%016llx\n"
+			   "  TxMCS = %s TxTpt = %4d\n"
+>>>>>>> upstream/android-13
 			   "  SQI = %4d\n"
 			   "  RSSI = %4d\n"
 			   "  Status = 0x%08x %s\n"
@@ -1344,7 +1711,11 @@ static int wil_bf_debugfs_show(struct seq_file *s, void *data)
 			   "}\n",
 			   i,
 			   le64_to_cpu(reply.evt.tsf),
+<<<<<<< HEAD
 			   le16_to_cpu(reply.evt.bf_mcs),
+=======
+			   WIL_EXTENDED_MCS_CHECK(bf_mcs),
+>>>>>>> upstream/android-13
 			   le32_to_cpu(reply.evt.tx_tpt),
 			   reply.evt.sqi,
 			   reply.evt.rssi,
@@ -1358,6 +1729,7 @@ static int wil_bf_debugfs_show(struct seq_file *s, void *data)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_bf_seq_open(struct inode *inode, struct file *file)
 {
@@ -1370,13 +1742,20 @@ static const struct file_operations fops_bf = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(bf);
+>>>>>>> upstream/android-13
 
 /*---------temp------------*/
 static void print_temp(struct seq_file *s, const char *prefix, s32 t)
 {
 	switch (t) {
 	case 0:
+<<<<<<< HEAD
 	case ~(u32)0:
+=======
+	case WMI_INVALID_TEMPERATURE:
+>>>>>>> upstream/android-13
 		seq_printf(s, "%s N/A\n", prefix);
 	break;
 	default:
@@ -1386,6 +1765,7 @@ static void print_temp(struct seq_file *s, const char *prefix, s32 t)
 	}
 }
 
+<<<<<<< HEAD
 static int wil_temp_debugfs_show(struct seq_file *s, void *data)
 {
 	struct wil6210_priv *wil = s->private;
@@ -1441,6 +1821,52 @@ static const struct file_operations fops_freq = {
 
 /*---------link------------*/
 static int wil_link_debugfs_show(struct seq_file *s, void *data)
+=======
+static int temp_show(struct seq_file *s, void *data)
+{
+	struct wil6210_priv *wil = s->private;
+	int rc, i;
+
+	if (test_bit(WMI_FW_CAPABILITY_TEMPERATURE_ALL_RF,
+		     wil->fw_capabilities)) {
+		struct wmi_temp_sense_all_done_event sense_all_evt;
+
+		wil_dbg_misc(wil,
+			     "WMI_FW_CAPABILITY_TEMPERATURE_ALL_RF is supported");
+		rc = wmi_get_all_temperatures(wil, &sense_all_evt);
+		if (rc) {
+			seq_puts(s, "Failed\n");
+			return 0;
+		}
+		print_temp(s, "T_mac   =",
+			   le32_to_cpu(sense_all_evt.baseband_t1000));
+		seq_printf(s, "Connected RFs [0x%08x]\n",
+			   sense_all_evt.rf_bitmap);
+		for (i = 0; i < WMI_MAX_XIF_PORTS_NUM; i++) {
+			seq_printf(s, "RF[%d]   = ", i);
+			print_temp(s, "",
+				   le32_to_cpu(sense_all_evt.rf_t1000[i]));
+		}
+	} else {
+		s32 t_m, t_r;
+
+		wil_dbg_misc(wil,
+			     "WMI_FW_CAPABILITY_TEMPERATURE_ALL_RF is not supported");
+		rc = wmi_get_temperature(wil, &t_m, &t_r);
+		if (rc) {
+			seq_puts(s, "Failed\n");
+			return 0;
+		}
+		print_temp(s, "T_mac   =", t_m);
+		print_temp(s, "T_radio =", t_r);
+	}
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(temp);
+
+/*---------link------------*/
+static int link_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	struct station_info *sinfo;
@@ -1450,7 +1876,11 @@ static int wil_link_debugfs_show(struct seq_file *s, void *data)
 	if (!sinfo)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wil->sta); i++) {
+=======
+	for (i = 0; i < wil->max_assoc_sta; i++) {
+>>>>>>> upstream/android-13
 		struct wil_sta_info *p = &wil->sta[i];
 		char *status = "unknown";
 		struct wil6210_vif *vif;
@@ -1474,14 +1904,25 @@ static int wil_link_debugfs_show(struct seq_file *s, void *data)
 		if (p->status != wil_sta_connected)
 			continue;
 
+<<<<<<< HEAD
 		vif = (mid < wil->max_vifs) ? wil->vifs[mid] : NULL;
+=======
+		vif = (mid < GET_MAX_VIFS(wil)) ? wil->vifs[mid] : NULL;
+>>>>>>> upstream/android-13
 		if (vif) {
 			rc = wil_cid_fill_sinfo(vif, i, sinfo);
 			if (rc)
 				goto out;
 
+<<<<<<< HEAD
 			seq_printf(s, "  Tx_mcs = %d\n", sinfo->txrate.mcs);
 			seq_printf(s, "  Rx_mcs = %d\n", sinfo->rxrate.mcs);
+=======
+			seq_printf(s, "  Tx_mcs = %s\n",
+				   WIL_EXTENDED_MCS_CHECK(sinfo->txrate.mcs));
+			seq_printf(s, "  Rx_mcs = %s\n",
+				   WIL_EXTENDED_MCS_CHECK(sinfo->rxrate.mcs));
+>>>>>>> upstream/android-13
 			seq_printf(s, "  SQ     = %d\n", sinfo->signal);
 		} else {
 			seq_puts(s, "  INVALID MID\n");
@@ -1492,6 +1933,7 @@ out:
 	kfree(sinfo);
 	return rc;
 }
+<<<<<<< HEAD
 
 static int wil_link_seq_open(struct inode *inode, struct file *file)
 {
@@ -1507,6 +1949,12 @@ static const struct file_operations fops_link = {
 
 /*---------info------------*/
 static int wil_info_debugfs_show(struct seq_file *s, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(link);
+
+/*---------info------------*/
+static int info_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	struct net_device *ndev = wil->main_ndev;
@@ -1541,6 +1989,7 @@ static int wil_info_debugfs_show(struct seq_file *s, void *data)
 #undef CHECK_QSTATE
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_info_seq_open(struct inode *inode, struct file *file)
 {
@@ -1553,6 +2002,9 @@ static const struct file_operations fops_info = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(info);
+>>>>>>> upstream/android-13
 
 /*---------recovery------------*/
 /* mode = [manual|auto]
@@ -1668,17 +2120,29 @@ has_keys:
 	seq_puts(s, "\n");
 }
 
+<<<<<<< HEAD
 static int wil_sta_debugfs_show(struct seq_file *s, void *data)
+=======
+static int sta_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 __acquires(&p->tid_rx_lock) __releases(&p->tid_rx_lock)
 {
 	struct wil6210_priv *wil = s->private;
 	int i, tid, mcs;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wil->sta); i++) {
+=======
+	for (i = 0; i < wil->max_assoc_sta; i++) {
+>>>>>>> upstream/android-13
 		struct wil_sta_info *p = &wil->sta[i];
 		char *status = "unknown";
 		u8 aid = 0;
 		u8 mid;
+<<<<<<< HEAD
+=======
+		bool sta_connected = false;
+>>>>>>> upstream/android-13
 
 		switch (p->status) {
 		case wil_sta_unused:
@@ -1693,8 +2157,25 @@ __acquires(&p->tid_rx_lock) __releases(&p->tid_rx_lock)
 			break;
 		}
 		mid = (p->status != wil_sta_unused) ? p->mid : U8_MAX;
+<<<<<<< HEAD
 		seq_printf(s, "[%d] %pM %s MID %d AID %d\n", i, p->addr, status,
 			   mid, aid);
+=======
+		if (mid < GET_MAX_VIFS(wil)) {
+			struct wil6210_vif *vif = wil->vifs[mid];
+
+			if (vif->wdev.iftype == NL80211_IFTYPE_STATION &&
+			    p->status == wil_sta_connected)
+				sta_connected = true;
+		}
+		/* print roam counter only for connected stations */
+		if (sta_connected)
+			seq_printf(s, "[%d] %pM connected (roam counter %d) MID %d AID %d\n",
+				   i, p->addr, p->stats.ft_roams, mid, aid);
+		else
+			seq_printf(s, "[%d] %pM %s MID %d AID %d\n", i,
+				   p->addr, status, mid, aid);
+>>>>>>> upstream/android-13
 
 		if (p->status == wil_sta_connected) {
 			spin_lock_bh(&p->tid_rx_lock);
@@ -1737,6 +2218,7 @@ __acquires(&p->tid_rx_lock) __releases(&p->tid_rx_lock)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_sta_seq_open(struct inode *inode, struct file *file)
 {
@@ -1751,6 +2233,11 @@ static const struct file_operations fops_sta = {
 };
 
 static int wil_mids_debugfs_show(struct seq_file *s, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(sta);
+
+static int mids_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	struct wil6210_priv *wil = s->private;
 	struct wil6210_vif *vif;
@@ -1758,7 +2245,11 @@ static int wil_mids_debugfs_show(struct seq_file *s, void *data)
 	int i;
 
 	mutex_lock(&wil->vif_mutex);
+<<<<<<< HEAD
 	for (i = 0; i < wil->max_vifs; i++) {
+=======
+	for (i = 0; i < GET_MAX_VIFS(wil); i++) {
+>>>>>>> upstream/android-13
 		vif = wil->vifs[i];
 
 		if (vif) {
@@ -1773,6 +2264,7 @@ static int wil_mids_debugfs_show(struct seq_file *s, void *data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int wil_mids_seq_open(struct inode *inode, struct file *file)
 {
@@ -1785,6 +2277,9 @@ static const struct file_operations fops_mids = {
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(mids);
+>>>>>>> upstream/android-13
 
 static int wil_tx_latency_debugfs_show(struct seq_file *s, void *data)
 __acquires(&p->tid_rx_lock) __releases(&p->tid_rx_lock)
@@ -1792,7 +2287,11 @@ __acquires(&p->tid_rx_lock) __releases(&p->tid_rx_lock)
 	struct wil6210_priv *wil = s->private;
 	int i, bin;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wil->sta); i++) {
+=======
+	for (i = 0; i < wil->max_assoc_sta; i++) {
+>>>>>>> upstream/android-13
 		struct wil_sta_info *p = &wil->sta[i];
 		char *status = "unknown";
 		u8 aid = 0;
@@ -1881,7 +2380,11 @@ static ssize_t wil_tx_latency_write(struct file *file, const char __user *buf,
 		size_t sz = sizeof(u64) * WIL_NUM_LATENCY_BINS;
 
 		wil->tx_latency_res = val;
+<<<<<<< HEAD
 		for (i = 0; i < ARRAY_SIZE(wil->sta); i++) {
+=======
+		for (i = 0; i < wil->max_assoc_sta; i++) {
+>>>>>>> upstream/android-13
 			struct wil_sta_info *sta = &wil->sta[i];
 
 			kfree(sta->tx_latency_bins);
@@ -1916,7 +2419,11 @@ static void wil_link_stats_print_basic(struct wil6210_vif *vif,
 		snprintf(per, sizeof(per), "%d%%", basic->per_average);
 
 	seq_printf(s, "CID %d {\n"
+<<<<<<< HEAD
 		   "\tTxMCS %d TxTpt %d\n"
+=======
+		   "\tTxMCS %s TxTpt %d\n"
+>>>>>>> upstream/android-13
 		   "\tGoodput(rx:tx) %d:%d\n"
 		   "\tRxBcastFrames %d\n"
 		   "\tRSSI %d SQI %d SNR %d PER %s\n"
@@ -1924,7 +2431,12 @@ static void wil_link_stats_print_basic(struct wil6210_vif *vif,
 		   "\tSectors(rx:tx) my %d:%d peer %d:%d\n"
 		   "}\n",
 		   basic->cid,
+<<<<<<< HEAD
 		   basic->bf_mcs, le32_to_cpu(basic->tx_tpt),
+=======
+		   WIL_EXTENDED_MCS_CHECK(basic->bf_mcs),
+		   le32_to_cpu(basic->tx_tpt),
+>>>>>>> upstream/android-13
 		   le32_to_cpu(basic->rx_goodput),
 		   le32_to_cpu(basic->tx_goodput),
 		   le32_to_cpu(basic->rx_bcast_frames),
@@ -1966,7 +2478,11 @@ static void wil_link_stats_debugfs_show_vif(struct wil6210_vif *vif,
 	}
 
 	seq_printf(s, "TSF %lld\n", vif->fw_stats_tsf);
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wil->sta); i++) {
+=======
+	for (i = 0; i < wil->max_assoc_sta; i++) {
+>>>>>>> upstream/android-13
 		if (wil->sta[i].status == wil_sta_unused)
 			continue;
 		if (wil->sta[i].mid != vif->mid)
@@ -1990,7 +2506,11 @@ static int wil_link_stats_debugfs_show(struct seq_file *s, void *data)
 	/* iterate over all MIDs and show per-cid statistics. Then show the
 	 * global statistics
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < wil->max_vifs; i++) {
+=======
+	for (i = 0; i < GET_MAX_VIFS(wil); i++) {
+>>>>>>> upstream/android-13
 		vif = wil->vifs[i];
 
 		seq_printf(s, "MID %d ", i);
@@ -2046,7 +2566,11 @@ static ssize_t wil_link_stats_write(struct file *file, const char __user *buf,
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	for (i = 0; i < wil->max_vifs; i++) {
+=======
+	for (i = 0; i < GET_MAX_VIFS(wil); i++) {
+>>>>>>> upstream/android-13
 		vif = wil->vifs[i];
 		if (!vif)
 			continue;
@@ -2428,6 +2952,7 @@ static const struct {
 	umode_t mode;
 	const struct file_operations *fops;
 } dbg_files[] = {
+<<<<<<< HEAD
 	{"mbox",	0444,		&fops_mbox},
 	{"rings",	0444,		&fops_ring},
 	{"stations", 0444,		&fops_sta},
@@ -2435,16 +2960,32 @@ static const struct {
 	{"desc",	0444,		&fops_txdesc},
 	{"bf",		0444,		&fops_bf},
 	{"mem_val",	0644,		&fops_memread},
+=======
+	{"mbox",	0444,		&mbox_fops},
+	{"rings",	0444,		&ring_fops},
+	{"stations", 0444,		&sta_fops},
+	{"mids",	0444,		&mids_fops},
+	{"desc",	0444,		&txdesc_fops},
+	{"bf",		0444,		&bf_fops},
+	{"mem_val",	0644,		&memread_fops},
+>>>>>>> upstream/android-13
 	{"rxon",	0244,		&fops_rxon},
 	{"tx_mgmt",	0244,		&fops_txmgmt},
 	{"wmi_send", 0244,		&fops_wmi},
 	{"back",	0644,		&fops_back},
 	{"pmccfg",	0644,		&fops_pmccfg},
 	{"pmcdata",	0444,		&fops_pmcdata},
+<<<<<<< HEAD
 	{"temp",	0444,		&fops_temp},
 	{"freq",	0444,		&fops_freq},
 	{"link",	0444,		&fops_link},
 	{"info",	0444,		&fops_info},
+=======
+	{"pmcring",	0444,		&fops_pmcring},
+	{"temp",	0444,		&temp_fops},
+	{"link",	0444,		&link_fops},
+	{"info",	0444,		&info_fops},
+>>>>>>> upstream/android-13
 	{"recovery", 0644,		&fops_recovery},
 	{"led_cfg",	0644,		&fops_led_cfg},
 	{"led_blink_time",	0644,	&fops_led_blink_time},
@@ -2452,12 +2993,22 @@ static const struct {
 	{"fw_version",	0444,		&fops_fw_version},
 	{"suspend_stats",	0644,	&fops_suspend_stats},
 	{"compressed_rx_status", 0644,	&fops_compressed_rx_status},
+<<<<<<< HEAD
 	{"srings",	0444,		&fops_srings},
 	{"status_msg",	0444,		&fops_status_msg},
 	{"rx_buff_mgmt",	0444,	&fops_rx_buff_mgmt},
 	{"tx_latency",	0644,		&fops_tx_latency},
 	{"link_stats",	0644,		&fops_link_stats},
 	{"link_stats_global",	0644,	&fops_link_stats_global},
+=======
+	{"srings",	0444,		&srings_fops},
+	{"status_msg",	0444,		&status_msg_fops},
+	{"rx_buff_mgmt",	0444,	&rx_buff_mgmt_fops},
+	{"tx_latency",	0644,		&fops_tx_latency},
+	{"link_stats",	0644,		&fops_link_stats},
+	{"link_stats_global",	0644,	&fops_link_stats_global},
+	{"rbufcap",	0244,		&fops_rbufcap},
+>>>>>>> upstream/android-13
 };
 
 static void wil6210_debugfs_init_files(struct wil6210_priv *wil,
@@ -2516,6 +3067,10 @@ static const struct dbg_off dbg_wil_regs[] = {
 	{"RGF_MAC_MTRL_COUNTER_0", 0444, HOSTADDR(RGF_MAC_MTRL_COUNTER_0),
 		doff_io32},
 	{"RGF_USER_USAGE_1", 0444, HOSTADDR(RGF_USER_USAGE_1), doff_io32},
+<<<<<<< HEAD
+=======
+	{"RGF_USER_USAGE_2", 0444, HOSTADDR(RGF_USER_USAGE_2), doff_io32},
+>>>>>>> upstream/android-13
 	{},
 };
 
@@ -2527,6 +3082,10 @@ static const struct dbg_off dbg_statics[] = {
 	{"led_polarity", 0644, (ulong)&led_polarity, doff_u8},
 	{"status_index", 0644, (ulong)&dbg_status_msg_index, doff_u32},
 	{"sring_index",	0644, (ulong)&dbg_sring_index, doff_u32},
+<<<<<<< HEAD
+=======
+	{"drop_if_ring_full", 0644, (ulong)&drop_if_ring_full, doff_u8},
+>>>>>>> upstream/android-13
 	{},
 };
 
@@ -2580,7 +3139,11 @@ void wil6210_debugfs_remove(struct wil6210_priv *wil)
 	wil->debug = NULL;
 
 	kfree(wil->dbg_data.data_arr);
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(wil->sta); i++)
+=======
+	for (i = 0; i < wil->max_assoc_sta; i++)
+>>>>>>> upstream/android-13
 		kfree(wil->sta[i].tx_latency_bins);
 
 	/* free pmc memory without sending command to fw, as it will

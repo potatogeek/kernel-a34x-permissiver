@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *	(C)Copyright 1998,1999 SysKonnect,
  *	a business unit of Schneider & Koch & Co. Datensysteme GmbH.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
@@ -126,7 +133,11 @@ struct s_rmt {
 	u_char timer1_exp ;		/* flag : timer 1 expired */
 	u_char timer2_exp ;		/* flag : timer 2 expired */
 
+<<<<<<< HEAD
 	u_char rm_pad1[1] ;
+=======
+	u_char rm_pad1;
+>>>>>>> upstream/android-13
 } ;
 
 /*
@@ -232,7 +243,11 @@ struct s_phy {
 	u_char timer1_exp ;
 	u_char timer2_exp ;
 	u_char pcm_pad1[1] ;
+<<<<<<< HEAD
 	int	cem_pst ;	/* CEM privae state; used for dual homing */
+=======
+	int	cem_pst ;	/* CEM private state; used for dual homing */
+>>>>>>> upstream/android-13
 	struct lem_counter lem ;
 #ifdef	AMDPLC
 	struct s_plc	plc ;

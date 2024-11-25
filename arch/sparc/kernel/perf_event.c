@@ -1771,9 +1771,17 @@ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
 		perf_callchain_store(entry, pc);
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 		if ((pc + 8UL) == (unsigned long) &return_to_handler) {
+<<<<<<< HEAD
 			int index = current->curr_ret_stack;
 			if (current->ret_stack && index >= graph) {
 				pc = current->ret_stack[index - graph].ret;
+=======
+			struct ftrace_ret_stack *ret_stack;
+			ret_stack = ftrace_graph_get_ret_stack(current,
+							       graph);
+			if (ret_stack) {
+				pc = ret_stack->ret;
+>>>>>>> upstream/android-13
 				perf_callchain_store(entry, pc);
 				graph++;
 			}
@@ -1853,16 +1861,22 @@ perf_callchain_user(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs
 {
 	u64 saved_fault_address = current_thread_info()->fault_address;
 	u8 saved_fault_code = get_thread_fault_code();
+<<<<<<< HEAD
 	mm_segment_t old_fs;
+=======
+>>>>>>> upstream/android-13
 
 	perf_callchain_store(entry, regs->tpc);
 
 	if (!current->mm)
 		return;
 
+<<<<<<< HEAD
 	old_fs = get_fs();
 	set_fs(USER_DS);
 
+=======
+>>>>>>> upstream/android-13
 	flushw_user();
 
 	pagefault_disable();
@@ -1874,7 +1888,10 @@ perf_callchain_user(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs
 
 	pagefault_enable();
 
+<<<<<<< HEAD
 	set_fs(old_fs);
+=======
+>>>>>>> upstream/android-13
 	set_thread_fault_code(saved_fault_code);
 	current_thread_info()->fault_address = saved_fault_address;
 }

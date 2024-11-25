@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Driver for Teranetics PHY
  *
  * Author: Shaohui Xie <Shaohui.Xie@freescale.com>
  *
  * Copyright 2015 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This file is licensed under the terms of the GNU General Public License
  * version 2.  This program is licensed "as is" without any warranty of any
  * kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -80,9 +87,14 @@ static struct phy_driver teranetics_driver[] = {
 	.phy_id		= PHY_ID_TN2020,
 	.phy_id_mask	= 0xffffffff,
 	.name		= "Teranetics TN2020",
+<<<<<<< HEAD
 	.soft_reset	= gen10g_no_soft_reset,
 	.aneg_done	= teranetics_aneg_done,
 	.config_init    = gen10g_config_init,
+=======
+	.features       = PHY_10GBIT_FEATURES,
+	.aneg_done	= teranetics_aneg_done,
+>>>>>>> upstream/android-13
 	.config_aneg    = gen10g_config_aneg,
 	.read_status	= teranetics_read_status,
 	.match_phy_device = teranetics_match_phy_device,

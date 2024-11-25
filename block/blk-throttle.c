@@ -12,12 +12,22 @@
 #include <linux/blktrace_api.h>
 #include <linux/blk-cgroup.h>
 #include "blk.h"
+<<<<<<< HEAD
 
 /* Max dispatch from a group in 1 round */
 static int throtl_grp_quantum = 8;
 
 /* Total max dispatch from all groups in one round */
 static int throtl_quantum = 32;
+=======
+#include "blk-cgroup-rwstat.h"
+
+/* Max dispatch from a group in 1 round */
+#define THROTL_GRP_QUANTUM 8
+
+/* Total max dispatch from all groups in one round */
+#define THROTL_QUANTUM 32
+>>>>>>> upstream/android-13
 
 /* Throttling is performed over a slice and after that slice is renewed */
 #define DFL_THROTL_SLICE_HD (HZ / 10)
@@ -84,8 +94,12 @@ struct throtl_service_queue {
 	 * RB tree of active children throtl_grp's, which are sorted by
 	 * their ->disptime.
 	 */
+<<<<<<< HEAD
 	struct rb_root		pending_tree;	/* RB tree of active tgs */
 	struct rb_node		*first_pending;	/* first node in the tree */
+=======
+	struct rb_root_cached	pending_tree;	/* RB tree of active tgs */
+>>>>>>> upstream/android-13
 	unsigned int		nr_pending;	/* # queued in the tree */
 	unsigned long		first_pending_disptime;	/* disptime of the first tg */
 	struct timer_list	pending_timer;	/* fires on first_pending_disptime */
@@ -150,7 +164,11 @@ struct throtl_grp {
 	/* user configured IOPS limits */
 	unsigned int iops_conf[2][LIMIT_CNT];
 
+<<<<<<< HEAD
 	/* Number of bytes disptached in current slice */
+=======
+	/* Number of bytes dispatched in current slice */
+>>>>>>> upstream/android-13
 	uint64_t bytes_disp[2];
 	/* Number of bio's dispatched in current slice */
 	unsigned int io_disp[2];
@@ -177,6 +195,15 @@ struct throtl_grp {
 	unsigned int bio_cnt; /* total bios */
 	unsigned int bad_bio_cnt; /* bios exceeding latency threshold */
 	unsigned long bio_cnt_reset_time;
+<<<<<<< HEAD
+=======
+
+	atomic_t io_split_cnt[2];
+	atomic_t last_io_split_cnt[2];
+
+	struct blkg_rwstat stat_bytes;
+	struct blkg_rwstat stat_ios;
+>>>>>>> upstream/android-13
 };
 
 /* We measure latency for request size from <= 4k to >= 1M */
@@ -420,12 +447,20 @@ static void throtl_qnode_add_bio(struct bio *bio, struct throtl_qnode *qn,
  */
 static struct bio *throtl_peek_queued(struct list_head *queued)
 {
+<<<<<<< HEAD
 	struct throtl_qnode *qn = list_first_entry(queued, struct throtl_qnode, node);
+=======
+	struct throtl_qnode *qn;
+>>>>>>> upstream/android-13
 	struct bio *bio;
 
 	if (list_empty(queued))
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	qn = list_first_entry(queued, struct throtl_qnode, node);
+>>>>>>> upstream/android-13
 	bio = bio_list_peek(&qn->bios);
 	WARN_ON_ONCE(!bio);
 	return bio;
@@ -448,12 +483,20 @@ static struct bio *throtl_peek_queued(struct list_head *queued)
 static struct bio *throtl_pop_queued(struct list_head *queued,
 				     struct throtl_grp **tg_to_put)
 {
+<<<<<<< HEAD
 	struct throtl_qnode *qn = list_first_entry(queued, struct throtl_qnode, node);
+=======
+	struct throtl_qnode *qn;
+>>>>>>> upstream/android-13
 	struct bio *bio;
 
 	if (list_empty(queued))
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	qn = list_first_entry(queued, struct throtl_qnode, node);
+>>>>>>> upstream/android-13
 	bio = bio_list_pop(&qn->bios);
 	WARN_ON_ONCE(!bio);
 
@@ -475,19 +518,42 @@ static void throtl_service_queue_init(struct throtl_service_queue *sq)
 {
 	INIT_LIST_HEAD(&sq->queued[0]);
 	INIT_LIST_HEAD(&sq->queued[1]);
+<<<<<<< HEAD
 	sq->pending_tree = RB_ROOT;
 	timer_setup(&sq->pending_timer, throtl_pending_timer_fn, 0);
 }
 
 static struct blkg_policy_data *throtl_pd_alloc(gfp_t gfp, int node)
+=======
+	sq->pending_tree = RB_ROOT_CACHED;
+	timer_setup(&sq->pending_timer, throtl_pending_timer_fn, 0);
+}
+
+static struct blkg_policy_data *throtl_pd_alloc(gfp_t gfp,
+						struct request_queue *q,
+						struct blkcg *blkcg)
+>>>>>>> upstream/android-13
 {
 	struct throtl_grp *tg;
 	int rw;
 
+<<<<<<< HEAD
 	tg = kzalloc_node(sizeof(*tg), gfp, node);
 	if (!tg)
 		return NULL;
 
+=======
+	tg = kzalloc_node(sizeof(*tg), gfp, q->node);
+	if (!tg)
+		return NULL;
+
+	if (blkg_rwstat_init(&tg->stat_bytes, gfp))
+		goto err_free_tg;
+
+	if (blkg_rwstat_init(&tg->stat_ios, gfp))
+		goto err_exit_stat_bytes;
+
+>>>>>>> upstream/android-13
 	throtl_service_queue_init(&tg->service_queue);
 
 	for (rw = READ; rw <= WRITE; rw++) {
@@ -512,6 +578,15 @@ static struct blkg_policy_data *throtl_pd_alloc(gfp_t gfp, int node)
 	tg->idletime_threshold_conf = DFL_IDLE_THRESHOLD;
 
 	return &tg->pd;
+<<<<<<< HEAD
+=======
+
+err_exit_stat_bytes:
+	blkg_rwstat_exit(&tg->stat_bytes);
+err_free_tg:
+	kfree(tg);
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static void throtl_pd_init(struct blkg_policy_data *pd)
@@ -568,6 +643,10 @@ static void throtl_pd_online(struct blkg_policy_data *pd)
 	tg_update_has_rules(tg);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEV_THROTTLING_LOW
+>>>>>>> upstream/android-13
 static void blk_throtl_update_limit_valid(struct throtl_data *td)
 {
 	struct cgroup_subsys_state *pos_css;
@@ -588,6 +667,14 @@ static void blk_throtl_update_limit_valid(struct throtl_data *td)
 
 	td->limit_valid[LIMIT_LOW] = low_valid;
 }
+<<<<<<< HEAD
+=======
+#else
+static inline void blk_throtl_update_limit_valid(struct throtl_data *td)
+{
+}
+#endif
+>>>>>>> upstream/android-13
 
 static void throtl_upgrade_state(struct throtl_data *td);
 static void throtl_pd_offline(struct blkg_policy_data *pd)
@@ -610,12 +697,18 @@ static void throtl_pd_free(struct blkg_policy_data *pd)
 	struct throtl_grp *tg = pd_to_tg(pd);
 
 	del_timer_sync(&tg->service_queue.pending_timer);
+<<<<<<< HEAD
+=======
+	blkg_rwstat_exit(&tg->stat_bytes);
+	blkg_rwstat_exit(&tg->stat_ios);
+>>>>>>> upstream/android-13
 	kfree(tg);
 }
 
 static struct throtl_grp *
 throtl_rb_first(struct throtl_service_queue *parent_sq)
 {
+<<<<<<< HEAD
 	/* Service tree is empty */
 	if (!parent_sq->nr_pending)
 		return NULL;
@@ -633,14 +726,28 @@ static void rb_erase_init(struct rb_node *n, struct rb_root *root)
 {
 	rb_erase(n, root);
 	RB_CLEAR_NODE(n);
+=======
+	struct rb_node *n;
+
+	n = rb_first_cached(&parent_sq->pending_tree);
+	WARN_ON_ONCE(!n);
+	if (!n)
+		return NULL;
+	return rb_entry_tg(n);
+>>>>>>> upstream/android-13
 }
 
 static void throtl_rb_erase(struct rb_node *n,
 			    struct throtl_service_queue *parent_sq)
 {
+<<<<<<< HEAD
 	if (parent_sq->first_pending == n)
 		parent_sq->first_pending = NULL;
 	rb_erase_init(n, &parent_sq->pending_tree);
+=======
+	rb_erase_cached(n, &parent_sq->pending_tree);
+	RB_CLEAR_NODE(n);
+>>>>>>> upstream/android-13
 	--parent_sq->nr_pending;
 }
 
@@ -658,11 +765,19 @@ static void update_min_dispatch_time(struct throtl_service_queue *parent_sq)
 static void tg_service_queue_add(struct throtl_grp *tg)
 {
 	struct throtl_service_queue *parent_sq = tg->service_queue.parent_sq;
+<<<<<<< HEAD
 	struct rb_node **node = &parent_sq->pending_tree.rb_node;
 	struct rb_node *parent = NULL;
 	struct throtl_grp *__tg;
 	unsigned long key = tg->disptime;
 	int left = 1;
+=======
+	struct rb_node **node = &parent_sq->pending_tree.rb_root.rb_node;
+	struct rb_node *parent = NULL;
+	struct throtl_grp *__tg;
+	unsigned long key = tg->disptime;
+	bool leftmost = true;
+>>>>>>> upstream/android-13
 
 	while (*node != NULL) {
 		parent = *node;
@@ -672,6 +787,7 @@ static void tg_service_queue_add(struct throtl_grp *tg)
 			node = &parent->rb_left;
 		else {
 			node = &parent->rb_right;
+<<<<<<< HEAD
 			left = 0;
 		}
 	}
@@ -688,10 +804,20 @@ static void __throtl_enqueue_tg(struct throtl_grp *tg)
 	tg_service_queue_add(tg);
 	tg->flags |= THROTL_TG_PENDING;
 	tg->service_queue.parent_sq->nr_pending++;
+=======
+			leftmost = false;
+		}
+	}
+
+	rb_link_node(&tg->rb_node, parent, node);
+	rb_insert_color_cached(&tg->rb_node, &parent_sq->pending_tree,
+			       leftmost);
+>>>>>>> upstream/android-13
 }
 
 static void throtl_enqueue_tg(struct throtl_grp *tg)
 {
+<<<<<<< HEAD
 	if (!(tg->flags & THROTL_TG_PENDING))
 		__throtl_enqueue_tg(tg);
 }
@@ -700,12 +826,26 @@ static void __throtl_dequeue_tg(struct throtl_grp *tg)
 {
 	throtl_rb_erase(&tg->rb_node, tg->service_queue.parent_sq);
 	tg->flags &= ~THROTL_TG_PENDING;
+=======
+	if (!(tg->flags & THROTL_TG_PENDING)) {
+		tg_service_queue_add(tg);
+		tg->flags |= THROTL_TG_PENDING;
+		tg->service_queue.parent_sq->nr_pending++;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void throtl_dequeue_tg(struct throtl_grp *tg)
 {
+<<<<<<< HEAD
 	if (tg->flags & THROTL_TG_PENDING)
 		__throtl_dequeue_tg(tg);
+=======
+	if (tg->flags & THROTL_TG_PENDING) {
+		throtl_rb_erase(&tg->rb_node, tg->service_queue.parent_sq);
+		tg->flags &= ~THROTL_TG_PENDING;
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Call with queue lock held */
@@ -771,6 +911,11 @@ static inline void throtl_start_new_slice_with_credit(struct throtl_grp *tg,
 	tg->bytes_disp[rw] = 0;
 	tg->io_disp[rw] = 0;
 
+<<<<<<< HEAD
+=======
+	atomic_set(&tg->io_split_cnt[rw], 0);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Previous slice has expired. We must have trimmed it after last
 	 * bio dispatch. That means since start of last slice, we never used
@@ -793,6 +938,12 @@ static inline void throtl_start_new_slice(struct throtl_grp *tg, bool rw)
 	tg->io_disp[rw] = 0;
 	tg->slice_start[rw] = jiffies;
 	tg->slice_end[rw] = jiffies + tg->td->throtl_slice;
+<<<<<<< HEAD
+=======
+
+	atomic_set(&tg->io_split_cnt[rw], 0);
+
+>>>>>>> upstream/android-13
 	throtl_log(&tg->service_queue,
 		   "[%c] new slice start=%lu end=%lu jiffies=%lu",
 		   rw == READ ? 'R' : 'W', tg->slice_start[rw],
@@ -808,7 +959,11 @@ static inline void throtl_set_slice_end(struct throtl_grp *tg, bool rw,
 static inline void throtl_extend_slice(struct throtl_grp *tg, bool rw,
 				       unsigned long jiffy_end)
 {
+<<<<<<< HEAD
 	tg->slice_end[rw] = roundup(jiffy_end, tg->td->throtl_slice);
+=======
+	throtl_set_slice_end(tg, rw, jiffy_end);
+>>>>>>> upstream/android-13
 	throtl_log(&tg->service_queue,
 		   "[%c] extend slice start=%lu end=%lu jiffies=%lu",
 		   rw == READ ? 'R' : 'W', tg->slice_start[rw],
@@ -843,7 +998,11 @@ static inline void throtl_trim_slice(struct throtl_grp *tg, bool rw)
 	/*
 	 * A bio has been dispatched. Also adjust slice_end. It might happen
 	 * that initially cgroup limit was very low resulting in high
+<<<<<<< HEAD
 	 * slice_end, but later limit was bumped up and bio was dispached
+=======
+	 * slice_end, but later limit was bumped up and bio was dispatched
+>>>>>>> upstream/android-13
 	 * sooner, then we need to reduce slice_end. A high bogus slice_end
 	 * is bad because it does not allow new slice to start.
 	 */
@@ -885,13 +1044,26 @@ static inline void throtl_trim_slice(struct throtl_grp *tg, bool rw)
 }
 
 static bool tg_with_in_iops_limit(struct throtl_grp *tg, struct bio *bio,
+<<<<<<< HEAD
 				  unsigned long *wait)
+=======
+				  u32 iops_limit, unsigned long *wait)
+>>>>>>> upstream/android-13
 {
 	bool rw = bio_data_dir(bio);
 	unsigned int io_allowed;
 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
 	u64 tmp;
 
+<<<<<<< HEAD
+=======
+	if (iops_limit == UINT_MAX) {
+		if (wait)
+			*wait = 0;
+		return true;
+	}
+
+>>>>>>> upstream/android-13
 	jiffy_elapsed = jiffies - tg->slice_start[rw];
 
 	/* Round up to the next throttle slice, wait time must be nonzero */
@@ -904,7 +1076,11 @@ static bool tg_with_in_iops_limit(struct throtl_grp *tg, struct bio *bio,
 	 * have been trimmed.
 	 */
 
+<<<<<<< HEAD
 	tmp = (u64)tg_iops_limit(tg, rw) * jiffy_elapsed_rnd;
+=======
+	tmp = (u64)iops_limit * jiffy_elapsed_rnd;
+>>>>>>> upstream/android-13
 	do_div(tmp, HZ);
 
 	if (tmp > UINT_MAX)
@@ -927,13 +1103,26 @@ static bool tg_with_in_iops_limit(struct throtl_grp *tg, struct bio *bio,
 }
 
 static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
+<<<<<<< HEAD
 				 unsigned long *wait)
+=======
+				 u64 bps_limit, unsigned long *wait)
+>>>>>>> upstream/android-13
 {
 	bool rw = bio_data_dir(bio);
 	u64 bytes_allowed, extra_bytes, tmp;
 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
 	unsigned int bio_size = throtl_bio_data_size(bio);
 
+<<<<<<< HEAD
+=======
+	if (bps_limit == U64_MAX) {
+		if (wait)
+			*wait = 0;
+		return true;
+	}
+
+>>>>>>> upstream/android-13
 	jiffy_elapsed = jiffy_elapsed_rnd = jiffies - tg->slice_start[rw];
 
 	/* Slice has just started. Consider one slice interval */
@@ -942,7 +1131,11 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
 
 	jiffy_elapsed_rnd = roundup(jiffy_elapsed_rnd, tg->td->throtl_slice);
 
+<<<<<<< HEAD
 	tmp = tg_bps_limit(tg, rw) * jiffy_elapsed_rnd;
+=======
+	tmp = bps_limit * jiffy_elapsed_rnd;
+>>>>>>> upstream/android-13
 	do_div(tmp, HZ);
 	bytes_allowed = tmp;
 
@@ -954,7 +1147,11 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
 
 	/* Calc approx time to dispatch */
 	extra_bytes = tg->bytes_disp[rw] + bio_size - bytes_allowed;
+<<<<<<< HEAD
 	jiffy_wait = div64_u64(extra_bytes * HZ, tg_bps_limit(tg, rw));
+=======
+	jiffy_wait = div64_u64(extra_bytes * HZ, bps_limit);
+>>>>>>> upstream/android-13
 
 	if (!jiffy_wait)
 		jiffy_wait = 1;
@@ -978,6 +1175,11 @@ static bool tg_may_dispatch(struct throtl_grp *tg, struct bio *bio,
 {
 	bool rw = bio_data_dir(bio);
 	unsigned long bps_wait = 0, iops_wait = 0, max_wait = 0;
+<<<<<<< HEAD
+=======
+	u64 bps_limit = tg_bps_limit(tg, rw);
+	u32 iops_limit = tg_iops_limit(tg, rw);
+>>>>>>> upstream/android-13
 
 	/*
  	 * Currently whole state machine of group depends on first bio
@@ -989,8 +1191,12 @@ static bool tg_may_dispatch(struct throtl_grp *tg, struct bio *bio,
 	       bio != throtl_peek_queued(&tg->service_queue.queued[rw]));
 
 	/* If tg->bps = -1, then BW is unlimited */
+<<<<<<< HEAD
 	if (tg_bps_limit(tg, rw) == U64_MAX &&
 	    tg_iops_limit(tg, rw) == UINT_MAX) {
+=======
+	if (bps_limit == U64_MAX && iops_limit == UINT_MAX) {
+>>>>>>> upstream/android-13
 		if (wait)
 			*wait = 0;
 		return true;
@@ -1012,8 +1218,16 @@ static bool tg_may_dispatch(struct throtl_grp *tg, struct bio *bio,
 				jiffies + tg->td->throtl_slice);
 	}
 
+<<<<<<< HEAD
 	if (tg_with_in_bps_limit(tg, bio, &bps_wait) &&
 	    tg_with_in_iops_limit(tg, bio, &iops_wait)) {
+=======
+	if (iops_limit != UINT_MAX)
+		tg->io_disp[rw] += atomic_xchg(&tg->io_split_cnt[rw], 0);
+
+	if (tg_with_in_bps_limit(tg, bio, bps_limit, &bps_wait) &&
+	    tg_with_in_iops_limit(tg, bio, iops_limit, &iops_wait)) {
+>>>>>>> upstream/android-13
 		if (wait)
 			*wait = 0;
 		return true;
@@ -1073,7 +1287,11 @@ static void throtl_add_bio_tg(struct bio *bio, struct throtl_qnode *qn,
 	 * If @tg doesn't currently have any bios queued in the same
 	 * direction, queueing @bio can change when @tg should be
 	 * dispatched.  Mark that @tg was empty.  This is automatically
+<<<<<<< HEAD
 	 * cleaered on the next tg_update_disptime().
+=======
+	 * cleared on the next tg_update_disptime().
+>>>>>>> upstream/android-13
 	 */
 	if (!sq->nr_queued[rw])
 		tg->flags |= THROTL_TG_WAS_EMPTY;
@@ -1166,8 +1384,13 @@ static int throtl_dispatch_tg(struct throtl_grp *tg)
 {
 	struct throtl_service_queue *sq = &tg->service_queue;
 	unsigned int nr_reads = 0, nr_writes = 0;
+<<<<<<< HEAD
 	unsigned int max_nr_reads = throtl_grp_quantum*3/4;
 	unsigned int max_nr_writes = throtl_grp_quantum - max_nr_reads;
+=======
+	unsigned int max_nr_reads = THROTL_GRP_QUANTUM * 3 / 4;
+	unsigned int max_nr_writes = THROTL_GRP_QUANTUM - max_nr_reads;
+>>>>>>> upstream/android-13
 	struct bio *bio;
 
 	/* Try to dispatch 75% READS and 25% WRITES */
@@ -1200,9 +1423,19 @@ static int throtl_select_dispatch(struct throtl_service_queue *parent_sq)
 	unsigned int nr_disp = 0;
 
 	while (1) {
+<<<<<<< HEAD
 		struct throtl_grp *tg = throtl_rb_first(parent_sq);
 		struct throtl_service_queue *sq;
 
+=======
+		struct throtl_grp *tg;
+		struct throtl_service_queue *sq;
+
+		if (!parent_sq->nr_pending)
+			break;
+
+		tg = throtl_rb_first(parent_sq);
+>>>>>>> upstream/android-13
 		if (!tg)
 			break;
 
@@ -1217,7 +1450,11 @@ static int throtl_select_dispatch(struct throtl_service_queue *parent_sq)
 		if (sq->nr_queued[0] || sq->nr_queued[1])
 			tg_update_disptime(tg);
 
+<<<<<<< HEAD
 		if (nr_disp >= throtl_quantum)
+=======
+		if (nr_disp >= THROTL_QUANTUM)
+>>>>>>> upstream/android-13
 			break;
 	}
 
@@ -1228,7 +1465,11 @@ static bool throtl_can_upgrade(struct throtl_data *td,
 	struct throtl_grp *this_tg);
 /**
  * throtl_pending_timer_fn - timer function for service_queue->pending_timer
+<<<<<<< HEAD
  * @arg: the throtl_service_queue being serviced
+=======
+ * @t: the pending_timer member of the throtl_service_queue being serviced
+>>>>>>> upstream/android-13
  *
  * This timer is armed when a child throtl_grp with active bio's become
  * pending and queued on the service_queue's pending_tree and expires when
@@ -1251,7 +1492,11 @@ static void throtl_pending_timer_fn(struct timer_list *t)
 	bool dispatched;
 	int ret;
 
+<<<<<<< HEAD
 	spin_lock_irq(q->queue_lock);
+=======
+	spin_lock_irq(&q->queue_lock);
+>>>>>>> upstream/android-13
 	if (throtl_can_upgrade(td, NULL))
 		throtl_upgrade_state(td);
 
@@ -1274,9 +1519,15 @@ again:
 			break;
 
 		/* this dispatch windows is still open, relax and repeat */
+<<<<<<< HEAD
 		spin_unlock_irq(q->queue_lock);
 		cpu_relax();
 		spin_lock_irq(q->queue_lock);
+=======
+		spin_unlock_irq(&q->queue_lock);
+		cpu_relax();
+		spin_lock_irq(&q->queue_lock);
+>>>>>>> upstream/android-13
 	}
 
 	if (!dispatched)
@@ -1294,19 +1545,32 @@ again:
 			}
 		}
 	} else {
+<<<<<<< HEAD
 		/* reached the top-level, queue issueing */
 		queue_work(kthrotld_workqueue, &td->dispatch_work);
 	}
 out_unlock:
 	spin_unlock_irq(q->queue_lock);
+=======
+		/* reached the top-level, queue issuing */
+		queue_work(kthrotld_workqueue, &td->dispatch_work);
+	}
+out_unlock:
+	spin_unlock_irq(&q->queue_lock);
+>>>>>>> upstream/android-13
 }
 
 /**
  * blk_throtl_dispatch_work_fn - work function for throtl_data->dispatch_work
  * @work: work item being executed
  *
+<<<<<<< HEAD
  * This function is queued for execution when bio's reach the bio_lists[]
  * of throtl_data->service_queue.  Those bio's are ready and issued by this
+=======
+ * This function is queued for execution when bios reach the bio_lists[]
+ * of throtl_data->service_queue.  Those bios are ready and issued by this
+>>>>>>> upstream/android-13
  * function.
  */
 static void blk_throtl_dispatch_work_fn(struct work_struct *work)
@@ -1322,6 +1586,7 @@ static void blk_throtl_dispatch_work_fn(struct work_struct *work)
 
 	bio_list_init(&bio_list_on_stack);
 
+<<<<<<< HEAD
 	spin_lock_irq(q->queue_lock);
 	for (rw = READ; rw <= WRITE; rw++)
 		while ((bio = throtl_pop_queued(&td_sq->queued[rw], NULL)))
@@ -1332,6 +1597,18 @@ static void blk_throtl_dispatch_work_fn(struct work_struct *work)
 		blk_start_plug(&plug);
 		while((bio = bio_list_pop(&bio_list_on_stack)))
 			generic_make_request(bio);
+=======
+	spin_lock_irq(&q->queue_lock);
+	for (rw = READ; rw <= WRITE; rw++)
+		while ((bio = throtl_pop_queued(&td_sq->queued[rw], NULL)))
+			bio_list_add(&bio_list_on_stack, bio);
+	spin_unlock_irq(&q->queue_lock);
+
+	if (!bio_list_empty(&bio_list_on_stack)) {
+		blk_start_plug(&plug);
+		while ((bio = bio_list_pop(&bio_list_on_stack)))
+			submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		blk_finish_plug(&plug);
 	}
 }
@@ -1419,8 +1696,13 @@ static void tg_conf_updated(struct throtl_grp *tg, bool global)
 	 * that a group's limit are dropped suddenly and we don't want to
 	 * account recently dispatched IO with new low rate.
 	 */
+<<<<<<< HEAD
 	throtl_start_new_slice(tg, 0);
 	throtl_start_new_slice(tg, 1);
+=======
+	throtl_start_new_slice(tg, READ);
+	throtl_start_new_slice(tg, WRITE);
+>>>>>>> upstream/android-13
 
 	if (tg->flags & THROTL_TG_PENDING) {
 		tg_update_disptime(tg);
@@ -1473,6 +1755,35 @@ static ssize_t tg_set_conf_uint(struct kernfs_open_file *of,
 	return tg_set_conf(of, buf, nbytes, off, false);
 }
 
+<<<<<<< HEAD
+=======
+static int tg_print_rwstat(struct seq_file *sf, void *v)
+{
+	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)),
+			  blkg_prfill_rwstat, &blkcg_policy_throtl,
+			  seq_cft(sf)->private, true);
+	return 0;
+}
+
+static u64 tg_prfill_rwstat_recursive(struct seq_file *sf,
+				      struct blkg_policy_data *pd, int off)
+{
+	struct blkg_rwstat_sample sum;
+
+	blkg_rwstat_recursive_sum(pd_to_blkg(pd), &blkcg_policy_throtl, off,
+				  &sum);
+	return __blkg_prfill_rwstat(sf, pd, &sum);
+}
+
+static int tg_print_rwstat_recursive(struct seq_file *sf, void *v)
+{
+	blkcg_print_blkgs(sf, css_to_blkcg(seq_css(sf)),
+			  tg_prfill_rwstat_recursive, &blkcg_policy_throtl,
+			  seq_cft(sf)->private, true);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct cftype throtl_legacy_files[] = {
 	{
 		.name = "throttle.read_bps_device",
@@ -1500,6 +1811,7 @@ static struct cftype throtl_legacy_files[] = {
 	},
 	{
 		.name = "throttle.io_service_bytes",
+<<<<<<< HEAD
 		.private = (unsigned long)&blkcg_policy_throtl,
 		.seq_show = blkg_print_stat_bytes,
 	},
@@ -1517,6 +1829,25 @@ static struct cftype throtl_legacy_files[] = {
 		.name = "throttle.io_serviced_recursive",
 		.private = (unsigned long)&blkcg_policy_throtl,
 		.seq_show = blkg_print_stat_ios_recursive,
+=======
+		.private = offsetof(struct throtl_grp, stat_bytes),
+		.seq_show = tg_print_rwstat,
+	},
+	{
+		.name = "throttle.io_service_bytes_recursive",
+		.private = offsetof(struct throtl_grp, stat_bytes),
+		.seq_show = tg_print_rwstat_recursive,
+	},
+	{
+		.name = "throttle.io_serviced",
+		.private = offsetof(struct throtl_grp, stat_ios),
+		.seq_show = tg_print_rwstat,
+	},
+	{
+		.name = "throttle.io_serviced_recursive",
+		.private = offsetof(struct throtl_grp, stat_ios),
+		.seq_show = tg_print_rwstat_recursive,
+>>>>>>> upstream/android-13
 	},
 	{ }	/* terminate */
 };
@@ -1639,6 +1970,7 @@ static ssize_t tg_set_limit(struct kernfs_open_file *of,
 			goto out_finish;
 
 		ret = -EINVAL;
+<<<<<<< HEAD
 		if (!strcmp(tok, "rbps"))
 			v[0] = val;
 		else if (!strcmp(tok, "wbps"))
@@ -1646,6 +1978,15 @@ static ssize_t tg_set_limit(struct kernfs_open_file *of,
 		else if (!strcmp(tok, "riops"))
 			v[2] = min_t(u64, val, UINT_MAX);
 		else if (!strcmp(tok, "wiops"))
+=======
+		if (!strcmp(tok, "rbps") && val > 1)
+			v[0] = val;
+		else if (!strcmp(tok, "wbps") && val > 1)
+			v[1] = val;
+		else if (!strcmp(tok, "riops") && val > 1)
+			v[2] = min_t(u64, val, UINT_MAX);
+		else if (!strcmp(tok, "wiops") && val > 1)
+>>>>>>> upstream/android-13
 			v[3] = min_t(u64, val, UINT_MAX);
 		else if (off == LIMIT_LOW && !strcmp(tok, "idle"))
 			idle_time = val;
@@ -1922,7 +2263,11 @@ static void throtl_upgrade_state(struct throtl_data *td)
 	queue_work(kthrotld_workqueue, &td->dispatch_work);
 }
 
+<<<<<<< HEAD
 static void throtl_downgrade_state(struct throtl_data *td, int new)
+=======
+static void throtl_downgrade_state(struct throtl_data *td)
+>>>>>>> upstream/android-13
 {
 	td->scale /= 2;
 
@@ -1932,7 +2277,11 @@ static void throtl_downgrade_state(struct throtl_data *td, int new)
 		return;
 	}
 
+<<<<<<< HEAD
 	td->limit_index = new;
+=======
+	td->limit_index = LIMIT_LOW;
+>>>>>>> upstream/android-13
 	td->low_downgrade_time = jiffies;
 }
 
@@ -2003,12 +2352,20 @@ static void throtl_downgrade_check(struct throtl_grp *tg)
 	}
 
 	if (tg->iops[READ][LIMIT_LOW]) {
+<<<<<<< HEAD
+=======
+		tg->last_io_disp[READ] += atomic_xchg(&tg->last_io_split_cnt[READ], 0);
+>>>>>>> upstream/android-13
 		iops = tg->last_io_disp[READ] * HZ / elapsed_time;
 		if (iops >= tg->iops[READ][LIMIT_LOW])
 			tg->last_low_overflow_time[READ] = now;
 	}
 
 	if (tg->iops[WRITE][LIMIT_LOW]) {
+<<<<<<< HEAD
+=======
+		tg->last_io_disp[WRITE] += atomic_xchg(&tg->last_io_split_cnt[WRITE], 0);
+>>>>>>> upstream/android-13
 		iops = tg->last_io_disp[WRITE] * HZ / elapsed_time;
 		if (iops >= tg->iops[WRITE][LIMIT_LOW])
 			tg->last_low_overflow_time[WRITE] = now;
@@ -2019,7 +2376,11 @@ static void throtl_downgrade_check(struct throtl_grp *tg)
 	 * cgroups
 	 */
 	if (throtl_hierarchy_can_downgrade(tg))
+<<<<<<< HEAD
 		throtl_downgrade_state(tg->td, LIMIT_LOW);
+=======
+		throtl_downgrade_state(tg->td);
+>>>>>>> upstream/android-13
 
 	tg->last_bytes_disp[READ] = 0;
 	tg->last_bytes_disp[WRITE] = 0;
@@ -2029,10 +2390,21 @@ static void throtl_downgrade_check(struct throtl_grp *tg)
 
 static void blk_throtl_update_idletime(struct throtl_grp *tg)
 {
+<<<<<<< HEAD
 	unsigned long now = ktime_get_ns() >> 10;
 	unsigned long last_finish_time = tg->last_finish_time;
 
 	if (now <= last_finish_time || last_finish_time == 0 ||
+=======
+	unsigned long now;
+	unsigned long last_finish_time = tg->last_finish_time;
+
+	if (last_finish_time == 0)
+		return;
+
+	now = ktime_get_ns() >> 10;
+	if (now <= last_finish_time ||
+>>>>>>> upstream/android-13
 	    last_finish_time == tg->checked_last_finish_time)
 		return;
 
@@ -2048,7 +2420,11 @@ static void throtl_update_latency_buckets(struct throtl_data *td)
 	unsigned long last_latency[2] = { 0 };
 	unsigned long latency[2];
 
+<<<<<<< HEAD
 	if (!blk_queue_nonrot(td->queue))
+=======
+	if (!blk_queue_nonrot(td->queue) || !td->limit_valid[LIMIT_LOW])
+>>>>>>> upstream/android-13
 		return;
 	if (time_before(jiffies, td->last_calculate_time + HZ))
 		return;
@@ -2123,6 +2499,7 @@ static inline void throtl_update_latency_buckets(struct throtl_data *td)
 }
 #endif
 
+<<<<<<< HEAD
 static void blk_throtl_assoc_bio(struct throtl_grp *tg, struct bio *bio)
 {
 #ifdef CONFIG_BLK_DEV_THROTTLING_LOW
@@ -2138,11 +2515,39 @@ bool blk_throtl_bio(struct request_queue *q, struct blkcg_gq *blkg,
 {
 	struct throtl_qnode *qn = NULL;
 	struct throtl_grp *tg = blkg_to_tg(blkg ?: q->root_blkg);
+=======
+void blk_throtl_charge_bio_split(struct bio *bio)
+{
+	struct blkcg_gq *blkg = bio->bi_blkg;
+	struct throtl_grp *parent = blkg_to_tg(blkg);
+	struct throtl_service_queue *parent_sq;
+	bool rw = bio_data_dir(bio);
+
+	do {
+		if (!parent->has_rules[rw])
+			break;
+
+		atomic_inc(&parent->io_split_cnt[rw]);
+		atomic_inc(&parent->last_io_split_cnt[rw]);
+
+		parent_sq = parent->service_queue.parent_sq;
+		parent = sq_to_tg(parent_sq);
+	} while (parent);
+}
+
+bool blk_throtl_bio(struct bio *bio)
+{
+	struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+	struct blkcg_gq *blkg = bio->bi_blkg;
+	struct throtl_qnode *qn = NULL;
+	struct throtl_grp *tg = blkg_to_tg(blkg);
+>>>>>>> upstream/android-13
 	struct throtl_service_queue *sq;
 	bool rw = bio_data_dir(bio);
 	bool throttled = false;
 	struct throtl_data *td = tg->td;
 
+<<<<<<< HEAD
 	WARN_ON_ONCE(!rcu_read_lock_held());
 
 	/* see throtl_charge_bio() */
@@ -2157,6 +2562,27 @@ bool blk_throtl_bio(struct request_queue *q, struct blkcg_gq *blkg,
 		goto out_unlock;
 
 	blk_throtl_assoc_bio(tg, bio);
+=======
+	rcu_read_lock();
+
+	/* see throtl_charge_bio() */
+	if (bio_flagged(bio, BIO_THROTTLED))
+		goto out;
+
+	if (!cgroup_subsys_on_dfl(io_cgrp_subsys)) {
+		blkg_rwstat_add(&tg->stat_bytes, bio->bi_opf,
+				bio->bi_iter.bi_size);
+		blkg_rwstat_add(&tg->stat_ios, bio->bi_opf, 1);
+	}
+
+	if (!tg->has_rules[rw])
+		goto out;
+
+	spin_lock_irq(&q->queue_lock);
+
+	throtl_update_latency_buckets(td);
+
+>>>>>>> upstream/android-13
 	blk_throtl_update_idletime(tg);
 
 	sq = &tg->service_queue;
@@ -2199,7 +2625,11 @@ again:
 
 		/*
 		 * @bio passed through this layer without being throttled.
+<<<<<<< HEAD
 		 * Climb up the ladder.  If we''re already at the top, it
+=======
+		 * Climb up the ladder.  If we're already at the top, it
+>>>>>>> upstream/android-13
 		 * can be executed directly.
 		 */
 		qn = &tg->qnode_on_parent[rw];
@@ -2235,7 +2665,11 @@ again:
 	}
 
 out_unlock:
+<<<<<<< HEAD
 	spin_unlock_irq(q->queue_lock);
+=======
+	spin_unlock_irq(&q->queue_lock);
+>>>>>>> upstream/android-13
 out:
 	bio_set_flag(bio, BIO_THROTTLED);
 
@@ -2243,6 +2677,10 @@ out:
 	if (throttled || !td->track_bio_latency)
 		bio->bi_issue.value |= BIO_ISSUE_THROTL_SKIP_LATENCY;
 #endif
+<<<<<<< HEAD
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return throttled;
 }
 
@@ -2271,7 +2709,12 @@ void blk_throtl_stat_add(struct request *rq, u64 time_ns)
 	struct request_queue *q = rq->q;
 	struct throtl_data *td = q->td;
 
+<<<<<<< HEAD
 	throtl_track_latency(td, rq->throtl_size, req_op(rq), time_ns >> 10);
+=======
+	throtl_track_latency(td, blk_rq_stats_sectors(rq), req_op(rq),
+			     time_ns >> 10);
+>>>>>>> upstream/android-13
 }
 
 void blk_throtl_bio_endio(struct bio *bio)
@@ -2288,6 +2731,11 @@ void blk_throtl_bio_endio(struct bio *bio)
 	if (!blkg)
 		return;
 	tg = blkg_to_tg(blkg);
+<<<<<<< HEAD
+=======
+	if (!tg->td->limit_valid[LIMIT_LOW])
+		return;
+>>>>>>> upstream/android-13
 
 	finish_time_ns = ktime_get_ns();
 	tg->last_finish_time = finish_time_ns >> 10;
@@ -2327,6 +2775,7 @@ void blk_throtl_bio_endio(struct bio *bio)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * Dispatch all bios from all children tg's queued on @parent_sq.  On
  * return, @parent_sq is guaranteed to not have any active children tg's
@@ -2391,6 +2840,8 @@ void blk_throtl_drain(struct request_queue *q)
 	spin_lock_irq(q->queue_lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 int blk_throtl_init(struct request_queue *q)
 {
 	struct throtl_data *td;
@@ -2437,6 +2888,10 @@ int blk_throtl_init(struct request_queue *q)
 void blk_throtl_exit(struct request_queue *q)
 {
 	BUG_ON(!q->td);
+<<<<<<< HEAD
+=======
+	del_timer_sync(&q->td->service_queue.pending_timer);
+>>>>>>> upstream/android-13
 	throtl_shutdown_wq(q);
 	blkcg_deactivate_policy(q, &blkcg_policy_throtl);
 	free_percpu(q->td->latency_buckets[READ]);
@@ -2468,7 +2923,11 @@ void blk_throtl_register_queue(struct request_queue *q)
 	td->throtl_slice = DFL_THROTL_SLICE_HD;
 #endif
 
+<<<<<<< HEAD
 	td->track_bio_latency = !queue_is_rq_based(q);
+=======
+	td->track_bio_latency = !queue_is_mq(q);
+>>>>>>> upstream/android-13
 	if (!td->track_bio_latency)
 		blk_stat_enable_accounting(q);
 }

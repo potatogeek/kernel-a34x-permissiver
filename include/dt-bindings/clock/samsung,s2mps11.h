@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Markus Reichl
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2015 Markus Reichl
+ *
+>>>>>>> upstream/android-13
  * Device Tree binding constants clocks for the Samsung S2MPS11 PMIC.
  */
 

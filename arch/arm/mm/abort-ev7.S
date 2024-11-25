@@ -17,6 +17,7 @@ ENTRY(v7_early_abort)
 	mrc	p15, 0, r1, c5, c0, 0		@ get FSR
 	mrc	p15, 0, r0, c6, c0, 0		@ get FAR
 	uaccess_disable ip			@ disable userspace access
+<<<<<<< HEAD
 
 	/*
 	 * V6 code adjusts the returned DFSR.
@@ -43,5 +44,7 @@ ENTRY(v7_early_abort)
 	orr	r1, r1, ip, LSR #1
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	b	do_DataAbort
 ENDPROC(v7_early_abort)

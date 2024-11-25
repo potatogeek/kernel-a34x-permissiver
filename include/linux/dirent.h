@@ -7,7 +7,11 @@ struct linux_dirent64 {
 	s64		d_off;
 	unsigned short	d_reclen;
 	unsigned char	d_type;
+<<<<<<< HEAD
 	char		d_name[0];
+=======
+	char		d_name[];
+>>>>>>> upstream/android-13
 };
 
 #endif

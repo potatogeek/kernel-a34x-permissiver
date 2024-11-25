@@ -7,7 +7,10 @@
 
 wm97xx-ts-y := wm97xx-core.o
 
+<<<<<<< HEAD
 obj-$(CONFIG_TOUCHSCREEN_PROPERTIES)	+= of_touchscreen.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+= 88pm860x-ts.o
 obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
 obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
@@ -22,6 +25,10 @@ obj-$(CONFIG_TOUCHSCREEN_BU21013)	+= bu21013_ts.o
 obj-$(CONFIG_TOUCHSCREEN_BU21029)	+= bu21029_ts.o
 obj-$(CONFIG_TOUCHSCREEN_CHIPONE_ICN8318)	+= chipone_icn8318.o
 obj-$(CONFIG_TOUCHSCREEN_CHIPONE_ICN8505)	+= chipone_icn8505.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_TOUCHSCREEN_CY8CTMA140)	+= cy8ctma140.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+= cy8ctmg110_ts.o
 obj-$(CONFIG_TOUCHSCREEN_CYTTSP_CORE)	+= cyttsp_core.o
 obj-$(CONFIG_TOUCHSCREEN_CYTTSP_I2C)	+= cyttsp_i2c.o cyttsp_i2c_common.o
@@ -34,6 +41,10 @@ obj-$(CONFIG_TOUCHSCREEN_DA9052)	+= da9052_tsi.o
 obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
 obj-$(CONFIG_TOUCHSCREEN_EDT_FT5X06)	+= edt-ft5x06.o
 obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_TOUCHSCREEN_HYCON_HY46XX)	+= hycon-hy46xx.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
 obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
 obj-$(CONFIG_TOUCHSCREEN_EKTF2127)	+= ektf2127.o
@@ -46,6 +57,10 @@ obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
 obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
 obj-$(CONFIG_TOUCHSCREEN_HIDEEP)	+= hideep.o
 obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_TOUCHSCREEN_ILITEK)	+= ilitek_ts_i2c.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TOUCHSCREEN_IMX6UL_TSC)	+= imx6ul_tsc.o
 obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
 obj-$(CONFIG_TOUCHSCREEN_IPROC)		+= bcm_iproc_tsc.o
@@ -56,6 +71,7 @@ obj-$(CONFIG_TOUCHSCREEN_MX25)		+= fsl-imx25-tcq.o
 obj-$(CONFIG_TOUCHSCREEN_MC13783)	+= mc13783_ts.o
 obj-$(CONFIG_TOUCHSCREEN_MCS5000)	+= mcs5000_ts.o
 obj-$(CONFIG_TOUCHSCREEN_MELFAS_MIP4)	+= melfas_mip4.o
+<<<<<<< HEAD
 ifeq ($(CONFIG_MACH_MT6739),y)
 obj-$(CONFIG_TOUCHSCREEN_MTK)		+= mediatek/
 else
@@ -73,6 +89,11 @@ endif
 obj-$(CONFIG_TOUCHSCREEN_MTK_NT36572_COMMON)   +=  nt36572_common/
 obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
 obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
+=======
+obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
+obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
+obj-$(CONFIG_TOUCHSCREEN_MSG2638)	+= msg2638.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
 obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
 obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
@@ -117,13 +138,17 @@ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
 wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
 obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
 obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
+<<<<<<< HEAD
 obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TOUCHSCREEN_SX8654)	+= sx8654.o
 obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
 obj-$(CONFIG_TOUCHSCREEN_ZET6223)	+= zet6223.o
 obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
 obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
 obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
+<<<<<<< HEAD
 obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_HD)	+= focaltech_hd_touch/
 obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_FHD)	+= focaltech_fhd_touch/
 obj-$(CONFIG_TOUCHSCREEN_MTK_SYNAPTICS_I2C_RMI4)	+=  synaptics_i2c_rmi4/
@@ -140,3 +165,9 @@ TOUCH_LISTS := $(subst ",,$(CONFIG_TOUCHSCREEN_MTK_TOUCH))
 obj-y += $(foreach TOUCH,$(TOUCH_LISTS),$(TOUCH)/)
 obj-$(CONFIG_TOUCHSCREEN_ILITEK_ILI9881X)	+= ili9881x/
 obj-$(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI) += novatek/nt36525/
+=======
+obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_FW)	+= raspberrypi-ts.o
+obj-$(CONFIG_TOUCHSCREEN_IQS5XX)	+= iqs5xx.o
+obj-$(CONFIG_TOUCHSCREEN_ZINITIX)	+= zinitix.o
+obj-$(CONFIG_TOUCHSCREEN_SEC_TS)	+= sec_ts/
+>>>>>>> upstream/android-13

@@ -14,7 +14,13 @@ Required child properties:
 - reg: Port this LED is connected to.
 
 Optional child properties:
+<<<<<<< HEAD
 - label: See Documentation/devicetree/bindings/leds/common.txt.
+=======
+- function: See Documentation/devicetree/bindings/leds/common.txt.
+- color: See Documentation/devicetree/bindings/leds/common.txt.
+- label: See Documentation/devicetree/bindings/leds/common.txt (deprecated).
+>>>>>>> upstream/android-13
 
 Examples:
 
@@ -25,17 +31,29 @@ led-controller@200 {
 	reg = <0x200>;
 
 	led@0 {
+<<<<<<< HEAD
 		label = "red";
+=======
+		color = <LED_COLOR_ID_RED>;
+>>>>>>> upstream/android-13
 		reg = <0x0>;
 	};
 
 	led@1 {
+<<<<<<< HEAD
 		label = "green";
+=======
+		color = <LED_COLOR_ID_GREEN>;
+>>>>>>> upstream/android-13
 		reg = <0x1>;
 	};
 
 	led@2 {
+<<<<<<< HEAD
 		label = "blue";
+=======
+		color = <LED_COLOR_ID_BLUE>;
+>>>>>>> upstream/android-13
 		reg = <0x2>;
 	};
 };

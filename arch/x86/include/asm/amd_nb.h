@@ -12,7 +12,10 @@ struct amd_nb_bus_dev_range {
 	u8 dev_limit;
 };
 
+<<<<<<< HEAD
 extern const struct pci_device_id amd_nb_misc_ids[];
+=======
+>>>>>>> upstream/android-13
 extern const struct amd_nb_bus_dev_range amd_nb_bus_dev_ranges[];
 
 extern bool early_is_amd_nb(u32 value);
@@ -58,6 +61,10 @@ struct threshold_bank {
 
 	/* initialized to the number of CPUs on the node sharing this bank */
 	refcount_t		cpus;
+<<<<<<< HEAD
+=======
+	unsigned int		shared;
+>>>>>>> upstream/android-13
 };
 
 struct amd_northbridge {
@@ -103,6 +110,12 @@ static inline u16 amd_pci_dev_to_node_id(struct pci_dev *pdev)
 
 static inline bool amd_gart_present(void)
 {
+<<<<<<< HEAD
+=======
+	if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD)
+		return false;
+
+>>>>>>> upstream/android-13
 	/* GART present only on Fam15h, upto model 0fh */
 	if (boot_cpu_data.x86 == 0xf || boot_cpu_data.x86 == 0x10 ||
 	    (boot_cpu_data.x86 == 0x15 && boot_cpu_data.x86_model < 0x10))

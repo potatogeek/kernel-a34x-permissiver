@@ -35,7 +35,14 @@ gk104_mmu = {
 };
 
 int
+<<<<<<< HEAD
 gk104_mmu_new(struct nvkm_device *device, int index, struct nvkm_mmu **pmmu)
 {
 	return nvkm_mmu_new_(&gk104_mmu, device, index, pmmu);
+=======
+gk104_mmu_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_mmu **pmmu)
+{
+	return nvkm_mmu_new_(&gk104_mmu, device, type, inst, pmmu);
+>>>>>>> upstream/android-13
 }

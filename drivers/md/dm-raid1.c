@@ -83,7 +83,11 @@ struct mirror_set {
 	struct work_struct trigger_event;
 
 	unsigned nr_mirrors;
+<<<<<<< HEAD
 	struct mirror mirror[0];
+=======
+	struct mirror mirror[];
+>>>>>>> upstream/android-13
 };
 
 DECLARE_DM_KCOPYD_THROTTLE_WITH_MODULE_PARM(raid1_resync_throttle,
@@ -145,7 +149,11 @@ static void dispatch_bios(void *context, struct bio_list *bio_list)
 
 struct dm_raid1_bio_record {
 	struct mirror *m;
+<<<<<<< HEAD
 	/* if details->bi_disk == NULL, details were not saved */
+=======
+	/* if details->bi_bdev == NULL, details were not saved */
+>>>>>>> upstream/android-13
 	struct dm_bio_details details;
 	region_t write_region;
 };
@@ -364,7 +372,11 @@ static void recover(struct mirror_set *ms, struct dm_region *reg)
 
 	/* hand to kcopyd */
 	if (!errors_handled(ms))
+<<<<<<< HEAD
 		set_bit(DM_KCOPYD_IGNORE_ERROR, &flags);
+=======
+		flags |= BIT(DM_KCOPYD_IGNORE_ERROR);
+>>>>>>> upstream/android-13
 
 	dm_kcopyd_copy(ms->kcopyd_client, &from, ms->nr_mirrors - 1, to,
 		       flags, recovery_complete, reg);
@@ -779,7 +791,11 @@ static void do_writes(struct mirror_set *ms, struct bio_list *writes)
 			wakeup_mirrord(ms);
 		} else {
 			map_bio(get_default_mirror(ms), bio);
+<<<<<<< HEAD
 			generic_make_request(bio);
+=======
+			submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -878,12 +894,18 @@ static struct mirror_set *alloc_context(unsigned int nr_mirrors,
 					struct dm_target *ti,
 					struct dm_dirty_log *dl)
 {
+<<<<<<< HEAD
 	size_t len;
 	struct mirror_set *ms = NULL;
 
 	len = sizeof(*ms) + (sizeof(ms->mirror[0]) * nr_mirrors);
 
 	ms = kzalloc(len, GFP_KERNEL);
+=======
+	struct mirror_set *ms =
+		kzalloc(struct_size(ms, mirror, nr_mirrors), GFP_KERNEL);
+
+>>>>>>> upstream/android-13
 	if (!ms) {
 		ti->error = "Cannot allocate mirror context";
 		return NULL;
@@ -1193,7 +1215,11 @@ static int mirror_map(struct dm_target *ti, struct bio *bio)
 	struct dm_raid1_bio_record *bio_record =
 	  dm_per_bio_data(bio, sizeof(struct dm_raid1_bio_record));
 
+<<<<<<< HEAD
 	bio_record->details.bi_disk = NULL;
+=======
+	bio_record->details.bi_bdev = NULL;
+>>>>>>> upstream/android-13
 
 	if (rw == WRITE) {
 		/* Save region for mirror_end_io() handler */
@@ -1260,7 +1286,11 @@ static int mirror_end_io(struct dm_target *ti, struct bio *bio,
 		goto out;
 
 	if (unlikely(*error)) {
+<<<<<<< HEAD
 		if (!bio_record->details.bi_disk) {
+=======
+		if (!bio_record->details.bi_bdev) {
+>>>>>>> upstream/android-13
 			/*
 			 * There wasn't enough memory to record necessary
 			 * information for a retry or there was no other
@@ -1285,7 +1315,11 @@ static int mirror_end_io(struct dm_target *ti, struct bio *bio,
 			bd = &bio_record->details;
 
 			dm_bio_restore(bd, bio);
+<<<<<<< HEAD
 			bio_record->details.bi_disk = NULL;
+=======
+			bio_record->details.bi_bdev = NULL;
+>>>>>>> upstream/android-13
 			bio->bi_status = 0;
 
 			queue_bio(ms, bio, rw);
@@ -1295,7 +1329,11 @@ static int mirror_end_io(struct dm_target *ti, struct bio *bio,
 	}
 
 out:
+<<<<<<< HEAD
 	bio_record->details.bi_disk = NULL;
+=======
+	bio_record->details.bi_bdev = NULL;
+>>>>>>> upstream/android-13
 
 	return DM_ENDIO_DONE;
 }
@@ -1438,6 +1476,26 @@ static void mirror_status(struct dm_target *ti, status_type_t type,
 		}
 
 		break;
+<<<<<<< HEAD
+=======
+
+	case STATUSTYPE_IMA:
+		DMEMIT_TARGET_NAME_VERSION(ti->type);
+		DMEMIT(",nr_mirrors=%d", ms->nr_mirrors);
+		for (m = 0; m < ms->nr_mirrors; m++) {
+			DMEMIT(",mirror_device_%d=%s", m, ms->mirror[m].dev->name);
+			DMEMIT(",mirror_device_%d_status=%c",
+			       m, device_status_char(&(ms->mirror[m])));
+		}
+
+		DMEMIT(",handle_errors=%c", errors_handled(ms) ? 'y' : 'n');
+		DMEMIT(",keep_log=%c", keep_log(ms) ? 'y' : 'n');
+
+		DMEMIT(",log_type_status=");
+		sz += log->type->status(log, type, result+sz, maxlen-sz);
+		DMEMIT(";");
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 

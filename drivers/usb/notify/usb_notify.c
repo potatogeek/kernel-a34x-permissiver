@@ -2777,8 +2777,15 @@ void enable_usb_notify(void)
 	}
 
 	o_notify->booting_delay_sync_usb = 0;
+<<<<<<< HEAD
 	if (!u_notify->o_notify->booting_delay_sec)
 		schedule_delayed_work(&u_notify->b_delay.booting_work, 0);
+=======
+	if (!delayed_work_pending(&u_notify->b_delay.booting_work))
+		schedule_delayed_work(&u_notify->b_delay.booting_work, 0);
+	else
+		pr_err("%s wait booting_delay\n", __func__);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(enable_usb_notify);
 

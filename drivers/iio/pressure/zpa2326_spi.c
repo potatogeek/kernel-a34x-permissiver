@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Murata ZPA2326 SPI pressure and temperature sensor driver
  *
  * Copyright (c) 2016 Parrot S.A.
  *
  * Author: Gregor Boirie <gregor.boirie@parrot.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -13,12 +18,18 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/regmap.h>
 #include <linux/spi/spi.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include "zpa2326.h"
 
 /*
@@ -78,18 +89,28 @@ static const struct spi_device_id zpa2326_spi_ids[] = {
 };
 MODULE_DEVICE_TABLE(spi, zpa2326_spi_ids);
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF)
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id zpa2326_spi_matches[] = {
 	{ .compatible = "murata,zpa2326" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, zpa2326_spi_matches);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct spi_driver zpa2326_spi_driver = {
 	.driver = {
 		.name           = "zpa2326-spi",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(zpa2326_spi_matches),
+=======
+		.of_match_table = zpa2326_spi_matches,
+>>>>>>> upstream/android-13
 		.pm             = ZPA2326_PM_OPS,
 	},
 	.probe    = zpa2326_probe_spi,

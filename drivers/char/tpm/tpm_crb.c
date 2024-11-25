@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Intel Corporation
  *
@@ -8,11 +12,14 @@
  *
  * This device driver implements the TPM interface as defined in
  * the TCG CRB 2.0 TPM specification.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -468,7 +475,11 @@ static void __iomem *crb_map_res(struct device *dev, struct resource *iores,
 
 	/* Detect a 64 bit address on a 32 bit system */
 	if (start != new_res.start)
+<<<<<<< HEAD
 		return (void __iomem *) ERR_PTR(-EINVAL);
+=======
+		return IOMEM_ERR_PTR(-EINVAL);
+>>>>>>> upstream/android-13
 
 	if (!iores)
 		return devm_ioremap_resource(dev, &new_res);

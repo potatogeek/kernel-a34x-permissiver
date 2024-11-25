@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Marvell 88E6xxx Ethernet switch single-chip definition
  *
  * Copyright (c) 2008 Marvell Semiconductor
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MV88E6XXX_CHIP_H
 #define _MV88E6XXX_CHIP_H
 
+<<<<<<< HEAD
+=======
+#include <linux/idr.h>
+>>>>>>> upstream/android-13
 #include <linux/if_vlan.h>
 #include <linux/irq.h>
 #include <linux/gpio/consumer.h>
@@ -21,6 +32,7 @@
 #include <linux/timecounter.h>
 #include <net/dsa.h>
 
+<<<<<<< HEAD
 #define SMI_CMD			0x00
 #define SMI_CMD_BUSY		BIT(15)
 #define SMI_CMD_CLAUSE_22	BIT(12)
@@ -37,6 +49,19 @@
 /* PVT limits for 4-bit port and 5-bit switch */
 #define MV88E6XXX_MAX_PVT_SWITCHES	32
 #define MV88E6XXX_MAX_PVT_PORTS		16
+=======
+#define EDSA_HLEN		8
+#define MV88E6XXX_N_FID		4096
+
+#define MV88E6XXX_FID_STANDALONE	0
+#define MV88E6XXX_FID_BRIDGED		1
+
+/* PVT limits for 4-bit port and 5-bit switch */
+#define MV88E6XXX_MAX_PVT_SWITCHES	32
+#define MV88E6XXX_MAX_PVT_PORTS		16
+#define MV88E6XXX_MAX_PVT_ENTRIES	\
+	(MV88E6XXX_MAX_PVT_SWITCHES * MV88E6XXX_MAX_PVT_PORTS)
+>>>>>>> upstream/android-13
 
 #define MV88E6XXX_MAX_GPIO	16
 
@@ -47,6 +72,14 @@ enum mv88e6xxx_egress_mode {
 	MV88E6XXX_EGRESS_MODE_ETHERTYPE,
 };
 
+<<<<<<< HEAD
+=======
+enum mv88e6xxx_egress_direction {
+        MV88E6XXX_EGRESS_DIR_INGRESS,
+        MV88E6XXX_EGRESS_DIR_EGRESS,
+};
+
+>>>>>>> upstream/android-13
 enum mv88e6xxx_frame_mode {
 	MV88E6XXX_FRAME_MODE_NORMAL,
 	MV88E6XXX_FRAME_MODE_DSA,
@@ -72,7 +105,15 @@ enum mv88e6xxx_model {
 	MV88E6190,
 	MV88E6190X,
 	MV88E6191,
+<<<<<<< HEAD
 	MV88E6240,
+=======
+	MV88E6191X,
+	MV88E6193X,
+	MV88E6220,
+	MV88E6240,
+	MV88E6250,
+>>>>>>> upstream/android-13
 	MV88E6290,
 	MV88E6320,
 	MV88E6321,
@@ -82,6 +123,10 @@ enum mv88e6xxx_model {
 	MV88E6352,
 	MV88E6390,
 	MV88E6390X,
+<<<<<<< HEAD
+=======
+	MV88E6393X,
+>>>>>>> upstream/android-13
 };
 
 enum mv88e6xxx_family {
@@ -91,11 +136,35 @@ enum mv88e6xxx_family {
 	MV88E6XXX_FAMILY_6097,	/* 6046 6085 6096 6097 */
 	MV88E6XXX_FAMILY_6165,	/* 6123 6161 6165 */
 	MV88E6XXX_FAMILY_6185,	/* 6108 6121 6122 6131 6152 6155 6182 6185 */
+<<<<<<< HEAD
+=======
+	MV88E6XXX_FAMILY_6250,	/* 6220 6250 */
+>>>>>>> upstream/android-13
 	MV88E6XXX_FAMILY_6320,	/* 6320 6321 */
 	MV88E6XXX_FAMILY_6341,	/* 6141 6341 */
 	MV88E6XXX_FAMILY_6351,	/* 6171 6175 6350 6351 */
 	MV88E6XXX_FAMILY_6352,	/* 6172 6176 6240 6352 */
 	MV88E6XXX_FAMILY_6390,  /* 6190 6190X 6191 6290 6390 6390X */
+<<<<<<< HEAD
+=======
+	MV88E6XXX_FAMILY_6393,	/* 6191X 6193X 6393X */
+};
+
+/**
+ * enum mv88e6xxx_edsa_support - Ethertype DSA tag support level
+ * @MV88E6XXX_EDSA_UNSUPPORTED:  Device has no support for EDSA tags
+ * @MV88E6XXX_EDSA_UNDOCUMENTED: Documentation indicates that
+ *                               egressing FORWARD frames with an EDSA
+ *                               tag is reserved for future use, but
+ *                               empirical data shows that this mode
+ *                               is supported.
+ * @MV88E6XXX_EDSA_SUPPORTED:    EDSA tags are fully supported.
+ */
+enum mv88e6xxx_edsa_support {
+	MV88E6XXX_EDSA_UNSUPPORTED = 0,
+	MV88E6XXX_EDSA_UNDOCUMENTED,
+	MV88E6XXX_EDSA_SUPPORTED,
+>>>>>>> upstream/android-13
 };
 
 struct mv88e6xxx_ops;
@@ -105,6 +174,10 @@ struct mv88e6xxx_info {
 	u16 prod_num;
 	const char *name;
 	unsigned int num_databases;
+<<<<<<< HEAD
+=======
+	unsigned int num_macs;
+>>>>>>> upstream/android-13
 	unsigned int num_ports;
 	unsigned int num_internal_phys;
 	unsigned int num_gpio;
@@ -118,12 +191,30 @@ struct mv88e6xxx_info {
 	unsigned int g2_irqs;
 	bool pvt;
 
+<<<<<<< HEAD
+=======
+	/* Mark certain ports as invalid. This is required for example for the
+	 * MV88E6220 (which is in general a MV88E6250 with 7 ports) but the
+	 * ports 2-4 are not routet to pins.
+	 */
+	unsigned int invalid_port_mask;
+>>>>>>> upstream/android-13
 	/* Multi-chip Addressing Mode.
 	 * Some chips respond to only 2 registers of its own SMI device address
 	 * when it is non-zero, and use indirect access to internal registers.
 	 */
 	bool multi_chip;
+<<<<<<< HEAD
 	enum dsa_tag_protocol tag_protocol;
+=======
+	/* Dual-chip Addressing Mode
+	 * Some chips respond to only half of the 32 SMI addresses,
+	 * allowing two to coexist on the same SMI interface.
+	 */
+	bool dual_chip;
+
+	enum mv88e6xxx_edsa_support edsa_support;
+>>>>>>> upstream/android-13
 
 	/* Mask for FromPort and ToPort value of PortVec used in ATU Move
 	 * operation. 0 means that the ATU Move operation is not supported.
@@ -161,7 +252,11 @@ struct mv88e6xxx_irq {
 	u16 masked;
 	struct irq_chip chip;
 	struct irq_domain *domain;
+<<<<<<< HEAD
 	unsigned int nirqs;
+=======
+	int nirqs;
+>>>>>>> upstream/android-13
 };
 
 /* state flags for mv88e6xxx_port_hwtstamp::state */
@@ -190,22 +285,91 @@ struct mv88e6xxx_port_hwtstamp {
 	struct hwtstamp_config tstamp_config;
 };
 
+<<<<<<< HEAD
 struct mv88e6xxx_port {
 	struct mv88e6xxx_chip *chip;
 	int port;
+=======
+enum mv88e6xxx_policy_mapping {
+	MV88E6XXX_POLICY_MAPPING_DA,
+	MV88E6XXX_POLICY_MAPPING_SA,
+	MV88E6XXX_POLICY_MAPPING_VTU,
+	MV88E6XXX_POLICY_MAPPING_ETYPE,
+	MV88E6XXX_POLICY_MAPPING_PPPOE,
+	MV88E6XXX_POLICY_MAPPING_VBAS,
+	MV88E6XXX_POLICY_MAPPING_OPT82,
+	MV88E6XXX_POLICY_MAPPING_UDP,
+};
+
+enum mv88e6xxx_policy_action {
+	MV88E6XXX_POLICY_ACTION_NORMAL,
+	MV88E6XXX_POLICY_ACTION_MIRROR,
+	MV88E6XXX_POLICY_ACTION_TRAP,
+	MV88E6XXX_POLICY_ACTION_DISCARD,
+};
+
+struct mv88e6xxx_policy {
+	enum mv88e6xxx_policy_mapping mapping;
+	enum mv88e6xxx_policy_action action;
+	struct ethtool_rx_flow_spec fs;
+	u8 addr[ETH_ALEN];
+	int port;
+	u16 vid;
+};
+
+struct mv88e6xxx_vlan {
+	u16	vid;
+	bool	valid;
+};
+
+struct mv88e6xxx_port {
+	struct mv88e6xxx_chip *chip;
+	int port;
+	struct mv88e6xxx_vlan bridge_pvid;
+>>>>>>> upstream/android-13
 	u64 serdes_stats[2];
 	u64 atu_member_violation;
 	u64 atu_miss_violation;
 	u64 atu_full_violation;
 	u64 vtu_member_violation;
 	u64 vtu_miss_violation;
+<<<<<<< HEAD
 	u8 cmode;
 	int serdes_irq;
+=======
+	phy_interface_t interface;
+	u8 cmode;
+	bool mirror_ingress;
+	bool mirror_egress;
+	unsigned int serdes_irq;
+	char serdes_irq_name[64];
+	struct devlink_region *region;
+};
+
+enum mv88e6xxx_region_id {
+	MV88E6XXX_REGION_GLOBAL1 = 0,
+	MV88E6XXX_REGION_GLOBAL2,
+	MV88E6XXX_REGION_ATU,
+	MV88E6XXX_REGION_VTU,
+	MV88E6XXX_REGION_PVT,
+
+	_MV88E6XXX_REGION_MAX,
+};
+
+struct mv88e6xxx_region_priv {
+	enum mv88e6xxx_region_id id;
+>>>>>>> upstream/android-13
 };
 
 struct mv88e6xxx_chip {
 	const struct mv88e6xxx_info *info;
 
+<<<<<<< HEAD
+=======
+	/* Currently configured tagging protocol */
+	enum dsa_tag_protocol tag_protocol;
+
+>>>>>>> upstream/android-13
 	/* The dsa_switch this private structure is related to */
 	struct dsa_switch *ds;
 
@@ -248,17 +412,36 @@ struct mv88e6xxx_chip {
 	/* List of mdio busses */
 	struct list_head mdios;
 
+<<<<<<< HEAD
+=======
+	/* Policy Control List IDs and rules */
+	struct idr policies;
+
+>>>>>>> upstream/android-13
 	/* There can be two interrupt controllers, which are chained
 	 * off a GPIO as interrupt source
 	 */
 	struct mv88e6xxx_irq g1_irq;
 	struct mv88e6xxx_irq g2_irq;
 	int irq;
+<<<<<<< HEAD
 	int device_irq;
 	int watchdog_irq;
 
 	int atu_prob_irq;
 	int vtu_prob_irq;
+=======
+	char irq_name[64];
+	int device_irq;
+	char device_irq_name[64];
+	int watchdog_irq;
+	char watchdog_irq_name[64];
+
+	int atu_prob_irq;
+	char atu_prob_irq_name[64];
+	int vtu_prob_irq;
+	char vtu_prob_irq_name[64];
+>>>>>>> upstream/android-13
 	struct kthread_worker *kworker;
 	struct kthread_delayed_work irq_poll_work;
 
@@ -280,11 +463,24 @@ struct mv88e6xxx_chip {
 	u16 evcap_config;
 	u16 enable_count;
 
+<<<<<<< HEAD
+=======
+	/* Current ingress and egress monitor ports */
+	int egress_dest_port;
+	int ingress_dest_port;
+
+>>>>>>> upstream/android-13
 	/* Per-port timestamping resources. */
 	struct mv88e6xxx_port_hwtstamp port_hwtstamp[DSA_MAX_PORTS];
 
 	/* Array of port structures. */
 	struct mv88e6xxx_port ports[DSA_MAX_PORTS];
+<<<<<<< HEAD
+=======
+
+	/* devlink regions */
+	struct devlink_region *regions[_MV88E6XXX_REGION_MAX];
+>>>>>>> upstream/android-13
 };
 
 struct mv88e6xxx_bus_ops {
@@ -351,6 +547,7 @@ struct mv88e6xxx_ops {
 	 */
 	int (*port_set_link)(struct mv88e6xxx_chip *chip, int port, int link);
 
+<<<<<<< HEAD
 #define DUPLEX_UNFORCED		-2
 
 	/* Port's MAC duplex mode
@@ -359,6 +556,11 @@ struct mv88e6xxx_ops {
 	 * or DUPLEX_UNFORCED for normal duplex detection.
 	 */
 	int (*port_set_duplex)(struct mv88e6xxx_chip *chip, int port, int dup);
+=======
+	/* Synchronise the port link state with that of the SERDES
+	 */
+	int (*port_sync_link)(struct mv88e6xxx_chip *chip, int port, unsigned int mode, bool isup);
+>>>>>>> upstream/android-13
 
 #define PAUSE_ON		1
 #define PAUSE_OFF		0
@@ -369,6 +571,7 @@ struct mv88e6xxx_ops {
 
 #define SPEED_MAX		INT_MAX
 #define SPEED_UNFORCED		-2
+<<<<<<< HEAD
 
 	/* Port's MAC speed (in Mbps)
 	 *
@@ -383,6 +586,36 @@ struct mv88e6xxx_ops {
 				   enum mv88e6xxx_frame_mode mode);
 	int (*port_set_egress_floods)(struct mv88e6xxx_chip *chip, int port,
 				      bool unicast, bool multicast);
+=======
+#define DUPLEX_UNFORCED		-2
+
+	/* Port's MAC speed (in Mbps) and MAC duplex mode
+	 *
+	 * Depending on the chip, 10, 100, 200, 1000, 2500, 10000 are valid.
+	 * Use SPEED_UNFORCED for normal detection, SPEED_MAX for max value.
+	 *
+	 * Use DUPLEX_HALF or DUPLEX_FULL to force half or full duplex,
+	 * or DUPLEX_UNFORCED for normal duplex detection.
+	 */
+	int (*port_set_speed_duplex)(struct mv88e6xxx_chip *chip, int port,
+				     int speed, int duplex);
+
+	/* What interface mode should be used for maximum speed? */
+	phy_interface_t (*port_max_speed_mode)(int port);
+
+	int (*port_tag_remap)(struct mv88e6xxx_chip *chip, int port);
+
+	int (*port_set_policy)(struct mv88e6xxx_chip *chip, int port,
+			       enum mv88e6xxx_policy_mapping mapping,
+			       enum mv88e6xxx_policy_action action);
+
+	int (*port_set_frame_mode)(struct mv88e6xxx_chip *chip, int port,
+				   enum mv88e6xxx_frame_mode mode);
+	int (*port_set_ucast_flood)(struct mv88e6xxx_chip *chip, int port,
+				    bool unicast);
+	int (*port_set_mcast_flood)(struct mv88e6xxx_chip *chip, int port,
+				    bool multicast);
+>>>>>>> upstream/android-13
 	int (*port_set_ether_type)(struct mv88e6xxx_chip *chip, int port,
 				   u16 etype);
 	int (*port_set_jumbo_size)(struct mv88e6xxx_chip *chip, int port,
@@ -393,6 +626,10 @@ struct mv88e6xxx_ops {
 				u8 out);
 	int (*port_disable_learn_limit)(struct mv88e6xxx_chip *chip, int port);
 	int (*port_disable_pri_override)(struct mv88e6xxx_chip *chip, int port);
+<<<<<<< HEAD
+=======
+	int (*port_setup_message_port)(struct mv88e6xxx_chip *chip, int port);
+>>>>>>> upstream/android-13
 
 	/* CMODE control what PHY mode the MAC will use, eg. SGMII, RGMII, etc.
 	 * Some chips allow this to be configured on specific ports.
@@ -406,9 +643,12 @@ struct mv88e6xxx_ops {
 	 */
 	int (*port_set_upstream_port)(struct mv88e6xxx_chip *chip, int port,
 				      int upstream_port);
+<<<<<<< HEAD
 	/* Return the port link state, as required by phylink */
 	int (*port_link_state)(struct mv88e6xxx_chip *chip, int port,
 			       struct phylink_link_state *state);
+=======
+>>>>>>> upstream/android-13
 
 	/* Snapshot the statistics for a port. The statistics can then
 	 * be read back a leisure but still with a consistent view.
@@ -426,7 +666,13 @@ struct mv88e6xxx_ops {
 	int (*stats_get_stats)(struct mv88e6xxx_chip *chip,  int port,
 			       uint64_t *data);
 	int (*set_cpu_port)(struct mv88e6xxx_chip *chip, int port);
+<<<<<<< HEAD
 	int (*set_egress_port)(struct mv88e6xxx_chip *chip, int port);
+=======
+	int (*set_egress_port)(struct mv88e6xxx_chip *chip,
+			       enum mv88e6xxx_egress_direction direction,
+			       int port);
+>>>>>>> upstream/android-13
 
 #define MV88E6XXX_CASCADE_PORT_NONE		0xe
 #define MV88E6XXX_CASCADE_PORT_MULTIPLE		0xf
@@ -438,11 +684,38 @@ struct mv88e6xxx_ops {
 	int (*mgmt_rsvd2cpu)(struct mv88e6xxx_chip *chip);
 
 	/* Power on/off a SERDES interface */
+<<<<<<< HEAD
 	int (*serdes_power)(struct mv88e6xxx_chip *chip, int port, bool on);
 
 	/* SERDES interrupt handling */
 	int (*serdes_irq_setup)(struct mv88e6xxx_chip *chip, int port);
 	void (*serdes_irq_free)(struct mv88e6xxx_chip *chip, int port);
+=======
+	int (*serdes_power)(struct mv88e6xxx_chip *chip, int port, int lane,
+			    bool up);
+
+	/* SERDES lane mapping */
+	int (*serdes_get_lane)(struct mv88e6xxx_chip *chip, int port);
+
+	int (*serdes_pcs_get_state)(struct mv88e6xxx_chip *chip, int port,
+				    int lane, struct phylink_link_state *state);
+	int (*serdes_pcs_config)(struct mv88e6xxx_chip *chip, int port,
+				 int lane, unsigned int mode,
+				 phy_interface_t interface,
+				 const unsigned long *advertise);
+	int (*serdes_pcs_an_restart)(struct mv88e6xxx_chip *chip, int port,
+				     int lane);
+	int (*serdes_pcs_link_up)(struct mv88e6xxx_chip *chip, int port,
+				  int lane, int speed, int duplex);
+
+	/* SERDES interrupt handling */
+	unsigned int (*serdes_irq_mapping)(struct mv88e6xxx_chip *chip,
+					   int port);
+	int (*serdes_irq_enable)(struct mv88e6xxx_chip *chip, int port, int lane,
+				 bool enable);
+	irqreturn_t (*serdes_irq_status)(struct mv88e6xxx_chip *chip, int port,
+					 int lane);
+>>>>>>> upstream/android-13
 
 	/* Statistics from the SERDES interface */
 	int (*serdes_get_sset_count)(struct mv88e6xxx_chip *chip, int port);
@@ -451,6 +724,18 @@ struct mv88e6xxx_ops {
 	int (*serdes_get_stats)(struct mv88e6xxx_chip *chip,  int port,
 				uint64_t *data);
 
+<<<<<<< HEAD
+=======
+	/* SERDES registers for ethtool */
+	int (*serdes_get_regs_len)(struct mv88e6xxx_chip *chip,  int port);
+	void (*serdes_get_regs)(struct mv88e6xxx_chip *chip, int port,
+				void *_p);
+
+	/* Address Translation Unit operations */
+	int (*atu_get_hash)(struct mv88e6xxx_chip *chip, u8 *hash);
+	int (*atu_set_hash)(struct mv88e6xxx_chip *chip, u8 hash);
+
+>>>>>>> upstream/android-13
 	/* VLAN Translation Unit operations */
 	int (*vtu_getnext)(struct mv88e6xxx_chip *chip,
 			   struct mv88e6xxx_vtu_entry *entry);
@@ -473,6 +758,12 @@ struct mv88e6xxx_ops {
 	void (*phylink_validate)(struct mv88e6xxx_chip *chip, int port,
 				 unsigned long *mask,
 				 struct phylink_link_state *state);
+<<<<<<< HEAD
+=======
+
+	/* Max Frame Size */
+	int (*set_max_frame_size)(struct mv88e6xxx_chip *chip, int mtu);
+>>>>>>> upstream/android-13
 };
 
 struct mv88e6xxx_irq_ops {
@@ -536,6 +827,13 @@ struct mv88e6xxx_ptp_ops {
 	int arr1_sts_reg;
 	int dep_sts_reg;
 	u32 rx_filters;
+<<<<<<< HEAD
+=======
+	u32 cc_shift;
+	u32 cc_mult;
+	u32 cc_mult_num;
+	u32 cc_mult_dem;
+>>>>>>> upstream/android-13
 };
 
 #define STATS_TYPE_PORT		BIT(0)
@@ -554,19 +852,46 @@ static inline bool mv88e6xxx_has_pvt(struct mv88e6xxx_chip *chip)
 	return chip->info->pvt;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool mv88e6xxx_has_lag(struct mv88e6xxx_chip *chip)
+{
+	return !!chip->info->global2_addr;
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int mv88e6xxx_num_databases(struct mv88e6xxx_chip *chip)
 {
 	return chip->info->num_databases;
 }
 
+<<<<<<< HEAD
+=======
+static inline unsigned int mv88e6xxx_num_macs(struct  mv88e6xxx_chip *chip)
+{
+	return chip->info->num_macs;
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned int mv88e6xxx_num_ports(struct mv88e6xxx_chip *chip)
 {
 	return chip->info->num_ports;
 }
 
+<<<<<<< HEAD
 static inline u16 mv88e6xxx_port_mask(struct mv88e6xxx_chip *chip)
 {
 	return GENMASK(mv88e6xxx_num_ports(chip) - 1, 0);
+=======
+static inline unsigned int mv88e6xxx_max_vid(struct mv88e6xxx_chip *chip)
+{
+	return chip->info->max_vid;
+}
+
+static inline u16 mv88e6xxx_port_mask(struct mv88e6xxx_chip *chip)
+{
+	return GENMASK((s32)mv88e6xxx_num_ports(chip) - 1, 0);
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int mv88e6xxx_num_gpio(struct mv88e6xxx_chip *chip)
@@ -574,6 +899,7 @@ static inline unsigned int mv88e6xxx_num_gpio(struct mv88e6xxx_chip *chip)
 	return chip->info->num_gpio;
 }
 
+<<<<<<< HEAD
 int mv88e6xxx_read(struct mv88e6xxx_chip *chip, int addr, int reg, u16 *val);
 int mv88e6xxx_write(struct mv88e6xxx_chip *chip, int addr, int reg, u16 val);
 int mv88e6xxx_update(struct mv88e6xxx_chip *chip, int addr, int reg,
@@ -581,4 +907,31 @@ int mv88e6xxx_update(struct mv88e6xxx_chip *chip, int addr, int reg,
 int mv88e6xxx_wait(struct mv88e6xxx_chip *chip, int addr, int reg, u16 mask);
 struct mii_bus *mv88e6xxx_default_mdio_bus(struct mv88e6xxx_chip *chip);
 
+=======
+static inline bool mv88e6xxx_is_invalid_port(struct mv88e6xxx_chip *chip, int port)
+{
+	return (chip->info->invalid_port_mask & BIT(port)) != 0;
+}
+
+int mv88e6xxx_read(struct mv88e6xxx_chip *chip, int addr, int reg, u16 *val);
+int mv88e6xxx_write(struct mv88e6xxx_chip *chip, int addr, int reg, u16 val);
+int mv88e6xxx_wait_mask(struct mv88e6xxx_chip *chip, int addr, int reg,
+			u16 mask, u16 val);
+int mv88e6xxx_wait_bit(struct mv88e6xxx_chip *chip, int addr, int reg,
+		       int bit, int val);
+struct mii_bus *mv88e6xxx_default_mdio_bus(struct mv88e6xxx_chip *chip);
+
+static inline void mv88e6xxx_reg_lock(struct mv88e6xxx_chip *chip)
+{
+	mutex_lock(&chip->reg_lock);
+}
+
+static inline void mv88e6xxx_reg_unlock(struct mv88e6xxx_chip *chip)
+{
+	mutex_unlock(&chip->reg_lock);
+}
+
+int mv88e6xxx_fid_map(struct mv88e6xxx_chip *chip, unsigned long *bitmap);
+
+>>>>>>> upstream/android-13
 #endif /* _MV88E6XXX_CHIP_H */

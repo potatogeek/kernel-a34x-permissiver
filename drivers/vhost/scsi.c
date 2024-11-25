@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Vhost kernel TCM fabric driver for virtio SCSI initiators
  *
  * (C) Copyright 2010-2013 Datera, Inc.
  * (C) Copyright 2010-2012 IBM Corp.
  *
+<<<<<<< HEAD
  * Licensed to the Linux Foundation under the General Public License (GPL) version 2.
  *
  * Authors: Nicholas A. Bellinger <nab@daterainc.com>
@@ -19,6 +24,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+ * Authors: Nicholas A. Bellinger <nab@daterainc.com>
+ *          Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 #include <linux/module.h>
@@ -52,7 +61,10 @@
 #define VHOST_SCSI_VERSION  "v0.1"
 #define VHOST_SCSI_NAMELEN 256
 #define VHOST_SCSI_MAX_CDB_SIZE 32
+<<<<<<< HEAD
 #define VHOST_SCSI_DEFAULT_TAGS 256
+=======
+>>>>>>> upstream/android-13
 #define VHOST_SCSI_PREALLOC_SGLS 2048
 #define VHOST_SCSI_PREALLOC_UPAGES 2048
 #define VHOST_SCSI_PREALLOC_PROT_SGLS 2048
@@ -86,7 +98,11 @@ struct vhost_scsi_cmd {
 	/* The number of scatterlists associated with this cmd */
 	u32 tvc_sgl_count;
 	u32 tvc_prot_sgl_count;
+<<<<<<< HEAD
 	/* Saved unpacked SCSI LUN for vhost_scsi_submission_work() */
+=======
+	/* Saved unpacked SCSI LUN for vhost_scsi_target_queue_cmd() */
+>>>>>>> upstream/android-13
 	u32 tvc_lun;
 	/* Pointer to the SGL formatted memory from virtio-scsi */
 	struct scatterlist *tvc_sgl;
@@ -102,8 +118,11 @@ struct vhost_scsi_cmd {
 	struct vhost_scsi_nexus *tvc_nexus;
 	/* The TCM I/O descriptor that is accessed via container_of() */
 	struct se_cmd tvc_se_cmd;
+<<<<<<< HEAD
 	/* work item used for cmwq dispatch to vhost_scsi_submission_work() */
 	struct work_struct work;
+=======
+>>>>>>> upstream/android-13
 	/* Copy of the incoming SCSI command descriptor block (CDB) */
 	unsigned char tvc_cdb[VHOST_SCSI_MAX_CDB_SIZE];
 	/* Sense buffer that will be mapped into outgoing status */
@@ -140,6 +159,10 @@ struct vhost_scsi_tpg {
 	struct se_portal_group se_tpg;
 	/* Pointer back to vhost_scsi, protected by tv_tpg_mutex */
 	struct vhost_scsi *vhost_scsi;
+<<<<<<< HEAD
+=======
+	struct list_head tmf_queue;
+>>>>>>> upstream/android-13
 };
 
 struct vhost_scsi_tport {
@@ -189,6 +212,12 @@ struct vhost_scsi_virtqueue {
 	 * Writers must also take dev mutex and flush under it.
 	 */
 	int inflight_idx;
+<<<<<<< HEAD
+=======
+	struct vhost_scsi_cmd *scsi_cmds;
+	struct sbitmap scsi_tags;
+	int max_cmds;
+>>>>>>> upstream/android-13
 };
 
 struct vhost_scsi {
@@ -209,7 +238,37 @@ struct vhost_scsi {
 	int vs_events_nr; /* num of pending events, protected by vq->mutex */
 };
 
+<<<<<<< HEAD
 static struct workqueue_struct *vhost_scsi_workqueue;
+=======
+struct vhost_scsi_tmf {
+	struct vhost_work vwork;
+	struct vhost_scsi_tpg *tpg;
+	struct vhost_scsi *vhost;
+	struct vhost_scsi_virtqueue *svq;
+	struct list_head queue_entry;
+
+	struct se_cmd se_cmd;
+	u8 scsi_resp;
+	struct vhost_scsi_inflight *inflight;
+	struct iovec resp_iov;
+	int in_iovs;
+	int vq_desc;
+};
+
+/*
+ * Context for processing request and control queue operations.
+ */
+struct vhost_scsi_ctx {
+	int head;
+	unsigned int out, in;
+	size_t req_size, rsp_size;
+	size_t out_size, in_size;
+	u8 *target, *lunp;
+	void *req;
+	struct iov_iter out_iter;
+};
+>>>>>>> upstream/android-13
 
 /* Global spinlock to protect vhost_scsi TPG list for vhost IOCTL access */
 static DEFINE_MUTEX(vhost_scsi_mutex);
@@ -278,11 +337,14 @@ static int vhost_scsi_check_false(struct se_portal_group *se_tpg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static char *vhost_scsi_get_fabric_name(void)
 {
 	return "vhost";
 }
 
+=======
+>>>>>>> upstream/android-13
 static char *vhost_scsi_get_fabric_wwn(struct se_portal_group *se_tpg)
 {
 	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
@@ -312,11 +374,21 @@ static u32 vhost_scsi_tpg_get_inst_index(struct se_portal_group *se_tpg)
 	return 1;
 }
 
+<<<<<<< HEAD
 static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
 {
 	struct vhost_scsi_cmd *tv_cmd = container_of(se_cmd,
 				struct vhost_scsi_cmd, tvc_se_cmd);
 	struct se_session *se_sess = tv_cmd->tvc_nexus->tvn_se_sess;
+=======
+static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
+{
+	struct vhost_scsi_cmd *tv_cmd = container_of(se_cmd,
+				struct vhost_scsi_cmd, tvc_se_cmd);
+	struct vhost_scsi_virtqueue *svq = container_of(tv_cmd->tvc_vq,
+				struct vhost_scsi_virtqueue, vq);
+	struct vhost_scsi_inflight *inflight = tv_cmd->inflight;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (tv_cmd->tvc_sgl_count) {
@@ -328,8 +400,41 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
 			put_page(sg_page(&tv_cmd->tvc_prot_sgl[i]));
 	}
 
+<<<<<<< HEAD
 	vhost_scsi_put_inflight(tv_cmd->inflight);
 	target_free_tag(se_sess, se_cmd);
+=======
+	sbitmap_clear_bit(&svq->scsi_tags, se_cmd->map_tag);
+	vhost_scsi_put_inflight(inflight);
+}
+
+static void vhost_scsi_release_tmf_res(struct vhost_scsi_tmf *tmf)
+{
+	struct vhost_scsi_tpg *tpg = tmf->tpg;
+	struct vhost_scsi_inflight *inflight = tmf->inflight;
+
+	mutex_lock(&tpg->tv_tpg_mutex);
+	list_add_tail(&tpg->tmf_queue, &tmf->queue_entry);
+	mutex_unlock(&tpg->tv_tpg_mutex);
+	vhost_scsi_put_inflight(inflight);
+}
+
+static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+{
+	if (se_cmd->se_cmd_flags & SCF_SCSI_TMR_CDB) {
+		struct vhost_scsi_tmf *tmf = container_of(se_cmd,
+					struct vhost_scsi_tmf, se_cmd);
+
+		vhost_work_queue(&tmf->vhost->dev, &tmf->vwork);
+	} else {
+		struct vhost_scsi_cmd *cmd = container_of(se_cmd,
+					struct vhost_scsi_cmd, tvc_se_cmd);
+		struct vhost_scsi *vs = cmd->tvc_vhost;
+
+		llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
+		vhost_work_queue(&vs->dev, &vs->vs_completion_work);
+	}
+>>>>>>> upstream/android-13
 }
 
 static u32 vhost_scsi_sess_get_index(struct se_session *se_sess)
@@ -344,11 +449,14 @@ static int vhost_scsi_write_pending(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vhost_scsi_write_pending_status(struct se_cmd *se_cmd)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void vhost_scsi_set_default_node_attrs(struct se_node_acl *nacl)
 {
 	return;
@@ -359,6 +467,7 @@ static int vhost_scsi_get_cmd_state(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void vhost_scsi_complete_cmd(struct vhost_scsi_cmd *cmd)
 {
 	struct vhost_scsi *vs = cmd->tvc_vhost;
@@ -373,20 +482,37 @@ static int vhost_scsi_queue_data_in(struct se_cmd *se_cmd)
 	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
 				struct vhost_scsi_cmd, tvc_se_cmd);
 	vhost_scsi_complete_cmd(cmd);
+=======
+static int vhost_scsi_queue_data_in(struct se_cmd *se_cmd)
+{
+	transport_generic_free_cmd(se_cmd, 0);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int vhost_scsi_queue_status(struct se_cmd *se_cmd)
 {
+<<<<<<< HEAD
 	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
 				struct vhost_scsi_cmd, tvc_se_cmd);
 	vhost_scsi_complete_cmd(cmd);
+=======
+	transport_generic_free_cmd(se_cmd, 0);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void vhost_scsi_queue_tm_rsp(struct se_cmd *se_cmd)
 {
+<<<<<<< HEAD
 	return;
+=======
+	struct vhost_scsi_tmf *tmf = container_of(se_cmd, struct vhost_scsi_tmf,
+						  se_cmd);
+
+	tmf->scsi_resp = se_cmd->se_tmr_req->response;
+	transport_generic_free_cmd(&tmf->se_cmd, 0);
+>>>>>>> upstream/android-13
 }
 
 static void vhost_scsi_aborted_task(struct se_cmd *se_cmd)
@@ -426,6 +552,7 @@ vhost_scsi_allocate_evt(struct vhost_scsi *vs,
 	return evt;
 }
 
+<<<<<<< HEAD
 static void vhost_scsi_free_cmd(struct vhost_scsi_cmd *cmd)
 {
 	struct se_cmd *se_cmd = &cmd->tvc_se_cmd;
@@ -435,6 +562,8 @@ static void vhost_scsi_free_cmd(struct vhost_scsi_cmd *cmd)
 
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vhost_scsi_check_stop_free(struct se_cmd *se_cmd)
 {
 	return target_put_sess_cmd(se_cmd);
@@ -449,7 +578,11 @@ vhost_scsi_do_evt_work(struct vhost_scsi *vs, struct vhost_scsi_evt *evt)
 	unsigned out, in;
 	int head, ret;
 
+<<<<<<< HEAD
 	if (!vq->private_data) {
+=======
+	if (!vhost_vq_get_backend(vq)) {
+>>>>>>> upstream/android-13
 		vs->vs_events_missed = true;
 		return;
 	}
@@ -553,7 +686,11 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
 		} else
 			pr_err("Faulted on virtio_scsi_cmd_resp\n");
 
+<<<<<<< HEAD
 		vhost_scsi_free_cmd(cmd);
+=======
+		vhost_scsi_release_cmd_res(se_cmd);
+>>>>>>> upstream/android-13
 	}
 
 	vq = -1;
@@ -563,6 +700,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
 }
 
 static struct vhost_scsi_cmd *
+<<<<<<< HEAD
 vhost_scsi_get_tag(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
 		   unsigned char *cdb, u64 scsi_tag, u16 lun, u8 task_attr,
 		   u32 exp_data_len, int data_direction)
@@ -573,21 +711,43 @@ vhost_scsi_get_tag(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
 	struct scatterlist *sg, *prot_sg;
 	struct page **pages;
 	int tag, cpu;
+=======
+vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+		   unsigned char *cdb, u64 scsi_tag, u16 lun, u8 task_attr,
+		   u32 exp_data_len, int data_direction)
+{
+	struct vhost_scsi_virtqueue *svq = container_of(vq,
+					struct vhost_scsi_virtqueue, vq);
+	struct vhost_scsi_cmd *cmd;
+	struct vhost_scsi_nexus *tv_nexus;
+	struct scatterlist *sg, *prot_sg;
+	struct page **pages;
+	int tag;
+>>>>>>> upstream/android-13
 
 	tv_nexus = tpg->tpg_nexus;
 	if (!tv_nexus) {
 		pr_err("Unable to locate active struct vhost_scsi_nexus\n");
 		return ERR_PTR(-EIO);
 	}
+<<<<<<< HEAD
 	se_sess = tv_nexus->tvn_se_sess;
 
 	tag = sbitmap_queue_get(&se_sess->sess_tag_pool, &cpu);
+=======
+
+	tag = sbitmap_get(&svq->scsi_tags);
+>>>>>>> upstream/android-13
 	if (tag < 0) {
 		pr_err("Unable to obtain tag for vhost_scsi_cmd\n");
 		return ERR_PTR(-ENOMEM);
 	}
 
+<<<<<<< HEAD
 	cmd = &((struct vhost_scsi_cmd *)se_sess->sess_cmd_map)[tag];
+=======
+	cmd = &svq->scsi_cmds[tag];
+>>>>>>> upstream/android-13
 	sg = cmd->tvc_sgl;
 	prot_sg = cmd->tvc_prot_sgl;
 	pages = cmd->tvc_upages;
@@ -596,7 +756,10 @@ vhost_scsi_get_tag(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
 	cmd->tvc_prot_sgl = prot_sg;
 	cmd->tvc_upages = pages;
 	cmd->tvc_se_cmd.map_tag = tag;
+<<<<<<< HEAD
 	cmd->tvc_se_cmd.map_cpu = cpu;
+=======
+>>>>>>> upstream/android-13
 	cmd->tvc_tag = scsi_tag;
 	cmd->tvc_lun = lun;
 	cmd->tvc_task_attr = task_attr;
@@ -750,6 +913,7 @@ static int vhost_scsi_to_tcm_attr(int attr)
 	return TCM_SIMPLE_TAG;
 }
 
+<<<<<<< HEAD
 static void vhost_scsi_submission_work(struct work_struct *work)
 {
 	struct vhost_scsi_cmd *cmd =
@@ -758,6 +922,13 @@ static void vhost_scsi_submission_work(struct work_struct *work)
 	struct se_cmd *se_cmd = &cmd->tvc_se_cmd;
 	struct scatterlist *sg_ptr, *sg_prot_ptr = NULL;
 	int rc;
+=======
+static void vhost_scsi_target_queue_cmd(struct vhost_scsi_cmd *cmd)
+{
+	struct se_cmd *se_cmd = &cmd->tvc_se_cmd;
+	struct vhost_scsi_nexus *tv_nexus;
+	struct scatterlist *sg_ptr, *sg_prot_ptr = NULL;
+>>>>>>> upstream/android-13
 
 	/* FIXME: BIDI operation */
 	if (cmd->tvc_sgl_count) {
@@ -773,6 +944,7 @@ static void vhost_scsi_submission_work(struct work_struct *work)
 	tv_nexus = cmd->tvc_nexus;
 
 	se_cmd->tag = 0;
+<<<<<<< HEAD
 	rc = target_submit_cmd_map_sgls(se_cmd, tv_nexus->tvn_se_sess,
 			cmd->tvc_cdb, &cmd->tvc_sense_buf[0],
 			cmd->tvc_lun, cmd->tvc_exp_data_len,
@@ -785,6 +957,19 @@ static void vhost_scsi_submission_work(struct work_struct *work)
 				TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE, 0);
 		transport_generic_free_cmd(se_cmd, 0);
 	}
+=======
+	target_init_cmd(se_cmd, tv_nexus->tvn_se_sess, &cmd->tvc_sense_buf[0],
+			cmd->tvc_lun, cmd->tvc_exp_data_len,
+			vhost_scsi_to_tcm_attr(cmd->tvc_task_attr),
+			cmd->tvc_data_direction, TARGET_SCF_ACK_KREF);
+
+	if (target_submit_prep(se_cmd, cmd->tvc_cdb, sg_ptr,
+			       cmd->tvc_sgl_count, NULL, 0, sg_prot_ptr,
+			       cmd->tvc_prot_sgl_count, GFP_KERNEL))
+		return;
+
+	target_queue_submission(se_cmd);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -806,12 +991,119 @@ vhost_scsi_send_bad_target(struct vhost_scsi *vs,
 		pr_err("Faulted on virtio_scsi_cmd_resp\n");
 }
 
+<<<<<<< HEAD
+=======
+static int
+vhost_scsi_get_desc(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
+		    struct vhost_scsi_ctx *vc)
+{
+	int ret = -ENXIO;
+
+	vc->head = vhost_get_vq_desc(vq, vq->iov,
+				     ARRAY_SIZE(vq->iov), &vc->out, &vc->in,
+				     NULL, NULL);
+
+	pr_debug("vhost_get_vq_desc: head: %d, out: %u in: %u\n",
+		 vc->head, vc->out, vc->in);
+
+	/* On error, stop handling until the next kick. */
+	if (unlikely(vc->head < 0))
+		goto done;
+
+	/* Nothing new?  Wait for eventfd to tell us they refilled. */
+	if (vc->head == vq->num) {
+		if (unlikely(vhost_enable_notify(&vs->dev, vq))) {
+			vhost_disable_notify(&vs->dev, vq);
+			ret = -EAGAIN;
+		}
+		goto done;
+	}
+
+	/*
+	 * Get the size of request and response buffers.
+	 * FIXME: Not correct for BIDI operation
+	 */
+	vc->out_size = iov_length(vq->iov, vc->out);
+	vc->in_size = iov_length(&vq->iov[vc->out], vc->in);
+
+	/*
+	 * Copy over the virtio-scsi request header, which for a
+	 * ANY_LAYOUT enabled guest may span multiple iovecs, or a
+	 * single iovec may contain both the header + outgoing
+	 * WRITE payloads.
+	 *
+	 * copy_from_iter() will advance out_iter, so that it will
+	 * point at the start of the outgoing WRITE payload, if
+	 * DMA_TO_DEVICE is set.
+	 */
+	iov_iter_init(&vc->out_iter, WRITE, vq->iov, vc->out, vc->out_size);
+	ret = 0;
+
+done:
+	return ret;
+}
+
+static int
+vhost_scsi_chk_size(struct vhost_virtqueue *vq, struct vhost_scsi_ctx *vc)
+{
+	if (unlikely(vc->in_size < vc->rsp_size)) {
+		vq_err(vq,
+		       "Response buf too small, need min %zu bytes got %zu",
+		       vc->rsp_size, vc->in_size);
+		return -EINVAL;
+	} else if (unlikely(vc->out_size < vc->req_size)) {
+		vq_err(vq,
+		       "Request buf too small, need min %zu bytes got %zu",
+		       vc->req_size, vc->out_size);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static int
+vhost_scsi_get_req(struct vhost_virtqueue *vq, struct vhost_scsi_ctx *vc,
+		   struct vhost_scsi_tpg **tpgp)
+{
+	int ret = -EIO;
+
+	if (unlikely(!copy_from_iter_full(vc->req, vc->req_size,
+					  &vc->out_iter))) {
+		vq_err(vq, "Faulted on copy_from_iter_full\n");
+	} else if (unlikely(*vc->lunp != 1)) {
+		/* virtio-scsi spec requires byte 0 of the lun to be 1 */
+		vq_err(vq, "Illegal virtio-scsi lun: %u\n", *vc->lunp);
+	} else {
+		struct vhost_scsi_tpg **vs_tpg, *tpg;
+
+		vs_tpg = vhost_vq_get_backend(vq);	/* validated at handler entry */
+
+		tpg = READ_ONCE(vs_tpg[*vc->target]);
+		if (unlikely(!tpg)) {
+			vq_err(vq, "Target 0x%x does not exist\n", *vc->target);
+		} else {
+			if (tpgp)
+				*tpgp = tpg;
+			ret = 0;
+		}
+	}
+
+	return ret;
+}
+
+static u16 vhost_buf_to_lun(u8 *lun_buf)
+{
+	return ((lun_buf[2] << 8) | lun_buf[3]) & 0x3FFF;
+}
+
+>>>>>>> upstream/android-13
 static void
 vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 {
 	struct vhost_scsi_tpg **vs_tpg, *tpg;
 	struct virtio_scsi_cmd_req v_req;
 	struct virtio_scsi_cmd_req_pi v_req_pi;
+<<<<<<< HEAD
 	struct vhost_scsi_cmd *cmd;
 	struct iov_iter out_iter, in_iter, prot_iter, data_iter;
 	u64 tag;
@@ -824,12 +1116,25 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 	u8 *target, *lunp, task_attr;
 	bool t10_pi = vhost_has_feature(vq, VIRTIO_SCSI_F_T10_PI);
 	void *req, *cdb;
+=======
+	struct vhost_scsi_ctx vc;
+	struct vhost_scsi_cmd *cmd;
+	struct iov_iter in_iter, prot_iter, data_iter;
+	u64 tag;
+	u32 exp_data_len, data_direction;
+	int ret, prot_bytes, c = 0;
+	u16 lun;
+	u8 task_attr;
+	bool t10_pi = vhost_has_feature(vq, VIRTIO_SCSI_F_T10_PI);
+	void *cdb;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vq->mutex);
 	/*
 	 * We can handle the vq only after the endpoint is setup by calling the
 	 * VHOST_SCSI_SET_ENDPOINT ioctl.
 	 */
+<<<<<<< HEAD
 	vs_tpg = vq->private_data;
 	if (!vs_tpg)
 		goto out;
@@ -862,11 +1167,28 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 				" size, got %zu bytes\n", vq->iov[out].iov_len);
 			break;
 		}
+=======
+	vs_tpg = vhost_vq_get_backend(vq);
+	if (!vs_tpg)
+		goto out;
+
+	memset(&vc, 0, sizeof(vc));
+	vc.rsp_size = sizeof(struct virtio_scsi_cmd_resp);
+
+	vhost_disable_notify(&vs->dev, vq);
+
+	do {
+		ret = vhost_scsi_get_desc(vs, vq, &vc);
+		if (ret)
+			goto err;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Setup pointers and values based upon different virtio-scsi
 		 * request header if T10_PI is enabled in KVM guest.
 		 */
 		if (t10_pi) {
+<<<<<<< HEAD
 			req = &v_req_pi;
 			req_size = sizeof(v_req_pi);
 			lunp = &v_req_pi.lun[0];
@@ -913,6 +1235,34 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 			vhost_scsi_send_bad_target(vs, vq, head, out);
 			continue;
 		}
+=======
+			vc.req = &v_req_pi;
+			vc.req_size = sizeof(v_req_pi);
+			vc.lunp = &v_req_pi.lun[0];
+			vc.target = &v_req_pi.lun[1];
+		} else {
+			vc.req = &v_req;
+			vc.req_size = sizeof(v_req);
+			vc.lunp = &v_req.lun[0];
+			vc.target = &v_req.lun[1];
+		}
+
+		/*
+		 * Validate the size of request and response buffers.
+		 * Check for a sane response buffer so we can report
+		 * early errors back to the guest.
+		 */
+		ret = vhost_scsi_chk_size(vq, &vc);
+		if (ret)
+			goto err;
+
+		ret = vhost_scsi_get_req(vq, &vc, &tpg);
+		if (ret)
+			goto err;
+
+		ret = -EIO;	/* bad target on any error from here on */
+
+>>>>>>> upstream/android-13
 		/*
 		 * Determine data_direction by calculating the total outgoing
 		 * iovec sizes + incoming iovec sizes vs. virtio-scsi request +
@@ -930,6 +1280,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 		 */
 		prot_bytes = 0;
 
+<<<<<<< HEAD
 		if (out_size > req_size) {
 			data_direction = DMA_TO_DEVICE;
 			exp_data_len = out_size - req_size;
@@ -941,6 +1292,19 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 			iov_iter_init(&in_iter, READ, &vq->iov[out], in,
 				      rsp_size + exp_data_len);
 			iov_iter_advance(&in_iter, rsp_size);
+=======
+		if (vc.out_size > vc.req_size) {
+			data_direction = DMA_TO_DEVICE;
+			exp_data_len = vc.out_size - vc.req_size;
+			data_iter = vc.out_iter;
+		} else if (vc.in_size > vc.rsp_size) {
+			data_direction = DMA_FROM_DEVICE;
+			exp_data_len = vc.in_size - vc.rsp_size;
+
+			iov_iter_init(&in_iter, READ, &vq->iov[vc.out], vc.in,
+				      vc.rsp_size + exp_data_len);
+			iov_iter_advance(&in_iter, vc.rsp_size);
+>>>>>>> upstream/android-13
 			data_iter = in_iter;
 		} else {
 			data_direction = DMA_NONE;
@@ -956,16 +1320,24 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 				if (data_direction != DMA_TO_DEVICE) {
 					vq_err(vq, "Received non zero pi_bytesout,"
 						" but wrong data_direction\n");
+<<<<<<< HEAD
 					vhost_scsi_send_bad_target(vs, vq, head, out);
 					continue;
+=======
+					goto err;
+>>>>>>> upstream/android-13
 				}
 				prot_bytes = vhost32_to_cpu(vq, v_req_pi.pi_bytesout);
 			} else if (v_req_pi.pi_bytesin) {
 				if (data_direction != DMA_FROM_DEVICE) {
 					vq_err(vq, "Received non zero pi_bytesin,"
 						" but wrong data_direction\n");
+<<<<<<< HEAD
 					vhost_scsi_send_bad_target(vs, vq, head, out);
 					continue;
+=======
+					goto err;
+>>>>>>> upstream/android-13
 				}
 				prot_bytes = vhost32_to_cpu(vq, v_req_pi.pi_bytesin);
 			}
@@ -986,12 +1358,20 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 			tag = vhost64_to_cpu(vq, v_req_pi.tag);
 			task_attr = v_req_pi.task_attr;
 			cdb = &v_req_pi.cdb[0];
+<<<<<<< HEAD
 			lun = ((v_req_pi.lun[2] << 8) | v_req_pi.lun[3]) & 0x3FFF;
+=======
+			lun = vhost_buf_to_lun(v_req_pi.lun);
+>>>>>>> upstream/android-13
 		} else {
 			tag = vhost64_to_cpu(vq, v_req.tag);
 			task_attr = v_req.task_attr;
 			cdb = &v_req.cdb[0];
+<<<<<<< HEAD
 			lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
+=======
+			lun = vhost_buf_to_lun(v_req.lun);
+>>>>>>> upstream/android-13
 		}
 		/*
 		 * Check that the received CDB size does not exceeded our
@@ -1004,6 +1384,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 			vq_err(vq, "Received SCSI CDB with command_size: %d that"
 				" exceeds SCSI_MAX_VARLEN_CDB_SIZE: %d\n",
 				scsi_command_size(cdb), VHOST_SCSI_MAX_CDB_SIZE);
+<<<<<<< HEAD
 			vhost_scsi_send_bad_target(vs, vq, head, out);
 			continue;
 		}
@@ -1020,6 +1401,22 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 		cmd->tvc_vq = vq;
 		cmd->tvc_resp_iov = vq->iov[out];
 		cmd->tvc_in_iovs = in;
+=======
+				goto err;
+		}
+		cmd = vhost_scsi_get_cmd(vq, tpg, cdb, tag, lun, task_attr,
+					 exp_data_len + prot_bytes,
+					 data_direction);
+		if (IS_ERR(cmd)) {
+			vq_err(vq, "vhost_scsi_get_cmd failed %ld\n",
+			       PTR_ERR(cmd));
+			goto err;
+		}
+		cmd->tvc_vhost = vs;
+		cmd->tvc_vq = vq;
+		cmd->tvc_resp_iov = vq->iov[vc.out];
+		cmd->tvc_in_iovs = vc.in;
+>>>>>>> upstream/android-13
 
 		pr_debug("vhost_scsi got command opcode: %#02x, lun: %d\n",
 			 cmd->tvc_cdb[0], cmd->tvc_lun);
@@ -1027,6 +1424,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 			 " %d\n", cmd, exp_data_len, prot_bytes, data_direction);
 
 		if (data_direction != DMA_NONE) {
+<<<<<<< HEAD
 			ret = vhost_scsi_mapal(cmd,
 					       prot_bytes, &prot_iter,
 					       exp_data_len, &data_iter);
@@ -1035,6 +1433,14 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 				vhost_scsi_release_cmd(&cmd->tvc_se_cmd);
 				vhost_scsi_send_bad_target(vs, vq, head, out);
 				continue;
+=======
+			if (unlikely(vhost_scsi_mapal(cmd, prot_bytes,
+						      &prot_iter, exp_data_len,
+						      &data_iter))) {
+				vq_err(vq, "Failed to map iov to sgl\n");
+				vhost_scsi_release_cmd_res(&cmd->tvc_se_cmd);
+				goto err;
+>>>>>>> upstream/android-13
 			}
 		}
 		/*
@@ -1042,6 +1448,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 		 * complete the virtio-scsi request in TCM callback context via
 		 * vhost_scsi_queue_data_in() and vhost_scsi_queue_status()
 		 */
+<<<<<<< HEAD
 		cmd->tvc_vq_desc = head;
 		/*
 		 * Dispatch cmd descriptor for cmwq execution in process
@@ -1051,6 +1458,245 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
 		 */
 		INIT_WORK(&cmd->work, vhost_scsi_submission_work);
 		queue_work(vhost_scsi_workqueue, &cmd->work);
+=======
+		cmd->tvc_vq_desc = vc.head;
+		vhost_scsi_target_queue_cmd(cmd);
+		ret = 0;
+err:
+		/*
+		 * ENXIO:  No more requests, or read error, wait for next kick
+		 * EINVAL: Invalid response buffer, drop the request
+		 * EIO:    Respond with bad target
+		 * EAGAIN: Pending request
+		 */
+		if (ret == -ENXIO)
+			break;
+		else if (ret == -EIO)
+			vhost_scsi_send_bad_target(vs, vq, vc.head, vc.out);
+	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
+out:
+	mutex_unlock(&vq->mutex);
+}
+
+static void
+vhost_scsi_send_tmf_resp(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
+			 int in_iovs, int vq_desc, struct iovec *resp_iov,
+			 int tmf_resp_code)
+{
+	struct virtio_scsi_ctrl_tmf_resp rsp;
+	struct iov_iter iov_iter;
+	int ret;
+
+	pr_debug("%s\n", __func__);
+	memset(&rsp, 0, sizeof(rsp));
+	rsp.response = tmf_resp_code;
+
+	iov_iter_init(&iov_iter, READ, resp_iov, in_iovs, sizeof(rsp));
+
+	ret = copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
+	if (likely(ret == sizeof(rsp)))
+		vhost_add_used_and_signal(&vs->dev, vq, vq_desc, 0);
+	else
+		pr_err("Faulted on virtio_scsi_ctrl_tmf_resp\n");
+}
+
+static void vhost_scsi_tmf_resp_work(struct vhost_work *work)
+{
+	struct vhost_scsi_tmf *tmf = container_of(work, struct vhost_scsi_tmf,
+						  vwork);
+	int resp_code;
+
+	if (tmf->scsi_resp == TMR_FUNCTION_COMPLETE)
+		resp_code = VIRTIO_SCSI_S_FUNCTION_SUCCEEDED;
+	else
+		resp_code = VIRTIO_SCSI_S_FUNCTION_REJECTED;
+
+	vhost_scsi_send_tmf_resp(tmf->vhost, &tmf->svq->vq, tmf->in_iovs,
+				 tmf->vq_desc, &tmf->resp_iov, resp_code);
+	vhost_scsi_release_tmf_res(tmf);
+}
+
+static void
+vhost_scsi_handle_tmf(struct vhost_scsi *vs, struct vhost_scsi_tpg *tpg,
+		      struct vhost_virtqueue *vq,
+		      struct virtio_scsi_ctrl_tmf_req *vtmf,
+		      struct vhost_scsi_ctx *vc)
+{
+	struct vhost_scsi_virtqueue *svq = container_of(vq,
+					struct vhost_scsi_virtqueue, vq);
+	struct vhost_scsi_tmf *tmf;
+
+	if (vhost32_to_cpu(vq, vtmf->subtype) !=
+	    VIRTIO_SCSI_T_TMF_LOGICAL_UNIT_RESET)
+		goto send_reject;
+
+	if (!tpg->tpg_nexus || !tpg->tpg_nexus->tvn_se_sess) {
+		pr_err("Unable to locate active struct vhost_scsi_nexus for LUN RESET.\n");
+		goto send_reject;
+	}
+
+	mutex_lock(&tpg->tv_tpg_mutex);
+	if (list_empty(&tpg->tmf_queue)) {
+		pr_err("Missing reserve TMF. Could not handle LUN RESET.\n");
+		mutex_unlock(&tpg->tv_tpg_mutex);
+		goto send_reject;
+	}
+
+	tmf = list_first_entry(&tpg->tmf_queue, struct vhost_scsi_tmf,
+			       queue_entry);
+	list_del_init(&tmf->queue_entry);
+	mutex_unlock(&tpg->tv_tpg_mutex);
+
+	tmf->tpg = tpg;
+	tmf->vhost = vs;
+	tmf->svq = svq;
+	tmf->resp_iov = vq->iov[vc->out];
+	tmf->vq_desc = vc->head;
+	tmf->in_iovs = vc->in;
+	tmf->inflight = vhost_scsi_get_inflight(vq);
+
+	if (target_submit_tmr(&tmf->se_cmd, tpg->tpg_nexus->tvn_se_sess, NULL,
+			      vhost_buf_to_lun(vtmf->lun), NULL,
+			      TMR_LUN_RESET, GFP_KERNEL, 0,
+			      TARGET_SCF_ACK_KREF) < 0) {
+		vhost_scsi_release_tmf_res(tmf);
+		goto send_reject;
+	}
+
+	return;
+
+send_reject:
+	vhost_scsi_send_tmf_resp(vs, vq, vc->in, vc->head, &vq->iov[vc->out],
+				 VIRTIO_SCSI_S_FUNCTION_REJECTED);
+}
+
+static void
+vhost_scsi_send_an_resp(struct vhost_scsi *vs,
+			struct vhost_virtqueue *vq,
+			struct vhost_scsi_ctx *vc)
+{
+	struct virtio_scsi_ctrl_an_resp rsp;
+	struct iov_iter iov_iter;
+	int ret;
+
+	pr_debug("%s\n", __func__);
+	memset(&rsp, 0, sizeof(rsp));	/* event_actual = 0 */
+	rsp.response = VIRTIO_SCSI_S_OK;
+
+	iov_iter_init(&iov_iter, READ, &vq->iov[vc->out], vc->in, sizeof(rsp));
+
+	ret = copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
+	if (likely(ret == sizeof(rsp)))
+		vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
+	else
+		pr_err("Faulted on virtio_scsi_ctrl_an_resp\n");
+}
+
+static void
+vhost_scsi_ctl_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+{
+	struct vhost_scsi_tpg *tpg;
+	union {
+		__virtio32 type;
+		struct virtio_scsi_ctrl_an_req an;
+		struct virtio_scsi_ctrl_tmf_req tmf;
+	} v_req;
+	struct vhost_scsi_ctx vc;
+	size_t typ_size;
+	int ret, c = 0;
+
+	mutex_lock(&vq->mutex);
+	/*
+	 * We can handle the vq only after the endpoint is setup by calling the
+	 * VHOST_SCSI_SET_ENDPOINT ioctl.
+	 */
+	if (!vhost_vq_get_backend(vq))
+		goto out;
+
+	memset(&vc, 0, sizeof(vc));
+
+	vhost_disable_notify(&vs->dev, vq);
+
+	do {
+		ret = vhost_scsi_get_desc(vs, vq, &vc);
+		if (ret)
+			goto err;
+
+		/*
+		 * Get the request type first in order to setup
+		 * other parameters dependent on the type.
+		 */
+		vc.req = &v_req.type;
+		typ_size = sizeof(v_req.type);
+
+		if (unlikely(!copy_from_iter_full(vc.req, typ_size,
+						  &vc.out_iter))) {
+			vq_err(vq, "Faulted on copy_from_iter tmf type\n");
+			/*
+			 * The size of the response buffer depends on the
+			 * request type and must be validated against it.
+			 * Since the request type is not known, don't send
+			 * a response.
+			 */
+			continue;
+		}
+
+		switch (vhost32_to_cpu(vq, v_req.type)) {
+		case VIRTIO_SCSI_T_TMF:
+			vc.req = &v_req.tmf;
+			vc.req_size = sizeof(struct virtio_scsi_ctrl_tmf_req);
+			vc.rsp_size = sizeof(struct virtio_scsi_ctrl_tmf_resp);
+			vc.lunp = &v_req.tmf.lun[0];
+			vc.target = &v_req.tmf.lun[1];
+			break;
+		case VIRTIO_SCSI_T_AN_QUERY:
+		case VIRTIO_SCSI_T_AN_SUBSCRIBE:
+			vc.req = &v_req.an;
+			vc.req_size = sizeof(struct virtio_scsi_ctrl_an_req);
+			vc.rsp_size = sizeof(struct virtio_scsi_ctrl_an_resp);
+			vc.lunp = &v_req.an.lun[0];
+			vc.target = NULL;
+			break;
+		default:
+			vq_err(vq, "Unknown control request %d", v_req.type);
+			continue;
+		}
+
+		/*
+		 * Validate the size of request and response buffers.
+		 * Check for a sane response buffer so we can report
+		 * early errors back to the guest.
+		 */
+		ret = vhost_scsi_chk_size(vq, &vc);
+		if (ret)
+			goto err;
+
+		/*
+		 * Get the rest of the request now that its size is known.
+		 */
+		vc.req += typ_size;
+		vc.req_size -= typ_size;
+
+		ret = vhost_scsi_get_req(vq, &vc, &tpg);
+		if (ret)
+			goto err;
+
+		if (v_req.type == VIRTIO_SCSI_T_TMF)
+			vhost_scsi_handle_tmf(vs, tpg, vq, &v_req.tmf, &vc);
+		else
+			vhost_scsi_send_an_resp(vs, vq, &vc);
+err:
+		/*
+		 * ENXIO:  No more requests, or read error, wait for next kick
+		 * EINVAL: Invalid response buffer, drop the request
+		 * EIO:    Respond with bad target
+		 * EAGAIN: Pending request
+		 */
+		if (ret == -ENXIO)
+			break;
+		else if (ret == -EIO)
+			vhost_scsi_send_bad_target(vs, vq, vc.head, vc.out);
+>>>>>>> upstream/android-13
 	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
 out:
 	mutex_unlock(&vq->mutex);
@@ -1058,7 +1704,16 @@ out:
 
 static void vhost_scsi_ctl_handle_kick(struct vhost_work *work)
 {
+<<<<<<< HEAD
 	pr_debug("%s: The handling func for control queue.\n", __func__);
+=======
+	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
+						poll.work);
+	struct vhost_scsi *vs = container_of(vq->dev, struct vhost_scsi, dev);
+
+	pr_debug("%s: The handling func for control queue.\n", __func__);
+	vhost_scsi_ctl_handle_vq(vs, vq);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1098,7 +1753,11 @@ static void vhost_scsi_evt_handle_kick(struct vhost_work *work)
 	struct vhost_scsi *vs = container_of(vq->dev, struct vhost_scsi, dev);
 
 	mutex_lock(&vq->mutex);
+<<<<<<< HEAD
 	if (!vq->private_data)
+=======
+	if (!vhost_vq_get_backend(vq))
+>>>>>>> upstream/android-13
 		goto out;
 
 	if (vs->vs_events_missed)
@@ -1116,11 +1775,14 @@ static void vhost_scsi_handle_kick(struct vhost_work *work)
 	vhost_scsi_handle_vq(vs, vq);
 }
 
+<<<<<<< HEAD
 static void vhost_scsi_flush_vq(struct vhost_scsi *vs, int index)
 {
 	vhost_poll_flush(&vs->vqs[index].vq.poll);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Callers must hold dev mutex */
 static void vhost_scsi_flush(struct vhost_scsi *vs)
 {
@@ -1139,16 +1801,100 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
 		kref_put(&old_inflight[i]->kref, vhost_scsi_done_inflight);
 
 	/* Flush both the vhost poll and vhost work */
+<<<<<<< HEAD
 	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
 		vhost_scsi_flush_vq(vs, i);
 	vhost_work_flush(&vs->dev, &vs->vs_completion_work);
 	vhost_work_flush(&vs->dev, &vs->vs_event_work);
+=======
+	vhost_work_dev_flush(&vs->dev);
+>>>>>>> upstream/android-13
 
 	/* Wait for all reqs issued before the flush to be finished */
 	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
 		wait_for_completion(&old_inflight[i]->comp);
 }
 
+<<<<<<< HEAD
+=======
+static void vhost_scsi_destroy_vq_cmds(struct vhost_virtqueue *vq)
+{
+	struct vhost_scsi_virtqueue *svq = container_of(vq,
+					struct vhost_scsi_virtqueue, vq);
+	struct vhost_scsi_cmd *tv_cmd;
+	unsigned int i;
+
+	if (!svq->scsi_cmds)
+		return;
+
+	for (i = 0; i < svq->max_cmds; i++) {
+		tv_cmd = &svq->scsi_cmds[i];
+
+		kfree(tv_cmd->tvc_sgl);
+		kfree(tv_cmd->tvc_prot_sgl);
+		kfree(tv_cmd->tvc_upages);
+	}
+
+	sbitmap_free(&svq->scsi_tags);
+	kfree(svq->scsi_cmds);
+	svq->scsi_cmds = NULL;
+}
+
+static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
+{
+	struct vhost_scsi_virtqueue *svq = container_of(vq,
+					struct vhost_scsi_virtqueue, vq);
+	struct vhost_scsi_cmd *tv_cmd;
+	unsigned int i;
+
+	if (svq->scsi_cmds)
+		return 0;
+
+	if (sbitmap_init_node(&svq->scsi_tags, max_cmds, -1, GFP_KERNEL,
+			      NUMA_NO_NODE, false, true))
+		return -ENOMEM;
+	svq->max_cmds = max_cmds;
+
+	svq->scsi_cmds = kcalloc(max_cmds, sizeof(*tv_cmd), GFP_KERNEL);
+	if (!svq->scsi_cmds) {
+		sbitmap_free(&svq->scsi_tags);
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < max_cmds; i++) {
+		tv_cmd = &svq->scsi_cmds[i];
+
+		tv_cmd->tvc_sgl = kcalloc(VHOST_SCSI_PREALLOC_SGLS,
+					  sizeof(struct scatterlist),
+					  GFP_KERNEL);
+		if (!tv_cmd->tvc_sgl) {
+			pr_err("Unable to allocate tv_cmd->tvc_sgl\n");
+			goto out;
+		}
+
+		tv_cmd->tvc_upages = kcalloc(VHOST_SCSI_PREALLOC_UPAGES,
+					     sizeof(struct page *),
+					     GFP_KERNEL);
+		if (!tv_cmd->tvc_upages) {
+			pr_err("Unable to allocate tv_cmd->tvc_upages\n");
+			goto out;
+		}
+
+		tv_cmd->tvc_prot_sgl = kcalloc(VHOST_SCSI_PREALLOC_PROT_SGLS,
+					       sizeof(struct scatterlist),
+					       GFP_KERNEL);
+		if (!tv_cmd->tvc_prot_sgl) {
+			pr_err("Unable to allocate tv_cmd->tvc_prot_sgl\n");
+			goto out;
+		}
+	}
+	return 0;
+out:
+	vhost_scsi_destroy_vq_cmds(vq);
+	return -ENOMEM;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Called from vhost_scsi_ioctl() context to walk the list of available
  * vhost_scsi_tpg with an active struct vhost_scsi_nexus
@@ -1203,10 +1949,16 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
 
 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
 			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
+<<<<<<< HEAD
 				kfree(vs_tpg);
 				mutex_unlock(&tpg->tv_tpg_mutex);
 				ret = -EEXIST;
 				goto out;
+=======
+				mutex_unlock(&tpg->tv_tpg_mutex);
+				ret = -EEXIST;
+				goto undepend;
+>>>>>>> upstream/android-13
 			}
 			/*
 			 * In order to ensure individual vhost-scsi configfs
@@ -1217,15 +1969,24 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
 			se_tpg = &tpg->se_tpg;
 			ret = target_depend_item(&se_tpg->tpg_group.cg_item);
 			if (ret) {
+<<<<<<< HEAD
 				pr_warn("configfs_depend_item() failed: %d\n", ret);
 				kfree(vs_tpg);
 				mutex_unlock(&tpg->tv_tpg_mutex);
 				goto out;
+=======
+				pr_warn("target_depend_item() failed: %d\n", ret);
+				mutex_unlock(&tpg->tv_tpg_mutex);
+				goto undepend;
+>>>>>>> upstream/android-13
 			}
 			tpg->tv_tpg_vhost_count++;
 			tpg->vhost_scsi = vs;
 			vs_tpg[tpg->tport_tpgt] = tpg;
+<<<<<<< HEAD
 			smp_mb__after_atomic();
+=======
+>>>>>>> upstream/android-13
 			match = true;
 		}
 		mutex_unlock(&tpg->tv_tpg_mutex);
@@ -1234,10 +1995,28 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
 	if (match) {
 		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
 		       sizeof(vs->vs_vhost_wwpn));
+<<<<<<< HEAD
 		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
 			vq = &vs->vqs[i].vq;
 			mutex_lock(&vq->mutex);
 			vq->private_data = vs_tpg;
+=======
+
+		for (i = VHOST_SCSI_VQ_IO; i < VHOST_SCSI_MAX_VQ; i++) {
+			vq = &vs->vqs[i].vq;
+			if (!vhost_vq_is_setup(vq))
+				continue;
+
+			ret = vhost_scsi_setup_vq_cmds(vq, vq->num);
+			if (ret)
+				goto destroy_vq_cmds;
+		}
+
+		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+			vq = &vs->vqs[i].vq;
+			mutex_lock(&vq->mutex);
+			vhost_vq_set_backend(vq, vs_tpg);
+>>>>>>> upstream/android-13
 			vhost_vq_init_access(vq);
 			mutex_unlock(&vq->mutex);
 		}
@@ -1253,7 +2032,26 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
 	vhost_scsi_flush(vs);
 	kfree(vs->vs_tpg);
 	vs->vs_tpg = vs_tpg;
+<<<<<<< HEAD
 
+=======
+	goto out;
+
+destroy_vq_cmds:
+	for (i--; i >= VHOST_SCSI_VQ_IO; i--) {
+		if (!vhost_vq_get_backend(&vs->vqs[i].vq))
+			vhost_scsi_destroy_vq_cmds(&vs->vqs[i].vq);
+	}
+undepend:
+	for (i = 0; i < VHOST_SCSI_MAX_TARGET; i++) {
+		tpg = vs_tpg[i];
+		if (tpg) {
+			tpg->tv_tpg_vhost_count--;
+			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+		}
+	}
+	kfree(vs_tpg);
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&vs->dev.mutex);
 	mutex_unlock(&vhost_scsi_mutex);
@@ -1324,9 +2122,22 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
 		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
 			vq = &vs->vqs[i].vq;
 			mutex_lock(&vq->mutex);
+<<<<<<< HEAD
 			vq->private_data = NULL;
 			mutex_unlock(&vq->mutex);
 		}
+=======
+			vhost_vq_set_backend(vq, NULL);
+			mutex_unlock(&vq->mutex);
+		}
+		/* Make sure cmds are not running before tearing them down. */
+		vhost_scsi_flush(vs);
+
+		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+			vq = &vs->vqs[i].vq;
+			vhost_scsi_destroy_vq_cmds(vq);
+		}
+>>>>>>> upstream/android-13
 	}
 	/*
 	 * Act as synchronize_rcu to make sure access to
@@ -1379,12 +2190,18 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
 	struct vhost_virtqueue **vqs;
 	int r = -ENOMEM, i;
 
+<<<<<<< HEAD
 	vs = kzalloc(sizeof(*vs), GFP_KERNEL | __GFP_NOWARN | __GFP_RETRY_MAYFAIL);
 	if (!vs) {
 		vs = vzalloc(sizeof(*vs));
 		if (!vs)
 			goto err_vs;
 	}
+=======
+	vs = kvzalloc(sizeof(*vs), GFP_KERNEL);
+	if (!vs)
+		goto err_vs;
+>>>>>>> upstream/android-13
 
 	vqs = kmalloc_array(VHOST_SCSI_MAX_VQ, sizeof(*vqs), GFP_KERNEL);
 	if (!vqs)
@@ -1405,7 +2222,11 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
 		vs->vqs[i].vq.handle_kick = vhost_scsi_handle_kick;
 	}
 	vhost_dev_init(&vs->dev, vqs, VHOST_SCSI_MAX_VQ, UIO_MAXIOV,
+<<<<<<< HEAD
 		       VHOST_SCSI_WEIGHT, 0);
+=======
+		       VHOST_SCSI_WEIGHT, 0, true, NULL);
+>>>>>>> upstream/android-13
 
 	vhost_scsi_init_inflight(vs, NULL);
 
@@ -1504,6 +2325,7 @@ vhost_scsi_ioctl(struct file *f,
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long vhost_scsi_compat_ioctl(struct file *f, unsigned int ioctl,
 				unsigned long arg)
@@ -1512,13 +2334,19 @@ static long vhost_scsi_compat_ioctl(struct file *f, unsigned int ioctl,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static const struct file_operations vhost_scsi_fops = {
 	.owner          = THIS_MODULE,
 	.release        = vhost_scsi_release,
 	.unlocked_ioctl = vhost_scsi_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= vhost_scsi_compat_ioctl,
 #endif
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open           = vhost_scsi_open,
 	.llseek		= noop_llseek,
 };
@@ -1598,11 +2426,25 @@ static int vhost_scsi_port_link(struct se_portal_group *se_tpg,
 {
 	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
 				struct vhost_scsi_tpg, se_tpg);
+<<<<<<< HEAD
+=======
+	struct vhost_scsi_tmf *tmf;
+
+	tmf = kzalloc(sizeof(*tmf), GFP_KERNEL);
+	if (!tmf)
+		return -ENOMEM;
+	INIT_LIST_HEAD(&tmf->queue_entry);
+	vhost_work_init(&tmf->vwork, vhost_scsi_tmf_resp_work);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vhost_scsi_mutex);
 
 	mutex_lock(&tpg->tv_tpg_mutex);
 	tpg->tv_tpg_port_count++;
+<<<<<<< HEAD
+=======
+	list_add_tail(&tmf->queue_entry, &tpg->tmf_queue);
+>>>>>>> upstream/android-13
 	mutex_unlock(&tpg->tv_tpg_mutex);
 
 	vhost_scsi_hotplug(tpg, lun);
@@ -1617,11 +2459,22 @@ static void vhost_scsi_port_unlink(struct se_portal_group *se_tpg,
 {
 	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
 				struct vhost_scsi_tpg, se_tpg);
+<<<<<<< HEAD
+=======
+	struct vhost_scsi_tmf *tmf;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&vhost_scsi_mutex);
 
 	mutex_lock(&tpg->tv_tpg_mutex);
 	tpg->tv_tpg_port_count--;
+<<<<<<< HEAD
+=======
+	tmf = list_first_entry(&tpg->tmf_queue, struct vhost_scsi_tmf,
+			       queue_entry);
+	list_del(&tmf->queue_entry);
+	kfree(tmf);
+>>>>>>> upstream/android-13
 	mutex_unlock(&tpg->tv_tpg_mutex);
 
 	vhost_scsi_hotunplug(tpg, lun);
@@ -1629,6 +2482,7 @@ static void vhost_scsi_port_unlink(struct se_portal_group *se_tpg,
 	mutex_unlock(&vhost_scsi_mutex);
 }
 
+<<<<<<< HEAD
 static void vhost_scsi_free_cmd_map_res(struct se_session *se_sess)
 {
 	struct vhost_scsi_cmd *tv_cmd;
@@ -1646,6 +2500,8 @@ static void vhost_scsi_free_cmd_map_res(struct se_session *se_sess)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t vhost_scsi_tpg_attrib_fabric_prot_type_store(
 		struct config_item *item, const char *page, size_t count)
 {
@@ -1685,6 +2541,7 @@ static struct configfs_attribute *vhost_scsi_tpg_attrib_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static int vhost_scsi_nexus_cb(struct se_portal_group *se_tpg,
 			       struct se_session *se_sess, void *p)
 {
@@ -1724,6 +2581,8 @@ out:
 	return -ENOMEM;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vhost_scsi_make_nexus(struct vhost_scsi_tpg *tpg,
 				const char *name)
 {
@@ -1747,12 +2606,18 @@ static int vhost_scsi_make_nexus(struct vhost_scsi_tpg *tpg,
 	 * struct se_node_acl for the vhost_scsi struct se_portal_group with
 	 * the SCSI Initiator port name of the passed configfs group 'name'.
 	 */
+<<<<<<< HEAD
 	tv_nexus->tvn_se_sess = target_setup_session(&tpg->se_tpg,
 					VHOST_SCSI_DEFAULT_TAGS,
 					sizeof(struct vhost_scsi_cmd),
 					TARGET_PROT_DIN_PASS | TARGET_PROT_DOUT_PASS,
 					(unsigned char *)name, tv_nexus,
 					vhost_scsi_nexus_cb);
+=======
+	tv_nexus->tvn_se_sess = target_setup_session(&tpg->se_tpg, 0, 0,
+					TARGET_PROT_DIN_PASS | TARGET_PROT_DOUT_PASS,
+					(unsigned char *)name, tv_nexus, NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tv_nexus->tvn_se_sess)) {
 		mutex_unlock(&tpg->tv_tpg_mutex);
 		kfree(tv_nexus);
@@ -1802,7 +2667,10 @@ static int vhost_scsi_drop_nexus(struct vhost_scsi_tpg *tpg)
 		" %s Initiator Port: %s\n", vhost_scsi_dump_proto_id(tpg->tport),
 		tv_nexus->tvn_se_sess->se_node_acl->initiatorname);
 
+<<<<<<< HEAD
 	vhost_scsi_free_cmd_map_res(se_sess);
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Release the SCSI I_T Nexus to the emulated vhost Target Port
 	 */
@@ -1942,6 +2810,10 @@ vhost_scsi_make_tpg(struct se_wwn *wwn, const char *name)
 	}
 	mutex_init(&tpg->tv_tpg_mutex);
 	INIT_LIST_HEAD(&tpg->tv_tpg_list);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&tpg->tmf_queue);
+>>>>>>> upstream/android-13
 	tpg->tport = tport;
 	tpg->tport_tpgt = tpgt;
 
@@ -2066,8 +2938,13 @@ static struct configfs_attribute *vhost_scsi_wwn_attrs[] = {
 
 static const struct target_core_fabric_ops vhost_scsi_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "vhost",
 	.get_fabric_name		= vhost_scsi_get_fabric_name,
+=======
+	.fabric_name			= "vhost",
+	.max_data_sg_nents		= VHOST_SCSI_PREALLOC_SGLS,
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= vhost_scsi_get_fabric_wwn,
 	.tpg_get_tag			= vhost_scsi_get_tpgt,
 	.tpg_check_demo_mode		= vhost_scsi_check_true,
@@ -2081,7 +2958,10 @@ static const struct target_core_fabric_ops vhost_scsi_ops = {
 	.sess_get_index			= vhost_scsi_sess_get_index,
 	.sess_get_initiator_sid		= NULL,
 	.write_pending			= vhost_scsi_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= vhost_scsi_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= vhost_scsi_set_default_node_attrs,
 	.get_cmd_state			= vhost_scsi_get_cmd_state,
 	.queue_data_in			= vhost_scsi_queue_data_in,
@@ -2111,6 +2991,7 @@ static int __init vhost_scsi_init(void)
 		" on "UTS_RELEASE"\n", VHOST_SCSI_VERSION, utsname()->sysname,
 		utsname()->machine);
 
+<<<<<<< HEAD
 	/*
 	 * Use our own dedicated workqueue for submitting I/O into
 	 * target core to avoid contention within system_wq.
@@ -2122,6 +3003,11 @@ static int __init vhost_scsi_init(void)
 	ret = vhost_scsi_register();
 	if (ret < 0)
 		goto out_destroy_workqueue;
+=======
+	ret = vhost_scsi_register();
+	if (ret < 0)
+		goto out;
+>>>>>>> upstream/android-13
 
 	ret = target_register_template(&vhost_scsi_ops);
 	if (ret < 0)
@@ -2131,8 +3017,11 @@ static int __init vhost_scsi_init(void)
 
 out_vhost_scsi_deregister:
 	vhost_scsi_deregister();
+<<<<<<< HEAD
 out_destroy_workqueue:
 	destroy_workqueue(vhost_scsi_workqueue);
+=======
+>>>>>>> upstream/android-13
 out:
 	return ret;
 };
@@ -2141,7 +3030,10 @@ static void vhost_scsi_exit(void)
 {
 	target_unregister_template(&vhost_scsi_ops);
 	vhost_scsi_deregister();
+<<<<<<< HEAD
 	destroy_workqueue(vhost_scsi_workqueue);
+=======
+>>>>>>> upstream/android-13
 };
 
 MODULE_DESCRIPTION("VHOST_SCSI series fabric driver");

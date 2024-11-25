@@ -14,11 +14,19 @@
 /**
  * irq_reserve_ipi() - Setup an IPI to destination cpumask
  * @domain:	IPI domain
+<<<<<<< HEAD
  * @dest:	cpumask of cpus which can receive the IPI
  *
  * Allocate a virq that can be used to send IPI to any CPU in dest mask.
  *
  * On success it'll return linux irq number and error code on failure
+=======
+ * @dest:	cpumask of CPUs which can receive the IPI
+ *
+ * Allocate a virq that can be used to send IPI to any CPU in dest mask.
+ *
+ * Return: Linux IRQ number on success or error code on failure
+>>>>>>> upstream/android-13
  */
 int irq_reserve_ipi(struct irq_domain *domain,
 			     const struct cpumask *dest)
@@ -56,7 +64,11 @@ int irq_reserve_ipi(struct irq_domain *domain,
 		unsigned int next;
 
 		/*
+<<<<<<< HEAD
 		 * The IPI requires a seperate HW irq on each CPU. We require
+=======
+		 * The IPI requires a separate HW irq on each CPU. We require
+>>>>>>> upstream/android-13
 		 * that the destination mask is consecutive. If an
 		 * implementation needs to support holes, it can reserve
 		 * several IPI ranges.
@@ -104,6 +116,7 @@ free_descs:
 
 /**
  * irq_destroy_ipi() - unreserve an IPI that was previously allocated
+<<<<<<< HEAD
  * @irq:	linux irq number to be destroyed
  * @dest:	cpumask of cpus which should have the IPI removed
  *
@@ -111,6 +124,15 @@ free_descs:
  * destroying all virqs associated with them.
  *
  * Return 0 on success or error code on failure.
+=======
+ * @irq:	Linux IRQ number to be destroyed
+ * @dest:	cpumask of CPUs which should have the IPI removed
+ *
+ * The IPIs allocated with irq_reserve_ipi() are returned to the system
+ * destroying all virqs associated with them.
+ *
+ * Return: %0 on success or error code on failure.
+>>>>>>> upstream/android-13
  */
 int irq_destroy_ipi(unsigned int irq, const struct cpumask *dest)
 {
@@ -150,14 +172,24 @@ int irq_destroy_ipi(unsigned int irq, const struct cpumask *dest)
 }
 
 /**
+<<<<<<< HEAD
  * ipi_get_hwirq - Get the hwirq associated with an IPI to a cpu
  * @irq:	linux irq number
  * @cpu:	the target cpu
+=======
+ * ipi_get_hwirq - Get the hwirq associated with an IPI to a CPU
+ * @irq:	Linux IRQ number
+ * @cpu:	the target CPU
+>>>>>>> upstream/android-13
  *
  * When dealing with coprocessors IPI, we need to inform the coprocessor of
  * the hwirq it needs to use to receive and send IPIs.
  *
+<<<<<<< HEAD
  * Returns hwirq value on success and INVALID_HWIRQ on failure.
+=======
+ * Return: hwirq value on success or INVALID_HWIRQ on failure.
+>>>>>>> upstream/android-13
  */
 irq_hw_number_t ipi_get_hwirq(unsigned int irq, unsigned int cpu)
 {
@@ -172,7 +204,11 @@ irq_hw_number_t ipi_get_hwirq(unsigned int irq, unsigned int cpu)
 
 	/*
 	 * Get the real hardware irq number if the underlying implementation
+<<<<<<< HEAD
 	 * uses a seperate irq per cpu. If the underlying implementation uses
+=======
+	 * uses a separate irq per cpu. If the underlying implementation uses
+>>>>>>> upstream/android-13
 	 * a single hardware irq for all cpus then the IPI send mechanism
 	 * needs to take care of the cpu destinations.
 	 */
@@ -216,7 +252,11 @@ static int ipi_send_verify(struct irq_chip *chip, struct irq_data *data,
  * This function is for architecture or core code to speed up IPI sending. Not
  * usable from driver code.
  *
+<<<<<<< HEAD
  * Returns zero on success and negative error number on failure.
+=======
+ * Return: %0 on success or negative error number on failure.
+>>>>>>> upstream/android-13
  */
 int __ipi_send_single(struct irq_desc *desc, unsigned int cpu)
 {
@@ -250,7 +290,11 @@ int __ipi_send_single(struct irq_desc *desc, unsigned int cpu)
 }
 
 /**
+<<<<<<< HEAD
  * ipi_send_mask - send an IPI to target Linux SMP CPU(s)
+=======
+ * __ipi_send_mask - send an IPI to target Linux SMP CPU(s)
+>>>>>>> upstream/android-13
  * @desc:	pointer to irq_desc of the IRQ
  * @dest:	dest CPU(s), must be a subset of the mask passed to
  *		irq_reserve_ipi()
@@ -258,7 +302,11 @@ int __ipi_send_single(struct irq_desc *desc, unsigned int cpu)
  * This function is for architecture or core code to speed up IPI sending. Not
  * usable from driver code.
  *
+<<<<<<< HEAD
  * Returns zero on success and negative error number on failure.
+=======
+ * Return: %0 on success or negative error number on failure.
+>>>>>>> upstream/android-13
  */
 int __ipi_send_mask(struct irq_desc *desc, const struct cpumask *dest)
 {
@@ -298,11 +346,19 @@ int __ipi_send_mask(struct irq_desc *desc, const struct cpumask *dest)
 
 /**
  * ipi_send_single - Send an IPI to a single CPU
+<<<<<<< HEAD
  * @virq:	linux irq number from irq_reserve_ipi()
  * @cpu:	destination CPU, must in the destination mask passed to
  *		irq_reserve_ipi()
  *
  * Returns zero on success and negative error number on failure.
+=======
+ * @virq:	Linux IRQ number from irq_reserve_ipi()
+ * @cpu:	destination CPU, must in the destination mask passed to
+ *		irq_reserve_ipi()
+ *
+ * Return: %0 on success or negative error number on failure.
+>>>>>>> upstream/android-13
  */
 int ipi_send_single(unsigned int virq, unsigned int cpu)
 {
@@ -319,11 +375,19 @@ EXPORT_SYMBOL_GPL(ipi_send_single);
 
 /**
  * ipi_send_mask - Send an IPI to target CPU(s)
+<<<<<<< HEAD
  * @virq:	linux irq number from irq_reserve_ipi()
  * @dest:	dest CPU(s), must be a subset of the mask passed to
  *		irq_reserve_ipi()
  *
  * Returns zero on success and negative error number on failure.
+=======
+ * @virq:	Linux IRQ number from irq_reserve_ipi()
+ * @dest:	dest CPU(s), must be a subset of the mask passed to
+ *		irq_reserve_ipi()
+ *
+ * Return: %0 on success or negative error number on failure.
+>>>>>>> upstream/android-13
  */
 int ipi_send_mask(unsigned int virq, const struct cpumask *dest)
 {

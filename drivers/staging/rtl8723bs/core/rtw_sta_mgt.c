@@ -4,8 +4,11 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTW_STA_MGT_C_
 
+=======
+>>>>>>> upstream/android-13
 #include <drv_types.h>
 #include <rtw_debug.h>
 
@@ -75,7 +78,10 @@ u32 _rtw_init_sta_priv(struct	sta_priv *pstapriv)
 
 	psta = (struct sta_info *)(pstapriv->pstainfo_buf);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < NUM_STA; i++) {
 		_rtw_init_stainfo(psta);
 
@@ -107,17 +113,23 @@ inline int rtw_stainfo_offset(struct sta_priv *stapriv, struct sta_info *sta)
 {
 	int offset = (((u8 *)sta) - stapriv->pstainfo_buf)/sizeof(struct sta_info);
 
+<<<<<<< HEAD
 	if (!stainfo_offset_valid(offset))
 		DBG_871X("%s invalid offset(%d), out of range!!!", __func__, offset);
 
+=======
+>>>>>>> upstream/android-13
 	return offset;
 }
 
 inline struct sta_info *rtw_get_stainfo_by_offset(struct sta_priv *stapriv, int offset)
 {
+<<<<<<< HEAD
 	if (!stainfo_offset_valid(offset))
 		DBG_871X("%s invalid offset(%d), out of range!!!", __func__, offset);
 
+=======
+>>>>>>> upstream/android-13
 	return (struct sta_info *)(stapriv->pstainfo_buf + offset * sizeof(struct sta_info));
 }
 
@@ -126,7 +138,10 @@ void kfree_all_stainfo(struct sta_priv *pstapriv);
 void kfree_all_stainfo(struct sta_priv *pstapriv)
 {
 	struct list_head	*plist, *phead;
+<<<<<<< HEAD
 	struct sta_info *psta = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&pstapriv->sta_hash_lock);
 
@@ -134,7 +149,10 @@ void kfree_all_stainfo(struct sta_priv *pstapriv)
 	plist = get_next(phead);
 
 	while (phead != plist) {
+<<<<<<< HEAD
 		psta = LIST_CONTAINOR(plist, struct sta_info, list);
+=======
+>>>>>>> upstream/android-13
 		plist = get_next(plist);
 	}
 
@@ -155,17 +173,28 @@ u32 _rtw_free_sta_priv(struct	sta_priv *pstapriv)
 	int	index;
 
 	if (pstapriv) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/*delete all reordering_ctrl_timer		*/
 		spin_lock_bh(&pstapriv->sta_hash_lock);
 		for (index = 0; index < NUM_STA; index++) {
 			phead = &(pstapriv->sta_hash[index]);
+<<<<<<< HEAD
 			plist = get_next(phead);
 
 			while (phead != plist) {
 				int i;
 				psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
 				plist = get_next(plist);
+=======
+			list_for_each(plist, phead) {
+				int i;
+
+				psta = list_entry(plist, struct sta_info,
+						  hash_list);
+>>>>>>> upstream/android-13
 
 				for (i = 0; i < 16 ; i++) {
 					preorder_ctrl = &psta->recvreorder_ctrl[i];
@@ -178,9 +207,13 @@ u32 _rtw_free_sta_priv(struct	sta_priv *pstapriv)
 
 		kfree_sta_priv_lock(pstapriv);
 
+<<<<<<< HEAD
 		if (pstapriv->pallocated_stainfo_buf)
 			vfree(pstapriv->pallocated_stainfo_buf);
 
+=======
+		vfree(pstapriv->pallocated_stainfo_buf);
+>>>>>>> upstream/android-13
 	}
 	return _SUCCESS;
 }
@@ -188,7 +221,10 @@ u32 _rtw_free_sta_priv(struct	sta_priv *pstapriv)
 /* struct	sta_info *rtw_alloc_stainfo(_queue *pfree_sta_queue, unsigned char *hwaddr) */
 struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 {
+<<<<<<< HEAD
 	uint tmp_aid;
+=======
+>>>>>>> upstream/android-13
 	s32	index;
 	struct list_head	*phash_list;
 	struct sta_info *psta;
@@ -204,17 +240,26 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 	if (list_empty(&pfree_sta_queue->queue)) {
 		/* spin_unlock_bh(&(pfree_sta_queue->lock)); */
 		spin_unlock_bh(&(pstapriv->sta_hash_lock));
+<<<<<<< HEAD
 		psta = NULL;
 		return psta;
 	} else{
 		psta = LIST_CONTAINOR(get_next(&pfree_sta_queue->queue), struct sta_info, list);
+=======
+		return NULL;
+	} else {
+		psta = container_of(get_next(&pfree_sta_queue->queue), struct sta_info, list);
+>>>>>>> upstream/android-13
 
 		list_del_init(&(psta->list));
 
 		/* spin_unlock_bh(&(pfree_sta_queue->lock)); */
 
+<<<<<<< HEAD
 		tmp_aid = psta->aid;
 
+=======
+>>>>>>> upstream/android-13
 		_rtw_init_stainfo(psta);
 
 		psta->padapter = pstapriv->padapter;
@@ -223,10 +268,14 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 
 		index = wifi_mac_hash(hwaddr);
 
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_sta_mgt_c_, _drv_info_, ("rtw_alloc_stainfo: index  = %x", index));
 
 		if (index >= NUM_STA) {
 			RT_TRACE(_module_rtl871x_sta_mgt_c_, _drv_err_, ("ERROR => rtw_alloc_stainfo: index >= NUM_STA"));
+=======
+		if (index >= NUM_STA) {
+>>>>>>> upstream/android-13
 			spin_unlock_bh(&(pstapriv->sta_hash_lock));
 			psta = NULL;
 			goto exit;
@@ -246,6 +295,7 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 /*  In this case, this packet will be dropped by recv_decache function if we use the 0x00 as the default value for tid_rxseq variable. */
 /*  So, we initialize the tid_rxseq variable as the 0xffff. */
 
+<<<<<<< HEAD
 		for (i = 0; i < 16; i++) {
 			memcpy(&psta->sta_recvpriv.rxcache.tid_rxseq[i], &wRxSeqInitialValue, 2);
 		}
@@ -263,6 +313,10 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 				hwaddr[5]
 			)
 		);
+=======
+		for (i = 0; i < 16; i++)
+			memcpy(&psta->sta_recvpriv.rxcache.tid_rxseq[i], &wRxSeqInitialValue, 2);
+>>>>>>> upstream/android-13
 
 		init_addba_retry_timer(pstapriv->padapter, psta);
 
@@ -275,10 +329,13 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 			preorder_ctrl->enable = false;
 
 			preorder_ctrl->indicate_seq = 0xffff;
+<<<<<<< HEAD
 			#ifdef DBG_RX_SEQ
 			DBG_871X("DBG_RX_SEQ %s:%d IndicateSeq: %d\n", __func__, __LINE__,
 				preorder_ctrl->indicate_seq);
 			#endif
+=======
+>>>>>>> upstream/android-13
 			preorder_ctrl->wend_b = 0xffff;
 			/* preorder_ctrl->wsize_b = (NR_RECVBUFF-2); */
 			preorder_ctrl->wsize_b = 64;/* 64; */
@@ -288,7 +345,10 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 			rtw_init_recv_timer(preorder_ctrl);
 		}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		/* init for DM */
 		psta->rssi_stat.UndecoratedSmoothedPWDB = (-1);
 		psta->rssi_stat.UndecoratedSmoothedCCK = (-1);
@@ -298,16 +358,25 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr)
 		spin_unlock_bh(&(pstapriv->sta_hash_lock));
 		/* alloc mac id for non-bc/mc station, */
 		rtw_alloc_macid(pstapriv->padapter, psta);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 exit:
 
+<<<<<<< HEAD
 
 	return psta;
 }
 
 /*  using pstapriv->sta_hash_lock to protect */
+=======
+	return psta;
+}
+
+>>>>>>> upstream/android-13
 u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
 {
 	int i;
@@ -318,17 +387,26 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
 	struct	sta_priv *pstapriv = &padapter->stapriv;
 	struct hw_xmit *phwxmit;
 
+<<<<<<< HEAD
 	if (psta == NULL)
 		goto exit;
 
 
+=======
+	if (!psta)
+		goto exit;
+
+>>>>>>> upstream/android-13
 	spin_lock_bh(&psta->lock);
 	psta->state &= ~_FW_LINKED;
 	spin_unlock_bh(&psta->lock);
 
 	pfree_sta_queue = &pstapriv->free_sta_queue;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	pstaxmitpriv = &psta->sta_xmitpriv;
 
 	/* list_del_init(&psta->sleep_list); */
@@ -378,6 +456,7 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
 
 	spin_unlock_bh(&pxmitpriv->lock);
 
+<<<<<<< HEAD
 	list_del_init(&psta->hash_list);
 	RT_TRACE(
 		_module_rtl871x_sta_mgt_c_,
@@ -394,6 +473,12 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
 	);
 	pstapriv->asoc_sta_count--;
 
+=======
+	spin_lock_bh(&pstapriv->sta_hash_lock);
+	list_del_init(&psta->hash_list);
+	pstapriv->asoc_sta_count--;
+	spin_unlock_bh(&pstapriv->sta_hash_lock);
+>>>>>>> upstream/android-13
 
 	/*  re-init sta_info; 20061114 will be init in alloc_stainfo */
 	/* _rtw_init_sta_xmit_priv(&psta->sta_xmitpriv); */
@@ -412,7 +497,10 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
 
 		del_timer_sync(&preorder_ctrl->reordering_ctrl_timer);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		ppending_recvframe_queue = &preorder_ctrl->pending_recvframe_queue;
 
 		spin_lock_bh(&ppending_recvframe_queue->lock);
@@ -431,13 +519,19 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
 		}
 
 		spin_unlock_bh(&ppending_recvframe_queue->lock);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (!(psta->state & WIFI_AP_STATE))
 		rtw_hal_set_odm_var(padapter, HAL_ODM_STA_INFO, psta, false);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* release mac id for non-bc/mc station, */
 	rtw_release_macid(pstapriv->padapter, psta);
 
@@ -486,11 +580,19 @@ exit:
 /*  free all stainfo which in sta_hash[all] */
 void rtw_free_all_stainfo(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	struct list_head	*plist, *phead;
+=======
+	struct list_head *plist, *phead, *tmp;
+>>>>>>> upstream/android-13
 	s32	index;
 	struct sta_info *psta = NULL;
 	struct	sta_priv *pstapriv = &padapter->stapriv;
 	struct sta_info *pbcmc_stainfo = rtw_get_bcmc_stainfo(padapter);
+<<<<<<< HEAD
+=======
+	LIST_HEAD(stainfo_free_list);
+>>>>>>> upstream/android-13
 
 	if (pstapriv->asoc_sta_count == 1)
 		return;
@@ -499,6 +601,7 @@ void rtw_free_all_stainfo(struct adapter *padapter)
 
 	for (index = 0; index < NUM_STA; index++) {
 		phead = &(pstapriv->sta_hash[index]);
+<<<<<<< HEAD
 		plist = get_next(phead);
 
 		while (phead != plist) {
@@ -509,10 +612,25 @@ void rtw_free_all_stainfo(struct adapter *padapter)
 			if (pbcmc_stainfo != psta)
 				rtw_free_stainfo(padapter, psta);
 
+=======
+		list_for_each_safe(plist, tmp, phead) {
+			psta = list_entry(plist, struct sta_info, hash_list);
+
+			if (pbcmc_stainfo != psta)
+				list_move(&psta->hash_list, &stainfo_free_list);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	spin_unlock_bh(&pstapriv->sta_hash_lock);
+<<<<<<< HEAD
+=======
+
+	list_for_each_safe(plist, tmp, &stainfo_free_list) {
+		psta = list_entry(plist, struct sta_info, hash_list);
+		rtw_free_stainfo(padapter, psta);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* any station allocated can be searched by hash list */
@@ -524,7 +642,11 @@ struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, u8 *hwaddr)
 	u8 *addr;
 	u8 bc_addr[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
+<<<<<<< HEAD
 	if (hwaddr == NULL)
+=======
+	if (!hwaddr)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	if (IS_MCAST(hwaddr))
@@ -537,19 +659,27 @@ struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, u8 *hwaddr)
 	spin_lock_bh(&pstapriv->sta_hash_lock);
 
 	phead = &(pstapriv->sta_hash[index]);
+<<<<<<< HEAD
 	plist = get_next(phead);
 
 
 	while (phead != plist) {
 
 		psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
+=======
+	list_for_each(plist, phead) {
+		psta = list_entry(plist, struct sta_info, hash_list);
+>>>>>>> upstream/android-13
 
 		if ((!memcmp(psta->hwaddr, addr, ETH_ALEN)))
 		 /*  if found the matched address */
 			break;
 
 		psta = NULL;
+<<<<<<< HEAD
 		plist = get_next(plist);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_bh(&pstapriv->sta_hash_lock);
@@ -558,10 +688,14 @@ struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, u8 *hwaddr)
 
 u32 rtw_init_bcmc_stainfo(struct adapter *padapter)
 {
+<<<<<<< HEAD
 
 	struct sta_info *psta;
 	struct tx_servq	*ptxservq;
 	u32 res = _SUCCESS;
+=======
+	struct sta_info *psta;
+>>>>>>> upstream/android-13
 	NDIS_802_11_MAC_ADDRESS	bcast_addr = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 	struct	sta_priv *pstapriv = &padapter->stapriv;
@@ -569,15 +703,21 @@ u32 rtw_init_bcmc_stainfo(struct adapter *padapter)
 
 	psta = rtw_alloc_stainfo(pstapriv, bcast_addr);
 
+<<<<<<< HEAD
 	if (psta == NULL) {
 		res = _FAIL;
 		RT_TRACE(_module_rtl871x_sta_mgt_c_, _drv_err_, ("rtw_alloc_stainfo fail"));
 		goto exit;
 	}
+=======
+	if (!psta)
+		return _FAIL;
+>>>>>>> upstream/android-13
 
 	/*  default broadcast & multicast use macid 1 */
 	psta->mac_id = 1;
 
+<<<<<<< HEAD
 	ptxservq = &(psta->sta_xmitpriv.be_q);
 exit:
 	return _SUCCESS;
@@ -592,6 +732,17 @@ struct sta_info *rtw_get_bcmc_stainfo(struct adapter *padapter)
 
 	psta = rtw_get_stainfo(pstapriv, bc_addr);
 	return psta;
+=======
+	return _SUCCESS;
+}
+
+struct sta_info *rtw_get_bcmc_stainfo(struct adapter *padapter)
+{
+	struct sta_priv *pstapriv = &padapter->stapriv;
+	u8 bc_addr[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+
+	return rtw_get_stainfo(pstapriv, bc_addr);
+>>>>>>> upstream/android-13
 }
 
 u8 rtw_access_ctrl(struct adapter *padapter, u8 *mac_addr)
@@ -606,21 +757,32 @@ u8 rtw_access_ctrl(struct adapter *padapter, u8 *mac_addr)
 
 	spin_lock_bh(&(pacl_node_q->lock));
 	phead = get_list_head(pacl_node_q);
+<<<<<<< HEAD
 	plist = get_next(phead);
 	while (phead != plist) {
 		paclnode = LIST_CONTAINOR(plist, struct rtw_wlan_acl_node, list);
 		plist = get_next(plist);
+=======
+	list_for_each(plist, phead) {
+		paclnode = list_entry(plist, struct rtw_wlan_acl_node, list);
+>>>>>>> upstream/android-13
 
 		if (!memcmp(paclnode->addr, mac_addr, ETH_ALEN))
 			if (paclnode->valid == true) {
 				match = true;
 				break;
 			}
+<<<<<<< HEAD
 
 	}
 	spin_unlock_bh(&(pacl_node_q->lock));
 
 
+=======
+	}
+	spin_unlock_bh(&(pacl_node_q->lock));
+
+>>>>>>> upstream/android-13
 	if (pacl_list->mode == 1) /* accept unless in deny list */
 		res = !match;
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ECB: Electronic CodeBook mode
  *
  * Copyright (c) 2006 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -11,10 +16,18 @@
  */
 
 #include <crypto/algapi.h>
+=======
+ */
+
+#include <crypto/algapi.h>
+#include <crypto/internal/cipher.h>
+#include <crypto/internal/skcipher.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
 
@@ -61,11 +74,38 @@ static int crypto_ecb_crypt(struct blkcipher_desc *desc,
 		} while ((nbytes -= bsize) >= bsize);
 
 		err = blkcipher_walk_done(desc, walk, nbytes);
+=======
+
+static int crypto_ecb_crypt(struct skcipher_request *req,
+			    struct crypto_cipher *cipher,
+			    void (*fn)(struct crypto_tfm *, u8 *, const u8 *))
+{
+	const unsigned int bsize = crypto_cipher_blocksize(cipher);
+	struct skcipher_walk walk;
+	unsigned int nbytes;
+	int err;
+
+	err = skcipher_walk_virt(&walk, req, false);
+
+	while ((nbytes = walk.nbytes) != 0) {
+		const u8 *src = walk.src.virt.addr;
+		u8 *dst = walk.dst.virt.addr;
+
+		do {
+			fn(crypto_cipher_tfm(cipher), dst, src);
+
+			src += bsize;
+			dst += bsize;
+		} while ((nbytes -= bsize) >= bsize);
+
+		err = skcipher_walk_done(&walk, nbytes);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static int crypto_ecb_encrypt(struct blkcipher_desc *desc,
 			      struct scatterlist *dst, struct scatterlist *src,
 			      unsigned int nbytes)
@@ -161,12 +201,55 @@ static void crypto_ecb_free(struct crypto_instance *inst)
 {
 	crypto_drop_spawn(crypto_instance_ctx(inst));
 	kfree(inst);
+=======
+static int crypto_ecb_encrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+
+	return crypto_ecb_crypt(req, cipher,
+				crypto_cipher_alg(cipher)->cia_encrypt);
+}
+
+static int crypto_ecb_decrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+
+	return crypto_ecb_crypt(req, cipher,
+				crypto_cipher_alg(cipher)->cia_decrypt);
+}
+
+static int crypto_ecb_create(struct crypto_template *tmpl, struct rtattr **tb)
+{
+	struct skcipher_instance *inst;
+	int err;
+
+	inst = skcipher_alloc_instance_simple(tmpl, tb);
+	if (IS_ERR(inst))
+		return PTR_ERR(inst);
+
+	inst->alg.ivsize = 0; /* ECB mode doesn't take an IV */
+
+	inst->alg.encrypt = crypto_ecb_encrypt;
+	inst->alg.decrypt = crypto_ecb_decrypt;
+
+	err = skcipher_register_instance(tmpl, inst);
+	if (err)
+		inst->free(inst);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template crypto_ecb_tmpl = {
 	.name = "ecb",
+<<<<<<< HEAD
 	.alloc = crypto_ecb_alloc,
 	.free = crypto_ecb_free,
+=======
+	.create = crypto_ecb_create,
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 };
 
@@ -180,9 +263,17 @@ static void __exit crypto_ecb_module_exit(void)
 	crypto_unregister_template(&crypto_ecb_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_ecb_module_init);
 module_exit(crypto_ecb_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("ECB block cipher algorithm");
+=======
+subsys_initcall(crypto_ecb_module_init);
+module_exit(crypto_ecb_module_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("ECB block cipher mode of operation");
+>>>>>>> upstream/android-13
 MODULE_ALIAS_CRYPTO("ecb");

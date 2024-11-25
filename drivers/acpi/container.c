@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * container.c  - ACPI Generic Container Driver
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2004 FUJITSU LIMITED
  * Copyright (C) 2004, 2013 Intel Corp.
  * Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -21,15 +26,20 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/acpi.h>
 #include <linux/container.h>
 
 #include "internal.h"
 
+<<<<<<< HEAD
 #define _COMPONENT			ACPI_CONTAINER_COMPONENT
 ACPI_MODULE_NAME("container");
 
+=======
+>>>>>>> upstream/android-13
 static const struct acpi_device_id container_device_ids[] = {
 	{"ACPI0004", 0},
 	{"PNP0A05", 0},

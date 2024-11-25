@@ -1,13 +1,26 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <errno.h>
+<<<<<<< HEAD
 #include <stdio.h>
 #include <sys/epoll.h>
 #include <util/evlist.h>
+=======
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/epoll.h>
+#include <util/symbol.h>
+>>>>>>> upstream/android-13
 #include <linux/filter.h>
 #include "tests.h"
 #include "debug.h"
 #include "probe-file.h"
 #include "build-id.h"
+<<<<<<< HEAD
+=======
+#include "util.h"
+>>>>>>> upstream/android-13
 
 /* To test SDT event, we need libelf support to scan elf binary */
 #if defined(HAVE_SDT_EVENT) && defined(HAVE_LIBELF_SUPPORT)
@@ -24,16 +37,27 @@ static int target_function(void)
 static int build_id_cache__add_file(const char *filename)
 {
 	char sbuild_id[SBUILD_ID_SIZE];
+<<<<<<< HEAD
 	u8 build_id[BUILD_ID_SIZE];
 	int err;
 
 	err = filename__read_build_id(filename, &build_id, sizeof(build_id));
+=======
+	struct build_id bid;
+	int err;
+
+	err = filename__read_build_id(filename, &bid);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		pr_debug("Failed to read build id of %s\n", filename);
 		return err;
 	}
 
+<<<<<<< HEAD
 	build_id__sprintf(build_id, sizeof(build_id), sbuild_id);
+=======
+	build_id__sprintf(&bid, sbuild_id);
+>>>>>>> upstream/android-13
 	err = build_id_cache__add_s(sbuild_id, filename, NULL, false, false);
 	if (err < 0)
 		pr_debug("Failed to add build id cache of %s\n", filename);

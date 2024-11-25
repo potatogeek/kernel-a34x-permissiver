@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/fscache.c - CIFS filesystem cache interface
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+ *   CIFS filesystem cache interface
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) 2010 Novell, Inc.
  *   Author(s): Suresh Jayaraman <sjayaraman@suse.de>
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -17,11 +24,17 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include "fscache.h"
 #include "cifsglob.h"
 #include "cifs_debug.h"
 #include "cifs_fs_sb.h"
+<<<<<<< HEAD
+=======
+#include "cifsproto.h"
+>>>>>>> upstream/android-13
 
 /*
  * Key layout of CIFS server cache index object
@@ -96,6 +109,10 @@ void cifs_fscache_get_super_cookie(struct cifs_tcon *tcon)
 {
 	struct TCP_Server_Info *server = tcon->ses->server;
 	char *sharename;
+<<<<<<< HEAD
+=======
+	struct cifs_fscache_super_auxdata auxdata;
+>>>>>>> upstream/android-13
 
 	sharename = extract_sharename(tcon->treeName);
 	if (IS_ERR(sharename)) {
@@ -104,11 +121,23 @@ void cifs_fscache_get_super_cookie(struct cifs_tcon *tcon)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	memset(&auxdata, 0, sizeof(auxdata));
+	auxdata.resource_id = tcon->resource_id;
+	auxdata.vol_create_time = tcon->vol_create_time;
+	auxdata.vol_serial_number = tcon->vol_serial_number;
+
+>>>>>>> upstream/android-13
 	tcon->fscache =
 		fscache_acquire_cookie(server->fscache,
 				       &cifs_fscache_super_index_def,
 				       sharename, strlen(sharename),
+<<<<<<< HEAD
 				       &tcon->resource_id, sizeof(tcon->resource_id),
+=======
+				       &auxdata, sizeof(auxdata),
+>>>>>>> upstream/android-13
 				       tcon, 0, true);
 	kfree(sharename);
 	cifs_dbg(FYI, "%s: (0x%p/0x%p)\n",
@@ -117,8 +146,20 @@ void cifs_fscache_get_super_cookie(struct cifs_tcon *tcon)
 
 void cifs_fscache_release_super_cookie(struct cifs_tcon *tcon)
 {
+<<<<<<< HEAD
 	cifs_dbg(FYI, "%s: (0x%p)\n", __func__, tcon->fscache);
 	fscache_relinquish_cookie(tcon->fscache, &tcon->resource_id, false);
+=======
+	struct cifs_fscache_super_auxdata auxdata;
+
+	memset(&auxdata, 0, sizeof(auxdata));
+	auxdata.resource_id = tcon->resource_id;
+	auxdata.vol_create_time = tcon->vol_create_time;
+	auxdata.vol_serial_number = tcon->vol_serial_number;
+
+	cifs_dbg(FYI, "%s: (0x%p)\n", __func__, tcon->fscache);
+	fscache_relinquish_cookie(tcon->fscache, &auxdata, false);
+>>>>>>> upstream/android-13
 	tcon->fscache = NULL;
 }
 
@@ -174,11 +215,17 @@ void cifs_fscache_release_inode_cookie(struct inode *inode)
 		auxdata.last_change_time_nsec = cifsi->vfs_inode.i_ctime.tv_nsec;
 
 		cifs_dbg(FYI, "%s: (0x%p)\n", __func__, cifsi->fscache);
+<<<<<<< HEAD
+=======
+		/* fscache_relinquish_cookie does not seem to update auxdata */
+		fscache_update_cookie(cifsi->fscache, &auxdata);
+>>>>>>> upstream/android-13
 		fscache_relinquish_cookie(cifsi->fscache, &auxdata, false);
 		cifsi->fscache = NULL;
 	}
 }
 
+<<<<<<< HEAD
 static void cifs_fscache_disable_inode_cookie(struct inode *inode)
 {
 	struct cifsInodeInfo *cifsi = CIFS_I(inode);
@@ -188,15 +235,36 @@ static void cifs_fscache_disable_inode_cookie(struct inode *inode)
 		fscache_uncache_all_inode_pages(cifsi->fscache, inode);
 		fscache_relinquish_cookie(cifsi->fscache, NULL, true);
 		cifsi->fscache = NULL;
+=======
+void cifs_fscache_update_inode_cookie(struct inode *inode)
+{
+	struct cifs_fscache_inode_auxdata auxdata;
+	struct cifsInodeInfo *cifsi = CIFS_I(inode);
+
+	if (cifsi->fscache) {
+		memset(&auxdata, 0, sizeof(auxdata));
+		auxdata.eof = cifsi->server_eof;
+		auxdata.last_write_time_sec = cifsi->vfs_inode.i_mtime.tv_sec;
+		auxdata.last_change_time_sec = cifsi->vfs_inode.i_ctime.tv_sec;
+		auxdata.last_write_time_nsec = cifsi->vfs_inode.i_mtime.tv_nsec;
+		auxdata.last_change_time_nsec = cifsi->vfs_inode.i_ctime.tv_nsec;
+
+		cifs_dbg(FYI, "%s: (0x%p)\n", __func__, cifsi->fscache);
+		fscache_update_cookie(cifsi->fscache, &auxdata);
+>>>>>>> upstream/android-13
 	}
 }
 
 void cifs_fscache_set_inode_cookie(struct inode *inode, struct file *filp)
 {
+<<<<<<< HEAD
 	if ((filp->f_flags & O_ACCMODE) != O_RDONLY)
 		cifs_fscache_disable_inode_cookie(inode);
 	else
 		cifs_fscache_enable_inode_cookie(inode);
+=======
+	cifs_fscache_enable_inode_cookie(inode);
+>>>>>>> upstream/android-13
 }
 
 void cifs_fscache_reset_inode_cookie(struct inode *inode)
@@ -308,6 +376,11 @@ void __cifs_readpage_to_fscache(struct inode *inode, struct page *page)
 	struct cifsInodeInfo *cifsi = CIFS_I(inode);
 	int ret;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(!cifsi->fscache);
+
+>>>>>>> upstream/android-13
 	cifs_dbg(FYI, "%s: (fsc: %p, p: %p, i: %p)\n",
 		 __func__, cifsi->fscache, page, inode);
 	ret = fscache_write_page(cifsi->fscache, page,
@@ -332,3 +405,24 @@ void __cifs_fscache_invalidate_page(struct page *page, struct inode *inode)
 	fscache_wait_on_page_write(cookie, page);
 	fscache_uncache_page(cookie, page);
 }
+<<<<<<< HEAD
+=======
+
+void __cifs_fscache_wait_on_page_write(struct inode *inode, struct page *page)
+{
+	struct cifsInodeInfo *cifsi = CIFS_I(inode);
+	struct fscache_cookie *cookie = cifsi->fscache;
+
+	cifs_dbg(FYI, "%s: (0x%p/0x%p)\n", __func__, page, cookie);
+	fscache_wait_on_page_write(cookie, page);
+}
+
+void __cifs_fscache_uncache_page(struct inode *inode, struct page *page)
+{
+	struct cifsInodeInfo *cifsi = CIFS_I(inode);
+	struct fscache_cookie *cookie = cifsi->fscache;
+
+	cifs_dbg(FYI, "%s: (0x%p/0x%p)\n", __func__, page, cookie);
+	fscache_uncache_page(cookie, page);
+}
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 menuconfig ARCH_ASPEED
 	bool "Aspeed BMC architectures"
 	depends on ARCH_MULTI_V5 || ARCH_MULTI_V6
@@ -5,6 +6,15 @@ menuconfig ARCH_ASPEED
 	select WATCHDOG
 	select ASPEED_WATCHDOG
 	select FTTMR010_TIMER
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+menuconfig ARCH_ASPEED
+	bool "Aspeed BMC architectures"
+	depends on ARCH_MULTI_V5 || ARCH_MULTI_V6 || ARCH_MULTI_V7
+	select SRAM
+	select WATCHDOG
+	select ASPEED_WATCHDOG
+>>>>>>> upstream/android-13
 	select MFD_SYSCON
 	select PINCTRL
 	help
@@ -17,6 +27,10 @@ config MACH_ASPEED_G4
 	depends on ARCH_MULTI_V5
 	select CPU_ARM926T
 	select PINCTRL_ASPEED_G4
+<<<<<<< HEAD
+=======
+	select FTTMR010_TIMER
+>>>>>>> upstream/android-13
 	help
 	 Say yes if you intend to run on an Aspeed ast2400 or similar
 	 fourth generation BMCs, such as those used by OpenPower Power8
@@ -25,10 +39,29 @@ config MACH_ASPEED_G4
 config MACH_ASPEED_G5
 	bool "Aspeed SoC 5th Generation"
 	depends on ARCH_MULTI_V6
+<<<<<<< HEAD
 	select CPU_V6
 	select PINCTRL_ASPEED_G5
+=======
+	select PINCTRL_ASPEED_G5
+	select FTTMR010_TIMER
+>>>>>>> upstream/android-13
 	help
 	 Say yes if you intend to run on an Aspeed ast2500 or similar
 	 fifth generation Aspeed BMCs.
 
+<<<<<<< HEAD
+=======
+config MACH_ASPEED_G6
+	bool "Aspeed SoC 6th Generation"
+	depends on ARCH_MULTI_V7
+	select CPU_V7
+	select PINCTRL_ASPEED_G6
+	select ARM_GIC
+	select HAVE_ARM_ARCH_TIMER
+	help
+	 Say yes if you intend to run on an Aspeed ast2600 or similar
+	 sixth generation Aspeed BMCs.
+
+>>>>>>> upstream/android-13
 endif

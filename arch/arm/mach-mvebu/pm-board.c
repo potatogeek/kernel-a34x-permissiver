@@ -79,7 +79,11 @@ static void mvebu_armada_pm_enter(void __iomem *sdram_reg, u32 srcmd)
 static int __init mvebu_armada_pm_init(void)
 {
 	struct device_node *np;
+<<<<<<< HEAD
 	struct device_node *gpio_ctrl_np;
+=======
+	struct device_node *gpio_ctrl_np = NULL;
+>>>>>>> upstream/android-13
 	int ret = 0, i;
 
 	if (!of_machine_is_compatible("marvell,axp-gp"))
@@ -126,18 +130,34 @@ static int __init mvebu_armada_pm_init(void)
 			goto out;
 		}
 
+<<<<<<< HEAD
+=======
+		if (gpio_ctrl_np)
+			of_node_put(gpio_ctrl_np);
+>>>>>>> upstream/android-13
 		gpio_ctrl_np = args.np;
 		pic_raw_gpios[i] = args.args[0];
 	}
 
 	gpio_ctrl = of_iomap(gpio_ctrl_np, 0);
+<<<<<<< HEAD
 	if (!gpio_ctrl)
 		return -ENOMEM;
+=======
+	if (!gpio_ctrl) {
+		ret = -ENOMEM;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	mvebu_pm_suspend_init(mvebu_armada_pm_enter);
 
 out:
 	of_node_put(np);
+<<<<<<< HEAD
+=======
+	of_node_put(gpio_ctrl_np);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

@@ -26,6 +26,10 @@
 #include <linux/slab.h>
 #include <linux/mutex.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include "gcov.h"
 
 /**
@@ -58,13 +62,20 @@ struct gcov_node {
 	struct dentry *dentry;
 	struct dentry **links;
 	int num_loaded;
+<<<<<<< HEAD
 	char name[0];
+=======
+	char name[];
+>>>>>>> upstream/android-13
 };
 
 static const char objtree[] = OBJTREE;
 static const char srctree[] = SRCTREE;
 static struct gcov_node root_node;
+<<<<<<< HEAD
 static struct dentry *reset_dentry;
+=======
+>>>>>>> upstream/android-13
 static LIST_HEAD(all_head);
 static DEFINE_MUTEX(node_lock);
 
@@ -86,6 +97,118 @@ static int __init gcov_persist_setup(char *str)
 }
 __setup("gcov_persist=", gcov_persist_setup);
 
+<<<<<<< HEAD
+=======
+#define ITER_STRIDE	PAGE_SIZE
+
+/**
+ * struct gcov_iterator - specifies current file position in logical records
+ * @info: associated profiling data
+ * @buffer: buffer containing file data
+ * @size: size of buffer
+ * @pos: current position in file
+ */
+struct gcov_iterator {
+	struct gcov_info *info;
+	size_t size;
+	loff_t pos;
+	char buffer[];
+};
+
+/**
+ * gcov_iter_new - allocate and initialize profiling data iterator
+ * @info: profiling data set to be iterated
+ *
+ * Return file iterator on success, %NULL otherwise.
+ */
+static struct gcov_iterator *gcov_iter_new(struct gcov_info *info)
+{
+	struct gcov_iterator *iter;
+	size_t size;
+
+	/* Dry-run to get the actual buffer size. */
+	size = convert_to_gcda(NULL, info);
+
+	iter = kvmalloc(struct_size(iter, buffer, size), GFP_KERNEL);
+	if (!iter)
+		return NULL;
+
+	iter->info = info;
+	iter->size = size;
+	convert_to_gcda(iter->buffer, info);
+
+	return iter;
+}
+
+
+/**
+ * gcov_iter_free - free iterator data
+ * @iter: file iterator
+ */
+static void gcov_iter_free(struct gcov_iterator *iter)
+{
+	kvfree(iter);
+}
+
+/**
+ * gcov_iter_get_info - return profiling data set for given file iterator
+ * @iter: file iterator
+ */
+static struct gcov_info *gcov_iter_get_info(struct gcov_iterator *iter)
+{
+	return iter->info;
+}
+
+/**
+ * gcov_iter_start - reset file iterator to starting position
+ * @iter: file iterator
+ */
+static void gcov_iter_start(struct gcov_iterator *iter)
+{
+	iter->pos = 0;
+}
+
+/**
+ * gcov_iter_next - advance file iterator to next logical record
+ * @iter: file iterator
+ *
+ * Return zero if new position is valid, non-zero if iterator has reached end.
+ */
+static int gcov_iter_next(struct gcov_iterator *iter)
+{
+	if (iter->pos < iter->size)
+		iter->pos += ITER_STRIDE;
+
+	if (iter->pos >= iter->size)
+		return -EINVAL;
+
+	return 0;
+}
+
+/**
+ * gcov_iter_write - write data for current pos to seq_file
+ * @iter: file iterator
+ * @seq: seq_file handle
+ *
+ * Return zero on success, non-zero otherwise.
+ */
+static int gcov_iter_write(struct gcov_iterator *iter, struct seq_file *seq)
+{
+	size_t len;
+
+	if (iter->pos >= iter->size)
+		return -EINVAL;
+
+	len = ITER_STRIDE;
+	if (iter->pos + len > iter->size)
+		len = iter->size - iter->pos;
+
+	seq_write(seq, iter->buffer + iter->pos, len);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * seq_file.start() implementation for gcov data files. Note that the
  * gcov_iterator interface is designed to be more restrictive than seq_file
@@ -387,8 +510,11 @@ static void add_links(struct gcov_node *node, struct dentry *parent)
 			goto out_err;
 		node->links[i] = debugfs_create_symlink(deskew(basename),
 							parent,	target);
+<<<<<<< HEAD
 		if (!node->links[i])
 			goto out_err;
+=======
+>>>>>>> upstream/android-13
 		kfree(target);
 	}
 
@@ -450,11 +576,14 @@ static struct gcov_node *new_node(struct gcov_node *parent,
 					parent->dentry, node, &gcov_data_fops);
 	} else
 		node->dentry = debugfs_create_dir(node->name, parent->dentry);
+<<<<<<< HEAD
 	if (!node->dentry) {
 		pr_warn("could not create file\n");
 		kfree(node);
 		return NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (info)
 		add_links(node, parent->dentry);
 	list_add(&node->list, &parent->children);
@@ -761,20 +890,27 @@ void gcov_event(enum gcov_action action, struct gcov_info *info)
 /* Create debugfs entries. */
 static __init int gcov_fs_init(void)
 {
+<<<<<<< HEAD
 	int rc = -EIO;
 
+=======
+>>>>>>> upstream/android-13
 	init_node(&root_node, NULL, NULL, NULL);
 	/*
 	 * /sys/kernel/debug/gcov will be parent for the reset control file
 	 * and all profiling files.
 	 */
 	root_node.dentry = debugfs_create_dir("gcov", NULL);
+<<<<<<< HEAD
 	if (!root_node.dentry)
 		goto err_remove;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Create reset file which resets all profiling counts when written
 	 * to.
 	 */
+<<<<<<< HEAD
 	reset_dentry = debugfs_create_file("reset", 0600, root_node.dentry,
 					   NULL, &gcov_reset_fops);
 	if (!reset_dentry)
@@ -788,5 +924,12 @@ err_remove:
 	debugfs_remove(root_node.dentry);
 
 	return rc;
+=======
+	debugfs_create_file("reset", 0600, root_node.dentry, NULL,
+			    &gcov_reset_fops);
+	/* Replay previous events to get our fs hierarchy up-to-date. */
+	gcov_enable_events();
+	return 0;
+>>>>>>> upstream/android-13
 }
 device_initcall(gcov_fs_init);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MSM_DSI_CFG_H__
@@ -25,7 +31,18 @@
 #define MSM_DSI_6G_VER_MINOR_V1_3	0x10030000
 #define MSM_DSI_6G_VER_MINOR_V1_3_1	0x10030001
 #define MSM_DSI_6G_VER_MINOR_V1_4_1	0x10040001
+<<<<<<< HEAD
 #define MSM_DSI_6G_VER_MINOR_V2_2_1	0x20020001
+=======
+#define MSM_DSI_6G_VER_MINOR_V1_4_2	0x10040002
+#define MSM_DSI_6G_VER_MINOR_V2_1_0	0x20010000
+#define MSM_DSI_6G_VER_MINOR_V2_2_0	0x20000000
+#define MSM_DSI_6G_VER_MINOR_V2_2_1	0x20020001
+#define MSM_DSI_6G_VER_MINOR_V2_3_0	0x20030000
+#define MSM_DSI_6G_VER_MINOR_V2_4_0	0x20040000
+#define MSM_DSI_6G_VER_MINOR_V2_4_1	0x20040001
+#define MSM_DSI_6G_VER_MINOR_V2_5_0	0x20050000
+>>>>>>> upstream/android-13
 
 #define MSM_DSI_V2_VER_MINOR_8064	0x0
 
@@ -41,6 +58,10 @@ struct msm_dsi_config {
 };
 
 struct msm_dsi_host_cfg_ops {
+<<<<<<< HEAD
+=======
+	int (*link_clk_set_rate)(struct msm_dsi_host *msm_host);
+>>>>>>> upstream/android-13
 	int (*link_clk_enable)(struct msm_dsi_host *msm_host);
 	void (*link_clk_disable)(struct msm_dsi_host *msm_host);
 	int (*clk_init_ver)(struct msm_dsi_host *msm_host);
@@ -48,7 +69,11 @@ struct msm_dsi_host_cfg_ops {
 	void* (*tx_buf_get)(struct msm_dsi_host *msm_host);
 	void (*tx_buf_put)(struct msm_dsi_host *msm_host);
 	int (*dma_base_get)(struct msm_dsi_host *msm_host, uint64_t *iova);
+<<<<<<< HEAD
 	int (*calc_clk_rate)(struct msm_dsi_host *msm_host, bool is_dual_dsi);
+=======
+	int (*calc_clk_rate)(struct msm_dsi_host *msm_host, bool is_bonded_dsi);
+>>>>>>> upstream/android-13
 };
 
 struct msm_dsi_cfg_handler {

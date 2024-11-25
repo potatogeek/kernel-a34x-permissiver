@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale MPC85xx, MPC83xx DMA Engine support
  *
@@ -16,12 +20,15 @@
  * command for PCI read operations, instead of using the default PCI Read Line
  * command. Please be aware that this setting may result in read pre-fetching
  * on some platforms.
+<<<<<<< HEAD
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -53,42 +60,74 @@ static const char msg_ld_oom[] = "No free memory for link descriptor";
 
 static void set_sr(struct fsldma_chan *chan, u32 val)
 {
+<<<<<<< HEAD
 	DMA_OUT(chan, &chan->regs->sr, val, 32);
+=======
+	FSL_DMA_OUT(chan, &chan->regs->sr, val, 32);
+>>>>>>> upstream/android-13
 }
 
 static u32 get_sr(struct fsldma_chan *chan)
 {
+<<<<<<< HEAD
 	return DMA_IN(chan, &chan->regs->sr, 32);
+=======
+	return FSL_DMA_IN(chan, &chan->regs->sr, 32);
+>>>>>>> upstream/android-13
 }
 
 static void set_mr(struct fsldma_chan *chan, u32 val)
 {
+<<<<<<< HEAD
 	DMA_OUT(chan, &chan->regs->mr, val, 32);
+=======
+	FSL_DMA_OUT(chan, &chan->regs->mr, val, 32);
+>>>>>>> upstream/android-13
 }
 
 static u32 get_mr(struct fsldma_chan *chan)
 {
+<<<<<<< HEAD
 	return DMA_IN(chan, &chan->regs->mr, 32);
+=======
+	return FSL_DMA_IN(chan, &chan->regs->mr, 32);
+>>>>>>> upstream/android-13
 }
 
 static void set_cdar(struct fsldma_chan *chan, dma_addr_t addr)
 {
+<<<<<<< HEAD
 	DMA_OUT(chan, &chan->regs->cdar, addr | FSL_DMA_SNEN, 64);
+=======
+	FSL_DMA_OUT(chan, &chan->regs->cdar, addr | FSL_DMA_SNEN, 64);
+>>>>>>> upstream/android-13
 }
 
 static dma_addr_t get_cdar(struct fsldma_chan *chan)
 {
+<<<<<<< HEAD
 	return DMA_IN(chan, &chan->regs->cdar, 64) & ~FSL_DMA_SNEN;
+=======
+	return FSL_DMA_IN(chan, &chan->regs->cdar, 64) & ~FSL_DMA_SNEN;
+>>>>>>> upstream/android-13
 }
 
 static void set_bcr(struct fsldma_chan *chan, u32 val)
 {
+<<<<<<< HEAD
 	DMA_OUT(chan, &chan->regs->bcr, val, 32);
+=======
+	FSL_DMA_OUT(chan, &chan->regs->bcr, val, 32);
+>>>>>>> upstream/android-13
 }
 
 static u32 get_bcr(struct fsldma_chan *chan)
 {
+<<<<<<< HEAD
 	return DMA_IN(chan, &chan->regs->bcr, 32);
+=======
+	return FSL_DMA_IN(chan, &chan->regs->bcr, 32);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -981,6 +1020,7 @@ static irqreturn_t fsldma_chan_irq(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void dma_do_tasklet(unsigned long data)
 {
 	struct fsldma_chan *chan = (struct fsldma_chan *)data;
@@ -988,6 +1028,15 @@ static void dma_do_tasklet(unsigned long data)
 	chan_dbg(chan, "tasklet entry\n");
 
 	spin_lock_bh(&chan->desc_lock);
+=======
+static void dma_do_tasklet(struct tasklet_struct *t)
+{
+	struct fsldma_chan *chan = from_tasklet(chan, t, tasklet);
+
+	chan_dbg(chan, "tasklet entry\n");
+
+	spin_lock(&chan->desc_lock);
+>>>>>>> upstream/android-13
 
 	/* the hardware is now idle and ready for more */
 	chan->idle = true;
@@ -995,7 +1044,11 @@ static void dma_do_tasklet(unsigned long data)
 	/* Run all cleanup for descriptors which have been completed */
 	fsldma_cleanup_descriptors(chan);
 
+<<<<<<< HEAD
 	spin_unlock_bh(&chan->desc_lock);
+=======
+	spin_unlock(&chan->desc_lock);
+>>>>>>> upstream/android-13
 
 	chan_dbg(chan, "tasklet exit\n");
 }
@@ -1156,7 +1209,11 @@ static int fsl_dma_chan_probe(struct fsldma_device *fdev,
 	}
 
 	fdev->chan[chan->id] = chan;
+<<<<<<< HEAD
 	tasklet_init(&chan->tasklet, dma_do_tasklet, (unsigned long)chan);
+=======
+	tasklet_setup(&chan->tasklet, dma_do_tasklet);
+>>>>>>> upstream/android-13
 	snprintf(chan->name, sizeof(chan->name), "chan%d", chan->id);
 
 	/* Initialize the channel */
@@ -1168,6 +1225,10 @@ static int fsl_dma_chan_probe(struct fsldma_device *fdev,
 	switch (chan->feature & FSL_DMA_IP_MASK) {
 	case FSL_DMA_IP_85XX:
 		chan->toggle_ext_pause = fsl_chan_toggle_ext_pause;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FSL_DMA_IP_83XX:
 		chan->toggle_ext_start = fsl_chan_toggle_ext_start;
 		chan->set_src_loop_size = fsl_chan_set_src_loop_size;

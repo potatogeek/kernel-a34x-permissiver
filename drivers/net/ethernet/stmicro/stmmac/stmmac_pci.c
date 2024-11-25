@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
   This contains the functions to handle the pci driver.
 
   Copyright (C) 2011-2012  Vayavya Labs Pvt Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -14,16 +19,23 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Rayagond Kokatanur <rayagond@vayavyalabs.com>
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
 
+<<<<<<< HEAD
+=======
+#include <linux/clk-provider.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/dmi.h>
 
 #include "stmmac.h"
 
+<<<<<<< HEAD
 /*
  * This struct is used to associate PCI Function of MAC controller on a board,
  * discovered via DMI, with the address of PHY connected to the MAC. The
@@ -40,10 +52,13 @@ struct stmmac_pci_dmi_data {
 	size_t nfuncs;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct stmmac_pci_info {
 	int (*setup)(struct pci_dev *pdev, struct plat_stmmacenet_data *plat);
 };
 
+<<<<<<< HEAD
 static int stmmac_pci_find_phy_addr(struct pci_dev *pdev,
 				    const struct dmi_system_id *dmi_list)
 {
@@ -67,14 +82,20 @@ static int stmmac_pci_find_phy_addr(struct pci_dev *pdev,
 	return -ENODEV;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void common_default_data(struct plat_stmmacenet_data *plat)
 {
 	plat->clk_csr = 2;	/* clk_csr_i = 20-35MHz & MDC = clk_csr_i/16 */
 	plat->has_gmac = 1;
 	plat->force_sf_dma_mode = 1;
 
+<<<<<<< HEAD
 	plat->mdio_bus_data->phy_reset = NULL;
 	plat->mdio_bus_data->phy_mask = 0;
+=======
+	plat->mdio_bus_data->needs_reset = true;
+>>>>>>> upstream/android-13
 
 	/* Set default value for multicast hash bins */
 	plat->multicast_filter_bins = HASH_TABLE_SIZE;
@@ -105,7 +126,11 @@ static int stmmac_default_data(struct pci_dev *pdev,
 
 	plat->bus_id = 1;
 	plat->phy_addr = 0;
+<<<<<<< HEAD
 	plat->interface = PHY_INTERFACE_MODE_GMII;
+=======
+	plat->phy_interface = PHY_INTERFACE_MODE_GMII;
+>>>>>>> upstream/android-13
 
 	plat->dma_cfg->pbl = 32;
 	plat->dma_cfg->pblx8 = true;
@@ -118,6 +143,7 @@ static const struct stmmac_pci_info stmmac_pci_info = {
 	.setup = stmmac_default_data,
 };
 
+<<<<<<< HEAD
 static const struct stmmac_pci_func_data galileo_stmmac_func_data[] = {
 	{
 		.func = 6,
@@ -212,12 +238,80 @@ static int quark_default_data(struct pci_dev *pdev,
 	plat->dma_cfg->pblx8 = true;
 	plat->dma_cfg->fixed_burst = 1;
 	/* AXI (TODO) */
+=======
+static int snps_gmac5_default_data(struct pci_dev *pdev,
+				   struct plat_stmmacenet_data *plat)
+{
+	int i;
+
+	plat->clk_csr = 5;
+	plat->has_gmac4 = 1;
+	plat->force_sf_dma_mode = 1;
+	plat->tso_en = 1;
+	plat->pmt = 1;
+
+	/* Set default value for multicast hash bins */
+	plat->multicast_filter_bins = HASH_TABLE_SIZE;
+
+	/* Set default value for unicast filter entries */
+	plat->unicast_filter_entries = 1;
+
+	/* Set the maxmtu to a default of JUMBO_LEN */
+	plat->maxmtu = JUMBO_LEN;
+
+	/* Set default number of RX and TX queues to use */
+	plat->tx_queues_to_use = 4;
+	plat->rx_queues_to_use = 4;
+
+	plat->tx_sched_algorithm = MTL_TX_ALGORITHM_WRR;
+	for (i = 0; i < plat->tx_queues_to_use; i++) {
+		plat->tx_queues_cfg[i].use_prio = false;
+		plat->tx_queues_cfg[i].mode_to_use = MTL_QUEUE_DCB;
+		plat->tx_queues_cfg[i].weight = 25;
+		if (i > 0)
+			plat->tx_queues_cfg[i].tbs_en = 1;
+	}
+
+	plat->rx_sched_algorithm = MTL_RX_ALGORITHM_SP;
+	for (i = 0; i < plat->rx_queues_to_use; i++) {
+		plat->rx_queues_cfg[i].use_prio = false;
+		plat->rx_queues_cfg[i].mode_to_use = MTL_QUEUE_DCB;
+		plat->rx_queues_cfg[i].pkt_route = 0x0;
+		plat->rx_queues_cfg[i].chan = i;
+	}
+
+	plat->bus_id = 1;
+	plat->phy_addr = -1;
+	plat->phy_interface = PHY_INTERFACE_MODE_GMII;
+
+	plat->dma_cfg->pbl = 32;
+	plat->dma_cfg->pblx8 = true;
+
+	/* Axi Configuration */
+	plat->axi = devm_kzalloc(&pdev->dev, sizeof(*plat->axi), GFP_KERNEL);
+	if (!plat->axi)
+		return -ENOMEM;
+
+	plat->axi->axi_wr_osr_lmt = 31;
+	plat->axi->axi_rd_osr_lmt = 31;
+
+	plat->axi->axi_fb = false;
+	plat->axi->axi_blen[0] = 4;
+	plat->axi->axi_blen[1] = 8;
+	plat->axi->axi_blen[2] = 16;
+	plat->axi->axi_blen[3] = 32;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct stmmac_pci_info quark_pci_info = {
 	.setup = quark_default_data,
+=======
+static const struct stmmac_pci_info snps_gmac5_pci_info = {
+	.setup = snps_gmac5_default_data,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -256,6 +350,15 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
 	if (!plat->dma_cfg)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	plat->safety_feat_cfg = devm_kzalloc(&pdev->dev,
+					     sizeof(*plat->safety_feat_cfg),
+					     GFP_KERNEL);
+	if (!plat->safety_feat_cfg)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	/* Enable pci device */
 	ret = pci_enable_device(pdev);
 	if (ret) {
@@ -265,7 +368,11 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
 	}
 
 	/* Get the base address of device */
+<<<<<<< HEAD
 	for (i = 0; i <= PCI_STD_RESOURCE_END; i++) {
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>>>>>> upstream/android-13
 		if (pci_resource_len(pdev, i) == 0)
 			continue;
 		ret = pcim_iomap_regions(pdev, BIT(i), pci_name(pdev));
@@ -280,13 +387,29 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	pci_enable_msi(pdev);
 
+=======
+>>>>>>> upstream/android-13
 	memset(&res, 0, sizeof(res));
 	res.addr = pcim_iomap_table(pdev)[i];
 	res.wol_irq = pdev->irq;
 	res.irq = pdev->irq;
 
+<<<<<<< HEAD
+=======
+	plat->safety_feat_cfg->tsoee = 1;
+	plat->safety_feat_cfg->mrxpee = 1;
+	plat->safety_feat_cfg->mestee = 1;
+	plat->safety_feat_cfg->mrxee = 1;
+	plat->safety_feat_cfg->mtxee = 1;
+	plat->safety_feat_cfg->epsi = 1;
+	plat->safety_feat_cfg->edpp = 1;
+	plat->safety_feat_cfg->prtyen = 1;
+	plat->safety_feat_cfg->tmouten = 1;
+
+>>>>>>> upstream/android-13
 	return stmmac_dvr_probe(&pdev->dev, plat, &res);
 }
 
@@ -299,7 +422,21 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
  */
 static void stmmac_pci_remove(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	stmmac_dvr_remove(&pdev->dev);
+=======
+	int i;
+
+	stmmac_dvr_remove(&pdev->dev);
+
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+		if (pci_resource_len(pdev, i) == 0)
+			continue;
+		pcim_iounmap_regions(pdev, BIT(i));
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	pci_disable_device(pdev);
 }
 
@@ -341,6 +478,7 @@ static int __maybe_unused stmmac_pci_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(stmmac_pm_ops, stmmac_pci_suspend, stmmac_pci_resume);
 
 /* synthetic ID, no official vendor */
+<<<<<<< HEAD
 #define PCI_VENDOR_ID_STMMAC 0x700
 
 #define STMMAC_QUARK_ID  0x0937
@@ -355,6 +493,17 @@ static const struct pci_device_id stmmac_id_table[] = {
 	STMMAC_DEVICE(STMMAC, STMMAC_DEVICE_ID, stmmac_pci_info),
 	STMMAC_DEVICE(STMICRO, PCI_DEVICE_ID_STMICRO_MAC, stmmac_pci_info),
 	STMMAC_DEVICE(INTEL, STMMAC_QUARK_ID, quark_pci_info),
+=======
+#define PCI_VENDOR_ID_STMMAC		0x0700
+
+#define PCI_DEVICE_ID_STMMAC_STMMAC		0x1108
+#define PCI_DEVICE_ID_SYNOPSYS_GMAC5_ID		0x7102
+
+static const struct pci_device_id stmmac_id_table[] = {
+	{ PCI_DEVICE_DATA(STMMAC, STMMAC, &stmmac_pci_info) },
+	{ PCI_DEVICE_DATA(STMICRO, MAC, &stmmac_pci_info) },
+	{ PCI_DEVICE_DATA(SYNOPSYS, GMAC5_ID, &snps_gmac5_pci_info) },
+>>>>>>> upstream/android-13
 	{}
 };
 

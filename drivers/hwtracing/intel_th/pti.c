@@ -142,7 +142,11 @@ static struct attribute *pti_output_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group pti_output_group = {
+=======
+static const struct attribute_group pti_output_group = {
+>>>>>>> upstream/android-13
 	.attrs	= pti_output_attrs,
 };
 
@@ -272,6 +276,7 @@ static ssize_t lpp_dest_store(struct device *dev, struct device_attribute *attr,
 			      const char *buf, size_t size)
 {
 	struct pti_device *pti = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	ssize_t ret = -EINVAL;
 	int i;
 
@@ -285,6 +290,19 @@ static ssize_t lpp_dest_store(struct device *dev, struct device_attribute *attr,
 	}
 
 	return ret;
+=======
+	int i;
+
+	i = sysfs_match_string(lpp_dest_str, buf);
+	if (i < 0)
+		return i;
+
+	if (!(pti->lpp_dest_mask & BIT(i)))
+		return -EINVAL;
+
+	pti->lpp_dest = i;
+	return size;
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RW(lpp_dest);
@@ -297,7 +315,11 @@ static struct attribute *lpp_output_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static struct attribute_group lpp_output_group = {
+=======
+static const struct attribute_group lpp_output_group = {
+>>>>>>> upstream/android-13
 	.attrs	= lpp_output_attrs,
 };
 

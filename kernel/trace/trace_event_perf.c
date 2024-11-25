@@ -16,7 +16,11 @@ static char __percpu *perf_trace_buf[PERF_NR_CONTEXTS];
 
 /*
  * Force it to be aligned to unsigned long to avoid misaligned accesses
+<<<<<<< HEAD
  * suprises
+=======
+ * surprises
+>>>>>>> upstream/android-13
  */
 typedef typeof(unsigned long [PERF_MAX_TRACE_SIZE / sizeof(unsigned long)])
 	perf_trace_t;
@@ -177,7 +181,11 @@ static void perf_trace_event_unreg(struct perf_event *p_event)
 		}
 	}
 out:
+<<<<<<< HEAD
 	module_put(tp_event->mod);
+=======
+	trace_event_put_ref(tp_event);
+>>>>>>> upstream/android-13
 }
 
 static int perf_trace_event_open(struct perf_event *p_event)
@@ -224,10 +232,17 @@ int perf_trace_init(struct perf_event *p_event)
 	list_for_each_entry(tp_event, &ftrace_events, list) {
 		if (tp_event->event.type == event_id &&
 		    tp_event->class && tp_event->class->reg &&
+<<<<<<< HEAD
 		    try_module_get(tp_event->mod)) {
 			ret = perf_trace_event_init(tp_event, p_event);
 			if (ret)
 				module_put(tp_event->mod);
+=======
+		    trace_event_try_get_ref(tp_event)) {
+			ret = perf_trace_event_init(tp_event, p_event);
+			if (ret)
+				trace_event_put_ref(tp_event);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -299,7 +314,12 @@ void perf_kprobe_destroy(struct perf_event *p_event)
 #endif /* CONFIG_KPROBE_EVENTS */
 
 #ifdef CONFIG_UPROBE_EVENTS
+<<<<<<< HEAD
 int perf_uprobe_init(struct perf_event *p_event, bool is_retprobe)
+=======
+int perf_uprobe_init(struct perf_event *p_event,
+		     unsigned long ref_ctr_offset, bool is_retprobe)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	char *path = NULL;
@@ -319,8 +339,13 @@ int perf_uprobe_init(struct perf_event *p_event, bool is_retprobe)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tp_event = create_local_trace_uprobe(
 		path, p_event->attr.probe_offset, is_retprobe);
+=======
+	tp_event = create_local_trace_uprobe(path, p_event->attr.probe_offset,
+					     ref_ctr_offset, is_retprobe);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tp_event)) {
 		ret = PTR_ERR(tp_event);
 		goto out;
@@ -420,28 +445,51 @@ NOKPROBE_SYMBOL(perf_trace_buf_alloc);
 void perf_trace_buf_update(void *record, u16 type)
 {
 	struct trace_entry *entry = record;
+<<<<<<< HEAD
 	int pc = preempt_count();
 	unsigned long flags;
 
 	local_save_flags(flags);
 	tracing_generic_entry_update(entry, flags, pc);
 	entry->type = type;
+=======
+
+	tracing_generic_entry_update(entry, type, tracing_gen_ctx());
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(perf_trace_buf_update);
 
 #ifdef CONFIG_FUNCTION_TRACER
 static void
 perf_ftrace_function_call(unsigned long ip, unsigned long parent_ip,
+<<<<<<< HEAD
 			  struct ftrace_ops *ops, struct pt_regs *pt_regs)
+=======
+			  struct ftrace_ops *ops,  struct ftrace_regs *fregs)
+>>>>>>> upstream/android-13
 {
 	struct ftrace_entry *entry;
 	struct perf_event *event;
 	struct hlist_head head;
 	struct pt_regs regs;
 	int rctx;
+<<<<<<< HEAD
 
 	if ((unsigned long)ops->private != smp_processor_id())
 		return;
+=======
+	int bit;
+
+	if (!rcu_is_watching())
+		return;
+
+	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+	if (bit < 0)
+		return;
+
+	if ((unsigned long)ops->private != smp_processor_id())
+		goto out;
+>>>>>>> upstream/android-13
 
 	event = container_of(ops, struct perf_event, ftrace_ops);
 
@@ -463,13 +511,22 @@ perf_ftrace_function_call(unsigned long ip, unsigned long parent_ip,
 
 	entry = perf_trace_buf_alloc(ENTRY_SIZE, NULL, &rctx);
 	if (!entry)
+<<<<<<< HEAD
 		return;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	entry->ip = ip;
 	entry->parent_ip = parent_ip;
 	perf_trace_buf_submit(entry, ENTRY_SIZE, rctx, TRACE_FN,
 			      1, &regs, &head, NULL);
 
+<<<<<<< HEAD
+=======
+out:
+	ftrace_test_recursion_unlock(bit);
+>>>>>>> upstream/android-13
 #undef ENTRY_SIZE
 }
 
@@ -477,7 +534,10 @@ static int perf_ftrace_function_register(struct perf_event *event)
 {
 	struct ftrace_ops *ops = &event->ftrace_ops;
 
+<<<<<<< HEAD
 	ops->flags   = FTRACE_OPS_FL_RCU;
+=======
+>>>>>>> upstream/android-13
 	ops->func    = perf_ftrace_function_call;
 	ops->private = (void *)(unsigned long)nr_cpu_ids;
 

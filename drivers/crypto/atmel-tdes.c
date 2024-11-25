@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -6,10 +10,13 @@
  * Copyright (c) 2012 Eukréa Electromatique - ATMEL
  * Author: Nicolas Royer <nicolas@eukrea.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Some ideas are from omap-aes.c drivers.
  */
 
@@ -24,6 +31,10 @@
 #include <linux/platform_device.h>
 
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/dmaengine.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/errno.h>
 #include <linux/interrupt.h>
@@ -33,6 +44,7 @@
 #include <linux/of_device.h>
 #include <linux/delay.h>
 #include <linux/crypto.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
 #include <crypto/scatterwalk.h>
 #include <crypto/algapi.h>
@@ -57,6 +69,34 @@
 #define TDES_FLAGS_FAST		BIT(17)
 #define TDES_FLAGS_BUSY		BIT(18)
 #define TDES_FLAGS_DMA		BIT(19)
+=======
+#include <crypto/scatterwalk.h>
+#include <crypto/algapi.h>
+#include <crypto/internal/des.h>
+#include <crypto/internal/skcipher.h>
+#include "atmel-tdes-regs.h"
+
+#define ATMEL_TDES_PRIORITY	300
+
+/* TDES flags  */
+/* Reserve bits [17:16], [13:12], [2:0] for AES Mode Register */
+#define TDES_FLAGS_ENCRYPT	TDES_MR_CYPHER_ENC
+#define TDES_FLAGS_OPMODE_MASK	(TDES_MR_OPMOD_MASK | TDES_MR_CFBS_MASK)
+#define TDES_FLAGS_ECB		TDES_MR_OPMOD_ECB
+#define TDES_FLAGS_CBC		TDES_MR_OPMOD_CBC
+#define TDES_FLAGS_OFB		TDES_MR_OPMOD_OFB
+#define TDES_FLAGS_CFB64	(TDES_MR_OPMOD_CFB | TDES_MR_CFBS_64b)
+#define TDES_FLAGS_CFB32	(TDES_MR_OPMOD_CFB | TDES_MR_CFBS_32b)
+#define TDES_FLAGS_CFB16	(TDES_MR_OPMOD_CFB | TDES_MR_CFBS_16b)
+#define TDES_FLAGS_CFB8		(TDES_MR_OPMOD_CFB | TDES_MR_CFBS_8b)
+
+#define TDES_FLAGS_MODE_MASK	(TDES_FLAGS_OPMODE_MASK | TDES_FLAGS_ENCRYPT)
+
+#define TDES_FLAGS_INIT		BIT(3)
+#define TDES_FLAGS_FAST		BIT(4)
+#define TDES_FLAGS_BUSY		BIT(5)
+#define TDES_FLAGS_DMA		BIT(6)
+>>>>>>> upstream/android-13
 
 #define ATMEL_TDES_QUEUE_LENGTH	50
 
@@ -75,7 +115,11 @@ struct atmel_tdes_ctx {
 	struct atmel_tdes_dev *dd;
 
 	int		keylen;
+<<<<<<< HEAD
 	u32		key[3*DES_KEY_SIZE / sizeof(u32)];
+=======
+	u32		key[DES3_EDE_KEY_SIZE / sizeof(u32)];
+>>>>>>> upstream/android-13
 	unsigned long	flags;
 
 	u16		block_size;
@@ -83,6 +127,10 @@ struct atmel_tdes_ctx {
 
 struct atmel_tdes_reqctx {
 	unsigned long mode;
+<<<<<<< HEAD
+=======
+	u8 lastc[DES_BLOCK_SIZE];
+>>>>>>> upstream/android-13
 };
 
 struct atmel_tdes_dma {
@@ -101,7 +149,10 @@ struct atmel_tdes_dev {
 	int					irq;
 
 	unsigned long		flags;
+<<<<<<< HEAD
 	int			err;
+=======
+>>>>>>> upstream/android-13
 
 	spinlock_t		lock;
 	struct crypto_queue	queue;
@@ -109,7 +160,11 @@ struct atmel_tdes_dev {
 	struct tasklet_struct	done_task;
 	struct tasklet_struct	queue_task;
 
+<<<<<<< HEAD
 	struct ablkcipher_request	*req;
+=======
+	struct skcipher_request	*req;
+>>>>>>> upstream/android-13
 	size_t				total;
 
 	struct scatterlist	*in_sg;
@@ -190,12 +245,17 @@ static inline void atmel_tdes_write(struct atmel_tdes_dev *dd,
 }
 
 static void atmel_tdes_write_n(struct atmel_tdes_dev *dd, u32 offset,
+<<<<<<< HEAD
 					u32 *value, int count)
+=======
+			       const u32 *value, int count)
+>>>>>>> upstream/android-13
 {
 	for (; count--; value++, offset += 4)
 		atmel_tdes_write(dd, offset, *value);
 }
 
+<<<<<<< HEAD
 static struct atmel_tdes_dev *atmel_tdes_find_dev(struct atmel_tdes_ctx *ctx)
 {
 	struct atmel_tdes_dev *tdes_dd = NULL;
@@ -213,6 +273,17 @@ static struct atmel_tdes_dev *atmel_tdes_find_dev(struct atmel_tdes_ctx *ctx)
 	}
 	spin_unlock_bh(&atmel_tdes.lock);
 
+=======
+static struct atmel_tdes_dev *atmel_tdes_dev_alloc(void)
+{
+	struct atmel_tdes_dev *tdes_dd;
+
+	spin_lock_bh(&atmel_tdes.lock);
+	/* One TDES IP per SoC. */
+	tdes_dd = list_first_entry_or_null(&atmel_tdes.dev_list,
+					   struct atmel_tdes_dev, list);
+	spin_unlock_bh(&atmel_tdes.lock);
+>>>>>>> upstream/android-13
 	return tdes_dd;
 }
 
@@ -227,7 +298,10 @@ static int atmel_tdes_hw_init(struct atmel_tdes_dev *dd)
 	if (!(dd->flags & TDES_FLAGS_INIT)) {
 		atmel_tdes_write(dd, TDES_CR, TDES_CR_SWRST);
 		dd->flags |= TDES_FLAGS_INIT;
+<<<<<<< HEAD
 		dd->err = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -238,9 +312,19 @@ static inline unsigned int atmel_tdes_get_version(struct atmel_tdes_dev *dd)
 	return atmel_tdes_read(dd, TDES_HW_VERSION) & 0x00000fff;
 }
 
+<<<<<<< HEAD
 static void atmel_tdes_hw_version_init(struct atmel_tdes_dev *dd)
 {
 	atmel_tdes_hw_init(dd);
+=======
+static int atmel_tdes_hw_version_init(struct atmel_tdes_dev *dd)
+{
+	int err;
+
+	err = atmel_tdes_hw_init(dd);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	dd->hw_version = atmel_tdes_get_version(dd);
 
@@ -248,6 +332,11 @@ static void atmel_tdes_hw_version_init(struct atmel_tdes_dev *dd)
 			"version: 0x%x\n", dd->hw_version);
 
 	clk_disable_unprepare(dd->iclk);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void atmel_tdes_dma_callback(void *data)
@@ -261,7 +350,11 @@ static void atmel_tdes_dma_callback(void *data)
 static int atmel_tdes_write_ctrl(struct atmel_tdes_dev *dd)
 {
 	int err;
+<<<<<<< HEAD
 	u32 valcr = 0, valmr = TDES_MR_SMOD_PDC;
+=======
+	u32 valmr = TDES_MR_SMOD_PDC;
+>>>>>>> upstream/android-13
 
 	err = atmel_tdes_hw_init(dd);
 
@@ -283,6 +376,7 @@ static int atmel_tdes_write_ctrl(struct atmel_tdes_dev *dd)
 		valmr |= TDES_MR_TDESMOD_DES;
 	}
 
+<<<<<<< HEAD
 	if (dd->flags & TDES_FLAGS_CBC) {
 		valmr |= TDES_MR_OPMOD_CBC;
 	} else if (dd->flags & TDES_FLAGS_CFB) {
@@ -304,15 +398,24 @@ static int atmel_tdes_write_ctrl(struct atmel_tdes_dev *dd)
 		valmr |= TDES_MR_CYPHER_ENC;
 
 	atmel_tdes_write(dd, TDES_CR, valcr);
+=======
+	valmr |= dd->flags & TDES_FLAGS_MODE_MASK;
+
+>>>>>>> upstream/android-13
 	atmel_tdes_write(dd, TDES_MR, valmr);
 
 	atmel_tdes_write_n(dd, TDES_KEY1W1R, dd->ctx->key,
 						dd->ctx->keylen >> 2);
 
+<<<<<<< HEAD
 	if (((dd->flags & TDES_FLAGS_CBC) || (dd->flags & TDES_FLAGS_CFB) ||
 		(dd->flags & TDES_FLAGS_OFB)) && dd->req->info) {
 		atmel_tdes_write_n(dd, TDES_IV1R, dd->req->info, 2);
 	}
+=======
+	if (dd->req->iv && (valmr & TDES_MR_OPMOD_MASK) != TDES_MR_OPMOD_ECB)
+		atmel_tdes_write_n(dd, TDES_IV1R, (void *)dd->req->iv, 2);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -336,7 +439,11 @@ static int atmel_tdes_crypt_pdc_stop(struct atmel_tdes_dev *dd)
 				dd->buf_out, dd->buflen, dd->dma_size, 1);
 		if (count != dd->dma_size) {
 			err = -EINVAL;
+<<<<<<< HEAD
 			pr_err("not all data converted: %zu\n", count);
+=======
+			dev_dbg(dd->dev, "not all data converted: %zu\n", count);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -353,24 +460,40 @@ static int atmel_tdes_buff_init(struct atmel_tdes_dev *dd)
 	dd->buflen &= ~(DES_BLOCK_SIZE - 1);
 
 	if (!dd->buf_in || !dd->buf_out) {
+<<<<<<< HEAD
 		dev_err(dd->dev, "unable to alloc pages.\n");
+=======
+		dev_dbg(dd->dev, "unable to alloc pages.\n");
+>>>>>>> upstream/android-13
 		goto err_alloc;
 	}
 
 	/* MAP here */
 	dd->dma_addr_in = dma_map_single(dd->dev, dd->buf_in,
 					dd->buflen, DMA_TO_DEVICE);
+<<<<<<< HEAD
 	if (dma_mapping_error(dd->dev, dd->dma_addr_in)) {
 		dev_err(dd->dev, "dma %zd bytes error\n", dd->buflen);
 		err = -EINVAL;
+=======
+	err = dma_mapping_error(dd->dev, dd->dma_addr_in);
+	if (err) {
+		dev_dbg(dd->dev, "dma %zd bytes error\n", dd->buflen);
+>>>>>>> upstream/android-13
 		goto err_map_in;
 	}
 
 	dd->dma_addr_out = dma_map_single(dd->dev, dd->buf_out,
 					dd->buflen, DMA_FROM_DEVICE);
+<<<<<<< HEAD
 	if (dma_mapping_error(dd->dev, dd->dma_addr_out)) {
 		dev_err(dd->dev, "dma %zd bytes error\n", dd->buflen);
 		err = -EINVAL;
+=======
+	err = dma_mapping_error(dd->dev, dd->dma_addr_out);
+	if (err) {
+		dev_dbg(dd->dev, "dma %zd bytes error\n", dd->buflen);
+>>>>>>> upstream/android-13
 		goto err_map_out;
 	}
 
@@ -383,8 +506,11 @@ err_map_in:
 err_alloc:
 	free_page((unsigned long)dd->buf_out);
 	free_page((unsigned long)dd->buf_in);
+<<<<<<< HEAD
 	if (err)
 		pr_err("error: %d\n", err);
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -398,11 +524,19 @@ static void atmel_tdes_buff_cleanup(struct atmel_tdes_dev *dd)
 	free_page((unsigned long)dd->buf_in);
 }
 
+<<<<<<< HEAD
 static int atmel_tdes_crypt_pdc(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 			       dma_addr_t dma_addr_out, int length)
 {
 	struct atmel_tdes_ctx *ctx = crypto_tfm_ctx(tfm);
 	struct atmel_tdes_dev *dd = ctx->dd;
+=======
+static int atmel_tdes_crypt_pdc(struct atmel_tdes_dev *dd,
+				dma_addr_t dma_addr_in,
+				dma_addr_t dma_addr_out, int length)
+{
+	struct atmel_tdes_reqctx *rctx = skcipher_request_ctx(dd->req);
+>>>>>>> upstream/android-13
 	int len32;
 
 	dd->dma_size = length;
@@ -412,12 +546,28 @@ static int atmel_tdes_crypt_pdc(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 					   DMA_TO_DEVICE);
 	}
 
+<<<<<<< HEAD
 	if ((dd->flags & TDES_FLAGS_CFB) && (dd->flags & TDES_FLAGS_CFB8))
 		len32 = DIV_ROUND_UP(length, sizeof(u8));
 	else if ((dd->flags & TDES_FLAGS_CFB) && (dd->flags & TDES_FLAGS_CFB16))
 		len32 = DIV_ROUND_UP(length, sizeof(u16));
 	else
 		len32 = DIV_ROUND_UP(length, sizeof(u32));
+=======
+	switch (rctx->mode & TDES_FLAGS_OPMODE_MASK) {
+	case TDES_FLAGS_CFB8:
+		len32 = DIV_ROUND_UP(length, sizeof(u8));
+		break;
+
+	case TDES_FLAGS_CFB16:
+		len32 = DIV_ROUND_UP(length, sizeof(u16));
+		break;
+
+	default:
+		len32 = DIV_ROUND_UP(length, sizeof(u32));
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	atmel_tdes_write(dd, TDES_PTCR, TDES_PTCR_TXTDIS|TDES_PTCR_RXTDIS);
 	atmel_tdes_write(dd, TDES_TPR, dma_addr_in);
@@ -434,6 +584,7 @@ static int atmel_tdes_crypt_pdc(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_tdes_crypt_dma(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 			       dma_addr_t dma_addr_out, int length)
 {
@@ -441,6 +592,16 @@ static int atmel_tdes_crypt_dma(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 	struct atmel_tdes_dev *dd = ctx->dd;
 	struct scatterlist sg[2];
 	struct dma_async_tx_descriptor	*in_desc, *out_desc;
+=======
+static int atmel_tdes_crypt_dma(struct atmel_tdes_dev *dd,
+				dma_addr_t dma_addr_in,
+				dma_addr_t dma_addr_out, int length)
+{
+	struct atmel_tdes_reqctx *rctx = skcipher_request_ctx(dd->req);
+	struct scatterlist sg[2];
+	struct dma_async_tx_descriptor	*in_desc, *out_desc;
+	enum dma_slave_buswidth addr_width;
+>>>>>>> upstream/android-13
 
 	dd->dma_size = length;
 
@@ -449,6 +610,7 @@ static int atmel_tdes_crypt_dma(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 					   DMA_TO_DEVICE);
 	}
 
+<<<<<<< HEAD
 	if (dd->flags & TDES_FLAGS_CFB8) {
 		dd->dma_lch_in.dma_conf.dst_addr_width =
 			DMA_SLAVE_BUSWIDTH_1_BYTE;
@@ -466,6 +628,25 @@ static int atmel_tdes_crypt_dma(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 			DMA_SLAVE_BUSWIDTH_4_BYTES;
 	}
 
+=======
+	switch (rctx->mode & TDES_FLAGS_OPMODE_MASK) {
+	case TDES_FLAGS_CFB8:
+		addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+		break;
+
+	case TDES_FLAGS_CFB16:
+		addr_width = DMA_SLAVE_BUSWIDTH_2_BYTES;
+		break;
+
+	default:
+		addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+		break;
+	}
+
+	dd->dma_lch_in.dma_conf.dst_addr_width = addr_width;
+	dd->dma_lch_out.dma_conf.src_addr_width = addr_width;
+
+>>>>>>> upstream/android-13
 	dmaengine_slave_config(dd->dma_lch_in.chan, &dd->dma_lch_in.dma_conf);
 	dmaengine_slave_config(dd->dma_lch_out.chan, &dd->dma_lch_out.dma_conf);
 
@@ -505,8 +686,11 @@ static int atmel_tdes_crypt_dma(struct crypto_tfm *tfm, dma_addr_t dma_addr_in,
 
 static int atmel_tdes_crypt_start(struct atmel_tdes_dev *dd)
 {
+<<<<<<< HEAD
 	struct crypto_tfm *tfm = crypto_ablkcipher_tfm(
 					crypto_ablkcipher_reqtfm(dd->req));
+=======
+>>>>>>> upstream/android-13
 	int err, fast = 0, in, out;
 	size_t count;
 	dma_addr_t addr_in, addr_out;
@@ -530,14 +714,22 @@ static int atmel_tdes_crypt_start(struct atmel_tdes_dev *dd)
 
 		err = dma_map_sg(dd->dev, dd->in_sg, 1, DMA_TO_DEVICE);
 		if (!err) {
+<<<<<<< HEAD
 			dev_err(dd->dev, "dma_map_sg() error\n");
+=======
+			dev_dbg(dd->dev, "dma_map_sg() error\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
 		err = dma_map_sg(dd->dev, dd->out_sg, 1,
 				DMA_FROM_DEVICE);
 		if (!err) {
+<<<<<<< HEAD
 			dev_err(dd->dev, "dma_map_sg() error\n");
+=======
+			dev_dbg(dd->dev, "dma_map_sg() error\n");
+>>>>>>> upstream/android-13
 			dma_unmap_sg(dd->dev, dd->in_sg, 1,
 				DMA_TO_DEVICE);
 			return -EINVAL;
@@ -562,9 +754,15 @@ static int atmel_tdes_crypt_start(struct atmel_tdes_dev *dd)
 	dd->total -= count;
 
 	if (dd->caps.has_dma)
+<<<<<<< HEAD
 		err = atmel_tdes_crypt_dma(tfm, addr_in, addr_out, count);
 	else
 		err = atmel_tdes_crypt_pdc(tfm, addr_in, addr_out, count);
+=======
+		err = atmel_tdes_crypt_dma(dd, addr_in, addr_out, count);
+	else
+		err = atmel_tdes_crypt_pdc(dd, addr_in, addr_out, count);
+>>>>>>> upstream/android-13
 
 	if (err && (dd->flags & TDES_FLAGS_FAST)) {
 		dma_unmap_sg(dd->dev, dd->in_sg, 1, DMA_TO_DEVICE);
@@ -574,19 +772,60 @@ static int atmel_tdes_crypt_start(struct atmel_tdes_dev *dd)
 	return err;
 }
 
+<<<<<<< HEAD
 static void atmel_tdes_finish_req(struct atmel_tdes_dev *dd, int err)
 {
 	struct ablkcipher_request *req = dd->req;
+=======
+static void
+atmel_tdes_set_iv_as_last_ciphertext_block(struct atmel_tdes_dev *dd)
+{
+	struct skcipher_request *req = dd->req;
+	struct atmel_tdes_reqctx *rctx = skcipher_request_ctx(req);
+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+	unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
+
+	if (req->cryptlen < ivsize)
+		return;
+
+	if (rctx->mode & TDES_FLAGS_ENCRYPT) {
+		scatterwalk_map_and_copy(req->iv, req->dst,
+					 req->cryptlen - ivsize, ivsize, 0);
+	} else {
+		if (req->src == req->dst)
+			memcpy(req->iv, rctx->lastc, ivsize);
+		else
+			scatterwalk_map_and_copy(req->iv, req->src,
+						 req->cryptlen - ivsize,
+						 ivsize, 0);
+	}
+}
+
+static void atmel_tdes_finish_req(struct atmel_tdes_dev *dd, int err)
+{
+	struct skcipher_request *req = dd->req;
+	struct atmel_tdes_reqctx *rctx = skcipher_request_ctx(req);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(dd->iclk);
 
 	dd->flags &= ~TDES_FLAGS_BUSY;
 
+<<<<<<< HEAD
+=======
+	if (!err && (rctx->mode & TDES_FLAGS_OPMODE_MASK) != TDES_FLAGS_ECB)
+		atmel_tdes_set_iv_as_last_ciphertext_block(dd);
+
+>>>>>>> upstream/android-13
 	req->base.complete(&req->base, err);
 }
 
 static int atmel_tdes_handle_queue(struct atmel_tdes_dev *dd,
+<<<<<<< HEAD
 			       struct ablkcipher_request *req)
+=======
+			       struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	struct crypto_async_request *async_req, *backlog;
 	struct atmel_tdes_ctx *ctx;
@@ -596,7 +835,11 @@ static int atmel_tdes_handle_queue(struct atmel_tdes_dev *dd,
 
 	spin_lock_irqsave(&dd->lock, flags);
 	if (req)
+<<<<<<< HEAD
 		ret = ablkcipher_enqueue_request(&dd->queue, req);
+=======
+		ret = crypto_enqueue_request(&dd->queue, &req->base);
+>>>>>>> upstream/android-13
 	if (dd->flags & TDES_FLAGS_BUSY) {
 		spin_unlock_irqrestore(&dd->lock, flags);
 		return ret;
@@ -613,22 +856,38 @@ static int atmel_tdes_handle_queue(struct atmel_tdes_dev *dd,
 	if (backlog)
 		backlog->complete(backlog, -EINPROGRESS);
 
+<<<<<<< HEAD
 	req = ablkcipher_request_cast(async_req);
 
 	/* assign new request to device */
 	dd->req = req;
 	dd->total = req->nbytes;
+=======
+	req = skcipher_request_cast(async_req);
+
+	/* assign new request to device */
+	dd->req = req;
+	dd->total = req->cryptlen;
+>>>>>>> upstream/android-13
 	dd->in_offset = 0;
 	dd->in_sg = req->src;
 	dd->out_offset = 0;
 	dd->out_sg = req->dst;
 
+<<<<<<< HEAD
 	rctx = ablkcipher_request_ctx(req);
 	ctx = crypto_ablkcipher_ctx(crypto_ablkcipher_reqtfm(req));
 	rctx->mode &= TDES_FLAGS_MODE_MASK;
 	dd->flags = (dd->flags & ~TDES_FLAGS_MODE_MASK) | rctx->mode;
 	dd->ctx = ctx;
 	ctx->dd = dd;
+=======
+	rctx = skcipher_request_ctx(req);
+	ctx = crypto_skcipher_ctx(crypto_skcipher_reqtfm(req));
+	rctx->mode &= TDES_FLAGS_MODE_MASK;
+	dd->flags = (dd->flags & ~TDES_FLAGS_MODE_MASK) | rctx->mode;
+	dd->ctx = ctx;
+>>>>>>> upstream/android-13
 
 	err = atmel_tdes_write_ctrl(dd);
 	if (!err)
@@ -661,13 +920,18 @@ static int atmel_tdes_crypt_dma_stop(struct atmel_tdes_dev *dd)
 				dd->buf_out, dd->buflen, dd->dma_size, 1);
 			if (count != dd->dma_size) {
 				err = -EINVAL;
+<<<<<<< HEAD
 				pr_err("not all data converted: %zu\n", count);
+=======
+				dev_dbg(dd->dev, "not all data converted: %zu\n", count);
+>>>>>>> upstream/android-13
 			}
 		}
 	}
 	return err;
 }
 
+<<<<<<< HEAD
 static int atmel_tdes_crypt(struct ablkcipher_request *req, unsigned long mode)
 {
 	struct atmel_tdes_ctx *ctx = crypto_ablkcipher_ctx(
@@ -698,10 +962,55 @@ static int atmel_tdes_crypt(struct ablkcipher_request *req, unsigned long mode)
 			return -EINVAL;
 		}
 		ctx->block_size = DES_BLOCK_SIZE;
+=======
+static int atmel_tdes_crypt(struct skcipher_request *req, unsigned long mode)
+{
+	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+	struct atmel_tdes_ctx *ctx = crypto_skcipher_ctx(skcipher);
+	struct atmel_tdes_reqctx *rctx = skcipher_request_ctx(req);
+	struct device *dev = ctx->dd->dev;
+
+	if (!req->cryptlen)
+		return 0;
+
+	switch (mode & TDES_FLAGS_OPMODE_MASK) {
+	case TDES_FLAGS_CFB8:
+		if (!IS_ALIGNED(req->cryptlen, CFB8_BLOCK_SIZE)) {
+			dev_dbg(dev, "request size is not exact amount of CFB8 blocks\n");
+			return -EINVAL;
+		}
+		ctx->block_size = CFB8_BLOCK_SIZE;
+		break;
+
+	case TDES_FLAGS_CFB16:
+		if (!IS_ALIGNED(req->cryptlen, CFB16_BLOCK_SIZE)) {
+			dev_dbg(dev, "request size is not exact amount of CFB16 blocks\n");
+			return -EINVAL;
+		}
+		ctx->block_size = CFB16_BLOCK_SIZE;
+		break;
+
+	case TDES_FLAGS_CFB32:
+		if (!IS_ALIGNED(req->cryptlen, CFB32_BLOCK_SIZE)) {
+			dev_dbg(dev, "request size is not exact amount of CFB32 blocks\n");
+			return -EINVAL;
+		}
+		ctx->block_size = CFB32_BLOCK_SIZE;
+		break;
+
+	default:
+		if (!IS_ALIGNED(req->cryptlen, DES_BLOCK_SIZE)) {
+			dev_dbg(dev, "request size is not exact amount of DES blocks\n");
+			return -EINVAL;
+		}
+		ctx->block_size = DES_BLOCK_SIZE;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	rctx->mode = mode;
 
+<<<<<<< HEAD
 	return atmel_tdes_handle_queue(ctx->dd, req);
 }
 
@@ -732,6 +1041,32 @@ static int atmel_tdes_dma_init(struct atmel_tdes_dev *dd,
 		goto err_dma_in;
 
 	dd->dma_lch_in.dma_conf.direction = DMA_MEM_TO_DEV;
+=======
+	if ((mode & TDES_FLAGS_OPMODE_MASK) != TDES_FLAGS_ECB &&
+	    !(mode & TDES_FLAGS_ENCRYPT) && req->src == req->dst) {
+		unsigned int ivsize = crypto_skcipher_ivsize(skcipher);
+
+		if (req->cryptlen >= ivsize)
+			scatterwalk_map_and_copy(rctx->lastc, req->src,
+						 req->cryptlen - ivsize,
+						 ivsize, 0);
+	}
+
+	return atmel_tdes_handle_queue(ctx->dd, req);
+}
+
+static int atmel_tdes_dma_init(struct atmel_tdes_dev *dd)
+{
+	int ret;
+
+	/* Try to grab 2 DMA channels */
+	dd->dma_lch_in.chan = dma_request_chan(dd->dev, "tx");
+	if (IS_ERR(dd->dma_lch_in.chan)) {
+		ret = PTR_ERR(dd->dma_lch_in.chan);
+		goto err_dma_in;
+	}
+
+>>>>>>> upstream/android-13
 	dd->dma_lch_in.dma_conf.dst_addr = dd->phys_base +
 		TDES_IDATA1R;
 	dd->dma_lch_in.dma_conf.src_maxburst = 1;
@@ -742,12 +1077,21 @@ static int atmel_tdes_dma_init(struct atmel_tdes_dev *dd,
 		DMA_SLAVE_BUSWIDTH_4_BYTES;
 	dd->dma_lch_in.dma_conf.device_fc = false;
 
+<<<<<<< HEAD
 	dd->dma_lch_out.chan = dma_request_slave_channel_compat(mask,
 			atmel_tdes_filter, &pdata->dma_slave->txdata, dd->dev, "rx");
 	if (!dd->dma_lch_out.chan)
 		goto err_dma_out;
 
 	dd->dma_lch_out.dma_conf.direction = DMA_DEV_TO_MEM;
+=======
+	dd->dma_lch_out.chan = dma_request_chan(dd->dev, "rx");
+	if (IS_ERR(dd->dma_lch_out.chan)) {
+		ret = PTR_ERR(dd->dma_lch_out.chan);
+		goto err_dma_out;
+	}
+
+>>>>>>> upstream/android-13
 	dd->dma_lch_out.dma_conf.src_addr = dd->phys_base +
 		TDES_ODATA1R;
 	dd->dma_lch_out.dma_conf.src_maxburst = 1;
@@ -763,8 +1107,13 @@ static int atmel_tdes_dma_init(struct atmel_tdes_dev *dd,
 err_dma_out:
 	dma_release_channel(dd->dma_lch_in.chan);
 err_dma_in:
+<<<<<<< HEAD
 	dev_warn(dd->dev, "no DMA channel available\n");
 	return -ENODEV;
+=======
+	dev_err(dd->dev, "no DMA channel available\n");
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void atmel_tdes_dma_cleanup(struct atmel_tdes_dev *dd)
@@ -773,6 +1122,7 @@ static void atmel_tdes_dma_cleanup(struct atmel_tdes_dev *dd)
 	dma_release_channel(dd->dma_lch_out.chan);
 }
 
+<<<<<<< HEAD
 static int atmel_des_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 			   unsigned int keylen)
 {
@@ -792,6 +1142,17 @@ static int atmel_des_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 		ctfm->crt_flags |= CRYPTO_TFM_RES_WEAK_KEY;
 		return -EINVAL;
 	}
+=======
+static int atmel_des_setkey(struct crypto_skcipher *tfm, const u8 *key,
+			   unsigned int keylen)
+{
+	struct atmel_tdes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	int err;
+
+	err = verify_skcipher_des_key(tfm, key);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	memcpy(ctx->key, key, keylen);
 	ctx->keylen = keylen;
@@ -799,6 +1160,7 @@ static int atmel_des_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_tdes_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 			   unsigned int keylen)
 {
@@ -818,6 +1180,17 @@ static int atmel_tdes_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 		crypto_ablkcipher_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 		return -EINVAL;
 	}
+=======
+static int atmel_tdes_setkey(struct crypto_skcipher *tfm, const u8 *key,
+			   unsigned int keylen)
+{
+	struct atmel_tdes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	int err;
+
+	err = verify_skcipher_des3_key(tfm, key);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	memcpy(ctx->key, key, keylen);
 	ctx->keylen = keylen;
@@ -825,6 +1198,7 @@ static int atmel_tdes_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_tdes_ecb_encrypt(struct ablkcipher_request *req)
 {
 	return atmel_tdes_crypt(req, TDES_FLAGS_ENCRYPT);
@@ -893,10 +1267,78 @@ static int atmel_tdes_ofb_encrypt(struct ablkcipher_request *req)
 }
 
 static int atmel_tdes_ofb_decrypt(struct ablkcipher_request *req)
+=======
+static int atmel_tdes_ecb_encrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_ECB | TDES_FLAGS_ENCRYPT);
+}
+
+static int atmel_tdes_ecb_decrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_ECB);
+}
+
+static int atmel_tdes_cbc_encrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CBC | TDES_FLAGS_ENCRYPT);
+}
+
+static int atmel_tdes_cbc_decrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CBC);
+}
+static int atmel_tdes_cfb_encrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB64 | TDES_FLAGS_ENCRYPT);
+}
+
+static int atmel_tdes_cfb_decrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB64);
+}
+
+static int atmel_tdes_cfb8_encrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB8 | TDES_FLAGS_ENCRYPT);
+}
+
+static int atmel_tdes_cfb8_decrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB8);
+}
+
+static int atmel_tdes_cfb16_encrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB16 | TDES_FLAGS_ENCRYPT);
+}
+
+static int atmel_tdes_cfb16_decrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB16);
+}
+
+static int atmel_tdes_cfb32_encrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB32 | TDES_FLAGS_ENCRYPT);
+}
+
+static int atmel_tdes_cfb32_decrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_CFB32);
+}
+
+static int atmel_tdes_ofb_encrypt(struct skcipher_request *req)
+{
+	return atmel_tdes_crypt(req, TDES_FLAGS_OFB | TDES_FLAGS_ENCRYPT);
+}
+
+static int atmel_tdes_ofb_decrypt(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return atmel_tdes_crypt(req, TDES_FLAGS_OFB);
 }
 
+<<<<<<< HEAD
 static int atmel_tdes_cra_init(struct crypto_tfm *tfm)
 {
 	struct atmel_tdes_ctx *ctx = crypto_tfm_ctx(tfm);
@@ -1189,6 +1631,159 @@ static struct crypto_alg tdes_algs[] = {
 		.encrypt	= atmel_tdes_ofb_encrypt,
 		.decrypt	= atmel_tdes_ofb_decrypt,
 	}
+=======
+static int atmel_tdes_init_tfm(struct crypto_skcipher *tfm)
+{
+	struct atmel_tdes_ctx *ctx = crypto_skcipher_ctx(tfm);
+
+	ctx->dd = atmel_tdes_dev_alloc();
+	if (!ctx->dd)
+		return -ENODEV;
+
+	crypto_skcipher_set_reqsize(tfm, sizeof(struct atmel_tdes_reqctx));
+
+	return 0;
+}
+
+static void atmel_tdes_skcipher_alg_init(struct skcipher_alg *alg)
+{
+	alg->base.cra_priority = ATMEL_TDES_PRIORITY;
+	alg->base.cra_flags = CRYPTO_ALG_ASYNC;
+	alg->base.cra_ctxsize = sizeof(struct atmel_tdes_ctx);
+	alg->base.cra_module = THIS_MODULE;
+
+	alg->init = atmel_tdes_init_tfm;
+}
+
+static struct skcipher_alg tdes_algs[] = {
+{
+	.base.cra_name		= "ecb(des)",
+	.base.cra_driver_name	= "atmel-ecb-des",
+	.base.cra_blocksize	= DES_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x7,
+
+	.min_keysize		= DES_KEY_SIZE,
+	.max_keysize		= DES_KEY_SIZE,
+	.setkey			= atmel_des_setkey,
+	.encrypt		= atmel_tdes_ecb_encrypt,
+	.decrypt		= atmel_tdes_ecb_decrypt,
+},
+{
+	.base.cra_name		= "cbc(des)",
+	.base.cra_driver_name	= "atmel-cbc-des",
+	.base.cra_blocksize	= DES_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x7,
+
+	.min_keysize		= DES_KEY_SIZE,
+	.max_keysize		= DES_KEY_SIZE,
+	.ivsize			= DES_BLOCK_SIZE,
+	.setkey			= atmel_des_setkey,
+	.encrypt		= atmel_tdes_cbc_encrypt,
+	.decrypt		= atmel_tdes_cbc_decrypt,
+},
+{
+	.base.cra_name		= "cfb(des)",
+	.base.cra_driver_name	= "atmel-cfb-des",
+	.base.cra_blocksize	= DES_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x7,
+
+	.min_keysize		= DES_KEY_SIZE,
+	.max_keysize		= DES_KEY_SIZE,
+	.ivsize			= DES_BLOCK_SIZE,
+	.setkey			= atmel_des_setkey,
+	.encrypt		= atmel_tdes_cfb_encrypt,
+	.decrypt		= atmel_tdes_cfb_decrypt,
+},
+{
+	.base.cra_name		= "cfb8(des)",
+	.base.cra_driver_name	= "atmel-cfb8-des",
+	.base.cra_blocksize	= CFB8_BLOCK_SIZE,
+	.base.cra_alignmask	= 0,
+
+	.min_keysize		= DES_KEY_SIZE,
+	.max_keysize		= DES_KEY_SIZE,
+	.ivsize			= DES_BLOCK_SIZE,
+	.setkey			= atmel_des_setkey,
+	.encrypt		= atmel_tdes_cfb8_encrypt,
+	.decrypt		= atmel_tdes_cfb8_decrypt,
+},
+{
+	.base.cra_name		= "cfb16(des)",
+	.base.cra_driver_name	= "atmel-cfb16-des",
+	.base.cra_blocksize	= CFB16_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x1,
+
+	.min_keysize		= DES_KEY_SIZE,
+	.max_keysize		= DES_KEY_SIZE,
+	.ivsize			= DES_BLOCK_SIZE,
+	.setkey			= atmel_des_setkey,
+	.encrypt		= atmel_tdes_cfb16_encrypt,
+	.decrypt		= atmel_tdes_cfb16_decrypt,
+},
+{
+	.base.cra_name		= "cfb32(des)",
+	.base.cra_driver_name	= "atmel-cfb32-des",
+	.base.cra_blocksize	= CFB32_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x3,
+
+	.min_keysize		= DES_KEY_SIZE,
+	.max_keysize		= DES_KEY_SIZE,
+	.ivsize			= DES_BLOCK_SIZE,
+	.setkey			= atmel_des_setkey,
+	.encrypt		= atmel_tdes_cfb32_encrypt,
+	.decrypt		= atmel_tdes_cfb32_decrypt,
+},
+{
+	.base.cra_name		= "ofb(des)",
+	.base.cra_driver_name	= "atmel-ofb-des",
+	.base.cra_blocksize	= 1,
+	.base.cra_alignmask	= 0x7,
+
+	.min_keysize		= DES_KEY_SIZE,
+	.max_keysize		= DES_KEY_SIZE,
+	.ivsize			= DES_BLOCK_SIZE,
+	.setkey			= atmel_des_setkey,
+	.encrypt		= atmel_tdes_ofb_encrypt,
+	.decrypt		= atmel_tdes_ofb_decrypt,
+},
+{
+	.base.cra_name		= "ecb(des3_ede)",
+	.base.cra_driver_name	= "atmel-ecb-tdes",
+	.base.cra_blocksize	= DES_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x7,
+
+	.min_keysize		= DES3_EDE_KEY_SIZE,
+	.max_keysize		= DES3_EDE_KEY_SIZE,
+	.setkey			= atmel_tdes_setkey,
+	.encrypt		= atmel_tdes_ecb_encrypt,
+	.decrypt		= atmel_tdes_ecb_decrypt,
+},
+{
+	.base.cra_name		= "cbc(des3_ede)",
+	.base.cra_driver_name	= "atmel-cbc-tdes",
+	.base.cra_blocksize	= DES_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x7,
+
+	.min_keysize		= DES3_EDE_KEY_SIZE,
+	.max_keysize		= DES3_EDE_KEY_SIZE,
+	.setkey			= atmel_tdes_setkey,
+	.encrypt		= atmel_tdes_cbc_encrypt,
+	.decrypt		= atmel_tdes_cbc_decrypt,
+	.ivsize			= DES_BLOCK_SIZE,
+},
+{
+	.base.cra_name		= "ofb(des3_ede)",
+	.base.cra_driver_name	= "atmel-ofb-tdes",
+	.base.cra_blocksize	= DES_BLOCK_SIZE,
+	.base.cra_alignmask	= 0x7,
+
+	.min_keysize		= DES3_EDE_KEY_SIZE,
+	.max_keysize		= DES3_EDE_KEY_SIZE,
+	.setkey			= atmel_tdes_setkey,
+	.encrypt		= atmel_tdes_ofb_encrypt,
+	.decrypt		= atmel_tdes_ofb_decrypt,
+	.ivsize			= DES_BLOCK_SIZE,
+>>>>>>> upstream/android-13
 },
 };
 
@@ -1209,8 +1804,11 @@ static void atmel_tdes_done_task(unsigned long data)
 	else
 		err = atmel_tdes_crypt_dma_stop(dd);
 
+<<<<<<< HEAD
 	err = dd->err ? : err;
 
+=======
+>>>>>>> upstream/android-13
 	if (dd->total && !err) {
 		if (dd->flags & TDES_FLAGS_FAST) {
 			dd->in_sg = sg_next(dd->in_sg);
@@ -1251,7 +1849,11 @@ static void atmel_tdes_unregister_algs(struct atmel_tdes_dev *dd)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(tdes_algs); i++)
+<<<<<<< HEAD
 		crypto_unregister_alg(&tdes_algs[i]);
+=======
+		crypto_unregister_skcipher(&tdes_algs[i]);
+>>>>>>> upstream/android-13
 }
 
 static int atmel_tdes_register_algs(struct atmel_tdes_dev *dd)
@@ -1259,7 +1861,13 @@ static int atmel_tdes_register_algs(struct atmel_tdes_dev *dd)
 	int err, i, j;
 
 	for (i = 0; i < ARRAY_SIZE(tdes_algs); i++) {
+<<<<<<< HEAD
 		err = crypto_register_alg(&tdes_algs[i]);
+=======
+		atmel_tdes_skcipher_alg_init(&tdes_algs[i]);
+
+		err = crypto_register_skcipher(&tdes_algs[i]);
+>>>>>>> upstream/android-13
 		if (err)
 			goto err_tdes_algs;
 	}
@@ -1268,7 +1876,11 @@ static int atmel_tdes_register_algs(struct atmel_tdes_dev *dd)
 
 err_tdes_algs:
 	for (j = 0; j < i; j++)
+<<<<<<< HEAD
 		crypto_unregister_alg(&tdes_algs[j]);
+=======
+		crypto_unregister_skcipher(&tdes_algs[j]);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -1300,6 +1912,7 @@ static const struct of_device_id atmel_tdes_dt_ids[] = {
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, atmel_tdes_dt_ids);
+<<<<<<< HEAD
 
 static struct crypto_platform_data *atmel_tdes_of_init(struct platform_device *pdev)
 {
@@ -1328,21 +1941,31 @@ static inline struct crypto_platform_data *atmel_tdes_of_init(struct platform_de
 {
 	return ERR_PTR(-EINVAL);
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 static int atmel_tdes_probe(struct platform_device *pdev)
 {
 	struct atmel_tdes_dev *tdes_dd;
+<<<<<<< HEAD
 	struct crypto_platform_data	*pdata;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = &pdev->dev;
 	struct resource *tdes_res;
 	int err;
 
 	tdes_dd = devm_kmalloc(&pdev->dev, sizeof(*tdes_dd), GFP_KERNEL);
+<<<<<<< HEAD
 	if (tdes_dd == NULL) {
 		err = -ENOMEM;
 		goto tdes_dd_err;
 	}
+=======
+	if (!tdes_dd)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	tdes_dd->dev = dev;
 
@@ -1363,23 +1986,36 @@ static int atmel_tdes_probe(struct platform_device *pdev)
 	if (!tdes_res) {
 		dev_err(dev, "no MEM resource info\n");
 		err = -ENODEV;
+<<<<<<< HEAD
 		goto res_err;
+=======
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 	tdes_dd->phys_base = tdes_res->start;
 
 	/* Get the IRQ */
 	tdes_dd->irq = platform_get_irq(pdev,  0);
 	if (tdes_dd->irq < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "no IRQ resource info\n");
 		err = tdes_dd->irq;
 		goto res_err;
+=======
+		err = tdes_dd->irq;
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 
 	err = devm_request_irq(&pdev->dev, tdes_dd->irq, atmel_tdes_irq,
 			       IRQF_SHARED, "atmel-tdes", tdes_dd);
 	if (err) {
 		dev_err(dev, "unable to request tdes irq.\n");
+<<<<<<< HEAD
 		goto res_err;
+=======
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 
 	/* Initializing the clock */
@@ -1387,22 +2023,37 @@ static int atmel_tdes_probe(struct platform_device *pdev)
 	if (IS_ERR(tdes_dd->iclk)) {
 		dev_err(dev, "clock initialization failed.\n");
 		err = PTR_ERR(tdes_dd->iclk);
+<<<<<<< HEAD
 		goto res_err;
+=======
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 	}
 
 	tdes_dd->io_base = devm_ioremap_resource(&pdev->dev, tdes_res);
 	if (IS_ERR(tdes_dd->io_base)) {
+<<<<<<< HEAD
 		dev_err(dev, "can't ioremap\n");
 		err = PTR_ERR(tdes_dd->io_base);
 		goto res_err;
 	}
 
 	atmel_tdes_hw_version_init(tdes_dd);
+=======
+		err = PTR_ERR(tdes_dd->io_base);
+		goto err_tasklet_kill;
+	}
+
+	err = atmel_tdes_hw_version_init(tdes_dd);
+	if (err)
+		goto err_tasklet_kill;
+>>>>>>> upstream/android-13
 
 	atmel_tdes_get_cap(tdes_dd);
 
 	err = atmel_tdes_buff_init(tdes_dd);
 	if (err)
+<<<<<<< HEAD
 		goto err_tdes_buff;
 
 	if (tdes_dd->caps.has_dma) {
@@ -1422,6 +2073,14 @@ static int atmel_tdes_probe(struct platform_device *pdev)
 		err = atmel_tdes_dma_init(tdes_dd, pdata);
 		if (err)
 			goto err_tdes_dma;
+=======
+		goto err_tasklet_kill;
+
+	if (tdes_dd->caps.has_dma) {
+		err = atmel_tdes_dma_init(tdes_dd);
+		if (err)
+			goto err_buff_cleanup;
+>>>>>>> upstream/android-13
 
 		dev_info(dev, "using %s, %s for DMA transfers\n",
 				dma_chan_name(tdes_dd->dma_lch_in.chan),
@@ -1446,6 +2105,7 @@ err_algs:
 	spin_unlock(&atmel_tdes.lock);
 	if (tdes_dd->caps.has_dma)
 		atmel_tdes_dma_cleanup(tdes_dd);
+<<<<<<< HEAD
 err_tdes_dma:
 err_pdata:
 	atmel_tdes_buff_cleanup(tdes_dd);
@@ -1455,6 +2115,13 @@ res_err:
 	tasklet_kill(&tdes_dd->queue_task);
 tdes_dd_err:
 	dev_err(dev, "initialization failed.\n");
+=======
+err_buff_cleanup:
+	atmel_tdes_buff_cleanup(tdes_dd);
+err_tasklet_kill:
+	tasklet_kill(&tdes_dd->done_task);
+	tasklet_kill(&tdes_dd->queue_task);
+>>>>>>> upstream/android-13
 
 	return err;
 }

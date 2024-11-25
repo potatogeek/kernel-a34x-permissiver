@@ -193,7 +193,11 @@ static struct clk_hw *gemini_pci_clk_setup(const char *name,
 					   struct regmap *map)
 {
 	struct clk_gemini_pci *pciclk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	pciclk = kzalloc(sizeof(*pciclk), GFP_KERNEL);

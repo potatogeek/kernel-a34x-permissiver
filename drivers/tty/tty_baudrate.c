@@ -8,6 +8,10 @@
 #include <linux/termios.h>
 #include <linux/tty.h>
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 
 /*
@@ -17,16 +21,25 @@
  * include/asm/termbits.h file.
  */
 static const speed_t baud_table[] = {
+<<<<<<< HEAD
 	0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800,
 	9600, 19200, 38400, 57600, 115200, 230400, 460800,
 #ifdef __sparc__
 	76800, 153600, 307200, 614400, 921600
+=======
+	0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400,
+	4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800,
+#ifdef __sparc__
+	76800, 153600, 307200, 614400, 921600, 500000, 576000,
+	1000000, 1152000, 1500000, 2000000
+>>>>>>> upstream/android-13
 #else
 	500000, 576000, 921600, 1000000, 1152000, 1500000, 2000000,
 	2500000, 3000000, 3500000, 4000000
 #endif
 };
 
+<<<<<<< HEAD
 #ifndef __sparc__
 static const tcflag_t baud_bits[] = {
 	B0, B50, B75, B110, B134, B150, B200, B300, B600,
@@ -43,6 +56,19 @@ static const tcflag_t baud_bits[] = {
 	B307200, B614400, B921600
 };
 #endif
+=======
+static const tcflag_t baud_bits[] = {
+	B0, B50, B75, B110, B134, B150, B200, B300, B600, B1200, B1800, B2400,
+	B4800, B9600, B19200, B38400, B57600, B115200, B230400, B460800,
+#ifdef __sparc__
+	B76800, B153600, B307200, B614400, B921600, B500000, B576000,
+	B1000000, B1152000, B1500000, B2000000
+#else
+	B500000, B576000, B921600, B1000000, B1152000, B1500000, B2000000,
+	B2500000, B3000000, B3500000, B4000000
+#endif
+};
+>>>>>>> upstream/android-13
 
 static int n_baud_table = ARRAY_SIZE(baud_table);
 
@@ -123,8 +149,13 @@ EXPORT_SYMBOL(tty_termios_input_baud_rate);
 /**
  *	tty_termios_encode_baud_rate
  *	@termios: ktermios structure holding user requested state
+<<<<<<< HEAD
  *	@ispeed: input speed
  *	@ospeed: output speed
+=======
+ *	@ibaud: input speed
+ *	@obaud: output speed
+>>>>>>> upstream/android-13
  *
  *	Encode the speeds set into the passed termios structure. This is
  *	used as a library helper for drivers so that they can report back
@@ -150,7 +181,11 @@ void tty_termios_encode_baud_rate(struct ktermios *termios,
 	int iclose = ibaud/50, oclose = obaud/50;
 	int ibinput = 0;
 
+<<<<<<< HEAD
 	if (obaud == 0)			/* CD dropped 		  */
+=======
+	if (obaud == 0)			/* CD dropped */
+>>>>>>> upstream/android-13
 		ibaud = 0;		/* Clear ibaud to be sure */
 
 	termios->c_ispeed = ibaud;
@@ -162,8 +197,14 @@ void tty_termios_encode_baud_rate(struct ktermios *termios,
 #endif
 #ifdef BOTHER
 	/* If the user asked for a precise weird speed give a precise weird
+<<<<<<< HEAD
 	   answer. If they asked for a Bfoo speed they may have problems
 	   digesting non-exact replies so fuzz a bit */
+=======
+	 * answer. If they asked for a Bfoo speed they may have problems
+	 * digesting non-exact replies so fuzz a bit.
+	 */
+>>>>>>> upstream/android-13
 
 	if ((termios->c_cflag & CBAUD) == BOTHER) {
 		oclose = 0;
@@ -194,7 +235,12 @@ void tty_termios_encode_baud_rate(struct ktermios *termios,
 		if (ibaud - iclose <= baud_table[i] &&
 		    ibaud + iclose >= baud_table[i]) {
 			/* For the case input == output don't set IBAUD bits
+<<<<<<< HEAD
 			   if the user didn't do so */
+=======
+			 * if the user didn't do so.
+			 */
+>>>>>>> upstream/android-13
 			if (ofound == i && !ibinput)
 				ifound  = i;
 #ifdef IBSHIFT
@@ -214,7 +260,12 @@ void tty_termios_encode_baud_rate(struct ktermios *termios,
 	if (ofound == -1)
 		termios->c_cflag |= BOTHER;
 	/* Set exact input bits only if the input and output differ or the
+<<<<<<< HEAD
 	   user already did */
+=======
+	 * user already did.
+	 */
+>>>>>>> upstream/android-13
 	if (ifound == -1 && (ibaud != obaud || ibinput))
 		termios->c_cflag |= (BOTHER << IBSHIFT);
 #else
@@ -226,8 +277,14 @@ EXPORT_SYMBOL_GPL(tty_termios_encode_baud_rate);
 
 /**
  *	tty_encode_baud_rate		-	set baud rate of the tty
+<<<<<<< HEAD
  *	@ibaud: input baud rate
  *	@obad: output baud rate
+=======
+ *	@tty:   terminal device
+ *	@ibaud: input baud rate
+ *	@obaud: output baud rate
+>>>>>>> upstream/android-13
  *
  *	Update the current termios data for the tty with the new speed
  *	settings. The caller must hold the termios_rwsem for the tty in

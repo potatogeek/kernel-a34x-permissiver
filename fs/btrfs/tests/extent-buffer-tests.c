@@ -30,27 +30,43 @@ static int test_btrfs_split_item(u32 sectorsize, u32 nodesize)
 
 	fs_info = btrfs_alloc_dummy_fs_info(nodesize, sectorsize);
 	if (!fs_info) {
+<<<<<<< HEAD
 		test_err("could not allocate fs_info");
+=======
+		test_std_err(TEST_ALLOC_FS_INFO);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	root = btrfs_alloc_dummy_root(fs_info);
 	if (IS_ERR(root)) {
+<<<<<<< HEAD
 		test_err("could not allocate root");
+=======
+		test_std_err(TEST_ALLOC_ROOT);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(root);
 		goto out;
 	}
 
 	path = btrfs_alloc_path();
 	if (!path) {
+<<<<<<< HEAD
 		test_err("could not allocate path");
+=======
+		test_std_err(TEST_ALLOC_PATH);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
 
 	path->nodes[0] = eb = alloc_dummy_extent_buffer(fs_info, nodesize);
 	if (!eb) {
+<<<<<<< HEAD
 		test_err("could not allocate dummy buffer");
+=======
+		test_std_err(TEST_ALLOC_EXTENT_BUFFER);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
@@ -60,8 +76,12 @@ static int test_btrfs_split_item(u32 sectorsize, u32 nodesize)
 	key.type = BTRFS_EXTENT_CSUM_KEY;
 	key.offset = 0;
 
+<<<<<<< HEAD
 	setup_items_for_insert(root, path, &key, &value_len, value_len,
 			       value_len + sizeof(struct btrfs_item), 1);
+=======
+	setup_items_for_insert(root, path, &key, &value_len, 1);
+>>>>>>> upstream/android-13
 	item = btrfs_item_nr(0);
 	write_extent_buffer(eb, value, btrfs_item_ptr_offset(eb, 0),
 			    value_len);

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Industrialio buffer test code.
  *
  * Copyright (c) 2008 Jonathan Cameron
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This program is primarily intended as an example application.
  * Reads the current buffer setup from sysfs and starts a short capture
  * from the specified device, pretty printing the result after appropriate
@@ -15,7 +22,10 @@
  * generic_buffer -n <device_name> -t <trigger_name>
  * If trigger name is not specified the program assumes you want a dataready
  * trigger associated with the device and goes looking for it.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <unistd.h>
@@ -34,6 +44,11 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <signal.h>
+<<<<<<< HEAD
+=======
+#include <sys/ioctl.h>
+#include <linux/iio/buffer.h>
+>>>>>>> upstream/android-13
 #include "iio_utils.h"
 
 /**
@@ -53,7 +68,11 @@ enum autochan {
  * Has the side effect of filling the channels[i].location values used
  * in processing the buffer output.
  **/
+<<<<<<< HEAD
 int size_from_channelarray(struct iio_channel_info *channels, int num_channels)
+=======
+static int size_from_channelarray(struct iio_channel_info *channels, int num_channels)
+>>>>>>> upstream/android-13
 {
 	int bytes = 0;
 	int i = 0;
@@ -72,7 +91,11 @@ int size_from_channelarray(struct iio_channel_info *channels, int num_channels)
 	return bytes;
 }
 
+<<<<<<< HEAD
 void print1byte(uint8_t input, struct iio_channel_info *info)
+=======
+static void print1byte(uint8_t input, struct iio_channel_info *info)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Shift before conversion to avoid sign extension
@@ -89,7 +112,11 @@ void print1byte(uint8_t input, struct iio_channel_info *info)
 	}
 }
 
+<<<<<<< HEAD
 void print2byte(uint16_t input, struct iio_channel_info *info)
+=======
+static void print2byte(uint16_t input, struct iio_channel_info *info)
+>>>>>>> upstream/android-13
 {
 	/* First swap if incorrect endian */
 	if (info->be)
@@ -112,7 +139,11 @@ void print2byte(uint16_t input, struct iio_channel_info *info)
 	}
 }
 
+<<<<<<< HEAD
 void print4byte(uint32_t input, struct iio_channel_info *info)
+=======
+static void print4byte(uint32_t input, struct iio_channel_info *info)
+>>>>>>> upstream/android-13
 {
 	/* First swap if incorrect endian */
 	if (info->be)
@@ -135,7 +166,11 @@ void print4byte(uint32_t input, struct iio_channel_info *info)
 	}
 }
 
+<<<<<<< HEAD
 void print8byte(uint64_t input, struct iio_channel_info *info)
+=======
+static void print8byte(uint64_t input, struct iio_channel_info *info)
+>>>>>>> upstream/android-13
 {
 	/* First swap if incorrect endian */
 	if (info->be)
@@ -171,9 +206,14 @@ void print8byte(uint64_t input, struct iio_channel_info *info)
  *			      to fill the location offsets.
  * @num_channels:	number of channels
  **/
+<<<<<<< HEAD
 void process_scan(char *data,
 		  struct iio_channel_info *channels,
 		  int num_channels)
+=======
+static void process_scan(char *data, struct iio_channel_info *channels,
+			 int num_channels)
+>>>>>>> upstream/android-13
 {
 	int k;
 
@@ -202,7 +242,11 @@ void process_scan(char *data,
 	printf("\n");
 }
 
+<<<<<<< HEAD
 static int enable_disable_all_channels(char *dev_dir_name, int enable)
+=======
+static int enable_disable_all_channels(char *dev_dir_name, int buffer_idx, int enable)
+>>>>>>> upstream/android-13
 {
 	const struct dirent *ent;
 	char scanelemdir[256];
@@ -210,7 +254,11 @@ static int enable_disable_all_channels(char *dev_dir_name, int enable)
 	int ret;
 
 	snprintf(scanelemdir, sizeof(scanelemdir),
+<<<<<<< HEAD
 		 FORMAT_SCAN_ELEMENTS_DIR, dev_dir_name);
+=======
+		 FORMAT_SCAN_ELEMENTS_DIR, dev_dir_name, buffer_idx);
+>>>>>>> upstream/android-13
 	scanelemdir[sizeof(scanelemdir)-1] = '\0';
 
 	dp = opendir(scanelemdir);
@@ -242,12 +290,20 @@ static int enable_disable_all_channels(char *dev_dir_name, int enable)
 	return 0;
 }
 
+<<<<<<< HEAD
 void print_usage(void)
+=======
+static void print_usage(void)
+>>>>>>> upstream/android-13
 {
 	fprintf(stderr, "Usage: generic_buffer [options]...\n"
 		"Capture, convert and output data from IIO device buffer\n"
 		"  -a         Auto-activate all available channels\n"
 		"  -A         Force-activate ALL channels\n"
+<<<<<<< HEAD
+=======
+		"  -b <n>     The buffer which to open (by index), default 0\n"
+>>>>>>> upstream/android-13
 		"  -c <n>     Do n conversions, or loop forever if n < 0\n"
 		"  -e         Disable wait for event (new data)\n"
 		"  -g         Use trigger-less mode\n"
@@ -261,12 +317,22 @@ void print_usage(void)
 		"  -w <n>     Set delay between reads in us (event-less mode)\n");
 }
 
+<<<<<<< HEAD
 enum autochan autochannels = AUTOCHANNELS_DISABLED;
 char *dev_dir_name = NULL;
 char *buf_dir_name = NULL;
 bool current_trigger_set = false;
 
 void cleanup(void)
+=======
+static enum autochan autochannels = AUTOCHANNELS_DISABLED;
+static char *dev_dir_name = NULL;
+static char *buf_dir_name = NULL;
+static int buffer_idx = 0;
+static bool current_trigger_set = false;
+
+static void cleanup(void)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -291,21 +357,33 @@ void cleanup(void)
 
 	/* Disable channels if auto-enabled */
 	if (dev_dir_name && autochannels == AUTOCHANNELS_ACTIVE) {
+<<<<<<< HEAD
 		ret = enable_disable_all_channels(dev_dir_name, 0);
+=======
+		ret = enable_disable_all_channels(dev_dir_name, buffer_idx, 0);
+>>>>>>> upstream/android-13
 		if (ret)
 			fprintf(stderr, "Failed to disable all channels\n");
 		autochannels = AUTOCHANNELS_DISABLED;
 	}
 }
 
+<<<<<<< HEAD
 void sig_handler(int signum)
+=======
+static void sig_handler(int signum)
+>>>>>>> upstream/android-13
 {
 	fprintf(stderr, "Caught signal %d\n", signum);
 	cleanup();
 	exit(-signum);
 }
 
+<<<<<<< HEAD
 void register_cleanup(void)
+=======
+static void register_cleanup(void)
+>>>>>>> upstream/android-13
 {
 	struct sigaction sa = { .sa_handler = sig_handler };
 	const int signums[] = { SIGINT, SIGTERM, SIGABRT };
@@ -338,7 +416,13 @@ int main(int argc, char **argv)
 	unsigned long long j;
 	unsigned long toread;
 	int ret, c;
+<<<<<<< HEAD
 	int fp = -1;
+=======
+	struct stat st;
+	int fd = -1;
+	int buf_fd = -1;
+>>>>>>> upstream/android-13
 
 	int num_channels = 0;
 	char *trigger_name = NULL, *device_name = NULL;
@@ -357,7 +441,11 @@ int main(int argc, char **argv)
 
 	register_cleanup();
 
+<<<<<<< HEAD
 	while ((c = getopt_long(argc, argv, "aAc:egl:n:N:t:T:w:?", longopts,
+=======
+	while ((c = getopt_long(argc, argv, "aAb:c:egl:n:N:t:T:w:?", longopts,
+>>>>>>> upstream/android-13
 				NULL)) != -1) {
 		switch (c) {
 		case 'a':
@@ -366,7 +454,24 @@ int main(int argc, char **argv)
 		case 'A':
 			autochannels = AUTOCHANNELS_ENABLED;
 			force_autochannels = true;
+<<<<<<< HEAD
 			break;	
+=======
+			break;
+		case 'b':
+			errno = 0;
+			buffer_idx = strtoll(optarg, &dummy, 10);
+			if (errno) {
+				ret = -errno;
+				goto error;
+			}
+			if (buffer_idx < 0) {
+				ret = -ERANGE;
+				goto error;
+			}
+
+			break;
+>>>>>>> upstream/android-13
 		case 'c':
 			errno = 0;
 			num_loops = strtoll(optarg, &dummy, 10);
@@ -523,7 +628,11 @@ int main(int argc, char **argv)
 	 * Parse the files in scan_elements to identify what channels are
 	 * present
 	 */
+<<<<<<< HEAD
 	ret = build_channel_array(dev_dir_name, &channels, &num_channels);
+=======
+	ret = build_channel_array(dev_dir_name, buffer_idx, &channels, &num_channels);
+>>>>>>> upstream/android-13
 	if (ret) {
 		fprintf(stderr, "Problem reading scan element information\n"
 			"diag %s\n", dev_dir_name);
@@ -540,7 +649,11 @@ int main(int argc, char **argv)
 	    (autochannels == AUTOCHANNELS_ENABLED && force_autochannels)) {
 		fprintf(stderr, "Enabling all channels\n");
 
+<<<<<<< HEAD
 		ret = enable_disable_all_channels(dev_dir_name, 1);
+=======
+		ret = enable_disable_all_channels(dev_dir_name, buffer_idx, 1);
+>>>>>>> upstream/android-13
 		if (ret) {
 			fprintf(stderr, "Failed to enable all channels\n");
 			goto error;
@@ -549,7 +662,11 @@ int main(int argc, char **argv)
 		/* This flags that we need to disable the channels again */
 		autochannels = AUTOCHANNELS_ACTIVE;
 
+<<<<<<< HEAD
 		ret = build_channel_array(dev_dir_name, &channels,
+=======
+		ret = build_channel_array(dev_dir_name, buffer_idx, &channels,
+>>>>>>> upstream/android-13
 					  &num_channels);
 		if (ret) {
 			fprintf(stderr, "Problem reading scan element "
@@ -570,7 +687,11 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Enable channels manually in "
 			FORMAT_SCAN_ELEMENTS_DIR
 			"/*_en or pass -a to autoenable channels and "
+<<<<<<< HEAD
 			"try again.\n", dev_dir_name);
+=======
+			"try again.\n", dev_dir_name, buffer_idx);
+>>>>>>> upstream/android-13
 		ret = -ENOENT;
 		goto error;
 	}
@@ -581,12 +702,32 @@ int main(int argc, char **argv)
 	 * be built rather than found.
 	 */
 	ret = asprintf(&buf_dir_name,
+<<<<<<< HEAD
 		       "%siio:device%d/buffer", iio_dir, dev_num);
+=======
+		       "%siio:device%d/buffer%d", iio_dir, dev_num, buffer_idx);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		ret = -ENOMEM;
 		goto error;
 	}
 
+<<<<<<< HEAD
+=======
+	if (stat(buf_dir_name, &st)) {
+		fprintf(stderr, "Could not stat() '%s', got error %d: %s\n",
+			buf_dir_name, errno, strerror(errno));
+		ret = -errno;
+		goto error;
+	}
+
+	if (!S_ISDIR(st.st_mode)) {
+		fprintf(stderr, "File '%s' is not a directory\n", buf_dir_name);
+		ret = -EFAULT;
+		goto error;
+	}
+
+>>>>>>> upstream/android-13
 	if (!notrigger) {
 		printf("%s %s\n", dev_dir_name, trigger_name);
 		/*
@@ -603,6 +744,38 @@ int main(int argc, char **argv)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	ret = asprintf(&buffer_access, "/dev/iio:device%d", dev_num);
+	if (ret < 0) {
+		ret = -ENOMEM;
+		goto error;
+	}
+
+	/* Attempt to open non blocking the access dev */
+	fd = open(buffer_access, O_RDONLY | O_NONBLOCK);
+	if (fd == -1) { /* TODO: If it isn't there make the node */
+		ret = -errno;
+		fprintf(stderr, "Failed to open %s\n", buffer_access);
+		goto error;
+	}
+
+	/* specify for which buffer index we want an FD */
+	buf_fd = buffer_idx;
+
+	ret = ioctl(fd, IIO_BUFFER_GET_FD_IOCTL, &buf_fd);
+	if (ret == -1 || buf_fd == -1) {
+		ret = -errno;
+		if (ret == -ENODEV || ret == -EINVAL)
+			fprintf(stderr,
+				"Device does not have this many buffers\n");
+		else
+			fprintf(stderr, "Failed to retrieve buffer fd\n");
+
+		goto error;
+	}
+
+>>>>>>> upstream/android-13
 	/* Setup ring buffer parameters */
 	ret = write_sysfs_int("length", buf_dir_name, buf_len);
 	if (ret < 0)
@@ -612,7 +785,12 @@ int main(int argc, char **argv)
 	ret = write_sysfs_int("enable", buf_dir_name, 1);
 	if (ret < 0) {
 		fprintf(stderr,
+<<<<<<< HEAD
 			"Failed to enable buffer: %s\n", strerror(-ret));
+=======
+			"Failed to enable buffer '%s': %s\n",
+			buf_dir_name, strerror(-ret));
+>>>>>>> upstream/android-13
 		goto error;
 	}
 
@@ -623,6 +801,7 @@ int main(int argc, char **argv)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	ret = asprintf(&buffer_access, "/dev/iio:device%d", dev_num);
 	if (ret < 0) {
 		ret = -ENOMEM;
@@ -636,11 +815,36 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Failed to open %s\n", buffer_access);
 		goto error;
 	}
+=======
+	/**
+	 * This check is being done here for sanity reasons, however it
+	 * should be omitted under normal operation.
+	 * If this is buffer0, we check that we get EBUSY after this point.
+	 */
+	if (buffer_idx == 0) {
+		errno = 0;
+		read_size = read(fd, data, 1);
+		if (read_size > -1 || errno != EBUSY) {
+			ret = -EFAULT;
+			perror("Reading from '%s' should not be possible after ioctl()");
+			goto error;
+		}
+	}
+
+	/* close now the main chardev FD and let the buffer FD work */
+	if (close(fd) == -1)
+		perror("Failed to close character device file");
+	fd = -1;
+>>>>>>> upstream/android-13
 
 	for (j = 0; j < num_loops || num_loops < 0; j++) {
 		if (!noevents) {
 			struct pollfd pfd = {
+<<<<<<< HEAD
 				.fd = fp,
+=======
+				.fd = buf_fd,
+>>>>>>> upstream/android-13
 				.events = POLLIN,
 			};
 
@@ -658,7 +862,11 @@ int main(int argc, char **argv)
 			toread = 64;
 		}
 
+<<<<<<< HEAD
 		read_size = read(fp, data, toread * scan_size);
+=======
+		read_size = read(buf_fd, data, toread * scan_size);
+>>>>>>> upstream/android-13
 		if (read_size < 0) {
 			if (errno == EAGAIN) {
 				fprintf(stderr, "nothing available\n");
@@ -675,7 +883,13 @@ int main(int argc, char **argv)
 error:
 	cleanup();
 
+<<<<<<< HEAD
 	if (fp >= 0 && close(fp) == -1)
+=======
+	if (fd >= 0 && close(fd) == -1)
+		perror("Failed to close character device");
+	if (buf_fd >= 0 && close(buf_fd) == -1)
+>>>>>>> upstream/android-13
 		perror("Failed to close buffer");
 	free(buffer_access);
 	free(data);

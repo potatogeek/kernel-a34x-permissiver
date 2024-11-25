@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * This file contains miscellaneous low-level functions.
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -8,11 +12,14 @@
  * PPC64 updates by Dave Engebretsen (engebret@us.ibm.com)
  *
  * setjmp/longjmp code by Paul Mackerras.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <asm/ppc_asm.h>
 #include <asm/unistd.h>
@@ -33,13 +40,22 @@ _GLOBAL(reloc_offset)
 	li	r3, 0
 _GLOBAL(add_reloc_offset)
 	mflr	r0
+<<<<<<< HEAD
 	bl	1f
+=======
+	bcl	20,31,$+4
+>>>>>>> upstream/android-13
 1:	mflr	r5
 	PPC_LL	r4,(2f-1b)(r5)
 	subf	r5,r4,r5
 	add	r3,r3,r5
 	mtlr	r0
 	blr
+<<<<<<< HEAD
+=======
+_ASM_NOKPROBE_SYMBOL(reloc_offset)
+_ASM_NOKPROBE_SYMBOL(add_reloc_offset)
+>>>>>>> upstream/android-13
 
 	.align	3
 2:	PPC_LONG 1b
@@ -114,7 +130,14 @@ _GLOBAL(longjmp)
 	li	r3, 1
 	blr
 
+<<<<<<< HEAD
 _GLOBAL(current_stack_pointer)
 	PPC_LL	r3,0(r1)
 	blr
 EXPORT_SYMBOL(current_stack_pointer)
+=======
+_GLOBAL(current_stack_frame)
+	PPC_LL	r3,0(r1)
+	blr
+EXPORT_SYMBOL(current_stack_frame)
+>>>>>>> upstream/android-13

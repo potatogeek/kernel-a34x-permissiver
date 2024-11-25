@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2017 Intel Corporation.  All rights reserved.
  *
@@ -33,6 +34,18 @@
 #if !defined(OPA_PORT_INFO_H)
 #define OPA_PORT_INFO_H
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2014-2020 Intel Corporation.  All rights reserved.
+ */
+
+#ifndef OPA_PORT_INFO_H
+#define OPA_PORT_INFO_H
+
+#include <rdma/opa_smi.h>
+
+>>>>>>> upstream/android-13
 #define OPA_PORT_LINK_MODE_NOP	0		/* No change */
 #define OPA_PORT_LINK_MODE_OPA	4		/* Port mode is OPA */
 
@@ -137,6 +150,7 @@
 #define OPA_CAP_MASK3_IsVLMarkerSupported         (1 << 1)
 #define OPA_CAP_MASK3_IsVLrSupported              (1 << 0)
 
+<<<<<<< HEAD
 /**
  * new MTU values
  */
@@ -145,6 +159,8 @@ enum {
 	OPA_MTU_10240 = 7,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	OPA_PORT_PHYS_CONF_DISCONNECTED = 0,
 	OPA_PORT_PHYS_CONF_STANDARD     = 1,
@@ -413,6 +429,10 @@ struct opa_port_info {
 	u8     local_port_num;
 	u8     reserved12;
 	u8     reserved13;                       /* was guid_cap */
+<<<<<<< HEAD
 } __attribute__ ((packed));
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 #endif /* OPA_PORT_INFO_H */

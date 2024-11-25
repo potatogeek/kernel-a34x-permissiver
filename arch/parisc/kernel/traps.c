@@ -29,6 +29,10 @@
 #include <linux/bug.h>
 #include <linux/ratelimit.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/kdebug.h>
+>>>>>>> upstream/android-13
 
 #include <asm/assembly.h>
 #include <asm/io.h>
@@ -42,11 +46,20 @@
 #include <asm/unwind.h>
 #include <asm/tlbflush.h>
 #include <asm/cacheflush.h>
+<<<<<<< HEAD
+=======
+#include <linux/kgdb.h>
+#include <linux/kprobes.h>
+>>>>>>> upstream/android-13
 
 #include "../math-emu/math-emu.h"	/* for handle_fpe() */
 
 static void parisc_show_stack(struct task_struct *task,
+<<<<<<< HEAD
 	struct pt_regs *regs);
+=======
+	struct pt_regs *regs, const char *loglvl);
+>>>>>>> upstream/android-13
 
 static int printbinary(char *buf, unsigned long x, int nbits)
 {
@@ -72,7 +85,11 @@ static int printbinary(char *buf, unsigned long x, int nbits)
 		lvl, f, (x), (x+3), (r)[(x)+0], (r)[(x)+1],		\
 		(r)[(x)+2], (r)[(x)+3])
 
+<<<<<<< HEAD
 static void print_gr(char *level, struct pt_regs *regs)
+=======
+static void print_gr(const char *level, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	int i;
 	char buf[64];
@@ -86,7 +103,11 @@ static void print_gr(char *level, struct pt_regs *regs)
 		PRINTREGS(level, regs->gr, "r", RFMT, i);
 }
 
+<<<<<<< HEAD
 static void print_fr(char *level, struct pt_regs *regs)
+=======
+static void print_fr(const char *level, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	int i;
 	char buf[64];
@@ -116,7 +137,11 @@ static void print_fr(char *level, struct pt_regs *regs)
 void show_regs(struct pt_regs *regs)
 {
 	int i, user;
+<<<<<<< HEAD
 	char *level;
+=======
+	const char *level;
+>>>>>>> upstream/android-13
 	unsigned long cr30, cr31;
 
 	user = user_mode(regs);
@@ -152,7 +177,11 @@ void show_regs(struct pt_regs *regs)
 		printk("%s IAOQ[1]: %pS\n", level, (void *) regs->iaoq[1]);
 		printk("%s RP(r2): %pS\n", level, (void *) regs->gr[2]);
 
+<<<<<<< HEAD
 		parisc_show_stack(current, regs);
+=======
+		parisc_show_stack(current, regs, KERN_DEFAULT);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -167,16 +196,25 @@ static DEFINE_RATELIMIT_STATE(_hppa_rs,
 }
 
 
+<<<<<<< HEAD
 static void do_show_stack(struct unwind_frame_info *info)
 {
 	int i = 1;
 
 	printk(KERN_CRIT "Backtrace:\n");
+=======
+static void do_show_stack(struct unwind_frame_info *info, const char *loglvl)
+{
+	int i = 1;
+
+	printk("%sBacktrace:\n", loglvl);
+>>>>>>> upstream/android-13
 	while (i <= MAX_UNWIND_ENTRIES) {
 		if (unwind_once(info) < 0 || info->ip == 0)
 			break;
 
 		if (__kernel_text_address(info->ip)) {
+<<<<<<< HEAD
 			printk(KERN_CRIT " [<" RFMT ">] %pS\n",
 				info->ip, (void *) info->ip);
 			i++;
@@ -187,17 +225,38 @@ static void do_show_stack(struct unwind_frame_info *info)
 
 static void parisc_show_stack(struct task_struct *task,
 	struct pt_regs *regs)
+=======
+			printk("%s [<" RFMT ">] %pS\n",
+				loglvl, info->ip, (void *) info->ip);
+			i++;
+		}
+	}
+	printk("%s\n", loglvl);
+}
+
+static void parisc_show_stack(struct task_struct *task,
+	struct pt_regs *regs, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	struct unwind_frame_info info;
 
 	unwind_frame_init_task(&info, task, regs);
 
+<<<<<<< HEAD
 	do_show_stack(&info);
 }
 
 void show_stack(struct task_struct *t, unsigned long *sp)
 {
 	parisc_show_stack(t, NULL);
+=======
+	do_show_stack(&info, loglvl);
+}
+
+void show_stack(struct task_struct *t, unsigned long *sp, const char *loglvl)
+{
+	parisc_show_stack(t, NULL, loglvl);
+>>>>>>> upstream/android-13
 }
 
 int is_valid_bugaddr(unsigned long iaoq)
@@ -218,7 +277,11 @@ void die_if_kernel(char *str, struct pt_regs *regs, long err)
 		return;
 	}
 
+<<<<<<< HEAD
 	oops_in_progress = 1;
+=======
+	bust_spinlocks(1);
+>>>>>>> upstream/android-13
 
 	oops_enter();
 
@@ -273,7 +336,11 @@ void die_if_kernel(char *str, struct pt_regs *regs, long err)
 static void handle_gdb_break(struct pt_regs *regs, int wot)
 {
 	force_sig_fault(SIGTRAP, wot,
+<<<<<<< HEAD
 			(void __user *) (regs->iaoq[0] & ~3), current);
+=======
+			(void __user *) (regs->iaoq[0] & ~3));
+>>>>>>> upstream/android-13
 }
 
 static void handle_break(struct pt_regs *regs)
@@ -293,6 +360,25 @@ static void handle_break(struct pt_regs *regs)
 			(tt == BUG_TRAP_TYPE_NONE) ? 9 : 0);
 	}
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KPROBES
+	if (unlikely(iir == PARISC_KPROBES_BREAK_INSN)) {
+		parisc_kprobe_break_handler(regs);
+		return;
+	}
+
+#endif
+
+#ifdef CONFIG_KGDB
+	if (unlikely(iir == PARISC_KGDB_COMPILED_BREAK_INSN ||
+		iir == PARISC_KGDB_BREAK_INSN)) {
+		kgdb_handle_exception(9, SIGTRAP, 0, regs);
+		return;
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	if (unlikely(iir != GDB_BREAK_INSN))
 		parisc_printk_ratelimited(0, regs,
 			KERN_DEBUG "break %d,%d: pid=%d command='%s'\n",
@@ -396,7 +482,12 @@ void parisc_terminate(char *msg, struct pt_regs *regs, int code, unsigned long o
 {
 	static DEFINE_SPINLOCK(terminate_lock);
 
+<<<<<<< HEAD
 	oops_in_progress = 1;
+=======
+	(void)notify_die(DIE_OOPS, msg, regs, 0, code, SIGTRAP);
+	bust_spinlocks(1);
+>>>>>>> upstream/android-13
 
 	set_eiem(0);
 	local_irq_disable();
@@ -417,7 +508,10 @@ void parisc_terminate(char *msg, struct pt_regs *regs, int code, unsigned long o
 		break;
 
 	default:
+<<<<<<< HEAD
 		/* Fall through */
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	}
@@ -426,12 +520,21 @@ void parisc_terminate(char *msg, struct pt_regs *regs, int code, unsigned long o
 		/* show_stack(NULL, (unsigned long *)regs->gr[30]); */
 		struct unwind_frame_info info;
 		unwind_frame_init(&info, current, regs);
+<<<<<<< HEAD
 		do_show_stack(&info);
 	}
 
 	printk("\n");
 	pr_crit("%s: Code=%d (%s) regs=%p (Addr=" RFMT ")\n",
 		msg, code, trap_name(code), regs, offset);
+=======
+		do_show_stack(&info, KERN_CRIT);
+	}
+
+	printk("\n");
+	pr_crit("%s: Code=%d (%s) at addr " RFMT "\n",
+		msg, code, trap_name(code), offset);
+>>>>>>> upstream/android-13
 	show_regs(regs);
 
 	spin_unlock(&terminate_lock);
@@ -518,6 +621,22 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 	case  3:
 		/* Recovery counter trap */
 		regs->gr[0] &= ~PSW_R;
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_KPROBES
+		if (parisc_kprobe_ss_handler(regs))
+			return;
+#endif
+
+#ifdef CONFIG_KGDB
+		if (kgdb_single_step) {
+			kgdb_handle_exception(0, SIGTRAP, 0, regs);
+			return;
+		}
+#endif
+
+>>>>>>> upstream/android-13
 		if (user_space(regs))
 			handle_gdb_break(regs, TRAP_TRACE);
 		/* else this must be the start of a syscall - just let it run */
@@ -578,13 +697,21 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 		si_code = ILL_PRVREG;
 	give_sigill:
 		force_sig_fault(SIGILL, si_code,
+<<<<<<< HEAD
 				(void __user *) regs->iaoq[0], current);
+=======
+				(void __user *) regs->iaoq[0]);
+>>>>>>> upstream/android-13
 		return;
 
 	case 12:
 		/* Overflow Trap, let the userland signal handler do the cleanup */
 		force_sig_fault(SIGFPE, FPE_INTOVF,
+<<<<<<< HEAD
 				(void __user *) regs->iaoq[0], current);
+=======
+				(void __user *) regs->iaoq[0]);
+>>>>>>> upstream/android-13
 		return;
 		
 	case 13:
@@ -596,7 +723,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 			 * to by si_addr.
 			 */
 			force_sig_fault(SIGFPE, FPE_CONDTRAP,
+<<<<<<< HEAD
 					(void __user *) regs->iaoq[0], current);
+=======
+					(void __user *) regs->iaoq[0]);
+>>>>>>> upstream/android-13
 			return;
 		} 
 		/* The kernel doesn't want to handle condition codes */
@@ -611,12 +742,20 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 
 	case 15:
 		/* Data TLB miss fault/Data page fault */
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 16:
 		/* Non-access instruction TLB miss fault */
 		/* The instruction TLB entry needed for the target address of the FIC
 		   is absent, and hardware can't find it, so we get to cleanup */
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 17:
 		/* Non-access data TLB miss fault/Non-access data page fault */
 		/* FIXME: 
@@ -629,6 +768,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 			 by hand. Technically we need to emulate:
 			 fdc,fdce,pdc,"fic,4f",prober,probeir,probew, probeiw
 		*/
+<<<<<<< HEAD
+=======
+		if (code == 17 && handle_nadtlb_fault(regs))
+			return;
+>>>>>>> upstream/android-13
 		fault_address = regs->ior;
 		fault_space = regs->isr;
 		break;
@@ -640,7 +784,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 			handle_unaligned(regs);
 			return;
 		}
+<<<<<<< HEAD
 		/* Fall Through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 26: 
 		/* PCXL: Data memory access rights trap */
 		fault_address = regs->ior;
@@ -650,7 +798,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 	case 19:
 		/* Data memory break trap */
 		regs->gr[0] |= PSW_X; /* So we can single-step over the trap */
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 21:
 		/* Page reference trap */
 		handle_gdb_break(regs, TRAP_HWBKPT);
@@ -684,7 +836,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 		if (user_mode(regs)) {
 			struct vm_area_struct *vma;
 
+<<<<<<< HEAD
 			down_read(&current->mm->mmap_sem);
+=======
+			mmap_read_lock(current->mm);
+>>>>>>> upstream/android-13
 			vma = find_vma(current->mm,regs->iaoq[0]);
 			if (vma && (regs->iaoq[0] >= vma->vm_start)
 				&& (vma->vm_flags & VM_EXEC)) {
@@ -692,12 +848,23 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 				fault_address = regs->iaoq[0];
 				fault_space = regs->iasq[0];
 
+<<<<<<< HEAD
 				up_read(&current->mm->mmap_sem);
 				break; /* call do_page_fault() */
 			}
 			up_read(&current->mm->mmap_sem);
 		}
 		/* Fall Through */
+=======
+				mmap_read_unlock(current->mm);
+				break; /* call do_page_fault() */
+			}
+			mmap_read_unlock(current->mm);
+		}
+		/* CPU could not fetch instruction, so clear stale IIR value. */
+		regs->iir = 0xbaadf00d;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 27: 
 		/* Data memory protection ID trap */
 		if (code == 27 && !user_mode(regs) &&
@@ -708,7 +875,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 		force_sig_fault(SIGSEGV, SEGV_MAPERR,
 				(code == 7)?
 				((void __user *) regs->iaoq[0]) :
+<<<<<<< HEAD
 				((void __user *) regs->ior), current);
+=======
+				((void __user *) regs->ior));
+>>>>>>> upstream/android-13
 		return;
 
 	case 28: 
@@ -723,7 +894,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 				task_pid_nr(current), current->comm);
 			/* SIGBUS, for lack of a better one. */
 			force_sig_fault(SIGBUS, BUS_OBJERR,
+<<<<<<< HEAD
 					(void __user *)regs->ior, current);
+=======
+					(void __user *)regs->ior);
+>>>>>>> upstream/android-13
 			return;
 		}
 		pdc_chassis_send_status(PDC_CHASSIS_DIRECT_PANIC);
@@ -739,7 +914,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 				code, fault_space,
 				task_pid_nr(current), current->comm);
 		force_sig_fault(SIGSEGV, SEGV_MAPERR,
+<<<<<<< HEAD
 				(void __user *)regs->ior, current);
+=======
+				(void __user *)regs->ior);
+>>>>>>> upstream/android-13
 		return;
 	    }
 	}
@@ -750,7 +929,11 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 	     * unless pagefault_disable() was called before.
 	     */
 
+<<<<<<< HEAD
 	    if (fault_space == 0 && !faulthandler_disabled())
+=======
+	    if (faulthandler_disabled() || fault_space == 0)
+>>>>>>> upstream/android-13
 	    {
 		/* Clean up and return if in exception table. */
 		if (fixup_exception(regs))
@@ -766,14 +949,21 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
 
 void __init initialize_ivt(const void *iva)
 {
+<<<<<<< HEAD
 	extern u32 os_hpmc_size;
+=======
+>>>>>>> upstream/android-13
 	extern const u32 os_hpmc[];
 
 	int i;
 	u32 check = 0;
 	u32 *ivap;
 	u32 *hpmcp;
+<<<<<<< HEAD
 	u32 length, instr;
+=======
+	u32 instr;
+>>>>>>> upstream/android-13
 
 	if (strcmp((const char *)iva, "cows can fly"))
 		panic("IVT invalid");
@@ -804,6 +994,7 @@ void __init initialize_ivt(const void *iva)
 
 	/* Setup IVA and compute checksum for HPMC handler */
 	ivap[6] = (u32)__pa(os_hpmc);
+<<<<<<< HEAD
 	length = os_hpmc_size;
 	ivap[7] = length;
 
@@ -812,10 +1003,19 @@ void __init initialize_ivt(const void *iva)
 	for (i=0; i<length/4; i++)
 	    check += *hpmcp++;
 
+=======
+
+	hpmcp = (u32 *)os_hpmc;
+
+>>>>>>> upstream/android-13
 	for (i=0; i<8; i++)
 	    check += ivap[i];
 
 	ivap[5] = -check;
+<<<<<<< HEAD
+=======
+	pr_debug("initialize_ivt: IVA[6] = 0x%08x\n", ivap[6]);
+>>>>>>> upstream/android-13
 }
 	
 
@@ -832,7 +1032,10 @@ void  __init early_trap_init(void)
 
 	initialize_ivt(&fault_vector_20);
 }
+<<<<<<< HEAD
 
 void __init trap_init(void)
 {
 }
+=======
+>>>>>>> upstream/android-13

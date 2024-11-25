@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Makefile for Exar Corp's X3100 Series 10 GbE PCIe I/O
 # Virtualized Server Adapter linux driver

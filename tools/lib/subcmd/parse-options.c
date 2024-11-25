@@ -116,6 +116,10 @@ static int get_value(struct parse_opt_ctx_t *p,
 		case OPTION_INTEGER:
 		case OPTION_UINTEGER:
 		case OPTION_LONG:
+<<<<<<< HEAD
+=======
+		case OPTION_ULONG:
+>>>>>>> upstream/android-13
 		case OPTION_U64:
 		default:
 			break;
@@ -166,6 +170,10 @@ static int get_value(struct parse_opt_ctx_t *p,
 		case OPTION_INTEGER:
 		case OPTION_UINTEGER:
 		case OPTION_LONG:
+<<<<<<< HEAD
+=======
+		case OPTION_ULONG:
+>>>>>>> upstream/android-13
 		case OPTION_U64:
 		default:
 			break;
@@ -235,6 +243,12 @@ static int get_value(struct parse_opt_ctx_t *p,
 		return err;
 
 	case OPTION_CALLBACK:
+<<<<<<< HEAD
+=======
+		if (opt->set)
+			*(bool *)opt->set = true;
+
+>>>>>>> upstream/android-13
 		if (unset)
 			return (*opt->callback)(opt, NULL, 1) ? (-1) : 0;
 		if (opt->flags & PARSE_OPT_NOARG)
@@ -295,6 +309,25 @@ static int get_value(struct parse_opt_ctx_t *p,
 			return opterror(opt, "expects a numerical value", flags);
 		return 0;
 
+<<<<<<< HEAD
+=======
+	case OPTION_ULONG:
+		if (unset) {
+			*(unsigned long *)opt->value = 0;
+			return 0;
+		}
+		if (opt->flags & PARSE_OPT_OPTARG && !p->opt) {
+			*(unsigned long *)opt->value = opt->defval;
+			return 0;
+		}
+		if (get_arg(p, opt, flags, &arg))
+			return -1;
+		*(unsigned long *)opt->value = strtoul(arg, (char **)&s, 10);
+		if (*s)
+			return opterror(opt, "expects a numerical value", flags);
+		return 0;
+
+>>>>>>> upstream/android-13
 	case OPTION_U64:
 		if (unset) {
 			*(u64 *)opt->value = 0;
@@ -703,6 +736,10 @@ static void print_option_help(const struct option *opts, int full)
 	case OPTION_ARGUMENT:
 		break;
 	case OPTION_LONG:
+<<<<<<< HEAD
+=======
+	case OPTION_ULONG:
+>>>>>>> upstream/android-13
 	case OPTION_U64:
 	case OPTION_INTEGER:
 	case OPTION_UINTEGER:

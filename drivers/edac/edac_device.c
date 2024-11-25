@@ -555,12 +555,24 @@ static inline int edac_device_get_panic_on_ue(struct edac_device_ctl_info
 	return edac_dev->panic_on_ue;
 }
 
+<<<<<<< HEAD
 void edac_device_handle_ce(struct edac_device_ctl_info *edac_dev,
 			int inst_nr, int block_nr, const char *msg)
+=======
+void edac_device_handle_ce_count(struct edac_device_ctl_info *edac_dev,
+				 unsigned int count, int inst_nr, int block_nr,
+				 const char *msg)
+>>>>>>> upstream/android-13
 {
 	struct edac_device_instance *instance;
 	struct edac_device_block *block = NULL;
 
+<<<<<<< HEAD
+=======
+	if (!count)
+		return;
+
+>>>>>>> upstream/android-13
 	if ((inst_nr >= edac_dev->nr_instances) || (inst_nr < 0)) {
 		edac_device_printk(edac_dev, KERN_ERR,
 				"INTERNAL ERROR: 'instance' out of range "
@@ -582,6 +594,7 @@ void edac_device_handle_ce(struct edac_device_ctl_info *edac_dev,
 
 	if (instance->nr_blocks > 0) {
 		block = instance->blocks + block_nr;
+<<<<<<< HEAD
 		block->counters.ce_count++;
 	}
 
@@ -599,10 +612,36 @@ EXPORT_SYMBOL_GPL(edac_device_handle_ce);
 
 void edac_device_handle_ue(struct edac_device_ctl_info *edac_dev,
 			int inst_nr, int block_nr, const char *msg)
+=======
+		block->counters.ce_count += count;
+	}
+
+	/* Propagate the count up the 'totals' tree */
+	instance->counters.ce_count += count;
+	edac_dev->counters.ce_count += count;
+
+	if (edac_device_get_log_ce(edac_dev))
+		edac_device_printk(edac_dev, KERN_WARNING,
+				   "CE: %s instance: %s block: %s count: %d '%s'\n",
+				   edac_dev->ctl_name, instance->name,
+				   block ? block->name : "N/A", count, msg);
+}
+EXPORT_SYMBOL_GPL(edac_device_handle_ce_count);
+
+void edac_device_handle_ue_count(struct edac_device_ctl_info *edac_dev,
+				 unsigned int count, int inst_nr, int block_nr,
+				 const char *msg)
+>>>>>>> upstream/android-13
 {
 	struct edac_device_instance *instance;
 	struct edac_device_block *block = NULL;
 
+<<<<<<< HEAD
+=======
+	if (!count)
+		return;
+
+>>>>>>> upstream/android-13
 	if ((inst_nr >= edac_dev->nr_instances) || (inst_nr < 0)) {
 		edac_device_printk(edac_dev, KERN_ERR,
 				"INTERNAL ERROR: 'instance' out of range "
@@ -624,6 +663,7 @@ void edac_device_handle_ue(struct edac_device_ctl_info *edac_dev,
 
 	if (instance->nr_blocks > 0) {
 		block = instance->blocks + block_nr;
+<<<<<<< HEAD
 		block->counters.ue_count++;
 	}
 
@@ -643,3 +683,24 @@ void edac_device_handle_ue(struct edac_device_ctl_info *edac_dev,
 			block ? block->name : "N/A", msg);
 }
 EXPORT_SYMBOL_GPL(edac_device_handle_ue);
+=======
+		block->counters.ue_count += count;
+	}
+
+	/* Propagate the count up the 'totals' tree */
+	instance->counters.ue_count += count;
+	edac_dev->counters.ue_count += count;
+
+	if (edac_device_get_log_ue(edac_dev))
+		edac_device_printk(edac_dev, KERN_EMERG,
+				   "UE: %s instance: %s block: %s count: %d '%s'\n",
+				   edac_dev->ctl_name, instance->name,
+				   block ? block->name : "N/A", count, msg);
+
+	if (edac_device_get_panic_on_ue(edac_dev))
+		panic("EDAC %s: UE instance: %s block %s count: %d '%s'\n",
+		      edac_dev->ctl_name, instance->name,
+		      block ? block->name : "N/A", count, msg);
+}
+EXPORT_SYMBOL_GPL(edac_device_handle_ue_count);
+>>>>>>> upstream/android-13

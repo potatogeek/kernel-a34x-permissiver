@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2014 Christoph Hellwig.
  */
+<<<<<<< HEAD
 #include <linux/iomap.h>
 #include "xfs.h"
 #include "xfs_format.h"
@@ -18,6 +19,18 @@
 #include "xfs_iomap.h"
 #include "xfs_shared.h"
 #include "xfs_bit.h"
+=======
+#include "xfs.h"
+#include "xfs_shared.h"
+#include "xfs_format.h"
+#include "xfs_log_format.h"
+#include "xfs_trans_resv.h"
+#include "xfs_mount.h"
+#include "xfs_inode.h"
+#include "xfs_trans.h"
+#include "xfs_bmap.h"
+#include "xfs_iomap.h"
+>>>>>>> upstream/android-13
 #include "xfs_pnfs.h"
 
 /*
@@ -39,7 +52,11 @@ xfs_break_leased_layouts(
 	struct xfs_inode	*ip = XFS_I(inode);
 	int			error;
 
+<<<<<<< HEAD
 	while ((error = break_layout(inode, false) == -EWOULDBLOCK)) {
+=======
+	while ((error = break_layout(inode, false)) == -EWOULDBLOCK) {
+>>>>>>> upstream/android-13
 		xfs_iunlock(ip, *iolock);
 		*did_unlock = true;
 		error = break_layout(inode, true);
@@ -64,9 +81,14 @@ xfs_fs_get_uuid(
 {
 	struct xfs_mount	*mp = XFS_M(sb);
 
+<<<<<<< HEAD
 	printk_once(KERN_NOTICE
 "XFS (%s): using experimental pNFS feature, use at your own risk!\n",
 		mp->m_fsname);
+=======
+	xfs_notice_once(mp,
+"Using experimental pNFS feature, use at your own risk!");
+>>>>>>> upstream/android-13
 
 	if (*len < sizeof(uuid_t))
 		return -EINVAL;
@@ -99,7 +121,11 @@ xfs_fs_map_blocks(
 	uint			lock_flags;
 	int			error = 0;
 
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(mp))
+=======
+	if (xfs_is_shutdown(mp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	/*
@@ -149,6 +175,7 @@ xfs_fs_map_blocks(
 	lock_flags = xfs_ilock_data_map_shared(ip);
 	error = xfs_bmapi_read(ip, offset_fsb, end_fsb - offset_fsb,
 				&imap, &nimaps, bmapi_flags);
+<<<<<<< HEAD
 	xfs_iunlock(ip, lock_flags);
 
 	if (error)
@@ -186,6 +213,40 @@ xfs_fs_map_blocks(
 	xfs_iunlock(ip, XFS_IOLOCK_EXCL);
 
 	xfs_bmbt_to_iomap(ip, iomap, &imap);
+=======
+
+	ASSERT(!nimaps || imap.br_startblock != DELAYSTARTBLOCK);
+
+	if (!error && write &&
+	    (!nimaps || imap.br_startblock == HOLESTARTBLOCK)) {
+		if (offset + length > XFS_ISIZE(ip))
+			end_fsb = xfs_iomap_eof_align_last_fsb(ip, end_fsb);
+		else if (nimaps && imap.br_startblock == HOLESTARTBLOCK)
+			end_fsb = min(end_fsb, imap.br_startoff +
+					       imap.br_blockcount);
+		xfs_iunlock(ip, lock_flags);
+
+		error = xfs_iomap_write_direct(ip, offset_fsb,
+				end_fsb - offset_fsb, &imap);
+		if (error)
+			goto out_unlock;
+
+		/*
+		 * Ensure the next transaction is committed synchronously so
+		 * that the blocks allocated and handed out to the client are
+		 * guaranteed to be present even after a server crash.
+		 */
+		error = xfs_update_prealloc_flags(ip,
+				XFS_PREALLOC_SET | XFS_PREALLOC_SYNC);
+		if (error)
+			goto out_unlock;
+	} else {
+		xfs_iunlock(ip, lock_flags);
+	}
+	xfs_iunlock(ip, XFS_IOLOCK_EXCL);
+
+	error = xfs_bmbt_to_iomap(ip, iomap, &imap, 0);
+>>>>>>> upstream/android-13
 	*device_generation = mp->m_generation;
 	return error;
 out_unlock:
@@ -298,7 +359,11 @@ xfs_fs_commit_blocks(
 	xfs_setattr_time(ip, iattr);
 	if (update_isize) {
 		i_size_write(inode, iattr->ia_size);
+<<<<<<< HEAD
 		ip->i_d.di_size = iattr->ia_size;
+=======
+		ip->i_disk_size = iattr->ia_size;
+>>>>>>> upstream/android-13
 	}
 
 	xfs_trans_set_sync(tp);

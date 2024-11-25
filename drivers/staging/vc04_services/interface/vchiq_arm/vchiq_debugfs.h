@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2014 Raspberry Pi (Trading) Ltd. All rights reserved.
  *
@@ -30,22 +31,38 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* Copyright (c) 2014 Raspberry Pi (Trading) Ltd. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #ifndef VCHIQ_DEBUGFS_H
 #define VCHIQ_DEBUGFS_H
 
 #include "vchiq_core.h"
 
+<<<<<<< HEAD
 typedef struct vchiq_debugfs_node_struct {
     struct dentry *dentry;
 } VCHIQ_DEBUGFS_NODE_T;
+=======
+struct vchiq_debugfs_node {
+	struct dentry *dentry;
+};
+>>>>>>> upstream/android-13
 
 void vchiq_debugfs_init(void);
 
 void vchiq_debugfs_deinit(void);
 
+<<<<<<< HEAD
 void vchiq_debugfs_add_instance(VCHIQ_INSTANCE_T instance);
 
 void vchiq_debugfs_remove_instance(VCHIQ_INSTANCE_T instance);
+=======
+void vchiq_debugfs_add_instance(struct vchiq_instance *instance);
+
+void vchiq_debugfs_remove_instance(struct vchiq_instance *instance);
+>>>>>>> upstream/android-13
 
 #endif /* VCHIQ_DEBUGFS_H */

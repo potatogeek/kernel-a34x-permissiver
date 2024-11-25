@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *
@@ -16,6 +17,11 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -24,8 +30,11 @@
 #include <sound/core.h>
 #include <sound/gus.h>
 
+<<<<<<< HEAD
 extern void snd_gf1_timers_init(struct snd_gus_card * gus);
 extern void snd_gf1_timers_done(struct snd_gus_card * gus);
+=======
+>>>>>>> upstream/android-13
 extern int snd_gf1_synth_init(struct snd_gus_card * gus);
 extern void snd_gf1_synth_done(struct snd_gus_card * gus);
 

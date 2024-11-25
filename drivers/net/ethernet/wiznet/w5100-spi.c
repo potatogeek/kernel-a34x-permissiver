@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ethernet driver for the WIZnet W5100/W5200/W5500 chip.
  *
  * Copyright (C) 2016 Akinobu Mita <akinobu.mita@gmail.com>
  *
+<<<<<<< HEAD
  * Licensed under the GPL-2 or later.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheet:
  * http://www.wiznet.co.kr/wp-content/uploads/wiznethome/Chip/W5100/Document/W5100_Datasheet_v1.2.6.pdf
  * http://wiznethome.cafe24.com/wp-content/uploads/wiznethome/Chip/W5200/Documents/W5200_DS_V140E.pdf
@@ -16,6 +23,10 @@
 #include <linux/delay.h>
 #include <linux/netdevice.h>
 #include <linux/of_net.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 
 #include "w5100.h"
@@ -410,6 +421,7 @@ static const struct w5100_ops w5500_ops = {
 	.init = w5500_spi_init,
 };
 
+<<<<<<< HEAD
 static int w5100_spi_probe(struct spi_device *spi)
 {
 	const struct spi_device_id *id = spi_get_device_id(spi);
@@ -418,6 +430,40 @@ static int w5100_spi_probe(struct spi_device *spi)
 	const void *mac = of_get_mac_address(spi->dev.of_node);
 
 	switch (id->driver_data) {
+=======
+static const struct of_device_id w5100_of_match[] = {
+	{ .compatible = "wiznet,w5100", .data = (const void*)W5100, },
+	{ .compatible = "wiznet,w5200", .data = (const void*)W5200, },
+	{ .compatible = "wiznet,w5500", .data = (const void*)W5500, },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, w5100_of_match);
+
+static int w5100_spi_probe(struct spi_device *spi)
+{
+	const struct of_device_id *of_id;
+	const struct w5100_ops *ops;
+	kernel_ulong_t driver_data;
+	const void *mac = NULL;
+	u8 tmpmac[ETH_ALEN];
+	int priv_size;
+	int ret;
+
+	ret = of_get_mac_address(spi->dev.of_node, tmpmac);
+	if (!ret)
+		mac = tmpmac;
+
+	if (spi->dev.of_node) {
+		of_id = of_match_device(w5100_of_match, &spi->dev);
+		if (!of_id)
+			return -ENODEV;
+		driver_data = (kernel_ulong_t)of_id->data;
+	} else {
+		driver_data = spi_get_device_id(spi)->driver_data;
+	}
+
+	switch (driver_data) {
+>>>>>>> upstream/android-13
 	case W5100:
 		ops = &w5100_spi_ops;
 		priv_size = 0;
@@ -454,6 +500,10 @@ static struct spi_driver w5100_spi_driver = {
 	.driver		= {
 		.name	= "w5100",
 		.pm	= &w5100_pm_ops,
+<<<<<<< HEAD
+=======
+		.of_match_table = w5100_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe		= w5100_spi_probe,
 	.remove		= w5100_spi_remove,

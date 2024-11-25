@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author:Mark Yao <mark.yao@rock-chips.com>
  *
  * based on exynos_drm_drv.c
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -19,15 +24,34 @@
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_of.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/dma-iommu.h>
 #include <linux/pm_runtime.h>
 #include <linux/module.h>
 #include <linux/of_graph.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_platform.h>
+>>>>>>> upstream/android-13
 #include <linux/component.h>
 #include <linux/console.h>
 #include <linux/iommu.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_aperture.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+
+>>>>>>> upstream/android-13
 #include "rockchip_drm_drv.h"
 #include "rockchip_drm_fb.h"
 #include "rockchip_drm_fbdev.h"
@@ -40,7 +64,11 @@
 #define DRIVER_MINOR	0
 
 static bool is_support_iommu = true;
+<<<<<<< HEAD
 static struct drm_driver rockchip_drm_driver;
+=======
+static const struct drm_driver rockchip_drm_driver;
+>>>>>>> upstream/android-13
 
 /*
  * Attach a (component) device to the shared drm dma mapping from master drm
@@ -119,6 +147,18 @@ static int rockchip_drm_bind(struct device *dev)
 	struct rockchip_drm_private *private;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	/* Remove existing drivers that may own the framebuffer memory. */
+	ret = drm_aperture_remove_framebuffers(false, &rockchip_drm_driver);
+	if (ret) {
+		DRM_DEV_ERROR(dev,
+			      "Failed to remove existing framebuffers - %d.\n",
+			      ret);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	drm_dev = drm_dev_alloc(&rockchip_drm_driver, dev);
 	if (IS_ERR(drm_dev))
 		return PTR_ERR(drm_dev);
@@ -140,14 +180,24 @@ static int rockchip_drm_bind(struct device *dev)
 	if (ret)
 		goto err_free;
 
+<<<<<<< HEAD
 	drm_mode_config_init(drm_dev);
+=======
+	ret = drmm_mode_config_init(drm_dev);
+	if (ret)
+		goto err_iommu_cleanup;
+>>>>>>> upstream/android-13
 
 	rockchip_drm_mode_config_init(drm_dev);
 
 	/* Try to bind all sub drivers. */
 	ret = component_bind_all(dev, drm_dev);
 	if (ret)
+<<<<<<< HEAD
 		goto err_mode_config_cleanup;
+=======
+		goto err_iommu_cleanup;
+>>>>>>> upstream/android-13
 
 	ret = drm_vblank_init(drm_dev, drm_dev->mode_config.num_crtc);
 	if (ret)
@@ -155,12 +205,15 @@ static int rockchip_drm_bind(struct device *dev)
 
 	drm_mode_config_reset(drm_dev);
 
+<<<<<<< HEAD
 	/*
 	 * enable drm irq mode.
 	 * - with irq_enabled = true, we can use the vblank feature.
 	 */
 	drm_dev->irq_enabled = true;
 
+=======
+>>>>>>> upstream/android-13
 	ret = rockchip_drm_fbdev_init(drm_dev);
 	if (ret)
 		goto err_unbind_all;
@@ -178,6 +231,7 @@ err_kms_helper_poll_fini:
 	rockchip_drm_fbdev_fini(drm_dev);
 err_unbind_all:
 	component_unbind_all(dev, drm_dev);
+<<<<<<< HEAD
 err_mode_config_cleanup:
 	drm_mode_config_cleanup(drm_dev);
 	rockchip_iommu_cleanup(drm_dev);
@@ -185,6 +239,12 @@ err_free:
 	drm_dev->dev_private = NULL;
 	dev_set_drvdata(dev, NULL);
 	drm_dev_unref(drm_dev);
+=======
+err_iommu_cleanup:
+	rockchip_iommu_cleanup(drm_dev);
+err_free:
+	drm_dev_put(drm_dev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -199,12 +259,18 @@ static void rockchip_drm_unbind(struct device *dev)
 
 	drm_atomic_helper_shutdown(drm_dev);
 	component_unbind_all(dev, drm_dev);
+<<<<<<< HEAD
 	drm_mode_config_cleanup(drm_dev);
 	rockchip_iommu_cleanup(drm_dev);
 
 	drm_dev->dev_private = NULL;
 	dev_set_drvdata(dev, NULL);
 	drm_dev_unref(drm_dev);
+=======
+	rockchip_iommu_cleanup(drm_dev);
+
+	drm_dev_put(drm_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations rockchip_drm_driver_fops = {
@@ -218,6 +284,7 @@ static const struct file_operations rockchip_drm_driver_fops = {
 	.release = drm_release,
 };
 
+<<<<<<< HEAD
 static struct drm_driver rockchip_drm_driver = {
 	.driver_features	= DRIVER_MODESET | DRIVER_GEM |
 				  DRIVER_PRIME | DRIVER_ATOMIC,
@@ -233,6 +300,15 @@ static struct drm_driver rockchip_drm_driver = {
 	.gem_prime_import_sg_table	= rockchip_gem_prime_import_sg_table,
 	.gem_prime_vmap		= rockchip_gem_prime_vmap,
 	.gem_prime_vunmap	= rockchip_gem_prime_vunmap,
+=======
+static const struct drm_driver rockchip_drm_driver = {
+	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+	.lastclose		= drm_fb_helper_lastclose,
+	.dumb_create		= rockchip_gem_dumb_create,
+	.prime_handle_to_fd	= drm_gem_prime_handle_to_fd,
+	.prime_fd_to_handle	= drm_gem_prime_fd_to_handle,
+	.gem_prime_import_sg_table	= rockchip_gem_prime_import_sg_table,
+>>>>>>> upstream/android-13
 	.gem_prime_mmap		= rockchip_gem_mmap_buf,
 	.fops			= &rockchip_drm_driver_fops,
 	.name	= DRIVER_NAME,
@@ -243,6 +319,7 @@ static struct drm_driver rockchip_drm_driver = {
 };
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 static void rockchip_drm_fb_suspend(struct drm_device *drm)
 {
 	struct rockchip_drm_private *priv = drm->dev_private;
@@ -281,11 +358,19 @@ static int rockchip_drm_sys_suspend(struct device *dev)
 	}
 
 	return 0;
+=======
+static int rockchip_drm_sys_suspend(struct device *dev)
+{
+	struct drm_device *drm = dev_get_drvdata(dev);
+
+	return drm_mode_config_helper_suspend(drm);
+>>>>>>> upstream/android-13
 }
 
 static int rockchip_drm_sys_resume(struct device *dev)
 {
 	struct drm_device *drm = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	struct rockchip_drm_private *priv;
 
 	if (!drm)
@@ -297,6 +382,10 @@ static int rockchip_drm_sys_resume(struct device *dev)
 	drm_kms_helper_poll_enable(drm);
 
 	return 0;
+=======
+
+	return drm_mode_config_helper_resume(drm);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -309,6 +398,56 @@ static const struct dev_pm_ops rockchip_drm_pm_ops = {
 static struct platform_driver *rockchip_sub_drivers[MAX_ROCKCHIP_SUB_DRIVERS];
 static int num_rockchip_sub_drivers;
 
+<<<<<<< HEAD
+=======
+/*
+ * Check if a vop endpoint is leading to a rockchip subdriver or bridge.
+ * Should be called from the component bind stage of the drivers
+ * to ensure that all subdrivers are probed.
+ *
+ * @ep: endpoint of a rockchip vop
+ *
+ * returns true if subdriver, false if external bridge and -ENODEV
+ * if remote port does not contain a device.
+ */
+int rockchip_drm_endpoint_is_subdriver(struct device_node *ep)
+{
+	struct device_node *node = of_graph_get_remote_port_parent(ep);
+	struct platform_device *pdev;
+	struct device_driver *drv;
+	int i;
+
+	if (!node)
+		return -ENODEV;
+
+	/* status disabled will prevent creation of platform-devices */
+	pdev = of_find_device_by_node(node);
+	of_node_put(node);
+	if (!pdev)
+		return -ENODEV;
+
+	/*
+	 * All rockchip subdrivers have probed at this point, so
+	 * any device not having a driver now is an external bridge.
+	 */
+	drv = pdev->dev.driver;
+	if (!drv) {
+		platform_device_put(pdev);
+		return false;
+	}
+
+	for (i = 0; i < num_rockchip_sub_drivers; i++) {
+		if (rockchip_sub_drivers[i] == to_platform_driver(drv)) {
+			platform_device_put(pdev);
+			return true;
+		}
+	}
+
+	platform_device_put(pdev);
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static int compare_dev(struct device *dev, void *data)
 {
 	return dev == (struct device *)data;
@@ -332,8 +471,12 @@ static struct component_match *rockchip_drm_match_add(struct device *dev)
 		struct device *p = NULL, *d;
 
 		do {
+<<<<<<< HEAD
 			d = bus_find_device(&platform_bus_type, p, &drv->driver,
 					    (void *)platform_bus_type.match);
+=======
+			d = platform_find_device_by_driver(p, &drv->driver);
+>>>>>>> upstream/android-13
 			put_device(p);
 			p = d;
 
@@ -486,9 +629,17 @@ static int __init rockchip_drm_init(void)
 	ADD_ROCKCHIP_SUB_DRIVER(cdn_dp_driver, CONFIG_ROCKCHIP_CDN_DP);
 	ADD_ROCKCHIP_SUB_DRIVER(dw_hdmi_rockchip_pltfm_driver,
 				CONFIG_ROCKCHIP_DW_HDMI);
+<<<<<<< HEAD
 	ADD_ROCKCHIP_SUB_DRIVER(dw_mipi_dsi_driver,
 				CONFIG_ROCKCHIP_DW_MIPI_DSI);
 	ADD_ROCKCHIP_SUB_DRIVER(inno_hdmi_driver, CONFIG_ROCKCHIP_INNO_HDMI);
+=======
+	ADD_ROCKCHIP_SUB_DRIVER(dw_mipi_dsi_rockchip_driver,
+				CONFIG_ROCKCHIP_DW_MIPI_DSI);
+	ADD_ROCKCHIP_SUB_DRIVER(inno_hdmi_driver, CONFIG_ROCKCHIP_INNO_HDMI);
+	ADD_ROCKCHIP_SUB_DRIVER(rk3066_hdmi_driver,
+				CONFIG_ROCKCHIP_RK3066_HDMI);
+>>>>>>> upstream/android-13
 
 	ret = platform_register_drivers(rockchip_sub_drivers,
 					num_rockchip_sub_drivers);

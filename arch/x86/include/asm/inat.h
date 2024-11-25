@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_X86_INAT_H
 #define _ASM_X86_INAT_H
 /*
  * x86 instruction attributes
  *
  * Written by Masami Hiramatsu <mhiramat@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,10 @@
  *
  */
 #include <asm/inat_types.h>
+=======
+ */
+#include <asm/inat_types.h> /* __ignore_sync_check__ */
+>>>>>>> upstream/android-13
 
 /*
  * Internal bits. Don't use bitmasks directly, because these bits are

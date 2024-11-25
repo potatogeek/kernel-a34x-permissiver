@@ -10,6 +10,10 @@
 
 /***************************************************************************/
 
+<<<<<<< HEAD
+=======
+#include <linux/clkdev.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/param.h>
 #include <linux/init.h>
@@ -34,6 +38,7 @@ unsigned char ledbank = 0xff;
 
 DEFINE_CLK(pll, "pll.0", MCF_CLK);
 DEFINE_CLK(sys, "sys.0", MCF_BUSCLK);
+<<<<<<< HEAD
 DEFINE_CLK(mcftmr0, "mcftmr.0", MCF_BUSCLK);
 DEFINE_CLK(mcftmr1, "mcftmr.1", MCF_BUSCLK);
 DEFINE_CLK(mcftmr2, "mcftmr.2", MCF_BUSCLK);
@@ -55,6 +60,20 @@ struct clk *mcf_clks[] = {
 	&clk_mcfqspi0,
 	&clk_fec0,
 	NULL
+=======
+
+static struct clk_lookup m5272_clk_lookup[] = {
+	CLKDEV_INIT(NULL, "pll.0", &clk_pll),
+	CLKDEV_INIT(NULL, "sys.0", &clk_sys),
+	CLKDEV_INIT("mcftmr.0", NULL, &clk_sys),
+	CLKDEV_INIT("mcftmr.1", NULL, &clk_sys),
+	CLKDEV_INIT("mcftmr.2", NULL, &clk_sys),
+	CLKDEV_INIT("mcftmr.3", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.0", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.1", NULL, &clk_sys),
+	CLKDEV_INIT("mcfqspi.0", NULL, &clk_sys),
+	CLKDEV_INIT("fec.0", NULL, &clk_sys),
+>>>>>>> upstream/android-13
 };
 
 /***************************************************************************/
@@ -127,7 +146,12 @@ static struct fixed_phy_status nettel_fixed_phy_status __initdata = {
 static int __init init_BSP(void)
 {
 	m5272_uarts_init();
+<<<<<<< HEAD
 	fixed_phy_add(PHY_POLL, 0, &nettel_fixed_phy_status, -1);
+=======
+	fixed_phy_add(PHY_POLL, 0, &nettel_fixed_phy_status);
+	clkdev_add_table(m5272_clk_lookup, ARRAY_SIZE(m5272_clk_lookup));
+>>>>>>> upstream/android-13
 	return 0;
 }
 

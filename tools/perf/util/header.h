@@ -5,10 +5,17 @@
 #include <linux/stddef.h>
 #include <linux/perf_event.h>
 #include <sys/types.h>
+<<<<<<< HEAD
 #include <stdbool.h>
 #include <linux/bitmap.h>
 #include <linux/types.h>
 #include "event.h"
+=======
+#include <stdio.h> // FILE
+#include <stdbool.h>
+#include <linux/bitmap.h>
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 #include "env.h"
 #include "pmu.h"
 
@@ -38,6 +45,18 @@ enum {
 	HEADER_CACHE,
 	HEADER_SAMPLE_TIME,
 	HEADER_MEM_TOPOLOGY,
+<<<<<<< HEAD
+=======
+	HEADER_CLOCKID,
+	HEADER_DIR_FORMAT,
+	HEADER_BPF_PROG_INFO,
+	HEADER_BPF_BTF,
+	HEADER_COMPRESSED,
+	HEADER_CPU_PMU_CAPS,
+	HEADER_CLOCK_DATA,
+	HEADER_HYBRID_TOPOLOGY,
+	HEADER_HYBRID_CPU_PMU_CAPS,
+>>>>>>> upstream/android-13
 	HEADER_LAST_FEATURE,
 	HEADER_FEAT_BITS	= 256,
 };
@@ -83,12 +102,41 @@ struct perf_header {
 	struct perf_env 	env;
 };
 
+<<<<<<< HEAD
 struct perf_evlist;
 struct perf_session;
 
 int perf_session__read_header(struct perf_session *session);
 int perf_session__write_header(struct perf_session *session,
 			       struct perf_evlist *evlist,
+=======
+struct feat_fd {
+	struct perf_header *ph;
+	int		   fd;
+	void		   *buf;	/* Either buf != NULL or fd >= 0 */
+	ssize_t		   offset;
+	size_t		   size;
+	struct evsel	   *events;
+};
+
+struct perf_header_feature_ops {
+	int	   (*write)(struct feat_fd *ff, struct evlist *evlist);
+	void	   (*print)(struct feat_fd *ff, FILE *fp);
+	int	   (*process)(struct feat_fd *ff, void *data);
+	const char *name;
+	bool	   full_only;
+	bool	   synthesize;
+};
+
+struct evlist;
+struct perf_session;
+struct perf_tool;
+union perf_event;
+
+int perf_session__read_header(struct perf_session *session, int repipe_fd);
+int perf_session__write_header(struct perf_session *session,
+			       struct evlist *evlist,
+>>>>>>> upstream/android-13
 			       int fd, bool at_exit);
 int perf_header__write_pipe(int fd);
 
@@ -106,6 +154,7 @@ int perf_header__process_sections(struct perf_header *header, int fd,
 
 int perf_header__fprintf_info(struct perf_session *s, FILE *fp, bool full);
 
+<<<<<<< HEAD
 int perf_event__synthesize_features(struct perf_tool *tool,
 				    struct perf_session *session,
 				    struct perf_evlist *evlist,
@@ -159,6 +208,20 @@ int perf_event__synthesize_build_id(struct perf_tool *tool,
 int perf_event__process_build_id(struct perf_tool *tool,
 				 union perf_event *event,
 				 struct perf_session *session);
+=======
+int perf_event__process_feature(struct perf_session *session,
+				union perf_event *event);
+int perf_event__process_attr(struct perf_tool *tool, union perf_event *event,
+			     struct evlist **pevlist);
+int perf_event__process_event_update(struct perf_tool *tool,
+				     union perf_event *event,
+				     struct evlist **pevlist);
+size_t perf_event__fprintf_event_update(union perf_event *event, FILE *fp);
+int perf_event__process_tracing_data(struct perf_session *session,
+				     union perf_event *event);
+int perf_event__process_build_id(struct perf_session *session,
+				 union perf_event *event);
+>>>>>>> upstream/android-13
 bool is_perf_magic(u64 magic);
 
 #define NAME_ALIGN 64

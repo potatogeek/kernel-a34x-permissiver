@@ -254,7 +254,11 @@ EXPORT_SYMBOL_GPL(fsl_mc_resource_free);
  * @mc_dev: fsl-mc device which is used in conjunction with the
  * allocated object
  * @pool_type: pool type
+<<<<<<< HEAD
  * @new_mc_dev: pointer to area where the pointer to the allocated device
+=======
+ * @new_mc_adev: pointer to area where the pointer to the allocated device
+>>>>>>> upstream/android-13
  * is to be returned
  *
  * Allocatable objects are always used in conjunction with some functional
@@ -297,6 +301,17 @@ int __must_check fsl_mc_object_allocate(struct fsl_mc_device *mc_dev,
 		goto error;
 	}
 
+<<<<<<< HEAD
+=======
+	mc_adev->consumer_link = device_link_add(&mc_dev->dev,
+						 &mc_adev->dev,
+						 DL_FLAG_AUTOREMOVE_CONSUMER);
+	if (!mc_adev->consumer_link) {
+		error = -EINVAL;
+		goto error;
+	}
+
+>>>>>>> upstream/android-13
 	*new_mc_adev = mc_adev;
 	return 0;
 error:
@@ -323,6 +338,11 @@ void fsl_mc_object_free(struct fsl_mc_device *mc_adev)
 		return;
 
 	fsl_mc_resource_free(resource);
+<<<<<<< HEAD
+=======
+
+	mc_adev->consumer_link = NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(fsl_mc_object_free);
 
@@ -336,7 +356,11 @@ EXPORT_SYMBOL_GPL(fsl_mc_object_free);
  * Initialize the interrupt pool associated with an fsl-mc bus.
  * It allocates a block of IRQs from the GIC-ITS.
  */
+<<<<<<< HEAD
 int fsl_mc_populate_irq_pool(struct fsl_mc_bus *mc_bus,
+=======
+int fsl_mc_populate_irq_pool(struct fsl_mc_device *mc_bus_dev,
+>>>>>>> upstream/android-13
 			     unsigned int irq_count)
 {
 	unsigned int i;
@@ -344,10 +368,21 @@ int fsl_mc_populate_irq_pool(struct fsl_mc_bus *mc_bus,
 	struct fsl_mc_device_irq *irq_resources;
 	struct fsl_mc_device_irq *mc_dev_irq;
 	int error;
+<<<<<<< HEAD
 	struct fsl_mc_device *mc_bus_dev = &mc_bus->mc_dev;
 	struct fsl_mc_resource_pool *res_pool =
 			&mc_bus->resource_pools[FSL_MC_POOL_IRQ];
 
+=======
+	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_bus_dev);
+	struct fsl_mc_resource_pool *res_pool =
+			&mc_bus->resource_pools[FSL_MC_POOL_IRQ];
+
+	/* do nothing if the IRQ pool is already populated */
+	if (mc_bus->irq_resources)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (irq_count == 0 ||
 	    irq_count > FSL_MC_IRQ_POOL_MAX_TOTAL_IRQS)
 		return -EINVAL;
@@ -395,6 +430,7 @@ cleanup_msi_irqs:
 }
 EXPORT_SYMBOL_GPL(fsl_mc_populate_irq_pool);
 
+<<<<<<< HEAD
 /**
  * Teardown the interrupt pool associated with an fsl-mc bus.
  * It frees the IRQs that were allocated to the pool, back to the GIC-ITS.
@@ -402,6 +438,15 @@ EXPORT_SYMBOL_GPL(fsl_mc_populate_irq_pool);
 void fsl_mc_cleanup_irq_pool(struct fsl_mc_bus *mc_bus)
 {
 	struct fsl_mc_device *mc_bus_dev = &mc_bus->mc_dev;
+=======
+/*
+ * Teardown the interrupt pool associated with an fsl-mc bus.
+ * It frees the IRQs that were allocated to the pool, back to the GIC-ITS.
+ */
+void fsl_mc_cleanup_irq_pool(struct fsl_mc_device *mc_bus_dev)
+{
+	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_bus_dev);
+>>>>>>> upstream/android-13
 	struct fsl_mc_resource_pool *res_pool =
 			&mc_bus->resource_pools[FSL_MC_POOL_IRQ];
 
@@ -422,7 +467,11 @@ void fsl_mc_cleanup_irq_pool(struct fsl_mc_bus *mc_bus)
 }
 EXPORT_SYMBOL_GPL(fsl_mc_cleanup_irq_pool);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Allocate the IRQs required by a given fsl-mc device.
  */
 int __must_check fsl_mc_allocate_irqs(struct fsl_mc_device *mc_dev)
@@ -564,7 +613,11 @@ void fsl_mc_cleanup_all_resource_pools(struct fsl_mc_device *mc_bus_dev)
 		fsl_mc_cleanup_resource_pool(mc_bus_dev, pool_type);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fsl_mc_allocator_probe - callback invoked when an allocatable device is
  * being added to the system
  */
@@ -596,7 +649,11 @@ static int fsl_mc_allocator_probe(struct fsl_mc_device *mc_dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fsl_mc_allocator_remove - callback invoked when an allocatable device is
  * being removed from the system
  */

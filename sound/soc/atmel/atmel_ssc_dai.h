@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * atmel_ssc_dai.h - ALSA SSC interface for the Atmel  SoC
  *
@@ -11,6 +15,7 @@
  * Frank Mandarino <fmandarino@endrelia.com>
  * Based on pxa2xx Platform drivers by
  * Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ATMEL_SSC_DAI_H
@@ -106,7 +113,10 @@ struct atmel_ssc_state {
 struct atmel_ssc_info {
 	char *name;
 	struct ssc_device *ssc;
+<<<<<<< HEAD
 	spinlock_t lock;	/* lock for dir_mask */
+=======
+>>>>>>> upstream/android-13
 	unsigned short dir_mask;	/* 0=unused, 1=playback, 2=capture */
 	unsigned short initialized;	/* true if SSC has been initialized */
 	unsigned short daifmt;

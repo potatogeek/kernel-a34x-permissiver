@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVIF_DEVICE_H__
 #define __NVIF_DEVICE_H__
 
@@ -18,6 +22,7 @@ struct nvif_device {
 	struct nvif_user user;
 };
 
+<<<<<<< HEAD
 int  nvif_device_init(struct nvif_object *, u32 handle, s32 oclass, void *, u32,
 		      struct nvif_device *);
 void nvif_device_fini(struct nvif_device *);
@@ -44,6 +49,13 @@ u64  nvif_device_time(struct nvif_device *);
 #define nvif_usec(d,u,cond...) nvif_nsec((d), (u) * 1000, ##cond)
 #define nvif_msec(d,m,cond...) nvif_usec((d), (m) * 1000, ##cond)
 
+=======
+int  nvif_device_ctor(struct nvif_object *, const char *name, u32 handle,
+		      s32 oclass, void *, u32, struct nvif_device *);
+void nvif_device_dtor(struct nvif_device *);
+u64  nvif_device_time(struct nvif_device *);
+
+>>>>>>> upstream/android-13
 /*XXX*/
 #include <subdev/bios.h>
 #include <subdev/fb.h>

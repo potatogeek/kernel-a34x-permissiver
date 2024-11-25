@@ -55,7 +55,12 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@c0000000 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0xC0000000 0x800000>;
 	};
 
@@ -101,8 +106,12 @@
 &sdio1 {
 	status = "okay";
 	vmmc-supply = <&mmc_vcard>;
+<<<<<<< HEAD
 	cd-gpios = <&gpioc 13 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
+=======
+	cd-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default", "opendrain";
 	pinctrl-0 = <&sdio_pins_a>;
 	pinctrl-1 = <&sdio_pins_od_a>;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 Advanced Micro Devices, Inc.
  *
@@ -5,10 +9,13 @@
  * Author: Suravee Suthikulpanit <Suraveee.Suthikulpanit@amd.com>
  *
  * Perf: amd_iommu - AMD IOMMU Performance Counter PMU implementation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"perf/amd_iommu: " fmt
@@ -17,12 +24,19 @@
 #include <linux/init.h>
 #include <linux/cpumask.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/amd-iommu.h>
+>>>>>>> upstream/android-13
 
 #include "../perf_event.h"
 #include "iommu.h"
 
+<<<<<<< HEAD
 #define COUNTER_SHIFT		16
 
+=======
+>>>>>>> upstream/android-13
 /* iommu pmu conf masks */
 #define GET_CSOURCE(x)     ((x)->conf & 0xFFULL)
 #define GET_DEVID(x)       (((x)->conf >> 8)  & 0xFFFFULL)
@@ -223,11 +237,14 @@ static int perf_iommu_event_init(struct perf_event *event)
 	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* IOMMU counters do not have usr/os/guest/host bits */
 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
 	    event->attr.exclude_host || event->attr.exclude_guest)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (event->cpu < 0)
 		return -EINVAL;
 
@@ -293,6 +310,7 @@ static void perf_iommu_start(struct perf_event *event, int flags)
 	WARN_ON_ONCE(!(hwc->state & PERF_HES_UPTODATE));
 	hwc->state = 0;
 
+<<<<<<< HEAD
 	if (flags & PERF_EF_RELOAD) {
 		u64 prev_raw_count = local64_read(&hwc->prev_count);
 		struct amd_iommu *iommu = perf_event_2_iommu(event);
@@ -304,11 +322,37 @@ static void perf_iommu_start(struct perf_event *event, int flags)
 	perf_iommu_enable_event(event);
 	perf_event_update_userpage(event);
 
+=======
+	/*
+	 * To account for power-gating, which prevents write to
+	 * the counter, we need to enable the counter
+	 * before setting up counter register.
+	 */
+	perf_iommu_enable_event(event);
+
+	if (flags & PERF_EF_RELOAD) {
+		u64 count = 0;
+		struct amd_iommu *iommu = perf_event_2_iommu(event);
+
+		/*
+		 * Since the IOMMU PMU only support counting mode,
+		 * the counter always start with value zero.
+		 */
+		amd_iommu_pc_set_reg(iommu, hwc->iommu_bank, hwc->iommu_cntr,
+				     IOMMU_PC_COUNTER_REG, &count);
+	}
+
+	perf_event_update_userpage(event);
+>>>>>>> upstream/android-13
 }
 
 static void perf_iommu_read(struct perf_event *event)
 {
+<<<<<<< HEAD
 	u64 count, prev, delta;
+=======
+	u64 count;
+>>>>>>> upstream/android-13
 	struct hw_perf_event *hwc = &event->hw;
 	struct amd_iommu *iommu = perf_event_2_iommu(event);
 
@@ -319,6 +363,7 @@ static void perf_iommu_read(struct perf_event *event)
 	/* IOMMU pc counter register is only 48 bits */
 	count &= GENMASK_ULL(47, 0);
 
+<<<<<<< HEAD
 	prev = local64_read(&hwc->prev_count);
 	if (local64_cmpxchg(&hwc->prev_count, prev, count) != prev)
 		return;
@@ -327,6 +372,13 @@ static void perf_iommu_read(struct perf_event *event)
 	delta = (count << COUNTER_SHIFT) - (prev << COUNTER_SHIFT);
 	delta >>= COUNTER_SHIFT;
 	local64_add(delta, &event->count);
+=======
+	/*
+	 * Since the counter always start with value zero,
+	 * simply just accumulate the count for the event.
+	 */
+	local64_add(count, &event->count);
+>>>>>>> upstream/android-13
 }
 
 static void perf_iommu_stop(struct perf_event *event, int flags)
@@ -336,6 +388,7 @@ static void perf_iommu_stop(struct perf_event *event, int flags)
 	if (hwc->state & PERF_HES_UPTODATE)
 		return;
 
+<<<<<<< HEAD
 	perf_iommu_disable_event(event);
 	WARN_ON_ONCE(hwc->state & PERF_HES_STOPPED);
 	hwc->state |= PERF_HES_STOPPED;
@@ -345,6 +398,18 @@ static void perf_iommu_stop(struct perf_event *event, int flags)
 
 	perf_iommu_read(event);
 	hwc->state |= PERF_HES_UPTODATE;
+=======
+	/*
+	 * To account for power-gating, in which reading the counter would
+	 * return zero, we need to read the register before disabling.
+	 */
+	perf_iommu_read(event);
+	hwc->state |= PERF_HES_UPTODATE;
+
+	perf_iommu_disable_event(event);
+	WARN_ON_ONCE(hwc->state & PERF_HES_STOPPED);
+	hwc->state |= PERF_HES_STOPPED;
+>>>>>>> upstream/android-13
 }
 
 static int perf_iommu_add(struct perf_event *event, int flags)
@@ -398,7 +463,11 @@ static __init int _init_events_attrs(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 const struct attribute_group *amd_iommu_attr_groups[] = {
+=======
+static const struct attribute_group *amd_iommu_attr_groups[] = {
+>>>>>>> upstream/android-13
 	&amd_iommu_format_group,
 	&amd_iommu_cpumask_group,
 	&amd_iommu_events_group,
@@ -414,6 +483,10 @@ static const struct pmu iommu_pmu __initconst = {
 	.read		= perf_iommu_read,
 	.task_ctx_nr	= perf_invalid_context,
 	.attr_groups	= amd_iommu_attr_groups,
+<<<<<<< HEAD
+=======
+	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 };
 
 static __init int init_one_iommu(unsigned int idx)

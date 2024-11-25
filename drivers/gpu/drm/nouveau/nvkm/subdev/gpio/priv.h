@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_GPIO_PRIV_H__
 #define __NVKM_GPIO_PRIV_H__
 #define nvkm_gpio(p) container_of((p), struct nvkm_gpio, subdev)
@@ -28,8 +32,13 @@ struct nvkm_gpio_func {
 	void (*reset)(struct nvkm_gpio *, u8);
 };
 
+<<<<<<< HEAD
 int nvkm_gpio_new_(const struct nvkm_gpio_func *, struct nvkm_device *,
 		   int index, struct nvkm_gpio **);
+=======
+int nvkm_gpio_new_(const struct nvkm_gpio_func *, struct nvkm_device *, enum nvkm_subdev_type, int,
+		   struct nvkm_gpio **);
+>>>>>>> upstream/android-13
 
 void nv50_gpio_reset(struct nvkm_gpio *, u8);
 int  nv50_gpio_drive(struct nvkm_gpio *, int, int, int);

@@ -4,7 +4,20 @@
 #include <linux/string.h>
 #include <stdlib.h>
 
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <linux/ctype.h>
+
+const char *graph_dotted_line =
+	"---------------------------------------------------------------------"
+	"---------------------------------------------------------------------"
+	"---------------------------------------------------------------------";
+const char *dots =
+	"....................................................................."
+	"....................................................................."
+	".....................................................................";
+>>>>>>> upstream/android-13
 
 #define K 1024LL
 /*
@@ -60,6 +73,7 @@ out_err:
 	return -1;
 }
 
+<<<<<<< HEAD
 /*
  * Helper function for splitting a string into an argv-like array.
  * originally copied from lib/argv_split.c
@@ -163,6 +177,8 @@ fail:
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Character class matching */
 static bool __match_charclass(const char *pat, char c, const char **npat)
 {
@@ -303,6 +319,7 @@ int strtailcmp(const char *s1, const char *s2)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * strxfrchar - Locate and replace character in @s
  * @s:    The string to be searched/changed.
@@ -358,6 +375,8 @@ char *rtrim(char *s)
 	return s;
 }
 
+=======
+>>>>>>> upstream/android-13
 char *asprintf_expr_inout_ints(const char *var, bool in, size_t nints, int *ints)
 {
 	/*
@@ -442,3 +461,15 @@ char *strdup_esc(const char *str)
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+
+unsigned int hex(char c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'a' && c <= 'f')
+		return c - 'a' + 10;
+	return c - 'A' + 10;
+}
+>>>>>>> upstream/android-13

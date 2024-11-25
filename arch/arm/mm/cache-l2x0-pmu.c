@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * L220/L310 cache controller support
  *
  * Copyright (C) 2016 ARM Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/errno.h>
 #include <linux/hrtimer.h>
@@ -314,6 +321,7 @@ static int l2x0_pmu_event_init(struct perf_event *event)
 	    event->attach_state & PERF_ATTACH_TASK)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (event->attr.exclude_user   ||
 	    event->attr.exclude_kernel ||
 	    event->attr.exclude_hv     ||
@@ -322,6 +330,8 @@ static int l2x0_pmu_event_init(struct perf_event *event)
 	    event->attr.exclude_guest)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	if (event->cpu < 0)
 		return -EINVAL;
 
@@ -544,6 +554,10 @@ static __init int l2x0_pmu_init(void)
 		.del = l2x0_pmu_event_del,
 		.event_init = l2x0_pmu_event_init,
 		.attr_groups = l2x0_pmu_attr_groups,
+<<<<<<< HEAD
+=======
+		.capabilities = PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	l2x0_pmu_reset();

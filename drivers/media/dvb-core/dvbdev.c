@@ -479,7 +479,11 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	dvbdevfops = kzalloc(sizeof(struct file_operations), GFP_KERNEL);
+=======
+	dvbdevfops = kmemdup(template->fops, sizeof(*dvbdevfops), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!dvbdevfops){
 		kfree (dvbdev);
@@ -495,7 +499,10 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
 	dvbdev->fops = dvbdevfops;
 	init_waitqueue_head (&dvbdev->wait_queue);
 
+<<<<<<< HEAD
 	memcpy(dvbdevfops, template->fops, sizeof(struct file_operations));
+=======
+>>>>>>> upstream/android-13
 	dvbdevfops->owner = adap->module;
 
 	list_add_tail (&dvbdev->list_head, &adap->device_list);
@@ -507,6 +514,10 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
 			break;
 
 	if (minor == MAX_DVB_MINORS) {
+<<<<<<< HEAD
+=======
+		list_del (&dvbdev->list_head);
+>>>>>>> upstream/android-13
 		kfree(dvbdevfops);
 		kfree(dvbdev);
 		up_write(&minor_rwsem);
@@ -527,9 +538,15 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
 		      __func__);
 
 		dvb_media_device_free(dvbdev);
+<<<<<<< HEAD
 		kfree(dvbdevfops);
 		kfree(dvbdev);
 		up_write(&minor_rwsem);
+=======
+		list_del (&dvbdev->list_head);
+		kfree(dvbdevfops);
+		kfree(dvbdev);
+>>>>>>> upstream/android-13
 		mutex_unlock(&dvbdev_register_lock);
 		return ret;
 	}
@@ -542,6 +559,13 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
 	if (IS_ERR(clsdev)) {
 		pr_err("%s: failed to create device dvb%d.%s%d (%ld)\n",
 		       __func__, adap->num, dnames[type], id, PTR_ERR(clsdev));
+<<<<<<< HEAD
+=======
+		dvb_media_device_free(dvbdev);
+		list_del (&dvbdev->list_head);
+		kfree(dvbdevfops);
+		kfree(dvbdev);
+>>>>>>> upstream/android-13
 		return PTR_ERR(clsdev);
 	}
 	dprintk("DVB: register adapter%d/%s%d @ minor: %i (0x%02x)\n",
@@ -624,7 +648,11 @@ int dvb_create_media_graph(struct dvb_adapter *adap,
 	unsigned demux_pad = 0;
 	unsigned dvr_pad = 0;
 	unsigned ntuner = 0, ndemod = 0;
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret, pad_source, pad_sink;
+>>>>>>> upstream/android-13
 	static const char *connector_name = "Television";
 
 	if (!mdev)
@@ -684,7 +712,11 @@ int dvb_create_media_graph(struct dvb_adapter *adap,
 		if (ret)
 			return ret;
 
+<<<<<<< HEAD
 		if (!ntuner)
+=======
+		if (!ntuner) {
+>>>>>>> upstream/android-13
 			ret = media_create_pad_links(mdev,
 						     MEDIA_ENT_F_CONN_RF,
 						     conn, 0,
@@ -692,22 +724,48 @@ int dvb_create_media_graph(struct dvb_adapter *adap,
 						     demod, 0,
 						     MEDIA_LNK_FL_ENABLED,
 						     false);
+<<<<<<< HEAD
 		else
+=======
+		} else {
+			pad_sink = media_get_pad_index(tuner, true,
+						       PAD_SIGNAL_ANALOG);
+			if (pad_sink < 0)
+				return -EINVAL;
+>>>>>>> upstream/android-13
 			ret = media_create_pad_links(mdev,
 						     MEDIA_ENT_F_CONN_RF,
 						     conn, 0,
 						     MEDIA_ENT_F_TUNER,
+<<<<<<< HEAD
 						     tuner, TUNER_PAD_RF_INPUT,
 						     MEDIA_LNK_FL_ENABLED,
 						     false);
+=======
+						     tuner, pad_sink,
+						     MEDIA_LNK_FL_ENABLED,
+						     false);
+		}
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
 
 	if (ntuner && ndemod) {
+<<<<<<< HEAD
 		ret = media_create_pad_links(mdev,
 					     MEDIA_ENT_F_TUNER,
 					     tuner, TUNER_PAD_OUTPUT,
+=======
+		/* NOTE: first found tuner source pad presumed correct */
+		pad_source = media_get_pad_index(tuner, false,
+						 PAD_SIGNAL_ANALOG);
+		if (pad_source < 0)
+			return -EINVAL;
+		ret = media_create_pad_links(mdev,
+					     MEDIA_ENT_F_TUNER,
+					     tuner, pad_source,
+>>>>>>> upstream/android-13
 					     MEDIA_ENT_F_DTV_DEMOD,
 					     demod, 0, MEDIA_LNK_FL_ENABLED,
 					     false);
@@ -892,7 +950,11 @@ EXPORT_SYMBOL(dvb_unregister_adapter);
 
 /* if the miracle happens and "generic_usercopy()" is included into
    the kernel, then this can vanish. please don't make the mistake and
+<<<<<<< HEAD
    define this as video_usercopy(). this will introduce a dependecy
+=======
+   define this as video_usercopy(). this will introduce a dependency
+>>>>>>> upstream/android-13
    to the v4l "videodev.o" module, which is unnecessary for some
    cards (ie. the budget dvb-cards don't need the v4l module...) */
 int dvb_usercopy(struct file *file,
@@ -970,15 +1032,26 @@ struct i2c_client *dvb_module_probe(const char *module_name,
 		return NULL;
 
 	if (name)
+<<<<<<< HEAD
 		strlcpy(board_info->type, name, I2C_NAME_SIZE);
 	else
 		strlcpy(board_info->type, module_name, I2C_NAME_SIZE);
+=======
+		strscpy(board_info->type, name, I2C_NAME_SIZE);
+	else
+		strscpy(board_info->type, module_name, I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 
 	board_info->addr = addr;
 	board_info->platform_data = platform_data;
 	request_module(module_name);
+<<<<<<< HEAD
 	client = i2c_new_device(adap, board_info);
 	if (client == NULL || client->dev.driver == NULL) {
+=======
+	client = i2c_new_client_device(adap, board_info);
+	if (!i2c_client_has_driver(client)) {
+>>>>>>> upstream/android-13
 		kfree(board_info);
 		return NULL;
 	}

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LPDDR2-NVM MTD driver. This module provides read, write, erase, lock/unlock
  * support for LPDDR2-NVM PCM memories
@@ -7,6 +11,7 @@
  * Vincenzo Aliberti <vincenzo.aliberti@gmail.com>
  * Domenico Manna <domenico.manna@gmail.com>
  * Many thanks to Andrea Vigilante for initial enabling
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": %s: " fmt, __func__

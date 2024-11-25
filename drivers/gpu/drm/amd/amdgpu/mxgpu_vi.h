@@ -43,7 +43,12 @@ enum idh_event {
 	IDH_READY_TO_ACCESS_GPU,
 	IDH_FLR_NOTIFICATION,
 	IDH_FLR_NOTIFICATION_CMPL,
+<<<<<<< HEAD
 	IDH_EVENT_MAX
+=======
+
+	IDH_TEXT_MESSAGE = 255
+>>>>>>> upstream/android-13
 };
 
 extern const struct amdgpu_virt_ops xgpu_vi_virt_ops;

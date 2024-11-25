@@ -66,7 +66,11 @@ struct ioctl_gntdev_map_grant_ref {
 
 /*
  * Removes the grant references from the mapping table of an instance of
+<<<<<<< HEAD
  * of gntdev. N.B. munmap() must be called on the relevant virtual address(es)
+=======
+ * gntdev. N.B. munmap() must be called on the relevant virtual address(es)
+>>>>>>> upstream/android-13
  * before this ioctl is called, or an error will result.
  */
 #define IOCTL_GNTDEV_UNMAP_GRANT_REF \

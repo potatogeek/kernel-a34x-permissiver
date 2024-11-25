@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic driver for NXP NCI NFC chips
  *
@@ -7,6 +11,7 @@
  *
  * Derived from PN544 device driver:
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -19,6 +24,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -106,10 +113,15 @@ static int nxp_nci_fw_send_chunk(struct nxp_nci_info *info)
 	int r;
 
 	skb = nci_skb_alloc(info->ndev, info->max_payload, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!skb) {
 		r = -ENOMEM;
 		goto chunk_exit;
 	}
+=======
+	if (!skb)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	chunk_len = info->max_payload - NXP_NCI_FW_HDR_LEN - NXP_NCI_FW_CRC_LEN;
 	remaining_len = fw_info->frame_size - fw_info->written;
@@ -135,7 +147,10 @@ static int nxp_nci_fw_send_chunk(struct nxp_nci_info *info)
 
 	kfree_skb(skb);
 
+<<<<<<< HEAD
 chunk_exit:
+=======
+>>>>>>> upstream/android-13
 	return r;
 }
 

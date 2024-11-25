@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Spreadtrum Communications Inc.
  *
@@ -9,15 +10,29 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2017 Spreadtrum Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mfd/core.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
 #include <linux/regmap.h>
 #include <linux/spi/spi.h>
+=======
+#include <linux/mfd/sc27xx-pmic.h>
+#include <linux/of_device.h>
+#include <linux/of_platform.h>
+#include <linux/regmap.h>
+#include <linux/spi/spi.h>
+#include <uapi/linux/usb/charger.h>
+>>>>>>> upstream/android-13
 
 #define SPRD_PMIC_INT_MASK_STATUS	0x0
 #define SPRD_PMIC_INT_RAW_STATUS	0x4
@@ -25,6 +40,19 @@
 
 #define SPRD_SC2731_IRQ_BASE		0x140
 #define SPRD_SC2731_IRQ_NUMS		16
+<<<<<<< HEAD
+=======
+#define SPRD_SC2731_CHG_DET		0xedc
+
+/* PMIC charger detection definition */
+#define SPRD_PMIC_CHG_DET_DELAY_US	200000
+#define SPRD_PMIC_CHG_DET_TIMEOUT	2000000
+#define SPRD_PMIC_CHG_DET_DONE		BIT(11)
+#define SPRD_PMIC_SDP_TYPE		BIT(7)
+#define SPRD_PMIC_DCP_TYPE		BIT(6)
+#define SPRD_PMIC_CDP_TYPE		BIT(5)
+#define SPRD_PMIC_CHG_TYPE_MASK		GENMASK(7, 5)
+>>>>>>> upstream/android-13
 
 struct sprd_pmic {
 	struct regmap *regmap;
@@ -32,12 +60,20 @@ struct sprd_pmic {
 	struct regmap_irq *irqs;
 	struct regmap_irq_chip irq_chip;
 	struct regmap_irq_chip_data *irq_data;
+<<<<<<< HEAD
+=======
+	const struct sprd_pmic_data *pdata;
+>>>>>>> upstream/android-13
 	int irq;
 };
 
 struct sprd_pmic_data {
 	u32 irq_base;
 	u32 num_irqs;
+<<<<<<< HEAD
+=======
+	u32 charger_det;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -48,6 +84,7 @@ struct sprd_pmic_data {
 static const struct sprd_pmic_data sc2731_data = {
 	.irq_base = SPRD_SC2731_IRQ_BASE,
 	.num_irqs = SPRD_SC2731_IRQ_NUMS,
+<<<<<<< HEAD
 };
 
 static const struct mfd_cell sprd_pmic_devs[] = {
@@ -116,6 +153,47 @@ static const struct mfd_cell sprd_pmic_devs[] = {
 		.of_compatible = "sprd,sc27xx-syscon",
 	},
 };
+=======
+	.charger_det = SPRD_SC2731_CHG_DET,
+};
+
+enum usb_charger_type sprd_pmic_detect_charger_type(struct device *dev)
+{
+	struct spi_device *spi = to_spi_device(dev);
+	struct sprd_pmic *ddata = spi_get_drvdata(spi);
+	const struct sprd_pmic_data *pdata = ddata->pdata;
+	enum usb_charger_type type;
+	u32 val;
+	int ret;
+
+	ret = regmap_read_poll_timeout(ddata->regmap, pdata->charger_det, val,
+				       (val & SPRD_PMIC_CHG_DET_DONE),
+				       SPRD_PMIC_CHG_DET_DELAY_US,
+				       SPRD_PMIC_CHG_DET_TIMEOUT);
+	if (ret) {
+		dev_err(&spi->dev, "failed to detect charger type\n");
+		return UNKNOWN_TYPE;
+	}
+
+	switch (val & SPRD_PMIC_CHG_TYPE_MASK) {
+	case SPRD_PMIC_CDP_TYPE:
+		type = CDP_TYPE;
+		break;
+	case SPRD_PMIC_DCP_TYPE:
+		type = DCP_TYPE;
+		break;
+	case SPRD_PMIC_SDP_TYPE:
+		type = SDP_TYPE;
+		break;
+	default:
+		type = UNKNOWN_TYPE;
+		break;
+	}
+
+	return type;
+}
+EXPORT_SYMBOL_GPL(sprd_pmic_detect_charger_type);
+>>>>>>> upstream/android-13
 
 static int sprd_pmic_spi_write(void *context, const void *data, size_t count)
 {
@@ -189,6 +267,10 @@ static int sprd_pmic_probe(struct spi_device *spi)
 	spi_set_drvdata(spi, ddata);
 	ddata->dev = &spi->dev;
 	ddata->irq = spi->irq;
+<<<<<<< HEAD
+=======
+	ddata->pdata = pdata;
+>>>>>>> upstream/android-13
 
 	ddata->irq_chip.name = dev_name(&spi->dev);
 	ddata->irq_chip.status_base =
@@ -206,10 +288,15 @@ static int sprd_pmic_probe(struct spi_device *spi)
 		return -ENOMEM;
 
 	ddata->irq_chip.irqs = ddata->irqs;
+<<<<<<< HEAD
 	for (i = 0; i < pdata->num_irqs; i++) {
 		ddata->irqs[i].reg_offset = i / pdata->num_irqs;
 		ddata->irqs[i].mask = BIT(i % pdata->num_irqs);
 	}
+=======
+	for (i = 0; i < pdata->num_irqs; i++)
+		ddata->irqs[i].mask = BIT(i);
+>>>>>>> upstream/android-13
 
 	ret = devm_regmap_add_irq_chip(&spi->dev, ddata->regmap, ddata->irq,
 				       IRQF_ONESHOT, 0,
@@ -219,12 +306,18 @@ static int sprd_pmic_probe(struct spi_device *spi)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = devm_mfd_add_devices(&spi->dev, PLATFORM_DEVID_AUTO,
 				   sprd_pmic_devs, ARRAY_SIZE(sprd_pmic_devs),
 				   NULL, 0,
 				   regmap_irq_get_domain(ddata->irq_data));
 	if (ret) {
 		dev_err(&spi->dev, "Failed to register device %d\n", ret);
+=======
+	ret = devm_of_platform_populate(&spi->dev);
+	if (ret) {
+		dev_err(&spi->dev, "Failed to populate sub-devices %d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -262,14 +355,30 @@ static const struct of_device_id sprd_pmic_match[] = {
 };
 MODULE_DEVICE_TABLE(of, sprd_pmic_match);
 
+<<<<<<< HEAD
 static struct spi_driver sprd_pmic_driver = {
 	.driver = {
 		.name = "sc27xx-pmic",
 		.bus = &spi_bus_type,
+=======
+static const struct spi_device_id sprd_pmic_spi_ids[] = {
+	{ .name = "sc2731", .driver_data = (unsigned long)&sc2731_data },
+	{},
+};
+MODULE_DEVICE_TABLE(spi, sprd_pmic_spi_ids);
+
+static struct spi_driver sprd_pmic_driver = {
+	.driver = {
+		.name = "sc27xx-pmic",
+>>>>>>> upstream/android-13
 		.of_match_table = sprd_pmic_match,
 		.pm = &sprd_pmic_pm_ops,
 	},
 	.probe = sprd_pmic_probe,
+<<<<<<< HEAD
+=======
+	.id_table = sprd_pmic_spi_ids,
+>>>>>>> upstream/android-13
 };
 
 static int __init sprd_pmic_init(void)

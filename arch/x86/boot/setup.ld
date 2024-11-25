@@ -3,7 +3,11 @@
  *
  * Linker script for the i386 setup code
  */
+<<<<<<< HEAD
 OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+=======
+OUTPUT_FORMAT("elf32-i386")
+>>>>>>> upstream/android-13
 OUTPUT_ARCH(i386)
 ENTRY(_start)
 
@@ -20,7 +24,11 @@ SECTIONS
 	.initdata	: { *(.initdata) }
 	__end_init = .;
 
+<<<<<<< HEAD
 	.text		: { *(.text) }
+=======
+	.text		: { *(.text .text.*) }
+>>>>>>> upstream/android-13
 	.text32		: { *(.text32) }
 
 	. = ALIGN(16);
@@ -51,7 +59,13 @@ SECTIONS
 	. = ALIGN(16);
 	_end = .;
 
+<<<<<<< HEAD
 	/DISCARD/ : { *(.note*) }
+=======
+	/DISCARD/	: {
+		*(.note*)
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * The ASSERT() sink to . is intentional, for binutils 2.14 compatibility:

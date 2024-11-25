@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tmp006.c - Support for TI TMP006 IR thermopile sensor
  *
  * Copyright (c) 2013 Peter Meerwald <pmeerw@pmeerw.net>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Driver for the Texas Instruments I2C 16-bit IR thermopile sensor
  *
  * (7-bit I2C slave address 0x40, changeable via ADR pins)
@@ -196,6 +203,28 @@ static bool tmp006_check_identification(struct i2c_client *client)
 	return mid == TMP006_MANUFACTURER_MAGIC && did == TMP006_DEVICE_MAGIC;
 }
 
+<<<<<<< HEAD
+=======
+static int tmp006_power(struct device *dev, bool up)
+{
+	struct iio_dev *indio_dev = i2c_get_clientdata(to_i2c_client(dev));
+	struct tmp006_data *data = iio_priv(indio_dev);
+
+	if (up)
+		data->config |= TMP006_CONFIG_MOD_MASK;
+	else
+		data->config &= ~TMP006_CONFIG_MOD_MASK;
+
+	return i2c_smbus_write_word_swapped(data->client, TMP006_CONFIG,
+		data->config);
+}
+
+static void tmp006_powerdown_cleanup(void *dev)
+{
+	tmp006_power(dev, false);
+}
+
+>>>>>>> upstream/android-13
 static int tmp006_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
@@ -219,7 +248,10 @@ static int tmp006_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, indio_dev);
 	data->client = client;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&client->dev);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &tmp006_info;
@@ -232,6 +264,7 @@ static int tmp006_probe(struct i2c_client *client,
 		return ret;
 	data->config = ret;
 
+<<<<<<< HEAD
 	return iio_device_register(indio_dev);
 }
 
@@ -249,21 +282,43 @@ static int tmp006_remove(struct i2c_client *client)
 	tmp006_powerdown(iio_priv(indio_dev));
 
 	return 0;
+=======
+	if ((ret & TMP006_CONFIG_MOD_MASK) != TMP006_CONFIG_MOD_MASK) {
+		ret = tmp006_power(&client->dev, true);
+		if (ret < 0)
+			return ret;
+	}
+
+	ret = devm_add_action_or_reset(&client->dev, tmp006_powerdown_cleanup,
+				       &client->dev);
+	if (ret < 0)
+		return ret;
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP
 static int tmp006_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct iio_dev *indio_dev = i2c_get_clientdata(to_i2c_client(dev));
 	return tmp006_powerdown(iio_priv(indio_dev));
+=======
+	return tmp006_power(dev, false);
+>>>>>>> upstream/android-13
 }
 
 static int tmp006_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct tmp006_data *data = iio_priv(i2c_get_clientdata(
 		to_i2c_client(dev)));
 	return i2c_smbus_write_word_swapped(data->client, TMP006_CONFIG,
 		data->config | TMP006_CONFIG_MOD_MASK);
+=======
+	return tmp006_power(dev, true);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -281,7 +336,10 @@ static struct i2c_driver tmp006_driver = {
 		.pm	= &tmp006_pm_ops,
 	},
 	.probe = tmp006_probe,
+<<<<<<< HEAD
 	.remove = tmp006_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table = tmp006_id,
 };
 module_i2c_driver(tmp006_driver);

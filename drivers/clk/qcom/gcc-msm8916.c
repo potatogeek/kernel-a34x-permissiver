@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015 Linaro Limited
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015 Linaro Limited
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -544,7 +550,15 @@ static struct clk_rcg2 blsp1_qup1_i2c_apps_clk_src = {
 };
 
 static const struct freq_tbl ftbl_gcc_blsp1_qup1_6_spi_apps_clk[] = {
+<<<<<<< HEAD
 	F(960000, P_XO, 10, 1, 2),
+=======
+	F(100000, P_XO, 16, 2, 24),
+	F(250000, P_XO, 16, 5, 24),
+	F(500000, P_XO, 8, 5, 24),
+	F(960000, P_XO, 10, 1, 2),
+	F(1000000, P_XO, 4, 5, 24),
+>>>>>>> upstream/android-13
 	F(4800000, P_XO, 4, 0, 0),
 	F(9600000, P_XO, 2, 0, 0),
 	F(16000000, P_GPLL0, 10, 1, 5),

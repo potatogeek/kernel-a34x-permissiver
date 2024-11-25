@@ -13,6 +13,10 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/list.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/slab.h>
 #include <linux/err.h>
@@ -291,13 +295,24 @@ con3270_update(struct timer_list *t)
  * Read tasklet.
  */
 static void
+<<<<<<< HEAD
 con3270_read_tasklet(struct raw3270_request *rrq)
 {
 	static char kreset_data = TW_KR;
+=======
+con3270_read_tasklet(unsigned long data)
+{
+	static char kreset_data = TW_KR;
+	struct raw3270_request *rrq;
+>>>>>>> upstream/android-13
 	struct con3270 *cp;
 	unsigned long flags;
 	int nr_up, deactivate;
 
+<<<<<<< HEAD
+=======
+	rrq = (struct raw3270_request *)data;
+>>>>>>> upstream/android-13
 	cp = (struct con3270 *) rrq->view;
 	spin_lock_irqsave(&cp->view.lock, flags);
 	nr_up = cp->nr_up;
@@ -544,7 +559,10 @@ con3270_flush(void)
 	cp = condev;
 	if (!cp->view.dev)
 		return;
+<<<<<<< HEAD
 	raw3270_pm_unfreeze(&cp->view);
+=======
+>>>>>>> upstream/android-13
 	raw3270_activate_view(&cp->view);
 	spin_lock_irqsave(&cp->view.lock, flags);
 	con3270_wait_write(cp);
@@ -625,8 +643,12 @@ con3270_init(void)
 	INIT_LIST_HEAD(&condev->lines);
 	INIT_LIST_HEAD(&condev->update);
 	timer_setup(&condev->timer, con3270_update, 0);
+<<<<<<< HEAD
 	tasklet_init(&condev->readlet, 
 		     (void (*)(unsigned long)) con3270_read_tasklet,
+=======
+	tasklet_init(&condev->readlet, con3270_read_tasklet,
+>>>>>>> upstream/android-13
 		     (unsigned long) condev->read);
 
 	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);

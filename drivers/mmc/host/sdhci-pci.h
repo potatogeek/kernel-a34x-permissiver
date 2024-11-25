@@ -50,8 +50,21 @@
 #define PCI_DEVICE_ID_INTEL_CNPH_SD	0xa375
 #define PCI_DEVICE_ID_INTEL_ICP_EMMC	0x34c4
 #define PCI_DEVICE_ID_INTEL_ICP_SD	0x34f8
+<<<<<<< HEAD
 #define PCI_DEVICE_ID_INTEL_CML_EMMC	0x02c4
 #define PCI_DEVICE_ID_INTEL_CML_SD	0x02f5
+=======
+#define PCI_DEVICE_ID_INTEL_EHL_EMMC	0x4b47
+#define PCI_DEVICE_ID_INTEL_EHL_SD	0x4b48
+#define PCI_DEVICE_ID_INTEL_CML_EMMC	0x02c4
+#define PCI_DEVICE_ID_INTEL_CML_SD	0x02f5
+#define PCI_DEVICE_ID_INTEL_CMLH_SD	0x06f5
+#define PCI_DEVICE_ID_INTEL_JSL_EMMC	0x4dc4
+#define PCI_DEVICE_ID_INTEL_JSL_SD	0x4df8
+#define PCI_DEVICE_ID_INTEL_LKF_EMMC	0x98c4
+#define PCI_DEVICE_ID_INTEL_LKF_SD	0x98f8
+#define PCI_DEVICE_ID_INTEL_ADL_EMMC	0x54c4
+>>>>>>> upstream/android-13
 
 #define PCI_DEVICE_ID_SYSKONNECT_8000	0x8000
 #define PCI_DEVICE_ID_VIA_95D0		0x95d0
@@ -65,6 +78,13 @@
 
 #define PCI_DEVICE_ID_SYNOPSYS_DWC_MSHC 0xc202
 
+<<<<<<< HEAD
+=======
+#define PCI_DEVICE_ID_GLI_9755		0x9755
+#define PCI_DEVICE_ID_GLI_9750		0x9750
+#define PCI_DEVICE_ID_GLI_9763E		0xe763
+
+>>>>>>> upstream/android-13
 /*
  * PCI device class and mask
  */
@@ -155,7 +175,11 @@ struct sdhci_pci_slot {
 	bool			cd_override_level;
 
 	void (*hw_reset)(struct sdhci_host *host);
+<<<<<<< HEAD
 	unsigned long		private[0] ____cacheline_aligned;
+=======
+	unsigned long		private[] ____cacheline_aligned;
+>>>>>>> upstream/android-13
 };
 
 struct sdhci_pci_chip {
@@ -181,6 +205,7 @@ static inline void *sdhci_pci_priv(struct sdhci_pci_slot *slot)
 int sdhci_pci_resume_host(struct sdhci_pci_chip *chip);
 #endif
 int sdhci_pci_enable_dma(struct sdhci_host *host);
+<<<<<<< HEAD
 int sdhci_pci_o2_probe_slot(struct sdhci_pci_slot *slot);
 int sdhci_pci_o2_probe(struct sdhci_pci_chip *chip);
 #ifdef CONFIG_PM_SLEEP
@@ -189,5 +214,14 @@ int sdhci_pci_o2_resume(struct sdhci_pci_chip *chip);
 
 extern const struct sdhci_pci_fixes sdhci_arasan;
 extern const struct sdhci_pci_fixes sdhci_snps;
+=======
+
+extern const struct sdhci_pci_fixes sdhci_arasan;
+extern const struct sdhci_pci_fixes sdhci_snps;
+extern const struct sdhci_pci_fixes sdhci_o2;
+extern const struct sdhci_pci_fixes sdhci_gl9750;
+extern const struct sdhci_pci_fixes sdhci_gl9755;
+extern const struct sdhci_pci_fixes sdhci_gl9763e;
+>>>>>>> upstream/android-13
 
 #endif /* __SDHCI_PCI_H */

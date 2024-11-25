@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * encx24j600_hw.h: Register definitions
  *
  */
@@ -15,8 +19,13 @@ struct encx24j600_context {
 	int bank;
 };
 
+<<<<<<< HEAD
 void devm_regmap_init_encx24j600(struct device *dev,
 				 struct encx24j600_context *ctx);
+=======
+int devm_regmap_init_encx24j600(struct device *dev,
+				struct encx24j600_context *ctx);
+>>>>>>> upstream/android-13
 
 /* Single-byte instructions */
 #define BANK_SELECT(bank) (0xC0 | ((bank & (BANK_MASK >> BANK_SHIFT)) << 1))

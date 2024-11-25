@@ -47,6 +47,7 @@
 #include <net/checksum.h>
 #include <net/udp.h>
 #include <net/tcp.h>
+<<<<<<< HEAD
 
 #include <trace/events/sunrpc.h>
 
@@ -54,6 +55,18 @@
 
 #define RPC_TCP_READ_CHUNK_SZ	(3*512*1024)
 
+=======
+#include <linux/bvec.h>
+#include <linux/highmem.h>
+#include <linux/uio.h>
+#include <linux/sched/mm.h>
+
+#include <trace/events/sunrpc.h>
+
+#include "socklib.h"
+#include "sunrpc.h"
+
+>>>>>>> upstream/android-13
 static void xs_close(struct rpc_xprt *xprt);
 static void xs_tcp_set_socket_timeouts(struct rpc_xprt *xprt,
 		struct socket *sock);
@@ -68,8 +81,11 @@ static unsigned int xprt_max_tcp_slot_table_entries = RPC_MAX_SLOT_TABLE;
 static unsigned int xprt_min_resvport = RPC_DEF_MIN_RESVPORT;
 static unsigned int xprt_max_resvport = RPC_DEF_MAX_RESVPORT;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
 
+=======
+>>>>>>> upstream/android-13
 #define XS_TCP_LINGER_TO	(15U * HZ)
 static unsigned int xs_tcp_fin_timeout __read_mostly = XS_TCP_LINGER_TO;
 
@@ -90,6 +106,14 @@ static unsigned int xprt_max_resvport_limit = RPC_MAX_RESVPORT;
 
 static struct ctl_table_header *sunrpc_table_header;
 
+<<<<<<< HEAD
+=======
+static struct xprt_class xs_local_transport;
+static struct xprt_class xs_udp_transport;
+static struct xprt_class xs_tcp_transport;
+static struct xprt_class xs_bc_tcp_transport;
+
+>>>>>>> upstream/android-13
 /*
  * FIXME: changing the UDP slot table size should also resize the UDP
  *        socket buffers for existing UDP transports
@@ -159,8 +183,11 @@ static struct ctl_table sunrpc_table[] = {
 	{ },
 };
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Wait duration for a reply from the RPC portmapper.
  */
@@ -325,6 +352,7 @@ static void xs_free_peer_addresses(struct rpc_xprt *xprt)
 		}
 }
 
+<<<<<<< HEAD
 #define XS_SENDMSG_FLAGS	(MSG_DONTWAIT | MSG_NOSIGNAL)
 
 static int xs_send_kvec(struct socket *sock, struct sockaddr *addr, int addrlen, struct kvec *vec, unsigned int base, int more)
@@ -479,6 +507,458 @@ static int xs_nospace(struct rpc_task *task)
 
 	/* Race breaker in case memory is freed before above code is called */
 	if (ret == -EAGAIN) {
+=======
+static size_t
+xs_alloc_sparse_pages(struct xdr_buf *buf, size_t want, gfp_t gfp)
+{
+	size_t i,n;
+
+	if (!want || !(buf->flags & XDRBUF_SPARSE_PAGES))
+		return want;
+	n = (buf->page_base + want + PAGE_SIZE - 1) >> PAGE_SHIFT;
+	for (i = 0; i < n; i++) {
+		if (buf->pages[i])
+			continue;
+		buf->bvec[i].bv_page = buf->pages[i] = alloc_page(gfp);
+		if (!buf->pages[i]) {
+			i *= PAGE_SIZE;
+			return i > buf->page_base ? i - buf->page_base : 0;
+		}
+	}
+	return want;
+}
+
+static ssize_t
+xs_sock_recvmsg(struct socket *sock, struct msghdr *msg, int flags, size_t seek)
+{
+	ssize_t ret;
+	if (seek != 0)
+		iov_iter_advance(&msg->msg_iter, seek);
+	ret = sock_recvmsg(sock, msg, flags);
+	return ret > 0 ? ret + seek : ret;
+}
+
+static ssize_t
+xs_read_kvec(struct socket *sock, struct msghdr *msg, int flags,
+		struct kvec *kvec, size_t count, size_t seek)
+{
+	iov_iter_kvec(&msg->msg_iter, READ, kvec, 1, count);
+	return xs_sock_recvmsg(sock, msg, flags, seek);
+}
+
+static ssize_t
+xs_read_bvec(struct socket *sock, struct msghdr *msg, int flags,
+		struct bio_vec *bvec, unsigned long nr, size_t count,
+		size_t seek)
+{
+	iov_iter_bvec(&msg->msg_iter, READ, bvec, nr, count);
+	return xs_sock_recvmsg(sock, msg, flags, seek);
+}
+
+static ssize_t
+xs_read_discard(struct socket *sock, struct msghdr *msg, int flags,
+		size_t count)
+{
+	iov_iter_discard(&msg->msg_iter, READ, count);
+	return sock_recvmsg(sock, msg, flags);
+}
+
+#if ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE
+static void
+xs_flush_bvec(const struct bio_vec *bvec, size_t count, size_t seek)
+{
+	struct bvec_iter bi = {
+		.bi_size = count,
+	};
+	struct bio_vec bv;
+
+	bvec_iter_advance(bvec, &bi, seek & PAGE_MASK);
+	for_each_bvec(bv, bvec, bi, bi)
+		flush_dcache_page(bv.bv_page);
+}
+#else
+static inline void
+xs_flush_bvec(const struct bio_vec *bvec, size_t count, size_t seek)
+{
+}
+#endif
+
+static ssize_t
+xs_read_xdr_buf(struct socket *sock, struct msghdr *msg, int flags,
+		struct xdr_buf *buf, size_t count, size_t seek, size_t *read)
+{
+	size_t want, seek_init = seek, offset = 0;
+	ssize_t ret;
+
+	want = min_t(size_t, count, buf->head[0].iov_len);
+	if (seek < want) {
+		ret = xs_read_kvec(sock, msg, flags, &buf->head[0], want, seek);
+		if (ret <= 0)
+			goto sock_err;
+		offset += ret;
+		if (offset == count || msg->msg_flags & (MSG_EOR|MSG_TRUNC))
+			goto out;
+		if (ret != want)
+			goto out;
+		seek = 0;
+	} else {
+		seek -= want;
+		offset += want;
+	}
+
+	want = xs_alloc_sparse_pages(buf,
+			min_t(size_t, count - offset, buf->page_len),
+			GFP_KERNEL);
+	if (seek < want) {
+		ret = xs_read_bvec(sock, msg, flags, buf->bvec,
+				xdr_buf_pagecount(buf),
+				want + buf->page_base,
+				seek + buf->page_base);
+		if (ret <= 0)
+			goto sock_err;
+		xs_flush_bvec(buf->bvec, ret, seek + buf->page_base);
+		ret -= buf->page_base;
+		offset += ret;
+		if (offset == count || msg->msg_flags & (MSG_EOR|MSG_TRUNC))
+			goto out;
+		if (ret != want)
+			goto out;
+		seek = 0;
+	} else {
+		seek -= want;
+		offset += want;
+	}
+
+	want = min_t(size_t, count - offset, buf->tail[0].iov_len);
+	if (seek < want) {
+		ret = xs_read_kvec(sock, msg, flags, &buf->tail[0], want, seek);
+		if (ret <= 0)
+			goto sock_err;
+		offset += ret;
+		if (offset == count || msg->msg_flags & (MSG_EOR|MSG_TRUNC))
+			goto out;
+		if (ret != want)
+			goto out;
+	} else if (offset < seek_init)
+		offset = seek_init;
+	ret = -EMSGSIZE;
+out:
+	*read = offset - seek_init;
+	return ret;
+sock_err:
+	offset += seek;
+	goto out;
+}
+
+static void
+xs_read_header(struct sock_xprt *transport, struct xdr_buf *buf)
+{
+	if (!transport->recv.copied) {
+		if (buf->head[0].iov_len >= transport->recv.offset)
+			memcpy(buf->head[0].iov_base,
+					&transport->recv.xid,
+					transport->recv.offset);
+		transport->recv.copied = transport->recv.offset;
+	}
+}
+
+static bool
+xs_read_stream_request_done(struct sock_xprt *transport)
+{
+	return transport->recv.fraghdr & cpu_to_be32(RPC_LAST_STREAM_FRAGMENT);
+}
+
+static void
+xs_read_stream_check_eor(struct sock_xprt *transport,
+		struct msghdr *msg)
+{
+	if (xs_read_stream_request_done(transport))
+		msg->msg_flags |= MSG_EOR;
+}
+
+static ssize_t
+xs_read_stream_request(struct sock_xprt *transport, struct msghdr *msg,
+		int flags, struct rpc_rqst *req)
+{
+	struct xdr_buf *buf = &req->rq_private_buf;
+	size_t want, read;
+	ssize_t ret;
+
+	xs_read_header(transport, buf);
+
+	want = transport->recv.len - transport->recv.offset;
+	if (want != 0) {
+		ret = xs_read_xdr_buf(transport->sock, msg, flags, buf,
+				transport->recv.copied + want,
+				transport->recv.copied,
+				&read);
+		transport->recv.offset += read;
+		transport->recv.copied += read;
+	}
+
+	if (transport->recv.offset == transport->recv.len)
+		xs_read_stream_check_eor(transport, msg);
+
+	if (want == 0)
+		return 0;
+
+	switch (ret) {
+	default:
+		break;
+	case -EFAULT:
+	case -EMSGSIZE:
+		msg->msg_flags |= MSG_TRUNC;
+		return read;
+	case 0:
+		return -ESHUTDOWN;
+	}
+	return ret < 0 ? ret : read;
+}
+
+static size_t
+xs_read_stream_headersize(bool isfrag)
+{
+	if (isfrag)
+		return sizeof(__be32);
+	return 3 * sizeof(__be32);
+}
+
+static ssize_t
+xs_read_stream_header(struct sock_xprt *transport, struct msghdr *msg,
+		int flags, size_t want, size_t seek)
+{
+	struct kvec kvec = {
+		.iov_base = &transport->recv.fraghdr,
+		.iov_len = want,
+	};
+	return xs_read_kvec(transport->sock, msg, flags, &kvec, want, seek);
+}
+
+#if defined(CONFIG_SUNRPC_BACKCHANNEL)
+static ssize_t
+xs_read_stream_call(struct sock_xprt *transport, struct msghdr *msg, int flags)
+{
+	struct rpc_xprt *xprt = &transport->xprt;
+	struct rpc_rqst *req;
+	ssize_t ret;
+
+	/* Is this transport associated with the backchannel? */
+	if (!xprt->bc_serv)
+		return -ESHUTDOWN;
+
+	/* Look up and lock the request corresponding to the given XID */
+	req = xprt_lookup_bc_request(xprt, transport->recv.xid);
+	if (!req) {
+		printk(KERN_WARNING "Callback slot table overflowed\n");
+		return -ESHUTDOWN;
+	}
+	if (transport->recv.copied && !req->rq_private_buf.len)
+		return -ESHUTDOWN;
+
+	ret = xs_read_stream_request(transport, msg, flags, req);
+	if (msg->msg_flags & (MSG_EOR|MSG_TRUNC))
+		xprt_complete_bc_request(req, transport->recv.copied);
+	else
+		req->rq_private_buf.len = transport->recv.copied;
+
+	return ret;
+}
+#else /* CONFIG_SUNRPC_BACKCHANNEL */
+static ssize_t
+xs_read_stream_call(struct sock_xprt *transport, struct msghdr *msg, int flags)
+{
+	return -ESHUTDOWN;
+}
+#endif /* CONFIG_SUNRPC_BACKCHANNEL */
+
+static ssize_t
+xs_read_stream_reply(struct sock_xprt *transport, struct msghdr *msg, int flags)
+{
+	struct rpc_xprt *xprt = &transport->xprt;
+	struct rpc_rqst *req;
+	ssize_t ret = 0;
+
+	/* Look up and lock the request corresponding to the given XID */
+	spin_lock(&xprt->queue_lock);
+	req = xprt_lookup_rqst(xprt, transport->recv.xid);
+	if (!req || (transport->recv.copied && !req->rq_private_buf.len)) {
+		msg->msg_flags |= MSG_TRUNC;
+		goto out;
+	}
+	xprt_pin_rqst(req);
+	spin_unlock(&xprt->queue_lock);
+
+	ret = xs_read_stream_request(transport, msg, flags, req);
+
+	spin_lock(&xprt->queue_lock);
+	if (msg->msg_flags & (MSG_EOR|MSG_TRUNC))
+		xprt_complete_rqst(req->rq_task, transport->recv.copied);
+	else
+		req->rq_private_buf.len = transport->recv.copied;
+	xprt_unpin_rqst(req);
+out:
+	spin_unlock(&xprt->queue_lock);
+	return ret;
+}
+
+static ssize_t
+xs_read_stream(struct sock_xprt *transport, int flags)
+{
+	struct msghdr msg = { 0 };
+	size_t want, read = 0;
+	ssize_t ret = 0;
+
+	if (transport->recv.len == 0) {
+		want = xs_read_stream_headersize(transport->recv.copied != 0);
+		ret = xs_read_stream_header(transport, &msg, flags, want,
+				transport->recv.offset);
+		if (ret <= 0)
+			goto out_err;
+		transport->recv.offset = ret;
+		if (transport->recv.offset != want)
+			return transport->recv.offset;
+		transport->recv.len = be32_to_cpu(transport->recv.fraghdr) &
+			RPC_FRAGMENT_SIZE_MASK;
+		transport->recv.offset -= sizeof(transport->recv.fraghdr);
+		read = ret;
+	}
+
+	switch (be32_to_cpu(transport->recv.calldir)) {
+	default:
+		msg.msg_flags |= MSG_TRUNC;
+		break;
+	case RPC_CALL:
+		ret = xs_read_stream_call(transport, &msg, flags);
+		break;
+	case RPC_REPLY:
+		ret = xs_read_stream_reply(transport, &msg, flags);
+	}
+	if (msg.msg_flags & MSG_TRUNC) {
+		transport->recv.calldir = cpu_to_be32(-1);
+		transport->recv.copied = -1;
+	}
+	if (ret < 0)
+		goto out_err;
+	read += ret;
+	if (transport->recv.offset < transport->recv.len) {
+		if (!(msg.msg_flags & MSG_TRUNC))
+			return read;
+		msg.msg_flags = 0;
+		ret = xs_read_discard(transport->sock, &msg, flags,
+				transport->recv.len - transport->recv.offset);
+		if (ret <= 0)
+			goto out_err;
+		transport->recv.offset += ret;
+		read += ret;
+		if (transport->recv.offset != transport->recv.len)
+			return read;
+	}
+	if (xs_read_stream_request_done(transport)) {
+		trace_xs_stream_read_request(transport);
+		transport->recv.copied = 0;
+	}
+	transport->recv.offset = 0;
+	transport->recv.len = 0;
+	return read;
+out_err:
+	return ret != 0 ? ret : -ESHUTDOWN;
+}
+
+static __poll_t xs_poll_socket(struct sock_xprt *transport)
+{
+	return transport->sock->ops->poll(transport->file, transport->sock,
+			NULL);
+}
+
+static bool xs_poll_socket_readable(struct sock_xprt *transport)
+{
+	__poll_t events = xs_poll_socket(transport);
+
+	return (events & (EPOLLIN | EPOLLRDNORM)) && !(events & EPOLLRDHUP);
+}
+
+static void xs_poll_check_readable(struct sock_xprt *transport)
+{
+
+	clear_bit(XPRT_SOCK_DATA_READY, &transport->sock_state);
+	if (!xs_poll_socket_readable(transport))
+		return;
+	if (!test_and_set_bit(XPRT_SOCK_DATA_READY, &transport->sock_state))
+		queue_work(xprtiod_workqueue, &transport->recv_worker);
+}
+
+static void xs_stream_data_receive(struct sock_xprt *transport)
+{
+	size_t read = 0;
+	ssize_t ret = 0;
+
+	mutex_lock(&transport->recv_mutex);
+	if (transport->sock == NULL)
+		goto out;
+	for (;;) {
+		ret = xs_read_stream(transport, MSG_DONTWAIT);
+		if (ret < 0)
+			break;
+		read += ret;
+		cond_resched();
+	}
+	if (ret == -ESHUTDOWN)
+		kernel_sock_shutdown(transport->sock, SHUT_RDWR);
+	else
+		xs_poll_check_readable(transport);
+out:
+	mutex_unlock(&transport->recv_mutex);
+	trace_xs_stream_read_data(&transport->xprt, ret, read);
+}
+
+static void xs_stream_data_receive_workfn(struct work_struct *work)
+{
+	struct sock_xprt *transport =
+		container_of(work, struct sock_xprt, recv_worker);
+	unsigned int pflags = memalloc_nofs_save();
+
+	xs_stream_data_receive(transport);
+	memalloc_nofs_restore(pflags);
+}
+
+static void
+xs_stream_reset_connect(struct sock_xprt *transport)
+{
+	transport->recv.offset = 0;
+	transport->recv.len = 0;
+	transport->recv.copied = 0;
+	transport->xmit.offset = 0;
+}
+
+static void
+xs_stream_start_connect(struct sock_xprt *transport)
+{
+	transport->xprt.stat.connect_count++;
+	transport->xprt.stat.connect_start = jiffies;
+}
+
+#define XS_SENDMSG_FLAGS	(MSG_DONTWAIT | MSG_NOSIGNAL)
+
+/**
+ * xs_nospace - handle transmit was incomplete
+ * @req: pointer to RPC request
+ * @transport: pointer to struct sock_xprt
+ *
+ */
+static int xs_nospace(struct rpc_rqst *req, struct sock_xprt *transport)
+{
+	struct rpc_xprt *xprt = &transport->xprt;
+	struct sock *sk = transport->inet;
+	int ret = -EAGAIN;
+
+	trace_rpc_socket_nospace(req, transport);
+
+	/* Protect against races with write_space */
+	spin_lock(&xprt->transport_lock);
+
+	/* Don't race with disconnect */
+	if (xprt_connected(xprt)) {
+>>>>>>> upstream/android-13
 		struct socket_wq *wq;
 
 		rcu_read_lock();
@@ -486,6 +966,7 @@ static int xs_nospace(struct rpc_task *task)
 		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
 		rcu_read_unlock();
 
+<<<<<<< HEAD
 		sk->sk_write_space(sk);
 	}
 	return ret;
@@ -499,48 +980,157 @@ static inline void xs_encode_stream_record_marker(struct xdr_buf *buf)
 	u32 reclen = buf->len - sizeof(rpc_fraghdr);
 	rpc_fraghdr *base = buf->head[0].iov_base;
 	*base = cpu_to_be32(RPC_LAST_STREAM_FRAGMENT | reclen);
+=======
+		/* wait for more buffer space */
+		set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+		sk->sk_write_pending++;
+		xprt_wait_for_buffer_space(xprt);
+	} else
+		ret = -ENOTCONN;
+
+	spin_unlock(&xprt->transport_lock);
+	return ret;
+}
+
+static int xs_sock_nospace(struct rpc_rqst *req)
+{
+	struct sock_xprt *transport =
+		container_of(req->rq_xprt, struct sock_xprt, xprt);
+	struct sock *sk = transport->inet;
+	int ret = -EAGAIN;
+
+	lock_sock(sk);
+	if (!sock_writeable(sk))
+		ret = xs_nospace(req, transport);
+	release_sock(sk);
+	return ret;
+}
+
+static int xs_stream_nospace(struct rpc_rqst *req)
+{
+	struct sock_xprt *transport =
+		container_of(req->rq_xprt, struct sock_xprt, xprt);
+	struct sock *sk = transport->inet;
+	int ret = -EAGAIN;
+
+	lock_sock(sk);
+	if (!sk_stream_memory_free(sk))
+		ret = xs_nospace(req, transport);
+	release_sock(sk);
+	return ret;
+}
+
+static void
+xs_stream_prepare_request(struct rpc_rqst *req)
+{
+	xdr_free_bvec(&req->rq_rcv_buf);
+	req->rq_task->tk_status = xdr_alloc_bvec(&req->rq_rcv_buf, GFP_KERNEL);
+}
+
+/*
+ * Determine if the previous message in the stream was aborted before it
+ * could complete transmission.
+ */
+static bool
+xs_send_request_was_aborted(struct sock_xprt *transport, struct rpc_rqst *req)
+{
+	return transport->xmit.offset != 0 && req->rq_bytes_sent == 0;
+}
+
+/*
+ * Return the stream record marker field for a record of length < 2^31-1
+ */
+static rpc_fraghdr
+xs_stream_record_marker(struct xdr_buf *xdr)
+{
+	if (!xdr->len)
+		return 0;
+	return cpu_to_be32(RPC_LAST_STREAM_FRAGMENT | (u32)xdr->len);
+>>>>>>> upstream/android-13
 }
 
 /**
  * xs_local_send_request - write an RPC request to an AF_LOCAL socket
+<<<<<<< HEAD
  * @task: RPC task that manages the state of an RPC request
+=======
+ * @req: pointer to RPC request
+>>>>>>> upstream/android-13
  *
  * Return values:
  *        0:	The request has been sent
  *   EAGAIN:	The socket was blocked, please call again later to
  *		complete the request
  * ENOTCONN:	Caller needs to invoke connect logic then call again
+<<<<<<< HEAD
  *    other:	Some other error occured, the request was not sent
  */
 static int xs_local_send_request(struct rpc_task *task)
 {
 	struct rpc_rqst *req = task->tk_rqstp;
+=======
+ *    other:	Some other error occurred, the request was not sent
+ */
+static int xs_local_send_request(struct rpc_rqst *req)
+{
+>>>>>>> upstream/android-13
 	struct rpc_xprt *xprt = req->rq_xprt;
 	struct sock_xprt *transport =
 				container_of(xprt, struct sock_xprt, xprt);
 	struct xdr_buf *xdr = &req->rq_snd_buf;
+<<<<<<< HEAD
 	int status;
 	int sent = 0;
 
 	xs_encode_stream_record_marker(&req->rq_snd_buf);
+=======
+	rpc_fraghdr rm = xs_stream_record_marker(xdr);
+	unsigned int msglen = rm ? req->rq_slen + sizeof(rm) : req->rq_slen;
+	struct msghdr msg = {
+		.msg_flags	= XS_SENDMSG_FLAGS,
+	};
+	unsigned int sent;
+	int status;
+
+	/* Close the stream if the previous transmission was incomplete */
+	if (xs_send_request_was_aborted(transport, req)) {
+		xprt_force_disconnect(xprt);
+		return -ENOTCONN;
+	}
+>>>>>>> upstream/android-13
 
 	xs_pktdump("packet data:",
 			req->rq_svec->iov_base, req->rq_svec->iov_len);
 
 	req->rq_xtime = ktime_get();
+<<<<<<< HEAD
 	status = xs_sendpages(transport->sock, NULL, 0, xdr, req->rq_bytes_sent,
 			      true, &sent);
 	dprintk("RPC:       %s(%u) = %d\n",
 			__func__, xdr->len - req->rq_bytes_sent, status);
+=======
+	status = xprt_sock_sendmsg(transport->sock, &msg, xdr,
+				   transport->xmit.offset, rm, &sent);
+	dprintk("RPC:       %s(%u) = %d\n",
+			__func__, xdr->len - transport->xmit.offset, status);
+>>>>>>> upstream/android-13
 
 	if (status == -EAGAIN && sock_writeable(transport->inet))
 		status = -ENOBUFS;
 
 	if (likely(sent > 0) || status == 0) {
+<<<<<<< HEAD
 		req->rq_bytes_sent += sent;
 		req->rq_xmit_bytes_sent += sent;
 		if (likely(req->rq_bytes_sent >= req->rq_slen)) {
 			req->rq_bytes_sent = 0;
+=======
+		transport->xmit.offset += sent;
+		req->rq_bytes_sent = transport->xmit.offset;
+		if (likely(req->rq_bytes_sent >= msglen)) {
+			req->rq_xmit_bytes_sent += transport->xmit.offset;
+			transport->xmit.offset = 0;
+>>>>>>> upstream/android-13
 			return 0;
 		}
 		status = -EAGAIN;
@@ -550,14 +1140,24 @@ static int xs_local_send_request(struct rpc_task *task)
 	case -ENOBUFS:
 		break;
 	case -EAGAIN:
+<<<<<<< HEAD
 		status = xs_nospace(task);
+=======
+		status = xs_stream_nospace(req);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dprintk("RPC:       sendmsg returned unrecognized error %d\n",
 			-status);
+<<<<<<< HEAD
 		/* fall through */
 	case -EPIPE:
 		xs_close(xprt);
+=======
+		fallthrough;
+	case -EPIPE:
+		xprt_force_disconnect(xprt);
+>>>>>>> upstream/android-13
 		status = -ENOTCONN;
 	}
 
@@ -566,7 +1166,11 @@ static int xs_local_send_request(struct rpc_task *task)
 
 /**
  * xs_udp_send_request - write an RPC request to a UDP socket
+<<<<<<< HEAD
  * @task: address of RPC task that manages the state of an RPC request
+=======
+ * @req: pointer to RPC request
+>>>>>>> upstream/android-13
  *
  * Return values:
  *        0:	The request has been sent
@@ -575,6 +1179,7 @@ static int xs_local_send_request(struct rpc_task *task)
  * ENOTCONN:	Caller needs to invoke connect logic then call again
  *    other:	Some other error occurred, the request was not sent
  */
+<<<<<<< HEAD
 static int xs_udp_send_request(struct rpc_task *task)
 {
 	struct rpc_rqst *req = task->tk_rqstp;
@@ -582,6 +1187,19 @@ static int xs_udp_send_request(struct rpc_task *task)
 	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
 	struct xdr_buf *xdr = &req->rq_snd_buf;
 	int sent = 0;
+=======
+static int xs_udp_send_request(struct rpc_rqst *req)
+{
+	struct rpc_xprt *xprt = req->rq_xprt;
+	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
+	struct xdr_buf *xdr = &req->rq_snd_buf;
+	struct msghdr msg = {
+		.msg_name	= xs_addr(xprt),
+		.msg_namelen	= xprt->addrlen,
+		.msg_flags	= XS_SENDMSG_FLAGS,
+	};
+	unsigned int sent;
+>>>>>>> upstream/android-13
 	int status;
 
 	xs_pktdump("packet data:",
@@ -590,12 +1208,24 @@ static int xs_udp_send_request(struct rpc_task *task)
 
 	if (!xprt_bound(xprt))
 		return -ENOTCONN;
+<<<<<<< HEAD
 	req->rq_xtime = ktime_get();
 	status = xs_sendpages(transport->sock, xs_addr(xprt), xprt->addrlen,
 			      xdr, req->rq_bytes_sent, true, &sent);
 
 	dprintk("RPC:       xs_udp_send_request(%u) = %d\n",
 			xdr->len - req->rq_bytes_sent, status);
+=======
+
+	if (!xprt_request_get_cong(xprt, req))
+		return -EBADSLT;
+
+	req->rq_xtime = ktime_get();
+	status = xprt_sock_sendmsg(transport->sock, &msg, xdr, 0, 0, &sent);
+
+	dprintk("RPC:       xs_udp_send_request(%u) = %d\n",
+			xdr->len, status);
+>>>>>>> upstream/android-13
 
 	/* firewall is blocking us, don't return -EAGAIN or we end up looping */
 	if (status == -EPERM)
@@ -619,7 +1249,11 @@ process_status:
 		/* Should we call xs_close() here? */
 		break;
 	case -EAGAIN:
+<<<<<<< HEAD
 		status = xs_nospace(task);
+=======
+		status = xs_sock_nospace(req);
+>>>>>>> upstream/android-13
 		break;
 	case -ENETUNREACH:
 	case -ENOBUFS:
@@ -639,7 +1273,11 @@ process_status:
 
 /**
  * xs_tcp_send_request - write an RPC request to a TCP socket
+<<<<<<< HEAD
  * @task: address of RPC task that manages the state of an RPC request
+=======
+ * @req: pointer to RPC request
+>>>>>>> upstream/android-13
  *
  * Return values:
  *        0:	The request has been sent
@@ -651,6 +1289,7 @@ process_status:
  * XXX: In the case of soft timeouts, should we eventually give up
  *	if sendmsg is not able to make progress?
  */
+<<<<<<< HEAD
 static int xs_tcp_send_request(struct rpc_task *task)
 {
 	struct rpc_rqst *req = task->tk_rqstp;
@@ -663,16 +1302,43 @@ static int xs_tcp_send_request(struct rpc_task *task)
 	int sent;
 
 	xs_encode_stream_record_marker(&req->rq_snd_buf);
+=======
+static int xs_tcp_send_request(struct rpc_rqst *req)
+{
+	struct rpc_xprt *xprt = req->rq_xprt;
+	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
+	struct xdr_buf *xdr = &req->rq_snd_buf;
+	rpc_fraghdr rm = xs_stream_record_marker(xdr);
+	unsigned int msglen = rm ? req->rq_slen + sizeof(rm) : req->rq_slen;
+	struct msghdr msg = {
+		.msg_flags	= XS_SENDMSG_FLAGS,
+	};
+	bool vm_wait = false;
+	unsigned int sent;
+	int status;
+
+	/* Close the stream if the previous transmission was incomplete */
+	if (xs_send_request_was_aborted(transport, req)) {
+		if (transport->sock != NULL)
+			kernel_sock_shutdown(transport->sock, SHUT_RDWR);
+		return -ENOTCONN;
+	}
+	if (!transport->inet)
+		return -ENOTCONN;
+>>>>>>> upstream/android-13
 
 	xs_pktdump("packet data:",
 				req->rq_svec->iov_base,
 				req->rq_svec->iov_len);
+<<<<<<< HEAD
 	/* Don't use zero copy if this is a resend. If the RPC call
 	 * completes while the socket holds a reference to the pages,
 	 * then we may end up resending corrupted data.
 	 */
 	if (task->tk_flags & RPC_TASK_SENT)
 		zerocopy = false;
+=======
+>>>>>>> upstream/android-13
 
 	if (test_bit(XPRT_SOCK_UPD_TIMEOUT, &transport->sock_state))
 		xs_tcp_set_socket_timeouts(xprt, transport->sock);
@@ -681,6 +1347,7 @@ static int xs_tcp_send_request(struct rpc_task *task)
 	 * to cope with writespace callbacks arriving _after_ we have
 	 * called sendmsg(). */
 	req->rq_xtime = ktime_get();
+<<<<<<< HEAD
 	while (1) {
 		sent = 0;
 		status = xs_sendpages(transport->sock, NULL, 0, xdr,
@@ -695,6 +1362,25 @@ static int xs_tcp_send_request(struct rpc_task *task)
 		req->rq_xmit_bytes_sent += sent;
 		if (likely(req->rq_bytes_sent >= req->rq_slen)) {
 			req->rq_bytes_sent = 0;
+=======
+	tcp_sock_set_cork(transport->inet, true);
+	while (1) {
+		status = xprt_sock_sendmsg(transport->sock, &msg, xdr,
+					   transport->xmit.offset, rm, &sent);
+
+		dprintk("RPC:       xs_tcp_send_request(%u) = %d\n",
+				xdr->len - transport->xmit.offset, status);
+
+		/* If we've sent the entire packet, immediately
+		 * reset the count of bytes sent. */
+		transport->xmit.offset += sent;
+		req->rq_bytes_sent = transport->xmit.offset;
+		if (likely(req->rq_bytes_sent >= msglen)) {
+			req->rq_xmit_bytes_sent += transport->xmit.offset;
+			transport->xmit.offset = 0;
+			if (atomic_long_read(&xprt->xmit_queuelen) == 1)
+				tcp_sock_set_cork(transport->inet, false);
+>>>>>>> upstream/android-13
 			return 0;
 		}
 
@@ -732,7 +1418,11 @@ static int xs_tcp_send_request(struct rpc_task *task)
 		/* Should we call xs_close() here? */
 		break;
 	case -EAGAIN:
+<<<<<<< HEAD
 		status = xs_nospace(task);
+=======
+		status = xs_stream_nospace(req);
+>>>>>>> upstream/android-13
 		break;
 	case -ECONNRESET:
 	case -ECONNREFUSED:
@@ -749,6 +1439,7 @@ static int xs_tcp_send_request(struct rpc_task *task)
 	return status;
 }
 
+<<<<<<< HEAD
 /**
  * xs_tcp_release_xprt - clean up after a tcp transmission
  * @xprt: transport
@@ -778,6 +1469,8 @@ out_release:
 	xprt_release_xprt(xprt, task);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void xs_save_old_callbacks(struct sock_xprt *transport, struct sock *sk)
 {
 	transport->old_data_ready = sk->sk_data_ready;
@@ -799,6 +1492,18 @@ static void xs_sock_reset_state_flags(struct rpc_xprt *xprt)
 	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
 
 	clear_bit(XPRT_SOCK_DATA_READY, &transport->sock_state);
+<<<<<<< HEAD
+=======
+	clear_bit(XPRT_SOCK_WAKE_ERROR, &transport->sock_state);
+	clear_bit(XPRT_SOCK_WAKE_WRITE, &transport->sock_state);
+	clear_bit(XPRT_SOCK_WAKE_DISCONNECT, &transport->sock_state);
+}
+
+static void xs_run_error_worker(struct sock_xprt *transport, unsigned int nr)
+{
+	set_bit(nr, &transport->sock_state);
+	queue_work(xprtiod_workqueue, &transport->error_worker);
+>>>>>>> upstream/android-13
 }
 
 static void xs_sock_reset_connection_flags(struct rpc_xprt *xprt)
@@ -819,13 +1524,19 @@ static void xs_sock_reset_connection_flags(struct rpc_xprt *xprt)
  */
 static void xs_error_report(struct sock *sk)
 {
+<<<<<<< HEAD
 	struct rpc_xprt *xprt;
 	int err;
+=======
+	struct sock_xprt *transport;
+	struct rpc_xprt *xprt;
+>>>>>>> upstream/android-13
 
 	read_lock_bh(&sk->sk_callback_lock);
 	if (!(xprt = xprt_from_sock(sk)))
 		goto out;
 
+<<<<<<< HEAD
 	err = -sk->sk_err;
 	if (err == 0)
 		goto out;
@@ -833,6 +1544,19 @@ static void xs_error_report(struct sock *sk)
 			xprt, -err);
 	trace_rpc_socket_error(xprt, sk->sk_socket, err);
 	xprt_wake_pending_tasks(xprt, err);
+=======
+	transport = container_of(xprt, struct sock_xprt, xprt);
+	transport->xprt_err = -sk->sk_err;
+	if (transport->xprt_err == 0)
+		goto out;
+	dprintk("RPC:       xs_error_report client %p, error=%d...\n",
+			xprt, -transport->xprt_err);
+	trace_rpc_socket_error(xprt, sk->sk_socket, transport->xprt_err);
+
+	/* barrier ensures xprt_err is set before XPRT_SOCK_WAKE_ERROR */
+	smp_mb__before_atomic();
+	xs_run_error_worker(transport, XPRT_SOCK_WAKE_ERROR);
+>>>>>>> upstream/android-13
  out:
 	read_unlock_bh(&sk->sk_callback_lock);
 }
@@ -842,9 +1566,26 @@ static void xs_reset_transport(struct sock_xprt *transport)
 	struct socket *sock = transport->sock;
 	struct sock *sk = transport->inet;
 	struct rpc_xprt *xprt = &transport->xprt;
+<<<<<<< HEAD
 
 	if (sk == NULL)
 		return;
+=======
+	struct file *filp = transport->file;
+
+	if (sk == NULL)
+		return;
+	/*
+	 * Make sure we're calling this in a context from which it is safe
+	 * to call __fput_sync(). In practice that means rpciod and the
+	 * system workqueue.
+	 */
+	if (!(current->flags & PF_WQ_WORKER)) {
+		WARN_ON_ONCE(1);
+		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	if (atomic_read(&transport->xprt.swapper))
 		sk_clear_memalloc(sk);
@@ -855,6 +1596,10 @@ static void xs_reset_transport(struct sock_xprt *transport)
 	write_lock_bh(&sk->sk_callback_lock);
 	transport->inet = NULL;
 	transport->sock = NULL;
+<<<<<<< HEAD
+=======
+	transport->file = NULL;
+>>>>>>> upstream/android-13
 
 	sk->sk_user_data = NULL;
 
@@ -862,10 +1607,21 @@ static void xs_reset_transport(struct sock_xprt *transport)
 	xprt_clear_connected(xprt);
 	write_unlock_bh(&sk->sk_callback_lock);
 	xs_sock_reset_connection_flags(xprt);
+<<<<<<< HEAD
 	mutex_unlock(&transport->recv_mutex);
 
 	trace_rpc_socket_close(xprt, sock);
 	sock_release(sock);
+=======
+	/* Reset stream record info */
+	xs_stream_reset_connect(transport);
+	mutex_unlock(&transport->recv_mutex);
+
+	trace_rpc_socket_close(xprt, sock);
+	__fput_sync(filp);
+
+	xprt_disconnect_done(xprt);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -886,8 +1642,11 @@ static void xs_close(struct rpc_xprt *xprt)
 
 	xs_reset_transport(transport);
 	xprt->reestablish_timeout = 0;
+<<<<<<< HEAD
 
 	xprt_disconnect_done(xprt);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void xs_inject_disconnect(struct rpc_xprt *xprt)
@@ -917,10 +1676,15 @@ static void xs_destroy(struct rpc_xprt *xprt)
 	cancel_delayed_work_sync(&transport->connect_worker);
 	xs_close(xprt);
 	cancel_work_sync(&transport->recv_worker);
+<<<<<<< HEAD
+=======
+	cancel_work_sync(&transport->error_worker);
+>>>>>>> upstream/android-13
 	xs_xprt_free(xprt);
 	module_put(THIS_MODULE);
 }
 
+<<<<<<< HEAD
 static int xs_local_copy_to_xdr(struct xdr_buf *xdr, struct sk_buff *skb)
 {
 	struct xdr_skb_reader desc = {
@@ -1029,6 +1793,8 @@ static void xs_local_data_receive_workfn(struct work_struct *work)
 	xs_local_data_receive(transport);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * xs_udp_data_read_skb - receive callback for UDP sockets
  * @xprt: transport
@@ -1058,13 +1824,21 @@ static void xs_udp_data_read_skb(struct rpc_xprt *xprt,
 		return;
 
 	/* Look up and lock the request corresponding to the given XID */
+<<<<<<< HEAD
 	spin_lock(&xprt->recv_lock);
+=======
+	spin_lock(&xprt->queue_lock);
+>>>>>>> upstream/android-13
 	rovr = xprt_lookup_rqst(xprt, *xp);
 	if (!rovr)
 		goto out_unlock;
 	xprt_pin_rqst(rovr);
 	xprt_update_rtt(rovr->rq_task);
+<<<<<<< HEAD
 	spin_unlock(&xprt->recv_lock);
+=======
+	spin_unlock(&xprt->queue_lock);
+>>>>>>> upstream/android-13
 	task = rovr->rq_task;
 
 	if ((copied = rovr->rq_private_buf.buflen) > repsize)
@@ -1072,22 +1846,37 @@ static void xs_udp_data_read_skb(struct rpc_xprt *xprt,
 
 	/* Suck it into the iovec, verify checksum if not done by hw. */
 	if (csum_partial_copy_to_xdr(&rovr->rq_private_buf, skb)) {
+<<<<<<< HEAD
 		spin_lock(&xprt->recv_lock);
+=======
+		spin_lock(&xprt->queue_lock);
+>>>>>>> upstream/android-13
 		__UDPX_INC_STATS(sk, UDP_MIB_INERRORS);
 		goto out_unpin;
 	}
 
 
+<<<<<<< HEAD
 	spin_lock_bh(&xprt->transport_lock);
 	xprt_adjust_cwnd(xprt, task, copied);
 	spin_unlock_bh(&xprt->transport_lock);
 	spin_lock(&xprt->recv_lock);
+=======
+	spin_lock(&xprt->transport_lock);
+	xprt_adjust_cwnd(xprt, task, copied);
+	spin_unlock(&xprt->transport_lock);
+	spin_lock(&xprt->queue_lock);
+>>>>>>> upstream/android-13
 	xprt_complete_rqst(task, copied);
 	__UDPX_INC_STATS(sk, UDP_MIB_INDATAGRAMS);
 out_unpin:
 	xprt_unpin_rqst(rovr);
  out_unlock:
+<<<<<<< HEAD
 	spin_unlock(&xprt->recv_lock);
+=======
+	spin_unlock(&xprt->queue_lock);
+>>>>>>> upstream/android-13
 }
 
 static void xs_udp_data_receive(struct sock_xprt *transport)
@@ -1096,13 +1885,17 @@ static void xs_udp_data_receive(struct sock_xprt *transport)
 	struct sock *sk;
 	int err;
 
+<<<<<<< HEAD
 restart:
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&transport->recv_mutex);
 	sk = transport->inet;
 	if (sk == NULL)
 		goto out;
 	for (;;) {
 		skb = skb_recv_udp(sk, 0, 1, &err);
+<<<<<<< HEAD
 		if (skb != NULL) {
 			xs_udp_data_read_skb(&transport->xprt, sk, skb);
 			consume_skb(skb);
@@ -1116,6 +1909,15 @@ restart:
 			goto restart;
 		}
 	}
+=======
+		if (skb == NULL)
+			break;
+		xs_udp_data_read_skb(&transport->xprt, sk, skb);
+		consume_skb(skb);
+		cond_resched();
+	}
+	xs_poll_check_readable(transport);
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&transport->recv_mutex);
 }
@@ -1124,7 +1926,14 @@ static void xs_udp_data_receive_workfn(struct work_struct *work)
 {
 	struct sock_xprt *transport =
 		container_of(work, struct sock_xprt, recv_worker);
+<<<<<<< HEAD
 	xs_udp_data_receive(transport);
+=======
+	unsigned int pflags = memalloc_nofs_save();
+
+	xs_udp_data_receive(transport);
+	memalloc_nofs_restore(pflags);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1163,6 +1972,7 @@ static void xs_tcp_force_close(struct rpc_xprt *xprt)
 	xprt_force_disconnect(xprt);
 }
 
+<<<<<<< HEAD
 static inline void xs_tcp_read_fraghdr(struct rpc_xprt *xprt, struct xdr_skb_reader *desc)
 {
 	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
@@ -1431,10 +2241,14 @@ static int xs_tcp_bc_up(struct svc_serv *serv, struct net *net)
 	return 0;
 }
 
+=======
+#if defined(CONFIG_SUNRPC_BACKCHANNEL)
+>>>>>>> upstream/android-13
 static size_t xs_tcp_bc_maxpayload(struct rpc_xprt *xprt)
 {
 	return PAGE_SIZE;
 }
+<<<<<<< HEAD
 #else
 static inline int _xs_tcp_read_data(struct rpc_xprt *xprt,
 					struct xdr_skb_reader *desc)
@@ -1574,6 +2388,10 @@ static void xs_tcp_data_receive_workfn(struct work_struct *work)
 	xs_tcp_data_receive(transport);
 }
 
+=======
+#endif /* CONFIG_SUNRPC_BACKCHANNEL */
+
+>>>>>>> upstream/android-13
 /**
  * xs_tcp_state_change - callback to handle TCP socket state changes
  * @sk: socket whose state has changed
@@ -1598,6 +2416,7 @@ static void xs_tcp_state_change(struct sock *sk)
 	trace_rpc_socket_state_change(xprt, sk->sk_socket);
 	switch (sk->sk_state) {
 	case TCP_ESTABLISHED:
+<<<<<<< HEAD
 		spin_lock(&xprt->transport_lock);
 		if (!xprt_test_and_set_connected(xprt)) {
 
@@ -1607,6 +2426,9 @@ static void xs_tcp_state_change(struct sock *sk)
 			transport->tcp_copied = 0;
 			transport->tcp_flags =
 				TCP_RCV_COPY_FRAGHDR | TCP_RCV_COPY_XID;
+=======
+		if (!xprt_test_and_set_connected(xprt)) {
+>>>>>>> upstream/android-13
 			xprt->connect_cookie++;
 			clear_bit(XPRT_SOCK_CONNECTING, &transport->sock_state);
 			xprt_clear_connecting(xprt);
@@ -1614,9 +2436,14 @@ static void xs_tcp_state_change(struct sock *sk)
 			xprt->stat.connect_count++;
 			xprt->stat.connect_time += (long)jiffies -
 						   xprt->stat.connect_start;
+<<<<<<< HEAD
 			xprt_wake_pending_tasks(xprt, -EAGAIN);
 		}
 		spin_unlock(&xprt->transport_lock);
+=======
+			xs_run_error_worker(transport, XPRT_SOCK_WAKE_PENDING);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case TCP_FIN_WAIT1:
 		/* The client initiated a shutdown of the socket */
@@ -1632,8 +2459,13 @@ static void xs_tcp_state_change(struct sock *sk)
 		/* The server initiated a shutdown of the socket */
 		xprt->connect_cookie++;
 		clear_bit(XPRT_CONNECTED, &xprt->state);
+<<<<<<< HEAD
 		xs_tcp_force_close(xprt);
 		/* fall through */
+=======
+		xs_run_error_worker(transport, XPRT_SOCK_WAKE_DISCONNECT);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TCP_CLOSING:
 		/*
 		 * If the server closed down the connection, make sure that
@@ -1653,10 +2485,15 @@ static void xs_tcp_state_change(struct sock *sk)
 					&transport->sock_state))
 			xprt_clear_connecting(xprt);
 		clear_bit(XPRT_CLOSING, &xprt->state);
+<<<<<<< HEAD
 		if (sk->sk_err)
 			xprt_wake_pending_tasks(xprt, -sk->sk_err);
 		/* Trigger the socket release */
 		xs_tcp_force_close(xprt);
+=======
+		/* Trigger the socket release */
+		xs_run_error_worker(transport, XPRT_SOCK_WAKE_DISCONNECT);
+>>>>>>> upstream/android-13
 	}
  out:
 	read_unlock_bh(&sk->sk_callback_lock);
@@ -1665,6 +2502,10 @@ static void xs_tcp_state_change(struct sock *sk)
 static void xs_write_space(struct sock *sk)
 {
 	struct socket_wq *wq;
+<<<<<<< HEAD
+=======
+	struct sock_xprt *transport;
+>>>>>>> upstream/android-13
 	struct rpc_xprt *xprt;
 
 	if (!sk->sk_socket)
@@ -1673,12 +2514,21 @@ static void xs_write_space(struct sock *sk)
 
 	if (unlikely(!(xprt = xprt_from_sock(sk))))
 		return;
+<<<<<<< HEAD
+=======
+	transport = container_of(xprt, struct sock_xprt, xprt);
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	wq = rcu_dereference(sk->sk_wq);
 	if (!wq || test_and_clear_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags) == 0)
 		goto out;
 
+<<<<<<< HEAD
 	xprt_write_space(xprt);
+=======
+	xs_run_error_worker(transport, XPRT_SOCK_WAKE_WRITE);
+	sk->sk_write_pending--;
+>>>>>>> upstream/android-13
 out:
 	rcu_read_unlock();
 }
@@ -1765,15 +2615,25 @@ static void xs_udp_set_buffer_size(struct rpc_xprt *xprt, size_t sndsize, size_t
 
 /**
  * xs_udp_timer - called when a retransmit timeout occurs on a UDP transport
+<<<<<<< HEAD
+=======
+ * @xprt: controlling transport
+>>>>>>> upstream/android-13
  * @task: task that timed out
  *
  * Adjust the congestion window after a retransmit timeout has occurred.
  */
 static void xs_udp_timer(struct rpc_xprt *xprt, struct rpc_task *task)
 {
+<<<<<<< HEAD
 	spin_lock_bh(&xprt->transport_lock);
 	xprt_adjust_cwnd(xprt, task, -ETIMEDOUT);
 	spin_unlock_bh(&xprt->transport_lock);
+=======
+	spin_lock(&xprt->transport_lock);
+	xprt_adjust_cwnd(xprt, task, -ETIMEDOUT);
+	spin_unlock(&xprt->transport_lock);
+>>>>>>> upstream/android-13
 }
 
 static int xs_get_random_port(void)
@@ -1789,6 +2649,7 @@ static int xs_get_random_port(void)
 	return rand + min;
 }
 
+<<<<<<< HEAD
 /**
  * xs_set_reuseaddr_port - set the socket's port and address reuse options
  * @sock: socket
@@ -1804,6 +2665,8 @@ static void xs_sock_set_reuseport(struct socket *sock)
 			(char *)&opt, sizeof(opt));
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned short xs_sock_getport(struct socket *sock)
 {
 	struct sockaddr_storage buf;
@@ -1838,7 +2701,11 @@ static void xs_set_port(struct rpc_xprt *xprt, unsigned short port)
 
 static void xs_set_srcport(struct sock_xprt *transport, struct socket *sock)
 {
+<<<<<<< HEAD
 	if (transport->srcport == 0)
+=======
+	if (transport->srcport == 0 && transport->xprt.reuseport)
+>>>>>>> upstream/android-13
 		transport->srcport = xs_sock_getport(sock);
 }
 
@@ -1851,6 +2718,16 @@ static int xs_get_srcport(struct sock_xprt *transport)
 	return port;
 }
 
+<<<<<<< HEAD
+=======
+unsigned short get_srcport(struct rpc_xprt *xprt)
+{
+	struct sock_xprt *sock = container_of(xprt, struct sock_xprt, xprt);
+	return xs_sock_getport(sock->sock);
+}
+EXPORT_SYMBOL(get_srcport);
+
+>>>>>>> upstream/android-13
 static unsigned short xs_next_srcport(struct sock_xprt *transport, unsigned short port)
 {
 	if (transport->srcport != 0)
@@ -1877,7 +2754,11 @@ static int xs_bind(struct sock_xprt *transport, struct socket *sock)
 	 * This ensures that we can continue to establish TCP
 	 * connections even when all local ephemeral ports are already
 	 * a part of some TCP connection.  This makes no difference
+<<<<<<< HEAD
 	 * for UDP sockets, but also doens't harm them.
+=======
+	 * for UDP sockets, but also doesn't harm them.
+>>>>>>> upstream/android-13
 	 *
 	 * If we're asking for any reserved port (i.e. port == 0 &&
 	 * transport->xprt.resvport == 1) xs_get_srcport above will
@@ -1892,7 +2773,12 @@ static int xs_bind(struct sock_xprt *transport, struct socket *sock)
 		err = kernel_bind(sock, (struct sockaddr *)&myaddr,
 				transport->xprt.addrlen);
 		if (err == 0) {
+<<<<<<< HEAD
 			transport->srcport = port;
+=======
+			if (transport->xprt.reuseport)
+				transport->srcport = port;
+>>>>>>> upstream/android-13
 			break;
 		}
 		last = port;
@@ -1983,6 +2869,10 @@ static struct socket *xs_create_sock(struct rpc_xprt *xprt,
 		struct sock_xprt *transport, int family, int type,
 		int protocol, bool reuseport)
 {
+<<<<<<< HEAD
+=======
+	struct file *filp;
+>>>>>>> upstream/android-13
 	struct socket *sock;
 	int err;
 
@@ -1995,7 +2885,11 @@ static struct socket *xs_create_sock(struct rpc_xprt *xprt,
 	xs_reclassify_socket(family, sock);
 
 	if (reuseport)
+<<<<<<< HEAD
 		xs_sock_set_reuseport(sock);
+=======
+		sock_set_reuseport(sock->sk);
+>>>>>>> upstream/android-13
 
 	err = xs_bind(transport, sock);
 	if (err) {
@@ -2003,6 +2897,14 @@ static struct socket *xs_create_sock(struct rpc_xprt *xprt,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	filp = sock_alloc_file(sock, O_NONBLOCK, NULL);
+	if (IS_ERR(filp))
+		return ERR_CAST(filp);
+	transport->file = filp;
+
+>>>>>>> upstream/android-13
 	return sock;
 out:
 	return ERR_PTR(err);
@@ -2026,7 +2928,10 @@ static int xs_local_finish_connecting(struct rpc_xprt *xprt,
 		sk->sk_write_space = xs_udp_write_space;
 		sock_set_flag(sk, SOCK_FASYNC);
 		sk->sk_error_report = xs_error_report;
+<<<<<<< HEAD
 		sk->sk_allocation = GFP_NOIO;
+=======
+>>>>>>> upstream/android-13
 
 		xprt_clear_connected(xprt);
 
@@ -2037,7 +2942,12 @@ static int xs_local_finish_connecting(struct rpc_xprt *xprt,
 		write_unlock_bh(&sk->sk_callback_lock);
 	}
 
+<<<<<<< HEAD
 	/* Tell the socket layer to start connecting... */
+=======
+	xs_stream_start_connect(transport);
+
+>>>>>>> upstream/android-13
 	return kernel_connect(sock, xs_addr(xprt), xprt->addrlen, 0);
 }
 
@@ -2048,8 +2958,14 @@ static int xs_local_finish_connecting(struct rpc_xprt *xprt,
 static int xs_local_setup_socket(struct sock_xprt *transport)
 {
 	struct rpc_xprt *xprt = &transport->xprt;
+<<<<<<< HEAD
 	struct socket *sock;
 	int status = -EIO;
+=======
+	struct file *filp;
+	struct socket *sock;
+	int status;
+>>>>>>> upstream/android-13
 
 	status = __sock_create(xprt->xprt_net, AF_LOCAL,
 					SOCK_STREAM, 0, &sock, 1);
@@ -2060,6 +2976,16 @@ static int xs_local_setup_socket(struct sock_xprt *transport)
 	}
 	xs_reclassify_socket(AF_LOCAL, sock);
 
+<<<<<<< HEAD
+=======
+	filp = sock_alloc_file(sock, O_NONBLOCK, NULL);
+	if (IS_ERR(filp)) {
+		status = PTR_ERR(filp);
+		goto out;
+	}
+	transport->file = filp;
+
+>>>>>>> upstream/android-13
 	dprintk("RPC:       worker connecting xprt %p via AF_LOCAL to %s\n",
 			xprt, xprt->address_strings[RPC_DISPLAY_ADDR]);
 
@@ -2073,6 +2999,10 @@ static int xs_local_setup_socket(struct sock_xprt *transport)
 		xprt->stat.connect_time += (long)jiffies -
 					   xprt->stat.connect_start;
 		xprt_set_connected(xprt);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case -ENOBUFS:
 		break;
 	case -ENOENT:
@@ -2110,6 +3040,10 @@ static void xs_local_connect(struct rpc_xprt *xprt, struct rpc_task *task)
 		 * we'll need to figure out how to pass a namespace to
 		 * connect.
 		 */
+<<<<<<< HEAD
+=======
+		task->tk_rpc_status = -ENOTCONN;
+>>>>>>> upstream/android-13
 		rpc_exit(task, -ENOTCONN);
 		return;
 	}
@@ -2213,7 +3147,10 @@ static void xs_udp_finish_connecting(struct rpc_xprt *xprt, struct socket *sock)
 		sk->sk_data_ready = xs_data_ready;
 		sk->sk_write_space = xs_udp_write_space;
 		sock_set_flag(sk, SOCK_FASYNC);
+<<<<<<< HEAD
 		sk->sk_allocation = GFP_NOIO;
+=======
+>>>>>>> upstream/android-13
 
 		xprt_set_connected(xprt);
 
@@ -2274,6 +3211,7 @@ static void xs_tcp_shutdown(struct rpc_xprt *xprt)
 
 	if (sock == NULL)
 		return;
+<<<<<<< HEAD
 	switch (skst) {
 	default:
 		kernel_sock_shutdown(sock, SHUT_RDWR);
@@ -2281,6 +3219,22 @@ static void xs_tcp_shutdown(struct rpc_xprt *xprt)
 		break;
 	case TCP_CLOSE:
 	case TCP_TIME_WAIT:
+=======
+	if (!xprt->reuseport) {
+		xs_close(xprt);
+		return;
+	}
+	switch (skst) {
+	case TCP_FIN_WAIT1:
+	case TCP_FIN_WAIT2:
+		break;
+	case TCP_ESTABLISHED:
+	case TCP_CLOSE_WAIT:
+		kernel_sock_shutdown(sock, SHUT_RDWR);
+		trace_rpc_socket_shutdown(xprt, sock);
+		break;
+	default:
+>>>>>>> upstream/android-13
 		xs_reset_transport(transport);
 	}
 }
@@ -2291,15 +3245,22 @@ static void xs_tcp_set_socket_timeouts(struct rpc_xprt *xprt,
 	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
 	unsigned int keepidle;
 	unsigned int keepcnt;
+<<<<<<< HEAD
 	unsigned int opt_on = 1;
 	unsigned int timeo;
 
 	spin_lock_bh(&xprt->transport_lock);
+=======
+	unsigned int timeo;
+
+	spin_lock(&xprt->transport_lock);
+>>>>>>> upstream/android-13
 	keepidle = DIV_ROUND_UP(xprt->timeout->to_initval, HZ);
 	keepcnt = xprt->timeout->to_retries + 1;
 	timeo = jiffies_to_msecs(xprt->timeout->to_initval) *
 		(xprt->timeout->to_retries + 1);
 	clear_bit(XPRT_SOCK_UPD_TIMEOUT, &transport->sock_state);
+<<<<<<< HEAD
 	spin_unlock_bh(&xprt->transport_lock);
 
 	/* TCP Keepalive options */
@@ -2315,6 +3276,18 @@ static void xs_tcp_set_socket_timeouts(struct rpc_xprt *xprt,
 	/* TCP user timeout (see RFC5482) */
 	kernel_setsockopt(sock, SOL_TCP, TCP_USER_TIMEOUT,
 			(char *)&timeo, sizeof(timeo));
+=======
+	spin_unlock(&xprt->transport_lock);
+
+	/* TCP Keepalive options */
+	sock_set_keepalive(sock->sk);
+	tcp_sock_set_keepidle(sock->sk, keepidle);
+	tcp_sock_set_keepintvl(sock->sk, keepidle);
+	tcp_sock_set_keepcnt(sock->sk, keepcnt);
+
+	/* TCP user timeout (see RFC5482) */
+	tcp_sock_set_user_timeout(sock->sk, timeo);
+>>>>>>> upstream/android-13
 }
 
 static void xs_tcp_set_connect_timeout(struct rpc_xprt *xprt,
@@ -2325,7 +3298,11 @@ static void xs_tcp_set_connect_timeout(struct rpc_xprt *xprt,
 	struct rpc_timeout to;
 	unsigned long initval;
 
+<<<<<<< HEAD
 	spin_lock_bh(&xprt->transport_lock);
+=======
+	spin_lock(&xprt->transport_lock);
+>>>>>>> upstream/android-13
 	if (reconnect_timeout < xprt->max_reconnect_timeout)
 		xprt->max_reconnect_timeout = reconnect_timeout;
 	if (connect_timeout < xprt->connect_timeout) {
@@ -2342,7 +3319,11 @@ static void xs_tcp_set_connect_timeout(struct rpc_xprt *xprt,
 		xprt->connect_timeout = connect_timeout;
 	}
 	set_bit(XPRT_SOCK_UPD_TIMEOUT, &transport->sock_state);
+<<<<<<< HEAD
 	spin_unlock_bh(&xprt->transport_lock);
+=======
+	spin_unlock(&xprt->transport_lock);
+>>>>>>> upstream/android-13
 }
 
 static int xs_tcp_finish_connecting(struct rpc_xprt *xprt, struct socket *sock)
@@ -2352,7 +3333,10 @@ static int xs_tcp_finish_connecting(struct rpc_xprt *xprt, struct socket *sock)
 
 	if (!transport->inet) {
 		struct sock *sk = sock->sk;
+<<<<<<< HEAD
 		unsigned int addr_pref = IPV6_PREFER_SRC_PUBLIC;
+=======
+>>>>>>> upstream/android-13
 
 		/* Avoid temporary address, they are bad for long-lived
 		 * connections such as NFS mounts.
@@ -2361,10 +3345,20 @@ static int xs_tcp_finish_connecting(struct rpc_xprt *xprt, struct socket *sock)
 		 *    knowledge about the normal duration of connections,
 		 *    MAY override this as appropriate.
 		 */
+<<<<<<< HEAD
 		kernel_setsockopt(sock, SOL_IPV6, IPV6_ADDR_PREFERENCES,
 				(char *)&addr_pref, sizeof(addr_pref));
 
 		xs_tcp_set_socket_timeouts(xprt, sock);
+=======
+		if (xs_addr(xprt)->sa_family == PF_INET6) {
+			ip6_sock_set_addr_preferences(sk,
+				IPV6_PREFER_SRC_PUBLIC);
+		}
+
+		xs_tcp_set_socket_timeouts(xprt, sock);
+		tcp_sock_set_nodelay(sk);
+>>>>>>> upstream/android-13
 
 		write_lock_bh(&sk->sk_callback_lock);
 
@@ -2376,11 +3370,17 @@ static int xs_tcp_finish_connecting(struct rpc_xprt *xprt, struct socket *sock)
 		sk->sk_write_space = xs_tcp_write_space;
 		sock_set_flag(sk, SOCK_FASYNC);
 		sk->sk_error_report = xs_error_report;
+<<<<<<< HEAD
 		sk->sk_allocation = GFP_NOIO;
 
 		/* socket options */
 		sock_reset_flag(sk, SOCK_LINGER);
 		tcp_sk(sk)->nonagle |= TCP_NAGLE_OFF;
+=======
+
+		/* socket options */
+		sock_reset_flag(sk, SOCK_LINGER);
+>>>>>>> upstream/android-13
 
 		xprt_clear_connected(xprt);
 
@@ -2396,15 +3396,27 @@ static int xs_tcp_finish_connecting(struct rpc_xprt *xprt, struct socket *sock)
 
 	xs_set_memalloc(xprt);
 
+<<<<<<< HEAD
+=======
+	xs_stream_start_connect(transport);
+
+>>>>>>> upstream/android-13
 	/* Tell the socket layer to start connecting... */
 	set_bit(XPRT_SOCK_CONNECTING, &transport->sock_state);
 	ret = kernel_connect(sock, xs_addr(xprt), xprt->addrlen, O_NONBLOCK);
 	switch (ret) {
 	case 0:
 		xs_set_srcport(transport, sock);
+<<<<<<< HEAD
 		/* fall through */
 	case -EINPROGRESS:
 		/* SYN_SENT! */
+=======
+		fallthrough;
+	case -EINPROGRESS:
+		/* SYN_SENT! */
+		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
+>>>>>>> upstream/android-13
 		if (xprt->reestablish_timeout < XS_TCP_INIT_REEST_TO)
 			xprt->reestablish_timeout = XS_TCP_INIT_REEST_TO;
 		break;
@@ -2418,6 +3430,10 @@ out:
 
 /**
  * xs_tcp_setup_socket - create a TCP socket and connect to a remote endpoint
+<<<<<<< HEAD
+=======
+ * @work: queued work item
+>>>>>>> upstream/android-13
  *
  * Invoked by a work queue tasklet.
  */
@@ -2429,10 +3445,21 @@ static void xs_tcp_setup_socket(struct work_struct *work)
 	struct rpc_xprt *xprt = &transport->xprt;
 	int status = -EIO;
 
+<<<<<<< HEAD
 	if (!sock) {
 		sock = xs_create_sock(xprt, transport,
 				xs_addr(xprt)->sa_family, SOCK_STREAM,
 				IPPROTO_TCP, true);
+=======
+	if (xprt_connected(xprt))
+		goto out;
+	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
+			       &transport->sock_state) ||
+	    !sock) {
+		xs_reset_transport(transport);
+		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
+				      SOCK_STREAM, IPPROTO_TCP, true);
+>>>>>>> upstream/android-13
 		if (IS_ERR(sock)) {
 			status = PTR_ERR(sock);
 			goto out;
@@ -2454,7 +3481,11 @@ static void xs_tcp_setup_socket(struct work_struct *work)
 	default:
 		printk("%s: connect returned unhandled error %d\n",
 			__func__, status);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -EADDRNOTAVAIL:
 		/* We're probably in TIME_WAIT. Get rid of existing socket,
 		 * and retry
@@ -2477,10 +3508,15 @@ static void xs_tcp_setup_socket(struct work_struct *work)
 	case -EHOSTUNREACH:
 	case -EADDRINUSE:
 	case -ENOBUFS:
+<<<<<<< HEAD
 		/*
 		 * xs_tcp_force_close() wakes tasks with -EIO.
 		 * We need to wake them first to ensure the
 		 * correct error code.
+=======
+		/* xs_tcp_force_close() wakes tasks with a fixed error code.
+		 * We need to wake them first to ensure the correct error code.
+>>>>>>> upstream/android-13
 		 */
 		xprt_wake_pending_tasks(xprt, status);
 		xs_tcp_force_close(xprt);
@@ -2493,6 +3529,7 @@ out:
 	xprt_wake_pending_tasks(xprt, status);
 }
 
+<<<<<<< HEAD
 static unsigned long xs_reconnect_delay(const struct rpc_xprt *xprt)
 {
 	unsigned long start, now = jiffies;
@@ -2512,6 +3549,8 @@ static void xs_reconnect_backoff(struct rpc_xprt *xprt)
 		xprt->reestablish_timeout = XS_TCP_INIT_REEST_TO;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * xs_connect - connect a socket to a remote endpoint
  * @xprt: pointer to transport structure
@@ -2535,6 +3574,7 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
 
 	if (transport->sock != NULL) {
 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
+<<<<<<< HEAD
 				"seconds\n",
 				xprt, xprt->reestablish_timeout / HZ);
 
@@ -2543,6 +3583,12 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
 
 		delay = xs_reconnect_delay(xprt);
 		xs_reconnect_backoff(xprt);
+=======
+			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
+
+		delay = xprt_reconnect_delay(xprt);
+		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
+>>>>>>> upstream/android-13
 
 	} else
 		dprintk("RPC:       xs_connect scheduled xprt %p\n", xprt);
@@ -2552,8 +3598,60 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
 			delay);
 }
 
+<<<<<<< HEAD
 /**
  * xs_local_print_stats - display AF_LOCAL socket-specifc stats
+=======
+static void xs_wake_disconnect(struct sock_xprt *transport)
+{
+	if (test_and_clear_bit(XPRT_SOCK_WAKE_DISCONNECT, &transport->sock_state))
+		xs_tcp_force_close(&transport->xprt);
+}
+
+static void xs_wake_write(struct sock_xprt *transport)
+{
+	if (test_and_clear_bit(XPRT_SOCK_WAKE_WRITE, &transport->sock_state))
+		xprt_write_space(&transport->xprt);
+}
+
+static void xs_wake_error(struct sock_xprt *transport)
+{
+	int sockerr;
+
+	if (!test_bit(XPRT_SOCK_WAKE_ERROR, &transport->sock_state))
+		return;
+	mutex_lock(&transport->recv_mutex);
+	if (transport->sock == NULL)
+		goto out;
+	if (!test_and_clear_bit(XPRT_SOCK_WAKE_ERROR, &transport->sock_state))
+		goto out;
+	sockerr = xchg(&transport->xprt_err, 0);
+	if (sockerr < 0)
+		xprt_wake_pending_tasks(&transport->xprt, sockerr);
+out:
+	mutex_unlock(&transport->recv_mutex);
+}
+
+static void xs_wake_pending(struct sock_xprt *transport)
+{
+	if (test_and_clear_bit(XPRT_SOCK_WAKE_PENDING, &transport->sock_state))
+		xprt_wake_pending_tasks(&transport->xprt, -EAGAIN);
+}
+
+static void xs_error_handle(struct work_struct *work)
+{
+	struct sock_xprt *transport = container_of(work,
+			struct sock_xprt, error_worker);
+
+	xs_wake_disconnect(transport);
+	xs_wake_write(transport);
+	xs_wake_error(transport);
+	xs_wake_pending(transport);
+}
+
+/**
+ * xs_local_print_stats - display AF_LOCAL socket-specific stats
+>>>>>>> upstream/android-13
  * @xprt: rpc_xprt struct containing statistics
  * @seq: output file
  *
@@ -2569,7 +3667,11 @@ static void xs_local_print_stats(struct rpc_xprt *xprt, struct seq_file *seq)
 			"%llu %llu %lu %llu %llu\n",
 			xprt->stat.bind_count,
 			xprt->stat.connect_count,
+<<<<<<< HEAD
 			xprt->stat.connect_time,
+=======
+			xprt->stat.connect_time / HZ,
+>>>>>>> upstream/android-13
 			idle_time,
 			xprt->stat.sends,
 			xprt->stat.recvs,
@@ -2582,7 +3684,11 @@ static void xs_local_print_stats(struct rpc_xprt *xprt, struct seq_file *seq)
 }
 
 /**
+<<<<<<< HEAD
  * xs_udp_print_stats - display UDP socket-specifc stats
+=======
+ * xs_udp_print_stats - display UDP socket-specific stats
+>>>>>>> upstream/android-13
  * @xprt: rpc_xprt struct containing statistics
  * @seq: output file
  *
@@ -2606,7 +3712,11 @@ static void xs_udp_print_stats(struct rpc_xprt *xprt, struct seq_file *seq)
 }
 
 /**
+<<<<<<< HEAD
  * xs_tcp_print_stats - display TCP socket-specifc stats
+=======
+ * xs_tcp_print_stats - display TCP socket-specific stats
+>>>>>>> upstream/android-13
  * @xprt: rpc_xprt struct containing statistics
  * @seq: output file
  *
@@ -2624,7 +3734,11 @@ static void xs_tcp_print_stats(struct rpc_xprt *xprt, struct seq_file *seq)
 			transport->srcport,
 			xprt->stat.bind_count,
 			xprt->stat.connect_count,
+<<<<<<< HEAD
 			xprt->stat.connect_time,
+=======
+			xprt->stat.connect_time / HZ,
+>>>>>>> upstream/android-13
 			idle_time,
 			xprt->stat.sends,
 			xprt->stat.recvs,
@@ -2678,6 +3792,7 @@ static void bc_free(struct rpc_task *task)
 	free_page((unsigned long)buf);
 }
 
+<<<<<<< HEAD
 /*
  * Use the svc_sock to send the callback. Must be called with svsk->sk_mutex
  * held. Borrows heavily from svc_tcp_sendto and xs_tcp_send_request.
@@ -2719,6 +3834,45 @@ static int bc_send_request(struct rpc_task *task)
 	int len;
 
 	dprintk("sending request with xid: %08x\n", ntohl(req->rq_xid));
+=======
+static int bc_sendto(struct rpc_rqst *req)
+{
+	struct xdr_buf *xdr = &req->rq_snd_buf;
+	struct sock_xprt *transport =
+			container_of(req->rq_xprt, struct sock_xprt, xprt);
+	struct msghdr msg = {
+		.msg_flags	= 0,
+	};
+	rpc_fraghdr marker = cpu_to_be32(RPC_LAST_STREAM_FRAGMENT |
+					 (u32)xdr->len);
+	unsigned int sent = 0;
+	int err;
+
+	req->rq_xtime = ktime_get();
+	err = xprt_sock_sendmsg(transport->sock, &msg, xdr, 0, marker, &sent);
+	xdr_free_bvec(xdr);
+	if (err < 0 || sent != (xdr->len + sizeof(marker)))
+		return -EAGAIN;
+	return sent;
+}
+
+/**
+ * bc_send_request - Send a backchannel Call on a TCP socket
+ * @req: rpc_rqst containing Call message to be sent
+ *
+ * xpt_mutex ensures @rqstp's whole message is written to the socket
+ * without interruption.
+ *
+ * Return values:
+ *   %0 if the message was sent successfully
+ *   %ENOTCONN if the message was not sent
+ */
+static int bc_send_request(struct rpc_rqst *req)
+{
+	struct svc_xprt	*xprt;
+	int len;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Get the server socket associated with this callback xprt
 	 */
@@ -2728,12 +3882,16 @@ static int bc_send_request(struct rpc_task *task)
 	 * Grab the mutex to serialize data as the connection is shared
 	 * with the fore channel
 	 */
+<<<<<<< HEAD
 	if (!mutex_trylock(&xprt->xpt_mutex)) {
 		rpc_sleep_on(&xprt->xpt_bc_pending, task, NULL);
 		if (!mutex_trylock(&xprt->xpt_mutex))
 			return -EAGAIN;
 		rpc_wake_up_queued_task(&xprt->xpt_bc_pending, task);
 	}
+=======
+	mutex_lock(&xprt->xpt_mutex);
+>>>>>>> upstream/android-13
 	if (test_bit(XPT_DEAD, &xprt->xpt_flags))
 		len = -ENOTCONN;
 	else
@@ -2752,6 +3910,10 @@ static int bc_send_request(struct rpc_task *task)
 
 static void bc_close(struct rpc_xprt *xprt)
 {
+<<<<<<< HEAD
+=======
+	xprt_disconnect_done(xprt);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2769,7 +3931,11 @@ static void bc_destroy(struct rpc_xprt *xprt)
 
 static const struct rpc_xprt_ops xs_local_ops = {
 	.reserve_xprt		= xprt_reserve_xprt,
+<<<<<<< HEAD
 	.release_xprt		= xs_tcp_release_xprt,
+=======
+	.release_xprt		= xprt_release_xprt,
+>>>>>>> upstream/android-13
 	.alloc_slot		= xprt_alloc_slot,
 	.free_slot		= xprt_free_slot,
 	.rpcbind		= xs_local_rpcbind,
@@ -2777,8 +3943,14 @@ static const struct rpc_xprt_ops xs_local_ops = {
 	.connect		= xs_local_connect,
 	.buf_alloc		= rpc_malloc,
 	.buf_free		= rpc_free,
+<<<<<<< HEAD
 	.send_request		= xs_local_send_request,
 	.set_retrans_timeout	= xprt_set_retrans_timeout_def,
+=======
+	.prepare_request	= xs_stream_prepare_request,
+	.send_request		= xs_local_send_request,
+	.wait_for_reply_request	= xprt_wait_for_reply_request_def,
+>>>>>>> upstream/android-13
 	.close			= xs_close,
 	.destroy		= xs_destroy,
 	.print_stats		= xs_local_print_stats,
@@ -2798,7 +3970,11 @@ static const struct rpc_xprt_ops xs_udp_ops = {
 	.buf_alloc		= rpc_malloc,
 	.buf_free		= rpc_free,
 	.send_request		= xs_udp_send_request,
+<<<<<<< HEAD
 	.set_retrans_timeout	= xprt_set_retrans_timeout_rtt,
+=======
+	.wait_for_reply_request	= xprt_wait_for_reply_request_rtt,
+>>>>>>> upstream/android-13
 	.timer			= xs_udp_timer,
 	.release_request	= xprt_release_rqst_cong,
 	.close			= xs_close,
@@ -2811,16 +3987,27 @@ static const struct rpc_xprt_ops xs_udp_ops = {
 
 static const struct rpc_xprt_ops xs_tcp_ops = {
 	.reserve_xprt		= xprt_reserve_xprt,
+<<<<<<< HEAD
 	.release_xprt		= xs_tcp_release_xprt,
 	.alloc_slot		= xprt_lock_and_alloc_slot,
+=======
+	.release_xprt		= xprt_release_xprt,
+	.alloc_slot		= xprt_alloc_slot,
+>>>>>>> upstream/android-13
 	.free_slot		= xprt_free_slot,
 	.rpcbind		= rpcb_getport_async,
 	.set_port		= xs_set_port,
 	.connect		= xs_connect,
 	.buf_alloc		= rpc_malloc,
 	.buf_free		= rpc_free,
+<<<<<<< HEAD
 	.send_request		= xs_tcp_send_request,
 	.set_retrans_timeout	= xprt_set_retrans_timeout_def,
+=======
+	.prepare_request	= xs_stream_prepare_request,
+	.send_request		= xs_tcp_send_request,
+	.wait_for_reply_request	= xprt_wait_for_reply_request_def,
+>>>>>>> upstream/android-13
 	.close			= xs_tcp_shutdown,
 	.destroy		= xs_destroy,
 	.set_connect_timeout	= xs_tcp_set_connect_timeout,
@@ -2830,8 +4017,13 @@ static const struct rpc_xprt_ops xs_tcp_ops = {
 	.inject_disconnect	= xs_inject_disconnect,
 #ifdef CONFIG_SUNRPC_BACKCHANNEL
 	.bc_setup		= xprt_setup_bc,
+<<<<<<< HEAD
 	.bc_up			= xs_tcp_bc_up,
 	.bc_maxpayload		= xs_tcp_bc_maxpayload,
+=======
+	.bc_maxpayload		= xs_tcp_bc_maxpayload,
+	.bc_num_slots		= xprt_bc_max_slots,
+>>>>>>> upstream/android-13
 	.bc_free_rqst		= xprt_free_bc_rqst,
 	.bc_destroy		= xprt_destroy_bc,
 #endif
@@ -2849,7 +4041,11 @@ static const struct rpc_xprt_ops bc_tcp_ops = {
 	.buf_alloc		= bc_malloc,
 	.buf_free		= bc_free,
 	.send_request		= bc_send_request,
+<<<<<<< HEAD
 	.set_retrans_timeout	= xprt_set_retrans_timeout_def,
+=======
+	.wait_for_reply_request	= xprt_wait_for_reply_request_def,
+>>>>>>> upstream/android-13
 	.close			= bc_close,
 	.destroy		= bc_destroy,
 	.print_stats		= xs_tcp_print_stats,
@@ -2950,7 +4146,11 @@ static struct rpc_xprt *xs_setup_local(struct xprt_create *args)
 	transport = container_of(xprt, struct sock_xprt, xprt);
 
 	xprt->prot = 0;
+<<<<<<< HEAD
 	xprt->tsh_size = sizeof(rpc_fraghdr) / sizeof(u32);
+=======
+	xprt->xprt_class = &xs_local_transport;
+>>>>>>> upstream/android-13
 	xprt->max_payload = RPC_MAX_FRAGMENT_SIZE;
 
 	xprt->bind_timeout = XS_BIND_TO;
@@ -2960,9 +4160,15 @@ static struct rpc_xprt *xs_setup_local(struct xprt_create *args)
 	xprt->ops = &xs_local_ops;
 	xprt->timeout = &xs_local_default_timeout;
 
+<<<<<<< HEAD
 	INIT_WORK(&transport->recv_worker, xs_local_data_receive_workfn);
 	INIT_DELAYED_WORK(&transport->connect_worker,
 			xs_dummy_setup_socket);
+=======
+	INIT_WORK(&transport->recv_worker, xs_stream_data_receive_workfn);
+	INIT_WORK(&transport->error_worker, xs_error_handle);
+	INIT_DELAYED_WORK(&transport->connect_worker, xs_dummy_setup_socket);
+>>>>>>> upstream/android-13
 
 	switch (sun->sun_family) {
 	case AF_LOCAL:
@@ -2974,9 +4180,12 @@ static struct rpc_xprt *xs_setup_local(struct xprt_create *args)
 		}
 		xprt_set_bound(xprt);
 		xs_format_peer_addresses(xprt, "local", RPCBIND_NETID_LOCAL);
+<<<<<<< HEAD
 		ret = ERR_PTR(xs_local_setup_socket(transport));
 		if (ret)
 			goto out_err;
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = ERR_PTR(-EAFNOSUPPORT);
@@ -3020,7 +4229,11 @@ static struct rpc_xprt *xs_setup_udp(struct xprt_create *args)
 	transport = container_of(xprt, struct sock_xprt, xprt);
 
 	xprt->prot = IPPROTO_UDP;
+<<<<<<< HEAD
 	xprt->tsh_size = 0;
+=======
+	xprt->xprt_class = &xs_udp_transport;
+>>>>>>> upstream/android-13
 	/* XXX: header size can vary due to auth type, IPv6, etc. */
 	xprt->max_payload = (1U << 16) - (MAX_HEADER << 3);
 
@@ -3033,6 +4246,10 @@ static struct rpc_xprt *xs_setup_udp(struct xprt_create *args)
 	xprt->timeout = &xs_udp_default_timeout;
 
 	INIT_WORK(&transport->recv_worker, xs_udp_data_receive_workfn);
+<<<<<<< HEAD
+=======
+	INIT_WORK(&transport->error_worker, xs_error_handle);
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&transport->connect_worker, xs_udp_setup_socket);
 
 	switch (addr->sa_family) {
@@ -3100,7 +4317,11 @@ static struct rpc_xprt *xs_setup_tcp(struct xprt_create *args)
 	transport = container_of(xprt, struct sock_xprt, xprt);
 
 	xprt->prot = IPPROTO_TCP;
+<<<<<<< HEAD
 	xprt->tsh_size = sizeof(rpc_fraghdr) / sizeof(u32);
+=======
+	xprt->xprt_class = &xs_tcp_transport;
+>>>>>>> upstream/android-13
 	xprt->max_payload = RPC_MAX_FRAGMENT_SIZE;
 
 	xprt->bind_timeout = XS_BIND_TO;
@@ -3114,7 +4335,12 @@ static struct rpc_xprt *xs_setup_tcp(struct xprt_create *args)
 	xprt->connect_timeout = xprt->timeout->to_initval *
 		(xprt->timeout->to_retries + 1);
 
+<<<<<<< HEAD
 	INIT_WORK(&transport->recv_worker, xs_tcp_data_receive_workfn);
+=======
+	INIT_WORK(&transport->recv_worker, xs_stream_data_receive_workfn);
+	INIT_WORK(&transport->error_worker, xs_error_handle);
+>>>>>>> upstream/android-13
 	INIT_DELAYED_WORK(&transport->connect_worker, xs_tcp_setup_socket);
 
 	switch (addr->sa_family) {
@@ -3173,7 +4399,11 @@ static struct rpc_xprt *xs_setup_bc_tcp(struct xprt_create *args)
 	transport = container_of(xprt, struct sock_xprt, xprt);
 
 	xprt->prot = IPPROTO_TCP;
+<<<<<<< HEAD
 	xprt->tsh_size = sizeof(rpc_fraghdr) / sizeof(u32);
+=======
+	xprt->xprt_class = &xs_bc_tcp_transport;
+>>>>>>> upstream/android-13
 	xprt->max_payload = RPC_MAX_FRAGMENT_SIZE;
 	xprt->timeout = &xs_tcp_default_timeout;
 
@@ -3277,10 +4507,15 @@ static struct xprt_class	xs_bc_tcp_transport = {
  */
 int init_socket_xprt(void)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
 	if (!sunrpc_table_header)
 		sunrpc_table_header = register_sysctl_table(sunrpc_table);
 #endif
+=======
+	if (!sunrpc_table_header)
+		sunrpc_table_header = register_sysctl_table(sunrpc_table);
+>>>>>>> upstream/android-13
 
 	xprt_register_transport(&xs_local_transport);
 	xprt_register_transport(&xs_udp_transport);
@@ -3296,12 +4531,18 @@ int init_socket_xprt(void)
  */
 void cleanup_socket_xprt(void)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
+=======
+>>>>>>> upstream/android-13
 	if (sunrpc_table_header) {
 		unregister_sysctl_table(sunrpc_table_header);
 		sunrpc_table_header = NULL;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	xprt_unregister_transport(&xs_local_transport);
 	xprt_unregister_transport(&xs_udp_transport);
@@ -3309,6 +4550,7 @@ void cleanup_socket_xprt(void)
 	xprt_unregister_transport(&xs_bc_tcp_transport);
 }
 
+<<<<<<< HEAD
 static int param_set_uint_minmax(const char *val,
 		const struct kernel_param *kp,
 		unsigned int min, unsigned int max)
@@ -3327,6 +4569,8 @@ static int param_set_uint_minmax(const char *val,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int param_set_portnr(const char *val, const struct kernel_param *kp)
 {
 	return param_set_uint_minmax(val, kp,

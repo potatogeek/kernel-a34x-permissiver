@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+=======
+/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
+>>>>>>> upstream/android-13
 /* $XFree86$ */
 /* $XdotOrg$ */
 /*
@@ -147,6 +151,7 @@
 #define SIS_VIDEO_PLAYBACK	0x02 - 0x30
 #define SIS_CRT2_PORT_04	0x04 - 0x30
 
+<<<<<<< HEAD
 /* Mode numbers */
 static const unsigned short ModeIndex_320x200[] = { 0x59, 0x41, 0x00, 0x4f };
 static const unsigned short ModeIndex_320x240[] = { 0x50, 0x56, 0x00, 0x53 };
@@ -809,6 +814,8 @@ static const struct SiS_VCLKData SiSUSB_VCLKData[] = {
 	{0x2b, 0xc2, 35}	/* 0x71 768@576@60 */
 };
 
+=======
+>>>>>>> upstream/android-13
 int SiSUSBSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
 int SiSUSBSetVESAMode(struct SiS_Private *SiS_Pr, unsigned short VModeNo);
 
@@ -828,7 +835,11 @@ extern int sisusb_setidxregand(struct sisusb_usb_data *sisusb, u32 port,
 void sisusb_delete(struct kref *kref);
 int sisusb_writeb(struct sisusb_usb_data *sisusb, u32 adr, u8 data);
 int sisusb_readb(struct sisusb_usb_data *sisusb, u32 adr, u8 * data);
+<<<<<<< HEAD
 int sisusb_copy_memory(struct sisusb_usb_data *sisusb, char *src,
+=======
+int sisusb_copy_memory(struct sisusb_usb_data *sisusb, u8 *src,
+>>>>>>> upstream/android-13
 		       u32 dest, int length);
 int sisusb_reset_text_mode(struct sisusb_usb_data *sisusb, int init);
 int sisusbcon_do_font_op(struct sisusb_usb_data *sisusb, int set, int slot,

@@ -4,6 +4,7 @@
 
 #include <linux/interrupt.h>
 
+<<<<<<< HEAD
 /* Debuging defines */
 #ifdef NOTRACE
 #define enter(x)   printk("Enter: %s, %s line %i\n",x,__FILE__,__LINE__)
@@ -17,6 +18,8 @@
 
 
 
+=======
+>>>>>>> upstream/android-13
 /* prototypes */
 
 static int  i82092aa_pci_probe(struct pci_dev *dev, const struct pci_device_id *id);

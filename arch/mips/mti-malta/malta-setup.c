@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000 MIPS Technologies, Inc.  All rights reserved.
  * Copyright (C) 2008 Dmitri Vorobiev
+<<<<<<< HEAD
  *
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
@@ -15,6 +20,8 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/init.h>
@@ -25,10 +32,16 @@
 #include <linux/pci.h>
 #include <linux/screen_info.h>
 #include <linux/time.h>
+<<<<<<< HEAD
 
 #include <asm/dma-coherence.h>
 #include <asm/fw/fw.h>
 #include <asm/mach-malta/malta-dtshim.h>
+=======
+#include <linux/dma-map-ops.h> /* for dma_default_coherent */
+
+#include <asm/fw/fw.h>
+>>>>>>> upstream/android-13
 #include <asm/mips-cps.h>
 #include <asm/mips-boards/generic.h>
 #include <asm/mips-boards/malta.h>
@@ -81,8 +94,11 @@ const char *get_system_type(void)
 	return "MIPS Malta";
 }
 
+<<<<<<< HEAD
 const char display_string[] = "	       LINUX ON MALTA	    ";
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BLK_DEV_FD
 static void __init fd_activate(void)
 {
@@ -105,16 +121,25 @@ static void __init fd_activate(void)
 }
 #endif
 
+<<<<<<< HEAD
 static int __init plat_enable_iocoherency(void)
 {
 	int supported = 0;
+=======
+static void __init plat_setup_iocoherency(void)
+{
+>>>>>>> upstream/android-13
 	u32 cfg;
 
 	if (mips_revision_sconid == MIPS_REVISION_SCON_BONITO) {
 		if (BONITO_PCICACHECTRL & BONITO_PCICACHECTRL_CPUCOH_PRES) {
 			BONITO_PCICACHECTRL |= BONITO_PCICACHECTRL_CPUCOH_EN;
 			pr_info("Enabled Bonito CPU coherency\n");
+<<<<<<< HEAD
 			supported = 1;
+=======
+			dma_default_coherent = true;
+>>>>>>> upstream/android-13
 		}
 		if (strstr(fw_getcmdline(), "iobcuncached")) {
 			BONITO_PCICACHECTRL &= ~BONITO_PCICACHECTRL_IOBCCOH_EN;
@@ -133,6 +158,7 @@ static int __init plat_enable_iocoherency(void)
 		/* Nothing special needs to be done to enable coherency */
 		pr_info("CMP IOCU detected\n");
 		cfg = __raw_readl((u32 *)CKSEG1ADDR(ROCIT_CONFIG_GEN0));
+<<<<<<< HEAD
 		if (!(cfg & ROCIT_CONFIG_GEN0_PCI_IOCU)) {
 			pr_crit("IOCU OPERATION DISABLED BY SWITCH - DEFAULTING TO SW IO COHERENCY\n");
 			return 0;
@@ -156,6 +182,18 @@ static void __init plat_setup_iocoherency(void)
 		else
 			pr_info("Software DMA cache coherency enabled\n");
 	}
+=======
+		if (cfg & ROCIT_CONFIG_GEN0_PCI_IOCU)
+			dma_default_coherent = true;
+		else
+			pr_crit("IOCU OPERATION DISABLED BY SWITCH - DEFAULTING TO SW IO COHERENCY\n");
+	}
+
+	if (dma_default_coherent)
+		pr_info("Hardware DMA cache coherency enabled\n");
+	else
+		pr_info("Software DMA cache coherency enabled\n");
+>>>>>>> upstream/android-13
 }
 
 static void __init pci_clock_check(void)

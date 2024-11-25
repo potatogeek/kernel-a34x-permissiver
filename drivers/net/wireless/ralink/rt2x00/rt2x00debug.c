@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -63,6 +70,10 @@ struct rt2x00debug_intf {
 	 *   - chipset file
 	 *   - device state flags file
 	 *   - device capability flags file
+<<<<<<< HEAD
+=======
+	 *   - hardware restart file
+>>>>>>> upstream/android-13
 	 *   - register folder
 	 *     - csr offset/value files
 	 *     - eeprom offset/value files
@@ -75,6 +86,7 @@ struct rt2x00debug_intf {
 	 *     - crypto stats file
 	 */
 	struct dentry *driver_folder;
+<<<<<<< HEAD
 	struct dentry *driver_entry;
 	struct dentry *chipset_entry;
 	struct dentry *dev_flags;
@@ -94,6 +106,8 @@ struct rt2x00debug_intf {
 	struct dentry *queue_frame_dump_entry;
 	struct dentry *queue_stats_entry;
 	struct dentry *crypto_stats_entry;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * The frame dump file only allows a single reader,
@@ -464,11 +478,15 @@ static ssize_t rt2x00debug_read_##__name(struct file *file,	\
 								\
 	size = sprintf(line, __format, value);			\
 								\
+<<<<<<< HEAD
 	if (copy_to_user(buf, line, size))			\
 		return -EFAULT;					\
 								\
 	*offset += size;					\
 	return size;						\
+=======
+	return simple_read_from_buffer(buf, length, offset, line, size); \
+>>>>>>> upstream/android-13
 }
 
 #define RT2X00DEBUGFS_OPS_WRITE(__name, __type)			\
@@ -545,11 +563,15 @@ static ssize_t rt2x00debug_read_dev_flags(struct file *file,
 
 	size = sprintf(line, "0x%.8x\n", (unsigned int)intf->rt2x00dev->flags);
 
+<<<<<<< HEAD
 	if (copy_to_user(buf, line, size))
 		return -EFAULT;
 
 	*offset += size;
 	return size;
+=======
+	return simple_read_from_buffer(buf, length, offset, line, size);
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations rt2x00debug_fop_dev_flags = {
@@ -574,11 +596,15 @@ static ssize_t rt2x00debug_read_cap_flags(struct file *file,
 
 	size = sprintf(line, "0x%.8x\n", (unsigned int)intf->rt2x00dev->cap_flags);
 
+<<<<<<< HEAD
 	if (copy_to_user(buf, line, size))
 		return -EFAULT;
 
 	*offset += size;
 	return size;
+=======
+	return simple_read_from_buffer(buf, length, offset, line, size);
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations rt2x00debug_fop_cap_flags = {
@@ -589,23 +615,62 @@ static const struct file_operations rt2x00debug_fop_cap_flags = {
 	.llseek		= default_llseek,
 };
 
+<<<<<<< HEAD
 static struct dentry *rt2x00debug_create_file_driver(const char *name,
 						     struct rt2x00debug_intf
 						     *intf,
 						     struct debugfs_blob_wrapper
 						     *blob)
+=======
+static ssize_t rt2x00debug_write_restart_hw(struct file *file,
+					    const char __user *buf,
+					    size_t length,
+					    loff_t *offset)
+{
+	struct rt2x00debug_intf *intf =	file->private_data;
+	struct rt2x00_dev *rt2x00dev = intf->rt2x00dev;
+	static unsigned long last_reset = INITIAL_JIFFIES;
+
+	if (!rt2x00_has_cap_restart_hw(rt2x00dev))
+		return -EOPNOTSUPP;
+
+	if (time_before(jiffies, last_reset + msecs_to_jiffies(2000)))
+		return -EBUSY;
+
+	last_reset = jiffies;
+
+	ieee80211_restart_hw(rt2x00dev->hw);
+	return length;
+}
+
+static const struct file_operations rt2x00debug_restart_hw = {
+	.owner = THIS_MODULE,
+	.write = rt2x00debug_write_restart_hw,
+	.open = simple_open,
+	.llseek = generic_file_llseek,
+};
+
+static void rt2x00debug_create_file_driver(const char *name,
+					   struct rt2x00debug_intf *intf,
+					   struct debugfs_blob_wrapper *blob)
+>>>>>>> upstream/android-13
 {
 	char *data;
 
 	data = kzalloc(3 * MAX_LINE_LENGTH, GFP_KERNEL);
 	if (!data)
+<<<<<<< HEAD
 		return NULL;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	blob->data = data;
 	data += sprintf(data, "driver:\t%s\n", intf->rt2x00dev->ops->name);
 	data += sprintf(data, "version:\t%s\n", DRV_VERSION);
 	blob->size = strlen(blob->data);
 
+<<<<<<< HEAD
 	return debugfs_create_blob(name, 0400, intf->driver_folder, blob);
 }
 
@@ -615,13 +680,25 @@ static struct dentry *rt2x00debug_create_file_chipset(const char *name,
 						      struct
 						      debugfs_blob_wrapper
 						      *blob)
+=======
+	debugfs_create_blob(name, 0400, intf->driver_folder, blob);
+}
+
+static void rt2x00debug_create_file_chipset(const char *name,
+					    struct rt2x00debug_intf *intf,
+					    struct debugfs_blob_wrapper *blob)
+>>>>>>> upstream/android-13
 {
 	const struct rt2x00debug *debug = intf->debug;
 	char *data;
 
 	data = kzalloc(9 * MAX_LINE_LENGTH, GFP_KERNEL);
 	if (!data)
+<<<<<<< HEAD
 		return NULL;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	blob->data = data;
 	data += sprintf(data, "rt chip:\t%04x\n", intf->rt2x00dev->chip.rt);
@@ -647,13 +724,22 @@ static struct dentry *rt2x00debug_create_file_chipset(const char *name,
 
 	blob->size = strlen(blob->data);
 
+<<<<<<< HEAD
 	return debugfs_create_blob(name, 0400, intf->driver_folder, blob);
+=======
+	debugfs_create_blob(name, 0400, intf->driver_folder, blob);
+>>>>>>> upstream/android-13
 }
 
 void rt2x00debug_register(struct rt2x00_dev *rt2x00dev)
 {
 	const struct rt2x00debug *debug = rt2x00dev->ops->debugfs;
 	struct rt2x00debug_intf *intf;
+<<<<<<< HEAD
+=======
+	struct dentry *queue_folder;
+	struct dentry *register_folder;
+>>>>>>> upstream/android-13
 
 	intf = kzalloc(sizeof(struct rt2x00debug_intf), GFP_KERNEL);
 	if (!intf) {
@@ -668,6 +754,7 @@ void rt2x00debug_register(struct rt2x00_dev *rt2x00dev)
 	intf->driver_folder =
 	    debugfs_create_dir(intf->rt2x00dev->ops->name,
 			       rt2x00dev->hw->wiphy->debugfsdir);
+<<<<<<< HEAD
 	if (IS_ERR(intf->driver_folder) || !intf->driver_folder)
 		goto exit;
 
@@ -698,10 +785,24 @@ void rt2x00debug_register(struct rt2x00_dev *rt2x00dev)
 	    debugfs_create_dir("register", intf->driver_folder);
 	if (IS_ERR(intf->register_folder) || !intf->register_folder)
 		goto exit;
+=======
+
+	rt2x00debug_create_file_driver("driver", intf, &intf->driver_blob);
+	rt2x00debug_create_file_chipset("chipset", intf, &intf->chipset_blob);
+	debugfs_create_file("dev_flags", 0400, intf->driver_folder, intf,
+			    &rt2x00debug_fop_dev_flags);
+	debugfs_create_file("cap_flags", 0400, intf->driver_folder, intf,
+			    &rt2x00debug_fop_cap_flags);
+	debugfs_create_file("restart_hw", 0200, intf->driver_folder, intf,
+			    &rt2x00debug_restart_hw);
+
+	register_folder = debugfs_create_dir("register", intf->driver_folder);
+>>>>>>> upstream/android-13
 
 #define RT2X00DEBUGFS_CREATE_REGISTER_ENTRY(__intf, __name)		\
 ({									\
 	if (debug->__name.read) {					\
+<<<<<<< HEAD
 		(__intf)->__name##_off_entry =				\
 			debugfs_create_u32(__stringify(__name) "_offset", \
 					   0600,			\
@@ -720,6 +821,15 @@ void rt2x00debug_register(struct rt2x00_dev *rt2x00dev)
 		if (IS_ERR((__intf)->__name##_val_entry) ||		\
 		    !(__intf)->__name##_val_entry)			\
 			goto exit;					\
+=======
+		debugfs_create_u32(__stringify(__name) "_offset", 0600,	\
+				   register_folder,			\
+				   &(__intf)->offset_##__name);		\
+									\
+		debugfs_create_file(__stringify(__name) "_value", 0600,	\
+				    register_folder, (__intf),		\
+				    &rt2x00debug_fop_##__name);		\
+>>>>>>> upstream/android-13
 	}								\
 })
 
@@ -731,6 +841,7 @@ void rt2x00debug_register(struct rt2x00_dev *rt2x00dev)
 
 #undef RT2X00DEBUGFS_CREATE_REGISTER_ENTRY
 
+<<<<<<< HEAD
 	intf->queue_folder =
 	    debugfs_create_dir("queue", intf->driver_folder);
 	if (IS_ERR(intf->queue_folder) || !intf->queue_folder)
@@ -742,10 +853,17 @@ void rt2x00debug_register(struct rt2x00_dev *rt2x00dev)
 	if (IS_ERR(intf->queue_frame_dump_entry)
 		|| !intf->queue_frame_dump_entry)
 		goto exit;
+=======
+	queue_folder = debugfs_create_dir("queue", intf->driver_folder);
+
+	debugfs_create_file("dump", 0400, queue_folder, intf,
+			    &rt2x00debug_fop_queue_dump);
+>>>>>>> upstream/android-13
 
 	skb_queue_head_init(&intf->frame_dump_skbqueue);
 	init_waitqueue_head(&intf->frame_dump_waitqueue);
 
+<<<<<<< HEAD
 	intf->queue_stats_entry =
 		debugfs_create_file("queue", 0400, intf->queue_folder,
 				    intf, &rt2x00debug_fop_queue_stats);
@@ -763,6 +881,18 @@ void rt2x00debug_register(struct rt2x00_dev *rt2x00dev)
 exit:
 	rt2x00debug_deregister(rt2x00dev);
 	rt2x00_err(rt2x00dev, "Failed to register debug handler\n");
+=======
+	debugfs_create_file("queue", 0400, queue_folder, intf,
+			    &rt2x00debug_fop_queue_stats);
+
+#ifdef CONFIG_RT2X00_LIB_CRYPTO
+	if (rt2x00_has_cap_hw_crypto(rt2x00dev))
+		debugfs_create_file("crypto", 0444, queue_folder, intf,
+				    &rt2x00debug_fop_crypto_stats);
+#endif
+
+	return;
+>>>>>>> upstream/android-13
 }
 
 void rt2x00debug_deregister(struct rt2x00_dev *rt2x00dev)
@@ -774,6 +904,7 @@ void rt2x00debug_deregister(struct rt2x00_dev *rt2x00dev)
 
 	skb_queue_purge(&intf->frame_dump_skbqueue);
 
+<<<<<<< HEAD
 #ifdef CONFIG_RT2X00_LIB_CRYPTO
 	debugfs_remove(intf->crypto_stats_entry);
 #endif
@@ -796,6 +927,9 @@ void rt2x00debug_deregister(struct rt2x00_dev *rt2x00dev)
 	debugfs_remove(intf->chipset_entry);
 	debugfs_remove(intf->driver_entry);
 	debugfs_remove(intf->driver_folder);
+=======
+	debugfs_remove_recursive(intf->driver_folder);
+>>>>>>> upstream/android-13
 	kfree(intf->chipset_blob.data);
 	kfree(intf->driver_blob.data);
 	kfree(intf);

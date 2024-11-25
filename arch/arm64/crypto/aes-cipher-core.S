@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Scalar AES core transform
  *
  * Copyright (C) 2017 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -125,6 +132,7 @@ CPU_BE(	rev		w7, w7		)
 	ret
 	.endm
 
+<<<<<<< HEAD
 ENTRY(__aes_arm64_encrypt)
 	do_crypt	fround, crypto_ft_tab, crypto_ft_tab + 1, 2
 ENDPROC(__aes_arm64_encrypt)
@@ -171,3 +179,13 @@ __aes_arm64_inverse_sbox:
 	.byte		0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26
 	.byte		0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 	.size		__aes_arm64_inverse_sbox, . - __aes_arm64_inverse_sbox
+=======
+SYM_FUNC_START(__aes_arm64_encrypt)
+	do_crypt	fround, crypto_ft_tab, crypto_ft_tab + 1, 2
+SYM_FUNC_END(__aes_arm64_encrypt)
+
+	.align		5
+SYM_FUNC_START(__aes_arm64_decrypt)
+	do_crypt	iround, crypto_it_tab, crypto_aes_inv_sbox, 0
+SYM_FUNC_END(__aes_arm64_decrypt)
+>>>>>>> upstream/android-13

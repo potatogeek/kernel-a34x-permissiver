@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 1991, 1992  Linus Torvalds
  *  Copyright (C) 2000, 2001, 2002 Andi Kleen, SuSE Labs
@@ -21,6 +25,7 @@
 #include <linux/ratelimit.h>
 #include <linux/slab.h>
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <linux/sched/clock.h>
 
 #if defined(CONFIG_EDAC)
@@ -28,6 +33,12 @@
 #endif
 
 #include <linux/atomic.h>
+=======
+#include <linux/atomic.h>
+#include <linux/sched/clock.h>
+
+#include <asm/cpu_entry_area.h>
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 #include <asm/mach_traps.h>
 #include <asm/nmi.h>
@@ -35,6 +46,10 @@
 #include <asm/reboot.h>
 #include <asm/cache.h>
 #include <asm/nospec-branch.h>
+<<<<<<< HEAD
+=======
+#include <asm/sev.h>
+>>>>>>> upstream/android-13
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/nmi.h>
@@ -304,7 +319,11 @@ NOKPROBE_SYMBOL(unknown_nmi_error);
 static DEFINE_PER_CPU(bool, swallow_nmi);
 static DEFINE_PER_CPU(unsigned long, last_nmi_rip);
 
+<<<<<<< HEAD
 static void default_do_nmi(struct pt_regs *regs)
+=======
+static noinstr void default_do_nmi(struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	unsigned char reason = 0;
 	int handled;
@@ -330,6 +349,11 @@ static void default_do_nmi(struct pt_regs *regs)
 
 	__this_cpu_write(last_nmi_rip, regs->ip);
 
+<<<<<<< HEAD
+=======
+	instrumentation_begin();
+
+>>>>>>> upstream/android-13
 	handled = nmi_handle(NMI_LOCAL, regs);
 	__this_cpu_add(nmi_stats.normal, handled);
 	if (handled) {
@@ -343,7 +367,11 @@ static void default_do_nmi(struct pt_regs *regs)
 		 */
 		if (handled > 1)
 			__this_cpu_write(swallow_nmi, true);
+<<<<<<< HEAD
 		return;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -375,7 +403,11 @@ static void default_do_nmi(struct pt_regs *regs)
 #endif
 		__this_cpu_add(nmi_stats.external, 1);
 		raw_spin_unlock(&nmi_reason_lock);
+<<<<<<< HEAD
 		return;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 	raw_spin_unlock(&nmi_reason_lock);
 
@@ -400,9 +432,15 @@ static void default_do_nmi(struct pt_regs *regs)
 	 * a 'real' unknown NMI.  For example, while processing
 	 * a perf NMI another perf NMI comes in along with a
 	 * 'real' unknown NMI.  These two NMIs get combined into
+<<<<<<< HEAD
 	 * one (as descibed above).  When the next NMI gets
 	 * processed, it will be flagged by perf as handled, but
 	 * noone will know that there was a 'real' unknown NMI sent
+=======
+	 * one (as described above).  When the next NMI gets
+	 * processed, it will be flagged by perf as handled, but
+	 * no one will know that there was a 'real' unknown NMI sent
+>>>>>>> upstream/android-13
 	 * also.  As a result it gets swallowed.  Or if the first
 	 * perf NMI returns two events handled then the second
 	 * NMI will get eaten by the logic below, again losing a
@@ -413,8 +451,15 @@ static void default_do_nmi(struct pt_regs *regs)
 		__this_cpu_add(nmi_stats.swallow, 1);
 	else
 		unknown_nmi_error(reason, regs);
+<<<<<<< HEAD
 }
 NOKPROBE_SYMBOL(default_do_nmi);
+=======
+
+out:
+	instrumentation_end();
+}
+>>>>>>> upstream/android-13
 
 /*
  * NMIs can page fault or hit breakpoints which will cause it to lose
@@ -468,6 +513,7 @@ enum nmi_states {
 };
 static DEFINE_PER_CPU(enum nmi_states, nmi_state);
 static DEFINE_PER_CPU(unsigned long, nmi_cr2);
+<<<<<<< HEAD
 
 #ifdef CONFIG_X86_64
 /*
@@ -490,6 +536,23 @@ static DEFINE_PER_CPU(int, update_debug_stack);
 dotraplinkage notrace void
 do_nmi(struct pt_regs *regs, long error_code)
 {
+=======
+static DEFINE_PER_CPU(unsigned long, nmi_dr7);
+
+DEFINE_IDTENTRY_RAW(exc_nmi)
+{
+	irqentry_state_t irq_state;
+
+	/*
+	 * Re-enable NMIs right here when running as an SEV-ES guest. This might
+	 * cause nested NMIs, but those can be handled safely.
+	 */
+	sev_es_nmi_complete();
+
+	if (IS_ENABLED(CONFIG_SMP) && arch_cpu_is_offline(smp_processor_id()))
+		return;
+
+>>>>>>> upstream/android-13
 	if (this_cpu_read(nmi_state) != NMI_NOT_RUNNING) {
 		this_cpu_write(nmi_state, NMI_LATCHED);
 		return;
@@ -498,6 +561,7 @@ do_nmi(struct pt_regs *regs, long error_code)
 	this_cpu_write(nmi_cr2, read_cr2());
 nmi_restart:
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 	/*
 	 * If we interrupted a breakpoint, it is possible that
@@ -512,12 +576,24 @@ nmi_restart:
 #endif
 
 	nmi_enter();
+=======
+	/*
+	 * Needs to happen before DR7 is accessed, because the hypervisor can
+	 * intercept DR7 reads/writes, turning those into #VC exceptions.
+	 */
+	sev_es_ist_enter(regs);
+
+	this_cpu_write(nmi_dr7, local_db_save());
+
+	irq_state = irqentry_nmi_enter(regs);
+>>>>>>> upstream/android-13
 
 	inc_irq_stat(__nmi_count);
 
 	if (!ignore_nmis)
 		default_do_nmi(regs);
 
+<<<<<<< HEAD
 	nmi_exit();
 
 #ifdef CONFIG_X86_64
@@ -526,6 +602,13 @@ nmi_restart:
 		this_cpu_write(update_debug_stack, 0);
 	}
 #endif
+=======
+	irqentry_nmi_exit(regs, irq_state);
+
+	local_db_restore(this_cpu_read(nmi_dr7));
+
+	sev_es_ist_exit();
+>>>>>>> upstream/android-13
 
 	if (unlikely(this_cpu_read(nmi_cr2) != read_cr2()))
 		write_cr2(this_cpu_read(nmi_cr2));
@@ -535,7 +618,20 @@ nmi_restart:
 	if (user_mode(regs))
 		mds_user_clear_cpu_buffers();
 }
+<<<<<<< HEAD
 NOKPROBE_SYMBOL(do_nmi);
+=======
+
+#if defined(CONFIG_X86_64) && IS_ENABLED(CONFIG_KVM_INTEL)
+DEFINE_IDTENTRY_RAW(exc_nmi_noist)
+{
+	exc_nmi(regs);
+}
+#endif
+#if IS_MODULE(CONFIG_KVM_INTEL)
+EXPORT_SYMBOL_GPL(asm_exc_nmi_noist);
+#endif
+>>>>>>> upstream/android-13
 
 void stop_nmi(void)
 {

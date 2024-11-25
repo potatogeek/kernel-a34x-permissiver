@@ -60,7 +60,11 @@ struct mthca_mpt_entry {
 	__be64 mtt_seg;
 	__be32 mtt_sz;		/* Arbel only */
 	u32    reserved[2];
+<<<<<<< HEAD
 } __attribute__((packed));
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 #define MTHCA_MPT_FLAG_SW_OWNS       (0xfUL << 28)
 #define MTHCA_MPT_FLAG_MIO           (1 << 17)
@@ -541,7 +545,11 @@ int mthca_mr_alloc_phys(struct mthca_dev *dev, u32 pd,
 	return err;
 }
 
+<<<<<<< HEAD
 /* Free mr or fmr */
+=======
+/* Free mr */
+>>>>>>> upstream/android-13
 static void mthca_free_region(struct mthca_dev *dev, u32 lkey)
 {
 	mthca_table_put(dev, dev->mr_table.mpt_table,
@@ -564,6 +572,7 @@ void mthca_free_mr(struct mthca_dev *dev, struct mthca_mr *mr)
 	mthca_free_mtt(dev, mr->mtt);
 }
 
+<<<<<<< HEAD
 int mthca_fmr_alloc(struct mthca_dev *dev, u32 pd,
 		    u32 access, struct mthca_fmr *mr)
 {
@@ -824,6 +833,8 @@ void mthca_arbel_fmr_unmap(struct mthca_dev *dev, struct mthca_fmr *fmr)
 	*(u8 *) fmr->mem.arbel.mpt = MTHCA_MPT_STATUS_SW;
 }
 
+=======
+>>>>>>> upstream/android-13
 int mthca_init_mr_table(struct mthca_dev *dev)
 {
 	phys_addr_t addr;

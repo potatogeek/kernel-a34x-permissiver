@@ -28,8 +28,14 @@
  */
 #include <linux/seq_file.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/debugfs.h>
 #include <drm/drmP.h>
+=======
+#include <linux/uaccess.h>
+#include <linux/debugfs.h>
+
+>>>>>>> upstream/android-13
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
 #include "atom.h"
@@ -47,14 +53,20 @@
  * wptr.  The GPU then starts fetching commands and executes
  * them until the pointers are equal again.
  */
+<<<<<<< HEAD
 static int amdgpu_debugfs_ring_init(struct amdgpu_device *adev,
 				    struct amdgpu_ring *ring);
 static void amdgpu_debugfs_ring_fini(struct amdgpu_ring *ring);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * amdgpu_ring_alloc - allocate space on the ring buffer
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
+=======
+>>>>>>> upstream/android-13
  * @ring: amdgpu_ring structure holding ring information
  * @ndw: number of dwords to allocate in the ring buffer
  *
@@ -97,7 +109,12 @@ void amdgpu_ring_insert_nop(struct amdgpu_ring *ring, uint32_t count)
 		amdgpu_ring_write(ring, ring->funcs->nop);
 }
 
+<<<<<<< HEAD
 /** amdgpu_ring_generic_pad_ib - pad IB with NOP packets
+=======
+/**
+ * amdgpu_ring_generic_pad_ib - pad IB with NOP packets
+>>>>>>> upstream/android-13
  *
  * @ring: amdgpu_ring structure holding ring information
  * @ib: IB to add NOP packets to
@@ -114,7 +131,10 @@ void amdgpu_ring_generic_pad_ib(struct amdgpu_ring *ring, struct amdgpu_ib *ib)
  * amdgpu_ring_commit - tell the GPU to execute the new
  * commands on the ring buffer
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
+=======
+>>>>>>> upstream/android-13
  * @ring: amdgpu_ring structure holding ring information
  *
  * Update the wptr (write pointer) to tell the GPU to
@@ -135,9 +155,12 @@ void amdgpu_ring_commit(struct amdgpu_ring *ring)
 
 	if (ring->funcs->end_use)
 		ring->funcs->end_use(ring);
+<<<<<<< HEAD
 
 	if (ring->funcs->type != AMDGPU_RING_TYPE_KIQ)
 		amdgpu_ring_lru_touch(ring->adev, ring);
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -156,6 +179,7 @@ void amdgpu_ring_undo(struct amdgpu_ring *ring)
 }
 
 /**
+<<<<<<< HEAD
  * amdgpu_ring_priority_put - restore a ring's priority
  *
  * @ring: amdgpu_ring structure holding the information
@@ -226,22 +250,43 @@ out_unlock:
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * amdgpu_ring_init - init driver ring struct.
  *
  * @adev: amdgpu_device pointer
  * @ring: amdgpu_ring structure holding ring information
+<<<<<<< HEAD
  * @max_ndw: maximum number of dw for ring alloc
  * @nop: nop packet for this ring
+=======
+ * @max_dw: maximum number of dw for ring alloc
+ * @irq_src: interrupt source to use for this ring
+ * @irq_type: interrupt type to use for this ring
+ * @hw_prio: ring priority (NORMAL/HIGH)
+ * @sched_score: optional score atomic shared with other schedulers
+>>>>>>> upstream/android-13
  *
  * Initialize the driver information for the selected ring (all asics).
  * Returns 0 on success, error on failure.
  */
 int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
+<<<<<<< HEAD
 		     unsigned max_dw, struct amdgpu_irq_src *irq_src,
 		     unsigned irq_type)
 {
 	int r, i;
 	int sched_hw_submission = amdgpu_sched_hw_submission;
+=======
+		     unsigned int max_dw, struct amdgpu_irq_src *irq_src,
+		     unsigned int irq_type, unsigned int hw_prio,
+		     atomic_t *sched_score)
+{
+	int r;
+	int sched_hw_submission = amdgpu_sched_hw_submission;
+	u32 *num_sched;
+	u32 hw_ip;
+>>>>>>> upstream/android-13
 
 	/* Set the hw submission limit higher for KIQ because
 	 * it's used for a number of gfx/compute tasks by both
@@ -251,6 +296,11 @@ int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
 	 */
 	if (ring->funcs->type == AMDGPU_RING_TYPE_KIQ)
 		sched_hw_submission = max(sched_hw_submission, 256);
+<<<<<<< HEAD
+=======
+	else if (ring == &adev->sdma.instance[0].page)
+		sched_hw_submission = 256;
+>>>>>>> upstream/android-13
 
 	if (ring->adev == NULL) {
 		if (adev->num_rings >= AMDGPU_MAX_RINGS)
@@ -259,7 +309,12 @@ int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
 		ring->adev = adev;
 		ring->idx = adev->num_rings++;
 		adev->rings[ring->idx] = ring;
+<<<<<<< HEAD
 		r = amdgpu_fence_driver_init_ring(ring, sched_hw_submission);
+=======
+		r = amdgpu_fence_driver_init_ring(ring, sched_hw_submission,
+						  sched_score);
+>>>>>>> upstream/android-13
 		if (r)
 			return r;
 	}
@@ -282,6 +337,19 @@ int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
 		return r;
 	}
 
+<<<<<<< HEAD
+=======
+	r = amdgpu_device_wb_get(adev, &ring->trail_fence_offs);
+	if (r) {
+		dev_err(adev->dev,
+			"(%d) ring trail_fence_offs wb alloc failed\n", r);
+		return r;
+	}
+	ring->trail_fence_gpu_addr =
+		adev->wb.gpu_addr + (ring->trail_fence_offs * 4);
+	ring->trail_fence_cpu_addr = &adev->wb.wb[ring->trail_fence_offs];
+
+>>>>>>> upstream/android-13
 	r = amdgpu_device_wb_get(adev, &ring->cond_exe_offs);
 	if (r) {
 		dev_err(adev->dev, "(%d) ring cond_exec_polling wb alloc failed\n", r);
@@ -318,6 +386,7 @@ int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
 	}
 
 	ring->max_dw = max_dw;
+<<<<<<< HEAD
 	ring->priority = DRM_SCHED_PRIORITY_NORMAL;
 	mutex_init(&ring->priority_mutex);
 	INIT_LIST_HEAD(&ring->lru_list);
@@ -328,6 +397,15 @@ int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
 
 	if (amdgpu_debugfs_ring_init(adev, ring)) {
 		DRM_ERROR("Failed to register debugfs file for rings !\n");
+=======
+	ring->hw_prio = hw_prio;
+
+	if (!ring->no_scheduler) {
+		hw_ip = ring->funcs->type;
+		num_sched = &adev->gpu_sched[hw_ip][hw_prio].num_scheds;
+		adev->gpu_sched[hw_ip][hw_prio].sched[(*num_sched)++] =
+			&ring->sched;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -336,19 +414,30 @@ int amdgpu_ring_init(struct amdgpu_device *adev, struct amdgpu_ring *ring,
 /**
  * amdgpu_ring_fini - tear down the driver ring struct.
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
+=======
+>>>>>>> upstream/android-13
  * @ring: amdgpu_ring structure holding ring information
  *
  * Tear down the driver information for the selected ring (all asics).
  */
 void amdgpu_ring_fini(struct amdgpu_ring *ring)
 {
+<<<<<<< HEAD
 	ring->ready = false;
+=======
+>>>>>>> upstream/android-13
 
 	/* Not to finish a ring which is not initialized */
 	if (!(ring->adev) || !(ring->adev->rings[ring->idx]))
 		return;
 
+<<<<<<< HEAD
+=======
+	ring->sched.ready = false;
+
+>>>>>>> upstream/android-13
 	amdgpu_device_wb_free(ring->adev, ring->rptr_offs);
 	amdgpu_device_wb_free(ring->adev, ring->wptr_offs);
 
@@ -359,8 +448,11 @@ void amdgpu_ring_fini(struct amdgpu_ring *ring)
 			      &ring->gpu_addr,
 			      (void **)&ring->ring);
 
+<<<<<<< HEAD
 	amdgpu_debugfs_ring_fini(ring);
 
+=======
+>>>>>>> upstream/android-13
 	dma_fence_put(ring->vmid_wait);
 	ring->vmid_wait = NULL;
 	ring->me = 0;
@@ -368,6 +460,7 @@ void amdgpu_ring_fini(struct amdgpu_ring *ring)
 	ring->adev->rings[ring->idx] = NULL;
 }
 
+<<<<<<< HEAD
 static void amdgpu_ring_lru_touch_locked(struct amdgpu_device *adev,
 					 struct amdgpu_ring *ring)
 {
@@ -465,6 +558,12 @@ void amdgpu_ring_lru_touch(struct amdgpu_device *adev, struct amdgpu_ring *ring)
  * amdgpu_ring_emit_reg_write_reg_wait_helper - ring helper
  *
  * @adev: amdgpu_device pointer
+=======
+/**
+ * amdgpu_ring_emit_reg_write_reg_wait_helper - ring helper
+ *
+ * @ring: ring to write to
+>>>>>>> upstream/android-13
  * @reg0: register to write
  * @reg1: register to wait on
  * @ref: reference value to write/wait on
@@ -481,6 +580,34 @@ void amdgpu_ring_emit_reg_write_reg_wait_helper(struct amdgpu_ring *ring,
 	amdgpu_ring_emit_reg_wait(ring, reg1, mask, mask);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * amdgpu_ring_soft_recovery - try to soft recover a ring lockup
+ *
+ * @ring: ring to try the recovery on
+ * @vmid: VMID we try to get going again
+ * @fence: timedout fence
+ *
+ * Tries to get a ring proceeding again when it is stuck.
+ */
+bool amdgpu_ring_soft_recovery(struct amdgpu_ring *ring, unsigned int vmid,
+			       struct dma_fence *fence)
+{
+	ktime_t deadline = ktime_add_us(ktime_get(), 10000);
+
+	if (amdgpu_sriov_vf(ring->adev) || !ring->funcs->soft_recovery || !fence)
+		return false;
+
+	atomic_inc(&ring->adev->gpu_reset_counter);
+	while (!dma_fence_is_signaled(fence) &&
+	       ktime_to_ns(ktime_sub(deadline, ktime_get())) > 0)
+		ring->funcs->soft_recovery(ring, vmid);
+
+	return dma_fence_is_signaled(fence);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Debugfs info
  */
@@ -525,7 +652,11 @@ static ssize_t amdgpu_debugfs_ring_read(struct file *f, char __user *buf,
 			return result;
 
 		value = ring->ring[(*pos - 12)/4];
+<<<<<<< HEAD
 		r = put_user(value, (uint32_t*)buf);
+=======
+		r = put_user(value, (uint32_t *)buf);
+>>>>>>> upstream/android-13
 		if (r)
 			return r;
 		buf += 4;
@@ -545,11 +676,19 @@ static const struct file_operations amdgpu_debugfs_ring_fops = {
 
 #endif
 
+<<<<<<< HEAD
 static int amdgpu_debugfs_ring_init(struct amdgpu_device *adev,
 				    struct amdgpu_ring *ring)
 {
 #if defined(CONFIG_DEBUG_FS)
 	struct drm_minor *minor = adev->ddev->primary;
+=======
+int amdgpu_debugfs_ring_init(struct amdgpu_device *adev,
+			     struct amdgpu_ring *ring)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct drm_minor *minor = adev_to_drm(adev)->primary;
+>>>>>>> upstream/android-13
 	struct dentry *ent, *root = minor->debugfs_root;
 	char name[32];
 
@@ -558,8 +697,13 @@ static int amdgpu_debugfs_ring_init(struct amdgpu_device *adev,
 	ent = debugfs_create_file(name,
 				  S_IFREG | S_IRUGO, root,
 				  ring, &amdgpu_debugfs_ring_fops);
+<<<<<<< HEAD
 	if (!ent)
 		return -ENOMEM;
+=======
+	if (IS_ERR(ent))
+		return PTR_ERR(ent);
+>>>>>>> upstream/android-13
 
 	i_size_write(ent->d_inode, ring->ring_size + 12);
 	ring->ent = ent;
@@ -567,9 +711,36 @@ static int amdgpu_debugfs_ring_init(struct amdgpu_device *adev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void amdgpu_debugfs_ring_fini(struct amdgpu_ring *ring)
 {
 #if defined(CONFIG_DEBUG_FS)
 	debugfs_remove(ring->ent);
 #endif
+=======
+/**
+ * amdgpu_ring_test_helper - tests ring and set sched readiness status
+ *
+ * @ring: ring to try the recovery on
+ *
+ * Tests ring and set sched readiness status
+ *
+ * Returns 0 on success, error on failure.
+ */
+int amdgpu_ring_test_helper(struct amdgpu_ring *ring)
+{
+	struct amdgpu_device *adev = ring->adev;
+	int r;
+
+	r = amdgpu_ring_test_ring(ring);
+	if (r)
+		DRM_DEV_ERROR(adev->dev, "ring %s test failed (%d)\n",
+			      ring->name, r);
+	else
+		DRM_DEV_DEBUG(adev->dev, "ring test on %s succeeded\n",
+			      ring->name);
+
+	ring->sched.ready = !r;
+	return r;
+>>>>>>> upstream/android-13
 }

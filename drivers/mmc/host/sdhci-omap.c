@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /**
  * SDHCI Controller driver for TI's OMAP SoCs
  *
  * Copyright (C) 2017 Texas Instruments
  * Author: Kishon Vijay Abraham I <kishon@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 of
@@ -18,6 +23,12 @@
  */
 
 #include <linux/delay.h>
+=======
+ */
+
+#include <linux/delay.h>
+#include <linux/mmc/mmc.h>
+>>>>>>> upstream/android-13
 #include <linux/mmc/slot-gpio.h>
 #include <linux/module.h>
 #include <linux/of.h>
@@ -72,6 +83,11 @@
 #define SDHCI_OMAP_IE		0x234
 #define INT_CC_EN		BIT(0)
 
+<<<<<<< HEAD
+=======
+#define SDHCI_OMAP_ISE		0x238
+
+>>>>>>> upstream/android-13
 #define SDHCI_OMAP_AC12		0x23c
 #define AC12_V1V8_SIGEN		BIT(19)
 #define AC12_SCLK_SEL		BIT(23)
@@ -96,6 +112,10 @@
 
 /* sdhci-omap controller flags */
 #define SDHCI_OMAP_REQUIRE_IODELAY	BIT(0)
+<<<<<<< HEAD
+=======
+#define SDHCI_OMAP_SPECIAL_RESET	BIT(1)
+>>>>>>> upstream/android-13
 
 struct sdhci_omap_data {
 	u32 offset;
@@ -117,6 +137,16 @@ struct sdhci_omap_host {
 	struct pinctrl		*pinctrl;
 	struct pinctrl_state	**pinctrl_state;
 	bool			is_tuning;
+<<<<<<< HEAD
+=======
+	/* Omap specific context save */
+	u32			con;
+	u32			hctl;
+	u32			sysctl;
+	u32			capa;
+	u32			ie;
+	u32			ise;
+>>>>>>> upstream/android-13
 };
 
 static void sdhci_omap_start_clock(struct sdhci_omap_host *omap_host);
@@ -305,10 +335,13 @@ static int sdhci_omap_execute_tuning(struct mmc_host *mmc, u32 opcode)
 	u32 reg;
 	int i;
 
+<<<<<<< HEAD
 	pltfm_host = sdhci_priv(host);
 	omap_host = sdhci_pltfm_priv(pltfm_host);
 	dev = omap_host->dev;
 
+=======
+>>>>>>> upstream/android-13
 	/* clock tuning is not needed for upto 52MHz */
 	if (ios->clock <= 52000000)
 		return 0;
@@ -690,7 +723,12 @@ static void sdhci_omap_set_power(struct sdhci_host *host, unsigned char mode,
 {
 	struct mmc_host *mmc = host->mmc;
 
+<<<<<<< HEAD
 	mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, vdd);
+=======
+	if (!IS_ERR(mmc->supply.vmmc))
+		mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, vdd);
+>>>>>>> upstream/android-13
 }
 
 static int sdhci_omap_enable_dma(struct sdhci_host *host)
@@ -700,7 +738,15 @@ static int sdhci_omap_enable_dma(struct sdhci_host *host)
 	struct sdhci_omap_host *omap_host = sdhci_pltfm_priv(pltfm_host);
 
 	reg = sdhci_omap_readl(omap_host, SDHCI_OMAP_CON);
+<<<<<<< HEAD
 	reg |= CON_DMA_MASTER;
+=======
+	reg &= ~CON_DMA_MASTER;
+	/* Switch to DMA slave mode when using external DMA */
+	if (!host->use_external_dma)
+		reg |= CON_DMA_MASTER;
+
+>>>>>>> upstream/android-13
 	sdhci_omap_writel(omap_host, SDHCI_OMAP_CON, reg);
 
 	return 0;
@@ -789,15 +835,45 @@ static void sdhci_omap_set_uhs_signaling(struct sdhci_host *host,
 	sdhci_omap_start_clock(omap_host);
 }
 
+<<<<<<< HEAD
 void sdhci_omap_reset(struct sdhci_host *host, u8 mask)
 {
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct sdhci_omap_host *omap_host = sdhci_pltfm_priv(pltfm_host);
+=======
+#define MMC_TIMEOUT_US		20000		/* 20000 micro Sec */
+static void sdhci_omap_reset(struct sdhci_host *host, u8 mask)
+{
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct sdhci_omap_host *omap_host = sdhci_pltfm_priv(pltfm_host);
+	unsigned long limit = MMC_TIMEOUT_US;
+	unsigned long i = 0;
+>>>>>>> upstream/android-13
 
 	/* Don't reset data lines during tuning operation */
 	if (omap_host->is_tuning)
 		mask &= ~SDHCI_RESET_DATA;
 
+<<<<<<< HEAD
+=======
+	if (omap_host->flags & SDHCI_OMAP_SPECIAL_RESET) {
+		sdhci_writeb(host, mask, SDHCI_SOFTWARE_RESET);
+		while ((!(sdhci_readb(host, SDHCI_SOFTWARE_RESET) & mask)) &&
+		       (i++ < limit))
+			udelay(1);
+		i = 0;
+		while ((sdhci_readb(host, SDHCI_SOFTWARE_RESET) & mask) &&
+		       (i++ < limit))
+			udelay(1);
+
+		if (sdhci_readb(host, SDHCI_SOFTWARE_RESET) & mask)
+			dev_err(mmc_dev(host->mmc),
+				"Timeout waiting on controller reset in %s\n",
+				__func__);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	sdhci_reset(host, mask);
 }
 
@@ -838,6 +914,18 @@ static u32 sdhci_omap_irq(struct sdhci_host *host, u32 intmask)
 	return intmask;
 }
 
+<<<<<<< HEAD
+=======
+static void sdhci_omap_set_timeout(struct sdhci_host *host,
+				   struct mmc_command *cmd)
+{
+	if (cmd->opcode == MMC_ERASE)
+		sdhci_set_data_timeout_irq(host, false);
+
+	__sdhci_set_timeout(host, cmd);
+}
+
+>>>>>>> upstream/android-13
 static struct sdhci_ops sdhci_omap_ops = {
 	.set_clock = sdhci_omap_set_clock,
 	.set_power = sdhci_omap_set_power,
@@ -849,6 +937,10 @@ static struct sdhci_ops sdhci_omap_ops = {
 	.reset = sdhci_omap_reset,
 	.set_uhs_signaling = sdhci_omap_set_uhs_signaling,
 	.irq = sdhci_omap_irq,
+<<<<<<< HEAD
+=======
+	.set_timeout = sdhci_omap_set_timeout,
+>>>>>>> upstream/android-13
 };
 
 static int sdhci_omap_set_capabilities(struct sdhci_omap_host *omap_host)
@@ -898,6 +990,19 @@ static const struct sdhci_omap_data k2g_data = {
 	.offset = 0x200,
 };
 
+<<<<<<< HEAD
+=======
+static const struct sdhci_omap_data am335_data = {
+	.offset = 0x200,
+	.flags = SDHCI_OMAP_SPECIAL_RESET,
+};
+
+static const struct sdhci_omap_data am437_data = {
+	.offset = 0x200,
+	.flags = SDHCI_OMAP_SPECIAL_RESET,
+};
+
+>>>>>>> upstream/android-13
 static const struct sdhci_omap_data dra7_data = {
 	.offset = 0x200,
 	.flags	= SDHCI_OMAP_REQUIRE_IODELAY,
@@ -906,6 +1011,11 @@ static const struct sdhci_omap_data dra7_data = {
 static const struct of_device_id omap_sdhci_match[] = {
 	{ .compatible = "ti,dra7-sdhci", .data = &dra7_data },
 	{ .compatible = "ti,k2g-sdhci", .data = &k2g_data },
+<<<<<<< HEAD
+=======
+	{ .compatible = "ti,am335-sdhci", .data = &am335_data },
+	{ .compatible = "ti,am437-sdhci", .data = &am437_data },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, omap_sdhci_match);
@@ -1052,6 +1162,10 @@ static int sdhci_omap_probe(struct platform_device *pdev)
 	const struct of_device_id *match;
 	struct sdhci_omap_data *data;
 	const struct soc_device_attribute *soc;
+<<<<<<< HEAD
+=======
+	struct resource *regs;
+>>>>>>> upstream/android-13
 
 	match = of_match_device(omap_sdhci_match, dev);
 	if (!match)
@@ -1064,6 +1178,13 @@ static int sdhci_omap_probe(struct platform_device *pdev)
 	}
 	offset = data->offset;
 
+<<<<<<< HEAD
+=======
+	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!regs)
+		return -ENXIO;
+
+>>>>>>> upstream/android-13
 	host = sdhci_pltfm_init(pdev, &sdhci_omap_pdata,
 				sizeof(*omap_host));
 	if (IS_ERR(host)) {
@@ -1080,6 +1201,10 @@ static int sdhci_omap_probe(struct platform_device *pdev)
 	omap_host->timing = MMC_TIMING_LEGACY;
 	omap_host->flags = data->flags;
 	host->ioaddr += offset;
+<<<<<<< HEAD
+=======
+	host->mapbase = regs->start + offset;
+>>>>>>> upstream/android-13
 
 	mmc = host->mmc;
 	sdhci_get_of_property(pdev);
@@ -1098,6 +1223,12 @@ static int sdhci_omap_probe(struct platform_device *pdev)
 			mmc->f_max = 48000000;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!mmc_can_gpio_ro(mmc))
+		mmc->caps2 |= MMC_CAP2_NO_WRITE_PROTECT;
+
+>>>>>>> upstream/android-13
 	pltfm_host->clk = devm_clk_get(dev, "fck");
 	if (IS_ERR(pltfm_host->clk)) {
 		ret = PTR_ERR(pltfm_host->clk);
@@ -1126,10 +1257,16 @@ static int sdhci_omap_probe(struct platform_device *pdev)
 	 * as part of pm_runtime_get_sync.
 	 */
 	pm_runtime_enable(dev);
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(dev);
 	if (ret < 0) {
 		dev_err(dev, "pm_runtime_get_sync failed\n");
 		pm_runtime_put_noidle(dev);
+=======
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret) {
+		dev_err(dev, "pm_runtime_get_sync failed\n");
+>>>>>>> upstream/android-13
 		goto err_rpm_disable;
 	}
 
@@ -1139,7 +1276,10 @@ static int sdhci_omap_probe(struct platform_device *pdev)
 		goto err_put_sync;
 	}
 
+<<<<<<< HEAD
 	host->mmc_host_ops.get_ro = mmc_gpio_get_ro;
+=======
+>>>>>>> upstream/android-13
 	host->mmc_host_ops.start_signal_voltage_switch =
 					sdhci_omap_start_signal_voltage_switch;
 	host->mmc_host_ops.set_ios = sdhci_omap_set_ios;
@@ -1147,6 +1287,13 @@ static int sdhci_omap_probe(struct platform_device *pdev)
 	host->mmc_host_ops.execute_tuning = sdhci_omap_execute_tuning;
 	host->mmc_host_ops.enable_sdio_irq = sdhci_omap_enable_sdio_irq;
 
+<<<<<<< HEAD
+=======
+	/* Switch to external DMA only if there is the "dmas" property */
+	if (of_find_property(dev->of_node, "dmas", NULL))
+		sdhci_switch_external_dma(host, true);
+
+>>>>>>> upstream/android-13
 	/* R1B responses is required to properly manage HW busy detection. */
 	mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
 
@@ -1190,12 +1337,80 @@ static int sdhci_omap_remove(struct platform_device *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM_SLEEP
+static void sdhci_omap_context_save(struct sdhci_omap_host *omap_host)
+{
+	omap_host->con = sdhci_omap_readl(omap_host, SDHCI_OMAP_CON);
+	omap_host->hctl = sdhci_omap_readl(omap_host, SDHCI_OMAP_HCTL);
+	omap_host->sysctl = sdhci_omap_readl(omap_host, SDHCI_OMAP_SYSCTL);
+	omap_host->capa = sdhci_omap_readl(omap_host, SDHCI_OMAP_CAPA);
+	omap_host->ie = sdhci_omap_readl(omap_host, SDHCI_OMAP_IE);
+	omap_host->ise = sdhci_omap_readl(omap_host, SDHCI_OMAP_ISE);
+}
+
+/* Order matters here, HCTL must be restored in two phases */
+static void sdhci_omap_context_restore(struct sdhci_omap_host *omap_host)
+{
+	sdhci_omap_writel(omap_host, SDHCI_OMAP_HCTL, omap_host->hctl);
+	sdhci_omap_writel(omap_host, SDHCI_OMAP_CAPA, omap_host->capa);
+	sdhci_omap_writel(omap_host, SDHCI_OMAP_HCTL, omap_host->hctl);
+
+	sdhci_omap_writel(omap_host, SDHCI_OMAP_SYSCTL, omap_host->sysctl);
+	sdhci_omap_writel(omap_host, SDHCI_OMAP_CON, omap_host->con);
+	sdhci_omap_writel(omap_host, SDHCI_OMAP_IE, omap_host->ie);
+	sdhci_omap_writel(omap_host, SDHCI_OMAP_ISE, omap_host->ise);
+}
+
+static int __maybe_unused sdhci_omap_suspend(struct device *dev)
+{
+	struct sdhci_host *host = dev_get_drvdata(dev);
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct sdhci_omap_host *omap_host = sdhci_pltfm_priv(pltfm_host);
+
+	sdhci_suspend_host(host);
+
+	sdhci_omap_context_save(omap_host);
+
+	pinctrl_pm_select_idle_state(dev);
+
+	pm_runtime_force_suspend(dev);
+
+	return 0;
+}
+
+static int __maybe_unused sdhci_omap_resume(struct device *dev)
+{
+	struct sdhci_host *host = dev_get_drvdata(dev);
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct sdhci_omap_host *omap_host = sdhci_pltfm_priv(pltfm_host);
+
+	pm_runtime_force_resume(dev);
+
+	pinctrl_pm_select_default_state(dev);
+
+	sdhci_omap_context_restore(omap_host);
+
+	sdhci_resume_host(host);
+
+	return 0;
+}
+#endif
+static SIMPLE_DEV_PM_OPS(sdhci_omap_dev_pm_ops, sdhci_omap_suspend,
+			 sdhci_omap_resume);
+>>>>>>> upstream/android-13
 
 static struct platform_driver sdhci_omap_driver = {
 	.probe = sdhci_omap_probe,
 	.remove = sdhci_omap_remove,
 	.driver = {
 		   .name = "sdhci-omap",
+<<<<<<< HEAD
+=======
+		   .probe_type = PROBE_PREFER_ASYNCHRONOUS,
+		   .pm = &sdhci_omap_dev_pm_ops,
+>>>>>>> upstream/android-13
 		   .of_match_table = omap_sdhci_match,
 		  },
 };

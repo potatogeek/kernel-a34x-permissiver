@@ -3,7 +3,11 @@
  *
  * Module Name: acpidump.h - Include file for acpi_dump utility
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 

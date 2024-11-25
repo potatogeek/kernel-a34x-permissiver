@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OSS compatible sequencer driver
  *
  * read/write/select interface to device file
  *
  * Copyright (C) 1998,99 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "seq_oss_device.h"
@@ -145,7 +152,12 @@ snd_seq_oss_write(struct seq_oss_devinfo *dp, const char __user *buf, int count,
 		}
 
 		/* insert queue */
+<<<<<<< HEAD
 		if ((err = insert_queue(dp, &rec, opt)) < 0)
+=======
+		err = insert_queue(dp, &rec, opt);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			break;
 
 		result += ev_size;
@@ -180,6 +192,7 @@ insert_queue(struct seq_oss_devinfo *dp, union evrec *rec, struct file *opt)
 		return 0; /* invalid event - no need to insert queue */
 
 	event.time.tick = snd_seq_oss_timer_cur_tick(dp->timer);
+<<<<<<< HEAD
 	if (dp->timer->realtime || !dp->timer->running) {
 		snd_seq_oss_dispatch(dp, &event, 0, 0);
 	} else {
@@ -188,6 +201,13 @@ insert_queue(struct seq_oss_devinfo *dp, union evrec *rec, struct file *opt)
 		else
 			rc = snd_seq_kernel_client_enqueue_blocking(dp->cseq, &event, opt, 0, 0);
 	}
+=======
+	if (dp->timer->realtime || !dp->timer->running)
+		snd_seq_oss_dispatch(dp, &event, 0, 0);
+	else
+		rc = snd_seq_kernel_client_enqueue(dp->cseq, &event, opt,
+						   !is_nonblock_mode(dp->file_mode));
+>>>>>>> upstream/android-13
 	return rc;
 }
 		

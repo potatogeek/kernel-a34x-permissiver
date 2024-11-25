@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SQ905C subdriver
  *
  * Copyright (C) 2009 Theodore Kilgore
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -285,6 +292,12 @@ static int sd_start(struct gspca_dev *gspca_dev)
 	}
 	/* Start the workqueue function to do the streaming */
 	dev->work_thread = create_singlethread_workqueue(MODULE_NAME);
+<<<<<<< HEAD
+=======
+	if (!dev->work_thread)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	queue_work(dev->work_thread, &dev->work_struct);
 
 	return 0;

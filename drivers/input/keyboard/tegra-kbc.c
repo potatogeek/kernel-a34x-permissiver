@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Keyboard class input driver for the NVIDIA Tegra SoC internal matrix
  * keyboard controller
  *
  * Copyright (c) 2009-2011, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -644,10 +651,15 @@ static int tegra_kbc_probe(struct platform_device *pdev)
 		return -EINVAL;
 
 	kbc->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (kbc->irq < 0) {
 		dev_err(&pdev->dev, "failed to get keyboard IRQ\n");
 		return -ENXIO;
 	}
+=======
+	if (kbc->irq < 0)
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	kbc->idev = devm_input_allocate_device(&pdev->dev);
 	if (!kbc->idev) {
@@ -709,14 +721,22 @@ static int tegra_kbc_probe(struct platform_device *pdev)
 	input_set_drvdata(kbc->idev, kbc);
 
 	err = devm_request_irq(&pdev->dev, kbc->irq, tegra_kbc_isr,
+<<<<<<< HEAD
 			       IRQF_TRIGGER_HIGH, pdev->name, kbc);
+=======
+			       IRQF_TRIGGER_HIGH | IRQF_NO_AUTOEN,
+			       pdev->name, kbc);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	disable_irq(kbc->irq);
 
+=======
+>>>>>>> upstream/android-13
 	err = input_register_device(kbc->idev);
 	if (err) {
 		dev_err(&pdev->dev, "failed to register input device\n");
@@ -771,7 +791,11 @@ static int tegra_kbc_suspend(struct device *dev)
 		enable_irq(kbc->irq);
 		enable_irq_wake(kbc->irq);
 	} else {
+<<<<<<< HEAD
 		if (kbc->idev->users)
+=======
+		if (input_device_enabled(kbc->idev))
+>>>>>>> upstream/android-13
 			tegra_kbc_stop(kbc);
 	}
 	mutex_unlock(&kbc->idev->mutex);
@@ -811,7 +835,11 @@ static int tegra_kbc_resume(struct device *dev)
 			input_sync(kbc->idev);
 		}
 	} else {
+<<<<<<< HEAD
 		if (kbc->idev->users)
+=======
+		if (input_device_enabled(kbc->idev))
+>>>>>>> upstream/android-13
 			err = tegra_kbc_start(kbc);
 	}
 	mutex_unlock(&kbc->idev->mutex);

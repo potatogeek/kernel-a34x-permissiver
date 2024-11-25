@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Support for the Arcom ZEUS.
  *
@@ -5,10 +9,13 @@
  *
  *  Loosely based on Arcom's 2.6.16.28.
  *  Maintained by Marc Zyngier <maz@misterjones.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpufreq.h>
@@ -16,7 +23,13 @@
 #include <linux/leds.h>
 #include <linux/irq.h>
 #include <linux/pm.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/property.h>
+#include <linux/gpio.h>
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/serial_8250.h>
 #include <linux/dm9000.h>
 #include <linux/mmc/host.h>
@@ -29,7 +42,10 @@
 #include <linux/platform_data/i2c-pxa.h>
 #include <linux/platform_data/pca953x.h>
 #include <linux/apm-emulation.h>
+<<<<<<< HEAD
 #include <linux/can/platform/mcp251x.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/regulator/fixed.h>
 #include <linux/regulator/machine.h>
 
@@ -390,7 +406,11 @@ static struct platform_device zeus_sram_device = {
 };
 
 /* SPI interface on SSP3 */
+<<<<<<< HEAD
 static struct pxa2xx_spi_master pxa2xx_spi_ssp3_master_info = {
+=======
+static struct pxa2xx_spi_controller pxa2xx_spi_ssp3_master_info = {
+>>>>>>> upstream/android-13
 	.num_chipselect = 1,
 	.enable_dma     = 1,
 };
@@ -410,7 +430,10 @@ static struct regulator_init_data can_regulator_init_data = {
 static struct fixed_voltage_config can_regulator_pdata = {
 	.supply_name	= "CAN_SHDN",
 	.microvolts	= 3300000,
+<<<<<<< HEAD
 	.gpio		= ZEUS_CAN_SHDN_GPIO,
+=======
+>>>>>>> upstream/android-13
 	.init_data	= &can_regulator_init_data,
 };
 
@@ -422,14 +445,37 @@ static struct platform_device can_regulator_device = {
 	},
 };
 
+<<<<<<< HEAD
 static struct mcp251x_platform_data zeus_mcp2515_pdata = {
 	.oscillator_frequency	= 16*1000*1000,
+=======
+static struct gpiod_lookup_table can_regulator_gpiod_table = {
+	.dev_id = "reg-fixed-voltage.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", ZEUS_CAN_SHDN_GPIO,
+			    NULL, GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+static const struct property_entry mcp251x_properties[] = {
+	PROPERTY_ENTRY_U32("clock-frequency", 16000000),
+	{}
+};
+
+static const struct software_node mcp251x_node = {
+	.properties = mcp251x_properties,
+>>>>>>> upstream/android-13
 };
 
 static struct spi_board_info zeus_spi_board_info[] = {
 	[0] = {
 		.modalias	= "mcp2515",
+<<<<<<< HEAD
 		.platform_data	= &zeus_mcp2515_pdata,
+=======
+		.swnode		= &mcp251x_node,
+>>>>>>> upstream/android-13
 		.irq		= PXA_GPIO_TO_IRQ(ZEUS_CAN_GPIO),
 		.max_speed_hz	= 1*1000*1000,
 		.bus_num	= 3,
@@ -538,8 +584,11 @@ static struct regulator_init_data zeus_ohci_regulator_data = {
 static struct fixed_voltage_config zeus_ohci_regulator_config = {
 	.supply_name		= "vbus2",
 	.microvolts		= 5000000, /* 5.0V */
+<<<<<<< HEAD
 	.gpio			= ZEUS_USB2_PWREN_GPIO,
 	.enable_high		= 1,
+=======
+>>>>>>> upstream/android-13
 	.startup_delay		= 0,
 	.init_data		= &zeus_ohci_regulator_data,
 };
@@ -552,6 +601,18 @@ static struct platform_device zeus_ohci_regulator_device = {
 	},
 };
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table zeus_ohci_regulator_gpiod_table = {
+	.dev_id = "reg-fixed-voltage.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", ZEUS_USB2_PWREN_GPIO,
+			    NULL, GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct pxaohci_platform_data zeus_ohci_platform_data = {
 	.port_mode	= PMM_NPS_MODE,
 	/* Clear Power Control Polarity Low and set Power Sense
@@ -646,10 +707,25 @@ static struct pxafb_mach_info zeus_fb_info = {
 static struct pxamci_platform_data zeus_mci_platform_data = {
 	.ocr_mask		= MMC_VDD_32_33|MMC_VDD_33_34,
 	.detect_delay_ms	= 250,
+<<<<<<< HEAD
 	.gpio_card_detect       = ZEUS_MMC_CD_GPIO,
 	.gpio_card_ro           = ZEUS_MMC_WP_GPIO,
 	.gpio_card_ro_invert	= 1,
 	.gpio_power             = -1
+=======
+	.gpio_card_ro_invert	= 1,
+};
+
+static struct gpiod_lookup_table zeus_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", ZEUS_MMC_CD_GPIO,
+			    "cd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", ZEUS_MMC_WP_GPIO,
+			    "wp", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -855,6 +931,11 @@ static void __init zeus_init(void)
 
 	pxa2xx_mfp_config(ARRAY_AND_SIZE(zeus_pin_config));
 
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&can_regulator_gpiod_table);
+	gpiod_add_lookup_table(&zeus_ohci_regulator_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_add_devices(zeus_devices, ARRAY_SIZE(zeus_devices));
 
 	zeus_register_ohci();
@@ -864,6 +945,10 @@ static void __init zeus_init(void)
 	else
 		pxa_set_fb_info(NULL, &zeus_fb_info);
 
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&zeus_mci_gpio_table);
+>>>>>>> upstream/android-13
 	pxa_set_mci_info(&zeus_mci_platform_data);
 	pxa_set_udc_info(&zeus_udc_info);
 	pxa_set_ac97_info(&zeus_ac97_info);

@@ -20,3 +20,9 @@ intel_th_msu-y			:= msu.o
 
 obj-$(CONFIG_INTEL_TH_PTI)	+= intel_th_pti.o
 intel_th_pti-y			:= pti.o
+<<<<<<< HEAD
+=======
+
+obj-$(CONFIG_INTEL_TH_MSU)	+= intel_th_msu_sink.o
+intel_th_msu_sink-y		:= msu-sink.o
+>>>>>>> upstream/android-13

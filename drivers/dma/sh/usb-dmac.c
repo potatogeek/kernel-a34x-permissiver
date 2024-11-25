@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas USB DMA Controller Driver
  *
@@ -6,10 +10,13 @@
  * based on rcar-dmac.c
  * Copyright (C) 2014 Renesas Electronics Inc.
  * Author: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+<<<<<<< HEAD
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -60,7 +67,11 @@ struct usb_dmac_desc {
 	u32 residue;
 	struct list_head node;
 	dma_cookie_t done_cookie;
+<<<<<<< HEAD
 	struct usb_dmac_sg sg[0];
+=======
+	struct usb_dmac_sg sg[];
+>>>>>>> upstream/android-13
 };
 
 #define to_usb_dmac_desc(vd)	container_of(vd, struct usb_dmac_desc, vd)
@@ -469,7 +480,11 @@ static int usb_dmac_chan_terminate_all(struct dma_chan *chan)
 
 static unsigned int usb_dmac_get_current_residue(struct usb_dmac_chan *chan,
 						 struct usb_dmac_desc *desc,
+<<<<<<< HEAD
 						 int sg_index)
+=======
+						 unsigned int sg_index)
+>>>>>>> upstream/android-13
 {
 	struct usb_dmac_sg *sg = desc->sg + sg_index;
 	u32 mem_addr = sg->mem_addr & 0xffffffff;
@@ -589,6 +604,11 @@ static void usb_dmac_isr_transfer_end(struct usb_dmac_chan *chan)
 		desc->residue = usb_dmac_get_current_residue(chan, desc,
 							desc->sg_index - 1);
 		desc->done_cookie = desc->vd.tx.cookie;
+<<<<<<< HEAD
+=======
+		desc->vd.tx_result.result = DMA_TRANS_NOERROR;
+		desc->vd.tx_result.residue = desc->residue;
+>>>>>>> upstream/android-13
 		vchan_cookie_complete(&desc->vd);
 
 		/* Restart the next transfer if this driver has a next desc */
@@ -639,9 +659,12 @@ static bool usb_dmac_chan_filter(struct dma_chan *chan, void *arg)
 	struct usb_dmac_chan *uchan = to_usb_dmac_chan(chan);
 	struct of_phandle_args *dma_spec = arg;
 
+<<<<<<< HEAD
 	if (dma_spec->np != chan->device->dev->of_node)
 		return false;
 
+=======
+>>>>>>> upstream/android-13
 	/* USB-DMAC should be used with fixed usb controller's FIFO */
 	if (uchan->index != dma_spec->args[0])
 		return false;
@@ -662,7 +685,12 @@ static struct dma_chan *usb_dmac_of_xlate(struct of_phandle_args *dma_spec,
 	dma_cap_zero(mask);
 	dma_cap_set(DMA_SLAVE, mask);
 
+<<<<<<< HEAD
 	chan = dma_request_channel(mask, usb_dmac_chan_filter, dma_spec);
+=======
+	chan = __dma_request_channel(&mask, usb_dmac_chan_filter, dma_spec,
+				     ofdma->of_node);
+>>>>>>> upstream/android-13
 	if (!chan)
 		return NULL;
 
@@ -722,10 +750,15 @@ static int usb_dmac_chan_probe(struct usb_dmac *dmac,
 	/* Request the channel interrupt. */
 	sprintf(pdev_irqname, "ch%u", index);
 	uchan->irq = platform_get_irq_byname(pdev, pdev_irqname);
+<<<<<<< HEAD
 	if (uchan->irq < 0) {
 		dev_err(dmac->dev, "no IRQ specified for channel %u\n", index);
 		return -ENODEV;
 	}
+=======
+	if (uchan->irq < 0)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	irqname = devm_kasprintf(dmac->dev, GFP_KERNEL, "%s:%u",
 				 dev_name(dmac->dev), index);
@@ -860,8 +893,13 @@ static int usb_dmac_probe(struct platform_device *pdev)
 
 error:
 	of_dma_controller_free(pdev->dev.of_node);
+<<<<<<< HEAD
 	pm_runtime_put(&pdev->dev);
 error_pm:
+=======
+error_pm:
+	pm_runtime_put(&pdev->dev);
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 	return ret;
 }

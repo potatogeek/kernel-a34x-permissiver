@@ -65,7 +65,11 @@ static void ccw_bmove(struct vc_data *vc, struct fb_info *info, int sy,
 {
 	struct fbcon_ops *ops = info->fbcon_par;
 	struct fb_copyarea area;
+<<<<<<< HEAD
 	u32 vyres = GETVYRES(ops->p->scrollmode, info);
+=======
+	u32 vyres = GETVYRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	area.sx = sy * vc->vc_font.height;
 	area.sy = vyres - ((sx + width) * vc->vc_font.width);
@@ -83,7 +87,11 @@ static void ccw_clear(struct vc_data *vc, struct fb_info *info, int sy,
 	struct fbcon_ops *ops = info->fbcon_par;
 	struct fb_fillrect region;
 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+<<<<<<< HEAD
 	u32 vyres = GETVYRES(ops->p->scrollmode, info);
+=======
+	u32 vyres = GETVYRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	region.color = attr_bgcol_ec(bgshift,vc,info);
 	region.dx = sy * vc->vc_font.height;
@@ -140,7 +148,11 @@ static void ccw_putcs(struct vc_data *vc, struct fb_info *info,
 	u32 cnt, pitch, size;
 	u32 attribute = get_attribute(info, scr_readw(s));
 	u8 *dst, *buf = NULL;
+<<<<<<< HEAD
 	u32 vyres = GETVYRES(ops->p->scrollmode, info);
+=======
+	u32 vyres = GETVYRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	if (!ops->fontbuffer)
 		return;
@@ -225,11 +237,19 @@ static void ccw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
 	struct fbcon_ops *ops = info->fbcon_par;
 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
 	int w = (vc->vc_font.height + 7) >> 3, c;
+<<<<<<< HEAD
 	int y = real_y(ops->p, vc->vc_y);
 	int attribute, use_sw = (vc->vc_cursor_type & 0x10);
 	int err = 1, dx, dy;
 	char *src;
 	u32 vyres = GETVYRES(ops->p->scrollmode, info);
+=======
+	int y = real_y(ops->p, vc->state.y);
+	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
+	int err = 1, dx, dy;
+	char *src;
+	u32 vyres = GETVYRES(ops->p, info);
+>>>>>>> upstream/android-13
 
 	if (!ops->fontbuffer)
 		return;
@@ -275,7 +295,11 @@ static void ccw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
 	}
 
 	dx = y * vc->vc_font.height;
+<<<<<<< HEAD
 	dy = vyres - ((vc->vc_x + 1) * vc->vc_font.width);
+=======
+	dy = vyres - ((vc->state.x + 1) * vc->vc_font.width);
+>>>>>>> upstream/android-13
 
 	if (ops->cursor_state.image.dx != dx ||
 	    ops->cursor_state.image.dy != dy ||
@@ -316,7 +340,11 @@ static void ccw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
 		ops->p->cursor_shape = vc->vc_cursor_type;
 		cursor.set |= FB_CUR_SETSHAPE;
 
+<<<<<<< HEAD
 		switch (ops->p->cursor_shape & CUR_HWMASK) {
+=======
+		switch (CUR_SIZE(ops->p->cursor_shape)) {
+>>>>>>> upstream/android-13
 		case CUR_NONE:
 			cur_height = 0;
 			break;
@@ -387,7 +415,11 @@ static int ccw_update_start(struct fb_info *info)
 {
 	struct fbcon_ops *ops = info->fbcon_par;
 	u32 yoffset;
+<<<<<<< HEAD
 	u32 vyres = GETVYRES(ops->p->scrollmode, info);
+=======
+	u32 vyres = GETVYRES(ops->p, info);
+>>>>>>> upstream/android-13
 	int err;
 
 	yoffset = (vyres - info->var.yres) - ops->var.xoffset;
@@ -409,4 +441,7 @@ void fbcon_rotate_ccw(struct fbcon_ops *ops)
 	ops->cursor = ccw_cursor;
 	ops->update_start = ccw_update_start;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(fbcon_rotate_ccw);
+=======
+>>>>>>> upstream/android-13

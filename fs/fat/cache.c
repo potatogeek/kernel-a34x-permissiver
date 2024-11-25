@@ -363,7 +363,11 @@ int fat_bmap(struct inode *inode, sector_t sector, sector_t *phys,
 
 	*phys = 0;
 	*mapped_blocks = 0;
+<<<<<<< HEAD
 	if ((sbi->fat_bits != 32) && (inode->i_ino == MSDOS_ROOT_INO)) {
+=======
+	if (!is_fat32(sbi) && (inode->i_ino == MSDOS_ROOT_INO)) {
+>>>>>>> upstream/android-13
 		if (sector < (sbi->dir_entries >> sbi->dir_per_block_bits)) {
 			*phys = sector + sbi->dir_start;
 			*mapped_blocks = 1;

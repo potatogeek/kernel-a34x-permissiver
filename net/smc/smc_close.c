@@ -13,13 +13,35 @@
 #include <linux/sched/signal.h>
 
 #include <net/sock.h>
+<<<<<<< HEAD
+=======
+#include <net/tcp.h>
+>>>>>>> upstream/android-13
 
 #include "smc.h"
 #include "smc_tx.h"
 #include "smc_cdc.h"
 #include "smc_close.h"
 
+<<<<<<< HEAD
 #define SMC_CLOSE_WAIT_LISTEN_CLCSOCK_TIME	(5 * HZ)
+=======
+/* release the clcsock that is assigned to the smc_sock */
+void smc_clcsock_release(struct smc_sock *smc)
+{
+	struct socket *tcp;
+
+	if (smc->listen_smc && current_work() != &smc->smc_listen_work)
+		cancel_work_sync(&smc->smc_listen_work);
+	mutex_lock(&smc->clcsock_release_lock);
+	if (smc->clcsock) {
+		tcp = smc->clcsock;
+		smc->clcsock = NULL;
+		sock_release(tcp);
+	}
+	mutex_unlock(&smc->clcsock_release_lock);
+}
+>>>>>>> upstream/android-13
 
 static void smc_close_cleanup_listen(struct sock *parent)
 {
@@ -49,8 +71,14 @@ static void smc_close_stream_wait(struct smc_sock *smc, long timeout)
 
 		rc = sk_wait_event(sk, &timeout,
 				   !smc_tx_prepared_sends(&smc->conn) ||
+<<<<<<< HEAD
 				   (sk->sk_err == ECONNABORTED) ||
 				   (sk->sk_err == ECONNRESET),
+=======
+				   sk->sk_err == ECONNABORTED ||
+				   sk->sk_err == ECONNRESET ||
+				   smc->conn.killed,
+>>>>>>> upstream/android-13
 				   &wait);
 		if (rc)
 			break;
@@ -79,17 +107,27 @@ static int smc_close_final(struct smc_connection *conn)
 		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
 	else
 		conn->local_tx_ctrl.conn_state_flags.peer_conn_closed = 1;
+<<<<<<< HEAD
+=======
+	if (conn->killed)
+		return -EPIPE;
+>>>>>>> upstream/android-13
 
 	return smc_cdc_get_slot_and_msg_send(conn);
 }
 
+<<<<<<< HEAD
 static int smc_close_abort(struct smc_connection *conn)
+=======
+int smc_close_abort(struct smc_connection *conn)
+>>>>>>> upstream/android-13
 {
 	conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
 
 	return smc_cdc_get_slot_and_msg_send(conn);
 }
 
+<<<<<<< HEAD
 /* terminate smc socket abnormally - active abort
  * link group is terminated, i.e. RDMA communication no longer possible
  */
@@ -133,14 +171,70 @@ static void smc_close_active_abort(struct smc_sock *smc)
 		} else {
 			sk->sk_state = SMC_CLOSED;
 		}
+=======
+static void smc_close_cancel_work(struct smc_sock *smc)
+{
+	struct sock *sk = &smc->sk;
+
+	release_sock(sk);
+	cancel_work_sync(&smc->conn.close_work);
+	cancel_delayed_work_sync(&smc->conn.tx_work);
+	lock_sock(sk);
+}
+
+/* terminate smc socket abnormally - active abort
+ * link group is terminated, i.e. RDMA communication no longer possible
+ */
+void smc_close_active_abort(struct smc_sock *smc)
+{
+	struct sock *sk = &smc->sk;
+	bool release_clcsock = false;
+
+	if (sk->sk_state != SMC_INIT && smc->clcsock && smc->clcsock->sk) {
+		sk->sk_err = ECONNABORTED;
+		if (smc->clcsock && smc->clcsock->sk)
+			tcp_abort(smc->clcsock->sk, ECONNABORTED);
+	}
+	switch (sk->sk_state) {
+	case SMC_ACTIVE:
+	case SMC_APPCLOSEWAIT1:
+	case SMC_APPCLOSEWAIT2:
+		sk->sk_state = SMC_PEERABORTWAIT;
+		smc_close_cancel_work(smc);
+		if (sk->sk_state != SMC_PEERABORTWAIT)
+			break;
+		sk->sk_state = SMC_CLOSED;
+		sock_put(sk); /* (postponed) passive closing */
+		break;
+	case SMC_PEERCLOSEWAIT1:
+	case SMC_PEERCLOSEWAIT2:
+	case SMC_PEERFINCLOSEWAIT:
+		sk->sk_state = SMC_PEERABORTWAIT;
+		smc_close_cancel_work(smc);
+		if (sk->sk_state != SMC_PEERABORTWAIT)
+			break;
+		sk->sk_state = SMC_CLOSED;
+		smc_conn_free(&smc->conn);
+		release_clcsock = true;
+>>>>>>> upstream/android-13
 		sock_put(sk); /* passive closing */
 		break;
 	case SMC_PROCESSABORT:
 	case SMC_APPFINCLOSEWAIT:
+<<<<<<< HEAD
 		sk->sk_state = SMC_CLOSED;
 		break;
 	case SMC_PEERFINCLOSEWAIT:
 		sock_put(sk); /* passive closing */
+=======
+		sk->sk_state = SMC_PEERABORTWAIT;
+		smc_close_cancel_work(smc);
+		if (sk->sk_state != SMC_PEERABORTWAIT)
+			break;
+		sk->sk_state = SMC_CLOSED;
+		smc_conn_free(&smc->conn);
+		release_clcsock = true;
+>>>>>>> upstream/android-13
 		break;
 	case SMC_INIT:
 	case SMC_PEERABORTWAIT:
@@ -150,6 +244,15 @@ static void smc_close_active_abort(struct smc_sock *smc)
 
 	sock_set_flag(sk, SOCK_DEAD);
 	sk->sk_state_change(sk);
+<<<<<<< HEAD
+=======
+
+	if (release_clcsock) {
+		release_sock(sk);
+		smc_clcsock_release(smc);
+		lock_sock(sk);
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline bool smc_close_sent_any_close(struct smc_connection *conn)
@@ -167,6 +270,10 @@ int smc_close_active(struct smc_sock *smc)
 	int old_state;
 	long timeout;
 	int rc = 0;
+<<<<<<< HEAD
+=======
+	int rc1 = 0;
+>>>>>>> upstream/android-13
 
 	timeout = current->flags & PF_EXITING ?
 		  0 : sock_flag(sk, SOCK_LINGER) ?
@@ -182,9 +289,15 @@ again:
 		sk->sk_state = SMC_CLOSED;
 		sk->sk_state_change(sk); /* wake up accept */
 		if (smc->clcsock && smc->clcsock->sk) {
+<<<<<<< HEAD
 			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
 			/* wake up kernel_accept of smc_tcp_listen_worker */
 			smc->clcsock->sk->sk_data_ready(smc->clcsock->sk);
+=======
+			smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
+			smc->clcsock->sk->sk_user_data = NULL;
+			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
+>>>>>>> upstream/android-13
 		}
 		smc_close_cleanup_listen(sk);
 		release_sock(sk);
@@ -199,9 +312,22 @@ again:
 		if (sk->sk_state == SMC_ACTIVE) {
 			/* send close request */
 			rc = smc_close_final(conn);
+<<<<<<< HEAD
 			if (rc)
 				break;
 			sk->sk_state = SMC_PEERCLOSEWAIT1;
+=======
+			sk->sk_state = SMC_PEERCLOSEWAIT1;
+
+			/* actively shutdown clcsock before peer close it,
+			 * prevent peer from entering TIME_WAIT state.
+			 */
+			if (smc->clcsock && smc->clcsock->sk) {
+				rc1 = kernel_sock_shutdown(smc->clcsock,
+							   SHUT_RDWR);
+				rc = rc ? rc : rc1;
+			}
+>>>>>>> upstream/android-13
 		} else {
 			/* peer event has changed the state */
 			goto again;
@@ -213,8 +339,11 @@ again:
 		    !smc_close_sent_any_close(conn)) {
 			/* just shutdown wr done, send close request */
 			rc = smc_close_final(conn);
+<<<<<<< HEAD
 			if (rc)
 				break;
+=======
+>>>>>>> upstream/android-13
 		}
 		sk->sk_state = SMC_CLOSED;
 		break;
@@ -230,8 +359,11 @@ again:
 			goto again;
 		/* confirm close from peer */
 		rc = smc_close_final(conn);
+<<<<<<< HEAD
 		if (rc)
 			break;
+=======
+>>>>>>> upstream/android-13
 		if (smc_cdc_rxed_any_close(conn)) {
 			/* peer has closed the socket already */
 			sk->sk_state = SMC_CLOSED;
@@ -247,8 +379,11 @@ again:
 		    !smc_close_sent_any_close(conn)) {
 			/* just shutdown wr done, send close request */
 			rc = smc_close_final(conn);
+<<<<<<< HEAD
 			if (rc)
 				break;
+=======
+>>>>>>> upstream/android-13
 		}
 		/* peer sending PeerConnectionClosed will cause transition */
 		break;
@@ -256,10 +391,19 @@ again:
 		/* peer sending PeerConnectionClosed will cause transition */
 		break;
 	case SMC_PROCESSABORT:
+<<<<<<< HEAD
 		smc_close_abort(conn);
 		sk->sk_state = SMC_CLOSED;
 		break;
 	case SMC_PEERABORTWAIT:
+=======
+		rc = smc_close_abort(conn);
+		sk->sk_state = SMC_CLOSED;
+		break;
+	case SMC_PEERABORTWAIT:
+		sk->sk_state = SMC_CLOSED;
+		break;
+>>>>>>> upstream/android-13
 	case SMC_CLOSED:
 		/* nothing to do, add tracing in future patch */
 		break;
@@ -321,18 +465,25 @@ static void smc_close_passive_work(struct work_struct *work)
 						   close_work);
 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
 	struct smc_cdc_conn_state_flags *rxflags;
+<<<<<<< HEAD
+=======
+	bool release_clcsock = false;
+>>>>>>> upstream/android-13
 	struct sock *sk = &smc->sk;
 	int old_state;
 
 	lock_sock(sk);
 	old_state = sk->sk_state;
 
+<<<<<<< HEAD
 	if (!conn->alert_token_local) {
 		/* abnormal termination */
 		smc_close_active_abort(smc);
 		goto wakeup;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	rxflags = &conn->local_rx_ctrl.conn_state_flags;
 	if (rxflags->peer_conn_abort) {
 		/* peer has not received all data */
@@ -345,6 +496,7 @@ static void smc_close_passive_work(struct work_struct *work)
 
 	switch (sk->sk_state) {
 	case SMC_INIT:
+<<<<<<< HEAD
 		if (atomic_read(&conn->bytes_to_rcv) ||
 		    (rxflags->peer_done_writing &&
 		     !smc_cdc_rxed_any_close(conn))) {
@@ -353,6 +505,9 @@ static void smc_close_passive_work(struct work_struct *work)
 			sk->sk_state = SMC_CLOSED;
 			sock_put(sk); /* passive closing */
 		}
+=======
+		sk->sk_state = SMC_APPCLOSEWAIT1;
+>>>>>>> upstream/android-13
 		break;
 	case SMC_ACTIVE:
 		sk->sk_state = SMC_APPCLOSEWAIT1;
@@ -363,7 +518,11 @@ static void smc_close_passive_work(struct work_struct *work)
 	case SMC_PEERCLOSEWAIT1:
 		if (rxflags->peer_done_writing)
 			sk->sk_state = SMC_PEERCLOSEWAIT2;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* to check for closing */
 	case SMC_PEERCLOSEWAIT2:
 		if (!smc_cdc_rxed_any_close(conn))
@@ -405,10 +564,22 @@ wakeup:
 	if (old_state != sk->sk_state) {
 		sk->sk_state_change(sk);
 		if ((sk->sk_state == SMC_CLOSED) &&
+<<<<<<< HEAD
 		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket))
 			smc_conn_free(conn);
 	}
 	release_sock(sk);
+=======
+		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket)) {
+			smc_conn_free(conn);
+			if (smc->clcsock)
+				release_clcsock = true;
+		}
+	}
+	release_sock(sk);
+	if (release_clcsock)
+		smc_clcsock_release(smc);
+>>>>>>> upstream/android-13
 	sock_put(sk); /* sock_hold done by schedulers of close_work */
 }
 
@@ -436,8 +607,11 @@ again:
 			goto again;
 		/* send close wr request */
 		rc = smc_close_wr(conn);
+<<<<<<< HEAD
 		if (rc)
 			break;
+=======
+>>>>>>> upstream/android-13
 		sk->sk_state = SMC_PEERCLOSEWAIT1;
 		break;
 	case SMC_APPCLOSEWAIT1:
@@ -451,8 +625,11 @@ again:
 			goto again;
 		/* confirm close from peer */
 		rc = smc_close_wr(conn);
+<<<<<<< HEAD
 		if (rc)
 			break;
+=======
+>>>>>>> upstream/android-13
 		sk->sk_state = SMC_APPCLOSEWAIT2;
 		break;
 	case SMC_APPCLOSEWAIT2:

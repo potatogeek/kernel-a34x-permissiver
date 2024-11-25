@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2008 Red Hat, Inc. All rights reserved.
  * Copyright 2008 Ian Kent <raven@themaw.net>
@@ -5,6 +6,12 @@
  * This file is part of the Linux kernel and is made available under
  * the terms of the GNU General Public License, version 2, or at your
  * option, any later version, incorporated herein by reference.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2008 Red Hat, Inc. All rights reserved.
+ * Copyright 2008 Ian Kent <raven@themaw.net>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_AUTO_DEV_IOCTL_H

@@ -14,7 +14,11 @@
 #define EX(insn,reg,addr,handler)			\
 9:	insn	reg, addr;				\
 	.section __ex_table,"a";			\
+<<<<<<< HEAD
 	PTR	9b, handler;				\
+=======
+	PTR_WD	9b, handler;				\
+>>>>>>> upstream/android-13
 	.previous
 
 /*
@@ -26,12 +30,16 @@
  *	 bytes.	 There's nothing secret there.	On 64-bit accessing beyond
  *	 the maximum is a tad hairier ...
  */
+<<<<<<< HEAD
 	.macro __BUILD_STRNLEN_ASM func
 LEAF(__strnlen_\func\()_asm)
 	LONG_L		v0, TI_ADDR_LIMIT($28)	# pointer ok?
 	and		v0, a0
 	bnez		v0, .Lfault\@
 
+=======
+LEAF(__strnlen_user_asm)
+>>>>>>> upstream/android-13
 	move		v0, a0
 	PTR_ADDU	a1, a0			# stop pointer
 1:
@@ -40,11 +48,22 @@ LEAF(__strnlen_\func\()_asm)
 	li		AT, 1
 #endif
 	beq		v0, a1, 1f		# limit reached?
+<<<<<<< HEAD
 .ifeqs "\func", "kernel"
 	EX(lb, t0, (v0), .Lfault\@)
 .else
 	EX(lbe, t0, (v0), .Lfault\@)
 .endif
+=======
+#ifdef CONFIG_EVA
+	.set push
+	.set eva
+	EX(lbe, t0, (v0), .Lfault)
+	.set pop
+#else
+	EX(lb, t0, (v0), .Lfault)
+#endif
+>>>>>>> upstream/android-13
 	.set		noreorder
 	bnez		t0, 1b
 1:
@@ -57,6 +76,7 @@ LEAF(__strnlen_\func\()_asm)
 	.set		reorder
 	PTR_SUBU	v0, a0
 	jr		ra
+<<<<<<< HEAD
 	END(__strnlen_\func\()_asm)
 
 .Lfault\@:
@@ -82,3 +102,12 @@ __BUILD_STRNLEN_ASM user
 	.set pop
 EXPORT_SYMBOL(__strnlen_user_asm)
 #endif
+=======
+	END(__strnlen_user_asm)
+
+.Lfault:
+	move		v0, zero
+	jr		ra
+
+	EXPORT_SYMBOL(__strnlen_user_asm)
+>>>>>>> upstream/android-13

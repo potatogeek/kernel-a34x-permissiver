@@ -5,13 +5,20 @@
  */
 #include "xfs.h"
 #include "xfs_fs.h"
+<<<<<<< HEAD
+=======
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
 #include "xfs_inode.h"
 #include "xfs_quota.h"
+<<<<<<< HEAD
 #include "xfs_error.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_trans.h"
 #include "xfs_buf_item.h"
 #include "xfs_trans_priv.h"
@@ -45,6 +52,10 @@ xfs_qm_dquot_logitem_format(
 	struct xfs_log_item	*lip,
 	struct xfs_log_vec	*lv)
 {
+<<<<<<< HEAD
+=======
+	struct xfs_disk_dquot	ddq;
+>>>>>>> upstream/android-13
 	struct xfs_dq_logitem	*qlip = DQUOT_ITEM(lip);
 	struct xfs_log_iovec	*vecp = NULL;
 	struct xfs_dq_logformat	*qlf;
@@ -52,14 +63,24 @@ xfs_qm_dquot_logitem_format(
 	qlf = xlog_prepare_iovec(lv, &vecp, XLOG_REG_TYPE_QFORMAT);
 	qlf->qlf_type = XFS_LI_DQUOT;
 	qlf->qlf_size = 2;
+<<<<<<< HEAD
 	qlf->qlf_id = be32_to_cpu(qlip->qli_dquot->q_core.d_id);
+=======
+	qlf->qlf_id = qlip->qli_dquot->q_id;
+>>>>>>> upstream/android-13
 	qlf->qlf_blkno = qlip->qli_dquot->q_blkno;
 	qlf->qlf_len = 1;
 	qlf->qlf_boffset = qlip->qli_dquot->q_bufoffset;
 	xlog_finish_iovec(lv, vecp, sizeof(struct xfs_dq_logformat));
 
+<<<<<<< HEAD
 	xlog_copy_iovec(lv, &vecp, XLOG_REG_TYPE_DQUOT,
 			&qlip->qli_dquot->q_core,
+=======
+	xfs_dquot_to_disk(&ddq, qlip->qli_dquot);
+
+	xlog_copy_iovec(lv, &vecp, XLOG_REG_TYPE_DQUOT, &ddq,
+>>>>>>> upstream/android-13
 			sizeof(struct xfs_disk_dquot));
 }
 
@@ -94,6 +115,7 @@ xfs_qm_dquot_logitem_unpin(
 		wake_up(&dqp->q_pinwait);
 }
 
+<<<<<<< HEAD
 STATIC xfs_lsn_t
 xfs_qm_dquot_logitem_committed(
 	struct xfs_log_item	*lip,
@@ -106,6 +128,8 @@ xfs_qm_dquot_logitem_committed(
 	return lsn;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This is called to wait for the given dquot to be unpinned.
  * Most of these pin/unpin routines are plagiarized from inode code.
@@ -125,6 +149,7 @@ xfs_qm_dqunpin_wait(
 	wait_event(dqp->q_pinwait, (atomic_read(&dqp->q_pincount) == 0));
 }
 
+<<<<<<< HEAD
 /*
  * Callback used to mark a buffer with XFS_LI_FAILED when items in the buffer
  * have been failed during writeback
@@ -142,6 +167,8 @@ xfs_dquot_item_error(
 	xfs_set_li_failed(lip, bp);
 }
 
+=======
+>>>>>>> upstream/android-13
 STATIC uint
 xfs_qm_dquot_logitem_push(
 	struct xfs_log_item	*lip,
@@ -157,6 +184,7 @@ xfs_qm_dquot_logitem_push(
 	if (atomic_read(&dqp->q_pincount) > 0)
 		return XFS_ITEM_PINNED;
 
+<<<<<<< HEAD
 	/*
 	 * The buffer containing this item failed to be written back
 	 * previously. Resubmit the buffer for IO
@@ -172,6 +200,8 @@ xfs_qm_dquot_logitem_push(
 		return rval;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!xfs_dqlock_nowait(dqp))
 		return XFS_ITEM_LOCKED;
 
@@ -201,7 +231,12 @@ xfs_qm_dquot_logitem_push(
 		if (!xfs_buf_delwri_queue(bp, buffer_list))
 			rval = XFS_ITEM_FLUSHING;
 		xfs_buf_relse(bp);
+<<<<<<< HEAD
 	}
+=======
+	} else if (error == -EAGAIN)
+		rval = XFS_ITEM_LOCKED;
+>>>>>>> upstream/android-13
 
 	spin_lock(&lip->li_ailp->ail_lock);
 out_unlock:
@@ -209,6 +244,7 @@ out_unlock:
 	return rval;
 }
 
+<<<<<<< HEAD
 /*
  * Unlock the dquot associated with the log item.
  * Clear the fields of the dquot and dquot log item that
@@ -217,6 +253,10 @@ out_unlock:
  */
 STATIC void
 xfs_qm_dquot_logitem_unlock(
+=======
+STATIC void
+xfs_qm_dquot_logitem_release(
+>>>>>>> upstream/android-13
 	struct xfs_log_item	*lip)
 {
 	struct xfs_dquot	*dqp = DQUOT_ITEM(lip)->qli_dquot;
@@ -224,11 +264,14 @@ xfs_qm_dquot_logitem_unlock(
 	ASSERT(XFS_DQ_IS_LOCKED(dqp));
 
 	/*
+<<<<<<< HEAD
 	 * Clear the transaction pointer in the dquot
 	 */
 	dqp->q_transp = NULL;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * dquots are never 'held' from getting unlocked at the end of
 	 * a transaction.  Their locking and unlocking is hidden inside the
 	 * transaction layer, within trans_commit. Hence, no LI_HOLD flag
@@ -237,6 +280,7 @@ xfs_qm_dquot_logitem_unlock(
 	xfs_dqunlock(dqp);
 }
 
+<<<<<<< HEAD
 /*
  * this needs to stamp an lsn into the dquot, I think.
  * rpc's that look at user dquot's would then have to
@@ -252,16 +296,32 @@ xfs_qm_dquot_logitem_committing(
 /*
  * This is the ops vector for dquots
  */
+=======
+STATIC void
+xfs_qm_dquot_logitem_committing(
+	struct xfs_log_item	*lip,
+	xfs_csn_t		seq)
+{
+	return xfs_qm_dquot_logitem_release(lip);
+}
+
+>>>>>>> upstream/android-13
 static const struct xfs_item_ops xfs_dquot_item_ops = {
 	.iop_size	= xfs_qm_dquot_logitem_size,
 	.iop_format	= xfs_qm_dquot_logitem_format,
 	.iop_pin	= xfs_qm_dquot_logitem_pin,
 	.iop_unpin	= xfs_qm_dquot_logitem_unpin,
+<<<<<<< HEAD
 	.iop_unlock	= xfs_qm_dquot_logitem_unlock,
 	.iop_committed	= xfs_qm_dquot_logitem_committed,
 	.iop_push	= xfs_qm_dquot_logitem_push,
 	.iop_committing = xfs_qm_dquot_logitem_committing,
 	.iop_error	= xfs_dquot_item_error
+=======
+	.iop_release	= xfs_qm_dquot_logitem_release,
+	.iop_committing	= xfs_qm_dquot_logitem_committing,
+	.iop_push	= xfs_qm_dquot_logitem_push,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -279,6 +339,7 @@ xfs_qm_dquot_logitem_init(
 					&xfs_dquot_item_ops);
 	lp->qli_dquot = dqp;
 }
+<<<<<<< HEAD
 
 /*------------------  QUOTAOFF LOG ITEMS  -------------------*/
 
@@ -462,3 +523,5 @@ xfs_qm_qoff_logitem_init(
 	qf->qql_flags = flags;
 	return qf;
 }
+=======
+>>>>>>> upstream/android-13

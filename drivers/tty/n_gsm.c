@@ -50,6 +50,10 @@
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/gsmmux.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 static int debug;
 module_param(debug, int, 0600);
@@ -72,6 +76,7 @@ module_param(debug, int, 0600);
  */
 #define MAX_MRU 1500
 #define MAX_MTU 1500
+<<<<<<< HEAD
 #define	GSM_NET_TX_TIMEOUT (HZ*10)
 
 /**
@@ -80,6 +85,17 @@ module_param(debug, int, 0600);
  *
  *	Created when net interface is initialized.
  **/
+=======
+/* SOF, ADDR, CTRL, LEN1, LEN2, ..., FCS, EOF */
+#define PROT_OVERHEAD 7
+#define	GSM_NET_TX_TIMEOUT (HZ*10)
+
+/*
+ *	struct gsm_mux_net	-	network interface
+ *
+ *	Created when net interface is initialized.
+ */
+>>>>>>> upstream/android-13
 struct gsm_mux_net {
 	struct kref ref;
 	struct gsm_dlci *dlci;
@@ -97,7 +113,23 @@ struct gsm_msg {
 	u8 ctrl;		/* Control byte + flags */
 	unsigned int len;	/* Length of data block (can be zero) */
 	unsigned char *data;	/* Points into buffer but not at the start */
+<<<<<<< HEAD
 	unsigned char buffer[0];
+=======
+	unsigned char buffer[];
+};
+
+enum gsm_dlci_state {
+	DLCI_CLOSED,
+	DLCI_OPENING,		/* Sending SABM not seen UA */
+	DLCI_OPEN,		/* SABM/UA complete */
+	DLCI_CLOSING,		/* Sending DISC not seen UA/DM */
+};
+
+enum gsm_dlci_mode {
+	DLCI_MODE_ABM,		/* Normal Asynchronous Balanced Mode */
+	DLCI_MODE_ADM,		/* Asynchronous Disconnected Mode */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -113,6 +145,7 @@ struct gsm_msg {
 struct gsm_dlci {
 	struct gsm_mux *gsm;
 	int addr;
+<<<<<<< HEAD
 	int state;
 #define DLCI_CLOSED		0
 #define DLCI_OPENING		1	/* Sending SABM not seen UA */
@@ -124,27 +157,50 @@ struct gsm_dlci {
 	int mode;
 #define DLCI_MODE_ABM		0	/* Normal Asynchronous Balanced Mode */
 #define DLCI_MODE_ADM		1	/* Asynchronous Disconnected Mode */
+=======
+	enum gsm_dlci_state state;
+	struct mutex mutex;
+
+	/* Link layer */
+	enum gsm_dlci_mode mode;
+>>>>>>> upstream/android-13
 	spinlock_t lock;	/* Protects the internal state */
 	struct timer_list t1;	/* Retransmit timer for SABM and UA */
 	int retries;
 	/* Uplink tty if active */
 	struct tty_port port;	/* The tty bound to this DLCI if there is one */
+<<<<<<< HEAD
 	struct kfifo *fifo;	/* Queue fifo for the DLCI */
 	struct kfifo _fifo;	/* For new fifo API porting only */
+=======
+	struct kfifo fifo;	/* Queue fifo for the DLCI */
+>>>>>>> upstream/android-13
 	int adaption;		/* Adaption layer in use */
 	int prev_adaption;
 	u32 modem_rx;		/* Our incoming virtual modem lines */
 	u32 modem_tx;		/* Our outgoing modem lines */
+<<<<<<< HEAD
 	int dead;		/* Refuse re-open */
 	/* Flow control */
 	int throttled;		/* Private copy of throttle state */
 	int constipated;	/* Throttle status for outgoing */
+=======
+	bool dead;		/* Refuse re-open */
+	/* Flow control */
+	bool throttled;		/* Private copy of throttle state */
+	bool constipated;	/* Throttle status for outgoing */
+>>>>>>> upstream/android-13
 	/* Packetised I/O */
 	struct sk_buff *skb;	/* Frame being sent */
 	struct sk_buff_head skb_list;	/* Queued frames */
 	/* Data handling callback */
+<<<<<<< HEAD
 	void (*data)(struct gsm_dlci *dlci, u8 *data, int len);
 	void (*prev_data)(struct gsm_dlci *dlci, u8 *data, int len);
+=======
+	void (*data)(struct gsm_dlci *dlci, const u8 *data, int len);
+	void (*prev_data)(struct gsm_dlci *dlci, const u8 *data, int len);
+>>>>>>> upstream/android-13
 	struct net_device *net; /* network interface, if created */
 };
 
@@ -168,6 +224,23 @@ struct gsm_control {
 	int error;	/* Error if any */
 };
 
+<<<<<<< HEAD
+=======
+enum gsm_mux_state {
+	GSM_SEARCH,
+	GSM_START,
+	GSM_ADDRESS,
+	GSM_CONTROL,
+	GSM_LEN,
+	GSM_DATA,
+	GSM_FCS,
+	GSM_OVERRUN,
+	GSM_LEN0,
+	GSM_LEN1,
+	GSM_SSOF,
+};
+
+>>>>>>> upstream/android-13
 /*
  *	Each GSM mux we have is represented by this structure. If we are
  *	operating as an ldisc then we use this structure as our ldisc
@@ -192,6 +265,7 @@ struct gsm_mux {
 
 	/* Framing Layer */
 	unsigned char *buf;
+<<<<<<< HEAD
 	int state;
 #define GSM_SEARCH		0
 #define GSM_START		1
@@ -208,25 +282,44 @@ struct gsm_mux {
 	unsigned int address;
 	unsigned int count;
 	int escape;
+=======
+	enum gsm_mux_state state;
+	unsigned int len;
+	unsigned int address;
+	unsigned int count;
+	bool escape;
+>>>>>>> upstream/android-13
 	int encoding;
 	u8 control;
 	u8 fcs;
 	u8 received_fcs;
 	u8 *txframe;			/* TX framing buffer */
 
+<<<<<<< HEAD
 	/* Methods for the receiver side */
 	void (*receive)(struct gsm_mux *gsm, u8 ch);
 	void (*error)(struct gsm_mux *gsm, u8 ch, u8 flag);
 	/* And transmit side */
 	int (*output)(struct gsm_mux *mux, u8 *data, int len);
+=======
+	/* Method for the receiver side */
+	void (*receive)(struct gsm_mux *gsm, u8 ch);
+>>>>>>> upstream/android-13
 
 	/* Link Layer */
 	unsigned int mru;
 	unsigned int mtu;
 	int initiator;			/* Did we initiate connection */
+<<<<<<< HEAD
 	int dead;			/* Has the mux been shut down */
 	struct gsm_dlci *dlci[NUM_DLCI];
 	int constipated;		/* Asked by remote to shut up */
+=======
+	bool dead;			/* Has the mux been shut down */
+	struct gsm_dlci *dlci[NUM_DLCI];
+	int old_c_iflag;		/* termios c_iflag value before attach */
+	bool constipated;		/* Asked by remote to shut up */
+>>>>>>> upstream/android-13
 
 	spinlock_t tx_lock;
 	unsigned int tx_bytes;		/* TX data outstanding */
@@ -262,7 +355,11 @@ struct gsm_mux {
 
 #define MAX_MUX		4			/* 256 minors */
 static struct gsm_mux *gsm_mux[MAX_MUX];	/* GSM muxes */
+<<<<<<< HEAD
 static spinlock_t gsm_mux_lock;
+=======
+static DEFINE_SPINLOCK(gsm_mux_lock);
+>>>>>>> upstream/android-13
 
 static struct tty_driver *gsm_tty_driver;
 
@@ -313,6 +410,10 @@ static struct tty_driver *gsm_tty_driver;
 #define GSM1_ESCAPE_BITS	0x20
 #define XON			0x11
 #define XOFF			0x13
+<<<<<<< HEAD
+=======
+#define ISO_IEC_646_MASK	0x7F
+>>>>>>> upstream/android-13
 
 static const struct tty_port_operations gsm_port_ops;
 
@@ -358,6 +459,11 @@ static const u8 gsm_fcs8[256] = {
 #define INIT_FCS	0xFF
 #define GOOD_FCS	0xCF
 
+<<<<<<< HEAD
+=======
+static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len);
+
+>>>>>>> upstream/android-13
 /**
  *	gsm_fcs_add	-	update FCS
  *	@fcs: Current FCS
@@ -392,7 +498,11 @@ static inline u8 gsm_fcs_add_block(u8 fcs, u8 *c, int len)
 /**
  *	gsm_read_ea		-	read a byte into an EA
  *	@val: variable holding value
+<<<<<<< HEAD
  *	c: byte going into the EA
+=======
+ *	@c: byte going into the EA
+>>>>>>> upstream/android-13
  *
  *	Processes one byte of an EA. Updates the passed variable
  *	and returns 1 if the EA is now completely read
@@ -427,7 +537,11 @@ static u8 gsm_encode_modem(const struct gsm_dlci *dlci)
 		modembits |= MDM_RTR;
 	if (dlci->modem_tx & TIOCM_RI)
 		modembits |= MDM_IC;
+<<<<<<< HEAD
 	if (dlci->modem_tx & TIOCM_CD)
+=======
+	if (dlci->modem_tx & TIOCM_CD || dlci->gsm->initiator)
+>>>>>>> upstream/android-13
 		modembits |= MDM_DV;
 	return modembits;
 }
@@ -496,6 +610,7 @@ static void gsm_print_packet(const char *hdr, int addr, int cr,
 	else
 		pr_cont("(F)");
 
+<<<<<<< HEAD
 	if (dlen) {
 		int ct = 0;
 		while (dlen--) {
@@ -508,6 +623,9 @@ static void gsm_print_packet(const char *hdr, int addr, int cr,
 		}
 	}
 	pr_cont("\n");
+=======
+	print_hex_dump_bytes("", DUMP_PREFIX_NONE, data, dlen);
+>>>>>>> upstream/android-13
 }
 
 
@@ -516,9 +634,15 @@ static void gsm_print_packet(const char *hdr, int addr, int cr,
  */
 
 /**
+<<<<<<< HEAD
  *	gsm_stuff_packet	-	bytestuff a packet
  *	@ibuf: input
  *	@obuf: output
+=======
+ *	gsm_stuff_frame	-	bytestuff a packet
+ *	@input: input buffer
+ *	@output: output buffer
+>>>>>>> upstream/android-13
  *	@len: length of input
  *
  *	Expand a buffer by bytestuffing it. The worst case size change
@@ -531,7 +655,12 @@ static int gsm_stuff_frame(const u8 *input, u8 *output, int len)
 	int olen = 0;
 	while (len--) {
 		if (*input == GSM1_SOF || *input == GSM1_ESCAPE
+<<<<<<< HEAD
 		    || *input == XON || *input == XOFF) {
+=======
+		    || (*input & ISO_IEC_646_MASK) == XON
+		    || (*input & ISO_IEC_646_MASK) == XOFF) {
+>>>>>>> upstream/android-13
 			*output++ = GSM1_ESCAPE;
 			*output++ = *input++ ^ GSM1_ESCAPE_BITS;
 			olen++;
@@ -590,7 +719,11 @@ static void gsm_send(struct gsm_mux *gsm, int addr, int cr, int control)
 		WARN_ON(1);
 		return;
 	}
+<<<<<<< HEAD
 	gsm->output(gsm, cbuf, len);
+=======
+	gsmld_output(gsm, cbuf, len);
+>>>>>>> upstream/android-13
 	gsm_print_packet("-->", addr, cr, control, NULL, 0);
 }
 
@@ -656,6 +789,10 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
 /**
  *	gsm_data_kick		-	poke the queue
  *	@gsm: GSM Mux
+<<<<<<< HEAD
+=======
+ *	@dlci: DLCI sending the data
+>>>>>>> upstream/android-13
  *
  *	The tty device has called us to indicate that room has appeared in
  *	the transmit queue. Ram more data into the pipe if we have any
@@ -690,7 +827,11 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
 			print_hex_dump_bytes("gsm_data_kick: ",
 					     DUMP_PREFIX_OFFSET,
 					     gsm->txframe, len);
+<<<<<<< HEAD
 		if (gsm->output(gsm, gsm->txframe, len) < 0)
+=======
+		if (gsmld_output(gsm, gsm->txframe, len) < 0)
+>>>>>>> upstream/android-13
 			break;
 		/* FIXME: Can eliminate one SOF in many more cases */
 		gsm->tx_bytes -= msg->len;
@@ -800,7 +941,11 @@ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
 
 	total_size = 0;
 	while (1) {
+<<<<<<< HEAD
 		len = kfifo_len(dlci->fifo);
+=======
+		len = kfifo_len(&dlci->fifo);
+>>>>>>> upstream/android-13
 		if (len == 0)
 			return total_size;
 
@@ -821,10 +966,17 @@ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
 			break;
 		case 2:	/* Unstructed with modem bits.
 		Always one byte as we never send inline break data */
+<<<<<<< HEAD
 			*dp++ = gsm_encode_modem(dlci);
 			break;
 		}
 		WARN_ON(kfifo_out_locked(dlci->fifo, dp , len, &dlci->lock) != len);
+=======
+			*dp++ = (gsm_encode_modem(dlci) << 1) | EA;
+			break;
+		}
+		WARN_ON(kfifo_out_locked(&dlci->fifo, dp , len, &dlci->lock) != len);
+>>>>>>> upstream/android-13
 		__gsm_data_queue(dlci, msg);
 		total_size += size;
 	}
@@ -992,7 +1144,11 @@ static void gsm_dlci_data_kick(struct gsm_dlci *dlci)
  *	Encode up and queue a UI/UIH frame containing our response.
  */
 
+<<<<<<< HEAD
 static void gsm_control_reply(struct gsm_mux *gsm, int cmd, u8 *data,
+=======
+static void gsm_control_reply(struct gsm_mux *gsm, int cmd, const u8 *data,
+>>>>>>> upstream/android-13
 					int dlen)
 {
 	struct gsm_msg *msg;
@@ -1010,24 +1166,41 @@ static void gsm_control_reply(struct gsm_mux *gsm, int cmd, u8 *data,
  *	@tty: virtual tty bound to the DLCI
  *	@dlci: DLCI to affect
  *	@modem: modem bits (full EA)
+<<<<<<< HEAD
+=======
+ *	@slen: number of signal octets
+>>>>>>> upstream/android-13
  *
  *	Used when a modem control message or line state inline in adaption
  *	layer 2 is processed. Sort out the local modem state and throttles
  */
 
 static void gsm_process_modem(struct tty_struct *tty, struct gsm_dlci *dlci,
+<<<<<<< HEAD
 							u32 modem, int clen)
+=======
+							u32 modem, int slen)
+>>>>>>> upstream/android-13
 {
 	int  mlines = 0;
 	u8 brk = 0;
 	int fc;
 
+<<<<<<< HEAD
 	/* The modem status command can either contain one octet (v.24 signals)
 	   or two octets (v.24 signals + break signals). The length field will
 	   either be 2 or 3 respectively. This is specified in section
 	   5.4.6.3.7 of the  27.010 mux spec. */
 
 	if (clen == 2)
+=======
+	/* The modem status command can either contain one octet (V.24 signals)
+	 * or two octets (V.24 signals + break signals). This is specified in
+	 * section 5.4.6.3.7 of the 07.10 mux spec.
+	 */
+
+	if (slen == 1)
+>>>>>>> upstream/android-13
 		modem = modem & 0x7f;
 	else {
 		brk = modem & 0x7f;
@@ -1038,9 +1211,15 @@ static void gsm_process_modem(struct tty_struct *tty, struct gsm_dlci *dlci,
 	fc = (modem & MDM_FC) || !(modem & MDM_RTR);
 	if (fc && !dlci->constipated) {
 		/* Need to throttle our output on this device */
+<<<<<<< HEAD
 		dlci->constipated = 1;
 	} else if (!fc && dlci->constipated) {
 		dlci->constipated = 0;
+=======
+		dlci->constipated = true;
+	} else if (!fc && dlci->constipated) {
+		dlci->constipated = false;
+>>>>>>> upstream/android-13
 		gsm_dlci_data_kick(dlci);
 	}
 
@@ -1077,6 +1256,7 @@ static void gsm_process_modem(struct tty_struct *tty, struct gsm_dlci *dlci,
  *	and if need be stuff a break message down the tty.
  */
 
+<<<<<<< HEAD
 static void gsm_control_modem(struct gsm_mux *gsm, u8 *data, int clen)
 {
 	unsigned int addr = 0;
@@ -1085,6 +1265,16 @@ static void gsm_control_modem(struct gsm_mux *gsm, u8 *data, int clen)
 	struct gsm_dlci *dlci;
 	int len = clen;
 	u8 *dp = data;
+=======
+static void gsm_control_modem(struct gsm_mux *gsm, const u8 *data, int clen)
+{
+	unsigned int addr = 0;
+	unsigned int modem = 0;
+	struct gsm_dlci *dlci;
+	int len = clen;
+	int slen;
+	const u8 *dp = data;
+>>>>>>> upstream/android-13
 	struct tty_struct *tty;
 
 	while (gsm_read_ea(&addr, *dp++) == 0) {
@@ -1103,12 +1293,17 @@ static void gsm_control_modem(struct gsm_mux *gsm, u8 *data, int clen)
 		return;
 	dlci = gsm->dlci[addr];
 
+<<<<<<< HEAD
+=======
+	slen = len;
+>>>>>>> upstream/android-13
 	while (gsm_read_ea(&modem, *dp++) == 0) {
 		len--;
 		if (len == 0)
 			return;
 	}
 	len--;
+<<<<<<< HEAD
 	if (len > 0) {
 		while (gsm_read_ea(&brk, *dp++) == 0) {
 			len--;
@@ -1120,6 +1315,10 @@ static void gsm_control_modem(struct gsm_mux *gsm, u8 *data, int clen)
 	}
 	tty = tty_port_tty_get(&dlci->port);
 	gsm_process_modem(tty, dlci, modem, clen);
+=======
+	tty = tty_port_tty_get(&dlci->port);
+	gsm_process_modem(tty, dlci, modem, slen - len);
+>>>>>>> upstream/android-13
 	if (tty) {
 		tty_wakeup(tty);
 		tty_kref_put(tty);
@@ -1138,13 +1337,21 @@ static void gsm_control_modem(struct gsm_mux *gsm, u8 *data, int clen)
  *	this into the uplink tty if present
  */
 
+<<<<<<< HEAD
 static void gsm_control_rls(struct gsm_mux *gsm, u8 *data, int clen)
+=======
+static void gsm_control_rls(struct gsm_mux *gsm, const u8 *data, int clen)
+>>>>>>> upstream/android-13
 {
 	struct tty_port *port;
 	unsigned int addr = 0;
 	u8 bits;
 	int len = clen;
+<<<<<<< HEAD
 	u8 *dp = data;
+=======
+	const u8 *dp = data;
+>>>>>>> upstream/android-13
 
 	while (gsm_read_ea(&addr, *dp++) == 0) {
 		len--;
@@ -1193,7 +1400,11 @@ static void gsm_dlci_begin_close(struct gsm_dlci *dlci);
  */
 
 static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
+<<<<<<< HEAD
 							u8 *data, int clen)
+=======
+						const u8 *data, int clen)
+>>>>>>> upstream/android-13
 {
 	u8 buf[1];
 	unsigned long flags;
@@ -1203,8 +1414,13 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
 		struct gsm_dlci *dlci = gsm->dlci[0];
 		/* Modem wishes to close down */
 		if (dlci) {
+<<<<<<< HEAD
 			dlci->dead = 1;
 			gsm->dead = 1;
+=======
+			dlci->dead = true;
+			gsm->dead = true;
+>>>>>>> upstream/android-13
 			gsm_dlci_begin_close(dlci);
 		}
 		}
@@ -1215,7 +1431,11 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
 		break;
 	case CMD_FCON:
 		/* Modem can accept data again */
+<<<<<<< HEAD
 		gsm->constipated = 0;
+=======
+		gsm->constipated = false;
+>>>>>>> upstream/android-13
 		gsm_control_reply(gsm, CMD_FCON, NULL, 0);
 		/* Kick the link in case it is idling */
 		spin_lock_irqsave(&gsm->tx_lock, flags);
@@ -1224,7 +1444,11 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
 		break;
 	case CMD_FCOFF:
 		/* Modem wants us to STFU */
+<<<<<<< HEAD
 		gsm->constipated = 1;
+=======
+		gsm->constipated = true;
+>>>>>>> upstream/android-13
 		gsm_control_reply(gsm, CMD_FCOFF, NULL, 0);
 		break;
 	case CMD_MSC:
@@ -1265,7 +1489,11 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
  */
 
 static void gsm_control_response(struct gsm_mux *gsm, unsigned int command,
+<<<<<<< HEAD
 							u8 *data, int clen)
+=======
+						const u8 *data, int clen)
+>>>>>>> upstream/android-13
 {
 	struct gsm_control *ctrl;
 	unsigned long flags;
@@ -1298,17 +1526,30 @@ static void gsm_control_response(struct gsm_mux *gsm, unsigned int command,
 
 static void gsm_control_transmit(struct gsm_mux *gsm, struct gsm_control *ctrl)
 {
+<<<<<<< HEAD
 	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 1, gsm->ftype);
 	if (msg == NULL)
 		return;
 	msg->data[0] = (ctrl->cmd << 1) | 2 | EA;	/* command */
 	memcpy(msg->data + 1, ctrl->data, ctrl->len);
+=======
+	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 2, gsm->ftype);
+	if (msg == NULL)
+		return;
+	msg->data[0] = (ctrl->cmd << 1) | CR | EA;	/* command */
+	msg->data[1] = (ctrl->len << 1) | EA;
+	memcpy(msg->data + 2, ctrl->data, ctrl->len);
+>>>>>>> upstream/android-13
 	gsm_data_queue(gsm->dlci[0], msg);
 }
 
 /**
  *	gsm_control_retransmit	-	retransmit a control frame
+<<<<<<< HEAD
  *	@data: pointer to our gsm object
+=======
+ *	@t: timer contained in our gsm object
+>>>>>>> upstream/android-13
  *
  *	Called off the T2 timer expiry in order to retransmit control frames
  *	that have been lost in the system somewhere. The control_lock protects
@@ -1325,7 +1566,10 @@ static void gsm_control_retransmit(struct timer_list *t)
 	spin_lock_irqsave(&gsm->control_lock, flags);
 	ctrl = gsm->pending_cmd;
 	if (ctrl) {
+<<<<<<< HEAD
 		gsm->cretries--;
+=======
+>>>>>>> upstream/android-13
 		if (gsm->cretries == 0) {
 			gsm->pending_cmd = NULL;
 			ctrl->error = -ETIMEDOUT;
@@ -1334,6 +1578,10 @@ static void gsm_control_retransmit(struct timer_list *t)
 			wake_up(&gsm->event);
 			return;
 		}
+<<<<<<< HEAD
+=======
+		gsm->cretries--;
+>>>>>>> upstream/android-13
 		gsm_control_transmit(gsm, ctrl);
 		mod_timer(&gsm->t2_timer, jiffies + gsm->t2 * HZ / 100);
 	}
@@ -1345,7 +1593,11 @@ static void gsm_control_retransmit(struct timer_list *t)
  *	@gsm: the GSM channel
  *	@command: command  to send including CR bit
  *	@data: bytes of data (must be kmalloced)
+<<<<<<< HEAD
  *	@len: length of the block to send
+=======
+ *	@clen: length of the block to send
+>>>>>>> upstream/android-13
  *
  *	Queue and dispatch a control command. Only one command can be
  *	active at a time. In theory more can be outstanding but the matching
@@ -1374,7 +1626,11 @@ retry:
 
 	/* If DLCI0 is in ADM mode skip retries, it won't respond */
 	if (gsm->dlci[0]->mode == DLCI_MODE_ADM)
+<<<<<<< HEAD
 		gsm->cretries = 1;
+=======
+		gsm->cretries = 0;
+>>>>>>> upstream/android-13
 	else
 		gsm->cretries = gsm->n2;
 
@@ -1422,15 +1678,31 @@ static int gsm_control_wait(struct gsm_mux *gsm, struct gsm_control *control)
 
 static void gsm_dlci_close(struct gsm_dlci *dlci)
 {
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	del_timer(&dlci->t1);
 	if (debug & 8)
 		pr_debug("DLCI %d goes closed.\n", dlci->addr);
 	dlci->state = DLCI_CLOSED;
 	if (dlci->addr != 0) {
 		tty_port_tty_hangup(&dlci->port, false);
+<<<<<<< HEAD
 		kfifo_reset(dlci->fifo);
 	} else
 		dlci->gsm->dead = 1;
+=======
+		spin_lock_irqsave(&dlci->lock, flags);
+		kfifo_reset(&dlci->fifo);
+		spin_unlock_irqrestore(&dlci->lock, flags);
+		/* Ensure that gsmtty_open() can return. */
+		tty_port_set_initialized(&dlci->port, 0);
+		wake_up_interruptible(&dlci->port.open_wait);
+	} else
+		dlci->gsm->dead = true;
+>>>>>>> upstream/android-13
 	wake_up(&dlci->gsm->event);
 	/* A DLCI 0 close is a MUX termination so we need to kick that
 	   back to userspace somehow */
@@ -1457,7 +1729,11 @@ static void gsm_dlci_open(struct gsm_dlci *dlci)
 
 /**
  *	gsm_dlci_t1		-	T1 timer expiry
+<<<<<<< HEAD
  *	@dlci: DLCI that opened
+=======
+ *	@t: timer contained in the DLCI that opened
+>>>>>>> upstream/android-13
  *
  *	The T1 timer handles retransmits of control frames (essentially of
  *	SABM and DISC). We resend the command until the retry count runs out
@@ -1488,7 +1764,11 @@ static void gsm_dlci_t1(struct timer_list *t)
 			dlci->mode = DLCI_MODE_ADM;
 			gsm_dlci_open(dlci);
 		} else {
+<<<<<<< HEAD
 			gsm_dlci_close(dlci);
+=======
+			gsm_dlci_begin_close(dlci); /* prevent half open link */
+>>>>>>> upstream/android-13
 		}
 
 		break;
@@ -1500,6 +1780,12 @@ static void gsm_dlci_t1(struct timer_list *t)
 		} else
 			gsm_dlci_close(dlci);
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		pr_debug("%s: unhandled state: %d\n", __func__, dlci->state);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1550,25 +1836,38 @@ static void gsm_dlci_begin_close(struct gsm_dlci *dlci)
  *	gsm_dlci_data		-	data arrived
  *	@dlci: channel
  *	@data: block of bytes received
+<<<<<<< HEAD
  *	@len: length of received block
+=======
+ *	@clen: length of received block
+>>>>>>> upstream/android-13
  *
  *	A UI or UIH frame has arrived which contains data for a channel
  *	other than the control channel. If the relevant virtual tty is
  *	open we shovel the bits down it, if not we drop them.
  */
 
+<<<<<<< HEAD
 static void gsm_dlci_data(struct gsm_dlci *dlci, u8 *data, int clen)
+=======
+static void gsm_dlci_data(struct gsm_dlci *dlci, const u8 *data, int clen)
+>>>>>>> upstream/android-13
 {
 	/* krefs .. */
 	struct tty_port *port = &dlci->port;
 	struct tty_struct *tty;
 	unsigned int modem = 0;
 	int len = clen;
+<<<<<<< HEAD
+=======
+	int slen = 0;
+>>>>>>> upstream/android-13
 
 	if (debug & 16)
 		pr_debug("%d bytes for tty\n", len);
 	switch (dlci->adaption)  {
 	/* Unsupported types */
+<<<<<<< HEAD
 	/* Packetised interruptible data */
 	case 4:
 		break;
@@ -1589,6 +1888,29 @@ static void gsm_dlci_data(struct gsm_dlci *dlci, u8 *data, int clen)
 		}
 	/* Line state will go via DLCI 0 controls only */
 	case 1:
+=======
+	case 4:		/* Packetised interruptible data */
+		break;
+	case 3:		/* Packetised uininterruptible voice/data */
+		break;
+	case 2:		/* Asynchronous serial with line state in each frame */
+		while (gsm_read_ea(&modem, *data++) == 0) {
+			len--;
+			slen++;
+			if (len == 0)
+				return;
+		}
+		len--;
+		slen++;
+		tty = tty_port_tty_get(port);
+		if (tty) {
+			gsm_process_modem(tty, dlci, modem, slen);
+			tty_wakeup(tty);
+			tty_kref_put(tty);
+		}
+		fallthrough;
+	case 1:		/* Line state will go via DLCI 0 controls only */
+>>>>>>> upstream/android-13
 	default:
 		tty_insert_flip_string(port, data, len);
 		tty_flip_buffer_push(port);
@@ -1596,7 +1918,11 @@ static void gsm_dlci_data(struct gsm_dlci *dlci, u8 *data, int clen)
 }
 
 /**
+<<<<<<< HEAD
  *	gsm_dlci_control	-	data arrived on control channel
+=======
+ *	gsm_dlci_command	-	data arrived on control channel
+>>>>>>> upstream/android-13
  *	@dlci: channel
  *	@data: block of bytes received
  *	@len: length of received block
@@ -1607,7 +1933,11 @@ static void gsm_dlci_data(struct gsm_dlci *dlci, u8 *data, int clen)
  *	and we divide up the work accordingly.
  */
 
+<<<<<<< HEAD
 static void gsm_dlci_command(struct gsm_dlci *dlci, u8 *data, int len)
+=======
+static void gsm_dlci_command(struct gsm_dlci *dlci, const u8 *data, int len)
+>>>>>>> upstream/android-13
 {
 	/* See what command is involved */
 	unsigned int command = 0;
@@ -1652,8 +1982,12 @@ static struct gsm_dlci *gsm_dlci_alloc(struct gsm_mux *gsm, int addr)
 		return NULL;
 	spin_lock_init(&dlci->lock);
 	mutex_init(&dlci->mutex);
+<<<<<<< HEAD
 	dlci->fifo = &dlci->_fifo;
 	if (kfifo_alloc(&dlci->_fifo, 4096, GFP_KERNEL) < 0) {
+=======
+	if (kfifo_alloc(&dlci->fifo, 4096, GFP_KERNEL) < 0) {
+>>>>>>> upstream/android-13
 		kfree(dlci);
 		return NULL;
 	}
@@ -1676,7 +2010,11 @@ static struct gsm_dlci *gsm_dlci_alloc(struct gsm_mux *gsm, int addr)
 
 /**
  *	gsm_dlci_free		-	free DLCI
+<<<<<<< HEAD
  *	@dlci: DLCI to free
+=======
+ *	@port: tty port for DLCI to free
+>>>>>>> upstream/android-13
  *
  *	Free up a DLCI.
  *
@@ -1688,7 +2026,11 @@ static void gsm_dlci_free(struct tty_port *port)
 
 	del_timer_sync(&dlci->t1);
 	dlci->gsm->dlci[dlci->addr] = NULL;
+<<<<<<< HEAD
 	kfifo_free(dlci->fifo);
+=======
+	kfifo_free(&dlci->fifo);
+>>>>>>> upstream/android-13
 	while ((dlci->skb = skb_dequeue(&dlci->skb_list)))
 		dev_kfree_skb(dlci->skb);
 	kfree(dlci);
@@ -1723,6 +2065,14 @@ static void gsm_dlci_release(struct gsm_dlci *dlci)
 		gsm_destroy_network(dlci);
 		mutex_unlock(&dlci->mutex);
 
+<<<<<<< HEAD
+=======
+		/* We cannot use tty_hangup() because in tty_kref_put() the tty
+		 * driver assumes that the hangup queue is free and reuses it to
+		 * queue release_one_tty() -> NULL pointer panic in
+		 * process_one_work().
+		 */
+>>>>>>> upstream/android-13
 		tty_vhangup(tty);
 
 		tty_port_tty_set(&dlci->port, NULL);
@@ -1806,7 +2156,10 @@ static void gsm_queue(struct gsm_mux *gsm)
 		gsm_response(gsm, address, UA);
 		gsm_dlci_close(dlci);
 		break;
+<<<<<<< HEAD
 	case UA:
+=======
+>>>>>>> upstream/android-13
 	case UA|PF:
 		if (cr == 0 || dlci == NULL)
 			break;
@@ -1817,6 +2170,13 @@ static void gsm_queue(struct gsm_mux *gsm)
 		case DLCI_OPENING:
 			gsm_dlci_open(dlci);
 			break;
+<<<<<<< HEAD
+=======
+		default:
+			pr_debug("%s: unhandled state: %d\n", __func__,
+					dlci->state);
+			break;
+>>>>>>> upstream/android-13
 		}
 		break;
 	case DM:	/* DM can be valid unsolicited */
@@ -1930,6 +2290,12 @@ static void gsm0_receive(struct gsm_mux *gsm, unsigned char c)
 			break;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		pr_debug("%s: unhandled state: %d\n", __func__, gsm->state);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1943,6 +2309,19 @@ static void gsm0_receive(struct gsm_mux *gsm, unsigned char c)
 
 static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
 {
+<<<<<<< HEAD
+=======
+	/* handle XON/XOFF */
+	if ((c & ISO_IEC_646_MASK) == XON) {
+		gsm->constipated = true;
+		return;
+	} else if ((c & ISO_IEC_646_MASK) == XOFF) {
+		gsm->constipated = false;
+		/* Kick the link in case it is idling */
+		gsm_data_kick(gsm, NULL);
+		return;
+	}
+>>>>>>> upstream/android-13
 	if (c == GSM1_SOF) {
 		/* EOF is only valid in frame if we have got to the data state
 		   and received at least one byte (the FCS) */
@@ -1957,7 +2336,12 @@ static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
 		}
 		/* Any partial frame was a runt so go back to start */
 		if (gsm->state != GSM_START) {
+<<<<<<< HEAD
 			gsm->malformed++;
+=======
+			if (gsm->state != GSM_SEARCH)
+				gsm->malformed++;
+>>>>>>> upstream/android-13
 			gsm->state = GSM_START;
 		}
 		/* A SOF in GSM_START means we are still reading idling or
@@ -1966,7 +2350,11 @@ static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
 	}
 
 	if (c == GSM1_ESCAPE) {
+<<<<<<< HEAD
 		gsm->escape = 1;
+=======
+		gsm->escape = true;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1976,14 +2364,22 @@ static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
 
 	if (gsm->escape) {
 		c ^= GSM1_ESCAPE_BITS;
+<<<<<<< HEAD
 		gsm->escape = 0;
+=======
+		gsm->escape = false;
+>>>>>>> upstream/android-13
 	}
 	switch (gsm->state) {
 	case GSM_START:		/* First byte after SOF */
 		gsm->address = 0;
 		gsm->state = GSM_ADDRESS;
 		gsm->fcs = INIT_FCS;
+<<<<<<< HEAD
 		/* Drop through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case GSM_ADDRESS:	/* Address continuation */
 		gsm->fcs = gsm_fcs_add(gsm->fcs, c);
 		if (gsm_read_ea(&gsm->address, c))
@@ -2004,6 +2400,12 @@ static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
 		break;
 	case GSM_OVERRUN:	/* Over-long - eg a dropped SOF */
 		break;
+<<<<<<< HEAD
+=======
+	default:
+		pr_debug("%s: unhandled state: %d\n", __func__, gsm->state);
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2026,6 +2428,7 @@ static void gsm_error(struct gsm_mux *gsm,
 	gsm->io_error++;
 }
 
+<<<<<<< HEAD
 static int gsm_disconnect(struct gsm_mux *gsm)
 {
 	struct gsm_dlci *dlci = gsm->dlci[0];
@@ -2056,18 +2459,29 @@ static int gsm_disconnect(struct gsm_mux *gsm)
 /**
  *	gsm_cleanup_mux		-	generic GSM protocol cleanup
  *	@gsm: our mux
+=======
+/**
+ *	gsm_cleanup_mux		-	generic GSM protocol cleanup
+ *	@gsm: our mux
+ *	@disc: disconnect link?
+>>>>>>> upstream/android-13
  *
  *	Clean up the bits of the mux which are the same for all framing
  *	protocols. Remove the mux from the mux table, stop all the timers
  *	and then shut down each device hanging up the channels as we go.
  */
 
+<<<<<<< HEAD
 static void gsm_cleanup_mux(struct gsm_mux *gsm)
+=======
+static void gsm_cleanup_mux(struct gsm_mux *gsm, bool disc)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct gsm_dlci *dlci = gsm->dlci[0];
 	struct gsm_msg *txq, *ntxq;
 
+<<<<<<< HEAD
 	gsm->dead = 1;
 
 	spin_lock(&gsm_mux_lock);
@@ -2090,10 +2504,32 @@ static void gsm_cleanup_mux(struct gsm_mux *gsm)
 	/* Free up any link layer users */
 	mutex_lock(&gsm->mutex);
 	for (i = 0; i < NUM_DLCI; i++)
+=======
+	gsm->dead = true;
+	mutex_lock(&gsm->mutex);
+
+	if (dlci) {
+		if (disc && dlci->state != DLCI_CLOSED) {
+			gsm_dlci_begin_close(dlci);
+			wait_event(gsm->event, dlci->state == DLCI_CLOSED);
+		}
+		dlci->dead = true;
+	}
+
+	/* Finish outstanding timers, making sure they are done */
+	del_timer_sync(&gsm->t2_timer);
+
+	/* Free up any link layer users and finally the control channel */
+	for (i = NUM_DLCI - 1; i >= 0; i--)
+>>>>>>> upstream/android-13
 		if (gsm->dlci[i])
 			gsm_dlci_release(gsm->dlci[i]);
 	mutex_unlock(&gsm->mutex);
 	/* Now wipe the queues */
+<<<<<<< HEAD
+=======
+	tty_ldisc_flush(gsm->tty);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(txq, ntxq, &gsm->tx_list, list)
 		kfree(txq);
 	INIT_LIST_HEAD(&gsm->tx_list);
@@ -2111,7 +2547,10 @@ static void gsm_cleanup_mux(struct gsm_mux *gsm)
 static int gsm_activate_mux(struct gsm_mux *gsm)
 {
 	struct gsm_dlci *dlci;
+<<<<<<< HEAD
 	int i = 0;
+=======
+>>>>>>> upstream/android-13
 
 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
 	init_waitqueue_head(&gsm->event);
@@ -2122,6 +2561,7 @@ static int gsm_activate_mux(struct gsm_mux *gsm)
 		gsm->receive = gsm0_receive;
 	else
 		gsm->receive = gsm1_receive;
+<<<<<<< HEAD
 	gsm->error = gsm_error;
 
 	spin_lock(&gsm_mux_lock);
@@ -2135,22 +2575,44 @@ static int gsm_activate_mux(struct gsm_mux *gsm)
 	spin_unlock(&gsm_mux_lock);
 	if (i == MAX_MUX)
 		return -EBUSY;
+=======
+>>>>>>> upstream/android-13
 
 	dlci = gsm_dlci_alloc(gsm, 0);
 	if (dlci == NULL)
 		return -ENOMEM;
+<<<<<<< HEAD
 	gsm->dead = 0;		/* Tty opens are now permissible */
+=======
+	gsm->dead = false;		/* Tty opens are now permissible */
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
  *	gsm_free_mux		-	free up a mux
+<<<<<<< HEAD
  *	@mux: mux to free
+=======
+ *	@gsm: mux to free
+>>>>>>> upstream/android-13
  *
  *	Dispose of allocated resources for a dead mux
  */
 static void gsm_free_mux(struct gsm_mux *gsm)
 {
+<<<<<<< HEAD
+=======
+	int i;
+
+	for (i = 0; i < MAX_MUX; i++) {
+		if (gsm == gsm_mux[i]) {
+			gsm_mux[i] = NULL;
+			break;
+		}
+	}
+	mutex_destroy(&gsm->mutex);
+>>>>>>> upstream/android-13
 	kfree(gsm->txframe);
 	kfree(gsm->buf);
 	kfree(gsm);
@@ -2158,7 +2620,11 @@ static void gsm_free_mux(struct gsm_mux *gsm)
 
 /**
  *	gsm_free_muxr		-	free up a mux
+<<<<<<< HEAD
  *	@mux: mux to free
+=======
+ *	@ref: kreference to the mux to free
+>>>>>>> upstream/android-13
  *
  *	Dispose of allocated resources for a dead mux
  */
@@ -2170,12 +2636,38 @@ static void gsm_free_muxr(struct kref *ref)
 
 static inline void mux_get(struct gsm_mux *gsm)
 {
+<<<<<<< HEAD
 	kref_get(&gsm->ref);
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&gsm_mux_lock, flags);
+	kref_get(&gsm->ref);
+	spin_unlock_irqrestore(&gsm_mux_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static inline void mux_put(struct gsm_mux *gsm)
 {
+<<<<<<< HEAD
 	kref_put(&gsm->ref, gsm_free_muxr);
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&gsm_mux_lock, flags);
+	kref_put(&gsm->ref, gsm_free_muxr);
+	spin_unlock_irqrestore(&gsm_mux_lock, flags);
+}
+
+static inline unsigned int mux_num_to_base(struct gsm_mux *gsm)
+{
+	return gsm->num * NUM_DLCI;
+}
+
+static inline unsigned int mux_line_to_num(unsigned int line)
+{
+	return line / NUM_DLCI;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2186,6 +2678,10 @@ static inline void mux_put(struct gsm_mux *gsm)
 
 static struct gsm_mux *gsm_alloc_mux(void)
 {
+<<<<<<< HEAD
+=======
+	int i;
+>>>>>>> upstream/android-13
 	struct gsm_mux *gsm = kzalloc(sizeof(struct gsm_mux), GFP_KERNEL);
 	if (gsm == NULL)
 		return NULL;
@@ -2194,7 +2690,11 @@ static struct gsm_mux *gsm_alloc_mux(void)
 		kfree(gsm);
 		return NULL;
 	}
+<<<<<<< HEAD
 	gsm->txframe = kmalloc(2 * MAX_MRU + 2, GFP_KERNEL);
+=======
+	gsm->txframe = kmalloc(2 * (MAX_MTU + PROT_OVERHEAD - 1), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (gsm->txframe == NULL) {
 		kfree(gsm->buf);
 		kfree(gsm);
@@ -2213,11 +2713,139 @@ static struct gsm_mux *gsm_alloc_mux(void)
 	gsm->encoding = 1;
 	gsm->mru = 64;	/* Default to encoding 1 so these should be 64 */
 	gsm->mtu = 64;
+<<<<<<< HEAD
 	gsm->dead = 1;	/* Avoid early tty opens */
+=======
+	gsm->dead = true;	/* Avoid early tty opens */
+
+	/* Store the instance to the mux array or abort if no space is
+	 * available.
+	 */
+	spin_lock(&gsm_mux_lock);
+	for (i = 0; i < MAX_MUX; i++) {
+		if (!gsm_mux[i]) {
+			gsm_mux[i] = gsm;
+			gsm->num = i;
+			break;
+		}
+	}
+	spin_unlock(&gsm_mux_lock);
+	if (i == MAX_MUX) {
+		mutex_destroy(&gsm->mutex);
+		kfree(gsm->txframe);
+		kfree(gsm->buf);
+		kfree(gsm);
+		return NULL;
+	}
+>>>>>>> upstream/android-13
 
 	return gsm;
 }
 
+<<<<<<< HEAD
+=======
+static void gsm_copy_config_values(struct gsm_mux *gsm,
+				   struct gsm_config *c)
+{
+	memset(c, 0, sizeof(*c));
+	c->adaption = gsm->adaption;
+	c->encapsulation = gsm->encoding;
+	c->initiator = gsm->initiator;
+	c->t1 = gsm->t1;
+	c->t2 = gsm->t2;
+	c->t3 = 0;	/* Not supported */
+	c->n2 = gsm->n2;
+	if (gsm->ftype == UIH)
+		c->i = 1;
+	else
+		c->i = 2;
+	pr_debug("Ftype %d i %d\n", gsm->ftype, c->i);
+	c->mru = gsm->mru;
+	c->mtu = gsm->mtu;
+	c->k = 0;
+}
+
+static int gsm_config(struct gsm_mux *gsm, struct gsm_config *c)
+{
+	int ret = 0;
+	int need_close = 0;
+	int need_restart = 0;
+
+	/* Stuff we don't support yet - UI or I frame transport, windowing */
+	if ((c->adaption != 1 && c->adaption != 2) || c->k)
+		return -EOPNOTSUPP;
+	/* Check the MRU/MTU range looks sane */
+	if (c->mru > MAX_MRU || c->mtu > MAX_MTU || c->mru < 8 || c->mtu < 8)
+		return -EINVAL;
+	if (c->n2 > 255)
+		return -EINVAL;
+	if (c->encapsulation > 1)	/* Basic, advanced, no I */
+		return -EINVAL;
+	if (c->initiator > 1)
+		return -EINVAL;
+	if (c->i == 0 || c->i > 2)	/* UIH and UI only */
+		return -EINVAL;
+	/*
+	 * See what is needed for reconfiguration
+	 */
+
+	/* Timing fields */
+	if (c->t1 != 0 && c->t1 != gsm->t1)
+		need_restart = 1;
+	if (c->t2 != 0 && c->t2 != gsm->t2)
+		need_restart = 1;
+	if (c->encapsulation != gsm->encoding)
+		need_restart = 1;
+	if (c->adaption != gsm->adaption)
+		need_restart = 1;
+	/* Requires care */
+	if (c->initiator != gsm->initiator)
+		need_close = 1;
+	if (c->mru != gsm->mru)
+		need_restart = 1;
+	if (c->mtu != gsm->mtu)
+		need_restart = 1;
+
+	/*
+	 * Close down what is needed, restart and initiate the new
+	 * configuration. On the first time there is no DLCI[0]
+	 * and closing or cleaning up is not necessary.
+	 */
+	if (need_close || need_restart)
+		gsm_cleanup_mux(gsm, true);
+
+	gsm->initiator = c->initiator;
+	gsm->mru = c->mru;
+	gsm->mtu = c->mtu;
+	gsm->encoding = c->encapsulation;
+	gsm->adaption = c->adaption;
+	gsm->n2 = c->n2;
+
+	if (c->i == 1)
+		gsm->ftype = UIH;
+	else if (c->i == 2)
+		gsm->ftype = UI;
+
+	if (c->t1)
+		gsm->t1 = c->t1;
+	if (c->t2)
+		gsm->t2 = c->t2;
+
+	/*
+	 * FIXME: We need to separate activation/deactivation from adding
+	 * and removing from the mux array
+	 */
+	if (gsm->dead) {
+		ret = gsm_activate_mux(gsm);
+		if (ret)
+			return ret;
+		if (gsm->initiator)
+			gsm_dlci_begin_open(gsm->dlci[0]);
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  *	gsmld_output		-	write to link
  *	@gsm: our mux
@@ -2253,19 +2881,45 @@ static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len)
 
 static int gsmld_attach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
 {
+<<<<<<< HEAD
 	int ret, i, base;
 
 	gsm->tty = tty_kref_get(tty);
 	gsm->output = gsmld_output;
+=======
+	unsigned int base;
+	int ret, i;
+
+	gsm->tty = tty_kref_get(tty);
+	/* Turn off tty XON/XOFF handling to handle it explicitly. */
+	gsm->old_c_iflag = tty->termios.c_iflag;
+	tty->termios.c_iflag &= (IXON | IXOFF);
+>>>>>>> upstream/android-13
 	ret =  gsm_activate_mux(gsm);
 	if (ret != 0)
 		tty_kref_put(gsm->tty);
 	else {
 		/* Don't register device 0 - this is the control channel and not
 		   a usable tty interface */
+<<<<<<< HEAD
 		base = gsm->num << 6; /* Base for this MUX */
 		for (i = 1; i < NUM_DLCI; i++)
 			tty_register_device(gsm_tty_driver, base + i, NULL);
+=======
+		base = mux_num_to_base(gsm); /* Base for this MUX */
+		for (i = 1; i < NUM_DLCI; i++) {
+			struct device *dev;
+
+			dev = tty_register_device(gsm_tty_driver,
+							base + i, NULL);
+			if (IS_ERR(dev)) {
+				for (i--; i >= 1; i--)
+					tty_unregister_device(gsm_tty_driver,
+								base + i);
+				return PTR_ERR(dev);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -2281,42 +2935,71 @@ static int gsmld_attach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
 
 static void gsmld_detach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
 {
+<<<<<<< HEAD
 	int i;
 	int base = gsm->num << 6; /* Base for this MUX */
+=======
+	unsigned int base = mux_num_to_base(gsm); /* Base for this MUX */
+	int i;
+>>>>>>> upstream/android-13
 
 	WARN_ON(tty != gsm->tty);
 	for (i = 1; i < NUM_DLCI; i++)
 		tty_unregister_device(gsm_tty_driver, base + i);
+<<<<<<< HEAD
 	gsm_cleanup_mux(gsm);
+=======
+	/* Restore tty XON/XOFF handling. */
+	gsm->tty->termios.c_iflag = gsm->old_c_iflag;
+>>>>>>> upstream/android-13
 	tty_kref_put(gsm->tty);
 	gsm->tty = NULL;
 }
 
 static void gsmld_receive_buf(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 			      char *fp, int count)
 {
 	struct gsm_mux *gsm = tty->disc_data;
 	const unsigned char *dp;
 	char *f;
 	int i;
+=======
+			      const char *fp, int count)
+{
+	struct gsm_mux *gsm = tty->disc_data;
+>>>>>>> upstream/android-13
 	char flags = TTY_NORMAL;
 
 	if (debug & 4)
 		print_hex_dump_bytes("gsmld_receive: ", DUMP_PREFIX_OFFSET,
 				     cp, count);
 
+<<<<<<< HEAD
 	for (i = count, dp = cp, f = fp; i; i--, dp++) {
 		if (f)
 			flags = *f++;
 		switch (flags) {
 		case TTY_NORMAL:
 			gsm->receive(gsm, *dp);
+=======
+	for (; count; count--, cp++) {
+		if (fp)
+			flags = *fp++;
+		switch (flags) {
+		case TTY_NORMAL:
+			gsm->receive(gsm, *cp);
+>>>>>>> upstream/android-13
 			break;
 		case TTY_OVERRUN:
 		case TTY_BREAK:
 		case TTY_PARITY:
 		case TTY_FRAME:
+<<<<<<< HEAD
 			gsm->error(gsm, *dp, flags);
+=======
+			gsm_error(gsm, *cp, flags);
+>>>>>>> upstream/android-13
 			break;
 		default:
 			WARN_ONCE(1, "%s: unknown flag %d\n",
@@ -2355,6 +3038,15 @@ static void gsmld_close(struct tty_struct *tty)
 {
 	struct gsm_mux *gsm = tty->disc_data;
 
+<<<<<<< HEAD
+=======
+	/* The ldisc locks and closes the port before calling our close. This
+	 * means we have no way to do a proper disconnect. We will not bother
+	 * to do one.
+	 */
+	gsm_cleanup_mux(gsm, false);
+
+>>>>>>> upstream/android-13
 	gsmld_detach_gsm(tty, gsm);
 
 	gsmld_flush_buffer(tty);
@@ -2393,7 +3085,11 @@ static int gsmld_open(struct tty_struct *tty)
 
 	ret = gsmld_attach_gsm(tty, gsm);
 	if (ret != 0) {
+<<<<<<< HEAD
 		gsm_cleanup_mux(gsm);
+=======
+		gsm_cleanup_mux(gsm, false);
+>>>>>>> upstream/android-13
 		mux_put(gsm);
 	}
 	return ret;
@@ -2429,6 +3125,11 @@ static void gsmld_write_wakeup(struct tty_struct *tty)
  *	@file: file object
  *	@buf: userspace buffer pointer
  *	@nr: size of I/O
+<<<<<<< HEAD
+=======
+ *	@cookie: unused
+ *	@offset: unused
+>>>>>>> upstream/android-13
  *
  *	Perform reads for the line discipline. We are guaranteed that the
  *	line discipline will not be closed under us but we may get multiple
@@ -2439,7 +3140,12 @@ static void gsmld_write_wakeup(struct tty_struct *tty)
  */
 
 static ssize_t gsmld_read(struct tty_struct *tty, struct file *file,
+<<<<<<< HEAD
 			 unsigned char __user *buf, size_t nr)
+=======
+			  unsigned char *buf, size_t nr,
+			  void **cookie, unsigned long offset)
+>>>>>>> upstream/android-13
 {
 	return -EOPNOTSUPP;
 }
@@ -2499,6 +3205,7 @@ static __poll_t gsmld_poll(struct tty_struct *tty, struct file *file,
 	return mask;
 }
 
+<<<<<<< HEAD
 static int gsmld_config(struct tty_struct *tty, struct gsm_mux *gsm,
 							struct gsm_config *c)
 {
@@ -2582,11 +3289,14 @@ static int gsmld_config(struct tty_struct *tty, struct gsm_mux *gsm,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int gsmld_ioctl(struct tty_struct *tty, struct file *file,
 		       unsigned int cmd, unsigned long arg)
 {
 	struct gsm_config c;
 	struct gsm_mux *gsm = tty->disc_data;
+<<<<<<< HEAD
 
 	switch (cmd) {
 	case GSMIOC_GETCONF:
@@ -2613,11 +3323,29 @@ static int gsmld_ioctl(struct tty_struct *tty, struct file *file,
 		if (copy_from_user(&c, (void *)arg, sizeof(c)))
 			return -EFAULT;
 		return gsmld_config(tty, gsm, &c);
+=======
+	unsigned int base;
+
+	switch (cmd) {
+	case GSMIOC_GETCONF:
+		gsm_copy_config_values(gsm, &c);
+		if (copy_to_user((void __user *)arg, &c, sizeof(c)))
+			return -EFAULT;
+		return 0;
+	case GSMIOC_SETCONF:
+		if (copy_from_user(&c, (void __user *)arg, sizeof(c)))
+			return -EFAULT;
+		return gsm_config(gsm, &c);
+	case GSMIOC_GETFIRST:
+		base = mux_num_to_base(gsm);
+		return put_user(base + 1, (__u32 __user *)arg);
+>>>>>>> upstream/android-13
 	default:
 		return n_tty_ioctl_helper(tty, file, cmd, arg);
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long gsmld_compat_ioctl(struct tty_struct *tty, struct file *file,
 		       unsigned int cmd, unsigned long arg)
@@ -2626,6 +3354,8 @@ static long gsmld_compat_ioctl(struct tty_struct *tty, struct file *file,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  *	Network interface
  *
@@ -2697,7 +3427,11 @@ static netdev_tx_t gsm_mux_net_start_xmit(struct sk_buff *skb,
 }
 
 /* called when a packet did not ack after watchdogtimeout */
+<<<<<<< HEAD
 static void gsm_mux_net_tx_timeout(struct net_device *net)
+=======
+static void gsm_mux_net_tx_timeout(struct net_device *net, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	/* Tell syslog we are hosed. */
 	dev_dbg(&net->dev, "Tx timed out.\n");
@@ -2707,7 +3441,11 @@ static void gsm_mux_net_tx_timeout(struct net_device *net)
 }
 
 static void gsm_mux_rx_netchar(struct gsm_dlci *dlci,
+<<<<<<< HEAD
 				   unsigned char *in_buf, int size)
+=======
+				const unsigned char *in_buf, int size)
+>>>>>>> upstream/android-13
 {
 	struct net_device *net = dlci->net;
 	struct sk_buff *skb;
@@ -2762,7 +3500,11 @@ static void gsm_destroy_network(struct gsm_dlci *dlci)
 {
 	struct gsm_mux_net *mux_net;
 
+<<<<<<< HEAD
 	pr_debug("destroy network interface");
+=======
+	pr_debug("destroy network interface\n");
+>>>>>>> upstream/android-13
 	if (!dlci->net)
 		return;
 	mux_net = netdev_priv(dlci->net);
@@ -2791,7 +3533,11 @@ static int gsm_create_network(struct gsm_dlci *dlci, struct gsm_netconfig *nc)
 	if (nc->adaption != 3 && nc->adaption != 4)
 		return -EPROTONOSUPPORT;
 
+<<<<<<< HEAD
 	pr_debug("create network interface");
+=======
+	pr_debug("create network interface\n");
+>>>>>>> upstream/android-13
 
 	netname = "gsm%d";
 	if (nc->if_name[0] != '\0')
@@ -2799,7 +3545,11 @@ static int gsm_create_network(struct gsm_dlci *dlci, struct gsm_netconfig *nc)
 	net = alloc_netdev(sizeof(struct gsm_mux_net), netname,
 			   NET_NAME_UNKNOWN, gsm_mux_net_init);
 	if (!net) {
+<<<<<<< HEAD
 		pr_err("alloc_netdev failed");
+=======
+		pr_err("alloc_netdev failed\n");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 	net->mtu = dlci->gsm->mtu;
@@ -2817,7 +3567,11 @@ static int gsm_create_network(struct gsm_dlci *dlci, struct gsm_netconfig *nc)
 	dlci->data = gsm_mux_rx_netchar;
 	dlci->net = net;
 
+<<<<<<< HEAD
 	pr_debug("register netdev");
+=======
+	pr_debug("register netdev\n");
+>>>>>>> upstream/android-13
 	retval = register_netdev(net);
 	if (retval) {
 		pr_err("network register fail %d\n", retval);
@@ -2830,16 +3584,23 @@ static int gsm_create_network(struct gsm_dlci *dlci, struct gsm_netconfig *nc)
 /* Line discipline for real tty */
 static struct tty_ldisc_ops tty_ldisc_packet = {
 	.owner		 = THIS_MODULE,
+<<<<<<< HEAD
 	.magic           = TTY_LDISC_MAGIC,
+=======
+	.num		 = N_GSM0710,
+>>>>>>> upstream/android-13
 	.name            = "n_gsm",
 	.open            = gsmld_open,
 	.close           = gsmld_close,
 	.flush_buffer    = gsmld_flush_buffer,
 	.read            = gsmld_read,
 	.write           = gsmld_write,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl    = gsmld_compat_ioctl,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.ioctl           = gsmld_ioctl,
 	.poll            = gsmld_poll,
 	.receive_buf     = gsmld_receive_buf,
@@ -2854,6 +3615,7 @@ static struct tty_ldisc_ops tty_ldisc_packet = {
 
 static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk)
 {
+<<<<<<< HEAD
 	u8 modembits[5];
 	struct gsm_control *ctrl;
 	int len = 2;
@@ -2867,6 +3629,21 @@ static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk)
 	if (brk)
 		modembits[3] = brk << 4 | 2 | EA;	/* Valid, EA */
 	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len + 1);
+=======
+	u8 modembits[3];
+	struct gsm_control *ctrl;
+	int len = 2;
+
+	modembits[0] = (dlci->addr << 2) | 2 | EA;  /* DLCI, Valid, EA */
+	if (!brk) {
+		modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
+	} else {
+		modembits[1] = gsm_encode_modem(dlci) << 1;
+		modembits[2] = (brk << 4) | 2 | EA; /* Length, Break, EA */
+		len++;
+	}
+	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len);
+>>>>>>> upstream/android-13
 	if (ctrl == NULL)
 		return -ENOMEM;
 	return gsm_control_wait(dlci->gsm, ctrl);
@@ -2919,7 +3696,11 @@ static int gsmtty_install(struct tty_driver *driver, struct tty_struct *tty)
 	struct gsm_mux *gsm;
 	struct gsm_dlci *dlci;
 	unsigned int line = tty->index;
+<<<<<<< HEAD
 	unsigned int mux = line >> 6;
+=======
+	unsigned int mux = mux_line_to_num(line);
+>>>>>>> upstream/android-13
 	bool alloc = false;
 	int ret;
 
@@ -3026,12 +3807,17 @@ static int gsmtty_write(struct tty_struct *tty, const unsigned char *buf,
 	if (dlci->state == DLCI_CLOSED)
 		return -EINVAL;
 	/* Stuff the bytes into the fifo queue */
+<<<<<<< HEAD
 	sent = kfifo_in_locked(dlci->fifo, buf, len, &dlci->lock);
+=======
+	sent = kfifo_in_locked(&dlci->fifo, buf, len, &dlci->lock);
+>>>>>>> upstream/android-13
 	/* Need to kick the channel */
 	gsm_dlci_data_kick(dlci);
 	return sent;
 }
 
+<<<<<<< HEAD
 static int gsmtty_write_room(struct tty_struct *tty)
 {
 	struct gsm_dlci *dlci = tty->driver_data;
@@ -3046,18 +3832,45 @@ static int gsmtty_chars_in_buffer(struct tty_struct *tty)
 	if (dlci->state == DLCI_CLOSED)
 		return -EINVAL;
 	return kfifo_len(dlci->fifo);
+=======
+static unsigned int gsmtty_write_room(struct tty_struct *tty)
+{
+	struct gsm_dlci *dlci = tty->driver_data;
+	if (dlci->state == DLCI_CLOSED)
+		return 0;
+	return TX_SIZE - kfifo_len(&dlci->fifo);
+}
+
+static unsigned int gsmtty_chars_in_buffer(struct tty_struct *tty)
+{
+	struct gsm_dlci *dlci = tty->driver_data;
+	if (dlci->state == DLCI_CLOSED)
+		return 0;
+	return kfifo_len(&dlci->fifo);
+>>>>>>> upstream/android-13
 }
 
 static void gsmtty_flush_buffer(struct tty_struct *tty)
 {
 	struct gsm_dlci *dlci = tty->driver_data;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	if (dlci->state == DLCI_CLOSED)
 		return;
 	/* Caution needed: If we implement reliable transport classes
 	   then the data being transmitted can't simply be junked once
 	   it has first hit the stack. Until then we can just blow it
 	   away */
+<<<<<<< HEAD
 	kfifo_reset(dlci->fifo);
+=======
+	spin_lock_irqsave(&dlci->lock, flags);
+	kfifo_reset(&dlci->fifo);
+	spin_unlock_irqrestore(&dlci->lock, flags);
+>>>>>>> upstream/android-13
 	/* Need to unhook this DLCI from the transmit queue logic */
 }
 
@@ -3147,9 +3960,15 @@ static void gsmtty_throttle(struct tty_struct *tty)
 	if (dlci->state == DLCI_CLOSED)
 		return;
 	if (C_CRTSCTS(tty))
+<<<<<<< HEAD
 		dlci->modem_tx &= ~TIOCM_DTR;
 	dlci->throttled = 1;
 	/* Send an MSC with DTR cleared */
+=======
+		dlci->modem_tx &= ~TIOCM_RTS;
+	dlci->throttled = true;
+	/* Send an MSC with RTS cleared */
+>>>>>>> upstream/android-13
 	gsmtty_modem_update(dlci, 0);
 }
 
@@ -3159,9 +3978,15 @@ static void gsmtty_unthrottle(struct tty_struct *tty)
 	if (dlci->state == DLCI_CLOSED)
 		return;
 	if (C_CRTSCTS(tty))
+<<<<<<< HEAD
 		dlci->modem_tx |= TIOCM_DTR;
 	dlci->throttled = 0;
 	/* Send an MSC with DTR set */
+=======
+		dlci->modem_tx |= TIOCM_RTS;
+	dlci->throttled = false;
+	/* Send an MSC with RTS set */
+>>>>>>> upstream/android-13
 	gsmtty_modem_update(dlci, 0);
 }
 
@@ -3219,18 +4044,31 @@ static const struct tty_operations gsmtty_ops = {
 static int __init gsm_init(void)
 {
 	/* Fill in our line protocol discipline, and register it */
+<<<<<<< HEAD
 	int status = tty_register_ldisc(N_GSM0710, &tty_ldisc_packet);
+=======
+	int status = tty_register_ldisc(&tty_ldisc_packet);
+>>>>>>> upstream/android-13
 	if (status != 0) {
 		pr_err("n_gsm: can't register line discipline (err = %d)\n",
 								status);
 		return status;
 	}
 
+<<<<<<< HEAD
 	gsm_tty_driver = alloc_tty_driver(256);
 	if (!gsm_tty_driver) {
 		tty_unregister_ldisc(N_GSM0710);
 		pr_err("gsm_init: tty allocation failed.\n");
 		return -EINVAL;
+=======
+	gsm_tty_driver = tty_alloc_driver(256, TTY_DRIVER_REAL_RAW |
+			TTY_DRIVER_DYNAMIC_DEV | TTY_DRIVER_HARDWARE_BREAK);
+	if (IS_ERR(gsm_tty_driver)) {
+		pr_err("gsm_init: tty allocation failed.\n");
+		status = PTR_ERR(gsm_tty_driver);
+		goto err_unreg_ldisc;
+>>>>>>> upstream/android-13
 	}
 	gsm_tty_driver->driver_name	= "gsmtty";
 	gsm_tty_driver->name		= "gsmtty";
@@ -3238,13 +4076,17 @@ static int __init gsm_init(void)
 	gsm_tty_driver->minor_start	= 0;
 	gsm_tty_driver->type		= TTY_DRIVER_TYPE_SERIAL;
 	gsm_tty_driver->subtype	= SERIAL_TYPE_NORMAL;
+<<<<<<< HEAD
 	gsm_tty_driver->flags	= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV
 						| TTY_DRIVER_HARDWARE_BREAK;
+=======
+>>>>>>> upstream/android-13
 	gsm_tty_driver->init_termios	= tty_std_termios;
 	/* Fixme */
 	gsm_tty_driver->init_termios.c_lflag &= ~ECHO;
 	tty_set_operations(gsm_tty_driver, &gsmtty_ops);
 
+<<<<<<< HEAD
 	spin_lock_init(&gsm_mux_lock);
 
 	if (tty_register_driver(gsm_tty_driver)) {
@@ -3252,20 +4094,40 @@ static int __init gsm_init(void)
 		tty_unregister_ldisc(N_GSM0710);
 		pr_err("gsm_init: tty registration failed.\n");
 		return -EBUSY;
+=======
+	if (tty_register_driver(gsm_tty_driver)) {
+		pr_err("gsm_init: tty registration failed.\n");
+		status = -EBUSY;
+		goto err_put_driver;
+>>>>>>> upstream/android-13
 	}
 	pr_debug("gsm_init: loaded as %d,%d.\n",
 			gsm_tty_driver->major, gsm_tty_driver->minor_start);
 	return 0;
+<<<<<<< HEAD
+=======
+err_put_driver:
+	tty_driver_kref_put(gsm_tty_driver);
+err_unreg_ldisc:
+	tty_unregister_ldisc(&tty_ldisc_packet);
+	return status;
+>>>>>>> upstream/android-13
 }
 
 static void __exit gsm_exit(void)
 {
+<<<<<<< HEAD
 	int status = tty_unregister_ldisc(N_GSM0710);
 	if (status != 0)
 		pr_err("n_gsm: can't unregister line discipline (err = %d)\n",
 								status);
 	tty_unregister_driver(gsm_tty_driver);
 	put_tty_driver(gsm_tty_driver);
+=======
+	tty_unregister_ldisc(&tty_ldisc_packet);
+	tty_unregister_driver(gsm_tty_driver);
+	tty_driver_kref_put(gsm_tty_driver);
+>>>>>>> upstream/android-13
 }
 
 module_init(gsm_init);

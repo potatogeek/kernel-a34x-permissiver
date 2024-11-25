@@ -118,7 +118,10 @@ struct usb_os_desc_table {
 /**
  * struct usb_function - describes one function of a configuration
  * @name: For diagnostics, identifies the function.
+<<<<<<< HEAD
  * @intf_id: Interface ID
+=======
+>>>>>>> upstream/android-13
  * @strings: tables of strings, keyed by identifiers assigned during bind()
  *	and by language IDs provided in control requests
  * @fs_descriptors: Table of full (or low) speed descriptors, using interface and
@@ -164,6 +167,7 @@ struct usb_os_desc_table {
  *	GetStatus() request when the recipient is Interface.
  * @func_suspend: callback to be called when
  *	SetFeature(FUNCTION_SUSPEND) is reseived
+<<<<<<< HEAD
  * @func_is_suspended: Tells whether the function is currently in
  *	Function Suspend state (used in Super Speed mode only).
  * @func_wakeup_allowed: Tells whether Function Remote Wakeup has been allowed
@@ -171,6 +175,8 @@ struct usb_os_desc_table {
  * @func_wakeup_pending: Marks that the function has issued a Function Wakeup
  *	while the USB bus was suspended and therefore a Function Wakeup
  *	notification needs to be sent once the USB bus is resumed.
+=======
+>>>>>>> upstream/android-13
  *
  * A single USB function uses one or more interfaces, and should in most
  * cases support operation at both full and high speeds.  Each function is
@@ -198,7 +204,10 @@ struct usb_os_desc_table {
 
 struct usb_function {
 	const char			*name;
+<<<<<<< HEAD
 	int				intf_id;
+=======
+>>>>>>> upstream/android-13
 	struct usb_gadget_strings	**strings;
 	struct usb_descriptor_header	**fs_descriptors;
 	struct usb_descriptor_header	**hs_descriptors;
@@ -206,11 +215,15 @@ struct usb_function {
 	struct usb_descriptor_header	**ssp_descriptors;
 
 	struct usb_configuration	*config;
+<<<<<<< HEAD
 #ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
 	int (*set_intf_num)(struct usb_function *f,
 			int intf_num, int index_num);
 	int (*set_config_desc)(int conf_num);
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	struct usb_os_desc_table	*os_desc_table;
 	unsigned			os_desc_n;
 
@@ -228,12 +241,15 @@ struct usb_function {
 	void			(*free_func)(struct usb_function *f);
 	struct module		*mod;
 
+<<<<<<< HEAD
 #ifdef CONFIG_USB_CONFIGFS_UEVENT
 	/* Optional function for vendor specific processing */
 	int			(*ctrlrequest)(struct usb_function *,
 					const struct usb_ctrlrequest *);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* runtime state management */
 	int			(*set_alt)(struct usb_function *,
 					unsigned interface, unsigned alt);
@@ -252,9 +268,12 @@ struct usb_function {
 	int			(*get_status)(struct usb_function *);
 	int			(*func_suspend)(struct usb_function *,
 						u8 suspend_opt);
+<<<<<<< HEAD
 	unsigned		func_is_suspended:1;
 	unsigned		func_wakeup_allowed:1;
 	unsigned		func_wakeup_pending:1;
+=======
+>>>>>>> upstream/android-13
 	/* private: */
 	/* internals */
 	struct list_head		list;
@@ -270,9 +289,12 @@ int usb_function_deactivate(struct usb_function *);
 int usb_function_activate(struct usb_function *);
 
 int usb_interface_id(struct usb_configuration *, struct usb_function *);
+<<<<<<< HEAD
 int usb_func_wakeup(struct usb_function *func);
 
 int usb_get_func_interface_id(struct usb_function *func);
+=======
+>>>>>>> upstream/android-13
 
 int config_ep_by_speed_and_alt(struct usb_gadget *g, struct usb_function *f,
 				struct usb_ep *_ep, u8 alt);
@@ -296,7 +318,11 @@ int config_ep_by_speed(struct usb_gadget *g, struct usb_function *f,
  * @bConfigurationValue: Copied into configuration descriptor.
  * @iConfiguration: Copied into configuration descriptor.
  * @bmAttributes: Copied into configuration descriptor.
+<<<<<<< HEAD
  * @MaxPower: Power consumtion in mA. Used to compute bMaxPower in the
+=======
+ * @MaxPower: Power consumption in mA. Used to compute bMaxPower in the
+>>>>>>> upstream/android-13
  *	configuration descriptor after considering the bus speed.
  * @cdev: assigned by @usb_add_config() before calling @bind(); this is
  *	the device associated with this configuration.
@@ -462,7 +488,11 @@ static inline struct usb_composite_driver *to_cdriver(
 #define OS_STRING_IDX			0xEE
 
 /**
+<<<<<<< HEAD
  * struct usb_composite_device - represents one composite usb gadget
+=======
+ * struct usb_composite_dev - represents one composite usb gadget
+>>>>>>> upstream/android-13
  * @gadget: read-only, abstracts the gadget's usb peripheral controller
  * @req: used for control responses; buffer is pre-allocated
  * @os_desc_req: used for OS descriptors responses; buffer is pre-allocated
@@ -550,6 +580,11 @@ extern struct usb_string *usb_gstrings_attach(struct usb_composite_dev *cdev,
 extern int usb_string_ids_n(struct usb_composite_dev *c, unsigned n);
 
 extern void composite_disconnect(struct usb_gadget *gadget);
+<<<<<<< HEAD
+=======
+extern void composite_reset(struct usb_gadget *gadget);
+
+>>>>>>> upstream/android-13
 extern int composite_setup(struct usb_gadget *gadget,
 		const struct usb_ctrlrequest *ctrl);
 extern void composite_suspend(struct usb_gadget *gadget);
@@ -598,8 +633,13 @@ static inline u16 get_default_bcdDevice(void)
 {
 	u16 bcdDevice;
 
+<<<<<<< HEAD
 	bcdDevice = bin2bcd((LINUX_VERSION_CODE >> 16 & 0xff)) << 8;
 	bcdDevice |= bin2bcd((LINUX_VERSION_CODE >> 8 & 0xff));
+=======
+	bcdDevice = bin2bcd(LINUX_VERSION_MAJOR) << 8;
+	bcdDevice |= bin2bcd(LINUX_VERSION_PATCHLEVEL);
+>>>>>>> upstream/android-13
 	return bcdDevice;
 }
 

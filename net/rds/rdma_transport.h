@@ -11,6 +11,15 @@
 
 #define RDS_RDMA_RESOLVE_TIMEOUT_MS     5000
 
+<<<<<<< HEAD
+=======
+/* Below reject reason is for legacy interoperability issue with non-linux
+ * RDS endpoints where older version incompatibility is conveyed via value 1.
+ * For future version(s), proper encoded reject reason should be used.
+ */
+#define RDS_RDMA_REJ_INCOMPAT		1
+
+>>>>>>> upstream/android-13
 int rds_rdma_conn_connect(struct rds_connection *conn);
 int rds_rdma_cm_event_handler(struct rdma_cm_id *cm_id,
 			      struct rdma_cm_event *event);

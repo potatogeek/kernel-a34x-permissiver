@@ -1,15 +1,23 @@
+<<<<<<< HEAD
 /**
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+>>>>>>> upstream/android-13
  * Freecale 85xx and 86xx Global Utilties register set
  *
  * Authors: Jeff Brown
  *          Timur Tabi <timur@freescale.com>
  *
  * Copyright 2004,2007,2012 Freescale Semiconductor, Inc
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __FSL_GUTS_H__
@@ -18,7 +26,11 @@
 #include <linux/types.h>
 #include <linux/io.h>
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Global Utility Registers.
  *
  * Not all registers defined in this structure are available on all chips, so
@@ -135,8 +147,11 @@ struct ccsr_guts {
 	u32	srds2cr1;	/* 0x.0f44 - SerDes2 Control Register 0 */
 } __attribute__ ((packed));
 
+<<<<<<< HEAD
 u32 fsl_guts_get_svr(void);
 
+=======
+>>>>>>> upstream/android-13
 /* Alternate function signal multiplex control */
 #define MPC85xx_PMUXCR_QE(x) (0x8000 >> (x))
 

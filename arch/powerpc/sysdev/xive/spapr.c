@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016,2017 IBM Corporation.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016,2017 IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "xive: " fmt
@@ -20,7 +26,13 @@
 #include <linux/cpumask.h>
 #include <linux/mm.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/libfdt.h>
+
+#include <asm/machdep.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/io.h>
 #include <asm/smp.h>
@@ -29,6 +41,11 @@
 #include <asm/xive.h>
 #include <asm/xive-regs.h>
 #include <asm/hvcall.h>
+<<<<<<< HEAD
+=======
+#include <asm/svm.h>
+#include <asm/ultravisor.h>
+>>>>>>> upstream/android-13
 
 #include "xive-internal.h"
 
@@ -48,7 +65,11 @@ static int xive_irq_bitmap_add(int base, int count)
 {
 	struct xive_irq_bitmap *xibm;
 
+<<<<<<< HEAD
 	xibm = kzalloc(sizeof(*xibm), GFP_ATOMIC);
+=======
+	xibm = kzalloc(sizeof(*xibm), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!xibm)
 		return -ENOMEM;
 
@@ -56,6 +77,13 @@ static int xive_irq_bitmap_add(int base, int count)
 	xibm->base = base;
 	xibm->count = count;
 	xibm->bitmap = kzalloc(xibm->count, GFP_KERNEL);
+<<<<<<< HEAD
+=======
+	if (!xibm->bitmap) {
+		kfree(xibm);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 	list_add(&xibm->list, &xive_irq_bitmaps);
 
 	pr_info("Using IRQ range [%x-%x]", xibm->base,
@@ -214,6 +242,41 @@ static long plpar_int_set_source_config(unsigned long flags,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static long plpar_int_get_source_config(unsigned long flags,
+					unsigned long lisn,
+					unsigned long *target,
+					unsigned long *prio,
+					unsigned long *sw_irq)
+{
+	unsigned long retbuf[PLPAR_HCALL_BUFSIZE];
+	long rc;
+
+	pr_devel("H_INT_GET_SOURCE_CONFIG flags=%lx lisn=%lx\n", flags, lisn);
+
+	do {
+		rc = plpar_hcall(H_INT_GET_SOURCE_CONFIG, retbuf, flags, lisn,
+				 target, prio, sw_irq);
+	} while (plpar_busy_delay(rc));
+
+	if (rc) {
+		pr_err("H_INT_GET_SOURCE_CONFIG lisn=%ld failed %ld\n",
+		       lisn, rc);
+		return rc;
+	}
+
+	*target = retbuf[0];
+	*prio   = retbuf[1];
+	*sw_irq = retbuf[2];
+
+	pr_devel("H_INT_GET_SOURCE_CONFIG target=%lx prio=%lx sw_irq=%lx\n",
+		retbuf[0], retbuf[1], retbuf[2]);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static long plpar_int_get_queue_info(unsigned long flags,
 				     unsigned long target,
 				     unsigned long priority,
@@ -405,6 +468,27 @@ static int xive_spapr_configure_irq(u32 hw_irq, u32 target, u8 prio, u32 sw_irq)
 	return rc == 0 ? 0 : -ENXIO;
 }
 
+<<<<<<< HEAD
+=======
+static int xive_spapr_get_irq_config(u32 hw_irq, u32 *target, u8 *prio,
+				     u32 *sw_irq)
+{
+	long rc;
+	unsigned long h_target;
+	unsigned long h_prio;
+	unsigned long h_sw_irq;
+
+	rc = plpar_int_get_source_config(0, hw_irq, &h_target, &h_prio,
+					 &h_sw_irq);
+
+	*target = h_target;
+	*prio = h_prio;
+	*sw_irq = h_sw_irq;
+
+	return rc == 0 ? 0 : -ENXIO;
+}
+
+>>>>>>> upstream/android-13
 /* This can be called multiple time to change a queue configuration */
 static int xive_spapr_configure_queue(u32 target, struct xive_q *q, u8 prio,
 				   __be32 *qpage, u32 order)
@@ -450,6 +534,12 @@ static int xive_spapr_configure_queue(u32 target, struct xive_q *q, u8 prio,
 		rc = -EIO;
 	} else {
 		q->qpage = qpage;
+<<<<<<< HEAD
+=======
+		if (is_secure_guest())
+			uv_share_page(PHYS_PFN(qpage_phys),
+					1 << xive_alloc_order(order));
+>>>>>>> upstream/android-13
 	}
 fail:
 	return rc;
@@ -483,6 +573,11 @@ static void xive_spapr_cleanup_queue(unsigned int cpu, struct xive_cpu *xc,
 		       hw_cpu, prio);
 
 	alloc_order = xive_alloc_order(xive_queue_shift);
+<<<<<<< HEAD
+=======
+	if (is_secure_guest())
+		uv_unshare_page(PHYS_PFN(__pa(q->qpage)), 1 << alloc_order);
+>>>>>>> upstream/android-13
 	free_pages((unsigned long)q->qpage, alloc_order);
 	q->qpage = NULL;
 }
@@ -490,7 +585,11 @@ static void xive_spapr_cleanup_queue(unsigned int cpu, struct xive_cpu *xc,
 static bool xive_spapr_match(struct device_node *node)
 {
 	/* Ignore cascaded controllers for the moment */
+<<<<<<< HEAD
 	return 1;
+=======
+	return true;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_SMP
@@ -569,11 +668,14 @@ static void xive_spapr_update_pending(struct xive_cpu *xc)
 	}
 }
 
+<<<<<<< HEAD
 static void xive_spapr_eoi(u32 hw_irq)
 {
 	/* Not used */;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void xive_spapr_setup_cpu(unsigned int cpu, struct xive_cpu *xc)
 {
 	/* Only some debug on the TIMA settings */
@@ -594,15 +696,43 @@ static void xive_spapr_sync_source(u32 hw_irq)
 	plpar_int_sync(0, hw_irq);
 }
 
+<<<<<<< HEAD
 static const struct xive_ops xive_spapr_ops = {
 	.populate_irq_data	= xive_spapr_populate_irq_data,
 	.configure_irq		= xive_spapr_configure_irq,
+=======
+static int xive_spapr_debug_show(struct seq_file *m, void *private)
+{
+	struct xive_irq_bitmap *xibm;
+	char *buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+
+	if (!buf)
+		return -ENOMEM;
+
+	list_for_each_entry(xibm, &xive_irq_bitmaps, list) {
+		memset(buf, 0, PAGE_SIZE);
+		bitmap_print_to_pagebuf(true, buf, xibm->bitmap, xibm->count);
+		seq_printf(m, "bitmap #%d: %s", xibm->count, buf);
+	}
+	kfree(buf);
+
+	return 0;
+}
+
+static const struct xive_ops xive_spapr_ops = {
+	.populate_irq_data	= xive_spapr_populate_irq_data,
+	.configure_irq		= xive_spapr_configure_irq,
+	.get_irq_config		= xive_spapr_get_irq_config,
+>>>>>>> upstream/android-13
 	.setup_queue		= xive_spapr_setup_queue,
 	.cleanup_queue		= xive_spapr_cleanup_queue,
 	.match			= xive_spapr_match,
 	.shutdown		= xive_spapr_shutdown,
 	.update_pending		= xive_spapr_update_pending,
+<<<<<<< HEAD
 	.eoi			= xive_spapr_eoi,
+=======
+>>>>>>> upstream/android-13
 	.setup_cpu		= xive_spapr_setup_cpu,
 	.teardown_cpu		= xive_spapr_teardown_cpu,
 	.sync_source		= xive_spapr_sync_source,
@@ -610,6 +740,10 @@ static const struct xive_ops xive_spapr_ops = {
 #ifdef CONFIG_SMP
 	.get_ipi		= xive_spapr_get_ipi,
 	.put_ipi		= xive_spapr_put_ipi,
+<<<<<<< HEAD
+=======
+	.debug_show		= xive_spapr_debug_show,
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SMP */
 	.name			= "spapr",
 };
@@ -671,6 +805,58 @@ static bool xive_get_max_prio(u8 *max_prio)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static const u8 *get_vec5_feature(unsigned int index)
+{
+	unsigned long root, chosen;
+	int size;
+	const u8 *vec5;
+
+	root = of_get_flat_dt_root();
+	chosen = of_get_flat_dt_subnode_by_name(root, "chosen");
+	if (chosen == -FDT_ERR_NOTFOUND)
+		return NULL;
+
+	vec5 = of_get_flat_dt_prop(chosen, "ibm,architecture-vec-5", &size);
+	if (!vec5)
+		return NULL;
+
+	if (size <= index)
+		return NULL;
+
+	return vec5 + index;
+}
+
+static bool __init xive_spapr_disabled(void)
+{
+	const u8 *vec5_xive;
+
+	vec5_xive = get_vec5_feature(OV5_INDX(OV5_XIVE_SUPPORT));
+	if (vec5_xive) {
+		u8 val;
+
+		val = *vec5_xive & OV5_FEAT(OV5_XIVE_SUPPORT);
+		switch (val) {
+		case OV5_FEAT(OV5_XIVE_EITHER):
+		case OV5_FEAT(OV5_XIVE_LEGACY):
+			break;
+		case OV5_FEAT(OV5_XIVE_EXPLOIT):
+			/* Hypervisor only supports XIVE */
+			if (xive_cmdline_disabled)
+				pr_warn("WARNING: Ignoring cmdline option xive=off\n");
+			return false;
+		default:
+			pr_warn("%s: Unknown xive support option: 0x%x\n",
+				__func__, val);
+			break;
+		}
+	}
+
+	return xive_cmdline_disabled;
+}
+
+>>>>>>> upstream/android-13
 bool __init xive_spapr_init(void)
 {
 	struct device_node *np;
@@ -683,7 +869,11 @@ bool __init xive_spapr_init(void)
 	const __be32 *reg;
 	int i;
 
+<<<<<<< HEAD
 	if (xive_cmdline_disabled)
+=======
+	if (xive_spapr_disabled())
+>>>>>>> upstream/android-13
 		return false;
 
 	pr_devel("%s()\n", __func__);
@@ -732,9 +922,18 @@ bool __init xive_spapr_init(void)
 	}
 
 	/* Initialize XIVE core with our backend */
+<<<<<<< HEAD
 	if (!xive_core_init(&xive_spapr_ops, tima, TM_QW1_OS, max_prio))
+=======
+	if (!xive_core_init(np, &xive_spapr_ops, tima, TM_QW1_OS, max_prio))
+>>>>>>> upstream/android-13
 		return false;
 
 	pr_info("Using %dkB queues\n", 1 << (xive_queue_shift - 10));
 	return true;
 }
+<<<<<<< HEAD
+=======
+
+machine_arch_initcall(pseries, xive_core_debug_init);
+>>>>>>> upstream/android-13

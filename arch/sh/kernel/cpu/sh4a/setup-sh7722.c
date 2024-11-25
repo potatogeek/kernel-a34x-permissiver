@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7722 Setup
  *
  *  Copyright (C) 2006 - 2008  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/mm.h>
@@ -21,6 +28,10 @@
 #include <asm/clock.h>
 #include <asm/mmzone.h>
 #include <asm/siu.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 #include <cpu/dma-register.h>
 #include <cpu/sh7722.h>
@@ -515,7 +526,11 @@ static struct platform_device *sh7722_early_devices[] __initdata = {
 
 void __init plat_early_device_setup(void)
 {
+<<<<<<< HEAD
 	early_platform_add_devices(sh7722_early_devices,
+=======
+	sh_early_platform_add_devices(sh7722_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(sh7722_early_devices));
 }
 

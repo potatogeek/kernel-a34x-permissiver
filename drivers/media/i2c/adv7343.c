@@ -428,8 +428,12 @@ done:
 	return pdata;
 }
 
+<<<<<<< HEAD
 static int adv7343_probe(struct i2c_client *client,
 				const struct i2c_device_id *id)
+=======
+static int adv7343_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct adv7343_state *state;
 	int err;
@@ -524,7 +528,11 @@ static struct i2c_driver adv7343_driver = {
 		.of_match_table = of_match_ptr(adv7343_of_match),
 		.name	= "adv7343",
 	},
+<<<<<<< HEAD
 	.probe		= adv7343_probe,
+=======
+	.probe_new	= adv7343_probe,
+>>>>>>> upstream/android-13
 	.remove		= adv7343_remove,
 	.id_table	= adv7343_id,
 };

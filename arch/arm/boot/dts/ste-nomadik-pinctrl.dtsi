@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 ST-Ericsson
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 ST-Ericsson
+>>>>>>> upstream/android-13
  */
 #include <dt-bindings/pinctrl/nomadik.h>
 
@@ -31,6 +37,14 @@
 		ste,output = <OUTPUT_LOW>;
 	};
 
+<<<<<<< HEAD
+=======
+	gpio_in_nopull: gpio_input_nopull {
+		ste,gpio = <GPIOMODE_ENABLED>;
+		ste,input = <INPUT_NOPULL>;
+	};
+
+>>>>>>> upstream/android-13
 	gpio_in_pu: gpio_input_pull_up {
 		ste,gpio = <GPIOMODE_ENABLED>;
 		ste,input = <INPUT_PULLUP>;

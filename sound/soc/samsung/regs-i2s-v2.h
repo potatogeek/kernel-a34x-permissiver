@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* linux/include/asm-arm/plat-s3c24xx/regs-s3c2412-iis.h
  *
  * Copyright 2007 Simtec Electronics <linux@simtec.co.uk>
@@ -9,6 +10,15 @@
  *
  * S3C2412 IIS register definition
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright 2007 Simtec Electronics <linux@simtec.co.uk>
+ *	http://armlinux.simtec.co.uk/
+ *
+ * S3C2412 IIS register definition
+ */
+>>>>>>> upstream/android-13
 
 #ifndef __ASM_ARCH_REGS_S3C2412_IIS_H
 #define __ASM_ARCH_REGS_S3C2412_IIS_H

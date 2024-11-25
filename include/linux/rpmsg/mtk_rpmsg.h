@@ -1,7 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< HEAD
 * Copyright (c) 2019 MediaTek Inc.
 */
+=======
+ * Copyright 2019 Google LLC.
+ */
+>>>>>>> upstream/android-13
 
 #ifndef __LINUX_RPMSG_MTK_RPMSG_H
 #define __LINUX_RPMSG_MTK_RPMSG_H
@@ -35,6 +40,7 @@ mtk_rpmsg_create_rproc_subdev(struct platform_device *pdev,
 
 void mtk_rpmsg_destroy_rproc_subdev(struct rproc_subdev *subdev);
 
+<<<<<<< HEAD
 struct mtk_rpmsg_channel_info {
 	struct rpmsg_channel_info info;
 	//bool registered;
@@ -85,4 +91,6 @@ struct mtk_rpmsg_channel_info *
 mtk_rpmsg_create_channel(struct mtk_rpmsg_device *mdev, u32 chan_id,
 		char *name);
 
+=======
+>>>>>>> upstream/android-13
 #endif

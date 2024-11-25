@@ -28,6 +28,11 @@
  * status of a command.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/mutex.h>
 
@@ -38,6 +43,10 @@
 #include <scsi/scsi_eh.h>
 
 #include "usb.h"
+<<<<<<< HEAD
+=======
+#include <linux/usb/hcd.h>
+>>>>>>> upstream/android-13
 #include "scsiglue.h"
 #include "debug.h"
 #include "transport.h"
@@ -89,6 +98,10 @@ static int slave_alloc (struct scsi_device *sdev)
 static int slave_configure(struct scsi_device *sdev)
 {
 	struct us_data *us = host_to_us(sdev->host);
+<<<<<<< HEAD
+=======
+	struct device *dev = us->pusb_dev->bus->sysdev;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Many devices have trouble transferring more than 32KB at a time,
@@ -119,12 +132,29 @@ static int slave_configure(struct scsi_device *sdev)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Some USB host controllers can't do DMA; they have to use PIO.
 	 * They indicate this by setting their dma_mask to NULL.  For
 	 * such controllers we need to make sure the block layer sets
 	 * up bounce buffers in addressable memory.
 	 */
 	if (!us->pusb_dev->bus->controller->dma_mask)
+=======
+	 * The max_hw_sectors should be up to maximum size of a mapping for
+	 * the device. Otherwise, a DMA API might fail on swiotlb environment.
+	 */
+	blk_queue_max_hw_sectors(sdev->request_queue,
+		min_t(size_t, queue_max_hw_sectors(sdev->request_queue),
+		      dma_max_mapping_size(dev) >> SECTOR_SHIFT));
+
+	/*
+	 * Some USB host controllers can't do DMA; they have to use PIO.
+	 * For such controllers we need to make sure the block layer sets
+	 * up bounce buffers in addressable memory.
+	 */
+	if (!hcd_uses_dma(bus_to_hcd(us->pusb_dev->bus)) ||
+			(bus_to_hcd(us->pusb_dev->bus)->localmem_pool != NULL))
+>>>>>>> upstream/android-13
 		blk_queue_bounce_limit(sdev->request_queue, BLK_BOUNCE_HIGH);
 
 	/*
@@ -185,8 +215,16 @@ static int slave_configure(struct scsi_device *sdev)
 		 */
 		sdev->skip_ms_page_8 = 1;
 
+<<<<<<< HEAD
 		/* Some devices don't handle VPD pages correctly */
 		sdev->skip_vpd_pages = 1;
+=======
+		/*
+		 * Some devices don't handle VPD pages correctly, so skip vpd
+		 * pages if not forced by SCSI layer.
+		 */
+		sdev->skip_vpd_pages = !sdev->try_vpd_pages;
+>>>>>>> upstream/android-13
 
 		/* Do not attempt to use REPORT SUPPORTED OPERATION CODES */
 		sdev->no_report_opcodes = 1;
@@ -283,7 +321,11 @@ static int slave_configure(struct scsi_device *sdev)
 	} else {
 
 		/*
+<<<<<<< HEAD
 		 * Non-disk-type devices don't need to blacklist any pages
+=======
+		 * Non-disk-type devices don't need to ignore any pages
+>>>>>>> upstream/android-13
 		 * or to force 192-byte transfer lengths for MODE SENSE.
 		 * But they do need to use MODE SENSE(10).
 		 */
@@ -364,7 +406,11 @@ static int queuecommand_lck(struct scsi_cmnd *srb,
 
 	/* check for state-transition errors */
 	if (us->srb != NULL) {
+<<<<<<< HEAD
 		printk(KERN_ERR USB_STORAGE "Error in %s: us->srb = %p\n",
+=======
+		pr_err("usb-storage: Error in %s: us->srb = %pK\n",
+>>>>>>> upstream/android-13
 			__func__, us->srb);
 		return SCSI_MLQUEUE_HOST_BUSY;
 	}
@@ -436,7 +482,11 @@ static int command_abort(struct scsi_cmnd *srb)
 
 	usb_stor_dbg(us, "%s called\n", __func__);
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+<<<<<<< HEAD
 	pr_info("usb-storage: %s scsi_lock +\n", __func__);
+=======
+	pr_err("usb-storage: %s scsi_lock +\n", __func__);
+>>>>>>> upstream/android-13
 #endif
 	/*
 	 * us->srb together with the TIMED_OUT, RESETTING, and ABORTING
@@ -449,7 +499,11 @@ static int command_abort(struct scsi_cmnd *srb)
 		scsi_unlock(us_to_host(us));
 		usb_stor_dbg(us, "-- nothing to abort\n");
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+<<<<<<< HEAD
 		pr_info("usb-storage: %s -- nothing to abort -\n",
+=======
+		pr_err("usb-storage: %s -- nothing to abort -\n",
+>>>>>>> upstream/android-13
 				__func__);
 #endif
 		return FAILED;
@@ -469,13 +523,21 @@ static int command_abort(struct scsi_cmnd *srb)
 	}
 	scsi_unlock(us_to_host(us));
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+<<<<<<< HEAD
 	pr_info("usb-storage: %s scsi_unlock\n", __func__);
+=======
+	pr_err("usb-storage: %s scsi_unlock\n", __func__);
+>>>>>>> upstream/android-13
 #endif
 
 	/* Wait for the aborted command to finish */
 	wait_for_completion(&us->notify);
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+<<<<<<< HEAD
 	pr_info("usb-storage: %s -\n", __func__);
+=======
+	pr_err("usb-storage: %s -\n", __func__);
+>>>>>>> upstream/android-13
 #endif
 	return SUCCESS;
 }
@@ -538,13 +600,21 @@ void usb_stor_report_bus_reset(struct us_data *us)
 	struct Scsi_Host *host = us_to_host(us);
 
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+<<<<<<< HEAD
 	pr_info("usb-storage: %s scsi_lock\n", __func__);
+=======
+	pr_err("usb-storage: %s scsi_lock\n", __func__);
+>>>>>>> upstream/android-13
 #endif
 	scsi_lock(host);
 	scsi_report_bus_reset(host, 0);
 	scsi_unlock(host);
 #ifdef CONFIG_USB_DEBUG_DETAILED_LOG
+<<<<<<< HEAD
 	pr_info("usb-storage: %s scsi_unlock\n", __func__);
+=======
+	pr_err("usb-storage: %s scsi_unlock\n", __func__);
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -687,6 +757,7 @@ static const struct scsi_host_template usb_stor_host_template = {
 	 */
 	.max_sectors =                  240,
 
+<<<<<<< HEAD
 	/*
 	 * merge commands... this seems to help performance, but
 	 * periodically someone should test to see which setting is more
@@ -694,6 +765,8 @@ static const struct scsi_host_template usb_stor_host_template = {
 	 */
 	.use_clustering =		1,
 
+=======
+>>>>>>> upstream/android-13
 	/* emulated HBA */
 	.emulated =			1,
 

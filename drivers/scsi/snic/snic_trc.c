@@ -126,7 +126,11 @@ snic_trc_init(void)
 	int tbuf_sz = 0, ret;
 
 	tbuf_sz = (snic_trace_max_pages * PAGE_SIZE);
+<<<<<<< HEAD
 	tbuf = vmalloc(tbuf_sz);
+=======
+	tbuf = vzalloc(tbuf_sz);
+>>>>>>> upstream/android-13
 	if (!tbuf) {
 		SNIC_ERR("Failed to Allocate Trace Buffer Size. %d\n", tbuf_sz);
 		SNIC_ERR("Trace Facility not enabled.\n");
@@ -135,6 +139,7 @@ snic_trc_init(void)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	memset(tbuf, 0, tbuf_sz);
 	trc->buf = (struct snic_trc_data *) tbuf;
 	spin_lock_init(&trc->lock);
@@ -145,6 +150,12 @@ snic_trc_init(void)
 
 		goto error;
 	}
+=======
+	trc->buf = (struct snic_trc_data *) tbuf;
+	spin_lock_init(&trc->lock);
+
+	snic_trc_debugfs_init();
+>>>>>>> upstream/android-13
 
 	trc->max_idx = (tbuf_sz / SNIC_TRC_ENTRY_SZ);
 	trc->rd_idx = trc->wr_idx = 0;
@@ -154,11 +165,14 @@ snic_trc_init(void)
 	ret = 0;
 
 	return ret;
+<<<<<<< HEAD
 
 error:
 	snic_trc_free();
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 } /* end of snic_trc_init */
 
 /*

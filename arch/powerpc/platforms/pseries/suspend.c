@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   * Copyright (C) 2010 Brian King IBM Corporation
   *
@@ -14,6 +15,11 @@
   * You should have received a copy of the GNU General Public License
   * along with this program; if not, write to the Free Software
   * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+  * Copyright (C) 2010 Brian King IBM Corporation
+>>>>>>> upstream/android-13
   */
 
 #include <linux/cpu.h>
@@ -27,11 +33,15 @@
 #include <asm/rtas.h>
 #include <asm/topology.h>
 
+<<<<<<< HEAD
 static u64 stream_id;
 static struct device suspend_dev;
 static DECLARE_COMPLETION(suspend_work);
 static struct rtas_suspend_me_data suspend_data;
 static atomic_t suspending;
+=======
+static struct device suspend_dev;
+>>>>>>> upstream/android-13
 
 /**
  * pseries_suspend_begin - First phase of hibernation
@@ -41,7 +51,11 @@ static atomic_t suspending;
  * Return value:
  * 	0 on success / other on failure
  **/
+<<<<<<< HEAD
 static int pseries_suspend_begin(suspend_state_t state)
+=======
+static int pseries_suspend_begin(u64 stream_id)
+>>>>>>> upstream/android-13
 {
 	long vasi_state, rc;
 	unsigned long retbuf[PLPAR_HCALL_BUFSIZE];
@@ -61,11 +75,15 @@ static int pseries_suspend_begin(suspend_state_t state)
 		       vasi_state);
 		return -EIO;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * pseries_suspend_cpu - Suspend a single CPU
  *
  * Makes the H_JOIN call to suspend the CPU
@@ -94,6 +112,8 @@ static void pseries_suspend_enable_irqs(void)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * pseries_suspend_enter - Final phase of hibernation
  *
  * Return value:
@@ -101,6 +121,7 @@ static void pseries_suspend_enable_irqs(void)
  **/
 static int pseries_suspend_enter(suspend_state_t state)
 {
+<<<<<<< HEAD
 	int rc = rtas_suspend_last_cpu(&suspend_data);
 
 	atomic_set(&suspending, 0);
@@ -123,6 +144,9 @@ static int pseries_prepare_late(void)
 	suspend_data.complete = &suspend_work;
 	reinit_completion(&suspend_work);
 	return 0;
+=======
+	return rtas_ibm_suspend_me(NULL);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -142,12 +166,17 @@ static ssize_t store_hibernate(struct device *dev,
 			       struct device_attribute *attr,
 			       const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	cpumask_var_t offline_mask;
+=======
+	u64 stream_id;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
 
+<<<<<<< HEAD
 	if (!alloc_cpumask_var(&offline_mask, GFP_KERNEL))
 		return -ENOMEM;
 
@@ -155,10 +184,17 @@ static ssize_t store_hibernate(struct device *dev,
 
 	do {
 		rc = pseries_suspend_begin(PM_SUSPEND_MEM);
+=======
+	stream_id = simple_strtoul(buf, NULL, 16);
+
+	do {
+		rc = pseries_suspend_begin(stream_id);
+>>>>>>> upstream/android-13
 		if (rc == -EAGAIN)
 			ssleep(1);
 	} while (rc == -EAGAIN);
 
+<<<<<<< HEAD
 	if (!rc) {
 		/* All present CPUs must be online */
 		cpumask_andnot(offline_mask, cpu_present_mask,
@@ -186,6 +222,17 @@ static ssize_t store_hibernate(struct device *dev,
 		rc = count;
 out:
 	free_cpumask_var(offline_mask);
+=======
+	if (!rc)
+		rc = pm_suspend(PM_SUSPEND_MEM);
+
+	if (!rc) {
+		rc = count;
+		post_mobility_fixup();
+	}
+
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -220,7 +267,10 @@ static struct bus_type suspend_subsys = {
 
 static const struct platform_suspend_ops pseries_suspend_ops = {
 	.valid		= suspend_valid_only_mem,
+<<<<<<< HEAD
 	.prepare_late	= pseries_prepare_late,
+=======
+>>>>>>> upstream/android-13
 	.enter		= pseries_suspend_enter,
 };
 
@@ -263,6 +313,7 @@ static int __init pseries_suspend_init(void)
 	if (!firmware_has_feature(FW_FEATURE_LPAR))
 		return 0;
 
+<<<<<<< HEAD
 	suspend_data.token = rtas_token("ibm,suspend-me");
 	if (suspend_data.token == RTAS_UNKNOWN_SERVICE)
 		return 0;
@@ -272,6 +323,11 @@ static int __init pseries_suspend_init(void)
 
 	ppc_md.suspend_disable_cpu = pseries_suspend_cpu;
 	ppc_md.suspend_enable_irqs = pseries_suspend_enable_irqs;
+=======
+	if ((rc = pseries_suspend_sysfs_register(&suspend_dev)))
+		return rc;
+
+>>>>>>> upstream/android-13
 	suspend_set_ops(&pseries_suspend_ops);
 	return 0;
 }

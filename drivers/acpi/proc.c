@@ -10,26 +10,41 @@
 #include "sleep.h"
 #include "internal.h"
 
+<<<<<<< HEAD
 #define _COMPONENT		ACPI_SYSTEM_COMPONENT
 
+=======
+>>>>>>> upstream/android-13
 /*
  * this file provides support for:
  * /proc/acpi/wakeup
  */
 
+<<<<<<< HEAD
 ACPI_MODULE_NAME("sleep")
 
 static int
 acpi_system_wakeup_device_seq_show(struct seq_file *seq, void *offset)
 {
 	struct list_head *node, *next;
+=======
+static int
+acpi_system_wakeup_device_seq_show(struct seq_file *seq, void *offset)
+{
+	struct acpi_device *dev, *tmp;
+>>>>>>> upstream/android-13
 
 	seq_printf(seq, "Device\tS-state\t  Status   Sysfs node\n");
 
 	mutex_lock(&acpi_device_lock);
+<<<<<<< HEAD
 	list_for_each_safe(node, next, &acpi_wakeup_device_list) {
 		struct acpi_device *dev =
 		    container_of(node, struct acpi_device, wakeup_list);
+=======
+	list_for_each_entry_safe(dev, tmp, &acpi_wakeup_device_list,
+				 wakeup_list) {
+>>>>>>> upstream/android-13
 		struct acpi_device_physical_node *entry;
 
 		if (!dev->wakeup.flags.valid)
@@ -96,7 +111,11 @@ acpi_system_write_wakeup_device(struct file *file,
 				const char __user * buffer,
 				size_t count, loff_t * ppos)
 {
+<<<<<<< HEAD
 	struct list_head *node, *next;
+=======
+	struct acpi_device *dev, *tmp;
+>>>>>>> upstream/android-13
 	char strbuf[5];
 	char str[5] = "";
 
@@ -109,9 +128,14 @@ acpi_system_write_wakeup_device(struct file *file,
 	sscanf(strbuf, "%s", str);
 
 	mutex_lock(&acpi_device_lock);
+<<<<<<< HEAD
 	list_for_each_safe(node, next, &acpi_wakeup_device_list) {
 		struct acpi_device *dev =
 		    container_of(node, struct acpi_device, wakeup_list);
+=======
+	list_for_each_entry_safe(dev, tmp, &acpi_wakeup_device_list,
+				 wakeup_list) {
+>>>>>>> upstream/android-13
 		if (!dev->wakeup.flags.valid)
 			continue;
 
@@ -136,6 +160,7 @@ acpi_system_wakeup_device_open_fs(struct inode *inode, struct file *file)
 			   PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations acpi_system_wakeup_device_fops = {
 	.owner = THIS_MODULE,
 	.open = acpi_system_wakeup_device_open_fs,
@@ -143,11 +168,23 @@ static const struct file_operations acpi_system_wakeup_device_fops = {
 	.write = acpi_system_write_wakeup_device,
 	.llseek = seq_lseek,
 	.release = single_release,
+=======
+static const struct proc_ops acpi_system_wakeup_device_proc_ops = {
+	.proc_open	= acpi_system_wakeup_device_open_fs,
+	.proc_read	= seq_read,
+	.proc_write	= acpi_system_write_wakeup_device,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 void __init acpi_sleep_proc_init(void)
 {
 	/* 'wakeup device' [R/W] */
 	proc_create("wakeup", S_IFREG | S_IRUGO | S_IWUSR,
+<<<<<<< HEAD
 		    acpi_root_dir, &acpi_system_wakeup_device_fops);
+=======
+		    acpi_root_dir, &acpi_system_wakeup_device_proc_ops);
+>>>>>>> upstream/android-13
 }

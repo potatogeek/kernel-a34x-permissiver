@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenRISC ioremap.c
  *
@@ -8,20 +12,30 @@
  * Modifications for the OpenRISC architecture:
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/kmap_types.h>
 #include <asm/fixmap.h>
 #include <asm/bug.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/pgalloc.h>
+#include <asm/fixmap.h>
+#include <asm/bug.h>
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <asm/tlbflush.h>
 
@@ -38,8 +52,12 @@ static unsigned int fixmaps_used __initdata;
  * have to convert them into an offset in a page-aligned mapping, but the
  * caller shouldn't need to know that small detail.
  */
+<<<<<<< HEAD
 void __iomem *__ref
 __ioremap(phys_addr_t addr, unsigned long size, pgprot_t prot)
+=======
+void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
+>>>>>>> upstream/android-13
 {
 	phys_addr_t p;
 	unsigned long v;
@@ -70,7 +88,12 @@ __ioremap(phys_addr_t addr, unsigned long size, pgprot_t prot)
 		fixmaps_used += (size >> PAGE_SHIFT);
 	}
 
+<<<<<<< HEAD
 	if (ioremap_page_range(v, v + size, p, prot)) {
+=======
+	if (ioremap_page_range(v, v + size, p,
+			__pgprot(pgprot_val(PAGE_KERNEL) | _PAGE_CI))) {
+>>>>>>> upstream/android-13
 		if (likely(mem_init_done))
 			vfree(area->addr);
 		else
@@ -80,9 +103,15 @@ __ioremap(phys_addr_t addr, unsigned long size, pgprot_t prot)
 
 	return (void __iomem *)(offset + (char *)v);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__ioremap);
 
 void iounmap(void *addr)
+=======
+EXPORT_SYMBOL(ioremap);
+
+void iounmap(void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	/* If the page is from the fixmap pool then we just clear out
 	 * the fixmap mapping.
@@ -118,12 +147,17 @@ EXPORT_SYMBOL(iounmap);
  * the memblock infrastructure.
  */
 
+<<<<<<< HEAD
 pte_t __ref *pte_alloc_one_kernel(struct mm_struct *mm,
 					 unsigned long address)
+=======
+pte_t __ref *pte_alloc_one_kernel(struct mm_struct *mm)
+>>>>>>> upstream/android-13
 {
 	pte_t *pte;
 
 	if (likely(mem_init_done)) {
+<<<<<<< HEAD
 		pte = (pte_t *) __get_free_page(GFP_KERNEL);
 	} else {
 		pte = (pte_t *) __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
@@ -131,5 +165,15 @@ pte_t __ref *pte_alloc_one_kernel(struct mm_struct *mm,
 
 	if (pte)
 		clear_page(pte);
+=======
+		pte = (pte_t *)get_zeroed_page(GFP_KERNEL);
+	} else {
+		pte = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+		if (!pte)
+			panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+			      __func__, PAGE_SIZE, PAGE_SIZE);
+	}
+
+>>>>>>> upstream/android-13
 	return pte;
 }

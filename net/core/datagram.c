@@ -51,6 +51,10 @@
 #include <linux/slab.h>
 #include <linux/pagemap.h>
 #include <linux/uio.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 
 #include <net/protocol.h>
 #include <linux/skbuff.h>
@@ -61,6 +65,11 @@
 #include <trace/events/skb.h>
 #include <net/busy_poll.h>
 
+<<<<<<< HEAD
+=======
+#include "datagram.h"
+
+>>>>>>> upstream/android-13
 /*
  *	Is a socket 'connection oriented' ?
  */
@@ -82,7 +91,12 @@ static int receiver_wake_function(wait_queue_entry_t *wait, unsigned int mode, i
 /*
  * Wait for the last received packet to be different from skb
  */
+<<<<<<< HEAD
 int __skb_wait_for_more_packets(struct sock *sk, int *err, long *timeo_p,
+=======
+int __skb_wait_for_more_packets(struct sock *sk, struct sk_buff_head *queue,
+				int *err, long *timeo_p,
+>>>>>>> upstream/android-13
 				const struct sk_buff *skb)
 {
 	int error;
@@ -95,7 +109,11 @@ int __skb_wait_for_more_packets(struct sock *sk, int *err, long *timeo_p,
 	if (error)
 		goto out_err;
 
+<<<<<<< HEAD
 	if (READ_ONCE(sk->sk_receive_queue.prev) != skb)
+=======
+	if (READ_ONCE(queue->prev) != skb)
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* Socket shut down? */
@@ -163,9 +181,13 @@ done:
 struct sk_buff *__skb_try_recv_from_queue(struct sock *sk,
 					  struct sk_buff_head *queue,
 					  unsigned int flags,
+<<<<<<< HEAD
 					  void (*destructor)(struct sock *sk,
 							   struct sk_buff *skb),
 					  int *peeked, int *off, int *err,
+=======
+					  int *off, int *err,
+>>>>>>> upstream/android-13
 					  struct sk_buff **last)
 {
 	bool peek_at_off = false;
@@ -192,12 +214,18 @@ struct sk_buff *__skb_try_recv_from_queue(struct sock *sk,
 					return NULL;
 				}
 			}
+<<<<<<< HEAD
 			*peeked = 1;
 			refcount_inc(&skb->users);
 		} else {
 			__skb_unlink(skb, queue);
 			if (destructor)
 				destructor(sk, skb);
+=======
+			refcount_inc(&skb->users);
+		} else {
+			__skb_unlink(skb, queue);
+>>>>>>> upstream/android-13
 		}
 		*off = _off;
 		return skb;
@@ -208,9 +236,14 @@ struct sk_buff *__skb_try_recv_from_queue(struct sock *sk,
 /**
  *	__skb_try_recv_datagram - Receive a datagram skbuff
  *	@sk: socket
+<<<<<<< HEAD
  *	@flags: MSG\_ flags
  *	@destructor: invoked under the receive lock on successful dequeue
  *	@peeked: returns non-zero if this packet has been seen before
+=======
+ *	@queue: socket queue from which to receive
+ *	@flags: MSG\_ flags
+>>>>>>> upstream/android-13
  *	@off: an offset in bytes to peek skb from. Returns an offset
  *	      within an skb where data actually starts
  *	@err: error code returned
@@ -241,6 +274,7 @@ struct sk_buff *__skb_try_recv_from_queue(struct sock *sk,
  *	quite explicitly by POSIX 1003.1g, don't change them without having
  *	the standard around please.
  */
+<<<<<<< HEAD
 struct sk_buff *__skb_try_recv_datagram(struct sock *sk, unsigned int flags,
 					void (*destructor)(struct sock *sk,
 							   struct sk_buff *skb),
@@ -248,6 +282,13 @@ struct sk_buff *__skb_try_recv_datagram(struct sock *sk, unsigned int flags,
 					struct sk_buff **last)
 {
 	struct sk_buff_head *queue = &sk->sk_receive_queue;
+=======
+struct sk_buff *__skb_try_recv_datagram(struct sock *sk,
+					struct sk_buff_head *queue,
+					unsigned int flags, int *off, int *err,
+					struct sk_buff **last)
+{
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	unsigned long cpu_flags;
 	/*
@@ -258,7 +299,10 @@ struct sk_buff *__skb_try_recv_datagram(struct sock *sk, unsigned int flags,
 	if (error)
 		goto no_packet;
 
+<<<<<<< HEAD
 	*peeked = 0;
+=======
+>>>>>>> upstream/android-13
 	do {
 		/* Again only user level code calls this function, so nothing
 		 * interrupt level will suddenly eat the receive_queue.
@@ -267,8 +311,13 @@ struct sk_buff *__skb_try_recv_datagram(struct sock *sk, unsigned int flags,
 		 * However, this function was correct in any case. 8)
 		 */
 		spin_lock_irqsave(&queue->lock, cpu_flags);
+<<<<<<< HEAD
 		skb = __skb_try_recv_from_queue(sk, queue, flags, destructor,
 						peeked, off, &error, last);
+=======
+		skb = __skb_try_recv_from_queue(sk, queue, flags, off, &error,
+						last);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&queue->lock, cpu_flags);
 		if (error)
 			goto no_packet;
@@ -279,7 +328,11 @@ struct sk_buff *__skb_try_recv_datagram(struct sock *sk, unsigned int flags,
 			break;
 
 		sk_busy_loop(sk, flags & MSG_DONTWAIT);
+<<<<<<< HEAD
 	} while (READ_ONCE(sk->sk_receive_queue.prev) != *last);
+=======
+	} while (READ_ONCE(queue->prev) != *last);
+>>>>>>> upstream/android-13
 
 	error = -EAGAIN;
 
@@ -289,10 +342,16 @@ no_packet:
 }
 EXPORT_SYMBOL(__skb_try_recv_datagram);
 
+<<<<<<< HEAD
 struct sk_buff *__skb_recv_datagram(struct sock *sk, unsigned int flags,
 				    void (*destructor)(struct sock *sk,
 						       struct sk_buff *skb),
 				    int *peeked, int *off, int *err)
+=======
+struct sk_buff *__skb_recv_datagram(struct sock *sk,
+				    struct sk_buff_head *sk_queue,
+				    unsigned int flags, int *off, int *err)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb, *last;
 	long timeo;
@@ -300,15 +359,25 @@ struct sk_buff *__skb_recv_datagram(struct sock *sk, unsigned int flags,
 	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
 
 	do {
+<<<<<<< HEAD
 		skb = __skb_try_recv_datagram(sk, flags, destructor, peeked,
 					      off, err, &last);
+=======
+		skb = __skb_try_recv_datagram(sk, sk_queue, flags, off, err,
+					      &last);
+>>>>>>> upstream/android-13
 		if (skb)
 			return skb;
 
 		if (*err != -EAGAIN)
 			break;
 	} while (timeo &&
+<<<<<<< HEAD
 		!__skb_wait_for_more_packets(sk, err, &timeo, last));
+=======
+		 !__skb_wait_for_more_packets(sk, sk_queue, err,
+					      &timeo, last));
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
@@ -317,10 +386,18 @@ EXPORT_SYMBOL(__skb_recv_datagram);
 struct sk_buff *skb_recv_datagram(struct sock *sk, unsigned int flags,
 				  int noblock, int *err)
 {
+<<<<<<< HEAD
 	int peeked, off = 0;
 
 	return __skb_recv_datagram(sk, flags | (noblock ? MSG_DONTWAIT : 0),
 				   NULL, &peeked, &off, err);
+=======
+	int off = 0;
+
+	return __skb_recv_datagram(sk, &sk->sk_receive_queue,
+				   flags | (noblock ? MSG_DONTWAIT : 0),
+				   &off, err);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(skb_recv_datagram);
 
@@ -408,6 +485,7 @@ int skb_kill_datagram(struct sock *sk, struct sk_buff *skb, unsigned int flags)
 }
 EXPORT_SYMBOL(skb_kill_datagram);
 
+<<<<<<< HEAD
 /**
  *	skb_copy_datagram_iter - Copy a datagram to an iovec iterator.
  *	@skb: buffer to copy
@@ -417,18 +495,37 @@ EXPORT_SYMBOL(skb_kill_datagram);
  */
 int skb_copy_datagram_iter(const struct sk_buff *skb, int offset,
 			   struct iov_iter *to, int len)
+=======
+INDIRECT_CALLABLE_DECLARE(static size_t simple_copy_to_iter(const void *addr,
+						size_t bytes,
+						void *data __always_unused,
+						struct iov_iter *i));
+
+static int __skb_datagram_iter(const struct sk_buff *skb, int offset,
+			       struct iov_iter *to, int len, bool fault_short,
+			       size_t (*cb)(const void *, size_t, void *,
+					    struct iov_iter *), void *data)
+>>>>>>> upstream/android-13
 {
 	int start = skb_headlen(skb);
 	int i, copy = start - offset, start_off = offset, n;
 	struct sk_buff *frag_iter;
 
+<<<<<<< HEAD
 	trace_skb_copy_datagram_iovec(skb, len);
 
+=======
+>>>>>>> upstream/android-13
 	/* Copy header. */
 	if (copy > 0) {
 		if (copy > len)
 			copy = len;
+<<<<<<< HEAD
 		n = copy_to_iter(skb->data + offset, copy, to);
+=======
+		n = INDIRECT_CALL_1(cb, simple_copy_to_iter,
+				    skb->data + offset, copy, data, to);
+>>>>>>> upstream/android-13
 		offset += n;
 		if (n != copy)
 			goto short_copy;
@@ -445,11 +542,23 @@ int skb_copy_datagram_iter(const struct sk_buff *skb, int offset,
 
 		end = start + skb_frag_size(frag);
 		if ((copy = end - offset) > 0) {
+<<<<<<< HEAD
 			if (copy > len)
 				copy = len;
 			n = copy_page_to_iter(skb_frag_page(frag),
 					      frag->page_offset + offset -
 					      start, copy, to);
+=======
+			struct page *page = skb_frag_page(frag);
+			u8 *vaddr = kmap(page);
+
+			if (copy > len)
+				copy = len;
+			n = INDIRECT_CALL_1(cb, simple_copy_to_iter,
+					vaddr + skb_frag_off(frag) + offset - start,
+					copy, data, to);
+			kunmap(page);
+>>>>>>> upstream/android-13
 			offset += n;
 			if (n != copy)
 				goto short_copy;
@@ -468,8 +577,13 @@ int skb_copy_datagram_iter(const struct sk_buff *skb, int offset,
 		if ((copy = end - offset) > 0) {
 			if (copy > len)
 				copy = len;
+<<<<<<< HEAD
 			if (skb_copy_datagram_iter(frag_iter, offset - start,
 						   to, copy))
+=======
+			if (__skb_datagram_iter(frag_iter, offset - start,
+						to, copy, fault_short, cb, data))
+>>>>>>> upstream/android-13
 				goto fault;
 			if ((len -= copy) == 0)
 				return 0;
@@ -490,11 +604,57 @@ fault:
 	return -EFAULT;
 
 short_copy:
+<<<<<<< HEAD
 	if (iov_iter_count(to))
+=======
+	if (fault_short || iov_iter_count(to))
+>>>>>>> upstream/android-13
 		goto fault;
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+/**
+ *	skb_copy_and_hash_datagram_iter - Copy datagram to an iovec iterator
+ *          and update a hash.
+ *	@skb: buffer to copy
+ *	@offset: offset in the buffer to start copying from
+ *	@to: iovec iterator to copy to
+ *	@len: amount of data to copy from buffer to iovec
+ *      @hash: hash request to update
+ */
+int skb_copy_and_hash_datagram_iter(const struct sk_buff *skb, int offset,
+			   struct iov_iter *to, int len,
+			   struct ahash_request *hash)
+{
+	return __skb_datagram_iter(skb, offset, to, len, true,
+			hash_and_copy_to_iter, hash);
+}
+EXPORT_SYMBOL(skb_copy_and_hash_datagram_iter);
+
+static size_t simple_copy_to_iter(const void *addr, size_t bytes,
+		void *data __always_unused, struct iov_iter *i)
+{
+	return copy_to_iter(addr, bytes, i);
+}
+
+/**
+ *	skb_copy_datagram_iter - Copy a datagram to an iovec iterator.
+ *	@skb: buffer to copy
+ *	@offset: offset in the buffer to start copying from
+ *	@to: iovec iterator to copy to
+ *	@len: amount of data to copy from buffer to iovec
+ */
+int skb_copy_datagram_iter(const struct sk_buff *skb, int offset,
+			   struct iov_iter *to, int len)
+{
+	trace_skb_copy_datagram_iovec(skb, len);
+	return __skb_datagram_iter(skb, offset, to, len, false,
+			simple_copy_to_iter, NULL);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(skb_copy_datagram_iter);
 
 /**
@@ -539,7 +699,11 @@ int skb_copy_datagram_from_iter(struct sk_buff *skb, int offset,
 			if (copy > len)
 				copy = len;
 			copied = copy_page_from_iter(skb_frag_page(frag),
+<<<<<<< HEAD
 					  frag->page_offset + offset - start,
+=======
+					  skb_frag_off(frag) + offset - start,
+>>>>>>> upstream/android-13
 					  copy, from);
 			if (copied != copy)
 				goto fault;
@@ -585,10 +749,18 @@ int __zerocopy_sg_from_iter(struct sock *sk, struct sk_buff *skb,
 
 	while (length && iov_iter_count(from)) {
 		struct page *pages[MAX_SKB_FRAGS];
+<<<<<<< HEAD
 		size_t start;
 		ssize_t copied;
 		unsigned long truesize;
 		int n = 0;
+=======
+		struct page *last_head = NULL;
+		size_t start;
+		ssize_t copied;
+		unsigned long truesize;
+		int refs, n = 0;
+>>>>>>> upstream/android-13
 
 		if (frag == MAX_SKB_FRAGS)
 			return -EMSGSIZE;
@@ -606,11 +778,16 @@ int __zerocopy_sg_from_iter(struct sock *sk, struct sk_buff *skb,
 		skb->len += copied;
 		skb->truesize += truesize;
 		if (sk && sk->sk_type == SOCK_STREAM) {
+<<<<<<< HEAD
 			sk->sk_wmem_queued += truesize;
+=======
+			sk_wmem_queued_add(sk, truesize);
+>>>>>>> upstream/android-13
 			sk_mem_charge(sk, truesize);
 		} else {
 			refcount_add(truesize, &skb->sk->sk_wmem_alloc);
 		}
+<<<<<<< HEAD
 		while (copied) {
 			int size = min_t(int, copied, PAGE_SIZE - start);
 			skb_fill_page_desc(skb, frag++, pages[n], start, size);
@@ -618,6 +795,39 @@ int __zerocopy_sg_from_iter(struct sock *sk, struct sk_buff *skb,
 			copied -= size;
 			n++;
 		}
+=======
+		for (refs = 0; copied != 0; start = 0) {
+			int size = min_t(int, copied, PAGE_SIZE - start);
+			struct page *head = compound_head(pages[n]);
+
+			start += (pages[n] - head) << PAGE_SHIFT;
+			copied -= size;
+			n++;
+			if (frag) {
+				skb_frag_t *last = &skb_shinfo(skb)->frags[frag - 1];
+
+				if (head == skb_frag_page(last) &&
+				    start == skb_frag_off(last) + skb_frag_size(last)) {
+					skb_frag_size_add(last, size);
+					/* We combined this page, we need to release
+					 * a reference. Since compound pages refcount
+					 * is shared among many pages, batch the refcount
+					 * adjustments to limit false sharing.
+					 */
+					last_head = head;
+					refs++;
+					continue;
+				}
+			}
+			if (refs) {
+				page_ref_sub(last_head, refs);
+				refs = 0;
+			}
+			skb_fill_page_desc(skb, frag++, head, start, size);
+		}
+		if (refs)
+			page_ref_sub(last_head, refs);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -645,10 +855,23 @@ int zerocopy_sg_from_iter(struct sk_buff *skb, struct iov_iter *from)
 }
 EXPORT_SYMBOL(zerocopy_sg_from_iter);
 
+<<<<<<< HEAD
+=======
+/**
+ *	skb_copy_and_csum_datagram - Copy datagram to an iovec iterator
+ *          and update a checksum.
+ *	@skb: buffer to copy
+ *	@offset: offset in the buffer to start copying from
+ *	@to: iovec iterator to copy to
+ *	@len: amount of data to copy from buffer to iovec
+ *      @csump: checksum pointer
+ */
+>>>>>>> upstream/android-13
 static int skb_copy_and_csum_datagram(const struct sk_buff *skb, int offset,
 				      struct iov_iter *to, int len,
 				      __wsum *csump)
 {
+<<<<<<< HEAD
 	int start = skb_headlen(skb);
 	int i, copy = start - offset, start_off = offset;
 	struct sk_buff *frag_iter;
@@ -771,6 +994,20 @@ __sum16 __skb_checksum_complete(struct sk_buff *skb)
 }
 EXPORT_SYMBOL(__skb_checksum_complete);
 
+=======
+	struct csum_state csdata = { .csum = *csump };
+	int ret;
+
+	ret = __skb_datagram_iter(skb, offset, to, len, true,
+				  csum_and_copy_to_iter, &csdata);
+	if (ret)
+		return ret;
+
+	*csump = csdata.csum;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  *	skb_copy_and_csum_datagram_msg - Copy and checksum skb to user iovec.
  *	@skb: skbuff
@@ -810,7 +1047,11 @@ int skb_copy_and_csum_datagram_msg(struct sk_buff *skb,
 
 		if (unlikely(skb->ip_summed == CHECKSUM_COMPLETE) &&
 		    !skb->csum_complete_sw)
+<<<<<<< HEAD
 			netdev_rx_csum_fault(NULL);
+=======
+			netdev_rx_csum_fault(NULL, skb);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 fault:

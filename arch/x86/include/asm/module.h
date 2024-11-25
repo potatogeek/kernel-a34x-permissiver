@@ -13,6 +13,7 @@ struct mod_arch_specific {
 #endif
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 /* X86_64 does not define MODULE_PROC_FAMILY */
 #elif defined CONFIG_M486
@@ -71,4 +72,6 @@ struct mod_arch_specific {
 # define MODULE_ARCH_VERMAGIC MODULE_PROC_FAMILY
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_MODULE_H */

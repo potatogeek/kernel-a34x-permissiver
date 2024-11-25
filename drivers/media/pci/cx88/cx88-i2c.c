@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /*
  *
@@ -7,6 +11,7 @@
  *			   & Marcus Metzler (mocm@thp.uni-koeln.de)
  * (c) 2002 Yurij Sysoev <yurij@naturesoft.net>
  * (c) 1999-2003 Gerd Knorr <kraxel@bytesex.org>
+<<<<<<< HEAD
  *
  * (c) 2005 Mauro Carvalho Chehab <mchehab@kernel.org>
  *	- Multituner support and i2c address binding
@@ -20,6 +25,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+ * (c) 2005 Mauro Carvalho Chehab <mchehab@kernel.org>
+ *	- Multituner support and i2c address binding
+>>>>>>> upstream/android-13
  */
 
 #include "cx88.h"
@@ -140,14 +149,22 @@ int cx88_i2c_init(struct cx88_core *core, struct pci_dev *pci)
 	core->i2c_algo = cx8800_i2c_algo_template;
 
 	core->i2c_adap.dev.parent = &pci->dev;
+<<<<<<< HEAD
 	strlcpy(core->i2c_adap.name, core->name, sizeof(core->i2c_adap.name));
+=======
+	strscpy(core->i2c_adap.name, core->name, sizeof(core->i2c_adap.name));
+>>>>>>> upstream/android-13
 	core->i2c_adap.owner = THIS_MODULE;
 	core->i2c_algo.udelay = i2c_udelay;
 	core->i2c_algo.data = core;
 	i2c_set_adapdata(&core->i2c_adap, &core->v4l2_dev);
 	core->i2c_adap.algo_data = &core->i2c_algo;
 	core->i2c_client.adapter = &core->i2c_adap;
+<<<<<<< HEAD
 	strlcpy(core->i2c_client.name, "cx88xx internal", I2C_NAME_SIZE);
+=======
+	strscpy(core->i2c_client.name, "cx88xx internal", I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 
 	cx8800_bit_setscl(core, 1);
 	cx8800_bit_setsda(core, 1);

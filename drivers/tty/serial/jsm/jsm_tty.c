@@ -187,6 +187,10 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
 
 static int jsm_tty_open(struct uart_port *port)
 {
+<<<<<<< HEAD
+=======
+	unsigned long lock_flags;
+>>>>>>> upstream/android-13
 	struct jsm_board *brd;
 	struct jsm_channel *channel =
 		container_of(port, struct jsm_channel, uart_port);
@@ -240,6 +244,10 @@ static int jsm_tty_open(struct uart_port *port)
 	channel->ch_cached_lsr = 0;
 	channel->ch_stops_sent = 0;
 
+<<<<<<< HEAD
+=======
+	spin_lock_irqsave(&port->lock, lock_flags);
+>>>>>>> upstream/android-13
 	termios = &port->state->port.tty->termios;
 	channel->ch_c_cflag	= termios->c_cflag;
 	channel->ch_c_iflag	= termios->c_iflag;
@@ -259,6 +267,10 @@ static int jsm_tty_open(struct uart_port *port)
 	jsm_carrier(channel);
 
 	channel->ch_open_count++;
+<<<<<<< HEAD
+=======
+	spin_unlock_irqrestore(&port->lock, lock_flags);
+>>>>>>> upstream/android-13
 
 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
 	return 0;
@@ -603,6 +615,7 @@ void jsm_input(struct jsm_channel *ch)
 
 		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
 			for (i = 0; i < s; i++) {
+<<<<<<< HEAD
 				/*
 				 * Give the Linux ld the flags in the
 				 * format it likes.
@@ -615,6 +628,24 @@ void jsm_input(struct jsm_channel *ch)
 					tty_insert_flip_char(port, *(ch->ch_rqueue +tail +i), TTY_FRAME);
 				else
 					tty_insert_flip_char(port, *(ch->ch_rqueue +tail +i), TTY_NORMAL);
+=======
+				u8 chr   = ch->ch_rqueue[tail + i];
+				u8 error = ch->ch_equeue[tail + i];
+				char flag = TTY_NORMAL;
+
+				/*
+				 * Give the Linux ld the flags in the format it
+				 * likes.
+				 */
+				if (error & UART_LSR_BI)
+					flag = TTY_BREAK;
+				else if (error & UART_LSR_PE)
+					flag = TTY_PARITY;
+				else if (error & UART_LSR_FE)
+					flag = TTY_FRAME;
+
+				tty_insert_flip_char(port, chr, flag);
+>>>>>>> upstream/android-13
 			}
 		} else {
 			tty_insert_flip_string(port, ch->ch_rqueue + tail, s);

@@ -92,6 +92,10 @@ static void display_openssl_errors(int l)
 	}
 }
 
+<<<<<<< HEAD
+=======
+#ifndef OPENSSL_NO_ENGINE
+>>>>>>> upstream/android-13
 static void drain_openssl_errors(void)
 {
 	const char *file;
@@ -101,6 +105,10 @@ static void drain_openssl_errors(void)
 		return;
 	while (ERR_get_error_line(&file, &line)) {}
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #define ERR(cond, fmt, ...)				\
 	do {						\
@@ -135,7 +143,13 @@ static int pem_pw_cb(char *buf, int len, int w, void *v)
 static EVP_PKEY *read_private_key(const char *private_key_name)
 {
 	EVP_PKEY *private_key;
+<<<<<<< HEAD
 
+=======
+	BIO *b;
+
+#ifndef OPENSSL_NO_ENGINE
+>>>>>>> upstream/android-13
 	if (!strncmp(private_key_name, "pkcs11:", 7)) {
 		ENGINE *e;
 
@@ -153,6 +167,7 @@ static EVP_PKEY *read_private_key(const char *private_key_name)
 		private_key = ENGINE_load_private_key(e, private_key_name,
 						      NULL, NULL);
 		ERR(!private_key, "%s", private_key_name);
+<<<<<<< HEAD
 	} else {
 		BIO *b;
 
@@ -164,6 +179,18 @@ static EVP_PKEY *read_private_key(const char *private_key_name)
 		BIO_free(b);
 	}
 
+=======
+		return private_key;
+	}
+#endif
+
+	b = BIO_new_file(private_key_name, "rb");
+	ERR(!b, "%s", private_key_name);
+	private_key = PEM_read_bio_PrivateKey(b, NULL, pem_pw_cb,
+					      NULL);
+	ERR(!private_key, "%s", private_key_name);
+	BIO_free(b);
+>>>>>>> upstream/android-13
 	return private_key;
 }
 

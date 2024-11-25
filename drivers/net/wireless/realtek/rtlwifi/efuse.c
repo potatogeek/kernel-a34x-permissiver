@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,18 +23,27 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+
+>>>>>>> upstream/android-13
 #include "wifi.h"
 #include "efuse.h"
 #include "pci.h"
 #include <linux/export.h>
 
+<<<<<<< HEAD
 static const u8 MAX_PGPKT_SIZE = 9;
+=======
+>>>>>>> upstream/android-13
 static const u8 PGPKT_DATA_SIZE = 8;
 static const int EFUSE_MAX_SIZE = 512;
 
 #define START_ADDRESS		0x1000
 #define REG_MCUFWDL		0x0080
 
+<<<<<<< HEAD
 static const struct efuse_map RTL8712_SDIO_EFUSE_TABLE[] = {
 	{0, 0, 0, 2},
 	{0, 1, 0, 2},
@@ -50,6 +60,8 @@ static const struct efuse_map RTL8712_SDIO_EFUSE_TABLE[] = {
 	{11, 0, 0, 28}
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct rtl_efuse_ops efuse_ops = {
 	.efuse_onebyte_read = efuse_one_byte_read,
 	.efuse_logical_map_read = efuse_shadow_read,
@@ -138,10 +150,15 @@ u8 efuse_read_1byte(struct ieee80211_hw *hw, u16 address)
 						 rtlpriv->cfg->
 						 maps[EFUSE_CTRL] + 3);
 			k++;
+<<<<<<< HEAD
 			if (k == 1000) {
 				k = 0;
 				break;
 			}
+=======
+			if (k == 1000)
+				break;
+>>>>>>> upstream/android-13
 		}
 		data = rtl_read_byte(rtlpriv, rtlpriv->cfg->maps[EFUSE_CTRL]);
 		return data;
@@ -160,8 +177,13 @@ void efuse_write_1byte(struct ieee80211_hw *hw, u16 address, u8 value)
 	const u32 efuse_len =
 		rtlpriv->cfg->maps[EFUSE_REAL_CONTENT_SIZE];
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD, "Addr=%x Data =%x\n",
 		 address, value);
+=======
+	rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD, "Addr=%x Data =%x\n",
+		address, value);
+>>>>>>> upstream/android-13
 
 	if (address < efuse_len) {
 		rtl_write_byte(rtlpriv, rtlpriv->cfg->maps[EFUSE_CTRL], value);
@@ -251,9 +273,15 @@ void read_efuse(struct ieee80211_hw *hw, u16 _offset, u16 _size_byte, u8 *pbuf)
 	u8 efuse_usage;
 
 	if ((_offset + _size_byte) > rtlpriv->cfg->maps[EFUSE_HWSET_MAX_SIZE]) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD,
 			 "read_efuse(): Invalid offset(%#x) with read bytes(%#x)!!\n",
 			 _offset, _size_byte);
+=======
+		rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD,
+			"%s: Invalid offset(%#x) with read bytes(%#x)!!\n",
+			__func__, _offset, _size_byte);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -386,11 +414,16 @@ bool efuse_shadow_update_chk(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
+<<<<<<< HEAD
 	u8 section_idx, i, Base;
+=======
+	u8 section_idx, i, base;
+>>>>>>> upstream/android-13
 	u16 words_need = 0, hdr_num = 0, totalbytes, efuse_used;
 	bool wordchanged, result = true;
 
 	for (section_idx = 0; section_idx < 16; section_idx++) {
+<<<<<<< HEAD
 		Base = section_idx * 8;
 		wordchanged = false;
 
@@ -400,6 +433,17 @@ bool efuse_shadow_update_chk(struct ieee80211_hw *hw)
 			    (rtlefuse->efuse_map[EFUSE_INIT_MAP][Base + i + 1] !=
 			     rtlefuse->efuse_map[EFUSE_MODIFY_MAP][Base + i +
 								   1])) {
+=======
+		base = section_idx * 8;
+		wordchanged = false;
+
+		for (i = 0; i < 8; i = i + 2) {
+			if (rtlefuse->efuse_map[EFUSE_INIT_MAP][base + i] !=
+			    rtlefuse->efuse_map[EFUSE_MODIFY_MAP][base + i] ||
+			    rtlefuse->efuse_map[EFUSE_INIT_MAP][base + i + 1] !=
+			    rtlefuse->efuse_map[EFUSE_MODIFY_MAP][base + i +
+								   1]) {
+>>>>>>> upstream/android-13
 				words_need++;
 				wordchanged = true;
 			}
@@ -416,9 +460,15 @@ bool efuse_shadow_update_chk(struct ieee80211_hw *hw)
 	    (EFUSE_MAX_SIZE - rtlpriv->cfg->maps[EFUSE_OOB_PROTECT_BYTES_LEN]))
 		result = false;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD,
 		 "efuse_shadow_update_chk(): totalbytes(%#x), hdr_num(%#x), words_need(%#x), efuse_used(%d)\n",
 		 totalbytes, hdr_num, words_need, efuse_used);
+=======
+	rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD,
+		"%s: totalbytes(%#x), hdr_num(%#x), words_need(%#x), efuse_used(%d)\n",
+		__func__, totalbytes, hdr_num, words_need, efuse_used);
+>>>>>>> upstream/android-13
 
 	return result;
 }
@@ -456,7 +506,11 @@ bool efuse_shadow_update(struct ieee80211_hw *hw)
 	u8 word_en = 0x0F;
 	u8 first_pg = false;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD, "\n");
+>>>>>>> upstream/android-13
 
 	if (!efuse_shadow_update_chk(hw)) {
 		efuse_read_all_map(hw, &rtlefuse->efuse_map[EFUSE_INIT_MAP][0]);
@@ -464,8 +518,13 @@ bool efuse_shadow_update(struct ieee80211_hw *hw)
 		       &rtlefuse->efuse_map[EFUSE_INIT_MAP][0],
 		       rtlpriv->cfg->maps[EFUSE_HWSET_MAX_SIZE]);
 
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD,
 			 "efuse out of capacity!!\n");
+=======
+		rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD,
+			"efuse out of capacity!!\n");
+>>>>>>> upstream/android-13
 		return false;
 	}
 	efuse_power_switch(hw, true, true);
@@ -495,6 +554,10 @@ bool efuse_shadow_update(struct ieee80211_hw *hw)
 
 		if (word_en != 0x0F) {
 			u8 tmpdata[8];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			memcpy(tmpdata,
 			       &rtlefuse->efuse_map[EFUSE_MODIFY_MAP][base],
 			       8);
@@ -503,12 +566,20 @@ bool efuse_shadow_update(struct ieee80211_hw *hw)
 
 			if (!efuse_pg_packet_write(hw, (u8) offset, word_en,
 						   tmpdata)) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 					 "PG section(%#x) fail!!\n", offset);
 				break;
 			}
 		}
 
+=======
+				rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+					"PG section(%#x) fail!!\n", offset);
+				break;
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 
 	efuse_power_switch(hw, true, false);
@@ -518,7 +589,11 @@ bool efuse_shadow_update(struct ieee80211_hw *hw)
 	       &rtlefuse->efuse_map[EFUSE_INIT_MAP][0],
 	       rtlpriv->cfg->maps[EFUSE_HWSET_MAX_SIZE]);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD, "\n");
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -540,7 +615,11 @@ void rtl_efuse_shadow_map_update(struct ieee80211_hw *hw)
 }
 EXPORT_SYMBOL(rtl_efuse_shadow_map_update);
 
+<<<<<<< HEAD
 void efuse_force_write_vendor_Id(struct ieee80211_hw *hw)
+=======
+void efuse_force_write_vendor_id(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	u8 tmpdata[8] = { 0xFF, 0xFF, 0xEC, 0x10, 0xFF, 0xFF, 0xFF, 0xFF };
 
@@ -656,8 +735,13 @@ static int efuse_one_byte_write(struct ieee80211_hw *hw, u16 addr, u8 data)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 tmpidx = 0;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD,
 		 "Addr = %x Data=%x\n", addr, data);
+=======
+	rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD,
+		"Addr = %x Data=%x\n", addr, data);
+>>>>>>> upstream/android-13
 
 	rtl_write_byte(rtlpriv,
 		       rtlpriv->cfg->maps[EFUSE_CTRL] + 1, (u8) (addr & 0xff));
@@ -683,6 +767,10 @@ static int efuse_one_byte_write(struct ieee80211_hw *hw, u16 addr, u8 data)
 static void efuse_read_all_map(struct ieee80211_hw *hw, u8 *efuse)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	efuse_power_switch(hw, false, true);
 	read_efuse(hw, 0, rtlpriv->cfg->maps[EFUSE_HWSET_MAX_SIZE], efuse);
 	efuse_power_switch(hw, false, false);
@@ -833,6 +921,10 @@ static void efuse_write_data_case1(struct ieee80211_hw *hw, u16 *efuse_addr,
 				if (0x0F != (badworden & 0x0F))	{
 					u8 reorg_offset = offset;
 					u8 reorg_worden = badworden;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 					efuse_pg_packet_write(hw, reorg_offset,
 							      reorg_worden,
 							      originaldata);
@@ -922,6 +1014,10 @@ static void efuse_write_data_case2(struct ieee80211_hw *hw, u16 *efuse_addr,
 			if (0x0F != (badworden & 0x0F)) {
 				u8 reorg_offset = tmp_pkt.offset;
 				u8 reorg_worden = badworden;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 				efuse_pg_packet_write(hw, reorg_offset,
 						      reorg_worden,
 						      originaldata);
@@ -952,7 +1048,11 @@ static int efuse_pg_packet_write(struct ieee80211_hw *hw,
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct pgpkt_struct target_pkt;
 	u8 write_state = PG_STATE_HEADER;
+<<<<<<< HEAD
 	int continual = true, dataempty = true, result = true;
+=======
+	int continual = true, result = true;
+>>>>>>> upstream/android-13
 	u16 efuse_addr = 0;
 	u8 efuse_data;
 	u8 target_word_cnts = 0;
@@ -978,9 +1078,13 @@ static int efuse_pg_packet_write(struct ieee80211_hw *hw,
 
 	while (continual && (efuse_addr < (EFUSE_MAX_SIZE -
 		rtlpriv->cfg->maps[EFUSE_OOB_PROTECT_BYTES_LEN]))) {
+<<<<<<< HEAD
 
 		if (write_state == PG_STATE_HEADER) {
 			dataempty = true;
+=======
+		if (write_state == PG_STATE_HEADER) {
+>>>>>>> upstream/android-13
 			badworden = 0x0F;
 			RTPRINT(rtlpriv, FEEPROM, EFUSE_PG,
 				"efuse PG_STATE_HEADER\n");
@@ -1005,7 +1109,10 @@ static int efuse_pg_packet_write(struct ieee80211_hw *hw,
 		} else if (write_state == PG_STATE_DATA) {
 			RTPRINT(rtlpriv, FEEPROM, EFUSE_PG,
 				"efuse PG_STATE_DATA\n");
+<<<<<<< HEAD
 			badworden = 0x0f;
+=======
+>>>>>>> upstream/android-13
 			badworden =
 			    enable_efuse_data_write(hw, efuse_addr + 1,
 						    target_pkt.word_en,
@@ -1036,8 +1143,13 @@ static int efuse_pg_packet_write(struct ieee80211_hw *hw,
 
 	if (efuse_addr >= (EFUSE_MAX_SIZE -
 		rtlpriv->cfg->maps[EFUSE_OOB_PROTECT_BYTES_LEN])) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD,
 			 "efuse_addr(%#x) Out of size!!\n", efuse_addr);
+=======
+		rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD,
+			"efuse_addr(%#x) Out of size!!\n", efuse_addr);
+>>>>>>> upstream/android-13
 	}
 
 	return true;
@@ -1077,8 +1189,13 @@ static u8 enable_efuse_data_write(struct ieee80211_hw *hw,
 	u8 tmpdata[8];
 
 	memset(tmpdata, 0xff, PGPKT_DATA_SIZE);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_EFUSE, DBG_LOUD,
 		 "word_en = %x efuse_addr=%x\n", word_en, efuse_addr);
+=======
+	rtl_dbg(rtlpriv, COMP_EFUSE, DBG_LOUD,
+		"word_en = %x efuse_addr=%x\n", word_en, efuse_addr);
+>>>>>>> upstream/android-13
 
 	if (!(word_en & BIT(0))) {
 		tmpaddr = start_addr;
@@ -1132,15 +1249,22 @@ void efuse_power_switch(struct ieee80211_hw *hw, u8 write, u8 pwrstate)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	u8 tempval;
+<<<<<<< HEAD
 	u16 tmpV16;
 
 	if (pwrstate && (rtlhal->hw_type != HARDWARE_TYPE_RTL8192SE)) {
 
+=======
+	u16 tmpv16;
+
+	if (pwrstate && (rtlhal->hw_type != HARDWARE_TYPE_RTL8192SE)) {
+>>>>>>> upstream/android-13
 		if (rtlhal->hw_type != HARDWARE_TYPE_RTL8192CE &&
 		    rtlhal->hw_type != HARDWARE_TYPE_RTL8192DE) {
 			rtl_write_byte(rtlpriv,
 				       rtlpriv->cfg->maps[EFUSE_ACCESS], 0x69);
 		} else {
+<<<<<<< HEAD
 			tmpV16 =
 			  rtl_read_word(rtlpriv,
 					rtlpriv->cfg->maps[SYS_ISO_CTRL]);
@@ -1166,6 +1290,33 @@ void efuse_power_switch(struct ieee80211_hw *hw, u8 write, u8 pwrstate)
 				   rtlpriv->cfg->maps[EFUSE_ANA8M]);
 			rtl_write_word(rtlpriv,
 				       rtlpriv->cfg->maps[SYS_CLK], tmpV16);
+=======
+			tmpv16 =
+			  rtl_read_word(rtlpriv,
+					rtlpriv->cfg->maps[SYS_ISO_CTRL]);
+			if (!(tmpv16 & rtlpriv->cfg->maps[EFUSE_PWC_EV12V])) {
+				tmpv16 |= rtlpriv->cfg->maps[EFUSE_PWC_EV12V];
+				rtl_write_word(rtlpriv,
+					       rtlpriv->cfg->maps[SYS_ISO_CTRL],
+					       tmpv16);
+			}
+		}
+		tmpv16 = rtl_read_word(rtlpriv,
+				       rtlpriv->cfg->maps[SYS_FUNC_EN]);
+		if (!(tmpv16 & rtlpriv->cfg->maps[EFUSE_FEN_ELDR])) {
+			tmpv16 |= rtlpriv->cfg->maps[EFUSE_FEN_ELDR];
+			rtl_write_word(rtlpriv,
+				       rtlpriv->cfg->maps[SYS_FUNC_EN], tmpv16);
+		}
+
+		tmpv16 = rtl_read_word(rtlpriv, rtlpriv->cfg->maps[SYS_CLK]);
+		if ((!(tmpv16 & rtlpriv->cfg->maps[EFUSE_LOADER_CLK_EN])) ||
+		    (!(tmpv16 & rtlpriv->cfg->maps[EFUSE_ANA8M]))) {
+			tmpv16 |= (rtlpriv->cfg->maps[EFUSE_LOADER_CLK_EN] |
+				   rtlpriv->cfg->maps[EFUSE_ANA8M]);
+			rtl_write_word(rtlpriv,
+				       rtlpriv->cfg->maps[SYS_CLK], tmpv16);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1219,13 +1370,20 @@ static u16 efuse_get_current_size(struct ieee80211_hw *hw)
 {
 	int continual = true;
 	u16 efuse_addr = 0;
+<<<<<<< HEAD
 	u8 hoffset, hworden;
+=======
+	u8 hworden;
+>>>>>>> upstream/android-13
 	u8 efuse_data, word_cnts;
 
 	while (continual && efuse_one_byte_read(hw, efuse_addr, &efuse_data) &&
 	       (efuse_addr < EFUSE_MAX_SIZE)) {
 		if (efuse_data != 0xFF) {
+<<<<<<< HEAD
 			hoffset = (efuse_data >> 4) & 0x0F;
+=======
+>>>>>>> upstream/android-13
 			hworden = efuse_data & 0x0F;
 			word_cnts = efuse_calculate_word_cnts(hworden);
 			efuse_addr = efuse_addr + (word_cnts * 2) + 1;
@@ -1240,6 +1398,10 @@ static u16 efuse_get_current_size(struct ieee80211_hw *hw)
 static u8 efuse_calculate_word_cnts(u8 word_en)
 {
 	u8 word_cnts = 0;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!(word_en & BIT(0)))
 		word_cnts++;
 	if (!(word_en & BIT(1)))
@@ -1281,11 +1443,19 @@ int rtl_get_hwinfo(struct ieee80211_hw *hw, struct rtl_priv *rtlpriv,
 
 	eeprom_id = *((u16 *)&hwinfo[0]);
 	if (eeprom_id != params[0]) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "EEPROM ID(%#x) is invalid!!\n", eeprom_id);
 		rtlefuse->autoload_failflag = true;
 	} else {
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "Autoload OK\n");
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+			"EEPROM ID(%#x) is invalid!!\n", eeprom_id);
+		rtlefuse->autoload_failflag = true;
+	} else {
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "Autoload OK\n");
+>>>>>>> upstream/android-13
 		rtlefuse->autoload_failflag = false;
 	}
 
@@ -1296,6 +1466,7 @@ int rtl_get_hwinfo(struct ieee80211_hw *hw, struct rtl_priv *rtlpriv,
 	rtlefuse->eeprom_did = *(u16 *)&hwinfo[params[2]];
 	rtlefuse->eeprom_svid = *(u16 *)&hwinfo[params[3]];
 	rtlefuse->eeprom_smid = *(u16 *)&hwinfo[params[4]];
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "EEPROMId = 0x%4x\n", eeprom_id);
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
@@ -1306,20 +1477,41 @@ int rtl_get_hwinfo(struct ieee80211_hw *hw, struct rtl_priv *rtlpriv,
 		 "EEPROM SVID = 0x%4x\n", rtlefuse->eeprom_svid);
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "EEPROM SMID = 0x%4x\n", rtlefuse->eeprom_smid);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"EEPROMId = 0x%4x\n", eeprom_id);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"EEPROM VID = 0x%4x\n", rtlefuse->eeprom_vid);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"EEPROM DID = 0x%4x\n", rtlefuse->eeprom_did);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"EEPROM SVID = 0x%4x\n", rtlefuse->eeprom_svid);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"EEPROM SMID = 0x%4x\n", rtlefuse->eeprom_smid);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < 6; i += 2) {
 		usvalue = *(u16 *)&hwinfo[params[5] + i];
 		*((u16 *)(&rtlefuse->dev_addr[i])) = usvalue;
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG, "%pM\n", rtlefuse->dev_addr);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_DMESG, "%pM\n", rtlefuse->dev_addr);
+>>>>>>> upstream/android-13
 
 	rtlefuse->eeprom_channelplan = *&hwinfo[params[6]];
 	rtlefuse->eeprom_version = *(u16 *)&hwinfo[params[7]];
 	rtlefuse->txpwr_fromeprom = true;
 	rtlefuse->eeprom_oemid = *&hwinfo[params[8]];
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 		 "EEPROM Customer ID: 0x%2x\n", rtlefuse->eeprom_oemid);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+		"EEPROM Customer ID: 0x%2x\n", rtlefuse->eeprom_oemid);
+>>>>>>> upstream/android-13
 
 	/* set channel plan to world wide 13 */
 	rtlefuse->channel_plan = params[9];

@@ -17,10 +17,24 @@ CFLAGS_REMOVE_return_address.o = -pg
 # Object file lists.
 
 obj-y		:= elf.o entry-common.o irq.o opcodes.o \
+<<<<<<< HEAD
 		   process.o ptrace.o reboot.o return_address.o \
 		   setup.o signal.o sigreturn_codes.o \
 		   stacktrace.o sys_arm.o time.o traps.o
 
+=======
+		   process.o ptrace.o reboot.o io.o \
+		   setup.o signal.o sigreturn_codes.o \
+		   stacktrace.o sys_arm.o time.o traps.o
+
+KASAN_SANITIZE_stacktrace.o := n
+KASAN_SANITIZE_traps.o := n
+
+ifneq ($(CONFIG_ARM_UNWIND),y)
+obj-$(CONFIG_FRAME_POINTER)	+= return_address.o
+endif
+
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ATAGS)		+= atags_parse.o
 obj-$(CONFIG_ATAGS_PROC)	+= atags_proc.o
 obj-$(CONFIG_DEPRECATED_PARAM_STRUCT) += atags_compat.o
@@ -49,8 +63,13 @@ obj-$(CONFIG_HAVE_ARM_SCU)	+= smp_scu.o
 obj-$(CONFIG_HAVE_ARM_TWD)	+= smp_twd.o
 obj-$(CONFIG_ARM_ARCH_TIMER)	+= arch_timer.o
 obj-$(CONFIG_FUNCTION_TRACER)	+= entry-ftrace.o
+<<<<<<< HEAD
 obj-$(CONFIG_DYNAMIC_FTRACE)	+= ftrace.o insn.o
 obj-$(CONFIG_FUNCTION_GRAPH_TRACER)	+= ftrace.o insn.o
+=======
+obj-$(CONFIG_DYNAMIC_FTRACE)	+= ftrace.o insn.o patch.o
+obj-$(CONFIG_FUNCTION_GRAPH_TRACER)	+= ftrace.o insn.o patch.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o insn.o patch.o
 obj-$(CONFIG_KEXEC)		+= machine_kexec.o relocate_kernel.o
 # Main staffs in KPROBES are in arch/arm/probes/ .
@@ -79,15 +98,22 @@ AFLAGS_iwmmxt.o			:= -Wa,-mcpu=iwmmxt
 obj-$(CONFIG_ARM_CPU_TOPOLOGY)  += topology.o
 obj-$(CONFIG_VDSO)		+= vdso.o
 obj-$(CONFIG_EFI)		+= efi.o
+<<<<<<< HEAD
 
 ifneq ($(CONFIG_ARCH_EBSA110),y)
   obj-y		+= io.o
 endif
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PARAVIRT)	+= paravirt.o
 
 head-y			:= head$(MMUEXT).o
 obj-$(CONFIG_DEBUG_LL)	+= debug.o
 obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_ARM_PATCH_PHYS_VIRT)	+= phys2virt.o
+>>>>>>> upstream/android-13
 
 # This is executed very early using a temporary stack when no memory allocator
 # nor global data is available. Everything has to be allocated on the stack.
@@ -102,4 +128,9 @@ endif
 
 obj-$(CONFIG_HAVE_ARM_SMCCC)	+= smccc-call.o
 
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_GENERIC_CPU_VULNERABILITIES) += spectre.o
+
+>>>>>>> upstream/android-13
 extra-y := $(head-y) vmlinux.lds

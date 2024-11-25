@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017, Gustavo Romero, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2017, Gustavo Romero, IBM Corp.
+>>>>>>> upstream/android-13
  *
  * Check if thread endianness is flipped inadvertently to BE on trap
  * caught in TM whilst MSR.FP and MSR.VEC are zero (i.e. just after
@@ -66,7 +72,11 @@ void trap_signal_handler(int signo, siginfo_t *si, void *uc)
 	/* Get thread endianness: extract bit LE from MSR */
 	thread_endianness = MSR_LE & ucp->uc_mcontext.gp_regs[PT_MSR];
 
+<<<<<<< HEAD
 	/***
+=======
+	/*
+>>>>>>> upstream/android-13
 	 * Little-Endian Machine
 	 */
 
@@ -126,7 +136,11 @@ void trap_signal_handler(int signo, siginfo_t *si, void *uc)
 		}
 	}
 
+<<<<<<< HEAD
 	/***
+=======
+	/*
+>>>>>>> upstream/android-13
 	 * Big-Endian Machine
 	 */
 
@@ -247,8 +261,12 @@ void *pong(void *not_used)
 int tm_trap_test(void)
 {
 	uint16_t k = 1;
+<<<<<<< HEAD
 
 	int rc;
+=======
+	int cpu, rc;
+>>>>>>> upstream/android-13
 
 	pthread_attr_t attr;
 	cpu_set_t cpuset;
@@ -256,6 +274,10 @@ int tm_trap_test(void)
 	struct sigaction trap_sa;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 
 	trap_sa.sa_flags = SA_SIGINFO;
 	trap_sa.sa_sigaction = trap_signal_handler;
@@ -267,9 +289,18 @@ int tm_trap_test(void)
 	usr1_sa.sa_sigaction = usr1_signal_handler;
 	sigaction(SIGUSR1, &usr1_sa, NULL);
 
+<<<<<<< HEAD
 	/* Set only CPU 0 in the mask. Both threads will be bound to cpu 0. */
 	CPU_ZERO(&cpuset);
 	CPU_SET(0, &cpuset);
+=======
+	cpu = pick_online_cpu();
+	FAIL_IF(cpu < 0);
+
+	// Set only one CPU in the mask. Both threads will be bound to that CPU.
+	CPU_ZERO(&cpuset);
+	CPU_SET(cpu, &cpuset);
+>>>>>>> upstream/android-13
 
 	/* Init pthread attribute */
 	rc = pthread_attr_init(&attr);

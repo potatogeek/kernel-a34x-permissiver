@@ -44,9 +44,15 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
 / {
+=======
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	compatible = "cnxt,cx92755";
 
 	interrupt-parent = <&intc>;

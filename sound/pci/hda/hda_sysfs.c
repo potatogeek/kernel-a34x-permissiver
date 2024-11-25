@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sysfs interface for HD-audio codec
  *
@@ -14,7 +18,11 @@
 #include <linux/string.h>
 #include <linux/export.h>
 #include <sound/core.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 #include <sound/hda_hwdep.h>
 #include <sound/minors.h>
@@ -610,7 +618,11 @@ struct hda_patch_item {
 	void (*parser)(char *buf, struct hda_bus *bus, struct hda_codec **retc);
 };
 
+<<<<<<< HEAD
 static struct hda_patch_item patch_items[NUM_LINE_MODES] = {
+=======
+static const struct hda_patch_item patch_items[NUM_LINE_MODES] = {
+>>>>>>> upstream/android-13
 	[LINE_MODE_CODEC] = {
 		.tag = "[codec]",
 		.parser = parse_codec_mode,

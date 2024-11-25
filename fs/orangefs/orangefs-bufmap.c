@@ -105,7 +105,11 @@ static int wait_for_free(struct slot_map *m)
 			left = t;
 		else
 			left = t + (left - n);
+<<<<<<< HEAD
 		if (unlikely(signal_pending(current)))
+=======
+		if (signal_pending(current))
+>>>>>>> upstream/android-13
 			left = -EINTR;
 	} while (left > 0);
 
@@ -168,10 +172,14 @@ static DEFINE_SPINLOCK(orangefs_bufmap_lock);
 static void
 orangefs_bufmap_unmap(struct orangefs_bufmap *bufmap)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < bufmap->page_count; i++)
 		put_page(bufmap->page_array[i]);
+=======
+	unpin_user_pages(bufmap->page_array, bufmap->page_count);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -179,7 +187,11 @@ orangefs_bufmap_free(struct orangefs_bufmap *bufmap)
 {
 	kfree(bufmap->page_array);
 	kfree(bufmap->desc_array);
+<<<<<<< HEAD
 	kfree(bufmap->buffer_index_array);
+=======
+	bitmap_free(bufmap->buffer_index_array);
+>>>>>>> upstream/android-13
 	kfree(bufmap);
 }
 
@@ -229,8 +241,12 @@ orangefs_bufmap_alloc(struct ORANGEFS_dev_map_desc *user_desc)
 	bufmap->desc_size = user_desc->size;
 	bufmap->desc_shift = ilog2(bufmap->desc_size);
 
+<<<<<<< HEAD
 	bufmap->buffer_index_array =
 		kzalloc(DIV_ROUND_UP(bufmap->desc_count, BITS_PER_LONG), GFP_KERNEL);
+=======
+	bufmap->buffer_index_array = bitmap_zalloc(bufmap->desc_count, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!bufmap->buffer_index_array)
 		goto out_free_bufmap;
 
@@ -253,7 +269,11 @@ orangefs_bufmap_alloc(struct ORANGEFS_dev_map_desc *user_desc)
 out_free_desc_array:
 	kfree(bufmap->desc_array);
 out_free_index_array:
+<<<<<<< HEAD
 	kfree(bufmap->buffer_index_array);
+=======
+	bitmap_free(bufmap->buffer_index_array);
+>>>>>>> upstream/android-13
 out_free_bufmap:
 	kfree(bufmap);
 out:
@@ -268,8 +288,13 @@ orangefs_bufmap_map(struct orangefs_bufmap *bufmap,
 	int offset = 0, ret, i;
 
 	/* map the pages */
+<<<<<<< HEAD
 	ret = get_user_pages_fast((unsigned long)user_desc->ptr,
 			     bufmap->page_count, 1, bufmap->page_array);
+=======
+	ret = pin_user_pages_fast((unsigned long)user_desc->ptr,
+			     bufmap->page_count, FOLL_WRITE, bufmap->page_array);
+>>>>>>> upstream/android-13
 
 	if (ret < 0)
 		return ret;
@@ -280,7 +305,11 @@ orangefs_bufmap_map(struct orangefs_bufmap *bufmap,
 
 		for (i = 0; i < ret; i++) {
 			SetPageError(bufmap->page_array[i]);
+<<<<<<< HEAD
 			put_page(bufmap->page_array[i]);
+=======
+			unpin_user_page(bufmap->page_array[i]);
+>>>>>>> upstream/android-13
 		}
 		return -ENOMEM;
 	}
@@ -538,3 +567,19 @@ int orangefs_bufmap_copy_to_iovec(struct iov_iter *iter,
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+void orangefs_bufmap_page_fill(void *page_to,
+				int buffer_index,
+				int slot_index)
+{
+	struct orangefs_bufmap_desc *from;
+	void *page_from;
+
+	from = &__orangefs_bufmap->desc_array[buffer_index];
+	page_from = kmap_atomic(from->page_array[slot_index]);
+	memcpy(page_to, page_from, PAGE_SIZE);
+	kunmap_atomic(page_from);
+}
+>>>>>>> upstream/android-13

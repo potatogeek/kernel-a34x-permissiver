@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * vpd.c
  *
  * Driver for exporting VPD content to sysfs.
  *
  * Copyright 2017 Google Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ctype.h>
@@ -40,7 +47,11 @@ struct vpd_cbmem {
 	u32 version;
 	u32 ro_size;
 	u32 rw_size;
+<<<<<<< HEAD
 	u8  blob[0];
+=======
+	u8  blob[];
+>>>>>>> upstream/android-13
 };
 
 struct vpd_section {
@@ -198,7 +209,11 @@ static int vpd_section_init(const char *name, struct vpd_section *sec,
 
 	sec->name = name;
 
+<<<<<<< HEAD
 	/* We want to export the raw partion with name ${name}_raw */
+=======
+	/* We want to export the raw partition with name ${name}_raw */
+>>>>>>> upstream/android-13
 	sec->raw_name = kasprintf(GFP_KERNEL, "%s_raw", name);
 	if (!sec->raw_name) {
 		err = -ENOMEM;
@@ -254,7 +269,11 @@ static int vpd_section_destroy(struct vpd_section *sec)
 
 static int vpd_sections_init(phys_addr_t physaddr)
 {
+<<<<<<< HEAD
 	struct vpd_cbmem __iomem *temp;
+=======
+	struct vpd_cbmem *temp;
+>>>>>>> upstream/android-13
 	struct vpd_cbmem header;
 	int ret = 0;
 
@@ -262,7 +281,11 @@ static int vpd_sections_init(phys_addr_t physaddr)
 	if (!temp)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memcpy_fromio(&header, temp, sizeof(struct vpd_cbmem));
+=======
+	memcpy(&header, temp, sizeof(struct vpd_cbmem));
+>>>>>>> upstream/android-13
 	memunmap(temp);
 
 	if (header.magic != VPD_CBMEM_MAGIC)
@@ -306,14 +329,21 @@ static int vpd_probe(struct coreboot_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vpd_remove(struct coreboot_device *dev)
+=======
+static void vpd_remove(struct coreboot_device *dev)
+>>>>>>> upstream/android-13
 {
 	vpd_section_destroy(&ro_vpd);
 	vpd_section_destroy(&rw_vpd);
 
 	kobject_put(vpd_kobj);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct coreboot_driver vpd_driver = {
@@ -324,6 +354,7 @@ static struct coreboot_driver vpd_driver = {
 	},
 	.tag = CB_TAG_VPD,
 };
+<<<<<<< HEAD
 
 static int __init coreboot_vpd_init(void)
 {
@@ -337,6 +368,9 @@ static void __exit coreboot_vpd_exit(void)
 
 module_init(coreboot_vpd_init);
 module_exit(coreboot_vpd_exit);
+=======
+module_coreboot_driver(vpd_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Google, Inc.");
 MODULE_LICENSE("GPL");

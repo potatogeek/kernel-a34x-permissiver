@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Mediated virtual PCI serial host device driver
  *
@@ -5,6 +9,7 @@
  *     Author: Neo Jia <cjia@nvidia.com>
  *             Kirti Wankhede <kwankhede@nvidia.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -12,6 +17,10 @@
  * Sample driver that creates mdev device that simulates serial port over PCI
  * card.
  *
+=======
+ * Sample driver that creates mdev device that simulates serial port over PCI
+ * card.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -72,7 +81,11 @@
  * Global Structures
  */
 
+<<<<<<< HEAD
 struct mtty_dev {
+=======
+static struct mtty_dev {
+>>>>>>> upstream/android-13
 	dev_t		vd_devt;
 	struct class	*vd_class;
 	struct cdev	vd_cdev;
@@ -88,7 +101,11 @@ struct mdev_region_info {
 };
 
 #if defined(DEBUG_REGS)
+<<<<<<< HEAD
 const char *wr_reg[] = {
+=======
+static const char *wr_reg[] = {
+>>>>>>> upstream/android-13
 	"TX",
 	"IER",
 	"FCR",
@@ -99,7 +116,11 @@ const char *wr_reg[] = {
 	"SCR"
 };
 
+<<<<<<< HEAD
 const char *rd_reg[] = {
+=======
+static const char *rd_reg[] = {
+>>>>>>> upstream/android-13
 	"RX",
 	"IER",
 	"IIR",
@@ -131,6 +152,10 @@ struct serial_port {
 
 /* State of each mdev device */
 struct mdev_state {
+<<<<<<< HEAD
+=======
+	struct vfio_device vdev;
+>>>>>>> upstream/android-13
 	int irq_fd;
 	struct eventfd_ctx *intx_evtfd;
 	struct eventfd_ctx *msi_evtfd;
@@ -147,13 +172,18 @@ struct mdev_state {
 	int nr_ports;
 };
 
+<<<<<<< HEAD
 struct mutex mdev_list_lock;
 struct list_head mdev_devices_list;
+=======
+static atomic_t mdev_avail_ports = ATOMIC_INIT(MAX_MTTYS);
+>>>>>>> upstream/android-13
 
 static const struct file_operations vd_fops = {
 	.owner          = THIS_MODULE,
 };
 
+<<<<<<< HEAD
 /* function prototypes */
 
 static int mtty_trigger_interrupt(uuid_le uuid);
@@ -172,6 +202,17 @@ static struct mdev_state *find_mdev_state_by_uuid(uuid_le uuid)
 }
 
 void dump_buffer(u8 *buf, uint32_t count)
+=======
+static const struct vfio_device_ops mtty_dev_ops;
+
+/* function prototypes */
+
+static int mtty_trigger_interrupt(struct mdev_state *mdev_state);
+
+/* Helper functions */
+
+static void dump_buffer(u8 *buf, uint32_t count)
+>>>>>>> upstream/android-13
 {
 #if defined(DEBUG)
 	int i;
@@ -341,8 +382,12 @@ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
 				pr_err("Serial port %d: Fifo level trigger\n",
 					index);
 #endif
+<<<<<<< HEAD
 				mtty_trigger_interrupt(
 						mdev_uuid(mdev_state->mdev));
+=======
+				mtty_trigger_interrupt(mdev_state);
+>>>>>>> upstream/android-13
 			}
 		} else {
 #if defined(DEBUG_INTR)
@@ -356,8 +401,12 @@ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
 			 */
 			if (mdev_state->s[index].uart_reg[UART_IER] &
 								UART_IER_RLSI)
+<<<<<<< HEAD
 				mtty_trigger_interrupt(
 						mdev_uuid(mdev_state->mdev));
+=======
+				mtty_trigger_interrupt(mdev_state);
+>>>>>>> upstream/android-13
 		}
 		mutex_unlock(&mdev_state->rxtx_lock);
 		break;
@@ -376,8 +425,12 @@ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
 				pr_err("Serial port %d: IER_THRI write\n",
 					index);
 #endif
+<<<<<<< HEAD
 				mtty_trigger_interrupt(
 						mdev_uuid(mdev_state->mdev));
+=======
+				mtty_trigger_interrupt(mdev_state);
+>>>>>>> upstream/android-13
 			}
 
 			mutex_unlock(&mdev_state->rxtx_lock);
@@ -448,7 +501,11 @@ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
 #if defined(DEBUG_INTR)
 			pr_err("Serial port %d: MCR_OUT2 write\n", index);
 #endif
+<<<<<<< HEAD
 			mtty_trigger_interrupt(mdev_uuid(mdev_state->mdev));
+=======
+			mtty_trigger_interrupt(mdev_state);
+>>>>>>> upstream/android-13
 		}
 
 		if ((mdev_state->s[index].uart_reg[UART_IER] & UART_IER_MSI) &&
@@ -456,7 +513,11 @@ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
 #if defined(DEBUG_INTR)
 			pr_err("Serial port %d: MCR RTS/DTR write\n", index);
 #endif
+<<<<<<< HEAD
 			mtty_trigger_interrupt(mdev_uuid(mdev_state->mdev));
+=======
+			mtty_trigger_interrupt(mdev_state);
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -507,8 +568,12 @@ static void handle_bar_read(unsigned int index, struct mdev_state *mdev_state,
 #endif
 			if (mdev_state->s[index].uart_reg[UART_IER] &
 							 UART_IER_THRI)
+<<<<<<< HEAD
 				mtty_trigger_interrupt(
 					mdev_uuid(mdev_state->mdev));
+=======
+				mtty_trigger_interrupt(mdev_state);
+>>>>>>> upstream/android-13
 		}
 		mutex_unlock(&mdev_state->rxtx_lock);
 
@@ -650,14 +715,21 @@ static void mdev_read_base(struct mdev_state *mdev_state)
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t mdev_access(struct mdev_device *mdev, u8 *buf, size_t count,
 			   loff_t pos, bool is_write)
 {
 	struct mdev_state *mdev_state;
+=======
+static ssize_t mdev_access(struct mdev_state *mdev_state, u8 *buf, size_t count,
+			   loff_t pos, bool is_write)
+{
+>>>>>>> upstream/android-13
 	unsigned int index;
 	loff_t offset;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!mdev || !buf)
 		return -EINVAL;
 
@@ -667,6 +739,11 @@ static ssize_t mdev_access(struct mdev_device *mdev, u8 *buf, size_t count,
 		return -EINVAL;
 	}
 
+=======
+	if (!buf)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&mdev_state->ops_lock);
 
 	index = MTTY_VFIO_PCI_OFFSET_TO_INDEX(pos);
@@ -727,6 +804,7 @@ accessfailed:
 	return ret;
 }
 
+<<<<<<< HEAD
 int mtty_create(struct kobject *kobj, struct mdev_device *mdev)
 {
 	struct mdev_state *mdev_state;
@@ -751,6 +829,28 @@ int mtty_create(struct kobject *kobj, struct mdev_device *mdev)
 	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
 	if (mdev_state == NULL)
 		return -ENOMEM;
+=======
+static int mtty_probe(struct mdev_device *mdev)
+{
+	struct mdev_state *mdev_state;
+	int nr_ports = mdev_get_type_group_id(mdev) + 1;
+	int avail_ports = atomic_read(&mdev_avail_ports);
+	int ret;
+
+	do {
+		if (avail_ports < nr_ports)
+			return -ENOSPC;
+	} while (!atomic_try_cmpxchg(&mdev_avail_ports,
+				     &avail_ports, avail_ports - nr_ports));
+
+	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
+	if (mdev_state == NULL) {
+		ret = -ENOMEM;
+		goto err_nr_ports;
+	}
+
+	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mtty_dev_ops);
+>>>>>>> upstream/android-13
 
 	mdev_state->nr_ports = nr_ports;
 	mdev_state->irq_index = -1;
@@ -760,12 +860,18 @@ int mtty_create(struct kobject *kobj, struct mdev_device *mdev)
 	mdev_state->vconfig = kzalloc(MTTY_CONFIG_SPACE_SIZE, GFP_KERNEL);
 
 	if (mdev_state->vconfig == NULL) {
+<<<<<<< HEAD
 		kfree(mdev_state);
 		return -ENOMEM;
+=======
+		ret = -ENOMEM;
+		goto err_state;
+>>>>>>> upstream/android-13
 	}
 
 	mutex_init(&mdev_state->ops_lock);
 	mdev_state->mdev = mdev;
+<<<<<<< HEAD
 	mdev_set_drvdata(mdev, mdev_state);
 
 	mtty_create_config_space(mdev_state);
@@ -810,14 +916,58 @@ int mtty_reset(struct mdev_device *mdev)
 	if (!mdev_state)
 		return -EINVAL;
 
+=======
+
+	mtty_create_config_space(mdev_state);
+
+	ret = vfio_register_group_dev(&mdev_state->vdev);
+	if (ret)
+		goto err_vconfig;
+	dev_set_drvdata(&mdev->dev, mdev_state);
+	return 0;
+
+err_vconfig:
+	kfree(mdev_state->vconfig);
+err_state:
+	vfio_uninit_group_dev(&mdev_state->vdev);
+	kfree(mdev_state);
+err_nr_ports:
+	atomic_add(nr_ports, &mdev_avail_ports);
+	return ret;
+}
+
+static void mtty_remove(struct mdev_device *mdev)
+{
+	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
+	int nr_ports = mdev_state->nr_ports;
+
+	vfio_unregister_group_dev(&mdev_state->vdev);
+
+	kfree(mdev_state->vconfig);
+	vfio_uninit_group_dev(&mdev_state->vdev);
+	kfree(mdev_state);
+	atomic_add(nr_ports, &mdev_avail_ports);
+}
+
+static int mtty_reset(struct mdev_state *mdev_state)
+{
+>>>>>>> upstream/android-13
 	pr_info("%s: called\n", __func__);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
 		  loff_t *ppos)
 {
+=======
+static ssize_t mtty_read(struct vfio_device *vdev, char __user *buf,
+			 size_t count, loff_t *ppos)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+>>>>>>> upstream/android-13
 	unsigned int done = 0;
 	int ret;
 
@@ -827,7 +977,11 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
 		if (count >= 4 && !(*ppos % 4)) {
 			u32 val;
 
+<<<<<<< HEAD
 			ret =  mdev_access(mdev, (u8 *)&val, sizeof(val),
+=======
+			ret =  mdev_access(mdev_state, (u8 *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					   *ppos, false);
 			if (ret <= 0)
 				goto read_err;
@@ -839,7 +993,11 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
 		} else if (count >= 2 && !(*ppos % 2)) {
 			u16 val;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (u8 *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, false);
 			if (ret <= 0)
 				goto read_err;
@@ -851,7 +1009,11 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
 		} else {
 			u8 val;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (u8 *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, false);
 			if (ret <= 0)
 				goto read_err;
@@ -874,9 +1036,17 @@ read_err:
 	return -EFAULT;
 }
 
+<<<<<<< HEAD
 ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
 		   size_t count, loff_t *ppos)
 {
+=======
+static ssize_t mtty_write(struct vfio_device *vdev, const char __user *buf,
+		   size_t count, loff_t *ppos)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+>>>>>>> upstream/android-13
 	unsigned int done = 0;
 	int ret;
 
@@ -889,7 +1059,11 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
 			if (copy_from_user(&val, buf, sizeof(val)))
 				goto write_err;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (u8 *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, true);
 			if (ret <= 0)
 				goto write_err;
@@ -901,7 +1075,11 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
 			if (copy_from_user(&val, buf, sizeof(val)))
 				goto write_err;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (u8 *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, true);
 			if (ret <= 0)
 				goto write_err;
@@ -913,7 +1091,11 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
 			if (copy_from_user(&val, buf, sizeof(val)))
 				goto write_err;
 
+<<<<<<< HEAD
 			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+=======
+			ret = mdev_access(mdev_state, (u8 *)&val, sizeof(val),
+>>>>>>> upstream/android-13
 					  *ppos, true);
 			if (ret <= 0)
 				goto write_err;
@@ -931,11 +1113,16 @@ write_err:
 	return -EFAULT;
 }
 
+<<<<<<< HEAD
 static int mtty_set_irqs(struct mdev_device *mdev, uint32_t flags,
+=======
+static int mtty_set_irqs(struct mdev_state *mdev_state, uint32_t flags,
+>>>>>>> upstream/android-13
 			 unsigned int index, unsigned int start,
 			 unsigned int count, void *data)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct mdev_state *mdev_state;
 
 	if (!mdev)
@@ -944,6 +1131,8 @@ static int mtty_set_irqs(struct mdev_device *mdev, uint32_t flags,
 	mdev_state = mdev_get_drvdata(mdev);
 	if (!mdev_state)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mdev_state->ops_lock);
 	switch (index) {
@@ -1032,6 +1221,7 @@ static int mtty_set_irqs(struct mdev_device *mdev, uint32_t flags,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mtty_trigger_interrupt(uuid_le uuid)
 {
 	int ret = -1;
@@ -1043,6 +1233,11 @@ static int mtty_trigger_interrupt(uuid_le uuid)
 		pr_info("%s: mdev not found\n", __func__);
 		return -EINVAL;
 	}
+=======
+static int mtty_trigger_interrupt(struct mdev_state *mdev_state)
+{
+	int ret = -1;
+>>>>>>> upstream/android-13
 
 	if ((mdev_state->irq_index == VFIO_PCI_MSI_IRQ_INDEX) &&
 	    (!mdev_state->msi_evtfd))
@@ -1067,11 +1262,16 @@ static int mtty_trigger_interrupt(uuid_le uuid)
 	return ret;
 }
 
+<<<<<<< HEAD
 int mtty_get_region_info(struct mdev_device *mdev,
+=======
+static int mtty_get_region_info(struct mdev_state *mdev_state,
+>>>>>>> upstream/android-13
 			 struct vfio_region_info *region_info,
 			 u16 *cap_type_id, void **cap_type)
 {
 	unsigned int size = 0;
+<<<<<<< HEAD
 	struct mdev_state *mdev_state;
 	u32 bar_index;
 
@@ -1082,6 +1282,10 @@ int mtty_get_region_info(struct mdev_device *mdev,
 	if (!mdev_state)
 		return -EINVAL;
 
+=======
+	u32 bar_index;
+
+>>>>>>> upstream/android-13
 	bar_index = region_info->index;
 	if (bar_index >= VFIO_PCI_NUM_REGIONS)
 		return -EINVAL;
@@ -1116,7 +1320,11 @@ int mtty_get_region_info(struct mdev_device *mdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 int mtty_get_irq_info(struct mdev_device *mdev, struct vfio_irq_info *irq_info)
+=======
+static int mtty_get_irq_info(struct vfio_irq_info *irq_info)
+>>>>>>> upstream/android-13
 {
 	switch (irq_info->index) {
 	case VFIO_PCI_INTX_IRQ_INDEX:
@@ -1140,8 +1348,12 @@ int mtty_get_irq_info(struct mdev_device *mdev, struct vfio_irq_info *irq_info)
 	return 0;
 }
 
+<<<<<<< HEAD
 int mtty_get_device_info(struct mdev_device *mdev,
 			 struct vfio_device_info *dev_info)
+=======
+static int mtty_get_device_info(struct vfio_device_info *dev_info)
+>>>>>>> upstream/android-13
 {
 	dev_info->flags = VFIO_DEVICE_FLAGS_PCI;
 	dev_info->num_regions = VFIO_PCI_NUM_REGIONS;
@@ -1150,6 +1362,7 @@ int mtty_get_device_info(struct mdev_device *mdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static long mtty_ioctl(struct mdev_device *mdev, unsigned int cmd,
 			unsigned long arg)
 {
@@ -1163,6 +1376,15 @@ static long mtty_ioctl(struct mdev_device *mdev, unsigned int cmd,
 	mdev_state = mdev_get_drvdata(mdev);
 	if (!mdev_state)
 		return -ENODEV;
+=======
+static long mtty_ioctl(struct vfio_device *vdev, unsigned int cmd,
+			unsigned long arg)
+{
+	struct mdev_state *mdev_state =
+		container_of(vdev, struct mdev_state, vdev);
+	int ret = 0;
+	unsigned long minsz;
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case VFIO_DEVICE_GET_INFO:
@@ -1177,7 +1399,11 @@ static long mtty_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		if (info.argsz < minsz)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		ret = mtty_get_device_info(mdev, &info);
+=======
+		ret = mtty_get_device_info(&info);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -1202,7 +1428,11 @@ static long mtty_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		if (info.argsz < minsz)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		ret = mtty_get_region_info(mdev, &info, &cap_type_id,
+=======
+		ret = mtty_get_region_info(mdev_state, &info, &cap_type_id,
+>>>>>>> upstream/android-13
 					   &cap_type);
 		if (ret)
 			return ret;
@@ -1226,7 +1456,11 @@ static long mtty_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		    (info.index >= mdev_state->dev_info.num_irqs))
 			return -EINVAL;
 
+<<<<<<< HEAD
 		ret = mtty_get_irq_info(mdev, &info);
+=======
+		ret = mtty_get_irq_info(&info);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -1260,18 +1494,27 @@ static long mtty_ioctl(struct mdev_device *mdev, unsigned int cmd,
 				return PTR_ERR(data);
 		}
 
+<<<<<<< HEAD
 		ret = mtty_set_irqs(mdev, hdr.flags, hdr.index, hdr.start,
+=======
+		ret = mtty_set_irqs(mdev_state, hdr.flags, hdr.index, hdr.start,
+>>>>>>> upstream/android-13
 				    hdr.count, data);
 
 		kfree(ptr);
 		return ret;
 	}
 	case VFIO_DEVICE_RESET:
+<<<<<<< HEAD
 		return mtty_reset(mdev);
+=======
+		return mtty_reset(mdev_state);
+>>>>>>> upstream/android-13
 	}
 	return -ENOTTY;
 }
 
+<<<<<<< HEAD
 int mtty_open(struct mdev_device *mdev)
 {
 	pr_info("%s\n", __func__);
@@ -1283,6 +1526,8 @@ void mtty_close(struct mdev_device *mdev)
 	pr_info("%s\n", __func__);
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t
 sample_mtty_dev_show(struct device *dev, struct device_attribute *attr,
 		     char *buf)
@@ -1302,7 +1547,11 @@ static const struct attribute_group mtty_dev_group = {
 	.attrs = mtty_dev_attrs,
 };
 
+<<<<<<< HEAD
 const struct attribute_group *mtty_dev_groups[] = {
+=======
+static const struct attribute_group *mtty_dev_groups[] = {
+>>>>>>> upstream/android-13
 	&mtty_dev_group,
 	NULL,
 };
@@ -1329,11 +1578,16 @@ static const struct attribute_group mdev_dev_group = {
 	.attrs = mdev_dev_attrs,
 };
 
+<<<<<<< HEAD
 const struct attribute_group *mdev_dev_groups[] = {
+=======
+static const struct attribute_group *mdev_dev_groups[] = {
+>>>>>>> upstream/android-13
 	&mdev_dev_group,
 	NULL,
 };
 
+<<<<<<< HEAD
 static ssize_t
 name_show(struct kobject *kobj, struct device *dev, char *buf)
 {
@@ -1384,11 +1638,42 @@ MDEV_TYPE_ATTR_RO(available_instances);
 
 static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
 			       char *buf)
+=======
+static ssize_t name_show(struct mdev_type *mtype,
+			 struct mdev_type_attribute *attr, char *buf)
+{
+	static const char *name_str[2] = { "Single port serial",
+					   "Dual port serial" };
+
+	return sysfs_emit(buf, "%s\n",
+			  name_str[mtype_get_type_group_id(mtype)]);
+}
+
+static MDEV_TYPE_ATTR_RO(name);
+
+static ssize_t available_instances_show(struct mdev_type *mtype,
+					struct mdev_type_attribute *attr,
+					char *buf)
+{
+	unsigned int ports = mtype_get_type_group_id(mtype) + 1;
+
+	return sprintf(buf, "%d\n", atomic_read(&mdev_avail_ports) / ports);
+}
+
+static MDEV_TYPE_ATTR_RO(available_instances);
+
+static ssize_t device_api_show(struct mdev_type *mtype,
+			       struct mdev_type_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
 }
 
+<<<<<<< HEAD
 MDEV_TYPE_ATTR_RO(device_api);
+=======
+static MDEV_TYPE_ATTR_RO(device_api);
+>>>>>>> upstream/android-13
 
 static struct attribute *mdev_types_attrs[] = {
 	&mdev_type_attr_name.attr,
@@ -1407,12 +1692,17 @@ static struct attribute_group mdev_type_group2 = {
 	.attrs = mdev_types_attrs,
 };
 
+<<<<<<< HEAD
 struct attribute_group *mdev_type_groups[] = {
+=======
+static struct attribute_group *mdev_type_groups[] = {
+>>>>>>> upstream/android-13
 	&mdev_type_group1,
 	&mdev_type_group2,
 	NULL,
 };
 
+<<<<<<< HEAD
 static const struct mdev_parent_ops mdev_fops = {
 	.owner                  = THIS_MODULE,
 	.dev_attr_groups        = mtty_dev_groups,
@@ -1425,6 +1715,31 @@ static const struct mdev_parent_ops mdev_fops = {
 	.read                   = mtty_read,
 	.write                  = mtty_write,
 	.ioctl		        = mtty_ioctl,
+=======
+static const struct vfio_device_ops mtty_dev_ops = {
+	.name = "vfio-mtty",
+	.read = mtty_read,
+	.write = mtty_write,
+	.ioctl = mtty_ioctl,
+};
+
+static struct mdev_driver mtty_driver = {
+	.driver = {
+		.name = "mtty",
+		.owner = THIS_MODULE,
+		.mod_name = KBUILD_MODNAME,
+		.dev_groups = mdev_dev_groups,
+	},
+	.probe = mtty_probe,
+	.remove	= mtty_remove,
+};
+
+static const struct mdev_parent_ops mdev_fops = {
+	.owner                  = THIS_MODULE,
+	.device_driver		= &mtty_driver,
+	.dev_attr_groups        = mtty_dev_groups,
+	.supported_type_groups  = mdev_type_groups,
+>>>>>>> upstream/android-13
 };
 
 static void mtty_device_release(struct device *dev)
@@ -1442,7 +1757,12 @@ static int __init mtty_dev_init(void)
 
 	idr_init(&mtty_dev.vd_idr);
 
+<<<<<<< HEAD
 	ret = alloc_chrdev_region(&mtty_dev.vd_devt, 0, MINORMASK, MTTY_NAME);
+=======
+	ret = alloc_chrdev_region(&mtty_dev.vd_devt, 0, MINORMASK + 1,
+				  MTTY_NAME);
+>>>>>>> upstream/android-13
 
 	if (ret < 0) {
 		pr_err("Error: failed to register mtty_dev, err:%d\n", ret);
@@ -1450,16 +1770,31 @@ static int __init mtty_dev_init(void)
 	}
 
 	cdev_init(&mtty_dev.vd_cdev, &vd_fops);
+<<<<<<< HEAD
 	cdev_add(&mtty_dev.vd_cdev, mtty_dev.vd_devt, MINORMASK);
 
 	pr_info("major_number:%d\n", MAJOR(mtty_dev.vd_devt));
 
+=======
+	cdev_add(&mtty_dev.vd_cdev, mtty_dev.vd_devt, MINORMASK + 1);
+
+	pr_info("major_number:%d\n", MAJOR(mtty_dev.vd_devt));
+
+	ret = mdev_register_driver(&mtty_driver);
+	if (ret)
+		goto err_cdev;
+
+>>>>>>> upstream/android-13
 	mtty_dev.vd_class = class_create(THIS_MODULE, MTTY_CLASS_NAME);
 
 	if (IS_ERR(mtty_dev.vd_class)) {
 		pr_err("Error: failed to register mtty_dev class\n");
 		ret = PTR_ERR(mtty_dev.vd_class);
+<<<<<<< HEAD
 		goto failed1;
+=======
+		goto err_driver;
+>>>>>>> upstream/android-13
 	}
 
 	mtty_dev.dev.class = mtty_dev.vd_class;
@@ -1468,6 +1803,7 @@ static int __init mtty_dev_init(void)
 
 	ret = device_register(&mtty_dev.dev);
 	if (ret)
+<<<<<<< HEAD
 		goto failed2;
 
 	ret = mdev_register_device(&mtty_dev.dev, &mdev_fops);
@@ -1490,6 +1826,24 @@ failed1:
 	unregister_chrdev_region(mtty_dev.vd_devt, MINORMASK);
 
 all_done:
+=======
+		goto err_class;
+
+	ret = mdev_register_device(&mtty_dev.dev, &mdev_fops);
+	if (ret)
+		goto err_device;
+	return 0;
+
+err_device:
+	device_unregister(&mtty_dev.dev);
+err_class:
+	class_destroy(mtty_dev.vd_class);
+err_driver:
+	mdev_unregister_driver(&mtty_driver);
+err_cdev:
+	cdev_del(&mtty_dev.vd_cdev);
+	unregister_chrdev_region(mtty_dev.vd_devt, MINORMASK + 1);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1500,8 +1854,14 @@ static void __exit mtty_dev_exit(void)
 
 	device_unregister(&mtty_dev.dev);
 	idr_destroy(&mtty_dev.vd_idr);
+<<<<<<< HEAD
 	cdev_del(&mtty_dev.vd_cdev);
 	unregister_chrdev_region(mtty_dev.vd_devt, MINORMASK);
+=======
+	mdev_unregister_driver(&mtty_driver);
+	cdev_del(&mtty_dev.vd_cdev);
+	unregister_chrdev_region(mtty_dev.vd_devt, MINORMASK + 1);
+>>>>>>> upstream/android-13
 	class_destroy(mtty_dev.vd_class);
 	mtty_dev.vd_class = NULL;
 	pr_info("mtty_dev: Unloaded!\n");

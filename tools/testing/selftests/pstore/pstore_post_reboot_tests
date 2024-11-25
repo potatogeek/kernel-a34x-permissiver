@@ -1,11 +1,18 @@
 #!/bin/sh
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # pstore_post_reboot_tests - Check pstore's behavior after crash/reboot
 #
 # Copyright (C) Hitachi Ltd., 2015
 #  Written by Hiraku Toyooka <hiraku.toyooka.gu@hitachi.com>
 #
+<<<<<<< HEAD
 # Released under the terms of the GPL v2.
+=======
+>>>>>>> upstream/android-13
 
 # Kselftest framework requirement - SKIP code is 4.
 ksft_skip=4

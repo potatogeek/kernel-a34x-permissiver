@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -54,6 +61,7 @@ static u32 pxp_global_win[] = {
 	0x1c80, /* win 3: addr=0x1c80000, size=4096 bytes */
 	0x1d00, /* win 4: addr=0x1d00000, size=4096 bytes */
 	0x1d01, /* win 5: addr=0x1d01000, size=4096 bytes */
+<<<<<<< HEAD
 	0x1d80, /* win 6: addr=0x1d80000, size=4096 bytes */
 	0x1d81, /* win 7: addr=0x1d81000, size=4096 bytes */
 	0x1d82, /* win 8: addr=0x1d82000, size=4096 bytes */
@@ -63,17 +71,105 @@ static u32 pxp_global_win[] = {
 	0,
 	0,
 	0,
+=======
+	0x1d02, /* win 6: addr=0x1d02000, size=4096 bytes */
+	0x1d80, /* win 7: addr=0x1d80000, size=4096 bytes */
+	0x1d81, /* win 8: addr=0x1d81000, size=4096 bytes */
+	0x1d82, /* win 9: addr=0x1d82000, size=4096 bytes */
+	0x1e00, /* win 10: addr=0x1e00000, size=4096 bytes */
+	0x1e01, /* win 11: addr=0x1e01000, size=4096 bytes */
+	0x1e80, /* win 12: addr=0x1e80000, size=4096 bytes */
+	0x1f00, /* win 13: addr=0x1f00000, size=4096 bytes */
+	0x1c08, /* win 14: addr=0x1c08000, size=4096 bytes */
+>>>>>>> upstream/android-13
 	0,
 	0,
 	0,
 	0,
 };
 
+<<<<<<< HEAD
+=======
+/* IRO Array */
+static const u32 iro_arr[] = {
+	0x00000000, 0x00000000, 0x00080000,
+	0x00003288, 0x00000088, 0x00880000,
+	0x000058e8, 0x00000020, 0x00200000,
+	0x00000b00, 0x00000008, 0x00040000,
+	0x00000a80, 0x00000008, 0x00040000,
+	0x00000000, 0x00000008, 0x00020000,
+	0x00000080, 0x00000008, 0x00040000,
+	0x00000084, 0x00000008, 0x00020000,
+	0x00005718, 0x00000004, 0x00040000,
+	0x00004dd0, 0x00000000, 0x00780000,
+	0x00003e40, 0x00000000, 0x00780000,
+	0x00004480, 0x00000000, 0x00780000,
+	0x00003210, 0x00000000, 0x00780000,
+	0x00003b50, 0x00000000, 0x00780000,
+	0x00007f58, 0x00000000, 0x00780000,
+	0x00005f58, 0x00000000, 0x00080000,
+	0x00007100, 0x00000000, 0x00080000,
+	0x0000aea0, 0x00000000, 0x00080000,
+	0x00004398, 0x00000000, 0x00080000,
+	0x0000a5a0, 0x00000000, 0x00080000,
+	0x0000bde8, 0x00000000, 0x00080000,
+	0x00000020, 0x00000004, 0x00040000,
+	0x000056c8, 0x00000010, 0x00100000,
+	0x0000c210, 0x00000030, 0x00300000,
+	0x0000b088, 0x00000038, 0x00380000,
+	0x00003d20, 0x00000080, 0x00400000,
+	0x0000bf60, 0x00000000, 0x00040000,
+	0x00004560, 0x00040080, 0x00040000,
+	0x000001f8, 0x00000004, 0x00040000,
+	0x00003d60, 0x00000080, 0x00200000,
+	0x00008960, 0x00000040, 0x00300000,
+	0x0000e840, 0x00000060, 0x00600000,
+	0x00004618, 0x00000080, 0x00380000,
+	0x00010738, 0x000000c0, 0x00c00000,
+	0x000001f8, 0x00000002, 0x00020000,
+	0x0000a2a0, 0x00000000, 0x01080000,
+	0x0000a3a8, 0x00000008, 0x00080000,
+	0x000001c0, 0x00000008, 0x00080000,
+	0x000001f8, 0x00000008, 0x00080000,
+	0x00000ac0, 0x00000008, 0x00080000,
+	0x00002578, 0x00000008, 0x00080000,
+	0x000024f8, 0x00000008, 0x00080000,
+	0x00000280, 0x00000008, 0x00080000,
+	0x00000680, 0x00080018, 0x00080000,
+	0x00000b78, 0x00080018, 0x00020000,
+	0x0000c640, 0x00000050, 0x003c0000,
+	0x00012038, 0x00000018, 0x00100000,
+	0x00011b00, 0x00000040, 0x00180000,
+	0x000095d0, 0x00000050, 0x00200000,
+	0x00008b10, 0x00000040, 0x00280000,
+	0x00011640, 0x00000018, 0x00100000,
+	0x0000c828, 0x00000048, 0x00380000,
+	0x00011710, 0x00000020, 0x00200000,
+	0x00004650, 0x00000080, 0x00100000,
+	0x00003618, 0x00000010, 0x00100000,
+	0x0000a968, 0x00000008, 0x00010000,
+	0x000097a0, 0x00000008, 0x00010000,
+	0x00011990, 0x00000008, 0x00010000,
+	0x0000f018, 0x00000008, 0x00010000,
+	0x00012628, 0x00000008, 0x00010000,
+	0x00011da8, 0x00000008, 0x00010000,
+	0x0000aa78, 0x00000030, 0x00100000,
+	0x0000d768, 0x00000028, 0x00280000,
+	0x00009a58, 0x00000018, 0x00180000,
+	0x00009bd8, 0x00000008, 0x00080000,
+	0x00013a18, 0x00000008, 0x00080000,
+	0x000126e8, 0x00000018, 0x00180000,
+	0x0000e608, 0x00500288, 0x00100000,
+	0x00012970, 0x00000138, 0x00280000,
+};
+
+>>>>>>> upstream/android-13
 void qed_init_iro_array(struct qed_dev *cdev)
 {
 	cdev->iro_arr = iro_arr;
 }
 
+<<<<<<< HEAD
 /* Runtime configuration helpers */
 void qed_init_clear_rt_data(struct qed_hwfn *p_hwfn)
 {
@@ -83,6 +179,8 @@ void qed_init_clear_rt_data(struct qed_hwfn *p_hwfn)
 		p_hwfn->rt_data.b_valid[i] = false;
 }
 
+=======
+>>>>>>> upstream/android-13
 void qed_init_store_rt_reg(struct qed_hwfn *p_hwfn, u32 rt_offset, u32 val)
 {
 	p_hwfn->rt_data.init_val[rt_offset] = val;
@@ -106,7 +204,11 @@ static int qed_init_rt(struct qed_hwfn	*p_hwfn,
 {
 	u32 *p_init_val = &p_hwfn->rt_data.init_val[rt_offset];
 	bool *p_valid = &p_hwfn->rt_data.b_valid[rt_offset];
+<<<<<<< HEAD
 	u16 i, segment;
+=======
+	u16 i, j, segment;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	/* Since not all RT entries are initialized, go over the RT and
@@ -121,6 +223,10 @@ static int qed_init_rt(struct qed_hwfn	*p_hwfn,
 		 */
 		if (!b_must_dmae) {
 			qed_wr(p_hwfn, p_ptt, addr + (i << 2), p_init_val[i]);
+<<<<<<< HEAD
+=======
+			p_valid[i] = false;
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -131,10 +237,21 @@ static int qed_init_rt(struct qed_hwfn	*p_hwfn,
 
 		rc = qed_dmae_host2grc(p_hwfn, p_ptt,
 				       (uintptr_t)(p_init_val + i),
+<<<<<<< HEAD
 				       addr + (i << 2), segment, 0);
 		if (rc)
 			return rc;
 
+=======
+				       addr + (i << 2), segment, NULL);
+		if (rc)
+			return rc;
+
+		/* invalidate after writing */
+		for (j = i; j < i + segment; j++)
+			p_valid[j] = false;
+
+>>>>>>> upstream/android-13
 		/* Jump over the entire segment, including invalid entry */
 		i += segment;
 	}
@@ -194,7 +311,11 @@ static int qed_init_array_dmae(struct qed_hwfn *p_hwfn,
 	} else {
 		rc = qed_dmae_host2grc(p_hwfn, p_ptt,
 				       (uintptr_t)(buf + dmae_data_offset),
+<<<<<<< HEAD
 				       addr, size, 0);
+=======
+				       addr, size, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	return rc;
@@ -205,6 +326,10 @@ static int qed_init_fill_dmae(struct qed_hwfn *p_hwfn,
 			      u32 addr, u32 fill, u32 fill_count)
 {
 	static u32 zero_buffer[DMAE_MAX_RW_SIZE];
+<<<<<<< HEAD
+=======
+	struct qed_dmae_params params = {};
+>>>>>>> upstream/android-13
 
 	memset(zero_buffer, 0, sizeof(u32) * DMAE_MAX_RW_SIZE);
 
@@ -214,10 +339,17 @@ static int qed_init_fill_dmae(struct qed_hwfn *p_hwfn,
 	 * 3. p_hwfb->temp_data,
 	 * 4. fill_count
 	 */
+<<<<<<< HEAD
 
 	return qed_dmae_host2grc(p_hwfn, p_ptt,
 				 (uintptr_t)(&zero_buffer[0]),
 				 addr, fill_count, QED_DMAE_FLAG_RW_REPL_SRC);
+=======
+	SET_FIELD(params.flags, QED_DMAE_PARAMS_RW_REPL_SRC, 0x1);
+	return qed_dmae_host2grc(p_hwfn, p_ptt,
+				 (uintptr_t)(&zero_buffer[0]),
+				 addr, fill_count, &params);
+>>>>>>> upstream/android-13
 }
 
 static void qed_init_fill(struct qed_hwfn *p_hwfn,
@@ -489,10 +621,17 @@ static u32 qed_init_cmd_phase(struct qed_hwfn *p_hwfn,
 int qed_init_run(struct qed_hwfn *p_hwfn,
 		 struct qed_ptt *p_ptt, int phase, int phase_id, int modes)
 {
+<<<<<<< HEAD
 	struct qed_dev *cdev = p_hwfn->cdev;
 	u32 cmd_num, num_init_ops;
 	union init_op *init_ops;
 	bool b_dmae = false;
+=======
+	bool b_dmae = (phase != PHASE_ENGINE);
+	struct qed_dev *cdev = p_hwfn->cdev;
+	u32 cmd_num, num_init_ops;
+	union init_op *init_ops;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	num_init_ops = cdev->fw_data->init_ops_size;
@@ -521,7 +660,10 @@ int qed_init_run(struct qed_hwfn *p_hwfn,
 		case INIT_OP_IF_PHASE:
 			cmd_num += qed_init_cmd_phase(p_hwfn, &cmd->if_phase,
 						      phase, phase_id);
+<<<<<<< HEAD
 			b_dmae = GET_FIELD(data, INIT_IF_PHASE_OP_DMAE_ENABLE);
+=======
+>>>>>>> upstream/android-13
 			break;
 		case INIT_OP_DELAY:
 			/* qed_init_run is always invoked from
@@ -532,6 +674,12 @@ int qed_init_run(struct qed_hwfn *p_hwfn,
 
 		case INIT_OP_CALLBACK:
 			rc = qed_init_cmd_cb(p_hwfn, p_ptt, &cmd->callback);
+<<<<<<< HEAD
+=======
+			if (phase == PHASE_ENGINE &&
+			    cmd->callback.callback_id == DMAE_READY_CB)
+				b_dmae = true;
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -586,5 +734,13 @@ int qed_init_fw_data(struct qed_dev *cdev, const u8 *data)
 	len = buf_hdr[BIN_BUF_INIT_CMD].length;
 	fw->init_ops_size = len / sizeof(struct init_raw_op);
 
+<<<<<<< HEAD
+=======
+	offset = buf_hdr[BIN_BUF_INIT_OVERLAYS].offset;
+	fw->fw_overlays = (u32 *)(data + offset);
+	len = buf_hdr[BIN_BUF_INIT_OVERLAYS].length;
+	fw->fw_overlays_len = len;
+
+>>>>>>> upstream/android-13
 	return 0;
 }

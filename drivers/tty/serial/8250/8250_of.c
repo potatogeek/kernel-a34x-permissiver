@@ -7,7 +7,10 @@
 #include <linux/console.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/serial_core.h>
 #include <linux/serial_reg.h>
 #include <linux/of_address.h>
@@ -26,6 +29,7 @@ struct of_serial_info {
 	int line;
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_TEGRA
 static void tegra_serial_handle_break(struct uart_port *p)
 {
@@ -48,15 +52,25 @@ static inline void tegra_serial_handle_break(struct uart_port *port)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Fill a struct uart_port for a given device node
  */
 static int of_platform_serial_setup(struct platform_device *ofdev,
+<<<<<<< HEAD
 			int type, struct uart_port *port,
+=======
+			int type, struct uart_8250_port *up,
+>>>>>>> upstream/android-13
 			struct of_serial_info *info)
 {
 	struct resource resource;
 	struct device_node *np = ofdev->dev.of_node;
+<<<<<<< HEAD
+=======
+	struct uart_port *port = &up->port;
+>>>>>>> upstream/android-13
 	u32 clk, spd, prop;
 	int ret, irq;
 
@@ -70,9 +84,16 @@ static int of_platform_serial_setup(struct platform_device *ofdev,
 		/* Get clk rate through clk driver if present */
 		info->clk = devm_clk_get(&ofdev->dev, NULL);
 		if (IS_ERR(info->clk)) {
+<<<<<<< HEAD
 			dev_warn(&ofdev->dev,
 				"clk or clock-frequency not defined\n");
 			ret = PTR_ERR(info->clk);
+=======
+			ret = PTR_ERR(info->clk);
+			if (ret != -EPROBE_DEFER)
+				dev_warn(&ofdev->dev,
+					 "failed to get clock: %d\n", ret);
+>>>>>>> upstream/android-13
 			goto err_pmruntime;
 		}
 
@@ -104,8 +125,22 @@ static int of_platform_serial_setup(struct platform_device *ofdev,
 		port->mapsize = resource_size(&resource);
 
 		/* Check for shifted address mapping */
+<<<<<<< HEAD
 		if (of_property_read_u32(np, "reg-offset", &prop) == 0)
 			port->mapbase += prop;
+=======
+		if (of_property_read_u32(np, "reg-offset", &prop) == 0) {
+			if (prop >= port->mapsize) {
+				dev_warn(&ofdev->dev, "reg-offset %u exceeds region size %pa\n",
+					 prop, &port->mapsize);
+				ret = -EINVAL;
+				goto err_unprepare;
+			}
+
+			port->mapbase += prop;
+			port->mapsize -= prop;
+		}
+>>>>>>> upstream/android-13
 
 		port->iotype = UPIO_MEM;
 		if (of_property_read_u32(np, "reg-io-width", &prop) == 0) {
@@ -176,12 +211,20 @@ static int of_platform_serial_setup(struct platform_device *ofdev,
 		port->flags |= UPF_SKIP_TEST;
 
 	port->dev = &ofdev->dev;
+<<<<<<< HEAD
 
 	switch (type) {
 	case PORT_TEGRA:
 		port->handle_break = tegra_serial_handle_break;
 		break;
 
+=======
+	port->rs485_config = serial8250_em485_config;
+	up->rs485_start_tx = serial8250_em485_start_tx;
+	up->rs485_stop_tx = serial8250_em485_stop_tx;
+
+	switch (type) {
+>>>>>>> upstream/android-13
 	case PORT_RT2880:
 		port->iotype = UPIO_AU;
 		break;
@@ -189,8 +232,15 @@ static int of_platform_serial_setup(struct platform_device *ofdev,
 
 	if (IS_ENABLED(CONFIG_SERIAL_8250_FSL) &&
 	    (of_device_is_compatible(np, "fsl,ns16550") ||
+<<<<<<< HEAD
 	     of_device_is_compatible(np, "fsl,16550-FIFO64")))
 		port->handle_irq = fsl8250_handle_irq;
+=======
+	     of_device_is_compatible(np, "fsl,16550-FIFO64"))) {
+		port->handle_irq = fsl8250_handle_irq;
+		port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_8250_CONSOLE);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 err_unprepare:
@@ -204,6 +254,7 @@ err_pmruntime:
 /*
  * Try to register a serial port
  */
+<<<<<<< HEAD
 static const struct of_device_id of_platform_serial_table[];
 static int of_platform_serial_probe(struct platform_device *ofdev)
 {
@@ -216,6 +267,22 @@ static int of_platform_serial_probe(struct platform_device *ofdev)
 
 	match = of_match_device(of_platform_serial_table, &ofdev->dev);
 	if (!match)
+=======
+static int of_platform_serial_probe(struct platform_device *ofdev)
+{
+	struct of_serial_info *info;
+	struct uart_8250_port port8250;
+	unsigned int port_type;
+	u32 tx_threshold;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_SERIAL_8250_BCM7271) &&
+	    of_device_is_compatible(ofdev->dev.of_node, "brcm,bcm7271-uart"))
+		return -ENODEV;
+
+	port_type = (unsigned long)of_device_get_match_data(&ofdev->dev);
+	if (port_type == PORT_UNKNOWN)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (of_property_read_bool(ofdev->dev.of_node, "used-by-rtas"))
@@ -225,9 +292,14 @@ static int of_platform_serial_probe(struct platform_device *ofdev)
 	if (info == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	port_type = (unsigned long)match->data;
 	memset(&port8250, 0, sizeof(port8250));
 	ret = of_platform_serial_setup(ofdev, port_type, &port8250.port, info);
+=======
+	memset(&port8250, 0, sizeof(port8250));
+	ret = of_platform_serial_setup(ofdev, port_type, &port8250, info);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_free;
 
@@ -327,9 +399,15 @@ static const struct of_device_id of_platform_serial_table[] = {
 	{ .compatible = "ns16550",  .data = (void *)PORT_16550, },
 	{ .compatible = "ns16750",  .data = (void *)PORT_16750, },
 	{ .compatible = "ns16850",  .data = (void *)PORT_16850, },
+<<<<<<< HEAD
 	{ .compatible = "nvidia,tegra20-uart", .data = (void *)PORT_TEGRA, },
 	{ .compatible = "nxp,lpc3220-uart", .data = (void *)PORT_LPC3220, },
 	{ .compatible = "ralink,rt2880-uart", .data = (void *)PORT_RT2880, },
+=======
+	{ .compatible = "nxp,lpc3220-uart", .data = (void *)PORT_LPC3220, },
+	{ .compatible = "ralink,rt2880-uart", .data = (void *)PORT_RT2880, },
+	{ .compatible = "intel,xscale-uart", .data = (void *)PORT_XSCALE, },
+>>>>>>> upstream/android-13
 	{ .compatible = "altr,16550-FIFO32",
 		.data = (void *)PORT_ALTR_16550_F32, },
 	{ .compatible = "altr,16550-FIFO64",
@@ -341,6 +419,10 @@ static const struct of_device_id of_platform_serial_table[] = {
 	{ .compatible = "mrvl,mmp-uart",
 		.data = (void *)PORT_XSCALE, },
 	{ .compatible = "ti,da830-uart", .data = (void *)PORT_DA830, },
+<<<<<<< HEAD
+=======
+	{ .compatible = "nuvoton,wpcm450-uart", .data = (void *)PORT_NPCM, },
+>>>>>>> upstream/android-13
 	{ .compatible = "nuvoton,npcm750-uart", .data = (void *)PORT_NPCM, },
 	{ /* end of list */ },
 };

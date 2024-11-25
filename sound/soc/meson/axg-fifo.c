@@ -19,7 +19,11 @@
  * This file implements the platform operations common to the playback and
  * capture frontend DAI. The logic behind this two types of fifo is very
  * similar but some difference exist.
+<<<<<<< HEAD
  * These differences the respective DAI drivers
+=======
+ * These differences are handled in the respective DAI drivers
+>>>>>>> upstream/android-13
  */
 
 static struct snd_pcm_hardware axg_fifo_hw = {
@@ -27,14 +31,23 @@ static struct snd_pcm_hardware axg_fifo_hw = {
 		 SNDRV_PCM_INFO_MMAP |
 		 SNDRV_PCM_INFO_MMAP_VALID |
 		 SNDRV_PCM_INFO_BLOCK_TRANSFER |
+<<<<<<< HEAD
 		 SNDRV_PCM_INFO_PAUSE),
 
+=======
+		 SNDRV_PCM_INFO_PAUSE |
+		 SNDRV_PCM_INFO_NO_PERIOD_WAKEUP),
+>>>>>>> upstream/android-13
 	.formats = AXG_FIFO_FORMATS,
 	.rate_min = 5512,
 	.rate_max = 192000,
 	.channels_min = 1,
 	.channels_max = AXG_FIFO_CH_MAX,
+<<<<<<< HEAD
 	.period_bytes_min = AXG_FIFO_MIN_DEPTH,
+=======
+	.period_bytes_min = AXG_FIFO_BURST,
+>>>>>>> upstream/android-13
 	.period_bytes_max = UINT_MAX,
 	.periods_min = 2,
 	.periods_max = UINT_MAX,
@@ -47,7 +60,11 @@ static struct snd_soc_dai *axg_fifo_dai(struct snd_pcm_substream *ss)
 {
 	struct snd_soc_pcm_runtime *rtd = ss->private_data;
 
+<<<<<<< HEAD
 	return rtd->cpu_dai;
+=======
+	return asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 }
 
 static struct axg_fifo *axg_fifo_data(struct snd_pcm_substream *ss)
@@ -70,7 +87,12 @@ static void __dma_enable(struct axg_fifo *fifo,  bool enable)
 			   enable ? CTRL0_DMA_EN : 0);
 }
 
+<<<<<<< HEAD
 static int axg_fifo_pcm_trigger(struct snd_pcm_substream *ss, int cmd)
+=======
+int axg_fifo_pcm_trigger(struct snd_soc_component *component,
+			 struct snd_pcm_substream *ss, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct axg_fifo *fifo = axg_fifo_data(ss);
 
@@ -91,8 +113,15 @@ static int axg_fifo_pcm_trigger(struct snd_pcm_substream *ss, int cmd)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static snd_pcm_uframes_t axg_fifo_pcm_pointer(struct snd_pcm_substream *ss)
+=======
+EXPORT_SYMBOL_GPL(axg_fifo_pcm_trigger);
+
+snd_pcm_uframes_t axg_fifo_pcm_pointer(struct snd_soc_component *component,
+				       struct snd_pcm_substream *ss)
+>>>>>>> upstream/android-13
 {
 	struct axg_fifo *fifo = axg_fifo_data(ss);
 	struct snd_pcm_runtime *runtime = ss->runtime;
@@ -102,6 +131,7 @@ static snd_pcm_uframes_t axg_fifo_pcm_pointer(struct snd_pcm_substream *ss)
 
 	return bytes_to_frames(runtime, addr - (unsigned int)runtime->dma_addr);
 }
+<<<<<<< HEAD
 
 static int axg_fifo_pcm_hw_params(struct snd_pcm_substream *ss,
 				  struct snd_pcm_hw_params *params)
@@ -115,6 +145,20 @@ static int axg_fifo_pcm_hw_params(struct snd_pcm_substream *ss,
 	ret = snd_pcm_lib_malloc_pages(ss, params_buffer_bytes(params));
 	if (ret < 0)
 		return ret;
+=======
+EXPORT_SYMBOL_GPL(axg_fifo_pcm_pointer);
+
+int axg_fifo_pcm_hw_params(struct snd_soc_component *component,
+			   struct snd_pcm_substream *ss,
+			   struct snd_pcm_hw_params *params)
+{
+	struct snd_pcm_runtime *runtime = ss->runtime;
+	struct axg_fifo *fifo = axg_fifo_data(ss);
+	unsigned int burst_num, period, threshold, irq_en;
+	dma_addr_t end_ptr;
+
+	period = params_period_bytes(params);
+>>>>>>> upstream/android-13
 
 	/* Setup dma memory pointers */
 	end_ptr = runtime->dma_addr + runtime->dma_bytes - AXG_FIFO_BURST;
@@ -122,6 +166,7 @@ static int axg_fifo_pcm_hw_params(struct snd_pcm_substream *ss,
 	regmap_write(fifo->map, FIFO_FINISH_ADDR, end_ptr);
 
 	/* Setup interrupt periodicity */
+<<<<<<< HEAD
 	burst_num = params_period_bytes(params) / AXG_FIFO_BURST;
 	regmap_write(fifo->map, FIFO_INT_ADDR, burst_num);
 
@@ -134,6 +179,57 @@ static int axg_fifo_pcm_hw_params(struct snd_pcm_substream *ss,
 }
 
 static int axg_fifo_pcm_hw_free(struct snd_pcm_substream *ss)
+=======
+	burst_num = period / AXG_FIFO_BURST;
+	regmap_write(fifo->map, FIFO_INT_ADDR, burst_num);
+
+	/*
+	 * Start the fifo request on the smallest of the following:
+	 * - Half the fifo size
+	 * - Half the period size
+	 */
+	threshold = min(period / 2, fifo->depth / 2);
+
+	/*
+	 * With the threshold in bytes, register value is:
+	 * V = (threshold / burst) - 1
+	 */
+	threshold /= AXG_FIFO_BURST;
+	regmap_field_write(fifo->field_threshold,
+			   threshold ? threshold - 1 : 0);
+
+	/* Enable irq if necessary  */
+	irq_en = runtime->no_period_wakeup ? 0 : FIFO_INT_COUNT_REPEAT;
+	regmap_update_bits(fifo->map, FIFO_CTRL0,
+			   CTRL0_INT_EN(FIFO_INT_COUNT_REPEAT),
+			   CTRL0_INT_EN(irq_en));
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(axg_fifo_pcm_hw_params);
+
+int g12a_fifo_pcm_hw_params(struct snd_soc_component *component,
+			    struct snd_pcm_substream *ss,
+			    struct snd_pcm_hw_params *params)
+{
+	struct axg_fifo *fifo = axg_fifo_data(ss);
+	struct snd_pcm_runtime *runtime = ss->runtime;
+	int ret;
+
+	ret = axg_fifo_pcm_hw_params(component, ss, params);
+	if (ret)
+		return ret;
+
+	/* Set the initial memory address of the DMA */
+	regmap_write(fifo->map, FIFO_INIT_ADDR, runtime->dma_addr);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(g12a_fifo_pcm_hw_params);
+
+int axg_fifo_pcm_hw_free(struct snd_soc_component *component,
+			 struct snd_pcm_substream *ss)
+>>>>>>> upstream/android-13
 {
 	struct axg_fifo *fifo = axg_fifo_data(ss);
 
@@ -141,8 +237,14 @@ static int axg_fifo_pcm_hw_free(struct snd_pcm_substream *ss)
 	regmap_update_bits(fifo->map, FIFO_CTRL0,
 			   CTRL0_INT_EN(FIFO_INT_COUNT_REPEAT), 0);
 
+<<<<<<< HEAD
 	return snd_pcm_lib_free_pages(ss);
 }
+=======
+	return 0;
+}
+EXPORT_SYMBOL_GPL(axg_fifo_pcm_hw_free);
+>>>>>>> upstream/android-13
 
 static void axg_fifo_ack_irq(struct axg_fifo *fifo, u8 mask)
 {
@@ -177,7 +279,12 @@ static irqreturn_t axg_fifo_pcm_irq_block(int irq, void *dev_id)
 	return IRQ_RETVAL(status);
 }
 
+<<<<<<< HEAD
 static int axg_fifo_pcm_open(struct snd_pcm_substream *ss)
+=======
+int axg_fifo_pcm_open(struct snd_soc_component *component,
+		      struct snd_pcm_substream *ss)
+>>>>>>> upstream/android-13
 {
 	struct axg_fifo *fifo = axg_fifo_data(ss);
 	struct device *dev = axg_fifo_dev(ss);
@@ -187,17 +294,29 @@ static int axg_fifo_pcm_open(struct snd_pcm_substream *ss)
 
 	/*
 	 * Make sure the buffer and period size are multiple of the FIFO
+<<<<<<< HEAD
 	 * minimum depth size
 	 */
 	ret = snd_pcm_hw_constraint_step(ss->runtime, 0,
 					 SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
 					 AXG_FIFO_MIN_DEPTH);
+=======
+	 * burst
+	 */
+	ret = snd_pcm_hw_constraint_step(ss->runtime, 0,
+					 SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
+					 AXG_FIFO_BURST);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	ret = snd_pcm_hw_constraint_step(ss->runtime, 0,
 					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES,
+<<<<<<< HEAD
 					 AXG_FIFO_MIN_DEPTH);
+=======
+					 AXG_FIFO_BURST);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -239,8 +358,15 @@ free_irq:
 	free_irq(fifo->irq, ss);
 	return ret;
 }
+<<<<<<< HEAD
 
 static int axg_fifo_pcm_close(struct snd_pcm_substream *ss)
+=======
+EXPORT_SYMBOL_GPL(axg_fifo_pcm_open);
+
+int axg_fifo_pcm_close(struct snd_soc_component *component,
+		       struct snd_pcm_substream *ss)
+>>>>>>> upstream/android-13
 {
 	struct axg_fifo *fifo = axg_fifo_data(ss);
 	int ret;
@@ -256,6 +382,7 @@ static int axg_fifo_pcm_close(struct snd_pcm_substream *ss)
 
 	return ret;
 }
+<<<<<<< HEAD
 
 const struct snd_pcm_ops axg_fifo_pcm_ops = {
 	.open =		axg_fifo_pcm_open,
@@ -267,15 +394,25 @@ const struct snd_pcm_ops axg_fifo_pcm_ops = {
 	.trigger =	axg_fifo_pcm_trigger,
 };
 EXPORT_SYMBOL_GPL(axg_fifo_pcm_ops);
+=======
+EXPORT_SYMBOL_GPL(axg_fifo_pcm_close);
+>>>>>>> upstream/android-13
 
 int axg_fifo_pcm_new(struct snd_soc_pcm_runtime *rtd, unsigned int type)
 {
 	struct snd_card *card = rtd->card->snd_card;
 	size_t size = axg_fifo_hw.buffer_bytes_max;
 
+<<<<<<< HEAD
 	return snd_pcm_lib_preallocate_pages(rtd->pcm->streams[type].substream,
 					     SNDRV_DMA_TYPE_DEV, card->dev,
 					     size, size);
+=======
+	snd_pcm_set_managed_buffer(rtd->pcm->streams[type].substream,
+				   SNDRV_DMA_TYPE_DEV, card->dev,
+				   size, size);
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(axg_fifo_pcm_new);
 
@@ -283,7 +420,11 @@ static const struct regmap_config axg_fifo_regmap_cfg = {
 	.reg_bits	= 32,
 	.val_bits	= 32,
 	.reg_stride	= 4,
+<<<<<<< HEAD
 	.max_register	= FIFO_STATUS2,
+=======
+	.max_register	= FIFO_CTRL2,
+>>>>>>> upstream/android-13
 };
 
 int axg_fifo_probe(struct platform_device *pdev)
@@ -291,8 +432,13 @@ int axg_fifo_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	const struct axg_fifo_match_data *data;
 	struct axg_fifo *fifo;
+<<<<<<< HEAD
 	struct resource *res;
 	void __iomem *regs;
+=======
+	void __iomem *regs;
+	int ret;
+>>>>>>> upstream/android-13
 
 	data = of_device_get_match_data(dev);
 	if (!data) {
@@ -305,8 +451,12 @@ int axg_fifo_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	platform_set_drvdata(pdev, fifo);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(dev, res);
+=======
+	regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 
@@ -339,11 +489,38 @@ int axg_fifo_probe(struct platform_device *pdev)
 		return fifo->irq;
 	}
 
+<<<<<<< HEAD
+=======
+	fifo->field_threshold =
+		devm_regmap_field_alloc(dev, fifo->map, data->field_threshold);
+	if (IS_ERR(fifo->field_threshold))
+		return PTR_ERR(fifo->field_threshold);
+
+	ret = of_property_read_u32(dev->of_node, "amlogic,fifo-depth",
+				   &fifo->depth);
+	if (ret) {
+		/* Error out for anything but a missing property */
+		if (ret != -EINVAL)
+			return ret;
+		/*
+		 * If the property is missing, it might be because of an old
+		 * DT. In such case, assume the smallest known fifo depth
+		 */
+		fifo->depth = 256;
+		dev_warn(dev, "fifo depth not found, assume %u bytes\n",
+			 fifo->depth);
+	}
+
+>>>>>>> upstream/android-13
 	return devm_snd_soc_register_component(dev, data->component_drv,
 					       data->dai_drv, 1);
 }
 EXPORT_SYMBOL_GPL(axg_fifo_probe);
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Amlogic AXG fifo driver");
+=======
+MODULE_DESCRIPTION("Amlogic AXG/G12A fifo driver");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Jerome Brunet <jbrunet@baylibre.com>");
 MODULE_LICENSE("GPL v2");

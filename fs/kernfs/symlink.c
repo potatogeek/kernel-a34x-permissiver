@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * fs/kernfs/symlink.c - kernfs symlink implementation
  *
  * Copyright (c) 2001-3 Patrick Mochel
  * Copyright (c) 2007 SUSE Linux Products GmbH
  * Copyright (c) 2007, 2013 Tejun Heo <tj@kernel.org>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -33,8 +40,13 @@ struct kernfs_node *kernfs_create_link(struct kernfs_node *parent,
 	kgid_t gid = GLOBAL_ROOT_GID;
 
 	if (target->iattr) {
+<<<<<<< HEAD
 		uid = target->iattr->ia_iattr.ia_uid;
 		gid = target->iattr->ia_iattr.ia_gid;
+=======
+		uid = target->iattr->ia_uid;
+		gid = target->iattr->ia_gid;
+>>>>>>> upstream/android-13
 	}
 
 	kn = kernfs_new_node(parent, name, S_IFLNK|S_IRWXUGO, uid, gid,
@@ -54,7 +66,10 @@ struct kernfs_node *kernfs_create_link(struct kernfs_node *parent,
 	kernfs_put(kn);
 	return ERR_PTR(error);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(kernfs_create_link);
+=======
+>>>>>>> upstream/android-13
 
 static int kernfs_get_target_path(struct kernfs_node *parent,
 				  struct kernfs_node *target, char *path)
@@ -118,9 +133,15 @@ static int kernfs_getlink(struct inode *inode, char *path)
 	struct kernfs_node *target = kn->symlink.target_kn;
 	int error;
 
+<<<<<<< HEAD
 	mutex_lock(&kernfs_mutex);
 	error = kernfs_get_target_path(parent, target, path);
 	mutex_unlock(&kernfs_mutex);
+=======
+	down_read(&kernfs_rwsem);
+	error = kernfs_get_target_path(parent, target, path);
+	up_read(&kernfs_rwsem);
+>>>>>>> upstream/android-13
 
 	return error;
 }

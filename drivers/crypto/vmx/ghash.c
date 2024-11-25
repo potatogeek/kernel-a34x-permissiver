@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * GHASH routines supporting VMX instructions on the Power 8
  *
  * Copyright (C) 2015, 2019 International Business Machines Inc.
@@ -15,16 +19,26 @@
 #include <linux/err.h>
 #include <linux/crypto.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/hardirq.h>
+=======
+#include <asm/simd.h>
+>>>>>>> upstream/android-13
 #include <asm/switch_to.h>
 #include <crypto/aes.h>
 #include <crypto/ghash.h>
 #include <crypto/scatterwalk.h>
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
 #include <crypto/b128ops.h>
 
 #define IN_INTERRUPT in_interrupt()
 
+=======
+#include <crypto/internal/simd.h>
+#include <crypto/b128ops.h>
+
+>>>>>>> upstream/android-13
 void gcm_init_p8(u128 htable[16], const u64 Xi[2]);
 void gcm_gmult_p8(u64 Xi[2], const u128 htable[16]);
 void gcm_ghash_p8(u64 Xi[2], const u128 htable[16],
@@ -76,7 +90,11 @@ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
 static inline void __ghash_block(struct p8_ghash_ctx *ctx,
 				 struct p8_ghash_desc_ctx *dctx)
 {
+<<<<<<< HEAD
 	if (!IN_INTERRUPT) {
+=======
+	if (crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		preempt_disable();
 		pagefault_disable();
 		enable_kernel_vsx();
@@ -95,7 +113,11 @@ static inline void __ghash_blocks(struct p8_ghash_ctx *ctx,
 				  struct p8_ghash_desc_ctx *dctx,
 				  const u8 *src, unsigned int srclen)
 {
+<<<<<<< HEAD
 	if (!IN_INTERRUPT) {
+=======
+	if (crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		preempt_disable();
 		pagefault_disable();
 		enable_kernel_vsx();

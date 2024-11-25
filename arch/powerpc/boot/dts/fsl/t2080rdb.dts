@@ -77,12 +77,20 @@
 		};
 
 		ethernet@f0000 {
+<<<<<<< HEAD
 			phy-handle = <&xg_cs4315_phy1>;
+=======
+			phy-handle = <&xg_cs4315_phy2>;
+>>>>>>> upstream/android-13
 			phy-connection-type = "xgmii";
 		};
 
 		ethernet@f2000 {
+<<<<<<< HEAD
 			phy-handle = <&xg_cs4315_phy2>;
+=======
+			phy-handle = <&xg_cs4315_phy1>;
+>>>>>>> upstream/android-13
 			phy-connection-type = "xgmii";
 		};
 

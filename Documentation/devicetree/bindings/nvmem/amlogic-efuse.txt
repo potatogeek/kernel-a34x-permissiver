@@ -2,6 +2,12 @@
 
 Required properties:
 - compatible: should be "amlogic,meson-gxbb-efuse"
+<<<<<<< HEAD
+=======
+- clocks: phandle to the efuse peripheral clock provided by the
+	  clock controller.
+- secure-monitor: phandle to the secure-monitor node
+>>>>>>> upstream/android-13
 
 = Data cells =
 Are child nodes of eFuse, bindings of which as described in
@@ -11,8 +17,15 @@ Example:
 
 	efuse: efuse {
 		compatible = "amlogic,meson-gxbb-efuse";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <1>;
+=======
+		clocks = <&clkc CLKID_EFUSE>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		secure-monitor = <&sm>;
+>>>>>>> upstream/android-13
 
 		sn: sn@14 {
 			reg = <0x14 0x10>;
@@ -27,6 +40,13 @@ Example:
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	sm: secure-monitor {
+		compatible = "amlogic,meson-gxbb-sm";
+	};
+
+>>>>>>> upstream/android-13
 = Data consumers =
 Are device nodes which consume nvmem data cells.
 

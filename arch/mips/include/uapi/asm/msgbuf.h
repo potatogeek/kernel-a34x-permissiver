@@ -2,6 +2,10 @@
 #ifndef _ASM_MSGBUF_H
 #define _ASM_MSGBUF_H
 
+<<<<<<< HEAD
+=======
+#include <asm/ipcbuf.h>
+>>>>>>> upstream/android-13
 
 /*
  * The msqid64_ds structure for the MIPS architecture.
@@ -15,9 +19,15 @@
 #if defined(__mips64)
 struct msqid64_ds {
 	struct ipc64_perm msg_perm;
+<<<<<<< HEAD
 	__kernel_time_t msg_stime;	/* last msgsnd time */
 	__kernel_time_t msg_rtime;	/* last msgrcv time */
 	__kernel_time_t msg_ctime;	/* last change time */
+=======
+	long msg_stime;			/* last msgsnd time */
+	long msg_rtime;			/* last msgrcv time */
+	long msg_ctime;			/* last change time */
+>>>>>>> upstream/android-13
 	unsigned long  msg_cbytes;	/* current number of bytes on queue */
 	unsigned long  msg_qnum;	/* number of messages in queue */
 	unsigned long  msg_qbytes;	/* max number of bytes on queue */

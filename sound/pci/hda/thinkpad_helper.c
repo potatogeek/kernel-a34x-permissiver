@@ -6,10 +6,14 @@
 #if IS_ENABLED(CONFIG_THINKPAD_ACPI)
 
 #include <linux/acpi.h>
+<<<<<<< HEAD
 #include <linux/thinkpad_acpi.h>
 
 static int (*led_set_func)(int, bool);
 static void (*old_vmaster_hook)(void *, int);
+=======
+#include <linux/leds.h>
+>>>>>>> upstream/android-13
 
 static bool is_thinkpad(struct hda_codec *codec)
 {
@@ -18,6 +22,7 @@ static bool is_thinkpad(struct hda_codec *codec)
 		acpi_dev_found("IBM0068"));
 }
 
+<<<<<<< HEAD
 static void update_tpacpi_mute_led(void *private_data, int enabled)
 {
 	if (old_vmaster_hook)
@@ -67,6 +72,16 @@ static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
 		symbol_put(tpacpi_led_set);
 		led_set_func = NULL;
 		old_vmaster_hook = NULL;
+=======
+static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
+				    const struct hda_fixup *fix, int action)
+{
+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
+		if (!is_thinkpad(codec))
+			return;
+		snd_hda_gen_add_mute_led_cdev(codec, NULL);
+		snd_hda_gen_add_micmute_led_cdev(codec, NULL);
+>>>>>>> upstream/android-13
 	}
 }
 

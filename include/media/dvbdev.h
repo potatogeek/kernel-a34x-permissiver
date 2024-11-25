@@ -86,8 +86,13 @@ struct dvb_frontend;
  * @priv:		private data
  * @device:		pointer to struct device
  * @module:		pointer to struct module
+<<<<<<< HEAD
  * @mfe_shared:		mfe shared: indicates mutually exclusive frontends
  *			Thie usage of this flag is currently deprecated
+=======
+ * @mfe_shared:		indicates mutually exclusive frontends.
+ *			Use of this flag is currently deprecated.
+>>>>>>> upstream/android-13
  * @mfe_dvbdev:		Frontend device in use, in the case of MFE
  * @mfe_lock:		Lock to prevent using the other frontends when MFE is
  *			used.
@@ -293,8 +298,13 @@ static inline void dvb_register_media_controller(struct dvb_adapter *adap,
  *
  * @adap:			pointer to &struct dvb_adapter
  */
+<<<<<<< HEAD
 static inline struct media_device
 *dvb_get_media_controller(struct dvb_adapter *adap)
+=======
+static inline struct media_device *
+dvb_get_media_controller(struct dvb_adapter *adap)
+>>>>>>> upstream/android-13
 {
 	return adap->mdev;
 }
@@ -321,7 +331,11 @@ int dvb_create_media_graph(struct dvb_adapter *adap,
 int dvb_generic_open(struct inode *inode, struct file *file);
 
 /**
+<<<<<<< HEAD
  * dvb_generic_close - Digital TV close function, used by DVB devices
+=======
+ * dvb_generic_release - Digital TV close function, used by DVB devices
+>>>>>>> upstream/android-13
  *
  * @inode: pointer to &struct inode.
  * @file: pointer to &struct file.
@@ -385,7 +399,11 @@ struct i2c_client;
  * with dvb_module_probe() should use dvb_module_release() to unbind.
  *
  * Return:
+<<<<<<< HEAD
  *	On success, return an &struct i2c_client, pointing the the bound
+=======
+ *	On success, return an &struct i2c_client, pointing to the bound
+>>>>>>> upstream/android-13
  *	I2C device. %NULL otherwise.
  *
  * .. note::
@@ -421,7 +439,11 @@ void dvb_module_release(struct i2c_client *client);
  * dvb_attach - attaches a DVB frontend into the DVB core.
  *
  * @FUNCTION:	function on a frontend module to be called.
+<<<<<<< HEAD
  * @ARGS...:	@FUNCTION arguments.
+=======
+ * @ARGS:	@FUNCTION arguments.
+>>>>>>> upstream/android-13
  *
  * This ancillary function loads a frontend module in runtime and runs
  * the @FUNCTION function there, with @ARGS.

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * socket_sysfs.c -- most of socket-related sysfs output
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * socket_sysfs.c -- most of socket-related sysfs output
+ *
+>>>>>>> upstream/android-13
  * (C) 2003 - 2004		Dominik Brodowski
  */
 

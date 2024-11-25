@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  FUJITSU Extended Socket Network Device driver
  *  Copyright (c) 2015-2016 FUJITSU LIMITED
@@ -17,6 +18,12 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  FUJITSU Extended Socket Network Device driver
+ *  Copyright (c) 2015-2016 FUJITSU LIMITED
+>>>>>>> upstream/android-13
  */
 
 #if !defined(FJES_TRACE_H_) || defined(TRACE_HEADER_MULTI_READ)
@@ -43,7 +50,11 @@ TRACE_EVENT(fjes_hw_issue_request_command,
 		__field(u8, cs_busy)
 		__field(u8, cs_complete)
 		__field(int, timeout)
+<<<<<<< HEAD
 		__field(int, ret);
+=======
+		__field(int, ret)
+>>>>>>> upstream/android-13
 	),
 	TP_fast_assign(
 		__entry->cr_req = cr->bits.req_code;
@@ -247,7 +258,11 @@ TRACE_EVENT(fjes_hw_start_debug_err,
 		 __string(err, err)
 	),
 	TP_fast_assign(
+<<<<<<< HEAD
 		__assign_str(err, err)
+=======
+		__assign_str(err, err);
+>>>>>>> upstream/android-13
 	),
 	TP_printk("%s", __get_str(err))
 );
@@ -273,7 +288,11 @@ TRACE_EVENT(fjes_hw_stop_debug_err,
 		 __string(err, err)
 	),
 	TP_fast_assign(
+<<<<<<< HEAD
 		__assign_str(err, err)
+=======
+		__assign_str(err, err);
+>>>>>>> upstream/android-13
 	),
 	TP_printk("%s", __get_str(err))
 );

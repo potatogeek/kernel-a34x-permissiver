@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2012 Realtek Corporation. All rights reserved.
  *
@@ -15,6 +16,11 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  ******************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+
+>>>>>>> upstream/android-13
 #ifndef __INC_HAL8192SE_FW_IMG_H
 #define __INC_HAL8192SE_FW_IMG_H
 

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Faraday FTMAC100 10/100 Ethernet
  *
  * (C) Copyright 2009-2011 Faraday Technology
  * Po-Yu Chuang <ratbert@faraday-tech.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
@@ -36,7 +43,10 @@
 #include "ftmac100.h"
 
 #define DRV_NAME	"ftmac100"
+<<<<<<< HEAD
 #define DRV_VERSION	"0.2"
+=======
+>>>>>>> upstream/android-13
 
 #define RX_QUEUE_ENTRIES	128	/* must be power of 2 */
 #define TX_QUEUE_ENTRIES	16	/* must be power of 2 */
@@ -734,10 +744,16 @@ static int ftmac100_alloc_buffers(struct ftmac100 *priv)
 {
 	int i;
 
+<<<<<<< HEAD
 	priv->descs = dma_zalloc_coherent(priv->dev,
 					  sizeof(struct ftmac100_descs),
 					  &priv->descs_dma_addr,
 					  GFP_KERNEL);
+=======
+	priv->descs = dma_alloc_coherent(priv->dev,
+					 sizeof(struct ftmac100_descs),
+					 &priv->descs_dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv->descs)
 		return -ENOMEM;
 
@@ -823,7 +839,10 @@ static void ftmac100_get_drvinfo(struct net_device *netdev,
 				 struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, dev_name(&netdev->dev), sizeof(info->bus_info));
 }
 
@@ -1059,7 +1078,11 @@ static const struct net_device_ops ftmac100_netdev_ops = {
 	.ndo_start_xmit		= ftmac100_hard_start_xmit,
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= ftmac100_do_ioctl,
+=======
+	.ndo_eth_ioctl		= ftmac100_do_ioctl,
+>>>>>>> upstream/android-13
 };
 
 /******************************************************************************
@@ -1073,9 +1096,12 @@ static int ftmac100_probe(struct platform_device *pdev)
 	struct ftmac100 *priv;
 	int err;
 
+<<<<<<< HEAD
 	if (!pdev)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res)
 		return -ENXIO;
@@ -1196,6 +1222,7 @@ static struct platform_driver ftmac100_driver = {
 /******************************************************************************
  * initialization / finalization
  *****************************************************************************/
+<<<<<<< HEAD
 static int __init ftmac100_init(void)
 {
 	pr_info("Loading version " DRV_VERSION " ...\n");
@@ -1209,6 +1236,9 @@ static void __exit ftmac100_exit(void)
 
 module_init(ftmac100_init);
 module_exit(ftmac100_exit);
+=======
+module_platform_driver(ftmac100_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Po-Yu Chuang <ratbert@faraday-tech.com>");
 MODULE_DESCRIPTION("FTMAC100 driver");

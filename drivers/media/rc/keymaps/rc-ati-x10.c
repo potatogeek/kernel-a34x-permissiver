@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ATI X10 RF remote keytable
  *
@@ -7,6 +11,7 @@
  * ati_remote.c, which is
  * Copyright (c) 2004 Torrey Hoffman <thoffman@arnor.net>
  * Copyright (c) 2002 Vladimir Dergachev
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -62,6 +69,7 @@ static struct rc_map_table ati_x10[] = {
 	 * has problems with keycodes greater than 255, so avoid those high
 	 * keycodes in default maps.
 	 */
+<<<<<<< HEAD
 	{ 0x0d, KEY_1 },
 	{ 0x0e, KEY_2 },
 	{ 0x0f, KEY_3 },
@@ -74,6 +82,20 @@ static struct rc_map_table ati_x10[] = {
 	{ 0x16, KEY_MENU },       /* "menu": DVD root menu */
 				  /* KEY_NUMERIC_STAR? */
 	{ 0x17, KEY_0 },
+=======
+	{ 0x0d, KEY_NUMERIC_1 },
+	{ 0x0e, KEY_NUMERIC_2 },
+	{ 0x0f, KEY_NUMERIC_3 },
+	{ 0x10, KEY_NUMERIC_4 },
+	{ 0x11, KEY_NUMERIC_5 },
+	{ 0x12, KEY_NUMERIC_6 },
+	{ 0x13, KEY_NUMERIC_7 },
+	{ 0x14, KEY_NUMERIC_8 },
+	{ 0x15, KEY_NUMERIC_9 },
+	{ 0x16, KEY_MENU },       /* "menu": DVD root menu */
+				  /* KEY_NUMERIC_STAR? */
+	{ 0x17, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x18, KEY_SETUP },      /* "check": DVD setup menu */
 				  /* KEY_NUMERIC_POUND? */
 

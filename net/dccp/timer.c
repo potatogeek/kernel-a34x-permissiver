@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  net/dccp/timer.c
  *
  *  An implementation of the DCCP protocol
  *  Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dccp.h>
@@ -24,7 +31,11 @@ int  sysctl_dccp_retries2		__read_mostly = TCP_RETR2;
 static void dccp_write_err(struct sock *sk)
 {
 	sk->sk_err = sk->sk_err_soft ? : ETIMEDOUT;
+<<<<<<< HEAD
 	sk->sk_error_report(sk);
+=======
+	sk_error_report(sk);
+>>>>>>> upstream/android-13
 
 	dccp_send_reset(sk, DCCP_RESET_CODE_ABORTED);
 	dccp_done(sk);
@@ -89,7 +100,11 @@ static void dccp_retransmit_timer(struct sock *sk)
 	struct inet_connection_sock *icsk = inet_csk(sk);
 
 	/*
+<<<<<<< HEAD
 	 * More than than 4MSL (8 minutes) has passed, a RESET(aborted) was
+=======
+	 * More than 4MSL (8 minutes) has passed, a RESET(aborted) was
+>>>>>>> upstream/android-13
 	 * sent, no need to retransmit, this sock is dead.
 	 */
 	if (dccp_write_timeout(sk))
@@ -180,7 +195,10 @@ static void dccp_delack_timer(struct timer_list *t)
 	bh_lock_sock(sk);
 	if (sock_owned_by_user(sk)) {
 		/* Try again later. */
+<<<<<<< HEAD
 		icsk->icsk_ack.blocked = 1;
+=======
+>>>>>>> upstream/android-13
 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_DELAYEDACKLOCKED);
 		sk_reset_timer(sk, &icsk->icsk_delack_timer,
 			       jiffies + TCP_DELACK_MIN);
@@ -199,7 +217,11 @@ static void dccp_delack_timer(struct timer_list *t)
 	icsk->icsk_ack.pending &= ~ICSK_ACK_TIMER;
 
 	if (inet_csk_ack_scheduled(sk)) {
+<<<<<<< HEAD
 		if (!icsk->icsk_ack.pingpong) {
+=======
+		if (!inet_csk_in_pingpong_mode(sk)) {
+>>>>>>> upstream/android-13
 			/* Delayed ACK missed: inflate ATO. */
 			icsk->icsk_ack.ato = min(icsk->icsk_ack.ato << 1,
 						 icsk->icsk_rto);
@@ -207,7 +229,11 @@ static void dccp_delack_timer(struct timer_list *t)
 			/* Delayed ACK missed: leave pingpong mode and
 			 * deflate ATO.
 			 */
+<<<<<<< HEAD
 			icsk->icsk_ack.pingpong = 0;
+=======
+			inet_csk_exit_pingpong_mode(sk);
+>>>>>>> upstream/android-13
 			icsk->icsk_ack.ato = TCP_ATO_MIN;
 		}
 		dccp_send_ack(sk);
@@ -220,11 +246,22 @@ out:
 
 /**
  * dccp_write_xmitlet  -  Workhorse for CCID packet dequeueing interface
+<<<<<<< HEAD
  * See the comments above %ccid_dequeueing_decision for supported modes.
  */
 static void dccp_write_xmitlet(unsigned long data)
 {
 	struct sock *sk = (struct sock *)data;
+=======
+ * @t: pointer to the tasklet associated with this handler
+ *
+ * See the comments above %ccid_dequeueing_decision for supported modes.
+ */
+static void dccp_write_xmitlet(struct tasklet_struct *t)
+{
+	struct dccp_sock *dp = from_tasklet(dp, t, dccps_xmitlet);
+	struct sock *sk = &dp->dccps_inet_connection.icsk_inet.sk;
+>>>>>>> upstream/android-13
 
 	bh_lock_sock(sk);
 	if (sock_owned_by_user(sk))
@@ -238,16 +275,25 @@ static void dccp_write_xmitlet(unsigned long data)
 static void dccp_write_xmit_timer(struct timer_list *t)
 {
 	struct dccp_sock *dp = from_timer(dp, t, dccps_xmit_timer);
+<<<<<<< HEAD
 	struct sock *sk = &dp->dccps_inet_connection.icsk_inet.sk;
 
 	dccp_write_xmitlet((unsigned long)sk);
+=======
+
+	dccp_write_xmitlet(&dp->dccps_xmitlet);
+>>>>>>> upstream/android-13
 }
 
 void dccp_init_xmit_timers(struct sock *sk)
 {
 	struct dccp_sock *dp = dccp_sk(sk);
 
+<<<<<<< HEAD
 	tasklet_init(&dp->dccps_xmitlet, dccp_write_xmitlet, (unsigned long)sk);
+=======
+	tasklet_setup(&dp->dccps_xmitlet, dccp_write_xmitlet);
+>>>>>>> upstream/android-13
 	timer_setup(&dp->dccps_xmit_timer, dccp_write_xmit_timer, 0);
 	inet_csk_init_xmit_timers(sk, &dccp_write_timer, &dccp_delack_timer,
 				  &dccp_keepalive_timer);

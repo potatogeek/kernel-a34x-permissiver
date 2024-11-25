@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 #include <linux/debugfs.h>
 #include <linux/module.h>
 #include <linux/rtnetlink.h>
@@ -38,7 +43,11 @@
 
 static struct dentry *nfp_dir;
 
+<<<<<<< HEAD
 static int nfp_net_debugfs_rx_q_read(struct seq_file *file, void *data)
+=======
+static int nfp_rx_q_show(struct seq_file *file, void *data)
+>>>>>>> upstream/android-13
 {
 	struct nfp_net_r_vector *r_vec = file->private;
 	struct nfp_net_rx_ring *rx_ring;
@@ -95,6 +104,7 @@ out:
 	rtnl_unlock();
 	return 0;
 }
+<<<<<<< HEAD
 
 static int nfp_net_debugfs_rx_q_open(struct inode *inode, struct file *f)
 {
@@ -120,6 +130,14 @@ static const struct file_operations nfp_tx_q_fops = {
 };
 
 static int nfp_net_debugfs_tx_q_read(struct seq_file *file, void *data)
+=======
+DEFINE_SHOW_ATTRIBUTE(nfp_rx_q);
+
+static int nfp_tx_q_show(struct seq_file *file, void *data);
+DEFINE_SHOW_ATTRIBUTE(nfp_tx_q);
+
+static int nfp_tx_q_show(struct seq_file *file, void *data)
+>>>>>>> upstream/android-13
 {
 	struct nfp_net_r_vector *r_vec = file->private;
 	struct nfp_net_tx_ring *tx_ring;
@@ -188,6 +206,7 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nfp_net_debugfs_tx_q_open(struct inode *inode, struct file *f)
 {
 	return single_open(f, nfp_net_debugfs_tx_q_read, inode->i_private);
@@ -200,6 +219,13 @@ static const struct file_operations nfp_xdp_q_fops = {
 	.read = seq_read,
 	.llseek = seq_lseek
 };
+=======
+static int nfp_xdp_q_show(struct seq_file *file, void *data)
+{
+	return nfp_tx_q_show(file, data);
+}
+DEFINE_SHOW_ATTRIBUTE(nfp_xdp_q);
+>>>>>>> upstream/android-13
 
 void nfp_net_debugfs_vnic_add(struct nfp_net *nn, struct dentry *ddir)
 {
@@ -215,6 +241,7 @@ void nfp_net_debugfs_vnic_add(struct nfp_net *nn, struct dentry *ddir)
 	else
 		strcpy(name, "ctrl-vnic");
 	nn->debugfs_dir = debugfs_create_dir(name, ddir);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(nn->debugfs_dir))
 		return;
 
@@ -222,12 +249,20 @@ void nfp_net_debugfs_vnic_add(struct nfp_net *nn, struct dentry *ddir)
 	queues = debugfs_create_dir("queue", nn->debugfs_dir);
 	if (IS_ERR_OR_NULL(queues))
 		return;
+=======
+
+	/* Create queue debugging sub-tree */
+	queues = debugfs_create_dir("queue", nn->debugfs_dir);
+>>>>>>> upstream/android-13
 
 	rx = debugfs_create_dir("rx", queues);
 	tx = debugfs_create_dir("tx", queues);
 	xdp = debugfs_create_dir("xdp", queues);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(rx) || IS_ERR_OR_NULL(tx) || IS_ERR_OR_NULL(xdp))
 		return;
+=======
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < min(nn->max_rx_rings, nn->max_r_vecs); i++) {
 		sprintf(name, "%d", i);
@@ -246,6 +281,7 @@ void nfp_net_debugfs_vnic_add(struct nfp_net *nn, struct dentry *ddir)
 
 struct dentry *nfp_net_debugfs_device_add(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct dentry *dev_dir;
 
 	if (IS_ERR_OR_NULL(nfp_dir))
@@ -256,6 +292,9 @@ struct dentry *nfp_net_debugfs_device_add(struct pci_dev *pdev)
 		return NULL;
 
 	return dev_dir;
+=======
+	return debugfs_create_dir(pci_name(pdev), nfp_dir);
+>>>>>>> upstream/android-13
 }
 
 void nfp_net_debugfs_dir_clean(struct dentry **dir)

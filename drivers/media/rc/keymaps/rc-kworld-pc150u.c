@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* kworld-pc150u.c - Keytable for kworld_pc150u Remote Controller
  *
  * keymap imported from ir-keymaps.c
@@ -5,11 +9,14 @@
  * Copyright (c) 2010 by Kyle Strickland
  *   (based on kworld-plus-tv-analog.c by
  *    Mauro Carvalho Chehab)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -24,6 +31,7 @@ static struct rc_map_table kworld_pc150u[] = {
 	{ 0x16, KEY_EJECTCLOSECD },	/* -> ) */
 	{ 0x1d, KEY_POWER2 },
 
+<<<<<<< HEAD
 	{ 0x00, KEY_1 },
 	{ 0x01, KEY_2 },
 	{ 0x02, KEY_3 },
@@ -34,6 +42,18 @@ static struct rc_map_table kworld_pc150u[] = {
 	{ 0x07, KEY_8 },
 	{ 0x08, KEY_9 },
 	{ 0x0a, KEY_0 },
+=======
+	{ 0x00, KEY_NUMERIC_1 },
+	{ 0x01, KEY_NUMERIC_2 },
+	{ 0x02, KEY_NUMERIC_3 },
+	{ 0x03, KEY_NUMERIC_4 },
+	{ 0x04, KEY_NUMERIC_5 },
+	{ 0x05, KEY_NUMERIC_6 },
+	{ 0x06, KEY_NUMERIC_7 },
+	{ 0x07, KEY_NUMERIC_8 },
+	{ 0x08, KEY_NUMERIC_9 },
+	{ 0x0a, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	{ 0x09, KEY_AGAIN },
 	{ 0x14, KEY_MUTE },

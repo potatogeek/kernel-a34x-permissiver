@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ulpi.c - DesignWare USB3 Controller's ULPI PHY interface
  *
  * Copyright (C) 2015 Intel Corporation
@@ -24,7 +28,11 @@
 static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
 {
 	unsigned long ns = 5L * DWC3_ULPI_BASE_DELAY;
+<<<<<<< HEAD
 	unsigned int count = 1000;
+=======
+	unsigned int count = 10000;
+>>>>>>> upstream/android-13
 	u32 reg;
 
 	if (addr >= ULPI_EXT_VENDOR_SPECIFIC)
@@ -33,6 +41,13 @@ static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
 	if (read)
 		ns += DWC3_ULPI_BASE_DELAY;
 
+<<<<<<< HEAD
+=======
+	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+	if (reg & DWC3_GUSB2PHYCFG_SUSPHY)
+		usleep_range(1000, 1200);
+
+>>>>>>> upstream/android-13
 	while (count--) {
 		ndelay(ns);
 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
@@ -50,12 +65,15 @@ static int dwc3_ulpi_read(struct device *dev, u8 addr)
 	u32 reg;
 	int ret;
 
+<<<<<<< HEAD
 	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
 	if (reg & DWC3_GUSB2PHYCFG_SUSPHY) {
 		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
 		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
 
@@ -73,12 +91,15 @@ static int dwc3_ulpi_write(struct device *dev, u8 addr, u8 val)
 	struct dwc3 *dwc = dev_get_drvdata(dev);
 	u32 reg;
 
+<<<<<<< HEAD
 	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
 	if (reg & DWC3_GUSB2PHYCFG_SUSPHY) {
 		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
 		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
 	reg |= DWC3_GUSB2PHYACC_WRITE | val;
 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);

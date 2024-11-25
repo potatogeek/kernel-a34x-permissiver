@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: device.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: MAC Data structure
  *
  * Author: Tevin Chen
@@ -16,6 +23,10 @@
 #ifndef __DEVICE_H__
 #define __DEVICE_H__
 
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -72,7 +83,13 @@
 
 #define DEVICE_VERSION			"mac80211"
 
+<<<<<<< HEAD
 #define CONFIG_PATH			"/etc/vntconfiguration.dat"
+=======
+#define FIRMWARE_VERSION		0x133		/* version 1.51 */
+#define FIRMWARE_NAME			"vntwusb.fw"
+#define FIRMWARE_CHUNK_SIZE		0x400
+>>>>>>> upstream/android-13
 
 #define MAX_UINTS			8
 #define OPTION_DEFAULT			{ [0 ... MAX_UINTS - 1] = -1}
@@ -129,12 +146,21 @@
 #define EEP_OFS_OFDMA_PWR_TBL	0x50
 
 /* Bits in EEP_OFS_ANTENNA */
+<<<<<<< HEAD
 #define EEP_ANTENNA_MAIN	0x1
 #define EEP_ANTENNA_AUX		0x2
 #define EEP_ANTINV		0x4
 
 /* Bits in EEP_OFS_RADIOCTL */
 #define EEP_RADIOCTL_ENABLE	0x80
+=======
+#define EEP_ANTENNA_MAIN	BIT(0)
+#define EEP_ANTENNA_AUX		BIT(1)
+#define EEP_ANTINV		BIT(2)
+
+/* Bits in EEP_OFS_RADIOCTL */
+#define EEP_RADIOCTL_ENABLE	BIT(7)
+>>>>>>> upstream/android-13
 
 /* control commands */
 #define MESSAGE_TYPE_READ		0x1
@@ -201,36 +227,70 @@ struct vnt_rsp_card_init {
  * Enum of context types for SendPacket
  */
 enum {
+<<<<<<< HEAD
 	CONTEXT_DATA_PACKET = 1,
 	CONTEXT_MGMT_PACKET,
 	CONTEXT_BEACON_PACKET
 };
 
+=======
+	CONTEXT_DATA_PACKET = 0,
+	CONTEXT_BEACON_PACKET
+};
+
+struct vnt_rx_header {
+	u32 wbk_status;
+	u8 rx_sts;
+	u8 rx_rate;
+	u16 pay_load_len;
+} __packed;
+
+struct vnt_rx_tail {
+	__le64 tsf_time;
+	u8 sq;
+	u8 new_rsr;
+	u8 rssi;
+	u8 rsr;
+	u8 sq_3;
+} __packed;
+
+>>>>>>> upstream/android-13
 /* RCB (Receive Control Block) */
 struct vnt_rcb {
 	void *priv;
 	struct urb *urb;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	int in_use;
+=======
+>>>>>>> upstream/android-13
 };
 
 /* used to track bulk out irps */
 struct vnt_usb_send_context {
 	void *priv;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	struct urb *urb;
 	struct ieee80211_hdr *hdr;
 	unsigned int buf_len;
+=======
+	void *tx_buffer;
+>>>>>>> upstream/android-13
 	u32 frame_len;
 	u16 tx_hdr_size;
 	u16 tx_rate;
 	u8 type;
 	u8 pkt_no;
 	u8 pkt_type;
+<<<<<<< HEAD
 	u8 need_ack;
 	u8 fb_option;
 	bool in_use;
 	unsigned char data[MAX_TOTAL_SIZE_WITH_ALL_HEADERS];
+=======
+	bool in_use;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -238,6 +298,7 @@ struct vnt_usb_send_context {
  */
 struct vnt_interrupt_buffer {
 	u8 *data_buf;
+<<<<<<< HEAD
 	bool in_use;
 };
 
@@ -248,6 +309,8 @@ enum {
 	STATUS_FAILURE,
 	STATUS_RESOURCES,
 	STATUS_PENDING,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* flags for options */
@@ -264,7 +327,10 @@ struct vnt_private {
 	struct usb_interface *intf;
 
 	u64 tsf_time;
+<<<<<<< HEAD
 	u8 rx_rate;
+=======
+>>>>>>> upstream/android-13
 
 	u32 rx_buf_sz;
 	int mc_list_count;
@@ -284,6 +350,10 @@ struct vnt_private {
 
 	/* Variables to track resources for the BULK Out Pipe */
 	struct vnt_usb_send_context *tx_context[CB_MAX_TX_DESC];
+<<<<<<< HEAD
+=======
+	struct usb_anchor tx_submitted;
+>>>>>>> upstream/android-13
 	u32 num_tx_context;
 
 	/* Variables to track resources for the Interrupt In Pipe */
@@ -340,6 +410,7 @@ struct vnt_private {
 	u8 ofdm_pwr_tbl[14];
 	u8 ofdm_a_pwr_tbl[42];
 
+<<<<<<< HEAD
 	u16 current_rate;
 	u16 tx_rate_fb0;
 	u16 tx_rate_fb1;
@@ -347,6 +418,11 @@ struct vnt_private {
 	u8 short_retry_limit;
 	u8 long_retry_limit;
 
+=======
+	u16 tx_rate_fb0;
+	u16 tx_rate_fb1;
+
+>>>>>>> upstream/android-13
 	enum nl80211_iftype op_mode;
 
 	int short_slot_time;
@@ -379,8 +455,11 @@ struct vnt_private {
 	u8 bb_pre_ed_rssi;
 	u8 bb_pre_ed_index;
 
+<<<<<<< HEAD
 	u16 wake_up_count;
 
+=======
+>>>>>>> upstream/android-13
 	/* command timer */
 	struct delayed_work run_command_work;
 

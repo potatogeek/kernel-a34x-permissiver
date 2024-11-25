@@ -76,7 +76,11 @@ static struct clk clk_enet_misc = {
 };
 
 /*
+<<<<<<< HEAD
  * Ethernet MAC clocks: only revelant on 6358, silently enable misc
+=======
+ * Ethernet MAC clocks: only relevant on 6358, silently enable misc
+>>>>>>> upstream/android-13
  * clocks
  */
 static void enetx_set(struct clk *clk, int enable)
@@ -381,6 +385,21 @@ void clk_disable(struct clk *clk)
 
 EXPORT_SYMBOL(clk_disable);
 
+<<<<<<< HEAD
+=======
+struct clk *clk_get_parent(struct clk *clk)
+{
+	return NULL;
+}
+EXPORT_SYMBOL(clk_get_parent);
+
+int clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	return 0;
+}
+EXPORT_SYMBOL(clk_set_parent);
+
+>>>>>>> upstream/android-13
 unsigned long clk_get_rate(struct clk *clk)
 {
 	if (!clk)

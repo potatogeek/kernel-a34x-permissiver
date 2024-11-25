@@ -31,11 +31,20 @@
 #define FRC_CDR_ISO_EN              BIT(19)
 #define CDR_ISO_EN                  BIT(20)
 
+<<<<<<< HEAD
 struct ufs_mtk_phy {
 	struct device *dev;
 	void __iomem *mmio;
 	struct clk *mp_clk;
 	struct clk *unipro_clk;
+=======
+#define UFSPHY_CLKS_CNT    2
+
+struct ufs_mtk_phy {
+	struct device *dev;
+	void __iomem *mmio;
+	struct clk_bulk_data clks[UFSPHY_CLKS_CNT];
+>>>>>>> upstream/android-13
 };
 
 static inline u32 mphy_readl(struct ufs_mtk_phy *phy, u32 reg)
@@ -68,12 +77,17 @@ static void mphy_clr_bit(struct ufs_mtk_phy *phy, u32 reg, u32 bit)
 
 static struct ufs_mtk_phy *get_ufs_mtk_phy(struct phy *generic_phy)
 {
+<<<<<<< HEAD
 	return (struct ufs_mtk_phy *) phy_get_drvdata(generic_phy);
+=======
+	return (struct ufs_mtk_phy *)phy_get_drvdata(generic_phy);
+>>>>>>> upstream/android-13
 }
 
 static int ufs_mtk_phy_clk_init(struct ufs_mtk_phy *phy)
 {
 	struct device *dev = phy->dev;
+<<<<<<< HEAD
 
 	phy->unipro_clk = devm_clk_get(dev, "unipro");
 	if (IS_ERR(phy->unipro_clk)) {
@@ -88,6 +102,13 @@ static int ufs_mtk_phy_clk_init(struct ufs_mtk_phy *phy)
 	}
 
 	return 0;
+=======
+	struct clk_bulk_data *clks = phy->clks;
+
+	clks[0].id = "unipro";
+	clks[1].id = "mp";
+	return devm_clk_bulk_get(dev, UFSPHY_CLKS_CNT, clks);
+>>>>>>> upstream/android-13
 }
 
 static void ufs_mtk_phy_set_active(struct ufs_mtk_phy *phy)
@@ -145,17 +166,21 @@ static void ufs_mtk_phy_set_deep_hibern(struct ufs_mtk_phy *phy)
 	mphy_clr_bit(phy, MP_GLB_DIG_8C, PLL_PWR_ON);
 }
 
+<<<<<<< HEAD
 #define ufs_mtk_phy_clk_prepare_enable(clk) \
 	clk ? clk_prepare_enable(clk) : 0
 
 #define ufs_mtk_phy_clk_disable_unprepare(clk) \
 	clk ? clk_disable_unprepare(clk) : 0
 
+=======
+>>>>>>> upstream/android-13
 static int ufs_mtk_phy_power_on(struct phy *generic_phy)
 {
 	struct ufs_mtk_phy *phy = get_ufs_mtk_phy(generic_phy);
 	int ret;
 
+<<<<<<< HEAD
 	ret = ufs_mtk_phy_clk_prepare_enable(phy->unipro_clk);
 	if (ret) {
 		dev_err(phy->dev, "unipro_clk enable failed %d\n", ret);
@@ -167,15 +192,23 @@ static int ufs_mtk_phy_power_on(struct phy *generic_phy)
 		dev_err(phy->dev, "mp_clk enable failed %d\n", ret);
 		goto out_unprepare_unipro_clk;
 	}
+=======
+	ret = clk_bulk_prepare_enable(UFSPHY_CLKS_CNT, phy->clks);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ufs_mtk_phy_set_active(phy);
 
 	return 0;
+<<<<<<< HEAD
 
 out_unprepare_unipro_clk:
 	ufs_mtk_phy_clk_disable_unprepare(phy->unipro_clk);
 out:
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int ufs_mtk_phy_power_off(struct phy *generic_phy)
@@ -184,8 +217,12 @@ static int ufs_mtk_phy_power_off(struct phy *generic_phy)
 
 	ufs_mtk_phy_set_deep_hibern(phy);
 
+<<<<<<< HEAD
 	ufs_mtk_phy_clk_disable_unprepare(phy->unipro_clk);
 	ufs_mtk_phy_clk_disable_unprepare(phy->mp_clk);
+=======
+	clk_bulk_disable_unprepare(UFSPHY_CLKS_CNT, phy->clks);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -201,7 +238,10 @@ static int ufs_mtk_phy_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct phy *generic_phy;
 	struct phy_provider *phy_provider;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct ufs_mtk_phy *phy;
 	int ret;
 
@@ -209,14 +249,19 @@ static int ufs_mtk_phy_probe(struct platform_device *pdev)
 	if (!phy)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	phy->mmio = devm_ioremap_resource(dev, res);
+=======
+	phy->mmio = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(phy->mmio))
 		return PTR_ERR(phy->mmio);
 
 	phy->dev = dev;
 
 	ret = ufs_mtk_phy_clk_init(phy);
+<<<<<<< HEAD
 	if (ret) {
 		dev_err(dev, "%s mtk phy clk init fail: %d\n", __func__, ret);
 		return ret;
@@ -227,13 +272,25 @@ static int ufs_mtk_phy_probe(struct platform_device *pdev)
 		dev_err(dev, "%s mtk phy clk create fail: %d\n", __func__, PTR_ERR(generic_phy));
 		return PTR_ERR(generic_phy);
 	}
+=======
+	if (ret)
+		return ret;
+
+	generic_phy = devm_phy_create(dev, NULL, &ufs_mtk_phy_ops);
+	if (IS_ERR(generic_phy))
+		return PTR_ERR(generic_phy);
+>>>>>>> upstream/android-13
 
 	phy_set_drvdata(generic_phy, phy);
 
 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
+<<<<<<< HEAD
 	if (IS_ERR(phy_provider)) {
 		dev_err(dev, "%s mtk phy clk register fail: %d\n", __func__, PTR_ERR(phy_provider));
 	}
+=======
+
+>>>>>>> upstream/android-13
 	return PTR_ERR_OR_ZERO(phy_provider);
 }
 
@@ -253,5 +310,9 @@ static struct platform_driver ufs_mtk_phy_driver = {
 module_platform_driver(ufs_mtk_phy_driver);
 
 MODULE_DESCRIPTION("Universal Flash Storage (UFS) MediaTek MPHY");
+<<<<<<< HEAD
 MODULE_AUTHOR("Stanley Chu <stanley.chu@medaitek.com>");
+=======
+MODULE_AUTHOR("Stanley Chu <stanley.chu@mediatek.com>");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

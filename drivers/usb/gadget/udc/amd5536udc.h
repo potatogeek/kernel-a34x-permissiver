@@ -2,7 +2,11 @@
 /*
  * amd5536.h -- header for AMD 5536 UDC high/full speed USB device controller
  *
+<<<<<<< HEAD
  * Copyright (C) 2007 AMD (http://www.amd.com)
+=======
+ * Copyright (C) 2007 AMD (https://www.amd.com)
+>>>>>>> upstream/android-13
  * Author: Thomas Dahlmann
  */
 
@@ -440,7 +444,11 @@ struct udc_ep_regs {
 	/* endpoint data descriptor pointer */
 	u32 desptr;
 
+<<<<<<< HEAD
 	/* reserverd */
+=======
+	/* reserved */
+>>>>>>> upstream/android-13
 	u32 reserved;
 
 	/* write/read confirmation */

@@ -163,7 +163,11 @@ static int adb_scan_bus(void)
 			 * See if anybody actually moved. This is suggested
 			 * by HW TechNote 01:
 			 *
+<<<<<<< HEAD
 			 * http://developer.apple.com/technotes/hw/hw_01.html
+=======
+			 * https://developer.apple.com/technotes/hw/hw_01.html
+>>>>>>> upstream/android-13
 			 */
 			adb_request(&req, NULL, ADBREQ_SYNC | ADBREQ_REPLY, 1,
 				    (highFree << 4) | 0xf);
@@ -203,15 +207,24 @@ static int adb_scan_bus(void)
 	}
 
 	/* Now fill in the handler_id field of the adb_handler entries. */
+<<<<<<< HEAD
 	pr_debug("adb devices:\n");
+=======
+>>>>>>> upstream/android-13
 	for (i = 1; i < 16; i++) {
 		if (adb_handler[i].original_address == 0)
 			continue;
 		adb_request(&req, NULL, ADBREQ_SYNC | ADBREQ_REPLY, 1,
 			    (i << 4) | 0xf);
 		adb_handler[i].handler_id = req.reply[2];
+<<<<<<< HEAD
 		pr_debug(" [%d]: %d %x\n", i, adb_handler[i].original_address,
 			 adb_handler[i].handler_id);
+=======
+		printk(KERN_DEBUG "adb device [%d]: %d 0x%X\n", i,
+		       adb_handler[i].original_address,
+		       adb_handler[i].handler_id);
+>>>>>>> upstream/android-13
 		devmask |= 1 << i;
 	}
 	return devmask;
@@ -579,6 +592,11 @@ adb_try_handler_change(int address, int new_id)
 	mutex_lock(&adb_handler_mutex);
 	ret = try_handler_change(address, new_id);
 	mutex_unlock(&adb_handler_mutex);
+<<<<<<< HEAD
+=======
+	if (ret)
+		pr_debug("adb handler change: [%d] 0x%X\n", address, new_id);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(adb_try_handler_change);

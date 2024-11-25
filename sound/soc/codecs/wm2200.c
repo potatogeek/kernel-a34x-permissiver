@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm2200.c  --  WM2200 ALSA SoC Audio driver
  *
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -33,7 +40,10 @@
 #include <sound/wm2200.h>
 
 #include "wm2200.h"
+<<<<<<< HEAD
 #include "wmfw.h"
+=======
+>>>>>>> upstream/android-13
 #include "wm_adsp.h"
 
 #define WM2200_DSP_CONTROL_1                   0x00
@@ -75,6 +85,7 @@ static const char *wm2200_core_supply_names[WM2200_NUM_CORE_SUPPLIES] = {
 	"LDOVDD",
 };
 
+<<<<<<< HEAD
 struct wm2200_fll {
 	int fref;
 	int fout;
@@ -82,6 +93,8 @@ struct wm2200_fll {
 	struct completion lock;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* codec private data */
 struct wm2200_priv {
 	struct wm_adsp dsp[2];
@@ -2030,7 +2043,11 @@ static int wm2200_set_fll(struct snd_soc_component *component, int fll_id, int s
 			msleep(1);
 		}
 
+<<<<<<< HEAD
 		ret = snd_soc_component_read32(component,
+=======
+		ret = snd_soc_component_read(component,
+>>>>>>> upstream/android-13
 				   WM2200_INTERRUPT_RAW_STATUS_2);
 		if (ret < 0) {
 			dev_err(component->dev,
@@ -2063,7 +2080,11 @@ static int wm2200_dai_probe(struct snd_soc_dai *dai)
 	unsigned int val = 0;
 	int ret;
 
+<<<<<<< HEAD
 	ret = snd_soc_component_read32(component, WM2200_GPIO_CTRL_1);
+=======
+	ret = snd_soc_component_read(component, WM2200_GPIO_CTRL_1);
+>>>>>>> upstream/android-13
 	if (ret >= 0) {
 		if ((ret & WM2200_GP1_FN_MASK) != 0) {
 			wm2200->symmetric_rates = true;

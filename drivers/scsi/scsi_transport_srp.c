@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SCSI RDMA (SRP) transport class
  *
  * Copyright (C) 2007 FUJITA Tomonori <tomof@acm.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -409,6 +416,13 @@ static void srp_reconnect_work(struct work_struct *work)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * scsi_target_block() must have been called before this function is
+ * called to guarantee that no .queuecommand() calls are in progress.
+ */
+>>>>>>> upstream/android-13
 static void __rport_fail_io_fast(struct srp_rport *rport)
 {
 	struct Scsi_Host *shost = rport_to_shost(rport);
@@ -418,11 +432,15 @@ static void __rport_fail_io_fast(struct srp_rport *rport)
 
 	if (srp_rport_set_state(rport, SRP_RPORT_FAIL_FAST))
 		return;
+<<<<<<< HEAD
 	/*
 	 * Call scsi_target_block() to wait for ongoing shost->queuecommand()
 	 * calls before invoking i->f->terminate_rport_io().
 	 */
 	scsi_target_block(rport->dev.parent);
+=======
+
+>>>>>>> upstream/android-13
 	scsi_target_unblock(rport->dev.parent, SDEV_TRANSPORT_OFFLINE);
 
 	/* Involve the LLD if possible to terminate all I/O on the rport. */
@@ -591,8 +609,11 @@ int srp_reconnect_rport(struct srp_rport *rport)
 		 * failure timers if these had not yet been started.
 		 */
 		__rport_fail_io_fast(rport);
+<<<<<<< HEAD
 		scsi_target_unblock(&shost->shost_gendev,
 				    SDEV_TRANSPORT_OFFLINE);
+=======
+>>>>>>> upstream/android-13
 		__srp_start_tl_fail_timers(rport);
 	} else if (rport->state != SRP_RPORT_BLOCKED) {
 		scsi_target_unblock(&shost->shost_gendev,

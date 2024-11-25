@@ -11,6 +11,7 @@
 /* hardware definition */
 static const struct snd_pcm_hardware snd_bcm2835_playback_hw = {
 	.info = (SNDRV_PCM_INFO_INTERLEAVED | SNDRV_PCM_INFO_BLOCK_TRANSFER |
+<<<<<<< HEAD
 	SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID),
 	.formats = SNDRV_PCM_FMTBIT_U8 | SNDRV_PCM_FMTBIT_S16_LE,
 	.rates = SNDRV_PCM_RATE_CONTINUOUS | SNDRV_PCM_RATE_8000_48000,
@@ -21,13 +22,31 @@ static const struct snd_pcm_hardware snd_bcm2835_playback_hw = {
 	.buffer_bytes_max = 128 * 1024,
 	.period_bytes_min = 1 * 1024,
 	.period_bytes_max = 128 * 1024,
+=======
+		 SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID |
+		 SNDRV_PCM_INFO_SYNC_APPLPTR | SNDRV_PCM_INFO_BATCH),
+	.formats = SNDRV_PCM_FMTBIT_U8 | SNDRV_PCM_FMTBIT_S16_LE,
+	.rates = SNDRV_PCM_RATE_CONTINUOUS | SNDRV_PCM_RATE_8000_192000,
+	.rate_min = 8000,
+	.rate_max = 192000,
+	.channels_min = 1,
+	.channels_max = 8,
+	.buffer_bytes_max = 512 * 1024,
+	.period_bytes_min = 1 * 1024,
+	.period_bytes_max = 512 * 1024,
+>>>>>>> upstream/android-13
 	.periods_min = 1,
 	.periods_max = 128,
 };
 
 static const struct snd_pcm_hardware snd_bcm2835_playback_spdif_hw = {
 	.info = (SNDRV_PCM_INFO_INTERLEAVED | SNDRV_PCM_INFO_BLOCK_TRANSFER |
+<<<<<<< HEAD
 	SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID),
+=======
+		 SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID |
+		 SNDRV_PCM_INFO_SYNC_APPLPTR | SNDRV_PCM_INFO_BATCH),
+>>>>>>> upstream/android-13
 	.formats = SNDRV_PCM_FMTBIT_S16_LE,
 	.rates = SNDRV_PCM_RATE_CONTINUOUS | SNDRV_PCM_RATE_44100 |
 	SNDRV_PCM_RATE_48000,
@@ -44,6 +63,7 @@ static const struct snd_pcm_hardware snd_bcm2835_playback_spdif_hw = {
 
 static void snd_bcm2835_playback_free(struct snd_pcm_runtime *runtime)
 {
+<<<<<<< HEAD
 	audio_info("Freeing up alsa stream here ..\n");
 	kfree(runtime->private_data);
 	runtime->private_data = NULL;
@@ -86,6 +106,40 @@ void bcm2835_playback_fifo(struct bcm2835_alsa_stream *alsa_stream)
 			snd_pcm_period_elapsed(alsa_stream->substream);
 	} else {
 		audio_warning(" unexpected NULL substream\n");
+=======
+	kfree(runtime->private_data);
+}
+
+void bcm2835_playback_fifo(struct bcm2835_alsa_stream *alsa_stream,
+			   unsigned int bytes)
+{
+	struct snd_pcm_substream *substream = alsa_stream->substream;
+	unsigned int pos;
+
+	if (!alsa_stream->period_size)
+		return;
+
+	if (bytes >= alsa_stream->buffer_size) {
+		snd_pcm_stream_lock(substream);
+		snd_pcm_stop(substream,
+			     alsa_stream->draining ?
+			     SNDRV_PCM_STATE_SETUP :
+			     SNDRV_PCM_STATE_XRUN);
+		snd_pcm_stream_unlock(substream);
+		return;
+	}
+
+	pos = atomic_read(&alsa_stream->pos);
+	pos += bytes;
+	pos %= alsa_stream->buffer_size;
+	atomic_set(&alsa_stream->pos, pos);
+
+	alsa_stream->period_offset += bytes;
+	alsa_stream->interpolate_start = ktime_get();
+	if (alsa_stream->period_offset >= alsa_stream->period_size) {
+		alsa_stream->period_offset %= alsa_stream->period_size;
+		snd_pcm_period_elapsed(substream);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -99,11 +153,15 @@ static int snd_bcm2835_playback_open_generic(
 	int idx;
 	int err;
 
+<<<<<<< HEAD
 	if (mutex_lock_interruptible(&chip->audio_mutex)) {
 		audio_error("Interrupted whilst waiting for lock\n");
 		return -EINTR;
 	}
 	audio_info("Alsa open (%d)\n", substream->number);
+=======
+	mutex_lock(&chip->audio_mutex);
+>>>>>>> upstream/android-13
 	idx = substream->number;
 
 	if (spdif && chip->opened) {
@@ -114,13 +172,19 @@ static int snd_bcm2835_playback_open_generic(
 		goto out;
 	}
 	if (idx >= MAX_SUBSTREAMS) {
+<<<<<<< HEAD
 		audio_error
 			("substream(%d) device doesn't exist max(%d) substreams allowed\n",
+=======
+		dev_err(chip->dev,
+			"substream(%d) device doesn't exist max(%d) substreams allowed\n",
+>>>>>>> upstream/android-13
 			idx, MAX_SUBSTREAMS);
 		err = -ENODEV;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	/* Check if we are ready */
 	if (!(chip->avail_substreams & (1 << idx))) {
 		/* We are not ready yet */
@@ -129,6 +193,8 @@ static int snd_bcm2835_playback_open_generic(
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	alsa_stream = kzalloc(sizeof(*alsa_stream), GFP_KERNEL);
 	if (!alsa_stream) {
 		err = -ENOMEM;
@@ -140,8 +206,11 @@ static int snd_bcm2835_playback_open_generic(
 	alsa_stream->substream = substream;
 	alsa_stream->idx = idx;
 
+<<<<<<< HEAD
 	spin_lock_init(&alsa_stream->lock);
 
+=======
+>>>>>>> upstream/android-13
 	err = bcm2835_audio_open(alsa_stream);
 	if (err) {
 		kfree(alsa_stream);
@@ -162,11 +231,22 @@ static int snd_bcm2835_playback_open_generic(
 				   SNDRV_PCM_HW_PARAM_PERIOD_BYTES,
 				   16);
 
+<<<<<<< HEAD
 	chip->alsa_stream[idx] = alsa_stream;
 
 	chip->opened |= (1 << idx);
 	alsa_stream->open = 1;
 	alsa_stream->draining = 1;
+=======
+	/* position update is in 10ms order */
+	snd_pcm_hw_constraint_minmax(runtime,
+				     SNDRV_PCM_HW_PARAM_PERIOD_TIME,
+				     10 * 1000, UINT_MAX);
+
+	chip->alsa_stream[idx] = alsa_stream;
+
+	chip->opened |= (1 << idx);
+>>>>>>> upstream/android-13
 
 out:
 	mutex_unlock(&chip->audio_mutex);
@@ -184,6 +264,7 @@ static int snd_bcm2835_playback_spdif_open(struct snd_pcm_substream *substream)
 	return snd_bcm2835_playback_open_generic(substream, 1);
 }
 
+<<<<<<< HEAD
 /* close callback */
 static int snd_bcm2835_playback_close(struct snd_pcm_substream *substream)
 {
@@ -225,6 +306,24 @@ static int snd_bcm2835_playback_close(struct snd_pcm_substream *substream)
 	}
 	if (alsa_stream->chip)
 		alsa_stream->chip->alsa_stream[alsa_stream->idx] = NULL;
+=======
+static int snd_bcm2835_playback_close(struct snd_pcm_substream *substream)
+{
+	struct bcm2835_alsa_stream *alsa_stream;
+	struct snd_pcm_runtime *runtime;
+	struct bcm2835_chip *chip;
+
+	chip = snd_pcm_substream_chip(substream);
+	mutex_lock(&chip->audio_mutex);
+	runtime = substream->runtime;
+	alsa_stream = runtime->private_data;
+
+	alsa_stream->period_size = 0;
+	alsa_stream->buffer_size = 0;
+
+	bcm2835_audio_close(alsa_stream);
+	alsa_stream->chip->alsa_stream[alsa_stream->idx] = NULL;
+>>>>>>> upstream/android-13
 	/*
 	 * Do not free up alsa_stream here, it will be freed up by
 	 * runtime->private_free callback we registered in *_open above
@@ -237,6 +336,7 @@ static int snd_bcm2835_playback_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* hw_params callback */
 static int snd_bcm2835_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
@@ -266,6 +366,8 @@ static int snd_bcm2835_pcm_hw_free(struct snd_pcm_substream *substream)
 }
 
 /* prepare callback */
+=======
+>>>>>>> upstream/android-13
 static int snd_bcm2835_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	struct bcm2835_chip *chip = snd_pcm_substream_chip(substream);
@@ -274,9 +376,12 @@ static int snd_bcm2835_pcm_prepare(struct snd_pcm_substream *substream)
 	int channels;
 	int err;
 
+<<<<<<< HEAD
 	if (mutex_lock_interruptible(&chip->audio_mutex))
 		return -EINTR;
 
+=======
+>>>>>>> upstream/android-13
 	/* notify the vchiq that it should enter spdif passthrough mode by
 	 * setting channels=0 (see
 	 * https://github.com/raspberrypi/linux/issues/528)
@@ -284,6 +389,7 @@ static int snd_bcm2835_pcm_prepare(struct snd_pcm_substream *substream)
 	if (chip->spdif_status & IEC958_AES0_NONAUDIO)
 		channels = 0;
 	else
+<<<<<<< HEAD
 		channels = alsa_stream->channels;
 
 	err = bcm2835_audio_set_params(alsa_stream, channels,
@@ -296,6 +402,15 @@ static int snd_bcm2835_pcm_prepare(struct snd_pcm_substream *substream)
 
 	/* in preparation of the stream, set the controls (volume level) of the stream */
 	bcm2835_audio_set_ctls(alsa_stream->chip);
+=======
+		channels = runtime->channels;
+
+	err = bcm2835_audio_set_params(alsa_stream, channels,
+				       runtime->rate,
+				       snd_pcm_format_width(runtime->format));
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	memset(&alsa_stream->pcm_indirect, 0, sizeof(alsa_stream->pcm_indirect));
 
@@ -305,6 +420,7 @@ static int snd_bcm2835_pcm_prepare(struct snd_pcm_substream *substream)
 
 	alsa_stream->buffer_size = snd_pcm_lib_buffer_bytes(substream);
 	alsa_stream->period_size = snd_pcm_lib_period_bytes(substream);
+<<<<<<< HEAD
 	alsa_stream->pos = 0;
 
 	audio_debug("buffer_size=%d, period_size=%d pos=%d frame_bits=%d\n",
@@ -312,21 +428,37 @@ static int snd_bcm2835_pcm_prepare(struct snd_pcm_substream *substream)
 		alsa_stream->pos, runtime->frame_bits);
 
 	mutex_unlock(&chip->audio_mutex);
+=======
+	atomic_set(&alsa_stream->pos, 0);
+	alsa_stream->period_offset = 0;
+	alsa_stream->draining = false;
+	alsa_stream->interpolate_start = ktime_get();
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void snd_bcm2835_pcm_transfer(struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 	struct snd_pcm_indirect *rec, size_t bytes)
+=======
+				     struct snd_pcm_indirect *rec, size_t bytes)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct bcm2835_alsa_stream *alsa_stream = runtime->private_data;
 	void *src = (void *) (substream->runtime->dma_area + rec->sw_data);
+<<<<<<< HEAD
 	int err;
 
 	err = bcm2835_audio_write(alsa_stream, bytes, src);
 	if (err)
 		audio_error(" Failed to transfer to alsa device (%d)\n", err);
 
+=======
+
+	bcm2835_audio_write(alsa_stream, bytes, src);
+>>>>>>> upstream/android-13
 }
 
 static int snd_bcm2835_pcm_ack(struct snd_pcm_substream *substream)
@@ -335,7 +467,10 @@ static int snd_bcm2835_pcm_ack(struct snd_pcm_substream *substream)
 	struct bcm2835_alsa_stream *alsa_stream = runtime->private_data;
 	struct snd_pcm_indirect *pcm_indirect = &alsa_stream->pcm_indirect;
 
+<<<<<<< HEAD
 	pcm_indirect->hw_queue_size = runtime->hw.buffer_bytes_max;
+=======
+>>>>>>> upstream/android-13
 	return snd_pcm_indirect_playback_transfer(substream, pcm_indirect,
 						  snd_bcm2835_pcm_transfer);
 }
@@ -345,6 +480,7 @@ static int snd_bcm2835_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct bcm2835_alsa_stream *alsa_stream = runtime->private_data;
+<<<<<<< HEAD
 	int err = 0;
 
 	switch (cmd) {
@@ -389,6 +525,20 @@ static int snd_bcm2835_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	}
 
 	return err;
+=======
+
+	switch (cmd) {
+	case SNDRV_PCM_TRIGGER_START:
+		return bcm2835_audio_start(alsa_stream);
+	case SNDRV_PCM_TRIGGER_DRAIN:
+		alsa_stream->draining = true;
+		return bcm2835_audio_drain(alsa_stream);
+	case SNDRV_PCM_TRIGGER_STOP:
+		return bcm2835_audio_stop(alsa_stream);
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 /* pointer callback */
@@ -397,6 +547,7 @@ snd_bcm2835_pcm_pointer(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct bcm2835_alsa_stream *alsa_stream = runtime->private_data;
+<<<<<<< HEAD
 
 	audio_debug("pcm_pointer... (%d) hwptr=%d appl=%d pos=%d\n", 0,
 		frames_to_bytes(runtime, runtime->status->hw_ptr),
@@ -416,15 +567,42 @@ static int snd_bcm2835_pcm_lib_ioctl(struct snd_pcm_substream *substream,
 	audio_info(" .. substream=%p, cmd=%d, arg=%p (%x) ret=%d\n", substream,
 		cmd, arg, arg ? *(unsigned int *)arg : 0, ret);
 	return ret;
+=======
+	ktime_t now = ktime_get();
+
+	/* Give userspace better delay reporting by interpolating between GPU
+	 * notifications, assuming audio speed is close enough to the clock
+	 * used for ktime
+	 */
+
+	if ((ktime_to_ns(alsa_stream->interpolate_start)) &&
+	    (ktime_compare(alsa_stream->interpolate_start, now) < 0)) {
+		u64 interval =
+			(ktime_to_ns(ktime_sub(now,
+				alsa_stream->interpolate_start)));
+		u64 frames_output_in_interval =
+			div_u64((interval * runtime->rate), 1000000000);
+		snd_pcm_sframes_t frames_output_in_interval_sized =
+			-frames_output_in_interval;
+		runtime->delay = frames_output_in_interval_sized;
+	}
+
+	return snd_pcm_indirect_playback_pointer(substream,
+		&alsa_stream->pcm_indirect,
+		atomic_read(&alsa_stream->pos));
+>>>>>>> upstream/android-13
 }
 
 /* operators */
 static const struct snd_pcm_ops snd_bcm2835_playback_ops = {
 	.open = snd_bcm2835_playback_open,
 	.close = snd_bcm2835_playback_close,
+<<<<<<< HEAD
 	.ioctl = snd_bcm2835_pcm_lib_ioctl,
 	.hw_params = snd_bcm2835_pcm_hw_params,
 	.hw_free = snd_bcm2835_pcm_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_bcm2835_pcm_prepare,
 	.trigger = snd_bcm2835_pcm_trigger,
 	.pointer = snd_bcm2835_pcm_pointer,
@@ -434,9 +612,12 @@ static const struct snd_pcm_ops snd_bcm2835_playback_ops = {
 static const struct snd_pcm_ops snd_bcm2835_playback_spdif_ops = {
 	.open = snd_bcm2835_playback_spdif_open,
 	.close = snd_bcm2835_playback_close,
+<<<<<<< HEAD
 	.ioctl = snd_bcm2835_pcm_lib_ioctl,
 	.hw_params = snd_bcm2835_pcm_hw_params,
 	.hw_free = snd_bcm2835_pcm_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_bcm2835_pcm_prepare,
 	.trigger = snd_bcm2835_pcm_trigger,
 	.pointer = snd_bcm2835_pcm_pointer,
@@ -444,11 +625,18 @@ static const struct snd_pcm_ops snd_bcm2835_playback_spdif_ops = {
 };
 
 /* create a pcm device */
+<<<<<<< HEAD
 int snd_bcm2835_new_pcm(struct bcm2835_chip *chip, u32 numchannels)
+=======
+int snd_bcm2835_new_pcm(struct bcm2835_chip *chip, const char *name,
+			int idx, enum snd_bcm2835_route route,
+			u32 numchannels, bool spdif)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm *pcm;
 	int err;
 
+<<<<<<< HEAD
 	mutex_init(&chip->audio_mutex);
 	if (mutex_lock_interruptible(&chip->audio_mutex)) {
 		audio_error("Interrupted whilst waiting for lock\n");
@@ -522,10 +710,14 @@ int snd_bcm2835_new_simple_pcm(struct bcm2835_chip *chip,
 
 	err = snd_pcm_new(chip->card, name, 0, numchannels,
 			  0, &pcm);
+=======
+	err = snd_pcm_new(chip->card, name, idx, numchannels, 0, &pcm);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	pcm->private_data = chip;
+<<<<<<< HEAD
 	strcpy(pcm->name, name);
 	chip->pcm = pcm;
 	chip->dest = route;
@@ -545,3 +737,26 @@ int snd_bcm2835_new_simple_pcm(struct bcm2835_chip *chip,
 	return 0;
 }
 
+=======
+	pcm->nonatomic = true;
+	strscpy(pcm->name, name, sizeof(pcm->name));
+	if (!spdif) {
+		chip->dest = route;
+		chip->volume = 0;
+		chip->mute = CTRL_VOL_UNMUTE;
+	}
+
+	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK,
+			spdif ? &snd_bcm2835_playback_spdif_ops :
+			&snd_bcm2835_playback_ops);
+
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       chip->card->dev, 128 * 1024, 128 * 1024);
+
+	if (spdif)
+		chip->pcm_spdif = pcm;
+	else
+		chip->pcm = pcm;
+	return 0;
+}
+>>>>>>> upstream/android-13

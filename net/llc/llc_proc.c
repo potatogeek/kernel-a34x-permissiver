@@ -56,7 +56,11 @@ found:
 	return sk;
 }
 
+<<<<<<< HEAD
 static void *llc_seq_start(struct seq_file *seq, loff_t *pos)
+=======
+static void *llc_seq_start(struct seq_file *seq, loff_t *pos) __acquires(RCU)
+>>>>>>> upstream/android-13
 {
 	loff_t l = *pos;
 

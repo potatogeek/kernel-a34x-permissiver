@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /* vcc.c: sun4v virtual channel concentrator
  *
  * Copyright (C) 2017 Oracle. All rights reserved.
@@ -13,6 +17,7 @@
 #include <asm/vio.h>
 #include <asm/ldc.h>
 
+<<<<<<< HEAD
 #define DRV_MODULE_NAME		"vcc"
 #define DRV_MODULE_VERSION	"1.1"
 #define DRV_MODULE_RELDATE	"July 1, 2017"
@@ -23,6 +28,11 @@ static char version[] =
 MODULE_DESCRIPTION("Sun LDOM virtual console concentrator driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_MODULE_VERSION);
+=======
+MODULE_DESCRIPTION("Sun LDOM virtual console concentrator driver");
+MODULE_LICENSE("GPL");
+MODULE_VERSION("1.1");
+>>>>>>> upstream/android-13
 
 struct vcc_port {
 	struct vio_driver_state vio;
@@ -58,16 +68,25 @@ struct vcc_port {
 #define VCC_CTL_BREAK		-1
 #define VCC_CTL_HUP		-2
 
+<<<<<<< HEAD
 static const char vcc_driver_name[] = "vcc";
 static const char vcc_device_node[] = "vcc";
+=======
+>>>>>>> upstream/android-13
 static struct tty_driver *vcc_tty_driver;
 
 static struct vcc_port *vcc_table[VCC_MAX_PORTS];
 static DEFINE_SPINLOCK(vcc_table_lock);
 
+<<<<<<< HEAD
 int vcc_dbg;
 int vcc_dbg_ldc;
 int vcc_dbg_vio;
+=======
+static unsigned int vcc_dbg;
+static unsigned int vcc_dbg_ldc;
+static unsigned int vcc_dbg_vio;
+>>>>>>> upstream/android-13
 
 module_param(vcc_dbg, uint, 0664);
 module_param(vcc_dbg_ldc, uint, 0664);
@@ -481,9 +500,15 @@ static struct vio_version vcc_versions[] = {
 
 static struct tty_port_operations vcc_port_ops = { 0 };
 
+<<<<<<< HEAD
 static ssize_t vcc_sysfs_domain_show(struct device *dev,
 				     struct device_attribute *attr,
 				     char *buf)
+=======
+static ssize_t domain_show(struct device *dev,
+			   struct device_attribute *attr,
+			   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct vcc_port *port;
 	int rv;
@@ -513,9 +538,15 @@ static int vcc_send_ctl(struct vcc_port *port, int ctl)
 	return rv;
 }
 
+<<<<<<< HEAD
 static ssize_t vcc_sysfs_break_store(struct device *dev,
 				     struct device_attribute *attr,
 				     const char *buf, size_t count)
+=======
+static ssize_t break_store(struct device *dev,
+			   struct device_attribute *attr,
+			   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct vcc_port *port;
 	unsigned long flags;
@@ -538,8 +569,13 @@ static ssize_t vcc_sysfs_break_store(struct device *dev,
 	return rv;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(domain, 0400, vcc_sysfs_domain_show, NULL);
 static DEVICE_ATTR(break, 0200, NULL, vcc_sysfs_break_store);
+=======
+static DEVICE_ATTR_ADMIN_RO(domain);
+static DEVICE_ATTR_WO(break);
+>>>>>>> upstream/android-13
 
 static struct attribute *vcc_sysfs_entries[] = {
 	&dev_attr_domain.attr,
@@ -676,6 +712,7 @@ free_port:
  *
  * Return: status of removal
  */
+<<<<<<< HEAD
 static int vcc_remove(struct vio_dev *vdev)
 {
 	struct vcc_port *port = dev_get_drvdata(&vdev->dev);
@@ -683,6 +720,12 @@ static int vcc_remove(struct vio_dev *vdev)
 	if (!port)
 		return -ENODEV;
 
+=======
+static void vcc_remove(struct vio_dev *vdev)
+{
+	struct vcc_port *port = dev_get_drvdata(&vdev->dev);
+
+>>>>>>> upstream/android-13
 	del_timer_sync(&port->rx_timer);
 	del_timer_sync(&port->tx_timer);
 
@@ -694,12 +737,18 @@ static int vcc_remove(struct vio_dev *vdev)
 		tty_vhangup(port->tty);
 
 	/* Get exclusive reference to VCC, ensures that there are no other
+<<<<<<< HEAD
 	 * clients to this port
 	 */
 	port = vcc_get(port->index, true);
 
 	if (WARN_ON(!port))
 		return -ENODEV;
+=======
+	 * clients to this port. This cannot fail.
+	 */
+	vcc_get(port->index, true);
+>>>>>>> upstream/android-13
 
 	tty_unregister_device(vcc_tty_driver, port->index);
 
@@ -717,8 +766,11 @@ static int vcc_remove(struct vio_dev *vdev)
 		kfree(port->domain);
 		kfree(port);
 	}
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct vio_device_id vcc_match[] = {
@@ -740,11 +792,14 @@ static int vcc_open(struct tty_struct *tty, struct file *vcc_file)
 {
 	struct vcc_port *port;
 
+<<<<<<< HEAD
 	if (unlikely(!tty)) {
 		pr_err("VCC: open: Invalid TTY handle\n");
 		return -ENXIO;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (tty->count > 1)
 		return -EBUSY;
 
@@ -778,11 +833,14 @@ static int vcc_open(struct tty_struct *tty, struct file *vcc_file)
 
 static void vcc_close(struct tty_struct *tty, struct file *vcc_file)
 {
+<<<<<<< HEAD
 	if (unlikely(!tty)) {
 		pr_err("VCC: close: Invalid TTY handle\n");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (unlikely(tty->count > 1))
 		return;
 
@@ -810,11 +868,14 @@ static void vcc_hangup(struct tty_struct *tty)
 {
 	struct vcc_port *port;
 
+<<<<<<< HEAD
 	if (unlikely(!tty)) {
 		pr_err("VCC: hangup: Invalid TTY handle\n");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	port = vcc_get_ne(tty->index);
 	if (unlikely(!port)) {
 		pr_err("VCC: hangup: Failed to find VCC port\n");
@@ -844,11 +905,14 @@ static int vcc_write(struct tty_struct *tty, const unsigned char *buf,
 	int tosend = 0;
 	int rv = -EINVAL;
 
+<<<<<<< HEAD
 	if (unlikely(!tty)) {
 		pr_err("VCC: write: Invalid TTY handle\n");
 		return -ENXIO;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	port = vcc_get_ne(tty->index);
 	if (unlikely(!port)) {
 		pr_err("VCC: write: Failed to find VCC port");
@@ -904,6 +968,7 @@ static int vcc_write(struct tty_struct *tty, const unsigned char *buf,
 	return total_sent ? total_sent : rv;
 }
 
+<<<<<<< HEAD
 static int vcc_write_room(struct tty_struct *tty)
 {
 	struct vcc_port *port;
@@ -913,11 +978,21 @@ static int vcc_write_room(struct tty_struct *tty)
 		pr_err("VCC: write_room: Invalid TTY handle\n");
 		return -ENXIO;
 	}
+=======
+static unsigned int vcc_write_room(struct tty_struct *tty)
+{
+	struct vcc_port *port;
+	unsigned int num;
+>>>>>>> upstream/android-13
 
 	port = vcc_get_ne(tty->index);
 	if (unlikely(!port)) {
 		pr_err("VCC: write_room: Failed to find VCC port\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	num = VCC_BUFF_LEN - port->chars_in_buffer;
@@ -927,6 +1002,7 @@ static int vcc_write_room(struct tty_struct *tty)
 	return num;
 }
 
+<<<<<<< HEAD
 static int vcc_chars_in_buffer(struct tty_struct *tty)
 {
 	struct vcc_port *port;
@@ -936,11 +1012,21 @@ static int vcc_chars_in_buffer(struct tty_struct *tty)
 		pr_err("VCC: chars_in_buffer: Invalid TTY handle\n");
 		return -ENXIO;
 	}
+=======
+static unsigned int vcc_chars_in_buffer(struct tty_struct *tty)
+{
+	struct vcc_port *port;
+	unsigned int num;
+>>>>>>> upstream/android-13
 
 	port = vcc_get_ne(tty->index);
 	if (unlikely(!port)) {
 		pr_err("VCC: chars_in_buffer: Failed to find VCC port\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	num = port->chars_in_buffer;
@@ -955,11 +1041,14 @@ static int vcc_break_ctl(struct tty_struct *tty, int state)
 	struct vcc_port *port;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (unlikely(!tty)) {
 		pr_err("VCC: break_ctl: Invalid TTY handle\n");
 		return -ENXIO;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	port = vcc_get_ne(tty->index);
 	if (unlikely(!port)) {
 		pr_err("VCC: break_ctl: Failed to find VCC port\n");
@@ -990,11 +1079,14 @@ static int vcc_install(struct tty_driver *driver, struct tty_struct *tty)
 	struct tty_port *port_tty;
 	int ret;
 
+<<<<<<< HEAD
 	if (unlikely(!tty)) {
 		pr_err("VCC: install: Invalid TTY handle\n");
 		return -ENXIO;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (tty->index >= VCC_MAX_PORTS)
 		return -EINVAL;
 
@@ -1029,11 +1121,14 @@ static void vcc_cleanup(struct tty_struct *tty)
 {
 	struct vcc_port *port;
 
+<<<<<<< HEAD
 	if (unlikely(!tty)) {
 		pr_err("VCC: cleanup: Invalid TTY handle\n");
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	port = vcc_get(tty->index, true);
 	if (port) {
 		port->tty = NULL;
@@ -1071,16 +1166,24 @@ static int vcc_tty_init(void)
 {
 	int rv;
 
+<<<<<<< HEAD
 	pr_info("VCC: %s\n", version);
 
+=======
+>>>>>>> upstream/android-13
 	vcc_tty_driver = tty_alloc_driver(VCC_MAX_PORTS, VCC_TTY_FLAGS);
 	if (IS_ERR(vcc_tty_driver)) {
 		pr_err("VCC: TTY driver alloc failed\n");
 		return PTR_ERR(vcc_tty_driver);
 	}
 
+<<<<<<< HEAD
 	vcc_tty_driver->driver_name = vcc_driver_name;
 	vcc_tty_driver->name = vcc_device_node;
+=======
+	vcc_tty_driver->driver_name = "vcc";
+	vcc_tty_driver->name = "vcc";
+>>>>>>> upstream/android-13
 
 	vcc_tty_driver->minor_start = VCC_MINOR_START;
 	vcc_tty_driver->type = TTY_DRIVER_TYPE_SYSTEM;
@@ -1091,7 +1194,11 @@ static int vcc_tty_init(void)
 	rv = tty_register_driver(vcc_tty_driver);
 	if (rv) {
 		pr_err("VCC: TTY driver registration failed\n");
+<<<<<<< HEAD
 		put_tty_driver(vcc_tty_driver);
+=======
+		tty_driver_kref_put(vcc_tty_driver);
+>>>>>>> upstream/android-13
 		vcc_tty_driver = NULL;
 		return rv;
 	}
@@ -1104,7 +1211,11 @@ static int vcc_tty_init(void)
 static void vcc_tty_exit(void)
 {
 	tty_unregister_driver(vcc_tty_driver);
+<<<<<<< HEAD
 	put_tty_driver(vcc_tty_driver);
+=======
+	tty_driver_kref_put(vcc_tty_driver);
+>>>>>>> upstream/android-13
 	vccdbg("VCC: TTY driver unregistered\n");
 
 	vcc_tty_driver = NULL;

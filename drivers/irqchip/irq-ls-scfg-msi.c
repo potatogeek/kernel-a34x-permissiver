@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Freescale SCFG MSI(-X) support
  *
  * Copyright (C) 2016 Freescale Semiconductor.
  *
  * Author: Minghuan Lian <Minghuan.Lian@nxp.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -100,7 +107,11 @@ static void ls_scfg_msi_compose_msg(struct irq_data *data, struct msi_msg *msg)
 		msg->data |= cpumask_first(mask);
 	}
 
+<<<<<<< HEAD
 	iommu_dma_map_msi_msg(data->irq, msg);
+=======
+	iommu_dma_compose_msi_msg(irq_data_get_msi_desc(data), msg);
+>>>>>>> upstream/android-13
 }
 
 static int ls_scfg_msi_set_affinity(struct irq_data *irq_data,
@@ -141,6 +152,10 @@ static int ls_scfg_msi_domain_irq_alloc(struct irq_domain *domain,
 					unsigned int nr_irqs,
 					void *args)
 {
+<<<<<<< HEAD
+=======
+	msi_alloc_info_t *info = args;
+>>>>>>> upstream/android-13
 	struct ls_scfg_msi *msi_data = domain->host_data;
 	int pos, err = 0;
 
@@ -157,6 +172,13 @@ static int ls_scfg_msi_domain_irq_alloc(struct irq_domain *domain,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	err = iommu_dma_prepare_msi(info->desc, msi_data->msiir_addr);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	irq_domain_set_info(domain, virq, pos,
 			    &ls_scfg_msi_parent_chip, msi_data,
 			    handle_simple_irq, NULL, NULL);
@@ -192,7 +214,11 @@ static void ls_scfg_msi_irq_handler(struct irq_desc *desc)
 	struct ls_scfg_msir *msir = irq_desc_get_handler_data(desc);
 	struct ls_scfg_msi *msi_data = msir->msi_data;
 	unsigned long val;
+<<<<<<< HEAD
 	int pos, size, virq, hwirq;
+=======
+	int pos, size, hwirq;
+>>>>>>> upstream/android-13
 
 	chained_irq_enter(irq_desc_get_chip(desc), desc);
 
@@ -204,9 +230,13 @@ static void ls_scfg_msi_irq_handler(struct irq_desc *desc)
 	for_each_set_bit_from(pos, &val, size) {
 		hwirq = ((msir->bit_end - pos) << msi_data->cfg->ibs_shift) |
 			msir->srs;
+<<<<<<< HEAD
 		virq = irq_find_mapping(msi_data->parent, hwirq);
 		if (virq)
 			generic_handle_irq(virq);
+=======
+		generic_handle_domain_irq(msi_data->parent, hwirq);
+>>>>>>> upstream/android-13
 	}
 
 	chained_irq_exit(irq_desc_get_chip(desc), desc);
@@ -362,10 +392,14 @@ static int ls_scfg_msi_probe(struct platform_device *pdev)
 
 	msi_data->irqs_num = MSI_IRQS_PER_MSIR *
 			     (1 << msi_data->cfg->ibs_shift);
+<<<<<<< HEAD
 	msi_data->used = devm_kcalloc(&pdev->dev,
 				    BITS_TO_LONGS(msi_data->irqs_num),
 				    sizeof(*msi_data->used),
 				    GFP_KERNEL);
+=======
+	msi_data->used = devm_bitmap_zalloc(&pdev->dev, msi_data->irqs_num, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!msi_data->used)
 		return -ENOMEM;
 	/*

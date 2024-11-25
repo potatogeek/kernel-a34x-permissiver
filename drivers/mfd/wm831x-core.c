@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm831x-core.c  --  Device access for Wolfson WM831x PMICs
  *
  * Copyright 2009 Wolfson Microelectronics PLC.
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
@@ -14,6 +19,13 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/export.h>
+>>>>>>> upstream/android-13
 #include <linux/bcd.h>
 #include <linux/delay.h>
 #include <linux/mfd/core.h>
@@ -33,7 +45,11 @@
 /* Current settings - values are 2*2^(reg_val/4) microamps.  These are
  * exported since they are used by multiple drivers.
  */
+<<<<<<< HEAD
 int wm831x_isinkv_values[WM831X_ISINK_MAX_ISEL + 1] = {
+=======
+const unsigned int wm831x_isinkv_values[WM831X_ISINK_MAX_ISEL + 1] = {
+>>>>>>> upstream/android-13
 	2,
 	2,
 	3,
@@ -113,11 +129,20 @@ static int wm831x_reg_locked(struct wm831x *wm831x, unsigned short reg)
 }
 
 /**
+<<<<<<< HEAD
  * wm831x_reg_unlock: Unlock user keyed registers
+=======
+ * wm831x_reg_lock: Unlock user keyed registers
+>>>>>>> upstream/android-13
  *
  * The WM831x has a user key preventing writes to particularly
  * critical registers.  This function locks those registers,
  * allowing writes to them.
+<<<<<<< HEAD
+=======
+ *
+ * @wm831x: pointer to local driver data structure
+>>>>>>> upstream/android-13
  */
 void wm831x_reg_lock(struct wm831x *wm831x)
 {
@@ -144,6 +169,11 @@ EXPORT_SYMBOL_GPL(wm831x_reg_lock);
  * The WM831x has a user key preventing writes to particularly
  * critical registers.  This function locks those registers,
  * preventing spurious writes.
+<<<<<<< HEAD
+=======
+ *
+ * @wm831x: pointer to local driver data structure
+>>>>>>> upstream/android-13
  */
 int wm831x_reg_unlock(struct wm831x *wm831x)
 {
@@ -616,12 +646,17 @@ int wm831x_set_bits(struct wm831x *wm831x, unsigned short reg,
 }
 EXPORT_SYMBOL_GPL(wm831x_set_bits);
 
+<<<<<<< HEAD
 static struct resource wm831x_dcdc1_resources[] = {
+=======
+static const struct resource wm831x_dcdc1_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_DC1_CONTROL_1,
 		.end   = WM831X_DC1_DVS_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_DC1,
@@ -638,11 +673,20 @@ static struct resource wm831x_dcdc1_resources[] = {
 
 
 static struct resource wm831x_dcdc2_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_DC1, "UV"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_HC_DC1, "HC"),
+};
+
+
+static const struct resource wm831x_dcdc2_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_DC2_CONTROL_1,
 		.end   = WM831X_DC2_DVS_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_DC2,
@@ -658,11 +702,19 @@ static struct resource wm831x_dcdc2_resources[] = {
 };
 
 static struct resource wm831x_dcdc3_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_DC2, "UV"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_HC_DC2, "HC"),
+};
+
+static const struct resource wm831x_dcdc3_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_DC3_CONTROL_1,
 		.end   = WM831X_DC3_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_DC3,
@@ -672,11 +724,18 @@ static struct resource wm831x_dcdc3_resources[] = {
 };
 
 static struct resource wm831x_dcdc4_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_DC3, "UV"),
+};
+
+static const struct resource wm831x_dcdc4_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_DC4_CONTROL,
 		.end   = WM831X_DC4_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_DC4,
@@ -686,11 +745,18 @@ static struct resource wm831x_dcdc4_resources[] = {
 };
 
 static struct resource wm8320_dcdc4_buck_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_DC4, "UV"),
+};
+
+static const struct resource wm8320_dcdc4_buck_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_DC4_CONTROL,
 		.end   = WM832X_DC4_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_DC4,
@@ -700,6 +766,12 @@ static struct resource wm8320_dcdc4_buck_resources[] = {
 };
 
 static struct resource wm831x_gpio_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_DC4, "UV"),
+};
+
+static const struct resource wm831x_gpio_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_IRQ_GPIO_1,
 		.end   = WM831X_IRQ_GPIO_16,
@@ -707,12 +779,17 @@ static struct resource wm831x_gpio_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource wm831x_isink1_resources[] = {
+=======
+static const struct resource wm831x_isink1_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_CURRENT_SINK_1,
 		.end   = WM831X_CURRENT_SINK_1,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.start = WM831X_IRQ_CS1,
 		.end   = WM831X_IRQ_CS1,
@@ -721,11 +798,18 @@ static struct resource wm831x_isink1_resources[] = {
 };
 
 static struct resource wm831x_isink2_resources[] = {
+=======
+	DEFINE_RES_IRQ(WM831X_IRQ_CS1),
+};
+
+static const struct resource wm831x_isink2_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_CURRENT_SINK_2,
 		.end   = WM831X_CURRENT_SINK_2,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.start = WM831X_IRQ_CS2,
 		.end   = WM831X_IRQ_CS2,
@@ -734,11 +818,18 @@ static struct resource wm831x_isink2_resources[] = {
 };
 
 static struct resource wm831x_ldo1_resources[] = {
+=======
+	DEFINE_RES_IRQ(WM831X_IRQ_CS2),
+};
+
+static const struct resource wm831x_ldo1_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO1_CONTROL,
 		.end   = WM831X_LDO1_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO1,
@@ -748,11 +839,18 @@ static struct resource wm831x_ldo1_resources[] = {
 };
 
 static struct resource wm831x_ldo2_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO1, "UV"),
+};
+
+static const struct resource wm831x_ldo2_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO2_CONTROL,
 		.end   = WM831X_LDO2_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO2,
@@ -762,11 +860,18 @@ static struct resource wm831x_ldo2_resources[] = {
 };
 
 static struct resource wm831x_ldo3_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO2, "UV"),
+};
+
+static const struct resource wm831x_ldo3_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO3_CONTROL,
 		.end   = WM831X_LDO3_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO3,
@@ -776,11 +881,18 @@ static struct resource wm831x_ldo3_resources[] = {
 };
 
 static struct resource wm831x_ldo4_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO3, "UV"),
+};
+
+static const struct resource wm831x_ldo4_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO4_CONTROL,
 		.end   = WM831X_LDO4_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO4,
@@ -790,11 +902,18 @@ static struct resource wm831x_ldo4_resources[] = {
 };
 
 static struct resource wm831x_ldo5_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO4, "UV"),
+};
+
+static const struct resource wm831x_ldo5_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO5_CONTROL,
 		.end   = WM831X_LDO5_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO5,
@@ -804,11 +923,18 @@ static struct resource wm831x_ldo5_resources[] = {
 };
 
 static struct resource wm831x_ldo6_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO5, "UV"),
+};
+
+static const struct resource wm831x_ldo6_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO6_CONTROL,
 		.end   = WM831X_LDO6_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO6,
@@ -818,11 +944,18 @@ static struct resource wm831x_ldo6_resources[] = {
 };
 
 static struct resource wm831x_ldo7_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO6, "UV"),
+};
+
+static const struct resource wm831x_ldo7_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO7_CONTROL,
 		.end   = WM831X_LDO7_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO7,
@@ -832,11 +965,18 @@ static struct resource wm831x_ldo7_resources[] = {
 };
 
 static struct resource wm831x_ldo8_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO7, "UV"),
+};
+
+static const struct resource wm831x_ldo8_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO8_CONTROL,
 		.end   = WM831X_LDO8_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO8,
@@ -846,11 +986,18 @@ static struct resource wm831x_ldo8_resources[] = {
 };
 
 static struct resource wm831x_ldo9_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO8, "UV"),
+};
+
+static const struct resource wm831x_ldo9_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO9_CONTROL,
 		.end   = WM831X_LDO9_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO9,
@@ -860,11 +1007,18 @@ static struct resource wm831x_ldo9_resources[] = {
 };
 
 static struct resource wm831x_ldo10_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO9, "UV"),
+};
+
+static const struct resource wm831x_ldo10_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO10_CONTROL,
 		.end   = WM831X_LDO10_SLEEP_CONTROL,
 		.flags = IORESOURCE_REG,
 	},
+<<<<<<< HEAD
 	{
 		.name  = "UV",
 		.start = WM831X_IRQ_UV_LDO10,
@@ -874,6 +1028,12 @@ static struct resource wm831x_ldo10_resources[] = {
 };
 
 static struct resource wm831x_ldo11_resources[] = {
+=======
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_UV_LDO10, "UV"),
+};
+
+static const struct resource wm831x_ldo11_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_LDO11_ON_CONTROL,
 		.end   = WM831X_LDO11_SLEEP_CONTROL,
@@ -881,6 +1041,7 @@ static struct resource wm831x_ldo11_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource wm831x_on_resources[] = {
 	{
 		.start = WM831X_IRQ_ON,
@@ -975,6 +1136,33 @@ static struct resource wm831x_rtc_resources[] = {
 };
 
 static struct resource wm831x_status1_resources[] = {
+=======
+static const struct resource wm831x_on_resources[] = {
+	DEFINE_RES_IRQ(WM831X_IRQ_ON),
+};
+
+
+static const struct resource wm831x_power_resources[] = {
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_PPM_SYSLO, "SYSLO"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_PPM_PWR_SRC, "PWR SRC"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_PPM_USB_CURR, "USB CURR"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_BATT_HOT, "BATT HOT"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_BATT_COLD, "BATT COLD"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_BATT_FAIL, "BATT FAIL"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_OV, "OV"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_END, "END"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_TO, "TO"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_MODE, "MODE"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_CHG_START, "START"),
+};
+
+static const struct resource wm831x_rtc_resources[] = {
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_RTC_PER, "PER"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_RTC_ALM, "ALM"),
+};
+
+static const struct resource wm831x_status1_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_STATUS_LED_1,
 		.end   = WM831X_STATUS_LED_1,
@@ -982,7 +1170,11 @@ static struct resource wm831x_status1_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource wm831x_status2_resources[] = {
+=======
+static const struct resource wm831x_status2_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start = WM831X_STATUS_LED_2,
 		.end   = WM831X_STATUS_LED_2,
@@ -990,6 +1182,7 @@ static struct resource wm831x_status2_resources[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct resource wm831x_touch_resources[] = {
 	{
 		.name = "TCHPD",
@@ -1011,6 +1204,15 @@ static struct resource wm831x_wdt_resources[] = {
 		.end   = WM831X_IRQ_WDOG_TO,
 		.flags = IORESOURCE_IRQ,
 	},
+=======
+static const struct resource wm831x_touch_resources[] = {
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_TCHPD, "TCHPD"),
+	DEFINE_RES_IRQ_NAMED(WM831X_IRQ_TCHDATA, "TCHDATA"),
+};
+
+static const struct resource wm831x_wdt_resources[] = {
+	DEFINE_RES_IRQ(WM831X_IRQ_WDOG_TO),
+>>>>>>> upstream/android-13
 };
 
 static const struct mfd_cell wm8310_devs[] = {
@@ -1892,6 +2094,7 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 void wm831x_device_exit(struct wm831x *wm831x)
 {
 	wm831x_otp_exit(wm831x);
@@ -1900,6 +2103,8 @@ void wm831x_device_exit(struct wm831x *wm831x)
 	wm831x_irq_exit(wm831x);
 }
 
+=======
+>>>>>>> upstream/android-13
 int wm831x_device_suspend(struct wm831x *wm831x)
 {
 	int reg, mask;
@@ -1944,7 +2149,10 @@ void wm831x_device_shutdown(struct wm831x *wm831x)
 	}
 }
 EXPORT_SYMBOL_GPL(wm831x_device_shutdown);
+<<<<<<< HEAD
 
 MODULE_DESCRIPTION("Core support for the WM831X AudioPlus PMIC");
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mark Brown");
+=======
+>>>>>>> upstream/android-13

@@ -20,7 +20,10 @@ extern void __iomem *__ioremap(unsigned long physaddr, unsigned long size,
 			       int cacheflag);
 #define iounmap iounmap
 extern void iounmap(void __iomem *addr);
+<<<<<<< HEAD
 extern void __iounmap(void *addr, unsigned long size);
+=======
+>>>>>>> upstream/android-13
 
 #define ioremap ioremap
 static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
@@ -28,6 +31,7 @@ static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
 }
 
+<<<<<<< HEAD
 #define ioremap_nocache ioremap_nocache
 static inline void __iomem *ioremap_nocache(unsigned long physaddr,
 					    unsigned long size)
@@ -36,6 +40,9 @@ static inline void __iomem *ioremap_nocache(unsigned long physaddr,
 }
 
 #define ioremap_uc ioremap_nocache
+=======
+#define ioremap_uc ioremap
+>>>>>>> upstream/android-13
 #define ioremap_wt ioremap_wt
 static inline void __iomem *ioremap_wt(unsigned long physaddr,
 				       unsigned long size)
@@ -43,6 +50,7 @@ static inline void __iomem *ioremap_wt(unsigned long physaddr,
 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
 }
 
+<<<<<<< HEAD
 #define ioremap_fullcache ioremap_fullcache
 static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
 					      unsigned long size)
@@ -50,6 +58,8 @@ static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define memset_io memset_io
 static inline void memset_io(volatile void __iomem *addr, unsigned char val,
 			     int count)

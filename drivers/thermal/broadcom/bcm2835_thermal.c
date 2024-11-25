@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Driver for Broadcom BCM2835 SoC temperature sensor
  *
  * Copyright (C) 2016 Martin Sperl
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -132,8 +139,11 @@ static void bcm2835_thermal_debugfs(struct platform_device *pdev)
 	struct debugfs_regset32 *regset;
 
 	data->debugfsdir = debugfs_create_dir("bcm2835_thermal", NULL);
+<<<<<<< HEAD
 	if (!data->debugfsdir)
 		return;
+=======
+>>>>>>> upstream/android-13
 
 	regset = devm_kzalloc(&pdev->dev, sizeof(*regset), GFP_KERNEL);
 	if (!regset)
@@ -195,7 +205,10 @@ static int bcm2835_thermal_probe(struct platform_device *pdev)
 	data->regs = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(data->regs)) {
 		err = PTR_ERR(data->regs);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Could not get registers: %d\n", err);
+=======
+>>>>>>> upstream/android-13
 		return err;
 	}
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pnpbios -- PnP BIOS driver
  *
@@ -17,6 +21,7 @@
  *
  * Ported to the PnP Layer and several additional improvements (C) 2002
  * by Adam Belay <ambx1@neo.rr.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +36,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Change Log
@@ -311,14 +318,21 @@ struct pnp_protocol pnpbios_protocol = {
 
 static int __init insert_device(struct pnp_bios_node *node)
 {
+<<<<<<< HEAD
 	struct list_head *pos;
+=======
+>>>>>>> upstream/android-13
 	struct pnp_dev *dev;
 	char id[8];
 	int error;
 
 	/* check if the device is already added */
+<<<<<<< HEAD
 	list_for_each(pos, &pnpbios_protocol.devices) {
 		dev = list_entry(pos, struct pnp_dev, protocol_list);
+=======
+	list_for_each_entry(dev, &pnpbios_protocol.devices, protocol_list) {
+>>>>>>> upstream/android-13
 		if (dev->number == node->handle)
 			return -EEXIST;
 	}

@@ -207,7 +207,11 @@ autoconf_fail:
 	ss_loop_sink_desc.bEndpointAddress = fs_loop_sink_desc.bEndpointAddress;
 
 	ret = usb_assign_descriptors(f, fs_loopback_descs, hs_loopback_descs,
+<<<<<<< HEAD
 			ss_loopback_descs, NULL);
+=======
+			ss_loopback_descs, ss_loopback_descs);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -274,7 +278,11 @@ static void loopback_complete(struct usb_ep *ep, struct usb_request *req)
 	default:
 		ERROR(cdev, "%s loop complete --> %d, %d/%d\n", ep->name,
 				status, req->actual, req->length);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/* NOTE:  since this driver doesn't maintain an explicit record
 	 * of requests it submitted (just maintains qlen count), we

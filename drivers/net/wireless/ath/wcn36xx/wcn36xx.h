@@ -18,6 +18,10 @@
 #define _WCN36XX_H_
 
 #include <linux/completion.h>
+<<<<<<< HEAD
+=======
+#include <linux/in6.h>
+>>>>>>> upstream/android-13
 #include <linux/printk.h>
 #include <linux/spinlock.h>
 #include <net/mac80211.h>
@@ -83,7 +87,15 @@ enum wcn36xx_ampdu_state {
 	WCN36XX_AMPDU_OPERATIONAL,
 };
 
+<<<<<<< HEAD
 #define WCN36XX_HW_CHANNEL(__wcn) (__wcn->hw->conf.chandef.chan->hw_value)
+=======
+#define HW_VALUE_PHY_SHIFT 8
+#define HW_VALUE_PHY(hw_value) ((hw_value) >> HW_VALUE_PHY_SHIFT)
+#define HW_VALUE_CHANNEL(hw_value) ((hw_value) & 0xFF)
+#define WCN36XX_HW_CHANNEL(__wcn)\
+	HW_VALUE_CHANNEL(__wcn->hw->conf.chandef.chan->hw_value)
+>>>>>>> upstream/android-13
 #define WCN36XX_BAND(__wcn) (__wcn->hw->conf.chandef.chan->band)
 #define WCN36XX_CENTER_FREQ(__wcn) (__wcn->hw->conf.chandef.chan->center_freq)
 #define WCN36XX_LISTEN_INTERVAL(__wcn) (__wcn->hw->conf.listen_interval)
@@ -92,6 +104,11 @@ enum wcn36xx_ampdu_state {
 
 #define RF_UNKNOWN	0x0000
 #define RF_IRIS_WCN3620	0x3620
+<<<<<<< HEAD
+=======
+#define RF_IRIS_WCN3660	0x3660
+#define RF_IRIS_WCN3680	0x3680
+>>>>>>> upstream/android-13
 
 static inline void buff_to_be(u32 *buf, size_t len)
 {
@@ -130,6 +147,22 @@ struct wcn36xx_vif {
 	u8 self_dpu_desc_index;
 	u8 self_ucast_dpu_sign;
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IPV6)
+	/* IPv6 addresses for WoWLAN */
+	struct in6_addr target_ipv6_addrs[WCN36XX_HAL_IPV6_OFFLOAD_ADDR_MAX];
+	unsigned long tentative_addrs[BITS_TO_LONGS(WCN36XX_HAL_IPV6_OFFLOAD_ADDR_MAX)];
+	int num_target_ipv6_addrs;
+#endif
+	/* WoWLAN GTK rekey data */
+	struct {
+		u8 kck[NL80211_KCK_LEN], kek[NL80211_KEK_LEN];
+		__le64 replay_ctr;
+		bool valid;
+	} rekey_data;
+
+>>>>>>> upstream/android-13
 	struct list_head sta_list;
 };
 
@@ -167,7 +200,11 @@ struct wcn36xx_sta {
 	u8 bss_dpu_desc_index;
 	bool is_data_encrypted;
 	/* Rates */
+<<<<<<< HEAD
 	struct wcn36xx_hal_supported_rates supported_rates;
+=======
+	struct wcn36xx_hal_supported_rates_v1 supported_rates;
+>>>>>>> upstream/android-13
 
 	spinlock_t ampdu_lock;		/* protects next two fields */
 	enum wcn36xx_ampdu_state ampdu_state[16];
@@ -179,6 +216,10 @@ struct wcn36xx {
 	struct device		*dev;
 	struct list_head	vif_list;
 
+<<<<<<< HEAD
+=======
+	const char		*nv_file;
+>>>>>>> upstream/android-13
 	const struct firmware	*nv;
 
 	u8			fw_revision;
@@ -223,10 +264,19 @@ struct wcn36xx {
 	spinlock_t		hal_ind_lock;
 	struct list_head	hal_ind_queue;
 
+<<<<<<< HEAD
 	struct work_struct	scan_work;
 	struct cfg80211_scan_request *scan_req;
 	int			scan_freq;
 	int			scan_band;
+=======
+	struct cfg80211_scan_request *scan_req;
+	bool			sw_scan;
+	u8			sw_scan_opchannel;
+	bool			sw_scan_init;
+	u8			sw_scan_channel;
+	struct ieee80211_vif	*sw_scan_vif;
+>>>>>>> upstream/android-13
 	struct mutex		scan_lock;
 	bool			scan_aborted;
 
@@ -245,6 +295,10 @@ struct wcn36xx {
 	struct wcn36xx_dxe_mem_pool data_mem_pool;
 
 	struct sk_buff		*tx_ack_skb;
+<<<<<<< HEAD
+=======
+	struct timer_list	tx_ack_timer;
+>>>>>>> upstream/android-13
 
 	/* RF module */
 	unsigned		rf_id;
@@ -268,6 +322,10 @@ static inline bool wcn36xx_is_fw_version(struct wcn36xx *wcn,
 		wcn->fw_revision == revision);
 }
 void wcn36xx_set_default_rates(struct wcn36xx_hal_supported_rates *rates);
+<<<<<<< HEAD
+=======
+void wcn36xx_set_default_rates_v1(struct wcn36xx_hal_supported_rates_v1 *rates);
+>>>>>>> upstream/android-13
 
 static inline
 struct ieee80211_sta *wcn36xx_priv_to_sta(struct wcn36xx_sta *sta_priv)

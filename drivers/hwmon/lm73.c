@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * LM73 Sensor driver
  * Based on LM75
@@ -9,10 +13,13 @@
  * Adrien Demarez <adrien.demarez@bolloretelecom.eu>
  * Jeremy Laine <jeremy.laine@bolloretelecom.eu>
  * Chris Verges <kg4ysn@gmail.com>
+<<<<<<< HEAD
  *
  * This software program is licensed subject to the GNU General Public License
  * (GPL).Version 2,June 1991, available at
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -62,8 +69,13 @@ struct lm73_data {
 
 /*-----------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static ssize_t set_temp(struct device *dev, struct device_attribute *da,
 			const char *buf, size_t count)
+=======
+static ssize_t temp_store(struct device *dev, struct device_attribute *da,
+			  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 	struct lm73_data *data = dev_get_drvdata(dev);
@@ -81,7 +93,11 @@ static ssize_t set_temp(struct device *dev, struct device_attribute *da,
 	return (err < 0) ? err : count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -98,8 +114,13 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *da,
 	return scnprintf(buf, PAGE_SIZE, "%d\n", temp);
 }
 
+<<<<<<< HEAD
 static ssize_t set_convrate(struct device *dev, struct device_attribute *da,
 			    const char *buf, size_t count)
+=======
+static ssize_t convrate_store(struct device *dev, struct device_attribute *da,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct lm73_data *data = dev_get_drvdata(dev);
 	unsigned long convrate;
@@ -133,7 +154,11 @@ static ssize_t set_convrate(struct device *dev, struct device_attribute *da,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_convrate(struct device *dev, struct device_attribute *da,
+=======
+static ssize_t convrate_show(struct device *dev, struct device_attribute *da,
+>>>>>>> upstream/android-13
 			     char *buf)
 {
 	struct lm73_data *data = dev_get_drvdata(dev);
@@ -143,7 +168,11 @@ static ssize_t show_convrate(struct device *dev, struct device_attribute *da,
 	return scnprintf(buf, PAGE_SIZE, "%hu\n", lm73_convrates[res]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_maxmin_alarm(struct device *dev,
+=======
+static ssize_t maxmin_alarm_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *da, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
@@ -168,6 +197,7 @@ abort:
 
 /* sysfs attributes for hwmon */
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO,
 			show_temp, set_temp, LM73_REG_MAX);
 static SENSOR_DEVICE_ATTR(temp1_min, S_IWUSR | S_IRUGO,
@@ -180,6 +210,16 @@ static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO,
 			show_maxmin_alarm, NULL, LM73_CTRL_HI_SHIFT);
 static SENSOR_DEVICE_ATTR(temp1_min_alarm, S_IRUGO,
 			show_maxmin_alarm, NULL, LM73_CTRL_LO_SHIFT);
+=======
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp, LM73_REG_MAX);
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp, LM73_REG_MIN);
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, LM73_REG_INPUT);
+static SENSOR_DEVICE_ATTR_RW(update_interval, convrate, 0);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, maxmin_alarm,
+			     LM73_CTRL_HI_SHIFT);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_alarm, maxmin_alarm,
+			     LM73_CTRL_LO_SHIFT);
+>>>>>>> upstream/android-13
 
 static struct attribute *lm73_attrs[] = {
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -197,7 +237,11 @@ ATTRIBUTE_GROUPS(lm73);
 /* device probe and removal */
 
 static int
+<<<<<<< HEAD
 lm73_probe(struct i2c_client *client, const struct i2c_device_id *id)
+=======
+lm73_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -269,12 +313,30 @@ static int lm73_detect(struct i2c_client *new_client,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id lm73_of_match[] = {
+	{
+		.compatible = "ti,lm73",
+	},
+	{ },
+};
+
+MODULE_DEVICE_TABLE(of, lm73_of_match);
+
+>>>>>>> upstream/android-13
 static struct i2c_driver lm73_driver = {
 	.class		= I2C_CLASS_HWMON,
 	.driver = {
 		.name	= "lm73",
+<<<<<<< HEAD
 	},
 	.probe		= lm73_probe,
+=======
+		.of_match_table = lm73_of_match,
+	},
+	.probe_new	= lm73_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm73_ids,
 	.detect		= lm73_detect,
 	.address_list	= normal_i2c,

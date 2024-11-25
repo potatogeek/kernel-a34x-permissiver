@@ -10,6 +10,10 @@
 
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/serial_8250.h>
 #include <linux/ata_platform.h>

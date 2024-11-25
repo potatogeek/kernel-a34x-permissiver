@@ -13,6 +13,10 @@
 #include <linux/i2c.h>
 #include <linux/delay.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -43,7 +47,15 @@ struct lidar_data {
 	int (*xfer)(struct lidar_data *data, u8 reg, u8 *val, int len);
 	int i2c_enabled;
 
+<<<<<<< HEAD
 	u16 buffer[8]; /* 2 byte distance + 8 byte timestamp */
+=======
+	/* Ensure timestamp is naturally aligned */
+	struct {
+		u16 chan;
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 };
 
 static const struct iio_chan_spec lidar_channels[] = {
@@ -136,12 +148,22 @@ static inline int lidar_write_power(struct lidar_data *data, int val)
 
 static int lidar_read_measurement(struct lidar_data *data, u16 *reg)
 {
+<<<<<<< HEAD
 	int ret = data->xfer(data, LIDAR_REG_DATA_HBYTE |
 			(data->i2c_enabled ? LIDAR_REG_DATA_WORD_READ : 0),
 			(u8 *) reg, 2);
 
 	if (!ret)
 		*reg = be16_to_cpu(*reg);
+=======
+	__be16 value;
+	int ret = data->xfer(data, LIDAR_REG_DATA_HBYTE |
+			(data->i2c_enabled ? LIDAR_REG_DATA_WORD_READ : 0),
+			(u8 *) &value, 2);
+
+	if (!ret)
+		*reg = be16_to_cpu(value);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -152,7 +174,13 @@ static int lidar_get_measurement(struct lidar_data *data, u16 *reg)
 	int tries = 10;
 	int ret;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(&client->dev);
+=======
+	ret = pm_runtime_resume_and_get(&client->dev);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* start sample */
 	ret = lidar_write_control(data, LIDAR_REG_CONTROL_ACQUIRE);
@@ -228,9 +256,15 @@ static irqreturn_t lidar_trigger_handler(int irq, void *private)
 	struct lidar_data *data = iio_priv(indio_dev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = lidar_get_measurement(data, data->buffer);
 	if (!ret) {
 		iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+	ret = lidar_get_measurement(data, &data->scan.chan);
+	if (!ret) {
+		iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 						   iio_get_time_ns(indio_dev));
 	} else if (ret != -EINVAL) {
 		dev_err(&data->client->dev, "cannot read LIDAR measurement");
@@ -270,7 +304,10 @@ static int lidar_probe(struct i2c_client *client,
 	indio_dev->name = LIDAR_DRV_NAME;
 	indio_dev->channels = lidar_channels;
 	indio_dev->num_channels = ARRAY_SIZE(lidar_channels);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
 	i2c_set_clientdata(client, indio_dev);
@@ -361,7 +398,11 @@ static const struct dev_pm_ops lidar_pm_ops = {
 static struct i2c_driver lidar_driver = {
 	.driver = {
 		.name	= LIDAR_DRV_NAME,
+<<<<<<< HEAD
 		.of_match_table	= of_match_ptr(lidar_dt_ids),
+=======
+		.of_match_table	= lidar_dt_ids,
+>>>>>>> upstream/android-13
 		.pm	= &lidar_pm_ops,
 	},
 	.probe		= lidar_probe,

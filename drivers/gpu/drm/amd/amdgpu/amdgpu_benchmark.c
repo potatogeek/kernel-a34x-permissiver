@@ -21,7 +21,11 @@
  *
  * Authors: Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
 
@@ -33,13 +37,18 @@ static int amdgpu_benchmark_do_move(struct amdgpu_device *adev, unsigned size,
 {
 	unsigned long start_jiffies;
 	unsigned long end_jiffies;
+<<<<<<< HEAD
 	struct dma_fence *fence = NULL;
+=======
+	struct dma_fence *fence;
+>>>>>>> upstream/android-13
 	int i, r;
 
 	start_jiffies = jiffies;
 	for (i = 0; i < n; i++) {
 		struct amdgpu_ring *ring = adev->mman.buffer_funcs_ring;
 		r = amdgpu_copy_buffer(ring, saddr, daddr, size, NULL, &fence,
+<<<<<<< HEAD
 				       false, false);
 		if (r)
 			goto exit_do_move;
@@ -47,13 +56,25 @@ static int amdgpu_benchmark_do_move(struct amdgpu_device *adev, unsigned size,
 		if (r)
 			goto exit_do_move;
 		dma_fence_put(fence);
+=======
+				       false, false, false);
+		if (r)
+			goto exit_do_move;
+		r = dma_fence_wait(fence, false);
+		dma_fence_put(fence);
+		if (r)
+			goto exit_do_move;
+>>>>>>> upstream/android-13
 	}
 	end_jiffies = jiffies;
 	r = jiffies_to_msecs(end_jiffies - start_jiffies);
 
 exit_do_move:
+<<<<<<< HEAD
 	if (fence)
 		dma_fence_put(fence);
+=======
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -87,6 +108,11 @@ static void amdgpu_benchmark_move(struct amdgpu_device *adev, unsigned size,
 	bp.flags = 0;
 	bp.type = ttm_bo_type_kernel;
 	bp.resv = NULL;
+<<<<<<< HEAD
+=======
+	bp.bo_ptr_size = sizeof(struct amdgpu_bo);
+
+>>>>>>> upstream/android-13
 	n = AMDGPU_BENCHMARK_ITERATIONS;
 	r = amdgpu_bo_create(adev, &bp, &sobj);
 	if (r) {

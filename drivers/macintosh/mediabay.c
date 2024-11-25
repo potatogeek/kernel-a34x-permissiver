@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the media bay on the PowerBook 3400 and 2400.
  *
  * Copyright (C) 1998 Paul Mackerras.
  *
  * Various evolutions by Benjamin Herrenschmidt & Henry Worth
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/errno.h>
@@ -20,8 +27,13 @@
 #include <linux/init.h>
 #include <linux/kthread.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <asm/prom.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/prom.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/machdep.h>
 #include <asm/pmac_feature.h>

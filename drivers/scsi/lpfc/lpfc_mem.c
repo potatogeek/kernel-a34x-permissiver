@@ -1,7 +1,11 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Broadcom. All Rights Reserved. The term *
+=======
+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+>>>>>>> upstream/android-13
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.     *
  * Copyright (C) 2004-2014 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -31,8 +35,11 @@
 #include <scsi/scsi_transport_fc.h>
 #include <scsi/fc/fc_fs.h>
 
+<<<<<<< HEAD
 #include <linux/nvme-fc-driver.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "lpfc_hw4.h"
 #include "lpfc_hw.h"
 #include "lpfc_sli.h"
@@ -41,14 +48,22 @@
 #include "lpfc_disc.h"
 #include "lpfc.h"
 #include "lpfc_scsi.h"
+<<<<<<< HEAD
 #include "lpfc_nvme.h"
 #include "lpfc_nvmet.h"
+=======
+>>>>>>> upstream/android-13
 #include "lpfc_crtn.h"
 #include "lpfc_logmsg.h"
 
 #define LPFC_MBUF_POOL_SIZE     64      /* max elements in MBUF safety pool */
 #define LPFC_MEM_POOL_SIZE      64      /* max elem in non-DMA safety pool */
 #define LPFC_DEVICE_DATA_POOL_SIZE 64   /* max elements in device data pool */
+<<<<<<< HEAD
+=======
+#define LPFC_RRQ_POOL_SIZE	256	/* max elements in non-DMA  pool */
+#define LPFC_MBX_POOL_SIZE	256	/* max elements in MBX non-DMA pool */
+>>>>>>> upstream/android-13
 
 int
 lpfc_mem_alloc_active_rrq_pool_s4(struct lpfc_hba *phba) {
@@ -71,9 +86,16 @@ lpfc_mem_alloc_active_rrq_pool_s4(struct lpfc_hba *phba) {
 /**
  * lpfc_mem_alloc - create and allocate all PCI and memory pools
  * @phba: HBA to allocate pools for
+<<<<<<< HEAD
  *
  * Description: Creates and allocates PCI pools lpfc_sg_dma_buf_pool,
  * lpfc_mbuf_pool, lpfc_hrb_pool.  Creates and allocates kmalloc-backed mempools
+=======
+ * @align: alignment requirement for blocks; must be a power of two
+ *
+ * Description: Creates and allocates PCI pools lpfc_mbuf_pool,
+ * lpfc_hrb_pool.  Creates and allocates kmalloc-backed mempools
+>>>>>>> upstream/android-13
  * for LPFC_MBOXQ_t and lpfc_nodelist.  Also allocates the VPI bitmask.
  *
  * Notes: Not interrupt-safe.  Must be called with no locks held.  If any
@@ -89,6 +111,7 @@ lpfc_mem_alloc(struct lpfc_hba *phba, int align)
 	struct lpfc_dma_pool *pool = &phba->lpfc_mbuf_safety_pool;
 	int i;
 
+<<<<<<< HEAD
 	if (phba->sli_rev == LPFC_SLI_REV4) {
 		/* Calculate alignment */
 		if (phba->cfg_sg_dma_buf_size < SLI4_PAGE_SIZE)
@@ -113,12 +136,18 @@ lpfc_mem_alloc(struct lpfc_hba *phba, int align)
 		if (!phba->lpfc_sg_dma_buf_pool)
 			goto fail;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	phba->lpfc_mbuf_pool = dma_pool_create("lpfc_mbuf_pool", &phba->pcidev->dev,
 							LPFC_BPL_SIZE,
 							align, 0);
 	if (!phba->lpfc_mbuf_pool)
+<<<<<<< HEAD
 		goto fail_free_dma_buf_pool;
+=======
+		goto fail;
+>>>>>>> upstream/android-13
 
 	pool->elements = kmalloc_array(LPFC_MBUF_POOL_SIZE,
 				       sizeof(struct lpfc_dmabuf),
@@ -137,8 +166,13 @@ lpfc_mem_alloc(struct lpfc_hba *phba, int align)
 		pool->current_count++;
 	}
 
+<<<<<<< HEAD
 	phba->mbox_mem_pool = mempool_create_kmalloc_pool(LPFC_MEM_POOL_SIZE,
 							 sizeof(LPFC_MBOXQ_t));
+=======
+	phba->mbox_mem_pool = mempool_create_kmalloc_pool(LPFC_MBX_POOL_SIZE,
+							  sizeof(LPFC_MBOXQ_t));
+>>>>>>> upstream/android-13
 	if (!phba->mbox_mem_pool)
 		goto fail_free_mbuf_pool;
 
@@ -149,7 +183,11 @@ lpfc_mem_alloc(struct lpfc_hba *phba, int align)
 
 	if (phba->sli_rev == LPFC_SLI_REV4) {
 		phba->rrq_pool =
+<<<<<<< HEAD
 			mempool_create_kmalloc_pool(LPFC_MEM_POOL_SIZE,
+=======
+			mempool_create_kmalloc_pool(LPFC_RRQ_POOL_SIZE,
+>>>>>>> upstream/android-13
 						sizeof(struct lpfc_node_rrq));
 		if (!phba->rrq_pool)
 			goto fail_free_nlp_mem_pool;
@@ -208,9 +246,12 @@ fail_free_drb_pool:
  fail_free_lpfc_mbuf_pool:
 	dma_pool_destroy(phba->lpfc_mbuf_pool);
 	phba->lpfc_mbuf_pool = NULL;
+<<<<<<< HEAD
  fail_free_dma_buf_pool:
 	dma_pool_destroy(phba->lpfc_sg_dma_buf_pool);
 	phba->lpfc_sg_dma_buf_pool = NULL;
+=======
+>>>>>>> upstream/android-13
  fail:
 	return -ENOMEM;
 }
@@ -248,6 +289,7 @@ lpfc_mem_free(struct lpfc_hba *phba)
 
 	/* Free HBQ pools */
 	lpfc_sli_hbqbuf_free_all(phba);
+<<<<<<< HEAD
 	if (phba->lpfc_nvmet_drb_pool)
 		dma_pool_destroy(phba->lpfc_nvmet_drb_pool);
 	phba->lpfc_nvmet_drb_pool = NULL;
@@ -267,6 +309,21 @@ lpfc_mem_free(struct lpfc_hba *phba)
 
 	if (phba->rrq_pool)
 		mempool_destroy(phba->rrq_pool);
+=======
+	dma_pool_destroy(phba->lpfc_nvmet_drb_pool);
+	phba->lpfc_nvmet_drb_pool = NULL;
+
+	dma_pool_destroy(phba->lpfc_drb_pool);
+	phba->lpfc_drb_pool = NULL;
+
+	dma_pool_destroy(phba->lpfc_hrb_pool);
+	phba->lpfc_hrb_pool = NULL;
+
+	dma_pool_destroy(phba->lpfc_hbq_pool);
+	phba->lpfc_hbq_pool = NULL;
+
+	mempool_destroy(phba->rrq_pool);
+>>>>>>> upstream/android-13
 	phba->rrq_pool = NULL;
 
 	/* Free NLP memory pool */
@@ -290,10 +347,13 @@ lpfc_mem_free(struct lpfc_hba *phba)
 	dma_pool_destroy(phba->lpfc_mbuf_pool);
 	phba->lpfc_mbuf_pool = NULL;
 
+<<<<<<< HEAD
 	/* Free DMA buffer memory pool */
 	dma_pool_destroy(phba->lpfc_sg_dma_buf_pool);
 	phba->lpfc_sg_dma_buf_pool = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	/* Free Device Data memory pool */
 	if (phba->device_data_mem_pool) {
 		/* Ensure all objects have been returned to the pool */
@@ -330,7 +390,11 @@ lpfc_mem_free_all(struct lpfc_hba *phba)
 
 	/* Free memory used in mailbox queue back to mailbox memory pool */
 	list_for_each_entry_safe(mbox, next_mbox, &psli->mboxq, list) {
+<<<<<<< HEAD
 		mp = (struct lpfc_dmabuf *) (mbox->context1);
+=======
+		mp = (struct lpfc_dmabuf *)(mbox->ctx_buf);
+>>>>>>> upstream/android-13
 		if (mp) {
 			lpfc_mbuf_free(phba, mp->virt, mp->phys);
 			kfree(mp);
@@ -340,7 +404,11 @@ lpfc_mem_free_all(struct lpfc_hba *phba)
 	}
 	/* Free memory used in mailbox cmpl list back to mailbox memory pool */
 	list_for_each_entry_safe(mbox, next_mbox, &psli->mboxq_cmpl, list) {
+<<<<<<< HEAD
 		mp = (struct lpfc_dmabuf *) (mbox->context1);
+=======
+		mp = (struct lpfc_dmabuf *)(mbox->ctx_buf);
+>>>>>>> upstream/android-13
 		if (mp) {
 			lpfc_mbuf_free(phba, mp->virt, mp->phys);
 			kfree(mp);
@@ -354,7 +422,11 @@ lpfc_mem_free_all(struct lpfc_hba *phba)
 	spin_unlock_irq(&phba->hbalock);
 	if (psli->mbox_active) {
 		mbox = psli->mbox_active;
+<<<<<<< HEAD
 		mp = (struct lpfc_dmabuf *) (mbox->context1);
+=======
+		mp = (struct lpfc_dmabuf *)(mbox->ctx_buf);
+>>>>>>> upstream/android-13
 		if (mp) {
 			lpfc_mbuf_free(phba, mp->virt, mp->phys);
 			kfree(mp);
@@ -366,6 +438,29 @@ lpfc_mem_free_all(struct lpfc_hba *phba)
 	/* Free and destroy all the allocated memory pools */
 	lpfc_mem_free(phba);
 
+<<<<<<< HEAD
+=======
+	/* Free DMA buffer memory pool */
+	dma_pool_destroy(phba->lpfc_sg_dma_buf_pool);
+	phba->lpfc_sg_dma_buf_pool = NULL;
+
+	dma_pool_destroy(phba->lpfc_cmd_rsp_buf_pool);
+	phba->lpfc_cmd_rsp_buf_pool = NULL;
+
+	/* Free Congestion Data buffer */
+	if (phba->cgn_i) {
+		dma_free_coherent(&phba->pcidev->dev,
+				  sizeof(struct lpfc_cgn_info),
+				  phba->cgn_i->virt, phba->cgn_i->phys);
+		kfree(phba->cgn_i);
+		phba->cgn_i = NULL;
+	}
+
+	/* Free RX table */
+	kfree(phba->rxtable);
+	phba->rxtable = NULL;
+
+>>>>>>> upstream/android-13
 	/* Free the iocb lookup array */
 	kfree(psli->iocbq_lookup);
 	psli->iocbq_lookup = NULL;
@@ -560,6 +655,11 @@ lpfc_els_hbq_free(struct lpfc_hba *phba, struct hbq_dmabuf *hbqbp)
  * Description: Allocates a DMA-mapped receive buffer from the lpfc_hrb_pool PCI
  * pool along a non-DMA-mapped container for it.
  *
+<<<<<<< HEAD
+=======
+ * Notes: Not interrupt-safe.  Must be called with no locks held.
+ *
+>>>>>>> upstream/android-13
  * Returns:
  *   pointer to HBQ on success
  *   NULL on failure
@@ -618,8 +718,11 @@ lpfc_sli4_rb_free(struct lpfc_hba *phba, struct hbq_dmabuf *dmab)
  * Description: Allocates a DMA-mapped receive buffer from the lpfc_hrb_pool PCI
  * pool along a non-DMA-mapped container for it.
  *
+<<<<<<< HEAD
  * Notes: Not interrupt-safe.  Must be called with no locks held.
  *
+=======
+>>>>>>> upstream/android-13
  * Returns:
  *   pointer to HBQ on success
  *   NULL on failure

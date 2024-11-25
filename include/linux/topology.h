@@ -27,6 +27,10 @@
 #ifndef _LINUX_TOPOLOGY_H
 #define _LINUX_TOPOLOGY_H
 
+<<<<<<< HEAD
+=======
+#include <linux/arch_topology.h>
+>>>>>>> upstream/android-13
 #include <linux/cpumask.h>
 #include <linux/bitops.h>
 #include <linux/mmzone.h>
@@ -47,6 +51,10 @@ int arch_update_cpu_topology(void);
 /* Conform to ACPI 2.0 SLIT distance definitions */
 #define LOCAL_DISTANCE		10
 #define REMOTE_DISTANCE		20
+<<<<<<< HEAD
+=======
+#define DISTANCE_BITS           8
+>>>>>>> upstream/android-13
 #ifndef node_distance
 #define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : REMOTE_DISTANCE)
 #endif
@@ -59,6 +67,23 @@ int arch_update_cpu_topology(void);
  */
 #define RECLAIM_DISTANCE 30
 #endif
+<<<<<<< HEAD
+=======
+
+/*
+ * The following tunable allows platforms to override the default node
+ * reclaim distance (RECLAIM_DISTANCE) if remote memory accesses are
+ * sufficiently fast that the default value actually hurts
+ * performance.
+ *
+ * AMD EPYC machines use this because even though the 2-hop distance
+ * is 32 (3.2x slower than a local memory access) performance actually
+ * *improves* if allowed to reclaim memory and load balance tasks
+ * between NUMA nodes 2-hops apart.
+ */
+extern int __read_mostly node_reclaim_distance;
+
+>>>>>>> upstream/android-13
 #ifndef PENALTY_FOR_NODE_WITH_CPUS
 #define PENALTY_FOR_NODE_WITH_CPUS	(1)
 #endif
@@ -115,12 +140,16 @@ static inline int numa_node_id(void)
  * Use the accessor functions set_numa_mem(), numa_mem_id() and cpu_to_mem().
  */
 DECLARE_PER_CPU(int, _numa_mem_);
+<<<<<<< HEAD
 extern int _node_numa_mem_[MAX_NUMNODES];
+=======
+>>>>>>> upstream/android-13
 
 #ifndef set_numa_mem
 static inline void set_numa_mem(int node)
 {
 	this_cpu_write(_numa_mem_, node);
+<<<<<<< HEAD
 	_node_numa_mem_[numa_node_id()] = node;
 }
 #endif
@@ -129,6 +158,8 @@ static inline void set_numa_mem(int node)
 static inline int node_to_mem_node(int node)
 {
 	return _node_numa_mem_[node];
+=======
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -151,7 +182,10 @@ static inline int cpu_to_mem(int cpu)
 static inline void set_cpu_numa_mem(int cpu, int node)
 {
 	per_cpu(_numa_mem_, cpu) = node;
+<<<<<<< HEAD
 	_node_numa_mem_[cpu_to_node(cpu)] = node;
+=======
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -165,6 +199,7 @@ static inline int numa_mem_id(void)
 }
 #endif
 
+<<<<<<< HEAD
 #ifndef node_to_mem_node
 static inline int node_to_mem_node(int node)
 {
@@ -172,6 +207,8 @@ static inline int node_to_mem_node(int node)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef cpu_to_mem
 static inline int cpu_to_mem(int cpu)
 {
@@ -184,6 +221,12 @@ static inline int cpu_to_mem(int cpu)
 #ifndef topology_physical_package_id
 #define topology_physical_package_id(cpu)	((void)(cpu), -1)
 #endif
+<<<<<<< HEAD
+=======
+#ifndef topology_die_id
+#define topology_die_id(cpu)			((void)(cpu), -1)
+#endif
+>>>>>>> upstream/android-13
 #ifndef topology_core_id
 #define topology_core_id(cpu)			((void)(cpu), 0)
 #endif
@@ -193,8 +236,16 @@ static inline int cpu_to_mem(int cpu)
 #ifndef topology_core_cpumask
 #define topology_core_cpumask(cpu)		cpumask_of(cpu)
 #endif
+<<<<<<< HEAD
 
 #ifdef CONFIG_SCHED_SMT
+=======
+#ifndef topology_die_cpumask
+#define topology_die_cpumask(cpu)		cpumask_of(cpu)
+#endif
+
+#if defined(CONFIG_SCHED_SMT) && !defined(cpu_smt_mask)
+>>>>>>> upstream/android-13
 static inline const struct cpumask *cpu_smt_mask(int cpu)
 {
 	return topology_sibling_cpumask(cpu);

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Rockchip DP PHY driver
  *
  * Copyright (C) 2016 FuZhou Rockchip Co., Ltd.
  * Author: Yakir Yang <ykk@@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>

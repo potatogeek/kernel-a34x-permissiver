@@ -31,6 +31,7 @@
 			compatible = "qcom,pma8084-gpio", "qcom,spmi-gpio";
 			reg = <0xc000>;
 			gpio-controller;
+<<<<<<< HEAD
 			#gpio-cells = <2>;
 			interrupts = <0 0xc0 0 IRQ_TYPE_NONE>,
 				     <0 0xc1 0 IRQ_TYPE_NONE>,
@@ -54,6 +55,12 @@
 				     <0 0xd3 0 IRQ_TYPE_NONE>,
 				     <0 0xd4 0 IRQ_TYPE_NONE>,
 				     <0 0xd5 0 IRQ_TYPE_NONE>;
+=======
+			gpio-ranges = <&pma8084_gpios 0 0 22>;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+>>>>>>> upstream/android-13
 		};
 
 		pma8084_mpps: mpps@a000 {
@@ -87,7 +94,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			#io-channel-cells = <1>;
+<<<<<<< HEAD
 			io-channel-ranges;
+=======
+>>>>>>> upstream/android-13
 
 			die_temp {
 				reg = <VADC_DIE_TEMP>;

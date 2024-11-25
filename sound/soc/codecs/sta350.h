@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Codec driver for ST STA350 2.1-channel high-efficiency digital audio system
  *
@@ -9,11 +13,14 @@
  *        Johannes Stezenbach <js@sig21.net>
  *	Wolfson Microelectronics PLC.
  *	  Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASOC_STA_350_H
 #define _ASOC_STA_350_H

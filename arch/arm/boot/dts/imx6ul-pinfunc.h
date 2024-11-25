@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 - 2015 Freescale Semiconductor, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2014 - 2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DTS_IMX6UL_PINFUNC_H

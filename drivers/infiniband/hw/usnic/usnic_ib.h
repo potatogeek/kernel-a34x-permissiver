@@ -61,6 +61,13 @@ struct usnic_ib_pd {
 	struct usnic_uiom_pd		*umem_pd;
 };
 
+<<<<<<< HEAD
+=======
+struct usnic_ib_cq {
+	struct ib_cq			ibcq;
+};
+
+>>>>>>> upstream/android-13
 struct usnic_ib_mr {
 	struct ib_mr			ibmr;
 	struct usnic_uiom_reg		*umem;
@@ -86,7 +93,11 @@ struct usnic_ib_dev {
 
 struct usnic_ib_vf {
 	struct usnic_ib_dev		*pf;
+<<<<<<< HEAD
 	spinlock_t			lock;
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 	struct usnic_vnic		*vnic;
 	unsigned int			qp_grp_ref_cnt;
 	struct usnic_ib_pd		*pd;

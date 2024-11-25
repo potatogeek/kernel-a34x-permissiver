@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014-2017 Toradex AG
  * Copyright 2012 Freescale Semiconductor, Inc.
@@ -39,6 +40,13 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2014-2020 Toradex
+ * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -171,6 +179,22 @@
 &i2c1 {
 	status = "okay";
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Touchscreen is using SODIMM 28/30, also used for PWM<B>, PWM<C>,
+	 * aka pwm2, pwm3. so if you enable touchscreen, disable the pwms
+	 */
+	touchscreen@4a {
+		compatible = "atmel,maxtouch";
+		reg = <0x4a>;
+		interrupt-parent = <&gpio6>;
+		interrupts = <10 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&gpio6 9 GPIO_ACTIVE_LOW>; /* SODIMM 13 */
+		status = "disabled";
+	};
+
+>>>>>>> upstream/android-13
 	eeprom@50 {
 		compatible = "atmel,24c02";
 		reg = <0x50>;
@@ -200,6 +224,11 @@
 };
 
 &pcie {
+<<<<<<< HEAD
+=======
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_reset_moci>;
+>>>>>>> upstream/android-13
 	/* active-high meaning opposite of regular PERST# active-low polarity */
 	reset-gpio = <&gpio1 28 GPIO_ACTIVE_HIGH>;
 	reset-gpio-active-high;

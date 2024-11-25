@@ -53,6 +53,10 @@ static inline void __init load_ucode_amd_bsp(unsigned int family) {}
 static inline void load_ucode_amd_ap(unsigned int family) {}
 static inline int __init
 save_microcode_in_initrd_amd(unsigned int family) { return -EINVAL; }
+<<<<<<< HEAD
 void reload_ucode_amd(void) {}
+=======
+static inline void reload_ucode_amd(void) {}
+>>>>>>> upstream/android-13
 #endif
 #endif /* _ASM_X86_MICROCODE_AMD_H */

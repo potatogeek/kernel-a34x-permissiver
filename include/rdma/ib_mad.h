@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
  * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
  * Copyright (c) 2004 Intel Corporation.  All rights reserved.
  * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
  * Copyright (c) 2004-2006 Voltaire Corporation.  All rights reserved.
+<<<<<<< HEAD
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -35,6 +40,11 @@
  */
 
 #if !defined(IB_MAD_H)
+=======
+ */
+
+#ifndef IB_MAD_H
+>>>>>>> upstream/android-13
 #define IB_MAD_H
 
 #include <linux/list.h>
@@ -198,7 +208,11 @@ struct ib_sa_hdr {
 	__be16			attr_offset;
 	__be16			reserved;
 	ib_sa_comp_mask		comp_mask;
+<<<<<<< HEAD
 } __attribute__ ((packed));
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 struct ib_mad {
 	struct ib_mad_hdr	mad_hdr;
@@ -227,7 +241,11 @@ struct ib_sa_mad {
 	struct ib_rmpp_hdr	rmpp_hdr;
 	struct ib_sa_hdr	sa_hdr;
 	u8			data[IB_MGMT_SA_DATA];
+<<<<<<< HEAD
 } __attribute__ ((packed));
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 struct ib_vendor_mad {
 	struct ib_mad_hdr	mad_hdr;
@@ -277,6 +295,10 @@ enum ib_port_capability_mask_bits {
 	IB_PORT_SYS_IMAGE_GUID_SUP = 1 << 11,
 	IB_PORT_PKEY_SW_EXT_PORT_TRAP_SUP = 1 << 12,
 	IB_PORT_EXTENDED_SPEEDS_SUP = 1 << 14,
+<<<<<<< HEAD
+=======
+	IB_PORT_CAP_MASK2_SUP = 1 << 15,
+>>>>>>> upstream/android-13
 	IB_PORT_CM_SUP = 1 << 16,
 	IB_PORT_SNMP_TUNNEL_SUP = 1 << 17,
 	IB_PORT_REINIT_SUP = 1 << 18,
@@ -295,6 +317,18 @@ enum ib_port_capability_mask_bits {
 	IB_PORT_HIERARCHY_INFO_SUP = 1ULL << 31,
 };
 
+<<<<<<< HEAD
+=======
+enum ib_port_capability_mask2_bits {
+	IB_PORT_SET_NODE_DESC_SUP		= 1 << 0,
+	IB_PORT_EX_PORT_INFO_EX_SUP		= 1 << 1,
+	IB_PORT_VIRT_SUP			= 1 << 2,
+	IB_PORT_SWITCH_PORT_STATE_TABLE_SUP	= 1 << 3,
+	IB_PORT_LINK_WIDTH_2X_SUP		= 1 << 4,
+	IB_PORT_LINK_SPEED_HDR_SUP		= 1 << 5,
+};
+
+>>>>>>> upstream/android-13
 #define OPA_CLASS_PORT_INFO_PR_SUPPORT BIT(26)
 
 struct opa_class_port_info {
@@ -549,6 +583,7 @@ typedef void (*ib_mad_send_handler)(struct ib_mad_agent *mad_agent,
 				    struct ib_mad_send_wc *mad_send_wc);
 
 /**
+<<<<<<< HEAD
  * ib_mad_snoop_handler - Callback handler for snooping sent MADs.
  * @mad_agent: MAD agent that snooped the MAD.
  * @send_buf: send MAD data buffer.
@@ -563,6 +598,8 @@ typedef void (*ib_mad_snoop_handler)(struct ib_mad_agent *mad_agent,
 				     struct ib_mad_send_wc *mad_send_wc);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * ib_mad_recv_handler - callback handler for a received MAD.
  * @mad_agent: MAD agent requesting the received MAD.
  * @send_buf: Send buffer if found, else NULL
@@ -571,8 +608,12 @@ typedef void (*ib_mad_snoop_handler)(struct ib_mad_agent *mad_agent,
  * MADs received in response to a send request operation will be handed to
  * the user before the send operation completes.  All data buffers given
  * to registered agents through this routine are owned by the receiving
+<<<<<<< HEAD
  * client, except for snooping agents.  Clients snooping MADs should not
  * modify the data referenced by @mad_recv_wc.
+=======
+ * client.
+>>>>>>> upstream/android-13
  */
 typedef void (*ib_mad_recv_handler)(struct ib_mad_agent *mad_agent,
 				    struct ib_mad_send_buf *send_buf,
@@ -585,7 +626,10 @@ typedef void (*ib_mad_recv_handler)(struct ib_mad_agent *mad_agent,
  * @mr: Memory region for system memory usable for DMA.
  * @recv_handler: Callback handler for a received MAD.
  * @send_handler: Callback handler for a sent MAD.
+<<<<<<< HEAD
  * @snoop_handler: Callback handler for snooped sent MADs.
+=======
+>>>>>>> upstream/android-13
  * @context: User-specified context associated with this registration.
  * @hi_tid: Access layer assigned transaction ID for this client.
  *   Unsolicited MADs sent by this client will have the upper 32-bits
@@ -602,6 +646,7 @@ struct ib_mad_agent {
 	struct ib_qp		*qp;
 	ib_mad_recv_handler	recv_handler;
 	ib_mad_send_handler	send_handler;
+<<<<<<< HEAD
 	ib_mad_snoop_handler	snoop_handler;
 	void			*context;
 	u32			hi_tid;
@@ -612,6 +657,16 @@ struct ib_mad_agent {
 	bool			smp_allowed;
 	bool			lsm_nb_reg;
 	struct notifier_block   lsm_nb;
+=======
+	void			*context;
+	u32			hi_tid;
+	u32			flags;
+	void			*security;
+	struct list_head	mad_agent_sec_list;
+	u8			port_num;
+	u8			rmpp_version;
+	bool			smp_allowed;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -703,7 +758,11 @@ struct ib_mad_reg_req {
  * @registration_flags: Registration flags to set for this agent
  */
 struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
+<<<<<<< HEAD
 					   u8 port_num,
+=======
+					   u32 port_num,
+>>>>>>> upstream/android-13
 					   enum ib_qp_type qp_type,
 					   struct ib_mad_reg_req *mad_reg_req,
 					   u8 rmpp_version,
@@ -711,6 +770,7 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
 					   ib_mad_recv_handler recv_handler,
 					   void *context,
 					   u32 registration_flags);
+<<<<<<< HEAD
 
 enum ib_mad_snoop_flags {
 	/*IB_MAD_SNOOP_POSTED_SENDS	   = 1,*/
@@ -741,6 +801,8 @@ struct ib_mad_agent *ib_register_mad_snoop(struct ib_device *device,
 					   ib_mad_recv_handler recv_handler,
 					   void *context);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ib_unregister_mad_agent - Unregisters a client from using MAD services.
  * @mad_agent: Corresponding MAD registration request to deregister.
@@ -783,6 +845,7 @@ int ib_post_send_mad(struct ib_mad_send_buf *send_buf,
 void ib_free_recv_mad(struct ib_mad_recv_wc *mad_recv_wc);
 
 /**
+<<<<<<< HEAD
  * ib_cancel_mad - Cancels an outstanding send MAD operation.
  * @mad_agent: Specifies the registration associated with sent MAD.
  * @send_buf: Indicates the MAD to cancel.
@@ -796,12 +859,16 @@ void ib_cancel_mad(struct ib_mad_agent *mad_agent,
 /**
  * ib_modify_mad - Modifies an outstanding send MAD operation.
  * @mad_agent: Specifies the registration associated with sent MAD.
+=======
+ * ib_modify_mad - Modifies an outstanding send MAD operation.
+>>>>>>> upstream/android-13
  * @send_buf: Indicates the MAD to modify.
  * @timeout_ms: New timeout value for sent MAD.
  *
  * This call will reset the timeout value for a sent MAD to the specified
  * value.
  */
+<<<<<<< HEAD
 int ib_modify_mad(struct ib_mad_agent *mad_agent,
 		  struct ib_mad_send_buf *send_buf, u32 timeout_ms);
 
@@ -844,6 +911,21 @@ struct ib_mad_agent *ib_redirect_mad_qp(struct ib_qp *qp,
  */
 int ib_process_mad_wc(struct ib_mad_agent *mad_agent,
 		      struct ib_wc *wc);
+=======
+int ib_modify_mad(struct ib_mad_send_buf *send_buf, u32 timeout_ms);
+
+/**
+ * ib_cancel_mad - Cancels an outstanding send MAD operation.
+ * @send_buf: Indicates the MAD to cancel.
+ *
+ * MADs will be returned to the user through the corresponding
+ * ib_mad_send_handler.
+ */
+static inline void ib_cancel_mad(struct ib_mad_send_buf *send_buf)
+{
+	ib_modify_mad(send_buf, 0);
+}
+>>>>>>> upstream/android-13
 
 /**
  * ib_create_send_mad - Allocate and initialize a data buffer and work request

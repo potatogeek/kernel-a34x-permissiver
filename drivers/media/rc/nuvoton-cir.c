@@ -74,6 +74,7 @@ static inline void nvt_set_reg_bit(struct nvt_dev *nvt, u8 val, u8 reg)
 	nvt_cr_write(nvt, tmp, reg);
 }
 
+<<<<<<< HEAD
 /* clear config register bit without changing other bits */
 static inline void nvt_clear_reg_bit(struct nvt_dev *nvt, u8 val, u8 reg)
 {
@@ -81,6 +82,8 @@ static inline void nvt_clear_reg_bit(struct nvt_dev *nvt, u8 val, u8 reg)
 	nvt_cr_write(nvt, tmp, reg);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* enter extended function mode */
 static inline int nvt_efm_enable(struct nvt_dev *nvt)
 {
@@ -230,10 +233,17 @@ static ssize_t wakeup_data_show(struct device *dev,
 	for (i = 0; i < fifo_len; i++) {
 		duration = nvt_cir_wake_reg_read(nvt, CIR_WAKE_RD_FIFO_ONLY);
 		duration = (duration & BUF_LEN_MASK) * SAMPLE_PERIOD;
+<<<<<<< HEAD
 		buf_len += snprintf(buf + buf_len, PAGE_SIZE - buf_len,
 				    "%d ", duration);
 	}
 	buf_len += snprintf(buf + buf_len, PAGE_SIZE - buf_len, "\n");
+=======
+		buf_len += scnprintf(buf + buf_len, PAGE_SIZE - buf_len,
+				    "%d ", duration);
+	}
+	buf_len += scnprintf(buf + buf_len, PAGE_SIZE - buf_len, "\n");
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&nvt->lock, flags);
 
@@ -631,6 +641,7 @@ static u32 nvt_rx_carrier_detect(struct nvt_dev *nvt)
 	return carrier;
 }
 #endif
+<<<<<<< HEAD
 /*
  * set carrier frequency
  *
@@ -655,6 +666,8 @@ static int nvt_set_tx_carrier(struct rc_dev *dev, u32 carrier)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 static int nvt_ir_raw_set_wakeup_filter(struct rc_dev *dev,
 					struct rc_scancode_filter *sc_filter)
@@ -684,8 +697,12 @@ static int nvt_ir_raw_set_wakeup_filter(struct rc_dev *dev,
 
 	/* Inspect the ir samples */
 	for (i = 0, count = 0; i < ret && count < WAKEUP_MAX_SIZE; ++i) {
+<<<<<<< HEAD
 		/* NS to US */
 		val = DIV_ROUND_UP(raw[i].duration, 1000L) / SAMPLE_PERIOD;
+=======
+		val = raw[i].duration / SAMPLE_PERIOD;
+>>>>>>> upstream/android-13
 
 		/* Split too large values into several smaller ones */
 		while (val > 0 && count < WAKEUP_MAX_SIZE) {
@@ -737,7 +754,11 @@ static void nvt_dump_rx_buf(struct nvt_dev *nvt)
  */
 static void nvt_process_rx_ir_data(struct nvt_dev *nvt)
 {
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(rawir);
+=======
+	struct ir_raw_event rawir = {};
+>>>>>>> upstream/android-13
 	u8 sample;
 	int i;
 
@@ -752,8 +773,12 @@ static void nvt_process_rx_ir_data(struct nvt_dev *nvt)
 		sample = nvt->buf[i];
 
 		rawir.pulse = ((sample & BUF_PULSE_BIT) != 0);
+<<<<<<< HEAD
 		rawir.duration = US_TO_NS((sample & BUF_LEN_MASK)
 					  * SAMPLE_PERIOD);
+=======
+		rawir.duration = (sample & BUF_LEN_MASK) * SAMPLE_PERIOD;
+>>>>>>> upstream/android-13
 
 		nvt_dbg("Storing %s with duration %d",
 			rawir.pulse ? "pulse" : "space", rawir.duration);
@@ -1022,7 +1047,10 @@ static int nvt_probe(struct pnp_dev *pdev, const struct pnp_device_id *dev_id)
 	rdev->encode_wakeup = true;
 	rdev->open = nvt_open;
 	rdev->close = nvt_close;
+<<<<<<< HEAD
 	rdev->s_tx_carrier = nvt_set_tx_carrier;
+=======
+>>>>>>> upstream/android-13
 	rdev->s_wakeup_filter = nvt_ir_raw_set_wakeup_filter;
 	rdev->device_name = "Nuvoton w836x7hg Infrared Remote Transceiver";
 	rdev->input_phys = "nuvoton/cir0";
@@ -1032,9 +1060,15 @@ static int nvt_probe(struct pnp_dev *pdev, const struct pnp_device_id *dev_id)
 	rdev->input_id.version = nvt->chip_minor;
 	rdev->driver_name = NVT_DRIVER_NAME;
 	rdev->map_name = RC_MAP_RC6_MCE;
+<<<<<<< HEAD
 	rdev->timeout = MS_TO_NS(100);
 	/* rx resolution is hardwired to 50us atm, 1, 25, 100 also possible */
 	rdev->rx_resolution = US_TO_NS(CIR_SAMPLE_PERIOD);
+=======
+	rdev->timeout = MS_TO_US(100);
+	/* rx resolution is hardwired to 50us atm, 1, 25, 100 also possible */
+	rdev->rx_resolution = CIR_SAMPLE_PERIOD;
+>>>>>>> upstream/android-13
 #if 0
 	rdev->min_timeout = XYZ;
 	rdev->max_timeout = XYZ;

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 Pablo Neira Ayuso <pablo@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -15,12 +21,20 @@
 #include <linux/ip.h>
 #include <linux/ipv6.h>
 #include <net/netfilter/nf_tables.h>
+<<<<<<< HEAD
+=======
+#include <net/netfilter/nf_tables_offload.h>
+>>>>>>> upstream/android-13
 #include <net/netfilter/nf_dup_netdev.h>
 #include <net/neighbour.h>
 #include <net/ip.h>
 
 struct nft_fwd_netdev {
+<<<<<<< HEAD
 	enum nft_registers	sreg_dev:8;
+=======
+	u8	sreg_dev;
+>>>>>>> upstream/android-13
 };
 
 static void nft_fwd_netdev_eval(const struct nft_expr *expr,
@@ -30,6 +44,12 @@ static void nft_fwd_netdev_eval(const struct nft_expr *expr,
 	struct nft_fwd_netdev *priv = nft_expr_priv(expr);
 	int oif = regs->data[priv->sreg_dev];
 
+<<<<<<< HEAD
+=======
+	/* This is used by ifb only. */
+	skb_set_redirected(pkt->skb, true);
+
+>>>>>>> upstream/android-13
 	nf_fwd_netdev_egress(pkt, oif);
 	regs->verdict.code = NF_STOLEN;
 }
@@ -49,12 +69,19 @@ static int nft_fwd_netdev_init(const struct nft_ctx *ctx,
 	if (tb[NFTA_FWD_SREG_DEV] == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	priv->sreg_dev = nft_parse_register(tb[NFTA_FWD_SREG_DEV]);
 	return nft_validate_register_load(priv->sreg_dev, sizeof(int));
 }
 
 static const struct nft_expr_ops nft_fwd_netdev_ingress_ops;
 
+=======
+	return nft_parse_register_load(tb[NFTA_FWD_SREG_DEV], &priv->sreg_dev,
+				       sizeof(int));
+}
+
+>>>>>>> upstream/android-13
 static int nft_fwd_netdev_dump(struct sk_buff *skb, const struct nft_expr *expr)
 {
 	struct nft_fwd_netdev *priv = nft_expr_priv(expr);
@@ -68,9 +95,30 @@ nla_put_failure:
 	return -1;
 }
 
+<<<<<<< HEAD
 struct nft_fwd_neigh {
 	enum nft_registers	sreg_dev:8;
 	enum nft_registers	sreg_addr:8;
+=======
+static int nft_fwd_netdev_offload(struct nft_offload_ctx *ctx,
+				  struct nft_flow_rule *flow,
+				  const struct nft_expr *expr)
+{
+	const struct nft_fwd_netdev *priv = nft_expr_priv(expr);
+	int oif = ctx->regs[priv->sreg_dev].data.data[0];
+
+	return nft_fwd_dup_netdev_offload(ctx, flow, FLOW_ACTION_REDIRECT, oif);
+}
+
+static bool nft_fwd_netdev_offload_action(const struct nft_expr *expr)
+{
+	return true;
+}
+
+struct nft_fwd_neigh {
+	u8			sreg_dev;
+	u8			sreg_addr;
+>>>>>>> upstream/android-13
 	u8			nfproto;
 };
 
@@ -148,8 +196,11 @@ static int nft_fwd_neigh_init(const struct nft_ctx *ctx,
 	    !tb[NFTA_FWD_NFPROTO])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	priv->sreg_dev = nft_parse_register(tb[NFTA_FWD_SREG_DEV]);
 	priv->sreg_addr = nft_parse_register(tb[NFTA_FWD_SREG_ADDR]);
+=======
+>>>>>>> upstream/android-13
 	priv->nfproto = ntohl(nla_get_be32(tb[NFTA_FWD_NFPROTO]));
 
 	switch (priv->nfproto) {
@@ -163,6 +214,7 @@ static int nft_fwd_neigh_init(const struct nft_ctx *ctx,
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	err = nft_validate_register_load(priv->sreg_dev, sizeof(int));
 	if (err < 0)
 		return err;
@@ -172,6 +224,17 @@ static int nft_fwd_neigh_init(const struct nft_ctx *ctx,
 
 static const struct nft_expr_ops nft_fwd_netdev_ingress_ops;
 
+=======
+	err = nft_parse_register_load(tb[NFTA_FWD_SREG_DEV], &priv->sreg_dev,
+				      sizeof(int));
+	if (err < 0)
+		return err;
+
+	return nft_parse_register_load(tb[NFTA_FWD_SREG_ADDR], &priv->sreg_addr,
+				       addr_len);
+}
+
+>>>>>>> upstream/android-13
 static int nft_fwd_neigh_dump(struct sk_buff *skb, const struct nft_expr *expr)
 {
 	struct nft_fwd_neigh *priv = nft_expr_priv(expr);
@@ -211,6 +274,11 @@ static const struct nft_expr_ops nft_fwd_netdev_ops = {
 	.init		= nft_fwd_netdev_init,
 	.dump		= nft_fwd_netdev_dump,
 	.validate	= nft_fwd_validate,
+<<<<<<< HEAD
+=======
+	.offload	= nft_fwd_netdev_offload,
+	.offload_action	= nft_fwd_netdev_offload_action,
+>>>>>>> upstream/android-13
 };
 
 static const struct nft_expr_ops *

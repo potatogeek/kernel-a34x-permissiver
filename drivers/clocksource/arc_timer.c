@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016-17 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016-17 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 /* ARC700 has two 32bit independent prog Timers: TIMER0 and TIMER1, Each can be
@@ -16,6 +23,10 @@
  */
 
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/clocksource.h>
@@ -142,7 +153,11 @@ static u64 arc_read_rtc(struct clocksource *cs)
 		l = read_aux_reg(AUX_RTC_LOW);
 		h = read_aux_reg(AUX_RTC_HIGH);
 		status = read_aux_reg(AUX_RTC_CTRL);
+<<<<<<< HEAD
 	} while (!(status & _BITUL(31)));
+=======
+	} while (!(status & BIT(31)));
+>>>>>>> upstream/android-13
 
 	return (((u64)h) << 32) | l;
 }
@@ -336,10 +351,15 @@ static int __init arc_clockevent_setup(struct device_node *node)
 	}
 
 	ret = arc_get_timer_clk(node);
+<<<<<<< HEAD
 	if (ret) {
 		pr_err("clockevent: missing clk\n");
 		return ret;
 	}
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Needs apriori irq_set_percpu_devid() done in intc map function */
 	ret = request_percpu_irq(arc_timer_irq, timer_irq_handler,

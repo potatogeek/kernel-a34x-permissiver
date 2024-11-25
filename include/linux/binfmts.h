@@ -15,7 +15,10 @@ struct filename;
  * This structure is used to hold the arguments that are used when loading binaries.
  */
 struct linux_binprm {
+<<<<<<< HEAD
 	char buf[BINPRM_BUF_SIZE];
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MMU
 	struct vm_area_struct *vma;
 	unsigned long vma_pages;
@@ -25,6 +28,7 @@ struct linux_binprm {
 #endif
 	struct mm_struct *mm;
 	unsigned long p; /* current top of mem */
+<<<<<<< HEAD
 	unsigned int
 		/*
 		 * True after the bprm_set_creds hook has been called once
@@ -50,10 +54,37 @@ struct linux_binprm {
 #endif
 	unsigned int recursion_depth; /* only for search_binary_handler() */
 	struct file * file;
+=======
+	unsigned long argmin; /* rlimit marker for copy_strings() */
+	unsigned int
+		/* Should an execfd be passed to userspace? */
+		have_execfd:1,
+
+		/* Use the creds of a script (see binfmt_misc) */
+		execfd_creds:1,
+		/*
+		 * Set by bprm_creds_for_exec hook to indicate a
+		 * privilege-gaining exec has happened. Used to set
+		 * AT_SECURE auxv for glibc.
+		 */
+		secureexec:1,
+		/*
+		 * Set when errors can no longer be returned to the
+		 * original userspace.
+		 */
+		point_of_no_return:1;
+#ifdef __alpha__
+	unsigned int taso:1;
+#endif
+	struct file *executable; /* Executable to pass to the interpreter */
+	struct file *interpreter;
+	struct file *file;
+>>>>>>> upstream/android-13
 	struct cred *cred;	/* new credentials */
 	int unsafe;		/* how unsafe this exec is (mask of LSM_UNSAFE_*) */
 	unsigned int per_clear;	/* bits to clear in current->personality */
 	int argc, envc;
+<<<<<<< HEAD
 	const char * filename;	/* Name of binary as seen by procps */
 	const char * interp;	/* Name of the binary really executed. Most
 				   of the time same as filename, but could be
@@ -63,28 +94,62 @@ struct linux_binprm {
 	unsigned long loader, exec;
 
 	struct rlimit rlim_stack; /* Saved RLIMIT_STACK used during exec. */
+=======
+	const char *filename;	/* Name of binary as seen by procps */
+	const char *interp;	/* Name of the binary really executed. Most
+				   of the time same as filename, but could be
+				   different for binfmt_{misc,script} */
+	const char *fdpath;	/* generated filename for execveat */
+	unsigned interp_flags;
+	int execfd;		/* File descriptor of the executable */
+	unsigned long loader, exec;
+
+	struct rlimit rlim_stack; /* Saved RLIMIT_STACK used during exec. */
+
+	char buf[BINPRM_BUF_SIZE];
+>>>>>>> upstream/android-13
 } __randomize_layout;
 
 #define BINPRM_FLAGS_ENFORCE_NONDUMP_BIT 0
 #define BINPRM_FLAGS_ENFORCE_NONDUMP (1 << BINPRM_FLAGS_ENFORCE_NONDUMP_BIT)
 
+<<<<<<< HEAD
 /* fd of the binary should be passed to the interpreter */
 #define BINPRM_FLAGS_EXECFD_BIT 1
 #define BINPRM_FLAGS_EXECFD (1 << BINPRM_FLAGS_EXECFD_BIT)
 
+=======
+>>>>>>> upstream/android-13
 /* filename of the binary will be inaccessible after exec */
 #define BINPRM_FLAGS_PATH_INACCESSIBLE_BIT 2
 #define BINPRM_FLAGS_PATH_INACCESSIBLE (1 << BINPRM_FLAGS_PATH_INACCESSIBLE_BIT)
 
+<<<<<<< HEAD
 /* Function parameter for binfmt->coredump */
 struct coredump_params {
 	const siginfo_t *siginfo;
+=======
+/* preserve argv0 for the interpreter  */
+#define BINPRM_FLAGS_PRESERVE_ARGV0_BIT 3
+#define BINPRM_FLAGS_PRESERVE_ARGV0 (1 << BINPRM_FLAGS_PRESERVE_ARGV0_BIT)
+
+/* Function parameter for binfmt->coredump */
+struct coredump_params {
+	const kernel_siginfo_t *siginfo;
+>>>>>>> upstream/android-13
 	struct pt_regs *regs;
 	struct file *file;
 	unsigned long limit;
 	unsigned long mm_flags;
 	loff_t written;
 	loff_t pos;
+<<<<<<< HEAD
+=======
+	loff_t to_skip;
+	int vma_count;
+	size_t vma_data_size;
+	struct core_vma_metadata *vma_meta;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -115,10 +180,15 @@ static inline void insert_binfmt(struct linux_binfmt *fmt)
 
 extern void unregister_binfmt(struct linux_binfmt *);
 
+<<<<<<< HEAD
 extern int prepare_binprm(struct linux_binprm *);
 extern int __must_check remove_arg_zero(struct linux_binprm *);
 extern int search_binary_handler(struct linux_binprm *);
 extern int flush_old_exec(struct linux_binprm * bprm);
+=======
+extern int __must_check remove_arg_zero(struct linux_binprm *);
+extern int begin_new_exec(struct linux_binprm * bprm);
+>>>>>>> upstream/android-13
 extern void setup_new_exec(struct linux_binprm * bprm);
 extern void finalize_exec(struct linux_binprm *bprm);
 extern void would_dump(struct linux_binprm *, struct file *);
@@ -136,6 +206,7 @@ extern int setup_arg_pages(struct linux_binprm * bprm,
 extern int transfer_args_to_stack(struct linux_binprm *bprm,
 				  unsigned long *sp_location);
 extern int bprm_change_interp(const char *interp, struct linux_binprm *bprm);
+<<<<<<< HEAD
 extern int copy_strings_kernel(int argc, const char *const *argv,
 			       struct linux_binprm *bprm);
 extern int prepare_bprm_creds(struct linux_binprm *bprm);
@@ -151,5 +222,13 @@ extern int do_execveat(int, struct filename *,
 		       const char __user * const __user *,
 		       int);
 int do_execve_file(struct file *file, void *__argv, void *__envp);
+=======
+int copy_string_kernel(const char *arg, struct linux_binprm *bprm);
+extern void set_binfmt(struct linux_binfmt *new);
+extern ssize_t read_code(struct file *, unsigned long, loff_t, size_t);
+
+int kernel_execve(const char *filename,
+		  const char *const *argv, const char *const *envp);
+>>>>>>> upstream/android-13
 
 #endif /* _LINUX_BINFMTS_H */

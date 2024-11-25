@@ -6,7 +6,11 @@ enum HF_S {
 	HF_DVBC_8MHZ, HF_DVBC
 };
 
+<<<<<<< HEAD
 static struct SStandardParam m_StandardTable[] = {
+=======
+static const struct SStandardParam m_StandardTable[] = {
+>>>>>>> upstream/android-13
 	{       0,        0, 0x00, 0x00 },    /* HF_None */
 	{ 6000000,  7000000, 0x1D, 0x2C },    /* HF_B, */
 	{ 6900000,  8000000, 0x1E, 0x2C },    /* HF_DK, */
@@ -28,7 +32,11 @@ static struct SStandardParam m_StandardTable[] = {
 	{       0,        0, 0x00, 0x00 },    /* HF_DVBC (Unused) */
 };
 
+<<<<<<< HEAD
 static struct SMap  m_BP_Filter_Map[] = {
+=======
+static const struct SMap  m_BP_Filter_Map[] = {
+>>>>>>> upstream/android-13
 	{   62000000,  0x00 },
 	{   84000000,  0x01 },
 	{  100000000,  0x02 },
@@ -39,7 +47,11 @@ static struct SMap  m_BP_Filter_Map[] = {
 	{          0,  0x00 },    /* Table End */
 };
 
+<<<<<<< HEAD
 static struct SMapI m_RF_Cal_Map[] = {
+=======
+static const struct SMapI m_RF_Cal_Map[] = {
+>>>>>>> upstream/android-13
 	{   41000000,  0x0F },
 	{   43000000,  0x1C },
 	{   45000000,  0x2F },
@@ -481,7 +493,11 @@ static struct SMapI m_RF_Cal_Map[] = {
 };
 
 
+<<<<<<< HEAD
 static struct SMap2  m_KM_Map[] = {
+=======
+static const struct SMap2  m_KM_Map[] = {
+>>>>>>> upstream/android-13
 	{   47900000,  3, 2 },
 	{   61100000,  3, 1 },
 	{  350000000,  3, 0 },
@@ -490,7 +506,11 @@ static struct SMap2  m_KM_Map[] = {
 	{          0,  0x00 },    /* Table End */
 };
 
+<<<<<<< HEAD
 static struct SMap2 m_Main_PLL_Map[] = {
+=======
+static const struct SMap2 m_Main_PLL_Map[] = {
+>>>>>>> upstream/android-13
 	{  33125000, 0x57, 0xF0 },
 	{  35500000, 0x56, 0xE0 },
 	{  38188000, 0x55, 0xD0 },
@@ -534,7 +554,11 @@ static struct SMap2 m_Main_PLL_Map[] = {
 	{         0, 0x00, 0x00 },    /* Table End */
 };
 
+<<<<<<< HEAD
 static struct SMap2 m_Cal_PLL_Map[] = {
+=======
+static const struct SMap2 m_Cal_PLL_Map[] = {
+>>>>>>> upstream/android-13
 	{  33813000, 0xDD, 0xD0 },
 	{  36625000, 0xDC, 0xC0 },
 	{  39938000, 0xDB, 0xB0 },
@@ -572,7 +596,11 @@ static struct SMap2 m_Cal_PLL_Map[] = {
 	{         0, 0x00, 0x00 },    /* Table End */
 };
 
+<<<<<<< HEAD
 static struct SMap  m_GainTaper_Map[] = {
+=======
+static const struct SMap  m_GainTaper_Map[] = {
+>>>>>>> upstream/android-13
 	{  45400000, 0x1F },
 	{  45800000, 0x1E },
 	{  46200000, 0x1D },
@@ -661,7 +689,11 @@ static struct SMap  m_GainTaper_Map[] = {
 	{         0, 0x00 },    /* Table End */
 };
 
+<<<<<<< HEAD
 static struct SMap m_RF_Cal_DC_Over_DT_Map[] = {
+=======
+static const struct SMap m_RF_Cal_DC_Over_DT_Map[] = {
+>>>>>>> upstream/android-13
 	{  47900000, 0x00 },
 	{  55000000, 0x00 },
 	{  61100000, 0x0A },
@@ -767,14 +799,22 @@ static struct SMap m_RF_Cal_DC_Over_DT_Map[] = {
 };
 
 
+<<<<<<< HEAD
 static struct SMap  m_IR_Meas_Map[] = {
+=======
+static const struct SMap  m_IR_Meas_Map[] = {
+>>>>>>> upstream/android-13
 	{ 200000000, 0x05 },
 	{ 400000000, 0x06 },
 	{ 865000000, 0x07 },
 	{         0, 0x00 },    /* Table End */
 };
 
+<<<<<<< HEAD
 static struct SMap2 m_CID_Target_Map[] = {
+=======
+static const struct SMap2 m_CID_Target_Map[] = {
+>>>>>>> upstream/android-13
 	{  46000000, 0x04, 18 },
 	{  52200000, 0x0A, 15 },
 	{  70100000, 0x01, 40 },
@@ -790,7 +830,11 @@ static struct SMap2 m_CID_Target_Map[] = {
 	{         0, 0x00,  0 },    /* Table End */
 };
 
+<<<<<<< HEAD
 static struct SRFBandMap  m_RF_Band_Map[7] = {
+=======
+static const struct SRFBandMap  m_RF_Band_Map[7] = {
+>>>>>>> upstream/android-13
 	{   47900000,   46000000,           0,          0},
 	{   61100000,   52200000,           0,          0},
 	{  152600000,   70100000,   136800000,          0},

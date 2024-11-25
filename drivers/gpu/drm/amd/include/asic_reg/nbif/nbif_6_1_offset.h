@@ -1162,8 +1162,15 @@
 #define mmRCC_CONFIG_MEMSIZE_BASE_IDX                                                                  0
 #define mmRCC_CONFIG_RESERVED                                                                          0x0de4 // duplicate 
 #define mmRCC_CONFIG_RESERVED_BASE_IDX                                                                 0
+<<<<<<< HEAD
 #define mmRCC_IOV_FUNC_IDENTIFIER                                                                      0x0de5 // duplicate 
 #define mmRCC_IOV_FUNC_IDENTIFIER_BASE_IDX                                                             0
+=======
+#ifndef mmRCC_IOV_FUNC_IDENTIFIER
+#define mmRCC_IOV_FUNC_IDENTIFIER                                                                      0x0de5 // duplicate 
+#define mmRCC_IOV_FUNC_IDENTIFIER_BASE_IDX                                                             0
+#endif
+>>>>>>> upstream/android-13
 
 
 // addressBlock: syshub_mmreg_ind_syshubdec

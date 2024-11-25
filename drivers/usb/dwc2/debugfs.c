@@ -37,6 +37,7 @@ static ssize_t testmode_write(struct file *file, const char __user *ubuf, size_t
 		return -EFAULT;
 
 	if (!strncmp(buf, "test_j", 6))
+<<<<<<< HEAD
 		testmode = TEST_J;
 	else if (!strncmp(buf, "test_k", 6))
 		testmode = TEST_K;
@@ -46,6 +47,17 @@ static ssize_t testmode_write(struct file *file, const char __user *ubuf, size_t
 		testmode = TEST_PACKET;
 	else if (!strncmp(buf, "test_force_enable", 17))
 		testmode = TEST_FORCE_EN;
+=======
+		testmode = USB_TEST_J;
+	else if (!strncmp(buf, "test_k", 6))
+		testmode = USB_TEST_K;
+	else if (!strncmp(buf, "test_se0_nak", 12))
+		testmode = USB_TEST_SE0_NAK;
+	else if (!strncmp(buf, "test_packet", 11))
+		testmode = USB_TEST_PACKET;
+	else if (!strncmp(buf, "test_force_enable", 17))
+		testmode = USB_TEST_FORCE_ENABLE;
+>>>>>>> upstream/android-13
 	else
 		testmode = 0;
 
@@ -78,6 +90,7 @@ static int testmode_show(struct seq_file *s, void *unused)
 	case 0:
 		seq_puts(s, "no test\n");
 		break;
+<<<<<<< HEAD
 	case TEST_J:
 		seq_puts(s, "test_j\n");
 		break;
@@ -91,6 +104,21 @@ static int testmode_show(struct seq_file *s, void *unused)
 		seq_puts(s, "test_packet\n");
 		break;
 	case TEST_FORCE_EN:
+=======
+	case USB_TEST_J:
+		seq_puts(s, "test_j\n");
+		break;
+	case USB_TEST_K:
+		seq_puts(s, "test_k\n");
+		break;
+	case USB_TEST_SE0_NAK:
+		seq_puts(s, "test_se0_nak\n");
+		break;
+	case USB_TEST_PACKET:
+		seq_puts(s, "test_packet\n");
+		break;
+	case USB_TEST_FORCE_ENABLE:
+>>>>>>> upstream/android-13
 		seq_puts(s, "test_force_enable\n");
 		break;
 	default:
@@ -183,6 +211,10 @@ DEFINE_SHOW_ATTRIBUTE(state);
 static int fifo_show(struct seq_file *seq, void *v)
 {
 	struct dwc2_hsotg *hsotg = seq->private;
+<<<<<<< HEAD
+=======
+	int fifo_count = dwc2_hsotg_tx_fifo_count(hsotg);
+>>>>>>> upstream/android-13
 	u32 val;
 	int idx;
 
@@ -196,7 +228,11 @@ static int fifo_show(struct seq_file *seq, void *v)
 
 	seq_puts(seq, "\nPeriodic TXFIFOs:\n");
 
+<<<<<<< HEAD
 	for (idx = 1; idx < hsotg->num_of_eps; idx++) {
+=======
+	for (idx = 1; idx <= fifo_count; idx++) {
+>>>>>>> upstream/android-13
 		val = dwc2_readl(hsotg, DPTXFSIZN(idx));
 
 		seq_printf(seq, "\tDPTXFIFO%2d: Size %d, Start 0x%08x\n", idx,
@@ -690,6 +726,11 @@ static int params_show(struct seq_file *seq, void *v)
 	print_param(seq, p, ulpi_fs_ls);
 	print_param(seq, p, host_support_fs_ls_low_power);
 	print_param(seq, p, host_ls_low_power_phy_clk);
+<<<<<<< HEAD
+=======
+	print_param(seq, p, activate_stm_fs_transceiver);
+	print_param(seq, p, activate_stm_id_vb_detection);
+>>>>>>> upstream/android-13
 	print_param(seq, p, ts_dline);
 	print_param(seq, p, reload_ctl);
 	print_param_hex(seq, p, ahbcfg);
@@ -701,6 +742,10 @@ static int params_show(struct seq_file *seq, void *v)
 	print_param(seq, p, besl);
 	print_param(seq, p, hird_threshold_en);
 	print_param(seq, p, hird_threshold);
+<<<<<<< HEAD
+=======
+	print_param(seq, p, service_interval);
+>>>>>>> upstream/android-13
 	print_param(seq, p, host_dma);
 	print_param(seq, p, g_dma);
 	print_param(seq, p, g_dma_desc);
@@ -769,7 +814,11 @@ int dwc2_debugfs_init(struct dwc2_hsotg *hsotg)
 	int			ret;
 	struct dentry		*root;
 
+<<<<<<< HEAD
 	root = debugfs_create_dir(dev_name(hsotg->dev), NULL);
+=======
+	root = debugfs_create_dir(dev_name(hsotg->dev), usb_debug_root);
+>>>>>>> upstream/android-13
 	hsotg->debug_root = root;
 
 	debugfs_create_file("params", 0444, root, hsotg, &params_fops);

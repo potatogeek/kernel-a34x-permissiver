@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -210,8 +214,19 @@ static long tz_uiwsock_recv_msg(struct file *filp, unsigned long arg)
 		log_debug(tzdev_uiwsock, "Wait interrupted, filp=%pK, ret=%ld\n", filp, ret);
 	else if (IS_EAGAIN(ret))
 		log_debug(tzdev_uiwsock, "Operation would block, filp=%pK, ret=%ld\n", filp, ret);
+<<<<<<< HEAD
 	else if (ret < 0)
 		log_error(tzdev_uiwsock, "Failed to read data filp=%pK, ret=%ld\n", filp, ret);
+=======
+	else if (IS_ERR_VALUE(ret))
+		log_error(tzdev_uiwsock, "Failed to read data filp=%pK, ret=%ld\n", filp, ret);
+	else
+		if (copy_to_user(&argp->msg_controllen, &msg.msg_controllen, sizeof(argp->msg_controllen))
+				|| copy_to_user(&argp->msglen, &msg.msglen, sizeof(argp->msglen))) {
+			log_error(tzdev_uiwsock, "Invalid user space pointer %pK, filp=%pK\n", argp, filp);
+			return -EFAULT;
+		}
+>>>>>>> upstream/android-13
 
 	log_debug(tzdev_uiwsock, "Exit, filp=%pK\n", filp);
 
@@ -241,12 +256,31 @@ static long tz_uiwsock_compat_recv_msg(struct file *filp, unsigned long arg)
 	msg.msg_flags = compat_msg.msg_flags;
 
 	ret = tz_iwsock_read_msg(sd, &msg, msg.msg_flags);
+<<<<<<< HEAD
 	if (IS_EINTR(ret))
 		log_debug(tzdev_uiwsock, "Wait interrupted, filp=%pK, ret=%ld\n", filp, ret);
 	else if (IS_EAGAIN(ret))
 		log_debug(tzdev_uiwsock, "Operation would block, filp=%pK, ret=%ld\n", filp, ret);
 	else if (ret < 0)
 		log_error(tzdev_uiwsock, "Failed to read data filp=%pK, ret=%ld\n", filp, ret);
+=======
+	if (IS_EINTR(ret)) {
+		log_debug(tzdev_uiwsock, "Wait interrupted, filp=%pK, ret=%ld\n", filp, ret);
+	} else if (IS_EAGAIN(ret)) {
+		log_debug(tzdev_uiwsock, "Operation would block, filp=%pK, ret=%ld\n", filp, ret);
+	} else if (IS_ERR_VALUE(ret)) {
+		log_error(tzdev_uiwsock, "Failed to read data filp=%pK, ret=%ld\n", filp, ret);
+	} else {
+		compat_msg.msglen = (uint32_t)msg.msglen;
+		compat_msg.msg_controllen = (uint32_t)msg.msg_controllen;
+
+		if (copy_to_user(&argp->msg_controllen, &compat_msg.msg_controllen, sizeof(argp->msg_controllen))
+				|| copy_to_user(&argp->msglen, &compat_msg.msglen, sizeof(argp->msglen))) {
+			log_error(tzdev_uiwsock, "Invalid user space pointer %pK, filp=%pK\n", argp, filp);
+			return -EFAULT;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	log_debug(tzdev_uiwsock, "Exit, filp=%pK\n", filp);
 

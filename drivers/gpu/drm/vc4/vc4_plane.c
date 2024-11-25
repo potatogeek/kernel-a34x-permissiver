@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Broadcom
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Broadcom
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -20,10 +26,21 @@
 
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
+<<<<<<< HEAD
 #include <drm/drm_fb_cma_helper.h>
 #include <drm/drm_plane_helper.h>
 
 #include "uapi/drm/vc4_drm.h"
+=======
+#include <drm/drm_atomic_uapi.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_plane_helper.h>
+
+#include "uapi/drm/vc4_drm.h"
+
+>>>>>>> upstream/android-13
 #include "vc4_drv.h"
 #include "vc4_regs.h"
 
@@ -31,6 +48,7 @@ static const struct hvs_format {
 	u32 drm; /* DRM_FORMAT_* */
 	u32 hvs; /* HVS_FORMAT_* */
 	u32 pixel_order;
+<<<<<<< HEAD
 } hvs_formats[] = {
 	{
 		.drm = DRM_FORMAT_XRGB8888, .hvs = HVS_PIXEL_FORMAT_RGBA8888,
@@ -70,6 +88,62 @@ static const struct hvs_format {
 	},
 	{
 		.drm = DRM_FORMAT_BGR888, .hvs = HVS_PIXEL_FORMAT_RGB888,
+=======
+	u32 pixel_order_hvs5;
+} hvs_formats[] = {
+	{
+		.drm = DRM_FORMAT_XRGB8888,
+		.hvs = HVS_PIXEL_FORMAT_RGBA8888,
+		.pixel_order = HVS_PIXEL_ORDER_ABGR,
+		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ARGB,
+	},
+	{
+		.drm = DRM_FORMAT_ARGB8888,
+		.hvs = HVS_PIXEL_FORMAT_RGBA8888,
+		.pixel_order = HVS_PIXEL_ORDER_ABGR,
+		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ARGB,
+	},
+	{
+		.drm = DRM_FORMAT_ABGR8888,
+		.hvs = HVS_PIXEL_FORMAT_RGBA8888,
+		.pixel_order = HVS_PIXEL_ORDER_ARGB,
+		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ABGR,
+	},
+	{
+		.drm = DRM_FORMAT_XBGR8888,
+		.hvs = HVS_PIXEL_FORMAT_RGBA8888,
+		.pixel_order = HVS_PIXEL_ORDER_ARGB,
+		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ABGR,
+	},
+	{
+		.drm = DRM_FORMAT_RGB565,
+		.hvs = HVS_PIXEL_FORMAT_RGB565,
+		.pixel_order = HVS_PIXEL_ORDER_XRGB,
+	},
+	{
+		.drm = DRM_FORMAT_BGR565,
+		.hvs = HVS_PIXEL_FORMAT_RGB565,
+		.pixel_order = HVS_PIXEL_ORDER_XBGR,
+	},
+	{
+		.drm = DRM_FORMAT_ARGB1555,
+		.hvs = HVS_PIXEL_FORMAT_RGBA5551,
+		.pixel_order = HVS_PIXEL_ORDER_ABGR,
+	},
+	{
+		.drm = DRM_FORMAT_XRGB1555,
+		.hvs = HVS_PIXEL_FORMAT_RGBA5551,
+		.pixel_order = HVS_PIXEL_ORDER_ABGR,
+	},
+	{
+		.drm = DRM_FORMAT_RGB888,
+		.hvs = HVS_PIXEL_FORMAT_RGB888,
+		.pixel_order = HVS_PIXEL_ORDER_XRGB,
+	},
+	{
+		.drm = DRM_FORMAT_BGR888,
+		.hvs = HVS_PIXEL_FORMAT_RGB888,
+>>>>>>> upstream/android-13
 		.pixel_order = HVS_PIXEL_ORDER_XBGR,
 	},
 	{
@@ -128,17 +202,30 @@ static const struct hvs_format *vc4_get_hvs_format(u32 drm_format)
 
 static enum vc4_scaling_mode vc4_get_scaling_mode(u32 src, u32 dst)
 {
+<<<<<<< HEAD
 	if (dst > src)
 		return VC4_SCALING_PPF;
 	else if (dst < src)
 		return VC4_SCALING_TPZ;
 	else
 		return VC4_SCALING_NONE;
+=======
+	if (dst == src)
+		return VC4_SCALING_NONE;
+	if (3 * dst >= 2 * src)
+		return VC4_SCALING_PPF;
+	else
+		return VC4_SCALING_TPZ;
+>>>>>>> upstream/android-13
 }
 
 static bool plane_enabled(struct drm_plane_state *state)
 {
+<<<<<<< HEAD
 	return state->fb && state->crtc;
+=======
+	return state->fb && !WARN_ON(!state->crtc);
+>>>>>>> upstream/android-13
 }
 
 static struct drm_plane_state *vc4_plane_duplicate_state(struct drm_plane *plane)
@@ -153,6 +240,10 @@ static struct drm_plane_state *vc4_plane_duplicate_state(struct drm_plane *plane
 		return NULL;
 
 	memset(&vc4_state->lbm, 0, sizeof(vc4_state->lbm));
+<<<<<<< HEAD
+=======
+	vc4_state->dlist_initialized = 0;
+>>>>>>> upstream/android-13
 
 	__drm_atomic_helper_plane_duplicate_state(plane, &vc4_state->base);
 
@@ -176,7 +267,11 @@ static void vc4_plane_destroy_state(struct drm_plane *plane,
 	struct vc4_dev *vc4 = to_vc4_dev(plane->dev);
 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
 
+<<<<<<< HEAD
 	if (vc4_state->lbm.allocated) {
+=======
+	if (drm_mm_node_allocated(&vc4_state->lbm)) {
+>>>>>>> upstream/android-13
 		unsigned long irqflags;
 
 		spin_lock_irqsave(&vc4->hvs->mm_lock, irqflags);
@@ -200,12 +295,19 @@ static void vc4_plane_reset(struct drm_plane *plane)
 	if (!vc4_state)
 		return;
 
+<<<<<<< HEAD
 	plane->state = &vc4_state->base;
 	plane->state->alpha = DRM_BLEND_ALPHA_OPAQUE;
 	vc4_state->base.plane = plane;
 }
 
 static void vc4_dlist_write(struct vc4_plane_state *vc4_state, u32 val)
+=======
+	__drm_atomic_helper_plane_reset(plane, &vc4_state->base);
+}
+
+static void vc4_dlist_counter_increment(struct vc4_plane_state *vc4_state)
+>>>>>>> upstream/android-13
 {
 	if (vc4_state->dlist_count == vc4_state->dlist_size) {
 		u32 new_size = max(4u, vc4_state->dlist_count * 2);
@@ -220,7 +322,19 @@ static void vc4_dlist_write(struct vc4_plane_state *vc4_state, u32 val)
 		vc4_state->dlist_size = new_size;
 	}
 
+<<<<<<< HEAD
 	vc4_state->dlist[vc4_state->dlist_count++] = val;
+=======
+	vc4_state->dlist_count++;
+}
+
+static void vc4_dlist_write(struct vc4_plane_state *vc4_state, u32 val)
+{
+	unsigned int idx = vc4_state->dlist_count;
+
+	vc4_dlist_counter_increment(vc4_state);
+	vc4_state->dlist[idx] = val;
+>>>>>>> upstream/android-13
 }
 
 /* Returns the scl0/scl1 field based on whether the dimensions need to
@@ -258,23 +372,95 @@ static u32 vc4_get_scl_field(struct drm_plane_state *state, int plane)
 	}
 }
 
+<<<<<<< HEAD
 static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
 {
 	struct drm_plane *plane = state->plane;
+=======
+static int vc4_plane_margins_adj(struct drm_plane_state *pstate)
+{
+	struct vc4_plane_state *vc4_pstate = to_vc4_plane_state(pstate);
+	unsigned int left, right, top, bottom, adjhdisplay, adjvdisplay;
+	struct drm_crtc_state *crtc_state;
+
+	crtc_state = drm_atomic_get_new_crtc_state(pstate->state,
+						   pstate->crtc);
+
+	vc4_crtc_get_margins(crtc_state, &left, &right, &top, &bottom);
+	if (!left && !right && !top && !bottom)
+		return 0;
+
+	if (left + right >= crtc_state->mode.hdisplay ||
+	    top + bottom >= crtc_state->mode.vdisplay)
+		return -EINVAL;
+
+	adjhdisplay = crtc_state->mode.hdisplay - (left + right);
+	vc4_pstate->crtc_x = DIV_ROUND_CLOSEST(vc4_pstate->crtc_x *
+					       adjhdisplay,
+					       crtc_state->mode.hdisplay);
+	vc4_pstate->crtc_x += left;
+	if (vc4_pstate->crtc_x > crtc_state->mode.hdisplay - left)
+		vc4_pstate->crtc_x = crtc_state->mode.hdisplay - left;
+
+	adjvdisplay = crtc_state->mode.vdisplay - (top + bottom);
+	vc4_pstate->crtc_y = DIV_ROUND_CLOSEST(vc4_pstate->crtc_y *
+					       adjvdisplay,
+					       crtc_state->mode.vdisplay);
+	vc4_pstate->crtc_y += top;
+	if (vc4_pstate->crtc_y > crtc_state->mode.vdisplay - top)
+		vc4_pstate->crtc_y = crtc_state->mode.vdisplay - top;
+
+	vc4_pstate->crtc_w = DIV_ROUND_CLOSEST(vc4_pstate->crtc_w *
+					       adjhdisplay,
+					       crtc_state->mode.hdisplay);
+	vc4_pstate->crtc_h = DIV_ROUND_CLOSEST(vc4_pstate->crtc_h *
+					       adjvdisplay,
+					       crtc_state->mode.vdisplay);
+
+	if (!vc4_pstate->crtc_w || !vc4_pstate->crtc_h)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
+{
+>>>>>>> upstream/android-13
 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
 	struct drm_framebuffer *fb = state->fb;
 	struct drm_gem_cma_object *bo = drm_fb_cma_get_gem_obj(fb, 0);
 	u32 subpixel_src_mask = (1 << 16) - 1;
+<<<<<<< HEAD
 	u32 format = fb->format->format;
 	int num_planes = fb->format->num_planes;
 	u32 h_subsample = 1;
 	u32 v_subsample = 1;
 	int i;
+=======
+	int num_planes = fb->format->num_planes;
+	struct drm_crtc_state *crtc_state;
+	u32 h_subsample = fb->format->hsub;
+	u32 v_subsample = fb->format->vsub;
+	int i, ret;
+
+	crtc_state = drm_atomic_get_existing_crtc_state(state->state,
+							state->crtc);
+	if (!crtc_state) {
+		DRM_DEBUG_KMS("Invalid crtc state\n");
+		return -EINVAL;
+	}
+
+	ret = drm_atomic_helper_check_plane_state(state, crtc_state, 1,
+						  INT_MAX, true, true);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < num_planes; i++)
 		vc4_state->offsets[i] = bo->paddr + fb->offsets[i];
 
 	/* We don't support subpixel source positioning for scaling. */
+<<<<<<< HEAD
 	if ((state->src_x & subpixel_src_mask) ||
 	    (state->src_y & subpixel_src_mask) ||
 	    (state->src_w & subpixel_src_mask) ||
@@ -291,6 +477,28 @@ static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
 	vc4_state->crtc_y = state->crtc_y;
 	vc4_state->crtc_w = state->crtc_w;
 	vc4_state->crtc_h = state->crtc_h;
+=======
+	if ((state->src.x1 & subpixel_src_mask) ||
+	    (state->src.x2 & subpixel_src_mask) ||
+	    (state->src.y1 & subpixel_src_mask) ||
+	    (state->src.y2 & subpixel_src_mask)) {
+		return -EINVAL;
+	}
+
+	vc4_state->src_x = state->src.x1 >> 16;
+	vc4_state->src_y = state->src.y1 >> 16;
+	vc4_state->src_w[0] = (state->src.x2 - state->src.x1) >> 16;
+	vc4_state->src_h[0] = (state->src.y2 - state->src.y1) >> 16;
+
+	vc4_state->crtc_x = state->dst.x1;
+	vc4_state->crtc_y = state->dst.y1;
+	vc4_state->crtc_w = state->dst.x2 - state->dst.x1;
+	vc4_state->crtc_h = state->dst.y2 - state->dst.y1;
+
+	ret = vc4_plane_margins_adj(state);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	vc4_state->x_scaling[0] = vc4_get_scaling_mode(vc4_state->src_w[0],
 						       vc4_state->crtc_w);
@@ -303,8 +511,11 @@ static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
 	if (num_planes > 1) {
 		vc4_state->is_yuv = true;
 
+<<<<<<< HEAD
 		h_subsample = drm_format_horz_chroma_subsampling(format);
 		v_subsample = drm_format_vert_chroma_subsampling(format);
+=======
+>>>>>>> upstream/android-13
 		vc4_state->src_w[1] = vc4_state->src_w[0] / h_subsample;
 		vc4_state->src_h[1] = vc4_state->src_h[0] / v_subsample;
 
@@ -329,6 +540,7 @@ static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
 		vc4_state->y_scaling[1] = VC4_SCALING_NONE;
 	}
 
+<<<<<<< HEAD
 	/* No configuring scaling on the cursor plane, since it gets
 	   non-vblank-synced updates, and scaling requires requires
 	   LBM changes which have to be vblank-synced.
@@ -364,6 +576,8 @@ static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
 		vc4_state->crtc_y = 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -398,6 +612,7 @@ static void vc4_write_ppf(struct vc4_plane_state *vc4_state, u32 src, u32 dst)
 static u32 vc4_lbm_size(struct drm_plane_state *state)
 {
 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
+<<<<<<< HEAD
 	/* This is the worst case number.  One of the two sizes will
 	 * be used depending on the scaling configuration.
 	 */
@@ -408,6 +623,31 @@ static u32 vc4_lbm_size(struct drm_plane_state *state)
 		if (vc4_state->is_unity)
 			return 0;
 		else if (vc4_state->y_scaling[0] == VC4_SCALING_TPZ)
+=======
+	struct vc4_dev *vc4 = to_vc4_dev(state->plane->dev);
+	u32 pix_per_line;
+	u32 lbm;
+
+	/* LBM is not needed when there's no vertical scaling. */
+	if (vc4_state->y_scaling[0] == VC4_SCALING_NONE &&
+	    vc4_state->y_scaling[1] == VC4_SCALING_NONE)
+		return 0;
+
+	/*
+	 * This can be further optimized in the RGB/YUV444 case if the PPF
+	 * decimation factor is between 0.5 and 1.0 by using crtc_w.
+	 *
+	 * It's not an issue though, since in that case since src_w[0] is going
+	 * to be greater than or equal to crtc_w.
+	 */
+	if (vc4_state->x_scaling[0] == VC4_SCALING_TPZ)
+		pix_per_line = vc4_state->crtc_w;
+	else
+		pix_per_line = vc4_state->src_w[0];
+
+	if (!vc4_state->is_yuv) {
+		if (vc4_state->y_scaling[0] == VC4_SCALING_TPZ)
+>>>>>>> upstream/android-13
 			lbm = pix_per_line * 8;
 		else {
 			/* In special cases, this multiplier might be 12. */
@@ -421,7 +661,15 @@ static u32 vc4_lbm_size(struct drm_plane_state *state)
 		lbm = pix_per_line * 16;
 	}
 
+<<<<<<< HEAD
 	lbm = roundup(lbm, 32);
+=======
+	/* Align it to 64 or 128 (hvs5) bytes */
+	lbm = roundup(lbm, vc4->hvs->hvs5 ? 128 : 64);
+
+	/* Each "word" of the LBM memory contains 2 or 4 (hvs5) pixels */
+	lbm /= vc4->hvs->hvs5 ? 4 : 2;
+>>>>>>> upstream/android-13
 
 	return lbm;
 }
@@ -458,6 +706,108 @@ static void vc4_write_scaling_parameters(struct drm_plane_state *state,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void vc4_plane_calc_load(struct drm_plane_state *state)
+{
+	unsigned int hvs_load_shift, vrefresh, i;
+	struct drm_framebuffer *fb = state->fb;
+	struct vc4_plane_state *vc4_state;
+	struct drm_crtc_state *crtc_state;
+	unsigned int vscale_factor;
+	struct vc4_dev *vc4;
+
+	vc4 = to_vc4_dev(state->plane->dev);
+	if (!vc4->load_tracker_available)
+		return;
+
+	vc4_state = to_vc4_plane_state(state);
+	crtc_state = drm_atomic_get_existing_crtc_state(state->state,
+							state->crtc);
+	vrefresh = drm_mode_vrefresh(&crtc_state->adjusted_mode);
+
+	/* The HVS is able to process 2 pixels/cycle when scaling the source,
+	 * 4 pixels/cycle otherwise.
+	 * Alpha blending step seems to be pipelined and it's always operating
+	 * at 4 pixels/cycle, so the limiting aspect here seems to be the
+	 * scaler block.
+	 * HVS load is expressed in clk-cycles/sec (AKA Hz).
+	 */
+	if (vc4_state->x_scaling[0] != VC4_SCALING_NONE ||
+	    vc4_state->x_scaling[1] != VC4_SCALING_NONE ||
+	    vc4_state->y_scaling[0] != VC4_SCALING_NONE ||
+	    vc4_state->y_scaling[1] != VC4_SCALING_NONE)
+		hvs_load_shift = 1;
+	else
+		hvs_load_shift = 2;
+
+	vc4_state->membus_load = 0;
+	vc4_state->hvs_load = 0;
+	for (i = 0; i < fb->format->num_planes; i++) {
+		/* Even if the bandwidth/plane required for a single frame is
+		 *
+		 * vc4_state->src_w[i] * vc4_state->src_h[i] * cpp * vrefresh
+		 *
+		 * when downscaling, we have to read more pixels per line in
+		 * the time frame reserved for a single line, so the bandwidth
+		 * demand can be punctually higher. To account for that, we
+		 * calculate the down-scaling factor and multiply the plane
+		 * load by this number. We're likely over-estimating the read
+		 * demand, but that's better than under-estimating it.
+		 */
+		vscale_factor = DIV_ROUND_UP(vc4_state->src_h[i],
+					     vc4_state->crtc_h);
+		vc4_state->membus_load += vc4_state->src_w[i] *
+					  vc4_state->src_h[i] * vscale_factor *
+					  fb->format->cpp[i];
+		vc4_state->hvs_load += vc4_state->crtc_h * vc4_state->crtc_w;
+	}
+
+	vc4_state->hvs_load *= vrefresh;
+	vc4_state->hvs_load >>= hvs_load_shift;
+	vc4_state->membus_load *= vrefresh;
+}
+
+static int vc4_plane_allocate_lbm(struct drm_plane_state *state)
+{
+	struct vc4_dev *vc4 = to_vc4_dev(state->plane->dev);
+	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
+	unsigned long irqflags;
+	u32 lbm_size;
+
+	lbm_size = vc4_lbm_size(state);
+	if (!lbm_size)
+		return 0;
+
+	if (WARN_ON(!vc4_state->lbm_offset))
+		return -EINVAL;
+
+	/* Allocate the LBM memory that the HVS will use for temporary
+	 * storage due to our scaling/format conversion.
+	 */
+	if (!drm_mm_node_allocated(&vc4_state->lbm)) {
+		int ret;
+
+		spin_lock_irqsave(&vc4->hvs->mm_lock, irqflags);
+		ret = drm_mm_insert_node_generic(&vc4->hvs->lbm_mm,
+						 &vc4_state->lbm,
+						 lbm_size,
+						 vc4->hvs->hvs5 ? 64 : 32,
+						 0, 0);
+		spin_unlock_irqrestore(&vc4->hvs->mm_lock, irqflags);
+
+		if (ret)
+			return ret;
+	} else {
+		WARN_ON_ONCE(lbm_size != vc4_state->lbm.size);
+	}
+
+	vc4_state->dlist[vc4_state->lbm_offset] = vc4_state->lbm.start;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Writes out a full display list for an active plane to the plane's
  * private dlist state.
  */
@@ -470,6 +820,7 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 	u32 ctl0_offset = vc4_state->dlist_count;
 	const struct hvs_format *format = vc4_get_hvs_format(fb->format->format);
 	u64 base_format_mod = fourcc_mod_broadcom_mod(fb->modifier);
+<<<<<<< HEAD
 	int num_planes = drm_format_num_planes(format->drm);
 	bool mix_plane_alpha;
 	bool covers_screen;
@@ -479,10 +830,27 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 	u32 hvs_format = format->hvs;
 	int ret, i;
 
+=======
+	int num_planes = fb->format->num_planes;
+	u32 h_subsample = fb->format->hsub;
+	u32 v_subsample = fb->format->vsub;
+	bool mix_plane_alpha;
+	bool covers_screen;
+	u32 scl0, scl1, pitch0;
+	u32 tiling, src_y;
+	u32 hvs_format = format->hvs;
+	unsigned int rotation;
+	int ret, i;
+
+	if (vc4_state->dlist_initialized)
+		return 0;
+
+>>>>>>> upstream/android-13
 	ret = vc4_plane_setup_clipping_and_scaling(state);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	/* Allocate the LBM memory that the HVS will use for temporary
 	 * storage due to our scaling/format conversion.
 	 */
@@ -502,6 +870,8 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	/* SCL1 is used for Cb/Cr scaling of planar formats.  For RGB
 	 * and 4:4:4, scl1 should be set to scl0 so both channels of
 	 * the scaler do the same thing.  For YUV, the Y plane needs
@@ -516,10 +886,24 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 		scl1 = vc4_get_scl_field(state, 0);
 	}
 
+<<<<<<< HEAD
+=======
+	rotation = drm_rotation_simplify(state->rotation,
+					 DRM_MODE_ROTATE_0 |
+					 DRM_MODE_REFLECT_X |
+					 DRM_MODE_REFLECT_Y);
+
+	/* We must point to the last line when Y reflection is enabled. */
+	src_y = vc4_state->src_y;
+	if (rotation & DRM_MODE_REFLECT_Y)
+		src_y += vc4_state->src_h[0] - 1;
+
+>>>>>>> upstream/android-13
 	switch (base_format_mod) {
 	case DRM_FORMAT_MOD_LINEAR:
 		tiling = SCALER_CTL0_TILING_LINEAR;
 		pitch0 = VC4_SET_FIELD(fb->pitches[0], SCALER_SRC_PITCH);
+<<<<<<< HEAD
 		break;
 
 	case DRM_FORMAT_MOD_BROADCOM_VC4_T_TILED: {
@@ -536,6 +920,89 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 		pitch0 = (VC4_SET_FIELD(0, SCALER_PITCH0_TILE_Y_OFFSET) |
 			  VC4_SET_FIELD(0, SCALER_PITCH0_TILE_WIDTH_L) |
 			  VC4_SET_FIELD(tiles_w, SCALER_PITCH0_TILE_WIDTH_R));
+=======
+
+		/* Adjust the base pointer to the first pixel to be scanned
+		 * out.
+		 */
+		for (i = 0; i < num_planes; i++) {
+			vc4_state->offsets[i] += src_y /
+						 (i ? v_subsample : 1) *
+						 fb->pitches[i];
+
+			vc4_state->offsets[i] += vc4_state->src_x /
+						 (i ? h_subsample : 1) *
+						 fb->format->cpp[i];
+		}
+
+		break;
+
+	case DRM_FORMAT_MOD_BROADCOM_VC4_T_TILED: {
+		u32 tile_size_shift = 12; /* T tiles are 4kb */
+		/* Whole-tile offsets, mostly for setting the pitch. */
+		u32 tile_w_shift = fb->format->cpp[0] == 2 ? 6 : 5;
+		u32 tile_h_shift = 5; /* 16 and 32bpp are 32 pixels high */
+		u32 tile_w_mask = (1 << tile_w_shift) - 1;
+		/* The height mask on 32-bit-per-pixel tiles is 63, i.e. twice
+		 * the height (in pixels) of a 4k tile.
+		 */
+		u32 tile_h_mask = (2 << tile_h_shift) - 1;
+		/* For T-tiled, the FB pitch is "how many bytes from one row to
+		 * the next, such that
+		 *
+		 *	pitch * tile_h == tile_size * tiles_per_row
+		 */
+		u32 tiles_w = fb->pitches[0] >> (tile_size_shift - tile_h_shift);
+		u32 tiles_l = vc4_state->src_x >> tile_w_shift;
+		u32 tiles_r = tiles_w - tiles_l;
+		u32 tiles_t = src_y >> tile_h_shift;
+		/* Intra-tile offsets, which modify the base address (the
+		 * SCALER_PITCH0_TILE_Y_OFFSET tells HVS how to walk from that
+		 * base address).
+		 */
+		u32 tile_y = (src_y >> 4) & 1;
+		u32 subtile_y = (src_y >> 2) & 3;
+		u32 utile_y = src_y & 3;
+		u32 x_off = vc4_state->src_x & tile_w_mask;
+		u32 y_off = src_y & tile_h_mask;
+
+		/* When Y reflection is requested we must set the
+		 * SCALER_PITCH0_TILE_LINE_DIR flag to tell HVS that all lines
+		 * after the initial one should be fetched in descending order,
+		 * which makes sense since we start from the last line and go
+		 * backward.
+		 * Don't know why we need y_off = max_y_off - y_off, but it's
+		 * definitely required (I guess it's also related to the "going
+		 * backward" situation).
+		 */
+		if (rotation & DRM_MODE_REFLECT_Y) {
+			y_off = tile_h_mask - y_off;
+			pitch0 = SCALER_PITCH0_TILE_LINE_DIR;
+		} else {
+			pitch0 = 0;
+		}
+
+		tiling = SCALER_CTL0_TILING_256B_OR_T;
+		pitch0 |= (VC4_SET_FIELD(x_off, SCALER_PITCH0_SINK_PIX) |
+			   VC4_SET_FIELD(y_off, SCALER_PITCH0_TILE_Y_OFFSET) |
+			   VC4_SET_FIELD(tiles_l, SCALER_PITCH0_TILE_WIDTH_L) |
+			   VC4_SET_FIELD(tiles_r, SCALER_PITCH0_TILE_WIDTH_R));
+		vc4_state->offsets[0] += tiles_t * (tiles_w << tile_size_shift);
+		vc4_state->offsets[0] += subtile_y << 8;
+		vc4_state->offsets[0] += utile_y << 4;
+
+		/* Rows of tiles alternate left-to-right and right-to-left. */
+		if (tiles_t & 1) {
+			pitch0 |= SCALER_PITCH0_TILE_INITIAL_LINE_DIR;
+			vc4_state->offsets[0] += (tiles_w - tiles_l) <<
+						 tile_size_shift;
+			vc4_state->offsets[0] -= (1 + !tile_y) << 10;
+		} else {
+			vc4_state->offsets[0] += tiles_l << tile_size_shift;
+			vc4_state->offsets[0] += tile_y << 10;
+		}
+
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -543,6 +1010,7 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 	case DRM_FORMAT_MOD_BROADCOM_SAND128:
 	case DRM_FORMAT_MOD_BROADCOM_SAND256: {
 		uint32_t param = fourcc_mod_broadcom_param(fb->modifier);
+<<<<<<< HEAD
 
 		/* Column-based NV12 or RGBA.
 		 */
@@ -558,16 +1026,33 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 				return -EINVAL;
 			}
 		}
+=======
+		u32 tile_w, tile, x_off, pix_per_tile;
+
+		hvs_format = HVS_PIXEL_FORMAT_H264;
+>>>>>>> upstream/android-13
 
 		switch (base_format_mod) {
 		case DRM_FORMAT_MOD_BROADCOM_SAND64:
 			tiling = SCALER_CTL0_TILING_64B;
+<<<<<<< HEAD
 			break;
 		case DRM_FORMAT_MOD_BROADCOM_SAND128:
 			tiling = SCALER_CTL0_TILING_128B;
 			break;
 		case DRM_FORMAT_MOD_BROADCOM_SAND256:
 			tiling = SCALER_CTL0_TILING_256B_OR_T;
+=======
+			tile_w = 64;
+			break;
+		case DRM_FORMAT_MOD_BROADCOM_SAND128:
+			tiling = SCALER_CTL0_TILING_128B;
+			tile_w = 128;
+			break;
+		case DRM_FORMAT_MOD_BROADCOM_SAND256:
+			tiling = SCALER_CTL0_TILING_256B_OR_T;
+			tile_w = 256;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			break;
@@ -578,6 +1063,26 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
+=======
+		pix_per_tile = tile_w / fb->format->cpp[0];
+		tile = vc4_state->src_x / pix_per_tile;
+		x_off = vc4_state->src_x % pix_per_tile;
+
+		/* Adjust the base pointer to the first pixel to be scanned
+		 * out.
+		 */
+		for (i = 0; i < num_planes; i++) {
+			vc4_state->offsets[i] += param * tile_w * tile;
+			vc4_state->offsets[i] += src_y /
+						 (i ? v_subsample : 1) *
+						 tile_w;
+			vc4_state->offsets[i] += x_off /
+						 (i ? h_subsample : 1) *
+						 fb->format->cpp[i];
+		}
+
+>>>>>>> upstream/android-13
 		pitch0 = VC4_SET_FIELD(param, SCALER_TILE_HEIGHT);
 		break;
 	}
@@ -588,6 +1093,7 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Control word */
 	vc4_dlist_write(vc4_state,
 			SCALER_CTL0_VALID |
@@ -615,6 +1121,8 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 					      SCALER_POS1_SCL_HEIGHT));
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Don't waste cycles mixing with plane alpha if the set alpha
 	 * is opaque or there is no per-pixel alpha information.
 	 * In any case we use the alpha property value as the fixed alpha.
@@ -622,6 +1130,7 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 	mix_plane_alpha = state->alpha != DRM_BLEND_ALPHA_OPAQUE &&
 			  fb->format->has_alpha;
 
+<<<<<<< HEAD
 	/* Position Word 2: Source Image Size, Alpha */
 	vc4_state->pos2_offset = vc4_state->dlist_count;
 	vc4_dlist_write(vc4_state,
@@ -636,6 +1145,122 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 
 	/* Position Word 3: Context.  Written by the HVS. */
 	vc4_dlist_write(vc4_state, 0xc0c0c0c0);
+=======
+	if (!vc4->hvs->hvs5) {
+	/* Control word */
+		vc4_dlist_write(vc4_state,
+				SCALER_CTL0_VALID |
+				(rotation & DRM_MODE_REFLECT_X ? SCALER_CTL0_HFLIP : 0) |
+				(rotation & DRM_MODE_REFLECT_Y ? SCALER_CTL0_VFLIP : 0) |
+				VC4_SET_FIELD(SCALER_CTL0_RGBA_EXPAND_ROUND, SCALER_CTL0_RGBA_EXPAND) |
+				(format->pixel_order << SCALER_CTL0_ORDER_SHIFT) |
+				(hvs_format << SCALER_CTL0_PIXEL_FORMAT_SHIFT) |
+				VC4_SET_FIELD(tiling, SCALER_CTL0_TILING) |
+				(vc4_state->is_unity ? SCALER_CTL0_UNITY : 0) |
+				VC4_SET_FIELD(scl0, SCALER_CTL0_SCL0) |
+				VC4_SET_FIELD(scl1, SCALER_CTL0_SCL1));
+
+		/* Position Word 0: Image Positions and Alpha Value */
+		vc4_state->pos0_offset = vc4_state->dlist_count;
+		vc4_dlist_write(vc4_state,
+				VC4_SET_FIELD(state->alpha >> 8, SCALER_POS0_FIXED_ALPHA) |
+				VC4_SET_FIELD(vc4_state->crtc_x, SCALER_POS0_START_X) |
+				VC4_SET_FIELD(vc4_state->crtc_y, SCALER_POS0_START_Y));
+
+		/* Position Word 1: Scaled Image Dimensions. */
+		if (!vc4_state->is_unity) {
+			vc4_dlist_write(vc4_state,
+					VC4_SET_FIELD(vc4_state->crtc_w,
+						      SCALER_POS1_SCL_WIDTH) |
+					VC4_SET_FIELD(vc4_state->crtc_h,
+						      SCALER_POS1_SCL_HEIGHT));
+		}
+
+		/* Position Word 2: Source Image Size, Alpha */
+		vc4_state->pos2_offset = vc4_state->dlist_count;
+		vc4_dlist_write(vc4_state,
+				VC4_SET_FIELD(fb->format->has_alpha ?
+					      SCALER_POS2_ALPHA_MODE_PIPELINE :
+					      SCALER_POS2_ALPHA_MODE_FIXED,
+					      SCALER_POS2_ALPHA_MODE) |
+				(mix_plane_alpha ? SCALER_POS2_ALPHA_MIX : 0) |
+				(fb->format->has_alpha ?
+						SCALER_POS2_ALPHA_PREMULT : 0) |
+				VC4_SET_FIELD(vc4_state->src_w[0],
+					      SCALER_POS2_WIDTH) |
+				VC4_SET_FIELD(vc4_state->src_h[0],
+					      SCALER_POS2_HEIGHT));
+
+		/* Position Word 3: Context.  Written by the HVS. */
+		vc4_dlist_write(vc4_state, 0xc0c0c0c0);
+
+	} else {
+		u32 hvs_pixel_order = format->pixel_order;
+
+		if (format->pixel_order_hvs5)
+			hvs_pixel_order = format->pixel_order_hvs5;
+
+		/* Control word */
+		vc4_dlist_write(vc4_state,
+				SCALER_CTL0_VALID |
+				(hvs_pixel_order << SCALER_CTL0_ORDER_SHIFT) |
+				(hvs_format << SCALER_CTL0_PIXEL_FORMAT_SHIFT) |
+				VC4_SET_FIELD(tiling, SCALER_CTL0_TILING) |
+				(vc4_state->is_unity ?
+						SCALER5_CTL0_UNITY : 0) |
+				VC4_SET_FIELD(scl0, SCALER_CTL0_SCL0) |
+				VC4_SET_FIELD(scl1, SCALER_CTL0_SCL1) |
+				SCALER5_CTL0_ALPHA_EXPAND |
+				SCALER5_CTL0_RGB_EXPAND);
+
+		/* Position Word 0: Image Positions and Alpha Value */
+		vc4_state->pos0_offset = vc4_state->dlist_count;
+		vc4_dlist_write(vc4_state,
+				(rotation & DRM_MODE_REFLECT_Y ?
+						SCALER5_POS0_VFLIP : 0) |
+				VC4_SET_FIELD(vc4_state->crtc_x,
+					      SCALER_POS0_START_X) |
+				(rotation & DRM_MODE_REFLECT_X ?
+					      SCALER5_POS0_HFLIP : 0) |
+				VC4_SET_FIELD(vc4_state->crtc_y,
+					      SCALER5_POS0_START_Y)
+			       );
+
+		/* Control Word 2 */
+		vc4_dlist_write(vc4_state,
+				VC4_SET_FIELD(state->alpha >> 4,
+					      SCALER5_CTL2_ALPHA) |
+				(fb->format->has_alpha ?
+					SCALER5_CTL2_ALPHA_PREMULT : 0) |
+				(mix_plane_alpha ?
+					SCALER5_CTL2_ALPHA_MIX : 0) |
+				VC4_SET_FIELD(fb->format->has_alpha ?
+				      SCALER5_CTL2_ALPHA_MODE_PIPELINE :
+				      SCALER5_CTL2_ALPHA_MODE_FIXED,
+				      SCALER5_CTL2_ALPHA_MODE)
+			       );
+
+		/* Position Word 1: Scaled Image Dimensions. */
+		if (!vc4_state->is_unity) {
+			vc4_dlist_write(vc4_state,
+					VC4_SET_FIELD(vc4_state->crtc_w,
+						      SCALER5_POS1_SCL_WIDTH) |
+					VC4_SET_FIELD(vc4_state->crtc_h,
+						      SCALER5_POS1_SCL_HEIGHT));
+		}
+
+		/* Position Word 2: Source Image Size */
+		vc4_state->pos2_offset = vc4_state->dlist_count;
+		vc4_dlist_write(vc4_state,
+				VC4_SET_FIELD(vc4_state->src_w[0],
+					      SCALER5_POS2_WIDTH) |
+				VC4_SET_FIELD(vc4_state->src_h[0],
+					      SCALER5_POS2_HEIGHT));
+
+		/* Position Word 3: Context.  Written by the HVS. */
+		vc4_dlist_write(vc4_state, 0xc0c0c0c0);
+	}
+>>>>>>> upstream/android-13
 
 
 	/* Pointer Word 0/1/2: RGB / Y / Cb / Cr Pointers
@@ -671,14 +1296,29 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 		vc4_dlist_write(vc4_state, SCALER_CSC2_ITR_R_601_5);
 	}
 
+<<<<<<< HEAD
+=======
+	vc4_state->lbm_offset = 0;
+
+>>>>>>> upstream/android-13
 	if (vc4_state->x_scaling[0] != VC4_SCALING_NONE ||
 	    vc4_state->x_scaling[1] != VC4_SCALING_NONE ||
 	    vc4_state->y_scaling[0] != VC4_SCALING_NONE ||
 	    vc4_state->y_scaling[1] != VC4_SCALING_NONE) {
+<<<<<<< HEAD
 		/* LBM Base Address. */
 		if (vc4_state->y_scaling[0] != VC4_SCALING_NONE ||
 		    vc4_state->y_scaling[1] != VC4_SCALING_NONE) {
 			vc4_dlist_write(vc4_state, vc4_state->lbm.start);
+=======
+		/* Reserve a slot for the LBM Base Address. The real value will
+		 * be set when calling vc4_plane_allocate_lbm().
+		 */
+		if (vc4_state->y_scaling[0] != VC4_SCALING_NONE ||
+		    vc4_state->y_scaling[1] != VC4_SCALING_NONE) {
+			vc4_state->lbm_offset = vc4_state->dlist_count;
+			vc4_dlist_counter_increment(vc4_state);
+>>>>>>> upstream/android-13
 		}
 
 		if (num_planes > 1) {
@@ -725,6 +1365,18 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
 	vc4_state->needs_bg_fill = fb->format->has_alpha || !covers_screen ||
 				   state->alpha != DRM_BLEND_ALPHA_OPAQUE;
 
+<<<<<<< HEAD
+=======
+	/* Flag the dlist as initialized to avoid checking it twice in case
+	 * the async update check already called vc4_plane_mode_set() and
+	 * decided to fallback to sync update because async update was not
+	 * possible.
+	 */
+	vc4_state->dlist_initialized = 1;
+
+	vc4_plane_calc_load(state);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -736,6 +1388,7 @@ static int vc4_plane_mode_set(struct drm_plane *plane,
  * in the CRTC's flush.
  */
 static int vc4_plane_atomic_check(struct drm_plane *plane,
+<<<<<<< HEAD
 				  struct drm_plane_state *state)
 {
 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
@@ -750,6 +1403,29 @@ static int vc4_plane_atomic_check(struct drm_plane *plane,
 
 static void vc4_plane_atomic_update(struct drm_plane *plane,
 				    struct drm_plane_state *old_state)
+=======
+				  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct vc4_plane_state *vc4_state = to_vc4_plane_state(new_plane_state);
+	int ret;
+
+	vc4_state->dlist_count = 0;
+
+	if (!plane_enabled(new_plane_state))
+		return 0;
+
+	ret = vc4_plane_mode_set(plane, new_plane_state);
+	if (ret)
+		return ret;
+
+	return vc4_plane_allocate_lbm(new_plane_state);
+}
+
+static void vc4_plane_atomic_update(struct drm_plane *plane,
+				    struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	/* No contents here.  Since we don't know where in the CRTC's
 	 * dlist we should be stored, our dlist is uploaded to the
@@ -809,6 +1485,7 @@ void vc4_plane_async_set_fb(struct drm_plane *plane, struct drm_framebuffer *fb)
 }
 
 static void vc4_plane_atomic_async_update(struct drm_plane *plane,
+<<<<<<< HEAD
 					  struct drm_plane_state *state)
 {
 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(plane->state);
@@ -834,6 +1511,64 @@ static void vc4_plane_atomic_async_update(struct drm_plane *plane,
 
 	/* Update the display list based on the new crtc_x/y. */
 	vc4_plane_atomic_check(plane, plane->state);
+=======
+					  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct vc4_plane_state *vc4_state, *new_vc4_state;
+
+	swap(plane->state->fb, new_plane_state->fb);
+	plane->state->crtc_x = new_plane_state->crtc_x;
+	plane->state->crtc_y = new_plane_state->crtc_y;
+	plane->state->crtc_w = new_plane_state->crtc_w;
+	plane->state->crtc_h = new_plane_state->crtc_h;
+	plane->state->src_x = new_plane_state->src_x;
+	plane->state->src_y = new_plane_state->src_y;
+	plane->state->src_w = new_plane_state->src_w;
+	plane->state->src_h = new_plane_state->src_h;
+	plane->state->alpha = new_plane_state->alpha;
+	plane->state->pixel_blend_mode = new_plane_state->pixel_blend_mode;
+	plane->state->rotation = new_plane_state->rotation;
+	plane->state->zpos = new_plane_state->zpos;
+	plane->state->normalized_zpos = new_plane_state->normalized_zpos;
+	plane->state->color_encoding = new_plane_state->color_encoding;
+	plane->state->color_range = new_plane_state->color_range;
+	plane->state->src = new_plane_state->src;
+	plane->state->dst = new_plane_state->dst;
+	plane->state->visible = new_plane_state->visible;
+
+	new_vc4_state = to_vc4_plane_state(new_plane_state);
+	vc4_state = to_vc4_plane_state(plane->state);
+
+	vc4_state->crtc_x = new_vc4_state->crtc_x;
+	vc4_state->crtc_y = new_vc4_state->crtc_y;
+	vc4_state->crtc_h = new_vc4_state->crtc_h;
+	vc4_state->crtc_w = new_vc4_state->crtc_w;
+	vc4_state->src_x = new_vc4_state->src_x;
+	vc4_state->src_y = new_vc4_state->src_y;
+	memcpy(vc4_state->src_w, new_vc4_state->src_w,
+	       sizeof(vc4_state->src_w));
+	memcpy(vc4_state->src_h, new_vc4_state->src_h,
+	       sizeof(vc4_state->src_h));
+	memcpy(vc4_state->x_scaling, new_vc4_state->x_scaling,
+	       sizeof(vc4_state->x_scaling));
+	memcpy(vc4_state->y_scaling, new_vc4_state->y_scaling,
+	       sizeof(vc4_state->y_scaling));
+	vc4_state->is_unity = new_vc4_state->is_unity;
+	vc4_state->is_yuv = new_vc4_state->is_yuv;
+	memcpy(vc4_state->offsets, new_vc4_state->offsets,
+	       sizeof(vc4_state->offsets));
+	vc4_state->needs_bg_fill = new_vc4_state->needs_bg_fill;
+
+	/* Update the current vc4_state pos0, pos2 and ptr0 dlist entries. */
+	vc4_state->dlist[vc4_state->pos0_offset] =
+		new_vc4_state->dlist[vc4_state->pos0_offset];
+	vc4_state->dlist[vc4_state->pos2_offset] =
+		new_vc4_state->dlist[vc4_state->pos2_offset];
+	vc4_state->dlist[vc4_state->ptr0_offset] =
+		new_vc4_state->dlist[vc4_state->ptr0_offset];
+>>>>>>> upstream/android-13
 
 	/* Note that we can't just call vc4_plane_write_dlist()
 	 * because that would smash the context data that the HVS is
@@ -848,6 +1583,7 @@ static void vc4_plane_atomic_async_update(struct drm_plane *plane,
 }
 
 static int vc4_plane_atomic_async_check(struct drm_plane *plane,
+<<<<<<< HEAD
 					struct drm_plane_state *state)
 {
 	/* No configuring new scaling in the fast path. */
@@ -857,6 +1593,44 @@ static int vc4_plane_atomic_async_check(struct drm_plane *plane,
 	    plane->state->src_h != state->src_h)
 		return -EINVAL;
 
+=======
+					struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct vc4_plane_state *old_vc4_state, *new_vc4_state;
+	int ret;
+	u32 i;
+
+	ret = vc4_plane_mode_set(plane, new_plane_state);
+	if (ret)
+		return ret;
+
+	old_vc4_state = to_vc4_plane_state(plane->state);
+	new_vc4_state = to_vc4_plane_state(new_plane_state);
+	if (old_vc4_state->dlist_count != new_vc4_state->dlist_count ||
+	    old_vc4_state->pos0_offset != new_vc4_state->pos0_offset ||
+	    old_vc4_state->pos2_offset != new_vc4_state->pos2_offset ||
+	    old_vc4_state->ptr0_offset != new_vc4_state->ptr0_offset ||
+	    vc4_lbm_size(plane->state) != vc4_lbm_size(new_plane_state))
+		return -EINVAL;
+
+	/* Only pos0, pos2 and ptr0 DWORDS can be updated in an async update
+	 * if anything else has changed, fallback to a sync update.
+	 */
+	for (i = 0; i < new_vc4_state->dlist_count; i++) {
+		if (i == new_vc4_state->pos0_offset ||
+		    i == new_vc4_state->pos2_offset ||
+		    i == new_vc4_state->ptr0_offset ||
+		    (new_vc4_state->lbm_offset &&
+		     i == new_vc4_state->lbm_offset))
+			continue;
+
+		if (new_vc4_state->dlist[i] != old_vc4_state->dlist[i])
+			return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -864,7 +1638,10 @@ static int vc4_prepare_fb(struct drm_plane *plane,
 			  struct drm_plane_state *state)
 {
 	struct vc4_bo *bo;
+<<<<<<< HEAD
 	struct dma_fence *fence;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!state->fb)
@@ -872,8 +1649,12 @@ static int vc4_prepare_fb(struct drm_plane *plane,
 
 	bo = to_vc4_bo(&drm_fb_cma_get_gem_obj(state->fb, 0)->base);
 
+<<<<<<< HEAD
 	fence = reservation_object_get_excl_rcu(bo->resv);
 	drm_atomic_set_fence_for_plane(state, fence);
+=======
+	drm_gem_plane_helper_prepare_fb(plane, state);
+>>>>>>> upstream/android-13
 
 	if (plane->state->fb == state->fb)
 		return 0;
@@ -906,12 +1687,15 @@ static const struct drm_plane_helper_funcs vc4_plane_helper_funcs = {
 	.atomic_async_update = vc4_plane_atomic_async_update,
 };
 
+<<<<<<< HEAD
 static void vc4_plane_destroy(struct drm_plane *plane)
 {
 	drm_plane_helper_disable(plane, NULL);
 	drm_plane_cleanup(plane);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool vc4_format_mod_supported(struct drm_plane *plane,
 				     uint32_t format,
 				     uint64_t modifier)
@@ -929,8 +1713,11 @@ static bool vc4_format_mod_supported(struct drm_plane *plane,
 		switch (fourcc_mod_broadcom_mod(modifier)) {
 		case DRM_FORMAT_MOD_LINEAR:
 		case DRM_FORMAT_MOD_BROADCOM_VC4_T_TILED:
+<<<<<<< HEAD
 		case DRM_FORMAT_MOD_BROADCOM_SAND64:
 		case DRM_FORMAT_MOD_BROADCOM_SAND128:
+=======
+>>>>>>> upstream/android-13
 			return true;
 		default:
 			return false;
@@ -946,6 +1733,13 @@ static bool vc4_format_mod_supported(struct drm_plane *plane,
 		default:
 			return false;
 		}
+<<<<<<< HEAD
+=======
+	case DRM_FORMAT_RGBX1010102:
+	case DRM_FORMAT_BGRX1010102:
+	case DRM_FORMAT_RGBA1010102:
+	case DRM_FORMAT_BGRA1010102:
+>>>>>>> upstream/android-13
 	case DRM_FORMAT_YUV422:
 	case DRM_FORMAT_YVU422:
 	case DRM_FORMAT_YUV420:
@@ -960,7 +1754,11 @@ static bool vc4_format_mod_supported(struct drm_plane *plane,
 static const struct drm_plane_funcs vc4_plane_funcs = {
 	.update_plane = drm_atomic_helper_update_plane,
 	.disable_plane = drm_atomic_helper_disable_plane,
+<<<<<<< HEAD
 	.destroy = vc4_plane_destroy,
+=======
+	.destroy = drm_plane_cleanup,
+>>>>>>> upstream/android-13
 	.set_property = NULL,
 	.reset = vc4_plane_reset,
 	.atomic_duplicate_state = vc4_plane_duplicate_state,
@@ -974,7 +1772,10 @@ struct drm_plane *vc4_plane_init(struct drm_device *dev,
 	struct drm_plane *plane = NULL;
 	struct vc4_plane *vc4_plane;
 	u32 formats[ARRAY_SIZE(hvs_formats)];
+<<<<<<< HEAD
 	u32 num_formats = 0;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 	unsigned i;
 	static const uint64_t modifiers[] = {
@@ -991,6 +1792,7 @@ struct drm_plane *vc4_plane_init(struct drm_device *dev,
 	if (!vc4_plane)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(hvs_formats); i++) {
 		/* Don't allow YUV in cursor planes, since that means
 		 * tuning on the scaler, which we don't allow for the
@@ -1006,10 +1808,74 @@ struct drm_plane *vc4_plane_init(struct drm_device *dev,
 				       &vc4_plane_funcs,
 				       formats, num_formats,
 				       modifiers, type, NULL);
+=======
+	for (i = 0; i < ARRAY_SIZE(hvs_formats); i++)
+		formats[i] = hvs_formats[i].drm;
+
+	plane = &vc4_plane->base;
+	ret = drm_universal_plane_init(dev, plane, 0,
+				       &vc4_plane_funcs,
+				       formats, ARRAY_SIZE(formats),
+				       modifiers, type, NULL);
+	if (ret)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	drm_plane_helper_add(plane, &vc4_plane_helper_funcs);
 
 	drm_plane_create_alpha_property(plane);
+<<<<<<< HEAD
 
 	return plane;
 }
+=======
+	drm_plane_create_rotation_property(plane, DRM_MODE_ROTATE_0,
+					   DRM_MODE_ROTATE_0 |
+					   DRM_MODE_ROTATE_180 |
+					   DRM_MODE_REFLECT_X |
+					   DRM_MODE_REFLECT_Y);
+
+	return plane;
+}
+
+int vc4_plane_create_additional_planes(struct drm_device *drm)
+{
+	struct drm_plane *cursor_plane;
+	struct drm_crtc *crtc;
+	unsigned int i;
+
+	/* Set up some arbitrary number of planes.  We're not limited
+	 * by a set number of physical registers, just the space in
+	 * the HVS (16k) and how small an plane can be (28 bytes).
+	 * However, each plane we set up takes up some memory, and
+	 * increases the cost of looping over planes, which atomic
+	 * modesetting does quite a bit.  As a result, we pick a
+	 * modest number of planes to expose, that should hopefully
+	 * still cover any sane usecase.
+	 */
+	for (i = 0; i < 16; i++) {
+		struct drm_plane *plane =
+			vc4_plane_init(drm, DRM_PLANE_TYPE_OVERLAY);
+
+		if (IS_ERR(plane))
+			continue;
+
+		plane->possible_crtcs =
+			GENMASK(drm->mode_config.num_crtc - 1, 0);
+	}
+
+	drm_for_each_crtc(crtc, drm) {
+		/* Set up the legacy cursor after overlay initialization,
+		 * since we overlay planes on the CRTC in the order they were
+		 * initialized.
+		 */
+		cursor_plane = vc4_plane_init(drm, DRM_PLANE_TYPE_CURSOR);
+		if (!IS_ERR(cursor_plane)) {
+			cursor_plane->possible_crtcs = drm_crtc_mask(crtc);
+			crtc->cursor = cursor_plane;
+		}
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13

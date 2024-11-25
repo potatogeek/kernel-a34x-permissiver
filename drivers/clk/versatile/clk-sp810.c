@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,6 +8,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2013 ARM Limited
  */
@@ -16,6 +21,10 @@
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 
@@ -91,7 +100,11 @@ static void __init clk_sp810_of_setup(struct device_node *node)
 	const char *parent_names[2];
 	int num = ARRAY_SIZE(parent_names);
 	char name[12];
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	static int instance;
 	int i;
 	bool deprecated;
@@ -111,7 +124,11 @@ static void __init clk_sp810_of_setup(struct device_node *node)
 
 	init.name = name;
 	init.ops = &clk_sp810_timerclken_ops;
+<<<<<<< HEAD
 	init.flags = CLK_IS_BASIC;
+=======
+	init.flags = 0;
+>>>>>>> upstream/android-13
 	init.parent_names = parent_names;
 	init.num_parents = num;
 

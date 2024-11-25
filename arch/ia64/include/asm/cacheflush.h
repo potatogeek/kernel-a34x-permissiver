@@ -12,6 +12,7 @@
 
 #include <asm/page.h>
 
+<<<<<<< HEAD
 /*
  * Cache flushing routines.  This is the kind of stuff that can be very expensive, so try
  * to avoid them whenever possible.
@@ -26,12 +27,15 @@
 #define flush_cache_vmap(start, end)		do { } while (0)
 #define flush_cache_vunmap(start, end)		do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
 #define flush_dcache_page(page)			\
 do {						\
 	clear_bit(PG_arch_1, &(page)->flags);	\
 } while (0)
 
+<<<<<<< HEAD
 #define flush_dcache_mmap_lock(mapping)		do { } while (0)
 #define flush_dcache_mmap_unlock(mapping)	do { } while (0)
 
@@ -40,16 +44,27 @@ extern void clflush_cache_range(void *addr, int size);
 
 
 #define flush_icache_user_range(vma, page, user_addr, len)					\
+=======
+extern void flush_icache_range(unsigned long start, unsigned long end);
+#define flush_icache_range flush_icache_range
+extern void clflush_cache_range(void *addr, int size);
+
+#define flush_icache_user_page(vma, page, user_addr, len)					\
+>>>>>>> upstream/android-13
 do {												\
 	unsigned long _addr = (unsigned long) page_address(page) + ((user_addr) & ~PAGE_MASK);	\
 	flush_icache_range(_addr, _addr + (len));						\
 } while (0)
 
+<<<<<<< HEAD
 #define copy_to_user_page(vma, page, vaddr, dst, src, len) \
 do { memcpy(dst, src, len); \
      flush_icache_user_range(vma, page, vaddr, len); \
 } while (0)
 #define copy_from_user_page(vma, page, vaddr, dst, src, len) \
 	memcpy(dst, src, len)
+=======
+#include <asm-generic/cacheflush.h>
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_IA64_CACHEFLUSH_H */

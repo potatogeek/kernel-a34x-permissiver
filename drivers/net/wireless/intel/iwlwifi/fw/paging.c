@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -61,6 +62,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2019 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include "iwl-drv.h"
 #include "runtime.h"
 #include "fw/api/commands.h"
@@ -322,7 +331,11 @@ int iwl_init_paging(struct iwl_fw_runtime *fwrt, enum iwl_ucode_type type)
 	const struct fw_img *fw = &fwrt->fw->img[type];
 	int ret;
 
+<<<<<<< HEAD
 	if (fwrt->trans->cfg->gen2)
+=======
+	if (fwrt->trans->trans_cfg->gen2)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*

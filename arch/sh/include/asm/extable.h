@@ -4,8 +4,11 @@
 
 #include <asm-generic/extable.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_SUPERH64) && defined(CONFIG_MMU)
 #define ARCH_HAS_SEARCH_EXTABLE
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif

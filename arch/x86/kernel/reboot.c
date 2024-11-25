@@ -10,14 +10,22 @@
 #include <linux/sched.h>
 #include <linux/tboot.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/frame.h>
+=======
+#include <linux/objtool.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <acpi/reboot.h>
 #include <asm/io.h>
 #include <asm/apic.h>
 #include <asm/io_apic.h>
 #include <asm/desc.h>
 #include <asm/hpet.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/proto.h>
 #include <asm/reboot_fixups.h>
 #include <asm/reboot.h>
@@ -113,6 +121,7 @@ void __noreturn machine_real_restart(unsigned int type)
 	spin_unlock(&rtc_lock);
 
 	/*
+<<<<<<< HEAD
 	 * Switch back to the initial page table.
 	 */
 #ifdef CONFIG_X86_32
@@ -124,6 +133,11 @@ void __noreturn machine_real_restart(unsigned int type)
 	if (static_cpu_has(X86_FEATURE_PCID))
 		cr4_clear_bits(X86_CR4_PCIDE);
 #endif
+=======
+	 * Switch to the trampoline page table.
+	 */
+	load_trampoline_pgtable();
+>>>>>>> upstream/android-13
 
 	/* Jump to the identity-mapped low memory code */
 #ifdef CONFIG_X86_32
@@ -388,10 +402,18 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
 	},
 	{	/* Handle problems with rebooting on the OptiPlex 990. */
 		.callback = set_pci_reboot,
+<<<<<<< HEAD
 		.ident = "Dell OptiPlex 990",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 990"),
+=======
+		.ident = "Dell OptiPlex 990 BIOS A0x",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 990"),
+			DMI_MATCH(DMI_BIOS_VERSION, "A0"),
+>>>>>>> upstream/android-13
 		},
 	},
 	{	/* Handle problems with rebooting on Dell 300's */
@@ -562,7 +584,10 @@ static void emergency_vmx_disable_all(void)
 
 		/* Halt and exit VMX root operation on the other CPUs. */
 		nmi_shootdown_cpus(vmxoff_nmi);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -654,7 +679,11 @@ static void native_machine_emergency_restart(void)
 
 		case BOOT_CF9_FORCE:
 			port_cf9_safe = true;
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case BOOT_CF9_SAFE:
 			if (port_cf9_safe) {
@@ -670,7 +699,11 @@ static void native_machine_emergency_restart(void)
 			break;
 
 		case BOOT_TRIPLE:
+<<<<<<< HEAD
 			idt_invalidate(NULL);
+=======
+			idt_invalidate();
+>>>>>>> upstream/android-13
 			__asm__ __volatile__("int3");
 
 			/* We're probably dead after this, but... */
@@ -836,11 +869,14 @@ static int crash_nmi_callback(unsigned int val, struct pt_regs *regs)
 	return NMI_HANDLED;
 }
 
+<<<<<<< HEAD
 static void smp_send_nmi_allbutself(void)
 {
 	apic->send_IPI_allbutself(NMI_VECTOR);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Halt all other CPUs, calling the specified function on each of them
  *
@@ -869,7 +905,11 @@ void nmi_shootdown_cpus(nmi_shootdown_cb callback)
 	 */
 	wmb();
 
+<<<<<<< HEAD
 	smp_send_nmi_allbutself();
+=======
+	apic_send_IPI_allbutself(NMI_VECTOR);
+>>>>>>> upstream/android-13
 
 	/* Kick CPUs looping in NMI context. */
 	WRITE_ONCE(crash_ipi_issued, 1);

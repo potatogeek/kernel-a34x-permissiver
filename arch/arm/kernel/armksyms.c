@@ -1,16 +1,26 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/armksyms.c
  *
  *  Copyright (C) 2000 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <linux/sched.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/in6.h>
 #include <linux/syscalls.h>
@@ -167,9 +177,12 @@ EXPORT_SYMBOL(_find_next_bit_be);
 #endif
 
 #ifdef CONFIG_FUNCTION_TRACER
+<<<<<<< HEAD
 #ifdef CONFIG_OLD_MCOUNT
 EXPORT_SYMBOL(mcount);
 #endif
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(__gnu_mcount_nc);
 #endif
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Serpent Cipher 4-way parallel algorithm (i586/SSE2)
  *
@@ -6,6 +10,7 @@
  * Based on crypto/serpent.c by
  *  Copyright (C) 2002 Dag Arne Osvik <osvik@ii.uib.no>
  *                2003 Herbert Valerio Riedel <hvr@gnu.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -512,7 +519,11 @@
 	pxor t0,		x3; \
 	movdqu x3,		(3*4*4)(out);
 
+<<<<<<< HEAD
 ENTRY(__serpent_enc_blk_4way)
+=======
+SYM_FUNC_START(__serpent_enc_blk_4way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	arg_ctx(%esp): ctx, CTX
 	 *	arg_dst(%esp): dst
@@ -568,15 +579,26 @@ ENTRY(__serpent_enc_blk_4way)
 
 	write_blocks(%eax, RA, RB, RC, RD, RT0, RT1, RE);
 
+<<<<<<< HEAD
 	ret;
+=======
+	RET;
+>>>>>>> upstream/android-13
 
 .L__enc_xor4:
 	xor_blocks(%eax, RA, RB, RC, RD, RT0, RT1, RE);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__serpent_enc_blk_4way)
 
 ENTRY(serpent_dec_blk_4way)
+=======
+	RET;
+SYM_FUNC_END(__serpent_enc_blk_4way)
+
+SYM_FUNC_START(serpent_dec_blk_4way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	arg_ctx(%esp): ctx, CTX
 	 *	arg_dst(%esp): dst
@@ -627,5 +649,10 @@ ENTRY(serpent_dec_blk_4way)
 	movl arg_dst(%esp), %eax;
 	write_blocks(%eax, RC, RD, RB, RE, RT0, RT1, RA);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_dec_blk_4way)
+=======
+	RET;
+SYM_FUNC_END(serpent_dec_blk_4way)
+>>>>>>> upstream/android-13

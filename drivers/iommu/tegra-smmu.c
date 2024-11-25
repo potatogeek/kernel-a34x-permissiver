@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011-2014 NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011-2014 NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -13,8 +19,15 @@
 #include <linux/kernel.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/slab.h>
+=======
+#include <linux/pci.h>
+#include <linux/platform_device.h>
+#include <linux/slab.h>
+#include <linux/spinlock.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 
 #include <soc/tegra/ahb.h>
@@ -22,8 +35,15 @@
 
 struct tegra_smmu_group {
 	struct list_head list;
+<<<<<<< HEAD
 	const struct tegra_smmu_group_soc *soc;
 	struct iommu_group *group;
+=======
+	struct tegra_smmu *smmu;
+	const struct tegra_smmu_group_soc *soc;
+	struct iommu_group *group;
+	unsigned int swgroup;
+>>>>>>> upstream/android-13
 };
 
 struct tegra_smmu {
@@ -52,6 +72,10 @@ struct tegra_smmu_as {
 	struct iommu_domain domain;
 	struct tegra_smmu *smmu;
 	unsigned int use_count;
+<<<<<<< HEAD
+=======
+	spinlock_t lock;
+>>>>>>> upstream/android-13
 	u32 *count;
 	struct page **pts;
 	struct page *pd;
@@ -130,6 +154,14 @@ static inline u32 smmu_readl(struct tegra_smmu *smmu, unsigned long offset)
 #define SMMU_PDE_SHIFT 22
 #define SMMU_PTE_SHIFT 12
 
+<<<<<<< HEAD
+=======
+#define SMMU_PAGE_MASK		(~(SMMU_SIZE_PT-1))
+#define SMMU_OFFSET_IN_PAGE(x)	((unsigned long)(x) & ~SMMU_PAGE_MASK)
+#define SMMU_PFN_PHYS(x)	((phys_addr_t)(x) << SMMU_PTE_SHIFT)
+#define SMMU_PHYS_PFN(x)	((unsigned long)((x) >> SMMU_PTE_SHIFT))
+
+>>>>>>> upstream/android-13
 #define SMMU_PD_READABLE	(1 << 31)
 #define SMMU_PD_WRITABLE	(1 << 30)
 #define SMMU_PD_NONSECURE	(1 << 29)
@@ -145,8 +177,11 @@ static inline u32 smmu_readl(struct tegra_smmu *smmu, unsigned long offset)
 
 #define SMMU_PDE_ATTR		(SMMU_PDE_READABLE | SMMU_PDE_WRITABLE | \
 				 SMMU_PDE_NONSECURE)
+<<<<<<< HEAD
 #define SMMU_PTE_ATTR		(SMMU_PTE_READABLE | SMMU_PTE_WRITABLE | \
 				 SMMU_PTE_NONSECURE)
+=======
+>>>>>>> upstream/android-13
 
 static unsigned int iova_pd_index(unsigned long iova)
 {
@@ -245,13 +280,18 @@ static inline void smmu_flush_tlb_group(struct tegra_smmu *smmu,
 
 static inline void smmu_flush(struct tegra_smmu *smmu)
 {
+<<<<<<< HEAD
 	smmu_readl(smmu, SMMU_CONFIG);
+=======
+	smmu_readl(smmu, SMMU_PTB_ASID);
+>>>>>>> upstream/android-13
 }
 
 static int tegra_smmu_alloc_asid(struct tegra_smmu *smmu, unsigned int *idp)
 {
 	unsigned long id;
 
+<<<<<<< HEAD
 	mutex_lock(&smmu->lock);
 
 	id = find_first_zero_bit(smmu->asids, smmu->soc->num_asids);
@@ -259,19 +299,31 @@ static int tegra_smmu_alloc_asid(struct tegra_smmu *smmu, unsigned int *idp)
 		mutex_unlock(&smmu->lock);
 		return -ENOSPC;
 	}
+=======
+	id = find_first_zero_bit(smmu->asids, smmu->soc->num_asids);
+	if (id >= smmu->soc->num_asids)
+		return -ENOSPC;
+>>>>>>> upstream/android-13
 
 	set_bit(id, smmu->asids);
 	*idp = id;
 
+<<<<<<< HEAD
 	mutex_unlock(&smmu->lock);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void tegra_smmu_free_asid(struct tegra_smmu *smmu, unsigned int id)
 {
+<<<<<<< HEAD
 	mutex_lock(&smmu->lock);
 	clear_bit(id, smmu->asids);
 	mutex_unlock(&smmu->lock);
+=======
+	clear_bit(id, smmu->asids);
+>>>>>>> upstream/android-13
 }
 
 static bool tegra_smmu_capable(enum iommu_cap cap)
@@ -313,6 +365,11 @@ static struct iommu_domain *tegra_smmu_domain_alloc(unsigned type)
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	spin_lock_init(&as->lock);
+
+>>>>>>> upstream/android-13
 	/* setup aperture */
 	as->domain.geometry.aperture_start = 0;
 	as->domain.geometry.aperture_end = 0xffffffff;
@@ -327,6 +384,12 @@ static void tegra_smmu_domain_free(struct iommu_domain *domain)
 
 	/* TODO: free page directory and page tables */
 
+<<<<<<< HEAD
+=======
+	WARN_ON_ONCE(as->use_count);
+	kfree(as->count);
+	kfree(as->pts);
+>>>>>>> upstream/android-13
 	kfree(as);
 }
 
@@ -353,6 +416,7 @@ static void tegra_smmu_enable(struct tegra_smmu *smmu, unsigned int swgroup,
 	unsigned int i;
 	u32 value;
 
+<<<<<<< HEAD
 	for (i = 0; i < smmu->soc->num_clients; i++) {
 		const struct tegra_mc_client *client = &smmu->soc->clients[i];
 
@@ -364,6 +428,8 @@ static void tegra_smmu_enable(struct tegra_smmu *smmu, unsigned int swgroup,
 		smmu_writel(smmu, value, client->smmu.reg);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	group = tegra_smmu_find_swgroup(smmu, swgroup);
 	if (group) {
 		value = smmu_readl(smmu, group->reg);
@@ -371,6 +437,25 @@ static void tegra_smmu_enable(struct tegra_smmu *smmu, unsigned int swgroup,
 		value |= SMMU_ASID_VALUE(asid);
 		value |= SMMU_ASID_ENABLE;
 		smmu_writel(smmu, value, group->reg);
+<<<<<<< HEAD
+=======
+	} else {
+		pr_warn("%s group from swgroup %u not found\n", __func__,
+				swgroup);
+		/* No point moving ahead if group was not found */
+		return;
+	}
+
+	for (i = 0; i < smmu->soc->num_clients; i++) {
+		const struct tegra_mc_client *client = &smmu->soc->clients[i];
+
+		if (client->swgroup != swgroup)
+			continue;
+
+		value = smmu_readl(smmu, client->regs.smmu.reg);
+		value |= BIT(client->regs.smmu.bit);
+		smmu_writel(smmu, value, client->regs.smmu.reg);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -396,9 +481,15 @@ static void tegra_smmu_disable(struct tegra_smmu *smmu, unsigned int swgroup,
 		if (client->swgroup != swgroup)
 			continue;
 
+<<<<<<< HEAD
 		value = smmu_readl(smmu, client->smmu.reg);
 		value &= ~BIT(client->smmu.bit);
 		smmu_writel(smmu, value, client->smmu.reg);
+=======
+		value = smmu_readl(smmu, client->regs.smmu.reg);
+		value &= ~BIT(client->regs.smmu.bit);
+		smmu_writel(smmu, value, client->regs.smmu.reg);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -406,17 +497,34 @@ static int tegra_smmu_as_prepare(struct tegra_smmu *smmu,
 				 struct tegra_smmu_as *as)
 {
 	u32 value;
+<<<<<<< HEAD
 	int err;
 
 	if (as->use_count > 0) {
 		as->use_count++;
 		return 0;
+=======
+	int err = 0;
+
+	mutex_lock(&smmu->lock);
+
+	if (as->use_count > 0) {
+		as->use_count++;
+		goto unlock;
+>>>>>>> upstream/android-13
 	}
 
 	as->pd_dma = dma_map_page(smmu->dev, as->pd, 0, SMMU_SIZE_PD,
 				  DMA_TO_DEVICE);
+<<<<<<< HEAD
 	if (dma_mapping_error(smmu->dev, as->pd_dma))
 		return -ENOMEM;
+=======
+	if (dma_mapping_error(smmu->dev, as->pd_dma)) {
+		err = -ENOMEM;
+		goto unlock;
+	}
+>>>>>>> upstream/android-13
 
 	/* We can't handle 64-bit DMA addresses */
 	if (!smmu_dma_addr_valid(smmu, as->pd_dma)) {
@@ -439,29 +547,55 @@ static int tegra_smmu_as_prepare(struct tegra_smmu *smmu,
 	as->smmu = smmu;
 	as->use_count++;
 
+<<<<<<< HEAD
+=======
+	mutex_unlock(&smmu->lock);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_unmap:
 	dma_unmap_page(smmu->dev, as->pd_dma, SMMU_SIZE_PD, DMA_TO_DEVICE);
+<<<<<<< HEAD
+=======
+unlock:
+	mutex_unlock(&smmu->lock);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static void tegra_smmu_as_unprepare(struct tegra_smmu *smmu,
 				    struct tegra_smmu_as *as)
 {
+<<<<<<< HEAD
 	if (--as->use_count > 0)
 		return;
+=======
+	mutex_lock(&smmu->lock);
+
+	if (--as->use_count > 0) {
+		mutex_unlock(&smmu->lock);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	tegra_smmu_free_asid(smmu, as->id);
 
 	dma_unmap_page(smmu->dev, as->pd_dma, SMMU_SIZE_PD, DMA_TO_DEVICE);
 
 	as->smmu = NULL;
+<<<<<<< HEAD
+=======
+
+	mutex_unlock(&smmu->lock);
+>>>>>>> upstream/android-13
 }
 
 static int tegra_smmu_attach_dev(struct iommu_domain *domain,
 				 struct device *dev)
 {
+<<<<<<< HEAD
 	struct tegra_smmu *smmu = dev->archdata.iommu;
 	struct tegra_smmu_as *as = to_smmu_as(domain);
 	struct device_node *np = dev->of_node;
@@ -486,16 +620,45 @@ static int tegra_smmu_attach_dev(struct iommu_domain *domain,
 
 		tegra_smmu_enable(smmu, swgroup, as->id);
 		index++;
+=======
+	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+	struct tegra_smmu *smmu = dev_iommu_priv_get(dev);
+	struct tegra_smmu_as *as = to_smmu_as(domain);
+	unsigned int index;
+	int err;
+
+	if (!fwspec)
+		return -ENOENT;
+
+	for (index = 0; index < fwspec->num_ids; index++) {
+		err = tegra_smmu_as_prepare(smmu, as);
+		if (err)
+			goto disable;
+
+		tegra_smmu_enable(smmu, fwspec->ids[index], as->id);
+>>>>>>> upstream/android-13
 	}
 
 	if (index == 0)
 		return -ENODEV;
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+disable:
+	while (index--) {
+		tegra_smmu_disable(smmu, fwspec->ids[index], as->id);
+		tegra_smmu_as_unprepare(smmu, as);
+	}
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void tegra_smmu_detach_dev(struct iommu_domain *domain, struct device *dev)
 {
+<<<<<<< HEAD
 	struct tegra_smmu_as *as = to_smmu_as(domain);
 	struct device_node *np = dev->of_node;
 	struct tegra_smmu *smmu = as->smmu;
@@ -516,6 +679,19 @@ static void tegra_smmu_detach_dev(struct iommu_domain *domain, struct device *de
 		tegra_smmu_disable(smmu, swgroup, as->id);
 		tegra_smmu_as_unprepare(smmu, as);
 		index++;
+=======
+	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+	struct tegra_smmu_as *as = to_smmu_as(domain);
+	struct tegra_smmu *smmu = as->smmu;
+	unsigned int index;
+
+	if (!fwspec)
+		return;
+
+	for (index = 0; index < fwspec->num_ids; index++) {
+		tegra_smmu_disable(smmu, fwspec->ids[index], as->id);
+		tegra_smmu_as_unprepare(smmu, as);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -566,12 +742,17 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
 }
 
 static u32 *as_get_pte(struct tegra_smmu_as *as, dma_addr_t iova,
+<<<<<<< HEAD
 		       dma_addr_t *dmap)
+=======
+		       dma_addr_t *dmap, struct page *page)
+>>>>>>> upstream/android-13
 {
 	unsigned int pde = iova_pd_index(iova);
 	struct tegra_smmu *smmu = as->smmu;
 
 	if (!as->pts[pde]) {
+<<<<<<< HEAD
 		struct page *page;
 		dma_addr_t dma;
 
@@ -579,6 +760,10 @@ static u32 *as_get_pte(struct tegra_smmu_as *as, dma_addr_t iova,
 		if (!page)
 			return NULL;
 
+=======
+		dma_addr_t dma;
+
+>>>>>>> upstream/android-13
 		dma = dma_map_page(smmu->dev, page, 0, SMMU_SIZE_PT,
 				   DMA_TO_DEVICE);
 		if (dma_mapping_error(smmu->dev, dma)) {
@@ -641,7 +826,11 @@ static void tegra_smmu_set_pte(struct tegra_smmu_as *as, unsigned long iova,
 			       u32 *pte, dma_addr_t pte_dma, u32 val)
 {
 	struct tegra_smmu *smmu = as->smmu;
+<<<<<<< HEAD
 	unsigned long offset = offset_in_page(pte);
+=======
+	unsigned long offset = SMMU_OFFSET_IN_PAGE(pte);
+>>>>>>> upstream/android-13
 
 	*pte = val;
 
@@ -652,6 +841,7 @@ static void tegra_smmu_set_pte(struct tegra_smmu_as *as, unsigned long iova,
 	smmu_flush(smmu);
 }
 
+<<<<<<< HEAD
 static int tegra_smmu_map(struct iommu_domain *domain, unsigned long iova,
 			  phys_addr_t paddr, size_t size, int prot)
 {
@@ -660,6 +850,63 @@ static int tegra_smmu_map(struct iommu_domain *domain, unsigned long iova,
 	u32 *pte;
 
 	pte = as_get_pte(as, iova, &pte_dma);
+=======
+static struct page *as_get_pde_page(struct tegra_smmu_as *as,
+				    unsigned long iova, gfp_t gfp,
+				    unsigned long *flags)
+{
+	unsigned int pde = iova_pd_index(iova);
+	struct page *page = as->pts[pde];
+
+	/* at first check whether allocation needs to be done at all */
+	if (page)
+		return page;
+
+	/*
+	 * In order to prevent exhaustion of the atomic memory pool, we
+	 * allocate page in a sleeping context if GFP flags permit. Hence
+	 * spinlock needs to be unlocked and re-locked after allocation.
+	 */
+	if (!(gfp & __GFP_ATOMIC))
+		spin_unlock_irqrestore(&as->lock, *flags);
+
+	page = alloc_page(gfp | __GFP_DMA | __GFP_ZERO);
+
+	if (!(gfp & __GFP_ATOMIC))
+		spin_lock_irqsave(&as->lock, *flags);
+
+	/*
+	 * In a case of blocking allocation, a concurrent mapping may win
+	 * the PDE allocation. In this case the allocated page isn't needed
+	 * if allocation succeeded and the allocation failure isn't fatal.
+	 */
+	if (as->pts[pde]) {
+		if (page)
+			__free_page(page);
+
+		page = as->pts[pde];
+	}
+
+	return page;
+}
+
+static int
+__tegra_smmu_map(struct iommu_domain *domain, unsigned long iova,
+		 phys_addr_t paddr, size_t size, int prot, gfp_t gfp,
+		 unsigned long *flags)
+{
+	struct tegra_smmu_as *as = to_smmu_as(domain);
+	dma_addr_t pte_dma;
+	struct page *page;
+	u32 pte_attrs;
+	u32 *pte;
+
+	page = as_get_pde_page(as, iova, gfp, flags);
+	if (!page)
+		return -ENOMEM;
+
+	pte = as_get_pte(as, iova, &pte_dma, page);
+>>>>>>> upstream/android-13
 	if (!pte)
 		return -ENOMEM;
 
@@ -667,14 +914,33 @@ static int tegra_smmu_map(struct iommu_domain *domain, unsigned long iova,
 	if (*pte == 0)
 		tegra_smmu_pte_get_use(as, iova);
 
+<<<<<<< HEAD
 	tegra_smmu_set_pte(as, iova, pte, pte_dma,
 			   __phys_to_pfn(paddr) | SMMU_PTE_ATTR);
+=======
+	pte_attrs = SMMU_PTE_NONSECURE;
+
+	if (prot & IOMMU_READ)
+		pte_attrs |= SMMU_PTE_READABLE;
+
+	if (prot & IOMMU_WRITE)
+		pte_attrs |= SMMU_PTE_WRITABLE;
+
+	tegra_smmu_set_pte(as, iova, pte, pte_dma,
+			   SMMU_PHYS_PFN(paddr) | pte_attrs);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static size_t tegra_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
 			       size_t size)
+=======
+static size_t
+__tegra_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
+		   size_t size, struct iommu_iotlb_gather *gather)
+>>>>>>> upstream/android-13
 {
 	struct tegra_smmu_as *as = to_smmu_as(domain);
 	dma_addr_t pte_dma;
@@ -690,6 +956,36 @@ static size_t tegra_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
 	return size;
 }
 
+<<<<<<< HEAD
+=======
+static int tegra_smmu_map(struct iommu_domain *domain, unsigned long iova,
+			  phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
+{
+	struct tegra_smmu_as *as = to_smmu_as(domain);
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&as->lock, flags);
+	ret = __tegra_smmu_map(domain, iova, paddr, size, prot, gfp, &flags);
+	spin_unlock_irqrestore(&as->lock, flags);
+
+	return ret;
+}
+
+static size_t tegra_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
+			       size_t size, struct iommu_iotlb_gather *gather)
+{
+	struct tegra_smmu_as *as = to_smmu_as(domain);
+	unsigned long flags;
+
+	spin_lock_irqsave(&as->lock, flags);
+	size = __tegra_smmu_unmap(domain, iova, size, gather);
+	spin_unlock_irqrestore(&as->lock, flags);
+
+	return size;
+}
+
+>>>>>>> upstream/android-13
 static phys_addr_t tegra_smmu_iova_to_phys(struct iommu_domain *domain,
 					   dma_addr_t iova)
 {
@@ -704,7 +1000,11 @@ static phys_addr_t tegra_smmu_iova_to_phys(struct iommu_domain *domain,
 
 	pfn = *pte & as->smmu->pfn_mask;
 
+<<<<<<< HEAD
 	return PFN_PHYS(pfn);
+=======
+	return SMMU_PFN_PHYS(pfn) + SMMU_OFFSET_IN_PAGE(iova);
+>>>>>>> upstream/android-13
 }
 
 static struct tegra_smmu *tegra_smmu_find(struct device_node *np)
@@ -717,8 +1017,15 @@ static struct tegra_smmu *tegra_smmu_find(struct device_node *np)
 		return NULL;
 
 	mc = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	if (!mc)
 		return NULL;
+=======
+	if (!mc) {
+		put_device(&pdev->dev);
+		return NULL;
+	}
+>>>>>>> upstream/android-13
 
 	return mc->smmu;
 }
@@ -745,11 +1052,18 @@ static int tegra_smmu_configure(struct tegra_smmu *smmu, struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tegra_smmu_add_device(struct device *dev)
 {
 	struct device_node *np = dev->of_node;
 	struct tegra_smmu *smmu = NULL;
 	struct iommu_group *group;
+=======
+static struct iommu_device *tegra_smmu_probe_device(struct device *dev)
+{
+	struct device_node *np = dev->of_node;
+	struct tegra_smmu *smmu = NULL;
+>>>>>>> upstream/android-13
 	struct of_phandle_args args;
 	unsigned int index = 0;
 	int err;
@@ -759,6 +1073,7 @@ static int tegra_smmu_add_device(struct device *dev)
 		smmu = tegra_smmu_find(args.np);
 		if (smmu) {
 			err = tegra_smmu_configure(smmu, dev, &args);
+<<<<<<< HEAD
 			of_node_put(args.np);
 
 			if (err < 0)
@@ -774,12 +1089,20 @@ static int tegra_smmu_add_device(struct device *dev)
 			iommu_device_link(&smmu->iommu, dev);
 
 			break;
+=======
+
+			if (err < 0) {
+				of_node_put(args.np);
+				return ERR_PTR(err);
+			}
+>>>>>>> upstream/android-13
 		}
 
 		of_node_put(args.np);
 		index++;
 	}
 
+<<<<<<< HEAD
 	if (!smmu)
 		return -ENODEV;
 
@@ -802,6 +1125,16 @@ static void tegra_smmu_remove_device(struct device *dev)
 	dev->archdata.iommu = NULL;
 	iommu_group_remove_device(dev);
 }
+=======
+	smmu = dev_iommu_priv_get(dev);
+	if (!smmu)
+		return ERR_PTR(-ENODEV);
+
+	return &smmu->iommu;
+}
+
+static void tegra_smmu_release_device(struct device *dev) {}
+>>>>>>> upstream/android-13
 
 static const struct tegra_smmu_group_soc *
 tegra_smmu_find_group(struct tegra_smmu *smmu, unsigned int swgroup)
@@ -816,6 +1149,7 @@ tegra_smmu_find_group(struct tegra_smmu *smmu, unsigned int swgroup)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct iommu_group *tegra_smmu_group_get(struct tegra_smmu *smmu,
 						unsigned int swgroup)
 {
@@ -832,6 +1166,38 @@ static struct iommu_group *tegra_smmu_group_get(struct tegra_smmu *smmu,
 		if (group->soc == soc) {
 			mutex_unlock(&smmu->lock);
 			return group->group;
+=======
+static void tegra_smmu_group_release(void *iommu_data)
+{
+	struct tegra_smmu_group *group = iommu_data;
+	struct tegra_smmu *smmu = group->smmu;
+
+	mutex_lock(&smmu->lock);
+	list_del(&group->list);
+	mutex_unlock(&smmu->lock);
+}
+
+static struct iommu_group *tegra_smmu_device_group(struct device *dev)
+{
+	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+	struct tegra_smmu *smmu = dev_iommu_priv_get(dev);
+	const struct tegra_smmu_group_soc *soc;
+	unsigned int swgroup = fwspec->ids[0];
+	struct tegra_smmu_group *group;
+	struct iommu_group *grp;
+
+	/* Find group_soc associating with swgroup */
+	soc = tegra_smmu_find_group(smmu, swgroup);
+
+	mutex_lock(&smmu->lock);
+
+	/* Find existing iommu_group associating with swgroup or group_soc */
+	list_for_each_entry(group, &smmu->groups, list)
+		if ((group->swgroup == swgroup) || (soc && group->soc == soc)) {
+			grp = iommu_group_ref_get(group->group);
+			mutex_unlock(&smmu->lock);
+			return grp;
+>>>>>>> upstream/android-13
 		}
 
 	group = devm_kzalloc(smmu->dev, sizeof(*group), GFP_KERNEL);
@@ -841,21 +1207,40 @@ static struct iommu_group *tegra_smmu_group_get(struct tegra_smmu *smmu,
 	}
 
 	INIT_LIST_HEAD(&group->list);
+<<<<<<< HEAD
 	group->soc = soc;
 
 	group->group = iommu_group_alloc();
+=======
+	group->swgroup = swgroup;
+	group->smmu = smmu;
+	group->soc = soc;
+
+	if (dev_is_pci(dev))
+		group->group = pci_device_group(dev);
+	else
+		group->group = generic_device_group(dev);
+
+>>>>>>> upstream/android-13
 	if (IS_ERR(group->group)) {
 		devm_kfree(smmu->dev, group);
 		mutex_unlock(&smmu->lock);
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	iommu_group_set_iommudata(group->group, group, tegra_smmu_group_release);
+	if (soc)
+		iommu_group_set_name(group->group, soc->name);
+>>>>>>> upstream/android-13
 	list_add_tail(&group->list, &smmu->groups);
 	mutex_unlock(&smmu->lock);
 
 	return group->group;
 }
 
+<<<<<<< HEAD
 static struct iommu_group *tegra_smmu_device_group(struct device *dev)
 {
 	struct iommu_fwspec *fwspec = dev->iommu_fwspec;
@@ -874,6 +1259,26 @@ static int tegra_smmu_of_xlate(struct device *dev,
 {
 	u32 id = args->args[0];
 
+=======
+static int tegra_smmu_of_xlate(struct device *dev,
+			       struct of_phandle_args *args)
+{
+	struct platform_device *iommu_pdev = of_find_device_by_node(args->np);
+	struct tegra_mc *mc = platform_get_drvdata(iommu_pdev);
+	u32 id = args->args[0];
+
+	/*
+	 * Note: we are here releasing the reference of &iommu_pdev->dev, which
+	 * is mc->dev. Although some functions in tegra_smmu_ops may keep using
+	 * its private data beyond this point, it's still safe to do so because
+	 * the SMMU parent device is the same as the MC, so the reference count
+	 * isn't strictly necessary.
+	 */
+	put_device(&iommu_pdev->dev);
+
+	dev_iommu_priv_set(dev, mc->smmu);
+
+>>>>>>> upstream/android-13
 	return iommu_fwspec_add_ids(dev, &id, 1);
 }
 
@@ -883,8 +1288,13 @@ static const struct iommu_ops tegra_smmu_ops = {
 	.domain_free = tegra_smmu_domain_free,
 	.attach_dev = tegra_smmu_attach_dev,
 	.detach_dev = tegra_smmu_detach_dev,
+<<<<<<< HEAD
 	.add_device = tegra_smmu_add_device,
 	.remove_device = tegra_smmu_remove_device,
+=======
+	.probe_device = tegra_smmu_probe_device,
+	.release_device = tegra_smmu_release_device,
+>>>>>>> upstream/android-13
 	.device_group = tegra_smmu_device_group,
 	.map = tegra_smmu_map,
 	.unmap = tegra_smmu_unmap,
@@ -938,6 +1348,7 @@ static int tegra_smmu_swgroups_show(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tegra_smmu_swgroups_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, tegra_smmu_swgroups_show, inode->i_private);
@@ -949,6 +1360,9 @@ static const struct file_operations tegra_smmu_swgroups_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(tegra_smmu_swgroups);
+>>>>>>> upstream/android-13
 
 static int tegra_smmu_clients_show(struct seq_file *s, void *data)
 {
@@ -963,9 +1377,15 @@ static int tegra_smmu_clients_show(struct seq_file *s, void *data)
 		const struct tegra_mc_client *client = &smmu->soc->clients[i];
 		const char *status;
 
+<<<<<<< HEAD
 		value = smmu_readl(smmu, client->smmu.reg);
 
 		if (value & BIT(client->smmu.bit))
+=======
+		value = smmu_readl(smmu, client->regs.smmu.reg);
+
+		if (value & BIT(client->regs.smmu.bit))
+>>>>>>> upstream/android-13
 			status = "yes";
 		else
 			status = "no";
@@ -976,6 +1396,7 @@ static int tegra_smmu_clients_show(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tegra_smmu_clients_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, tegra_smmu_clients_show, inode->i_private);
@@ -987,6 +1408,9 @@ static const struct file_operations tegra_smmu_clients_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(tegra_smmu_clients);
+>>>>>>> upstream/android-13
 
 static void tegra_smmu_debugfs_init(struct tegra_smmu *smmu)
 {
@@ -1014,10 +1438,13 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
 	u32 value;
 	int err;
 
+<<<<<<< HEAD
 	/* This can happen on Tegra20 which doesn't have an SMMU */
 	if (!soc)
 		return NULL;
 
+=======
+>>>>>>> upstream/android-13
 	smmu = devm_kzalloc(dev, sizeof(*smmu), GFP_KERNEL);
 	if (!smmu)
 		return ERR_PTR(-ENOMEM);
@@ -1027,7 +1454,11 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
 	 * value. However the IOMMU registration process will attempt to add
 	 * all devices to the IOMMU when bus_set_iommu() is called. In order
 	 * not to rely on global variables to track the IOMMU instance, we
+<<<<<<< HEAD
 	 * set it here so that it can be looked up from the .add_device()
+=======
+	 * set it here so that it can be looked up from the .probe_device()
+>>>>>>> upstream/android-13
 	 * callback via the IOMMU device's .drvdata field.
 	 */
 	mc->smmu = smmu;
@@ -1046,10 +1477,18 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
 	smmu->dev = dev;
 	smmu->mc = mc;
 
+<<<<<<< HEAD
 	smmu->pfn_mask = BIT_MASK(mc->soc->num_address_bits - PAGE_SHIFT) - 1;
 	dev_dbg(dev, "address bits: %u, PFN mask: %#lx\n",
 		mc->soc->num_address_bits, smmu->pfn_mask);
 	smmu->tlb_mask = (smmu->soc->num_tlb_lines << 1) - 1;
+=======
+	smmu->pfn_mask =
+		BIT_MASK(mc->soc->num_address_bits - SMMU_PTE_SHIFT) - 1;
+	dev_dbg(dev, "address bits: %u, PFN mask: %#lx\n",
+		mc->soc->num_address_bits, smmu->pfn_mask);
+	smmu->tlb_mask = (1 << fls(smmu->soc->num_tlb_lines)) - 1;
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "TLB lines: %u, mask: %#lx\n", smmu->soc->num_tlb_lines,
 		smmu->tlb_mask);
 
@@ -1079,6 +1518,7 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
 	if (err)
 		return ERR_PTR(err);
 
+<<<<<<< HEAD
 	iommu_device_set_ops(&smmu->iommu, &tegra_smmu_ops);
 	iommu_device_set_fwnode(&smmu->iommu, dev->fwnode);
 
@@ -1094,11 +1534,38 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
 		iommu_device_sysfs_remove(&smmu->iommu);
 		return ERR_PTR(err);
 	}
+=======
+	err = iommu_device_register(&smmu->iommu, &tegra_smmu_ops, dev);
+	if (err)
+		goto remove_sysfs;
+
+	err = bus_set_iommu(&platform_bus_type, &tegra_smmu_ops);
+	if (err < 0)
+		goto unregister;
+
+#ifdef CONFIG_PCI
+	err = bus_set_iommu(&pci_bus_type, &tegra_smmu_ops);
+	if (err < 0)
+		goto unset_platform_bus;
+#endif
+>>>>>>> upstream/android-13
 
 	if (IS_ENABLED(CONFIG_DEBUG_FS))
 		tegra_smmu_debugfs_init(smmu);
 
 	return smmu;
+<<<<<<< HEAD
+=======
+
+unset_platform_bus: __maybe_unused;
+	bus_set_iommu(&platform_bus_type, NULL);
+unregister:
+	iommu_device_unregister(&smmu->iommu);
+remove_sysfs:
+	iommu_device_sysfs_remove(&smmu->iommu);
+
+	return ERR_PTR(err);
+>>>>>>> upstream/android-13
 }
 
 void tegra_smmu_remove(struct tegra_smmu *smmu)

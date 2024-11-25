@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * mtip32xx.h - Header file for the P320 SSD Block Driver
  *   Copyright (C) 2011 Micron Technology, Inc.
@@ -5,6 +9,7 @@
  * Portions of this code were derived from works subjected to the
  * following copyright:
  *    Copyright (C) 2009 Integrated Device Technology, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MTIP32XX_H__
@@ -126,8 +133,11 @@
 
 #define MTIP_DFS_MAX_BUF_SIZE 1024
 
+<<<<<<< HEAD
 #define __force_bit2int (unsigned int __force)
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	/* below are bit numbers in 'flags' defined in mtip_port */
 	MTIP_PF_IC_ACTIVE_BIT       = 0, /* pio/ioctl */
@@ -174,10 +184,17 @@ enum {
 
 struct smart_attr {
 	u8 attr_id;
+<<<<<<< HEAD
 	u16 flags;
 	u8 cur;
 	u8 worst;
 	u32 data;
+=======
+	__le16 flags;
+	u8 cur;
+	u8 worst;
+	__le32 data;
+>>>>>>> upstream/android-13
 	u8 res[3];
 } __packed;
 
@@ -195,6 +212,7 @@ struct mtip_work {
 		mtip_workq_sdbfx(w->port, group, w->completed);     \
 	}
 
+<<<<<<< HEAD
 #define MTIP_TRIM_TIMEOUT_MS		240000
 #define MTIP_MAX_TRIM_ENTRIES		8
 #define MTIP_MAX_TRIM_ENTRY_LEN		0xfff8
@@ -210,6 +228,8 @@ struct mtip_trim {
 	struct mtip_trim_entry entry[MTIP_MAX_TRIM_ENTRIES];
 } __packed;
 
+=======
+>>>>>>> upstream/android-13
 /* Register Frame Information Structure (FIS), host to device. */
 struct host_to_dev_fis {
 	/*
@@ -278,24 +298,42 @@ struct mtip_cmd_hdr {
 	 * - Bit 5 Unused in this implementation.
 	 * - Bits 4:0 Length of the command FIS in DWords (DWord = 4 bytes).
 	 */
+<<<<<<< HEAD
 	unsigned int opts;
 	/* This field is unsed when using NCQ. */
 	union {
 		unsigned int byte_count;
 		unsigned int status;
+=======
+	__le32 opts;
+	/* This field is unsed when using NCQ. */
+	union {
+		__le32 byte_count;
+		__le32 status;
+>>>>>>> upstream/android-13
 	};
 	/*
 	 * Lower 32 bits of the command table address associated with this
 	 * header. The command table addresses must be 128 byte aligned.
 	 */
+<<<<<<< HEAD
 	unsigned int ctba;
+=======
+	__le32 ctba;
+>>>>>>> upstream/android-13
 	/*
 	 * If 64 bit addressing is used this field is the upper 32 bits
 	 * of the command table address associated with this command.
 	 */
+<<<<<<< HEAD
 	unsigned int ctbau;
 	/* Reserved and unused. */
 	unsigned int res[4];
+=======
+	__le32 ctbau;
+	/* Reserved and unused. */
+	u32 res[4];
+>>>>>>> upstream/android-13
 };
 
 /* Command scatter gather structure (PRD). */
@@ -305,20 +343,31 @@ struct mtip_cmd_sg {
 	 * address must be 8 byte aligned signified by bits 2:0 being
 	 * set to 0.
 	 */
+<<<<<<< HEAD
 	unsigned int dba;
+=======
+	__le32 dba;
+>>>>>>> upstream/android-13
 	/*
 	 * When 64 bit addressing is used this field is the upper
 	 * 32 bits of the data buffer address.
 	 */
+<<<<<<< HEAD
 	unsigned int dba_upper;
 	/* Unused. */
 	unsigned int reserved;
+=======
+	__le32 dba_upper;
+	/* Unused. */
+	__le32 reserved;
+>>>>>>> upstream/android-13
 	/*
 	 * Bit 31: interrupt when this data block has been transferred.
 	 * Bits 30..22: reserved
 	 * Bits 21..0: byte count (minus 1).  For P320 the byte count must be
 	 * 8 byte aligned signified by bits 2:0 being set to 1.
 	 */
+<<<<<<< HEAD
 	unsigned int info;
 };
 struct mtip_port;
@@ -330,6 +379,16 @@ struct mtip_cmd {
 
 	dma_addr_t command_header_dma; /* corresponding physical address */
 
+=======
+	__le32 info;
+};
+struct mtip_port;
+
+struct mtip_int_cmd;
+
+/* Structure used to describe a command. */
+struct mtip_cmd {
+>>>>>>> upstream/android-13
 	void *command; /* ptr to command table entry */
 
 	dma_addr_t command_dma; /* corresponding physical address */
@@ -338,7 +397,14 @@ struct mtip_cmd {
 
 	int unaligned; /* command is unaligned on 4k boundary */
 
+<<<<<<< HEAD
 	struct scatterlist sg[MTIP_MAX_SG]; /* Scatter list entries */
+=======
+	union {
+		struct scatterlist sg[MTIP_MAX_SG]; /* Scatter list entries */
+		struct mtip_int_cmd *icmd;
+	};
+>>>>>>> upstream/android-13
 
 	int retries; /* The number of retries left for this command. */
 
@@ -435,8 +501,13 @@ struct mtip_port {
 	 */
 	unsigned long ic_pause_timer;
 
+<<<<<<< HEAD
 	/* Semaphore to control queue depth of unaligned IOs */
 	struct semaphore cmd_slot_unal;
+=======
+	/* Counter to control queue depth of unaligned IOs */
+	atomic_t cmd_slot_unal;
+>>>>>>> upstream/android-13
 
 	/* Spinlock for working around command-issue bug. */
 	spinlock_t cmd_issue_lock[MTIP_MAX_SLOT_GROUPS];
@@ -476,8 +547,11 @@ struct driver_data {
 
 	struct dentry *dfs_node;
 
+<<<<<<< HEAD
 	bool trim_supp; /* flag indicating trim support */
 
+=======
+>>>>>>> upstream/android-13
 	bool sr;
 
 	int numa_node; /* NUMA support */
@@ -492,8 +566,11 @@ struct driver_data {
 
 	int isr_binding;
 
+<<<<<<< HEAD
 	struct block_device *bdev;
 
+=======
+>>>>>>> upstream/android-13
 	struct list_head online_list; /* linkage for online list */
 
 	struct list_head remove_list; /* linkage for removing list */

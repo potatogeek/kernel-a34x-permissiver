@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/seq_file.h>
@@ -11,17 +17,31 @@
 #include <linux/delay.h>
 #include <linux/root_dev.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/clocksource.h>
 #include <linux/console.h>
 #include <linux/module.h>
 #include <linux/sizes.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
 #include <linux/of_fdt.h>
 #include <linux/of.h>
 #include <linux/cache.h>
 #include <asm/sections.h>
 #include <asm/arcregs.h>
+=======
+#include <linux/of_clk.h>
+#include <linux/of_fdt.h>
+#include <linux/of.h>
+#include <linux/cache.h>
+#include <uapi/linux/mount.h>
+#include <asm/sections.h>
+#include <asm/arcregs.h>
+#include <asm/asserts.h>
+>>>>>>> upstream/android-13
 #include <asm/tlb.h>
 #include <asm/setup.h>
 #include <asm/page.h>
@@ -29,6 +49,10 @@
 #include <asm/unwind.h>
 #include <asm/mach_desc.h>
 #include <asm/smp.h>
+<<<<<<< HEAD
+=======
+#include <asm/dsp-impl.h>
+>>>>>>> upstream/android-13
 
 #define FIX_PTR(x)  __asm__ __volatile__(";" : "+r"(x))
 
@@ -45,6 +69,7 @@ struct task_struct *_current_task[NR_CPUS];	/* For stack switching */
 
 struct cpuinfo_arc cpuinfo_arc700[NR_CPUS];
 
+<<<<<<< HEAD
 static const struct id_to_str arc_cpu_rel[] = {
 #ifdef CONFIG_ISA_ARCOMPACT
 	{ 0x34, "R4.10"},
@@ -68,6 +93,28 @@ static const struct id_to_str arc_cpu_nm[] = {
 	{ 0x54, "ARC HS48"  },
 #endif
 	{ 0x00, "Unknown"   }
+=======
+static const struct id_to_str arc_legacy_rel[] = {
+	/* ID.ARCVER,	Release */
+#ifdef CONFIG_ISA_ARCOMPACT
+	{ 0x34, 	"R4.10"},
+	{ 0x35, 	"R4.11"},
+#else
+	{ 0x51, 	"R2.0" },
+	{ 0x52, 	"R2.1" },
+	{ 0x53,		"R3.0" },
+#endif
+	{ 0x00,		NULL   }
+};
+
+static const struct id_to_str arc_hs_ver54_rel[] = {
+	/* UARCH.MAJOR,	Release */
+	{  0,		"R3.10a"},
+	{  1,		"R3.50a"},
+	{  2,		"R3.60a"},
+	{  3,		"R4.00a"},
+	{  0xFF,	NULL   }
+>>>>>>> upstream/android-13
 };
 
 static void read_decode_ccm_bcr(struct cpuinfo_arc *cpu)
@@ -117,17 +164,73 @@ static void read_decode_ccm_bcr(struct cpuinfo_arc *cpu)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void decode_arc_core(struct cpuinfo_arc *cpu)
+{
+	struct bcr_uarch_build_arcv2 uarch;
+	const struct id_to_str *tbl;
+
+	if (cpu->core.family < 0x54) { /* includes arc700 */
+
+		for (tbl = &arc_legacy_rel[0]; tbl->id != 0; tbl++) {
+			if (cpu->core.family == tbl->id) {
+				cpu->release = tbl->str;
+				break;
+			}
+		}
+
+		if (is_isa_arcompact())
+			cpu->name = "ARC700";
+		else if (tbl->str)
+			cpu->name = "HS38";
+		else
+			cpu->name = cpu->release = "Unknown";
+
+		return;
+	}
+
+	/*
+	 * Initial HS cores bumped AUX IDENTITY.ARCVER for each release until
+	 * ARCVER 0x54 which introduced AUX MICRO_ARCH_BUILD and subsequent
+	 * releases only update it.
+	 */
+	READ_BCR(ARC_REG_MICRO_ARCH_BCR, uarch);
+
+	if (uarch.prod == 4) {
+		cpu->name = "HS48";
+		cpu->extn.dual = 1;
+
+	} else {
+		cpu->name = "HS38";
+	}
+
+	for (tbl = &arc_hs_ver54_rel[0]; tbl->id != 0xFF; tbl++) {
+		if (uarch.maj == tbl->id) {
+			cpu->release = tbl->str;
+			break;
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 static void read_arc_build_cfg_regs(void)
 {
 	struct bcr_timer timer;
 	struct bcr_generic bcr;
 	struct cpuinfo_arc *cpu = &cpuinfo_arc700[smp_processor_id()];
+<<<<<<< HEAD
 	const struct id_to_str *tbl;
 	struct bcr_isa_arcv2 isa;
+=======
+	struct bcr_isa_arcv2 isa;
+	struct bcr_actionpoint ap;
+>>>>>>> upstream/android-13
 
 	FIX_PTR(cpu);
 
 	READ_BCR(AUX_IDENTITY, cpu->core);
+<<<<<<< HEAD
 
 	for (tbl = &arc_cpu_rel[0]; tbl->id != 0; tbl++) {
 		if (cpu->core.family == tbl->id) {
@@ -141,6 +244,9 @@ static void read_arc_build_cfg_regs(void)
 			break;
 	}
 	cpu->name = tbl->str;
+=======
+	decode_arc_core(cpu);
+>>>>>>> upstream/android-13
 
 	READ_BCR(ARC_REG_TIMERS_BCR, timer);
 	cpu->extn.timer0 = timer.t0;
@@ -151,6 +257,7 @@ static void read_arc_build_cfg_regs(void)
 
 	READ_BCR(ARC_REG_MUL_BCR, cpu->extn_mpy);
 
+<<<<<<< HEAD
 	cpu->extn.norm = read_aux_reg(ARC_REG_NORM_BCR) > 1 ? 1 : 0; /* 2,3 */
 	cpu->extn.barrel = read_aux_reg(ARC_REG_BARREL_BCR) > 1 ? 1 : 0; /* 2,3 */
 	cpu->extn.swap = read_aux_reg(ARC_REG_SWAP_BCR) ? 1 : 0;        /* 1,3 */
@@ -161,6 +268,8 @@ static void read_arc_build_cfg_regs(void)
 
 	READ_BCR(ARC_REG_XY_MEM_BCR, cpu->extn_xymem);
 
+=======
+>>>>>>> upstream/android-13
 	/* Read CCM BCRs for boot reporting even if not enabled in Kconfig */
 	read_decode_ccm_bcr(cpu);
 
@@ -196,6 +305,7 @@ static void read_arc_build_cfg_regs(void)
 		cpu->bpu.full = bpu.ft;
 		cpu->bpu.num_cache = 256 << bpu.bce;
 		cpu->bpu.num_pred = 2048 << bpu.pte;
+<<<<<<< HEAD
 
 		if (cpu->core.family >= 0x54) {
 
@@ -226,6 +336,24 @@ static void read_arc_build_cfg_regs(void)
 
 	READ_BCR(ARC_REG_AP_BCR, bcr);
 	cpu->extn.ap = bcr.ver ? 1 : 0;
+=======
+		cpu->bpu.ret_stk = 4 << bpu.rse;
+
+		/* if dual issue hardware, is it enabled ? */
+		if (cpu->extn.dual) {
+			unsigned int exec_ctrl;
+
+			READ_BCR(AUX_EXEC_CTRL, exec_ctrl);
+			cpu->extn.dual_enb = !(exec_ctrl & 1);
+		}
+	}
+
+	READ_BCR(ARC_REG_AP_BCR, ap);
+	if (ap.ver) {
+		cpu->extn.ap_num = 2 << ap.num;
+		cpu->extn.ap_full = !ap.min;
+	}
+>>>>>>> upstream/android-13
 
 	READ_BCR(ARC_REG_SMART_BCR, bcr);
 	cpu->extn.smart = bcr.ver ? 1 : 0;
@@ -233,8 +361,11 @@ static void read_arc_build_cfg_regs(void)
 	READ_BCR(ARC_REG_RTT_BCR, bcr);
 	cpu->extn.rtt = bcr.ver ? 1 : 0;
 
+<<<<<<< HEAD
 	cpu->extn.debug = cpu->extn.ap | cpu->extn.smart | cpu->extn.rtt;
 
+=======
+>>>>>>> upstream/android-13
 	READ_BCR(ARC_REG_ISA_CFG_BCR, isa);
 
 	/* some hacks for lack of feature BCR info in old ARC700 cores */
@@ -261,7 +392,12 @@ static char *arc_cpu_mumbojumbo(int cpu_id, char *buf, int len)
 {
 	struct cpuinfo_arc *cpu = &cpuinfo_arc700[cpu_id];
 	struct bcr_identity *core = &cpu->core;
+<<<<<<< HEAD
 	int i, n = 0;
+=======
+	char mpy_opt[16];
+	int n = 0;
+>>>>>>> upstream/android-13
 
 	FIX_PTR(cpu);
 
@@ -270,7 +406,11 @@ static char *arc_cpu_mumbojumbo(int cpu_id, char *buf, int len)
 		       core->family, core->cpu_id, core->chip_id);
 
 	n += scnprintf(buf + n, len - n, "processor [%d]\t: %s %s (%s ISA) %s%s%s\n",
+<<<<<<< HEAD
 		       cpu_id, cpu->name, cpu->details,
+=======
+		       cpu_id, cpu->name, cpu->release,
+>>>>>>> upstream/android-13
 		       is_isa_arcompact() ? "ARCompact" : "ARCv2",
 		       IS_AVAIL1(cpu->isa.be, "[Big-Endian]"),
 		       IS_AVAIL3(cpu->extn.dual, cpu->extn.dual_enb, " Dual-Issue "));
@@ -281,6 +421,7 @@ static char *arc_cpu_mumbojumbo(int cpu_id, char *buf, int len)
 		       IS_AVAIL2(cpu->extn.rtc, "RTC [UP 64-bit] ", CONFIG_ARC_TIMERS_64BIT),
 		       IS_AVAIL2(cpu->extn.gfrc, "GFRC [SMP 64-bit] ", CONFIG_ARC_TIMERS_64BIT));
 
+<<<<<<< HEAD
 	n += i = scnprintf(buf + n, len - n, "%s%s%s%s%s",
 			   IS_AVAIL2(cpu->isa.atomic, "atomic ", CONFIG_ARC_HAS_LLSC),
 			   IS_AVAIL2(cpu->isa.ldd, "ll64 ", CONFIG_ARC_HAS_LL64),
@@ -293,16 +434,28 @@ static char *arc_cpu_mumbojumbo(int cpu_id, char *buf, int len)
 		if (cpu->extn_mpy.ver <= 0x2) {	/* ARCompact */
 			n += scnprintf(buf + n, len - n, "mpy ");
 		} else {
+=======
+	if (cpu->extn_mpy.ver) {
+		if (is_isa_arcompact()) {
+			scnprintf(mpy_opt, 16, "mpy");
+		} else {
+
+>>>>>>> upstream/android-13
 			int opt = 2;	/* stock MPY/MPYH */
 
 			if (cpu->extn_mpy.dsp)	/* OPT 7-9 */
 				opt = cpu->extn_mpy.dsp + 6;
 
+<<<<<<< HEAD
 			n += scnprintf(buf + n, len - n, "mpy[opt %d] ", opt);
+=======
+			scnprintf(mpy_opt, 16, "mpy[opt %d] ", opt);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	n += scnprintf(buf + n, len - n, "%s%s%s%s%s%s%s%s\n",
+<<<<<<< HEAD
 		       IS_AVAIL1(cpu->isa.div_rem, "div_rem "),
 		       IS_AVAIL1(cpu->extn.norm, "norm "),
 		       IS_AVAIL1(cpu->extn.barrel, "barrel-shift "),
@@ -333,6 +486,37 @@ static char *arc_cpu_mumbojumbo(int cpu_id, char *buf, int len)
 	}
 
 	n += scnprintf(buf + n, len - n, "\n");
+=======
+		       IS_AVAIL2(cpu->isa.atomic, "atomic ", CONFIG_ARC_HAS_LLSC),
+		       IS_AVAIL2(cpu->isa.ldd, "ll64 ", CONFIG_ARC_HAS_LL64),
+		       IS_AVAIL2(cpu->isa.unalign, "unalign ", CONFIG_ARC_USE_UNALIGNED_MEM_ACCESS),
+		       IS_AVAIL1(cpu->extn_mpy.ver, mpy_opt),
+		       IS_AVAIL1(cpu->isa.div_rem, "div_rem "));
+
+	if (cpu->bpu.ver) {
+		n += scnprintf(buf + n, len - n,
+			      "BPU\t\t: %s%s match, cache:%d, Predict Table:%d Return stk: %d",
+			      IS_AVAIL1(cpu->bpu.full, "full"),
+			      IS_AVAIL1(!cpu->bpu.full, "partial"),
+			      cpu->bpu.num_cache, cpu->bpu.num_pred, cpu->bpu.ret_stk);
+
+		if (is_isa_arcv2()) {
+			struct bcr_lpb lpb;
+
+			READ_BCR(ARC_REG_LPB_BUILD, lpb);
+			if (lpb.ver) {
+				unsigned int ctl;
+				ctl = read_aux_reg(ARC_REG_LPB_CTRL);
+
+				n += scnprintf(buf + n, len - n, " Loop Buffer:%d %s",
+					       lpb.entries,
+					       IS_DISABLED_RUN(!ctl));
+			}
+		}
+		n += scnprintf(buf + n, len - n, "\n");
+	}
+
+>>>>>>> upstream/android-13
 	return buf;
 }
 
@@ -350,11 +534,25 @@ static char *arc_extn_mumbojumbo(int cpu_id, char *buf, int len)
 			       IS_AVAIL1(cpu->extn.fpu_sp, "SP "),
 			       IS_AVAIL1(cpu->extn.fpu_dp, "DP "));
 
+<<<<<<< HEAD
 	if (cpu->extn.debug)
 		n += scnprintf(buf + n, len - n, "DEBUG\t\t: %s%s%s\n",
 			       IS_AVAIL1(cpu->extn.ap, "ActionPoint "),
 			       IS_AVAIL1(cpu->extn.smart, "smaRT "),
 			       IS_AVAIL1(cpu->extn.rtt, "RTT "));
+=======
+	if (cpu->extn.ap_num | cpu->extn.smart | cpu->extn.rtt) {
+		n += scnprintf(buf + n, len - n, "DEBUG\t\t: %s%s",
+			       IS_AVAIL1(cpu->extn.smart, "smaRT "),
+			       IS_AVAIL1(cpu->extn.rtt, "RTT "));
+		if (cpu->extn.ap_num) {
+			n += scnprintf(buf + n, len - n, "ActionPoint %d/%s",
+				       cpu->extn.ap_num,
+				       cpu->extn.ap_full ? "full":"min");
+		}
+		n += scnprintf(buf + n, len - n, "\n");
+	}
+>>>>>>> upstream/android-13
 
 	if (cpu->dccm.sz || cpu->iccm.sz)
 		n += scnprintf(buf + n, len - n, "Extn [CCM]\t: DCCM @ %x, %d KB / ICCM: @ %x, %d KB\n",
@@ -379,6 +577,7 @@ static char *arc_extn_mumbojumbo(int cpu_id, char *buf, int len)
 		}
 	}
 
+<<<<<<< HEAD
 	n += scnprintf(buf + n, len - n, "OS ABI [v%d]\t: %s\n",
 			EF_ARC_OSABI_CURRENT >> 8,
 			EF_ARC_OSABI_CURRENT == EF_ARC_OSABI_V3 ?
@@ -392,6 +591,29 @@ static void arc_chk_core_config(void)
 	struct cpuinfo_arc *cpu = &cpuinfo_arc700[smp_processor_id()];
 	int saved = 0, present = 0;
 	char *opt_nm = NULL;
+=======
+	return buf;
+}
+
+void chk_opt_strict(char *opt_name, bool hw_exists, bool opt_ena)
+{
+	if (hw_exists && !opt_ena)
+		pr_warn(" ! Enable %s for working apps\n", opt_name);
+	else if (!hw_exists && opt_ena)
+		panic("Disable %s, hardware NOT present\n", opt_name);
+}
+
+void chk_opt_weak(char *opt_name, bool hw_exists, bool opt_ena)
+{
+	if (!hw_exists && opt_ena)
+		panic("Disable %s, hardware NOT present\n", opt_name);
+}
+
+static void arc_chk_core_config(void)
+{
+	struct cpuinfo_arc *cpu = &cpuinfo_arc700[smp_processor_id()];
+	int present = 0;
+>>>>>>> upstream/android-13
 
 	if (!cpu->extn.timer0)
 		panic("Timer0 is not present!\n");
@@ -423,6 +645,7 @@ static void arc_chk_core_config(void)
 	 */
 
 	if (is_isa_arcompact()) {
+<<<<<<< HEAD
 		opt_nm = "CONFIG_ARC_FPU_SAVE_RESTORE";
 		saved = IS_ENABLED(CONFIG_ARC_FPU_SAVE_RESTORE);
 
@@ -440,6 +663,18 @@ static void arc_chk_core_config(void)
 		pr_warn("Enable %s for working apps\n", opt_nm);
 	else if (!present && saved)
 		panic("Disable %s, hardware NOT present\n", opt_nm);
+=======
+		/* only DPDP checked since SP has no arch visible regs */
+		present = cpu->extn.fpu_dp;
+		CHK_OPT_STRICT(CONFIG_ARC_FPU_SAVE_RESTORE, present);
+	} else {
+		/* Accumulator Low:High pair (r58:59) present if DSP MPY or FPU */
+		present = cpu->extn_mpy.dsp | cpu->extn.fpu_sp | cpu->extn.fpu_dp;
+		CHK_OPT_STRICT(CONFIG_ARC_HAS_ACCL_REGS, present);
+
+		dsp_config_check();
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -570,10 +805,13 @@ void __init setup_arch(char **cmdline_p)
 	 */
 	root_mountflags &= ~MS_RDONLY;
 
+<<<<<<< HEAD
 #if defined(CONFIG_VT) && defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	arc_unwind_init();
 }
 

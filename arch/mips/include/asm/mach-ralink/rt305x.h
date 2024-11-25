@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Parts of this file are based on Ralink's 2.6.21 BSP
  *
@@ -116,6 +121,7 @@ static inline int soc_is_rt5350(void)
 #define RT305X_GPIO_GE0_TXD0		40
 #define RT305X_GPIO_GE0_RXCLK		51
 
+<<<<<<< HEAD
 #define RT305X_GPIO_MODE_UART0_SHIFT	2
 #define RT305X_GPIO_MODE_UART0_MASK	0x7
 #define RT305X_GPIO_MODE_UART0(x)	((x) << RT305X_GPIO_MODE_UART0_SHIFT)
@@ -140,6 +146,8 @@ static inline int soc_is_rt5350(void)
 #define RT3352_GPIO_MODE_LNA		18
 #define RT3352_GPIO_MODE_PA		20
 
+=======
+>>>>>>> upstream/android-13
 #define RT3352_SYSC_REG_SYSCFG0		0x010
 #define RT3352_SYSC_REG_SYSCFG1         0x014
 #define RT3352_SYSC_REG_CLKCFG1         0x030

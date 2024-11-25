@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Minimal BPF debugger
  *
@@ -12,7 +16,11 @@
  * for making a verdict when multiple simple BPF programs are combined
  * into one in order to prevent parsing same headers multiple times.
  *
+<<<<<<< HEAD
  * More on how to debug BPF opcodes see Documentation/networking/filter.txt
+=======
+ * More on how to debug BPF opcodes see Documentation/networking/filter.rst
+>>>>>>> upstream/android-13
  * which is the main document on BPF. Mini howto for getting started:
  *
  *  1) `./bpf_dbg` to enter the shell (shell cmds denoted with '>'):
@@ -28,7 +36,10 @@
  *  7) > step [-<n>, +<n>] (performs single stepping through the BPF)
  *
  * Copyright 2013 Daniel Borkmann <borkmann@redhat.com>
+<<<<<<< HEAD
  * Licensed under the GNU General Public License, version 2.0 (GPLv2)
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>
@@ -890,7 +901,11 @@ static int bpf_run_stepping(struct sock_filter *f, uint16_t bpf_len,
 	bool stop = false;
 	int i = 1;
 
+<<<<<<< HEAD
 	while (bpf_curr.Rs == false && stop == false) {
+=======
+	while (!bpf_curr.Rs && !stop) {
+>>>>>>> upstream/android-13
 		bpf_safe_regs();
 
 		if (i++ == next)
@@ -1198,7 +1213,11 @@ static int cmd_run(char *num)
 		else
 			return CMD_OK;
 		bpf_reset();
+<<<<<<< HEAD
 	} while (pcap_next_pkt() && (!has_limit || (has_limit && ++i < pkts)));
+=======
+	} while (pcap_next_pkt() && (!has_limit || (++i < pkts)));
+>>>>>>> upstream/android-13
 
 	rl_printf("bpf passes:%u fails:%u\n", pass, fail);
 

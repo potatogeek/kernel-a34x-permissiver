@@ -6,22 +6,46 @@
 #include <linux/types.h>
 #include <linux/tracepoint.h>
 
+<<<<<<< HEAD
+=======
+struct drm_file;
+
+>>>>>>> upstream/android-13
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM drm
 #define TRACE_INCLUDE_FILE drm_trace
 
 TRACE_EVENT(drm_vblank_event,
+<<<<<<< HEAD
 	    TP_PROTO(int crtc, unsigned int seq),
 	    TP_ARGS(crtc, seq),
 	    TP_STRUCT__entry(
 		    __field(int, crtc)
 		    __field(unsigned int, seq)
+=======
+	    TP_PROTO(int crtc, unsigned int seq, ktime_t time, bool high_prec),
+	    TP_ARGS(crtc, seq, time, high_prec),
+	    TP_STRUCT__entry(
+		    __field(int, crtc)
+		    __field(unsigned int, seq)
+		    __field(ktime_t, time)
+		    __field(bool, high_prec)
+>>>>>>> upstream/android-13
 		    ),
 	    TP_fast_assign(
 		    __entry->crtc = crtc;
 		    __entry->seq = seq;
+<<<<<<< HEAD
 		    ),
 	    TP_printk("crtc=%d, seq=%u", __entry->crtc, __entry->seq)
+=======
+		    __entry->time = time;
+		    __entry->high_prec = high_prec;
+			),
+	    TP_printk("crtc=%d, seq=%u, time=%lld, high-prec=%s",
+			__entry->crtc, __entry->seq, __entry->time,
+			__entry->high_prec ? "true" : "false")
+>>>>>>> upstream/android-13
 );
 
 TRACE_EVENT(drm_vblank_event_queued,

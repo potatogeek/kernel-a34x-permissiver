@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * Author: Rabin Vincent <rabin.vincent@stericsson.com> for ST-Ericsson
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL), version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MSP_H

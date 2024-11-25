@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _VDSO_DATAPAGE_H
 #define _VDSO_DATAPAGE_H
 #ifdef __KERNEL__
@@ -6,11 +10,14 @@
  * Copyright (C) 2002 Peter Bergner <bergner@vnet.ibm.com>, IBM
  * Copyright (C) 2005 Benjamin Herrenschmidy <benh@kernel.crashing.org>,
  * 		      IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -40,6 +47,10 @@
 
 #include <linux/unistd.h>
 #include <linux/time.h>
+<<<<<<< HEAD
+=======
+#include <vdso/datapage.h>
+>>>>>>> upstream/android-13
 
 #define SYSCALL_MAP_SIZE      ((NR_syscalls + 31) / 32)
 
@@ -49,7 +60,11 @@
 
 #ifdef CONFIG_PPC64
 
+<<<<<<< HEAD
 struct vdso_data {
+=======
+struct vdso_arch_data {
+>>>>>>> upstream/android-13
 	__u8  eye_catcher[16];		/* Eyecatcher: SYSTEMCFG:PPC64	0x00 */
 	struct {			/* Systemcfg version numbers	     */
 		__u32 major;		/* Major number			0x10 */
@@ -63,6 +78,7 @@ struct vdso_data {
 	__u32 processor;		/* Processor type		0x1C */
 	__u64 processorCount;		/* # of physical processors	0x20 */
 	__u64 physicalMemorySize;	/* Size of real memory(B)	0x28 */
+<<<<<<< HEAD
 	__u64 tb_orig_stamp;		/* Timebase at boot		0x30 */
 	__u64 tb_ticks_per_sec;		/* Timebase tics / sec		0x38 */
 	__u64 tb_to_xs;			/* Inverse of TB to 2^20	0x40 */
@@ -70,6 +86,15 @@ struct vdso_data {
 	__u64 tb_update_count;		/* Timebase atomicity ctr	0x50 */
 	__u32 tz_minuteswest;		/* Minutes west of Greenwich	0x58 */
 	__u32 tz_dsttime;		/* Type of dst correction	0x5C */
+=======
+	__u64 tb_orig_stamp;		/* (NU) Timebase at boot	0x30 */
+	__u64 tb_ticks_per_sec;		/* Timebase tics / sec		0x38 */
+	__u64 tb_to_xs;			/* (NU) Inverse of TB to 2^20	0x40 */
+	__u64 stamp_xsec;		/* (NU)				0x48 */
+	__u64 tb_update_count;		/* (NU) Timebase atomicity ctr	0x50 */
+	__u32 tz_minuteswest;		/* (NU) Min. west of Greenwich	0x58 */
+	__u32 tz_dsttime;		/* (NU) Type of dst correction	0x5C */
+>>>>>>> upstream/android-13
 	__u32 dcache_size;		/* L1 d-cache size		0x60 */
 	__u32 dcache_line_size;		/* L1 d-cache line size		0x64 */
 	__u32 icache_size;		/* L1 i-cache size		0x68 */
@@ -82,6 +107,7 @@ struct vdso_data {
 	__u32 icache_block_size;		/* L1 i-cache block size     */
 	__u32 dcache_log_block_size;		/* L1 d-cache log block size */
 	__u32 icache_log_block_size;		/* L1 i-cache log block size */
+<<<<<<< HEAD
 	__u32 stamp_sec_fraction;		/* fractional seconds of stamp_xtime */
 	__s32 wtom_clock_nsec;			/* Wall to monotonic clock nsec */
 	__s64 wtom_clock_sec;			/* Wall to monotonic clock sec */
@@ -89,6 +115,12 @@ struct vdso_data {
 	__u32 hrtimer_res;			/* hrtimer resolution */
    	__u32 syscall_map_64[SYSCALL_MAP_SIZE]; /* map of syscalls  */
    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
+=======
+	__u32 syscall_map[SYSCALL_MAP_SIZE];	/* Map of syscalls  */
+	__u32 compat_syscall_map[SYSCALL_MAP_SIZE];	/* Map of compat syscalls */
+
+	struct vdso_data data[CS_BASES];
+>>>>>>> upstream/android-13
 };
 
 #else /* CONFIG_PPC64 */
@@ -96,6 +128,7 @@ struct vdso_data {
 /*
  * And here is the simpler 32 bits version
  */
+<<<<<<< HEAD
 struct vdso_data {
 	__u64 tb_orig_stamp;		/* Timebase at boot		0x30 */
 	__u64 tb_ticks_per_sec;		/* Timebase tics / sec		0x38 */
@@ -114,11 +147,32 @@ struct vdso_data {
 	__u32 icache_block_size;	/* L1 i-cache block size     */
 	__u32 dcache_log_block_size;	/* L1 d-cache log block size */
 	__u32 icache_log_block_size;	/* L1 i-cache log block size */
+=======
+struct vdso_arch_data {
+	__u64 tb_ticks_per_sec;		/* Timebase tics / sec		0x38 */
+	__u32 syscall_map[SYSCALL_MAP_SIZE]; /* Map of syscalls */
+	__u32 compat_syscall_map[0];	/* No compat syscalls on PPC32 */
+	struct vdso_data data[CS_BASES];
+>>>>>>> upstream/android-13
 };
 
 #endif /* CONFIG_PPC64 */
 
+<<<<<<< HEAD
 extern struct vdso_data *vdso_data;
+=======
+extern struct vdso_arch_data *vdso_data;
+
+#else /* __ASSEMBLY__ */
+
+.macro get_datapage ptr
+	bcl	20, 31, .+4
+999:
+	mflr	\ptr
+	addis	\ptr, \ptr, (_vdso_datapage - 999b)@ha
+	addi	\ptr, \ptr, (_vdso_datapage - 999b)@l
+.endm
+>>>>>>> upstream/android-13
 
 #endif /* __ASSEMBLY__ */
 

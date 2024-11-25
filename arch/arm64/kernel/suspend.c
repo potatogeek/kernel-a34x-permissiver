@@ -3,6 +3,7 @@
 #include <linux/percpu.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/alternative.h>
 #include <asm/cacheflush.h>
 #include <asm/cpufeature.h>
@@ -10,6 +11,17 @@
 #include <asm/debug-monitors.h>
 #include <asm/exec.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/alternative.h>
+#include <asm/cacheflush.h>
+#include <asm/cpufeature.h>
+#include <asm/cpuidle.h>
+#include <asm/daifflags.h>
+#include <asm/debug-monitors.h>
+#include <asm/exec.h>
+#include <asm/mte.h>
+>>>>>>> upstream/android-13
 #include <asm/memory.h>
 #include <asm/mmu_context.h>
 #include <asm/smp_plat.h>
@@ -48,12 +60,22 @@ void notrace __cpu_suspend_exit(void)
 	 */
 	cpu_uninstall_idmap();
 
+<<<<<<< HEAD
+=======
+	/* Restore CnP bit in TTBR1_EL1 */
+	if (system_supports_cnp())
+		cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
+
+>>>>>>> upstream/android-13
 	/*
 	 * PSTATE was not saved over suspend/resume, re-enable any detected
 	 * features that might not have been set correctly.
 	 */
 	__uaccess_enable_hw_pan();
+<<<<<<< HEAD
 	uao_thread_switch(current);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Restore HW breakpoint registers to sane values
@@ -68,8 +90,15 @@ void notrace __cpu_suspend_exit(void)
 	 * have turned the mitigation on. If the user has forcefully
 	 * disabled it, make sure their wishes are obeyed.
 	 */
+<<<<<<< HEAD
 	if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
 		arm64_set_ssbd_mitigation(false);
+=======
+	spectre_v4_enable_mitigation(NULL);
+
+	/* Restore additional feature-specific configuration */
+	ptrauth_suspend_exit();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -84,6 +113,13 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
 	int ret = 0;
 	unsigned long flags;
 	struct sleep_stack_data state;
+<<<<<<< HEAD
+=======
+	struct arm_cpuidle_irq_context context;
+
+	/* Report any MTE async fault before going to suspend */
+	mte_suspend_enter();
+>>>>>>> upstream/android-13
 
 	/*
 	 * From this point debug exceptions are disabled to prevent
@@ -93,12 +129,25 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
 	flags = local_daif_save();
 
 	/*
+<<<<<<< HEAD
 	 * Function graph tracer state gets incosistent when the kernel
+=======
+	 * Function graph tracer state gets inconsistent when the kernel
+>>>>>>> upstream/android-13
 	 * calls functions that never return (aka suspend finishers) hence
 	 * disable graph tracing during their execution.
 	 */
 	pause_graph_tracing();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Switch to using DAIF.IF instead of PMR in order to reliably
+	 * resume if we're using pseudo-NMIs.
+	 */
+	arm_cpuidle_save_irq_context(&context);
+
+>>>>>>> upstream/android-13
 	if (__cpu_suspend_enter(&state)) {
 		/* Call the suspend finisher */
 		ret = fn(arg);
@@ -113,9 +162,17 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
 		if (!ret)
 			ret = -EOPNOTSUPP;
 	} else {
+<<<<<<< HEAD
 		__cpu_suspend_exit();
 	}
 
+=======
+		RCU_NONIDLE(__cpu_suspend_exit());
+	}
+
+	arm_cpuidle_restore_irq_context(&context);
+
+>>>>>>> upstream/android-13
 	unpause_graph_tracing();
 
 	/*

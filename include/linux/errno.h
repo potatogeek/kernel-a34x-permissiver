@@ -18,6 +18,10 @@
 #define ERESTART_RESTARTBLOCK 516 /* restart by calling sys_restart_syscall */
 #define EPROBE_DEFER	517	/* Driver requests probe retry */
 #define EOPENSTALE	518	/* open found a stale dentry */
+<<<<<<< HEAD
+=======
+#define ENOPARAM	519	/* Parameter not supported */
+>>>>>>> upstream/android-13
 
 /* Defined for the NFSv3 protocol */
 #define EBADHANDLE	521	/* Illegal NFS file handle */
@@ -30,5 +34,9 @@
 #define EJUKEBOX	528	/* Request initiated, but will not complete before timeout */
 #define EIOCBQUEUED	529	/* iocb queued, will get completion event */
 #define ERECALLCONFLICT	530	/* conflict with recalled state */
+<<<<<<< HEAD
+=======
+#define ENOGRACE	531	/* NFS file lock reclaim refused */
+>>>>>>> upstream/android-13
 
 #endif

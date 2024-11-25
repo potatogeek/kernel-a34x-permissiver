@@ -37,10 +37,17 @@
 #include <linux/vga_switcheroo.h>
 #include <linux/console.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
+=======
+#include <drm/drm_crtc.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_atomic.h>
 
 #include "nouveau_drv.h"
@@ -205,7 +212,11 @@ nouveau_fbcon_release(struct fb_info *info, int user)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops nouveau_fbcon_ops = {
+=======
+static const struct fb_ops nouveau_fbcon_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 	.fb_open = nouveau_fbcon_open,
@@ -216,7 +227,11 @@ static struct fb_ops nouveau_fbcon_ops = {
 	.fb_sync = nouveau_fbcon_sync,
 };
 
+<<<<<<< HEAD
 static struct fb_ops nouveau_fbcon_sw_ops = {
+=======
+static const struct fb_ops nouveau_fbcon_sw_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 	.fb_open = nouveau_fbcon_open,
@@ -256,6 +271,7 @@ nouveau_fbcon_accel_fini(struct drm_device *dev)
 			fbcon->helper.fbdev->flags |= FBINFO_HWACCEL_DISABLED;
 		console_unlock();
 		nouveau_channel_idle(drm->channel);
+<<<<<<< HEAD
 		nvif_object_fini(&fbcon->twod);
 		nvif_object_fini(&fbcon->blit);
 		nvif_object_fini(&fbcon->gdi);
@@ -263,6 +279,15 @@ nouveau_fbcon_accel_fini(struct drm_device *dev)
 		nvif_object_fini(&fbcon->rop);
 		nvif_object_fini(&fbcon->clip);
 		nvif_object_fini(&fbcon->surf2d);
+=======
+		nvif_object_dtor(&fbcon->twod);
+		nvif_object_dtor(&fbcon->blit);
+		nvif_object_dtor(&fbcon->gdi);
+		nvif_object_dtor(&fbcon->patt);
+		nvif_object_dtor(&fbcon->rop);
+		nvif_object_dtor(&fbcon->clip);
+		nvif_object_dtor(&fbcon->surf2d);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -314,7 +339,11 @@ nouveau_fbcon_create(struct drm_fb_helper *helper,
 	struct nouveau_drm *drm = nouveau_drm(dev);
 	struct nvif_device *device = &drm->client.device;
 	struct fb_info *info;
+<<<<<<< HEAD
 	struct nouveau_framebuffer *fb;
+=======
+	struct drm_framebuffer *fb;
+>>>>>>> upstream/android-13
 	struct nouveau_channel *chan;
 	struct nouveau_bo *nvbo;
 	struct drm_mode_fb_cmd2 mode_cmd = {};
@@ -337,11 +366,19 @@ nouveau_fbcon_create(struct drm_fb_helper *helper,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = nouveau_framebuffer_new(dev, &mode_cmd, nvbo, &fb);
 	if (ret)
 		goto out_unref;
 
 	ret = nouveau_bo_pin(nvbo, TTM_PL_FLAG_VRAM, false);
+=======
+	ret = nouveau_framebuffer_new(dev, &mode_cmd, &nvbo->bo.base, &fb);
+	if (ret)
+		goto out_unref;
+
+	ret = nouveau_bo_pin(nvbo, NOUVEAU_GEM_DOMAIN_VRAM, false);
+>>>>>>> upstream/android-13
 	if (ret) {
 		NV_ERROR(drm, "failed to pin fb: %d\n", ret);
 		goto out_unref;
@@ -355,7 +392,11 @@ nouveau_fbcon_create(struct drm_fb_helper *helper,
 
 	chan = nouveau_nofbaccel ? NULL : drm->channel;
 	if (chan && device->info.family >= NV_DEVICE_INFO_V0_TESLA) {
+<<<<<<< HEAD
 		ret = nouveau_vma_new(nvbo, &drm->client.vmm, &fb->vma);
+=======
+		ret = nouveau_vma_new(nvbo, chan->vmm, &fbcon->vma);
+>>>>>>> upstream/android-13
 		if (ret) {
 			NV_ERROR(drm, "failed to map fb into chan: %d\n", ret);
 			chan = NULL;
@@ -367,6 +408,7 @@ nouveau_fbcon_create(struct drm_fb_helper *helper,
 		ret = PTR_ERR(info);
 		goto out_unlock;
 	}
+<<<<<<< HEAD
 	info->skip_vt_switch = 1;
 
 	info->par = fbcon;
@@ -393,6 +435,26 @@ nouveau_fbcon_create(struct drm_fb_helper *helper,
 	drm_fb_helper_fill_fix(info, fb->base.pitches[0],
 			       fb->base.format->depth);
 	drm_fb_helper_fill_var(info, &fbcon->helper, sizes->fb_width, sizes->fb_height);
+=======
+
+	/* setup helper */
+	fbcon->helper.fb = fb;
+
+	if (!chan)
+		info->flags = FBINFO_HWACCEL_DISABLED;
+	else
+		info->flags = FBINFO_HWACCEL_COPYAREA |
+			      FBINFO_HWACCEL_FILLRECT |
+			      FBINFO_HWACCEL_IMAGEBLIT;
+	info->fbops = &nouveau_fbcon_sw_ops;
+	info->fix.smem_start = nvbo->bo.resource->bus.offset;
+	info->fix.smem_len = nvbo->bo.base.size;
+
+	info->screen_base = nvbo_kmap_obj_iovirtual(nvbo);
+	info->screen_size = nvbo->bo.base.size;
+
+	drm_fb_helper_fill_info(info, &fbcon->helper, sizes);
+>>>>>>> upstream/android-13
 
 	/* Use default scratch pixmap (info->pixmap.flags = FB_PIXMAP_SYSTEM) */
 
@@ -402,19 +464,36 @@ nouveau_fbcon_create(struct drm_fb_helper *helper,
 
 	/* To allow resizeing without swapping buffers */
 	NV_INFO(drm, "allocated %dx%d fb: 0x%llx, bo %p\n",
+<<<<<<< HEAD
 		fb->base.width, fb->base.height, fb->nvbo->bo.offset, nvbo);
 
 	vga_switcheroo_client_fb_set(dev->pdev, info);
+=======
+		fb->width, fb->height, nvbo->offset, nvbo);
+
+	if (dev_is_pci(dev->dev))
+		vga_switcheroo_client_fb_set(to_pci_dev(dev->dev), info);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out_unlock:
 	if (chan)
+<<<<<<< HEAD
 		nouveau_vma_del(&fb->vma);
 	nouveau_bo_unmap(fb->nvbo);
 out_unpin:
 	nouveau_bo_unpin(fb->nvbo);
 out_unref:
 	nouveau_bo_ref(NULL, &fb->nvbo);
+=======
+		nouveau_vma_del(&fbcon->vma);
+	nouveau_bo_unmap(nvbo);
+out_unpin:
+	nouveau_bo_unpin(nvbo);
+out_unref:
+	nouveau_bo_ref(NULL, &nvbo);
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
@@ -422,16 +501,30 @@ out:
 static int
 nouveau_fbcon_destroy(struct drm_device *dev, struct nouveau_fbdev *fbcon)
 {
+<<<<<<< HEAD
 	struct nouveau_framebuffer *nouveau_fb = nouveau_framebuffer(fbcon->helper.fb);
+=======
+	struct drm_framebuffer *fb = fbcon->helper.fb;
+	struct nouveau_bo *nvbo;
+>>>>>>> upstream/android-13
 
 	drm_fb_helper_unregister_fbi(&fbcon->helper);
 	drm_fb_helper_fini(&fbcon->helper);
 
+<<<<<<< HEAD
 	if (nouveau_fb && nouveau_fb->nvbo) {
 		nouveau_vma_del(&nouveau_fb->vma);
 		nouveau_bo_unmap(nouveau_fb->nvbo);
 		nouveau_bo_unpin(nouveau_fb->nvbo);
 		drm_framebuffer_put(&nouveau_fb->base);
+=======
+	if (fb && fb->obj[0]) {
+		nvbo = nouveau_gem_object(fb->obj[0]);
+		nouveau_vma_del(&fbcon->vma);
+		nouveau_bo_unmap(nvbo);
+		nouveau_bo_unpin(nvbo);
+		drm_framebuffer_put(fb);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -554,7 +647,11 @@ nouveau_fbcon_init(struct drm_device *dev)
 	int ret;
 
 	if (!dev->mode_config.num_crtc ||
+<<<<<<< HEAD
 	    (dev->pdev->class >> 8) != PCI_CLASS_DISPLAY_VGA)
+=======
+	    (to_pci_dev(dev->dev)->class >> 8) != PCI_CLASS_DISPLAY_VGA)
+>>>>>>> upstream/android-13
 		return 0;
 
 	fbcon = kzalloc(sizeof(struct nouveau_fbdev), GFP_KERNEL);
@@ -567,6 +664,7 @@ nouveau_fbcon_init(struct drm_device *dev)
 
 	drm_fb_helper_prepare(dev, &fbcon->helper, &nouveau_fbcon_helper_funcs);
 
+<<<<<<< HEAD
 	ret = drm_fb_helper_init(dev, &fbcon->helper, 4);
 	if (ret)
 		goto free;
@@ -575,6 +673,12 @@ nouveau_fbcon_init(struct drm_device *dev)
 	if (ret)
 		goto fini;
 
+=======
+	ret = drm_fb_helper_init(dev, &fbcon->helper);
+	if (ret)
+		goto free;
+
+>>>>>>> upstream/android-13
 	if (preferred_bpp != 8 && preferred_bpp != 16 && preferred_bpp != 32) {
 		if (drm->client.device.info.ram_size <= 32 * 1024 * 1024)
 			preferred_bpp = 8;

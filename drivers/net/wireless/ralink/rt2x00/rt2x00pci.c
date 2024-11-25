@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -180,6 +187,7 @@ void rt2x00pci_remove(struct pci_dev *pci_dev)
 }
 EXPORT_SYMBOL_GPL(rt2x00pci_remove);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 int rt2x00pci_suspend(struct pci_dev *pci_dev, pm_message_t state)
 {
@@ -213,6 +221,26 @@ int rt2x00pci_resume(struct pci_dev *pci_dev)
 }
 EXPORT_SYMBOL_GPL(rt2x00pci_resume);
 #endif /* CONFIG_PM */
+=======
+static int __maybe_unused rt2x00pci_suspend(struct device *dev)
+{
+	struct ieee80211_hw *hw = dev_get_drvdata(dev);
+	struct rt2x00_dev *rt2x00dev = hw->priv;
+
+	return rt2x00lib_suspend(rt2x00dev);
+}
+
+static int __maybe_unused rt2x00pci_resume(struct device *dev)
+{
+	struct ieee80211_hw *hw = dev_get_drvdata(dev);
+	struct rt2x00_dev *rt2x00dev = hw->priv;
+
+	return rt2x00lib_resume(rt2x00dev);
+}
+
+SIMPLE_DEV_PM_OPS(rt2x00pci_pm_ops, rt2x00pci_suspend, rt2x00pci_resume);
+EXPORT_SYMBOL_GPL(rt2x00pci_pm_ops);
+>>>>>>> upstream/android-13
 
 /*
  * rt2x00pci module information.

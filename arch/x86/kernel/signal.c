@@ -25,6 +25,10 @@
 #include <linux/user-return-notifier.h>
 #include <linux/uprobes.h>
 #include <linux/context_tracking.h>
+<<<<<<< HEAD
+=======
+#include <linux/entry-common.h>
+>>>>>>> upstream/android-13
 #include <linux/syscalls.h>
 
 #include <asm/processor.h>
@@ -37,11 +41,16 @@
 #include <asm/vm86.h>
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <asm/proto.h>
 #include <asm/ia32_unistd.h>
 #endif /* CONFIG_X86_64 */
 
 #include <asm/syscall.h>
+<<<<<<< HEAD
 #include <asm/syscalls.h>
 
 #include <asm/sigframe.h>
@@ -65,6 +74,11 @@
 	regs->seg = GET_SEG(seg) | 3;			\
 } while (0)
 
+=======
+#include <asm/sigframe.h>
+#include <asm/signal.h>
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_64
 /*
  * If regs->ss will cause an IRET fault, change it.  Otherwise leave it
@@ -92,6 +106,7 @@ static void force_valid_ss(struct pt_regs *regs)
 	    ar != (AR_DPL3 | AR_S | AR_P | AR_TYPE_RWDATA_EXPDOWN))
 		regs->ss = __USER_DS;
 }
+<<<<<<< HEAD
 #endif
 
 static int restore_sigcontext(struct pt_regs *regs,
@@ -102,10 +117,23 @@ static int restore_sigcontext(struct pt_regs *regs,
 	void __user *buf;
 	unsigned int tmpflags;
 	unsigned int err = 0;
+=======
+# define CONTEXT_COPY_SIZE	offsetof(struct sigcontext, reserved1)
+#else
+# define CONTEXT_COPY_SIZE	sizeof(struct sigcontext)
+#endif
+
+static int restore_sigcontext(struct pt_regs *regs,
+			      struct sigcontext __user *usc,
+			      unsigned long uc_flags)
+{
+	struct sigcontext sc;
+>>>>>>> upstream/android-13
 
 	/* Always make any pending restarted system calls return -EINTR */
 	current->restart_block.fn = do_no_restart_syscall;
 
+<<<<<<< HEAD
 	get_user_try {
 
 #ifdef CONFIG_X86_32
@@ -139,6 +167,46 @@ static int restore_sigcontext(struct pt_regs *regs,
 		get_user_ex(buf_val, &sc->fpstate);
 		buf = (void __user *)buf_val;
 	} get_user_catch(err);
+=======
+	if (copy_from_user(&sc, usc, CONTEXT_COPY_SIZE))
+		return -EFAULT;
+
+#ifdef CONFIG_X86_32
+	set_user_gs(regs, sc.gs);
+	regs->fs = sc.fs;
+	regs->es = sc.es;
+	regs->ds = sc.ds;
+#endif /* CONFIG_X86_32 */
+
+	regs->bx = sc.bx;
+	regs->cx = sc.cx;
+	regs->dx = sc.dx;
+	regs->si = sc.si;
+	regs->di = sc.di;
+	regs->bp = sc.bp;
+	regs->ax = sc.ax;
+	regs->sp = sc.sp;
+	regs->ip = sc.ip;
+
+#ifdef CONFIG_X86_64
+	regs->r8 = sc.r8;
+	regs->r9 = sc.r9;
+	regs->r10 = sc.r10;
+	regs->r11 = sc.r11;
+	regs->r12 = sc.r12;
+	regs->r13 = sc.r13;
+	regs->r14 = sc.r14;
+	regs->r15 = sc.r15;
+#endif /* CONFIG_X86_64 */
+
+	/* Get CS/SS and force CPL3 */
+	regs->cs = sc.cs | 0x03;
+	regs->ss = sc.ss | 0x03;
+
+	regs->flags = (regs->flags & ~FIX_EFLAGS) | (sc.flags & FIX_EFLAGS);
+	/* disable syscall checks */
+	regs->orig_ax = -1;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_64
 	/*
@@ -149,6 +217,7 @@ static int restore_sigcontext(struct pt_regs *regs,
 		force_valid_ss(regs);
 #endif
 
+<<<<<<< HEAD
 	err |= fpu__restore_sig(buf, IS_ENABLED(CONFIG_X86_32));
 
 	force_iret();
@@ -215,10 +284,92 @@ int setup_sigcontext(struct sigcontext __user *sc, void __user *fpstate,
 	return err;
 }
 
+=======
+	return fpu__restore_sig((void __user *)sc.fpstate,
+			       IS_ENABLED(CONFIG_X86_32));
+}
+
+static __always_inline int
+__unsafe_setup_sigcontext(struct sigcontext __user *sc, void __user *fpstate,
+		     struct pt_regs *regs, unsigned long mask)
+{
+#ifdef CONFIG_X86_32
+	unsafe_put_user(get_user_gs(regs),
+				  (unsigned int __user *)&sc->gs, Efault);
+	unsafe_put_user(regs->fs, (unsigned int __user *)&sc->fs, Efault);
+	unsafe_put_user(regs->es, (unsigned int __user *)&sc->es, Efault);
+	unsafe_put_user(regs->ds, (unsigned int __user *)&sc->ds, Efault);
+#endif /* CONFIG_X86_32 */
+
+	unsafe_put_user(regs->di, &sc->di, Efault);
+	unsafe_put_user(regs->si, &sc->si, Efault);
+	unsafe_put_user(regs->bp, &sc->bp, Efault);
+	unsafe_put_user(regs->sp, &sc->sp, Efault);
+	unsafe_put_user(regs->bx, &sc->bx, Efault);
+	unsafe_put_user(regs->dx, &sc->dx, Efault);
+	unsafe_put_user(regs->cx, &sc->cx, Efault);
+	unsafe_put_user(regs->ax, &sc->ax, Efault);
+#ifdef CONFIG_X86_64
+	unsafe_put_user(regs->r8, &sc->r8, Efault);
+	unsafe_put_user(regs->r9, &sc->r9, Efault);
+	unsafe_put_user(regs->r10, &sc->r10, Efault);
+	unsafe_put_user(regs->r11, &sc->r11, Efault);
+	unsafe_put_user(regs->r12, &sc->r12, Efault);
+	unsafe_put_user(regs->r13, &sc->r13, Efault);
+	unsafe_put_user(regs->r14, &sc->r14, Efault);
+	unsafe_put_user(regs->r15, &sc->r15, Efault);
+#endif /* CONFIG_X86_64 */
+
+	unsafe_put_user(current->thread.trap_nr, &sc->trapno, Efault);
+	unsafe_put_user(current->thread.error_code, &sc->err, Efault);
+	unsafe_put_user(regs->ip, &sc->ip, Efault);
+#ifdef CONFIG_X86_32
+	unsafe_put_user(regs->cs, (unsigned int __user *)&sc->cs, Efault);
+	unsafe_put_user(regs->flags, &sc->flags, Efault);
+	unsafe_put_user(regs->sp, &sc->sp_at_signal, Efault);
+	unsafe_put_user(regs->ss, (unsigned int __user *)&sc->ss, Efault);
+#else /* !CONFIG_X86_32 */
+	unsafe_put_user(regs->flags, &sc->flags, Efault);
+	unsafe_put_user(regs->cs, &sc->cs, Efault);
+	unsafe_put_user(0, &sc->gs, Efault);
+	unsafe_put_user(0, &sc->fs, Efault);
+	unsafe_put_user(regs->ss, &sc->ss, Efault);
+#endif /* CONFIG_X86_32 */
+
+	unsafe_put_user(fpstate, (unsigned long __user *)&sc->fpstate, Efault);
+
+	/* non-iBCS2 extensions.. */
+	unsafe_put_user(mask, &sc->oldmask, Efault);
+	unsafe_put_user(current->thread.cr2, &sc->cr2, Efault);
+	return 0;
+Efault:
+	return -EFAULT;
+}
+
+#define unsafe_put_sigcontext(sc, fp, regs, set, label)			\
+do {									\
+	if (__unsafe_setup_sigcontext(sc, fp, regs, set->sig[0]))	\
+		goto label;						\
+} while(0);
+
+#define unsafe_put_sigmask(set, frame, label) \
+	unsafe_put_user(*(__u64 *)(set), \
+			(__u64 __user *)&(frame)->uc.uc_sigmask, \
+			label)
+
+>>>>>>> upstream/android-13
 /*
  * Set up a signal frame.
  */
 
+<<<<<<< HEAD
+=======
+/* x86 ABI requires 16-byte alignment */
+#define FRAME_ALIGNMENT	16UL
+
+#define MAX_FRAME_PADDING	(FRAME_ALIGNMENT - 1)
+
+>>>>>>> upstream/android-13
 /*
  * Determine which stack to use..
  */
@@ -229,9 +380,15 @@ static unsigned long align_sigframe(unsigned long sp)
 	 * Align the stack pointer according to the i386 ABI,
 	 * i.e. so that on function entry ((sp + 4) & 15) == 0.
 	 */
+<<<<<<< HEAD
 	sp = ((sp + 4) & -16ul) - 4;
 #else /* !CONFIG_X86_32 */
 	sp = round_down(sp, 16) - 8;
+=======
+	sp = ((sp + 4) & -FRAME_ALIGNMENT) - 4;
+#else /* !CONFIG_X86_32 */
+	sp = round_down(sp, FRAME_ALIGNMENT) - 8;
+>>>>>>> upstream/android-13
 #endif
 	return sp;
 }
@@ -241,11 +398,20 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
 	     void __user **fpstate)
 {
 	/* Default to using normal stack */
+<<<<<<< HEAD
 	unsigned long math_size = 0;
 	unsigned long sp = regs->sp;
 	unsigned long buf_fx = 0;
 	int onsigstack = on_sig_stack(sp);
 	struct fpu *fpu = &current->thread.fpu;
+=======
+	bool nested_altstack = on_sig_stack(regs->sp);
+	bool entering_altstack = false;
+	unsigned long math_size = 0;
+	unsigned long sp = regs->sp;
+	unsigned long buf_fx = 0;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* redzone */
 	if (IS_ENABLED(CONFIG_X86_64))
@@ -253,15 +419,30 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
 
 	/* This is the X/Open sanctioned signal stack switching.  */
 	if (ka->sa.sa_flags & SA_ONSTACK) {
+<<<<<<< HEAD
 		if (sas_ss_flags(sp) == 0)
 			sp = current->sas_ss_sp + current->sas_ss_size;
 	} else if (IS_ENABLED(CONFIG_X86_32) &&
 		   !onsigstack &&
+=======
+		/*
+		 * This checks nested_altstack via sas_ss_flags(). Sensible
+		 * programs use SS_AUTODISARM, which disables that check, and
+		 * programs that don't use SS_AUTODISARM get compatible.
+		 */
+		if (sas_ss_flags(sp) == 0) {
+			sp = current->sas_ss_sp + current->sas_ss_size;
+			entering_altstack = true;
+		}
+	} else if (IS_ENABLED(CONFIG_X86_32) &&
+		   !nested_altstack &&
+>>>>>>> upstream/android-13
 		   regs->ss != __USER_DS &&
 		   !(ka->sa.sa_flags & SA_RESTORER) &&
 		   ka->sa.sa_restorer) {
 		/* This is the legacy signal stack switching. */
 		sp = (unsigned long) ka->sa.sa_restorer;
+<<<<<<< HEAD
 	}
 
 	if (fpu->initialized) {
@@ -269,6 +450,14 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
 					  &buf_fx, &math_size);
 		*fpstate = (void __user *)sp;
 	}
+=======
+		entering_altstack = true;
+	}
+
+	sp = fpu__alloc_mathframe(sp, IS_ENABLED(CONFIG_X86_32),
+				  &buf_fx, &math_size);
+	*fpstate = (void __user *)sp;
+>>>>>>> upstream/android-13
 
 	sp = align_sigframe(sp - frame_size);
 
@@ -276,12 +465,28 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
 	 * If we are on the alternate signal stack and would overflow it, don't.
 	 * Return an always-bogus address instead so we will die with SIGSEGV.
 	 */
+<<<<<<< HEAD
 	if (onsigstack && !likely(on_sig_stack(sp)))
 		return (void __user *)-1L;
 
 	/* save i387 and extended state */
 	if (fpu->initialized &&
 	    copy_fpstate_to_sigframe(*fpstate, (void __user *)buf_fx, math_size) < 0)
+=======
+	if (unlikely((nested_altstack || entering_altstack) &&
+		     !__on_sig_stack(sp))) {
+
+		if (show_unhandled_signals && printk_ratelimit())
+			pr_info("%s[%d] overflowed sigaltstack\n",
+				current->comm, task_pid_nr(current));
+
+		return (void __user *)-1L;
+	}
+
+	/* save i387 and extended state */
+	ret = copy_fpstate_to_sigframe(*fpstate, (void __user *)buf_fx, math_size);
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		return (void __user *)-1L;
 
 	return (void __user *)sp;
@@ -316,6 +521,7 @@ __setup_frame(int sig, struct ksignal *ksig, sigset_t *set,
 {
 	struct sigframe __user *frame;
 	void __user *restorer;
+<<<<<<< HEAD
 	int err = 0;
 	void __user *fpstate = NULL;
 
@@ -336,6 +542,18 @@ __setup_frame(int sig, struct ksignal *ksig, sigset_t *set,
 			return -EFAULT;
 	}
 
+=======
+	void __user *fp = NULL;
+
+	frame = get_sigframe(&ksig->ka, regs, sizeof(*frame), &fp);
+
+	if (!user_access_begin(frame, sizeof(*frame)))
+		return -EFAULT;
+
+	unsafe_put_user(sig, &frame->sig, Efault);
+	unsafe_put_sigcontext(&frame->sc, fp, regs, set, Efault);
+	unsafe_put_user(set->sig[1], &frame->extramask[0], Efault);
+>>>>>>> upstream/android-13
 	if (current->mm->context.vdso)
 		restorer = current->mm->context.vdso +
 			vdso_image_32.sym___kernel_sigreturn;
@@ -345,7 +563,11 @@ __setup_frame(int sig, struct ksignal *ksig, sigset_t *set,
 		restorer = ksig->ka.sa.sa_restorer;
 
 	/* Set up to return from userspace.  */
+<<<<<<< HEAD
 	err |= __put_user(restorer, &frame->pretcode);
+=======
+	unsafe_put_user(restorer, &frame->pretcode, Efault);
+>>>>>>> upstream/android-13
 
 	/*
 	 * This is popl %eax ; movl $__NR_sigreturn, %eax ; int $0x80
@@ -354,10 +576,15 @@ __setup_frame(int sig, struct ksignal *ksig, sigset_t *set,
 	 * reasons and because gdb uses it as a signature to notice
 	 * signal handler stack frames.
 	 */
+<<<<<<< HEAD
 	err |= __put_user(*((u64 *)&retcode), (u64 *)frame->retcode);
 
 	if (err)
 		return -EFAULT;
+=======
+	unsafe_put_user(*((u64 *)&retcode), (u64 *)frame->retcode, Efault);
+	user_access_end();
+>>>>>>> upstream/android-13
 
 	/* Set up registers for signal handler */
 	regs->sp = (unsigned long)frame;
@@ -372,6 +599,13 @@ __setup_frame(int sig, struct ksignal *ksig, sigset_t *set,
 	regs->cs = __USER_CS;
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+Efault:
+	user_access_end();
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }
 
 static int __setup_rt_frame(int sig, struct ksignal *ksig,
@@ -379,6 +613,7 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 {
 	struct rt_sigframe __user *frame;
 	void __user *restorer;
+<<<<<<< HEAD
 	int err = 0;
 	void __user *fpstate = NULL;
 
@@ -423,6 +658,47 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 	err |= __copy_to_user(&frame->uc.uc_sigmask, set, sizeof(*set));
 
 	if (err)
+=======
+	void __user *fp = NULL;
+
+	frame = get_sigframe(&ksig->ka, regs, sizeof(*frame), &fp);
+
+	if (!user_access_begin(frame, sizeof(*frame)))
+		return -EFAULT;
+
+	unsafe_put_user(sig, &frame->sig, Efault);
+	unsafe_put_user(&frame->info, &frame->pinfo, Efault);
+	unsafe_put_user(&frame->uc, &frame->puc, Efault);
+
+	/* Create the ucontext.  */
+	if (static_cpu_has(X86_FEATURE_XSAVE))
+		unsafe_put_user(UC_FP_XSTATE, &frame->uc.uc_flags, Efault);
+	else
+		unsafe_put_user(0, &frame->uc.uc_flags, Efault);
+	unsafe_put_user(0, &frame->uc.uc_link, Efault);
+	unsafe_save_altstack(&frame->uc.uc_stack, regs->sp, Efault);
+
+	/* Set up to return from userspace.  */
+	restorer = current->mm->context.vdso +
+		vdso_image_32.sym___kernel_rt_sigreturn;
+	if (ksig->ka.sa.sa_flags & SA_RESTORER)
+		restorer = ksig->ka.sa.sa_restorer;
+	unsafe_put_user(restorer, &frame->pretcode, Efault);
+
+	/*
+	 * This is movl $__NR_rt_sigreturn, %ax ; int $0x80
+	 *
+	 * WE DO NOT USE IT ANY MORE! It's only left here for historical
+	 * reasons and because gdb uses it as a signature to notice
+	 * signal handler stack frames.
+	 */
+	unsafe_put_user(*((u64 *)&rt_retcode), (u64 *)frame->retcode, Efault);
+	unsafe_put_sigcontext(&frame->uc.uc_mcontext, fp, regs, set, Efault);
+	unsafe_put_sigmask(set, frame, Efault);
+	user_access_end();
+	
+	if (copy_siginfo_to_user(&frame->info, &ksig->info))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	/* Set up registers for signal handler */
@@ -438,6 +714,12 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 	regs->cs = __USER_CS;
 
 	return 0;
+<<<<<<< HEAD
+=======
+Efault:
+	user_access_end();
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }
 #else /* !CONFIG_X86_32 */
 static unsigned long frame_uc_flags(struct pt_regs *regs)
@@ -461,6 +743,7 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 	struct rt_sigframe __user *frame;
 	void __user *fp = NULL;
 	unsigned long uc_flags;
+<<<<<<< HEAD
 	int err = 0;
 
 	frame = get_sigframe(&ksig->ka, regs, sizeof(struct rt_sigframe), &fp);
@@ -468,11 +751,37 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
 		return -EFAULT;
 
+=======
+
+	/* x86-64 should always use SA_RESTORER. */
+	if (!(ksig->ka.sa.sa_flags & SA_RESTORER))
+		return -EFAULT;
+
+	frame = get_sigframe(&ksig->ka, regs, sizeof(struct rt_sigframe), &fp);
+	uc_flags = frame_uc_flags(regs);
+
+	if (!user_access_begin(frame, sizeof(*frame)))
+		return -EFAULT;
+
+	/* Create the ucontext.  */
+	unsafe_put_user(uc_flags, &frame->uc.uc_flags, Efault);
+	unsafe_put_user(0, &frame->uc.uc_link, Efault);
+	unsafe_save_altstack(&frame->uc.uc_stack, regs->sp, Efault);
+
+	/* Set up to return from userspace.  If provided, use a stub
+	   already in userspace.  */
+	unsafe_put_user(ksig->ka.sa.sa_restorer, &frame->pretcode, Efault);
+	unsafe_put_sigcontext(&frame->uc.uc_mcontext, fp, regs, set, Efault);
+	unsafe_put_sigmask(set, frame, Efault);
+	user_access_end();
+
+>>>>>>> upstream/android-13
 	if (ksig->ka.sa.sa_flags & SA_SIGINFO) {
 		if (copy_siginfo_to_user(&frame->info, &ksig->info))
 			return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	uc_flags = frame_uc_flags(regs);
 
 	put_user_try {
@@ -498,6 +807,8 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 	if (err)
 		return -EFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	/* Set up registers for signal handler */
 	regs->di = sig;
 	/* In case the signal handler was declared without prototypes */
@@ -520,7 +831,11 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 	 * SS descriptor, but we do need SS to be valid.  It's possible
 	 * that the old SS is entirely bogus -- this can happen if the
 	 * signal we're trying to deliver is #GP or #SS caused by a bad
+<<<<<<< HEAD
 	 * SS value.  We also have a compatbility issue here: DOSEMU
+=======
+	 * SS value.  We also have a compatibility issue here: DOSEMU
+>>>>>>> upstream/android-13
 	 * relies on the contents of the SS register indicating the
 	 * SS value at the time of the signal, even though that code in
 	 * DOSEMU predates sigreturn's ability to restore SS.  (DOSEMU
@@ -534,9 +849,44 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
 		force_valid_ss(regs);
 
 	return 0;
+<<<<<<< HEAD
 }
 #endif /* CONFIG_X86_32 */
 
+=======
+
+Efault:
+	user_access_end();
+	return -EFAULT;
+}
+#endif /* CONFIG_X86_32 */
+
+#ifdef CONFIG_X86_X32_ABI
+static int x32_copy_siginfo_to_user(struct compat_siginfo __user *to,
+		const struct kernel_siginfo *from)
+{
+	struct compat_siginfo new;
+
+	copy_siginfo_to_external32(&new, from);
+	if (from->si_signo == SIGCHLD) {
+		new._sifields._sigchld_x32._utime = from->si_utime;
+		new._sifields._sigchld_x32._stime = from->si_stime;
+	}
+	if (copy_to_user(to, &new, sizeof(struct compat_siginfo)))
+		return -EFAULT;
+	return 0;
+}
+
+int copy_siginfo_to_user32(struct compat_siginfo __user *to,
+			   const struct kernel_siginfo *from)
+{
+	if (in_x32_syscall())
+		return x32_copy_siginfo_to_user(to, from);
+	return __copy_siginfo_to_user32(to, from);
+}
+#endif /* CONFIG_X86_X32_ABI */
+
+>>>>>>> upstream/android-13
 static int x32_setup_rt_frame(struct ksignal *ksig,
 			      compat_sigset_t *set,
 			      struct pt_regs *regs)
@@ -545,6 +895,7 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
 	struct rt_sigframe_x32 __user *frame;
 	unsigned long uc_flags;
 	void __user *restorer;
+<<<<<<< HEAD
 	int err = 0;
 	void __user *fpstate = NULL;
 
@@ -584,6 +935,36 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
 	if (err)
 		return -EFAULT;
 
+=======
+	void __user *fp = NULL;
+
+	if (!(ksig->ka.sa.sa_flags & SA_RESTORER))
+		return -EFAULT;
+
+	frame = get_sigframe(&ksig->ka, regs, sizeof(*frame), &fp);
+
+	uc_flags = frame_uc_flags(regs);
+
+	if (!user_access_begin(frame, sizeof(*frame)))
+		return -EFAULT;
+
+	/* Create the ucontext.  */
+	unsafe_put_user(uc_flags, &frame->uc.uc_flags, Efault);
+	unsafe_put_user(0, &frame->uc.uc_link, Efault);
+	unsafe_compat_save_altstack(&frame->uc.uc_stack, regs->sp, Efault);
+	unsafe_put_user(0, &frame->uc.uc__pad0, Efault);
+	restorer = ksig->ka.sa.sa_restorer;
+	unsafe_put_user(restorer, (unsigned long __user *)&frame->pretcode, Efault);
+	unsafe_put_sigcontext(&frame->uc.uc_mcontext, fp, regs, set, Efault);
+	unsafe_put_sigmask(set, frame, Efault);
+	user_access_end();
+
+	if (ksig->ka.sa.sa_flags & SA_SIGINFO) {
+		if (x32_copy_siginfo_to_user(&frame->info, &ksig->info))
+			return -EFAULT;
+	}
+
+>>>>>>> upstream/android-13
 	/* Set up registers for signal handler */
 	regs->sp = (unsigned long) frame;
 	regs->ip = (unsigned long) ksig->ka.sa.sa_handler;
@@ -601,6 +982,14 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
 #endif	/* CONFIG_X86_X32_ABI */
 
 	return 0;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_X32_ABI
+Efault:
+	user_access_end();
+	return -EFAULT;
+#endif
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -615,11 +1004,18 @@ SYSCALL_DEFINE0(sigreturn)
 
 	frame = (struct sigframe __user *)(regs->sp - 8);
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
 		goto badframe;
 	if (__get_user(set.sig[0], &frame->sc.oldmask) || (_NSIG_WORDS > 1
 		&& __copy_from_user(&set.sig[1], &frame->extramask,
 				    sizeof(frame->extramask))))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+		goto badframe;
+	if (__get_user(set.sig[0], &frame->sc.oldmask) ||
+	    __get_user(set.sig[1], &frame->extramask[0]))
+>>>>>>> upstream/android-13
 		goto badframe;
 
 	set_current_blocked(&set);
@@ -647,9 +1043,15 @@ SYSCALL_DEFINE0(rt_sigreturn)
 	unsigned long uc_flags;
 
 	frame = (struct rt_sigframe __user *)(regs->sp - sizeof(long));
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+		goto badframe;
+	if (__get_user(*(__u64 *)&set, (__u64 __user *)&frame->uc.uc_sigmask))
+>>>>>>> upstream/android-13
 		goto badframe;
 	if (__get_user(uc_flags, &frame->uc.uc_flags))
 		goto badframe;
@@ -669,6 +1071,64 @@ badframe:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * There are four different struct types for signal frame: sigframe_ia32,
+ * rt_sigframe_ia32, rt_sigframe_x32, and rt_sigframe. Use the worst case
+ * -- the largest size. It means the size for 64-bit apps is a bit more
+ * than needed, but this keeps the code simple.
+ */
+#if defined(CONFIG_X86_32) || defined(CONFIG_IA32_EMULATION)
+# define MAX_FRAME_SIGINFO_UCTXT_SIZE	sizeof(struct sigframe_ia32)
+#else
+# define MAX_FRAME_SIGINFO_UCTXT_SIZE	sizeof(struct rt_sigframe)
+#endif
+
+/*
+ * The FP state frame contains an XSAVE buffer which must be 64-byte aligned.
+ * If a signal frame starts at an unaligned address, extra space is required.
+ * This is the max alignment padding, conservatively.
+ */
+#define MAX_XSAVE_PADDING	63UL
+
+/*
+ * The frame data is composed of the following areas and laid out as:
+ *
+ * -------------------------
+ * | alignment padding     |
+ * -------------------------
+ * | (f)xsave frame        |
+ * -------------------------
+ * | fsave header          |
+ * -------------------------
+ * | alignment padding     |
+ * -------------------------
+ * | siginfo + ucontext    |
+ * -------------------------
+ */
+
+/* max_frame_size tells userspace the worst case signal stack size. */
+static unsigned long __ro_after_init max_frame_size;
+
+void __init init_sigframe_size(void)
+{
+	max_frame_size = MAX_FRAME_SIGINFO_UCTXT_SIZE + MAX_FRAME_PADDING;
+
+	max_frame_size += fpu__get_fpstate_size() + MAX_XSAVE_PADDING;
+
+	/* Userspace expects an aligned size. */
+	max_frame_size = round_up(max_frame_size, FRAME_ALIGNMENT);
+
+	pr_info("max sigframe size: %lu\n", max_frame_size);
+}
+
+unsigned long get_sigframe_size(void)
+{
+	return max_frame_size;
+}
+
+>>>>>>> upstream/android-13
 static inline int is_ia32_compat_frame(struct ksignal *ksig)
 {
 	return IS_ENABLED(CONFIG_IA32_EMULATION) &&
@@ -693,10 +1153,14 @@ setup_rt_frame(struct ksignal *ksig, struct pt_regs *regs)
 	sigset_t *set = sigmask_to_save();
 	compat_sigset_t *cset = (compat_sigset_t *) set;
 
+<<<<<<< HEAD
 	/*
 	 * Increment event counter and perform fixup for the pre-signal
 	 * frame.
 	 */
+=======
+	/* Perform fixup for the pre-signal frame. */
+>>>>>>> upstream/android-13
 	rseq_signal_deliver(ksig, regs);
 
 	/* Set up the stack frame */
@@ -722,7 +1186,11 @@ handle_signal(struct ksignal *ksig, struct pt_regs *regs)
 		save_v86_state((struct kernel_vm86_regs *) regs, VM86_SIGNAL);
 
 	/* Are we from a system call? */
+<<<<<<< HEAD
 	if (syscall_get_nr(current, regs) >= 0) {
+=======
+	if (syscall_get_nr(current, regs) != -1) {
+>>>>>>> upstream/android-13
 		/* If so, check system call restarting.. */
 		switch (syscall_get_error(current, regs)) {
 		case -ERESTART_RESTARTBLOCK:
@@ -735,7 +1203,11 @@ handle_signal(struct ksignal *ksig, struct pt_regs *regs)
 				regs->ax = -EINTR;
 				break;
 			}
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -ERESTARTNOINTR:
 			regs->ax = regs->orig_ax;
 			regs->ip -= 2;
@@ -768,8 +1240,12 @@ handle_signal(struct ksignal *ksig, struct pt_regs *regs)
 		/*
 		 * Ensure the signal handler starts with the new fpu state.
 		 */
+<<<<<<< HEAD
 		if (fpu->initialized)
 			fpu__clear(fpu);
+=======
+		fpu__clear_user_states(fpu);
+>>>>>>> upstream/android-13
 	}
 	signal_setup_done(failed, ksig, stepping);
 }
@@ -777,7 +1253,11 @@ handle_signal(struct ksignal *ksig, struct pt_regs *regs)
 static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
 {
 #ifdef CONFIG_IA32_EMULATION
+<<<<<<< HEAD
 	if (current_thread_info()->status & TS_COMPAT_RESTART)
+=======
+	if (current->restart_block.arch_data & TS_COMPAT)
+>>>>>>> upstream/android-13
 		return __NR_ia32_restart_syscall;
 #endif
 #ifdef CONFIG_X86_X32_ABI
@@ -792,18 +1272,30 @@ static inline unsigned long get_nr_restart_syscall(const struct pt_regs *regs)
  * want to handle. Thus you cannot kill init even with a SIGKILL even by
  * mistake.
  */
+<<<<<<< HEAD
 void do_signal(struct pt_regs *regs)
 {
 	struct ksignal ksig;
 
 	if (get_signal(&ksig)) {
+=======
+void arch_do_signal_or_restart(struct pt_regs *regs, bool has_signal)
+{
+	struct ksignal ksig;
+
+	if (has_signal && get_signal(&ksig)) {
+>>>>>>> upstream/android-13
 		/* Whee! Actually deliver the signal.  */
 		handle_signal(&ksig, regs);
 		return;
 	}
 
 	/* Did we come from a system call? */
+<<<<<<< HEAD
 	if (syscall_get_nr(current, regs) >= 0) {
+=======
+	if (syscall_get_nr(current, regs) != -1) {
+>>>>>>> upstream/android-13
 		/* Restart the system call - no handlers present */
 		switch (syscall_get_error(current, regs)) {
 		case -ERESTARTNOHAND:
@@ -841,11 +1333,19 @@ void signal_fault(struct pt_regs *regs, void __user *frame, char *where)
 		pr_cont("\n");
 	}
 
+<<<<<<< HEAD
 	force_sig(SIGSEGV, me);
 }
 
 #ifdef CONFIG_X86_X32_ABI
 asmlinkage long sys32_x32_rt_sigreturn(void)
+=======
+	force_sig(SIGSEGV);
+}
+
+#ifdef CONFIG_X86_X32_ABI
+COMPAT_SYSCALL_DEFINE0(x32_rt_sigreturn)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *regs = current_pt_regs();
 	struct rt_sigframe_x32 __user *frame;
@@ -854,9 +1354,15 @@ asmlinkage long sys32_x32_rt_sigreturn(void)
 
 	frame = (struct rt_sigframe_x32 __user *)(regs->sp - 8);
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+		goto badframe;
+	if (__get_user(set.sig[0], (__u64 __user *)&frame->uc.uc_sigmask))
+>>>>>>> upstream/android-13
 		goto badframe;
 	if (__get_user(uc_flags, &frame->uc.uc_flags))
 		goto badframe;

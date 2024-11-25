@@ -124,6 +124,7 @@ static void zfcp_ccw_remove(struct ccw_device *cdev)
 		return;
 
 	write_lock_irq(&adapter->port_list_lock);
+<<<<<<< HEAD
 	list_for_each_entry_safe(port, p, &adapter->port_list, list) {
 		write_lock(&port->unit_list_lock);
 		list_for_each_entry_safe(unit, u, &port->unit_list, list)
@@ -131,6 +132,14 @@ static void zfcp_ccw_remove(struct ccw_device *cdev)
 		write_unlock(&port->unit_list_lock);
 		list_move(&port->list, &port_remove_lh);
 	}
+=======
+	list_for_each_entry(port, &adapter->port_list, list) {
+		write_lock(&port->unit_list_lock);
+		list_splice_init(&port->unit_list, &unit_remove_lh);
+		write_unlock(&port->unit_list_lock);
+	}
+	list_splice_init(&adapter->port_list, &port_remove_lh);
+>>>>>>> upstream/android-13
 	write_unlock_irq(&adapter->port_list_lock);
 	zfcp_ccw_adapter_put(adapter); /* put from zfcp_ccw_adapter_by_cdev */
 
@@ -195,6 +204,7 @@ static int zfcp_ccw_set_online(struct ccw_device *cdev)
 }
 
 /**
+<<<<<<< HEAD
  * zfcp_ccw_offline_sync - shut down adapter and wait for it to finish
  * @cdev: pointer to belonging ccw device
  * @set: Status flags to set.
@@ -219,6 +229,8 @@ static int zfcp_ccw_offline_sync(struct ccw_device *cdev, int set, char *tag)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * zfcp_ccw_set_offline - set_offline function of zfcp driver
  * @cdev: pointer to belonging ccw device
  *
@@ -227,7 +239,21 @@ static int zfcp_ccw_offline_sync(struct ccw_device *cdev, int set, char *tag)
  */
 static int zfcp_ccw_set_offline(struct ccw_device *cdev)
 {
+<<<<<<< HEAD
 	return zfcp_ccw_offline_sync(cdev, 0, "ccsoff1");
+=======
+	struct zfcp_adapter *adapter = zfcp_ccw_adapter_by_cdev(cdev);
+
+	if (!adapter)
+		return 0;
+
+	zfcp_erp_set_adapter_status(adapter, 0);
+	zfcp_erp_adapter_shutdown(adapter, 0, "ccsoff1");
+	zfcp_erp_wait(adapter);
+
+	zfcp_ccw_adapter_put(adapter);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -247,11 +273,14 @@ static int zfcp_ccw_notify(struct ccw_device *cdev, int event)
 
 	switch (event) {
 	case CIO_GONE:
+<<<<<<< HEAD
 		if (atomic_read(&adapter->status) &
 		    ZFCP_STATUS_ADAPTER_SUSPENDED) { /* notification ignore */
 			zfcp_dbf_hba_basic("ccnigo1", adapter);
 			break;
 		}
+=======
+>>>>>>> upstream/android-13
 		dev_warn(&cdev->dev, "The FCP device has been detached\n");
 		zfcp_erp_adapter_shutdown(adapter, 0, "ccnoti1");
 		break;
@@ -261,11 +290,14 @@ static int zfcp_ccw_notify(struct ccw_device *cdev, int event)
 		zfcp_erp_adapter_shutdown(adapter, 0, "ccnoti2");
 		break;
 	case CIO_OPER:
+<<<<<<< HEAD
 		if (atomic_read(&adapter->status) &
 		    ZFCP_STATUS_ADAPTER_SUSPENDED) { /* notification ignore */
 			zfcp_dbf_hba_basic("ccniop1", adapter);
 			break;
 		}
+=======
+>>>>>>> upstream/android-13
 		dev_info(&cdev->dev, "The FCP device is operational again\n");
 		zfcp_erp_set_adapter_status(adapter,
 					    ZFCP_STATUS_COMMON_RUNNING);
@@ -301,6 +333,7 @@ static void zfcp_ccw_shutdown(struct ccw_device *cdev)
 	zfcp_ccw_adapter_put(adapter);
 }
 
+<<<<<<< HEAD
 static int zfcp_ccw_suspend(struct ccw_device *cdev)
 {
 	zfcp_ccw_offline_sync(cdev, ZFCP_STATUS_ADAPTER_SUSPENDED, "ccsusp1");
@@ -323,6 +356,8 @@ static int zfcp_ccw_resume(struct ccw_device *cdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct ccw_driver zfcp_ccw_driver = {
 	.driver = {
 		.owner	= THIS_MODULE,
@@ -335,7 +370,10 @@ struct ccw_driver zfcp_ccw_driver = {
 	.set_offline = zfcp_ccw_set_offline,
 	.notify      = zfcp_ccw_notify,
 	.shutdown    = zfcp_ccw_shutdown,
+<<<<<<< HEAD
 	.freeze      = zfcp_ccw_suspend,
 	.thaw	     = zfcp_ccw_thaw,
 	.restore     = zfcp_ccw_resume,
+=======
+>>>>>>> upstream/android-13
 };

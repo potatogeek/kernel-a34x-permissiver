@@ -666,6 +666,7 @@ static int fillslotinfo(struct hotplug_slot *hotplug_slot)
 	struct slot *slot;
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!hotplug_slot || !hotplug_slot->private)
 		return -EINVAL;
 
@@ -696,6 +697,10 @@ static int fillslotinfo(struct hotplug_slot *hotplug_slot)
 		hotplug_slot->info->max_bus_speed_status = slot->bus_on->supported_speed;
 */
 
+=======
+	slot = to_slot(hotplug_slot);
+	rc = ibmphp_hpc_readslot(slot, READ_ALLSTAT, NULL);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -712,7 +717,10 @@ static int __init ebda_rsrc_controller(void)
 	u8 ctlr_id, temp, bus_index;
 	u16 ctlr, slot, bus;
 	u16 slot_num, bus_num, index;
+<<<<<<< HEAD
 	struct hotplug_slot *hp_slot_ptr;
+=======
+>>>>>>> upstream/android-13
 	struct controller *hpc_ptr;
 	struct ebda_hpc_bus *bus_ptr;
 	struct ebda_hpc_slot *slot_ptr;
@@ -743,8 +751,12 @@ static int __init ebda_rsrc_controller(void)
 		/* init hpc structure */
 		hpc_ptr = alloc_ebda_hpc(slot_num, bus_num);
 		if (!hpc_ptr) {
+<<<<<<< HEAD
 			rc = -ENOMEM;
 			goto error_no_hpc;
+=======
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 		}
 		hpc_ptr->ctlr_id = ctlr_id;
 		hpc_ptr->ctlr_relative_id = ctlr;
@@ -771,7 +783,11 @@ static int __init ebda_rsrc_controller(void)
 				bus_info_ptr1 = kzalloc(sizeof(struct bus_info), GFP_KERNEL);
 				if (!bus_info_ptr1) {
 					rc = -ENOMEM;
+<<<<<<< HEAD
 					goto error_no_hp_slot;
+=======
+					goto error_no_slot;
+>>>>>>> upstream/android-13
 				}
 				bus_info_ptr1->slot_min = slot_ptr->slot_num;
 				bus_info_ptr1->slot_max = slot_ptr->slot_num;
@@ -842,7 +858,11 @@ static int __init ebda_rsrc_controller(void)
 						     (hpc_ptr->u.isa_ctlr.io_end - hpc_ptr->u.isa_ctlr.io_start + 1),
 						     "ibmphp")) {
 					rc = -ENODEV;
+<<<<<<< HEAD
 					goto error_no_hp_slot;
+=======
+					goto error_no_slot;
+>>>>>>> upstream/android-13
 				}
 				hpc_ptr->irq = readb(io_mem + addr + 4);
 				addr += 5;
@@ -857,7 +877,11 @@ static int __init ebda_rsrc_controller(void)
 				break;
 			default:
 				rc = -ENODEV;
+<<<<<<< HEAD
 				goto error_no_hp_slot;
+=======
+				goto error_no_slot;
+>>>>>>> upstream/android-13
 		}
 
 		//reorganize chassis' linked list
@@ -870,6 +894,7 @@ static int __init ebda_rsrc_controller(void)
 
 		// register slots with hpc core as well as create linked list of ibm slot
 		for (index = 0; index < hpc_ptr->slot_count; index++) {
+<<<<<<< HEAD
 
 			hp_slot_ptr = kzalloc(sizeof(*hp_slot_ptr), GFP_KERNEL);
 			if (!hp_slot_ptr) {
@@ -883,6 +908,8 @@ static int __init ebda_rsrc_controller(void)
 				goto error_no_hp_info;
 			}
 
+=======
+>>>>>>> upstream/android-13
 			tmp_slot = kzalloc(sizeof(*tmp_slot), GFP_KERNEL);
 			if (!tmp_slot) {
 				rc = -ENOMEM;
@@ -909,7 +936,10 @@ static int __init ebda_rsrc_controller(void)
 
 			bus_info_ptr1 = ibmphp_find_same_bus_num(hpc_ptr->slots[index].slot_bus_num);
 			if (!bus_info_ptr1) {
+<<<<<<< HEAD
 				kfree(tmp_slot);
+=======
+>>>>>>> upstream/android-13
 				rc = -ENODEV;
 				goto error;
 			}
@@ -919,6 +949,7 @@ static int __init ebda_rsrc_controller(void)
 
 			tmp_slot->ctlr_index = hpc_ptr->slots[index].ctl_index;
 			tmp_slot->number = hpc_ptr->slots[index].slot_num;
+<<<<<<< HEAD
 			tmp_slot->hotplug_slot = hp_slot_ptr;
 
 			hp_slot_ptr->private = tmp_slot;
@@ -935,6 +966,21 @@ static int __init ebda_rsrc_controller(void)
 			// end of registering ibm slot with hotplug core
 
 			list_add(&((struct slot *)(hp_slot_ptr->private))->ibm_slot_list, &ibmphp_slot_head);
+=======
+
+			rc = fillslotinfo(&tmp_slot->hotplug_slot);
+			if (rc)
+				goto error;
+
+			rc = ibmphp_init_devno(&tmp_slot);
+			if (rc)
+				goto error;
+			tmp_slot->hotplug_slot.ops = &ibmphp_hotplug_slot_ops;
+
+			// end of registering ibm slot with hotplug core
+
+			list_add(&tmp_slot->ibm_slot_list, &ibmphp_slot_head);
+>>>>>>> upstream/android-13
 		}
 
 		print_bus_info();
@@ -944,7 +990,11 @@ static int __init ebda_rsrc_controller(void)
 
 	list_for_each_entry(tmp_slot, &ibmphp_slot_head, ibm_slot_list) {
 		snprintf(name, SLOT_NAME_SIZE, "%s", create_file_name(tmp_slot));
+<<<<<<< HEAD
 		pci_hp_register(tmp_slot->hotplug_slot,
+=======
+		pci_hp_register(&tmp_slot->hotplug_slot,
+>>>>>>> upstream/android-13
 			pci_find_bus(0, tmp_slot->bus), tmp_slot->device, name);
 	}
 
@@ -953,6 +1003,7 @@ static int __init ebda_rsrc_controller(void)
 	return 0;
 
 error:
+<<<<<<< HEAD
 	kfree(hp_slot_ptr->private);
 error_no_slot:
 	kfree(hp_slot_ptr->info);
@@ -962,6 +1013,11 @@ error_no_hp_slot:
 	free_ebda_hpc(hpc_ptr);
 error_no_hpc:
 	iounmap(io_mem);
+=======
+	kfree(tmp_slot);
+error_no_slot:
+	free_ebda_hpc(hpc_ptr);
+>>>>>>> upstream/android-13
 	return rc;
 }
 

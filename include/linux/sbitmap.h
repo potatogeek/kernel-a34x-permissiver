@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Fast and scalable bitmaps.
  *
  * Copyright (C) 2016 Facebook
  * Copyright (C) 2013-2014 Jens Axboe
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_SCALE_BITMAP_H
@@ -30,6 +37,7 @@ struct seq_file;
  */
 struct sbitmap_word {
 	/**
+<<<<<<< HEAD
 	 * @word: The bitmap word itself.
 	 */
 	unsigned long word;
@@ -38,6 +46,21 @@ struct sbitmap_word {
 	 * @depth: Number of bits being used in @word.
 	 */
 	unsigned long depth;
+=======
+	 * @depth: Number of bits being used in @word/@cleared
+	 */
+	unsigned long depth;
+
+	/**
+	 * @word: word holding free bits
+	 */
+	unsigned long word ____cacheline_aligned_in_smp;
+
+	/**
+	 * @cleared: word holding cleared bits
+	 */
+	unsigned long cleared ____cacheline_aligned_in_smp;
+>>>>>>> upstream/android-13
 } ____cacheline_aligned_in_smp;
 
 /**
@@ -63,9 +86,28 @@ struct sbitmap {
 	unsigned int map_nr;
 
 	/**
+<<<<<<< HEAD
 	 * @map: Allocated bitmap.
 	 */
 	struct sbitmap_word *map;
+=======
+	 * @round_robin: Allocate bits in strict round-robin order.
+	 */
+	bool round_robin;
+
+	/**
+	 * @map: Allocated bitmap.
+	 */
+	struct sbitmap_word *map;
+
+	/*
+	 * @alloc_hint: Cache of last successfully allocated or freed bit.
+	 *
+	 * This is per-cpu, which allows multiple users to stick to different
+	 * cachelines until the map is exhausted.
+	 */
+	unsigned int __percpu *alloc_hint;
+>>>>>>> upstream/android-13
 };
 
 #define SBQ_WAIT_QUEUES 8
@@ -101,6 +143,7 @@ struct sbitmap_queue {
 	 */
 	struct sbitmap sb;
 
+<<<<<<< HEAD
 	/*
 	 * @alloc_hint: Cache of last successfully allocated or freed bit.
 	 *
@@ -109,6 +152,8 @@ struct sbitmap_queue {
 	 */
 	unsigned int __percpu *alloc_hint;
 
+=======
+>>>>>>> upstream/android-13
 	/**
 	 * @wake_batch: Number of bits which must be freed before we wake up any
 	 * waiters.
@@ -125,10 +170,17 @@ struct sbitmap_queue {
 	 */
 	struct sbq_wait_state *ws;
 
+<<<<<<< HEAD
 	/**
 	 * @round_robin: Allocate bits in strict round-robin order.
 	 */
 	bool round_robin;
+=======
+	/*
+	 * @ws_active: count of currently active ws waitqueues
+	 */
+	atomic_t ws_active;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @min_shallow_depth: The minimum shallow depth which may be passed to
@@ -145,11 +197,23 @@ struct sbitmap_queue {
  *         given, a good default is chosen.
  * @flags: Allocation flags.
  * @node: Memory node to allocate on.
+<<<<<<< HEAD
+=======
+ * @round_robin: If true, be stricter about allocation order; always allocate
+ *               starting from the last allocated bit. This is less efficient
+ *               than the default behavior (false).
+ * @alloc_hint: If true, apply percpu hint for where to start searching for
+ *              a free bit.
+>>>>>>> upstream/android-13
  *
  * Return: Zero on success or negative errno on failure.
  */
 int sbitmap_init_node(struct sbitmap *sb, unsigned int depth, int shift,
+<<<<<<< HEAD
 		      gfp_t flags, int node);
+=======
+		      gfp_t flags, int node, bool round_robin, bool alloc_hint);
+>>>>>>> upstream/android-13
 
 /**
  * sbitmap_free() - Free memory used by a &struct sbitmap.
@@ -157,6 +221,10 @@ int sbitmap_init_node(struct sbitmap *sb, unsigned int depth, int shift,
  */
 static inline void sbitmap_free(struct sbitmap *sb)
 {
+<<<<<<< HEAD
+=======
+	free_percpu(sb->alloc_hint);
+>>>>>>> upstream/android-13
 	kfree(sb->map);
 	sb->map = NULL;
 }
@@ -174,22 +242,32 @@ void sbitmap_resize(struct sbitmap *sb, unsigned int depth);
 /**
  * sbitmap_get() - Try to allocate a free bit from a &struct sbitmap.
  * @sb: Bitmap to allocate from.
+<<<<<<< HEAD
  * @alloc_hint: Hint for where to start searching for a free bit.
  * @round_robin: If true, be stricter about allocation order; always allocate
  *               starting from the last allocated bit. This is less efficient
  *               than the default behavior (false).
+=======
+>>>>>>> upstream/android-13
  *
  * This operation provides acquire barrier semantics if it succeeds.
  *
  * Return: Non-negative allocated bit number if successful, -1 otherwise.
  */
+<<<<<<< HEAD
 int sbitmap_get(struct sbitmap *sb, unsigned int alloc_hint, bool round_robin);
+=======
+int sbitmap_get(struct sbitmap *sb);
+>>>>>>> upstream/android-13
 
 /**
  * sbitmap_get_shallow() - Try to allocate a free bit from a &struct sbitmap,
  * limiting the depth used from each word.
  * @sb: Bitmap to allocate from.
+<<<<<<< HEAD
  * @alloc_hint: Hint for where to start searching for a free bit.
+=======
+>>>>>>> upstream/android-13
  * @shallow_depth: The maximum number of bits to allocate from a single word.
  *
  * This rather specific operation allows for having multiple users with
@@ -201,8 +279,12 @@ int sbitmap_get(struct sbitmap *sb, unsigned int alloc_hint, bool round_robin);
  *
  * Return: Non-negative allocated bit number if successful, -1 otherwise.
  */
+<<<<<<< HEAD
 int sbitmap_get_shallow(struct sbitmap *sb, unsigned int alloc_hint,
 			unsigned long shallow_depth);
+=======
+int sbitmap_get_shallow(struct sbitmap *sb, unsigned long shallow_depth);
+>>>>>>> upstream/android-13
 
 /**
  * sbitmap_any_bit_set() - Check for a set bit in a &struct sbitmap.
@@ -212,6 +294,7 @@ int sbitmap_get_shallow(struct sbitmap *sb, unsigned int alloc_hint,
  */
 bool sbitmap_any_bit_set(const struct sbitmap *sb);
 
+<<<<<<< HEAD
 /**
  * sbitmap_any_bit_clear() - Check for an unset bit in a &struct
  * sbitmap.
@@ -221,6 +304,8 @@ bool sbitmap_any_bit_set(const struct sbitmap *sb);
  */
 bool sbitmap_any_bit_clear(const struct sbitmap *sb);
 
+=======
+>>>>>>> upstream/android-13
 #define SB_NR_TO_INDEX(sb, bitnr) ((bitnr) >> (sb)->shift)
 #define SB_NR_TO_BIT(sb, bitnr) ((bitnr) & ((1U << (sb)->shift) - 1U))
 
@@ -250,12 +335,23 @@ static inline void __sbitmap_for_each_set(struct sbitmap *sb,
 	nr = SB_NR_TO_BIT(sb, start);
 
 	while (scanned < sb->depth) {
+<<<<<<< HEAD
 		struct sbitmap_word *word = &sb->map[index];
 		unsigned int depth = min_t(unsigned int, word->depth - nr,
 					   sb->depth - scanned);
 
 		scanned += depth;
 		if (!word->word)
+=======
+		unsigned long word;
+		unsigned int depth = min_t(unsigned int,
+					   sb->map[index].depth - nr,
+					   sb->depth - scanned);
+
+		scanned += depth;
+		word = sb->map[index].word & ~sb->map[index].cleared;
+		if (!word)
+>>>>>>> upstream/android-13
 			goto next;
 
 		/*
@@ -265,7 +361,11 @@ static inline void __sbitmap_for_each_set(struct sbitmap *sb,
 		 */
 		depth += nr;
 		while (1) {
+<<<<<<< HEAD
 			nr = find_next_bit(&word->word, depth, nr);
+=======
+			nr = find_next_bit(&word, depth, nr);
+>>>>>>> upstream/android-13
 			if (nr >= depth)
 				break;
 			if (!fn(sb, (index << sb->shift) + nr, data))
@@ -310,10 +410,36 @@ static inline void sbitmap_clear_bit(struct sbitmap *sb, unsigned int bitnr)
 	clear_bit(SB_NR_TO_BIT(sb, bitnr), __sbitmap_word(sb, bitnr));
 }
 
+<<<<<<< HEAD
 static inline void sbitmap_clear_bit_unlock(struct sbitmap *sb,
 					    unsigned int bitnr)
 {
 	clear_bit_unlock(SB_NR_TO_BIT(sb, bitnr), __sbitmap_word(sb, bitnr));
+=======
+/*
+ * This one is special, since it doesn't actually clear the bit, rather it
+ * sets the corresponding bit in the ->cleared mask instead. Paired with
+ * the caller doing sbitmap_deferred_clear() if a given index is full, which
+ * will clear the previously freed entries in the corresponding ->word.
+ */
+static inline void sbitmap_deferred_clear_bit(struct sbitmap *sb, unsigned int bitnr)
+{
+	unsigned long *addr = &sb->map[SB_NR_TO_INDEX(sb, bitnr)].cleared;
+
+	set_bit(SB_NR_TO_BIT(sb, bitnr), addr);
+}
+
+/*
+ * Pair of sbitmap_get, and this one applies both cleared bit and
+ * allocation hint.
+ */
+static inline void sbitmap_put(struct sbitmap *sb, unsigned int bitnr)
+{
+	sbitmap_deferred_clear_bit(sb, bitnr);
+
+	if (likely(sb->alloc_hint && !sb->round_robin && bitnr < sb->depth))
+		*raw_cpu_ptr(sb->alloc_hint) = bitnr;
+>>>>>>> upstream/android-13
 }
 
 static inline int sbitmap_test_bit(struct sbitmap *sb, unsigned int bitnr)
@@ -321,7 +447,27 @@ static inline int sbitmap_test_bit(struct sbitmap *sb, unsigned int bitnr)
 	return test_bit(SB_NR_TO_BIT(sb, bitnr), __sbitmap_word(sb, bitnr));
 }
 
+<<<<<<< HEAD
 unsigned int sbitmap_weight(const struct sbitmap *sb);
+=======
+static inline int sbitmap_calculate_shift(unsigned int depth)
+{
+	int	shift = ilog2(BITS_PER_LONG);
+
+	/*
+	 * If the bitmap is small, shrink the number of bits per word so
+	 * we spread over a few cachelines, at least. If less than 4
+	 * bits, just forget about it, it's not going to work optimally
+	 * anyway.
+	 */
+	if (depth >= 4) {
+		while ((4U << shift) > depth)
+			shift--;
+	}
+
+	return shift;
+}
+>>>>>>> upstream/android-13
 
 /**
  * sbitmap_show() - Dump &struct sbitmap information to a &struct seq_file.
@@ -332,6 +478,19 @@ unsigned int sbitmap_weight(const struct sbitmap *sb);
  */
 void sbitmap_show(struct sbitmap *sb, struct seq_file *m);
 
+<<<<<<< HEAD
+=======
+
+/**
+ * sbitmap_weight() - Return how many set and not cleared bits in a &struct
+ * sbitmap.
+ * @sb: Bitmap to check.
+ *
+ * Return: How many set and not cleared bits set
+ */
+unsigned int sbitmap_weight(const struct sbitmap *sb);
+
+>>>>>>> upstream/android-13
 /**
  * sbitmap_bitmap_show() - Write a hex dump of a &struct sbitmap to a &struct
  * seq_file.
@@ -366,7 +525,10 @@ int sbitmap_queue_init_node(struct sbitmap_queue *sbq, unsigned int depth,
 static inline void sbitmap_queue_free(struct sbitmap_queue *sbq)
 {
 	kfree(sbq->ws);
+<<<<<<< HEAD
 	free_percpu(sbq->alloc_hint);
+=======
+>>>>>>> upstream/android-13
 	sbitmap_free(&sbq->sb);
 }
 
@@ -531,4 +693,48 @@ void sbitmap_queue_wake_up(struct sbitmap_queue *sbq);
  */
 void sbitmap_queue_show(struct sbitmap_queue *sbq, struct seq_file *m);
 
+<<<<<<< HEAD
+=======
+struct sbq_wait {
+	struct sbitmap_queue *sbq;	/* if set, sbq_wait is accounted */
+	struct wait_queue_entry wait;
+};
+
+#define DEFINE_SBQ_WAIT(name)							\
+	struct sbq_wait name = {						\
+		.sbq = NULL,							\
+		.wait = {							\
+			.private	= current,				\
+			.func		= autoremove_wake_function,		\
+			.entry		= LIST_HEAD_INIT((name).wait.entry),	\
+		}								\
+	}
+
+/*
+ * Wrapper around prepare_to_wait_exclusive(), which maintains some extra
+ * internal state.
+ */
+void sbitmap_prepare_to_wait(struct sbitmap_queue *sbq,
+				struct sbq_wait_state *ws,
+				struct sbq_wait *sbq_wait, int state);
+
+/*
+ * Must be paired with sbitmap_prepare_to_wait().
+ */
+void sbitmap_finish_wait(struct sbitmap_queue *sbq, struct sbq_wait_state *ws,
+				struct sbq_wait *sbq_wait);
+
+/*
+ * Wrapper around add_wait_queue(), which maintains some extra internal state
+ */
+void sbitmap_add_wait_queue(struct sbitmap_queue *sbq,
+			    struct sbq_wait_state *ws,
+			    struct sbq_wait *sbq_wait);
+
+/*
+ * Must be paired with sbitmap_add_wait_queue()
+ */
+void sbitmap_del_wait_queue(struct sbq_wait *sbq_wait);
+
+>>>>>>> upstream/android-13
 #endif /* __LINUX_SCALE_BITMAP_H */

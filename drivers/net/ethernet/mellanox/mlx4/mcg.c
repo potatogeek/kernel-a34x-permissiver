@@ -906,13 +906,20 @@ static void mlx4_err_rule(struct mlx4_dev *dev, char *str,
 	int len = 0;
 
 	mlx4_err(dev, "%s", str);
+<<<<<<< HEAD
 	len += snprintf(buf + len, BUF_SIZE - len,
 			"port = %d prio = 0x%x qp = 0x%x ",
 			rule->port, rule->priority, rule->qpn);
+=======
+	len += scnprintf(buf + len, BUF_SIZE - len,
+			 "port = %d prio = 0x%x qp = 0x%x ",
+			 rule->port, rule->priority, rule->qpn);
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(cur, &rule->list, list) {
 		switch (cur->id) {
 		case MLX4_NET_TRANS_RULE_ID_ETH:
+<<<<<<< HEAD
 			len += snprintf(buf + len, BUF_SIZE - len,
 					"dmac = %pM ", &cur->eth.dst_mac);
 			if (cur->eth.ether_type)
@@ -923,10 +930,23 @@ static void mlx4_err_rule(struct mlx4_dev *dev, char *str,
 				len += snprintf(buf + len, BUF_SIZE - len,
 						"vlan-id = %d ",
 						be16_to_cpu(cur->eth.vlan_id));
+=======
+			len += scnprintf(buf + len, BUF_SIZE - len,
+					 "dmac = %pM ", &cur->eth.dst_mac);
+			if (cur->eth.ether_type)
+				len += scnprintf(buf + len, BUF_SIZE - len,
+						 "ethertype = 0x%x ",
+						 be16_to_cpu(cur->eth.ether_type));
+			if (cur->eth.vlan_id)
+				len += scnprintf(buf + len, BUF_SIZE - len,
+						 "vlan-id = %d ",
+						 be16_to_cpu(cur->eth.vlan_id));
+>>>>>>> upstream/android-13
 			break;
 
 		case MLX4_NET_TRANS_RULE_ID_IPV4:
 			if (cur->ipv4.src_ip)
+<<<<<<< HEAD
 				len += snprintf(buf + len, BUF_SIZE - len,
 						"src-ip = %pI4 ",
 						&cur->ipv4.src_ip);
@@ -934,11 +954,21 @@ static void mlx4_err_rule(struct mlx4_dev *dev, char *str,
 				len += snprintf(buf + len, BUF_SIZE - len,
 						"dst-ip = %pI4 ",
 						&cur->ipv4.dst_ip);
+=======
+				len += scnprintf(buf + len, BUF_SIZE - len,
+						 "src-ip = %pI4 ",
+						 &cur->ipv4.src_ip);
+			if (cur->ipv4.dst_ip)
+				len += scnprintf(buf + len, BUF_SIZE - len,
+						 "dst-ip = %pI4 ",
+						 &cur->ipv4.dst_ip);
+>>>>>>> upstream/android-13
 			break;
 
 		case MLX4_NET_TRANS_RULE_ID_TCP:
 		case MLX4_NET_TRANS_RULE_ID_UDP:
 			if (cur->tcp_udp.src_port)
+<<<<<<< HEAD
 				len += snprintf(buf + len, BUF_SIZE - len,
 						"src-port = %d ",
 						be16_to_cpu(cur->tcp_udp.src_port));
@@ -959,6 +989,28 @@ static void mlx4_err_rule(struct mlx4_dev *dev, char *str,
 		case MLX4_NET_TRANS_RULE_ID_VXLAN:
 			len += snprintf(buf + len, BUF_SIZE - len,
 					"VNID = %d ", be32_to_cpu(cur->vxlan.vni));
+=======
+				len += scnprintf(buf + len, BUF_SIZE - len,
+						 "src-port = %d ",
+						 be16_to_cpu(cur->tcp_udp.src_port));
+			if (cur->tcp_udp.dst_port)
+				len += scnprintf(buf + len, BUF_SIZE - len,
+						 "dst-port = %d ",
+						 be16_to_cpu(cur->tcp_udp.dst_port));
+			break;
+
+		case MLX4_NET_TRANS_RULE_ID_IB:
+			len += scnprintf(buf + len, BUF_SIZE - len,
+					 "dst-gid = %pI6\n", cur->ib.dst_gid);
+			len += scnprintf(buf + len, BUF_SIZE - len,
+					 "dst-gid-mask = %pI6\n",
+					 cur->ib.dst_gid_msk);
+			break;
+
+		case MLX4_NET_TRANS_RULE_ID_VXLAN:
+			len += scnprintf(buf + len, BUF_SIZE - len,
+					 "VNID = %d ", be32_to_cpu(cur->vxlan.vni));
+>>>>>>> upstream/android-13
 			break;
 		case MLX4_NET_TRANS_RULE_ID_IPV6:
 			break;
@@ -967,7 +1019,11 @@ static void mlx4_err_rule(struct mlx4_dev *dev, char *str,
 			break;
 		}
 	}
+<<<<<<< HEAD
 	len += snprintf(buf + len, BUF_SIZE - len, "\n");
+=======
+	len += scnprintf(buf + len, BUF_SIZE - len, "\n");
+>>>>>>> upstream/android-13
 	mlx4_err(dev, "%s", buf);
 
 	if (len >= BUF_SIZE)
@@ -1412,7 +1468,11 @@ int mlx4_multicast_attach(struct mlx4_dev *dev, struct mlx4_qp *qp, u8 gid[16],
 	case MLX4_STEERING_MODE_A0:
 		if (prot == MLX4_PROT_ETH)
 			return 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case MLX4_STEERING_MODE_B0:
 		if (prot == MLX4_PROT_ETH)
@@ -1442,7 +1502,11 @@ int mlx4_multicast_detach(struct mlx4_dev *dev, struct mlx4_qp *qp, u8 gid[16],
 	case MLX4_STEERING_MODE_A0:
 		if (prot == MLX4_PROT_ETH)
 			return 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case MLX4_STEERING_MODE_B0:
 		if (prot == MLX4_PROT_ETH)

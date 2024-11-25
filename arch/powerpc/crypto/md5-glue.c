@@ -1,22 +1,32 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue code for MD5 implementation for PPC assembler
  *
  * Based on generic implementation.
  *
  * Copyright (c) 2015 Markus Stockhausen <stockhausen@collogia.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/hash.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <crypto/md5.h>
 #include <asm/byteorder.h>

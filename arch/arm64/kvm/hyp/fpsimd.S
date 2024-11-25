@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 - ARM Ltd
  * Author: Marc Zyngier <marc.zyngier@arm.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 - ARM Ltd
+ * Author: Marc Zyngier <marc.zyngier@arm.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -20,6 +27,7 @@
 #include <asm/fpsimdmacros.h>
 
 	.text
+<<<<<<< HEAD
 	.pushsection	.hyp.text, "ax"
 
 ENTRY(__fpsimd_save_state)
@@ -31,3 +39,20 @@ ENTRY(__fpsimd_restore_state)
 	fpsimd_restore	x0, 1
 	ret
 ENDPROC(__fpsimd_restore_state)
+=======
+
+SYM_FUNC_START(__fpsimd_save_state)
+	fpsimd_save	x0, 1
+	ret
+SYM_FUNC_END(__fpsimd_save_state)
+
+SYM_FUNC_START(__fpsimd_restore_state)
+	fpsimd_restore	x0, 1
+	ret
+SYM_FUNC_END(__fpsimd_restore_state)
+
+SYM_FUNC_START(__sve_restore_state)
+	__sve_load 0, x1, 2
+	ret
+SYM_FUNC_END(__sve_restore_state)
+>>>>>>> upstream/android-13

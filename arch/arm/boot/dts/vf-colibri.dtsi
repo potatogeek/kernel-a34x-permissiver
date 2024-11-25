@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Toradex AG
  *
@@ -37,6 +38,12 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2014-2020 Toradex
+ *
+>>>>>>> upstream/android-13
  */
 
 / {
@@ -129,8 +136,16 @@
 
 &i2c0 {
 	clock-frequency = <400000>;
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c0>;
+=======
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c0>;
+	pinctrl-1 = <&pinctrl_i2c0_gpio>;
+	scl-gpios = <&gpio1 4 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio1 5 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+>>>>>>> upstream/android-13
 };
 
 &nfc {
@@ -308,6 +323,16 @@
 			>;
 		};
 
+<<<<<<< HEAD
+=======
+		pinctrl_i2c0_gpio: i2c0gpiogrp {
+			fsl,pins = <
+				VF610_PAD_PTB14__GPIO_36		0x37ff
+				VF610_PAD_PTB15__GPIO_37		0x37ff
+			>;
+		};
+
+>>>>>>> upstream/android-13
 		pinctrl_nfc: nfcgrp {
 			fsl,pins = <
 				VF610_PAD_PTD23__NF_IO7		0x28df

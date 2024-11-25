@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017 Icenowy Zheng <icenowy@aosc.io>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2017 Icenowy Zheng <icenowy@aosc.io>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CCU_SUN8I_R40_H_
@@ -64,10 +70,13 @@
 
 /* Some more module clocks are exported */
 
+<<<<<<< HEAD
 #define CLK_MBUS		155
 
 /* Another bunch of module clocks are exported */
 
+=======
+>>>>>>> upstream/android-13
 #define CLK_NUMBER		(CLK_OUTB + 1)
 
 #endif /* _CCU_SUN8I_R40_H_ */

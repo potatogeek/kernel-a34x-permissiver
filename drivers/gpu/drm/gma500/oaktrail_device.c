@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /**************************************************************************
  * Copyright (c) 2011, Intel Corporation.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -30,6 +35,22 @@
 #include <asm/intel_scu_ipc.h>
 #include "mid_bios.h"
 #include "intel_bios.h"
+=======
+ **************************************************************************/
+
+#include <linux/backlight.h>
+#include <linux/delay.h>
+#include <linux/dmi.h>
+#include <linux/module.h>
+
+#include <drm/drm.h>
+
+#include "intel_bios.h"
+#include "mid_bios.h"
+#include "psb_drv.h"
+#include "psb_intel_reg.h"
+#include "psb_reg.h"
+>>>>>>> upstream/android-13
 
 static int oaktrail_output_init(struct drm_device *dev)
 {
@@ -327,7 +348,11 @@ static int oaktrail_restore_display_registers(struct drm_device *dev)
 
 	/* Actually enable it */
 	PSB_WVDC32(p->dpll, MRST_DPLL_A);
+<<<<<<< HEAD
 	DRM_UDELAY(150);
+=======
+	udelay(150);
+>>>>>>> upstream/android-13
 
 	/* Restore mode */
 	PSB_WVDC32(p->htotal, HTOTAL_A);
@@ -514,9 +539,16 @@ static const struct psb_offset oaktrail_regmap[2] = {
 static int oaktrail_chip_setup(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
+<<<<<<< HEAD
 	int ret;
 	
 	if (pci_enable_msi(dev->pdev))
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	int ret;
+
+	if (pci_enable_msi(pdev))
+>>>>>>> upstream/android-13
 		dev_warn(dev->dev, "Enabling MSI failed!\n");
 
 	dev_priv->regmap = oaktrail_regmap;
@@ -546,7 +578,10 @@ static void oaktrail_teardown(struct drm_device *dev)
 
 const struct psb_ops oaktrail_chip_ops = {
 	.name = "Oaktrail",
+<<<<<<< HEAD
 	.accel_2d = 1,
+=======
+>>>>>>> upstream/android-13
 	.pipes = 2,
 	.crtcs = 2,
 	.hdmi_mask = (1 << 1),
@@ -558,7 +593,11 @@ const struct psb_ops oaktrail_chip_ops = {
 	.chip_setup = oaktrail_chip_setup,
 	.chip_teardown = oaktrail_teardown,
 	.crtc_helper = &oaktrail_helper_funcs,
+<<<<<<< HEAD
 	.crtc_funcs = &psb_intel_crtc_funcs,
+=======
+	.crtc_funcs = &gma_intel_crtc_funcs,
+>>>>>>> upstream/android-13
 
 	.output_init = oaktrail_output_init,
 

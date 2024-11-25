@@ -74,6 +74,10 @@ static int fme_pr(struct platform_device *pdev, unsigned long arg)
 	struct dfl_fme *fme;
 	unsigned long minsz;
 	void *buf = NULL;
+<<<<<<< HEAD
+=======
+	size_t length;
+>>>>>>> upstream/android-13
 	int ret = 0;
 	u64 v;
 
@@ -85,9 +89,12 @@ static int fme_pr(struct platform_device *pdev, unsigned long arg)
 	if (port_pr.argsz < minsz || port_pr.flags)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!IS_ALIGNED(port_pr.buffer_size, 4))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/* get fme header region */
 	fme_hdr = dfl_get_feature_ioaddr_by_id(&pdev->dev,
 					       FME_FEATURE_ID_HEADER);
@@ -99,12 +106,22 @@ static int fme_pr(struct platform_device *pdev, unsigned long arg)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ,
 		       (void __user *)(unsigned long)port_pr.buffer_address,
 		       port_pr.buffer_size))
 		return -EFAULT;
 
 	buf = vmalloc(port_pr.buffer_size);
+=======
+	/*
+	 * align PR buffer per PR bandwidth, as HW ignores the extra padding
+	 * data automatically.
+	 */
+	length = ALIGN(port_pr.buffer_size, 4);
+
+	buf = vmalloc(length);
+>>>>>>> upstream/android-13
 	if (!buf)
 		return -ENOMEM;
 
@@ -141,7 +158,11 @@ static int fme_pr(struct platform_device *pdev, unsigned long arg)
 	fpga_image_info_free(region->info);
 
 	info->buf = buf;
+<<<<<<< HEAD
 	info->count = port_pr.buffer_size;
+=======
+	info->count = length;
+>>>>>>> upstream/android-13
 	info->region_id = port_pr.port_id;
 	region->info = info;
 
@@ -149,7 +170,11 @@ static int fme_pr(struct platform_device *pdev, unsigned long arg)
 
 	/*
 	 * it allows userspace to reset the PR region's logic by disabling and
+<<<<<<< HEAD
 	 * reenabling the bridge to clear things out between accleration runs.
+=======
+	 * reenabling the bridge to clear things out between acceleration runs.
+>>>>>>> upstream/android-13
 	 * so no need to hold the bridges after partial reconfiguration.
 	 */
 	if (region->get_bridges)
@@ -160,9 +185,12 @@ unlock_exit:
 	mutex_unlock(&pdata->lock);
 free_exit:
 	vfree(buf);
+<<<<<<< HEAD
 	if (copy_to_user((void __user *)arg, &port_pr, minsz))
 		return -EFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -444,10 +472,15 @@ static void pr_mgmt_uinit(struct platform_device *pdev,
 			  struct dfl_feature *feature)
 {
 	struct dfl_feature_platform_data *pdata = dev_get_platdata(&pdev->dev);
+<<<<<<< HEAD
 	struct dfl_fme *priv;
 
 	mutex_lock(&pdata->lock);
 	priv = dfl_fpga_pdata_get_private(pdata);
+=======
+
+	mutex_lock(&pdata->lock);
+>>>>>>> upstream/android-13
 
 	dfl_fme_destroy_regions(pdata);
 	dfl_fme_destroy_bridges(pdata);
@@ -472,7 +505,16 @@ static long fme_pr_ioctl(struct platform_device *pdev,
 	return ret;
 }
 
+<<<<<<< HEAD
 const struct dfl_feature_ops pr_mgmt_ops = {
+=======
+const struct dfl_feature_id fme_pr_mgmt_id_table[] = {
+	{.id = FME_FEATURE_ID_PR_MGMT,},
+	{0}
+};
+
+const struct dfl_feature_ops fme_pr_mgmt_ops = {
+>>>>>>> upstream/android-13
 	.init = pr_mgmt_init,
 	.uinit = pr_mgmt_uinit,
 	.ioctl = fme_pr_ioctl,

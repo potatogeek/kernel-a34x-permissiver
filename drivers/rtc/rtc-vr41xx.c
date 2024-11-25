@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for NEC VR4100 series Real Time Clock unit.
  *
  *  Copyright (C) 2003-2008  Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+=======
+ */
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/fs.h>
 #include <linux/init.h>
@@ -79,6 +88,12 @@ static void __iomem *rtc2_base;
 #define rtc2_read(offset)		readw(rtc2_base + (offset))
 #define rtc2_write(offset, value)	writew((value), rtc2_base + (offset))
 
+<<<<<<< HEAD
+=======
+/* 32-bit compat for ioctls that nobody else uses */
+#define RTC_EPOCH_READ32	_IOR('p', 0x0d, __u32)
+
+>>>>>>> upstream/android-13
 static unsigned long epoch = 1970;	/* Jan 1 1970 00:00:00 */
 
 static DEFINE_SPINLOCK(rtc_lock);
@@ -136,8 +151,12 @@ static int vr41xx_rtc_set_time(struct device *dev, struct rtc_time *time)
 	time64_t epoch_sec, current_sec;
 
 	epoch_sec = mktime64(epoch, 1, 1, 0, 0, 0);
+<<<<<<< HEAD
 	current_sec = mktime64(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
 			     time->tm_hour, time->tm_min, time->tm_sec);
+=======
+	current_sec = rtc_tm_to_time64(time);
+>>>>>>> upstream/android-13
 
 	write_elapsed_second(current_sec - epoch_sec);
 
@@ -158,7 +177,11 @@ static int vr41xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
 
 	spin_unlock_irq(&rtc_lock);
 
+<<<<<<< HEAD
 	rtc_time_to_tm((high << 17) | (mid << 1) | (low >> 15), time);
+=======
+	rtc_time64_to_tm((high << 17) | (mid << 1) | (low >> 15), time);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -166,10 +189,15 @@ static int vr41xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
 static int vr41xx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
 {
 	time64_t alarm_sec;
+<<<<<<< HEAD
 	struct rtc_time *time = &wkalrm->time;
 
 	alarm_sec = mktime64(time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
 			     time->tm_hour, time->tm_min, time->tm_sec);
+=======
+
+	alarm_sec = rtc_tm_to_time64(&wkalrm->time);
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&rtc_lock);
 
@@ -195,6 +223,13 @@ static int vr41xx_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long 
 	switch (cmd) {
 	case RTC_EPOCH_READ:
 		return put_user(epoch, (unsigned long __user *)arg);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_64BIT
+	case RTC_EPOCH_READ32:
+		return put_user(epoch, (unsigned int __user *)arg);
+#endif
+>>>>>>> upstream/android-13
 	case RTC_EPOCH_SET:
 		/* Doesn't support before 1900 */
 		if (arg < 1900)
@@ -343,7 +378,11 @@ static int rtc_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "Real Time Clock of NEC VR4100 series\n");
 
+<<<<<<< HEAD
 	retval = rtc_register_device(rtc);
+=======
+	retval = devm_rtc_register_device(rtc);
+>>>>>>> upstream/android-13
 	if (retval)
 		goto err_iounmap_all;
 

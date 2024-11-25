@@ -3,7 +3,11 @@
  *
  * Name: acresrc.h - Resource Manager function prototypes
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -46,6 +50,10 @@ typedef enum {
 	ACPI_RSC_1BITFLAG,
 	ACPI_RSC_2BITFLAG,
 	ACPI_RSC_3BITFLAG,
+<<<<<<< HEAD
+=======
+	ACPI_RSC_6BITFLAG,
+>>>>>>> upstream/android-13
 	ACPI_RSC_ADDRESS,
 	ACPI_RSC_BITMASK,
 	ACPI_RSC_BITMASK16,
@@ -102,6 +110,10 @@ typedef enum {
 	ACPI_RSD_1BITFLAG,
 	ACPI_RSD_2BITFLAG,
 	ACPI_RSD_3BITFLAG,
+<<<<<<< HEAD
+=======
+	ACPI_RSD_6BITFLAG,
+>>>>>>> upstream/android-13
 	ACPI_RSD_ADDRESS,
 	ACPI_RSD_DWORDLIST,
 	ACPI_RSD_LITERAL,
@@ -295,6 +307,10 @@ extern struct acpi_rsconvert_info acpi_rs_convert_address64[];
 extern struct acpi_rsconvert_info acpi_rs_convert_ext_address64[];
 extern struct acpi_rsconvert_info acpi_rs_convert_gpio[];
 extern struct acpi_rsconvert_info acpi_rs_convert_fixed_dma[];
+<<<<<<< HEAD
+=======
+extern struct acpi_rsconvert_info acpi_rs_convert_csi2_serial_bus[];
+>>>>>>> upstream/android-13
 extern struct acpi_rsconvert_info acpi_rs_convert_i2c_serial_bus[];
 extern struct acpi_rsconvert_info acpi_rs_convert_spi_serial_bus[];
 extern struct acpi_rsconvert_info acpi_rs_convert_uart_serial_bus[];
@@ -349,6 +365,10 @@ extern struct acpi_rsdump_info acpi_rs_dump_gpio[];
 extern struct acpi_rsdump_info acpi_rs_dump_pin_function[];
 extern struct acpi_rsdump_info acpi_rs_dump_fixed_dma[];
 extern struct acpi_rsdump_info acpi_rs_dump_common_serial_bus[];
+<<<<<<< HEAD
+=======
+extern struct acpi_rsdump_info acpi_rs_dump_csi2_serial_bus[];
+>>>>>>> upstream/android-13
 extern struct acpi_rsdump_info acpi_rs_dump_i2c_serial_bus[];
 extern struct acpi_rsdump_info acpi_rs_dump_spi_serial_bus[];
 extern struct acpi_rsdump_info acpi_rs_dump_uart_serial_bus[];

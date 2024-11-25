@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* cg3.c: CGTHREE frame buffer driver
  *
  * Copyright (C) 2003, 2006 David S. Miller (davem@davemloft.net)
@@ -38,7 +42,11 @@ static int cg3_ioctl(struct fb_info *, unsigned int, unsigned long);
  *  Frame buffer operations
  */
 
+<<<<<<< HEAD
 static struct fb_ops cg3_ops = {
+=======
+static const struct fb_ops cg3_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= cg3_setcolreg,
 	.fb_blank		= cg3_blank,
@@ -178,7 +186,11 @@ static int cg3_setcolreg(unsigned regno,
 
 /**
  *      cg3_blank - Optional function.  Blanks the display.
+<<<<<<< HEAD
  *      @blank_mode: the blank mode we want.
+=======
+ *      @blank: the blank mode we want.
+>>>>>>> upstream/android-13
  *      @info: frame buffer structure that represents a single frame buffer
  */
 static int cg3_blank(int blank, struct fb_info *info)
@@ -246,7 +258,11 @@ static int cg3_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg)
 static void cg3_init_fix(struct fb_info *info, int linebytes,
 			 struct device_node *dp)
 {
+<<<<<<< HEAD
 	strlcpy(info->fix.id, dp->name, sizeof(info->fix.id));
+=======
+	snprintf(info->fix.id, sizeof(info->fix.id), "%pOFn", dp);
+>>>>>>> upstream/android-13
 
 	info->fix.type = FB_TYPE_PACKED_PIXELS;
 	info->fix.visual = FB_VISUAL_PSEUDOCOLOR;
@@ -369,7 +385,11 @@ static int cg3_probe(struct platform_device *op)
 	info->var.red.length = 8;
 	info->var.green.length = 8;
 	info->var.blue.length = 8;
+<<<<<<< HEAD
 	if (!strcmp(dp->name, "cgRDI"))
+=======
+	if (of_node_name_eq(dp, "cgRDI"))
+>>>>>>> upstream/android-13
 		par->flags |= CG3_FLAG_RDI;
 	if (par->flags & CG3_FLAG_RDI)
 		cg3_rdi_maybe_fixup_var(&info->var, dp);

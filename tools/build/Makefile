@@ -30,10 +30,24 @@ build     := -f $(srctree)/tools/build/Makefile.build dir=. obj
 
 all: $(OUTPUT)fixdep
 
+<<<<<<< HEAD
+=======
+# Make sure there's anything to clean,
+# feature contains check for existing OUTPUT
+TMP_O := $(if $(OUTPUT),$(OUTPUT)feature/,./)
+
+>>>>>>> upstream/android-13
 clean:
 	$(call QUIET_CLEAN, fixdep)
 	$(Q)find $(if $(OUTPUT),$(OUTPUT),.) -name '*.o' -delete -o -name '\.*.cmd' -delete -o -name '\.*.d' -delete
 	$(Q)rm -f $(OUTPUT)fixdep
+<<<<<<< HEAD
+=======
+	$(call QUIET_CLEAN, feature-detect)
+ifneq ($(wildcard $(TMP_O)),)
+	$(Q)$(MAKE) -C feature OUTPUT=$(TMP_O) clean >/dev/null
+endif
+>>>>>>> upstream/android-13
 
 $(OUTPUT)fixdep-in.o: FORCE
 	$(Q)$(MAKE) $(build)=fixdep

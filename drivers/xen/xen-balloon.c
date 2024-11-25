@@ -37,6 +37,10 @@
 #include <linux/mm_types.h>
 #include <linux/init.h>
 #include <linux/capability.h>
+<<<<<<< HEAD
+=======
+#include <linux/memory_hotplug.h>
+>>>>>>> upstream/android-13
 
 #include <xen/xen.h>
 #include <xen/interface/xen.h>
@@ -50,6 +54,13 @@
 
 #define BALLOON_CLASS_NAME "xen_memory"
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMORY_HOTPLUG
+u64 xen_saved_max_mem_size = 0;
+#endif
+
+>>>>>>> upstream/android-13
 static struct device balloon_dev;
 
 static int register_balloon(struct device *dev);
@@ -63,6 +74,15 @@ static void watch_target(struct xenbus_watch *watch,
 	static bool watch_fired;
 	static long target_diff;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MEMORY_HOTPLUG
+	/* The balloon driver will take care of adding memory now. */
+	if (xen_saved_max_mem_size)
+		max_mem_size = xen_saved_max_mem_size;
+#endif
+
+>>>>>>> upstream/android-13
 	err = xenbus_scanf(XBT_NIL, "memory", "target", "%llu", &new_target);
 	if (err != 1) {
 		/* This is ok (for domain0 at least) - so just return */
@@ -118,20 +138,31 @@ void xen_balloon_init(void)
 {
 	register_balloon(&balloon_dev);
 
+<<<<<<< HEAD
 	register_xen_selfballooning(&balloon_dev);
 
+=======
+>>>>>>> upstream/android-13
 	register_xenstore_notifier(&xenstore_notifier);
 }
 EXPORT_SYMBOL_GPL(xen_balloon_init);
 
 #define BALLOON_SHOW(name, format, args...)				\
+<<<<<<< HEAD
 	static ssize_t show_##name(struct device *dev,			\
+=======
+	static ssize_t name##_show(struct device *dev,			\
+>>>>>>> upstream/android-13
 				   struct device_attribute *attr,	\
 				   char *buf)				\
 	{								\
 		return sprintf(buf, format, ##args);			\
 	}								\
+<<<<<<< HEAD
 	static DEVICE_ATTR(name, S_IRUGO, show_##name, NULL)
+=======
+	static DEVICE_ATTR_RO(name)
+>>>>>>> upstream/android-13
 
 BALLOON_SHOW(current_kb, "%lu\n", PAGES2KB(balloon_stats.current_pages));
 BALLOON_SHOW(low_kb, "%lu\n", PAGES2KB(balloon_stats.balloon_low));
@@ -143,16 +174,26 @@ static DEVICE_ULONG_ATTR(retry_count, 0444, balloon_stats.retry_count);
 static DEVICE_ULONG_ATTR(max_retry_count, 0644, balloon_stats.max_retry_count);
 static DEVICE_BOOL_ATTR(scrub_pages, 0644, xen_scrub_pages);
 
+<<<<<<< HEAD
 static ssize_t show_target_kb(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t target_kb_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			      char *buf)
 {
 	return sprintf(buf, "%lu\n", PAGES2KB(balloon_stats.target_pages));
 }
 
+<<<<<<< HEAD
 static ssize_t store_target_kb(struct device *dev,
 			       struct device_attribute *attr,
 			       const char *buf,
 			       size_t count)
+=======
+static ssize_t target_kb_store(struct device *dev,
+			       struct device_attribute *attr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	char *endchar;
 	unsigned long long target_bytes;
@@ -167,22 +208,35 @@ static ssize_t store_target_kb(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(target_kb, S_IRUGO | S_IWUSR,
 		   show_target_kb, store_target_kb);
 
 
 static ssize_t show_target(struct device *dev, struct device_attribute *attr,
 			      char *buf)
+=======
+static DEVICE_ATTR_RW(target_kb);
+
+static ssize_t target_show(struct device *dev, struct device_attribute *attr,
+			   char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "%llu\n",
 		       (unsigned long long)balloon_stats.target_pages
 		       << PAGE_SHIFT);
 }
 
+<<<<<<< HEAD
 static ssize_t store_target(struct device *dev,
 			    struct device_attribute *attr,
 			    const char *buf,
 			    size_t count)
+=======
+static ssize_t target_store(struct device *dev,
+			    struct device_attribute *attr,
+			    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	char *endchar;
 	unsigned long long target_bytes;
@@ -197,9 +251,13 @@ static ssize_t store_target(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(target, S_IRUGO | S_IWUSR,
 		   show_target, store_target);
 
+=======
+static DEVICE_ATTR_RW(target);
+>>>>>>> upstream/android-13
 
 static struct attribute *balloon_attrs[] = {
 	&dev_attr_target_kb.attr,

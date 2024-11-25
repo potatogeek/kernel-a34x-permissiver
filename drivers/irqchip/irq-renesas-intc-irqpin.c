@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas INTC External IRQ Pin Driver
  *
  *  Copyright (C) 2013 Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -83,8 +90,12 @@ struct intc_irqpin_priv {
 };
 
 struct intc_irqpin_config {
+<<<<<<< HEAD
 	unsigned int irlm_bit;
 	unsigned needs_irlm:1;
+=======
+	int irlm_bit;		/* -1 if non-existent */
+>>>>>>> upstream/android-13
 };
 
 static unsigned long intc_irqpin_read32(void __iomem *iomem)
@@ -361,11 +372,18 @@ static const struct irq_domain_ops intc_irqpin_irq_domain_ops = {
 
 static const struct intc_irqpin_config intc_irqpin_irlm_r8a777x = {
 	.irlm_bit = 23, /* ICR0.IRLM0 */
+<<<<<<< HEAD
 	.needs_irlm = 1,
 };
 
 static const struct intc_irqpin_config intc_irqpin_rmobile = {
 	.needs_irlm = 0,
+=======
+};
+
+static const struct intc_irqpin_config intc_irqpin_rmobile = {
+	.irlm_bit = -1,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id intc_irqpin_dt_ids[] = {
@@ -401,10 +419,15 @@ static int intc_irqpin_probe(struct platform_device *pdev)
 	int k;
 
 	p = devm_kzalloc(dev, sizeof(*p), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!p) {
 		dev_err(dev, "failed to allocate driver data\n");
 		return -ENOMEM;
 	}
+=======
+	if (!p)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* deal with driver instance configuration */
 	of_property_read_u32(dev->of_node, "sense-bitfield-width",
@@ -474,8 +497,13 @@ static int intc_irqpin_probe(struct platform_device *pdev)
 			goto err0;
 		}
 
+<<<<<<< HEAD
 		i->iomem = devm_ioremap_nocache(dev, io[k]->start,
 						resource_size(io[k]));
+=======
+		i->iomem = devm_ioremap(dev, io[k]->start,
+					resource_size(io[k]));
+>>>>>>> upstream/android-13
 		if (!i->iomem) {
 			dev_err(dev, "failed to remap IOMEM\n");
 			ret = -ENXIO;
@@ -484,7 +512,11 @@ static int intc_irqpin_probe(struct platform_device *pdev)
 	}
 
 	/* configure "individual IRQ mode" where needed */
+<<<<<<< HEAD
 	if (config && config->needs_irlm) {
+=======
+	if (config && config->irlm_bit >= 0) {
+>>>>>>> upstream/android-13
 		if (io[INTC_IRQPIN_REG_IRLM])
 			intc_irqpin_read_modify_write(p, INTC_IRQPIN_REG_IRLM,
 						      config->irlm_bit, 1, 1);
@@ -522,7 +554,12 @@ static int intc_irqpin_probe(struct platform_device *pdev)
 	}
 
 	irq_chip = &p->irq_chip;
+<<<<<<< HEAD
 	irq_chip->name = name;
+=======
+	irq_chip->name = "intc-irqpin";
+	irq_chip->parent_device = dev;
+>>>>>>> upstream/android-13
 	irq_chip->irq_mask = disable_fn;
 	irq_chip->irq_unmask = enable_fn;
 	irq_chip->irq_set_type = intc_irqpin_irq_set_type;

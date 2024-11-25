@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Marek Vasut <marex@denx.de>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2015 Marek Vasut <marex@denx.de>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -142,7 +148,11 @@
 
 	panel: panel {
 		/* Actually Ampire 800480R2 */
+<<<<<<< HEAD
 		compatible = "foxlink,fl500wvr00-a0t", "simple-panel";
+=======
+		compatible = "foxlink,fl500wvr00-a0t";
+>>>>>>> upstream/android-13
 		backlight = <&backlight>;
 		#address-cells = <1>;
 		#size-cells = <0>;

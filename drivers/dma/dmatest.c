@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * DMA Engine test module
  *
  * Copyright (C) 2007 Atmel Corporation
  * Copyright (C) 2013 Intel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,6 +15,12 @@
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+=======
+ */
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
 #include <linux/dmaengine.h>
@@ -27,11 +38,14 @@ static unsigned int test_buf_size = 16384;
 module_param(test_buf_size, uint, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(test_buf_size, "Size of the memcpy test buffer");
 
+<<<<<<< HEAD
 static char test_channel[20];
 module_param_string(channel, test_channel, sizeof(test_channel),
 		S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(channel, "Bus ID of the channel to test (default: any)");
 
+=======
+>>>>>>> upstream/android-13
 static char test_device[32];
 module_param_string(device, test_device, sizeof(test_device),
 		S_IRUGO | S_IWUSR);
@@ -68,7 +82,11 @@ MODULE_PARM_DESC(pq_sources,
 		"Number of p+q source buffers (default: 3)");
 
 static int timeout = 3000;
+<<<<<<< HEAD
 module_param(timeout, uint, S_IRUGO | S_IWUSR);
+=======
+module_param(timeout, int, S_IRUGO | S_IWUSR);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(timeout, "Transfer Timeout in msec (default: 3000), "
 		 "Pass -1 for infinite timeout");
 
@@ -84,6 +102,21 @@ static bool verbose;
 module_param(verbose, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(verbose, "Enable \"success\" result messages (default: off)");
 
+<<<<<<< HEAD
+=======
+static int alignment = -1;
+module_param(alignment, int, 0644);
+MODULE_PARM_DESC(alignment, "Custom data address alignment taken as 2^(alignment) (default: not used (-1))");
+
+static unsigned int transfer_size;
+module_param(transfer_size, uint, 0644);
+MODULE_PARM_DESC(transfer_size, "Optional custom transfer size in bytes (default: not used (0))");
+
+static bool polled;
+module_param(polled, bool, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(polled, "Use polling for completion instead of interrupts");
+
+>>>>>>> upstream/android-13
 /**
  * struct dmatest_params - test parameters.
  * @buf_size:		size of the memcpy test buffer
@@ -95,6 +128,14 @@ MODULE_PARM_DESC(verbose, "Enable \"success\" result messages (default: off)");
  * @xor_sources:	number of xor source buffers
  * @pq_sources:		number of p+q source buffers
  * @timeout:		transfer timeout in msec, -1 for infinite timeout
+<<<<<<< HEAD
+=======
+ * @noverify:		disable data verification
+ * @norandom:		disable random offset setup
+ * @alignment:		custom data address alignment taken as 2^alignment
+ * @transfer_size:	custom transfer size in bytes
+ * @polled:		use polling for completion instead of interrupts
+>>>>>>> upstream/android-13
  */
 struct dmatest_params {
 	unsigned int	buf_size;
@@ -108,12 +149,26 @@ struct dmatest_params {
 	int		timeout;
 	bool		noverify;
 	bool		norandom;
+<<<<<<< HEAD
+=======
+	int		alignment;
+	unsigned int	transfer_size;
+	bool		polled;
+>>>>>>> upstream/android-13
 };
 
 /**
  * struct dmatest_info - test information.
  * @params:		test parameters
+<<<<<<< HEAD
  * @lock:		access protection to the fields of this structure
+=======
+ * @channels:		channels under test
+ * @nr_channels:	number of channels under test
+ * @lock:		access protection to the fields of this structure
+ * @did_init:		module has been initialized completely
+ * @last_error:		test has faced configuration issues
+>>>>>>> upstream/android-13
  */
 static struct dmatest_info {
 	/* Test parameters */
@@ -122,6 +177,10 @@ static struct dmatest_info {
 	/* Internal state */
 	struct list_head	channels;
 	unsigned int		nr_channels;
+<<<<<<< HEAD
+=======
+	int			last_error;
+>>>>>>> upstream/android-13
 	struct mutex		lock;
 	bool			did_init;
 } test_info = {
@@ -139,6 +198,31 @@ static bool dmatest_run;
 module_param_cb(run, &run_ops, &dmatest_run, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(run, "Run the test (default: false)");
 
+<<<<<<< HEAD
+=======
+static int dmatest_chan_set(const char *val, const struct kernel_param *kp);
+static int dmatest_chan_get(char *val, const struct kernel_param *kp);
+static const struct kernel_param_ops multi_chan_ops = {
+	.set = dmatest_chan_set,
+	.get = dmatest_chan_get,
+};
+
+static char test_channel[20];
+static struct kparam_string newchan_kps = {
+	.string = test_channel,
+	.maxlen = 20,
+};
+module_param_cb(channel, &multi_chan_ops, &newchan_kps, 0644);
+MODULE_PARM_DESC(channel, "Bus ID of the channel to test (default: any)");
+
+static int dmatest_test_list_get(char *val, const struct kernel_param *kp);
+static const struct kernel_param_ops test_list_ops = {
+	.get = dmatest_test_list_get,
+};
+module_param_cb(test_list, &test_list_ops, NULL, 0444);
+MODULE_PARM_DESC(test_list, "Print current test list");
+
+>>>>>>> upstream/android-13
 /* Maximum amount of mismatched bytes in buffer to print */
 #define MAX_ERROR_COUNT		32
 
@@ -160,25 +244,54 @@ MODULE_PARM_DESC(run, "Run the test (default: false)");
 #define PATTERN_COUNT_MASK	0x1f
 #define PATTERN_MEMSET_IDX	0x01
 
+<<<<<<< HEAD
+=======
+/* Fixed point arithmetic ops */
+#define FIXPT_SHIFT		8
+#define FIXPNT_MASK		0xFF
+#define FIXPT_TO_INT(a)	((a) >> FIXPT_SHIFT)
+#define INT_TO_FIXPT(a)	((a) << FIXPT_SHIFT)
+#define FIXPT_GET_FRAC(a)	((((a) & FIXPNT_MASK) * 100) >> FIXPT_SHIFT)
+
+>>>>>>> upstream/android-13
 /* poor man's completion - we want to use wait_event_freezable() on it */
 struct dmatest_done {
 	bool			done;
 	wait_queue_head_t	*wait;
 };
 
+<<<<<<< HEAD
+=======
+struct dmatest_data {
+	u8		**raw;
+	u8		**aligned;
+	unsigned int	cnt;
+	unsigned int	off;
+};
+
+>>>>>>> upstream/android-13
 struct dmatest_thread {
 	struct list_head	node;
 	struct dmatest_info	*info;
 	struct task_struct	*task;
 	struct dma_chan		*chan;
+<<<<<<< HEAD
 	u8			**srcs;
 	u8			**usrcs;
 	u8			**dsts;
 	u8			**udsts;
+=======
+	struct dmatest_data	src;
+	struct dmatest_data	dst;
+>>>>>>> upstream/android-13
 	enum dma_transaction_type type;
 	wait_queue_head_t done_wait;
 	struct dmatest_done test_done;
 	bool			done;
+<<<<<<< HEAD
+=======
+	bool			pending;
+>>>>>>> upstream/android-13
 };
 
 struct dmatest_chan {
@@ -198,7 +311,27 @@ static bool is_threaded_test_run(struct dmatest_info *info)
 		struct dmatest_thread *thread;
 
 		list_for_each_entry(thread, &dtc->threads, node) {
+<<<<<<< HEAD
 			if (!thread->done)
+=======
+			if (!thread->done && !thread->pending)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+static bool is_threaded_test_pending(struct dmatest_info *info)
+{
+	struct dmatest_chan *dtc;
+
+	list_for_each_entry(dtc, &info->channels, node) {
+		struct dmatest_thread *thread;
+
+		list_for_each_entry(thread, &dtc->threads, node) {
+			if (thread->pending)
+>>>>>>> upstream/android-13
 				return true;
 		}
 	}
@@ -386,8 +519,18 @@ static unsigned int min_odd(unsigned int x, unsigned int y)
 static void result(const char *err, unsigned int n, unsigned int src_off,
 		   unsigned int dst_off, unsigned int len, unsigned long data)
 {
+<<<<<<< HEAD
 	pr_info("%s: result #%u: '%s' with src_off=0x%x dst_off=0x%x len=0x%x (%lu)\n",
 		current->comm, n, err, src_off, dst_off, len, data);
+=======
+	if (IS_ERR_VALUE(data)) {
+		pr_info("%s: result #%u: '%s' with src_off=0x%x dst_off=0x%x len=0x%x (%ld)\n",
+			current->comm, n, err, src_off, dst_off, len, data);
+	} else {
+		pr_info("%s: result #%u: '%s' with src_off=0x%x dst_off=0x%x len=0x%x (%lu)\n",
+			current->comm, n, err, src_off, dst_off, len, data);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void dbg_result(const char *err, unsigned int n, unsigned int src_off,
@@ -419,13 +562,70 @@ static unsigned long long dmatest_persec(s64 runtime, unsigned int val)
 	}
 
 	per_sec *= val;
+<<<<<<< HEAD
 	do_div(per_sec, runtime);
+=======
+	per_sec = INT_TO_FIXPT(per_sec);
+	do_div(per_sec, runtime);
+
+>>>>>>> upstream/android-13
 	return per_sec;
 }
 
 static unsigned long long dmatest_KBs(s64 runtime, unsigned long long len)
 {
+<<<<<<< HEAD
 	return dmatest_persec(runtime, len >> 10);
+=======
+	return FIXPT_TO_INT(dmatest_persec(runtime, len >> 10));
+}
+
+static void __dmatest_free_test_data(struct dmatest_data *d, unsigned int cnt)
+{
+	unsigned int i;
+
+	for (i = 0; i < cnt; i++)
+		kfree(d->raw[i]);
+
+	kfree(d->aligned);
+	kfree(d->raw);
+}
+
+static void dmatest_free_test_data(struct dmatest_data *d)
+{
+	__dmatest_free_test_data(d, d->cnt);
+}
+
+static int dmatest_alloc_test_data(struct dmatest_data *d,
+		unsigned int buf_size, u8 align)
+{
+	unsigned int i = 0;
+
+	d->raw = kcalloc(d->cnt + 1, sizeof(u8 *), GFP_KERNEL);
+	if (!d->raw)
+		return -ENOMEM;
+
+	d->aligned = kcalloc(d->cnt + 1, sizeof(u8 *), GFP_KERNEL);
+	if (!d->aligned)
+		goto err;
+
+	for (i = 0; i < d->cnt; i++) {
+		d->raw[i] = kmalloc(buf_size + align, GFP_KERNEL);
+		if (!d->raw[i])
+			goto err;
+
+		/* align to alignment restriction */
+		if (align)
+			d->aligned[i] = PTR_ALIGN(d->raw[i], align);
+		else
+			d->aligned[i] = d->raw[i];
+	}
+
+	return 0;
+err:
+	__dmatest_free_test_data(d, i);
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -450,6 +650,10 @@ static int dmatest_func(void *data)
 	struct dmatest_params	*params;
 	struct dma_chan		*chan;
 	struct dma_device	*dev;
+<<<<<<< HEAD
+=======
+	struct device		*dma_dev;
+>>>>>>> upstream/android-13
 	unsigned int		error_count;
 	unsigned int		failed_tests = 0;
 	unsigned int		total_tests = 0;
@@ -458,14 +662,24 @@ static int dmatest_func(void *data)
 	enum dma_ctrl_flags 	flags;
 	u8			*pq_coefs = NULL;
 	int			ret;
+<<<<<<< HEAD
 	int			src_cnt;
 	int			dst_cnt;
+=======
+	unsigned int 		buf_size;
+	struct dmatest_data	*src;
+	struct dmatest_data	*dst;
+>>>>>>> upstream/android-13
 	int			i;
 	ktime_t			ktime, start, diff;
 	ktime_t			filltime = 0;
 	ktime_t			comparetime = 0;
 	s64			runtime = 0;
 	unsigned long long	total_len = 0;
+<<<<<<< HEAD
+=======
+	unsigned long long	iops = 0;
+>>>>>>> upstream/android-13
 	u8			align = 0;
 	bool			is_memset = false;
 	dma_addr_t		*srcs;
@@ -476,10 +690,15 @@ static int dmatest_func(void *data)
 	ret = -ENOMEM;
 
 	smp_rmb();
+<<<<<<< HEAD
+=======
+	thread->pending = false;
+>>>>>>> upstream/android-13
 	info = thread->info;
 	params = &info->params;
 	chan = thread->chan;
 	dev = chan->device;
+<<<<<<< HEAD
 	if (thread->type == DMA_MEMCPY) {
 		align = dev->copy_align;
 		src_cnt = dst_cnt = 1;
@@ -497,16 +716,48 @@ static int dmatest_func(void *data)
 		src_cnt = min_odd(params->pq_sources | 1, dma_maxpq(dev, 0));
 		dst_cnt = 2;
 		align = dev->pq_align;
+=======
+	dma_dev = dmaengine_get_dma_device(chan);
+
+	src = &thread->src;
+	dst = &thread->dst;
+	if (thread->type == DMA_MEMCPY) {
+		align = params->alignment < 0 ? dev->copy_align :
+						params->alignment;
+		src->cnt = dst->cnt = 1;
+	} else if (thread->type == DMA_MEMSET) {
+		align = params->alignment < 0 ? dev->fill_align :
+						params->alignment;
+		src->cnt = dst->cnt = 1;
+		is_memset = true;
+	} else if (thread->type == DMA_XOR) {
+		/* force odd to ensure dst = src */
+		src->cnt = min_odd(params->xor_sources | 1, dev->max_xor);
+		dst->cnt = 1;
+		align = params->alignment < 0 ? dev->xor_align :
+						params->alignment;
+	} else if (thread->type == DMA_PQ) {
+		/* force odd to ensure dst = src */
+		src->cnt = min_odd(params->pq_sources | 1, dma_maxpq(dev, 0));
+		dst->cnt = 2;
+		align = params->alignment < 0 ? dev->pq_align :
+						params->alignment;
+>>>>>>> upstream/android-13
 
 		pq_coefs = kmalloc(params->pq_sources + 1, GFP_KERNEL);
 		if (!pq_coefs)
 			goto err_thread_type;
 
+<<<<<<< HEAD
 		for (i = 0; i < src_cnt; i++)
+=======
+		for (i = 0; i < src->cnt; i++)
+>>>>>>> upstream/android-13
 			pq_coefs[i] = 1;
 	} else
 		goto err_thread_type;
 
+<<<<<<< HEAD
 	thread->srcs = kcalloc(src_cnt + 1, sizeof(u8 *), GFP_KERNEL);
 	if (!thread->srcs)
 		goto err_srcs;
@@ -558,13 +809,49 @@ static int dmatest_func(void *data)
 		goto err_dstbuf;
 
 	dma_pq = kcalloc(dst_cnt, sizeof(dma_addr_t), GFP_KERNEL);
+=======
+	/* Check if buffer count fits into map count variable (u8) */
+	if ((src->cnt + dst->cnt) >= 255) {
+		pr_err("too many buffers (%d of 255 supported)\n",
+		       src->cnt + dst->cnt);
+		goto err_free_coefs;
+	}
+
+	buf_size = params->buf_size;
+	if (1 << align > buf_size) {
+		pr_err("%u-byte buffer too small for %d-byte alignment\n",
+		       buf_size, 1 << align);
+		goto err_free_coefs;
+	}
+
+	if (dmatest_alloc_test_data(src, buf_size, align) < 0)
+		goto err_free_coefs;
+
+	if (dmatest_alloc_test_data(dst, buf_size, align) < 0)
+		goto err_src;
+
+	set_user_nice(current, 10);
+
+	srcs = kcalloc(src->cnt, sizeof(dma_addr_t), GFP_KERNEL);
+	if (!srcs)
+		goto err_dst;
+
+	dma_pq = kcalloc(dst->cnt, sizeof(dma_addr_t), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dma_pq)
 		goto err_srcs_array;
 
 	/*
 	 * src and dst buffers are freed by ourselves below
 	 */
+<<<<<<< HEAD
 	flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+=======
+	if (params->polled)
+		flags = DMA_CTRL_ACK;
+	else
+		flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+>>>>>>> upstream/android-13
 
 	ktime = ktime_get();
 	while (!(kthread_should_stop() ||
@@ -572,6 +859,7 @@ static int dmatest_func(void *data)
 		struct dma_async_tx_descriptor *tx = NULL;
 		struct dmaengine_unmap_data *um;
 		dma_addr_t *dsts;
+<<<<<<< HEAD
 		unsigned int src_off, dst_off, len;
 
 		total_tests++;
@@ -609,24 +897,72 @@ static int dmatest_func(void *data)
 
 			src_off = (src_off >> align) << align;
 			dst_off = (dst_off >> align) << align;
+=======
+		unsigned int len;
+
+		total_tests++;
+
+		if (params->transfer_size) {
+			if (params->transfer_size >= buf_size) {
+				pr_err("%u-byte transfer size must be lower than %u-buffer size\n",
+				       params->transfer_size, buf_size);
+				break;
+			}
+			len = params->transfer_size;
+		} else if (params->norandom) {
+			len = buf_size;
+		} else {
+			len = dmatest_random() % buf_size + 1;
+		}
+
+		/* Do not alter transfer size explicitly defined by user */
+		if (!params->transfer_size) {
+			len = (len >> align) << align;
+			if (!len)
+				len = 1 << align;
+		}
+		total_len += len;
+
+		if (params->norandom) {
+			src->off = 0;
+			dst->off = 0;
+		} else {
+			src->off = dmatest_random() % (buf_size - len + 1);
+			dst->off = dmatest_random() % (buf_size - len + 1);
+
+			src->off = (src->off >> align) << align;
+			dst->off = (dst->off >> align) << align;
+>>>>>>> upstream/android-13
 		}
 
 		if (!params->noverify) {
 			start = ktime_get();
+<<<<<<< HEAD
 			dmatest_init_srcs(thread->srcs, src_off, len,
 					  params->buf_size, is_memset);
 			dmatest_init_dsts(thread->dsts, dst_off, len,
 					  params->buf_size, is_memset);
+=======
+			dmatest_init_srcs(src->aligned, src->off, len,
+					  buf_size, is_memset);
+			dmatest_init_dsts(dst->aligned, dst->off, len,
+					  buf_size, is_memset);
+>>>>>>> upstream/android-13
 
 			diff = ktime_sub(ktime_get(), start);
 			filltime = ktime_add(filltime, diff);
 		}
 
+<<<<<<< HEAD
 		um = dmaengine_get_unmap_data(dev->dev, src_cnt + dst_cnt,
+=======
+		um = dmaengine_get_unmap_data(dma_dev, src->cnt + dst->cnt,
+>>>>>>> upstream/android-13
 					      GFP_KERNEL);
 		if (!um) {
 			failed_tests++;
 			result("unmap data NULL", total_tests,
+<<<<<<< HEAD
 			       src_off, dst_off, len, ret);
 			continue;
 		}
@@ -644,11 +980,31 @@ static int dmatest_func(void *data)
 			if (ret) {
 				result("src mapping error", total_tests,
 				       src_off, dst_off, len, ret);
+=======
+			       src->off, dst->off, len, ret);
+			continue;
+		}
+
+		um->len = buf_size;
+		for (i = 0; i < src->cnt; i++) {
+			void *buf = src->aligned[i];
+			struct page *pg = virt_to_page(buf);
+			unsigned long pg_off = offset_in_page(buf);
+
+			um->addr[i] = dma_map_page(dma_dev, pg, pg_off,
+						   um->len, DMA_TO_DEVICE);
+			srcs[i] = um->addr[i] + src->off;
+			ret = dma_mapping_error(dma_dev, um->addr[i]);
+			if (ret) {
+				result("src mapping error", total_tests,
+				       src->off, dst->off, len, ret);
+>>>>>>> upstream/android-13
 				goto error_unmap_continue;
 			}
 			um->to_cnt++;
 		}
 		/* map with DMA_BIDIRECTIONAL to force writeback/invalidate */
+<<<<<<< HEAD
 		dsts = &um->addr[src_cnt];
 		for (i = 0; i < dst_cnt; i++) {
 			void *buf = thread->dsts[i];
@@ -661,6 +1017,20 @@ static int dmatest_func(void *data)
 			if (ret) {
 				result("dst mapping error", total_tests,
 				       src_off, dst_off, len, ret);
+=======
+		dsts = &um->addr[src->cnt];
+		for (i = 0; i < dst->cnt; i++) {
+			void *buf = dst->aligned[i];
+			struct page *pg = virt_to_page(buf);
+			unsigned long pg_off = offset_in_page(buf);
+
+			dsts[i] = dma_map_page(dma_dev, pg, pg_off, um->len,
+					       DMA_BIDIRECTIONAL);
+			ret = dma_mapping_error(dma_dev, dsts[i]);
+			if (ret) {
+				result("dst mapping error", total_tests,
+				       src->off, dst->off, len, ret);
+>>>>>>> upstream/android-13
 				goto error_unmap_continue;
 			}
 			um->bidi_cnt++;
@@ -668,6 +1038,7 @@ static int dmatest_func(void *data)
 
 		if (thread->type == DMA_MEMCPY)
 			tx = dev->device_prep_dma_memcpy(chan,
+<<<<<<< HEAD
 							 dsts[0] + dst_off,
 							 srcs[0], len, flags);
 		else if (thread->type == DMA_MEMSET)
@@ -685,17 +1056,42 @@ static int dmatest_func(void *data)
 				dma_pq[i] = dsts[i] + dst_off;
 			tx = dev->device_prep_dma_pq(chan, dma_pq, srcs,
 						     src_cnt, pq_coefs,
+=======
+							 dsts[0] + dst->off,
+							 srcs[0], len, flags);
+		else if (thread->type == DMA_MEMSET)
+			tx = dev->device_prep_dma_memset(chan,
+						dsts[0] + dst->off,
+						*(src->aligned[0] + src->off),
+						len, flags);
+		else if (thread->type == DMA_XOR)
+			tx = dev->device_prep_dma_xor(chan,
+						      dsts[0] + dst->off,
+						      srcs, src->cnt,
+						      len, flags);
+		else if (thread->type == DMA_PQ) {
+			for (i = 0; i < dst->cnt; i++)
+				dma_pq[i] = dsts[i] + dst->off;
+			tx = dev->device_prep_dma_pq(chan, dma_pq, srcs,
+						     src->cnt, pq_coefs,
+>>>>>>> upstream/android-13
 						     len, flags);
 		}
 
 		if (!tx) {
+<<<<<<< HEAD
 			result("prep error", total_tests, src_off,
 			       dst_off, len, ret);
+=======
+			result("prep error", total_tests, src->off,
+			       dst->off, len, ret);
+>>>>>>> upstream/android-13
 			msleep(100);
 			goto error_unmap_continue;
 		}
 
 		done->done = false;
+<<<<<<< HEAD
 		tx->callback = dmatest_callback;
 		tx->callback_param = done;
 		cookie = tx->tx_submit(tx);
@@ -724,19 +1120,68 @@ static int dmatest_func(void *data)
 			       "completion error status" :
 			       "completion busy status", total_tests, src_off,
 			       dst_off, len, ret);
+=======
+		if (!params->polled) {
+			tx->callback = dmatest_callback;
+			tx->callback_param = done;
+		}
+		cookie = tx->tx_submit(tx);
+
+		if (dma_submit_error(cookie)) {
+			result("submit error", total_tests, src->off,
+			       dst->off, len, ret);
+			msleep(100);
+			goto error_unmap_continue;
+		}
+
+		if (params->polled) {
+			status = dma_sync_wait(chan, cookie);
+			dmaengine_terminate_sync(chan);
+			if (status == DMA_COMPLETE)
+				done->done = true;
+		} else {
+			dma_async_issue_pending(chan);
+
+			wait_event_freezable_timeout(thread->done_wait,
+					done->done,
+					msecs_to_jiffies(params->timeout));
+
+			status = dma_async_is_tx_complete(chan, cookie, NULL,
+							  NULL);
+		}
+
+		if (!done->done) {
+			result("test timed out", total_tests, src->off, dst->off,
+			       len, 0);
+			goto error_unmap_continue;
+		} else if (status != DMA_COMPLETE &&
+			   !(dma_has_cap(DMA_COMPLETION_NO_ORDER,
+					 dev->cap_mask) &&
+			     status == DMA_OUT_OF_ORDER)) {
+			result(status == DMA_ERROR ?
+			       "completion error status" :
+			       "completion busy status", total_tests, src->off,
+			       dst->off, len, ret);
+>>>>>>> upstream/android-13
 			goto error_unmap_continue;
 		}
 
 		dmaengine_unmap_put(um);
 
 		if (params->noverify) {
+<<<<<<< HEAD
 			verbose_result("test passed", total_tests, src_off,
 				       dst_off, len, 0);
+=======
+			verbose_result("test passed", total_tests, src->off,
+				       dst->off, len, 0);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
 		start = ktime_get();
 		pr_debug("%s: verifying source buffer...\n", current->comm);
+<<<<<<< HEAD
 		error_count = dmatest_verify(thread->srcs, 0, src_off,
 				0, PATTERN_SRC, true, is_memset);
 		error_count += dmatest_verify(thread->srcs, src_off,
@@ -756,18 +1201,48 @@ static int dmatest_func(void *data)
 
 		error_count += dmatest_verify(thread->dsts, dst_off + len,
 				params->buf_size, dst_off + len,
+=======
+		error_count = dmatest_verify(src->aligned, 0, src->off,
+				0, PATTERN_SRC, true, is_memset);
+		error_count += dmatest_verify(src->aligned, src->off,
+				src->off + len, src->off,
+				PATTERN_SRC | PATTERN_COPY, true, is_memset);
+		error_count += dmatest_verify(src->aligned, src->off + len,
+				buf_size, src->off + len,
+				PATTERN_SRC, true, is_memset);
+
+		pr_debug("%s: verifying dest buffer...\n", current->comm);
+		error_count += dmatest_verify(dst->aligned, 0, dst->off,
+				0, PATTERN_DST, false, is_memset);
+
+		error_count += dmatest_verify(dst->aligned, dst->off,
+				dst->off + len, src->off,
+				PATTERN_SRC | PATTERN_COPY, false, is_memset);
+
+		error_count += dmatest_verify(dst->aligned, dst->off + len,
+				buf_size, dst->off + len,
+>>>>>>> upstream/android-13
 				PATTERN_DST, false, is_memset);
 
 		diff = ktime_sub(ktime_get(), start);
 		comparetime = ktime_add(comparetime, diff);
 
 		if (error_count) {
+<<<<<<< HEAD
 			result("data error", total_tests, src_off, dst_off,
 			       len, error_count);
 			failed_tests++;
 		} else {
 			verbose_result("test passed", total_tests, src_off,
 				       dst_off, len, 0);
+=======
+			result("data error", total_tests, src->off, dst->off,
+			       len, error_count);
+			failed_tests++;
+		} else {
+			verbose_result("test passed", total_tests, src->off,
+				       dst->off, len, 0);
+>>>>>>> upstream/android-13
 		}
 
 		continue;
@@ -785,6 +1260,7 @@ error_unmap_continue:
 	kfree(dma_pq);
 err_srcs_array:
 	kfree(srcs);
+<<<<<<< HEAD
 err_dstbuf:
 	for (i = 0; thread->udsts[i]; i++)
 		kfree(thread->udsts[i]);
@@ -804,11 +1280,28 @@ err_thread_type:
 	pr_info("%s: summary %u tests, %u failures %llu iops %llu KB/s (%d)\n",
 		current->comm, total_tests, failed_tests,
 		dmatest_persec(runtime, total_tests),
+=======
+err_dst:
+	dmatest_free_test_data(dst);
+err_src:
+	dmatest_free_test_data(src);
+err_free_coefs:
+	kfree(pq_coefs);
+err_thread_type:
+	iops = dmatest_persec(runtime, total_tests);
+	pr_info("%s: summary %u tests, %u failures %llu.%02llu iops %llu KB/s (%d)\n",
+		current->comm, total_tests, failed_tests,
+		FIXPT_TO_INT(iops), FIXPT_GET_FRAC(iops),
+>>>>>>> upstream/android-13
 		dmatest_KBs(runtime, total_len), ret);
 
 	/* terminate all transfers on specified channels */
 	if (ret || failed_tests)
+<<<<<<< HEAD
 		dmaengine_terminate_all(chan);
+=======
+		dmaengine_terminate_sync(chan);
+>>>>>>> upstream/android-13
 
 	thread->done = true;
 	wake_up(&thread_wait);
@@ -832,7 +1325,11 @@ static void dmatest_cleanup_channel(struct dmatest_chan *dtc)
 	}
 
 	/* terminate all transfers on specified channels */
+<<<<<<< HEAD
 	dmaengine_terminate_all(dtc->chan);
+=======
+	dmaengine_terminate_sync(dtc->chan);
+>>>>>>> upstream/android-13
 
 	kfree(dtc);
 }
@@ -882,7 +1379,11 @@ static int dmatest_add_threads(struct dmatest_info *info,
 		/* srcbuf and dstbuf are allocated by the thread itself */
 		get_task_struct(thread->task);
 		list_add_tail(&thread->node, &dtc->threads);
+<<<<<<< HEAD
 		wake_up_process(thread->task);
+=======
+		thread->pending = true;
+>>>>>>> upstream/android-13
 	}
 
 	return i;
@@ -905,6 +1406,15 @@ static int dmatest_add_channel(struct dmatest_info *info,
 	dtc->chan = chan;
 	INIT_LIST_HEAD(&dtc->threads);
 
+<<<<<<< HEAD
+=======
+	if (dma_has_cap(DMA_COMPLETION_NO_ORDER, dma_dev->cap_mask) &&
+	    info->params.polled) {
+		info->params.polled = false;
+		pr_warn("DMA_COMPLETION_NO_ORDER, polled disabled\n");
+	}
+
+>>>>>>> upstream/android-13
 	if (dma_has_cap(DMA_MEMCPY, dma_dev->cap_mask)) {
 		if (dmatest == 0) {
 			cnt = dmatest_add_threads(info, dtc, DMA_MEMCPY);
@@ -928,7 +1438,11 @@ static int dmatest_add_channel(struct dmatest_info *info,
 		thread_count += cnt > 0 ? cnt : 0;
 	}
 
+<<<<<<< HEAD
 	pr_info("Started %u threads using %s\n",
+=======
+	pr_info("Added %u threads using %s\n",
+>>>>>>> upstream/android-13
 		thread_count, dma_chan_name(chan));
 
 	list_add_tail(&dtc->node, &info->channels);
@@ -939,6 +1453,7 @@ static int dmatest_add_channel(struct dmatest_info *info,
 
 static bool filter(struct dma_chan *chan, void *param)
 {
+<<<<<<< HEAD
 	struct dmatest_params *params = param;
 
 	if (!dmatest_match_channel(params, chan) ||
@@ -946,6 +1461,9 @@ static bool filter(struct dma_chan *chan, void *param)
 		return false;
 	else
 		return true;
+=======
+	return dmatest_match_channel(param, chan) && dmatest_match_device(param, chan->device);
+>>>>>>> upstream/android-13
 }
 
 static void request_channels(struct dmatest_info *info,
@@ -973,7 +1491,11 @@ static void request_channels(struct dmatest_info *info,
 	}
 }
 
+<<<<<<< HEAD
 static void run_threaded_test(struct dmatest_info *info)
+=======
+static void add_threaded_test(struct dmatest_info *info)
+>>>>>>> upstream/android-13
 {
 	struct dmatest_params *params = &info->params;
 
@@ -989,6 +1511,12 @@ static void run_threaded_test(struct dmatest_info *info)
 	params->timeout = timeout;
 	params->noverify = noverify;
 	params->norandom = norandom;
+<<<<<<< HEAD
+=======
+	params->alignment = alignment;
+	params->transfer_size = transfer_size;
+	params->polled = polled;
+>>>>>>> upstream/android-13
 
 	request_channels(info, DMA_MEMCPY);
 	request_channels(info, DMA_MEMSET);
@@ -996,6 +1524,27 @@ static void run_threaded_test(struct dmatest_info *info)
 	request_channels(info, DMA_PQ);
 }
 
+<<<<<<< HEAD
+=======
+static void run_pending_tests(struct dmatest_info *info)
+{
+	struct dmatest_chan *dtc;
+	unsigned int thread_count = 0;
+
+	list_for_each_entry(dtc, &info->channels, node) {
+		struct dmatest_thread *thread;
+
+		thread_count = 0;
+		list_for_each_entry(thread, &dtc->threads, node) {
+			wake_up_process(thread->task);
+			thread_count++;
+		}
+		pr_info("Started %u threads using %s\n",
+			thread_count, dma_chan_name(dtc->chan));
+	}
+}
+
+>>>>>>> upstream/android-13
 static void stop_threaded_test(struct dmatest_info *info)
 {
 	struct dmatest_chan *dtc, *_dtc;
@@ -1012,7 +1561,11 @@ static void stop_threaded_test(struct dmatest_info *info)
 	info->nr_channels = 0;
 }
 
+<<<<<<< HEAD
 static void restart_threaded_test(struct dmatest_info *info, bool run)
+=======
+static void start_threaded_tests(struct dmatest_info *info)
+>>>>>>> upstream/android-13
 {
 	/* we might be called early to set run=, defer running until all
 	 * parameters have been evaluated
@@ -1020,11 +1573,15 @@ static void restart_threaded_test(struct dmatest_info *info, bool run)
 	if (!info->did_init)
 		return;
 
+<<<<<<< HEAD
 	/* Stop any running test first */
 	stop_threaded_test(info);
 
 	/* Run test with new parameters */
 	run_threaded_test(info);
+=======
+	run_pending_tests(info);
+>>>>>>> upstream/android-13
 }
 
 static int dmatest_run_get(char *val, const struct kernel_param *kp)
@@ -1035,7 +1592,12 @@ static int dmatest_run_get(char *val, const struct kernel_param *kp)
 	if (is_threaded_test_run(info)) {
 		dmatest_run = true;
 	} else {
+<<<<<<< HEAD
 		stop_threaded_test(info);
+=======
+		if (!is_threaded_test_pending(info))
+			stop_threaded_test(info);
+>>>>>>> upstream/android-13
 		dmatest_run = false;
 	}
 	mutex_unlock(&info->lock);
@@ -1053,6 +1615,7 @@ static int dmatest_run_set(const char *val, const struct kernel_param *kp)
 	if (ret) {
 		mutex_unlock(&info->lock);
 		return ret;
+<<<<<<< HEAD
 	}
 
 	if (is_threaded_test_run(info))
@@ -1060,11 +1623,146 @@ static int dmatest_run_set(const char *val, const struct kernel_param *kp)
 	else if (dmatest_run)
 		restart_threaded_test(info, dmatest_run);
 
+=======
+	} else if (dmatest_run) {
+		if (!is_threaded_test_pending(info)) {
+			/*
+			 * We have nothing to run. This can be due to:
+			 */
+			ret = info->last_error;
+			if (ret) {
+				/* 1) Misconfiguration */
+				pr_err("Channel misconfigured, can't continue\n");
+				mutex_unlock(&info->lock);
+				return ret;
+			} else {
+				/* 2) We rely on defaults */
+				pr_info("No channels configured, continue with any\n");
+				if (!is_threaded_test_run(info))
+					stop_threaded_test(info);
+				add_threaded_test(info);
+			}
+		}
+		start_threaded_tests(info);
+	} else {
+		stop_threaded_test(info);
+	}
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&info->lock);
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int dmatest_chan_set(const char *val, const struct kernel_param *kp)
+{
+	struct dmatest_info *info = &test_info;
+	struct dmatest_chan *dtc;
+	char chan_reset_val[20];
+	int ret;
+
+	mutex_lock(&info->lock);
+	ret = param_set_copystring(val, kp);
+	if (ret) {
+		mutex_unlock(&info->lock);
+		return ret;
+	}
+	/*Clear any previously run threads */
+	if (!is_threaded_test_run(info) && !is_threaded_test_pending(info))
+		stop_threaded_test(info);
+	/* Reject channels that are already registered */
+	if (is_threaded_test_pending(info)) {
+		list_for_each_entry(dtc, &info->channels, node) {
+			if (strcmp(dma_chan_name(dtc->chan),
+				   strim(test_channel)) == 0) {
+				dtc = list_last_entry(&info->channels,
+						      struct dmatest_chan,
+						      node);
+				strlcpy(chan_reset_val,
+					dma_chan_name(dtc->chan),
+					sizeof(chan_reset_val));
+				ret = -EBUSY;
+				goto add_chan_err;
+			}
+		}
+	}
+
+	add_threaded_test(info);
+
+	/* Check if channel was added successfully */
+	if (!list_empty(&info->channels)) {
+		/*
+		 * if new channel was not successfully added, revert the
+		 * "test_channel" string to the name of the last successfully
+		 * added channel. exception for when users issues empty string
+		 * to channel parameter.
+		 */
+		dtc = list_last_entry(&info->channels, struct dmatest_chan, node);
+		if ((strcmp(dma_chan_name(dtc->chan), strim(test_channel)) != 0)
+		    && (strcmp("", strim(test_channel)) != 0)) {
+			ret = -EINVAL;
+			strlcpy(chan_reset_val, dma_chan_name(dtc->chan),
+				sizeof(chan_reset_val));
+			goto add_chan_err;
+		}
+
+	} else {
+		/* Clear test_channel if no channels were added successfully */
+		strlcpy(chan_reset_val, "", sizeof(chan_reset_val));
+		ret = -EBUSY;
+		goto add_chan_err;
+	}
+
+	info->last_error = ret;
+	mutex_unlock(&info->lock);
+
+	return ret;
+
+add_chan_err:
+	param_set_copystring(chan_reset_val, kp);
+	info->last_error = ret;
+	mutex_unlock(&info->lock);
+
+	return ret;
+}
+
+static int dmatest_chan_get(char *val, const struct kernel_param *kp)
+{
+	struct dmatest_info *info = &test_info;
+
+	mutex_lock(&info->lock);
+	if (!is_threaded_test_run(info) && !is_threaded_test_pending(info)) {
+		stop_threaded_test(info);
+		strlcpy(test_channel, "", sizeof(test_channel));
+	}
+	mutex_unlock(&info->lock);
+
+	return param_get_string(val, kp);
+}
+
+static int dmatest_test_list_get(char *val, const struct kernel_param *kp)
+{
+	struct dmatest_info *info = &test_info;
+	struct dmatest_chan *dtc;
+	unsigned int thread_count = 0;
+
+	list_for_each_entry(dtc, &info->channels, node) {
+		struct dmatest_thread *thread;
+
+		thread_count = 0;
+		list_for_each_entry(thread, &dtc->threads, node) {
+			thread_count++;
+		}
+		pr_info("%u threads using %s\n",
+			thread_count, dma_chan_name(dtc->chan));
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int __init dmatest_init(void)
 {
 	struct dmatest_info *info = &test_info;
@@ -1072,7 +1770,12 @@ static int __init dmatest_init(void)
 
 	if (dmatest_run) {
 		mutex_lock(&info->lock);
+<<<<<<< HEAD
 		run_threaded_test(info);
+=======
+		add_threaded_test(info);
+		run_pending_tests(info);
+>>>>>>> upstream/android-13
 		mutex_unlock(&info->lock);
 	}
 

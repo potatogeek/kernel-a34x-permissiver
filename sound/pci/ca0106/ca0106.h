@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2004 James Courtier-Dutton <James@superbug.demon.co.uk>
  *  Driver CA0106 chips. e.g. Sound Blaster Audigy LS and Live 24bit
@@ -50,6 +54,7 @@
  *  0.0.22
  *    Add support for mute control on SB Live 24bit (cards w/ SPI DAC)
  *
+<<<<<<< HEAD
  *
  *  This code was initially based on code from ALSA's emu10k1x.c which is:
  *  Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
@@ -68,6 +73,10 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+ *  This code was initially based on code from ALSA's emu10k1x.c which is:
+ *  Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
+>>>>>>> upstream/android-13
  */
 
 /************************************************************************************************/
@@ -678,11 +687,18 @@ struct snd_ca0106_details {
 // definition of the chip-specific record
 struct snd_ca0106 {
 	struct snd_card *card;
+<<<<<<< HEAD
 	struct snd_ca0106_details *details;
 	struct pci_dev *pci;
 
 	unsigned long port;
 	struct resource *res_port;
+=======
+	const struct snd_ca0106_details *details;
+	struct pci_dev *pci;
+
+	unsigned long port;
+>>>>>>> upstream/android-13
 	int irq;
 
 	unsigned int serial;            /* serial number */
@@ -703,7 +719,11 @@ struct snd_ca0106 {
 	u8 i2c_capture_volume[4][2];
 	int capture_mic_line_in;
 
+<<<<<<< HEAD
 	struct snd_dma_buffer buffer;
+=======
+	struct snd_dma_buffer *buffer;
+>>>>>>> upstream/android-13
 
 	struct snd_ca_midi midi;
 	struct snd_ca_midi midi2;

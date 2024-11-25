@@ -33,7 +33,11 @@ static int octeon_rng_init(struct hwrng *rng)
 	ctl.u64 = 0;
 	ctl.s.ent_en = 1; /* Enable the entropy source.  */
 	ctl.s.rng_en = 1; /* Enable the RNG hardware.  */
+<<<<<<< HEAD
 	cvmx_write_csr((u64)p->control_status, ctl.u64);
+=======
+	cvmx_write_csr((__force u64)p->control_status, ctl.u64);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -44,14 +48,22 @@ static void octeon_rng_cleanup(struct hwrng *rng)
 
 	ctl.u64 = 0;
 	/* Disable everything.  */
+<<<<<<< HEAD
 	cvmx_write_csr((u64)p->control_status, ctl.u64);
+=======
+	cvmx_write_csr((__force u64)p->control_status, ctl.u64);
+>>>>>>> upstream/android-13
 }
 
 static int octeon_rng_data_read(struct hwrng *rng, u32 *data)
 {
 	struct octeon_rng *p = container_of(rng, struct octeon_rng, ops);
 
+<<<<<<< HEAD
 	*data = cvmx_read64_uint32((u64)p->result);
+=======
+	*data = cvmx_read64_uint32((__force u64)p->result);
+>>>>>>> upstream/android-13
 	return sizeof(u32);
 }
 
@@ -81,13 +93,21 @@ static int octeon_rng_probe(struct platform_device *pdev)
 		return -ENOENT;
 
 
+<<<<<<< HEAD
 	rng->control_status = devm_ioremap_nocache(&pdev->dev,
+=======
+	rng->control_status = devm_ioremap(&pdev->dev,
+>>>>>>> upstream/android-13
 						   res_ports->start,
 						   sizeof(u64));
 	if (!rng->control_status)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	rng->result = devm_ioremap_nocache(&pdev->dev,
+=======
+	rng->result = devm_ioremap(&pdev->dev,
+>>>>>>> upstream/android-13
 					   res_result->start,
 					   sizeof(u64));
 	if (!rng->result)

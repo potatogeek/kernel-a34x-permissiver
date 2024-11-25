@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Avago Technologies.  All rights reserved.
  *
@@ -12,6 +13,11 @@
  * THE EXTENT THAT SUCH DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
  * See the GNU General Public License for more details, a copy of which
  * can be found in the file COPYING included with this package
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2016 Avago Technologies.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
@@ -54,6 +60,20 @@ static const match_table_t opt_tokens = {
 	{ NVMF_OPT_ERR,		NULL		}
 };
 
+<<<<<<< HEAD
+=======
+static int fcloop_verify_addr(substring_t *s)
+{
+	size_t blen = s->to - s->from + 1;
+
+	if (strnlen(s->from, blen) != NVME_FC_TRADDR_HEXNAMELEN + 2 ||
+	    strncmp(s->from, "0x", 2))
+		return -EINVAL;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int
 fcloop_parse_options(struct fcloop_ctrl_options *opts,
 		const char *buf)
@@ -75,14 +95,24 @@ fcloop_parse_options(struct fcloop_ctrl_options *opts,
 		opts->mask |= token;
 		switch (token) {
 		case NVMF_OPT_WWNN:
+<<<<<<< HEAD
 			if (match_u64(args, &token64)) {
+=======
+			if (fcloop_verify_addr(args) ||
+			    match_u64(args, &token64)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out_free_options;
 			}
 			opts->wwnn = token64;
 			break;
 		case NVMF_OPT_WWPN:
+<<<<<<< HEAD
 			if (match_u64(args, &token64)) {
+=======
+			if (fcloop_verify_addr(args) ||
+			    match_u64(args, &token64)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out_free_options;
 			}
@@ -103,14 +133,24 @@ fcloop_parse_options(struct fcloop_ctrl_options *opts,
 			opts->fcaddr = token;
 			break;
 		case NVMF_OPT_LPWWNN:
+<<<<<<< HEAD
 			if (match_u64(args, &token64)) {
+=======
+			if (fcloop_verify_addr(args) ||
+			    match_u64(args, &token64)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out_free_options;
 			}
 			opts->lpwwnn = token64;
 			break;
 		case NVMF_OPT_LPWWPN:
+<<<<<<< HEAD
 			if (match_u64(args, &token64)) {
+=======
+			if (fcloop_verify_addr(args) ||
+			    match_u64(args, &token64)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out_free_options;
 			}
@@ -152,14 +192,24 @@ fcloop_parse_nm_options(struct device *dev, u64 *nname, u64 *pname,
 		token = match_token(p, opt_tokens, args);
 		switch (token) {
 		case NVMF_OPT_WWNN:
+<<<<<<< HEAD
 			if (match_u64(args, &token64)) {
+=======
+			if (fcloop_verify_addr(args) ||
+			    match_u64(args, &token64)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out_free_options;
 			}
 			*nname = token64;
 			break;
 		case NVMF_OPT_WWPN:
+<<<<<<< HEAD
 			if (match_u64(args, &token64)) {
+=======
+			if (fcloop_verify_addr(args) ||
+			    match_u64(args, &token64)) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out_free_options;
 			}
@@ -209,6 +259,7 @@ struct fcloop_lport_priv {
 };
 
 struct fcloop_rport {
+<<<<<<< HEAD
 	struct nvme_fc_remote_port *remoteport;
 	struct nvmet_fc_target_port *targetport;
 	struct fcloop_nport *nport;
@@ -220,6 +271,25 @@ struct fcloop_tport {
 	struct nvme_fc_remote_port *remoteport;
 	struct fcloop_nport *nport;
 	struct fcloop_lport *lport;
+=======
+	struct nvme_fc_remote_port	*remoteport;
+	struct nvmet_fc_target_port	*targetport;
+	struct fcloop_nport		*nport;
+	struct fcloop_lport		*lport;
+	spinlock_t			lock;
+	struct list_head		ls_list;
+	struct work_struct		ls_work;
+};
+
+struct fcloop_tport {
+	struct nvmet_fc_target_port	*targetport;
+	struct nvme_fc_remote_port	*remoteport;
+	struct fcloop_nport		*nport;
+	struct fcloop_lport		*lport;
+	spinlock_t			lock;
+	struct list_head		ls_list;
+	struct work_struct		ls_work;
+>>>>>>> upstream/android-13
 };
 
 struct fcloop_nport {
@@ -235,11 +305,24 @@ struct fcloop_nport {
 };
 
 struct fcloop_lsreq {
+<<<<<<< HEAD
 	struct fcloop_tport		*tport;
 	struct nvmefc_ls_req		*lsreq;
 	struct work_struct		work;
 	struct nvmefc_tgt_ls_req	tgt_ls_req;
 	int				status;
+=======
+	struct nvmefc_ls_req		*lsreq;
+	struct nvmefc_ls_rsp		ls_rsp;
+	int				lsdir;	/* H2T or T2H */
+	int				status;
+	struct list_head		ls_list; /* fcloop_rport->ls_list */
+};
+
+struct fcloop_rscn {
+	struct fcloop_tport		*tport;
+	struct work_struct		work;
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -271,9 +354,15 @@ struct fcloop_ini_fcpreq {
 };
 
 static inline struct fcloop_lsreq *
+<<<<<<< HEAD
 tgt_ls_req_to_lsreq(struct nvmefc_tgt_ls_req *tgt_lsreq)
 {
 	return container_of(tgt_lsreq, struct fcloop_lsreq, tgt_ls_req);
+=======
+ls_rsp_to_lsreq(struct nvmefc_ls_rsp *lsrsp)
+{
+	return container_of(lsrsp, struct fcloop_lsreq, ls_rsp);
+>>>>>>> upstream/android-13
 }
 
 static inline struct fcloop_fcpreq *
@@ -298,6 +387,7 @@ fcloop_delete_queue(struct nvme_fc_local_port *localport,
 {
 }
 
+<<<<<<< HEAD
 
 /*
  * Transmit of LS RSP done (e.g. buffers all set). call back up
@@ -317,6 +407,38 @@ fcloop_tgt_lsrqst_done_work(struct work_struct *work)
 
 static int
 fcloop_ls_req(struct nvme_fc_local_port *localport,
+=======
+static void
+fcloop_rport_lsrqst_work(struct work_struct *work)
+{
+	struct fcloop_rport *rport =
+		container_of(work, struct fcloop_rport, ls_work);
+	struct fcloop_lsreq *tls_req;
+
+	spin_lock(&rport->lock);
+	for (;;) {
+		tls_req = list_first_entry_or_null(&rport->ls_list,
+				struct fcloop_lsreq, ls_list);
+		if (!tls_req)
+			break;
+
+		list_del(&tls_req->ls_list);
+		spin_unlock(&rport->lock);
+
+		tls_req->lsreq->done(tls_req->lsreq, tls_req->status);
+		/*
+		 * callee may free memory containing tls_req.
+		 * do not reference lsreq after this.
+		 */
+
+		spin_lock(&rport->lock);
+	}
+	spin_unlock(&rport->lock);
+}
+
+static int
+fcloop_h2t_ls_req(struct nvme_fc_local_port *localport,
+>>>>>>> upstream/android-13
 			struct nvme_fc_remote_port *remoteport,
 			struct nvmefc_ls_req *lsreq)
 {
@@ -325,24 +447,128 @@ fcloop_ls_req(struct nvme_fc_local_port *localport,
 	int ret = 0;
 
 	tls_req->lsreq = lsreq;
+<<<<<<< HEAD
 	INIT_WORK(&tls_req->work, fcloop_tgt_lsrqst_done_work);
 
 	if (!rport->targetport) {
 		tls_req->status = -ECONNREFUSED;
 		tls_req->tport = NULL;
 		schedule_work(&tls_req->work);
+=======
+	INIT_LIST_HEAD(&tls_req->ls_list);
+
+	if (!rport->targetport) {
+		tls_req->status = -ECONNREFUSED;
+		spin_lock(&rport->lock);
+		list_add_tail(&rport->ls_list, &tls_req->ls_list);
+		spin_unlock(&rport->lock);
+		schedule_work(&rport->ls_work);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	tls_req->status = 0;
+<<<<<<< HEAD
 	tls_req->tport = rport->targetport->private;
 	ret = nvmet_fc_rcv_ls_req(rport->targetport, &tls_req->tgt_ls_req,
+=======
+	ret = nvmet_fc_rcv_ls_req(rport->targetport, rport,
+				  &tls_req->ls_rsp,
+				  lsreq->rqstaddr, lsreq->rqstlen);
+
+	return ret;
+}
+
+static int
+fcloop_h2t_xmt_ls_rsp(struct nvmet_fc_target_port *targetport,
+			struct nvmefc_ls_rsp *lsrsp)
+{
+	struct fcloop_lsreq *tls_req = ls_rsp_to_lsreq(lsrsp);
+	struct nvmefc_ls_req *lsreq = tls_req->lsreq;
+	struct fcloop_tport *tport = targetport->private;
+	struct nvme_fc_remote_port *remoteport = tport->remoteport;
+	struct fcloop_rport *rport;
+
+	memcpy(lsreq->rspaddr, lsrsp->rspbuf,
+		((lsreq->rsplen < lsrsp->rsplen) ?
+				lsreq->rsplen : lsrsp->rsplen));
+
+	lsrsp->done(lsrsp);
+
+	if (remoteport) {
+		rport = remoteport->private;
+		spin_lock(&rport->lock);
+		list_add_tail(&rport->ls_list, &tls_req->ls_list);
+		spin_unlock(&rport->lock);
+		schedule_work(&rport->ls_work);
+	}
+
+	return 0;
+}
+
+static void
+fcloop_tport_lsrqst_work(struct work_struct *work)
+{
+	struct fcloop_tport *tport =
+		container_of(work, struct fcloop_tport, ls_work);
+	struct fcloop_lsreq *tls_req;
+
+	spin_lock(&tport->lock);
+	for (;;) {
+		tls_req = list_first_entry_or_null(&tport->ls_list,
+				struct fcloop_lsreq, ls_list);
+		if (!tls_req)
+			break;
+
+		list_del(&tls_req->ls_list);
+		spin_unlock(&tport->lock);
+
+		tls_req->lsreq->done(tls_req->lsreq, tls_req->status);
+		/*
+		 * callee may free memory containing tls_req.
+		 * do not reference lsreq after this.
+		 */
+
+		spin_lock(&tport->lock);
+	}
+	spin_unlock(&tport->lock);
+}
+
+static int
+fcloop_t2h_ls_req(struct nvmet_fc_target_port *targetport, void *hosthandle,
+			struct nvmefc_ls_req *lsreq)
+{
+	struct fcloop_lsreq *tls_req = lsreq->private;
+	struct fcloop_tport *tport = targetport->private;
+	int ret = 0;
+
+	/*
+	 * hosthandle should be the dst.rport value.
+	 * hosthandle ignored as fcloop currently is
+	 * 1:1 tgtport vs remoteport
+	 */
+	tls_req->lsreq = lsreq;
+	INIT_LIST_HEAD(&tls_req->ls_list);
+
+	if (!tport->remoteport) {
+		tls_req->status = -ECONNREFUSED;
+		spin_lock(&tport->lock);
+		list_add_tail(&tport->ls_list, &tls_req->ls_list);
+		spin_unlock(&tport->lock);
+		schedule_work(&tport->ls_work);
+		return ret;
+	}
+
+	tls_req->status = 0;
+	ret = nvme_fc_rcv_ls_req(tport->remoteport, &tls_req->ls_rsp,
+>>>>>>> upstream/android-13
 				 lsreq->rqstaddr, lsreq->rqstlen);
 
 	return ret;
 }
 
 static int
+<<<<<<< HEAD
 fcloop_xmt_ls_rsp(struct nvmet_fc_target_port *tport,
 			struct nvmefc_tgt_ls_req *tgt_lsreq)
 {
@@ -355,11 +581,75 @@ fcloop_xmt_ls_rsp(struct nvmet_fc_target_port *tport,
 	tgt_lsreq->done(tgt_lsreq);
 
 	schedule_work(&tls_req->work);
+=======
+fcloop_t2h_xmt_ls_rsp(struct nvme_fc_local_port *localport,
+			struct nvme_fc_remote_port *remoteport,
+			struct nvmefc_ls_rsp *lsrsp)
+{
+	struct fcloop_lsreq *tls_req = ls_rsp_to_lsreq(lsrsp);
+	struct nvmefc_ls_req *lsreq = tls_req->lsreq;
+	struct fcloop_rport *rport = remoteport->private;
+	struct nvmet_fc_target_port *targetport = rport->targetport;
+	struct fcloop_tport *tport;
+
+	memcpy(lsreq->rspaddr, lsrsp->rspbuf,
+		((lsreq->rsplen < lsrsp->rsplen) ?
+				lsreq->rsplen : lsrsp->rsplen));
+	lsrsp->done(lsrsp);
+
+	if (targetport) {
+		tport = targetport->private;
+		spin_lock(&tport->lock);
+		list_add_tail(&tport->ls_list, &tls_req->ls_list);
+		spin_unlock(&tport->lock);
+		schedule_work(&tport->ls_work);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void
+<<<<<<< HEAD
+=======
+fcloop_t2h_host_release(void *hosthandle)
+{
+	/* host handle ignored for now */
+}
+
+/*
+ * Simulate reception of RSCN and converting it to a initiator transport
+ * call to rescan a remote port.
+ */
+static void
+fcloop_tgt_rscn_work(struct work_struct *work)
+{
+	struct fcloop_rscn *tgt_rscn =
+		container_of(work, struct fcloop_rscn, work);
+	struct fcloop_tport *tport = tgt_rscn->tport;
+
+	if (tport->remoteport)
+		nvme_fc_rescan_remoteport(tport->remoteport);
+	kfree(tgt_rscn);
+}
+
+static void
+fcloop_tgt_discovery_evt(struct nvmet_fc_target_port *tgtport)
+{
+	struct fcloop_rscn *tgt_rscn;
+
+	tgt_rscn = kzalloc(sizeof(*tgt_rscn), GFP_KERNEL);
+	if (!tgt_rscn)
+		return;
+
+	tgt_rscn->tport = tgtport->private;
+	INIT_WORK(&tgt_rscn->work, fcloop_tgt_rscn_work);
+
+	schedule_work(&tgt_rscn->work);
+}
+
+static void
+>>>>>>> upstream/android-13
 fcloop_tfcp_req_free(struct kref *ref)
 {
 	struct fcloop_fcpreq *tfcp_req =
@@ -400,6 +690,53 @@ fcloop_call_host_done(struct nvmefc_fcp_req *fcpreq,
 	fcloop_tfcp_req_put(tfcp_req);
 }
 
+<<<<<<< HEAD
+=======
+static bool drop_fabric_opcode;
+#define DROP_OPCODE_MASK	0x00FF
+/* fabrics opcode will have a bit set above 1st byte */
+static int drop_opcode = -1;
+static int drop_instance;
+static int drop_amount;
+static int drop_current_cnt;
+
+/*
+ * Routine to parse io and determine if the io is to be dropped.
+ * Returns:
+ *  0 if io is not obstructed
+ *  1 if io was dropped
+ */
+static int check_for_drop(struct fcloop_fcpreq *tfcp_req)
+{
+	struct nvmefc_fcp_req *fcpreq = tfcp_req->fcpreq;
+	struct nvme_fc_cmd_iu *cmdiu = fcpreq->cmdaddr;
+	struct nvme_command *sqe = &cmdiu->sqe;
+
+	if (drop_opcode == -1)
+		return 0;
+
+	pr_info("%s: seq opcd x%02x fctype x%02x: drop F %s op x%02x "
+		"inst %d start %d amt %d\n",
+		__func__, sqe->common.opcode, sqe->fabrics.fctype,
+		drop_fabric_opcode ? "y" : "n",
+		drop_opcode, drop_current_cnt, drop_instance, drop_amount);
+
+	if ((drop_fabric_opcode &&
+	     (sqe->common.opcode != nvme_fabrics_command ||
+	      sqe->fabrics.fctype != drop_opcode)) ||
+	    (!drop_fabric_opcode && sqe->common.opcode != drop_opcode))
+		return 0;
+
+	if (++drop_current_cnt >= drop_instance) {
+		if (drop_current_cnt >= drop_instance + drop_amount)
+			drop_opcode = -1;
+		return 1;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void
 fcloop_fcp_recv_work(struct work_struct *work)
 {
@@ -409,7 +746,11 @@ fcloop_fcp_recv_work(struct work_struct *work)
 	int ret = 0;
 	bool aborted = false;
 
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 	switch (tfcp_req->inistate) {
 	case INI_IO_START:
 		tfcp_req->inistate = INI_IO_ACTIVE;
@@ -418,6 +759,7 @@ fcloop_fcp_recv_work(struct work_struct *work)
 		aborted = true;
 		break;
 	default:
+<<<<<<< HEAD
 		spin_unlock(&tfcp_req->reqlock);
 		WARN_ON(1);
 		return;
@@ -430,6 +772,24 @@ fcloop_fcp_recv_work(struct work_struct *work)
 		ret = nvmet_fc_rcv_fcp_req(tfcp_req->tport->targetport,
 				&tfcp_req->tgt_fcp_req,
 				fcpreq->cmdaddr, fcpreq->cmdlen);
+=======
+		spin_unlock_irq(&tfcp_req->reqlock);
+		WARN_ON(1);
+		return;
+	}
+	spin_unlock_irq(&tfcp_req->reqlock);
+
+	if (unlikely(aborted))
+		ret = -ECANCELED;
+	else {
+		if (likely(!check_for_drop(tfcp_req)))
+			ret = nvmet_fc_rcv_fcp_req(tfcp_req->tport->targetport,
+				&tfcp_req->tgt_fcp_req,
+				fcpreq->cmdaddr, fcpreq->cmdlen);
+		else
+			pr_info("%s: dropped command ********\n", __func__);
+	}
+>>>>>>> upstream/android-13
 	if (ret)
 		fcloop_call_host_done(fcpreq, tfcp_req, ret);
 
@@ -444,7 +804,11 @@ fcloop_fcp_abort_recv_work(struct work_struct *work)
 	struct nvmefc_fcp_req *fcpreq;
 	bool completed = false;
 
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 	fcpreq = tfcp_req->fcpreq;
 	switch (tfcp_req->inistate) {
 	case INI_IO_ABORTED:
@@ -453,11 +817,19 @@ fcloop_fcp_abort_recv_work(struct work_struct *work)
 		completed = true;
 		break;
 	default:
+<<<<<<< HEAD
 		spin_unlock(&tfcp_req->reqlock);
 		WARN_ON(1);
 		return;
 	}
 	spin_unlock(&tfcp_req->reqlock);
+=======
+		spin_unlock_irq(&tfcp_req->reqlock);
+		WARN_ON(1);
+		return;
+	}
+	spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 
 	if (unlikely(completed)) {
 		/* remove reference taken in original abort downcall */
@@ -469,9 +841,15 @@ fcloop_fcp_abort_recv_work(struct work_struct *work)
 		nvmet_fc_rcv_fcp_abort(tfcp_req->tport->targetport,
 					&tfcp_req->tgt_fcp_req);
 
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
 	tfcp_req->fcpreq = NULL;
 	spin_unlock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+	tfcp_req->fcpreq = NULL;
+	spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 
 	fcloop_call_host_done(fcpreq, tfcp_req, -ECANCELED);
 	/* call_host_done releases reference for abort downcall */
@@ -488,10 +866,17 @@ fcloop_tgt_fcprqst_done_work(struct work_struct *work)
 		container_of(work, struct fcloop_fcpreq, tio_done_work);
 	struct nvmefc_fcp_req *fcpreq;
 
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
 	fcpreq = tfcp_req->fcpreq;
 	tfcp_req->inistate = INI_IO_COMPLETED;
 	spin_unlock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+	fcpreq = tfcp_req->fcpreq;
+	tfcp_req->inistate = INI_IO_COMPLETED;
+	spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 
 	fcloop_call_host_done(fcpreq, tfcp_req, tfcp_req->status);
 }
@@ -510,7 +895,11 @@ fcloop_fcp_req(struct nvme_fc_local_port *localport,
 	if (!rport->targetport)
 		return -ECONNREFUSED;
 
+<<<<<<< HEAD
 	tfcp_req = kzalloc(sizeof(*tfcp_req), GFP_KERNEL);
+=======
+	tfcp_req = kzalloc(sizeof(*tfcp_req), GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!tfcp_req)
 		return -ENOMEM;
 
@@ -596,12 +985,20 @@ fcloop_fcp_op(struct nvmet_fc_target_port *tgtport,
 	int fcp_err = 0, active, aborted;
 	u8 op = tgt_fcpreq->op;
 
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 	fcpreq = tfcp_req->fcpreq;
 	active = tfcp_req->active;
 	aborted = tfcp_req->aborted;
 	tfcp_req->active = true;
+<<<<<<< HEAD
 	spin_unlock(&tfcp_req->reqlock);
+=======
+	spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 
 	if (unlikely(active))
 		/* illegal - call while i/o active */
@@ -609,9 +1006,15 @@ fcloop_fcp_op(struct nvmet_fc_target_port *tgtport,
 
 	if (unlikely(aborted)) {
 		/* target transport has aborted i/o prior */
+<<<<<<< HEAD
 		spin_lock(&tfcp_req->reqlock);
 		tfcp_req->active = false;
 		spin_unlock(&tfcp_req->reqlock);
+=======
+		spin_lock_irq(&tfcp_req->reqlock);
+		tfcp_req->active = false;
+		spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 		tgt_fcpreq->transferred_length = 0;
 		tgt_fcpreq->fcp_error = -ECANCELED;
 		tgt_fcpreq->done(tgt_fcpreq);
@@ -648,7 +1051,11 @@ fcloop_fcp_op(struct nvmet_fc_target_port *tgtport,
 			break;
 
 		/* Fall-Thru to RSP handling */
+<<<<<<< HEAD
 		/* FALLTHRU */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case NVMET_FCOP_RSP:
 		if (fcpreq) {
@@ -668,9 +1075,15 @@ fcloop_fcp_op(struct nvmet_fc_target_port *tgtport,
 		break;
 	}
 
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
 	tfcp_req->active = false;
 	spin_unlock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+	tfcp_req->active = false;
+	spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 
 	tgt_fcpreq->transferred_length = xfrlen;
 	tgt_fcpreq->fcp_error = fcp_err;
@@ -690,9 +1103,15 @@ fcloop_tgt_fcp_abort(struct nvmet_fc_target_port *tgtport,
 	 * (one doing io, other doing abort) and only kills ops posted
 	 * after the abort request
 	 */
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
 	tfcp_req->aborted = true;
 	spin_unlock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+	tfcp_req->aborted = true;
+	spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 
 	tfcp_req->status = NVME_SC_INTERNAL;
 
@@ -713,13 +1132,26 @@ fcloop_fcp_req_release(struct nvmet_fc_target_port *tgtport,
 }
 
 static void
+<<<<<<< HEAD
 fcloop_ls_abort(struct nvme_fc_local_port *localport,
+=======
+fcloop_h2t_ls_abort(struct nvme_fc_local_port *localport,
+>>>>>>> upstream/android-13
 			struct nvme_fc_remote_port *remoteport,
 				struct nvmefc_ls_req *lsreq)
 {
 }
 
 static void
+<<<<<<< HEAD
+=======
+fcloop_t2h_ls_abort(struct nvmet_fc_target_port *targetport,
+			void *hosthandle, struct nvmefc_ls_req *lsreq)
+{
+}
+
+static void
+>>>>>>> upstream/android-13
 fcloop_fcp_abort(struct nvme_fc_local_port *localport,
 			struct nvme_fc_remote_port *remoteport,
 			void *hw_queue_handle,
@@ -740,7 +1172,11 @@ fcloop_fcp_abort(struct nvme_fc_local_port *localport,
 		return;
 
 	/* break initiator/target relationship for io */
+<<<<<<< HEAD
 	spin_lock(&tfcp_req->reqlock);
+=======
+	spin_lock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 	switch (tfcp_req->inistate) {
 	case INI_IO_START:
 	case INI_IO_ACTIVE:
@@ -750,11 +1186,19 @@ fcloop_fcp_abort(struct nvme_fc_local_port *localport,
 		abortio = false;
 		break;
 	default:
+<<<<<<< HEAD
 		spin_unlock(&tfcp_req->reqlock);
 		WARN_ON(1);
 		return;
 	}
 	spin_unlock(&tfcp_req->reqlock);
+=======
+		spin_unlock_irq(&tfcp_req->reqlock);
+		WARN_ON(1);
+		return;
+	}
+	spin_unlock_irq(&tfcp_req->reqlock);
+>>>>>>> upstream/android-13
 
 	if (abortio)
 		/* leave the reference while the work item is scheduled */
@@ -809,6 +1253,10 @@ fcloop_remoteport_delete(struct nvme_fc_remote_port *remoteport)
 {
 	struct fcloop_rport *rport = remoteport->private;
 
+<<<<<<< HEAD
+=======
+	flush_work(&rport->ls_work);
+>>>>>>> upstream/android-13
 	fcloop_nport_put(rport->nport);
 }
 
@@ -817,6 +1265,10 @@ fcloop_targetport_delete(struct nvmet_fc_target_port *targetport)
 {
 	struct fcloop_tport *tport = targetport->private;
 
+<<<<<<< HEAD
+=======
+	flush_work(&tport->ls_work);
+>>>>>>> upstream/android-13
 	fcloop_nport_put(tport->nport);
 }
 
@@ -829,10 +1281,18 @@ static struct nvme_fc_port_template fctemplate = {
 	.remoteport_delete	= fcloop_remoteport_delete,
 	.create_queue		= fcloop_create_queue,
 	.delete_queue		= fcloop_delete_queue,
+<<<<<<< HEAD
 	.ls_req			= fcloop_ls_req,
 	.fcp_io			= fcloop_fcp_req,
 	.ls_abort		= fcloop_ls_abort,
 	.fcp_abort		= fcloop_fcp_abort,
+=======
+	.ls_req			= fcloop_h2t_ls_req,
+	.fcp_io			= fcloop_fcp_req,
+	.ls_abort		= fcloop_h2t_ls_abort,
+	.fcp_abort		= fcloop_fcp_abort,
+	.xmt_ls_rsp		= fcloop_t2h_xmt_ls_rsp,
+>>>>>>> upstream/android-13
 	.max_hw_queues		= FCLOOP_HW_QUEUES,
 	.max_sgl_segments	= FCLOOP_SGL_SEGS,
 	.max_dif_sgl_segments	= FCLOOP_SGL_SEGS,
@@ -846,10 +1306,21 @@ static struct nvme_fc_port_template fctemplate = {
 
 static struct nvmet_fc_target_template tgttemplate = {
 	.targetport_delete	= fcloop_targetport_delete,
+<<<<<<< HEAD
 	.xmt_ls_rsp		= fcloop_xmt_ls_rsp,
 	.fcp_op			= fcloop_fcp_op,
 	.fcp_abort		= fcloop_tgt_fcp_abort,
 	.fcp_req_release	= fcloop_fcp_req_release,
+=======
+	.xmt_ls_rsp		= fcloop_h2t_xmt_ls_rsp,
+	.fcp_op			= fcloop_fcp_op,
+	.fcp_abort		= fcloop_tgt_fcp_abort,
+	.fcp_req_release	= fcloop_fcp_req_release,
+	.discovery_event	= fcloop_tgt_discovery_evt,
+	.ls_req			= fcloop_t2h_ls_req,
+	.ls_abort		= fcloop_t2h_ls_abort,
+	.host_release		= fcloop_t2h_host_release,
+>>>>>>> upstream/android-13
 	.max_hw_queues		= FCLOOP_HW_QUEUES,
 	.max_sgl_segments	= FCLOOP_SGL_SEGS,
 	.max_dif_sgl_segments	= FCLOOP_SGL_SEGS,
@@ -858,6 +1329,10 @@ static struct nvmet_fc_target_template tgttemplate = {
 	.target_features	= 0,
 	/* sizes of additional private data for data structures */
 	.target_priv_sz		= sizeof(struct fcloop_tport),
+<<<<<<< HEAD
+=======
+	.lsrqst_priv_sz		= sizeof(struct fcloop_lsreq),
+>>>>>>> upstream/android-13
 };
 
 static ssize_t
@@ -1109,6 +1584,12 @@ fcloop_create_remote_port(struct device *dev, struct device_attribute *attr,
 	rport->nport = nport;
 	rport->lport = nport->lport;
 	nport->rport = rport;
+<<<<<<< HEAD
+=======
+	spin_lock_init(&rport->lock);
+	INIT_WORK(&rport->ls_work, fcloop_rport_lsrqst_work);
+	INIT_LIST_HEAD(&rport->ls_list);
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -1204,6 +1685,12 @@ fcloop_create_target_port(struct device *dev, struct device_attribute *attr,
 	tport->nport = nport;
 	tport->lport = nport->lport;
 	nport->tport = tport;
+<<<<<<< HEAD
+=======
+	spin_lock_init(&tport->lock);
+	INIT_WORK(&tport->ls_work, fcloop_tport_lsrqst_work);
+	INIT_LIST_HEAD(&tport->ls_list);
+>>>>>>> upstream/android-13
 
 	return count;
 }
@@ -1265,6 +1752,37 @@ fcloop_delete_target_port(struct device *dev, struct device_attribute *attr,
 	return ret ? ret : count;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t
+fcloop_set_cmd_drop(struct device *dev, struct device_attribute *attr,
+		const char *buf, size_t count)
+{
+	unsigned int opcode;
+	int starting, amount;
+
+	if (sscanf(buf, "%x:%d:%d", &opcode, &starting, &amount) != 3)
+		return -EBADRQC;
+
+	drop_current_cnt = 0;
+	drop_fabric_opcode = (opcode & ~DROP_OPCODE_MASK) ? true : false;
+	drop_opcode = (opcode & DROP_OPCODE_MASK);
+	drop_instance = starting;
+	/* the check to drop routine uses instance + count to know when
+	 * to end. Thus, if dropping 1 instance, count should be 0.
+	 * so subtract 1 from the count.
+	 */
+	drop_amount = amount - 1;
+
+	pr_info("%s: DROP: Starting at instance %d of%s opcode x%x drop +%d "
+		"instances\n",
+		__func__, drop_instance, drop_fabric_opcode ? " fabric" : "",
+		drop_opcode, drop_amount);
+
+	return count;
+}
+
+>>>>>>> upstream/android-13
 
 static DEVICE_ATTR(add_local_port, 0200, NULL, fcloop_create_local_port);
 static DEVICE_ATTR(del_local_port, 0200, NULL, fcloop_delete_local_port);
@@ -1272,6 +1790,10 @@ static DEVICE_ATTR(add_remote_port, 0200, NULL, fcloop_create_remote_port);
 static DEVICE_ATTR(del_remote_port, 0200, NULL, fcloop_delete_remote_port);
 static DEVICE_ATTR(add_target_port, 0200, NULL, fcloop_create_target_port);
 static DEVICE_ATTR(del_target_port, 0200, NULL, fcloop_delete_target_port);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR(set_cmd_drop, 0200, NULL, fcloop_set_cmd_drop);
+>>>>>>> upstream/android-13
 
 static struct attribute *fcloop_dev_attrs[] = {
 	&dev_attr_add_local_port.attr,
@@ -1280,10 +1802,18 @@ static struct attribute *fcloop_dev_attrs[] = {
 	&dev_attr_del_remote_port.attr,
 	&dev_attr_add_target_port.attr,
 	&dev_attr_del_target_port.attr,
+<<<<<<< HEAD
 	NULL
 };
 
 static struct attribute_group fclopp_dev_attrs_group = {
+=======
+	&dev_attr_set_cmd_drop.attr,
+	NULL
+};
+
+static const struct attribute_group fclopp_dev_attrs_group = {
+>>>>>>> upstream/android-13
 	.attrs		= fcloop_dev_attrs,
 };
 
@@ -1327,8 +1857,13 @@ out_destroy_class:
 
 static void __exit fcloop_exit(void)
 {
+<<<<<<< HEAD
 	struct fcloop_lport *lport;
 	struct fcloop_nport *nport;
+=======
+	struct fcloop_lport *lport = NULL;
+	struct fcloop_nport *nport = NULL;
+>>>>>>> upstream/android-13
 	struct fcloop_tport *tport;
 	struct fcloop_rport *rport;
 	unsigned long flags;

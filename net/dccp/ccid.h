@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _CCID_H
 #define _CCID_H
 /*
@@ -7,10 +11,13 @@
  *  Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *
  *  CCID infrastructure
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License version 2 as
  *	published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <net/sock.h>
@@ -98,7 +105,11 @@ void ccid_cleanup_builtins(void);
 
 struct ccid {
 	struct ccid_operations *ccid_ops;
+<<<<<<< HEAD
 	char		       ccid_priv[0];
+=======
+	char		       ccid_priv[];
+>>>>>>> upstream/android-13
 };
 
 static inline void *ccid_priv(const struct ccid *ccid)

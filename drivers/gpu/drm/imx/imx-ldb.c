@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * i.MX drm driver - LVDS display bridge
  *
  * Copyright (C) 2012 Sascha Hauer, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,6 +37,34 @@
 #include <linux/regmap.h>
 #include <linux/videodev2.h>
 
+=======
+ */
+
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/mfd/syscon.h>
+#include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/of_graph.h>
+#include <linux/regmap.h>
+#include <linux/videodev2.h>
+
+#include <video/of_display_timing.h>
+#include <video/of_videomode.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_managed.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+
+>>>>>>> upstream/android-13
 #include "imx-drm.h"
 
 #define DRIVER_NAME "imx-ldb"
@@ -51,12 +84,26 @@
 #define LDB_DI1_VS_POL_ACT_LOW		(1 << 10)
 #define LDB_BGREF_RMODE_INT		(1 << 15)
 
+<<<<<<< HEAD
+=======
+struct imx_ldb_channel;
+
+struct imx_ldb_encoder {
+	struct drm_connector connector;
+	struct drm_encoder encoder;
+	struct imx_ldb_channel *channel;
+};
+
+>>>>>>> upstream/android-13
 struct imx_ldb;
 
 struct imx_ldb_channel {
 	struct imx_ldb *ldb;
+<<<<<<< HEAD
 	struct drm_connector connector;
 	struct drm_encoder encoder;
+=======
+>>>>>>> upstream/android-13
 
 	/* Defines what is connected to the ldb, only one at a time */
 	struct drm_panel *panel;
@@ -66,7 +113,10 @@ struct imx_ldb_channel {
 	struct i2c_adapter *ddc;
 	int chno;
 	void *edid;
+<<<<<<< HEAD
 	int edid_len;
+=======
+>>>>>>> upstream/android-13
 	struct drm_display_mode mode;
 	int mode_valid;
 	u32 bus_format;
@@ -75,12 +125,20 @@ struct imx_ldb_channel {
 
 static inline struct imx_ldb_channel *con_to_imx_ldb_ch(struct drm_connector *c)
 {
+<<<<<<< HEAD
 	return container_of(c, struct imx_ldb_channel, connector);
+=======
+	return container_of(c, struct imx_ldb_encoder, connector)->channel;
+>>>>>>> upstream/android-13
 }
 
 static inline struct imx_ldb_channel *enc_to_imx_ldb_ch(struct drm_encoder *e)
 {
+<<<<<<< HEAD
 	return container_of(e, struct imx_ldb_channel, encoder);
+=======
+	return container_of(e, struct imx_ldb_encoder, encoder)->channel;
+>>>>>>> upstream/android-13
 }
 
 struct bus_mux {
@@ -130,6 +188,7 @@ static void imx_ldb_ch_set_bus_format(struct imx_ldb_channel *imx_ldb_ch,
 static int imx_ldb_connector_get_modes(struct drm_connector *connector)
 {
 	struct imx_ldb_channel *imx_ldb_ch = con_to_imx_ldb_ch(connector);
+<<<<<<< HEAD
 	int num_modes = 0;
 
 	if (imx_ldb_ch->panel && imx_ldb_ch->panel->funcs &&
@@ -138,6 +197,13 @@ static int imx_ldb_connector_get_modes(struct drm_connector *connector)
 		if (num_modes > 0)
 			return num_modes;
 	}
+=======
+	int num_modes;
+
+	num_modes = drm_panel_get_modes(imx_ldb_ch->panel, connector);
+	if (num_modes > 0)
+		return num_modes;
+>>>>>>> upstream/android-13
 
 	if (!imx_ldb_ch->edid && imx_ldb_ch->ddc)
 		imx_ldb_ch->edid = drm_get_edid(connector, imx_ldb_ch->ddc);
@@ -163,6 +229,7 @@ static int imx_ldb_connector_get_modes(struct drm_connector *connector)
 	return num_modes;
 }
 
+<<<<<<< HEAD
 static struct drm_encoder *imx_ldb_connector_best_encoder(
 		struct drm_connector *connector)
 {
@@ -171,6 +238,8 @@ static struct drm_encoder *imx_ldb_connector_best_encoder(
 	return &imx_ldb_ch->encoder;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void imx_ldb_set_clock(struct imx_ldb *ldb, int mux, int chno,
 		unsigned long serial_clk, unsigned long di_clk)
 {
@@ -283,6 +352,14 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
 			 "%s: mode exceeds 85 MHz pixel clock\n", __func__);
 	}
 
+<<<<<<< HEAD
+=======
+	if (!IS_ALIGNED(mode->hdisplay, 8)) {
+		dev_warn(ldb->dev,
+			 "%s: hdisplay does not align to 8 byte\n", __func__);
+	}
+
+>>>>>>> upstream/android-13
 	if (dual) {
 		serial_clk = 3500UL * mode->clock;
 		imx_ldb_set_clock(ldb, mux, 0, serial_clk, di_clk);
@@ -409,11 +486,14 @@ static const struct drm_connector_funcs imx_ldb_connector_funcs = {
 
 static const struct drm_connector_helper_funcs imx_ldb_connector_helper_funcs = {
 	.get_modes = imx_ldb_connector_get_modes,
+<<<<<<< HEAD
 	.best_encoder = imx_ldb_connector_best_encoder,
 };
 
 static const struct drm_encoder_funcs imx_ldb_encoder_funcs = {
 	.destroy = imx_drm_encoder_destroy,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct drm_encoder_helper_funcs imx_ldb_encoder_helper_funcs = {
@@ -442,9 +522,26 @@ static int imx_ldb_register(struct drm_device *drm,
 	struct imx_ldb_channel *imx_ldb_ch)
 {
 	struct imx_ldb *ldb = imx_ldb_ch->ldb;
+<<<<<<< HEAD
 	struct drm_encoder *encoder = &imx_ldb_ch->encoder;
 	int ret;
 
+=======
+	struct imx_ldb_encoder *ldb_encoder;
+	struct drm_connector *connector;
+	struct drm_encoder *encoder;
+	int ret;
+
+	ldb_encoder = drmm_simple_encoder_alloc(drm, struct imx_ldb_encoder,
+						encoder, DRM_MODE_ENCODER_LVDS);
+	if (IS_ERR(ldb_encoder))
+		return PTR_ERR(ldb_encoder);
+
+	ldb_encoder->channel = imx_ldb_ch;
+	connector = &ldb_encoder->connector;
+	encoder = &ldb_encoder->encoder;
+
+>>>>>>> upstream/android-13
 	ret = imx_drm_encoder_parse_of(drm, encoder, imx_ldb_ch->child);
 	if (ret)
 		return ret;
@@ -460,6 +557,7 @@ static int imx_ldb_register(struct drm_device *drm,
 	}
 
 	drm_encoder_helper_add(encoder, &imx_ldb_encoder_helper_funcs);
+<<<<<<< HEAD
 	drm_encoder_init(drm, encoder, &imx_ldb_encoder_funcs,
 			 DRM_MODE_ENCODER_LVDS, NULL);
 
@@ -470,6 +568,13 @@ static int imx_ldb_register(struct drm_device *drm,
 			DRM_ERROR("Failed to initialize bridge with drm\n");
 			return ret;
 		}
+=======
+
+	if (imx_ldb_ch->bridge) {
+		ret = drm_bridge_attach(encoder, imx_ldb_ch->bridge, NULL, 0);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * We want to add the connector whenever there is no bridge
@@ -477,6 +582,7 @@ static int imx_ldb_register(struct drm_device *drm,
 		 * historical reasons, the ldb driver can also work without
 		 * a panel.
 		 */
+<<<<<<< HEAD
 		drm_connector_helper_add(&imx_ldb_ch->connector,
 				&imx_ldb_connector_helper_funcs);
 		drm_connector_init(drm, &imx_ldb_ch->connector,
@@ -490,16 +596,28 @@ static int imx_ldb_register(struct drm_device *drm,
 				       &imx_ldb_ch->connector);
 		if (ret)
 			return ret;
+=======
+		drm_connector_helper_add(connector,
+					 &imx_ldb_connector_helper_funcs);
+		drm_connector_init_with_ddc(drm, connector,
+					    &imx_ldb_connector_funcs,
+					    DRM_MODE_CONNECTOR_LVDS,
+					    imx_ldb_ch->ddc);
+		drm_connector_attach_encoder(connector, encoder);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 enum {
 	LVDS_BIT_MAP_SPWG,
 	LVDS_BIT_MAP_JEIDA
 };
 
+=======
+>>>>>>> upstream/android-13
 struct imx_ldb_bit_mapping {
 	u32 bus_format;
 	u32 datawidth;
@@ -578,6 +696,7 @@ static int imx_ldb_panel_ddc(struct device *dev,
 	}
 
 	if (!channel->ddc) {
+<<<<<<< HEAD
 		/* if no DDC available, fallback to hardcoded EDID */
 		dev_dbg(dev, "no ddc available\n");
 
@@ -587,6 +706,18 @@ static int imx_ldb_panel_ddc(struct device *dev,
 			channel->edid = kmemdup(edidp,
 						channel->edid_len,
 						GFP_KERNEL);
+=======
+		int edid_len;
+
+		/* if no DDC available, fallback to hardcoded EDID */
+		dev_dbg(dev, "no ddc available\n");
+
+		edidp = of_get_property(child, "edid", &edid_len);
+		if (edidp) {
+			channel->edid = kmemdup(edidp, edid_len, GFP_KERNEL);
+			if (!channel->edid)
+				return -ENOMEM;
+>>>>>>> upstream/android-13
 		} else if (!channel->panel) {
 			/* fallback to display-timings node */
 			ret = of_get_drm_display_mode(child,
@@ -603,9 +734,39 @@ static int imx_ldb_panel_ddc(struct device *dev,
 static int imx_ldb_bind(struct device *dev, struct device *master, void *data)
 {
 	struct drm_device *drm = data;
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	const struct of_device_id *of_id =
 			of_match_device(imx_ldb_dt_ids, dev);
+=======
+	struct imx_ldb *imx_ldb = dev_get_drvdata(dev);
+	int ret;
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		struct imx_ldb_channel *channel = &imx_ldb->channel[i];
+
+		if (!channel->ldb)
+			continue;
+
+		ret = imx_ldb_register(drm, channel);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static const struct component_ops imx_ldb_ops = {
+	.bind	= imx_ldb_bind,
+};
+
+static int imx_ldb_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
+	const struct of_device_id *of_id = of_match_device(imx_ldb_dt_ids, dev);
+>>>>>>> upstream/android-13
 	struct device_node *child;
 	struct imx_ldb *imx_ldb;
 	int dual;
@@ -714,6 +875,7 @@ static int imx_ldb_bind(struct device *dev, struct device *master, void *data)
 		}
 		channel->bus_format = bus_format;
 		channel->child = child;
+<<<<<<< HEAD
 
 		ret = imx_ldb_register(drm, channel);
 		if (ret) {
@@ -725,21 +887,35 @@ static int imx_ldb_bind(struct device *dev, struct device *master, void *data)
 	dev_set_drvdata(dev, imx_ldb);
 
 	return 0;
+=======
+	}
+
+	platform_set_drvdata(pdev, imx_ldb);
+
+	return component_add(&pdev->dev, &imx_ldb_ops);
+>>>>>>> upstream/android-13
 
 free_child:
 	of_node_put(child);
 	return ret;
 }
 
+<<<<<<< HEAD
 static void imx_ldb_unbind(struct device *dev, struct device *master,
 	void *data)
 {
 	struct imx_ldb *imx_ldb = dev_get_drvdata(dev);
+=======
+static int imx_ldb_remove(struct platform_device *pdev)
+{
+	struct imx_ldb *imx_ldb = platform_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < 2; i++) {
 		struct imx_ldb_channel *channel = &imx_ldb->channel[i];
 
+<<<<<<< HEAD
 		if (channel->panel)
 			drm_panel_detach(channel->panel);
 
@@ -760,6 +936,12 @@ static int imx_ldb_probe(struct platform_device *pdev)
 
 static int imx_ldb_remove(struct platform_device *pdev)
 {
+=======
+		kfree(channel->edid);
+		i2c_put_adapter(channel->ddc);
+	}
+
+>>>>>>> upstream/android-13
 	component_del(&pdev->dev, &imx_ldb_ops);
 	return 0;
 }

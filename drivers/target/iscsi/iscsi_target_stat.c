@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Modern ConfigFS group context specific iSCSI statistics based on original
  * iscsi_target_mib.c code
@@ -6,6 +10,7 @@
  *
  * Author: Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/configfs.h>
@@ -36,7 +43,10 @@
 /* Instance Attributes Table */
 #define ISCSI_INST_NUM_NODES		1
 #define ISCSI_INST_DESCR		"Storage Engine Target"
+<<<<<<< HEAD
 #define ISCSI_INST_LAST_FAILURE_TYPE	0
+=======
+>>>>>>> upstream/android-13
 #define ISCSI_DISCONTINUITY_TIME	0
 
 #define ISCSI_NODE_INDEX		1
@@ -328,10 +338,17 @@ static ssize_t iscsi_stat_tgt_attr_fail_intr_name_show(struct config_item *item,
 {
 	struct iscsi_tiqn *tiqn = iscsi_tgt_attr_tiqn(item);
 	struct iscsi_login_stats *lstat = &tiqn->login_stats;
+<<<<<<< HEAD
 	unsigned char buf[224];
 
 	spin_lock(&lstat->lock);
 	snprintf(buf, 224, "%s", lstat->last_intr_fail_name[0] ?
+=======
+	unsigned char buf[ISCSI_IQN_LEN];
+
+	spin_lock(&lstat->lock);
+	snprintf(buf, ISCSI_IQN_LEN, "%s", lstat->last_intr_fail_name[0] ?
+>>>>>>> upstream/android-13
 				lstat->last_intr_fail_name : NONE);
 	spin_unlock(&lstat->lock);
 

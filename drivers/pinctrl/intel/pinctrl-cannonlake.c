@@ -7,10 +7,17 @@
  *          Mika Westerberg <mika.westerberg@linux.intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/acpi.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/pm.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinctrl.h>
 
 #include "pinctrl-intel.h"
@@ -19,6 +26,10 @@
 #define CNL_PADCFGLOCK		0x080
 #define CNL_LP_HOSTSW_OWN	0x0b0
 #define CNL_H_HOSTSW_OWN	0x0c0
+<<<<<<< HEAD
+=======
+#define CNL_GPI_IS		0x100
+>>>>>>> upstream/android-13
 #define CNL_GPI_IE		0x120
 
 #define CNL_GPP(r, s, e, g)				\
@@ -29,14 +40,23 @@
 		.gpio_base = (g),			\
 	}
 
+<<<<<<< HEAD
 #define CNL_NO_GPIO	-1
 
 #define CNL_COMMUNITY(b, s, e, o, g)			\
+=======
+#define CNL_COMMUNITY(b, s, e, ho, g)			\
+>>>>>>> upstream/android-13
 	{						\
 		.barno = (b),				\
 		.padown_offset = CNL_PAD_OWN,		\
 		.padcfglock_offset = CNL_PADCFGLOCK,	\
+<<<<<<< HEAD
 		.hostown_offset = (o),			\
+=======
+		.hostown_offset = (ho),			\
+		.is_offset = CNL_GPI_IS,		\
+>>>>>>> upstream/android-13
 		.ie_offset = CNL_GPI_IE,		\
 		.pin_base = (s),			\
 		.npins = ((e) - (s) + 1),		\
@@ -44,10 +64,17 @@
 		.ngpps = ARRAY_SIZE(g),			\
 	}
 
+<<<<<<< HEAD
 #define CNLLP_COMMUNITY(b, s, e, g)			\
 	CNL_COMMUNITY(b, s, e, CNL_LP_HOSTSW_OWN, g)
 
 #define CNLH_COMMUNITY(b, s, e, g)			\
+=======
+#define CNL_LP_COMMUNITY(b, s, e, g)			\
+	CNL_COMMUNITY(b, s, e, CNL_LP_HOSTSW_OWN, g)
+
+#define CNL_H_COMMUNITY(b, s, e, g)			\
+>>>>>>> upstream/android-13
 	CNL_COMMUNITY(b, s, e, CNL_H_HOSTSW_OWN, g)
 
 /* Cannon Lake-H */
@@ -375,6 +402,7 @@ static const struct intel_padgroup cnlh_community0_gpps[] = {
 };
 
 static const struct intel_padgroup cnlh_community1_gpps[] = {
+<<<<<<< HEAD
 	CNL_GPP(0, 51, 74, 64),			/* GPP_C */
 	CNL_GPP(1, 75, 98, 96),			/* GPP_D */
 	CNL_GPP(2, 99, 106, 128),		/* GPP_G */
@@ -396,6 +424,29 @@ static const struct intel_padgroup cnlh_community4_gpps[] = {
 	CNL_GPP(1, 260, 268, CNL_NO_GPIO),	/* JTAG */
 	CNL_GPP(2, 269, 286, 320),		/* GPP_I */
 	CNL_GPP(3, 287, 298, 352),		/* GPP_J */
+=======
+	CNL_GPP(0, 51, 74, 64),				/* GPP_C */
+	CNL_GPP(1, 75, 98, 96),				/* GPP_D */
+	CNL_GPP(2, 99, 106, 128),			/* GPP_G */
+	CNL_GPP(3, 107, 114, INTEL_GPIO_BASE_NOMAP),	/* AZA */
+	CNL_GPP(4, 115, 146, 160),			/* vGPIO_0 */
+	CNL_GPP(5, 147, 154, INTEL_GPIO_BASE_NOMAP),	/* vGPIO_1 */
+};
+
+static const struct intel_padgroup cnlh_community3_gpps[] = {
+	CNL_GPP(0, 155, 178, 192),			/* GPP_K */
+	CNL_GPP(1, 179, 202, 224),			/* GPP_H */
+	CNL_GPP(2, 203, 215, 256),			/* GPP_E */
+	CNL_GPP(3, 216, 239, 288),			/* GPP_F */
+	CNL_GPP(4, 240, 248, INTEL_GPIO_BASE_NOMAP),	/* SPI */
+};
+
+static const struct intel_padgroup cnlh_community4_gpps[] = {
+	CNL_GPP(0, 249, 259, INTEL_GPIO_BASE_NOMAP),	/* CPU */
+	CNL_GPP(1, 260, 268, INTEL_GPIO_BASE_NOMAP),	/* JTAG */
+	CNL_GPP(2, 269, 286, 320),			/* GPP_I */
+	CNL_GPP(3, 287, 298, 352),			/* GPP_J */
+>>>>>>> upstream/android-13
 };
 
 static const unsigned int cnlh_spi0_pins[] = { 40, 41, 42, 43 };
@@ -449,10 +500,17 @@ static const struct intel_function cnlh_functions[] = {
 };
 
 static const struct intel_community cnlh_communities[] = {
+<<<<<<< HEAD
 	CNLH_COMMUNITY(0, 0, 50, cnlh_community0_gpps),
 	CNLH_COMMUNITY(1, 51, 154, cnlh_community1_gpps),
 	CNLH_COMMUNITY(2, 155, 248, cnlh_community3_gpps),
 	CNLH_COMMUNITY(3, 249, 298, cnlh_community4_gpps),
+=======
+	CNL_H_COMMUNITY(0, 0, 50, cnlh_community0_gpps),
+	CNL_H_COMMUNITY(1, 51, 154, cnlh_community1_gpps),
+	CNL_H_COMMUNITY(2, 155, 248, cnlh_community3_gpps),
+	CNL_H_COMMUNITY(3, 249, 298, cnlh_community4_gpps),
+>>>>>>> upstream/android-13
 };
 
 static const struct intel_pinctrl_soc_data cnlh_soc_data = {
@@ -788,6 +846,7 @@ static const struct intel_function cnllp_functions[] = {
 };
 
 static const struct intel_padgroup cnllp_community0_gpps[] = {
+<<<<<<< HEAD
 	CNL_GPP(0, 0, 24, 0),			/* GPP_A */
 	CNL_GPP(1, 25, 50, 32),			/* GPP_B */
 	CNL_GPP(2, 51, 58, 64),			/* GPP_G */
@@ -813,6 +872,33 @@ static const struct intel_community cnllp_communities[] = {
 	CNLLP_COMMUNITY(0, 0, 67, cnllp_community0_gpps),
 	CNLLP_COMMUNITY(1, 68, 180, cnllp_community1_gpps),
 	CNLLP_COMMUNITY(2, 181, 243, cnllp_community4_gpps),
+=======
+	CNL_GPP(0, 0, 24, 0),				/* GPP_A */
+	CNL_GPP(1, 25, 50, 32),				/* GPP_B */
+	CNL_GPP(2, 51, 58, 64),				/* GPP_G */
+	CNL_GPP(3, 59, 67, INTEL_GPIO_BASE_NOMAP),	/* SPI */
+};
+
+static const struct intel_padgroup cnllp_community1_gpps[] = {
+	CNL_GPP(0, 68, 92, 96),				/* GPP_D */
+	CNL_GPP(1, 93, 116, 128),			/* GPP_F */
+	CNL_GPP(2, 117, 140, 160),			/* GPP_H */
+	CNL_GPP(3, 141, 172, 192),			/* vGPIO */
+	CNL_GPP(4, 173, 180, 224),			/* vGPIO */
+};
+
+static const struct intel_padgroup cnllp_community4_gpps[] = {
+	CNL_GPP(0, 181, 204, 256),			/* GPP_C */
+	CNL_GPP(1, 205, 228, 288),			/* GPP_E */
+	CNL_GPP(2, 229, 237, INTEL_GPIO_BASE_NOMAP),	/* JTAG */
+	CNL_GPP(3, 238, 243, INTEL_GPIO_BASE_NOMAP),	/* HVCMOS */
+};
+
+static const struct intel_community cnllp_communities[] = {
+	CNL_LP_COMMUNITY(0, 0, 67, cnllp_community0_gpps),
+	CNL_LP_COMMUNITY(1, 68, 180, cnllp_community1_gpps),
+	CNL_LP_COMMUNITY(2, 181, 243, cnllp_community4_gpps),
+>>>>>>> upstream/android-13
 };
 
 static const struct intel_pinctrl_soc_data cnllp_soc_data = {
@@ -829,6 +915,7 @@ static const struct intel_pinctrl_soc_data cnllp_soc_data = {
 static const struct acpi_device_id cnl_pinctrl_acpi_match[] = {
 	{ "INT3450", (kernel_ulong_t)&cnlh_soc_data },
 	{ "INT34BB", (kernel_ulong_t)&cnllp_soc_data },
+<<<<<<< HEAD
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, cnl_pinctrl_acpi_match);
@@ -853,6 +940,16 @@ static const struct dev_pm_ops cnl_pinctrl_pm_ops = {
 
 static struct platform_driver cnl_pinctrl_driver = {
 	.probe = cnl_pinctrl_probe,
+=======
+	{ }
+};
+MODULE_DEVICE_TABLE(acpi, cnl_pinctrl_acpi_match);
+
+static INTEL_PINCTRL_PM_OPS(cnl_pinctrl_pm_ops);
+
+static struct platform_driver cnl_pinctrl_driver = {
+	.probe = intel_pinctrl_probe_by_hid,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "cannonlake-pinctrl",
 		.acpi_match_table = cnl_pinctrl_acpi_match,

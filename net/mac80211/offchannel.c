@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Off-channel operation helpers
  *
@@ -7,10 +11,14 @@
  * Copyright 2006-2007	Jiri Benc <jbenc@suse.cz>
  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
  * Copyright 2009	Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Copyright (C) 2019 Intel Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <net/mac80211.h>
@@ -28,8 +36,12 @@ static void ieee80211_offchannel_ps_enable(struct ieee80211_sub_if_data *sdata)
 {
 	struct ieee80211_local *local = sdata->local;
 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
+<<<<<<< HEAD
 
 	local->offchannel_ps_enabled = false;
+=======
+	bool offchannel_ps_enabled = false;
+>>>>>>> upstream/android-13
 
 	/* FIXME: what to do when local->pspolling is true? */
 
@@ -40,12 +52,20 @@ static void ieee80211_offchannel_ps_enable(struct ieee80211_sub_if_data *sdata)
 	cancel_work_sync(&local->dynamic_ps_enable_work);
 
 	if (local->hw.conf.flags & IEEE80211_CONF_PS) {
+<<<<<<< HEAD
 		local->offchannel_ps_enabled = true;
+=======
+		offchannel_ps_enabled = true;
+>>>>>>> upstream/android-13
 		local->hw.conf.flags &= ~IEEE80211_CONF_PS;
 		ieee80211_hw_config(local, IEEE80211_CONF_CHANGE_PS);
 	}
 
+<<<<<<< HEAD
 	if (!local->offchannel_ps_enabled ||
+=======
+	if (!offchannel_ps_enabled ||
+>>>>>>> upstream/android-13
 	    !ieee80211_hw_check(&local->hw, PS_NULLFUNC_STACK))
 		/*
 		 * If power save was enabled, no need to send a nullfunc
@@ -60,13 +80,18 @@ static void ieee80211_offchannel_ps_enable(struct ieee80211_sub_if_data *sdata)
 		ieee80211_send_nullfunc(local, sdata, true);
 }
 
+<<<<<<< HEAD
 /* inform AP that we are awake again, unless power save is enabled */
+=======
+/* inform AP that we are awake again */
+>>>>>>> upstream/android-13
 static void ieee80211_offchannel_ps_disable(struct ieee80211_sub_if_data *sdata)
 {
 	struct ieee80211_local *local = sdata->local;
 
 	if (!local->ps_sdata)
 		ieee80211_send_nullfunc(local, sdata, false);
+<<<<<<< HEAD
 	else if (local->offchannel_ps_enabled) {
 		/*
 		 * In !IEEE80211_HW_PS_NULLFUNC_STACK case the hardware
@@ -92,6 +117,14 @@ static void ieee80211_offchannel_ps_disable(struct ieee80211_sub_if_data *sdata)
 		 * had been running before leaving the operating channel,
 		 * restart the timer now and send a nullfunc frame to inform
 		 * the AP that we are awake.
+=======
+	else if (local->hw.conf.dynamic_ps_timeout > 0) {
+		/*
+		 * the dynamic_ps_timer had been running before leaving the
+		 * operating channel, restart the timer now and send a nullfunc
+		 * frame to inform the AP that we are awake so that AP sends
+		 * the buffered packets (if any).
+>>>>>>> upstream/android-13
 		 */
 		ieee80211_send_nullfunc(local, sdata, false);
 		mod_timer(&local->dynamic_ps_timer, jiffies +
@@ -202,6 +235,13 @@ static void ieee80211_roc_notify_destroy(struct ieee80211_roc_work *roc)
 		cfg80211_remain_on_channel_expired(&roc->sdata->wdev,
 						   roc->cookie, roc->chan,
 						   GFP_KERNEL);
+<<<<<<< HEAD
+=======
+	else
+		cfg80211_tx_mgmt_expired(&roc->sdata->wdev,
+					 roc->mgmt_tx_cookie,
+					 roc->chan, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	list_del(&roc->list);
 	kfree(roc);
@@ -262,7 +302,11 @@ static void ieee80211_handle_roc_started(struct ieee80211_roc_work *roc,
 	if (roc->mgmt_tx_cookie) {
 		if (!WARN_ON(!roc->frame)) {
 			ieee80211_tx_skb_tid_band(roc->sdata, roc->frame, 7,
+<<<<<<< HEAD
 						  roc->chan->band, 0);
+=======
+						  roc->chan->band);
+>>>>>>> upstream/android-13
 			roc->frame = NULL;
 		}
 	} else {
@@ -555,6 +599,13 @@ static int ieee80211_start_roc_work(struct ieee80211_local *local,
 
 	lockdep_assert_held(&local->mtx);
 
+<<<<<<< HEAD
+=======
+	if (channel->freq_offset)
+		/* this may work, but is untested */
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	if (local->use_chanctx && !local->ops->remain_on_channel)
 		return -EOPNOTSUPP;
 
@@ -731,7 +782,11 @@ static int ieee80211_cancel_roc(struct ieee80211_local *local,
 	}
 
 	if (local->ops->remain_on_channel) {
+<<<<<<< HEAD
 		ret = drv_cancel_remain_on_channel(local);
+=======
+		ret = drv_cancel_remain_on_channel(local, roc->sdata);
+>>>>>>> upstream/android-13
 		if (WARN_ON_ONCE(ret)) {
 			mutex_unlock(&local->mtx);
 			return ret;
@@ -802,13 +857,21 @@ int ieee80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 		if (!sdata->vif.bss_conf.ibss_joined)
 			need_offchan = true;
 #ifdef CONFIG_MAC80211_MESH
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_MESH_POINT:
 		if (ieee80211_vif_is_mesh(&sdata->vif) &&
 		    !sdata->u.mesh.mesh_id_len)
 			need_offchan = true;
 #endif
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_AP:
 	case NL80211_IFTYPE_AP_VLAN:
 	case NL80211_IFTYPE_P2P_GO:
@@ -910,7 +973,11 @@ int ieee80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 		if (beacon)
 			for (i = 0; i < params->n_csa_offsets; i++)
 				data[params->csa_offsets[i]] =
+<<<<<<< HEAD
 					beacon->csa_current_counter;
+=======
+					beacon->cntdwn_current_counter;
+>>>>>>> upstream/android-13
 
 		rcu_read_unlock();
 	}
@@ -990,7 +1057,11 @@ void ieee80211_roc_purge(struct ieee80211_local *local,
 		if (roc->started) {
 			if (local->ops->remain_on_channel) {
 				/* can race, so ignore return value */
+<<<<<<< HEAD
 				drv_cancel_remain_on_channel(local);
+=======
+				drv_cancel_remain_on_channel(local, sdata);
+>>>>>>> upstream/android-13
 				ieee80211_roc_notify_destroy(roc);
 			} else {
 				roc->abort = true;

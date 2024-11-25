@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * phy-bcm-kona-usb2.c - Broadcom Kona USB2 Phy Driver
  *
  * Copyright (C) 2013 Linaro Limited
  * Matt Porter <mporter@linaro.org>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -102,7 +109,10 @@ static int bcm_kona_usb2_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct bcm_kona_usb *phy;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct phy *gphy;
 	struct phy_provider *phy_provider;
 
@@ -110,8 +120,12 @@ static int bcm_kona_usb2_probe(struct platform_device *pdev)
 	if (!phy)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	phy->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	phy->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(phy->regs))
 		return PTR_ERR(phy->regs);
 

@@ -24,6 +24,7 @@
 #include <linux/user_namespace.h>
 #include <linux/refcount.h>
 #include <linux/kernel_stat.h>
+<<<<<<< HEAD
 
 #include <linux/cgroup-defs.h>
 
@@ -31,6 +32,18 @@
 
 /*
  * All weight knobs on the default hierarhcy should use the following min,
+=======
+#include <linux/android_kabi.h>
+
+#include <linux/cgroup-defs.h>
+
+struct kernel_clone_args;
+
+#ifdef CONFIG_CGROUPS
+
+/*
+ * All weight knobs on the default hierarchy should use the following min,
+>>>>>>> upstream/android-13
  * default and max values.  The default value is the logarithmic center of
  * MIN and MAX and allows 100x to be expressed in both directions.
  */
@@ -58,15 +71,23 @@ struct css_task_iter {
 	struct list_head		*tcset_head;
 
 	struct list_head		*task_pos;
+<<<<<<< HEAD
 	struct list_head		*tasks_head;
 	struct list_head		*mg_tasks_head;
 	struct list_head		*dying_tasks_head;
+=======
+>>>>>>> upstream/android-13
 
 	struct list_head		*cur_tasks_head;
 	struct css_set			*cur_cset;
 	struct css_set			*cur_dcset;
 	struct task_struct		*cur_task;
 	struct list_head		iters_node;	/* css_set->task_iters */
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 extern struct cgroup_root cgrp_dfl_root;
@@ -98,6 +119,11 @@ extern struct css_set init_css_set;
 
 bool css_has_online_children(struct cgroup_subsys_state *css);
 struct cgroup_subsys_state *css_from_id(int id, struct cgroup_subsys *ss);
+<<<<<<< HEAD
+=======
+struct cgroup_subsys_state *cgroup_e_css(struct cgroup *cgroup,
+					 struct cgroup_subsys *ss);
+>>>>>>> upstream/android-13
 struct cgroup_subsys_state *cgroup_get_e_css(struct cgroup *cgroup,
 					     struct cgroup_subsys *ss);
 struct cgroup_subsys_state *css_tryget_online_from_dir(struct dentry *dentry,
@@ -120,9 +146,18 @@ int proc_cgroup_show(struct seq_file *m, struct pid_namespace *ns,
 		     struct pid *pid, struct task_struct *tsk);
 
 void cgroup_fork(struct task_struct *p);
+<<<<<<< HEAD
 extern int cgroup_can_fork(struct task_struct *p);
 extern void cgroup_cancel_fork(struct task_struct *p);
 extern void cgroup_post_fork(struct task_struct *p);
+=======
+extern int cgroup_can_fork(struct task_struct *p,
+			   struct kernel_clone_args *kargs);
+extern void cgroup_cancel_fork(struct task_struct *p,
+			       struct kernel_clone_args *kargs);
+extern void cgroup_post_fork(struct task_struct *p,
+			     struct kernel_clone_args *kargs);
+>>>>>>> upstream/android-13
 void cgroup_exit(struct task_struct *p);
 void cgroup_release(struct task_struct *p);
 void cgroup_free(struct task_struct *p);
@@ -303,6 +338,14 @@ void css_task_iter_end(struct css_task_iter *it);
  * Inline functions.
  */
 
+<<<<<<< HEAD
+=======
+static inline u64 cgroup_id(const struct cgroup *cgrp)
+{
+	return cgrp->kn->id;
+}
+
+>>>>>>> upstream/android-13
 /**
  * css_get - obtain a reference on the specified css
  * @css: target css
@@ -423,6 +466,21 @@ static inline void cgroup_put(struct cgroup *cgrp)
 	css_put(&cgrp->self);
 }
 
+<<<<<<< HEAD
+=======
+extern struct mutex cgroup_mutex;
+
+static inline void cgroup_lock(void)
+{
+	mutex_lock(&cgroup_mutex);
+}
+
+static inline void cgroup_unlock(void)
+{
+	mutex_unlock(&cgroup_mutex);
+}
+
+>>>>>>> upstream/android-13
 /**
  * task_css_set_check - obtain a task's css_set with extra access conditions
  * @task: the task to obtain css_set for
@@ -437,7 +495,10 @@ static inline void cgroup_put(struct cgroup *cgrp)
  * as locks used during the cgroup_subsys::attach() methods.
  */
 #ifdef CONFIG_PROVE_RCU
+<<<<<<< HEAD
 extern struct mutex cgroup_mutex;
+=======
+>>>>>>> upstream/android-13
 extern spinlock_t css_set_lock;
 #define task_css_set_check(task, __c)					\
 	rcu_dereference_check((task)->cgroups,				\
@@ -564,7 +625,11 @@ static inline bool cgroup_is_descendant(struct cgroup *cgrp,
 {
 	if (cgrp->root != ancestor->root || cgrp->level < ancestor->level)
 		return false;
+<<<<<<< HEAD
 	return cgrp->ancestor_ids[ancestor->level] == ancestor->id;
+=======
+	return cgrp->ancestor_ids[ancestor->level] == cgroup_id(ancestor);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -615,7 +680,11 @@ static inline bool cgroup_is_populated(struct cgroup *cgrp)
 /* returns ino associated with a cgroup */
 static inline ino_t cgroup_ino(struct cgroup *cgrp)
 {
+<<<<<<< HEAD
 	return cgrp->kn->id.ino;
+=======
+	return kernfs_ino(cgrp->kn);
+>>>>>>> upstream/android-13
 }
 
 /* cft/css accessors for cftype->write() operation */
@@ -667,6 +736,11 @@ static inline struct psi_group *cgroup_psi(struct cgroup *cgrp)
 	return &cgrp->psi;
 }
 
+<<<<<<< HEAD
+=======
+bool cgroup_psi_enabled(void);
+
+>>>>>>> upstream/android-13
 static inline void cgroup_init_kthreadd(void)
 {
 	/*
@@ -686,6 +760,7 @@ static inline void cgroup_kthread_ready(void)
 	current->no_cgroup_migration = 0;
 }
 
+<<<<<<< HEAD
 static inline union kernfs_node_id *cgroup_get_kernfs_id(struct cgroup *cgrp)
 {
 	return &cgrp->kn->id;
@@ -693,21 +768,42 @@ static inline union kernfs_node_id *cgroup_get_kernfs_id(struct cgroup *cgrp)
 
 void cgroup_path_from_kernfs_id(const union kernfs_node_id *id,
 					char *buf, size_t buflen);
+=======
+void cgroup_path_from_kernfs_id(u64 id, char *buf, size_t buflen);
+struct cgroup *cgroup_get_from_id(u64 id);
+>>>>>>> upstream/android-13
 #else /* !CONFIG_CGROUPS */
 
 struct cgroup_subsys_state;
 struct cgroup;
 
+<<<<<<< HEAD
 static inline void css_put(struct cgroup_subsys_state *css) {}
+=======
+static inline u64 cgroup_id(const struct cgroup *cgrp) { return 1; }
+static inline void css_get(struct cgroup_subsys_state *css) {}
+static inline void css_put(struct cgroup_subsys_state *css) {}
+static inline void cgroup_lock(void) {}
+static inline void cgroup_unlock(void) {}
+>>>>>>> upstream/android-13
 static inline int cgroup_attach_task_all(struct task_struct *from,
 					 struct task_struct *t) { return 0; }
 static inline int cgroupstats_build(struct cgroupstats *stats,
 				    struct dentry *dentry) { return -EINVAL; }
 
 static inline void cgroup_fork(struct task_struct *p) {}
+<<<<<<< HEAD
 static inline int cgroup_can_fork(struct task_struct *p) { return 0; }
 static inline void cgroup_cancel_fork(struct task_struct *p) {}
 static inline void cgroup_post_fork(struct task_struct *p) {}
+=======
+static inline int cgroup_can_fork(struct task_struct *p,
+				  struct kernel_clone_args *kargs) { return 0; }
+static inline void cgroup_cancel_fork(struct task_struct *p,
+				      struct kernel_clone_args *kargs) {}
+static inline void cgroup_post_fork(struct task_struct *p,
+				    struct kernel_clone_args *kargs) {}
+>>>>>>> upstream/android-13
 static inline void cgroup_exit(struct task_struct *p) {}
 static inline void cgroup_release(struct task_struct *p) {}
 static inline void cgroup_free(struct task_struct *p) {}
@@ -716,10 +812,13 @@ static inline int cgroup_init_early(void) { return 0; }
 static inline int cgroup_init(void) { return 0; }
 static inline void cgroup_init_kthreadd(void) {}
 static inline void cgroup_kthread_ready(void) {}
+<<<<<<< HEAD
 static inline union kernfs_node_id *cgroup_get_kernfs_id(struct cgroup *cgrp)
 {
 	return NULL;
 }
+=======
+>>>>>>> upstream/android-13
 
 static inline struct cgroup *cgroup_parent(struct cgroup *cgrp)
 {
@@ -731,14 +830,32 @@ static inline struct psi_group *cgroup_psi(struct cgroup *cgrp)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool cgroup_psi_enabled(void)
+{
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static inline bool task_under_cgroup_hierarchy(struct task_struct *task,
 					       struct cgroup *ancestor)
 {
 	return true;
 }
 
+<<<<<<< HEAD
 static inline void cgroup_path_from_kernfs_id(const union kernfs_node_id *id,
 	char *buf, size_t buflen) {}
+=======
+static inline void cgroup_path_from_kernfs_id(u64 id, char *buf, size_t buflen)
+{}
+
+static inline struct cgroup *cgroup_get_from_id(u64 id)
+{
+	return NULL;
+}
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_CGROUPS */
 
 #ifdef CONFIG_CGROUPS
@@ -812,17 +929,21 @@ static inline void cgroup_account_cputime_field(struct task_struct *task,
  */
 #ifdef CONFIG_SOCK_CGROUP_DATA
 
+<<<<<<< HEAD
 #if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
 extern spinlock_t cgroup_sk_update_lock;
 #endif
 
 void cgroup_sk_alloc_disable(void);
+=======
+>>>>>>> upstream/android-13
 void cgroup_sk_alloc(struct sock_cgroup_data *skcd);
 void cgroup_sk_clone(struct sock_cgroup_data *skcd);
 void cgroup_sk_free(struct sock_cgroup_data *skcd);
 
 static inline struct cgroup *sock_cgroup_ptr(struct sock_cgroup_data *skcd)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_CGROUP_NET_PRIO) || defined(CONFIG_CGROUP_NET_CLASSID)
 	unsigned long v;
 
@@ -839,6 +960,9 @@ static inline struct cgroup *sock_cgroup_ptr(struct sock_cgroup_data *skcd)
 #else
 	return (struct cgroup *)(unsigned long)skcd->val;
 #endif
+=======
+	return skcd->cgroup;
+>>>>>>> upstream/android-13
 }
 
 #else	/* CONFIG_CGROUP_DATA */
@@ -850,7 +974,10 @@ static inline void cgroup_sk_free(struct sock_cgroup_data *skcd) {}
 #endif	/* CONFIG_CGROUP_DATA */
 
 struct cgroup_namespace {
+<<<<<<< HEAD
 	refcount_t		count;
+=======
+>>>>>>> upstream/android-13
 	struct ns_common	ns;
 	struct user_namespace	*user_ns;
 	struct ucounts		*ucounts;
@@ -885,12 +1012,20 @@ copy_cgroup_ns(unsigned long flags, struct user_namespace *user_ns,
 static inline void get_cgroup_ns(struct cgroup_namespace *ns)
 {
 	if (ns)
+<<<<<<< HEAD
 		refcount_inc(&ns->count);
+=======
+		refcount_inc(&ns->ns.count);
+>>>>>>> upstream/android-13
 }
 
 static inline void put_cgroup_ns(struct cgroup_namespace *ns)
 {
+<<<<<<< HEAD
 	if (ns && refcount_dec_and_test(&ns->count))
+=======
+	if (ns && refcount_dec_and_test(&ns->ns.count))
+>>>>>>> upstream/android-13
 		free_cgroup_ns(ns);
 }
 
@@ -902,6 +1037,7 @@ void cgroup_update_frozen(struct cgroup *cgrp);
 void cgroup_freeze(struct cgroup *cgrp, bool freeze);
 void cgroup_freezer_migrate_task(struct task_struct *task, struct cgroup *src,
 				 struct cgroup *dst);
+<<<<<<< HEAD
 void cgroup_freezer_frozen_exit(struct task_struct *task);
 static inline bool cgroup_task_freeze(struct task_struct *task)
 {
@@ -916,6 +1052,8 @@ static inline bool cgroup_task_freeze(struct task_struct *task)
 
 	return ret;
 }
+=======
+>>>>>>> upstream/android-13
 
 static inline bool cgroup_task_frozen(struct task_struct *task)
 {
@@ -926,10 +1064,13 @@ static inline bool cgroup_task_frozen(struct task_struct *task)
 
 static inline void cgroup_enter_frozen(void) { }
 static inline void cgroup_leave_frozen(bool always_leave) { }
+<<<<<<< HEAD
 static inline bool cgroup_task_freeze(struct task_struct *task)
 {
 	return false;
 }
+=======
+>>>>>>> upstream/android-13
 static inline bool cgroup_task_frozen(struct task_struct *task)
 {
 	return false;
@@ -937,4 +1078,25 @@ static inline bool cgroup_task_frozen(struct task_struct *task)
 
 #endif /* !CONFIG_CGROUPS */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CGROUP_BPF
+static inline void cgroup_bpf_get(struct cgroup *cgrp)
+{
+	percpu_ref_get(&cgrp->bpf.refcnt);
+}
+
+static inline void cgroup_bpf_put(struct cgroup *cgrp)
+{
+	percpu_ref_put(&cgrp->bpf.refcnt);
+}
+
+#else /* CONFIG_CGROUP_BPF */
+
+static inline void cgroup_bpf_get(struct cgroup *cgrp) {}
+static inline void cgroup_bpf_put(struct cgroup *cgrp) {}
+
+#endif /* CONFIG_CGROUP_BPF */
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_CGROUP_H */

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Device Tree Source for the Marzen board
+=======
+ * Device Tree Source for the R-Car H1 (R8A77790) Marzen board
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2013 Renesas Solutions Corp.
  * Copyright (C) 2013 Simon Horman
@@ -21,7 +25,11 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "ignore_loglevel root=/dev/nfs ip=on";
+=======
+		bootargs = "ignore_loglevel rw root=/dev/nfs ip=on";
+>>>>>>> upstream/android-13
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -48,8 +56,12 @@
 
 		gpios = <&gpio3 20 GPIO_ACTIVE_HIGH>;
 		gpios-states = <1>;
+<<<<<<< HEAD
 		states = <3300000 1
 			  1800000 0>;
+=======
+		states = <3300000 1>, <1800000 0>;
+>>>>>>> upstream/android-13
 	};
 
 	ethernet@18000000 {
@@ -146,7 +158,11 @@
 	status = "okay";
 
 	clocks = <&mstp1_clks R8A7779_CLK_DU>, <&x3_clk>;
+<<<<<<< HEAD
 	clock-names = "du", "dclkin.0";
+=======
+	clock-names = "du.0", "dclkin.0";
+>>>>>>> upstream/android-13
 
 	ports {
 		port@0 {

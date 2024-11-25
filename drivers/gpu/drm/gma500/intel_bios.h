@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2006 Intel Corporation
  *
@@ -17,13 +18,25 @@
  * Authors:
  *    Eric Anholt <eric@anholt.net>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2006 Intel Corporation
+ *
+ * Authors:
+ *    Eric Anholt <eric@anholt.net>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _INTEL_BIOS_H_
 #define _INTEL_BIOS_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_dp_helper.h>
+=======
+struct drm_device;
+>>>>>>> upstream/android-13
 
 struct vbt_header {
 	u8 signature[20];		/**< Always starts with 'VBT$' */
@@ -241,7 +254,11 @@ struct bdb_general_definitions {
 	 * number = (block_size - sizeof(bdb_general_definitions))/
 	 *	     sizeof(child_device_config);
 	 */
+<<<<<<< HEAD
 	struct child_device_config devices[0];
+=======
+	struct child_device_config devices[];
+>>>>>>> upstream/android-13
 };
 
 struct bdb_lvds_options {

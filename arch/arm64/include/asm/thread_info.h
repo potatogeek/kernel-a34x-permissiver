@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/include/asm/thread_info.h
  *
  * Copyright (C) 2002 Russell King.
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,12 +20,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_THREAD_INFO_H
 #define __ASM_THREAD_INFO_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/compiler.h>
 
 #ifndef __ASSEMBLY__
@@ -31,13 +41,17 @@ struct task_struct;
 #include <asm/stack_pointer.h>
 #include <asm/types.h>
 
+<<<<<<< HEAD
 typedef unsigned long mm_segment_t;
 
+=======
+>>>>>>> upstream/android-13
 /*
  * low level task data that entry.S needs immediate access to.
  */
 struct thread_info {
 	unsigned long		flags;		/* low level flags */
+<<<<<<< HEAD
 	mm_segment_t		addr_limit;	/* address limit */
 #ifdef CONFIG_ARM64_SW_TTBR0_PAN
 	u64			ttbr0;		/* saved TTBR0_EL1 */
@@ -45,6 +59,26 @@ struct thread_info {
 	int			preempt_count;	/* 0 => preemptable, <0 => bug */
 #ifdef CONFIG_SHADOW_CALL_STACK
 	void			*shadow_call_stack;
+=======
+#ifdef CONFIG_ARM64_SW_TTBR0_PAN
+	u64			ttbr0;		/* saved TTBR0_EL1 */
+#endif
+	union {
+		u64		preempt_count;	/* 0 => preemptible, <0 => bug */
+		struct {
+#ifdef CONFIG_CPU_BIG_ENDIAN
+			u32	need_resched;
+			u32	count;
+#else
+			u32	count;
+			u32	need_resched;
+#endif
+		} preempt;
+	};
+#ifdef CONFIG_SHADOW_CALL_STACK
+	void			*scs_base;
+	void			*scs_sp;
+>>>>>>> upstream/android-13
 #endif
 };
 
@@ -59,6 +93,7 @@ void arch_setup_new_exec(void);
 #define arch_setup_new_exec     arch_setup_new_exec
 
 void arch_release_task_struct(struct task_struct *tsk);
+<<<<<<< HEAD
 
 #endif
 
@@ -84,6 +119,25 @@ void arch_release_task_struct(struct task_struct *tsk);
 #define TIF_SYSCALL_AUDIT	9
 #define TIF_SYSCALL_TRACEPOINT	10
 #define TIF_SECCOMP		11
+=======
+int arch_dup_task_struct(struct task_struct *dst,
+				struct task_struct *src);
+
+#endif
+
+#define TIF_SIGPENDING		0	/* signal pending */
+#define TIF_NEED_RESCHED	1	/* rescheduling necessary */
+#define TIF_NOTIFY_RESUME	2	/* callback before returning to user */
+#define TIF_FOREIGN_FPSTATE	3	/* CPU's FP state is not current's */
+#define TIF_UPROBE		4	/* uprobe breakpoint or singlestep */
+#define TIF_MTE_ASYNC_FAULT	5	/* MTE Asynchronous Tag Check Fault */
+#define TIF_NOTIFY_SIGNAL	6	/* signal notifications exist */
+#define TIF_SYSCALL_TRACE	8	/* syscall trace active */
+#define TIF_SYSCALL_AUDIT	9	/* syscall auditing */
+#define TIF_SYSCALL_TRACEPOINT	10	/* syscall tracepoint for ftrace */
+#define TIF_SECCOMP		11	/* syscall secure computing */
+#define TIF_SYSCALL_EMU		12	/* syscall emulation active */
+>>>>>>> upstream/android-13
 #define TIF_MEMDIE		18	/* is terminating due to OOM killer */
 #define TIF_FREEZE		19
 #define TIF_RESTORE_SIGMASK	20
@@ -98,11 +152,15 @@ void arch_release_task_struct(struct task_struct *tsk);
 #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
 #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
 #define _TIF_FOREIGN_FPSTATE	(1 << TIF_FOREIGN_FPSTATE)
+<<<<<<< HEAD
 #define _TIF_NOHZ		(1 << TIF_NOHZ)
+=======
+>>>>>>> upstream/android-13
 #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
 #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
 #define _TIF_SYSCALL_TRACEPOINT	(1 << TIF_SYSCALL_TRACEPOINT)
 #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
+<<<<<<< HEAD
 #define _TIF_UPROBE		(1 << TIF_UPROBE)
 #define _TIF_FSCHECK		(1 << TIF_FSCHECK)
 #define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
@@ -116,13 +174,45 @@ void arch_release_task_struct(struct task_struct *tsk);
 #define _TIF_SYSCALL_WORK	(_TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT | \
 				 _TIF_SYSCALL_TRACEPOINT | _TIF_SECCOMP | \
 				 _TIF_NOHZ)
+=======
+#define _TIF_SYSCALL_EMU	(1 << TIF_SYSCALL_EMU)
+#define _TIF_UPROBE		(1 << TIF_UPROBE)
+#define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
+#define _TIF_32BIT		(1 << TIF_32BIT)
+#define _TIF_SVE		(1 << TIF_SVE)
+#define _TIF_MTE_ASYNC_FAULT	(1 << TIF_MTE_ASYNC_FAULT)
+#define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
+
+#define _TIF_WORK_MASK		(_TIF_NEED_RESCHED | _TIF_SIGPENDING | \
+				 _TIF_NOTIFY_RESUME | _TIF_FOREIGN_FPSTATE | \
+				 _TIF_UPROBE | _TIF_MTE_ASYNC_FAULT | \
+				 _TIF_NOTIFY_SIGNAL)
+
+#define _TIF_SYSCALL_WORK	(_TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT | \
+				 _TIF_SYSCALL_TRACEPOINT | _TIF_SECCOMP | \
+				 _TIF_SYSCALL_EMU)
+
+#ifdef CONFIG_SHADOW_CALL_STACK
+#define INIT_SCS							\
+	.scs_base	= init_shadow_call_stack,			\
+	.scs_sp		= init_shadow_call_stack,
+#else
+#define INIT_SCS
+#endif
+>>>>>>> upstream/android-13
 
 #define INIT_THREAD_INFO(tsk)						\
 {									\
 	.flags		= _TIF_FOREIGN_FPSTATE,				\
 	.preempt_count	= INIT_PREEMPT_COUNT,				\
+<<<<<<< HEAD
 	.addr_limit	= KERNEL_DS,					\
 }
 
 #endif /* __KERNEL__ */
+=======
+	INIT_SCS							\
+}
+
+>>>>>>> upstream/android-13
 #endif /* __ASM_THREAD_INFO_H */

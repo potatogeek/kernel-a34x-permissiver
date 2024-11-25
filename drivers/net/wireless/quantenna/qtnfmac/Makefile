@@ -19,6 +19,7 @@ qtnfmac-objs += \
 
 #
 
+<<<<<<< HEAD
 obj-$(CONFIG_QTNFMAC_PEARL_PCIE) += qtnfmac_pearl_pcie.o
 
 qtnfmac_pearl_pcie-objs += \
@@ -26,3 +27,14 @@ qtnfmac_pearl_pcie-objs += \
 	pearl/pcie.o
 
 qtnfmac_pearl_pcie-$(CONFIG_DEBUG_FS) += debug.o
+=======
+obj-$(CONFIG_QTNFMAC_PCIE) += qtnfmac_pcie.o
+
+qtnfmac_pcie-objs += \
+	shm_ipc.o \
+	pcie/pcie.o \
+	pcie/pearl_pcie.o \
+	pcie/topaz_pcie.o
+
+qtnfmac_pcie-$(CONFIG_DEBUG_FS) += debug.o
+>>>>>>> upstream/android-13

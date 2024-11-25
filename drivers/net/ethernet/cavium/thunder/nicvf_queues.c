@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -59,7 +65,11 @@ static int nicvf_alloc_q_desc_mem(struct nicvf *nic, struct q_desc_mem *dmem,
 	dmem->q_len = q_len;
 	dmem->size = (desc_size * q_len) + align_bytes;
 	/* Save address, need it while freeing */
+<<<<<<< HEAD
 	dmem->unalign_base = dma_zalloc_coherent(&nic->pdev->dev, dmem->size,
+=======
+	dmem->unalign_base = dma_alloc_coherent(&nic->pdev->dev, dmem->size,
+>>>>>>> upstream/android-13
 						&dmem->dma, GFP_KERNEL);
 	if (!dmem->unalign_base)
 		return -ENOMEM;
@@ -463,9 +473,15 @@ void nicvf_rbdr_work(struct work_struct *work)
 }
 
 /* In Softirq context, alloc rcv buffers in atomic mode */
+<<<<<<< HEAD
 void nicvf_rbdr_task(unsigned long data)
 {
 	struct nicvf *nic = (struct nicvf *)data;
+=======
+void nicvf_rbdr_task(struct tasklet_struct *t)
+{
+	struct nicvf *nic = from_tasklet(nic, t, rbdr_task);
+>>>>>>> upstream/android-13
 
 	nicvf_refill_rbdr(nic, GFP_ATOMIC);
 	if (nic->rb_alloc_fail) {
@@ -773,7 +789,11 @@ static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
 	rq->caching = 1;
 
 	/* Driver have no proper error path for failed XDP RX-queue info reg */
+<<<<<<< HEAD
 	WARN_ON(xdp_rxq_info_reg(&rq->xdp_rxq, nic->netdev, qidx) < 0);
+=======
+	WARN_ON(xdp_rxq_info_reg(&rq->xdp_rxq, nic->netdev, qidx, 0) < 0);
+>>>>>>> upstream/android-13
 
 	/* Send a mailbox msg to PF to config RQ */
 	mbx.rq.msg = NIC_MBOX_MSG_RQ_CFG;
@@ -1182,13 +1202,20 @@ void nicvf_sq_disable(struct nicvf *nic, int qidx)
 void nicvf_sq_free_used_descs(struct net_device *netdev, struct snd_queue *sq,
 			      int qidx)
 {
+<<<<<<< HEAD
 	u64 head, tail;
+=======
+	u64 head;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	struct nicvf *nic = netdev_priv(netdev);
 	struct sq_hdr_subdesc *hdr;
 
 	head = nicvf_queue_reg_read(nic, NIC_QSET_SQ_0_7_HEAD, qidx) >> 4;
+<<<<<<< HEAD
 	tail = nicvf_queue_reg_read(nic, NIC_QSET_SQ_0_7_TAIL, qidx) >> 4;
+=======
+>>>>>>> upstream/android-13
 	while (sq->head != head) {
 		hdr = (struct sq_hdr_subdesc *)GET_SQ_DESC(sq, sq->head);
 		if (hdr->subdesc_type != SQ_DESC_TYPE_HEADER) {
@@ -1493,9 +1520,16 @@ static int nicvf_sq_append_tso(struct nicvf *nic, struct snd_queue *sq,
 	int seg_subdescs = 0, desc_cnt = 0;
 	int seg_len, total_len, data_left;
 	int hdr_qentry = qentry;
+<<<<<<< HEAD
 	int hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
 
 	tso_start(skb, &tso);
+=======
+	int hdr_len;
+
+	hdr_len = tso_start(skb, &tso);
+
+>>>>>>> upstream/android-13
 	total_len = skb->len - hdr_len;
 	while (total_len > 0) {
 		char *hdr;
@@ -1591,15 +1625,23 @@ int nicvf_sq_append_skb(struct nicvf *nic, struct snd_queue *sq,
 		goto doorbell;
 
 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+<<<<<<< HEAD
 		const struct skb_frag_struct *frag;
 
 		frag = &skb_shinfo(skb)->frags[i];
+=======
+		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+>>>>>>> upstream/android-13
 
 		qentry = nicvf_get_nxt_sqentry(sq, qentry);
 		size = skb_frag_size(frag);
 		dma_addr = dma_map_page_attrs(&nic->pdev->dev,
 					      skb_frag_page(frag),
+<<<<<<< HEAD
 					      frag->page_offset, size,
+=======
+					      skb_frag_off(frag), size,
+>>>>>>> upstream/android-13
 					      DMA_TO_DEVICE,
 					      DMA_ATTR_SKIP_CPU_SYNC);
 		if (dma_mapping_error(&nic->pdev->dev, dma_addr)) {

@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  tifm_sd.c - TI FlashMedia driver
  *
  *  Copyright (C) 2006 Alex Dubov <oakad@yahoo.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  * Special thanks to Brad Campbell for extensive testing of this driver.
  *
+=======
+ * Special thanks to Brad Campbell for extensive testing of this driver.
+>>>>>>> upstream/android-13
  */
 
 
@@ -77,6 +85,11 @@ module_param(fixed_timeout, bool, 0644);
 
 #define TIFM_MMCSD_MAX_BLOCK_SIZE  0x0800UL
 
+<<<<<<< HEAD
+=======
+#define TIFM_MMCSD_REQ_TIMEOUT_MS  1000
+
+>>>>>>> upstream/android-13
 enum {
 	CMD_READY    = 0x0001,
 	FIFO_READY   = 0x0002,
@@ -336,7 +349,12 @@ static unsigned int tifm_sd_op_flags(struct mmc_command *cmd)
 		rc |= TIFM_MMCSD_RSP_R0;
 		break;
 	case MMC_RSP_R1B:
+<<<<<<< HEAD
 		rc |= TIFM_MMCSD_RSP_BUSY; // deliberate fall-through
+=======
+		rc |= TIFM_MMCSD_RSP_BUSY;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MMC_RSP_R1:
 		rc |= TIFM_MMCSD_RSP_R1;
 		break;
@@ -670,8 +688,13 @@ static void tifm_sd_request(struct mmc_host *mmc, struct mmc_request *mrq)
 
 			if(1 != tifm_map_sg(sock, &host->bounce_buf, 1,
 					    r_data->flags & MMC_DATA_WRITE
+<<<<<<< HEAD
 					    ? PCI_DMA_TODEVICE
 					    : PCI_DMA_FROMDEVICE)) {
+=======
+					    ? DMA_TO_DEVICE
+					    : DMA_FROM_DEVICE)) {
+>>>>>>> upstream/android-13
 				pr_err("%s : scatterlist map failed\n",
 				       dev_name(&sock->dev));
 				mrq->cmd->error = -ENOMEM;
@@ -681,15 +704,25 @@ static void tifm_sd_request(struct mmc_host *mmc, struct mmc_request *mrq)
 						   r_data->sg_len,
 						   r_data->flags
 						   & MMC_DATA_WRITE
+<<<<<<< HEAD
 						   ? PCI_DMA_TODEVICE
 						   : PCI_DMA_FROMDEVICE);
+=======
+						   ? DMA_TO_DEVICE
+						   : DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			if (host->sg_len < 1) {
 				pr_err("%s : scatterlist map failed\n",
 				       dev_name(&sock->dev));
 				tifm_unmap_sg(sock, &host->bounce_buf, 1,
 					      r_data->flags & MMC_DATA_WRITE
+<<<<<<< HEAD
 					      ? PCI_DMA_TODEVICE
 					      : PCI_DMA_FROMDEVICE);
+=======
+					      ? DMA_TO_DEVICE
+					      : DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				mrq->cmd->error = -ENOMEM;
 				goto err_out;
 			}
@@ -732,9 +765,15 @@ err_out:
 	mmc_request_done(mmc, mrq);
 }
 
+<<<<<<< HEAD
 static void tifm_sd_end_cmd(unsigned long data)
 {
 	struct tifm_sd *host = (struct tifm_sd*)data;
+=======
+static void tifm_sd_end_cmd(struct tasklet_struct *t)
+{
+	struct tifm_sd *host = from_tasklet(host, t, finish_tasklet);
+>>>>>>> upstream/android-13
 	struct tifm_dev *sock = host->dev;
 	struct mmc_host *mmc = tifm_get_drvdata(sock);
 	struct mmc_request *mrq;
@@ -763,10 +802,17 @@ static void tifm_sd_end_cmd(unsigned long data)
 		} else {
 			tifm_unmap_sg(sock, &host->bounce_buf, 1,
 				      (r_data->flags & MMC_DATA_WRITE)
+<<<<<<< HEAD
 				      ? PCI_DMA_TODEVICE : PCI_DMA_FROMDEVICE);
 			tifm_unmap_sg(sock, r_data->sg, r_data->sg_len,
 				      (r_data->flags & MMC_DATA_WRITE)
 				      ? PCI_DMA_TODEVICE : PCI_DMA_FROMDEVICE);
+=======
+				      ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+			tifm_unmap_sg(sock, r_data->sg, r_data->sg_len,
+				      (r_data->flags & MMC_DATA_WRITE)
+				      ? DMA_TO_DEVICE : DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		}
 
 		r_data->bytes_xfered = r_data->blocks
@@ -888,7 +934,10 @@ static int tifm_sd_initialize_host(struct tifm_sd *host)
 	struct tifm_dev *sock = host->dev;
 
 	writel(0, sock->addr + SOCK_MMCSD_INT_ENABLE);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	host->clk_div = 61;
 	host->clk_freq = 20000000;
 	writel(TIFM_MMCSD_RESET, sock->addr + SOCK_MMCSD_SYSTEM_CONTROL);
@@ -939,7 +988,10 @@ static int tifm_sd_initialize_host(struct tifm_sd *host)
 	writel(TIFM_MMCSD_CERR | TIFM_MMCSD_BRS | TIFM_MMCSD_EOC
 	       | TIFM_MMCSD_ERRMASK,
 	       sock->addr + SOCK_MMCSD_INT_ENABLE);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -964,10 +1016,21 @@ static int tifm_sd_probe(struct tifm_dev *sock)
 	host = mmc_priv(mmc);
 	tifm_set_drvdata(sock, mmc);
 	host->dev = sock;
+<<<<<<< HEAD
 	host->timeout_jiffies = msecs_to_jiffies(1000);
 
 	tasklet_init(&host->finish_tasklet, tifm_sd_end_cmd,
 		     (unsigned long)host);
+=======
+	host->timeout_jiffies = msecs_to_jiffies(TIFM_MMCSD_REQ_TIMEOUT_MS);
+	/*
+	 * We use a fixed request timeout of 1s, hence inform the core about it.
+	 * A future improvement should instead respect the cmd->busy_timeout.
+	 */
+	mmc->max_busy_timeout = TIFM_MMCSD_REQ_TIMEOUT_MS;
+
+	tasklet_setup(&host->finish_tasklet, tifm_sd_end_cmd);
+>>>>>>> upstream/android-13
 	timer_setup(&host->timer, tifm_sd_abort, 0);
 
 	mmc->ops = &tifm_sd_ops;
@@ -1004,7 +1067,10 @@ static void tifm_sd_remove(struct tifm_dev *sock)
 	spin_lock_irqsave(&sock->lock, flags);
 	host->eject = 1;
 	writel(0, sock->addr + SOCK_MMCSD_INT_ENABLE);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sock->lock, flags);
 
 	tasklet_kill(&host->finish_tasklet);

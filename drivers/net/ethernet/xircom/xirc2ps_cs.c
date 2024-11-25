@@ -288,7 +288,11 @@ struct local_info {
  */
 static netdev_tx_t do_start_xmit(struct sk_buff *skb,
 				       struct net_device *dev);
+<<<<<<< HEAD
 static void xirc_tx_timeout(struct net_device *dev);
+=======
+static void xirc_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void xirc2ps_tx_timeout_task(struct work_struct *work);
 static void set_addresses(struct net_device *dev);
 static void set_multicast_list(struct net_device *dev);
@@ -464,7 +468,11 @@ static const struct net_device_ops netdev_ops = {
 	.ndo_start_xmit		= do_start_xmit,
 	.ndo_tx_timeout 	= xirc_tx_timeout,
 	.ndo_set_config		= do_config,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= do_ioctl,
+=======
+	.ndo_eth_ioctl		= do_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= set_multicast_list,
 	.ndo_set_mac_address 	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
@@ -798,8 +806,11 @@ xirc2ps_config(struct pcmcia_device * link)
 	    goto config_error;
     }
   port_found:
+<<<<<<< HEAD
     if (err)
 	 goto config_error;
+=======
+>>>>>>> upstream/android-13
 
     /****************
      * Now allocate an interrupt line.	Note that this does not
@@ -1203,7 +1214,11 @@ xirc2ps_tx_timeout_task(struct work_struct *work)
 }
 
 static void
+<<<<<<< HEAD
 xirc_tx_timeout(struct net_device *dev)
+=======
+xirc_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
     struct local_info *lp = netdev_priv(dev);
     dev->stats.tx_errors++;
@@ -1234,7 +1249,11 @@ do_start_xmit(struct sk_buff *skb, struct net_device *dev)
     if (pktlen < ETH_ZLEN)
     {
         if (skb_padto(skb, ETH_ZLEN))
+<<<<<<< HEAD
         	return NETDEV_TX_OK;
+=======
+		return NETDEV_TX_OK;
+>>>>>>> upstream/android-13
 	pktlen = ETH_ZLEN;
     }
 
@@ -1434,7 +1453,11 @@ do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
     switch(cmd) {
       case SIOCGMIIPHY:		/* Get the address of the PHY in use. */
 	data->phy_id = 0;	/* we have only this address */
+<<<<<<< HEAD
 	/* fall through */
+=======
+	fallthrough;
+>>>>>>> upstream/android-13
       case SIOCGMIIREG:		/* Read the specified MII register. */
 	data->val_out = mii_rd(ioaddr, data->phy_id & 0x1f,
 			       data->reg_num & 0x1f);
@@ -1473,7 +1496,11 @@ do_reset(struct net_device *dev, int full)
     unsigned int ioaddr = dev->base_addr;
     unsigned value;
 
+<<<<<<< HEAD
     pr_debug("%s: do_reset(%p,%d)\n", dev? dev->name:"eth?", dev, full);
+=======
+    pr_debug("%s: do_reset(%p,%d)\n", dev->name, dev, full);
+>>>>>>> upstream/android-13
 
     hardreset(dev);
     PutByte(XIRCREG_CR, SoftReset); /* set */

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Line 6 Linux USB driver
  *
  * Copyright (C) 2004-2010 Markus Grabner (grabner@icg.tugraz.at)
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -396,7 +403,10 @@ static int snd_line6_playback_close(struct snd_pcm_substream *substream)
 const struct snd_pcm_ops snd_line6_playback_ops = {
 	.open = snd_line6_playback_open,
 	.close = snd_line6_playback_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params = snd_line6_hw_params,
 	.hw_free = snd_line6_hw_free,
 	.prepare = snd_line6_prepare,

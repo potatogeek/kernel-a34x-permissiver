@@ -60,7 +60,12 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x2000000>;
 	};
 
@@ -80,6 +85,7 @@
 		dma-ranges = <0xc0000000 0x0 0x10000000>;
 	};
 
+<<<<<<< HEAD
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -92,10 +98,32 @@
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 		};
+=======
+	vdda: regulator-vdda {
+		compatible = "regulator-fixed";
+		regulator-name = "vdda";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	vref: regulator-vref {
+		compatible = "regulator-fixed";
+		regulator-name = "vref";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	vdd_panel: vdd-panel {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_panel";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+>>>>>>> upstream/android-13
 	};
 
 	leds {
 		compatible = "gpio-leds";
+<<<<<<< HEAD
 		green {
 			gpios = <&gpiog 6 1>;
 			linux,default-trigger = "heartbeat";
@@ -107,21 +135,45 @@
 			gpios = <&gpiog 10 1>;
 		};
 		blue {
+=======
+		led-green {
+			gpios = <&gpiog 6 1>;
+			linux,default-trigger = "heartbeat";
+		};
+		led-orange {
+			gpios = <&gpiog 7 1>;
+		};
+		led-red {
+			gpios = <&gpiog 10 1>;
+		};
+		led-blue {
+>>>>>>> upstream/android-13
 			gpios = <&gpiog 12 1>;
 		};
 	};
 
+<<<<<<< HEAD
 	gpio_keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		autorepeat;
 		button@0 {
+=======
+	gpio-keys {
+		compatible = "gpio-keys";
+		autorepeat;
+		button-0 {
+>>>>>>> upstream/android-13
 			label = "Wake up";
 			linux,code = <KEY_WAKEUP>;
 			gpios = <&gpioa 0 0>;
 		};
+<<<<<<< HEAD
 		button@1 {
+=======
+		button-1 {
+>>>>>>> upstream/android-13
 			label = "Tamper";
 			linux,code = <KEY_RESTART>;
 			gpios = <&gpioc 13 0>;
@@ -137,6 +189,10 @@
 
 	panel_rgb: panel-rgb {
 		compatible = "ampire,am-480272h3tmqw-t01h";
+<<<<<<< HEAD
+=======
+		power-supply = <&vdd_panel>;
+>>>>>>> upstream/android-13
 		status = "okay";
 		port {
 			panel_in_rgb: endpoint {
@@ -156,7 +212,12 @@
 &adc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&adc3_in8_pin>;
+<<<<<<< HEAD
 	vref-supply = <&reg_vref>;
+=======
+	vdda-supply = <&vdda>;
+	vref-supply = <&vref>;
+>>>>>>> upstream/android-13
 	status = "okay";
 	adc3: adc@200 {
 		st,adc-channels = <8>;
@@ -178,6 +239,10 @@
 	port {
 		dcmi_0: endpoint {
 			remote-endpoint = <&ov2640_0>;
+<<<<<<< HEAD
+=======
+			bus-type = <5>;
+>>>>>>> upstream/android-13
 			bus-width = <8>;
 			hsync-active = <0>;
 			vsync-active = <0>;
@@ -230,9 +295,14 @@
 
 &ltdc {
 	status = "okay";
+<<<<<<< HEAD
 	pinctrl-0 = <&ltdc_pins>;
 	pinctrl-names = "default";
 	dma-ranges;
+=======
+	pinctrl-0 = <&ltdc_pins_a>;
+	pinctrl-names = "default";
+>>>>>>> upstream/android-13
 
 	port {
 		ltdc_out_rgb: endpoint {
@@ -264,8 +334,12 @@
 &sdio {
 	status = "okay";
 	vmmc-supply = <&mmc_vcard>;
+<<<<<<< HEAD
 	cd-gpios = <&stmpegpio 15 GPIO_ACTIVE_HIGH>;
 	cd-inverted;
+=======
+	cd-gpios = <&stmpegpio 15 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default", "opendrain";
 	pinctrl-0 = <&sdio_pins>;
 	pinctrl-1 = <&sdio_pins_od>;

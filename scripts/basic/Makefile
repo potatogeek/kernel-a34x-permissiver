@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ###
 # This Makefile lists the most basic programs used during the build process.
 # The programs listed herein are what are needed to do the basic stuff,
@@ -13,3 +14,10 @@ always		:= $(hostprogs-y)
 
 # fixdep is needed to compile other host programs
 $(addprefix $(obj)/,$(filter-out fixdep,$(always))): $(obj)/fixdep
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# fixdep: used to generate dependency information during build process
+
+hostprogs-always-y	+= fixdep
+>>>>>>> upstream/android-13

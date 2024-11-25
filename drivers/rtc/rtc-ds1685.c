@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * An rtc driver for the Dallas/Maxim DS1685/DS1687 and related real-time
  * chips.
@@ -10,10 +14,13 @@
  *    DS17x85/DS17x87 3V/5V Real-Time Clocks, 19-5222, Rev 4/10.
  *    DS1689/DS1693 3V/5V Serialized Real-Time Clocks, Rev 112105.
  *    Application Note 90, Using the Multiplex Bus RTC Extended Features.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -34,7 +41,14 @@
 
 
 /* ----------------------------------------------------------------------- */
+<<<<<<< HEAD
 /* Standard read/write functions if platform does not provide overrides */
+=======
+/*
+ *  Standard read/write
+ *  all registers are mapped in CPU address space
+ */
+>>>>>>> upstream/android-13
 
 /**
  * ds1685_read - read a value from an rtc register.
@@ -62,6 +76,38 @@ ds1685_write(struct ds1685_priv *rtc, int reg, u8 value)
 }
 /* ----------------------------------------------------------------------- */
 
+<<<<<<< HEAD
+=======
+/*
+ * Indirect read/write functions
+ * access happens via address and data register mapped in CPU address space
+ */
+
+/**
+ * ds1685_indirect_read - read a value from an rtc register.
+ * @rtc: pointer to the ds1685 rtc structure.
+ * @reg: the register address to read.
+ */
+static u8
+ds1685_indirect_read(struct ds1685_priv *rtc, int reg)
+{
+	writeb(reg, rtc->regs);
+	return readb(rtc->data);
+}
+
+/**
+ * ds1685_indirect_write - write a value to an rtc register.
+ * @rtc: pointer to the ds1685 rtc structure.
+ * @reg: the register address to write.
+ * @value: value to write to the register.
+ */
+static void
+ds1685_indirect_write(struct ds1685_priv *rtc, int reg, u8 value)
+{
+	writeb(reg, rtc->regs);
+	writeb(value, rtc->data);
+}
+>>>>>>> upstream/android-13
 
 /* ----------------------------------------------------------------------- */
 /* Inlined functions */
@@ -164,12 +210,21 @@ ds1685_rtc_begin_data_access(struct ds1685_priv *rtc)
 	rtc->write(rtc, RTC_CTRL_B,
 		   (rtc->read(rtc, RTC_CTRL_B) | RTC_CTRL_B_SET));
 
+<<<<<<< HEAD
 	/* Read Ext Ctrl 4A and check the INCR bit to avoid a lockout. */
 	while (rtc->read(rtc, RTC_EXT_CTRL_4A) & RTC_CTRL_4A_INCR)
 		cpu_relax();
 
 	/* Switch to Bank 1 */
 	ds1685_rtc_switch_to_bank1(rtc);
+=======
+	/* Switch to Bank 1 */
+	ds1685_rtc_switch_to_bank1(rtc);
+
+	/* Read Ext Ctrl 4A and check the INCR bit to avoid a lockout. */
+	while (rtc->read(rtc, RTC_EXT_CTRL_4A) & RTC_CTRL_4A_INCR)
+		cpu_relax();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -184,7 +239,11 @@ static inline void
 ds1685_rtc_end_data_access(struct ds1685_priv *rtc)
 {
 	/* Switch back to Bank 0 */
+<<<<<<< HEAD
 	ds1685_rtc_switch_to_bank1(rtc);
+=======
+	ds1685_rtc_switch_to_bank0(rtc);
+>>>>>>> upstream/android-13
 
 	/* Clear the SET bit in Ctrl B */
 	rtc->write(rtc, RTC_CTRL_B,
@@ -192,6 +251,7 @@ ds1685_rtc_end_data_access(struct ds1685_priv *rtc)
 }
 
 /**
+<<<<<<< HEAD
  * ds1685_rtc_begin_ctrl_access - prepare the rtc for ctrl access.
  * @rtc: pointer to the ds1685 rtc structure.
  * @flags: irq flags variable for spin_lock_irqsave.
@@ -228,6 +288,8 @@ ds1685_rtc_end_ctrl_access(struct ds1685_priv *rtc, unsigned long flags)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * ds1685_rtc_get_ssn - retrieve the silicon serial number.
  * @rtc: pointer to the ds1685 rtc structure.
  * @ssn: u8 array to hold the bits of the silicon serial number.
@@ -268,7 +330,11 @@ static int
 ds1685_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
 	struct ds1685_priv *rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	u8 ctrlb, century;
+=======
+	u8 century;
+>>>>>>> upstream/android-13
 	u8 seconds, minutes, hours, wday, mday, month, years;
 
 	/* Fetch the time info from the RTC registers. */
@@ -281,7 +347,10 @@ ds1685_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	month   = rtc->read(rtc, RTC_MONTH);
 	years   = rtc->read(rtc, RTC_YEAR);
 	century = rtc->read(rtc, RTC_CENTURY);
+<<<<<<< HEAD
 	ctrlb   = rtc->read(rtc, RTC_CTRL_B);
+=======
+>>>>>>> upstream/android-13
 	ds1685_rtc_end_data_access(rtc);
 
 	/* bcd2bin if needed, perform fixups, and store to rtc_time. */
@@ -546,10 +615,13 @@ static int
 ds1685_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
 {
 	struct ds1685_priv *rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	unsigned long flags = 0;
 
 	/* Enable/disable the Alarm IRQ-Enable flag. */
 	spin_lock_irqsave(&rtc->lock, flags);
+=======
+>>>>>>> upstream/android-13
 
 	/* Flip the requisite interrupt-enable bit. */
 	if (enabled)
@@ -561,7 +633,10 @@ ds1685_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
 
 	/* Read Control C to clear all the flag bits. */
 	rtc->read(rtc, RTC_CTRL_C);
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rtc->lock, flags);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -569,6 +644,7 @@ ds1685_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
 
 
 /* ----------------------------------------------------------------------- */
+<<<<<<< HEAD
 /* IRQ handler & workqueue. */
 
 /**
@@ -661,6 +737,20 @@ ds1685_rtc_work_queue(struct work_struct *work)
 
 	mutex_lock(rtc_mutex);
 
+=======
+/* IRQ handler */
+
+/**
+ * ds1685_rtc_extended_irq - take care of extended interrupts
+ * @rtc: pointer to the ds1685 rtc structure.
+ * @pdev: platform device pointer.
+ */
+static void
+ds1685_rtc_extended_irq(struct ds1685_priv *rtc, struct platform_device *pdev)
+{
+	u8 ctrl4a, ctrl4b;
+
+>>>>>>> upstream/android-13
 	ds1685_rtc_switch_to_bank1(rtc);
 	ctrl4a = rtc->read(rtc, RTC_EXT_CTRL_4A);
 	ctrl4b = rtc->read(rtc, RTC_EXT_CTRL_4B);
@@ -739,8 +829,79 @@ ds1685_rtc_work_queue(struct work_struct *work)
 				 "RAM-Clear IRQ just occurred!\n");
 	}
 	ds1685_rtc_switch_to_bank0(rtc);
+<<<<<<< HEAD
 
 	mutex_unlock(rtc_mutex);
+=======
+}
+
+/**
+ * ds1685_rtc_irq_handler - IRQ handler.
+ * @irq: IRQ number.
+ * @dev_id: platform device pointer.
+ */
+static irqreturn_t
+ds1685_rtc_irq_handler(int irq, void *dev_id)
+{
+	struct platform_device *pdev = dev_id;
+	struct ds1685_priv *rtc = platform_get_drvdata(pdev);
+	u8 ctrlb, ctrlc;
+	unsigned long events = 0;
+	u8 num_irqs = 0;
+
+	/* Abort early if the device isn't ready yet (i.e., DEBUG_SHIRQ). */
+	if (unlikely(!rtc))
+		return IRQ_HANDLED;
+
+	rtc_lock(rtc->dev);
+
+	/* Ctrlb holds the interrupt-enable bits and ctrlc the flag bits. */
+	ctrlb = rtc->read(rtc, RTC_CTRL_B);
+	ctrlc = rtc->read(rtc, RTC_CTRL_C);
+
+	/* Is the IRQF bit set? */
+	if (likely(ctrlc & RTC_CTRL_C_IRQF)) {
+		/*
+		 * We need to determine if it was one of the standard
+		 * events: PF, AF, or UF.  If so, we handle them and
+		 * update the RTC core.
+		 */
+		if (likely(ctrlc & RTC_CTRL_B_PAU_MASK)) {
+			events = RTC_IRQF;
+
+			/* Check for a periodic interrupt. */
+			if ((ctrlb & RTC_CTRL_B_PIE) &&
+			    (ctrlc & RTC_CTRL_C_PF)) {
+				events |= RTC_PF;
+				num_irqs++;
+			}
+
+			/* Check for an alarm interrupt. */
+			if ((ctrlb & RTC_CTRL_B_AIE) &&
+			    (ctrlc & RTC_CTRL_C_AF)) {
+				events |= RTC_AF;
+				num_irqs++;
+			}
+
+			/* Check for an update interrupt. */
+			if ((ctrlb & RTC_CTRL_B_UIE) &&
+			    (ctrlc & RTC_CTRL_C_UF)) {
+				events |= RTC_UF;
+				num_irqs++;
+			}
+		} else {
+			/*
+			 * One of the "extended" interrupts was received that
+			 * is not recognized by the RTC core.
+			 */
+			ds1685_rtc_extended_irq(rtc, pdev);
+		}
+	}
+	rtc_update_irq(rtc->dev, num_irqs, events);
+	rtc_unlock(rtc->dev);
+
+	return events ? IRQ_HANDLED : IRQ_NONE;
+>>>>>>> upstream/android-13
 }
 /* ----------------------------------------------------------------------- */
 
@@ -770,6 +931,7 @@ static const char *ds1685_rtc_sqw_freq[16] = {
 	"512Hz", "256Hz", "128Hz", "64Hz", "32Hz", "16Hz", "8Hz", "4Hz", "2Hz"
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_RTC_DS1685_PROC_REGS
 /**
  * ds1685_rtc_print_regs - helper function to print register values.
@@ -797,6 +959,8 @@ ds1685_rtc_print_regs(u8 hex, char *dest)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ds1685_rtc_proc - procfs access function.
  * @dev: pointer to device structure.
@@ -805,6 +969,7 @@ ds1685_rtc_print_regs(u8 hex, char *dest)
 static int
 ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct ds1685_priv *rtc = platform_get_drvdata(pdev);
 	u8 ctrla, ctrlb, ctrlc, ctrld, ctrl4a, ctrl4b, ssn[8];
@@ -812,13 +977,21 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
 #ifdef CONFIG_RTC_DS1685_PROC_REGS
 	char bits[NUM_REGS][(NUM_BITS * NUM_SPACES) + NUM_BITS + 1];
 #endif
+=======
+	struct ds1685_priv *rtc = dev_get_drvdata(dev);
+	u8 ctrla, ctrlb, ctrld, ctrl4a, ctrl4b, ssn[8];
+	char *model;
+>>>>>>> upstream/android-13
 
 	/* Read all the relevant data from the control registers. */
 	ds1685_rtc_switch_to_bank1(rtc);
 	ds1685_rtc_get_ssn(rtc, ssn);
 	ctrla = rtc->read(rtc, RTC_CTRL_A);
 	ctrlb = rtc->read(rtc, RTC_CTRL_B);
+<<<<<<< HEAD
 	ctrlc = rtc->read(rtc, RTC_CTRL_C);
+=======
+>>>>>>> upstream/android-13
 	ctrld = rtc->read(rtc, RTC_CTRL_D);
 	ctrl4a = rtc->read(rtc, RTC_EXT_CTRL_4A);
 	ctrl4b = rtc->read(rtc, RTC_EXT_CTRL_4B);
@@ -859,6 +1032,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
 	   "Periodic IRQ\t: %s\n"
 	   "Periodic Rate\t: %s\n"
 	   "SQW Freq\t: %s\n"
+<<<<<<< HEAD
 #ifdef CONFIG_RTC_DS1685_PROC_REGS
 	   "Serial #\t: %8phC\n"
 	   "Register Status\t:\n"
@@ -881,6 +1055,9 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
 #else
 	   "Serial #\t: %8phC\n",
 #endif
+=======
+	   "Serial #\t: %8phC\n",
+>>>>>>> upstream/android-13
 	   model,
 	   ((ctrla & RTC_CTRL_A_DV1) ? "enabled" : "disabled"),
 	   ((ctrlb & RTC_CTRL_B_2412) ? "24-hour" : "12-hour"),
@@ -894,6 +1071,7 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
 	    ds1685_rtc_pirq_rate[(ctrla & RTC_CTRL_A_RS_MASK)] : "none"),
 	   (!((ctrl4b & RTC_CTRL_4B_E32K)) ?
 	    ds1685_rtc_sqw_freq[(ctrla & RTC_CTRL_A_RS_MASK)] : "32768Hz"),
+<<<<<<< HEAD
 #ifdef CONFIG_RTC_DS1685_PROC_REGS
 	   ssn,
 	   ds1685_rtc_print_regs(ctrla, bits[0]),
@@ -905,6 +1083,9 @@ ds1685_rtc_proc(struct device *dev, struct seq_file *seq)
 #else
 	   ssn);
 #endif
+=======
+	   ssn);
+>>>>>>> upstream/android-13
 	return 0;
 }
 #else
@@ -927,6 +1108,7 @@ ds1685_rtc_ops = {
 };
 /* ----------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 
 /* ----------------------------------------------------------------------- */
 /* SysFS interface */
@@ -953,6 +1135,21 @@ ds1685_rtc_sysfs_nvram_read(struct file *filp, struct kobject *kobj,
 	unsigned long flags = 0;
 
 	spin_lock_irqsave(&rtc->lock, flags);
+=======
+static int ds1685_nvram_read(void *priv, unsigned int pos, void *val,
+			     size_t size)
+{
+	struct ds1685_priv *rtc = priv;
+	struct mutex *rtc_mutex = &rtc->dev->ops_lock;
+	ssize_t count;
+	u8 *buf = val;
+	int err;
+
+	err = mutex_lock_interruptible(rtc_mutex);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	ds1685_rtc_switch_to_bank0(rtc);
 
 	/* Read NVRAM in time and bank0 registers. */
@@ -1002,6 +1199,7 @@ ds1685_rtc_sysfs_nvram_read(struct file *filp, struct kobject *kobj,
 		ds1685_rtc_switch_to_bank0(rtc);
 	}
 #endif /* !CONFIG_RTC_DRV_DS1689 */
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rtc->lock, flags);
 
 	/*
@@ -1033,6 +1231,26 @@ ds1685_rtc_sysfs_nvram_write(struct file *filp, struct kobject *kobj,
 	unsigned long flags = 0;
 
 	spin_lock_irqsave(&rtc->lock, flags);
+=======
+	mutex_unlock(rtc_mutex);
+
+	return 0;
+}
+
+static int ds1685_nvram_write(void *priv, unsigned int pos, void *val,
+			      size_t size)
+{
+	struct ds1685_priv *rtc = priv;
+	struct mutex *rtc_mutex = &rtc->dev->ops_lock;
+	ssize_t count;
+	u8 *buf = val;
+	int err;
+
+	err = mutex_lock_interruptible(rtc_mutex);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	ds1685_rtc_switch_to_bank0(rtc);
 
 	/* Write NVRAM in time and bank0 registers. */
@@ -1082,6 +1300,7 @@ ds1685_rtc_sysfs_nvram_write(struct file *filp, struct kobject *kobj,
 		ds1685_rtc_switch_to_bank0(rtc);
 	}
 #endif /* !CONFIG_RTC_DRV_DS1689 */
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rtc->lock, flags);
 
 	return count;
@@ -1104,6 +1323,15 @@ ds1685_rtc_sysfs_nvram_attr = {
 	.write = ds1685_rtc_sysfs_nvram_write,
 	.size = NVRAM_TOTAL_SZ
 };
+=======
+	mutex_unlock(rtc_mutex);
+
+	return 0;
+}
+
+/* ----------------------------------------------------------------------- */
+/* SysFS interface */
+>>>>>>> upstream/android-13
 
 /**
  * ds1685_rtc_sysfs_battery_show - sysfs file for main battery status.
@@ -1115,7 +1343,11 @@ static ssize_t
 ds1685_rtc_sysfs_battery_show(struct device *dev,
 			      struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct ds1685_priv *rtc = dev_get_drvdata(dev);
+=======
+	struct ds1685_priv *rtc = dev_get_drvdata(dev->parent);
+>>>>>>> upstream/android-13
 	u8 ctrld;
 
 	ctrld = rtc->read(rtc, RTC_CTRL_D);
@@ -1135,7 +1367,11 @@ static ssize_t
 ds1685_rtc_sysfs_auxbatt_show(struct device *dev,
 			      struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct ds1685_priv *rtc = dev_get_drvdata(dev);
+=======
+	struct ds1685_priv *rtc = dev_get_drvdata(dev->parent);
+>>>>>>> upstream/android-13
 	u8 ctrl4a;
 
 	ds1685_rtc_switch_to_bank1(rtc);
@@ -1157,7 +1393,11 @@ static ssize_t
 ds1685_rtc_sysfs_serial_show(struct device *dev,
 			     struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	struct ds1685_priv *rtc = dev_get_drvdata(dev);
+=======
+	struct ds1685_priv *rtc = dev_get_drvdata(dev->parent);
+>>>>>>> upstream/android-13
 	u8 ssn[8];
 
 	ds1685_rtc_switch_to_bank1(rtc);
@@ -1168,7 +1408,11 @@ ds1685_rtc_sysfs_serial_show(struct device *dev,
 }
 static DEVICE_ATTR(serial, S_IRUGO, ds1685_rtc_sysfs_serial_show, NULL);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct ds1685_rtc_sysfs_misc_attrs - list for misc RTC features.
  */
 static struct attribute*
@@ -1179,7 +1423,11 @@ ds1685_rtc_sysfs_misc_attrs[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct ds1685_rtc_sysfs_misc_grp - attr group for misc RTC features.
  */
 static const struct attribute_group
@@ -1188,6 +1436,7 @@ ds1685_rtc_sysfs_misc_grp = {
 	.attrs = ds1685_rtc_sysfs_misc_attrs,
 };
 
+<<<<<<< HEAD
 /**
  * ds1685_rtc_sysfs_register - register sysfs files.
  * @dev: pointer to device structure.
@@ -1225,6 +1474,8 @@ ds1685_rtc_sysfs_unregister(struct device *dev)
 
 
 
+=======
+>>>>>>> upstream/android-13
 /* ----------------------------------------------------------------------- */
 /* Driver Probe/Removal */
 
@@ -1236,12 +1487,24 @@ static int
 ds1685_rtc_probe(struct platform_device *pdev)
 {
 	struct rtc_device *rtc_dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct ds1685_priv *rtc;
 	struct ds1685_rtc_platform_data *pdata;
 	u8 ctrla, ctrlb, hours;
 	unsigned char am_pm;
 	int ret = 0;
+<<<<<<< HEAD
+=======
+	struct nvmem_config nvmem_cfg = {
+		.name = "ds1685_nvram",
+		.size = NVRAM_TOTAL_SZ,
+		.reg_read = ds1685_nvram_read,
+		.reg_write = ds1685_nvram_write,
+	};
+>>>>>>> upstream/android-13
 
 	/* Get the platform data. */
 	pdata = (struct ds1685_rtc_platform_data *) pdev->dev.platform_data;
@@ -1253,6 +1516,7 @@ ds1685_rtc_probe(struct platform_device *pdev)
 	if (!rtc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/*
 	 * Allocate/setup any IORESOURCE_MEM resources, if required.  Not all
 	 * platforms put the RTC in an easy-access place.  Like the SGI Octane,
@@ -1282,6 +1546,31 @@ ds1685_rtc_probe(struct platform_device *pdev)
 			return -ENOMEM;
 	}
 	rtc->alloc_io_resources = pdata->alloc_io_resources;
+=======
+	/* Setup resources and access functions */
+	switch (pdata->access_type) {
+	case ds1685_reg_direct:
+		rtc->regs = devm_platform_ioremap_resource(pdev, 0);
+		if (IS_ERR(rtc->regs))
+			return PTR_ERR(rtc->regs);
+		rtc->read = ds1685_read;
+		rtc->write = ds1685_write;
+		break;
+	case ds1685_reg_indirect:
+		rtc->regs = devm_platform_ioremap_resource(pdev, 0);
+		if (IS_ERR(rtc->regs))
+			return PTR_ERR(rtc->regs);
+		rtc->data = devm_platform_ioremap_resource(pdev, 1);
+		if (IS_ERR(rtc->data))
+			return PTR_ERR(rtc->data);
+		rtc->read = ds1685_indirect_read;
+		rtc->write = ds1685_indirect_write;
+		break;
+	}
+
+	if (!rtc->read || !rtc->write)
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	/* Get the register step size. */
 	if (pdata->regstep > 0)
@@ -1289,6 +1578,7 @@ ds1685_rtc_probe(struct platform_device *pdev)
 	else
 		rtc->regstep = 1;
 
+<<<<<<< HEAD
 	/* Platform read function, else default if mmio setup */
 	if (pdata->plat_read)
 		rtc->read = pdata->plat_read;
@@ -1307,6 +1597,8 @@ ds1685_rtc_probe(struct platform_device *pdev)
 		else
 			return -ENXIO;
 
+=======
+>>>>>>> upstream/android-13
 	/* Platform pre-shutdown function, if defined. */
 	if (pdata->plat_prepare_poweroff)
 		rtc->prepare_poweroff = pdata->plat_prepare_poweroff;
@@ -1319,9 +1611,13 @@ ds1685_rtc_probe(struct platform_device *pdev)
 	if (pdata->plat_post_ram_clear)
 		rtc->post_ram_clear = pdata->plat_post_ram_clear;
 
+<<<<<<< HEAD
 	/* Init the spinlock, workqueue, & set the driver data. */
 	spin_lock_init(&rtc->lock);
 	INIT_WORK(&rtc->work, ds1685_rtc_work_queue);
+=======
+	/* set the driver data. */
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, rtc);
 
 	/* Turn the oscillator on if is not already on (DV1 = 1). */
@@ -1463,7 +1759,10 @@ ds1685_rtc_probe(struct platform_device *pdev)
 	/* See if the platform doesn't support UIE. */
 	if (pdata->uie_unsupported)
 		rtc_dev->uie_unsupported = 1;
+<<<<<<< HEAD
 	rtc->uie_unsupported = pdata->uie_unsupported;
+=======
+>>>>>>> upstream/android-13
 
 	rtc->dev = rtc_dev;
 
@@ -1477,6 +1776,7 @@ ds1685_rtc_probe(struct platform_device *pdev)
 	 */
 	if (!pdata->no_irq) {
 		ret = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 		if (ret > 0) {
 			rtc->irq_num = ret;
 
@@ -1493,12 +1793,32 @@ ds1685_rtc_probe(struct platform_device *pdev)
 			}
 		} else
 			return ret;
+=======
+		if (ret <= 0)
+			return ret;
+
+		rtc->irq_num = ret;
+
+		/* Request an IRQ. */
+		ret = devm_request_threaded_irq(&pdev->dev, rtc->irq_num,
+				       NULL, ds1685_rtc_irq_handler,
+				       IRQF_SHARED | IRQF_ONESHOT,
+				       pdev->name, pdev);
+
+		/* Check to see if something came back. */
+		if (unlikely(ret)) {
+			dev_warn(&pdev->dev,
+				 "RTC interrupt not available\n");
+			rtc->irq_num = 0;
+		}
+>>>>>>> upstream/android-13
 	}
 	rtc->no_irq = pdata->no_irq;
 
 	/* Setup complete. */
 	ds1685_rtc_switch_to_bank0(rtc);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSFS
 	ret = ds1685_rtc_sysfs_register(&pdev->dev);
 	if (ret)
@@ -1506,6 +1826,18 @@ ds1685_rtc_probe(struct platform_device *pdev)
 #endif
 
 	return rtc_register_device(rtc_dev);
+=======
+	ret = rtc_add_group(rtc_dev, &ds1685_rtc_sysfs_misc_grp);
+	if (ret)
+		return ret;
+
+	nvmem_cfg.priv = rtc;
+	ret = devm_rtc_nvmem_register(rtc_dev, &nvmem_cfg);
+	if (ret)
+		return ret;
+
+	return devm_rtc_register_device(rtc_dev);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1517,10 +1849,13 @@ ds1685_rtc_remove(struct platform_device *pdev)
 {
 	struct ds1685_priv *rtc = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSFS
 	ds1685_rtc_sysfs_unregister(&pdev->dev);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* Read Ctrl B and clear PIE/AIE/UIE. */
 	rtc->write(rtc, RTC_CTRL_B,
 		   (rtc->read(rtc, RTC_CTRL_B) &
@@ -1539,12 +1874,19 @@ ds1685_rtc_remove(struct platform_device *pdev)
 		   (rtc->read(rtc, RTC_EXT_CTRL_4A) &
 		    ~(RTC_CTRL_4A_RWK_MASK)));
 
+<<<<<<< HEAD
 	cancel_work_sync(&rtc->work);
 
 	return 0;
 }
 
 /**
+=======
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * ds1685_rtc_driver - rtc driver properties.
  */
 static struct platform_driver ds1685_rtc_driver = {

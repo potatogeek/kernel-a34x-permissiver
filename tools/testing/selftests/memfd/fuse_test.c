@@ -20,7 +20,11 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <linux/falloc.h>
+<<<<<<< HEAD
 #include <linux/fcntl.h>
+=======
+#include <fcntl.h>
+>>>>>>> upstream/android-13
 #include <linux/memfd.h>
 #include <sched.h>
 #include <stdio.h>

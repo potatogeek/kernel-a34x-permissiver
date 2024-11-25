@@ -15,12 +15,20 @@
 
 #include <sound/dmaengine_pcm.h>
 
+<<<<<<< HEAD
+=======
+static unsigned int prealloc_buffer_size_kbytes = 512;
+module_param(prealloc_buffer_size_kbytes, uint, 0444);
+MODULE_PARM_DESC(prealloc_buffer_size_kbytes, "Preallocate DMA buffer size (KB).");
+
+>>>>>>> upstream/android-13
 /*
  * The platforms dmaengine driver does not support reporting the amount of
  * bytes that are still left to transfer.
  */
 #define SND_DMAENGINE_PCM_FLAG_NO_RESIDUE BIT(31)
 
+<<<<<<< HEAD
 struct dmaengine_pcm {
 	struct dma_chan *chan[SNDRV_PCM_STREAM_LAST + 1];
 	const struct snd_dmaengine_pcm_config *config;
@@ -33,6 +41,8 @@ static struct dmaengine_pcm *soc_component_to_pcm(struct snd_soc_component *p)
 	return container_of(p, struct dmaengine_pcm, component);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct device *dmaengine_dma_dev(struct dmaengine_pcm *pcm,
 	struct snd_pcm_substream *substream)
 {
@@ -58,11 +68,25 @@ static struct device *dmaengine_dma_dev(struct dmaengine_pcm *pcm,
 int snd_dmaengine_pcm_prepare_slave_config(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params, struct dma_slave_config *slave_config)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_dmaengine_dai_dma_data *dma_data;
 	int ret;
 
 	dma_data = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_dmaengine_dai_dma_data *dma_data;
+	int ret;
+
+	if (rtd->num_cpus > 1) {
+		dev_err(rtd->dev,
+			"%s doesn't support Multi CPU yet\n", __func__);
+		return -EINVAL;
+	}
+
+	dma_data = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 
 	ret = snd_hwparams_to_dma_slave_config(substream, params, slave_config);
 	if (ret)
@@ -75,19 +99,29 @@ int snd_dmaengine_pcm_prepare_slave_config(struct snd_pcm_substream *substream,
 }
 EXPORT_SYMBOL_GPL(snd_dmaengine_pcm_prepare_slave_config);
 
+<<<<<<< HEAD
 static int dmaengine_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_component *component =
 		snd_soc_rtdcom_lookup(rtd, SND_DMAENGINE_PCM_DRV_NAME);
+=======
+static int dmaengine_pcm_hw_params(struct snd_soc_component *component,
+				   struct snd_pcm_substream *substream,
+				   struct snd_pcm_hw_params *params)
+{
+>>>>>>> upstream/android-13
 	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
 	struct dma_chan *chan = snd_dmaengine_pcm_get_chan(substream);
 	int (*prepare_slave_config)(struct snd_pcm_substream *substream,
 			struct snd_pcm_hw_params *params,
 			struct dma_slave_config *slave_config);
 	struct dma_slave_config slave_config;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	memset(&slave_config, 0, sizeof(slave_config));
 
@@ -97,7 +131,11 @@ static int dmaengine_pcm_hw_params(struct snd_pcm_substream *substream,
 		prepare_slave_config = pcm->config->prepare_slave_config;
 
 	if (prepare_slave_config) {
+<<<<<<< HEAD
 		ret = prepare_slave_config(substream, params, &slave_config);
+=======
+		int ret = prepare_slave_config(substream, params, &slave_config);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -106,6 +144,7 @@ static int dmaengine_pcm_hw_params(struct snd_pcm_substream *substream,
 			return ret;
 	}
 
+<<<<<<< HEAD
 	return snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(params));
 }
 
@@ -114,10 +153,21 @@ static int dmaengine_pcm_set_runtime_hwparams(struct snd_pcm_substream *substrea
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_component *component =
 		snd_soc_rtdcom_lookup(rtd, SND_DMAENGINE_PCM_DRV_NAME);
+=======
+	return 0;
+}
+
+static int
+dmaengine_pcm_set_runtime_hwparams(struct snd_soc_component *component,
+				   struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
 	struct device *dma_dev = dmaengine_dma_dev(pcm, substream);
 	struct dma_chan *chan = pcm->chan[substream->stream];
 	struct snd_dmaengine_dai_dma_data *dma_data;
+<<<<<<< HEAD
 	struct dma_slave_caps dma_caps;
 	struct snd_pcm_hardware hw;
 	u32 addr_widths = BIT(DMA_SLAVE_BUSWIDTH_1_BYTE) |
@@ -125,12 +175,25 @@ static int dmaengine_pcm_set_runtime_hwparams(struct snd_pcm_substream *substrea
 			  BIT(DMA_SLAVE_BUSWIDTH_4_BYTES);
 	snd_pcm_format_t i;
 	int ret;
+=======
+	struct snd_pcm_hardware hw;
+
+	if (rtd->num_cpus > 1) {
+		dev_err(rtd->dev,
+			"%s doesn't support Multi CPU yet\n", __func__);
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	if (pcm->config && pcm->config->pcm_hardware)
 		return snd_soc_set_runtime_hwparams(substream,
 				pcm->config->pcm_hardware);
 
+<<<<<<< HEAD
 	dma_data = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+	dma_data = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 
 	memset(&hw, 0, sizeof(hw));
 	hw.info = SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_MMAP_VALID |
@@ -145,6 +208,7 @@ static int dmaengine_pcm_set_runtime_hwparams(struct snd_pcm_substream *substrea
 	if (pcm->flags & SND_DMAENGINE_PCM_FLAG_NO_RESIDUE)
 		hw.info |= SNDRV_PCM_INFO_BATCH;
 
+<<<<<<< HEAD
 	ret = dma_get_slave_caps(chan, &dma_caps);
 	if (ret == 0) {
 		if (dma_caps.cmd_pause && dma_caps.cmd_resume)
@@ -195,37 +259,88 @@ static int dmaengine_pcm_set_runtime_hwparams(struct snd_pcm_substream *substrea
 				break;
 			}
 		}
+=======
+	/**
+	 * FIXME: Remove the return value check to align with the code
+	 * before adding snd_dmaengine_pcm_refine_runtime_hwparams
+	 * function.
+	 */
+	snd_dmaengine_pcm_refine_runtime_hwparams(substream,
+						  dma_data,
+						  &hw,
+						  chan);
+>>>>>>> upstream/android-13
 
 	return snd_soc_set_runtime_hwparams(substream, &hw);
 }
 
+<<<<<<< HEAD
 static int dmaengine_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_component *component =
 		snd_soc_rtdcom_lookup(rtd, SND_DMAENGINE_PCM_DRV_NAME);
+=======
+static int dmaengine_pcm_open(struct snd_soc_component *component,
+			      struct snd_pcm_substream *substream)
+{
+>>>>>>> upstream/android-13
 	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
 	struct dma_chan *chan = pcm->chan[substream->stream];
 	int ret;
 
+<<<<<<< HEAD
 	ret = dmaengine_pcm_set_runtime_hwparams(substream);
+=======
+	ret = dmaengine_pcm_set_runtime_hwparams(component, substream);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	return snd_dmaengine_pcm_open(substream, chan);
 }
 
+<<<<<<< HEAD
 static struct dma_chan *dmaengine_pcm_compat_request_channel(
 	struct snd_soc_pcm_runtime *rtd,
 	struct snd_pcm_substream *substream)
 {
 	struct snd_soc_component *component =
 		snd_soc_rtdcom_lookup(rtd, SND_DMAENGINE_PCM_DRV_NAME);
+=======
+static int dmaengine_pcm_close(struct snd_soc_component *component,
+			       struct snd_pcm_substream *substream)
+{
+	return snd_dmaengine_pcm_close(substream);
+}
+
+static int dmaengine_pcm_trigger(struct snd_soc_component *component,
+				 struct snd_pcm_substream *substream, int cmd)
+{
+	return snd_dmaengine_pcm_trigger(substream, cmd);
+}
+
+static struct dma_chan *dmaengine_pcm_compat_request_channel(
+	struct snd_soc_component *component,
+	struct snd_soc_pcm_runtime *rtd,
+	struct snd_pcm_substream *substream)
+{
+>>>>>>> upstream/android-13
 	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
 	struct snd_dmaengine_dai_dma_data *dma_data;
 	dma_filter_fn fn = NULL;
 
+<<<<<<< HEAD
 	dma_data = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+	if (rtd->num_cpus > 1) {
+		dev_err(rtd->dev,
+			"%s doesn't support Multi CPU yet\n", __func__);
+		return NULL;
+	}
+
+	dma_data = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 
 	if ((pcm->flags & SND_DMAENGINE_PCM_FLAG_HALF_DUPLEX) && pcm->chan[0])
 		return pcm->chan[0];
@@ -258,6 +373,7 @@ static bool dmaengine_pcm_can_report_residue(struct device *dev,
 	return true;
 }
 
+<<<<<<< HEAD
 static int dmaengine_pcm_new(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_soc_component *component =
@@ -295,6 +411,40 @@ static int dmaengine_pcm_new(struct snd_soc_pcm_runtime *rtd)
 		if (!pcm->chan[i] && (pcm->flags & SND_DMAENGINE_PCM_FLAG_COMPAT)) {
 			pcm->chan[i] = dmaengine_pcm_compat_request_channel(rtd,
 				substream);
+=======
+static int dmaengine_pcm_new(struct snd_soc_component *component,
+			     struct snd_soc_pcm_runtime *rtd)
+{
+	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
+	const struct snd_dmaengine_pcm_config *config = pcm->config;
+	struct device *dev = component->dev;
+	size_t prealloc_buffer_size;
+	size_t max_buffer_size;
+	unsigned int i;
+
+	if (config && config->prealloc_buffer_size)
+		prealloc_buffer_size = config->prealloc_buffer_size;
+	else
+		prealloc_buffer_size = prealloc_buffer_size_kbytes * 1024;
+
+	if (config && config->pcm_hardware && config->pcm_hardware->buffer_bytes_max)
+		max_buffer_size = config->pcm_hardware->buffer_bytes_max;
+	else
+		max_buffer_size = SIZE_MAX;
+
+	for_each_pcm_streams(i) {
+		struct snd_pcm_substream *substream = rtd->pcm->streams[i].substream;
+		if (!substream)
+			continue;
+
+		if (!pcm->chan[i] && config && config->chan_names[i])
+			pcm->chan[i] = dma_request_slave_channel(dev,
+				config->chan_names[i]);
+
+		if (!pcm->chan[i] && (pcm->flags & SND_DMAENGINE_PCM_FLAG_COMPAT)) {
+			pcm->chan[i] = dmaengine_pcm_compat_request_channel(
+				component, rtd, substream);
+>>>>>>> upstream/android-13
 		}
 
 		if (!pcm->chan[i]) {
@@ -303,21 +453,34 @@ static int dmaengine_pcm_new(struct snd_soc_pcm_runtime *rtd)
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		ret = snd_pcm_lib_preallocate_pages(substream,
+=======
+		snd_pcm_set_managed_buffer(substream,
+>>>>>>> upstream/android-13
 				SNDRV_DMA_TYPE_DEV_IRAM,
 				dmaengine_dma_dev(pcm, substream),
 				prealloc_buffer_size,
 				max_buffer_size);
+<<<<<<< HEAD
 		if (ret)
 			return ret;
+=======
+>>>>>>> upstream/android-13
 
 		if (!dmaengine_pcm_can_report_residue(dev, pcm->chan[i]))
 			pcm->flags |= SND_DMAENGINE_PCM_FLAG_NO_RESIDUE;
 
 		if (rtd->pcm->streams[i].pcm->name[0] == '\0') {
+<<<<<<< HEAD
 			strncpy(rtd->pcm->streams[i].pcm->name,
 				rtd->pcm->streams[i].pcm->id,
 				sizeof(rtd->pcm->streams[i].pcm->name));
+=======
+			strscpy_pad(rtd->pcm->streams[i].pcm->name,
+				    rtd->pcm->streams[i].pcm->id,
+				    sizeof(rtd->pcm->streams[i].pcm->name));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -325,11 +488,17 @@ static int dmaengine_pcm_new(struct snd_soc_pcm_runtime *rtd)
 }
 
 static snd_pcm_uframes_t dmaengine_pcm_pointer(
+<<<<<<< HEAD
 	struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_component *component =
 		snd_soc_rtdcom_lookup(rtd, SND_DMAENGINE_PCM_DRV_NAME);
+=======
+	struct snd_soc_component *component,
+	struct snd_pcm_substream *substream)
+{
+>>>>>>> upstream/android-13
 	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
 
 	if (pcm->flags & SND_DMAENGINE_PCM_FLAG_NO_RESIDUE)
@@ -338,6 +507,7 @@ static snd_pcm_uframes_t dmaengine_pcm_pointer(
 		return snd_dmaengine_pcm_pointer(substream);
 }
 
+<<<<<<< HEAD
 static int dmaengine_copy_user(struct snd_pcm_substream *substream,
 			       int channel, unsigned long hwoff,
 			       void __user *buf, unsigned long bytes)
@@ -345,6 +515,13 @@ static int dmaengine_copy_user(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_component *component =
 		snd_soc_rtdcom_lookup(rtd, SND_DMAENGINE_PCM_DRV_NAME);
+=======
+static int dmaengine_copy_user(struct snd_soc_component *component,
+			       struct snd_pcm_substream *substream,
+			       int channel, unsigned long hwoff,
+			       void __user *buf, unsigned long bytes)
+{
+>>>>>>> upstream/android-13
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
 	int (*process)(struct snd_pcm_substream *substream,
@@ -353,14 +530,21 @@ static int dmaengine_copy_user(struct snd_pcm_substream *substream,
 	bool is_playback = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
 	void *dma_ptr = runtime->dma_area + hwoff +
 			channel * (runtime->dma_bytes / runtime->channels);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (is_playback)
 		if (copy_from_user(dma_ptr, buf, bytes))
 			return -EFAULT;
 
 	if (process) {
+<<<<<<< HEAD
 		ret = process(substream, channel, hwoff, (__force void *)buf, bytes);
+=======
+		int ret = process(substream, channel, hwoff, (__force void *)buf, bytes);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 	}
@@ -372,6 +556,7 @@ static int dmaengine_copy_user(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_pcm_ops dmaengine_pcm_ops = {
 	.open		= dmaengine_pcm_open,
 	.close		= snd_dmaengine_pcm_close,
@@ -398,13 +583,34 @@ static const struct snd_soc_component_driver dmaengine_pcm_component = {
 	.probe_order	= SND_SOC_COMP_ORDER_LATE,
 	.ops		= &dmaengine_pcm_ops,
 	.pcm_new	= dmaengine_pcm_new,
+=======
+static const struct snd_soc_component_driver dmaengine_pcm_component = {
+	.name		= SND_DMAENGINE_PCM_DRV_NAME,
+	.probe_order	= SND_SOC_COMP_ORDER_LATE,
+	.open		= dmaengine_pcm_open,
+	.close		= dmaengine_pcm_close,
+	.hw_params	= dmaengine_pcm_hw_params,
+	.trigger	= dmaengine_pcm_trigger,
+	.pointer	= dmaengine_pcm_pointer,
+	.pcm_construct	= dmaengine_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver dmaengine_pcm_component_process = {
 	.name		= SND_DMAENGINE_PCM_DRV_NAME,
 	.probe_order	= SND_SOC_COMP_ORDER_LATE,
+<<<<<<< HEAD
 	.ops		= &dmaengine_pcm_process_ops,
 	.pcm_new	= dmaengine_pcm_new,
+=======
+	.open		= dmaengine_pcm_open,
+	.close		= dmaengine_pcm_close,
+	.hw_params	= dmaengine_pcm_hw_params,
+	.trigger	= dmaengine_pcm_trigger,
+	.pointer	= dmaengine_pcm_pointer,
+	.copy_user	= dmaengine_copy_user,
+	.pcm_construct	= dmaengine_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 static const char * const dmaengine_pcm_dma_channel_names[] = {
@@ -419,9 +625,14 @@ static int dmaengine_pcm_request_chan_of(struct dmaengine_pcm *pcm,
 	const char *name;
 	struct dma_chan *chan;
 
+<<<<<<< HEAD
 	if ((pcm->flags & (SND_DMAENGINE_PCM_FLAG_NO_DT |
 			   SND_DMAENGINE_PCM_FLAG_CUSTOM_CHANNEL_NAME)) ||
 	    !dev->of_node)
+=======
+	if ((pcm->flags & SND_DMAENGINE_PCM_FLAG_NO_DT) || (!dev->of_node &&
+	    !(config && config->dma_dev && config->dma_dev->of_node)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (config && config->dma_dev) {
@@ -436,16 +647,30 @@ static int dmaengine_pcm_request_chan_of(struct dmaengine_pcm *pcm,
 		dev = config->dma_dev;
 	}
 
+<<<<<<< HEAD
 	for (i = SNDRV_PCM_STREAM_PLAYBACK; i <= SNDRV_PCM_STREAM_CAPTURE;
 	     i++) {
+=======
+	for_each_pcm_streams(i) {
+>>>>>>> upstream/android-13
 		if (pcm->flags & SND_DMAENGINE_PCM_FLAG_HALF_DUPLEX)
 			name = "rx-tx";
 		else
 			name = dmaengine_pcm_dma_channel_names[i];
 		if (config && config->chan_names[i])
 			name = config->chan_names[i];
+<<<<<<< HEAD
 		chan = dma_request_slave_channel_reason(dev, name);
 		if (IS_ERR(chan)) {
+=======
+		chan = dma_request_chan(dev, name);
+		if (IS_ERR(chan)) {
+			/*
+			 * Only report probe deferral errors, channels
+			 * might not be present for devices that
+			 * support only TX or only RX.
+			 */
+>>>>>>> upstream/android-13
 			if (PTR_ERR(chan) == -EPROBE_DEFER)
 				return -EPROBE_DEFER;
 			pcm->chan[i] = NULL;
@@ -466,8 +691,12 @@ static void dmaengine_pcm_release_chan(struct dmaengine_pcm *pcm)
 {
 	unsigned int i;
 
+<<<<<<< HEAD
 	for (i = SNDRV_PCM_STREAM_PLAYBACK; i <= SNDRV_PCM_STREAM_CAPTURE;
 	     i++) {
+=======
+	for_each_pcm_streams(i) {
+>>>>>>> upstream/android-13
 		if (!pcm->chan[i])
 			continue;
 		dma_release_channel(pcm->chan[i]);
@@ -485,6 +714,10 @@ static void dmaengine_pcm_release_chan(struct dmaengine_pcm *pcm)
 int snd_dmaengine_pcm_register(struct device *dev,
 	const struct snd_dmaengine_pcm_config *config, unsigned int flags)
 {
+<<<<<<< HEAD
+=======
+	const struct snd_soc_component_driver *driver;
+>>>>>>> upstream/android-13
 	struct dmaengine_pcm *pcm;
 	int ret;
 
@@ -503,12 +736,24 @@ int snd_dmaengine_pcm_register(struct device *dev,
 		goto err_free_dma;
 
 	if (config && config->process)
+<<<<<<< HEAD
 		ret = snd_soc_add_component(dev, &pcm->component,
 					    &dmaengine_pcm_component_process,
 					    NULL, 0);
 	else
 		ret = snd_soc_add_component(dev, &pcm->component,
 					    &dmaengine_pcm_component, NULL, 0);
+=======
+		driver = &dmaengine_pcm_component_process;
+	else
+		driver = &dmaengine_pcm_component;
+
+	ret = snd_soc_component_initialize(&pcm->component, driver, dev);
+	if (ret)
+		goto err_free_dma;
+
+	ret = snd_soc_add_component(&pcm->component, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_free_dma;
 
@@ -539,7 +784,11 @@ void snd_dmaengine_pcm_unregister(struct device *dev)
 
 	pcm = soc_component_to_pcm(component);
 
+<<<<<<< HEAD
 	snd_soc_unregister_component(dev);
+=======
+	snd_soc_unregister_component_by_driver(dev, component->driver);
+>>>>>>> upstream/android-13
 	dmaengine_pcm_release_chan(pcm);
 	kfree(pcm);
 }

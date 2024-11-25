@@ -31,4 +31,8 @@ Date:		April 2016
 KernelVersion:	4.7
 Description:
 		Dummy IIO devices directory. Creating a directory here will result
+<<<<<<< HEAD
 		in creating a dummy IIO device in the IIO subystem.
+=======
+		in creating a dummy IIO device in the IIO subsystem.
+>>>>>>> upstream/android-13

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -321,6 +328,7 @@ static int rt61pci_config_shared_key(struct rt2x00_dev *rt2x00dev,
 				     struct rt2x00lib_crypto *crypto,
 				     struct ieee80211_key_conf *key)
 {
+<<<<<<< HEAD
 	struct hw_key_entry key_entry;
 	struct rt2x00_field32 field;
 	u32 mask;
@@ -412,6 +420,14 @@ static int rt61pci_config_shared_key(struct rt2x00_dev *rt2x00dev,
 	rt2x00mmio_register_write(rt2x00dev, SEC_CSR0, reg);
 
 	return 0;
+=======
+	/*
+	 * Let the software handle the shared keys,
+	 * since the hardware decryption does not work reliably,
+	 * because the firmware does not know the key's keyidx.
+	 */
+	return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 }
 
 static int rt61pci_config_pairwise_key(struct rt2x00_dev *rt2x00dev,
@@ -2226,7 +2242,11 @@ static void rt61pci_txdone(struct rt2x00_dev *rt2x00dev)
 			break;
 		case 6: /* Failure, excessive retries */
 			__set_bit(TXDONE_EXCESSIVE_RETRY, &txdesc.flags);
+<<<<<<< HEAD
 			/* Don't break, this is a failed frame! */
+=======
+			fallthrough;	/* this is a failed frame! */
+>>>>>>> upstream/android-13
 		default: /* Failure */
 			__set_bit(TXDONE_FAILURE, &txdesc.flags);
 		}
@@ -2286,34 +2306,62 @@ static void rt61pci_enable_mcu_interrupt(struct rt2x00_dev *rt2x00dev,
 	spin_unlock_irq(&rt2x00dev->irqmask_lock);
 }
 
+<<<<<<< HEAD
 static void rt61pci_txstatus_tasklet(unsigned long data)
 {
 	struct rt2x00_dev *rt2x00dev = (struct rt2x00_dev *)data;
+=======
+static void rt61pci_txstatus_tasklet(struct tasklet_struct *t)
+{
+	struct rt2x00_dev *rt2x00dev = from_tasklet(rt2x00dev, t,
+						    txstatus_tasklet);
+
+>>>>>>> upstream/android-13
 	rt61pci_txdone(rt2x00dev);
 	if (test_bit(DEVICE_STATE_ENABLED_RADIO, &rt2x00dev->flags))
 		rt61pci_enable_interrupt(rt2x00dev, INT_MASK_CSR_TXDONE);
 }
 
+<<<<<<< HEAD
 static void rt61pci_tbtt_tasklet(unsigned long data)
 {
 	struct rt2x00_dev *rt2x00dev = (struct rt2x00_dev *)data;
+=======
+static void rt61pci_tbtt_tasklet(struct tasklet_struct *t)
+{
+	struct rt2x00_dev *rt2x00dev = from_tasklet(rt2x00dev, t, tbtt_tasklet);
+>>>>>>> upstream/android-13
 	rt2x00lib_beacondone(rt2x00dev);
 	if (test_bit(DEVICE_STATE_ENABLED_RADIO, &rt2x00dev->flags))
 		rt61pci_enable_interrupt(rt2x00dev, INT_MASK_CSR_BEACON_DONE);
 }
 
+<<<<<<< HEAD
 static void rt61pci_rxdone_tasklet(unsigned long data)
 {
 	struct rt2x00_dev *rt2x00dev = (struct rt2x00_dev *)data;
+=======
+static void rt61pci_rxdone_tasklet(struct tasklet_struct *t)
+{
+	struct rt2x00_dev *rt2x00dev = from_tasklet(rt2x00dev, t,
+						    rxdone_tasklet);
+>>>>>>> upstream/android-13
 	if (rt2x00mmio_rxdone(rt2x00dev))
 		tasklet_schedule(&rt2x00dev->rxdone_tasklet);
 	else if (test_bit(DEVICE_STATE_ENABLED_RADIO, &rt2x00dev->flags))
 		rt61pci_enable_interrupt(rt2x00dev, INT_MASK_CSR_RXDONE);
 }
 
+<<<<<<< HEAD
 static void rt61pci_autowake_tasklet(unsigned long data)
 {
 	struct rt2x00_dev *rt2x00dev = (struct rt2x00_dev *)data;
+=======
+static void rt61pci_autowake_tasklet(struct tasklet_struct *t)
+{
+	struct rt2x00_dev *rt2x00dev = from_tasklet(rt2x00dev, t,
+						    autowake_tasklet);
+>>>>>>> upstream/android-13
 	rt61pci_wakeup(rt2x00dev);
 	rt2x00mmio_register_write(rt2x00dev,
 				  M2H_CMD_DONE_CSR, 0xffffffff);
@@ -3049,7 +3097,10 @@ static void rt61pci_queue_init(struct data_queue *queue)
 		break;
 
 	case QID_ATIM:
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 		break;
@@ -3086,8 +3137,11 @@ static const struct pci_device_id rt61pci_device_table[] = {
 MODULE_AUTHOR(DRV_PROJECT);
 MODULE_VERSION(DRV_VERSION);
 MODULE_DESCRIPTION("Ralink RT61 PCI & PCMCIA Wireless LAN driver.");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Ralink RT2561, RT2561s & RT2661 "
 			"PCI & PCMCIA chipset based cards");
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(pci, rt61pci_device_table);
 MODULE_FIRMWARE(FIRMWARE_RT2561);
 MODULE_FIRMWARE(FIRMWARE_RT2561s);
@@ -3105,8 +3159,12 @@ static struct pci_driver rt61pci_driver = {
 	.id_table	= rt61pci_device_table,
 	.probe		= rt61pci_probe,
 	.remove		= rt2x00pci_remove,
+<<<<<<< HEAD
 	.suspend	= rt2x00pci_suspend,
 	.resume		= rt2x00pci_resume,
+=======
+	.driver.pm	= &rt2x00pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(rt61pci_driver);

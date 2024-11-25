@@ -10,6 +10,13 @@
 	model = "MarsBoard RK3066";
 	compatible = "haoyu,marsboard-rk3066", "rockchip,rk3066a";
 
+<<<<<<< HEAD
+=======
+	aliases {
+		mmc0 = &mmc0;
+	};
+
+>>>>>>> upstream/android-13
 	memory@60000000 {
 		device_type = "memory";
 		reg = <0x60000000 0x40000000>;
@@ -47,7 +54,15 @@
 };
 
 &cpu0 {
+<<<<<<< HEAD
 	cpu0-supply = <&vdd_arm>;
+=======
+	cpu-supply = <&vdd_arm>;
+};
+
+&cpu1 {
+	cpu-supply = <&vdd_arm>;
+>>>>>>> upstream/android-13
 };
 
 &i2c1 {
@@ -168,7 +183,11 @@
 &pinctrl {
 	lan8720a {
 		phy_int: phy-int {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO1 26 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <1 RK_PD2 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

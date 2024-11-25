@@ -26,10 +26,18 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "sid.h"
+=======
+
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "sid.h"
+#include "vce.h"
+>>>>>>> upstream/android-13
 
 #define VCE_V1_0_FW_SIZE	(256 * 1024)
 #define VCE_V1_0_STACK_SIZE	(64 * 1024)
@@ -168,7 +176,10 @@ int vce_v1_0_load_fw(struct radeon_device *rdev, uint32_t *data)
 		chip_id = 0x01000015;
 		break;
 	case CHIP_PITCAIRN:
+<<<<<<< HEAD
 	case CHIP_OLAND:
+=======
+>>>>>>> upstream/android-13
 		chip_id = 0x01000016;
 		break;
 	case CHIP_ARUBA:

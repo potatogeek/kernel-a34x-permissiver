@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
  * Copyright (c) 2014, Sony Mobile Communications Inc.
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010-2011, 2020-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2014, Sony Mobile Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -30,6 +37,11 @@
 #define PON_RT_STS			0x10
 #define  PON_KPDPWR_N_SET		BIT(0)
 #define  PON_RESIN_N_SET		BIT(1)
+<<<<<<< HEAD
+=======
+#define  PON_GEN3_RESIN_N_SET		BIT(6)
+#define  PON_GEN3_KPDPWR_N_SET		BIT(7)
+>>>>>>> upstream/android-13
 
 #define PON_PS_HOLD_RST_CTL		0x5a
 #define PON_PS_HOLD_RST_CTL2		0x5b
@@ -46,8 +58,17 @@
 #define  PON_DBC_DELAY_MASK		0x7
 
 struct pm8941_data {
+<<<<<<< HEAD
 	unsigned int pull_up_bit;
 	unsigned int status_bit;
+=======
+	unsigned int	pull_up_bit;
+	unsigned int	status_bit;
+	bool		supports_ps_hold_poff_config;
+	bool		supports_debounce_config;
+	const char	*name;
+	const char	*phys;
+>>>>>>> upstream/android-13
 };
 
 struct pm8941_pwrkey {
@@ -213,10 +234,15 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
 		return error;
 
 	pwrkey->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (pwrkey->irq < 0) {
 		dev_err(&pdev->dev, "failed to get irq\n");
 		return pwrkey->irq;
 	}
+=======
+	if (pwrkey->irq < 0)
+		return pwrkey->irq;
+>>>>>>> upstream/android-13
 
 	error = regmap_read(pwrkey->regmap, pwrkey->baseaddr + PON_REV2,
 			    &pwrkey->revision);
@@ -241,6 +267,7 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
 
 	input_set_capability(pwrkey->input, EV_KEY, pwrkey->code);
 
+<<<<<<< HEAD
 	pwrkey->input->name = "pm8941_pwrkey";
 	pwrkey->input->phys = "pm8941_pwrkey/input0";
 
@@ -263,12 +290,46 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
 	if (error) {
 		dev_err(&pdev->dev, "failed to set pull: %d\n", error);
 		return error;
+=======
+	pwrkey->input->name = pwrkey->data->name;
+	pwrkey->input->phys = pwrkey->data->phys;
+
+	if (pwrkey->data->supports_debounce_config) {
+		req_delay = (req_delay << 6) / USEC_PER_SEC;
+		req_delay = ilog2(req_delay);
+
+		error = regmap_update_bits(pwrkey->regmap,
+					   pwrkey->baseaddr + PON_DBC_CTL,
+					   PON_DBC_DELAY_MASK,
+					   req_delay);
+		if (error) {
+			dev_err(&pdev->dev, "failed to set debounce: %d\n",
+				error);
+			return error;
+		}
+	}
+
+	if (pwrkey->data->pull_up_bit) {
+		error = regmap_update_bits(pwrkey->regmap,
+					   pwrkey->baseaddr + PON_PULL_CTL,
+					   pwrkey->data->pull_up_bit,
+					   pull_up ? pwrkey->data->pull_up_bit :
+						     0);
+		if (error) {
+			dev_err(&pdev->dev, "failed to set pull: %d\n", error);
+			return error;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	error = devm_request_threaded_irq(&pdev->dev, pwrkey->irq,
 					  NULL, pm8941_pwrkey_irq,
 					  IRQF_ONESHOT,
+<<<<<<< HEAD
 					  "pm8941_pwrkey", pwrkey);
+=======
+					  pwrkey->data->name, pwrkey);
+>>>>>>> upstream/android-13
 	if (error) {
 		dev_err(&pdev->dev, "failed requesting IRQ: %d\n", error);
 		return error;
@@ -281,12 +342,23 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
 		return error;
 	}
 
+<<<<<<< HEAD
 	pwrkey->reboot_notifier.notifier_call = pm8941_reboot_notify,
 	error = register_reboot_notifier(&pwrkey->reboot_notifier);
 	if (error) {
 		dev_err(&pdev->dev, "failed to register reboot notifier: %d\n",
 			error);
 		return error;
+=======
+	if (pwrkey->data->supports_ps_hold_poff_config) {
+		pwrkey->reboot_notifier.notifier_call = pm8941_reboot_notify;
+		error = register_reboot_notifier(&pwrkey->reboot_notifier);
+		if (error) {
+			dev_err(&pdev->dev, "failed to register reboot notifier: %d\n",
+				error);
+			return error;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, pwrkey);
@@ -299,7 +371,12 @@ static int pm8941_pwrkey_remove(struct platform_device *pdev)
 {
 	struct pm8941_pwrkey *pwrkey = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	unregister_reboot_notifier(&pwrkey->reboot_notifier);
+=======
+	if (pwrkey->data->supports_ps_hold_poff_config)
+		unregister_reboot_notifier(&pwrkey->reboot_notifier);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -307,16 +384,51 @@ static int pm8941_pwrkey_remove(struct platform_device *pdev)
 static const struct pm8941_data pwrkey_data = {
 	.pull_up_bit = PON_KPDPWR_PULL_UP,
 	.status_bit = PON_KPDPWR_N_SET,
+<<<<<<< HEAD
+=======
+	.name = "pm8941_pwrkey",
+	.phys = "pm8941_pwrkey/input0",
+	.supports_ps_hold_poff_config = true,
+	.supports_debounce_config = true,
+>>>>>>> upstream/android-13
 };
 
 static const struct pm8941_data resin_data = {
 	.pull_up_bit = PON_RESIN_PULL_UP,
 	.status_bit = PON_RESIN_N_SET,
+<<<<<<< HEAD
+=======
+	.name = "pm8941_resin",
+	.phys = "pm8941_resin/input0",
+	.supports_ps_hold_poff_config = true,
+	.supports_debounce_config = true,
+};
+
+static const struct pm8941_data pon_gen3_pwrkey_data = {
+	.status_bit = PON_GEN3_KPDPWR_N_SET,
+	.name = "pmic_pwrkey",
+	.phys = "pmic_pwrkey/input0",
+	.supports_ps_hold_poff_config = false,
+	.supports_debounce_config = false,
+};
+
+static const struct pm8941_data pon_gen3_resin_data = {
+	.status_bit = PON_GEN3_RESIN_N_SET,
+	.name = "pmic_resin",
+	.phys = "pmic_resin/input0",
+	.supports_ps_hold_poff_config = false,
+	.supports_debounce_config = false,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id pm8941_pwr_key_id_table[] = {
 	{ .compatible = "qcom,pm8941-pwrkey", .data = &pwrkey_data },
 	{ .compatible = "qcom,pm8941-resin", .data = &resin_data },
+<<<<<<< HEAD
+=======
+	{ .compatible = "qcom,pmk8350-pwrkey", .data = &pon_gen3_pwrkey_data },
+	{ .compatible = "qcom,pmk8350-resin", .data = &pon_gen3_resin_data },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, pm8941_pwr_key_id_table);

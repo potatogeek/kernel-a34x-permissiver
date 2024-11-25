@@ -162,9 +162,13 @@ struct scl_inits {
 	struct fixed31_32 h;
 	struct fixed31_32 h_c;
 	struct fixed31_32 v;
+<<<<<<< HEAD
 	struct fixed31_32 v_bot;
 	struct fixed31_32 v_c;
 	struct fixed31_32 v_c_bot;
+=======
+	struct fixed31_32 v_c;
+>>>>>>> upstream/android-13
 };
 
 struct scaler_data {
@@ -291,6 +295,12 @@ struct dpp_caps {
 	/* DSCL processing pixel data in fixed or float format */
 	enum dscl_data_processing_format dscl_data_proc_format;
 
+<<<<<<< HEAD
+=======
+	/* max LB partitions */
+	unsigned int max_lb_partitions;
+
+>>>>>>> upstream/android-13
 	/* Calculates the number of partitions in the line buffer.
 	 * The implementation of this function is overloaded for
 	 * different versions of DSCL LB.

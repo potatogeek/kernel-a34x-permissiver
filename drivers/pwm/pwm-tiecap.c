@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ECAP PWM driver
  *
@@ -16,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * ECAP PWM driver
+ *
+ * Copyright (C) 2012 Texas Instruments, Inc. - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -61,16 +69,23 @@ static inline struct ecap_pwm_chip *to_ecap_pwm_chip(struct pwm_chip *chip)
  * duty_ns   = 10^9 * duty_cycles / PWM_CLK_RATE
  */
 static int ecap_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+<<<<<<< HEAD
 		int duty_ns, int period_ns)
+=======
+			   int duty_ns, int period_ns, int enabled)
+>>>>>>> upstream/android-13
 {
 	struct ecap_pwm_chip *pc = to_ecap_pwm_chip(chip);
 	u32 period_cycles, duty_cycles;
 	unsigned long long c;
 	u16 value;
 
+<<<<<<< HEAD
 	if (period_ns > NSEC_PER_SEC)
 		return -ERANGE;
 
+=======
+>>>>>>> upstream/android-13
 	c = pc->clk_rate;
 	c = c * period_ns;
 	do_div(c, NSEC_PER_SEC);
@@ -95,7 +110,11 @@ static int ecap_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 
 	writew(value, pc->mmio_base + ECCTL2);
 
+<<<<<<< HEAD
 	if (!pwm_is_enabled(pwm)) {
+=======
+	if (!enabled) {
+>>>>>>> upstream/android-13
 		/* Update active registers if not running */
 		writel(duty_cycles, pc->mmio_base + CAP2);
 		writel(period_cycles, pc->mmio_base + CAP1);
@@ -109,7 +128,11 @@ static int ecap_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		writel(period_cycles, pc->mmio_base + CAP3);
 	}
 
+<<<<<<< HEAD
 	if (!pwm_is_enabled(pwm)) {
+=======
+	if (!enabled) {
+>>>>>>> upstream/android-13
 		value = readw(pc->mmio_base + ECCTL2);
 		/* Disable APWM mode to put APWM output Low */
 		value &= ~ECCTL2_APWM_MODE;
@@ -181,6 +204,7 @@ static void ecap_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 	pm_runtime_put_sync(pc->chip.dev);
 }
 
+<<<<<<< HEAD
 static void ecap_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	if (pwm_is_enabled(pwm)) {
@@ -195,6 +219,48 @@ static const struct pwm_ops ecap_pwm_ops = {
 	.set_polarity = ecap_pwm_set_polarity,
 	.enable = ecap_pwm_enable,
 	.disable = ecap_pwm_disable,
+=======
+static int ecap_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+			  const struct pwm_state *state)
+{
+	int err;
+	int enabled = pwm->state.enabled;
+
+	if (state->polarity != pwm->state.polarity) {
+
+		if (enabled) {
+			ecap_pwm_disable(chip, pwm);
+			enabled = false;
+		}
+
+		err = ecap_pwm_set_polarity(chip, pwm, state->polarity);
+		if (err)
+			return err;
+	}
+
+	if (!state->enabled) {
+		if (enabled)
+			ecap_pwm_disable(chip, pwm);
+		return 0;
+	}
+
+	if (state->period > NSEC_PER_SEC)
+		return -ERANGE;
+
+	err = ecap_pwm_config(chip, pwm, state->duty_cycle,
+			      state->period, enabled);
+	if (err)
+		return err;
+
+	if (!enabled)
+		return ecap_pwm_enable(chip, pwm);
+
+	return 0;
+}
+
+static const struct pwm_ops ecap_pwm_ops = {
+	.apply = ecap_pwm_apply,
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 };
 
@@ -209,7 +275,10 @@ static int ecap_pwm_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct ecap_pwm_chip *pc;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	int ret;
 
@@ -238,6 +307,7 @@ static int ecap_pwm_probe(struct platform_device *pdev)
 
 	pc->chip.dev = &pdev->dev;
 	pc->chip.ops = &ecap_pwm_ops;
+<<<<<<< HEAD
 	pc->chip.of_xlate = of_pwm_xlate_with_flags;
 	pc->chip.of_pwm_n_cells = 3;
 	pc->chip.base = -1;
@@ -249,6 +319,15 @@ static int ecap_pwm_probe(struct platform_device *pdev)
 		return PTR_ERR(pc->mmio_base);
 
 	ret = pwmchip_add(&pc->chip);
+=======
+	pc->chip.npwm = 1;
+
+	pc->mmio_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(pc->mmio_base))
+		return PTR_ERR(pc->mmio_base);
+
+	ret = devm_pwmchip_add(&pdev->dev, &pc->chip);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
 		return ret;
@@ -262,11 +341,17 @@ static int ecap_pwm_probe(struct platform_device *pdev)
 
 static int ecap_pwm_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct ecap_pwm_chip *pc = platform_get_drvdata(pdev);
 
 	pm_runtime_disable(&pdev->dev);
 
 	return pwmchip_remove(&pc->chip);
+=======
+	pm_runtime_disable(&pdev->dev);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP

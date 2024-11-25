@@ -36,7 +36,11 @@
  * block device, assembling the pieces to full packets and queuing them to the
  * packet I/O scheduler.
  *
+<<<<<<< HEAD
  * At the top layer there is a custom make_request_fn function that forwards
+=======
+ * At the top layer there is a custom ->submit_bio function that forwards
+>>>>>>> upstream/android-13
  * read requests directly to the iosched queue and puts write requests in the
  * unaligned write queue. A kernel thread performs the necessary read
  * gathering to convert the unaligned writes to aligned writes and then feeds
@@ -704,7 +708,11 @@ static int pkt_generic_packet(struct pktcdvd_device *pd, struct packet_command *
 	int ret = 0;
 
 	rq = blk_get_request(q, (cgc->data_direction == CGC_DATA_WRITE) ?
+<<<<<<< HEAD
 			     REQ_OP_SCSI_OUT : REQ_OP_SCSI_IN, 0);
+=======
+			     REQ_OP_DRV_OUT : REQ_OP_DRV_IN, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rq))
 		return PTR_ERR(rq);
 
@@ -722,7 +730,11 @@ static int pkt_generic_packet(struct pktcdvd_device *pd, struct packet_command *
 	if (cgc->quiet)
 		rq->rq_flags |= RQF_QUIET;
 
+<<<<<<< HEAD
 	blk_execute_rq(rq->q, pd->bdev->bd_disk, rq, 0);
+=======
+	blk_execute_rq(pd->bdev->bd_disk, rq, 0);
+>>>>>>> upstream/android-13
 	if (scsi_req(rq)->result)
 		ret = -EIO;
 out:
@@ -913,7 +925,11 @@ static void pkt_iosched_process_queue(struct pktcdvd_device *pd)
 		}
 
 		atomic_inc(&pd->cdrw.pending_bios);
+<<<<<<< HEAD
 		generic_make_request(bio);
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1082,6 +1098,7 @@ static void pkt_put_packet_data(struct pktcdvd_device *pd, struct packet_data *p
 	}
 }
 
+<<<<<<< HEAD
 /*
  * recover a failed write, query for relocation if possible
  *
@@ -1141,6 +1158,8 @@ out:
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void pkt_set_state(struct packet_data *pkt, enum packet_data_state state)
 {
 #if PACKET_DEBUG > 1
@@ -1242,10 +1261,15 @@ try_next_bio:
 	wakeup = (pd->write_congestion_on > 0
 	 		&& pd->bio_queue_size <= pd->write_congestion_off);
 	spin_unlock(&pd->lock);
+<<<<<<< HEAD
 	if (wakeup) {
 		clear_bdi_congested(pd->disk->queue->backing_dev_info,
 					BLK_RW_ASYNC);
 	}
+=======
+	if (wakeup)
+		clear_bdi_congested(pd->disk->bdi, BLK_RW_ASYNC);
+>>>>>>> upstream/android-13
 
 	pkt->sleep_time = max(PACKET_WAIT_TIME, 1);
 	pkt_set_state(pkt, PACKET_WAITING_STATE);
@@ -1258,6 +1282,45 @@ try_next_bio:
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * bio_list_copy_data - copy contents of data buffers from one chain of bios to
+ * another
+ * @src: source bio list
+ * @dst: destination bio list
+ *
+ * Stops when it reaches the end of either the @src list or @dst list - that is,
+ * copies min(src->bi_size, dst->bi_size) bytes (or the equivalent for lists of
+ * bios).
+ */
+static void bio_list_copy_data(struct bio *dst, struct bio *src)
+{
+	struct bvec_iter src_iter = src->bi_iter;
+	struct bvec_iter dst_iter = dst->bi_iter;
+
+	while (1) {
+		if (!src_iter.bi_size) {
+			src = src->bi_next;
+			if (!src)
+				break;
+
+			src_iter = src->bi_iter;
+		}
+
+		if (!dst_iter.bi_size) {
+			dst = dst->bi_next;
+			if (!dst)
+				break;
+
+			dst_iter = dst->bi_iter;
+		}
+
+		bio_copy_data_iter(dst, &dst_iter, src, &src_iter);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * Assemble a bio to write one packet and queue the bio for processing
  * by the underlying block device.
@@ -1357,12 +1420,17 @@ static void pkt_run_state_machine(struct pktcdvd_device *pd, struct packet_data 
 			break;
 
 		case PACKET_RECOVERY_STATE:
+<<<<<<< HEAD
 			if (pkt_start_recovery(pkt)) {
 				pkt_start_write(pd, pkt);
 			} else {
 				pkt_dbg(2, pd, "No recovery possible\n");
 				pkt_set_state(pkt, PACKET_FINISHED_STATE);
 			}
+=======
+			pkt_dbg(2, pd, "No recovery possible\n");
+			pkt_set_state(pkt, PACKET_FINISHED_STATE);
+>>>>>>> upstream/android-13
 			break;
 
 		case PACKET_FINISHED_STATE:
@@ -1613,7 +1681,11 @@ static noinline_for_stack int pkt_get_last_written(struct pktcdvd_device *pd,
 	disc_information di;
 	track_information ti;
 	__u32 last_track;
+<<<<<<< HEAD
 	int ret = -1;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = pkt_get_disc_info(pd, &di);
 	if (ret)
@@ -2173,16 +2245,30 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
 	int ret;
 	long lba;
 	struct request_queue *q;
+<<<<<<< HEAD
+=======
+	struct block_device *bdev;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We need to re-open the cdrom device without O_NONBLOCK to be able
 	 * to read/write from/to it. It is already opened in O_NONBLOCK mode
+<<<<<<< HEAD
 	 * so bdget() can't fail.
 	 */
 	bdget(pd->bdev->bd_dev);
 	ret = blkdev_get(pd->bdev, FMODE_READ | FMODE_EXCL, pd);
 	if (ret)
 		goto out;
+=======
+	 * so open should not fail.
+	 */
+	bdev = blkdev_get_by_dev(pd->bdev->bd_dev, FMODE_READ | FMODE_EXCL, pd);
+	if (IS_ERR(bdev)) {
+		ret = PTR_ERR(bdev);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	ret = pkt_get_last_written(pd, &lba);
 	if (ret) {
@@ -2191,8 +2277,12 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
 	}
 
 	set_capacity(pd->disk, lba << 2);
+<<<<<<< HEAD
 	set_capacity(pd->bdev->bd_disk, lba << 2);
 	bd_set_size(pd->bdev, (loff_t)lba << 11);
+=======
+	set_capacity_and_notify(pd->bdev->bd_disk, lba << 2);
+>>>>>>> upstream/android-13
 
 	q = bdev_get_queue(pd->bdev);
 	if (write) {
@@ -2203,9 +2293,13 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
 		 * Some CDRW drives can not handle writes larger than one packet,
 		 * even if the size is a multiple of the packet size.
 		 */
+<<<<<<< HEAD
 		spin_lock_irq(q->queue_lock);
 		blk_queue_max_hw_sectors(q, pd->settings.size);
 		spin_unlock_irq(q->queue_lock);
+=======
+		blk_queue_max_hw_sectors(q, pd->settings.size);
+>>>>>>> upstream/android-13
 		set_bit(PACKET_WRITABLE, &pd->flags);
 	} else {
 		pkt_set_speed(pd, MAX_SPEED, MAX_SPEED);
@@ -2228,7 +2322,11 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
 	return 0;
 
 out_putdev:
+<<<<<<< HEAD
 	blkdev_put(pd->bdev, FMODE_READ | FMODE_EXCL);
+=======
+	blkdev_put(bdev, FMODE_READ | FMODE_EXCL);
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
@@ -2394,7 +2492,11 @@ static void pkt_make_request_write(struct request_queue *q, struct bio *bio)
 	spin_lock(&pd->lock);
 	if (pd->write_congestion_on > 0
 	    && pd->bio_queue_size >= pd->write_congestion_on) {
+<<<<<<< HEAD
 		set_bdi_congested(q->backing_dev_info, BLK_RW_ASYNC);
+=======
+		set_bdi_congested(bio->bi_bdev->bd_disk->bdi, BLK_RW_ASYNC);
+>>>>>>> upstream/android-13
 		do {
 			spin_unlock(&pd->lock);
 			congestion_wait(BLK_RW_ASYNC, HZ);
@@ -2430,15 +2532,25 @@ static void pkt_make_request_write(struct request_queue *q, struct bio *bio)
 	}
 }
 
+<<<<<<< HEAD
 static blk_qc_t pkt_make_request(struct request_queue *q, struct bio *bio)
+=======
+static blk_qc_t pkt_submit_bio(struct bio *bio)
+>>>>>>> upstream/android-13
 {
 	struct pktcdvd_device *pd;
 	char b[BDEVNAME_SIZE];
 	struct bio *split;
 
+<<<<<<< HEAD
 	blk_queue_split(q, &bio);
 
 	pd = q->queuedata;
+=======
+	blk_queue_split(&bio);
+
+	pd = bio->bi_bdev->bd_disk->queue->queuedata;
+>>>>>>> upstream/android-13
 	if (!pd) {
 		pr_err("%s incorrect request queue\n", bio_devname(bio, b));
 		goto end_io;
@@ -2482,7 +2594,11 @@ static blk_qc_t pkt_make_request(struct request_queue *q, struct bio *bio)
 			split = bio;
 		}
 
+<<<<<<< HEAD
 		pkt_make_request_write(q, split);
+=======
+		pkt_make_request_write(bio->bi_bdev->bd_disk->queue, split);
+>>>>>>> upstream/android-13
 	} while (split != bio);
 
 	return BLK_QC_T_NONE;
@@ -2495,7 +2611,10 @@ static void pkt_init_queue(struct pktcdvd_device *pd)
 {
 	struct request_queue *q = pd->disk->queue;
 
+<<<<<<< HEAD
 	blk_queue_make_request(q, pkt_make_request);
+=======
+>>>>>>> upstream/android-13
 	blk_queue_logical_block_size(q, CD_FRAMESIZE);
 	blk_queue_max_hw_sectors(q, PACKET_MAX_SECTORS);
 	q->queuedata = pd;
@@ -2566,7 +2685,10 @@ static int pkt_seq_show(struct seq_file *m, void *p)
 static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
 {
 	int i;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 	char b[BDEVNAME_SIZE];
 	struct block_device *bdev;
 
@@ -2589,12 +2711,18 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
 		}
 	}
 
+<<<<<<< HEAD
 	bdev = bdget(dev);
 	if (!bdev)
 		return -ENOMEM;
 	ret = blkdev_get(bdev, FMODE_READ | FMODE_NDELAY, NULL);
 	if (ret)
 		return ret;
+=======
+	bdev = blkdev_get_by_dev(dev, FMODE_READ | FMODE_NDELAY, NULL);
+	if (IS_ERR(bdev))
+		return PTR_ERR(bdev);
+>>>>>>> upstream/android-13
 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
 		return -EINVAL;
@@ -2612,7 +2740,10 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
 	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", pd->name);
 	if (IS_ERR(pd->cdrw.thread)) {
 		pkt_err(pd, "can't start kernel thread\n");
+<<<<<<< HEAD
 		ret = -ENOMEM;
+=======
+>>>>>>> upstream/android-13
 		goto out_mem;
 	}
 
@@ -2624,7 +2755,11 @@ out_mem:
 	blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
 	/* This is safe: open() is still holding a reference. */
 	module_put(THIS_MODULE);
+<<<<<<< HEAD
 	return ret;
+=======
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static int pkt_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
@@ -2644,7 +2779,11 @@ static int pkt_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, 
 		 */
 		if (pd->refcnt == 1)
 			pkt_lock_door(pd, 0);
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	/*
 	 * forward selected CDROM ioctls to CD-ROM, for UDF
 	 */
@@ -2653,9 +2792,17 @@ static int pkt_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, 
 	case CDROM_LAST_WRITTEN:
 	case CDROM_SEND_PACKET:
 	case SCSI_IOCTL_SEND_COMMAND:
+<<<<<<< HEAD
 		ret = __blkdev_driver_ioctl(pd->bdev, mode, cmd, arg);
 		break;
 
+=======
+		if (!bdev->bd_disk->fops->ioctl)
+			ret = -ENOTTY;
+		else
+			ret = bdev->bd_disk->fops->ioctl(bdev, mode, cmd, arg);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		pkt_dbg(2, pd, "Unknown ioctl (%x)\n", cmd);
 		ret = -ENOTTY;
@@ -2681,6 +2828,7 @@ static unsigned int pkt_check_events(struct gendisk *disk,
 	return attached_disk->fops->check_events(attached_disk, clearing);
 }
 
+<<<<<<< HEAD
 static const struct block_device_operations pktcdvd_ops = {
 	.owner =		THIS_MODULE,
 	.open =			pkt_open,
@@ -2694,6 +2842,24 @@ static char *pktcdvd_devnode(struct gendisk *gd, umode_t *mode)
 	return kasprintf(GFP_KERNEL, "pktcdvd/%s", gd->disk_name);
 }
 
+=======
+static char *pkt_devnode(struct gendisk *disk, umode_t *mode)
+{
+	return kasprintf(GFP_KERNEL, "pktcdvd/%s", disk->disk_name);
+}
+
+static const struct block_device_operations pktcdvd_ops = {
+	.owner =		THIS_MODULE,
+	.submit_bio =		pkt_submit_bio,
+	.open =			pkt_open,
+	.release =		pkt_close,
+	.ioctl =		pkt_ioctl,
+	.compat_ioctl =		blkdev_compat_ptr_ioctl,
+	.check_events =		pkt_check_events,
+	.devnode =		pkt_devnode,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Set up mapping from pktcdvd device to CD-ROM device.
  */
@@ -2740,12 +2906,17 @@ static int pkt_setup_dev(dev_t dev, dev_t* pkt_dev)
 	pd->write_congestion_off = write_congestion_off;
 
 	ret = -ENOMEM;
+<<<<<<< HEAD
 	disk = alloc_disk(1);
+=======
+	disk = blk_alloc_disk(NUMA_NO_NODE);
+>>>>>>> upstream/android-13
 	if (!disk)
 		goto out_mem;
 	pd->disk = disk;
 	disk->major = pktdev_major;
 	disk->first_minor = idx;
+<<<<<<< HEAD
 	disk->fops = &pktcdvd_ops;
 	disk->flags = GENHD_FL_REMOVABLE;
 	strcpy(disk->disk_name, pd->name);
@@ -2754,6 +2925,13 @@ static int pkt_setup_dev(dev_t dev, dev_t* pkt_dev)
 	disk->queue = blk_alloc_queue(GFP_KERNEL);
 	if (!disk->queue)
 		goto out_mem2;
+=======
+	disk->minors = 1;
+	disk->fops = &pktcdvd_ops;
+	disk->flags = GENHD_FL_REMOVABLE;
+	strcpy(disk->disk_name, pd->name);
+	disk->private_data = pd;
+>>>>>>> upstream/android-13
 
 	pd->pkt_dev = MKDEV(pktdev_major, idx);
 	ret = pkt_new_dev(pd, dev);
@@ -2762,7 +2940,10 @@ static int pkt_setup_dev(dev_t dev, dev_t* pkt_dev)
 
 	/* inherit events of the host device */
 	disk->events = pd->bdev->bd_disk->events;
+<<<<<<< HEAD
 	disk->async_events = pd->bdev->bd_disk->async_events;
+=======
+>>>>>>> upstream/android-13
 
 	add_disk(disk);
 
@@ -2777,7 +2958,11 @@ static int pkt_setup_dev(dev_t dev, dev_t* pkt_dev)
 	return 0;
 
 out_mem2:
+<<<<<<< HEAD
 	put_disk(disk);
+=======
+	blk_cleanup_disk(disk);
+>>>>>>> upstream/android-13
 out_mem:
 	mempool_exit(&pd->rb_pool);
 	kfree(pd);
@@ -2827,8 +3012,12 @@ static int pkt_remove_dev(dev_t pkt_dev)
 	pkt_dbg(1, pd, "writer unmapped\n");
 
 	del_gendisk(pd->disk);
+<<<<<<< HEAD
 	blk_cleanup_queue(pd->disk->queue);
 	put_disk(pd->disk);
+=======
+	blk_cleanup_disk(pd->disk);
+>>>>>>> upstream/android-13
 
 	mempool_exit(&pd->rb_pool);
 	kfree(pd);

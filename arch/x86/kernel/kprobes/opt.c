@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Kernel Probes Jump Optimization (Optprobes)
  *
@@ -15,10 +16,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Kernel Probes Jump Optimization (Optprobes)
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2002, 2004
  * Copyright (C) Hitachi Ltd., 2012
  */
 #include <linux/kprobes.h>
+<<<<<<< HEAD
+=======
+#include <linux/perf_event.h>
+>>>>>>> upstream/android-13
 #include <linux/ptrace.h>
 #include <linux/string.h>
 #include <linux/slab.h>
@@ -28,12 +39,21 @@
 #include <linux/kdebug.h>
 #include <linux/kallsyms.h>
 #include <linux/ftrace.h>
+<<<<<<< HEAD
 #include <linux/frame.h>
+=======
+#include <linux/objtool.h>
+#include <linux/pgtable.h>
+#include <linux/static_call.h>
+>>>>>>> upstream/android-13
 
 #include <asm/text-patching.h>
 #include <asm/cacheflush.h>
 #include <asm/desc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <asm/alternative.h>
 #include <asm/insn.h>
@@ -51,7 +71,11 @@ unsigned long __recover_optprobed_insn(kprobe_opcode_t *buf, unsigned long addr)
 	long offs;
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < RELATIVEJUMP_SIZE; i++) {
+=======
+	for (i = 0; i < JMP32_INSN_SIZE; i++) {
+>>>>>>> upstream/android-13
 		kp = get_kprobe((void *)addr - i);
 		/* This function only handles jump-optimized kprobe */
 		if (kp && kprobe_optimized(kp)) {
@@ -69,21 +93,50 @@ found:
 	 * overwritten by jump destination address. In this case, original
 	 * bytes must be recovered from op->optinsn.copied_insn buffer.
 	 */
+<<<<<<< HEAD
 	if (probe_kernel_read(buf, (void *)addr,
+=======
+	if (copy_from_kernel_nofault(buf, (void *)addr,
+>>>>>>> upstream/android-13
 		MAX_INSN_SIZE * sizeof(kprobe_opcode_t)))
 		return 0UL;
 
 	if (addr == (unsigned long)kp->addr) {
 		buf[0] = kp->opcode;
+<<<<<<< HEAD
 		memcpy(buf + 1, op->optinsn.copied_insn, RELATIVE_ADDR_SIZE);
 	} else {
 		offs = addr - (unsigned long)kp->addr - 1;
 		memcpy(buf, op->optinsn.copied_insn + offs, RELATIVE_ADDR_SIZE - offs);
+=======
+		memcpy(buf + 1, op->optinsn.copied_insn, DISP32_SIZE);
+	} else {
+		offs = addr - (unsigned long)kp->addr - 1;
+		memcpy(buf, op->optinsn.copied_insn + offs, DISP32_SIZE - offs);
+>>>>>>> upstream/android-13
 	}
 
 	return (unsigned long)buf;
 }
 
+<<<<<<< HEAD
+=======
+static void synthesize_clac(kprobe_opcode_t *addr)
+{
+	/*
+	 * Can't be static_cpu_has() due to how objtool treats this feature bit.
+	 * This isn't a fast path anyway.
+	 */
+	if (!boot_cpu_has(X86_FEATURE_SMAP))
+		return;
+
+	/* Replace the NOP3 with CLAC */
+	addr[0] = 0x0f;
+	addr[1] = 0x01;
+	addr[2] = 0xca;
+}
+
+>>>>>>> upstream/android-13
 /* Insert a move instruction which sets a pointer to eax/rdi (1st arg). */
 static void synthesize_set_arg1(kprobe_opcode_t *addr, unsigned long val)
 {
@@ -97,6 +150,10 @@ static void synthesize_set_arg1(kprobe_opcode_t *addr, unsigned long val)
 }
 
 asm (
+<<<<<<< HEAD
+=======
+			".pushsection .rodata\n"
+>>>>>>> upstream/android-13
 			"optprobe_template_func:\n"
 			".global optprobe_template_entry\n"
 			"optprobe_template_entry:\n"
@@ -104,6 +161,12 @@ asm (
 			/* We don't bother saving the ss register */
 			"	pushq %rsp\n"
 			"	pushfq\n"
+<<<<<<< HEAD
+=======
+			".global optprobe_template_clac\n"
+			"optprobe_template_clac:\n"
+			ASM_NOP3
+>>>>>>> upstream/android-13
 			SAVE_REGS_STRING
 			"	movq %rsp, %rsi\n"
 			".global optprobe_template_val\n"
@@ -114,14 +177,27 @@ asm (
 			"optprobe_template_call:\n"
 			ASM_NOP5
 			/* Move flags to rsp */
+<<<<<<< HEAD
 			"	movq 144(%rsp), %rdx\n"
 			"	movq %rdx, 152(%rsp)\n"
+=======
+			"	movq 18*8(%rsp), %rdx\n"
+			"	movq %rdx, 19*8(%rsp)\n"
+>>>>>>> upstream/android-13
 			RESTORE_REGS_STRING
 			/* Skip flags entry */
 			"	addq $8, %rsp\n"
 			"	popfq\n"
 #else /* CONFIG_X86_32 */
+<<<<<<< HEAD
 			"	pushf\n"
+=======
+			"	pushl %esp\n"
+			"	pushfl\n"
+			".global optprobe_template_clac\n"
+			"optprobe_template_clac:\n"
+			ASM_NOP3
+>>>>>>> upstream/android-13
 			SAVE_REGS_STRING
 			"	movl %esp, %edx\n"
 			".global optprobe_template_val\n"
@@ -130,6 +206,7 @@ asm (
 			".global optprobe_template_call\n"
 			"optprobe_template_call:\n"
 			ASM_NOP5
+<<<<<<< HEAD
 			RESTORE_REGS_STRING
 			"	addl $4, %esp\n"	/* skip cs */
 			"	popf\n"
@@ -147,6 +224,25 @@ NOKPROBE_SYMBOL(optprobe_template_val);
 NOKPROBE_SYMBOL(optprobe_template_call);
 NOKPROBE_SYMBOL(optprobe_template_end);
 
+=======
+			/* Move flags into esp */
+			"	movl 14*4(%esp), %edx\n"
+			"	movl %edx, 15*4(%esp)\n"
+			RESTORE_REGS_STRING
+			/* Skip flags entry */
+			"	addl $4, %esp\n"
+			"	popfl\n"
+#endif
+			".global optprobe_template_end\n"
+			"optprobe_template_end:\n"
+			".popsection\n");
+
+void optprobe_template_func(void);
+STACK_FRAME_NON_STANDARD(optprobe_template_func);
+
+#define TMPL_CLAC_IDX \
+	((long)optprobe_template_clac - (long)optprobe_template_entry)
+>>>>>>> upstream/android-13
 #define TMPL_MOVE_IDX \
 	((long)optprobe_template_val - (long)optprobe_template_entry)
 #define TMPL_CALL_IDX \
@@ -154,8 +250,11 @@ NOKPROBE_SYMBOL(optprobe_template_end);
 #define TMPL_END_IDX \
 	((long)optprobe_template_end - (long)optprobe_template_entry)
 
+<<<<<<< HEAD
 #define INT3_SIZE sizeof(kprobe_opcode_t)
 
+=======
+>>>>>>> upstream/android-13
 /* Optimized kprobe call back function: called from optinsn */
 static void
 optimized_callback(struct optimized_kprobe *op, struct pt_regs *regs)
@@ -170,6 +269,7 @@ optimized_callback(struct optimized_kprobe *op, struct pt_regs *regs)
 	} else {
 		struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
 		/* Save skipped registers */
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 		regs->cs = __KERNEL_CS;
 #else
@@ -177,6 +277,13 @@ optimized_callback(struct optimized_kprobe *op, struct pt_regs *regs)
 		regs->gs = 0;
 #endif
 		regs->ip = (unsigned long)op->kp.addr + INT3_SIZE;
+=======
+		regs->cs = __KERNEL_CS;
+#ifdef CONFIG_X86_32
+		regs->gs = 0;
+#endif
+		regs->ip = (unsigned long)op->kp.addr + INT3_INSN_SIZE;
+>>>>>>> upstream/android-13
 		regs->orig_ax = ~0UL;
 
 		__this_cpu_write(current_kprobe, &op->kp);
@@ -193,7 +300,11 @@ static int copy_optimized_instructions(u8 *dest, u8 *src, u8 *real)
 	struct insn insn;
 	int len = 0, ret;
 
+<<<<<<< HEAD
 	while (len < RELATIVEJUMP_SIZE) {
+=======
+	while (len < JMP32_INSN_SIZE) {
+>>>>>>> upstream/android-13
 		ret = __copy_instruction(dest + len, src + len, real + len, &insn);
 		if (!ret || !can_boost(&insn, src + len))
 			return -EINVAL;
@@ -202,7 +313,12 @@ static int copy_optimized_instructions(u8 *dest, u8 *src, u8 *real)
 	/* Check whether the address range is reserved */
 	if (ftrace_text_reserved(src, src + len - 1) ||
 	    alternatives_text_reserved(src, src + len - 1) ||
+<<<<<<< HEAD
 	    jump_label_text_reserved(src, src + len - 1))
+=======
+	    jump_label_text_reserved(src, src + len - 1) ||
+	    static_call_text_reserved(src, src + len - 1))
+>>>>>>> upstream/android-13
 		return -EBUSY;
 
 	return len;
@@ -263,6 +379,22 @@ static int insn_is_indirect_jump(struct insn *insn)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static bool is_padding_int3(unsigned long addr, unsigned long eaddr)
+{
+	unsigned char ops;
+
+	for (; addr < eaddr; addr++) {
+		if (get_kernel_nofault(ops, (void *)addr) < 0 ||
+		    ops != INT3_INSN_OPCODE)
+			return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /* Decode whole function to ensure any instructions don't jump into target */
 static int can_optimize(unsigned long paddr)
 {
@@ -279,6 +411,7 @@ static int can_optimize(unsigned long paddr)
 	 * stack handling and registers setup.
 	 */
 	if (((paddr >= (unsigned long)__entry_text_start) &&
+<<<<<<< HEAD
 	     (paddr <  (unsigned long)__entry_text_end)) ||
 	    ((paddr >= (unsigned long)__irqentry_text_start) &&
 	     (paddr <  (unsigned long)__irqentry_text_end)))
@@ -286,12 +419,24 @@ static int can_optimize(unsigned long paddr)
 
 	/* Check there is enough space for a relative jump. */
 	if (size - offset < RELATIVEJUMP_SIZE)
+=======
+	     (paddr <  (unsigned long)__entry_text_end)))
+		return 0;
+
+	/* Check there is enough space for a relative jump. */
+	if (size - offset < JMP32_INSN_SIZE)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* Decode instructions */
 	addr = paddr - offset;
 	while (addr < paddr - offset + size) { /* Decode until function end */
 		unsigned long recovered_insn;
+<<<<<<< HEAD
+=======
+		int ret;
+
+>>>>>>> upstream/android-13
 		if (search_exception_tables(addr))
 			/*
 			 * Since some fixup code will jumps into this function,
@@ -301,18 +446,39 @@ static int can_optimize(unsigned long paddr)
 		recovered_insn = recover_probed_instruction(buf, addr);
 		if (!recovered_insn)
 			return 0;
+<<<<<<< HEAD
 		kernel_insn_init(&insn, (void *)recovered_insn, MAX_INSN_SIZE);
 		insn_get_length(&insn);
 		/* Another subsystem puts a breakpoint */
 		if (insn.opcode.bytes[0] == BREAKPOINT_INSTRUCTION)
 			return 0;
+=======
+
+		ret = insn_decode_kernel(&insn, (void *)recovered_insn);
+		if (ret < 0)
+			return 0;
+
+		/*
+		 * In the case of detecting unknown breakpoint, this could be
+		 * a padding INT3 between functions. Let's check that all the
+		 * rest of the bytes are also INT3.
+		 */
+		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE)
+			return is_padding_int3(addr, paddr - offset + size) ? 1 : 0;
+
+>>>>>>> upstream/android-13
 		/* Recover address */
 		insn.kaddr = (void *)addr;
 		insn.next_byte = (void *)(addr + insn.length);
 		/* Check any instructions don't jump into target */
 		if (insn_is_indirect_jump(&insn) ||
+<<<<<<< HEAD
 		    insn_jump_into_range(&insn, paddr + INT3_SIZE,
 					 RELATIVE_ADDR_SIZE))
+=======
+		    insn_jump_into_range(&insn, paddr + INT3_INSN_SIZE,
+					 DISP32_SIZE))
+>>>>>>> upstream/android-13
 			return 0;
 		addr += insn.length;
 	}
@@ -347,8 +513,20 @@ int arch_within_optimized_kprobe(struct optimized_kprobe *op,
 static
 void __arch_remove_optimized_kprobe(struct optimized_kprobe *op, int dirty)
 {
+<<<<<<< HEAD
 	if (op->optinsn.insn) {
 		free_optinsn_slot(op->optinsn.insn, dirty);
+=======
+	u8 *slot = op->optinsn.insn;
+	if (slot) {
+		int len = TMPL_END_IDX + op->optinsn.size + JMP32_INSN_SIZE;
+
+		/* Record the perf event before freeing the slot */
+		if (dirty)
+			perf_event_text_poke(slot, slot, len, NULL, 0);
+
+		free_optinsn_slot(slot, dirty);
+>>>>>>> upstream/android-13
 		op->optinsn.insn = NULL;
 		op->optinsn.size = 0;
 	}
@@ -388,7 +566,11 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op,
 	 * Verify if the address gap is in 2GB range, because this uses
 	 * a relative jump.
 	 */
+<<<<<<< HEAD
 	rel = (long)slot - (long)op->kp.addr + RELATIVEJUMP_SIZE;
+=======
+	rel = (long)slot - (long)op->kp.addr + JMP32_INSN_SIZE;
+>>>>>>> upstream/android-13
 	if (abs(rel) > 0x7fffffff) {
 		ret = -ERANGE;
 		goto err;
@@ -405,6 +587,11 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op,
 	op->optinsn.size = ret;
 	len = TMPL_END_IDX + op->optinsn.size;
 
+<<<<<<< HEAD
+=======
+	synthesize_clac(buf + TMPL_CLAC_IDX);
+
+>>>>>>> upstream/android-13
 	/* Set probe information */
 	synthesize_set_arg1(buf + TMPL_MOVE_IDX, (unsigned long)op);
 
@@ -415,10 +602,24 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op,
 	/* Set returning jmp instruction at the tail of out-of-line buffer */
 	synthesize_reljump(buf + len, slot + len,
 			   (u8 *)op->kp.addr + op->optinsn.size);
+<<<<<<< HEAD
 	len += RELATIVEJUMP_SIZE;
 
 	/* We have to use text_poke for instuction buffer because it is RO */
 	text_poke(slot, buf, len);
+=======
+	len += JMP32_INSN_SIZE;
+
+	/*
+	 * Note	len = TMPL_END_IDX + op->optinsn.size + JMP32_INSN_SIZE is also
+	 * used in __arch_remove_optimized_kprobe().
+	 */
+
+	/* We have to use text_poke() for instruction buffer because it is RO */
+	perf_event_text_poke(slot, NULL, 0, buf, len);
+	text_poke(slot, buf, len);
+
+>>>>>>> upstream/android-13
 	ret = 0;
 out:
 	kfree(buf);
@@ -430,21 +631,39 @@ err:
 }
 
 /*
+<<<<<<< HEAD
  * Replace breakpoints (int3) with relative jumps.
  * Caller must call with locking kprobe_mutex and text_mutex.
+=======
+ * Replace breakpoints (INT3) with relative jumps (JMP.d32).
+ * Caller must call with locking kprobe_mutex and text_mutex.
+ *
+ * The caller will have installed a regular kprobe and after that issued
+ * syncrhonize_rcu_tasks(), this ensures that the instruction(s) that live in
+ * the 4 bytes after the INT3 are unused and can now be overwritten.
+>>>>>>> upstream/android-13
  */
 void arch_optimize_kprobes(struct list_head *oplist)
 {
 	struct optimized_kprobe *op, *tmp;
+<<<<<<< HEAD
 	u8 insn_buf[RELATIVEJUMP_SIZE];
 
 	list_for_each_entry_safe(op, tmp, oplist, list) {
 		s32 rel = (s32)((long)op->optinsn.insn -
 			((long)op->kp.addr + RELATIVEJUMP_SIZE));
+=======
+	u8 insn_buff[JMP32_INSN_SIZE];
+
+	list_for_each_entry_safe(op, tmp, oplist, list) {
+		s32 rel = (s32)((long)op->optinsn.insn -
+			((long)op->kp.addr + JMP32_INSN_SIZE));
+>>>>>>> upstream/android-13
 
 		WARN_ON(kprobe_disabled(&op->kp));
 
 		/* Backup instructions which will be replaced by jump address */
+<<<<<<< HEAD
 		memcpy(op->optinsn.copied_insn, op->kp.addr + INT3_SIZE,
 		       RELATIVE_ADDR_SIZE);
 
@@ -453,11 +672,21 @@ void arch_optimize_kprobes(struct list_head *oplist)
 
 		text_poke_bp(op->kp.addr, insn_buf, RELATIVEJUMP_SIZE,
 			     op->optinsn.insn);
+=======
+		memcpy(op->optinsn.copied_insn, op->kp.addr + INT3_INSN_SIZE,
+		       DISP32_SIZE);
+
+		insn_buff[0] = JMP32_INSN_OPCODE;
+		*(s32 *)(&insn_buff[1]) = rel;
+
+		text_poke_bp(op->kp.addr, insn_buff, JMP32_INSN_SIZE, NULL);
+>>>>>>> upstream/android-13
 
 		list_del_init(&op->list);
 	}
 }
 
+<<<<<<< HEAD
 /* Replace a relative jump with a breakpoint (int3).  */
 void arch_unoptimize_kprobe(struct optimized_kprobe *op)
 {
@@ -468,6 +697,34 @@ void arch_unoptimize_kprobe(struct optimized_kprobe *op)
 	memcpy(insn_buf + 1, op->optinsn.copied_insn, RELATIVE_ADDR_SIZE);
 	text_poke_bp(op->kp.addr, insn_buf, RELATIVEJUMP_SIZE,
 		     op->optinsn.insn);
+=======
+/*
+ * Replace a relative jump (JMP.d32) with a breakpoint (INT3).
+ *
+ * After that, we can restore the 4 bytes after the INT3 to undo what
+ * arch_optimize_kprobes() scribbled. This is safe since those bytes will be
+ * unused once the INT3 lands.
+ */
+void arch_unoptimize_kprobe(struct optimized_kprobe *op)
+{
+	u8 new[JMP32_INSN_SIZE] = { INT3_INSN_OPCODE, };
+	u8 old[JMP32_INSN_SIZE];
+	u8 *addr = op->kp.addr;
+
+	memcpy(old, op->kp.addr, JMP32_INSN_SIZE);
+	memcpy(new + INT3_INSN_SIZE,
+	       op->optinsn.copied_insn,
+	       JMP32_INSN_SIZE - INT3_INSN_SIZE);
+
+	text_poke(addr, new, INT3_INSN_SIZE);
+	text_poke_sync();
+	text_poke(addr + INT3_INSN_SIZE,
+		  new + INT3_INSN_SIZE,
+		  JMP32_INSN_SIZE - INT3_INSN_SIZE);
+	text_poke_sync();
+
+	perf_event_text_poke(op->kp.addr, old, JMP32_INSN_SIZE, new, JMP32_INSN_SIZE);
+>>>>>>> upstream/android-13
 }
 
 /*

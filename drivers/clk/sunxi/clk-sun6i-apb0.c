@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Free Electrons
  *
@@ -6,6 +7,15 @@
  *
  * Allwinner A31 APB0 clock driver
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Free Electrons
+ *
+ * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+ *
+ * Allwinner A31 APB0 clock driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>

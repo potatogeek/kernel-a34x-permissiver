@@ -14,14 +14,25 @@
 #include "cmd.h"
 #include "core.h"
 #include "i2c.h"
+<<<<<<< HEAD
+=======
+#include "resources.h"
+>>>>>>> upstream/android-13
 
 #define MLXSW_I2C_CIR2_BASE		0x72000
 #define MLXSW_I2C_CIR_STATUS_OFF	0x18
 #define MLXSW_I2C_CIR2_OFF_STATUS	(MLXSW_I2C_CIR2_BASE + \
 					 MLXSW_I2C_CIR_STATUS_OFF)
 #define MLXSW_I2C_OPMOD_SHIFT		12
+<<<<<<< HEAD
 #define MLXSW_I2C_GO_BIT_SHIFT		23
 #define MLXSW_I2C_CIR_CTRL_STATUS_SHIFT	24
+=======
+#define MLXSW_I2C_EVENT_BIT_SHIFT	22
+#define MLXSW_I2C_GO_BIT_SHIFT		23
+#define MLXSW_I2C_CIR_CTRL_STATUS_SHIFT	24
+#define MLXSW_I2C_EVENT_BIT		BIT(MLXSW_I2C_EVENT_BIT_SHIFT)
+>>>>>>> upstream/android-13
 #define MLXSW_I2C_GO_BIT		BIT(MLXSW_I2C_GO_BIT_SHIFT)
 #define MLXSW_I2C_GO_OPMODE		BIT(MLXSW_I2C_OPMOD_SHIFT)
 #define MLXSW_I2C_SET_IMM_CMD		(MLXSW_I2C_GO_OPMODE | \
@@ -33,10 +44,17 @@
 #define MLXSW_I2C_TLV_HDR_SIZE		0x10
 #define MLXSW_I2C_ADDR_WIDTH		4
 #define MLXSW_I2C_PUSH_CMD_SIZE		(MLXSW_I2C_ADDR_WIDTH + 4)
+<<<<<<< HEAD
+=======
+#define MLXSW_I2C_SET_EVENT_CMD		(MLXSW_I2C_EVENT_BIT)
+#define MLXSW_I2C_PUSH_EVENT_CMD	(MLXSW_I2C_GO_BIT | \
+					 MLXSW_I2C_SET_EVENT_CMD)
+>>>>>>> upstream/android-13
 #define MLXSW_I2C_READ_SEMA_SIZE	4
 #define MLXSW_I2C_PREP_SIZE		(MLXSW_I2C_ADDR_WIDTH + 28)
 #define MLXSW_I2C_MBOX_SIZE		20
 #define MLXSW_I2C_MBOX_OUT_PARAM_OFF	12
+<<<<<<< HEAD
 #define MLXSW_I2C_MAX_BUFF_SIZE		32
 #define MLXSW_I2C_MBOX_OFFSET_BITS	20
 #define MLXSW_I2C_MBOX_SIZE_BITS	12
@@ -47,6 +65,19 @@
 
 /**
  * struct mlxsw_i2c - device private data:
+=======
+#define MLXSW_I2C_MBOX_OFFSET_BITS	20
+#define MLXSW_I2C_MBOX_SIZE_BITS	12
+#define MLXSW_I2C_ADDR_BUF_SIZE		4
+#define MLXSW_I2C_BLK_DEF		32
+#define MLXSW_I2C_RETRY			5
+#define MLXSW_I2C_TIMEOUT_MSECS		5000
+#define MLXSW_I2C_MAX_DATA_SIZE		256
+
+/**
+ * struct mlxsw_i2c - device private data:
+ * @cmd: command attributes;
+>>>>>>> upstream/android-13
  * @cmd.mb_size_in: input mailbox size;
  * @cmd.mb_off_in: input mailbox offset in register space;
  * @cmd.mb_size_out: output mailbox size;
@@ -55,6 +86,10 @@
  * @dev: I2C device;
  * @core: switch core pointer;
  * @bus_info: bus info block;
+<<<<<<< HEAD
+=======
+ * @block_size: maximum block size allowed to pass to under layer;
+>>>>>>> upstream/android-13
  */
 struct mlxsw_i2c {
 	struct {
@@ -67,6 +102,10 @@ struct mlxsw_i2c {
 	struct device *dev;
 	struct mlxsw_core *core;
 	struct mlxsw_bus_info bus_info;
+<<<<<<< HEAD
+=======
+	u16 block_size;
+>>>>>>> upstream/android-13
 };
 
 #define MLXSW_I2C_READ_MSG(_client, _addr_buf, _buf, _len) {	\
@@ -167,7 +206,11 @@ static int mlxsw_i2c_wait_go_bit(struct i2c_client *client,
 	return err > 0 ? 0 : err;
 }
 
+<<<<<<< HEAD
 /* Routine posts a command to ASIC though mail box. */
+=======
+/* Routine posts a command to ASIC through mail box. */
+>>>>>>> upstream/android-13
 static int mlxsw_i2c_write_cmd(struct i2c_client *client,
 			       struct mlxsw_i2c *mlxsw_i2c,
 			       int immediate)
@@ -213,6 +256,69 @@ static int mlxsw_i2c_write_cmd(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* Routine posts initialization command to ASIC through mail box. */
+static int
+mlxsw_i2c_write_init_cmd(struct i2c_client *client,
+			 struct mlxsw_i2c *mlxsw_i2c, u16 opcode, u32 in_mod)
+{
+	__be32 push_cmd_buf[MLXSW_I2C_PUSH_CMD_SIZE / 4] = {
+		0, cpu_to_be32(MLXSW_I2C_PUSH_EVENT_CMD)
+	};
+	__be32 prep_cmd_buf[MLXSW_I2C_PREP_SIZE / 4] = {
+		0, 0, 0, 0, 0, 0,
+		cpu_to_be32(client->adapter->nr & 0xffff),
+		cpu_to_be32(MLXSW_I2C_SET_EVENT_CMD)
+	};
+	struct i2c_msg push_cmd =
+		MLXSW_I2C_WRITE_MSG(client, push_cmd_buf,
+				    MLXSW_I2C_PUSH_CMD_SIZE);
+	struct i2c_msg prep_cmd =
+		MLXSW_I2C_WRITE_MSG(client, prep_cmd_buf, MLXSW_I2C_PREP_SIZE);
+	u8 status;
+	int err;
+
+	push_cmd_buf[1] = cpu_to_be32(MLXSW_I2C_PUSH_EVENT_CMD | opcode);
+	prep_cmd_buf[3] = cpu_to_be32(in_mod);
+	prep_cmd_buf[7] = cpu_to_be32(MLXSW_I2C_GO_BIT | opcode);
+	mlxsw_i2c_set_slave_addr((u8 *)prep_cmd_buf,
+				 MLXSW_I2C_CIR2_BASE);
+	mlxsw_i2c_set_slave_addr((u8 *)push_cmd_buf,
+				 MLXSW_I2C_CIR2_OFF_STATUS);
+
+	/* Prepare Command Interface Register for transaction */
+	err = i2c_transfer(client->adapter, &prep_cmd, 1);
+	if (err < 0)
+		return err;
+	else if (err != 1)
+		return -EIO;
+
+	/* Write out Command Interface Register GO bit to push transaction */
+	err = i2c_transfer(client->adapter, &push_cmd, 1);
+	if (err < 0)
+		return err;
+	else if (err != 1)
+		return -EIO;
+
+	/* Wait until go bit is cleared. */
+	err = mlxsw_i2c_wait_go_bit(client, mlxsw_i2c, &status);
+	if (err) {
+		dev_err(&client->dev, "HW semaphore is not released");
+		return err;
+	}
+
+	/* Validate transaction completion status. */
+	if (status) {
+		dev_err(&client->dev, "Bad transaction completion status %x\n",
+			status);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Routine obtains mail box offsets from ASIC register space. */
 static int mlxsw_i2c_get_mbox(struct i2c_client *client,
 			      struct mlxsw_i2c *mlxsw_i2c)
@@ -248,6 +354,7 @@ mlxsw_i2c_write(struct device *dev, size_t in_mbox_size, u8 *in_mbox, int num,
 	struct i2c_client *client = to_i2c_client(dev);
 	struct mlxsw_i2c *mlxsw_i2c = i2c_get_clientdata(client);
 	unsigned long timeout = msecs_to_jiffies(MLXSW_I2C_TIMEOUT_MSECS);
+<<<<<<< HEAD
 	u8 tran_buf[MLXSW_I2C_MAX_BUFF_SIZE + MLXSW_I2C_ADDR_BUF_SIZE];
 	int off = mlxsw_i2c->cmd.mb_off_in, chunk_size, i, j;
 	unsigned long end;
@@ -262,6 +369,28 @@ mlxsw_i2c_write(struct device *dev, size_t in_mbox_size, u8 *in_mbox, int num,
 		mlxsw_i2c_set_slave_addr(tran_buf, off);
 		memcpy(&tran_buf[MLXSW_I2C_ADDR_BUF_SIZE], in_mbox +
 		       MLXSW_I2C_BLK_MAX * i, chunk_size);
+=======
+	int off = mlxsw_i2c->cmd.mb_off_in, chunk_size, i, j;
+	unsigned long end;
+	u8 *tran_buf;
+	struct i2c_msg write_tran =
+		MLXSW_I2C_WRITE_MSG(client, NULL, MLXSW_I2C_PUSH_CMD_SIZE);
+	int err;
+
+	tran_buf = kmalloc(mlxsw_i2c->block_size + MLXSW_I2C_ADDR_BUF_SIZE,
+			   GFP_KERNEL);
+	if (!tran_buf)
+		return -ENOMEM;
+
+	write_tran.buf = tran_buf;
+	for (i = 0; i < num; i++) {
+		chunk_size = (in_mbox_size > mlxsw_i2c->block_size) ?
+			     mlxsw_i2c->block_size : in_mbox_size;
+		write_tran.len = MLXSW_I2C_ADDR_WIDTH + chunk_size;
+		mlxsw_i2c_set_slave_addr(tran_buf, off);
+		memcpy(&tran_buf[MLXSW_I2C_ADDR_BUF_SIZE], in_mbox +
+		       mlxsw_i2c->block_size * i, chunk_size);
+>>>>>>> upstream/android-13
 
 		j = 0;
 		end = jiffies + timeout;
@@ -275,9 +404,16 @@ mlxsw_i2c_write(struct device *dev, size_t in_mbox_size, u8 *in_mbox, int num,
 			 (j++ < MLXSW_I2C_RETRY));
 
 		if (err != 1) {
+<<<<<<< HEAD
 			if (!err)
 				err = -EIO;
 			return err;
+=======
+			if (!err) {
+				err = -EIO;
+				goto mlxsw_i2c_write_exit;
+			}
+>>>>>>> upstream/android-13
 		}
 
 		off += chunk_size;
@@ -288,30 +424,53 @@ mlxsw_i2c_write(struct device *dev, size_t in_mbox_size, u8 *in_mbox, int num,
 	err = mlxsw_i2c_write_cmd(client, mlxsw_i2c, 0);
 	if (err) {
 		dev_err(&client->dev, "Could not start transaction");
+<<<<<<< HEAD
 		return -EIO;
+=======
+		err = -EIO;
+		goto mlxsw_i2c_write_exit;
+>>>>>>> upstream/android-13
 	}
 
 	/* Wait until go bit is cleared. */
 	err = mlxsw_i2c_wait_go_bit(client, mlxsw_i2c, p_status);
 	if (err) {
 		dev_err(&client->dev, "HW semaphore is not released");
+<<<<<<< HEAD
 		return err;
+=======
+		goto mlxsw_i2c_write_exit;
+>>>>>>> upstream/android-13
 	}
 
 	/* Validate transaction completion status. */
 	if (*p_status) {
 		dev_err(&client->dev, "Bad transaction completion status %x\n",
 			*p_status);
+<<<<<<< HEAD
 		return -EIO;
 	}
 
 	return 0;
+=======
+		err = -EIO;
+	}
+
+mlxsw_i2c_write_exit:
+	kfree(tran_buf);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /* Routine executes I2C command. */
 static int
+<<<<<<< HEAD
 mlxsw_i2c_cmd(struct device *dev, size_t in_mbox_size, u8 *in_mbox,
 	      size_t out_mbox_size, u8 *out_mbox, u8 *status)
+=======
+mlxsw_i2c_cmd(struct device *dev, u16 opcode, u32 in_mod, size_t in_mbox_size,
+	      u8 *in_mbox, size_t out_mbox_size, u8 *out_mbox, u8 *status)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct mlxsw_i2c *mlxsw_i2c = i2c_get_clientdata(client);
@@ -326,6 +485,7 @@ mlxsw_i2c_cmd(struct device *dev, size_t in_mbox_size, u8 *in_mbox,
 
 	WARN_ON(in_mbox_size % sizeof(u32) || out_mbox_size % sizeof(u32));
 
+<<<<<<< HEAD
 	reg_size = mlxsw_i2c_get_reg_size(in_mbox);
 	num = reg_size / MLXSW_I2C_BLK_MAX;
 	if (reg_size % MLXSW_I2C_BLK_MAX)
@@ -344,13 +504,54 @@ mlxsw_i2c_cmd(struct device *dev, size_t in_mbox_size, u8 *in_mbox,
 	if (!out_mbox) {
 		mutex_unlock(&mlxsw_i2c->cmd.lock);
 		return 0;
+=======
+	if (in_mbox) {
+		reg_size = mlxsw_i2c_get_reg_size(in_mbox);
+		num = reg_size / mlxsw_i2c->block_size;
+		if (reg_size % mlxsw_i2c->block_size)
+			num++;
+
+		if (mutex_lock_interruptible(&mlxsw_i2c->cmd.lock) < 0) {
+			dev_err(&client->dev, "Could not acquire lock");
+			return -EINVAL;
+		}
+
+		err = mlxsw_i2c_write(dev, reg_size, in_mbox, num, status);
+		if (err)
+			goto cmd_fail;
+
+		/* No out mailbox is case of write transaction. */
+		if (!out_mbox) {
+			mutex_unlock(&mlxsw_i2c->cmd.lock);
+			return 0;
+		}
+	} else {
+		/* No input mailbox is case of initialization query command. */
+		reg_size = MLXSW_I2C_MAX_DATA_SIZE;
+		num = reg_size / mlxsw_i2c->block_size;
+
+		if (mutex_lock_interruptible(&mlxsw_i2c->cmd.lock) < 0) {
+			dev_err(&client->dev, "Could not acquire lock");
+			return -EINVAL;
+		}
+
+		err = mlxsw_i2c_write_init_cmd(client, mlxsw_i2c, opcode,
+					       in_mod);
+		if (err)
+			goto cmd_fail;
+>>>>>>> upstream/android-13
 	}
 
 	/* Send read transaction to get output mailbox content. */
 	read_tran[1].buf = out_mbox;
 	for (i = 0; i < num; i++) {
+<<<<<<< HEAD
 		chunk_size = (reg_size > MLXSW_I2C_BLK_MAX) ?
 			     MLXSW_I2C_BLK_MAX : reg_size;
+=======
+		chunk_size = (reg_size > mlxsw_i2c->block_size) ?
+			     mlxsw_i2c->block_size : reg_size;
+>>>>>>> upstream/android-13
 		read_tran[1].len = chunk_size;
 		mlxsw_i2c_set_slave_addr(tran_buf, off);
 
@@ -395,8 +596,13 @@ static int mlxsw_i2c_cmd_exec(void *bus_priv, u16 opcode, u8 opcode_mod,
 {
 	struct mlxsw_i2c *mlxsw_i2c = bus_priv;
 
+<<<<<<< HEAD
 	return mlxsw_i2c_cmd(mlxsw_i2c->dev, in_mbox_size, in_mbox,
 			     out_mbox_size, out_mbox, status);
+=======
+	return mlxsw_i2c_cmd(mlxsw_i2c->dev, opcode, in_mod, in_mbox_size,
+			     in_mbox, out_mbox_size, out_mbox, status);
+>>>>>>> upstream/android-13
 }
 
 static bool mlxsw_i2c_skb_transmit_busy(void *bus_priv,
@@ -414,6 +620,7 @@ static int mlxsw_i2c_skb_transmit(void *bus_priv, struct sk_buff *skb,
 static int
 mlxsw_i2c_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
 	       const struct mlxsw_config_profile *profile,
+<<<<<<< HEAD
 	       struct mlxsw_res *resources)
 {
 	struct mlxsw_i2c *mlxsw_i2c = bus_priv;
@@ -421,6 +628,36 @@ mlxsw_i2c_init(void *bus_priv, struct mlxsw_core *mlxsw_core,
 	mlxsw_i2c->core = mlxsw_core;
 
 	return 0;
+=======
+	       struct mlxsw_res *res)
+{
+	struct mlxsw_i2c *mlxsw_i2c = bus_priv;
+	char *mbox;
+	int err;
+
+	mlxsw_i2c->core = mlxsw_core;
+
+	mbox = mlxsw_cmd_mbox_alloc();
+	if (!mbox)
+		return -ENOMEM;
+
+	err = mlxsw_cmd_query_fw(mlxsw_core, mbox);
+	if (err)
+		goto mbox_put;
+
+	mlxsw_i2c->bus_info.fw_rev.major =
+		mlxsw_cmd_mbox_query_fw_fw_rev_major_get(mbox);
+	mlxsw_i2c->bus_info.fw_rev.minor =
+		mlxsw_cmd_mbox_query_fw_fw_rev_minor_get(mbox);
+	mlxsw_i2c->bus_info.fw_rev.subminor =
+		mlxsw_cmd_mbox_query_fw_fw_rev_subminor_get(mbox);
+
+	err = mlxsw_core_resources_query(mlxsw_core, mbox, res);
+
+mbox_put:
+	mlxsw_cmd_mbox_free(mbox);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void mlxsw_i2c_fini(void *bus_priv)
@@ -442,6 +679,10 @@ static const struct mlxsw_bus mlxsw_i2c_bus = {
 static int mlxsw_i2c_probe(struct i2c_client *client,
 			   const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
+=======
+	const struct i2c_adapter_quirks *quirks = client->adapter->quirks;
+>>>>>>> upstream/android-13
 	struct mlxsw_i2c *mlxsw_i2c;
 	u8 status;
 	int err;
@@ -450,6 +691,25 @@ static int mlxsw_i2c_probe(struct i2c_client *client,
 	if (!mlxsw_i2c)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	if (quirks) {
+		if ((quirks->max_read_len &&
+		     quirks->max_read_len < MLXSW_I2C_BLK_DEF) ||
+		    (quirks->max_write_len &&
+		     quirks->max_write_len < MLXSW_I2C_BLK_DEF)) {
+			dev_err(&client->dev, "Insufficient transaction buffer length\n");
+			return -EOPNOTSUPP;
+		}
+
+		mlxsw_i2c->block_size = max_t(u16, MLXSW_I2C_BLK_DEF,
+					      min_t(u16, quirks->max_read_len,
+						    quirks->max_write_len));
+	} else {
+		mlxsw_i2c->block_size = MLXSW_I2C_BLK_DEF;
+	}
+
+>>>>>>> upstream/android-13
 	i2c_set_clientdata(client, mlxsw_i2c);
 	mutex_init(&mlxsw_i2c->cmd.lock);
 
@@ -503,11 +763,19 @@ static int mlxsw_i2c_probe(struct i2c_client *client,
 	mlxsw_i2c->bus_info.device_kind = id->name;
 	mlxsw_i2c->bus_info.device_name = client->name;
 	mlxsw_i2c->bus_info.dev = &client->dev;
+<<<<<<< HEAD
+=======
+	mlxsw_i2c->bus_info.low_frequency = true;
+>>>>>>> upstream/android-13
 	mlxsw_i2c->dev = &client->dev;
 
 	err = mlxsw_core_bus_device_register(&mlxsw_i2c->bus_info,
 					     &mlxsw_i2c_bus, mlxsw_i2c, false,
+<<<<<<< HEAD
 					     NULL);
+=======
+					     NULL, NULL);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&client->dev, "Fail to register core bus\n");
 		return err;
@@ -516,6 +784,10 @@ static int mlxsw_i2c_probe(struct i2c_client *client,
 	return 0;
 
 errout:
+<<<<<<< HEAD
+=======
+	mutex_destroy(&mlxsw_i2c->cmd.lock);
+>>>>>>> upstream/android-13
 	i2c_set_clientdata(client, NULL);
 
 	return err;

@@ -21,8 +21,11 @@
 
 void proca_table_init(struct proca_table *table)
 {
+<<<<<<< HEAD
 	BUG_ON(!table);
 
+=======
+>>>>>>> upstream/android-13
 	memset(table, 0, sizeof(*table));
 
 	spin_lock_init(&table->pid_map_lock);

@@ -40,7 +40,11 @@
 			d-cache-size = <32768>;
 			dcr-controller;
 			dcr-access-method = "native";
+<<<<<<< HEAD
 			status = "ok";
+=======
+			status = "okay";
+>>>>>>> upstream/android-13
 		};
 		cpu@1 {
 			device_type = "cpu";
@@ -248,7 +252,11 @@
 			};
 		};
 
+<<<<<<< HEAD
 		PCIE0: pciex@10100000000 {
+=======
+		PCIE0: pcie@10100000000 {
+>>>>>>> upstream/android-13
 			device_type = "pci";
 			#interrupt-cells = <1>;
 			#size-cells = <2>;
@@ -288,7 +296,11 @@
 				0x0 0x0 0x0 0x4 &MPIC 48 0x2 /* int D */>;
 		};
 
+<<<<<<< HEAD
 		PCIE1: pciex@20100000000 {
+=======
+		PCIE1: pcie@20100000000 {
+>>>>>>> upstream/android-13
 			device_type = "pci";
 			#interrupt-cells = <1>;
 			#size-cells = <2>;
@@ -328,7 +340,11 @@
 				0x0 0x0 0x0 0x4 &MPIC 56 0x2 /* int D */>;
 		};
 
+<<<<<<< HEAD
 		PCIE2: pciex@18100000000 {
+=======
+		PCIE2: pcie@18100000000 {
+>>>>>>> upstream/android-13
 			device_type = "pci";
 			#interrupt-cells = <1>;
 			#size-cells = <2>;
@@ -368,7 +384,11 @@
 				0x0 0x0 0x0 0x4 &MPIC 64 0x2 /* int D */>;
 		};
 
+<<<<<<< HEAD
 		PCIE3: pciex@28100000000 {
+=======
+		PCIE3: pcie@28100000000 {
+>>>>>>> upstream/android-13
 			device_type = "pci";
 			#interrupt-cells = <1>;
 			#size-cells = <2>;

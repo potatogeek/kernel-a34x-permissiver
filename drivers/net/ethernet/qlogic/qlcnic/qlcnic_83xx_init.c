@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic qlcnic NIC Driver
  * Copyright (c) 2009-2013 QLogic Corporation
  *
  * See LICENSE.qlcnic for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic qlcnic NIC Driver
+ * Copyright (c) 2009-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include "qlcnic_sriov.h"
@@ -747,7 +754,11 @@ static int qlcnic_83xx_idc_unknown_state(struct qlcnic_adapter *adapter)
 }
 
 /**
+<<<<<<< HEAD
  * qlcnic_83xx_idc_cold_state
+=======
+ * qlcnic_83xx_idc_cold_state_handler
+>>>>>>> upstream/android-13
  *
  * @adapter: adapter structure
  *
@@ -1028,9 +1039,14 @@ static int qlcnic_83xx_idc_check_state_validity(struct qlcnic_adapter *adapter,
 #define QLCNIC_ENABLE_INGRESS_ENCAP_PARSING 1
 #define QLCNIC_DISABLE_INGRESS_ENCAP_PARSING 0
 
+<<<<<<< HEAD
 static int qlcnic_set_vxlan_port(struct qlcnic_adapter *adapter)
 {
 	u16 port = adapter->ahw->vxlan_port;
+=======
+int qlcnic_set_vxlan_port(struct qlcnic_adapter *adapter, u16 port)
+{
+>>>>>>> upstream/android-13
 	struct qlcnic_cmd_args cmd;
 	int ret = 0;
 
@@ -1057,10 +1073,15 @@ static int qlcnic_set_vxlan_port(struct qlcnic_adapter *adapter)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int qlcnic_set_vxlan_parsing(struct qlcnic_adapter *adapter,
 				    bool state)
 {
 	u16 vxlan_port = adapter->ahw->vxlan_port;
+=======
+int qlcnic_set_vxlan_parsing(struct qlcnic_adapter *adapter, u16 port)
+{
+>>>>>>> upstream/android-13
 	struct qlcnic_cmd_args cmd;
 	int ret = 0;
 
@@ -1071,18 +1092,31 @@ static int qlcnic_set_vxlan_parsing(struct qlcnic_adapter *adapter,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	cmd.req.arg[1] = state ? QLCNIC_ENABLE_INGRESS_ENCAP_PARSING :
 				 QLCNIC_DISABLE_INGRESS_ENCAP_PARSING;
+=======
+	cmd.req.arg[1] = port ? QLCNIC_ENABLE_INGRESS_ENCAP_PARSING :
+				QLCNIC_DISABLE_INGRESS_ENCAP_PARSING;
+>>>>>>> upstream/android-13
 
 	ret = qlcnic_issue_cmd(adapter, &cmd);
 	if (ret)
 		netdev_err(adapter->netdev,
 			   "Failed to %s VXLAN parsing for port %d\n",
+<<<<<<< HEAD
 			   state ? "enable" : "disable", vxlan_port);
 	else
 		netdev_info(adapter->netdev,
 			    "%s VXLAN parsing for port %d\n",
 			    state ? "Enabled" : "Disabled", vxlan_port);
+=======
+			   port ? "enable" : "disable", port);
+	else
+		netdev_info(adapter->netdev,
+			    "%s VXLAN parsing for port %d\n",
+			    port ? "Enabled" : "Disabled", port);
+>>>>>>> upstream/android-13
 
 	qlcnic_free_mbx_args(&cmd);
 
@@ -1093,6 +1127,7 @@ static void qlcnic_83xx_periodic_tasks(struct qlcnic_adapter *adapter)
 {
 	if (adapter->fhash.fnum)
 		qlcnic_prune_lb_filters(adapter);
+<<<<<<< HEAD
 
 	if (adapter->flags & QLCNIC_ADD_VXLAN_PORT) {
 		if (qlcnic_set_vxlan_port(adapter))
@@ -1109,6 +1144,8 @@ static void qlcnic_83xx_periodic_tasks(struct qlcnic_adapter *adapter)
 		adapter->ahw->vxlan_port = 0;
 		adapter->flags &= ~QLCNIC_DEL_VXLAN_PORT;
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1374,10 +1411,17 @@ static int qlcnic_83xx_copy_fw_file(struct qlcnic_adapter *adapter)
 	struct qlc_83xx_fw_info *fw_info = adapter->ahw->fw_info;
 	const struct firmware *fw = fw_info->fw;
 	u32 dest, *p_cache, *temp;
+<<<<<<< HEAD
 	int i, ret = -EIO;
 	__le32 *temp_le;
 	u8 data[16];
 	size_t size;
+=======
+	__le32 *temp_le;
+	u8 data[16];
+	size_t size;
+	int i, ret;
+>>>>>>> upstream/android-13
 	u64 addr;
 
 	temp = vzalloc(fw->size);

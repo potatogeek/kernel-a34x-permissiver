@@ -131,7 +131,11 @@
 #define TEGRA20_CLK_CCLK 108
 #define TEGRA20_CLK_HCLK 109
 #define TEGRA20_CLK_PCLK 110
+<<<<<<< HEAD
 #define TEGRA20_CLK_BLINK 111
+=======
+/* 111 */
+>>>>>>> upstream/android-13
 #define TEGRA20_CLK_PLL_A 112
 #define TEGRA20_CLK_PLL_A_OUT0 113
 #define TEGRA20_CLK_PLL_C 114

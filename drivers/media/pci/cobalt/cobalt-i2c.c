@@ -118,11 +118,19 @@ static int cobalt_tx_bytes(struct cobalt_i2c_regs __iomem *regs,
 		iowrite8(data[i], &regs->txr_rxr);
 
 		/* Setup command */
+<<<<<<< HEAD
 		if (i == 0 && start != 0) {
 			/* Write + Start */
 			cmd = M00018_CR_BITMAP_WR_MSK |
 			      M00018_CR_BITMAP_STA_MSK;
 		} else if (i == len - 1 && stop != 0) {
+=======
+		if (i == 0 && start) {
+			/* Write + Start */
+			cmd = M00018_CR_BITMAP_WR_MSK |
+			      M00018_CR_BITMAP_STA_MSK;
+		} else if (i == len - 1 && stop) {
+>>>>>>> upstream/android-13
 			/* Write + Stop */
 			cmd = M00018_CR_BITMAP_WR_MSK |
 			      M00018_CR_BITMAP_STO_MSK;
@@ -173,11 +181,19 @@ static int cobalt_rx_bytes(struct cobalt_i2c_regs __iomem *regs,
 
 	for (i = 0; i < len; i++) {
 		/* Setup command */
+<<<<<<< HEAD
 		if (i == 0 && start != 0) {
 			/* Read + Start */
 			cmd = M00018_CR_BITMAP_RD_MSK |
 			      M00018_CR_BITMAP_STA_MSK;
 		} else if (i == len - 1 && stop != 0) {
+=======
+		if (i == 0 && start) {
+			/* Read + Start */
+			cmd = M00018_CR_BITMAP_RD_MSK |
+			      M00018_CR_BITMAP_STA_MSK;
+		} else if (i == len - 1 && stop) {
+>>>>>>> upstream/android-13
 			/* Read + Stop */
 			cmd = M00018_CR_BITMAP_RD_MSK |
 			      M00018_CR_BITMAP_STO_MSK;

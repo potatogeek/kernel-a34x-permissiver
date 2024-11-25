@@ -12,18 +12,34 @@ struct hwbm_pool {
 	/* constructor called during alocation */
 	int (*construct)(struct hwbm_pool *bm_pool, void *buf);
 	/* protect acces to the buffer counter*/
+<<<<<<< HEAD
 	spinlock_t lock;
+=======
+	struct mutex buf_lock;
+>>>>>>> upstream/android-13
 	/* private data */
 	void *priv;
 };
 #ifdef CONFIG_HWBM
 void hwbm_buf_free(struct hwbm_pool *bm_pool, void *buf);
 int hwbm_pool_refill(struct hwbm_pool *bm_pool, gfp_t gfp);
+<<<<<<< HEAD
 int hwbm_pool_add(struct hwbm_pool *bm_pool, unsigned int buf_num, gfp_t gfp);
 #else
 void hwbm_buf_free(struct hwbm_pool *bm_pool, void *buf) {}
 int hwbm_pool_refill(struct hwbm_pool *bm_pool, gfp_t gfp) { return 0; }
 int hwbm_pool_add(struct hwbm_pool *bm_pool, unsigned int buf_num, gfp_t gfp)
+=======
+int hwbm_pool_add(struct hwbm_pool *bm_pool, unsigned int buf_num);
+#else
+static inline void hwbm_buf_free(struct hwbm_pool *bm_pool, void *buf) {}
+
+static inline int hwbm_pool_refill(struct hwbm_pool *bm_pool, gfp_t gfp)
+{ return 0; }
+
+static inline int hwbm_pool_add(struct hwbm_pool *bm_pool,
+				unsigned int buf_num)
+>>>>>>> upstream/android-13
 { return 0; }
 #endif /* CONFIG_HWBM */
 #endif /* _HWBM_H */

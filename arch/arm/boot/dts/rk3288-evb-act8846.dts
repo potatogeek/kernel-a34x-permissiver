@@ -4,6 +4,10 @@
 #include "rk3288-evb.dtsi"
 
 / {
+<<<<<<< HEAD
+=======
+	model = "Rockchip RK3288 EVB ACT8846";
+>>>>>>> upstream/android-13
 	compatible = "rockchip,rk3288-evb-act8846", "rockchip,rk3288";
 
 	vcc_lcd: vcc-lcd {
@@ -175,13 +179,21 @@
 &pinctrl {
 	lcd {
 		lcd_en: lcd-en  {
+<<<<<<< HEAD
 			rockchip,pins = <7 3 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <7 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	wifi {
 		wifi_pwr: wifi-pwr {
+<<<<<<< HEAD
 			rockchip,pins = <7 9 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <7 RK_PB1 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

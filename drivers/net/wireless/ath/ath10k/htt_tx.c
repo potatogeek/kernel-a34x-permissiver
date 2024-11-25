@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2005-2011 Atheros Communications Inc.
+ * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -83,7 +90,11 @@ static void __ath10k_htt_tx_txq_recalc(struct ieee80211_hw *hw,
 
 	if (unlikely(peer_id >= ar->htt.tx_q_state.num_peers) ||
 	    unlikely(tid >= ar->htt.tx_q_state.num_tids)) {
+<<<<<<< HEAD
 		ath10k_warn(ar, "refusing to update txq for peer_id %hu tid %hhu due to out of bounds\n",
+=======
+		ath10k_warn(ar, "refusing to update txq for peer_id %u tid %u due to out of bounds\n",
+>>>>>>> upstream/android-13
 			    peer_id, tid);
 		return;
 	}
@@ -92,7 +103,11 @@ static void __ath10k_htt_tx_txq_recalc(struct ieee80211_hw *hw,
 	ar->htt.tx_q_state.vaddr->map[tid][idx] &= ~bit;
 	ar->htt.tx_q_state.vaddr->map[tid][idx] |= count ? bit : 0;
 
+<<<<<<< HEAD
 	ath10k_dbg(ar, ATH10K_DBG_HTT, "htt tx txq state update peer_id %hu tid %hhu count %hhu\n",
+=======
+	ath10k_dbg(ar, ATH10K_DBG_HTT, "htt tx txq state update peer_id %u tid %u count %u\n",
+>>>>>>> upstream/android-13
 		   peer_id, tid, count);
 }
 
@@ -158,6 +173,12 @@ void ath10k_htt_tx_dec_pending(struct ath10k_htt *htt)
 	htt->num_pending_tx--;
 	if (htt->num_pending_tx == htt->max_num_pending_tx - 1)
 		ath10k_mac_tx_unlock(htt->ar, ATH10K_TX_PAUSE_Q_FULL);
+<<<<<<< HEAD
+=======
+
+	if (htt->num_pending_tx == 0)
+		wake_up(&htt->empty_tx_wq);
+>>>>>>> upstream/android-13
 }
 
 int ath10k_htt_tx_inc_pending(struct ath10k_htt *htt)
@@ -224,7 +245,11 @@ void ath10k_htt_tx_free_msdu_id(struct ath10k_htt *htt, u16 msdu_id)
 
 	lockdep_assert_held(&htt->tx_lock);
 
+<<<<<<< HEAD
 	ath10k_dbg(ar, ATH10K_DBG_HTT, "htt tx free msdu_id %hu\n", msdu_id);
+=======
+	ath10k_dbg(ar, ATH10K_DBG_HTT, "htt tx free msdu_id %u\n", msdu_id);
+>>>>>>> upstream/android-13
 
 	idr_remove(&htt->pending_tx, msdu_id);
 }
@@ -495,6 +520,12 @@ int ath10k_htt_tx_start(struct ath10k_htt *htt)
 	if (htt->tx_mem_allocated)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (ar->bus_param.dev_type == ATH10K_DEV_TYPE_HL)
+		return 0;
+
+>>>>>>> upstream/android-13
 	ret = ath10k_htt_tx_alloc_buf(htt);
 	if (ret)
 		goto free_idr_pending_tx;
@@ -515,7 +546,11 @@ static int ath10k_htt_tx_clean_up_pending(int msdu_id, void *skb, void *ctx)
 	struct ath10k_htt *htt = &ar->htt;
 	struct htt_tx_done tx_done = {0};
 
+<<<<<<< HEAD
 	ath10k_dbg(ar, ATH10K_DBG_HTT, "force cleanup msdu_id %hu\n", msdu_id);
+=======
+	ath10k_dbg(ar, ATH10K_DBG_HTT, "force cleanup msdu_id %u\n", msdu_id);
+>>>>>>> upstream/android-13
 
 	tx_done.msdu_id = msdu_id;
 	tx_done.status = HTT_TX_COMPL_STATE_DISCARD;
@@ -537,9 +572,21 @@ void ath10k_htt_tx_destroy(struct ath10k_htt *htt)
 	htt->tx_mem_allocated = false;
 }
 
+<<<<<<< HEAD
 void ath10k_htt_tx_stop(struct ath10k_htt *htt)
 {
 	idr_for_each(&htt->pending_tx, ath10k_htt_tx_clean_up_pending, htt->ar);
+=======
+static void ath10k_htt_flush_tx_queue(struct ath10k_htt *htt)
+{
+	ath10k_htc_stop_hl(htt->ar);
+	idr_for_each(&htt->pending_tx, ath10k_htt_tx_clean_up_pending, htt->ar);
+}
+
+void ath10k_htt_tx_stop(struct ath10k_htt *htt)
+{
+	ath10k_htt_flush_tx_queue(htt);
+>>>>>>> upstream/android-13
 	idr_destroy(&htt->pending_tx);
 }
 
@@ -549,9 +596,54 @@ void ath10k_htt_tx_free(struct ath10k_htt *htt)
 	ath10k_htt_tx_destroy(htt);
 }
 
+<<<<<<< HEAD
 void ath10k_htt_htc_tx_complete(struct ath10k *ar, struct sk_buff *skb)
 {
 	dev_kfree_skb_any(skb);
+=======
+void ath10k_htt_op_ep_tx_credits(struct ath10k *ar)
+{
+	queue_work(ar->workqueue, &ar->bundle_tx_work);
+}
+
+void ath10k_htt_htc_tx_complete(struct ath10k *ar, struct sk_buff *skb)
+{
+	struct ath10k_htt *htt = &ar->htt;
+	struct htt_tx_done tx_done = {0};
+	struct htt_cmd_hdr *htt_hdr;
+	struct htt_data_tx_desc *desc_hdr = NULL;
+	u16 flags1 = 0;
+	u8 msg_type = 0;
+
+	if (htt->disable_tx_comp) {
+		htt_hdr = (struct htt_cmd_hdr *)skb->data;
+		msg_type = htt_hdr->msg_type;
+
+		if (msg_type == HTT_H2T_MSG_TYPE_TX_FRM) {
+			desc_hdr = (struct htt_data_tx_desc *)
+				(skb->data + sizeof(*htt_hdr));
+			flags1 = __le16_to_cpu(desc_hdr->flags1);
+			skb_pull(skb, sizeof(struct htt_cmd_hdr));
+			skb_pull(skb, sizeof(struct htt_data_tx_desc));
+		}
+	}
+
+	dev_kfree_skb_any(skb);
+
+	if ((!htt->disable_tx_comp) || (msg_type != HTT_H2T_MSG_TYPE_TX_FRM))
+		return;
+
+	ath10k_dbg(ar, ATH10K_DBG_HTT,
+		   "htt tx complete msdu id:%u ,flags1:%x\n",
+		   __le16_to_cpu(desc_hdr->id), flags1);
+
+	if (flags1 & HTT_DATA_TX_DESC_FLAGS1_TX_COMPLETE)
+		return;
+
+	tx_done.status = HTT_TX_COMPL_STATE_ACK;
+	tx_done.msdu_id = __le16_to_cpu(desc_hdr->id);
+	ath10k_txrx_tx_unref(&ar->htt, &tx_done);
+>>>>>>> upstream/android-13
 }
 
 void ath10k_htt_hif_tx_complete(struct ath10k *ar, struct sk_buff *skb)
@@ -588,7 +680,12 @@ int ath10k_htt_h2t_ver_req_msg(struct ath10k_htt *htt)
 	return 0;
 }
 
+<<<<<<< HEAD
 int ath10k_htt_h2t_stats_req(struct ath10k_htt *htt, u8 mask, u64 cookie)
+=======
+int ath10k_htt_h2t_stats_req(struct ath10k_htt *htt, u32 mask, u32 reset_mask,
+			     u64 cookie)
+>>>>>>> upstream/android-13
 {
 	struct ath10k *ar = htt->ar;
 	struct htt_stats_req *req;
@@ -611,11 +708,19 @@ int ath10k_htt_h2t_stats_req(struct ath10k_htt *htt, u8 mask, u64 cookie)
 
 	memset(req, 0, sizeof(*req));
 
+<<<<<<< HEAD
 	/* currently we support only max 8 bit masks so no need to worry
 	 * about endian support
 	 */
 	req->upload_types[0] = mask;
 	req->reset_types[0] = mask;
+=======
+	/* currently we support only max 24 bit masks so no need to worry
+	 * about endian support
+	 */
+	memcpy(req->upload_types, &mask, 3);
+	memcpy(req->reset_types, &reset_mask, 3);
+>>>>>>> upstream/android-13
 	req->stat_type = HTT_STATS_REQ_CFG_STAT_TYPE_INVALID;
 	req->cookie_lsb = cpu_to_le32(cookie & 0xffffffff);
 	req->cookie_msb = cpu_to_le32((cookie & 0xffffffff00000000ULL) >> 32);
@@ -934,9 +1039,66 @@ static int ath10k_htt_send_rx_ring_cfg_64(struct ath10k_htt *htt)
 	return 0;
 }
 
+<<<<<<< HEAD
 int ath10k_htt_h2t_aggr_cfg_msg(struct ath10k_htt *htt,
 				u8 max_subfrms_ampdu,
 				u8 max_subfrms_amsdu)
+=======
+static int ath10k_htt_send_rx_ring_cfg_hl(struct ath10k_htt *htt)
+{
+	struct ath10k *ar = htt->ar;
+	struct sk_buff *skb;
+	struct htt_cmd *cmd;
+	struct htt_rx_ring_setup_ring32 *ring;
+	const int num_rx_ring = 1;
+	u16 flags;
+	int len;
+	int ret;
+
+	/*
+	 * the HW expects the buffer to be an integral number of 4-byte
+	 * "words"
+	 */
+	BUILD_BUG_ON(!IS_ALIGNED(HTT_RX_BUF_SIZE, 4));
+	BUILD_BUG_ON((HTT_RX_BUF_SIZE & HTT_MAX_CACHE_LINE_SIZE_MASK) != 0);
+
+	len = sizeof(cmd->hdr) + sizeof(cmd->rx_setup_32.hdr)
+	    + (sizeof(*ring) * num_rx_ring);
+	skb = ath10k_htc_alloc_skb(ar, len);
+	if (!skb)
+		return -ENOMEM;
+
+	skb_put(skb, len);
+
+	cmd = (struct htt_cmd *)skb->data;
+	ring = &cmd->rx_setup_32.rings[0];
+
+	cmd->hdr.msg_type = HTT_H2T_MSG_TYPE_RX_RING_CFG;
+	cmd->rx_setup_32.hdr.num_rings = 1;
+
+	flags = 0;
+	flags |= HTT_RX_RING_FLAGS_MSDU_PAYLOAD;
+	flags |= HTT_RX_RING_FLAGS_UNICAST_RX;
+	flags |= HTT_RX_RING_FLAGS_MULTICAST_RX;
+
+	memset(ring, 0, sizeof(*ring));
+	ring->rx_ring_len = __cpu_to_le16(HTT_RX_RING_SIZE_MIN);
+	ring->rx_ring_bufsize = __cpu_to_le16(HTT_RX_BUF_SIZE);
+	ring->flags = __cpu_to_le16(flags);
+
+	ret = ath10k_htc_send(&htt->ar->htc, htt->eid, skb);
+	if (ret) {
+		dev_kfree_skb_any(skb);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int ath10k_htt_h2t_aggr_cfg_msg_32(struct ath10k_htt *htt,
+					  u8 max_subfrms_ampdu,
+					  u8 max_subfrms_amsdu)
+>>>>>>> upstream/android-13
 {
 	struct ath10k *ar = htt->ar;
 	struct htt_aggr_conf *aggr_conf;
@@ -981,6 +1143,56 @@ int ath10k_htt_h2t_aggr_cfg_msg(struct ath10k_htt *htt,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int ath10k_htt_h2t_aggr_cfg_msg_v2(struct ath10k_htt *htt,
+					  u8 max_subfrms_ampdu,
+					  u8 max_subfrms_amsdu)
+{
+	struct ath10k *ar = htt->ar;
+	struct htt_aggr_conf_v2 *aggr_conf;
+	struct sk_buff *skb;
+	struct htt_cmd *cmd;
+	int len;
+	int ret;
+
+	/* Firmware defaults are: amsdu = 3 and ampdu = 64 */
+
+	if (max_subfrms_ampdu == 0 || max_subfrms_ampdu > 64)
+		return -EINVAL;
+
+	if (max_subfrms_amsdu == 0 || max_subfrms_amsdu > 31)
+		return -EINVAL;
+
+	len = sizeof(cmd->hdr);
+	len += sizeof(cmd->aggr_conf_v2);
+
+	skb = ath10k_htc_alloc_skb(ar, len);
+	if (!skb)
+		return -ENOMEM;
+
+	skb_put(skb, len);
+	cmd = (struct htt_cmd *)skb->data;
+	cmd->hdr.msg_type = HTT_H2T_MSG_TYPE_AGGR_CFG;
+
+	aggr_conf = &cmd->aggr_conf_v2;
+	aggr_conf->max_num_ampdu_subframes = max_subfrms_ampdu;
+	aggr_conf->max_num_amsdu_subframes = max_subfrms_amsdu;
+
+	ath10k_dbg(ar, ATH10K_DBG_HTT, "htt h2t aggr cfg msg amsdu %d ampdu %d",
+		   aggr_conf->max_num_amsdu_subframes,
+		   aggr_conf->max_num_ampdu_subframes);
+
+	ret = ath10k_htc_send(&htt->ar->htc, htt->eid, skb);
+	if (ret) {
+		dev_kfree_skb_any(skb);
+		return ret;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int ath10k_htt_tx_fetch_resp(struct ath10k *ar,
 			     __le32 token,
 			     __le16 fetch_seq_num,
@@ -1072,6 +1284,10 @@ int ath10k_htt_mgmt_tx(struct ath10k_htt *htt, struct sk_buff *msdu)
 	int len = 0;
 	int msdu_id = -1;
 	int res;
+<<<<<<< HEAD
+=======
+	const u8 *peer_addr;
+>>>>>>> upstream/android-13
 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
 
 	len += sizeof(cmd->hdr);
@@ -1087,7 +1303,20 @@ int ath10k_htt_mgmt_tx(struct ath10k_htt *htt, struct sk_buff *msdu)
 	     ieee80211_is_deauth(hdr->frame_control) ||
 	     ieee80211_is_disassoc(hdr->frame_control)) &&
 	     ieee80211_has_protected(hdr->frame_control)) {
+<<<<<<< HEAD
 		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
+=======
+		peer_addr = hdr->addr1;
+		if (is_multicast_ether_addr(peer_addr)) {
+			skb_put(msdu, sizeof(struct ieee80211_mmie_16));
+		} else {
+			if (skb_cb->ucast_cipher == WLAN_CIPHER_SUITE_GCMP ||
+			    skb_cb->ucast_cipher == WLAN_CIPHER_SUITE_GCMP_256)
+				skb_put(msdu, IEEE80211_GCMP_MIC_LEN);
+			else
+				skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	txdesc = ath10k_htc_alloc_skb(ar, len);
@@ -1123,7 +1352,12 @@ int ath10k_htt_mgmt_tx(struct ath10k_htt *htt, struct sk_buff *msdu)
 	return 0;
 
 err_unmap_msdu:
+<<<<<<< HEAD
 	dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
+=======
+	if (ar->bus_param.dev_type != ATH10K_DEV_TYPE_HL)
+		dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 err_free_txdesc:
 	dev_kfree_skb_any(txdesc);
 err_free_msdu_id:
@@ -1134,6 +1368,126 @@ err:
 	return res;
 }
 
+<<<<<<< HEAD
+=======
+#define HTT_TX_HL_NEEDED_HEADROOM \
+	(unsigned int)(sizeof(struct htt_cmd_hdr) + \
+	sizeof(struct htt_data_tx_desc) + \
+	sizeof(struct ath10k_htc_hdr))
+
+static int ath10k_htt_tx_hl(struct ath10k_htt *htt, enum ath10k_hw_txrx_mode txmode,
+			    struct sk_buff *msdu)
+{
+	struct ath10k *ar = htt->ar;
+	int res, data_len;
+	struct htt_cmd_hdr *cmd_hdr;
+	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
+	struct htt_data_tx_desc *tx_desc;
+	struct ath10k_skb_cb *skb_cb = ATH10K_SKB_CB(msdu);
+	struct sk_buff *tmp_skb;
+	bool is_eth = (txmode == ATH10K_HW_TXRX_ETHERNET);
+	u8 vdev_id = ath10k_htt_tx_get_vdev_id(ar, msdu);
+	u8 tid = ath10k_htt_tx_get_tid(msdu, is_eth);
+	u8 flags0 = 0;
+	u16 flags1 = 0;
+	u16 msdu_id = 0;
+
+	if ((ieee80211_is_action(hdr->frame_control) ||
+	     ieee80211_is_deauth(hdr->frame_control) ||
+	     ieee80211_is_disassoc(hdr->frame_control)) &&
+	     ieee80211_has_protected(hdr->frame_control)) {
+		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
+	}
+
+	data_len = msdu->len;
+
+	switch (txmode) {
+	case ATH10K_HW_TXRX_RAW:
+	case ATH10K_HW_TXRX_NATIVE_WIFI:
+		flags0 |= HTT_DATA_TX_DESC_FLAGS0_MAC_HDR_PRESENT;
+		fallthrough;
+	case ATH10K_HW_TXRX_ETHERNET:
+		flags0 |= SM(txmode, HTT_DATA_TX_DESC_FLAGS0_PKT_TYPE);
+		break;
+	case ATH10K_HW_TXRX_MGMT:
+		flags0 |= SM(ATH10K_HW_TXRX_MGMT,
+			     HTT_DATA_TX_DESC_FLAGS0_PKT_TYPE);
+		flags0 |= HTT_DATA_TX_DESC_FLAGS0_MAC_HDR_PRESENT;
+
+		if (htt->disable_tx_comp)
+			flags1 |= HTT_DATA_TX_DESC_FLAGS1_TX_COMPLETE;
+		break;
+	}
+
+	if (skb_cb->flags & ATH10K_SKB_F_NO_HWCRYPT)
+		flags0 |= HTT_DATA_TX_DESC_FLAGS0_NO_ENCRYPT;
+
+	flags1 |= SM((u16)vdev_id, HTT_DATA_TX_DESC_FLAGS1_VDEV_ID);
+	flags1 |= SM((u16)tid, HTT_DATA_TX_DESC_FLAGS1_EXT_TID);
+	if (msdu->ip_summed == CHECKSUM_PARTIAL &&
+	    !test_bit(ATH10K_FLAG_RAW_MODE, &ar->dev_flags)) {
+		flags1 |= HTT_DATA_TX_DESC_FLAGS1_CKSUM_L3_OFFLOAD;
+		flags1 |= HTT_DATA_TX_DESC_FLAGS1_CKSUM_L4_OFFLOAD;
+	}
+
+	/* Prepend the HTT header and TX desc struct to the data message
+	 * and realloc the skb if it does not have enough headroom.
+	 */
+	if (skb_headroom(msdu) < HTT_TX_HL_NEEDED_HEADROOM) {
+		tmp_skb = msdu;
+
+		ath10k_dbg(htt->ar, ATH10K_DBG_HTT,
+			   "Not enough headroom in skb. Current headroom: %u, needed: %u. Reallocating...\n",
+			   skb_headroom(msdu), HTT_TX_HL_NEEDED_HEADROOM);
+		msdu = skb_realloc_headroom(msdu, HTT_TX_HL_NEEDED_HEADROOM);
+		kfree_skb(tmp_skb);
+		if (!msdu) {
+			ath10k_warn(htt->ar, "htt hl tx: Unable to realloc skb!\n");
+			res = -ENOMEM;
+			goto out;
+		}
+	}
+
+	if (ar->bus_param.hl_msdu_ids) {
+		flags1 |= HTT_DATA_TX_DESC_FLAGS1_POSTPONED;
+		res = ath10k_htt_tx_alloc_msdu_id(htt, msdu);
+		if (res < 0) {
+			ath10k_err(ar, "msdu_id allocation failed %d\n", res);
+			goto out;
+		}
+		msdu_id = res;
+	}
+
+	/* As msdu is freed by mac80211 (in ieee80211_tx_status()) and by
+	 * ath10k (in ath10k_htt_htc_tx_complete()) we have to increase
+	 * reference by one to avoid a use-after-free case and a double
+	 * free.
+	 */
+	skb_get(msdu);
+
+	skb_push(msdu, sizeof(*cmd_hdr));
+	skb_push(msdu, sizeof(*tx_desc));
+	cmd_hdr = (struct htt_cmd_hdr *)msdu->data;
+	tx_desc = (struct htt_data_tx_desc *)(msdu->data + sizeof(*cmd_hdr));
+
+	cmd_hdr->msg_type = HTT_H2T_MSG_TYPE_TX_FRM;
+	tx_desc->flags0 = flags0;
+	tx_desc->flags1 = __cpu_to_le16(flags1);
+	tx_desc->len = __cpu_to_le16(data_len);
+	tx_desc->id = __cpu_to_le16(msdu_id);
+	tx_desc->frags_paddr = 0; /* always zero */
+	/* Initialize peer_id to INVALID_PEER because this is NOT
+	 * Reinjection path
+	 */
+	tx_desc->peerid = __cpu_to_le32(HTT_INVALID_PEERID);
+
+	res = ath10k_htc_send_hl(&htt->ar->htc, htt->eid, msdu);
+
+out:
+	return res;
+}
+
+>>>>>>> upstream/android-13
 static int ath10k_htt_tx_32(struct ath10k_htt *htt,
 			    enum ath10k_hw_txrx_mode txmode,
 			    struct sk_buff *msdu)
@@ -1198,7 +1552,11 @@ static int ath10k_htt_tx_32(struct ath10k_htt *htt,
 	case ATH10K_HW_TXRX_RAW:
 	case ATH10K_HW_TXRX_NATIVE_WIFI:
 		flags0 |= HTT_DATA_TX_DESC_FLAGS0_MAC_HDR_PRESENT;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATH10K_HW_TXRX_ETHERNET:
 		if (ar->hw_params.continuous_frag_desc) {
 			ext_desc_t = htt->frag_desc.vaddr_desc_32;
@@ -1295,7 +1653,11 @@ static int ath10k_htt_tx_32(struct ath10k_htt *htt,
 
 	trace_ath10k_htt_tx(ar, msdu_id, msdu->len, vdev_id, tid);
 	ath10k_dbg(ar, ATH10K_DBG_HTT,
+<<<<<<< HEAD
 		   "htt tx flags0 %hhu flags1 %hu len %d id %hu frags_paddr %pad, msdu_paddr %pad vdev %hhu tid %hhu freq %hu\n",
+=======
+		   "htt tx flags0 %u flags1 %u len %d id %u frags_paddr %pad, msdu_paddr %pad vdev %u tid %u freq %u\n",
+>>>>>>> upstream/android-13
 		   flags0, flags1, msdu->len, msdu_id, &frags_paddr,
 		   &skb_cb->paddr, vdev_id, tid, freq);
 	ath10k_dbg_dump(ar, ATH10K_DBG_HTT_DUMP, NULL, "htt tx msdu: ",
@@ -1357,7 +1719,11 @@ static int ath10k_htt_tx_64(struct ath10k_htt *htt,
 	u16 msdu_id, flags1 = 0;
 	u16 freq = 0;
 	dma_addr_t frags_paddr = 0;
+<<<<<<< HEAD
 	u32 txbuf_paddr;
+=======
+	dma_addr_t txbuf_paddr;
+>>>>>>> upstream/android-13
 	struct htt_msdu_ext_desc_64 *ext_desc = NULL;
 	struct htt_msdu_ext_desc_64 *ext_desc_t = NULL;
 
@@ -1400,7 +1766,11 @@ static int ath10k_htt_tx_64(struct ath10k_htt *htt,
 	case ATH10K_HW_TXRX_RAW:
 	case ATH10K_HW_TXRX_NATIVE_WIFI:
 		flags0 |= HTT_DATA_TX_DESC_FLAGS0_MAC_HDR_PRESENT;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ATH10K_HW_TXRX_ETHERNET:
 		if (ar->hw_params.continuous_frag_desc) {
 			ext_desc_t = htt->frag_desc.vaddr_desc_64;
@@ -1504,7 +1874,11 @@ static int ath10k_htt_tx_64(struct ath10k_htt *htt,
 
 	trace_ath10k_htt_tx(ar, msdu_id, msdu->len, vdev_id, tid);
 	ath10k_dbg(ar, ATH10K_DBG_HTT,
+<<<<<<< HEAD
 		   "htt tx flags0 %hhu flags1 %hu len %d id %hu frags_paddr %pad, msdu_paddr %pad vdev %hhu tid %hhu freq %hu\n",
+=======
+		   "htt tx flags0 %u flags1 %u len %d id %u frags_paddr %pad, msdu_paddr %pad vdev %u tid %u freq %u\n",
+>>>>>>> upstream/android-13
 		   flags0, flags1, msdu->len, msdu_id, &frags_paddr,
 		   &skb_cb->paddr, vdev_id, tid, freq);
 	ath10k_dbg_dump(ar, ATH10K_DBG_HTT_DUMP, NULL, "htt tx msdu: ",
@@ -1553,6 +1927,10 @@ static const struct ath10k_htt_tx_ops htt_tx_ops_32 = {
 	.htt_tx = ath10k_htt_tx_32,
 	.htt_alloc_txbuff = ath10k_htt_tx_alloc_cont_txbuf_32,
 	.htt_free_txbuff = ath10k_htt_tx_free_cont_txbuf_32,
+<<<<<<< HEAD
+=======
+	.htt_h2t_aggr_cfg_msg = ath10k_htt_h2t_aggr_cfg_msg_32,
+>>>>>>> upstream/android-13
 };
 
 static const struct ath10k_htt_tx_ops htt_tx_ops_64 = {
@@ -1563,13 +1941,31 @@ static const struct ath10k_htt_tx_ops htt_tx_ops_64 = {
 	.htt_tx = ath10k_htt_tx_64,
 	.htt_alloc_txbuff = ath10k_htt_tx_alloc_cont_txbuf_64,
 	.htt_free_txbuff = ath10k_htt_tx_free_cont_txbuf_64,
+<<<<<<< HEAD
+=======
+	.htt_h2t_aggr_cfg_msg = ath10k_htt_h2t_aggr_cfg_msg_v2,
+};
+
+static const struct ath10k_htt_tx_ops htt_tx_ops_hl = {
+	.htt_send_rx_ring_cfg = ath10k_htt_send_rx_ring_cfg_hl,
+	.htt_send_frag_desc_bank_cfg = ath10k_htt_send_frag_desc_bank_cfg_32,
+	.htt_tx = ath10k_htt_tx_hl,
+	.htt_h2t_aggr_cfg_msg = ath10k_htt_h2t_aggr_cfg_msg_32,
+	.htt_flush_tx = ath10k_htt_flush_tx_queue,
+>>>>>>> upstream/android-13
 };
 
 void ath10k_htt_set_tx_ops(struct ath10k_htt *htt)
 {
 	struct ath10k *ar = htt->ar;
 
+<<<<<<< HEAD
 	if (ar->hw_params.target_64bit)
+=======
+	if (ar->bus_param.dev_type == ATH10K_DEV_TYPE_HL)
+		htt->tx_ops = &htt_tx_ops_hl;
+	else if (ar->hw_params.target_64bit)
+>>>>>>> upstream/android-13
 		htt->tx_ops = &htt_tx_ops_64;
 	else
 		htt->tx_ops = &htt_tx_ops_32;

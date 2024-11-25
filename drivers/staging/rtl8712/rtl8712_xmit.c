@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl8712_xmit.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -72,6 +79,7 @@ int r8712_txframes_sta_ac_pending(struct _adapter *padapter,
 	switch (priority) {
 	case 1:
 	case 2:
+<<<<<<< HEAD
 		ptxservq = &(psta->sta_xmitpriv.bk_q);
 		break;
 	case 4:
@@ -81,11 +89,26 @@ int r8712_txframes_sta_ac_pending(struct _adapter *padapter,
 	case 6:
 	case 7:
 		ptxservq = &(psta->sta_xmitpriv.vo_q);
+=======
+		ptxservq = &psta->sta_xmitpriv.bk_q;
+		break;
+	case 4:
+	case 5:
+		ptxservq = &psta->sta_xmitpriv.vi_q;
+		break;
+	case 6:
+	case 7:
+		ptxservq = &psta->sta_xmitpriv.vo_q;
+>>>>>>> upstream/android-13
 		break;
 	case 0:
 	case 3:
 	default:
+<<<<<<< HEAD
 		ptxservq = &(psta->sta_xmitpriv.be_q);
+=======
+		ptxservq = &psta->sta_xmitpriv.be_q;
+>>>>>>> upstream/android-13
 	break;
 	}
 	return ptxservq->qcnt;
@@ -240,9 +263,15 @@ void r8712_do_queue_select(struct _adapter *padapter,
 	struct dvobj_priv *pdvobj = &padapter->dvobjpriv;
 
 	if (pdvobj->nr_endpoint == 6) {
+<<<<<<< HEAD
 		qsel = (unsigned int) pattrib->priority;
 	} else if (pdvobj->nr_endpoint == 4) {
 		qsel = (unsigned int) pattrib->priority;
+=======
+		qsel = (unsigned int)pattrib->priority;
+	} else if (pdvobj->nr_endpoint == 4) {
+		qsel = (unsigned int)pattrib->priority;
+>>>>>>> upstream/android-13
 		if (qsel == 0 || qsel == 3)
 			qsel = 3;
 		else if (qsel == 1 || qsel == 2)
@@ -258,7 +287,11 @@ void r8712_do_queue_select(struct _adapter *padapter,
 }
 
 #ifdef CONFIG_R8712_TX_AGGR
+<<<<<<< HEAD
 u8 r8712_construct_txaggr_cmd_desc(struct xmit_buf *pxmitbuf)
+=======
+void r8712_construct_txaggr_cmd_desc(struct xmit_buf *pxmitbuf)
+>>>>>>> upstream/android-13
 {
 	struct tx_desc *ptx_desc = (struct tx_desc *)pxmitbuf->pbuf;
 
@@ -272,16 +305,26 @@ u8 r8712_construct_txaggr_cmd_desc(struct xmit_buf *pxmitbuf)
 
 	/* dw1 */
 	ptx_desc->txdw1 |= cpu_to_le32((0x13 << QSEL_SHT) & 0x00001f00);
+<<<<<<< HEAD
 
 	return _SUCCESS;
 }
 
 u8 r8712_construct_txaggr_cmd_hdr(struct xmit_buf *pxmitbuf)
+=======
+}
+
+void r8712_construct_txaggr_cmd_hdr(struct xmit_buf *pxmitbuf)
+>>>>>>> upstream/android-13
 {
 	struct xmit_frame *pxmitframe = (struct xmit_frame *)
 		pxmitbuf->priv_data;
 	struct _adapter *padapter = pxmitframe->padapter;
+<<<<<<< HEAD
 	struct cmd_priv *pcmdpriv = &(padapter->cmdpriv);
+=======
+	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
+>>>>>>> upstream/android-13
 	struct cmd_hdr *pcmd_hdr = (struct cmd_hdr  *)
 		(pxmitbuf->pbuf + TXDESC_SIZE);
 
@@ -290,12 +333,19 @@ u8 r8712_construct_txaggr_cmd_hdr(struct xmit_buf *pxmitbuf)
 	pcmd_hdr->cmd_dw0 = cpu_to_le32((GEN_CMD_CODE(_AMSDU_TO_AMPDU) << 16) |
 					(pcmdpriv->cmd_seq << 24));
 	pcmdpriv->cmd_seq++;
+<<<<<<< HEAD
 
 	return _SUCCESS;
 }
 
 u8 r8712_append_mpdu_unit(struct xmit_buf *pxmitbuf,
 			struct xmit_frame *pxmitframe)
+=======
+}
+
+void r8712_append_mpdu_unit(struct xmit_buf *pxmitbuf,
+			    struct xmit_frame *pxmitframe)
+>>>>>>> upstream/android-13
 {
 	struct _adapter *padapter = pxmitframe->padapter;
 	struct tx_desc *ptx_desc = (struct tx_desc *)pxmitbuf->pbuf;
@@ -331,6 +381,7 @@ u8 r8712_append_mpdu_unit(struct xmit_buf *pxmitbuf,
 		((ptx_desc->txdw0 & 0x0000ffff) +
 			((TXDESC_SIZE + last_txcmdsz + padding_sz) &
 			 0x0000ffff)));
+<<<<<<< HEAD
 
 	return _SUCCESS;
 }
@@ -338,6 +389,12 @@ u8 r8712_append_mpdu_unit(struct xmit_buf *pxmitbuf,
 
 u8 r8712_xmitframe_aggr_1st(struct xmit_buf *pxmitbuf,
 			struct xmit_frame *pxmitframe)
+=======
+}
+
+void r8712_xmitframe_aggr_1st(struct xmit_buf *pxmitbuf,
+			      struct xmit_frame *pxmitframe)
+>>>>>>> upstream/android-13
 {
 	/* linux complete context doesn't need to protect */
 	pxmitframe->pxmitbuf = pxmitbuf;
@@ -348,10 +405,15 @@ u8 r8712_xmitframe_aggr_1st(struct xmit_buf *pxmitbuf,
 	/*RTL8712_DMA_H2CCMD */
 	r8712_construct_txaggr_cmd_desc(pxmitbuf);
 	r8712_construct_txaggr_cmd_hdr(pxmitbuf);
+<<<<<<< HEAD
 	if (r8712_append_mpdu_unit(pxmitbuf, pxmitframe) == _SUCCESS)
 		pxmitbuf->aggr_nr = 1;
 
 	return _SUCCESS;
+=======
+	r8712_append_mpdu_unit(pxmitbuf, pxmitframe);
+	pxmitbuf->aggr_nr = 1;
+>>>>>>> upstream/android-13
 }
 
 u16 r8712_xmitframe_aggr_next(struct xmit_buf *pxmitbuf,
@@ -363,25 +425,41 @@ u16 r8712_xmitframe_aggr_next(struct xmit_buf *pxmitbuf,
 	/* buffer addr assoc */
 	pxmitframe->buf_addr = pxmitbuf->pbuf + TXDESC_SIZE +
 		(((struct tx_desc *)pxmitbuf->pbuf)->txdw0 & 0x0000ffff);
+<<<<<<< HEAD
 	if (r8712_append_mpdu_unit(pxmitbuf, pxmitframe) == _SUCCESS) {
 		r8712_free_xmitframe_ex(&pxmitframe->padapter->xmitpriv,
 					pxmitframe);
 		pxmitbuf->aggr_nr++;
 	}
+=======
+	r8712_append_mpdu_unit(pxmitbuf, pxmitframe);
+	r8712_free_xmitframe_ex(&pxmitframe->padapter->xmitpriv,
+				pxmitframe);
+	pxmitbuf->aggr_nr++;
+>>>>>>> upstream/android-13
 
 	return TXDESC_SIZE +
 		(((struct tx_desc *)pxmitbuf->pbuf)->txdw0 & 0x0000ffff);
 }
 
+<<<<<<< HEAD
 u8 r8712_dump_aggr_xframe(struct xmit_buf *pxmitbuf,
 			struct xmit_frame *pxmitframe)
+=======
+void r8712_dump_aggr_xframe(struct xmit_buf *pxmitbuf,
+			    struct xmit_frame *pxmitframe)
+>>>>>>> upstream/android-13
 {
 	struct _adapter *padapter = pxmitframe->padapter;
 	struct dvobj_priv *pdvobj = &padapter->dvobjpriv;
 	struct tx_desc *ptxdesc = pxmitbuf->pbuf;
 	struct cmd_hdr *pcmd_hdr = (struct cmd_hdr *)
 		(pxmitbuf->pbuf + TXDESC_SIZE);
+<<<<<<< HEAD
 	u16 total_length = (u16) (ptxdesc->txdw0 & 0xffff);
+=======
+	u16 total_length = (u16)(ptxdesc->txdw0 & 0xffff);
+>>>>>>> upstream/android-13
 
 	/* use 1st xmitframe as media */
 	xmitframe_xmitbuf_attach(pxmitframe, pxmitbuf);
@@ -390,7 +468,11 @@ u8 r8712_dump_aggr_xframe(struct xmit_buf *pxmitbuf,
 							0xffff0000));
 
 	/* urb length in cmd_dw1 */
+<<<<<<< HEAD
 	pcmd_hdr->cmd_dw1 = cpu_to_le32((pxmitbuf->aggr_nr & 0xff)|
+=======
+	pcmd_hdr->cmd_dw1 = cpu_to_le32((pxmitbuf->aggr_nr & 0xff) |
+>>>>>>> upstream/android-13
 					((total_length + TXDESC_SIZE) << 16));
 	pxmitframe->last[0] = 1;
 	pxmitframe->bpending[0] = false;
@@ -411,8 +493,11 @@ u8 r8712_dump_aggr_xframe(struct xmit_buf *pxmitbuf,
 	}
 	r8712_write_port(pxmitframe->padapter, RTL8712_DMA_H2CCMD,
 			total_length + TXDESC_SIZE, (u8 *)pxmitframe);
+<<<<<<< HEAD
 
 	return _SUCCESS;
+=======
+>>>>>>> upstream/android-13
 }
 
 #endif
@@ -431,7 +516,11 @@ static void update_txdesc(struct xmit_frame *pxmitframe, uint *pmem, int sz)
 	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
 #endif
 	u8 blnSetTxDescOffset;
+<<<<<<< HEAD
 	sint bmcst = IS_MCAST(pattrib->ra);
+=======
+	bool bmcst = is_multicast_ether_addr(pattrib->ra);
+>>>>>>> upstream/android-13
 	struct ht_priv *phtpriv = &pmlmepriv->htpriv;
 	struct tx_desc txdesc_mp;
 
@@ -506,9 +595,15 @@ static void update_txdesc(struct xmit_frame *pxmitframe, uint *pmem, int sz)
 				ptxdesc->txdw1 |= cpu_to_le32((0x01 << 22) &
 						  0x00c00000);
 				/*KEY_ID when WEP is used;*/
+<<<<<<< HEAD
 				ptxdesc->txdw1 |= cpu_to_le32((psecuritypriv->
 						  PrivacyKeyIndex << 17) &
 						  0x00060000);
+=======
+				ptxdesc->txdw1 |=
+					cpu_to_le32((psecuritypriv->PrivacyKeyIndex << 17) &
+						    0x00060000);
+>>>>>>> upstream/android-13
 				break;
 			case _TKIP_:
 			case _TKIP_WTMIC_:
@@ -530,7 +625,11 @@ static void update_txdesc(struct xmit_frame *pxmitframe, uint *pmem, int sz)
 
 		/*offset 12*/
 		/* f/w will increase the seqnum by itself, driver pass the
+<<<<<<< HEAD
 		 * correct priority to fw
+=======
+		 * correct priority to fw.
+>>>>>>> upstream/android-13
 		 * fw will check the correct priority for increasing the
 		 * seqnum per tid. about usb using 4-endpoint, qsel points out
 		 * the correct mapping between AC&Endpoint,
@@ -544,7 +643,11 @@ static void update_txdesc(struct xmit_frame *pxmitframe, uint *pmem, int sz)
 		    (pattrib->dhcp_pkt != 1)) {
 			/*Not EAP & ARP type data packet*/
 			if (phtpriv->ht_option == 1) { /*B/G/N Mode*/
+<<<<<<< HEAD
 				if (phtpriv->ampdu_enable != true)
+=======
+				if (!phtpriv->ampdu_enable)
+>>>>>>> upstream/android-13
 					ptxdesc->txdw2 |= cpu_to_le32(BK);
 			}
 		} else {
@@ -583,7 +686,11 @@ static void update_txdesc(struct xmit_frame *pxmitframe, uint *pmem, int sz)
 			ptxdesc->txdw2 |= cpu_to_le32(BMC);
 		/* offset 12 */
 		/* f/w will increase the seqnum by itself, driver pass the
+<<<<<<< HEAD
 		 * correct priority to fw
+=======
+		 * correct priority to fw.
+>>>>>>> upstream/android-13
 		 * fw will check the correct priority for increasing the seqnum
 		 * per tid. about usb using 4-endpoint, qsel points out the
 		 * correct mapping between AC&Endpoint,
@@ -749,20 +856,33 @@ static void dump_xframe(struct _adapter *padapter,
 	}
 }
 
+<<<<<<< HEAD
 int r8712_xmit_direct(struct _adapter *padapter, struct xmit_frame *pxmitframe)
 {
 	int res = _SUCCESS;
+=======
+void r8712_xmit_direct(struct _adapter *padapter, struct xmit_frame *pxmitframe)
+{
+	int res;
+>>>>>>> upstream/android-13
 
 	res = r8712_xmitframe_coalesce(padapter, pxmitframe->pkt, pxmitframe);
 	pxmitframe->pkt = NULL;
 	if (res == _SUCCESS)
 		dump_xframe(padapter, pxmitframe);
+<<<<<<< HEAD
 	return res;
+=======
+>>>>>>> upstream/android-13
 }
 
 int r8712_xmit_enqueue(struct _adapter *padapter, struct xmit_frame *pxmitframe)
 {
+<<<<<<< HEAD
 	if (r8712_xmit_classifier(padapter, pxmitframe) == _FAIL) {
+=======
+	if (r8712_xmit_classifier(padapter, pxmitframe)) {
+>>>>>>> upstream/android-13
 		pxmitframe->pkt = NULL;
 		return _FAIL;
 	}

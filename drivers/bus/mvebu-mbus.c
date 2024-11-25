@@ -610,23 +610,39 @@ static unsigned int armada_xp_mbus_win_remap_offset(int win)
 static void __init
 mvebu_mbus_find_bridge_hole(uint64_t *start, uint64_t *end)
 {
+<<<<<<< HEAD
 	struct memblock_region *r;
 	uint64_t s = 0;
 
 	for_each_memblock(memory, r) {
+=======
+	phys_addr_t reg_start, reg_end;
+	uint64_t i, s = 0;
+
+	for_each_mem_range(i, &reg_start, &reg_end) {
+>>>>>>> upstream/android-13
 		/*
 		 * This part of the memory is above 4 GB, so we don't
 		 * care for the MBus bridge hole.
 		 */
+<<<<<<< HEAD
 		if (r->base >= 0x100000000ULL)
+=======
+		if ((u64)reg_start >= 0x100000000ULL)
+>>>>>>> upstream/android-13
 			continue;
 
 		/*
 		 * The MBus bridge hole is at the end of the RAM under
 		 * the 4 GB limit.
 		 */
+<<<<<<< HEAD
 		if (r->base + r->size > s)
 			s = r->base + r->size;
+=======
+		if (reg_end > s)
+			s = reg_end;
+>>>>>>> upstream/android-13
 	}
 
 	*start = s;
@@ -1111,7 +1127,11 @@ static int __init mvebu_mbus_common_init(struct mvebu_mbus_state *mbus,
 
 	mbus->sdramwins_base = ioremap(sdramwins_phys_base, sdramwins_size);
 	if (!mbus->sdramwins_base) {
+<<<<<<< HEAD
 		iounmap(mbus_state.mbuswins_base);
+=======
+		iounmap(mbus->mbuswins_base);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -1229,7 +1249,11 @@ mbus_parse_ranges(struct device_node *node,
 	tuple_len = (*cell_count) * sizeof(__be32);
 
 	if (ranges_len % tuple_len) {
+<<<<<<< HEAD
 		pr_warn("malformed ranges entry '%s'\n", node->name);
+=======
+		pr_warn("malformed ranges entry '%pOFn'\n", node);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	return 0;

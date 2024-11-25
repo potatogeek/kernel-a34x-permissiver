@@ -126,14 +126,22 @@ static void __init sh2007_init_irq(void)
  */
 static void __init sh2007_setup(char **cmdline_p)
 {
+<<<<<<< HEAD
 	printk(KERN_INFO "SH-2007 Setup...");
+=======
+	pr_info("SH-2007 Setup...");
+>>>>>>> upstream/android-13
 
 	/* setup wait control registers for area 5 */
 	__raw_writel(CS5BCR_D, CS5BCR);
 	__raw_writel(CS5WCR_D, CS5WCR);
 	__raw_writel(CS5PCR_D, CS5PCR);
 
+<<<<<<< HEAD
 	printk(KERN_INFO " done.\n");
+=======
+	pr_cont(" done.\n");
+>>>>>>> upstream/android-13
 }
 
 /*

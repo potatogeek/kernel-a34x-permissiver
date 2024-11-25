@@ -54,6 +54,11 @@ static int atm_send_aal0(struct atm_vcc *vcc, struct sk_buff *skb)
 		kfree_skb(skb);
 		return -EADDRNOTAVAIL;
 	}
+<<<<<<< HEAD
+=======
+	if (vcc->dev->ops->send_bh)
+		return vcc->dev->ops->send_bh(vcc, skb);
+>>>>>>> upstream/android-13
 	return vcc->dev->ops->send(vcc, skb);
 }
 
@@ -71,7 +76,14 @@ int atm_init_aal34(struct atm_vcc *vcc)
 	vcc->push = atm_push_raw;
 	vcc->pop = atm_pop_raw;
 	vcc->push_oam = NULL;
+<<<<<<< HEAD
 	vcc->send = vcc->dev->ops->send;
+=======
+	if (vcc->dev->ops->send_bh)
+		vcc->send = vcc->dev->ops->send_bh;
+	else
+		vcc->send = vcc->dev->ops->send;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -80,7 +92,14 @@ int atm_init_aal5(struct atm_vcc *vcc)
 	vcc->push = atm_push_raw;
 	vcc->pop = atm_pop_raw;
 	vcc->push_oam = NULL;
+<<<<<<< HEAD
 	vcc->send = vcc->dev->ops->send;
+=======
+	if (vcc->dev->ops->send_bh)
+		vcc->send = vcc->dev->ops->send_bh;
+	else
+		vcc->send = vcc->dev->ops->send;
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(atm_init_aal5);

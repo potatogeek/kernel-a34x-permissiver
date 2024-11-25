@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Find a use after free.
 //# Values of variables may imply that some
 //# execution paths are not possible, resulting in false positives.
@@ -5,9 +9,15 @@
 //# SCTP_DBG_OBJCNT_DEC that do not actually evaluate their argument
 ///
 // Confidence: Moderate
+<<<<<<< HEAD
 // Copyright: (C) 2010-2012 Nicolas Palix.  GPLv2.
 // Copyright: (C) 2010-2012 Julia Lawall, INRIA/LIP6.  GPLv2.
 // Copyright: (C) 2010-2012 Gilles Muller, INRIA/LiP6.  GPLv2.
+=======
+// Copyright: (C) 2010-2012 Nicolas Palix.
+// Copyright: (C) 2010-2012 Julia Lawall, INRIA/LIP6.
+// Copyright: (C) 2010-2012 Gilles Muller, INRIA/LiP6.
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Comments:
 // Options: --no-includes --include-headers
@@ -21,9 +31,15 @@ position p1;
 @@
 
 (
+<<<<<<< HEAD
 * kfree@p1(E)
 |
 * kzfree@p1(E)
+=======
+ kfree@p1(E)
+|
+ kfree_sensitive@p1(E)
+>>>>>>> upstream/android-13
 )
 
 @print expression@
@@ -65,9 +81,15 @@ position ok;
 
 while (1) { ...
 (
+<<<<<<< HEAD
 * kfree@ok(E)
 |
 * kzfree@ok(E)
+=======
+ kfree@ok(E)
+|
+ kfree_sensitive@ok(E)
+>>>>>>> upstream/android-13
 )
   ... when != break;
       when != goto l;
@@ -83,9 +105,15 @@ position free.p1!=loop.ok,p2!={print.p,sz.p};
 @@
 
 (
+<<<<<<< HEAD
 * kfree@p1(E,...)
 |
 * kzfree@p1(E,...)
+=======
+ kfree@p1(E,...)
+|
+ kfree_sensitive@p1(E,...)
+>>>>>>> upstream/android-13
 )
 ...
 (

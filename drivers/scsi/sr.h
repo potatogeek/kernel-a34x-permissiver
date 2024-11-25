@@ -20,6 +20,10 @@
 
 #include <linux/genhd.h>
 #include <linux/kref.h>
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 
 #define MAX_RETRIES	3
 #define SR_TIMEOUT	(30 * HZ)
@@ -51,6 +55,10 @@ typedef struct scsi_cd {
 	bool ignore_get_event:1;	/* GET_EVENT is unreliable, use TUR */
 
 	struct cdrom_device_info cdi;
+<<<<<<< HEAD
+=======
+	struct mutex lock;
+>>>>>>> upstream/android-13
 	/* We hold gendisk and scsi_device references on probe and use
 	 * the refs on this kref to decide when to release them */
 	struct kref kref;

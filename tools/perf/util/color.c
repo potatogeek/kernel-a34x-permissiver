@@ -1,15 +1,23 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include "cache.h"
 #include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
+=======
+#include <subcmd/pager.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+>>>>>>> upstream/android-13
 #include "color.h"
 #include <math.h>
 #include <unistd.h>
 
 int perf_use_color_default = -1;
 
+<<<<<<< HEAD
 int perf_config_colorbool(const char *var, const char *value, int stdout_is_tty)
 {
 	if (value) {
@@ -48,6 +56,8 @@ int perf_color_default_config(const char *var, const char *value,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __color_vsnprintf(char *bf, size_t size, const char *color,
 			     const char *fmt, va_list args, const char *trail)
 {

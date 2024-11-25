@@ -109,7 +109,10 @@ static int exynos_trng_init(struct hwrng *rng)
 static int exynos_trng_probe(struct platform_device *pdev)
 {
 	struct exynos_trng_dev *trng;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret = -ENOMEM;
 
 	trng = devm_kzalloc(&pdev->dev, sizeof(*trng), GFP_KERNEL);
@@ -128,13 +131,21 @@ static int exynos_trng_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, trng);
 	trng->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	trng->mem = devm_ioremap_resource(&pdev->dev, res);
+=======
+	trng->mem = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(trng->mem))
 		return PTR_ERR(trng->mem);
 
 	pm_runtime_enable(&pdev->dev);
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&pdev->dev);
+=======
+	ret = pm_runtime_resume_and_get(&pdev->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Could not get runtime PM.\n");
 		goto err_pm_get;
@@ -153,7 +164,11 @@ static int exynos_trng_probe(struct platform_device *pdev)
 		goto err_clock;
 	}
 
+<<<<<<< HEAD
 	ret = hwrng_register(&trng->rng);
+=======
+	ret = devm_hwrng_register(&pdev->dev, &trng->rng);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "Could not register hwrng device.\n");
 		goto err_register;
@@ -167,7 +182,11 @@ err_register:
 	clk_disable_unprepare(trng->clk);
 
 err_clock:
+<<<<<<< HEAD
 	pm_runtime_put_sync(&pdev->dev);
+=======
+	pm_runtime_put_noidle(&pdev->dev);
+>>>>>>> upstream/android-13
 
 err_pm_get:
 	pm_runtime_disable(&pdev->dev);
@@ -179,7 +198,10 @@ static int exynos_trng_remove(struct platform_device *pdev)
 {
 	struct exynos_trng_dev *trng =  platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	hwrng_unregister(&trng->rng);
+=======
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(trng->clk);
 
 	pm_runtime_put_sync(&pdev->dev);
@@ -199,10 +221,16 @@ static int __maybe_unused exynos_trng_resume(struct device *dev)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(dev);
 	if (ret < 0) {
 		dev_err(dev, "Could not get runtime PM.\n");
 		pm_runtime_put_noidle(dev);
+=======
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0) {
+		dev_err(dev, "Could not get runtime PM.\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

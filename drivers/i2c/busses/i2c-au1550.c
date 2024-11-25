@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * i2c-au1550.c: SMBus (i2c) adapter for Alchemy PSC interface
  * Copyright (C) 2004 Embedded Edge, LLC <dan@embeddededge.com>
@@ -11,6 +15,7 @@
  * This is just a skeleton adapter to use with the Au1550 PSC
  * algorithm.  It was developed for the Pb1550, but will work with
  * any Au1550 board that has a similar PSC configuration.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +26,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>

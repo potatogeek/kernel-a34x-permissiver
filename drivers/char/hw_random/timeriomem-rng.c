@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/char/hw_random/timeriomem-rng.c
  *
@@ -7,10 +11,13 @@
  *   Copyright 2005 (c) MontaVista Software, Inc.
  *   Author: Deepak Saxena <dsaxena@plexity.net>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Overview:
  *   This driver is useful for platforms that have an IO range that provides
  *   periodic random data from a single IO memory address.  All the platform
@@ -120,9 +127,15 @@ static int timeriomem_rng_probe(struct platform_device *pdev)
 	if (!res)
 		return -ENXIO;
 
+<<<<<<< HEAD
 	if (res->start % 4 != 0 || resource_size(res) != 4) {
 		dev_err(&pdev->dev,
 			"address must be four bytes wide and aligned\n");
+=======
+	if (res->start % 4 != 0 || resource_size(res) < 4) {
+		dev_err(&pdev->dev,
+			"address must be at least four bytes wide and 32-bit aligned\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -172,7 +185,11 @@ static int timeriomem_rng_probe(struct platform_device *pdev)
 	priv->present = 1;
 	complete(&priv->completion);
 
+<<<<<<< HEAD
 	err = hwrng_register(&priv->rng_ops);
+=======
+	err = devm_hwrng_register(&pdev->dev, &priv->rng_ops);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(&pdev->dev, "problem registering\n");
 		return err;
@@ -188,7 +205,10 @@ static int timeriomem_rng_remove(struct platform_device *pdev)
 {
 	struct timeriomem_rng_private *priv = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	hwrng_unregister(&priv->rng_ops);
+=======
+>>>>>>> upstream/android-13
 	hrtimer_cancel(&priv->timer);
 
 	return 0;

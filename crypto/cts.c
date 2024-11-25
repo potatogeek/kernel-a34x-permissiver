@@ -78,15 +78,22 @@ static int crypto_cts_setkey(struct crypto_skcipher *parent, const u8 *key,
 {
 	struct crypto_cts_ctx *ctx = crypto_skcipher_ctx(parent);
 	struct crypto_skcipher *child = ctx->child;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	crypto_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
 	crypto_skcipher_set_flags(child, crypto_skcipher_get_flags(parent) &
 					 CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_skcipher_setkey(child, key, keylen);
 	crypto_skcipher_set_flags(parent, crypto_skcipher_get_flags(child) &
 					  CRYPTO_TFM_RES_MASK);
 	return err;
+=======
+	return crypto_skcipher_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static void cts_cbc_crypt_done(struct crypto_async_request *areq, int err)
@@ -152,12 +159,22 @@ static int crypto_cts_encrypt(struct skcipher_request *req)
 	struct skcipher_request *subreq = &rctx->subreq;
 	int bsize = crypto_skcipher_blocksize(tfm);
 	unsigned int nbytes = req->cryptlen;
+<<<<<<< HEAD
 	int cbc_blocks = (nbytes + bsize - 1) / bsize - 1;
+=======
+>>>>>>> upstream/android-13
 	unsigned int offset;
 
 	skcipher_request_set_tfm(subreq, ctx->child);
 
+<<<<<<< HEAD
 	if (cbc_blocks <= 0) {
+=======
+	if (nbytes < bsize)
+		return -EINVAL;
+
+	if (nbytes == bsize) {
+>>>>>>> upstream/android-13
 		skcipher_request_set_callback(subreq, req->base.flags,
 					      req->base.complete,
 					      req->base.data);
@@ -166,7 +183,11 @@ static int crypto_cts_encrypt(struct skcipher_request *req)
 		return crypto_skcipher_encrypt(subreq);
 	}
 
+<<<<<<< HEAD
 	offset = cbc_blocks * bsize;
+=======
+	offset = rounddown(nbytes - 1, bsize);
+>>>>>>> upstream/android-13
 	rctx->offset = offset;
 
 	skcipher_request_set_callback(subreq, req->base.flags,
@@ -244,13 +265,23 @@ static int crypto_cts_decrypt(struct skcipher_request *req)
 	struct skcipher_request *subreq = &rctx->subreq;
 	int bsize = crypto_skcipher_blocksize(tfm);
 	unsigned int nbytes = req->cryptlen;
+<<<<<<< HEAD
 	int cbc_blocks = (nbytes + bsize - 1) / bsize - 1;
+=======
+>>>>>>> upstream/android-13
 	unsigned int offset;
 	u8 *space;
 
 	skcipher_request_set_tfm(subreq, ctx->child);
 
+<<<<<<< HEAD
 	if (cbc_blocks <= 0) {
+=======
+	if (nbytes < bsize)
+		return -EINVAL;
+
+	if (nbytes == bsize) {
+>>>>>>> upstream/android-13
 		skcipher_request_set_callback(subreq, req->base.flags,
 					      req->base.complete,
 					      req->base.data);
@@ -264,10 +295,17 @@ static int crypto_cts_decrypt(struct skcipher_request *req)
 
 	space = crypto_cts_reqctx_space(req);
 
+<<<<<<< HEAD
 	offset = cbc_blocks * bsize;
 	rctx->offset = offset;
 
 	if (cbc_blocks <= 1)
+=======
+	offset = rounddown(nbytes - 1, bsize);
+	rctx->offset = offset;
+
+	if (offset <= bsize)
+>>>>>>> upstream/android-13
 		memcpy(space, req->iv, bsize);
 	else
 		scatterwalk_map_and_copy(space, req->src, offset - 2 * bsize,
@@ -325,6 +363,7 @@ static int crypto_cts_create(struct crypto_template *tmpl, struct rtattr **tb)
 {
 	struct crypto_skcipher_spawn *spawn;
 	struct skcipher_instance *inst;
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct skcipher_alg *alg;
 	const char *cipher_name;
@@ -340,6 +379,15 @@ static int crypto_cts_create(struct crypto_template *tmpl, struct rtattr **tb)
 	cipher_name = crypto_attr_alg_name(tb[1]);
 	if (IS_ERR(cipher_name))
 		return PTR_ERR(cipher_name);
+=======
+	struct skcipher_alg *alg;
+	u32 mask;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SKCIPHER, &mask);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
 	if (!inst)
@@ -347,10 +395,15 @@ static int crypto_cts_create(struct crypto_template *tmpl, struct rtattr **tb)
 
 	spawn = skcipher_instance_ctx(inst);
 
+<<<<<<< HEAD
 	crypto_set_skcipher_spawn(spawn, skcipher_crypto_instance(inst));
 	err = crypto_grab_skcipher(spawn, cipher_name, 0,
 				   crypto_requires_sync(algt->type,
 							algt->mask));
+=======
+	err = crypto_grab_skcipher(spawn, skcipher_crypto_instance(inst),
+				   crypto_attr_alg_name(tb[1]), 0, mask);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_free_inst;
 
@@ -358,17 +411,29 @@ static int crypto_cts_create(struct crypto_template *tmpl, struct rtattr **tb)
 
 	err = -EINVAL;
 	if (crypto_skcipher_alg_ivsize(alg) != alg->base.cra_blocksize)
+<<<<<<< HEAD
 		goto err_drop_spawn;
 
 	if (strncmp(alg->base.cra_name, "cbc(", 4))
 		goto err_drop_spawn;
+=======
+		goto err_free_inst;
+
+	if (strncmp(alg->base.cra_name, "cbc(", 4))
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = crypto_inst_setname(skcipher_crypto_instance(inst), "cts",
 				  &alg->base);
 	if (err)
+<<<<<<< HEAD
 		goto err_drop_spawn;
 
 	inst->alg.base.cra_flags = alg->base.cra_flags & CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_priority = alg->base.cra_priority;
 	inst->alg.base.cra_blocksize = alg->base.cra_blocksize;
 	inst->alg.base.cra_alignmask = alg->base.cra_alignmask;
@@ -390,6 +455,7 @@ static int crypto_cts_create(struct crypto_template *tmpl, struct rtattr **tb)
 	inst->free = crypto_cts_free;
 
 	err = skcipher_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto err_drop_spawn;
 
@@ -401,6 +467,13 @@ err_drop_spawn:
 err_free_inst:
 	kfree(inst);
 	goto out;
+=======
+	if (err) {
+err_free_inst:
+		crypto_cts_free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template crypto_cts_tmpl = {
@@ -419,7 +492,11 @@ static void __exit crypto_cts_module_exit(void)
 	crypto_unregister_template(&crypto_cts_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_cts_module_init);
+=======
+subsys_initcall(crypto_cts_module_init);
+>>>>>>> upstream/android-13
 module_exit(crypto_cts_module_exit);
 
 MODULE_LICENSE("Dual BSD/GPL");

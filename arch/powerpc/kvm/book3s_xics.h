@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Michael Ellerman, IBM Corporation.
  * Copyright 2012 Benjamin Herrenschmidt, IBM Corporation
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2012 Michael Ellerman, IBM Corporation.
+ * Copyright 2012 Benjamin Herrenschmidt, IBM Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef _KVM_PPC_BOOK3S_XICS_H

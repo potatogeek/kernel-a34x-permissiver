@@ -818,6 +818,13 @@ Smack supports some mount options:
 	specifies a label to which all labels set on the
 	filesystem must have read access. Not yet enforced.
 
+<<<<<<< HEAD
+=======
+  smackfstransmute=label:
+	behaves exactly like smackfsroot except that it also
+	sets the transmute flag on the root of the mount
+
+>>>>>>> upstream/android-13
 These mount options apply to all file system types.
 
 Smack auditing

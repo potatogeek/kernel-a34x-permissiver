@@ -489,10 +489,15 @@ static int iproc_ts_probe(struct platform_device *pdev)
 
 	/* get interrupt */
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "platform_get_irq failed: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	error = devm_request_irq(&pdev->dev, irq,
 				 iproc_touchscreen_interrupt,

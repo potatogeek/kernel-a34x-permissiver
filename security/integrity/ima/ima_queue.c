@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005,2006,2007,2008 IBM Corporation
  *
@@ -6,11 +10,14 @@
  * Reiner Sailer <sailer@watson.ibm.com>
  * Mimi Zohar <zohar@us.ibm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  * File: ima_queue.c
  *       Implements queues that store template measurements and
  *       maintains aggregate over the stored measurements
@@ -19,15 +26,24 @@
  *       ever removed or changed during the boot-cycle.
  */
 
+<<<<<<< HEAD
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/module.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/rculist.h>
 #include <linux/slab.h>
 #include "ima.h"
 
 #define AUDIT_CAUSE_LEN_MAX 32
 
+<<<<<<< HEAD
+=======
+/* pre-allocated array of tpm_digest structures to extend a PCR */
+static struct tpm_digest *digests;
+
+>>>>>>> upstream/android-13
 LIST_HEAD(ima_measurements);	/* list of all measurements */
 #ifdef CONFIG_IMA_KEXEC
 static unsigned long binary_runtime_size;
@@ -59,7 +75,12 @@ static struct ima_queue_entry *ima_lookup_digest_entry(u8 *digest_value,
 	key = ima_hash_key(digest_value);
 	rcu_read_lock();
 	hlist_for_each_entry_rcu(qe, &ima_htable.queue[key], hnext) {
+<<<<<<< HEAD
 		rc = memcmp(qe->entry->digest, digest_value, TPM_DIGEST_SIZE);
+=======
+		rc = memcmp(qe->entry->digests[ima_hash_algo_idx].digest,
+			    digest_value, hash_digest_size[ima_hash_algo]);
+>>>>>>> upstream/android-13
 		if ((rc == 0) && (qe->entry->pcr == pcr)) {
 			ret = qe;
 			break;
@@ -79,7 +100,11 @@ static int get_binary_runtime_size(struct ima_template_entry *entry)
 	int size = 0;
 
 	size += sizeof(u32);	/* pcr */
+<<<<<<< HEAD
 	size += sizeof(entry->digest);
+=======
+	size += TPM_DIGEST_SIZE;
+>>>>>>> upstream/android-13
 	size += sizeof(int);	/* template name size field */
 	size += strlen(entry->template_desc->name);
 	size += sizeof(entry->template_data_len);
@@ -111,7 +136,11 @@ static int ima_add_digest_entry(struct ima_template_entry *entry,
 
 	atomic_long_inc(&ima_htable.len);
 	if (update_htable) {
+<<<<<<< HEAD
 		key = ima_hash_key(entry->digest);
+=======
+		key = ima_hash_key(entry->digests[ima_hash_algo_idx].digest);
+>>>>>>> upstream/android-13
 		hlist_add_head_rcu(&qe->hnext, &ima_htable.queue[key]);
 	}
 
@@ -136,16 +165,26 @@ unsigned long ima_get_binary_runtime_size(void)
 		return ULONG_MAX;
 	else
 		return binary_runtime_size + sizeof(struct ima_kexec_hdr);
+<<<<<<< HEAD
 };
 
 static int ima_pcr_extend(const u8 *hash, int pcr)
+=======
+}
+
+static int ima_pcr_extend(struct tpm_digest *digests_arg, int pcr)
+>>>>>>> upstream/android-13
 {
 	int result = 0;
 
 	if (!ima_tpm_chip)
 		return result;
 
+<<<<<<< HEAD
 	result = tpm_pcr_extend(ima_tpm_chip, pcr, hash);
+=======
+	result = tpm_pcr_extend(ima_tpm_chip, pcr, digests_arg);
+>>>>>>> upstream/android-13
 	if (result != 0)
 		pr_err("Error Communicating to TPM chip, result: %d\n", result);
 	return result;
@@ -163,15 +202,24 @@ int ima_add_template_entry(struct ima_template_entry *entry, int violation,
 			   const char *op, struct inode *inode,
 			   const unsigned char *filename)
 {
+<<<<<<< HEAD
 	u8 digest[TPM_DIGEST_SIZE];
+=======
+	u8 *digest = entry->digests[ima_hash_algo_idx].digest;
+	struct tpm_digest *digests_arg = entry->digests;
+>>>>>>> upstream/android-13
 	const char *audit_cause = "hash_added";
 	char tpm_audit_cause[AUDIT_CAUSE_LEN_MAX];
 	int audit_info = 1;
 	int result = 0, tpmresult = 0;
 
 	mutex_lock(&ima_extend_list_mutex);
+<<<<<<< HEAD
 	if (!violation) {
 		memcpy(digest, entry->digest, sizeof(digest));
+=======
+	if (!violation && !IS_ENABLED(CONFIG_IMA_DISABLE_HTABLE)) {
+>>>>>>> upstream/android-13
 		if (ima_lookup_digest_entry(digest, entry->pcr)) {
 			audit_cause = "hash_exists";
 			result = -EEXIST;
@@ -179,7 +227,12 @@ int ima_add_template_entry(struct ima_template_entry *entry, int violation,
 		}
 	}
 
+<<<<<<< HEAD
 	result = ima_add_digest_entry(entry, 1);
+=======
+	result = ima_add_digest_entry(entry,
+				      !IS_ENABLED(CONFIG_IMA_DISABLE_HTABLE));
+>>>>>>> upstream/android-13
 	if (result < 0) {
 		audit_cause = "ENOMEM";
 		audit_info = 0;
@@ -187,9 +240,15 @@ int ima_add_template_entry(struct ima_template_entry *entry, int violation,
 	}
 
 	if (violation)		/* invalidate pcr */
+<<<<<<< HEAD
 		memset(digest, 0xff, sizeof(digest));
 
 	tpmresult = ima_pcr_extend(digest, entry->pcr);
+=======
+		digests_arg = digests;
+
+	tpmresult = ima_pcr_extend(digests_arg, entry->pcr);
+>>>>>>> upstream/android-13
 	if (tpmresult != 0) {
 		snprintf(tpm_audit_cause, AUDIT_CAUSE_LEN_MAX, "TPM_error(%d)",
 			 tpmresult);
@@ -212,3 +271,35 @@ int ima_restore_measurement_entry(struct ima_template_entry *entry)
 	mutex_unlock(&ima_extend_list_mutex);
 	return result;
 }
+<<<<<<< HEAD
+=======
+
+int __init ima_init_digests(void)
+{
+	u16 digest_size;
+	u16 crypto_id;
+	int i;
+
+	if (!ima_tpm_chip)
+		return 0;
+
+	digests = kcalloc(ima_tpm_chip->nr_allocated_banks, sizeof(*digests),
+			  GFP_NOFS);
+	if (!digests)
+		return -ENOMEM;
+
+	for (i = 0; i < ima_tpm_chip->nr_allocated_banks; i++) {
+		digests[i].alg_id = ima_tpm_chip->allocated_banks[i].alg_id;
+		digest_size = ima_tpm_chip->allocated_banks[i].digest_size;
+		crypto_id = ima_tpm_chip->allocated_banks[i].crypto_id;
+
+		/* for unmapped TPM algorithms digest is still a padded SHA1 */
+		if (crypto_id == HASH_ALGO__LAST)
+			digest_size = SHA1_DIGEST_SIZE;
+
+		memset(digests[i].digest, 0xff, digest_size);
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13

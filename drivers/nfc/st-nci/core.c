@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * NCI based Driver for STMicroelectronics NFC Chip
  *
  * Copyright (C) 2014-2015  STMicroelectronics SAS. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,14 +19,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/nfc.h>
 #include <net/nfc/nci.h>
 #include <net/nfc/nci_core.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "st-nci.h"
 
@@ -97,7 +107,11 @@ static int st_nci_prop_rsp_packet(struct nci_dev *ndev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct nci_driver_ops st_nci_prop_ops[] = {
+=======
+static const struct nci_driver_ops st_nci_prop_ops[] = {
+>>>>>>> upstream/android-13
 	{
 		.opcode = nci_opcode_pack(NCI_GID_PROPRIETARY,
 					  ST_NCI_CORE_PROP),
@@ -105,7 +119,11 @@ static struct nci_driver_ops st_nci_prop_ops[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct nci_ops st_nci_ops = {
+=======
+static const struct nci_ops st_nci_ops = {
+>>>>>>> upstream/android-13
 	.init = st_nci_init,
 	.open = st_nci_open,
 	.close = st_nci_close,
@@ -142,6 +160,10 @@ int st_nci_probe(struct llt_ndlc *ndlc, int phy_headroom,
 		| NFC_PROTO_ISO15693_MASK
 		| NFC_PROTO_NFC_DEP_MASK;
 
+<<<<<<< HEAD
+=======
+	BUILD_BUG_ON(ARRAY_SIZE(st_nci_prop_ops) > NCI_MAX_PROPRIETARY_CMD);
+>>>>>>> upstream/android-13
 	ndlc->ndev = nci_allocate_device(&st_nci_ops, protocols,
 					phy_headroom, phy_tailroom);
 	if (!ndlc->ndev) {

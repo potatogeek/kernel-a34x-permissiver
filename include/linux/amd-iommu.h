@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007-2010 Advanced Micro Devices, Inc.
  * Author: Joerg Roedel <joerg.roedel@amd.com>
  *         Leo Duran <leo.duran@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_X86_AMD_IOMMU_H
@@ -22,6 +29,11 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+struct amd_iommu;
+
+>>>>>>> upstream/android-13
 /*
  * This is mainly used to communicate information back-and-forth
  * between SVM and IOMMU for setting up and tearing down posted
@@ -45,6 +57,7 @@ extern int amd_iommu_detect(void);
 extern int amd_iommu_init_hardware(void);
 
 /**
+<<<<<<< HEAD
  * amd_iommu_enable_device_erratum() - Enable erratum workaround for device
  *				       in the IOMMUv2 driver
  * @pdev: The PCI device the workaround is necessary for
@@ -63,6 +76,8 @@ extern int amd_iommu_init_hardware(void);
 extern void amd_iommu_enable_device_erratum(struct pci_dev *pdev, u32 erratum);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * amd_iommu_init_device() - Init device for use with IOMMUv2 driver
  * @pdev: The PCI device to initialize
  * @pasids: Number of PASIDs to support for this device
@@ -88,7 +103,11 @@ extern void amd_iommu_free_device(struct pci_dev *pdev);
  *
  * The function returns 0 on success or a negative value on error.
  */
+<<<<<<< HEAD
 extern int amd_iommu_bind_pasid(struct pci_dev *pdev, int pasid,
+=======
+extern int amd_iommu_bind_pasid(struct pci_dev *pdev, u32 pasid,
+>>>>>>> upstream/android-13
 				struct task_struct *task);
 
 /**
@@ -100,7 +119,11 @@ extern int amd_iommu_bind_pasid(struct pci_dev *pdev, int pasid,
  * When this function returns the device is no longer using the PASID
  * and the PASID is no longer bound to its task.
  */
+<<<<<<< HEAD
 extern void amd_iommu_unbind_pasid(struct pci_dev *pdev, int pasid);
+=======
+extern void amd_iommu_unbind_pasid(struct pci_dev *pdev, u32 pasid);
+>>>>>>> upstream/android-13
 
 /**
  * amd_iommu_set_invalid_ppr_cb() - Register a call-back for failed
@@ -126,7 +149,11 @@ extern void amd_iommu_unbind_pasid(struct pci_dev *pdev, int pasid);
 #define AMD_IOMMU_INV_PRI_RSP_FAIL	2
 
 typedef int (*amd_iommu_invalid_ppr_cb)(struct pci_dev *pdev,
+<<<<<<< HEAD
 					int pasid,
+=======
+					u32 pasid,
+>>>>>>> upstream/android-13
 					unsigned long address,
 					u16);
 
@@ -178,7 +205,11 @@ extern int amd_iommu_device_info(struct pci_dev *pdev,
  * @cb: The call-back function
  */
 
+<<<<<<< HEAD
 typedef void (*amd_iommu_invalidate_ctx)(struct pci_dev *pdev, int pasid);
+=======
+typedef void (*amd_iommu_invalidate_ctx)(struct pci_dev *pdev, u32 pasid);
+>>>>>>> upstream/android-13
 
 extern int amd_iommu_set_invalidate_ctx_cb(struct pci_dev *pdev,
 					   amd_iommu_invalidate_ctx cb);
@@ -196,6 +227,12 @@ extern int amd_iommu_register_ga_log_notifier(int (*notifier)(u32));
 extern int
 amd_iommu_update_ga(int cpu, bool is_run, void *data);
 
+<<<<<<< HEAD
+=======
+extern int amd_iommu_activate_guest_mode(void *data);
+extern int amd_iommu_deactivate_guest_mode(void *data);
+
+>>>>>>> upstream/android-13
 #else /* defined(CONFIG_AMD_IOMMU) && defined(CONFIG_IRQ_REMAP) */
 
 static inline int
@@ -210,6 +247,30 @@ amd_iommu_update_ga(int cpu, bool is_run, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 #endif /* defined(CONFIG_AMD_IOMMU) && defined(CONFIG_IRQ_REMAP) */
 
+=======
+static inline int amd_iommu_activate_guest_mode(void *data)
+{
+	return 0;
+}
+
+static inline int amd_iommu_deactivate_guest_mode(void *data)
+{
+	return 0;
+}
+#endif /* defined(CONFIG_AMD_IOMMU) && defined(CONFIG_IRQ_REMAP) */
+
+int amd_iommu_get_num_iommus(void);
+bool amd_iommu_pc_supported(void);
+u8 amd_iommu_pc_get_max_banks(unsigned int idx);
+u8 amd_iommu_pc_get_max_counters(unsigned int idx);
+int amd_iommu_pc_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr, u8 fxn,
+		u64 *value);
+int amd_iommu_pc_get_reg(struct amd_iommu *iommu, u8 bank, u8 cntr, u8 fxn,
+		u64 *value);
+struct amd_iommu *get_amd_iommu(unsigned int idx);
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_AMD_IOMMU_H */

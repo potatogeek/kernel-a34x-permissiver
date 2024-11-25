@@ -3,13 +3,26 @@ ccflags-$(CONFIG_DRM_TEGRA_DEBUG) += -DDEBUG
 
 tegra-drm-y := \
 	drm.o \
+<<<<<<< HEAD
 	gem.o \
 	fb.o \
+=======
+	uapi.o \
+	submit.o \
+	firewall.o \
+	gem.o \
+	fb.o \
+	dp.o \
+>>>>>>> upstream/android-13
 	hub.o \
 	plane.o \
 	dc.o \
 	output.o \
 	rgb.o \
+<<<<<<< HEAD
+=======
+	hda.o \
+>>>>>>> upstream/android-13
 	hdmi.o \
 	mipi-phy.o \
 	dsi.o \

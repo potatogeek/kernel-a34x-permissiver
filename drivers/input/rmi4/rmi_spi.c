@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011-2016 Synaptics Incorporated
  * Copyright (c) 2011 Unixphere
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2011-2016 Synaptics Incorporated
+ * Copyright (c) 2011 Unixphere
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -191,7 +198,12 @@ static int rmi_spi_xfer(struct rmi_spi_xport *rmi_spi,
 			memset(xfer, 0,	sizeof(struct spi_transfer));
 			xfer->tx_buf = &rmi_spi->tx_buf[i];
 			xfer->len = 1;
+<<<<<<< HEAD
 			xfer->delay_usecs = spi_data->write_delay_us;
+=======
+			xfer->delay.value = spi_data->write_delay_us;
+			xfer->delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 			spi_message_add_tail(xfer, &msg);
 		}
 	} else {
@@ -213,7 +225,12 @@ static int rmi_spi_xfer(struct rmi_spi_xport *rmi_spi,
 				memset(xfer, 0, sizeof(struct spi_transfer));
 				xfer->rx_buf = &rmi_spi->rx_buf[i];
 				xfer->len = 1;
+<<<<<<< HEAD
 				xfer->delay_usecs = spi_data->read_delay_us;
+=======
+				xfer->delay.value = spi_data->read_delay_us;
+				xfer->delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 				spi_message_add_tail(xfer, &msg);
 			}
 		} else {

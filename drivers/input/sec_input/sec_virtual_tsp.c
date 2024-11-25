@@ -87,6 +87,7 @@ static void sec_virtual_tsp_sub_cmd(void *device_data)
 }
 #endif
 
+<<<<<<< HEAD
 static void sec_virtual_not_support_cmd(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
@@ -100,6 +101,8 @@ static void sec_virtual_not_support_cmd(void *device_data)
 	sec_cmd_set_cmd_exit(sec);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void sec_virtual_tsp_switch_cmd(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
@@ -299,7 +302,11 @@ static struct sec_cmd tsp_commands[] = {
 
 	{SEC_CMD_H("set_factory_panel", set_factory_panel),},
 	{SEC_CMD("dev_count", dev_count),},
+<<<<<<< HEAD
 	{SEC_CMD("ligthsensor_detect_enable", sec_virtual_not_support_cmd),},
+=======
+
+>>>>>>> upstream/android-13
 	{SEC_CMD("not_support_cmd", sec_virtual_tsp_switch_cmd),},
 };
 

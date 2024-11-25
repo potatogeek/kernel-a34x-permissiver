@@ -1,21 +1,34 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ad2s1200.c simple support for the ADI Resolver to Digital Converters:
  * AD2S1200/1205
  *
  * Copyright (c) 2018-2018 David Veenstra <davidjulianveenstra@gmail.com>
  * Copyright (c) 2010-2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/spi/spi.h>
 #include <linux/sysfs.h>
@@ -161,7 +174,10 @@ static int ad2s1200_probe(struct spi_device *spi)
 		return PTR_ERR(st->rdvel);
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &ad2s1200_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = ad2s1200_channels;
@@ -197,7 +213,11 @@ MODULE_DEVICE_TABLE(spi, ad2s1200_id);
 static struct spi_driver ad2s1200_driver = {
 	.driver = {
 		.name = DRV_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ad2s1200_of_match),
+=======
+		.of_match_table = ad2s1200_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = ad2s1200_probe,
 	.id_table = ad2s1200_id,

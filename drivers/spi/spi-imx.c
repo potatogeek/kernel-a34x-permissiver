@@ -8,19 +8,29 @@
 #include <linux/dmaengine.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
+=======
+#include <linux/pinctrl/consumer.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/spi_bitbang.h>
 #include <linux/types.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 
 #include <linux/platform_data/dma-imx.h>
@@ -28,6 +38,20 @@
 
 #define DRIVER_NAME "spi_imx"
 
+=======
+#include <linux/property.h>
+
+#include <linux/platform_data/dma-imx.h>
+
+#define DRIVER_NAME "spi_imx"
+
+static bool use_dma = true;
+module_param(use_dma, bool, 0644);
+MODULE_PARM_DESC(use_dma, "Enable usage of DMA when available (default)");
+
+#define MXC_RPM_TIMEOUT		2000 /* 2000ms */
+
+>>>>>>> upstream/android-13
 #define MXC_CSPIRXDATA		0x00
 #define MXC_CSPITXDATA		0x04
 #define MXC_CSPICTRL		0x08
@@ -39,8 +63,13 @@
 #define MXC_INT_TE	(1 << 1) /* Transmit FIFO empty interrupt */
 #define MXC_INT_RDR	BIT(4) /* Receive date threshold interrupt */
 
+<<<<<<< HEAD
 /* The maximum  bytes that a sdma BD can transfer.*/
 #define MAX_SDMA_BD_BYTES  (1 << 15)
+=======
+/* The maximum bytes that a sdma BD can transfer. */
+#define MAX_SDMA_BD_BYTES (1 << 15)
+>>>>>>> upstream/android-13
 #define MX51_ECSPI_CTRL_MAX_BURST	512
 /* The maximum bytes that IMX53_ECSPI can transfer in slave mode.*/
 #define MX53_MAX_TRANSFER_BYTES		512
@@ -59,15 +88,34 @@ struct spi_imx_data;
 
 struct spi_imx_devtype_data {
 	void (*intctrl)(struct spi_imx_data *, int);
+<<<<<<< HEAD
 	int (*config)(struct spi_device *);
 	void (*trigger)(struct spi_imx_data *);
 	int (*rx_available)(struct spi_imx_data *);
 	void (*reset)(struct spi_imx_data *);
 	void (*disable)(struct spi_imx_data *);
+=======
+	int (*prepare_message)(struct spi_imx_data *, struct spi_message *);
+	int (*prepare_transfer)(struct spi_imx_data *, struct spi_device *);
+	void (*trigger)(struct spi_imx_data *);
+	int (*rx_available)(struct spi_imx_data *);
+	void (*reset)(struct spi_imx_data *);
+	void (*setup_wml)(struct spi_imx_data *);
+	void (*disable)(struct spi_imx_data *);
+	void (*disable_dma)(struct spi_imx_data *);
+>>>>>>> upstream/android-13
 	bool has_dmamode;
 	bool has_slavemode;
 	unsigned int fifo_size;
 	bool dynamic_burst;
+<<<<<<< HEAD
+=======
+	/*
+	 * ERR009165 fixed or not:
+	 * https://www.nxp.com/docs/en/errata/IMX6DQCE.pdf
+	 */
+	bool tx_glitch_fixed;
+>>>>>>> upstream/android-13
 	enum spi_imx_devtype devtype;
 };
 
@@ -84,7 +132,10 @@ struct spi_imx_data {
 	unsigned long spi_clk;
 	unsigned int spi_bus_clk;
 
+<<<<<<< HEAD
 	unsigned int speed_hz;
+=======
+>>>>>>> upstream/android-13
 	unsigned int bits_per_word;
 	unsigned int spi_drctl;
 
@@ -216,7 +267,13 @@ static bool spi_imx_can_dma(struct spi_master *master, struct spi_device *spi,
 			 struct spi_transfer *transfer)
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(master);
+<<<<<<< HEAD
 	unsigned int bytes_per_word, i;
+=======
+
+	if (!use_dma || master->fallback)
+		return false;
+>>>>>>> upstream/android-13
 
 	if (!master->dma_rx)
 		return false;
@@ -224,6 +281,7 @@ static bool spi_imx_can_dma(struct spi_master *master, struct spi_device *spi,
 	if (spi_imx->slave_mode)
 		return false;
 
+<<<<<<< HEAD
 	bytes_per_word = spi_imx_bytes_per_word(transfer->bits_per_word);
 
 	for (i = spi_imx->devtype_data->fifo_size / 2; i > 0; i--) {
@@ -232,6 +290,11 @@ static bool spi_imx_can_dma(struct spi_master *master, struct spi_device *spi,
 	}
 
 	spi_imx->wml = i;
+=======
+	if (transfer->len < spi_imx->devtype_data->fifo_size)
+		return false;
+
+>>>>>>> upstream/android-13
 	spi_imx->dynamic_burst = 0;
 
 	return true;
@@ -261,7 +324,11 @@ static bool spi_imx_can_dma(struct spi_master *master, struct spi_device *spi,
 #define MX51_ECSPI_INT_RREN		(1 <<  3)
 #define MX51_ECSPI_INT_RDREN		(1 <<  4)
 
+<<<<<<< HEAD
 #define MX51_ECSPI_DMA      0x14
+=======
+#define MX51_ECSPI_DMA		0x14
+>>>>>>> upstream/android-13
 #define MX51_ECSPI_DMA_TX_WML(wml)	((wml) & 0x3f)
 #define MX51_ECSPI_DMA_RX_WML(wml)	(((wml) & 0x3f) << 16)
 #define MX51_ECSPI_DMA_RXT_WML(wml)	(((wml) & 0x3f) << 24)
@@ -482,6 +549,14 @@ static void mx51_ecspi_trigger(struct spi_imx_data *spi_imx)
 	writel(reg, spi_imx->base + MX51_ECSPI_CTRL);
 }
 
+<<<<<<< HEAD
+=======
+static void mx51_disable_dma(struct spi_imx_data *spi_imx)
+{
+	writel(0, spi_imx->base + MX51_ECSPI_DMA);
+}
+
+>>>>>>> upstream/android-13
 static void mx51_ecspi_disable(struct spi_imx_data *spi_imx)
 {
 	u32 ctrl;
@@ -491,11 +566,22 @@ static void mx51_ecspi_disable(struct spi_imx_data *spi_imx)
 	writel(ctrl, spi_imx->base + MX51_ECSPI_CTRL);
 }
 
+<<<<<<< HEAD
 static int mx51_ecspi_config(struct spi_device *spi)
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(spi->master);
 	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
 	u32 clk = spi_imx->speed_hz, delay, reg;
+=======
+static int mx51_ecspi_prepare_message(struct spi_imx_data *spi_imx,
+				      struct spi_message *msg)
+{
+	struct spi_device *spi = msg->spi;
+	struct spi_transfer *xfer;
+	u32 ctrl = MX51_ECSPI_CTRL_ENABLE;
+	u32 min_speed_hz = ~0U;
+	u32 testreg, delay;
+>>>>>>> upstream/android-13
 	u32 cfg = readl(spi_imx->base + MX51_ECSPI_CONFIG);
 
 	/* set Master or Slave mode */
@@ -510,6 +596,7 @@ static int mx51_ecspi_config(struct spi_device *spi)
 	if (spi->mode & SPI_READY)
 		ctrl |= MX51_ECSPI_CTRL_DRCTL(spi_imx->spi_drctl);
 
+<<<<<<< HEAD
 	/* set clock speed */
 	ctrl |= mx51_ecspi_clkdiv(spi_imx, spi_imx->speed_hz, &clk);
 	spi_imx->spi_bus_clk = clk;
@@ -523,6 +610,23 @@ static int mx51_ecspi_config(struct spi_device *spi)
 	else
 		ctrl |= (spi_imx->bits_per_word - 1)
 			<< MX51_ECSPI_CTRL_BL_OFFSET;
+=======
+	/* set chip select to use */
+	ctrl |= MX51_ECSPI_CTRL_CS(spi->chip_select);
+
+	/*
+	 * The ctrl register must be written first, with the EN bit set other
+	 * registers must not be written to.
+	 */
+	writel(ctrl, spi_imx->base + MX51_ECSPI_CTRL);
+
+	testreg = readl(spi_imx->base + MX51_ECSPI_TESTREG);
+	if (spi->mode & SPI_LOOP)
+		testreg |= MX51_ECSPI_TESTREG_LBC;
+	else
+		testreg &= ~MX51_ECSPI_TESTREG_LBC;
+	writel(testreg, spi_imx->base + MX51_ECSPI_TESTREG);
+>>>>>>> upstream/android-13
 
 	/*
 	 * eCSPI burst completion by Chip Select signal in Slave mode
@@ -546,11 +650,16 @@ static int mx51_ecspi_config(struct spi_device *spi)
 		cfg &= ~MX51_ECSPI_CONFIG_SCLKPOL(spi->chip_select);
 		cfg &= ~MX51_ECSPI_CONFIG_SCLKCTL(spi->chip_select);
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (spi->mode & SPI_CS_HIGH)
 		cfg |= MX51_ECSPI_CONFIG_SSBPOL(spi->chip_select);
 	else
 		cfg &= ~MX51_ECSPI_CONFIG_SSBPOL(spi->chip_select);
 
+<<<<<<< HEAD
 	if (spi_imx->usedma)
 		ctrl |= MX51_ECSPI_CTRL_SMC;
 
@@ -564,6 +673,8 @@ static int mx51_ecspi_config(struct spi_device *spi)
 		reg &= ~MX51_ECSPI_TESTREG_LBC;
 	writel(reg, spi_imx->base + MX51_ECSPI_TESTREG);
 
+=======
+>>>>>>> upstream/android-13
 	writel(cfg, spi_imx->base + MX51_ECSPI_CONFIG);
 
 	/*
@@ -576,17 +687,83 @@ static int mx51_ecspi_config(struct spi_device *spi)
 	 * be asserted before the SCLK polarity changes, which would disrupt
 	 * the SPI communication as the device on the other end would consider
 	 * the change of SCLK polarity as a clock tick already.
+<<<<<<< HEAD
 	 */
 	delay = (2 * 1000000) / clk;
 	if (likely(delay < 10))	/* SCLK is faster than 100 kHz */
+=======
+	 *
+	 * Because spi_imx->spi_bus_clk is only set in bitbang prepare_message
+	 * callback, iterate over all the transfers in spi_message, find the
+	 * one with lowest bus frequency, and use that bus frequency for the
+	 * delay calculation. In case all transfers have speed_hz == 0, then
+	 * min_speed_hz is ~0 and the resulting delay is zero.
+	 */
+	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+		if (!xfer->speed_hz)
+			continue;
+		min_speed_hz = min(xfer->speed_hz, min_speed_hz);
+	}
+
+	delay = (2 * 1000000) / min_speed_hz;
+	if (likely(delay < 10))	/* SCLK is faster than 200 kHz */
+>>>>>>> upstream/android-13
 		udelay(delay);
 	else			/* SCLK is _very_ slow */
 		usleep_range(delay, delay + 10);
 
+<<<<<<< HEAD
+=======
+	return 0;
+}
+
+static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
+				       struct spi_device *spi)
+{
+	u32 ctrl = readl(spi_imx->base + MX51_ECSPI_CTRL);
+	u32 clk;
+
+	/* Clear BL field and set the right value */
+	ctrl &= ~MX51_ECSPI_CTRL_BL_MASK;
+	if (spi_imx->slave_mode && is_imx53_ecspi(spi_imx))
+		ctrl |= (spi_imx->slave_burst * 8 - 1)
+			<< MX51_ECSPI_CTRL_BL_OFFSET;
+	else
+		ctrl |= (spi_imx->bits_per_word - 1)
+			<< MX51_ECSPI_CTRL_BL_OFFSET;
+
+	/* set clock speed */
+	ctrl &= ~(0xf << MX51_ECSPI_CTRL_POSTDIV_OFFSET |
+		  0xf << MX51_ECSPI_CTRL_PREDIV_OFFSET);
+	ctrl |= mx51_ecspi_clkdiv(spi_imx, spi_imx->spi_bus_clk, &clk);
+	spi_imx->spi_bus_clk = clk;
+
+	/*
+	 * ERR009165: work in XHC mode instead of SMC as PIO on the chips
+	 * before i.mx6ul.
+	 */
+	if (spi_imx->usedma && spi_imx->devtype_data->tx_glitch_fixed)
+		ctrl |= MX51_ECSPI_CTRL_SMC;
+	else
+		ctrl &= ~MX51_ECSPI_CTRL_SMC;
+
+	writel(ctrl, spi_imx->base + MX51_ECSPI_CTRL);
+
+	return 0;
+}
+
+static void mx51_setup_wml(struct spi_imx_data *spi_imx)
+{
+	u32 tx_wml = 0;
+
+	if (spi_imx->devtype_data->tx_glitch_fixed)
+		tx_wml = spi_imx->wml;
+>>>>>>> upstream/android-13
 	/*
 	 * Configure the DMA register: setup the watermark
 	 * and enable DMA request.
 	 */
+<<<<<<< HEAD
 
 	writel(MX51_ECSPI_DMA_RX_WML(spi_imx->wml) |
 		MX51_ECSPI_DMA_TX_WML(spi_imx->wml) |
@@ -595,6 +772,13 @@ static int mx51_ecspi_config(struct spi_device *spi)
 		MX51_ECSPI_DMA_RXTDEN, spi_imx->base + MX51_ECSPI_DMA);
 
 	return 0;
+=======
+	writel(MX51_ECSPI_DMA_RX_WML(spi_imx->wml - 1) |
+		MX51_ECSPI_DMA_TX_WML(tx_wml) |
+		MX51_ECSPI_DMA_RXT_WML(spi_imx->wml) |
+		MX51_ECSPI_DMA_TEDEN | MX51_ECSPI_DMA_RXDEN |
+		MX51_ECSPI_DMA_RXTDEN, spi_imx->base + MX51_ECSPI_DMA);
+>>>>>>> upstream/android-13
 }
 
 static int mx51_ecspi_rx_available(struct spi_imx_data *spi_imx)
@@ -661,6 +845,7 @@ static void mx31_trigger(struct spi_imx_data *spi_imx)
 	writel(reg, spi_imx->base + MXC_CSPICTRL);
 }
 
+<<<<<<< HEAD
 static int mx31_config(struct spi_device *spi)
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(spi->master);
@@ -668,6 +853,21 @@ static int mx31_config(struct spi_device *spi)
 	unsigned int clk;
 
 	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->speed_hz, &clk) <<
+=======
+static int mx31_prepare_message(struct spi_imx_data *spi_imx,
+				struct spi_message *msg)
+{
+	return 0;
+}
+
+static int mx31_prepare_transfer(struct spi_imx_data *spi_imx,
+				 struct spi_device *spi)
+{
+	unsigned int reg = MX31_CSPICTRL_ENABLE | MX31_CSPICTRL_MASTER;
+	unsigned int clk;
+
+	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->spi_bus_clk, &clk) <<
+>>>>>>> upstream/android-13
 		MX31_CSPICTRL_DR_SHIFT;
 	spi_imx->spi_bus_clk = clk;
 
@@ -684,7 +884,11 @@ static int mx31_config(struct spi_device *spi)
 		reg |= MX31_CSPICTRL_POL;
 	if (spi->mode & SPI_CS_HIGH)
 		reg |= MX31_CSPICTRL_SSPOL;
+<<<<<<< HEAD
 	if (!gpio_is_valid(spi->cs_gpio))
+=======
+	if (!spi->cs_gpiod)
+>>>>>>> upstream/android-13
 		reg |= (spi->chip_select) <<
 			(is_imx35_cspi(spi_imx) ? MX35_CSPICTRL_CS_SHIFT :
 						  MX31_CSPICTRL_CS_SHIFT);
@@ -702,8 +906,15 @@ static int mx31_config(struct spi_device *spi)
 	writel(reg, spi_imx->base + MX31_CSPI_TESTREG);
 
 	if (spi_imx->usedma) {
+<<<<<<< HEAD
 		/* configure DMA requests when RXFIFO is half full and
 		   when TXFIFO is half empty */
+=======
+		/*
+		 * configure DMA requests when RXFIFO is half full and
+		 * when TXFIFO is half empty
+		 */
+>>>>>>> upstream/android-13
 		writel(MX31_DMAREG_RH_DEN | MX31_DMAREG_TH_DEN,
 			spi_imx->base + MX31_CSPI_DMAREG);
 	}
@@ -757,14 +968,30 @@ static void mx21_trigger(struct spi_imx_data *spi_imx)
 	writel(reg, spi_imx->base + MXC_CSPICTRL);
 }
 
+<<<<<<< HEAD
 static int mx21_config(struct spi_device *spi)
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(spi->master);
+=======
+static int mx21_prepare_message(struct spi_imx_data *spi_imx,
+				struct spi_message *msg)
+{
+	return 0;
+}
+
+static int mx21_prepare_transfer(struct spi_imx_data *spi_imx,
+				 struct spi_device *spi)
+{
+>>>>>>> upstream/android-13
 	unsigned int reg = MX21_CSPICTRL_ENABLE | MX21_CSPICTRL_MASTER;
 	unsigned int max = is_imx27_cspi(spi_imx) ? 16 : 18;
 	unsigned int clk;
 
+<<<<<<< HEAD
 	reg |= spi_imx_clkdiv_1(spi_imx->spi_clk, spi_imx->speed_hz, max, &clk)
+=======
+	reg |= spi_imx_clkdiv_1(spi_imx->spi_clk, spi_imx->spi_bus_clk, max, &clk)
+>>>>>>> upstream/android-13
 		<< MX21_CSPICTRL_DR_SHIFT;
 	spi_imx->spi_bus_clk = clk;
 
@@ -776,7 +1003,11 @@ static int mx21_config(struct spi_device *spi)
 		reg |= MX21_CSPICTRL_POL;
 	if (spi->mode & SPI_CS_HIGH)
 		reg |= MX21_CSPICTRL_SSPOL;
+<<<<<<< HEAD
 	if (!gpio_is_valid(spi->cs_gpio))
+=======
+	if (!spi->cs_gpiod)
+>>>>>>> upstream/android-13
 		reg |= spi->chip_select << MX21_CSPICTRL_CS_SHIFT;
 
 	writel(reg, spi_imx->base + MXC_CSPICTRL);
@@ -826,6 +1057,7 @@ static void mx1_trigger(struct spi_imx_data *spi_imx)
 	writel(reg, spi_imx->base + MXC_CSPICTRL);
 }
 
+<<<<<<< HEAD
 static int mx1_config(struct spi_device *spi)
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(spi->master);
@@ -833,6 +1065,21 @@ static int mx1_config(struct spi_device *spi)
 	unsigned int clk;
 
 	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->speed_hz, &clk) <<
+=======
+static int mx1_prepare_message(struct spi_imx_data *spi_imx,
+			       struct spi_message *msg)
+{
+	return 0;
+}
+
+static int mx1_prepare_transfer(struct spi_imx_data *spi_imx,
+				struct spi_device *spi)
+{
+	unsigned int reg = MX1_CSPICTRL_ENABLE | MX1_CSPICTRL_MASTER;
+	unsigned int clk;
+
+	reg |= spi_imx_clkdiv_2(spi_imx->spi_clk, spi_imx->spi_bus_clk, &clk) <<
+>>>>>>> upstream/android-13
 		MX1_CSPICTRL_DR_SHIFT;
 	spi_imx->spi_bus_clk = clk;
 
@@ -860,7 +1107,12 @@ static void mx1_reset(struct spi_imx_data *spi_imx)
 
 static struct spi_imx_devtype_data imx1_cspi_devtype_data = {
 	.intctrl = mx1_intctrl,
+<<<<<<< HEAD
 	.config = mx1_config,
+=======
+	.prepare_message = mx1_prepare_message,
+	.prepare_transfer = mx1_prepare_transfer,
+>>>>>>> upstream/android-13
 	.trigger = mx1_trigger,
 	.rx_available = mx1_rx_available,
 	.reset = mx1_reset,
@@ -873,7 +1125,12 @@ static struct spi_imx_devtype_data imx1_cspi_devtype_data = {
 
 static struct spi_imx_devtype_data imx21_cspi_devtype_data = {
 	.intctrl = mx21_intctrl,
+<<<<<<< HEAD
 	.config = mx21_config,
+=======
+	.prepare_message = mx21_prepare_message,
+	.prepare_transfer = mx21_prepare_transfer,
+>>>>>>> upstream/android-13
 	.trigger = mx21_trigger,
 	.rx_available = mx21_rx_available,
 	.reset = mx21_reset,
@@ -887,7 +1144,12 @@ static struct spi_imx_devtype_data imx21_cspi_devtype_data = {
 static struct spi_imx_devtype_data imx27_cspi_devtype_data = {
 	/* i.mx27 cspi shares the functions with i.mx21 one */
 	.intctrl = mx21_intctrl,
+<<<<<<< HEAD
 	.config = mx21_config,
+=======
+	.prepare_message = mx21_prepare_message,
+	.prepare_transfer = mx21_prepare_transfer,
+>>>>>>> upstream/android-13
 	.trigger = mx21_trigger,
 	.rx_available = mx21_rx_available,
 	.reset = mx21_reset,
@@ -900,7 +1162,12 @@ static struct spi_imx_devtype_data imx27_cspi_devtype_data = {
 
 static struct spi_imx_devtype_data imx31_cspi_devtype_data = {
 	.intctrl = mx31_intctrl,
+<<<<<<< HEAD
 	.config = mx31_config,
+=======
+	.prepare_message = mx31_prepare_message,
+	.prepare_transfer = mx31_prepare_transfer,
+>>>>>>> upstream/android-13
 	.trigger = mx31_trigger,
 	.rx_available = mx31_rx_available,
 	.reset = mx31_reset,
@@ -914,7 +1181,12 @@ static struct spi_imx_devtype_data imx31_cspi_devtype_data = {
 static struct spi_imx_devtype_data imx35_cspi_devtype_data = {
 	/* i.mx35 and later cspi shares the functions with i.mx31 one */
 	.intctrl = mx31_intctrl,
+<<<<<<< HEAD
 	.config = mx31_config,
+=======
+	.prepare_message = mx31_prepare_message,
+	.prepare_transfer = mx31_prepare_transfer,
+>>>>>>> upstream/android-13
 	.trigger = mx31_trigger,
 	.rx_available = mx31_rx_available,
 	.reset = mx31_reset,
@@ -927,10 +1199,20 @@ static struct spi_imx_devtype_data imx35_cspi_devtype_data = {
 
 static struct spi_imx_devtype_data imx51_ecspi_devtype_data = {
 	.intctrl = mx51_ecspi_intctrl,
+<<<<<<< HEAD
 	.config = mx51_ecspi_config,
 	.trigger = mx51_ecspi_trigger,
 	.rx_available = mx51_ecspi_rx_available,
 	.reset = mx51_ecspi_reset,
+=======
+	.prepare_message = mx51_ecspi_prepare_message,
+	.prepare_transfer = mx51_ecspi_prepare_transfer,
+	.trigger = mx51_ecspi_trigger,
+	.rx_available = mx51_ecspi_rx_available,
+	.reset = mx51_ecspi_reset,
+	.setup_wml = mx51_setup_wml,
+	.disable_dma = mx51_disable_dma,
+>>>>>>> upstream/android-13
 	.fifo_size = 64,
 	.has_dmamode = true,
 	.dynamic_burst = true,
@@ -941,9 +1223,17 @@ static struct spi_imx_devtype_data imx51_ecspi_devtype_data = {
 
 static struct spi_imx_devtype_data imx53_ecspi_devtype_data = {
 	.intctrl = mx51_ecspi_intctrl,
+<<<<<<< HEAD
 	.config = mx51_ecspi_config,
 	.trigger = mx51_ecspi_trigger,
 	.rx_available = mx51_ecspi_rx_available,
+=======
+	.prepare_message = mx51_ecspi_prepare_message,
+	.prepare_transfer = mx51_ecspi_prepare_transfer,
+	.trigger = mx51_ecspi_trigger,
+	.rx_available = mx51_ecspi_rx_available,
+	.disable_dma = mx51_disable_dma,
+>>>>>>> upstream/android-13
 	.reset = mx51_ecspi_reset,
 	.fifo_size = 64,
 	.has_dmamode = true,
@@ -952,6 +1242,7 @@ static struct spi_imx_devtype_data imx53_ecspi_devtype_data = {
 	.devtype = IMX53_ECSPI,
 };
 
+<<<<<<< HEAD
 static const struct platform_device_id spi_imx_devtype[] = {
 	{
 		.name = "imx1-cspi",
@@ -977,6 +1268,23 @@ static const struct platform_device_id spi_imx_devtype[] = {
 	}, {
 		/* sentinel */
 	}
+=======
+static struct spi_imx_devtype_data imx6ul_ecspi_devtype_data = {
+	.intctrl = mx51_ecspi_intctrl,
+	.prepare_message = mx51_ecspi_prepare_message,
+	.prepare_transfer = mx51_ecspi_prepare_transfer,
+	.trigger = mx51_ecspi_trigger,
+	.rx_available = mx51_ecspi_rx_available,
+	.reset = mx51_ecspi_reset,
+	.setup_wml = mx51_setup_wml,
+	.fifo_size = 64,
+	.has_dmamode = true,
+	.dynamic_burst = true,
+	.has_slavemode = true,
+	.tx_glitch_fixed = true,
+	.disable = mx51_ecspi_disable,
+	.devtype = IMX51_ECSPI,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id spi_imx_dt_ids[] = {
@@ -987,10 +1295,15 @@ static const struct of_device_id spi_imx_dt_ids[] = {
 	{ .compatible = "fsl,imx35-cspi", .data = &imx35_cspi_devtype_data, },
 	{ .compatible = "fsl,imx51-ecspi", .data = &imx51_ecspi_devtype_data, },
 	{ .compatible = "fsl,imx53-ecspi", .data = &imx53_ecspi_devtype_data, },
+<<<<<<< HEAD
+=======
+	{ .compatible = "fsl,imx6ul-ecspi", .data = &imx6ul_ecspi_devtype_data, },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, spi_imx_dt_ids);
 
+<<<<<<< HEAD
 static void spi_imx_chipselect(struct spi_device *spi, int is_active)
 {
 	int active = is_active != BITBANG_CS_INACTIVE;
@@ -1005,6 +1318,8 @@ static void spi_imx_chipselect(struct spi_device *spi, int is_active)
 	gpio_set_value(spi->cs_gpio, dev_is_lowactive ^ active);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void spi_imx_set_burst_len(struct spi_imx_data *spi_imx, int n_bits)
 {
 	u32 ctrl;
@@ -1017,12 +1332,17 @@ static void spi_imx_set_burst_len(struct spi_imx_data *spi_imx, int n_bits)
 
 static void spi_imx_push(struct spi_imx_data *spi_imx)
 {
+<<<<<<< HEAD
 	unsigned int burst_len, fifo_words;
 
 	if (spi_imx->dynamic_burst)
 		fifo_words = 4;
 	else
 		fifo_words = spi_imx_bytes_per_word(spi_imx->bits_per_word);
+=======
+	unsigned int burst_len;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Reload the FIFO when the remaining bytes to be transferred in the
 	 * current burst is 0. This only applies when bits_per_word is a
@@ -1041,7 +1361,11 @@ static void spi_imx_push(struct spi_imx_data *spi_imx)
 
 			spi_imx->remainder = burst_len;
 		} else {
+<<<<<<< HEAD
 			spi_imx->remainder = fifo_words;
+=======
+			spi_imx->remainder = spi_imx_bytes_per_word(spi_imx->bits_per_word);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1049,8 +1373,12 @@ static void spi_imx_push(struct spi_imx_data *spi_imx)
 		if (!spi_imx->count)
 			break;
 		if (spi_imx->dynamic_burst &&
+<<<<<<< HEAD
 		    spi_imx->txfifo >=  DIV_ROUND_UP(spi_imx->remainder,
 						     fifo_words))
+=======
+		    spi_imx->txfifo >= DIV_ROUND_UP(spi_imx->remainder, 4))
+>>>>>>> upstream/android-13
 			break;
 		spi_imx->tx(spi_imx);
 		spi_imx->txfifo++;
@@ -1138,13 +1466,30 @@ static int spi_imx_setupxfer(struct spi_device *spi,
 				 struct spi_transfer *t)
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(spi->master);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!t)
 		return 0;
 
+<<<<<<< HEAD
 	spi_imx->bits_per_word = t->bits_per_word;
 	spi_imx->speed_hz  = t->speed_hz;
+=======
+	if (!t->speed_hz) {
+		if (!spi->max_speed_hz) {
+			dev_err(&spi->dev, "no speed_hz provided!\n");
+			return -EINVAL;
+		}
+		dev_dbg(&spi->dev, "using spi->max_speed_hz!\n");
+		spi_imx->spi_bus_clk = spi->max_speed_hz;
+	} else
+		spi_imx->spi_bus_clk = t->speed_hz;
+
+	spi_imx->bits_per_word = t->bits_per_word;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize the functions for transfer. To transfer non byte-aligned
@@ -1152,6 +1497,10 @@ static int spi_imx_setupxfer(struct spi_device *spi,
 	 * dynamic_burst in that case.
 	 */
 	if (spi_imx->devtype_data->dynamic_burst && !spi_imx->slave_mode &&
+<<<<<<< HEAD
+=======
+	    !(spi->mode & SPI_CS_WORD) &&
+>>>>>>> upstream/android-13
 	    (spi_imx->bits_per_word == 8 ||
 	    spi_imx->bits_per_word == 16 ||
 	    spi_imx->bits_per_word == 32)) {
@@ -1175,6 +1524,7 @@ static int spi_imx_setupxfer(struct spi_device *spi,
 	}
 
 	if (spi_imx_can_dma(spi_imx->bitbang.master, spi, t))
+<<<<<<< HEAD
 		spi_imx->usedma = 1;
 	else
 		spi_imx->usedma = 0;
@@ -1184,6 +1534,11 @@ static int spi_imx_setupxfer(struct spi_device *spi,
 		if (ret)
 			return ret;
 	}
+=======
+		spi_imx->usedma = true;
+	else
+		spi_imx->usedma = false;
+>>>>>>> upstream/android-13
 
 	if (is_imx53_ecspi(spi_imx) && spi_imx->slave_mode) {
 		spi_imx->rx = mx53_ecspi_rx_slave;
@@ -1191,7 +1546,11 @@ static int spi_imx_setupxfer(struct spi_device *spi,
 		spi_imx->slave_burst = t->len;
 	}
 
+<<<<<<< HEAD
 	spi_imx->devtype_data->config(spi);
+=======
+	spi_imx->devtype_data->prepare_transfer(spi_imx, spi);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1216,6 +1575,7 @@ static int spi_imx_sdma_init(struct device *dev, struct spi_imx_data *spi_imx,
 {
 	int ret;
 
+<<<<<<< HEAD
 	/* use pio mode for i.mx6dl chip TKT238285 */
 	if (of_machine_is_compatible("fsl,imx6dl"))
 		return 0;
@@ -1224,6 +1584,12 @@ static int spi_imx_sdma_init(struct device *dev, struct spi_imx_data *spi_imx,
 
 	/* Prepare for TX DMA: */
 	master->dma_tx = dma_request_slave_channel_reason(dev, "tx");
+=======
+	spi_imx->wml = spi_imx->devtype_data->fifo_size / 2;
+
+	/* Prepare for TX DMA: */
+	master->dma_tx = dma_request_chan(dev, "tx");
+>>>>>>> upstream/android-13
 	if (IS_ERR(master->dma_tx)) {
 		ret = PTR_ERR(master->dma_tx);
 		dev_dbg(dev, "can't get the TX DMA channel, error %d!\n", ret);
@@ -1232,7 +1598,11 @@ static int spi_imx_sdma_init(struct device *dev, struct spi_imx_data *spi_imx,
 	}
 
 	/* Prepare for RX : */
+<<<<<<< HEAD
 	master->dma_rx = dma_request_slave_channel_reason(dev, "rx");
+=======
+	master->dma_rx = dma_request_chan(dev, "rx");
+>>>>>>> upstream/android-13
 	if (IS_ERR(master->dma_rx)) {
 		ret = PTR_ERR(master->dma_rx);
 		dev_dbg(dev, "can't get the RX DMA channel, error %d\n", ret);
@@ -1289,6 +1659,35 @@ static int spi_imx_dma_transfer(struct spi_imx_data *spi_imx,
 	unsigned long timeout;
 	struct spi_master *master = spi_imx->bitbang.master;
 	struct sg_table *tx = &transfer->tx_sg, *rx = &transfer->rx_sg;
+<<<<<<< HEAD
+=======
+	struct scatterlist *last_sg = sg_last(rx->sgl, rx->nents);
+	unsigned int bytes_per_word, i;
+	int ret;
+
+	/* Get the right burst length from the last sg to ensure no tail data */
+	bytes_per_word = spi_imx_bytes_per_word(transfer->bits_per_word);
+	for (i = spi_imx->devtype_data->fifo_size / 2; i > 0; i--) {
+		if (!(sg_dma_len(last_sg) % (i * bytes_per_word)))
+			break;
+	}
+	/* Use 1 as wml in case no available burst length got */
+	if (i == 0)
+		i = 1;
+
+	spi_imx->wml =  i;
+
+	ret = spi_imx_dma_configure(master);
+	if (ret)
+		goto dma_failure_no_start;
+
+	if (!spi_imx->devtype_data->setup_wml) {
+		dev_err(spi_imx->dev, "No setup_wml()?\n");
+		ret = -EINVAL;
+		goto dma_failure_no_start;
+	}
+	spi_imx->devtype_data->setup_wml(spi_imx);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The TX DMA setup starts the transfer, so make sure RX is configured
@@ -1297,8 +1696,15 @@ static int spi_imx_dma_transfer(struct spi_imx_data *spi_imx,
 	desc_rx = dmaengine_prep_slave_sg(master->dma_rx,
 				rx->sgl, rx->nents, DMA_DEV_TO_MEM,
 				DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+<<<<<<< HEAD
 	if (!desc_rx)
 		return -EINVAL;
+=======
+	if (!desc_rx) {
+		ret = -EINVAL;
+		goto dma_failure_no_start;
+	}
+>>>>>>> upstream/android-13
 
 	desc_rx->callback = spi_imx_dma_rx_callback;
 	desc_rx->callback_param = (void *)spi_imx;
@@ -1311,6 +1717,10 @@ static int spi_imx_dma_transfer(struct spi_imx_data *spi_imx,
 				DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 	if (!desc_tx) {
 		dmaengine_terminate_all(master->dma_tx);
+<<<<<<< HEAD
+=======
+		dmaengine_terminate_all(master->dma_rx);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1342,6 +1752,13 @@ static int spi_imx_dma_transfer(struct spi_imx_data *spi_imx,
 	}
 
 	return transfer->len;
+<<<<<<< HEAD
+=======
+/* fallback to pio */
+dma_failure_no_start:
+	transfer->error |= SPI_TRANS_FAIL_NO_START;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int spi_imx_pio_transfer(struct spi_device *spi,
@@ -1425,6 +1842,11 @@ static int spi_imx_transfer(struct spi_device *spi,
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(spi->master);
 
+<<<<<<< HEAD
+=======
+	transfer->effective_speed_hz = spi_imx->spi_bus_clk;
+
+>>>>>>> upstream/android-13
 	/* flush rxfifo before transfer */
 	while (spi_imx->devtype_data->rx_available(spi_imx))
 		readl(spi_imx->base + MXC_CSPIRXDATA);
@@ -1434,8 +1856,13 @@ static int spi_imx_transfer(struct spi_device *spi,
 
 	if (spi_imx->usedma)
 		return spi_imx_dma_transfer(spi_imx, transfer);
+<<<<<<< HEAD
 	else
 		return spi_imx_pio_transfer(spi, transfer);
+=======
+
+	return spi_imx_pio_transfer(spi, transfer);
+>>>>>>> upstream/android-13
 }
 
 static int spi_imx_setup(struct spi_device *spi)
@@ -1443,6 +1870,7 @@ static int spi_imx_setup(struct spi_device *spi)
 	dev_dbg(&spi->dev, "%s: mode %d, %u bpw, %d hz\n", __func__,
 		 spi->mode, spi->bits_per_word, spi->max_speed_hz);
 
+<<<<<<< HEAD
 	if (spi->mode & SPI_NO_CS)
 		return 0;
 
@@ -1452,6 +1880,8 @@ static int spi_imx_setup(struct spi_device *spi)
 
 	spi_imx_chipselect(spi, BITBANG_CS_INACTIVE);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1465,6 +1895,7 @@ spi_imx_prepare_message(struct spi_master *master, struct spi_message *msg)
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(master);
 	int ret;
 
+<<<<<<< HEAD
 	ret = clk_enable(spi_imx->clk_per);
 	if (ret)
 		return ret;
@@ -1476,6 +1907,22 @@ spi_imx_prepare_message(struct spi_master *master, struct spi_message *msg)
 	}
 
 	return 0;
+=======
+	ret = pm_runtime_get_sync(spi_imx->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(spi_imx->dev);
+		dev_err(spi_imx->dev, "failed to enable clock\n");
+		return ret;
+	}
+
+	ret = spi_imx->devtype_data->prepare_message(spi_imx, msg);
+	if (ret) {
+		pm_runtime_mark_last_busy(spi_imx->dev);
+		pm_runtime_put_autosuspend(spi_imx->dev);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -1483,8 +1930,13 @@ spi_imx_unprepare_message(struct spi_master *master, struct spi_message *msg)
 {
 	struct spi_imx_data *spi_imx = spi_master_get_devdata(master);
 
+<<<<<<< HEAD
 	clk_disable(spi_imx->clk_ipg);
 	clk_disable(spi_imx->clk_per);
+=======
+	pm_runtime_mark_last_busy(spi_imx->dev);
+	pm_runtime_put_autosuspend(spi_imx->dev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1501,6 +1953,7 @@ static int spi_imx_slave_abort(struct spi_master *master)
 static int spi_imx_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
 	const struct of_device_id *of_id =
 			of_match_device(spi_imx_dt_ids, &pdev->dev);
 	struct spi_imx_master *mxc_platform_info =
@@ -1517,6 +1970,16 @@ static int spi_imx_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "can't get the platform data\n");
 		return -EINVAL;
 	}
+=======
+	struct spi_master *master;
+	struct spi_imx_data *spi_imx;
+	struct resource *res;
+	int ret, irq, spi_drctl;
+	const struct spi_imx_devtype_data *devtype_data =
+			of_device_get_match_data(&pdev->dev);
+	bool slave_mode;
+	u32 val;
+>>>>>>> upstream/android-13
 
 	slave_mode = devtype_data->has_slavemode &&
 			of_property_read_bool(np, "spi-slave");
@@ -1539,6 +2002,10 @@ static int spi_imx_probe(struct platform_device *pdev)
 
 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(1, 32);
 	master->bus_num = np ? -1 : pdev->id;
+<<<<<<< HEAD
+=======
+	master->use_gpio_descriptors = true;
+>>>>>>> upstream/android-13
 
 	spi_imx = spi_master_get_devdata(master);
 	spi_imx->bitbang.master = master;
@@ -1547,6 +2014,7 @@ static int spi_imx_probe(struct platform_device *pdev)
 
 	spi_imx->devtype_data = devtype_data;
 
+<<<<<<< HEAD
 	/* Get number of chip selects, either platform data or OF */
 	if (mxc_platform_info) {
 		master->num_chipselect = mxc_platform_info->num_chipselect;
@@ -1569,6 +2037,19 @@ static int spi_imx_probe(struct platform_device *pdev)
 	}
 
 	spi_imx->bitbang.chipselect = spi_imx_chipselect;
+=======
+	/*
+	 * Get number of chip selects from device properties. This can be
+	 * coming from device tree or boardfiles, if it is not defined,
+	 * a default value of 3 chip selects will be used, as all the legacy
+	 * board files have <= 3 chip selects.
+	 */
+	if (!device_property_read_u32(&pdev->dev, "num-cs", &val))
+		master->num_chipselect = val;
+	else
+		master->num_chipselect = 3;
+
+>>>>>>> upstream/android-13
 	spi_imx->bitbang.setup_transfer = spi_imx_setupxfer;
 	spi_imx->bitbang.txrx_bufs = spi_imx_transfer;
 	spi_imx->bitbang.master->setup = spi_imx_setup;
@@ -1582,6 +2063,18 @@ static int spi_imx_probe(struct platform_device *pdev)
 	    is_imx53_ecspi(spi_imx))
 		spi_imx->bitbang.master->mode_bits |= SPI_LOOP | SPI_READY;
 
+<<<<<<< HEAD
+=======
+	if (is_imx51_ecspi(spi_imx) &&
+	    device_property_read_u32(&pdev->dev, "cs-gpios", NULL))
+		/*
+		 * When using HW-CS implementing SPI_CS_WORD can be done by just
+		 * setting the burst length to the word size. This is
+		 * considerably faster than manually controlling the CS.
+		 */
+		spi_imx->bitbang.master->mode_bits |= SPI_CS_WORD;
+
+>>>>>>> upstream/android-13
 	spi_imx->spi_drctl = spi_drctl;
 
 	init_completion(&spi_imx->xfer_done);
@@ -1627,6 +2120,15 @@ static int spi_imx_probe(struct platform_device *pdev)
 	if (ret)
 		goto out_put_per;
 
+<<<<<<< HEAD
+=======
+	pm_runtime_set_autosuspend_delay(spi_imx->dev, MXC_RPM_TIMEOUT);
+	pm_runtime_use_autosuspend(spi_imx->dev);
+	pm_runtime_get_noresume(spi_imx->dev);
+	pm_runtime_set_active(spi_imx->dev);
+	pm_runtime_enable(spi_imx->dev);
+
+>>>>>>> upstream/android-13
 	spi_imx->spi_clk = clk_get_rate(spi_imx->clk_per);
 	/*
 	 * Only validated on i.mx35 and i.mx6 now, can remove the constraint
@@ -1635,10 +2137,17 @@ static int spi_imx_probe(struct platform_device *pdev)
 	if (spi_imx->devtype_data->has_dmamode) {
 		ret = spi_imx_sdma_init(&pdev->dev, spi_imx, master);
 		if (ret == -EPROBE_DEFER)
+<<<<<<< HEAD
 			goto out_clk_put;
 
 		if (ret < 0)
 			dev_err(&pdev->dev, "dma setup error %d, use pio\n",
+=======
+			goto out_runtime_pm_put;
+
+		if (ret < 0)
+			dev_dbg(&pdev->dev, "dma setup error %d, use pio\n",
+>>>>>>> upstream/android-13
 				ret);
 	}
 
@@ -1649,6 +2158,7 @@ static int spi_imx_probe(struct platform_device *pdev)
 	master->dev.of_node = pdev->dev.of_node;
 	ret = spi_bitbang_start(&spi_imx->bitbang);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "bitbang start failed with %d\n", ret);
 		goto out_clk_put;
 	}
@@ -1679,6 +2189,25 @@ static int spi_imx_probe(struct platform_device *pdev)
 out_spi_bitbang:
 	spi_bitbang_stop(&spi_imx->bitbang);
 out_clk_put:
+=======
+		dev_err_probe(&pdev->dev, ret, "bitbang start failed\n");
+		goto out_bitbang_start;
+	}
+
+	pm_runtime_mark_last_busy(spi_imx->dev);
+	pm_runtime_put_autosuspend(spi_imx->dev);
+
+	return ret;
+
+out_bitbang_start:
+	if (spi_imx->devtype_data->has_dmamode)
+		spi_imx_sdma_exit(spi_imx);
+out_runtime_pm_put:
+	pm_runtime_dont_use_autosuspend(spi_imx->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_disable(spi_imx->dev);
+
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(spi_imx->clk_ipg);
 out_put_per:
 	clk_disable_unprepare(spi_imx->clk_per);
@@ -1696,6 +2225,7 @@ static int spi_imx_remove(struct platform_device *pdev)
 
 	spi_bitbang_stop(&spi_imx->bitbang);
 
+<<<<<<< HEAD
 	ret = clk_enable(spi_imx->clk_per);
 	if (ret)
 		return ret;
@@ -1703,30 +2233,108 @@ static int spi_imx_remove(struct platform_device *pdev)
 	ret = clk_enable(spi_imx->clk_ipg);
 	if (ret) {
 		clk_disable(spi_imx->clk_per);
+=======
+	ret = pm_runtime_get_sync(spi_imx->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(spi_imx->dev);
+		dev_err(spi_imx->dev, "failed to enable clock\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	writel(0, spi_imx->base + MXC_CSPICTRL);
+<<<<<<< HEAD
 	clk_disable_unprepare(spi_imx->clk_ipg);
 	clk_disable_unprepare(spi_imx->clk_per);
+=======
+
+	pm_runtime_dont_use_autosuspend(spi_imx->dev);
+	pm_runtime_put_sync(spi_imx->dev);
+	pm_runtime_disable(spi_imx->dev);
+
+>>>>>>> upstream/android-13
 	spi_imx_sdma_exit(spi_imx);
 	spi_master_put(master);
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int __maybe_unused spi_imx_runtime_resume(struct device *dev)
+{
+	struct spi_master *master = dev_get_drvdata(dev);
+	struct spi_imx_data *spi_imx;
+	int ret;
+
+	spi_imx = spi_master_get_devdata(master);
+
+	ret = clk_prepare_enable(spi_imx->clk_per);
+	if (ret)
+		return ret;
+
+	ret = clk_prepare_enable(spi_imx->clk_ipg);
+	if (ret) {
+		clk_disable_unprepare(spi_imx->clk_per);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int __maybe_unused spi_imx_runtime_suspend(struct device *dev)
+{
+	struct spi_master *master = dev_get_drvdata(dev);
+	struct spi_imx_data *spi_imx;
+
+	spi_imx = spi_master_get_devdata(master);
+
+	clk_disable_unprepare(spi_imx->clk_per);
+	clk_disable_unprepare(spi_imx->clk_ipg);
+
+	return 0;
+}
+
+static int __maybe_unused spi_imx_suspend(struct device *dev)
+{
+	pinctrl_pm_select_sleep_state(dev);
+	return 0;
+}
+
+static int __maybe_unused spi_imx_resume(struct device *dev)
+{
+	pinctrl_pm_select_default_state(dev);
+	return 0;
+}
+
+static const struct dev_pm_ops imx_spi_pm = {
+	SET_RUNTIME_PM_OPS(spi_imx_runtime_suspend,
+				spi_imx_runtime_resume, NULL)
+	SET_SYSTEM_SLEEP_PM_OPS(spi_imx_suspend, spi_imx_resume)
+};
+
+>>>>>>> upstream/android-13
 static struct platform_driver spi_imx_driver = {
 	.driver = {
 		   .name = DRIVER_NAME,
 		   .of_match_table = spi_imx_dt_ids,
+<<<<<<< HEAD
 		   },
 	.id_table = spi_imx_devtype,
+=======
+		   .pm = &imx_spi_pm,
+	},
+>>>>>>> upstream/android-13
 	.probe = spi_imx_probe,
 	.remove = spi_imx_remove,
 };
 module_platform_driver(spi_imx_driver);
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("SPI Controller driver");
+=======
+MODULE_DESCRIPTION("i.MX SPI Controller driver");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Sascha Hauer, Pengutronix");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" DRIVER_NAME);

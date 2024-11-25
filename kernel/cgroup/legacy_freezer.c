@@ -479,3 +479,7 @@ struct cgroup_subsys freezer_cgrp_subsys = {
 	.fork		= freezer_fork,
 	.legacy_cftypes	= files,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(freezer_cgrp_subsys);
+>>>>>>> upstream/android-13

@@ -58,6 +58,7 @@ static int fastreg_support = 1;
 module_param(fastreg_support, int, 0644);
 MODULE_PARM_DESC(fastreg_support, "Advertise fastreg support (default=1)");
 
+<<<<<<< HEAD
 void _c4iw_free_ucontext(struct kref *kref)
 {
 	struct c4iw_ucontext *ucontext;
@@ -87,12 +88,34 @@ static struct ib_ucontext *c4iw_alloc_ucontext(struct ib_device *ibdev,
 					       struct ib_udata *udata)
 {
 	struct c4iw_ucontext *context;
+=======
+static void c4iw_dealloc_ucontext(struct ib_ucontext *context)
+{
+	struct c4iw_ucontext *ucontext = to_c4iw_ucontext(context);
+	struct c4iw_dev *rhp;
+	struct c4iw_mm_entry *mm, *tmp;
+
+	pr_debug("context %p\n", context);
+	rhp = to_c4iw_dev(ucontext->ibucontext.device);
+
+	list_for_each_entry_safe(mm, tmp, &ucontext->mmaps, entry)
+		kfree(mm);
+	c4iw_release_dev_ucontext(&rhp->rdev, &ucontext->uctx);
+}
+
+static int c4iw_alloc_ucontext(struct ib_ucontext *ucontext,
+			       struct ib_udata *udata)
+{
+	struct ib_device *ibdev = ucontext->device;
+	struct c4iw_ucontext *context = to_c4iw_ucontext(ucontext);
+>>>>>>> upstream/android-13
 	struct c4iw_dev *rhp = to_c4iw_dev(ibdev);
 	struct c4iw_alloc_ucontext_resp uresp;
 	int ret = 0;
 	struct c4iw_mm_entry *mm = NULL;
 
 	pr_debug("ibdev %p\n", ibdev);
+<<<<<<< HEAD
 	context = kzalloc(sizeof(*context), GFP_KERNEL);
 	if (!context) {
 		ret = -ENOMEM;
@@ -103,6 +126,11 @@ static struct ib_ucontext *c4iw_alloc_ucontext(struct ib_device *ibdev,
 	INIT_LIST_HEAD(&context->mmaps);
 	spin_lock_init(&context->mmap_lock);
 	kref_init(&context->kref);
+=======
+	c4iw_init_dev_ucontext(&rhp->rdev, &context->uctx);
+	INIT_LIST_HEAD(&context->mmaps);
+	spin_lock_init(&context->mmap_lock);
+>>>>>>> upstream/android-13
 
 	if (udata->outlen < sizeof(uresp) - sizeof(uresp.reserved)) {
 		pr_err_once("Warning - downlevel libcxgb4 (non-fatal), device status page disabled\n");
@@ -111,7 +139,11 @@ static struct ib_ucontext *c4iw_alloc_ucontext(struct ib_device *ibdev,
 		mm = kmalloc(sizeof(*mm), GFP_KERNEL);
 		if (!mm) {
 			ret = -ENOMEM;
+<<<<<<< HEAD
 			goto err_free;
+=======
+			goto err;
+>>>>>>> upstream/android-13
 		}
 
 		uresp.status_page_size = PAGE_SIZE;
@@ -131,6 +163,7 @@ static struct ib_ucontext *c4iw_alloc_ucontext(struct ib_device *ibdev,
 		mm->len = PAGE_SIZE;
 		insert_mmap(context, mm);
 	}
+<<<<<<< HEAD
 	return &context->ibucontext;
 err_mm:
 	kfree(mm);
@@ -138,6 +171,13 @@ err_free:
 	kfree(context);
 err:
 	return ERR_PTR(ret);
+=======
+	return 0;
+err_mm:
+	kfree(mm);
+err:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int c4iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
@@ -209,7 +249,11 @@ static int c4iw_mmap(struct ib_ucontext *context, struct vm_area_struct *vma)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int c4iw_deallocate_pd(struct ib_pd *pd)
+=======
+static int c4iw_deallocate_pd(struct ib_pd *pd, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct c4iw_dev *rhp;
 	struct c4iw_pd *php;
@@ -221,6 +265,7 @@ static int c4iw_deallocate_pd(struct ib_pd *pd)
 	mutex_lock(&rhp->rdev.stats.lock);
 	rhp->rdev.stats.pd.cur--;
 	mutex_unlock(&rhp->rdev.stats.lock);
+<<<<<<< HEAD
 	kfree(php);
 	return 0;
 }
@@ -230,6 +275,15 @@ static struct ib_pd *c4iw_allocate_pd(struct ib_device *ibdev,
 				      struct ib_udata *udata)
 {
 	struct c4iw_pd *php;
+=======
+	return 0;
+}
+
+static int c4iw_allocate_pd(struct ib_pd *pd, struct ib_udata *udata)
+{
+	struct c4iw_pd *php = to_c4iw_pd(pd);
+	struct ib_device *ibdev = pd->device;
+>>>>>>> upstream/android-13
 	u32 pdid;
 	struct c4iw_dev *rhp;
 
@@ -237,6 +291,7 @@ static struct ib_pd *c4iw_allocate_pd(struct ib_device *ibdev,
 	rhp = (struct c4iw_dev *) ibdev;
 	pdid =  c4iw_get_resource(&rhp->rdev.resource.pdid_table);
 	if (!pdid)
+<<<<<<< HEAD
 		return ERR_PTR(-EINVAL);
 	php = kzalloc(sizeof(*php), GFP_KERNEL);
 	if (!php) {
@@ -251,6 +306,18 @@ static struct ib_pd *c4iw_allocate_pd(struct ib_device *ibdev,
 		if (ib_copy_to_udata(udata, &uresp, sizeof(uresp))) {
 			c4iw_deallocate_pd(&php->ibpd);
 			return ERR_PTR(-EFAULT);
+=======
+		return -EINVAL;
+
+	php->pdid = pdid;
+	php->rhp = rhp;
+	if (udata) {
+		struct c4iw_alloc_pd_resp uresp = {.pdid = php->pdid};
+
+		if (ib_copy_to_udata(udata, &uresp, sizeof(uresp))) {
+			c4iw_deallocate_pd(&php->ibpd, udata);
+			return -EFAULT;
+>>>>>>> upstream/android-13
 		}
 	}
 	mutex_lock(&rhp->rdev.stats.lock);
@@ -259,6 +326,7 @@ static struct ib_pd *c4iw_allocate_pd(struct ib_device *ibdev,
 		rhp->rdev.stats.pd.max = rhp->rdev.stats.pd.cur;
 	mutex_unlock(&rhp->rdev.stats.lock);
 	pr_debug("pdid 0x%0x ptr 0x%p\n", pdid, php);
+<<<<<<< HEAD
 	return &php->ibpd;
 }
 
@@ -271,11 +339,21 @@ static int c4iw_query_pkey(struct ib_device *ibdev, u8 port, u16 index,
 }
 
 static int c4iw_query_gid(struct ib_device *ibdev, u8 port, int index,
+=======
+	return 0;
+}
+
+static int c4iw_query_gid(struct ib_device *ibdev, u32 port, int index,
+>>>>>>> upstream/android-13
 			  union ib_gid *gid)
 {
 	struct c4iw_dev *dev;
 
+<<<<<<< HEAD
 	pr_debug("ibdev %p, port %d, index %d, gid %p\n",
+=======
+	pr_debug("ibdev %p, port %u, index %d, gid %p\n",
+>>>>>>> upstream/android-13
 		 ibdev, port, index, gid);
 	if (!port)
 		return -EINVAL;
@@ -297,7 +375,10 @@ static int c4iw_query_device(struct ib_device *ibdev, struct ib_device_attr *pro
 		return -EINVAL;
 
 	dev = to_c4iw_dev(ibdev);
+<<<<<<< HEAD
 	memset(props, 0, sizeof *props);
+=======
+>>>>>>> upstream/android-13
 	memcpy(&props->sys_image_guid, dev->rdev.lldi.ports[0]->dev_addr, 6);
 	props->hw_ver = CHELSIO_CHIP_RELEASE(dev->rdev.lldi.adapter_type);
 	props->fw_ver = dev->rdev.lldi.fw_vers;
@@ -329,6 +410,7 @@ static int c4iw_query_device(struct ib_device *ibdev, struct ib_device_attr *pro
 	return 0;
 }
 
+<<<<<<< HEAD
 static int c4iw_query_port(struct ib_device *ibdev, u8 port,
 			   struct ib_port_attr *props)
 {
@@ -357,6 +439,15 @@ static int c4iw_query_port(struct ib_device *ibdev, u8 port,
 		} else
 			props->state = IB_PORT_INIT;
 	}
+=======
+static int c4iw_query_port(struct ib_device *ibdev, u32 port,
+			   struct ib_port_attr *props)
+{
+	int ret = 0;
+	pr_debug("ibdev %p\n", ibdev);
+	ret = ib_get_eth_speed(ibdev, port, &props->active_speed,
+			       &props->active_width);
+>>>>>>> upstream/android-13
 
 	props->port_cap_flags =
 	    IB_PORT_CM_SUP |
@@ -365,6 +456,7 @@ static int c4iw_query_port(struct ib_device *ibdev, u8 port,
 	    IB_PORT_DEVICE_MGMT_SUP |
 	    IB_PORT_VENDOR_CLASS_SUP | IB_PORT_BOOT_MGMT_SUP;
 	props->gid_tbl_len = 1;
+<<<<<<< HEAD
 	props->pkey_tbl_len = 1;
 	props->active_width = 2;
 	props->active_speed = IB_SPEED_DDR;
@@ -388,11 +480,37 @@ static ssize_t show_hca(struct device *dev, struct device_attribute *attr,
 {
 	struct c4iw_dev *c4iw_dev = container_of(dev, struct c4iw_dev,
 						 ibdev.dev);
+=======
+	props->max_msg_sz = -1;
+
+	return ret;
+}
+
+static ssize_t hw_rev_show(struct device *dev,
+			   struct device_attribute *attr, char *buf)
+{
+	struct c4iw_dev *c4iw_dev =
+			rdma_device_to_drv_device(dev, struct c4iw_dev, ibdev);
+
+	pr_debug("dev 0x%p\n", dev);
+	return sysfs_emit(
+		buf, "%d\n",
+		CHELSIO_CHIP_RELEASE(c4iw_dev->rdev.lldi.adapter_type));
+}
+static DEVICE_ATTR_RO(hw_rev);
+
+static ssize_t hca_type_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+{
+	struct c4iw_dev *c4iw_dev =
+			rdma_device_to_drv_device(dev, struct c4iw_dev, ibdev);
+>>>>>>> upstream/android-13
 	struct ethtool_drvinfo info;
 	struct net_device *lldev = c4iw_dev->rdev.lldi.ports[0];
 
 	pr_debug("dev 0x%p\n", dev);
 	lldev->ethtool_ops->get_drvinfo(lldev, &info);
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", info.driver);
 }
 
@@ -405,6 +523,23 @@ static ssize_t show_board(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%x.%x\n", c4iw_dev->rdev.lldi.pdev->vendor,
 		       c4iw_dev->rdev.lldi.pdev->device);
 }
+=======
+	return sysfs_emit(buf, "%s\n", info.driver);
+}
+static DEVICE_ATTR_RO(hca_type);
+
+static ssize_t board_id_show(struct device *dev, struct device_attribute *attr,
+			     char *buf)
+{
+	struct c4iw_dev *c4iw_dev =
+			rdma_device_to_drv_device(dev, struct c4iw_dev, ibdev);
+
+	pr_debug("dev 0x%p\n", dev);
+	return sysfs_emit(buf, "%x.%x\n", c4iw_dev->rdev.lldi.pdev->vendor,
+			  c4iw_dev->rdev.lldi.pdev->device);
+}
+static DEVICE_ATTR_RO(board_id);
+>>>>>>> upstream/android-13
 
 enum counters {
 	IP4INSEGS,
@@ -429,6 +564,7 @@ static const char * const names[] = {
 	[IP6OUTRSTS] = "ip6OutRsts"
 };
 
+<<<<<<< HEAD
 static struct rdma_hw_stats *c4iw_alloc_stats(struct ib_device *ibdev,
 					      u8 port_num)
 {
@@ -437,13 +573,24 @@ static struct rdma_hw_stats *c4iw_alloc_stats(struct ib_device *ibdev,
 	if (port_num != 0)
 		return NULL;
 
+=======
+static struct rdma_hw_stats *c4iw_alloc_device_stats(struct ib_device *ibdev)
+{
+	BUILD_BUG_ON(ARRAY_SIZE(names) != NR_COUNTERS);
+
+	/* FIXME: these look like port stats */
+>>>>>>> upstream/android-13
 	return rdma_alloc_hw_stats_struct(names, NR_COUNTERS,
 					  RDMA_HW_STATS_DEFAULT_LIFESPAN);
 }
 
 static int c4iw_get_mib(struct ib_device *ibdev,
 			struct rdma_hw_stats *stats,
+<<<<<<< HEAD
 			u8 port, int index)
+=======
+			u32 port, int index)
+>>>>>>> upstream/android-13
 {
 	struct tp_tcp_stats v4, v6;
 	struct c4iw_dev *c4iw_dev = to_c4iw_dev(ibdev);
@@ -461,6 +608,7 @@ static int c4iw_get_mib(struct ib_device *ibdev,
 	return stats->num_counters;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(hw_rev, S_IRUGO, show_rev, NULL);
 static DEVICE_ATTR(hca_type, S_IRUGO, show_hca, NULL);
 static DEVICE_ATTR(board_id, S_IRUGO, show_board, NULL);
@@ -472,6 +620,20 @@ static struct device_attribute *c4iw_class_attributes[] = {
 };
 
 static int c4iw_port_immutable(struct ib_device *ibdev, u8 port_num,
+=======
+static struct attribute *c4iw_class_attributes[] = {
+	&dev_attr_hw_rev.attr,
+	&dev_attr_hca_type.attr,
+	&dev_attr_board_id.attr,
+	NULL
+};
+
+static const struct attribute_group c4iw_attr_group = {
+	.attrs = c4iw_class_attributes,
+};
+
+static int c4iw_port_immutable(struct ib_device *ibdev, u32 port_num,
+>>>>>>> upstream/android-13
 			       struct ib_port_immutable *immutable)
 {
 	struct ib_port_attr attr;
@@ -483,7 +645,10 @@ static int c4iw_port_immutable(struct ib_device *ibdev, u8 port_num,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	immutable->pkey_tbl_len = attr.pkey_tbl_len;
+=======
+>>>>>>> upstream/android-13
 	immutable->gid_tbl_len = attr.gid_tbl_len;
 
 	return 0;
@@ -502,6 +667,7 @@ static void get_dev_fw_str(struct ib_device *dev, char *str)
 		 FW_HDR_FW_VER_BUILD_G(c4iw_dev->rdev.lldi.fw_vers));
 }
 
+<<<<<<< HEAD
 static struct net_device *get_netdev(struct ib_device *dev, u8 port)
 {
 	struct c4iw_dev *c4iw_dev = container_of(dev, struct c4iw_dev, ibdev);
@@ -525,24 +691,104 @@ static int fill_res_entry(struct sk_buff *msg, struct rdma_restrack_entry *res)
 	return (res->type < ARRAY_SIZE(c4iw_restrack_funcs) &&
 		c4iw_restrack_funcs[res->type]) ?
 		c4iw_restrack_funcs[res->type](msg, res) : 0;
+=======
+static const struct ib_device_ops c4iw_dev_ops = {
+	.owner = THIS_MODULE,
+	.driver_id = RDMA_DRIVER_CXGB4,
+	.uverbs_abi_ver = C4IW_UVERBS_ABI_VERSION,
+
+	.alloc_hw_device_stats = c4iw_alloc_device_stats,
+	.alloc_mr = c4iw_alloc_mr,
+	.alloc_pd = c4iw_allocate_pd,
+	.alloc_ucontext = c4iw_alloc_ucontext,
+	.create_cq = c4iw_create_cq,
+	.create_qp = c4iw_create_qp,
+	.create_srq = c4iw_create_srq,
+	.dealloc_pd = c4iw_deallocate_pd,
+	.dealloc_ucontext = c4iw_dealloc_ucontext,
+	.dereg_mr = c4iw_dereg_mr,
+	.destroy_cq = c4iw_destroy_cq,
+	.destroy_qp = c4iw_destroy_qp,
+	.destroy_srq = c4iw_destroy_srq,
+	.device_group = &c4iw_attr_group,
+	.fill_res_cq_entry = c4iw_fill_res_cq_entry,
+	.fill_res_cm_id_entry = c4iw_fill_res_cm_id_entry,
+	.fill_res_mr_entry = c4iw_fill_res_mr_entry,
+	.get_dev_fw_str = get_dev_fw_str,
+	.get_dma_mr = c4iw_get_dma_mr,
+	.get_hw_stats = c4iw_get_mib,
+	.get_port_immutable = c4iw_port_immutable,
+	.iw_accept = c4iw_accept_cr,
+	.iw_add_ref = c4iw_qp_add_ref,
+	.iw_connect = c4iw_connect,
+	.iw_create_listen = c4iw_create_listen,
+	.iw_destroy_listen = c4iw_destroy_listen,
+	.iw_get_qp = c4iw_get_qp,
+	.iw_reject = c4iw_reject_cr,
+	.iw_rem_ref = c4iw_qp_rem_ref,
+	.map_mr_sg = c4iw_map_mr_sg,
+	.mmap = c4iw_mmap,
+	.modify_qp = c4iw_ib_modify_qp,
+	.modify_srq = c4iw_modify_srq,
+	.poll_cq = c4iw_poll_cq,
+	.post_recv = c4iw_post_receive,
+	.post_send = c4iw_post_send,
+	.post_srq_recv = c4iw_post_srq_recv,
+	.query_device = c4iw_query_device,
+	.query_gid = c4iw_query_gid,
+	.query_port = c4iw_query_port,
+	.query_qp = c4iw_ib_query_qp,
+	.reg_user_mr = c4iw_reg_user_mr,
+	.req_notify_cq = c4iw_arm_cq,
+
+	INIT_RDMA_OBJ_SIZE(ib_cq, c4iw_cq, ibcq),
+	INIT_RDMA_OBJ_SIZE(ib_mw, c4iw_mw, ibmw),
+	INIT_RDMA_OBJ_SIZE(ib_pd, c4iw_pd, ibpd),
+	INIT_RDMA_OBJ_SIZE(ib_qp, c4iw_qp, ibqp),
+	INIT_RDMA_OBJ_SIZE(ib_srq, c4iw_srq, ibsrq),
+	INIT_RDMA_OBJ_SIZE(ib_ucontext, c4iw_ucontext, ibucontext),
+};
+
+static int set_netdevs(struct ib_device *ib_dev, struct c4iw_rdev *rdev)
+{
+	int ret;
+	int i;
+
+	for (i = 0; i < rdev->lldi.nports; i++) {
+		ret = ib_device_set_netdev(ib_dev, rdev->lldi.ports[i],
+					   i + 1);
+		if (ret)
+			return ret;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void c4iw_register_device(struct work_struct *work)
 {
 	int ret;
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 	struct uld_ctx *ctx = container_of(work, struct uld_ctx, reg_work);
 	struct c4iw_dev *dev = ctx->dev;
 
 	pr_debug("c4iw_dev %p\n", dev);
+<<<<<<< HEAD
 	strlcpy(dev->ibdev.name, "cxgb4_%d", IB_DEVICE_NAME_MAX);
 	memset(&dev->ibdev.node_guid, 0, sizeof(dev->ibdev.node_guid));
 	memcpy(&dev->ibdev.node_guid, dev->rdev.lldi.ports[0]->dev_addr, 6);
 	dev->ibdev.owner = THIS_MODULE;
+=======
+	memset(&dev->ibdev.node_guid, 0, sizeof(dev->ibdev.node_guid));
+	memcpy(&dev->ibdev.node_guid, dev->rdev.lldi.ports[0]->dev_addr, 6);
+>>>>>>> upstream/android-13
 	dev->device_cap_flags = IB_DEVICE_LOCAL_DMA_LKEY | IB_DEVICE_MEM_WINDOW;
 	if (fastreg_support)
 		dev->device_cap_flags |= IB_DEVICE_MEM_MGT_EXTENSIONS;
 	dev->ibdev.local_dma_lkey = 0;
+<<<<<<< HEAD
 	dev->ibdev.uverbs_cmd_mask =
 	    (1ull << IB_USER_VERBS_CMD_GET_CONTEXT) |
 	    (1ull << IB_USER_VERBS_CMD_QUERY_DEVICE) |
@@ -565,12 +811,15 @@ void c4iw_register_device(struct work_struct *work)
 	    (1ull << IB_USER_VERBS_CMD_CREATE_SRQ) |
 	    (1ull << IB_USER_VERBS_CMD_MODIFY_SRQ) |
 	    (1ull << IB_USER_VERBS_CMD_DESTROY_SRQ);
+=======
+>>>>>>> upstream/android-13
 	dev->ibdev.node_type = RDMA_NODE_RNIC;
 	BUILD_BUG_ON(sizeof(C4IW_NODE_DESC) > IB_DEVICE_NODE_DESC_MAX);
 	memcpy(dev->ibdev.node_desc, C4IW_NODE_DESC, sizeof(C4IW_NODE_DESC));
 	dev->ibdev.phys_port_cnt = dev->rdev.lldi.nports;
 	dev->ibdev.num_comp_vectors =  dev->rdev.lldi.nciq;
 	dev->ibdev.dev.parent = &dev->rdev.lldi.pdev->dev;
+<<<<<<< HEAD
 	dev->ibdev.query_device = c4iw_query_device;
 	dev->ibdev.query_port = c4iw_query_port;
 	dev->ibdev.query_pkey = c4iw_query_pkey;
@@ -642,6 +891,23 @@ err_unregister_device:
 	ib_unregister_device(&dev->ibdev);
 err_kfree_iwcm:
 	kfree(dev->ibdev.iwcm);
+=======
+
+	memcpy(dev->ibdev.iw_ifname, dev->rdev.lldi.ports[0]->name,
+	       sizeof(dev->ibdev.iw_ifname));
+
+	ib_set_device_ops(&dev->ibdev, &c4iw_dev_ops);
+	ret = set_netdevs(&dev->ibdev, &dev->rdev);
+	if (ret)
+		goto err_dealloc_ctx;
+	dma_set_max_seg_size(&dev->rdev.lldi.pdev->dev, UINT_MAX);
+	ret = ib_register_device(&dev->ibdev, "cxgb4_%d",
+				 &dev->rdev.lldi.pdev->dev);
+	if (ret)
+		goto err_dealloc_ctx;
+	return;
+
+>>>>>>> upstream/android-13
 err_dealloc_ctx:
 	pr_err("%s - Failed registering iwarp device: %d\n",
 	       pci_name(ctx->lldi.pdev), ret);
@@ -651,6 +917,7 @@ err_dealloc_ctx:
 
 void c4iw_unregister_device(struct c4iw_dev *dev)
 {
+<<<<<<< HEAD
 	int i;
 
 	pr_debug("c4iw_dev %p\n", dev);
@@ -659,5 +926,9 @@ void c4iw_unregister_device(struct c4iw_dev *dev)
 				   c4iw_class_attributes[i]);
 	ib_unregister_device(&dev->ibdev);
 	kfree(dev->ibdev.iwcm);
+=======
+	pr_debug("c4iw_dev %p\n", dev);
+	ib_unregister_device(&dev->ibdev);
+>>>>>>> upstream/android-13
 	return;
 }

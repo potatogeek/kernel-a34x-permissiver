@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * V4L2 Driver for PXA camera host
  *
  * Copyright (C) 2006, Sascha Hauer, Pengutronix
  * Copyright (C) 2008, Guennadi Liakhovetski <kernel@pengutronix.de>
  * Copyright (C) 2016, Robert Jarzmik <robert.jarzmik@free.fr>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -35,7 +42,10 @@
 #include <linux/dma/pxa-dma.h>
 
 #include <media/v4l2-async.h>
+<<<<<<< HEAD
 #include <media/v4l2-clk.h>
+=======
+>>>>>>> upstream/android-13
 #include <media/v4l2-common.h>
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
@@ -68,7 +78,11 @@
 #define CIBR1		0x0030
 #define CIBR2		0x0038
 
+<<<<<<< HEAD
 #define CICR0_DMAEN	(1 << 31)	/* DMA request enable */
+=======
+#define CICR0_DMAEN	(1UL << 31)	/* DMA request enable */
+>>>>>>> upstream/android-13
 #define CICR0_PAR_EN	(1 << 30)	/* Parity enable */
 #define CICR0_SL_CAP_EN	(1 << 29)	/* Capture enable for slave mode */
 #define CICR0_ENB	(1 << 28)	/* Camera interface enable */
@@ -85,7 +99,11 @@
 #define CICR0_EOFM	(1 << 1)	/* End-of-frame mask */
 #define CICR0_FOM	(1 << 0)	/* FIFO-overrun mask */
 
+<<<<<<< HEAD
 #define CICR1_TBIT	(1 << 31)	/* Transparency bit */
+=======
+#define CICR1_TBIT	(1UL << 31)	/* Transparency bit */
+>>>>>>> upstream/android-13
 #define CICR1_RGBT_CONV	(0x3 << 29)	/* RGBT conversion mask */
 #define CICR1_PPL	(0x7ff << 15)	/* Pixels per line mask */
 #define CICR1_RGB_CONV	(0x7 << 12)	/* RGB conversion mask */
@@ -609,6 +627,7 @@ static const struct pxa_mbus_pixelfmt *pxa_mbus_get_fmtdesc(
 	return pxa_mbus_find_fmtdesc(code, mbus_fmt, ARRAY_SIZE(mbus_fmt));
 }
 
+<<<<<<< HEAD
 static unsigned int pxa_mbus_config_compatible(const struct v4l2_mbus_config *cfg,
 					unsigned int flags)
 {
@@ -645,6 +664,8 @@ static unsigned int pxa_mbus_config_compatible(const struct v4l2_mbus_config *cf
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct pxa_camera_format_xlate - match between host and sensor formats
  * @code: code of a sensor provided format
@@ -696,9 +717,12 @@ struct pxa_camera_dev {
 	const struct pxa_camera_format_xlate *current_fmt;
 	struct v4l2_pix_format	current_pix;
 
+<<<<<<< HEAD
 	struct v4l2_async_subdev asd;
 	struct v4l2_async_subdev *asds[1];
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * PXA27x is only supposed to handle one camera on its Quick Capture
 	 * interface. If anyone ever builds hardware to enable more than
@@ -718,7 +742,10 @@ struct pxa_camera_dev {
 	unsigned long		ciclk;
 	unsigned long		mclk;
 	u32			mclk_divisor;
+<<<<<<< HEAD
 	struct v4l2_clk		*mclk_clk;
+=======
+>>>>>>> upstream/android-13
 	u16			width_flags;	/* max 10 bits */
 
 	struct list_head	capture;
@@ -1021,7 +1048,11 @@ static void pxa_camera_wakeup(struct pxa_camera_dev *pcdev,
  *  - a videobuffer is queued on the pcdev->capture list
  *
  * Please check the "DMA hot chaining timeslice issue" in
+<<<<<<< HEAD
  *   Documentation/media/v4l-drivers/pxa_camera.rst
+=======
+ *   Documentation/driver-api/media/drivers/pxa_camera.rst
+>>>>>>> upstream/android-13
  *
  * Context: should only be called within the dma irq handler
  */
@@ -1191,9 +1222,15 @@ static void pxa_camera_deactivate(struct pxa_camera_dev *pcdev)
 	clk_disable_unprepare(pcdev->clk);
 }
 
+<<<<<<< HEAD
 static void pxa_camera_eof(unsigned long arg)
 {
 	struct pxa_camera_dev *pcdev = (struct pxa_camera_dev *)arg;
+=======
+static void pxa_camera_eof(struct tasklet_struct *t)
+{
+	struct pxa_camera_dev *pcdev = from_tasklet(pcdev, t, task_eof);
+>>>>>>> upstream/android-13
 	unsigned long cifr;
 	struct pxa_buffer *buf;
 
@@ -1236,6 +1273,7 @@ static irqreturn_t pxa_camera_irq(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int test_platform_param(struct pxa_camera_dev *pcdev,
 			       unsigned char buswidth, unsigned long *flags)
 {
@@ -1261,6 +1299,8 @@ static int test_platform_param(struct pxa_camera_dev *pcdev,
 	return -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void pxa_camera_setup_cicr(struct pxa_camera_dev *pcdev,
 				  unsigned long flags, __u32 pixfmt)
 {
@@ -1322,7 +1362,11 @@ static void pxa_camera_setup_cicr(struct pxa_camera_dev *pcdev,
 		 * transformation. Note that UYVY is the only format that
 		 * should be used if pxa framebuffer Overlay2 is used.
 		 */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case V4L2_PIX_FMT_UYVY:
 	case V4L2_PIX_FMT_VYUY:
 	case V4L2_PIX_FMT_YUYV:
@@ -1393,7 +1437,11 @@ static int pxa_buffer_init(struct pxa_camera_dev *pcdev,
 		break;
 	default:
 		return -EINVAL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	buf->nb_planes = nb_channels;
 
 	ret = sg_split(sgt->sgl, sgt->nents, 0, nb_channels,
@@ -1443,7 +1491,11 @@ static void pxac_vb2_queue(struct vb2_buffer *vb)
 
 /*
  * Please check the DMA prepared buffer structure in :
+<<<<<<< HEAD
  *   Documentation/media/v4l-drivers/pxa_camera.rst
+=======
+ *   Documentation/driver-api/media/drivers/pxa_camera.rst
+>>>>>>> upstream/android-13
  * Please check also in pxa_camera_check_link_miss() to understand why DMA chain
  * modification while DMA chain is running will work anyway.
  */
@@ -1606,6 +1658,7 @@ static int pxa_camera_init_videobuf2(struct pxa_camera_dev *pcdev)
  */
 static int pxa_camera_set_bus_param(struct pxa_camera_dev *pcdev)
 {
+<<<<<<< HEAD
 	struct v4l2_mbus_config cfg = {.type = V4L2_MBUS_PARALLEL,};
 	u32 pixfmt = pcdev->current_fmt->host_fmt->fourcc;
 	unsigned long bus_flags, common_flags;
@@ -1631,10 +1684,23 @@ static int pxa_camera_set_bus_param(struct pxa_camera_dev *pcdev)
 		return ret;
 	} else {
 		common_flags = bus_flags;
+=======
+	unsigned int bus_width = pcdev->current_fmt->host_fmt->bits_per_sample;
+	struct v4l2_mbus_config cfg = {.type = V4L2_MBUS_PARALLEL,};
+	u32 pixfmt = pcdev->current_fmt->host_fmt->fourcc;
+	int mbus_config;
+	int ret;
+
+	if (!((1 << (bus_width - 1)) & pcdev->width_flags)) {
+		dev_err(pcdev_to_dev(pcdev), "Unsupported bus width %u",
+			bus_width);
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	pcdev->channels = 1;
 
+<<<<<<< HEAD
 	/* Make choises, based on platform preferences */
 	if ((common_flags & V4L2_MBUS_HSYNC_ACTIVE_HIGH) &&
 	    (common_flags & V4L2_MBUS_HSYNC_ACTIVE_LOW)) {
@@ -1699,6 +1765,66 @@ static int pxa_camera_try_bus_param(struct pxa_camera_dev *pcdev,
 	}
 
 	return ret;
+=======
+	/* Make choices, based on platform preferences */
+	mbus_config = 0;
+	if (pcdev->platform_flags & PXA_CAMERA_MASTER)
+		mbus_config |= V4L2_MBUS_MASTER;
+	else
+		mbus_config |= V4L2_MBUS_SLAVE;
+
+	if (pcdev->platform_flags & PXA_CAMERA_HSP)
+		mbus_config |= V4L2_MBUS_HSYNC_ACTIVE_HIGH;
+	else
+		mbus_config |= V4L2_MBUS_HSYNC_ACTIVE_LOW;
+
+	if (pcdev->platform_flags & PXA_CAMERA_VSP)
+		mbus_config |= V4L2_MBUS_VSYNC_ACTIVE_HIGH;
+	else
+		mbus_config |= V4L2_MBUS_VSYNC_ACTIVE_LOW;
+
+	if (pcdev->platform_flags & PXA_CAMERA_PCP)
+		mbus_config |= V4L2_MBUS_PCLK_SAMPLE_RISING;
+	else
+		mbus_config |= V4L2_MBUS_PCLK_SAMPLE_FALLING;
+	mbus_config |= V4L2_MBUS_DATA_ACTIVE_HIGH;
+
+	cfg.flags = mbus_config;
+	ret = sensor_call(pcdev, pad, set_mbus_config, 0, &cfg);
+	if (ret < 0 && ret != -ENOIOCTLCMD) {
+		dev_err(pcdev_to_dev(pcdev),
+			"Failed to call set_mbus_config: %d\n", ret);
+		return ret;
+	}
+
+	/*
+	 * If the requested media bus configuration has not been fully applied
+	 * make sure it is supported by the platform.
+	 *
+	 * PXA does not support V4L2_MBUS_DATA_ACTIVE_LOW and the bus mastering
+	 * roles should match.
+	 */
+	if (cfg.flags != mbus_config) {
+		unsigned int pxa_mbus_role = mbus_config & (V4L2_MBUS_MASTER |
+							    V4L2_MBUS_SLAVE);
+		if (pxa_mbus_role != (cfg.flags & (V4L2_MBUS_MASTER |
+						   V4L2_MBUS_SLAVE))) {
+			dev_err(pcdev_to_dev(pcdev),
+				"Unsupported mbus configuration: bus mastering\n");
+			return -EINVAL;
+		}
+
+		if (cfg.flags & V4L2_MBUS_DATA_ACTIVE_LOW) {
+			dev_err(pcdev_to_dev(pcdev),
+				"Unsupported mbus configuration: DATA_ACTIVE_LOW\n");
+			return -EINVAL;
+		}
+	}
+
+	pxa_camera_setup_cicr(pcdev, cfg.flags, pixfmt);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct pxa_mbus_pixelfmt pxa_camera_formats[] = {
@@ -1746,11 +1872,14 @@ static int pxa_camera_get_formats(struct v4l2_device *v4l2_dev,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/* This also checks support for the requested bits-per-sample */
 	ret = pxa_camera_try_bus_param(pcdev, fmt->bits_per_sample);
 	if (ret < 0)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	switch (code.code) {
 	case MEDIA_BUS_FMT_UYVY8_2X8:
 		formats++;
@@ -1762,7 +1891,11 @@ static int pxa_camera_get_formats(struct v4l2_device *v4l2_dev,
 				"Providing format %s using code %d\n",
 				pxa_camera_formats[0].name, code.code);
 		}
+<<<<<<< HEAD
 	/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MEDIA_BUS_FMT_VYUY8_2X8:
 	case MEDIA_BUS_FMT_YUYV8_2X8:
 	case MEDIA_BUS_FMT_YVYU8_2X8:
@@ -1888,6 +2021,12 @@ static int pxac_vidioc_try_fmt_vid_cap(struct file *filp, void *priv,
 	const struct pxa_camera_format_xlate *xlate;
 	struct v4l2_pix_format *pix = &f->fmt.pix;
 	struct v4l2_subdev_pad_config pad_cfg;
+<<<<<<< HEAD
+=======
+	struct v4l2_subdev_state pad_state = {
+		.pads = &pad_cfg
+		};
+>>>>>>> upstream/android-13
 	struct v4l2_subdev_format format = {
 		.which = V4L2_SUBDEV_FORMAT_TRY,
 	};
@@ -1912,7 +2051,11 @@ static int pxac_vidioc_try_fmt_vid_cap(struct file *filp, void *priv,
 			      pixfmt == V4L2_PIX_FMT_YUV422P ? 4 : 0);
 
 	v4l2_fill_mbus_format(mf, pix, xlate->code);
+<<<<<<< HEAD
 	ret = sensor_call(pcdev, pad, set_fmt, &pad_cfg, &format);
+=======
+	ret = sensor_call(pcdev, pad, set_fmt, &pad_state, &format);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -1997,12 +2140,18 @@ static int pxac_vidioc_s_fmt_vid_cap(struct file *filp, void *priv,
 static int pxac_vidioc_querycap(struct file *file, void *priv,
 				struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	strlcpy(cap->bus_info, "platform:pxa-camera", sizeof(cap->bus_info));
 	strlcpy(cap->driver, PXA_CAM_DRV_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, pxa_cam_driver_description, sizeof(cap->card));
 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->bus_info, "platform:pxa-camera", sizeof(cap->bus_info));
+	strscpy(cap->driver, PXA_CAM_DRV_NAME, sizeof(cap->driver));
+	strscpy(cap->card, pxa_cam_driver_description, sizeof(cap->card));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2013,7 +2162,11 @@ static int pxac_vidioc_enum_input(struct file *file, void *priv,
 		return -EINVAL;
 
 	i->type = V4L2_INPUT_TYPE_CAMERA;
+<<<<<<< HEAD
 	strlcpy(i->name, "Camera", sizeof(i->name));
+=======
+	strscpy(i->name, "Camera", sizeof(i->name));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2128,9 +2281,12 @@ static const struct v4l2_ioctl_ops pxa_camera_ioctl_ops = {
 	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
 };
 
+<<<<<<< HEAD
 static const struct v4l2_clk_ops pxa_camera_mclk_ops = {
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct video_device pxa_camera_videodev_template = {
 	.name = "pxa-camera",
 	.minor = -1,
@@ -2202,7 +2358,11 @@ static int pxa_camera_sensor_bound(struct v4l2_async_notifier *notifier,
 	if (err)
 		goto out_sensor_poweroff;
 
+<<<<<<< HEAD
 	err = video_register_device(&pcdev->vdev, VFL_TYPE_GRABBER, -1);
+=======
+	err = video_register_device(&pcdev->vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (err) {
 		v4l2_err(v4l2_dev, "register video device failed: %d\n", err);
 		pcdev->sensor = NULL;
@@ -2238,11 +2398,14 @@ static void pxa_camera_sensor_unbind(struct v4l2_async_notifier *notifier,
 
 	pxa_camera_destroy_formats(pcdev);
 
+<<<<<<< HEAD
 	if (pcdev->mclk_clk) {
 		v4l2_clk_unregister(pcdev->mclk_clk);
 		pcdev->mclk_clk = NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	video_unregister_device(&pcdev->vdev);
 	pcdev->sensor = NULL;
 
@@ -2297,12 +2460,21 @@ static int pxa_camera_resume(struct device *dev)
 }
 
 static int pxa_camera_pdata_from_dt(struct device *dev,
+<<<<<<< HEAD
 				    struct pxa_camera_dev *pcdev,
 				    struct v4l2_async_subdev *asd)
 {
 	u32 mclk_rate;
 	struct device_node *remote, *np = dev->of_node;
 	struct v4l2_fwnode_endpoint ep;
+=======
+				    struct pxa_camera_dev *pcdev)
+{
+	u32 mclk_rate;
+	struct v4l2_async_subdev *asd;
+	struct device_node *np = dev->of_node;
+	struct v4l2_fwnode_endpoint ep = { .bus_type = 0 };
+>>>>>>> upstream/android-13
 	int err = of_property_read_u32(np, "clock-frequency",
 				       &mclk_rate);
 	if (!err) {
@@ -2353,6 +2525,7 @@ static int pxa_camera_pdata_from_dt(struct device *dev,
 	if (ep.bus.parallel.flags & V4L2_MBUS_PCLK_SAMPLE_FALLING)
 		pcdev->platform_flags |= PXA_CAMERA_PCLK_EN;
 
+<<<<<<< HEAD
 	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
 	remote = of_graph_get_remote_port(np);
 	if (remote) {
@@ -2362,6 +2535,14 @@ static int pxa_camera_pdata_from_dt(struct device *dev,
 		dev_notice(dev, "no remote for %pOF\n", np);
 	}
 
+=======
+	asd = v4l2_async_notifier_add_fwnode_remote_subdev(
+				&pcdev->notifier,
+				of_fwnode_handle(np),
+				struct v4l2_async_subdev);
+	if (IS_ERR(asd))
+		err = PTR_ERR(asd);
+>>>>>>> upstream/android-13
 out:
 	of_node_put(np);
 
@@ -2378,7 +2559,10 @@ static int pxa_camera_probe(struct platform_device *pdev)
 		.src_maxburst = 8,
 		.direction = DMA_DEV_TO_MEM,
 	};
+<<<<<<< HEAD
 	char clk_name[V4L2_CLK_NAME_SIZE];
+=======
+>>>>>>> upstream/android-13
 	int irq;
 	int err = 0, i;
 
@@ -2397,6 +2581,7 @@ static int pxa_camera_probe(struct platform_device *pdev)
 	if (IS_ERR(pcdev->clk))
 		return PTR_ERR(pcdev->clk);
 
+<<<<<<< HEAD
 	pcdev->res = res;
 
 	pcdev->pdata = pdev->dev.platform_data;
@@ -2409,6 +2594,27 @@ static int pxa_camera_probe(struct platform_device *pdev)
 		pcdev->asd.match.i2c.adapter_id =
 			pcdev->pdata->sensor_i2c_adapter_id;
 		pcdev->asd.match.i2c.address = pcdev->pdata->sensor_i2c_address;
+=======
+	v4l2_async_notifier_init(&pcdev->notifier);
+	pcdev->res = res;
+	pcdev->pdata = pdev->dev.platform_data;
+	if (pcdev->pdata) {
+		struct v4l2_async_subdev *asd;
+
+		pcdev->platform_flags = pcdev->pdata->flags;
+		pcdev->mclk = pcdev->pdata->mclk_10khz * 10000;
+		asd = v4l2_async_notifier_add_i2c_subdev(
+				&pcdev->notifier,
+				pcdev->pdata->sensor_i2c_adapter_id,
+				pcdev->pdata->sensor_i2c_address,
+				struct v4l2_async_subdev);
+		if (IS_ERR(asd))
+			err = PTR_ERR(asd);
+	} else if (pdev->dev.of_node) {
+		err = pxa_camera_pdata_from_dt(&pdev->dev, pcdev);
+	} else {
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 	if (err < 0)
 		return err;
@@ -2451,6 +2657,7 @@ static int pxa_camera_probe(struct platform_device *pdev)
 	pcdev->base = base;
 
 	/* request dma */
+<<<<<<< HEAD
 	pcdev->dma_chans[0] = dma_request_slave_channel(&pdev->dev, "CI_Y");
 	if (!pcdev->dma_chans[0]) {
 		dev_err(&pdev->dev, "Can't request DMA for Y\n");
@@ -2468,6 +2675,25 @@ static int pxa_camera_probe(struct platform_device *pdev)
 	if (!pcdev->dma_chans[2]) {
 		dev_err(&pdev->dev, "Can't request DMA for V\n");
 		err = -ENODEV;
+=======
+	pcdev->dma_chans[0] = dma_request_chan(&pdev->dev, "CI_Y");
+	if (IS_ERR(pcdev->dma_chans[0])) {
+		dev_err(&pdev->dev, "Can't request DMA for Y\n");
+		return PTR_ERR(pcdev->dma_chans[0]);
+	}
+
+	pcdev->dma_chans[1] = dma_request_chan(&pdev->dev, "CI_U");
+	if (IS_ERR(pcdev->dma_chans[1])) {
+		dev_err(&pdev->dev, "Can't request DMA for U\n");
+		err = PTR_ERR(pcdev->dma_chans[1]);
+		goto exit_free_dma_y;
+	}
+
+	pcdev->dma_chans[2] = dma_request_chan(&pdev->dev, "CI_V");
+	if (IS_ERR(pcdev->dma_chans[2])) {
+		dev_err(&pdev->dev, "Can't request DMA for V\n");
+		err = PTR_ERR(pcdev->dma_chans[2]);
+>>>>>>> upstream/android-13
 		goto exit_free_dma_u;
 	}
 
@@ -2489,15 +2715,24 @@ static int pxa_camera_probe(struct platform_device *pdev)
 		goto exit_free_dma;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&pcdev->task_eof, pxa_camera_eof, (unsigned long)pcdev);
 
 	pxa_camera_activate(pcdev);
 
 	dev_set_drvdata(&pdev->dev, pcdev);
+=======
+	tasklet_setup(&pcdev->task_eof, pxa_camera_eof);
+
+	pxa_camera_activate(pcdev);
+
+	platform_set_drvdata(pdev, pcdev);
+>>>>>>> upstream/android-13
 	err = v4l2_device_register(&pdev->dev, &pcdev->v4l2_dev);
 	if (err)
 		goto exit_deactivate;
 
+<<<<<<< HEAD
 	pcdev->asds[0] = &pcdev->asd;
 	pcdev->notifier.subdevs = pcdev->asds;
 	pcdev->notifier.num_subdevs = 1;
@@ -2534,6 +2769,24 @@ exit_free_v4l2dev:
 	v4l2_device_unregister(&pcdev->v4l2_dev);
 exit_deactivate:
 	pxa_camera_deactivate(pcdev);
+=======
+	err = pxa_camera_init_videobuf2(pcdev);
+	if (err)
+		goto exit_notifier_cleanup;
+
+	pcdev->notifier.ops = &pxa_camera_sensor_ops;
+	err = v4l2_async_notifier_register(&pcdev->v4l2_dev, &pcdev->notifier);
+	if (err)
+		goto exit_notifier_cleanup;
+
+	return 0;
+exit_notifier_cleanup:
+	v4l2_async_notifier_cleanup(&pcdev->notifier);
+	v4l2_device_unregister(&pcdev->v4l2_dev);
+exit_deactivate:
+	pxa_camera_deactivate(pcdev);
+	tasklet_kill(&pcdev->task_eof);
+>>>>>>> upstream/android-13
 exit_free_dma:
 	dma_release_channel(pcdev->dma_chans[2]);
 exit_free_dma_u:
@@ -2545,19 +2798,30 @@ exit_free_dma_y:
 
 static int pxa_camera_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct pxa_camera_dev *pcdev = dev_get_drvdata(&pdev->dev);
 
 	pxa_camera_deactivate(pcdev);
+=======
+	struct pxa_camera_dev *pcdev = platform_get_drvdata(pdev);
+
+	pxa_camera_deactivate(pcdev);
+	tasklet_kill(&pcdev->task_eof);
+>>>>>>> upstream/android-13
 	dma_release_channel(pcdev->dma_chans[0]);
 	dma_release_channel(pcdev->dma_chans[1]);
 	dma_release_channel(pcdev->dma_chans[2]);
 
 	v4l2_async_notifier_unregister(&pcdev->notifier);
+<<<<<<< HEAD
 
 	if (pcdev->mclk_clk) {
 		v4l2_clk_unregister(pcdev->mclk_clk);
 		pcdev->mclk_clk = NULL;
 	}
+=======
+	v4l2_async_notifier_cleanup(&pcdev->notifier);
+>>>>>>> upstream/android-13
 
 	v4l2_device_unregister(&pcdev->v4l2_dev);
 
@@ -2589,7 +2853,11 @@ static struct platform_driver pxa_camera_driver = {
 
 module_platform_driver(pxa_camera_driver);
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("PXA27x SoC Camera Host driver");
+=======
+MODULE_DESCRIPTION("PXA27x Camera Driver");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Guennadi Liakhovetski <kernel@pengutronix.de>");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(PXA_CAM_VERSION);

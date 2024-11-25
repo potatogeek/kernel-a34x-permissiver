@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Handles the M-Systems DiskOnChip G3 chip
  *
  * Copyright (C) 2011 Robert Jarzmik
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MTD_DOCG3_H
@@ -317,6 +324,7 @@ struct docg3 {
 #define doc_info(fmt, arg...) dev_info(docg3->dev, (fmt), ## arg)
 #define doc_dbg(fmt, arg...) dev_dbg(docg3->dev, (fmt), ## arg)
 #define doc_vdbg(fmt, arg...) dev_vdbg(docg3->dev, (fmt), ## arg)
+<<<<<<< HEAD
 
 #define DEBUGFS_RO_ATTR(name, show_fct) \
 	static int name##_open(struct inode *inode, struct file *file) \
@@ -328,6 +336,8 @@ struct docg3 {
 		.read = seq_read, \
 		.release = single_release \
 	};
+=======
+>>>>>>> upstream/android-13
 #endif
 
 /*

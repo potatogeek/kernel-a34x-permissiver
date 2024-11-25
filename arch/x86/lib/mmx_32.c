@@ -14,7 +14,11 @@
  *	tested so far for any MMX solution figured.
  *
  *	22/09/2000 - Arjan van de Ven
+<<<<<<< HEAD
  *		Improved for non-egineering-sample Athlons
+=======
+ *		Improved for non-engineering-sample Athlons
+>>>>>>> upstream/android-13
  *
  */
 #include <linux/hardirq.h>
@@ -26,6 +30,19 @@
 #include <asm/fpu/api.h>
 #include <asm/asm.h>
 
+<<<<<<< HEAD
+=======
+/*
+ * Use KFPU_387.  MMX instructions are not affected by MXCSR,
+ * but both AMD and Intel documentation states that even integer MMX
+ * operations will result in #MF if an exception is pending in FCW.
+ *
+ * EMMS is not needed afterwards because, after calling kernel_fpu_end(),
+ * any subsequent user of the 387 stack will reinitialize it using
+ * KFPU_387.
+ */
+
+>>>>>>> upstream/android-13
 void *_mmx_memcpy(void *to, const void *from, size_t len)
 {
 	void *p;
@@ -37,7 +54,11 @@ void *_mmx_memcpy(void *to, const void *from, size_t len)
 	p = to;
 	i = len >> 6; /* len/64 */
 
+<<<<<<< HEAD
 	kernel_fpu_begin();
+=======
+	kernel_fpu_begin_mask(KFPU_387);
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__ (
 		"1: prefetch (%0)\n"		/* This set is 28 bytes */
@@ -127,7 +148,11 @@ static void fast_clear_page(void *page)
 {
 	int i;
 
+<<<<<<< HEAD
 	kernel_fpu_begin();
+=======
+	kernel_fpu_begin_mask(KFPU_387);
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__ (
 		"  pxor %%mm0, %%mm0\n" : :
@@ -160,7 +185,11 @@ static void fast_copy_page(void *to, void *from)
 {
 	int i;
 
+<<<<<<< HEAD
 	kernel_fpu_begin();
+=======
+	kernel_fpu_begin_mask(KFPU_387);
+>>>>>>> upstream/android-13
 
 	/*
 	 * maybe the prefetch stuff can go before the expensive fnsave...
@@ -247,7 +276,11 @@ static void fast_clear_page(void *page)
 {
 	int i;
 
+<<<<<<< HEAD
 	kernel_fpu_begin();
+=======
+	kernel_fpu_begin_mask(KFPU_387);
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__ (
 		"  pxor %%mm0, %%mm0\n" : :
@@ -282,7 +315,11 @@ static void fast_copy_page(void *to, void *from)
 {
 	int i;
 
+<<<<<<< HEAD
 	kernel_fpu_begin();
+=======
+	kernel_fpu_begin_mask(KFPU_387);
+>>>>>>> upstream/android-13
 
 	__asm__ __volatile__ (
 		"1: prefetch (%0)\n"

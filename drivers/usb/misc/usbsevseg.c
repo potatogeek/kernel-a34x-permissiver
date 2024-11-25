@@ -74,6 +74,7 @@ static void update_display_powered(struct usb_sevsegdev *mydev)
 	if (mydev->shadow_power != 1)
 		return;
 
+<<<<<<< HEAD
 	rc = usb_control_msg(mydev->udev,
 			usb_sndctrlpipe(mydev->udev, 0),
 			0x12,
@@ -83,6 +84,12 @@ static void update_display_powered(struct usb_sevsegdev *mydev)
 			NULL,
 			0,
 			2000);
+=======
+	rc = usb_control_msg_send(mydev->udev, 0, 0x12, 0x48,
+				  (80 * 0x100) + 10, /*  (power mode) */
+				  (0x00 * 0x100) + (mydev->powered ? 1 : 0),
+				  NULL, 0, 2000, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (rc < 0)
 		dev_dbg(&mydev->udev->dev, "power retval = %d\n", rc);
 
@@ -99,6 +106,7 @@ static void update_display_mode(struct usb_sevsegdev *mydev)
 	if(mydev->shadow_power != 1)
 		return;
 
+<<<<<<< HEAD
 	rc = usb_control_msg(mydev->udev,
 			usb_sndctrlpipe(mydev->udev, 0),
 			0x12,
@@ -108,6 +116,12 @@ static void update_display_mode(struct usb_sevsegdev *mydev)
 			NULL,
 			0,
 			2000);
+=======
+	rc = usb_control_msg_send(mydev->udev, 0, 0x12, 0x48,
+				  (82 * 0x100) + 10, /* (set mode) */
+				  (mydev->mode_msb * 0x100) + mydev->mode_lsb,
+				  NULL, 0, 2000, GFP_NOIO);
+>>>>>>> upstream/android-13
 
 	if (rc < 0)
 		dev_dbg(&mydev->udev->dev, "mode retval = %d\n", rc);
@@ -117,20 +131,28 @@ static void update_display_visual(struct usb_sevsegdev *mydev, gfp_t mf)
 {
 	int rc;
 	int i;
+<<<<<<< HEAD
 	unsigned char *buffer;
+=======
+	unsigned char buffer[MAXLEN] = {0};
+>>>>>>> upstream/android-13
 	u8 decimals = 0;
 
 	if(mydev->shadow_power != 1)
 		return;
 
+<<<<<<< HEAD
 	buffer = kzalloc(MAXLEN, mf);
 	if (!buffer)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	/* The device is right to left, where as you write left to right */
 	for (i = 0; i < mydev->textlength; i++)
 		buffer[i] = mydev->text[mydev->textlength-1-i];
 
+<<<<<<< HEAD
 	rc = usb_control_msg(mydev->udev,
 			usb_sndctrlpipe(mydev->udev, 0),
 			0x12,
@@ -140,16 +162,26 @@ static void update_display_visual(struct usb_sevsegdev *mydev, gfp_t mf)
 			buffer,
 			mydev->textlength,
 			2000);
+=======
+	rc = usb_control_msg_send(mydev->udev, 0, 0x12, 0x48,
+				  (85 * 0x100) + 10, /* (write text) */
+				  (0 * 0x100) + mydev->textmode, /* mode  */
+				  &buffer, mydev->textlength, 2000, mf);
+>>>>>>> upstream/android-13
 
 	if (rc < 0)
 		dev_dbg(&mydev->udev->dev, "write retval = %d\n", rc);
 
+<<<<<<< HEAD
 	kfree(buffer);
 
+=======
+>>>>>>> upstream/android-13
 	/* The device is right to left, where as you write left to right */
 	for (i = 0; i < sizeof(mydev->decimals); i++)
 		decimals |= mydev->decimals[i] << i;
 
+<<<<<<< HEAD
 	rc = usb_control_msg(mydev->udev,
 			usb_sndctrlpipe(mydev->udev, 0),
 			0x12,
@@ -159,6 +191,12 @@ static void update_display_visual(struct usb_sevsegdev *mydev, gfp_t mf)
 			NULL,
 			0,
 			2000);
+=======
+	rc = usb_control_msg_send(mydev->udev, 0, 0x12, 0x48,
+				  (86 * 0x100) + 10, /* (set decimal) */
+				  (0 * 0x100) + decimals, /* decimals */
+				  NULL, 0, 2000, mf);
+>>>>>>> upstream/android-13
 
 	if (rc < 0)
 		dev_dbg(&mydev->udev->dev, "decimal retval = %d\n", rc);
@@ -316,7 +354,11 @@ MYDEV_ATTR_SIMPLE_UNSIGNED(powered, update_display_powered);
 MYDEV_ATTR_SIMPLE_UNSIGNED(mode_msb, update_display_mode);
 MYDEV_ATTR_SIMPLE_UNSIGNED(mode_lsb, update_display_mode);
 
+<<<<<<< HEAD
 static struct attribute *dev_attrs[] = {
+=======
+static struct attribute *sevseg_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_powered.attr,
 	&dev_attr_text.attr,
 	&dev_attr_textmode.attr,
@@ -325,10 +367,14 @@ static struct attribute *dev_attrs[] = {
 	&dev_attr_mode_lsb.attr,
 	NULL
 };
+<<<<<<< HEAD
 
 static const struct attribute_group dev_attr_grp = {
 	.attrs = dev_attrs,
 };
+=======
+ATTRIBUTE_GROUPS(sevseg);
+>>>>>>> upstream/android-13
 
 static int sevseg_probe(struct usb_interface *interface,
 	const struct usb_device_id *id)
@@ -354,6 +400,7 @@ static int sevseg_probe(struct usb_interface *interface,
 	mydev->mode_msb = 0x06; /* 6 characters */
 	mydev->mode_lsb = 0x3f; /* scanmode for 6 chars */
 
+<<<<<<< HEAD
 	rc = sysfs_create_group(&interface->dev.kobj, &dev_attr_grp);
 	if (rc)
 		goto error;
@@ -365,6 +412,11 @@ error:
 	usb_set_intfdata(interface, NULL);
 	usb_put_dev(mydev->udev);
 	kfree(mydev);
+=======
+	dev_info(&interface->dev, "USB 7 Segment device now attached\n");
+	return 0;
+
+>>>>>>> upstream/android-13
 error_mem:
 	return rc;
 }
@@ -374,7 +426,10 @@ static void sevseg_disconnect(struct usb_interface *interface)
 	struct usb_sevsegdev *mydev;
 
 	mydev = usb_get_intfdata(interface);
+<<<<<<< HEAD
 	sysfs_remove_group(&interface->dev.kobj, &dev_attr_grp);
+=======
+>>>>>>> upstream/android-13
 	usb_set_intfdata(interface, NULL);
 	usb_put_dev(mydev->udev);
 	kfree(mydev);
@@ -423,6 +478,10 @@ static struct usb_driver sevseg_driver = {
 	.resume =	sevseg_resume,
 	.reset_resume =	sevseg_reset_resume,
 	.id_table =	id_table,
+<<<<<<< HEAD
+=======
+	.dev_groups =	sevseg_groups,
+>>>>>>> upstream/android-13
 	.supports_autosuspend = 1,
 };
 

@@ -1,7 +1,12 @@
 /*
+<<<<<<< HEAD
  * lib/circ_buf_packet.h
  *
  * Copyright (C) 2012-2017, Samsung Electronics Co., Ltd.
+=======
+ *
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * Circular buffer packet operations.
  */

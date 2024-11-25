@@ -49,7 +49,11 @@
 /*
  * The nr of bytes of cached data to keep around.
  */
+<<<<<<< HEAD
 #define DM_BUFIO_DEFAULT_RETAIN_BYTES   (1024 * 1024)
+=======
+#define DM_BUFIO_DEFAULT_RETAIN_BYTES   (256 * 1024)
+>>>>>>> upstream/android-13
 
 /*
  * Align buffer writes to this boundary.
@@ -66,7 +70,11 @@
 
 /*
  * Linking of buffers:
+<<<<<<< HEAD
  *	All buffers are linked to cache_hash with their hash_list field.
+=======
+ *	All buffers are linked to buffer_tree with their node field.
+>>>>>>> upstream/android-13
  *
  *	Clean buffers that are not being written (B_WRITING not set)
  *	are linked to lru[LIST_CLEAN] with their lru_list field.
@@ -108,7 +116,14 @@ struct dm_bufio_client {
 	int async_write_error;
 
 	struct list_head client_list;
+<<<<<<< HEAD
 	struct shrinker shrinker;
+=======
+
+	struct shrinker shrinker;
+	struct work_struct shrink_work;
+	atomic_long_t need_shrink;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -153,7 +168,11 @@ struct dm_buffer {
 	void (*end_io)(struct dm_buffer *, blk_status_t);
 #ifdef CONFIG_DM_DEBUG_BLOCK_STACK_TRACING
 #define MAX_STACK 10
+<<<<<<< HEAD
 	struct stack_trace stack_trace;
+=======
+	unsigned int stack_len;
+>>>>>>> upstream/android-13
 	unsigned long stack_entries[MAX_STACK];
 #endif
 };
@@ -238,11 +257,15 @@ static struct work_struct dm_bufio_replacement_work;
 #ifdef CONFIG_DM_DEBUG_BLOCK_STACK_TRACING
 static void buffer_record_stack(struct dm_buffer *b)
 {
+<<<<<<< HEAD
 	b->stack_trace.nr_entries = 0;
 	b->stack_trace.max_entries = MAX_STACK;
 	b->stack_trace.entries = b->stack_entries;
 	b->stack_trace.skip = 2;
 	save_stack_trace(&b->stack_trace);
+=======
+	b->stack_len = stack_trace_save(b->stack_entries, MAX_STACK, 2);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -260,12 +283,42 @@ static struct dm_buffer *__find(struct dm_bufio_client *c, sector_t block)
 		if (b->block == block)
 			return b;
 
+<<<<<<< HEAD
 		n = (b->block < block) ? n->rb_left : n->rb_right;
+=======
+		n = block < b->block ? n->rb_left : n->rb_right;
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static struct dm_buffer *__find_next(struct dm_bufio_client *c, sector_t block)
+{
+	struct rb_node *n = c->buffer_tree.rb_node;
+	struct dm_buffer *b;
+	struct dm_buffer *best = NULL;
+
+	while (n) {
+		b = container_of(n, struct dm_buffer, node);
+
+		if (b->block == block)
+			return b;
+
+		if (block <= b->block) {
+			n = n->rb_left;
+			best = b;
+		} else {
+			n = n->rb_right;
+		}
+	}
+
+	return best;
+}
+
+>>>>>>> upstream/android-13
 static void __insert(struct dm_bufio_client *c, struct dm_buffer *b)
 {
 	struct rb_node **new = &c->buffer_tree.rb_node, *parent = NULL;
@@ -280,8 +333,13 @@ static void __insert(struct dm_bufio_client *c, struct dm_buffer *b)
 		}
 
 		parent = *new;
+<<<<<<< HEAD
 		new = (found->block < b->block) ?
 			&((*new)->rb_left) : &((*new)->rb_right);
+=======
+		new = b->block < found->block ?
+			&found->node.rb_left : &found->node.rb_right;
+>>>>>>> upstream/android-13
 	}
 
 	rb_link_node(&b->node, parent, new);
@@ -404,13 +462,21 @@ static void *alloc_buffer_data(struct dm_bufio_client *c, gfp_t gfp_mask,
 	 */
 	if (gfp_mask & __GFP_NORETRY) {
 		unsigned noio_flag = memalloc_noio_save();
+<<<<<<< HEAD
 		void *ptr = __vmalloc(c->block_size, gfp_mask, PAGE_KERNEL);
+=======
+		void *ptr = __vmalloc(c->block_size, gfp_mask);
+>>>>>>> upstream/android-13
 
 		memalloc_noio_restore(noio_flag);
 		return ptr;
 	}
 
+<<<<<<< HEAD
 	return __vmalloc(c->block_size, gfp_mask, PAGE_KERNEL);
+=======
+	return __vmalloc(c->block_size, gfp_mask);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -459,7 +525,11 @@ static struct dm_buffer *alloc_buffer(struct dm_bufio_client *c, gfp_t gfp_mask)
 	}
 
 #ifdef CONFIG_DM_DEBUG_BLOCK_STACK_TRACING
+<<<<<<< HEAD
 	memset(&b->stack_trace, 0, sizeof(b->stack_trace));
+=======
+	b->stack_len = 0;
+>>>>>>> upstream/android-13
 #endif
 	return b;
 }
@@ -476,7 +546,11 @@ static void free_buffer(struct dm_buffer *b)
 }
 
 /*
+<<<<<<< HEAD
  * Link buffer to the hash list and clean or dirty queue.
+=======
+ * Link buffer to the buffer tree and clean or dirty queue.
+>>>>>>> upstream/android-13
  */
 static void __link_buffer(struct dm_buffer *b, sector_t block, int dirty)
 {
@@ -493,7 +567,11 @@ static void __link_buffer(struct dm_buffer *b, sector_t block, int dirty)
 }
 
 /*
+<<<<<<< HEAD
  * Unlink buffer from the hash list and dirty or clean queue.
+=======
+ * Unlink buffer from the buffer tree and dirty or clean queue.
+>>>>>>> upstream/android-13
  */
 static void __unlink_buffer(struct dm_buffer *b)
 {
@@ -635,6 +713,22 @@ dmio:
 	submit_bio(bio);
 }
 
+<<<<<<< HEAD
+=======
+static inline sector_t block_to_sector(struct dm_bufio_client *c, sector_t block)
+{
+	sector_t sector;
+
+	if (likely(c->sectors_per_block_bits >= 0))
+		sector = block << c->sectors_per_block_bits;
+	else
+		sector = block * (c->block_size >> SECTOR_SHIFT);
+	sector += c->start;
+
+	return sector;
+}
+
+>>>>>>> upstream/android-13
 static void submit_io(struct dm_buffer *b, int rw, void (*end_io)(struct dm_buffer *, blk_status_t))
 {
 	unsigned n_sectors;
@@ -643,11 +737,15 @@ static void submit_io(struct dm_buffer *b, int rw, void (*end_io)(struct dm_buff
 
 	b->end_io = end_io;
 
+<<<<<<< HEAD
 	if (likely(b->c->sectors_per_block_bits >= 0))
 		sector = b->block << b->c->sectors_per_block_bits;
 	else
 		sector = b->block * (b->c->block_size >> SECTOR_SHIFT);
 	sector += b->c->start;
+=======
+	sector = block_to_sector(b->c, b->block);
+>>>>>>> upstream/android-13
 
 	if (rw != REQ_OP_WRITE) {
 		n_sectors = b->c->block_size >> SECTOR_SHIFT;
@@ -972,7 +1070,11 @@ static struct dm_buffer *__bufio_new(struct dm_bufio_client *c, sector_t block,
 
 	/*
 	 * We've had a period where the mutex was unlocked, so need to
+<<<<<<< HEAD
 	 * recheck the hash table.
+=======
+	 * recheck the buffer tree.
+>>>>>>> upstream/android-13
 	 */
 	b = __find(c, block);
 	if (b) {
@@ -1306,7 +1408,11 @@ again:
 EXPORT_SYMBOL_GPL(dm_bufio_write_dirty_buffers);
 
 /*
+<<<<<<< HEAD
  * Use dm-io to send and empty barrier flush the device.
+=======
+ * Use dm-io to send an empty barrier to flush the device.
+>>>>>>> upstream/android-13
  */
 int dm_bufio_issue_flush(struct dm_bufio_client *c)
 {
@@ -1330,12 +1436,43 @@ int dm_bufio_issue_flush(struct dm_bufio_client *c)
 EXPORT_SYMBOL_GPL(dm_bufio_issue_flush);
 
 /*
+<<<<<<< HEAD
+=======
+ * Use dm-io to send a discard request to flush the device.
+ */
+int dm_bufio_issue_discard(struct dm_bufio_client *c, sector_t block, sector_t count)
+{
+	struct dm_io_request io_req = {
+		.bi_op = REQ_OP_DISCARD,
+		.bi_op_flags = REQ_SYNC,
+		.mem.type = DM_IO_KMEM,
+		.mem.ptr.addr = NULL,
+		.client = c->dm_io,
+	};
+	struct dm_io_region io_reg = {
+		.bdev = c->bdev,
+		.sector = block_to_sector(c, block),
+		.count = block_to_sector(c, count),
+	};
+
+	BUG_ON(dm_bufio_in_request());
+
+	return dm_io(&io_req, 1, &io_reg, NULL);
+}
+EXPORT_SYMBOL_GPL(dm_bufio_issue_discard);
+
+/*
+>>>>>>> upstream/android-13
  * We first delete any other buffer that may be at that new location.
  *
  * Then, we write the buffer to the original location if it was dirty.
  *
  * Then, if we are the only one who is holding the buffer, relink the buffer
+<<<<<<< HEAD
  * in the hash queue for the new location.
+=======
+ * in the buffer tree for the new location.
+>>>>>>> upstream/android-13
  *
  * If there was someone else holding the buffer, we write it to the new
  * location but not relink it, because that other user needs to have the buffer
@@ -1405,6 +1542,17 @@ retry:
 }
 EXPORT_SYMBOL_GPL(dm_bufio_release_move);
 
+<<<<<<< HEAD
+=======
+static void forget_buffer_locked(struct dm_buffer *b)
+{
+	if (likely(!b->hold_count) && likely(!b->state)) {
+		__unlink_buffer(b);
+		__free_buffer_wake(b);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * Free the given buffer.
  *
@@ -1418,15 +1566,46 @@ void dm_bufio_forget(struct dm_bufio_client *c, sector_t block)
 	dm_bufio_lock(c);
 
 	b = __find(c, block);
+<<<<<<< HEAD
 	if (b && likely(!b->hold_count) && likely(!b->state)) {
 		__unlink_buffer(b);
 		__free_buffer_wake(b);
 	}
+=======
+	if (b)
+		forget_buffer_locked(b);
+>>>>>>> upstream/android-13
 
 	dm_bufio_unlock(c);
 }
 EXPORT_SYMBOL_GPL(dm_bufio_forget);
 
+<<<<<<< HEAD
+=======
+void dm_bufio_forget_buffers(struct dm_bufio_client *c, sector_t block, sector_t n_blocks)
+{
+	struct dm_buffer *b;
+	sector_t end_block = block + n_blocks;
+
+	while (block < end_block) {
+		dm_bufio_lock(c);
+
+		b = __find_next(c, block);
+		if (b) {
+			block = b->block + 1;
+			forget_buffer_locked(b);
+		}
+
+		dm_bufio_unlock(c);
+
+		if (!b)
+			break;
+	}
+
+}
+EXPORT_SYMBOL_GPL(dm_bufio_forget_buffers);
+
+>>>>>>> upstream/android-13
 void dm_bufio_set_minimum_buffers(struct dm_bufio_client *c, unsigned n)
 {
 	c->minimum_buffers = n;
@@ -1509,8 +1688,14 @@ static void drop_buffers(struct dm_bufio_client *c)
 			DMERR("leaked buffer %llx, hold count %u, list %d",
 			      (unsigned long long)b->block, b->hold_count, i);
 #ifdef CONFIG_DM_DEBUG_BLOCK_STACK_TRACING
+<<<<<<< HEAD
 			print_stack_trace(&b->stack_trace, 1);
 			b->hold_count = 0; /* mark unclaimed to avoid BUG_ON below */
+=======
+			stack_trace_print(b->stack_entries, b->stack_len, 1);
+			/* mark unclaimed to avoid BUG_ON below */
+			b->hold_count = 0;
+>>>>>>> upstream/android-13
 #endif
 		}
 
@@ -1562,8 +1747,12 @@ static unsigned long get_retain_buffers(struct dm_bufio_client *c)
 	return retain_bytes;
 }
 
+<<<<<<< HEAD
 static unsigned long __scan(struct dm_bufio_client *c, unsigned long nr_to_scan,
 			    gfp_t gfp_mask)
+=======
+static void __scan(struct dm_bufio_client *c)
+>>>>>>> upstream/android-13
 {
 	int l;
 	struct dm_buffer *b, *tmp;
@@ -1574,6 +1763,7 @@ static unsigned long __scan(struct dm_bufio_client *c, unsigned long nr_to_scan,
 
 	for (l = 0; l < LIST_SIZE; l++) {
 		list_for_each_entry_safe_reverse(b, tmp, &c->lru[l], lru_list) {
+<<<<<<< HEAD
 			if (__try_evict_buffer(b, gfp_mask))
 				freed++;
 			if (!--nr_to_scan || ((count - freed) <= retain_target))
@@ -1603,13 +1793,65 @@ dm_bufio_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
 
 static unsigned long
 dm_bufio_shrink_count(struct shrinker *shrink, struct shrink_control *sc)
+=======
+			if (count - freed <= retain_target)
+				atomic_long_set(&c->need_shrink, 0);
+			if (!atomic_long_read(&c->need_shrink))
+				return;
+			if (__try_evict_buffer(b, GFP_KERNEL)) {
+				atomic_long_dec(&c->need_shrink);
+				freed++;
+			}
+			cond_resched();
+		}
+	}
+}
+
+static void shrink_work(struct work_struct *w)
+{
+	struct dm_bufio_client *c = container_of(w, struct dm_bufio_client, shrink_work);
+
+	dm_bufio_lock(c);
+	__scan(c);
+	dm_bufio_unlock(c);
+}
+
+static unsigned long dm_bufio_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
+{
+	struct dm_bufio_client *c;
+
+	c = container_of(shrink, struct dm_bufio_client, shrinker);
+	atomic_long_add(sc->nr_to_scan, &c->need_shrink);
+	queue_work(dm_bufio_wq, &c->shrink_work);
+
+	return sc->nr_to_scan;
+}
+
+static unsigned long dm_bufio_shrink_count(struct shrinker *shrink, struct shrink_control *sc)
+>>>>>>> upstream/android-13
 {
 	struct dm_bufio_client *c = container_of(shrink, struct dm_bufio_client, shrinker);
 	unsigned long count = READ_ONCE(c->n_buffers[LIST_CLEAN]) +
 			      READ_ONCE(c->n_buffers[LIST_DIRTY]);
 	unsigned long retain_target = get_retain_buffers(c);
+<<<<<<< HEAD
 
 	return (count < retain_target) ? 0 : (count - retain_target);
+=======
+	unsigned long queued_for_cleanup = atomic_long_read(&c->need_shrink);
+
+	if (unlikely(count < retain_target))
+		count = 0;
+	else
+		count -= retain_target;
+
+	if (unlikely(count < queued_for_cleanup))
+		count = 0;
+	else
+		count -= queued_for_cleanup;
+
+	return count;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1700,6 +1942,12 @@ struct dm_bufio_client *dm_bufio_client_create(struct block_device *bdev, unsign
 		__free_buffer_wake(b);
 	}
 
+<<<<<<< HEAD
+=======
+	INIT_WORK(&c->shrink_work, shrink_work);
+	atomic_long_set(&c->need_shrink, 0);
+
+>>>>>>> upstream/android-13
 	c->shrinker.count_objects = dm_bufio_shrink_count;
 	c->shrinker.scan_objects = dm_bufio_shrink_scan;
 	c->shrinker.seeks = 1;
@@ -1745,6 +1993,10 @@ void dm_bufio_client_destroy(struct dm_bufio_client *c)
 	drop_buffers(c);
 
 	unregister_shrinker(&c->shrinker);
+<<<<<<< HEAD
+=======
+	flush_work(&c->shrink_work);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dm_bufio_clients_lock);
 
@@ -1941,7 +2193,11 @@ static int __init dm_bufio_init(void)
 	dm_bufio_allocated_vmalloc = 0;
 	dm_bufio_current_allocated = 0;
 
+<<<<<<< HEAD
 	mem = (__u64)mult_frac(totalram_pages - totalhigh_pages,
+=======
+	mem = (__u64)mult_frac(totalram_pages() - totalhigh_pages(),
+>>>>>>> upstream/android-13
 			       DM_BUFIO_MEMORY_PERCENT, 100) << PAGE_SHIFT;
 
 	if (mem > ULONG_MAX)

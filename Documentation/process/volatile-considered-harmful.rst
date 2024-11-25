@@ -109,9 +109,15 @@ been properly thought through.
 References
 ==========
 
+<<<<<<< HEAD
 [1] http://lwn.net/Articles/233481/
 
 [2] http://lwn.net/Articles/233482/
+=======
+[1] https://lwn.net/Articles/233481/
+
+[2] https://lwn.net/Articles/233482/
+>>>>>>> upstream/android-13
 
 Credits
 =======

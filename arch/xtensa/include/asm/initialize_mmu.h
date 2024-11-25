@@ -6,7 +6,11 @@
  *      For the new V3 MMU we remap the TLB from virtual == physical
  *      to the standard Linux mapping used in earlier MMU's.
  *
+<<<<<<< HEAD
  *      The the MMU we also support a new configuration register that
+=======
+ *      For the MMU we also support a new configuration register that
+>>>>>>> upstream/android-13
  *      specifies how the S32C1I instruction operates with the cache
  *      controller.
  *
@@ -23,7 +27,12 @@
 #ifndef _XTENSA_INITIALIZE_MMU_H
 #define _XTENSA_INITIALIZE_MMU_H
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/init.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/vectors.h>
 
 #if XCHAL_HAVE_PTP_MMU
@@ -33,10 +42,13 @@
 #define CA_WRITEBACK	(0x4)
 #endif
 
+<<<<<<< HEAD
 #ifndef XCHAL_SPANNING_WAY
 #define XCHAL_SPANNING_WAY 0
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef __ASSEMBLY__
 
 #define XTENSA_HWVERSION_RC_2009_0 230000
@@ -46,7 +58,11 @@
 #if XCHAL_HAVE_S32C1I && (XCHAL_HW_MIN_VERSION >= XTENSA_HWVERSION_RC_2009_0)
 /*
  * We Have Atomic Operation Control (ATOMCTL) Register; Initialize it.
+<<<<<<< HEAD
  * For details see Documentation/xtensa/atomctl.txt
+=======
+ * For details see Documentation/xtensa/atomctl.rst
+>>>>>>> upstream/android-13
  */
 #if XCHAL_DCACHE_IS_COHERENT
 	movi	a3, 0x25	/* For SMP/MX -- internal for writeback,
@@ -76,7 +92,11 @@
 	_j	2f
 
 	.align	4
+<<<<<<< HEAD
 1:	movi	a2, 0x10000000
+=======
+1:
+>>>>>>> upstream/android-13
 
 #if CONFIG_KERNEL_LOAD_ADDRESS < 0x40000000ul
 #define TEMP_MAPPING_VADDR 0x40000000
@@ -181,11 +201,49 @@
 
 	.macro	initialize_cacheattr
 
+<<<<<<< HEAD
 #if !defined(CONFIG_MMU) && XCHAL_HAVE_TLBS
+=======
+#if !defined(CONFIG_MMU) && (XCHAL_HAVE_TLBS || XCHAL_HAVE_MPU)
+>>>>>>> upstream/android-13
 #if CONFIG_MEMMAP_CACHEATTR == 0x22222222 && XCHAL_HAVE_PTP_MMU
 #error Default MEMMAP_CACHEATTR of 0x22222222 does not work with full MMU.
 #endif
 
+<<<<<<< HEAD
+=======
+#if XCHAL_HAVE_MPU
+	__REFCONST
+	.align	4
+.Lattribute_table:
+	.long 0x000000, 0x1fff00, 0x1ddf00, 0x1eef00
+	.long 0x006600, 0x000000, 0x000000, 0x000000
+	.long 0x000000, 0x000000, 0x000000, 0x000000
+	.long 0x000000, 0x000000, 0x000000, 0x000000
+	.previous
+
+	movi	a3, .Lattribute_table
+	movi	a4, CONFIG_MEMMAP_CACHEATTR
+	movi	a5, 1
+	movi	a6, XCHAL_MPU_ENTRIES
+	movi	a10, 0x20000000
+	movi	a11, -1
+1:
+	sub	a5, a5, a10
+	extui	a8, a4, 28, 4
+	beq	a8, a11, 2f
+	addi	a6, a6, -1
+	mov	a11, a8
+2:
+	addx4	a9, a8, a3
+	l32i	a9, a9, 0
+	or	a9, a9, a6
+	wptlb	a9, a5
+	slli	a4, a4, 4
+	bgeu	a5, a10, 1b
+
+#else
+>>>>>>> upstream/android-13
 	movi	a5, XCHAL_SPANNING_WAY
 	movi	a6, ~_PAGE_ATTRIB_MASK
 	movi	a4, CONFIG_MEMMAP_CACHEATTR
@@ -208,6 +266,10 @@
 
 	isync
 #endif
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 	.endm
 

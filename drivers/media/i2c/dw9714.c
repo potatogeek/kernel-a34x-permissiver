@@ -85,6 +85,7 @@ static const struct v4l2_ctrl_ops dw9714_vcm_ctrl_ops = {
 
 static int dw9714_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
+<<<<<<< HEAD
 	int rval;
 
 	rval = pm_runtime_get_sync(sd->dev);
@@ -94,6 +95,9 @@ static int dw9714_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	}
 
 	return 0;
+=======
+	return pm_runtime_resume_and_get(sd->dev);
+>>>>>>> upstream/android-13
 }
 
 static int dw9714_close(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
@@ -171,7 +175,11 @@ static int dw9714_probe(struct i2c_client *client)
 err_cleanup:
 	v4l2_ctrl_handler_free(&dw9714_dev->ctrls_vcm);
 	media_entity_cleanup(&dw9714_dev->sd.entity);
+<<<<<<< HEAD
 	dev_err(&client->dev, "Probe failed: %d\n", rval);
+=======
+
+>>>>>>> upstream/android-13
 	return rval;
 }
 
@@ -267,7 +275,11 @@ static struct i2c_driver dw9714_i2c_driver = {
 module_i2c_driver(dw9714_i2c_driver);
 
 MODULE_AUTHOR("Tianshu Qiu <tian.shu.qiu@intel.com>");
+<<<<<<< HEAD
 MODULE_AUTHOR("Jian Xu Zheng <jian.xu.zheng@intel.com>");
+=======
+MODULE_AUTHOR("Jian Xu Zheng");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Yuning Pu <yuning.pu@intel.com>");
 MODULE_AUTHOR("Jouni Ukkonen <jouni.ukkonen@intel.com>");
 MODULE_AUTHOR("Tommi Franttila <tommi.franttila@intel.com>");

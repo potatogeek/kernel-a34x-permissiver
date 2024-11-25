@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 #include "nv20.h"
 #include "regs.h"
 
@@ -131,7 +135,13 @@ nv34_gr = {
 };
 
 int
+<<<<<<< HEAD
 nv34_gr_new(struct nvkm_device *device, int index, struct nvkm_gr **pgr)
 {
 	return nv20_gr_new_(&nv34_gr, device, index, pgr);
+=======
+nv34_gr_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_gr **pgr)
+{
+	return nv20_gr_new_(&nv34_gr, device, type, inst, pgr);
+>>>>>>> upstream/android-13
 }

@@ -266,6 +266,10 @@ int esas2r_init_adapter(struct Scsi_Host *host, struct pci_dev *pcid,
 	int i;
 	void *next_uncached;
 	struct esas2r_request *first_request, *last_request;
+<<<<<<< HEAD
+=======
+	bool dma64 = false;
+>>>>>>> upstream/android-13
 
 	if (index >= MAX_ADAPTERS) {
 		esas2r_log(ESAS2R_LOG_CRIT,
@@ -286,6 +290,7 @@ int esas2r_init_adapter(struct Scsi_Host *host, struct pci_dev *pcid,
 	a->pcid = pcid;
 	a->host = host;
 
+<<<<<<< HEAD
 	if (sizeof(dma_addr_t) > 4) {
 		const uint64_t required_mask = dma_get_required_mask
 						       (&pcid->dev);
@@ -322,6 +327,22 @@ int esas2r_init_adapter(struct Scsi_Host *host, struct pci_dev *pcid,
 			return 0;
 		}
 	}
+=======
+	if (sizeof(dma_addr_t) > 4 &&
+	    dma_get_required_mask(&pcid->dev) > DMA_BIT_MASK(32) &&
+	    !dma_set_mask_and_coherent(&pcid->dev, DMA_BIT_MASK(64)))
+		dma64 = true;
+
+	if (!dma64 && dma_set_mask_and_coherent(&pcid->dev, DMA_BIT_MASK(32))) {
+		esas2r_log(ESAS2R_LOG_CRIT, "failed to set DMA mask");
+		esas2r_kill_adapter(index);
+		return 0;
+	}
+
+	esas2r_log_dev(ESAS2R_LOG_INFO, &pcid->dev,
+		       "%s-bit PCI addressing enabled\n", dma64 ? "64" : "32");
+
+>>>>>>> upstream/android-13
 	esas2r_adapters[index] = a;
 	sprintf(a->name, ESAS2R_DRVR_NAME "_%02d", index);
 	esas2r_debug("new adapter %p, name %s", a, a->name);
@@ -433,10 +454,18 @@ int esas2r_init_adapter(struct Scsi_Host *host, struct pci_dev *pcid,
 	esas2r_disable_chip_interrupts(a);
 	esas2r_check_adapter(a);
 
+<<<<<<< HEAD
 	if (!esas2r_init_adapter_hw(a, true))
 		esas2r_log(ESAS2R_LOG_CRIT, "failed to initialize hardware!");
 	else
 		esas2r_debug("esas2r_init_adapter ok");
+=======
+	if (!esas2r_init_adapter_hw(a, true)) {
+		esas2r_log(ESAS2R_LOG_CRIT, "failed to initialize hardware!");
+	} else {
+		esas2r_debug("esas2r_init_adapter ok");
+	}
+>>>>>>> upstream/android-13
 
 	esas2r_claim_interrupts(a);
 
@@ -661,6 +690,7 @@ void esas2r_kill_adapter(int i)
 	}
 }
 
+<<<<<<< HEAD
 int esas2r_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct Scsi_Host *host = pci_get_drvdata(pdev);
@@ -668,10 +698,19 @@ int esas2r_suspend(struct pci_dev *pdev, pm_message_t state)
 	struct esas2r_adapter *a = (struct esas2r_adapter *)host->hostdata;
 
 	esas2r_log_dev(ESAS2R_LOG_INFO, &(pdev->dev), "suspending adapter()");
+=======
+static int __maybe_unused esas2r_suspend(struct device *dev)
+{
+	struct Scsi_Host *host = dev_get_drvdata(dev);
+	struct esas2r_adapter *a = (struct esas2r_adapter *)host->hostdata;
+
+	esas2r_log_dev(ESAS2R_LOG_INFO, dev, "suspending adapter()");
+>>>>>>> upstream/android-13
 	if (!a)
 		return -ENODEV;
 
 	esas2r_adapter_power_down(a, 1);
+<<<<<<< HEAD
 	device_state = pci_choose_state(pdev, state);
 	esas2r_log_dev(ESAS2R_LOG_INFO, &(pdev->dev),
 		       "pci_save_state() called");
@@ -708,6 +747,19 @@ int esas2r_resume(struct pci_dev *pdev)
 		       "pci_enable_device() called");
 	rez = pci_enable_device(pdev);
 	pci_set_master(pdev);
+=======
+	esas2r_log_dev(ESAS2R_LOG_INFO, dev, "esas2r_suspend(): 0");
+	return 0;
+}
+
+static int __maybe_unused esas2r_resume(struct device *dev)
+{
+	struct Scsi_Host *host = dev_get_drvdata(dev);
+	struct esas2r_adapter *a = (struct esas2r_adapter *)host->hostdata;
+	int rez = 0;
+
+	esas2r_log_dev(ESAS2R_LOG_INFO, dev, "resuming adapter()");
+>>>>>>> upstream/android-13
 
 	if (!a) {
 		rez = -ENODEV;
@@ -751,11 +803,20 @@ int esas2r_resume(struct pci_dev *pdev)
 	}
 
 error_exit:
+<<<<<<< HEAD
 	esas2r_log_dev(ESAS2R_LOG_CRIT, &(pdev->dev), "esas2r_resume(): %d",
+=======
+	esas2r_log_dev(ESAS2R_LOG_CRIT, dev, "esas2r_resume(): %d",
+>>>>>>> upstream/android-13
 		       rez);
 	return rez;
 }
 
+<<<<<<< HEAD
+=======
+SIMPLE_DEV_PM_OPS(esas2r_pm_ops, esas2r_suspend, esas2r_resume);
+
+>>>>>>> upstream/android-13
 bool esas2r_set_degraded_mode(struct esas2r_adapter *a, char *error_str)
 {
 	set_bit(AF_DEGRADED_MODE, &a->flags);
@@ -783,6 +844,7 @@ u32 esas2r_get_uncached_size(struct esas2r_adapter *a)
 
 static void esas2r_init_pci_cfg_space(struct esas2r_adapter *a)
 {
+<<<<<<< HEAD
 	int pcie_cap_reg;
 
 	pcie_cap_reg = pci_find_capability(a->pcid, PCI_CAP_ID_EXP);
@@ -791,6 +853,12 @@ static void esas2r_init_pci_cfg_space(struct esas2r_adapter *a)
 
 		pci_read_config_word(a->pcid, pcie_cap_reg + PCI_EXP_DEVCTL,
 				     &devcontrol);
+=======
+	if (pci_is_pcie(a->pcid)) {
+		u16 devcontrol;
+
+		pcie_capability_read_word(a->pcid, PCI_EXP_DEVCTL, &devcontrol);
+>>>>>>> upstream/android-13
 
 		if ((devcontrol & PCI_EXP_DEVCTL_READRQ) >
 		     PCI_EXP_DEVCTL_READRQ_512B) {
@@ -799,9 +867,14 @@ static void esas2r_init_pci_cfg_space(struct esas2r_adapter *a)
 
 			devcontrol &= ~PCI_EXP_DEVCTL_READRQ;
 			devcontrol |= PCI_EXP_DEVCTL_READRQ_512B;
+<<<<<<< HEAD
 			pci_write_config_word(a->pcid,
 					      pcie_cap_reg + PCI_EXP_DEVCTL,
 					      devcontrol);
+=======
+			pcie_capability_write_word(a->pcid, PCI_EXP_DEVCTL,
+						   devcontrol);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -1262,6 +1335,10 @@ static bool esas2r_format_init_msg(struct esas2r_adapter *a,
 			a->init_msg = ESAS2R_INIT_MSG_GET_INIT;
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case ESAS2R_INIT_MSG_GET_INIT:
 		if (msg == ESAS2R_INIT_MSG_GET_INIT) {
@@ -1275,7 +1352,11 @@ static bool esas2r_format_init_msg(struct esas2r_adapter *a,
 				esas2r_hdebug("FAILED");
 			}
 		}
+<<<<<<< HEAD
 	/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		rq->req_stat = RS_SUCCESS;

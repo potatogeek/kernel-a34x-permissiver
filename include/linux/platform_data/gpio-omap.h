@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OMAP GPIO handling defines and functions
  *
  * Copyright (C) 2003-2005 Nokia Corporation
  *
  * Written by Juha Yrjölä <juha.yrjola@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +24,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ARCH_OMAP_GPIO_H
 #define __ASM_ARCH_OMAP_GPIO_H
 
+<<<<<<< HEAD
 #include <linux/io.h>
 #include <linux/platform_device.h>
+=======
+#ifndef __ASSEMBLER__
+#include <linux/io.h>
+#include <linux/platform_device.h>
+#endif
+>>>>>>> upstream/android-13
 
 #define OMAP1_MPUIO_BASE			0xfffb5000
 
@@ -97,6 +111,10 @@
  * omap2+ specific GPIO registers
  */
 #define OMAP24XX_GPIO_REVISION		0x0000
+<<<<<<< HEAD
+=======
+#define OMAP24XX_GPIO_SYSCONFIG		0x0010
+>>>>>>> upstream/android-13
 #define OMAP24XX_GPIO_IRQSTATUS1	0x0018
 #define OMAP24XX_GPIO_IRQSTATUS2	0x0028
 #define OMAP24XX_GPIO_IRQENABLE2	0x002c
@@ -120,6 +138,10 @@
 #define OMAP24XX_GPIO_SETDATAOUT	0x0094
 
 #define OMAP4_GPIO_REVISION		0x0000
+<<<<<<< HEAD
+=======
+#define OMAP4_GPIO_SYSCONFIG		0x0010
+>>>>>>> upstream/android-13
 #define OMAP4_GPIO_EOI			0x0020
 #define OMAP4_GPIO_IRQSTATUSRAW0	0x0024
 #define OMAP4_GPIO_IRQSTATUSRAW1	0x0028
@@ -157,8 +179,15 @@
 #define OMAP_MPUIO(nr)		(OMAP_MAX_GPIO_LINES + (nr))
 #define OMAP_GPIO_IS_MPUIO(nr)	((nr) >= OMAP_MAX_GPIO_LINES)
 
+<<<<<<< HEAD
 struct omap_gpio_reg_offs {
 	u16 revision;
+=======
+#ifndef __ASSEMBLER__
+struct omap_gpio_reg_offs {
+	u16 revision;
+	u16 sysconfig;
+>>>>>>> upstream/android-13
 	u16 direction;
 	u16 datain;
 	u16 dataout;
@@ -197,12 +226,17 @@ struct omap_gpio_platform_data {
 	bool is_mpuio;		/* whether the bank is of type MPUIO */
 	u32 non_wakeup_gpios;
 
+<<<<<<< HEAD
 	struct omap_gpio_reg_offs *regs;
+=======
+	const struct omap_gpio_reg_offs *regs;
+>>>>>>> upstream/android-13
 
 	/* Return context loss count due to PM states changing */
 	int (*get_context_loss_count)(struct device *dev);
 };
 
+<<<<<<< HEAD
 #if IS_BUILTIN(CONFIG_GPIO_OMAP)
 extern void omap2_gpio_prepare_for_idle(int off_mode);
 extern void omap2_gpio_resume_after_idle(void);
@@ -215,5 +249,8 @@ static inline void omap2_gpio_resume_after_idle(void)
 {
 }
 #endif
+=======
+#endif /* __ASSEMBLER__ */
+>>>>>>> upstream/android-13
 
 #endif

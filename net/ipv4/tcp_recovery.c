@@ -2,6 +2,7 @@
 #include <linux/tcp.h>
 #include <net/tcp.h>
 
+<<<<<<< HEAD
 void tcp_mark_skb_lost(struct sock *sk, struct sk_buff *skb)
 {
 	struct tcp_sock *tp = tcp_sk(sk);
@@ -16,6 +17,8 @@ void tcp_mark_skb_lost(struct sock *sk, struct sk_buff *skb)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool tcp_rack_sent_after(u64 t1, u64 t2, u32 seq1, u32 seq2)
 {
 	return t1 > t2 || (t1 == t2 && after(seq1, seq2));
@@ -50,7 +53,11 @@ static u32 tcp_rack_reo_wnd(const struct sock *sk)
 s32 tcp_rack_skb_timeout(struct tcp_sock *tp, struct sk_buff *skb, u32 reo_wnd)
 {
 	return tp->rack.rtt_us + reo_wnd -
+<<<<<<< HEAD
 	       tcp_stamp_us_delta(tp->tcp_mstamp, skb->skb_mstamp);
+=======
+	       tcp_stamp_us_delta(tp->tcp_mstamp, tcp_skb_timestamp_us(skb));
+>>>>>>> upstream/android-13
 }
 
 /* RACK loss detection (IETF draft draft-ietf-tcpm-rack-01):
@@ -91,7 +98,12 @@ static void tcp_rack_detect_loss(struct sock *sk, u32 *reo_timeout)
 		    !(scb->sacked & TCPCB_SACKED_RETRANS))
 			continue;
 
+<<<<<<< HEAD
 		if (!tcp_rack_sent_after(tp->rack.mstamp, skb->skb_mstamp,
+=======
+		if (!tcp_rack_sent_after(tp->rack.mstamp,
+					 tcp_skb_timestamp_us(skb),
+>>>>>>> upstream/android-13
 					 tp->rack.end_seq, scb->end_seq))
 			break;
 
@@ -167,6 +179,10 @@ void tcp_rack_reo_timeout(struct sock *sk)
 {
 	struct tcp_sock *tp = tcp_sk(sk);
 	u32 timeout, prior_inflight;
+<<<<<<< HEAD
+=======
+	u32 lost = tp->lost;
+>>>>>>> upstream/android-13
 
 	prior_inflight = tcp_packets_in_flight(tp);
 	tcp_rack_detect_loss(sk, &timeout);
@@ -174,7 +190,11 @@ void tcp_rack_reo_timeout(struct sock *sk)
 		if (inet_csk(sk)->icsk_ca_state != TCP_CA_Recovery) {
 			tcp_enter_recovery(sk, false);
 			if (!inet_csk(sk)->icsk_ca_ops->cong_control)
+<<<<<<< HEAD
 				tcp_cwnd_reduction(sk, 1, 0);
+=======
+				tcp_cwnd_reduction(sk, 1, tp->lost - lost, 0);
+>>>>>>> upstream/android-13
 		}
 		tcp_xmit_retransmit_queue(sk);
 	}
@@ -184,7 +204,12 @@ void tcp_rack_reo_timeout(struct sock *sk)
 
 /* Updates the RACK's reo_wnd based on DSACK and no. of recoveries.
  *
+<<<<<<< HEAD
  * If DSACK is received, increment reo_wnd by min_rtt/4 (upper bounded
+=======
+ * If a DSACK is received that seems like it may have been due to reordering
+ * triggering fast recovery, increment reo_wnd by min_rtt/4 (upper bounded
+>>>>>>> upstream/android-13
  * by srtt), since there is possibility that spurious retransmission was
  * due to reordering delay longer than reo_wnd.
  *
@@ -246,6 +271,10 @@ void tcp_newreno_mark_lost(struct sock *sk, bool snd_una_advanced)
 			tcp_fragment(sk, TCP_FRAG_IN_RTX_QUEUE, skb,
 				     mss, mss, GFP_ATOMIC);
 
+<<<<<<< HEAD
 		tcp_skb_mark_lost_uncond_verify(tp, skb);
+=======
+		tcp_mark_skb_lost(sk, skb);
+>>>>>>> upstream/android-13
 	}
 }

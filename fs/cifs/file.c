@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/file.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   vfs operations that deal with files
  *
@@ -7,6 +12,7 @@
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *              Jeremy Allison (jra@samba.org)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,6 +26,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/fs.h>
 #include <linux/backing-dev.h>
@@ -33,6 +41,10 @@
 #include <linux/mount.h>
 #include <linux/slab.h>
 #include <linux/swap.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <asm/div64.h>
 #include "cifsfs.h"
 #include "cifspdu.h"
@@ -43,6 +55,11 @@
 #include "cifs_fs_sb.h"
 #include "fscache.h"
 #include "smbdirect.h"
+<<<<<<< HEAD
+=======
+#include "fs_context.h"
+#include "cifs_ioctl.h"
+>>>>>>> upstream/android-13
 
 static inline int cifs_convert_flags(unsigned int flags)
 {
@@ -110,7 +127,11 @@ static inline int cifs_get_disposition(unsigned int flags)
 		return FILE_OPEN;
 }
 
+<<<<<<< HEAD
 int cifs_posix_open(char *full_path, struct inode **pinode,
+=======
+int cifs_posix_open(const char *full_path, struct inode **pinode,
+>>>>>>> upstream/android-13
 			struct super_block *sb, int mode, unsigned int f_flags,
 			__u32 *poplock, __u16 *pnetfid, unsigned int xid)
 {
@@ -164,7 +185,11 @@ int cifs_posix_open(char *full_path, struct inode **pinode,
 		}
 	} else {
 		cifs_revalidate_mapping(*pinode);
+<<<<<<< HEAD
 		cifs_fattr_to_inode(*pinode, &fattr);
+=======
+		rc = cifs_fattr_to_inode(*pinode, &fattr);
+>>>>>>> upstream/android-13
 	}
 
 posix_open_ret:
@@ -173,7 +198,11 @@ posix_open_ret:
 }
 
 static int
+<<<<<<< HEAD
 cifs_nt_open(char *full_path, struct inode *inode, struct cifs_sb_info *cifs_sb,
+=======
+cifs_nt_open(const char *full_path, struct inode *inode, struct cifs_sb_info *cifs_sb,
+>>>>>>> upstream/android-13
 	     struct cifs_tcon *tcon, unsigned int f_flags, __u32 *oplock,
 	     struct cifs_fid *fid, unsigned int xid)
 {
@@ -222,9 +251,12 @@ cifs_nt_open(char *full_path, struct inode *inode, struct cifs_sb_info *cifs_sb,
 	if (!buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (backup_cred(cifs_sb))
 		create_options |= CREATE_OPEN_BACKUP_INTENT;
 
+=======
+>>>>>>> upstream/android-13
 	/* O_SYNC also has bit for O_DSYNC so following check picks up either */
 	if (f_flags & O_SYNC)
 		create_options |= CREATE_WRITE_THROUGH;
@@ -235,7 +267,11 @@ cifs_nt_open(char *full_path, struct inode *inode, struct cifs_sb_info *cifs_sb,
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = desired_access;
+<<<<<<< HEAD
 	oparms.create_options = create_options;
+=======
+	oparms.create_options = cifs_create_options(cifs_sb, create_options);
+>>>>>>> upstream/android-13
 	oparms.disposition = disposition;
 	oparms.path = full_path;
 	oparms.fid = fid;
@@ -246,6 +282,10 @@ cifs_nt_open(char *full_path, struct inode *inode, struct cifs_sb_info *cifs_sb,
 	if (rc)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	/* TODO: Add support for calling posix query info but with passing in fid */
+>>>>>>> upstream/android-13
 	if (tcon->unix_ext)
 		rc = cifs_get_inode_info_unix(&inode, full_path, inode->i_sb,
 					      xid);
@@ -288,6 +328,11 @@ cifs_down_write(struct rw_semaphore *sem)
 		msleep(10);
 }
 
+<<<<<<< HEAD
+=======
+static void cifsFileInfo_put_work(struct work_struct *work);
+
+>>>>>>> upstream/android-13
 struct cifsFileInfo *
 cifs_new_fileinfo(struct cifs_fid *fid, struct file *file,
 		  struct tcon_link *tlink, __u32 oplock)
@@ -320,8 +365,16 @@ cifs_new_fileinfo(struct cifs_fid *fid, struct file *file,
 	cfile->dentry = dget(dentry);
 	cfile->f_flags = file->f_flags;
 	cfile->invalidHandle = false;
+<<<<<<< HEAD
 	cfile->tlink = cifs_get_tlink(tlink);
 	INIT_WORK(&cfile->oplock_break, cifs_oplock_break);
+=======
+	cfile->deferred_close_scheduled = false;
+	cfile->tlink = cifs_get_tlink(tlink);
+	INIT_WORK(&cfile->oplock_break, cifs_oplock_break);
+	INIT_WORK(&cfile->put, cifsFileInfo_put_work);
+	INIT_DELAYED_WORK(&cfile->deferred, smb2_deferred_work_close);
+>>>>>>> upstream/android-13
 	mutex_init(&cfile->fh_mutex);
 	spin_lock_init(&cfile->file_info_lock);
 
@@ -349,6 +402,10 @@ cifs_new_fileinfo(struct cifs_fid *fid, struct file *file,
 	server->ops->set_fid(cfile, fid, oplock);
 
 	list_add(&cfile->tlist, &tcon->openFileList);
+<<<<<<< HEAD
+=======
+	atomic_inc(&tcon->num_local_opens);
+>>>>>>> upstream/android-13
 
 	/* if readable file instance put first in list*/
 	spin_lock(&cinode->open_file_lock);
@@ -375,20 +432,70 @@ cifsFileInfo_get(struct cifsFileInfo *cifs_file)
 	return cifs_file;
 }
 
+<<<<<<< HEAD
+=======
+static void cifsFileInfo_put_final(struct cifsFileInfo *cifs_file)
+{
+	struct inode *inode = d_inode(cifs_file->dentry);
+	struct cifsInodeInfo *cifsi = CIFS_I(inode);
+	struct cifsLockInfo *li, *tmp;
+	struct super_block *sb = inode->i_sb;
+
+	cifs_fscache_release_inode_cookie(inode);
+
+	/*
+	 * Delete any outstanding lock records. We'll lose them when the file
+	 * is closed anyway.
+	 */
+	cifs_down_write(&cifsi->lock_sem);
+	list_for_each_entry_safe(li, tmp, &cifs_file->llist->locks, llist) {
+		list_del(&li->llist);
+		cifs_del_lock_waiters(li);
+		kfree(li);
+	}
+	list_del(&cifs_file->llist->llist);
+	kfree(cifs_file->llist);
+	up_write(&cifsi->lock_sem);
+
+	cifs_put_tlink(cifs_file->tlink);
+	dput(cifs_file->dentry);
+	cifs_sb_deactive(sb);
+	kfree(cifs_file);
+}
+
+static void cifsFileInfo_put_work(struct work_struct *work)
+{
+	struct cifsFileInfo *cifs_file = container_of(work,
+			struct cifsFileInfo, put);
+
+	cifsFileInfo_put_final(cifs_file);
+}
+
+>>>>>>> upstream/android-13
 /**
  * cifsFileInfo_put - release a reference of file priv data
  *
  * Always potentially wait for oplock handler. See _cifsFileInfo_put().
+<<<<<<< HEAD
  */
 void cifsFileInfo_put(struct cifsFileInfo *cifs_file)
 {
 	_cifsFileInfo_put(cifs_file, true);
+=======
+ *
+ * @cifs_file:	cifs/smb3 specific info (eg refcounts) for an open file
+ */
+void cifsFileInfo_put(struct cifsFileInfo *cifs_file)
+{
+	_cifsFileInfo_put(cifs_file, true, true);
+>>>>>>> upstream/android-13
 }
 
 /**
  * _cifsFileInfo_put - release a reference of file priv data
  *
  * This may involve closing the filehandle @cifs_file out on the
+<<<<<<< HEAD
  * server. Must be called without holding tcon->open_file_lock and
  * cifs_file->file_info_lock.
  *
@@ -399,6 +506,22 @@ void cifsFileInfo_put(struct cifsFileInfo *cifs_file)
  *
  */
 void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
+=======
+ * server. Must be called without holding tcon->open_file_lock,
+ * cinode->open_file_lock and cifs_file->file_info_lock.
+ *
+ * If @wait_for_oplock_handler is true and we are releasing the last
+ * reference, wait for any running oplock break handler of the file
+ * and cancel any pending one.
+ *
+ * @cifs_file:	cifs/smb3 specific info (eg refcounts) for an open file
+ * @wait_oplock_handler: must be false if called from oplock_break_handler
+ * @offload:	not offloaded on close and oplock breaks
+ *
+ */
+void _cifsFileInfo_put(struct cifsFileInfo *cifs_file,
+		       bool wait_oplock_handler, bool offload)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(cifs_file->dentry);
 	struct cifs_tcon *tcon = tlink_tcon(cifs_file->tlink);
@@ -406,7 +529,10 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
 	struct cifsInodeInfo *cifsi = CIFS_I(inode);
 	struct super_block *sb = inode->i_sb;
 	struct cifs_sb_info *cifs_sb = CIFS_SB(sb);
+<<<<<<< HEAD
 	struct cifsLockInfo *li, *tmp;
+=======
+>>>>>>> upstream/android-13
 	struct cifs_fid fid;
 	struct cifs_pending_open open;
 	bool oplock_break_cancelled;
@@ -431,6 +557,10 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
 	/* remove it from the lists */
 	list_del(&cifs_file->flist);
 	list_del(&cifs_file->tlist);
+<<<<<<< HEAD
+=======
+	atomic_dec(&tcon->num_local_opens);
+>>>>>>> upstream/android-13
 
 	if (list_empty(&cifsi->openFileList)) {
 		cifs_dbg(FYI, "closing last open instance for inode %p\n",
@@ -456,7 +586,13 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
 		unsigned int xid;
 
 		xid = get_xid();
+<<<<<<< HEAD
 		if (server->ops->close)
+=======
+		if (server->ops->close_getattr)
+			server->ops->close_getattr(xid, tcon, cifs_file);
+		else if (server->ops->close)
+>>>>>>> upstream/android-13
 			server->ops->close(xid, tcon, &cifs_file->fid);
 		_free_xid(xid);
 	}
@@ -466,6 +602,7 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
 
 	cifs_del_pending_open(&open);
 
+<<<<<<< HEAD
 	/*
 	 * Delete any outstanding lock records. We'll lose them when the file
 	 * is closed anyway.
@@ -484,6 +621,12 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
 	dput(cifs_file->dentry);
 	cifs_sb_deactive(sb);
 	kfree(cifs_file);
+=======
+	if (offload)
+		queue_work(fileinfo_put_wq, &cifs_file->put);
+	else
+		cifsFileInfo_put_final(cifs_file);
+>>>>>>> upstream/android-13
 }
 
 int cifs_open(struct inode *inode, struct file *file)
@@ -497,7 +640,12 @@ int cifs_open(struct inode *inode, struct file *file)
 	struct cifs_tcon *tcon;
 	struct tcon_link *tlink;
 	struct cifsFileInfo *cfile = NULL;
+<<<<<<< HEAD
 	char *full_path = NULL;
+=======
+	void *page;
+	const char *full_path;
+>>>>>>> upstream/android-13
 	bool posix_open_ok = false;
 	struct cifs_fid fid;
 	struct cifs_pending_open open;
@@ -505,6 +653,14 @@ int cifs_open(struct inode *inode, struct file *file)
 	xid = get_xid();
 
 	cifs_sb = CIFS_SB(inode->i_sb);
+<<<<<<< HEAD
+=======
+	if (unlikely(cifs_forced_shutdown(cifs_sb))) {
+		free_xid(xid);
+		return -EIO;
+	}
+
+>>>>>>> upstream/android-13
 	tlink = cifs_sb_tlink(cifs_sb);
 	if (IS_ERR(tlink)) {
 		free_xid(xid);
@@ -513,9 +669,16 @@ int cifs_open(struct inode *inode, struct file *file)
 	tcon = tlink_tcon(tlink);
 	server = tcon->ses->server;
 
+<<<<<<< HEAD
 	full_path = build_path_from_dentry(file_dentry(file));
 	if (full_path == NULL) {
 		rc = -ENOMEM;
+=======
+	page = alloc_dentry_path();
+	full_path = build_path_from_dentry(file_dentry(file), page);
+	if (IS_ERR(full_path)) {
+		rc = PTR_ERR(full_path);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -530,6 +693,23 @@ int cifs_open(struct inode *inode, struct file *file)
 			file->f_op = &cifs_file_direct_ops;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Get the cached handle as SMB2 close is deferred */
+	rc = cifs_get_readable_path(tcon, full_path, &cfile);
+	if (rc == 0) {
+		if (file->f_flags == cfile->f_flags) {
+			file->private_data = cfile;
+			spin_lock(&CIFS_I(inode)->deferred_lock);
+			cifs_del_deferred_close(cfile);
+			spin_unlock(&CIFS_I(inode)->deferred_lock);
+			goto out;
+		} else {
+			_cifsFileInfo_put(cfile, true, false);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (server->oplocks)
 		oplock = REQ_OPLOCK;
 	else
@@ -540,7 +720,11 @@ int cifs_open(struct inode *inode, struct file *file)
 				le64_to_cpu(tcon->fsUnixInfo.Capability))) {
 		/* can not refresh inode info since size could be stale */
 		rc = cifs_posix_open(full_path, &inode, inode->i_sb,
+<<<<<<< HEAD
 				cifs_sb->mnt_file_mode /* ignored */,
+=======
+				cifs_sb->ctx->file_mode /* ignored */,
+>>>>>>> upstream/android-13
 				file->f_flags, &oplock, &fid.netfid, xid);
 		if (rc == 0) {
 			cifs_dbg(FYI, "posix open succeeded\n");
@@ -548,7 +732,11 @@ int cifs_open(struct inode *inode, struct file *file)
 		} else if ((rc == -EINVAL) || (rc == -EOPNOTSUPP)) {
 			if (tcon->ses->serverNOS)
 				cifs_dbg(VFS, "server %s of type %s returned unexpected error on SMB posix open, disabling posix open support. Check if server update available.\n",
+<<<<<<< HEAD
 					 tcon->ses->serverName,
+=======
+					 tcon->ses->ip_addr,
+>>>>>>> upstream/android-13
 					 tcon->ses->serverNOS);
 			tcon->broken_posix_open = true;
 		} else if ((rc != -EIO) && (rc != -EREMOTE) &&
@@ -607,7 +795,11 @@ int cifs_open(struct inode *inode, struct file *file)
 	}
 
 out:
+<<<<<<< HEAD
 	kfree(full_path);
+=======
+	free_dentry_path(page);
+>>>>>>> upstream/android-13
 	free_xid(xid);
 	cifs_put_tlink(tlink);
 	return rc;
@@ -656,7 +848,12 @@ cifs_reopen_file(struct cifsFileInfo *cfile, bool can_flush)
 	struct TCP_Server_Info *server;
 	struct cifsInodeInfo *cinode;
 	struct inode *inode;
+<<<<<<< HEAD
 	char *full_path = NULL;
+=======
+	void *page;
+	const char *full_path;
+>>>>>>> upstream/android-13
 	int desired_access;
 	int disposition = FILE_OPEN;
 	int create_options = CREATE_NOT_DIR;
@@ -666,9 +863,14 @@ cifs_reopen_file(struct cifsFileInfo *cfile, bool can_flush)
 	mutex_lock(&cfile->fh_mutex);
 	if (!cfile->invalidHandle) {
 		mutex_unlock(&cfile->fh_mutex);
+<<<<<<< HEAD
 		rc = 0;
 		free_xid(xid);
 		return rc;
+=======
+		free_xid(xid);
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	inode = d_inode(cfile->dentry);
@@ -682,12 +884,22 @@ cifs_reopen_file(struct cifsFileInfo *cfile, bool can_flush)
 	 * called and if the server was down that means we end up here, and we
 	 * can never tell if the caller already has the rename_sem.
 	 */
+<<<<<<< HEAD
 	full_path = build_path_from_dentry(cfile->dentry);
 	if (full_path == NULL) {
 		rc = -ENOMEM;
 		mutex_unlock(&cfile->fh_mutex);
 		free_xid(xid);
 		return rc;
+=======
+	page = alloc_dentry_path();
+	full_path = build_path_from_dentry(cfile->dentry, page);
+	if (IS_ERR(full_path)) {
+		mutex_unlock(&cfile->fh_mutex);
+		free_dentry_path(page);
+		free_xid(xid);
+		return PTR_ERR(full_path);
+>>>>>>> upstream/android-13
 	}
 
 	cifs_dbg(FYI, "inode = 0x%p file flags 0x%x for %s\n",
@@ -709,7 +921,11 @@ cifs_reopen_file(struct cifsFileInfo *cfile, bool can_flush)
 						~(O_CREAT | O_EXCL | O_TRUNC);
 
 		rc = cifs_posix_open(full_path, NULL, inode->i_sb,
+<<<<<<< HEAD
 				     cifs_sb->mnt_file_mode /* ignored */,
+=======
+				     cifs_sb->ctx->file_mode /* ignored */,
+>>>>>>> upstream/android-13
 				     oflags, &oplock, &cfile->fid.netfid, xid);
 		if (rc == 0) {
 			cifs_dbg(FYI, "posix reopen succeeded\n");
@@ -724,9 +940,12 @@ cifs_reopen_file(struct cifsFileInfo *cfile, bool can_flush)
 
 	desired_access = cifs_convert_flags(cfile->f_flags);
 
+<<<<<<< HEAD
 	if (backup_cred(cifs_sb))
 		create_options |= CREATE_OPEN_BACKUP_INTENT;
 
+=======
+>>>>>>> upstream/android-13
 	/* O_SYNC also has bit for O_DSYNC so following check picks up either */
 	if (cfile->f_flags & O_SYNC)
 		create_options |= CREATE_WRITE_THROUGH;
@@ -740,7 +959,11 @@ cifs_reopen_file(struct cifsFileInfo *cfile, bool can_flush)
 	oparms.tcon = tcon;
 	oparms.cifs_sb = cifs_sb;
 	oparms.desired_access = desired_access;
+<<<<<<< HEAD
 	oparms.create_options = create_options;
+=======
+	oparms.create_options = cifs_create_options(cifs_sb, create_options);
+>>>>>>> upstream/android-13
 	oparms.disposition = disposition;
 	oparms.path = full_path;
 	oparms.fid = &cfile->fid;
@@ -778,7 +1001,13 @@ reopen_success:
 		if (!is_interrupt_error(rc))
 			mapping_set_error(inode->i_mapping, rc);
 
+<<<<<<< HEAD
 		if (tcon->unix_ext)
+=======
+		if (tcon->posix_extensions)
+			rc = smb311_posix_get_inode_info(&inode, full_path, inode->i_sb, xid);
+		else if (tcon->unix_ext)
+>>>>>>> upstream/android-13
 			rc = cifs_get_inode_info_unix(&inode, full_path,
 						      inode->i_sb, xid);
 		else
@@ -806,16 +1035,79 @@ reopen_success:
 		cifs_relock_file(cfile);
 
 reopen_error_exit:
+<<<<<<< HEAD
 	kfree(full_path);
+=======
+	free_dentry_path(page);
+>>>>>>> upstream/android-13
 	free_xid(xid);
 	return rc;
 }
 
+<<<<<<< HEAD
 int cifs_close(struct inode *inode, struct file *file)
 {
 	if (file->private_data != NULL) {
 		cifsFileInfo_put(file->private_data);
 		file->private_data = NULL;
+=======
+void smb2_deferred_work_close(struct work_struct *work)
+{
+	struct cifsFileInfo *cfile = container_of(work,
+			struct cifsFileInfo, deferred.work);
+
+	spin_lock(&CIFS_I(d_inode(cfile->dentry))->deferred_lock);
+	cifs_del_deferred_close(cfile);
+	cfile->deferred_close_scheduled = false;
+	spin_unlock(&CIFS_I(d_inode(cfile->dentry))->deferred_lock);
+	_cifsFileInfo_put(cfile, true, false);
+}
+
+int cifs_close(struct inode *inode, struct file *file)
+{
+	struct cifsFileInfo *cfile;
+	struct cifsInodeInfo *cinode = CIFS_I(inode);
+	struct cifs_sb_info *cifs_sb = CIFS_SB(inode->i_sb);
+	struct cifs_deferred_close *dclose;
+
+	if (file->private_data != NULL) {
+		cfile = file->private_data;
+		file->private_data = NULL;
+		dclose = kmalloc(sizeof(struct cifs_deferred_close), GFP_KERNEL);
+		if ((cinode->oplock == CIFS_CACHE_RHW_FLG) &&
+		    cinode->lease_granted &&
+		    !test_bit(CIFS_INO_CLOSE_ON_LOCK, &cinode->flags) &&
+		    dclose) {
+			if (test_and_clear_bit(CIFS_INO_MODIFIED_ATTR, &cinode->flags)) {
+				inode->i_ctime = inode->i_mtime = current_time(inode);
+				cifs_fscache_update_inode_cookie(inode);
+			}
+			spin_lock(&cinode->deferred_lock);
+			cifs_add_deferred_close(cfile, dclose);
+			if (cfile->deferred_close_scheduled &&
+			    delayed_work_pending(&cfile->deferred)) {
+				/*
+				 * If there is no pending work, mod_delayed_work queues new work.
+				 * So, Increase the ref count to avoid use-after-free.
+				 */
+				if (!mod_delayed_work(deferredclose_wq,
+						&cfile->deferred, cifs_sb->ctx->acregmax))
+					cifsFileInfo_get(cfile);
+			} else {
+				/* Deferred close for files */
+				queue_delayed_work(deferredclose_wq,
+						&cfile->deferred, cifs_sb->ctx->acregmax);
+				cfile->deferred_close_scheduled = true;
+				spin_unlock(&cinode->deferred_lock);
+				return 0;
+			}
+			spin_unlock(&cinode->deferred_lock);
+			_cifsFileInfo_put(cfile, true, false);
+		} else {
+			_cifsFileInfo_put(cfile, true, false);
+			kfree(dclose);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* return code from the ->release op is always ignored */
@@ -835,7 +1127,11 @@ cifs_reopen_persistent_handles(struct cifs_tcon *tcon)
 
 	tcon->need_reopen_files = false;
 
+<<<<<<< HEAD
 	cifs_dbg(FYI, "Reopen persistent handles");
+=======
+	cifs_dbg(FYI, "Reopen persistent handles\n");
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&tmp_list);
 
 	/* list all files open on tree connection, reopen resilient handles  */
@@ -910,7 +1206,11 @@ int cifs_closedir(struct inode *inode, struct file *file)
 }
 
 static struct cifsLockInfo *
+<<<<<<< HEAD
 cifs_lock_init(__u64 offset, __u64 length, __u8 type)
+=======
+cifs_lock_init(__u64 offset, __u64 length, __u8 type, __u16 flags)
+>>>>>>> upstream/android-13
 {
 	struct cifsLockInfo *lock =
 		kmalloc(sizeof(struct cifsLockInfo), GFP_KERNEL);
@@ -920,6 +1220,10 @@ cifs_lock_init(__u64 offset, __u64 length, __u8 type)
 	lock->length = length;
 	lock->type = type;
 	lock->pid = current->tgid;
+<<<<<<< HEAD
+=======
+	lock->flags = flags;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&lock->blist);
 	init_waitqueue_head(&lock->block_q);
 	return lock;
@@ -942,7 +1246,12 @@ cifs_del_lock_waiters(struct cifsLockInfo *lock)
 /* @rw_check : 0 - no op, 1 - read, 2 - write */
 static bool
 cifs_find_fid_lock_conflict(struct cifs_fid_locks *fdlocks, __u64 offset,
+<<<<<<< HEAD
 			    __u64 length, __u8 type, struct cifsFileInfo *cfile,
+=======
+			    __u64 length, __u8 type, __u16 flags,
+			    struct cifsFileInfo *cfile,
+>>>>>>> upstream/android-13
 			    struct cifsLockInfo **conf_lock, int rw_check)
 {
 	struct cifsLockInfo *li;
@@ -964,6 +1273,13 @@ cifs_find_fid_lock_conflict(struct cifs_fid_locks *fdlocks, __u64 offset,
 		    ((server->ops->compare_fids(cfile, cur_cfile) &&
 		     current->tgid == li->pid) || type == li->type))
 			continue;
+<<<<<<< HEAD
+=======
+		if (rw_check == CIFS_LOCK_OP &&
+		    (flags & FL_OFDLCK) && (li->flags & FL_OFDLCK) &&
+		    server->ops->compare_fids(cfile, cur_cfile))
+			continue;
+>>>>>>> upstream/android-13
 		if (conf_lock)
 			*conf_lock = li;
 		return true;
@@ -973,8 +1289,13 @@ cifs_find_fid_lock_conflict(struct cifs_fid_locks *fdlocks, __u64 offset,
 
 bool
 cifs_find_lock_conflict(struct cifsFileInfo *cfile, __u64 offset, __u64 length,
+<<<<<<< HEAD
 			__u8 type, struct cifsLockInfo **conf_lock,
 			int rw_check)
+=======
+			__u8 type, __u16 flags,
+			struct cifsLockInfo **conf_lock, int rw_check)
+>>>>>>> upstream/android-13
 {
 	bool rc = false;
 	struct cifs_fid_locks *cur;
@@ -982,7 +1303,12 @@ cifs_find_lock_conflict(struct cifsFileInfo *cfile, __u64 offset, __u64 length,
 
 	list_for_each_entry(cur, &cinode->llist, llist) {
 		rc = cifs_find_fid_lock_conflict(cur, offset, length, type,
+<<<<<<< HEAD
 						 cfile, conf_lock, rw_check);
+=======
+						 flags, cfile, conf_lock,
+						 rw_check);
+>>>>>>> upstream/android-13
 		if (rc)
 			break;
 	}
@@ -1010,7 +1336,12 @@ cifs_lock_test(struct cifsFileInfo *cfile, __u64 offset, __u64 length,
 	down_read(&cinode->lock_sem);
 
 	exist = cifs_find_lock_conflict(cfile, offset, length, type,
+<<<<<<< HEAD
 					&conf_lock, CIFS_LOCK_OP);
+=======
+					flock->fl_flags, &conf_lock,
+					CIFS_LOCK_OP);
+>>>>>>> upstream/android-13
 	if (exist) {
 		flock->fl_start = conf_lock->offset;
 		flock->fl_end = conf_lock->offset + conf_lock->length - 1;
@@ -1041,7 +1372,11 @@ cifs_lock_add(struct cifsFileInfo *cfile, struct cifsLockInfo *lock)
  * Set the byte-range lock (mandatory style). Returns:
  * 1) 0, if we set the lock and don't need to request to the server;
  * 2) 1, if no locks prevent us but we need to request to the server;
+<<<<<<< HEAD
  * 3) -EACCESS, if there is a lock that prevents us and wait is false.
+=======
+ * 3) -EACCES, if there is a lock that prevents us and wait is false.
+>>>>>>> upstream/android-13
  */
 static int
 cifs_lock_add_if(struct cifsFileInfo *cfile, struct cifsLockInfo *lock,
@@ -1057,7 +1392,12 @@ try_again:
 	cifs_down_write(&cinode->lock_sem);
 
 	exist = cifs_find_lock_conflict(cfile, lock->offset, lock->length,
+<<<<<<< HEAD
 					lock->type, &conf_lock, CIFS_LOCK_OP);
+=======
+					lock->type, lock->flags, &conf_lock,
+					CIFS_LOCK_OP);
+>>>>>>> upstream/android-13
 	if (!exist && cinode->can_cache_brlcks) {
 		list_add_tail(&lock->llist, &cfile->llist->locks);
 		up_write(&cinode->lock_sem);
@@ -1115,20 +1455,34 @@ cifs_posix_lock_test(struct file *file, struct file_lock *flock)
 
 /*
  * Set the byte-range lock (posix style). Returns:
+<<<<<<< HEAD
  * 1) 0, if we set the lock and don't need to request to the server;
  * 2) 1, if we need to request to the server;
  * 3) <0, if the error occurs while setting the lock.
+=======
+ * 1) <0, if the error occurs while setting the lock;
+ * 2) 0, if we set the lock and don't need to request to the server;
+ * 3) FILE_LOCK_DEFERRED, if we will wait for some other file_lock;
+ * 4) FILE_LOCK_DEFERRED + 1, if we need to request to the server.
+>>>>>>> upstream/android-13
  */
 static int
 cifs_posix_lock_set(struct file *file, struct file_lock *flock)
 {
 	struct cifsInodeInfo *cinode = CIFS_I(file_inode(file));
+<<<<<<< HEAD
 	int rc = 1;
+=======
+	int rc = FILE_LOCK_DEFERRED + 1;
+>>>>>>> upstream/android-13
 
 	if ((flock->fl_flags & FL_POSIX) == 0)
 		return rc;
 
+<<<<<<< HEAD
 try_again:
+=======
+>>>>>>> upstream/android-13
 	cifs_down_write(&cinode->lock_sem);
 	if (!cinode->can_cache_brlcks) {
 		up_write(&cinode->lock_sem);
@@ -1137,12 +1491,15 @@ try_again:
 
 	rc = posix_lock_file(file, flock, NULL);
 	up_write(&cinode->lock_sem);
+<<<<<<< HEAD
 	if (rc == FILE_LOCK_DEFERRED) {
 		rc = wait_event_interruptible(flock->fl_wait, !flock->fl_next);
 		if (!rc)
 			goto try_again;
 		posix_unblock_lock(flock);
 	}
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1371,7 +1728,11 @@ cifs_read_flock(struct file_lock *flock, __u32 *type, int *lock, int *unlock,
 		cifs_dbg(FYI, "Lease on file - not implemented yet\n");
 	if (flock->fl_flags &
 	    (~(FL_POSIX | FL_FLOCK | FL_SLEEP |
+<<<<<<< HEAD
 	       FL_ACCESS | FL_LEASE | FL_CLOSE)))
+=======
+	       FL_ACCESS | FL_LEASE | FL_CLOSE | FL_OFDLCK)))
+>>>>>>> upstream/android-13
 		cifs_dbg(FYI, "Unknown lock flags 0x%x\n", flock->fl_flags);
 
 	*type = server->vals->large_lock_type;
@@ -1617,7 +1978,11 @@ cifs_setlk(struct file *file, struct file_lock *flock, __u32 type,
 		int posix_lock_type;
 
 		rc = cifs_posix_lock_set(file, flock);
+<<<<<<< HEAD
 		if (!rc || rc < 0)
+=======
+		if (rc <= FILE_LOCK_DEFERRED)
+>>>>>>> upstream/android-13
 			return rc;
 
 		if (type & server->vals->shared_lock_type)
@@ -1638,7 +2003,12 @@ cifs_setlk(struct file *file, struct file_lock *flock, __u32 type,
 	if (lock) {
 		struct cifsLockInfo *lock;
 
+<<<<<<< HEAD
 		lock = cifs_lock_init(flock->fl_start, length, type);
+=======
+		lock = cifs_lock_init(flock->fl_start, length, type,
+				      flock->fl_flags);
+>>>>>>> upstream/android-13
 		if (!lock)
 			return -ENOMEM;
 
@@ -1677,7 +2047,11 @@ cifs_setlk(struct file *file, struct file_lock *flock, __u32 type,
 		rc = server->ops->mand_unlock_range(cfile, flock, xid);
 
 out:
+<<<<<<< HEAD
 	if (flock->fl_flags & FL_POSIX) {
+=======
+	if ((flock->fl_flags & FL_POSIX) || (flock->fl_flags & FL_FLOCK)) {
+>>>>>>> upstream/android-13
 		/*
 		 * If this is a request to remove all locks because we
 		 * are closing the file, it doesn't matter if the
@@ -1694,6 +2068,55 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+int cifs_flock(struct file *file, int cmd, struct file_lock *fl)
+{
+	int rc, xid;
+	int lock = 0, unlock = 0;
+	bool wait_flag = false;
+	bool posix_lck = false;
+	struct cifs_sb_info *cifs_sb;
+	struct cifs_tcon *tcon;
+	struct cifsFileInfo *cfile;
+	__u32 type;
+
+	rc = -EACCES;
+	xid = get_xid();
+
+	if (!(fl->fl_flags & FL_FLOCK))
+		return -ENOLCK;
+
+	cfile = (struct cifsFileInfo *)file->private_data;
+	tcon = tlink_tcon(cfile->tlink);
+
+	cifs_read_flock(fl, &type, &lock, &unlock, &wait_flag,
+			tcon->ses->server);
+	cifs_sb = CIFS_FILE_SB(file);
+
+	if (cap_unix(tcon->ses) &&
+	    (CIFS_UNIX_FCNTL_CAP & le64_to_cpu(tcon->fsUnixInfo.Capability)) &&
+	    ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOPOSIXBRL) == 0))
+		posix_lck = true;
+
+	if (!lock && !unlock) {
+		/*
+		 * if no lock or unlock then nothing to do since we do not
+		 * know what it is
+		 */
+		free_xid(xid);
+		return -EOPNOTSUPP;
+	}
+
+	rc = cifs_setlk(file, fl, type, wait_flag, posix_lck, lock, unlock,
+			xid);
+	free_xid(xid);
+	return rc;
+
+
+}
+
+>>>>>>> upstream/android-13
 int cifs_lock(struct file *file, int cmd, struct file_lock *flock)
 {
 	int rc, xid;
@@ -1702,9 +2125,13 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *flock)
 	bool posix_lck = false;
 	struct cifs_sb_info *cifs_sb;
 	struct cifs_tcon *tcon;
+<<<<<<< HEAD
 	struct cifsInodeInfo *cinode;
 	struct cifsFileInfo *cfile;
 	__u16 netfid;
+=======
+	struct cifsFileInfo *cfile;
+>>>>>>> upstream/android-13
 	__u32 type;
 
 	rc = -EACCES;
@@ -1719,10 +2146,15 @@ int cifs_lock(struct file *file, int cmd, struct file_lock *flock)
 
 	cifs_read_flock(flock, &type, &lock, &unlock, &wait_flag,
 			tcon->ses->server);
+<<<<<<< HEAD
 
 	cifs_sb = CIFS_FILE_SB(file);
 	netfid = cfile->fid.netfid;
 	cinode = CIFS_I(file_inode(file));
+=======
+	cifs_sb = CIFS_FILE_SB(file);
+	set_bit(CIFS_INO_CLOSE_ON_LOCK, &CIFS_I(d_inode(cfile->dentry))->flags);
+>>>>>>> upstream/android-13
 
 	if (cap_unix(tcon->ses) &&
 	    (CIFS_UNIX_FCNTL_CAP & le64_to_cpu(tcon->fsUnixInfo.Capability)) &&
@@ -1774,15 +2206,22 @@ cifs_write(struct cifsFileInfo *open_file, __u32 pid, const char *write_data,
 	int rc = 0;
 	unsigned int bytes_written = 0;
 	unsigned int total_written;
+<<<<<<< HEAD
 	struct cifs_sb_info *cifs_sb;
+=======
+>>>>>>> upstream/android-13
 	struct cifs_tcon *tcon;
 	struct TCP_Server_Info *server;
 	unsigned int xid;
 	struct dentry *dentry = open_file->dentry;
 	struct cifsInodeInfo *cifsi = CIFS_I(d_inode(dentry));
+<<<<<<< HEAD
 	struct cifs_io_parms io_parms;
 
 	cifs_sb = CIFS_SB(dentry->d_sb);
+=======
+	struct cifs_io_parms io_parms = {0};
+>>>>>>> upstream/android-13
 
 	cifs_dbg(FYI, "write %zd bytes to offset %lld of %pd\n",
 		 write_size, *offset, dentry);
@@ -1843,8 +2282,15 @@ cifs_write(struct cifsFileInfo *open_file, __u32 pid, const char *write_data,
 
 	if (total_written > 0) {
 		spin_lock(&d_inode(dentry)->i_lock);
+<<<<<<< HEAD
 		if (*offset > d_inode(dentry)->i_size)
 			i_size_write(d_inode(dentry), *offset);
+=======
+		if (*offset > d_inode(dentry)->i_size) {
+			i_size_write(d_inode(dentry), *offset);
+			d_inode(dentry)->i_blocks = (512 - 1 + *offset) >> 9;
+		}
+>>>>>>> upstream/android-13
 		spin_unlock(&d_inode(dentry)->i_lock);
 	}
 	mark_inode_dirty_sync(d_inode(dentry));
@@ -1870,7 +2316,11 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
 		if (fsuid_only && !uid_eq(open_file->uid, current_fsuid()))
 			continue;
 		if (OPEN_FMODE(open_file->f_flags) & FMODE_READ) {
+<<<<<<< HEAD
 			if (!open_file->invalidHandle) {
+=======
+			if ((!open_file->invalidHandle)) {
+>>>>>>> upstream/android-13
 				/* found a good file */
 				/* lock it so it will not be closed on us */
 				cifsFileInfo_get(open_file);
@@ -1886,23 +2336,48 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct cifsFileInfo *find_writable_file(struct cifsInodeInfo *cifs_inode,
 					bool fsuid_only)
+=======
+/* Return -EBADF if no handle is found and general rc otherwise */
+int
+cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, int flags,
+		       struct cifsFileInfo **ret_file)
+>>>>>>> upstream/android-13
 {
 	struct cifsFileInfo *open_file, *inv_file = NULL;
 	struct cifs_sb_info *cifs_sb;
 	bool any_available = false;
+<<<<<<< HEAD
 	int rc;
 	unsigned int refind = 0;
 
 	/* Having a null inode here (because mapping->host was set to zero by
 	the VFS or MM) should not happen but we had reports of on oops (due to
 	it being zero) during stress testcases so we need to check for it */
+=======
+	int rc = -EBADF;
+	unsigned int refind = 0;
+	bool fsuid_only = flags & FIND_WR_FSUID_ONLY;
+	bool with_delete = flags & FIND_WR_WITH_DELETE;
+	*ret_file = NULL;
+
+	/*
+	 * Having a null inode here (because mapping->host was set to zero by
+	 * the VFS or MM) should not happen but we had reports of on oops (due
+	 * to it being zero) during stress testcases so we need to check for it
+	 */
+>>>>>>> upstream/android-13
 
 	if (cifs_inode == NULL) {
 		cifs_dbg(VFS, "Null inode passed to cifs_writeable_file\n");
 		dump_stack();
+<<<<<<< HEAD
 		return NULL;
+=======
+		return rc;
+>>>>>>> upstream/android-13
 	}
 
 	cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
@@ -1915,19 +2390,33 @@ struct cifsFileInfo *find_writable_file(struct cifsInodeInfo *cifs_inode,
 refind_writable:
 	if (refind > MAX_REOPEN_ATT) {
 		spin_unlock(&cifs_inode->open_file_lock);
+<<<<<<< HEAD
 		return NULL;
+=======
+		return rc;
+>>>>>>> upstream/android-13
 	}
 	list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
 		if (!any_available && open_file->pid != current->tgid)
 			continue;
 		if (fsuid_only && !uid_eq(open_file->uid, current_fsuid()))
 			continue;
+<<<<<<< HEAD
+=======
+		if (with_delete && !(open_file->fid.access & DELETE))
+			continue;
+>>>>>>> upstream/android-13
 		if (OPEN_FMODE(open_file->f_flags) & FMODE_WRITE) {
 			if (!open_file->invalidHandle) {
 				/* found a good writable file */
 				cifsFileInfo_get(open_file);
 				spin_unlock(&cifs_inode->open_file_lock);
+<<<<<<< HEAD
 				return open_file;
+=======
+				*ret_file = open_file;
+				return 0;
+>>>>>>> upstream/android-13
 			} else {
 				if (!inv_file)
 					inv_file = open_file;
@@ -1949,6 +2438,7 @@ refind_writable:
 
 	if (inv_file) {
 		rc = cifs_reopen_file(inv_file, false);
+<<<<<<< HEAD
 		if (!rc)
 			return inv_file;
 		else {
@@ -1965,6 +2455,103 @@ refind_writable:
 	}
 
 	return NULL;
+=======
+		if (!rc) {
+			*ret_file = inv_file;
+			return 0;
+		}
+
+		spin_lock(&cifs_inode->open_file_lock);
+		list_move_tail(&inv_file->flist, &cifs_inode->openFileList);
+		spin_unlock(&cifs_inode->open_file_lock);
+		cifsFileInfo_put(inv_file);
+		++refind;
+		inv_file = NULL;
+		spin_lock(&cifs_inode->open_file_lock);
+		goto refind_writable;
+	}
+
+	return rc;
+}
+
+struct cifsFileInfo *
+find_writable_file(struct cifsInodeInfo *cifs_inode, int flags)
+{
+	struct cifsFileInfo *cfile;
+	int rc;
+
+	rc = cifs_get_writable_file(cifs_inode, flags, &cfile);
+	if (rc)
+		cifs_dbg(FYI, "Couldn't find writable handle rc=%d\n", rc);
+
+	return cfile;
+}
+
+int
+cifs_get_writable_path(struct cifs_tcon *tcon, const char *name,
+		       int flags,
+		       struct cifsFileInfo **ret_file)
+{
+	struct cifsFileInfo *cfile;
+	void *page = alloc_dentry_path();
+
+	*ret_file = NULL;
+
+	spin_lock(&tcon->open_file_lock);
+	list_for_each_entry(cfile, &tcon->openFileList, tlist) {
+		struct cifsInodeInfo *cinode;
+		const char *full_path = build_path_from_dentry(cfile->dentry, page);
+		if (IS_ERR(full_path)) {
+			spin_unlock(&tcon->open_file_lock);
+			free_dentry_path(page);
+			return PTR_ERR(full_path);
+		}
+		if (strcmp(full_path, name))
+			continue;
+
+		cinode = CIFS_I(d_inode(cfile->dentry));
+		spin_unlock(&tcon->open_file_lock);
+		free_dentry_path(page);
+		return cifs_get_writable_file(cinode, flags, ret_file);
+	}
+
+	spin_unlock(&tcon->open_file_lock);
+	free_dentry_path(page);
+	return -ENOENT;
+}
+
+int
+cifs_get_readable_path(struct cifs_tcon *tcon, const char *name,
+		       struct cifsFileInfo **ret_file)
+{
+	struct cifsFileInfo *cfile;
+	void *page = alloc_dentry_path();
+
+	*ret_file = NULL;
+
+	spin_lock(&tcon->open_file_lock);
+	list_for_each_entry(cfile, &tcon->openFileList, tlist) {
+		struct cifsInodeInfo *cinode;
+		const char *full_path = build_path_from_dentry(cfile->dentry, page);
+		if (IS_ERR(full_path)) {
+			spin_unlock(&tcon->open_file_lock);
+			free_dentry_path(page);
+			return PTR_ERR(full_path);
+		}
+		if (strcmp(full_path, name))
+			continue;
+
+		cinode = CIFS_I(d_inode(cfile->dentry));
+		spin_unlock(&tcon->open_file_lock);
+		free_dentry_path(page);
+		*ret_file = find_readable_file(cinode, 0);
+		return *ret_file ? 0 : -ENOENT;
+	}
+
+	spin_unlock(&tcon->open_file_lock);
+	free_dentry_path(page);
+	return -ENOENT;
+>>>>>>> upstream/android-13
 }
 
 static int cifs_partialpagewrite(struct page *page, unsigned from, unsigned to)
@@ -2001,8 +2588,14 @@ static int cifs_partialpagewrite(struct page *page, unsigned from, unsigned to)
 	if (mapping->host->i_size - offset < (loff_t)to)
 		to = (unsigned)(mapping->host->i_size - offset);
 
+<<<<<<< HEAD
 	open_file = find_writable_file(CIFS_I(mapping->host), false);
 	if (open_file) {
+=======
+	rc = cifs_get_writable_file(CIFS_I(mapping->host), FIND_WR_ANY,
+				    &open_file);
+	if (!rc) {
+>>>>>>> upstream/android-13
 		bytes_written = cifs_write(open_file, open_file->pid,
 					   write_data, to - from, &offset);
 		cifsFileInfo_put(open_file);
@@ -2012,9 +2605,18 @@ static int cifs_partialpagewrite(struct page *page, unsigned from, unsigned to)
 			rc = 0;
 		else if (bytes_written < 0)
 			rc = bytes_written;
+<<<<<<< HEAD
 	} else {
 		cifs_dbg(FYI, "No writeable filehandles for inode\n");
 		rc = -EIO;
+=======
+		else
+			rc = -EFAULT;
+	} else {
+		cifs_dbg(FYI, "No writable handle for write page rc=%d\n", rc);
+		if (!is_retryable_error(rc))
+			rc = -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	kunmap(page);
@@ -2121,9 +2723,13 @@ static int
 wdata_send_pages(struct cifs_writedata *wdata, unsigned int nr_pages,
 		 struct address_space *mapping, struct writeback_control *wbc)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	struct TCP_Server_Info *server;
 	unsigned int i;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	wdata->sync_mode = wbc->sync_mode;
 	wdata->nr_pages = nr_pages;
@@ -2133,6 +2739,7 @@ wdata_send_pages(struct cifs_writedata *wdata, unsigned int nr_pages,
 			page_offset(wdata->pages[nr_pages - 1]),
 			(loff_t)PAGE_SIZE);
 	wdata->bytes = ((nr_pages - 1) * PAGE_SIZE) + wdata->tailsz;
+<<<<<<< HEAD
 
 	if (wdata->cfile != NULL)
 		cifsFileInfo_put(wdata->cfile);
@@ -2148,6 +2755,19 @@ wdata_send_pages(struct cifs_writedata *wdata, unsigned int nr_pages,
 
 	for (i = 0; i < nr_pages; ++i)
 		unlock_page(wdata->pages[i]);
+=======
+	wdata->pid = wdata->cfile->pid;
+
+	rc = adjust_credits(wdata->server, &wdata->credits, wdata->bytes);
+	if (rc)
+		return rc;
+
+	if (wdata->cfile->invalidHandle)
+		rc = -EAGAIN;
+	else
+		rc = wdata->server->ops->async_writev(wdata,
+						      cifs_writedata_release);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -2155,21 +2775,40 @@ wdata_send_pages(struct cifs_writedata *wdata, unsigned int nr_pages,
 static int cifs_writepages(struct address_space *mapping,
 			   struct writeback_control *wbc)
 {
+<<<<<<< HEAD
 	struct cifs_sb_info *cifs_sb = CIFS_SB(mapping->host->i_sb);
+=======
+	struct inode *inode = mapping->host;
+	struct cifs_sb_info *cifs_sb = CIFS_SB(inode->i_sb);
+>>>>>>> upstream/android-13
 	struct TCP_Server_Info *server;
 	bool done = false, scanned = false, range_whole = false;
 	pgoff_t end, index;
 	struct cifs_writedata *wdata;
+<<<<<<< HEAD
 	int rc = 0;
 	int saved_rc = 0;
+=======
+	struct cifsFileInfo *cfile = NULL;
+	int rc = 0;
+	int saved_rc = 0;
+	unsigned int xid;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If wsize is smaller than the page cache size, default to writing
 	 * one page at a time via cifs_writepage
 	 */
+<<<<<<< HEAD
 	if (cifs_sb->wsize < PAGE_SIZE)
 		return generic_writepages(mapping, wbc);
 
+=======
+	if (cifs_sb->ctx->wsize < PAGE_SIZE)
+		return generic_writepages(mapping, wbc);
+
+	xid = get_xid();
+>>>>>>> upstream/android-13
 	if (wbc->range_cyclic) {
 		index = mapping->writeback_index; /* Start from prev offset */
 		end = -1;
@@ -2180,6 +2819,7 @@ static int cifs_writepages(struct address_space *mapping,
 			range_whole = true;
 		scanned = true;
 	}
+<<<<<<< HEAD
 	server = cifs_sb_master_tcon(cifs_sb)->ses->server;
 retry:
 	while (!done && index <= end) {
@@ -2188,6 +2828,29 @@ retry:
 
 		rc = server->ops->wait_mtu_credits(server, cifs_sb->wsize,
 						   &wsize, &credits);
+=======
+	server = cifs_pick_channel(cifs_sb_master_tcon(cifs_sb)->ses);
+
+retry:
+	while (!done && index <= end) {
+		unsigned int i, nr_pages, found_pages, wsize;
+		pgoff_t next = 0, tofind, saved_index = index;
+		struct cifs_credits credits_on_stack;
+		struct cifs_credits *credits = &credits_on_stack;
+		int get_file_rc = 0;
+
+		if (cfile)
+			cifsFileInfo_put(cfile);
+
+		rc = cifs_get_writable_file(CIFS_I(inode), FIND_WR_ANY, &cfile);
+
+		/* in case of an error store it to return later */
+		if (rc)
+			get_file_rc = rc;
+
+		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->wsize,
+						   &wsize, credits);
+>>>>>>> upstream/android-13
 		if (rc != 0) {
 			done = true;
 			break;
@@ -2220,6 +2883,7 @@ retry:
 			continue;
 		}
 
+<<<<<<< HEAD
 		wdata->credits = credits;
 
 		rc = wdata_send_pages(wdata, nr_pages, mapping, wbc);
@@ -2227,6 +2891,29 @@ retry:
 		/* send failure -- clean up the mess */
 		if (rc != 0) {
 			add_credits_and_wake_if(server, wdata->credits, 0);
+=======
+		wdata->credits = credits_on_stack;
+		wdata->cfile = cfile;
+		wdata->server = server;
+		cfile = NULL;
+
+		if (!wdata->cfile) {
+			cifs_dbg(VFS, "No writable handle in writepages rc=%d\n",
+				 get_file_rc);
+			if (is_retryable_error(get_file_rc))
+				rc = get_file_rc;
+			else
+				rc = -EBADF;
+		} else
+			rc = wdata_send_pages(wdata, nr_pages, mapping, wbc);
+
+		for (i = 0; i < nr_pages; ++i)
+			unlock_page(wdata->pages[i]);
+
+		/* send failure -- clean up the mess */
+		if (rc != 0) {
+			add_credits_and_wake_if(server, &wdata->credits, 0);
+>>>>>>> upstream/android-13
 			for (i = 0; i < nr_pages; ++i) {
 				if (is_retryable_error(rc))
 					redirty_page_for_writepage(wbc,
@@ -2278,6 +2965,14 @@ retry:
 	if (wbc->range_cyclic || (range_whole && wbc->nr_to_write > 0))
 		mapping->writeback_index = index;
 
+<<<<<<< HEAD
+=======
+	if (cfile)
+		cifsFileInfo_put(cfile);
+	free_xid(xid);
+	/* Indication to update ctime and mtime as close is deferred */
+	set_bit(CIFS_INO_MODIFIED_ATTR, &CIFS_I(inode)->flags);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2379,13 +3074,25 @@ static int cifs_write_end(struct file *file, struct address_space *mapping,
 
 	if (rc > 0) {
 		spin_lock(&inode->i_lock);
+<<<<<<< HEAD
 		if (pos > inode->i_size)
 			i_size_write(inode, pos);
+=======
+		if (pos > inode->i_size) {
+			i_size_write(inode, pos);
+			inode->i_blocks = (512 - 1 + pos) >> 9;
+		}
+>>>>>>> upstream/android-13
 		spin_unlock(&inode->i_lock);
 	}
 
 	unlock_page(page);
 	put_page(page);
+<<<<<<< HEAD
+=======
+	/* Indication to update ctime and mtime as close is deferred */
+	set_bit(CIFS_INO_MODIFIED_ATTR, &CIFS_I(inode)->flags);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -2402,9 +3109,16 @@ int cifs_strict_fsync(struct file *file, loff_t start, loff_t end,
 	struct cifs_sb_info *cifs_sb = CIFS_SB(inode->i_sb);
 
 	rc = file_write_and_wait_range(file, start, end);
+<<<<<<< HEAD
 	if (rc)
 		return rc;
 	inode_lock(inode);
+=======
+	if (rc) {
+		trace_cifs_fsync_err(inode->i_ino, rc);
+		return rc;
+	}
+>>>>>>> upstream/android-13
 
 	xid = get_xid();
 
@@ -2422,6 +3136,7 @@ int cifs_strict_fsync(struct file *file, loff_t start, loff_t end,
 	tcon = tlink_tcon(smbfile->tlink);
 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
 		server = tcon->ses->server;
+<<<<<<< HEAD
 		if (server->ops->flush)
 			rc = server->ops->flush(xid, tcon, &smbfile->fid);
 		else
@@ -2430,6 +3145,26 @@ int cifs_strict_fsync(struct file *file, loff_t start, loff_t end,
 
 	free_xid(xid);
 	inode_unlock(inode);
+=======
+		if (server->ops->flush == NULL) {
+			rc = -ENOSYS;
+			goto strict_fsync_exit;
+		}
+
+		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
+			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
+			if (smbfile) {
+				rc = server->ops->flush(xid, tcon, &smbfile->fid);
+				cifsFileInfo_put(smbfile);
+			} else
+				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
+		} else
+			rc = server->ops->flush(xid, tcon, &smbfile->fid);
+	}
+
+strict_fsync_exit:
+	free_xid(xid);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2440,6 +3175,7 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 	struct cifs_tcon *tcon;
 	struct TCP_Server_Info *server;
 	struct cifsFileInfo *smbfile = file->private_data;
+<<<<<<< HEAD
 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
 	struct inode *inode = file->f_mapping->host;
 
@@ -2447,6 +3183,16 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 	if (rc)
 		return rc;
 	inode_lock(inode);
+=======
+	struct inode *inode = file_inode(file);
+	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
+
+	rc = file_write_and_wait_range(file, start, end);
+	if (rc) {
+		trace_cifs_fsync_err(file_inode(file)->i_ino, rc);
+		return rc;
+	}
+>>>>>>> upstream/android-13
 
 	xid = get_xid();
 
@@ -2456,6 +3202,7 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 	tcon = tlink_tcon(smbfile->tlink);
 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
 		server = tcon->ses->server;
+<<<<<<< HEAD
 		if (server->ops->flush)
 			rc = server->ops->flush(xid, tcon, &smbfile->fid);
 		else
@@ -2464,6 +3211,26 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 
 	free_xid(xid);
 	inode_unlock(inode);
+=======
+		if (server->ops->flush == NULL) {
+			rc = -ENOSYS;
+			goto fsync_exit;
+		}
+
+		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
+			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
+			if (smbfile) {
+				rc = server->ops->flush(xid, tcon, &smbfile->fid);
+				cifsFileInfo_put(smbfile);
+			} else
+				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
+		} else
+			rc = server->ops->flush(xid, tcon, &smbfile->fid);
+	}
+
+fsync_exit:
+	free_xid(xid);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2480,7 +3247,12 @@ int cifs_flush(struct file *file, fl_owner_t id)
 		rc = filemap_write_and_wait(inode->i_mapping);
 
 	cifs_dbg(FYI, "Flush inode %p file %p rc %d\n", inode, file, rc);
+<<<<<<< HEAD
 
+=======
+	if (rc)
+		trace_cifs_flush_err(inode->i_ino, rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2603,6 +3375,79 @@ wdata_fill_from_iovec(struct cifs_writedata *wdata, struct iov_iter *from,
 }
 
 static int
+<<<<<<< HEAD
+=======
+cifs_resend_wdata(struct cifs_writedata *wdata, struct list_head *wdata_list,
+	struct cifs_aio_ctx *ctx)
+{
+	unsigned int wsize;
+	struct cifs_credits credits;
+	int rc;
+	struct TCP_Server_Info *server = wdata->server;
+
+	do {
+		if (wdata->cfile->invalidHandle) {
+			rc = cifs_reopen_file(wdata->cfile, false);
+			if (rc == -EAGAIN)
+				continue;
+			else if (rc)
+				break;
+		}
+
+
+		/*
+		 * Wait for credits to resend this wdata.
+		 * Note: we are attempting to resend the whole wdata not in
+		 * segments
+		 */
+		do {
+			rc = server->ops->wait_mtu_credits(server, wdata->bytes,
+						&wsize, &credits);
+			if (rc)
+				goto fail;
+
+			if (wsize < wdata->bytes) {
+				add_credits_and_wake_if(server, &credits, 0);
+				msleep(1000);
+			}
+		} while (wsize < wdata->bytes);
+		wdata->credits = credits;
+
+		rc = adjust_credits(server, &wdata->credits, wdata->bytes);
+
+		if (!rc) {
+			if (wdata->cfile->invalidHandle)
+				rc = -EAGAIN;
+			else {
+#ifdef CONFIG_CIFS_SMB_DIRECT
+				if (wdata->mr) {
+					wdata->mr->need_invalidate = true;
+					smbd_deregister_mr(wdata->mr);
+					wdata->mr = NULL;
+				}
+#endif
+				rc = server->ops->async_writev(wdata,
+					cifs_uncached_writedata_release);
+			}
+		}
+
+		/* If the write was successfully sent, we are done */
+		if (!rc) {
+			list_add_tail(&wdata->list, wdata_list);
+			return 0;
+		}
+
+		/* Roll back credits and retry if needed */
+		add_credits_and_wake_if(server, &wdata->credits, 0);
+	} while (rc == -EAGAIN);
+
+fail:
+	kref_put(&wdata->refcount, cifs_uncached_writedata_release);
+	return rc;
+}
+
+static int
+>>>>>>> upstream/android-13
 cifs_write_from_iter(loff_t offset, size_t len, struct iov_iter *from,
 		     struct cifsFileInfo *open_file,
 		     struct cifs_sb_info *cifs_sb, struct list_head *wdata_list,
@@ -2616,12 +3461,19 @@ cifs_write_from_iter(loff_t offset, size_t len, struct iov_iter *from,
 	loff_t saved_offset = offset;
 	pid_t pid;
 	struct TCP_Server_Info *server;
+<<<<<<< HEAD
+=======
+	struct page **pagevec;
+	size_t start;
+	unsigned int xid;
+>>>>>>> upstream/android-13
 
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_RWPIDFORWARD)
 		pid = open_file->pid;
 	else
 		pid = current->tgid;
 
+<<<<<<< HEAD
 	server = tlink_tcon(open_file->tlink)->ses->server;
 
 	do {
@@ -2664,11 +3516,113 @@ cifs_write_from_iter(loff_t offset, size_t len, struct iov_iter *from,
 		 */
 		for ( ; nr_pages > num_pages; nr_pages--)
 			put_page(wdata->pages[nr_pages - 1]);
+=======
+	server = cifs_pick_channel(tlink_tcon(open_file->tlink)->ses);
+	xid = get_xid();
+
+	do {
+		unsigned int wsize;
+		struct cifs_credits credits_on_stack;
+		struct cifs_credits *credits = &credits_on_stack;
+
+		if (open_file->invalidHandle) {
+			rc = cifs_reopen_file(open_file, false);
+			if (rc == -EAGAIN)
+				continue;
+			else if (rc)
+				break;
+		}
+
+		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->wsize,
+						   &wsize, credits);
+		if (rc)
+			break;
+
+		cur_len = min_t(const size_t, len, wsize);
+
+		if (ctx->direct_io) {
+			ssize_t result;
+
+			result = iov_iter_get_pages_alloc(
+				from, &pagevec, cur_len, &start);
+			if (result < 0) {
+				cifs_dbg(VFS,
+					 "direct_writev couldn't get user pages (rc=%zd) iter type %d iov_offset %zd count %zd\n",
+					 result, iov_iter_type(from),
+					 from->iov_offset, from->count);
+				dump_stack();
+
+				rc = result;
+				add_credits_and_wake_if(server, credits, 0);
+				break;
+			}
+			cur_len = (size_t)result;
+			iov_iter_advance(from, cur_len);
+
+			nr_pages =
+				(cur_len + start + PAGE_SIZE - 1) / PAGE_SIZE;
+
+			wdata = cifs_writedata_direct_alloc(pagevec,
+					     cifs_uncached_writev_complete);
+			if (!wdata) {
+				rc = -ENOMEM;
+				add_credits_and_wake_if(server, credits, 0);
+				break;
+			}
+
+
+			wdata->page_offset = start;
+			wdata->tailsz =
+				nr_pages > 1 ?
+					cur_len - (PAGE_SIZE - start) -
+					(nr_pages - 2) * PAGE_SIZE :
+					cur_len;
+		} else {
+			nr_pages = get_numpages(wsize, len, &cur_len);
+			wdata = cifs_writedata_alloc(nr_pages,
+					     cifs_uncached_writev_complete);
+			if (!wdata) {
+				rc = -ENOMEM;
+				add_credits_and_wake_if(server, credits, 0);
+				break;
+			}
+
+			rc = cifs_write_allocate_pages(wdata->pages, nr_pages);
+			if (rc) {
+				kvfree(wdata->pages);
+				kfree(wdata);
+				add_credits_and_wake_if(server, credits, 0);
+				break;
+			}
+
+			num_pages = nr_pages;
+			rc = wdata_fill_from_iovec(
+				wdata, from, &cur_len, &num_pages);
+			if (rc) {
+				for (i = 0; i < nr_pages; i++)
+					put_page(wdata->pages[i]);
+				kvfree(wdata->pages);
+				kfree(wdata);
+				add_credits_and_wake_if(server, credits, 0);
+				break;
+			}
+
+			/*
+			 * Bring nr_pages down to the number of pages we
+			 * actually used, and free any pages that we didn't use.
+			 */
+			for ( ; nr_pages > num_pages; nr_pages--)
+				put_page(wdata->pages[nr_pages - 1]);
+
+			wdata->tailsz = cur_len - ((nr_pages - 1) * PAGE_SIZE);
+		}
+>>>>>>> upstream/android-13
 
 		wdata->sync_mode = WB_SYNC_ALL;
 		wdata->nr_pages = nr_pages;
 		wdata->offset = (__u64)offset;
 		wdata->cfile = cifsFileInfo_get(open_file);
+<<<<<<< HEAD
 		wdata->pid = pid;
 		wdata->bytes = cur_len;
 		wdata->pagesz = PAGE_SIZE;
@@ -2683,6 +3637,28 @@ cifs_write_from_iter(loff_t offset, size_t len, struct iov_iter *from,
 					cifs_uncached_writedata_release);
 		if (rc) {
 			add_credits_and_wake_if(server, wdata->credits, 0);
+=======
+		wdata->server = server;
+		wdata->pid = pid;
+		wdata->bytes = cur_len;
+		wdata->pagesz = PAGE_SIZE;
+		wdata->credits = credits_on_stack;
+		wdata->ctx = ctx;
+		kref_get(&ctx->refcount);
+
+		rc = adjust_credits(server, &wdata->credits, wdata->bytes);
+
+		if (!rc) {
+			if (wdata->cfile->invalidHandle)
+				rc = -EAGAIN;
+			else
+				rc = server->ops->async_writev(wdata,
+					cifs_uncached_writedata_release);
+		}
+
+		if (rc) {
+			add_credits_and_wake_if(server, &wdata->credits, 0);
+>>>>>>> upstream/android-13
 			kref_put(&wdata->refcount,
 				 cifs_uncached_writedata_release);
 			if (rc == -EAGAIN) {
@@ -2698,6 +3674,10 @@ cifs_write_from_iter(loff_t offset, size_t len, struct iov_iter *from,
 		len -= cur_len;
 	} while (len > 0);
 
+<<<<<<< HEAD
+=======
+	free_xid(xid);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2707,8 +3687,12 @@ static void collect_uncached_write_data(struct cifs_aio_ctx *ctx)
 	struct cifs_tcon *tcon;
 	struct cifs_sb_info *cifs_sb;
 	struct dentry *dentry = ctx->cfile->dentry;
+<<<<<<< HEAD
 	unsigned int i;
 	int rc;
+=======
+	ssize_t rc;
+>>>>>>> upstream/android-13
 
 	tcon = tlink_tcon(ctx->cfile->tlink);
 	cifs_sb = CIFS_SB(dentry->d_sb);
@@ -2747,18 +3731,37 @@ restart_loop:
 				INIT_LIST_HEAD(&tmp_list);
 				list_del_init(&wdata->list);
 
+<<<<<<< HEAD
 				iov_iter_advance(&tmp_from,
 						 wdata->offset - ctx->pos);
 
 				rc = cifs_write_from_iter(wdata->offset,
+=======
+				if (ctx->direct_io)
+					rc = cifs_resend_wdata(
+						wdata, &tmp_list, ctx);
+				else {
+					iov_iter_advance(&tmp_from,
+						 wdata->offset - ctx->pos);
+
+					rc = cifs_write_from_iter(wdata->offset,
+>>>>>>> upstream/android-13
 						wdata->bytes, &tmp_from,
 						ctx->cfile, cifs_sb, &tmp_list,
 						ctx);
 
+<<<<<<< HEAD
 				list_splice(&tmp_list, &ctx->list);
 
 				kref_put(&wdata->refcount,
 					 cifs_uncached_writedata_release);
+=======
+					kref_put(&wdata->refcount,
+						cifs_uncached_writedata_release);
+				}
+
+				list_splice(&tmp_list, &ctx->list);
+>>>>>>> upstream/android-13
 				goto restart_loop;
 			}
 		}
@@ -2766,9 +3769,12 @@ restart_loop:
 		kref_put(&wdata->refcount, cifs_uncached_writedata_release);
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < ctx->npages; i++)
 		put_page(ctx->bv[i].bv_page);
 
+=======
+>>>>>>> upstream/android-13
 	cifs_stats_bytes_written(tcon, ctx->total_len);
 	set_bit(CIFS_INO_INVALID_MAPPING, &CIFS_I(dentry->d_inode)->flags);
 
@@ -2782,7 +3788,12 @@ restart_loop:
 		complete(&ctx->done);
 }
 
+<<<<<<< HEAD
 ssize_t cifs_user_writev(struct kiocb *iocb, struct iov_iter *from)
+=======
+static ssize_t __cifs_writev(
+	struct kiocb *iocb, struct iov_iter *from, bool direct)
+>>>>>>> upstream/android-13
 {
 	struct file *file = iocb->ki_filp;
 	ssize_t total_written = 0;
@@ -2791,6 +3802,7 @@ ssize_t cifs_user_writev(struct kiocb *iocb, struct iov_iter *from)
 	struct cifs_sb_info *cifs_sb;
 	struct cifs_aio_ctx *ctx;
 	struct iov_iter saved_from = *from;
+<<<<<<< HEAD
 	int rc;
 
 	/*
@@ -2798,6 +3810,20 @@ ssize_t cifs_user_writev(struct kiocb *iocb, struct iov_iter *from)
 	 * extra memory-to-memory copying and use iovec buffers for constructing
 	 * write request.
 	 */
+=======
+	size_t len = iov_iter_count(from);
+	int rc;
+
+	/*
+	 * iov_iter_get_pages_alloc doesn't work with ITER_KVEC.
+	 * In this case, fall back to non-direct write function.
+	 * this could be improved by getting pages directly in ITER_KVEC
+	 */
+	if (direct && iov_iter_is_kvec(from)) {
+		cifs_dbg(FYI, "use non-direct cifs_writev for kvec I/O\n");
+		direct = false;
+	}
+>>>>>>> upstream/android-13
 
 	rc = generic_write_checks(iocb, from);
 	if (rc <= 0)
@@ -2821,10 +3847,23 @@ ssize_t cifs_user_writev(struct kiocb *iocb, struct iov_iter *from)
 
 	ctx->pos = iocb->ki_pos;
 
+<<<<<<< HEAD
 	rc = setup_aio_ctx_iter(ctx, from, WRITE);
 	if (rc) {
 		kref_put(&ctx->refcount, cifs_aio_ctx_release);
 		return rc;
+=======
+	if (direct) {
+		ctx->direct_io = true;
+		ctx->iter = *from;
+		ctx->len = len;
+	} else {
+		rc = setup_aio_ctx_iter(ctx, from, WRITE);
+		if (rc) {
+			kref_put(&ctx->refcount, cifs_aio_ctx_release);
+			return rc;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* grab a lock here due to read response handlers can access ctx */
@@ -2874,6 +3913,19 @@ ssize_t cifs_user_writev(struct kiocb *iocb, struct iov_iter *from)
 	return total_written;
 }
 
+<<<<<<< HEAD
+=======
+ssize_t cifs_direct_writev(struct kiocb *iocb, struct iov_iter *from)
+{
+	return __cifs_writev(iocb, from, true);
+}
+
+ssize_t cifs_user_writev(struct kiocb *iocb, struct iov_iter *from)
+{
+	return __cifs_writev(iocb, from, false);
+}
+
+>>>>>>> upstream/android-13
 static ssize_t
 cifs_writev(struct kiocb *iocb, struct iov_iter *from)
 {
@@ -2896,8 +3948,13 @@ cifs_writev(struct kiocb *iocb, struct iov_iter *from)
 		goto out;
 
 	if (!cifs_find_lock_conflict(cfile, iocb->ki_pos, iov_iter_count(from),
+<<<<<<< HEAD
 				     server->vals->exclusive_lock_type, NULL,
 				     CIFS_WRITE_OP))
+=======
+				     server->vals->exclusive_lock_type, 0,
+				     NULL, CIFS_WRITE_OP))
+>>>>>>> upstream/android-13
 		rc = __generic_file_write_iter(iocb, from);
 	else
 		rc = -EACCES;
@@ -3048,7 +4105,10 @@ cifs_uncached_readdata_release(struct kref *refcount)
 	kref_put(&rdata->ctx->refcount, cifs_aio_ctx_release);
 	for (i = 0; i < rdata->nr_pages; i++) {
 		put_page(rdata->pages[i]);
+<<<<<<< HEAD
 		rdata->pages[i] = NULL;
+=======
+>>>>>>> upstream/android-13
 	}
 	cifs_readdata_release(refcount);
 }
@@ -3073,7 +4133,11 @@ cifs_readdata_to_iov(struct cifs_readdata *rdata, struct iov_iter *iter)
 		size_t copy = min_t(size_t, remaining, PAGE_SIZE);
 		size_t written;
 
+<<<<<<< HEAD
 		if (unlikely(iter->type & ITER_PIPE)) {
+=======
+		if (unlikely(iov_iter_is_pipe(iter))) {
+>>>>>>> upstream/android-13
 			void *addr = kmap_atomic(page);
 
 			written = copy_to_iter(addr, copy, iter);
@@ -3175,32 +4239,144 @@ cifs_uncached_copy_into_pages(struct TCP_Server_Info *server,
 	return uncached_fill_pages(server, rdata, iter, iter->count);
 }
 
+<<<<<<< HEAD
+=======
+static int cifs_resend_rdata(struct cifs_readdata *rdata,
+			struct list_head *rdata_list,
+			struct cifs_aio_ctx *ctx)
+{
+	unsigned int rsize;
+	struct cifs_credits credits;
+	int rc;
+	struct TCP_Server_Info *server;
+
+	/* XXX: should we pick a new channel here? */
+	server = rdata->server;
+
+	do {
+		if (rdata->cfile->invalidHandle) {
+			rc = cifs_reopen_file(rdata->cfile, true);
+			if (rc == -EAGAIN)
+				continue;
+			else if (rc)
+				break;
+		}
+
+		/*
+		 * Wait for credits to resend this rdata.
+		 * Note: we are attempting to resend the whole rdata not in
+		 * segments
+		 */
+		do {
+			rc = server->ops->wait_mtu_credits(server, rdata->bytes,
+						&rsize, &credits);
+
+			if (rc)
+				goto fail;
+
+			if (rsize < rdata->bytes) {
+				add_credits_and_wake_if(server, &credits, 0);
+				msleep(1000);
+			}
+		} while (rsize < rdata->bytes);
+		rdata->credits = credits;
+
+		rc = adjust_credits(server, &rdata->credits, rdata->bytes);
+		if (!rc) {
+			if (rdata->cfile->invalidHandle)
+				rc = -EAGAIN;
+			else {
+#ifdef CONFIG_CIFS_SMB_DIRECT
+				if (rdata->mr) {
+					rdata->mr->need_invalidate = true;
+					smbd_deregister_mr(rdata->mr);
+					rdata->mr = NULL;
+				}
+#endif
+				rc = server->ops->async_readv(rdata);
+			}
+		}
+
+		/* If the read was successfully sent, we are done */
+		if (!rc) {
+			/* Add to aio pending list */
+			list_add_tail(&rdata->list, rdata_list);
+			return 0;
+		}
+
+		/* Roll back credits and retry if needed */
+		add_credits_and_wake_if(server, &rdata->credits, 0);
+	} while (rc == -EAGAIN);
+
+fail:
+	kref_put(&rdata->refcount, cifs_uncached_readdata_release);
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static int
 cifs_send_async_read(loff_t offset, size_t len, struct cifsFileInfo *open_file,
 		     struct cifs_sb_info *cifs_sb, struct list_head *rdata_list,
 		     struct cifs_aio_ctx *ctx)
 {
 	struct cifs_readdata *rdata;
+<<<<<<< HEAD
 	unsigned int npages, rsize, credits;
+=======
+	unsigned int npages, rsize;
+	struct cifs_credits credits_on_stack;
+	struct cifs_credits *credits = &credits_on_stack;
+>>>>>>> upstream/android-13
 	size_t cur_len;
 	int rc;
 	pid_t pid;
 	struct TCP_Server_Info *server;
+<<<<<<< HEAD
 
 	server = tlink_tcon(open_file->tlink)->ses->server;
+=======
+	struct page **pagevec;
+	size_t start;
+	struct iov_iter direct_iov = ctx->iter;
+
+	server = cifs_pick_channel(tlink_tcon(open_file->tlink)->ses);
+>>>>>>> upstream/android-13
 
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_RWPIDFORWARD)
 		pid = open_file->pid;
 	else
 		pid = current->tgid;
 
+<<<<<<< HEAD
 	do {
 		rc = server->ops->wait_mtu_credits(server, cifs_sb->rsize,
 						   &rsize, &credits);
+=======
+	if (ctx->direct_io)
+		iov_iter_advance(&direct_iov, offset - ctx->pos);
+
+	do {
+		if (open_file->invalidHandle) {
+			rc = cifs_reopen_file(open_file, true);
+			if (rc == -EAGAIN)
+				continue;
+			else if (rc)
+				break;
+		}
+
+		if (cifs_sb->ctx->rsize == 0)
+			cifs_sb->ctx->rsize =
+				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
+							     cifs_sb->ctx);
+
+		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
+						   &rsize, credits);
+>>>>>>> upstream/android-13
 		if (rc)
 			break;
 
 		cur_len = min_t(const size_t, len, rsize);
+<<<<<<< HEAD
 		npages = DIV_ROUND_UP(cur_len, PAGE_SIZE);
 
 		/* allocate a readdata struct */
@@ -3216,12 +4392,75 @@ cifs_send_async_read(loff_t offset, size_t len, struct cifsFileInfo *open_file,
 		if (rc)
 			goto error;
 
+=======
+
+		if (ctx->direct_io) {
+			ssize_t result;
+
+			result = iov_iter_get_pages_alloc(
+					&direct_iov, &pagevec,
+					cur_len, &start);
+			if (result < 0) {
+				cifs_dbg(VFS,
+					 "Couldn't get user pages (rc=%zd) iter type %d iov_offset %zd count %zd\n",
+					 result, iov_iter_type(&direct_iov),
+					 direct_iov.iov_offset,
+					 direct_iov.count);
+				dump_stack();
+
+				rc = result;
+				add_credits_and_wake_if(server, credits, 0);
+				break;
+			}
+			cur_len = (size_t)result;
+			iov_iter_advance(&direct_iov, cur_len);
+
+			rdata = cifs_readdata_direct_alloc(
+					pagevec, cifs_uncached_readv_complete);
+			if (!rdata) {
+				add_credits_and_wake_if(server, credits, 0);
+				rc = -ENOMEM;
+				break;
+			}
+
+			npages = (cur_len + start + PAGE_SIZE-1) / PAGE_SIZE;
+			rdata->page_offset = start;
+			rdata->tailsz = npages > 1 ?
+				cur_len-(PAGE_SIZE-start)-(npages-2)*PAGE_SIZE :
+				cur_len;
+
+		} else {
+
+			npages = DIV_ROUND_UP(cur_len, PAGE_SIZE);
+			/* allocate a readdata struct */
+			rdata = cifs_readdata_alloc(npages,
+					    cifs_uncached_readv_complete);
+			if (!rdata) {
+				add_credits_and_wake_if(server, credits, 0);
+				rc = -ENOMEM;
+				break;
+			}
+
+			rc = cifs_read_allocate_pages(rdata, npages);
+			if (rc) {
+				kvfree(rdata->pages);
+				kfree(rdata);
+				add_credits_and_wake_if(server, credits, 0);
+				break;
+			}
+
+			rdata->tailsz = PAGE_SIZE;
+		}
+
+		rdata->server = server;
+>>>>>>> upstream/android-13
 		rdata->cfile = cifsFileInfo_get(open_file);
 		rdata->nr_pages = npages;
 		rdata->offset = offset;
 		rdata->bytes = cur_len;
 		rdata->pid = pid;
 		rdata->pagesz = PAGE_SIZE;
+<<<<<<< HEAD
 		rdata->tailsz = PAGE_SIZE;
 		rdata->read_into_pages = cifs_uncached_read_into_pages;
 		rdata->copy_into_pages = cifs_uncached_copy_into_pages;
@@ -3239,6 +4478,31 @@ error:
 				 cifs_uncached_readdata_release);
 			if (rc == -EAGAIN)
 				continue;
+=======
+		rdata->read_into_pages = cifs_uncached_read_into_pages;
+		rdata->copy_into_pages = cifs_uncached_copy_into_pages;
+		rdata->credits = credits_on_stack;
+		rdata->ctx = ctx;
+		kref_get(&ctx->refcount);
+
+		rc = adjust_credits(server, &rdata->credits, rdata->bytes);
+
+		if (!rc) {
+			if (rdata->cfile->invalidHandle)
+				rc = -EAGAIN;
+			else
+				rc = server->ops->async_readv(rdata);
+		}
+
+		if (rc) {
+			add_credits_and_wake_if(server, &rdata->credits, 0);
+			kref_put(&rdata->refcount,
+				cifs_uncached_readdata_release);
+			if (rc == -EAGAIN) {
+				iov_iter_revert(&direct_iov, cur_len);
+				continue;
+			}
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -3256,11 +4520,16 @@ collect_uncached_read_data(struct cifs_aio_ctx *ctx)
 	struct cifs_readdata *rdata, *tmp;
 	struct iov_iter *to = &ctx->iter;
 	struct cifs_sb_info *cifs_sb;
+<<<<<<< HEAD
 	struct cifs_tcon *tcon;
 	unsigned int i;
 	int rc;
 
 	tcon = tlink_tcon(ctx->cfile->tlink);
+=======
+	int rc;
+
+>>>>>>> upstream/android-13
 	cifs_sb = CIFS_SB(ctx->cfile->dentry->d_sb);
 
 	mutex_lock(&ctx->aio_mutex);
@@ -3294,20 +4563,43 @@ again:
 				 * reading.
 				 */
 				if (got_bytes && got_bytes < rdata->bytes) {
+<<<<<<< HEAD
 					rc = cifs_readdata_to_iov(rdata, to);
 					if (rc) {
 						kref_put(&rdata->refcount,
 						cifs_uncached_readdata_release);
+=======
+					rc = 0;
+					if (!ctx->direct_io)
+						rc = cifs_readdata_to_iov(rdata, to);
+					if (rc) {
+						kref_put(&rdata->refcount,
+							cifs_uncached_readdata_release);
+>>>>>>> upstream/android-13
 						continue;
 					}
 				}
 
+<<<<<<< HEAD
 				rc = cifs_send_async_read(
+=======
+				if (ctx->direct_io) {
+					/*
+					 * Re-use rdata as this is a
+					 * direct I/O
+					 */
+					rc = cifs_resend_rdata(
+						rdata,
+						&tmp_list, ctx);
+				} else {
+					rc = cifs_send_async_read(
+>>>>>>> upstream/android-13
 						rdata->offset + got_bytes,
 						rdata->bytes - got_bytes,
 						rdata->cfile, cifs_sb,
 						&tmp_list, ctx);
 
+<<<<<<< HEAD
 				list_splice(&tmp_list, &ctx->list);
 
 				kref_put(&rdata->refcount,
@@ -3316,16 +4608,34 @@ again:
 			} else if (rdata->result)
 				rc = rdata->result;
 			else
+=======
+					kref_put(&rdata->refcount,
+						cifs_uncached_readdata_release);
+				}
+
+				list_splice(&tmp_list, &ctx->list);
+
+				goto again;
+			} else if (rdata->result)
+				rc = rdata->result;
+			else if (!ctx->direct_io)
+>>>>>>> upstream/android-13
 				rc = cifs_readdata_to_iov(rdata, to);
 
 			/* if there was a short read -- discard anything left */
 			if (rdata->got_bytes && rdata->got_bytes < rdata->bytes)
 				rc = -ENODATA;
+<<<<<<< HEAD
+=======
+
+			ctx->total_len += rdata->got_bytes;
+>>>>>>> upstream/android-13
 		}
 		list_del_init(&rdata->list);
 		kref_put(&rdata->refcount, cifs_uncached_readdata_release);
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < ctx->npages; i++) {
 		if (ctx->should_dirty)
 			set_page_dirty(ctx->bv[i].bv_page);
@@ -3335,6 +4645,10 @@ again:
 	ctx->total_len = ctx->len - iov_iter_count(to);
 
 	cifs_stats_bytes_read(tcon, ctx->total_len);
+=======
+	if (!ctx->direct_io)
+		ctx->total_len = ctx->len - iov_iter_count(to);
+>>>>>>> upstream/android-13
 
 	/* mask nodata case */
 	if (rc == -ENODATA)
@@ -3350,6 +4664,7 @@ again:
 		complete(&ctx->done);
 }
 
+<<<<<<< HEAD
 ssize_t cifs_user_readv(struct kiocb *iocb, struct iov_iter *to)
 {
 	struct file *file = iocb->ki_filp;
@@ -3362,6 +4677,30 @@ ssize_t cifs_user_readv(struct kiocb *iocb, struct iov_iter *to)
 	struct cifsFileInfo *cfile;
 	struct cifs_aio_ctx *ctx;
 
+=======
+static ssize_t __cifs_readv(
+	struct kiocb *iocb, struct iov_iter *to, bool direct)
+{
+	size_t len;
+	struct file *file = iocb->ki_filp;
+	struct cifs_sb_info *cifs_sb;
+	struct cifsFileInfo *cfile;
+	struct cifs_tcon *tcon;
+	ssize_t rc, total_read = 0;
+	loff_t offset = iocb->ki_pos;
+	struct cifs_aio_ctx *ctx;
+
+	/*
+	 * iov_iter_get_pages_alloc() doesn't work with ITER_KVEC,
+	 * fall back to data copy read path
+	 * this could be improved by getting pages directly in ITER_KVEC
+	 */
+	if (direct && iov_iter_is_kvec(to)) {
+		cifs_dbg(FYI, "use non-direct cifs_user_readv for kvec I/O\n");
+		direct = false;
+	}
+
+>>>>>>> upstream/android-13
 	len = iov_iter_count(to);
 	if (!len)
 		return 0;
@@ -3385,6 +4724,7 @@ ssize_t cifs_user_readv(struct kiocb *iocb, struct iov_iter *to)
 	if (!is_sync_kiocb(iocb))
 		ctx->iocb = iocb;
 
+<<<<<<< HEAD
 	if (to->type == ITER_IOVEC)
 		ctx->should_dirty = true;
 
@@ -3396,6 +4736,25 @@ ssize_t cifs_user_readv(struct kiocb *iocb, struct iov_iter *to)
 
 	len = ctx->len;
 
+=======
+	if (iter_is_iovec(to))
+		ctx->should_dirty = true;
+
+	if (direct) {
+		ctx->pos = offset;
+		ctx->direct_io = true;
+		ctx->iter = *to;
+		ctx->len = len;
+	} else {
+		rc = setup_aio_ctx_iter(ctx, to, READ);
+		if (rc) {
+			kref_put(&ctx->refcount, cifs_aio_ctx_release);
+			return rc;
+		}
+		len = ctx->len;
+	}
+
+>>>>>>> upstream/android-13
 	/* grab a lock here due to read response handlers can access ctx */
 	mutex_lock(&ctx->aio_mutex);
 
@@ -3437,6 +4796,19 @@ ssize_t cifs_user_readv(struct kiocb *iocb, struct iov_iter *to)
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+ssize_t cifs_direct_readv(struct kiocb *iocb, struct iov_iter *to)
+{
+	return __cifs_readv(iocb, to, true);
+}
+
+ssize_t cifs_user_readv(struct kiocb *iocb, struct iov_iter *to)
+{
+	return __cifs_readv(iocb, to, false);
+}
+
+>>>>>>> upstream/android-13
 ssize_t
 cifs_strict_readv(struct kiocb *iocb, struct iov_iter *to)
 {
@@ -3471,7 +4843,11 @@ cifs_strict_readv(struct kiocb *iocb, struct iov_iter *to)
 	down_read(&cinode->lock_sem);
 	if (!cifs_find_lock_conflict(cfile, iocb->ki_pos, iov_iter_count(to),
 				     tcon->ses->server->vals->shared_lock_type,
+<<<<<<< HEAD
 				     NULL, CIFS_READ_OP))
+=======
+				     0, NULL, CIFS_READ_OP))
+>>>>>>> upstream/android-13
 		rc = generic_file_read_iter(iocb, to);
 	up_read(&cinode->lock_sem);
 	return rc;
@@ -3491,7 +4867,11 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
 	unsigned int xid;
 	char *cur_offset;
 	struct cifsFileInfo *open_file;
+<<<<<<< HEAD
 	struct cifs_io_parms io_parms;
+=======
+	struct cifs_io_parms io_parms = {0};
+>>>>>>> upstream/android-13
 	int buf_type = CIFS_NO_BUFFER;
 	__u32 pid;
 
@@ -3499,7 +4879,11 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
 	cifs_sb = CIFS_FILE_SB(file);
 
 	/* FIXME: set up handlers for larger reads and/or convert to async */
+<<<<<<< HEAD
 	rsize = min_t(unsigned int, cifs_sb->rsize, CIFSMaxBufSize);
+=======
+	rsize = min_t(unsigned int, cifs_sb->ctx->rsize, CIFSMaxBufSize);
+>>>>>>> upstream/android-13
 
 	if (file->private_data == NULL) {
 		rc = -EBADF;
@@ -3508,7 +4892,11 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
 	}
 	open_file = file->private_data;
 	tcon = tlink_tcon(open_file->tlink);
+<<<<<<< HEAD
 	server = tcon->ses->server;
+=======
+	server = cifs_pick_channel(tcon->ses);
+>>>>>>> upstream/android-13
 
 	if (!server->ops->sync_read) {
 		free_xid(xid);
@@ -3547,6 +4935,10 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
 			io_parms.tcon = tcon;
 			io_parms.offset = *offset;
 			io_parms.length = current_read_size;
+<<<<<<< HEAD
+=======
+			io_parms.server = server;
+>>>>>>> upstream/android-13
 			rc = server->ops->sync_read(xid, &open_file->fid, &io_parms,
 						    &bytes_read, &cur_offset,
 						    &buf_type);
@@ -3576,6 +4968,13 @@ static vm_fault_t
 cifs_page_mkwrite(struct vm_fault *vmf)
 {
 	struct page *page = vmf->page;
+<<<<<<< HEAD
+=======
+	struct file *file = vmf->vma->vm_file;
+	struct inode *inode = file_inode(file);
+
+	cifs_fscache_wait_on_page_write(inode, page);
+>>>>>>> upstream/android-13
 
 	lock_page(page);
 	return VM_FAULT_LOCKED;
@@ -3585,6 +4984,10 @@ static const struct vm_operations_struct cifs_file_vm_ops = {
 	.fault = filemap_fault,
 	.map_pages = filemap_map_pages,
 	.page_mkwrite = cifs_page_mkwrite,
+<<<<<<< HEAD
+=======
+	.speculative = true,
+>>>>>>> upstream/android-13
 };
 
 int cifs_file_strict_mmap(struct file *file, struct vm_area_struct *vma)
@@ -3635,19 +5038,33 @@ cifs_readv_complete(struct work_struct *work)
 	for (i = 0; i < rdata->nr_pages; i++) {
 		struct page *page = rdata->pages[i];
 
+<<<<<<< HEAD
 		lru_cache_add_file(page);
+=======
+		lru_cache_add(page);
+>>>>>>> upstream/android-13
 
 		if (rdata->result == 0 ||
 		    (rdata->result == -EAGAIN && got_bytes)) {
 			flush_dcache_page(page);
 			SetPageUptodate(page);
+<<<<<<< HEAD
 		}
+=======
+		} else
+			SetPageError(page);
+>>>>>>> upstream/android-13
 
 		unlock_page(page);
 
 		if (rdata->result == 0 ||
 		    (rdata->result == -EAGAIN && got_bytes))
 			cifs_readpage_to_fscache(rdata->mapping->host, page);
+<<<<<<< HEAD
+=======
+		else
+			cifs_fscache_uncache_page(rdata->mapping->host, page);
+>>>>>>> upstream/android-13
 
 		got_bytes -= min_t(unsigned int, PAGE_SIZE, got_bytes);
 
@@ -3705,7 +5122,11 @@ readpages_fill_pages(struct TCP_Server_Info *server,
 			 * fill them until the writes are flushed.
 			 */
 			zero_user(page, 0, PAGE_SIZE);
+<<<<<<< HEAD
 			lru_cache_add_file(page);
+=======
+			lru_cache_add(page);
+>>>>>>> upstream/android-13
 			flush_dcache_page(page);
 			SetPageUptodate(page);
 			unlock_page(page);
@@ -3715,7 +5136,11 @@ readpages_fill_pages(struct TCP_Server_Info *server,
 			continue;
 		} else {
 			/* no need to hold page hostage */
+<<<<<<< HEAD
 			lru_cache_add_file(page);
+=======
+			lru_cache_add(page);
+>>>>>>> upstream/android-13
 			unlock_page(page);
 			put_page(page);
 			rdata->pages[i] = NULL;
@@ -3770,7 +5195,11 @@ readpages_get_pages(struct address_space *mapping, struct list_head *page_list,
 
 	INIT_LIST_HEAD(tmplist);
 
+<<<<<<< HEAD
 	page = list_entry(page_list->prev, struct page, lru);
+=======
+	page = lru_to_page(page_list);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Lock the page and put it in the cache. Since no one else
@@ -3828,7 +5257,13 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
 	struct TCP_Server_Info *server;
 	pid_t pid;
+<<<<<<< HEAD
 
+=======
+	unsigned int xid;
+
+	xid = get_xid();
+>>>>>>> upstream/android-13
 	/*
 	 * Reads as many pages as possible from fscache. Returns -ENOBUFS
 	 * immediately if the cookie is negative
@@ -3838,8 +5273,15 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 	 */
 	rc = cifs_readpages_from_fscache(mapping->host, mapping, page_list,
 					 &num_pages);
+<<<<<<< HEAD
 	if (rc == 0)
 		return rc;
+=======
+	if (rc == 0) {
+		free_xid(xid);
+		return rc;
+	}
+>>>>>>> upstream/android-13
 
 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_RWPIDFORWARD)
 		pid = open_file->pid;
@@ -3847,7 +5289,11 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 		pid = current->tgid;
 
 	rc = 0;
+<<<<<<< HEAD
 	server = tlink_tcon(open_file->tlink)->ses->server;
+=======
+	server = cifs_pick_channel(tlink_tcon(open_file->tlink)->ses);
+>>>>>>> upstream/android-13
 
 	cifs_dbg(FYI, "%s: file=%p mapping=%p num_pages=%u\n",
 		 __func__, file, mapping, num_pages);
@@ -3868,10 +5314,31 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 		loff_t offset;
 		struct page *page, *tpage;
 		struct cifs_readdata *rdata;
+<<<<<<< HEAD
 		unsigned credits;
 
 		rc = server->ops->wait_mtu_credits(server, cifs_sb->rsize,
 						   &rsize, &credits);
+=======
+		struct cifs_credits credits_on_stack;
+		struct cifs_credits *credits = &credits_on_stack;
+
+		if (open_file->invalidHandle) {
+			rc = cifs_reopen_file(open_file, true);
+			if (rc == -EAGAIN)
+				continue;
+			else if (rc)
+				break;
+		}
+
+		if (cifs_sb->ctx->rsize == 0)
+			cifs_sb->ctx->rsize =
+				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
+							     cifs_sb->ctx);
+
+		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
+						   &rsize, credits);
+>>>>>>> upstream/android-13
 		if (rc)
 			break;
 
@@ -3883,6 +5350,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 		 */
 		if (unlikely(rsize < PAGE_SIZE)) {
 			add_credits_and_wake_if(server, credits, 0);
+<<<<<<< HEAD
+=======
+			free_xid(xid);
+>>>>>>> upstream/android-13
 			return 0;
 		}
 
@@ -3899,7 +5370,11 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 			/* best to give up if we're out of mem */
 			list_for_each_entry_safe(page, tpage, &tmplist, lru) {
 				list_del(&page->lru);
+<<<<<<< HEAD
 				lru_cache_add_file(page);
+=======
+				lru_cache_add(page);
+>>>>>>> upstream/android-13
 				unlock_page(page);
 				put_page(page);
 			}
@@ -3909,6 +5384,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 		}
 
 		rdata->cfile = cifsFileInfo_get(open_file);
+<<<<<<< HEAD
+=======
+		rdata->server = server;
+>>>>>>> upstream/android-13
 		rdata->mapping = mapping;
 		rdata->offset = offset;
 		rdata->bytes = bytes;
@@ -3917,13 +5396,18 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 		rdata->tailsz = PAGE_SIZE;
 		rdata->read_into_pages = cifs_readpages_read_into_pages;
 		rdata->copy_into_pages = cifs_readpages_copy_into_pages;
+<<<<<<< HEAD
 		rdata->credits = credits;
+=======
+		rdata->credits = credits_on_stack;
+>>>>>>> upstream/android-13
 
 		list_for_each_entry_safe(page, tpage, &tmplist, lru) {
 			list_del(&page->lru);
 			rdata->pages[rdata->nr_pages++] = page;
 		}
 
+<<<<<<< HEAD
 		if (!rdata->cfile->invalidHandle ||
 		    !(rc = cifs_reopen_file(rdata->cfile, true)))
 			rc = server->ops->async_readv(rdata);
@@ -3932,6 +5416,22 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 			for (i = 0; i < rdata->nr_pages; i++) {
 				page = rdata->pages[i];
 				lru_cache_add_file(page);
+=======
+		rc = adjust_credits(server, &rdata->credits, rdata->bytes);
+
+		if (!rc) {
+			if (rdata->cfile->invalidHandle)
+				rc = -EAGAIN;
+			else
+				rc = server->ops->async_readv(rdata);
+		}
+
+		if (rc) {
+			add_credits_and_wake_if(server, &rdata->credits, 0);
+			for (i = 0; i < rdata->nr_pages; i++) {
+				page = rdata->pages[i];
+				lru_cache_add(page);
+>>>>>>> upstream/android-13
 				unlock_page(page);
 				put_page(page);
 			}
@@ -3948,6 +5448,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
 	 * allocator.
 	 */
 	cifs_fscache_readpages_cancel(mapping->host, page_list);
+<<<<<<< HEAD
+=======
+	free_xid(xid);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -3975,8 +5479,17 @@ static int cifs_readpage_worker(struct file *file, struct page *page,
 	else
 		cifs_dbg(FYI, "Bytes read %d\n", rc);
 
+<<<<<<< HEAD
 	file_inode(file)->i_atime =
 		current_time(file_inode(file));
+=======
+	/* we do not want atime to be less than mtime, it broke some apps */
+	file_inode(file)->i_atime = current_time(file_inode(file));
+	if (timespec64_compare(&(file_inode(file)->i_atime), &(file_inode(file)->i_mtime)))
+		file_inode(file)->i_atime = file_inode(file)->i_mtime;
+	else
+		file_inode(file)->i_atime = current_time(file_inode(file));
+>>>>>>> upstream/android-13
 
 	if (PAGE_SIZE > rc)
 		memset(read_data + rc, 0, PAGE_SIZE - rc);
@@ -3999,7 +5512,11 @@ read_complete:
 
 static int cifs_readpage(struct file *file, struct page *page)
 {
+<<<<<<< HEAD
 	loff_t offset = (loff_t)page->index << PAGE_SHIFT;
+=======
+	loff_t offset = page_file_offset(page);
+>>>>>>> upstream/android-13
 	int rc = -EACCES;
 	unsigned int xid;
 
@@ -4190,6 +5707,11 @@ void cifs_oplock_break(struct work_struct *work)
 	struct TCP_Server_Info *server = tcon->ses->server;
 	int rc = 0;
 	bool purge_cache = false;
+<<<<<<< HEAD
+=======
+	bool is_deferred = false;
+	struct cifs_deferred_close *dclose;
+>>>>>>> upstream/android-13
 
 	wait_on_bit(&cinode->flags, CIFS_INODE_PENDING_WRITERS,
 			TASK_UNINTERRUPTIBLE);
@@ -4226,6 +5748,25 @@ void cifs_oplock_break(struct work_struct *work)
 
 oplock_break_ack:
 	/*
+<<<<<<< HEAD
+=======
+	 * When oplock break is received and there are no active
+	 * file handles but cached, then schedule deferred close immediately.
+	 * So, new open will not use cached handle.
+	 */
+	spin_lock(&CIFS_I(inode)->deferred_lock);
+	is_deferred = cifs_is_deferred_close(cfile, &dclose);
+	spin_unlock(&CIFS_I(inode)->deferred_lock);
+	if (is_deferred &&
+	    cfile->deferred_close_scheduled &&
+	    delayed_work_pending(&cfile->deferred)) {
+		if (cancel_delayed_work(&cfile->deferred)) {
+			_cifsFileInfo_put(cfile, false, false);
+			goto oplock_break_done;
+		}
+	}
+	/*
+>>>>>>> upstream/android-13
 	 * releasing stale oplock after recent reconnect of smb session using
 	 * a now incorrect file handle is not a data integrity issue but do
 	 * not bother sending an oplock release if session to server still is
@@ -4236,7 +5777,12 @@ oplock_break_ack:
 							     cinode);
 		cifs_dbg(FYI, "Oplock release rc = %d\n", rc);
 	}
+<<<<<<< HEAD
 	_cifsFileInfo_put(cfile, false /* do not wait for ourself */);
+=======
+oplock_break_done:
+	_cifsFileInfo_put(cfile, false /* do not wait for ourself */, false);
+>>>>>>> upstream/android-13
 	cifs_done_oplock_break(cinode);
 }
 
@@ -4259,6 +5805,63 @@ cifs_direct_io(struct kiocb *iocb, struct iov_iter *iter)
         return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static int cifs_swap_activate(struct swap_info_struct *sis,
+			      struct file *swap_file, sector_t *span)
+{
+	struct cifsFileInfo *cfile = swap_file->private_data;
+	struct inode *inode = swap_file->f_mapping->host;
+	unsigned long blocks;
+	long long isize;
+
+	cifs_dbg(FYI, "swap activate\n");
+
+	spin_lock(&inode->i_lock);
+	blocks = inode->i_blocks;
+	isize = inode->i_size;
+	spin_unlock(&inode->i_lock);
+	if (blocks*512 < isize) {
+		pr_warn("swap activate: swapfile has holes\n");
+		return -EINVAL;
+	}
+	*span = sis->pages;
+
+	pr_warn_once("Swap support over SMB3 is experimental\n");
+
+	/*
+	 * TODO: consider adding ACL (or documenting how) to prevent other
+	 * users (on this or other systems) from reading it
+	 */
+
+
+	/* TODO: add sk_set_memalloc(inet) or similar */
+
+	if (cfile)
+		cfile->swapfile = true;
+	/*
+	 * TODO: Since file already open, we can't open with DENY_ALL here
+	 * but we could add call to grab a byte range lock to prevent others
+	 * from reading or writing the file
+	 */
+
+	return 0;
+}
+
+static void cifs_swap_deactivate(struct file *file)
+{
+	struct cifsFileInfo *cfile = file->private_data;
+
+	cifs_dbg(FYI, "swap deactivate\n");
+
+	/* TODO: undo sk_set_memalloc(inet) will eventually be needed */
+
+	if (cfile)
+		cfile->swapfile = false;
+
+	/* do we need to unpin (or unlock) the file */
+}
+>>>>>>> upstream/android-13
 
 const struct address_space_operations cifs_addr_ops = {
 	.readpage = cifs_readpage,
@@ -4272,6 +5875,16 @@ const struct address_space_operations cifs_addr_ops = {
 	.direct_IO = cifs_direct_io,
 	.invalidatepage = cifs_invalidate_page,
 	.launder_page = cifs_launder_page,
+<<<<<<< HEAD
+=======
+	/*
+	 * TODO: investigate and if useful we could add an cifs_migratePage
+	 * helper (under an CONFIG_MIGRATION) in the future, and also
+	 * investigate and add an is_dirty_writeback helper if needed
+	 */
+	.swap_activate = cifs_swap_activate,
+	.swap_deactivate = cifs_swap_deactivate,
+>>>>>>> upstream/android-13
 };
 
 /*

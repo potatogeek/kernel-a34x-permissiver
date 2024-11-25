@@ -9,7 +9,11 @@
  * See kernel/sched/completion.c for details.
  */
 
+<<<<<<< HEAD
 #include <linux/wait.h>
+=======
+#include <linux/swait.h>
+>>>>>>> upstream/android-13
 
 /*
  * struct completion - structure used to maintain state for a "completion"
@@ -25,16 +29,27 @@
  */
 struct completion {
 	unsigned int done;
+<<<<<<< HEAD
 	wait_queue_head_t wait;
 };
 
 #define init_completion_map(x, m) __init_completion(x)
 #define init_completion(x) __init_completion(x)
+=======
+	struct swait_queue_head wait;
+};
+
+#define init_completion_map(x, m) init_completion(x)
+>>>>>>> upstream/android-13
 static inline void complete_acquire(struct completion *x) {}
 static inline void complete_release(struct completion *x) {}
 
 #define COMPLETION_INITIALIZER(work) \
+<<<<<<< HEAD
 	{ 0, __WAIT_QUEUE_HEAD_INITIALIZER((work).wait) }
+=======
+	{ 0, __SWAIT_QUEUE_HEAD_INITIALIZER((work).wait) }
+>>>>>>> upstream/android-13
 
 #define COMPLETION_INITIALIZER_ONSTACK_MAP(work, map) \
 	(*({ init_completion_map(&(work), &(map)); &(work); }))
@@ -82,10 +97,17 @@ static inline void complete_release(struct completion *x) {}
  * This inline function will initialize a dynamically created completion
  * structure.
  */
+<<<<<<< HEAD
 static inline void __init_completion(struct completion *x)
 {
 	x->done = 0;
 	init_waitqueue_head(&x->wait);
+=======
+static inline void init_completion(struct completion *x)
+{
+	x->done = 0;
+	init_swait_queue_head(&x->wait);
+>>>>>>> upstream/android-13
 }
 
 /**

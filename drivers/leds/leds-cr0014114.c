@@ -8,7 +8,10 @@
 #include <linux/of_device.h>
 #include <linux/spi/spi.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #include <uapi/linux/uleds.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  *  CR0014114 SPI protocol descrtiption:
@@ -40,8 +43,14 @@
 #define CR_FW_DELAY_MSEC	10
 #define CR_RECOUNT_DELAY	(HZ * 3600)
 
+<<<<<<< HEAD
 struct cr0014114_led {
 	char			name[LED_MAX_NAME_SIZE];
+=======
+#define CR_DEV_NAME		"cr0014114"
+
+struct cr0014114_led {
+>>>>>>> upstream/android-13
 	struct cr0014114	*priv;
 	struct led_classdev	ldev;
 	u8			brightness;
@@ -167,8 +176,12 @@ static int cr0014114_set_sync(struct led_classdev *ldev,
 						    struct cr0014114_led,
 						    ldev);
 
+<<<<<<< HEAD
 	dev_dbg(led->priv->dev, "Set brightness of %s to %d\n",
 		led->name, brightness);
+=======
+	dev_dbg(led->priv->dev, "Set brightness to %d\n", brightness);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&led->priv->lock);
 	led->brightness = (u8)brightness;
@@ -183,6 +196,7 @@ static int cr0014114_probe_dt(struct cr0014114 *priv)
 	size_t			i = 0;
 	struct cr0014114_led	*led;
 	struct fwnode_handle	*child;
+<<<<<<< HEAD
 	struct device_node	*np;
 	int			ret;
 	const char		*str;
@@ -213,12 +227,36 @@ static int cr0014114_probe_dt(struct cr0014114 *priv)
 			dev_err(priv->dev,
 				"failed to register LED device %s, err %d",
 				led->name, ret);
+=======
+	struct led_init_data	init_data = {};
+	int			ret;
+
+	device_for_each_child_node(priv->dev, child) {
+		led = &priv->leds[i];
+
+		led->priv			  = priv;
+		led->ldev.max_brightness	  = CR_MAX_BRIGHTNESS;
+		led->ldev.brightness_set_blocking = cr0014114_set_sync;
+
+		init_data.fwnode = child;
+		init_data.devicename = CR_DEV_NAME;
+		init_data.default_label = ":";
+
+		ret = devm_led_classdev_register_ext(priv->dev, &led->ldev,
+						     &init_data);
+		if (ret) {
+			dev_err(priv->dev,
+				"failed to register LED device, err %d", ret);
+>>>>>>> upstream/android-13
 			fwnode_handle_put(child);
 			return ret;
 		}
 
+<<<<<<< HEAD
 		led->ldev.dev->of_node = np;
 
+=======
+>>>>>>> upstream/android-13
 		i++;
 	}
 

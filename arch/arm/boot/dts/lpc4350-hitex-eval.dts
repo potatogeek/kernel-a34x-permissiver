@@ -40,8 +40,11 @@
 
 	pca_buttons {
 		compatible = "gpio-keys-polled";
+<<<<<<< HEAD
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 		poll-interval = <100>;
 		autorepeat;
 

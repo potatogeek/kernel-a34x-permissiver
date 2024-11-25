@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 """Find Kconfig symbols that are referenced but not defined."""
 
 # (c) 2014-2017 Valentin Rothberg <valentinrothberg@gmail.com>
 # (c) 2014 Stefan Hengelein <stefan.hengelein@fau.de>
 #
+<<<<<<< HEAD
 # Licensed under the terms of the GNU GPL License version 2
+=======
+>>>>>>> upstream/android-13
 
 
 import argparse
@@ -34,7 +41,10 @@ REGEX_SOURCE_SYMBOL = re.compile(SOURCE_SYMBOL)
 REGEX_KCONFIG_DEF = re.compile(DEF)
 REGEX_KCONFIG_EXPR = re.compile(EXPR)
 REGEX_KCONFIG_STMT = re.compile(STMT)
+<<<<<<< HEAD
 REGEX_KCONFIG_HELP = re.compile(r"^\s+(help|---help---)\s*$")
+=======
+>>>>>>> upstream/android-13
 REGEX_FILTER_SYMBOLS = re.compile(r"[A-Za-z0-9]$")
 REGEX_NUMERIC = re.compile(r"0[xX][0-9a-fA-F]+|[0-9]+")
 REGEX_QUOTES = re.compile("(\"(.*?)\")")
@@ -102,6 +112,12 @@ def parse_options():
                      "continue.")
 
     if args.commit:
+<<<<<<< HEAD
+=======
+        if args.commit.startswith('HEAD'):
+            sys.exit("The --commit option can't use the HEAD ref")
+
+>>>>>>> upstream/android-13
         args.find = False
 
     if args.ignore:
@@ -329,7 +345,11 @@ def check_symbols_helper(pool, ignore):
         if REGEX_FILE_KCONFIG.match(gitfile):
             kconfig_files.append(gitfile)
         else:
+<<<<<<< HEAD
             if ignore and not re.match(ignore, gitfile):
+=======
+            if ignore and re.match(ignore, gitfile):
+>>>>>>> upstream/android-13
                 continue
             # add source files that do not match the ignore pattern
             source_files.append(gitfile)
@@ -432,7 +452,10 @@ def parse_kconfig_file(kfile):
     lines = []
     defined = []
     references = []
+<<<<<<< HEAD
     skip = False
+=======
+>>>>>>> upstream/android-13
 
     if not os.path.exists(kfile):
         return defined, references
@@ -448,12 +471,15 @@ def parse_kconfig_file(kfile):
         if REGEX_KCONFIG_DEF.match(line):
             symbol_def = REGEX_KCONFIG_DEF.findall(line)
             defined.append(symbol_def[0])
+<<<<<<< HEAD
             skip = False
         elif REGEX_KCONFIG_HELP.match(line):
             skip = True
         elif skip:
             # ignore content of help messages
             pass
+=======
+>>>>>>> upstream/android-13
         elif REGEX_KCONFIG_STMT.match(line):
             line = REGEX_QUOTES.sub("", line)
             symbols = get_symbols_in_line(line)

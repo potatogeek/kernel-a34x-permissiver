@@ -394,10 +394,17 @@
 			#size-cells = <0>;
 
 			smart-battery@b {
+<<<<<<< HEAD
 				compatible = "ti,bq20z75", "smart-battery-1.1";
 				reg = <0xb>;
 				ti,i2c-retry-count = <2>;
 				ti,poll-retry-count = <10>;
+=======
+				compatible = "ti,bq20z75", "sbs,sbs-battery";
+				reg = <0xb>;
+				sbs,i2c-retry-count = <2>;
+				sbs,poll-retry-count = <10>;
+>>>>>>> upstream/android-13
 			};
 		};
 	};
@@ -760,14 +767,22 @@
 		status = "okay";
 	};
 
+<<<<<<< HEAD
 	sdhci@c8000000 {
+=======
+	mmc@c8000000 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		power-gpios = <&gpio TEGRA_GPIO(K, 6) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 		keep-power-in-suspend;
 	};
 
+<<<<<<< HEAD
 	sdhci@c8000400 {
+=======
+	mmc@c8000400 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		cd-gpios = <&gpio TEGRA_GPIO(I, 5) GPIO_ACTIVE_LOW>;
 		wp-gpios = <&gpio TEGRA_GPIO(H, 1) GPIO_ACTIVE_HIGH>;
@@ -775,7 +790,11 @@
 		bus-width = <4>;
 	};
 
+<<<<<<< HEAD
 	sdhci@c8000600 {
+=======
+	mmc@c8000600 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		bus-width = <8>;
 		non-removable;
@@ -792,6 +811,7 @@
 		default-brightness-level = <6>;
 	};
 
+<<<<<<< HEAD
 	clocks {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -803,6 +823,12 @@
 			#clock-cells = <0>;
 			clock-frequency = <32768>;
 		};
+=======
+	clk32k_in: clock@0 {
+		compatible = "fixed-clock";
+		clock-frequency = <32768>;
+		#clock-cells = <0>;
+>>>>>>> upstream/android-13
 	};
 
 	gpio-keys {
@@ -826,7 +852,11 @@
 	};
 
 	panel: panel {
+<<<<<<< HEAD
 		compatible = "chunghwa,claa101wa01a", "simple-panel";
+=======
+		compatible = "chunghwa,claa101wa01a";
+>>>>>>> upstream/android-13
 
 		power-supply = <&vdd_pnl_reg>;
 		enable-gpios = <&gpio TEGRA_GPIO(B, 2) GPIO_ACTIVE_HIGH>;
@@ -835,6 +865,7 @@
 		ddc-i2c-bus = <&lvds_ddc>;
 	};
 
+<<<<<<< HEAD
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -910,6 +941,70 @@
 			enable-active-high;
 			vin-supply = <&vdd_5v0_reg>;
 		};
+=======
+	vdd_5v0_reg: regulator@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_5v0";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
+	};
+
+	regulator@1 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_1v5";
+		regulator-min-microvolt = <1500000>;
+		regulator-max-microvolt = <1500000>;
+		gpio = <&pmic 0 GPIO_ACTIVE_HIGH>;
+	};
+
+	regulator@2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_1v2";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		gpio = <&pmic 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	vbus_reg: regulator@3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_vbus_wup1";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-active-high;
+		gpio = <&gpio TEGRA_GPIO(D, 0) 0>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vdd_pnl_reg: regulator@4 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_pnl";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&gpio TEGRA_GPIO(C, 6) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	vdd_bl_reg: regulator@5 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_bl";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	vdd_hdmi: regulator@6 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDDIO_HDMI";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio TEGRA_GPIO(V, 5) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&vdd_5v0_reg>;
+>>>>>>> upstream/android-13
 	};
 
 	sound {
@@ -931,7 +1026,11 @@
 		nvidia,audio-codec = <&wm8903>;
 
 		nvidia,spkr-en-gpios = <&wm8903 2 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
 		nvidia,hp-det-gpios = <&gpio TEGRA_GPIO(X, 1) GPIO_ACTIVE_HIGH>;
+=======
+		nvidia,hp-det-gpios = <&gpio TEGRA_GPIO(X, 1) GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 
 		clocks = <&tegra_car TEGRA20_CLK_PLL_A>,
 			 <&tegra_car TEGRA20_CLK_PLL_A_OUT0>,

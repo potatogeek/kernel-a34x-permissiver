@@ -131,6 +131,7 @@ union cvmx_pci_bar1_indexx {
 		uint32_t reserved_18_31:14;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_bar1_indexx_s cn30xx;
 	struct cvmx_pci_bar1_indexx_s cn31xx;
 	struct cvmx_pci_bar1_indexx_s cn38xx;
@@ -138,6 +139,8 @@ union cvmx_pci_bar1_indexx {
 	struct cvmx_pci_bar1_indexx_s cn50xx;
 	struct cvmx_pci_bar1_indexx_s cn58xx;
 	struct cvmx_pci_bar1_indexx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_bist_reg {
@@ -169,7 +172,10 @@ union cvmx_pci_bist_reg {
 		uint64_t reserved_10_63:54;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_bist_reg_s cn50xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg00 {
@@ -183,6 +189,7 @@ union cvmx_pci_cfg00 {
 		uint32_t devid:16;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg00_s cn30xx;
 	struct cvmx_pci_cfg00_s cn31xx;
 	struct cvmx_pci_cfg00_s cn38xx;
@@ -190,6 +197,8 @@ union cvmx_pci_cfg00 {
 	struct cvmx_pci_cfg00_s cn50xx;
 	struct cvmx_pci_cfg00_s cn58xx;
 	struct cvmx_pci_cfg00_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg01 {
@@ -247,6 +256,7 @@ union cvmx_pci_cfg01 {
 		uint32_t dpe:1;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg01_s cn30xx;
 	struct cvmx_pci_cfg01_s cn31xx;
 	struct cvmx_pci_cfg01_s cn38xx;
@@ -254,6 +264,8 @@ union cvmx_pci_cfg01 {
 	struct cvmx_pci_cfg01_s cn50xx;
 	struct cvmx_pci_cfg01_s cn58xx;
 	struct cvmx_pci_cfg01_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg02 {
@@ -267,6 +279,7 @@ union cvmx_pci_cfg02 {
 		uint32_t cc:24;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg02_s cn30xx;
 	struct cvmx_pci_cfg02_s cn31xx;
 	struct cvmx_pci_cfg02_s cn38xx;
@@ -274,6 +287,8 @@ union cvmx_pci_cfg02 {
 	struct cvmx_pci_cfg02_s cn50xx;
 	struct cvmx_pci_cfg02_s cn58xx;
 	struct cvmx_pci_cfg02_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg03 {
@@ -297,6 +312,7 @@ union cvmx_pci_cfg03 {
 		uint32_t bcap:1;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg03_s cn30xx;
 	struct cvmx_pci_cfg03_s cn31xx;
 	struct cvmx_pci_cfg03_s cn38xx;
@@ -304,6 +320,8 @@ union cvmx_pci_cfg03 {
 	struct cvmx_pci_cfg03_s cn50xx;
 	struct cvmx_pci_cfg03_s cn58xx;
 	struct cvmx_pci_cfg03_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg04 {
@@ -323,6 +341,7 @@ union cvmx_pci_cfg04 {
 		uint32_t lbase:20;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg04_s cn30xx;
 	struct cvmx_pci_cfg04_s cn31xx;
 	struct cvmx_pci_cfg04_s cn38xx;
@@ -330,6 +349,8 @@ union cvmx_pci_cfg04 {
 	struct cvmx_pci_cfg04_s cn50xx;
 	struct cvmx_pci_cfg04_s cn58xx;
 	struct cvmx_pci_cfg04_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg05 {
@@ -341,6 +362,7 @@ union cvmx_pci_cfg05 {
 		uint32_t hbase:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg05_s cn30xx;
 	struct cvmx_pci_cfg05_s cn31xx;
 	struct cvmx_pci_cfg05_s cn38xx;
@@ -348,6 +370,8 @@ union cvmx_pci_cfg05 {
 	struct cvmx_pci_cfg05_s cn50xx;
 	struct cvmx_pci_cfg05_s cn58xx;
 	struct cvmx_pci_cfg05_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg06 {
@@ -367,6 +391,7 @@ union cvmx_pci_cfg06 {
 		uint32_t lbase:5;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg06_s cn30xx;
 	struct cvmx_pci_cfg06_s cn31xx;
 	struct cvmx_pci_cfg06_s cn38xx;
@@ -374,6 +399,8 @@ union cvmx_pci_cfg06 {
 	struct cvmx_pci_cfg06_s cn50xx;
 	struct cvmx_pci_cfg06_s cn58xx;
 	struct cvmx_pci_cfg06_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg07 {
@@ -385,6 +412,7 @@ union cvmx_pci_cfg07 {
 		uint32_t hbase:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg07_s cn30xx;
 	struct cvmx_pci_cfg07_s cn31xx;
 	struct cvmx_pci_cfg07_s cn38xx;
@@ -392,6 +420,8 @@ union cvmx_pci_cfg07 {
 	struct cvmx_pci_cfg07_s cn50xx;
 	struct cvmx_pci_cfg07_s cn58xx;
 	struct cvmx_pci_cfg07_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg08 {
@@ -409,6 +439,7 @@ union cvmx_pci_cfg08 {
 		uint32_t lbasez:28;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg08_s cn30xx;
 	struct cvmx_pci_cfg08_s cn31xx;
 	struct cvmx_pci_cfg08_s cn38xx;
@@ -416,6 +447,8 @@ union cvmx_pci_cfg08 {
 	struct cvmx_pci_cfg08_s cn50xx;
 	struct cvmx_pci_cfg08_s cn58xx;
 	struct cvmx_pci_cfg08_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg09 {
@@ -429,6 +462,7 @@ union cvmx_pci_cfg09 {
 		uint32_t hbase:25;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg09_s cn30xx;
 	struct cvmx_pci_cfg09_s cn31xx;
 	struct cvmx_pci_cfg09_s cn38xx;
@@ -436,6 +470,8 @@ union cvmx_pci_cfg09 {
 	struct cvmx_pci_cfg09_s cn50xx;
 	struct cvmx_pci_cfg09_s cn58xx;
 	struct cvmx_pci_cfg09_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg10 {
@@ -447,6 +483,7 @@ union cvmx_pci_cfg10 {
 		uint32_t cisp:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg10_s cn30xx;
 	struct cvmx_pci_cfg10_s cn31xx;
 	struct cvmx_pci_cfg10_s cn38xx;
@@ -454,6 +491,8 @@ union cvmx_pci_cfg10 {
 	struct cvmx_pci_cfg10_s cn50xx;
 	struct cvmx_pci_cfg10_s cn58xx;
 	struct cvmx_pci_cfg10_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg11 {
@@ -467,6 +506,7 @@ union cvmx_pci_cfg11 {
 		uint32_t ssid:16;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg11_s cn30xx;
 	struct cvmx_pci_cfg11_s cn31xx;
 	struct cvmx_pci_cfg11_s cn38xx;
@@ -474,6 +514,8 @@ union cvmx_pci_cfg11 {
 	struct cvmx_pci_cfg11_s cn50xx;
 	struct cvmx_pci_cfg11_s cn58xx;
 	struct cvmx_pci_cfg11_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg12 {
@@ -491,6 +533,7 @@ union cvmx_pci_cfg12 {
 		uint32_t erbar:16;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg12_s cn30xx;
 	struct cvmx_pci_cfg12_s cn31xx;
 	struct cvmx_pci_cfg12_s cn38xx;
@@ -498,6 +541,8 @@ union cvmx_pci_cfg12 {
 	struct cvmx_pci_cfg12_s cn50xx;
 	struct cvmx_pci_cfg12_s cn58xx;
 	struct cvmx_pci_cfg12_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg13 {
@@ -511,6 +556,7 @@ union cvmx_pci_cfg13 {
 		uint32_t reserved_8_31:24;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg13_s cn30xx;
 	struct cvmx_pci_cfg13_s cn31xx;
 	struct cvmx_pci_cfg13_s cn38xx;
@@ -518,6 +564,8 @@ union cvmx_pci_cfg13 {
 	struct cvmx_pci_cfg13_s cn50xx;
 	struct cvmx_pci_cfg13_s cn58xx;
 	struct cvmx_pci_cfg13_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg15 {
@@ -535,6 +583,7 @@ union cvmx_pci_cfg15 {
 		uint32_t ml:8;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg15_s cn30xx;
 	struct cvmx_pci_cfg15_s cn31xx;
 	struct cvmx_pci_cfg15_s cn38xx;
@@ -542,6 +591,8 @@ union cvmx_pci_cfg15 {
 	struct cvmx_pci_cfg15_s cn50xx;
 	struct cvmx_pci_cfg15_s cn58xx;
 	struct cvmx_pci_cfg15_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg16 {
@@ -583,6 +634,7 @@ union cvmx_pci_cfg16 {
 		uint32_t trdnpr:1;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg16_s cn30xx;
 	struct cvmx_pci_cfg16_s cn31xx;
 	struct cvmx_pci_cfg16_s cn38xx;
@@ -590,6 +642,8 @@ union cvmx_pci_cfg16 {
 	struct cvmx_pci_cfg16_s cn50xx;
 	struct cvmx_pci_cfg16_s cn58xx;
 	struct cvmx_pci_cfg16_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg17 {
@@ -601,6 +655,7 @@ union cvmx_pci_cfg17 {
 		uint32_t tscme:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg17_s cn30xx;
 	struct cvmx_pci_cfg17_s cn31xx;
 	struct cvmx_pci_cfg17_s cn38xx;
@@ -608,6 +663,8 @@ union cvmx_pci_cfg17 {
 	struct cvmx_pci_cfg17_s cn50xx;
 	struct cvmx_pci_cfg17_s cn58xx;
 	struct cvmx_pci_cfg17_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg18 {
@@ -619,6 +676,7 @@ union cvmx_pci_cfg18 {
 		uint32_t tdsrps:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg18_s cn30xx;
 	struct cvmx_pci_cfg18_s cn31xx;
 	struct cvmx_pci_cfg18_s cn38xx;
@@ -626,6 +684,8 @@ union cvmx_pci_cfg18 {
 	struct cvmx_pci_cfg18_s cn50xx;
 	struct cvmx_pci_cfg18_s cn58xx;
 	struct cvmx_pci_cfg18_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg19 {
@@ -671,6 +731,7 @@ union cvmx_pci_cfg19 {
 		uint32_t mrbcm:1;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg19_s cn30xx;
 	struct cvmx_pci_cfg19_s cn31xx;
 	struct cvmx_pci_cfg19_s cn38xx;
@@ -678,6 +739,8 @@ union cvmx_pci_cfg19 {
 	struct cvmx_pci_cfg19_s cn50xx;
 	struct cvmx_pci_cfg19_s cn58xx;
 	struct cvmx_pci_cfg19_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg20 {
@@ -689,6 +752,7 @@ union cvmx_pci_cfg20 {
 		uint32_t mdsp:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg20_s cn30xx;
 	struct cvmx_pci_cfg20_s cn31xx;
 	struct cvmx_pci_cfg20_s cn38xx;
@@ -696,6 +760,8 @@ union cvmx_pci_cfg20 {
 	struct cvmx_pci_cfg20_s cn50xx;
 	struct cvmx_pci_cfg20_s cn58xx;
 	struct cvmx_pci_cfg20_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg21 {
@@ -707,6 +773,7 @@ union cvmx_pci_cfg21 {
 		uint32_t scmre:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg21_s cn30xx;
 	struct cvmx_pci_cfg21_s cn31xx;
 	struct cvmx_pci_cfg21_s cn38xx;
@@ -714,6 +781,8 @@ union cvmx_pci_cfg21 {
 	struct cvmx_pci_cfg21_s cn50xx;
 	struct cvmx_pci_cfg21_s cn58xx;
 	struct cvmx_pci_cfg21_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg22 {
@@ -737,6 +806,7 @@ union cvmx_pci_cfg22 {
 		uint32_t mac:7;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg22_s cn30xx;
 	struct cvmx_pci_cfg22_s cn31xx;
 	struct cvmx_pci_cfg22_s cn38xx;
@@ -744,6 +814,8 @@ union cvmx_pci_cfg22 {
 	struct cvmx_pci_cfg22_s cn50xx;
 	struct cvmx_pci_cfg22_s cn58xx;
 	struct cvmx_pci_cfg22_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg56 {
@@ -767,6 +839,7 @@ union cvmx_pci_cfg56 {
 		uint32_t reserved_23_31:9;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg56_s cn30xx;
 	struct cvmx_pci_cfg56_s cn31xx;
 	struct cvmx_pci_cfg56_s cn38xx;
@@ -774,6 +847,8 @@ union cvmx_pci_cfg56 {
 	struct cvmx_pci_cfg56_s cn50xx;
 	struct cvmx_pci_cfg56_s cn58xx;
 	struct cvmx_pci_cfg56_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg57 {
@@ -809,6 +884,7 @@ union cvmx_pci_cfg57 {
 		uint32_t reserved_30_31:2;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg57_s cn30xx;
 	struct cvmx_pci_cfg57_s cn31xx;
 	struct cvmx_pci_cfg57_s cn38xx;
@@ -816,6 +892,8 @@ union cvmx_pci_cfg57 {
 	struct cvmx_pci_cfg57_s cn50xx;
 	struct cvmx_pci_cfg57_s cn58xx;
 	struct cvmx_pci_cfg57_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg58 {
@@ -845,6 +923,7 @@ union cvmx_pci_cfg58 {
 		uint32_t pmes:5;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg58_s cn30xx;
 	struct cvmx_pci_cfg58_s cn31xx;
 	struct cvmx_pci_cfg58_s cn38xx;
@@ -852,6 +931,8 @@ union cvmx_pci_cfg58 {
 	struct cvmx_pci_cfg58_s cn50xx;
 	struct cvmx_pci_cfg58_s cn58xx;
 	struct cvmx_pci_cfg58_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg59 {
@@ -881,6 +962,7 @@ union cvmx_pci_cfg59 {
 		uint32_t pmdia:8;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg59_s cn30xx;
 	struct cvmx_pci_cfg59_s cn31xx;
 	struct cvmx_pci_cfg59_s cn38xx;
@@ -888,6 +970,8 @@ union cvmx_pci_cfg59 {
 	struct cvmx_pci_cfg59_s cn50xx;
 	struct cvmx_pci_cfg59_s cn58xx;
 	struct cvmx_pci_cfg59_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg60 {
@@ -911,6 +995,7 @@ union cvmx_pci_cfg60 {
 		uint32_t reserved_24_31:8;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg60_s cn30xx;
 	struct cvmx_pci_cfg60_s cn31xx;
 	struct cvmx_pci_cfg60_s cn38xx;
@@ -918,6 +1003,8 @@ union cvmx_pci_cfg60 {
 	struct cvmx_pci_cfg60_s cn50xx;
 	struct cvmx_pci_cfg60_s cn58xx;
 	struct cvmx_pci_cfg60_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg61 {
@@ -931,6 +1018,7 @@ union cvmx_pci_cfg61 {
 		uint32_t msi31t2:30;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg61_s cn30xx;
 	struct cvmx_pci_cfg61_s cn31xx;
 	struct cvmx_pci_cfg61_s cn38xx;
@@ -938,6 +1026,8 @@ union cvmx_pci_cfg61 {
 	struct cvmx_pci_cfg61_s cn50xx;
 	struct cvmx_pci_cfg61_s cn58xx;
 	struct cvmx_pci_cfg61_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg62 {
@@ -949,6 +1039,7 @@ union cvmx_pci_cfg62 {
 		uint32_t msi:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg62_s cn30xx;
 	struct cvmx_pci_cfg62_s cn31xx;
 	struct cvmx_pci_cfg62_s cn38xx;
@@ -956,6 +1047,8 @@ union cvmx_pci_cfg62 {
 	struct cvmx_pci_cfg62_s cn50xx;
 	struct cvmx_pci_cfg62_s cn58xx;
 	struct cvmx_pci_cfg62_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cfg63 {
@@ -969,6 +1062,7 @@ union cvmx_pci_cfg63 {
 		uint32_t reserved_16_31:16;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cfg63_s cn30xx;
 	struct cvmx_pci_cfg63_s cn31xx;
 	struct cvmx_pci_cfg63_s cn38xx;
@@ -976,6 +1070,8 @@ union cvmx_pci_cfg63 {
 	struct cvmx_pci_cfg63_s cn50xx;
 	struct cvmx_pci_cfg63_s cn58xx;
 	struct cvmx_pci_cfg63_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_cnt_reg {
@@ -997,9 +1093,12 @@ union cvmx_pci_cnt_reg {
 		uint64_t reserved_38_63:26;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_cnt_reg_s cn50xx;
 	struct cvmx_pci_cnt_reg_s cn58xx;
 	struct cvmx_pci_cnt_reg_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_ctl_status_2 {
@@ -1053,7 +1152,10 @@ union cvmx_pci_ctl_status_2 {
 		uint32_t reserved_29_31:3;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_ctl_status_2_s cn30xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_pci_ctl_status_2_cn31xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint32_t reserved_20_31:12;
@@ -1091,11 +1193,14 @@ union cvmx_pci_ctl_status_2 {
 		uint32_t reserved_20_31:12;
 #endif
 	} cn31xx;
+<<<<<<< HEAD
 	struct cvmx_pci_ctl_status_2_s cn38xx;
 	struct cvmx_pci_ctl_status_2_cn31xx cn38xxp2;
 	struct cvmx_pci_ctl_status_2_s cn50xx;
 	struct cvmx_pci_ctl_status_2_s cn58xx;
 	struct cvmx_pci_ctl_status_2_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_dbellx {
@@ -1109,6 +1214,7 @@ union cvmx_pci_dbellx {
 		uint32_t reserved_16_31:16;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_dbellx_s cn30xx;
 	struct cvmx_pci_dbellx_s cn31xx;
 	struct cvmx_pci_dbellx_s cn38xx;
@@ -1116,6 +1222,8 @@ union cvmx_pci_dbellx {
 	struct cvmx_pci_dbellx_s cn50xx;
 	struct cvmx_pci_dbellx_s cn58xx;
 	struct cvmx_pci_dbellx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_dma_cntx {
@@ -1127,6 +1235,7 @@ union cvmx_pci_dma_cntx {
 		uint32_t dma_cnt:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_dma_cntx_s cn30xx;
 	struct cvmx_pci_dma_cntx_s cn31xx;
 	struct cvmx_pci_dma_cntx_s cn38xx;
@@ -1134,6 +1243,8 @@ union cvmx_pci_dma_cntx {
 	struct cvmx_pci_dma_cntx_s cn50xx;
 	struct cvmx_pci_dma_cntx_s cn58xx;
 	struct cvmx_pci_dma_cntx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_dma_int_levx {
@@ -1145,6 +1256,7 @@ union cvmx_pci_dma_int_levx {
 		uint32_t pkt_cnt:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_dma_int_levx_s cn30xx;
 	struct cvmx_pci_dma_int_levx_s cn31xx;
 	struct cvmx_pci_dma_int_levx_s cn38xx;
@@ -1152,6 +1264,8 @@ union cvmx_pci_dma_int_levx {
 	struct cvmx_pci_dma_int_levx_s cn50xx;
 	struct cvmx_pci_dma_int_levx_s cn58xx;
 	struct cvmx_pci_dma_int_levx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_dma_timex {
@@ -1163,6 +1277,7 @@ union cvmx_pci_dma_timex {
 		uint32_t dma_time:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_dma_timex_s cn30xx;
 	struct cvmx_pci_dma_timex_s cn31xx;
 	struct cvmx_pci_dma_timex_s cn38xx;
@@ -1170,6 +1285,8 @@ union cvmx_pci_dma_timex {
 	struct cvmx_pci_dma_timex_s cn50xx;
 	struct cvmx_pci_dma_timex_s cn58xx;
 	struct cvmx_pci_dma_timex_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_instr_countx {
@@ -1181,6 +1298,7 @@ union cvmx_pci_instr_countx {
 		uint32_t icnt:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_instr_countx_s cn30xx;
 	struct cvmx_pci_instr_countx_s cn31xx;
 	struct cvmx_pci_instr_countx_s cn38xx;
@@ -1188,6 +1306,8 @@ union cvmx_pci_instr_countx {
 	struct cvmx_pci_instr_countx_s cn50xx;
 	struct cvmx_pci_instr_countx_s cn58xx;
 	struct cvmx_pci_instr_countx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_int_enb {
@@ -1405,11 +1525,14 @@ union cvmx_pci_int_enb {
 		uint64_t reserved_34_63:30;
 #endif
 	} cn31xx;
+<<<<<<< HEAD
 	struct cvmx_pci_int_enb_s cn38xx;
 	struct cvmx_pci_int_enb_s cn38xxp2;
 	struct cvmx_pci_int_enb_cn31xx cn50xx;
 	struct cvmx_pci_int_enb_s cn58xx;
 	struct cvmx_pci_int_enb_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_int_enb2 {
@@ -1627,11 +1750,14 @@ union cvmx_pci_int_enb2 {
 		uint64_t reserved_34_63:30;
 #endif
 	} cn31xx;
+<<<<<<< HEAD
 	struct cvmx_pci_int_enb2_s cn38xx;
 	struct cvmx_pci_int_enb2_s cn38xxp2;
 	struct cvmx_pci_int_enb2_cn31xx cn50xx;
 	struct cvmx_pci_int_enb2_s cn58xx;
 	struct cvmx_pci_int_enb2_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_int_sum {
@@ -1849,11 +1975,14 @@ union cvmx_pci_int_sum {
 		uint64_t reserved_34_63:30;
 #endif
 	} cn31xx;
+<<<<<<< HEAD
 	struct cvmx_pci_int_sum_s cn38xx;
 	struct cvmx_pci_int_sum_s cn38xxp2;
 	struct cvmx_pci_int_sum_cn31xx cn50xx;
 	struct cvmx_pci_int_sum_s cn58xx;
 	struct cvmx_pci_int_sum_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_int_sum2 {
@@ -2071,11 +2200,14 @@ union cvmx_pci_int_sum2 {
 		uint64_t reserved_34_63:30;
 #endif
 	} cn31xx;
+<<<<<<< HEAD
 	struct cvmx_pci_int_sum2_s cn38xx;
 	struct cvmx_pci_int_sum2_s cn38xxp2;
 	struct cvmx_pci_int_sum2_cn31xx cn50xx;
 	struct cvmx_pci_int_sum2_s cn58xx;
 	struct cvmx_pci_int_sum2_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_msi_rcv {
@@ -2089,6 +2221,7 @@ union cvmx_pci_msi_rcv {
 		uint32_t reserved_6_31:26;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_msi_rcv_s cn30xx;
 	struct cvmx_pci_msi_rcv_s cn31xx;
 	struct cvmx_pci_msi_rcv_s cn38xx;
@@ -2096,6 +2229,8 @@ union cvmx_pci_msi_rcv {
 	struct cvmx_pci_msi_rcv_s cn50xx;
 	struct cvmx_pci_msi_rcv_s cn58xx;
 	struct cvmx_pci_msi_rcv_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_pkt_creditsx {
@@ -2109,6 +2244,7 @@ union cvmx_pci_pkt_creditsx {
 		uint32_t pkt_cnt:16;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_pkt_creditsx_s cn30xx;
 	struct cvmx_pci_pkt_creditsx_s cn31xx;
 	struct cvmx_pci_pkt_creditsx_s cn38xx;
@@ -2116,6 +2252,8 @@ union cvmx_pci_pkt_creditsx {
 	struct cvmx_pci_pkt_creditsx_s cn50xx;
 	struct cvmx_pci_pkt_creditsx_s cn58xx;
 	struct cvmx_pci_pkt_creditsx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_pkts_sentx {
@@ -2127,6 +2265,7 @@ union cvmx_pci_pkts_sentx {
 		uint32_t pkt_cnt:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_pkts_sentx_s cn30xx;
 	struct cvmx_pci_pkts_sentx_s cn31xx;
 	struct cvmx_pci_pkts_sentx_s cn38xx;
@@ -2134,6 +2273,8 @@ union cvmx_pci_pkts_sentx {
 	struct cvmx_pci_pkts_sentx_s cn50xx;
 	struct cvmx_pci_pkts_sentx_s cn58xx;
 	struct cvmx_pci_pkts_sentx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_pkts_sent_int_levx {
@@ -2145,6 +2286,7 @@ union cvmx_pci_pkts_sent_int_levx {
 		uint32_t pkt_cnt:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_pkts_sent_int_levx_s cn30xx;
 	struct cvmx_pci_pkts_sent_int_levx_s cn31xx;
 	struct cvmx_pci_pkts_sent_int_levx_s cn38xx;
@@ -2152,6 +2294,8 @@ union cvmx_pci_pkts_sent_int_levx {
 	struct cvmx_pci_pkts_sent_int_levx_s cn50xx;
 	struct cvmx_pci_pkts_sent_int_levx_s cn58xx;
 	struct cvmx_pci_pkts_sent_int_levx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_pkts_sent_timex {
@@ -2163,6 +2307,7 @@ union cvmx_pci_pkts_sent_timex {
 		uint32_t pkt_time:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_pkts_sent_timex_s cn30xx;
 	struct cvmx_pci_pkts_sent_timex_s cn31xx;
 	struct cvmx_pci_pkts_sent_timex_s cn38xx;
@@ -2170,6 +2315,8 @@ union cvmx_pci_pkts_sent_timex {
 	struct cvmx_pci_pkts_sent_timex_s cn50xx;
 	struct cvmx_pci_pkts_sent_timex_s cn58xx;
 	struct cvmx_pci_pkts_sent_timex_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_read_cmd_6 {
@@ -2185,6 +2332,7 @@ union cvmx_pci_read_cmd_6 {
 		uint32_t reserved_9_31:23;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_read_cmd_6_s cn30xx;
 	struct cvmx_pci_read_cmd_6_s cn31xx;
 	struct cvmx_pci_read_cmd_6_s cn38xx;
@@ -2192,6 +2340,8 @@ union cvmx_pci_read_cmd_6 {
 	struct cvmx_pci_read_cmd_6_s cn50xx;
 	struct cvmx_pci_read_cmd_6_s cn58xx;
 	struct cvmx_pci_read_cmd_6_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_read_cmd_c {
@@ -2207,6 +2357,7 @@ union cvmx_pci_read_cmd_c {
 		uint32_t reserved_9_31:23;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_read_cmd_c_s cn30xx;
 	struct cvmx_pci_read_cmd_c_s cn31xx;
 	struct cvmx_pci_read_cmd_c_s cn38xx;
@@ -2214,6 +2365,8 @@ union cvmx_pci_read_cmd_c {
 	struct cvmx_pci_read_cmd_c_s cn50xx;
 	struct cvmx_pci_read_cmd_c_s cn58xx;
 	struct cvmx_pci_read_cmd_c_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_read_cmd_e {
@@ -2229,6 +2382,7 @@ union cvmx_pci_read_cmd_e {
 		uint32_t reserved_9_31:23;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_read_cmd_e_s cn30xx;
 	struct cvmx_pci_read_cmd_e_s cn31xx;
 	struct cvmx_pci_read_cmd_e_s cn38xx;
@@ -2236,6 +2390,8 @@ union cvmx_pci_read_cmd_e {
 	struct cvmx_pci_read_cmd_e_s cn50xx;
 	struct cvmx_pci_read_cmd_e_s cn58xx;
 	struct cvmx_pci_read_cmd_e_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_read_timeout {
@@ -2251,6 +2407,7 @@ union cvmx_pci_read_timeout {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_read_timeout_s cn30xx;
 	struct cvmx_pci_read_timeout_s cn31xx;
 	struct cvmx_pci_read_timeout_s cn38xx;
@@ -2258,6 +2415,8 @@ union cvmx_pci_read_timeout {
 	struct cvmx_pci_read_timeout_s cn50xx;
 	struct cvmx_pci_read_timeout_s cn58xx;
 	struct cvmx_pci_read_timeout_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_scm_reg {
@@ -2271,6 +2430,7 @@ union cvmx_pci_scm_reg {
 		uint64_t reserved_32_63:32;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_scm_reg_s cn30xx;
 	struct cvmx_pci_scm_reg_s cn31xx;
 	struct cvmx_pci_scm_reg_s cn38xx;
@@ -2278,6 +2438,8 @@ union cvmx_pci_scm_reg {
 	struct cvmx_pci_scm_reg_s cn50xx;
 	struct cvmx_pci_scm_reg_s cn58xx;
 	struct cvmx_pci_scm_reg_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_tsr_reg {
@@ -2291,6 +2453,7 @@ union cvmx_pci_tsr_reg {
 		uint64_t reserved_36_63:28;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_tsr_reg_s cn30xx;
 	struct cvmx_pci_tsr_reg_s cn31xx;
 	struct cvmx_pci_tsr_reg_s cn38xx;
@@ -2298,6 +2461,8 @@ union cvmx_pci_tsr_reg {
 	struct cvmx_pci_tsr_reg_s cn50xx;
 	struct cvmx_pci_tsr_reg_s cn58xx;
 	struct cvmx_pci_tsr_reg_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_win_rd_addr {
@@ -2326,7 +2491,10 @@ union cvmx_pci_win_rd_addr {
 		uint64_t reserved_49_63:15;
 #endif
 	} cn30xx;
+<<<<<<< HEAD
 	struct cvmx_pci_win_rd_addr_cn30xx cn31xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_pci_win_rd_addr_cn38xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_49_63:15;
@@ -2340,10 +2508,13 @@ union cvmx_pci_win_rd_addr {
 		uint64_t reserved_49_63:15;
 #endif
 	} cn38xx;
+<<<<<<< HEAD
 	struct cvmx_pci_win_rd_addr_cn38xx cn38xxp2;
 	struct cvmx_pci_win_rd_addr_cn30xx cn50xx;
 	struct cvmx_pci_win_rd_addr_cn38xx cn58xx;
 	struct cvmx_pci_win_rd_addr_cn38xx cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_win_rd_data {
@@ -2355,6 +2526,7 @@ union cvmx_pci_win_rd_data {
 		uint64_t rd_data:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_win_rd_data_s cn30xx;
 	struct cvmx_pci_win_rd_data_s cn31xx;
 	struct cvmx_pci_win_rd_data_s cn38xx;
@@ -2362,6 +2534,8 @@ union cvmx_pci_win_rd_data {
 	struct cvmx_pci_win_rd_data_s cn50xx;
 	struct cvmx_pci_win_rd_data_s cn58xx;
 	struct cvmx_pci_win_rd_data_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_win_wr_addr {
@@ -2379,6 +2553,7 @@ union cvmx_pci_win_wr_addr {
 		uint64_t reserved_49_63:15;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_win_wr_addr_s cn30xx;
 	struct cvmx_pci_win_wr_addr_s cn31xx;
 	struct cvmx_pci_win_wr_addr_s cn38xx;
@@ -2386,6 +2561,8 @@ union cvmx_pci_win_wr_addr {
 	struct cvmx_pci_win_wr_addr_s cn50xx;
 	struct cvmx_pci_win_wr_addr_s cn58xx;
 	struct cvmx_pci_win_wr_addr_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_win_wr_data {
@@ -2397,6 +2574,7 @@ union cvmx_pci_win_wr_data {
 		uint64_t wr_data:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_win_wr_data_s cn30xx;
 	struct cvmx_pci_win_wr_data_s cn31xx;
 	struct cvmx_pci_win_wr_data_s cn38xx;
@@ -2404,6 +2582,8 @@ union cvmx_pci_win_wr_data {
 	struct cvmx_pci_win_wr_data_s cn50xx;
 	struct cvmx_pci_win_wr_data_s cn58xx;
 	struct cvmx_pci_win_wr_data_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_pci_win_wr_mask {
@@ -2417,6 +2597,7 @@ union cvmx_pci_win_wr_mask {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_pci_win_wr_mask_s cn30xx;
 	struct cvmx_pci_win_wr_mask_s cn31xx;
 	struct cvmx_pci_win_wr_mask_s cn38xx;
@@ -2424,6 +2605,8 @@ union cvmx_pci_win_wr_mask {
 	struct cvmx_pci_win_wr_mask_s cn50xx;
 	struct cvmx_pci_win_wr_mask_s cn58xx;
 	struct cvmx_pci_win_wr_mask_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
  *
@@ -10,6 +11,11 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -35,9 +41,12 @@
 
 #include "jz4740-i2s.h"
 
+<<<<<<< HEAD
 #define JZ4740_DMA_TYPE_AIC_TRANSMIT 24
 #define JZ4740_DMA_TYPE_AIC_RECEIVE 25
 
+=======
+>>>>>>> upstream/android-13
 #define JZ_REG_AIC_CONF		0x00
 #define JZ_REG_AIC_CTRL		0x04
 #define JZ_REG_AIC_I2S_FMT	0x10
@@ -58,12 +67,17 @@
 
 #define JZ_AIC_CONF_FIFO_RX_THRESHOLD_OFFSET 12
 #define JZ_AIC_CONF_FIFO_TX_THRESHOLD_OFFSET 8
+<<<<<<< HEAD
 #define JZ4780_AIC_CONF_FIFO_RX_THRESHOLD_OFFSET 24
 #define JZ4780_AIC_CONF_FIFO_TX_THRESHOLD_OFFSET 16
 #define JZ4780_AIC_CONF_FIFO_RX_THRESHOLD_MASK \
 			(0xf << JZ4780_AIC_CONF_FIFO_RX_THRESHOLD_OFFSET)
 #define JZ4780_AIC_CONF_FIFO_TX_THRESHOLD_MASK \
 			(0x1f <<  JZ4780_AIC_CONF_FIFO_TX_THRESHOLD_OFFSET)
+=======
+#define JZ4760_AIC_CONF_FIFO_RX_THRESHOLD_OFFSET 24
+#define JZ4760_AIC_CONF_FIFO_TX_THRESHOLD_OFFSET 16
+>>>>>>> upstream/android-13
 
 #define JZ_AIC_CTRL_OUTPUT_SAMPLE_SIZE_MASK (0x7 << 19)
 #define JZ_AIC_CTRL_INPUT_SAMPLE_SIZE_MASK (0x7 << 16)
@@ -99,9 +113,22 @@
 
 enum jz47xx_i2s_version {
 	JZ_I2S_JZ4740,
+<<<<<<< HEAD
 	JZ_I2S_JZ4780,
 };
 
+=======
+	JZ_I2S_JZ4760,
+	JZ_I2S_JZ4770,
+	JZ_I2S_JZ4780,
+};
+
+struct i2s_soc_info {
+	enum jz47xx_i2s_version version;
+	struct snd_soc_dai_driver *dai;
+};
+
+>>>>>>> upstream/android-13
 struct jz4740_i2s {
 	struct resource *mem;
 	void __iomem *base;
@@ -113,7 +140,11 @@ struct jz4740_i2s {
 	struct snd_dmaengine_dai_dma_data playback_dma_data;
 	struct snd_dmaengine_dai_dma_data capture_dma_data;
 
+<<<<<<< HEAD
 	enum jz47xx_i2s_version version;
+=======
+	const struct i2s_soc_info *soc_info;
+>>>>>>> upstream/android-13
 };
 
 static inline uint32_t jz4740_i2s_read(const struct jz4740_i2s *i2s,
@@ -135,7 +166,11 @@ static int jz4740_i2s_startup(struct snd_pcm_substream *substream,
 	uint32_t conf, ctrl;
 	int ret;
 
+<<<<<<< HEAD
 	if (dai->active)
+=======
+	if (snd_soc_dai_active(dai))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ctrl = jz4740_i2s_read(i2s, JZ_REG_AIC_CTRL);
@@ -159,7 +194,11 @@ static void jz4740_i2s_shutdown(struct snd_pcm_substream *substream,
 	struct jz4740_i2s *i2s = snd_soc_dai_get_drvdata(dai);
 	uint32_t conf;
 
+<<<<<<< HEAD
 	if (dai->active)
+=======
+	if (snd_soc_dai_active(dai))
+>>>>>>> upstream/android-13
 		return;
 
 	conf = jz4740_i2s_read(i2s, JZ_REG_AIC_CONF);
@@ -293,7 +332,11 @@ static int jz4740_i2s_hw_params(struct snd_pcm_substream *substream,
 		ctrl &= ~JZ_AIC_CTRL_INPUT_SAMPLE_SIZE_MASK;
 		ctrl |= sample_size << JZ_AIC_CTRL_INPUT_SAMPLE_SIZE_OFFSET;
 
+<<<<<<< HEAD
 		if (i2s->version >= JZ_I2S_JZ4780) {
+=======
+		if (i2s->soc_info->version >= JZ_I2S_JZ4770) {
+>>>>>>> upstream/android-13
 			div_reg &= ~I2SDIV_IDV_MASK;
 			div_reg |= (div - 1) << I2SDIV_IDV_SHIFT;
 		} else {
@@ -337,12 +380,21 @@ static int jz4740_i2s_set_sysclk(struct snd_soc_dai *dai, int clk_id,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int jz4740_i2s_suspend(struct snd_soc_dai *dai)
 {
 	struct jz4740_i2s *i2s = snd_soc_dai_get_drvdata(dai);
 	uint32_t conf;
 
 	if (dai->active) {
+=======
+static int jz4740_i2s_suspend(struct snd_soc_component *component)
+{
+	struct jz4740_i2s *i2s = snd_soc_component_get_drvdata(component);
+	uint32_t conf;
+
+	if (snd_soc_component_active(component)) {
+>>>>>>> upstream/android-13
 		conf = jz4740_i2s_read(i2s, JZ_REG_AIC_CONF);
 		conf &= ~JZ_AIC_CONF_ENABLE;
 		jz4740_i2s_write(i2s, JZ_REG_AIC_CONF, conf);
@@ -355,9 +407,15 @@ static int jz4740_i2s_suspend(struct snd_soc_dai *dai)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int jz4740_i2s_resume(struct snd_soc_dai *dai)
 {
 	struct jz4740_i2s *i2s = snd_soc_dai_get_drvdata(dai);
+=======
+static int jz4740_i2s_resume(struct snd_soc_component *component)
+{
+	struct jz4740_i2s *i2s = snd_soc_component_get_drvdata(component);
+>>>>>>> upstream/android-13
 	uint32_t conf;
 	int ret;
 
@@ -365,7 +423,11 @@ static int jz4740_i2s_resume(struct snd_soc_dai *dai)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (dai->active) {
+=======
+	if (snd_soc_component_active(component)) {
+>>>>>>> upstream/android-13
 		ret = clk_prepare_enable(i2s->clk_i2s);
 		if (ret) {
 			clk_disable_unprepare(i2s->clk_aic);
@@ -380,20 +442,30 @@ static int jz4740_i2s_resume(struct snd_soc_dai *dai)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void jz4740_i2c_init_pcm_config(struct jz4740_i2s *i2s)
+=======
+static void jz4740_i2s_init_pcm_config(struct jz4740_i2s *i2s)
+>>>>>>> upstream/android-13
 {
 	struct snd_dmaengine_dai_dma_data *dma_data;
 
 	/* Playback */
 	dma_data = &i2s->playback_dma_data;
 	dma_data->maxburst = 16;
+<<<<<<< HEAD
 	dma_data->slave_id = JZ4740_DMA_TYPE_AIC_TRANSMIT;
+=======
+>>>>>>> upstream/android-13
 	dma_data->addr = i2s->phys_base + JZ_REG_AIC_FIFO;
 
 	/* Capture */
 	dma_data = &i2s->capture_dma_data;
 	dma_data->maxburst = 16;
+<<<<<<< HEAD
 	dma_data->slave_id = JZ4740_DMA_TYPE_AIC_RECEIVE;
+=======
+>>>>>>> upstream/android-13
 	dma_data->addr = i2s->phys_base + JZ_REG_AIC_FIFO;
 }
 
@@ -407,6 +479,7 @@ static int jz4740_i2s_dai_probe(struct snd_soc_dai *dai)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	jz4740_i2c_init_pcm_config(i2s);
 	snd_soc_dai_init_dma_data(dai, &i2s->playback_dma_data,
 		&i2s->capture_dma_data);
@@ -414,6 +487,15 @@ static int jz4740_i2s_dai_probe(struct snd_soc_dai *dai)
 	if (i2s->version >= JZ_I2S_JZ4780) {
 		conf = (7 << JZ4780_AIC_CONF_FIFO_RX_THRESHOLD_OFFSET) |
 			(8 << JZ4780_AIC_CONF_FIFO_TX_THRESHOLD_OFFSET) |
+=======
+	jz4740_i2s_init_pcm_config(i2s);
+	snd_soc_dai_init_dma_data(dai, &i2s->playback_dma_data,
+		&i2s->capture_dma_data);
+
+	if (i2s->soc_info->version >= JZ_I2S_JZ4760) {
+		conf = (7 << JZ4760_AIC_CONF_FIFO_RX_THRESHOLD_OFFSET) |
+			(8 << JZ4760_AIC_CONF_FIFO_TX_THRESHOLD_OFFSET) |
+>>>>>>> upstream/android-13
 			JZ_AIC_CONF_OVERFLOW_PLAY_LAST |
 			JZ_AIC_CONF_I2S |
 			JZ_AIC_CONF_INTERNAL_CODEC;
@@ -466,6 +548,7 @@ static struct snd_soc_dai_driver jz4740_i2s_dai = {
 		.rates = SNDRV_PCM_RATE_8000_48000,
 		.formats = JZ4740_I2S_FMTS,
 	},
+<<<<<<< HEAD
 	.symmetric_rates = 1,
 	.ops = &jz4740_i2s_dai_ops,
 	.suspend = jz4740_i2s_suspend,
@@ -473,6 +556,23 @@ static struct snd_soc_dai_driver jz4740_i2s_dai = {
 };
 
 static struct snd_soc_dai_driver jz4780_i2s_dai = {
+=======
+	.symmetric_rate = 1,
+	.ops = &jz4740_i2s_dai_ops,
+};
+
+static const struct i2s_soc_info jz4740_i2s_soc_info = {
+	.version = JZ_I2S_JZ4740,
+	.dai = &jz4740_i2s_dai,
+};
+
+static const struct i2s_soc_info jz4760_i2s_soc_info = {
+	.version = JZ_I2S_JZ4760,
+	.dai = &jz4740_i2s_dai,
+};
+
+static struct snd_soc_dai_driver jz4770_i2s_dai = {
+>>>>>>> upstream/android-13
 	.probe = jz4740_i2s_dai_probe,
 	.remove = jz4740_i2s_dai_remove,
 	.playback = {
@@ -488,12 +588,26 @@ static struct snd_soc_dai_driver jz4780_i2s_dai = {
 		.formats = JZ4740_I2S_FMTS,
 	},
 	.ops = &jz4740_i2s_dai_ops,
+<<<<<<< HEAD
 	.suspend = jz4740_i2s_suspend,
 	.resume = jz4740_i2s_resume,
+=======
+};
+
+static const struct i2s_soc_info jz4770_i2s_soc_info = {
+	.version = JZ_I2S_JZ4770,
+	.dai = &jz4770_i2s_dai,
+};
+
+static const struct i2s_soc_info jz4780_i2s_soc_info = {
+	.version = JZ_I2S_JZ4780,
+	.dai = &jz4770_i2s_dai,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver jz4740_i2s_component = {
 	.name		= "jz4740-i2s",
+<<<<<<< HEAD
 };
 
 #ifdef CONFIG_OF
@@ -522,21 +636,59 @@ static int jz4740_i2s_dev_probe(struct platform_device *pdev)
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	i2s->base = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	.suspend	= jz4740_i2s_suspend,
+	.resume		= jz4740_i2s_resume,
+};
+
+static const struct of_device_id jz4740_of_matches[] = {
+	{ .compatible = "ingenic,jz4740-i2s", .data = &jz4740_i2s_soc_info },
+	{ .compatible = "ingenic,jz4760-i2s", .data = &jz4760_i2s_soc_info },
+	{ .compatible = "ingenic,jz4770-i2s", .data = &jz4770_i2s_soc_info },
+	{ .compatible = "ingenic,jz4780-i2s", .data = &jz4780_i2s_soc_info },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, jz4740_of_matches);
+
+static int jz4740_i2s_dev_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	struct jz4740_i2s *i2s;
+	struct resource *mem;
+	int ret;
+
+	i2s = devm_kzalloc(dev, sizeof(*i2s), GFP_KERNEL);
+	if (!i2s)
+		return -ENOMEM;
+
+	i2s->soc_info = device_get_match_data(dev);
+
+	i2s->base = devm_platform_get_and_ioremap_resource(pdev, 0, &mem);
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2s->base))
 		return PTR_ERR(i2s->base);
 
 	i2s->phys_base = mem->start;
 
+<<<<<<< HEAD
 	i2s->clk_aic = devm_clk_get(&pdev->dev, "aic");
 	if (IS_ERR(i2s->clk_aic))
 		return PTR_ERR(i2s->clk_aic);
 
 	i2s->clk_i2s = devm_clk_get(&pdev->dev, "i2s");
+=======
+	i2s->clk_aic = devm_clk_get(dev, "aic");
+	if (IS_ERR(i2s->clk_aic))
+		return PTR_ERR(i2s->clk_aic);
+
+	i2s->clk_i2s = devm_clk_get(dev, "i2s");
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2s->clk_i2s))
 		return PTR_ERR(i2s->clk_i2s);
 
 	platform_set_drvdata(pdev, i2s);
 
+<<<<<<< HEAD
 	if (i2s->version == JZ_I2S_JZ4780)
 		ret = devm_snd_soc_register_component(&pdev->dev,
 			&jz4740_i2s_component, &jz4780_i2s_dai, 1);
@@ -548,6 +700,14 @@ static int jz4740_i2s_dev_probe(struct platform_device *pdev)
 		return ret;
 
 	return devm_snd_dmaengine_pcm_register(&pdev->dev, NULL,
+=======
+	ret = devm_snd_soc_register_component(dev, &jz4740_i2s_component,
+					      i2s->soc_info->dai, 1);
+	if (ret)
+		return ret;
+
+	return devm_snd_dmaengine_pcm_register(dev, NULL,
+>>>>>>> upstream/android-13
 		SND_DMAENGINE_PCM_FLAG_COMPAT);
 }
 
@@ -555,7 +715,11 @@ static struct platform_driver jz4740_i2s_driver = {
 	.probe = jz4740_i2s_dev_probe,
 	.driver = {
 		.name = "jz4740-i2s",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(jz4740_of_matches)
+=======
+		.of_match_table = jz4740_of_matches,
+>>>>>>> upstream/android-13
 	},
 };
 

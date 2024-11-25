@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * lib/ts_fsm.c	   A naive finite state machine text search approach
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * lib/ts_fsm.c	   A naive finite state machine text search approach
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  *
  * ==========================================================================
@@ -36,7 +43,11 @@
 struct ts_fsm
 {
 	unsigned int		ntokens;
+<<<<<<< HEAD
 	struct ts_fsm_token	tokens[0];
+=======
+	struct ts_fsm_token	tokens[];
+>>>>>>> upstream/android-13
 };
 
 /* other values derived from ctype.h */
@@ -197,7 +208,11 @@ startover:
 				TOKEN_MISMATCH();
 
 			block_idx++;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case TS_FSM_ANY:
 			if (next == NULL)

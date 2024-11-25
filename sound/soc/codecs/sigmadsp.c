@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Load Analog Devices SigmaStudio firmware files
  *
  * Copyright 2009-2014 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crc32.h>
@@ -25,6 +32,11 @@
 #define SIGMA_FW_CHUNK_TYPE_CONTROL 1
 #define SIGMA_FW_CHUNK_TYPE_SAMPLERATES 2
 
+<<<<<<< HEAD
+=======
+#define READBACK_CTRL_NAME "ReadBack"
+
+>>>>>>> upstream/android-13
 struct sigmadsp_control {
 	struct list_head head;
 	uint32_t samplerates;
@@ -32,6 +44,10 @@ struct sigmadsp_control {
 	unsigned int num_bytes;
 	const char *name;
 	struct snd_kcontrol *kcontrol;
+<<<<<<< HEAD
+=======
+	bool is_readback;
+>>>>>>> upstream/android-13
 	bool cached;
 	uint8_t cache[];
 };
@@ -142,7 +158,12 @@ static int sigmadsp_ctrl_put(struct snd_kcontrol *kcontrol,
 
 	if (ret == 0) {
 		memcpy(ctrl->cache, data, ctrl->num_bytes);
+<<<<<<< HEAD
 		ctrl->cached = true;
+=======
+		if (!ctrl->is_readback)
+			ctrl->cached = true;
+>>>>>>> upstream/android-13
 	}
 
 	mutex_unlock(&sigmadsp->lock);
@@ -165,7 +186,12 @@ static int sigmadsp_ctrl_get(struct snd_kcontrol *kcontrol,
 	}
 
 	if (ret == 0) {
+<<<<<<< HEAD
 		ctrl->cached = true;
+=======
+		if (!ctrl->is_readback)
+			ctrl->cached = true;
+>>>>>>> upstream/android-13
 		memcpy(ucontrol->value.bytes.data, ctrl->cache,
 			ctrl->num_bytes);
 	}
@@ -232,6 +258,18 @@ static int sigma_fw_load_control(struct sigmadsp *sigmadsp,
 	name[name_len] = '\0';
 	ctrl->name = name;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Readbacks doesn't work with non-volatile controls, since the
+	 * firmware updates the control value without driver interaction. Mark
+	 * the readbacks to ensure that the values are not cached.
+	 */
+	if (ctrl->name && strncmp(ctrl->name, READBACK_CTRL_NAME,
+				  (sizeof(READBACK_CTRL_NAME) - 1)) == 0)
+		ctrl->is_readback = true;
+
+>>>>>>> upstream/android-13
 	ctrl->addr = le16_to_cpu(ctrl_chunk->addr);
 	ctrl->num_bytes = num_bytes;
 	ctrl->samplerates = le32_to_cpu(chunk->samplerates);

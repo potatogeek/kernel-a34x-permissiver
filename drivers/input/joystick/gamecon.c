@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NES, SNES, N64, MultiSystem, PSX gamepad driver for Linux
  *
@@ -11,6 +15,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -497,7 +504,11 @@ static void gc_multi_process_packet(struct gc *gc)
 		switch (pad->type) {
 		case GC_MULTI2:
 			input_report_key(dev, BTN_THUMB, s & data[5]);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case GC_MULTI:
 			input_report_abs(dev, ABS_X,
@@ -650,7 +661,11 @@ static void gc_psx_report_one(struct gc_pad *pad, unsigned char psx_type,
 
 		input_report_key(dev, BTN_THUMBL, ~data[0] & 0x04);
 		input_report_key(dev, BTN_THUMBR, ~data[0] & 0x02);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case GC_PSX_NEGCON:
 	case GC_PSX_ANALOG:
@@ -884,7 +899,12 @@ static int gc_setup_pad(struct gc *gc, int idx, int pad_type)
 	case GC_SNES:
 		for (i = 4; i < 8; i++)
 			input_set_capability(input_dev, EV_KEY, gc_snes_btn[i]);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+
+>>>>>>> upstream/android-13
 	case GC_NES:
 		for (i = 0; i < 4; i++)
 			input_set_capability(input_dev, EV_KEY, gc_snes_btn[i]);
@@ -892,10 +912,17 @@ static int gc_setup_pad(struct gc *gc, int idx, int pad_type)
 
 	case GC_MULTI2:
 		input_set_capability(input_dev, EV_KEY, BTN_THUMB);
+<<<<<<< HEAD
 		/* fall through */
 	case GC_MULTI:
 		input_set_capability(input_dev, EV_KEY, BTN_TRIGGER);
 		/* fall through */
+=======
+		fallthrough;
+
+	case GC_MULTI:
+		input_set_capability(input_dev, EV_KEY, BTN_TRIGGER);
+>>>>>>> upstream/android-13
 		break;
 
 	case GC_PSX:

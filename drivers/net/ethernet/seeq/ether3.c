@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/acorn/net/ether3.c
  *
  *  Copyright (C) 1995-2000 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * SEEQ nq8005 ethernet driver for Acorn/ANT Ether3 card
  *  for Acorn machines
  *
@@ -82,7 +89,11 @@ static netdev_tx_t	ether3_sendpacket(struct sk_buff *skb,
 static irqreturn_t ether3_interrupt (int irq, void *dev_id);
 static int	ether3_close (struct net_device *dev);
 static void	ether3_setmulticastlist (struct net_device *dev);
+<<<<<<< HEAD
 static void	ether3_timeout(struct net_device *dev);
+=======
+static void	ether3_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 #define BUS_16		2
 #define BUS_8		1
@@ -453,7 +464,11 @@ static void ether3_setmulticastlist(struct net_device *dev)
 	ether3_outw(priv(dev)->regs.config1 | CFG1_LOCBUFMEM, REG_CONFIG1);
 }
 
+<<<<<<< HEAD
 static void ether3_timeout(struct net_device *dev)
+=======
+static void ether3_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
@@ -613,17 +628,27 @@ static int ether3_rx(struct net_device *dev, unsigned int maxcnt)
 		ether3_readbuffer(dev, addrs+2, 12);
 
 if (next_ptr < RX_START || next_ptr >= RX_END) {
+<<<<<<< HEAD
  int i;
  printk("%s: bad next pointer @%04X: ", dev->name, priv(dev)->rx_head);
  printk("%02X %02X %02X %02X ", next_ptr >> 8, next_ptr & 255, status & 255, status >> 8);
  for (i = 2; i < 14; i++)
    printk("%02X ", addrs[i]);
  printk("\n");
+=======
+ printk("%s: bad next pointer @%04X: ", dev->name, priv(dev)->rx_head);
+ printk("%02X %02X %02X %02X ", next_ptr >> 8, next_ptr & 255, status & 255, status >> 8);
+ printk("%pM %pM\n", addrs + 2, addrs + 8);
+>>>>>>> upstream/android-13
  next_ptr = priv(dev)->rx_head;
  break;
 }
 		/*
+<<<<<<< HEAD
  		 * ignore our own packets...
+=======
+		 * ignore our own packets...
+>>>>>>> upstream/android-13
 	 	 */
 		if (!(*(unsigned long *)&dev->dev_addr[0] ^ *(unsigned long *)&addrs[2+6]) &&
 		    !(*(unsigned short *)&dev->dev_addr[4] ^ *(unsigned short *)&addrs[2+10])) {
@@ -678,7 +703,11 @@ done:
 	 */
 	if (!(ether3_inw(REG_STATUS) & STAT_RXON)) {
 		dev->stats.rx_dropped++;
+<<<<<<< HEAD
     		ether3_outw(next_ptr, REG_RECVPTR);
+=======
+		ether3_outw(next_ptr, REG_RECVPTR);
+>>>>>>> upstream/android-13
 		ether3_outw(priv(dev)->regs.command | CMD_RXON, REG_COMMAND);
 	}
 
@@ -696,11 +725,19 @@ static void ether3_tx(struct net_device *dev)
 	do {
 	    	unsigned long status;
 
+<<<<<<< HEAD
     		/*
 	    	 * Read the packet header
     		 */
 	    	ether3_setbuffer(dev, buffer_read, tx_tail * 0x600);
     		status = ether3_readlong(dev);
+=======
+		/*
+	    	 * Read the packet header
+		 */
+	    	ether3_setbuffer(dev, buffer_read, tx_tail * 0x600);
+		status = ether3_readlong(dev);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Check to see if this packet has been transmitted

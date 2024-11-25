@@ -32,6 +32,7 @@
 #define OCTNIC_MAX_SG  MAX_SKB_FRAGS
 
 /**
+<<<<<<< HEAD
  * \brief Callback for getting interface configuration
  * @param status status of request
  * @param buf pointer to resp structure
@@ -66,6 +67,10 @@ void lio_if_cfg_callback(struct octeon_device *oct,
 /**
  * \brief Delete gather lists
  * @param lio per-network private data
+=======
+ * lio_delete_glists - Delete gather lists
+ * @lio: per-network private data
+>>>>>>> upstream/android-13
  */
 void lio_delete_glists(struct lio *lio)
 {
@@ -105,8 +110,15 @@ void lio_delete_glists(struct lio *lio)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Setup gather lists
  * @param lio per-network private data
+=======
+ * lio_setup_glists - Setup gather lists
+ * @oct: octeon_device
+ * @lio: per-network private data
+ * @num_iqs: count of iqs to allocate
+>>>>>>> upstream/android-13
  */
 int lio_setup_glists(struct octeon_device *oct, struct lio *lio, int num_iqs)
 {
@@ -198,14 +210,25 @@ int liquidio_set_feature(struct net_device *netdev, int cmd, u16 param1)
 	nctrl.ncmd.s.cmd = cmd;
 	nctrl.ncmd.s.param1 = param1;
 	nctrl.iq_no = lio->linfo.txpciq[0].s.q_no;
+<<<<<<< HEAD
 	nctrl.wait_time = 100;
+=======
+>>>>>>> upstream/android-13
 	nctrl.netpndev = (u64)netdev;
 	nctrl.cb_fn = liquidio_link_ctrl_cmd_completion;
 
 	ret = octnet_send_nic_ctrl_pkt(lio->oct_dev, &nctrl);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&oct->pci_dev->dev, "Feature change failed in core (ret: 0x%x)\n",
 			ret);
+=======
+	if (ret) {
+		dev_err(&oct->pci_dev->dev, "Feature change failed in core (ret: 0x%x)\n",
+			ret);
+		if (ret > 0)
+			ret = -EIO;
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -285,6 +308,7 @@ void liquidio_link_ctrl_cmd_completion(void *nctrl_ptr)
 	struct octeon_device *oct = lio->oct_dev;
 	u8 *mac;
 
+<<<<<<< HEAD
 	if (nctrl->completion && nctrl->response_code) {
 		/* Signal whoever is interested that the response code from the
 		 * firmware has arrived.
@@ -294,6 +318,9 @@ void liquidio_link_ctrl_cmd_completion(void *nctrl_ptr)
 	}
 
 	if (nctrl->status)
+=======
+	if (nctrl->sc_status)
+>>>>>>> upstream/android-13
 		return;
 
 	switch (nctrl->ncmd.s.cmd) {
@@ -464,11 +491,26 @@ void octeon_pf_changed_vf_macaddr(struct octeon_device *oct, u8 *mac)
 	 */
 }
 
+<<<<<<< HEAD
+=======
+void octeon_schedule_rxq_oom_work(struct octeon_device *oct,
+				  struct octeon_droq *droq)
+{
+	struct net_device *netdev = oct->props[0].netdev;
+	struct lio *lio = GET_LIO(netdev);
+	struct cavium_wq *wq = &lio->rxq_status_wq[droq->q_no];
+
+	queue_delayed_work(wq->wq, &wq->wk.work,
+			   msecs_to_jiffies(LIO_OOM_POLL_INTERVAL_MS));
+}
+
+>>>>>>> upstream/android-13
 static void octnet_poll_check_rxq_oom_status(struct work_struct *work)
 {
 	struct cavium_wk *wk = (struct cavium_wk *)work;
 	struct lio *lio = (struct lio *)wk->ctxptr;
 	struct octeon_device *oct = lio->oct_dev;
+<<<<<<< HEAD
 	struct octeon_droq *droq;
 	int q, q_no = 0;
 
@@ -484,12 +526,23 @@ static void octnet_poll_check_rxq_oom_status(struct work_struct *work)
 	queue_delayed_work(lio->rxq_status_wq.wq,
 			   &lio->rxq_status_wq.wk.work,
 			   msecs_to_jiffies(LIO_OOM_POLL_INTERVAL_MS));
+=======
+	int q_no = wk->ctxul;
+	struct octeon_droq *droq = oct->droq[q_no];
+
+	if (!ifstate_check(lio, LIO_IFSTATE_RUNNING) || !droq)
+		return;
+
+	if (octeon_retry_droq_refill(droq))
+		octeon_schedule_rxq_oom_work(oct, droq);
+>>>>>>> upstream/android-13
 }
 
 int setup_rx_oom_poll_fn(struct net_device *netdev)
 {
 	struct lio *lio = GET_LIO(netdev);
 	struct octeon_device *oct = lio->oct_dev;
+<<<<<<< HEAD
 
 	lio->rxq_status_wq.wq = alloc_workqueue("rxq-oom-status",
 						WQ_MEM_RECLAIM, 0);
@@ -503,17 +556,53 @@ int setup_rx_oom_poll_fn(struct net_device *netdev)
 	queue_delayed_work(lio->rxq_status_wq.wq,
 			   &lio->rxq_status_wq.wk.work,
 			   msecs_to_jiffies(LIO_OOM_POLL_INTERVAL_MS));
+=======
+	struct cavium_wq *wq;
+	int q, q_no;
+
+	for (q = 0; q < oct->num_oqs; q++) {
+		q_no = lio->linfo.rxpciq[q].s.q_no;
+		wq = &lio->rxq_status_wq[q_no];
+		wq->wq = alloc_workqueue("rxq-oom-status",
+					 WQ_MEM_RECLAIM, 0);
+		if (!wq->wq) {
+			dev_err(&oct->pci_dev->dev, "unable to create cavium rxq oom status wq\n");
+			return -ENOMEM;
+		}
+
+		INIT_DELAYED_WORK(&wq->wk.work,
+				  octnet_poll_check_rxq_oom_status);
+		wq->wk.ctxptr = lio;
+		wq->wk.ctxul = q_no;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 void cleanup_rx_oom_poll_fn(struct net_device *netdev)
 {
 	struct lio *lio = GET_LIO(netdev);
+<<<<<<< HEAD
 
 	if (lio->rxq_status_wq.wq) {
 		cancel_delayed_work_sync(&lio->rxq_status_wq.wk.work);
 		flush_workqueue(lio->rxq_status_wq.wq);
 		destroy_workqueue(lio->rxq_status_wq.wq);
+=======
+	struct octeon_device *oct = lio->oct_dev;
+	struct cavium_wq *wq;
+	int q_no;
+
+	for (q_no = 0; q_no < oct->num_oqs; q_no++) {
+		wq = &lio->rxq_status_wq[q_no];
+		if (wq->wq) {
+			cancel_delayed_work_sync(&wq->wk.work);
+			flush_workqueue(wq->wq);
+			destroy_workqueue(wq->wq);
+			wq->wq = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -543,12 +632,21 @@ static void lio_update_txq_status(struct octeon_device *oct, int iq_num)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Setup output queue
  * @param oct octeon device
  * @param q_no which queue
  * @param num_descs how many descriptors
  * @param desc_size size of each descriptor
  * @param app_ctx application context
+=======
+ * octeon_setup_droq - Setup output queue
+ * @oct: octeon device
+ * @q_no: which queue
+ * @num_descs: how many descriptors
+ * @desc_size: size of each descriptor
+ * @app_ctx: application context
+>>>>>>> upstream/android-13
  */
 static int octeon_setup_droq(struct octeon_device *oct, int q_no, int num_descs,
 			     int desc_size, void *app_ctx)
@@ -577,6 +675,7 @@ static int octeon_setup_droq(struct octeon_device *oct, int q_no, int num_descs,
 	return ret_val;
 }
 
+<<<<<<< HEAD
 /** Routine to push packets arriving on Octeon interface upto network layer.
  * @param oct_id   - octeon device id.
  * @param skbuff   - skbuff struct to be passed to network layer.
@@ -587,6 +686,19 @@ static int octeon_setup_droq(struct octeon_device *oct, int q_no, int num_descs,
  */
 static void
 liquidio_push_packet(u32 octeon_id __attribute__((unused)),
+=======
+/**
+ * liquidio_push_packet - Routine to push packets arriving on Octeon interface upto network layer.
+ * @octeon_id:octeon device id.
+ * @skbuff:   skbuff struct to be passed to network layer.
+ * @len:      size of total data received.
+ * @rh:       Control header associated with the packet
+ * @param:    additional control data with the packet
+ * @arg:      farg registered in droq_ops
+ */
+static void
+liquidio_push_packet(u32 __maybe_unused octeon_id,
+>>>>>>> upstream/android-13
 		     void *skbuff,
 		     u32 len,
 		     union octeon_rh *rh,
@@ -683,7 +795,12 @@ liquidio_push_packet(u32 octeon_id __attribute__((unused)),
 		    (((rh->r_dh.encap_on) &&
 		      (rh->r_dh.csum_verified & CNNIC_TUN_CSUM_VERIFIED)) ||
 		     (!(rh->r_dh.encap_on) &&
+<<<<<<< HEAD
 		      (rh->r_dh.csum_verified & CNNIC_CSUM_VERIFIED))))
+=======
+		      ((rh->r_dh.csum_verified & CNNIC_CSUM_VERIFIED) ==
+			CNNIC_CSUM_VERIFIED))))
+>>>>>>> upstream/android-13
 			/* checksum has already been verified */
 			skb->ip_summed = CHECKSUM_UNNECESSARY;
 		else
@@ -719,8 +836,13 @@ liquidio_push_packet(u32 octeon_id __attribute__((unused)),
 }
 
 /**
+<<<<<<< HEAD
  * \brief wrapper for calling napi_schedule
  * @param param parameters to pass to napi_schedule
+=======
+ * napi_schedule_wrapper - wrapper for calling napi_schedule
+ * @param: parameters to pass to napi_schedule
+>>>>>>> upstream/android-13
  *
  * Used when scheduling on different CPUs
  */
@@ -732,8 +854,13 @@ static void napi_schedule_wrapper(void *param)
 }
 
 /**
+<<<<<<< HEAD
  * \brief callback when receive interrupt occurs and we are in NAPI mode
  * @param arg pointer to octeon output queue
+=======
+ * liquidio_napi_drv_callback - callback when receive interrupt occurs and we are in NAPI mode
+ * @arg: pointer to octeon output queue
+>>>>>>> upstream/android-13
  */
 static void liquidio_napi_drv_callback(void *arg)
 {
@@ -747,6 +874,7 @@ static void liquidio_napi_drv_callback(void *arg)
 	    droq->cpu_id == this_cpu) {
 		napi_schedule_irqoff(&droq->napi);
 	} else {
+<<<<<<< HEAD
 		call_single_data_t *csd = &droq->csd;
 
 		csd->func = napi_schedule_wrapper;
@@ -754,13 +882,23 @@ static void liquidio_napi_drv_callback(void *arg)
 		csd->flags = 0;
 
 		smp_call_function_single_async(droq->cpu_id, csd);
+=======
+		INIT_CSD(&droq->csd, napi_schedule_wrapper, &droq->napi);
+		smp_call_function_single_async(droq->cpu_id, &droq->csd);
+>>>>>>> upstream/android-13
 	}
 }
 
 /**
+<<<<<<< HEAD
  * \brief Entry point for NAPI polling
  * @param napi NAPI structure
  * @param budget maximum number of items to process
+=======
+ * liquidio_napi_poll - Entry point for NAPI polling
+ * @napi: NAPI structure
+ * @budget: maximum number of items to process
+>>>>>>> upstream/android-13
  */
 static int liquidio_napi_poll(struct napi_struct *napi, int budget)
 {
@@ -803,7 +941,10 @@ static int liquidio_napi_poll(struct napi_struct *napi, int budget)
 	if ((work_done < budget && tx_done) ||
 	    (iq && iq->pkt_in_done >= MAX_REG_CNT) ||
 	    (droq->pkt_count >= MAX_REG_CNT)) {
+<<<<<<< HEAD
 		tx_done = 1;
+=======
+>>>>>>> upstream/android-13
 		napi_complete_done(napi, work_done);
 
 		octeon_enable_irq(droq->oct_dev, droq->q_no);
@@ -814,9 +955,17 @@ static int liquidio_napi_poll(struct napi_struct *napi, int budget)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Setup input and output queues
  * @param octeon_dev octeon device
  * @param ifidx Interface index
+=======
+ * liquidio_setup_io_queues - Setup input and output queues
+ * @octeon_dev: octeon device
+ * @ifidx: Interface index
+ * @num_iqs: input io queue count
+ * @num_oqs: output io queue count
+>>>>>>> upstream/android-13
  *
  * Note: Queues are with respect to the octeon device. Thus
  * an input queue is for egress packets, and output queues
@@ -949,7 +1098,11 @@ int liquidio_schedule_msix_droq_pkt_handler(struct octeon_droq *droq, u64 ret)
 }
 
 irqreturn_t
+<<<<<<< HEAD
 liquidio_msix_intr_handler(int irq __attribute__((unused)), void *dev)
+=======
+liquidio_msix_intr_handler(int __maybe_unused irq, void *dev)
+>>>>>>> upstream/android-13
 {
 	struct octeon_ioq_vector *ioq_vector = (struct octeon_ioq_vector *)dev;
 	struct octeon_device *oct = ioq_vector->oct_dev;
@@ -965,8 +1118,13 @@ liquidio_msix_intr_handler(int irq __attribute__((unused)), void *dev)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Droq packet processor sceduler
  * @param oct octeon device
+=======
+ * liquidio_schedule_droq_pkt_handlers - Droq packet processor sceduler
+ * @oct: octeon device
+>>>>>>> upstream/android-13
  */
 static void liquidio_schedule_droq_pkt_handlers(struct octeon_device *oct)
 {
@@ -994,6 +1152,7 @@ static void liquidio_schedule_droq_pkt_handlers(struct octeon_device *oct)
 }
 
 /**
+<<<<<<< HEAD
  * \brief Interrupt handler for octeon
  * @param irq unused
  * @param dev octeon device
@@ -1001,6 +1160,14 @@ static void liquidio_schedule_droq_pkt_handlers(struct octeon_device *oct)
 static
 irqreturn_t liquidio_legacy_intr_handler(int irq __attribute__((unused)),
 					 void *dev)
+=======
+ * liquidio_legacy_intr_handler - Interrupt handler for octeon
+ * @irq: unused
+ * @dev: octeon device
+ */
+static
+irqreturn_t liquidio_legacy_intr_handler(int __maybe_unused irq, void *dev)
+>>>>>>> upstream/android-13
 {
 	struct octeon_device *oct = (struct octeon_device *)dev;
 	irqreturn_t ret;
@@ -1021,8 +1188,14 @@ irqreturn_t liquidio_legacy_intr_handler(int irq __attribute__((unused)),
 }
 
 /**
+<<<<<<< HEAD
  * \brief Setup interrupt for octeon device
  * @param oct octeon device
+=======
+ * octeon_setup_interrupt - Setup interrupt for octeon device
+ * @oct: octeon device
+ * @num_ioqs: number of queues
+>>>>>>> upstream/android-13
  *
  *  Enable interrupt in Octeon device as given in the PCI interrupt mask.
  */
@@ -1105,7 +1278,11 @@ int octeon_setup_interrupt(struct octeon_device *oct, u32 num_ioqs)
 		dev_dbg(&oct->pci_dev->dev, "OCTEON: Enough MSI-X interrupts are allocated...\n");
 
 		num_ioq_vectors = oct->num_msix_irqs;
+<<<<<<< HEAD
 		/** For PF, there is one non-ioq interrupt handler */
+=======
+		/* For PF, there is one non-ioq interrupt handler */
+>>>>>>> upstream/android-13
 		if (OCTEON_CN23XX_PF(oct)) {
 			num_ioq_vectors -= 1;
 
@@ -1148,13 +1325,21 @@ int octeon_setup_interrupt(struct octeon_device *oct, u32 num_ioqs)
 				dev_err(&oct->pci_dev->dev,
 					"Request_irq failed for MSIX interrupt Error: %d\n",
 					irqret);
+<<<<<<< HEAD
 				/** Freeing the non-ioq irq vector here . */
+=======
+				/* Freeing the non-ioq irq vector here . */
+>>>>>>> upstream/android-13
 				free_irq(msix_entries[num_ioq_vectors].vector,
 					 oct);
 
 				while (i) {
 					i--;
+<<<<<<< HEAD
 					/** clearing affinity mask. */
+=======
+					/* clearing affinity mask. */
+>>>>>>> upstream/android-13
 					irq_set_affinity_hint(
 						      msix_entries[i].vector,
 						      NULL);
@@ -1185,7 +1370,11 @@ int octeon_setup_interrupt(struct octeon_device *oct, u32 num_ioqs)
 			oct->flags |= LIO_FLAG_MSI_ENABLED;
 
 		/* allocate storage for the names assigned to the irq */
+<<<<<<< HEAD
 		oct->irq_name_storage = kcalloc(1, INTRNAMSIZ, GFP_KERNEL);
+=======
+		oct->irq_name_storage = kzalloc(INTRNAMSIZ, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!oct->irq_name_storage)
 			return -ENOMEM;
 
@@ -1218,6 +1407,7 @@ int octeon_setup_interrupt(struct octeon_device *oct, u32 num_ioqs)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void liquidio_change_mtu_completion(struct octeon_device *oct,
 					   u32 status, void *buf)
 {
@@ -1245,11 +1435,18 @@ static void liquidio_change_mtu_completion(struct octeon_device *oct,
 /**
  * \brief Net device change_mtu
  * @param netdev network device
+=======
+/**
+ * liquidio_change_mtu - Net device change_mtu
+ * @netdev: network device
+ * @new_mtu: the new max transmit unit size
+>>>>>>> upstream/android-13
  */
 int liquidio_change_mtu(struct net_device *netdev, int new_mtu)
 {
 	struct lio *lio = GET_LIO(netdev);
 	struct octeon_device *oct = lio->oct_dev;
+<<<<<<< HEAD
 	struct liquidio_if_cfg_context *ctx;
 	struct octeon_soft_command *sc;
 	union octnet_cmd *ncmd;
@@ -1266,6 +1463,24 @@ int liquidio_change_mtu(struct net_device *netdev, int new_mtu)
 	WRITE_ONCE(ctx->cond, 0);
 	ctx->octeon_id = lio_get_device_id(oct);
 	init_waitqueue_head(&ctx->wc);
+=======
+	struct octeon_soft_command *sc;
+	union octnet_cmd *ncmd;
+	int ret = 0;
+
+	sc = (struct octeon_soft_command *)
+		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE, 16, 0);
+	if (!sc) {
+		netif_info(lio, rx_err, lio->netdev,
+			   "Failed to allocate soft command\n");
+		return -ENOMEM;
+	}
+
+	ncmd = (union octnet_cmd *)sc->virtdptr;
+
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	ncmd->u64 = 0;
 	ncmd->s.cmd = OCTNET_CMD_CHANGE_MTU;
@@ -1278,6 +1493,7 @@ int liquidio_change_mtu(struct net_device *netdev, int new_mtu)
 	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
 				    OPCODE_NIC_CMD, 0, 0, 0);
 
+<<<<<<< HEAD
 	sc->callback = liquidio_change_mtu_completion;
 	sc->callback_arg = sc;
 	sc->wait_time = 100;
@@ -1285,21 +1501,40 @@ int liquidio_change_mtu(struct net_device *netdev, int new_mtu)
 	ret = octeon_send_soft_command(oct, sc);
 	if (ret == IQ_SEND_FAILED) {
 		netif_info(lio, rx_err, lio->netdev, "Failed to change MTU\n");
+=======
+	ret = octeon_send_soft_command(oct, sc);
+	if (ret == IQ_SEND_FAILED) {
+		netif_info(lio, rx_err, lio->netdev, "Failed to change MTU\n");
+		octeon_free_soft_command(oct, sc);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	/* Sleep on a wait queue till the cond flag indicates that the
 	 * response arrived or timed-out.
 	 */
+<<<<<<< HEAD
 	if (sleep_cond(&ctx->wc, &ctx->cond) == -EINTR ||
 	    ctx->cond == LIO_CHANGE_MTU_FAIL) {
 		octeon_free_soft_command(oct, sc);
+=======
+	ret = wait_for_sc_completion_timeout(oct, sc, 0);
+	if (ret)
+		return ret;
+
+	if (sc->sc_status) {
+		WRITE_ONCE(sc->caller_is_done, true);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	netdev->mtu = new_mtu;
 	lio->mtu = new_mtu;
 
+<<<<<<< HEAD
 	octeon_free_soft_command(oct, sc);
+=======
+	WRITE_ONCE(sc->caller_is_done, true);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1333,8 +1568,11 @@ octnet_nic_stats_callback(struct octeon_device *oct_dev,
 	struct octeon_soft_command *sc = (struct octeon_soft_command *)ptr;
 	struct oct_nic_stats_resp *resp =
 	    (struct oct_nic_stats_resp *)sc->virtrptr;
+<<<<<<< HEAD
 	struct oct_nic_stats_ctrl *ctrl =
 	    (struct oct_nic_stats_ctrl *)sc->ctxptr;
+=======
+>>>>>>> upstream/android-13
 	struct nic_rx_stats *rsp_rstats = &resp->stats.fromwire;
 	struct nic_tx_stats *rsp_tstats = &resp->stats.fromhost;
 	struct nic_rx_stats *rstats = &oct_dev->link_stats.fromwire;
@@ -1422,6 +1660,7 @@ octnet_nic_stats_callback(struct octeon_device *oct_dev,
 
 		resp->status = 1;
 	} else {
+<<<<<<< HEAD
 		resp->status = -1;
 	}
 	complete(&ctrl->complete);
@@ -1434,31 +1673,136 @@ int octnet_get_link_stats(struct net_device *netdev)
 	struct octeon_soft_command *sc;
 	struct oct_nic_stats_ctrl *ctrl;
 	struct oct_nic_stats_resp *resp;
+=======
+		dev_err(&oct_dev->pci_dev->dev, "sc OPCODE_NIC_PORT_STATS command failed\n");
+		resp->status = -1;
+	}
+}
+
+static int lio_fetch_vf_stats(struct lio *lio)
+{
+	struct octeon_device *oct_dev = lio->oct_dev;
+	struct octeon_soft_command *sc;
+	struct oct_nic_vf_stats_resp *resp;
+
+>>>>>>> upstream/android-13
 	int retval;
 
 	/* Alloc soft command */
 	sc = (struct octeon_soft_command *)
 		octeon_alloc_soft_command(oct_dev,
 					  0,
+<<<<<<< HEAD
 					  sizeof(struct oct_nic_stats_resp),
 					  sizeof(struct octnic_ctrl_pkt));
 
 	if (!sc)
 		return -ENOMEM;
+=======
+					  sizeof(struct oct_nic_vf_stats_resp),
+					  0);
+
+	if (!sc) {
+		dev_err(&oct_dev->pci_dev->dev, "Soft command allocation failed\n");
+		retval = -ENOMEM;
+		goto lio_fetch_vf_stats_exit;
+	}
+
+	resp = (struct oct_nic_vf_stats_resp *)sc->virtrptr;
+	memset(resp, 0, sizeof(struct oct_nic_vf_stats_resp));
+
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+
+	sc->iq_no = lio->linfo.txpciq[0].s.q_no;
+
+	octeon_prepare_soft_command(oct_dev, sc, OPCODE_NIC,
+				    OPCODE_NIC_VF_PORT_STATS, 0, 0, 0);
+
+	retval = octeon_send_soft_command(oct_dev, sc);
+	if (retval == IQ_SEND_FAILED) {
+		octeon_free_soft_command(oct_dev, sc);
+		goto lio_fetch_vf_stats_exit;
+	}
+
+	retval =
+		wait_for_sc_completion_timeout(oct_dev, sc,
+					       (2 * LIO_SC_MAX_TMO_MS));
+	if (retval)  {
+		dev_err(&oct_dev->pci_dev->dev,
+			"sc OPCODE_NIC_VF_PORT_STATS command failed\n");
+		goto lio_fetch_vf_stats_exit;
+	}
+
+	if (sc->sc_status != OCTEON_REQUEST_TIMEOUT && !resp->status) {
+		octeon_swap_8B_data((u64 *)&resp->spoofmac_cnt,
+				    (sizeof(u64)) >> 3);
+
+		if (resp->spoofmac_cnt != 0) {
+			dev_warn(&oct_dev->pci_dev->dev,
+				 "%llu Spoofed packets detected\n",
+				 resp->spoofmac_cnt);
+		}
+	}
+	WRITE_ONCE(sc->caller_is_done, 1);
+
+lio_fetch_vf_stats_exit:
+	return retval;
+}
+
+void lio_fetch_stats(struct work_struct *work)
+{
+	struct cavium_wk *wk = (struct cavium_wk *)work;
+	struct lio *lio = wk->ctxptr;
+	struct octeon_device *oct_dev = lio->oct_dev;
+	struct octeon_soft_command *sc;
+	struct oct_nic_stats_resp *resp;
+	unsigned long time_in_jiffies;
+	int retval;
+
+	if (OCTEON_CN23XX_PF(oct_dev)) {
+		/* report spoofchk every 2 seconds */
+		if (!(oct_dev->vfstats_poll % LIO_VFSTATS_POLL) &&
+		    (oct_dev->fw_info.app_cap_flags & LIQUIDIO_SPOOFCHK_CAP) &&
+		    oct_dev->sriov_info.num_vfs_alloced) {
+			lio_fetch_vf_stats(lio);
+		}
+
+		oct_dev->vfstats_poll++;
+	}
+
+	/* Alloc soft command */
+	sc = (struct octeon_soft_command *)
+		octeon_alloc_soft_command(oct_dev,
+					  0,
+					  sizeof(struct oct_nic_stats_resp),
+					  0);
+
+	if (!sc) {
+		dev_err(&oct_dev->pci_dev->dev, "Soft command allocation failed\n");
+		goto lio_fetch_stats_exit;
+	}
+>>>>>>> upstream/android-13
 
 	resp = (struct oct_nic_stats_resp *)sc->virtrptr;
 	memset(resp, 0, sizeof(struct oct_nic_stats_resp));
 
+<<<<<<< HEAD
 	ctrl = (struct oct_nic_stats_ctrl *)sc->ctxptr;
 	memset(ctrl, 0, sizeof(struct oct_nic_stats_ctrl));
 	ctrl->netdev = netdev;
 	init_completion(&ctrl->complete);
+=======
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	sc->iq_no = lio->linfo.txpciq[0].s.q_no;
 
 	octeon_prepare_soft_command(oct_dev, sc, OPCODE_NIC,
 				    OPCODE_NIC_PORT_STATS, 0, 0, 0);
 
+<<<<<<< HEAD
 	sc->callback = octnet_nic_stats_callback;
 	sc->callback_arg = sc;
 	sc->wait_time = 500;	/*in milli seconds*/
@@ -1499,16 +1843,46 @@ static void liquidio_nic_seapi_ctl_callback(struct octeon_device *oct,
 	}
 	ctx->status = status;
 	complete(&ctx->complete);
+=======
+	retval = octeon_send_soft_command(oct_dev, sc);
+	if (retval == IQ_SEND_FAILED) {
+		octeon_free_soft_command(oct_dev, sc);
+		goto lio_fetch_stats_exit;
+	}
+
+	retval = wait_for_sc_completion_timeout(oct_dev, sc,
+						(2 * LIO_SC_MAX_TMO_MS));
+	if (retval)  {
+		dev_err(&oct_dev->pci_dev->dev, "sc OPCODE_NIC_PORT_STATS command failed\n");
+		goto lio_fetch_stats_exit;
+	}
+
+	octnet_nic_stats_callback(oct_dev, sc->sc_status, sc);
+	WRITE_ONCE(sc->caller_is_done, true);
+
+lio_fetch_stats_exit:
+	time_in_jiffies = msecs_to_jiffies(LIQUIDIO_NDEV_STATS_POLL_TIME_MS);
+	if (ifstate_check(lio, LIO_IFSTATE_RUNNING))
+		schedule_delayed_work(&lio->stats_wk.work, time_in_jiffies);
+
+	return;
+>>>>>>> upstream/android-13
 }
 
 int liquidio_set_speed(struct lio *lio, int speed)
 {
+<<<<<<< HEAD
 	struct liquidio_nic_seapi_ctl_context *ctx;
+=======
+>>>>>>> upstream/android-13
 	struct octeon_device *oct = lio->oct_dev;
 	struct oct_nic_seapi_resp *resp;
 	struct octeon_soft_command *sc;
 	union octnet_cmd *ncmd;
+<<<<<<< HEAD
 	u32 ctx_size;
+=======
+>>>>>>> upstream/android-13
 	int retval;
 	u32 var;
 
@@ -1521,14 +1895,21 @@ int liquidio_set_speed(struct lio *lio, int speed)
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	ctx_size = sizeof(struct liquidio_nic_seapi_ctl_context);
 	sc = octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
 				       sizeof(struct oct_nic_seapi_resp),
 				       ctx_size);
+=======
+	sc = octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+				       sizeof(struct oct_nic_seapi_resp),
+				       0);
+>>>>>>> upstream/android-13
 	if (!sc)
 		return -ENOMEM;
 
 	ncmd = sc->virtdptr;
+<<<<<<< HEAD
 	ctx  = sc->ctxptr;
 	resp = sc->virtrptr;
 	memset(resp, 0, sizeof(struct oct_nic_seapi_resp));
@@ -1536,6 +1917,13 @@ int liquidio_set_speed(struct lio *lio, int speed)
 	ctx->octeon_id = lio_get_device_id(oct);
 	ctx->status = 0;
 	init_completion(&ctx->complete);
+=======
+	resp = sc->virtrptr;
+	memset(resp, 0, sizeof(struct oct_nic_seapi_resp));
+
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	ncmd->u64 = 0;
 	ncmd->s.cmd = SEAPI_CMD_SPEED_SET;
@@ -1548,6 +1936,7 @@ int liquidio_set_speed(struct lio *lio, int speed)
 	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
 				    OPCODE_NIC_UBOOT_CTL, 0, 0, 0);
 
+<<<<<<< HEAD
 	sc->callback = liquidio_nic_seapi_ctl_callback;
 	sc->callback_arg = sc;
 	sc->wait_time = 5000;
@@ -1565,13 +1954,30 @@ int liquidio_set_speed(struct lio *lio, int speed)
 			octeon_free_soft_command(oct, sc);
 			return -EINTR;
 		}
+=======
+	retval = octeon_send_soft_command(oct, sc);
+	if (retval == IQ_SEND_FAILED) {
+		dev_info(&oct->pci_dev->dev, "Failed to send soft command\n");
+		octeon_free_soft_command(oct, sc);
+		retval = -EBUSY;
+	} else {
+		/* Wait for response or timeout */
+		retval = wait_for_sc_completion_timeout(oct, sc, 0);
+		if (retval)
+			return retval;
+>>>>>>> upstream/android-13
 
 		retval = resp->status;
 
 		if (retval) {
 			dev_err(&oct->pci_dev->dev, "%s failed, retval=%d\n",
 				__func__, retval);
+<<<<<<< HEAD
 			octeon_free_soft_command(oct, sc);
+=======
+			WRITE_ONCE(sc->caller_is_done, true);
+
+>>>>>>> upstream/android-13
 			return -EIO;
 		}
 
@@ -1583,20 +1989,30 @@ int liquidio_set_speed(struct lio *lio, int speed)
 		}
 
 		oct->speed_setting = var;
+<<<<<<< HEAD
 	}
 
 	octeon_free_soft_command(oct, sc);
 
+=======
+		WRITE_ONCE(sc->caller_is_done, true);
+	}
+
+>>>>>>> upstream/android-13
 	return retval;
 }
 
 int liquidio_get_speed(struct lio *lio)
 {
+<<<<<<< HEAD
 	struct liquidio_nic_seapi_ctl_context *ctx;
+=======
+>>>>>>> upstream/android-13
 	struct octeon_device *oct = lio->oct_dev;
 	struct oct_nic_seapi_resp *resp;
 	struct octeon_soft_command *sc;
 	union octnet_cmd *ncmd;
+<<<<<<< HEAD
 	u32 ctx_size;
 	int retval;
 
@@ -1604,10 +2020,18 @@ int liquidio_get_speed(struct lio *lio)
 	sc = octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
 				       sizeof(struct oct_nic_seapi_resp),
 				       ctx_size);
+=======
+	int retval;
+
+	sc = octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+				       sizeof(struct oct_nic_seapi_resp),
+				       0);
+>>>>>>> upstream/android-13
 	if (!sc)
 		return -ENOMEM;
 
 	ncmd = sc->virtdptr;
+<<<<<<< HEAD
 	ctx  = sc->ctxptr;
 	resp = sc->virtrptr;
 	memset(resp, 0, sizeof(struct oct_nic_seapi_resp));
@@ -1615,6 +2039,13 @@ int liquidio_get_speed(struct lio *lio)
 	ctx->octeon_id = lio_get_device_id(oct);
 	ctx->status = 0;
 	init_completion(&ctx->complete);
+=======
+	resp = sc->virtrptr;
+	memset(resp, 0, sizeof(struct oct_nic_seapi_resp));
+
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	ncmd->u64 = 0;
 	ncmd->s.cmd = SEAPI_CMD_SPEED_GET;
@@ -1626,6 +2057,7 @@ int liquidio_get_speed(struct lio *lio)
 	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
 				    OPCODE_NIC_UBOOT_CTL, 0, 0, 0);
 
+<<<<<<< HEAD
 	sc->callback = liquidio_nic_seapi_ctl_callback;
 	sc->callback_arg = sc;
 	sc->wait_time = 5000;
@@ -1650,13 +2082,28 @@ int liquidio_get_speed(struct lio *lio)
 
 			return -EINTR;
 		}
+=======
+	retval = octeon_send_soft_command(oct, sc);
+	if (retval == IQ_SEND_FAILED) {
+		dev_info(&oct->pci_dev->dev, "Failed to send soft command\n");
+		octeon_free_soft_command(oct, sc);
+		retval = -EIO;
+	} else {
+		retval = wait_for_sc_completion_timeout(oct, sc, 0);
+		if (retval)
+			return retval;
+
+>>>>>>> upstream/android-13
 		retval = resp->status;
 		if (retval) {
 			dev_err(&oct->pci_dev->dev,
 				"%s failed retval=%d\n", __func__, retval);
+<<<<<<< HEAD
 			oct->no_speed_setting = 1;
 			oct->speed_setting = 25;
 			octeon_free_soft_command(oct, sc);
+=======
+>>>>>>> upstream/android-13
 			retval = -EIO;
 		} else {
 			u32 var;
@@ -1664,6 +2111,7 @@ int liquidio_get_speed(struct lio *lio)
 			var = be32_to_cpu((__force __be32)resp->speed);
 			oct->speed_setting = var;
 			if (var == 0xffff) {
+<<<<<<< HEAD
 				oct->no_speed_setting = 1;
 				/* unable to access boot variables
 				 * get the default value based on the NIC type
@@ -1674,6 +2122,178 @@ int liquidio_get_speed(struct lio *lio)
 	}
 
 	octeon_free_soft_command(oct, sc);
+=======
+				/* unable to access boot variables
+				 * get the default value based on the NIC type
+				 */
+				if (oct->subsystem_id ==
+						OCTEON_CN2350_25GB_SUBSYS_ID ||
+				    oct->subsystem_id ==
+						OCTEON_CN2360_25GB_SUBSYS_ID) {
+					oct->no_speed_setting = 1;
+					oct->speed_setting = 25;
+				} else {
+					oct->speed_setting = 10;
+				}
+			}
+
+		}
+		WRITE_ONCE(sc->caller_is_done, true);
+	}
+
+	return retval;
+}
+
+int liquidio_set_fec(struct lio *lio, int on_off)
+{
+	struct oct_nic_seapi_resp *resp;
+	struct octeon_soft_command *sc;
+	struct octeon_device *oct;
+	union octnet_cmd *ncmd;
+	int retval;
+	u32 var;
+
+	oct = lio->oct_dev;
+
+	if (oct->props[lio->ifidx].fec == on_off)
+		return 0;
+
+	if (!OCTEON_CN23XX_PF(oct)) {
+		dev_err(&oct->pci_dev->dev, "%s: SET FEC only for PF\n",
+			__func__);
+		return -1;
+	}
+
+	if (oct->speed_boot != 25)  {
+		dev_err(&oct->pci_dev->dev,
+			"Set FEC only when link speed is 25G during insmod\n");
+		return -1;
+	}
+
+	sc = octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+				       sizeof(struct oct_nic_seapi_resp), 0);
+	if (!sc) {
+		dev_err(&oct->pci_dev->dev,
+			"Failed to allocate soft command\n");
+		return -ENOMEM;
+	}
+
+	ncmd = sc->virtdptr;
+	resp = sc->virtrptr;
+	memset(resp, 0, sizeof(struct oct_nic_seapi_resp));
+
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+
+	ncmd->u64 = 0;
+	ncmd->s.cmd = SEAPI_CMD_FEC_SET;
+	ncmd->s.param1 = on_off;
+	/* SEAPI_CMD_FEC_DISABLE(0) or SEAPI_CMD_FEC_RS(1) */
+
+	octeon_swap_8B_data((u64 *)ncmd, (OCTNET_CMD_SIZE >> 3));
+
+	sc->iq_no = lio->linfo.txpciq[0].s.q_no;
+
+	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
+				    OPCODE_NIC_UBOOT_CTL, 0, 0, 0);
+
+	retval = octeon_send_soft_command(oct, sc);
+	if (retval == IQ_SEND_FAILED) {
+		dev_info(&oct->pci_dev->dev, "Failed to send soft command\n");
+		octeon_free_soft_command(oct, sc);
+		return -EIO;
+	}
+
+	retval = wait_for_sc_completion_timeout(oct, sc, 0);
+	if (retval)
+		return (-EIO);
+
+	var = be32_to_cpu(resp->fec_setting);
+	resp->fec_setting = var;
+	if (var != on_off) {
+		dev_err(&oct->pci_dev->dev,
+			"Setting failed fec= %x, expect %x\n",
+			var, on_off);
+		oct->props[lio->ifidx].fec = var;
+		if (resp->fec_setting == SEAPI_CMD_FEC_SET_RS)
+			oct->props[lio->ifidx].fec = 1;
+		else
+			oct->props[lio->ifidx].fec = 0;
+	}
+
+	WRITE_ONCE(sc->caller_is_done, true);
+
+	if (oct->props[lio->ifidx].fec !=
+	    oct->props[lio->ifidx].fec_boot) {
+		dev_dbg(&oct->pci_dev->dev,
+			"Reload driver to change fec to %s\n",
+			oct->props[lio->ifidx].fec ? "on" : "off");
+	}
+
+	return retval;
+}
+
+int liquidio_get_fec(struct lio *lio)
+{
+	struct oct_nic_seapi_resp *resp;
+	struct octeon_soft_command *sc;
+	struct octeon_device *oct;
+	union octnet_cmd *ncmd;
+	int retval;
+	u32 var;
+
+	oct = lio->oct_dev;
+
+	sc = octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+				       sizeof(struct oct_nic_seapi_resp), 0);
+	if (!sc)
+		return -ENOMEM;
+
+	ncmd = sc->virtdptr;
+	resp = sc->virtrptr;
+	memset(resp, 0, sizeof(struct oct_nic_seapi_resp));
+
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+
+	ncmd->u64 = 0;
+	ncmd->s.cmd = SEAPI_CMD_FEC_GET;
+
+	octeon_swap_8B_data((u64 *)ncmd, (OCTNET_CMD_SIZE >> 3));
+
+	sc->iq_no = lio->linfo.txpciq[0].s.q_no;
+
+	octeon_prepare_soft_command(oct, sc, OPCODE_NIC,
+				    OPCODE_NIC_UBOOT_CTL, 0, 0, 0);
+
+	retval = octeon_send_soft_command(oct, sc);
+	if (retval == IQ_SEND_FAILED) {
+		dev_info(&oct->pci_dev->dev,
+			 "%s: Failed to send soft command\n", __func__);
+		octeon_free_soft_command(oct, sc);
+		return -EIO;
+	}
+
+	retval = wait_for_sc_completion_timeout(oct, sc, 0);
+	if (retval)
+		return retval;
+
+	var = be32_to_cpu(resp->fec_setting);
+	resp->fec_setting = var;
+	if (resp->fec_setting == SEAPI_CMD_FEC_SET_RS)
+		oct->props[lio->ifidx].fec = 1;
+	else
+		oct->props[lio->ifidx].fec = 0;
+
+	WRITE_ONCE(sc->caller_is_done, true);
+
+	if (oct->props[lio->ifidx].fec !=
+	    oct->props[lio->ifidx].fec_boot) {
+		dev_dbg(&oct->pci_dev->dev,
+			"Reload driver to change fec to %s\n",
+			oct->props[lio->ifidx].fec ? "on" : "off");
+	}
+>>>>>>> upstream/android-13
 
 	return retval;
 }

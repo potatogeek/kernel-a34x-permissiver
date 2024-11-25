@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 /* pci-pf-stub - simple stub driver for PCI SR-IOV PF device
  *
+<<<<<<< HEAD
  * This driver is meant to act as a "whitelist" for devices that provde
+=======
+ * This driver is meant to act as a "whitelist" for devices that provide
+>>>>>>> upstream/android-13
  * SR-IOV functionality while at the same time not actually needing a
  * driver of their own.
  */
@@ -9,7 +13,11 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pci_pf_stub_whitelist - White list of devices to bind pci-pf-stub onto
  *
  * This table provides the list of IDs this driver is supposed to bind
@@ -37,6 +45,7 @@ static struct pci_driver pf_stub_driver = {
 	.probe			= pci_pf_stub_probe,
 	.sriov_configure	= pci_sriov_configure_simple,
 };
+<<<<<<< HEAD
 
 static int __init pci_pf_stub_init(void)
 {
@@ -50,5 +59,8 @@ static void __exit pci_pf_stub_exit(void)
 
 module_init(pci_pf_stub_init);
 module_exit(pci_pf_stub_exit);
+=======
+module_pci_driver(pf_stub_driver);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");

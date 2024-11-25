@@ -11,10 +11,17 @@
 #include <linux/sched.h>
 #include <linux/types.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
 #include <linux/proc_fs.h>
 #include <linux/exportfs.h>
 
 #include "inotify/inotify.h"
+=======
+#include <linux/exportfs.h>
+
+#include "inotify/inotify.h"
+#include "fdinfo.h"
+>>>>>>> upstream/android-13
 #include "fsnotify.h"
 
 #if defined(CONFIG_PROC_FS)
@@ -49,7 +56,11 @@ static void show_mark_fhandle(struct seq_file *m, struct inode *inode)
 	f.handle.handle_bytes = sizeof(f.pad);
 	size = f.handle.handle_bytes >> 2;
 
+<<<<<<< HEAD
 	ret = exportfs_encode_inode_fh(inode, (struct fid *)f.handle.f_handle, &size, 0);
+=======
+	ret = exportfs_encode_inode_fh(inode, (struct fid *)f.handle.f_handle, &size, NULL);
+>>>>>>> upstream/android-13
 	if ((ret == FILEID_INVALID) || (ret < 0)) {
 		WARN_ONCE(1, "Can't encode file handler for inotify: %d\n", ret);
 		return;
@@ -131,12 +142,21 @@ static void fanotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 
 		seq_printf(m, "fanotify mnt_id:%x mflags:%x mask:%x ignored_mask:%x\n",
 			   mnt->mnt_id, mflags, mark->mask, mark->ignored_mask);
+<<<<<<< HEAD
+=======
+	} else if (mark->connector->type == FSNOTIFY_OBJ_TYPE_SB) {
+		struct super_block *sb = fsnotify_conn_sb(mark->connector);
+
+		seq_printf(m, "fanotify sdev:%x mflags:%x mask:%x ignored_mask:%x\n",
+			   sb->s_dev, mflags, mark->mask, mark->ignored_mask);
+>>>>>>> upstream/android-13
 	}
 }
 
 void fanotify_show_fdinfo(struct seq_file *m, struct file *f)
 {
 	struct fsnotify_group *group = f->private_data;
+<<<<<<< HEAD
 	unsigned int flags = 0;
 
 	switch (group->priority) {
@@ -162,6 +182,12 @@ void fanotify_show_fdinfo(struct seq_file *m, struct file *f)
 
 	seq_printf(m, "fanotify flags:%x event-flags:%x\n",
 		   flags, group->fanotify_data.f_flags);
+=======
+
+	seq_printf(m, "fanotify flags:%x event-flags:%x\n",
+		   group->fanotify_data.flags & FANOTIFY_INIT_FLAGS,
+		   group->fanotify_data.f_flags);
+>>>>>>> upstream/android-13
 
 	show_fdinfo(m, f, fanotify_fdinfo);
 }

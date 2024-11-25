@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * da7213.h - DA7213 ASoC Codec Driver
  *
  * Copyright (c) 2013 Dialog Semiconductor
  *
  * Author: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DA7213_H
@@ -15,6 +22,10 @@
 
 #include <linux/clk.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/regulator/consumer.h>
+>>>>>>> upstream/android-13
 #include <sound/da7213.h>
 
 /*
@@ -181,7 +192,13 @@
 #define DA7213_DAI_BCLKS_PER_WCLK_256				(0x3 << 0)
 #define DA7213_DAI_BCLKS_PER_WCLK_MASK				(0x3 << 0)
 #define DA7213_DAI_CLK_POL_INV					(0x1 << 2)
+<<<<<<< HEAD
 #define DA7213_DAI_WCLK_POL_INV					(0x1 << 3)
+=======
+#define DA7213_DAI_CLK_POL_MASK					(0x1 << 2)
+#define DA7213_DAI_WCLK_POL_INV					(0x1 << 3)
+#define DA7213_DAI_WCLK_POL_MASK				(0x1 << 3)
+>>>>>>> upstream/android-13
 #define DA7213_DAI_CLK_EN_MASK					(0x1 << 7)
 
 /* DA7213_DAI_CTRL = 0x29 */
@@ -522,15 +539,36 @@ enum da7213_sys_clk {
 	DA7213_SYSCLK_PLL_32KHZ
 };
 
+<<<<<<< HEAD
 /* Codec private data */
 struct da7213_priv {
 	struct regmap *regmap;
 	struct clk *mclk;
 	unsigned int mclk_rate;
+=======
+/* Regulators */
+enum da7213_supplies {
+	DA7213_SUPPLY_VDDA = 0,
+	DA7213_SUPPLY_VDDIO,
+	DA7213_NUM_SUPPLIES,
+};
+
+/* Codec private data */
+struct da7213_priv {
+	struct regmap *regmap;
+	struct regulator_bulk_data supplies[DA7213_NUM_SUPPLIES];
+	struct clk *mclk;
+	unsigned int mclk_rate;
+	unsigned int out_rate;
+>>>>>>> upstream/android-13
 	int clk_src;
 	bool master;
 	bool alc_calib_auto;
 	bool alc_en;
+<<<<<<< HEAD
+=======
+	bool fixed_clk_auto_pll;
+>>>>>>> upstream/android-13
 	struct da7213_platform_data *pdata;
 };
 

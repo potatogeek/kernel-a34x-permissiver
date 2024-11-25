@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sama5d3_lcd.dtsi - Device Tree Include file for SAMA5D3 SoC with
  * LCD support
  *
  * Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/pinctrl/at91.h>
@@ -17,7 +24,11 @@
 				compatible = "atmel,sama5d3-hlcdc";
 				reg = <0xf0030000 0x2000>;
 				interrupts = <36 IRQ_TYPE_LEVEL_HIGH 0>;
+<<<<<<< HEAD
 				clocks = <&lcdc_clk>, <&lcdck>, <&clk32k>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 36>, <&pmc PMC_TYPE_SYSTEM 3>, <&clk32k>;
+>>>>>>> upstream/android-13
 				clock-names = "periph_clk","sys_clk", "slow_clk";
 				status = "disabled";
 
@@ -193,6 +204,7 @@
 					};
 				};
 			};
+<<<<<<< HEAD
 
 			pmc: pmc@fffffc00 {
 				periphck {
@@ -210,6 +222,8 @@
 					};
 				};
 			};
+=======
+>>>>>>> upstream/android-13
 		};
 	};
 };

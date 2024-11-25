@@ -48,6 +48,12 @@
 #include <linux/miscdevice.h>
 #include <linux/slab.h>
 #include <linux/screen_info.h>
+<<<<<<< HEAD
+=======
+#include <linux/vt.h>
+#include <linux/console.h>
+#include <linux/acpi.h>
+>>>>>>> upstream/android-13
 
 #include <linux/uaccess.h>
 
@@ -69,10 +75,14 @@ struct vga_device {
 	unsigned int io_norm_cnt;	/* normal IO count */
 	unsigned int mem_norm_cnt;	/* normal MEM count */
 	bool bridge_has_one_vga;
+<<<<<<< HEAD
 	/* allow IRQ enable/disable hook */
 	void *cookie;
 	void (*irq_set_state)(void *cookie, bool enable);
 	unsigned int (*set_vga_decode)(void *cookie, bool decode);
+=======
+	unsigned int (*set_decode)(struct pci_dev *pdev, bool decode);
+>>>>>>> upstream/android-13
 };
 
 static LIST_HEAD(vga_list);
@@ -168,12 +178,61 @@ void vga_set_default_device(struct pci_dev *pdev)
 	vga_default = pci_dev_get(pdev);
 }
 
+<<<<<<< HEAD
 static inline void vga_irq_set_state(struct vga_device *vgadev, bool state)
 {
 	if (vgadev->irq_set_state)
 		vgadev->irq_set_state(vgadev->cookie, state);
 }
 
+=======
+/**
+ * vga_remove_vgacon - deactivete vga console
+ *
+ * Unbind and unregister vgacon in case pdev is the default vga
+ * device.  Can be called by gpu drivers on initialization to make
+ * sure vga register access done by vgacon will not disturb the
+ * device.
+ *
+ * @pdev: pci device.
+ */
+#if !defined(CONFIG_VGA_CONSOLE)
+int vga_remove_vgacon(struct pci_dev *pdev)
+{
+	return 0;
+}
+#elif !defined(CONFIG_DUMMY_CONSOLE)
+int vga_remove_vgacon(struct pci_dev *pdev)
+{
+	return -ENODEV;
+}
+#else
+int vga_remove_vgacon(struct pci_dev *pdev)
+{
+	int ret = 0;
+
+	if (pdev != vga_default)
+		return 0;
+	vgaarb_info(&pdev->dev, "deactivate vga console\n");
+
+	console_lock();
+	if (con_is_bound(&vga_con))
+		ret = do_take_over_console(&dummy_con, 0,
+					   MAX_NR_CONSOLES - 1, 1);
+	if (ret == 0) {
+		ret = do_unregister_con_driver(&vga_con);
+
+		/* Ignore "already unregistered". */
+		if (ret == -ENODEV)
+			ret = 0;
+	}
+	console_unlock();
+
+	return ret;
+}
+#endif
+EXPORT_SYMBOL(vga_remove_vgacon);
+>>>>>>> upstream/android-13
 
 /* If we don't ever use VGA arb we should avoid
    turning off anything anywhere due to old X servers getting
@@ -234,12 +293,15 @@ static struct vga_device *__vga_tryget(struct vga_device *vgadev,
 		if (vgadev == conflict)
 			continue;
 
+<<<<<<< HEAD
 		/* Check if the architecture allows a conflict between those
 		 * 2 devices or if they are on separate domains
 		 */
 		if (!vga_conflicts(vgadev->pdev, conflict->pdev))
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		/* We have a possible conflict. before we go further, we must
 		 * check if we sit on the same bus as the conflicting device.
 		 * if we don't, then we must tie both IO and MEM resources
@@ -281,10 +343,15 @@ static struct vga_device *__vga_tryget(struct vga_device *vgadev,
 			if ((match & conflict->decodes) & VGA_RSRC_LEGACY_IO)
 				pci_bits |= PCI_COMMAND_IO;
 
+<<<<<<< HEAD
 			if (pci_bits) {
 				vga_irq_set_state(conflict, false);
 				flags |= PCI_VGA_STATE_CHANGE_DECODES;
 			}
+=======
+			if (pci_bits)
+				flags |= PCI_VGA_STATE_CHANGE_DECODES;
+>>>>>>> upstream/android-13
 		}
 
 		if (change_bridge)
@@ -321,9 +388,12 @@ enable_them:
 
 	pci_set_vga_state(vgadev->pdev, true, pci_bits, flags);
 
+<<<<<<< HEAD
 	if (!vgadev->bridge_has_one_vga)
 		vga_irq_set_state(vgadev, true);
 
+=======
+>>>>>>> upstream/android-13
 	vgadev->owns |= wants;
 lock_them:
 	vgadev->locks |= (rsrc & VGA_RSRC_LEGACY_MASK);
@@ -480,7 +550,11 @@ EXPORT_SYMBOL(vga_get);
  *
  * 0 on success, negative error code on failure.
  */
+<<<<<<< HEAD
 int vga_tryget(struct pci_dev *pdev, unsigned int rsrc)
+=======
+static int vga_tryget(struct pci_dev *pdev, unsigned int rsrc)
+>>>>>>> upstream/android-13
 {
 	struct vga_device *vgadev;
 	unsigned long flags;
@@ -505,7 +579,10 @@ bail:
 	spin_unlock_irqrestore(&vga_lock, flags);
 	return rc;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(vga_tryget);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * vga_put - release lock on legacy VGA resources
@@ -676,7 +753,11 @@ static bool vga_arbiter_add_pci_device(struct pci_dev *pdev)
 	vga_arbiter_check_bridge_sharing(vgadev);
 
 	/* Add to the list */
+<<<<<<< HEAD
 	list_add(&vgadev->list, &vga_list);
+=======
+	list_add_tail(&vgadev->list, &vga_list);
+>>>>>>> upstream/android-13
 	vga_count++;
 	vgaarb_info(&pdev->dev, "VGA device added: decodes=%s,owns=%s,locks=%s\n",
 		vga_iostate_to_str(vgadev->decodes),
@@ -777,7 +858,11 @@ static void __vga_set_legacy_decoding(struct pci_dev *pdev,
 		goto bail;
 
 	/* don't let userspace futz with kernel driver decodes */
+<<<<<<< HEAD
 	if (userspace && vgadev->set_vga_decode)
+=======
+	if (userspace && vgadev->set_decode)
+>>>>>>> upstream/android-13
 		goto bail;
 
 	/* update the device decodes + counter */
@@ -791,6 +876,20 @@ bail:
 	spin_unlock_irqrestore(&vga_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * vga_set_legacy_decoding
+ * @pdev: pci device of the VGA card
+ * @decodes: bit mask of what legacy regions the card decodes
+ *
+ * Indicates to the arbiter if the card decodes legacy VGA IOs, legacy VGA
+ * Memory, both, or none. All cards default to both, the card driver (fbdev for
+ * example) should tell the arbiter if it has disabled legacy decoding, so the
+ * card can be left out of the arbitration process (and can be safe to take
+ * interrupts at any time.
+ */
+>>>>>>> upstream/android-13
 void vga_set_legacy_decoding(struct pci_dev *pdev, unsigned int decodes)
 {
 	__vga_set_legacy_decoding(pdev, decodes, false);
@@ -800,6 +899,7 @@ EXPORT_SYMBOL(vga_set_legacy_decoding);
 /**
  * vga_client_register - register or unregister a VGA arbitration client
  * @pdev: pci device of the VGA client
+<<<<<<< HEAD
  * @cookie: client cookie to be used in callbacks
  * @irq_set_state: irq state change callback
  * @set_vga_decode: vga decode change callback
@@ -811,6 +911,13 @@ EXPORT_SYMBOL(vga_set_legacy_decoding);
  * turn off its mem and io decoding.
  *
  * @set_vga_decode callback: If a client can disable its GPU VGA resource, it
+=======
+ * @set_decode: vga decode change callback
+ *
+ * Clients have two callback mechanisms they can use.
+ *
+ * @set_decode callback: If a client can disable its GPU VGA resource, it
+>>>>>>> upstream/android-13
  * will get a callback from this to set the encode/decode state.
  *
  * Rationale: we cannot disable VGA decode resources unconditionally some single
@@ -823,6 +930,7 @@ EXPORT_SYMBOL(vga_set_legacy_decoding);
  * This function does not check whether a client for @pdev has been registered
  * already.
  *
+<<<<<<< HEAD
  * To unregister just call this function with @irq_set_state and @set_vga_decode
  * both set to NULL for the same @pdev as originally used to register them.
  *
@@ -832,6 +940,14 @@ int vga_client_register(struct pci_dev *pdev, void *cookie,
 			void (*irq_set_state)(void *cookie, bool state),
 			unsigned int (*set_vga_decode)(void *cookie,
 						       bool decode))
+=======
+ * To unregister just call vga_client_unregister().
+ *
+ * Returns: 0 on success, -1 on failure
+ */
+int vga_client_register(struct pci_dev *pdev,
+		unsigned int (*set_decode)(struct pci_dev *pdev, bool decode))
+>>>>>>> upstream/android-13
 {
 	int ret = -ENODEV;
 	struct vga_device *vgadev;
@@ -842,9 +958,13 @@ int vga_client_register(struct pci_dev *pdev, void *cookie,
 	if (!vgadev)
 		goto bail;
 
+<<<<<<< HEAD
 	vgadev->irq_set_state = irq_set_state;
 	vgadev->set_vga_decode = set_vga_decode;
 	vgadev->cookie = cookie;
+=======
+	vgadev->set_decode = set_decode;
+>>>>>>> upstream/android-13
 	ret = 0;
 
 bail:
@@ -1354,9 +1474,15 @@ static void vga_arbiter_notify_clients(void)
 			new_state = false;
 		else
 			new_state = true;
+<<<<<<< HEAD
 		if (vgadev->set_vga_decode) {
 			new_decodes = vgadev->set_vga_decode(vgadev->cookie,
 							     new_state);
+=======
+		if (vgadev->set_decode) {
+			new_decodes = vgadev->set_decode(vgadev->pdev,
+							 new_state);
+>>>>>>> upstream/android-13
 			vga_update_device_decodes(vgadev, new_decodes);
 		}
 	}
@@ -1402,12 +1528,47 @@ static struct miscdevice vga_arb_device = {
 	MISC_DYNAMIC_MINOR, "vga_arbiter", &vga_arb_device_fops
 };
 
+<<<<<<< HEAD
 static void __init vga_arb_select_default_device(void)
 {
 	struct pci_dev *pdev;
 	struct vga_device *vgadev;
 
 #if defined(CONFIG_X86) || defined(CONFIG_IA64)
+=======
+#if defined(CONFIG_ACPI)
+static bool vga_arb_integrated_gpu(struct device *dev)
+{
+	struct acpi_device *adev = ACPI_COMPANION(dev);
+
+	return adev && !strcmp(acpi_device_hid(adev), ACPI_VIDEO_HID);
+}
+#else
+static bool vga_arb_integrated_gpu(struct device *dev)
+{
+	return false;
+}
+#endif
+
+static void __init vga_arb_select_default_device(void)
+{
+	struct pci_dev *pdev, *found = NULL;
+	struct vga_device *vgadev;
+
+#if defined(CONFIG_X86) || defined(CONFIG_IA64)
+	u64 base = screen_info.lfb_base;
+	u64 size = screen_info.lfb_size;
+	u64 limit;
+	resource_size_t start, end;
+	unsigned long flags;
+	int i;
+
+	if (screen_info.capabilities & VIDEO_CAPABILITY_64BIT_BASE)
+		base |= (u64)screen_info.ext_lfb_base << 32;
+
+	limit = base + size;
+
+>>>>>>> upstream/android-13
 	list_for_each_entry(vgadev, &vga_list, list) {
 		struct device *dev = &vgadev->pdev->dev;
 		/*
@@ -1418,11 +1579,14 @@ static void __init vga_arb_select_default_device(void)
 		 * Select the device owning the boot framebuffer if there is
 		 * one.
 		 */
+<<<<<<< HEAD
 		resource_size_t start, end, limit;
 		unsigned long flags;
 		int i;
 
 		limit = screen_info.lfb_base + screen_info.lfb_size;
+=======
+>>>>>>> upstream/android-13
 
 		/* Does firmware framebuffer belong to us? */
 		for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
@@ -1437,7 +1601,11 @@ static void __init vga_arb_select_default_device(void)
 			if (!start || !end)
 				continue;
 
+<<<<<<< HEAD
 			if (screen_info.lfb_base < start || limit >= end)
+=======
+			if (base < start || limit >= end)
+>>>>>>> upstream/android-13
 				continue;
 
 			if (!vga_default_device())
@@ -1450,20 +1618,39 @@ static void __init vga_arb_select_default_device(void)
 #endif
 
 	if (!vga_default_device()) {
+<<<<<<< HEAD
 		list_for_each_entry(vgadev, &vga_list, list) {
+=======
+		list_for_each_entry_reverse(vgadev, &vga_list, list) {
+>>>>>>> upstream/android-13
 			struct device *dev = &vgadev->pdev->dev;
 			u16 cmd;
 
 			pdev = vgadev->pdev;
 			pci_read_config_word(pdev, PCI_COMMAND, &cmd);
 			if (cmd & (PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) {
+<<<<<<< HEAD
 				vgaarb_info(dev, "setting as boot device (VGA legacy resources not available)\n");
 				vga_set_default_device(pdev);
 				break;
+=======
+				found = pdev;
+				if (vga_arb_integrated_gpu(dev))
+					break;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (found) {
+		vgaarb_info(&found->dev, "setting as boot device (VGA legacy resources not available)\n");
+		vga_set_default_device(found);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (!vga_default_device()) {
 		vgadev = list_first_entry_or_null(&vga_list,
 						  struct vga_device, list);

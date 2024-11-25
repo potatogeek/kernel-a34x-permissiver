@@ -23,6 +23,12 @@
  *          Alon Levy
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/pci.h>
+#include <linux/uaccess.h>
+
+>>>>>>> upstream/android-13
 #include "qxl_drv.h"
 #include "qxl_object.h"
 
@@ -33,7 +39,11 @@
 static int qxl_alloc_ioctl(struct drm_device *dev, void *data,
 			   struct drm_file *file_priv)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	struct drm_qxl_alloc *qxl_alloc = data;
 	int ret;
 	struct qxl_bo *qobj;
@@ -61,11 +71,19 @@ static int qxl_alloc_ioctl(struct drm_device *dev, void *data,
 static int qxl_map_ioctl(struct drm_device *dev, void *data,
 			 struct drm_file *file_priv)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
 	struct drm_qxl_map *qxl_map = data;
 
 	return qxl_mode_dumb_mmap(file_priv, &qdev->ddev, qxl_map->handle,
 				  &qxl_map->offset);
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+	struct drm_qxl_map *qxl_map = data;
+
+	return drm_gem_ttm_dumb_map_offset(file_priv, &qdev->ddev, qxl_map->handle,
+					   &qxl_map->offset);
+>>>>>>> upstream/android-13
 }
 
 struct qxl_reloc_info {
@@ -85,6 +103,10 @@ static void
 apply_reloc(struct qxl_device *qdev, struct qxl_reloc_info *info)
 {
 	void *reloc_page;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	reloc_page = qxl_bo_kmap_atomic_page(qdev, info->dst_bo, info->dst_offset & PAGE_MASK);
 	*(uint64_t *)(reloc_page + (info->dst_offset & ~PAGE_MASK)) = qxl_bo_physical_address(qdev,
 											      info->src_bo,
@@ -121,7 +143,11 @@ static int qxlhw_handle_to_bo(struct drm_file *file_priv, uint64_t handle,
 	qobj = gem_to_qxl_bo(gobj);
 
 	ret = qxl_release_list_add(release, qobj);
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -156,14 +182,21 @@ static int qxl_process_single_command(struct qxl_device *qdev,
 	default:
 		DRM_DEBUG("Only draw commands in execbuffers\n");
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (cmd->command_size > PAGE_SIZE - sizeof(union qxl_release_info))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ,
 		       u64_to_user_ptr(cmd->command),
+=======
+	if (!access_ok(u64_to_user_ptr(cmd->command),
+>>>>>>> upstream/android-13
 		       cmd->command_size))
 		return -EFAULT;
 
@@ -189,6 +222,10 @@ static int qxl_process_single_command(struct qxl_device *qdev,
 
 	{
 		struct qxl_drawable *draw = fb_cmd;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		draw->mm_time = qdev->rom->mm_clock;
 	}
 
@@ -272,7 +309,11 @@ out_free_reloc:
 static int qxl_execbuffer_ioctl(struct drm_device *dev, void *data,
 				struct drm_file *file_priv)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	struct drm_qxl_execbuffer *execbuffer = data;
 	struct drm_qxl_command user_cmd;
 	int cmd_num;
@@ -297,7 +338,11 @@ static int qxl_execbuffer_ioctl(struct drm_device *dev, void *data,
 static int qxl_update_area_ioctl(struct drm_device *dev, void *data,
 				 struct drm_file *file)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	struct drm_qxl_update_area *update_area = data;
 	struct qxl_rect area = {.left = update_area->left,
 				.top = update_area->top,
@@ -318,12 +363,21 @@ static int qxl_update_area_ioctl(struct drm_device *dev, void *data,
 
 	qobj = gem_to_qxl_bo(gobj);
 
+<<<<<<< HEAD
 	ret = qxl_bo_reserve(qobj, false);
 	if (ret)
 		goto out;
 
 	if (!qobj->pin_count) {
 		qxl_ttm_placement_from_domain(qobj, qobj->type, false);
+=======
+	ret = qxl_bo_reserve(qobj);
+	if (ret)
+		goto out;
+
+	if (!qobj->tbo.pin_count) {
+		qxl_ttm_placement_from_domain(qobj, qobj->type);
+>>>>>>> upstream/android-13
 		ret = ttm_bo_validate(&qobj->tbo, &qobj->placement, &ctx);
 		if (unlikely(ret))
 			goto out;
@@ -340,14 +394,22 @@ out2:
 	qxl_bo_unreserve(qobj);
 
 out:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int qxl_getparam_ioctl(struct drm_device *dev, void *data,
 		       struct drm_file *file_priv)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	struct drm_qxl_getparam *param = data;
 
 	switch (param->param) {
@@ -366,14 +428,23 @@ static int qxl_getparam_ioctl(struct drm_device *dev, void *data,
 static int qxl_clientcap_ioctl(struct drm_device *dev, void *data,
 				  struct drm_file *file_priv)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	struct drm_qxl_clientcap *param = data;
 	int byte, idx;
 
 	byte = param->index / 8;
 	idx = param->index % 8;
 
+<<<<<<< HEAD
 	if (dev->pdev->revision < 4)
+=======
+	if (pdev->revision < 4)
+>>>>>>> upstream/android-13
 		return -ENOSYS;
 
 	if (byte >= 58)
@@ -387,7 +458,11 @@ static int qxl_clientcap_ioctl(struct drm_device *dev, void *data,
 static int qxl_alloc_surf_ioctl(struct drm_device *dev, void *data,
 				struct drm_file *file)
 {
+<<<<<<< HEAD
 	struct qxl_device *qdev = dev->dev_private;
+=======
+	struct qxl_device *qdev = to_qxl(dev);
+>>>>>>> upstream/android-13
 	struct drm_qxl_alloc_surf *param = data;
 	struct qxl_bo *qobj;
 	int handle;

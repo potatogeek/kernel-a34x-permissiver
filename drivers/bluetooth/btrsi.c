@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) 2017 Redpine Signals Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -194,5 +198,8 @@ module_init(rsi_91x_bt_module_init);
 module_exit(rsi_91x_bt_module_exit);
 MODULE_AUTHOR("Redpine Signals Inc");
 MODULE_DESCRIPTION("RSI BT driver");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("RSI-BT");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("Dual BSD/GPL");

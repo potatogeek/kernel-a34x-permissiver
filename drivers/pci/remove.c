@@ -19,6 +19,10 @@ static void pci_stop_dev(struct pci_dev *dev)
 	pci_pme_active(dev, false);
 
 	if (pci_dev_is_added(dev)) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		device_release_driver(&dev->dev);
 		pci_proc_detach_device(dev);
 		pci_remove_sysfs_dev_files(dev);
@@ -160,6 +164,10 @@ void pci_remove_root_bus(struct pci_bus *bus)
 	host_bridge->bus = NULL;
 
 	/* remove the host bridge */
+<<<<<<< HEAD
 	device_unregister(&host_bridge->dev);
+=======
+	device_del(&host_bridge->dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_remove_root_bus);

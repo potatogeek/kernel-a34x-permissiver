@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2014 Freescale Semiconductor, Inc.
  * Copyright 2011 Linaro Ltd.
@@ -10,11 +11,24 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011-2014 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+ */
+
+#include <linux/clk/imx.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/irq.h>
 #include <linux/genalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/irqchip/arm-gic.h>
+>>>>>>> upstream/android-13
 #include <linux/mfd/syscon.h>
 #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
 #include <linux/of.h>
@@ -313,7 +327,11 @@ int imx6_set_lpm(enum mxc_cpu_pwr_mode mode)
 		if (cpu_is_imx6sl())
 			val |= BM_CLPCR_BYPASS_PMIC_READY;
 		if (cpu_is_imx6sl() || cpu_is_imx6sx() || cpu_is_imx6ul() ||
+<<<<<<< HEAD
 		    cpu_is_imx6ull() || cpu_is_imx6sll())
+=======
+		    cpu_is_imx6ull() || cpu_is_imx6sll() || cpu_is_imx6ulz())
+>>>>>>> upstream/android-13
 			val |= BM_CLPCR_BYP_MMDC_CH0_LPM_HS;
 		else
 			val |= BM_CLPCR_BYP_MMDC_CH1_LPM_HS;
@@ -331,7 +349,11 @@ int imx6_set_lpm(enum mxc_cpu_pwr_mode mode)
 		if (cpu_is_imx6sl() || cpu_is_imx6sx())
 			val |= BM_CLPCR_BYPASS_PMIC_READY;
 		if (cpu_is_imx6sl() || cpu_is_imx6sx() || cpu_is_imx6ul() ||
+<<<<<<< HEAD
 		    cpu_is_imx6ull() || cpu_is_imx6sll())
+=======
+		    cpu_is_imx6ull() || cpu_is_imx6sll() || cpu_is_imx6ulz())
+>>>>>>> upstream/android-13
 			val |= BM_CLPCR_BYP_MMDC_CH0_LPM_HS;
 		else
 			val |= BM_CLPCR_BYP_MMDC_CH1_LPM_HS;
@@ -354,9 +376,17 @@ int imx6_set_lpm(enum mxc_cpu_pwr_mode mode)
 	 *
 	 * Note that IRQ #32 is GIC SPI #0.
 	 */
+<<<<<<< HEAD
 	imx_gpc_hwirq_unmask(0);
 	writel_relaxed(val, ccm_base + CLPCR);
 	imx_gpc_hwirq_mask(0);
+=======
+	if (mode != WAIT_CLOCKED)
+		imx_gpc_hwirq_unmask(0);
+	writel_relaxed(val, ccm_base + CLPCR);
+	if (mode != WAIT_CLOCKED)
+		imx_gpc_hwirq_mask(0);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -622,6 +652,10 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
 
 static void imx6_pm_stby_poweroff(void)
 {
+<<<<<<< HEAD
+=======
+	gic_cpu_if_down(0);
+>>>>>>> upstream/android-13
 	imx6_set_lpm(STOP_POWER_OFF);
 	imx6q_suspend_finish(0);
 
@@ -633,7 +667,11 @@ static void imx6_pm_stby_poweroff(void)
 static int imx6_pm_stby_poweroff_probe(void)
 {
 	if (pm_power_off) {
+<<<<<<< HEAD
 		pr_warn("%s: pm_power_off already claimed  %p %pf!\n",
+=======
+		pr_warn("%s: pm_power_off already claimed  %p %ps!\n",
+>>>>>>> upstream/android-13
 			__func__, pm_power_off, pm_power_off);
 		return -EBUSY;
 	}
@@ -661,6 +699,11 @@ void __init imx6_pm_ccm_init(const char *ccm_compat)
 
 	if (of_property_read_bool(np, "fsl,pmic-stby-poweroff"))
 		imx6_pm_stby_poweroff_probe();
+<<<<<<< HEAD
+=======
+
+	of_node_put(np);
+>>>>>>> upstream/android-13
 }
 
 void __init imx6q_pm_init(void)

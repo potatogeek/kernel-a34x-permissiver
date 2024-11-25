@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PCI-E support for CNS3xxx
  *
@@ -5,10 +9,13 @@
  *		  Richard Liu <richard.liu@caviumnetworks.com>
  * Copyright 2010 MontaVista Software, LLC.
  *		  Anton Vorontsov <avorontsov@mvista.com>
+<<<<<<< HEAD
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, Version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -93,7 +100,11 @@ static int cns3xxx_pci_read_config(struct pci_bus *bus, unsigned int devfn,
 	u32 mask = (0x1ull << (size * 8)) - 1;
 	int shift = (where % 4) * 8;
 
+<<<<<<< HEAD
 	ret = pci_generic_config_read32(bus, devfn, where, size, val);
+=======
+	ret = pci_generic_config_read(bus, devfn, where, size, val);
+>>>>>>> upstream/android-13
 
 	if (ret == PCIBIOS_SUCCESSFUL && !bus->number && !devfn &&
 	    (where & 0xffc) == PCI_CLASS_REVISION)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2002,2003 by Andreas Gruenbacher <a.gruenbacher@computer.org>
  *
@@ -21,6 +25,10 @@
 #include <linux/xattr.h>
 #include <linux/export.h>
 #include <linux/user_namespace.h>
+<<<<<<< HEAD
+=======
+#include <linux/namei.h>
+>>>>>>> upstream/android-13
 
 static struct posix_acl **acl_by_type(struct inode *inode, int type)
 {
@@ -55,7 +63,21 @@ EXPORT_SYMBOL(get_cached_acl);
 
 struct posix_acl *get_cached_acl_rcu(struct inode *inode, int type)
 {
+<<<<<<< HEAD
 	return rcu_dereference(*acl_by_type(inode, type));
+=======
+	struct posix_acl *acl = rcu_dereference(*acl_by_type(inode, type));
+
+	if (acl == ACL_DONT_CACHE) {
+		struct posix_acl *ret;
+
+		ret = inode->i_op->get_acl(inode, type, LOOKUP_RCU);
+		if (!IS_ERR(ret))
+			acl = ret;
+	}
+
+	return acl;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(get_cached_acl_rcu);
 
@@ -137,7 +159,11 @@ struct posix_acl *get_acl(struct inode *inode, int type)
 		set_cached_acl(inode, type, NULL);
 		return NULL;
 	}
+<<<<<<< HEAD
 	acl = inode->i_op->get_acl(inode, type);
+=======
+	acl = inode->i_op->get_acl(inode, type, false);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(acl)) {
 		/*
@@ -344,17 +370,30 @@ EXPORT_SYMBOL(posix_acl_from_mode);
  * by the acl. Returns -E... otherwise.
  */
 int
+<<<<<<< HEAD
 posix_acl_permission(struct inode *inode, const struct posix_acl *acl, int want)
 {
 	const struct posix_acl_entry *pa, *pe, *mask_obj;
 	int found = 0;
 
 	want &= MAY_READ | MAY_WRITE | MAY_EXEC | MAY_NOT_BLOCK;
+=======
+posix_acl_permission(struct user_namespace *mnt_userns, struct inode *inode,
+		     const struct posix_acl *acl, int want)
+{
+	const struct posix_acl_entry *pa, *pe, *mask_obj;
+	int found = 0;
+	kuid_t uid;
+	kgid_t gid;
+
+	want &= MAY_READ | MAY_WRITE | MAY_EXEC;
+>>>>>>> upstream/android-13
 
 	FOREACH_ACL_ENTRY(pa, acl, pe) {
                 switch(pa->e_tag) {
                         case ACL_USER_OBJ:
 				/* (May have been checked already) */
+<<<<<<< HEAD
 				if (uid_eq(inode->i_uid, current_fsuid()))
                                         goto check_perm;
                                 break;
@@ -364,13 +403,32 @@ posix_acl_permission(struct inode *inode, const struct posix_acl *acl, int want)
 				break;
                         case ACL_GROUP_OBJ:
                                 if (in_group_p(inode->i_gid)) {
+=======
+				uid = i_uid_into_mnt(mnt_userns, inode);
+				if (uid_eq(uid, current_fsuid()))
+                                        goto check_perm;
+                                break;
+                        case ACL_USER:
+				uid = kuid_into_mnt(mnt_userns, pa->e_uid);
+				if (uid_eq(uid, current_fsuid()))
+                                        goto mask;
+				break;
+                        case ACL_GROUP_OBJ:
+				gid = i_gid_into_mnt(mnt_userns, inode);
+				if (in_group_p(gid)) {
+>>>>>>> upstream/android-13
 					found = 1;
 					if ((pa->e_perm & want) == want)
 						goto mask;
                                 }
 				break;
                         case ACL_GROUP:
+<<<<<<< HEAD
 				if (in_group_p(pa->e_gid)) {
+=======
+				gid = kgid_into_mnt(mnt_userns, pa->e_gid);
+				if (in_group_p(gid)) {
+>>>>>>> upstream/android-13
 					found = 1;
 					if ((pa->e_perm & want) == want)
 						goto mask;
@@ -550,8 +608,27 @@ __posix_acl_chmod(struct posix_acl **acl, gfp_t gfp, umode_t mode)
 }
 EXPORT_SYMBOL(__posix_acl_chmod);
 
+<<<<<<< HEAD
 int
 posix_acl_chmod(struct inode *inode, umode_t mode)
+=======
+/**
+ * posix_acl_chmod - chmod a posix acl
+ *
+ * @mnt_userns:	user namespace of the mount @inode was found from
+ * @inode:	inode to check permissions on
+ * @mode:	the new mode of @inode
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then
+ * take care to map the inode according to @mnt_userns before checking
+ * permissions. On non-idmapped mounts or if permission checking is to be
+ * performed on the raw inode simply passs init_user_ns.
+ */
+int
+ posix_acl_chmod(struct user_namespace *mnt_userns, struct inode *inode,
+		    umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct posix_acl *acl;
 	int ret = 0;
@@ -571,7 +648,11 @@ posix_acl_chmod(struct inode *inode, umode_t mode)
 	ret = __posix_acl_chmod(&acl, GFP_KERNEL, mode);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	ret = inode->i_op->set_acl(inode, acl, ACL_TYPE_ACCESS);
+=======
+	ret = inode->i_op->set_acl(mnt_userns, inode, acl, ACL_TYPE_ACCESS);
+>>>>>>> upstream/android-13
 	posix_acl_release(acl);
 	return ret;
 }
@@ -630,6 +711,7 @@ EXPORT_SYMBOL_GPL(posix_acl_create);
 
 /**
  * posix_acl_update_mode  -  update mode in set_acl
+<<<<<<< HEAD
  *
  * Update the file mode when setting an ACL: compute the new file permission
  * bits based on the ACL.  In addition, if the ACL is equivalent to the new
@@ -641,6 +723,30 @@ EXPORT_SYMBOL_GPL(posix_acl_create);
  * Called from set_acl inode operations.
  */
 int posix_acl_update_mode(struct inode *inode, umode_t *mode_p,
+=======
+ * @mnt_userns:	user namespace of the mount @inode was found from
+ * @inode:	target inode
+ * @mode_p:	mode (pointer) for update
+ * @acl:	acl pointer
+ *
+ * Update the file mode when setting an ACL: compute the new file permission
+ * bits based on the ACL.  In addition, if the ACL is equivalent to the new
+ * file mode, set *@acl to NULL to indicate that no ACL should be set.
+ *
+ * As with chmod, clear the setgid bit if the caller is not in the owning group
+ * or capable of CAP_FSETID (see inode_change_ok).
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then
+ * take care to map the inode according to @mnt_userns before checking
+ * permissions. On non-idmapped mounts or if permission checking is to be
+ * performed on the raw inode simply passs init_user_ns.
+ *
+ * Called from set_acl inode operations.
+ */
+int posix_acl_update_mode(struct user_namespace *mnt_userns,
+			  struct inode *inode, umode_t *mode_p,
+>>>>>>> upstream/android-13
 			  struct posix_acl **acl)
 {
 	umode_t mode = inode->i_mode;
@@ -651,8 +757,13 @@ int posix_acl_update_mode(struct inode *inode, umode_t *mode_p,
 		return error;
 	if (error == 0)
 		*acl = NULL;
+<<<<<<< HEAD
 	if (!in_group_p(inode->i_gid) &&
 	    !capable_wrt_inode_uidgid(inode, CAP_FSETID))
+=======
+	if (!in_group_p(i_gid_into_mnt(mnt_userns, inode)) &&
+	    !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
+>>>>>>> upstream/android-13
 		mode &= ~S_ISGID;
 	*mode_p = mode;
 	return 0;
@@ -664,7 +775,12 @@ EXPORT_SYMBOL(posix_acl_update_mode);
  */
 static void posix_acl_fix_xattr_userns(
 	struct user_namespace *to, struct user_namespace *from,
+<<<<<<< HEAD
 	void *value, size_t size)
+=======
+	struct user_namespace *mnt_userns,
+	void *value, size_t size, bool from_user)
+>>>>>>> upstream/android-13
 {
 	struct posix_acl_xattr_header *header = value;
 	struct posix_acl_xattr_entry *entry = (void *)(header + 1), *end;
@@ -689,10 +805,24 @@ static void posix_acl_fix_xattr_userns(
 		switch(le16_to_cpu(entry->e_tag)) {
 		case ACL_USER:
 			uid = make_kuid(from, le32_to_cpu(entry->e_id));
+<<<<<<< HEAD
+=======
+			if (from_user)
+				uid = kuid_from_mnt(mnt_userns, uid);
+			else
+				uid = kuid_into_mnt(mnt_userns, uid);
+>>>>>>> upstream/android-13
 			entry->e_id = cpu_to_le32(from_kuid(to, uid));
 			break;
 		case ACL_GROUP:
 			gid = make_kgid(from, le32_to_cpu(entry->e_id));
+<<<<<<< HEAD
+=======
+			if (from_user)
+				gid = kgid_from_mnt(mnt_userns, gid);
+			else
+				gid = kgid_into_mnt(mnt_userns, gid);
+>>>>>>> upstream/android-13
 			entry->e_id = cpu_to_le32(from_kgid(to, gid));
 			break;
 		default:
@@ -701,6 +831,7 @@ static void posix_acl_fix_xattr_userns(
 	}
 }
 
+<<<<<<< HEAD
 void posix_acl_fix_xattr_from_user(void *value, size_t size)
 {
 	struct user_namespace *user_ns = current_user_ns();
@@ -715,6 +846,26 @@ void posix_acl_fix_xattr_to_user(void *value, size_t size)
 	if (user_ns == &init_user_ns)
 		return;
 	posix_acl_fix_xattr_userns(user_ns, &init_user_ns, value, size);
+=======
+void posix_acl_fix_xattr_from_user(struct user_namespace *mnt_userns,
+				   void *value, size_t size)
+{
+	struct user_namespace *user_ns = current_user_ns();
+	if ((user_ns == &init_user_ns) && (mnt_userns == &init_user_ns))
+		return;
+	posix_acl_fix_xattr_userns(&init_user_ns, user_ns, mnt_userns, value,
+				   size, true);
+}
+
+void posix_acl_fix_xattr_to_user(struct user_namespace *mnt_userns,
+				 void *value, size_t size)
+{
+	struct user_namespace *user_ns = current_user_ns();
+	if ((user_ns == &init_user_ns) && (mnt_userns == &init_user_ns))
+		return;
+	posix_acl_fix_xattr_userns(user_ns, &init_user_ns, mnt_userns, value,
+				   size, false);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -854,7 +1005,12 @@ posix_acl_xattr_get(const struct xattr_handler *handler,
 }
 
 int
+<<<<<<< HEAD
 set_posix_acl(struct inode *inode, int type, struct posix_acl *acl)
+=======
+set_posix_acl(struct user_namespace *mnt_userns, struct inode *inode,
+	      int type, struct posix_acl *acl)
+>>>>>>> upstream/android-13
 {
 	if (!IS_POSIXACL(inode))
 		return -EOPNOTSUPP;
@@ -863,7 +1019,11 @@ set_posix_acl(struct inode *inode, int type, struct posix_acl *acl)
 
 	if (type == ACL_TYPE_DEFAULT && !S_ISDIR(inode->i_mode))
 		return acl ? -EACCES : 0;
+<<<<<<< HEAD
 	if (!inode_owner_or_capable(inode))
+=======
+	if (!inode_owner_or_capable(mnt_userns, inode))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	if (acl) {
@@ -871,15 +1031,26 @@ set_posix_acl(struct inode *inode, int type, struct posix_acl *acl)
 		if (ret)
 			return ret;
 	}
+<<<<<<< HEAD
 	return inode->i_op->set_acl(inode, acl, type);
+=======
+	return inode->i_op->set_acl(mnt_userns, inode, acl, type);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(set_posix_acl);
 
 static int
 posix_acl_xattr_set(const struct xattr_handler *handler,
+<<<<<<< HEAD
 		    struct dentry *unused, struct inode *inode,
 		    const char *name, const void *value,
 		    size_t size, int flags)
+=======
+			   struct user_namespace *mnt_userns,
+			   struct dentry *unused, struct inode *inode,
+			   const char *name, const void *value, size_t size,
+			   int flags)
+>>>>>>> upstream/android-13
 {
 	struct posix_acl *acl = NULL;
 	int ret;
@@ -889,7 +1060,11 @@ posix_acl_xattr_set(const struct xattr_handler *handler,
 		if (IS_ERR(acl))
 			return PTR_ERR(acl);
 	}
+<<<<<<< HEAD
 	ret = set_posix_acl(inode, handler->flags, acl);
+=======
+	ret = set_posix_acl(mnt_userns, inode, handler->flags, acl);
+>>>>>>> upstream/android-13
 	posix_acl_release(acl);
 	return ret;
 }
@@ -918,12 +1093,21 @@ const struct xattr_handler posix_acl_default_xattr_handler = {
 };
 EXPORT_SYMBOL_GPL(posix_acl_default_xattr_handler);
 
+<<<<<<< HEAD
 int simple_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+=======
+int simple_set_acl(struct user_namespace *mnt_userns, struct inode *inode,
+		   struct posix_acl *acl, int type)
+>>>>>>> upstream/android-13
 {
 	int error;
 
 	if (type == ACL_TYPE_ACCESS) {
+<<<<<<< HEAD
 		error = posix_acl_update_mode(inode,
+=======
+		error = posix_acl_update_mode(mnt_userns, inode,
+>>>>>>> upstream/android-13
 				&inode->i_mode, &acl);
 		if (error)
 			return error;

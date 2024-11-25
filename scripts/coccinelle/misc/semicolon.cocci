@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 ///
 /// Remove unneeded semicolon.
 ///
 // Confidence: Moderate
+<<<<<<< HEAD
 // Copyright: (C) 2012 Peter Senna Tschudin, INRIA/LIP6.  GPLv2.
+=======
+// Copyright: (C) 2012 Peter Senna Tschudin, INRIA/LIP6.
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Comments: Some false positives on empty default cases in switch statements.
 // Options: --no-includes --include-headers

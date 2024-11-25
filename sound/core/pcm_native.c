@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Digital Audio (PCM) abstract layer
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -19,6 +20,15 @@
  *
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Digital Audio (PCM) abstract layer
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+ */
+
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/file.h>
@@ -28,6 +38,10 @@
 #include <linux/pm_qos.h>
 #include <linux/io.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
+=======
+#include <linux/vmalloc.h>
+>>>>>>> upstream/android-13
 #include <sound/core.h>
 #include <sound/control.h>
 #include <sound/info.h>
@@ -85,6 +99,7 @@ static int snd_pcm_open(struct file *file, struct snd_pcm *pcm, int stream);
  *
  */
 
+<<<<<<< HEAD
 static DEFINE_RWLOCK(snd_pcm_link_rwlock);
 static DECLARE_RWSEM(snd_pcm_link_rwsem);
 
@@ -150,6 +165,32 @@ static void __snd_pcm_stream_unlock_mode(struct snd_pcm_substream *substream,
 		}
 	}
 }
+=======
+static DECLARE_RWSEM(snd_pcm_link_rwsem);
+
+void snd_pcm_group_init(struct snd_pcm_group *group)
+{
+	spin_lock_init(&group->lock);
+	mutex_init(&group->mutex);
+	INIT_LIST_HEAD(&group->substreams);
+	refcount_set(&group->refs, 1);
+}
+
+/* define group lock helpers */
+#define DEFINE_PCM_GROUP_LOCK(action, mutex_action) \
+static void snd_pcm_group_ ## action(struct snd_pcm_group *group, bool nonatomic) \
+{ \
+	if (nonatomic) \
+		mutex_ ## mutex_action(&group->mutex); \
+	else \
+		spin_ ## action(&group->lock); \
+}
+
+DEFINE_PCM_GROUP_LOCK(lock, lock);
+DEFINE_PCM_GROUP_LOCK(unlock, unlock);
+DEFINE_PCM_GROUP_LOCK(lock_irq, lock);
+DEFINE_PCM_GROUP_LOCK(unlock_irq, unlock);
+>>>>>>> upstream/android-13
 
 /**
  * snd_pcm_stream_lock - Lock the PCM stream
@@ -161,19 +202,31 @@ static void __snd_pcm_stream_unlock_mode(struct snd_pcm_substream *substream,
  */
 void snd_pcm_stream_lock(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	__snd_pcm_stream_lock_mode(substream, PCM_LOCK_DEFAULT);
+=======
+	snd_pcm_group_lock(&substream->self_group, substream->pcm->nonatomic);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_pcm_stream_lock);
 
 /**
+<<<<<<< HEAD
  * snd_pcm_stream_lock - Unlock the PCM stream
+=======
+ * snd_pcm_stream_unlock - Unlock the PCM stream
+>>>>>>> upstream/android-13
  * @substream: PCM substream
  *
  * This unlocks the PCM stream that has been locked via snd_pcm_stream_lock().
  */
 void snd_pcm_stream_unlock(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	__snd_pcm_stream_unlock_mode(substream, PCM_LOCK_DEFAULT, 0);
+=======
+	snd_pcm_group_unlock(&substream->self_group, substream->pcm->nonatomic);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_pcm_stream_unlock);
 
@@ -187,10 +240,28 @@ EXPORT_SYMBOL_GPL(snd_pcm_stream_unlock);
  */
 void snd_pcm_stream_lock_irq(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	__snd_pcm_stream_lock_mode(substream, PCM_LOCK_IRQ);
 }
 EXPORT_SYMBOL_GPL(snd_pcm_stream_lock_irq);
 
+=======
+	snd_pcm_group_lock_irq(&substream->self_group,
+			       substream->pcm->nonatomic);
+}
+EXPORT_SYMBOL_GPL(snd_pcm_stream_lock_irq);
+
+static void snd_pcm_stream_lock_nested(struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_group *group = &substream->self_group;
+
+	if (substream->pcm->nonatomic)
+		mutex_lock_nested(&group->mutex, SINGLE_DEPTH_NESTING);
+	else
+		spin_lock_nested(&group->lock, SINGLE_DEPTH_NESTING);
+}
+
+>>>>>>> upstream/android-13
 /**
  * snd_pcm_stream_unlock_irq - Unlock the PCM stream
  * @substream: PCM substream
@@ -199,13 +270,27 @@ EXPORT_SYMBOL_GPL(snd_pcm_stream_lock_irq);
  */
 void snd_pcm_stream_unlock_irq(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	__snd_pcm_stream_unlock_mode(substream, PCM_LOCK_IRQ, 0);
+=======
+	snd_pcm_group_unlock_irq(&substream->self_group,
+				 substream->pcm->nonatomic);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_pcm_stream_unlock_irq);
 
 unsigned long _snd_pcm_stream_lock_irqsave(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	return __snd_pcm_stream_lock_mode(substream, PCM_LOCK_IRQSAVE);
+=======
+	unsigned long flags = 0;
+	if (substream->pcm->nonatomic)
+		mutex_lock(&substream->self_group.mutex);
+	else
+		spin_lock_irqsave(&substream->self_group.lock, flags);
+	return flags;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(_snd_pcm_stream_lock_irqsave);
 
@@ -219,10 +304,30 @@ EXPORT_SYMBOL_GPL(_snd_pcm_stream_lock_irqsave);
 void snd_pcm_stream_unlock_irqrestore(struct snd_pcm_substream *substream,
 				      unsigned long flags)
 {
+<<<<<<< HEAD
 	__snd_pcm_stream_unlock_mode(substream, PCM_LOCK_IRQSAVE, flags);
 }
 EXPORT_SYMBOL_GPL(snd_pcm_stream_unlock_irqrestore);
 
+=======
+	if (substream->pcm->nonatomic)
+		mutex_unlock(&substream->self_group.mutex);
+	else
+		spin_unlock_irqrestore(&substream->self_group.lock, flags);
+}
+EXPORT_SYMBOL_GPL(snd_pcm_stream_unlock_irqrestore);
+
+/* Run PCM ioctl ops */
+static int snd_pcm_ops_ioctl(struct snd_pcm_substream *substream,
+			     unsigned cmd, void *arg)
+{
+	if (substream->ops->ioctl)
+		return substream->ops->ioctl(substream, cmd, arg);
+	else
+		return snd_pcm_lib_ioctl(substream, cmd, arg);
+}
+
+>>>>>>> upstream/android-13
 int snd_pcm_info(struct snd_pcm_substream *substream, struct snd_pcm_info *info)
 {
 	struct snd_pcm *pcm = substream->pcm;
@@ -233,13 +338,22 @@ int snd_pcm_info(struct snd_pcm_substream *substream, struct snd_pcm_info *info)
 	info->device = pcm->device;
 	info->stream = substream->stream;
 	info->subdevice = substream->number;
+<<<<<<< HEAD
 	strlcpy(info->id, pcm->id, sizeof(info->id));
 	strlcpy(info->name, pcm->name, sizeof(info->name));
+=======
+	strscpy(info->id, pcm->id, sizeof(info->id));
+	strscpy(info->name, pcm->name, sizeof(info->name));
+>>>>>>> upstream/android-13
 	info->dev_class = pcm->dev_class;
 	info->dev_subclass = pcm->dev_subclass;
 	info->subdevices_count = pstr->substream_count;
 	info->subdevices_avail = pstr->substream_count - pstr->substream_opened;
+<<<<<<< HEAD
 	strlcpy(info->subname, substream->name, sizeof(info->subname));
+=======
+	strscpy(info->subname, substream->name, sizeof(info->subname));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -262,6 +376,7 @@ int snd_pcm_info_user(struct snd_pcm_substream *substream,
 	return err;
 }
 
+<<<<<<< HEAD
 static bool hw_support_mmap(struct snd_pcm_substream *substream)
 {
 	if (!(substream->runtime->hw.info & SNDRV_PCM_INFO_MMAP))
@@ -273,6 +388,36 @@ static bool hw_support_mmap(struct snd_pcm_substream *substream)
 		return false;
 #endif
 	return true;
+=======
+/* macro for simplified cast */
+#define PARAM_MASK_BIT(b)	(1U << (__force int)(b))
+
+static bool hw_support_mmap(struct snd_pcm_substream *substream)
+{
+	struct snd_dma_buffer *dmabuf;
+
+	if (!(substream->runtime->hw.info & SNDRV_PCM_INFO_MMAP))
+		return false;
+
+	if (substream->ops->mmap || substream->ops->page)
+		return true;
+
+	dmabuf = snd_pcm_get_dma_buf(substream);
+	if (!dmabuf)
+		dmabuf = &substream->dma_buffer;
+	switch (dmabuf->dev.type) {
+	case SNDRV_DMA_TYPE_UNKNOWN:
+		/* we can't know the device, so just assume that the driver does
+		 * everything right
+		 */
+		return true;
+	case SNDRV_DMA_TYPE_CONTINUOUS:
+	case SNDRV_DMA_TYPE_VMALLOC:
+		return true;
+	default:
+		return dma_can_mmap(dmabuf->dev.dev);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int constrain_mask_params(struct snd_pcm_substream *substream,
@@ -291,7 +436,11 @@ static int constrain_mask_params(struct snd_pcm_substream *substream,
 			return -EINVAL;
 
 		/* This parameter is not requested to change by a caller. */
+<<<<<<< HEAD
 		if (!(params->rmask & (1 << k)))
+=======
+		if (!(params->rmask & PARAM_MASK_BIT(k)))
+>>>>>>> upstream/android-13
 			continue;
 
 		if (trace_hw_mask_param_enabled())
@@ -305,7 +454,11 @@ static int constrain_mask_params(struct snd_pcm_substream *substream,
 
 		/* Set corresponding flag so that the caller gets it. */
 		trace_hw_mask_param(substream, k, 0, &old_mask, m);
+<<<<<<< HEAD
 		params->cmask |= 1 << k;
+=======
+		params->cmask |= PARAM_MASK_BIT(k);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -327,7 +480,11 @@ static int constrain_interval_params(struct snd_pcm_substream *substream,
 			return -EINVAL;
 
 		/* This parameter is not requested to change by a caller. */
+<<<<<<< HEAD
 		if (!(params->rmask & (1 << k)))
+=======
+		if (!(params->rmask & PARAM_MASK_BIT(k)))
+>>>>>>> upstream/android-13
 			continue;
 
 		if (trace_hw_interval_param_enabled())
@@ -341,7 +498,11 @@ static int constrain_interval_params(struct snd_pcm_substream *substream,
 
 		/* Set corresponding flag so that the caller gets it. */
 		trace_hw_interval_param(substream, k, 0, &old_interval, i);
+<<<<<<< HEAD
 		params->cmask |= 1 << k;
+=======
+		params->cmask |= PARAM_MASK_BIT(k);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -383,7 +544,11 @@ static int constrain_params_by_rules(struct snd_pcm_substream *substream,
 	 * have 0 so that the parameters are never changed anymore.
 	 */
 	for (k = 0; k <= SNDRV_PCM_HW_PARAM_LAST_INTERVAL; k++)
+<<<<<<< HEAD
 		vstamps[k] = (params->rmask & (1 << k)) ? 1 : 0;
+=======
+		vstamps[k] = (params->rmask & PARAM_MASK_BIT(k)) ? 1 : 0;
+>>>>>>> upstream/android-13
 
 	/* Due to the above design, actual sequence number starts at 2. */
 	stamp = 2;
@@ -403,8 +568,13 @@ retry:
 			continue;
 
 		/*
+<<<<<<< HEAD
 		 * The 'deps' array includes maximum three dependencies
 		 * to SNDRV_PCM_HW_PARAM_XXXs for this rule. The fourth
+=======
+		 * The 'deps' array includes maximum four dependencies
+		 * to SNDRV_PCM_HW_PARAM_XXXs for this rule. The fifth
+>>>>>>> upstream/android-13
 		 * member of this array is a sentinel and should be
 		 * negative value.
 		 *
@@ -451,7 +621,11 @@ retry:
 					hw_param_interval(params, r->var));
 			}
 
+<<<<<<< HEAD
 			params->cmask |= (1 << r->var);
+=======
+			params->cmask |= PARAM_MASK_BIT(r->var);
+>>>>>>> upstream/android-13
 			vstamps[r->var] = stamp;
 			again = true;
 		}
@@ -493,8 +667,14 @@ static int fixup_unreferenced_params(struct snd_pcm_substream *substream,
 		m = hw_param_mask_c(params, SNDRV_PCM_HW_PARAM_FORMAT);
 		i = hw_param_interval_c(params, SNDRV_PCM_HW_PARAM_CHANNELS);
 		if (snd_mask_single(m) && snd_interval_single(i)) {
+<<<<<<< HEAD
 			err = substream->ops->ioctl(substream,
 					SNDRV_PCM_IOCTL1_FIFO_SIZE, params);
+=======
+			err = snd_pcm_ops_ioctl(substream,
+						SNDRV_PCM_IOCTL1_FIFO_SIZE,
+						params);
+>>>>>>> upstream/android-13
 			if (err < 0)
 				return err;
 		}
@@ -519,9 +699,15 @@ int snd_pcm_hw_refine(struct snd_pcm_substream *substream,
 
 	params->info = 0;
 	params->fifo_size = 0;
+<<<<<<< HEAD
 	if (params->rmask & (1 << SNDRV_PCM_HW_PARAM_SAMPLE_BITS))
 		params->msbits = 0;
 	if (params->rmask & (1 << SNDRV_PCM_HW_PARAM_RATE)) {
+=======
+	if (params->rmask & PARAM_MASK_BIT(SNDRV_PCM_HW_PARAM_SAMPLE_BITS))
+		params->msbits = 0;
+	if (params->rmask & PARAM_MASK_BIT(SNDRV_PCM_HW_PARAM_RATE)) {
+>>>>>>> upstream/android-13
 		params->rate_num = 0;
 		params->rate_den = 0;
 	}
@@ -584,7 +770,12 @@ static int period_to_usecs(struct snd_pcm_runtime *runtime)
 	return usecs;
 }
 
+<<<<<<< HEAD
 static void snd_pcm_set_state(struct snd_pcm_substream *substream, int state)
+=======
+static void snd_pcm_set_state(struct snd_pcm_substream *substream,
+			      snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	snd_pcm_stream_lock_irq(substream);
 	if (substream->runtime->status->state != SNDRV_PCM_STATE_DISCONNECTED)
@@ -602,8 +793,24 @@ static inline void snd_pcm_timer_notify(struct snd_pcm_substream *substream,
 #endif
 }
 
+<<<<<<< HEAD
 /**
  * snd_pcm_hw_param_choose - choose a configuration defined by @params
+=======
+void snd_pcm_sync_stop(struct snd_pcm_substream *substream, bool sync_irq)
+{
+	if (substream->runtime && substream->runtime->stop_operating) {
+		substream->runtime->stop_operating = false;
+		if (substream->ops && substream->ops->sync_stop)
+			substream->ops->sync_stop(substream);
+		else if (sync_irq && substream->pcm->card->sync_irq > 0)
+			synchronize_irq(substream->pcm->card->sync_irq);
+	}
+}
+
+/**
+ * snd_pcm_hw_params_choose - choose a configuration defined by @params
+>>>>>>> upstream/android-13
  * @pcm: PCM instance
  * @params: the hw_params instance
  *
@@ -666,6 +873,33 @@ static int snd_pcm_hw_params_choose(struct snd_pcm_substream *pcm,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* acquire buffer_mutex; if it's in r/w operation, return -EBUSY, otherwise
+ * block the further r/w operations
+ */
+static int snd_pcm_buffer_access_lock(struct snd_pcm_runtime *runtime)
+{
+	if (!atomic_dec_unless_positive(&runtime->buffer_accessing))
+		return -EBUSY;
+	mutex_lock(&runtime->buffer_mutex);
+	return 0; /* keep buffer_mutex, unlocked by below */
+}
+
+/* release buffer_mutex and clear r/w access flag */
+static void snd_pcm_buffer_access_unlock(struct snd_pcm_runtime *runtime)
+{
+	mutex_unlock(&runtime->buffer_mutex);
+	atomic_inc(&runtime->buffer_accessing);
+}
+
+#if IS_ENABLED(CONFIG_SND_PCM_OSS)
+#define is_oss_stream(substream)	((substream)->oss.oss)
+#else
+#define is_oss_stream(substream)	false
+#endif
+
+>>>>>>> upstream/android-13
 static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
@@ -677,11 +911,18 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
 	if (PCM_RUNTIME_CHECK(substream))
 		return -ENXIO;
 	runtime = substream->runtime;
+<<<<<<< HEAD
+=======
+	err = snd_pcm_buffer_access_lock(runtime);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	snd_pcm_stream_lock_irq(substream);
 	switch (runtime->status->state) {
 	case SNDRV_PCM_STATE_OPEN:
 	case SNDRV_PCM_STATE_SETUP:
 	case SNDRV_PCM_STATE_PREPARED:
+<<<<<<< HEAD
 		break;
 	default:
 		snd_pcm_stream_unlock_irq(substream);
@@ -693,6 +934,21 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
 #endif
 		if (atomic_read(&substream->mmap_count))
 			return -EBADFD;
+=======
+		if (!is_oss_stream(substream) &&
+		    atomic_read(&substream->mmap_count))
+			err = -EBADFD;
+		break;
+	default:
+		err = -EBADFD;
+		break;
+	}
+	snd_pcm_stream_unlock_irq(substream);
+	if (err)
+		goto unlock;
+
+	snd_pcm_sync_stop(substream, true);
+>>>>>>> upstream/android-13
 
 	params->rmask = ~0U;
 	err = snd_pcm_hw_refine(substream, params);
@@ -707,6 +963,17 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
 	if (err < 0)
 		goto _error;
 
+<<<<<<< HEAD
+=======
+	if (substream->managed_buffer_alloc) {
+		err = snd_pcm_lib_malloc_pages(substream,
+					       params_buffer_bytes(params));
+		if (err < 0)
+			goto _error;
+		runtime->buffer_changed = err > 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (substream->ops->hw_params != NULL) {
 		err = substream->ops->hw_params(substream, params);
 		if (err < 0)
@@ -764,6 +1031,7 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
 	snd_pcm_timer_resolution_change(substream);
 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
 
+<<<<<<< HEAD
 	if (pm_qos_request_active(&substream->latency_pm_qos_req))
 		pm_qos_remove_request(&substream->latency_pm_qos_req);
 	if ((usecs = period_to_usecs(runtime)) >= 0)
@@ -777,6 +1045,29 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
 	if (substream->ops->hw_free != NULL)
 		substream->ops->hw_free(substream);
+=======
+	if (cpu_latency_qos_request_active(&substream->latency_pm_qos_req))
+		cpu_latency_qos_remove_request(&substream->latency_pm_qos_req);
+	usecs = period_to_usecs(runtime);
+	if (usecs >= 0)
+		cpu_latency_qos_add_request(&substream->latency_pm_qos_req,
+					    usecs);
+	err = 0;
+ _error:
+	if (err) {
+		/* hardware might be unusable from this time,
+		 * so we force application to retry to set
+		 * the correct hardware parameter settings
+		 */
+		snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
+		if (substream->ops->hw_free != NULL)
+			substream->ops->hw_free(substream);
+		if (substream->managed_buffer_alloc)
+			snd_pcm_lib_free_pages(substream);
+	}
+ unlock:
+	snd_pcm_buffer_access_unlock(runtime);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -801,6 +1092,21 @@ end:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int do_hw_free(struct snd_pcm_substream *substream)
+{
+	int result = 0;
+
+	snd_pcm_sync_stop(substream, true);
+	if (substream->ops->hw_free)
+		result = substream->ops->hw_free(substream);
+	if (substream->managed_buffer_alloc)
+		snd_pcm_lib_free_pages(substream);
+	return result;
+}
+
+>>>>>>> upstream/android-13
 static int snd_pcm_hw_free(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime;
@@ -809,10 +1115,17 @@ static int snd_pcm_hw_free(struct snd_pcm_substream *substream)
 	if (PCM_RUNTIME_CHECK(substream))
 		return -ENXIO;
 	runtime = substream->runtime;
+<<<<<<< HEAD
+=======
+	result = snd_pcm_buffer_access_lock(runtime);
+	if (result < 0)
+		return result;
+>>>>>>> upstream/android-13
 	snd_pcm_stream_lock_irq(substream);
 	switch (runtime->status->state) {
 	case SNDRV_PCM_STATE_SETUP:
 	case SNDRV_PCM_STATE_PREPARED:
+<<<<<<< HEAD
 		break;
 	default:
 		snd_pcm_stream_unlock_irq(substream);
@@ -825,6 +1138,23 @@ static int snd_pcm_hw_free(struct snd_pcm_substream *substream)
 		result = substream->ops->hw_free(substream);
 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
 	pm_qos_remove_request(&substream->latency_pm_qos_req);
+=======
+		if (atomic_read(&substream->mmap_count))
+			result = -EBADFD;
+		break;
+	default:
+		result = -EBADFD;
+		break;
+	}
+	snd_pcm_stream_unlock_irq(substream);
+	if (result)
+		goto unlock;
+	result = do_hw_free(substream);
+	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
+	cpu_latency_qos_remove_request(&substream->latency_pm_qos_req);
+ unlock:
+	snd_pcm_buffer_access_unlock(runtime);
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -908,8 +1238,13 @@ snd_pcm_calc_delay(struct snd_pcm_substream *substream)
 	return delay + substream->runtime->delay;
 }
 
+<<<<<<< HEAD
 int snd_pcm_status(struct snd_pcm_substream *substream,
 		   struct snd_pcm_status *status)
+=======
+int snd_pcm_status64(struct snd_pcm_substream *substream,
+		     struct snd_pcm_status64 *status)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
@@ -935,6 +1270,7 @@ int snd_pcm_status(struct snd_pcm_substream *substream,
 	status->suspended_state = runtime->status->suspended_state;
 	if (status->state == SNDRV_PCM_STATE_OPEN)
 		goto _end;
+<<<<<<< HEAD
 	status->trigger_tstamp = runtime->trigger_tstamp;
 	if (snd_pcm_running(substream)) {
 		snd_pcm_update_hw_ptr(substream);
@@ -943,6 +1279,24 @@ int snd_pcm_status(struct snd_pcm_substream *substream,
 			status->driver_tstamp = runtime->driver_tstamp;
 			status->audio_tstamp =
 				runtime->status->audio_tstamp;
+=======
+	status->trigger_tstamp_sec = runtime->trigger_tstamp.tv_sec;
+	status->trigger_tstamp_nsec = runtime->trigger_tstamp.tv_nsec;
+	if (snd_pcm_running(substream)) {
+		snd_pcm_update_hw_ptr(substream);
+		if (runtime->tstamp_mode == SNDRV_PCM_TSTAMP_ENABLE) {
+			status->tstamp_sec = runtime->status->tstamp.tv_sec;
+			status->tstamp_nsec =
+				runtime->status->tstamp.tv_nsec;
+			status->driver_tstamp_sec =
+				runtime->driver_tstamp.tv_sec;
+			status->driver_tstamp_nsec =
+				runtime->driver_tstamp.tv_nsec;
+			status->audio_tstamp_sec =
+				runtime->status->audio_tstamp.tv_sec;
+			status->audio_tstamp_nsec =
+				runtime->status->audio_tstamp.tv_nsec;
+>>>>>>> upstream/android-13
 			if (runtime->audio_tstamp_report.valid == 1)
 				/* backwards compatibility, no report provided in COMPAT mode */
 				snd_pcm_pack_audio_tstamp_report(&status->audio_tstamp_data,
@@ -953,8 +1307,18 @@ int snd_pcm_status(struct snd_pcm_substream *substream,
 		}
 	} else {
 		/* get tstamp only in fallback mode and only if enabled */
+<<<<<<< HEAD
 		if (runtime->tstamp_mode == SNDRV_PCM_TSTAMP_ENABLE)
 			snd_pcm_gettime(runtime, &status->tstamp);
+=======
+		if (runtime->tstamp_mode == SNDRV_PCM_TSTAMP_ENABLE) {
+			struct timespec64 tstamp;
+
+			snd_pcm_gettime(runtime, &tstamp);
+			status->tstamp_sec = tstamp.tv_sec;
+			status->tstamp_nsec = tstamp.tv_nsec;
+		}
+>>>>>>> upstream/android-13
 	}
  _tstamp_end:
 	status->appl_ptr = runtime->control->appl_ptr;
@@ -971,11 +1335,19 @@ int snd_pcm_status(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_status_user(struct snd_pcm_substream *substream,
 			       struct snd_pcm_status __user * _status,
 			       bool ext)
 {
 	struct snd_pcm_status status;
+=======
+static int snd_pcm_status_user64(struct snd_pcm_substream *substream,
+				 struct snd_pcm_status64 __user * _status,
+				 bool ext)
+{
+	struct snd_pcm_status64 status;
+>>>>>>> upstream/android-13
 	int res;
 
 	memset(&status, 0, sizeof(status));
@@ -987,7 +1359,11 @@ static int snd_pcm_status_user(struct snd_pcm_substream *substream,
 	if (ext && get_user(status.audio_tstamp_data,
 				(u32 __user *)(&_status->audio_tstamp_data)))
 		return -EFAULT;
+<<<<<<< HEAD
 	res = snd_pcm_status(substream, &status);
+=======
+	res = snd_pcm_status64(substream, &status);
+>>>>>>> upstream/android-13
 	if (res < 0)
 		return res;
 	if (copy_to_user(_status, &status, sizeof(status)))
@@ -995,6 +1371,58 @@ static int snd_pcm_status_user(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int snd_pcm_status_user32(struct snd_pcm_substream *substream,
+				 struct snd_pcm_status32 __user * _status,
+				 bool ext)
+{
+	struct snd_pcm_status64 status64;
+	struct snd_pcm_status32 status32;
+	int res;
+
+	memset(&status64, 0, sizeof(status64));
+	memset(&status32, 0, sizeof(status32));
+	/*
+	 * with extension, parameters are read/write,
+	 * get audio_tstamp_data from user,
+	 * ignore rest of status structure
+	 */
+	if (ext && get_user(status64.audio_tstamp_data,
+			    (u32 __user *)(&_status->audio_tstamp_data)))
+		return -EFAULT;
+	res = snd_pcm_status64(substream, &status64);
+	if (res < 0)
+		return res;
+
+	status32 = (struct snd_pcm_status32) {
+		.state = status64.state,
+		.trigger_tstamp_sec = status64.trigger_tstamp_sec,
+		.trigger_tstamp_nsec = status64.trigger_tstamp_nsec,
+		.tstamp_sec = status64.tstamp_sec,
+		.tstamp_nsec = status64.tstamp_nsec,
+		.appl_ptr = status64.appl_ptr,
+		.hw_ptr = status64.hw_ptr,
+		.delay = status64.delay,
+		.avail = status64.avail,
+		.avail_max = status64.avail_max,
+		.overrange = status64.overrange,
+		.suspended_state = status64.suspended_state,
+		.audio_tstamp_data = status64.audio_tstamp_data,
+		.audio_tstamp_sec = status64.audio_tstamp_sec,
+		.audio_tstamp_nsec = status64.audio_tstamp_nsec,
+		.driver_tstamp_sec = status64.audio_tstamp_sec,
+		.driver_tstamp_nsec = status64.audio_tstamp_nsec,
+		.audio_tstamp_accuracy = status64.audio_tstamp_accuracy,
+	};
+
+	if (copy_to_user(_status, &status32, sizeof(status32)))
+		return -EFAULT;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int snd_pcm_channel_info(struct snd_pcm_substream *substream,
 				struct snd_pcm_channel_info * info)
 {
@@ -1013,7 +1441,11 @@ static int snd_pcm_channel_info(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	memset(info, 0, sizeof(*info));
 	info->channel = channel;
+<<<<<<< HEAD
 	return substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_CHANNEL_INFO, info);
+=======
+	return snd_pcm_ops_ioctl(substream, SNDRV_PCM_IOCTL1_CHANNEL_INFO, info);
+>>>>>>> upstream/android-13
 }
 
 static int snd_pcm_channel_info_user(struct snd_pcm_substream *substream,
@@ -1047,11 +1479,25 @@ static void snd_pcm_trigger_tstamp(struct snd_pcm_substream *substream)
 	runtime->trigger_master = NULL;
 }
 
+<<<<<<< HEAD
 struct action_ops {
 	int (*pre_action)(struct snd_pcm_substream *substream, int state);
 	int (*do_action)(struct snd_pcm_substream *substream, int state);
 	void (*undo_action)(struct snd_pcm_substream *substream, int state);
 	void (*post_action)(struct snd_pcm_substream *substream, int state);
+=======
+#define ACTION_ARG_IGNORE	(__force snd_pcm_state_t)0
+
+struct action_ops {
+	int (*pre_action)(struct snd_pcm_substream *substream,
+			  snd_pcm_state_t state);
+	int (*do_action)(struct snd_pcm_substream *substream,
+			 snd_pcm_state_t state);
+	void (*undo_action)(struct snd_pcm_substream *substream,
+			    snd_pcm_state_t state);
+	void (*post_action)(struct snd_pcm_substream *substream,
+			    snd_pcm_state_t state);
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1061,15 +1507,27 @@ struct action_ops {
  */
 static int snd_pcm_action_group(const struct action_ops *ops,
 				struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 				int state, int do_lock)
+=======
+				snd_pcm_state_t state,
+				bool stream_lock)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_substream *s = NULL;
 	struct snd_pcm_substream *s1;
 	int res = 0, depth = 1;
 
 	snd_pcm_group_for_each_entry(s, substream) {
+<<<<<<< HEAD
 		if (do_lock && s != substream) {
 			if (s->pcm->nonatomic)
+=======
+		if (s != substream) {
+			if (!stream_lock)
+				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
+			else if (s->pcm->nonatomic)
+>>>>>>> upstream/android-13
 				mutex_lock_nested(&s->self_group.mutex, depth);
 			else
 				spin_lock_nested(&s->self_group.lock, depth);
@@ -1097,6 +1555,7 @@ static int snd_pcm_action_group(const struct action_ops *ops,
 		ops->post_action(s, state);
 	}
  _unlock:
+<<<<<<< HEAD
 	if (do_lock) {
 		/* unlock streams */
 		snd_pcm_group_for_each_entry(s1, substream) {
@@ -1109,6 +1568,20 @@ static int snd_pcm_action_group(const struct action_ops *ops,
 			if (s1 == s)	/* end */
 				break;
 		}
+=======
+	/* unlock streams */
+	snd_pcm_group_for_each_entry(s1, substream) {
+		if (s1 != substream) {
+			if (!stream_lock)
+				mutex_unlock(&s1->runtime->buffer_mutex);
+			else if (s1->pcm->nonatomic)
+				mutex_unlock(&s1->self_group.mutex);
+			else
+				spin_unlock(&s1->self_group.lock);
+		}
+		if (s1 == s)	/* end */
+			break;
+>>>>>>> upstream/android-13
 	}
 	return res;
 }
@@ -1118,7 +1591,11 @@ static int snd_pcm_action_group(const struct action_ops *ops,
  */
 static int snd_pcm_action_single(const struct action_ops *ops,
 				 struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 				 int state)
+=======
+				 snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	int res;
 	
@@ -1133,11 +1610,76 @@ static int snd_pcm_action_single(const struct action_ops *ops,
 	return res;
 }
 
+<<<<<<< HEAD
+=======
+static void snd_pcm_group_assign(struct snd_pcm_substream *substream,
+				 struct snd_pcm_group *new_group)
+{
+	substream->group = new_group;
+	list_move(&substream->link_list, &new_group->substreams);
+}
+
+/*
+ * Unref and unlock the group, but keep the stream lock;
+ * when the group becomes empty and no longer referred, destroy itself
+ */
+static void snd_pcm_group_unref(struct snd_pcm_group *group,
+				struct snd_pcm_substream *substream)
+{
+	bool do_free;
+
+	if (!group)
+		return;
+	do_free = refcount_dec_and_test(&group->refs);
+	snd_pcm_group_unlock(group, substream->pcm->nonatomic);
+	if (do_free)
+		kfree(group);
+}
+
+/*
+ * Lock the group inside a stream lock and reference it;
+ * return the locked group object, or NULL if not linked
+ */
+static struct snd_pcm_group *
+snd_pcm_stream_group_ref(struct snd_pcm_substream *substream)
+{
+	bool nonatomic = substream->pcm->nonatomic;
+	struct snd_pcm_group *group;
+	bool trylock;
+
+	for (;;) {
+		if (!snd_pcm_stream_linked(substream))
+			return NULL;
+		group = substream->group;
+		/* block freeing the group object */
+		refcount_inc(&group->refs);
+
+		trylock = nonatomic ? mutex_trylock(&group->mutex) :
+			spin_trylock(&group->lock);
+		if (trylock)
+			break; /* OK */
+
+		/* re-lock for avoiding ABBA deadlock */
+		snd_pcm_stream_unlock(substream);
+		snd_pcm_group_lock(group, nonatomic);
+		snd_pcm_stream_lock(substream);
+
+		/* check the group again; the above opens a small race window */
+		if (substream->group == group)
+			break; /* OK */
+		/* group changed, try again */
+		snd_pcm_group_unref(group, substream);
+	}
+	return group;
+}
+
+>>>>>>> upstream/android-13
 /*
  *  Note: call with stream lock
  */
 static int snd_pcm_action(const struct action_ops *ops,
 			  struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 			  int state)
 {
 	int res;
@@ -1162,6 +1704,19 @@ static int snd_pcm_action(const struct action_ops *ops,
 		res = snd_pcm_action_group(ops, substream, state, 1);
 		spin_unlock(&substream->group->lock);
 	}
+=======
+			  snd_pcm_state_t state)
+{
+	struct snd_pcm_group *group;
+	int res;
+
+	group = snd_pcm_stream_group_ref(substream);
+	if (group)
+		res = snd_pcm_action_group(ops, substream, state, true);
+	else
+		res = snd_pcm_action_single(ops, substream, state);
+	snd_pcm_group_unref(group, substream);
+>>>>>>> upstream/android-13
 	return res;
 }
 
@@ -1170,7 +1725,11 @@ static int snd_pcm_action(const struct action_ops *ops,
  */
 static int snd_pcm_action_lock_irq(const struct action_ops *ops,
 				   struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 				   int state)
+=======
+				   snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	int res;
 
@@ -1184,6 +1743,7 @@ static int snd_pcm_action_lock_irq(const struct action_ops *ops,
  */
 static int snd_pcm_action_nonatomic(const struct action_ops *ops,
 				    struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 				    int state)
 {
 	int res;
@@ -1193,6 +1753,23 @@ static int snd_pcm_action_nonatomic(const struct action_ops *ops,
 		res = snd_pcm_action_group(ops, substream, state, 0);
 	else
 		res = snd_pcm_action_single(ops, substream, state);
+=======
+				    snd_pcm_state_t state)
+{
+	int res;
+
+	/* Guarantee the group members won't change during non-atomic action */
+	down_read(&snd_pcm_link_rwsem);
+	res = snd_pcm_buffer_access_lock(substream->runtime);
+	if (res < 0)
+		goto unlock;
+	if (snd_pcm_stream_linked(substream))
+		res = snd_pcm_action_group(ops, substream, state, false);
+	else
+		res = snd_pcm_action_single(ops, substream, state);
+	snd_pcm_buffer_access_unlock(substream->runtime);
+ unlock:
+>>>>>>> upstream/android-13
 	up_read(&snd_pcm_link_rwsem);
 	return res;
 }
@@ -1200,7 +1777,12 @@ static int snd_pcm_action_nonatomic(const struct action_ops *ops,
 /*
  * start callbacks
  */
+<<<<<<< HEAD
 static int snd_pcm_pre_start(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_pre_start(struct snd_pcm_substream *substream,
+			     snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (runtime->status->state != SNDRV_PCM_STATE_PREPARED)
@@ -1213,20 +1795,35 @@ static int snd_pcm_pre_start(struct snd_pcm_substream *substream, int state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_start(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_do_start(struct snd_pcm_substream *substream,
+			    snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	if (substream->runtime->trigger_master != substream)
 		return 0;
 	return substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_START);
 }
 
+<<<<<<< HEAD
 static void snd_pcm_undo_start(struct snd_pcm_substream *substream, int state)
+=======
+static void snd_pcm_undo_start(struct snd_pcm_substream *substream,
+			       snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	if (substream->runtime->trigger_master == substream)
 		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP);
 }
 
+<<<<<<< HEAD
 static void snd_pcm_post_start(struct snd_pcm_substream *substream, int state)
+=======
+static void snd_pcm_post_start(struct snd_pcm_substream *substream,
+			       snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	snd_pcm_trigger_tstamp(substream);
@@ -1270,7 +1867,12 @@ static int snd_pcm_start_lock_irq(struct snd_pcm_substream *substream)
 /*
  * stop callbacks
  */
+<<<<<<< HEAD
 static int snd_pcm_pre_stop(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_pre_stop(struct snd_pcm_substream *substream,
+			    snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (runtime->status->state == SNDRV_PCM_STATE_OPEN)
@@ -1279,6 +1881,7 @@ static int snd_pcm_pre_stop(struct snd_pcm_substream *substream, int state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_stop(struct snd_pcm_substream *substream, int state)
 {
 	if (substream->runtime->trigger_master == substream &&
@@ -1288,6 +1891,21 @@ static int snd_pcm_do_stop(struct snd_pcm_substream *substream, int state)
 }
 
 static void snd_pcm_post_stop(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_do_stop(struct snd_pcm_substream *substream,
+			   snd_pcm_state_t state)
+{
+	if (substream->runtime->trigger_master == substream &&
+	    snd_pcm_running(substream)) {
+		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP);
+		substream->runtime->stop_operating = true;
+	}
+	return 0; /* unconditionally stop all substreams */
+}
+
+static void snd_pcm_post_stop(struct snd_pcm_substream *substream,
+			      snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (runtime->status->state != state) {
@@ -1327,7 +1945,11 @@ EXPORT_SYMBOL(snd_pcm_stop);
  * After stopping, the state is changed to SETUP.
  * Unlike snd_pcm_stop(), this affects only the given stream.
  *
+<<<<<<< HEAD
  * Return: Zero if succesful, or a negative error code.
+=======
+ * Return: Zero if successful, or a negative error code.
+>>>>>>> upstream/android-13
  */
 int snd_pcm_drain_done(struct snd_pcm_substream *substream)
 {
@@ -1357,14 +1979,27 @@ int snd_pcm_stop_xrun(struct snd_pcm_substream *substream)
 EXPORT_SYMBOL_GPL(snd_pcm_stop_xrun);
 
 /*
+<<<<<<< HEAD
  * pause callbacks
  */
 static int snd_pcm_pre_pause(struct snd_pcm_substream *substream, int push)
+=======
+ * pause callbacks: pass boolean (to start pause or resume) as state argument
+ */
+#define pause_pushed(state)	(__force bool)(state)
+
+static int snd_pcm_pre_pause(struct snd_pcm_substream *substream,
+			     snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (!(runtime->info & SNDRV_PCM_INFO_PAUSE))
 		return -ENOSYS;
+<<<<<<< HEAD
 	if (push) {
+=======
+	if (pause_pushed(state)) {
+>>>>>>> upstream/android-13
 		if (runtime->status->state != SNDRV_PCM_STATE_RUNNING)
 			return -EBADFD;
 	} else if (runtime->status->state != SNDRV_PCM_STATE_PAUSED)
@@ -1373,13 +2008,22 @@ static int snd_pcm_pre_pause(struct snd_pcm_substream *substream, int push)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_pause(struct snd_pcm_substream *substream, int push)
+=======
+static int snd_pcm_do_pause(struct snd_pcm_substream *substream,
+			    snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	if (substream->runtime->trigger_master != substream)
 		return 0;
 	/* some drivers might use hw_ptr to recover from the pause -
 	   update the hw_ptr now */
+<<<<<<< HEAD
 	if (push)
+=======
+	if (pause_pushed(state))
+>>>>>>> upstream/android-13
 		snd_pcm_update_hw_ptr(substream);
 	/* The jiffies check in snd_pcm_update_hw_ptr*() is done by
 	 * a delta between the current jiffies, this gives a large enough
@@ -1387,6 +2031,7 @@ static int snd_pcm_do_pause(struct snd_pcm_substream *substream, int push)
 	 */
 	substream->runtime->hw_ptr_jiffies = jiffies - HZ * 1000;
 	return substream->ops->trigger(substream,
+<<<<<<< HEAD
 				       push ? SNDRV_PCM_TRIGGER_PAUSE_PUSH :
 					      SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
 }
@@ -1404,6 +2049,29 @@ static void snd_pcm_post_pause(struct snd_pcm_substream *substream, int push)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	snd_pcm_trigger_tstamp(substream);
 	if (push) {
+=======
+				       pause_pushed(state) ?
+				       SNDRV_PCM_TRIGGER_PAUSE_PUSH :
+				       SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
+}
+
+static void snd_pcm_undo_pause(struct snd_pcm_substream *substream,
+			       snd_pcm_state_t state)
+{
+	if (substream->runtime->trigger_master == substream)
+		substream->ops->trigger(substream,
+					pause_pushed(state) ?
+					SNDRV_PCM_TRIGGER_PAUSE_RELEASE :
+					SNDRV_PCM_TRIGGER_PAUSE_PUSH);
+}
+
+static void snd_pcm_post_pause(struct snd_pcm_substream *substream,
+			       snd_pcm_state_t state)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	snd_pcm_trigger_tstamp(substream);
+	if (pause_pushed(state)) {
+>>>>>>> upstream/android-13
 		runtime->status->state = SNDRV_PCM_STATE_PAUSED;
 		snd_pcm_timer_notify(substream, SNDRV_TIMER_EVENT_MPAUSE);
 		wake_up(&runtime->sleep);
@@ -1424,6 +2092,7 @@ static const struct action_ops snd_pcm_action_pause = {
 /*
  * Push/release the pause for all linked streams.
  */
+<<<<<<< HEAD
 static int snd_pcm_pause(struct snd_pcm_substream *substream, int push)
 {
 	return snd_pcm_action(&snd_pcm_action_pause, substream, push);
@@ -1433,6 +2102,26 @@ static int snd_pcm_pause(struct snd_pcm_substream *substream, int push)
 /* suspend */
 
 static int snd_pcm_pre_suspend(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_pause(struct snd_pcm_substream *substream, bool push)
+{
+	return snd_pcm_action(&snd_pcm_action_pause, substream,
+			      (__force snd_pcm_state_t)push);
+}
+
+static int snd_pcm_pause_lock_irq(struct snd_pcm_substream *substream,
+				  bool push)
+{
+	return snd_pcm_action_lock_irq(&snd_pcm_action_pause, substream,
+				       (__force snd_pcm_state_t)push);
+}
+
+#ifdef CONFIG_PM
+/* suspend callback: state argument ignored */
+
+static int snd_pcm_pre_suspend(struct snd_pcm_substream *substream,
+			       snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	switch (runtime->status->state) {
@@ -1448,7 +2137,12 @@ static int snd_pcm_pre_suspend(struct snd_pcm_substream *substream, int state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_suspend(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_do_suspend(struct snd_pcm_substream *substream,
+			      snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (runtime->trigger_master != substream)
@@ -1456,10 +2150,19 @@ static int snd_pcm_do_suspend(struct snd_pcm_substream *substream, int state)
 	if (! snd_pcm_running(substream))
 		return 0;
 	substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_SUSPEND);
+<<<<<<< HEAD
 	return 0; /* suspend unconditionally */
 }
 
 static void snd_pcm_post_suspend(struct snd_pcm_substream *substream, int state)
+=======
+	runtime->stop_operating = true;
+	return 0; /* suspend unconditionally */
+}
+
+static void snd_pcm_post_suspend(struct snd_pcm_substream *substream,
+				 snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	snd_pcm_trigger_tstamp(substream);
@@ -1476,20 +2179,31 @@ static const struct action_ops snd_pcm_action_suspend = {
 	.post_action = snd_pcm_post_suspend
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * snd_pcm_suspend - trigger SUSPEND to all linked streams
  * @substream: the PCM substream
  *
  * After this call, all streams are changed to SUSPENDED state.
  *
+<<<<<<< HEAD
  * Return: Zero if successful (or @substream is %NULL), or a negative error
  * code.
  */
 int snd_pcm_suspend(struct snd_pcm_substream *substream)
+=======
+ * Return: Zero if successful, or a negative error code.
+ */
+static int snd_pcm_suspend(struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	int err;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (! substream)
 		return 0;
 
@@ -1499,6 +2213,14 @@ int snd_pcm_suspend(struct snd_pcm_substream *substream)
 	return err;
 }
 EXPORT_SYMBOL(snd_pcm_suspend);
+=======
+	snd_pcm_stream_lock_irqsave(substream, flags);
+	err = snd_pcm_action(&snd_pcm_action_suspend, substream,
+			     ACTION_ARG_IGNORE);
+	snd_pcm_stream_unlock_irqrestore(substream, flags);
+	return err;
+}
+>>>>>>> upstream/android-13
 
 /**
  * snd_pcm_suspend_all - trigger SUSPEND to all substreams in the given pcm
@@ -1516,6 +2238,7 @@ int snd_pcm_suspend_all(struct snd_pcm *pcm)
 	if (! pcm)
 		return 0;
 
+<<<<<<< HEAD
 	for (stream = 0; stream < 2; stream++) {
 		for (substream = pcm->streams[stream].substream;
 		     substream; substream = substream->next) {
@@ -1535,13 +2258,42 @@ int snd_pcm_suspend_all(struct snd_pcm *pcm)
 				return err;
 		}
 	}
+=======
+	for_each_pcm_substream(pcm, stream, substream) {
+		/* FIXME: the open/close code should lock this as well */
+		if (!substream->runtime)
+			continue;
+
+		/*
+		 * Skip BE dai link PCM's that are internal and may
+		 * not have their substream ops set.
+		 */
+		if (!substream->ops)
+			continue;
+
+		err = snd_pcm_suspend(substream);
+		if (err < 0 && err != -EBUSY)
+			return err;
+	}
+
+	for_each_pcm_substream(pcm, stream, substream)
+		snd_pcm_sync_stop(substream, false);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(snd_pcm_suspend_all);
 
+<<<<<<< HEAD
 /* resume */
 
 static int snd_pcm_pre_resume(struct snd_pcm_substream *substream, int state)
+=======
+/* resume callbacks: state argument ignored */
+
+static int snd_pcm_pre_resume(struct snd_pcm_substream *substream,
+			      snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (!(runtime->info & SNDRV_PCM_INFO_RESUME))
@@ -1550,7 +2302,12 @@ static int snd_pcm_pre_resume(struct snd_pcm_substream *substream, int state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_resume(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_do_resume(struct snd_pcm_substream *substream,
+			     snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (runtime->trigger_master != substream)
@@ -1563,14 +2320,24 @@ static int snd_pcm_do_resume(struct snd_pcm_substream *substream, int state)
 	return substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_RESUME);
 }
 
+<<<<<<< HEAD
 static void snd_pcm_undo_resume(struct snd_pcm_substream *substream, int state)
+=======
+static void snd_pcm_undo_resume(struct snd_pcm_substream *substream,
+				snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	if (substream->runtime->trigger_master == substream &&
 	    snd_pcm_running(substream))
 		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_SUSPEND);
 }
 
+<<<<<<< HEAD
 static void snd_pcm_post_resume(struct snd_pcm_substream *substream, int state)
+=======
+static void snd_pcm_post_resume(struct snd_pcm_substream *substream,
+				snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	snd_pcm_trigger_tstamp(substream);
@@ -1587,7 +2354,12 @@ static const struct action_ops snd_pcm_action_resume = {
 
 static int snd_pcm_resume(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	return snd_pcm_action_lock_irq(&snd_pcm_action_resume, substream, 0);
+=======
+	return snd_pcm_action_lock_irq(&snd_pcm_action_resume, substream,
+				       ACTION_ARG_IGNORE);
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -1628,7 +2400,13 @@ static int snd_pcm_xrun(struct snd_pcm_substream *substream)
 /*
  * reset ioctl
  */
+<<<<<<< HEAD
 static int snd_pcm_pre_reset(struct snd_pcm_substream *substream, int state)
+=======
+/* reset callbacks:  state argument ignored */
+static int snd_pcm_pre_reset(struct snd_pcm_substream *substream,
+			     snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	switch (runtime->status->state) {
@@ -1642,27 +2420,54 @@ static int snd_pcm_pre_reset(struct snd_pcm_substream *substream, int state)
 	}
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_reset(struct snd_pcm_substream *substream, int state)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int err = substream->ops->ioctl(substream, SNDRV_PCM_IOCTL1_RESET, NULL);
 	if (err < 0)
 		return err;
+=======
+static int snd_pcm_do_reset(struct snd_pcm_substream *substream,
+			    snd_pcm_state_t state)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	int err = snd_pcm_ops_ioctl(substream, SNDRV_PCM_IOCTL1_RESET, NULL);
+	if (err < 0)
+		return err;
+	snd_pcm_stream_lock_irq(substream);
+>>>>>>> upstream/android-13
 	runtime->hw_ptr_base = 0;
 	runtime->hw_ptr_interrupt = runtime->status->hw_ptr -
 		runtime->status->hw_ptr % runtime->period_size;
 	runtime->silence_start = runtime->status->hw_ptr;
 	runtime->silence_filled = 0;
+<<<<<<< HEAD
 	return 0;
 }
 
 static void snd_pcm_post_reset(struct snd_pcm_substream *substream, int state)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
+=======
+	snd_pcm_stream_unlock_irq(substream);
+	return 0;
+}
+
+static void snd_pcm_post_reset(struct snd_pcm_substream *substream,
+			       snd_pcm_state_t state)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	snd_pcm_stream_lock_irq(substream);
+>>>>>>> upstream/android-13
 	runtime->control->appl_ptr = runtime->status->hw_ptr;
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
 	    runtime->silence_size > 0)
 		snd_pcm_playback_silence(substream, ULONG_MAX);
+<<<<<<< HEAD
+=======
+	snd_pcm_stream_unlock_irq(substream);
+>>>>>>> upstream/android-13
 }
 
 static const struct action_ops snd_pcm_action_reset = {
@@ -1673,17 +2478,32 @@ static const struct action_ops snd_pcm_action_reset = {
 
 static int snd_pcm_reset(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	return snd_pcm_action_nonatomic(&snd_pcm_action_reset, substream, 0);
+=======
+	return snd_pcm_action_nonatomic(&snd_pcm_action_reset, substream,
+					ACTION_ARG_IGNORE);
+>>>>>>> upstream/android-13
 }
 
 /*
  * prepare ioctl
  */
+<<<<<<< HEAD
 /* we use the second argument for updating f_flags */
 static int snd_pcm_pre_prepare(struct snd_pcm_substream *substream,
 			       int f_flags)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
+=======
+/* pass f_flags as state argument */
+static int snd_pcm_pre_prepare(struct snd_pcm_substream *substream,
+			       snd_pcm_state_t state)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	int f_flags = (__force int)state;
+
+>>>>>>> upstream/android-13
 	if (runtime->status->state == SNDRV_PCM_STATE_OPEN ||
 	    runtime->status->state == SNDRV_PCM_STATE_DISCONNECTED)
 		return -EBADFD;
@@ -1693,6 +2513,7 @@ static int snd_pcm_pre_prepare(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_prepare(struct snd_pcm_substream *substream, int state)
 {
 	int err;
@@ -1703,6 +2524,21 @@ static int snd_pcm_do_prepare(struct snd_pcm_substream *substream, int state)
 }
 
 static void snd_pcm_post_prepare(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_do_prepare(struct snd_pcm_substream *substream,
+			      snd_pcm_state_t state)
+{
+	int err;
+	snd_pcm_sync_stop(substream, true);
+	err = substream->ops->prepare(substream);
+	if (err < 0)
+		return err;
+	return snd_pcm_do_reset(substream, state);
+}
+
+static void snd_pcm_post_prepare(struct snd_pcm_substream *substream,
+				 snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	runtime->control->appl_ptr = runtime->status->hw_ptr;
@@ -1735,8 +2571,13 @@ static int snd_pcm_prepare(struct snd_pcm_substream *substream,
 	snd_pcm_stream_lock_irq(substream);
 	switch (substream->runtime->status->state) {
 	case SNDRV_PCM_STATE_PAUSED:
+<<<<<<< HEAD
 		snd_pcm_pause(substream, 0);
 		/* fallthru */
+=======
+		snd_pcm_pause(substream, false);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_STATE_SUSPENDED:
 		snd_pcm_stop(substream, SNDRV_PCM_STATE_SETUP);
 		break;
@@ -1744,14 +2585,25 @@ static int snd_pcm_prepare(struct snd_pcm_substream *substream,
 	snd_pcm_stream_unlock_irq(substream);
 
 	return snd_pcm_action_nonatomic(&snd_pcm_action_prepare,
+<<<<<<< HEAD
 					substream, f_flags);
+=======
+					substream,
+					(__force snd_pcm_state_t)f_flags);
+>>>>>>> upstream/android-13
 }
 
 /*
  * drain ioctl
  */
 
+<<<<<<< HEAD
 static int snd_pcm_pre_drain_init(struct snd_pcm_substream *substream, int state)
+=======
+/* drain init callbacks: state argument ignored */
+static int snd_pcm_pre_drain_init(struct snd_pcm_substream *substream,
+				  snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	switch (runtime->status->state) {
@@ -1764,7 +2616,12 @@ static int snd_pcm_pre_drain_init(struct snd_pcm_substream *substream, int state
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_pcm_do_drain_init(struct snd_pcm_substream *substream, int state)
+=======
+static int snd_pcm_do_drain_init(struct snd_pcm_substream *substream,
+				 snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
@@ -1790,7 +2647,13 @@ static int snd_pcm_do_drain_init(struct snd_pcm_substream *substream, int state)
 	} else {
 		/* stop running stream */
 		if (runtime->status->state == SNDRV_PCM_STATE_RUNNING) {
+<<<<<<< HEAD
 			int new_state = snd_pcm_capture_avail(runtime) > 0 ?
+=======
+			snd_pcm_state_t new_state;
+
+			new_state = snd_pcm_capture_avail(runtime) > 0 ?
+>>>>>>> upstream/android-13
 				SNDRV_PCM_STATE_DRAINING : SNDRV_PCM_STATE_SETUP;
 			snd_pcm_do_stop(substream, new_state);
 			snd_pcm_post_stop(substream, new_state);
@@ -1806,7 +2669,12 @@ static int snd_pcm_do_drain_init(struct snd_pcm_substream *substream, int state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_pcm_post_drain_init(struct snd_pcm_substream *substream, int state)
+=======
+static void snd_pcm_post_drain_init(struct snd_pcm_substream *substream,
+				    snd_pcm_state_t state)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -1816,8 +2684,11 @@ static const struct action_ops snd_pcm_action_drain_init = {
 	.post_action = snd_pcm_post_drain_init
 };
 
+<<<<<<< HEAD
 static int snd_pcm_drop(struct snd_pcm_substream *substream);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Drain the stream(s).
  * When the substream is linked, sync until the draining of all playback streams
@@ -1831,6 +2702,10 @@ static int snd_pcm_drain(struct snd_pcm_substream *substream,
 	struct snd_card *card;
 	struct snd_pcm_runtime *runtime;
 	struct snd_pcm_substream *s;
+<<<<<<< HEAD
+=======
+	struct snd_pcm_group *group;
+>>>>>>> upstream/android-13
 	wait_queue_entry_t wait;
 	int result = 0;
 	int nonblock = 0;
@@ -1847,6 +2722,7 @@ static int snd_pcm_drain(struct snd_pcm_substream *substream,
 	} else if (substream->f_flags & O_NONBLOCK)
 		nonblock = 1;
 
+<<<<<<< HEAD
 	down_read(&snd_pcm_link_rwsem);
 	snd_pcm_stream_lock_irq(substream);
 	/* resume pause */
@@ -1855,6 +2731,16 @@ static int snd_pcm_drain(struct snd_pcm_substream *substream,
 
 	/* pre-start/stop - all running streams are changed to DRAINING state */
 	result = snd_pcm_action(&snd_pcm_action_drain_init, substream, 0);
+=======
+	snd_pcm_stream_lock_irq(substream);
+	/* resume pause */
+	if (runtime->status->state == SNDRV_PCM_STATE_PAUSED)
+		snd_pcm_pause(substream, false);
+
+	/* pre-start/stop - all running streams are changed to DRAINING state */
+	result = snd_pcm_action(&snd_pcm_action_drain_init, substream,
+				ACTION_ARG_IGNORE);
+>>>>>>> upstream/android-13
 	if (result < 0)
 		goto unlock;
 	/* in non-blocking, we don't wait in ioctl but let caller poll */
@@ -1872,6 +2758,10 @@ static int snd_pcm_drain(struct snd_pcm_substream *substream,
 		}
 		/* find a substream to drain */
 		to_check = NULL;
+<<<<<<< HEAD
+=======
+		group = snd_pcm_stream_group_ref(substream);
+>>>>>>> upstream/android-13
 		snd_pcm_group_for_each_entry(s, substream) {
 			if (s->stream != SNDRV_PCM_STREAM_PLAYBACK)
 				continue;
@@ -1881,12 +2771,22 @@ static int snd_pcm_drain(struct snd_pcm_substream *substream,
 				break;
 			}
 		}
+<<<<<<< HEAD
 		if (!to_check)
 			break; /* all drained */
 		init_waitqueue_entry(&wait, current);
 		add_wait_queue(&to_check->sleep, &wait);
 		snd_pcm_stream_unlock_irq(substream);
 		up_read(&snd_pcm_link_rwsem);
+=======
+		snd_pcm_group_unref(group, substream);
+		if (!to_check)
+			break; /* all drained */
+		init_waitqueue_entry(&wait, current);
+		set_current_state(TASK_INTERRUPTIBLE);
+		add_wait_queue(&to_check->sleep, &wait);
+		snd_pcm_stream_unlock_irq(substream);
+>>>>>>> upstream/android-13
 		if (runtime->no_period_wakeup)
 			tout = MAX_SCHEDULE_TIMEOUT;
 		else {
@@ -1897,10 +2797,25 @@ static int snd_pcm_drain(struct snd_pcm_substream *substream,
 			}
 			tout = msecs_to_jiffies(tout * 1000);
 		}
+<<<<<<< HEAD
 		tout = schedule_timeout_interruptible(tout);
 		down_read(&snd_pcm_link_rwsem);
 		snd_pcm_stream_lock_irq(substream);
 		remove_wait_queue(&to_check->sleep, &wait);
+=======
+		tout = schedule_timeout(tout);
+
+		snd_pcm_stream_lock_irq(substream);
+		group = snd_pcm_stream_group_ref(substream);
+		snd_pcm_group_for_each_entry(s, substream) {
+			if (s->runtime == to_check) {
+				remove_wait_queue(&to_check->sleep, &wait);
+				break;
+			}
+		}
+		snd_pcm_group_unref(group, substream);
+
+>>>>>>> upstream/android-13
 		if (card->shutdown) {
 			result = -ENODEV;
 			break;
@@ -1920,7 +2835,10 @@ static int snd_pcm_drain(struct snd_pcm_substream *substream,
 
  unlock:
 	snd_pcm_stream_unlock_irq(substream);
+<<<<<<< HEAD
 	up_read(&snd_pcm_link_rwsem);
+=======
+>>>>>>> upstream/android-13
 
 	return result;
 }
@@ -1946,7 +2864,11 @@ static int snd_pcm_drop(struct snd_pcm_substream *substream)
 	snd_pcm_stream_lock_irq(substream);
 	/* resume pause */
 	if (runtime->status->state == SNDRV_PCM_STATE_PAUSED)
+<<<<<<< HEAD
 		snd_pcm_pause(substream, 0);
+=======
+		snd_pcm_pause(substream, false);
+>>>>>>> upstream/android-13
 
 	snd_pcm_stop(substream, SNDRV_PCM_STATE_SETUP);
 	/* runtime->control->appl_ptr = runtime->status->hw_ptr; */
@@ -1959,13 +2881,27 @@ static int snd_pcm_drop(struct snd_pcm_substream *substream)
 static bool is_pcm_file(struct file *file)
 {
 	struct inode *inode = file_inode(file);
+<<<<<<< HEAD
+=======
+	struct snd_pcm *pcm;
+>>>>>>> upstream/android-13
 	unsigned int minor;
 
 	if (!S_ISCHR(inode->i_mode) || imajor(inode) != snd_major)
 		return false;
 	minor = iminor(inode);
+<<<<<<< HEAD
 	return snd_lookup_minor_data(minor, SNDRV_DEVICE_TYPE_PCM_PLAYBACK) ||
 		snd_lookup_minor_data(minor, SNDRV_DEVICE_TYPE_PCM_CAPTURE);
+=======
+	pcm = snd_lookup_minor_data(minor, SNDRV_DEVICE_TYPE_PCM_PLAYBACK);
+	if (!pcm)
+		pcm = snd_lookup_minor_data(minor, SNDRV_DEVICE_TYPE_PCM_CAPTURE);
+	if (!pcm)
+		return false;
+	snd_card_unref(pcm->card);
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1976,7 +2912,12 @@ static int snd_pcm_link(struct snd_pcm_substream *substream, int fd)
 	int res = 0;
 	struct snd_pcm_file *pcm_file;
 	struct snd_pcm_substream *substream1;
+<<<<<<< HEAD
 	struct snd_pcm_group *group;
+=======
+	struct snd_pcm_group *group, *target_group;
+	bool nonatomic = substream->pcm->nonatomic;
+>>>>>>> upstream/android-13
 	struct fd f = fdget(fd);
 
 	if (!f.file)
@@ -1987,18 +2928,32 @@ static int snd_pcm_link(struct snd_pcm_substream *substream, int fd)
 	}
 	pcm_file = f.file->private_data;
 	substream1 = pcm_file->substream;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (substream == substream1) {
 		res = -EINVAL;
 		goto _badf;
 	}
 
+<<<<<<< HEAD
 	group = kmalloc(sizeof(*group), GFP_KERNEL);
+=======
+	group = kzalloc(sizeof(*group), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!group) {
 		res = -ENOMEM;
 		goto _nolock;
 	}
+<<<<<<< HEAD
 	down_write_nonfifo(&snd_pcm_link_rwsem);
 	write_lock_irq(&snd_pcm_link_rwlock);
+=======
+	snd_pcm_group_init(group);
+
+	down_write(&snd_pcm_link_rwsem);
+>>>>>>> upstream/android-13
 	if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN ||
 	    substream->runtime->status->state != substream1->runtime->status->state ||
 	    substream->pcm->nonatomic != substream1->pcm->nonatomic) {
@@ -2009,6 +2964,7 @@ static int snd_pcm_link(struct snd_pcm_substream *substream, int fd)
 		res = -EALREADY;
 		goto _end;
 	}
+<<<<<<< HEAD
 	if (!snd_pcm_stream_linked(substream)) {
 		substream->group = group;
 		group = NULL;
@@ -2026,6 +2982,26 @@ static int snd_pcm_link(struct snd_pcm_substream *substream, int fd)
 	up_write(&snd_pcm_link_rwsem);
  _nolock:
 	snd_card_unref(substream1->pcm->card);
+=======
+
+	snd_pcm_stream_lock_irq(substream);
+	if (!snd_pcm_stream_linked(substream)) {
+		snd_pcm_group_assign(substream, group);
+		group = NULL; /* assigned, don't free this one below */
+	}
+	target_group = substream->group;
+	snd_pcm_stream_unlock_irq(substream);
+
+	snd_pcm_group_lock_irq(target_group, nonatomic);
+	snd_pcm_stream_lock_nested(substream1);
+	snd_pcm_group_assign(substream1, target_group);
+	refcount_inc(&target_group->refs);
+	snd_pcm_stream_unlock(substream1);
+	snd_pcm_group_unlock_irq(target_group, nonatomic);
+ _end:
+	up_write(&snd_pcm_link_rwsem);
+ _nolock:
+>>>>>>> upstream/android-13
 	kfree(group);
  _badf:
 	fdput(f);
@@ -2034,22 +3010,39 @@ static int snd_pcm_link(struct snd_pcm_substream *substream, int fd)
 
 static void relink_to_local(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	substream->group = &substream->self_group;
 	INIT_LIST_HEAD(&substream->self_group.substreams);
 	list_add_tail(&substream->link_list, &substream->self_group.substreams);
+=======
+	snd_pcm_stream_lock_nested(substream);
+	snd_pcm_group_assign(substream, &substream->self_group);
+	snd_pcm_stream_unlock(substream);
+>>>>>>> upstream/android-13
 }
 
 static int snd_pcm_unlink(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	struct snd_pcm_substream *s;
 	int res = 0;
 
 	down_write_nonfifo(&snd_pcm_link_rwsem);
 	write_lock_irq(&snd_pcm_link_rwlock);
+=======
+	struct snd_pcm_group *group;
+	bool nonatomic = substream->pcm->nonatomic;
+	bool do_free = false;
+	int res = 0;
+
+	down_write(&snd_pcm_link_rwsem);
+
+>>>>>>> upstream/android-13
 	if (!snd_pcm_stream_linked(substream)) {
 		res = -EALREADY;
 		goto _end;
 	}
+<<<<<<< HEAD
 	list_del(&substream->link_list);
 	substream->group->count--;
 	if (substream->group->count == 1) {	/* detach the last stream, too */
@@ -2062,6 +3055,28 @@ static int snd_pcm_unlink(struct snd_pcm_substream *substream)
 	relink_to_local(substream);
        _end:
 	write_unlock_irq(&snd_pcm_link_rwlock);
+=======
+
+	group = substream->group;
+	snd_pcm_group_lock_irq(group, nonatomic);
+
+	relink_to_local(substream);
+	refcount_dec(&group->refs);
+
+	/* detach the last stream, too */
+	if (list_is_singular(&group->substreams)) {
+		relink_to_local(list_first_entry(&group->substreams,
+						 struct snd_pcm_substream,
+						 link_list));
+		do_free = refcount_dec_and_test(&group->refs);
+	}
+
+	snd_pcm_group_unlock_irq(group, nonatomic);
+	if (do_free)
+		kfree(group);
+
+       _end:
+>>>>>>> upstream/android-13
 	up_write(&snd_pcm_link_rwsem);
 	return res;
 }
@@ -2110,21 +3125,35 @@ static int snd_pcm_hw_rule_mulkdiv(struct snd_pcm_hw_params *params,
 static int snd_pcm_hw_rule_format(struct snd_pcm_hw_params *params,
 				  struct snd_pcm_hw_rule *rule)
 {
+<<<<<<< HEAD
 	unsigned int k;
+=======
+	snd_pcm_format_t k;
+>>>>>>> upstream/android-13
 	const struct snd_interval *i =
 				hw_param_interval_c(params, rule->deps[0]);
 	struct snd_mask m;
 	struct snd_mask *mask = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
 	snd_mask_any(&m);
+<<<<<<< HEAD
 	for (k = 0; k <= SNDRV_PCM_FORMAT_LAST; ++k) {
 		int bits;
 		if (! snd_mask_test(mask, k))
+=======
+	pcm_for_each_format(k) {
+		int bits;
+		if (!snd_mask_test_format(mask, k))
+>>>>>>> upstream/android-13
 			continue;
 		bits = snd_pcm_format_physical_width(k);
 		if (bits <= 0)
 			continue; /* ignore invalid formats */
 		if ((unsigned)bits < i->min || (unsigned)bits > i->max)
+<<<<<<< HEAD
 			snd_mask_reset(&m, k);
+=======
+			snd_mask_reset(&m, (__force unsigned)k);
+>>>>>>> upstream/android-13
 	}
 	return snd_mask_refine(mask, &m);
 }
@@ -2133,14 +3162,25 @@ static int snd_pcm_hw_rule_sample_bits(struct snd_pcm_hw_params *params,
 				       struct snd_pcm_hw_rule *rule)
 {
 	struct snd_interval t;
+<<<<<<< HEAD
 	unsigned int k;
+=======
+	snd_pcm_format_t k;
+
+>>>>>>> upstream/android-13
 	t.min = UINT_MAX;
 	t.max = 0;
 	t.openmin = 0;
 	t.openmax = 0;
+<<<<<<< HEAD
 	for (k = 0; k <= SNDRV_PCM_FORMAT_LAST; ++k) {
 		int bits;
 		if (! snd_mask_test(hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT), k))
+=======
+	pcm_for_each_format(k) {
+		int bits;
+		if (!snd_mask_test_format(hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT), k))
+>>>>>>> upstream/android-13
 			continue;
 		bits = snd_pcm_format_physical_width(k);
 		if (bits <= 0)
@@ -2190,7 +3230,11 @@ static int snd_pcm_hw_rule_buffer_bytes_max(struct snd_pcm_hw_params *params,
 	return snd_interval_refine(hw_param_interval(params, rule->var), &t);
 }		
 
+<<<<<<< HEAD
 int snd_pcm_hw_constraints_init(struct snd_pcm_substream *substream)
+=======
+static int snd_pcm_hw_constraints_init(struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_pcm_hw_constraints *constrs = &runtime->hw_constraints;
@@ -2314,7 +3358,11 @@ int snd_pcm_hw_constraints_init(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 int snd_pcm_hw_constraints_complete(struct snd_pcm_substream *substream)
+=======
+static int snd_pcm_hw_constraints_complete(struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_pcm_hardware *hw = &runtime->hw;
@@ -2322,6 +3370,7 @@ int snd_pcm_hw_constraints_complete(struct snd_pcm_substream *substream)
 	unsigned int mask = 0;
 
         if (hw->info & SNDRV_PCM_INFO_INTERLEAVED)
+<<<<<<< HEAD
 		mask |= 1 << SNDRV_PCM_ACCESS_RW_INTERLEAVED;
         if (hw->info & SNDRV_PCM_INFO_NONINTERLEAVED)
 		mask |= 1 << SNDRV_PCM_ACCESS_RW_NONINTERLEAVED;
@@ -2332,6 +3381,18 @@ int snd_pcm_hw_constraints_complete(struct snd_pcm_substream *substream)
 			mask |= 1 << SNDRV_PCM_ACCESS_MMAP_NONINTERLEAVED;
 		if (hw->info & SNDRV_PCM_INFO_COMPLEX)
 			mask |= 1 << SNDRV_PCM_ACCESS_MMAP_COMPLEX;
+=======
+		mask |= PARAM_MASK_BIT(SNDRV_PCM_ACCESS_RW_INTERLEAVED);
+        if (hw->info & SNDRV_PCM_INFO_NONINTERLEAVED)
+		mask |= PARAM_MASK_BIT(SNDRV_PCM_ACCESS_RW_NONINTERLEAVED);
+	if (hw_support_mmap(substream)) {
+		if (hw->info & SNDRV_PCM_INFO_INTERLEAVED)
+			mask |= PARAM_MASK_BIT(SNDRV_PCM_ACCESS_MMAP_INTERLEAVED);
+		if (hw->info & SNDRV_PCM_INFO_NONINTERLEAVED)
+			mask |= PARAM_MASK_BIT(SNDRV_PCM_ACCESS_MMAP_NONINTERLEAVED);
+		if (hw->info & SNDRV_PCM_INFO_COMPLEX)
+			mask |= PARAM_MASK_BIT(SNDRV_PCM_ACCESS_MMAP_COMPLEX);
+>>>>>>> upstream/android-13
 	}
 	err = snd_pcm_hw_constraint_mask(runtime, SNDRV_PCM_HW_PARAM_ACCESS, mask);
 	if (err < 0)
@@ -2341,7 +3402,12 @@ int snd_pcm_hw_constraints_complete(struct snd_pcm_substream *substream)
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	err = snd_pcm_hw_constraint_mask(runtime, SNDRV_PCM_HW_PARAM_SUBFORMAT, 1 << SNDRV_PCM_SUBFORMAT_STD);
+=======
+	err = snd_pcm_hw_constraint_mask(runtime, SNDRV_PCM_HW_PARAM_SUBFORMAT,
+					 PARAM_MASK_BIT(SNDRV_PCM_SUBFORMAT_STD));
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -2411,6 +3477,7 @@ void snd_pcm_release_substream(struct snd_pcm_substream *substream)
 
 	snd_pcm_drop(substream);
 	if (substream->hw_opened) {
+<<<<<<< HEAD
 		if (substream->ops->hw_free &&
 		    substream->runtime->status->state != SNDRV_PCM_STATE_OPEN)
 			substream->ops->hw_free(substream);
@@ -2419,6 +3486,15 @@ void snd_pcm_release_substream(struct snd_pcm_substream *substream)
 	}
 	if (pm_qos_request_active(&substream->latency_pm_qos_req))
 		pm_qos_remove_request(&substream->latency_pm_qos_req);
+=======
+		if (substream->runtime->status->state != SNDRV_PCM_STATE_OPEN)
+			do_hw_free(substream);
+		substream->ops->close(substream);
+		substream->hw_opened = 0;
+	}
+	if (cpu_latency_qos_request_active(&substream->latency_pm_qos_req))
+		cpu_latency_qos_remove_request(&substream->latency_pm_qos_req);
+>>>>>>> upstream/android-13
 	if (substream->pcm_release) {
 		substream->pcm_release(substream);
 		substream->pcm_release = NULL;
@@ -2448,7 +3524,12 @@ int snd_pcm_open_substream(struct snd_pcm *pcm, int stream,
 		goto error;
 	}
 
+<<<<<<< HEAD
 	if ((err = substream->ops->open(substream)) < 0)
+=======
+	err = substream->ops->open(substream);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		goto error;
 
 	substream->hw_opened = 1;
@@ -2486,10 +3567,15 @@ static int snd_pcm_open_file(struct file *file,
 		return -ENOMEM;
 	}
 	pcm_file->substream = substream;
+<<<<<<< HEAD
 	if (substream->ref_count == 1) {
 		substream->file = pcm_file;
 		substream->pcm_release = pcm_release_private;
 	}
+=======
+	if (substream->ref_count == 1)
+		substream->pcm_release = pcm_release_private;
+>>>>>>> upstream/android-13
 	file->private_data = pcm_file;
 
 	return 0;
@@ -2591,6 +3677,13 @@ static int snd_pcm_release(struct inode *inode, struct file *file)
 	if (snd_BUG_ON(!substream))
 		return -ENXIO;
 	pcm = substream->pcm;
+<<<<<<< HEAD
+=======
+
+	/* block until the device gets woken up as it may touch the hardware */
+	snd_power_wait(pcm->card);
+
+>>>>>>> upstream/android-13
 	mutex_lock(&pcm->open_mutex);
 	snd_pcm_release_substream(substream);
 	kfree(pcm_file);
@@ -2610,7 +3703,11 @@ static int do_pcm_hwsync(struct snd_pcm_substream *substream)
 	case SNDRV_PCM_STATE_DRAINING:
 		if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
 			return -EBADFD;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_STATE_RUNNING:
 		return snd_pcm_update_hw_ptr(substream);
 	case SNDRV_PCM_STATE_PREPARED:
@@ -2738,7 +3835,10 @@ static int snd_pcm_sync_ptr(struct snd_pcm_substream *substream,
 	volatile struct snd_pcm_mmap_status *status;
 	volatile struct snd_pcm_mmap_control *control;
 	int err;
+<<<<<<< HEAD
 	snd_pcm_uframes_t hw_avail;
+=======
+>>>>>>> upstream/android-13
 
 	memset(&sync_ptr, 0, sizeof(sync_ptr));
 	if (get_user(sync_ptr.flags, (unsigned __user *)&(_sync_ptr->flags)))
@@ -2767,6 +3867,7 @@ static int snd_pcm_sync_ptr(struct snd_pcm_substream *substream,
 		control->avail_min = sync_ptr.c.control.avail_min;
 	else
 		sync_ptr.c.control.avail_min = control->avail_min;
+<<<<<<< HEAD
 
 	if (runtime->render_flag & SNDRV_NON_DMA_MODE) {
 		hw_avail = snd_pcm_playback_hw_avail(runtime);
@@ -2777,6 +3878,8 @@ static int snd_pcm_sync_ptr(struct snd_pcm_substream *substream,
 				substream->ops->restart(substream);
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	sync_ptr.s.status.state = status->state;
 	sync_ptr.s.status.hw_ptr = status->hw_ptr;
 	sync_ptr.s.status.tstamp = status->tstamp;
@@ -2788,6 +3891,115 @@ static int snd_pcm_sync_ptr(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+struct snd_pcm_mmap_status32 {
+	snd_pcm_state_t state;
+	s32 pad1;
+	u32 hw_ptr;
+	s32 tstamp_sec;
+	s32 tstamp_nsec;
+	snd_pcm_state_t suspended_state;
+	s32 audio_tstamp_sec;
+	s32 audio_tstamp_nsec;
+} __attribute__((packed));
+
+struct snd_pcm_mmap_control32 {
+	u32 appl_ptr;
+	u32 avail_min;
+};
+
+struct snd_pcm_sync_ptr32 {
+	u32 flags;
+	union {
+		struct snd_pcm_mmap_status32 status;
+		unsigned char reserved[64];
+	} s;
+	union {
+		struct snd_pcm_mmap_control32 control;
+		unsigned char reserved[64];
+	} c;
+} __attribute__((packed));
+
+/* recalcuate the boundary within 32bit */
+static snd_pcm_uframes_t recalculate_boundary(struct snd_pcm_runtime *runtime)
+{
+	snd_pcm_uframes_t boundary;
+
+	if (! runtime->buffer_size)
+		return 0;
+	boundary = runtime->buffer_size;
+	while (boundary * 2 <= 0x7fffffffUL - runtime->buffer_size)
+		boundary *= 2;
+	return boundary;
+}
+
+static int snd_pcm_ioctl_sync_ptr_compat(struct snd_pcm_substream *substream,
+					 struct snd_pcm_sync_ptr32 __user *src)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	volatile struct snd_pcm_mmap_status *status;
+	volatile struct snd_pcm_mmap_control *control;
+	u32 sflags;
+	struct snd_pcm_mmap_control scontrol;
+	struct snd_pcm_mmap_status sstatus;
+	snd_pcm_uframes_t boundary;
+	int err;
+
+	if (snd_BUG_ON(!runtime))
+		return -EINVAL;
+
+	if (get_user(sflags, &src->flags) ||
+	    get_user(scontrol.appl_ptr, &src->c.control.appl_ptr) ||
+	    get_user(scontrol.avail_min, &src->c.control.avail_min))
+		return -EFAULT;
+	if (sflags & SNDRV_PCM_SYNC_PTR_HWSYNC) {
+		err = snd_pcm_hwsync(substream);
+		if (err < 0)
+			return err;
+	}
+	status = runtime->status;
+	control = runtime->control;
+	boundary = recalculate_boundary(runtime);
+	if (! boundary)
+		boundary = 0x7fffffff;
+	snd_pcm_stream_lock_irq(substream);
+	/* FIXME: we should consider the boundary for the sync from app */
+	if (!(sflags & SNDRV_PCM_SYNC_PTR_APPL)) {
+		err = pcm_lib_apply_appl_ptr(substream,
+				scontrol.appl_ptr);
+		if (err < 0) {
+			snd_pcm_stream_unlock_irq(substream);
+			return err;
+		}
+	} else
+		scontrol.appl_ptr = control->appl_ptr % boundary;
+	if (!(sflags & SNDRV_PCM_SYNC_PTR_AVAIL_MIN))
+		control->avail_min = scontrol.avail_min;
+	else
+		scontrol.avail_min = control->avail_min;
+	sstatus.state = status->state;
+	sstatus.hw_ptr = status->hw_ptr % boundary;
+	sstatus.tstamp = status->tstamp;
+	sstatus.suspended_state = status->suspended_state;
+	sstatus.audio_tstamp = status->audio_tstamp;
+	snd_pcm_stream_unlock_irq(substream);
+	if (put_user(sstatus.state, &src->s.status.state) ||
+	    put_user(sstatus.hw_ptr, &src->s.status.hw_ptr) ||
+	    put_user(sstatus.tstamp.tv_sec, &src->s.status.tstamp_sec) ||
+	    put_user(sstatus.tstamp.tv_nsec, &src->s.status.tstamp_nsec) ||
+	    put_user(sstatus.suspended_state, &src->s.status.suspended_state) ||
+	    put_user(sstatus.audio_tstamp.tv_sec, &src->s.status.audio_tstamp_sec) ||
+	    put_user(sstatus.audio_tstamp.tv_nsec, &src->s.status.audio_tstamp_nsec) ||
+	    put_user(scontrol.appl_ptr, &src->c.control.appl_ptr) ||
+	    put_user(scontrol.avail_min, &src->c.control.avail_min))
+		return -EFAULT;
+
+	return 0;
+}
+#define __SNDRV_PCM_IOCTL_SYNC_PTR32 _IOWR('A', 0x23, struct snd_pcm_sync_ptr32)
+
+>>>>>>> upstream/android-13
 static int snd_pcm_tstamp(struct snd_pcm_substream *substream, int __user *_arg)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -2818,7 +4030,12 @@ static int snd_pcm_xferi_frames_ioctl(struct snd_pcm_substream *substream,
 		result = snd_pcm_lib_write(substream, xferi.buf, xferi.frames);
 	else
 		result = snd_pcm_lib_read(substream, xferi.buf, xferi.frames);
+<<<<<<< HEAD
 	__put_user(result, &_xferi->result);
+=======
+	if (put_user(result, &_xferi->result))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	return result < 0 ? result : 0;
 }
 
@@ -2847,7 +4064,12 @@ static int snd_pcm_xfern_frames_ioctl(struct snd_pcm_substream *substream,
 	else
 		result = snd_pcm_lib_readv(substream, bufs, xfern.frames);
 	kfree(bufs);
+<<<<<<< HEAD
 	__put_user(result, &_xfern->result);
+=======
+	if (put_user(result, &_xfern->result))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	return result < 0 ? result : 0;
 }
 
@@ -2862,7 +4084,12 @@ static int snd_pcm_rewind_ioctl(struct snd_pcm_substream *substream,
 	if (put_user(0, _frames))
 		return -EFAULT;
 	result = snd_pcm_rewind(substream, frames);
+<<<<<<< HEAD
 	__put_user(result, _frames);
+=======
+	if (put_user(result, _frames))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	return result < 0 ? result : 0;
 }
 
@@ -2877,7 +4104,12 @@ static int snd_pcm_forward_ioctl(struct snd_pcm_substream *substream,
 	if (put_user(0, _frames))
 		return -EFAULT;
 	result = snd_pcm_forward(substream, frames);
+<<<<<<< HEAD
 	__put_user(result, _frames);
+=======
+	if (put_user(result, _frames))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	return result < 0 ? result : 0;
 }
 
@@ -2891,7 +4123,11 @@ static int snd_pcm_common_ioctl(struct file *file,
 	if (PCM_RUNTIME_CHECK(substream))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	res = snd_power_wait(substream->pcm->card, SNDRV_CTL_POWER_D0);
+=======
+	res = snd_power_wait(substream->pcm->card);
+>>>>>>> upstream/android-13
 	if (res < 0)
 		return res;
 
@@ -2917,10 +4153,21 @@ static int snd_pcm_common_ioctl(struct file *file,
 		return snd_pcm_hw_free(substream);
 	case SNDRV_PCM_IOCTL_SW_PARAMS:
 		return snd_pcm_sw_params_user(substream, arg);
+<<<<<<< HEAD
 	case SNDRV_PCM_IOCTL_STATUS:
 		return snd_pcm_status_user(substream, arg, false);
 	case SNDRV_PCM_IOCTL_STATUS_EXT:
 		return snd_pcm_status_user(substream, arg, true);
+=======
+	case SNDRV_PCM_IOCTL_STATUS32:
+		return snd_pcm_status_user32(substream, arg, false);
+	case SNDRV_PCM_IOCTL_STATUS_EXT32:
+		return snd_pcm_status_user32(substream, arg, true);
+	case SNDRV_PCM_IOCTL_STATUS64:
+		return snd_pcm_status_user64(substream, arg, false);
+	case SNDRV_PCM_IOCTL_STATUS_EXT64:
+		return snd_pcm_status_user64(substream, arg, true);
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_IOCTL_CHANNEL_INFO:
 		return snd_pcm_channel_info_user(substream, arg);
 	case SNDRV_PCM_IOCTL_PREPARE:
@@ -2952,7 +4199,13 @@ static int snd_pcm_common_ioctl(struct file *file,
 			return -EFAULT;
 		return 0;
 	}
+<<<<<<< HEAD
 	case SNDRV_PCM_IOCTL_SYNC_PTR:
+=======
+	case __SNDRV_PCM_IOCTL_SYNC_PTR32:
+		return snd_pcm_ioctl_sync_ptr_compat(substream, arg);
+	case __SNDRV_PCM_IOCTL_SYNC_PTR64:
+>>>>>>> upstream/android-13
 		return snd_pcm_sync_ptr(substream, arg);
 #ifdef CONFIG_SND_SUPPORT_OLD_API
 	case SNDRV_PCM_IOCTL_HW_REFINE_OLD:
@@ -2965,9 +4218,13 @@ static int snd_pcm_common_ioctl(struct file *file,
 	case SNDRV_PCM_IOCTL_DROP:
 		return snd_pcm_drop(substream);
 	case SNDRV_PCM_IOCTL_PAUSE:
+<<<<<<< HEAD
 		return snd_pcm_action_lock_irq(&snd_pcm_action_pause,
 					       substream,
 					       (int)(unsigned long)arg);
+=======
+		return snd_pcm_pause_lock_irq(substream, (unsigned long)arg);
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_IOCTL_WRITEI_FRAMES:
 	case SNDRV_PCM_IOCTL_READI_FRAMES:
 		return snd_pcm_xferi_frames_ioctl(substream, arg);
@@ -3290,7 +4547,15 @@ static int snd_pcm_mmap_control(struct snd_pcm_substream *substream, struct file
 
 static bool pcm_status_mmap_allowed(struct snd_pcm_file *pcm_file)
 {
+<<<<<<< HEAD
 	if (pcm_file->no_compat_mmap)
+=======
+	/* If drivers require the explicit sync (typically for non-coherent
+	 * pages), we have to disable the mmap of status and control data
+	 * to enforce the control via SYNC_PTR ioctl.
+	 */
+	if (pcm_file->substream->runtime->hw.info & SNDRV_PCM_INFO_EXPLICIT_SYNC)
+>>>>>>> upstream/android-13
 		return false;
 	/* See pcm_control_mmap_allowed() below.
 	 * Since older alsa-lib requires both status and control mmaps to be
@@ -3306,6 +4571,12 @@ static bool pcm_control_mmap_allowed(struct snd_pcm_file *pcm_file)
 {
 	if (pcm_file->no_compat_mmap)
 		return false;
+<<<<<<< HEAD
+=======
+	/* see above */
+	if (pcm_file->substream->runtime->hw.info & SNDRV_PCM_INFO_EXPLICIT_SYNC)
+		return false;
+>>>>>>> upstream/android-13
 	/* Disallow the control mmap when SYNC_APPLPTR flag is set;
 	 * it enforces the user-space to fall back to snd_pcm_sync_ptr(),
 	 * thus it effectively assures the manual update of appl_ptr.
@@ -3334,6 +4605,7 @@ static int snd_pcm_mmap_control(struct snd_pcm_substream *substream, struct file
 }
 #endif /* coherent mmap */
 
+<<<<<<< HEAD
 static inline struct page *
 snd_pcm_default_page_ops(struct snd_pcm_substream *substream, unsigned long ofs)
 {
@@ -3341,6 +4613,8 @@ snd_pcm_default_page_ops(struct snd_pcm_substream *substream, unsigned long ofs)
 	return virt_to_page(vaddr);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * fault callback for mmapping a RAM page
  */
@@ -3361,8 +4635,15 @@ static vm_fault_t snd_pcm_mmap_data_fault(struct vm_fault *vmf)
 		return VM_FAULT_SIGBUS;
 	if (substream->ops->page)
 		page = substream->ops->page(substream, offset);
+<<<<<<< HEAD
 	else
 		page = snd_pcm_default_page_ops(substream, offset);
+=======
+	else if (!snd_pcm_get_dma_buf(substream))
+		page = virt_to_page(runtime->dma_area + offset);
+	else
+		page = snd_sgbuf_get_page(snd_pcm_get_dma_buf(substream), offset);
+>>>>>>> upstream/android-13
 	if (!page)
 		return VM_FAULT_SIGBUS;
 	get_page(page);
@@ -3397,6 +4678,7 @@ int snd_pcm_lib_default_mmap(struct snd_pcm_substream *substream,
 			     struct vm_area_struct *area)
 {
 	area->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
+<<<<<<< HEAD
 #ifdef CONFIG_GENERIC_ALLOCATOR
 	if (substream->dma_buffer.dev.type == SNDRV_DMA_TYPE_DEV_IRAM) {
 		area->vm_page_prot = pgprot_writecombine(area->vm_page_prot);
@@ -3414,6 +4696,11 @@ int snd_pcm_lib_default_mmap(struct snd_pcm_substream *substream,
 					 substream->runtime->dma_addr,
 					 substream->runtime->dma_bytes);
 #endif /* CONFIG_X86 */
+=======
+	if (!substream->ops->page &&
+	    !snd_dma_buffer_mmap(snd_pcm_get_dma_buf(substream), area))
+		return 0;
+>>>>>>> upstream/android-13
 	/* mmap with fault handler */
 	area->vm_ops = &snd_pcm_vm_ops_data_fault;
 	return 0;
@@ -3504,11 +4791,27 @@ static int snd_pcm_mmap(struct file *file, struct vm_area_struct *area)
 
 	offset = area->vm_pgoff << PAGE_SHIFT;
 	switch (offset) {
+<<<<<<< HEAD
 	case SNDRV_PCM_MMAP_OFFSET_STATUS:
 		if (!pcm_status_mmap_allowed(pcm_file))
 			return -ENXIO;
 		return snd_pcm_mmap_status(substream, file, area);
 	case SNDRV_PCM_MMAP_OFFSET_CONTROL:
+=======
+	case SNDRV_PCM_MMAP_OFFSET_STATUS_OLD:
+		if (pcm_file->no_compat_mmap || !IS_ENABLED(CONFIG_64BIT))
+			return -ENXIO;
+		fallthrough;
+	case SNDRV_PCM_MMAP_OFFSET_STATUS_NEW:
+		if (!pcm_status_mmap_allowed(pcm_file))
+			return -ENXIO;
+		return snd_pcm_mmap_status(substream, file, area);
+	case SNDRV_PCM_MMAP_OFFSET_CONTROL_OLD:
+		if (pcm_file->no_compat_mmap || !IS_ENABLED(CONFIG_64BIT))
+			return -ENXIO;
+		fallthrough;
+	case SNDRV_PCM_MMAP_OFFSET_CONTROL_NEW:
+>>>>>>> upstream/android-13
 		if (!pcm_control_mmap_allowed(pcm_file))
 			return -ENXIO;
 		return snd_pcm_mmap_control(substream, file, area);
@@ -3668,9 +4971,15 @@ static unsigned long snd_pcm_get_unmapped_area(struct file *file,
 	unsigned long offset = pgoff << PAGE_SHIFT;
 
 	switch (offset) {
+<<<<<<< HEAD
 	case SNDRV_PCM_MMAP_OFFSET_STATUS:
 		return (unsigned long)runtime->status;
 	case SNDRV_PCM_MMAP_OFFSET_CONTROL:
+=======
+	case SNDRV_PCM_MMAP_OFFSET_STATUS_NEW:
+		return (unsigned long)runtime->status;
+	case SNDRV_PCM_MMAP_OFFSET_CONTROL_NEW:
+>>>>>>> upstream/android-13
 		return (unsigned long)runtime->control;
 	default:
 		return (unsigned long)runtime->dma_area + offset;

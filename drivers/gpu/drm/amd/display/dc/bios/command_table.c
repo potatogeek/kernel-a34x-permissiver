@@ -55,7 +55,10 @@ static void init_adjust_display_pll(struct bios_parser *bp);
 static void init_dac_encoder_control(struct bios_parser *bp);
 static void init_dac_output_control(struct bios_parser *bp);
 static void init_set_crtc_timing(struct bios_parser *bp);
+<<<<<<< HEAD
 static void init_select_crtc_source(struct bios_parser *bp);
+=======
+>>>>>>> upstream/android-13
 static void init_enable_crtc(struct bios_parser *bp);
 static void init_enable_crtc_mem_req(struct bios_parser *bp);
 static void init_external_encoder_control(struct bios_parser *bp);
@@ -73,7 +76,10 @@ void dal_bios_parser_init_cmd_tbl(struct bios_parser *bp)
 	init_dac_encoder_control(bp);
 	init_dac_output_control(bp);
 	init_set_crtc_timing(bp);
+<<<<<<< HEAD
 	init_select_crtc_source(bp);
+=======
+>>>>>>> upstream/android-13
 	init_enable_crtc(bp);
 	init_enable_crtc_mem_req(bp);
 	init_program_clock(bp);
@@ -247,6 +253,26 @@ static enum bp_result encoder_control_digx_v3(
 					cntl->enable_dp_audio);
 	params.ucLaneNum = (uint8_t)(cntl->lanes_number);
 
+<<<<<<< HEAD
+=======
+	switch (cntl->color_depth) {
+	case COLOR_DEPTH_888:
+		params.ucBitPerColor = PANEL_8BIT_PER_COLOR;
+		break;
+	case COLOR_DEPTH_101010:
+		params.ucBitPerColor = PANEL_10BIT_PER_COLOR;
+		break;
+	case COLOR_DEPTH_121212:
+		params.ucBitPerColor = PANEL_12BIT_PER_COLOR;
+		break;
+	case COLOR_DEPTH_161616:
+		params.ucBitPerColor = PANEL_16BIT_PER_COLOR;
+		break;
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if (EXEC_BIOS_CMD_TABLE(DIGxEncoderControl, params))
 		result = BP_RESULT_OK;
 
@@ -276,6 +302,26 @@ static enum bp_result encoder_control_digx_v4(
 					cntl->enable_dp_audio));
 	params.ucLaneNum = (uint8_t)(cntl->lanes_number);
 
+<<<<<<< HEAD
+=======
+	switch (cntl->color_depth) {
+	case COLOR_DEPTH_888:
+		params.ucBitPerColor = PANEL_8BIT_PER_COLOR;
+		break;
+	case COLOR_DEPTH_101010:
+		params.ucBitPerColor = PANEL_10BIT_PER_COLOR;
+		break;
+	case COLOR_DEPTH_121212:
+		params.ucBitPerColor = PANEL_12BIT_PER_COLOR;
+		break;
+	case COLOR_DEPTH_161616:
+		params.ucBitPerColor = PANEL_16BIT_PER_COLOR;
+		break;
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if (EXEC_BIOS_CMD_TABLE(DIGxEncoderControl, params))
 		result = BP_RESULT_OK;
 
@@ -964,9 +1010,15 @@ static enum bp_result set_pixel_clock_v3(
 	allocation.sPCLKInput.ucPostDiv =
 			(uint8_t)bp_params->pixel_clock_post_divider;
 
+<<<<<<< HEAD
 	/* We need to convert from KHz units into 10KHz units */
 	allocation.sPCLKInput.usPixelClock =
 			cpu_to_le16((uint16_t)(bp_params->target_pixel_clock / 10));
+=======
+	/* We need to convert from 100Hz units into 10KHz units */
+	allocation.sPCLKInput.usPixelClock =
+			cpu_to_le16((uint16_t)(bp_params->target_pixel_clock_100hz / 100));
+>>>>>>> upstream/android-13
 
 	params = (PIXEL_CLOCK_PARAMETERS_V3 *)&allocation.sPCLKInput;
 	params->ucTransmitterId =
@@ -1042,9 +1094,15 @@ static enum bp_result set_pixel_clock_v5(
 				(uint8_t)bp->cmd_helper->encoder_mode_bp_to_atom(
 						bp_params->signal_type, false);
 
+<<<<<<< HEAD
 		/* We need to convert from KHz units into 10KHz units */
 		clk.sPCLKInput.usPixelClock =
 				cpu_to_le16((uint16_t)(bp_params->target_pixel_clock / 10));
+=======
+		/* We need to convert from 100Hz units into 10KHz units */
+		clk.sPCLKInput.usPixelClock =
+				cpu_to_le16((uint16_t)(bp_params->target_pixel_clock_100hz / 100));
+>>>>>>> upstream/android-13
 
 		if (bp_params->flags.FORCE_PROGRAMMING_OF_PLL)
 			clk.sPCLKInput.ucMiscInfo |=
@@ -1059,6 +1117,22 @@ static enum bp_result set_pixel_clock_v5(
 		 * driver choose program it itself, i.e. here we program it
 		 * to 888 by default.
 		 */
+<<<<<<< HEAD
+=======
+		if (bp_params->signal_type == SIGNAL_TYPE_HDMI_TYPE_A)
+			switch (bp_params->color_depth) {
+			case TRANSMITTER_COLOR_DEPTH_30:
+				/* yes this is correct, the atom define is wrong */
+				clk.sPCLKInput.ucMiscInfo |= PIXEL_CLOCK_V5_MISC_HDMI_32BPP;
+				break;
+			case TRANSMITTER_COLOR_DEPTH_36:
+				/* yes this is correct, the atom define is wrong */
+				clk.sPCLKInput.ucMiscInfo |= PIXEL_CLOCK_V5_MISC_HDMI_30BPP;
+				break;
+			default:
+				break;
+			}
+>>>>>>> upstream/android-13
 
 		if (EXEC_BIOS_CMD_TABLE(SetPixelClock, clk))
 			result = BP_RESULT_OK;
@@ -1118,9 +1192,15 @@ static enum bp_result set_pixel_clock_v6(
 				(uint8_t) bp->cmd_helper->encoder_mode_bp_to_atom(
 						bp_params->signal_type, false);
 
+<<<<<<< HEAD
 		/* We need to convert from KHz units into 10KHz units */
 		clk.sPCLKInput.ulCrtcPclkFreq.ulPixelClock =
 				cpu_to_le32(bp_params->target_pixel_clock / 10);
+=======
+		/* We need to convert from 100 Hz units into 10KHz units */
+		clk.sPCLKInput.ulCrtcPclkFreq.ulPixelClock =
+				cpu_to_le32(bp_params->target_pixel_clock_100hz / 100);
+>>>>>>> upstream/android-13
 
 		if (bp_params->flags.FORCE_PROGRAMMING_OF_PLL) {
 			clk.sPCLKInput.ucMiscInfo |=
@@ -1137,6 +1217,23 @@ static enum bp_result set_pixel_clock_v6(
 		 * driver choose program it itself, i.e. here we pass required
 		 * target rate that includes deep color.
 		 */
+<<<<<<< HEAD
+=======
+		if (bp_params->signal_type == SIGNAL_TYPE_HDMI_TYPE_A)
+			switch (bp_params->color_depth) {
+			case TRANSMITTER_COLOR_DEPTH_30:
+				clk.sPCLKInput.ucMiscInfo |= PIXEL_CLOCK_V6_MISC_HDMI_30BPP_V6;
+				break;
+			case TRANSMITTER_COLOR_DEPTH_36:
+				clk.sPCLKInput.ucMiscInfo |= PIXEL_CLOCK_V6_MISC_HDMI_36BPP_V6;
+				break;
+			case TRANSMITTER_COLOR_DEPTH_48:
+				clk.sPCLKInput.ucMiscInfo |= PIXEL_CLOCK_V6_MISC_HDMI_48BPP;
+				break;
+			default:
+				break;
+			}
+>>>>>>> upstream/android-13
 
 		if (EXEC_BIOS_CMD_TABLE(SetPixelClock, clk))
 			result = BP_RESULT_OK;
@@ -1182,8 +1279,12 @@ static enum bp_result set_pixel_clock_v7(
 		clk.ucTransmitterID = bp->cmd_helper->encoder_id_to_atom(dal_graphics_object_id_get_encoder_id(bp_params->encoder_object_id));
 		clk.ucEncoderMode = (uint8_t) bp->cmd_helper->encoder_mode_bp_to_atom(bp_params->signal_type, false);
 
+<<<<<<< HEAD
 		/* We need to convert from KHz units into 10KHz units */
 		clk.ulPixelClock = cpu_to_le32(bp_params->target_pixel_clock * 10);
+=======
+		clk.ulPixelClock = cpu_to_le32(bp_params->target_pixel_clock_100hz);
+>>>>>>> upstream/android-13
 
 		clk.ucDeepColorRatio = (uint8_t) bp->cmd_helper->transmitter_color_depth_to_atom(bp_params->color_depth);
 
@@ -1473,6 +1574,30 @@ static enum bp_result adjust_display_pll_v2(
 	params.ucEncodeMode =
 			(uint8_t)bp->cmd_helper->encoder_mode_bp_to_atom(
 					bp_params->signal_type, false);
+<<<<<<< HEAD
+=======
+
+	if (EXEC_BIOS_CMD_TABLE(AdjustDisplayPll, params)) {
+		/* Convert output pixel clock back 10KHz-->KHz: multiply
+		 * original pixel clock in KHz by ratio
+		 * [output pxlClk/input pxlClk] */
+		uint64_t pixel_clk_10_khz_out =
+				(uint64_t)le16_to_cpu(params.usPixelClock);
+		uint64_t pixel_clk = (uint64_t)bp_params->pixel_clock;
+
+		if (pixel_clock_10KHz_in != 0) {
+			bp_params->adjusted_pixel_clock =
+					div_u64(pixel_clk * pixel_clk_10_khz_out,
+							pixel_clock_10KHz_in);
+		} else {
+			bp_params->adjusted_pixel_clock = 0;
+			BREAK_TO_DEBUGGER();
+		}
+
+		result = BP_RESULT_OK;
+	}
+
+>>>>>>> upstream/android-13
 	return result;
 }
 
@@ -1880,9 +2005,13 @@ static enum bp_result set_crtc_using_dtd_timing_v3(
 			 * but it is 4 either from Edid data (spec CEA 861)
 			 * or CEA timing table.
 			 */
+<<<<<<< HEAD
 			params.usV_SyncOffset =
 					cpu_to_le16(le16_to_cpu(params.usV_SyncOffset) + 1);
 
+=======
+			le16_add_cpu(&params.usV_SyncOffset, 1);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1899,6 +2028,7 @@ static enum bp_result set_crtc_using_dtd_timing_v3(
 /*******************************************************************************
  ********************************************************************************
  **
+<<<<<<< HEAD
  **                  SELECT CRTC SOURCE
  **
  ********************************************************************************
@@ -2013,6 +2143,8 @@ static enum bp_result select_crtc_source_v3(
 /*******************************************************************************
  ********************************************************************************
  **
+=======
+>>>>>>> upstream/android-13
  **                  ENABLE CRTC
  **
  ********************************************************************************
@@ -2164,7 +2296,11 @@ static enum bp_result program_clock_v5(
 	/* We need to convert from KHz units into 10KHz units */
 	params.sPCLKInput.ucPpll = (uint8_t) atom_pll_id;
 	params.sPCLKInput.usPixelClock =
+<<<<<<< HEAD
 			cpu_to_le16((uint16_t) (bp_params->target_pixel_clock / 10));
+=======
+			cpu_to_le16((uint16_t) (bp_params->target_pixel_clock_100hz / 100));
+>>>>>>> upstream/android-13
 	params.sPCLKInput.ucCRTC = (uint8_t) ATOM_CRTC_INVALID;
 
 	if (bp_params->flags.SET_EXTERNAL_REF_DIV_SRC)
@@ -2196,11 +2332,21 @@ static enum bp_result program_clock_v6(
 	/* We need to convert from KHz units into 10KHz units */
 	params.sPCLKInput.ucPpll = (uint8_t)atom_pll_id;
 	params.sPCLKInput.ulDispEngClkFreq =
+<<<<<<< HEAD
 			cpu_to_le32(bp_params->target_pixel_clock / 10);
+=======
+			cpu_to_le32(bp_params->target_pixel_clock_100hz / 100);
+>>>>>>> upstream/android-13
 
 	if (bp_params->flags.SET_EXTERNAL_REF_DIV_SRC)
 		params.sPCLKInput.ucMiscInfo |= PIXEL_CLOCK_MISC_REF_DIV_SRC;
 
+<<<<<<< HEAD
+=======
+	if (bp_params->flags.SET_DISPCLK_DFS_BYPASS)
+		params.sPCLKInput.ucMiscInfo |= PIXEL_CLOCK_V6_MISC_DPREFCLK_BYPASS;
+
+>>>>>>> upstream/android-13
 	if (EXEC_BIOS_CMD_TABLE(SetPixelClock, params)) {
 		/* True display clock is returned by VBIOS if DFS bypass
 		 * is enabled. */

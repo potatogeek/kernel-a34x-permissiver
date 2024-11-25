@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Routines for control of the CS8427 via i2c bus
  *  IEC958 (S/PDIF) receiver & transmitter by Cirrus Logic
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -65,7 +72,12 @@ int snd_cs8427_reg_write(struct snd_i2c_device *device, unsigned char reg,
 
 	buf[0] = reg & 0x7f;
 	buf[1] = val;
+<<<<<<< HEAD
 	if ((err = snd_i2c_sendbytes(device, buf, 2)) != 2) {
+=======
+	err = snd_i2c_sendbytes(device, buf, 2);
+	if (err != 2) {
+>>>>>>> upstream/android-13
 		snd_printk(KERN_ERR "unable to send bytes 0x%02x:0x%02x "
 			   "to CS8427 (%i)\n", buf[0], buf[1], err);
 		return err < 0 ? err : -EIO;
@@ -80,12 +92,22 @@ static int snd_cs8427_reg_read(struct snd_i2c_device *device, unsigned char reg)
 	int err;
 	unsigned char buf;
 
+<<<<<<< HEAD
 	if ((err = snd_i2c_sendbytes(device, &reg, 1)) != 1) {
+=======
+	err = snd_i2c_sendbytes(device, &reg, 1);
+	if (err != 1) {
+>>>>>>> upstream/android-13
 		snd_printk(KERN_ERR "unable to send register 0x%x byte "
 			   "to CS8427\n", reg);
 		return err < 0 ? err : -EIO;
 	}
+<<<<<<< HEAD
 	if ((err = snd_i2c_readbytes(device, &buf, 1)) != 1) {
+=======
+	err = snd_i2c_readbytes(device, &buf, 1);
+	if (err != 1) {
+>>>>>>> upstream/android-13
 		snd_printk(KERN_ERR "unable to read register 0x%x byte "
 			   "from CS8427\n", reg);
 		return err < 0 ? err : -EIO;
@@ -123,7 +145,12 @@ static int snd_cs8427_send_corudata(struct snd_i2c_device *device,
 
 	if (!memcmp(hw_data, ndata, count))
 		return 0;
+<<<<<<< HEAD
 	if ((err = snd_cs8427_select_corudata(device, udata)) < 0)
+=======
+	err = snd_cs8427_select_corudata(device, udata);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	memcpy(hw_data, ndata, count);
 	if (udata) {
@@ -224,7 +251,12 @@ int snd_cs8427_init(struct snd_i2c_bus *bus,
 		goto __fail;
 	/* send initial values */
 	memcpy(chip->regmap + (initvals1[0] & 0x7f), initvals1 + 1, 6);
+<<<<<<< HEAD
 	if ((err = snd_i2c_sendbytes(device, initvals1, 7)) != 7) {
+=======
+	err = snd_i2c_sendbytes(device, initvals1, 7);
+	if (err != 7) {
+>>>>>>> upstream/android-13
 		err = err < 0 ? err : -EIO;
 		goto __fail;
 	}
@@ -232,11 +264,21 @@ int snd_cs8427_init(struct snd_i2c_bus *bus,
 	memset(buf, 0, 7);
 	/* from address 9 to 15 */
 	buf[0] = 9;	/* register */
+<<<<<<< HEAD
 	if ((err = snd_i2c_sendbytes(device, buf, 7)) != 7)
 		goto __fail;
 	/* send transfer initialization sequence */
 	memcpy(chip->regmap + (initvals2[0] & 0x7f), initvals2 + 1, 3);
 	if ((err = snd_i2c_sendbytes(device, initvals2, 4)) != 4) {
+=======
+	err = snd_i2c_sendbytes(device, buf, 7);
+	if (err != 7)
+		goto __fail;
+	/* send transfer initialization sequence */
+	memcpy(chip->regmap + (initvals2[0] & 0x7f), initvals2 + 1, 3);
+	err = snd_i2c_sendbytes(device, initvals2, 4);
+	if (err != 4) {
+>>>>>>> upstream/android-13
 		err = err < 0 ? err : -EIO;
 		goto __fail;
 	}
@@ -398,7 +440,12 @@ static int snd_cs8427_qsubcode_get(struct snd_kcontrol *kcontrol,
 	int err;
 
 	snd_i2c_lock(device->bus);
+<<<<<<< HEAD
 	if ((err = snd_i2c_sendbytes(device, &reg, 1)) != 1) {
+=======
+	err = snd_i2c_sendbytes(device, &reg, 1);
+	if (err != 1) {
+>>>>>>> upstream/android-13
 		snd_printk(KERN_ERR "unable to send register 0x%x byte "
 			   "to CS8427\n", reg);
 		snd_i2c_unlock(device->bus);
@@ -474,7 +521,11 @@ static int snd_cs8427_spdif_mask_get(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_cs8427_iec958_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_cs8427_iec958_controls[] = {
+>>>>>>> upstream/android-13
 {
 	.iface =	SNDRV_CTL_ELEM_IFACE_PCM,
 	.info =		snd_cs8427_in_status_info,

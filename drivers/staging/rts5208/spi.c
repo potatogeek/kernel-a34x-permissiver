@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
@@ -15,6 +16,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -41,6 +50,7 @@ static int spi_init(struct rtsx_chip *chip)
 	retval = rtsx_write_register(chip, SPI_CONTROL, 0xFF,
 				     CS_POLARITY_LOW | DTO_MSB_FIRST
 				     | SPI_MASTER | SPI_MODE0 | SPI_AUTO);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -49,6 +59,14 @@ static int spi_init(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, SPI_TCTL, EDO_TIMING_MASK,
+				     SAMPLE_DELAY_HALF);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -60,6 +78,7 @@ static int spi_set_init_para(struct rtsx_chip *chip)
 
 	retval = rtsx_write_register(chip, SPI_CLK_DIVIDER1, 0xFF,
 				     (u8)(spi->clk_div >> 8));
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -89,13 +108,43 @@ static int spi_set_init_para(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, SPI_CLK_DIVIDER0, 0xFF,
+				     (u8)(spi->clk_div));
+	if (retval)
+		return retval;
+
+	retval = switch_clock(chip, spi->spi_clock);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = select_card(chip, SPI_CARD);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, CARD_CLK_EN, SPI_CLK_EN,
+				     SPI_CLK_EN);
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, CARD_OE, SPI_OUTPUT_EN,
+				     SPI_OUTPUT_EN);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	wait_timeout(10);
 
 	retval = spi_init(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -247,6 +296,7 @@ static int spi_init_eeprom(struct rtsx_chip *chip)
 		clk = CLK_30;
 
 	retval = rtsx_write_register(chip, SPI_CLK_DIVIDER1, 0xFF, 0x00);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -275,11 +325,36 @@ static int spi_init_eeprom(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, SPI_CLK_DIVIDER0, 0xFF, 0x27);
+	if (retval)
+		return retval;
+
+	retval = switch_clock(chip, clk);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = select_card(chip, SPI_CARD);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, CARD_CLK_EN, SPI_CLK_EN,
+				     SPI_CLK_EN);
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, CARD_OE, SPI_OUTPUT_EN,
+				     SPI_OUTPUT_EN);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	wait_timeout(10);
 
 	retval = rtsx_write_register(chip, SPI_CONTROL, 0xFF,
 				     CS_POLARITY_HIGH | SPI_EEPROM_AUTO);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
@@ -288,6 +363,14 @@ static int spi_init_eeprom(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+	retval = rtsx_write_register(chip, SPI_TCTL, EDO_TIMING_MASK,
+				     SAMPLE_DELAY_HALF);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -306,9 +389,14 @@ static int spi_eeprom_program_enable(struct rtsx_chip *chip)
 		     SPI_TRANSFER0_END);
 
 	retval = rtsx_send_cmd(chip, 0, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -318,6 +406,7 @@ int spi_erase_eeprom_chip(struct rtsx_chip *chip)
 	int retval;
 
 	retval = spi_init_eeprom(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -326,6 +415,14 @@ int spi_erase_eeprom_chip(struct rtsx_chip *chip)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = spi_eeprom_program_enable(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -339,6 +436,7 @@ int spi_erase_eeprom_chip(struct rtsx_chip *chip)
 		     SPI_TRANSFER0_END);
 
 	retval = rtsx_send_cmd(chip, 0, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
@@ -347,6 +445,14 @@ int spi_erase_eeprom_chip(struct rtsx_chip *chip)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, CARD_GPIO_DIR, 0x01, 0x01);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -356,6 +462,7 @@ int spi_erase_eeprom_byte(struct rtsx_chip *chip, u16 addr)
 	int retval;
 
 	retval = spi_init_eeprom(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -364,6 +471,14 @@ int spi_erase_eeprom_byte(struct rtsx_chip *chip, u16 addr)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = spi_eeprom_program_enable(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -379,6 +494,7 @@ int spi_erase_eeprom_byte(struct rtsx_chip *chip, u16 addr)
 		     SPI_TRANSFER0_END);
 
 	retval = rtsx_send_cmd(chip, 0, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
@@ -387,6 +503,14 @@ int spi_erase_eeprom_byte(struct rtsx_chip *chip, u16 addr)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, CARD_GPIO_DIR, 0x01, 0x01);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -397,9 +521,14 @@ int spi_read_eeprom(struct rtsx_chip *chip, u16 addr, u8 *val)
 	u8 data;
 
 	retval = spi_init_eeprom(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -416,6 +545,7 @@ int spi_read_eeprom(struct rtsx_chip *chip, u16 addr, u8 *val)
 		     SPI_TRANSFER0_END);
 
 	retval = rtsx_send_cmd(chip, 0, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
@@ -425,14 +555,28 @@ int spi_read_eeprom(struct rtsx_chip *chip, u16 addr, u8 *val)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+
+	wait_timeout(5);
+	retval = rtsx_read_register(chip, SPI_DATA, &data);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	if (val)
 		*val = data;
 
 	retval = rtsx_write_register(chip, CARD_GPIO_DIR, 0x01, 0x01);
+<<<<<<< HEAD
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -442,6 +586,7 @@ int spi_write_eeprom(struct rtsx_chip *chip, u16 addr, u8 val)
 	int retval;
 
 	retval = spi_init_eeprom(chip);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
@@ -450,6 +595,14 @@ int spi_write_eeprom(struct rtsx_chip *chip, u16 addr, u8 val)
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+
+	retval = spi_eeprom_program_enable(chip);
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 
@@ -466,6 +619,7 @@ int spi_write_eeprom(struct rtsx_chip *chip, u16 addr, u8 val)
 		     SPI_TRANSFER0_END);
 
 	retval = rtsx_send_cmd(chip, 0, 100);
+<<<<<<< HEAD
 	if (retval < 0) {
 		return STATUS_FAIL;
 	}
@@ -474,6 +628,14 @@ int spi_write_eeprom(struct rtsx_chip *chip, u16 addr, u8 val)
 	if (retval) {
 		return retval;
 	}
+=======
+	if (retval < 0)
+		return STATUS_FAIL;
+
+	retval = rtsx_write_register(chip, CARD_GPIO_DIR, 0x01, 0x01);
+	if (retval)
+		return retval;
+>>>>>>> upstream/android-13
 
 	return STATUS_SUCCESS;
 }
@@ -577,9 +739,14 @@ int spi_read_flash_id(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	if (len) {
 		buf = kmalloc(len, GFP_KERNEL);
+<<<<<<< HEAD
 		if (!buf) {
 			return STATUS_ERROR;
 		}
+=======
+		if (!buf)
+			return STATUS_ERROR;
+>>>>>>> upstream/android-13
 
 		retval = rtsx_read_ppbuf(chip, buf, len);
 		if (retval != STATUS_SUCCESS) {
@@ -621,9 +788,14 @@ int spi_read_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	buf = kmalloc(SF_PAGE_LEN, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		return STATUS_ERROR;
 	}
+=======
+	if (!buf)
+		return STATUS_ERROR;
+>>>>>>> upstream/android-13
 
 	while (len) {
 		u16 pagelen = SF_PAGE_LEN - (u8)addr;
@@ -716,9 +888,14 @@ int spi_write_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	if (program_mode == BYTE_PROGRAM) {
 		buf = kmalloc(4, GFP_KERNEL);
+<<<<<<< HEAD
 		if (!buf) {
 			return STATUS_ERROR;
 		}
+=======
+		if (!buf)
+			return STATUS_ERROR;
+>>>>>>> upstream/android-13
 
 		while (len) {
 			retval = sf_enable_write(chip, SPI_WREN);
@@ -762,6 +939,7 @@ int spi_write_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		int first_byte = 1;
 
 		retval = sf_enable_write(chip, SPI_WREN);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
@@ -770,6 +948,14 @@ int spi_write_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (!buf) {
 			return STATUS_ERROR;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+
+		buf = kmalloc(4, GFP_KERNEL);
+		if (!buf)
+			return STATUS_ERROR;
+>>>>>>> upstream/android-13
 
 		while (len) {
 			rtsx_stor_access_xfer_buf(buf, 1, srb, &index, &offset,
@@ -808,6 +994,7 @@ int spi_write_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		kfree(buf);
 
 		retval = sf_disable_write(chip, SPI_WRDI);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
@@ -821,6 +1008,18 @@ int spi_write_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (!buf) {
 			return STATUS_NOMEM;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+
+		retval = sf_polling_status(chip, 100);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	} else if (program_mode == PAGE_PROGRAM) {
+		buf = kmalloc(SF_PAGE_LEN, GFP_KERNEL);
+		if (!buf)
+			return STATUS_NOMEM;
+>>>>>>> upstream/android-13
 
 		while (len) {
 			u16 pagelen = SF_PAGE_LEN - (u8)addr;
@@ -893,6 +1092,7 @@ int spi_erase_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	if (erase_mode == PAGE_ERASE) {
 		retval = sf_enable_write(chip, SPI_WREN);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
@@ -911,6 +1111,22 @@ int spi_erase_flash(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return STATUS_FAIL;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+
+		retval = sf_erase(chip, ins, 1, addr);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+	} else if (erase_mode == CHIP_ERASE) {
+		retval = sf_enable_write(chip, SPI_WREN);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+
+		retval = sf_erase(chip, ins, 0, 0);
+		if (retval != STATUS_SUCCESS)
+			return STATUS_FAIL;
+>>>>>>> upstream/android-13
 	} else {
 		spi_set_err_code(chip, SPI_INVALID_COMMAND);
 		return STATUS_FAIL;
@@ -935,9 +1151,14 @@ int spi_write_flash_status(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	retval = sf_enable_write(chip, ewsr);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return STATUS_FAIL;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return STATUS_FAIL;
+>>>>>>> upstream/android-13
 
 	rtsx_init_cmd(chip);
 

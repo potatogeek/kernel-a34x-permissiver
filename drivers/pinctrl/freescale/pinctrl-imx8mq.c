@@ -8,6 +8,10 @@
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/pinctrl/pinctrl.h>
@@ -329,6 +333,10 @@ static const struct of_device_id imx8mq_pinctrl_of_match[] = {
 	{ .compatible = "fsl,imx8mq-iomuxc", .data = &imx8mq_pinctrl_info, },
 	{ /* sentinel */ }
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, imx8mq_pinctrl_of_match);
+>>>>>>> upstream/android-13
 
 static int imx8mq_pinctrl_probe(struct platform_device *pdev)
 {
@@ -338,7 +346,12 @@ static int imx8mq_pinctrl_probe(struct platform_device *pdev)
 static struct platform_driver imx8mq_pinctrl_driver = {
 	.driver = {
 		.name = "imx8mq-pinctrl",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(imx8mq_pinctrl_of_match),
+=======
+		.of_match_table = imx8mq_pinctrl_of_match,
+		.pm = &imx_pinctrl_pm_ops,
+>>>>>>> upstream/android-13
 		.suppress_bind_attrs = true,
 	},
 	.probe = imx8mq_pinctrl_probe,
@@ -349,3 +362,10 @@ static int __init imx8mq_pinctrl_init(void)
 	return platform_driver_register(&imx8mq_pinctrl_driver);
 }
 arch_initcall(imx8mq_pinctrl_init);
+<<<<<<< HEAD
+=======
+
+MODULE_AUTHOR("Lucas Stach <l.stach@pengutronix.de>");
+MODULE_DESCRIPTION("NXP i.MX8MQ pinctrl driver");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

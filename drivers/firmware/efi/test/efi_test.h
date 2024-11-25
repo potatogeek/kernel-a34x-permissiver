@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * EFI Test driver Header
  *
@@ -81,6 +85,16 @@ struct efi_querycapsulecapabilities {
 	efi_status_t		*status;
 } __packed;
 
+<<<<<<< HEAD
+=======
+struct efi_resetsystem {
+	int			reset_type;
+	efi_status_t		status;
+	unsigned long		data_size;
+	efi_char16_t		*data;
+} __packed;
+
+>>>>>>> upstream/android-13
 #define EFI_RUNTIME_GET_VARIABLE \
 	_IOWR('p', 0x01, struct efi_getvariable)
 #define EFI_RUNTIME_SET_VARIABLE \
@@ -108,4 +122,13 @@ struct efi_querycapsulecapabilities {
 #define EFI_RUNTIME_QUERY_CAPSULECAPABILITIES \
 	_IOR('p', 0x0A, struct efi_querycapsulecapabilities)
 
+<<<<<<< HEAD
+=======
+#define EFI_RUNTIME_RESET_SYSTEM \
+	_IOW('p', 0x0B, struct efi_resetsystem)
+
+#define EFI_RUNTIME_GET_SUPPORTED_MASK \
+	_IOR('p', 0x0C, unsigned int)
+
+>>>>>>> upstream/android-13
 #endif /* _DRIVERS_FIRMWARE_EFI_TEST_H_ */

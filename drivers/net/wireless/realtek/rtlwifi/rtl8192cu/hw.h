@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92CU_HW_H__
 #define __RTL92CU_HW_H__
@@ -36,14 +41,20 @@
 #define TX_TOTAL_PAGE_NUMBER			0xF8
 #define TX_PAGE_BOUNDARY			(TX_TOTAL_PAGE_NUMBER + 1)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define CHIP_B_PAGE_NUM_PUBQ			0xE7
 
 /* For Test Chip Setting
  * (HPQ + LPQ + PUBQ) shall be TX_TOTAL_PAGE_NUMBER */
 #define CHIP_A_PAGE_NUM_PUBQ			0x7E
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* For Chip A Setting */
 #define WMM_CHIP_A_TX_TOTAL_PAGE_NUMBER		0xF5
 #define WMM_CHIP_A_TX_PAGE_BOUNDARY		\
@@ -53,8 +64,11 @@
 #define WMM_CHIP_A_PAGE_NUM_HPQ			0x29
 #define WMM_CHIP_A_PAGE_NUM_LPQ			0x29
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 /* Note: For Chip B Setting ,modify later */
 #define WMM_CHIP_B_TX_TOTAL_PAGE_NUMBER		0xF5
 #define WMM_CHIP_B_TX_PAGE_BOUNDARY		\
@@ -71,14 +85,22 @@
 /* should be renamed and moved to another file */
 enum _BOARD_TYPE_8192CUSB {
 	BOARD_USB_DONGLE		= 0,	/* USB dongle */
+<<<<<<< HEAD
 	BOARD_USB_High_PA		= 1,	/* USB dongle - high power PA */
+=======
+	BOARD_USB_HIGH_PA		= 1,	/* USB dongle - high power PA */
+>>>>>>> upstream/android-13
 	BOARD_MINICARD			= 2,	/* Minicard */
 	BOARD_USB_SOLO			= 3,	/* USB solo-Slim module */
 	BOARD_USB_COMBO			= 4,	/* USB Combo-Slim module */
 };
 
 #define IS_HIGHT_PA(boardtype)		\
+<<<<<<< HEAD
 	((boardtype == BOARD_USB_High_PA) ? true : false)
+=======
+	((boardtype == BOARD_USB_HIGH_PA) ? true : false)
+>>>>>>> upstream/android-13
 
 #define RTL92C_DRIVER_INFO_SIZE				4
 void rtl92cu_read_eeprom_info(struct ieee80211_hw *hw);

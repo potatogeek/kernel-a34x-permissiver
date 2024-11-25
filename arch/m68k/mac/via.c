@@ -23,6 +23,10 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/clocksource.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
@@ -168,8 +172,11 @@ void __init via_init(void)
 
 	via1[vIER] = 0x7F;
 	via1[vIFR] = 0x7F;
+<<<<<<< HEAD
 	via1[vT1LL] = 0;
 	via1[vT1LH] = 0;
+=======
+>>>>>>> upstream/android-13
 	via1[vT1CL] = 0;
 	via1[vT1CH] = 0;
 	via1[vT2CL] = 0;
@@ -179,7 +186,10 @@ void __init via_init(void)
 
 	/*
 	 * SE/30: disable video IRQ
+<<<<<<< HEAD
 	 * XXX: testing for SE/30 VBL
+=======
+>>>>>>> upstream/android-13
 	 */
 
 	if (macintosh_config->ident == MAC_MODEL_SE30) {
@@ -187,6 +197,7 @@ void __init via_init(void)
 		via1[vBufB] |= 0x40;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Set the RTC bits to a known state: all lines to outputs and
 	 * RTC disabled (yes that's 0 to enable and 1 to disable).
@@ -194,6 +205,20 @@ void __init via_init(void)
 
 	via1[vDirB] |= (VIA1B_vRTCEnb | VIA1B_vRTCClk | VIA1B_vRTCData);
 	via1[vBufB] |= (VIA1B_vRTCEnb | VIA1B_vRTCClk);
+=======
+	switch (macintosh_config->adb_type) {
+	case MAC_ADB_IOP:
+	case MAC_ADB_II:
+	case MAC_ADB_PB1:
+		/*
+		 * Set the RTC bits to a known state: all lines to outputs and
+		 * RTC disabled (yes that's 0 to enable and 1 to disable).
+		 */
+		via1[vDirB] |= VIA1B_vRTCEnb | VIA1B_vRTCClk | VIA1B_vRTCData;
+		via1[vBufB] |= VIA1B_vRTCEnb | VIA1B_vRTCClk;
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	/* Everything below this point is VIA2/RBV only... */
 
@@ -220,8 +245,11 @@ void __init via_init(void)
 	via2[gIER] = 0x7F;
 	via2[gIFR] = 0x7F | rbv_clear;
 	if (!rbv_present) {
+<<<<<<< HEAD
 		via2[vT1LL] = 0;
 		via2[vT1LH] = 0;
+=======
+>>>>>>> upstream/android-13
 		via2[vT1CL] = 0;
 		via2[vT1CH] = 0;
 		via2[vT2CL] = 0;
@@ -300,6 +328,7 @@ void via_l2_flush(int writeback)
 }
 
 /*
+<<<<<<< HEAD
  * Return the status of the L2 cache on a IIci
  */
 
@@ -315,6 +344,8 @@ int via_get_cache_disable(void)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Initialize VIA2 for Nubus access
  */
 
@@ -365,7 +396,11 @@ void via_nubus_irq_startup(int irq)
 			/* Allow NuBus slots 9 through F. */
 			via2[vDirA] &= 0x80 | ~(1 << irq_idx);
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MAC_VIA_IICI:
 		via_irq_enable(irq);
 		break;
@@ -577,20 +612,52 @@ EXPORT_SYMBOL(via2_scsi_drq_pending);
 /* timer and clock source */
 
 #define VIA_CLOCK_FREQ     783360                /* VIA "phase 2" clock in Hz */
+<<<<<<< HEAD
 #define VIA_TIMER_INTERVAL (1000000 / HZ)        /* microseconds per jiffy */
+=======
+>>>>>>> upstream/android-13
 #define VIA_TIMER_CYCLES   (VIA_CLOCK_FREQ / HZ) /* clock cycles per jiffy */
 
 #define VIA_TC             (VIA_TIMER_CYCLES - 2) /* including 0 and -1 */
 #define VIA_TC_LOW         (VIA_TC & 0xFF)
 #define VIA_TC_HIGH        (VIA_TC >> 8)
 
+<<<<<<< HEAD
 void __init via_init_clock(irq_handler_t timer_routine)
 {
 	if (request_irq(IRQ_MAC_TIMER_1, timer_routine, 0, "timer", NULL)) {
+=======
+static u64 mac_read_clk(struct clocksource *cs);
+
+static struct clocksource mac_clk = {
+	.name   = "via1",
+	.rating = 250,
+	.read   = mac_read_clk,
+	.mask   = CLOCKSOURCE_MASK(32),
+	.flags  = CLOCK_SOURCE_IS_CONTINUOUS,
+};
+
+static u32 clk_total, clk_offset;
+
+static irqreturn_t via_timer_handler(int irq, void *dev_id)
+{
+	clk_total += VIA_TIMER_CYCLES;
+	clk_offset = 0;
+	legacy_timer_tick(1);
+
+	return IRQ_HANDLED;
+}
+
+void __init via_init_clock(void)
+{
+	if (request_irq(IRQ_MAC_TIMER_1, via_timer_handler, IRQF_TIMER, "timer",
+			NULL)) {
+>>>>>>> upstream/android-13
 		pr_err("Couldn't register %s interrupt\n", "timer");
 		return;
 	}
 
+<<<<<<< HEAD
 	via1[vT1LL] = VIA_TC_LOW;
 	via1[vT1LH] = VIA_TC_HIGH;
 	via1[vT1CL] = VIA_TC_LOW;
@@ -603,6 +670,21 @@ u32 mac_gettimeoffset(void)
 	unsigned long flags;
 	u8 count_high;
 	u16 count, offset = 0;
+=======
+	via1[vT1CL] = VIA_TC_LOW;
+	via1[vT1CH] = VIA_TC_HIGH;
+	via1[vACR] |= 0x40;
+
+	clocksource_register_hz(&mac_clk, VIA_CLOCK_FREQ);
+}
+
+static u64 mac_read_clk(struct clocksource *cs)
+{
+	unsigned long flags;
+	u8 count_high;
+	u16 count;
+	u32 ticks;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Timer counter wrap-around is detected with the timer interrupt flag
@@ -618,6 +700,7 @@ u32 mac_gettimeoffset(void)
 	if (count_high == 0xFF)
 		count_high = 0;
 	if (count_high > 0 && (via1[vIFR] & VIA_TIMER_1_INT))
+<<<<<<< HEAD
 		offset = VIA_TIMER_CYCLES;
 	local_irq_restore(flags);
 
@@ -625,4 +708,13 @@ u32 mac_gettimeoffset(void)
 	count = VIA_TIMER_CYCLES - count + offset;
 
 	return ((count * VIA_TIMER_INTERVAL) / VIA_TIMER_CYCLES) * 1000;
+=======
+		clk_offset = VIA_TIMER_CYCLES;
+	count = count_high << 8;
+	ticks = VIA_TIMER_CYCLES - count;
+	ticks += clk_offset + clk_total;
+	local_irq_restore(flags);
+
+	return ticks;
+>>>>>>> upstream/android-13
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Atheros AR71XX/AR724X/AR913X GPIO API support
  *
@@ -5,10 +9,13 @@
  *  Copyright (C) 2010-2011 Jaiganesh Narayanan <jnarayanan@atheros.com>
  *  Copyright (C) 2008-2011 Gabor Juhos <juhosg@openwrt.org>
  *  Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gpio/driver.h>
@@ -126,13 +133,21 @@ static int ath79_gpio_irq_set_type(struct irq_data *data,
 	switch (flow_type) {
 	case IRQ_TYPE_EDGE_RISING:
 		polarity |= mask;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IRQ_TYPE_EDGE_FALLING:
 	case IRQ_TYPE_EDGE_BOTH:
 		break;
 
 	case IRQ_TYPE_LEVEL_HIGH:
 		polarity |= mask;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IRQ_TYPE_LEVEL_LOW:
 		type |= mask;
 		break;
@@ -206,11 +221,16 @@ static void ath79_gpio_irq_handler(struct irq_desc *desc)
 
 	raw_spin_unlock_irqrestore(&ctrl->lock, flags);
 
+<<<<<<< HEAD
 	if (pending) {
 		for_each_set_bit(irq, &pending, gc->ngpio)
 			generic_handle_irq(
 				irq_linear_revmap(gc->irq.domain, irq));
 	}
+=======
+	for_each_set_bit(irq, &pending, gc->ngpio)
+		generic_handle_domain_irq(gc->irq.domain, irq);
+>>>>>>> upstream/android-13
 
 	chained_irq_exit(irqchip, desc);
 }
@@ -225,22 +245,39 @@ MODULE_DEVICE_TABLE(of, ath79_gpio_of_match);
 static int ath79_gpio_probe(struct platform_device *pdev)
 {
 	struct ath79_gpio_platform_data *pdata = dev_get_platdata(&pdev->dev);
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node;
 	struct ath79_gpio_ctrl *ctrl;
 	struct resource *res;
+=======
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
+	struct ath79_gpio_ctrl *ctrl;
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	u32 ath79_gpio_count;
 	bool oe_inverted;
 	int err;
 
+<<<<<<< HEAD
 	ctrl = devm_kzalloc(&pdev->dev, sizeof(*ctrl), GFP_KERNEL);
 	if (!ctrl)
 		return -ENOMEM;
 	platform_set_drvdata(pdev, ctrl);
+=======
+	ctrl = devm_kzalloc(dev, sizeof(*ctrl), GFP_KERNEL);
+	if (!ctrl)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	if (np) {
 		err = of_property_read_u32(np, "ngpios", &ath79_gpio_count);
 		if (err) {
+<<<<<<< HEAD
 			dev_err(&pdev->dev, "ngpios property is not valid\n");
+=======
+			dev_err(dev, "ngpios property is not valid\n");
+>>>>>>> upstream/android-13
 			return err;
 		}
 		oe_inverted = of_device_is_compatible(np, "qca,ar9340-gpio");
@@ -248,11 +285,16 @@ static int ath79_gpio_probe(struct platform_device *pdev)
 		ath79_gpio_count = pdata->ngpios;
 		oe_inverted = pdata->oe_inverted;
 	} else {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "No DT node or platform data found\n");
+=======
+		dev_err(dev, "No DT node or platform data found\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (ath79_gpio_count >= 32) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "ngpios must be less than 32\n");
 		return -EINVAL;
 	}
@@ -267,6 +309,18 @@ static int ath79_gpio_probe(struct platform_device *pdev)
 
 	raw_spin_lock_init(&ctrl->lock);
 	err = bgpio_init(&ctrl->gc, &pdev->dev, 4,
+=======
+		dev_err(dev, "ngpios must be less than 32\n");
+		return -EINVAL;
+	}
+
+	ctrl->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(ctrl->base))
+		return PTR_ERR(ctrl->base);
+
+	raw_spin_lock_init(&ctrl->lock);
+	err = bgpio_init(&ctrl->gc, dev, 4,
+>>>>>>> upstream/android-13
 			ctrl->base + AR71XX_GPIO_REG_IN,
 			ctrl->base + AR71XX_GPIO_REG_SET,
 			ctrl->base + AR71XX_GPIO_REG_CLEAR,
@@ -274,12 +328,17 @@ static int ath79_gpio_probe(struct platform_device *pdev)
 			oe_inverted ? ctrl->base + AR71XX_GPIO_REG_OE : NULL,
 			0);
 	if (err) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "bgpio_init failed\n");
+=======
+		dev_err(dev, "bgpio_init failed\n");
+>>>>>>> upstream/android-13
 		return err;
 	}
 	/* Use base 0 to stay compatible with legacy platforms */
 	ctrl->gc.base = 0;
 
+<<<<<<< HEAD
 	err = gpiochip_add_data(&ctrl->gc, ctrl);
 	if (err) {
 		dev_err(&pdev->dev,
@@ -314,6 +373,24 @@ static int ath79_gpio_remove(struct platform_device *pdev)
 
 	gpiochip_remove(&ctrl->gc);
 	return 0;
+=======
+	/* Optional interrupt setup */
+	if (!np || of_property_read_bool(np, "interrupt-controller")) {
+		girq = &ctrl->gc.irq;
+		girq->chip = &ath79_gpio_irqchip;
+		girq->parent_handler = ath79_gpio_irq_handler;
+		girq->num_parents = 1;
+		girq->parents = devm_kcalloc(dev, 1, sizeof(*girq->parents),
+					     GFP_KERNEL);
+		if (!girq->parents)
+			return -ENOMEM;
+		girq->parents[0] = platform_get_irq(pdev, 0);
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_simple_irq;
+	}
+
+	return devm_gpiochip_add_data(dev, &ctrl->gc, ctrl);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver ath79_gpio_driver = {
@@ -322,7 +399,10 @@ static struct platform_driver ath79_gpio_driver = {
 		.of_match_table	= ath79_gpio_of_match,
 	},
 	.probe = ath79_gpio_probe,
+<<<<<<< HEAD
 	.remove = ath79_gpio_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(ath79_gpio_driver);

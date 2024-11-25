@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef _ASMANDES_UACCESS_H
@@ -11,10 +15,13 @@
 #include <asm/errno.h>
 #include <asm/memory.h>
 #include <asm/types.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
 
 #define VERIFY_READ	0
 #define VERIFY_WRITE	1
+=======
+>>>>>>> upstream/android-13
 
 #define __asmeq(x, y)  ".ifnc " x "," y " ; .err ; .endif\n\t"
 
@@ -40,7 +47,10 @@ extern int fixup_exception(struct pt_regs *regs);
 #define KERNEL_DS 	((mm_segment_t) { ~0UL })
 #define USER_DS		((mm_segment_t) {TASK_SIZE - 1})
 
+<<<<<<< HEAD
 #define get_ds()	(KERNEL_DS)
+=======
+>>>>>>> upstream/android-13
 #define get_fs()	(current_thread_info()->addr_limit)
 #define user_addr_max	get_fs
 
@@ -49,11 +59,19 @@ static inline void set_fs(mm_segment_t fs)
 	current_thread_info()->addr_limit = fs;
 }
 
+<<<<<<< HEAD
 #define segment_eq(a, b)	((a) == (b))
 
 #define __range_ok(addr, size) (size <= get_fs() && addr <= (get_fs() -size))
 
 #define access_ok(type, addr, size)	\
+=======
+#define uaccess_kernel()	(get_fs() == KERNEL_DS)
+
+#define __range_ok(addr, size) (size <= get_fs() && addr <= (get_fs() -size))
+
+#define access_ok(addr, size)	\
+>>>>>>> upstream/android-13
 	__range_ok((unsigned long)addr, (unsigned long)size)
 /*
  * Single-value transfer routines.  They automatically use the right
@@ -75,9 +93,13 @@ static inline void set_fs(mm_segment_t fs)
  * versions are void (ie, don't return a value as such).
  */
 
+<<<<<<< HEAD
 #define get_user	__get_user					\
 
 #define __get_user(x, ptr)						\
+=======
+#define get_user(x, ptr)						\
+>>>>>>> upstream/android-13
 ({									\
 	long __gu_err = 0;						\
 	__get_user_check((x), (ptr), __gu_err);				\
@@ -90,11 +112,26 @@ static inline void set_fs(mm_segment_t fs)
 	(void)0;							\
 })
 
+<<<<<<< HEAD
+=======
+#define __get_user(x, ptr)						\
+({									\
+	long __gu_err = 0;						\
+	const __typeof__(*(ptr)) __user *__p = (ptr);			\
+	__get_user_err((x), __p, (__gu_err));				\
+	__gu_err;							\
+})
+
+>>>>>>> upstream/android-13
 #define __get_user_check(x, ptr, err)					\
 ({									\
 	const __typeof__(*(ptr)) __user *__p = (ptr);			\
 	might_fault();							\
+<<<<<<< HEAD
 	if (access_ok(VERIFY_READ, __p, sizeof(*__p))) {		\
+=======
+	if (access_ok(__p, sizeof(*__p))) {		\
+>>>>>>> upstream/android-13
 		__get_user_err((x), __p, (err));			\
 	} else {							\
 		(x) = 0; (err) = -EFAULT;				\
@@ -170,12 +207,26 @@ do {									\
 		: "r"(addr), "i"(-EFAULT)				\
 		: "cc")
 
+<<<<<<< HEAD
 #define put_user	__put_user					\
+=======
+#define put_user(x, ptr)						\
+({									\
+	long __pu_err = 0;						\
+	__put_user_check((x), (ptr), __pu_err);				\
+	__pu_err;							\
+})
+>>>>>>> upstream/android-13
 
 #define __put_user(x, ptr)						\
 ({									\
 	long __pu_err = 0;						\
+<<<<<<< HEAD
 	__put_user_err((x), (ptr), __pu_err);				\
+=======
+	__typeof__(*(ptr)) __user *__p = (ptr);				\
+	__put_user_err((x), __p, __pu_err);				\
+>>>>>>> upstream/android-13
 	__pu_err;							\
 })
 
@@ -189,7 +240,11 @@ do {									\
 ({									\
 	__typeof__(*(ptr)) __user *__p = (ptr);				\
 	might_fault();							\
+<<<<<<< HEAD
 	if (access_ok(VERIFY_WRITE, __p, sizeof(*__p))) {		\
+=======
+	if (access_ok(__p, sizeof(*__p))) {		\
+>>>>>>> upstream/android-13
 		__put_user_err((x), __p, (err));			\
 	} else	{							\
 		(err) = -EFAULT;					\
@@ -265,7 +320,10 @@ do {									\
 
 extern unsigned long __arch_clear_user(void __user * addr, unsigned long n);
 extern long strncpy_from_user(char *dest, const char __user * src, long count);
+<<<<<<< HEAD
 extern __must_check long strlen_user(const char __user * str);
+=======
+>>>>>>> upstream/android-13
 extern __must_check long strnlen_user(const char __user * str, long n);
 extern unsigned long __arch_copy_from_user(void *to, const void __user * from,
                                            unsigned long n);
@@ -279,7 +337,11 @@ extern unsigned long __arch_copy_to_user(void __user * to, const void *from,
 #define INLINE_COPY_TO_USER
 static inline unsigned long clear_user(void __user * to, unsigned long n)
 {
+<<<<<<< HEAD
 	if (access_ok(VERIFY_WRITE, to, n))
+=======
+	if (access_ok(to, n))
+>>>>>>> upstream/android-13
 		n = __arch_clear_user(to, n);
 	return n;
 }

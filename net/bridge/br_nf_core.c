@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Handle firewalling core
  *	Linux ethernet bridge
@@ -6,11 +10,14 @@
  *	Lennert Buytenhek		<buytenh@gnu.org>
  *	Bart De Schuymer		<bdschuym@pandora.be>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Lennert dedicates this file to Kerstin Wurdinger.
  */
 

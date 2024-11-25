@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2014 ARM Limited
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright (C) 2014 ARM Limited
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu.h>
@@ -207,7 +213,11 @@ static void __init register_insn_emulation(struct insn_emulation_ops *ops)
 }
 
 static int emulation_proc_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 				  void __user *buffer, size_t *lenp,
+=======
+				  void *buffer, size_t *lenp,
+>>>>>>> upstream/android-13
 				  loff_t *ppos)
 {
 	int ret = 0;
@@ -281,7 +291,11 @@ static void __init register_insn_emulation_sysctl(void)
 
 #define __user_swpX_asm(data, addr, res, temp, temp2, B)	\
 do {								\
+<<<<<<< HEAD
 	uaccess_enable();					\
+=======
+	uaccess_enable_privileged();				\
+>>>>>>> upstream/android-13
 	__asm__ __volatile__(					\
 	"	mov		%w3, %w7\n"			\
 	"0:	ldxr"B"		%w2, [%4]\n"			\
@@ -306,7 +320,11 @@ do {								\
 	  "i" (-EFAULT),					\
 	  "i" (__SWP_LL_SC_LOOPS)				\
 	: "memory");						\
+<<<<<<< HEAD
 	uaccess_disable();					\
+=======
+	uaccess_disable_privileged();				\
+>>>>>>> upstream/android-13
 } while (0)
 
 #define __user_swp_asm(data, addr, res, temp, temp2) \
@@ -408,7 +426,11 @@ static int swp_handler(struct pt_regs *regs, u32 instr)
 
 	/* Check access in reasonable access range for both SWP and SWPB */
 	user_ptr = (const void __user *)(unsigned long)(address & ~3);
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, user_ptr, 4)) {
+=======
+	if (!access_ok(user_ptr, 4)) {
+>>>>>>> upstream/android-13
 		pr_debug("SWP{B} emulation: access to 0x%08x not allowed!\n",
 			address);
 		goto fault;
@@ -622,7 +644,12 @@ static struct insn_emulation_ops setend_ops = {
 };
 
 /*
+<<<<<<< HEAD
  * Invoked as late_initcall, since not needed before init spawned.
+=======
+ * Invoked as core_initcall, which guarantees that the instruction
+ * emulation is ready for userspace.
+>>>>>>> upstream/android-13
  */
 static int __init armv8_deprecated_init(void)
 {
@@ -633,7 +660,11 @@ static int __init armv8_deprecated_init(void)
 		register_insn_emulation(&cp15_barrier_ops);
 
 	if (IS_ENABLED(CONFIG_SETEND_EMULATION)) {
+<<<<<<< HEAD
 		if(system_supports_mixed_endian_el0())
+=======
+		if (system_supports_mixed_endian_el0())
+>>>>>>> upstream/android-13
 			register_insn_emulation(&setend_ops);
 		else
 			pr_info("setend instruction emulation is not supported on this system\n");

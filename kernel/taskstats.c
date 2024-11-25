@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * taskstats.c - Export per-task statistics to userland
  *
  * Copyright (C) Shailabh Nagar, IBM Corp. 2006
  *           (C) Balbir Singh,   IBM Corp. 2006
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -44,17 +51,25 @@ struct kmem_cache *taskstats_cache;
 
 static struct genl_family family;
 
+<<<<<<< HEAD
 static const struct nla_policy taskstats_cmd_get_policy[TASKSTATS_CMD_ATTR_MAX+1] = {
+=======
+static const struct nla_policy taskstats_cmd_get_policy[] = {
+>>>>>>> upstream/android-13
 	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
 	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
 	[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK] = { .type = NLA_STRING },
 	[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK] = { .type = NLA_STRING },};
 
+<<<<<<< HEAD
 /*
  * We have to use TASKSTATS_CMD_ATTR_MAX here, it is the maxattr in the family.
  * Make sure they are always aligned.
  */
 static const struct nla_policy cgroupstats_cmd_get_policy[TASKSTATS_CMD_ATTR_MAX+1] = {
+=======
+static const struct nla_policy cgroupstats_cmd_get_policy[] = {
+>>>>>>> upstream/android-13
 	[CGROUPSTATS_CMD_ATTR_FD] = { .type = NLA_U32 },
 };
 
@@ -360,7 +375,11 @@ static int parse(struct nlattr *na, struct cpumask *mask)
 	data = kmalloc(len, GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
+<<<<<<< HEAD
 	nla_strlcpy(data, na, len);
+=======
+	nla_strscpy(data, na, len);
+>>>>>>> upstream/android-13
 	ret = cpulist_parse(data, mask);
 	kfree(data);
 	return ret;
@@ -375,7 +394,11 @@ static struct taskstats *mk_reply(struct sk_buff *skb, int type, u32 pid)
 			? TASKSTATS_TYPE_AGGR_PID
 			: TASKSTATS_TYPE_AGGR_TGID;
 
+<<<<<<< HEAD
 	na = nla_nest_start(skb, aggr);
+=======
+	na = nla_nest_start_noflag(skb, aggr);
+>>>>>>> upstream/android-13
 	if (!na)
 		goto err;
 
@@ -657,21 +680,38 @@ err:
 static const struct genl_ops taskstats_ops[] = {
 	{
 		.cmd		= TASKSTATS_CMD_GET,
+<<<<<<< HEAD
 		.doit		= taskstats_user_cmd,
 		.policy		= taskstats_cmd_get_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit		= taskstats_user_cmd,
+		.policy		= taskstats_cmd_get_policy,
+		.maxattr	= ARRAY_SIZE(taskstats_cmd_get_policy) - 1,
+>>>>>>> upstream/android-13
 		.flags		= GENL_ADMIN_PERM,
 	},
 	{
 		.cmd		= CGROUPSTATS_CMD_GET,
+<<<<<<< HEAD
 		.doit		= cgroupstats_user_cmd,
 		.policy		= cgroupstats_cmd_get_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit		= cgroupstats_user_cmd,
+		.policy		= cgroupstats_cmd_get_policy,
+		.maxattr	= ARRAY_SIZE(cgroupstats_cmd_get_policy) - 1,
+>>>>>>> upstream/android-13
 	},
 };
 
 static struct genl_family family __ro_after_init = {
 	.name		= TASKSTATS_GENL_NAME,
 	.version	= TASKSTATS_GENL_VERSION,
+<<<<<<< HEAD
 	.maxattr	= TASKSTATS_CMD_ATTR_MAX,
+=======
+>>>>>>> upstream/android-13
 	.module		= THIS_MODULE,
 	.ops		= taskstats_ops,
 	.n_ops		= ARRAY_SIZE(taskstats_ops),

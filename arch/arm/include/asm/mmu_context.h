@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/mmu_context.h
  *
  *  Copyright (C) 1996 Russell King.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Changelog:
  *   27-06-1996	RMK	Created
  */
@@ -29,6 +36,11 @@ void __check_vmalloc_seq(struct mm_struct *mm);
 #ifdef CONFIG_CPU_HAS_ASID
 
 void check_and_switch_context(struct mm_struct *mm, struct task_struct *tsk);
+<<<<<<< HEAD
+=======
+
+#define init_new_context init_new_context
+>>>>>>> upstream/android-13
 static inline int
 init_new_context(struct task_struct *tsk, struct mm_struct *mm)
 {
@@ -95,6 +107,7 @@ static inline void finish_arch_post_lock_switch(void)
 
 #endif	/* CONFIG_MMU */
 
+<<<<<<< HEAD
 static inline int
 init_new_context(struct task_struct *tsk, struct mm_struct *mm)
 {
@@ -122,6 +135,13 @@ enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 }
 
 /*
+=======
+#endif	/* CONFIG_CPU_HAS_ASID */
+
+#define activate_mm(prev,next)		switch_mm(prev, next, NULL)
+
+/*
+>>>>>>> upstream/android-13
  * This is the actual mm switch as far as the scheduler
  * is concerned.  No registers are touched.  We avoid
  * calling the CPU specific function when the mm hasn't
@@ -152,6 +172,10 @@ switch_mm(struct mm_struct *prev, struct mm_struct *next,
 #endif
 }
 
+<<<<<<< HEAD
 #define deactivate_mm(tsk,mm)	do { } while (0)
+=======
+#include <asm-generic/mmu_context.h>
+>>>>>>> upstream/android-13
 
 #endif

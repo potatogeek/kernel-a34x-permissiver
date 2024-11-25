@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright © 2015 Intel Corporation.
  *
  * Authors: David Woodhouse <David.Woodhouse@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,11 +16,14 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __INTEL_SVM_H__
 #define __INTEL_SVM_H__
 
+<<<<<<< HEAD
 struct device;
 
 struct svm_dev_ops {
@@ -23,12 +31,15 @@ struct svm_dev_ops {
 			 u32 private, int rwxp, int response);
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Values for rxwp in fault_cb callback */
 #define SVM_REQ_READ	(1<<3)
 #define SVM_REQ_WRITE	(1<<2)
 #define SVM_REQ_EXEC	(1<<1)
 #define SVM_REQ_PRIV	(1<<0)
 
+<<<<<<< HEAD
 
 /*
  * The SVM_FLAG_PRIVATE_PASID flag requests a PASID which is *not* the "main"
@@ -39,6 +50,12 @@ struct svm_dev_ops {
  * if there is no other way to do so. It should be used sparingly, if at all.
  */
 #define SVM_FLAG_PRIVATE_PASID		(1<<0)
+=======
+/* Page Request Queue depth */
+#define PRQ_ORDER	2
+#define PRQ_RING_MASK	((0x1000 << PRQ_ORDER) - 0x20)
+#define PRQ_DEPTH	((0x1000 << PRQ_ORDER) >> 5)
+>>>>>>> upstream/android-13
 
 /*
  * The SVM_FLAG_SUPERVISOR_MODE flag requests a PASID which can be used only
@@ -51,6 +68,7 @@ struct svm_dev_ops {
  * It is unlikely that we will ever hook into flush_tlb_kernel_range() to
  * do such IOTLB flushes automatically.
  */
+<<<<<<< HEAD
 #define SVM_FLAG_SUPERVISOR_MODE	(1<<1)
 
 #ifdef CONFIG_INTEL_IOMMU_SVM
@@ -137,5 +155,20 @@ static inline int intel_svm_is_pasid_valid(struct device *dev, int pasid)
 #endif /* CONFIG_INTEL_IOMMU_SVM */
 
 #define intel_svm_available(dev) (!intel_svm_bind_mm((dev), NULL, 0, NULL))
+=======
+#define SVM_FLAG_SUPERVISOR_MODE	BIT(0)
+/*
+ * The SVM_FLAG_GUEST_MODE flag is used when a PASID bind is for guest
+ * processes. Compared to the host bind, the primary differences are:
+ * 1. mm life cycle management
+ * 2. fault reporting
+ */
+#define SVM_FLAG_GUEST_MODE		BIT(1)
+/*
+ * The SVM_FLAG_GUEST_PASID flag is used when a guest has its own PASID space,
+ * which requires guest and host PASID translation at both directions.
+ */
+#define SVM_FLAG_GUEST_PASID		BIT(2)
+>>>>>>> upstream/android-13
 
 #endif /* __INTEL_SVM_H__ */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sysret_ss_attrs.c - test that syscalls return valid hidden SS attributes
  * Copyright (c) 2015 Andrew Lutomirski
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * On AMD CPUs, SYSRET can return with a valid SS descriptor with with
  * the hidden attributes set to an unusable state.  Make sure the kernel
  * doesn't let this happen.

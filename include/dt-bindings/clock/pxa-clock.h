@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Inspired by original work from pxa2xx-regs.h by Nicolas Pitre
  * Copyright (C) 2014 Robert Jarzmik
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Inspired by original work from pxa2xx-regs.h by Nicolas Pitre
+ * Copyright (C) 2014 Robert Jarzmik
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_CLOCK_PXA2XX_H__

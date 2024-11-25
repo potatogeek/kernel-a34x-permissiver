@@ -3,19 +3,36 @@
 #define __NET_FRAG_H__
 
 #include <linux/rhashtable-types.h>
+<<<<<<< HEAD
 
 struct netns_frags {
+=======
+#include <linux/completion.h>
+
+/* Per netns frag queues directory */
+struct fqdir {
+>>>>>>> upstream/android-13
 	/* sysctls */
 	long			high_thresh;
 	long			low_thresh;
 	int			timeout;
 	int			max_dist;
 	struct inet_frags	*f;
+<<<<<<< HEAD
+=======
+	struct net		*net;
+	bool			dead;
+>>>>>>> upstream/android-13
 
 	struct rhashtable       rhashtable ____cacheline_aligned_in_smp;
 
 	/* Keep atomic mem on separate cachelines in structs that include it */
 	atomic_long_t		mem ____cacheline_aligned_in_smp;
+<<<<<<< HEAD
+=======
+	struct work_struct	destroy_work;
+	struct llist_node	free_list;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -24,11 +41,19 @@ struct netns_frags {
  * @INET_FRAG_FIRST_IN: first fragment has arrived
  * @INET_FRAG_LAST_IN: final fragment has arrived
  * @INET_FRAG_COMPLETE: frag queue has been processed and is due for destruction
+<<<<<<< HEAD
+=======
+ * @INET_FRAG_HASH_DEAD: inet_frag_kill() has not removed fq from rhashtable
+>>>>>>> upstream/android-13
  */
 enum {
 	INET_FRAG_FIRST_IN	= BIT(0),
 	INET_FRAG_LAST_IN	= BIT(1),
 	INET_FRAG_COMPLETE	= BIT(2),
+<<<<<<< HEAD
+=======
+	INET_FRAG_HASH_DEAD	= BIT(3),
+>>>>>>> upstream/android-13
 };
 
 struct frag_v4_compare_key {
@@ -56,7 +81,10 @@ struct frag_v6_compare_key {
  * @timer: queue expiration timer
  * @lock: spinlock protecting this frag
  * @refcnt: reference count of the queue
+<<<<<<< HEAD
  * @fragments: received fragments head
+=======
+>>>>>>> upstream/android-13
  * @rb_fragments: received fragments rb-tree root
  * @fragments_tail: received fragments tail
  * @last_run_head: the head of the last "run". see ip_fragment.c
@@ -65,7 +93,11 @@ struct frag_v6_compare_key {
  * @meat: length of received fragments so far
  * @flags: fragment queue flags
  * @max_size: maximum received fragment size
+<<<<<<< HEAD
  * @net: namespace that this frag belongs to
+=======
+ * @fqdir: pointer to struct fqdir
+>>>>>>> upstream/android-13
  * @rcu: rcu head for freeing deferall
  */
 struct inet_frag_queue {
@@ -77,8 +109,12 @@ struct inet_frag_queue {
 	struct timer_list	timer;
 	spinlock_t		lock;
 	refcount_t		refcnt;
+<<<<<<< HEAD
 	struct sk_buff		*fragments;  /* used in 6lopwpan IPv6. */
 	struct rb_root		rb_fragments; /* Used in IPv4/IPv6. */
+=======
+	struct rb_root		rb_fragments;
+>>>>>>> upstream/android-13
 	struct sk_buff		*fragments_tail;
 	struct sk_buff		*last_run_head;
 	ktime_t			stamp;
@@ -86,7 +122,11 @@ struct inet_frag_queue {
 	int			meat;
 	__u8			flags;
 	u16			max_size;
+<<<<<<< HEAD
 	struct netns_frags      *net;
+=======
+	struct fqdir		*fqdir;
+>>>>>>> upstream/android-13
 	struct rcu_head		rcu;
 };
 
@@ -100,11 +140,17 @@ struct inet_frags {
 	struct kmem_cache	*frags_cachep;
 	const char		*frags_cache_name;
 	struct rhashtable_params rhash_params;
+<<<<<<< HEAD
+=======
+	refcount_t		refcnt;
+	struct completion	completion;
+>>>>>>> upstream/android-13
 };
 
 int inet_frags_init(struct inet_frags *);
 void inet_frags_fini(struct inet_frags *);
 
+<<<<<<< HEAD
 static inline int inet_frags_init_net(struct netns_frags *nf)
 {
 	atomic_long_set(&nf->mem, 0);
@@ -115,6 +161,27 @@ void inet_frags_exit_net(struct netns_frags *nf);
 void inet_frag_kill(struct inet_frag_queue *q);
 void inet_frag_destroy(struct inet_frag_queue *q);
 struct inet_frag_queue *inet_frag_find(struct netns_frags *nf, void *key);
+=======
+int fqdir_init(struct fqdir **fqdirp, struct inet_frags *f, struct net *net);
+
+static inline void fqdir_pre_exit(struct fqdir *fqdir)
+{
+	/* Prevent creation of new frags.
+	 * Pairs with READ_ONCE() in inet_frag_find().
+	 */
+	WRITE_ONCE(fqdir->high_thresh, 0);
+
+	/* Pairs with READ_ONCE() in inet_frag_kill(), ip_expire()
+	 * and ip6frag_expire_frag_queue().
+	 */
+	WRITE_ONCE(fqdir->dead, true);
+}
+void fqdir_exit(struct fqdir *fqdir);
+
+void inet_frag_kill(struct inet_frag_queue *q);
+void inet_frag_destroy(struct inet_frag_queue *q);
+struct inet_frag_queue *inet_frag_find(struct fqdir *fqdir, void *key);
+>>>>>>> upstream/android-13
 
 /* Free all skbs in the queue; return the sum of their truesizes. */
 unsigned int inet_frag_rbtree_purge(struct rb_root *root);
@@ -127,6 +194,7 @@ static inline void inet_frag_put(struct inet_frag_queue *q)
 
 /* Memory Tracking Functions. */
 
+<<<<<<< HEAD
 static inline long frag_mem_limit(const struct netns_frags *nf)
 {
 	return atomic_long_read(&nf->mem);
@@ -140,6 +208,21 @@ static inline void sub_frag_mem_limit(struct netns_frags *nf, long val)
 static inline void add_frag_mem_limit(struct netns_frags *nf, long val)
 {
 	atomic_long_add(val, &nf->mem);
+=======
+static inline long frag_mem_limit(const struct fqdir *fqdir)
+{
+	return atomic_long_read(&fqdir->mem);
+}
+
+static inline void sub_frag_mem_limit(struct fqdir *fqdir, long val)
+{
+	atomic_long_sub(val, &fqdir->mem);
+}
+
+static inline void add_frag_mem_limit(struct fqdir *fqdir, long val)
+{
+	atomic_long_add(val, &fqdir->mem);
+>>>>>>> upstream/android-13
 }
 
 /* RFC 3168 support :
@@ -162,7 +245,11 @@ int inet_frag_queue_insert(struct inet_frag_queue *q, struct sk_buff *skb,
 void *inet_frag_reasm_prepare(struct inet_frag_queue *q, struct sk_buff *skb,
 			      struct sk_buff *parent);
 void inet_frag_reasm_finish(struct inet_frag_queue *q, struct sk_buff *head,
+<<<<<<< HEAD
 			    void *reasm_data);
+=======
+			    void *reasm_data, bool try_coalesce);
+>>>>>>> upstream/android-13
 struct sk_buff *inet_frag_pull_head(struct inet_frag_queue *q);
 
 #endif

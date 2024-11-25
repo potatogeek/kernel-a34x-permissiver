@@ -1,14 +1,22 @@
+<<<<<<< HEAD
 /*
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+>>>>>>> upstream/android-13
  * SMP support for R-Mobile / SH-Mobile
  *
  * Copyright (C) 2010  Magnus Damm
  * Copyright (C) 2010  Takashi Yoshii
  *
  * Based on vexpress, Copyright (c) 2003 ARM Limited, All Rights Reserved
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/linkage.h>

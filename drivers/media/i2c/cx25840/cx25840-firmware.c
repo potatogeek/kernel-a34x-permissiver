@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* cx25840 firmware functions
  *
  * This program is free software; you can redistribute it and/or
@@ -9,6 +10,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* cx25840 firmware functions
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

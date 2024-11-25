@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015 - 2019 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/net.h>
@@ -87,7 +93,11 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 	rcu_read_lock();
 
 	qp = rvt_lookup_qpn(ib_to_rvt(sqp->ibqp.device), &ibp->rvp,
+<<<<<<< HEAD
 			    swqe->ud_wr.remote_qpn);
+=======
+			    rvt_get_swqe_remote_qpn(swqe));
+>>>>>>> upstream/android-13
 	if (!qp) {
 		ibp->rvp.n_pkt_drops++;
 		rcu_read_unlock();
@@ -105,7 +115,11 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 		goto drop;
 	}
 
+<<<<<<< HEAD
 	ah_attr = &ibah_to_rvtah(swqe->ud_wr.ah)->attr;
+=======
+	ah_attr = rvt_get_swqe_ah_attr(swqe);
+>>>>>>> upstream/android-13
 	ppd = ppd_from_ibp(ibp);
 
 	if (qp->ibqp.qp_num > 1) {
@@ -135,8 +149,13 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 	if (qp->ibqp.qp_num) {
 		u32 qkey;
 
+<<<<<<< HEAD
 		qkey = (int)swqe->ud_wr.remote_qkey < 0 ?
 			sqp->qkey : swqe->ud_wr.remote_qkey;
+=======
+		qkey = (int)rvt_get_swqe_remote_qkey(swqe) < 0 ?
+			sqp->qkey : rvt_get_swqe_remote_qkey(swqe);
+>>>>>>> upstream/android-13
 		if (unlikely(qkey != qp->qkey))
 			goto drop; /* silently drop per IBTA spec */
 	}
@@ -211,8 +230,13 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 		}
 
 		hfi1_make_grh(ibp, &grh, &grd, 0, 0);
+<<<<<<< HEAD
 		hfi1_copy_sge(&qp->r_sge, &grh,
 			      sizeof(grh), true, false);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, &grh,
+			     sizeof(grh), true, false);
+>>>>>>> upstream/android-13
 		wc.wc_flags |= IB_WC_GRH;
 	} else {
 		rvt_skip_sge(&qp->r_sge, sizeof(struct ib_grh), true);
@@ -222,6 +246,7 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 	ssge.num_sge = swqe->wr.num_sge;
 	sge = &ssge.sge;
 	while (length) {
+<<<<<<< HEAD
 		u32 len = sge->length;
 
 		if (len > length)
@@ -247,6 +272,13 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 			sge->length =
 				sge->mr->map[sge->m]->segs[sge->n].length;
 		}
+=======
+		u32 len = rvt_get_sge_length(sge, length);
+
+		WARN_ON_ONCE(len == 0);
+		rvt_copy_sge(qp, &qp->r_sge, sge->vaddr, len, true, false);
+		rvt_update_sge(&ssge, len, false);
+>>>>>>> upstream/android-13
 		length -= len;
 	}
 	rvt_put_ss(&qp->r_sge);
@@ -260,7 +292,11 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 	if (qp->ibqp.qp_type == IB_QPT_GSI || qp->ibqp.qp_type == IB_QPT_SMI) {
 		if (sqp->ibqp.qp_type == IB_QPT_GSI ||
 		    sqp->ibqp.qp_type == IB_QPT_SMI)
+<<<<<<< HEAD
 			wc.pkey_index = swqe->ud_wr.pkey_index;
+=======
+			wc.pkey_index = rvt_get_swqe_pkey_index(swqe);
+>>>>>>> upstream/android-13
 		else
 			wc.pkey_index = sqp->s_pkey_index;
 	} else {
@@ -275,8 +311,12 @@ static void ud_loopback(struct rvt_qp *sqp, struct rvt_swqe *swqe)
 	wc.dlid_path_bits = rdma_ah_get_dlid(ah_attr) & ((1 << ppd->lmc) - 1);
 	wc.port_num = qp->port_num;
 	/* Signal completion event if the solicited bit is set. */
+<<<<<<< HEAD
 	rvt_cq_enter(ibcq_to_rvtcq(qp->ibqp.recv_cq), &wc,
 		     swqe->wr.send_flags & IB_SEND_SOLICITED);
+=======
+	rvt_recv_cq(qp, &wc, swqe->wr.send_flags & IB_SEND_SOLICITED);
+>>>>>>> upstream/android-13
 	ibp->rvp.n_loop_pkts++;
 bail_unlock:
 	spin_unlock_irqrestore(&qp->r_lock, flags);
@@ -303,20 +343,34 @@ static void hfi1_make_bth_deth(struct rvt_qp *qp, struct rvt_swqe *wqe,
 		bth0 |= IB_BTH_SOLICITED;
 	bth0 |= extra_bytes << 20;
 	if (qp->ibqp.qp_type == IB_QPT_GSI || qp->ibqp.qp_type == IB_QPT_SMI)
+<<<<<<< HEAD
 		*pkey = hfi1_get_pkey(ibp, wqe->ud_wr.pkey_index);
+=======
+		*pkey = hfi1_get_pkey(ibp, rvt_get_swqe_pkey_index(wqe));
+>>>>>>> upstream/android-13
 	else
 		*pkey = hfi1_get_pkey(ibp, qp->s_pkey_index);
 	if (!bypass)
 		bth0 |= *pkey;
 	ohdr->bth[0] = cpu_to_be32(bth0);
+<<<<<<< HEAD
 	ohdr->bth[1] = cpu_to_be32(wqe->ud_wr.remote_qpn);
+=======
+	ohdr->bth[1] = cpu_to_be32(rvt_get_swqe_remote_qpn(wqe));
+>>>>>>> upstream/android-13
 	ohdr->bth[2] = cpu_to_be32(mask_psn(wqe->psn));
 	/*
 	 * Qkeys with the high order bit set mean use the
 	 * qkey from the QP context instead of the WR (see 10.2.5).
 	 */
+<<<<<<< HEAD
 	ohdr->u.ud.deth[0] = cpu_to_be32((int)wqe->ud_wr.remote_qkey < 0 ?
 					 qp->qkey : wqe->ud_wr.remote_qkey);
+=======
+	ohdr->u.ud.deth[0] =
+		cpu_to_be32((int)rvt_get_swqe_remote_qkey(wqe) < 0 ? qp->qkey :
+			    rvt_get_swqe_remote_qkey(wqe));
+>>>>>>> upstream/android-13
 	ohdr->u.ud.deth[1] = cpu_to_be32(qp->ibqp.qp_num);
 }
 
@@ -336,7 +390,11 @@ void hfi1_make_ud_req_9B(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 
 	ibp = to_iport(qp->ibqp.device, qp->port_num);
 	ppd = ppd_from_ibp(ibp);
+<<<<<<< HEAD
 	ah_attr = &ibah_to_rvtah(wqe->ud_wr.ah)->attr;
+=======
+	ah_attr = rvt_get_swqe_ah_attr(wqe);
+>>>>>>> upstream/android-13
 
 	extra_bytes = -wqe->length & 3;
 	nwords = ((wqe->length + extra_bytes) >> 2) + SIZE_OF_CRC;
@@ -400,7 +458,11 @@ void hfi1_make_ud_req_16B(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 	struct hfi1_pportdata *ppd;
 	struct hfi1_ibport *ibp;
 	u32 dlid, slid, nwords, extra_bytes;
+<<<<<<< HEAD
 	u32 dest_qp = wqe->ud_wr.remote_qpn;
+=======
+	u32 dest_qp = rvt_get_swqe_remote_qpn(wqe);
+>>>>>>> upstream/android-13
 	u32 src_qp = qp->ibqp.qp_num;
 	u16 len, pkey;
 	u8 l4, sc5;
@@ -408,7 +470,11 @@ void hfi1_make_ud_req_16B(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 
 	ibp = to_iport(qp->ibqp.device, qp->port_num);
 	ppd = ppd_from_ibp(ibp);
+<<<<<<< HEAD
 	ah_attr = &ibah_to_rvtah(wqe->ud_wr.ah)->attr;
+=======
+	ah_attr = rvt_get_swqe_ah_attr(wqe);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Build 16B Management Packet if either the destination
@@ -470,7 +536,11 @@ void hfi1_make_ud_req_16B(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 
 	if (is_mgmt) {
 		l4 = OPA_16B_L4_FM;
+<<<<<<< HEAD
 		pkey = hfi1_get_pkey(ibp, wqe->ud_wr.pkey_index);
+=======
+		pkey = hfi1_get_pkey(ibp, rvt_get_swqe_pkey_index(wqe));
+>>>>>>> upstream/android-13
 		hfi1_16B_set_qpn(&ps->s_txreq->phdr.hdr.opah.u.mgmt,
 				 dest_qp, src_qp);
 	} else {
@@ -488,6 +558,10 @@ void hfi1_make_ud_req_16B(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 /**
  * hfi1_make_ud_req - construct a UD request packet
  * @qp: the QP
+<<<<<<< HEAD
+=======
+ * @ps: the current packet state
+>>>>>>> upstream/android-13
  *
  * Assume s_lock is held.
  *
@@ -519,7 +593,11 @@ int hfi1_make_ud_req(struct rvt_qp *qp, struct hfi1_pkt_state *ps)
 			goto bail;
 		}
 		wqe = rvt_get_swqe_ptr(qp, qp->s_last);
+<<<<<<< HEAD
 		hfi1_send_complete(qp, wqe, IB_WC_WR_FLUSH_ERR);
+=======
+		rvt_send_complete(qp, wqe, IB_WC_WR_FLUSH_ERR);
+>>>>>>> upstream/android-13
 		goto done_free_tx;
 	}
 
@@ -535,7 +613,11 @@ int hfi1_make_ud_req(struct rvt_qp *qp, struct hfi1_pkt_state *ps)
 	/* Construct the header. */
 	ibp = to_iport(qp->ibqp.device, qp->port_num);
 	ppd = ppd_from_ibp(ibp);
+<<<<<<< HEAD
 	ah_attr = &ibah_to_rvtah(wqe->ud_wr.ah)->attr;
+=======
+	ah_attr = rvt_get_swqe_ah_attr(wqe);
+>>>>>>> upstream/android-13
 	priv->hdr_type = hfi1_get_hdr_type(ppd->lid, ah_attr);
 	if ((!hfi1_check_mcast(rdma_ah_get_dlid(ah_attr))) ||
 	    (rdma_ah_get_dlid(ah_attr) == be32_to_cpu(OPA_LID_PERMISSIVE))) {
@@ -561,7 +643,11 @@ int hfi1_make_ud_req(struct rvt_qp *qp, struct hfi1_pkt_state *ps)
 			ud_loopback(qp, wqe);
 			spin_lock_irqsave(&qp->s_lock, tflags);
 			ps->flags = tflags;
+<<<<<<< HEAD
 			hfi1_send_complete(qp, wqe, IB_WC_SUCCESS);
+=======
+			rvt_send_complete(qp, wqe, IB_WC_SUCCESS);
+>>>>>>> upstream/android-13
 			goto done_free_tx;
 		}
 	}
@@ -860,12 +946,16 @@ static int opa_smp_check(struct hfi1_ibport *ibp, u16 pkey, u8 sc5,
 
 /**
  * hfi1_ud_rcv - receive an incoming UD packet
+<<<<<<< HEAD
  * @ibp: the port the packet came in on
  * @hdr: the packet header
  * @rcv_flags: flags relevant to rcv processing
  * @data: the packet data
  * @tlen: the packet length
  * @qp: the QP the packet came on
+=======
+ * @packet: the packet structure
+>>>>>>> upstream/android-13
  *
  * This is called from qp_rcv() to process an incoming UD packet
  * for the given QP.
@@ -1025,8 +1115,13 @@ void hfi1_ud_rcv(struct hfi1_packet *packet)
 		goto drop;
 	}
 	if (packet->grh) {
+<<<<<<< HEAD
 		hfi1_copy_sge(&qp->r_sge, packet->grh,
 			      sizeof(struct ib_grh), true, false);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, packet->grh,
+			     sizeof(struct ib_grh), true, false);
+>>>>>>> upstream/android-13
 		wc.wc_flags |= IB_WC_GRH;
 	} else if (packet->etype == RHF_RCV_TYPE_BYPASS) {
 		struct ib_grh grh;
@@ -1036,14 +1131,24 @@ void hfi1_ud_rcv(struct hfi1_packet *packet)
 		 * out when creating 16B, add back the GRH here.
 		 */
 		hfi1_make_ext_grh(packet, &grh, slid, dlid);
+<<<<<<< HEAD
 		hfi1_copy_sge(&qp->r_sge, &grh,
 			      sizeof(struct ib_grh), true, false);
+=======
+		rvt_copy_sge(qp, &qp->r_sge, &grh,
+			     sizeof(struct ib_grh), true, false);
+>>>>>>> upstream/android-13
 		wc.wc_flags |= IB_WC_GRH;
 	} else {
 		rvt_skip_sge(&qp->r_sge, sizeof(struct ib_grh), true);
 	}
+<<<<<<< HEAD
 	hfi1_copy_sge(&qp->r_sge, data, wc.byte_len - sizeof(struct ib_grh),
 		      true, false);
+=======
+	rvt_copy_sge(qp, &qp->r_sge, data, wc.byte_len - sizeof(struct ib_grh),
+		     true, false);
+>>>>>>> upstream/android-13
 	rvt_put_ss(&qp->r_sge);
 	if (!test_and_clear_bit(RVT_R_WRID_VALID, &qp->r_aflags))
 		return;
@@ -1081,7 +1186,11 @@ void hfi1_ud_rcv(struct hfi1_packet *packet)
 		dlid & ((1 << ppd_from_ibp(ibp)->lmc) - 1);
 	wc.port_num = qp->port_num;
 	/* Signal completion event if the solicited bit is set. */
+<<<<<<< HEAD
 	rvt_cq_enter(ibcq_to_rvtcq(qp->ibqp.recv_cq), &wc, solicited);
+=======
+	rvt_recv_cq(qp, &wc, solicited);
+>>>>>>> upstream/android-13
 	return;
 
 drop:

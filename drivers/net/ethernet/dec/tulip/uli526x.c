@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -8,6 +9,10 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
 
 
 */
@@ -15,8 +20,11 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #define DRV_NAME	"uli526x"
+<<<<<<< HEAD
 #define DRV_VERSION	"0.9.3"
 #define DRV_RELDATE	"2005-7-29"
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 
@@ -204,10 +212,13 @@ enum uli526x_CR6_bits {
 };
 
 /* Global variable declaration ----------------------------- */
+<<<<<<< HEAD
 static int printed_version;
 static const char version[] =
 	"ULi M5261/M5263 net driver, version " DRV_VERSION " (" DRV_RELDATE ")";
 
+=======
+>>>>>>> upstream/android-13
 static int uli526x_debug;
 static unsigned char uli526x_media_mode = ULI526X_AUTO;
 static u32 uli526x_cr6_user_set;
@@ -290,16 +301,23 @@ static int uli526x_init_one(struct pci_dev *pdev,
 
 	ULI526X_DBUG(0, "uli526x_init_one()", 0);
 
+<<<<<<< HEAD
 	if (!printed_version++)
 		pr_info("%s\n", version);
 
+=======
+>>>>>>> upstream/android-13
 	/* Init network device */
 	dev = alloc_etherdev(sizeof(*db));
 	if (dev == NULL)
 		return -ENOMEM;
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		pr_warn("32-bit PCI DMA not available\n");
 		err = -ENODEV;
 		goto err_out_free;
@@ -334,11 +352,23 @@ static int uli526x_init_one(struct pci_dev *pdev,
 	/* Allocate Tx/Rx descriptor memory */
 	err = -ENOMEM;
 
+<<<<<<< HEAD
 	db->desc_pool_ptr = pci_alloc_consistent(pdev, sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20, &db->desc_pool_dma_ptr);
 	if (!db->desc_pool_ptr)
 		goto err_out_release;
 
 	db->buf_pool_ptr = pci_alloc_consistent(pdev, TX_BUF_ALLOC * TX_DESC_CNT + 4, &db->buf_pool_dma_ptr);
+=======
+	db->desc_pool_ptr = dma_alloc_coherent(&pdev->dev,
+					       sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
+					       &db->desc_pool_dma_ptr, GFP_KERNEL);
+	if (!db->desc_pool_ptr)
+		goto err_out_release;
+
+	db->buf_pool_ptr = dma_alloc_coherent(&pdev->dev,
+					      TX_BUF_ALLOC * TX_DESC_CNT + 4,
+					      &db->buf_pool_dma_ptr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!db->buf_pool_ptr)
 		goto err_out_free_tx_desc;
 
@@ -418,11 +448,20 @@ static int uli526x_init_one(struct pci_dev *pdev,
 err_out_unmap:
 	pci_iounmap(pdev, db->ioaddr);
 err_out_free_tx_buf:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, TX_BUF_ALLOC * TX_DESC_CNT + 4,
 			    db->buf_pool_ptr, db->buf_pool_dma_ptr);
 err_out_free_tx_desc:
 	pci_free_consistent(pdev, sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
 			    db->desc_pool_ptr, db->desc_pool_dma_ptr);
+=======
+	dma_free_coherent(&pdev->dev, TX_BUF_ALLOC * TX_DESC_CNT + 4,
+			  db->buf_pool_ptr, db->buf_pool_dma_ptr);
+err_out_free_tx_desc:
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
+			  db->desc_pool_ptr, db->desc_pool_dma_ptr);
+>>>>>>> upstream/android-13
 err_out_release:
 	pci_release_regions(pdev);
 err_out_disable:
@@ -441,11 +480,19 @@ static void uli526x_remove_one(struct pci_dev *pdev)
 
 	unregister_netdev(dev);
 	pci_iounmap(pdev, db->ioaddr);
+<<<<<<< HEAD
 	pci_free_consistent(db->pdev, sizeof(struct tx_desc) *
 				DESC_ALL_CNT + 0x20, db->desc_pool_ptr,
  				db->desc_pool_dma_ptr);
 	pci_free_consistent(db->pdev, TX_BUF_ALLOC * TX_DESC_CNT + 4,
 				db->buf_pool_ptr, db->buf_pool_dma_ptr);
+=======
+	dma_free_coherent(&db->pdev->dev,
+			  sizeof(struct tx_desc) * DESC_ALL_CNT + 0x20,
+			  db->desc_pool_ptr, db->desc_pool_dma_ptr);
+	dma_free_coherent(&db->pdev->dev, TX_BUF_ALLOC * TX_DESC_CNT + 4,
+			  db->buf_pool_ptr, db->buf_pool_dma_ptr);
+>>>>>>> upstream/android-13
 	pci_release_regions(pdev);
 	pci_disable_device(pdev);
 	free_netdev(dev);
@@ -792,7 +839,11 @@ static void uli526x_free_tx_pkt(struct net_device *dev,
 			}
 		}
 
+<<<<<<< HEAD
     		txptr = txptr->next_tx_desc;
+=======
+		txptr = txptr->next_tx_desc;
+>>>>>>> upstream/android-13
 	}/* End of while */
 
 	/* Update TX remove pointer to next */
@@ -827,7 +878,12 @@ static void uli526x_rx_packet(struct net_device *dev, struct uli526x_board_info 
 		db->rx_avail_cnt--;
 		db->interval_rx_cnt++;
 
+<<<<<<< HEAD
 		pci_unmap_single(db->pdev, le32_to_cpu(rxptr->rdes2), RX_ALLOC_SIZE, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&db->pdev->dev, le32_to_cpu(rxptr->rdes2),
+				 RX_ALLOC_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		if ( (rdes0 & 0x300) != 0x300) {
 			/* A packet without First/Last flag */
 			/* reuse this SKB */
@@ -980,7 +1036,10 @@ static void netdev_get_drvinfo(struct net_device *dev,
 	struct uli526x_board_info *np = netdev_priv(dev);
 
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, pci_name(np->pdev), sizeof(info->bus_info));
 }
 
@@ -1027,7 +1086,11 @@ static void uli526x_timer(struct timer_list *t)
 	struct net_device *dev = pci_get_drvdata(db->pdev);
 	struct uli_phy_ops *phy = &db->phy;
 	void __iomem *ioaddr = db->ioaddr;
+<<<<<<< HEAD
  	unsigned long flags;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	u8 tmp_cr12 = 0;
 	u32 tmp_cr8;
 
@@ -1181,13 +1244,17 @@ static void uli526x_dynamic_reset(struct net_device *dev)
 	netif_wake_queue(dev);
 }
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_PM
 
+=======
+>>>>>>> upstream/android-13
 /*
  *	Suspend the interface.
  */
 
+<<<<<<< HEAD
 static int uli526x_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -1198,12 +1265,21 @@ static int uli526x_suspend(struct pci_dev *pdev, pm_message_t state)
 
 	pci_save_state(pdev);
 
+=======
+static int __maybe_unused uli526x_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+
+	ULI526X_DBUG(0, "uli526x_suspend", 0);
+
+>>>>>>> upstream/android-13
 	if (!netif_running(dev))
 		return 0;
 
 	netif_device_detach(dev);
 	uli526x_reset_prepare(dev);
 
+<<<<<<< HEAD
 	power_state = pci_choose_state(pdev, state);
 	pci_enable_wake(pdev, power_state, 0);
 	err = pci_set_power_state(pdev, power_state);
@@ -1216,12 +1292,18 @@ static int uli526x_suspend(struct pci_dev *pdev, pm_message_t state)
 	}
 
 	return err;
+=======
+	device_set_wakeup_enable(dev_d, 0);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
  *	Resume the interface.
  */
 
+<<<<<<< HEAD
 static int uli526x_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -1230,16 +1312,27 @@ static int uli526x_resume(struct pci_dev *pdev)
 	ULI526X_DBUG(0, "uli526x_resume", 0);
 
 	pci_restore_state(pdev);
+=======
+static int __maybe_unused uli526x_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+
+	ULI526X_DBUG(0, "uli526x_resume", 0);
+
+>>>>>>> upstream/android-13
 
 	if (!netif_running(dev))
 		return 0;
 
+<<<<<<< HEAD
 	err = pci_set_power_state(pdev, PCI_D0);
 	if (err) {
 		netdev_warn(dev, "Could not put device into D0\n");
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	netif_device_attach(dev);
 	/* Re-initialize ULI526X board */
 	uli526x_init(dev);
@@ -1249,6 +1342,7 @@ static int uli526x_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #else /* !CONFIG_PM */
 
 #define uli526x_suspend	NULL
@@ -1257,6 +1351,8 @@ static int uli526x_resume(struct pci_dev *pdev)
 #endif /* !CONFIG_PM */
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  *	free all allocated rx buffer
  */
@@ -1284,10 +1380,15 @@ static void uli526x_reuse_skb(struct uli526x_board_info *db, struct sk_buff * sk
 
 	if (!(rxptr->rdes0 & cpu_to_le32(0x80000000))) {
 		rxptr->rx_skb_ptr = skb;
+<<<<<<< HEAD
 		rxptr->rdes2 = cpu_to_le32(pci_map_single(db->pdev,
 							  skb_tail_pointer(skb),
 							  RX_ALLOC_SIZE,
 							  PCI_DMA_FROMDEVICE));
+=======
+		rxptr->rdes2 = cpu_to_le32(dma_map_single(&db->pdev->dev, skb_tail_pointer(skb),
+							  RX_ALLOC_SIZE, DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 		wmb();
 		rxptr->rdes0 = cpu_to_le32(0x80000000);
 		db->rx_avail_cnt++;
@@ -1459,10 +1560,15 @@ static void allocate_rx_buffer(struct net_device *dev)
 		if (skb == NULL)
 			break;
 		rxptr->rx_skb_ptr = skb; /* FIXME (?) */
+<<<<<<< HEAD
 		rxptr->rdes2 = cpu_to_le32(pci_map_single(db->pdev,
 							  skb_tail_pointer(skb),
 							  RX_ALLOC_SIZE,
 							  PCI_DMA_FROMDEVICE));
+=======
+		rxptr->rdes2 = cpu_to_le32(dma_map_single(&db->pdev->dev, skb_tail_pointer(skb),
+							  RX_ALLOC_SIZE, DMA_FROM_DEVICE));
+>>>>>>> upstream/android-13
 		wmb();
 		rxptr->rdes0 = cpu_to_le32(0x80000000);
 		rxptr = rxptr->next_rx_desc;
@@ -1583,14 +1689,22 @@ static void uli526x_set_phyxcer(struct uli526x_board_info *db)
 
 	}
 
+<<<<<<< HEAD
   	/* Write new capability to Phyxcer Reg4 */
+=======
+	/* Write new capability to Phyxcer Reg4 */
+>>>>>>> upstream/android-13
 	if ( !(phy_reg & 0x01e0)) {
 		phy_reg|=db->PHY_reg4;
 		db->media_mode|=ULI526X_AUTO;
 	}
 	phy->write(db, db->phy_addr, 4, phy_reg);
 
+<<<<<<< HEAD
  	/* Restart Auto-Negotiation */
+=======
+	/* Restart Auto-Negotiation */
+>>>>>>> upstream/android-13
 	phy->write(db, db->phy_addr, 0, 0x1200);
 	udelay(50);
 }
@@ -1598,7 +1712,11 @@ static void uli526x_set_phyxcer(struct uli526x_board_info *db)
 
 /*
  *	Process op-mode
+<<<<<<< HEAD
  	AUTO mode : PHY controller in Auto-negotiation Mode
+=======
+	AUTO mode : PHY controller in Auto-negotiation Mode
+>>>>>>> upstream/android-13
  *	Force mode: PHY controller in force mode with HUB
  *			N-way force capability with SWITCH
  */
@@ -1779,14 +1897,22 @@ static const struct pci_device_id uli526x_pci_tbl[] = {
 };
 MODULE_DEVICE_TABLE(pci, uli526x_pci_tbl);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(uli526x_pm_ops, uli526x_suspend, uli526x_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver uli526x_driver = {
 	.name		= "uli526x",
 	.id_table	= uli526x_pci_tbl,
 	.probe		= uli526x_init_one,
 	.remove		= uli526x_remove_one,
+<<<<<<< HEAD
 	.suspend	= uli526x_suspend,
 	.resume		= uli526x_resume,
+=======
+	.driver.pm	= &uli526x_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 MODULE_AUTHOR("Peer Chen, peer.chen@uli.com.tw");
@@ -1807,9 +1933,12 @@ MODULE_PARM_DESC(mode, "ULi M5261/M5263: Bit 0: 10/100Mbps, bit 2: duplex, bit 8
 static int __init uli526x_init_module(void)
 {
 
+<<<<<<< HEAD
 	pr_info("%s\n", version);
 	printed_version = 1;
 
+=======
+>>>>>>> upstream/android-13
 	ULI526X_DBUG(0, "init_module() ", debug);
 
 	if (debug)

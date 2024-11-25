@@ -41,7 +41,12 @@
 
 #define CCM_B0_SIZE             16
 #define CCM_AAD_FIELD_SIZE      2
+<<<<<<< HEAD
 #define T6_MAX_AAD_SIZE 511
+=======
+// 511 - 16(For IV)
+#define T6_MAX_AAD_SIZE 495
+>>>>>>> upstream/android-13
 
 
 /* Define following if h/w is not dropping the AAD and IV data before
@@ -159,9 +164,15 @@ static inline struct chcr_context *a_ctx(struct crypto_aead *tfm)
 	return crypto_aead_ctx(tfm);
 }
 
+<<<<<<< HEAD
 static inline struct chcr_context *c_ctx(struct crypto_ablkcipher *tfm)
 {
 	return crypto_ablkcipher_ctx(tfm);
+=======
+static inline struct chcr_context *c_ctx(struct crypto_skcipher *tfm)
+{
+	return crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 }
 
 static inline struct chcr_context *h_ctx(struct crypto_ahash *tfm)
@@ -171,7 +182,10 @@ static inline struct chcr_context *h_ctx(struct crypto_ahash *tfm)
 
 struct ablk_ctx {
 	struct crypto_skcipher *sw_cipher;
+<<<<<<< HEAD
 	struct crypto_cipher *aes_generic;
+=======
+>>>>>>> upstream/android-13
 	__be32 key_ctx_hdr;
 	unsigned int enckey_len;
 	unsigned char ciph_mode;
@@ -185,11 +199,18 @@ struct chcr_aead_reqctx {
 	dma_addr_t b0_dma;
 	unsigned int b0_len;
 	unsigned int op;
+<<<<<<< HEAD
 	short int aad_nents;
 	short int src_nents;
 	short int dst_nents;
 	u16 imm;
 	u16 verify;
+=======
+	u16 imm;
+	u16 verify;
+	u16 txqidx;
+	u16 rxqidx;
+>>>>>>> upstream/android-13
 	u8 iv[CHCR_MAX_CRYPTO_IV_LEN + MAX_SCRATCH_PAD_SIZE];
 	u8 *scratch_pad;
 };
@@ -224,7 +245,11 @@ struct chcr_authenc_ctx {
 
 struct __aead_ctx {
 	struct chcr_gcm_ctx gcm[0];
+<<<<<<< HEAD
 	struct chcr_authenc_ctx authenc[0];
+=======
+	struct chcr_authenc_ctx authenc[];
+>>>>>>> upstream/android-13
 };
 
 struct chcr_aead_ctx {
@@ -236,7 +261,11 @@ struct chcr_aead_ctx {
 	u8 nonce[4];
 	u16 hmac_ctrl;
 	u16 mayverify;
+<<<<<<< HEAD
 	struct	__aead_ctx ctx[0];
+=======
+	struct	__aead_ctx ctx[];
+>>>>>>> upstream/android-13
 };
 
 struct hmac_ctx {
@@ -248,16 +277,29 @@ struct hmac_ctx {
 struct __crypto_ctx {
 	struct hmac_ctx hmacctx[0];
 	struct ablk_ctx ablkctx[0];
+<<<<<<< HEAD
 	struct chcr_aead_ctx aeadctx[0];
+=======
+	struct chcr_aead_ctx aeadctx[];
+>>>>>>> upstream/android-13
 };
 
 struct chcr_context {
 	struct chcr_dev *dev;
+<<<<<<< HEAD
 	unsigned char tx_qidx;
 	unsigned char rx_qidx;
 	unsigned char tx_chan_id;
 	unsigned char pci_chan_id;
 	struct __crypto_ctx crypto_ctx[0];
+=======
+	unsigned char rxq_perchan;
+	unsigned char txq_perchan;
+	unsigned int  ntxq;
+	unsigned int  nrxq;
+	struct completion cbc_aes_aio_done;
+	struct __crypto_ctx crypto_ctx[];
+>>>>>>> upstream/android-13
 };
 
 struct chcr_hctx_per_wr {
@@ -282,30 +324,54 @@ struct chcr_ahash_req_ctx {
 	u8 *skbfr;
 	/* SKB which is being sent to the hardware for processing */
 	u64 data_len;  /* Data len till time */
+<<<<<<< HEAD
+=======
+	u16 txqidx;
+	u16 rxqidx;
+>>>>>>> upstream/android-13
 	u8 reqlen;
 	u8 partial_hash[CHCR_HASH_MAX_DIGEST_SIZE];
 	u8 bfr1[CHCR_HASH_MAX_BLOCK_SIZE_128];
 	u8 bfr2[CHCR_HASH_MAX_BLOCK_SIZE_128];
 };
 
+<<<<<<< HEAD
 struct chcr_blkcipher_req_ctx {
+=======
+struct chcr_skcipher_req_ctx {
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	struct scatterlist *dstsg;
 	unsigned int processed;
 	unsigned int last_req_len;
+<<<<<<< HEAD
+=======
+	unsigned int partial_req;
+>>>>>>> upstream/android-13
 	struct scatterlist *srcsg;
 	unsigned int src_ofst;
 	unsigned int dst_ofst;
 	unsigned int op;
 	u16 imm;
 	u8 iv[CHCR_MAX_CRYPTO_IV_LEN];
+<<<<<<< HEAD
+=======
+	u8 init_iv[CHCR_MAX_CRYPTO_IV_LEN];
+	u16 txqidx;
+	u16 rxqidx;
+	struct skcipher_request fallback_req;	// keep at the end
+>>>>>>> upstream/android-13
 };
 
 struct chcr_alg_template {
 	u32 type;
 	u32 is_registered;
 	union {
+<<<<<<< HEAD
 		struct crypto_alg crypto;
+=======
+		struct skcipher_alg skcipher;
+>>>>>>> upstream/android-13
 		struct ahash_alg hash;
 		struct aead_alg aead;
 	} alg;
@@ -322,6 +388,7 @@ void chcr_aead_dma_unmap(struct device *dev, struct aead_request *req,
 			 unsigned short op_type);
 void chcr_add_aead_dst_ent(struct aead_request *req,
 			   struct cpl_rx_phys_dsgl *phys_cpl,
+<<<<<<< HEAD
 			   unsigned int assoclen,
 			   unsigned short qid);
 void chcr_add_aead_src_ent(struct aead_request *req, struct ulptx_sgl *ulptx,
@@ -332,6 +399,16 @@ void chcr_add_cipher_src_ent(struct ablkcipher_request *req,
 int chcr_cipher_dma_map(struct device *dev, struct ablkcipher_request *req);
 void chcr_cipher_dma_unmap(struct device *dev, struct ablkcipher_request *req);
 void chcr_add_cipher_dst_ent(struct ablkcipher_request *req,
+=======
+			   unsigned short qid);
+void chcr_add_aead_src_ent(struct aead_request *req, struct ulptx_sgl *ulptx);
+void chcr_add_cipher_src_ent(struct skcipher_request *req,
+			     void *ulptx,
+			     struct  cipher_wr_param *wrparam);
+int chcr_cipher_dma_map(struct device *dev, struct skcipher_request *req);
+void chcr_cipher_dma_unmap(struct device *dev, struct skcipher_request *req);
+void chcr_add_cipher_dst_ent(struct skcipher_request *req,
+>>>>>>> upstream/android-13
 			     struct cpl_rx_phys_dsgl *phys_cpl,
 			     struct  cipher_wr_param *wrparam,
 			     unsigned short qid);

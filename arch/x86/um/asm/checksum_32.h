@@ -35,6 +35,7 @@ static __inline__ __sum16 csum_ipv6_magic(const struct in6_addr *saddr,
 	return csum_fold(sum);
 }
 
+<<<<<<< HEAD
 /*
  *	Copy and checksum to user
  */
@@ -58,4 +59,6 @@ static __inline__ __wsum csum_and_copy_to_user(const void *src,
 	return (__force __wsum)-1; /* invalid checksum */
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif

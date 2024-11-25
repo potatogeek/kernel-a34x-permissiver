@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation. All rights reserved.
@@ -20,6 +21,10 @@
  * Hsinchu 300, Taiwan.
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../usb.h"
@@ -34,7 +39,11 @@ static void _rtl92cu_init_led(struct ieee80211_hw *hw,
 	pled->ledon = false;
 }
 
+<<<<<<< HEAD
 static void _rtl92cu_deInit_led(struct rtl_led *pled)
+=======
+static void rtl92cu_deinit_led(struct rtl_led *pled)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -43,8 +52,13 @@ void rtl92cu_sw_led_on(struct ieee80211_hw *hw, struct rtl_led *pled)
 	u8 ledcfg;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD, "LedAddr:%X ledpin=%d\n",
 		 REG_LEDCFG2, pled->ledpin);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD, "LedAddr:%X ledpin=%d\n",
+		REG_LEDCFG2, pled->ledpin);
+>>>>>>> upstream/android-13
 	ledcfg = rtl_read_byte(rtlpriv, REG_LEDCFG2);
 	switch (pled->ledpin) {
 	case LED_PIN_GPIO0:
@@ -69,8 +83,13 @@ void rtl92cu_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 ledcfg;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD, "LedAddr:%X ledpin=%d\n",
 		 REG_LEDCFG2, pled->ledpin);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD, "LedAddr:%X ledpin=%d\n",
+		REG_LEDCFG2, pled->ledpin);
+>>>>>>> upstream/android-13
 	ledcfg = rtl_read_byte(rtlpriv, REG_LEDCFG2);
 	switch (pled->ledpin) {
 	case LED_PIN_GPIO0:
@@ -108,8 +127,13 @@ void rtl92cu_deinit_sw_leds(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
+<<<<<<< HEAD
 	_rtl92cu_deInit_led(&rtlpriv->ledctl.sw_led0);
 	_rtl92cu_deInit_led(&rtlpriv->ledctl.sw_led1);
+=======
+	rtl92cu_deinit_led(&rtlpriv->ledctl.sw_led0);
+	rtl92cu_deinit_led(&rtlpriv->ledctl.sw_led1);
+>>>>>>> upstream/android-13
 }
 
 static void _rtl92cu_sw_led_control(struct ieee80211_hw *hw,
@@ -133,6 +157,10 @@ void rtl92cu_led_control(struct ieee80211_hw *hw,
 	     ledaction == LED_CTL_POWER_ON)) {
 		return;
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD, "ledaction %d\n", ledaction);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD, "ledaction %d\n", ledaction);
+>>>>>>> upstream/android-13
 	_rtl92cu_sw_led_control(hw, ledaction);
 }

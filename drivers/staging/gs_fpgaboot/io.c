@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,6 +11,9 @@
  *
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -50,8 +54,12 @@ int xl_supported_prog_bus_width(enum wbus bus_bytes)
 	case bus_2byte:
 		break;
 	default:
+<<<<<<< HEAD
 		pr_err("unsupported program bus width %d\n",
 				bus_bytes);
+=======
+		pr_err("unsupported program bus width %d\n", bus_bytes);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 

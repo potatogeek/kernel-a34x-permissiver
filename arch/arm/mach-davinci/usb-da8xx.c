@@ -18,7 +18,12 @@
 #include <mach/common.h>
 #include <mach/cputype.h>
 #include <mach/da8xx.h>
+<<<<<<< HEAD
 #include <mach/irqs.h>
+=======
+
+#include "irqs.h"
+>>>>>>> upstream/android-13
 
 #define DA8XX_USB0_BASE		0x01e00000
 #define DA8XX_USB1_BASE		0x01e25000
@@ -70,7 +75,11 @@ static struct resource da8xx_usb20_resources[] = {
 		.flags		= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start		= IRQ_DA8XX_USB_INT,
+=======
+		.start		= DAVINCI_INTC_IRQ(IRQ_DA8XX_USB_INT),
+>>>>>>> upstream/android-13
 		.flags		= IORESOURCE_IRQ,
 		.name		= "mc",
 	},
@@ -105,8 +114,13 @@ static struct resource da8xx_usb11_resources[] = {
 		.flags	= IORESOURCE_MEM,
 	},
 	[1] = {
+<<<<<<< HEAD
 		.start	= IRQ_DA8XX_IRQN,
 		.end	= IRQ_DA8XX_IRQN,
+=======
+		.start	= DAVINCI_INTC_IRQ(IRQ_DA8XX_IRQN),
+		.end	= DAVINCI_INTC_IRQ(IRQ_DA8XX_IRQN),
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IRQ,
 	},
 };

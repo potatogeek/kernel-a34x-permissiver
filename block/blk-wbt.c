@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * buffered writeback throttling. loosely based on CoDel. We can't drop
  * packets for IO scheduling, so the logic is something like this:
@@ -76,7 +80,12 @@ enum {
 
 static inline bool rwb_enabled(struct rq_wb *rwb)
 {
+<<<<<<< HEAD
 	return rwb && rwb->wb_normal != 0;
+=======
+	return rwb && rwb->enable_state != WBT_STATE_OFF_DEFAULT &&
+		      rwb->wb_normal != 0;
+>>>>>>> upstream/android-13
 }
 
 static void wb_timestamp(struct rq_wb *rwb, unsigned long *var)
@@ -95,7 +104,11 @@ static void wb_timestamp(struct rq_wb *rwb, unsigned long *var)
  */
 static bool wb_recent_wait(struct rq_wb *rwb)
 {
+<<<<<<< HEAD
 	struct bdi_writeback *wb = &rwb->rqos.q->backing_dev_info->wb;
+=======
+	struct bdi_writeback *wb = &rwb->rqos.q->disk->bdi->wb;
+>>>>>>> upstream/android-13
 
 	return time_before(jiffies, wb->dirty_sleep + HZ);
 }
@@ -232,7 +245,11 @@ enum {
 
 static int latency_exceeded(struct rq_wb *rwb, struct blk_rq_stat *stat)
 {
+<<<<<<< HEAD
 	struct backing_dev_info *bdi = rwb->rqos.q->backing_dev_info;
+=======
+	struct backing_dev_info *bdi = rwb->rqos.q->disk->bdi;
+>>>>>>> upstream/android-13
 	struct rq_depth *rqd = &rwb->rq_depth;
 	u64 thislat;
 
@@ -285,7 +302,11 @@ static int latency_exceeded(struct rq_wb *rwb, struct blk_rq_stat *stat)
 
 static void rwb_trace_step(struct rq_wb *rwb, const char *msg)
 {
+<<<<<<< HEAD
 	struct backing_dev_info *bdi = rwb->rqos.q->backing_dev_info;
+=======
+	struct backing_dev_info *bdi = rwb->rqos.q->disk->bdi;
+>>>>>>> upstream/android-13
 	struct rq_depth *rqd = &rwb->rq_depth;
 
 	trace_wbt_step(bdi, msg, rqd->scale_step, rwb->cur_win_nsec,
@@ -312,7 +333,11 @@ static void scale_up(struct rq_wb *rwb)
 	calc_wb_limits(rwb);
 	rwb->unknown_cnt = 0;
 	rwb_wake_all(rwb);
+<<<<<<< HEAD
 	rwb_trace_step(rwb, "scale up");
+=======
+	rwb_trace_step(rwb, tracepoint_string("scale up"));
+>>>>>>> upstream/android-13
 }
 
 static void scale_down(struct rq_wb *rwb, bool hard_throttle)
@@ -321,7 +346,11 @@ static void scale_down(struct rq_wb *rwb, bool hard_throttle)
 		return;
 	calc_wb_limits(rwb);
 	rwb->unknown_cnt = 0;
+<<<<<<< HEAD
 	rwb_trace_step(rwb, "scale down");
+=======
+	rwb_trace_step(rwb, tracepoint_string("scale down"));
+>>>>>>> upstream/android-13
 }
 
 static void rwb_arm_timer(struct rq_wb *rwb)
@@ -355,9 +384,18 @@ static void wb_timer_fn(struct blk_stat_callback *cb)
 	unsigned int inflight = wbt_inflight(rwb);
 	int status;
 
+<<<<<<< HEAD
 	status = latency_exceeded(rwb, cb->stat);
 
 	trace_wbt_timer(rwb->rqos.q->backing_dev_info, status, rqd->scale_step,
+=======
+	if (!rwb->rqos.q->disk)
+		return;
+
+	status = latency_exceeded(rwb, cb->stat);
+
+	trace_wbt_timer(rwb->rqos.q->disk->bdi, status, rqd->scale_step,
+>>>>>>> upstream/android-13
 			inflight);
 
 	/*
@@ -404,7 +442,11 @@ static void wb_timer_fn(struct blk_stat_callback *cb)
 		rwb_arm_timer(rwb);
 }
 
+<<<<<<< HEAD
 static void __wbt_update_limits(struct rq_wb *rwb)
+=======
+static void wbt_update_limits(struct rq_wb *rwb)
+>>>>>>> upstream/android-13
 {
 	struct rq_depth *rqd = &rwb->rq_depth;
 
@@ -417,6 +459,7 @@ static void __wbt_update_limits(struct rq_wb *rwb)
 	rwb_wake_all(rwb);
 }
 
+<<<<<<< HEAD
 void wbt_update_limits(struct request_queue *q)
 {
 	struct rq_qos *rqos = wbt_rq_qos(q);
@@ -425,6 +468,8 @@ void wbt_update_limits(struct request_queue *q)
 	__wbt_update_limits(RQWB(rqos));
 }
 
+=======
+>>>>>>> upstream/android-13
 u64 wbt_get_min_lat(struct request_queue *q)
 {
 	struct rq_qos *rqos = wbt_rq_qos(q);
@@ -440,7 +485,11 @@ void wbt_set_min_lat(struct request_queue *q, u64 val)
 		return;
 	RQWB(rqos)->min_lat_nsec = val;
 	RQWB(rqos)->enable_state = WBT_STATE_ON_MANUAL;
+<<<<<<< HEAD
 	__wbt_update_limits(RQWB(rqos));
+=======
+	wbt_update_limits(RQWB(rqos));
+>>>>>>> upstream/android-13
 }
 
 
@@ -491,6 +540,7 @@ static inline unsigned int get_limit(struct rq_wb *rwb, unsigned long rw)
 }
 
 struct wbt_wait_data {
+<<<<<<< HEAD
 	struct wait_queue_entry wq;
 	struct task_struct *task;
 	struct rq_wb *rwb;
@@ -516,6 +566,23 @@ static int wbt_wake_function(struct wait_queue_entry *curr, unsigned int mode,
 	list_del_init(&curr->entry);
 	wake_up_process(data->task);
 	return 1;
+=======
+	struct rq_wb *rwb;
+	enum wbt_flags wb_acct;
+	unsigned long rw;
+};
+
+static bool wbt_inflight_cb(struct rq_wait *rqw, void *private_data)
+{
+	struct wbt_wait_data *data = private_data;
+	return rq_wait_inc_below(rqw, get_limit(data->rwb, data->rw));
+}
+
+static void wbt_cleanup_cb(struct rq_wait *rqw, void *private_data)
+{
+	struct wbt_wait_data *data = private_data;
+	wbt_rqw_done(data->rwb, rqw, data->wb_acct);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -523,6 +590,7 @@ static int wbt_wake_function(struct wait_queue_entry *curr, unsigned int mode,
  * the timer to kick off queuing again.
  */
 static void __wbt_wait(struct rq_wb *rwb, enum wbt_flags wb_acct,
+<<<<<<< HEAD
 		       unsigned long rw, spinlock_t *lock)
 	__releases(lock)
 	__acquires(lock)
@@ -577,6 +645,21 @@ static void __wbt_wait(struct rq_wb *rwb, enum wbt_flags wb_acct,
 }
 
 static inline bool wbt_should_throttle(struct rq_wb *rwb, struct bio *bio)
+=======
+		       unsigned long rw)
+{
+	struct rq_wait *rqw = get_rq_wait(rwb, wb_acct);
+	struct wbt_wait_data data = {
+		.rwb = rwb,
+		.wb_acct = wb_acct,
+		.rw = rw,
+	};
+
+	rq_qos_wait(rqw, &data, wbt_inflight_cb, wbt_cleanup_cb);
+}
+
+static inline bool wbt_should_throttle(struct bio *bio)
+>>>>>>> upstream/android-13
 {
 	switch (bio_op(bio)) {
 	case REQ_OP_WRITE:
@@ -586,7 +669,11 @@ static inline bool wbt_should_throttle(struct rq_wb *rwb, struct bio *bio)
 		if ((bio->bi_opf & (REQ_SYNC | REQ_IDLE)) ==
 		    (REQ_SYNC | REQ_IDLE))
 			return false;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case REQ_OP_DISCARD:
 		return true;
 	default:
@@ -603,7 +690,11 @@ static enum wbt_flags bio_to_wbt_flags(struct rq_wb *rwb, struct bio *bio)
 
 	if (bio_op(bio) == REQ_OP_READ) {
 		flags = WBT_READ;
+<<<<<<< HEAD
 	} else if (wbt_should_throttle(rwb, bio)) {
+=======
+	} else if (wbt_should_throttle(bio)) {
+>>>>>>> upstream/android-13
 		if (current_is_kswapd())
 			flags |= WBT_KSWAPD;
 		if (bio_op(bio) == REQ_OP_DISCARD)
@@ -621,12 +712,19 @@ static void wbt_cleanup(struct rq_qos *rqos, struct bio *bio)
 }
 
 /*
+<<<<<<< HEAD
  * Returns true if the IO request should be accounted, false if not.
+=======
+>>>>>>> upstream/android-13
  * May sleep, if we have exceeded the writeback limits. Caller can pass
  * in an irq held spinlock, if it holds one when calling this function.
  * If we do sleep, we'll release and re-grab it.
  */
+<<<<<<< HEAD
 static void wbt_wait(struct rq_qos *rqos, struct bio *bio, spinlock_t *lock)
+=======
+static void wbt_wait(struct rq_qos *rqos, struct bio *bio)
+>>>>>>> upstream/android-13
 {
 	struct rq_wb *rwb = RQWB(rqos);
 	enum wbt_flags flags;
@@ -638,7 +736,11 @@ static void wbt_wait(struct rq_qos *rqos, struct bio *bio, spinlock_t *lock)
 		return;
 	}
 
+<<<<<<< HEAD
 	__wbt_wait(rwb, flags, bio->bi_opf, lock);
+=======
+	__wbt_wait(rwb, flags, bio->bi_opf);
+>>>>>>> upstream/android-13
 
 	if (!blk_stat_is_active(rwb->cb))
 		rwb_arm_timer(rwb);
@@ -650,7 +752,11 @@ static void wbt_track(struct rq_qos *rqos, struct request *rq, struct bio *bio)
 	rq->wbt_flags |= bio_to_wbt_flags(rwb, bio);
 }
 
+<<<<<<< HEAD
 void wbt_issue(struct rq_qos *rqos, struct request *rq)
+=======
+static void wbt_issue(struct rq_qos *rqos, struct request *rq)
+>>>>>>> upstream/android-13
 {
 	struct rq_wb *rwb = RQWB(rqos);
 
@@ -670,7 +776,11 @@ void wbt_issue(struct rq_qos *rqos, struct request *rq)
 	}
 }
 
+<<<<<<< HEAD
 void wbt_requeue(struct rq_qos *rqos, struct request *rq)
+=======
+static void wbt_requeue(struct rq_qos *rqos, struct request *rq)
+>>>>>>> upstream/android-13
 {
 	struct rq_wb *rwb = RQWB(rqos);
 	if (!rwb_enabled(rwb))
@@ -681,6 +791,7 @@ void wbt_requeue(struct rq_qos *rqos, struct request *rq)
 	}
 }
 
+<<<<<<< HEAD
 void wbt_set_queue_depth(struct request_queue *q, unsigned int depth)
 {
 	struct rq_qos *rqos = wbt_rq_qos(q);
@@ -690,6 +801,8 @@ void wbt_set_queue_depth(struct request_queue *q, unsigned int depth)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void wbt_set_write_cache(struct request_queue *q, bool write_cache_on)
 {
 	struct rq_qos *rqos = wbt_rq_qos(q);
@@ -703,16 +816,30 @@ void wbt_set_write_cache(struct request_queue *q, bool write_cache_on)
 void wbt_enable_default(struct request_queue *q)
 {
 	struct rq_qos *rqos = wbt_rq_qos(q);
+<<<<<<< HEAD
 	/* Throttling already enabled? */
 	if (rqos)
 		return;
+=======
+
+	/* Throttling already enabled? */
+	if (rqos) {
+		if (RQWB(rqos)->enable_state == WBT_STATE_OFF_DEFAULT)
+			RQWB(rqos)->enable_state = WBT_STATE_ON_DEFAULT;
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/* Queue not registered? Maybe shutting down... */
 	if (!blk_queue_registered(q))
 		return;
 
+<<<<<<< HEAD
 	if ((q->mq_ops && IS_ENABLED(CONFIG_BLK_WBT_MQ)) ||
 	    (q->request_fn && IS_ENABLED(CONFIG_BLK_WBT_SQ)))
+=======
+	if (queue_is_mq(q) && IS_ENABLED(CONFIG_BLK_WBT_MQ))
+>>>>>>> upstream/android-13
 		wbt_init(q);
 }
 EXPORT_SYMBOL_GPL(wbt_enable_default);
@@ -742,6 +869,15 @@ static int wbt_data_dir(const struct request *rq)
 	return -1;
 }
 
+<<<<<<< HEAD
+=======
+static void wbt_queue_depth_changed(struct rq_qos *rqos)
+{
+	RQWB(rqos)->rq_depth.queue_depth = blk_queue_depth(rqos->q);
+	wbt_update_limits(RQWB(rqos));
+}
+
+>>>>>>> upstream/android-13
 static void wbt_exit(struct rq_qos *rqos)
 {
 	struct rq_wb *rwb = RQWB(rqos);
@@ -764,11 +900,105 @@ void wbt_disable_default(struct request_queue *q)
 	rwb = RQWB(rqos);
 	if (rwb->enable_state == WBT_STATE_ON_DEFAULT) {
 		blk_stat_deactivate(rwb->cb);
+<<<<<<< HEAD
 		rwb->wb_normal = 0;
+=======
+		rwb->enable_state = WBT_STATE_OFF_DEFAULT;
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL_GPL(wbt_disable_default);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEBUG_FS
+static int wbt_curr_win_nsec_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+	struct rq_wb *rwb = RQWB(rqos);
+
+	seq_printf(m, "%llu\n", rwb->cur_win_nsec);
+	return 0;
+}
+
+static int wbt_enabled_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+	struct rq_wb *rwb = RQWB(rqos);
+
+	seq_printf(m, "%d\n", rwb->enable_state);
+	return 0;
+}
+
+static int wbt_id_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+
+	seq_printf(m, "%u\n", rqos->id);
+	return 0;
+}
+
+static int wbt_inflight_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+	struct rq_wb *rwb = RQWB(rqos);
+	int i;
+
+	for (i = 0; i < WBT_NUM_RWQ; i++)
+		seq_printf(m, "%d: inflight %d\n", i,
+			   atomic_read(&rwb->rq_wait[i].inflight));
+	return 0;
+}
+
+static int wbt_min_lat_nsec_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+	struct rq_wb *rwb = RQWB(rqos);
+
+	seq_printf(m, "%lu\n", rwb->min_lat_nsec);
+	return 0;
+}
+
+static int wbt_unknown_cnt_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+	struct rq_wb *rwb = RQWB(rqos);
+
+	seq_printf(m, "%u\n", rwb->unknown_cnt);
+	return 0;
+}
+
+static int wbt_normal_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+	struct rq_wb *rwb = RQWB(rqos);
+
+	seq_printf(m, "%u\n", rwb->wb_normal);
+	return 0;
+}
+
+static int wbt_background_show(void *data, struct seq_file *m)
+{
+	struct rq_qos *rqos = data;
+	struct rq_wb *rwb = RQWB(rqos);
+
+	seq_printf(m, "%u\n", rwb->wb_background);
+	return 0;
+}
+
+static const struct blk_mq_debugfs_attr wbt_debugfs_attrs[] = {
+	{"curr_win_nsec", 0400, wbt_curr_win_nsec_show},
+	{"enabled", 0400, wbt_enabled_show},
+	{"id", 0400, wbt_id_show},
+	{"inflight", 0400, wbt_inflight_show},
+	{"min_lat_nsec", 0400, wbt_min_lat_nsec_show},
+	{"unknown_cnt", 0400, wbt_unknown_cnt_show},
+	{"wb_normal", 0400, wbt_normal_show},
+	{"wb_background", 0400, wbt_background_show},
+	{},
+};
+#endif
+>>>>>>> upstream/android-13
 
 static struct rq_qos_ops wbt_rqos_ops = {
 	.throttle = wbt_wait,
@@ -777,7 +1007,15 @@ static struct rq_qos_ops wbt_rqos_ops = {
 	.requeue = wbt_requeue,
 	.done = wbt_done,
 	.cleanup = wbt_cleanup,
+<<<<<<< HEAD
 	.exit = wbt_exit,
+=======
+	.queue_depth_changed = wbt_queue_depth_changed,
+	.exit = wbt_exit,
+#ifdef CONFIG_BLK_DEBUG_FS
+	.debugfs_attrs = wbt_debugfs_attrs,
+#endif
+>>>>>>> upstream/android-13
 };
 
 int wbt_init(struct request_queue *q)
@@ -806,7 +1044,10 @@ int wbt_init(struct request_queue *q)
 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
 	rwb->wc = 1;
 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
+<<<<<<< HEAD
 	__wbt_update_limits(rwb);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Assign rwb and add the stats callback.
@@ -816,7 +1057,11 @@ int wbt_init(struct request_queue *q)
 
 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
 
+<<<<<<< HEAD
 	wbt_set_queue_depth(q, blk_queue_depth(q));
+=======
+	wbt_queue_depth_changed(&rwb->rqos);
+>>>>>>> upstream/android-13
 	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
 
 	return 0;

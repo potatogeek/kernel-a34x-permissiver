@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mcp4725.c - Support for Microchip MCP4725/6
  *
@@ -5,10 +9,13 @@
  *
  * Based on max517 by Roland Stigge <stigge@antcom.de>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * driver for the Microchip I2C 12-bit digital-to-analog converter (DAC)
  * (7-bit I2C slave address 0x60, the three LSBs can be configured in
  * hardware)
@@ -19,8 +26,13 @@
 #include <linux/err.h>
 #include <linux/delay.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -45,7 +57,11 @@ struct mcp4725_data {
 	struct regulator *vref_reg;
 };
 
+<<<<<<< HEAD
 static int mcp4725_suspend(struct device *dev)
+=======
+static int __maybe_unused mcp4725_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct mcp4725_data *data = iio_priv(i2c_get_clientdata(
 		to_i2c_client(dev)));
@@ -58,7 +74,11 @@ static int mcp4725_suspend(struct device *dev)
 	return i2c_master_send(data->client, outbuf, 2);
 }
 
+<<<<<<< HEAD
 static int mcp4725_resume(struct device *dev)
+=======
+static int __maybe_unused mcp4725_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct mcp4725_data *data = iio_priv(i2c_get_clientdata(
 		to_i2c_client(dev)));
@@ -71,6 +91,7 @@ static int mcp4725_resume(struct device *dev)
 
 	return i2c_master_send(data->client, outbuf, 2);
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_PM_SLEEP
 static SIMPLE_DEV_PM_OPS(mcp4725_pm_ops, mcp4725_suspend, mcp4725_resume);
@@ -78,6 +99,9 @@ static SIMPLE_DEV_PM_OPS(mcp4725_pm_ops, mcp4725_suspend, mcp4725_resume);
 #else
 #define MCP4725_PM_OPS NULL
 #endif
+=======
+static SIMPLE_DEV_PM_OPS(mcp4725_pm_ops, mcp4725_suspend, mcp4725_resume);
+>>>>>>> upstream/android-13
 
 static ssize_t mcp4725_store_eeprom(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t len)
@@ -176,7 +200,11 @@ static ssize_t mcp4725_read_powerdown(struct iio_dev *indio_dev,
 {
 	struct mcp4725_data *data = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", data->powerdown);
+=======
+	return sysfs_emit(buf, "%d\n", data->powerdown);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t mcp4725_write_powerdown(struct iio_dev *indio_dev,
@@ -366,6 +394,7 @@ static const struct iio_info mcp4725_info = {
 	.attrs = &mcp4725_attribute_group,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static int mcp4725_probe_dt(struct device *dev,
 			    struct mcp4725_platform_data *pdata)
@@ -389,6 +418,18 @@ static int mcp4725_probe_dt(struct device *dev,
 	return -ENODEV;
 }
 #endif
+=======
+static int mcp4725_probe_dt(struct device *dev,
+			    struct mcp4725_platform_data *pdata)
+{
+	/* check if is the vref-supply defined */
+	pdata->use_vref = device_property_read_bool(dev, "vref-supply");
+	pdata->vref_buffered =
+		device_property_read_bool(dev, "microchip,vref-buffered");
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int mcp4725_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
@@ -407,8 +448,13 @@ static int mcp4725_probe(struct i2c_client *client,
 	data = iio_priv(indio_dev);
 	i2c_set_clientdata(client, indio_dev);
 	data->client = client;
+<<<<<<< HEAD
 	if (client->dev.of_node)
 		data->id = (enum chip_id)of_device_get_match_data(&client->dev);
+=======
+	if (dev_fwnode(&client->dev))
+		data->id = (enum chip_id)device_get_match_data(&client->dev);
+>>>>>>> upstream/android-13
 	else
 		data->id = id->driver_data;
 	pdata = dev_get_platdata(&client->dev);
@@ -462,7 +508,10 @@ static int mcp4725_probe(struct i2c_client *client,
 			goto err_disable_vdd_reg;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = id->name;
 	indio_dev->info = &mcp4725_info;
 	indio_dev->channels = &mcp472x_channel[id->driver_data];
@@ -529,7 +578,10 @@ static const struct i2c_device_id mcp4725_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, mcp4725_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id mcp4725_of_match[] = {
 	{
 		.compatible = "microchip,mcp4725",
@@ -542,13 +594,21 @@ static const struct of_device_id mcp4725_of_match[] = {
 	{ }
 };
 MODULE_DEVICE_TABLE(of, mcp4725_of_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver mcp4725_driver = {
 	.driver = {
 		.name	= MCP4725_DRV_NAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(mcp4725_of_match),
 		.pm	= MCP4725_PM_OPS,
+=======
+		.of_match_table = mcp4725_of_match,
+		.pm	= &mcp4725_pm_ops,
+>>>>>>> upstream/android-13
 	},
 	.probe		= mcp4725_probe,
 	.remove		= mcp4725_remove,

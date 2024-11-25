@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Sysfs attributes of bridge ports
  *	Linux ethernet bridge
  *
  *	Authors:
  *	Stephen Hemminger		<shemminger@osdl.org>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -21,6 +28,13 @@
 
 #include "br_private.h"
 
+<<<<<<< HEAD
+=======
+/* IMPORTANT: new bridge port options must be added with netlink support only
+ *            please do not add new sysfs entries
+ */
+
+>>>>>>> upstream/android-13
 struct brport_attribute {
 	struct attribute	attr;
 	ssize_t (*show)(struct net_bridge_port *, char *);
@@ -59,6 +73,10 @@ static BRPORT_ATTR(_name, 0644,					\
 static int store_flag(struct net_bridge_port *p, unsigned long v,
 		      unsigned long mask)
 {
+<<<<<<< HEAD
+=======
+	struct netlink_ext_ack extack = {0};
+>>>>>>> upstream/android-13
 	unsigned long flags = p->flags;
 	int err;
 
@@ -68,9 +86,17 @@ static int store_flag(struct net_bridge_port *p, unsigned long v,
 		flags &= ~mask;
 
 	if (flags != p->flags) {
+<<<<<<< HEAD
 		err = br_switchdev_set_port_flag(p, flags, mask);
 		if (err)
 			return err;
+=======
+		err = br_switchdev_set_port_flag(p, flags, mask, &extack);
+		if (err) {
+			netdev_err(p->dev, "%s\n", extack._msg);
+			return err;
+		}
+>>>>>>> upstream/android-13
 
 		p->flags = flags;
 		br_port_flags_change(p, mask);
@@ -241,13 +267,21 @@ BRPORT_ATTR_FLAG(isolated, BR_ISOLATED);
 #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
 static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", p->multicast_router);
+=======
+	return sprintf(buf, "%d\n", p->multicast_ctx.multicast_router);
+>>>>>>> upstream/android-13
 }
 
 static int store_multicast_router(struct net_bridge_port *p,
 				      unsigned long v)
 {
+<<<<<<< HEAD
 	return br_multicast_set_port_router(p, v);
+=======
+	return br_multicast_set_port_router(&p->multicast_ctx, v);
+>>>>>>> upstream/android-13
 }
 static BRPORT_ATTR(multicast_router, 0644, show_multicast_router,
 		   store_multicast_router);
@@ -323,9 +357,12 @@ static ssize_t brport_store(struct kobject *kobj,
 	if (!rtnl_trylock())
 		return restart_syscall();
 
+<<<<<<< HEAD
 	if (!p->dev || !p->br)
 		goto out_unlock;
 
+=======
+>>>>>>> upstream/android-13
 	if (brport_attr->store_raw) {
 		char *buf_copy;
 

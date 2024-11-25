@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* CacheFiles path walking and related routines
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,7 +27,10 @@
 #include <linux/namei.h>
 #include <linux/security.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/xattr.h>
+=======
+>>>>>>> upstream/android-13
 #include "internal.h"
 
 #define CACHEFILES_KEYBUF_SIZE 512
@@ -44,18 +54,32 @@ void __cachefiles_printk_object(struct cachefiles_object *object,
 	pr_err("%sops=%u inp=%u exc=%u\n",
 	       prefix, object->fscache.n_ops, object->fscache.n_in_progress,
 	       object->fscache.n_exclusive);
+<<<<<<< HEAD
 	pr_err("%sparent=%p\n",
 	       prefix, object->fscache.parent);
+=======
+	pr_err("%sparent=%x\n",
+	       prefix, object->fscache.parent ? object->fscache.parent->debug_id : 0);
+>>>>>>> upstream/android-13
 
 	spin_lock(&object->fscache.lock);
 	cookie = object->fscache.cookie;
 	if (cookie) {
+<<<<<<< HEAD
 		pr_err("%scookie=%p [pr=%p nd=%p fl=%lx]\n",
 		       prefix,
 		       object->fscache.cookie,
 		       object->fscache.cookie->parent,
 		       object->fscache.cookie->netfs_data,
 		       object->fscache.cookie->flags);
+=======
+		pr_err("%scookie=%x [pr=%x nd=%p fl=%lx]\n",
+		       prefix,
+		       cookie->debug_id,
+		       cookie->parent ? cookie->parent->debug_id : 0,
+		       cookie->netfs_data,
+		       cookie->flags);
+>>>>>>> upstream/android-13
 		pr_err("%skey=[%u] '", prefix, cookie->key_len);
 		k = (cookie->key_len <= sizeof(cookie->inline_key)) ?
 			cookie->inline_key : cookie->key;
@@ -115,7 +139,11 @@ static void cachefiles_mark_object_buried(struct cachefiles_cache *cache,
 
 	/* found the dentry for  */
 found_dentry:
+<<<<<<< HEAD
 	kdebug("preemptive burial: OBJ%x [%s] %p",
+=======
+	kdebug("preemptive burial: OBJ%x [%s] %pd",
+>>>>>>> upstream/android-13
 	       object->fscache.debug_id,
 	       object->fscache.state->name,
 	       dentry);
@@ -145,7 +173,11 @@ static int cachefiles_mark_object_active(struct cachefiles_cache *cache,
 	struct rb_node **_p, *_parent = NULL;
 	struct dentry *dentry;
 
+<<<<<<< HEAD
 	_enter(",%p", object);
+=======
+	_enter(",%x", object->fscache.debug_id);
+>>>>>>> upstream/android-13
 
 try_again:
 	write_lock(&cache->active_lock);
@@ -303,8 +335,11 @@ static int cachefiles_bury_object(struct cachefiles_cache *cache,
 
 	_enter(",'%pd','%pd'", dir, rep);
 
+<<<<<<< HEAD
 	_debug("remove %p from %p", rep, dir);
 
+=======
+>>>>>>> upstream/android-13
 	/* non-directories can just be unlinked */
 	if (!d_is_dir(rep)) {
 		_debug("unlink stale object");
@@ -316,7 +351,12 @@ static int cachefiles_bury_object(struct cachefiles_cache *cache,
 			cachefiles_io_error(cache, "Unlink security error");
 		} else {
 			trace_cachefiles_unlink(object, rep, why);
+<<<<<<< HEAD
 			ret = vfs_unlink(d_inode(dir), rep, NULL);
+=======
+			ret = vfs_unlink(&init_user_ns, d_inode(dir), rep,
+					 NULL);
+>>>>>>> upstream/android-13
 
 			if (preemptive)
 				cachefiles_mark_object_buried(cache, rep, why);
@@ -338,7 +378,11 @@ static int cachefiles_bury_object(struct cachefiles_cache *cache,
 try_again:
 	/* first step is to make up a grave dentry in the graveyard */
 	sprintf(nbuffer, "%08x%08x",
+<<<<<<< HEAD
 		(uint32_t) get_seconds(),
+=======
+		(uint32_t) ktime_get_real_seconds(),
+>>>>>>> upstream/android-13
 		(uint32_t) atomic_inc_return(&cache->gravecounter));
 
 	/* do the multiway lock magic */
@@ -417,9 +461,22 @@ try_again:
 	if (ret < 0) {
 		cachefiles_io_error(cache, "Rename security error %d", ret);
 	} else {
+<<<<<<< HEAD
 		trace_cachefiles_rename(object, rep, grave, why);
 		ret = vfs_rename(d_inode(dir), rep,
 				 d_inode(cache->graveyard), grave, NULL, 0);
+=======
+		struct renamedata rd = {
+			.old_mnt_userns	= &init_user_ns,
+			.old_dir	= d_inode(dir),
+			.old_dentry	= rep,
+			.new_mnt_userns	= &init_user_ns,
+			.new_dir	= d_inode(cache->graveyard),
+			.new_dentry	= grave,
+		};
+		trace_cachefiles_rename(object, rep, grave, why);
+		ret = vfs_rename(&rd);
+>>>>>>> upstream/android-13
 		if (ret != 0 && ret != -ENOMEM)
 			cachefiles_io_error(cache,
 					    "Rename failed with error %d", ret);
@@ -443,7 +500,11 @@ int cachefiles_delete_object(struct cachefiles_cache *cache,
 	struct dentry *dir;
 	int ret;
 
+<<<<<<< HEAD
 	_enter(",OBJ%x{%p}", object->fscache.debug_id, object->dentry);
+=======
+	_enter(",OBJ%x{%pd}", object->fscache.debug_id, object->dentry);
+>>>>>>> upstream/android-13
 
 	ASSERT(object->dentry);
 	ASSERT(d_backing_inode(object->dentry));
@@ -493,11 +554,18 @@ int cachefiles_walk_to_object(struct cachefiles_object *parent,
 	struct dentry *dir, *next = NULL;
 	struct inode *inode;
 	struct path path;
+<<<<<<< HEAD
 	unsigned long start;
 	const char *name;
 	int ret, nlen;
 
 	_enter("OBJ%x{%p},OBJ%x,%s,",
+=======
+	const char *name;
+	int ret, nlen;
+
+	_enter("OBJ%x{%pd},OBJ%x,%s,",
+>>>>>>> upstream/android-13
 	       parent->fscache.debug_id, parent->dentry,
 	       object->fscache.debug_id, key);
 
@@ -532,9 +600,13 @@ lookup_again:
 
 	inode_lock_nested(d_inode(dir), I_MUTEX_PARENT);
 
+<<<<<<< HEAD
 	start = jiffies;
 	next = lookup_one_len(name, dir, nlen);
 	cachefiles_hist(cachefiles_lookup_histogram, start);
+=======
+	next = lookup_one_len(name, dir, nlen);
+>>>>>>> upstream/android-13
 	if (IS_ERR(next)) {
 		trace_cachefiles_lookup(object, next, NULL);
 		goto lookup_error;
@@ -542,7 +614,11 @@ lookup_again:
 
 	inode = d_backing_inode(next);
 	trace_cachefiles_lookup(object, next, inode);
+<<<<<<< HEAD
 	_debug("next -> %p %s", next, inode ? "positive" : "negative");
+=======
+	_debug("next -> %pd %s", next, inode ? "positive" : "negative");
+>>>>>>> upstream/android-13
 
 	if (!key)
 		object->new = !inode;
@@ -565,9 +641,13 @@ lookup_again:
 			ret = security_path_mkdir(&path, next, 0);
 			if (ret < 0)
 				goto create_error;
+<<<<<<< HEAD
 			start = jiffies;
 			ret = vfs_mkdir(d_inode(dir), next, 0);
 			cachefiles_hist(cachefiles_mkdir_histogram, start);
+=======
+			ret = vfs_mkdir(&init_user_ns, d_inode(dir), next, 0);
+>>>>>>> upstream/android-13
 			if (!key)
 				trace_cachefiles_mkdir(object, next, ret);
 			if (ret < 0)
@@ -580,8 +660,13 @@ lookup_again:
 			}
 			ASSERT(d_backing_inode(next));
 
+<<<<<<< HEAD
 			_debug("mkdir -> %p{%p{ino=%lu}}",
 			       next, d_backing_inode(next), d_backing_inode(next)->i_ino);
+=======
+			_debug("mkdir -> %pd{ino=%lu}",
+			       next, d_backing_inode(next)->i_ino);
+>>>>>>> upstream/android-13
 
 		} else if (!d_can_lookup(next)) {
 			pr_err("inode %lu is not a directory\n",
@@ -601,17 +686,27 @@ lookup_again:
 			ret = security_path_mknod(&path, next, S_IFREG, 0);
 			if (ret < 0)
 				goto create_error;
+<<<<<<< HEAD
 			start = jiffies;
 			ret = vfs_create(d_inode(dir), next, S_IFREG, true);
 			cachefiles_hist(cachefiles_create_histogram, start);
+=======
+			ret = vfs_create(&init_user_ns, d_inode(dir), next,
+					 S_IFREG, true);
+>>>>>>> upstream/android-13
 			trace_cachefiles_create(object, next, ret);
 			if (ret < 0)
 				goto create_error;
 
 			ASSERT(d_backing_inode(next));
 
+<<<<<<< HEAD
 			_debug("create -> %p{%p{ino=%lu}}",
 			       next, d_backing_inode(next), d_backing_inode(next)->i_ino);
+=======
+			_debug("create -> %pd{ino=%lu}",
+			       next, d_backing_inode(next)->i_ino);
+>>>>>>> upstream/android-13
 
 		} else if (!d_can_lookup(next) &&
 			   !d_is_reg(next)
@@ -761,7 +856,10 @@ struct dentry *cachefiles_get_directory(struct cachefiles_cache *cache,
 					const char *dirname)
 {
 	struct dentry *subdir;
+<<<<<<< HEAD
 	unsigned long start;
+=======
+>>>>>>> upstream/android-13
 	struct path path;
 	int ret;
 
@@ -771,16 +869,24 @@ struct dentry *cachefiles_get_directory(struct cachefiles_cache *cache,
 	inode_lock(d_inode(dir));
 
 retry:
+<<<<<<< HEAD
 	start = jiffies;
 	subdir = lookup_one_len(dirname, dir, strlen(dirname));
 	cachefiles_hist(cachefiles_lookup_histogram, start);
+=======
+	subdir = lookup_one_len(dirname, dir, strlen(dirname));
+>>>>>>> upstream/android-13
 	if (IS_ERR(subdir)) {
 		if (PTR_ERR(subdir) == -ENOMEM)
 			goto nomem_d_alloc;
 		goto lookup_error;
 	}
 
+<<<<<<< HEAD
 	_debug("subdir -> %p %s",
+=======
+	_debug("subdir -> %pd %s",
+>>>>>>> upstream/android-13
 	       subdir, d_backing_inode(subdir) ? "positive" : "negative");
 
 	/* we need to create the subdir if it doesn't exist yet */
@@ -796,7 +902,11 @@ retry:
 		ret = security_path_mkdir(&path, subdir, 0700);
 		if (ret < 0)
 			goto mkdir_error;
+<<<<<<< HEAD
 		ret = vfs_mkdir(d_inode(dir), subdir, 0700);
+=======
+		ret = vfs_mkdir(&init_user_ns, d_inode(dir), subdir, 0700);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto mkdir_error;
 
@@ -806,10 +916,15 @@ retry:
 		}
 		ASSERT(d_backing_inode(subdir));
 
+<<<<<<< HEAD
 		_debug("mkdir -> %p{%p{ino=%lu}}",
 		       subdir,
 		       d_backing_inode(subdir),
 		       d_backing_inode(subdir)->i_ino);
+=======
+		_debug("mkdir -> %pd{ino=%lu}",
+		       subdir, d_backing_inode(subdir)->i_ino);
+>>>>>>> upstream/android-13
 	}
 
 	inode_unlock(d_inode(dir));
@@ -872,7 +987,10 @@ static struct dentry *cachefiles_check_active(struct cachefiles_cache *cache,
 	struct cachefiles_object *object;
 	struct rb_node *_n;
 	struct dentry *victim;
+<<<<<<< HEAD
 	unsigned long start;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	//_enter(",%pd/,%s",
@@ -881,6 +999,7 @@ static struct dentry *cachefiles_check_active(struct cachefiles_cache *cache,
 	/* look up the victim */
 	inode_lock_nested(d_inode(dir), I_MUTEX_PARENT);
 
+<<<<<<< HEAD
 	start = jiffies;
 	victim = lookup_one_len(filename, dir, strlen(filename));
 	cachefiles_hist(cachefiles_lookup_histogram, start);
@@ -888,6 +1007,13 @@ static struct dentry *cachefiles_check_active(struct cachefiles_cache *cache,
 		goto lookup_error;
 
 	//_debug("victim -> %p %s",
+=======
+	victim = lookup_one_len(filename, dir, strlen(filename));
+	if (IS_ERR(victim))
+		goto lookup_error;
+
+	//_debug("victim -> %pd %s",
+>>>>>>> upstream/android-13
 	//       victim, d_backing_inode(victim) ? "positive" : "negative");
 
 	/* if the object is no longer there then we probably retired the object
@@ -918,7 +1044,11 @@ static struct dentry *cachefiles_check_active(struct cachefiles_cache *cache,
 
 	read_unlock(&cache->active_lock);
 
+<<<<<<< HEAD
 	//_leave(" = %p", victim);
+=======
+	//_leave(" = %pd", victim);
+>>>>>>> upstream/android-13
 	return victim;
 
 object_in_use:
@@ -964,7 +1094,11 @@ int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
 	if (IS_ERR(victim))
 		return PTR_ERR(victim);
 
+<<<<<<< HEAD
 	_debug("victim -> %p %s",
+=======
+	_debug("victim -> %pd %s",
+>>>>>>> upstream/android-13
 	       victim, d_backing_inode(victim) ? "positive" : "negative");
 
 	/* okay... the victim is not being used so we can cull it

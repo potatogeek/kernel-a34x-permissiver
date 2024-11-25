@@ -67,9 +67,12 @@ struct usb_ep *usb_ep_autoconfig_ss(
 )
 {
 	struct usb_ep	*ep;
+<<<<<<< HEAD
 	u8		type;
 
 	type = desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
+=======
+>>>>>>> upstream/android-13
 
 	if (gadget->ops->match_ep) {
 		ep = gadget->ops->match_ep(gadget, desc, ep_comp);
@@ -109,6 +112,7 @@ found_ep:
 		desc->bEndpointAddress |= gadget->out_epnum;
 	}
 
+<<<<<<< HEAD
 	/* report (variable) full speed bulk maxpacket */
 	if ((type == USB_ENDPOINT_XFER_BULK) && !ep_comp) {
 		int size = ep->maxpacket_limit;
@@ -119,6 +123,8 @@ found_ep:
 		desc->wMaxPacketSize = cpu_to_le16(size);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ep->address = desc->bEndpointAddress;
 	ep->desc = NULL;
 	ep->comp_desc = NULL;
@@ -152,9 +158,16 @@ EXPORT_SYMBOL_GPL(usb_ep_autoconfig_ss);
  *
  * On success, this returns an claimed usb_ep, and modifies the endpoint
  * descriptor bEndpointAddress.  For bulk endpoints, the wMaxPacket value
+<<<<<<< HEAD
  * is initialized as if the endpoint were used at full speed.  To prevent
  * the endpoint from being returned by a later autoconfig call, claims it
  * by assigning ep->claimed to true.
+=======
+ * is initialized as if the endpoint were used at full speed. Because of
+ * that the users must consider adjusting the autoconfigured descriptor.
+ * To prevent the endpoint from being returned by a later autoconfig call,
+ * claims it by assigning ep->claimed to true.
+>>>>>>> upstream/android-13
  *
  * On failure, this returns a null endpoint descriptor.
  */
@@ -163,7 +176,30 @@ struct usb_ep *usb_ep_autoconfig(
 	struct usb_endpoint_descriptor	*desc
 )
 {
+<<<<<<< HEAD
 	return usb_ep_autoconfig_ss(gadget, desc, NULL);
+=======
+	struct usb_ep	*ep;
+	u8		type;
+
+	ep = usb_ep_autoconfig_ss(gadget, desc, NULL);
+	if (!ep)
+		return NULL;
+
+	type = desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
+
+	/* report (variable) full speed bulk maxpacket */
+	if (type == USB_ENDPOINT_XFER_BULK) {
+		int size = ep->maxpacket_limit;
+
+		/* min() doesn't work on bitfields with gcc-3.5 */
+		if (size > 64)
+			size = 64;
+		desc->wMaxPacketSize = cpu_to_le16(size);
+	}
+
+	return ep;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(usb_ep_autoconfig);
 
@@ -205,6 +241,7 @@ void usb_ep_autoconfig_reset (struct usb_gadget *gadget)
 	gadget->out_epnum = 0;
 }
 EXPORT_SYMBOL_GPL(usb_ep_autoconfig_reset);
+<<<<<<< HEAD
 
 /**
  * usb_ep_autoconfig_by_name - Used to pick the endpoint by name. eg gsi-epin1
@@ -248,3 +285,5 @@ err:
 	return NULL;
 }
 EXPORT_SYMBOL_GPL(usb_ep_autoconfig_by_name);
+=======
+>>>>>>> upstream/android-13

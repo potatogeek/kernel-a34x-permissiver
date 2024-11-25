@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
 
   Copyright(c) 2003 - 2005 Intel Corporation. All rights reserved.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
   published by the Free Software Foundation.
@@ -17,6 +22,8 @@
 
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
+=======
+>>>>>>> upstream/android-13
 
   Contact Information:
   Intel Linux Wireless <ilw@linux.intel.com>
@@ -193,8 +200,13 @@ static struct libipw_txb *libipw_alloc_txb(int nr_frags, int txb_size,
 {
 	struct libipw_txb *txb;
 	int i;
+<<<<<<< HEAD
 	txb = kmalloc(sizeof(struct libipw_txb) + (sizeof(u8 *) * nr_frags),
 		      gfp_mask);
+=======
+
+	txb = kmalloc(struct_size(txb, fragments, nr_frags), gfp_mask);
+>>>>>>> upstream/android-13
 	if (!txb)
 		return NULL;
 

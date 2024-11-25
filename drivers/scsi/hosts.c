@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  hosts.c Copyright (C) 1992 Drew Eckhardt
  *          Copyright (C) 1993, 1994, 1995 Eric Youngdale
@@ -37,6 +41,10 @@
 #include <scsi/scsi_device.h>
 #include <scsi/scsi_host.h>
 #include <scsi/scsi_transport.h>
+<<<<<<< HEAD
+=======
+#include <scsi/scsi_cmnd.h>
+>>>>>>> upstream/android-13
 
 #include "scsi_priv.h"
 #include "scsi_logging.h"
@@ -218,10 +226,18 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
 		goto fail;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Use min_t(int, ...) in case shost->can_queue exceeds SHRT_MAX */
+	shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
+				   shost->can_queue);
+
+>>>>>>> upstream/android-13
 	error = scsi_init_sense_cache(shost);
 	if (error)
 		goto fail;
 
+<<<<<<< HEAD
 	if (shost_use_blk_mq(shost)) {
 		error = scsi_mq_setup_tags(shost);
 		if (error)
@@ -234,6 +250,11 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
 			goto fail;
 		}
 	}
+=======
+	error = scsi_mq_setup_tags(shost);
+	if (error)
+		goto fail;
+>>>>>>> upstream/android-13
 
 	if (!shost->shost_gendev.parent)
 		shost->shost_gendev.parent = dev ? dev : &platform_bus;
@@ -261,12 +282,19 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
 
 	device_enable_async_suspend(&shost->shost_dev);
 
+<<<<<<< HEAD
+=======
+	get_device(&shost->shost_gendev);
+>>>>>>> upstream/android-13
 	error = device_add(&shost->shost_dev);
 	if (error)
 		goto out_del_gendev;
 
+<<<<<<< HEAD
 	get_device(&shost->shost_gendev);
 
+=======
+>>>>>>> upstream/android-13
 	if (shost->transportt->host_size) {
 		shost->shost_data = kzalloc(shost->transportt->host_size,
 					 GFP_KERNEL);
@@ -279,22 +307,37 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
 	if (shost->transportt->create_work_queue) {
 		snprintf(shost->work_q_name, sizeof(shost->work_q_name),
 			 "scsi_wq_%d", shost->host_no);
+<<<<<<< HEAD
 		shost->work_q = create_singlethread_workqueue(
 					shost->work_q_name);
 		if (!shost->work_q) {
 			error = -EINVAL;
 			goto out_free_shost_data;
+=======
+		shost->work_q = alloc_workqueue("%s",
+			WQ_SYSFS | __WQ_LEGACY | WQ_MEM_RECLAIM | WQ_UNBOUND,
+			1, shost->work_q_name);
+
+		if (!shost->work_q) {
+			error = -EINVAL;
+			goto out_del_dev;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	error = scsi_sysfs_add_host(shost);
 	if (error)
+<<<<<<< HEAD
 		goto out_destroy_host;
+=======
+		goto out_del_dev;
+>>>>>>> upstream/android-13
 
 	scsi_proc_host_add(shost);
 	scsi_autopm_put_host(shost);
 	return error;
 
+<<<<<<< HEAD
  out_destroy_host:
 	if (shost->work_q)
 		destroy_workqueue(shost->work_q);
@@ -303,14 +346,31 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
  out_del_dev:
 	device_del(&shost->shost_dev);
  out_del_gendev:
+=======
+	/*
+	 * Any host allocation in this function will be freed in
+	 * scsi_host_dev_release().
+	 */
+ out_del_dev:
+	device_del(&shost->shost_dev);
+ out_del_gendev:
+	/*
+	 * Host state is SHOST_RUNNING so we have to explicitly release
+	 * ->shost_dev.
+	 */
+	put_device(&shost->shost_dev);
+>>>>>>> upstream/android-13
 	device_del(&shost->shost_gendev);
  out_disable_runtime_pm:
 	device_disable_async_suspend(&shost->shost_gendev);
 	pm_runtime_disable(&shost->shost_gendev);
 	pm_runtime_set_suspended(&shost->shost_gendev);
 	pm_runtime_put_noidle(&shost->shost_gendev);
+<<<<<<< HEAD
 	if (shost_use_blk_mq(shost))
 		scsi_mq_destroy_tags(shost);
+=======
+>>>>>>> upstream/android-13
  fail:
 	return error;
 }
@@ -323,7 +383,11 @@ static void scsi_host_dev_release(struct device *dev)
 
 	scsi_proc_hostdir_rm(shost->hostt);
 
+<<<<<<< HEAD
 	/* Wait for functions invoked through call_rcu(&shost->rcu, ...) */
+=======
+	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
+>>>>>>> upstream/android-13
 	rcu_barrier();
 
 	if (shost->tmf_work_q)
@@ -344,6 +408,7 @@ static void scsi_host_dev_release(struct device *dev)
 		kfree(dev_name(&shost->shost_dev));
 	}
 
+<<<<<<< HEAD
 	if (shost_use_blk_mq(shost)) {
 		if (shost->tag_set.tags)
 			scsi_mq_destroy_tags(shost);
@@ -351,12 +416,20 @@ static void scsi_host_dev_release(struct device *dev)
 		if (shost->bqt)
 			blk_free_tags(shost->bqt);
 	}
+=======
+	if (shost->tag_set.tags)
+		scsi_mq_destroy_tags(shost);
+>>>>>>> upstream/android-13
 
 	kfree(shost->shost_data);
 
 	ida_simple_remove(&host_index_ida, shost->host_no);
 
+<<<<<<< HEAD
 	if (parent)
+=======
+	if (shost->shost_state != SHOST_CREATED)
+>>>>>>> upstream/android-13
 		put_device(parent);
 	kfree(shost);
 }
@@ -382,6 +455,7 @@ static struct device_type scsi_host_type = {
 struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 {
 	struct Scsi_Host *shost;
+<<<<<<< HEAD
 	gfp_t gfp_mask = GFP_KERNEL;
 	int index;
 
@@ -389,6 +463,11 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 		gfp_mask |= __GFP_DMA;
 
 	shost = kzalloc(sizeof(struct Scsi_Host) + privsize, gfp_mask);
+=======
+	int index;
+
+	shost = kzalloc(sizeof(struct Scsi_Host) + privsize, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!shost)
 		return NULL;
 
@@ -397,14 +476,25 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 	shost->shost_state = SHOST_CREATED;
 	INIT_LIST_HEAD(&shost->__devices);
 	INIT_LIST_HEAD(&shost->__targets);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&shost->eh_abort_list);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&shost->eh_cmd_q);
 	INIT_LIST_HEAD(&shost->starved_list);
 	init_waitqueue_head(&shost->host_wait);
 	mutex_init(&shost->scan_mutex);
 
 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
+<<<<<<< HEAD
 	if (index < 0)
 		goto fail_kfree;
+=======
+	if (index < 0) {
+		kfree(shost);
+		return NULL;
+	}
+>>>>>>> upstream/android-13
 	shost->host_no = index;
 
 	shost->dma_channel = 0xff;
@@ -430,9 +520,14 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 	shost->sg_tablesize = sht->sg_tablesize;
 	shost->sg_prot_tablesize = sht->sg_prot_tablesize;
 	shost->cmd_per_lun = sht->cmd_per_lun;
+<<<<<<< HEAD
 	shost->unchecked_isa_dma = sht->unchecked_isa_dma;
 	shost->use_clustering = sht->use_clustering;
 	shost->no_write_same = sht->no_write_same;
+=======
+	shost->no_write_same = sht->no_write_same;
+	shost->host_tagset = sht->host_tagset;
+>>>>>>> upstream/android-13
 
 	if (shost_eh_deadline == -1 || !sht->eh_host_reset_handler)
 		shost->eh_deadline = -1;
@@ -464,6 +559,14 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 	else
 		shost->max_sectors = SCSI_DEFAULT_MAX_SECTORS;
 
+<<<<<<< HEAD
+=======
+	if (sht->max_segment_size)
+		shost->max_segment_size = sht->max_segment_size;
+	else
+		shost->max_segment_size = BLK_MAX_SEGMENT_SIZE;
+
+>>>>>>> upstream/android-13
 	/*
 	 * assume a 4GB boundary, if not set
 	 */
@@ -472,7 +575,12 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 	else
 		shost->dma_boundary = 0xffffffff;
 
+<<<<<<< HEAD
 	shost->use_blk_mq = scsi_use_blk_mq || shost->hostt->force_blk_mq;
+=======
+	if (sht->virt_boundary_mask)
+		shost->virt_boundary_mask = sht->virt_boundary_mask;
+>>>>>>> upstream/android-13
 
 	device_initialize(&shost->shost_gendev);
 	dev_set_name(&shost->shost_gendev, "host%d", shost->host_no);
@@ -491,15 +599,25 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 		shost_printk(KERN_WARNING, shost,
 			"error handler thread failed to spawn, error = %ld\n",
 			PTR_ERR(shost->ehandler));
+<<<<<<< HEAD
 		goto fail_index_remove;
 	}
 
 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
 					    WQ_UNBOUND | WQ_MEM_RECLAIM,
+=======
+		shost->ehandler = NULL;
+		goto fail;
+	}
+
+	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
+					WQ_UNBOUND | WQ_MEM_RECLAIM | WQ_SYSFS,
+>>>>>>> upstream/android-13
 					   1, shost->host_no);
 	if (!shost->tmf_work_q) {
 		shost_printk(KERN_WARNING, shost,
 			     "failed to create tmf workq\n");
+<<<<<<< HEAD
 		goto fail_kthread;
 	}
 	scsi_proc_hostdir_add(shost->hostt);
@@ -511,6 +629,20 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
 	ida_simple_remove(&host_index_ida, shost->host_no);
  fail_kfree:
 	kfree(shost);
+=======
+		goto fail;
+	}
+	scsi_proc_hostdir_add(shost->hostt);
+	return shost;
+ fail:
+	/*
+	 * Host state is still SHOST_CREATED and that is enough to release
+	 * ->shost_gendev. scsi_host_dev_release() will free
+	 * dev_name(&shost->shost_dev).
+	 */
+	put_device(&shost->shost_gendev);
+
+>>>>>>> upstream/android-13
 	return NULL;
 }
 EXPORT_SYMBOL(scsi_host_alloc);
@@ -563,13 +695,36 @@ struct Scsi_Host *scsi_host_get(struct Scsi_Host *shost)
 }
 EXPORT_SYMBOL(scsi_host_get);
 
+<<<<<<< HEAD
+=======
+static bool scsi_host_check_in_flight(struct request *rq, void *data,
+				      bool reserved)
+{
+	int *count = data;
+	struct scsi_cmnd *cmd = blk_mq_rq_to_pdu(rq);
+
+	if (test_bit(SCMD_STATE_INFLIGHT, &cmd->state))
+		(*count)++;
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /**
  * scsi_host_busy - Return the host busy counter
  * @shost:	Pointer to Scsi_Host to inc.
  **/
 int scsi_host_busy(struct Scsi_Host *shost)
 {
+<<<<<<< HEAD
 	return atomic_read(&shost->host_busy);
+=======
+	int cnt = 0;
+
+	blk_mq_tagset_busy_iter(&shost->tag_set,
+				scsi_host_check_in_flight, &cnt);
+	return cnt;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(scsi_host_busy);
 
@@ -642,3 +797,73 @@ void scsi_flush_work(struct Scsi_Host *shost)
 	flush_workqueue(shost->work_q);
 }
 EXPORT_SYMBOL_GPL(scsi_flush_work);
+<<<<<<< HEAD
+=======
+
+static bool complete_all_cmds_iter(struct request *rq, void *data, bool rsvd)
+{
+	struct scsi_cmnd *scmd = blk_mq_rq_to_pdu(rq);
+	enum scsi_host_status status = *(enum scsi_host_status *)data;
+
+	scsi_dma_unmap(scmd);
+	scmd->result = 0;
+	set_host_byte(scmd, status);
+	scmd->scsi_done(scmd);
+	return true;
+}
+
+/**
+ * scsi_host_complete_all_commands - Terminate all running commands
+ * @shost:	Scsi Host on which commands should be terminated
+ * @status:	Status to be set for the terminated commands
+ *
+ * There is no protection against modification of the number
+ * of outstanding commands. It is the responsibility of the
+ * caller to ensure that concurrent I/O submission and/or
+ * completion is stopped when calling this function.
+ */
+void scsi_host_complete_all_commands(struct Scsi_Host *shost,
+				     enum scsi_host_status status)
+{
+	blk_mq_tagset_busy_iter(&shost->tag_set, complete_all_cmds_iter,
+				&status);
+}
+EXPORT_SYMBOL_GPL(scsi_host_complete_all_commands);
+
+struct scsi_host_busy_iter_data {
+	bool (*fn)(struct scsi_cmnd *, void *, bool);
+	void *priv;
+};
+
+static bool __scsi_host_busy_iter_fn(struct request *req, void *priv,
+				   bool reserved)
+{
+	struct scsi_host_busy_iter_data *iter_data = priv;
+	struct scsi_cmnd *sc = blk_mq_rq_to_pdu(req);
+
+	return iter_data->fn(sc, iter_data->priv, reserved);
+}
+
+/**
+ * scsi_host_busy_iter - Iterate over all busy commands
+ * @shost:	Pointer to Scsi_Host.
+ * @fn:		Function to call on each busy command
+ * @priv:	Data pointer passed to @fn
+ *
+ * If locking against concurrent command completions is required
+ * ithas to be provided by the caller
+ **/
+void scsi_host_busy_iter(struct Scsi_Host *shost,
+			 bool (*fn)(struct scsi_cmnd *, void *, bool),
+			 void *priv)
+{
+	struct scsi_host_busy_iter_data iter_data = {
+		.fn = fn,
+		.priv = priv,
+	};
+
+	blk_mq_tagset_busy_iter(&shost->tag_set, __scsi_host_busy_iter_fn,
+				&iter_data);
+}
+EXPORT_SYMBOL_GPL(scsi_host_busy_iter);
+>>>>>>> upstream/android-13

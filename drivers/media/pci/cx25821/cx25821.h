@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Driver for the Conexant CX25821 PCIe bridge
  *
  *  Copyright (C) 2009 Conexant Systems Inc.
  *  Authors  <shu.lin@conexant.com>, <hiep.huynh@conexant.com>
  *  Based on Steven Toth <stoth@linuxtv.org> cx23885 driver
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef CX25821_H_
@@ -38,7 +45,10 @@
 #include "cx25821-sram.h"
 #include "cx25821-audio.h"
 
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 
 #define UNSET (-1U)
@@ -93,7 +103,10 @@
 #define VID_CHANNEL_NUM 8
 
 struct cx25821_fmt {
+<<<<<<< HEAD
 	char *name;
+=======
+>>>>>>> upstream/android-13
 	u32 fourcc;		/* v4l2 format id */
 	int depth;
 	int flags;
@@ -156,7 +169,11 @@ struct cx25821_i2c {
 	struct i2c_client i2c_client;
 	u32 i2c_rc;
 
+<<<<<<< HEAD
 	/* cx25821 registers used for raw addess */
+=======
+	/* cx25821 registers used for raw address */
+>>>>>>> upstream/android-13
 	u32 i2c_period;
 	u32 reg_ctrl;
 	u32 reg_stat;

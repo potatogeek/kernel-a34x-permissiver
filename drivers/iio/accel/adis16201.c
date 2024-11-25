@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ADIS16201 Dual-Axis Digital Inclinometer and Accelerometer
  *
  * Copyright 2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/mutex.h>
 #include <linux/slab.h>
 #include <linux/spi/spi.h>
 #include <linux/sysfs.h>
+=======
+#include <linux/spi/spi.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/imu/adis.h>
@@ -71,7 +82,11 @@
 #define  ADIS16201_DIAG_STAT_FLASH_UPT_FAIL_BIT		2
 /* Power supply above 3.625 V */
 #define  ADIS16201_DIAG_STAT_POWER_HIGH_BIT		1
+<<<<<<< HEAD
 /* Power supply below 3.15 V */
+=======
+/* Power supply below 2.975 V */
+>>>>>>> upstream/android-13
 #define  ADIS16201_DIAG_STAT_POWER_LOW_BIT		0
 
 /* System Command Register Definition */
@@ -231,7 +246,17 @@ static const char * const adis16201_status_error_msgs[] = {
 	[ADIS16201_DIAG_STAT_SPI_FAIL_BIT] = "SPI failure",
 	[ADIS16201_DIAG_STAT_FLASH_UPT_FAIL_BIT] = "Flash update failed",
 	[ADIS16201_DIAG_STAT_POWER_HIGH_BIT] = "Power supply above 3.625V",
+<<<<<<< HEAD
 	[ADIS16201_DIAG_STAT_POWER_LOW_BIT] = "Power supply below 3.15V",
+=======
+	[ADIS16201_DIAG_STAT_POWER_LOW_BIT] = "Power supply below 2.975V",
+};
+
+static const struct adis_timeout adis16201_timeouts = {
+	.reset_ms = ADIS16201_STARTUP_DELAY_MS,
+	.sw_reset_ms = ADIS16201_STARTUP_DELAY_MS,
+	.self_test_ms = ADIS16201_STARTUP_DELAY_MS,
+>>>>>>> upstream/android-13
 };
 
 static const struct adis_data adis16201_data = {
@@ -241,8 +266,14 @@ static const struct adis_data adis16201_data = {
 	.diag_stat_reg = ADIS16201_DIAG_STAT_REG,
 
 	.self_test_mask = ADIS16201_MSC_CTRL_SELF_TEST_EN,
+<<<<<<< HEAD
 	.self_test_no_autoclear = true,
 	.startup_delay = ADIS16201_STARTUP_DELAY_MS,
+=======
+	.self_test_reg = ADIS16201_MSC_CTRL_REG,
+	.self_test_no_autoclear = true,
+	.timeouts = &adis16201_timeouts,
+>>>>>>> upstream/android-13
 
 	.status_error_msgs = adis16201_status_error_msgs,
 	.status_error_mask = BIT(ADIS16201_DIAG_STAT_SPI_FAIL_BIT) |
@@ -262,10 +293,15 @@ static int adis16201_probe(struct spi_device *spi)
 		return -ENOMEM;
 
 	st = iio_priv(indio_dev);
+<<<<<<< HEAD
 	spi_set_drvdata(spi, indio_dev);
 
 	indio_dev->name = spi->dev.driver->name;
 	indio_dev->dev.parent = &spi->dev;
+=======
+
+	indio_dev->name = spi->dev.driver->name;
+>>>>>>> upstream/android-13
 	indio_dev->info = &adis16201_info;
 
 	indio_dev->channels = adis16201_channels;
@@ -276,12 +312,17 @@ static int adis16201_probe(struct spi_device *spi)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = adis_setup_buffer_and_trigger(st, indio_dev, NULL);
+=======
+	ret = devm_adis_setup_buffer_and_trigger(st, indio_dev, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	ret = adis_initial_startup(st);
 	if (ret)
+<<<<<<< HEAD
 		goto error_cleanup_buffer_trigger;
 
 	ret = iio_device_register(indio_dev);
@@ -304,6 +345,11 @@ static int adis16201_remove(struct spi_device *spi)
 	adis_cleanup_buffer_and_trigger(st, indio_dev);
 
 	return 0;
+=======
+		return ret;
+
+	return devm_iio_device_register(&spi->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static struct spi_driver adis16201_driver = {
@@ -311,7 +357,10 @@ static struct spi_driver adis16201_driver = {
 		.name = "adis16201",
 	},
 	.probe = adis16201_probe,
+<<<<<<< HEAD
 	.remove = adis16201_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_spi_driver(adis16201_driver);
 

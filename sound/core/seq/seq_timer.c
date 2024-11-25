@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA sequencer Timer
  *   Copyright (c) 1998-1999 by Frank van de Pol <fvdpol@coil.demon.nl>
  *                              Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/core.h>
@@ -287,7 +294,17 @@ int snd_seq_timer_open(struct snd_seq_queue *q)
 		return -EINVAL;
 	if (tmr->alsa_id.dev_class != SNDRV_TIMER_CLASS_SLAVE)
 		tmr->alsa_id.dev_sclass = SNDRV_TIMER_SCLASS_SEQUENCER;
+<<<<<<< HEAD
 	err = snd_timer_open(&t, str, &tmr->alsa_id, q->queue);
+=======
+	t = snd_timer_instance_new(str);
+	if (!t)
+		return -ENOMEM;
+	t->callback = snd_seq_timer_interrupt;
+	t->callback_data = q;
+	t->flags |= SNDRV_TIMER_IFLG_AUTO;
+	err = snd_timer_open(t, &tmr->alsa_id, q->queue);
+>>>>>>> upstream/android-13
 	if (err < 0 && tmr->alsa_id.dev_class != SNDRV_TIMER_CLASS_SLAVE) {
 		if (tmr->alsa_id.dev_class != SNDRV_TIMER_CLASS_GLOBAL ||
 		    tmr->alsa_id.device != SNDRV_TIMER_GLOBAL_SYSTEM) {
@@ -297,11 +314,16 @@ int snd_seq_timer_open(struct snd_seq_queue *q)
 			tid.dev_sclass = SNDRV_TIMER_SCLASS_SEQUENCER;
 			tid.card = -1;
 			tid.device = SNDRV_TIMER_GLOBAL_SYSTEM;
+<<<<<<< HEAD
 			err = snd_timer_open(&t, str, &tid, q->queue);
+=======
+			err = snd_timer_open(t, &tid, q->queue);
+>>>>>>> upstream/android-13
 		}
 	}
 	if (err < 0) {
 		pr_err("ALSA: seq fatal error: cannot create timer (%i)\n", err);
+<<<<<<< HEAD
 		return err;
 	}
 	t->callback = snd_seq_timer_interrupt;
@@ -310,6 +332,22 @@ int snd_seq_timer_open(struct snd_seq_queue *q)
 	spin_lock_irq(&tmr->lock);
 	tmr->timeri = t;
 	spin_unlock_irq(&tmr->lock);
+=======
+		snd_timer_instance_free(t);
+		return err;
+	}
+	spin_lock_irq(&tmr->lock);
+	if (tmr->timeri)
+		err = -EBUSY;
+	else
+		tmr->timeri = t;
+	spin_unlock_irq(&tmr->lock);
+	if (err < 0) {
+		snd_timer_close(t);
+		snd_timer_instance_free(t);
+		return err;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -325,8 +363,15 @@ int snd_seq_timer_close(struct snd_seq_queue *q)
 	t = tmr->timeri;
 	tmr->timeri = NULL;
 	spin_unlock_irq(&tmr->lock);
+<<<<<<< HEAD
 	if (t)
 		snd_timer_close(t);
+=======
+	if (t) {
+		snd_timer_close(t);
+		snd_timer_instance_free(t);
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 

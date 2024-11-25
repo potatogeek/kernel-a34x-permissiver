@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2006-2007, Michael Ellerman, IBM Corporation.
  *
@@ -6,6 +7,11 @@
  * as published by the Free Software Foundation; version 2 of the
  * License.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2006-2007, Michael Ellerman, IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>

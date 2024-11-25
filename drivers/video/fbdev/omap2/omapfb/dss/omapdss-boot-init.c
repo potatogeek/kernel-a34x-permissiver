@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Texas Instruments
+ * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -111,6 +118,11 @@ static void __init omapdss_omapify_node(struct device_node *node)
 
 	new_len = prop->length + strlen(prefix) * num_strs;
 	new_compat = kmalloc(new_len, GFP_KERNEL);
+<<<<<<< HEAD
+=======
+	if (!new_compat)
+		return;
+>>>>>>> upstream/android-13
 
 	omapdss_prefix_strcpy(new_compat, new_len, prop->value, prop->length);
 
@@ -193,8 +205,15 @@ static int __init omapdss_boot_init(void)
 
 	dss = of_find_matching_node(NULL, omapdss_of_match);
 
+<<<<<<< HEAD
 	if (dss == NULL || !of_device_is_available(dss))
 		return 0;
+=======
+	if (dss == NULL || !of_device_is_available(dss)) {
+		of_node_put(dss);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	omapdss_walk_device(dss, true);
 

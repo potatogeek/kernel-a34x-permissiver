@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2001 Dave Engebretsen, IBM Corporation
  * Copyright (C) 2003 Anton Blanchard <anton@au.ibm.com>, IBM
  *
  * pSeries specific routines for PCI.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -29,6 +36,10 @@
 #include <asm/pci-bridge.h>
 #include <asm/prom.h>
 #include <asm/ppc-pci.h>
+<<<<<<< HEAD
+=======
+#include <asm/pci.h>
+>>>>>>> upstream/android-13
 #include "pseries.h"
 
 #if 0
@@ -67,9 +78,14 @@ struct pe_map_bar_entry {
 	__be32     reserved;  /* Reserved Space */
 };
 
+<<<<<<< HEAD
 int pseries_send_map_pe(struct pci_dev *pdev,
 			u16 num_vfs,
 			struct pe_map_bar_entry *vf_pe_array)
+=======
+static int pseries_send_map_pe(struct pci_dev *pdev, u16 num_vfs,
+			       struct pe_map_bar_entry *vf_pe_array)
+>>>>>>> upstream/android-13
 {
 	struct pci_dn *pdn;
 	int rc;
@@ -100,7 +116,11 @@ int pseries_send_map_pe(struct pci_dev *pdev,
 	return rc;
 }
 
+<<<<<<< HEAD
 void pseries_set_pe_num(struct pci_dev *pdev, u16 vf_index, __be16 pe_num)
+=======
+static void pseries_set_pe_num(struct pci_dev *pdev, u16 vf_index, __be16 pe_num)
+>>>>>>> upstream/android-13
 {
 	struct pci_dn *pdn;
 
@@ -114,7 +134,11 @@ void pseries_set_pe_num(struct pci_dev *pdev, u16 vf_index, __be16 pe_num)
 		pdn->pe_num_map[vf_index]);
 }
 
+<<<<<<< HEAD
 int pseries_associate_pes(struct pci_dev *pdev, u16 num_vfs)
+=======
+static int pseries_associate_pes(struct pci_dev *pdev, u16 num_vfs)
+>>>>>>> upstream/android-13
 {
 	struct pci_dn *pdn;
 	int i, rc, vf_index;
@@ -158,7 +182,11 @@ int pseries_associate_pes(struct pci_dev *pdev, u16 num_vfs)
 	return rc;
 }
 
+<<<<<<< HEAD
 int pseries_pci_sriov_enable(struct pci_dev *pdev, u16 num_vfs)
+=======
+static int pseries_pci_sriov_enable(struct pci_dev *pdev, u16 num_vfs)
+>>>>>>> upstream/android-13
 {
 	struct pci_dn         *pdn;
 	int                    rc;
@@ -201,6 +229,7 @@ int pseries_pci_sriov_enable(struct pci_dev *pdev, u16 num_vfs)
 	return rc;
 }
 
+<<<<<<< HEAD
 int pseries_pcibios_sriov_enable(struct pci_dev *pdev, u16 num_vfs)
 {
 	/* Allocate PCI data */
@@ -209,6 +238,16 @@ int pseries_pcibios_sriov_enable(struct pci_dev *pdev, u16 num_vfs)
 }
 
 int pseries_pcibios_sriov_disable(struct pci_dev *pdev)
+=======
+static int pseries_pcibios_sriov_enable(struct pci_dev *pdev, u16 num_vfs)
+{
+	/* Allocate PCI data */
+	add_sriov_vf_pdns(pdev);
+	return pseries_pci_sriov_enable(pdev, num_vfs);
+}
+
+static int pseries_pcibios_sriov_disable(struct pci_dev *pdev)
+>>>>>>> upstream/android-13
 {
 	struct pci_dn         *pdn;
 
@@ -216,7 +255,11 @@ int pseries_pcibios_sriov_disable(struct pci_dev *pdev)
 	/* Releasing pe_num_map */
 	kfree(pdn->pe_num_map);
 	/* Release PCI data */
+<<<<<<< HEAD
 	remove_dev_pci_data(pdev);
+=======
+	remove_sriov_vf_pdns(pdev);
+>>>>>>> upstream/android-13
 	pci_vf_drivers_autoprobe(pdev, true);
 	return 0;
 }
@@ -239,7 +282,11 @@ void __init pSeries_final_fixup(void)
 {
 	pSeries_request_regions();
 
+<<<<<<< HEAD
 	eeh_addr_cache_build();
+=======
+	eeh_show_enabled();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI_IOV
 	ppc_md.pcibios_sriov_enable = pseries_pcibios_sriov_enable;
@@ -279,6 +326,28 @@ static void fixup_winbond_82c105(struct pci_dev* dev)
 DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_82C105,
 			 fixup_winbond_82c105);
 
+<<<<<<< HEAD
+=======
+static enum pci_bus_speed prop_to_pci_speed(u32 prop)
+{
+	switch (prop) {
+	case 0x01:
+		return PCIE_SPEED_2_5GT;
+	case 0x02:
+		return PCIE_SPEED_5_0GT;
+	case 0x04:
+		return PCIE_SPEED_8_0GT;
+	case 0x08:
+		return PCIE_SPEED_16_0GT;
+	case 0x10:
+		return PCIE_SPEED_32_0GT;
+	default:
+		pr_debug("Unexpected PCI link speed property value\n");
+		return PCI_SPEED_UNKNOWN;
+	}
+}
+
+>>>>>>> upstream/android-13
 int pseries_root_bridge_prepare(struct pci_host_bridge *bridge)
 {
 	struct device_node *dn, *pdn;
@@ -311,6 +380,7 @@ int pseries_root_bridge_prepare(struct pci_host_bridge *bridge)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	switch (pcie_link_speed_stats[0]) {
 	case 0x01:
 		bus->max_bus_speed = PCIE_SPEED_2_5GT;
@@ -341,5 +411,9 @@ int pseries_root_bridge_prepare(struct pci_host_bridge *bridge)
 		break;
 	}
 
+=======
+	bus->max_bus_speed = prop_to_pci_speed(pcie_link_speed_stats[0]);
+	bus->cur_bus_speed = prop_to_pci_speed(pcie_link_speed_stats[1]);
+>>>>>>> upstream/android-13
 	return 0;
 }

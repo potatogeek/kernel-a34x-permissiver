@@ -36,4 +36,8 @@ Example:
             kcs_chan = <2>;
             status = "disabled";
         };
+<<<<<<< HEAD
     };
+=======
+    };
+>>>>>>> upstream/android-13

@@ -89,13 +89,18 @@
 
 typedef uint32_t TEEC_Result;
 
+<<<<<<< HEAD
 typedef struct TEEC_UUID {
+=======
+typedef struct {
+>>>>>>> upstream/android-13
 	uint32_t timeLow;
 	uint16_t timeMid;
 	uint16_t timeHiAndVersion;
 	uint8_t clockSeqAndNode[8];
 } TEEC_UUID;
 
+<<<<<<< HEAD
 typedef struct TEEC_Context {
 	void *imp;
 } TEEC_Context;
@@ -105,6 +110,17 @@ typedef struct TEEC_Session {
 } TEEC_Session;
 
 typedef struct TEEC_SharedMemory {
+=======
+typedef struct {
+	void *imp;
+} TEEC_Context;
+
+typedef struct {
+	void *imp;
+} TEEC_Session;
+
+typedef struct {
+>>>>>>> upstream/android-13
 	void *buffer;
 	size_t size;
 	uint32_t flags;
@@ -133,7 +149,11 @@ typedef union {
 	TEEC_Value value;
 } TEEC_Parameter;
 
+<<<<<<< HEAD
 typedef struct TEEC_Operation {
+=======
+typedef struct {
+>>>>>>> upstream/android-13
 	uint32_t started;
 	uint32_t paramTypes;
 	TEEC_Parameter params[4];

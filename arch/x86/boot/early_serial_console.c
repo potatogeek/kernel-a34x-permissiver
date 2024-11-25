@@ -50,7 +50,11 @@ static void parse_earlyprintk(void)
 	int pos = 0;
 	int port = 0;
 
+<<<<<<< HEAD
 	if (cmdline_find_option("earlyprintk", arg, sizeof arg) > 0) {
+=======
+	if (cmdline_find_option("earlyprintk", arg, sizeof(arg)) > 0) {
+>>>>>>> upstream/android-13
 		char *e;
 
 		if (!strncmp(arg, "serial", 6)) {
@@ -124,7 +128,11 @@ static void parse_console_uart8250(void)
 	 * console=uart8250,io,0x3f8,115200n8
 	 * need to make sure it is last one console !
 	 */
+<<<<<<< HEAD
 	if (cmdline_find_option("console", optstr, sizeof optstr) <= 0)
+=======
+	if (cmdline_find_option("console", optstr, sizeof(optstr)) <= 0)
+>>>>>>> upstream/android-13
 		return;
 
 	options = optstr;

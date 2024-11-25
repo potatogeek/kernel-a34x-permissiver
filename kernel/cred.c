@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Task credentials management - see Documentation/security/credentials.rst
  *
  * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <linux/cred.h>
@@ -19,10 +26,16 @@
 #include <linux/security.h>
 #include <linux/binfmts.h>
 #include <linux/cn_proc.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_KDP_CRED
 #include <linux/kdp.h>
 #endif
+=======
+#include <linux/uidgid.h>
+
+#include <trace/hooks/creds.h>
+>>>>>>> upstream/android-13
 
 #if 0
 #define kdebug(FMT, ...)						\
@@ -40,16 +53,24 @@ do {									\
 static struct kmem_cache *cred_jar;
 
 /* init to 2 - one for init_task, one to ensure it is never freed */
+<<<<<<< HEAD
 struct group_info init_groups = { .usage = ATOMIC_INIT(2) };
+=======
+static struct group_info init_groups = { .usage = ATOMIC_INIT(2) };
+>>>>>>> upstream/android-13
 
 /*
  * The initial credentials for the initial task
  */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 struct cred init_cred __kdp_ro = {
 #else
 struct cred init_cred = {
 #endif
+=======
+struct cred init_cred = {
+>>>>>>> upstream/android-13
 	.usage			= ATOMIC_INIT(4),
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	.subscribers		= ATOMIC_INIT(2),
@@ -71,6 +92,7 @@ struct cred init_cred = {
 	.user			= INIT_USER,
 	.user_ns		= &init_user_ns,
 	.group_info		= &init_groups,
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	.use_cnt		= (atomic_t *)&init_cred_use_cnt,
 	.bp_task		= &init_task,
@@ -80,13 +102,21 @@ struct cred init_cred = {
 };
 
 #ifndef CONFIG_KDP_CRED
+=======
+	.ucounts		= &init_ucounts,
+};
+
+>>>>>>> upstream/android-13
 static inline void set_cred_subscribers(struct cred *cred, int n)
 {
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	atomic_set(&cred->subscribers, n);
 #endif
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static inline int read_cred_subscribers(const struct cred *cred)
 {
@@ -138,6 +168,11 @@ static void put_cred_rcu(struct rcu_head *rcu)
 	if (cred->group_info)
 		put_group_info(cred->group_info);
 	free_uid(cred->user);
+<<<<<<< HEAD
+=======
+	if (cred->ucounts)
+		put_ucounts(cred->ucounts);
+>>>>>>> upstream/android-13
 	put_user_ns(cred->user_ns);
 	kmem_cache_free(cred_jar, cred);
 }
@@ -153,11 +188,14 @@ void __put_cred(struct cred *cred)
 	kdebug("__put_cred(%p{%d,%d})", cred,
 	       atomic_read(&cred->usage),
 	       read_cred_subscribers(cred));
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	if (is_kdp_protect_addr((unsigned long)cred))
 		BUG_ON(ROCRED_UC_READ(cred) != 0);
 	else
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	BUG_ON(atomic_read(&cred->usage) != 0);
 #ifdef CONFIG_DEBUG_CREDENTIALS
@@ -165,6 +203,7 @@ void __put_cred(struct cred *cred)
 	cred->magic = CRED_MAGIC_DEAD;
 	cred->put_addr = __builtin_return_address(0);
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	if(cred == current->cred)
 		printk("[KDP] cred->security: 0x%lx\n", cred->security);
@@ -181,13 +220,21 @@ void __put_cred(struct cred *cred)
 	}
 	else {
 #endif
+=======
+	BUG_ON(cred == current->cred);
+	BUG_ON(cred == current->real_cred);
+
+>>>>>>> upstream/android-13
 	if (cred->non_rcu)
 		put_cred_rcu(&cred->rcu);
 	else
 		call_rcu(&cred->rcu, put_cred_rcu);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__put_cred);
 
@@ -213,6 +260,15 @@ void exit_creds(struct task_struct *tsk)
 	validate_creds(cred);
 	alter_cred_subscribers(cred, -1);
 	put_cred(cred);
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_KEYS_REQUEST_CACHE
+	key_put(tsk->cached_requested_key);
+	tsk->cached_requested_key = NULL;
+#endif
+	trace_android_rvh_exit_creds(tsk, cred);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -228,6 +284,7 @@ void exit_creds(struct task_struct *tsk)
 const struct cred *get_task_cred(struct task_struct *task)
 {
 	const struct cred *cred;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	int inc_test;
 #endif
@@ -252,6 +309,20 @@ const struct cred *get_task_cred(struct task_struct *task)
 	rcu_read_unlock();
 	return cred;
 }
+=======
+
+	rcu_read_lock();
+
+	do {
+		cred = __task_cred((task));
+		BUG_ON(!cred);
+	} while (!get_cred_rcu(cred));
+
+	rcu_read_unlock();
+	return cred;
+}
+EXPORT_SYMBOL(get_task_cred);
+>>>>>>> upstream/android-13
 
 /*
  * Allocate blank credentials, such that the credentials can be filled in at a
@@ -269,7 +340,10 @@ struct cred *cred_alloc_blank(void)
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	new->magic = CRED_MAGIC;
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
 		goto error;
 
@@ -329,8 +403,18 @@ struct cred *prepare_creds(void)
 	new->security = NULL;
 #endif
 
+<<<<<<< HEAD
 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
 		goto error;
+=======
+	new->ucounts = get_ucounts(new->ucounts);
+	if (!new->ucounts)
+		goto error;
+
+	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+		goto error;
+
+>>>>>>> upstream/android-13
 	validate_creds(new);
 	return new;
 
@@ -362,6 +446,12 @@ struct cred *prepare_exec_creds(void)
 	new->process_keyring = NULL;
 #endif
 
+<<<<<<< HEAD
+=======
+	new->suid = new->fsuid = new->euid;
+	new->sgid = new->fsgid = new->egid;
+
+>>>>>>> upstream/android-13
 	return new;
 }
 
@@ -379,9 +469,16 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 	struct cred *new;
 	int ret;
 
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	if (!kdp_enable) {
 #endif
+=======
+#ifdef CONFIG_KEYS_REQUEST_CACHE
+	p->cached_requested_key = NULL;
+#endif
+
+>>>>>>> upstream/android-13
 	if (
 #ifdef CONFIG_KEYS
 		!p->cred->thread_keyring &&
@@ -394,12 +491,19 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 		kdebug("share_creds(%p{%d,%d})",
 		       p->cred, atomic_read(&p->cred->usage),
 		       read_cred_subscribers(p->cred));
+<<<<<<< HEAD
 		atomic_inc(&p->cred->user->processes);
 		return 0;
 	}
 #ifdef CONFIG_KDP_CRED
 	}
 #endif
+=======
+		inc_rlimit_ucounts(task_ucounts(p), UCOUNT_RLIMIT_NPROC, 1);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	new = prepare_creds();
 	if (!new)
 		return -ENOMEM;
@@ -408,6 +512,12 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 		ret = create_user_ns(new);
 		if (ret < 0)
 			goto error_put;
+<<<<<<< HEAD
+=======
+		ret = set_cred_ucounts(new);
+		if (ret < 0)
+			goto error_put;
+>>>>>>> upstream/android-13
 	}
 
 #ifdef CONFIG_KEYS
@@ -429,6 +539,7 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 	}
 #endif
 
+<<<<<<< HEAD
 	atomic_inc(&new->user->processes);
 #ifdef CONFIG_KDP_CRED
 	if (kdp_enable) {
@@ -445,6 +556,12 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
 	validate_creds(new);
 #endif
 
+=======
+	p->cred = p->real_cred = get_cred(new);
+	inc_rlimit_ucounts(task_ucounts(p), UCOUNT_RLIMIT_NPROC, 1);
+	alter_cred_subscribers(new, 2);
+	validate_creds(new);
+>>>>>>> upstream/android-13
 	return 0;
 
 error_put:
@@ -506,11 +623,14 @@ int commit_creds(struct cred *new)
 	validate_creds(old);
 	validate_creds(new);
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	if (is_kdp_protect_addr((unsigned long)new))
 		BUG_ON(ROCRED_UC_READ(new) < 1);
 	else
 #endif
+=======
+>>>>>>> upstream/android-13
 	BUG_ON(atomic_read(&new->usage) < 1);
 
 	get_cred(new); /* we will require a ref for the subj creds too */
@@ -538,15 +658,22 @@ int commit_creds(struct cred *new)
 
 	/* alter the thread keyring */
 	if (!uid_eq(new->fsuid, old->fsuid))
+<<<<<<< HEAD
 		key_fsuid_changed(task);
 	if (!gid_eq(new->fsgid, old->fsgid))
 		key_fsgid_changed(task);
+=======
+		key_fsuid_changed(new);
+	if (!gid_eq(new->fsgid, old->fsgid))
+		key_fsgid_changed(new);
+>>>>>>> upstream/android-13
 
 	/* do it
 	 * RLIMIT_NPROC limits on user->processes have already been checked
 	 * in set_user().
 	 */
 	alter_cred_subscribers(new, 2);
+<<<<<<< HEAD
 	if (new->user != old->user)
 		atomic_inc(&new->user->processes);
 
@@ -567,6 +694,15 @@ int commit_creds(struct cred *new)
 #endif
 	if (new->user != old->user)
 		atomic_dec(&old->user->processes);
+=======
+	if (new->user != old->user || new->user_ns != old->user_ns)
+		inc_rlimit_ucounts(new->ucounts, UCOUNT_RLIMIT_NPROC, 1);
+	rcu_assign_pointer(task->real_cred, new);
+	rcu_assign_pointer(task->cred, new);
+	trace_android_rvh_commit_creds(task, new);
+	if (new->user != old->user || new->user_ns != old->user_ns)
+		dec_rlimit_ucounts(old->ucounts, UCOUNT_RLIMIT_NPROC, 1);
+>>>>>>> upstream/android-13
 	alter_cred_subscribers(old, -2);
 
 	/* send notifications */
@@ -581,12 +717,16 @@ int commit_creds(struct cred *new)
 	    !gid_eq(new->sgid,  old->sgid) ||
 	    !gid_eq(new->fsgid, old->fsgid))
 		proc_id_connector(task, PROC_EVENT_GID);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	if (kdp_enable) {
 		put_cred(new);
 		put_cred(new);
 	}
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	/* release the old obj and subj refs both */
 	put_cred(old);
 	put_cred(old);
@@ -610,11 +750,14 @@ void abort_creds(struct cred *new)
 #ifdef CONFIG_DEBUG_CREDENTIALS
 	BUG_ON(read_cred_subscribers(new) != 0);
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	if (is_kdp_protect_addr((unsigned long)new))
 		BUG_ON(ROCRED_UC_READ(new) < 1);
 	else
 #endif
+=======
+>>>>>>> upstream/android-13
 	BUG_ON(atomic_read(&new->usage) < 1);
 	put_cred(new);
 }
@@ -651,6 +794,7 @@ const struct cred *override_creds(const struct cred *new)
 	 */
 	get_new_cred((struct cred *)new);
 	alter_cred_subscribers(new, 1);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	if (kdp_enable) {
 		volatile unsigned int kdp_use_count = kdp_get_usecount((struct cred *)new);
@@ -662,6 +806,10 @@ const struct cred *override_creds(const struct cred *new)
 	} else
 #endif
 	rcu_assign_pointer(current->cred, new);
+=======
+	rcu_assign_pointer(current->cred, new);
+	trace_android_rvh_override_creds(current, new);
+>>>>>>> upstream/android-13
 	alter_cred_subscribers(old, -1);
 
 	kdebug("override_creds() = %p{%d,%d}", old,
@@ -690,6 +838,7 @@ void revert_creds(const struct cred *old)
 	validate_creds(override);
 	alter_cred_subscribers(old, 1);
 	rcu_assign_pointer(current->cred, old);
+<<<<<<< HEAD
 	alter_cred_subscribers(override, -1);
 #ifdef CONFIG_KDP_CRED
 	if (kdp_enable) {
@@ -700,10 +849,91 @@ void revert_creds(const struct cred *old)
 		}
 	}
 #endif
+=======
+	trace_android_rvh_revert_creds(current, old);
+	alter_cred_subscribers(override, -1);
+>>>>>>> upstream/android-13
 	put_cred(override);
 }
 EXPORT_SYMBOL(revert_creds);
 
+<<<<<<< HEAD
+=======
+/**
+ * cred_fscmp - Compare two credentials with respect to filesystem access.
+ * @a: The first credential
+ * @b: The second credential
+ *
+ * cred_cmp() will return zero if both credentials have the same
+ * fsuid, fsgid, and supplementary groups.  That is, if they will both
+ * provide the same access to files based on mode/uid/gid.
+ * If the credentials are different, then either -1 or 1 will
+ * be returned depending on whether @a comes before or after @b
+ * respectively in an arbitrary, but stable, ordering of credentials.
+ *
+ * Return: -1, 0, or 1 depending on comparison
+ */
+int cred_fscmp(const struct cred *a, const struct cred *b)
+{
+	struct group_info *ga, *gb;
+	int g;
+
+	if (a == b)
+		return 0;
+	if (uid_lt(a->fsuid, b->fsuid))
+		return -1;
+	if (uid_gt(a->fsuid, b->fsuid))
+		return 1;
+
+	if (gid_lt(a->fsgid, b->fsgid))
+		return -1;
+	if (gid_gt(a->fsgid, b->fsgid))
+		return 1;
+
+	ga = a->group_info;
+	gb = b->group_info;
+	if (ga == gb)
+		return 0;
+	if (ga == NULL)
+		return -1;
+	if (gb == NULL)
+		return 1;
+	if (ga->ngroups < gb->ngroups)
+		return -1;
+	if (ga->ngroups > gb->ngroups)
+		return 1;
+
+	for (g = 0; g < ga->ngroups; g++) {
+		if (gid_lt(ga->gid[g], gb->gid[g]))
+			return -1;
+		if (gid_gt(ga->gid[g], gb->gid[g]))
+			return 1;
+	}
+	return 0;
+}
+EXPORT_SYMBOL(cred_fscmp);
+
+int set_cred_ucounts(struct cred *new)
+{
+	struct ucounts *new_ucounts, *old_ucounts = new->ucounts;
+
+	/*
+	 * This optimization is needed because alloc_ucounts() uses locks
+	 * for table lookups.
+	 */
+	if (old_ucounts->ns == new->user_ns && uid_eq(old_ucounts->uid, new->uid))
+		return 0;
+
+	if (!(new_ucounts = alloc_ucounts(new->user_ns, new->uid)))
+		return -EAGAIN;
+
+	new->ucounts = new_ucounts;
+	put_ucounts(old_ucounts);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * initialise the credentials stuff
  */
@@ -712,9 +942,12 @@ void __init cred_init(void)
 	/* allocate a slab in which we can store credentials */
 	cred_jar = kmem_cache_create("cred_jar", sizeof(struct cred), 0,
 			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_ACCOUNT, NULL);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 	kdp_cred_init();
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -732,8 +965,11 @@ void __init cred_init(void)
  * The caller may change these controls afterwards if desired.
  *
  * Returns the new credentials or NULL if out of memory.
+<<<<<<< HEAD
  *
  * Does not take, and does not return holding current->cred_replace_mutex.
+=======
+>>>>>>> upstream/android-13
  */
 struct cred *prepare_kernel_cred(struct task_struct *daemon)
 {
@@ -772,6 +1008,13 @@ struct cred *prepare_kernel_cred(struct task_struct *daemon)
 #ifdef CONFIG_SECURITY
 	new->security = NULL;
 #endif
+<<<<<<< HEAD
+=======
+	new->ucounts = get_ucounts(new->ucounts);
+	if (!new->ucounts)
+		goto error;
+
+>>>>>>> upstream/android-13
 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
 		goto error;
 
@@ -848,6 +1091,7 @@ bool creds_are_invalid(const struct cred *cred)
 {
 	if (cred->magic != CRED_MAGIC)
 		return true;
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY_SELINUX
 	/*
 	 * cred->security == NULL if security_cred_alloc_blank() or
@@ -861,6 +1105,8 @@ bool creds_are_invalid(const struct cred *cred)
 			return true;
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 	return false;
 }
 EXPORT_SYMBOL(creds_are_invalid);

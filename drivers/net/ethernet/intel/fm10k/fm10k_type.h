@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #ifndef _FM10K_TYPE_H_
 #define _FM10K_TYPE_H_
@@ -15,6 +19,11 @@ struct fm10k_hw;
 
 #define FM10K_DEV_ID_PF			0x15A4
 #define FM10K_DEV_ID_VF			0x15A5
+<<<<<<< HEAD
+=======
+#define FM10K_DEV_ID_SDI_FM10420_QDA2	0x15D0
+#define FM10K_DEV_ID_SDI_FM10420_DA2	0x15D5
+>>>>>>> upstream/android-13
 
 #define FM10K_MAX_QUEUES		256
 #define FM10K_MAX_QUEUES_PF		128
@@ -579,6 +588,10 @@ struct fm10k_vf_info {
 	 * at the same offset as the mailbox
 	 */
 	struct fm10k_mbx_info	mbx;		/* PF side of VF mailbox */
+<<<<<<< HEAD
+=======
+	struct fm10k_hw_stats_q	stats[FM10K_MAX_QUEUES_POOL];
+>>>>>>> upstream/android-13
 	int			rate;		/* Tx BW cap as defined by OS */
 	u16			glort;		/* resource tag for this VF */
 	u16			sw_vid;		/* Switch API assigned VLAN */

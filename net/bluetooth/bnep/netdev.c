@@ -112,7 +112,11 @@ static int bnep_net_set_mac_addr(struct net_device *dev, void *arg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void bnep_net_timeout(struct net_device *dev)
+=======
+static void bnep_net_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	BT_DBG("net_timeout");
 	netif_wake_queue(dev);

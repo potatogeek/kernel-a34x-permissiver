@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/traps.c
  *
  *  Copyright (C) 1995-2009 Russell King
  *  Fragments that appear the same as linux/arch/i386/kernel/traps.c (C) Linus Torvalds
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  'traps.c' handles hardware exceptions after we have saved some state in
  *  'linux/arch/arm/lib/traps.S'.  Mostly a debugging aid, but will probably
  *  kill the offending process.
@@ -33,6 +40,10 @@
 #include <linux/atomic.h>
 #include <asm/cacheflush.h>
 #include <asm/exception.h>
+<<<<<<< HEAD
+=======
+#include <asm/spectre.h>
+>>>>>>> upstream/android-13
 #include <asm/unistd.h>
 #include <asm/traps.h>
 #include <asm/ptrace.h>
@@ -65,11 +76,17 @@ __setup("user_debug=", user_debug_setup);
 
 static void dump_mem(const char *, const char *, unsigned long, unsigned long);
 
+<<<<<<< HEAD
 void dump_backtrace_entry(unsigned long where, unsigned long from, unsigned long frame)
+=======
+void dump_backtrace_entry(unsigned long where, unsigned long from,
+			  unsigned long frame, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned long end = frame + 4 + sizeof(struct pt_regs);
 
 #ifdef CONFIG_KALLSYMS
+<<<<<<< HEAD
 	printk("[<%08lx>] (%ps) from [<%08lx>] (%pS)\n", where, (void *)where, from, (void *)from);
 #else
 	printk("Function entered at [<%08lx>] from [<%08lx>]\n", where, from);
@@ -80,6 +97,20 @@ void dump_backtrace_entry(unsigned long where, unsigned long from, unsigned long
 }
 
 void dump_backtrace_stm(u32 *stack, u32 instruction)
+=======
+	printk("%s[<%08lx>] (%ps) from [<%08lx>] (%pS)\n",
+		loglvl, where, (void *)where, from, (void *)from);
+#else
+	printk("%sFunction entered at [<%08lx>] from [<%08lx>]\n",
+		loglvl, where, from);
+#endif
+
+	if (in_entry_text(from) && end <= ALIGN(frame, THREAD_SIZE))
+		dump_mem(loglvl, "Exception stack", frame + 4, end);
+}
+
+void dump_backtrace_stm(u32 *stack, u32 instruction, const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	char str[80], *p;
 	unsigned int x;
@@ -91,12 +122,20 @@ void dump_backtrace_stm(u32 *stack, u32 instruction)
 			if (++x == 6) {
 				x = 0;
 				p = str;
+<<<<<<< HEAD
 				printk("%s\n", str);
+=======
+				printk("%s%s\n", loglvl, str);
+>>>>>>> upstream/android-13
 			}
 		}
 	}
 	if (p != str)
+<<<<<<< HEAD
 		printk("%s\n", str);
+=======
+		printk("%s%s\n", loglvl, str);
+>>>>>>> upstream/android-13
 }
 
 #ifndef CONFIG_ARM_UNWIND
@@ -122,6 +161,7 @@ static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
 		     unsigned long top)
 {
 	unsigned long first;
+<<<<<<< HEAD
 	mm_segment_t fs;
 	int i;
 
@@ -133,6 +173,10 @@ static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
 	fs = get_fs();
 	set_fs(KERNEL_DS);
 
+=======
+	int i;
+
+>>>>>>> upstream/android-13
 	printk("%s%s(0x%08lx to 0x%08lx)\n", lvl, str, bottom, top);
 
 	for (first = bottom & ~31; first < top; first += 32) {
@@ -145,7 +189,11 @@ static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
 		for (p = first, i = 0; i < 8 && p < top; i++, p += 4) {
 			if (p >= bottom && p < top) {
 				unsigned long val;
+<<<<<<< HEAD
 				if (__get_user(val, (unsigned long *)p) == 0)
+=======
+				if (!get_kernel_nofault(val, (unsigned long *)p))
+>>>>>>> upstream/android-13
 					sprintf(str + i * 9, " %08lx", val);
 				else
 					sprintf(str + i * 9, " ????????");
@@ -153,11 +201,17 @@ static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
 		}
 		printk("%s%04lx:%s\n", lvl, first & 0xffff, str);
 	}
+<<<<<<< HEAD
 
 	set_fs(fs);
 }
 
 static void __dump_instr(const char *lvl, struct pt_regs *regs)
+=======
+}
+
+static void dump_instr(const char *lvl, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = instruction_pointer(regs);
 	const int thumb = thumb_mode(regs);
@@ -173,10 +227,27 @@ static void __dump_instr(const char *lvl, struct pt_regs *regs)
 	for (i = -4; i < 1 + !!thumb; i++) {
 		unsigned int val, bad;
 
+<<<<<<< HEAD
 		if (thumb)
 			bad = get_user(val, &((u16 *)addr)[i]);
 		else
 			bad = get_user(val, &((u32 *)addr)[i]);
+=======
+		if (!user_mode(regs)) {
+			if (thumb) {
+				u16 val16;
+				bad = get_kernel_nofault(val16, &((u16 *)addr)[i]);
+				val = val16;
+			} else {
+				bad = get_kernel_nofault(val, &((u32 *)addr)[i]);
+			}
+		} else {
+			if (thumb)
+				bad = get_user(val, &((u16 *)addr)[i]);
+			else
+				bad = get_user(val, &((u32 *)addr)[i]);
+		}
+>>>>>>> upstream/android-13
 
 		if (!bad)
 			p += sprintf(p, i == 0 ? "(%0*x) " : "%0*x ",
@@ -189,6 +260,7 @@ static void __dump_instr(const char *lvl, struct pt_regs *regs)
 	printk("%sCode: %s\n", lvl, str);
 }
 
+<<<<<<< HEAD
 static void dump_instr(const char *lvl, struct pt_regs *regs)
 {
 	mm_segment_t fs;
@@ -210,11 +282,26 @@ static inline void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
 }
 #else
 static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
+=======
+#ifdef CONFIG_ARM_UNWIND
+static inline void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk,
+				  const char *loglvl)
+{
+	unwind_backtrace(regs, tsk, loglvl);
+}
+#else
+static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk,
+			   const char *loglvl)
+>>>>>>> upstream/android-13
 {
 	unsigned int fp, mode;
 	int ok = 1;
 
+<<<<<<< HEAD
 	printk("Backtrace: ");
+=======
+	printk("%sBacktrace: ", loglvl);
+>>>>>>> upstream/android-13
 
 	if (!tsk)
 		tsk = current;
@@ -241,6 +328,7 @@ static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
 	pr_cont("\n");
 
 	if (ok)
+<<<<<<< HEAD
 		c_backtrace(fp, mode);
 }
 #endif
@@ -248,11 +336,25 @@ static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
 void show_stack(struct task_struct *tsk, unsigned long *sp)
 {
 	dump_backtrace(NULL, tsk);
+=======
+		c_backtrace(fp, mode, loglvl);
+}
+#endif
+
+void show_stack(struct task_struct *tsk, unsigned long *sp, const char *loglvl)
+{
+	dump_backtrace(NULL, tsk, loglvl);
+>>>>>>> upstream/android-13
 	barrier();
 }
 
 #ifdef CONFIG_PREEMPT
 #define S_PREEMPT " PREEMPT"
+<<<<<<< HEAD
+=======
+#elif defined(CONFIG_PREEMPT_RT)
+#define S_PREEMPT " PREEMPT_RT"
+>>>>>>> upstream/android-13
 #else
 #define S_PREEMPT ""
 #endif
@@ -283,13 +385,21 @@ static int __die(const char *str, int err, struct pt_regs *regs)
 
 	print_modules();
 	__show_regs(regs);
+<<<<<<< HEAD
+=======
+	__show_regs_alloc_free(regs);
+>>>>>>> upstream/android-13
 	pr_emerg("Process %.*s (pid: %d, stack limit = 0x%p)\n",
 		 TASK_COMM_LEN, tsk->comm, task_pid_nr(tsk), end_of_stack(tsk));
 
 	if (!user_mode(regs) || in_interrupt()) {
 		dump_mem(KERN_EMERG, "Stack: ", regs->ARM_sp,
 			 THREAD_SIZE + (unsigned long)task_stack_page(tsk));
+<<<<<<< HEAD
 		dump_backtrace(regs, tsk);
+=======
+		dump_backtrace(regs, tsk, KERN_EMERG);
+>>>>>>> upstream/android-13
 		dump_instr(KERN_EMERG, regs);
 	}
 
@@ -367,13 +477,22 @@ void die(const char *str, struct pt_regs *regs, int err)
 }
 
 void arm_notify_die(const char *str, struct pt_regs *regs,
+<<<<<<< HEAD
 		struct siginfo *info, unsigned long err, unsigned long trap)
+=======
+		int signo, int si_code, void __user *addr,
+		unsigned long err, unsigned long trap)
+>>>>>>> upstream/android-13
 {
 	if (user_mode(regs)) {
 		current->thread.error_code = err;
 		current->thread.trap_no = trap;
 
+<<<<<<< HEAD
 		force_sig_info(info->si_signo, info, current);
+=======
+		force_sig_fault(signo, si_code, addr);
+>>>>>>> upstream/android-13
 	} else {
 		die(str, regs, err);
 	}
@@ -391,7 +510,11 @@ int is_valid_bugaddr(unsigned long pc)
 	u32 insn = __opcode_to_mem_arm(BUG_INSTR_VALUE);
 #endif
 
+<<<<<<< HEAD
 	if (probe_kernel_address((unsigned *)pc, bkpt))
+=======
+	if (get_kernel_nofault(bkpt, (void *)pc))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return bkpt == insn;
@@ -440,10 +563,15 @@ int call_undef_hook(struct pt_regs *regs, unsigned int instr)
 asmlinkage void do_undefinstr(struct pt_regs *regs)
 {
 	unsigned int instr;
+<<<<<<< HEAD
 	siginfo_t info;
 	void __user *pc;
 
 	clear_siginfo(&info);
+=======
+	void __user *pc;
+
+>>>>>>> upstream/android-13
 	pc = (void __user *)instruction_pointer(regs);
 
 	if (processor_mode(regs) == SVC_MODE) {
@@ -487,6 +615,7 @@ die_sig:
 		dump_instr(KERN_INFO, regs);
 	}
 #endif
+<<<<<<< HEAD
 
 	info.si_signo = SIGILL;
 	info.si_errno = 0;
@@ -494,6 +623,10 @@ die_sig:
 	info.si_addr  = pc;
 
 	arm_notify_die("Oops - undefined instruction", regs, &info, 0, 6);
+=======
+	arm_notify_die("Oops - undefined instruction", regs,
+		       SIGILL, ILL_ILLOPC, pc, 0, 6);
+>>>>>>> upstream/android-13
 }
 NOKPROBE_SYMBOL(do_undefinstr)
 
@@ -541,9 +674,12 @@ asmlinkage void bad_mode(struct pt_regs *regs, int reason)
 
 static int bad_syscall(int n, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 
 	clear_siginfo(&info);
+=======
+>>>>>>> upstream/android-13
 	if ((current->personality & PER_MASK) != PER_LINUX) {
 		send_sig(SIGSEGV, current, 1);
 		return regs->ARM_r0;
@@ -557,6 +693,7 @@ static int bad_syscall(int n, struct pt_regs *regs)
 	}
 #endif
 
+<<<<<<< HEAD
 	info.si_signo = SIGILL;
 	info.si_errno = 0;
 	info.si_code  = ILL_ILLTRP;
@@ -564,6 +701,12 @@ static int bad_syscall(int n, struct pt_regs *regs)
 			 (thumb_mode(regs) ? 2 : 4);
 
 	arm_notify_die("Oops - bad syscall", regs, &info, n, 0);
+=======
+	arm_notify_die("Oops - bad syscall", regs, SIGILL, ILL_ILLTRP,
+		       (void __user *)instruction_pointer(regs) -
+			 (thumb_mode(regs) ? 2 : 4),
+		       n, 0);
+>>>>>>> upstream/android-13
 
 	return regs->ARM_r0;
 }
@@ -579,7 +722,11 @@ __do_cache_op(unsigned long start, unsigned long end)
 		if (fatal_signal_pending(current))
 			return 0;
 
+<<<<<<< HEAD
 		ret = flush_cache_user_range(start, start + chunk);
+=======
+		ret = flush_icache_user_range(start, start + chunk);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -596,7 +743,11 @@ do_cache_op(unsigned long start, unsigned long end, int flags)
 	if (end < start || flags)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, start, end - start))
+=======
+	if (!access_ok((void __user *)start, end - start))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	return __do_cache_op(start, end);
@@ -609,25 +760,37 @@ do_cache_op(unsigned long start, unsigned long end, int flags)
 #define NR(x) ((__ARM_NR_##x) - __ARM_NR_BASE)
 asmlinkage int arm_syscall(int no, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	siginfo_t info;
 
 	clear_siginfo(&info);
+=======
+>>>>>>> upstream/android-13
 	if ((no >> 16) != (__ARM_NR_BASE>> 16))
 		return bad_syscall(no, regs);
 
 	switch (no & 0xffff) {
 	case 0: /* branch through 0 */
+<<<<<<< HEAD
 		info.si_signo = SIGSEGV;
 		info.si_errno = 0;
 		info.si_code  = SEGV_MAPERR;
 		info.si_addr  = NULL;
 
 		arm_notify_die("branch through zero", regs, &info, 0, 0);
+=======
+		arm_notify_die("branch through zero", regs,
+			       SIGSEGV, SEGV_MAPERR, NULL, 0, 0);
+>>>>>>> upstream/android-13
 		return 0;
 
 	case NR(breakpoint): /* SWI BREAK_POINT */
 		regs->ARM_pc -= thumb_mode(regs) ? 2 : 4;
+<<<<<<< HEAD
 		ptrace_break(current, regs);
+=======
+		ptrace_break(regs);
+>>>>>>> upstream/android-13
 		return regs->ARM_r0;
 
 	/*
@@ -683,6 +846,7 @@ asmlinkage int arm_syscall(int no, struct pt_regs *regs)
 	if (user_debug & UDBG_SYSCALL) {
 		pr_err("[%d] %s: arm syscall %d\n",
 		       task_pid_nr(current), current->comm, no);
+<<<<<<< HEAD
 		dump_instr("", regs);
 		if (user_mode(regs)) {
 			__show_regs(regs);
@@ -697,6 +861,19 @@ asmlinkage int arm_syscall(int no, struct pt_regs *regs)
 			 (thumb_mode(regs) ? 2 : 4);
 
 	arm_notify_die("Oops - bad syscall(2)", regs, &info, no, 0);
+=======
+		dump_instr(KERN_ERR, regs);
+		if (user_mode(regs)) {
+			__show_regs(regs);
+			c_backtrace(frame_pointer(regs), processor_mode(regs), KERN_ERR);
+		}
+	}
+#endif
+	arm_notify_die("Oops - bad syscall(2)", regs, SIGILL, ILL_ILLTRP,
+		       (void __user *)instruction_pointer(regs) -
+			 (thumb_mode(regs) ? 2 : 4),
+		       no, 0);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -746,6 +923,7 @@ asmlinkage void
 baddataabort(int code, unsigned long instr, struct pt_regs *regs)
 {
 	unsigned long addr = instruction_pointer(regs);
+<<<<<<< HEAD
 	siginfo_t info;
 
 	clear_siginfo(&info);
@@ -765,6 +943,21 @@ baddataabort(int code, unsigned long instr, struct pt_regs *regs)
 	info.si_addr  = (void __user *)addr;
 
 	arm_notify_die("unknown data abort code", regs, &info, instr, 0);
+=======
+
+#ifdef CONFIG_DEBUG_USER
+	if (user_debug & UDBG_BADABORT) {
+		pr_err("8<--- cut here ---\n");
+		pr_err("[%d] %s: bad data abort: code %d instr 0x%08lx\n",
+		       task_pid_nr(current), current->comm, code, instr);
+		dump_instr(KERN_ERR, regs);
+		show_pte(KERN_ERR, current->mm, addr);
+	}
+#endif
+
+	arm_notify_die("unknown data abort code", regs,
+		       SIGILL, ILL_ILLOPC, (void __user *)addr, instr, 0);
+>>>>>>> upstream/android-13
 }
 
 void __readwrite_bug(const char *fn)
@@ -804,11 +997,14 @@ void abort(void)
 	panic("Oops failed to kill thread");
 }
 
+<<<<<<< HEAD
 void __init trap_init(void)
 {
 	return;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KUSER_HELPERS
 static void __init kuser_init(void *vectors)
 {
@@ -830,10 +1026,66 @@ static inline void __init kuser_init(void *vectors)
 }
 #endif
 
+<<<<<<< HEAD
 void __init early_trap_init(void *vectors_base)
 {
 #ifndef CONFIG_CPU_V7M
 	unsigned long vectors = (unsigned long)vectors_base;
+=======
+#ifndef CONFIG_CPU_V7M
+static void copy_from_lma(void *vma, void *lma_start, void *lma_end)
+{
+	memcpy(vma, lma_start, lma_end - lma_start);
+}
+
+static void flush_vectors(void *vma, size_t offset, size_t size)
+{
+	unsigned long start = (unsigned long)vma + offset;
+	unsigned long end = start + size;
+
+	flush_icache_range(start, end);
+}
+
+#ifdef CONFIG_HARDEN_BRANCH_HISTORY
+int spectre_bhb_update_vectors(unsigned int method)
+{
+	extern char __vectors_bhb_bpiall_start[], __vectors_bhb_bpiall_end[];
+	extern char __vectors_bhb_loop8_start[], __vectors_bhb_loop8_end[];
+	void *vec_start, *vec_end;
+
+	if (system_state > SYSTEM_SCHEDULING) {
+		pr_err("CPU%u: Spectre BHB workaround too late - system vulnerable\n",
+		       smp_processor_id());
+		return SPECTRE_VULNERABLE;
+	}
+
+	switch (method) {
+	case SPECTRE_V2_METHOD_LOOP8:
+		vec_start = __vectors_bhb_loop8_start;
+		vec_end = __vectors_bhb_loop8_end;
+		break;
+
+	case SPECTRE_V2_METHOD_BPIALL:
+		vec_start = __vectors_bhb_bpiall_start;
+		vec_end = __vectors_bhb_bpiall_end;
+		break;
+
+	default:
+		pr_err("CPU%u: unknown Spectre BHB state %d\n",
+		       smp_processor_id(), method);
+		return SPECTRE_VULNERABLE;
+	}
+
+	copy_from_lma(vectors_page, vec_start, vec_end);
+	flush_vectors(vectors_page, 0, vec_end - vec_start);
+
+	return SPECTRE_MITIGATED;
+}
+#endif
+
+void __init early_trap_init(void *vectors_base)
+{
+>>>>>>> upstream/android-13
 	extern char __stubs_start[], __stubs_end[];
 	extern char __vectors_start[], __vectors_end[];
 	unsigned i;
@@ -854,6 +1106,7 @@ void __init early_trap_init(void *vectors_base)
 	 * into the vector page, mapped at 0xffff0000, and ensure these
 	 * are visible to the instruction stream.
 	 */
+<<<<<<< HEAD
 	memcpy((void *)vectors, __vectors_start, __vectors_end - __vectors_start);
 	memcpy((void *)vectors + 0x1000, __stubs_start, __stubs_end - __stubs_start);
 
@@ -861,10 +1114,27 @@ void __init early_trap_init(void *vectors_base)
 
 	flush_icache_range(vectors, vectors + PAGE_SIZE * 2);
 #else /* ifndef CONFIG_CPU_V7M */
+=======
+	copy_from_lma(vectors_base, __vectors_start, __vectors_end);
+	copy_from_lma(vectors_base + 0x1000, __stubs_start, __stubs_end);
+
+	kuser_init(vectors_base);
+
+	flush_vectors(vectors_base, 0, PAGE_SIZE * 2);
+}
+#else /* ifndef CONFIG_CPU_V7M */
+void __init early_trap_init(void *vectors_base)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * on V7-M there is no need to copy the vector table to a dedicated
 	 * memory area. The address is configurable and so a table in the kernel
 	 * image can be used.
 	 */
+<<<<<<< HEAD
 #endif
 }
+=======
+}
+#endif
+>>>>>>> upstream/android-13

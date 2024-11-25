@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* exynos_drm_gem.h
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
  * Authoer: Inki Dae <inki.dae@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _EXYNOS_DRM_GEM_H_
@@ -25,20 +32,31 @@
  * @base: a gem object.
  *	- a new handle to this gem object would be created
  *	by drm_gem_handle_create().
+<<<<<<< HEAD
  * @buffer: a pointer to exynos_drm_gem_buffer object.
  *	- contain the information to memory region allocated
  *	by user request or at framebuffer creation.
  *	continuous memory region allocated by user request
  *	or at framebuffer creation.
+=======
+>>>>>>> upstream/android-13
  * @flags: indicate memory type to allocated buffer and cache attruibute.
  * @size: size requested from user, in bytes and this size is aligned
  *	in page unit.
  * @cookie: cookie returned by dma_alloc_attrs
+<<<<<<< HEAD
  * @kvaddr: kernel virtual address to allocated memory region.
  * @dma_addr: bus address(accessed by dma) to allocated memory region.
  *	- this address could be physical address without IOMMU and
  *	device address with IOMMU.
  * @pages: Array of backing pages.
+=======
+ * @kvaddr: kernel virtual address to allocated memory region (for fbdev)
+ * @dma_addr: bus address(accessed by dma) to allocated memory region.
+ *	- this address could be physical address without IOMMU and
+ *	device address with IOMMU.
+ * @dma_attrs: attrs passed dma mapping framework
+>>>>>>> upstream/android-13
  * @sgt: Imported sg_table.
  *
  * P.S. this object would be transferred to user as kms_bo.handle so
@@ -49,10 +67,16 @@ struct exynos_drm_gem {
 	unsigned int		flags;
 	unsigned long		size;
 	void			*cookie;
+<<<<<<< HEAD
 	void __iomem		*kvaddr;
 	dma_addr_t		dma_addr;
 	unsigned long		dma_attrs;
 	struct page		**pages;
+=======
+	void			*kvaddr;
+	dma_addr_t		dma_addr;
+	unsigned long		dma_attrs;
+>>>>>>> upstream/android-13
 	struct sg_table		*sgt;
 };
 
@@ -62,7 +86,12 @@ void exynos_drm_gem_destroy(struct exynos_drm_gem *exynos_gem);
 /* create a new buffer with gem object */
 struct exynos_drm_gem *exynos_drm_gem_create(struct drm_device *dev,
 					     unsigned int flags,
+<<<<<<< HEAD
 					     unsigned long size);
+=======
+					     unsigned long size,
+					     bool kvmap);
+>>>>>>> upstream/android-13
 
 /*
  * request gem object creation and buffer allocation as the size
@@ -90,7 +119,11 @@ struct exynos_drm_gem *exynos_drm_gem_get(struct drm_file *filp,
  */
 static inline void exynos_drm_gem_put(struct exynos_drm_gem *exynos_gem)
 {
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&exynos_gem->base);
+=======
+	drm_gem_object_put(&exynos_gem->base);
+>>>>>>> upstream/android-13
 }
 
 /* get buffer information to memory region allocated by gem. */
@@ -105,9 +138,12 @@ int exynos_drm_gem_dumb_create(struct drm_file *file_priv,
 			       struct drm_device *dev,
 			       struct drm_mode_create_dumb *args);
 
+<<<<<<< HEAD
 /* page fault handler and mmap fault address(virtual) to physical memory. */
 vm_fault_t exynos_drm_gem_fault(struct vm_fault *vmf);
 
+=======
+>>>>>>> upstream/android-13
 /* set vm_flags and we can change the vm attribute to other one at here. */
 int exynos_drm_gem_mmap(struct file *filp, struct vm_area_struct *vma);
 
@@ -119,8 +155,11 @@ struct drm_gem_object *
 exynos_drm_gem_prime_import_sg_table(struct drm_device *dev,
 				     struct dma_buf_attachment *attach,
 				     struct sg_table *sgt);
+<<<<<<< HEAD
 void *exynos_drm_gem_prime_vmap(struct drm_gem_object *obj);
 void exynos_drm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
+=======
+>>>>>>> upstream/android-13
 int exynos_drm_gem_prime_mmap(struct drm_gem_object *obj,
 			      struct vm_area_struct *vma);
 

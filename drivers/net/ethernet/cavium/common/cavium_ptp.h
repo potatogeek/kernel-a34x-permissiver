@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /* cavium_ptp.h - PTP 1588 clock on Cavium hardware
  * Copyright (c) 2003-2015, 2017 Cavium, Inc.
  */
@@ -24,7 +28,11 @@ struct cavium_ptp {
 	struct ptp_clock *ptp_clock;
 };
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_CAVIUM_PTP)
+=======
+#if IS_REACHABLE(CONFIG_CAVIUM_PTP)
+>>>>>>> upstream/android-13
 
 struct cavium_ptp *cavium_ptp_get(void);
 void cavium_ptp_put(struct cavium_ptp *ptp);

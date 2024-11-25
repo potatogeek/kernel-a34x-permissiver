@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Mediatek SoCs General-Purpose Timer handling.
  *
  * Copyright (C) 2014 Matthias Brugger
  *
  * Matthias Brugger <matthias.bgg@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,16 +19,24 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 
+<<<<<<< HEAD
 #include <linux/clk.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/clockchips.h>
 #include <linux/clocksource.h>
 #include <linux/interrupt.h>
 #include <linux/irqreturn.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/sched_clock.h>
 #include <linux/slab.h>
 #include "timer-of.h"
@@ -71,9 +84,15 @@
  * SYST_CON_EN: Clock enable. Shall be set to
  *   - Start timer countdown.
  *   - Allow timeout ticks being updated.
+<<<<<<< HEAD
  *   - Allow changing interrupt functions.
  *
  * SYST_CON_IRQ_EN: Set to allow interrupt.
+=======
+ *   - Allow changing interrupt status,like clear irq pending.
+ *
+ * SYST_CON_IRQ_EN: Set to enable interrupt.
+>>>>>>> upstream/android-13
  *
  * SYST_CON_IRQ_CLR: Set to clear interrupt.
  */
@@ -81,6 +100,7 @@
 #define SYST_CON_IRQ_EN          BIT(1)
 #define SYST_CON_IRQ_CLR         BIT(4)
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_AEE_IPANIC
 #define SYST_DEBUG
 #endif
@@ -103,11 +123,17 @@ do { \
 } while (0)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void __iomem *gpt_sched_reg __read_mostly;
 
 static void mtk_syst_ack_irq(struct timer_of *to)
 {
 	/* Clear and disable interrupt */
+<<<<<<< HEAD
+=======
+	writel(SYST_CON_EN, SYST_CON_REG(to));
+>>>>>>> upstream/android-13
 	writel(SYST_CON_IRQ_CLR | SYST_CON_EN, SYST_CON_REG(to));
 }
 
@@ -116,9 +142,12 @@ static irqreturn_t mtk_syst_handler(int irq, void *dev_id)
 	struct clock_event_device *clkevt = dev_id;
 	struct timer_of *to = to_timer_of(clkevt);
 
+<<<<<<< HEAD
 #ifdef SYST_DEBUG
 	t_hdl_in = sched_clock();
 #endif
+=======
+>>>>>>> upstream/android-13
 	mtk_syst_ack_irq(to);
 	clkevt->event_handler(clkevt);
 
@@ -130,11 +159,14 @@ static int mtk_syst_clkevt_next_event(unsigned long ticks,
 {
 	struct timer_of *to = to_timer_of(clkevt);
 
+<<<<<<< HEAD
 #ifdef SYST_DEBUG
 	t_setevt_in = sched_clock();
 	t_setevt_ticks = ticks;
 	dbg_setevt_cpu = smp_processor_id();
 #endif
+=======
+>>>>>>> upstream/android-13
 	/* Enable clock to allow timeout tick update later */
 	writel(SYST_CON_EN, SYST_CON_REG(to));
 
@@ -152,6 +184,12 @@ static int mtk_syst_clkevt_next_event(unsigned long ticks,
 
 static int mtk_syst_clkevt_shutdown(struct clock_event_device *clkevt)
 {
+<<<<<<< HEAD
+=======
+	/* Clear any irq */
+	mtk_syst_ack_irq(to_timer_of(clkevt));
+
+>>>>>>> upstream/android-13
 	/* Disable timer */
 	writel(0, SYST_CON_REG(to_timer_of(clkevt)));
 
@@ -177,6 +215,7 @@ static void mtk_gpt_clkevt_time_stop(struct timer_of *to, u8 timer)
 {
 	u32 val;
 
+<<<<<<< HEAD
 	/*
 	 * support 32k clock when deepidle, should first use 13m clock config
 	 * timer, then second use 32k clock trigger timer.
@@ -185,6 +224,8 @@ static void mtk_gpt_clkevt_time_stop(struct timer_of *to, u8 timer)
 		writel(GPT_CLK_SRC(GPT_CLK_SRC_SYS13M) | GPT_CLK_DIV1,
 				timer_of_base(to) + GPT_CLK_REG(timer));
 
+=======
+>>>>>>> upstream/android-13
 	val = readl(timer_of_base(to) + GPT_CTRL_REG(timer));
 	writel(val & ~GPT_CTRL_ENABLE, timer_of_base(to) +
 	       GPT_CTRL_REG(timer));
@@ -204,6 +245,7 @@ static void mtk_gpt_clkevt_time_start(struct timer_of *to,
 	/* Acknowledge interrupt */
 	writel(GPT_IRQ_ACK(timer), timer_of_base(to) + GPT_IRQ_ACK_REG);
 
+<<<<<<< HEAD
 	/*
 	 * support 32k clock when deepidle, should first use 13m clock config
 	 * timer, then second use 32k clock trigger timer.
@@ -212,6 +254,8 @@ static void mtk_gpt_clkevt_time_start(struct timer_of *to,
 		writel(GPT_CLK_SRC(GPT_CLK_SRC_RTC32K) | GPT_CLK_DIV1,
 				timer_of_base(to) + GPT_CLK_REG(timer));
 
+=======
+>>>>>>> upstream/android-13
 	val = readl(timer_of_base(to) + GPT_CTRL_REG(timer));
 
 	/* Clear 2 bit timer operation mode field */
@@ -269,6 +313,7 @@ static irqreturn_t mtk_gpt_interrupt(int irq, void *dev_id)
 }
 
 static void
+<<<<<<< HEAD
 __init mtk_gpt_setup(struct timer_of *to, u8 timer, u8 option, u8 clksrc,
 			bool enable)
 {
@@ -278,14 +323,27 @@ __init mtk_gpt_setup(struct timer_of *to, u8 timer, u8 option, u8 clksrc,
 	       timer_of_base(to) + GPT_CTRL_REG(timer));
 
 	writel(GPT_CLK_SRC(clksrc) | GPT_CLK_DIV1,
+=======
+__init mtk_gpt_setup(struct timer_of *to, u8 timer, u8 option)
+{
+	writel(GPT_CTRL_CLEAR | GPT_CTRL_DISABLE,
+	       timer_of_base(to) + GPT_CTRL_REG(timer));
+
+	writel(GPT_CLK_SRC(GPT_CLK_SRC_SYS13M) | GPT_CLK_DIV1,
+>>>>>>> upstream/android-13
 	       timer_of_base(to) + GPT_CLK_REG(timer));
 
 	writel(0x0, timer_of_base(to) + GPT_CMP_REG(timer));
 
+<<<<<<< HEAD
 	val = GPT_CTRL_OP(option);
 	if (enable)
 		val |= GPT_CTRL_ENABLE;
 	writel(val, timer_of_base(to) + GPT_CTRL_REG(timer));
+=======
+	writel(GPT_CTRL_OP(option) | GPT_CTRL_ENABLE,
+	       timer_of_base(to) + GPT_CTRL_REG(timer));
+>>>>>>> upstream/android-13
 }
 
 static void mtk_gpt_enable_irq(struct timer_of *to, u8 timer)
@@ -303,6 +361,31 @@ static void mtk_gpt_enable_irq(struct timer_of *to, u8 timer)
 	       timer_of_base(to) + GPT_IRQ_EN_REG);
 }
 
+<<<<<<< HEAD
+=======
+static void mtk_gpt_resume(struct clock_event_device *clk)
+{
+	struct timer_of *to = to_timer_of(clk);
+
+	mtk_gpt_enable_irq(to, TIMER_CLK_EVT);
+}
+
+static void mtk_gpt_suspend(struct clock_event_device *clk)
+{
+	struct timer_of *to = to_timer_of(clk);
+
+	/* Disable all interrupts */
+	writel(0x0, timer_of_base(to) + GPT_IRQ_EN_REG);
+
+	/*
+	 * This is called with interrupts disabled,
+	 * so we need to ack any interrupt that is pending
+	 * or for example ATF will prevent a suspend from completing.
+	 */
+	writel(0x3f, timer_of_base(to) + GPT_IRQ_ACK_REG);
+}
+
+>>>>>>> upstream/android-13
 static struct timer_of to = {
 	.flags = TIMER_OF_IRQ | TIMER_OF_BASE | TIMER_OF_CLOCK,
 
@@ -341,6 +424,7 @@ static int __init mtk_syst_init(struct device_node *node)
 static int __init mtk_gpt_init(struct device_node *node)
 {
 	int ret;
+<<<<<<< HEAD
 	int has_clk32k;
 	struct clk *clk_bus;
 
@@ -363,11 +447,16 @@ static int __init mtk_gpt_init(struct device_node *node)
 	to.clkevt.features = CLOCK_EVT_FEAT_PERIODIC |
 			     CLOCK_EVT_FEAT_ONESHOT |
 			     CLOCK_EVT_FEAT_DYNIRQ;
+=======
+
+	to.clkevt.features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
+>>>>>>> upstream/android-13
 	to.clkevt.set_state_shutdown = mtk_gpt_clkevt_shutdown;
 	to.clkevt.set_state_periodic = mtk_gpt_clkevt_set_periodic;
 	to.clkevt.set_state_oneshot = mtk_gpt_clkevt_shutdown;
 	to.clkevt.tick_resume = mtk_gpt_clkevt_shutdown;
 	to.clkevt.set_next_event = mtk_gpt_clkevt_next_event;
+<<<<<<< HEAD
 	to.of_irq.handler = mtk_gpt_interrupt;
 
 	/* Use rtc-clk as clock source for clk-evt source if it is exists. */
@@ -375,10 +464,17 @@ static int __init mtk_gpt_init(struct device_node *node)
 	if (has_clk32k >= 0)
 		to.of_clk.name = "clk32k";
 
+=======
+	to.clkevt.suspend = mtk_gpt_suspend;
+	to.clkevt.resume = mtk_gpt_resume;
+	to.of_irq.handler = mtk_gpt_interrupt;
+
+>>>>>>> upstream/android-13
 	ret = timer_of_init(node, &to);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	/* save rtc-clk as .private_data */
 	to.private_data = (has_clk32k < 0) ? NULL : (void *)to.of_clk.clk;
 
@@ -386,6 +482,10 @@ static int __init mtk_gpt_init(struct device_node *node)
 	mtk_gpt_setup(&to, TIMER_CLK_SRC, GPT_CTRL_OP_FREERUN,
 		      (has_clk32k < 0) ? GPT_CLK_SRC_SYS13M :
 		      GPT_CLK_SRC_RTC32K, true);
+=======
+	/* Configure clock source */
+	mtk_gpt_setup(&to, TIMER_CLK_SRC, GPT_CTRL_OP_FREERUN);
+>>>>>>> upstream/android-13
 	clocksource_mmio_init(timer_of_base(&to) + GPT_CNT_REG(TIMER_CLK_SRC),
 			      node->name, timer_of_rate(&to), 300, 32,
 			      clocksource_mmio_readl_up);
@@ -393,9 +493,13 @@ static int __init mtk_gpt_init(struct device_node *node)
 	sched_clock_register(mtk_gpt_read_sched_clock, 32, timer_of_rate(&to));
 
 	/* Configure clock event */
+<<<<<<< HEAD
 	mtk_gpt_setup(&to, TIMER_CLK_EVT, GPT_CTRL_OP_REPEAT,
 		      (has_clk32k < 0) ? GPT_CLK_SRC_SYS13M :
 		      GPT_CLK_SRC_RTC32K, false);
+=======
+	mtk_gpt_setup(&to, TIMER_CLK_EVT, GPT_CTRL_OP_REPEAT);
+>>>>>>> upstream/android-13
 	clockevents_config_and_register(&to.clkevt, timer_of_rate(&to),
 					TIMER_SYNC_TICKS, 0xffffffff);
 
@@ -405,6 +509,7 @@ static int __init mtk_gpt_init(struct device_node *node)
 }
 TIMER_OF_DECLARE(mtk_mt6577, "mediatek,mt6577-timer", mtk_gpt_init);
 TIMER_OF_DECLARE(mtk_mt6765, "mediatek,mt6765-timer", mtk_syst_init);
+<<<<<<< HEAD
 
 #ifdef SYST_DEBUG
 void mtk_timer_clkevt_aee_dump(void)
@@ -420,3 +525,5 @@ void mtk_timer_clkevt_aee_dump(void)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13

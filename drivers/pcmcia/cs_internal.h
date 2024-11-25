@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cs_internal.h -- definitions internal to the PCMCIA core modules
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * cs_internal.h -- definitions internal to the PCMCIA core modules
+ *
+>>>>>>> upstream/android-13
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
@@ -12,7 +19,10 @@
  * (C) 1999		David A. Hinds
  * (C) 2003 - 2010	Dominik Brodowski
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * This file contains definitions _only_ needed by the PCMCIA core modules.
  * It must not be included by PCMCIA socket drivers or by PCMCIA device
  * drivers.
@@ -44,7 +54,11 @@ struct cis_cache_entry {
 	unsigned int		addr;
 	unsigned int		len;
 	unsigned int		attr;
+<<<<<<< HEAD
 	unsigned char		cache[0];
+=======
+	unsigned char		cache[];
+>>>>>>> upstream/android-13
 };
 
 struct pccard_resource_ops {
@@ -168,12 +182,15 @@ int pcmcia_replace_cis(struct pcmcia_socket *s,
 int pccard_validate_cis(struct pcmcia_socket *s, unsigned int *count);
 int verify_cis_cache(struct pcmcia_socket *s);
 
+<<<<<<< HEAD
 int pccard_loop_tuple(struct pcmcia_socket *s, unsigned int function,
 		      cisdata_t code, cisparse_t *parse, void *priv_data,
 		      int (*loop_tuple) (tuple_t *tuple,
 					 cisparse_t *parse,
 					 void *priv_data));
 
+=======
+>>>>>>> upstream/android-13
 int pccard_get_first_tuple(struct pcmcia_socket *s, unsigned int function,
 			tuple_t *tuple);
 

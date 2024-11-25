@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * NCI based driver for Samsung S3FWRN5 NFC chip
  *
  * Copyright (C) 2015 Samsung Electrnoics
  * Robert Baldyga <r.baldyga@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LOCAL_S3FWRN5_FIRMWARE_H_
@@ -100,9 +107,16 @@ struct s3fwrn5_fw_info {
 	char parity;
 };
 
+<<<<<<< HEAD
 void s3fwrn5_fw_init(struct s3fwrn5_fw_info *fw_info, const char *fw_name);
 int s3fwrn5_fw_setup(struct s3fwrn5_fw_info *fw_info);
 bool s3fwrn5_fw_check_version(struct s3fwrn5_fw_info *fw_info, u32 version);
+=======
+int s3fwrn5_fw_request_firmware(struct s3fwrn5_fw_info *fw_info);
+void s3fwrn5_fw_init(struct s3fwrn5_fw_info *fw_info, const char *fw_name);
+int s3fwrn5_fw_setup(struct s3fwrn5_fw_info *fw_info);
+bool s3fwrn5_fw_check_version(const struct s3fwrn5_fw_info *fw_info, u32 version);
+>>>>>>> upstream/android-13
 int s3fwrn5_fw_download(struct s3fwrn5_fw_info *fw_info);
 void s3fwrn5_fw_cleanup(struct s3fwrn5_fw_info *fw_info);
 

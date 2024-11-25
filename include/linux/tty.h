@@ -6,6 +6,7 @@
 #include <linux/major.h>
 #include <linux/termios.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #include <linux/tty_driver.h>
 #include <linux/tty_ldisc.h>
 #include <linux/mutex.h>
@@ -41,6 +42,21 @@ enum {
 };
 
 /*
+=======
+#include <linux/tty_buffer.h>
+#include <linux/tty_driver.h>
+#include <linux/tty_ldisc.h>
+#include <linux/tty_port.h>
+#include <linux/mutex.h>
+#include <linux/tty_flags.h>
+#include <uapi/linux/tty.h>
+#include <linux/rwsem.h>
+#include <linux/llist.h>
+#include <linux/android_kabi.h>
+
+
+/*
+>>>>>>> upstream/android-13
  * (Note: the *_driver.minor_start values 1, 64, 128, 192 are
  * hardcoded at present.)
  */
@@ -55,6 +71,7 @@ enum {
  */
 #define __DISABLED_CHAR '\0'
 
+<<<<<<< HEAD
 struct tty_buffer {
 	union {
 		struct tty_buffer *next;
@@ -103,6 +120,8 @@ struct tty_bufhead {
 #define TTY_PARITY	3
 #define TTY_OVERRUN	4
 
+=======
+>>>>>>> upstream/android-13
 #define INTR_CHAR(tty) ((tty)->termios.c_cc[VINTR])
 #define QUIT_CHAR(tty) ((tty)->termios.c_cc[VQUIT])
 #define ERASE_CHAR(tty) ((tty)->termios.c_cc[VERASE])
@@ -188,6 +207,7 @@ struct tty_bufhead {
 
 struct device;
 struct signal_struct;
+<<<<<<< HEAD
 
 /*
  * Port level information. Each device keeps its own port level information
@@ -286,6 +306,35 @@ struct tty_struct {
 	int	magic;
 	struct kref kref;
 	struct device *dev;
+=======
+struct tty_operations;
+
+/**
+ * struct tty_struct - state associated with a tty while open
+ *
+ * @flow.lock: lock for flow members
+ * @flow.stopped: tty stopped/started by tty_stop/tty_start
+ * @flow.tco_stopped: tty stopped/started by TCOOFF/TCOON ioctls (it has
+ *		      precedense over @flow.stopped)
+ * @flow.unused: alignment for Alpha, so that no members other than @flow.* are
+ *		 modified by the same 64b word store. The @flow's __aligned is
+ *		 there for the very same reason.
+ * @ctrl.lock: lock for ctrl members
+ * @ctrl.pgrp: process group of this tty (setpgrp(2))
+ * @ctrl.session: session of this tty (setsid(2)). Writes are protected by both
+ *		  @ctrl.lock and legacy mutex, readers must use at least one of
+ *		  them.
+ * @ctrl.pktstatus: packet mode status (bitwise OR of TIOCPKT_* constants)
+ * @ctrl.packet: packet mode enabled
+ *
+ * All of the state associated with a tty while the tty is open. Persistent
+ * storage for tty devices is referenced here as @port in struct tty_port.
+ */
+struct tty_struct {
+	int	magic;
+	struct kref kref;
+	struct device *dev;	/* class device or NULL (e.g. ptys, serdev) */
+>>>>>>> upstream/android-13
 	struct tty_driver *driver;
 	const struct tty_operations *ops;
 	int index;
@@ -299,6 +348,7 @@ struct tty_struct {
 	struct mutex throttle_mutex;
 	struct rw_semaphore termios_rwsem;
 	struct mutex winsize_mutex;
+<<<<<<< HEAD
 	spinlock_t ctrl_lock;
 	spinlock_t flow_lock;
 	/* Termios values are protected by the termios rwsem */
@@ -321,6 +371,32 @@ struct tty_struct {
 	unsigned long ctrl_status:8,	/* ctrl_lock */
 		      packet:1,
 		      unused_ctrl:BITS_PER_LONG - 9;
+=======
+	/* Termios values are protected by the termios rwsem */
+	struct ktermios termios, termios_locked;
+	char name[64];
+	unsigned long flags;
+	int count;
+	struct winsize winsize;		/* winsize_mutex */
+
+	struct {
+		spinlock_t lock;
+		bool stopped;
+		bool tco_stopped;
+		unsigned long unused[0];
+	} __aligned(sizeof(unsigned long)) flow;
+
+	struct {
+		spinlock_t lock;
+		struct pid *pgrp;
+		struct pid *session;
+		unsigned char pktstatus;
+		bool packet;
+		unsigned long unused[0];
+	} __aligned(sizeof(unsigned long)) ctrl;
+
+	int hw_stopped;
+>>>>>>> upstream/android-13
 	unsigned int receive_room;	/* Bytes free for queue */
 	int flow_change;
 
@@ -342,6 +418,12 @@ struct tty_struct {
 	/* If the tty has a pending do_SAK, queue it here - akpm */
 	struct work_struct SAK_work;
 	struct tty_port *port;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 } __randomize_layout;
 
 /* Each of a tty's open files has private_data pointing to tty_file_private */
@@ -375,6 +457,7 @@ struct tty_file_private {
 #define TTY_LDISC_CHANGING	20	/* Change pending - non-block IO */
 #define TTY_LDISC_HALTED	22	/* Line discipline is halted */
 
+<<<<<<< HEAD
 /* Values for tty->flow_change */
 #define TTY_THROTTLE_SAFE 1
 #define TTY_UNTHROTTLE_SAFE 2
@@ -390,6 +473,8 @@ static inline void tty_set_flow_change(struct tty_struct *tty, int val)
 	smp_mb();
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool tty_io_nonblock(struct tty_struct *tty, struct file *file)
 {
 	return file->f_flags & O_NONBLOCK ||
@@ -417,11 +502,18 @@ extern struct tty_struct *get_current_tty(void);
 /* tty_io.c */
 extern int __init tty_init(void);
 extern const char *tty_name(const struct tty_struct *tty);
+<<<<<<< HEAD
 extern struct tty_struct *tty_kopen(dev_t device);
 extern void tty_kclose(struct tty_struct *tty);
 extern int tty_dev_name_to_number(const char *name, dev_t *number);
 extern int tty_ldisc_lock(struct tty_struct *tty, unsigned long timeout);
 extern void tty_ldisc_unlock(struct tty_struct *tty);
+=======
+extern struct tty_struct *tty_kopen_exclusive(dev_t device);
+extern struct tty_struct *tty_kopen_shared(dev_t device);
+extern void tty_kclose(struct tty_struct *tty);
+extern int tty_dev_name_to_number(const char *name, dev_t *number);
+>>>>>>> upstream/android-13
 #else
 static inline void tty_kref_put(struct tty_struct *tty)
 { }
@@ -442,7 +534,11 @@ static inline int __init tty_init(void)
 { return 0; }
 static inline const char *tty_name(const struct tty_struct *tty)
 { return "(none)"; }
+<<<<<<< HEAD
 static inline struct tty_struct *tty_kopen(dev_t device)
+=======
+static inline struct tty_struct *tty_kopen_exclusive(dev_t device)
+>>>>>>> upstream/android-13
 { return ERR_PTR(-ENODEV); }
 static inline void tty_kclose(struct tty_struct *tty)
 { }
@@ -474,6 +570,7 @@ static inline struct tty_struct *tty_kref_get(struct tty_struct *tty)
 
 extern const char *tty_driver_name(const struct tty_struct *tty);
 extern void tty_wait_until_sent(struct tty_struct *tty, long timeout);
+<<<<<<< HEAD
 extern int __tty_check_change(struct tty_struct *tty, int sig);
 extern int tty_check_change(struct tty_struct *tty);
 extern void __stop_tty(struct tty_struct *tty);
@@ -496,10 +593,21 @@ extern int tty_chars_in_buffer(struct tty_struct *tty);
 extern int tty_write_room(struct tty_struct *tty);
 extern void tty_driver_flush_buffer(struct tty_struct *tty);
 extern void tty_throttle(struct tty_struct *tty);
+=======
+extern void stop_tty(struct tty_struct *tty);
+extern void start_tty(struct tty_struct *tty);
+extern void tty_write_message(struct tty_struct *tty, char *msg);
+extern int tty_send_xchar(struct tty_struct *tty, char ch);
+extern int tty_put_char(struct tty_struct *tty, unsigned char c);
+extern unsigned int tty_chars_in_buffer(struct tty_struct *tty);
+extern unsigned int tty_write_room(struct tty_struct *tty);
+extern void tty_driver_flush_buffer(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 extern void tty_unthrottle(struct tty_struct *tty);
 extern int tty_throttle_safe(struct tty_struct *tty);
 extern int tty_unthrottle_safe(struct tty_struct *tty);
 extern int tty_do_resize(struct tty_struct *tty, struct winsize *ws);
+<<<<<<< HEAD
 extern int is_current_pgrp_orphaned(void);
 extern void tty_hangup(struct tty_struct *tty);
 extern void tty_vhangup(struct tty_struct *tty);
@@ -520,6 +628,18 @@ extern bool tty_buffer_cancel_work(struct tty_port *port);
 extern void tty_buffer_flush_work(struct tty_port *port);
 extern speed_t tty_termios_baud_rate(struct ktermios *termios);
 extern speed_t tty_termios_input_baud_rate(struct ktermios *termios);
+=======
+extern int tty_get_icount(struct tty_struct *tty,
+			  struct serial_icounter_struct *icount);
+extern int is_current_pgrp_orphaned(void);
+extern void tty_hangup(struct tty_struct *tty);
+extern void tty_vhangup(struct tty_struct *tty);
+extern int tty_hung_up_p(struct file *filp);
+extern void do_SAK(struct tty_struct *tty);
+extern void __do_SAK(struct tty_struct *tty);
+extern void no_tty(void);
+extern speed_t tty_termios_baud_rate(struct ktermios *termios);
+>>>>>>> upstream/android-13
 extern void tty_termios_encode_baud_rate(struct ktermios *termios,
 						speed_t ibaud, speed_t obaud);
 extern void tty_encode_baud_rate(struct tty_struct *tty,
@@ -540,10 +660,17 @@ static inline speed_t tty_get_baud_rate(struct tty_struct *tty)
 	return tty_termios_baud_rate(&tty->termios);
 }
 
+<<<<<<< HEAD
+=======
+unsigned char tty_get_char_size(unsigned int cflag);
+unsigned char tty_get_frame_size(unsigned int cflag);
+
+>>>>>>> upstream/android-13
 extern void tty_termios_copy_hw(struct ktermios *new, struct ktermios *old);
 extern int tty_termios_hw_change(const struct ktermios *a, const struct ktermios *b);
 extern int tty_set_termios(struct tty_struct *tty, struct ktermios *kt);
 
+<<<<<<< HEAD
 extern struct tty_ldisc *tty_ldisc_ref(struct tty_struct *);
 extern void tty_ldisc_deref(struct tty_ldisc *);
 extern struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *);
@@ -568,6 +695,15 @@ extern void tty_free_file(struct file *file);
 extern struct tty_struct *tty_init_dev(struct tty_driver *driver, int idx);
 extern void tty_release_struct(struct tty_struct *tty, int idx);
 extern int tty_release(struct inode *inode, struct file *filp);
+=======
+extern void tty_wakeup(struct tty_struct *tty);
+
+extern int tty_mode_ioctl(struct tty_struct *tty, struct file *file,
+			unsigned int cmd, unsigned long arg);
+extern int tty_perform_flush(struct tty_struct *tty, unsigned long arg);
+extern struct tty_struct *tty_init_dev(struct tty_driver *driver, int idx);
+extern void tty_release_struct(struct tty_struct *tty, int idx);
+>>>>>>> upstream/android-13
 extern void tty_init_termios(struct tty_struct *tty);
 extern void tty_save_termios(struct tty_struct *tty);
 extern int tty_standard_install(struct tty_driver *driver,
@@ -575,6 +711,7 @@ extern int tty_standard_install(struct tty_driver *driver,
 
 extern struct mutex tty_mutex;
 
+<<<<<<< HEAD
 #define tty_is_writelocked(tty)  (mutex_is_locked(&tty->atomic_write_lock))
 
 extern void tty_port_init(struct tty_port *port);
@@ -721,6 +858,8 @@ extern void tty_ldisc_deinit(struct tty_struct *tty);
 extern int tty_ldisc_receive_buf(struct tty_ldisc *ld, const unsigned char *p,
 				 char *f, int count);
 
+=======
+>>>>>>> upstream/android-13
 /* n_tty.c */
 extern void n_tty_inherit_ops(struct tty_ldisc_ops *ops);
 #ifdef CONFIG_TTY
@@ -731,6 +870,7 @@ static inline void n_tty_init(void) { }
 
 /* tty_audit.c */
 #ifdef CONFIG_AUDIT
+<<<<<<< HEAD
 extern void tty_audit_add_data(struct tty_struct *tty, const void *data,
 			       size_t size);
 extern void tty_audit_exit(void);
@@ -745,6 +885,12 @@ static inline void tty_audit_add_data(struct tty_struct *tty, const void *data,
 static inline void tty_audit_tiocsti(struct tty_struct *tty, char ch)
 {
 }
+=======
+extern void tty_audit_exit(void);
+extern void tty_audit_fork(struct signal_struct *sig);
+extern int tty_audit_push(void);
+#else
+>>>>>>> upstream/android-13
 static inline void tty_audit_exit(void)
 {
 }
@@ -760,8 +906,11 @@ static inline int tty_audit_push(void)
 /* tty_ioctl.c */
 extern int n_tty_ioctl_helper(struct tty_struct *tty, struct file *file,
 		       unsigned int cmd, unsigned long arg);
+<<<<<<< HEAD
 extern long n_tty_compat_ioctl_helper(struct tty_struct *tty, struct file *file,
 		       unsigned int cmd, unsigned long arg);
+=======
+>>>>>>> upstream/android-13
 
 /* vt.c */
 
@@ -780,6 +929,7 @@ extern void tty_lock_slave(struct tty_struct *tty);
 extern void tty_unlock_slave(struct tty_struct *tty);
 extern void tty_set_lock_subclass(struct tty_struct *tty);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PROC_FS
 extern void proc_tty_register_driver(struct tty_driver *);
 extern void proc_tty_unregister_driver(struct tty_driver *);
@@ -800,4 +950,6 @@ static inline void proc_tty_unregister_driver(struct tty_driver *d) {}
 #define tty_info_ratelimited(tty, f, ...) \
 		tty_msg(pr_info_ratelimited, tty, f, ##__VA_ARGS__)
 
+=======
+>>>>>>> upstream/android-13
 #endif

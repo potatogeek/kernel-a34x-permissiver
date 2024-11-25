@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM7xxx internal transceivers support.
  *
  * Copyright (C) 2014-2017 Broadcom
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -15,6 +22,10 @@
 #include "bcm-phy-lib.h"
 #include <linux/bitops.h>
 #include <linux/brcmphy.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/mdio.h>
 
 /* Broadcom BCM7xxx internal PHY registers */
@@ -30,7 +41,16 @@
 #define MII_BCM7XXX_SHD_2_ADDR_CTRL	0xe
 #define MII_BCM7XXX_SHD_2_CTRL_STAT	0xf
 #define MII_BCM7XXX_SHD_2_BIAS_TRIM	0x1a
+<<<<<<< HEAD
 #define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
+=======
+#define MII_BCM7XXX_SHD_3_PCS_CTRL	0x0
+#define MII_BCM7XXX_SHD_3_PCS_STATUS	0x1
+#define MII_BCM7XXX_SHD_3_EEE_CAP	0x2
+#define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
+#define MII_BCM7XXX_SHD_3_EEE_LP	0x4
+#define MII_BCM7XXX_SHD_3_EEE_WK_ERR	0x5
+>>>>>>> upstream/android-13
 #define MII_BCM7XXX_SHD_3_PCS_CTRL_2	0x6
 #define  MII_BCM7XXX_PCS_CTRL_2_DEF	0x4400
 #define MII_BCM7XXX_SHD_3_AN_STAT	0xb
@@ -41,6 +61,7 @@
 #define MII_BCM7XXX_SHD_3_TL4		0x23
 #define  MII_BCM7XXX_TL4_RST_MSK	(BIT(2) | BIT(1))
 
+<<<<<<< HEAD
 /* 28nm only register definitions */
 #define MISC_ADDR(base, channel)	base, channel
 
@@ -112,6 +133,13 @@ static int bcm7xxx_28nm_b0_afe_config_init(struct phy_device *phydev)
 	return 0;
 }
 
+=======
+struct bcm7xxx_phy_priv {
+	u64	*stats;
+	struct clk *clk;
+};
+
+>>>>>>> upstream/android-13
 static int bcm7xxx_28nm_d0_afe_config_init(struct phy_device *phydev)
 {
 	/* AFE_RXCONFIG_0 */
@@ -147,7 +175,11 @@ static int bcm7xxx_28nm_d0_afe_config_init(struct phy_device *phydev)
 	bcm_phy_write_misc(phydev, DSP_TAP10, 0x011b);
 
 	/* Reset R_CAL/RC_CAL engine */
+<<<<<<< HEAD
 	r_rc_cal_reset(phydev);
+=======
+	bcm_phy_r_rc_cal_reset(phydev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -175,7 +207,11 @@ static int bcm7xxx_28nm_e0_plus_afe_config_init(struct phy_device *phydev)
 	bcm_phy_write_misc(phydev, DSP_TAP10, 0x011b);
 
 	/* Reset R_CAL/RC_CAL engine */
+<<<<<<< HEAD
 	r_rc_cal_reset(phydev);
+=======
+	bcm_phy_r_rc_cal_reset(phydev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -200,7 +236,11 @@ static int bcm7xxx_28nm_a0_patch_afe_config_init(struct phy_device *phydev)
 	/* Enable ffe zero detection for Vitesse interoperability */
 	bcm_phy_write_misc(phydev, 0x26, 0x2, 0x0015);
 
+<<<<<<< HEAD
 	r_rc_cal_reset(phydev);
+=======
+	bcm_phy_r_rc_cal_reset(phydev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -231,7 +271,11 @@ static int bcm7xxx_28nm_config_init(struct phy_device *phydev)
 	switch (rev) {
 	case 0xa0:
 	case 0xb0:
+<<<<<<< HEAD
 		ret = bcm7xxx_28nm_b0_afe_config_init(phydev);
+=======
+		ret = bcm_phy_28nm_a0b0_afe_config_init(phydev);
+>>>>>>> upstream/android-13
 		break;
 	case 0xd0:
 		ret = bcm7xxx_28nm_d0_afe_config_init(phydev);
@@ -252,6 +296,13 @@ static int bcm7xxx_28nm_config_init(struct phy_device *phydev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	ret =  bcm_phy_enable_jumbo(phydev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	ret = bcm_phy_downshift_get(phydev, &count);
 	if (ret)
 		return ret;
@@ -281,25 +332,53 @@ static int bcm7xxx_28nm_resume(struct phy_device *phydev)
 	return genphy_config_aneg(phydev);
 }
 
+<<<<<<< HEAD
 static int phy_set_clr_bits(struct phy_device *dev, int location,
 					int set_mask, int clr_mask)
 {
 	int v, ret;
 
 	v = phy_read(dev, location);
+=======
+static int __phy_set_clr_bits(struct phy_device *dev, int location,
+			      int set_mask, int clr_mask)
+{
+	int v, ret;
+
+	v = __phy_read(dev, location);
+>>>>>>> upstream/android-13
 	if (v < 0)
 		return v;
 
 	v &= ~clr_mask;
 	v |= set_mask;
 
+<<<<<<< HEAD
 	ret = phy_write(dev, location, v);
+=======
+	ret = __phy_write(dev, location, v);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
 	return v;
 }
 
+<<<<<<< HEAD
+=======
+static int phy_set_clr_bits(struct phy_device *dev, int location,
+			    int set_mask, int clr_mask)
+{
+	int ret;
+
+	mutex_lock(&dev->mdio.bus->mdio_lock);
+	ret = __phy_set_clr_bits(dev, location, set_mask, clr_mask);
+	mutex_unlock(&dev->mdio.bus->mdio_lock);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int bcm7xxx_28nm_ephy_01_afe_config_init(struct phy_device *phydev)
 {
 	int ret;
@@ -463,6 +542,96 @@ static int bcm7xxx_28nm_ephy_config_init(struct phy_device *phydev)
 	return bcm7xxx_28nm_ephy_apd_enable(phydev);
 }
 
+<<<<<<< HEAD
+=======
+#define MII_BCM7XXX_REG_INVALID	0xff
+
+static u8 bcm7xxx_28nm_ephy_regnum_to_shd(u16 regnum)
+{
+	switch (regnum) {
+	case MDIO_CTRL1:
+		return MII_BCM7XXX_SHD_3_PCS_CTRL;
+	case MDIO_STAT1:
+		return MII_BCM7XXX_SHD_3_PCS_STATUS;
+	case MDIO_PCS_EEE_ABLE:
+		return MII_BCM7XXX_SHD_3_EEE_CAP;
+	case MDIO_AN_EEE_ADV:
+		return MII_BCM7XXX_SHD_3_AN_EEE_ADV;
+	case MDIO_AN_EEE_LPABLE:
+		return MII_BCM7XXX_SHD_3_EEE_LP;
+	case MDIO_PCS_EEE_WK_ERR:
+		return MII_BCM7XXX_SHD_3_EEE_WK_ERR;
+	default:
+		return MII_BCM7XXX_REG_INVALID;
+	}
+}
+
+static bool bcm7xxx_28nm_ephy_dev_valid(int devnum)
+{
+	return devnum == MDIO_MMD_AN || devnum == MDIO_MMD_PCS;
+}
+
+static int bcm7xxx_28nm_ephy_read_mmd(struct phy_device *phydev,
+				      int devnum, u16 regnum)
+{
+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
+	int ret;
+
+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
+	    shd == MII_BCM7XXX_REG_INVALID)
+		return -EOPNOTSUPP;
+
+	/* set shadow mode 2 */
+	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
+				 MII_BCM7XXX_SHD_MODE_2, 0);
+	if (ret < 0)
+		return ret;
+
+	/* Access the desired shadow register address */
+	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
+	if (ret < 0)
+		goto reset_shadow_mode;
+
+	ret = __phy_read(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT);
+
+reset_shadow_mode:
+	/* reset shadow mode 2 */
+	__phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
+			   MII_BCM7XXX_SHD_MODE_2);
+	return ret;
+}
+
+static int bcm7xxx_28nm_ephy_write_mmd(struct phy_device *phydev,
+				       int devnum, u16 regnum, u16 val)
+{
+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
+	int ret;
+
+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
+	    shd == MII_BCM7XXX_REG_INVALID)
+		return -EOPNOTSUPP;
+
+	/* set shadow mode 2 */
+	ret = __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
+				 MII_BCM7XXX_SHD_MODE_2, 0);
+	if (ret < 0)
+		return ret;
+
+	/* Access the desired shadow register address */
+	ret = __phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
+	if (ret < 0)
+		goto reset_shadow_mode;
+
+	/* Write the desired value in the shadow register */
+	__phy_write(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT, val);
+
+reset_shadow_mode:
+	/* reset shadow mode 2 */
+	return __phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
+				  MII_BCM7XXX_SHD_MODE_2);
+}
+
+>>>>>>> upstream/android-13
 static int bcm7xxx_28nm_ephy_resume(struct phy_device *phydev)
 {
 	int ret;
@@ -588,6 +757,10 @@ static void bcm7xxx_28nm_get_phy_stats(struct phy_device *phydev,
 static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 {
 	struct bcm7xxx_phy_priv *priv;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(&phydev->mdio.dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -601,7 +774,34 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 	if (!priv->stats)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	priv->clk = devm_clk_get_optional(&phydev->mdio.dev, NULL);
+	if (IS_ERR(priv->clk))
+		return PTR_ERR(priv->clk);
+
+	ret = clk_prepare_enable(priv->clk);
+	if (ret)
+		return ret;
+
+	/* Dummy read to a register to workaround an issue upon reset where the
+	 * internal inverter may not allow the first MDIO transaction to pass
+	 * the MDIO management controller and make us return 0xffff for such
+	 * reads. This is needed to ensure that any subsequent reads to the
+	 * PHY will succeed.
+	 */
+	phy_read(phydev, MII_BMSR);
+
+	return ret;
+}
+
+static void bcm7xxx_28nm_remove(struct phy_device *phydev)
+{
+	struct bcm7xxx_phy_priv *priv = phydev->priv;
+
+	clk_disable_unprepare(priv->clk);
+>>>>>>> upstream/android-13
 }
 
 #define BCM7XXX_28NM_GPHY(_oui, _name)					\
@@ -609,7 +809,11 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 	.phy_id		= (_oui),					\
 	.phy_id_mask	= 0xfffffff0,					\
 	.name		= _name,					\
+<<<<<<< HEAD
 	.features	= PHY_GBIT_FEATURES,				\
+=======
+	/* PHY_GBIT_FEATURES */						\
+>>>>>>> upstream/android-13
 	.flags		= PHY_IS_INTERNAL,				\
 	.config_init	= bcm7xxx_28nm_config_init,			\
 	.resume		= bcm7xxx_28nm_resume,				\
@@ -619,6 +823,10 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 	.get_strings	= bcm_phy_get_strings,				\
 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
 	.probe		= bcm7xxx_28nm_probe,				\
+<<<<<<< HEAD
+=======
+	.remove		= bcm7xxx_28nm_remove,				\
+>>>>>>> upstream/android-13
 }
 
 #define BCM7XXX_28NM_EPHY(_oui, _name)					\
@@ -626,7 +834,11 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 	.phy_id		= (_oui),					\
 	.phy_id_mask	= 0xfffffff0,					\
 	.name		= _name,					\
+<<<<<<< HEAD
 	.features	= PHY_BASIC_FEATURES,				\
+=======
+	/* PHY_BASIC_FEATURES */					\
+>>>>>>> upstream/android-13
 	.flags		= PHY_IS_INTERNAL,				\
 	.config_init	= bcm7xxx_28nm_ephy_config_init,		\
 	.resume		= bcm7xxx_28nm_ephy_resume,			\
@@ -634,6 +846,12 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 	.get_strings	= bcm_phy_get_strings,				\
 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
 	.probe		= bcm7xxx_28nm_probe,				\
+<<<<<<< HEAD
+=======
+	.remove		= bcm7xxx_28nm_remove,				\
+	.read_mmd	= bcm7xxx_28nm_ephy_read_mmd,			\
+	.write_mmd	= bcm7xxx_28nm_ephy_write_mmd,			\
+>>>>>>> upstream/android-13
 }
 
 #define BCM7XXX_40NM_EPHY(_oui, _name)					\
@@ -641,7 +859,11 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 	.phy_id         = (_oui),					\
 	.phy_id_mask    = 0xfffffff0,					\
 	.name           = _name,					\
+<<<<<<< HEAD
 	.features       = PHY_BASIC_FEATURES,				\
+=======
+	/* PHY_BASIC_FEATURES */					\
+>>>>>>> upstream/android-13
 	.flags          = PHY_IS_INTERNAL,				\
 	.soft_reset	= genphy_soft_reset,				\
 	.config_init    = bcm7xxx_config_init,				\
@@ -650,7 +872,14 @@ static int bcm7xxx_28nm_probe(struct phy_device *phydev)
 }
 
 static struct phy_driver bcm7xxx_driver[] = {
+<<<<<<< HEAD
 	BCM7XXX_28NM_GPHY(PHY_ID_BCM7250, "Broadcom BCM7250"),
+=======
+	BCM7XXX_28NM_EPHY(PHY_ID_BCM72113, "Broadcom BCM72113"),
+	BCM7XXX_28NM_EPHY(PHY_ID_BCM72116, "Broadcom BCM72116"),
+	BCM7XXX_28NM_GPHY(PHY_ID_BCM7250, "Broadcom BCM7250"),
+	BCM7XXX_28NM_EPHY(PHY_ID_BCM7255, "Broadcom BCM7255"),
+>>>>>>> upstream/android-13
 	BCM7XXX_28NM_EPHY(PHY_ID_BCM7260, "Broadcom BCM7260"),
 	BCM7XXX_28NM_EPHY(PHY_ID_BCM7268, "Broadcom BCM7268"),
 	BCM7XXX_28NM_EPHY(PHY_ID_BCM7271, "Broadcom BCM7271"),
@@ -661,7 +890,10 @@ static struct phy_driver bcm7xxx_driver[] = {
 	BCM7XXX_28NM_GPHY(PHY_ID_BCM7439, "Broadcom BCM7439"),
 	BCM7XXX_28NM_GPHY(PHY_ID_BCM7439_2, "Broadcom BCM7439 (2)"),
 	BCM7XXX_28NM_GPHY(PHY_ID_BCM7445, "Broadcom BCM7445"),
+<<<<<<< HEAD
 	BCM7XXX_28NM_GPHY(PHY_ID_BCM_OMEGA, "Broadcom Omega Combo GPHY"),
+=======
+>>>>>>> upstream/android-13
 	BCM7XXX_40NM_EPHY(PHY_ID_BCM7346, "Broadcom BCM7346"),
 	BCM7XXX_40NM_EPHY(PHY_ID_BCM7362, "Broadcom BCM7362"),
 	BCM7XXX_40NM_EPHY(PHY_ID_BCM7425, "Broadcom BCM7425"),
@@ -670,7 +902,14 @@ static struct phy_driver bcm7xxx_driver[] = {
 };
 
 static struct mdio_device_id __maybe_unused bcm7xxx_tbl[] = {
+<<<<<<< HEAD
 	{ PHY_ID_BCM7250, 0xfffffff0, },
+=======
+	{ PHY_ID_BCM72113, 0xfffffff0 },
+	{ PHY_ID_BCM72116, 0xfffffff0, },
+	{ PHY_ID_BCM7250, 0xfffffff0, },
+	{ PHY_ID_BCM7255, 0xfffffff0, },
+>>>>>>> upstream/android-13
 	{ PHY_ID_BCM7260, 0xfffffff0, },
 	{ PHY_ID_BCM7268, 0xfffffff0, },
 	{ PHY_ID_BCM7271, 0xfffffff0, },

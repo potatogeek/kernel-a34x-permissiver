@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 Broadcom
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2016 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -130,8 +136,13 @@ int spu_sg_count(struct scatterlist *sg_list, unsigned int skip, int nbytes)
  * @from_skip:   number of bytes to skip in from_sg. Non-zero when previous
  *		 request included part of the buffer in entry in from_sg.
  *		 Assumes from_skip < from_sg->length.
+<<<<<<< HEAD
  * @from_nents   number of entries in from_sg
  * @length       number of bytes to copy. may reach this limit before exhausting
+=======
+ * @from_nents:  number of entries in from_sg
+ * @length:      number of bytes to copy. may reach this limit before exhausting
+>>>>>>> upstream/android-13
  *		 from_sg.
  *
  * Copies the entries themselves, not the data in the entries. Assumes to_sg has
@@ -201,6 +212,7 @@ struct sdesc {
 	char ctx[];
 };
 
+<<<<<<< HEAD
 /* do a synchronous decrypt operation */
 int do_decrypt(char *alg_name,
 	       void *key_ptr, unsigned int key_len,
@@ -241,6 +253,8 @@ int do_decrypt(char *alg_name,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * do_shash() - Do a synchronous hash operation in software
  * @name:       The name of the hash algorithm
@@ -282,7 +296,10 @@ int do_shash(unsigned char *name, unsigned char *result,
 		goto do_shash_err;
 	}
 	sdesc->shash.tfm = hash;
+<<<<<<< HEAD
 	sdesc->shash.flags = 0x0;
+=======
+>>>>>>> upstream/android-13
 
 	if (key_len > 0) {
 		rc = crypto_shash_setkey(hash, key, key_len);
@@ -320,6 +337,10 @@ do_shash_err:
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef DEBUG
+>>>>>>> upstream/android-13
 /* Dump len bytes of a scatterlist starting at skip bytes into the sg */
 void __dump_sg(struct scatterlist *sg, unsigned int skip, unsigned int len)
 {
@@ -341,6 +362,10 @@ void __dump_sg(struct scatterlist *sg, unsigned int skip, unsigned int len)
 	if (debug_logging_sleep)
 		msleep(debug_logging_sleep);
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 /* Returns the name for a given cipher alg/mode */
 char *spu_alg_name(enum spu_cipher_alg alg, enum spu_cipher_mode mode)
@@ -418,6 +443,7 @@ static ssize_t spu_debugfs_read(struct file *filp, char __user *ubuf,
 
 	ipriv = filp->private_data;
 	out_offset = 0;
+<<<<<<< HEAD
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
 			       "Number of SPUs.........%u\n",
 			       ipriv->spu.num_spu);
@@ -431,62 +457,113 @@ static ssize_t spu_debugfs_read(struct file *filp, char __user *ubuf,
 			       "Cipher setkey..........%u\n",
 			       atomic_read(&ipriv->setkey_cnt[SPU_OP_CIPHER]));
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
+=======
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Number of SPUs.........%u\n",
+			       ipriv->spu.num_spu);
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Current sessions.......%u\n",
+			       atomic_read(&ipriv->session_count));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Session count..........%u\n",
+			       atomic_read(&ipriv->stream_count));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Cipher setkey..........%u\n",
+			       atomic_read(&ipriv->setkey_cnt[SPU_OP_CIPHER]));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+>>>>>>> upstream/android-13
 			       "Cipher Ops.............%u\n",
 			       atomic_read(&ipriv->op_counts[SPU_OP_CIPHER]));
 	for (alg = 0; alg < CIPHER_ALG_LAST; alg++) {
 		for (mode = 0; mode < CIPHER_MODE_LAST; mode++) {
 			op_cnt = atomic_read(&ipriv->cipher_cnt[alg][mode]);
 			if (op_cnt) {
+<<<<<<< HEAD
 				out_offset += snprintf(buf + out_offset,
+=======
+				out_offset += scnprintf(buf + out_offset,
+>>>>>>> upstream/android-13
 						       out_count - out_offset,
 			       "  %-13s%11u\n",
 			       spu_alg_name(alg, mode), op_cnt);
 			}
 		}
 	}
+<<<<<<< HEAD
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
+=======
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+>>>>>>> upstream/android-13
 			       "Hash Ops...............%u\n",
 			       atomic_read(&ipriv->op_counts[SPU_OP_HASH]));
 	for (alg = 0; alg < HASH_ALG_LAST; alg++) {
 		op_cnt = atomic_read(&ipriv->hash_cnt[alg]);
 		if (op_cnt) {
+<<<<<<< HEAD
 			out_offset += snprintf(buf + out_offset,
+=======
+			out_offset += scnprintf(buf + out_offset,
+>>>>>>> upstream/android-13
 					       out_count - out_offset,
 		       "  %-13s%11u\n",
 		       hash_alg_name[alg], op_cnt);
 		}
 	}
+<<<<<<< HEAD
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
 			       "HMAC setkey............%u\n",
 			       atomic_read(&ipriv->setkey_cnt[SPU_OP_HMAC]));
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
+=======
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "HMAC setkey............%u\n",
+			       atomic_read(&ipriv->setkey_cnt[SPU_OP_HMAC]));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+>>>>>>> upstream/android-13
 			       "HMAC Ops...............%u\n",
 			       atomic_read(&ipriv->op_counts[SPU_OP_HMAC]));
 	for (alg = 0; alg < HASH_ALG_LAST; alg++) {
 		op_cnt = atomic_read(&ipriv->hmac_cnt[alg]);
 		if (op_cnt) {
+<<<<<<< HEAD
 			out_offset += snprintf(buf + out_offset,
+=======
+			out_offset += scnprintf(buf + out_offset,
+>>>>>>> upstream/android-13
 					       out_count - out_offset,
 		       "  %-13s%11u\n",
 		       hash_alg_name[alg], op_cnt);
 		}
 	}
+<<<<<<< HEAD
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
 			       "AEAD setkey............%u\n",
 			       atomic_read(&ipriv->setkey_cnt[SPU_OP_AEAD]));
 
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
+=======
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "AEAD setkey............%u\n",
+			       atomic_read(&ipriv->setkey_cnt[SPU_OP_AEAD]));
+
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+>>>>>>> upstream/android-13
 			       "AEAD Ops...............%u\n",
 			       atomic_read(&ipriv->op_counts[SPU_OP_AEAD]));
 	for (alg = 0; alg < AEAD_TYPE_LAST; alg++) {
 		op_cnt = atomic_read(&ipriv->aead_cnt[alg]);
 		if (op_cnt) {
+<<<<<<< HEAD
 			out_offset += snprintf(buf + out_offset,
+=======
+			out_offset += scnprintf(buf + out_offset,
+>>>>>>> upstream/android-13
 					       out_count - out_offset,
 		       "  %-13s%11u\n",
 		       aead_alg_name[alg], op_cnt);
 		}
 	}
+<<<<<<< HEAD
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
 			       "Bytes of req data......%llu\n",
 			       (u64)atomic64_read(&ipriv->bytes_out));
@@ -500,6 +577,21 @@ static ssize_t spu_debugfs_read(struct file *filp, char __user *ubuf,
 			       "Mailbox send failures..%u\n",
 			       atomic_read(&ipriv->mb_send_fail));
 	out_offset += snprintf(buf + out_offset, out_count - out_offset,
+=======
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Bytes of req data......%llu\n",
+			       (u64)atomic64_read(&ipriv->bytes_out));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Bytes of resp data.....%llu\n",
+			       (u64)atomic64_read(&ipriv->bytes_in));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Mailbox full...........%u\n",
+			       atomic_read(&ipriv->mb_no_spc));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+			       "Mailbox send failures..%u\n",
+			       atomic_read(&ipriv->mb_send_fail));
+	out_offset += scnprintf(buf + out_offset, out_count - out_offset,
+>>>>>>> upstream/android-13
 			       "Check ICV errors.......%u\n",
 			       atomic_read(&ipriv->bad_icv));
 	if (ipriv->spu.spu_type == SPU_TYPE_SPUM)
@@ -507,7 +599,11 @@ static ssize_t spu_debugfs_read(struct file *filp, char __user *ubuf,
 			spu_ofifo_ctrl = ioread32(ipriv->spu.reg_vbase[i] +
 						  SPU_OFIFO_CTRL);
 			fifo_len = spu_ofifo_ctrl & SPU_FIFO_WATERMARK;
+<<<<<<< HEAD
 			out_offset += snprintf(buf + out_offset,
+=======
+			out_offset += scnprintf(buf + out_offset,
+>>>>>>> upstream/android-13
 					       out_count - out_offset,
 				       "SPU %d output FIFO high water.....%u\n",
 				       i, fifo_len);

@@ -1,14 +1,25 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TTUSB DVB driver
  *
  * Copyright (c) 2002 Holger Waechtler <holger@convergence.de>
  * Copyright (c) 2003 Felix Domke <tmbinc@elitedvb.net>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation; either version 2 of
  *	the License, or (at your option) any later version.
  */
+=======
+ */
+
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/wait.h>
@@ -63,7 +74,16 @@ MODULE_PARM_DESC(debug, "Turn on/off debugging (default:off).");
 
 DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 
+<<<<<<< HEAD
 #define dprintk(x...) do { if (debug) printk(KERN_DEBUG x); } while (0)
+=======
+#define dprintk(fmt, arg...) do {					\
+	if (debug)							\
+		printk(KERN_DEBUG pr_fmt("%s: " fmt),			\
+		       __func__, ##arg);				\
+} while (0)
+
+>>>>>>> upstream/android-13
 
 #define ISO_BUF_COUNT      4
 #define FRAMES_PER_ISO_BUF 4
@@ -76,6 +96,12 @@ DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 #define TTUSB_REV_2_2	0x22
 #define TTUSB_BUDGET_NAME "ttusb_stc_fw"
 
+<<<<<<< HEAD
+=======
+#define MAX_SEND	0x28
+#define MAX_RCV		0x20
+
+>>>>>>> upstream/android-13
 /*
  *  since we're casting (struct ttusb*) <-> (struct dvb_demux*) around
  *  the dvb_demux field must be the first in struct!!
@@ -123,13 +149,19 @@ struct ttusb {
 	int cc;			/* MuxCounter - will increment on EVERY MUX PACKET */
 	/* (including stuffing. yes. really.) */
 
+<<<<<<< HEAD
 	u8 last_result[32];
+=======
+	u8 send_buf[MAX_SEND];
+	u8 last_result[MAX_RCV];
+>>>>>>> upstream/android-13
 
 	int revision;
 
 	struct dvb_frontend* fe;
 };
 
+<<<<<<< HEAD
 /* ugly workaround ... don't know why it's necessary to read */
 /* all result codes. */
 
@@ -146,10 +178,17 @@ static int ttusb_cmd(struct ttusb *ttusb,
 			printk(KERN_CONT " %02x", data[i]);
 		printk(KERN_CONT "\n");
 	}
+=======
+static int ttusb_cmd(struct ttusb *ttusb, u8 *data, int len, int len_result)
+{
+	int actual_len;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (mutex_lock_interruptible(&ttusb->semusb) < 0)
 		return -EAGAIN;
 
+<<<<<<< HEAD
 	err = usb_bulk_msg(ttusb->dev, ttusb->bulk_out_pipe,
 			   (u8 *) data, len, &actual_len, 1000);
 	if (err != 0) {
@@ -173,10 +212,37 @@ static int ttusb_cmd(struct ttusb *ttusb,
 		       err);
 		mutex_unlock(&ttusb->semusb);
 		return err;
+=======
+	if (debug >= 3)
+		dprintk("> %*ph\n", len, data);
+
+	memcpy(data, ttusb->send_buf, len);
+
+	err = usb_bulk_msg(ttusb->dev, ttusb->bulk_out_pipe,
+			   ttusb->send_buf, len, &actual_len, 1000);
+	if (err != 0) {
+		dprintk("usb_bulk_msg(send) failed, err == %i!\n", err);
+		goto err;
+	}
+	if (actual_len != len) {
+		err = -EIO;
+		dprintk("only wrote %d of %d bytes\n",
+			actual_len, len);
+		goto err;
+	}
+
+	err = usb_bulk_msg(ttusb->dev, ttusb->bulk_in_pipe,
+			   ttusb->last_result, MAX_RCV, &actual_len, 1000);
+
+	if (err != 0) {
+		pr_err("cmd xter failed, receive error %d\n", err);
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	if (debug >= 3) {
 		actual_len = ttusb->last_result[3] + 4;
+<<<<<<< HEAD
 		printk(KERN_DEBUG "<");
 		for (i = 0; i < actual_len; ++i)
 			printk(KERN_CONT " %02x", ttusb->last_result[i]);
@@ -193,17 +259,36 @@ static int ttusb_result(struct ttusb *ttusb, u8 * data, int len)
 	memcpy(data, ttusb->last_result, len);
 	mutex_unlock(&ttusb->semusb);
 	return 0;
+=======
+		dprintk("< %*ph\n", actual_len, ttusb->last_result);
+	}
+
+	if (len_result)
+		memcpy(ttusb->send_buf, ttusb->last_result, len_result);
+
+err:
+	mutex_unlock(&ttusb->semusb);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int ttusb_i2c_msg(struct ttusb *ttusb,
 		  u8 addr, u8 * snd_buf, u8 snd_len, u8 * rcv_buf,
 		  u8 rcv_len)
 {
+<<<<<<< HEAD
 	u8 b[0x28];
 	u8 id = ++ttusb->c;
 	int i, err;
 
 	if (snd_len > 0x28 - 7 || rcv_len > 0x20 - 7)
+=======
+	u8 b[MAX_SEND];
+	u8 id = ++ttusb->c;
+	int i, err;
+
+	if (snd_len > MAX_SEND - 7 || rcv_len > MAX_RCV - 7)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	b[0] = 0xaa;
@@ -217,22 +302,34 @@ static int ttusb_i2c_msg(struct ttusb *ttusb,
 	for (i = 0; i < snd_len; i++)
 		b[7 + i] = snd_buf[i];
 
+<<<<<<< HEAD
 	err = ttusb_cmd(ttusb, b, snd_len + 7, 1);
+=======
+	err = ttusb_cmd(ttusb, b, snd_len + 7, MAX_RCV);
+>>>>>>> upstream/android-13
 
 	if (err)
 		return -EREMOTEIO;
 
+<<<<<<< HEAD
 	err = ttusb_result(ttusb, b, 0x20);
 
+=======
+>>>>>>> upstream/android-13
 	/* check if the i2c transaction was successful */
 	if ((snd_len != b[5]) || (rcv_len != b[6])) return -EREMOTEIO;
 
 	if (rcv_len > 0) {
 
 		if (err || b[0] != 0x55 || b[1] != id) {
+<<<<<<< HEAD
 			dprintk
 			    ("%s: usb_bulk_msg(recv) failed, err == %i, id == %02x, b == ",
 			     __func__, err, id);
+=======
+			dprintk("usb_bulk_msg(recv) failed, err == %i, id == %02x, b == ",
+				err, id);
+>>>>>>> upstream/android-13
 			return -EREMOTEIO;
 		}
 
@@ -276,7 +373,11 @@ static int master_xfer(struct i2c_adapter* adapter, struct i2c_msg *msg, int num
 				    snd_buf, snd_len, rcv_buf, rcv_len);
 
 		if (err < rcv_len) {
+<<<<<<< HEAD
 			dprintk("%s: i == %i\n", __func__, i);
+=======
+			dprintk("i == %i\n", i);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -296,7 +397,11 @@ static int ttusb_boot_dsp(struct ttusb *ttusb)
 	err = request_firmware(&fw, "ttusb-budget/dspbootcode.bin",
 			       &ttusb->dev->dev);
 	if (err) {
+<<<<<<< HEAD
 		printk(KERN_ERR "ttusb-budget: failed to request firmware\n");
+=======
+		pr_err("failed to request firmware\n");
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -306,7 +411,11 @@ static int ttusb_boot_dsp(struct ttusb *ttusb)
 	b[3] = 28;
 
 	/* upload dsp code in 32 byte steps (36 didn't work for me ...) */
+<<<<<<< HEAD
 	/* 32 is max packet size, no messages should be splitted. */
+=======
+	/* 32 is max packet size, no messages should be split. */
+>>>>>>> upstream/android-13
 	for (i = 0; i < fw->size; i += 28) {
 		memcpy(&b[4], &fw->data[i], 28);
 
@@ -336,8 +445,12 @@ static int ttusb_boot_dsp(struct ttusb *ttusb)
       done:
 	release_firmware(fw);
 	if (err) {
+<<<<<<< HEAD
 		dprintk("%s: usb_bulk_msg() failed, return value %i!\n",
 			__func__, err);
+=======
+		dprintk("usb_bulk_msg() failed, return value %i!\n", err);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -404,8 +517,11 @@ static int ttusb_init_controller(struct ttusb *ttusb)
 	/* i2c write read: 5 bytes, addr 0x10, 0x02 bytes write, 1 bytes read. */
 	u8 b3[] =
 	    { 0xaa, ++ttusb->c, 0x31, 5, 0x10, 0x02, 0x01, 0x00, 0x1e };
+<<<<<<< HEAD
 	u8 b4[] =
 	    { 0x55, ttusb->c, 0x31, 4, 0x10, 0x02, 0x01, 0x00, 0x1e };
+=======
+>>>>>>> upstream/android-13
 
 	u8 get_version[] = { 0xaa, ++ttusb->c, 0x17, 5, 0, 0, 0, 0, 0 };
 	u8 get_dsp_version[0x20] =
@@ -426,6 +542,7 @@ static int ttusb_init_controller(struct ttusb *ttusb)
 	if ((err = ttusb_cmd(ttusb, b2, sizeof(b2), 0)))
 		return err;
 
+<<<<<<< HEAD
 	if ((err = ttusb_cmd(ttusb, b3, sizeof(b3), 1)))
 		return err;
 
@@ -440,21 +557,39 @@ static int ttusb_init_controller(struct ttusb *ttusb)
 	dprintk("%s: stc-version: %c%c%c%c%c\n", __func__,
 		get_version[4], get_version[5], get_version[6],
 		get_version[7], get_version[8]);
+=======
+	if ((err = ttusb_cmd(ttusb, b3, sizeof(b3), 0)))
+		return err;
+
+	if ((err = ttusb_cmd(ttusb, get_version,
+			     sizeof(get_version), sizeof(get_version))))
+		return err;
+
+	dprintk("stc-version: %c%c%c%c%c\n", get_version[4], get_version[5],
+		get_version[6], get_version[7], get_version[8]);
+>>>>>>> upstream/android-13
 
 	if (memcmp(get_version + 4, "V 0.0", 5) &&
 	    memcmp(get_version + 4, "V 1.1", 5) &&
 	    memcmp(get_version + 4, "V 2.1", 5) &&
 	    memcmp(get_version + 4, "V 2.2", 5)) {
+<<<<<<< HEAD
 		printk
 		    ("%s: unknown STC version %c%c%c%c%c, please report!\n",
 		     __func__, get_version[4], get_version[5],
 		     get_version[6], get_version[7], get_version[8]);
+=======
+		pr_err("unknown STC version %c%c%c%c%c, please report!\n",
+		       get_version[4], get_version[5],
+		       get_version[6], get_version[7], get_version[8]);
+>>>>>>> upstream/android-13
 	}
 
 	ttusb->revision = ((get_version[6] - '0') << 4) |
 			   (get_version[8] - '0');
 
 	err =
+<<<<<<< HEAD
 	    ttusb_cmd(ttusb, get_dsp_version, sizeof(get_dsp_version), 1);
 	if (err)
 		return err;
@@ -464,6 +599,14 @@ static int ttusb_init_controller(struct ttusb *ttusb)
 	if (err)
 		return err;
 	printk("%s: dsp-version: %c%c%c\n", __func__,
+=======
+	    ttusb_cmd(ttusb, get_dsp_version,
+		      sizeof(get_dsp_version), sizeof(get_dsp_version));
+	if (err)
+		return err;
+
+	pr_info("dsp-version: %c%c%c\n",
+>>>>>>> upstream/android-13
 	       get_dsp_version[4], get_dsp_version[5], get_dsp_version[6]);
 	return 0;
 }
@@ -485,8 +628,12 @@ static int ttusb_send_diseqc(struct dvb_frontend* fe,
 
 	/* Diseqc */
 	if ((err = ttusb_cmd(ttusb, b, 4 + b[3], 0))) {
+<<<<<<< HEAD
 		dprintk("%s: usb_bulk_msg() failed, return value %i!\n",
 			__func__, err);
+=======
+		dprintk("usb_bulk_msg() failed, return value %i!\n", err);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -503,8 +650,12 @@ static int ttusb_update_lnb(struct ttusb *ttusb)
 
 	/* SetLNB */
 	if ((err = ttusb_cmd(ttusb, b, sizeof(b), 0))) {
+<<<<<<< HEAD
 		dprintk("%s: usb_bulk_msg() failed, return value %i!\n",
 			__func__, err);
+=======
+		dprintk("usb_bulk_msg() failed, return value %i!\n", err);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -538,8 +689,12 @@ static void ttusb_set_led_freq(struct ttusb *ttusb, u8 freq)
 
 	err = ttusb_cmd(ttusb, b, sizeof(b), 0);
 	if (err) {
+<<<<<<< HEAD
 		dprintk("%s: usb_bulk_msg() failed, return value %i!\n",
 			__func__, err);
+=======
+		dprintk("usb_bulk_msg() failed, return value %i!\n", err);
+>>>>>>> upstream/android-13
 	}
 }
 #endif
@@ -563,7 +718,11 @@ static void ttusb_process_muxpack(struct ttusb *ttusb, const u8 * muxpack,
 	int i;
 
 	if (len < 4 || len & 0x1) {
+<<<<<<< HEAD
 		pr_warn("%s: muxpack has invalid len %d\n", __func__, len);
+=======
+		pr_warn("muxpack has invalid len %d\n", len);
+>>>>>>> upstream/android-13
 		numinvalid++;
 		return;
 	}
@@ -571,8 +730,12 @@ static void ttusb_process_muxpack(struct ttusb *ttusb, const u8 * muxpack,
 	for (i = 0; i < len; i += 2)
 		csum ^= le16_to_cpup((__le16 *) (muxpack + i));
 	if (csum) {
+<<<<<<< HEAD
 		printk("%s: muxpack with incorrect checksum, ignoring\n",
 		       __func__);
+=======
+		pr_warn("muxpack with incorrect checksum, ignoring\n");
+>>>>>>> upstream/android-13
 		numinvalid++;
 		return;
 	}
@@ -580,8 +743,13 @@ static void ttusb_process_muxpack(struct ttusb *ttusb, const u8 * muxpack,
 	cc = (muxpack[len - 4] << 8) | muxpack[len - 3];
 	cc &= 0x7FFF;
 	if ((cc != ttusb->cc) && (ttusb->cc != -1))
+<<<<<<< HEAD
 		printk("%s: cc discontinuity (%d frames missing)\n",
 		       __func__, (cc - ttusb->cc) & 0x7FFF);
+=======
+		pr_warn("cc discontinuity (%d frames missing)\n",
+			(cc - ttusb->cc) & 0x7FFF);
+>>>>>>> upstream/android-13
 	ttusb->cc = (cc + 1) & 0x7FFF;
 	if (muxpack[0] & 0x80) {
 #ifdef TTUSB_HWSECTIONS
@@ -602,7 +770,11 @@ static void ttusb_process_muxpack(struct ttusb *ttusb, const u8 * muxpack,
 		    !!(ttusb->muxpack[1] & 1))
 			data++;
 #warning TODO: pusi
+<<<<<<< HEAD
 		printk("cc: %04x\n", (data[0] << 8) | data[1]);
+=======
+		dprintk("cc: %04x\n", (data[0] << 8) | data[1]);
+>>>>>>> upstream/android-13
 #endif
 		numsec++;
 	} else if (muxpack[0] == 0x47) {
@@ -621,7 +793,11 @@ static void ttusb_process_muxpack(struct ttusb *ttusb, const u8 * muxpack,
 		dvb_dmx_swfilter_packets(&ttusb->dvb_demux, muxpack, 1);
 	} else if (muxpack[0] != 0) {
 		numinvalid++;
+<<<<<<< HEAD
 		printk("illegal muxpack type %02x\n", muxpack[0]);
+=======
+		pr_err("illegal muxpack type %02x\n", muxpack[0]);
+>>>>>>> upstream/android-13
 	} else
 		numstuff++;
 }
@@ -631,7 +807,11 @@ static void ttusb_process_frame(struct ttusb *ttusb, u8 * data, int len)
 	int maxwork = 1024;
 	while (len) {
 		if (!(maxwork--)) {
+<<<<<<< HEAD
 			printk("%s: too much work\n", __func__);
+=======
+			pr_err("too much work\n");
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -645,10 +825,14 @@ static void ttusb_process_frame(struct ttusb *ttusb, u8 * data, int len)
 			else {
 				ttusb->mux_state = 0;
 				if (ttusb->insync) {
+<<<<<<< HEAD
 					dprintk("%s: %02x\n",
 						__func__, data[-1]);
 					printk(KERN_INFO "%s: lost sync.\n",
 					       __func__);
+=======
+					pr_info("lost sync.\n");
+>>>>>>> upstream/android-13
 					ttusb->insync = 0;
 				}
 			}
@@ -704,10 +888,15 @@ static void ttusb_process_frame(struct ttusb *ttusb, u8 * data, int len)
 						    ttusb->muxpack[1] + 2 +
 						    4;
 					else {
+<<<<<<< HEAD
 						dprintk
 						    ("%s: invalid state: first byte is %x\n",
 						     __func__,
 						     ttusb->muxpack[0]);
+=======
+						dprintk("invalid state: first byte is %x\n",
+							ttusb->muxpack[0]);
+>>>>>>> upstream/android-13
 						ttusb->mux_state = 0;
 					}
 				}
@@ -756,12 +945,15 @@ static void ttusb_iso_irq(struct urb *urb)
 	if (!ttusb->iso_streaming)
 		return;
 
+<<<<<<< HEAD
 #if 0
 	printk("%s: status %d, errcount == %d, length == %i\n",
 	       __func__,
 	       urb->status, urb->error_count, urb->actual_length);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (!urb->status) {
 		for (i = 0; i < urb->number_of_packets; ++i) {
 			numpkt++;
@@ -834,7 +1026,11 @@ static int ttusb_start_iso_xfer(struct ttusb *ttusb)
 	int i, j, err, buffer_offset = 0;
 
 	if (ttusb->iso_streaming) {
+<<<<<<< HEAD
 		printk("%s: iso xfer already running!\n", __func__);
+=======
+		pr_err("iso xfer already running!\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -868,9 +1064,14 @@ static int ttusb_start_iso_xfer(struct ttusb *ttusb)
 	for (i = 0; i < ISO_BUF_COUNT; i++) {
 		if ((err = usb_submit_urb(ttusb->iso_urb[i], GFP_ATOMIC))) {
 			ttusb_stop_iso_xfer(ttusb);
+<<<<<<< HEAD
 			printk
 			    ("%s: failed urb submission (%i: err = %i)!\n",
 			     __func__, i, err);
+=======
+			pr_err("failed urb submission (%i: err = %i)!\n",
+			       i, err);
+>>>>>>> upstream/android-13
 			return err;
 		}
 	}
@@ -1430,7 +1631,11 @@ static int dvbc_philips_tdm1316l_tuner_set_params(struct dvb_frontend *fe)
 	if (fe->ops.i2c_gate_ctrl)
 		fe->ops.i2c_gate_ctrl(fe, 1);
 	if (i2c_transfer(&ttusb->i2c_adap, &tuner_msg, 1) != 1) {
+<<<<<<< HEAD
 		printk("dvb-ttusb-budget: dvbc_philips_tdm1316l_pll_set Error 1\n");
+=======
+		pr_err("dvbc_philips_tdm1316l_pll_set Error 1\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -1439,7 +1644,11 @@ static int dvbc_philips_tdm1316l_tuner_set_params(struct dvb_frontend *fe)
 	if (fe->ops.i2c_gate_ctrl)
 		fe->ops.i2c_gate_ctrl(fe, 1);
 	if (i2c_transfer(&ttusb->i2c_adap, &tuner_msg, 1) != 1) {
+<<<<<<< HEAD
 		printk("dvb-ttusb-budget: dvbc_philips_tdm1316l_pll_set Error 2\n");
+=======
+		pr_err("dvbc_philips_tdm1316l_pll_set Error 2\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -1616,12 +1825,20 @@ static void frontend_init(struct ttusb* ttusb)
 	}
 
 	if (ttusb->fe == NULL) {
+<<<<<<< HEAD
 		printk("dvb-ttusb-budget: A frontend driver was not found for device [%04x:%04x]\n",
+=======
+		pr_err("no frontend driver found for device [%04x:%04x]\n",
+>>>>>>> upstream/android-13
 		       le16_to_cpu(ttusb->dev->descriptor.idVendor),
 		       le16_to_cpu(ttusb->dev->descriptor.idProduct));
 	} else {
 		if (dvb_register_frontend(&ttusb->adapter, ttusb->fe)) {
+<<<<<<< HEAD
 			printk("dvb-ttusb-budget: Frontend registration failed!\n");
+=======
+			pr_err("Frontend registration failed!\n");
+>>>>>>> upstream/android-13
 			dvb_frontend_detach(ttusb->fe);
 			ttusb->fe = NULL;
 		}
@@ -1641,7 +1858,11 @@ static int ttusb_probe(struct usb_interface *intf, const struct usb_device_id *i
 	struct ttusb *ttusb;
 	int result;
 
+<<<<<<< HEAD
 	dprintk("%s: TTUSB DVB connected\n", __func__);
+=======
+	dprintk("TTUSB DVB connected\n");
+>>>>>>> upstream/android-13
 
 	udev = interface_to_usbdev(intf);
 
@@ -1663,14 +1884,22 @@ static int ttusb_probe(struct usb_interface *intf, const struct usb_device_id *i
 
 	result = ttusb_alloc_iso_urbs(ttusb);
 	if (result < 0) {
+<<<<<<< HEAD
 		dprintk("%s: ttusb_alloc_iso_urbs - failed\n", __func__);
+=======
+		dprintk("ttusb_alloc_iso_urbs - failed\n");
+>>>>>>> upstream/android-13
 		mutex_unlock(&ttusb->semi2c);
 		kfree(ttusb);
 		return result;
 	}
 
 	if (ttusb_init_controller(ttusb))
+<<<<<<< HEAD
 		printk("ttusb_init_controller: error\n");
+=======
+		pr_err("ttusb_init_controller: error\n");
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&ttusb->semi2c);
 
@@ -1686,7 +1915,11 @@ static int ttusb_probe(struct usb_interface *intf, const struct usb_device_id *i
 
 	/* i2c */
 	memset(&ttusb->i2c_adap, 0, sizeof(struct i2c_adapter));
+<<<<<<< HEAD
 	strcpy(ttusb->i2c_adap.name, "TTUSB DEC");
+=======
+	strscpy(ttusb->i2c_adap.name, "TTUSB DEC", sizeof(ttusb->i2c_adap.name));
+>>>>>>> upstream/android-13
 
 	i2c_set_adapdata(&ttusb->i2c_adap, ttusb);
 
@@ -1715,7 +1948,11 @@ static int ttusb_probe(struct usb_interface *intf, const struct usb_device_id *i
 
 	result = dvb_dmx_init(&ttusb->dvb_demux);
 	if (result < 0) {
+<<<<<<< HEAD
 		printk("ttusb_dvb: dvb_dmx_init failed (errno = %d)\n", result);
+=======
+		pr_err("dvb_dmx_init failed (errno = %d)\n", result);
+>>>>>>> upstream/android-13
 		result = -ENODEV;
 		goto err_i2c_del_adapter;
 	}
@@ -1726,14 +1963,22 @@ static int ttusb_probe(struct usb_interface *intf, const struct usb_device_id *i
 
 	result = dvb_dmxdev_init(&ttusb->dmxdev, &ttusb->adapter);
 	if (result < 0) {
+<<<<<<< HEAD
 		printk("ttusb_dvb: dvb_dmxdev_init failed (errno = %d)\n",
+=======
+		pr_err("dvb_dmxdev_init failed (errno = %d)\n",
+>>>>>>> upstream/android-13
 		       result);
 		result = -ENODEV;
 		goto err_release_dmx;
 	}
 
 	if (dvb_net_init(&ttusb->adapter, &ttusb->dvbnet, &ttusb->dvb_demux.dmx)) {
+<<<<<<< HEAD
 		printk("ttusb_dvb: dvb_net_init failed!\n");
+=======
+		pr_err("dvb_net_init failed!\n");
+>>>>>>> upstream/android-13
 		result = -ENODEV;
 		goto err_release_dmxdev;
 	}
@@ -1782,7 +2027,11 @@ static void ttusb_disconnect(struct usb_interface *intf)
 
 	kfree(ttusb);
 
+<<<<<<< HEAD
 	dprintk("%s: TTUSB DVB disconnected\n", __func__);
+=======
+	dprintk("TTUSB DVB disconnected\n");
+>>>>>>> upstream/android-13
 }
 
 static const struct usb_device_id ttusb_table[] = {

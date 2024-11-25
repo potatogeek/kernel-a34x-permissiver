@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * AFE440X Heart Rate Monitors and Low-Cost Pulse Oximeters
  *
@@ -12,6 +13,14 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * AFE440X Heart Rate Monitors and Low-Cost Pulse Oximeters
+ *
+ * Copyright (C) 2015 Texas Instruments Incorporated - https://www.ti.com/
+ *	Andrew F. Davis <afd@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _AFE440X_H

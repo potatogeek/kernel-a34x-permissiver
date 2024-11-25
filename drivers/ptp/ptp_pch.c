@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PTP 1588 clock using the EG20T PCH
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2011-2012 LAPIS SEMICONDUCTOR Co., LTD.
  *
  * This code was derived from the IXP46X driver.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -30,6 +37,10 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/ptp_clock_kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/ptp_pch.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 #define STATION_ADDR_LEN	20
@@ -48,7 +59,12 @@ enum pch_status {
 	PCH_FAILED,
 	PCH_UNSUPPORTED,
 };
+<<<<<<< HEAD
 /**
+=======
+
+/*
+>>>>>>> upstream/android-13
  * struct pch_ts_regs - IEEE 1588 registers
  */
 struct pch_ts_regs {
@@ -114,7 +130,12 @@ struct pch_ts_regs {
 
 #define PCH_IEEE1588_ETH	(1 << 0)
 #define PCH_IEEE1588_CAN	(1 << 1)
+<<<<<<< HEAD
 /**
+=======
+
+/*
+>>>>>>> upstream/android-13
  * struct pch_dev - Driver private data
  */
 struct pch_dev {
@@ -131,7 +152,11 @@ struct pch_dev {
 	spinlock_t register_lock;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct pch_params - 1588 module parameter
  */
 struct pch_params {
@@ -191,6 +216,7 @@ static inline void pch_block_reset(struct pch_dev *chip)
 	iowrite32(val, (&chip->regs->control));
 }
 
+<<<<<<< HEAD
 u32 pch_ch_control_read(struct pci_dev *pdev)
 {
 	struct pch_dev *chip = pci_get_drvdata(pdev);
@@ -202,6 +228,8 @@ u32 pch_ch_control_read(struct pci_dev *pdev)
 }
 EXPORT_SYMBOL(pch_ch_control_read);
 
+=======
+>>>>>>> upstream/android-13
 void pch_ch_control_write(struct pci_dev *pdev, u32 val)
 {
 	struct pch_dev *chip = pci_get_drvdata(pdev);
@@ -308,6 +336,10 @@ static void pch_reset(struct pch_dev *chip)
  *				    IEEE 1588 hardware when looking at PTP
  *				    traffic on the  ethernet interface
  * @addr:	dress which contain the column separated address to be used.
+<<<<<<< HEAD
+=======
+ * @pdev:	PCI device.
+>>>>>>> upstream/android-13
  */
 int pch_set_station_address(u8 *addr, struct pci_dev *pdev)
 {
@@ -520,6 +552,7 @@ static const struct ptp_clock_info ptp_pch_caps = {
 	.enable		= ptp_pch_enable,
 };
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_PM
 static s32 pch_suspend(struct pci_dev *pdev, pm_message_t state)
@@ -554,6 +587,10 @@ static s32 pch_resume(struct pci_dev *pdev)
 #define pch_suspend NULL
 #define pch_resume NULL
 #endif
+=======
+#define pch_suspend NULL
+#define pch_resume NULL
+>>>>>>> upstream/android-13
 
 static void pch_remove(struct pci_dev *pdev)
 {
@@ -695,14 +732,24 @@ static const struct pci_device_id pch_ieee1588_pcidev_id[] = {
 	 },
 	{0}
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(pci, pch_ieee1588_pcidev_id);
+
+static SIMPLE_DEV_PM_OPS(pch_pm_ops, pch_suspend, pch_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver pch_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = pch_ieee1588_pcidev_id,
 	.probe = pch_probe,
 	.remove = pch_remove,
+<<<<<<< HEAD
 	.suspend = pch_suspend,
 	.resume = pch_resume,
+=======
+	.driver.pm = &pch_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static void __exit ptp_pch_exit(void)

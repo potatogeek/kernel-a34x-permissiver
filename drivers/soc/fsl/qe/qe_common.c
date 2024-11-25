@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Common CPM code
  *
@@ -11,10 +15,13 @@
  * Copyright (c) 2000 MontaVista Software, Inc (source@mvista.com)
  * 2006 (c) MontaVista Software, Inc.
  * Vitaly Bordug <vbordug@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/genalloc.h>
 #include <linux/init.h>
@@ -29,13 +36,22 @@
 #include <soc/fsl/qe/qe.h>
 
 static struct gen_pool *muram_pool;
+<<<<<<< HEAD
 static spinlock_t cpm_muram_lock;
 static u8 __iomem *muram_vbase;
+=======
+static DEFINE_SPINLOCK(cpm_muram_lock);
+static void __iomem *muram_vbase;
+>>>>>>> upstream/android-13
 static phys_addr_t muram_pbase;
 
 struct muram_block {
 	struct list_head head;
+<<<<<<< HEAD
 	unsigned long start;
+=======
+	s32 start;
+>>>>>>> upstream/android-13
 	int size;
 };
 
@@ -49,7 +65,11 @@ int cpm_muram_init(void)
 {
 	struct device_node *np;
 	struct resource r;
+<<<<<<< HEAD
 	u32 zero[OF_MAX_ADDR_CELLS] = {};
+=======
+	__be32 zero[OF_MAX_ADDR_CELLS] = {};
+>>>>>>> upstream/android-13
 	resource_size_t max = 0;
 	int i = 0;
 	int ret = 0;
@@ -57,7 +77,10 @@ int cpm_muram_init(void)
 	if (muram_pbase)
 		return 0;
 
+<<<<<<< HEAD
 	spin_lock_init(&cpm_muram_lock);
+=======
+>>>>>>> upstream/android-13
 	np = of_find_compatible_node(NULL, NULL, "fsl,cpm-muram-data");
 	if (!np) {
 		/* try legacy bindings */
@@ -113,6 +136,7 @@ out_muram:
  * @algo: algorithm for alloc.
  * @data: data for genalloc's algorithm.
  *
+<<<<<<< HEAD
  * This function returns an offset into the muram area.
  */
 static unsigned long cpm_muram_alloc_common(unsigned long size,
@@ -132,15 +156,39 @@ static unsigned long cpm_muram_alloc_common(unsigned long size,
 	entry = kmalloc(sizeof(*entry), GFP_ATOMIC);
 	if (!entry)
 		goto out1;
+=======
+ * This function returns a non-negative offset into the muram area, or
+ * a negative errno on failure.
+ */
+static s32 cpm_muram_alloc_common(unsigned long size,
+				  genpool_algo_t algo, void *data)
+{
+	struct muram_block *entry;
+	s32 start;
+
+	entry = kmalloc(sizeof(*entry), GFP_ATOMIC);
+	if (!entry)
+		return -ENOMEM;
+	start = gen_pool_alloc_algo(muram_pool, size, algo, data);
+	if (!start) {
+		kfree(entry);
+		return -ENOMEM;
+	}
+	start = start - GENPOOL_OFFSET;
+	memset_io(cpm_muram_addr(start), 0, size);
+>>>>>>> upstream/android-13
 	entry->start = start;
 	entry->size = size;
 	list_add(&entry->head, &muram_block_list);
 
 	return start;
+<<<<<<< HEAD
 out1:
 	gen_pool_free(muram_pool, start, size);
 out2:
 	return (unsigned long)-ENOMEM;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -148,6 +196,7 @@ out2:
  * @size: number of bytes to allocate
  * @align: requested alignment, in bytes
  *
+<<<<<<< HEAD
  * This function returns an offset into the muram area.
  * Use cpm_dpram_addr() to get the virtual address of the area.
  * Use cpm_muram_free() to free the allocation.
@@ -155,6 +204,16 @@ out2:
 unsigned long cpm_muram_alloc(unsigned long size, unsigned long align)
 {
 	unsigned long start;
+=======
+ * This function returns a non-negative offset into the muram area, or
+ * a negative errno on failure.
+ * Use cpm_dpram_addr() to get the virtual address of the area.
+ * Use cpm_muram_free() to free the allocation.
+ */
+s32 cpm_muram_alloc(unsigned long size, unsigned long align)
+{
+	s32 start;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct genpool_data_align muram_pool_data;
 
@@ -171,12 +230,22 @@ EXPORT_SYMBOL(cpm_muram_alloc);
  * cpm_muram_free - free a chunk of multi-user ram
  * @offset: The beginning of the chunk as returned by cpm_muram_alloc().
  */
+<<<<<<< HEAD
 int cpm_muram_free(unsigned long offset)
+=======
+void cpm_muram_free(s32 offset)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	int size;
 	struct muram_block *tmp;
 
+<<<<<<< HEAD
+=======
+	if (offset < 0)
+		return;
+
+>>>>>>> upstream/android-13
 	size = 0;
 	spin_lock_irqsave(&cpm_muram_lock, flags);
 	list_for_each_entry(tmp, &muram_block_list, head) {
@@ -189,7 +258,10 @@ int cpm_muram_free(unsigned long offset)
 	}
 	gen_pool_free(muram_pool, offset + GENPOOL_OFFSET, size);
 	spin_unlock_irqrestore(&cpm_muram_lock, flags);
+<<<<<<< HEAD
 	return size;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(cpm_muram_free);
 
@@ -197,6 +269,7 @@ EXPORT_SYMBOL(cpm_muram_free);
  * cpm_muram_alloc_fixed - reserve a specific region of multi-user ram
  * @offset: offset of allocation start address
  * @size: number of bytes to allocate
+<<<<<<< HEAD
  * This function returns an offset into the muram area
  * Use cpm_dpram_addr() to get the virtual address of the area.
  * Use cpm_muram_free() to free the allocation.
@@ -204,6 +277,16 @@ EXPORT_SYMBOL(cpm_muram_free);
 unsigned long cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
 {
 	unsigned long start;
+=======
+ * This function returns @offset if the area was available, a negative
+ * errno otherwise.
+ * Use cpm_dpram_addr() to get the virtual address of the area.
+ * Use cpm_muram_free() to free the allocation.
+ */
+s32 cpm_muram_alloc_fixed(unsigned long offset, unsigned long size)
+{
+	s32 start;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct genpool_data_fixed muram_pool_data_fixed;
 
@@ -226,14 +309,21 @@ void __iomem *cpm_muram_addr(unsigned long offset)
 }
 EXPORT_SYMBOL(cpm_muram_addr);
 
+<<<<<<< HEAD
 unsigned long cpm_muram_offset(void __iomem *addr)
 {
 	return addr - (void __iomem *)muram_vbase;
+=======
+unsigned long cpm_muram_offset(const void __iomem *addr)
+{
+	return addr - muram_vbase;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(cpm_muram_offset);
 
 /**
  * cpm_muram_dma - turn a muram virtual address into a DMA address
+<<<<<<< HEAD
  * @offset: virtual address from cpm_muram_addr() to convert
  */
 dma_addr_t cpm_muram_dma(void __iomem *addr)
@@ -241,3 +331,24 @@ dma_addr_t cpm_muram_dma(void __iomem *addr)
 	return muram_pbase + ((u8 __iomem *)addr - muram_vbase);
 }
 EXPORT_SYMBOL(cpm_muram_dma);
+=======
+ * @addr: virtual address from cpm_muram_addr() to convert
+ */
+dma_addr_t cpm_muram_dma(void __iomem *addr)
+{
+	return muram_pbase + (addr - muram_vbase);
+}
+EXPORT_SYMBOL(cpm_muram_dma);
+
+/*
+ * As cpm_muram_free, but takes the virtual address rather than the
+ * muram offset.
+ */
+void cpm_muram_free_addr(const void __iomem *addr)
+{
+	if (!addr)
+		return;
+	cpm_muram_free(cpm_muram_offset(addr));
+}
+EXPORT_SYMBOL(cpm_muram_free_addr);
+>>>>>>> upstream/android-13

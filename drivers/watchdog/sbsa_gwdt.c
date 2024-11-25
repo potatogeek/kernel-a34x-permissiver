@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SBSA(Server Base System Architecture) Generic Watchdog driver
  *
@@ -7,6 +11,7 @@
  *         Al Stone <al.stone@linaro.org>
  *         Timur Tabi <timur@codeaurora.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License 2 as published
  * by the Free Software Foundation.
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ARM SBSA Generic Watchdog has two stage timeouts:
  * the first signal (WS0) is for alerting the system by interrupt,
  * the second one (WS1) is a real hardware reset.
@@ -46,7 +53,10 @@
  * by WOR, in the single stage mode, the timeout is (WOR * 2); in the two
  * stages mode, the timeout is WOR. The maximum timeout in the two stages mode
  * is half of that in the single stage mode.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -82,16 +92,30 @@
 #define SBSA_GWDT_WCS_WS0	BIT(1)
 #define SBSA_GWDT_WCS_WS1	BIT(2)
 
+<<<<<<< HEAD
+=======
+#define SBSA_GWDT_VERSION_MASK  0xF
+#define SBSA_GWDT_VERSION_SHIFT 16
+
+>>>>>>> upstream/android-13
 /**
  * struct sbsa_gwdt - Internal representation of the SBSA GWDT
  * @wdd:		kernel watchdog_device structure
  * @clk:		store the System Counter clock frequency, in Hz.
+<<<<<<< HEAD
+=======
+ * @version:            store the architecture version
+>>>>>>> upstream/android-13
  * @refresh_base:	Virtual address of the watchdog refresh frame
  * @control_base:	Virtual address of the watchdog control frame
  */
 struct sbsa_gwdt {
 	struct watchdog_device	wdd;
 	u32			clk;
+<<<<<<< HEAD
+=======
+	int			version;
+>>>>>>> upstream/android-13
 	void __iomem		*refresh_base;
 	void __iomem		*control_base;
 };
@@ -122,6 +146,33 @@ MODULE_PARM_DESC(nowayout,
 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 
 /*
+<<<<<<< HEAD
+=======
+ * Arm Base System Architecture 1.0 introduces watchdog v1 which
+ * increases the length watchdog offset register to 48 bits.
+ * - For version 0: WOR is 32 bits;
+ * - For version 1: WOR is 48 bits which comprises the register
+ * offset 0x8 and 0xC, and the bits [63:48] are reserved which are
+ * Read-As-Zero and Writes-Ignored.
+ */
+static u64 sbsa_gwdt_reg_read(struct sbsa_gwdt *gwdt)
+{
+	if (gwdt->version == 0)
+		return readl(gwdt->control_base + SBSA_GWDT_WOR);
+	else
+		return lo_hi_readq(gwdt->control_base + SBSA_GWDT_WOR);
+}
+
+static void sbsa_gwdt_reg_write(u64 val, struct sbsa_gwdt *gwdt)
+{
+	if (gwdt->version == 0)
+		writel((u32)val, gwdt->control_base + SBSA_GWDT_WOR);
+	else
+		lo_hi_writeq(val, gwdt->control_base + SBSA_GWDT_WOR);
+}
+
+/*
+>>>>>>> upstream/android-13
  * watchdog operation functions
  */
 static int sbsa_gwdt_set_timeout(struct watchdog_device *wdd,
@@ -132,16 +183,24 @@ static int sbsa_gwdt_set_timeout(struct watchdog_device *wdd,
 	wdd->timeout = timeout;
 
 	if (action)
+<<<<<<< HEAD
 		writel(gwdt->clk * timeout,
 		       gwdt->control_base + SBSA_GWDT_WOR);
+=======
+		sbsa_gwdt_reg_write(gwdt->clk * timeout, gwdt);
+>>>>>>> upstream/android-13
 	else
 		/*
 		 * In the single stage mode, The first signal (WS0) is ignored,
 		 * the timeout is (WOR * 2), so the WOR should be configured
 		 * to half value of timeout.
 		 */
+<<<<<<< HEAD
 		writel(gwdt->clk / 2 * timeout,
 		       gwdt->control_base + SBSA_GWDT_WOR);
+=======
+		sbsa_gwdt_reg_write(gwdt->clk / 2 * timeout, gwdt);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -158,10 +217,17 @@ static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
 	 */
 	if (!action &&
 	    !(readl(gwdt->control_base + SBSA_GWDT_WCS) & SBSA_GWDT_WCS_WS0))
+<<<<<<< HEAD
 		timeleft += readl(gwdt->control_base + SBSA_GWDT_WOR);
 
 	timeleft += lo_hi_readq(gwdt->control_base + SBSA_GWDT_WCV) -
 		    arch_counter_get_cntvct();
+=======
+		timeleft += sbsa_gwdt_reg_read(gwdt);
+
+	timeleft += lo_hi_readq(gwdt->control_base + SBSA_GWDT_WCV) -
+		    arch_timer_read_counter();
+>>>>>>> upstream/android-13
 
 	do_div(timeleft, gwdt->clk);
 
@@ -181,6 +247,20 @@ static int sbsa_gwdt_keepalive(struct watchdog_device *wdd)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void sbsa_gwdt_get_version(struct watchdog_device *wdd)
+{
+	struct sbsa_gwdt *gwdt = watchdog_get_drvdata(wdd);
+	int ver;
+
+	ver = readl(gwdt->control_base + SBSA_GWDT_W_IIDR);
+	ver = (ver >> SBSA_GWDT_VERSION_SHIFT) & SBSA_GWDT_VERSION_MASK;
+
+	gwdt->version = ver;
+}
+
+>>>>>>> upstream/android-13
 static int sbsa_gwdt_start(struct watchdog_device *wdd)
 {
 	struct sbsa_gwdt *gwdt = watchdog_get_drvdata(wdd);
@@ -231,7 +311,10 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct watchdog_device *wdd;
 	struct sbsa_gwdt *gwdt;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret, irq;
 	u32 status;
 
@@ -240,6 +323,7 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	platform_set_drvdata(pdev, gwdt);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	cf_base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(cf_base))
@@ -247,6 +331,13 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	rf_base = devm_ioremap_resource(dev, res);
+=======
+	cf_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(cf_base))
+		return PTR_ERR(cf_base);
+
+	rf_base = devm_platform_ioremap_resource(pdev, 1);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rf_base))
 		return PTR_ERR(rf_base);
 
@@ -264,10 +355,21 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
 	wdd->info = &sbsa_gwdt_info;
 	wdd->ops = &sbsa_gwdt_ops;
 	wdd->min_timeout = 1;
+<<<<<<< HEAD
 	wdd->max_hw_heartbeat_ms = U32_MAX / gwdt->clk * 1000;
 	wdd->timeout = DEFAULT_TIMEOUT;
 	watchdog_set_drvdata(wdd, gwdt);
 	watchdog_set_nowayout(wdd, nowayout);
+=======
+	wdd->timeout = DEFAULT_TIMEOUT;
+	watchdog_set_drvdata(wdd, gwdt);
+	watchdog_set_nowayout(wdd, nowayout);
+	sbsa_gwdt_get_version(wdd);
+	if (gwdt->version == 0)
+		wdd->max_hw_heartbeat_ms = U32_MAX / gwdt->clk * 1000;
+	else
+		wdd->max_hw_heartbeat_ms = GENMASK_ULL(47, 0) / gwdt->clk * 1000;
+>>>>>>> upstream/android-13
 
 	status = readl(cf_base + SBSA_GWDT_WCS);
 	if (status & SBSA_GWDT_WCS_WS1) {
@@ -313,7 +415,12 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
 	 */
 	sbsa_gwdt_set_timeout(wdd, wdd->timeout);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdd);
+=======
+	watchdog_stop_on_reboot(wdd);
+	ret = devm_watchdog_register_device(dev, wdd);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -324,6 +431,7 @@ static int sbsa_gwdt_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void sbsa_gwdt_shutdown(struct platform_device *pdev)
 {
 	struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
@@ -340,6 +448,8 @@ static int sbsa_gwdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Disable watchdog if it is active during suspend */
 static int __maybe_unused sbsa_gwdt_suspend(struct device *dev)
 {
@@ -385,8 +495,11 @@ static struct platform_driver sbsa_gwdt_driver = {
 		.of_match_table = sbsa_gwdt_of_match,
 	},
 	.probe = sbsa_gwdt_probe,
+<<<<<<< HEAD
 	.remove = sbsa_gwdt_remove,
 	.shutdown = sbsa_gwdt_shutdown,
+=======
+>>>>>>> upstream/android-13
 	.id_table = sbsa_gwdt_pdev_match,
 };
 
@@ -398,4 +511,7 @@ MODULE_AUTHOR("Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>");
 MODULE_AUTHOR("Al Stone <al.stone@linaro.org>");
 MODULE_AUTHOR("Timur Tabi <timur@codeaurora.org>");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_ALIAS("platform:" DRV_NAME);
+=======
+>>>>>>> upstream/android-13

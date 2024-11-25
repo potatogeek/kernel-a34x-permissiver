@@ -1,16 +1,32 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) STMicroelectronics 2009
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License Terms: GNU General Public License v2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * DB8500 PRCM Unit driver
+ *
+ * Copyright (C) STMicroelectronics 2009
+ * Copyright (C) ST-Ericsson SA 2010
+ *
+>>>>>>> upstream/android-13
  * Author: Kumar Sanghvi <kumar.sanghvi@stericsson.com>
  * Author: Sundar Iyer <sundar.iyer@stericsson.com>
  * Author: Mattias Nilsson <mattias.i.nilsson@stericsson.com>
  *
  * U8500 PRCM Unit interface driver
+<<<<<<< HEAD
  *
  */
 #include <linux/module.h>
+=======
+ */
+#include <linux/init.h>
+#include <linux/export.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
@@ -25,6 +41,10 @@
 #include <linux/bitops.h>
 #include <linux/fs.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_address.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 #include <linux/platform_device.h>
 #include <linux/uaccess.h>
@@ -34,8 +54,12 @@
 #include <linux/regulator/db8500-prcmu.h>
 #include <linux/regulator/machine.h>
 #include <linux/platform_data/ux500_wdt.h>
+<<<<<<< HEAD
 #include <linux/platform_data/db8500_thermal.h>
 #include "dbx500-prcmu-regs.h"
+=======
+#include "db8500-prcmu-regs.h"
+>>>>>>> upstream/android-13
 
 /* Index of different voltages to be used when accessing AVSData */
 #define PRCM_AVS_BASE		0x2FC
@@ -540,6 +564,7 @@ static struct dsiescclk dsiescclk[3] = {
 	}
 };
 
+<<<<<<< HEAD
 
 /*
 * Used by MCDE to setup all necessary PRCMU registers
@@ -636,6 +661,8 @@ int db8500_prcmu_set_display_clocks(void)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 u32 db8500_prcmu_read(unsigned int reg)
 {
 	return readl(prcmu_base + reg);
@@ -667,6 +694,17 @@ struct prcmu_fw_version *prcmu_get_fw_version(void)
 	return fw_info.valid ? &fw_info.version : NULL;
 }
 
+<<<<<<< HEAD
+=======
+static bool prcmu_is_ulppll_disabled(void)
+{
+	struct prcmu_fw_version *ver;
+
+	ver = prcmu_get_fw_version();
+	return ver && ver->project == PRCMU_FW_PROJECT_U8420_SYSCLK;
+}
+
+>>>>>>> upstream/android-13
 bool prcmu_has_arm_maxopp(void)
 {
 	return (readb(tcdm_base + PRCM_AVS_VARM_MAX_OPP) &
@@ -702,7 +740,11 @@ enum romcode_read prcmu_get_rc_p2a(void)
 }
 
 /**
+<<<<<<< HEAD
  * prcmu_get_current_mode - Return the current XP70 power mode
+=======
+ * prcmu_get_xp70_current_state - Return the current XP70 power mode
+>>>>>>> upstream/android-13
  * Returns: Returns the current AP(ARM) power mode: init,
  * apBoot, apExecute, apDeepSleep, apSleep, apIdle, apReset
  */
@@ -984,7 +1026,11 @@ unlock_and_return:
 }
 
 /**
+<<<<<<< HEAD
  * db8500_set_ape_opp - set the appropriate APE OPP
+=======
+ * db8500_prcmu_set_ape_opp - set the appropriate APE OPP
+>>>>>>> upstream/android-13
  * @opp: The new APE operating point to which transition is to be made
  * Returns: 0 on success, non-zero on failure
  *
@@ -1307,10 +1353,30 @@ static int request_sysclk(bool enable)
 
 static int request_timclk(bool enable)
 {
+<<<<<<< HEAD
 	u32 val = (PRCM_TCR_DOZE_MODE | PRCM_TCR_TENSEL_MASK);
 
 	if (!enable)
 		val |= PRCM_TCR_STOP_TIMERS;
+=======
+	u32 val;
+
+	/*
+	 * On the U8420_CLKSEL firmware, the ULP (Ultra Low Power)
+	 * PLL is disabled so we cannot use doze mode, this will
+	 * stop the clock on this firmware.
+	 */
+	if (prcmu_is_ulppll_disabled())
+		val = 0;
+	else
+		val = (PRCM_TCR_DOZE_MODE | PRCM_TCR_TENSEL_MASK);
+
+	if (!enable)
+		val |= PRCM_TCR_STOP_TIMERS |
+			PRCM_TCR_DOZE_MODE |
+			PRCM_TCR_TENSEL_MASK;
+
+>>>>>>> upstream/android-13
 	writel(val, PRCM_TCR);
 
 	return 0;
@@ -1588,8 +1654,15 @@ static unsigned long dsiclk_rate(u8 n)
 	switch (divsel) {
 	case PRCM_DSI_PLLOUT_SEL_PHI_4:
 		div *= 2;
+<<<<<<< HEAD
 	case PRCM_DSI_PLLOUT_SEL_PHI_2:
 		div *= 2;
+=======
+		fallthrough;
+	case PRCM_DSI_PLLOUT_SEL_PHI_2:
+		div *= 2;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PRCM_DSI_PLLOUT_SEL_PHI:
 		return pll_rate(PRCM_PLLDSI_FREQ, clock_rate(PRCMU_HDMICLK),
 			PLL_RAW) / div;
@@ -1612,7 +1685,12 @@ unsigned long prcmu_clock_rate(u8 clock)
 	if (clock < PRCMU_NUM_REG_CLOCKS)
 		return clock_rate(clock);
 	else if (clock == PRCMU_TIMCLK)
+<<<<<<< HEAD
 		return ROOT_CLOCK_RATE / 16;
+=======
+		return prcmu_is_ulppll_disabled() ?
+			32768 : ROOT_CLOCK_RATE / 16;
+>>>>>>> upstream/android-13
 	else if (clock == PRCMU_SYSCLK)
 		return ROOT_CLOCK_RATE;
 	else if (clock == PRCMU_PLLSOC0)
@@ -1691,6 +1769,7 @@ static long round_clock_rate(u8 clock, unsigned long rate)
 	return rounded_rate;
 }
 
+<<<<<<< HEAD
 static const unsigned long armss_freqs[] = {
 	200000000,
 	400000000,
@@ -1706,6 +1785,41 @@ static long round_armss_rate(unsigned long rate)
 	/* Find the corresponding arm opp from the cpufreq table. */
 	for (i = 0; i < ARRAY_SIZE(armss_freqs); i++) {
 		freq = armss_freqs[i];
+=======
+static const unsigned long db8500_armss_freqs[] = {
+	199680000,
+	399360000,
+	798720000,
+	998400000
+};
+
+/* The DB8520 has slightly higher ARMSS max frequency */
+static const unsigned long db8520_armss_freqs[] = {
+	199680000,
+	399360000,
+	798720000,
+	1152000000
+};
+
+static long round_armss_rate(unsigned long rate)
+{
+	unsigned long freq = 0;
+	const unsigned long *freqs;
+	int nfreqs;
+	int i;
+
+	if (fw_info.version.project == PRCMU_FW_PROJECT_U8520) {
+		freqs = db8520_armss_freqs;
+		nfreqs = ARRAY_SIZE(db8520_armss_freqs);
+	} else {
+		freqs = db8500_armss_freqs;
+		nfreqs = ARRAY_SIZE(db8500_armss_freqs);
+	}
+
+	/* Find the corresponding arm opp from the cpufreq table. */
+	for (i = 0; i < nfreqs; i++) {
+		freq = freqs[i];
+>>>>>>> upstream/android-13
 		if (rate <= freq)
 			break;
 	}
@@ -1850,11 +1964,29 @@ static int set_armss_rate(unsigned long rate)
 {
 	unsigned long freq;
 	u8 opps[] = { ARM_EXTCLK, ARM_50_OPP, ARM_100_OPP, ARM_MAX_OPP };
+<<<<<<< HEAD
 	int i;
 
 	/* Find the corresponding arm opp from the cpufreq table. */
 	for (i = 0; i < ARRAY_SIZE(armss_freqs); i++) {
 		freq = armss_freqs[i];
+=======
+	const unsigned long *freqs;
+	int nfreqs;
+	int i;
+
+	if (fw_info.version.project == PRCMU_FW_PROJECT_U8520) {
+		freqs = db8520_armss_freqs;
+		nfreqs = ARRAY_SIZE(db8520_armss_freqs);
+	} else {
+		freqs = db8500_armss_freqs;
+		nfreqs = ARRAY_SIZE(db8500_armss_freqs);
+	}
+
+	/* Find the corresponding arm opp from the cpufreq table. */
+	for (i = 0; i < nfreqs; i++) {
+		freq = freqs[i];
+>>>>>>> upstream/android-13
 		if (rate == freq)
 			break;
 	}
@@ -2316,6 +2448,11 @@ bool db8500_prcmu_is_ac_wake_requested(void)
  *
  * Saves the reset reason code and then sets the APE_SOFTRST register which
  * fires interrupt to fw
+<<<<<<< HEAD
+=======
+ *
+ * @reset_code: The reason for system reset
+>>>>>>> upstream/android-13
  */
 void db8500_prcmu_system_reset(u16 reset_code)
 {
@@ -2335,7 +2472,11 @@ u16 db8500_prcmu_get_reset_code(void)
 }
 
 /**
+<<<<<<< HEAD
  * db8500_prcmu_reset_modem - ask the PRCMU to reset modem
+=======
+ * db8500_prcmu_modem_reset - ask the PRCMU to reset modem
+>>>>>>> upstream/android-13
  */
 void db8500_prcmu_modem_reset(void)
 {
@@ -2402,7 +2543,11 @@ static bool read_mailbox_0(void)
 
 		for (n = 0; n < NUM_PRCMU_WAKEUPS; n++) {
 			if (ev & prcmu_irq_bit[n])
+<<<<<<< HEAD
 				generic_handle_irq(irq_find_mapping(db8500_irq_domain, n));
+=======
+				generic_handle_domain_irq(db8500_irq_domain, n);
+>>>>>>> upstream/android-13
 		}
 		r = true;
 		break;
@@ -2605,14 +2750,26 @@ static char *fw_project_name(u32 project)
 		return "U8500 C4";
 	case PRCMU_FW_PROJECT_U9500_MBL:
 		return "U9500 MBL";
+<<<<<<< HEAD
 	case PRCMU_FW_PROJECT_U8500_MBL:
 		return "U8500 MBL";
+=======
+	case PRCMU_FW_PROJECT_U8500_SSG1:
+		return "U8500 Samsung 1";
+>>>>>>> upstream/android-13
 	case PRCMU_FW_PROJECT_U8500_MBL2:
 		return "U8500 MBL2";
 	case PRCMU_FW_PROJECT_U8520:
 		return "U8520 MBL";
 	case PRCMU_FW_PROJECT_U8420:
 		return "U8420";
+<<<<<<< HEAD
+=======
+	case PRCMU_FW_PROJECT_U8500_SSG2:
+		return "U8500 Samsung 2";
+	case PRCMU_FW_PROJECT_U8420_SYSCLK:
+		return "U8420-sysclk";
+>>>>>>> upstream/android-13
 	case PRCMU_FW_PROJECT_U9540:
 		return "U9540";
 	case PRCMU_FW_PROJECT_A9420:
@@ -2660,6 +2817,7 @@ static int db8500_irq_init(struct device_node *np)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void dbx500_fw_version_init(struct platform_device *pdev,
 			    u32 version_offset)
 {
@@ -2681,6 +2839,20 @@ static void dbx500_fw_version_init(struct platform_device *pdev,
 	}
 
 	version = readl(tcpm_base + version_offset);
+=======
+static void dbx500_fw_version_init(struct device_node *np)
+{
+	void __iomem *tcpm_base;
+	u32 version;
+
+	tcpm_base = of_iomap(np, 1);
+	if (!tcpm_base) {
+		pr_err("no prcmu tcpm mem region provided\n");
+		return;
+	}
+
+	version = readl(tcpm_base + DB8500_PRCMU_FW_VERSION_OFFSET);
+>>>>>>> upstream/android-13
 	fw_info.version.project = (version & 0xFF);
 	fw_info.version.api_version = (version >> 8) & 0xFF;
 	fw_info.version.func_version = (version >> 16) & 0xFF;
@@ -2698,7 +2870,11 @@ static void dbx500_fw_version_init(struct platform_device *pdev,
 	iounmap(tcpm_base);
 }
 
+<<<<<<< HEAD
 void __init db8500_prcmu_early_init(u32 phy_base, u32 size)
+=======
+void __init db8500_prcmu_early_init(void)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * This is a temporary remap to bring up the clocks. It is
@@ -2707,9 +2883,23 @@ void __init db8500_prcmu_early_init(u32 phy_base, u32 size)
 	 * clock driver can probe independently. An early initcall will
 	 * still be needed, but it can be diverted into drivers/clk/ux500.
 	 */
+<<<<<<< HEAD
 	prcmu_base = ioremap(phy_base, size);
 	if (!prcmu_base)
 		pr_err("%s: ioremap() of prcmu registers failed!\n", __func__);
+=======
+	struct device_node *np;
+
+	np = of_find_compatible_node(NULL, NULL, "stericsson,db8500-prcmu");
+	prcmu_base = of_iomap(np, 0);
+	if (!prcmu_base) {
+		of_node_put(np);
+		pr_err("%s: ioremap() of prcmu registers failed!\n", __func__);
+		return;
+	}
+	dbx500_fw_version_init(np);
+	of_node_put(np);
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&mb0_transfer.lock);
 	spin_lock_init(&mb0_transfer.dbb_irqs_lock);
@@ -2980,6 +3170,7 @@ static struct ux500_wdt_data db8500_wdt_pdata = {
 	.timeout = 600, /* 10 minutes */
 	.has_28_bits_resolution = true,
 };
+<<<<<<< HEAD
 /*
  * Thermal Sensor
  */
@@ -3027,6 +3218,8 @@ static struct db8500_thsens_platform_data db8500_thsens_data = {
 	},
 	.num_trips = 4,
 };
+=======
+>>>>>>> upstream/android-13
 
 static const struct mfd_cell common_prcmu_devs[] = {
 	{
@@ -3035,6 +3228,7 @@ static const struct mfd_cell common_prcmu_devs[] = {
 		.pdata_size = sizeof(db8500_wdt_pdata),
 		.id = -1,
 	},
+<<<<<<< HEAD
 };
 
 static const struct mfd_cell db8500_prcmu_devs[] = {
@@ -3055,25 +3249,55 @@ static const struct mfd_cell db8500_prcmu_devs[] = {
 		.platform_data = &db8500_thsens_data,
 		.pdata_size = sizeof(db8500_thsens_data),
 	},
+=======
+	MFD_CELL_NAME("db8500-cpuidle"),
+};
+
+static const struct mfd_cell db8500_prcmu_devs[] = {
+	MFD_CELL_OF("db8500-prcmu-regulators", NULL,
+		    &db8500_regulators, sizeof(db8500_regulators), 0,
+		    "stericsson,db8500-prcmu-regulator"),
+	MFD_CELL_OF("db8500-thermal",
+		    NULL, NULL, 0, 0, "stericsson,db8500-thermal"),
+>>>>>>> upstream/android-13
 };
 
 static int db8500_prcmu_register_ab8500(struct device *parent)
 {
 	struct device_node *np;
+<<<<<<< HEAD
 	struct resource ab8500_resource;
+=======
+	struct resource ab850x_resource;
+>>>>>>> upstream/android-13
 	const struct mfd_cell ab8500_cell = {
 		.name = "ab8500-core",
 		.of_compatible = "stericsson,ab8500",
 		.id = AB8500_VERSION_AB8500,
+<<<<<<< HEAD
 		.resources = &ab8500_resource,
 		.num_resources = 1,
 	};
+=======
+		.resources = &ab850x_resource,
+		.num_resources = 1,
+	};
+	const struct mfd_cell ab8505_cell = {
+		.name = "ab8505-core",
+		.of_compatible = "stericsson,ab8505",
+		.id = AB8500_VERSION_AB8505,
+		.resources = &ab850x_resource,
+		.num_resources = 1,
+	};
+	const struct mfd_cell *ab850x_cell;
+>>>>>>> upstream/android-13
 
 	if (!parent->of_node)
 		return -ENODEV;
 
 	/* Look up the device node, sneak the IRQ out of it */
 	for_each_child_of_node(parent->of_node, np) {
+<<<<<<< HEAD
 		if (of_device_is_compatible(np, ab8500_cell.of_compatible))
 			break;
 	}
@@ -3090,6 +3314,26 @@ static int db8500_prcmu_register_ab8500(struct device *parent)
  * prcmu_fw_init - arch init call for the Linux PRCMU fw init logic
  *
  */
+=======
+		if (of_device_is_compatible(np, ab8500_cell.of_compatible)) {
+			ab850x_cell = &ab8500_cell;
+			break;
+		}
+		if (of_device_is_compatible(np, ab8505_cell.of_compatible)) {
+			ab850x_cell = &ab8505_cell;
+			break;
+		}
+	}
+	if (!np) {
+		dev_info(parent, "could not find AB850X node in the device tree\n");
+		return -ENODEV;
+	}
+	of_irq_to_resource_table(np, &ab850x_resource, 1);
+
+	return mfd_add_devices(parent, 0, ab850x_cell, 1, NULL, 0, NULL);
+}
+
+>>>>>>> upstream/android-13
 static int db8500_prcmu_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
@@ -3108,7 +3352,10 @@ static int db8500_prcmu_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 	init_prcm_registers();
+<<<<<<< HEAD
 	dbx500_fw_version_init(pdev, DB8500_PRCMU_FW_VERSION_OFFSET);
+=======
+>>>>>>> upstream/android-13
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "prcmu-tcdm");
 	if (!res) {
 		dev_err(&pdev->dev, "no prcmu tcdm region provided\n");
@@ -3126,10 +3373,15 @@ static int db8500_prcmu_probe(struct platform_device *pdev)
 	writel(ALL_MBOX_BITS, PRCM_ARM_IT1_CLR);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq <= 0) {
 		dev_err(&pdev->dev, "no prcmu irq provided\n");
 		return irq;
 	}
+=======
+	if (irq <= 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	err = request_threaded_irq(irq, prcmu_irq_handler,
 	        prcmu_irq_thread_fn, IRQF_NO_SUSPEND, "prcmu", NULL);
@@ -3188,9 +3440,13 @@ static int __init db8500_prcmu_init(void)
 {
 	return platform_driver_register(&db8500_prcmu_driver);
 }
+<<<<<<< HEAD
 
 core_initcall(db8500_prcmu_init);
 
 MODULE_AUTHOR("Mattias Nilsson <mattias.i.nilsson@stericsson.com>");
 MODULE_DESCRIPTION("DB8500 PRCM Unit driver");
 MODULE_LICENSE("GPL v2");
+=======
+core_initcall(db8500_prcmu_init);
+>>>>>>> upstream/android-13

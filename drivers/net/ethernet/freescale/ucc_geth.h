@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) Freescale Semicondutor, Inc. 2006-2009. All rights reserved.
  *
@@ -9,11 +13,14 @@
  * Changelog:
  * Jun 28, 2006 Li Yang <LeoLi@freescale.com>
  * - Rearrange code and style fixes
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __UCC_GETH_H__
 #define __UCC_GETH_H__
@@ -30,7 +37,10 @@
 
 #define DRV_DESC "QE UCC Gigabit Ethernet Controller"
 #define DRV_NAME "ucc_geth"
+<<<<<<< HEAD
 #define DRV_VERSION "1.1"
+=======
+>>>>>>> upstream/android-13
 
 #define NUM_TX_QUEUES                   8
 #define NUM_RX_QUEUES                   8
@@ -894,7 +904,10 @@ struct ucc_geth_hardware_statistics {
 							   addresses */
 
 #define TX_TIMEOUT                              (1*HZ)
+<<<<<<< HEAD
 #define SKB_ALLOC_TIMEOUT                       100000
+=======
+>>>>>>> upstream/android-13
 #define PHY_INIT_TIMEOUT                        100000
 #define PHY_CHANGE_TIME                         2
 
@@ -1082,8 +1095,11 @@ struct ucc_geth_tad_params {
 /* GETH protocol initialization structure */
 struct ucc_geth_info {
 	struct ucc_fast_info uf_info;
+<<<<<<< HEAD
 	u8 numQueuesTx;
 	u8 numQueuesRx;
+=======
+>>>>>>> upstream/android-13
 	int ipCheckSumCheck;
 	int ipCheckSumGenerate;
 	int rxExtendedFiltering;
@@ -1171,9 +1187,13 @@ struct ucc_geth_private {
 	struct ucc_geth_exf_global_pram __iomem *p_exf_glbl_param;
 	u32 exf_glbl_param_offset;
 	struct ucc_geth_rx_global_pram __iomem *p_rx_glbl_pram;
+<<<<<<< HEAD
 	u32 rx_glbl_pram_offset;
 	struct ucc_geth_tx_global_pram __iomem *p_tx_glbl_pram;
 	u32 tx_glbl_pram_offset;
+=======
+	struct ucc_geth_tx_global_pram __iomem *p_tx_glbl_pram;
+>>>>>>> upstream/android-13
 	struct ucc_geth_send_queue_mem_region __iomem *p_send_q_mem_reg;
 	u32 send_q_mem_reg_offset;
 	struct ucc_geth_thread_data_tx __iomem *p_thread_data_tx;
@@ -1191,9 +1211,13 @@ struct ucc_geth_private {
 	struct ucc_geth_rx_bd_queues_entry __iomem *p_rx_bd_qs_tbl;
 	u32 rx_bd_qs_tbl_offset;
 	u8 __iomem *p_tx_bd_ring[NUM_TX_QUEUES];
+<<<<<<< HEAD
 	u32 tx_bd_ring_offset[NUM_TX_QUEUES];
 	u8 __iomem *p_rx_bd_ring[NUM_RX_QUEUES];
 	u32 rx_bd_ring_offset[NUM_RX_QUEUES];
+=======
+	u8 __iomem *p_rx_bd_ring[NUM_RX_QUEUES];
+>>>>>>> upstream/android-13
 	u8 __iomem *confBd[NUM_TX_QUEUES];
 	u8 __iomem *txBd[NUM_TX_QUEUES];
 	u8 __iomem *rxBd[NUM_RX_QUEUES];

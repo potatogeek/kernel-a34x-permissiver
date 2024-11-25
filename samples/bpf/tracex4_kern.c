@@ -7,19 +7,33 @@
 #include <linux/ptrace.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+>>>>>>> upstream/android-13
 
 struct pair {
 	u64 val;
 	u64 ip;
 };
 
+<<<<<<< HEAD
 struct bpf_map_def SEC("maps") my_map = {
 	.type = BPF_MAP_TYPE_HASH,
 	.key_size = sizeof(long),
 	.value_size = sizeof(struct pair),
 	.max_entries = 1000000,
 };
+=======
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, long);
+	__type(value, struct pair);
+	__uint(max_entries, 1000000);
+} my_map SEC(".maps");
+>>>>>>> upstream/android-13
 
 /* kprobe is NOT a stable ABI. If kernel internals change this bpf+kprobe
  * example will no longer be meaningful

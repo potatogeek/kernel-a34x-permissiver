@@ -190,6 +190,11 @@ setup_prepare()
 	h4_create
 	switch_create
 
+<<<<<<< HEAD
+=======
+	forwarding_enable
+
+>>>>>>> upstream/android-13
 	trap_install $h3 ingress
 	trap_install $h4 ingress
 }
@@ -201,6 +206,11 @@ cleanup()
 	trap_uninstall $h4 ingress
 	trap_uninstall $h3 ingress
 
+<<<<<<< HEAD
+=======
+	forwarding_restore
+
+>>>>>>> upstream/android-13
 	switch_destroy
 	h4_destroy
 	h3_destroy
@@ -220,11 +230,23 @@ test_lag_slave()
 
 	RET=0
 
+<<<<<<< HEAD
 	mirror_install $swp1 ingress gt4 \
 		       "proto 802.1q flower vlan_id 333 $tcflags"
 
 	# Test connectivity through $up_dev when $down_dev is set down.
 	ip link set dev $down_dev down
+=======
+	tc filter add dev $swp1 ingress pref 999 \
+		proto 802.1q flower vlan_ethtype arp $tcflags \
+		action pass
+	mirror_install $swp1 ingress gt4 \
+		"proto 802.1q flower vlan_id 333 $tcflags"
+
+	# Test connectivity through $up_dev when $down_dev is set down.
+	ip link set dev $down_dev down
+	ip neigh flush dev br1
+>>>>>>> upstream/android-13
 	setup_wait_dev $up_dev
 	setup_wait_dev $host_dev
 	$ARPING -I br1 192.0.2.130 -qfc 1
@@ -240,6 +262,10 @@ test_lag_slave()
 	ip link set dev $up_dev up
 	ip link set dev $down_dev up
 	mirror_uninstall $swp1 ingress
+<<<<<<< HEAD
+=======
+	tc filter del dev $swp1 ingress pref 999
+>>>>>>> upstream/android-13
 
 	log_test "$what ($tcflags)"
 }

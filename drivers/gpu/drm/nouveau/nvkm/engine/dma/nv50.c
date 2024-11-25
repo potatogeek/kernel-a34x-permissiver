@@ -30,7 +30,14 @@ nv50_dma = {
 };
 
 int
+<<<<<<< HEAD
 nv50_dma_new(struct nvkm_device *device, int index, struct nvkm_dma **pdma)
 {
 	return nvkm_dma_new_(&nv50_dma, device, index, pdma);
+=======
+nv50_dma_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	     struct nvkm_dma **pdma)
+{
+	return nvkm_dma_new_(&nv50_dma, device, type, inst, pdma);
+>>>>>>> upstream/android-13
 }

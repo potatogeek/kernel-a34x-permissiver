@@ -31,8 +31,13 @@
  */
 
 #include "vmwgfx_drv.h"
+<<<<<<< HEAD
 #include <linux/dma-buf.h>
 #include <drm/ttm/ttm_object.h>
+=======
+#include "ttm_object.h"
+#include <linux/dma-buf.h>
+>>>>>>> upstream/android-13
 
 /*
  * DMA-BUF attach- and mapping methods. No need to implement
@@ -62,6 +67,7 @@ static void vmw_prime_unmap_dma_buf(struct dma_buf_attachment *attach,
 {
 }
 
+<<<<<<< HEAD
 static void *vmw_prime_dmabuf_vmap(struct dma_buf *dma_buf)
 {
 	return NULL;
@@ -90,17 +96,22 @@ static int vmw_prime_dmabuf_mmap(struct dma_buf *dma_buf,
 	return -ENOSYS;
 }
 
+=======
+>>>>>>> upstream/android-13
 const struct dma_buf_ops vmw_prime_dmabuf_ops =  {
 	.attach = vmw_prime_map_attach,
 	.detach = vmw_prime_map_detach,
 	.map_dma_buf = vmw_prime_map_dma_buf,
 	.unmap_dma_buf = vmw_prime_unmap_dma_buf,
 	.release = NULL,
+<<<<<<< HEAD
 	.map = vmw_prime_dmabuf_kmap,
 	.unmap = vmw_prime_dmabuf_kunmap,
 	.mmap = vmw_prime_dmabuf_mmap,
 	.vmap = vmw_prime_dmabuf_vmap,
 	.vunmap = vmw_prime_dmabuf_vunmap,
+=======
+>>>>>>> upstream/android-13
 };
 
 int vmw_prime_fd_to_handle(struct drm_device *dev,

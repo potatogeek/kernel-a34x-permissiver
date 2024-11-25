@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 /* cpu_feature_enabled() cannot be used this early */
 #define USE_EARLY_PGTABLE_L5
 
 #include <linux/bootmem.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* cpu_feature_enabled() cannot be used this early */
+#define USE_EARLY_PGTABLE_L5
+
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 #include <linux/bitops.h>
 #include <linux/kernel.h>
@@ -13,16 +21,30 @@
 #include <linux/sched/mm.h>
 #include <linux/sched/clock.h>
 #include <linux/sched/task.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/smt.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/kprobes.h>
 #include <linux/kgdb.h>
 #include <linux/smp.h>
 #include <linux/io.h>
 #include <linux/syscore_ops.h>
+<<<<<<< HEAD
 
 #include <asm/stackprotector.h>
 #include <asm/perf_event.h>
 #include <asm/mmu_context.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/cmdline.h>
+#include <asm/stackprotector.h>
+#include <asm/perf_event.h>
+#include <asm/mmu_context.h>
+#include <asm/doublefault.h>
+>>>>>>> upstream/android-13
 #include <asm/archrandom.h>
 #include <asm/hypervisor.h>
 #include <asm/processor.h>
@@ -32,7 +54,10 @@
 #include <asm/vsyscall.h>
 #include <linux/topology.h>
 #include <linux/cpumask.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/atomic.h>
 #include <asm/proto.h>
 #include <asm/setup.h>
@@ -42,20 +67,33 @@
 #include <asm/mtrr.h>
 #include <asm/hwcap2.h>
 #include <linux/numa.h>
+<<<<<<< HEAD
+=======
+#include <asm/numa.h>
+>>>>>>> upstream/android-13
 #include <asm/asm.h>
 #include <asm/bugs.h>
 #include <asm/cpu.h>
 #include <asm/mce.h>
 #include <asm/msr.h>
+<<<<<<< HEAD
 #include <asm/pat.h>
+=======
+#include <asm/memtype.h>
+>>>>>>> upstream/android-13
 #include <asm/microcode.h>
 #include <asm/microcode_intel.h>
 #include <asm/intel-family.h>
 #include <asm/cpu_device_id.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_X86_LOCAL_APIC
 #include <asm/uv/uv.h>
 #endif
+=======
+#include <asm/uv/uv.h>
+#include <asm/sigframe.h>
+>>>>>>> upstream/android-13
 
 #include "cpu.h"
 
@@ -76,6 +114,15 @@ EXPORT_SYMBOL(smp_num_siblings);
 /* Last level cache ID of each logical CPU */
 DEFINE_PER_CPU_READ_MOSTLY(u16, cpu_llc_id) = BAD_APICID;
 
+<<<<<<< HEAD
+=======
+u16 get_llc_id(unsigned int cpu)
+{
+	return per_cpu(cpu_llc_id, cpu);
+}
+EXPORT_SYMBOL_GPL(get_llc_id);
+
+>>>>>>> upstream/android-13
 /* correctly size the local cpu masks */
 void __init setup_cpu_local_masks(void)
 {
@@ -159,11 +206,15 @@ DEFINE_PER_CPU_PAGE_ALIGNED(struct gdt_page, gdt_page) = { .gdt = {
 
 	[GDT_ENTRY_ESPFIX_SS]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
 	[GDT_ENTRY_PERCPU]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
+<<<<<<< HEAD
 	GDT_STACK_CANARY_INIT
+=======
+>>>>>>> upstream/android-13
 #endif
 } };
 EXPORT_PER_CPU_SYMBOL_GPL(gdt_page);
 
+<<<<<<< HEAD
 static int __init x86_mpx_setup(char *s)
 {
 	/* require an exact match without trailing characters */
@@ -180,6 +231,8 @@ static int __init x86_mpx_setup(char *s)
 }
 __setup("nompx", x86_mpx_setup);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_64
 static int __init x86_nopcid_setup(char *s)
 {
@@ -306,8 +359,11 @@ static inline void squash_the_stupid_serial_number(struct cpuinfo_x86 *c)
 static __init int setup_disable_smep(char *arg)
 {
 	setup_clear_cpu_cap(X86_FEATURE_SMEP);
+<<<<<<< HEAD
 	/* Check for things that depend on SMEP being enabled: */
 	check_mpx_erratum(&boot_cpu_data);
+=======
+>>>>>>> upstream/android-13
 	return 1;
 }
 __setup("nosmep", setup_disable_smep);
@@ -336,6 +392,10 @@ static __always_inline void setup_smap(struct cpuinfo_x86 *c)
 #ifdef CONFIG_X86_SMAP
 		cr4_set_bits(X86_CR4_SMAP);
 #else
+<<<<<<< HEAD
+=======
+		clear_cpu_cap(c, X86_FEATURE_SMAP);
+>>>>>>> upstream/android-13
 		cr4_clear_bits(X86_CR4_SMAP);
 #endif
 	}
@@ -353,7 +413,11 @@ static __always_inline void setup_umip(struct cpuinfo_x86 *c)
 
 	cr4_set_bits(X86_CR4_UMIP);
 
+<<<<<<< HEAD
 	pr_info("x86/cpu: Activated the Intel User Mode Instruction Prevention (UMIP) CPU feature\n");
+=======
+	pr_info_once("x86/cpu: User Mode Instruction Prevention (UMIP) activated\n");
+>>>>>>> upstream/android-13
 
 	return;
 
@@ -365,6 +429,119 @@ out:
 	cr4_clear_bits(X86_CR4_UMIP);
 }
 
+<<<<<<< HEAD
+=======
+/* These bits should not change their value after CPU init is finished. */
+static const unsigned long cr4_pinned_mask =
+	X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_UMIP | X86_CR4_FSGSBASE;
+static DEFINE_STATIC_KEY_FALSE_RO(cr_pinning);
+static unsigned long cr4_pinned_bits __ro_after_init;
+
+void native_write_cr0(unsigned long val)
+{
+	unsigned long bits_missing = 0;
+
+set_register:
+	asm volatile("mov %0,%%cr0": "+r" (val) : : "memory");
+
+	if (static_branch_likely(&cr_pinning)) {
+		if (unlikely((val & X86_CR0_WP) != X86_CR0_WP)) {
+			bits_missing = X86_CR0_WP;
+			val |= bits_missing;
+			goto set_register;
+		}
+		/* Warn after we've set the missing bits. */
+		WARN_ONCE(bits_missing, "CR0 WP bit went missing!?\n");
+	}
+}
+EXPORT_SYMBOL(native_write_cr0);
+
+void native_write_cr4(unsigned long val)
+{
+	unsigned long bits_changed = 0;
+
+set_register:
+	asm volatile("mov %0,%%cr4": "+r" (val) : : "memory");
+
+	if (static_branch_likely(&cr_pinning)) {
+		if (unlikely((val & cr4_pinned_mask) != cr4_pinned_bits)) {
+			bits_changed = (val & cr4_pinned_mask) ^ cr4_pinned_bits;
+			val = (val & ~cr4_pinned_mask) | cr4_pinned_bits;
+			goto set_register;
+		}
+		/* Warn after we've corrected the changed bits. */
+		WARN_ONCE(bits_changed, "pinned CR4 bits changed: 0x%lx!?\n",
+			  bits_changed);
+	}
+}
+#if IS_MODULE(CONFIG_LKDTM)
+EXPORT_SYMBOL_GPL(native_write_cr4);
+#endif
+
+void cr4_update_irqsoff(unsigned long set, unsigned long clear)
+{
+	unsigned long newval, cr4 = this_cpu_read(cpu_tlbstate.cr4);
+
+	lockdep_assert_irqs_disabled();
+
+	newval = (cr4 & ~clear) | set;
+	if (newval != cr4) {
+		this_cpu_write(cpu_tlbstate.cr4, newval);
+		__write_cr4(newval);
+	}
+}
+EXPORT_SYMBOL(cr4_update_irqsoff);
+
+/* Read the CR4 shadow. */
+unsigned long cr4_read_shadow(void)
+{
+	return this_cpu_read(cpu_tlbstate.cr4);
+}
+EXPORT_SYMBOL_GPL(cr4_read_shadow);
+
+void cr4_init(void)
+{
+	unsigned long cr4 = __read_cr4();
+
+	if (boot_cpu_has(X86_FEATURE_PCID))
+		cr4 |= X86_CR4_PCIDE;
+	if (static_branch_likely(&cr_pinning))
+		cr4 = (cr4 & ~cr4_pinned_mask) | cr4_pinned_bits;
+
+	__write_cr4(cr4);
+
+	/* Initialize cr4 shadow for this CPU. */
+	this_cpu_write(cpu_tlbstate.cr4, cr4);
+}
+
+/*
+ * Once CPU feature detection is finished (and boot params have been
+ * parsed), record any of the sensitive CR bits that are set, and
+ * enable CR pinning.
+ */
+static void __init setup_cr_pinning(void)
+{
+	cr4_pinned_bits = this_cpu_read(cpu_tlbstate.cr4) & cr4_pinned_mask;
+	static_key_enable(&cr_pinning.key);
+}
+
+static __init int x86_nofsgsbase_setup(char *arg)
+{
+	/* Require an exact match without trailing characters. */
+	if (strlen(arg))
+		return 0;
+
+	/* Do not emit a message if the feature is not present. */
+	if (!boot_cpu_has(X86_FEATURE_FSGSBASE))
+		return 1;
+
+	setup_clear_cpu_cap(X86_FEATURE_FSGSBASE);
+	pr_info("FSGSBASE disabled via kernel command line\n");
+	return 1;
+}
+__setup("nofsgsbase", x86_nofsgsbase_setup);
+
+>>>>>>> upstream/android-13
 /*
  * Protection Keys are not available in 32-bit mode.
  */
@@ -372,6 +549,7 @@ static bool pku_disabled;
 
 static __always_inline void setup_pku(struct cpuinfo_x86 *c)
 {
+<<<<<<< HEAD
 	/* check the boot processor, plus compile options for PKU: */
 	if (!cpu_feature_enabled(X86_FEATURE_PKU))
 		return;
@@ -388,6 +566,24 @@ static __always_inline void setup_pku(struct cpuinfo_x86 *c)
 	 * update that bit in this CPU's "cpu_info".
 	 */
 	set_cpu_cap(c, X86_FEATURE_OSPKE);
+=======
+	if (c == &boot_cpu_data) {
+		if (pku_disabled || !cpu_feature_enabled(X86_FEATURE_PKU))
+			return;
+		/*
+		 * Setting CR4.PKE will cause the X86_FEATURE_OSPKE cpuid
+		 * bit to be set.  Enforce it.
+		 */
+		setup_force_cpu_cap(X86_FEATURE_OSPKE);
+
+	} else if (!cpu_feature_enabled(X86_FEATURE_OSPKE)) {
+		return;
+	}
+
+	cr4_set_bits(X86_CR4_PKE);
+	/* Load the default PKRU value */
+	pkru_write_default();
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
@@ -488,8 +684,14 @@ static const char *table_lookup_model(struct cpuinfo_x86 *c)
 	return NULL;		/* Not found */
 }
 
+<<<<<<< HEAD
 __u32 cpu_caps_cleared[NCAPINTS + NBUGINTS];
 __u32 cpu_caps_set[NCAPINTS + NBUGINTS];
+=======
+/* Aligned to unsigned long to avoid split lock in atomic bitmap ops */
+__u32 cpu_caps_cleared[NCAPINTS + NBUGINTS] __aligned(sizeof(unsigned long));
+__u32 cpu_caps_set[NCAPINTS + NBUGINTS] __aligned(sizeof(unsigned long));
+>>>>>>> upstream/android-13
 
 void load_percpu_segment(int cpu)
 {
@@ -499,7 +701,10 @@ void load_percpu_segment(int cpu)
 	__loadsegment_simple(gs, 0);
 	wrmsrl(MSR_GS_BASE, cpu_kernelmode_gs_base(cpu));
 #endif
+<<<<<<< HEAD
 	load_stack_canary_segment();
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_X86_32
@@ -507,6 +712,7 @@ void load_percpu_segment(int cpu)
 DEFINE_PER_CPU(struct cpu_entry_area *, cpu_entry_area);
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 /*
  * Special IST stacks which the CPU switches to when it calls
@@ -520,6 +726,8 @@ static const unsigned int exception_stack_sizes[N_EXCEPTION_STACKS] = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* Load the original GDT from the per-cpu structure */
 void load_direct_gdt(int cpu)
 {
@@ -808,6 +1016,7 @@ static void init_speculation_control(struct cpuinfo_x86 *c)
 	}
 }
 
+<<<<<<< HEAD
 static void init_cqm(struct cpuinfo_x86 *c)
 {
 	if (!cpu_has(c, X86_FEATURE_CQM_LLC)) {
@@ -832,6 +1041,8 @@ static void init_cqm(struct cpuinfo_x86 *c)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void get_cpu_cap(struct cpuinfo_x86 *c)
 {
 	u32 eax, ebx, ecx, edx;
@@ -854,6 +1065,15 @@ void get_cpu_cap(struct cpuinfo_x86 *c)
 		c->x86_capability[CPUID_7_0_EBX] = ebx;
 		c->x86_capability[CPUID_7_ECX] = ecx;
 		c->x86_capability[CPUID_7_EDX] = edx;
+<<<<<<< HEAD
+=======
+
+		/* Check valid sub-leaf index before accessing it */
+		if (eax >= 1) {
+			cpuid_count(0x00000007, 1, &eax, &ebx, &ecx, &edx);
+			c->x86_capability[CPUID_7_1_EAX] = eax;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Extended state features: level 0x0000000d */
@@ -891,9 +1111,17 @@ void get_cpu_cap(struct cpuinfo_x86 *c)
 	if (c->extended_cpuid_level >= 0x8000000a)
 		c->x86_capability[CPUID_8000_000A_EDX] = cpuid_edx(0x8000000a);
 
+<<<<<<< HEAD
 	init_scattered_cpuid_features(c);
 	init_speculation_control(c);
 	init_cqm(c);
+=======
+	if (c->extended_cpuid_level >= 0x8000001f)
+		c->x86_capability[CPUID_8000_001F_EAX] = cpuid_eax(0x8000001f);
+
+	init_scattered_cpuid_features(c);
+	init_speculation_control(c);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Clear/Set all flags overridden by options, after probe.
@@ -954,9 +1182,16 @@ static void identify_cpu_without_cpuid(struct cpuinfo_x86 *c)
 #define MSBDS_ONLY		BIT(5)
 #define NO_SWAPGS		BIT(6)
 #define NO_ITLB_MULTIHIT	BIT(7)
+<<<<<<< HEAD
 
 #define VULNWL(_vendor, _family, _model, _whitelist)	\
 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
+=======
+#define NO_SPECTRE_V2		BIT(8)
+
+#define VULNWL(vendor, family, model, whitelist)	\
+	X86_MATCH_VENDOR_FAM_MODEL(vendor, family, model, whitelist)
+>>>>>>> upstream/android-13
 
 #define VULNWL_INTEL(model, whitelist)		\
 	VULNWL(INTEL, 6, INTEL_FAM6_##model, whitelist)
@@ -964,6 +1199,12 @@ static void identify_cpu_without_cpuid(struct cpuinfo_x86 *c)
 #define VULNWL_AMD(family, whitelist)		\
 	VULNWL(AMD, family, X86_MODEL_ANY, whitelist)
 
+<<<<<<< HEAD
+=======
+#define VULNWL_HYGON(family, whitelist)		\
+	VULNWL(HYGON, family, X86_MODEL_ANY, whitelist)
+
+>>>>>>> upstream/android-13
 static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
 	VULNWL(ANY,	4, X86_MODEL_ANY,	NO_SPECULATION),
 	VULNWL(CENTAUR,	5, X86_MODEL_ANY,	NO_SPECULATION),
@@ -978,7 +1219,11 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
 	VULNWL_INTEL(ATOM_BONNELL_MID,		NO_SPECULATION | NO_ITLB_MULTIHIT),
 
 	VULNWL_INTEL(ATOM_SILVERMONT,		NO_SSB | NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
+<<<<<<< HEAD
 	VULNWL_INTEL(ATOM_SILVERMONT_X,		NO_SSB | NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
+=======
+	VULNWL_INTEL(ATOM_SILVERMONT_D,		NO_SSB | NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
+>>>>>>> upstream/android-13
 	VULNWL_INTEL(ATOM_SILVERMONT_MID,	NO_SSB | NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
 	VULNWL_INTEL(ATOM_AIRMONT,		NO_SSB | NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
 	VULNWL_INTEL(XEON_PHI_KNL,		NO_SSB | NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
@@ -987,9 +1232,16 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
 	VULNWL_INTEL(CORE_YONAH,		NO_SSB),
 
 	VULNWL_INTEL(ATOM_AIRMONT_MID,		NO_L1TF | MSBDS_ONLY | NO_SWAPGS | NO_ITLB_MULTIHIT),
+<<<<<<< HEAD
 
 	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
 	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+=======
+	VULNWL_INTEL(ATOM_AIRMONT_NP,		NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+
+	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+	VULNWL_INTEL(ATOM_GOLDMONT_D,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+>>>>>>> upstream/android-13
 	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
 
 	/*
@@ -1000,7 +1252,11 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
 	 * good enough for our purposes.
 	 */
 
+<<<<<<< HEAD
 	VULNWL_INTEL(ATOM_TREMONT_X,		NO_ITLB_MULTIHIT),
+=======
+	VULNWL_INTEL(ATOM_TREMONT_D,		NO_ITLB_MULTIHIT),
+>>>>>>> upstream/android-13
 
 	/* AMD Family 0xf - 0x12 */
 	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
@@ -1010,6 +1266,14 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
 
 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
 	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
+<<<<<<< HEAD
+=======
+	VULNWL_HYGON(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
+
+	/* Zhaoxin Family 7 */
+	VULNWL(CENTAUR,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_SWAPGS),
+	VULNWL(ZHAOXIN,	7, X86_MODEL_ANY,	NO_SPECTRE_V2 | NO_SWAPGS),
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -1022,6 +1286,7 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
 
 static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
 	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
+<<<<<<< HEAD
 	VULNBL_INTEL_STEPPINGS(HASWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
 	VULNBL_INTEL_STEPPINGS(HASWELL_ULT,	X86_STEPPING_ANY,		SRBDS),
 	VULNBL_INTEL_STEPPINGS(HASWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
@@ -1031,6 +1296,17 @@ static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
 	VULNBL_INTEL_STEPPINGS(SKYLAKE_DESKTOP,	X86_STEPPING_ANY,		SRBDS),
 	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x0, 0xC),	SRBDS),
 	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x0, 0xD),	SRBDS),
+=======
+	VULNBL_INTEL_STEPPINGS(HASWELL,		X86_STEPPING_ANY,		SRBDS),
+	VULNBL_INTEL_STEPPINGS(HASWELL_L,	X86_STEPPING_ANY,		SRBDS),
+	VULNBL_INTEL_STEPPINGS(HASWELL_G,	X86_STEPPING_ANY,		SRBDS),
+	VULNBL_INTEL_STEPPINGS(BROADWELL_G,	X86_STEPPING_ANY,		SRBDS),
+	VULNBL_INTEL_STEPPINGS(BROADWELL,	X86_STEPPING_ANY,		SRBDS),
+	VULNBL_INTEL_STEPPINGS(SKYLAKE_L,	X86_STEPPING_ANY,		SRBDS),
+	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPING_ANY,		SRBDS),
+	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPINGS(0x0, 0xC),	SRBDS),
+	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPINGS(0x0, 0xD),	SRBDS),
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -1064,7 +1340,13 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
 		return;
 
 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
+<<<<<<< HEAD
 	setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
+=======
+
+	if (!cpu_matches(cpu_vuln_whitelist, NO_SPECTRE_V2))
+		setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
+>>>>>>> upstream/android-13
 
 	if (!cpu_matches(cpu_vuln_whitelist, NO_SSB) &&
 	    !(ia32_cap & ARCH_CAP_SSB_NO) &&
@@ -1142,6 +1424,62 @@ static void detect_nopl(void)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * We parse cpu parameters early because fpu__init_system() is executed
+ * before parse_early_param().
+ */
+static void __init cpu_parse_early_param(void)
+{
+	char arg[128];
+	char *argptr = arg;
+	int arglen, res, bit;
+
+#ifdef CONFIG_X86_32
+	if (cmdline_find_option_bool(boot_command_line, "no387"))
+#ifdef CONFIG_MATH_EMULATION
+		setup_clear_cpu_cap(X86_FEATURE_FPU);
+#else
+		pr_err("Option 'no387' required CONFIG_MATH_EMULATION enabled.\n");
+#endif
+
+	if (cmdline_find_option_bool(boot_command_line, "nofxsr"))
+		setup_clear_cpu_cap(X86_FEATURE_FXSR);
+#endif
+
+	if (cmdline_find_option_bool(boot_command_line, "noxsave"))
+		setup_clear_cpu_cap(X86_FEATURE_XSAVE);
+
+	if (cmdline_find_option_bool(boot_command_line, "noxsaveopt"))
+		setup_clear_cpu_cap(X86_FEATURE_XSAVEOPT);
+
+	if (cmdline_find_option_bool(boot_command_line, "noxsaves"))
+		setup_clear_cpu_cap(X86_FEATURE_XSAVES);
+
+	arglen = cmdline_find_option(boot_command_line, "clearcpuid", arg, sizeof(arg));
+	if (arglen <= 0)
+		return;
+
+	pr_info("Clearing CPUID bits:");
+	do {
+		res = get_option(&argptr, &bit);
+		if (res == 0 || res == 3)
+			break;
+
+		/* If the argument was too long, the last bit may be cut off */
+		if (res == 1 && arglen >= sizeof(arg))
+			break;
+
+		if (bit >= 0 && bit < NCAPINTS * 32) {
+			pr_cont(" " X86_CAP_FMT, x86_cap_flag(bit));
+			setup_clear_cpu_cap(bit);
+		}
+	} while (res == 2);
+	pr_cont("\n");
+}
+
+/*
+>>>>>>> upstream/android-13
  * Do minimum CPU detection early.
  * Fields really needed: vendor, cpuid_level, family, model, mask,
  * cache alignment.
@@ -1163,7 +1501,11 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 #endif
 	c->x86_cache_alignment = c->x86_clflush_size;
 
+<<<<<<< HEAD
 	memset(&c->x86_capability, 0, sizeof c->x86_capability);
+=======
+	memset(&c->x86_capability, 0, sizeof(c->x86_capability));
+>>>>>>> upstream/android-13
 	c->extended_cpuid_level = 0;
 
 	if (!have_cpuid_p())
@@ -1176,6 +1518,10 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 		get_cpu_cap(c);
 		get_cpu_address_sizes(c);
 		setup_force_cpu_cap(X86_FEATURE_CPUID);
+<<<<<<< HEAD
+=======
+		cpu_parse_early_param();
+>>>>>>> upstream/android-13
 
 		if (this_cpu->c_early_init)
 			this_cpu->c_early_init(c);
@@ -1193,8 +1539,17 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 
 	cpu_set_bug_bits(c);
 
+<<<<<<< HEAD
 	fpu__init_system(c);
 
+=======
+	sld_setup(c);
+
+	fpu__init_system(c);
+
+	init_sigframe_size();
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_32
 	/*
 	 * Regardless of whether PCID is enumerated, the SDM says
@@ -1254,9 +1609,14 @@ void __init early_cpu_init(void)
 	early_identify_cpu(&boot_cpu_data);
 }
 
+<<<<<<< HEAD
 static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
 {
 #ifdef CONFIG_X86_64
+=======
+static bool detect_null_seg_behavior(void)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Empirically, writing zero to a segment selector on AMD does
 	 * not clear the base, whereas writing zero to a segment
@@ -1265,7 +1625,11 @@ static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
 	 * where GS is unused by the prev and next threads.
 	 *
 	 * Since neither vendor documents this anywhere that I can see,
+<<<<<<< HEAD
 	 * detect it directly instead of hardcoding the choice by
+=======
+	 * detect it directly instead of hard-coding the choice by
+>>>>>>> upstream/android-13
 	 * vendor.
 	 *
 	 * I've designated AMD's behavior as the "bug" because it's
@@ -1277,10 +1641,50 @@ static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
 	wrmsrl(MSR_FS_BASE, 1);
 	loadsegment(fs, 0);
 	rdmsrl(MSR_FS_BASE, tmp);
+<<<<<<< HEAD
 	if (tmp != 0)
 		set_cpu_bug(c, X86_BUG_NULL_SEG);
 	wrmsrl(MSR_FS_BASE, old_base);
 #endif
+=======
+	wrmsrl(MSR_FS_BASE, old_base);
+	return tmp == 0;
+}
+
+void check_null_seg_clears_base(struct cpuinfo_x86 *c)
+{
+	/* BUG_NULL_SEG is only relevant with 64bit userspace */
+	if (!IS_ENABLED(CONFIG_X86_64))
+		return;
+
+	/* Zen3 CPUs advertise Null Selector Clears Base in CPUID. */
+	if (c->extended_cpuid_level >= 0x80000021 &&
+	    cpuid_eax(0x80000021) & BIT(6))
+		return;
+
+	/*
+	 * CPUID bit above wasn't set. If this kernel is still running
+	 * as a HV guest, then the HV has decided not to advertize
+	 * that CPUID bit for whatever reason.	For example, one
+	 * member of the migration pool might be vulnerable.  Which
+	 * means, the bug is present: set the BUG flag and return.
+	 */
+	if (cpu_has(c, X86_FEATURE_HYPERVISOR)) {
+		set_cpu_bug(c, X86_BUG_NULL_SEG);
+		return;
+	}
+
+	/*
+	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
+	 * 0x18 is the respective family for Hygon.
+	 */
+	if ((c->x86 == 0x17 || c->x86 == 0x18) &&
+	    detect_null_seg_behavior())
+		return;
+
+	/* All the remaining ones are affected */
+	set_cpu_bug(c, X86_BUG_NULL_SEG);
+>>>>>>> upstream/android-13
 }
 
 static void generic_identify(struct cpuinfo_x86 *c)
@@ -1316,8 +1720,11 @@ static void generic_identify(struct cpuinfo_x86 *c)
 
 	get_model_name(c); /* Default name */
 
+<<<<<<< HEAD
 	detect_null_seg_behavior(c);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
 	 * systems that run Linux at CPL > 0 may or may not have the
@@ -1332,6 +1739,7 @@ static void generic_identify(struct cpuinfo_x86 *c)
 	 * ESPFIX issue, we can change this.
 	 */
 #ifdef CONFIG_X86_32
+<<<<<<< HEAD
 # ifdef CONFIG_PARAVIRT
 	do {
 		extern void native_iret(void);
@@ -1358,6 +1766,12 @@ static void x86_init_cache_qos(struct cpuinfo_x86 *c)
 	}
 }
 
+=======
+	set_cpu_bug(c, X86_BUG_ESPFIX);
+#endif
+}
+
+>>>>>>> upstream/android-13
 /*
  * Validate that ACPI/mptables have the same information about the
  * effective APIC id and update the package map.
@@ -1374,6 +1788,10 @@ static void validate_apic_and_package_id(struct cpuinfo_x86 *c)
 		       cpu, apicid, c->initial_apicid);
 	}
 	BUG_ON(topology_update_package_map(c->phys_proc_id, cpu));
+<<<<<<< HEAD
+=======
+	BUG_ON(topology_update_die_map(c->cpu_die_id, cpu));
+>>>>>>> upstream/android-13
 #else
 	c->logical_proc_id = 0;
 #endif
@@ -1406,7 +1824,14 @@ static void identify_cpu(struct cpuinfo_x86 *c)
 	c->x86_virt_bits = 32;
 #endif
 	c->x86_cache_alignment = c->x86_clflush_size;
+<<<<<<< HEAD
 	memset(&c->x86_capability, 0, sizeof c->x86_capability);
+=======
+	memset(&c->x86_capability, 0, sizeof(c->x86_capability));
+#ifdef CONFIG_X86_VMX_FEATURE_NAMES
+	memset(&c->vmx_capability, 0, sizeof(c->vmx_capability));
+#endif
+>>>>>>> upstream/android-13
 
 	generic_identify(c);
 
@@ -1441,6 +1866,15 @@ static void identify_cpu(struct cpuinfo_x86 *c)
 	setup_smap(c);
 	setup_umip(c);
 
+<<<<<<< HEAD
+=======
+	/* Enable FSGSBASE instructions if available. */
+	if (cpu_has(c, X86_FEATURE_FSGSBASE)) {
+		cr4_set_bits(X86_CR4_FSGSBASE);
+		elf_hwcap2 |= HWCAP2_FSGSBASE;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * The vendor-specific functions might have changed features.
 	 * Now we do "generic changes."
@@ -1466,7 +1900,10 @@ static void identify_cpu(struct cpuinfo_x86 *c)
 #endif
 
 	x86_init_rdrand(c);
+<<<<<<< HEAD
 	x86_init_cache_qos(c);
+=======
+>>>>>>> upstream/android-13
 	setup_pku(c);
 
 	/*
@@ -1539,6 +1976,11 @@ void __init identify_boot_cpu(void)
 	enable_sep_cpu();
 #endif
 	cpu_detect_tlb(&boot_cpu_data);
+<<<<<<< HEAD
+=======
+	setup_cr_pinning();
+
+>>>>>>> upstream/android-13
 	tsx_init();
 }
 
@@ -1553,6 +1995,11 @@ void identify_secondary_cpu(struct cpuinfo_x86 *c)
 	validate_apic_and_package_id(c);
 	x86_spec_ctrl_setup_ap();
 	update_srbds_msr();
+<<<<<<< HEAD
+=======
+
+	tsx_ap_init();
+>>>>>>> upstream/android-13
 }
 
 static __init int setup_noclflush(char *arg)
@@ -1591,9 +2038,14 @@ void print_cpu_info(struct cpuinfo_x86 *c)
 }
 
 /*
+<<<<<<< HEAD
  * clearcpuid= was already parsed in fpu__init_parse_early_param.
  * But we need to keep a dummy __setup around otherwise it would
  * show up as an environment variable for init.
+=======
+ * clearcpuid= was already parsed in cpu_parse_early_param().  This dummy
+ * function prevents it from becoming an environment variable for init.
+>>>>>>> upstream/android-13
  */
 static __init int setup_clearcpuid(char *arg)
 {
@@ -1602,9 +2054,15 @@ static __init int setup_clearcpuid(char *arg)
 __setup("clearcpuid=", setup_clearcpuid);
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 DEFINE_PER_CPU_FIRST(union irq_stack_union,
 		     irq_stack_union) __aligned(PAGE_SIZE) __visible;
 EXPORT_PER_CPU_SYMBOL_GPL(irq_stack_union);
+=======
+DEFINE_PER_CPU_FIRST(struct fixed_percpu_data,
+		     fixed_percpu_data) __aligned(PAGE_SIZE) __visible;
+EXPORT_PER_CPU_SYMBOL_GPL(fixed_percpu_data);
+>>>>>>> upstream/android-13
 
 /*
  * The following percpu variables are hot.  Align current_task to
@@ -1614,14 +2072,20 @@ DEFINE_PER_CPU(struct task_struct *, current_task) ____cacheline_aligned =
 	&init_task;
 EXPORT_PER_CPU_SYMBOL(current_task);
 
+<<<<<<< HEAD
 DEFINE_PER_CPU(char *, irq_stack_ptr) =
 	init_per_cpu_var(irq_stack_union.irq_stack) + IRQ_STACK_SIZE;
 
 DEFINE_PER_CPU(unsigned int, irq_count) __visible = -1;
+=======
+DEFINE_PER_CPU(void *, hardirq_stack_ptr);
+DEFINE_PER_CPU(bool, hardirq_stack_inuse);
+>>>>>>> upstream/android-13
 
 DEFINE_PER_CPU(int, __preempt_count) = INIT_PREEMPT_COUNT;
 EXPORT_PER_CPU_SYMBOL(__preempt_count);
 
+<<<<<<< HEAD
 /* May not be marked __init: used by software suspend */
 void syscall_init(void)
 {
@@ -1638,6 +2102,15 @@ void syscall_init(void)
 		wrmsrl(MSR_LSTAR, SYSCALL64_entry_trampoline);
 	else
 		wrmsrl(MSR_LSTAR, (unsigned long)entry_SYSCALL_64);
+=======
+DEFINE_PER_CPU(unsigned long, cpu_current_top_of_stack) = TOP_OF_INIT_STACK;
+
+/* May not be marked __init: used by software suspend */
+void syscall_init(void)
+{
+	wrmsr(MSR_STAR, 0, (__USER32_CS << 16) | __KERNEL_CS);
+	wrmsrl(MSR_LSTAR, (unsigned long)entry_SYSCALL_64);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IA32_EMULATION
 	wrmsrl(MSR_CSTAR, (unsigned long)entry_SYSCALL_compat);
@@ -1648,7 +2121,12 @@ void syscall_init(void)
 	 * AMD doesn't allow SYSENTER in long mode (either 32- or 64-bit).
 	 */
 	wrmsrl_safe(MSR_IA32_SYSENTER_CS, (u64)__KERNEL_CS);
+<<<<<<< HEAD
 	wrmsrl_safe(MSR_IA32_SYSENTER_ESP, (unsigned long)(cpu_entry_stack(cpu) + 1));
+=======
+	wrmsrl_safe(MSR_IA32_SYSENTER_ESP,
+		    (unsigned long)(cpu_entry_stack(smp_processor_id()) + 1));
+>>>>>>> upstream/android-13
 	wrmsrl_safe(MSR_IA32_SYSENTER_EIP, (u64)entry_SYSENTER_compat);
 #else
 	wrmsrl(MSR_CSTAR, (unsigned long)ignore_sysret);
@@ -1657,6 +2135,7 @@ void syscall_init(void)
 	wrmsrl_safe(MSR_IA32_SYSENTER_EIP, 0ULL);
 #endif
 
+<<<<<<< HEAD
 	/* Flags to clear on syscall */
 	wrmsrl(MSR_SYSCALL_MASK,
 	       X86_EFLAGS_TF|X86_EFLAGS_DF|X86_EFLAGS_IF|
@@ -1698,6 +2177,20 @@ void debug_stack_reset(void)
 }
 NOKPROBE_SYMBOL(debug_stack_reset);
 
+=======
+	/*
+	 * Flags to clear on syscall; clear as much as possible
+	 * to minimize user space-kernel interference.
+	 */
+	wrmsrl(MSR_SYSCALL_MASK,
+	       X86_EFLAGS_CF|X86_EFLAGS_PF|X86_EFLAGS_AF|
+	       X86_EFLAGS_ZF|X86_EFLAGS_SF|X86_EFLAGS_TF|
+	       X86_EFLAGS_IF|X86_EFLAGS_DF|X86_EFLAGS_OF|
+	       X86_EFLAGS_IOPL|X86_EFLAGS_NT|X86_EFLAGS_RF|
+	       X86_EFLAGS_AC|X86_EFLAGS_ID);
+}
+
+>>>>>>> upstream/android-13
 #else	/* CONFIG_X86_64 */
 
 DEFINE_PER_CPU(struct task_struct *, current_task) = &init_task;
@@ -1715,7 +2208,12 @@ DEFINE_PER_CPU(unsigned long, cpu_current_top_of_stack) =
 EXPORT_PER_CPU_SYMBOL(cpu_current_top_of_stack);
 
 #ifdef CONFIG_STACKPROTECTOR
+<<<<<<< HEAD
 DEFINE_PER_CPU_ALIGNED(struct stack_canary, stack_canary);
+=======
+DEFINE_PER_CPU(unsigned long, __stack_chk_guard);
+EXPORT_PER_CPU_SYMBOL(__stack_chk_guard);
+>>>>>>> upstream/android-13
 #endif
 
 #endif	/* CONFIG_X86_64 */
@@ -1764,13 +2262,22 @@ static void wait_for_master_cpu(int cpu)
 }
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 static void setup_getcpu(int cpu)
+=======
+static inline void setup_getcpu(int cpu)
+>>>>>>> upstream/android-13
 {
 	unsigned long cpudata = vdso_encode_cpunode(cpu, early_cpu_to_node(cpu));
 	struct desc_struct d = { };
 
+<<<<<<< HEAD
 	if (boot_cpu_has(X86_FEATURE_RDTSCP))
 		write_rdtscp_aux(cpudata);
+=======
+	if (boot_cpu_has(X86_FEATURE_RDTSCP) || boot_cpu_has(X86_FEATURE_RDPID))
+		wrmsr(MSR_TSC_AUX, cpudata, 0);
+>>>>>>> upstream/android-13
 
 	/* Store CPU and node number in limit. */
 	d.limit0 = cpudata;
@@ -1784,6 +2291,7 @@ static void setup_getcpu(int cpu)
 
 	write_gdt_entry(get_cpu_gdt_rw(cpu), GDT_ENTRY_CPUNODE, &d, DESCTYPE_S);
 }
+<<<<<<< HEAD
 #endif
 
 /*
@@ -1817,12 +2325,99 @@ void cpu_init(void)
 
 	t = &per_cpu(cpu_tss_rw, cpu);
 	oist = &per_cpu(orig_ist, cpu);
+=======
+
+static inline void ucode_cpu_init(int cpu)
+{
+	if (cpu)
+		load_ucode_ap();
+}
+
+static inline void tss_setup_ist(struct tss_struct *tss)
+{
+	/* Set up the per-CPU TSS IST stacks */
+	tss->x86_tss.ist[IST_INDEX_DF] = __this_cpu_ist_top_va(DF);
+	tss->x86_tss.ist[IST_INDEX_NMI] = __this_cpu_ist_top_va(NMI);
+	tss->x86_tss.ist[IST_INDEX_DB] = __this_cpu_ist_top_va(DB);
+	tss->x86_tss.ist[IST_INDEX_MCE] = __this_cpu_ist_top_va(MCE);
+	/* Only mapped when SEV-ES is active */
+	tss->x86_tss.ist[IST_INDEX_VC] = __this_cpu_ist_top_va(VC);
+}
+
+#else /* CONFIG_X86_64 */
+
+static inline void setup_getcpu(int cpu) { }
+
+static inline void ucode_cpu_init(int cpu)
+{
+	show_ucode_info_early();
+}
+
+static inline void tss_setup_ist(struct tss_struct *tss) { }
+
+#endif /* !CONFIG_X86_64 */
+
+static inline void tss_setup_io_bitmap(struct tss_struct *tss)
+{
+	tss->x86_tss.io_bitmap_base = IO_BITMAP_OFFSET_INVALID;
+
+#ifdef CONFIG_X86_IOPL_IOPERM
+	tss->io_bitmap.prev_max = 0;
+	tss->io_bitmap.prev_sequence = 0;
+	memset(tss->io_bitmap.bitmap, 0xff, sizeof(tss->io_bitmap.bitmap));
+	/*
+	 * Invalidate the extra array entry past the end of the all
+	 * permission bitmap as required by the hardware.
+	 */
+	tss->io_bitmap.mapall[IO_BITMAP_LONGS] = ~0UL;
+#endif
+}
+
+/*
+ * Setup everything needed to handle exceptions from the IDT, including the IST
+ * exceptions which use paranoid_entry().
+ */
+void cpu_init_exception_handling(void)
+{
+	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
+	int cpu = raw_smp_processor_id();
+
+	/* paranoid_entry() gets the CPU number from the GDT */
+	setup_getcpu(cpu);
+
+	/* IST vectors need TSS to be set up. */
+	tss_setup_ist(tss);
+	tss_setup_io_bitmap(tss);
+	set_tss_desc(cpu, &get_cpu_entry_area(cpu)->tss.x86_tss);
+
+	load_TR_desc();
+
+	/* Finally load the IDT */
+	load_current_idt();
+}
+
+/*
+ * cpu_init() initializes state that is per-CPU. Some data is already
+ * initialized (naturally) in the bootstrap process, such as the GDT.  We
+ * reload it nevertheless, this function acts as a 'CPU state barrier',
+ * nothing should get across.
+ */
+void cpu_init(void)
+{
+	struct task_struct *cur = current;
+	int cpu = raw_smp_processor_id();
+
+	wait_for_master_cpu(cpu);
+
+	ucode_cpu_init(cpu);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NUMA
 	if (this_cpu_read(numa_node) == 0 &&
 	    early_cpu_to_node(cpu) != NUMA_NO_NODE)
 		set_numa_node(early_cpu_to_node(cpu));
 #endif
+<<<<<<< HEAD
 	setup_getcpu(cpu);
 
 	me = current;
@@ -1830,11 +2425,19 @@ void cpu_init(void)
 	pr_debug("Initializing CPU#%d\n", cpu);
 
 	cr4_clear_bits(X86_CR4_VME|X86_CR4_PVI|X86_CR4_TSD|X86_CR4_DE);
+=======
+	pr_debug("Initializing CPU#%d\n", cpu);
+
+	if (IS_ENABLED(CONFIG_X86_64) || cpu_feature_enabled(X86_FEATURE_VME) ||
+	    boot_cpu_has(X86_FEATURE_TSC) || boot_cpu_has(X86_FEATURE_DE))
+		cr4_clear_bits(X86_CR4_VME|X86_CR4_PVI|X86_CR4_TSD|X86_CR4_DE);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize the per-CPU GDT with the boot GDT,
 	 * and set up the GDT descriptor:
 	 */
+<<<<<<< HEAD
 
 	switch_to_new_gdt(cpu);
 	loadsegment(fs, 0);
@@ -1887,6 +2490,32 @@ void cpu_init(void)
 	 */
 	set_tss_desc(cpu, &get_cpu_entry_area(cpu)->tss.x86_tss);
 	load_TR_desc();
+=======
+	switch_to_new_gdt(cpu);
+
+	if (IS_ENABLED(CONFIG_X86_64)) {
+		loadsegment(fs, 0);
+		memset(cur->thread.tls_array, 0, GDT_ENTRY_TLS_ENTRIES * 8);
+		syscall_init();
+
+		wrmsrl(MSR_FS_BASE, 0);
+		wrmsrl(MSR_KERNEL_GS_BASE, 0);
+		barrier();
+
+		x2apic_setup();
+	}
+
+	mmgrab(&init_mm);
+	cur->active_mm = &init_mm;
+	BUG_ON(cur->mm);
+	initialize_tlbstate_and_flush();
+	enter_lazy_tlb(&init_mm, cur);
+
+	/*
+	 * sp0 points to the entry trampoline stack regardless of what task
+	 * is running.
+	 */
+>>>>>>> upstream/android-13
 	load_sp0((unsigned long)(cpu_entry_stack(cpu) + 1));
 
 	load_mm_ldt(&init_mm);
@@ -1894,6 +2523,11 @@ void cpu_init(void)
 	clear_all_debug_regs();
 	dbg_restore_debug_regs();
 
+<<<<<<< HEAD
+=======
+	doublefault_init_cpu_tss();
+
+>>>>>>> upstream/android-13
 	fpu__init_cpu();
 
 	if (is_uv_system())
@@ -1902,6 +2536,7 @@ void cpu_init(void)
 	load_fixmap_gdt(cpu);
 }
 
+<<<<<<< HEAD
 #else
 
 void cpu_init(void)
@@ -1982,6 +2617,20 @@ static int __init init_cpu_syscore(void)
 }
 core_initcall(init_cpu_syscore);
 
+=======
+#ifdef CONFIG_SMP
+void cpu_init_secondary(void)
+{
+	/*
+	 * Relies on the BP having set-up the IDT tables, which are loaded
+	 * on this CPU in cpu_init_exception_handling().
+	 */
+	cpu_init_exception_handling();
+	cpu_init();
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * The microcode loader calls this upon late microcode load to recheck features,
  * only when microcode has been updated. Caller holds microcode_mutex and CPU
@@ -2011,3 +2660,17 @@ void microcode_check(void)
 	pr_warn("x86/CPU: CPU features have changed after loading microcode, but might not take effect.\n");
 	pr_warn("x86/CPU: Please consider either early loading through initrd/built-in or a potential BIOS update.\n");
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Invoked from core CPU hotplug code after hotplug operations
+ */
+void arch_smt_update(void)
+{
+	/* Handle the speculative execution misfeatures */
+	cpu_bugs_smt_update();
+	/* Check whether IPI broadcasting can be enabled */
+	apic_smt_update();
+}
+>>>>>>> upstream/android-13

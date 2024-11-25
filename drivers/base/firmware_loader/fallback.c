@@ -9,6 +9,10 @@
 #include <linux/umh.h>
 #include <linux/sysctl.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 
 #include "fallback.h"
 #include "firmware.h"
@@ -17,6 +21,11 @@
  * firmware fallback mechanism
  */
 
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(FIRMWARE_LOADER_PRIVATE);
+
+>>>>>>> upstream/android-13
 extern struct firmware_fallback_config fw_fallback_config;
 
 /* These getters are vetted to use int properly */
@@ -86,12 +95,20 @@ static void __fw_load_abort(struct fw_priv *fw_priv)
 {
 	/*
 	 * There is a small window in which user can write to 'loading'
+<<<<<<< HEAD
 	 * between loading done and disappearance of 'loading'
 	 */
 	if (fw_sysfs_done(fw_priv))
 		return;
 
 	list_del_init(&fw_priv->pending_list);
+=======
+	 * between loading done/aborted and disappearance of 'loading'
+	 */
+	if (fw_state_is_aborted(fw_priv) || fw_sysfs_done(fw_priv))
+		return;
+
+>>>>>>> upstream/android-13
 	fw_state_aborted(fw_priv);
 }
 
@@ -121,11 +138,19 @@ void kill_pending_fw_fallback_reqs(bool only_kill_custom)
 static ssize_t timeout_show(struct class *class, struct class_attribute *attr,
 			    char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", __firmware_loading_timeout());
 }
 
 /**
  * firmware_timeout_store() - set number of seconds to wait for firmware
+=======
+	return sysfs_emit(buf, "%d\n", __firmware_loading_timeout());
+}
+
+/**
+ * timeout_store() - set number of seconds to wait for firmware
+>>>>>>> upstream/android-13
  * @class: device class pointer
  * @attr: device attribute pointer
  * @buf: buffer to scan for timeout value
@@ -216,6 +241,7 @@ static ssize_t firmware_loading_show(struct device *dev,
 		loading = fw_sysfs_loading(fw_sysfs->fw_priv);
 	mutex_unlock(&fw_lock);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", loading);
 }
 
@@ -231,6 +257,9 @@ static int map_fw_priv_pages(struct fw_priv *fw_priv)
 	if (!fw_priv->data)
 		return -ENOMEM;
 	return 0;
+=======
+	return sysfs_emit(buf, "%d\n", loading);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -254,7 +283,10 @@ static ssize_t firmware_loading_store(struct device *dev,
 	struct fw_priv *fw_priv;
 	ssize_t written = count;
 	int loading = simple_strtol(buf, NULL, 10);
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&fw_lock);
 	fw_priv = fw_sysfs->fw_priv;
@@ -265,12 +297,16 @@ static ssize_t firmware_loading_store(struct device *dev,
 	case 1:
 		/* discarding any previous partial load */
 		if (!fw_sysfs_done(fw_priv)) {
+<<<<<<< HEAD
 			for (i = 0; i < fw_priv->nr_pages; i++)
 				__free_page(fw_priv->pages[i]);
 			vfree(fw_priv->pages);
 			fw_priv->pages = NULL;
 			fw_priv->page_array_size = 0;
 			fw_priv->nr_pages = 0;
+=======
+			fw_free_paged_buf(fw_priv);
+>>>>>>> upstream/android-13
 			fw_state_start(fw_priv);
 		}
 		break;
@@ -284,20 +320,33 @@ static ssize_t firmware_loading_store(struct device *dev,
 			 * see the mapped 'buf->data' once the loading
 			 * is completed.
 			 * */
+<<<<<<< HEAD
 			rc = map_fw_priv_pages(fw_priv);
+=======
+			rc = fw_map_paged_buf(fw_priv);
+>>>>>>> upstream/android-13
 			if (rc)
 				dev_err(dev, "%s: map pages failed\n",
 					__func__);
 			else
+<<<<<<< HEAD
 				rc = security_kernel_post_read_file(NULL,
 						fw_priv->data, fw_priv->size,
 						READING_FIRMWARE);
+=======
+				rc = security_kernel_post_load_data(fw_priv->data,
+						fw_priv->size,
+						LOADING_FIRMWARE, "blob");
+>>>>>>> upstream/android-13
 
 			/*
 			 * Same logic as fw_load_abort, only the DONE bit
 			 * is ignored and we set ABORT only on failure.
 			 */
+<<<<<<< HEAD
 			list_del_init(&fw_priv->pending_list);
+=======
+>>>>>>> upstream/android-13
 			if (rc) {
 				fw_state_aborted(fw_priv);
 				written = rc;
@@ -306,10 +355,17 @@ static ssize_t firmware_loading_store(struct device *dev,
 			}
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthrough */
 	default:
 		dev_err(dev, "%s: unexpected value (%d)\n", __func__, loading);
 		/* fallthrough */
+=======
+		fallthrough;
+	default:
+		dev_err(dev, "%s: unexpected value (%d)\n", __func__, loading);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -1:
 		fw_load_abort(fw_sysfs);
 		break;
@@ -389,6 +445,7 @@ out:
 
 static int fw_realloc_pages(struct fw_sysfs *fw_sysfs, int min_size)
 {
+<<<<<<< HEAD
 	struct fw_priv *fw_priv= fw_sysfs->fw_priv;
 	int pages_needed = PAGE_ALIGN(min_size) >> PAGE_SHIFT;
 
@@ -423,6 +480,15 @@ static int fw_realloc_pages(struct fw_sysfs *fw_sysfs, int min_size)
 		fw_priv->nr_pages++;
 	}
 	return 0;
+=======
+	int err;
+
+	err = fw_grow_paged_buf(fw_sysfs->fw_priv,
+				PAGE_ALIGN(min_size) >> PAGE_SHIFT);
+	if (err)
+		fw_load_abort(fw_sysfs);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -507,7 +573,11 @@ static const struct attribute_group *fw_dev_attr_groups[] = {
 
 static struct fw_sysfs *
 fw_create_instance(struct firmware *firmware, const char *fw_name,
+<<<<<<< HEAD
 		   struct device *device, enum fw_opt opt_flags)
+=======
+		   struct device *device, u32 opt_flags)
+>>>>>>> upstream/android-13
 {
 	struct fw_sysfs *fw_sysfs;
 	struct device *f_dev;
@@ -534,13 +604,20 @@ exit:
 /**
  * fw_load_sysfs_fallback() - load a firmware via the sysfs fallback mechanism
  * @fw_sysfs: firmware sysfs information for the firmware to load
+<<<<<<< HEAD
  * @opt_flags: flags of options, FW_OPT_*
+=======
+>>>>>>> upstream/android-13
  * @timeout: timeout to wait for the load
  *
  * In charge of constructing a sysfs fallback interface for firmware loading.
  **/
+<<<<<<< HEAD
 static int fw_load_sysfs_fallback(struct fw_sysfs *fw_sysfs,
 				  enum fw_opt opt_flags, long timeout)
+=======
+static int fw_load_sysfs_fallback(struct fw_sysfs *fw_sysfs, long timeout)
+>>>>>>> upstream/android-13
 {
 	int retval = 0;
 	struct device *f_dev = &fw_sysfs->dev;
@@ -559,10 +636,22 @@ static int fw_load_sysfs_fallback(struct fw_sysfs *fw_sysfs,
 	}
 
 	mutex_lock(&fw_lock);
+<<<<<<< HEAD
 	list_add(&fw_priv->pending_list, &pending_fw_head);
 	mutex_unlock(&fw_lock);
 
 	if (opt_flags & FW_OPT_UEVENT) {
+=======
+	if (fw_state_is_aborted(fw_priv)) {
+		mutex_unlock(&fw_lock);
+		retval = -EINTR;
+		goto out;
+	}
+	list_add(&fw_priv->pending_list, &pending_fw_head);
+	mutex_unlock(&fw_lock);
+
+	if (fw_priv->opt_flags & FW_OPT_UEVENT) {
+>>>>>>> upstream/android-13
 		fw_priv->need_uevent = true;
 		dev_set_uevent_suppress(f_dev, false);
 		dev_dbg(f_dev, "firmware: requesting %s\n", fw_priv->fw_name);
@@ -581,11 +670,18 @@ static int fw_load_sysfs_fallback(struct fw_sysfs *fw_sysfs,
 	if (fw_state_is_aborted(fw_priv)) {
 		if (retval == -ERESTARTSYS)
 			retval = -EINTR;
+<<<<<<< HEAD
 		else
 			retval = -EAGAIN;
 	} else if (fw_priv->is_paged_buf && !fw_priv->data)
 		retval = -ENOMEM;
 
+=======
+	} else if (fw_priv->is_paged_buf && !fw_priv->data)
+		retval = -ENOMEM;
+
+out:
+>>>>>>> upstream/android-13
 	device_del(f_dev);
 err_put_dev:
 	put_device(f_dev);
@@ -594,7 +690,11 @@ err_put_dev:
 
 static int fw_load_from_user_helper(struct firmware *firmware,
 				    const char *name, struct device *device,
+<<<<<<< HEAD
 				    enum fw_opt opt_flags)
+=======
+				    u32 opt_flags)
+>>>>>>> upstream/android-13
 {
 	struct fw_sysfs *fw_sysfs;
 	long timeout;
@@ -624,10 +724,17 @@ static int fw_load_from_user_helper(struct firmware *firmware,
 	}
 
 	fw_sysfs->fw_priv = firmware->priv;
+<<<<<<< HEAD
 	ret = fw_load_sysfs_fallback(fw_sysfs, opt_flags, timeout);
 
 	if (!ret)
 		ret = assign_fw(firmware, device, opt_flags);
+=======
+	ret = fw_load_sysfs_fallback(fw_sysfs, timeout);
+
+	if (!ret)
+		ret = assign_fw(firmware, device);
+>>>>>>> upstream/android-13
 
 out_unlock:
 	usermodehelper_read_unlock();
@@ -635,7 +742,11 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool fw_force_sysfs_fallback(enum fw_opt opt_flags)
+=======
+static bool fw_force_sysfs_fallback(u32 opt_flags)
+>>>>>>> upstream/android-13
 {
 	if (fw_fallback_config.force_sysfs_fallback)
 		return true;
@@ -644,7 +755,11 @@ static bool fw_force_sysfs_fallback(enum fw_opt opt_flags)
 	return true;
 }
 
+<<<<<<< HEAD
 static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
+=======
+static bool fw_run_sysfs_fallback(u32 opt_flags)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -653,11 +768,19 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
 		return false;
 	}
 
+<<<<<<< HEAD
 	if ((opt_flags & FW_OPT_NOFALLBACK))
 		return false;
 
 	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
 	ret = security_kernel_load_data(LOADING_FIRMWARE);
+=======
+	if ((opt_flags & FW_OPT_NOFALLBACK_SYSFS))
+		return false;
+
+	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
+	ret = security_kernel_load_data(LOADING_FIRMWARE, true);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return false;
 
@@ -669,11 +792,17 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
  * @fw: pointer to firmware image
  * @name: name of firmware file to look for
  * @device: device for which firmware is being loaded
+<<<<<<< HEAD
  * @opt_flags: options to control firmware loading behaviour
+=======
+ * @opt_flags: options to control firmware loading behaviour, as defined by
+ *	       &enum fw_opt
+>>>>>>> upstream/android-13
  * @ret: return value from direct lookup which triggered the fallback mechanism
  *
  * This function is called if direct lookup for the firmware failed, it enables
  * a fallback mechanism through userspace by exposing a sysfs loading
+<<<<<<< HEAD
  * interface. Userspace is in charge of loading the firmware through the syfs
  * loading interface. This syfs fallback mechanism may be disabled completely
  * on a system by setting the proc sysctl value ignore_sysfs_fallback to true.
@@ -681,19 +810,37 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
  * flag, if so it would also disable the fallback mechanism. A system may want
  * to enfoce the sysfs fallback mechanism at all times, it can do this by
  * setting ignore_sysfs_fallback to false and force_sysfs_fallback to true.
+=======
+ * interface. Userspace is in charge of loading the firmware through the sysfs
+ * loading interface. This sysfs fallback mechanism may be disabled completely
+ * on a system by setting the proc sysctl value ignore_sysfs_fallback to true.
+ * If this is false we check if the internal API caller set the
+ * @FW_OPT_NOFALLBACK_SYSFS flag, if so it would also disable the fallback
+ * mechanism. A system may want to enforce the sysfs fallback mechanism at all
+ * times, it can do this by setting ignore_sysfs_fallback to false and
+ * force_sysfs_fallback to true.
+>>>>>>> upstream/android-13
  * Enabling force_sysfs_fallback is functionally equivalent to build a kernel
  * with CONFIG_FW_LOADER_USER_HELPER_FALLBACK.
  **/
 int firmware_fallback_sysfs(struct firmware *fw, const char *name,
 			    struct device *device,
+<<<<<<< HEAD
 			    enum fw_opt opt_flags,
+=======
+			    u32 opt_flags,
+>>>>>>> upstream/android-13
 			    int ret)
 {
 	if (!fw_run_sysfs_fallback(opt_flags))
 		return ret;
 
 	if (!(opt_flags & FW_OPT_NO_WARN))
+<<<<<<< HEAD
 		dev_warn(device, "Falling back to syfs fallback for: %s\n",
+=======
+		dev_warn(device, "Falling back to sysfs fallback for: %s\n",
+>>>>>>> upstream/android-13
 				 name);
 	else
 		dev_dbg(device, "Falling back to sysfs fallback for: %s\n",

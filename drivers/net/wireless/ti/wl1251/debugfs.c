@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1251
  *
  * Copyright (C) 2009 Nokia Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "debugfs.h"
@@ -53,12 +60,16 @@ static const struct file_operations name## _ops = {			\
 
 #define DEBUGFS_ADD(name, parent)					\
 	wl->debugfs.name = debugfs_create_file(#name, 0400, parent,	\
+<<<<<<< HEAD
 					       wl, &name## _ops);	\
 	if (IS_ERR(wl->debugfs.name)) {					\
 		ret = PTR_ERR(wl->debugfs.name);			\
 		wl->debugfs.name = NULL;				\
 		goto out;						\
 	}
+=======
+					       wl, &name## _ops)	\
+>>>>>>> upstream/android-13
 
 #define DEBUGFS_DEL(name)						\
 	do {								\
@@ -354,10 +365,15 @@ static void wl1251_debugfs_delete_files(struct wl1251 *wl)
 	DEBUGFS_DEL(excessive_retries);
 }
 
+<<<<<<< HEAD
 static int wl1251_debugfs_add_files(struct wl1251 *wl)
 {
 	int ret = 0;
 
+=======
+static void wl1251_debugfs_add_files(struct wl1251 *wl)
+{
+>>>>>>> upstream/android-13
 	DEBUGFS_FWSTATS_ADD(tx, internal_desc_overflow);
 
 	DEBUGFS_FWSTATS_ADD(rx, out_of_mem);
@@ -453,12 +469,15 @@ static int wl1251_debugfs_add_files(struct wl1251 *wl)
 	DEBUGFS_ADD(tx_queue_status, wl->debugfs.rootdir);
 	DEBUGFS_ADD(retry_count, wl->debugfs.rootdir);
 	DEBUGFS_ADD(excessive_retries, wl->debugfs.rootdir);
+<<<<<<< HEAD
 
 out:
 	if (ret < 0)
 		wl1251_debugfs_delete_files(wl);
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 void wl1251_debugfs_reset(struct wl1251 *wl)
@@ -471,6 +490,7 @@ void wl1251_debugfs_reset(struct wl1251 *wl)
 
 int wl1251_debugfs_init(struct wl1251 *wl)
 {
+<<<<<<< HEAD
 	int ret;
 
 	wl->debugfs.rootdir = debugfs_create_dir(KBUILD_MODNAME, NULL);
@@ -521,6 +541,22 @@ err_root:
 
 err:
 	return ret;
+=======
+	wl->stats.fw_stats = kzalloc(sizeof(*wl->stats.fw_stats), GFP_KERNEL);
+	if (!wl->stats.fw_stats)
+		return -ENOMEM;
+
+	wl->debugfs.rootdir = debugfs_create_dir(KBUILD_MODNAME, NULL);
+
+	wl->debugfs.fw_statistics = debugfs_create_dir("fw-statistics",
+						       wl->debugfs.rootdir);
+
+	wl->stats.fw_stats_update = jiffies;
+
+	wl1251_debugfs_add_files(wl);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void wl1251_debugfs_exit(struct wl1251 *wl)

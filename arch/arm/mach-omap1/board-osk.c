@@ -26,6 +26,10 @@
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 #include <linux/gpio.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -55,6 +59,12 @@
 
 #include "common.h"
 
+<<<<<<< HEAD
+=======
+/* Name of the GPIO chip used by the OMAP for GPIOs 0..15 */
+#define OMAP_GPIO_LABEL		"gpio-0-15"
+
+>>>>>>> upstream/android-13
 /* At OMAP5912 OSK the Ethernet is directly connected to CS1 */
 #define OMAP_OSK_ETHR_START		0x04800300
 
@@ -199,6 +209,11 @@ static int osk_tps_setup(struct i2c_client *client, void *context)
 	 */
 	gpio_request(OSK_TPS_GPIO_USB_PWR_EN, "n_vbus_en");
 	gpio_direction_output(OSK_TPS_GPIO_USB_PWR_EN, 1);
+<<<<<<< HEAD
+=======
+	/* Free the GPIO again as the driver will request it */
+	gpio_free(OSK_TPS_GPIO_USB_PWR_EN);
+>>>>>>> upstream/android-13
 
 	/* Set GPIO 2 high so LED D3 is off by default */
 	tps65010_set_gpio_out_value(GPIO2, HIGH);
@@ -240,7 +255,13 @@ static struct tps65010_board tps_board = {
 
 static struct i2c_board_info __initdata osk_i2c_board_info[] = {
 	{
+<<<<<<< HEAD
 		I2C_BOARD_INFO("tps65010", 0x48),
+=======
+		/* This device will get the name "i2c-tps65010" */
+		I2C_BOARD_INFO("tps65010", 0x48),
+		.dev_name = "tps65010",
+>>>>>>> upstream/android-13
 		.platform_data	= &tps_board,
 
 	},
@@ -278,6 +299,19 @@ static void __init osk_init_cf(void)
 	irq_set_irq_type(gpio_to_irq(62), IRQ_TYPE_EDGE_FALLING);
 }
 
+<<<<<<< HEAD
+=======
+static struct gpiod_lookup_table osk_usb_gpio_table = {
+	.dev_id = "ohci",
+	.table = {
+		/* Power GPIO on the I2C-attached TPS65010 */
+		GPIO_LOOKUP("tps65010", 0, "power", GPIO_ACTIVE_HIGH),
+		GPIO_LOOKUP(OMAP_GPIO_LABEL, 9, "overcurrent",
+			    GPIO_ACTIVE_HIGH),
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct omap_usb_config osk_usb_config __initdata = {
 	/* has usb host connector (A) ... for development it can also
 	 * be used, with a NONSTANDARD gender-bending cable/dongle, as
@@ -314,11 +348,22 @@ static const struct property_entry mistral_at24_properties[] = {
 	{ }
 };
 
+<<<<<<< HEAD
+=======
+static const struct software_node mistral_at24_node = {
+	.properties = mistral_at24_properties,
+};
+
+>>>>>>> upstream/android-13
 static struct i2c_board_info __initdata mistral_i2c_board_info[] = {
 	{
 		/* NOTE:  powered from LCD supply */
 		I2C_BOARD_INFO("24c04", 0x50),
+<<<<<<< HEAD
 		.properties = mistral_at24_properties,
+=======
+		.swnode = &mistral_at24_node,
+>>>>>>> upstream/android-13
 	},
 	/* TODO when driver support is ready:
 	 *  - optionally ov9640 camera sensor at 0x30
@@ -581,6 +626,10 @@ static void __init osk_init(void)
 	l |= (3 << 1);
 	omap_writel(l, USB_TRANSCEIVER_CTRL);
 
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&osk_usb_gpio_table);
+>>>>>>> upstream/android-13
 	omap1_usb_init(&osk_usb_config);
 
 	/* irq for tps65010 chip */

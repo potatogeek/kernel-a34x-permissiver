@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * kirkwood-dma.c
  *
  * (c) 2010 Arnaud Patard <apatard@mandriva.com>
  * (c) 2010 Arnaud Patard <arnaud.patard@rtp-net.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -24,7 +31,11 @@
 static struct kirkwood_dma_data *kirkwood_priv(struct snd_pcm_substream *subs)
 {
 	struct snd_soc_pcm_runtime *soc_runtime = subs->private_data;
+<<<<<<< HEAD
 	return snd_soc_dai_get_drvdata(soc_runtime->cpu_dai);
+=======
+	return snd_soc_dai_get_drvdata(asoc_rtd_to_cpu(soc_runtime, 0));
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_pcm_hardware kirkwood_dma_snd_hw = {
@@ -102,13 +113,21 @@ kirkwood_dma_conf_mbus_windows(void __iomem *base, int win,
 	}
 }
 
+<<<<<<< HEAD
 static int kirkwood_dma_open(struct snd_pcm_substream *substream)
+=======
+static int kirkwood_dma_open(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
+<<<<<<< HEAD
 	const struct mbus_dram_target_info *dram;
 	unsigned long addr;
+=======
+>>>>>>> upstream/android-13
 
 	snd_soc_set_runtime_hwparams(substream, &kirkwood_dma_snd_hw);
 
@@ -145,26 +164,40 @@ static int kirkwood_dma_open(struct snd_pcm_substream *substream)
 		writel((unsigned int)-1, priv->io + KIRKWOOD_ERR_MASK);
 	}
 
+<<<<<<< HEAD
 	dram = mv_mbus_dram_info();
 	addr = substream->dma_buffer.addr;
+=======
+>>>>>>> upstream/android-13
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 		if (priv->substream_play)
 			return -EBUSY;
 		priv->substream_play = substream;
+<<<<<<< HEAD
 		kirkwood_dma_conf_mbus_windows(priv->io,
 			KIRKWOOD_PLAYBACK_WIN, addr, dram);
+=======
+>>>>>>> upstream/android-13
 	} else {
 		if (priv->substream_rec)
 			return -EBUSY;
 		priv->substream_rec = substream;
+<<<<<<< HEAD
 		kirkwood_dma_conf_mbus_windows(priv->io,
 			KIRKWOOD_RECORD_WIN, addr, dram);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int kirkwood_dma_close(struct snd_pcm_substream *substream)
+=======
+static int kirkwood_dma_close(struct snd_soc_component *component,
+			      struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
 
@@ -184,6 +217,7 @@ static int kirkwood_dma_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int kirkwood_dma_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *params)
 {
@@ -202,6 +236,27 @@ static int kirkwood_dma_hw_free(struct snd_pcm_substream *substream)
 }
 
 static int kirkwood_dma_prepare(struct snd_pcm_substream *substream)
+=======
+static int kirkwood_dma_hw_params(struct snd_soc_component *component,
+				  struct snd_pcm_substream *substream,
+				  struct snd_pcm_hw_params *params)
+{
+	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
+	const struct mbus_dram_target_info *dram = mv_mbus_dram_info();
+	unsigned long addr = substream->runtime->dma_addr;
+
+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+		kirkwood_dma_conf_mbus_windows(priv->io,
+			KIRKWOOD_PLAYBACK_WIN, addr, dram);
+	else
+		kirkwood_dma_conf_mbus_windows(priv->io,
+			KIRKWOOD_RECORD_WIN, addr, dram);
+	return 0;
+}
+
+static int kirkwood_dma_prepare(struct snd_soc_component *component,
+				struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
@@ -226,8 +281,14 @@ static int kirkwood_dma_prepare(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t kirkwood_dma_pointer(struct snd_pcm_substream
 						*substream)
+=======
+static snd_pcm_uframes_t kirkwood_dma_pointer(
+	struct snd_soc_component *component,
+	struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct kirkwood_dma_data *priv = kirkwood_priv(substream);
 	snd_pcm_uframes_t count;
@@ -242,6 +303,7 @@ static snd_pcm_uframes_t kirkwood_dma_pointer(struct snd_pcm_substream
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct snd_pcm_ops kirkwood_dma_ops = {
 	.open =		kirkwood_dma_open,
 	.close =        kirkwood_dma_close,
@@ -275,12 +337,20 @@ static int kirkwood_dma_new(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_card *card = rtd->card->snd_card;
 	struct snd_pcm *pcm = rtd->pcm;
+=======
+static int kirkwood_dma_new(struct snd_soc_component *component,
+			    struct snd_soc_pcm_runtime *rtd)
+{
+	size_t size = kirkwood_dma_snd_hw.buffer_bytes_max;
+	struct snd_card *card = rtd->card->snd_card;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		ret = kirkwood_dma_preallocate_dma_buffer(pcm,
 				SNDRV_PCM_STREAM_PLAYBACK);
@@ -294,10 +364,15 @@ static int kirkwood_dma_new(struct snd_soc_pcm_runtime *rtd)
 		if (ret)
 			return ret;
 	}
+=======
+	snd_pcm_set_managed_buffer_all(rtd->pcm, SNDRV_DMA_TYPE_DEV,
+				       card->dev, size, size);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void kirkwood_dma_free_dma_buffers(struct snd_pcm *pcm)
 {
 	struct snd_pcm_substream *substream;
@@ -323,4 +398,14 @@ const struct snd_soc_component_driver kirkwood_soc_component = {
 	.ops		= &kirkwood_dma_ops,
 	.pcm_new	= kirkwood_dma_new,
 	.pcm_free	= kirkwood_dma_free_dma_buffers,
+=======
+const struct snd_soc_component_driver kirkwood_soc_component = {
+	.name		= DRV_NAME,
+	.open		= kirkwood_dma_open,
+	.close		= kirkwood_dma_close,
+	.hw_params	= kirkwood_dma_hw_params,
+	.prepare	= kirkwood_dma_prepare,
+	.pointer	= kirkwood_dma_pointer,
+	.pcm_construct	= kirkwood_dma_new,
+>>>>>>> upstream/android-13
 };

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      Low-level parallel-support for PC-style hardware integrated in the 
  *	LASI-Controller (on GSC-Bus) for HP-PARISC Workstations
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
@@ -9,6 +14,9 @@
  *
  *	(C) 1999-2001 by Helge Deller <deller@gmx.de>
  *
+=======
+ *	(C) 1999-2001 by Helge Deller <deller@gmx.de>
+>>>>>>> upstream/android-13
  * 
  * based on parport_pc.c by 
  * 	    Grant Guenther <grant@torque.net>
@@ -46,7 +54,10 @@
 
 MODULE_AUTHOR("Helge Deller <deller@gmx.de>");
 MODULE_DESCRIPTION("HP-PARISC PC-style parallel port driver");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("integrated PC-style parallel port");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 
@@ -243,14 +254,23 @@ struct parport *parport_gsc_probe_port(unsigned long base,
 
 	priv = kzalloc (sizeof (struct parport_gsc_private), GFP_KERNEL);
 	if (!priv) {
+<<<<<<< HEAD
 		printk (KERN_DEBUG "parport (0x%lx): no memory!\n", base);
+=======
+		printk(KERN_DEBUG "parport (0x%lx): no memory!\n", base);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 	ops = kmemdup(&parport_gsc_ops, sizeof(struct parport_operations),
 		      GFP_KERNEL);
 	if (!ops) {
+<<<<<<< HEAD
 		printk (KERN_DEBUG "parport (0x%lx): no memory for ops!\n",
 			base);
+=======
+		printk(KERN_DEBUG "parport (0x%lx): no memory for ops!\n",
+		       base);
+>>>>>>> upstream/android-13
 		kfree (priv);
 		return NULL;
 	}
@@ -287,7 +307,11 @@ struct parport *parport_gsc_probe_port(unsigned long base,
 	p->size = (p->modes & PARPORT_MODE_EPP)?8:3;
 	p->private_data = priv;
 
+<<<<<<< HEAD
 	printk(KERN_INFO "%s: PC-style at 0x%lx", p->name, p->base);
+=======
+	pr_info("%s: PC-style at 0x%lx", p->name, p->base);
+>>>>>>> upstream/android-13
 	p->irq = irq;
 	if (p->irq == PARPORT_IRQ_AUTO) {
 		p->irq = PARPORT_IRQ_NONE;
@@ -304,12 +328,24 @@ struct parport *parport_gsc_probe_port(unsigned long base,
 		p->dma = PARPORT_DMA_NONE;
 
 	pr_cont(" [");
+<<<<<<< HEAD
 #define printmode(x) {if(p->modes&PARPORT_MODE_##x){pr_cont("%s%s",f?",":"",#x);f++;}}
+=======
+#define printmode(x)							\
+do {									\
+	if (p->modes & PARPORT_MODE_##x)				\
+		pr_cont("%s%s", f++ ? "," : "", #x);			\
+} while (0)
+>>>>>>> upstream/android-13
 	{
 		int f = 0;
 		printmode(PCSPP);
 		printmode(TRISTATE);
+<<<<<<< HEAD
 		printmode(COMPAT)
+=======
+		printmode(COMPAT);
+>>>>>>> upstream/android-13
 		printmode(EPP);
 //		printmode(ECP);
 //		printmode(DMA);
@@ -320,8 +356,12 @@ struct parport *parport_gsc_probe_port(unsigned long base,
 	if (p->irq != PARPORT_IRQ_NONE) {
 		if (request_irq (p->irq, parport_irq_handler,
 				 0, p->name, p)) {
+<<<<<<< HEAD
 			printk (KERN_WARNING "%s: irq %d in use, "
 				"resorting to polled operation\n",
+=======
+			pr_warn("%s: irq %d in use, resorting to polled operation\n",
+>>>>>>> upstream/android-13
 				p->name, p->irq);
 			p->irq = PARPORT_IRQ_NONE;
 			p->dma = PARPORT_DMA_NONE;
@@ -352,7 +392,11 @@ static int __init parport_init_chip(struct parisc_device *dev)
 	unsigned long port;
 
 	if (!dev->irq) {
+<<<<<<< HEAD
 		printk(KERN_WARNING "IRQ not found for parallel device at 0x%llx\n",
+=======
+		pr_warn("IRQ not found for parallel device at 0x%llx\n",
+>>>>>>> upstream/android-13
 			(unsigned long long)dev->hpa.start);
 		return -ENODEV;
 	}
@@ -365,11 +409,19 @@ static int __init parport_init_chip(struct parisc_device *dev)
 	if (boot_cpu_data.cpu_type > pcxt && !pdc_add_valid(port+4)) {
 
 		/* Initialize bidirectional-mode (0x10) & data-tranfer-mode #1 (0x20) */
+<<<<<<< HEAD
 		printk("%s: initialize bidirectional-mode.\n", __func__);
 		parport_writeb ( (0x10 + 0x20), port + 4);
 
 	} else {
 		printk("%s: enhanced parport-modes not supported.\n", __func__);
+=======
+		pr_info("%s: initialize bidirectional-mode\n", __func__);
+		parport_writeb ( (0x10 + 0x20), port + 4);
+
+	} else {
+		pr_info("%s: enhanced parport-modes not supported\n", __func__);
+>>>>>>> upstream/android-13
 	}
 	
 	p = parport_gsc_probe_port(port, 0, dev->irq,
@@ -381,7 +433,11 @@ static int __init parport_init_chip(struct parisc_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __exit parport_remove_chip(struct parisc_device *dev)
+=======
+static void __exit parport_remove_chip(struct parisc_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct parport *p = dev_get_drvdata(&dev->dev);
 	if (p) {
@@ -393,14 +449,22 @@ static int __exit parport_remove_chip(struct parisc_device *dev)
 		if (p->irq != PARPORT_IRQ_NONE)
 			free_irq(p->irq, p);
 		if (priv->dma_buf)
+<<<<<<< HEAD
 			pci_free_consistent(priv->dev, PAGE_SIZE,
 					    priv->dma_buf,
 					    priv->dma_handle);
+=======
+			dma_free_coherent(&priv->dev->dev, PAGE_SIZE,
+					  priv->dma_buf, priv->dma_handle);
+>>>>>>> upstream/android-13
 		kfree (p->private_data);
 		parport_put_port(p);
 		kfree (ops); /* hope no-one cached it */
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct parisc_device_id parport_tbl[] __initconst = {

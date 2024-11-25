@@ -35,7 +35,11 @@ struct sensor_rate {
 };
 
 struct system_env_backup {
+<<<<<<< HEAD
 	uint64_t pre_sensor_state[2];
+=======
+	uint64_t pre_sensor_state;
+>>>>>>> upstream/android-13
 	struct sensor_rate pre_rate[SENSOR_TYPE_LEGACY_MAX];
 	int32_t pre_enabled_count[SENSOR_TYPE_LEGACY_MAX];
 };
@@ -210,6 +214,10 @@ static void run_event_order_test(void)
 	int32_t type;
 	int32_t sampling_rate = 5;
 	int32_t report_latency = 0;
+<<<<<<< HEAD
+=======
+	int32_t test_cnt = ssc_count;
+>>>>>>> upstream/android-13
 
 	shub_infof("[SSC] run event order test...");
 
@@ -221,6 +229,7 @@ static void run_event_order_test(void)
 	}
 
 	register_event_order_test_cb();
+<<<<<<< HEAD
 	shub_infof("[SSC] run only once #sampling rate : fastest, report latency : random");
 
 	enable_order_test_sensors();
@@ -260,6 +269,51 @@ static void run_event_order_test(void)
 
 	disable_order_test_sensors();
 
+=======
+	shub_infof("[SSC] sampling rate : fastest, report latency : random");
+	while (test_cnt--) {
+		shub_infof("[SSC] #%d", ssc_count - test_cnt);
+		enable_order_test_sensors();
+		msleep(2000);
+
+		for (i = 0 ; i < 100 ; i++) {
+			type = order_test_types[get_random() % 3];
+
+			sampling_rate = ssc.sensor[type].min_delay;
+			report_latency = (get_random() % 2) * 5000;
+
+			batch_sensor(type, sampling_rate, report_latency);
+			flush_sensor(type);
+			msleep(10 * (get_random() % 15));
+		}
+
+		disable_order_test_sensors();
+	}
+
+	test_cnt = ssc_count;
+	shub_infof("[SSC] sampling rate : random, report latency : random");
+	while (test_cnt--) {
+		shub_infof("[SSC] #%d", ssc_count - test_cnt);
+		enable_order_test_sensors();
+
+		for (i = 0 ; i < 100 ; i++) {
+			type = order_test_types[get_random() % 3];
+
+			sampling_rate = get_random() % 10;
+			if (sampling_rate == 0)
+				sampling_rate = ssc.sensor[type].min_delay;
+			else
+				sampling_rate = ssc.sensor[type].min_delay * sampling_rate;
+
+			report_latency = (get_random() % 6) * 1000;
+			batch_sensor(type, sampling_rate, report_latency);
+			flush_sensor(type);
+			msleep(10 * (get_random() % 15));
+		}
+
+		disable_order_test_sensors();
+	}
+>>>>>>> upstream/android-13
 	unregister_event_order_test_cb();
 }
 
@@ -348,8 +402,11 @@ void order_test_cb(int32_t type, uint64_t timestamp)
 static void restore_test_env(void)
 {
 	int32_t type = 0;
+<<<<<<< HEAD
 	int32_t index = 0;
 	int32_t interval = sizeof(ssc.env_backup.pre_sensor_state[0]) * BITS_PER_BYTE;
+=======
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor;
 
 	shub_infof("");
@@ -357,8 +414,12 @@ static void restore_test_env(void)
 		sensor = get_sensor(type);
 		if (sensor) {
 			mutex_lock(&sensor->enabled_mutex);
+<<<<<<< HEAD
 			index = type > interval ? 0 : 1;
 			sensor->enabled = (ssc.env_backup.pre_sensor_state[index] & (1ULL << type % interval));
+=======
+			sensor->enabled = (ssc.env_backup.pre_sensor_state & (1ULL << type));
+>>>>>>> upstream/android-13
 			sensor->enabled_cnt = ssc.env_backup.pre_enabled_count[type];
 			mutex_unlock(&sensor->enabled_mutex);
 
@@ -514,7 +575,11 @@ static void prepare_test_env(void)
 	memset(&ssc, 0, sizeof(ssc));
 
 	// backup shub env
+<<<<<<< HEAD
 	get_sensors_legacy_enable_state(ssc.env_backup.pre_sensor_state);
+=======
+	ssc.env_backup.pre_sensor_state = get_sensors_legacy_enable_state();
+>>>>>>> upstream/android-13
 	for (type = SENSOR_TYPE_ACCELEROMETER; type < SENSOR_TYPE_LEGACY_MAX; type++) {
 		sensor = get_sensor(type);
 		if (sensor) {

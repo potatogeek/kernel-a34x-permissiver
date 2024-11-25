@@ -98,6 +98,7 @@ void pm8001_tag_init(struct pm8001_hba_info *pm8001_ha)
 		pm8001_tag_free(pm8001_ha, i);
 }
 
+<<<<<<< HEAD
  /**
   * pm8001_mem_alloc - allocate memory for pm8001.
   * @pdev: pci device.
@@ -106,6 +107,18 @@ void pm8001_tag_init(struct pm8001_hba_info *pm8001_ha)
   * @pphys_addr_lo: the physical address low byte address.
   * @mem_size: memory size.
   */
+=======
+/**
+ * pm8001_mem_alloc - allocate memory for pm8001.
+ * @pdev: pci device.
+ * @virt_addr: the allocated virtual address
+ * @pphys_addr: DMA address for this device
+ * @pphys_addr_hi: the physical address high byte address.
+ * @pphys_addr_lo: the physical address low byte address.
+ * @mem_size: memory size.
+ * @align: requested byte alignment
+ */
+>>>>>>> upstream/android-13
 int pm8001_mem_alloc(struct pci_dev *pdev, void **virt_addr,
 	dma_addr_t *pphys_addr, u32 *pphys_addr_hi,
 	u32 *pphys_addr_lo, u32 mem_size, u32 align)
@@ -116,12 +129,19 @@ int pm8001_mem_alloc(struct pci_dev *pdev, void **virt_addr,
 	u64 align_offset = 0;
 	if (align)
 		align_offset = (dma_addr_t)align - 1;
+<<<<<<< HEAD
 	mem_virt_alloc = pci_zalloc_consistent(pdev, mem_size + align,
 					       &mem_dma_handle);
 	if (!mem_virt_alloc) {
 		pm8001_printk("memory allocation error\n");
 		return -1;
 	}
+=======
+	mem_virt_alloc = dma_alloc_coherent(&pdev->dev, mem_size + align,
+					    &mem_dma_handle, GFP_KERNEL);
+	if (!mem_virt_alloc)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	*pphys_addr = mem_dma_handle;
 	phys_align = (*pphys_addr + align_offset) & ~align_offset;
 	*virt_addr = (void *)mem_virt_alloc + phys_align - *pphys_addr;
@@ -129,6 +149,10 @@ int pm8001_mem_alloc(struct pci_dev *pdev, void **virt_addr,
 	*pphys_addr_lo = lower_32_bits(phys_align);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 /**
   * pm8001_find_ha_by_dev - from domain device which come from sas layer to
   * find out our hba struct.
@@ -157,9 +181,17 @@ int pm8001_phy_control(struct asd_sas_phy *sas_phy, enum phy_func func,
 	int rc = 0, phy_id = sas_phy->id;
 	struct pm8001_hba_info *pm8001_ha = NULL;
 	struct sas_phy_linkrates *rates;
+<<<<<<< HEAD
 	DECLARE_COMPLETION_ONSTACK(completion);
 	unsigned long flags;
 	pm8001_ha = sas_phy->ha->lldd_ha;
+=======
+	struct pm8001_phy *phy;
+	DECLARE_COMPLETION_ONSTACK(completion);
+	unsigned long flags;
+	pm8001_ha = sas_phy->ha->lldd_ha;
+	phy = &pm8001_ha->phy[phy_id];
+>>>>>>> upstream/android-13
 	pm8001_ha->phy[phy_id].enable_completion = &completion;
 	switch (func) {
 	case PHY_FUNC_SET_LINK_RATE:
@@ -172,7 +204,11 @@ int pm8001_phy_control(struct asd_sas_phy *sas_phy, enum phy_func func,
 			pm8001_ha->phy[phy_id].maximum_linkrate =
 				rates->maximum_linkrate;
 		}
+<<<<<<< HEAD
 		if (pm8001_ha->phy[phy_id].phy_state == 0) {
+=======
+		if (pm8001_ha->phy[phy_id].phy_state ==  PHY_LINK_DISABLE) {
+>>>>>>> upstream/android-13
 			PM8001_CHIP_DISP->phy_start_req(pm8001_ha, phy_id);
 			wait_for_completion(&completion);
 		}
@@ -180,7 +216,11 @@ int pm8001_phy_control(struct asd_sas_phy *sas_phy, enum phy_func func,
 					      PHY_LINK_RESET);
 		break;
 	case PHY_FUNC_HARD_RESET:
+<<<<<<< HEAD
 		if (pm8001_ha->phy[phy_id].phy_state == 0) {
+=======
+		if (pm8001_ha->phy[phy_id].phy_state == PHY_LINK_DISABLE) {
+>>>>>>> upstream/android-13
 			PM8001_CHIP_DISP->phy_start_req(pm8001_ha, phy_id);
 			wait_for_completion(&completion);
 		}
@@ -188,7 +228,11 @@ int pm8001_phy_control(struct asd_sas_phy *sas_phy, enum phy_func func,
 					      PHY_HARD_RESET);
 		break;
 	case PHY_FUNC_LINK_RESET:
+<<<<<<< HEAD
 		if (pm8001_ha->phy[phy_id].phy_state == 0) {
+=======
+		if (pm8001_ha->phy[phy_id].phy_state == PHY_LINK_DISABLE) {
+>>>>>>> upstream/android-13
 			PM8001_CHIP_DISP->phy_start_req(pm8001_ha, phy_id);
 			wait_for_completion(&completion);
 		}
@@ -200,6 +244,26 @@ int pm8001_phy_control(struct asd_sas_phy *sas_phy, enum phy_func func,
 					      PHY_LINK_RESET);
 		break;
 	case PHY_FUNC_DISABLE:
+<<<<<<< HEAD
+=======
+		if (pm8001_ha->chip_id != chip_8001) {
+			if (pm8001_ha->phy[phy_id].phy_state ==
+				PHY_STATE_LINK_UP_SPCV) {
+				sas_phy_disconnected(&phy->sas_phy);
+				sas_notify_phy_event(&phy->sas_phy,
+					PHYE_LOSS_OF_SIGNAL, GFP_KERNEL);
+				phy->phy_attached = 0;
+			}
+		} else {
+			if (pm8001_ha->phy[phy_id].phy_state ==
+				PHY_STATE_LINK_UP_SPC) {
+				sas_phy_disconnected(&phy->sas_phy);
+				sas_notify_phy_event(&phy->sas_phy,
+					PHYE_LOSS_OF_SIGNAL, GFP_KERNEL);
+				phy->phy_attached = 0;
+			}
+		}
+>>>>>>> upstream/android-13
 		PM8001_CHIP_DISP->phy_stop_req(pm8001_ha, phy_id);
 		break;
 	case PHY_FUNC_GET_EVENTS:
@@ -227,6 +291,10 @@ int pm8001_phy_control(struct asd_sas_phy *sas_phy, enum phy_func func,
 		spin_unlock_irqrestore(&pm8001_ha->lock, flags);
 		return 0;
 	default:
+<<<<<<< HEAD
+=======
+		pm8001_dbg(pm8001_ha, DEVIO, "func 0x%x\n", func);
+>>>>>>> upstream/android-13
 		rc = -EOPNOTSUPP;
 	}
 	msleep(300);
@@ -243,12 +311,25 @@ void pm8001_scan_start(struct Scsi_Host *shost)
 	int i;
 	struct pm8001_hba_info *pm8001_ha;
 	struct sas_ha_struct *sha = SHOST_TO_SAS_HA(shost);
+<<<<<<< HEAD
+=======
+	DECLARE_COMPLETION_ONSTACK(completion);
+>>>>>>> upstream/android-13
 	pm8001_ha = sha->lldd_ha;
 	/* SAS_RE_INITIALIZATION not available in SPCv/ve */
 	if (pm8001_ha->chip_id == chip_8001)
 		PM8001_CHIP_DISP->sas_re_init_req(pm8001_ha);
+<<<<<<< HEAD
 	for (i = 0; i < pm8001_ha->chip->n_phy; ++i)
 		PM8001_CHIP_DISP->phy_start_req(pm8001_ha, i);
+=======
+	for (i = 0; i < pm8001_ha->chip->n_phy; ++i) {
+		pm8001_ha->phy[i].enable_completion = &completion;
+		PM8001_CHIP_DISP->phy_start_req(pm8001_ha, i);
+		wait_for_completion(&completion);
+		msleep(300);
+	}
+>>>>>>> upstream/android-13
 }
 
 int pm8001_scan_finished(struct Scsi_Host *shost, unsigned long time)
@@ -315,7 +396,11 @@ static int pm8001_task_prep_ssp_tm(struct pm8001_hba_info *pm8001_ha,
 }
 
 /**
+<<<<<<< HEAD
   * pm8001_task_prep_ssp - the dispatcher function,prepare ssp data for ssp task
+=======
+  * pm8001_task_prep_ssp - the dispatcher function, prepare ssp data for ssp task
+>>>>>>> upstream/android-13
   * @pm8001_ha: our hba card information
   * @ccb: the ccb which attached to ssp task
   */
@@ -342,17 +427,28 @@ static int sas_find_local_port_id(struct domain_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
   * pm8001_task_exec - queue the task(ssp, smp && ata) to the hardware.
   * @task: the task to be execute.
   * @num: if can_queue great than 1, the task can be queued up. for SMP task,
   * we always execute one one time.
+=======
+#define DEV_IS_GONE(pm8001_dev)	\
+	((!pm8001_dev || (pm8001_dev->dev_type == SAS_PHY_UNUSED)))
+/**
+  * pm8001_task_exec - queue the task(ssp, smp && ata) to the hardware.
+  * @task: the task to be execute.
+>>>>>>> upstream/android-13
   * @gfp_flags: gfp_flags.
   * @is_tmf: if it is task management task.
   * @tmf: the task management IU
   */
+<<<<<<< HEAD
 #define DEV_IS_GONE(pm8001_dev)	\
 	((!pm8001_dev || (pm8001_dev->dev_type == SAS_PHY_UNUSED)))
+=======
+>>>>>>> upstream/android-13
 static int pm8001_task_exec(struct sas_task *task,
 	gfp_t gfp_flags, int is_tmf, struct pm8001_tmf_task *tmf)
 {
@@ -362,8 +458,14 @@ static int pm8001_task_exec(struct sas_task *task,
 	struct pm8001_port *port = NULL;
 	struct sas_task *t = task;
 	struct pm8001_ccb_info *ccb;
+<<<<<<< HEAD
 	u32 tag = 0xdeadbeef, rc, n_elem = 0;
 	unsigned long flags = 0;
+=======
+	u32 tag = 0xdeadbeef, rc = 0, n_elem = 0;
+	unsigned long flags = 0;
+	enum sas_protocol task_proto = t->task_proto;
+>>>>>>> upstream/android-13
 
 	if (!dev->port) {
 		struct task_status_struct *tsm = &t->task_status;
@@ -381,14 +483,22 @@ static int pm8001_task_exec(struct sas_task *task,
 		t->task_done(t);
 		return 0;
 	}
+<<<<<<< HEAD
 	PM8001_IO_DBG(pm8001_ha, pm8001_printk("pm8001_task_exec device \n "));
+=======
+	pm8001_dbg(pm8001_ha, IO, "pm8001_task_exec device\n");
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&pm8001_ha->lock, flags);
 	do {
 		dev = t->dev;
 		pm8001_dev = dev->lldd_dev;
 		port = &pm8001_ha->port[sas_find_local_port_id(dev)];
 		if (DEV_IS_GONE(pm8001_dev) || !port->port_attached) {
+<<<<<<< HEAD
 			if (sas_protocol_ata(t->task_proto)) {
+=======
+			if (sas_protocol_ata(task_proto)) {
+>>>>>>> upstream/android-13
 				struct task_status_struct *ts = &t->task_status;
 				ts->resp = SAS_TASK_UNDELIVERED;
 				ts->stat = SAS_PHY_DOWN;
@@ -410,7 +520,11 @@ static int pm8001_task_exec(struct sas_task *task,
 			goto err_out;
 		ccb = &pm8001_ha->ccb_info[tag];
 
+<<<<<<< HEAD
 		if (!sas_protocol_ata(t->task_proto)) {
+=======
+		if (!sas_protocol_ata(task_proto)) {
+>>>>>>> upstream/android-13
 			if (t->num_scatter) {
 				n_elem = dma_map_sg(pm8001_ha->dev,
 					t->scatter,
@@ -430,11 +544,21 @@ static int pm8001_task_exec(struct sas_task *task,
 		ccb->ccb_tag = tag;
 		ccb->task = t;
 		ccb->device = pm8001_dev;
+<<<<<<< HEAD
 		switch (t->task_proto) {
 		case SAS_PROTOCOL_SMP:
 			rc = pm8001_task_prep_smp(pm8001_ha, ccb);
 			break;
 		case SAS_PROTOCOL_SSP:
+=======
+		switch (task_proto) {
+		case SAS_PROTOCOL_SMP:
+			atomic_inc(&pm8001_dev->running_req);
+			rc = pm8001_task_prep_smp(pm8001_ha, ccb);
+			break;
+		case SAS_PROTOCOL_SSP:
+			atomic_inc(&pm8001_dev->running_req);
+>>>>>>> upstream/android-13
 			if (is_tmf)
 				rc = pm8001_task_prep_ssp_tm(pm8001_ha,
 					ccb, tmf);
@@ -443,26 +567,42 @@ static int pm8001_task_exec(struct sas_task *task,
 			break;
 		case SAS_PROTOCOL_SATA:
 		case SAS_PROTOCOL_STP:
+<<<<<<< HEAD
+=======
+			atomic_inc(&pm8001_dev->running_req);
+>>>>>>> upstream/android-13
 			rc = pm8001_task_prep_ata(pm8001_ha, ccb);
 			break;
 		default:
 			dev_printk(KERN_ERR, pm8001_ha->dev,
+<<<<<<< HEAD
 				"unknown sas_task proto: 0x%x\n",
 				t->task_proto);
+=======
+				"unknown sas_task proto: 0x%x\n", task_proto);
+>>>>>>> upstream/android-13
 			rc = -EINVAL;
 			break;
 		}
 
 		if (rc) {
+<<<<<<< HEAD
 			PM8001_IO_DBG(pm8001_ha,
 				pm8001_printk("rc is %x\n", rc));
+=======
+			pm8001_dbg(pm8001_ha, IO, "rc is %x\n", rc);
+			atomic_dec(&pm8001_dev->running_req);
+>>>>>>> upstream/android-13
 			goto err_out_tag;
 		}
 		/* TODO: select normal or high priority */
 		spin_lock(&t->task_state_lock);
 		t->task_state_flags |= SAS_TASK_AT_INITIATOR;
 		spin_unlock(&t->task_state_lock);
+<<<<<<< HEAD
 		pm8001_dev->running_req++;
+=======
+>>>>>>> upstream/android-13
 	} while (0);
 	rc = 0;
 	goto out_done;
@@ -471,7 +611,11 @@ err_out_tag:
 	pm8001_tag_free(pm8001_ha, tag);
 err_out:
 	dev_printk(KERN_ERR, pm8001_ha->dev, "pm8001 exec failed[%d]!\n", rc);
+<<<<<<< HEAD
 	if (!sas_protocol_ata(t->task_proto))
+=======
+	if (!sas_protocol_ata(task_proto))
+>>>>>>> upstream/android-13
 		if (n_elem)
 			dma_unmap_sg(pm8001_ha->dev, t->scatter, t->num_scatter,
 				t->data_dir);
@@ -511,9 +655,15 @@ void pm8001_ccb_task_free(struct pm8001_hba_info *pm8001_ha,
 	switch (task->task_proto) {
 	case SAS_PROTOCOL_SMP:
 		dma_unmap_sg(pm8001_ha->dev, &task->smp_task.smp_resp, 1,
+<<<<<<< HEAD
 			PCI_DMA_FROMDEVICE);
 		dma_unmap_sg(pm8001_ha->dev, &task->smp_task.smp_req, 1,
 			PCI_DMA_TODEVICE);
+=======
+			DMA_FROM_DEVICE);
+		dma_unmap_sg(pm8001_ha->dev, &task->smp_task.smp_req, 1,
+			DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		break;
 
 	case SAS_PROTOCOL_SATA:
@@ -530,10 +680,17 @@ void pm8001_ccb_task_free(struct pm8001_hba_info *pm8001_ha,
 	pm8001_tag_free(pm8001_ha, ccb_idx);
 }
 
+<<<<<<< HEAD
  /**
   * pm8001_alloc_dev - find a empty pm8001_device
   * @pm8001_ha: our hba card information
   */
+=======
+/**
+ * pm8001_alloc_dev - find a empty pm8001_device
+ * @pm8001_ha: our hba card information
+ */
+>>>>>>> upstream/android-13
 static struct pm8001_device *pm8001_alloc_dev(struct pm8001_hba_info *pm8001_ha)
 {
 	u32 dev;
@@ -544,15 +701,25 @@ static struct pm8001_device *pm8001_alloc_dev(struct pm8001_hba_info *pm8001_ha)
 		}
 	}
 	if (dev == PM8001_MAX_DEVICES) {
+<<<<<<< HEAD
 		PM8001_FAIL_DBG(pm8001_ha,
 			pm8001_printk("max support %d devices, ignore ..\n",
 			PM8001_MAX_DEVICES));
+=======
+		pm8001_dbg(pm8001_ha, FAIL,
+			   "max support %d devices, ignore ..\n",
+			   PM8001_MAX_DEVICES);
+>>>>>>> upstream/android-13
 	}
 	return NULL;
 }
 /**
   * pm8001_find_dev - find a matching pm8001_device
   * @pm8001_ha: our hba card information
+<<<<<<< HEAD
+=======
+  * @device_id: device ID to match against
+>>>>>>> upstream/android-13
   */
 struct pm8001_device *pm8001_find_dev(struct pm8001_hba_info *pm8001_ha,
 					u32 device_id)
@@ -563,13 +730,21 @@ struct pm8001_device *pm8001_find_dev(struct pm8001_hba_info *pm8001_ha,
 			return &pm8001_ha->devices[dev];
 	}
 	if (dev == PM8001_MAX_DEVICES) {
+<<<<<<< HEAD
 		PM8001_FAIL_DBG(pm8001_ha, pm8001_printk("NO MATCHING "
 				"DEVICE FOUND !!!\n"));
+=======
+		pm8001_dbg(pm8001_ha, FAIL, "NO MATCHING DEVICE FOUND !!!\n");
+>>>>>>> upstream/android-13
 	}
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void pm8001_free_dev(struct pm8001_device *pm8001_dev)
+=======
+void pm8001_free_dev(struct pm8001_device *pm8001_dev)
+>>>>>>> upstream/android-13
 {
 	u32 id = pm8001_dev->id;
 	memset(pm8001_dev, 0, sizeof(*pm8001_dev));
@@ -612,7 +787,11 @@ static int pm8001_dev_found_notify(struct domain_device *dev)
 	dev->lldd_dev = pm8001_device;
 	pm8001_device->dev_type = dev->dev_type;
 	pm8001_device->dcompletion = &completion;
+<<<<<<< HEAD
 	if (parent_dev && DEV_IS_EXPANDER(parent_dev->dev_type)) {
+=======
+	if (parent_dev && dev_is_expander(parent_dev->dev_type)) {
+>>>>>>> upstream/android-13
 		int phy_id;
 		struct ex_phy *phy;
 		for (phy_id = 0; phy_id < parent_dev->ex_dev.num_phys;
@@ -625,20 +804,34 @@ static int pm8001_dev_found_notify(struct domain_device *dev)
 			}
 		}
 		if (phy_id == parent_dev->ex_dev.num_phys) {
+<<<<<<< HEAD
 			PM8001_FAIL_DBG(pm8001_ha,
 			pm8001_printk("Error: no attached dev:%016llx"
 			" at ex:%016llx.\n", SAS_ADDR(dev->sas_addr),
 				SAS_ADDR(parent_dev->sas_addr)));
+=======
+			pm8001_dbg(pm8001_ha, FAIL,
+				   "Error: no attached dev:%016llx at ex:%016llx.\n",
+				   SAS_ADDR(dev->sas_addr),
+				   SAS_ADDR(parent_dev->sas_addr));
+>>>>>>> upstream/android-13
 			res = -1;
 		}
 	} else {
 		if (dev->dev_type == SAS_SATA_DEV) {
 			pm8001_device->attached_phy =
 				dev->rphy->identify.phy_identifier;
+<<<<<<< HEAD
 				flag = 1; /* directly sata*/
 		}
 	} /*register this device to HBA*/
 	PM8001_DISC_DBG(pm8001_ha, pm8001_printk("Found device\n"));
+=======
+			flag = 1; /* directly sata */
+		}
+	} /*register this device to HBA*/
+	pm8001_dbg(pm8001_ha, DISC, "Found device\n");
+>>>>>>> upstream/android-13
 	PM8001_CHIP_DISP->reg_dev_req(pm8001_ha, pm8001_device, flag);
 	spin_unlock_irqrestore(&pm8001_ha->lock, flags);
 	wait_for_completion(&completion);
@@ -658,8 +851,12 @@ int pm8001_dev_found(struct domain_device *dev)
 
 void pm8001_task_done(struct sas_task *task)
 {
+<<<<<<< HEAD
 	if (!del_timer(&task->slow_task->timer))
 		return;
+=======
+	del_timer(&task->slow_task->timer);
+>>>>>>> upstream/android-13
 	complete(&task->slow_task->completion);
 }
 
@@ -667,9 +864,20 @@ static void pm8001_tmf_timedout(struct timer_list *t)
 {
 	struct sas_task_slow *slow = from_timer(slow, t, timer);
 	struct sas_task *task = slow->task;
+<<<<<<< HEAD
 
 	task->task_state_flags |= SAS_TASK_STATE_ABORTED;
 	complete(&task->slow_task->completion);
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&task->task_state_lock, flags);
+	if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
+		complete(&task->slow_task->completion);
+	}
+	spin_unlock_irqrestore(&task->task_state_lock, flags);
+>>>>>>> upstream/android-13
 }
 
 #define PM8001_TASK_TIMEOUT 20
@@ -681,7 +889,11 @@ static void pm8001_tmf_timedout(struct timer_list *t)
   * @parameter: ssp task parameter.
   *
   * when errors or exception happened, we may want to do something, for example
+<<<<<<< HEAD
   * abort the issued task which result in this execption, it is done by calling
+=======
+  * abort the issued task which result in this exception, it is done by calling
+>>>>>>> upstream/android-13
   * this function, note it is also with the task execute interface.
   */
 static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
@@ -710,20 +922,30 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
 
 		if (res) {
 			del_timer(&task->slow_task->timer);
+<<<<<<< HEAD
 			PM8001_FAIL_DBG(pm8001_ha,
 				pm8001_printk("Executing internal task "
 				"failed\n"));
+=======
+			pm8001_dbg(pm8001_ha, FAIL, "Executing internal task failed\n");
+>>>>>>> upstream/android-13
 			goto ex_err;
 		}
 		wait_for_completion(&task->slow_task->completion);
 		if (pm8001_ha->chip_id != chip_8001) {
 			pm8001_dev->setds_completion = &completion_setstate;
+<<<<<<< HEAD
 				PM8001_CHIP_DISP->set_dev_state_req(pm8001_ha,
 					pm8001_dev, 0x01);
+=======
+			PM8001_CHIP_DISP->set_dev_state_req(pm8001_ha,
+				pm8001_dev, DS_OPERATIONAL);
+>>>>>>> upstream/android-13
 			wait_for_completion(&completion_setstate);
 		}
 		res = -TMF_RESP_FUNC_FAILED;
 		/* Even TMF timed out, return direct. */
+<<<<<<< HEAD
 		if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
 			if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
 				PM8001_FAIL_DBG(pm8001_ha,
@@ -735,6 +957,21 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
 
 		if (task->task_status.resp == SAS_TASK_COMPLETE &&
 			task->task_status.stat == SAM_STAT_GOOD) {
+=======
+		if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
+			struct pm8001_ccb_info *ccb = task->lldd_task;
+
+			pm8001_dbg(pm8001_ha, FAIL, "TMF task[%x]timeout.\n",
+				   tmf->tmf);
+
+			if (ccb)
+				ccb->task = NULL;
+			goto ex_err;
+		}
+
+		if (task->task_status.resp == SAS_TASK_COMPLETE &&
+			task->task_status.stat == SAS_SAM_STAT_GOOD) {
+>>>>>>> upstream/android-13
 			res = TMF_RESP_FUNC_COMPLETE;
 			break;
 		}
@@ -749,6 +986,7 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
 
 		if (task->task_status.resp == SAS_TASK_COMPLETE &&
 			task->task_status.stat == SAS_DATA_OVERRUN) {
+<<<<<<< HEAD
 			PM8001_FAIL_DBG(pm8001_ha,
 				pm8001_printk("Blocked task error.\n"));
 			res = -EMSGSIZE;
@@ -760,6 +998,17 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
 				SAS_ADDR(dev->sas_addr),
 				task->task_status.resp,
 				task->task_status.stat));
+=======
+			pm8001_dbg(pm8001_ha, FAIL, "Blocked task error.\n");
+			res = -EMSGSIZE;
+			break;
+		} else {
+			pm8001_dbg(pm8001_ha, EH,
+				   " Task to dev %016llx response:0x%x status 0x%x\n",
+				   SAS_ADDR(dev->sas_addr),
+				   task->task_status.resp,
+				   task->task_status.stat);
+>>>>>>> upstream/android-13
 			sas_free_task(task);
 			task = NULL;
 		}
@@ -803,17 +1052,25 @@ pm8001_exec_internal_task_abort(struct pm8001_hba_info *pm8001_ha,
 
 		res = PM8001_CHIP_DISP->task_abort(pm8001_ha,
 			pm8001_dev, flag, task_tag, ccb_tag);
+<<<<<<< HEAD
 
 		if (res) {
 			del_timer(&task->slow_task->timer);
 			PM8001_FAIL_DBG(pm8001_ha,
 				pm8001_printk("Executing internal task "
 				"failed\n"));
+=======
+		if (res) {
+			del_timer(&task->slow_task->timer);
+			pm8001_dbg(pm8001_ha, FAIL, "Executing internal task failed\n");
+			pm8001_tag_free(pm8001_ha, ccb_tag);
+>>>>>>> upstream/android-13
 			goto ex_err;
 		}
 		wait_for_completion(&task->slow_task->completion);
 		res = TMF_RESP_FUNC_FAILED;
 		/* Even TMF timed out, return direct. */
+<<<<<<< HEAD
 		if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
 			if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
 				PM8001_FAIL_DBG(pm8001_ha,
@@ -824,16 +1081,33 @@ pm8001_exec_internal_task_abort(struct pm8001_hba_info *pm8001_ha,
 
 		if (task->task_status.resp == SAS_TASK_COMPLETE &&
 			task->task_status.stat == SAM_STAT_GOOD) {
+=======
+		if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
+			pm8001_dbg(pm8001_ha, FAIL, "TMF task timeout.\n");
+			goto ex_err;
+		}
+
+		if (task->task_status.resp == SAS_TASK_COMPLETE &&
+			task->task_status.stat == SAS_SAM_STAT_GOOD) {
+>>>>>>> upstream/android-13
 			res = TMF_RESP_FUNC_COMPLETE;
 			break;
 
 		} else {
+<<<<<<< HEAD
 			PM8001_EH_DBG(pm8001_ha,
 				pm8001_printk(" Task to dev %016llx response: "
 					"0x%x status 0x%x\n",
 				SAS_ADDR(dev->sas_addr),
 				task->task_status.resp,
 				task->task_status.stat));
+=======
+			pm8001_dbg(pm8001_ha, EH,
+				   " Task to dev %016llx response: 0x%x status 0x%x\n",
+				   SAS_ADDR(dev->sas_addr),
+				   task->task_status.resp,
+				   task->task_status.stat);
+>>>>>>> upstream/android-13
 			sas_free_task(task);
 			task = NULL;
 		}
@@ -859,6 +1133,7 @@ static void pm8001_dev_gone_notify(struct domain_device *dev)
 	if (pm8001_dev) {
 		u32 device_id = pm8001_dev->device_id;
 
+<<<<<<< HEAD
 		PM8001_DISC_DBG(pm8001_ha,
 			pm8001_printk("found dev[%d:%x] is gone.\n",
 			pm8001_dev->device_id, pm8001_dev->dev_type));
@@ -867,14 +1142,27 @@ static void pm8001_dev_gone_notify(struct domain_device *dev)
 			pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
 				dev, 1, 0);
 			while (pm8001_dev->running_req)
+=======
+		pm8001_dbg(pm8001_ha, DISC, "found dev[%d:%x] is gone.\n",
+			   pm8001_dev->device_id, pm8001_dev->dev_type);
+		if (atomic_read(&pm8001_dev->running_req)) {
+			spin_unlock_irqrestore(&pm8001_ha->lock, flags);
+			pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev,
+							dev, 1, 0);
+			while (atomic_read(&pm8001_dev->running_req))
+>>>>>>> upstream/android-13
 				msleep(20);
 			spin_lock_irqsave(&pm8001_ha->lock, flags);
 		}
 		PM8001_CHIP_DISP->dereg_dev_req(pm8001_ha, device_id);
 		pm8001_free_dev(pm8001_dev);
 	} else {
+<<<<<<< HEAD
 		PM8001_DISC_DBG(pm8001_ha,
 			pm8001_printk("Found dev has gone.\n"));
+=======
+		pm8001_dbg(pm8001_ha, DISC, "Found dev has gone.\n");
+>>>>>>> upstream/android-13
 	}
 	dev->lldd_dev = NULL;
 	spin_unlock_irqrestore(&pm8001_ha->lock, flags);
@@ -892,7 +1180,11 @@ static int pm8001_issue_ssp_tmf(struct domain_device *dev,
 	if (!(dev->tproto & SAS_PROTOCOL_SSP))
 		return TMF_RESP_FUNC_ESUPP;
 
+<<<<<<< HEAD
 	strncpy((u8 *)&ssp_task.LUN, lun, 8);
+=======
+	memcpy((u8 *)&ssp_task.LUN, lun, 8);
+>>>>>>> upstream/android-13
 	return pm8001_exec_internal_tmf_task(dev, &ssp_task, sizeof(ssp_task),
 		tmf);
 }
@@ -944,7 +1236,11 @@ void pm8001_open_reject_retry(
 		ts->stat = SAS_OPEN_REJECT;
 		ts->open_rej_reason = SAS_OREJ_RSVD_RETRY;
 		if (pm8001_dev)
+<<<<<<< HEAD
 			pm8001_dev->running_req--;
+=======
+			atomic_dec(&pm8001_dev->running_req);
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&task->task_state_lock, flags1);
 		task->task_state_flags &= ~SAS_TASK_STATE_PENDING;
 		task->task_state_flags &= ~SAS_TASK_AT_INITIATOR;
@@ -969,9 +1265,18 @@ void pm8001_open_reject_retry(
 }
 
 /**
+<<<<<<< HEAD
   * Standard mandates link reset for ATA  (type 0) and hard reset for
   * SSP (type 1) , only for RECOVERY
   */
+=======
+ * pm8001_I_T_nexus_reset() - reset the initiator/target connection
+ * @dev: the device structure for the device to reset.
+ *
+ * Standard mandates link reset for ATA (type 0) and hard reset for
+ * SSP (type 1), only for RECOVERY
+ */
+>>>>>>> upstream/android-13
 int pm8001_I_T_nexus_reset(struct domain_device *dev)
 {
 	int rc = TMF_RESP_FUNC_FAILED;
@@ -993,27 +1298,46 @@ int pm8001_I_T_nexus_reset(struct domain_device *dev)
 		}
 		rc = sas_phy_reset(phy, 1);
 		if (rc) {
+<<<<<<< HEAD
 			PM8001_EH_DBG(pm8001_ha,
 			pm8001_printk("phy reset failed for device %x\n"
 			"with rc %d\n", pm8001_dev->device_id, rc));
+=======
+			pm8001_dbg(pm8001_ha, EH,
+				   "phy reset failed for device %x\n"
+				   "with rc %d\n", pm8001_dev->device_id, rc);
+>>>>>>> upstream/android-13
 			rc = TMF_RESP_FUNC_FAILED;
 			goto out;
 		}
 		msleep(2000);
+<<<<<<< HEAD
 		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
 			dev, 1, 0);
 		if (rc) {
 			PM8001_EH_DBG(pm8001_ha,
 			pm8001_printk("task abort failed %x\n"
 			"with rc %d\n", pm8001_dev->device_id, rc));
+=======
+		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev,
+						     dev, 1, 0);
+		if (rc) {
+			pm8001_dbg(pm8001_ha, EH, "task abort failed %x\n"
+				   "with rc %d\n", pm8001_dev->device_id, rc);
+>>>>>>> upstream/android-13
 			rc = TMF_RESP_FUNC_FAILED;
 		}
 	} else {
 		rc = sas_phy_reset(phy, 1);
 		msleep(2000);
 	}
+<<<<<<< HEAD
 	PM8001_EH_DBG(pm8001_ha, pm8001_printk(" for device[%x]:rc=%d\n",
 		pm8001_dev->device_id, rc));
+=======
+	pm8001_dbg(pm8001_ha, EH, " for device[%x]:rc=%d\n",
+		   pm8001_dev->device_id, rc);
+>>>>>>> upstream/android-13
  out:
 	sas_put_local_phy(phy);
 	return rc;
@@ -1029,17 +1353,26 @@ int pm8001_I_T_nexus_event_handler(struct domain_device *dev)
 	struct pm8001_device *pm8001_dev;
 	struct pm8001_hba_info *pm8001_ha;
 	struct sas_phy *phy;
+<<<<<<< HEAD
 	u32 device_id = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (!dev || !dev->lldd_dev)
 		return -1;
 
 	pm8001_dev = dev->lldd_dev;
+<<<<<<< HEAD
 	device_id = pm8001_dev->device_id;
 	pm8001_ha = pm8001_find_ha_by_dev(dev);
 
 	PM8001_EH_DBG(pm8001_ha,
 			pm8001_printk("I_T_Nexus handler invoked !!"));
+=======
+	pm8001_ha = pm8001_find_ha_by_dev(dev);
+
+	pm8001_dbg(pm8001_ha, EH, "I_T_Nexus handler invoked !!\n");
+>>>>>>> upstream/android-13
 
 	phy = sas_get_local_phy(dev);
 
@@ -1050,8 +1383,13 @@ int pm8001_I_T_nexus_event_handler(struct domain_device *dev)
 			goto out;
 		}
 		/* send internal ssp/sata/smp abort command to FW */
+<<<<<<< HEAD
 		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
 							dev, 1, 0);
+=======
+		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev,
+						     dev, 1, 0);
+>>>>>>> upstream/android-13
 		msleep(100);
 
 		/* deregister the target device */
@@ -1066,8 +1404,13 @@ int pm8001_I_T_nexus_event_handler(struct domain_device *dev)
 		wait_for_completion(&completion_setstate);
 	} else {
 		/* send internal ssp/sata/smp abort command to FW */
+<<<<<<< HEAD
 		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
 							dev, 1, 0);
+=======
+		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev,
+						     dev, 1, 0);
+>>>>>>> upstream/android-13
 		msleep(100);
 
 		/* deregister the target device */
@@ -1078,8 +1421,13 @@ int pm8001_I_T_nexus_event_handler(struct domain_device *dev)
 		rc = sas_phy_reset(phy, 1);
 		msleep(2000);
 	}
+<<<<<<< HEAD
 	PM8001_EH_DBG(pm8001_ha, pm8001_printk(" for device[%x]:rc=%d\n",
 		pm8001_dev->device_id, rc));
+=======
+	pm8001_dbg(pm8001_ha, EH, " for device[%x]:rc=%d\n",
+		   pm8001_dev->device_id, rc);
+>>>>>>> upstream/android-13
 out:
 	sas_put_local_phy(phy);
 
@@ -1095,21 +1443,35 @@ int pm8001_lu_reset(struct domain_device *dev, u8 *lun)
 	DECLARE_COMPLETION_ONSTACK(completion_setstate);
 	if (dev_is_sata(dev)) {
 		struct sas_phy *phy = sas_get_local_phy(dev);
+<<<<<<< HEAD
 		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev ,
 			dev, 1, 0);
+=======
+		rc = pm8001_exec_internal_task_abort(pm8001_ha, pm8001_dev,
+						     dev, 1, 0);
+>>>>>>> upstream/android-13
 		rc = sas_phy_reset(phy, 1);
 		sas_put_local_phy(phy);
 		pm8001_dev->setds_completion = &completion_setstate;
 		rc = PM8001_CHIP_DISP->set_dev_state_req(pm8001_ha,
+<<<<<<< HEAD
 			pm8001_dev, 0x01);
+=======
+			pm8001_dev, DS_OPERATIONAL);
+>>>>>>> upstream/android-13
 		wait_for_completion(&completion_setstate);
 	} else {
 		tmf_task.tmf = TMF_LU_RESET;
 		rc = pm8001_issue_ssp_tmf(dev, lun, &tmf_task);
 	}
 	/* If failed, fall-through I_T_Nexus reset */
+<<<<<<< HEAD
 	PM8001_EH_DBG(pm8001_ha, pm8001_printk("for device[%x]:rc=%d\n",
 		pm8001_dev->device_id, rc));
+=======
+	pm8001_dbg(pm8001_ha, EH, "for device[%x]:rc=%d\n",
+		   pm8001_dev->device_id, rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -1117,7 +1479,10 @@ int pm8001_lu_reset(struct domain_device *dev, u8 *lun)
 int pm8001_query_task(struct sas_task *task)
 {
 	u32 tag = 0xdeadbeef;
+<<<<<<< HEAD
 	int i = 0;
+=======
+>>>>>>> upstream/android-13
 	struct scsi_lun lun;
 	struct pm8001_tmf_task tmf_task;
 	int rc = TMF_RESP_FUNC_FAILED;
@@ -1136,10 +1501,14 @@ int pm8001_query_task(struct sas_task *task)
 			rc = TMF_RESP_FUNC_FAILED;
 			return rc;
 		}
+<<<<<<< HEAD
 		PM8001_EH_DBG(pm8001_ha, pm8001_printk("Query:["));
 		for (i = 0; i < 16; i++)
 			printk(KERN_INFO "%02x ", cmnd->cmnd[i]);
 		printk(KERN_INFO "]\n");
+=======
+		pm8001_dbg(pm8001_ha, EH, "Query:[%16ph]\n", cmnd->cmnd);
+>>>>>>> upstream/android-13
 		tmf_task.tmf = 	TMF_QUERY_TASK;
 		tmf_task.tag_of_task_to_be_managed = tag;
 
@@ -1147,12 +1516,18 @@ int pm8001_query_task(struct sas_task *task)
 		switch (rc) {
 		/* The task is still in Lun, release it then */
 		case TMF_RESP_FUNC_SUCC:
+<<<<<<< HEAD
 			PM8001_EH_DBG(pm8001_ha,
 				pm8001_printk("The task is still in Lun\n"));
+=======
+			pm8001_dbg(pm8001_ha, EH,
+				   "The task is still in Lun\n");
+>>>>>>> upstream/android-13
 			break;
 		/* The task is not in Lun or failed, reset the phy */
 		case TMF_RESP_FUNC_FAILED:
 		case TMF_RESP_FUNC_COMPLETE:
+<<<<<<< HEAD
 			PM8001_EH_DBG(pm8001_ha,
 			pm8001_printk("The task is not in Lun or failed,"
 			" reset the phy\n"));
@@ -1164,11 +1539,26 @@ int pm8001_query_task(struct sas_task *task)
 }
 
 /*  mandatory SAM-3, still need free task/ccb info, abord the specified task */
+=======
+			pm8001_dbg(pm8001_ha, EH,
+				   "The task is not in Lun or failed, reset the phy\n");
+			break;
+		}
+	}
+	pr_err("pm80xx: rc= %d\n", rc);
+	return rc;
+}
+
+/*  mandatory SAM-3, still need free task/ccb info, abort the specified task */
+>>>>>>> upstream/android-13
 int pm8001_abort_task(struct sas_task *task)
 {
 	unsigned long flags;
 	u32 tag;
+<<<<<<< HEAD
 	u32 device_id;
+=======
+>>>>>>> upstream/android-13
 	struct domain_device *dev ;
 	struct pm8001_hba_info *pm8001_ha;
 	struct scsi_lun lun;
@@ -1177,6 +1567,7 @@ int pm8001_abort_task(struct sas_task *task)
 	int rc = TMF_RESP_FUNC_FAILED, ret;
 	u32 phy_id;
 	struct sas_task_slow slow_task;
+<<<<<<< HEAD
 	if (unlikely(!task || !task->lldd_task || !task->dev))
 		return TMF_RESP_FUNC_FAILED;
 	dev = task->dev;
@@ -1187,6 +1578,26 @@ int pm8001_abort_task(struct sas_task *task)
 	ret = pm8001_find_tag(task, &tag);
 	if (ret == 0) {
 		pm8001_printk("no tag for task:%p\n", task);
+=======
+
+	if (unlikely(!task || !task->lldd_task || !task->dev))
+		return TMF_RESP_FUNC_FAILED;
+
+	dev = task->dev;
+	pm8001_dev = dev->lldd_dev;
+	pm8001_ha = pm8001_find_ha_by_dev(dev);
+	phy_id = pm8001_dev->attached_phy;
+
+	if (PM8001_CHIP_DISP->fatal_errors(pm8001_ha)) {
+		// If the controller is seeing fatal errors
+		// abort task will not get a response from the controller
+		return TMF_RESP_FUNC_FAILED;
+	}
+
+	ret = pm8001_find_tag(task, &tag);
+	if (ret == 0) {
+		pm8001_info(pm8001_ha, "no tag for task:%p\n", task);
+>>>>>>> upstream/android-13
 		return TMF_RESP_FUNC_FAILED;
 	}
 	spin_lock_irqsave(&task->task_state_lock, flags);
@@ -1218,7 +1629,11 @@ int pm8001_abort_task(struct sas_task *task)
 			/* 1. Set Device state as Recovery */
 			pm8001_dev->setds_completion = &completion;
 			PM8001_CHIP_DISP->set_dev_state_req(pm8001_ha,
+<<<<<<< HEAD
 				pm8001_dev, 0x03);
+=======
+				pm8001_dev, DS_IN_RECOVERY);
+>>>>>>> upstream/android-13
 			wait_for_completion(&completion);
 
 			/* 2. Send Phy Control Hard Reset */
@@ -1243,8 +1658,13 @@ int pm8001_abort_task(struct sas_task *task)
 			 * leaking the task in libsas or losing the race and
 			 * getting a double free.
 			 */
+<<<<<<< HEAD
 			PM8001_MSG_DBG(pm8001_ha,
 				pm8001_printk("Waiting for local phy ctl\n"));
+=======
+			pm8001_dbg(pm8001_ha, MSG,
+				   "Waiting for local phy ctl\n");
+>>>>>>> upstream/android-13
 			ret = wait_for_completion_timeout(&completion,
 					PM8001_TASK_TIMEOUT * HZ);
 			if (!ret || !phy->reset_success) {
@@ -1254,8 +1674,13 @@ int pm8001_abort_task(struct sas_task *task)
 				/* 3. Wait for Port Reset complete or
 				 * Port reset TMO
 				 */
+<<<<<<< HEAD
 				PM8001_MSG_DBG(pm8001_ha,
 				pm8001_printk("Waiting for Port reset\n"));
+=======
+				pm8001_dbg(pm8001_ha, MSG,
+					   "Waiting for Port reset\n");
+>>>>>>> upstream/android-13
 				ret = wait_for_completion_timeout(
 					&completion_reset,
 					PM8001_TASK_TIMEOUT * HZ);
@@ -1289,7 +1714,11 @@ int pm8001_abort_task(struct sas_task *task)
 			reinit_completion(&completion);
 			pm8001_dev->setds_completion = &completion;
 			PM8001_CHIP_DISP->set_dev_state_req(pm8001_ha,
+<<<<<<< HEAD
 				pm8001_dev, 0x01);
+=======
+				pm8001_dev, DS_OPERATIONAL);
+>>>>>>> upstream/android-13
 			wait_for_completion(&completion);
 		} else {
 			rc = pm8001_exec_internal_task_abort(pm8001_ha,
@@ -1308,22 +1737,34 @@ out:
 		task->slow_task = NULL;
 	spin_unlock_irqrestore(&task->task_state_lock, flags);
 	if (rc != TMF_RESP_FUNC_COMPLETE)
+<<<<<<< HEAD
 		pm8001_printk("rc= %d\n", rc);
+=======
+		pm8001_info(pm8001_ha, "rc= %d\n", rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 int pm8001_abort_task_set(struct domain_device *dev, u8 *lun)
 {
+<<<<<<< HEAD
 	int rc = TMF_RESP_FUNC_FAILED;
 	struct pm8001_tmf_task tmf_task;
 
 	tmf_task.tmf = TMF_ABORT_TASK_SET;
 	rc = pm8001_issue_ssp_tmf(dev, lun, &tmf_task);
 	return rc;
+=======
+	struct pm8001_tmf_task tmf_task;
+
+	tmf_task.tmf = TMF_ABORT_TASK_SET;
+	return pm8001_issue_ssp_tmf(dev, lun, &tmf_task);
+>>>>>>> upstream/android-13
 }
 
 int pm8001_clear_aca(struct domain_device *dev, u8 *lun)
 {
+<<<<<<< HEAD
 	int rc = TMF_RESP_FUNC_FAILED;
 	struct pm8001_tmf_task tmf_task;
 
@@ -1331,15 +1772,25 @@ int pm8001_clear_aca(struct domain_device *dev, u8 *lun)
 	rc = pm8001_issue_ssp_tmf(dev, lun, &tmf_task);
 
 	return rc;
+=======
+	struct pm8001_tmf_task tmf_task;
+
+	tmf_task.tmf = TMF_CLEAR_ACA;
+	return pm8001_issue_ssp_tmf(dev, lun, &tmf_task);
+>>>>>>> upstream/android-13
 }
 
 int pm8001_clear_task_set(struct domain_device *dev, u8 *lun)
 {
+<<<<<<< HEAD
 	int rc = TMF_RESP_FUNC_FAILED;
+=======
+>>>>>>> upstream/android-13
 	struct pm8001_tmf_task tmf_task;
 	struct pm8001_device *pm8001_dev = dev->lldd_dev;
 	struct pm8001_hba_info *pm8001_ha = pm8001_find_ha_by_dev(dev);
 
+<<<<<<< HEAD
 	PM8001_EH_DBG(pm8001_ha,
 		pm8001_printk("I_T_L_Q clear task set[%x]\n",
 		pm8001_dev->device_id));
@@ -1348,3 +1799,10 @@ int pm8001_clear_task_set(struct domain_device *dev, u8 *lun)
 	return rc;
 }
 
+=======
+	pm8001_dbg(pm8001_ha, EH, "I_T_L_Q clear task set[%x]\n",
+		   pm8001_dev->device_id);
+	tmf_task.tmf = TMF_CLEAR_TASK_SET;
+	return pm8001_issue_ssp_tmf(dev, lun, &tmf_task);
+}
+>>>>>>> upstream/android-13

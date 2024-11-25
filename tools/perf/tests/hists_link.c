@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include "perf.h"
+=======
+>>>>>>> upstream/android-13
 #include "tests.h"
 #include "debug.h"
 #include "symbol.h"
@@ -7,9 +10,15 @@
 #include "evsel.h"
 #include "evlist.h"
 #include "machine.h"
+<<<<<<< HEAD
 #include "thread.h"
 #include "parse-events.h"
 #include "hists_common.h"
+=======
+#include "parse-events.h"
+#include "hists_common.h"
+#include "util/mmap.h"
+>>>>>>> upstream/android-13
 #include <errno.h>
 #include <linux/kernel.h>
 
@@ -62,9 +71,15 @@ static struct sample fake_samples[][5] = {
 	},
 };
 
+<<<<<<< HEAD
 static int add_hist_entries(struct perf_evlist *evlist, struct machine *machine)
 {
 	struct perf_evsel *evsel;
+=======
+static int add_hist_entries(struct evlist *evlist, struct machine *machine)
+{
+	struct evsel *evsel;
+>>>>>>> upstream/android-13
 	struct addr_location al;
 	struct hist_entry *he;
 	struct perf_sample sample = { .period = 1, .weight = 1, };
@@ -142,7 +157,11 @@ static int find_sample(struct sample *samples, size_t nr_samples,
 static int __validate_match(struct hists *hists)
 {
 	size_t count = 0;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	/*
@@ -153,7 +172,11 @@ static int __validate_match(struct hists *hists)
 	else
 		root = hists->entries_in;
 
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	while (node) {
 		struct hist_entry *he;
 
@@ -192,7 +215,11 @@ static int __validate_link(struct hists *hists, int idx)
 	size_t count = 0;
 	size_t count_pair = 0;
 	size_t count_dummy = 0;
+<<<<<<< HEAD
 	struct rb_root *root;
+=======
+	struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 	struct rb_node *node;
 
 	/*
@@ -205,7 +232,11 @@ static int __validate_link(struct hists *hists, int idx)
 	else
 		root = hists->entries_in;
 
+<<<<<<< HEAD
 	node = rb_first(root);
+=======
+	node = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	while (node) {
 		struct hist_entry *he;
 
@@ -271,8 +302,13 @@ int test__hists_link(struct test *test __maybe_unused, int subtest __maybe_unuse
 	struct hists *hists, *first_hists;
 	struct machines machines;
 	struct machine *machine = NULL;
+<<<<<<< HEAD
 	struct perf_evsel *evsel, *first;
 	struct perf_evlist *evlist = perf_evlist__new();
+=======
+	struct evsel *evsel, *first;
+	struct evlist *evlist = evlist__new();
+>>>>>>> upstream/android-13
 
 	if (evlist == NULL)
                 return -ENOMEM;
@@ -312,8 +348,13 @@ int test__hists_link(struct test *test __maybe_unused, int subtest __maybe_unuse
 			print_hists_in(hists);
 	}
 
+<<<<<<< HEAD
 	first = perf_evlist__first(evlist);
 	evsel = perf_evlist__last(evlist);
+=======
+	first = evlist__first(evlist);
+	evsel = evlist__last(evlist);
+>>>>>>> upstream/android-13
 
 	first_hists = evsel__hists(first);
 	hists = evsel__hists(evsel);
@@ -334,7 +375,11 @@ int test__hists_link(struct test *test __maybe_unused, int subtest __maybe_unuse
 
 out:
 	/* tear down everything */
+<<<<<<< HEAD
 	perf_evlist__delete(evlist);
+=======
+	evlist__delete(evlist);
+>>>>>>> upstream/android-13
 	reset_output_field();
 	machines__exit(&machines);
 

@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic Fibre Channel HBA Driver
  * Copyright (c)  2003-2014 QLogic Corporation
  *
  * See LICENSE.qla2xxx for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic Fibre Channel HBA Driver
+ * Copyright (c)  2003-2014 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 #include "qla_def.h"
 #include "qla_target.h"
@@ -19,6 +26,11 @@ static int qla_async_rffid(scsi_qla_host_t *, port_id_t *, u8, u8);
 static int qla_async_rnnid(scsi_qla_host_t *, port_id_t *, u8*);
 static int qla_async_rsnn_nn(scsi_qla_host_t *);
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> upstream/android-13
 /**
  * qla2x00_prep_ms_iocb() - Prepare common MS/CT IOCB fields for SNS CT query.
  * @vha: HA context
@@ -45,6 +57,7 @@ qla2x00_prep_ms_iocb(scsi_qla_host_t *vha, struct ct_arg *arg)
 	ms_pkt->rsp_bytecount = cpu_to_le32(arg->rsp_size);
 	ms_pkt->req_bytecount = cpu_to_le32(arg->req_size);
 
+<<<<<<< HEAD
 	ms_pkt->dseg_req_address[0] = cpu_to_le32(LSD(arg->req_dma));
 	ms_pkt->dseg_req_address[1] = cpu_to_le32(MSD(arg->req_dma));
 	ms_pkt->dseg_req_length = ms_pkt->req_bytecount;
@@ -52,6 +65,13 @@ qla2x00_prep_ms_iocb(scsi_qla_host_t *vha, struct ct_arg *arg)
 	ms_pkt->dseg_rsp_address[0] = cpu_to_le32(LSD(arg->rsp_dma));
 	ms_pkt->dseg_rsp_address[1] = cpu_to_le32(MSD(arg->rsp_dma));
 	ms_pkt->dseg_rsp_length = ms_pkt->rsp_bytecount;
+=======
+	put_unaligned_le64(arg->req_dma, &ms_pkt->req_dsd.address);
+	ms_pkt->req_dsd.length = ms_pkt->req_bytecount;
+
+	put_unaligned_le64(arg->rsp_dma, &ms_pkt->rsp_dsd.address);
+	ms_pkt->rsp_dsd.length = ms_pkt->rsp_bytecount;
+>>>>>>> upstream/android-13
 
 	vha->qla_stats.control_requests++;
 
@@ -83,6 +103,7 @@ qla24xx_prep_ms_iocb(scsi_qla_host_t *vha, struct ct_arg *arg)
 	ct_pkt->rsp_byte_count = cpu_to_le32(arg->rsp_size);
 	ct_pkt->cmd_byte_count = cpu_to_le32(arg->req_size);
 
+<<<<<<< HEAD
 	ct_pkt->dseg_0_address[0] = cpu_to_le32(LSD(arg->req_dma));
 	ct_pkt->dseg_0_address[1] = cpu_to_le32(MSD(arg->req_dma));
 	ct_pkt->dseg_0_len = ct_pkt->cmd_byte_count;
@@ -90,6 +111,13 @@ qla24xx_prep_ms_iocb(scsi_qla_host_t *vha, struct ct_arg *arg)
 	ct_pkt->dseg_1_address[0] = cpu_to_le32(LSD(arg->rsp_dma));
 	ct_pkt->dseg_1_address[1] = cpu_to_le32(MSD(arg->rsp_dma));
 	ct_pkt->dseg_1_len = ct_pkt->rsp_byte_count;
+=======
+	put_unaligned_le64(arg->req_dma, &ct_pkt->dsd[0].address);
+	ct_pkt->dsd[0].length = ct_pkt->cmd_byte_count;
+
+	put_unaligned_le64(arg->rsp_dma, &ct_pkt->dsd[1].address);
+	ct_pkt->dsd[1].length = ct_pkt->rsp_byte_count;
+>>>>>>> upstream/android-13
 	ct_pkt->vp_index = vha->vp_idx;
 
 	vha->qla_stats.control_requests++;
@@ -152,8 +180,13 @@ qla2x00_chk_ms_status(scsi_qla_host_t *vha, ms_iocb_entry_t *ms_pkt,
 				    vha->d_id.b.area, vha->d_id.b.al_pa,
 				    comp_status, ct_rsp->header.response);
 				ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha,
+<<<<<<< HEAD
 				    0x2078, (uint8_t *)&ct_rsp->header,
 				    sizeof(struct ct_rsp_hdr));
+=======
+				    0x2078, ct_rsp,
+				    offsetof(typeof(*ct_rsp), rsp));
+>>>>>>> upstream/android-13
 				rval = QLA_INVALID_COMMAND;
 			} else
 				rval = QLA_SUCCESS;
@@ -179,7 +212,11 @@ qla2x00_chk_ms_status(scsi_qla_host_t *vha, ms_iocb_entry_t *ms_pkt,
 			break;
 		case CS_TIMEOUT:
 			rval = QLA_FUNCTION_TIMEOUT;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			ql_dbg(ql_dbg_disc, vha, 0x2033,
 			    "%s failed, completion status (%x) on port_id: "
@@ -230,9 +267,13 @@ qla2x00_ga_nxt(scsi_qla_host_t *vha, fc_port_t *fcport)
 	ct_rsp = &ha->ct_sns->p.rsp;
 
 	/* Prepare CT arguments -- port_id */
+<<<<<<< HEAD
 	ct_req->req.port_id.port_id[0] = fcport->d_id.b.domain;
 	ct_req->req.port_id.port_id[1] = fcport->d_id.b.area;
 	ct_req->req.port_id.port_id[2] = fcport->d_id.b.al_pa;
+=======
+	ct_req->req.port_id.port_id = port_id_to_be_id(fcport->d_id);
+>>>>>>> upstream/android-13
 
 	/* Execute MS IOCB */
 	rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
@@ -246,9 +287,13 @@ qla2x00_ga_nxt(scsi_qla_host_t *vha, fc_port_t *fcport)
 		rval = QLA_FUNCTION_FAILED;
 	} else {
 		/* Populate fc_port_t entry. */
+<<<<<<< HEAD
 		fcport->d_id.b.domain = ct_rsp->rsp.ga_nxt.port_id[0];
 		fcport->d_id.b.area = ct_rsp->rsp.ga_nxt.port_id[1];
 		fcport->d_id.b.al_pa = ct_rsp->rsp.ga_nxt.port_id[2];
+=======
+		fcport->d_id = be_to_port_id(ct_rsp->rsp.ga_nxt.port_id);
+>>>>>>> upstream/android-13
 
 		memcpy(fcport->node_name, ct_rsp->rsp.ga_nxt.node_name,
 		    WWN_SIZE);
@@ -256,7 +301,11 @@ qla2x00_ga_nxt(scsi_qla_host_t *vha, fc_port_t *fcport)
 		    WWN_SIZE);
 
 		fcport->fc4_type = (ct_rsp->rsp.ga_nxt.fc4_types[2] & BIT_0) ?
+<<<<<<< HEAD
 		    FC4_TYPE_FCP_SCSI : FC4_TYPE_OTHER;
+=======
+		    FS_FC4TYPE_FCP : FC4_TYPE_OTHER;
+>>>>>>> upstream/android-13
 
 		if (ct_rsp->rsp.ga_nxt.port_type != NS_N_PORT_TYPE &&
 		    ct_rsp->rsp.ga_nxt.port_type != NS_NL_PORT_TYPE)
@@ -341,9 +390,13 @@ qla2x00_gid_pt(scsi_qla_host_t *vha, sw_info_t *list)
 		/* Set port IDs in switch info list. */
 		for (i = 0; i < ha->max_fibre_devices; i++) {
 			gid_data = &ct_rsp->rsp.gid_pt.entries[i];
+<<<<<<< HEAD
 			list[i].d_id.b.domain = gid_data->port_id[0];
 			list[i].d_id.b.area = gid_data->port_id[1];
 			list[i].d_id.b.al_pa = gid_data->port_id[2];
+=======
+			list[i].d_id = be_to_port_id(gid_data->port_id);
+>>>>>>> upstream/android-13
 			memset(list[i].fabric_port_name, 0, WWN_SIZE);
 			list[i].fp_speed = PORT_SPEED_UNKNOWN;
 
@@ -407,9 +460,13 @@ qla2x00_gpn_id(scsi_qla_host_t *vha, sw_info_t *list)
 		ct_rsp = &ha->ct_sns->p.rsp;
 
 		/* Prepare CT arguments -- port_id */
+<<<<<<< HEAD
 		ct_req->req.port_id.port_id[0] = list[i].d_id.b.domain;
 		ct_req->req.port_id.port_id[1] = list[i].d_id.b.area;
 		ct_req->req.port_id.port_id[2] = list[i].d_id.b.al_pa;
+=======
+		ct_req->req.port_id.port_id = port_id_to_be_id(list[i].d_id);
+>>>>>>> upstream/android-13
 
 		/* Execute MS IOCB */
 		rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
@@ -476,9 +533,13 @@ qla2x00_gnn_id(scsi_qla_host_t *vha, sw_info_t *list)
 		ct_rsp = &ha->ct_sns->p.rsp;
 
 		/* Prepare CT arguments -- port_id */
+<<<<<<< HEAD
 		ct_req->req.port_id.port_id[0] = list[i].d_id.b.domain;
 		ct_req->req.port_id.port_id[1] = list[i].d_id.b.area;
 		ct_req->req.port_id.port_id[2] = list[i].d_id.b.al_pa;
+=======
+		ct_req->req.port_id.port_id = port_id_to_be_id(list[i].d_id);
+>>>>>>> upstream/android-13
 
 		/* Execute MS IOCB */
 		rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
@@ -513,9 +574,14 @@ qla2x00_gnn_id(scsi_qla_host_t *vha, sw_info_t *list)
 	return (rval);
 }
 
+<<<<<<< HEAD
 static void qla2x00_async_sns_sp_done(void *s, int rc)
 {
 	struct srb *sp = s;
+=======
+static void qla2x00_async_sns_sp_done(srb_t *sp, int rc)
+{
+>>>>>>> upstream/android-13
 	struct scsi_qla_host *vha = sp->vha;
 	struct ct_sns_pkt *ct_sns;
 	struct qla_work_evt *e;
@@ -543,7 +609,10 @@ static void qla2x00_async_sns_sp_done(void *s, int rc)
 		if (!e)
 			goto err2;
 
+<<<<<<< HEAD
 		del_timer(&sp->u.iocb_cmd.timer);
+=======
+>>>>>>> upstream/android-13
 		e->u.iosb.sp = sp;
 		qla2x00_post_work(vha, e);
 		return;
@@ -570,8 +639,13 @@ err2:
 			sp->u.iocb_cmd.u.ctarg.rsp = NULL;
 		}
 
+<<<<<<< HEAD
 		sp->free(sp);
 
+=======
+		/* ref: INIT */
+		kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -606,13 +680,22 @@ static int qla_async_rftid(scsi_qla_host_t *vha, port_id_t *d_id)
 	if (!vha->flags.online)
 		goto done;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, NULL, GFP_KERNEL);
 	if (!sp)
 		goto done;
 
 	sp->type = SRB_CT_PTHRU_CMD;
 	sp->name = "rft_id";
+<<<<<<< HEAD
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_sns_sp_done);
+>>>>>>> upstream/android-13
 
 	sp->u.iocb_cmd.u.ctarg.req = dma_alloc_coherent(&vha->hw->pdev->dev,
 	    sizeof(struct ct_sns_pkt), &sp->u.iocb_cmd.u.ctarg.req_dma,
@@ -643,19 +726,33 @@ static int qla_async_rftid(scsi_qla_host_t *vha, port_id_t *d_id)
 	ct_req = qla2x00_prep_ct_req(ct_sns, RFT_ID_CMD, RFT_ID_RSP_SIZE);
 
 	/* Prepare CT arguments -- port_id, FC-4 types */
+<<<<<<< HEAD
 	ct_req->req.rft_id.port_id[0] = vha->d_id.b.domain;
 	ct_req->req.rft_id.port_id[1] = vha->d_id.b.area;
 	ct_req->req.rft_id.port_id[2] = vha->d_id.b.al_pa;
 	ct_req->req.rft_id.fc4_types[2] = 0x01;		/* FCP-3 */
 
 	if (vha->flags.nvme_enabled)
+=======
+	ct_req->req.rft_id.port_id = port_id_to_be_id(vha->d_id);
+	ct_req->req.rft_id.fc4_types[2] = 0x01;		/* FCP-3 */
+
+	if (vha->flags.nvme_enabled && qla_ini_mode_enabled(vha))
+>>>>>>> upstream/android-13
 		ct_req->req.rft_id.fc4_types[6] = 1;    /* NVMe type 28h */
 
 	sp->u.iocb_cmd.u.ctarg.req_size = RFT_ID_REQ_SIZE;
 	sp->u.iocb_cmd.u.ctarg.rsp_size = RFT_ID_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
+<<<<<<< HEAD
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	sp->done = qla2x00_async_sns_sp_done;
+=======
+
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "Async-%s - hdl=%x portid %06x.\n",
+	    sp->name, sp->handle, d_id->b24);
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS) {
@@ -663,12 +760,19 @@ static int qla_async_rftid(scsi_qla_host_t *vha, port_id_t *d_id)
 		    "RFT_ID issue IOCB failed (%d).\n", rval);
 		goto done_free_sp;
 	}
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s - hdl=%x portid %06x.\n",
 	    sp->name, sp->handle, d_id->b24);
 	return rval;
 done_free_sp:
 	sp->free(sp);
+=======
+	return rval;
+done_free_sp:
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 done:
 	return rval;
 }
@@ -691,8 +795,12 @@ qla2x00_rff_id(scsi_qla_host_t *vha, u8 type)
 		return (QLA_SUCCESS);
 	}
 
+<<<<<<< HEAD
 	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha),
 	    FC4_TYPE_FCP_SCSI);
+=======
+	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha), type);
+>>>>>>> upstream/android-13
 }
 
 static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
@@ -703,13 +811,22 @@ static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
 	srb_t *sp;
 	struct ct_sns_pkt *ct_sns;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, NULL, GFP_KERNEL);
 	if (!sp)
 		goto done;
 
 	sp->type = SRB_CT_PTHRU_CMD;
 	sp->name = "rff_id";
+<<<<<<< HEAD
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_sns_sp_done);
+>>>>>>> upstream/android-13
 
 	sp->u.iocb_cmd.u.ctarg.req = dma_alloc_coherent(&vha->hw->pdev->dev,
 	    sizeof(struct ct_sns_pkt), &sp->u.iocb_cmd.u.ctarg.req_dma,
@@ -740,17 +857,30 @@ static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
 	ct_req = qla2x00_prep_ct_req(ct_sns, RFF_ID_CMD, RFF_ID_RSP_SIZE);
 
 	/* Prepare CT arguments -- port_id, FC-4 feature, FC-4 type */
+<<<<<<< HEAD
 	ct_req->req.rff_id.port_id[0] = d_id->b.domain;
 	ct_req->req.rff_id.port_id[1] = d_id->b.area;
 	ct_req->req.rff_id.port_id[2] = d_id->b.al_pa;
 	ct_req->req.rff_id.fc4_feature = fc4feature;
 	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI - FCP */
+=======
+	ct_req->req.rff_id.port_id = port_id_to_be_id(*d_id);
+	ct_req->req.rff_id.fc4_feature = fc4feature;
+	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI-FCP or FC-NVMe */
+>>>>>>> upstream/android-13
 
 	sp->u.iocb_cmd.u.ctarg.req_size = RFF_ID_REQ_SIZE;
 	sp->u.iocb_cmd.u.ctarg.rsp_size = RFF_ID_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
+<<<<<<< HEAD
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	sp->done = qla2x00_async_sns_sp_done;
+=======
+
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "Async-%s - hdl=%x portid %06x feature %x type %x.\n",
+	    sp->name, sp->handle, d_id->b24, fc4feature, fc4type);
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS) {
@@ -759,6 +889,7 @@ static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
 		goto done_free_sp;
 	}
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s - hdl=%x portid %06x feature %x type %x.\n",
 	    sp->name, sp->handle, d_id->b24, fc4feature, fc4type);
@@ -766,6 +897,13 @@ static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
 
 done_free_sp:
 	sp->free(sp);
+=======
+	return rval;
+
+done_free_sp:
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 done:
 	return rval;
 }
@@ -795,13 +933,22 @@ static int qla_async_rnnid(scsi_qla_host_t *vha, port_id_t *d_id,
 	srb_t *sp;
 	struct ct_sns_pkt *ct_sns;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, NULL, GFP_KERNEL);
 	if (!sp)
 		goto done;
 
 	sp->type = SRB_CT_PTHRU_CMD;
 	sp->name = "rnid";
+<<<<<<< HEAD
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_sns_sp_done);
+>>>>>>> upstream/android-13
 
 	sp->u.iocb_cmd.u.ctarg.req = dma_alloc_coherent(&vha->hw->pdev->dev,
 	    sizeof(struct ct_sns_pkt), &sp->u.iocb_cmd.u.ctarg.req_dma,
@@ -832,17 +979,27 @@ static int qla_async_rnnid(scsi_qla_host_t *vha, port_id_t *d_id,
 	ct_req = qla2x00_prep_ct_req(ct_sns, RNN_ID_CMD, RNN_ID_RSP_SIZE);
 
 	/* Prepare CT arguments -- port_id, node_name */
+<<<<<<< HEAD
 	ct_req->req.rnn_id.port_id[0] = vha->d_id.b.domain;
 	ct_req->req.rnn_id.port_id[1] = vha->d_id.b.area;
 	ct_req->req.rnn_id.port_id[2] = vha->d_id.b.al_pa;
+=======
+	ct_req->req.rnn_id.port_id = port_id_to_be_id(vha->d_id);
+>>>>>>> upstream/android-13
 	memcpy(ct_req->req.rnn_id.node_name, vha->node_name, WWN_SIZE);
 
 	sp->u.iocb_cmd.u.ctarg.req_size = RNN_ID_REQ_SIZE;
 	sp->u.iocb_cmd.u.ctarg.rsp_size = RNN_ID_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	sp->done = qla2x00_async_sns_sp_done;
+=======
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "Async-%s - hdl=%x portid %06x\n",
+	    sp->name, sp->handle, d_id->b24);
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS) {
@@ -850,24 +1007,37 @@ static int qla_async_rnnid(scsi_qla_host_t *vha, port_id_t *d_id,
 		    "RNN_ID issue IOCB failed (%d).\n", rval);
 		goto done_free_sp;
 	}
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s - hdl=%x portid %06x\n",
 	    sp->name, sp->handle, d_id->b24);
+=======
+>>>>>>> upstream/android-13
 
 	return rval;
 
 done_free_sp:
+<<<<<<< HEAD
 	sp->free(sp);
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 done:
 	return rval;
 }
 
+<<<<<<< HEAD
 void
+=======
+size_t
+>>>>>>> upstream/android-13
 qla2x00_get_sym_node_name(scsi_qla_host_t *vha, uint8_t *snn, size_t size)
 {
 	struct qla_hw_data *ha = vha->hw;
 
 	if (IS_QLAFX00(ha))
+<<<<<<< HEAD
 		snprintf(snn, size, "%s FW:v%s DVR:v%s", ha->model_number,
 		    ha->mr.fw_version, qla2x00_version_str);
 	else
@@ -875,6 +1045,14 @@ qla2x00_get_sym_node_name(scsi_qla_host_t *vha, uint8_t *snn, size_t size)
 		    "%s FW:v%d.%02d.%02d DVR:v%s", ha->model_number,
 		    ha->fw_major_version, ha->fw_minor_version,
 		    ha->fw_subminor_version, qla2x00_version_str);
+=======
+		return scnprintf(snn, size, "%s FW:v%s DVR:v%s",
+		    ha->model_number, ha->mr.fw_version, qla2x00_version_str);
+
+	return scnprintf(snn, size, "%s FW:v%d.%02d.%02d DVR:v%s",
+	    ha->model_number, ha->fw_major_version, ha->fw_minor_version,
+	    ha->fw_subminor_version, qla2x00_version_str);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -904,13 +1082,22 @@ static int qla_async_rsnn_nn(scsi_qla_host_t *vha)
 	srb_t *sp;
 	struct ct_sns_pkt *ct_sns;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, NULL, GFP_KERNEL);
 	if (!sp)
 		goto done;
 
 	sp->type = SRB_CT_PTHRU_CMD;
 	sp->name = "rsnn_nn";
+<<<<<<< HEAD
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_sns_sp_done);
+>>>>>>> upstream/android-13
 
 	sp->u.iocb_cmd.u.ctarg.req = dma_alloc_coherent(&vha->hw->pdev->dev,
 	    sizeof(struct ct_sns_pkt), &sp->u.iocb_cmd.u.ctarg.req_dma,
@@ -954,8 +1141,14 @@ static int qla_async_rsnn_nn(scsi_qla_host_t *vha)
 	sp->u.iocb_cmd.u.ctarg.rsp_size = RSNN_NN_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	sp->done = qla2x00_async_sns_sp_done;
+=======
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "Async-%s - hdl=%x.\n",
+	    sp->name, sp->handle);
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS) {
@@ -963,14 +1156,22 @@ static int qla_async_rsnn_nn(scsi_qla_host_t *vha)
 		    "RFT_ID issue IOCB failed (%d).\n", rval);
 		goto done_free_sp;
 	}
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s - hdl=%x.\n",
 	    sp->name, sp->handle);
+=======
+>>>>>>> upstream/android-13
 
 	return rval;
 
 done_free_sp:
+<<<<<<< HEAD
 	sp->free(sp);
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 done:
 	return rval;
 }
@@ -996,8 +1197,12 @@ qla2x00_prep_sns_cmd(scsi_qla_host_t *vha, uint16_t cmd, uint16_t scmd_len,
 	memset(sns_cmd, 0, sizeof(struct sns_cmd_pkt));
 	wc = data_size / 2;			/* Size in 16bit words. */
 	sns_cmd->p.cmd.buffer_length = cpu_to_le16(wc);
+<<<<<<< HEAD
 	sns_cmd->p.cmd.buffer_address[0] = cpu_to_le32(LSD(ha->sns_cmd_dma));
 	sns_cmd->p.cmd.buffer_address[1] = cpu_to_le32(MSD(ha->sns_cmd_dma));
+=======
+	put_unaligned_le64(ha->sns_cmd_dma, &sns_cmd->p.cmd.buffer_address);
+>>>>>>> upstream/android-13
 	sns_cmd->p.cmd.subcommand_length = cpu_to_le16(scmd_len);
 	sns_cmd->p.cmd.subcommand = cpu_to_le16(cmd);
 	wc = (data_size - 16) / 4;		/* Size in 32bit words. */
@@ -1265,7 +1470,11 @@ qla2x00_sns_gnn_id(scsi_qla_host_t *vha, sw_info_t *list)
 }
 
 /**
+<<<<<<< HEAD
  * qla2x00_snd_rft_id() - SNS Register FC-4 TYPEs (RFT_ID) supported by the HBA.
+=======
+ * qla2x00_sns_rft_id() - SNS Register FC-4 TYPEs (RFT_ID) supported by the HBA.
+>>>>>>> upstream/android-13
  * @vha: HA context
  *
  * This command uses the old Exectute SNS Command mailbox routine.
@@ -1381,6 +1590,10 @@ qla2x00_mgmt_svr_login(scsi_qla_host_t *vha)
 	int ret, rval;
 	uint16_t mb[MAILBOX_REGISTER_COUNT];
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	ret = QLA_SUCCESS;
 	if (vha->flags.management_server_logged_in)
 		return ret;
@@ -1419,6 +1632,10 @@ qla2x00_prep_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size,
 {
 	ms_iocb_entry_t *ms_pkt;
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	ms_pkt = ha->ms_iocb;
 	memset(ms_pkt, 0, sizeof(ms_iocb_entry_t));
 
@@ -1432,6 +1649,7 @@ qla2x00_prep_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size,
 	ms_pkt->rsp_bytecount = cpu_to_le32(rsp_size);
 	ms_pkt->req_bytecount = cpu_to_le32(req_size);
 
+<<<<<<< HEAD
 	ms_pkt->dseg_req_address[0] = cpu_to_le32(LSD(ha->ct_sns_dma));
 	ms_pkt->dseg_req_address[1] = cpu_to_le32(MSD(ha->ct_sns_dma));
 	ms_pkt->dseg_req_length = ms_pkt->req_bytecount;
@@ -1439,6 +1657,13 @@ qla2x00_prep_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size,
 	ms_pkt->dseg_rsp_address[0] = cpu_to_le32(LSD(ha->ct_sns_dma));
 	ms_pkt->dseg_rsp_address[1] = cpu_to_le32(MSD(ha->ct_sns_dma));
 	ms_pkt->dseg_rsp_length = ms_pkt->rsp_bytecount;
+=======
+	put_unaligned_le64(ha->ct_sns_dma, &ms_pkt->req_dsd.address);
+	ms_pkt->req_dsd.length = ms_pkt->req_bytecount;
+
+	put_unaligned_le64(ha->ct_sns_dma, &ms_pkt->rsp_dsd.address);
+	ms_pkt->rsp_dsd.length = ms_pkt->rsp_bytecount;
+>>>>>>> upstream/android-13
 
 	return ms_pkt;
 }
@@ -1470,6 +1695,7 @@ qla24xx_prep_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size,
 	ct_pkt->rsp_byte_count = cpu_to_le32(rsp_size);
 	ct_pkt->cmd_byte_count = cpu_to_le32(req_size);
 
+<<<<<<< HEAD
 	ct_pkt->dseg_0_address[0] = cpu_to_le32(LSD(ha->ct_sns_dma));
 	ct_pkt->dseg_0_address[1] = cpu_to_le32(MSD(ha->ct_sns_dma));
 	ct_pkt->dseg_0_len = ct_pkt->cmd_byte_count;
@@ -1477,12 +1703,23 @@ qla24xx_prep_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size,
 	ct_pkt->dseg_1_address[0] = cpu_to_le32(LSD(ha->ct_sns_dma));
 	ct_pkt->dseg_1_address[1] = cpu_to_le32(MSD(ha->ct_sns_dma));
 	ct_pkt->dseg_1_len = ct_pkt->rsp_byte_count;
+=======
+	put_unaligned_le64(ha->ct_sns_dma, &ct_pkt->dsd[0].address);
+	ct_pkt->dsd[0].length = ct_pkt->cmd_byte_count;
+
+	put_unaligned_le64(ha->ct_sns_dma, &ct_pkt->dsd[1].address);
+	ct_pkt->dsd[1].length = ct_pkt->rsp_byte_count;
+>>>>>>> upstream/android-13
 	ct_pkt->vp_index = vha->vp_idx;
 
 	return ct_pkt;
 }
 
+<<<<<<< HEAD
 static inline ms_iocb_entry_t *
+=======
+static void
+>>>>>>> upstream/android-13
 qla2x00_update_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size)
 {
 	struct qla_hw_data *ha = vha->hw;
@@ -1491,6 +1728,7 @@ qla2x00_update_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size)
 
 	if (IS_FWI2_CAPABLE(ha)) {
 		ct_pkt->cmd_byte_count = cpu_to_le32(req_size);
+<<<<<<< HEAD
 		ct_pkt->dseg_0_len = ct_pkt->cmd_byte_count;
 	} else {
 		ms_pkt->req_bytecount = cpu_to_le32(req_size);
@@ -1502,6 +1740,17 @@ qla2x00_update_ms_fdmi_iocb(scsi_qla_host_t *vha, uint32_t req_size)
 
 /**
  * qla2x00_prep_ct_req() - Prepare common CT request fields for SNS query.
+=======
+		ct_pkt->dsd[0].length = ct_pkt->cmd_byte_count;
+	} else {
+		ms_pkt->req_bytecount = cpu_to_le32(req_size);
+		ms_pkt->req_dsd.length = ms_pkt->req_bytecount;
+	}
+}
+
+/**
+ * qla2x00_prep_ct_fdmi_req() - Prepare common CT request fields for SNS query.
+>>>>>>> upstream/android-13
  * @p: CT request buffer
  * @cmd: GS command
  * @rsp_size: response size in bytes
@@ -1523,6 +1772,7 @@ qla2x00_prep_ct_fdmi_req(struct ct_sns_pkt *p, uint16_t cmd,
 	return &p->p.req;
 }
 
+<<<<<<< HEAD
 /**
  * qla2x00_fdmi_rhba() - perform RHBA FDMI registration
  * @vha: HA context
@@ -1983,10 +2233,112 @@ qla2x00_fdmiv2_rhba(scsi_qla_host_t *vha)
 	/* Attributes */
 	ct_req->req.rhba2.attrs.count = cpu_to_be32(FDMIV2_HBA_ATTR_COUNT);
 	entries = ct_req->req.rhba2.hba_identifier;
+=======
+uint
+qla25xx_fdmi_port_speed_capability(struct qla_hw_data *ha)
+{
+	uint speeds = 0;
+
+	if (IS_CNA_CAPABLE(ha))
+		return FDMI_PORT_SPEED_10GB;
+	if (IS_QLA28XX(ha) || IS_QLA27XX(ha)) {
+		if (ha->max_supported_speed == 2) {
+			if (ha->min_supported_speed <= 6)
+				speeds |= FDMI_PORT_SPEED_64GB;
+		}
+		if (ha->max_supported_speed == 2 ||
+		    ha->max_supported_speed == 1) {
+			if (ha->min_supported_speed <= 5)
+				speeds |= FDMI_PORT_SPEED_32GB;
+		}
+		if (ha->max_supported_speed == 2 ||
+		    ha->max_supported_speed == 1 ||
+		    ha->max_supported_speed == 0) {
+			if (ha->min_supported_speed <= 4)
+				speeds |= FDMI_PORT_SPEED_16GB;
+		}
+		if (ha->max_supported_speed == 1 ||
+		    ha->max_supported_speed == 0) {
+			if (ha->min_supported_speed <= 3)
+				speeds |= FDMI_PORT_SPEED_8GB;
+		}
+		if (ha->max_supported_speed == 0) {
+			if (ha->min_supported_speed <= 2)
+				speeds |= FDMI_PORT_SPEED_4GB;
+		}
+		return speeds;
+	}
+	if (IS_QLA2031(ha)) {
+		if ((ha->pdev->subsystem_vendor == 0x103C) &&
+		    (ha->pdev->subsystem_device == 0x8002)) {
+			speeds = FDMI_PORT_SPEED_16GB;
+		} else {
+			speeds = FDMI_PORT_SPEED_16GB|FDMI_PORT_SPEED_8GB|
+				FDMI_PORT_SPEED_4GB;
+		}
+		return speeds;
+	}
+	if (IS_QLA25XX(ha) || IS_QLAFX00(ha))
+		return FDMI_PORT_SPEED_8GB|FDMI_PORT_SPEED_4GB|
+			FDMI_PORT_SPEED_2GB|FDMI_PORT_SPEED_1GB;
+	if (IS_QLA24XX_TYPE(ha))
+		return FDMI_PORT_SPEED_4GB|FDMI_PORT_SPEED_2GB|
+			FDMI_PORT_SPEED_1GB;
+	if (IS_QLA23XX(ha))
+		return FDMI_PORT_SPEED_2GB|FDMI_PORT_SPEED_1GB;
+	return FDMI_PORT_SPEED_1GB;
+}
+
+uint
+qla25xx_fdmi_port_speed_currently(struct qla_hw_data *ha)
+{
+	switch (ha->link_data_rate) {
+	case PORT_SPEED_1GB:
+		return FDMI_PORT_SPEED_1GB;
+	case PORT_SPEED_2GB:
+		return FDMI_PORT_SPEED_2GB;
+	case PORT_SPEED_4GB:
+		return FDMI_PORT_SPEED_4GB;
+	case PORT_SPEED_8GB:
+		return FDMI_PORT_SPEED_8GB;
+	case PORT_SPEED_10GB:
+		return FDMI_PORT_SPEED_10GB;
+	case PORT_SPEED_16GB:
+		return FDMI_PORT_SPEED_16GB;
+	case PORT_SPEED_32GB:
+		return FDMI_PORT_SPEED_32GB;
+	case PORT_SPEED_64GB:
+		return FDMI_PORT_SPEED_64GB;
+	default:
+		return FDMI_PORT_SPEED_UNKNOWN;
+	}
+}
+
+/**
+ * qla2x00_hba_attributes() - perform HBA attributes registration
+ * @vha: HA context
+ * @entries: number of entries to use
+ * @callopt: Option to issue extended or standard FDMI
+ *           command parameter
+ *
+ * Returns 0 on success.
+ */
+static unsigned long
+qla2x00_hba_attributes(scsi_qla_host_t *vha, void *entries,
+	unsigned int callopt)
+{
+	struct qla_hw_data *ha = vha->hw;
+	struct init_cb_24xx *icb24 = (void *)ha->init_cb;
+	struct new_utsname *p_sysid = utsname();
+	struct ct_fdmi_hba_attr *eiter;
+	uint16_t alen;
+	unsigned long size = 0;
+>>>>>>> upstream/android-13
 
 	/* Nodename. */
 	eiter = entries + size;
 	eiter->type = cpu_to_be16(FDMI_HBA_NODE_NAME);
+<<<<<<< HEAD
 	eiter->len = cpu_to_be16(4 + WWN_SIZE);
 	memcpy(eiter->a.node_name, vha->node_name, WWN_SIZE);
 	size += 4 + WWN_SIZE;
@@ -2105,11 +2457,129 @@ qla2x00_fdmiv2_rhba(scsi_qla_host_t *vha)
 	    "Optrom version = %d.%02d.\n", eiter->a.orom_version[1],
 	    eiter->a.orom_version[0]);
 
+=======
+	memcpy(eiter->a.node_name, vha->node_name, sizeof(eiter->a.node_name));
+	alen = sizeof(eiter->a.node_name);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a0,
+	    "NODENAME = %016llx.\n", wwn_to_u64(eiter->a.node_name));
+	/* Manufacturer. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_MANUFACTURER);
+	alen = scnprintf(
+		eiter->a.manufacturer, sizeof(eiter->a.manufacturer),
+		"%s", "QLogic Corporation");
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a1,
+	    "MANUFACTURER = %s.\n", eiter->a.manufacturer);
+	/* Serial number. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_SERIAL_NUMBER);
+	alen = 0;
+	if (IS_FWI2_CAPABLE(ha)) {
+		alen = qla2xxx_get_vpd_field(vha, "SN",
+		    eiter->a.serial_num, sizeof(eiter->a.serial_num));
+	}
+	if (!alen) {
+		uint32_t sn = ((ha->serial0 & 0x1f) << 16) |
+			(ha->serial2 << 8) | ha->serial1;
+		alen = scnprintf(
+			eiter->a.serial_num, sizeof(eiter->a.serial_num),
+			"%c%05d", 'A' + sn / 100000, sn % 100000);
+	}
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a2,
+	    "SERIAL NUMBER = %s.\n", eiter->a.serial_num);
+	/* Model name. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_MODEL);
+	alen = scnprintf(
+		eiter->a.model, sizeof(eiter->a.model),
+		"%s", ha->model_number);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a3,
+	    "MODEL NAME = %s.\n", eiter->a.model);
+	/* Model description. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_MODEL_DESCRIPTION);
+	alen = scnprintf(
+		eiter->a.model_desc, sizeof(eiter->a.model_desc),
+		"%s", ha->model_desc);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a4,
+	    "MODEL DESCRIPTION = %s.\n", eiter->a.model_desc);
+	/* Hardware version. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_HARDWARE_VERSION);
+	alen = 0;
+	if (IS_FWI2_CAPABLE(ha)) {
+		if (!alen) {
+			alen = qla2xxx_get_vpd_field(vha, "MN",
+			    eiter->a.hw_version, sizeof(eiter->a.hw_version));
+		}
+		if (!alen) {
+			alen = qla2xxx_get_vpd_field(vha, "EC",
+			    eiter->a.hw_version, sizeof(eiter->a.hw_version));
+		}
+	}
+	if (!alen) {
+		alen = scnprintf(
+			eiter->a.hw_version, sizeof(eiter->a.hw_version),
+			"HW:%s", ha->adapter_id);
+	}
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a5,
+	    "HARDWARE VERSION = %s.\n", eiter->a.hw_version);
+	/* Driver version. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_DRIVER_VERSION);
+	alen = scnprintf(
+		eiter->a.driver_version, sizeof(eiter->a.driver_version),
+		"%s", qla2x00_version_str);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a6,
+	    "DRIVER VERSION = %s.\n", eiter->a.driver_version);
+	/* Option ROM version. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_OPTION_ROM_VERSION);
+	alen = scnprintf(
+		eiter->a.orom_version, sizeof(eiter->a.orom_version),
+		"%d.%02d", ha->bios_revision[1], ha->bios_revision[0]);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+
+	ql_dbg(ql_dbg_disc, vha, 0x20a7,
+	    "OPTROM VERSION = %d.%02d.\n",
+	    eiter->a.orom_version[1], eiter->a.orom_version[0]);
+>>>>>>> upstream/android-13
 	/* Firmware version */
 	eiter = entries + size;
 	eiter->type = cpu_to_be16(FDMI_HBA_FIRMWARE_VERSION);
 	ha->isp_ops->fw_version_str(vha, eiter->a.fw_version,
 	    sizeof(eiter->a.fw_version));
+<<<<<<< HEAD
 	alen = strlen(eiter->a.fw_version);
 	alen += 4 - (alen & 3);
 	eiter->len = cpu_to_be16(4 + alen);
@@ -2172,10 +2642,76 @@ qla2x00_fdmiv2_rhba(scsi_qla_host_t *vha)
 	ql_dbg(ql_dbg_disc, vha, 0x20b1,
 	    "Vendor Id = %x.\n", eiter->a.vendor_id);
 
+=======
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a8,
+	    "FIRMWARE VERSION = %s.\n", eiter->a.fw_version);
+	/* OS Name and Version */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_OS_NAME_AND_VERSION);
+	alen = 0;
+	if (p_sysid) {
+		alen = scnprintf(
+			eiter->a.os_version, sizeof(eiter->a.os_version),
+			"%s %s %s",
+			p_sysid->sysname, p_sysid->release, p_sysid->machine);
+	}
+	if (!alen) {
+		alen = scnprintf(
+			eiter->a.os_version, sizeof(eiter->a.os_version),
+			"%s %s",
+			"Linux", fc_host_system_hostname(vha->host));
+	}
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20a9,
+	    "OS VERSION = %s.\n", eiter->a.os_version);
+	if (callopt == CALLOPT_FDMI1)
+		goto done;
+	/* MAX CT Payload Length */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_MAXIMUM_CT_PAYLOAD_LENGTH);
+	eiter->a.max_ct_len = cpu_to_be32(le16_to_cpu(IS_FWI2_CAPABLE(ha) ?
+		icb24->frame_payload_size : ha->init_cb->frame_payload_size));
+	alen = sizeof(eiter->a.max_ct_len);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20aa,
+	    "CT PAYLOAD LENGTH = 0x%x.\n", be32_to_cpu(eiter->a.max_ct_len));
+	/* Node Sybolic Name */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_NODE_SYMBOLIC_NAME);
+	alen = qla2x00_get_sym_node_name(vha, eiter->a.sym_name,
+	    sizeof(eiter->a.sym_name));
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20ab,
+	    "SYMBOLIC NAME = %s.\n", eiter->a.sym_name);
+	/* Vendor Specific information */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_VENDOR_SPECIFIC_INFO);
+	eiter->a.vendor_specific_info = cpu_to_be32(PCI_VENDOR_ID_QLOGIC);
+	alen = sizeof(eiter->a.vendor_specific_info);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20ac,
+	    "VENDOR SPECIFIC INFO = 0x%x.\n",
+	    be32_to_cpu(eiter->a.vendor_specific_info));
+>>>>>>> upstream/android-13
 	/* Num Ports */
 	eiter = entries + size;
 	eiter->type = cpu_to_be16(FDMI_HBA_NUM_PORTS);
 	eiter->a.num_ports = cpu_to_be32(1);
+<<<<<<< HEAD
 	eiter->len = cpu_to_be16(4 + 4);
 	size += 4 + 4;
 
@@ -2217,18 +2753,431 @@ qla2x00_fdmiv2_rhba(scsi_qla_host_t *vha)
 
 	ql_dbg(ql_dbg_disc, vha, 0x201b,
 	    "Vendor Identifier = %s.\n", eiter->a.vendor_identifier);
+=======
+	alen = sizeof(eiter->a.num_ports);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20ad,
+	    "PORT COUNT = %x.\n", be32_to_cpu(eiter->a.num_ports));
+	/* Fabric Name */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_FABRIC_NAME);
+	memcpy(eiter->a.fabric_name, vha->fabric_node_name,
+	    sizeof(eiter->a.fabric_name));
+	alen = sizeof(eiter->a.fabric_name);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20ae,
+	    "FABRIC NAME = %016llx.\n", wwn_to_u64(eiter->a.fabric_name));
+	/* BIOS Version */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_BOOT_BIOS_NAME);
+	alen = scnprintf(
+		eiter->a.bios_name, sizeof(eiter->a.bios_name),
+		"BIOS %d.%02d", ha->bios_revision[1], ha->bios_revision[0]);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20af,
+	    "BIOS NAME = %s\n", eiter->a.bios_name);
+	/* Vendor Identifier */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_HBA_VENDOR_IDENTIFIER);
+	alen = scnprintf(
+		eiter->a.vendor_identifier, sizeof(eiter->a.vendor_identifier),
+		"%s", "QLGC");
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20b0,
+	    "VENDOR IDENTIFIER = %s.\n", eiter->a.vendor_identifier);
+done:
+	return size;
+}
+
+/**
+ * qla2x00_port_attributes() - perform Port attributes registration
+ * @vha: HA context
+ * @entries: number of entries to use
+ * @callopt: Option to issue extended or standard FDMI
+ *           command parameter
+ *
+ * Returns 0 on success.
+ */
+static unsigned long
+qla2x00_port_attributes(scsi_qla_host_t *vha, void *entries,
+	unsigned int callopt)
+{
+	struct qla_hw_data *ha = vha->hw;
+	struct init_cb_24xx *icb24 = (void *)ha->init_cb;
+	struct new_utsname *p_sysid = utsname();
+	char *hostname = p_sysid ?
+		p_sysid->nodename : fc_host_system_hostname(vha->host);
+	struct ct_fdmi_port_attr *eiter;
+	uint16_t alen;
+	unsigned long size = 0;
+
+	/* FC4 types. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_FC4_TYPES);
+	eiter->a.fc4_types[0] = 0x00;
+	eiter->a.fc4_types[1] = 0x00;
+	eiter->a.fc4_types[2] = 0x01;
+	eiter->a.fc4_types[3] = 0x00;
+	alen = sizeof(eiter->a.fc4_types);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c0,
+	    "FC4 TYPES = %016llx.\n", *(uint64_t *)eiter->a.fc4_types);
+	if (vha->flags.nvme_enabled) {
+		eiter->a.fc4_types[6] = 1;      /* NVMe type 28h */
+		ql_dbg(ql_dbg_disc, vha, 0x211f,
+		    "NVME FC4 Type = %02x 0x0 0x0 0x0 0x0 0x0.\n",
+		    eiter->a.fc4_types[6]);
+	}
+	/* Supported speed. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_SUPPORT_SPEED);
+	eiter->a.sup_speed = cpu_to_be32(
+		qla25xx_fdmi_port_speed_capability(ha));
+	alen = sizeof(eiter->a.sup_speed);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c1,
+	    "SUPPORTED SPEED = %x.\n", be32_to_cpu(eiter->a.sup_speed));
+	/* Current speed. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_CURRENT_SPEED);
+	eiter->a.cur_speed = cpu_to_be32(
+		qla25xx_fdmi_port_speed_currently(ha));
+	alen = sizeof(eiter->a.cur_speed);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c2,
+	    "CURRENT SPEED = %x.\n", be32_to_cpu(eiter->a.cur_speed));
+	/* Max frame size. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_MAX_FRAME_SIZE);
+	eiter->a.max_frame_size = cpu_to_be32(le16_to_cpu(IS_FWI2_CAPABLE(ha) ?
+		icb24->frame_payload_size : ha->init_cb->frame_payload_size));
+	alen = sizeof(eiter->a.max_frame_size);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c3,
+	    "MAX FRAME SIZE = %x.\n", be32_to_cpu(eiter->a.max_frame_size));
+	/* OS device name. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_OS_DEVICE_NAME);
+	alen = scnprintf(
+		eiter->a.os_dev_name, sizeof(eiter->a.os_dev_name),
+		"%s:host%lu", QLA2XXX_DRIVER_NAME, vha->host_no);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c4,
+	    "OS DEVICE NAME = %s.\n", eiter->a.os_dev_name);
+	/* Hostname. */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_HOST_NAME);
+	if (!*hostname || !strncmp(hostname, "(none)", 6))
+		hostname = "Linux-default";
+	alen = scnprintf(
+		eiter->a.host_name, sizeof(eiter->a.host_name),
+		"%s", hostname);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c5,
+	    "HOSTNAME = %s.\n", eiter->a.host_name);
+
+	if (callopt == CALLOPT_FDMI1)
+		goto done;
+
+	/* Node Name */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_NODE_NAME);
+	memcpy(eiter->a.node_name, vha->node_name, sizeof(eiter->a.node_name));
+	alen = sizeof(eiter->a.node_name);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c6,
+	    "NODENAME = %016llx.\n", wwn_to_u64(eiter->a.node_name));
+
+	/* Port Name */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_NAME);
+	memcpy(eiter->a.port_name, vha->port_name, sizeof(eiter->a.port_name));
+	alen = sizeof(eiter->a.port_name);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c7,
+	    "PORTNAME = %016llx.\n", wwn_to_u64(eiter->a.port_name));
+
+	/* Port Symbolic Name */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_SYM_NAME);
+	alen = qla2x00_get_sym_node_name(vha, eiter->a.port_sym_name,
+	    sizeof(eiter->a.port_sym_name));
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c8,
+	    "PORT SYMBOLIC NAME = %s\n", eiter->a.port_sym_name);
+
+	/* Port Type */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_TYPE);
+	eiter->a.port_type = cpu_to_be32(NS_NX_PORT_TYPE);
+	alen = sizeof(eiter->a.port_type);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20c9,
+	    "PORT TYPE = %x.\n", be32_to_cpu(eiter->a.port_type));
+
+	/* Supported Class of Service */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_SUPP_COS);
+	eiter->a.port_supported_cos = cpu_to_be32(FC_CLASS_3);
+	alen = sizeof(eiter->a.port_supported_cos);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20ca,
+	    "SUPPORTED COS = %08x\n", be32_to_cpu(eiter->a.port_supported_cos));
+
+	/* Port Fabric Name */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_FABRIC_NAME);
+	memcpy(eiter->a.fabric_name, vha->fabric_node_name,
+	    sizeof(eiter->a.fabric_name));
+	alen = sizeof(eiter->a.fabric_name);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20cb,
+	    "FABRIC NAME = %016llx.\n", wwn_to_u64(eiter->a.fabric_name));
+
+	/* FC4_type */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_FC4_TYPE);
+	eiter->a.port_fc4_type[0] = 0x00;
+	eiter->a.port_fc4_type[1] = 0x00;
+	eiter->a.port_fc4_type[2] = 0x01;
+	eiter->a.port_fc4_type[3] = 0x00;
+	alen = sizeof(eiter->a.port_fc4_type);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20cc,
+	    "PORT ACTIVE FC4 TYPE = %016llx.\n",
+	    *(uint64_t *)eiter->a.port_fc4_type);
+
+	/* Port State */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_STATE);
+	eiter->a.port_state = cpu_to_be32(2);
+	alen = sizeof(eiter->a.port_state);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20cd,
+	    "PORT_STATE = %x.\n", be32_to_cpu(eiter->a.port_state));
+
+	/* Number of Ports */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_COUNT);
+	eiter->a.num_ports = cpu_to_be32(1);
+	alen = sizeof(eiter->a.num_ports);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20ce,
+	    "PORT COUNT = %x.\n", be32_to_cpu(eiter->a.num_ports));
+
+	/* Port Identifier */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_PORT_IDENTIFIER);
+	eiter->a.port_id = cpu_to_be32(vha->d_id.b24);
+	alen = sizeof(eiter->a.port_id);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20cf,
+	    "PORT ID = %x.\n", be32_to_cpu(eiter->a.port_id));
+
+	if (callopt == CALLOPT_FDMI2 || !ql2xsmartsan)
+		goto done;
+
+	/* Smart SAN Service Category (Populate Smart SAN Initiator)*/
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_SMARTSAN_SERVICE);
+	alen = scnprintf(
+		eiter->a.smartsan_service, sizeof(eiter->a.smartsan_service),
+		"%s", "Smart SAN Initiator");
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20d0,
+	    "SMARTSAN SERVICE CATEGORY = %s.\n", eiter->a.smartsan_service);
+
+	/* Smart SAN GUID (NWWN+PWWN) */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_SMARTSAN_GUID);
+	memcpy(eiter->a.smartsan_guid, vha->node_name, WWN_SIZE);
+	memcpy(eiter->a.smartsan_guid + WWN_SIZE, vha->port_name, WWN_SIZE);
+	alen = sizeof(eiter->a.smartsan_guid);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20d1,
+	    "Smart SAN GUID = %016llx-%016llx\n",
+	    wwn_to_u64(eiter->a.smartsan_guid),
+	    wwn_to_u64(eiter->a.smartsan_guid + WWN_SIZE));
+
+	/* Smart SAN Version (populate "Smart SAN Version 1.0") */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_SMARTSAN_VERSION);
+	alen = scnprintf(
+		eiter->a.smartsan_version, sizeof(eiter->a.smartsan_version),
+		"%s", "Smart SAN Version 2.0");
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20d2,
+	    "SMARTSAN VERSION = %s\n", eiter->a.smartsan_version);
+
+	/* Smart SAN Product Name (Specify Adapter Model No) */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_SMARTSAN_PROD_NAME);
+	alen = scnprintf(eiter->a.smartsan_prod_name,
+		sizeof(eiter->a.smartsan_prod_name),
+		"ISP%04x", ha->pdev->device);
+	alen += FDMI_ATTR_ALIGNMENT(alen);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20d3,
+	    "SMARTSAN PRODUCT NAME = %s\n", eiter->a.smartsan_prod_name);
+
+	/* Smart SAN Port Info (specify: 1=Physical, 2=NPIV, 3=SRIOV) */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_SMARTSAN_PORT_INFO);
+	eiter->a.smartsan_port_info = cpu_to_be32(vha->vp_idx ? 2 : 1);
+	alen = sizeof(eiter->a.smartsan_port_info);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20d4,
+	    "SMARTSAN PORT INFO = %x\n", eiter->a.smartsan_port_info);
+
+	/* Smart SAN Security Support */
+	eiter = entries + size;
+	eiter->type = cpu_to_be16(FDMI_SMARTSAN_SECURITY_SUPPORT);
+	eiter->a.smartsan_security_support = cpu_to_be32(1);
+	alen = sizeof(eiter->a.smartsan_security_support);
+	alen += FDMI_ATTR_TYPELEN(eiter);
+	eiter->len = cpu_to_be16(alen);
+	size += alen;
+	ql_dbg(ql_dbg_disc, vha, 0x20d6,
+	    "SMARTSAN SECURITY SUPPORT = %d\n",
+	    be32_to_cpu(eiter->a.smartsan_security_support));
+
+done:
+	return size;
+}
+
+/**
+ * qla2x00_fdmi_rhba() - perform RHBA FDMI registration
+ * @vha: HA context
+ * @callopt: Option to issue FDMI registration
+ *
+ * Returns 0 on success.
+ */
+static int
+qla2x00_fdmi_rhba(scsi_qla_host_t *vha, unsigned int callopt)
+{
+	struct qla_hw_data *ha = vha->hw;
+	unsigned long size = 0;
+	unsigned int rval, count;
+	ms_iocb_entry_t *ms_pkt;
+	struct ct_sns_req *ct_req;
+	struct ct_sns_rsp *ct_rsp;
+	void *entries;
+
+	count = callopt != CALLOPT_FDMI1 ?
+	    FDMI2_HBA_ATTR_COUNT : FDMI1_HBA_ATTR_COUNT;
+
+	size = RHBA_RSP_SIZE;
+
+	ql_dbg(ql_dbg_disc, vha, 0x20e0,
+	    "RHBA (callopt=%x count=%u size=%lu).\n", callopt, count, size);
+
+	/*   Request size adjusted after CT preparation */
+	ms_pkt = ha->isp_ops->prep_ms_fdmi_iocb(vha, 0, size);
+
+	/* Prepare CT request */
+	ct_req = qla2x00_prep_ct_fdmi_req(ha->ct_sns, RHBA_CMD, size);
+	ct_rsp = &ha->ct_sns->p.rsp;
+
+	/* Prepare FDMI command entries */
+	memcpy(ct_req->req.rhba.hba_identifier, vha->port_name,
+	    sizeof(ct_req->req.rhba.hba_identifier));
+	size += sizeof(ct_req->req.rhba.hba_identifier);
+
+	ct_req->req.rhba.entry_count = cpu_to_be32(1);
+	size += sizeof(ct_req->req.rhba.entry_count);
+
+	memcpy(ct_req->req.rhba.port_name, vha->port_name,
+	    sizeof(ct_req->req.rhba.port_name));
+	size += sizeof(ct_req->req.rhba.port_name);
+
+	/* Attribute count */
+	ct_req->req.rhba.attrs.count = cpu_to_be32(count);
+	size += sizeof(ct_req->req.rhba.attrs.count);
+
+	/* Attribute block */
+	entries = &ct_req->req.rhba.attrs.entry;
+
+	size += qla2x00_hba_attributes(vha, entries, callopt);
+>>>>>>> upstream/android-13
 
 	/* Update MS request size. */
 	qla2x00_update_ms_fdmi_iocb(vha, size + 16);
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0x20b5,
 	    "RHBA identifier = %016llx.\n",
 	    wwn_to_u64(ct_req->req.rhba2.hba_identifier));
 	ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha, 0x20b6,
+=======
+	ql_dbg(ql_dbg_disc, vha, 0x20e1,
+	    "RHBA %016llx %016llx.\n",
+	    wwn_to_u64(ct_req->req.rhba.hba_identifier),
+	    wwn_to_u64(ct_req->req.rhba.port_name));
+
+	ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha, 0x20e2,
+>>>>>>> upstream/android-13
 	    entries, size);
 
 	/* Execute MS IOCB */
 	rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
+<<<<<<< HEAD
 	    sizeof(ms_iocb_entry_t));
 	if (rval != QLA_SUCCESS) {
 		/*EMPTY*/
@@ -2264,6 +3213,37 @@ qla2x00_fdmiv2_rhba(scsi_qla_host_t *vha)
  *
  * Returns 0 on success.
  */
+=======
+	    sizeof(*ha->ms_iocb));
+	if (rval) {
+		ql_dbg(ql_dbg_disc, vha, 0x20e3,
+		    "RHBA iocb failed (%d).\n", rval);
+		return rval;
+	}
+
+	rval = qla2x00_chk_ms_status(vha, ms_pkt, ct_rsp, "RHBA");
+	if (rval) {
+		if (ct_rsp->header.reason_code == CT_REASON_CANNOT_PERFORM &&
+		    ct_rsp->header.explanation_code ==
+		    CT_EXPL_ALREADY_REGISTERED) {
+			ql_dbg(ql_dbg_disc, vha, 0x20e4,
+			    "RHBA already registered.\n");
+			return QLA_ALREADY_REGISTERED;
+		}
+
+		ql_dbg(ql_dbg_disc, vha, 0x20e5,
+		    "RHBA failed, CT Reason %#x, CT Explanation %#x\n",
+		    ct_rsp->header.reason_code,
+		    ct_rsp->header.explanation_code);
+		return rval;
+	}
+
+	ql_dbg(ql_dbg_disc, vha, 0x20e6, "RHBA exiting normally.\n");
+	return rval;
+}
+
+
+>>>>>>> upstream/android-13
 static int
 qla2x00_fdmi_dhba(scsi_qla_host_t *vha)
 {
@@ -2272,11 +3252,15 @@ qla2x00_fdmi_dhba(scsi_qla_host_t *vha)
 	ms_iocb_entry_t *ms_pkt;
 	struct ct_sns_req *ct_req;
 	struct ct_sns_rsp *ct_rsp;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* Issue RPA */
 	/* Prepare common MS IOCB */
 	ms_pkt = ha->isp_ops->prep_ms_fdmi_iocb(vha, DHBA_REQ_SIZE,
 	    DHBA_RSP_SIZE);
+<<<<<<< HEAD
 
 	/* Prepare CT request */
 	ct_req = qla2x00_prep_ct_fdmi_req(ha->ct_sns, DHBA_CMD, DHBA_RSP_SIZE);
@@ -2288,6 +3272,15 @@ qla2x00_fdmi_dhba(scsi_qla_host_t *vha)
 	ql_dbg(ql_dbg_disc, vha, 0x2036,
 	    "DHBA portname = %8phN.\n", ct_req->req.dhba.port_name);
 
+=======
+	/* Prepare CT request */
+	ct_req = qla2x00_prep_ct_fdmi_req(ha->ct_sns, DHBA_CMD, DHBA_RSP_SIZE);
+	ct_rsp = &ha->ct_sns->p.rsp;
+	/* Prepare FDMI command arguments -- portname. */
+	memcpy(ct_req->req.dhba.port_name, vha->port_name, WWN_SIZE);
+	ql_dbg(ql_dbg_disc, vha, 0x2036,
+	    "DHBA portname = %8phN.\n", ct_req->req.dhba.port_name);
+>>>>>>> upstream/android-13
 	/* Execute MS IOCB */
 	rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
 	    sizeof(ms_iocb_entry_t));
@@ -2302,26 +3295,46 @@ qla2x00_fdmi_dhba(scsi_qla_host_t *vha)
 		ql_dbg(ql_dbg_disc, vha, 0x2038,
 		    "DHBA exiting normally.\n");
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	return rval;
 }
 
 /**
+<<<<<<< HEAD
  * qla2x00_fdmiv2_rpa() -
  * @vha: HA context
+=======
+ * qla2x00_fdmi_rprt() - perform RPRT registration
+ * @vha: HA context
+ * @callopt: Option to issue extended or standard FDMI
+ *           command parameter
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success.
  */
 static int
+<<<<<<< HEAD
 qla2x00_fdmiv2_rpa(scsi_qla_host_t *vha)
 {
 	int rval, alen;
 	uint32_t size;
 	struct qla_hw_data *ha = vha->hw;
+=======
+qla2x00_fdmi_rprt(scsi_qla_host_t *vha, int callopt)
+{
+	struct scsi_qla_host *base_vha = pci_get_drvdata(vha->hw->pdev);
+	struct qla_hw_data *ha = vha->hw;
+	ulong size = 0;
+	uint rval, count;
+>>>>>>> upstream/android-13
 	ms_iocb_entry_t *ms_pkt;
 	struct ct_sns_req *ct_req;
 	struct ct_sns_rsp *ct_rsp;
 	void *entries;
+<<<<<<< HEAD
 	struct ct_fdmiv2_port_attr *eiter;
 	struct init_cb_24xx *icb24 = (struct init_cb_24xx *)ha->init_cb;
 	struct new_utsname *p_sysid = NULL;
@@ -2597,17 +3610,140 @@ qla2x00_fdmiv2_rpa(scsi_qla_host_t *vha)
 
 	ql_dbg(ql_dbg_disc, vha, 0x201c,
 	    "Port Id = %x.\n", eiter->a.port_id);
+=======
+	count = callopt == CALLOPT_FDMI2_SMARTSAN && ql2xsmartsan ?
+		FDMI2_SMARTSAN_PORT_ATTR_COUNT :
+		callopt != CALLOPT_FDMI1 ?
+		FDMI2_PORT_ATTR_COUNT : FDMI1_PORT_ATTR_COUNT;
+
+	size = RPRT_RSP_SIZE;
+	ql_dbg(ql_dbg_disc, vha, 0x20e8,
+	    "RPRT (callopt=%x count=%u size=%lu).\n", callopt, count, size);
+	/* Request size adjusted after CT preparation */
+	ms_pkt = ha->isp_ops->prep_ms_fdmi_iocb(vha, 0, size);
+	/* Prepare CT request */
+	ct_req = qla2x00_prep_ct_fdmi_req(ha->ct_sns, RPRT_CMD, size);
+	ct_rsp = &ha->ct_sns->p.rsp;
+	/* Prepare FDMI command entries */
+	memcpy(ct_req->req.rprt.hba_identifier, base_vha->port_name,
+	    sizeof(ct_req->req.rprt.hba_identifier));
+	size += sizeof(ct_req->req.rprt.hba_identifier);
+	memcpy(ct_req->req.rprt.port_name, vha->port_name,
+	    sizeof(ct_req->req.rprt.port_name));
+	size += sizeof(ct_req->req.rprt.port_name);
+	/* Attribute count */
+	ct_req->req.rprt.attrs.count = cpu_to_be32(count);
+	size += sizeof(ct_req->req.rprt.attrs.count);
+	/* Attribute block */
+	entries = ct_req->req.rprt.attrs.entry;
+	size += qla2x00_port_attributes(vha, entries, callopt);
+	/* Update MS request size. */
+	qla2x00_update_ms_fdmi_iocb(vha, size + 16);
+	ql_dbg(ql_dbg_disc, vha, 0x20e9,
+	    "RPRT %016llx  %016llx.\n",
+	    wwn_to_u64(ct_req->req.rprt.port_name),
+	    wwn_to_u64(ct_req->req.rprt.port_name));
+	ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha, 0x20ea,
+	    entries, size);
+	/* Execute MS IOCB */
+	rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
+	    sizeof(*ha->ms_iocb));
+	if (rval) {
+		ql_dbg(ql_dbg_disc, vha, 0x20eb,
+		    "RPRT iocb failed (%d).\n", rval);
+		return rval;
+	}
+	rval = qla2x00_chk_ms_status(vha, ms_pkt, ct_rsp, "RPRT");
+	if (rval) {
+		if (ct_rsp->header.reason_code == CT_REASON_CANNOT_PERFORM &&
+		    ct_rsp->header.explanation_code ==
+		    CT_EXPL_ALREADY_REGISTERED) {
+			ql_dbg(ql_dbg_disc, vha, 0x20ec,
+			    "RPRT already registered.\n");
+			return QLA_ALREADY_REGISTERED;
+		}
+
+		ql_dbg(ql_dbg_disc, vha, 0x20ed,
+		    "RPRT failed, CT Reason code: %#x, CT Explanation %#x\n",
+		    ct_rsp->header.reason_code,
+		    ct_rsp->header.explanation_code);
+		return rval;
+	}
+	ql_dbg(ql_dbg_disc, vha, 0x20ee, "RPRT exiting normally.\n");
+	return rval;
+}
+
+/**
+ * qla2x00_fdmi_rpa() - perform RPA registration
+ * @vha: HA context
+ * @callopt: Option to issue FDMI registration
+ *
+ * Returns 0 on success.
+ */
+static int
+qla2x00_fdmi_rpa(scsi_qla_host_t *vha, uint callopt)
+{
+	struct qla_hw_data *ha = vha->hw;
+	ulong size = 0;
+	uint rval, count;
+	ms_iocb_entry_t *ms_pkt;
+	struct ct_sns_req *ct_req;
+	struct ct_sns_rsp *ct_rsp;
+	void *entries;
+
+	count =
+	    callopt == CALLOPT_FDMI2_SMARTSAN && ql2xsmartsan ?
+		FDMI2_SMARTSAN_PORT_ATTR_COUNT :
+	    callopt != CALLOPT_FDMI1 ?
+		FDMI2_PORT_ATTR_COUNT : FDMI1_PORT_ATTR_COUNT;
+
+	size =
+	    callopt != CALLOPT_FDMI1 ?
+		SMARTSAN_RPA_RSP_SIZE : RPA_RSP_SIZE;
+
+	ql_dbg(ql_dbg_disc, vha, 0x20f0,
+	    "RPA (callopt=%x count=%u size=%lu).\n", callopt, count, size);
+
+	/* Request size adjusted after CT preparation */
+	ms_pkt = ha->isp_ops->prep_ms_fdmi_iocb(vha, 0, size);
+
+	/* Prepare CT request */
+	ct_req = qla2x00_prep_ct_fdmi_req(ha->ct_sns, RPA_CMD, size);
+	ct_rsp = &ha->ct_sns->p.rsp;
+
+	/* Prepare FDMI command entries. */
+	memcpy(ct_req->req.rpa.port_name, vha->port_name,
+	    sizeof(ct_req->req.rpa.port_name));
+	size += sizeof(ct_req->req.rpa.port_name);
+
+	/* Attribute count */
+	ct_req->req.rpa.attrs.count = cpu_to_be32(count);
+	size += sizeof(ct_req->req.rpa.attrs.count);
+
+	/* Attribute block */
+	entries = ct_req->req.rpa.attrs.entry;
+
+	size += qla2x00_port_attributes(vha, entries, callopt);
+>>>>>>> upstream/android-13
 
 	/* Update MS request size. */
 	qla2x00_update_ms_fdmi_iocb(vha, size + 16);
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0x2018,
 	    "RPA portname= %8phN size=%d.\n", ct_req->req.rpa.port_name, size);
 	ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha, 0x20ca,
+=======
+	ql_dbg(ql_dbg_disc, vha, 0x20f1,
+	    "RPA %016llx.\n", wwn_to_u64(ct_req->req.rpa.port_name));
+
+	ql_dump_buffer(ql_dbg_disc + ql_dbg_buffer, vha, 0x20f2,
+>>>>>>> upstream/android-13
 	    entries, size);
 
 	/* Execute MS IOCB */
 	rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
+<<<<<<< HEAD
 	    sizeof(ms_iocb_entry_t));
 	if (rval != QLA_SUCCESS) {
 		/*EMPTY*/
@@ -2633,6 +3769,33 @@ qla2x00_fdmiv2_rpa(scsi_qla_host_t *vha)
 		    "RPA FDMI V2 exiting normally.\n");
 	}
 
+=======
+	    sizeof(*ha->ms_iocb));
+	if (rval) {
+		ql_dbg(ql_dbg_disc, vha, 0x20f3,
+		    "RPA iocb failed (%d).\n", rval);
+		return rval;
+	}
+
+	rval = qla2x00_chk_ms_status(vha, ms_pkt, ct_rsp, "RPA");
+	if (rval) {
+		if (ct_rsp->header.reason_code == CT_REASON_CANNOT_PERFORM &&
+		    ct_rsp->header.explanation_code ==
+		    CT_EXPL_ALREADY_REGISTERED) {
+			ql_dbg(ql_dbg_disc, vha, 0x20f4,
+			    "RPA already registered.\n");
+			return QLA_ALREADY_REGISTERED;
+		}
+
+		ql_dbg(ql_dbg_disc, vha, 0x20f5,
+		    "RPA failed, CT Reason code: %#x, CT Explanation %#x\n",
+		    ct_rsp->header.reason_code,
+		    ct_rsp->header.explanation_code);
+		return rval;
+	}
+
+	ql_dbg(ql_dbg_disc, vha, 0x20f6, "RPA exiting normally.\n");
+>>>>>>> upstream/android-13
 	return rval;
 }
 
@@ -2645,18 +3808,43 @@ qla2x00_fdmiv2_rpa(scsi_qla_host_t *vha)
 int
 qla2x00_fdmi_register(scsi_qla_host_t *vha)
 {
+<<<<<<< HEAD
 	int rval = QLA_FUNCTION_FAILED;
+=======
+	int rval = QLA_SUCCESS;
+>>>>>>> upstream/android-13
 	struct qla_hw_data *ha = vha->hw;
 
 	if (IS_QLA2100(ha) || IS_QLA2200(ha) ||
 	    IS_QLAFX00(ha))
+<<<<<<< HEAD
 		return QLA_FUNCTION_FAILED;
+=======
+		return rval;
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_mgmt_svr_login(vha);
 	if (rval)
 		return rval;
 
+<<<<<<< HEAD
 	rval = qla2x00_fdmiv2_rhba(vha);
+=======
+	/* For npiv/vport send rprt only */
+	if (vha->vp_idx) {
+		if (ql2xsmartsan)
+			rval = qla2x00_fdmi_rprt(vha, CALLOPT_FDMI2_SMARTSAN);
+		if (rval || !ql2xsmartsan)
+			rval = qla2x00_fdmi_rprt(vha, CALLOPT_FDMI2);
+		if (rval)
+			rval = qla2x00_fdmi_rprt(vha, CALLOPT_FDMI1);
+
+		return rval;
+	}
+
+	/* Try fdmi2 first, if fails then try fdmi1 */
+	rval = qla2x00_fdmi_rhba(vha, CALLOPT_FDMI2);
+>>>>>>> upstream/android-13
 	if (rval) {
 		if (rval != QLA_ALREADY_REGISTERED)
 			goto try_fdmi;
@@ -2665,6 +3853,7 @@ qla2x00_fdmi_register(scsi_qla_host_t *vha)
 		if (rval)
 			goto try_fdmi;
 
+<<<<<<< HEAD
 		rval = qla2x00_fdmiv2_rhba(vha);
 		if (rval)
 			goto try_fdmi;
@@ -2677,6 +3866,24 @@ qla2x00_fdmi_register(scsi_qla_host_t *vha)
 
 try_fdmi:
 	rval = qla2x00_fdmi_rhba(vha);
+=======
+		rval = qla2x00_fdmi_rhba(vha, CALLOPT_FDMI2);
+		if (rval)
+			goto try_fdmi;
+	}
+
+	if (ql2xsmartsan)
+		rval = qla2x00_fdmi_rpa(vha, CALLOPT_FDMI2_SMARTSAN);
+	if (rval || !ql2xsmartsan)
+		rval = qla2x00_fdmi_rpa(vha, CALLOPT_FDMI2);
+	if (rval)
+		goto try_fdmi;
+
+	return rval;
+
+try_fdmi:
+	rval = qla2x00_fdmi_rhba(vha, CALLOPT_FDMI1);
+>>>>>>> upstream/android-13
 	if (rval) {
 		if (rval != QLA_ALREADY_REGISTERED)
 			return rval;
@@ -2685,12 +3892,22 @@ try_fdmi:
 		if (rval)
 			return rval;
 
+<<<<<<< HEAD
 		rval = qla2x00_fdmi_rhba(vha);
 		if (rval)
 			return rval;
 	}
 	rval = qla2x00_fdmi_rpa(vha);
 out:
+=======
+		rval = qla2x00_fdmi_rhba(vha, CALLOPT_FDMI1);
+		if (rval)
+			return rval;
+	}
+
+	rval = qla2x00_fdmi_rpa(vha, CALLOPT_FDMI1);
+
+>>>>>>> upstream/android-13
 	return rval;
 }
 
@@ -2733,9 +3950,13 @@ qla2x00_gfpn_id(scsi_qla_host_t *vha, sw_info_t *list)
 		ct_rsp = &ha->ct_sns->p.rsp;
 
 		/* Prepare CT arguments -- port_id */
+<<<<<<< HEAD
 		ct_req->req.port_id.port_id[0] = list[i].d_id.b.domain;
 		ct_req->req.port_id.port_id[1] = list[i].d_id.b.area;
 		ct_req->req.port_id.port_id[2] = list[i].d_id.b.al_pa;
+=======
+		ct_req->req.port_id.port_id = port_id_to_be_id(list[i].d_id);
+>>>>>>> upstream/android-13
 
 		/* Execute MS IOCB */
 		rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
@@ -2779,6 +4000,34 @@ qla24xx_prep_ct_fm_req(struct ct_sns_pkt *p, uint16_t cmd,
 	return &p->p.req;
 }
 
+<<<<<<< HEAD
+=======
+static uint16_t
+qla2x00_port_speed_capability(uint16_t speed)
+{
+	switch (speed) {
+	case BIT_15:
+		return PORT_SPEED_1GB;
+	case BIT_14:
+		return PORT_SPEED_2GB;
+	case BIT_13:
+		return PORT_SPEED_4GB;
+	case BIT_12:
+		return PORT_SPEED_10GB;
+	case BIT_11:
+		return PORT_SPEED_8GB;
+	case BIT_10:
+		return PORT_SPEED_16GB;
+	case BIT_8:
+		return PORT_SPEED_32GB;
+	case BIT_7:
+		return PORT_SPEED_64GB;
+	default:
+		return PORT_SPEED_UNKNOWN;
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * qla2x00_gpsc() - FCS Get Port Speed Capabilities (GPSC) query.
  * @vha: HA context
@@ -2851,6 +4100,7 @@ qla2x00_gpsc(scsi_qla_host_t *vha, sw_info_t *list)
 			}
 			rval = QLA_FUNCTION_FAILED;
 		} else {
+<<<<<<< HEAD
 			/* Save port-speed */
 			switch (be16_to_cpu(ct_rsp->rsp.gpsc.speed)) {
 			case BIT_15:
@@ -2876,6 +4126,10 @@ qla2x00_gpsc(scsi_qla_host_t *vha, sw_info_t *list)
 				break;
 			}
 
+=======
+			list->fp_speed = qla2x00_port_speed_capability(
+			    be16_to_cpu(ct_rsp->rsp.gpsc.speed));
+>>>>>>> upstream/android-13
 			ql_dbg(ql_dbg_disc, vha, 0x205b,
 			    "GPSC ext entry - fpn "
 			    "%8phN speeds=%04x speed=%04x.\n",
@@ -2909,13 +4163,21 @@ qla2x00_gff_id(scsi_qla_host_t *vha, sw_info_t *list)
 	struct ct_sns_req	*ct_req;
 	struct ct_sns_rsp	*ct_rsp;
 	struct qla_hw_data *ha = vha->hw;
+<<<<<<< HEAD
 	uint8_t fcp_scsi_features = 0;
+=======
+	uint8_t fcp_scsi_features = 0, nvme_features = 0;
+>>>>>>> upstream/android-13
 	struct ct_arg arg;
 
 	for (i = 0; i < ha->max_fibre_devices; i++) {
 		/* Set default FC4 Type as UNKNOWN so the default is to
 		 * Process this port */
+<<<<<<< HEAD
 		list[i].fc4_type = FC4_TYPE_UNKNOWN;
+=======
+		list[i].fc4_type = 0;
+>>>>>>> upstream/android-13
 
 		/* Do not attempt GFF_ID if we are not FWI_2 capable */
 		if (!IS_FWI2_CAPABLE(ha))
@@ -2937,9 +4199,13 @@ qla2x00_gff_id(scsi_qla_host_t *vha, sw_info_t *list)
 		ct_rsp = &ha->ct_sns->p.rsp;
 
 		/* Prepare CT arguments -- port_id */
+<<<<<<< HEAD
 		ct_req->req.port_id.port_id[0] = list[i].d_id.b.domain;
 		ct_req->req.port_id.port_id[1] = list[i].d_id.b.area;
 		ct_req->req.port_id.port_id[2] = list[i].d_id.b.al_pa;
+=======
+		ct_req->req.port_id.port_id = port_id_to_be_id(list[i].d_id);
+>>>>>>> upstream/android-13
 
 		/* Execute MS IOCB */
 		rval = qla2x00_issue_iocb(vha, ha->ms_iocb, ha->ms_iocb_dma,
@@ -2957,6 +4223,7 @@ qla2x00_gff_id(scsi_qla_host_t *vha, sw_info_t *list)
 			   ct_rsp->rsp.gff_id.fc4_features[GFF_FCP_SCSI_OFFSET];
 			fcp_scsi_features &= 0x0f;
 
+<<<<<<< HEAD
 			if (fcp_scsi_features)
 				list[i].fc4_type = FC4_TYPE_FCP_SCSI;
 			else
@@ -2965,6 +4232,21 @@ qla2x00_gff_id(scsi_qla_host_t *vha, sw_info_t *list)
 			list[i].fc4f_nvme =
 			    ct_rsp->rsp.gff_id.fc4_features[GFF_NVME_OFFSET];
 			list[i].fc4f_nvme &= 0xf;
+=======
+			if (fcp_scsi_features) {
+				list[i].fc4_type = FS_FC4TYPE_FCP;
+				list[i].fc4_features = fcp_scsi_features;
+			}
+
+			nvme_features =
+			    ct_rsp->rsp.gff_id.fc4_features[GFF_NVME_OFFSET];
+			nvme_features &= 0xf;
+
+			if (nvme_features) {
+				list[i].fc4_type |= FS_FC4TYPE_NVME;
+				list[i].fc4_features = nvme_features;
+			}
+>>>>>>> upstream/android-13
 		}
 
 		/* Last device exit. */
@@ -2973,6 +4255,7 @@ qla2x00_gff_id(scsi_qla_host_t *vha, sw_info_t *list)
 	}
 }
 
+<<<<<<< HEAD
 /* GID_PN completion processing. */
 void qla24xx_handle_gidpn_event(scsi_qla_host_t *vha, struct event_arg *ea)
 {
@@ -3204,6 +4487,8 @@ int qla24xx_post_gidpn_work(struct scsi_qla_host *vha, fc_port_t *fcport)
 	return qla2x00_post_work(vha, e);
 }
 
+=======
+>>>>>>> upstream/android-13
 int qla24xx_post_gpsc_work(struct scsi_qla_host *vha, fc_port_t *fcport)
 {
 	struct qla_work_evt *e;
@@ -3213,7 +4498,10 @@ int qla24xx_post_gpsc_work(struct scsi_qla_host *vha, fc_port_t *fcport)
 		return QLA_FUNCTION_FAILED;
 
 	e->u.fcport.fcport = fcport;
+<<<<<<< HEAD
 	fcport->flags |= FCF_ASYNC_ACTIVE;
+=======
+>>>>>>> upstream/android-13
 	return qla2x00_post_work(vha, e);
 }
 
@@ -3230,6 +4518,13 @@ void qla24xx_handle_gpsc_event(scsi_qla_host_t *vha, struct event_arg *ea)
 	if (fcport->disc_state == DSC_DELETE_PEND)
 		return;
 
+<<<<<<< HEAD
+=======
+	/* We will figure-out what happen after AUTH completes */
+	if (fcport->disc_state == DSC_LOGIN_AUTH_PEND)
+		return;
+
+>>>>>>> upstream/android-13
 	if (ea->sp->gen2 != fcport->login_gen) {
 		/* target side must have changed it. */
 		ql_dbg(ql_dbg_disc, vha, 0x20d3,
@@ -3237,18 +4532,26 @@ void qla24xx_handle_gpsc_event(scsi_qla_host_t *vha, struct event_arg *ea)
 		    __func__, fcport->port_name);
 		return;
 	} else if (ea->sp->gen1 != fcport->rscn_gen) {
+<<<<<<< HEAD
 		ql_dbg(ql_dbg_disc, vha, 0x20d4, "%s %d %8phC post gidpn\n",
 		    __func__, __LINE__, fcport->port_name);
 		qla24xx_post_gidpn_work(vha, fcport);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	qla_post_iidma_work(vha, fcport);
 }
 
+<<<<<<< HEAD
 static void qla24xx_async_gpsc_sp_done(void *s, int res)
 {
 	struct srb *sp = s;
+=======
+static void qla24xx_async_gpsc_sp_done(srb_t *sp, int res)
+{
+>>>>>>> upstream/android-13
 	struct scsi_qla_host *vha = sp->vha;
 	struct qla_hw_data *ha = vha->hw;
 	fc_port_t *fcport = sp->fcport;
@@ -3280,6 +4583,7 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
 			goto done;
 		}
 	} else {
+<<<<<<< HEAD
 		switch (be16_to_cpu(ct_rsp->rsp.gpsc.speed)) {
 		case BIT_15:
 			fcport->fp_speed = PORT_SPEED_1GB;
@@ -3303,6 +4607,10 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
 			fcport->fp_speed = PORT_SPEED_32GB;
 			break;
 		}
+=======
+		fcport->fp_speed = qla2x00_port_speed_capability(
+		    be16_to_cpu(ct_rsp->rsp.gpsc.speed));
+>>>>>>> upstream/android-13
 
 		ql_dbg(ql_dbg_disc, vha, 0x2054,
 		    "Async-%s OUT WWPN %8phC speeds=%04x speed=%04x.\n",
@@ -3311,6 +4619,7 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
 		    be16_to_cpu(ct_rsp->rsp.gpsc.speed));
 	}
 	memset(&ea, 0, sizeof(ea));
+<<<<<<< HEAD
 	ea.event = FCME_GPSC_DONE;
 	ea.rc = res;
 	ea.fcport = fcport;
@@ -3319,6 +4628,16 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
 
 done:
 	sp->free(sp);
+=======
+	ea.rc = res;
+	ea.fcport = fcport;
+	ea.sp = sp;
+	qla24xx_handle_gpsc_event(vha, &ea);
+
+done:
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 }
 
 int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
@@ -3330,6 +4649,10 @@ int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
 		return rval;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
 	if (!sp)
 		goto done;
@@ -3338,8 +4661,13 @@ int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->name = "gpsc";
 	sp->gen1 = fcport->rscn_gen;
 	sp->gen2 = fcport->login_gen;
+<<<<<<< HEAD
 
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla24xx_async_gpsc_sp_done);
+>>>>>>> upstream/android-13
 
 	/* CT_IU preamble  */
 	ct_req = qla24xx_prep_ct_fm_req(fcport->ct_desc.ct_sns, GPSC_CMD,
@@ -3357,9 +4685,12 @@ int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->u.iocb_cmd.u.ctarg.rsp_size = GPSC_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = vha->mgmt_svr_loop_id;
 
+<<<<<<< HEAD
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	sp->done = qla24xx_async_gpsc_sp_done;
 
+=======
+>>>>>>> upstream/android-13
 	ql_dbg(ql_dbg_disc, vha, 0x205e,
 	    "Async-%s %8phC hdl=%x loopid=%x portid=%02x%02x%02x.\n",
 	    sp->name, fcport->port_name, sp->handle,
@@ -3372,10 +4703,16 @@ int qla24xx_async_gpsc(scsi_qla_host_t *vha, fc_port_t *fcport)
 	return rval;
 
 done_free_sp:
+<<<<<<< HEAD
 	sp->free(sp);
 	fcport->flags &= ~FCF_ASYNC_SENT;
 done:
 	fcport->flags &= ~FCF_ASYNC_ACTIVE;
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+done:
+>>>>>>> upstream/android-13
 	return rval;
 }
 
@@ -3383,7 +4720,12 @@ int qla24xx_post_gpnid_work(struct scsi_qla_host *vha, port_id_t *id)
 {
 	struct qla_work_evt *e;
 
+<<<<<<< HEAD
 	if (test_bit(UNLOADING, &vha->dpc_flags))
+=======
+	if (test_bit(UNLOADING, &vha->dpc_flags) ||
+	    (vha->vp_idx && test_bit(VPORT_DELETE, &vha->dpc_flags)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	e = qla2x00_alloc_work(vha, QLA_EVT_GPNID);
@@ -3400,6 +4742,7 @@ void qla24xx_sp_unmap(scsi_qla_host_t *vha, srb_t *sp)
 
 	switch (sp->type) {
 	case SRB_ELS_DCMD:
+<<<<<<< HEAD
 		if (c->u.els_plogi.els_plogi_pyld)
 			dma_free_coherent(&vha->hw->pdev->dev,
 			    c->u.els_plogi.tx_size,
@@ -3411,6 +4754,9 @@ void qla24xx_sp_unmap(scsi_qla_host_t *vha, srb_t *sp)
 			    c->u.els_plogi.rx_size,
 			    c->u.els_plogi.els_resp_pyld,
 			    c->u.els_plogi.els_resp_pyld_dma);
+=======
+		qla2x00_els_dcmd2_free(vha, &c->u.els_plogi);
+>>>>>>> upstream/android-13
 		break;
 	case SRB_CT_PTHRU_CMD:
 	default:
@@ -3432,7 +4778,12 @@ void qla24xx_sp_unmap(scsi_qla_host_t *vha, srb_t *sp)
 		break;
 	}
 
+<<<<<<< HEAD
 	sp->free(sp);
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 }
 
 void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
@@ -3447,6 +4798,7 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 	if (ea->rc) {
 		/* cable is disconnected */
 		list_for_each_entry_safe(fcport, t, &vha->vp_fcports, list) {
+<<<<<<< HEAD
 			if (fcport->d_id.b24 == ea->id.b24) {
 				ql_dbg(ql_dbg_disc, vha, 0xffff,
 				    "%s %d %8phC DS %d\n",
@@ -3467,6 +4819,12 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 					break;
 				}
 			}
+=======
+			if (fcport->d_id.b24 == ea->id.b24)
+				fcport->scan_state = QLA_FCPORT_SCAN;
+
+			qlt_schedule_sess_for_deletion(fcport);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/* cable is connected */
@@ -3475,12 +4833,19 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 			list_for_each_entry_safe(conflict, t, &vha->vp_fcports,
 			    list) {
 				if ((conflict->d_id.b24 == ea->id.b24) &&
+<<<<<<< HEAD
 				    (fcport != conflict)) {
 					/* 2 fcports with conflict Nport ID or
+=======
+				    (fcport != conflict))
+					/*
+					 * 2 fcports with conflict Nport ID or
+>>>>>>> upstream/android-13
 					 * an existing fcport is having nport ID
 					 * conflict with new fcport.
 					 */
 
+<<<<<<< HEAD
 					ql_dbg(ql_dbg_disc, vha, 0xffff,
 					    "%s %d %8phC DS %d\n",
 					    __func__, __LINE__,
@@ -3503,6 +4868,14 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 				}
 			}
 
+=======
+					conflict->scan_state = QLA_FCPORT_SCAN;
+
+				qlt_schedule_sess_for_deletion(conflict);
+			}
+
+			fcport->scan_needed = 0;
+>>>>>>> upstream/android-13
 			fcport->rscn_gen++;
 			fcport->scan_state = QLA_FCPORT_FOUND;
 			fcport->flags |= FCF_FABRIC_DEVICE;
@@ -3553,6 +4926,7 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 					    conflict->disc_state);
 
 					conflict->scan_state = QLA_FCPORT_SCAN;
+<<<<<<< HEAD
 					switch (conflict->disc_state) {
 					case DSC_DELETED:
 					case DSC_DELETE_PEND:
@@ -3566,6 +4940,9 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 							(conflict);
 						break;
 					}
+=======
+					qlt_schedule_sess_for_deletion(conflict);
+>>>>>>> upstream/android-13
 				}
 			}
 
@@ -3574,14 +4951,23 @@ void qla24xx_handle_gpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 			    "%s %d %8phC post new sess\n",
 			    __func__, __LINE__, ea->port_name);
 			qla24xx_post_newsess_work(vha, &ea->id,
+<<<<<<< HEAD
 			    ea->port_name, NULL, NULL, FC4_TYPE_UNKNOWN);
+=======
+			    ea->port_name, NULL, NULL, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
 static void qla2x00_async_gpnid_sp_done(void *s, int res)
 {
 	struct srb *sp = s;
+=======
+static void qla2x00_async_gpnid_sp_done(srb_t *sp, int res)
+{
+>>>>>>> upstream/android-13
 	struct scsi_qla_host *vha = sp->vha;
 	struct ct_sns_req *ct_req =
 	    (struct ct_sns_req *)sp->u.iocb_cmd.u.ctarg.req;
@@ -3594,22 +4980,35 @@ static void qla2x00_async_gpnid_sp_done(void *s, int res)
 	if (res)
 		ql_dbg(ql_dbg_disc, vha, 0x2066,
 		    "Async done-%s fail res %x rscn gen %d ID %3phC. %8phC\n",
+<<<<<<< HEAD
 		    sp->name, res, sp->gen1, ct_req->req.port_id.port_id,
+=======
+		    sp->name, res, sp->gen1, &ct_req->req.port_id.port_id,
+>>>>>>> upstream/android-13
 		    ct_rsp->rsp.gpn_id.port_name);
 	else
 		ql_dbg(ql_dbg_disc, vha, 0x2066,
 		    "Async done-%s good rscn gen %d ID %3phC. %8phC\n",
+<<<<<<< HEAD
 		    sp->name, sp->gen1, ct_req->req.port_id.port_id,
+=======
+		    sp->name, sp->gen1, &ct_req->req.port_id.port_id,
+>>>>>>> upstream/android-13
 		    ct_rsp->rsp.gpn_id.port_name);
 
 	memset(&ea, 0, sizeof(ea));
 	memcpy(ea.port_name, ct_rsp->rsp.gpn_id.port_name, WWN_SIZE);
 	ea.sp = sp;
+<<<<<<< HEAD
 	ea.id.b.domain = ct_req->req.port_id.port_id[0];
 	ea.id.b.area = ct_req->req.port_id.port_id[1];
 	ea.id.b.al_pa = ct_req->req.port_id.port_id[2];
 	ea.rc = res;
 	ea.event = FCME_GPNID_DONE;
+=======
+	ea.id = be_to_port_id(ct_req->req.port_id.port_id);
+	ea.rc = res;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
 	list_del(&sp->elem);
@@ -3618,21 +5017,36 @@ static void qla2x00_async_gpnid_sp_done(void *s, int res)
 	if (res) {
 		if (res == QLA_FUNCTION_TIMEOUT) {
 			qla24xx_post_gpnid_work(sp->vha, &ea.id);
+<<<<<<< HEAD
 			sp->free(sp);
+=======
+			/* ref: INIT */
+			kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 			return;
 		}
 	} else if (sp->gen1) {
 		/* There was another RSCN for this Nport ID */
 		qla24xx_post_gpnid_work(sp->vha, &ea.id);
+<<<<<<< HEAD
 		sp->free(sp);
 		return;
 	}
 
 	qla2x00_fcport_event_handler(vha, &ea);
+=======
+		/* ref: INIT */
+		kref_put(&sp->cmd_kref, qla2x00_sp_release);
+		return;
+	}
+
+	qla24xx_handle_gpnid_event(vha, &ea);
+>>>>>>> upstream/android-13
 
 	e = qla2x00_alloc_work(vha, QLA_EVT_UNMAP);
 	if (!e) {
 		/* please ignore kernel warning. otherwise, we have mem leak. */
+<<<<<<< HEAD
 		if (sp->u.iocb_cmd.u.ctarg.req) {
 			dma_free_coherent(&vha->hw->pdev->dev,
 				sp->u.iocb_cmd.u.ctarg.req_allocated_size,
@@ -3649,6 +5063,22 @@ static void qla2x00_async_gpnid_sp_done(void *s, int res)
 		}
 
 		sp->free(sp);
+=======
+		dma_free_coherent(&vha->hw->pdev->dev,
+				  sp->u.iocb_cmd.u.ctarg.req_allocated_size,
+				  sp->u.iocb_cmd.u.ctarg.req,
+				  sp->u.iocb_cmd.u.ctarg.req_dma);
+		sp->u.iocb_cmd.u.ctarg.req = NULL;
+
+		dma_free_coherent(&vha->hw->pdev->dev,
+				  sp->u.iocb_cmd.u.ctarg.rsp_allocated_size,
+				  sp->u.iocb_cmd.u.ctarg.rsp,
+				  sp->u.iocb_cmd.u.ctarg.rsp_dma);
+		sp->u.iocb_cmd.u.ctarg.rsp = NULL;
+
+		/* ref: INIT */
+		kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -3668,6 +5098,10 @@ int qla24xx_async_gpnid(scsi_qla_host_t *vha, port_id_t *id)
 	if (!vha->flags.online)
 		goto done;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, NULL, GFP_KERNEL);
 	if (!sp)
 		goto done;
@@ -3676,14 +5110,24 @@ int qla24xx_async_gpnid(scsi_qla_host_t *vha, port_id_t *id)
 	sp->name = "gpnid";
 	sp->u.iocb_cmd.u.ctarg.id = *id;
 	sp->gen1 = 0;
+<<<<<<< HEAD
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_gpnid_sp_done);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
 	list_for_each_entry(tsp, &vha->gpnid_list, elem) {
 		if (tsp->u.iocb_cmd.u.ctarg.id.b24 == id->b24) {
 			tsp->gen1++;
 			spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
+<<<<<<< HEAD
 			sp->free(sp);
+=======
+			/* ref: INIT */
+			kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 			goto done;
 		}
 	}
@@ -3718,20 +5162,30 @@ int qla24xx_async_gpnid(scsi_qla_host_t *vha, port_id_t *id)
 	ct_req = qla2x00_prep_ct_req(ct_sns, GPN_ID_CMD, GPN_ID_RSP_SIZE);
 
 	/* GPN_ID req */
+<<<<<<< HEAD
 	ct_req->req.port_id.port_id[0] = id->b.domain;
 	ct_req->req.port_id.port_id[1] = id->b.area;
 	ct_req->req.port_id.port_id[2] = id->b.al_pa;
+=======
+	ct_req->req.port_id.port_id = port_id_to_be_id(*id);
+>>>>>>> upstream/android-13
 
 	sp->u.iocb_cmd.u.ctarg.req_size = GPN_ID_REQ_SIZE;
 	sp->u.iocb_cmd.u.ctarg.rsp_size = GPN_ID_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	sp->done = qla2x00_async_gpnid_sp_done;
 
 	ql_dbg(ql_dbg_disc, vha, 0x2067,
 	    "Async-%s hdl=%x ID %3phC.\n", sp->name,
 	    sp->handle, ct_req->req.port_id.port_id);
+=======
+	ql_dbg(ql_dbg_disc, vha, 0x2067,
+	    "Async-%s hdl=%x ID %3phC.\n", sp->name,
+	    sp->handle, &ct_req->req.port_id.port_id);
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS)
@@ -3758,14 +5212,20 @@ done_free_sp:
 			sp->u.iocb_cmd.u.ctarg.rsp_dma);
 		sp->u.iocb_cmd.u.ctarg.rsp = NULL;
 	}
+<<<<<<< HEAD
 
 	sp->free(sp);
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 done:
 	return rval;
 }
 
 void qla24xx_handle_gffid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 {
+<<<<<<< HEAD
        fc_port_t *fcport = ea->fcport;
 
        qla24xx_post_gnl_work(vha, fcport);
@@ -3814,6 +5274,58 @@ void qla24xx_async_gffid_sp_done(void *s, int res)
 
        qla2x00_fcport_event_handler(vha, &ea);
        sp->free(sp);
+=======
+	fc_port_t *fcport = ea->fcport;
+
+	qla24xx_post_gnl_work(vha, fcport);
+}
+
+void qla24xx_async_gffid_sp_done(srb_t *sp, int res)
+{
+	struct scsi_qla_host *vha = sp->vha;
+	fc_port_t *fcport = sp->fcport;
+	struct ct_sns_rsp *ct_rsp;
+	struct event_arg ea;
+	uint8_t fc4_scsi_feat;
+	uint8_t fc4_nvme_feat;
+
+	ql_dbg(ql_dbg_disc, vha, 0x2133,
+	       "Async done-%s res %x ID %x. %8phC\n",
+	       sp->name, res, fcport->d_id.b24, fcport->port_name);
+
+	fcport->flags &= ~FCF_ASYNC_SENT;
+	ct_rsp = &fcport->ct_desc.ct_sns->p.rsp;
+	fc4_scsi_feat = ct_rsp->rsp.gff_id.fc4_features[GFF_FCP_SCSI_OFFSET];
+	fc4_nvme_feat = ct_rsp->rsp.gff_id.fc4_features[GFF_NVME_OFFSET];
+
+	/*
+	 * FC-GS-7, 5.2.3.12 FC-4 Features - format
+	 * The format of the FC-4 Features object, as defined by the FC-4,
+	 * Shall be an array of 4-bit values, one for each type code value
+	 */
+	if (!res) {
+		if (fc4_scsi_feat & 0xf) {
+			/* w1 b00:03 */
+			fcport->fc4_type = FS_FC4TYPE_FCP;
+			fcport->fc4_features = fc4_scsi_feat & 0xf;
+		}
+
+		if (fc4_nvme_feat & 0xf) {
+			/* w5 [00:03]/28h */
+			fcport->fc4_type |= FS_FC4TYPE_NVME;
+			fcport->fc4_features = fc4_nvme_feat & 0xf;
+		}
+	}
+
+	memset(&ea, 0, sizeof(ea));
+	ea.sp = sp;
+	ea.fcport = sp->fcport;
+	ea.rc = res;
+
+	qla24xx_handle_gffid_event(vha, &ea);
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 }
 
 /* Get FC4 Feature with Nport ID. */
@@ -3826,6 +5338,10 @@ int qla24xx_async_gffid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
 		return rval;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
 	if (!sp)
 		return rval;
@@ -3835,9 +5351,14 @@ int qla24xx_async_gffid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->name = "gffid";
 	sp->gen1 = fcport->rscn_gen;
 	sp->gen2 = fcport->login_gen;
+<<<<<<< HEAD
 
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla24xx_async_gffid_sp_done);
+>>>>>>> upstream/android-13
 
 	/* CT_IU preamble  */
 	ct_req = qla2x00_prep_ct_req(fcport->ct_desc.ct_sns, GFF_ID_CMD,
@@ -3855,12 +5376,19 @@ int qla24xx_async_gffid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->u.iocb_cmd.u.ctarg.rsp_size = GFF_ID_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->done = qla24xx_async_gffid_sp_done;
+=======
+	ql_dbg(ql_dbg_disc, vha, 0x2132,
+	    "Async-%s hdl=%x  %8phC.\n", sp->name,
+	    sp->handle, fcport->port_name);
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS)
 		goto done_free_sp;
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0x2132,
 	    "Async-%s hdl=%x  %8phC.\n", sp->name,
 	    sp->handle, fcport->port_name);
@@ -3868,6 +5396,12 @@ int qla24xx_async_gffid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	return rval;
 done_free_sp:
 	sp->free(sp);
+=======
+	return rval;
+done_free_sp:
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 	fcport->flags &= ~FCF_ASYNC_SENT;
 	return rval;
 }
@@ -3907,7 +5441,11 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 	u8 recheck = 0;
 	u16 dup = 0, dup_cnt = 0;
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
+=======
+	ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+>>>>>>> upstream/android-13
 	    "%s enter\n", __func__);
 
 	if (sp->gen1 != vha->hw->base_qpair->chip_reset) {
@@ -3923,11 +5461,34 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 		if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+<<<<<<< HEAD
 		} else {
 			ql_dbg(ql_dbg_disc, vha, 0xffff,
 			    "Fabric scan failed on all retries.\n");
 		}
 		goto out;
+=======
+			goto out;
+		} else {
+			ql_dbg(ql_dbg_disc, vha, 0xffff,
+			    "%s: Fabric scan failed for %d retries.\n",
+			    __func__, vha->scan.scan_retry);
+			/*
+			 * Unable to scan any rports. logout loop below
+			 * will unregister all sessions.
+			 */
+			list_for_each_entry(fcport, &vha->vp_fcports, list) {
+				if ((fcport->flags & FCF_FABRIC_DEVICE) != 0) {
+					fcport->scan_state = QLA_FCPORT_SCAN;
+					if (fcport->loop_id == FC_NO_LOOP_ID)
+						fcport->logout_on_delete = 0;
+					else
+						fcport->logout_on_delete = 1;
+				}
+			}
+			goto login_logout;
+		}
+>>>>>>> upstream/android-13
 	}
 	vha->scan.scan_retry = 0;
 
@@ -3973,19 +5534,45 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
 			if (memcmp(rp->port_name, fcport->port_name, WWN_SIZE))
 				continue;
+<<<<<<< HEAD
 			fcport->scan_needed = 0;
 			fcport->scan_state = QLA_FCPORT_FOUND;
 			found = true;
+=======
+			fcport->scan_state = QLA_FCPORT_FOUND;
+			fcport->last_rscn_gen = fcport->rscn_gen;
+			fcport->fc4_type = rp->fc4type;
+			found = true;
+
+			if (fcport->scan_needed) {
+				if (NVME_PRIORITY(vha->hw, fcport))
+					fcport->do_prli_nvme = 1;
+				else
+					fcport->do_prli_nvme = 0;
+			}
+
+>>>>>>> upstream/android-13
 			/*
 			 * If device was not a fabric device before.
 			 */
 			if ((fcport->flags & FCF_FABRIC_DEVICE) == 0) {
 				qla2x00_clear_loop_id(fcport);
 				fcport->flags |= FCF_FABRIC_DEVICE;
+<<<<<<< HEAD
 			} else if (fcport->d_id.b24 != rp->id.b24) {
 				qlt_schedule_sess_for_deletion(fcport);
 			}
 			fcport->d_id.b24 = rp->id.b24;
+=======
+			} else if (fcport->d_id.b24 != rp->id.b24 ||
+				   (fcport->scan_needed &&
+				    fcport->port_type != FCT_INITIATOR &&
+				    fcport->port_type != FCT_NVME_INITIATOR)) {
+				qlt_schedule_sess_for_deletion(fcport);
+			}
+			fcport->d_id.b24 = rp->id.b24;
+			fcport->scan_needed = 0;
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -4004,6 +5591,10 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 		    dup_cnt);
 	}
 
+<<<<<<< HEAD
+=======
+login_logout:
+>>>>>>> upstream/android-13
 	/*
 	 * Logout all previous fabric dev marked lost, except FCP2 devices.
 	 */
@@ -4014,19 +5605,47 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
 		}
 
 		if (fcport->scan_state != QLA_FCPORT_FOUND) {
+<<<<<<< HEAD
 			fcport->scan_needed = 0;
 			if ((qla_dual_mode_enabled(vha) ||
 				qla_ini_mode_enabled(vha)) &&
 			    atomic_read(&fcport->state) == FCS_ONLINE) {
+=======
+			bool do_delete = false;
+
+			if (fcport->scan_needed &&
+			    fcport->disc_state == DSC_LOGIN_PEND) {
+				/* Cable got disconnected after we sent
+				 * a login. Do delete to prevent timeout.
+				 */
+				fcport->logout_on_delete = 1;
+				do_delete = true;
+			}
+
+			fcport->scan_needed = 0;
+			if (((qla_dual_mode_enabled(vha) ||
+			      qla_ini_mode_enabled(vha)) &&
+			    atomic_read(&fcport->state) == FCS_ONLINE) ||
+				do_delete) {
+>>>>>>> upstream/android-13
 				if (fcport->loop_id != FC_NO_LOOP_ID) {
 					if (fcport->flags & FCF_FCP2_DEVICE)
 						fcport->logout_on_delete = 0;
 
+<<<<<<< HEAD
 					ql_dbg(ql_dbg_disc, vha, 0x20f0,
 					    "%s %d %8phC post del sess\n",
 					    __func__, __LINE__,
 					    fcport->port_name);
 
+=======
+					ql_log(ql_log_warn, vha, 0x20f0,
+					       "%s %d %8phC post del sess\n",
+					       __func__, __LINE__,
+					       fcport->port_name);
+
+					fcport->tgt_link_down_time = 0;
+>>>>>>> upstream/android-13
 					qlt_schedule_sess_for_deletion(fcport);
 					continue;
 				}
@@ -4083,7 +5702,11 @@ static int qla2x00_post_gnnft_gpnft_done_work(struct scsi_qla_host *vha,
 	return qla2x00_post_work(vha, e);
 }
 
+<<<<<<< HEAD
 static int qla2x00_post_nvme_gpnft_done_work(struct scsi_qla_host *vha,
+=======
+static int qla2x00_post_nvme_gpnft_work(struct scsi_qla_host *vha,
+>>>>>>> upstream/android-13
     srb_t *sp, int cmd)
 {
 	struct qla_work_evt *e;
@@ -4197,9 +5820,14 @@ static void qla2x00_find_free_fcp_nvme_slot(struct scsi_qla_host *vha,
 	}
 }
 
+<<<<<<< HEAD
 static void qla2x00_async_gpnft_gnnft_sp_done(void *s, int res)
 {
 	struct srb *sp = s;
+=======
+static void qla2x00_async_gpnft_gnnft_sp_done(srb_t *sp, int res)
+{
+>>>>>>> upstream/android-13
 	struct scsi_qla_host *vha = sp->vha;
 	struct ct_sns_req *ct_req =
 		(struct ct_sns_req *)sp->u.iocb_cmd.u.ctarg.req;
@@ -4218,6 +5846,21 @@ static void qla2x00_async_gpnft_gnnft_sp_done(void *s, int res)
 		unsigned long flags;
 		const char *name = sp->name;
 
+<<<<<<< HEAD
+=======
+		if (res == QLA_OS_TIMER_EXPIRED) {
+			/* switch is ignoring all commands.
+			 * This might be a zone disable behavior.
+			 * This means we hit 64s timeout.
+			 * 22s GPNFT + 44s Abort = 64s
+			 */
+			ql_dbg(ql_dbg_disc, vha, 0xffff,
+			       "%s: Switch Zone check please .\n",
+			       name);
+			qla2x00_mark_all_devices_lost(vha);
+		}
+
+>>>>>>> upstream/android-13
 		/*
 		 * We are in an Interrupt context, queue up this
 		 * sp for GNNFT_DONE work. This will allow all
@@ -4228,6 +5871,7 @@ static void qla2x00_async_gpnft_gnnft_sp_done(void *s, int res)
 		if (rc) {
 			/* Cleanup here to prevent memory leak */
 			qla24xx_sp_unmap(vha, sp);
+<<<<<<< HEAD
 			sp->free(sp);
 		}
 
@@ -4244,33 +5888,67 @@ static void qla2x00_async_gpnft_gnnft_sp_done(void *s, int res)
 			ql_dbg(ql_dbg_disc, vha, 0xffff,
 			    "Async done-%s rescan failed on all retries.\n",
 			    name);
+=======
+
+			spin_lock_irqsave(&vha->work_lock, flags);
+			vha->scan.scan_flags &= ~SF_SCANNING;
+			vha->scan.scan_retry++;
+			spin_unlock_irqrestore(&vha->work_lock, flags);
+
+			if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
+				set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
+				set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+				qla2xxx_wake_dpc(vha);
+			} else {
+				ql_dbg(ql_dbg_disc, vha, 0xffff,
+				    "Async done-%s rescan failed on all retries.\n",
+				    name);
+			}
+>>>>>>> upstream/android-13
 		}
 		return;
 	}
 
+<<<<<<< HEAD
 	if (!res)
 		qla2x00_find_free_fcp_nvme_slot(vha, sp);
 
 	if ((fc4_type == FC4_TYPE_FCP_SCSI) && vha->flags.nvme_enabled &&
 	    cmd == GNN_FT_CMD) {
 		del_timer(&sp->u.iocb_cmd.timer);
+=======
+	qla2x00_find_free_fcp_nvme_slot(vha, sp);
+
+	if ((fc4_type == FC4_TYPE_FCP_SCSI) && vha->flags.nvme_enabled &&
+	    cmd == GNN_FT_CMD) {
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(&vha->work_lock, flags);
 		vha->scan.scan_flags &= ~SF_SCANNING;
 		spin_unlock_irqrestore(&vha->work_lock, flags);
 
 		sp->rc = res;
+<<<<<<< HEAD
 		rc = qla2x00_post_nvme_gpnft_done_work(vha, sp, QLA_EVT_GPNFT);
+=======
+		rc = qla2x00_post_nvme_gpnft_work(vha, sp, QLA_EVT_GPNFT);
+>>>>>>> upstream/android-13
 		if (rc) {
 			qla24xx_sp_unmap(vha, sp);
 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+<<<<<<< HEAD
 			return;
+=======
+>>>>>>> upstream/android-13
 		}
 		return;
 	}
 
 	if (cmd == GPN_FT_CMD) {
+<<<<<<< HEAD
 		del_timer(&sp->u.iocb_cmd.timer);
+=======
+>>>>>>> upstream/android-13
 		rc = qla2x00_post_gnnft_gpnft_done_work(vha, sp,
 		    QLA_EVT_GPNFT_DONE);
 	} else {
@@ -4322,7 +6000,11 @@ static int qla24xx_async_gnnft(scsi_qla_host_t *vha, struct srb *sp,
 	}
 
 	ql_dbg(ql_dbg_disc, vha, 0xfffff,
+<<<<<<< HEAD
 	    "%s: FC4Type %x, CT-PASSTRHU %s command ctarg rsp size %d, ctarg req size %d\n",
+=======
+	    "%s: FC4Type %x, CT-PASSTHRU %s command ctarg rsp size %d, ctarg req size %d\n",
+>>>>>>> upstream/android-13
 	    __func__, fc4_type, sp->name, sp->u.iocb_cmd.u.ctarg.rsp_size,
 	     sp->u.iocb_cmd.u.ctarg.req_size);
 
@@ -4330,9 +6012,14 @@ static int qla24xx_async_gnnft(scsi_qla_host_t *vha, struct srb *sp,
 	sp->name = "gnnft";
 	sp->gen1 = vha->hw->base_qpair->chip_reset;
 	sp->gen2 = fc4_type;
+<<<<<<< HEAD
 
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_gpnft_gnnft_sp_done);
+>>>>>>> upstream/android-13
 
 	memset(sp->u.iocb_cmd.u.ctarg.rsp, 0, sp->u.iocb_cmd.u.ctarg.rsp_size);
 	memset(sp->u.iocb_cmd.u.ctarg.req, 0, sp->u.iocb_cmd.u.ctarg.req_size);
@@ -4348,6 +6035,7 @@ static int qla24xx_async_gnnft(scsi_qla_host_t *vha, struct srb *sp,
 	sp->u.iocb_cmd.u.ctarg.req_size = GNN_FT_REQ_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->done = qla2x00_async_gpnft_gnnft_sp_done;
 
 	rval = qla2x00_start_sp(sp);
@@ -4361,6 +6049,17 @@ static int qla24xx_async_gnnft(scsi_qla_host_t *vha, struct srb *sp,
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s hdl=%x FC4Type %x.\n", sp->name,
 	    sp->handle, ct_req->req.gpn_ft.port_type);
+=======
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "Async-%s hdl=%x FC4Type %x.\n", sp->name,
+	    sp->handle, ct_req->req.gpn_ft.port_type);
+
+	rval = qla2x00_start_sp(sp);
+	if (rval != QLA_SUCCESS) {
+		goto done_free_sp;
+	}
+
+>>>>>>> upstream/android-13
 	return rval;
 
 done_free_sp:
@@ -4378,15 +6077,35 @@ done_free_sp:
 		    sp->u.iocb_cmd.u.ctarg.rsp_dma);
 		sp->u.iocb_cmd.u.ctarg.rsp = NULL;
 	}
+<<<<<<< HEAD
 
 	sp->free(sp);
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+
+	spin_lock_irqsave(&vha->work_lock, flags);
+	vha->scan.scan_flags &= ~SF_SCANNING;
+	if (vha->scan.scan_flags == 0) {
+		ql_dbg(ql_dbg_disc, vha, 0xffff,
+		    "%s: schedule\n", __func__);
+		vha->scan.scan_flags |= SF_QUEUED;
+		schedule_delayed_work(&vha->scan.scan_work, 5);
+	}
+	spin_unlock_irqrestore(&vha->work_lock, flags);
+
+>>>>>>> upstream/android-13
 
 	return rval;
 } /* GNNFT */
 
 void qla24xx_async_gpnft_done(scsi_qla_host_t *vha, srb_t *sp)
 {
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
+=======
+	ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+>>>>>>> upstream/android-13
 	    "%s enter\n", __func__);
 	qla24xx_async_gnnft(vha, sp, sp->gen2);
 }
@@ -4400,7 +6119,11 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 	u32 rspsz;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
+=======
+	ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+>>>>>>> upstream/android-13
 	    "%s enter\n", __func__);
 
 	if (!vha->flags.online)
@@ -4409,19 +6132,36 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 	spin_lock_irqsave(&vha->work_lock, flags);
 	if (vha->scan.scan_flags & SF_SCANNING) {
 		spin_unlock_irqrestore(&vha->work_lock, flags);
+<<<<<<< HEAD
 		ql_dbg(ql_dbg_disc, vha, 0xffff, "scan active\n");
+=======
+		ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+		    "%s: scan active\n", __func__);
+>>>>>>> upstream/android-13
 		return rval;
 	}
 	vha->scan.scan_flags |= SF_SCANNING;
 	spin_unlock_irqrestore(&vha->work_lock, flags);
 
 	if (fc4_type == FC4_TYPE_FCP_SCSI) {
+<<<<<<< HEAD
 		ql_dbg(ql_dbg_disc, vha, 0xffff,
 		    "%s: Performing FCP Scan\n", __func__);
 
 		if (sp)
 			sp->free(sp); /* should not happen */
 
+=======
+		ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+		    "%s: Performing FCP Scan\n", __func__);
+
+		if (sp) {
+			/* ref: INIT */
+			kref_put(&sp->cmd_kref, qla2x00_sp_release);
+		}
+
+		/* ref: INIT */
+>>>>>>> upstream/android-13
 		sp = qla2x00_get_sp(vha, NULL, GFP_KERNEL);
 		if (!sp) {
 			spin_lock_irqsave(&vha->work_lock, flags);
@@ -4430,9 +6170,16 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 			return rval;
 		}
 
+<<<<<<< HEAD
 		sp->u.iocb_cmd.u.ctarg.req = dma_zalloc_coherent(
 			&vha->hw->pdev->dev, sizeof(struct ct_sns_pkt),
 			&sp->u.iocb_cmd.u.ctarg.req_dma, GFP_KERNEL);
+=======
+		sp->u.iocb_cmd.u.ctarg.req = dma_alloc_coherent(&vha->hw->pdev->dev,
+								sizeof(struct ct_sns_pkt),
+								&sp->u.iocb_cmd.u.ctarg.req_dma,
+								GFP_KERNEL);
+>>>>>>> upstream/android-13
 		sp->u.iocb_cmd.u.ctarg.req_allocated_size = sizeof(struct ct_sns_pkt);
 		if (!sp->u.iocb_cmd.u.ctarg.req) {
 			ql_log(ql_log_warn, vha, 0xffff,
@@ -4440,7 +6187,12 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 			spin_lock_irqsave(&vha->work_lock, flags);
 			vha->scan.scan_flags &= ~SF_SCANNING;
 			spin_unlock_irqrestore(&vha->work_lock, flags);
+<<<<<<< HEAD
 			goto done_free_sp;
+=======
+			qla2x00_rel_sp(sp);
+			return rval;
+>>>>>>> upstream/android-13
 		}
 		sp->u.iocb_cmd.u.ctarg.req_size = GPN_FT_REQ_SIZE;
 
@@ -4448,21 +6200,44 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 			((vha->hw->max_fibre_devices - 1) *
 			    sizeof(struct ct_sns_gpn_ft_data));
 
+<<<<<<< HEAD
 		sp->u.iocb_cmd.u.ctarg.rsp = dma_zalloc_coherent(
 			&vha->hw->pdev->dev, rspsz,
 			&sp->u.iocb_cmd.u.ctarg.rsp_dma, GFP_KERNEL);
 		sp->u.iocb_cmd.u.ctarg.rsp_allocated_size = sizeof(struct ct_sns_pkt);
+=======
+		sp->u.iocb_cmd.u.ctarg.rsp = dma_alloc_coherent(&vha->hw->pdev->dev,
+								rspsz,
+								&sp->u.iocb_cmd.u.ctarg.rsp_dma,
+								GFP_KERNEL);
+		sp->u.iocb_cmd.u.ctarg.rsp_allocated_size = rspsz;
+>>>>>>> upstream/android-13
 		if (!sp->u.iocb_cmd.u.ctarg.rsp) {
 			ql_log(ql_log_warn, vha, 0xffff,
 			    "Failed to allocate ct_sns request.\n");
 			spin_lock_irqsave(&vha->work_lock, flags);
 			vha->scan.scan_flags &= ~SF_SCANNING;
 			spin_unlock_irqrestore(&vha->work_lock, flags);
+<<<<<<< HEAD
 			goto done_free_sp;
 		}
 		sp->u.iocb_cmd.u.ctarg.rsp_size = rspsz;
 
 		ql_dbg(ql_dbg_disc, vha, 0xffff,
+=======
+			dma_free_coherent(&vha->hw->pdev->dev,
+			    sp->u.iocb_cmd.u.ctarg.req_allocated_size,
+			    sp->u.iocb_cmd.u.ctarg.req,
+			    sp->u.iocb_cmd.u.ctarg.req_dma);
+			sp->u.iocb_cmd.u.ctarg.req = NULL;
+			/* ref: INIT */
+			qla2x00_rel_sp(sp);
+			return rval;
+		}
+		sp->u.iocb_cmd.u.ctarg.rsp_size = rspsz;
+
+		ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+>>>>>>> upstream/android-13
 		    "%s scan list size %d\n", __func__, vha->scan.size);
 
 		memset(vha->scan.l, 0, vha->scan.size);
@@ -4476,9 +6251,14 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 	sp->name = "gpnft";
 	sp->gen1 = vha->hw->base_qpair->chip_reset;
 	sp->gen2 = fc4_type;
+<<<<<<< HEAD
 
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_gpnft_gnnft_sp_done);
+>>>>>>> upstream/android-13
 
 	rspsz = sp->u.iocb_cmd.u.ctarg.rsp_size;
 	memset(sp->u.iocb_cmd.u.ctarg.rsp, 0, sp->u.iocb_cmd.u.ctarg.rsp_size);
@@ -4493,6 +6273,7 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->done = qla2x00_async_gpnft_gnnft_sp_done;
 
 	rval = qla2x00_start_sp(sp);
@@ -4506,6 +6287,17 @@ int qla24xx_async_gpnft(scsi_qla_host_t *vha, u8 fc4_type, srb_t *sp)
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s hdl=%x FC4Type %x.\n", sp->name,
 	    sp->handle, ct_req->req.gpn_ft.port_type);
+=======
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "Async-%s hdl=%x FC4Type %x.\n", sp->name,
+	    sp->handle, ct_req->req.gpn_ft.port_type);
+
+	rval = qla2x00_start_sp(sp);
+	if (rval != QLA_SUCCESS) {
+		goto done_free_sp;
+	}
+
+>>>>>>> upstream/android-13
 	return rval;
 
 done_free_sp:
@@ -4524,7 +6316,23 @@ done_free_sp:
 		sp->u.iocb_cmd.u.ctarg.rsp = NULL;
 	}
 
+<<<<<<< HEAD
 	sp->free(sp);
+=======
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+
+	spin_lock_irqsave(&vha->work_lock, flags);
+	vha->scan.scan_flags &= ~SF_SCANNING;
+	if (vha->scan.scan_flags == 0) {
+		ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0xffff,
+		    "%s: Scan scheduled.\n", __func__);
+		vha->scan.scan_flags |= SF_QUEUED;
+		schedule_delayed_work(&vha->scan.scan_work, 5);
+	}
+	spin_unlock_irqrestore(&vha->work_lock, flags);
+
+>>>>>>> upstream/android-13
 
 	return rval;
 }
@@ -4553,9 +6361,14 @@ void qla24xx_handle_gnnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 	qla24xx_post_gnl_work(vha, ea->fcport);
 }
 
+<<<<<<< HEAD
 static void qla2x00_async_gnnid_sp_done(void *s, int res)
 {
 	struct srb *sp = s;
+=======
+static void qla2x00_async_gnnid_sp_done(srb_t *sp, int res)
+{
+>>>>>>> upstream/android-13
 	struct scsi_qla_host *vha = sp->vha;
 	fc_port_t *fcport = sp->fcport;
 	u8 *node_name = fcport->ct_desc.ct_sns->p.rsp.rsp.gnn_id.node_name;
@@ -4571,15 +6384,25 @@ static void qla2x00_async_gnnid_sp_done(void *s, int res)
 	ea.fcport = fcport;
 	ea.sp = sp;
 	ea.rc = res;
+<<<<<<< HEAD
 	ea.event = FCME_GNNID_DONE;
+=======
+>>>>>>> upstream/android-13
 
 	ql_dbg(ql_dbg_disc, vha, 0x204f,
 	    "Async done-%s res %x, WWPN %8phC %8phC\n",
 	    sp->name, res, fcport->port_name, fcport->node_name);
 
+<<<<<<< HEAD
 	qla2x00_fcport_event_handler(vha, &ea);
 
 	sp->free(sp);
+=======
+	qla24xx_handle_gnnid_event(vha, &ea);
+
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 }
 
 int qla24xx_async_gnnid(scsi_qla_host_t *vha, fc_port_t *fcport)
@@ -4591,7 +6414,12 @@ int qla24xx_async_gnnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
 		return rval;
 
+<<<<<<< HEAD
 	fcport->disc_state = DSC_GNN_ID;
+=======
+	qla2x00_set_fcport_disc_state(fcport, DSC_GNN_ID);
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, fcport, GFP_ATOMIC);
 	if (!sp)
 		goto done;
@@ -4601,18 +6429,27 @@ int qla24xx_async_gnnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->name = "gnnid";
 	sp->gen1 = fcport->rscn_gen;
 	sp->gen2 = fcport->login_gen;
+<<<<<<< HEAD
 
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_gnnid_sp_done);
+>>>>>>> upstream/android-13
 
 	/* CT_IU preamble  */
 	ct_req = qla2x00_prep_ct_req(fcport->ct_desc.ct_sns, GNN_ID_CMD,
 	    GNN_ID_RSP_SIZE);
 
 	/* GNN_ID req */
+<<<<<<< HEAD
 	ct_req->req.port_id.port_id[0] = fcport->d_id.b.domain;
 	ct_req->req.port_id.port_id[1] = fcport->d_id.b.area;
 	ct_req->req.port_id.port_id[2] = fcport->d_id.b.al_pa;
+=======
+	ct_req->req.port_id.port_id = port_id_to_be_id(fcport->d_id);
+>>>>>>> upstream/android-13
 
 
 	/* req & rsp use the same buffer */
@@ -4624,19 +6461,34 @@ int qla24xx_async_gnnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->u.iocb_cmd.u.ctarg.rsp_size = GNN_ID_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->done = qla2x00_async_gnnid_sp_done;
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS)
 		goto done_free_sp;
+=======
+>>>>>>> upstream/android-13
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s - %8phC hdl=%x loopid=%x portid %06x.\n",
 	    sp->name, fcport->port_name,
 	    sp->handle, fcport->loop_id, fcport->d_id.b24);
+<<<<<<< HEAD
 	return rval;
 
 done_free_sp:
 	sp->free(sp);
+=======
+
+	rval = qla2x00_start_sp(sp);
+	if (rval != QLA_SUCCESS)
+		goto done_free_sp;
+	return rval;
+
+done_free_sp:
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 	fcport->flags &= ~FCF_ASYNC_SENT;
 done:
 	return rval;
@@ -4681,18 +6533,26 @@ void qla24xx_handle_gfpnid_event(scsi_qla_host_t *vha, struct event_arg *ea)
 		    __func__, fcport->port_name);
 		return;
 	} else if (ea->sp->gen1 != fcport->rscn_gen) {
+<<<<<<< HEAD
 		ql_dbg(ql_dbg_disc, vha, 0x20d4, "%s %d %8phC post gidpn\n",
 		    __func__, __LINE__, fcport->port_name);
 		qla24xx_post_gidpn_work(vha, fcport);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	qla24xx_post_gpsc_work(vha, fcport);
 }
 
+<<<<<<< HEAD
 static void qla2x00_async_gfpnid_sp_done(void *s, int res)
 {
 	struct srb *sp = s;
+=======
+static void qla2x00_async_gfpnid_sp_done(srb_t *sp, int res)
+{
+>>>>>>> upstream/android-13
 	struct scsi_qla_host *vha = sp->vha;
 	fc_port_t *fcport = sp->fcport;
 	u8 *fpn = fcport->ct_desc.ct_sns->p.rsp.rsp.gfpn_id.port_name;
@@ -4707,15 +6567,25 @@ static void qla2x00_async_gfpnid_sp_done(void *s, int res)
 	ea.fcport = fcport;
 	ea.sp = sp;
 	ea.rc = res;
+<<<<<<< HEAD
 	ea.event = FCME_GFPNID_DONE;
+=======
+>>>>>>> upstream/android-13
 
 	ql_dbg(ql_dbg_disc, vha, 0x204f,
 	    "Async done-%s res %x, WWPN %8phC %8phC\n",
 	    sp->name, res, fcport->port_name, fcport->fabric_port_name);
 
+<<<<<<< HEAD
 	qla2x00_fcport_event_handler(vha, &ea);
 
 	sp->free(sp);
+=======
+	qla24xx_handle_gfpnid_event(vha, &ea);
+
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 }
 
 int qla24xx_async_gfpnid(scsi_qla_host_t *vha, fc_port_t *fcport)
@@ -4727,6 +6597,10 @@ int qla24xx_async_gfpnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
 		return rval;
 
+<<<<<<< HEAD
+=======
+	/* ref: INIT */
+>>>>>>> upstream/android-13
 	sp = qla2x00_get_sp(vha, fcport, GFP_ATOMIC);
 	if (!sp)
 		goto done;
@@ -4735,18 +6609,27 @@ int qla24xx_async_gfpnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->name = "gfpnid";
 	sp->gen1 = fcport->rscn_gen;
 	sp->gen2 = fcport->login_gen;
+<<<<<<< HEAD
 
 	sp->u.iocb_cmd.timeout = qla2x00_async_iocb_timeout;
 	qla2x00_init_timer(sp, qla2x00_get_async_timeout(vha) + 2);
+=======
+	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha) + 2,
+			      qla2x00_async_gfpnid_sp_done);
+>>>>>>> upstream/android-13
 
 	/* CT_IU preamble  */
 	ct_req = qla2x00_prep_ct_req(fcport->ct_desc.ct_sns, GFPN_ID_CMD,
 	    GFPN_ID_RSP_SIZE);
 
 	/* GFPN_ID req */
+<<<<<<< HEAD
 	ct_req->req.port_id.port_id[0] = fcport->d_id.b.domain;
 	ct_req->req.port_id.port_id[1] = fcport->d_id.b.area;
 	ct_req->req.port_id.port_id[2] = fcport->d_id.b.al_pa;
+=======
+	ct_req->req.port_id.port_id = port_id_to_be_id(fcport->d_id);
+>>>>>>> upstream/android-13
 
 
 	/* req & rsp use the same buffer */
@@ -4758,12 +6641,20 @@ int qla24xx_async_gfpnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 	sp->u.iocb_cmd.u.ctarg.rsp_size = GFPN_ID_RSP_SIZE;
 	sp->u.iocb_cmd.u.ctarg.nport_handle = NPH_SNS;
 
+<<<<<<< HEAD
 	sp->done = qla2x00_async_gfpnid_sp_done;
+=======
+	ql_dbg(ql_dbg_disc, vha, 0xffff,
+	    "Async-%s - %8phC hdl=%x loopid=%x portid %06x.\n",
+	    sp->name, fcport->port_name,
+	    sp->handle, fcport->loop_id, fcport->d_id.b24);
+>>>>>>> upstream/android-13
 
 	rval = qla2x00_start_sp(sp);
 	if (rval != QLA_SUCCESS)
 		goto done_free_sp;
 
+<<<<<<< HEAD
 	ql_dbg(ql_dbg_disc, vha, 0xffff,
 	    "Async-%s - %8phC hdl=%x loopid=%x portid %06x.\n",
 	    sp->name, fcport->port_name,
@@ -4773,6 +6664,13 @@ int qla24xx_async_gfpnid(scsi_qla_host_t *vha, fc_port_t *fcport)
 done_free_sp:
 	sp->free(sp);
 	fcport->flags &= ~FCF_ASYNC_SENT;
+=======
+	return rval;
+
+done_free_sp:
+	/* ref: INIT */
+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
+>>>>>>> upstream/android-13
 done:
 	return rval;
 }

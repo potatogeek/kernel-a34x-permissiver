@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2014, 2018 Intel Corporation
+ * Copyright (C) 2015 Intel Mobile Communications GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_eeprom_parse_h__
 #define __iwl_eeprom_parse_h__
 
@@ -104,6 +112,20 @@ struct iwl_nvm_data {
 	bool lar_enabled;
 	bool vht160_supported;
 	struct ieee80211_supported_band bands[NUM_NL80211_BANDS];
+<<<<<<< HEAD
+=======
+
+	/*
+	 * iftype data for low (2.4 GHz) and high (5 and 6 GHz) bands,
+	 * we can use the same for 5 and 6 GHz bands because they have
+	 * the same data
+	 */
+	struct {
+		struct ieee80211_sband_iftype_data low[2];
+		struct ieee80211_sband_iftype_data high[2];
+	} iftd;
+
+>>>>>>> upstream/android-13
 	struct ieee80211_channel channels[];
 };
 
@@ -121,14 +143,22 @@ struct iwl_nvm_data {
  * later with iwl_free_nvm_data().
  */
 struct iwl_nvm_data *
+<<<<<<< HEAD
 iwl_parse_eeprom_data(struct device *dev, const struct iwl_cfg *cfg,
+=======
+iwl_parse_eeprom_data(struct iwl_trans *trans, const struct iwl_cfg *cfg,
+>>>>>>> upstream/android-13
 		      const u8 *eeprom, size_t eeprom_size);
 
 int iwl_init_sband_channels(struct iwl_nvm_data *data,
 			    struct ieee80211_supported_band *sband,
 			    int n_channels, enum nl80211_band band);
 
+<<<<<<< HEAD
 void iwl_init_ht_hw_capab(const struct iwl_cfg *cfg,
+=======
+void iwl_init_ht_hw_capab(struct iwl_trans *trans,
+>>>>>>> upstream/android-13
 			  struct iwl_nvm_data *data,
 			  struct ieee80211_sta_ht_cap *ht_info,
 			  enum nl80211_band band,

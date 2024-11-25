@@ -36,7 +36,11 @@ static struct btrfs_dir_item *insert_with_overflow(struct btrfs_trans_handle
 		di = btrfs_match_dir_item_name(fs_info, path, name, name_len);
 		if (di)
 			return ERR_PTR(-EEXIST);
+<<<<<<< HEAD
 		btrfs_extend_item(fs_info, path, data_size);
+=======
+		btrfs_extend_item(path, data_size);
+>>>>>>> upstream/android-13
 	} else if (ret < 0)
 		return ERR_PTR(ret);
 	WARN_ON(ret > 0);
@@ -105,6 +109,7 @@ int btrfs_insert_xattr_item(struct btrfs_trans_handle *trans,
  * to use for the second index (if one is created).
  * Will return 0 or -ENOMEM
  */
+<<<<<<< HEAD
 int btrfs_insert_dir_item(struct btrfs_trans_handle *trans, struct btrfs_root
 			  *root, const char *name, int name_len,
 			  struct btrfs_inode *dir, struct btrfs_key *location,
@@ -112,6 +117,15 @@ int btrfs_insert_dir_item(struct btrfs_trans_handle *trans, struct btrfs_root
 {
 	int ret = 0;
 	int ret2 = 0;
+=======
+int btrfs_insert_dir_item(struct btrfs_trans_handle *trans, const char *name,
+			  int name_len, struct btrfs_inode *dir,
+			  struct btrfs_key *location, u8 type, u64 index)
+{
+	int ret = 0;
+	int ret2 = 0;
+	struct btrfs_root *root = dir->root;
+>>>>>>> upstream/android-13
 	struct btrfs_path *path;
 	struct btrfs_dir_item *dir_item;
 	struct extent_buffer *leaf;
@@ -127,7 +141,10 @@ int btrfs_insert_dir_item(struct btrfs_trans_handle *trans, struct btrfs_root
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 
 	btrfs_cpu_key_to_disk(&disk_key, location);
 
@@ -171,10 +188,47 @@ out_free:
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * lookup a directory item based on name.  'dir' is the objectid
  * we're searching in, and 'mod' tells us if you plan on deleting the
  * item (use mod < 0) or changing the options (use mod > 0)
+=======
+static struct btrfs_dir_item *btrfs_lookup_match_dir(
+			struct btrfs_trans_handle *trans,
+			struct btrfs_root *root, struct btrfs_path *path,
+			struct btrfs_key *key, const char *name,
+			int name_len, int mod)
+{
+	const int ins_len = (mod < 0 ? -1 : 0);
+	const int cow = (mod != 0);
+	int ret;
+
+	ret = btrfs_search_slot(trans, root, key, path, ins_len, cow);
+	if (ret < 0)
+		return ERR_PTR(ret);
+	if (ret > 0)
+		return ERR_PTR(-ENOENT);
+
+	return btrfs_match_dir_item_name(root->fs_info, path, name, name_len);
+}
+
+/*
+ * Lookup for a directory item by name.
+ *
+ * @trans:	The transaction handle to use. Can be NULL if @mod is 0.
+ * @root:	The root of the target tree.
+ * @path:	Path to use for the search.
+ * @dir:	The inode number (objectid) of the directory.
+ * @name:	The name associated to the directory entry we are looking for.
+ * @name_len:	The length of the name.
+ * @mod:	Used to indicate if the tree search is meant for a read only
+ *		lookup, for a modification lookup or for a deletion lookup, so
+ *		its value should be 0, 1 or -1, respectively.
+ *
+ * Returns: NULL if the dir item does not exists, an error pointer if an error
+ * happened, or a pointer to a dir item if a dir item exists for the given name.
+>>>>>>> upstream/android-13
  */
 struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
 					     struct btrfs_root *root,
@@ -182,6 +236,7 @@ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
 					     const char *name, int name_len,
 					     int mod)
 {
+<<<<<<< HEAD
 	int ret;
 	struct btrfs_key key;
 	int ins_len = mod < 0 ? -1 : 0;
@@ -199,6 +254,20 @@ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
 		return NULL;
 
 	return btrfs_match_dir_item_name(root->fs_info, path, name, name_len);
+=======
+	struct btrfs_key key;
+	struct btrfs_dir_item *di;
+
+	key.objectid = dir;
+	key.type = BTRFS_DIR_ITEM_KEY;
+	key.offset = btrfs_name_hash(name, name_len);
+
+	di = btrfs_lookup_match_dir(trans, root, path, &key, name, name_len, mod);
+	if (IS_ERR(di) && PTR_ERR(di) == -ENOENT)
+		return NULL;
+
+	return di;
+>>>>>>> upstream/android-13
 }
 
 int btrfs_check_dir_item_collision(struct btrfs_root *root, u64 dir,
@@ -212,7 +281,10 @@ int btrfs_check_dir_item_collision(struct btrfs_root *root, u64 dir,
 	int slot;
 	struct btrfs_path *path;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	path = btrfs_alloc_path();
 	if (!path)
 		return -ENOMEM;
@@ -221,6 +293,7 @@ int btrfs_check_dir_item_collision(struct btrfs_root *root, u64 dir,
 	key.type = BTRFS_DIR_ITEM_KEY;
 	key.offset = btrfs_name_hash(name, name_len);
 
+<<<<<<< HEAD
 	ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
 
 	/* return back any errors */
@@ -235,6 +308,22 @@ int btrfs_check_dir_item_collision(struct btrfs_root *root, u64 dir,
 
 	/* we found an item, look for our name in the item */
 	di = btrfs_match_dir_item_name(root->fs_info, path, name, name_len);
+=======
+	di = btrfs_lookup_match_dir(NULL, root, path, &key, name, name_len, 0);
+	if (IS_ERR(di)) {
+		ret = PTR_ERR(di);
+		/* Nothing found, we're safe */
+		if (ret == -ENOENT) {
+			ret = 0;
+			goto out;
+		}
+
+		if (ret < 0)
+			goto out;
+	}
+
+	/* we found an item, look for our name in the item */
+>>>>>>> upstream/android-13
 	if (di) {
 		/* our exact name was found */
 		ret = -EEXIST;
@@ -261,17 +350,37 @@ out:
 }
 
 /*
+<<<<<<< HEAD
  * lookup a directory item based on index.  'dir' is the objectid
  * we're searching in, and 'mod' tells us if you plan on deleting the
  * item (use mod < 0) or changing the options (use mod > 0)
  *
  * The name is used to make sure the index really points to the name you were
  * looking for.
+=======
+ * Lookup for a directory index item by name and index number.
+ *
+ * @trans:	The transaction handle to use. Can be NULL if @mod is 0.
+ * @root:	The root of the target tree.
+ * @path:	Path to use for the search.
+ * @dir:	The inode number (objectid) of the directory.
+ * @index:	The index number.
+ * @name:	The name associated to the directory entry we are looking for.
+ * @name_len:	The length of the name.
+ * @mod:	Used to indicate if the tree search is meant for a read only
+ *		lookup, for a modification lookup or for a deletion lookup, so
+ *		its value should be 0, 1 or -1, respectively.
+ *
+ * Returns: NULL if the dir index item does not exists, an error pointer if an
+ * error happened, or a pointer to a dir item if the dir index item exists and
+ * matches the criteria (name and index number).
+>>>>>>> upstream/android-13
  */
 struct btrfs_dir_item *
 btrfs_lookup_dir_index_item(struct btrfs_trans_handle *trans,
 			    struct btrfs_root *root,
 			    struct btrfs_path *path, u64 dir,
+<<<<<<< HEAD
 			    u64 objectid, const char *name, int name_len,
 			    int mod)
 {
@@ -290,6 +399,23 @@ btrfs_lookup_dir_index_item(struct btrfs_trans_handle *trans,
 	if (ret > 0)
 		return ERR_PTR(-ENOENT);
 	return btrfs_match_dir_item_name(root->fs_info, path, name, name_len);
+=======
+			    u64 index, const char *name, int name_len,
+			    int mod)
+{
+	struct btrfs_dir_item *di;
+	struct btrfs_key key;
+
+	key.objectid = dir;
+	key.type = BTRFS_DIR_INDEX_KEY;
+	key.offset = index;
+
+	di = btrfs_lookup_match_dir(trans, root, path, &key, name, name_len, mod);
+	if (di == ERR_PTR(-ENOENT))
+		return NULL;
+
+	return di;
+>>>>>>> upstream/android-13
 }
 
 struct btrfs_dir_item *
@@ -346,14 +472,20 @@ struct btrfs_dir_item *btrfs_lookup_xattr(struct btrfs_trans_handle *trans,
 					  const char *name, u16 name_len,
 					  int mod)
 {
+<<<<<<< HEAD
 	int ret;
 	struct btrfs_key key;
 	int ins_len = mod < 0 ? -1 : 0;
 	int cow = mod != 0;
+=======
+	struct btrfs_key key;
+	struct btrfs_dir_item *di;
+>>>>>>> upstream/android-13
 
 	key.objectid = dir;
 	key.type = BTRFS_XATTR_ITEM_KEY;
 	key.offset = btrfs_name_hash(name, name_len);
+<<<<<<< HEAD
 	ret = btrfs_search_slot(trans, root, &key, path, ins_len, cow);
 	if (ret < 0)
 		return ERR_PTR(ret);
@@ -361,6 +493,14 @@ struct btrfs_dir_item *btrfs_lookup_xattr(struct btrfs_trans_handle *trans,
 		return NULL;
 
 	return btrfs_match_dir_item_name(root->fs_info, path, name, name_len);
+=======
+
+	di = btrfs_lookup_match_dir(trans, root, path, &key, name, name_len, mod);
+	if (IS_ERR(di) && PTR_ERR(di) == -ENOENT)
+		return NULL;
+
+	return di;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -429,8 +569,12 @@ int btrfs_delete_one_dir_name(struct btrfs_trans_handle *trans,
 		start = btrfs_item_ptr_offset(leaf, path->slots[0]);
 		memmove_extent_buffer(leaf, ptr, ptr + sub_item_len,
 			item_len - (ptr + sub_item_len - start));
+<<<<<<< HEAD
 		btrfs_truncate_item(root->fs_info, path,
 				    item_len - sub_item_len, 1);
+=======
+		btrfs_truncate_item(path, item_len - sub_item_len, 1);
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }

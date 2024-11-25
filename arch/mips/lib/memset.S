@@ -52,7 +52,11 @@
 9:		___BUILD_EVA_INSN(insn, reg, addr);	\
 	.endif;						\
 	.section __ex_table,"a";			\
+<<<<<<< HEAD
 	PTR	9b, handler;				\
+=======
+	PTR_WD	9b, handler;				\
+>>>>>>> upstream/android-13
 	.previous
 
 	.macro	f_fill64 dst, offset, val, fixup, mode
@@ -78,7 +82,10 @@
 #endif
 	.endm
 
+<<<<<<< HEAD
 	.set	noreorder
+=======
+>>>>>>> upstream/android-13
 	.align	5
 
 	/*
@@ -94,13 +101,24 @@
 	.endif
 
 	sltiu		t0, a2, STORSIZE	/* very small region? */
+<<<<<<< HEAD
 	bnez		t0, .Lsmall_memset\@
 	 andi		t0, a0, STORMASK	/* aligned? */
+=======
+	.set		noreorder
+	bnez		t0, .Lsmall_memset\@
+	 andi		t0, a0, STORMASK	/* aligned? */
+	.set		reorder
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_MICROMIPS
 	move		t8, a1			/* used by 'swp' instruction */
 	move		t9, a1
 #endif
+<<<<<<< HEAD
+=======
+	.set		noreorder
+>>>>>>> upstream/android-13
 #ifndef CONFIG_CPU_DADDI_WORKAROUNDS
 	beqz		t0, 1f
 	 PTR_SUBU	t0, STORSIZE		/* alignment in bytes */
@@ -111,8 +129,14 @@
 	 PTR_SUBU	t0, AT			/* alignment in bytes */
 	.set		at
 #endif
+<<<<<<< HEAD
 
 #ifndef CONFIG_CPU_MIPSR6
+=======
+	.set		reorder
+
+#ifndef CONFIG_CPU_NO_LOAD_STORE_LR
+>>>>>>> upstream/android-13
 	R10KCBARRIER(0(ra))
 #ifdef __MIPSEB__
 	EX(LONG_S_L, a1, (a0), .Lfirst_fixup\@)	/* make word/dword aligned */
@@ -122,11 +146,21 @@
 	PTR_SUBU	a0, t0			/* long align ptr */
 	PTR_ADDU	a2, t0			/* correct size */
 
+<<<<<<< HEAD
 #else /* CONFIG_CPU_MIPSR6 */
 #define STORE_BYTE(N)				\
 	EX(sb, a1, N(a0), .Lbyte_fixup\@);	\
 	beqz		t0, 0f;			\
 	PTR_ADDU	t0, 1;
+=======
+#else /* CONFIG_CPU_NO_LOAD_STORE_LR */
+#define STORE_BYTE(N)				\
+	EX(sb, a1, N(a0), .Lbyte_fixup\@);	\
+	.set		noreorder;		\
+	beqz		t0, 0f;			\
+	 PTR_ADDU	t0, 1;			\
+	.set		reorder;
+>>>>>>> upstream/android-13
 
 	PTR_ADDU	a2, t0			/* correct size */
 	PTR_ADDU	t0, 1
@@ -145,6 +179,7 @@
 	ori		a0, STORMASK
 	xori		a0, STORMASK
 	PTR_ADDIU	a0, STORSIZE
+<<<<<<< HEAD
 #endif /* CONFIG_CPU_MIPSR6 */
 1:	ori		t1, a2, 0x3f		/* # of full blocks */
 	xori		t1, 0x3f
@@ -153,11 +188,23 @@
 
 	PTR_ADDU	t1, a0			/* end address */
 	.set		reorder
+=======
+#endif /* CONFIG_CPU_NO_LOAD_STORE_LR */
+1:	ori		t1, a2, 0x3f		/* # of full blocks */
+	xori		t1, 0x3f
+	andi		t0, a2, 0x40-STORSIZE
+	beqz		t1, .Lmemset_partial\@	/* no block to fill */
+
+	PTR_ADDU	t1, a0			/* end address */
+>>>>>>> upstream/android-13
 1:	PTR_ADDIU	a0, 64
 	R10KCBARRIER(0(ra))
 	f_fill64 a0, -64, FILL64RG, .Lfwd_fixup\@, \mode
 	bne		t1, a0, 1b
+<<<<<<< HEAD
 	.set		noreorder
+=======
+>>>>>>> upstream/android-13
 
 .Lmemset_partial\@:
 	R10KCBARRIER(0(ra))
@@ -173,6 +220,7 @@
 	PTR_SUBU	t1, AT
 	.set		at
 #endif
+<<<<<<< HEAD
 	jr		t1
 	 PTR_ADDU	a0, t0			/* dest ptr */
 
@@ -187,14 +235,34 @@
 	beqz		a2, 1f
 #ifndef CONFIG_CPU_MIPSR6
 	 PTR_ADDU	a0, a2			/* What's left */
+=======
+	PTR_ADDU	a0, t0			/* dest ptr */
+	jr		t1
+
+	/* ... but first do longs ... */
+	f_fill64 a0, -64, FILL64RG, .Lpartial_fixup\@, \mode
+2:	andi		a2, STORMASK		/* At most one long to go */
+
+	.set		noreorder
+	beqz		a2, 1f
+#ifndef CONFIG_CPU_NO_LOAD_STORE_LR
+	 PTR_ADDU	a0, a2			/* What's left */
+	.set		reorder
+>>>>>>> upstream/android-13
 	R10KCBARRIER(0(ra))
 #ifdef __MIPSEB__
 	EX(LONG_S_R, a1, -1(a0), .Llast_fixup\@)
 #else
 	EX(LONG_S_L, a1, -1(a0), .Llast_fixup\@)
 #endif
+<<<<<<< HEAD
 #else
 	 PTR_SUBU	t0, $0, a2
+=======
+#else /* CONFIG_CPU_NO_LOAD_STORE_LR */
+	 PTR_SUBU	t0, $0, a2
+	.set		reorder
+>>>>>>> upstream/android-13
 	move		a2, zero		/* No remaining longs */
 	PTR_ADDIU	t0, 1
 	STORE_BYTE(0)
@@ -209,6 +277,7 @@
 	EX(sb, a1, 6(a0), .Lbyte_fixup\@)
 #endif
 0:
+<<<<<<< HEAD
 #endif
 1:	jr		ra
 	 move		a2, zero
@@ -224,27 +293,59 @@
 
 2:	jr		ra			/* done */
 	 move		a2, zero
+=======
+#endif /* CONFIG_CPU_NO_LOAD_STORE_LR */
+1:	move		a2, zero
+	jr		ra
+
+.Lsmall_memset\@:
+	PTR_ADDU	t1, a0, a2
+	beqz		a2, 2f
+
+1:	PTR_ADDIU	a0, 1			/* fill bytewise */
+	R10KCBARRIER(0(ra))
+	.set		noreorder
+	bne		t1, a0, 1b
+	 EX(sb, a1, -1(a0), .Lsmall_fixup\@)
+	.set		reorder
+
+2:	move		a2, zero
+	jr		ra			/* done */
+>>>>>>> upstream/android-13
 	.if __memset == 1
 	END(memset)
 	.set __memset, 0
 	.hidden __memset
 	.endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_MIPSR6
+=======
+#ifdef CONFIG_CPU_NO_LOAD_STORE_LR
+>>>>>>> upstream/android-13
 .Lbyte_fixup\@:
 	/*
 	 * unset_bytes = (#bytes - (#unaligned bytes)) - (-#unaligned bytes remaining + 1) + 1
 	 *      a2     =             a2                -              t0                   + 1
 	 */
 	PTR_SUBU	a2, t0
+<<<<<<< HEAD
 	jr		ra
 	 PTR_ADDIU	a2, 1
 #endif /* CONFIG_CPU_MIPSR6 */
+=======
+	PTR_ADDIU	a2, 1
+	jr		ra
+#endif /* CONFIG_CPU_NO_LOAD_STORE_LR */
+>>>>>>> upstream/android-13
 
 .Lfirst_fixup\@:
 	/* unset_bytes already in a2 */
 	jr	ra
+<<<<<<< HEAD
 	 nop
+=======
+>>>>>>> upstream/android-13
 
 .Lfwd_fixup\@:
 	/*
@@ -255,8 +356,13 @@
 	andi		a2, 0x3f
 	LONG_L		t0, THREAD_BUADDR(t0)
 	LONG_ADDU	a2, t1
+<<<<<<< HEAD
 	jr		ra
 	 LONG_SUBU	a2, t0
+=======
+	LONG_SUBU	a2, t0
+	jr		ra
+>>>>>>> upstream/android-13
 
 .Lpartial_fixup\@:
 	/*
@@ -267,24 +373,38 @@
 	andi		a2, STORMASK
 	LONG_L		t0, THREAD_BUADDR(t0)
 	LONG_ADDU	a2, a0
+<<<<<<< HEAD
 	jr		ra
 	 LONG_SUBU	a2, t0
+=======
+	LONG_SUBU	a2, t0
+	jr		ra
+>>>>>>> upstream/android-13
 
 .Llast_fixup\@:
 	/* unset_bytes already in a2 */
 	jr		ra
+<<<<<<< HEAD
 	 nop
+=======
+>>>>>>> upstream/android-13
 
 .Lsmall_fixup\@:
 	/*
 	 * unset_bytes = end_addr - current_addr + 1
 	 *      a2     =    t1    -      a0      + 1
 	 */
+<<<<<<< HEAD
 	.set		reorder
 	PTR_SUBU	a2, t1, a0
 	PTR_ADDIU	a2, 1
 	jr		ra
 	.set		noreorder
+=======
+	PTR_SUBU	a2, t1, a0
+	PTR_ADDIU	a2, 1
+	jr		ra
+>>>>>>> upstream/android-13
 
 	.endm
 
@@ -298,8 +418,13 @@
 
 LEAF(memset)
 EXPORT_SYMBOL(memset)
+<<<<<<< HEAD
 	beqz		a1, 1f
 	 move		v0, a0			/* result */
+=======
+	move		v0, a0			/* result */
+	beqz		a1, 1f
+>>>>>>> upstream/android-13
 
 	andi		a1, 0xff		/* spread fillword */
 	LONG_SLL		t1, a1, 8
@@ -314,9 +439,12 @@ EXPORT_SYMBOL(memset)
 #ifndef CONFIG_EVA
 FEXPORT(__bzero)
 EXPORT_SYMBOL(__bzero)
+<<<<<<< HEAD
 #else
 FEXPORT(__bzero_kernel)
 EXPORT_SYMBOL(__bzero_kernel)
+=======
+>>>>>>> upstream/android-13
 #endif
 	__BUILD_BZERO LEGACY_MODE
 

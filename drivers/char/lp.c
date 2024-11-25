@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic parallel printer driver
  *
@@ -46,8 +50,13 @@
  *	lp=auto				(assign lp devices to all ports that
  *				         have printers attached, as determined
  *					 by the IEEE-1284 autoprobe)
+<<<<<<< HEAD
  * 
  *	lp=reset			(reset the printer during 
+=======
+ *
+ *	lp=reset			(reset the printer during
+>>>>>>> upstream/android-13
  *					 initialisation)
  *
  *	lp=off				(disable the printer driver entirely)
@@ -141,6 +150,10 @@
 
 static DEFINE_MUTEX(lp_mutex);
 static struct lp_struct lp_table[LP_NO];
+<<<<<<< HEAD
+=======
+static int port_num[LP_NO];
+>>>>>>> upstream/android-13
 
 static unsigned int lp_count = 0;
 static struct class *lp_class;
@@ -166,7 +179,11 @@ static struct parport *console_registered;
 static void lp_claim_parport_or_block(struct lp_struct *this_lp)
 {
 	if (!test_and_set_bit(LP_PARPORT_CLAIMED, &this_lp->bits)) {
+<<<<<<< HEAD
 		parport_claim_or_block (this_lp->dev);
+=======
+		parport_claim_or_block(this_lp->dev);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -174,7 +191,11 @@ static void lp_claim_parport_or_block(struct lp_struct *this_lp)
 static void lp_release_parport(struct lp_struct *this_lp)
 {
 	if (test_and_clear_bit(LP_PARPORT_CLAIMED, &this_lp->bits)) {
+<<<<<<< HEAD
 		parport_release (this_lp->dev);
+=======
+		parport_release(this_lp->dev);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -184,6 +205,7 @@ static int lp_preempt(void *handle)
 {
 	struct lp_struct *this_lp = (struct lp_struct *)handle;
 	set_bit(LP_PREEMPT_REQUEST, &this_lp->bits);
+<<<<<<< HEAD
 	return (1);
 }
 
@@ -200,11 +222,30 @@ static int lp_negotiate(struct parport * port, int mode)
 	}
 
 	return (mode);
+=======
+	return 1;
+}
+
+
+/*
+ * Try to negotiate to a new mode; if unsuccessful negotiate to
+ * compatibility mode.  Return the mode we ended up in.
+ */
+static int lp_negotiate(struct parport *port, int mode)
+{
+	if (parport_negotiate(port, mode) != 0) {
+		mode = IEEE1284_MODE_COMPAT;
+		parport_negotiate(port, mode);
+	}
+
+	return mode;
+>>>>>>> upstream/android-13
 }
 
 static int lp_reset(int minor)
 {
 	int retval;
+<<<<<<< HEAD
 	lp_claim_parport_or_block (&lp_table[minor]);
 	w_ctr(minor, LP_PSELECP);
 	udelay (LP_DELAY);
@@ -215,6 +256,18 @@ static int lp_reset(int minor)
 }
 
 static void lp_error (int minor)
+=======
+	lp_claim_parport_or_block(&lp_table[minor]);
+	w_ctr(minor, LP_PSELECP);
+	udelay(LP_DELAY);
+	w_ctr(minor, LP_PSELECP | LP_PINITP);
+	retval = r_str(minor);
+	lp_release_parport(&lp_table[minor]);
+	return retval;
+}
+
+static void lp_error(int minor)
+>>>>>>> upstream/android-13
 {
 	DEFINE_WAIT(wait);
 	int polling;
@@ -223,12 +276,24 @@ static void lp_error (int minor)
 		return;
 
 	polling = lp_table[minor].dev->port->irq == PARPORT_IRQ_NONE;
+<<<<<<< HEAD
 	if (polling) lp_release_parport (&lp_table[minor]);
 	prepare_to_wait(&lp_table[minor].waitq, &wait, TASK_INTERRUPTIBLE);
 	schedule_timeout(LP_TIMEOUT_POLLED);
 	finish_wait(&lp_table[minor].waitq, &wait);
 	if (polling) lp_claim_parport_or_block (&lp_table[minor]);
 	else parport_yield_blocking (lp_table[minor].dev);
+=======
+	if (polling)
+		lp_release_parport(&lp_table[minor]);
+	prepare_to_wait(&lp_table[minor].waitq, &wait, TASK_INTERRUPTIBLE);
+	schedule_timeout(LP_TIMEOUT_POLLED);
+	finish_wait(&lp_table[minor].waitq, &wait);
+	if (polling)
+		lp_claim_parport_or_block(&lp_table[minor]);
+	else
+		parport_yield_blocking(lp_table[minor].dev);
+>>>>>>> upstream/android-13
 }
 
 static int lp_check_status(int minor)
@@ -259,7 +324,11 @@ static int lp_check_status(int minor)
 		error = -EIO;
 	} else {
 		last = 0; /* Come here if LP_CAREFUL is set and no
+<<<<<<< HEAD
                              errors are reported. */
+=======
+			     errors are reported. */
+>>>>>>> upstream/android-13
 	}
 
 	lp_table[minor].last_error = last;
@@ -276,6 +345,7 @@ static int lp_wait_ready(int minor, int nonblock)
 
 	/* If we're not in compatibility mode, we're ready now! */
 	if (lp_table[minor].current_mode != IEEE1284_MODE_COMPAT) {
+<<<<<<< HEAD
 	  return (0);
 	}
 
@@ -284,6 +354,16 @@ static int lp_wait_ready(int minor, int nonblock)
 		if (error && (nonblock || (LP_F(minor) & LP_ABORT)))
 			break;
 		if (signal_pending (current)) {
+=======
+		return 0;
+	}
+
+	do {
+		error = lp_check_status(minor);
+		if (error && (nonblock || (LP_F(minor) & LP_ABORT)))
+			break;
+		if (signal_pending(current)) {
+>>>>>>> upstream/android-13
 			error = -EINTR;
 			break;
 		}
@@ -291,8 +371,13 @@ static int lp_wait_ready(int minor, int nonblock)
 	return error;
 }
 
+<<<<<<< HEAD
 static ssize_t lp_write(struct file * file, const char __user * buf,
 		        size_t count, loff_t *ppos)
+=======
+static ssize_t lp_write(struct file *file, const char __user *buf,
+			size_t count, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	unsigned int minor = iminor(file_inode(file));
 	struct parport *port = lp_table[minor].dev->port;
@@ -317,11 +402,16 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 	if (mutex_lock_interruptible(&lp_table[minor].port_mutex))
 		return -EINTR;
 
+<<<<<<< HEAD
 	if (copy_from_user (kbuf, buf, copy_size)) {
+=======
+	if (copy_from_user(kbuf, buf, copy_size)) {
+>>>>>>> upstream/android-13
 		retv = -EFAULT;
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
  	/* Claim Parport or sleep until it becomes available
  	 */
 	lp_claim_parport_or_block (&lp_table[minor]);
@@ -337,6 +427,23 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 	do {
 		/* Write the data. */
 		written = parport_write (port, kbuf, copy_size);
+=======
+	/* Claim Parport or sleep until it becomes available
+	 */
+	lp_claim_parport_or_block(&lp_table[minor]);
+	/* Go to the proper mode. */
+	lp_table[minor].current_mode = lp_negotiate(port,
+						    lp_table[minor].best_mode);
+
+	parport_set_timeout(lp_table[minor].dev,
+			    (nonblock ? PARPORT_INACTIVITY_O_NONBLOCK
+			     : lp_table[minor].timeout));
+
+	if ((retv = lp_wait_ready(minor, nonblock)) == 0)
+	do {
+		/* Write the data. */
+		written = parport_write(port, kbuf, copy_size);
+>>>>>>> upstream/android-13
 		if (written > 0) {
 			copy_size -= written;
 			count -= written;
@@ -344,7 +451,11 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 			retv += written;
 		}
 
+<<<<<<< HEAD
 		if (signal_pending (current)) {
+=======
+		if (signal_pending(current)) {
+>>>>>>> upstream/android-13
 			if (retv == 0)
 				retv = -EINTR;
 
@@ -355,11 +466,19 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 			/* incomplete write -> check error ! */
 			int error;
 
+<<<<<<< HEAD
 			parport_negotiate (lp_table[minor].dev->port, 
 					   IEEE1284_MODE_COMPAT);
 			lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
 
 			error = lp_wait_ready (minor, nonblock);
+=======
+			parport_negotiate(lp_table[minor].dev->port,
+					  IEEE1284_MODE_COMPAT);
+			lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
+
+			error = lp_wait_ready(minor, nonblock);
+>>>>>>> upstream/android-13
 
 			if (error) {
 				if (retv == 0)
@@ -371,6 +490,7 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 				break;
 			}
 
+<<<<<<< HEAD
 			parport_yield_blocking (lp_table[minor].dev);
 			lp_table[minor].current_mode 
 			  = lp_negotiate (port, 
@@ -378,6 +498,15 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 
 		} else if (need_resched())
 			schedule ();
+=======
+			parport_yield_blocking(lp_table[minor].dev);
+			lp_table[minor].current_mode
+			  = lp_negotiate(port,
+					 lp_table[minor].best_mode);
+
+		} else if (need_resched())
+			schedule();
+>>>>>>> upstream/android-13
 
 		if (count) {
 			copy_size = count;
@@ -389,6 +518,7 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 					retv = -EFAULT;
 				break;
 			}
+<<<<<<< HEAD
 		}	
 	} while (count > 0);
 
@@ -399,17 +529,37 @@ static ssize_t lp_write(struct file * file, const char __user * buf,
 				   IEEE1284_MODE_COMPAT);
 		lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
 		lp_release_parport (&lp_table[minor]);
+=======
+		}
+	} while (count > 0);
+
+	if (test_and_clear_bit(LP_PREEMPT_REQUEST,
+			       &lp_table[minor].bits)) {
+		printk(KERN_INFO "lp%d releasing parport\n", minor);
+		parport_negotiate(lp_table[minor].dev->port,
+				  IEEE1284_MODE_COMPAT);
+		lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
+		lp_release_parport(&lp_table[minor]);
+>>>>>>> upstream/android-13
 	}
 out_unlock:
 	mutex_unlock(&lp_table[minor].port_mutex);
 
+<<<<<<< HEAD
  	return retv;
+=======
+	return retv;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PARPORT_1284
 
 /* Status readback conforming to ieee1284 */
+<<<<<<< HEAD
 static ssize_t lp_read(struct file * file, char __user * buf,
+=======
+static ssize_t lp_read(struct file *file, char __user *buf,
+>>>>>>> upstream/android-13
 		       size_t count, loff_t *ppos)
 {
 	DEFINE_WAIT(wait);
@@ -426,6 +576,7 @@ static ssize_t lp_read(struct file * file, char __user * buf,
 	if (mutex_lock_interruptible(&lp_table[minor].port_mutex))
 		return -EINTR;
 
+<<<<<<< HEAD
 	lp_claim_parport_or_block (&lp_table[minor]);
 
 	parport_set_timeout (lp_table[minor].dev,
@@ -435,12 +586,27 @@ static ssize_t lp_read(struct file * file, char __user * buf,
 	parport_negotiate (lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
 	if (parport_negotiate (lp_table[minor].dev->port,
 			       IEEE1284_MODE_NIBBLE)) {
+=======
+	lp_claim_parport_or_block(&lp_table[minor]);
+
+	parport_set_timeout(lp_table[minor].dev,
+			    (nonblock ? PARPORT_INACTIVITY_O_NONBLOCK
+			     : lp_table[minor].timeout));
+
+	parport_negotiate(lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
+	if (parport_negotiate(lp_table[minor].dev->port,
+			      IEEE1284_MODE_NIBBLE)) {
+>>>>>>> upstream/android-13
 		retval = -EIO;
 		goto out;
 	}
 
 	while (retval == 0) {
+<<<<<<< HEAD
 		retval = parport_read (port, kbuf, count);
+=======
+		retval = parport_read(port, kbuf, count);
+>>>>>>> upstream/android-13
 
 		if (retval > 0)
 			break;
@@ -453,11 +619,19 @@ static ssize_t lp_read(struct file * file, char __user * buf,
 		/* Wait for data. */
 
 		if (lp_table[minor].dev->port->irq == PARPORT_IRQ_NONE) {
+<<<<<<< HEAD
 			parport_negotiate (lp_table[minor].dev->port,
 					   IEEE1284_MODE_COMPAT);
 			lp_error (minor);
 			if (parport_negotiate (lp_table[minor].dev->port,
 					       IEEE1284_MODE_NIBBLE)) {
+=======
+			parport_negotiate(lp_table[minor].dev->port,
+					  IEEE1284_MODE_COMPAT);
+			lp_error(minor);
+			if (parport_negotiate(lp_table[minor].dev->port,
+					      IEEE1284_MODE_NIBBLE)) {
+>>>>>>> upstream/android-13
 				retval = -EIO;
 				goto out;
 			}
@@ -467,11 +641,16 @@ static ssize_t lp_read(struct file * file, char __user * buf,
 			finish_wait(&lp_table[minor].waitq, &wait);
 		}
 
+<<<<<<< HEAD
 		if (signal_pending (current)) {
+=======
+		if (signal_pending(current)) {
+>>>>>>> upstream/android-13
 			retval = -ERESTARTSYS;
 			break;
 		}
 
+<<<<<<< HEAD
 		cond_resched ();
 	}
 	parport_negotiate (lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
@@ -479,6 +658,15 @@ static ssize_t lp_read(struct file * file, char __user * buf,
 	lp_release_parport (&lp_table[minor]);
 
 	if (retval > 0 && copy_to_user (buf, kbuf, retval))
+=======
+		cond_resched();
+	}
+	parport_negotiate(lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
+ out:
+	lp_release_parport(&lp_table[minor]);
+
+	if (retval > 0 && copy_to_user(buf, kbuf, retval))
+>>>>>>> upstream/android-13
 		retval = -EFAULT;
 
 	mutex_unlock(&lp_table[minor].port_mutex);
@@ -488,7 +676,11 @@ static ssize_t lp_read(struct file * file, char __user * buf,
 
 #endif /* IEEE 1284 support */
 
+<<<<<<< HEAD
 static int lp_open(struct inode * inode, struct file * file)
+=======
+static int lp_open(struct inode *inode, struct file *file)
+>>>>>>> upstream/android-13
 {
 	unsigned int minor = iminor(inode);
 	int ret = 0;
@@ -513,9 +705,15 @@ static int lp_open(struct inode * inode, struct file * file)
 	   should most likely only ever be used by the tunelp application. */
 	if ((LP_F(minor) & LP_ABORTOPEN) && !(file->f_flags & O_NONBLOCK)) {
 		int status;
+<<<<<<< HEAD
 		lp_claim_parport_or_block (&lp_table[minor]);
 		status = r_str(minor);
 		lp_release_parport (&lp_table[minor]);
+=======
+		lp_claim_parport_or_block(&lp_table[minor]);
+		status = r_str(minor);
+		lp_release_parport(&lp_table[minor]);
+>>>>>>> upstream/android-13
 		if (status & LP_POUTPA) {
 			printk(KERN_INFO "lp%d out of paper\n", minor);
 			LP_F(minor) &= ~LP_BUSY;
@@ -540,24 +738,38 @@ static int lp_open(struct inode * inode, struct file * file)
 		goto out;
 	}
 	/* Determine if the peripheral supports ECP mode */
+<<<<<<< HEAD
 	lp_claim_parport_or_block (&lp_table[minor]);
 	if ( (lp_table[minor].dev->port->modes & PARPORT_MODE_ECP) &&
              !parport_negotiate (lp_table[minor].dev->port, 
                                  IEEE1284_MODE_ECP)) {
 		printk (KERN_INFO "lp%d: ECP mode\n", minor);
+=======
+	lp_claim_parport_or_block(&lp_table[minor]);
+	if ((lp_table[minor].dev->port->modes & PARPORT_MODE_ECP) &&
+	     !parport_negotiate(lp_table[minor].dev->port,
+				 IEEE1284_MODE_ECP)) {
+		printk(KERN_INFO "lp%d: ECP mode\n", minor);
+>>>>>>> upstream/android-13
 		lp_table[minor].best_mode = IEEE1284_MODE_ECP;
 	} else {
 		lp_table[minor].best_mode = IEEE1284_MODE_COMPAT;
 	}
 	/* Leave peripheral in compatibility mode */
+<<<<<<< HEAD
 	parport_negotiate (lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
 	lp_release_parport (&lp_table[minor]);
+=======
+	parport_negotiate(lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
+	lp_release_parport(&lp_table[minor]);
+>>>>>>> upstream/android-13
 	lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
 out:
 	mutex_unlock(&lp_mutex);
 	return ret;
 }
 
+<<<<<<< HEAD
 static int lp_release(struct inode * inode, struct file * file)
 {
 	unsigned int minor = iminor(inode);
@@ -566,6 +778,16 @@ static int lp_release(struct inode * inode, struct file * file)
 	parport_negotiate (lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
 	lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
 	lp_release_parport (&lp_table[minor]);
+=======
+static int lp_release(struct inode *inode, struct file *file)
+{
+	unsigned int minor = iminor(inode);
+
+	lp_claim_parport_or_block(&lp_table[minor]);
+	parport_negotiate(lp_table[minor].dev->port, IEEE1284_MODE_COMPAT);
+	lp_table[minor].current_mode = IEEE1284_MODE_COMPAT;
+	lp_release_parport(&lp_table[minor]);
+>>>>>>> upstream/android-13
 	kfree(lp_table[minor].lp_buffer);
 	lp_table[minor].lp_buffer = NULL;
 	LP_F(minor) &= ~LP_BUSY;
@@ -585,7 +807,11 @@ static int lp_do_ioctl(unsigned int minor, unsigned int cmd,
 		return -ENODEV;
 	if ((LP_F(minor) & LP_EXIST) == 0)
 		return -ENODEV;
+<<<<<<< HEAD
 	switch ( cmd ) {
+=======
+	switch (cmd) {
+>>>>>>> upstream/android-13
 		case LPTIME:
 			if (arg > UINT_MAX / HZ)
 				return -EINVAL;
@@ -615,9 +841,14 @@ static int lp_do_ioctl(unsigned int minor, unsigned int cmd,
 		case LPWAIT:
 			LP_WAIT(minor) = arg;
 			break;
+<<<<<<< HEAD
 		case LPSETIRQ: 
 			return -EINVAL;
 			break;
+=======
+		case LPSETIRQ:
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		case LPGETIRQ:
 			if (copy_to_user(argp, &LP_IRQ(minor),
 					sizeof(int)))
@@ -626,9 +857,15 @@ static int lp_do_ioctl(unsigned int minor, unsigned int cmd,
 		case LPGETSTATUS:
 			if (mutex_lock_interruptible(&lp_table[minor].port_mutex))
 				return -EINTR;
+<<<<<<< HEAD
 			lp_claim_parport_or_block (&lp_table[minor]);
 			status = r_str(minor);
 			lp_release_parport (&lp_table[minor]);
+=======
+			lp_claim_parport_or_block(&lp_table[minor]);
+			status = r_str(minor);
+			lp_release_parport(&lp_table[minor]);
+>>>>>>> upstream/android-13
 			mutex_unlock(&lp_table[minor].port_mutex);
 
 			if (copy_to_user(argp, &status, sizeof(int)))
@@ -647,8 +884,13 @@ static int lp_do_ioctl(unsigned int minor, unsigned int cmd,
 						sizeof(struct lp_stats));
 			break;
 #endif
+<<<<<<< HEAD
  		case LPGETFLAGS:
  			status = LP_F(minor);
+=======
+		case LPGETFLAGS:
+			status = LP_F(minor);
+>>>>>>> upstream/android-13
 			if (copy_to_user(argp, &status, sizeof(int)))
 				return -EFAULT;
 			break;
@@ -729,7 +971,11 @@ static long lp_ioctl(struct file *file, unsigned int cmd,
 			ret = lp_set_timeout32(minor, (void __user *)arg);
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthrough for 64-bit */
+=======
+		fallthrough;	/* for 64-bit */
+>>>>>>> upstream/android-13
 	case LPSETTIMEOUT_NEW:
 		ret = lp_set_timeout64(minor, (void __user *)arg);
 		break;
@@ -757,7 +1003,11 @@ static long lp_compat_ioctl(struct file *file, unsigned int cmd,
 			ret = lp_set_timeout32(minor, (void __user *)arg);
 			break;
 		}
+<<<<<<< HEAD
 		/* fallthrough for x32 mode */
+=======
+		fallthrough;	/* for x32 mode */
+>>>>>>> upstream/android-13
 	case LPSETTIMEOUT_NEW:
 		ret = lp_set_timeout64(minor, (void __user *)arg);
 		break;
@@ -805,13 +1055,19 @@ static const struct file_operations lp_fops = {
 
 /* The console must be locked when we get here. */
 
+<<<<<<< HEAD
 static void lp_console_write (struct console *co, const char *s,
 			      unsigned count)
+=======
+static void lp_console_write(struct console *co, const char *s,
+			     unsigned count)
+>>>>>>> upstream/android-13
 {
 	struct pardevice *dev = lp_table[CONSOLE_LP].dev;
 	struct parport *port = dev->port;
 	ssize_t written;
 
+<<<<<<< HEAD
 	if (parport_claim (dev))
 		/* Nothing we can do. */
 		return;
@@ -820,16 +1076,34 @@ static void lp_console_write (struct console *co, const char *s,
 
 	/* Go to compatibility mode. */
 	parport_negotiate (port, IEEE1284_MODE_COMPAT);
+=======
+	if (parport_claim(dev))
+		/* Nothing we can do. */
+		return;
+
+	parport_set_timeout(dev, 0);
+
+	/* Go to compatibility mode. */
+	parport_negotiate(port, IEEE1284_MODE_COMPAT);
+>>>>>>> upstream/android-13
 
 	do {
 		/* Write the data, converting LF->CRLF as we go. */
 		ssize_t canwrite = count;
+<<<<<<< HEAD
 		char *lf = memchr (s, '\n', count);
+=======
+		char *lf = memchr(s, '\n', count);
+>>>>>>> upstream/android-13
 		if (lf)
 			canwrite = lf - s;
 
 		if (canwrite > 0) {
+<<<<<<< HEAD
 			written = parport_write (port, s, canwrite);
+=======
+			written = parport_write(port, s, canwrite);
+>>>>>>> upstream/android-13
 
 			if (written <= 0)
 				continue;
@@ -847,14 +1121,26 @@ static void lp_console_write (struct console *co, const char *s,
 			s++;
 			count--;
 			do {
+<<<<<<< HEAD
 				written = parport_write (port, crlf, i);
 				if (written > 0)
 					i -= written, crlf += written;
+=======
+				written = parport_write(port, crlf, i);
+				if (written > 0) {
+					i -= written;
+					crlf += written;
+				}
+>>>>>>> upstream/android-13
 			} while (i > 0 && (CONSOLE_LP_STRICT || written > 0));
 		}
 	} while (count > 0 && (CONSOLE_LP_STRICT || written > 0));
 
+<<<<<<< HEAD
 	parport_release (dev);
+=======
+	parport_release(dev);
+>>>>>>> upstream/android-13
 }
 
 static struct console lpcons = {
@@ -875,7 +1161,11 @@ module_param_array(parport, charp, NULL, 0);
 module_param(reset, bool, 0);
 
 #ifndef MODULE
+<<<<<<< HEAD
 static int __init lp_setup (char *str)
+=======
+static int __init lp_setup(char *str)
+>>>>>>> upstream/android-13
 {
 	static int parport_ptr;
 	int x;
@@ -912,9 +1202,19 @@ static int __init lp_setup (char *str)
 
 static int lp_register(int nr, struct parport *port)
 {
+<<<<<<< HEAD
 	lp_table[nr].dev = parport_register_device(port, "lp", 
 						   lp_preempt, NULL, NULL, 0,
 						   (void *) &lp_table[nr]);
+=======
+	struct pardev_cb ppdev_cb;
+
+	memset(&ppdev_cb, 0, sizeof(ppdev_cb));
+	ppdev_cb.preempt = lp_preempt;
+	ppdev_cb.private = &lp_table[nr];
+	lp_table[nr].dev = parport_register_dev_model(port, "lp",
+						      &ppdev_cb, nr);
+>>>>>>> upstream/android-13
 	if (lp_table[nr].dev == NULL)
 		return 1;
 	lp_table[nr].flags |= LP_EXIST;
@@ -925,7 +1225,11 @@ static int lp_register(int nr, struct parport *port)
 	device_create(lp_class, port->dev, MKDEV(LP_MAJOR, nr), NULL,
 		      "lp%d", nr);
 
+<<<<<<< HEAD
 	printk(KERN_INFO "lp%d: using %s (%s).\n", nr, port->name, 
+=======
+	printk(KERN_INFO "lp%d: using %s (%s).\n", nr, port->name,
+>>>>>>> upstream/android-13
 	       (port->irq == PARPORT_IRQ_NONE)?"polling":"interrupt-driven");
 
 #ifdef CONFIG_LP_CONSOLE
@@ -933,17 +1237,31 @@ static int lp_register(int nr, struct parport *port)
 		if (port->modes & PARPORT_MODE_SAFEININT) {
 			register_console(&lpcons);
 			console_registered = port;
+<<<<<<< HEAD
 			printk (KERN_INFO "lp%d: console ready\n", CONSOLE_LP);
 		} else
 			printk (KERN_ERR "lp%d: cannot run console on %s\n",
 				CONSOLE_LP, port->name);
 	}
 #endif
+=======
+			printk(KERN_INFO "lp%d: console ready\n", CONSOLE_LP);
+		} else
+			printk(KERN_ERR "lp%d: cannot run console on %s\n",
+			       CONSOLE_LP, port->name);
+	}
+#endif
+	port_num[nr] = port->number;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void lp_attach (struct parport *port)
+=======
+static void lp_attach(struct parport *port)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
@@ -957,7 +1275,15 @@ static void lp_attach (struct parport *port)
 			printk(KERN_INFO "lp: ignoring parallel port (max. %d)\n",LP_NO);
 			return;
 		}
+<<<<<<< HEAD
 		if (!lp_register(lp_count, port))
+=======
+		for (i = 0; i < LP_NO; i++)
+			if (port_num[i] == -1)
+				break;
+
+		if (!lp_register(i, port))
+>>>>>>> upstream/android-13
 			lp_count++;
 		break;
 
@@ -973,8 +1299,15 @@ static void lp_attach (struct parport *port)
 	}
 }
 
+<<<<<<< HEAD
 static void lp_detach (struct parport *port)
 {
+=======
+static void lp_detach(struct parport *port)
+{
+	int n;
+
+>>>>>>> upstream/android-13
 	/* Write this some day. */
 #ifdef CONFIG_LP_CONSOLE
 	if (console_registered == port) {
@@ -982,15 +1315,36 @@ static void lp_detach (struct parport *port)
 		console_registered = NULL;
 	}
 #endif /* CONFIG_LP_CONSOLE */
+<<<<<<< HEAD
+=======
+
+	for (n = 0; n < LP_NO; n++) {
+		if (port_num[n] == port->number) {
+			port_num[n] = -1;
+			lp_count--;
+			device_destroy(lp_class, MKDEV(LP_MAJOR, n));
+			parport_unregister_device(lp_table[n].dev);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 static struct parport_driver lp_driver = {
 	.name = "lp",
+<<<<<<< HEAD
 	.attach = lp_attach,
 	.detach = lp_detach,
 };
 
 static int __init lp_init (void)
+=======
+	.match_port = lp_attach,
+	.detach = lp_detach,
+	.devmodel = true,
+};
+
+static int __init lp_init(void)
+>>>>>>> upstream/android-13
 {
 	int i, err = 0;
 
@@ -1007,6 +1361,7 @@ static int __init lp_init (void)
 #ifdef LP_STATS
 		lp_table[i].lastcall = 0;
 		lp_table[i].runchars = 0;
+<<<<<<< HEAD
 		memset (&lp_table[i].stats, 0, sizeof (struct lp_stats));
 #endif
 		lp_table[i].last_error = 0;
@@ -1018,6 +1373,20 @@ static int __init lp_init (void)
 
 	if (register_chrdev (LP_MAJOR, "lp", &lp_fops)) {
 		printk (KERN_ERR "lp: unable to get major %d\n", LP_MAJOR);
+=======
+		memset(&lp_table[i].stats, 0, sizeof(struct lp_stats));
+#endif
+		lp_table[i].last_error = 0;
+		init_waitqueue_head(&lp_table[i].waitq);
+		init_waitqueue_head(&lp_table[i].dataq);
+		mutex_init(&lp_table[i].port_mutex);
+		lp_table[i].timeout = 10 * HZ;
+		port_num[i] = -1;
+	}
+
+	if (register_chrdev(LP_MAJOR, "lp", &lp_fops)) {
+		printk(KERN_ERR "lp: unable to get major %d\n", LP_MAJOR);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -1027,17 +1396,29 @@ static int __init lp_init (void)
 		goto out_reg;
 	}
 
+<<<<<<< HEAD
 	if (parport_register_driver (&lp_driver)) {
 		printk (KERN_ERR "lp: unable to register with parport\n");
+=======
+	if (parport_register_driver(&lp_driver)) {
+		printk(KERN_ERR "lp: unable to register with parport\n");
+>>>>>>> upstream/android-13
 		err = -EIO;
 		goto out_class;
 	}
 
 	if (!lp_count) {
+<<<<<<< HEAD
 		printk (KERN_INFO "lp: driver loaded but no devices found\n");
 #ifndef CONFIG_PARPORT_1284
 		if (parport_nr[0] == LP_PARPORT_AUTO)
 			printk (KERN_INFO "lp: (is IEEE 1284 support enabled?)\n");
+=======
+		printk(KERN_INFO "lp: driver loaded but no devices found\n");
+#ifndef CONFIG_PARPORT_1284
+		if (parport_nr[0] == LP_PARPORT_AUTO)
+			printk(KERN_INFO "lp: (is IEEE 1284 support enabled?)\n");
+>>>>>>> upstream/android-13
 #endif
 	}
 
@@ -1050,7 +1431,11 @@ out_reg:
 	return err;
 }
 
+<<<<<<< HEAD
 static int __init lp_init_module (void)
+=======
+static int __init lp_init_module(void)
+>>>>>>> upstream/android-13
 {
 	if (parport[0]) {
 		/* The user gave some parameters.  Let's see what they were.  */
@@ -1064,7 +1449,11 @@ static int __init lp_init_module (void)
 				else {
 					char *ep;
 					unsigned long r = simple_strtoul(parport[n], &ep, 0);
+<<<<<<< HEAD
 					if (ep != parport[n]) 
+=======
+					if (ep != parport[n])
+>>>>>>> upstream/android-13
 						parport_nr[n] = r;
 					else {
 						printk(KERN_ERR "lp: bad port specifier `%s'\n", parport[n]);
@@ -1078,6 +1467,7 @@ static int __init lp_init_module (void)
 	return lp_init();
 }
 
+<<<<<<< HEAD
 static void lp_cleanup_module (void)
 {
 	unsigned int offset;
@@ -1095,6 +1485,17 @@ static void lp_cleanup_module (void)
 		parport_unregister_device(lp_table[offset].dev);
 		device_destroy(lp_class, MKDEV(LP_MAJOR, offset));
 	}
+=======
+static void lp_cleanup_module(void)
+{
+	parport_unregister_driver(&lp_driver);
+
+#ifdef CONFIG_LP_CONSOLE
+	unregister_console(&lpcons);
+#endif
+
+	unregister_chrdev(LP_MAJOR, "lp");
+>>>>>>> upstream/android-13
 	class_destroy(lp_class);
 }
 

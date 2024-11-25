@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2018 Intel Corporation.
  *
@@ -44,6 +45,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015 - 2020 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _HFI1_AFFINITY_H
 #define _HFI1_AFFINITY_H
 
@@ -52,6 +60,10 @@
 enum irq_type {
 	IRQ_SDMA,
 	IRQ_RCVCTXT,
+<<<<<<< HEAD
+=======
+	IRQ_NETDEVCTXT,
+>>>>>>> upstream/android-13
 	IRQ_GENERAL,
 	IRQ_OTHER
 };

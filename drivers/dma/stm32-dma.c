@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for STM32 DMA controller
  *
@@ -6,8 +10,11 @@
  * Copyright (C) M'boumba Cedric Madianga 2015
  * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
  *         Pierre-Yves Mordret <pierre-yves.mordret@st.com>
+<<<<<<< HEAD
  *
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -16,6 +23,10 @@
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/jiffies.h>
 #include <linux/list.h>
 #include <linux/module.h>
@@ -23,6 +34,10 @@
 #include <linux/of_device.h>
 #include <linux/of_dma.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <linux/reset.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
@@ -59,6 +74,10 @@
 #define STM32_DMA_SCR_PSIZE_GET(n)	((n & STM32_DMA_SCR_PSIZE_MASK) >> 11)
 #define STM32_DMA_SCR_DIR_MASK		GENMASK(7, 6)
 #define STM32_DMA_SCR_DIR(n)		((n & 0x3) << 6)
+<<<<<<< HEAD
+=======
+#define STM32_DMA_SCR_TRBUFF		BIT(20) /* Bufferable transfer for USART/UART */
+>>>>>>> upstream/android-13
 #define STM32_DMA_SCR_CT		BIT(19) /* Target in double buffer */
 #define STM32_DMA_SCR_DBM		BIT(18) /* Double Buffer Mode */
 #define STM32_DMA_SCR_PINCOS		BIT(15) /* Peripheral inc offset size */
@@ -116,6 +135,10 @@
 #define STM32_DMA_FIFO_THRESHOLD_HALFFULL		0x01
 #define STM32_DMA_FIFO_THRESHOLD_3QUARTERSFULL		0x02
 #define STM32_DMA_FIFO_THRESHOLD_FULL			0x03
+<<<<<<< HEAD
+=======
+#define STM32_DMA_FIFO_THRESHOLD_NONE			0x04
+>>>>>>> upstream/android-13
 
 #define STM32_DMA_MAX_DATA_ITEMS	0xffff
 /*
@@ -135,6 +158,13 @@
 /* DMA Features */
 #define STM32_DMA_THRESHOLD_FTR_MASK	GENMASK(1, 0)
 #define STM32_DMA_THRESHOLD_FTR_GET(n)	((n) & STM32_DMA_THRESHOLD_FTR_MASK)
+<<<<<<< HEAD
+=======
+#define STM32_DMA_DIRECT_MODE_MASK	BIT(2)
+#define STM32_DMA_DIRECT_MODE_GET(n)	(((n) & STM32_DMA_DIRECT_MODE_MASK) >> 2)
+#define STM32_DMA_ALT_ACK_MODE_MASK	BIT(4)
+#define STM32_DMA_ALT_ACK_MODE_GET(n)	(((n) & STM32_DMA_ALT_ACK_MODE_MASK) >> 4)
+>>>>>>> upstream/android-13
 
 enum stm32_dma_width {
 	STM32_DMA_BYTE,
@@ -207,7 +237,10 @@ struct stm32_dma_device {
 	struct dma_device ddev;
 	void __iomem *base;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct reset_control *rst;
+=======
+>>>>>>> upstream/android-13
 	bool mem2mem;
 	struct stm32_dma_chan chan[STM32_DMA_MAX_CHANNELS];
 };
@@ -243,12 +276,15 @@ static void stm32_dma_write(struct stm32_dma_device *dmadev, u32 reg, u32 val)
 	writel_relaxed(val, dmadev->base + reg);
 }
 
+<<<<<<< HEAD
 static struct stm32_dma_desc *stm32_dma_alloc_desc(u32 num_sgs)
 {
 	return kzalloc(sizeof(struct stm32_dma_desc) +
 		       sizeof(struct stm32_dma_sg_req) * num_sgs, GFP_NOWAIT);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int stm32_dma_get_width(struct stm32_dma_chan *chan,
 			       enum dma_slave_buswidth width)
 {
@@ -266,6 +302,10 @@ static int stm32_dma_get_width(struct stm32_dma_chan *chan,
 }
 
 static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
+<<<<<<< HEAD
+=======
+						       dma_addr_t buf_addr,
+>>>>>>> upstream/android-13
 						       u32 threshold)
 {
 	enum dma_slave_buswidth max_width;
@@ -279,6 +319,12 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
 	       max_width > DMA_SLAVE_BUSWIDTH_1_BYTE)
 		max_width = max_width >> 1;
 
+<<<<<<< HEAD
+=======
+	if (buf_addr & (max_width - 1))
+		max_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+
+>>>>>>> upstream/android-13
 	return max_width;
 }
 
@@ -287,6 +333,12 @@ static bool stm32_dma_fifo_threshold_is_allowed(u32 burst, u32 threshold,
 {
 	u32 remaining;
 
+<<<<<<< HEAD
+=======
+	if (threshold == STM32_DMA_FIFO_THRESHOLD_NONE)
+		return false;
+
+>>>>>>> upstream/android-13
 	if (width != DMA_SLAVE_BUSWIDTH_UNDEFINED) {
 		if (burst != 0) {
 			/*
@@ -308,6 +360,13 @@ static bool stm32_dma_fifo_threshold_is_allowed(u32 burst, u32 threshold,
 
 static bool stm32_dma_is_burst_possible(u32 buf_len, u32 threshold)
 {
+<<<<<<< HEAD
+=======
+	/* If FIFO direct mode, burst is not possible */
+	if (threshold == STM32_DMA_FIFO_THRESHOLD_NONE)
+		return false;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Buffer or period length has to be aligned on FIFO depth.
 	 * Otherwise bytes may be stuck within FIFO at buffer or period
@@ -428,6 +487,7 @@ static void stm32_dma_irq_clear(struct stm32_dma_chan *chan, u32 flags)
 static int stm32_dma_disable_chan(struct stm32_dma_chan *chan)
 {
 	struct stm32_dma_device *dmadev = stm32_dma_get_dev(chan);
+<<<<<<< HEAD
 	unsigned long timeout = jiffies + msecs_to_jiffies(5000);
 	u32 dma_scr, id;
 
@@ -451,6 +511,21 @@ static int stm32_dma_disable_chan(struct stm32_dma_chan *chan)
 			}
 			cond_resched();
 		} while (1);
+=======
+	u32 dma_scr, id, reg;
+
+	id = chan->id;
+	reg = STM32_DMA_SCR(id);
+	dma_scr = stm32_dma_read(dmadev, reg);
+
+	if (dma_scr & STM32_DMA_SCR_EN) {
+		dma_scr &= ~STM32_DMA_SCR_EN;
+		stm32_dma_write(dmadev, reg, dma_scr);
+
+		return readl_relaxed_poll_timeout_atomic(dmadev->base + reg,
+					dma_scr, !(dma_scr & STM32_DMA_SCR_EN),
+					10, 1000000);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -565,6 +640,10 @@ static void stm32_dma_start_transfer(struct stm32_dma_chan *chan)
 	sg_req = &chan->desc->sg_req[chan->next_sg];
 	reg = &sg_req->chan_reg;
 
+<<<<<<< HEAD
+=======
+	reg->dma_scr &= ~STM32_DMA_SCR_EN;
+>>>>>>> upstream/android-13
 	stm32_dma_write(dmadev, STM32_DMA_SCR(chan->id), reg->dma_scr);
 	stm32_dma_write(dmadev, STM32_DMA_SPAR(chan->id), reg->dma_spar);
 	stm32_dma_write(dmadev, STM32_DMA_SM0AR(chan->id), reg->dma_sm0ar);
@@ -644,12 +723,38 @@ static irqreturn_t stm32_dma_chan_irq(int irq, void *devid)
 {
 	struct stm32_dma_chan *chan = devid;
 	struct stm32_dma_device *dmadev = stm32_dma_get_dev(chan);
+<<<<<<< HEAD
 	u32 status, scr;
+=======
+	u32 status, scr, sfcr;
+>>>>>>> upstream/android-13
 
 	spin_lock(&chan->vchan.lock);
 
 	status = stm32_dma_irq_status(chan);
 	scr = stm32_dma_read(dmadev, STM32_DMA_SCR(chan->id));
+<<<<<<< HEAD
+=======
+	sfcr = stm32_dma_read(dmadev, STM32_DMA_SFCR(chan->id));
+
+	if (status & STM32_DMA_FEI) {
+		stm32_dma_irq_clear(chan, STM32_DMA_FEI);
+		status &= ~STM32_DMA_FEI;
+		if (sfcr & STM32_DMA_SFCR_FEIE) {
+			if (!(scr & STM32_DMA_SCR_EN) &&
+			    !(status & STM32_DMA_TCI))
+				dev_err(chan2dev(chan), "FIFO Error\n");
+			else
+				dev_dbg(chan2dev(chan), "FIFO over/underrun\n");
+		}
+	}
+	if (status & STM32_DMA_DMEI) {
+		stm32_dma_irq_clear(chan, STM32_DMA_DMEI);
+		status &= ~STM32_DMA_DMEI;
+		if (sfcr & STM32_DMA_SCR_DMEIE)
+			dev_dbg(chan2dev(chan), "Direct mode overrun\n");
+	}
+>>>>>>> upstream/android-13
 
 	if (status & STM32_DMA_TCI) {
 		stm32_dma_irq_clear(chan, STM32_DMA_TCI);
@@ -657,10 +762,15 @@ static irqreturn_t stm32_dma_chan_irq(int irq, void *devid)
 			stm32_dma_handle_chan_done(chan);
 		status &= ~STM32_DMA_TCI;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (status & STM32_DMA_HTI) {
 		stm32_dma_irq_clear(chan, STM32_DMA_HTI);
 		status &= ~STM32_DMA_HTI;
 	}
+<<<<<<< HEAD
 	if (status & STM32_DMA_FEI) {
 		stm32_dma_irq_clear(chan, STM32_DMA_FEI);
 		status &= ~STM32_DMA_FEI;
@@ -669,6 +779,9 @@ static irqreturn_t stm32_dma_chan_irq(int irq, void *devid)
 		else
 			dev_dbg(chan2dev(chan), "FIFO over/underrun\n");
 	}
+=======
+
+>>>>>>> upstream/android-13
 	if (status) {
 		stm32_dma_irq_clear(chan, status);
 		dev_err(chan2dev(chan), "DMA error: status=0x%08x\n", status);
@@ -698,19 +811,31 @@ static void stm32_dma_issue_pending(struct dma_chan *c)
 static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
 				    enum dma_transfer_direction direction,
 				    enum dma_slave_buswidth *buswidth,
+<<<<<<< HEAD
 				    u32 buf_len)
+=======
+				    u32 buf_len, dma_addr_t buf_addr)
+>>>>>>> upstream/android-13
 {
 	enum dma_slave_buswidth src_addr_width, dst_addr_width;
 	int src_bus_width, dst_bus_width;
 	int src_burst_size, dst_burst_size;
 	u32 src_maxburst, dst_maxburst, src_best_burst, dst_best_burst;
+<<<<<<< HEAD
 	u32 dma_scr, threshold;
+=======
+	u32 dma_scr, fifoth;
+>>>>>>> upstream/android-13
 
 	src_addr_width = chan->dma_sconfig.src_addr_width;
 	dst_addr_width = chan->dma_sconfig.dst_addr_width;
 	src_maxburst = chan->dma_sconfig.src_maxburst;
 	dst_maxburst = chan->dma_sconfig.dst_maxburst;
+<<<<<<< HEAD
 	threshold = chan->threshold;
+=======
+	fifoth = chan->threshold;
+>>>>>>> upstream/android-13
 
 	switch (direction) {
 	case DMA_MEM_TO_DEV:
@@ -722,7 +847,11 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
 		/* Set device burst size */
 		dst_best_burst = stm32_dma_get_best_burst(buf_len,
 							  dst_maxburst,
+<<<<<<< HEAD
 							  threshold,
+=======
+							  fifoth,
+>>>>>>> upstream/android-13
 							  dst_addr_width);
 
 		dst_burst_size = stm32_dma_get_burst(chan, dst_best_burst);
@@ -730,17 +859,36 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
 			return dst_burst_size;
 
 		/* Set memory data size */
+<<<<<<< HEAD
 		src_addr_width = stm32_dma_get_max_width(buf_len, threshold);
+=======
+		src_addr_width = stm32_dma_get_max_width(buf_len, buf_addr,
+							 fifoth);
+>>>>>>> upstream/android-13
 		chan->mem_width = src_addr_width;
 		src_bus_width = stm32_dma_get_width(chan, src_addr_width);
 		if (src_bus_width < 0)
 			return src_bus_width;
 
+<<<<<<< HEAD
 		/* Set memory burst size */
 		src_maxburst = STM32_DMA_MAX_BURST;
 		src_best_burst = stm32_dma_get_best_burst(buf_len,
 							  src_maxburst,
 							  threshold,
+=======
+		/*
+		 * Set memory burst size - burst not possible if address is not aligned on
+		 * the address boundary equal to the size of the transfer
+		 */
+		if (buf_addr & (buf_len - 1))
+			src_maxburst = 1;
+		else
+			src_maxburst = STM32_DMA_MAX_BURST;
+		src_best_burst = stm32_dma_get_best_burst(buf_len,
+							  src_maxburst,
+							  fifoth,
+>>>>>>> upstream/android-13
 							  src_addr_width);
 		src_burst_size = stm32_dma_get_burst(chan, src_best_burst);
 		if (src_burst_size < 0)
@@ -754,7 +902,12 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
 
 		/* Set FIFO threshold */
 		chan->chan_reg.dma_sfcr &= ~STM32_DMA_SFCR_FTH_MASK;
+<<<<<<< HEAD
 		chan->chan_reg.dma_sfcr |= STM32_DMA_SFCR_FTH(threshold);
+=======
+		if (fifoth != STM32_DMA_FIFO_THRESHOLD_NONE)
+			chan->chan_reg.dma_sfcr |= STM32_DMA_SFCR_FTH(fifoth);
+>>>>>>> upstream/android-13
 
 		/* Set peripheral address */
 		chan->chan_reg.dma_spar = chan->dma_sconfig.dst_addr;
@@ -770,7 +923,11 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
 		/* Set device burst size */
 		src_best_burst = stm32_dma_get_best_burst(buf_len,
 							  src_maxburst,
+<<<<<<< HEAD
 							  threshold,
+=======
+							  fifoth,
+>>>>>>> upstream/android-13
 							  src_addr_width);
 		chan->mem_burst = src_best_burst;
 		src_burst_size = stm32_dma_get_burst(chan, src_best_burst);
@@ -778,17 +935,36 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
 			return src_burst_size;
 
 		/* Set memory data size */
+<<<<<<< HEAD
 		dst_addr_width = stm32_dma_get_max_width(buf_len, threshold);
+=======
+		dst_addr_width = stm32_dma_get_max_width(buf_len, buf_addr,
+							 fifoth);
+>>>>>>> upstream/android-13
 		chan->mem_width = dst_addr_width;
 		dst_bus_width = stm32_dma_get_width(chan, dst_addr_width);
 		if (dst_bus_width < 0)
 			return dst_bus_width;
 
+<<<<<<< HEAD
 		/* Set memory burst size */
 		dst_maxburst = STM32_DMA_MAX_BURST;
 		dst_best_burst = stm32_dma_get_best_burst(buf_len,
 							  dst_maxburst,
 							  threshold,
+=======
+		/*
+		 * Set memory burst size - burst not possible if address is not aligned on
+		 * the address boundary equal to the size of the transfer
+		 */
+		if (buf_addr & (buf_len - 1))
+			dst_maxburst = 1;
+		else
+			dst_maxburst = STM32_DMA_MAX_BURST;
+		dst_best_burst = stm32_dma_get_best_burst(buf_len,
+							  dst_maxburst,
+							  fifoth,
+>>>>>>> upstream/android-13
 							  dst_addr_width);
 		chan->mem_burst = dst_best_burst;
 		dst_burst_size = stm32_dma_get_burst(chan, dst_best_burst);
@@ -803,7 +979,12 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
 
 		/* Set FIFO threshold */
 		chan->chan_reg.dma_sfcr &= ~STM32_DMA_SFCR_FTH_MASK;
+<<<<<<< HEAD
 		chan->chan_reg.dma_sfcr |= STM32_DMA_SFCR_FTH(threshold);
+=======
+		if (fifoth != STM32_DMA_FIFO_THRESHOLD_NONE)
+			chan->chan_reg.dma_sfcr |= STM32_DMA_SFCR_FTH(fifoth);
+>>>>>>> upstream/android-13
 
 		/* Set peripheral address */
 		chan->chan_reg.dma_spar = chan->dma_sconfig.src_addr;
@@ -853,7 +1034,11 @@ static struct dma_async_tx_descriptor *stm32_dma_prep_slave_sg(
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	desc = stm32_dma_alloc_desc(sg_len);
+=======
+	desc = kzalloc(struct_size(desc, sg_req, sg_len), GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	if (!desc)
 		return NULL;
 
@@ -865,7 +1050,12 @@ static struct dma_async_tx_descriptor *stm32_dma_prep_slave_sg(
 
 	for_each_sg(sgl, sg, sg_len, i) {
 		ret = stm32_dma_set_xfer_param(chan, direction, &buswidth,
+<<<<<<< HEAD
 					       sg_dma_len(sg));
+=======
+					       sg_dma_len(sg),
+					       sg_dma_address(sg));
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto err;
 
@@ -933,7 +1123,12 @@ static struct dma_async_tx_descriptor *stm32_dma_prep_dma_cyclic(
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	ret = stm32_dma_set_xfer_param(chan, direction, &buswidth, period_len);
+=======
+	ret = stm32_dma_set_xfer_param(chan, direction, &buswidth, period_len,
+				       buf_addr);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return NULL;
 
@@ -954,7 +1149,11 @@ static struct dma_async_tx_descriptor *stm32_dma_prep_dma_cyclic(
 
 	num_periods = buf_len / period_len;
 
+<<<<<<< HEAD
 	desc = stm32_dma_alloc_desc(num_periods);
+=======
+	desc = kzalloc(struct_size(desc, sg_req, num_periods), GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	if (!desc)
 		return NULL;
 
@@ -989,7 +1188,11 @@ static struct dma_async_tx_descriptor *stm32_dma_prep_dma_memcpy(
 	int i;
 
 	num_sgs = DIV_ROUND_UP(len, STM32_DMA_ALIGNED_MAX_DATA_ITEMS);
+<<<<<<< HEAD
 	desc = stm32_dma_alloc_desc(num_sgs);
+=======
+	desc = kzalloc(struct_size(desc, sg_req, num_sgs), GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	if (!desc)
 		return NULL;
 
@@ -1041,11 +1244,51 @@ static u32 stm32_dma_get_remaining_bytes(struct stm32_dma_chan *chan)
 	return ndtr << width;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * stm32_dma_is_current_sg - check that expected sg_req is currently transferred
+ * @chan: dma channel
+ *
+ * This function called when IRQ are disable, checks that the hardware has not
+ * switched on the next transfer in double buffer mode. The test is done by
+ * comparing the next_sg memory address with the hardware related register
+ * (based on CT bit value).
+ *
+ * Returns true if expected current transfer is still running or double
+ * buffer mode is not activated.
+ */
+static bool stm32_dma_is_current_sg(struct stm32_dma_chan *chan)
+{
+	struct stm32_dma_device *dmadev = stm32_dma_get_dev(chan);
+	struct stm32_dma_sg_req *sg_req;
+	u32 dma_scr, dma_smar, id;
+
+	id = chan->id;
+	dma_scr = stm32_dma_read(dmadev, STM32_DMA_SCR(id));
+
+	if (!(dma_scr & STM32_DMA_SCR_DBM))
+		return true;
+
+	sg_req = &chan->desc->sg_req[chan->next_sg];
+
+	if (dma_scr & STM32_DMA_SCR_CT) {
+		dma_smar = stm32_dma_read(dmadev, STM32_DMA_SM0AR(id));
+		return (dma_smar == sg_req->chan_reg.dma_sm0ar);
+	}
+
+	dma_smar = stm32_dma_read(dmadev, STM32_DMA_SM1AR(id));
+
+	return (dma_smar == sg_req->chan_reg.dma_sm1ar);
+}
+
+>>>>>>> upstream/android-13
 static size_t stm32_dma_desc_residue(struct stm32_dma_chan *chan,
 				     struct stm32_dma_desc *desc,
 				     u32 next_sg)
 {
 	u32 modulo, burst_size;
+<<<<<<< HEAD
 	u32 residue = 0;
 	int i;
 
@@ -1068,6 +1311,58 @@ static size_t stm32_dma_desc_residue(struct stm32_dma_chan *chan,
 	residue += stm32_dma_get_remaining_bytes(chan);
 
 end:
+=======
+	u32 residue;
+	u32 n_sg = next_sg;
+	struct stm32_dma_sg_req *sg_req = &chan->desc->sg_req[chan->next_sg];
+	int i;
+
+	/*
+	 * Calculate the residue means compute the descriptors
+	 * information:
+	 * - the sg_req currently transferred
+	 * - the Hardware remaining position in this sg (NDTR bits field).
+	 *
+	 * A race condition may occur if DMA is running in cyclic or double
+	 * buffer mode, since the DMA register are automatically reloaded at end
+	 * of period transfer. The hardware may have switched to the next
+	 * transfer (CT bit updated) just before the position (SxNDTR reg) is
+	 * read.
+	 * In this case the SxNDTR reg could (or not) correspond to the new
+	 * transfer position, and not the expected one.
+	 * The strategy implemented in the stm32 driver is to:
+	 *  - read the SxNDTR register
+	 *  - crosscheck that hardware is still in current transfer.
+	 * In case of switch, we can assume that the DMA is at the beginning of
+	 * the next transfer. So we approximate the residue in consequence, by
+	 * pointing on the beginning of next transfer.
+	 *
+	 * This race condition doesn't apply for none cyclic mode, as double
+	 * buffer is not used. In such situation registers are updated by the
+	 * software.
+	 */
+
+	residue = stm32_dma_get_remaining_bytes(chan);
+
+	if (!stm32_dma_is_current_sg(chan)) {
+		n_sg++;
+		if (n_sg == chan->desc->num_sgs)
+			n_sg = 0;
+		residue = sg_req->len;
+	}
+
+	/*
+	 * In cyclic mode, for the last period, residue = remaining bytes
+	 * from NDTR,
+	 * else for all other periods in cyclic mode, and in sg mode,
+	 * residue = remaining bytes from NDTR + remaining
+	 * periods/sg to be transferred
+	 */
+	if (!chan->desc->cyclic || n_sg != 0)
+		for (i = n_sg; i < desc->num_sgs; i++)
+			residue += desc->sg_req[i].len;
+
+>>>>>>> upstream/android-13
 	if (!chan->mem_burst)
 		return residue;
 
@@ -1115,6 +1410,7 @@ static int stm32_dma_alloc_chan_resources(struct dma_chan *c)
 	int ret;
 
 	chan->config_init = false;
+<<<<<<< HEAD
 	ret = clk_prepare_enable(dmadev->clk);
 	if (ret < 0) {
 		dev_err(chan2dev(chan), "clk_prepare_enable failed: %d\n", ret);
@@ -1124,6 +1420,16 @@ static int stm32_dma_alloc_chan_resources(struct dma_chan *c)
 	ret = stm32_dma_disable_chan(chan);
 	if (ret < 0)
 		clk_disable_unprepare(dmadev->clk);
+=======
+
+	ret = pm_runtime_resume_and_get(dmadev->ddev.dev);
+	if (ret < 0)
+		return ret;
+
+	ret = stm32_dma_disable_chan(chan);
+	if (ret < 0)
+		pm_runtime_put(dmadev->ddev.dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1143,9 +1449,17 @@ static void stm32_dma_free_chan_resources(struct dma_chan *c)
 		spin_unlock_irqrestore(&chan->vchan.lock, flags);
 	}
 
+<<<<<<< HEAD
 	clk_disable_unprepare(dmadev->clk);
 
 	vchan_free_chan_resources(to_virt_chan(c));
+=======
+	pm_runtime_put(dmadev->ddev.dev);
+
+	vchan_free_chan_resources(to_virt_chan(c));
+	stm32_dma_clear_reg(&chan->chan_reg);
+	chan->threshold = 0;
+>>>>>>> upstream/android-13
 }
 
 static void stm32_dma_desc_free(struct virt_dma_desc *vdesc)
@@ -1165,6 +1479,13 @@ static void stm32_dma_set_config(struct stm32_dma_chan *chan,
 	chan->chan_reg.dma_scr |= STM32_DMA_SCR_TEIE | STM32_DMA_SCR_TCIE;
 
 	chan->threshold = STM32_DMA_THRESHOLD_FTR_GET(cfg->features);
+<<<<<<< HEAD
+=======
+	if (STM32_DMA_DIRECT_MODE_GET(cfg->features))
+		chan->threshold = STM32_DMA_FIFO_THRESHOLD_NONE;
+	if (STM32_DMA_ALT_ACK_MODE_GET(cfg->features))
+		chan->chan_reg.dma_scr |= STM32_DMA_SCR_TRBUFF;
+>>>>>>> upstream/android-13
 }
 
 static struct dma_chan *stm32_dma_of_xlate(struct of_phandle_args *dma_spec,
@@ -1218,6 +1539,10 @@ static int stm32_dma_probe(struct platform_device *pdev)
 	struct dma_device *dd;
 	const struct of_device_id *match;
 	struct resource *res;
+<<<<<<< HEAD
+=======
+	struct reset_control *rst;
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	match = of_match_device(stm32_dma_of_match, &pdev->dev);
@@ -1238,14 +1563,25 @@ static int stm32_dma_probe(struct platform_device *pdev)
 		return PTR_ERR(dmadev->base);
 
 	dmadev->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(dmadev->clk)) {
 		dev_err(&pdev->dev, "Error: Missing controller clock\n");
 		return PTR_ERR(dmadev->clk);
+=======
+	if (IS_ERR(dmadev->clk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(dmadev->clk), "Can't get clock\n");
+
+	ret = clk_prepare_enable(dmadev->clk);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "clk_prep_enable error: %d\n", ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	dmadev->mem2mem = of_property_read_bool(pdev->dev.of_node,
 						"st,mem2mem");
 
+<<<<<<< HEAD
 	dmadev->rst = devm_reset_control_get(&pdev->dev, NULL);
 	if (!IS_ERR(dmadev->rst)) {
 		reset_control_assert(dmadev->rst);
@@ -1253,6 +1589,21 @@ static int stm32_dma_probe(struct platform_device *pdev)
 		reset_control_deassert(dmadev->rst);
 	}
 
+=======
+	rst = devm_reset_control_get(&pdev->dev, NULL);
+	if (IS_ERR(rst)) {
+		ret = PTR_ERR(rst);
+		if (ret == -EPROBE_DEFER)
+			goto clk_free;
+	} else {
+		reset_control_assert(rst);
+		udelay(2);
+		reset_control_deassert(rst);
+	}
+
+	dma_set_max_seg_size(&pdev->dev, STM32_DMA_ALIGNED_MAX_DATA_ITEMS);
+
+>>>>>>> upstream/android-13
 	dma_cap_set(DMA_SLAVE, dd->cap_mask);
 	dma_cap_set(DMA_PRIVATE, dd->cap_mask);
 	dma_cap_set(DMA_CYCLIC, dd->cap_mask);
@@ -1273,7 +1624,13 @@ static int stm32_dma_probe(struct platform_device *pdev)
 		BIT(DMA_SLAVE_BUSWIDTH_4_BYTES);
 	dd->directions = BIT(DMA_DEV_TO_MEM) | BIT(DMA_MEM_TO_DEV);
 	dd->residue_granularity = DMA_RESIDUE_GRANULARITY_BURST;
+<<<<<<< HEAD
 	dd->max_burst = STM32_DMA_MAX_BURST;
+=======
+	dd->copy_align = DMAENGINE_ALIGN_32_BYTES;
+	dd->max_burst = STM32_DMA_MAX_BURST;
+	dd->descriptor_reuse = true;
+>>>>>>> upstream/android-13
 	dd->dev = &pdev->dev;
 	INIT_LIST_HEAD(&dd->channels);
 
@@ -1292,6 +1649,7 @@ static int stm32_dma_probe(struct platform_device *pdev)
 
 	ret = dma_async_device_register(dd);
 	if (ret)
+<<<<<<< HEAD
 		return ret;
 
 	for (i = 0; i < STM32_DMA_MAX_CHANNELS; i++) {
@@ -1303,6 +1661,17 @@ static int stm32_dma_probe(struct platform_device *pdev)
 			goto err_unregister;
 		}
 		chan->irq = res->start;
+=======
+		goto clk_free;
+
+	for (i = 0; i < STM32_DMA_MAX_CHANNELS; i++) {
+		chan = &dmadev->chan[i];
+		ret = platform_get_irq(pdev, i);
+		if (ret < 0)
+			goto err_unregister;
+		chan->irq = ret;
+
+>>>>>>> upstream/android-13
 		ret = devm_request_irq(&pdev->dev, chan->irq,
 				       stm32_dma_chan_irq, 0,
 				       dev_name(chan2dev(chan)), chan);
@@ -1324,25 +1693,113 @@ static int stm32_dma_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, dmadev);
 
+<<<<<<< HEAD
+=======
+	pm_runtime_set_active(&pdev->dev);
+	pm_runtime_enable(&pdev->dev);
+	pm_runtime_get_noresume(&pdev->dev);
+	pm_runtime_put(&pdev->dev);
+
+>>>>>>> upstream/android-13
 	dev_info(&pdev->dev, "STM32 DMA driver registered\n");
 
 	return 0;
 
 err_unregister:
 	dma_async_device_unregister(dd);
+<<<<<<< HEAD
+=======
+clk_free:
+	clk_disable_unprepare(dmadev->clk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM
+static int stm32_dma_runtime_suspend(struct device *dev)
+{
+	struct stm32_dma_device *dmadev = dev_get_drvdata(dev);
+
+	clk_disable_unprepare(dmadev->clk);
+
+	return 0;
+}
+
+static int stm32_dma_runtime_resume(struct device *dev)
+{
+	struct stm32_dma_device *dmadev = dev_get_drvdata(dev);
+	int ret;
+
+	ret = clk_prepare_enable(dmadev->clk);
+	if (ret) {
+		dev_err(dev, "failed to prepare_enable clock\n");
+		return ret;
+	}
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_PM_SLEEP
+static int stm32_dma_suspend(struct device *dev)
+{
+	struct stm32_dma_device *dmadev = dev_get_drvdata(dev);
+	int id, ret, scr;
+
+	ret = pm_runtime_resume_and_get(dev);
+	if (ret < 0)
+		return ret;
+
+	for (id = 0; id < STM32_DMA_MAX_CHANNELS; id++) {
+		scr = stm32_dma_read(dmadev, STM32_DMA_SCR(id));
+		if (scr & STM32_DMA_SCR_EN) {
+			dev_warn(dev, "Suspend is prevented by Chan %i\n", id);
+			return -EBUSY;
+		}
+	}
+
+	pm_runtime_put_sync(dev);
+
+	pm_runtime_force_suspend(dev);
+
+	return 0;
+}
+
+static int stm32_dma_resume(struct device *dev)
+{
+	return pm_runtime_force_resume(dev);
+}
+#endif
+
+static const struct dev_pm_ops stm32_dma_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(stm32_dma_suspend, stm32_dma_resume)
+	SET_RUNTIME_PM_OPS(stm32_dma_runtime_suspend,
+			   stm32_dma_runtime_resume, NULL)
+};
+
+>>>>>>> upstream/android-13
 static struct platform_driver stm32_dma_driver = {
 	.driver = {
 		.name = "stm32-dma",
 		.of_match_table = stm32_dma_of_match,
+<<<<<<< HEAD
 	},
+=======
+		.pm = &stm32_dma_pm_ops,
+	},
+	.probe = stm32_dma_probe,
+>>>>>>> upstream/android-13
 };
 
 static int __init stm32_dma_init(void)
 {
+<<<<<<< HEAD
 	return platform_driver_probe(&stm32_dma_driver, stm32_dma_probe);
+=======
+	return platform_driver_register(&stm32_dma_driver);
+>>>>>>> upstream/android-13
 }
 subsys_initcall(stm32_dma_init);

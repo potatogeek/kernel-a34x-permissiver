@@ -1093,7 +1093,11 @@ static void pxa25x_ep_fifo_flush(struct usb_ep *_ep)
 }
 
 
+<<<<<<< HEAD
 static struct usb_ep_ops pxa25x_ep_ops = {
+=======
+static const struct usb_ep_ops pxa25x_ep_ops = {
+>>>>>>> upstream/android-13
 	.enable		= pxa25x_ep_enable,
 	.disable	= pxa25x_ep_disable,
 
@@ -1338,10 +1342,17 @@ DEFINE_SHOW_ATTRIBUTE(udc_debug);
 
 #define create_debug_files(dev) \
 	do { \
+<<<<<<< HEAD
 		dev->debugfs_udc = debugfs_create_file(dev->gadget.name, \
 			S_IRUGO, NULL, dev, &udc_debug_fops); \
 	} while (0)
 #define remove_debug_files(dev) debugfs_remove(dev->debugfs_udc)
+=======
+		debugfs_create_file(dev->gadget.name, \
+			S_IRUGO, NULL, dev, &udc_debug_fops); \
+	} while (0)
+#define remove_debug_files(dev) debugfs_remove(debugfs_lookup(dev->gadget.name, NULL))
+>>>>>>> upstream/android-13
 
 #else	/* !CONFIG_USB_GADGET_DEBUG_FILES */
 
@@ -2321,7 +2332,10 @@ static int pxa25x_udc_probe(struct platform_device *pdev)
 	struct pxa25x_udc *dev = &memory;
 	int retval, irq;
 	u32 chiprev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 
 	pr_info("%s: version %s\n", driver_name, DRIVER_VERSION);
 
@@ -2341,12 +2355,20 @@ static int pxa25x_udc_probe(struct platform_device *pdev)
 	case PXA250_A0:
 	case PXA250_A1:
 		/* A0/A1 "not released"; ep 13, 15 unusable */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PXA250_B2: case PXA210_B2:
 	case PXA250_B1: case PXA210_B1:
 	case PXA250_B0: case PXA210_B0:
 		/* OUT-DMA is broken ... */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PXA250_C0: case PXA210_C0:
 		break;
 #elif	defined(CONFIG_ARCH_IXP4XX)
@@ -2367,8 +2389,12 @@ static int pxa25x_udc_probe(struct platform_device *pdev)
 	if (irq < 0)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	dev->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	dev->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dev->regs))
 		return PTR_ERR(dev->regs);
 

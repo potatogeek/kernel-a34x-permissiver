@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lib80211 crypt: host-based CCMP encryption implementation for lib80211
  *
  * Copyright (c) 2003-2004, Jouni Malinen <j@w1.fi>
  * Copyright (c) 2008, John W. Linville <linville@tuxdriver.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. See README and COPYING for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -26,6 +33,10 @@
 #include <linux/ieee80211.h>
 
 #include <linux/crypto.h>
+<<<<<<< HEAD
+=======
+#include <crypto/aead.h>
+>>>>>>> upstream/android-13
 
 #include <net/lib80211.h>
 
@@ -52,6 +63,7 @@ struct lib80211_ccmp_data {
 
 	int key_idx;
 
+<<<<<<< HEAD
 	struct crypto_cipher *tfm;
 
 	/* scratch buffers for virt_to_page() (crypto API) */
@@ -66,6 +78,15 @@ static inline void lib80211_ccmp_aes_encrypt(struct crypto_cipher *tfm,
 	crypto_cipher_encrypt_one(tfm, ct, pt);
 }
 
+=======
+	struct crypto_aead *tfm;
+
+	/* scratch buffers for virt_to_page() (crypto API) */
+	u8 tx_aad[2 * AES_BLOCK_LEN];
+	u8 rx_aad[2 * AES_BLOCK_LEN];
+};
+
+>>>>>>> upstream/android-13
 static void *lib80211_ccmp_init(int key_idx)
 {
 	struct lib80211_ccmp_data *priv;
@@ -75,7 +96,11 @@ static void *lib80211_ccmp_init(int key_idx)
 		goto fail;
 	priv->key_idx = key_idx;
 
+<<<<<<< HEAD
 	priv->tfm = crypto_alloc_cipher("aes", 0, CRYPTO_ALG_ASYNC);
+=======
+	priv->tfm = crypto_alloc_aead("ccm(aes)", 0, CRYPTO_ALG_ASYNC);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->tfm)) {
 		priv->tfm = NULL;
 		goto fail;
@@ -86,7 +111,11 @@ static void *lib80211_ccmp_init(int key_idx)
       fail:
 	if (priv) {
 		if (priv->tfm)
+<<<<<<< HEAD
 			crypto_free_cipher(priv->tfm);
+=======
+			crypto_free_aead(priv->tfm);
+>>>>>>> upstream/android-13
 		kfree(priv);
 	}
 
@@ -97,6 +126,7 @@ static void lib80211_ccmp_deinit(void *priv)
 {
 	struct lib80211_ccmp_data *_priv = priv;
 	if (_priv && _priv->tfm)
+<<<<<<< HEAD
 		crypto_free_cipher(_priv->tfm);
 	kfree(priv);
 }
@@ -111,11 +141,22 @@ static inline void xor_block(u8 * b, u8 * a, size_t len)
 static void ccmp_init_blocks(struct crypto_cipher *tfm,
 			     struct ieee80211_hdr *hdr,
 			     u8 * pn, size_t dlen, u8 * b0, u8 * auth, u8 * s0)
+=======
+		crypto_free_aead(_priv->tfm);
+	kfree(priv);
+}
+
+static int ccmp_init_iv_and_aad(const struct ieee80211_hdr *hdr,
+				const u8 *pn, u8 *iv, u8 *aad)
+>>>>>>> upstream/android-13
 {
 	u8 *pos, qc = 0;
 	size_t aad_len;
 	int a4_included, qc_included;
+<<<<<<< HEAD
 	u8 aad[2 * AES_BLOCK_LEN];
+=======
+>>>>>>> upstream/android-13
 
 	a4_included = ieee80211_has_a4(hdr->frame_control);
 	qc_included = ieee80211_is_data_qos(hdr->frame_control);
@@ -131,6 +172,7 @@ static void ccmp_init_blocks(struct crypto_cipher *tfm,
 		aad_len += 2;
 	}
 
+<<<<<<< HEAD
 	/* CCM Initial Block:
 	 * Flag (Include authentication header, M=3 (8-octet MIC),
 	 *       L=1 (2-octet Dlen))
@@ -142,6 +184,21 @@ static void ccmp_init_blocks(struct crypto_cipher *tfm,
 	memcpy(b0 + 8, pn, CCMP_PN_LEN);
 	b0[14] = (dlen >> 8) & 0xff;
 	b0[15] = dlen & 0xff;
+=======
+	/* In CCM, the initial vectors (IV) used for CTR mode encryption and CBC
+	 * mode authentication are not allowed to collide, yet both are derived
+	 * from the same vector. We only set L := 1 here to indicate that the
+	 * data size can be represented in (L+1) bytes. The CCM layer will take
+	 * care of storing the data length in the top (L+1) bytes and setting
+	 * and clearing the other bits as is required to derive the two IVs.
+	 */
+	iv[0] = 0x1;
+
+	/* Nonce: QC | A2 | PN */
+	iv[1] = qc;
+	memcpy(iv + 2, hdr->addr2, ETH_ALEN);
+	memcpy(iv + 8, pn, CCMP_PN_LEN);
+>>>>>>> upstream/android-13
 
 	/* AAD:
 	 * FC with bits 4..6 and 11..13 masked to zero; 14 is always one
@@ -151,6 +208,7 @@ static void ccmp_init_blocks(struct crypto_cipher *tfm,
 	 * QC (if present)
 	 */
 	pos = (u8 *) hdr;
+<<<<<<< HEAD
 	aad[0] = 0;		/* aad_len >> 8 */
 	aad[1] = aad_len & 0xff;
 	aad[2] = pos[0] & 0x8f;
@@ -176,6 +234,22 @@ static void ccmp_init_blocks(struct crypto_cipher *tfm,
 	b0[0] &= 0x07;
 	b0[14] = b0[15] = 0;
 	lib80211_ccmp_aes_encrypt(tfm, b0, s0);
+=======
+	aad[0] = pos[0] & 0x8f;
+	aad[1] = pos[1] & 0xc7;
+	memcpy(aad + 2, hdr->addr1, 3 * ETH_ALEN);
+	pos = (u8 *) & hdr->seq_ctrl;
+	aad[20] = pos[0] & 0x0f;
+	aad[21] = 0;		/* all bits masked */
+	memset(aad + 22, 0, 8);
+	if (a4_included)
+		memcpy(aad + 22, hdr->addr4, ETH_ALEN);
+	if (qc_included) {
+		aad[a4_included ? 28 : 22] = qc;
+		/* rest of QC masked */
+	}
+	return aad_len;
+>>>>>>> upstream/android-13
 }
 
 static int lib80211_ccmp_hdr(struct sk_buff *skb, int hdr_len,
@@ -218,6 +292,7 @@ static int lib80211_ccmp_hdr(struct sk_buff *skb, int hdr_len,
 static int lib80211_ccmp_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 {
 	struct lib80211_ccmp_data *key = priv;
+<<<<<<< HEAD
 	int data_len, i, blocks, last, len;
 	u8 *pos, *mic;
 	struct ieee80211_hdr *hdr;
@@ -225,6 +300,15 @@ static int lib80211_ccmp_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	u8 *b = key->tx_b;
 	u8 *e = key->tx_e;
 	u8 *s0 = key->tx_s0;
+=======
+	struct ieee80211_hdr *hdr;
+	struct aead_request *req;
+	struct scatterlist sg[2];
+	u8 *aad = key->tx_aad;
+	u8 iv[AES_BLOCK_LEN];
+	int len, data_len, aad_len;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (skb_tailroom(skb) < CCMP_MIC_LEN || skb->len < hdr_len)
 		return -1;
@@ -234,6 +318,7 @@ static int lib80211_ccmp_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	if (len < 0)
 		return -1;
 
+<<<<<<< HEAD
 	pos = skb->data + hdr_len + CCMP_HDR_LEN;
 	hdr = (struct ieee80211_hdr *)skb->data;
 	ccmp_init_blocks(key->tfm, hdr, key->tx_pn, data_len, b0, b, s0);
@@ -259,6 +344,30 @@ static int lib80211_ccmp_encrypt(struct sk_buff *skb, int hdr_len, void *priv)
 		mic[i] = b[i] ^ s0[i];
 
 	return 0;
+=======
+	req = aead_request_alloc(key->tfm, GFP_ATOMIC);
+	if (!req)
+		return -ENOMEM;
+
+	hdr = (struct ieee80211_hdr *)skb->data;
+	aad_len = ccmp_init_iv_and_aad(hdr, key->tx_pn, iv, aad);
+
+	skb_put(skb, CCMP_MIC_LEN);
+
+	sg_init_table(sg, 2);
+	sg_set_buf(&sg[0], aad, aad_len);
+	sg_set_buf(&sg[1], skb->data + hdr_len + CCMP_HDR_LEN,
+		   data_len + CCMP_MIC_LEN);
+
+	aead_request_set_callback(req, 0, NULL, NULL);
+	aead_request_set_ad(req, aad_len);
+	aead_request_set_crypt(req, sg, sg, data_len, iv);
+
+	ret = crypto_aead_encrypt(req);
+	aead_request_free(req);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -287,6 +396,7 @@ static int lib80211_ccmp_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	struct lib80211_ccmp_data *key = priv;
 	u8 keyidx, *pos;
 	struct ieee80211_hdr *hdr;
+<<<<<<< HEAD
 	u8 *b0 = key->rx_b0;
 	u8 *b = key->rx_b;
 	u8 *a = key->rx_a;
@@ -294,6 +404,15 @@ static int lib80211_ccmp_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	int i, blocks, last, len;
 	size_t data_len = skb->len - hdr_len - CCMP_HDR_LEN - CCMP_MIC_LEN;
 	u8 *mic = skb->data + skb->len - CCMP_MIC_LEN;
+=======
+	struct aead_request *req;
+	struct scatterlist sg[2];
+	u8 *aad = key->rx_aad;
+	u8 iv[AES_BLOCK_LEN];
+	u8 pn[6];
+	int aad_len, ret;
+	size_t data_len = skb->len - hdr_len - CCMP_HDR_LEN;
+>>>>>>> upstream/android-13
 
 	if (skb->len < hdr_len + CCMP_HDR_LEN + CCMP_MIC_LEN) {
 		key->dot11RSNAStatsCCMPFormatErrors++;
@@ -341,6 +460,7 @@ static int lib80211_ccmp_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 		return -4;
 	}
 
+<<<<<<< HEAD
 	ccmp_init_blocks(key->tfm, hdr, pn, data_len, b0, a, b);
 	xor_block(mic, b, CCMP_MIC_LEN);
 
@@ -363,6 +483,28 @@ static int lib80211_ccmp_decrypt(struct sk_buff *skb, int hdr_len, void *priv)
 	if (memcmp(mic, a, CCMP_MIC_LEN) != 0) {
 		net_dbg_ratelimited("CCMP: decrypt failed: STA=%pM\n",
 				    hdr->addr2);
+=======
+	req = aead_request_alloc(key->tfm, GFP_ATOMIC);
+	if (!req)
+		return -ENOMEM;
+
+	aad_len = ccmp_init_iv_and_aad(hdr, pn, iv, aad);
+
+	sg_init_table(sg, 2);
+	sg_set_buf(&sg[0], aad, aad_len);
+	sg_set_buf(&sg[1], pos, data_len);
+
+	aead_request_set_callback(req, 0, NULL, NULL);
+	aead_request_set_ad(req, aad_len);
+	aead_request_set_crypt(req, sg, sg, data_len, iv);
+
+	ret = crypto_aead_decrypt(req);
+	aead_request_free(req);
+
+	if (ret) {
+		net_dbg_ratelimited("CCMP: decrypt failed: STA=%pM (%d)\n",
+				    hdr->addr2, ret);
+>>>>>>> upstream/android-13
 		key->dot11RSNAStatsCCMPDecryptErrors++;
 		return -5;
 	}
@@ -381,7 +523,11 @@ static int lib80211_ccmp_set_key(void *key, int len, u8 * seq, void *priv)
 {
 	struct lib80211_ccmp_data *data = priv;
 	int keyidx;
+<<<<<<< HEAD
 	struct crypto_cipher *tfm = data->tfm;
+=======
+	struct crypto_aead *tfm = data->tfm;
+>>>>>>> upstream/android-13
 
 	keyidx = data->key_idx;
 	memset(data, 0, sizeof(*data));
@@ -398,7 +544,13 @@ static int lib80211_ccmp_set_key(void *key, int len, u8 * seq, void *priv)
 			data->rx_pn[4] = seq[1];
 			data->rx_pn[5] = seq[0];
 		}
+<<<<<<< HEAD
 		crypto_cipher_setkey(data->tfm, data->key, CCMP_TK_LEN);
+=======
+		if (crypto_aead_setauthsize(data->tfm, CCMP_MIC_LEN) ||
+		    crypto_aead_setkey(data->tfm, data->key, CCMP_TK_LEN))
+			return -1;
+>>>>>>> upstream/android-13
 	} else if (len == 0)
 		data->key_set = 0;
 	else

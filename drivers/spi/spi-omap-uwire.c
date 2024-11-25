@@ -330,7 +330,11 @@ static int uwire_setup_transfer(struct spi_device *spi, struct spi_transfer *t)
 	if (spi->mode & SPI_CPOL)
 		flags |= UWIRE_CLK_INVERTED;
 
+<<<<<<< HEAD
 	switch (spi->mode & (SPI_CPOL | SPI_CPHA)) {
+=======
+	switch (spi->mode & SPI_MODE_X_MASK) {
+>>>>>>> upstream/android-13
 	case SPI_MODE_0:
 	case SPI_MODE_3:
 		flags |= UWIRE_WRITE_FALLING_EDGE | UWIRE_READ_RISING_EDGE;
@@ -424,15 +428,31 @@ done:
 static int uwire_setup(struct spi_device *spi)
 {
 	struct uwire_state *ust = spi->controller_state;
+<<<<<<< HEAD
+=======
+	bool initial_setup = false;
+	int status;
+>>>>>>> upstream/android-13
 
 	if (ust == NULL) {
 		ust = kzalloc(sizeof(*ust), GFP_KERNEL);
 		if (ust == NULL)
 			return -ENOMEM;
 		spi->controller_state = ust;
+<<<<<<< HEAD
 	}
 
 	return uwire_setup_transfer(spi, NULL);
+=======
+		initial_setup = true;
+	}
+
+	status = uwire_setup_transfer(spi, NULL);
+	if (status && initial_setup)
+		kfree(ust);
+
+	return status;
+>>>>>>> upstream/android-13
 }
 
 static void uwire_cleanup(struct spi_device *spi)
@@ -443,7 +463,11 @@ static void uwire_cleanup(struct spi_device *spi)
 static void uwire_off(struct uwire_spi *uwire)
 {
 	uwire_write_reg(UWIRE_SR3, 0);
+<<<<<<< HEAD
 	clk_disable(uwire->ck);
+=======
+	clk_disable_unprepare(uwire->ck);
+>>>>>>> upstream/android-13
 	spi_master_put(uwire->bitbang.master);
 }
 
@@ -453,7 +477,11 @@ static int uwire_probe(struct platform_device *pdev)
 	struct uwire_spi	*uwire;
 	int			status;
 
+<<<<<<< HEAD
 	master = spi_alloc_master(&pdev->dev, sizeof *uwire);
+=======
+	master = spi_alloc_master(&pdev->dev, sizeof(*uwire));
+>>>>>>> upstream/android-13
 	if (!master)
 		return -ENODEV;
 
@@ -475,7 +503,11 @@ static int uwire_probe(struct platform_device *pdev)
 		spi_master_put(master);
 		return status;
 	}
+<<<<<<< HEAD
 	clk_enable(uwire->ck);
+=======
+	clk_prepare_enable(uwire->ck);
+>>>>>>> upstream/android-13
 
 	if (cpu_is_omap7xx())
 		uwire_idx_shift = 1;

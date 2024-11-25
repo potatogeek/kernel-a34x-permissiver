@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 libperf-$(CONFIG_CLANGLLVM) += clang.o
 libperf-$(CONFIG_CLANGLLVM) += clang-test.o
+=======
+perf-$(CONFIG_CLANGLLVM) += clang.o
+perf-$(CONFIG_CLANGLLVM) += clang-test.o
+>>>>>>> upstream/android-13

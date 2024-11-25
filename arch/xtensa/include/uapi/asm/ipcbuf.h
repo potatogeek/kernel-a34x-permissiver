@@ -12,6 +12,11 @@
 #ifndef _XTENSA_IPCBUF_H
 #define _XTENSA_IPCBUF_H
 
+<<<<<<< HEAD
+=======
+#include <linux/posix_types.h>
+
+>>>>>>> upstream/android-13
 /*
  * Pad space is left for:
  * - 32-bit mode_t and seq

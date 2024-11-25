@@ -21,10 +21,13 @@ SUBSYS(cpu)
 SUBSYS(cpuacct)
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SCHED_TUNE)
 SUBSYS(schedtune)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_BLK_CGROUP)
 SUBSYS(io)
 #endif
@@ -65,6 +68,13 @@ SUBSYS(pids)
 SUBSYS(rdma)
 #endif
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_CGROUP_MISC)
+SUBSYS(misc)
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * The following subsystems are not supported on the default hierarchy.
  */

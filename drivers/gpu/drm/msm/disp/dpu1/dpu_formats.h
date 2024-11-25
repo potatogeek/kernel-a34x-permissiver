@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_FORMATS_H
@@ -41,6 +46,7 @@ const struct msm_format *dpu_get_msm_format(
 		const uint64_t modifiers);
 
 /**
+<<<<<<< HEAD
  * dpu_populate_formats - populate the given array with fourcc codes supported
  * @format_list:       pointer to list of possible formats
  * @pixel_formats:     array to populate with fourcc codes
@@ -55,6 +61,8 @@ uint32_t dpu_populate_formats(
 		uint32_t pixel_formats_max);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * dpu_format_check_modified_format - validate format and buffers for
  *                   dpu non-standard, i.e. modified format
  * @kms:             kms driver

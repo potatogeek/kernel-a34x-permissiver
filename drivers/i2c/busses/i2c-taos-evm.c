@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the TAOS evaluation modules
  * These devices include an I2C master which can be controlled over the
  * serial port.
  *
  * Copyright (C) 2007 Jean Delvare <jdelvare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -47,7 +54,11 @@ struct taos_data {
 };
 
 /* TAOS TSL2550 EVM */
+<<<<<<< HEAD
 static struct i2c_board_info tsl2550_info = {
+=======
+static const struct i2c_board_info tsl2550_info = {
+>>>>>>> upstream/android-13
 	I2C_BOARD_INFO("tsl2550", 0x39),
 };
 
@@ -57,10 +68,17 @@ static struct i2c_client *taos_instantiate_device(struct i2c_adapter *adapter)
 	if (!strncmp(adapter->name, "TAOS TSL2550 EVM", 16)) {
 		dev_info(&adapter->dev, "Instantiating device %s at 0x%02x\n",
 			tsl2550_info.type, tsl2550_info.addr);
+<<<<<<< HEAD
 		return i2c_new_device(adapter, &tsl2550_info);
 	}
 
 	return NULL;
+=======
+		return i2c_new_client_device(adapter, &tsl2550_info);
+	}
+
+	return ERR_PTR(-ENODEV);
+>>>>>>> upstream/android-13
 }
 
 static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
@@ -133,7 +151,11 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
 			/*
 			 * Voluntarily dropping error code of kstrtou8 since all
 			 * error code that it could return are invalid according
+<<<<<<< HEAD
 			 * to Documentation/i2c/fault-codes.
+=======
+			 * to Documentation/i2c/fault-codes.rst.
+>>>>>>> upstream/android-13
 			 */
 			if (kstrtou8(p + 1, 16, &data->byte))
 				return -EPROTO;
